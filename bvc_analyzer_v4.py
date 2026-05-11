@@ -1122,9 +1122,9 @@ class BVCFileReader:
                 if cell.value is None:
                     continue
                 val = str(cell.value).lower().strip()
-                for field, kws in BVCFileReader._KEYWORDS.items():
-                    if field not in found and any(kw in val for kw in kws):
-                        found[field] = col_idx
+                for col_name, kws in BVCFileReader._KEYWORDS.items():
+                    if col_name not in found and any(kw in val for kw in kws):
+                        found[col_name] = col_idx
             if "close" in found and "high" in found:
                 logger.info(f"Colonnes auto-détectées : {found}")
                 return found
@@ -1150,8 +1150,8 @@ class BVCFileReader:
         for row in list(ws.rows)[1:]:
             try:
                 entry: Dict[str, float] = {}
-                for field, idx in col_map.items():
-                    entry[field] = SafeMath.to_float(row[idx].value) if idx < len(row) else np.nan
+                for col_name, idx in col_map.items():
+                    entry[col_name] = SafeMath.to_float(row[idx].value) if idx < len(row) else np.nan
                 rows.append(entry)
             except Exception:
                 continue
@@ -1194,11 +1194,16 @@ class NoteGenerator:
         }
         sig_emoji = emoji_map.get(result.signal.value, "⚪")
 
+        _SEV_ORDER = {
+            Severity.CRITIQUE: 0, Severity.ELEVEE: 1,
+            Severity.MOYENNE: 2,  Severity.FAIBLE: 3,
+        }
+
         def fmt_flags(flags: List[RedFlag]) -> str:
             if not flags:
                 return "    ✅ Aucun red flag majeur"
             out = []
-            for fl in sorted(flags, key=lambda x: x.severity.value):
+            for fl in sorted(flags, key=lambda x: _SEV_ORDER[x.severity]):
                 blk = " [BLOQUANT]" if fl.is_blocking else ""
                 out.append(f"    {fl.severity.value} | {fl.category} : {fl.message}{blk}")
             return "\n".join(out)
