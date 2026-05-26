@@ -1735,6 +1735,14 @@ class BVCAnalyzer:
         fundamentals = self.fundamentals_cache.get(ticker.upper(), {})
 
         score_tech = TechnicalScorer().score(df)
+        # PER dynamique
+        if live:
+            c = live.get("cours", 0) or 0
+            b25 = fundamentals.get("bpa_2025", 0) or 0
+            b26 = fundamentals.get("bpa_2026", 0) or 0
+            if c > 0 and b25 > 0:
+                fundamentals["per"] = round(c / b25, 1)
+                fundamentals["forward_per"] = round(c / b26, 1) if b26 > 0 else fundamentals.get("forward_per")
         score_fond = FundamentalScorer(fundamentals).score()
         flags = RedFlagDetector(fundamentals).detect(df)
         setup = SetupDetector().detect(df)
