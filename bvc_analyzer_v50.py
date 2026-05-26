@@ -862,9 +862,18 @@ class TechnicalScorer:
         else: score += 0.5; reasons.append("MACD en stabilisation")
 
         maxs += 2
+        # Memoire RSI — comparer avec RSI il y a 10 jours pour detecter accélération
+        rsi_10j = SafeMath.last(df["RSI"].shift(10)) if "RSI" in df.columns else rsi
+        rsi_trend = rsi - rsi_10j if not pd.isna(rsi_10j) else 0
+
         if 40 <= rsi <= 60: score += 2; reasons.append(f"RSI equilibre: {rsi:.1f}")
-        elif 60 < rsi <= 70: score += 1; reasons.append(f"RSI positif a surveiller: {rsi:.1f}")
-        elif rsi > 70: reasons.append(f"RSI surchauffe: {rsi:.1f}")
+        elif 60 < rsi <= 70: score += 1.5; reasons.append(f"RSI positif a surveiller: {rsi:.1f}")
+        elif rsi > 70 and rsi_trend > 15:
+            score += 2; reasons.append(f"RSI {rsi:.1f} momentum confirme (+{rsi_trend:.0f}pts en 10j)")
+        elif rsi > 70 and rsi_trend > 5:
+            score += 1; reasons.append(f"RSI {rsi:.1f} accélération en cours")
+        elif rsi > 70:
+            reasons.append(f"RSI surchauffe sans momentum: {rsi:.1f}")
         else: score += 1; reasons.append(f"RSI bas: {rsi:.1f}")
 
         maxs += 3
