@@ -1157,13 +1157,16 @@ class DecisionEngine:
         # BONUS SECTORIEL — Mines et commodites en cycle bullish
         bonus_sectoriel = 0.0
         if fond:
-            secteur = fond.get("secteur", "").lower()
-            cycle   = fond.get("cycle", "").lower()
-            if any(s in secteur for s in ["mine", "argent", "or", "cuivre", "zinc", "plomb"]):
-                if cycle == "bullish":
-                    bonus_sectoriel = 1.0
-                elif cycle in ["positif", "haussier"]:
-                    bonus_sectoriel = 0.5
+            secteur  = str(fond.get("secteur", "")).lower()
+            cycle    = str(fond.get("cycle", "")).lower()
+            catalys  = str(fond.get("catalyseur", "")).lower()
+            mots_mines = ["mine", "argent", "or", "cuivre", "zinc", "plomb", "cobalt", "metal"]
+            is_mine  = any(s in secteur for s in mots_mines)
+            is_bull  = cycle == "bullish" or any(s in catalys for s in ["or", "argent", "cuivre", "metal"])
+            if is_mine and is_bull:
+                bonus_sectoriel = 1.0
+            elif is_mine:
+                bonus_sectoriel = 0.5
             score = round(min(score + bonus_sectoriel, 10.0), 2)
 
         # FIBONACCI — supports et resistances depuis historique 52 semaines
