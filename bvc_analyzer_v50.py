@@ -1800,10 +1800,26 @@ class BVCAnalyzer:
         vol_moy = df["volume"].tail(20).mean() * price if "volume" in df.columns else 0
         vr = SafeMath.last(df["Volume_Ratio"]) if "Volume_Ratio" in df.columns else 1.0
 
+        # MASI filtre marché — bonus/malus selon régime
+        masi_bonus = 0.0
+        masi_regime = "Neutral"
+        try:
+            masi_data = self.connector.get_masi() if hasattr(self.connector, "get_masi") else {}
+            masi_var = masi_data.get("variation", 0) or 0
+            if masi_var > 0.5:
+                masi_bonus = 0.3
+                masi_regime = "Bullish"
+            elif masi_var < -0.5:
+                masi_bonus = -0.5
+                masi_regime = "Risk-off"
+        except:
+            pass
+
         signal, action, score_global = DecisionEngine().decide(
             score_tech, score_fond, setup, flags, vol_moy, vr,
             fond=fundamentals, df=df
         )
+        score_global = round(min(max(score_global + masi_bonus, 0), 10), 2)
         valuation = ValuationEngine(fundamentals).calculate(price, vr)
 
         result = AnalysisResult(
@@ -1922,6 +1938,38 @@ class BVCAnalyzer:
         if backtests:
             print(f"Backtests: {len(backtests)} strategies testees")
         print("=" * 80)
+
+        # CLASSEMENTS MULTIPLES v5.2
+        def top(lst, key, n=5, reverse=True):
+            return sorted([r for r in lst if r.signal not in ["EVITER"]], key=key, reverse=reverse)[:n]
+
+        try:
+            top_momentum  = top(results, lambda r: r.score_technical.normalized if r.score_technical else 0)
+            top_fond      = top(results, lambda r: r.score_fundamental.normalized if r.score_fundamental else 0)
+            top_global    = top(results, lambda r: r.score_global or 0)
+            top_div       = top(results, lambda r: float((r.fundamental_data or {}).get("div_yield", 0) or 0))
+            top_risque    = top(results, lambda r: -(len(r.red_flags or [])))
+
+            print("
+" + "="*60)
+            print(" CLASSEMENTS MULTIPLES v5.2")
+            print("="*60)
+
+            for titre, lst in [
+                ("🚀 TOP MOMENTUM",   top_momentum),
+                ("📊 TOP FONDAMENTAL", top_fond),
+                ("🏆 TOP GLOBAL",      top_global),
+                ("💰 TOP DIVIDENDE",   top_div),
+                ("🛡️  TOP RISQUE FAIBLE", top_risque),
+            ]:
+                print(f"
+{titre}")
+                print("-"*40)
+                for i, r in enumerate(lst, 1):
+                    sig = r.action[:30] if r.action else "—"
+                    print(f"  {i}. {r.ticker:<6} {sig:<30} Score:{r.score_global}")
+        except Exception as e:
+            print(f"Classements erreur: {e}")
 
         return results, backtests, fond, scores
 
