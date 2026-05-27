@@ -914,6 +914,19 @@ class TechnicalScorer:
             elif vol20 <= 5: score += 0.5; reasons.append(f"Volatilite moderee: {vol20:.1f}%")
             else: reasons.append(f"Volatilite elevee: {vol20:.1f}%")
 
+        # Fibonacci 52 semaines
+        try:
+            high_52w = df["high"].tail(252).max()
+            low_52w  = df["low"].tail(252).min()
+            diff     = high_52w - low_52w
+            fib382   = round(high_52w - 0.382 * diff, 2)
+            fib500   = round(high_52w - 0.500 * diff, 2)
+            fib618   = round(high_52w - 0.618 * diff, 2)
+            fib127   = round(high_52w + 0.127 * diff, 2)
+            reasons.append(f"Fibo 38.2%={fib382} | 50%={fib500} | 61.8%={fib618} | R127%={fib127}")
+        except:
+            pass
+
         return ScoreResult(score, maxs, reasons, {
             "prix": p, "ma20": ma20, "ma50": ma50, "ma200": ma200,
             "rsi": rsi, "macd": macd, "vol_ratio": vr, "stoch_k": sk
