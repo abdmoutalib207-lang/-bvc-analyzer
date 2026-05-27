@@ -1963,10 +1963,9 @@ class BVCAnalyzer:
             top_div       = top(results, lambda r: float((r.fundamental_data or {}).get("div_yield", 0) or 0))
             top_risque    = top(results, lambda r: -(len(r.red_flags or [])))
 
-            print("
-" + "="*60)
+            print("=" * 60)
             print(" CLASSEMENTS MULTIPLES v5.2")
-            print("="*60)
+            print("=" * 60)
 
             for titre, lst in [
                 ("🚀 TOP MOMENTUM",   top_momentum),
