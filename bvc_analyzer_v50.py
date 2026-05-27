@@ -1954,7 +1954,8 @@ class BVCAnalyzer:
 
         # CLASSEMENTS MULTIPLES v5.2
         def top(lst, key, n=5, reverse=True):
-            return sorted([r for r in lst if hasattr(r, 'signal') and r.signal not in ["EVITER"]], key=key, reverse=reverse)[:n]
+            valid = [r for r in lst if hasattr(r, 'score_global') and hasattr(r, 'action') and r.score_global]
+            return sorted(valid, key=key, reverse=reverse)[:n]
 
         try:
             top_momentum  = top(results, lambda r: r.score_technical.normalized if r.score_technical else 0)
