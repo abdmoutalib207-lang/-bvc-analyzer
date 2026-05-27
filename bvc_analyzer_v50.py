@@ -1953,7 +1953,7 @@ class BVCAnalyzer:
         print("=" * 80)
 
         # CLASSEMENTS MULTIPLES v5.2
-        def top(lst, key, n=5, reverse=True):
+        def top(lst, key, n=17, reverse=True):
             valid = [r for r in lst if hasattr(r, 'score_global') and hasattr(r, 'action') and r.score_global]
             return sorted(valid, key=key, reverse=reverse)[:n]
 
