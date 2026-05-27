@@ -1974,11 +1974,10 @@ class BVCAnalyzer:
                 ("💰 TOP DIVIDENDE",   top_div),
                 ("🛡️  TOP RISQUE FAIBLE", top_risque),
             ]:
-                print(f"
-{titre}")
-                print("-"*40)
+                print(titre)
+                print("-" * 40)
                 for i, r in enumerate(lst, 1):
-                    sig = r.action[:30] if r.action else "—"
+                    sig = r.action[:30] if r.action else "-"
                     print(f"  {i}. {r.ticker:<6} {sig:<30} Score:{r.score_global}")
         except Exception as e:
             print(f"Classements erreur: {e}")
