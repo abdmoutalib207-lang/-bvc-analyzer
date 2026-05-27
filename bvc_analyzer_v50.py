@@ -1149,10 +1149,45 @@ class EVACalculator:
 # ============================================================
 
 class DecisionEngine:
-    def decide(self, st, sf, setup, flags, vol_moyen_20j=0, volume_ratio=1.0):
+    def decide(self, st, sf, setup, flags, vol_moyen_20j=0, volume_ratio=1.0, fond=None, df=None):
         blocking = [f for f in flags if f.is_blocking]
         w_tech, w_fond = LiquidityAnalyzer.get_weights(vol_moyen_20j)
         score = round(st.normalized * w_tech + sf.normalized * w_fond, 2)
+
+        # BONUS SECTORIEL — Mines et commodites en cycle bullish
+        bonus_sectoriel = 0.0
+        if fond:
+            secteur = fond.get("secteur", "").lower()
+            cycle   = fond.get("cycle", "").lower()
+            if any(s in secteur for s in ["mine", "argent", "or", "cuivre", "zinc", "plomb"]):
+                if cycle == "bullish":
+                    bonus_sectoriel = 1.0
+                elif cycle in ["positif", "haussier"]:
+                    bonus_sectoriel = 0.5
+            score = round(min(score + bonus_sectoriel, 10.0), 2)
+
+        # FIBONACCI — supports et resistances depuis historique 52 semaines
+        fib_info = ""
+        if df is not None and len(df) >= 50:
+            try:
+                high_52w = df["high"].tail(252).max()
+                low_52w  = df["low"].tail(252).min()
+                prix     = SafeMath.last(df["close"])
+                diff     = high_52w - low_52w
+                fib_618  = round(high_52w - 0.618 * diff, 2)
+                fib_500  = round(high_52w - 0.500 * diff, 2)
+                fib_382  = round(high_52w - 0.382 * diff, 2)
+                fib_127  = round(high_52w + 0.127 * diff, 2)
+                # Bonus si prix proche d un support Fibonacci (+/- 3%)
+                for fib, nom in [(fib_618, "61.8%"), (fib_500, "50%"), (fib_382, "38.2%")]:
+                    if abs(prix - fib) / fib < 0.03:
+                        score = round(min(score + 0.5, 10.0), 2)
+                        fib_info = f"Support Fibo {nom} a {fib} DH"
+                        break
+                if not fib_info:
+                    fib_info = f"Fibo 38.2%={fib_382} | 50%={fib_500} | 61.8%={fib_618}"
+            except:
+                fib_info = ""
 
         # 1 CRITIQUE = EVITER immediat
         if len(blocking) >= 1:
@@ -1164,6 +1199,8 @@ class DecisionEngine:
             return Signal.ACHETER, f"ACHETER — {setup.value}", score
         if score >= 6.5 and setup == Setup.PULLBACK_HAUSSIER:
             return Signal.ACHETER, "ACHETER — pullback haussier", score
+        if score >= 6.5 and bonus_sectoriel > 0:
+            return Signal.ACHETER, f"ACHETER — cycle commodites {fib_info}", score
         if score >= 6 and setup == Setup.ACCUMULATION_LENTE:
             return Signal.ACCUMULER, "ACCUMULER — accumulation progressive", score
         if score >= 5.5:
@@ -1761,7 +1798,8 @@ class BVCAnalyzer:
         vr = SafeMath.last(df["Volume_Ratio"]) if "Volume_Ratio" in df.columns else 1.0
 
         signal, action, score_global = DecisionEngine().decide(
-            score_tech, score_fond, setup, flags, vol_moy, vr
+            score_tech, score_fond, setup, flags, vol_moy, vr,
+            fond=fundamentals, df=df
         )
         valuation = ValuationEngine(fundamentals).calculate(price, vr)
 
