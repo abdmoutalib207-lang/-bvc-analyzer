@@ -1376,7 +1376,7 @@ BVC ANALYZER v5.0 | {r.date.strftime('%d/%m/%Y %H:%M')} | Africa/Casablanca
 8. CONCLUSION
    Recommandation : {r.action}
    Lecture        : Technique + Fondamental + Liquidite + EVA + Red Flags
-   Methodologie   : BVC Analyzer v5.0 — Fusion v3.4/v3.5.3/v4.0 PRO
+   Methodologie   : BVC Analyzer v5.2 — RSI Memoire + Fibonacci + Bonus Mines
 ================================================================================
 """
 
@@ -1840,8 +1840,8 @@ class BVCAnalyzer:
         tickers = tickers or TICKERS_DEFAUT
 
         print("=" * 80)
-        print("BVC ANALYZER v5.0 — ANALYSE COMPLETE")
-        print("Fusion v3.4 (OO) + v3.5.3 (PDF/Backtest) + v4.0 (EVA/Liquidite)")
+        print("BVC ANALYZER v5.2 — ANALYSE COMPLETE")
+        print("RSI Memoire 10j + Fibonacci + Bonus Sectoriel + MASI Filtre")
         print("=" * 80)
         print(f"Heure Casablanca: {MarketCalendar.now().strftime('%H:%M:%S')}")
         print(f"Statut marche: {MarketCalendar.status()}")
