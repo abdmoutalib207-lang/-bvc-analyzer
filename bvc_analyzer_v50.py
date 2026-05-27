@@ -1960,9 +1960,9 @@ class BVCAnalyzer:
             return sorted(lst, key=key, reverse=reverse)[:n]
 
         try:
-            top_momentum  = top(valid_results, lambda r: r.score_technical.normalized if r.score_technical else 0)
-            top_fond      = top(valid_results, lambda r: r.score_fundamental.normalized if r.score_fundamental else 0)
-            top_global    = top(valid_results, lambda r: r.score_global or 0)
+            top_momentum  = top(valid_results, lambda r: float(r.score_technical or 0))
+            top_fond      = top(valid_results, lambda r: float(r.score_fundamental or 0))
+            top_global    = top(valid_results, lambda r: float(r.score_global or 0))
             top_div       = top(valid_results, lambda r: float((r.fundamental_data or {}).get("div_yield", 0) or 0))
             top_risque    = top(valid_results, lambda r: -(len(r.red_flags or [])))
 
