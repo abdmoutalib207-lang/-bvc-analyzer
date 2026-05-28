@@ -1954,7 +1954,9 @@ class BVCAnalyzer:
 
         # CLASSEMENTS MULTIPLES v5.2
         # Filtrer uniquement les objets AnalysisResult valides
-        valid_results = [x for x in results if hasattr(x, 'score_global') and hasattr(x, 'ticker') and x.score_global is not None and isinstance(x.score_global, (int, float))]
+        # results est un dict {ticker: objet} — extraire les valeurs
+        _raw = list(results.values()) if isinstance(results, dict) else list(results)
+        valid_results = [x for x in _raw if hasattr(x, 'score_global') and hasattr(x, 'ticker') and x.score_global is not None and isinstance(x.score_global, (int, float))]
 
         def top(lst, key, n=17, reverse=True):
             try:
