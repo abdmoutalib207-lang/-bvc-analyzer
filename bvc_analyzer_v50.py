@@ -1337,7 +1337,7 @@ class NoteGenerator:
         return f"""
 ================================================================================
 NOTE INSTITUTIONNELLE — {r.ticker}
-BVC ANALYZER v5.0 | {r.date.strftime('%d/%m/%Y %H:%M')} | Africa/Casablanca
+BVC ANALYZER v5.2.1 | {r.date.strftime('%d/%m/%Y %H:%M')} | Africa/Casablanca
 ================================================================================
 
 1. SYNTHESE EXECUTIVE
@@ -2039,4 +2039,5 @@ def main():
     return results, backtests, fond, scores
 
 if __name__ == "__main__":
-    results, backtests, fond, scores = main()
+    # v5.2.1 — double execution desactivee (exec() relance deja l'analyse)
+    pass
