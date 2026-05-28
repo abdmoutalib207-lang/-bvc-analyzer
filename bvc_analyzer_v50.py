@@ -1954,14 +1954,17 @@ class BVCAnalyzer:
 
         # CLASSEMENTS MULTIPLES v5.2
         # Filtrer uniquement les objets AnalysisResult valides
-        valid_results = [r for r in results if hasattr(r, 'score_global') and hasattr(r, 'ticker') and r.score_global is not None]
+        valid_results = [x for x in results if hasattr(x, 'score_global') and hasattr(x, 'ticker') and x.score_global is not None and isinstance(x.score_global, (int, float))]
 
         def top(lst, key, n=17, reverse=True):
-            return sorted(lst, key=key, reverse=reverse)[:n]
+            try:
+                return sorted([x for x in lst if x is not None], key=key, reverse=reverse)[:n]
+            except Exception:
+                return lst[:n]
 
         try:
-            top_momentum  = top(valid_results, lambda r: float(r.score_technical or 0))
-            top_fond      = top(valid_results, lambda r: float(r.score_fundamental or 0))
+            top_momentum  = top(valid_results, lambda r: float(r.score_technical or 0) if isinstance(r.score_technical, (int, float)) else 0)
+            top_fond      = top(valid_results, lambda r: float(r.score_fundamental or 0) if isinstance(r.score_fundamental, (int, float)) else 0)
             top_global    = top(valid_results, lambda r: float(r.score_global or 0))
             top_div       = top(valid_results, lambda r: float((r.fundamental_data or {}).get("div_yield", 0) or 0))
             top_risque    = top(valid_results, lambda r: -(len(r.red_flags or [])))
