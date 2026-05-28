@@ -1965,8 +1965,14 @@ class BVCAnalyzer:
                 return lst[:n]
 
         try:
-            top_momentum  = top(valid_results, lambda r: float(r.score_technical or 0) if isinstance(r.score_technical, (int, float)) else 0)
-            top_fond      = top(valid_results, lambda r: float(r.score_fundamental or 0) if isinstance(r.score_fundamental, (int, float)) else 0)
+            def get_tech(r):
+                try: return float(r.score_technical) if isinstance(r.score_technical, (int, float)) else 0
+                except: return 0
+            def get_fond(r):
+                try: return float(r.score_fundamental) if isinstance(r.score_fundamental, (int, float)) else 0
+                except: return 0
+            top_momentum  = top(valid_results, get_tech)
+            top_fond      = top(valid_results, get_fond)
             top_global    = top(valid_results, lambda r: float(r.score_global or 0))
             top_div       = top(valid_results, lambda r: float((r.fundamental_data or {}).get("div_yield", 0) or 0))
             top_risque    = top(valid_results, lambda r: -(len(r.red_flags or [])))
