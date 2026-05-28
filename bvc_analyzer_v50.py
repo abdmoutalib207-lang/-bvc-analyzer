@@ -1132,6 +1132,20 @@ class LiquidityAnalyzer:
         for seuil, w_tech, w_fond in cls.TIERS:
             if vol_moyen_20j >= seuil:
                 return w_tech, w_fond
+        # v5.2.1 — marche ferme : poids equilibres 50/50 au lieu de 30/70
+        import datetime
+        try:
+            from zoneinfo import ZoneInfo
+            tz = ZoneInfo("Africa/Casablanca")
+        except:
+            import pytz
+            tz = pytz.timezone("Africa/Casablanca")
+        now = datetime.datetime.now(tz)
+        heure = now.hour
+        jour = now.weekday()  # 0=lundi, 4=vendredi, 5=samedi, 6=dimanche
+        marche_ouvert = (jour < 5) and (9 <= heure < 16)
+        if not marche_ouvert:
+            return 0.50, 0.50
         return 0.30, 0.70
 
     @classmethod
@@ -1958,7 +1972,7 @@ class BVCAnalyzer:
         _raw = list(results.values()) if isinstance(results, dict) else list(results)
         valid_results = [x for x in _raw if hasattr(x, 'score_global') and hasattr(x, 'ticker') and x.score_global is not None and isinstance(x.score_global, (int, float))]
 
-        def top(lst, key, n=17, reverse=True):
+        def top(lst, key, n=7, reverse=True):
             try:
                 return sorted([x for x in lst if x is not None], key=key, reverse=reverse)[:n]
             except Exception:
@@ -1971,11 +1985,11 @@ class BVCAnalyzer:
             def get_fond(r):
                 try: return float(r.score_fundamental) if isinstance(r.score_fundamental, (int, float)) else 0
                 except: return 0
-            top_momentum  = top(valid_results, get_tech)
-            top_fond      = top(valid_results, get_fond)
-            top_global    = top(valid_results, lambda r: float(r.score_global or 0))
-            top_div       = top(valid_results, lambda r: float((r.fundamental_data or {}).get("div_yield", 0) or 0))
-            top_risque    = top(valid_results, lambda r: -(len(r.red_flags or [])))
+            top_momentum  = top(valid_results, get_tech, n=7)
+            top_fond      = top(valid_results, get_fond, n=7)
+            top_global    = top(valid_results, lambda r: float(r.score_global or 0), n=17)
+            top_div       = top(valid_results, lambda r: float((r.fundamental_data or {}).get("div_yield", 0) or 0), n=7)
+            top_risque    = top(valid_results, lambda r: -(len(r.red_flags or [])), n=7)
 
             print("=" * 60)
             print(" CLASSEMENTS MULTIPLES v5.2")
