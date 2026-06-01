@@ -390,6 +390,10 @@ class BVCLiveConnector:
         return df
 
     def get_live(self, ticker: str) -> dict:
+        # v5.2.2 — SOT : Medias24 ne référence plus ce titre post-split x5
+        # Fallback sur cours historique jusqu'à mise à jour Medias24
+        if ticker.upper() == "SOT":
+            return {}  # Géré par fallback historique dans analyze()
         isin = self.isin_map.get(ticker.upper())
         if not isin or not self.med_available: return {}
         data = self._med_get({"method": "getStockInfo", "ISIN": isin})
