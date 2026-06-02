@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>BVC ANALYZER v6.0</title>
+  <title>BVC ANALYZER v6.1</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.2/dist/apexcharts.min.js"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -66,6 +66,68 @@ const CHAT=[
   {id:4,time:"16:08",date:"31/05/2026",member:"~ Aderrazzak", tier:"Tier 1",snr:7.4, alpha:25.2,ticker:"TGCC",signal:"VENTE", conf:71,ctx:"Contrarian — alpha négatif",msg:"TGCC: alpha négatif confirmé (-2.3%). Signal ACHAT communauté = contrarian indicator V3. Win rate vendeurs 61%. Ne pas suivre les achats."},
   {id:5,time:"10:33",date:"31/05/2026",member:"~ Driss",      tier:"Tier 2",snr:6.8, alpha:21.9,ticker:"SRM", signal:"EVITER",conf:68,ctx:"Chute -8.5% + 4 red flags",msg:"SRM: -8.54% aujourd'hui. 4 red flags actifs. Biais groupe NÉGATIF. Smart money absent. À éviter absolument jusqu'à clarification."},
 ];
+
+// ── YAHOO FINANCE ─────────────────────────────────────────────────────────────
+const YF_BASE="https://query1.finance.yahoo.com";
+const PROXY="https://corsproxy.io/?";
+// BVC ticker → Yahoo Finance symbol (.CS = Casablanca)
+const YF_MAP={CMT:"CMT.CS",SMI:"SMI.CS",CASH:"CIH.CS",MNG:"MNG.CS",AKD:"AKD.CS",SOT:"SOT.CS",SGTM:"SGTM.CS",MSA:"MSA.CS",CFGB:"CFGB.CS",RIS:"RIS.CS",ADI:"ADI.CS",VCNE:"VE.CS",CMGP:"CMGP.CS",CSR:"CSR.CS",TGCC:"TGCC.CS",ADH:"ADH.CS",SRM:"SRM.CS",SNA:"SNA.CS",RDS:"RDS.CS"};
+
+async function yfGet(url){
+  try{const r=await fetch(url,{cache:"no-store"});if(r.ok)return r.json();}catch{}
+  // Fallback via CORS proxy
+  try{const r=await fetch(PROXY+encodeURIComponent(url),{cache:"no-store"});if(r.ok)return r.json();}catch{}
+  return null;
+}
+
+async function fetchQuotes(){
+  const syms=STATIC.map(s=>YF_MAP[s.symbol]||`${s.symbol}.CS`).join(",");
+  const data=await yfGet(`${YF_BASE}/v7/finance/quote?symbols=${syms}`);
+  const out={};
+  data?.quoteResponse?.result?.forEach(q=>{
+    // Map back from YF symbol to our BVC symbol
+    const bvcSym=Object.keys(YF_MAP).find(k=>YF_MAP[k]===q.symbol)||(q.symbol||"").replace(".CS","");
+    if(!bvcSym)return;
+    out[bvcSym]={
+      price:q.regularMarketPrice,
+      chg:q.regularMarketChangePercent,
+      open:q.regularMarketOpen,
+      close:q.regularMarketPrice,       // last traded = close when mkt closed
+      prevClose:q.regularMarketPreviousClose,
+      h90:q.fiftyTwoWeekHigh,
+      l90:q.fiftyTwoWeekLow,
+      cap:q.marketCap?Math.round(q.marketCap/1e6):null,
+      live:true
+    };
+  });
+  return out;
+}
+
+async function fetchChart(sym,range){
+  const yfSym=YF_MAP[sym]||`${sym}.CS`;
+  const data=await yfGet(`${YF_BASE}/v8/finance/chart/${yfSym}?interval=1d&range=${range||"3mo"}&events=div`);
+  const res=data?.chart?.result?.[0];
+  if(!res)return null;
+  const ts=res.timestamp||[];
+  const q=res.indicators?.quote?.[0]||{};
+  const candles=ts.map((t,i)=>({
+    x:t*1000,
+    y:[q.open?.[i],q.high?.[i],q.low?.[i],q.close?.[i]].map(v=>v!=null?+v.toFixed(2):null)
+  })).filter(c=>c.y.every(v=>v!=null)&&c.y[1]>=c.y[2]&&c.y[0]>0);
+  return candles.length>=5?candles:null;
+}
+
+// ── MARKET STATUS (BVC Casablanca, UTC+1 toute l'année) ───────────────────────
+function getMarketStatus(){
+  const d=new Date(new Date().toLocaleString("en-US",{timeZone:"Africa/Casablanca"}));
+  const day=d.getDay(); // 0=dim, 6=sam
+  if(day===0||day===6)return{label:"FERMÉ",color:"#ff4f5a",isOpen:false};
+  const tot=d.getHours()*60+d.getMinutes();
+  if(tot>=560&&tot<570)return{label:"PRÉ-OUVERTURE",color:"#ffd740",isOpen:false};  // 9h20-9h30
+  if(tot>=570&&tot<930)return{label:"OUVERT",color:"#00e5a0",isOpen:true};           // 9h30-15h30
+  if(tot>=930&&tot<940)return{label:"POST-CLÔTURE",color:"#4db8ff",isOpen:false};   // 15h30-15h40
+  return{label:"FERMÉ",color:"#ff4f5a",isOpen:false};
+}
 
 // ── UTILS ──────────────────────────────────────────────────────────────────────
 const SS=s=>{const u=(s||"").toUpperCase();
@@ -198,18 +260,33 @@ const FibTable=({high,low,price})=>{
   );
 };
 
-// ── STOCK CHART (ApexCharts) ──────────────────────────────────────────────────
+// ── STOCK CHART (ApexCharts + Yahoo Finance live candles) ─────────────────────
 const StockChart=({r})=>{
   const ref=useRef(null);
   const inst=useRef(null);
   const [period,setPeriod]=useState(()=>localStorage.getItem("bvc_period")||"3M");
+  const [liveCandles,setLiveCandles]=useState(null);
+  const [isLive,setIsLive]=useState(false);
+  const sym=r.symbol||r.ticker;
 
   const daysMap={"1M":22,"3M":65,"6M":130,"1A":260};
+  const rangeMap={"1M":"1mo","3M":"3mo","6M":"6mo","1A":"1y"};
 
+  // Fetch real candles from Yahoo Finance, cancel if ticker/period changes
+  useEffect(()=>{
+    let alive=true;
+    setLiveCandles(null);setIsLive(false);
+    fetchChart(sym,rangeMap[period]||"3mo").then(c=>{
+      if(alive&&c){setLiveCandles(c);setIsLive(true);}
+    });
+    return()=>{alive=false;};
+  },[sym,period]);
+
+  // Render chart: use live candles if available, else fall back to seeded PRNG
   useEffect(()=>{
     if(!ref.current)return;
     const days=daysMap[period]||65;
-    const candles=genCandles(r.price||r.prix,r.h90||r.high90,r.l90||r.low90,days);
+    const candles=liveCandles||genCandles(r.price||r.prix,r.h90||r.high90,r.l90||r.low90,days);
     const closes=candles.map(c=>c.y[3]);
     const ma20=calcMA(closes,20);
     const ma50=calcMA(closes,50);
@@ -225,7 +302,7 @@ const StockChart=({r})=>{
         events:{beforeMount:function(chartCtx){chartCtx.el.style.background="#0d1829";}}
       },
       series:[
-        {name:r.symbol||r.ticker,type:"candlestick",data:candles},
+        {name:sym,type:"candlestick",data:candles},
         {name:"MA20",type:"line",data:ma20data},
         {name:"MA50",type:"line",data:ma50data},
       ],
@@ -243,7 +320,7 @@ const StockChart=({r})=>{
         if(!d||seriesIndex!==0)return"";
         const [o,h,l,c]=d.y;
         const col=c>=o?"#00e5a0":"#ff4f5a";
-        return `<div style="padding:8px 10px;font-family:var(--font);font-size:11px;background:#0d1829;border:1px solid #1a2540;border-radius:4px"><b style="color:#fff">${r.symbol||r.ticker}</b><br/><span style="color:#8892a4">O</span> <span style="color:#c8d3e8">${o}</span> <span style="color:#8892a4">H</span> <span style="color:${col}">${h}</span> <span style="color:#8892a4">L</span> <span style="color:#ff4f5a">${l}</span> <span style="color:#8892a4">C</span> <span style="color:${col};font-weight:700">${c}</span></div>`;
+        return `<div style="padding:8px 10px;font-family:var(--font);font-size:11px;background:#0d1829;border:1px solid #1a2540;border-radius:4px"><b style="color:#fff">${sym}</b><br/><span style="color:#8892a4">O</span> <span style="color:#c8d3e8">${o}</span> <span style="color:#8892a4">H</span> <span style="color:${col}">${h}</span> <span style="color:#8892a4">L</span> <span style="color:#ff4f5a">${l}</span> <span style="color:#8892a4">C</span> <span style="color:${col};font-weight:700">${c}</span></div>`;
       }}
     };
 
@@ -251,7 +328,7 @@ const StockChart=({r})=>{
     inst.current=new ApexCharts(ref.current,opts);
     inst.current.render();
     return()=>{if(inst.current){inst.current.destroy();inst.current=null;}};
-  },[r.symbol||r.ticker,period]);
+  },[sym,period,liveCandles]);
 
   const changePeriod=(p)=>{setPeriod(p);localStorage.setItem("bvc_period",p);};
 
@@ -262,7 +339,9 @@ const StockChart=({r})=>{
         {["1M","3M","6M","1A"].map(p=>(
           <button key={p} onClick={()=>changePeriod(p)} style={{background:period===p?"rgba(77,184,255,.15)":"transparent",border:period===p?"1px solid rgba(77,184,255,.4)":"1px solid #1a2540",color:period===p?"#4db8ff":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>{p}</button>
         ))}
-        <span style={{marginLeft:"auto",fontSize:9,color:"#8892a4"}}>RSI:{(r.rsi||r.rsi14||50).toFixed(0)} · MA20:{px(r.ma20||0)} · MA50:{px(r.ma50||0)}</span>
+        <span style={{marginLeft:"auto",fontSize:9,color:isLive?"#00e5a0":"#8892a4"}}>
+          {isLive&&"● "}RSI:{(r.rsi||r.rsi14||50).toFixed(0)} · MA20:{px(r.ma20||0)} · MA50:{px(r.ma50||0)}
+        </span>
       </div>
       <div ref={ref}/>
     </div>
@@ -270,7 +349,7 @@ const StockChart=({r})=>{
 };
 
 // ── HEADER ────────────────────────────────────────────────────────────────────
-const Header=({tab,setTab,ts,src,onRefresh,loading})=>{
+const Header=({tab,setTab,ts,src,onRefresh,loading,mktStatus})=>{
   const [pulse,setPulse]=useState(false);
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
   const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"detail",label:"DÉTAIL"},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"chat",label:"CHAT 3 MAJ",badge:CHAT.length}];
@@ -279,11 +358,14 @@ const Header=({tab,setTab,ts,src,onRefresh,loading})=>{
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
         <div style={{display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
           <span style={{fontSize:22,fontWeight:700,letterSpacing:3,background:"linear-gradient(90deg,#00e5a0,#4db8ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>BVC ANALYZER</span>
-          <span style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.0 — TECH 25% · FOND 47% · NLP 28%</span>
-          <span style={{fontSize:12,color:"#ffd740"}}>
-            <span style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:pulse?"#00e5a0":"transparent",border:"1px solid #00e5a0",marginRight:6,transition:"background .4s"}}/>
-            {ts}
-          </span>
+          <span style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.1 — TECH 25% · FOND 47% · NLP 28%</span>
+          <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+            <span style={{fontSize:12,color:"#ffd740",display:"flex",alignItems:"center",gap:6}}>
+              <span style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:pulse?"#00e5a0":"transparent",border:"1px solid #00e5a0",transition:"background .4s"}}/>
+              {ts}
+            </span>
+            {mktStatus&&<span style={{background:`${mktStatus.color}18`,border:`1px solid ${mktStatus.color}40`,borderRadius:4,padding:"3px 10px",fontSize:11,color:mktStatus.color,fontWeight:700,letterSpacing:.5}}>BVC {mktStatus.label}</span>}
+          </div>
         </div>
         <div style={{display:"flex",gap:8,alignItems:"center"}}>
           {src&&<span style={{fontSize:10,color:"#8892a4"}}>données: {src}</span>}
@@ -319,7 +401,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab})=>{
     return 0;
   }),[rows,sort]);
   const SORTS=[["v53","SCORE v5.3"],["bvc","BVC"],["delta","DELTA"],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
-  const HEADS=["#","TICKER","PRIX DH","VAR%","PE","DIV%","BVC","v5.3","Δ","NLP%","WIN","ALPHA","RSI","SIGNAL v5.3","POIDS"];
+  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","PE","DIV%","BVC","v5.3","Δ","NLP%","WIN","ALPHA","RSI","SIGNAL v5.3","POIDS"];
   return(
     <div>
       <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center",flexWrap:"wrap"}}>
@@ -329,7 +411,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab})=>{
         ))}
       </div>
       <div style={{overflowX:"auto"}}>
-        <table style={{width:"100%",borderCollapse:"collapse",minWidth:1100}}>
+        <table style={{width:"100%",borderCollapse:"collapse",minWidth:1220}}>
           <thead>
             <tr style={{borderBottom:"2px solid #1a2540"}}>
               {HEADS.map(h=><th key={h} style={{padding:"8px 8px",fontSize:10,color:"#8892a4",textAlign:"left",letterSpacing:.4,whiteSpace:"nowrap",fontWeight:500}}>{h}</th>)}
@@ -353,8 +435,12 @@ const Ranking=({rows,sort,setSort,setSel,setTab})=>{
                     </div>
                     <div style={{fontSize:9,color:"#8892a4"}}>{r.sector}</div>
                   </td>
-                  <td style={{padding:"8px 8px",fontSize:14,color:"#c8d3e8",fontWeight:500}}>{px(r.price||r.prix)}</td>
-                  <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg).toFixed(2)}%</td>
+                  <td style={{padding:"8px 8px",fontSize:12,color:"#8892a4"}}>{px(r.open||+(( r.price||r.prix)/(1+(r.chg||0)/100)).toFixed(0))}</td>
+                  <td style={{padding:"8px 8px",fontSize:13,color:"#c8d3e8",fontWeight:600}}>
+                    {px(r.close||r.price||r.prix)}
+                    {r.live&&<span style={{fontSize:8,color:"#00e5a0",marginLeft:3,verticalAlign:"super"}}>●</span>}
+                  </td>
+                  <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%</td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.pe>25?"#ff8f00":"#c8d3e8"}}>{r.pe?.toFixed(1)||"—"}</td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.div>4?"#00e5a0":"#c8d3e8"}}>{r.div?.toFixed(1)||"—"}%</td>
                   <td style={{padding:"8px 8px",fontSize:13,color:SC(r.bvc)}}>{r.bvc.toFixed(2)}</td>
@@ -481,7 +567,7 @@ const Detail=({rows,sel,setSel})=>{
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Graphique Chandeliers · MA20 · MA50 · Fibonacci</div>
             <StockChart r={r}/>
             <div style={{fontSize:9,color:"#8892a4",marginTop:6}}>
-              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff",textDecoration:"underline dashed"}}>── MA50</span> &nbsp; <span style={{color:"#ffd740"}}>─ Fib niveaux</span> &nbsp; | Données simulées — mises à jour via update_data.py
+              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff",textDecoration:"underline dashed"}}>── MA50</span> &nbsp; <span style={{color:"#ffd740"}}>─ Fib niveaux</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> Yahoo Finance en direct · fallback simulé si indisponible
             </div>
           </div>
 
@@ -703,52 +789,68 @@ function App(){
   const [sort,setSort]=useState("v53");
   const [sel,setSel]=useState("CMT");
   const [rows,setRows]=useState(STATIC);
-  const [ts,setTs]=useState("01/06/2026 · 16:00");
-  const [src,setSrc]=useState("statique");
+  const [ts,setTs]=useState(new Date().toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}));
+  const [src,setSrc]=useState("connexion…");
   const [loading,setLoading]=useState(false);
+  const [mktStatus,setMktStatus]=useState(getMarketStatus());
 
-  // Fetch data.json on load
+  // Update market status every 30s
   useEffect(()=>{
-    fetch("data.json?t="+Date.now())
-      .then(r=>r.ok?r.json():null)
-      .then(d=>{
-        if(!d||!d.tickers)return;
-        const fresh=STATIC.map(s=>{
-          const live=d.tickers.find(t=>t.symbol===(s.symbol||s.ticker));
-          if(!live)return s;
-          return{...s,price:live.price||s.price||s.prix,chg:live.chg??s.chg,pe:live.pe,pb:live.pb,div:live.div,cap:live.cap,h90:live.h90||s.h90,l90:live.l90||s.l90,rsi:live.rsi||s.rsi,ma20:live.ma20||s.ma20,ma50:live.ma50||s.ma50};
-        });
-        setRows(fresh);
-        setTs(d.updated?d.updated.replace("T"," · ").substring(0,19):ts);
-        setSrc(d.source||"data.json");
-      })
-      .catch(()=>{});
+    const t=setInterval(()=>setMktStatus(getMarketStatus()),30000);
+    return()=>clearInterval(t);
   },[]);
 
-  const refresh=useCallback(()=>{
-    setLoading(true);
-    fetch("data.json?t="+Date.now())
-      .then(r=>r.ok?r.json():null)
-      .then(d=>{
-        if(d&&d.tickers){
-          const fresh=STATIC.map(s=>{
-            const live=d.tickers.find(t=>t.symbol===(s.symbol||s.ticker));
-            if(!live)return s;
-            return{...s,price:live.price,chg:live.chg??s.chg,pe:live.pe,pb:live.pb,div:live.div,h90:live.h90||s.h90,l90:live.l90||s.l90,rsi:live.rsi||s.rsi,ma20:live.ma20||s.ma20,ma50:live.ma50||s.ma50};
-          });
-          setRows(fresh);
-          setTs(new Date().toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}));
-        }
-        setLoading(false);
-      })
-      .catch(()=>setLoading(false));
+  // Merge live quote data into rows (functional update, no dep on rows)
+  const mergeLive=useCallback((liveMap)=>{
+    setRows(prev=>prev.map(s=>{
+      const live=liveMap[s.symbol];
+      if(!live)return s;
+      return{...s,...live};
+    }));
   },[]);
+
+  // Load data: Yahoo Finance → data.json → STATIC (silent fallback chain)
+  const loadData=useCallback(async()=>{
+    setLoading(true);
+    // Try Yahoo Finance (direct then via CORS proxy)
+    try{
+      const liveMap=await fetchQuotes();
+      if(liveMap&&Object.keys(liveMap).length>0){
+        mergeLive(liveMap);
+        setTs(new Date().toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}));
+        setSrc("Yahoo Finance ●");
+        setLoading(false);return;
+      }
+    }catch{}
+    // Fallback: data.json (manually maintained)
+    try{
+      const d=await fetch("data.json?t="+Date.now()).then(r=>r.ok?r.json():null);
+      if(d?.tickers){
+        const m={};
+        d.tickers.forEach(t=>{m[t.symbol]={price:t.price,chg:t.chg,h90:t.h90,l90:t.l90,rsi:t.rsi,ma20:t.ma20,ma50:t.ma50};});
+        mergeLive(m);
+        setTs(d.updated?d.updated.replace("T"," · ").substring(0,19):"");
+        setSrc(d.source||"data.json");
+        setLoading(false);return;
+      }
+    }catch{}
+    // Last resort: keep STATIC values
+    setSrc("données statiques");
+    setLoading(false);
+  },[mergeLive]);
+
+  // Initial load + auto-refresh every 5min when market is open
+  useEffect(()=>{
+    loadData();
+    const iv=setInterval(()=>{if(getMarketStatus().isOpen)loadData();},300000);
+    return()=>clearInterval(iv);
+  },[loadData]);
 
   const changeTab=(t)=>{setTab(t);localStorage.setItem("bvc_tab",t);};
 
   return(
     <div style={{minHeight:"100vh"}}>
-      <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={refresh} loading={loading}/>
+      <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} mktStatus={mktStatus}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
         {tab==="ranking"&&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab}/>}
         {tab==="detail" &&<Detail rows={rows} sel={sel} setSel={setSel}/>}
