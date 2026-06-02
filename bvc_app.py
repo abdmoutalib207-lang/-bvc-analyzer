@@ -1,5 +1,4 @@
 import streamlit as st
-import requests
 import sys
 import os
 from pathlib import Path
@@ -9,27 +8,6 @@ st.set_page_config(
     page_icon="📈",
     layout="wide",
 )
-
-BRANCH = "claude/access-project-review-UKcoB"
-RAW = f"https://raw.githubusercontent.com/abdmoutalib207-lang/-bvc-analyzer/{BRANCH}"
-
-
-@st.cache_data(ttl=300)
-def _fetch(url):
-    r = requests.get(url, timeout=15)
-    r.raise_for_status()
-    return r.text
-
-
-def load_analyzer():
-    fond_text = _fetch(f"{RAW}/fondamentaux.json")
-    Path("/tmp/fondamentaux.json").write_text(fond_text)
-
-    code = _fetch(f"{RAW}/bvc_analyzer_v50.py")
-    ns = {}
-    exec(compile(code, "bvc_analyzer_v50.py", "exec"), ns)
-    return ns
-
 
 # ── HEADER ────────────────────────────────────────────────────────────────────
 
@@ -58,6 +36,28 @@ with st.sidebar:
     custom_tickers = [t.strip().upper() for t in tickers_input.splitlines() if t.strip()] or None
     run_btn = st.button("🚀 Lancer l'analyse", type="primary", use_container_width=True)
 
+
+@st.cache_resource
+def load_analyzer():
+    """Charge le moteur BVC depuis les fichiers locaux du repo (Streamlit Cloud)."""
+    repo_dir = Path(__file__).parent
+
+    # fondamentaux.json disponible localement
+    fond_src = repo_dir / "fondamentaux.json"
+    if fond_src.exists():
+        Path("/tmp/fondamentaux.json").write_text(fond_src.read_text())
+
+    # Charger bvc_analyzer_v50.py localement
+    analyzer_path = repo_dir / "bvc_analyzer_v50.py"
+    if not analyzer_path.exists():
+        raise FileNotFoundError(f"bvc_analyzer_v50.py introuvable dans {repo_dir}")
+
+    code = analyzer_path.read_text()
+    ns = {}
+    exec(compile(code, str(analyzer_path), "exec"), ns)
+    return ns
+
+
 # ── ANALYSE ───────────────────────────────────────────────────────────────────
 
 if run_btn:
@@ -70,7 +70,7 @@ if run_btn:
 
     BVCAnalyzer = ns.get("BVCAnalyzer")
     if BVCAnalyzer is None:
-        st.error("Classe BVCAnalyzer introuvable dans le module.")
+        st.error("Classe BVCAnalyzer introuvable.")
         st.stop()
 
     with st.spinner("Analyse en cours… (peut prendre 1-2 min)"):
@@ -105,17 +105,16 @@ if run_btn:
     df = pd.DataFrame(rows).sort_values("Score /10", ascending=False).reset_index(drop=True)
     df.index += 1
 
-    SIGNAL_COLORS = {
-        "ACHAT FORT": "background-color:#00e5a020;color:#00ffb3",
-        "ACHETER":    "background-color:#00e5a010;color:#00e5a0",
-        "SURVEILLER": "background-color:#ffd74010;color:#ffd740",
-        "ATTENDRE":   "background-color:#88888810;color:#aaa",
-        "EVITER":     "background-color:#ff8f0010;color:#ff8f00",
-        "EVITER FORT":"background-color:#ff4f5a20;color:#ff4f5a",
-    }
-
     def style_signal(val):
-        return SIGNAL_COLORS.get(val, "")
+        colors = {
+            "ACHAT FORT": "background-color:#00e5a020;color:#00ffb3",
+            "ACHETER":    "background-color:#00e5a010;color:#00e5a0",
+            "SURVEILLER": "background-color:#ffd74010;color:#ffd740",
+            "ATTENDRE":   "background-color:#88888810;color:#aaa",
+            "EVITER":     "background-color:#ff8f0010;color:#ff8f00",
+            "EVITER FORT":"background-color:#ff4f5a20;color:#ff4f5a",
+        }
+        return colors.get(val, "")
 
     st.subheader("🏆 Classement Global")
     st.dataframe(
@@ -156,11 +155,10 @@ if run_btn:
 
         if r.red_flags:
             st.markdown("**Red Flags**")
+            sev_icon = {"CRITIQUE": "🔴", "ELEVEE": "🟠", "MOYENNE": "🟡", "FAIBLE": "🟢"}
             for flag in r.red_flags:
-                color = {"CRITIQUE": "🔴", "ELEVEE": "🟠", "MOYENNE": "🟡", "FAIBLE": "🟢"}.get(
-                    flag.severity.value, "⚪"
-                )
-                st.warning(f"{color} [{flag.severity.value}] {flag.category} — {flag.message}")
+                icon = sev_icon.get(flag.severity.value, "⚪")
+                st.warning(f"{icon} [{flag.severity.value}] {flag.category} — {flag.message}")
 
         if r.institutional_note:
             with st.expander("📄 Note institutionnelle complète"):
@@ -173,12 +171,12 @@ if run_btn:
         for ticker, bt in backtests.items():
             if isinstance(bt, dict) and bt.get("status") == "OK":
                 bt_rows.append({
-                    "Ticker":        ticker,
-                    "Stratégie %":   bt.get("strategy_return_%", "N/A"),
-                    "Buy&Hold %":    bt.get("buyhold_return_%", "N/A"),
-                    "Alpha %":       bt.get("alpha_%", "N/A"),
-                    "Trades":        bt.get("trades", 0),
-                    "Win Rate %":    bt.get("win_rate_%", "N/A"),
+                    "Ticker":      ticker,
+                    "Stratégie %": bt.get("strategy_return_%", "N/A"),
+                    "Buy&Hold %":  bt.get("buyhold_return_%", "N/A"),
+                    "Alpha %":     bt.get("alpha_%", "N/A"),
+                    "Trades":      bt.get("trades", 0),
+                    "Win Rate %":  bt.get("win_rate_%", "N/A"),
                 })
         if bt_rows:
             st.dataframe(pd.DataFrame(bt_rows), use_container_width=True)
