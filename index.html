@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BVC ANALYZER v5.3</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #080d1a; }
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap');
+  </style>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useEffect } = React;
+
+const RESULTS_V53 = [
+  { ticker:"CMT",  prix:5330,  var:+6.60, scoreBVC:7.16, scoreV53:7.99, delta:+0.83, signalBVC:"ACHETER",    signalV53:"ACHAT FORT ★★★", conv:"CONFIRME",  smart:+0.51, hype:0.72, alpha:8.3,  win:92,  biais:"ACHAT",      flags:0, upside:14,  base:5700,  bear:4446,  bull:7125,  setup:"NEUTRE",            poids:"Fond:44% NLP:35% Tech:21%", bonus:"+0.83", bonusDetails:["Convergence BVC+NLP +0.30","Smart Money actif (92%) +0.40"] },
+  { ticker:"SMI",  prix:9372,  var:+1.65, scoreBVC:6.95, scoreV53:7.66, delta:+0.71, signalBVC:"ACHETER",    signalV53:"ACHAT FORT ★★★", conv:"CONFIRME",  smart:+0.46, hype:0.43, alpha:30.7, win:100, biais:"ACHAT",      flags:0, upside:7,   base:9865,  bear:7695,  bull:12331, setup:"PULLBACK HAUSSIER", poids:"Fond:44% NLP:35% Tech:21%", bonus:"+0.71", bonusDetails:["Convergence BVC+NLP +0.30","Smart Money actif (100%) +0.40"] },
+  { ticker:"CASH", prix:280,   var:-0.04, scoreBVC:6.73, scoreV53:7.56, delta:+0.83, signalBVC:"SURVEILLER", signalV53:"ACHAT FORT ★★★", conv:"CONFIRME",  smart:+0.38, hype:0.31, alpha:7.0,  win:80,  biais:"ACHAT",      flags:0, upside:12,  base:313,   bear:244,   bull:392,   setup:"NEUTRE",            poids:"Fond:44% NLP:35% Tech:21%", bonus:"+0.83", bonusDetails:["Convergence BVC+NLP +0.30","Smart Money actif (80%) +0.40"] },
+  { ticker:"MNG",  prix:17927, var:+3.00, scoreBVC:6.59, scoreV53:6.67, delta:+0.08, signalBVC:"ACHETER",    signalV53:"ACHETER ★★",     conv:"CONFIRME",  smart:+0.50, hype:0.89, alpha:55.3, win:93,  biais:"ACHAT FORT", flags:3, upside:2,   base:17753, bear:13847, bull:22191, setup:"MOMENTUM CONFIRME", poids:"Fond:39% NLP:43% Tech:18%", bonus:"+0.08", bonusDetails:["Conv BVC+NLP +0.30","Smart Money +0.40","Hype +0.20","Flags -0.30"] },
+  { ticker:"TGCC", prix:767,   var:+2.99, scoreBVC:5.22, scoreV53:6.65, delta:+1.43, signalBVC:"ATTENDRE",   signalV53:"ACHETER ★★",     conv:"CONFIRME",  smart:+0.09, hype:0.38, alpha:-2.3, win:39,  biais:"ACHAT",      flags:0, upside:27,  base:946,   bear:738,   bull:1182,  setup:"CONTRARIEN",        poids:"Fond:47% NLP:28% Tech:25%", bonus:"+1.43", bonusDetails:["Contrarian +0.25","Conv baissière +0.15"] },
+  { ticker:"SOT",  prix:369,   var:0.00,  scoreBVC:6.62, scoreV53:6.64, delta:+0.02, signalBVC:"ACHETER",    signalV53:"ACHETER ★★",     conv:"CONFIRME",  smart:+0.29, hype:0.28, alpha:5.0,  win:75,  biais:"ACHAT",      flags:0, upside:12,  base:413,   bear:322,   bull:516,   setup:"PULLBACK HAUSSIER", poids:"Fond:47% NLP:28% Tech:25%", bonus:"+0.02", bonusDetails:["Convergence BVC+NLP +0.30"] },
+  { ticker:"SGTM", prix:732,   var:+0.22, scoreBVC:5.77, scoreV53:6.63, delta:+0.86, signalBVC:"SURVEILLER", signalV53:"ACHETER ★★",     conv:"CONFIRME",  smart:+0.18, hype:0.41, alpha:6.0,  win:78,  biais:"ACHAT",      flags:0, upside:27,  base:928,   bear:724,   bull:1160,  setup:"CONTRARIEN",        poids:"Fond:47% NLP:28% Tech:25%", bonus:"+0.86", bonusDetails:["Convergence BVC+NLP +0.30"] },
+  { ticker:"MSA",  prix:845,   var:+2.72, scoreBVC:6.28, scoreV53:6.28, delta:0.00,  signalBVC:"SURVEILLER", signalV53:"SURVEILLER ★",   conv:"CONFIRME",  smart:+0.22, hype:0.35, alpha:18.5, win:100, biais:"ACHAT",      flags:0, upside:-13, base:715,   bear:558,   bull:894,   setup:"CONTRARIEN",        poids:"Fond:44% NLP:35% Tech:21%", bonus:"+0.00", bonusDetails:["Convergence BVC+NLP +0.30"] },
+  { ticker:"CFGB", prix:208,   var:+1.46, scoreBVC:5.44, scoreV53:6.24, delta:+0.80, signalBVC:"ATTENDRE",   signalV53:"SURVEILLER ★",   conv:"CONFIRME",  smart:+0.12, hype:0.19, alpha:4.0,  win:72,  biais:"ACHAT",      flags:1, upside:17,  base:239,   bear:187,   bull:299,   setup:"FAIBLESSE",         poids:"Fond:47% NLP:28% Tech:25%", bonus:"+0.80", bonusDetails:["Convergence BVC+NLP +0.30"] },
+  { ticker:"RIS",  prix:326,   var:-2.31, scoreBVC:4.71, scoreV53:5.64, delta:+0.93, signalBVC:"ATTENDRE",   signalV53:"SURVEILLER ★",   conv:"CONFIRME",  smart:+0.08, hype:0.22, alpha:11.4, win:100, biais:"ACHAT",      flags:2, upside:-20, base:267,   bear:208,   bull:334,   setup:"PULLBACK HAUSSIER", poids:"Fond:44% NLP:35% Tech:21%", bonus:"+0.93", bonusDetails:["Smart Money actif (100%) +0.40"] },
+  { ticker:"ADI",  prix:390,   var:-4.88, scoreBVC:5.00, scoreV53:5.63, delta:+0.63, signalBVC:"ATTENDRE",   signalV53:"SURVEILLER ★",   conv:"CONFIRME",  smart:-0.05, hype:0.65, alpha:8.5,  win:69,  biais:"DÉBATTU",    flags:0, upside:17,  base:479,   bear:374,   bull:599,   setup:"CONTRARIEN",        poids:"Fond:47% NLP:28% Tech:25%", bonus:"+0.63", bonusDetails:["Convergence BVC+NLP +0.30"] },
+  { ticker:"VCNE", prix:390,   var:0.00,  scoreBVC:4.93, scoreV53:5.61, delta:+0.68, signalBVC:"ATTENDRE",   signalV53:"SURVEILLER ★",   conv:"CONFIRME",  smart:+0.05, hype:0.21, alpha:3.0,  win:70,  biais:"NEUTRE",     flags:1, upside:9,   base:425,   bear:331,   bull:531,   setup:"FAIBLESSE",         poids:"Fond:47% NLP:28% Tech:25%", bonus:"+0.68", bonusDetails:["Convergence BVC+NLP +0.30"] },
+  { ticker:"CMGP", prix:358,   var:-0.50, scoreBVC:5.17, scoreV53:5.49, delta:+0.32, signalBVC:"ATTENDRE",   signalV53:"ATTENDRE",       conv:"CONFIRME",  smart:+0.05, hype:0.21, alpha:3.0,  win:70,  biais:"NEUTRE",     flags:1, upside:-3,  base:349,   bear:272,   bull:436,   setup:"FAIBLESSE",         poids:"Fond:47% NLP:28% Tech:25%", bonus:"+0.32", bonusDetails:[] },
+  { ticker:"CSR",  prix:188,   var:+2.15, scoreBVC:4.58, scoreV53:5.05, delta:+0.47, signalBVC:"ATTENDRE",   signalV53:"ATTENDRE",       conv:"CONFIRME",  smart:+0.02, hype:0.14, alpha:2.0,  win:60,  biais:"NEUTRE",     flags:2, upside:-15, base:156,   bear:121,   bull:195,   setup:"FAIBLESSE",         poids:"Fond:47% NLP:28% Tech:25%", bonus:"+0.47", bonusDetails:[] },
+  { ticker:"ADH",  prix:33.4,  var:+1.95, scoreBVC:4.28, scoreV53:4.41, delta:+0.13, signalBVC:"ATTENDRE",   signalV53:"ÉVITER",         conv:"CONFIRME",  smart:-0.08, hype:0.33, alpha:12.9, win:86,  biais:"ACHAT",      flags:3, upside:0,   base:32.8,  bear:25.5,  bull:41,    setup:"PULLBACK HAUSSIER", poids:"Fond:44% NLP:35% Tech:21%", bonus:"+0.13", bonusDetails:["Red flags -0.30"] },
+  { ticker:"SRM",  prix:442,   var:-8.54, scoreBVC:4.88, scoreV53:3.94, delta:-0.94, signalBVC:"ATTENDRE",   signalV53:"ÉVITER",         conv:"CONFIRME",  smart:-0.12, hype:0.18, alpha:2.0,  win:55,  biais:"NÉGATIF",    flags:4, upside:8,   base:522,   bear:407,   bull:652,   setup:"FAIBLESSE",         poids:"Fond:47% NLP:28% Tech:25%", bonus:"-0.94", bonusDetails:["Red flags -0.60"] },
+  { ticker:"RDS",  prix:169.7, var:+1.19, scoreBVC:3.76, scoreV53:3.41, delta:-0.35, signalBVC:"EVITER",     signalV53:"ÉVITER FORT",    conv:"CONFIRME",  smart:-0.31, hype:0.28, alpha:11.4, win:100, biais:"ACHAT",      flags:4, upside:-38, base:103,   bear:81,    bull:129,   setup:"PULLBACK HAUSSIER", poids:"Fond:44% NLP:35% Tech:21%", bonus:"-0.35", bonusDetails:["Divergence BVC/NLP -0.50","Red flags -0.60"] },
+];
+
+const SMART_MONEY = [
+  { name:"Mehdi Sekkat", tier:"Admin",       w:1.00, snr:"∞",    win:"—"   },
+  { name:"~ Analyse",    tier:"Smart Money", w:0.88, snr:"21.7", win:"83%" },
+  { name:"~ Ghassan",    tier:"Smart Money", w:0.85, snr:"10.3", win:"82%" },
+  { name:"~ Bennani Ali",tier:"Smart Money", w:0.85, snr:"10.2", win:"82%" },
+  { name:"~ Ali Bzt",    tier:"Smart Money", w:0.83, snr:"9.2",  win:"80%" },
+  { name:"~ Mehdi K",    tier:"Smart Money", w:0.65, snr:"8.1",  win:"79%" },
+  { name:"~ Aderrazzak", tier:"Smart Money", w:0.83, snr:"7.4",  win:"80%" },
+  { name:"~ Driss",      tier:"Smart Money", w:0.82, snr:"6.8",  win:"79%" },
+];
+
+const signalBg = (s) => {
+  if (s.includes("FORT") && s.includes("ACHAT")) return "rgba(0,229,160,0.25)";
+  if (s.includes("★★") || s === "ACHETER") return "rgba(0,229,160,0.15)";
+  if (s.includes("SURVEILLER") || s.includes("★")) return "rgba(255,215,64,0.15)";
+  if (s.includes("ÉVITER FORT")) return "rgba(255,79,90,0.25)";
+  if (s.includes("ÉVITER")) return "rgba(255,100,50,0.15)";
+  return "rgba(136,146,164,0.1)";
+};
+const signalFg = (s) => {
+  if (s.includes("FORT") && s.includes("ACHAT")) return "#00ffb3";
+  if (s.includes("★★") || s === "ACHETER") return "#00e5a0";
+  if (s.includes("SURVEILLER") || s.includes("★")) return "#ffd740";
+  if (s.includes("ÉVITER FORT")) return "#ff4f5a";
+  if (s.includes("ÉVITER")) return "#ff8f00";
+  return "#8892a4";
+};
+const varFg = (v) => v > 0 ? "#00e5a0" : v < 0 ? "#ff4f5a" : "#8892a4";
+const sentFg = (v) => v > 0.2 ? "#00e5a0" : v > -0.2 ? "#ffd740" : "#ff4f5a";
+
+const ScoreBar = ({ value, max = 10, color, height = 5 }) => (
+  <div style={{ background: "#0d1829", borderRadius: 3, overflow:"hidden", height }}>
+    <div style={{ width:`${value/max*100}%`, height:"100%", background: color, boxShadow:`0 0 6px ${color}40`, transition:"width 0.5s ease" }} />
+  </div>
+);
+
+const DeltaBadge = ({ delta }) => (
+  <span style={{ fontSize:10, fontFamily:"monospace", fontWeight:700, padding:"1px 5px", borderRadius:3,
+    background: delta > 0 ? "rgba(0,229,160,0.15)" : delta < 0 ? "rgba(255,79,90,0.15)" : "rgba(136,146,164,0.1)",
+    color: delta > 0 ? "#00e5a0" : delta < 0 ? "#ff4f5a" : "#8892a4",
+    border: `1px solid ${delta > 0 ? "rgba(0,229,160,0.3)" : delta < 0 ? "rgba(255,79,90,0.3)" : "rgba(136,146,164,0.2)"}`,
+  }}>{delta > 0 ? "+" : ""}{delta.toFixed(2)}</span>
+);
+
+const WeightPill = ({ poids }) => {
+  const parts = poids.split(" ");
+  const colors = { "Fond:": "#b388ff", "NLP:": "#00e5a0", "Tech:": "#4db8ff" };
+  return (
+    <div style={{ display:"flex", gap:3 }}>
+      {parts.map((p, i) => {
+        const prefix = Object.keys(colors).find(k => p.startsWith(k));
+        return (
+          <span key={i} style={{ fontSize:8, padding:"1px 4px", borderRadius:2,
+            background:`${colors[prefix] || "#8892a4"}18`, color: colors[prefix] || "#8892a4",
+            border:`1px solid ${colors[prefix] || "#8892a4"}30`, fontFamily:"monospace" }}>{p}</span>
+        );
+      })}
+    </div>
+  );
+};
+
+function BVCTerminalV53() {
+  const [view, setView]         = useState("ranking");
+  const [selected, setSelected] = useState("CMT");
+  const [sortBy, setSortBy]     = useState("v53");
+  const [pulse, setPulse]       = useState(false);
+
+  useEffect(() => {
+    const t = setInterval(() => setPulse(p => !p), 1800);
+    return () => clearInterval(t);
+  }, []);
+
+  const sorted = [...RESULTS_V53].sort((a, b) => {
+    if (sortBy === "v53")   return b.scoreV53 - a.scoreV53;
+    if (sortBy === "bvc")   return b.scoreBVC - a.scoreBVC;
+    if (sortBy === "delta") return b.delta - a.delta;
+    if (sortBy === "nlp")   return b.smart - a.smart;
+    if (sortBy === "var")   return b.var - a.var;
+    return 0;
+  });
+
+  const sel = RESULTS_V53.find(r => r.ticker === selected) || RESULTS_V53[0];
+  const upsidePct = ((sel.bull - sel.prix) / sel.prix * 100).toFixed(1);
+
+  const s = {
+    root: { minHeight:"100vh", background:"#080d1a", color:"#c8d3e8", fontFamily:"'IBM Plex Mono','Courier New',monospace", fontSize:11, userSelect:"none" },
+    header: { background:"linear-gradient(90deg,#0d1829,#0a1220)", borderBottom:"1px solid #1a2540", padding:"10px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:8 },
+    logo: { fontSize:15, fontWeight:700, letterSpacing:3, background:"linear-gradient(90deg,#00e5a0,#4db8ff)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" },
+    tab: (active) => ({ background: active ? "rgba(0,229,160,0.12)" : "transparent", border: active ? "1px solid rgba(0,229,160,0.4)" : "1px solid #1a2540", color: active ? "#00e5a0" : "#8892a4", padding:"3px 12px", borderRadius:4, cursor:"pointer", fontSize:9, letterSpacing:1, fontFamily:"monospace" }),
+    panel: { background:"#0d1829", border:"1px solid #1a2540", borderRadius:6, padding:12 },
+    label: { fontSize:8, color:"#8892a4", letterSpacing:1, textTransform:"uppercase", marginBottom:3 },
+    grid2: { display:"grid", gridTemplateColumns:"300px 1fr", gap:10 },
+  };
+
+  return (
+    <div style={s.root}>
+      <div style={s.header}>
+        <div style={{ display:"flex", alignItems:"center", gap:14, flexWrap:"wrap" }}>
+          <div style={s.logo}>BVC ANALYZER</div>
+          <div style={{ background:"rgba(0,229,160,0.1)", border:"1px solid rgba(0,229,160,0.3)", borderRadius:4, padding:"2px 8px", fontSize:8, color:"#00e5a0", letterSpacing:1 }}>v5.3 — TECH 25% · FOND 47% · NLP 28%</div>
+          <div style={{ fontSize:8, color:"#ffd740" }}>
+            <span style={{ display:"inline-block", width:6, height:6, borderRadius:"50%", background: pulse ? "#00e5a0" : "transparent", border:"1px solid #00e5a0", marginRight:5, transition:"background 0.4s" }} />
+            OPEN · 01/06/2026
+          </div>
+        </div>
+        <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+          {[["ranking","CLASSEMENT"],["detail","DÉTAIL"],["weights","POIDS"],["smart","SMART MONEY"]].map(([v,l]) => (
+            <button key={v} style={s.tab(view===v)} onClick={() => setView(v)}>{l}</button>
+          ))}
+        </div>
+        <div style={{ textAlign:"right", fontSize:8 }}>
+          <div style={{ color:"#8892a4" }}>GROUPE MASI 1</div>
+          <div style={{ color:"#ffd740" }}>896 907 msgs · 6 ans · V3 backtesté</div>
+        </div>
+      </div>
+
+      <div style={{ padding:12 }}>
+
+        {view === "ranking" && (
+          <div>
+            <div style={{ display:"flex", gap:6, marginBottom:10, alignItems:"center", flexWrap:"wrap" }}>
+              <span style={{ fontSize:9, color:"#8892a4" }}>TRIER PAR</span>
+              {[["v53","SCORE v5.3"],["bvc","BVC"],["delta","DELTA"],["nlp","NLP"],["var","VAR%"]].map(([v,l]) => (
+                <button key={v} style={s.tab(sortBy===v)} onClick={() => setSortBy(v)}>{l}</button>
+              ))}
+            </div>
+            <div style={{ overflowX:"auto" }}>
+              <div style={{ minWidth:800 }}>
+                <div style={{ display:"grid", gridTemplateColumns:"30px 60px 70px 55px 60px 60px 55px 60px 55px 55px 1fr 120px", gap:6, padding:"4px 8px", borderBottom:"1px solid #1a2540", fontSize:8, color:"#8892a4", letterSpacing:0.5 }}>
+                  <div>#</div><div>TICKER</div><div>PRIX</div><div>VAR%</div><div>BVC</div><div>v5.3 ▼</div><div>Δ</div><div>NLP</div><div>HYPE</div><div>WIN6M</div><div>SIGNAL v5.3</div><div>POIDS</div>
+                </div>
+                {sorted.map((r, i) => (
+                  <div key={r.ticker} style={{ display:"grid", gridTemplateColumns:"30px 60px 70px 55px 60px 60px 55px 60px 55px 55px 1fr 120px", gap:6, padding:"5px 8px", borderRadius:5, cursor:"pointer", background: selected === r.ticker ? "rgba(0,229,160,0.06)" : "transparent", borderBottom:"1px solid #0d1829", transition:"background 0.15s" }}
+                    onClick={() => { setSelected(r.ticker); setView("detail"); }}>
+                    <div style={{ color:"#8892a4" }}>{i+1}</div>
+                    <div style={{ color:"#fff", fontWeight:700 }}>{r.ticker}</div>
+                    <div style={{ color:"#c8d3e8" }}>{r.prix >= 1000 ? r.prix.toLocaleString() : r.prix}</div>
+                    <div style={{ color:varFg(r.var) }}>{r.var > 0 ? "▲" : r.var < 0 ? "▼" : "—"} {Math.abs(r.var).toFixed(1)}%</div>
+                    <div style={{ color:"#8892a4" }}>{r.scoreBVC.toFixed(2)}</div>
+                    <div style={{ color:signalFg(r.signalV53), fontWeight:700 }}>{r.scoreV53.toFixed(2)}</div>
+                    <div><DeltaBadge delta={r.delta} /></div>
+                    <div style={{ color:sentFg(r.smart) }}>{r.smart > 0 ? "+" : ""}{(r.smart*100).toFixed(0)}%</div>
+                    <div><div style={{ background:"#1a2035", borderRadius:2, overflow:"hidden", height:4, width:40 }}><div style={{ width:`${r.hype*100}%`, height:"100%", background:"#ffd740" }} /></div></div>
+                    <div style={{ color: r.win >= 80 ? "#00e5a0" : r.win >= 70 ? "#ffd740" : "#ff8f00" }}>{r.win}%</div>
+                    <div><span style={{ background:signalBg(r.signalV53), color:signalFg(r.signalV53), border:`1px solid ${signalFg(r.signalV53)}40`, borderRadius:3, padding:"2px 5px", fontSize:9, whiteSpace:"nowrap" }}>{r.signalV53}</span></div>
+                    <div><WeightPill poids={r.poids} /></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ marginTop:12, padding:"8px 10px", background:"#0d1829", border:"1px solid #1a2540", borderRadius:6, fontSize:8, color:"#8892a4" }}>
+              <span style={{ color:"#00e5a0" }}>●</span> Score v5.3 = Tech×25% + Fond×47% + NLP×28% &nbsp;|&nbsp;
+              <span style={{ color:"#ffd740" }}>●</span> WIN6M = % signaux corrects 6 mois (1994 signaux) &nbsp;|&nbsp;
+              <span style={{ color:"#b388ff" }}>●</span> Δ = différence v5.3 vs BVC
+            </div>
+          </div>
+        )}
+
+        {view === "detail" && (
+          <div>
+            <div style={{ display:"flex", gap:6, marginBottom:12, flexWrap:"wrap" }}>
+              {RESULTS_V53.map(r => (
+                <button key={r.ticker} style={{ ...s.tab(selected === r.ticker), background: selected === r.ticker ? signalBg(r.signalV53) : "transparent", color: selected === r.ticker ? signalFg(r.signalV53) : "#8892a4", border: selected === r.ticker ? `1px solid ${signalFg(r.signalV53)}40` : "1px solid #1a2540" }} onClick={() => setSelected(r.ticker)}>{r.ticker}</button>
+              ))}
+            </div>
+            <div style={s.grid2}>
+              <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                <div style={{ ...s.panel, textAlign:"center", background:`linear-gradient(135deg,${signalBg(sel.signalV53)},#0d1829)`, border:`1px solid ${signalFg(sel.signalV53)}30` }}>
+                  <div style={{ fontSize:11, color:"#8892a4", letterSpacing:2, marginBottom:4 }}>{sel.ticker} · {sel.prix.toLocaleString()} DH <span style={{ color:varFg(sel.var), marginLeft:8 }}>{sel.var > 0 ? "▲" : "▼"} {Math.abs(sel.var).toFixed(2)}%</span></div>
+                  <div style={{ fontSize:38, fontWeight:700, color:signalFg(sel.signalV53), textShadow:`0 0 20px ${signalFg(sel.signalV53)}60` }}>{sel.scoreV53.toFixed(2)}</div>
+                  <div style={{ fontSize:9, color:"#8892a4", marginBottom:8 }}>Score v5.3</div>
+                  <div style={{ display:"inline-block", background:signalBg(sel.signalV53), border:`1px solid ${signalFg(sel.signalV53)}50`, color:signalFg(sel.signalV53), borderRadius:4, padding:"3px 12px", fontSize:10, letterSpacing:1 }}>{sel.signalV53}</div>
+                  <div style={{ marginTop:8 }}><DeltaBadge delta={sel.delta} /><span style={{ fontSize:8, color:"#8892a4", marginLeft:6 }}>vs BVC {sel.scoreBVC.toFixed(2)}</span></div>
+                </div>
+                <div style={s.panel}>
+                  <div style={s.label}>Décomposition Score v5.3</div>
+                  {[["Fondamental", sel.scoreBVC*0.47, 5, "#b388ff", `${sel.scoreBVC.toFixed(2)} × 47%`],["NLP Smart", ((sel.smart+1)*5)*0.28, 5, "#00e5a0", `${sel.smart > 0?"+":""}${(sel.smart*100).toFixed(0)}% × 28%`],["Technique", sel.scoreBVC*0.25, 5, "#4db8ff", `${sel.scoreBVC.toFixed(2)} × 25%`]].map(([label,val,max,color,desc]) => (
+                    <div key={label} style={{ marginBottom:8 }}>
+                      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:3 }}><span style={{ fontSize:9, color:"#8892a4" }}>{label}</span><span style={{ fontSize:9, color }}>{desc}</span></div>
+                      <ScoreBar value={val} max={max} color={color} height={5} />
+                    </div>
+                  ))}
+                  <div style={{ marginTop:8, padding:"6px 8px", background:"#0a1220", borderRadius:4, border:"1px solid #1a2540" }}>
+                    <div style={{ fontSize:8, color:"#8892a4", marginBottom:3 }}>Ajustements</div>
+                    {sel.bonusDetails.length > 0 ? sel.bonusDetails.map((b,i) => <div key={i} style={{ fontSize:9, color: b.includes("-") ? "#ff8f00" : "#00e5a0" }}>{b.includes("-") ? "▼" : "▲"} {b}</div>) : <div style={{ fontSize:9, color:"#8892a4" }}>Aucun ajustement</div>}
+                    <div style={{ marginTop:4, fontSize:9, fontWeight:700, color: sel.delta >= 0 ? "#00e5a0" : "#ff4f5a" }}>Total: {sel.delta >= 0?"+":""}{sel.delta.toFixed(2)} pts</div>
+                  </div>
+                </div>
+                <div style={s.panel}>
+                  <div style={s.label}>NLP — Groupe MASI 1 (6 ans)</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+                    {[["Biais groupe",sel.biais,sentFg(sel.smart)],["Smart Sentiment",`${sel.smart>0?"+":""}${(sel.smart*100).toFixed(0)}%`,sentFg(sel.smart)],["Win rate 6M",`${sel.win}%`,sel.win>=80?"#00e5a0":"#ffd740"],["Alpha hist.",`+${sel.alpha}%`,"#4db8ff"],["Convergence",sel.conv==="CONFIRME"?"✅ Confirmé":"⚠️ Divergence",sel.conv==="CONFIRME"?"#00e5a0":"#ffd740"],["Hype",`${(sel.hype*100).toFixed(0)}%`,"#ffd740"]].map(([k,v,c]) => (
+                      <div key={k} style={{ background:"#0a1220", borderRadius:4, padding:"5px 7px", border:"1px solid #1a2540" }}>
+                        <div style={{ fontSize:7, color:"#8892a4", marginBottom:2 }}>{k}</div>
+                        <div style={{ fontSize:10, color:c, fontWeight:700 }}>{v}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                <div style={s.panel}>
+                  <div style={s.label}>Valorisation — Scénarios</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:12 }}>
+                    {[["BEAR",sel.bear,"#ff4f5a",`${((sel.bear-sel.prix)/sel.prix*100).toFixed(1)}%`],["BASE",sel.base,"#ffd740",`${((sel.base-sel.prix)/sel.prix*100).toFixed(1)}%`],["BULL",sel.bull,"#00e5a0",`+${upsidePct}%`]].map(([label,val,color,pct]) => (
+                      <div key={label} style={{ background:"#0a1220", borderRadius:5, padding:"8px", border:`1px solid ${color}20`, textAlign:"center" }}>
+                        <div style={{ fontSize:8, color:"#8892a4", marginBottom:3 }}>{label}</div>
+                        <div style={{ fontSize:14, fontWeight:700, color }}>{val >= 1000 ? val.toLocaleString() : val}</div>
+                        <div style={{ fontSize:9, color }}>{pct}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ position:"relative", marginBottom:4 }}>
+                    <div style={{ background:"linear-gradient(90deg,#ff4f5a,#ffd740,#00e5a0)", height:6, borderRadius:3 }} />
+                    <div style={{ position:"absolute", left:`${Math.min(Math.max((sel.prix-sel.bear)/(sel.bull-sel.bear)*100,2),98)}%`, top:"50%", transform:"translate(-50%,-50%)", width:12, height:12, borderRadius:"50%", background:"#fff", border:"2px solid #0d1829", boxShadow:"0 0 8px rgba(255,255,255,0.5)" }} />
+                  </div>
+                  <div style={{ display:"flex", justifyContent:"space-between", fontSize:8, color:"#8892a4" }}>
+                    <span>Bear {sel.bear}</span><span style={{ color:"#ffd740" }}>▲ {sel.prix.toLocaleString()} DH</span><span>Bull {sel.bull}</span>
+                  </div>
+                </div>
+                <div style={s.panel}>
+                  <div style={s.label}>Setup & Pondération Dynamique</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:10 }}>
+                    <div style={{ background:"#0a1220", borderRadius:4, padding:"6px 8px" }}><div style={{ fontSize:7, color:"#8892a4", marginBottom:2 }}>SETUP BVC</div><div style={{ fontSize:9, color:"#ffd740" }}>{sel.setup}</div></div>
+                    <div style={{ background:"#0a1220", borderRadius:4, padding:"6px 8px" }}><div style={{ fontSize:7, color:"#8892a4", marginBottom:2 }}>RED FLAGS</div><div style={{ fontSize:9, color: sel.flags>=3?"#ff4f5a":sel.flags>=1?"#ffd740":"#00e5a0" }}>{sel.flags===0?"✅ Aucun":`⚠️ ${sel.flags} flag(s)`}</div></div>
+                  </div>
+                  <div style={s.label}>Poids appliqués à {sel.ticker}</div>
+                  <WeightPill poids={sel.poids} />
+                </div>
+                <div style={{ ...s.panel, fontFamily:"monospace", fontSize:9, lineHeight:1.8 }}>
+                  <div style={{ color:"#00e5a0", marginBottom:4 }}>// Formule Score v5.3</div>
+                  <div style={{ color:"#b388ff" }}>score_v53 =</div>
+                  <div style={{ paddingLeft:12 }}>
+                    <span style={{ color:"#b388ff" }}>fond</span><span style={{ color:"#8892a4" }}> × </span><span style={{ color:"#b388ff" }}>{parseInt(sel.poids.split(" ")[0].split(":")[1])}%</span>
+                    <span style={{ color:"#8892a4" }}> + </span><span style={{ color:"#00e5a0" }}>nlp</span><span style={{ color:"#8892a4" }}> × </span><span style={{ color:"#00e5a0" }}>{parseInt(sel.poids.split(" ")[1].split(":")[1])}%</span>
+                    <span style={{ color:"#8892a4" }}> + </span><span style={{ color:"#4db8ff" }}>tech</span><span style={{ color:"#8892a4" }}> × </span><span style={{ color:"#4db8ff" }}>{parseInt(sel.poids.split(" ")[2].split(":")[1])}%</span>
+                  </div>
+                  <div style={{ color:"#8892a4" }}>+ bonus_convergence + bonus_smart_money</div>
+                  <div style={{ color:"#8892a4" }}>- malus_red_flags - malus_divergence</div>
+                  <div style={{ marginTop:6, color:"#ffd740" }}>= {sel.scoreV53.toFixed(2)} ({sel.delta>=0?"+":""}{sel.delta.toFixed(2)} vs BVC {sel.scoreBVC.toFixed(2)})</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {view === "weights" && (
+          <div>
+            <div style={{ ...s.panel, marginBottom:10 }}>
+              <div style={s.label}>Architecture de Pondération v5.3</div>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, marginTop:8 }}>
+                {[["Fondamental","47%","#b388ff","Marché semi-efficient, alpha long terme (6-12M). Données JSON validées sur 3 titres réels (MNG/ADI/RIS)."],["NLP Comportemental","28%","#00e5a0","896 907 messages, 6 ans. Smart Money backtesté 1994 signaux. Win rate 83% sur 12 mois."],["Technique","25%","#4db8ff","Timing d'entrée uniquement. Moins fiable sur marché peu liquide. RSI/MACD sur 492 séances réelles."]].map(([label,pct,color,desc]) => (
+                  <div key={label} style={{ background:"#0a1220", borderRadius:6, padding:12, border:`1px solid ${color}20` }}>
+                    <div style={{ fontSize:28, fontWeight:700, color, marginBottom:4 }}>{pct}</div>
+                    <div style={{ fontSize:10, color:"#fff", marginBottom:6 }}>{label}</div>
+                    <div style={{ fontSize:8, color:"#8892a4", lineHeight:1.6 }}>{desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={s.panel}>
+              <div style={s.label}>Ajustements Dynamiques par Contexte</div>
+              <table style={{ width:"100%", borderCollapse:"collapse", marginTop:8 }}>
+                <thead><tr style={{ fontSize:8, color:"#8892a4", borderBottom:"1px solid #1a2540" }}>{["Situation","Fond","NLP","Tech","Justification"].map(h => <th key={h} style={{ padding:"4px 8px", textAlign:"left" }}>{h}</th>)}</tr></thead>
+                <tbody>
+                  {[["Marché ouvert (base)","47%","28%","25%","Pondération standard BVC"],["Marché fermé/férié","52%","28%","20%","Pas de prix live"],["Publication résultats","57%","25%","18%","Fondamentaux mis à jour"],["Hype spike (>2σ)","42%","36%","22%","Comportemental précoce"],["Smart Money Tier 1","44%","35%","21%","Win rate 83%+ → NLP fiable"],["Bear market MASI<-5%","55%","28%","17%","Défensif, fondamental refuge"],["Titre peu suivi","54%","18%","28%","NLP peu fiable"]].map(([sit,f,n,t,j],i) => (
+                    <tr key={i} style={{ borderBottom:"1px solid #0d1829", fontSize:9 }}>
+                      <td style={{ padding:"5px 8px", color:"#c8d3e8" }}>{sit}</td>
+                      <td style={{ padding:"5px 8px", color:"#b388ff", fontWeight:700 }}>{f}</td>
+                      <td style={{ padding:"5px 8px", color:"#00e5a0", fontWeight:700 }}>{n}</td>
+                      <td style={{ padding:"5px 8px", color:"#4db8ff", fontWeight:700 }}>{t}</td>
+                      <td style={{ padding:"5px 8px", color:"#8892a4" }}>{j}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {view === "smart" && (
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+            <div style={s.panel}>
+              <div style={s.label}>Smart Money Tracker — Poids V3 Backtestés</div>
+              {SMART_MONEY.map(m => (
+                <div key={m.name} style={{ display:"flex", alignItems:"center", gap:10, padding:"6px 0", borderBottom:"1px solid #0d1829" }}>
+                  <div style={{ width:130, fontSize:10, color:"#c8d3e8" }}>{m.name}</div>
+                  <div style={{ width:70, fontSize:8, color: m.tier==="Admin"?"#ffd740":"#00e5a0" }}>{m.tier}</div>
+                  <div style={{ flex:1 }}><div style={{ background:"#1a2035", borderRadius:2, overflow:"hidden", height:4 }}><div style={{ width:`${m.w*100}%`, height:"100%", background: m.tier==="Admin"?"#ffd740":"#00e5a0" }} /></div></div>
+                  <div style={{ width:35, fontSize:9, color:"#8892a4", textAlign:"right" }}>{m.w.toFixed(2)}</div>
+                  <div style={{ width:30, fontSize:9, color:"#4db8ff", textAlign:"right" }}>{m.snr}</div>
+                  <div style={{ width:30, fontSize:9, color:"#00e5a0", textAlign:"right" }}>{m.win}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+              <div style={s.panel}>
+                <div style={s.label}>Backtesting V3 — 1994 Signaux / 2020-2026</div>
+                {[["Horizon 12M","83%","+38.3%","#00e5a0"],["Horizon 6M","80%","+18.1%","#00e5a0"],["Horizon 3M","78%","+8.7%","#ffd740"],["Horizon 1M","73%","+2.7%","#ff8f00"]].map(([h,wr,rdt,c]) => (
+                  <div key={h} style={{ display:"flex", justifyContent:"space-between", padding:"5px 0", borderBottom:"1px solid #0d1829" }}>
+                    <span style={{ fontSize:9, color:"#c8d3e8" }}>{h}</span>
+                    <span style={{ fontSize:9, color:c }}>Win {wr}</span>
+                    <span style={{ fontSize:9, color:c }}>Rdt {rdt}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={s.panel}>
+                <div style={s.label}>Contrarians V3 — Vente = Achat</div>
+                {[["MNG","0%","100% du temps cours monte après signal vente"],["RDS","0%","0% de réussite pour le vendeur"],["SMI","19%","81% du temps cours monte après vente"],["TGCC","39%","Seul valide comme confirmation"]].map(([t,acc,note]) => (
+                  <div key={t} style={{ padding:"5px 0", borderBottom:"1px solid #0d1829" }}>
+                    <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                      <span style={{ fontSize:10, color:"#fff", fontWeight:700, width:45 }}>{t}</span>
+                      <span style={{ fontSize:9, color: parseInt(acc)<20?"#00e5a0":"#ffd740" }}>Précision vente: {acc}</span>
+                    </div>
+                    <div style={{ fontSize:8, color:"#8892a4", marginTop:2 }}>{note}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<BVCTerminalV53 />);
+  </script>
+</body>
+</html>
