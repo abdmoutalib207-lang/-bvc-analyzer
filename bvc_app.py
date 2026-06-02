@@ -37,21 +37,25 @@ with st.sidebar:
     run_btn = st.button("🚀 Lancer l'analyse", type="primary", use_container_width=True)
 
 
-@st.cache_resource
-def load_analyzer():
-    """Charge le moteur BVC depuis les fichiers locaux du repo (Streamlit Cloud)."""
+@st.cache_data(ttl=300)  # fondamentaux.json rechargé toutes les 5 min
+def load_fondamentaux():
+    """Recharge fondamentaux.json depuis le repo local (mis à jour à chaque push)."""
     repo_dir = Path(__file__).parent
-
-    # fondamentaux.json disponible localement
     fond_src = repo_dir / "fondamentaux.json"
     if fond_src.exists():
-        Path("/tmp/fondamentaux.json").write_text(fond_src.read_text())
+        data = fond_src.read_text(encoding="utf-8")
+        Path("/tmp/fondamentaux.json").write_text(data)
+        return True
+    return False
 
-    # Charger bvc_analyzer_v50.py localement
+
+@st.cache_resource
+def load_analyzer():
+    """Charge le moteur BVC (code Python) depuis le repo local."""
+    repo_dir = Path(__file__).parent
     analyzer_path = repo_dir / "bvc_analyzer_v50.py"
     if not analyzer_path.exists():
         raise FileNotFoundError(f"bvc_analyzer_v50.py introuvable dans {repo_dir}")
-
     code = analyzer_path.read_text()
     ns = {}
     exec(compile(code, str(analyzer_path), "exec"), ns)
@@ -61,6 +65,9 @@ def load_analyzer():
 # ── ANALYSE ───────────────────────────────────────────────────────────────────
 
 if run_btn:
+    # Recharge fondamentaux.json (cache 5 min — se met à jour après chaque push)
+    load_fondamentaux()
+
     with st.spinner("Chargement du moteur…"):
         try:
             ns = load_analyzer()
