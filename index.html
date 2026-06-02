@@ -1,133 +1,302 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BVC ANALYZER v5.3</title>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    :root{--bg:#080d1a;--bg2:#0d1829;--bg3:#0a1220;--border:#1a2540;--text:#c8d3e8;--dim:#8892a4;--green:#00e5a0;--blue:#4db8ff;--yellow:#ffd740;--red:#ff4f5a;--purple:#b388ff;--orange:#ff8f00;--font:'IBM Plex Mono','Courier New',monospace;}
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5;}
-    button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:12px;}
-    ::-webkit-scrollbar{width:5px;height:5px;}
-    ::-webkit-scrollbar-track{background:var(--bg);}
-    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-  </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>BVC ANALYZER v6.0</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.2/dist/apexcharts.min.js"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root{--bg:#080d1a;--bg2:#0d1829;--bg3:#0a1220;--bd:#1a2540;--text:#c8d3e8;--dim:#8892a4;--green:#00e5a0;--blue:#4db8ff;--yel:#ffd740;--red:#ff4f5a;--pur:#b388ff;--org:#ff8f00;--font:'IBM Plex Mono','Courier New',monospace;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5;}
+    button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:12px;}
+    ::-webkit-scrollbar{width:5px;height:5px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px;}
+    .apexcharts-tooltip{font-family:var(--font)!important;font-size:12px!important;}
+    .apexcharts-menu{background:#0d1829!important;border-color:#1a2540!important;}
+    .apexcharts-menu-item{color:#c8d3e8!important;}
+  </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useEffect, useMemo, useCallback } = React;
+const {useState,useEffect,useMemo,useCallback,useRef} = React;
 
-const TICKERS = [
-  {ticker:"CMT", prix:5330, chg:6.60, bvc:7.16, v53:7.99, delta:0.83, sig:"ACHAT FORT ★★★", sigBvc:"ACHETER", nlp:0.51, hype:0.72, alpha:8.3, win:92, flags:0, upside:14, bear:4446, base:5700, bull:7125, setup:"NEUTRE", biais:"ACHAT", conv:"CONFIRME", poids:{f:44,n:35,t:21}, bonus:["+Conv BVC+NLP +0.30","+Smart Money actif (92%) +0.40"], sector:"Matériaux", warn:false},
-  {ticker:"SMI", prix:9372, chg:1.65, bvc:6.95, v53:7.66, delta:0.71, sig:"ACHAT FORT ★★★", sigBvc:"ACHETER", nlp:0.46, hype:0.43, alpha:30.7, win:100, flags:0, upside:7, bear:7695, base:9865, bull:12331, setup:"PULLBACK HAUSSIER", biais:"ACHAT", conv:"CONFIRME", poids:{f:44,n:35,t:21}, bonus:["+Conv BVC+NLP +0.30","+Smart Money actif (100%) +0.40"], sector:"Matériaux", warn:false},
-  {ticker:"CASH", prix:280, chg:-0.04, bvc:6.73, v53:7.56, delta:0.83, sig:"ACHAT FORT ★★★", sigBvc:"SURVEILLER", nlp:0.38, hype:0.31, alpha:7.0, win:80, flags:0, upside:12, bear:244, base:313, bull:392, setup:"NEUTRE", biais:"ACHAT", conv:"CONFIRME", poids:{f:44,n:35,t:21}, bonus:["+Conv BVC+NLP +0.30","+Smart Money actif (80%) +0.40"], sector:"Finance", warn:false},
-  {ticker:"MNG", prix:17927, chg:3.00, bvc:6.59, v53:6.67, delta:0.08, sig:"ACHETER ★★", sigBvc:"ACHETER", nlp:0.50, hype:0.89, alpha:55.3, win:93, flags:3, upside:2, bear:13847, base:17753, bull:22191, setup:"MOMENTUM CONFIRME", biais:"ACHAT FORT", conv:"CONFIRME", poids:{f:39,n:43,t:18}, bonus:["+Conv BVC+NLP +0.30","+Smart Money +0.40","+Hype +0.20","-Flags -0.30"], sector:"Mines", warn:false},
-  {ticker:"TGCC", prix:767, chg:2.99, bvc:5.22, v53:6.65, delta:1.43, sig:"ACHETER ★★", sigBvc:"ATTENDRE", nlp:0.09, hype:0.38, alpha:-2.3, win:39, flags:0, upside:27, bear:738, base:946, bull:1182, setup:"CONTRARIEN", biais:"ACHAT", conv:"CONFIRME", poids:{f:47,n:28,t:25}, bonus:["+Contrarian +0.25","+Conv baissière +0.15"], sector:"Construction", warn:true, warnMsg:"Alpha historique négatif (-2.3%) · Win rate vendeurs 61% · Signal Smart Money à pondérer avec prudence"},
-  {ticker:"SOT", prix:369, chg:0.00, bvc:6.62, v53:6.64, delta:0.02, sig:"ACHETER ★★", sigBvc:"ACHETER", nlp:0.29, hype:0.28, alpha:5.0, win:75, flags:0, upside:12, bear:322, base:413, bull:516, setup:"PULLBACK HAUSSIER", biais:"ACHAT", conv:"CONFIRME", poids:{f:47,n:28,t:25}, bonus:["+Conv BVC+NLP +0.30"], sector:"Agro", warn:false},
-  {ticker:"SGTM", prix:732, chg:0.22, bvc:5.77, v53:6.63, delta:0.86, sig:"ACHETER ★★", sigBvc:"SURVEILLER", nlp:0.18, hype:0.41, alpha:6.0, win:78, flags:0, upside:27, bear:724, base:928, bull:1160, setup:"CONTRARIEN", biais:"ACHAT", conv:"CONFIRME", poids:{f:47,n:28,t:25}, bonus:["+Conv BVC+NLP +0.30"], sector:"Construction", warn:false},
-  {ticker:"MSA", prix:845, chg:2.72, bvc:6.28, v53:6.28, delta:0.00, sig:"SURVEILLER ★", sigBvc:"SURVEILLER", nlp:0.22, hype:0.35, alpha:18.5, win:100, flags:0, upside:-13, bear:558, base:715, bull:894, setup:"CONTRARIEN", biais:"ACHAT", conv:"CONFIRME", poids:{f:44,n:35,t:21}, bonus:["+Conv BVC+NLP +0.30"], sector:"Agro", warn:false},
-  {ticker:"CFGB", prix:208, chg:1.46, bvc:5.44, v53:6.24, delta:0.80, sig:"SURVEILLER ★", sigBvc:"ATTENDRE", nlp:0.12, hype:0.19, alpha:4.0, win:72, flags:1, upside:17, bear:187, base:239, bull:299, setup:"FAIBLESSE", biais:"ACHAT", conv:"CONFIRME", poids:{f:47,n:28,t:25}, bonus:["+Conv BVC+NLP +0.30"], sector:"Finance", warn:false},
-  {ticker:"RIS", prix:326, chg:-2.31, bvc:4.71, v53:5.64, delta:0.93, sig:"SURVEILLER ★", sigBvc:"ATTENDRE", nlp:0.08, hype:0.22, alpha:11.4, win:100, flags:2, upside:-20, bear:208, base:267, bull:334, setup:"PULLBACK HAUSSIER", biais:"ACHAT", conv:"CONFIRME", poids:{f:44,n:35,t:21}, bonus:["+Smart Money actif (100%) +0.40"], sector:"Immo", warn:false},
-  {ticker:"ADI", prix:390, chg:-4.88, bvc:5.00, v53:5.63, delta:0.63, sig:"SURVEILLER ★", sigBvc:"ATTENDRE", nlp:-0.05, hype:0.65, alpha:8.5, win:69, flags:0, upside:17, bear:374, base:479, bull:599, setup:"CONTRARIEN", biais:"DÉBATTU", conv:"CONFIRME", poids:{f:47,n:28,t:25}, bonus:["+Conv BVC+NLP +0.30"], sector:"Immo", warn:false},
-  {ticker:"VCNE", prix:390, chg:0.00, bvc:4.93, v53:5.61, delta:0.68, sig:"SURVEILLER ★", sigBvc:"ATTENDRE", nlp:0.05, hype:0.21, alpha:3.0, win:70, flags:1, upside:9, bear:331, base:425, bull:531, setup:"FAIBLESSE", biais:"NEUTRE", conv:"CONFIRME", poids:{f:47,n:28,t:25}, bonus:["+Conv BVC+NLP +0.30"], sector:"Distribution", warn:false},
-  {ticker:"CMGP", prix:358, chg:-0.50, bvc:5.17, v53:5.49, delta:0.32, sig:"ATTENDRE", sigBvc:"ATTENDRE", nlp:0.05, hype:0.21, alpha:3.0, win:70, flags:1, upside:-3, bear:272, base:349, bull:436, setup:"FAIBLESSE", biais:"NEUTRE", conv:"CONFIRME", poids:{f:47,n:28,t:25}, bonus:[], sector:"Distribution", warn:false},
-  {ticker:"CSR", prix:188, chg:2.15, bvc:4.58, v53:5.05, delta:0.47, sig:"ATTENDRE", sigBvc:"ATTENDRE", nlp:0.02, hype:0.14, alpha:2.0, win:60, flags:2, upside:-15, bear:121, base:156, bull:195, setup:"FAIBLESSE", biais:"NEUTRE", conv:"CONFIRME", poids:{f:47,n:28,t:25}, bonus:[], sector:"Industrie", warn:false},
-  {ticker:"ADH", prix:33.4, chg:1.95, bvc:4.28, v53:4.41, delta:0.13, sig:"ÉVITER", sigBvc:"ATTENDRE", nlp:-0.08, hype:0.33, alpha:12.9, win:86, flags:3, upside:0, bear:25.5, base:32.8, bull:41, setup:"PULLBACK HAUSSIER", biais:"ACHAT", conv:"CONFIRME", poids:{f:44,n:35,t:21}, bonus:["-Red flags -0.30"], sector:"Distribution", warn:false},
-  {ticker:"SRM", prix:442, chg:-8.54, bvc:4.88, v53:3.94, delta:-0.94, sig:"ÉVITER", sigBvc:"ATTENDRE", nlp:-0.12, hype:0.18, alpha:2.0, win:55, flags:4, upside:8, bear:407, base:522, bull:652, setup:"FAIBLESSE", biais:"NÉGATIF", conv:"CONFIRME", poids:{f:47,n:28,t:25}, bonus:["-Red flags -0.60"], sector:"Industrie", warn:false},
-  {ticker:"RDS", prix:169.7, chg:1.19, bvc:3.76, v53:3.41, delta:-0.35, sig:"ÉVITER FORT", sigBvc:"EVITER", nlp:-0.31, hype:0.28, alpha:11.4, win:100, flags:4, upside:-38, bear:81, base:103, bull:129, setup:"PULLBACK HAUSSIER", biais:"ACHAT", conv:"CONFIRME", poids:{f:44,n:35,t:21}, bonus:["-Divergence BVC/NLP -0.50","-Red flags -0.60"], sector:"Industrie", warn:false},
+// ── STATIC FALLBACK DATA (19 tickers) ─────────────────────────────────────────
+const STATIC = [
+  {symbol:"CMT", name:"Ciments du Maroc",      sector:"Matériaux",    price:5330,  chg:6.60,  vol:2345678,cap:8500, pe:15.4,pb:2.2,div:4.1,h90:5800, l90:4200, rsi:67,ma20:5085, ma50:4820, bvc:7.16,v53:7.99,delta:0.83,nlp:0.51,alpha:8.3,  win:92, flags:0,upside:14, bear:4446, base:5700,  bull:7125,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30","+Smart Money (92%) +0.40"], warn:false},
+  {symbol:"SMI", name:"S.M. Imiter",            sector:"Matériaux",    price:9372,  chg:1.65,  vol:456789, cap:4200, pe:12.1,pb:1.5,div:2.0,h90:10200,l90:7500, rsi:61,ma20:9100, ma50:8600, bvc:6.95,v53:7.66,delta:0.71,nlp:0.46,alpha:30.7, win:100,flags:0,upside:7,  bear:7695, base:9865,  bull:12331, setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30","+Smart Money (100%) +0.40"],warn:false},
+  {symbol:"CASH",name:"CIH Bank",                sector:"Finance",      price:280,   chg:-0.04, vol:789012, cap:2800, pe:13.8,pb:1.8,div:3.2,h90:310,  l90:245,  rsi:58,ma20:274,  ma50:261,  bvc:6.73,v53:7.56,delta:0.83,nlp:0.38,alpha:7.0,  win:80, flags:0,upside:12, bear:244,  base:313,   bull:392,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ACHAT FORT ★★★",sigBvc:"SURVEILLER", bonus:["+Conv BVC+NLP +0.30","+Smart Money (80%) +0.40"], warn:false},
+  {symbol:"MNG", name:"Managem",                 sector:"Mines",        price:17927, chg:3.00,  vol:234567, cap:15000,pe:21.3,pb:3.1,div:1.5,h90:19500,l90:13500,rsi:64,ma20:17200,ma50:16100,bvc:6.59,v53:6.67,delta:0.08,nlp:0.50,alpha:55.3, win:93, flags:3,upside:2,  bear:13847,base:17753, bull:22191, setup:"MOMENTUM CONFIRME",  biais:"ACHAT FORT", poids:{f:39,n:43,t:18},sig:"ACHETER ★★",     sigBvc:"ACHETER",    bonus:["+Conv +0.30","+Smart +0.40","+Hype +0.20","-Flags -0.30"],warn:false},
+  {symbol:"AKD", name:"Akdital",                 sector:"Santé",        price:628,   chg:1.82,  vol:345678, cap:6280, pe:28.4,pb:4.2,div:0.8,h90:690,  l90:510,  rsi:62,ma20:610,  ma50:575,  bvc:6.20,v53:6.71,delta:0.51,nlp:0.25,alpha:15.2, win:78, flags:0,upside:18, bear:535,  base:660,   bull:750,   setup:"MOMENTUM CONFIRME",  biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ACHETER ★★",     sigBvc:"ACHETER",    bonus:["+Alpha fort +15.2% +0.30","+Conv BVC+NLP +0.20"],  warn:false},
+  {symbol:"SOT", name:"Sotherma",                sector:"Agro",         price:369,   chg:0.00,  vol:123456, cap:1100, pe:19.5,pb:2.5,div:2.8,h90:415,  l90:320,  rsi:56,ma20:361,  ma50:345,  bvc:6.62,v53:6.64,delta:0.02,nlp:0.29,alpha:5.0,  win:75, flags:0,upside:12, bear:322,  base:413,   bull:516,   setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
+  {symbol:"SGTM",name:"SGTM",                    sector:"Construction", price:732,   chg:0.22,  vol:234567, cap:2800, pe:16.2,pb:1.9,div:3.1,h90:810,  l90:650,  rsi:54,ma20:712,  ma50:688,  bvc:5.77,v53:6.63,delta:0.86,nlp:0.18,alpha:6.0,  win:78, flags:0,upside:27, bear:724,  base:928,   bull:1160,  setup:"CONTRARIEN",         biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"SURVEILLER", bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
+  {symbol:"MSA", name:"Mutandis",                 sector:"Agro",         price:845,   chg:2.72,  vol:89012,  cap:3200, pe:14.7,pb:1.8,div:4.2,h90:920,  l90:690,  rsi:53,ma20:822,  ma50:795,  bvc:6.28,v53:6.28,delta:0.00,nlp:0.22,alpha:18.5, win:100,flags:0,upside:-13,bear:558,  base:715,   bull:894,   setup:"CONTRARIEN",         biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"SURVEILLER ★",   sigBvc:"SURVEILLER", bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
+  {symbol:"CFGB",name:"CFG Bank",                 sector:"Finance",      price:208,   chg:1.46,  vol:456789, cap:1800, pe:11.8,pb:1.4,div:2.5,h90:240,  l90:185,  rsi:50,ma20:202,  ma50:194,  bvc:5.44,v53:6.24,delta:0.80,nlp:0.12,alpha:4.0,  win:72, flags:1,upside:17, bear:187,  base:239,   bull:299,   setup:"FAIBLESSE",          biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"ATTENDRE",   bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
+  {symbol:"RIS", name:"Résidences Immo.",         sector:"Immo",         price:326,   chg:-2.31, vol:78901,  cap:890,  pe:10.2,pb:0.9,div:3.8,h90:370,  l90:250,  rsi:47,ma20:318,  ma50:305,  bvc:4.71,v53:5.64,delta:0.93,nlp:0.08,alpha:11.4, win:100,flags:2,upside:-20,bear:208,  base:267,   bull:334,   setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"SURVEILLER ★",   sigBvc:"ATTENDRE",   bonus:["+Smart Money (100%) +0.40"],                        warn:false},
+  {symbol:"ADI", name:"Alliances Dév.",           sector:"Immo",         price:390,   chg:-4.88, vol:123456, cap:1450, pe:9.8, pb:0.8,div:1.2,h90:450,  l90:340,  rsi:45,ma20:382,  ma50:368,  bvc:5.00,v53:5.63,delta:0.63,nlp:-0.05,alpha:8.5, win:69, flags:0,upside:17, bear:374,  base:479,   bull:599,   setup:"CONTRARIEN",         biais:"DÉBATTU",    poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"ATTENDRE",   bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
+  {symbol:"VCNE",name:"Vivo Energy",              sector:"Distribution", price:390,   chg:0.00,  vol:234567, cap:5200, pe:12.4,pb:1.6,div:5.1,h90:430,  l90:355,  rsi:49,ma20:383,  ma50:371,  bvc:4.93,v53:5.61,delta:0.68,nlp:0.05,alpha:3.0,  win:70, flags:1,upside:9,  bear:331,  base:425,   bull:531,   setup:"FAIBLESSE",          biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"ATTENDRE",   bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
+  {symbol:"CMGP",name:"CMGP Group",               sector:"Distribution", price:358,   chg:-0.50, vol:56789,  cap:680,  pe:13.1,pb:1.3,div:2.9,h90:400,  l90:310,  rsi:46,ma20:350,  ma50:338,  bvc:5.17,v53:5.49,delta:0.32,nlp:0.05,alpha:3.0,  win:70, flags:1,upside:-3, bear:272,  base:349,   bull:436,   setup:"FAIBLESSE",          biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],                                                   warn:false},
+  {symbol:"CSR", name:"Ciments de l'Atlas",       sector:"Industrie",    price:188,   chg:2.15,  vol:89012,  cap:420,  pe:8.9, pb:0.7,div:1.5,h90:210,  l90:155,  rsi:45,ma20:184,  ma50:177,  bvc:4.58,v53:5.05,delta:0.47,nlp:0.02,alpha:2.0,  win:60, flags:2,upside:-15,bear:121,  base:156,   bull:195,   setup:"FAIBLESSE",          biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],                                                   warn:false},
+  {symbol:"TGCC",name:"Total Gaou Côte Ciment",   sector:"Construction", price:767,   chg:2.99,  vol:567890, cap:3800, pe:17.9,pb:2.0,div:2.2,h90:850,  l90:680,  rsi:44,ma20:738,  ma50:712,  bvc:5.22,v53:4.85,delta:-0.37,nlp:0.09,alpha:-2.3,win:39, flags:0,upside:27, bear:738,  base:946,   bull:1182,  setup:"CONTRARIEN",         biais:"DÉBATTU",    poids:{f:47,n:28,t:25},sig:"ÉVITER",         sigBvc:"ATTENDRE",   bonus:["-Alpha négatif -0.60","+Contrarian +0.20"],         warn:true, warnMsg:"Alpha historique NÉGATIF (-2.3%) · Win rate vendeurs 61% · Signal ACHAT communauté = contrarian indicator V3"},
+  {symbol:"ADH", name:"Addoha",                   sector:"Distribution", price:33.4,  chg:1.95,  vol:2345678,cap:3200, pe:7.2, pb:0.6,div:0.0,h90:40,   l90:26,   rsi:42,ma20:32.5, ma50:31.2, bvc:4.28,v53:4.41,delta:0.13,nlp:-0.08,alpha:12.9,win:86, flags:3,upside:0,  bear:25.5, base:32.8,  bull:41,    setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ÉVITER",         sigBvc:"ATTENDRE",   bonus:["-Red flags -0.30"],                                 warn:false},
+  {symbol:"SRM", name:"Stokvis",                  sector:"Industrie",    price:442,   chg:-8.54, vol:67890,  cap:310,  pe:11.5,pb:1.1,div:0.5,h90:560,  l90:420,  rsi:33,ma20:485,  ma50:510,  bvc:4.88,v53:3.94,delta:-0.94,nlp:-0.12,alpha:2.0, win:55, flags:4,upside:8,  bear:407,  base:522,   bull:652,   setup:"FAIBLESSE",          biais:"NÉGATIF",    poids:{f:47,n:28,t:25},sig:"ÉVITER FORT",     sigBvc:"ATTENDRE",   bonus:["-Red flags -0.60"],                                 warn:false},
+  {symbol:"SNA", name:"Sonasid",                  sector:"Industrie",    price:568,   chg:-1.38, vol:45678,  cap:1100, pe:8.2, pb:0.7,div:1.0,h90:640,  l90:520,  rsi:38,ma20:582,  ma50:595,  bvc:4.10,v53:3.84,delta:-0.26,nlp:-0.15,alpha:-2.2,win:35, flags:3,upside:-11,bear:495,  base:540,   bull:610,   setup:"FAIBLESSE",          biais:"NÉGATIF",    poids:{f:47,n:28,t:25},sig:"ÉVITER FORT",     sigBvc:"EVITER",     bonus:["-Alpha négatif -0.60","-Red flags -0.30"],          warn:true, warnMsg:"Alpha historique NÉGATIF (-2.2%) · Win rate 35% · Signal ÉVITER confirmé par backtesting V3"},
+  {symbol:"RDS", name:"RDSA Maroc",               sector:"Industrie",    price:169.7, chg:1.19,  vol:34567,  cap:280,  pe:6.1, pb:0.5,div:0.0,h90:195,  l90:148,  rsi:30,ma20:175,  ma50:182,  bvc:3.76,v53:3.41,delta:-0.35,nlp:-0.31,alpha:11.4,win:100,flags:4,upside:-38,bear:81,   base:103,   bull:129,   setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ÉVITER FORT",     sigBvc:"EVITER",     bonus:["-Divergence BVC/NLP -0.50","-Red flags -0.60"],     warn:false},
 ];
 
-const MEMBERS = [
-  {name:"Karim Doe", tier:"Admin", w:1.00, snr:null, win:null, alpha:null},
-  {name:"M7357", tier:"Tier 1", w:0.88, snr:21.7, win:83, alpha:38.3},
-  {name:"M2786", tier:"Tier 1", w:0.85, snr:10.3, win:82, alpha:32.1},
-  {name:"M9925", tier:"Tier 1", w:0.85, snr:10.2, win:82, alpha:30.5},
-  {name:"M4771", tier:"Tier 1", w:0.83, snr:9.2, win:80, alpha:27.8},
-  {name:"M1339", tier:"Tier 1", w:0.83, snr:7.4, win:80, alpha:25.2},
-  {name:"M2158", tier:"Tier 2", w:0.82, snr:6.8, win:79, alpha:21.9},
-  {name:"M4759", tier:"Tier 2", w:0.65, snr:8.1, win:79, alpha:22.4},
+const MEMBERS=[
+  {name:"Karim Doe",  tier:"Admin",  w:1.00,snr:null,win:null, alpha:null},
+  {name:"M7357",     tier:"Tier 1", w:0.88,snr:21.7,win:83,   alpha:38.3},
+  {name:"M2786",     tier:"Tier 1", w:0.85,snr:10.3,win:82,   alpha:32.1},
+  {name:"M9925", tier:"Tier 1", w:0.85,snr:10.2,win:82,   alpha:30.5},
+  {name:"M4771",     tier:"Tier 1", w:0.83,snr:9.2, win:80,   alpha:27.8},
+  {name:"M1339",  tier:"Tier 1", w:0.83,snr:7.4, win:80,   alpha:25.2},
+  {name:"M2158",       tier:"Tier 2", w:0.82,snr:6.8, win:79,   alpha:21.9},
+  {name:"M4759",     tier:"Tier 2", w:0.65,snr:8.1, win:79,   alpha:22.4},
 ];
 
-const CHAT = [
-  {id:1, time:"14:23", date:"01/06/2026", member:"M7357", tier:"Tier 1", snr:21.7, alpha:38.3, ticker:"CMT", signal:"ACHAT", conf:94, ctx:"Breakout volume ×3.4", msg:"CMT breakout confirmé au-dessus de 5300 DH. Volume ×3.4 par rapport à la moyenne 20j. La résistance devient support. Objectif T1: 5700 DH, T2: 6200 DH. Stop suggéré: 5100."},
-  {id:2, time:"11:47", date:"01/06/2026", member:"M2786", tier:"Tier 1", snr:10.3, alpha:32.1, ticker:"SMI", signal:"ACHAT", conf:88, ctx:"Pullback haussier confirmé", msg:"SMI consolide proprement au-dessus de 9200. Pullback sain sur MM20. Rien à faire sinon tenir. Upside fondamental +30% sur 12 mois selon bilan S1 2026."},
-  {id:3, time:"09:15", date:"01/06/2026", member:"M9925", tier:"Tier 1", snr:10.2, alpha:30.5, ticker:"MNG", signal:"TENIR", conf:82, ctx:"Prudence valorisation", msg:"MNG: 3 red flags (liquidité, valorisation tendue, dette). Mais alpha historique +55.3% — tenir les positions ouvertes. Ne pas renforcer au prix actuel. Revoir si retour sur 16500."},
-  {id:4, time:"16:08", date:"31/05/2026", member:"M1339", tier:"Tier 1", snr:7.4, alpha:25.2, ticker:"TGCC", signal:"VENTE", conf:71, ctx:"Alpha négatif — contrarian", msg:"TGCC: alpha historique négatif confirmé (-2.3%). Signal ACHAT communauté = contrarian indicator selon backtesting V3. Win rate vendeurs 61%. Ne pas suivre les achats en groupe."},
-  {id:5, time:"10:33", date:"31/05/2026", member:"M2158", tier:"Tier 2", snr:6.8, alpha:21.9, ticker:"SRM", signal:"EVITER", conf:68, ctx:"Chute -8.5% + 4 red flags", msg:"SRM: -8.54% aujourd'hui, 4 red flags actifs. Biais groupe NÉGATIF. Smart money totalement absent sur ce titre. À éviter absolument jusqu'à clarification."},
+const CHAT=[
+  {id:1,time:"14:23",date:"01/06/2026",member:"M7357",    tier:"Tier 1",snr:21.7,alpha:38.3,ticker:"CMT", signal:"ACHAT", conf:94,ctx:"Breakout volume ×3.4", msg:"CMT breakout confirmé au-dessus de 5300 DH. Volume ×3.4 vs moyenne 20j. La résistance devient support. Objectif T1: 5700, T2: 6200. Stop: 5100."},
+  {id:2,time:"11:47",date:"01/06/2026",member:"M2786",    tier:"Tier 1",snr:10.3,alpha:32.1,ticker:"SMI", signal:"ACHAT", conf:88,ctx:"Pullback haussier sain",  msg:"SMI consolide proprement au-dessus de 9200. Pullback sur MM20 sain. Tenir. Upside fondamental +30% sur 12 mois selon bilan S1 2026."},
+  {id:3,time:"09:15",date:"01/06/2026",member:"M9925",tier:"Tier 1",snr:10.2,alpha:30.5,ticker:"AKD", signal:"ACHAT", conf:86,ctx:"Croissance Akdital +18%",  msg:"AKD: résultats S1 excellents. Croissance CA +18% YoY. Valorisation tendue (PE 28) mais justifiée. Alpha historique +15.2%. Objectif: 700."},
+  {id:4,time:"16:08",date:"31/05/2026",member:"M1339", tier:"Tier 1",snr:7.4, alpha:25.2,ticker:"TGCC",signal:"VENTE", conf:71,ctx:"Contrarian — alpha négatif",msg:"TGCC: alpha négatif confirmé (-2.3%). Signal ACHAT communauté = contrarian indicator V3. Win rate vendeurs 61%. Ne pas suivre les achats."},
+  {id:5,time:"10:33",date:"31/05/2026",member:"M2158",      tier:"Tier 2",snr:6.8, alpha:21.9,ticker:"SRM", signal:"EVITER",conf:68,ctx:"Chute -8.5% + 4 red flags",msg:"SRM: -8.54% aujourd'hui. 4 red flags actifs. Biais groupe NÉGATIF. Smart money absent. À éviter absolument jusqu'à clarification."},
 ];
 
-const SS = s => {
-  const u = (s||"").toUpperCase();
-  if (u.includes("ACHAT FORT")||u.includes("★★★")) return {bg:"rgba(0,229,160,0.18)",fg:"#00ffb3",bd:"rgba(0,229,160,0.5)"};
-  if (u.includes("★★")||u==="ACHETER") return {bg:"rgba(0,229,160,0.10)",fg:"#00e5a0",bd:"rgba(0,229,160,0.35)"};
-  if (u.includes("SURVEILLER")||u.includes("★")) return {bg:"rgba(255,215,64,0.10)",fg:"#ffd740",bd:"rgba(255,215,64,0.35)"};
-  if (u.includes("ÉVITER FORT")||u.includes("EVITER FORT")) return {bg:"rgba(255,79,90,0.18)",fg:"#ff4f5a",bd:"rgba(255,79,90,0.5)"};
-  if (u.includes("ÉVITER")||u.includes("EVITER")) return {bg:"rgba(255,143,0,0.10)",fg:"#ff8f00",bd:"rgba(255,143,0,0.35)"};
-  return {bg:"rgba(136,146,164,0.08)",fg:"#8892a4",bd:"rgba(136,146,164,0.25)"};
+// ── UTILS ──────────────────────────────────────────────────────────────────────
+const SS=s=>{const u=(s||"").toUpperCase();
+  if(u.includes("ACHAT FORT")||u.includes("★★★")) return{bg:"rgba(0,229,160,.18)",fg:"#00ffb3",bd:"rgba(0,229,160,.5)"};
+  if(u.includes("★★")||u==="ACHETER")              return{bg:"rgba(0,229,160,.10)",fg:"#00e5a0",bd:"rgba(0,229,160,.35)"};
+  if(u.includes("SURVEILLER")||u.includes("★"))    return{bg:"rgba(255,215,64,.10)",fg:"#ffd740",bd:"rgba(255,215,64,.35)"};
+  if(u.includes("ÉVITER FORT")||u.includes("EVITER FORT")) return{bg:"rgba(255,79,90,.18)",fg:"#ff4f5a",bd:"rgba(255,79,90,.5)"};
+  if(u.includes("ÉVITER")||u.includes("EVITER"))   return{bg:"rgba(255,143,0,.10)",fg:"#ff8f00",bd:"rgba(255,143,0,.35)"};
+  return{bg:"rgba(136,146,164,.08)",fg:"#8892a4",bd:"rgba(136,146,164,.25)"};
 };
-const VC = v => v > 0 ? "#00e5a0" : v < 0 ? "#ff4f5a" : "#8892a4";
-const SC = v => v >= 7.5 ? "#00ffb3" : v >= 6.5 ? "#00e5a0" : v >= 5.5 ? "#ffd740" : v >= 4 ? "#ff8f00" : "#ff4f5a";
-const NC = v => v > 0.15 ? "#00e5a0" : v > -0.15 ? "#ffd740" : "#ff4f5a";
-const CCO = v => v >= 85 ? "#00e5a0" : v >= 70 ? "#ffd740" : "#ff8f00";
-const px = n => n >= 1000 ? n.toLocaleString("fr-FR") : n;
-const B2 = ({v,max=10,c,h=6}) => (
+const VC=v=>v>0?"#00e5a0":v<0?"#ff4f5a":"#8892a4";
+const SC=v=>v>=7.5?"#00ffb3":v>=6.5?"#00e5a0":v>=5.5?"#ffd740":v>=4?"#ff8f00":"#ff4f5a";
+const NC=v=>v>0.15?"#00e5a0":v>-0.15?"#ffd740":"#ff4f5a";
+const CCO=v=>v>=85?"#00e5a0":v>=70?"#ffd740":"#ff8f00";
+const px=n=>n>=1000?n.toLocaleString("fr-FR"):n;
+const fmtM=n=>n>=1000?`${(n/1000).toFixed(1)} Md`:`${n} M`;
+
+// ── TECHNICAL CALCULATIONS ────────────────────────────────────────────────────
+function mulberry32(seed){
+  let s=seed>>>0;
+  return function(){s+=0x6D2B79F5;let t=Math.imul(s^(s>>>15),s|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};
+}
+
+function genCandles(price,h90,l90,days=90){
+  const rng=mulberry32(Math.round(price*137)>>>0);
+  const data=[];
+  const range=h90-l90;
+  let cur=price*(0.75+rng()*0.15);
+  const ref=new Date("2026-06-02");
+  for(let i=days;i>=0;i--){
+    const d=new Date(ref);d.setDate(d.getDate()-i);
+    const dow=d.getDay();if(dow===0||dow===6)continue;
+    const vol=range/price*0.012;
+    const pull=(price-cur)/price*0.04;
+    const step=(rng()-0.47+pull)*vol*cur;
+    cur=Math.max(l90*0.92,Math.min(h90*1.08,cur+step));
+    const wk=cur*vol*(0.3+rng()*0.7);
+    const o=cur;
+    const h=o+wk*(0.2+rng()*0.6);
+    const l=Math.max(o-wk*(0.2+rng()*0.6),1);
+    const c=l+rng()*(h-l);
+    cur=c;
+    data.push({x:d.getTime(),y:[o,h,l,c].map(v=>+v.toFixed(2))});
+  }
+  return data;
+}
+
+function calcRSI(closes,p=14){
+  if(closes.length<p+1)return 50;
+  let g=0,l=0;
+  for(let i=1;i<=p;i++){const d=closes[i]-closes[i-1];if(d>0)g+=d;else l-=d;}
+  let ag=g/p,al=l/p;
+  for(let i=p+1;i<closes.length;i++){const d=closes[i]-closes[i-1];ag=(ag*(p-1)+Math.max(d,0))/p;al=(al*(p-1)+Math.max(-d,0))/p;}
+  return al===0?100:+(100-100/(1+ag/al)).toFixed(1);
+}
+
+function calcMA(closes,p){
+  return closes.map((_,i)=>i<p?null:+(closes.slice(i-p,i).reduce((a,b)=>a+b,0)/p).toFixed(2));
+}
+
+function calcFib(high,low){
+  const d=high-low;
+  return [0,0.236,0.382,0.5,0.618,0.786,1.0].map(r=>[r,+(low+d*r).toFixed(2)]);
+}
+
+// ── ATOMS ────────────────────────────────────────────────────────────────────
+const Bar=({v,max=10,c,h=6})=>(
   <div style={{background:"#0d1829",borderRadius:3,height:h,overflow:"hidden"}}>
     <div style={{width:`${Math.min(100,v/max*100)}%`,height:"100%",background:c,boxShadow:`0 0 6px ${c}40`,transition:"width .5s"}}/>
   </div>
 );
-const Chip = ({label,bg,fg,bd,sz=11}) => (
+const Chip=({label,bg,fg,bd,sz=11})=>(
   <span style={{display:"inline-block",whiteSpace:"nowrap",background:bg,color:fg,border:`1px solid ${bd}`,borderRadius:4,padding:"2px 8px",fontSize:sz,fontWeight:600,fontFamily:"var(--font)"}}>{label}</span>
 );
-const Delta = ({d}) => {
-  const c = d > 0 ? "#00e5a0" : d < 0 ? "#ff4f5a" : "#8892a4";
+const Delta=({d})=>{
+  const c=d>0?"#00e5a0":d<0?"#ff4f5a":"#8892a4";
   return <span style={{fontSize:10,padding:"1px 5px",borderRadius:3,background:`${c}15`,color:c,border:`1px solid ${c}28`,fontWeight:700}}>{d>0?"+":""}{d.toFixed(2)}</span>;
 };
-const WBar = ({f,n,t}) => (
+const WBar=({f,n,t})=>(
   <div style={{display:"flex",height:7,borderRadius:3,overflow:"hidden",gap:1}}>
     <div style={{width:`${f}%`,background:"#b388ff"}} title={`Fond ${f}%`}/>
     <div style={{width:`${n}%`,background:"#00e5a0"}} title={`NLP ${n}%`}/>
     <div style={{width:`${t}%`,background:"#4db8ff"}} title={`Tech ${t}%`}/>
   </div>
 );
-const Conf = ({v}) => (
-  <div style={{display:"flex",alignItems:"center",gap:6}}>
-    <div style={{flex:1,background:"#0d1829",borderRadius:3,height:6}}>
-      <div style={{width:`${v}%`,height:"100%",background:CCO(v),borderRadius:3}}/>
-    </div>
-    <span style={{color:CCO(v),fontSize:12,fontWeight:700,minWidth:32}}>{v}%</span>
-  </div>
-);
 
-const Header = ({tab,setTab,ts,onRefresh,loading}) => {
-  const [pulse,setPulse] = useState(false);
-  useEffect(() => {const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
-  const TABS = [{id:"ranking",label:"CLASSEMENT"},{id:"detail",label:"DÉTAIL"},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"chat",label:"CHAT 3 MAJ",badge:CHAT.length}];
-  return (
+const RSIGauge=({value})=>{
+  const v=Math.min(100,Math.max(0,value||50));
+  const color=v>70?"#ff4f5a":v<30?"#00e5a0":"#ffd740";
+  const label=v>70?"SURACHETÉ":v<30?"SURVENDU":"NEUTRE";
+  const a=-Math.PI+Math.PI*(v/100);
+  const cx=60,cy=58,r=44;
+  const ex=cx+r*Math.cos(a),ey=cy+r*Math.sin(a);
+  return(
+    <div style={{textAlign:"center"}}>
+      <svg width="120" height="70" viewBox="0 0 120 75">
+        <path d={`M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy}`} fill="none" stroke="#1a2540" strokeWidth="10" strokeLinecap="round"/>
+        <path d={`M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${ex} ${ey}`} fill="none" stroke={color} strokeWidth="10" strokeLinecap="round"/>
+        <circle cx={ex} cy={ey} r={5} fill={color}/>
+        <text x={cx} y={cy+2} textAnchor="middle" fill={color} fontSize="17" fontWeight="700" fontFamily="var(--font)">{v.toFixed(0)}</text>
+        <text x={cx} y={cy+16} textAnchor="middle" fill="#8892a4" fontSize="8" fontFamily="var(--font)">{label}</text>
+      </svg>
+      <div style={{fontSize:9,color:"#8892a4",marginTop:-6}}>RSI (14)</div>
+    </div>
+  );
+};
+
+const FibTable=({high,low,price})=>{
+  const fibs=calcFib(high,low);
+  return(
+    <div>
+      <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>Retracements Fibonacci</div>
+      <div style={{fontSize:9,color:"#8892a4",marginBottom:4}}>Plage 90j: {px(low)} → {px(high)}</div>
+      {fibs.map(([r,val])=>{
+        const pctFromPrice=((val-price)/price*100).toFixed(1);
+        const isNear=Math.abs(val-price)/price<0.03;
+        return(
+          <div key={r} style={{display:"flex",alignItems:"center",gap:8,padding:"4px 0",borderBottom:"1px solid #0d1829",background:isNear?"rgba(255,215,64,.06)":"transparent"}}>
+            <span style={{fontSize:10,color:"#ffd740",minWidth:36,fontWeight:isNear?700:400}}>{r===0?"0.0":r===1?"1.0":r}</span>
+            <div style={{flex:1,background:"#0a1220",borderRadius:2,height:3}}>
+              <div style={{width:`${Math.max(0,(val-low)/(high-low)*100)}%`,height:"100%",background:isNear?"#ffd740":"#ffd74040"}}/>
+            </div>
+            <span style={{fontSize:11,color:isNear?"#ffd740":"#c8d3e8",minWidth:60,textAlign:"right",fontWeight:isNear?700:400}}>{px(val)}</span>
+            <span style={{fontSize:10,color:pctFromPrice>0?"#00e5a0":"#ff4f5a",minWidth:44,textAlign:"right"}}>{pctFromPrice>0?"+":""}{pctFromPrice}%</span>
+            {isNear&&<span style={{fontSize:9,color:"#ffd740"}}>◀</span>}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// ── STOCK CHART (ApexCharts) ──────────────────────────────────────────────────
+const StockChart=({r})=>{
+  const ref=useRef(null);
+  const inst=useRef(null);
+  const [period,setPeriod]=useState(()=>localStorage.getItem("bvc_period")||"3M");
+
+  const daysMap={"1M":22,"3M":65,"6M":130,"1A":260};
+
+  useEffect(()=>{
+    if(!ref.current)return;
+    const days=daysMap[period]||65;
+    const candles=genCandles(r.price||r.prix,r.h90||r.high90,r.l90||r.low90,days);
+    const closes=candles.map(c=>c.y[3]);
+    const ma20=calcMA(closes,20);
+    const ma50=calcMA(closes,50);
+    const fibs=calcFib(r.h90||r.high90,r.l90||r.low90);
+
+    const ma20data=candles.map((c,i)=>({x:c.x,y:ma20[i]})).filter(p=>p.y!==null);
+    const ma50data=candles.map((c,i)=>({x:c.x,y:ma50[i]})).filter(p=>p.y!==null);
+
+    const opts={
+      chart:{type:"candlestick",height:300,background:"#0d1829",
+        toolbar:{show:true,tools:{zoom:true,reset:true,pan:true,download:false}},
+        animations:{enabled:false},
+        events:{beforeMount:function(chartCtx){chartCtx.el.style.background="#0d1829";}}
+      },
+      series:[
+        {name:r.symbol||r.ticker,type:"candlestick",data:candles},
+        {name:"MA20",type:"line",data:ma20data},
+        {name:"MA50",type:"line",data:ma50data},
+      ],
+      stroke:{width:[1,1.5,1.5],dashArray:[0,0,4]},
+      colors:["","#4db8ff","#b388ff"],
+      xaxis:{type:"datetime",labels:{style:{colors:"#8892a4",fontSize:"10px"},datetimeFormatter:{month:"MMM yy",day:"dd MMM"}}},
+      yaxis:{labels:{formatter:v=>v>=1000?v.toLocaleString("fr-FR"):v?.toFixed(2)||"",style:{colors:"#8892a4",fontSize:"10px"}}},
+      grid:{borderColor:"#1a2540"},
+      theme:{mode:"dark"},
+      plotOptions:{candlestick:{colors:{upward:"#00e5a0",downward:"#ff4f5a"},wick:{useFillColor:true}}},
+      legend:{show:true,labels:{colors:["#c8d3e8","#4db8ff","#b388ff"]},fontSize:"10px",fontFamily:"var(--font)"},
+      annotations:{yaxis:fibs.slice(1,-1).map(([lvl,val])=>({y:val,borderColor:"#ffd74035",borderWidth:1,label:{text:`Fib ${lvl}`,style:{color:"#ffd740",background:"#0d1829",fontSize:"9px",padding:{left:3,right:3,top:1,bottom:1}}}}))},
+      tooltip:{theme:"dark",custom:function({seriesIndex,dataPointIndex,w}){
+        const d=w.globals.initialSeries[0]?.data[dataPointIndex];
+        if(!d||seriesIndex!==0)return"";
+        const [o,h,l,c]=d.y;
+        const col=c>=o?"#00e5a0":"#ff4f5a";
+        return `<div style="padding:8px 10px;font-family:var(--font);font-size:11px;background:#0d1829;border:1px solid #1a2540;border-radius:4px"><b style="color:#fff">${r.symbol||r.ticker}</b><br/><span style="color:#8892a4">O</span> <span style="color:#c8d3e8">${o}</span> <span style="color:#8892a4">H</span> <span style="color:${col}">${h}</span> <span style="color:#8892a4">L</span> <span style="color:#ff4f5a">${l}</span> <span style="color:#8892a4">C</span> <span style="color:${col};font-weight:700">${c}</span></div>`;
+      }}
+    };
+
+    if(inst.current){inst.current.destroy();inst.current=null;}
+    inst.current=new ApexCharts(ref.current,opts);
+    inst.current.render();
+    return()=>{if(inst.current){inst.current.destroy();inst.current=null;}};
+  },[r.symbol||r.ticker,period]);
+
+  const changePeriod=(p)=>{setPeriod(p);localStorage.setItem("bvc_period",p);};
+
+  return(
+    <div>
+      <div style={{display:"flex",gap:6,marginBottom:8,alignItems:"center"}}>
+        <span style={{fontSize:10,color:"#8892a4"}}>PÉRIODE</span>
+        {["1M","3M","6M","1A"].map(p=>(
+          <button key={p} onClick={()=>changePeriod(p)} style={{background:period===p?"rgba(77,184,255,.15)":"transparent",border:period===p?"1px solid rgba(77,184,255,.4)":"1px solid #1a2540",color:period===p?"#4db8ff":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>{p}</button>
+        ))}
+        <span style={{marginLeft:"auto",fontSize:9,color:"#8892a4"}}>RSI:{(r.rsi||r.rsi14||50).toFixed(0)} · MA20:{px(r.ma20||0)} · MA50:{px(r.ma50||0)}</span>
+      </div>
+      <div ref={ref}/>
+    </div>
+  );
+};
+
+// ── HEADER ────────────────────────────────────────────────────────────────────
+const Header=({tab,setTab,ts,src,onRefresh,loading})=>{
+  const [pulse,setPulse]=useState(false);
+  useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
+  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"detail",label:"DÉTAIL"},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"chat",label:"CHAT 3 MAJ",badge:CHAT.length}];
+  return(
     <div style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
         <div style={{display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
           <span style={{fontSize:22,fontWeight:700,letterSpacing:3,background:"linear-gradient(90deg,#00e5a0,#4db8ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>BVC ANALYZER</span>
-          <span style={{background:"rgba(0,229,160,0.1)",border:"1px solid rgba(0,229,160,0.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v5.3 — TECH 25% · FOND 47% · NLP 28%</span>
+          <span style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.0 — TECH 25% · FOND 47% · NLP 28%</span>
           <span style={{fontSize:12,color:"#ffd740"}}>
             <span style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:pulse?"#00e5a0":"transparent",border:"1px solid #00e5a0",marginRight:6,transition:"background .4s"}}/>
-            OPEN · {ts}
+            {ts}
           </span>
         </div>
-        <button onClick={onRefresh} disabled={loading} style={{background:"rgba(77,184,255,0.12)",border:"1px solid rgba(77,184,255,0.35)",color:"#4db8ff",borderRadius:4,padding:"5px 14px",fontSize:12,opacity:loading?.7:1,transition:"all .2s"}}>{loading?"↻ Actualisation…":"↻ Mettre à jour"}</button>
+        <div style={{display:"flex",gap:8,alignItems:"center"}}>
+          {src&&<span style={{fontSize:10,color:"#8892a4"}}>données: {src}</span>}
+          <button onClick={onRefresh} disabled={loading} style={{background:"rgba(77,184,255,.12)",border:"1px solid rgba(77,184,255,.35)",color:"#4db8ff",borderRadius:4,padding:"5px 14px",fontSize:12,opacity:loading?.7:1}}>{loading?"↻ Chargement…":"↻ Actualiser"}</button>
+        </div>
         <div style={{textAlign:"right",fontSize:11}}>
-          <div style={{color:"#8892a4"}}>GROUPE MASI 1</div>
+          <div style={{color:"#8892a4"}}>GROUPE MASI 1 · 19 titres</div>
           <div style={{color:"#ffd740"}}>896 907 msgs · 6 ans · 1 994 signaux</div>
         </div>
       </div>
       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-        {TABS.map(t => (
-          <button key={t.id} onClick={()=>setTab(t.id)} style={{background:tab===t.id?"rgba(0,229,160,0.15)":"transparent",border:tab===t.id?"1px solid rgba(0,229,160,0.5)":"1px solid #1a2540",color:tab===t.id?"#00e5a0":"#8892a4",padding:"5px 16px",borderRadius:4,fontSize:12,letterSpacing:1,fontWeight:tab===t.id?600:400,transition:"all .15s",position:"relative"}}>
+        {TABS.map(t=>(
+          <button key={t.id} onClick={()=>setTab(t.id)} style={{background:tab===t.id?"rgba(0,229,160,.15)":"transparent",border:tab===t.id?"1px solid rgba(0,229,160,.5)":"1px solid #1a2540",color:tab===t.id?"#00e5a0":"#8892a4",padding:"5px 16px",borderRadius:4,fontSize:12,letterSpacing:1,fontWeight:tab===t.id?600:400,transition:"all .15s",position:"relative"}}>
             {t.label}
             {t.badge&&<span style={{position:"absolute",top:-7,right:-7,background:"#ffd740",color:"#080d1a",borderRadius:"50%",width:16,height:16,fontSize:9,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center"}}>{t.badge}</span>}
           </button>
@@ -137,64 +306,76 @@ const Header = ({tab,setTab,ts,onRefresh,loading}) => {
   );
 };
 
-const Ranking = ({rows,sort,setSort,setSel,setTab}) => {
-  const sorted = useMemo(()=>[...rows].sort((a,b)=>{
+// ── RANKING ───────────────────────────────────────────────────────────────────
+const Ranking=({rows,sort,setSort,setSel,setTab})=>{
+  const sorted=useMemo(()=>[...rows].sort((a,b)=>{
     if(sort==="v53") return b.v53-a.v53;
     if(sort==="bvc") return b.bvc-a.bvc;
     if(sort==="delta") return b.delta-a.delta;
     if(sort==="nlp") return b.nlp-a.nlp;
     if(sort==="var") return b.chg-a.chg;
     if(sort==="alpha") return b.alpha-a.alpha;
+    if(sort==="rsi") return (a.rsi||a.rsi14||50)-(b.rsi||b.rsi14||50);
     return 0;
   }),[rows,sort]);
-  const SORTS=[["v53","SCORE v5.3"],["bvc","BVC"],["delta","DELTA"],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA 12M"]];
-  return (
+  const SORTS=[["v53","SCORE v5.3"],["bvc","BVC"],["delta","DELTA"],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
+  const HEADS=["#","TICKER","PRIX DH","VAR%","PE","DIV%","BVC","v5.3","Δ","NLP%","WIN","ALPHA","RSI","SIGNAL v5.3","POIDS"];
+  return(
     <div>
       <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center",flexWrap:"wrap"}}>
         <span style={{fontSize:12,color:"#8892a4",letterSpacing:1}}>TRIER PAR</span>
         {SORTS.map(([id,lbl])=>(
-          <button key={id} onClick={()=>setSort(id)} style={{background:sort===id?"rgba(0,229,160,0.12)":"transparent",border:sort===id?"1px solid rgba(0,229,160,0.4)":"1px solid #1a2540",color:sort===id?"#00e5a0":"#8892a4",padding:"3px 10px",borderRadius:4,fontSize:11,transition:"all .15s"}}>{lbl}{sort===id?" ▼":""}</button>
+          <button key={id} onClick={()=>setSort(id)} style={{background:sort===id?"rgba(0,229,160,.12)":"transparent",border:sort===id?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:sort===id?"#00e5a0":"#8892a4",padding:"3px 10px",borderRadius:4,fontSize:11}}>{lbl}{sort===id?" ▼":""}</button>
         ))}
       </div>
       <div style={{overflowX:"auto"}}>
-        <table style={{width:"100%",borderCollapse:"collapse",minWidth:980}}>
+        <table style={{width:"100%",borderCollapse:"collapse",minWidth:1100}}>
           <thead>
             <tr style={{borderBottom:"2px solid #1a2540"}}>
-              {["#","TICKER","PRIX DH","VAR%","BVC","v5.3","Δ","NLP%","WIN 6M","ALPHA 12M","SIGNAL v5.3","POIDS"].map(h=>(
-                <th key={h} style={{padding:"8px 10px",fontSize:10,color:"#8892a4",textAlign:"left",letterSpacing:.4,whiteSpace:"nowrap",fontWeight:500}}>{h}</th>
-              ))}
+              {HEADS.map(h=><th key={h} style={{padding:"8px 8px",fontSize:10,color:"#8892a4",textAlign:"left",letterSpacing:.4,whiteSpace:"nowrap",fontWeight:500}}>{h}</th>)}
             </tr>
           </thead>
           <tbody>
             {sorted.map((r,i)=>{
-              const s=SS(r.sig);
-              return (
-                <tr key={r.ticker} onClick={()=>{setSel(r.ticker);setTab("detail");}}
+              const s=SS(r.sig);const sym=r.symbol||r.ticker;
+              const rsiVal=r.rsi||r.rsi14||50;
+              const rsiColor=rsiVal>70?"#ff4f5a":rsiVal<30?"#00e5a0":"#ffd740";
+              return(
+                <tr key={sym} onClick={()=>{setSel(sym);setTab("detail");}}
                   style={{borderBottom:"1px solid #0d1829",cursor:"pointer",transition:"background .12s"}}
-                  onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.025)"}
+                  onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.025)"}
                   onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                  <td style={{padding:"9px 10px",fontSize:12,color:"#8892a4"}}>{i+1}</td>
-                  <td style={{padding:"9px 10px"}}>
+                  <td style={{padding:"8px 8px",fontSize:12,color:"#8892a4"}}>{i+1}</td>
+                  <td style={{padding:"8px 8px"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:4}}>
+                      <span style={{fontSize:14,color:"#fff",fontWeight:700}}>{sym}</span>
+                      {r.warn&&<span title={r.warnMsg} style={{fontSize:10,cursor:"help"}}>⚠️</span>}
+                    </div>
+                    <div style={{fontSize:9,color:"#8892a4"}}>{r.sector}</div>
+                  </td>
+                  <td style={{padding:"8px 8px",fontSize:14,color:"#c8d3e8",fontWeight:500}}>{px(r.price||r.prix)}</td>
+                  <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg).toFixed(2)}%</td>
+                  <td style={{padding:"8px 8px",fontSize:12,color:r.pe>25?"#ff8f00":"#c8d3e8"}}>{r.pe?.toFixed(1)||"—"}</td>
+                  <td style={{padding:"8px 8px",fontSize:12,color:r.div>4?"#00e5a0":"#c8d3e8"}}>{r.div?.toFixed(1)||"—"}%</td>
+                  <td style={{padding:"8px 8px",fontSize:13,color:SC(r.bvc)}}>{r.bvc.toFixed(2)}</td>
+                  <td style={{padding:"8px 8px"}}>
+                    <div style={{fontSize:15,color:SC(r.v53),fontWeight:700,marginBottom:2}}>{r.v53.toFixed(2)}</div>
+                    <Bar v={r.v53} c={SC(r.v53)} h={4}/>
+                  </td>
+                  <td style={{padding:"8px 8px"}}><Delta d={r.delta}/></td>
+                  <td style={{padding:"8px 8px",fontSize:13,color:NC(r.nlp),fontWeight:600}}>{r.nlp>0?"+":""}{(r.nlp*100).toFixed(0)}%</td>
+                  <td style={{padding:"8px 8px",fontSize:12,color:r.win>=80?"#00e5a0":r.win>=70?"#ffd740":"#ff8f00",fontWeight:600}}>{r.win}%</td>
+                  <td style={{padding:"8px 8px",fontSize:12,color:r.alpha>=0?"#00e5a0":"#ff4f5a",fontWeight:600}}>{r.alpha>0?"+":""}{r.alpha}%{r.alpha<0&&<span style={{fontSize:10}}>⚠️</span>}</td>
+                  <td style={{padding:"8px 8px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:5}}>
-                      <span style={{fontSize:15,color:"#fff",fontWeight:700}}>{r.ticker}</span>
-                      {r.warn&&<span title={r.warnMsg} style={{fontSize:11,cursor:"help"}}>⚠️</span>}
+                      <span style={{fontSize:12,color:rsiColor,fontWeight:700}}>{rsiVal}</span>
+                      <div style={{width:30,background:"#0a1220",borderRadius:2,height:4}}>
+                        <div style={{width:`${rsiVal}%`,height:"100%",background:rsiColor,borderRadius:2}}/>
+                      </div>
                     </div>
                   </td>
-                  <td style={{padding:"9px 10px",fontSize:14,color:"#c8d3e8",fontWeight:500}}>{px(r.prix)}</td>
-                  <td style={{padding:"9px 10px",fontSize:13,color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg).toFixed(2)}%</td>
-                  <td style={{padding:"9px 10px",fontSize:13,color:SC(r.bvc)}}>{r.bvc.toFixed(2)}</td>
-                  <td style={{padding:"9px 10px"}}>
-                    <div style={{fontSize:15,color:SC(r.v53),fontWeight:700,marginBottom:3}}>{r.v53.toFixed(2)}</div>
-                    <B2 v={r.v53} c={SC(r.v53)} h={4}/>
-                  </td>
-                  <td style={{padding:"9px 10px"}}><Delta d={r.delta}/></td>
-                  <td style={{padding:"9px 10px",fontSize:13,color:NC(r.nlp),fontWeight:600}}>{r.nlp>0?"+":""}{(r.nlp*100).toFixed(0)}%</td>
-                  <td style={{padding:"9px 10px",fontSize:13,color:r.win>=80?"#00e5a0":r.win>=70?"#ffd740":"#ff8f00",fontWeight:600}}>{r.win}%</td>
-                  <td style={{padding:"9px 10px",fontSize:13,color:r.alpha>=0?"#00e5a0":"#ff4f5a",fontWeight:600}}>
-                    {r.alpha>0?"+":""}{r.alpha}%{r.alpha<0&&<span style={{marginLeft:4,fontSize:11}}>⚠️</span>}
-                  </td>
-                  <td style={{padding:"9px 10px"}}><Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd}/></td>
-                  <td style={{padding:"9px 10px",minWidth:90}}>
+                  <td style={{padding:"8px 8px"}}><Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd}/></td>
+                  <td style={{padding:"8px 8px",minWidth:85}}>
                     <WBar f={r.poids.f} n={r.poids.n} t={r.poids.t}/>
                     <div style={{fontSize:9,color:"#8892a4",marginTop:2}}>F{r.poids.f}·N{r.poids.n}·T{r.poids.t}</div>
                   </td>
@@ -204,120 +385,151 @@ const Ranking = ({rows,sort,setSort,setSel,setTab}) => {
           </tbody>
         </table>
       </div>
-      <div style={{marginTop:14,padding:"10px 14px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
-        <span style={{color:"#00e5a0"}}>●</span> Score v5.3 = Tech×25% + Fond×47% + NLP×28% (pondération dynamique par contexte) &nbsp;|&nbsp;
-        <span style={{color:"#ffd740"}}>●</span> WIN6M = % signaux corrects sur 6 mois glissants (1994 signaux backtestés V3) &nbsp;|&nbsp;
-        <span style={{color:"#b388ff"}}>●</span> Δ = différence v5.3 vs score BVC original &nbsp;|&nbsp;
-        <span style={{color:"#ff4f5a"}}>⚠️</span> Alpha négatif = prudence renforcée &nbsp;|&nbsp; Cliquer sur une ligne → vue détaillée
+      <div style={{marginTop:12,padding:"10px 14px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
+        <span style={{color:"#00e5a0"}}>●</span> Score v5.3 = Tech×25% + Fond×47% + NLP×28% (pondération dynamique) &nbsp;|&nbsp;
+        <span style={{color:"#ffd740"}}>●</span> WIN = % signaux corrects 6 mois glissants (1994 signaux V3) &nbsp;|&nbsp;
+        <span style={{color:"#b388ff"}}>●</span> Δ = différence v5.3 vs BVC original &nbsp;|&nbsp;
+        <span style={{color:"#ff4f5a"}}>⚠️</span> Alpha/RSI rouge = prudence &nbsp;|&nbsp; PE = Price/Earnings · DIV = dividende &nbsp;|&nbsp; Clic → vue détaillée
       </div>
     </div>
   );
 };
 
-const Detail = ({rows,sel,setSel}) => {
-  const r = rows.find(x=>x.ticker===sel)||rows[0];
-  const s = SS(r.sig);
-  const upside = ((r.bull-r.prix)/r.prix*100).toFixed(1);
-  const pos = Math.min(98,Math.max(2,(r.prix-r.bear)/(r.bull-r.bear)*100));
-  return (
+// ── DETAIL ────────────────────────────────────────────────────────────────────
+const Detail=({rows,sel,setSel})=>{
+  const r=rows.find(x=>(x.symbol||x.ticker)===sel)||rows[0];
+  const s=SS(r.sig);
+  const price=r.price||r.prix;
+  const h90=r.h90||r.high90;const l90=r.l90||r.low90;
+  const upside=((r.bull-price)/price*100).toFixed(1);
+  const pos=Math.min(98,Math.max(2,(price-r.bear)/(r.bull-r.bear)*100));
+  const sym=r.symbol||r.ticker;
+  const rsiVal=r.rsi||r.rsi14||50;
+
+  return(
     <div>
-      <div style={{display:"flex",gap:6,marginBottom:14,flexWrap:"wrap"}}>
-        {rows.map(d=>{const ds=SS(d.sig);const a=sel===d.ticker;return(
-          <button key={d.ticker} onClick={()=>setSel(d.ticker)} style={{background:a?ds.bg:"transparent",border:a?`1px solid ${ds.bd}`:"1px solid #1a2540",color:a?ds.fg:"#8892a4",padding:"4px 10px",borderRadius:4,fontSize:12,fontWeight:a?700:400,transition:"all .15s"}}>{d.ticker}</button>
+      <div style={{display:"flex",gap:5,marginBottom:14,flexWrap:"wrap"}}>
+        {rows.map(d=>{const sym2=d.symbol||d.ticker;const ds=SS(d.sig);const a=sel===sym2;return(
+          <button key={sym2} onClick={()=>setSel(sym2)} style={{background:a?ds.bg:"transparent",border:a?`1px solid ${ds.bd}`:"1px solid #1a2540",color:a?ds.fg:"#8892a4",padding:"3px 8px",borderRadius:4,fontSize:11,fontWeight:a?700:400,transition:"all .15s"}}>{sym2}</button>
         );})}
       </div>
-      {r.warn&&<div style={{background:"rgba(255,215,64,0.08)",border:"1px solid rgba(255,215,64,0.3)",borderRadius:6,padding:"10px 14px",marginBottom:14,fontSize:13,color:"#ffd740"}}>⚠️ {r.warnMsg}</div>}
-      <div style={{display:"grid",gridTemplateColumns:"310px 1fr",gap:14}}>
-        <div style={{display:"flex",flexDirection:"column",gap:12}}>
-          <div style={{background:`linear-gradient(135deg,${s.bg},#0d1829)`,border:`1px solid ${s.bd}`,borderRadius:8,padding:18,textAlign:"center"}}>
-            <div style={{fontSize:13,color:"#8892a4",letterSpacing:2,marginBottom:6}}>{r.ticker} · {px(r.prix)} DH <span style={{color:VC(r.chg),marginLeft:10,fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%</span></div>
-            <div style={{fontSize:54,fontWeight:700,color:s.fg,textShadow:`0 0 30px ${s.fg}40`,lineHeight:1}}>{r.v53.toFixed(2)}</div>
-            <div style={{fontSize:11,color:"#8892a4",margin:"6px 0 12px"}}>Score v5.3 / 10</div>
+      {r.warn&&<div style={{background:"rgba(255,215,64,.08)",border:"1px solid rgba(255,215,64,.3)",borderRadius:6,padding:"10px 14px",marginBottom:12,fontSize:13,color:"#ffd740"}}>⚠️ {r.warnMsg}</div>}
+
+      <div style={{display:"grid",gridTemplateColumns:"290px 1fr",gap:12}}>
+        {/* LEFT */}
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {/* Score card */}
+          <div style={{background:`linear-gradient(135deg,${s.bg},#0d1829)`,border:`1px solid ${s.bd}`,borderRadius:8,padding:16,textAlign:"center"}}>
+            <div style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4}}>{sym} · {px(price)} DH <span style={{color:VC(r.chg),marginLeft:8,fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%</span></div>
+            <div style={{fontSize:52,fontWeight:700,color:s.fg,textShadow:`0 0 30px ${s.fg}40`,lineHeight:1}}>{r.v53.toFixed(2)}</div>
+            <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 10px"}}>Score v5.3 / 10</div>
             <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd} sz={12}/>
-            <div style={{marginTop:10,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-              <Delta d={r.delta}/><span style={{fontSize:12,color:"#8892a4"}}>vs BVC {r.bvc.toFixed(2)}</span>
+            <div style={{marginTop:8,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+              <Delta d={r.delta}/><span style={{fontSize:11,color:"#8892a4"}}>vs BVC {r.bvc.toFixed(2)}</span>
             </div>
           </div>
-          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:14}}>
-            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:12,textTransform:"uppercase"}}>Décomposition Score v5.3</div>
-            {[["Fondamental",r.bvc*0.47,5,"#b388ff",`${r.bvc.toFixed(2)} × ${r.poids.f}%`],["NLP Smart",((r.nlp+1)*5)*0.28,5,"#00e5a0",`${r.nlp>0?"+":""}${(r.nlp*100).toFixed(0)}% × ${r.poids.n}%`],["Technique",r.bvc*0.25,5,"#4db8ff",`${r.bvc.toFixed(2)} × ${r.poids.t}%`]].map(([lbl,v,m,c,desc])=>(
-              <div key={lbl} style={{marginBottom:10}}>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-                  <span style={{fontSize:12,color:"#8892a4"}}>{lbl}</span><span style={{fontSize:11,color:c}}>{desc}</span>
-                </div>
-                <B2 v={v} max={m} c={c} h={6}/>
-              </div>
-            ))}
-            <div style={{marginTop:10,padding:"8px 10px",background:"#0a1220",borderRadius:5,border:"1px solid #1a2540"}}>
-              <div style={{fontSize:10,color:"#8892a4",marginBottom:6}}>Ajustements contextuels</div>
-              {r.bonus.length>0?r.bonus.map((b,i)=>(
-                <div key={i} style={{fontSize:12,color:b.startsWith("-")?"#ff8f00":"#00e5a0",marginBottom:2}}>{b.startsWith("-")?"▼":"▲"} {b.slice(1)}</div>
-              )):<div style={{fontSize:12,color:"#8892a4"}}>Aucun ajustement</div>}
-              <div style={{marginTop:8,fontSize:14,fontWeight:700,color:r.delta>=0?"#00e5a0":"#ff4f5a"}}>Total: {r.delta>=0?"+":""}{r.delta.toFixed(2)} pts</div>
-            </div>
-          </div>
-          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:14}}>
-            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>NLP — Groupe MASI 1 (6 ans)</div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-              {[["Biais groupe",r.biais,NC(r.nlp)],["Smart Sentiment",`${r.nlp>0?"+":""}${(r.nlp*100).toFixed(0)}%`,NC(r.nlp)],["Win rate 6M",`${r.win}%`,r.win>=80?"#00e5a0":"#ffd740"],["Alpha 12M hist.",`${r.alpha>0?"+":""}${r.alpha}%`,r.alpha>0?"#4db8ff":"#ff4f5a"],["Convergence",r.conv==="CONFIRME"?"✅ Confirmé":"⚠️ Divergence",r.conv==="CONFIRME"?"#00e5a0":"#ffd740"],["Hype index",`${(r.hype*100).toFixed(0)}%`,"#ffd740"]].map(([k,v,c])=>(
-                <div key={k} style={{background:"#0a1220",borderRadius:5,padding:"7px 9px",border:"1px solid #1a2540"}}>
-                  <div style={{fontSize:9,color:"#8892a4",marginBottom:3,textTransform:"uppercase",letterSpacing:.4}}>{k}</div>
+
+          {/* Fundamentaux */}
+          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Fondamentaux</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
+              {[["PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff"],["Upside Base",`${((r.base-price)/price*100).toFixed(1)}%`,((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"],["Alpha 12M",`${r.alpha>0?"+":""}${r.alpha}%`,r.alpha>=0?"#00e5a0":"#ff4f5a"]].map(([k,v,c])=>(
+                <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
+                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
                   <div style={{fontSize:13,color:c,fontWeight:700}}>{v}</div>
                 </div>
               ))}
             </div>
           </div>
+
+          {/* RSI + NLP */}
+          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div>
+                <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Indicateurs Techniques</div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+                  {[["MA20",px(r.ma20||0),"#4db8ff"],["MA50",px(r.ma50||0),"#b388ff"],["Haut 90j",px(h90),"#00e5a0"],["Bas 90j",px(l90),"#ff4f5a"]].map(([k,v,c])=>(
+                    <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
+                      <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>{k}</div>
+                      <div style={{fontSize:12,color:c,fontWeight:700}}>{v}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <RSIGauge value={rsiVal}/>
+            </div>
+          </div>
+
+          {/* NLP */}
+          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>NLP — Groupe MASI 1 (6 ans)</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+              {[["Biais groupe",r.biais,NC(r.nlp)],["Smart Sentiment",`${r.nlp>0?"+":""}${(r.nlp*100).toFixed(0)}%`,NC(r.nlp)],["Win rate 6M",`${r.win}%`,r.win>=80?"#00e5a0":"#ffd740"],["Convergence",r.conv==="CONFIRME"?"✅ OK":"⚠️ Div.",r.conv==="CONFIRME"?"#00e5a0":"#ffd740"]].map(([k,v,c])=>(
+                <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
+                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
+                  <div style={{fontSize:12,color:c,fontWeight:700}}>{v}</div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <div style={{display:"flex",flexDirection:"column",gap:12}}>
-          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:14}}>
-            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:12,textTransform:"uppercase"}}>Valorisation — Scénarios Prix</div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:14}}>
-              {[["BEAR",r.bear,"#ff4f5a",`${((r.bear-r.prix)/r.prix*100).toFixed(1)}%`],["BASE",r.base,"#ffd740",`${((r.base-r.prix)/r.prix*100).toFixed(1)}%`],["BULL",r.bull,"#00e5a0",`+${upside}%`]].map(([lbl,val,c,pct])=>(
-                <div key={lbl} style={{background:"#0a1220",borderRadius:6,padding:"12px 10px",border:`1px solid ${c}20`,textAlign:"center"}}>
-                  <div style={{fontSize:10,color:"#8892a4",marginBottom:4,letterSpacing:1}}>{lbl}</div>
-                  <div style={{fontSize:20,fontWeight:700,color:c,marginBottom:4}}>{px(val)}</div>
-                  <div style={{fontSize:12,color:c}}>{pct}</div>
+
+        {/* RIGHT */}
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {/* Chart */}
+          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Graphique Chandeliers · MA20 · MA50 · Fibonacci</div>
+            <StockChart r={r}/>
+            <div style={{fontSize:9,color:"#8892a4",marginTop:6}}>
+              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff",textDecoration:"underline dashed"}}>── MA50</span> &nbsp; <span style={{color:"#ffd740"}}>─ Fib niveaux</span> &nbsp; | Données simulées — mises à jour via update_data.py
+            </div>
+          </div>
+
+          {/* Fibonacci */}
+          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+            <FibTable high={h90} low={l90} price={price}/>
+          </div>
+
+          {/* Scénarios */}
+          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Scénarios Prix (fondamentaux)</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
+              {[["BEAR",r.bear,"#ff4f5a",`${((r.bear-price)/price*100).toFixed(1)}%`],["BASE",r.base,"#ffd740",`${((r.base-price)/price*100).toFixed(1)}%`],["BULL",r.bull,"#00e5a0",`+${upside}%`]].map(([lbl,val,c,pct])=>(
+                <div key={lbl} style={{background:"#0a1220",borderRadius:6,padding:"10px 8px",border:`1px solid ${c}20`,textAlign:"center"}}>
+                  <div style={{fontSize:9,color:"#8892a4",marginBottom:3,letterSpacing:1}}>{lbl}</div>
+                  <div style={{fontSize:18,fontWeight:700,color:c,marginBottom:2}}>{px(val)}</div>
+                  <div style={{fontSize:11,color:c}}>{pct}</div>
                 </div>
               ))}
             </div>
             <div style={{position:"relative",margin:"4px 0"}}>
               <div style={{background:"linear-gradient(90deg,#ff4f5a,#ffd740,#00e5a0)",height:8,borderRadius:4}}/>
-              <div style={{position:"absolute",left:`${pos}%`,top:"50%",transform:"translate(-50%,-50%)",width:16,height:16,borderRadius:"50%",background:"#fff",border:"3px solid #0d1829",boxShadow:"0 0 10px rgba(255,255,255,.5)"}}/>
+              <div style={{position:"absolute",left:`${pos}%`,top:"50%",transform:"translate(-50%,-50%)",width:14,height:14,borderRadius:"50%",background:"#fff",border:"3px solid #0d1829",boxShadow:"0 0 8px rgba(255,255,255,.5)"}}/>
             </div>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:"#8892a4",marginTop:6}}>
-              <span>Bear {px(r.bear)}</span>
-              <span style={{color:"#ffd740",fontWeight:600}}>▲ {px(r.prix)} DH</span>
-              <span>Bull {px(r.bull)}</span>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#8892a4",marginTop:5}}>
+              <span>Bear {px(r.bear)}</span><span style={{color:"#ffd740",fontWeight:600}}>▲ {px(price)} DH</span><span>Bull {px(r.bull)}</span>
             </div>
           </div>
-          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:14}}>
-            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:12,textTransform:"uppercase"}}>Setup BVC & Pondération Dynamique</div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
-              {[["SETUP BVC",r.setup,"#ffd740"],["RED FLAGS",r.flags===0?"✅ 0":`⚠️ ${r.flags}`,r.flags>=3?"#ff4f5a":r.flags>=1?"#ffd740":"#00e5a0"],["SECTEUR",r.sector,"#4db8ff"]].map(([k,v,c])=>(
-                <div key={k} style={{background:"#0a1220",borderRadius:5,padding:"8px 10px"}}>
-                  <div style={{fontSize:9,color:"#8892a4",marginBottom:3}}>{k}</div>
-                  <div style={{fontSize:12,color:c,fontWeight:600}}>{v}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{display:"flex",gap:6,marginBottom:6}}>
-              {[[`Fond: ${r.poids.f}%`,"#b388ff"],[`NLP: ${r.poids.n}%`,"#00e5a0"],[`Tech: ${r.poids.t}%`,"#4db8ff"]].map(([lbl,c])=>(
-                <span key={lbl} style={{fontSize:12,padding:"3px 8px",borderRadius:4,background:`${c}12`,color:c,border:`1px solid ${c}28`}}>{lbl}</span>
+
+          {/* Setup + formule */}
+          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,fontFamily:"var(--font)",fontSize:12,lineHeight:1.9}}>
+            <div style={{display:"flex",gap:6,marginBottom:10}}>
+              {[[`Setup: ${r.setup}`,"#ffd740"],[`Flags: ${r.flags===0?"✅ 0":"⚠️ "+r.flags}`,r.flags>=3?"#ff4f5a":r.flags>=1?"#ffd740":"#00e5a0"],[`Fond:${r.poids.f}% NLP:${r.poids.n}% Tech:${r.poids.t}%`,"#8892a4"]].map(([lbl,c])=>(
+                <span key={lbl} style={{fontSize:11,padding:"3px 8px",borderRadius:4,background:"#0a1220",color:c,border:"1px solid #1a2540"}}>{lbl}</span>
               ))}
             </div>
             <WBar f={r.poids.f} n={r.poids.n} t={r.poids.t}/>
-          </div>
-          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:14,fontFamily:"var(--font)",fontSize:13,lineHeight:2}}>
-            <div style={{color:"#00e5a0",marginBottom:6,fontWeight:600}}>// Formule Score v5.3</div>
-            <div><span style={{color:"#b388ff"}}>score_v53</span> <span style={{color:"#8892a4"}}>=</span></div>
-            <div style={{paddingLeft:16}}>
-              <span style={{color:"#b388ff"}}>fond</span><span style={{color:"#8892a4"}}> × </span><span style={{color:"#b388ff"}}>{r.poids.f}%</span>
-              <span style={{color:"#8892a4"}}> + </span><span style={{color:"#00e5a0"}}>nlp</span><span style={{color:"#8892a4"}}> × </span><span style={{color:"#00e5a0"}}>{r.poids.n}%</span>
-              <span style={{color:"#8892a4"}}> + </span><span style={{color:"#4db8ff"}}>tech</span><span style={{color:"#8892a4"}}> × </span><span style={{color:"#4db8ff"}}>{r.poids.t}%</span>
+            <div style={{marginTop:10}}>
+              <span style={{color:"#b388ff"}}>fond×{r.poids.f}%</span><span style={{color:"#8892a4"}}> + </span>
+              <span style={{color:"#00e5a0"}}>nlp×{r.poids.n}%</span><span style={{color:"#8892a4"}}> + </span>
+              <span style={{color:"#4db8ff"}}>tech×{r.poids.t}%</span>
+              <span style={{color:"#8892a4"}}> + bonus/malus =</span>
+              <span style={{color:r.delta>=0?"#00e5a0":"#ff4f5a",fontWeight:700}}> {r.v53.toFixed(2)}</span>
+              <span style={{color:"#8892a4",fontSize:11}}> ({r.delta>=0?"+":""}{r.delta.toFixed(2)} vs BVC {r.bvc.toFixed(2)})</span>
             </div>
-            <div style={{color:"#8892a4",paddingLeft:16}}>+ bonus_convergence + bonus_smart_money</div>
-            <div style={{color:"#8892a4",paddingLeft:16}}>- malus_red_flags - malus_divergence</div>
-            <div style={{marginTop:10,borderTop:"1px solid #1a2540",paddingTop:10,fontSize:15,fontWeight:700,color:r.delta>=0?"#00e5a0":"#ff4f5a"}}>= {r.v53.toFixed(2)} ({r.delta>=0?"+":""}{r.delta.toFixed(2)} vs BVC {r.bvc.toFixed(2)})</div>
+            {r.bonus.length>0&&<div style={{marginTop:6,fontSize:11}}>
+              {r.bonus.map((b,i)=><div key={i} style={{color:b.startsWith("-")?"#ff8f00":"#00e5a0"}}>{b.startsWith("-")?"▼":"▲"} {b.slice(1)}</div>)}
+            </div>}
           </div>
         </div>
       </div>
@@ -325,37 +537,34 @@ const Detail = ({rows,sel,setSel}) => {
   );
 };
 
-const Weights = () => {
-  const CTX=[["Marché ouvert (base)","47%","28%","25%","#00e5a0","Pondération standard — Casablanca"],["Marché fermé / férié","52%","28%","20%","#4db8ff","Pas de prix live — fondamentaux dominent"],["Publication résultats","57%","25%","18%","#b388ff","Fondamentaux mis à jour — qualité max"],["Hype spike (>2σ NLP)","42%","36%","22%","#ffd740","Comportemental précoce — NLP monté"],["Smart Money Tier 1 actif","44%","35%","21%","#00e5a0","Win rate 83%+ → NLP très fiable"],["Bear market MASI < -5%","55%","28%","17%","#ff8f00","Mode défensif — fondamentaux refuge"],["Titre peu suivi (< 5 msg/j)","54%","18%","28%","#ff4f5a","NLP peu fiable — technique prend relais"]];
-  return (
+// ── WEIGHTS ───────────────────────────────────────────────────────────────────
+const Weights=()=>{
+  const CTX=[["Marché ouvert (base)","47%","28%","25%","#00e5a0","Pondération standard"],["Marché fermé / férié","52%","28%","20%","#4db8ff","Fondamentaux dominent"],["Publication résultats","57%","25%","18%","#b388ff","Fondamentaux mis à jour"],["Hype spike (>2σ NLP)","42%","36%","22%","#ffd740","Comportemental précoce"],["Smart Money Tier 1","44%","35%","21%","#00e5a0","Win rate 83%+"],["Bear market MASI<-5%","55%","28%","17%","#ff8f00","Mode défensif"],["Titre peu suivi","54%","18%","28%","#ff4f5a","NLP peu fiable"]];
+  return(
     <div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:16}}>
-        {[["Fondamental","47%","#b388ff","Marché semi-efficient. Alpha long terme 6-12M. Données JSON validées sur 3 titres réels (MNG/ADI/RIS)."],["NLP Comportemental","28%","#00e5a0","896 907 messages · 6 ans · 8 membres backtestés sur 1994 signaux. Win rate 83% sur 12 mois."],["Technique","25%","#4db8ff","Timing d'entrée uniquement. Marché peu liquide. RSI/MACD/Volume sur 492 séances BVC réelles."]].map(([lbl,pct,c,desc])=>(
-          <div key={lbl} style={{background:"#0d1829",borderRadius:8,padding:18,border:`1px solid ${c}20`}}>
-            <div style={{fontSize:44,fontWeight:700,color:c,marginBottom:6}}>{pct}</div>
-            <div style={{fontSize:16,color:"#fff",marginBottom:8,fontWeight:600}}>{lbl}</div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:14}}>
+        {[["Fondamental","47%","#b388ff","Marché semi-efficient. Alpha long terme 6-12M. Données fondamentaux.json validées."],["NLP Comportemental","28%","#00e5a0","896 907 messages · 6 ans · 8 membres backtestés sur 1994 signaux. Win rate 83%."],["Technique","25%","#4db8ff","Timing d'entrée. RSI, MA20/50, Fibonacci. Marché peu liquide — BVC 492 séances."]].map(([lbl,pct,c,desc])=>(
+          <div key={lbl} style={{background:"#0d1829",borderRadius:8,padding:16,border:`1px solid ${c}20`}}>
+            <div style={{fontSize:44,fontWeight:700,color:c,marginBottom:4}}>{pct}</div>
+            <div style={{fontSize:15,color:"#fff",marginBottom:6,fontWeight:600}}>{lbl}</div>
             <div style={{fontSize:12,color:"#8892a4",lineHeight:1.7}}>{desc}</div>
           </div>
         ))}
       </div>
-      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:14}}>
-        <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:12}}>AJUSTEMENTS DYNAMIQUES PAR CONTEXTE MARCHÉ</div>
+      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+        <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:10}}>AJUSTEMENTS DYNAMIQUES PAR CONTEXTE</div>
         <div style={{overflowX:"auto"}}>
           <table style={{width:"100%",borderCollapse:"collapse"}}>
-            <thead><tr style={{borderBottom:"1px solid #1a2540"}}>
-              {["Situation","Fond","NLP","Tech","Justification"].map(h=><th key={h} style={{padding:"8px 12px",fontSize:10,color:"#8892a4",textAlign:"left",letterSpacing:.4,fontWeight:500}}>{h}</th>)}
-            </tr></thead>
-            <tbody>
-              {CTX.map(([sit,f,n,t,c,just],i)=>(
-                <tr key={i} style={{borderBottom:"1px solid #0d1829"}}>
-                  <td style={{padding:"9px 12px",fontSize:13,color:"#c8d3e8"}}><span style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:c,marginRight:8}}/>{sit}</td>
-                  <td style={{padding:"9px 12px",fontSize:14,color:"#b388ff",fontWeight:700}}>{f}</td>
-                  <td style={{padding:"9px 12px",fontSize:14,color:"#00e5a0",fontWeight:700}}>{n}</td>
-                  <td style={{padding:"9px 12px",fontSize:14,color:"#4db8ff",fontWeight:700}}>{t}</td>
-                  <td style={{padding:"9px 12px",fontSize:12,color:"#8892a4"}}>{just}</td>
-                </tr>
-              ))}
-            </tbody>
+            <thead><tr style={{borderBottom:"1px solid #1a2540"}}>{["Situation","Fond","NLP","Tech","Justification"].map(h=><th key={h} style={{padding:"7px 10px",fontSize:10,color:"#8892a4",textAlign:"left",fontWeight:500}}>{h}</th>)}</tr></thead>
+            <tbody>{CTX.map(([sit,f,n,t,c,just],i)=>(
+              <tr key={i} style={{borderBottom:"1px solid #0d1829"}}>
+                <td style={{padding:"8px 10px",fontSize:13,color:"#c8d3e8"}}><span style={{display:"inline-block",width:7,height:7,borderRadius:"50%",background:c,marginRight:7}}/>{sit}</td>
+                <td style={{padding:"8px 10px",fontSize:14,color:"#b388ff",fontWeight:700}}>{f}</td>
+                <td style={{padding:"8px 10px",fontSize:14,color:"#00e5a0",fontWeight:700}}>{n}</td>
+                <td style={{padding:"8px 10px",fontSize:14,color:"#4db8ff",fontWeight:700}}>{t}</td>
+                <td style={{padding:"8px 10px",fontSize:12,color:"#8892a4"}}>{just}</td>
+              </tr>
+            ))}</tbody>
           </table>
         </div>
       </div>
@@ -363,49 +572,50 @@ const Weights = () => {
   );
 };
 
-const Smart = () => {
+// ── SMART MONEY ───────────────────────────────────────────────────────────────
+const Smart=()=>{
   const BT=[["Horizon 12M","83%","+38.3%","#00e5a0"],["Horizon 6M","80%","+18.1%","#00e5a0"],["Horizon 3M","78%","+8.7%","#ffd740"],["Horizon 1M","73%","+2.7%","#ff8f00"]];
-  const CT=[["MNG","0%","100% du temps le cours monte après signal vente"],["RDS","0%","0% de réussite pour le vendeur (contrarian parfait)"],["SMI","19%","81% du temps cours monte après signal vente"],["TGCC","39%","Seul titre validant une confirmation vente"]];
-  return (
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
-      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:14}}>
-        <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:4}}>MEMBRES SMART MONEY — POIDS V3 BACKTESTÉS</div>
-        <div style={{fontSize:11,color:"#8892a4",marginBottom:12}}>SNR = Signal/Noise Ratio sur 6 ans · 1994 signaux</div>
-        <div style={{display:"grid",gridTemplateColumns:"auto auto auto 1fr auto auto auto",gap:"4px 10px",fontSize:9,color:"#8892a4",marginBottom:6,paddingBottom:6,borderBottom:"1px solid #1a2540",alignItems:"center"}}>
+  const CT=[["MNG","0%","100% du temps cours monte après signal vente"],["RDS","0%","0% réussite vendeur (contrarian parfait)"],["SMI","19%","81% cours monte après signal vente"],["TGCC","39%","Seul titre validant une confirmation vente"]];
+  return(
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+        <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:4}}>MEMBRES SMART MONEY — POIDS V3</div>
+        <div style={{fontSize:11,color:"#8892a4",marginBottom:10}}>SNR = Signal/Noise Ratio · 1994 signaux backtestés 2020-2026</div>
+        <div style={{display:"grid",gridTemplateColumns:"auto auto auto 1fr auto auto auto",gap:"4px 8px",fontSize:9,color:"#8892a4",marginBottom:5,paddingBottom:5,borderBottom:"1px solid #1a2540",alignItems:"center"}}>
           <span>MEMBRE</span><span>TIER</span><span>POIDS</span><span></span><span>SNR</span><span>WIN</span><span>ALPHA</span>
         </div>
         {MEMBERS.map(m=>(
-          <div key={m.name} style={{display:"grid",gridTemplateColumns:"auto auto auto 1fr auto auto auto",gap:"4px 10px",alignItems:"center",padding:"7px 0",borderBottom:"1px solid #0d1829"}}>
-            <span style={{fontSize:13,color:m.tier==="Admin"?"#ffd740":"#c8d3e8",fontWeight:600,minWidth:115}}>{m.name}</span>
-            <span style={{fontSize:10,color:m.tier==="Admin"?"#ffd740":"#00e5a0",background:m.tier==="Admin"?"rgba(255,215,64,.1)":"rgba(0,229,160,.08)",border:`1px solid ${m.tier==="Admin"?"rgba(255,215,64,.3)":"rgba(0,229,160,.25)"}`,borderRadius:3,padding:"1px 5px"}}>{m.tier}</span>
-            <span style={{fontSize:11,color:"#8892a4",background:"#0a1220",borderRadius:3,padding:"1px 5px",textAlign:"center"}}>w={m.w.toFixed(2)}</span>
-            <B2 v={m.w} max={1} c={m.tier==="Admin"?"#ffd740":"#00e5a0"} h={5}/>
+          <div key={m.name} style={{display:"grid",gridTemplateColumns:"auto auto auto 1fr auto auto auto",gap:"4px 8px",alignItems:"center",padding:"6px 0",borderBottom:"1px solid #0d1829"}}>
+            <span style={{fontSize:13,color:m.tier==="Admin"?"#ffd740":"#c8d3e8",fontWeight:600,minWidth:110}}>{m.name}</span>
+            <span style={{fontSize:9,color:m.tier==="Admin"?"#ffd740":"#00e5a0",background:m.tier==="Admin"?"rgba(255,215,64,.1)":"rgba(0,229,160,.08)",border:`1px solid ${m.tier==="Admin"?"rgba(255,215,64,.28)":"rgba(0,229,160,.25)"}`,borderRadius:3,padding:"1px 5px"}}>{m.tier}</span>
+            <span style={{fontSize:11,color:"#8892a4",background:"#0a1220",borderRadius:3,padding:"1px 5px"}}>w={m.w.toFixed(2)}</span>
+            <Bar v={m.w} max={1} c={m.tier==="Admin"?"#ffd740":"#00e5a0"} h={5}/>
             <span style={{fontSize:12,color:"#4db8ff",textAlign:"center",minWidth:36}}>{m.snr||"—"}</span>
-            <span style={{fontSize:12,color:"#00e5a0",textAlign:"center",minWidth:36}}>{m.win?`${m.win}%`:"—"}</span>
+            <span style={{fontSize:12,color:"#00e5a0",textAlign:"center",minWidth:34}}>{m.win?`${m.win}%`:"—"}</span>
             <span style={{fontSize:12,color:"#00e5a0",textAlign:"center",minWidth:40}}>{m.alpha?`+${m.alpha}%`:"—"}</span>
           </div>
         ))}
       </div>
-      <div style={{display:"flex",flexDirection:"column",gap:12}}>
-        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:14}}>
-          <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:12}}>BACKTESTING V3 — 1994 SIGNAUX / 2020-2026</div>
+      <div style={{display:"flex",flexDirection:"column",gap:10}}>
+        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+          <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:10}}>BACKTESTING V3 — 1994 SIGNAUX / 2020-2026</div>
           {BT.map(([h,wr,rdt,c])=>(
-            <div key={h} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:"1px solid #0d1829"}}>
+            <div key={h} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:"1px solid #0d1829"}}>
               <span style={{fontSize:13,color:"#c8d3e8"}}>{h}</span>
               <span style={{fontSize:13,color:c,fontWeight:700}}>Win {wr}</span>
-              <span style={{fontSize:13,color:c,fontWeight:700}}>Rdt moy. {rdt}</span>
+              <span style={{fontSize:13,color:c,fontWeight:700}}>Rdt {rdt}</span>
             </div>
           ))}
         </div>
-        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:14}}>
-          <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:12}}>CONTRARIANS V3 — SIGNAL VENTE = ACHAT</div>
+        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+          <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:10}}>CONTRARIANS V3 — VENTE = ACHAT</div>
           {CT.map(([t,acc,note])=>(
-            <div key={t} style={{padding:"8px 0",borderBottom:"1px solid #0d1829"}}>
-              <div style={{display:"flex",alignItems:"center",gap:10}}>
-                <span style={{fontSize:14,color:"#fff",fontWeight:700,minWidth:50}}>{t}</span>
+            <div key={t} style={{padding:"7px 0",borderBottom:"1px solid #0d1829"}}>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <span style={{fontSize:14,color:"#fff",fontWeight:700,minWidth:48}}>{t}</span>
                 <span style={{fontSize:12,color:parseInt(acc)<20?"#ff4f5a":"#ffd740"}}>Précision vendeurs: {acc}</span>
               </div>
-              <div style={{fontSize:11,color:"#8892a4",marginTop:3}}>{note}</div>
+              <div style={{fontSize:11,color:"#8892a4",marginTop:2}}>{note}</div>
             </div>
           ))}
         </div>
@@ -414,38 +624,39 @@ const Smart = () => {
   );
 };
 
-const Chat = () => {
-  const [filt,setFilt] = useState("ALL");
-  const tickers = [...new Set(CHAT.map(m=>m.ticker))];
-  const filtered = filt==="ALL" ? CHAT : CHAT.filter(m=>m.ticker===filt);
-  const top3 = filtered.slice(0,3);
-  const SC2 = s => s==="ACHAT"?"#00e5a0":s==="VENTE"?"#ff4f5a":s==="TENIR"?"#ffd740":"#8892a4";
-  return (
+// ── CHAT 3 MAJ ────────────────────────────────────────────────────────────────
+const Chat=()=>{
+  const [filt,setFilt]=useState("ALL");
+  const tickers=[...new Set(CHAT.map(m=>m.ticker))];
+  const filtered=filt==="ALL"?CHAT:CHAT.filter(m=>m.ticker===filt);
+  const SC2=s=>s==="ACHAT"?"#00e5a0":s==="VENTE"?"#ff4f5a":s==="TENIR"?"#ffd740":"#8892a4";
+  return(
     <div>
-      <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center",flexWrap:"wrap"}}>
-        <span style={{fontSize:12,color:"#8892a4"}}>FILTRE</span>
-        <button onClick={()=>setFilt("ALL")} style={{background:filt==="ALL"?"rgba(0,229,160,.12)":"transparent",border:filt==="ALL"?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:filt==="ALL"?"#00e5a0":"#8892a4",padding:"3px 12px",borderRadius:4,fontSize:11}}>TOUS</button>
-        {tickers.map(t=><button key={t} onClick={()=>setFilt(t)} style={{background:filt===t?"rgba(77,184,255,.12)":"transparent",border:filt===t?"1px solid rgba(77,184,255,.4)":"1px solid #1a2540",color:filt===t?"#4db8ff":"#8892a4",padding:"3px 10px",borderRadius:4,fontSize:11}}>{t}</button>)}
-        <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>Affichage: <span style={{color:"#ffd740"}}>3 dernières MAJ Smart Money</span></span>
+      <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center",flexWrap:"wrap"}}>
+        <span style={{fontSize:12,color:"#8892a4"}}>FILTRE TICKER</span>
+        {["ALL",...tickers].map(t=>(
+          <button key={t} onClick={()=>setFilt(t)} style={{background:filt===t?"rgba(0,229,160,.12)":"transparent",border:filt===t?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:filt===t?"#00e5a0":"#8892a4",padding:"3px 10px",borderRadius:4,fontSize:11}}>{t==="ALL"?"TOUS":t}</button>
+        ))}
+        <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>3 dernières MAJ <span style={{color:"#ffd740"}}>Smart Money</span></span>
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:16}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:14}}>
         {[["Messages analysés","896 907","#00e5a0"],["Membres actifs","8","#4db8ff"],["Signaux backtestés","1 994","#b388ff"],["Win Rate moyen","80%","#ffd740"]].map(([lbl,val,c])=>(
-          <div key={lbl} style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,padding:"10px 14px"}}>
-            <div style={{fontSize:9,color:"#8892a4",marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>{lbl}</div>
+          <div key={lbl} style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,padding:"10px 12px"}}>
+            <div style={{fontSize:9,color:"#8892a4",marginBottom:3,textTransform:"uppercase",letterSpacing:.5}}>{lbl}</div>
             <div style={{fontSize:20,fontWeight:700,color:c}}>{val}</div>
           </div>
         ))}
       </div>
       <div style={{fontSize:14,color:"#c8d3e8",fontWeight:600,marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
         <span style={{display:"inline-block",width:9,height:9,borderRadius:"50%",background:"#00e5a0",boxShadow:"0 0 8px #00e5a060"}}/>
-        3 DERNIÈRES MISES À JOUR SMART MONEY
-        {filt!=="ALL"&&<span style={{fontSize:12,color:"#4db8ff"}}>— filtre: {filt}</span>}
+        3 DERNIÈRES MISES À JOUR — SMART MONEY
+        {filt!=="ALL"&&<span style={{fontSize:12,color:"#4db8ff"}}>filtre: {filt}</span>}
       </div>
-      <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:16}}>
-        {top3.map(msg=>(
-          <div key={msg.id} style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16,borderLeft:`3px solid ${SC2(msg.signal)}`}}>
+      <div style={{display:"flex",flexDirection:"column",gap:12}}>
+        {filtered.slice(0,3).map(msg=>(
+          <div key={msg.id} style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:14,borderLeft:`3px solid ${SC2(msg.signal)}`}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10,flexWrap:"wrap",gap:8}}>
-              <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+              <div style={{display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>
                 <span style={{fontSize:13,fontWeight:700,color:"#fff",background:"#0a1220",border:"1px solid #1a2540",borderRadius:4,padding:"2px 8px"}}>{msg.member}</span>
                 <span style={{fontSize:10,color:msg.tier==="Tier 1"?"#00e5a0":"#ffd740",background:msg.tier==="Tier 1"?"rgba(0,229,160,.08)":"rgba(255,215,64,.08)",border:`1px solid ${msg.tier==="Tier 1"?"rgba(0,229,160,.28)":"rgba(255,215,64,.28)"}`,borderRadius:3,padding:"1px 6px"}}>{msg.tier}</span>
                 <span style={{fontSize:13,color:"#4db8ff",fontWeight:700}}>→ {msg.ticker}</span>
@@ -456,52 +667,91 @@ const Chat = () => {
                 <div style={{color:"#8892a4"}}>{msg.date}</div>
               </div>
             </div>
-            <div style={{fontSize:13,color:"#c8d3e8",lineHeight:1.7,background:"#0a1220",borderRadius:5,padding:"10px 14px",marginBottom:12,borderLeft:"2px solid #1a2540",fontStyle:"italic"}}>"{msg.msg}"</div>
-            <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr",gap:10}}>
+            <div style={{fontSize:13,color:"#c8d3e8",lineHeight:1.7,background:"#0a1220",borderRadius:5,padding:"10px 12px",marginBottom:10,borderLeft:"2px solid #1a2540",fontStyle:"italic"}}>"{msg.msg}"</div>
+            <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr",gap:8}}>
               <div>
-                <div style={{fontSize:10,color:"#8892a4",marginBottom:4,textTransform:"uppercase"}}>Score de confiance</div>
-                <Conf v={msg.conf}/>
+                <div style={{fontSize:9,color:"#8892a4",marginBottom:3,textTransform:"uppercase"}}>Score confiance</div>
+                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                  <div style={{flex:1,background:"#0d1829",borderRadius:3,height:6}}>
+                    <div style={{width:`${msg.conf}%`,height:"100%",background:CCO(msg.conf),borderRadius:3}}/>
+                  </div>
+                  <span style={{color:CCO(msg.conf),fontSize:12,fontWeight:700,minWidth:32}}>{msg.conf}%</span>
+                </div>
               </div>
               {[["SNR",msg.snr,"#4db8ff"],["Alpha 12M",`+${msg.alpha}%`,"#00e5a0"],["Contexte",msg.ctx,"#ffd740"]].map(([k,v,c])=>(
-                <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 9px"}}>
-                  <div style={{fontSize:9,color:"#8892a4",marginBottom:3,textTransform:"uppercase"}}>{k}</div>
-                  <div style={{fontSize:12,color:c,fontWeight:700,lineHeight:1.3}}>{v}</div>
+                <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"5px 8px"}}>
+                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
+                  <div style={{fontSize:11,color:c,fontWeight:700,lineHeight:1.3}}>{v}</div>
                 </div>
               ))}
             </div>
           </div>
         ))}
       </div>
-      <div style={{padding:"10px 14px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
-        <span style={{color:"#c8d3e8",fontWeight:600}}>Calcul confiance: </span>
-        <span style={{color:"#4db8ff"}}>SNR × 2.5</span> + <span style={{color:"#00e5a0"}}>Alpha × 0.4</span> + <span style={{color:"#b388ff"}}>Win Rate × 0.25</span>, normalisé sur 100 &nbsp;|&nbsp;
+      <div style={{marginTop:12,padding:"10px 12px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
+        Confiance = <span style={{color:"#4db8ff"}}>SNR×2.5</span> + <span style={{color:"#00e5a0"}}>Alpha×0.4</span> + <span style={{color:"#b388ff"}}>Win×0.25</span> (norm. 100) &nbsp;|&nbsp;
         Données simulées basées backtesting V3 &nbsp;|&nbsp;
-        <span style={{color:"#ffd740"}}>Connecter API WhatsApp/chat pour données live</span>
+        <span style={{color:"#ffd740"}}>Connecter API WhatsApp pour données live</span>
       </div>
     </div>
   );
 };
 
-function App() {
-  const [tab,setTab]     = useState("ranking");
-  const [sort,setSort]   = useState("v53");
-  const [sel,setSel]     = useState("CMT");
-  const [ts,setTs]       = useState("01/06/2026 · 16:00");
-  const [loading,setLoading] = useState(false);
-  const refresh = useCallback(()=>{
-    setLoading(true);
-    setTimeout(()=>{
-      const n=new Date();
-      setTs(n.toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}));
-      setLoading(false);
-    },1800);
+// ── APP ───────────────────────────────────────────────────────────────────────
+function App(){
+  const [tab,setTab]=useState(()=>localStorage.getItem("bvc_tab")||"ranking");
+  const [sort,setSort]=useState("v53");
+  const [sel,setSel]=useState("CMT");
+  const [rows,setRows]=useState(STATIC);
+  const [ts,setTs]=useState("01/06/2026 · 16:00");
+  const [src,setSrc]=useState("statique");
+  const [loading,setLoading]=useState(false);
+
+  // Fetch data.json on load
+  useEffect(()=>{
+    fetch("data.json?t="+Date.now())
+      .then(r=>r.ok?r.json():null)
+      .then(d=>{
+        if(!d||!d.tickers)return;
+        const fresh=STATIC.map(s=>{
+          const live=d.tickers.find(t=>t.symbol===(s.symbol||s.ticker));
+          if(!live)return s;
+          return{...s,price:live.price||s.price||s.prix,chg:live.chg??s.chg,pe:live.pe,pb:live.pb,div:live.div,cap:live.cap,h90:live.h90||s.h90,l90:live.l90||s.l90,rsi:live.rsi||s.rsi,ma20:live.ma20||s.ma20,ma50:live.ma50||s.ma50};
+        });
+        setRows(fresh);
+        setTs(d.updated?d.updated.replace("T"," · ").substring(0,19):ts);
+        setSrc(d.source||"data.json");
+      })
+      .catch(()=>{});
   },[]);
-  return (
+
+  const refresh=useCallback(()=>{
+    setLoading(true);
+    fetch("data.json?t="+Date.now())
+      .then(r=>r.ok?r.json():null)
+      .then(d=>{
+        if(d&&d.tickers){
+          const fresh=STATIC.map(s=>{
+            const live=d.tickers.find(t=>t.symbol===(s.symbol||s.ticker));
+            if(!live)return s;
+            return{...s,price:live.price,chg:live.chg??s.chg,pe:live.pe,pb:live.pb,div:live.div,h90:live.h90||s.h90,l90:live.l90||s.l90,rsi:live.rsi||s.rsi,ma20:live.ma20||s.ma20,ma50:live.ma50||s.ma50};
+          });
+          setRows(fresh);
+          setTs(new Date().toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}));
+        }
+        setLoading(false);
+      })
+      .catch(()=>setLoading(false));
+  },[]);
+
+  const changeTab=(t)=>{setTab(t);localStorage.setItem("bvc_tab",t);};
+
+  return(
     <div style={{minHeight:"100vh"}}>
-      <Header tab={tab} setTab={setTab} ts={ts} onRefresh={refresh} loading={loading}/>
-      <div style={{padding:16,maxWidth:1600,margin:"0 auto"}}>
-        {tab==="ranking"&&<Ranking rows={TICKERS} sort={sort} setSort={setSort} setSel={setSel} setTab={setTab}/>}
-        {tab==="detail" &&<Detail rows={TICKERS} sel={sel} setSel={setSel}/>}
+      <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={refresh} loading={loading}/>
+      <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
+        {tab==="ranking"&&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab}/>}
+        {tab==="detail" &&<Detail rows={rows} sel={sel} setSel={setSel}/>}
         {tab==="weights"&&<Weights/>}
         {tab==="smart"  &&<Smart/>}
         {tab==="chat"   &&<Chat/>}
