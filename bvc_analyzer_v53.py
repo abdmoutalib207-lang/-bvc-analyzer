@@ -295,81 +295,12 @@ class ScoreEngineV53:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PARTIE 4 — DONNÉES BVC 01/06/2026 (dernière séance réelle)
-# ─────────────────────────────────────────────────────────────────────────────
-
-BVC_DATA_01_06 = {
-    "CMT":  {"prix": 5330, "var": +6.60, "score": 7.16, "tech": 5.95, "fond": 7.73,
-             "signal": "ACHETER",    "setup": "NEUTRE",            "flags": 0, "upside": 14.0,
-             "base": 5700,  "bear": 4446,  "bull": 7125},
-    "SMI":  {"prix": 9372, "var": +1.65, "score": 6.95, "tech": 4.76, "fond": 7.73,
-             "signal": "ACHETER",    "setup": "PULLBACK HAUSSIER", "flags": 0, "upside":  7.0,
-             "base": 9865,  "bear": 7695,  "bull": 12331},
-    "CASH": {"prix":  280, "var": -0.04, "score": 6.73, "tech": 4.52, "fond": 7.95,
-             "signal": "SURVEILLER", "setup": "NEUTRE",            "flags": 0, "upside": 12.0,
-             "base":  313,  "bear":  244,  "bull":   392},
-    "SOT":  {"prix":  369, "var":  0.00, "score": 6.62, "tech": 4.05, "fond": 7.50,
-             "signal": "ACHETER",    "setup": "PULLBACK HAUSSIER", "flags": 0, "upside": 12.0,
-             "base":  413,  "bear":  322,  "bull":   516},
-    "MNG":  {"prix": 17927,"var": +3.00, "score": 6.59, "tech": 6.43, "fond": 4.32,
-             "signal": "ACHETER",    "setup": "MOMENTUM CONFIRME", "flags": 3, "upside":  2.0,
-             "base": 17753, "bear": 13847, "bull": 22191},
-    "MSA":  {"prix":  845, "var": +2.72, "score": 6.28, "tech": 3.57, "fond": 6.59,
-             "signal": "SURVEILLER", "setup": "CONTRARIEN",        "flags": 0, "upside":-13.0,
-             "base":  715,  "bear":  558,  "bull":   894},
-    "SGTM": {"prix":  732, "var": +0.22, "score": 5.77, "tech": 3.33, "fond": 8.18,
-             "signal": "SURVEILLER", "setup": "CONTRARIEN",        "flags": 0, "upside": 27.0,
-             "base":  928,  "bear":  724,  "bull":  1160},
-    "CFGB": {"prix":  208, "var": +1.46, "score": 5.44, "tech": 3.57, "fond": 7.73,
-             "signal": "ATTENDRE",   "setup": "FAIBLESSE",         "flags": 1, "upside": 17.0,
-             "base":  239,  "bear":  187,  "bull":   299},
-    "TGCC": {"prix":  767, "var": +2.99, "score": 5.22, "tech": 3.10, "fond": 8.41,
-             "signal": "ATTENDRE",   "setup": "CONTRARIEN",        "flags": 0, "upside": 27.0,
-             "base":  946,  "bear":  738,  "bull":  1182},
-    "CMGP": {"prix":  358, "var": -0.50, "score": 5.17, "tech": 3.10, "fond": 6.59,
-             "signal": "ATTENDRE",   "setup": "FAIBLESSE",         "flags": 1, "upside": -3.0,
-             "base":  349,  "bear":  272,  "bull":   436},
-    "ADI":  {"prix":  390, "var": -4.88, "score": 5.00, "tech": 3.33, "fond": 7.05,
-             "signal": "ATTENDRE",   "setup": "CONTRARIEN",        "flags": 0, "upside": 17.0,
-             "base":  479,  "bear":  374,  "bull":   599},
-    "VCNE": {"prix":  390, "var":  0.00, "score": 4.93, "tech": 3.57, "fond": 6.59,
-             "signal": "ATTENDRE",   "setup": "FAIBLESSE",         "flags": 1, "upside":  9.0,
-             "base":  425,  "bear":  331,  "bull":   531},
-    "SRM":  {"prix":  442, "var": -8.54, "score": 4.88, "tech": 4.52, "fond": 4.32,
-             "signal": "ATTENDRE",   "setup": "FAIBLESSE",         "flags": 4, "upside":  8.0,
-             "base":  522,  "bear":  407,  "bull":   652},
-    "RIS":  {"prix":  326, "var": -2.31, "score": 4.71, "tech": 4.29, "fond": 5.23,
-             "signal": "ATTENDRE",   "setup": "PULLBACK HAUSSIER", "flags": 2, "upside":-20.0,
-             "base":  267,  "bear":  208,  "bull":   334},
-    "CSR":  {"prix":  188, "var": +2.15, "score": 4.58, "tech": 4.05, "fond": 5.23,
-             "signal": "ATTENDRE",   "setup": "FAIBLESSE",         "flags": 2, "upside":-15.0,
-             "base":  156,  "bear":  121,  "bull":   195},
-    "ADH":  {"prix": 33.4, "var": +1.95, "score": 4.28, "tech": 3.57, "fond": 4.09,
-             "signal": "ATTENDRE",   "setup": "PULLBACK HAUSSIER", "flags": 3, "upside":  0.0,
-             "base": 32.8,  "bear": 25.5,  "bull":  41.0},
-    "RDS":  {"prix": 169.7,"var": +1.19, "score": 3.76, "tech": 4.76, "fond": 2.27,
-             "signal": "EVITER",     "setup": "PULLBACK HAUSSIER", "flags": 4, "upside":-38.0,
-             "base":  103,  "bear":   81,  "bull":   129},
-}
-
-# Contexte marché 01/06/2026 09h47
-MARKET_CONTEXT_01_06 = {
-    "market_status":      "OPEN",
-    "has_results":        False,
-    "hype_spike":         False,
-    "smart_money_active": False,
-    "masi_ytd":           1.3,
-    "ticker_coverage":    100,
-}
-
-
-# ─────────────────────────────────────────────────────────────────────────────
 # PARTIE 5 — PIPELINE D'ANALYSE COMPLÈTE v5.3
 # ─────────────────────────────────────────────────────────────────────────────
 
 def run_analysis_v53(
-    bvc_data: dict = BVC_DATA_01_06,
-    context: dict = MARKET_CONTEXT_01_06,
+    bvc_data: dict = None,
+    context: dict = None,
     verbose: bool = True,
 ) -> list:
     """
@@ -514,7 +445,70 @@ def enrich_bvc_result(ticker: str, score_tech: float, score_fond: float,
 # ─────────────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    results = run_analysis_v53(verbose=True)
+    BVC_DATA_01_06 = {
+        "CMT":  {"prix": 5330, "var": +6.60, "score": 7.16, "tech": 5.95, "fond": 7.73,
+                 "signal": "ACHETER",    "setup": "NEUTRE",            "flags": 0, "upside": 14.0,
+                 "base": 5700,  "bear": 4446,  "bull": 7125},
+        "SMI":  {"prix": 9372, "var": +1.65, "score": 6.95, "tech": 4.76, "fond": 7.73,
+                 "signal": "ACHETER",    "setup": "PULLBACK HAUSSIER", "flags": 0, "upside":  7.0,
+                 "base": 9865,  "bear": 7695,  "bull": 12331},
+        "CASH": {"prix":  280, "var": -0.04, "score": 6.73, "tech": 4.52, "fond": 7.95,
+                 "signal": "SURVEILLER", "setup": "NEUTRE",            "flags": 0, "upside": 12.0,
+                 "base":  313,  "bear":  244,  "bull":   392},
+        "SOT":  {"prix":  369, "var":  0.00, "score": 6.62, "tech": 4.05, "fond": 7.50,
+                 "signal": "ACHETER",    "setup": "PULLBACK HAUSSIER", "flags": 0, "upside": 12.0,
+                 "base":  413,  "bear":  322,  "bull":   516},
+        "MNG":  {"prix": 17927,"var": +3.00, "score": 6.59, "tech": 6.43, "fond": 4.32,
+                 "signal": "ACHETER",    "setup": "MOMENTUM CONFIRME", "flags": 3, "upside":  2.0,
+                 "base": 17753, "bear": 13847, "bull": 22191},
+        "MSA":  {"prix":  845, "var": +2.72, "score": 6.28, "tech": 3.57, "fond": 6.59,
+                 "signal": "SURVEILLER", "setup": "CONTRARIEN",        "flags": 0, "upside":-13.0,
+                 "base":  715,  "bear":  558,  "bull":   894},
+        "SGTM": {"prix":  732, "var": +0.22, "score": 5.77, "tech": 3.33, "fond": 8.18,
+                 "signal": "SURVEILLER", "setup": "CONTRARIEN",        "flags": 0, "upside": 27.0,
+                 "base":  928,  "bear":  724,  "bull":  1160},
+        "CFGB": {"prix":  208, "var": +1.46, "score": 5.44, "tech": 3.57, "fond": 7.73,
+                 "signal": "ATTENDRE",   "setup": "FAIBLESSE",         "flags": 1, "upside": 17.0,
+                 "base":  239,  "bear":  187,  "bull":   299},
+        "TGCC": {"prix":  767, "var": +2.99, "score": 5.22, "tech": 3.10, "fond": 8.41,
+                 "signal": "ATTENDRE",   "setup": "CONTRARIEN",        "flags": 0, "upside": 27.0,
+                 "base":  946,  "bear":  738,  "bull":  1182},
+        "CMGP": {"prix":  358, "var": -0.50, "score": 5.17, "tech": 3.10, "fond": 6.59,
+                 "signal": "ATTENDRE",   "setup": "FAIBLESSE",         "flags": 1, "upside": -3.0,
+                 "base":  349,  "bear":  272,  "bull":   436},
+        "ADI":  {"prix":  390, "var": -4.88, "score": 5.00, "tech": 3.33, "fond": 7.05,
+                 "signal": "ATTENDRE",   "setup": "CONTRARIEN",        "flags": 0, "upside": 17.0,
+                 "base":  479,  "bear":  374,  "bull":   599},
+        "VCNE": {"prix":  390, "var":  0.00, "score": 4.93, "tech": 3.57, "fond": 6.59,
+                 "signal": "ATTENDRE",   "setup": "FAIBLESSE",         "flags": 1, "upside":  9.0,
+                 "base":  425,  "bear":  331,  "bull":   531},
+        "SRM":  {"prix":  442, "var": -8.54, "score": 4.88, "tech": 4.52, "fond": 4.32,
+                 "signal": "ATTENDRE",   "setup": "FAIBLESSE",         "flags": 4, "upside":  8.0,
+                 "base":  522,  "bear":  407,  "bull":   652},
+        "RIS":  {"prix":  326, "var": -2.31, "score": 4.71, "tech": 4.29, "fond": 5.23,
+                 "signal": "ATTENDRE",   "setup": "PULLBACK HAUSSIER", "flags": 2, "upside":-20.0,
+                 "base":  267,  "bear":  208,  "bull":   334},
+        "CSR":  {"prix":  188, "var": +2.15, "score": 4.58, "tech": 4.05, "fond": 5.23,
+                 "signal": "ATTENDRE",   "setup": "FAIBLESSE",         "flags": 2, "upside":-15.0,
+                 "base":  156,  "bear":  121,  "bull":   195},
+        "ADH":  {"prix": 33.4, "var": +1.95, "score": 4.28, "tech": 3.57, "fond": 4.09,
+                 "signal": "ATTENDRE",   "setup": "PULLBACK HAUSSIER", "flags": 3, "upside":  0.0,
+                 "base": 32.8,  "bear": 25.5,  "bull":  41.0},
+        "RDS":  {"prix": 169.7,"var": +1.19, "score": 3.76, "tech": 4.76, "fond": 2.27,
+                 "signal": "EVITER",     "setup": "PULLBACK HAUSSIER", "flags": 4, "upside":-38.0,
+                 "base":  103,  "bear":   81,  "bull":   129},
+    }
+    MARKET_CONTEXT_01_06 = {
+        "market_status":      "OPEN",
+        "has_results":        False,
+        "hype_spike":         False,
+        "smart_money_active": False,
+        "masi_ytd":           1.3,
+        "ticker_coverage":    100,
+    }
+    results = run_analysis_v53(bvc_data=BVC_DATA_01_06,
+                               context=MARKET_CONTEXT_01_06,
+                               verbose=True)
 
     # Export CSV
     df = pd.DataFrame(results)[["ticker", "prix", "var", "score_bvc", "score_enrichi",
