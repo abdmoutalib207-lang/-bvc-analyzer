@@ -307,6 +307,8 @@ def run_analysis_v53(
     Lance l'analyse complète v5.3 sur tous les tickers.
     Retourne la liste triée par score enrichi décroissant.
     """
+    if bvc_data is None or context is None:
+        raise ValueError("bvc_data et context sont requis")
     results = []
 
     for ticker, d in bvc_data.items():
