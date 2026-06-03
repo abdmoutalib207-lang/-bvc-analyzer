@@ -43,10 +43,14 @@ jobs:
         with:
           ref: main          # toujours mettre à jour main (GitHub Pages)
           token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
       # ── 2. Python ────────────────────────────────────────
       - name: Setup Python 3.11
         uses: actions/setup-python@v5
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         with:
           python-version: '3.11'
           cache: 'pip'
