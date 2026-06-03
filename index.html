@@ -67,54 +67,116 @@ const CHAT=[
   {id:5,time:"10:33",date:"31/05/2026",member:"~ Driss",      tier:"Tier 2",snr:6.8, alpha:21.9,ticker:"SRM", signal:"EVITER",conf:68,ctx:"Chute -8.5% + 4 red flags",msg:"SRM: -8.54% aujourd'hui. 4 red flags actifs. Biais groupe NÉGATIF. Smart money absent. À éviter absolument jusqu'à clarification."},
 ];
 
-// ── YAHOO FINANCE ─────────────────────────────────────────────────────────────
-const YF_BASE="https://query1.finance.yahoo.com";
-const PROXY="https://corsproxy.io/?";
-// BVC ticker → Yahoo Finance symbol (.CS = Casablanca)
+// ── SOURCES DONNÉES BVC (IDBourse + Médias24 + Yahoo Finance fallback) ────────
+const PROXY   = "https://corsproxy.io/?";
+const IDB_BASE = "https://www.idbourse.com";
+const MED_BASE = "https://medias24.com/content/api";
+const YF_BASE  = "https://query1.finance.yahoo.com";
+
+// Codes ISIN BVC pour Médias24 (source: bvc_analyzer_v50.py)
+const ISIN_MAP={
+  CMT:"MA0000011793", SMI:"MA0000010068", CASH:"MA0000012767", MNG:"MA0000011058",
+  AKD:"MA0000012585", SOT:"MA0000012502", SGTM:"MA0000012783", MSA:"MA0000012312",
+  CFGB:"MA0000012627", RIS:"MA0000011462", ADI:"MA0000011819", VCNE:"MA0000012759",
+  CMGP:"MA0000012718", CSR:"MA0000012247", TGCC:"MA0000012528", ADH:"MA0000011512",
+  SRM:"MA0000011595", SNA:"MA0000010019", RDS:"MA0000012239"
+};
+// IDBourse utilise des noms différents pour certains tickers BVC
+const IDB_NAME_MAP={MTO:"CMT", ALLI:"ADI", TGC:"TGCC", GTM:"SGTM"};
+// Yahoo Finance fallback symbols
 const YF_MAP={CMT:"CMT.CS",SMI:"SMI.CS",CASH:"CIH.CS",MNG:"MNG.CS",AKD:"AKD.CS",SOT:"SOT.CS",SGTM:"SGTM.CS",MSA:"MSA.CS",CFGB:"CFGB.CS",RIS:"RIS.CS",ADI:"ADI.CS",VCNE:"VE.CS",CMGP:"CMGP.CS",CSR:"CSR.CS",TGCC:"TGCC.CS",ADH:"ADH.CS",SRM:"SRM.CS",SNA:"SNA.CS",RDS:"RDS.CS"};
 
-async function yfGet(url){
+// Fetch helper: essaie direct puis via proxy CORS
+async function bvcGet(url){
   try{const r=await fetch(url,{cache:"no-store"});if(r.ok)return r.json();}catch{}
-  // Fallback via CORS proxy
   try{const r=await fetch(PROXY+encodeURIComponent(url),{cache:"no-store"});if(r.ok)return r.json();}catch{}
   return null;
 }
 
-async function fetchQuotes(){
-  const syms=STATIC.map(s=>YF_MAP[s.symbol]||`${s.symbol}.CS`).join(",");
-  const data=await yfGet(`${YF_BASE}/v7/finance/quote?symbols=${syms}`);
+// IDBourse: tous les tickers en un seul appel
+async function fetchIDB(){
+  const data=await bvcGet(`${IDB_BASE}/api/proxy/get_all_data`);
+  if(!Array.isArray(data)||data.length===0)return null;
   const out={};
-  data?.quoteResponse?.result?.forEach(q=>{
-    // Map back from YF symbol to our BVC symbol
-    const bvcSym=Object.keys(YF_MAP).find(k=>YF_MAP[k]===q.symbol)||(q.symbol||"").replace(".CS","");
-    if(!bvcSym)return;
-    out[bvcSym]={
-      price:q.regularMarketPrice,
-      chg:q.regularMarketChangePercent,
-      open:q.regularMarketOpen,
-      close:q.regularMarketPrice,       // last traded = close when mkt closed
-      prevClose:q.regularMarketPreviousClose,
-      h90:q.fiftyTwoWeekHigh,
-      l90:q.fiftyTwoWeekLow,
-      cap:q.marketCap?Math.round(q.marketCap/1e6):null,
-      live:true
-    };
+  data.forEach(d=>{
+    if(!d.name||!d.dernier_cours)return;
+    const n=(d.name||"").toUpperCase();
+    const sym=IDB_NAME_MAP[n]||n; // map vers notre ticker BVC
+    if(!ISIN_MAP[sym])return;     // filtrer aux 19 titres de notre liste
+    out[sym]={price:+d.dernier_cours,chg:d.variation!=null?+d.variation:0,open:d.ouverture?+d.ouverture:null,close:+d.dernier_cours,live:true,src:"IDBourse"};
   });
-  return out;
+  return Object.keys(out).length>3?out:null;
 }
 
-async function fetchChart(sym,range){
-  const yfSym=YF_MAP[sym]||`${sym}.CS`;
-  const data=await yfGet(`${YF_BASE}/v8/finance/chart/${yfSym}?interval=1d&range=${range||"3mo"}&events=div`);
-  const res=data?.chart?.result?.[0];
-  if(!res)return null;
-  const ts=res.timestamp||[];
-  const q=res.indicators?.quote?.[0]||{};
-  const candles=ts.map((t,i)=>({
-    x:t*1000,
-    y:[q.open?.[i],q.high?.[i],q.low?.[i],q.close?.[i]].map(v=>v!=null?+v.toFixed(2):null)
-  })).filter(c=>c.y.every(v=>v!=null)&&c.y[1]>=c.y[2]&&c.y[0]>0);
+// Médias24: cours individuel par ISIN
+async function fetchMed24Quote(sym){
+  const isin=ISIN_MAP[sym];if(!isin)return null;
+  const data=await bvcGet(`${MED_BASE}?method=getStockInfo&ISIN=${isin}&format=json`);
+  const r=data?.result;if(!r)return null;
+  const price=r.cours?+r.cours:null;
+  if(!price||isNaN(price))return null;
+  return{price,chg:r.variation?+r.variation:0,open:r.ouverture?+r.ouverture:price,close:price,live:true,src:"Médias24"};
+}
+
+// Médias24: historique OHLCV pour graphique (format: {date,value,max,min,volume})
+async function fetchMed24History(sym,days){
+  const isin=ISIN_MAP[sym];if(!isin)return null;
+  const to=new Date();const from=new Date(+to-days*86400000);
+  const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  const data=await bvcGet(`${MED_BASE}?method=getPriceHistory&ISIN=${isin}&from=${fmt(from)}&to=${fmt(to)}&format=json`);
+  const recs=data?.result;if(!Array.isArray(recs)||recs.length<5)return null;
+  const candles=recs.map(rec=>{
+    const raw=rec.date||"";
+    let ts;
+    if(raw.includes("/")){const[d,m,y]=raw.split("/");ts=new Date(+y,+m-1,+d).getTime();}
+    else{ts=new Date(raw).getTime();}
+    if(!ts||isNaN(ts))return null;
+    const c=+(rec.value||0),h=+(rec.max||rec.value)||c,l=+(rec.min||rec.value)||c;
+    if(!c||c<=0)return null;
+    return{x:ts,y:[c,Math.max(h,c),Math.min(l,c),c]}; // open=close (Médias24 ne fournit pas open)
+  }).filter(Boolean);
   return candles.length>=5?candles:null;
+}
+
+// Yahoo Finance: chart fallback
+async function fetchYFChart(sym,range){
+  const yfSym=YF_MAP[sym]||`${sym}.CS`;
+  const data=await bvcGet(`${YF_BASE}/v8/finance/chart/${yfSym}?interval=1d&range=${range||"3mo"}&events=div`);
+  const res=data?.chart?.result?.[0];if(!res)return null;
+  const ts=res.timestamp||[];const q=res.indicators?.quote?.[0]||{};
+  const candles=ts.map((t,i)=>({x:t*1000,y:[q.open?.[i],q.high?.[i],q.low?.[i],q.close?.[i]].map(v=>v!=null?+v.toFixed(2):null)})).filter(c=>c.y.every(v=>v!=null)&&c.y[1]>=c.y[2]&&c.y[0]>0);
+  return candles.length>=5?candles:null;
+}
+
+// fetchQuotes: IDBourse (batch) → Médias24 (par titre) → Yahoo Finance
+async function fetchQuotes(){
+  const idb=await fetchIDB();
+  if(idb)return idb;
+  // Médias24 par titre (plus lent mais fiable)
+  const out={};
+  await Promise.all(STATIC.map(async s=>{
+    const q=await fetchMed24Quote(s.symbol);
+    if(q)out[s.symbol]=q;
+  }));
+  if(Object.keys(out).length>0)return out;
+  // Dernier recours: Yahoo Finance
+  const syms=STATIC.map(s=>YF_MAP[s.symbol]||`${s.symbol}.CS`).join(",");
+  const yf=await bvcGet(`${YF_BASE}/v7/finance/quote?symbols=${syms}`);
+  yf?.quoteResponse?.result?.forEach(q=>{
+    const sym=Object.keys(YF_MAP).find(k=>YF_MAP[k]===q.symbol)||(q.symbol||"").replace(".CS","");
+    if(!sym)return;
+    out[sym]={price:q.regularMarketPrice,chg:q.regularMarketChangePercent,open:q.regularMarketOpen,close:q.regularMarketPrice,live:true,src:"Yahoo Finance"};
+  });
+  return Object.keys(out).length>0?out:null;
+}
+
+// fetchChart: Médias24 → Yahoo Finance → genCandles (simulé)
+async function fetchChart(sym,range){
+  const daysMap={"1mo":30,"3mo":90,"6mo":180,"1y":365};
+  const days=daysMap[range]||90;
+  const med=await fetchMed24History(sym,days);
+  if(med)return med;
+  return fetchYFChart(sym,range);
 }
 
 // ── MARKET STATUS (BVC Casablanca, UTC+1 toute l'année) ───────────────────────
@@ -567,7 +629,7 @@ const Detail=({rows,sel,setSel})=>{
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Graphique Chandeliers · MA20 · MA50 · Fibonacci</div>
             <StockChart r={r}/>
             <div style={{fontSize:9,color:"#8892a4",marginTop:6}}>
-              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff",textDecoration:"underline dashed"}}>── MA50</span> &nbsp; <span style={{color:"#ffd740"}}>─ Fib niveaux</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> Yahoo Finance en direct · fallback simulé si indisponible
+              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff",textDecoration:"underline dashed"}}>── MA50</span> &nbsp; <span style={{color:"#ffd740"}}>─ Fib niveaux</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24 · fallback Yahoo Finance · fallback simulé
             </div>
           </div>
 
@@ -812,13 +874,16 @@ function App(){
   // Load data: Yahoo Finance → data.json → STATIC (silent fallback chain)
   const loadData=useCallback(async()=>{
     setLoading(true);
-    // Try Yahoo Finance (direct then via CORS proxy)
+    // IDBourse → Médias24 → Yahoo Finance (chaîne automatique dans fetchQuotes)
     try{
       const liveMap=await fetchQuotes();
       if(liveMap&&Object.keys(liveMap).length>0){
         mergeLive(liveMap);
         setTs(new Date().toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}));
-        setSrc("Yahoo Finance ●");
+        // Show the actual source used (first non-null src field)
+        const srcs=Object.values(liveMap).map(v=>v.src).filter(Boolean);
+        const mainSrc=srcs[0]||"live";
+        setSrc(`${mainSrc} ●`);
         setLoading(false);return;
       }
     }catch{}
