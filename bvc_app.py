@@ -8,7 +8,7 @@ import pandas as pd
 import streamlit as st
 
 st.set_page_config(
-    page_title="BVC Analyzer v5.0",
+    page_title="BVC Analyzer v6.3",
     page_icon="📈",
     layout="wide",
 )
@@ -16,7 +16,7 @@ st.set_page_config(
 # ── HEADER ────────────────────────────────────────────────────────────────────
 
 st.markdown("""
-<h1 style='margin-bottom:0'>📈 BVC ANALYZER v5.0</h1>
+<h1 style='margin-bottom:0'>📈 BVC ANALYZER v6.3</h1>
 <p style='color:gray;margin-top:4px'>Technique × Fondamental × NLP — Bourse de Casablanca</p>
 """, unsafe_allow_html=True)
 

@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>BVC ANALYZER v6.3</title>
+  <title>BVC Analyzer v6.3 — Bourse de Casablanca</title>
+  <meta name="description" content="Terminal d'analyse multi-facteurs BVC : Technique 25% · Fondamental 47% · NLP 28% — 19 titres · 896 907 messages · 6 ans de données"/>
+  <meta name="theme-color" content="#080d1a"/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.2/dist/apexcharts.min.js"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -67,29 +69,40 @@ const CHAT=[
   {id:5,time:"10:33",date:"31/05/2026",member:"~ Driss",      tier:"Tier 2",snr:6.8, alpha:21.9,ticker:"SRM", signal:"EVITER",conf:68,ctx:"Chute -8.5% + 4 red flags",msg:"SRM: -8.54% aujourd'hui. 4 red flags actifs. Biais groupe NÉGATIF. Smart money absent. À éviter absolument jusqu'à clarification."},
 ];
 
+// ── MÉTADONNÉES CORPUS (point de mise à jour unique) ─────────────────────────
+const META = {
+  msgs:    "896 907",
+  years:   6,
+  signals: "1 994",
+};
+
 // ── SOURCES DONNÉES BVC (IDBourse + Médias24 + Yahoo Finance fallback) ────────
-const PROXY   = "https://corsproxy.io/?";
+const PROXY_LIST = [
+  "https://corsproxy.io/?",
+  "https://api.allorigins.win/raw?url=",
+];
 const IDB_BASE = "https://www.idbourse.com";
 const MED_BASE = "https://medias24.com/content/api";
 const YF_BASE  = "https://query1.finance.yahoo.com";
 
-// Codes ISIN BVC pour Médias24 (source: bvc_analyzer_v50.py)
-const ISIN_MAP={
-  CMT:"MA0000011793", SMI:"MA0000010068", CASH:"MA0000012767", MNG:"MA0000011058",
-  AKD:"MA0000012585", SOT:"MA0000012502", SGTM:"MA0000012783", MSA:"MA0000012312",
-  CFGB:"MA0000012627", RIS:"MA0000011462", ADI:"MA0000011819", VCNE:"MA0000012759",
-  CMGP:"MA0000012718", CSR:"MA0000012247", TGCC:"MA0000012528", ADH:"MA0000011512",
-  SRM:"MA0000011595", SNA:"MA0000010019", RDS:"MA0000012239"
+const CONFIG = {
+  ISIN_MAP:{
+    CMT:"MA0000011793", SMI:"MA0000010068", CASH:"MA0000012767", MNG:"MA0000011058",
+    AKD:"MA0000012585", SOT:"MA0000012502", SGTM:"MA0000012783", MSA:"MA0000012312",
+    CFGB:"MA0000012627", RIS:"MA0000011462", ADI:"MA0000011819", VCNE:"MA0000012759",
+    CMGP:"MA0000012718", CSR:"MA0000012247", TGCC:"MA0000012528", ADH:"MA0000011512",
+    SRM:"MA0000011595", SNA:"MA0000010019", RDS:"MA0000012239"
+  },
+  IDB_NAME_MAP:{MTO:"CMT", ALLI:"ADI", TGC:"TGCC", GTM:"SGTM"},
+  YF_MAP:{CMT:"CMT.CS",SMI:"SMI.CS",CASH:"CIH.CS",MNG:"MNG.CS",AKD:"AKD.CS",SOT:"SOT.CS",SGTM:"SGTM.CS",MSA:"MSA.CS",CFGB:"CFGB.CS",RIS:"RIS.CS",ADI:"ADI.CS",VCNE:"VE.CS",CMGP:"CMGP.CS",CSR:"CSR.CS",TGCC:"TGCC.CS",ADH:"ADH.CS",SRM:"SRM.CS",SNA:"SNA.CS",RDS:"RDS.CS"},
 };
-// IDBourse utilise des noms différents pour certains tickers BVC
-const IDB_NAME_MAP={MTO:"CMT", ALLI:"ADI", TGC:"TGCC", GTM:"SGTM"};
-// Yahoo Finance fallback symbols
-const YF_MAP={CMT:"CMT.CS",SMI:"SMI.CS",CASH:"CIH.CS",MNG:"MNG.CS",AKD:"AKD.CS",SOT:"SOT.CS",SGTM:"SGTM.CS",MSA:"MSA.CS",CFGB:"CFGB.CS",RIS:"RIS.CS",ADI:"ADI.CS",VCNE:"VE.CS",CMGP:"CMGP.CS",CSR:"CSR.CS",TGCC:"TGCC.CS",ADH:"ADH.CS",SRM:"SRM.CS",SNA:"SNA.CS",RDS:"RDS.CS"};
 
 // Fetch helper: essaie direct puis via proxy CORS
 async function bvcGet(url){
   try{const r=await fetch(url,{cache:"no-store"});if(r.ok)return r.json();}catch{}
-  try{const r=await fetch(PROXY+encodeURIComponent(url),{cache:"no-store"});if(r.ok)return r.json();}catch{}
+  for(const proxy of PROXY_LIST){
+    try{const r=await fetch(proxy+encodeURIComponent(url),{cache:"no-store"});if(r.ok)return r.json();}catch{}
+  }
   return null;
 }
 
@@ -101,8 +114,8 @@ async function fetchIDB(){
   data.forEach(d=>{
     if(!d.name||!d.dernier_cours)return;
     const n=(d.name||"").toUpperCase();
-    const sym=IDB_NAME_MAP[n]||n; // map vers notre ticker BVC
-    if(!ISIN_MAP[sym])return;     // filtrer aux 19 titres de notre liste
+    const sym=CONFIG.IDB_NAME_MAP[n]||n; // map vers notre ticker BVC
+    if(!CONFIG.ISIN_MAP[sym])return;     // filtrer aux 19 titres de notre liste
     out[sym]={price:+d.dernier_cours,chg:d.variation!=null?+d.variation:0,open:d.ouverture?+d.ouverture:null,close:+d.dernier_cours,live:true,src:"IDBourse"};
   });
   return Object.keys(out).length>3?out:null;
@@ -110,7 +123,7 @@ async function fetchIDB(){
 
 // Médias24: cours individuel par ISIN
 async function fetchMed24Quote(sym){
-  const isin=ISIN_MAP[sym];if(!isin)return null;
+  const isin=CONFIG.ISIN_MAP[sym];if(!isin)return null;
   const data=await bvcGet(`${MED_BASE}?method=getStockInfo&ISIN=${isin}&format=json`);
   const r=data?.result;if(!r)return null;
   const price=r.cours?+r.cours:null;
@@ -120,7 +133,7 @@ async function fetchMed24Quote(sym){
 
 // Médias24: historique OHLCV pour graphique (format: {date,value,max,min,volume})
 async function fetchMed24History(sym,days){
-  const isin=ISIN_MAP[sym];if(!isin)return null;
+  const isin=CONFIG.ISIN_MAP[sym];if(!isin)return null;
   const to=new Date();const from=new Date(+to-days*86400000);
   const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   const data=await bvcGet(`${MED_BASE}?method=getPriceHistory&ISIN=${isin}&from=${fmt(from)}&to=${fmt(to)}&format=json`);
@@ -144,7 +157,7 @@ async function fetchMed24History(sym,days){
 
 // Yahoo Finance: chart fallback
 async function fetchYFChart(sym,range){
-  const yfSym=YF_MAP[sym]||`${sym}.CS`;
+  const yfSym=CONFIG.YF_MAP[sym]||`${sym}.CS`;
   const data=await bvcGet(`${YF_BASE}/v8/finance/chart/${yfSym}?interval=1d&range=${range||"3mo"}&events=div`);
   const res=data?.chart?.result?.[0];if(!res)return null;
   const ts=res.timestamp||[];const q=res.indicators?.quote?.[0]||{};
@@ -164,10 +177,10 @@ async function fetchQuotes(){
   }));
   if(Object.keys(out).length>0)return out;
   // Dernier recours: Yahoo Finance
-  const syms=STATIC.map(s=>YF_MAP[s.symbol]||`${s.symbol}.CS`).join(",");
+  const syms=STATIC.map(s=>CONFIG.YF_MAP[s.symbol]||`${s.symbol}.CS`).join(",");
   const yf=await bvcGet(`${YF_BASE}/v7/finance/quote?symbols=${syms}`);
   yf?.quoteResponse?.result?.forEach(q=>{
-    const sym=Object.keys(YF_MAP).find(k=>YF_MAP[k]===q.symbol)||(q.symbol||"").replace(".CS","");
+    const sym=Object.keys(CONFIG.YF_MAP).find(k=>CONFIG.YF_MAP[k]===q.symbol)||(q.symbol||"").replace(".CS","");
     if(!sym)return;
     out[sym]={price:q.regularMarketPrice,chg:q.regularMarketChangePercent,open:q.regularMarketOpen,close:q.regularMarketPrice,live:true,src:"Yahoo Finance"};
   });
@@ -222,7 +235,7 @@ function genCandles(price,h90,l90,days=90){
   const data=[];
   const range=h90-l90;
   let cur=price*(0.75+rng()*0.15);
-  const ref=new Date("2026-06-02");
+  const ref=new Date();
   for(let i=days;i>=0;i--){
     const d=new Date(ref);d.setDate(d.getDate()-i);
     const dow=d.getDay();if(dow===0||dow===6)continue;
@@ -495,7 +508,7 @@ const StockChart=({r})=>{
 };
 
 // ── HEADER ────────────────────────────────────────────────────────────────────
-const Header=({tab,setTab,ts,src,onRefresh,loading,mktStatus})=>{
+const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus})=>{
   const [pulse,setPulse]=useState(false);
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
   const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"detail",label:"DÉTAIL"},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"chat",label:"CHAT 3 MAJ",badge:CHAT.length}];
@@ -516,10 +529,11 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,mktStatus})=>{
         <div style={{display:"flex",gap:8,alignItems:"center"}}>
           {src&&<span style={{fontSize:10,color:"#8892a4"}}>données: {src}</span>}
           <button onClick={onRefresh} disabled={loading} style={{background:"rgba(77,184,255,.12)",border:"1px solid rgba(77,184,255,.35)",color:"#4db8ff",borderRadius:4,padding:"5px 14px",fontSize:12,opacity:loading?.7:1}}>{loading?"↻ Chargement…":"↻ Actualiser"}</button>
+          {fetchErr&&<span style={{fontSize:10,color:"#ff4f5a",marginLeft:8}}>⚠️ Données live indisponibles — affichage statique</span>}
         </div>
         <div style={{textAlign:"right",fontSize:11}}>
-          <div style={{color:"#8892a4"}}>GROUPE MASI 1 · 19 titres</div>
-          <div style={{color:"#ffd740"}}>896 907 msgs · 6 ans · 1 994 signaux</div>
+          <div style={{color:"#8892a4"}}>GROUPE MASI 1 · {STATIC.length} titres</div>
+          <div style={{color:"#ffd740"}}>{META.msgs} msgs · {META.years} ans · {META.signals} signaux</div>
         </div>
       </div>
       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
@@ -713,7 +727,7 @@ const Detail=({rows,sel,setSel})=>{
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Graphique Chandeliers · MA20 · MA50 · Fibonacci</div>
             <StockChart r={r}/>
             <div style={{fontSize:9,color:"#8892a4",marginTop:6}}>
-              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff",textDecoration:"underline dashed"}}>── MA50</span> &nbsp; <span style={{color:"#ffd740"}}>─ Fib niveaux</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24 · fallback Yahoo Finance · fallback simulé
+              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff",textDecoration:"underline dashed"}}>── MA50</span> &nbsp; <span style={{color:"#ffd740"}}>─ Fib niveaux</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24 · fallback Yahoo Finance · fallback simulé (IDBourse → Médias24 → Yahoo → simulé)
             </div>
           </div>
 
@@ -938,6 +952,7 @@ function App(){
   const [ts,setTs]=useState(new Date().toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}));
   const [src,setSrc]=useState("connexion…");
   const [loading,setLoading]=useState(false);
+  const [fetchErr,setFetchErr]=useState(false);
   const [mktStatus,setMktStatus]=useState(getMarketStatus());
 
   // Update market status every 30s
@@ -958,6 +973,7 @@ function App(){
   // Load data: Yahoo Finance → data.json → STATIC (silent fallback chain)
   const loadData=useCallback(async()=>{
     setLoading(true);
+    setFetchErr(false);
     // IDBourse → Médias24 → Yahoo Finance (chaîne automatique dans fetchQuotes)
     try{
       const liveMap=await fetchQuotes();
@@ -985,6 +1001,7 @@ function App(){
       }
     }catch{}
     // Last resort: keep STATIC values
+    setFetchErr(true);
     setSrc("données statiques");
     setLoading(false);
   },[mergeLive]);
@@ -1000,7 +1017,7 @@ function App(){
 
   return(
     <div style={{minHeight:"100vh"}}>
-      <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} mktStatus={mktStatus}/>
+      <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
         {tab==="ranking"&&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab}/>}
         {tab==="detail" &&<Detail rows={rows} sel={sel} setSel={setSel}/>}
