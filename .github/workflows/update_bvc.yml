@@ -86,6 +86,8 @@ jobs:
           else
             HEURE=$(TZ="Africa/Casablanca" date +'%Y-%m-%d %H:%M')
             git commit -m "data: BVC update ${HEURE} (Casablanca)"
+            # Pull --rebase avant push pour éviter les conflits entre runs simultanés
+            git pull --rebase origin main
             git push origin HEAD:main
             echo "✅ data.json mis à jour et pushé"
           fi
