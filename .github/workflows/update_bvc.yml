@@ -1,0 +1,99 @@
+# ════════════════════════════════════════════════════════════
+# BVC Data Auto-Update — GitHub Actions
+# Mise à jour automatique de data.json aux horaires BVC
+# Casablanca = UTC+1 toute l'année (pas de changement heure)
+# ════════════════════════════════════════════════════════════
+
+name: BVC Data Update
+
+on:
+  schedule:
+    # Pré-ouverture : 9h20 Casablanca = 8h20 UTC (lun-ven)
+    - cron: '20 8 * * 1-5'
+    # Ouverture BVC : 9h30 Casablanca = 8h30 UTC
+    - cron: '30 8 * * 1-5'
+    # Mi-séance : 12h00 Casablanca = 11h00 UTC
+    - cron: '0 11 * * 1-5'
+    # Clôture BVC : 15h30 Casablanca = 14h30 UTC
+    - cron: '30 14 * * 1-5'
+    # Post-clôture : 15h45 Casablanca = 14h45 UTC
+    - cron: '45 14 * * 1-5'
+
+  # Déclenchement manuel depuis l'onglet Actions de GitHub
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (afficher sans écrire)'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: write   # nécessaire pour git push
+
+jobs:
+  update-bvc-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main          # toujours mettre à jour main (GitHub Pages)
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Python ────────────────────────────────────────
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Installer dépendances
+        run: pip install requests numpy pandas -q
+
+      # ── 3. Mise à jour données ────────────────────────────
+      - name: Mise à jour data.json (dry-run)
+        if: ${{ github.event.inputs.dry_run == 'true' }}
+        run: python update_data.py --dry-run
+
+      - name: Mise à jour data.json
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: python update_data.py
+
+      # ── 4. Scraping PDF + Web (optionnel, clôture seule) ──
+      # Décommentez pour scraper les sites à la clôture
+      # - name: Enrichissement fondamentaux.json (clôture)
+      #   if: github.event.schedule == '30 14 * * 1-5'
+      #   run: python pdf_scraper.py --auto --tickers SMI,MNG,CSR
+
+      # ── 5. Commit et push ─────────────────────────────────
+      - name: Commit data.json si modifié
+        run: |
+          git config user.name  "BVC Bot"
+          git config user.email "noreply@github.com"
+          git add data.json
+          # Ne committer que si le fichier a vraiment changé
+          if git diff --staged --quiet; then
+            echo "Aucun changement dans data.json — skip commit"
+          else
+            HEURE=$(TZ="Africa/Casablanca" date +'%Y-%m-%d %H:%M')
+            git commit -m "data: BVC update ${HEURE} (Casablanca)"
+            git push origin main
+            echo "✅ data.json mis à jour et pushé"
+          fi
+
+      # ── 6. Résumé dans les logs ───────────────────────────
+      - name: Résumé
+        if: always()
+        run: |
+          echo "## BVC Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date** : $(TZ='Africa/Casablanca' date +'%Y-%m-%d %H:%M') (Casablanca)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger** : ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          if [ -f data.json ]; then
+            NB=$(python3 -c "import json; d=json.load(open('data.json')); print(len(d.get('tickers',d)))" 2>/dev/null || echo "?")
+            echo "- **Tickers** : ${NB}" >> $GITHUB_STEP_SUMMARY
+          fi
