@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>BVC ANALYZER v6.1</title>
+  <title>BVC ANALYZER v6.3</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.2/dist/apexcharts.min.js"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -504,7 +504,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,mktStatus})=>{
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
         <div style={{display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
           <span style={{fontSize:22,fontWeight:700,letterSpacing:3,background:"linear-gradient(90deg,#00e5a0,#4db8ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>BVC ANALYZER</span>
-          <span style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.1 — TECH 25% · FOND 47% · NLP 28%</span>
+          <span style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.3 — TECH 25% · FOND 47% · NLP 28%</span>
           <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
             <span style={{fontSize:12,color:"#ffd740",display:"flex",alignItems:"center",gap:6}}>
               <span style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:pulse?"#00e5a0":"transparent",border:"1px solid #00e5a0",transition:"background .4s"}}/>
@@ -976,10 +976,11 @@ function App(){
       const d=await fetch("data.json?t="+Date.now()).then(r=>r.ok?r.json():null);
       if(d?.tickers){
         const m={};
-        d.tickers.forEach(t=>{m[t.symbol]={price:t.price,chg:t.chg,h90:t.h90,l90:t.l90,rsi:t.rsi,ma20:t.ma20,ma50:t.ma50};});
+        d.tickers.forEach(t=>{m[t.symbol]={price:t.price,chg:t.chg,open:t.open,close:t.close,h90:t.h90,l90:t.l90,rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,v53:t.v53,sig:t.sig,poids:t.poids};});
         mergeLive(m);
-        setTs(d.updated?d.updated.replace("T"," · ").substring(0,19):"");
-        setSrc(d.source||"data.json");
+        const maj=d.updated?new Date(d.updated).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
+        setTs(maj);
+        setSrc(`BVC clôture${maj?" · "+maj:""}`);
         setLoading(false);return;
       }
     }catch{}
