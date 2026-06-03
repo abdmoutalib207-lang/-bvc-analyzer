@@ -59,19 +59,21 @@ jobs:
           python pipeline/collect_financial_data.py $ARGS
 
       - name: Commit & push data files
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name  "BVC Bot v9"
-          git config user.email "noreply@anthropic.com"
+          git config user.email "noreply@github.com"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
 
           HEURE=$(TZ="Africa/Casablanca" date "+%H:%M")
           DATE=$(TZ="Africa/Casablanca" date "+%d/%m/%Y")
-          TRIGGER="${{ github.event_name }}"
 
           git add financial_data.json data.json || true
           git diff --cached --quiet && echo "Aucun changement." && exit 0
 
           git commit -m "data: BVC pipeline v9 — ${DATE} ${HEURE} (Casablanca)"
-          git push origin HEAD
+          git push origin HEAD:main
 
       - name: Summary
         run: |
