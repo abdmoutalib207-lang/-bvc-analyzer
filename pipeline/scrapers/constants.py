@@ -2,9 +2,9 @@
 import random
 import sys
 from pathlib import Path
+import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-import requests
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from bvc_config import ISIN_MAP, TICKERS_DEFAUT  # noqa: E402
@@ -18,6 +18,14 @@ TICKERS = [
 ]
 
 IPO_RECENT = {"CASH", "VCNE", "SGTM"}
+
+# IDBourse utilise des noms différents pour certains tickers
+IDB_NAME_MAP = {
+    "MTO":  "CMT",
+    "ALLI": "ADI",
+    "TGC":  "TGCC",
+    "GTM":  "SGTM",
+}
 
 # Yahoo Finance suffix map
 YF_MAP = {
