@@ -1,7 +1,8 @@
-import streamlit as st
+import importlib
 import sys
-import os
 from pathlib import Path
+
+import streamlit as st
 
 st.set_page_config(
     page_title="BVC Analyzer v5.0",
@@ -42,20 +43,18 @@ def load_analyzer():
     """Charge le moteur BVC depuis les fichiers locaux du repo (Streamlit Cloud)."""
     repo_dir = Path(__file__).parent
 
-    # fondamentaux.json disponible localement
     fond_src = repo_dir / "fondamentaux.json"
     if fond_src.exists():
         Path("/tmp/fondamentaux.json").write_text(fond_src.read_text())
 
-    # Charger bvc_analyzer_v50.py localement
-    analyzer_path = repo_dir / "bvc_analyzer_v50.py"
-    if not analyzer_path.exists():
+    if not (repo_dir / "bvc_analyzer_v50.py").exists():
         raise FileNotFoundError(f"bvc_analyzer_v50.py introuvable dans {repo_dir}")
 
-    code = analyzer_path.read_text()
-    ns = {}
-    exec(compile(code, str(analyzer_path), "exec"), ns)
-    return ns
+    if str(repo_dir) not in sys.path:
+        sys.path.insert(0, str(repo_dir))
+
+    module = importlib.import_module("bvc_analyzer_v50")
+    return {"BVCAnalyzer": module.BVCAnalyzer}
 
 
 # ── ANALYSE ───────────────────────────────────────────────────────────────────
