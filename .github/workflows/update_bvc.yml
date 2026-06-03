@@ -8,15 +8,13 @@ name: BVC Data Update
 
 on:
   schedule:
-    # Pré-ouverture : 9h20 Casablanca = 8h20 UTC (lun-ven)
-    - cron: '20 8 * * 1-5'
-    # Ouverture BVC : 9h30 Casablanca = 8h30 UTC
-    - cron: '30 8 * * 1-5'
+    # Ouverture BVC : 9h30 Casablanca = 8h30 UTC (lun-ven)
+    - cron: '30 8  * * 1-5'
     # Mi-séance : 12h00 Casablanca = 11h00 UTC
-    - cron: '0 11 * * 1-5'
+    - cron: '0  11 * * 1-5'
     # Clôture BVC : 15h30 Casablanca = 14h30 UTC
     - cron: '30 14 * * 1-5'
-    # Post-clôture : 15h45 Casablanca = 14h45 UTC
+    # Règlement définitif : 15h45 Casablanca = 14h45 UTC
     - cron: '45 14 * * 1-5'
 
   # Déclenchement manuel depuis l'onglet Actions de GitHub
