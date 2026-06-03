@@ -125,16 +125,20 @@ async function fetchMed24History(sym,days){
   const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   const data=await bvcGet(`${MED_BASE}?method=getPriceHistory&ISIN=${isin}&from=${fmt(from)}&to=${fmt(to)}&format=json`);
   const recs=data?.result;if(!Array.isArray(recs)||recs.length<5)return null;
-  const candles=recs.map(rec=>{
+  const candles=[];let prevClose=null;
+  recs.forEach(rec=>{
     const raw=rec.date||"";
     let ts;
     if(raw.includes("/")){const[d,m,y]=raw.split("/");ts=new Date(+y,+m-1,+d).getTime();}
     else{ts=new Date(raw).getTime();}
-    if(!ts||isNaN(ts))return null;
+    if(!ts||isNaN(ts))return;
     const c=+(rec.value||0),h=+(rec.max||rec.value)||c,l=+(rec.min||rec.value)||c;
-    if(!c||c<=0)return null;
-    return{x:ts,y:[c,Math.max(h,c),Math.min(l,c),c]}; // open=close (Médias24 ne fournit pas open)
-  }).filter(Boolean);
+    if(!c||c<=0)return;
+    const o=prevClose!=null?prevClose:c; // open = veille clôture → couleurs rouge/vert correctes
+    const vol=+(rec.volume||rec.vol||0);
+    candles.push({x:ts,y:[o,Math.max(h,o,c),Math.min(l,o,c),c],vol});
+    prevClose=c;
+  });
   return candles.length>=5?candles:null;
 }
 
@@ -144,7 +148,7 @@ async function fetchYFChart(sym,range){
   const data=await bvcGet(`${YF_BASE}/v8/finance/chart/${yfSym}?interval=1d&range=${range||"3mo"}&events=div`);
   const res=data?.chart?.result?.[0];if(!res)return null;
   const ts=res.timestamp||[];const q=res.indicators?.quote?.[0]||{};
-  const candles=ts.map((t,i)=>({x:t*1000,y:[q.open?.[i],q.high?.[i],q.low?.[i],q.close?.[i]].map(v=>v!=null?+v.toFixed(2):null)})).filter(c=>c.y.every(v=>v!=null)&&c.y[1]>=c.y[2]&&c.y[0]>0);
+  const candles=ts.map((t,i)=>({x:t*1000,y:[q.open?.[i],q.high?.[i],q.low?.[i],q.close?.[i]].map(v=>v!=null?+v.toFixed(2):null),vol:q.volume?.[i]||0})).filter(c=>c.y.every(v=>v!=null)&&c.y[1]>=c.y[2]&&c.y[0]>0);
   return candles.length>=5?candles:null;
 }
 
@@ -232,7 +236,8 @@ function genCandles(price,h90,l90,days=90){
     const l=Math.max(o-wk*(0.2+rng()*0.6),1);
     const c=l+rng()*(h-l);
     cur=c;
-    data.push({x:d.getTime(),y:[o,h,l,c].map(v=>+v.toFixed(2))});
+    const volAmt=Math.round(range*800*(0.4+rng()*1.6));
+    data.push({x:d.getTime(),y:[o,h,l,c].map(v=>+v.toFixed(2)),vol:volAmt});
   }
   return data;
 }
@@ -253,6 +258,26 @@ function calcMA(closes,p){
 function calcFib(high,low){
   const d=high-low;
   return [0,0.236,0.382,0.5,0.618,0.786,1.0].map(r=>[r,+(low+d*r).toFixed(2)]);
+}
+
+function calcEMA(arr,p){
+  if(arr.length<p)return arr.map(()=>null);
+  const k=2/(p+1);const res=new Array(p-1).fill(null);
+  let ema=arr.slice(0,p).reduce((a,b)=>a+b,0)/p;
+  res.push(+ema.toFixed(3));
+  for(let i=p;i<arr.length;i++){ema=arr[i]*k+ema*(1-k);res.push(+ema.toFixed(3));}
+  return res;
+}
+
+function calcMACD(closes,fast=12,slow=26,sig=9){
+  const emaF=calcEMA(closes,fast),emaS=calcEMA(closes,slow);
+  const macdLine=emaF.map((f,i)=>f!==null&&emaS[i]!==null?+(f-emaS[i]).toFixed(3):null);
+  const validPairs=macdLine.map((v,i)=>({v,i})).filter(x=>x.v!==null);
+  const sigEma=calcEMA(validPairs.map(x=>x.v),sig);
+  const sigLine=new Array(macdLine.length).fill(null);
+  validPairs.forEach((x,j)=>{if(sigEma[j]!==null)sigLine[x.i]=sigEma[j];});
+  const hist=macdLine.map((m,i)=>m!==null&&sigLine[i]!==null?+(m-sigLine[i]).toFixed(3):null);
+  return{macd:macdLine,signal:sigLine,hist};
 }
 
 // ── ATOMS ────────────────────────────────────────────────────────────────────
@@ -322,19 +347,17 @@ const FibTable=({high,low,price})=>{
   );
 };
 
-// ── STOCK CHART (ApexCharts + Yahoo Finance live candles) ─────────────────────
+// ── STOCK CHART — Chandeliers + Volume + MACD ─────────────────────────────────
 const StockChart=({r})=>{
-  const ref=useRef(null);
-  const inst=useRef(null);
+  const refMain=useRef(null),refVol=useRef(null),refMacd=useRef(null);
+  const instMain=useRef(null),instVol=useRef(null),instMacd=useRef(null);
   const [period,setPeriod]=useState(()=>localStorage.getItem("bvc_period")||"3M");
   const [liveCandles,setLiveCandles]=useState(null);
   const [isLive,setIsLive]=useState(false);
   const sym=r.symbol||r.ticker;
-
   const daysMap={"1M":22,"3M":65,"6M":130,"1A":260};
   const rangeMap={"1M":"1mo","3M":"3mo","6M":"6mo","1A":"1y"};
 
-  // Fetch real candles from Yahoo Finance, cancel if ticker/period changes
   useEffect(()=>{
     let alive=true;
     setLiveCandles(null);setIsLive(false);
@@ -344,24 +367,35 @@ const StockChart=({r})=>{
     return()=>{alive=false;};
   },[sym,period]);
 
-  // Render chart: use live candles if available, else fall back to seeded PRNG
   useEffect(()=>{
-    if(!ref.current)return;
+    if(!refMain.current||!refVol.current||!refMacd.current)return;
     const days=daysMap[period]||65;
     const candles=liveCandles||genCandles(r.price||r.prix,r.h90||r.high90,r.l90||r.low90,days);
     const closes=candles.map(c=>c.y[3]);
     const ma20=calcMA(closes,20);
     const ma50=calcMA(closes,50);
     const fibs=calcFib(r.h90||r.high90,r.l90||r.low90);
+    const macdData=calcMACD(closes);
+    const grp="bvc_"+sym+"_"+period;
 
     const ma20data=candles.map((c,i)=>({x:c.x,y:ma20[i]})).filter(p=>p.y!==null);
     const ma50data=candles.map((c,i)=>({x:c.x,y:ma50[i]})).filter(p=>p.y!==null);
 
-    const opts={
-      chart:{type:"candlestick",height:300,background:"#0d1829",
+    // Volume: couleur selon direction de la bougie
+    const volData=candles.map(c=>({x:c.x,y:c.vol||0,fillColor:c.y[3]>=c.y[0]?"#00e5a045":"#ff4f5a45"}));
+
+    // MACD: histogramme vert/rouge
+    const macdLine=candles.map((c,i)=>({x:c.x,y:macdData.macd[i]})).filter(p=>p.y!==null);
+    const sigLine=candles.map((c,i)=>({x:c.x,y:macdData.signal[i]})).filter(p=>p.y!==null);
+    const histData=candles.map((c,i)=>({x:c.x,y:macdData.hist[i],fillColor:(macdData.hist[i]||0)>=0?"#00e5a045":"#ff4f5a45"})).filter(p=>p.y!==null);
+
+    const xAxisBase={type:"datetime",labels:{style:{colors:"#8892a4",fontSize:"9px"},datetimeFormatter:{month:"MMM yy",day:"dd MMM"}}};
+
+    // ── Graphique principal : chandeliers + MA ──────────────
+    const optsMain={
+      chart:{id:"main_"+grp,group:grp,type:"candlestick",height:220,background:"#0d1829",
         toolbar:{show:true,tools:{zoom:true,reset:true,pan:true,download:false}},
-        animations:{enabled:false},
-        events:{beforeMount:function(chartCtx){chartCtx.el.style.background="#0d1829";}}
+        animations:{enabled:false}
       },
       series:[
         {name:sym,type:"candlestick",data:candles},
@@ -370,33 +404,79 @@ const StockChart=({r})=>{
       ],
       stroke:{width:[1,1.5,1.5],dashArray:[0,0,4]},
       colors:["","#4db8ff","#b388ff"],
-      xaxis:{type:"datetime",labels:{style:{colors:"#8892a4",fontSize:"10px"},datetimeFormatter:{month:"MMM yy",day:"dd MMM"}}},
+      xaxis:{...xAxisBase,labels:{show:false}},
       yaxis:{labels:{formatter:v=>v>=1000?v.toLocaleString("fr-FR"):v?.toFixed(2)||"",style:{colors:"#8892a4",fontSize:"10px"}}},
-      grid:{borderColor:"#1a2540"},
+      grid:{borderColor:"#1a2540",padding:{bottom:0}},
       theme:{mode:"dark"},
       plotOptions:{candlestick:{colors:{upward:"#00e5a0",downward:"#ff4f5a"},wick:{useFillColor:true}}},
       legend:{show:true,labels:{colors:["#c8d3e8","#4db8ff","#b388ff"]},fontSize:"10px",fontFamily:"var(--font)"},
-      annotations:{yaxis:fibs.slice(1,-1).map(([lvl,val])=>({y:val,borderColor:"#ffd74035",borderWidth:1,label:{text:`Fib ${lvl}`,style:{color:"#ffd740",background:"#0d1829",fontSize:"9px",padding:{left:3,right:3,top:1,bottom:1}}}}))},
+      // Labels Fibonacci à GAUCHE de chaque ligne
+      annotations:{yaxis:fibs.slice(1,-1).map(([lvl,val])=>({
+        y:val,borderColor:"#ffd74030",borderWidth:1,
+        label:{text:`${lvl}`,position:"left",textAnchor:"start",
+               style:{color:"#ffd740",background:"#0d1829bb",fontSize:"8px",padding:{left:2,right:2,top:0,bottom:0}}}
+      }))},
       tooltip:{theme:"dark",custom:function({seriesIndex,dataPointIndex,w}){
         const d=w.globals.initialSeries[0]?.data[dataPointIndex];
         if(!d||seriesIndex!==0)return"";
-        const [o,h,l,c]=d.y;
-        const col=c>=o?"#00e5a0":"#ff4f5a";
-        return `<div style="padding:8px 10px;font-family:var(--font);font-size:11px;background:#0d1829;border:1px solid #1a2540;border-radius:4px"><b style="color:#fff">${sym}</b><br/><span style="color:#8892a4">O</span> <span style="color:#c8d3e8">${o}</span> <span style="color:#8892a4">H</span> <span style="color:${col}">${h}</span> <span style="color:#8892a4">L</span> <span style="color:#ff4f5a">${l}</span> <span style="color:#8892a4">C</span> <span style="color:${col};font-weight:700">${c}</span></div>`;
+        const[o,h,l,c]=d.y;const col=c>=o?"#00e5a0":"#ff4f5a";
+        return`<div style="padding:8px 10px;font-family:var(--font);font-size:11px;background:#0d1829;border:1px solid #1a2540;border-radius:4px"><b style="color:#fff">${sym}</b><br/><span style="color:#8892a4">O</span> <span style="color:#c8d3e8">${o}</span> <span style="color:#8892a4"> H</span> <span style="color:${col}">${h}</span> <span style="color:#8892a4"> L</span> <span style="color:#ff4f5a">${l}</span> <span style="color:#8892a4"> C</span> <span style="color:${col};font-weight:700">${c}</span></div>`;
       }}
     };
 
-    if(inst.current){inst.current.destroy();inst.current=null;}
-    inst.current=new ApexCharts(ref.current,opts);
-    inst.current.render();
-    return()=>{if(inst.current){inst.current.destroy();inst.current=null;}};
+    // ── Volume ──────────────────────────────────────────────
+    const optsVol={
+      chart:{id:"vol_"+grp,group:grp,type:"bar",height:65,background:"#0d1829",
+        toolbar:{show:false},animations:{enabled:false},sparkline:{enabled:false}
+      },
+      series:[{name:"Volume",data:volData}],
+      dataLabels:{enabled:false},
+      xaxis:{...xAxisBase,labels:{show:false}},
+      yaxis:{labels:{show:false},min:0},
+      grid:{borderColor:"#1a2540",padding:{top:0,bottom:0,left:0}},
+      theme:{mode:"dark"},
+      plotOptions:{bar:{columnWidth:"90%"}},
+      tooltip:{theme:"dark",y:{formatter:v=>v>=1e6?`${(v/1e6).toFixed(1)}M`:v>=1e3?`${(v/1e3).toFixed(0)}K`:v||"N/A"}},
+    };
+
+    // ── MACD ────────────────────────────────────────────────
+    const optsMacd={
+      chart:{id:"macd_"+grp,group:grp,type:"line",height:80,background:"#0d1829",
+        toolbar:{show:false},animations:{enabled:false}
+      },
+      series:[
+        {name:"MACD",type:"line",data:macdLine},
+        {name:"Signal",type:"line",data:sigLine},
+        {name:"Hist",type:"bar",data:histData},
+      ],
+      stroke:{width:[1.5,1.5,1],dashArray:[0,4,0]},
+      colors:["#4db8ff","#ffd740","#00e5a0"],
+      dataLabels:{enabled:false},
+      xaxis:xAxisBase,
+      yaxis:{labels:{formatter:v=>v?.toFixed(1)||"",style:{colors:"#8892a4",fontSize:"8px"}}},
+      grid:{borderColor:"#1a2540",padding:{top:0}},
+      theme:{mode:"dark"},
+      legend:{show:false},
+      tooltip:{theme:"dark",x:{format:"dd MMM yy"}},
+      annotations:{yaxis:[{y:0,borderColor:"#8892a440",borderWidth:1,label:{show:false}}]},
+    };
+
+    [instMain,instVol,instMacd].forEach(ref=>{if(ref.current){ref.current.destroy();ref.current=null;}});
+    instMain.current=new ApexCharts(refMain.current,optsMain);
+    instVol.current=new ApexCharts(refVol.current,optsVol);
+    instMacd.current=new ApexCharts(refMacd.current,optsMacd);
+    instMain.current.render();
+    instVol.current.render();
+    instMacd.current.render();
+
+    return()=>{[instMain,instVol,instMacd].forEach(ref=>{if(ref.current){ref.current.destroy();ref.current=null;}});};
   },[sym,period,liveCandles]);
 
   const changePeriod=(p)=>{setPeriod(p);localStorage.setItem("bvc_period",p);};
 
   return(
     <div>
-      <div style={{display:"flex",gap:6,marginBottom:8,alignItems:"center"}}>
+      <div style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
         <span style={{fontSize:10,color:"#8892a4"}}>PÉRIODE</span>
         {["1M","3M","6M","1A"].map(p=>(
           <button key={p} onClick={()=>changePeriod(p)} style={{background:period===p?"rgba(77,184,255,.15)":"transparent",border:period===p?"1px solid rgba(77,184,255,.4)":"1px solid #1a2540",color:period===p?"#4db8ff":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>{p}</button>
@@ -405,7 +485,11 @@ const StockChart=({r})=>{
           {isLive&&"● "}RSI:{(r.rsi||r.rsi14||50).toFixed(0)} · MA20:{px(r.ma20||0)} · MA50:{px(r.ma50||0)}
         </span>
       </div>
-      <div ref={ref}/>
+      <div ref={refMain}/>
+      <div style={{fontSize:8,color:"#8892a4",letterSpacing:1,marginTop:2}}>VOLUME</div>
+      <div ref={refVol}/>
+      <div style={{fontSize:8,color:"#8892a4",letterSpacing:1,marginTop:2}}>MACD (12,26,9) · <span style={{color:"#4db8ff"}}>MACD</span> · <span style={{color:"#ffd740"}}>Signal</span></div>
+      <div ref={refMacd}/>
     </div>
   );
 };
