@@ -1,8 +1,13 @@
 """Constantes partagées entre tous les scrapers."""
 import random
+import sys
+from pathlib import Path
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from bvc_config import ISIN_MAP, TICKERS_DEFAUT  # noqa: E402
 
 PROXY = "https://corsproxy.io/?"
 
@@ -13,17 +18,6 @@ TICKERS = [
 ]
 
 IPO_RECENT = {"CASH", "VCNE", "SGTM"}
-
-# ISIN Médias24
-ISIN_MAP = {
-    "CMT":  "MA0000011793", "SMI":  "MA0000010068", "CASH": "MA0000012767",
-    "MNG":  "MA0000011058", "AKD":  "MA0000012585", "SOT":  "MA0000012502",
-    "SGTM": "MA0000012783", "MSA":  "MA0000012312", "CFGB": "MA0000012627",
-    "RIS":  "MA0000011462", "ADI":  "MA0000011819", "VCNE": "MA0000012759",
-    "CMGP": "MA0000012718", "CSR":  "MA0000012247", "TGCC": "MA0000012528",
-    "ADH":  "MA0000011512", "SRM":  "MA0000011595", "SNA":  "MA0000010019",
-    "RDS":  "MA0000012239",
-}
 
 # IDBourse utilise des noms différents pour certains tickers
 IDB_NAME_MAP = {
