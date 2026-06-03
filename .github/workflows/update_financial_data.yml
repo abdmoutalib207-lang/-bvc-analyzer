@@ -3,11 +3,10 @@ name: BVC Financial Data Pipeline v9
 on:
   schedule:
     # Casablanca UTC+1 toute l'année — BVC: 9h30-15h30
-    - cron: "20 8 * * 1-5"   # 09h20 — pré-ouverture
-    - cron: "30 8 * * 1-5"   # 09h30 — ouverture
-    - cron: "0 11 * * 1-5"   # 12h00 — mi-séance
-    - cron: "30 14 * * 1-5"  # 15h30 — clôture
-    - cron: "45 14 * * 1-5"  # 15h45 — post-clôture
+    - cron: "30 8  * * 1-5"  # 09h30 — ouverture BVC
+    - cron: "0  11 * * 1-5"  # 12h00 — mi-séance
+    - cron: "30 14 * * 1-5"  # 15h30 — clôture officielle
+    - cron: "45 14 * * 1-5"  # 15h45 — règlement définitif
   workflow_dispatch:
     inputs:
       dry_run:
