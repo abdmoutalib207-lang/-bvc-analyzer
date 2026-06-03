@@ -1,7 +1,11 @@
-import streamlit as st
+import importlib.util
+import json as _json
+import shutil
 import sys
-import os
 from pathlib import Path
+
+import pandas as pd
+import streamlit as st
 
 st.set_page_config(
     page_title="BVC Analyzer v5.0",
@@ -16,11 +20,19 @@ st.markdown("""
 <p style='color:gray;margin-top:4px'>Technique × Fondamental × NLP — Bourse de Casablanca</p>
 """, unsafe_allow_html=True)
 
+_meta_path = Path(__file__).parent / "data.json"
+_meta = {}
+if _meta_path.exists():
+    try:
+        _meta = _json.loads(_meta_path.read_text())
+    except Exception:
+        pass
+
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("Titres suivis", "17")
-col2.metric("Historique", "492 séances")
-col3.metric("Corpus NLP", "896 907 msgs")
-col4.metric("Backtesting", "1 994 signaux")
+col1.metric("Titres suivis",  str(_meta.get("n_tickers",  17)))
+col2.metric("Historique",     str(_meta.get("n_sessions", "492")) + " séances")
+col3.metric("Corpus NLP",     str(_meta.get("n_nlp_msgs", "896 907")) + " msgs")
+col4.metric("Backtesting",    str(_meta.get("n_signals",  "1 994")) + " signaux")
 
 st.divider()
 
@@ -42,20 +54,17 @@ def load_analyzer():
     """Charge le moteur BVC depuis les fichiers locaux du repo (Streamlit Cloud)."""
     repo_dir = Path(__file__).parent
 
-    # fondamentaux.json disponible localement
     fond_src = repo_dir / "fondamentaux.json"
     if fond_src.exists():
-        Path("/tmp/fondamentaux.json").write_text(fond_src.read_text())
+        shutil.copy2(fond_src, Path("/tmp/fondamentaux.json"))
 
-    # Charger bvc_analyzer_v50.py localement
-    analyzer_path = repo_dir / "bvc_analyzer_v50.py"
-    if not analyzer_path.exists():
-        raise FileNotFoundError(f"bvc_analyzer_v50.py introuvable dans {repo_dir}")
-
-    code = analyzer_path.read_text()
-    ns = {}
-    exec(compile(code, str(analyzer_path), "exec"), ns)
-    return ns
+    spec = importlib.util.spec_from_file_location(
+        "bvc_analyzer_v50",
+        repo_dir / "bvc_analyzer_v50.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 # ── ANALYSE ───────────────────────────────────────────────────────────────────
@@ -68,7 +77,7 @@ if run_btn:
             st.error(f"Impossible de charger le moteur : {e}")
             st.stop()
 
-    BVCAnalyzer = ns.get("BVCAnalyzer")
+    BVCAnalyzer = getattr(ns, "BVCAnalyzer", None)
     if BVCAnalyzer is None:
         st.error("Classe BVCAnalyzer introuvable.")
         st.stop()
@@ -87,7 +96,6 @@ if run_btn:
     st.success(f"✅ {len(results)} titres analysés")
 
     # ── TABLE CLASSEMENT ──────────────────────────────────────────────────────
-    import pandas as pd
 
     rows = []
     for ticker, r in results.items():
@@ -118,7 +126,7 @@ if run_btn:
 
     st.subheader("🏆 Classement Global")
     st.dataframe(
-        df.style.applymap(style_signal, subset=["Signal"]),
+        df.style.map(style_signal, subset=["Signal"]),
         use_container_width=True,
         column_config={
             "Score /10": st.column_config.ProgressColumn(
