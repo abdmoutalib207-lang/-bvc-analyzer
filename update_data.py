@@ -52,20 +52,7 @@ try:
 except NameError:
     OUTPUT = Path("data.json")  # Colab : dossier courant
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ISIN MAP (source: bvc_analyzer_v50.py)
-# ─────────────────────────────────────────────────────────────────────────────
-
-ISIN_MAP = {
-    "CMT":"MA0000011793","SMI":"MA0000010068","CASH":"MA0000012767","MNG":"MA0000011058",
-    "AKD":"MA0000012585","SOT":"MA0000012502","SGTM":"MA0000012783","MSA":"MA0000012312",
-    "CFGB":"MA0000012627","RIS":"MA0000011462","ADI":"MA0000011819","VCNE":"MA0000012759",
-    "CMGP":"MA0000012718","CSR":"MA0000012247","TGCC":"MA0000012528","ADH":"MA0000011512",
-    "SRM":"MA0000011595","SNA":"MA0000010019","RDS":"MA0000012239",
-}
-
-# IDBourse utilise ces noms différents → on mappe vers nos tickers BVC
-IDB_NAME_MAP = {"MTO":"CMT","ALLI":"ADI","TGC":"TGCC","GTM":"SGTM"}
+from bvc_config import ISIN_MAP, IDB_NAME_MAP
 
 TICKERS = list(ISIN_MAP.keys())
 
