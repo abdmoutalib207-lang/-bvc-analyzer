@@ -150,24 +150,46 @@ def fetch_all_idb():
     if not isinstance(data, list):
         return {}
     out = {}
+    _logged_keys = False
     for d in data:
         if not d.get("name") or not d.get("dernier_cours"):
             continue
+        # Log all field names once to diagnose vol/chg mapping
+        if not _logged_keys:
+            logger.info(f"IDBourse champs disponibles : {sorted(d.keys())}")
+            # Also log variation / volume sample values
+            logger.info(f"IDBourse sample — variation={d.get('variation')!r}  "
+                        f"volume={d.get('volume')!r}  "
+                        f"volume_echange={d.get('volume_echange')!r}  "
+                        f"qte_echangee={d.get('qte_echangee')!r}  "
+                        f"volume_total={d.get('volume_total')!r}")
+            _logged_keys = True
         n = d["name"].upper()
         sym = IDB_NAME_MAP.get(n, n)
         if sym not in ISIN_MAP:
             continue
         try:
+            # Try all known IDBourse volume field names
             vol_raw = (d.get("volume") or d.get("volume_echange") or
-                       d.get("volume_total") or d.get("qte_echangee") or 0)
+                       d.get("volume_total") or d.get("qte_echangee") or
+                       d.get("nb_titres_echanges") or d.get("quantite") or 0)
+            # Try all known variation field names
+            chg_raw = (d.get("variation") or d.get("variation_cours") or
+                       d.get("pourcentage_variation") or d.get("pct_variation") or 0)
             out[sym] = {
                 "price": float(d["dernier_cours"]),
-                "chg":   float(d.get("variation", 0) or 0),
+                "chg":   float(chg_raw or 0),
                 "open":  float(d["ouverture"]) if d.get("ouverture") else None,
                 "vol":   int(float(vol_raw)) if vol_raw else 0,
+                "_idb_name": d["name"],  # garde le nom IDB pour diagnostic
             }
         except (ValueError, TypeError):
             continue
+    # Log mapping résultat (tickers trouvés + prix)
+    if out:
+        mapping_str = "  ".join(f"{s}={v['price']}(chg={v['chg']},vol={v['vol']})"
+                                 for s, v in list(out.items())[:8])
+        logger.info(f"IDBourse mapping [{len(out)} tickers]: {mapping_str}")
     return out
 
 def fetch_masi():
@@ -407,7 +429,7 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
 def run(dry_run=False, push=False, token=""):
     ts_start = time.time()
     logger.info("═" * 60)
-    logger.info("BVC ANALYZER — update_data.py v6.2")
+    logger.info("BVC ANALYZER — update_data.py v6.3")
     logger.info("═" * 60)
 
     # 1. Contexte marché
@@ -513,6 +535,19 @@ def run(dry_run=False, push=False, token=""):
 
         if not opn:
             opn = round(price / (1 + chg / 100), 2) if chg else price
+
+        # Sanity check ISIN : si MA20 diffère du prix de plus de 3x → ISIN probablement erroné
+        # (ex: SOT — IDBourse retourne ~369 DH mais Médias24 ISIN donne ~1666 MA20 = mauvais ISIN)
+        if price > 0 and ma20 > 0 and (ma20 > 3.0 * price or price > 3.0 * ma20):
+            logger.warning(
+                f"  {ticker}: ANOMALIE ISIN — MA20={ma20} vs prix={price} "
+                f"(ratio {max(ma20,price)/min(ma20,price):.1f}x) — indicateurs resetés à neutres"
+            )
+            rsi  = 50.0
+            ma20 = round(price, 2)
+            ma50 = round(price, 2)
+            h90  = round(price * 1.15, 2)
+            l90  = round(price * 0.85, 2)
 
         # Score technique
         score_tech = calc_score_tech(rsi, price, ma20, ma50, h90, l90)
