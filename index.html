@@ -562,7 +562,8 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus})=>{
           <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
             <span style={{fontSize:12,color:"#ffd740",display:"flex",alignItems:"center",gap:6}}>
               <span style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:pulse?"#00e5a0":"transparent",border:"1px solid #00e5a0",transition:"background .4s"}}/>
-              {ts}
+              <span style={{color:"#8892a4",fontSize:10,letterSpacing:.3}}>Dern. transaction :</span>
+              <span style={{fontWeight:600}}>{ts||"—"}</span>
             </span>
             {mktStatus&&<span style={{background:`${mktStatus.color}18`,border:`1px solid ${mktStatus.color}40`,borderRadius:4,padding:"3px 10px",fontSize:11,color:mktStatus.color,fontWeight:700,letterSpacing:.5}}>BVC {mktStatus.label}</span>}
           </div>
@@ -990,7 +991,7 @@ function App(){
   const [sort,setSort]=useState("v53");
   const [sel,setSel]=useState("CMT");
   const [rows,setRows]=useState(STATIC);
-  const [ts,setTs]=useState(new Date().toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}));
+  const [ts,setTs]=useState(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}));
   const [src,setSrc]=useState("connexion…");
   const [loading,setLoading]=useState(false);
   const [fetchErr,setFetchErr]=useState(false);
@@ -1020,7 +1021,7 @@ function App(){
       const liveMap=await fetchQuotes();
       if(liveMap&&Object.keys(liveMap).length>0){
         mergeLive(liveMap);
-        setTs(new Date().toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}));
+        setTs(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}));
         // Show the actual source used (first non-null src field)
         const srcs=Object.values(liveMap).map(v=>v.src).filter(Boolean);
         const mainSrc=srcs[0]||"live";
@@ -1033,11 +1034,22 @@ function App(){
       const d=await fetch("data.json?t="+Date.now()).then(r=>r.ok?r.json():null);
       if(d?.tickers){
         const m={};
-        d.tickers.forEach(t=>{m[t.symbol]={price:t.price,chg:t.chg,vol:t.vol||0,open:t.open,close:t.close,h90:t.h90,l90:t.l90,rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,v53:t.v53,sig:t.sig,poids:t.poids};});
+        d.tickers.forEach(t=>{m[t.symbol]={
+          price:t.price,chg:t.chg,vol:t.vol||0,open:t.open,close:t.close,
+          pe:t.pe,pb:t.pb,div:t.div,cap:t.cap,
+          h90:t.h90,l90:t.l90,rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,
+          bvc:t.bvc,v53:t.v53,delta:t.delta,nlp:t.nlp,
+          alpha:t.alpha,win:t.win,sig:t.sig,biais:t.biais,
+          bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
+          bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags
+        };});
         mergeLive(m);
-        const maj=d.updated?new Date(d.updated).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
+        const upd=d.updated?new Date(d.updated):null;
+        const timeStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}):"";
+        const dateStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit"}):"";
+        const maj=dateStr&&timeStr?`${dateStr} · ${timeStr}`:"";
         setTs(maj);
-        setSrc(`BVC clôture${maj?" · "+maj:""}`);
+        setSrc(`BVC clôture${dateStr?" · "+dateStr:""}`);
         setLoading(false);return;
       }
     }catch{}
@@ -1047,10 +1059,10 @@ function App(){
     setLoading(false);
   },[mergeLive]);
 
-  // Initial load + auto-refresh every 5min when market is open
+  // Initial load + auto-refresh every 5min (always, pipeline may have updated data.json)
   useEffect(()=>{
     loadData();
-    const iv=setInterval(()=>{if(getMarketStatus().isOpen)loadData();},300000);
+    const iv=setInterval(()=>loadData(),300000);
     return()=>clearInterval(iv);
   },[loadData]);
 
