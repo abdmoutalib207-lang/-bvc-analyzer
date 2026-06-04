@@ -24,6 +24,11 @@ on:
 permissions:
   contents: write   # nécessaire pour git push
 
+# Empêche deux runs simultanés d'écrire data.json en même temps
+concurrency:
+  group: bvc-data-push
+  cancel-in-progress: false
+
 jobs:
   update-bvc-data:
     runs-on: ubuntu-latest
