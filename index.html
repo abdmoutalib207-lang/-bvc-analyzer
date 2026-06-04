@@ -165,12 +165,26 @@ async function fetchYFChart(sym,range){
   return candles.length>=5?candles:null;
 }
 
-// fetchQuotes: IDBourse (batch) → Médias24 (par titre) → Yahoo Finance
+// fetchQuotes: IDBourse (batch) → patch Médias24 si chg=0 → Médias24 complet → Yahoo Finance
 async function fetchQuotes(){
-  const idb=await fetchIDB();
-  if(idb)return idb;
-  // Médias24 par titre (plus lent mais fiable)
   const out={};
+  const idb=await fetchIDB();
+  if(idb){
+    Object.assign(out,idb);
+    // Patch Médias24 pour les tickers où IDB renvoie chg=0 (cours figé/clôture)
+    const mkt=getMarketStatus();
+    if(mkt.isOpen){
+      const stale=Object.entries(out).filter(([,v])=>v.chg===0||v.chg==null).map(([k])=>k);
+      if(stale.length>0){
+        await Promise.all(stale.map(async sym=>{
+          const q=await fetchMed24Quote(sym);
+          if(q&&q.price&&q.price>0)out[sym]={...out[sym],...q};
+        }));
+      }
+    }
+    return out;
+  }
+  // Médias24 par titre (plus lent mais fiable)
   await Promise.all(STATIC.map(async s=>{
     const q=await fetchMed24Quote(s.symbol);
     if(q)out[s.symbol]=q;
@@ -1066,7 +1080,7 @@ function App(){
         setTs(maj);
         const mktNow=getMarketStatus();
         const ageMin=upd?(Date.now()-upd.getTime())/60000:Infinity;
-        const stale=mktNow==="OPEN"&&ageMin>30;
+        const stale=mktNow.isOpen&&ageMin>30;
         setSrc(`BVC${stale?" ⚠ données >30min":""}${dateStr?" · "+dateStr:""}`);
         setLoading(false);return;
       }
