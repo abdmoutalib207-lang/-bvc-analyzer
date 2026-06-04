@@ -158,10 +158,13 @@ def fetch_all_idb():
         if sym not in ISIN_MAP:
             continue
         try:
+            vol_raw = (d.get("volume") or d.get("volume_echange") or
+                       d.get("volume_total") or d.get("qte_echangee") or 0)
             out[sym] = {
                 "price": float(d["dernier_cours"]),
                 "chg":   float(d.get("variation", 0) or 0),
                 "open":  float(d["ouverture"]) if d.get("ouverture") else None,
+                "vol":   int(float(vol_raw)) if vol_raw else 0,
             }
         except (ValueError, TypeError):
             continue
@@ -461,6 +464,7 @@ def run(dry_run=False, push=False, token=""):
             logger.warning(f"  {ticker}: prix non disponible — données statiques")
 
         # Indicateurs techniques
+        vol = lp.get("vol", 0)  # volume du jour depuis IDBourse
         if not df.empty and len(df) >= 14:
             closes = df["close"]
             highs  = df["high"]
@@ -476,6 +480,9 @@ def run(dry_run=False, push=False, token=""):
                 chg = round((closes.iloc[-1] - closes.iloc[-2]) / closes.iloc[-2] * 100, 2)
             if not opn and len(df) >= 1:
                 opn = round(float(df["open"].iloc[-1]), 2)
+            # Volume de la dernière séance Médias24 si IDBourse n'en a pas
+            if not vol and "vol" in df.columns:
+                vol = int(df["vol"].iloc[-1])
         else:
             # Fallback indicateurs depuis data.json existant
             try:
@@ -488,6 +495,8 @@ def run(dry_run=False, push=False, token=""):
                 l90  = ex_t.get("l90",  price * 0.85 if price else 0)
                 if not price:
                     price = ex_t.get("price", 0)
+                if not vol:
+                    vol = ex_t.get("vol", 0)
             except Exception:
                 rsi, ma20, ma50 = 50, price or 0, price or 0
                 h90 = price * 1.15 if price else 0
@@ -522,6 +531,7 @@ def run(dry_run=False, push=False, token=""):
             "symbol": ticker,
             "price":  round(price, 2),
             "chg":    round(chg, 2),
+            "vol":    int(vol) if vol else 0,
             "open":   round(opn, 2),
             "close":  round(price, 2),
             "pe":     fd.get("pe"),
