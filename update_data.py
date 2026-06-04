@@ -84,7 +84,7 @@ FOND_DATA = {
     "MSA":{"pe":14.7,"pb":1.8,"div":4.2,"cap":3200,  "bear":558, "base":715,  "bull":894,  "upside":-13.0,"flags":0},
     "CFGB":{"pe":11.8,"pb":1.4,"div":2.5,"cap":1800, "bear":187, "base":239,  "bull":299,  "upside":17.0,"flags":1},
     "RIS":{"pe":10.2,"pb":0.9,"div":3.8,"cap":890,   "bear":208, "base":267,  "bull":334,  "upside":-20.0,"flags":2},
-    "ADI":{"pe":9.8, "pb":0.8,"div":1.2,"cap":1450,  "bear":374, "base":479,  "bull":599,  "upside":17.0,"flags":0},
+    "ADI":{"pe":22,  "pb":0.8,"div":1.2,"cap":8600,  "bear":374, "base":479,  "bull":599,  "upside":17.0,"flags":0},
     "VCNE":{"pe":12.4,"pb":1.6,"div":5.1,"cap":5200, "bear":331, "base":425,  "bull":531,  "upside":9.0, "flags":1},
     "CMGP":{"pe":13.1,"pb":1.3,"div":2.9,"cap":680,  "bear":272, "base":349,  "bull":436,  "upside":-3.0,"flags":1},
     "CSR":{"pe":8.9, "pb":0.7,"div":1.5,"cap":420,   "bear":121, "base":156,  "bull":195,  "upside":-15.0,"flags":2},
