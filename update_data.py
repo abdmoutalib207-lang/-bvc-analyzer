@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-BVC ANALYZER — update_data.py v6.2
+BVC ANALYZER — update_data.py v6.3
 ═══════════════════════════════════════════════════════════════════════════════
 Récupère les cours live BVC (IDBourse → Médias24), recalcule les indicateurs
 techniques (RSI, MA20/50, Fibonacci) et les scores v5.3, puis met à jour
@@ -16,7 +16,7 @@ Dépendances : requests, numpy, pandas (auto-installées si absentes)
 """
 
 import sys, os, json, time, argparse, logging, subprocess
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 # Auto-install deps si besoin (Colab)
@@ -285,8 +285,8 @@ def calc_score_tech(rsi, price, ma20, ma50, h90, l90) -> float:
             score += 0.4
         elif pos > 0.90:          # proche du sommet = risque retournement
             score -= 0.6
-        elif pos < 0.10:          # proche du bas = risque support
-            score -= 0.3
+        elif pos < 0.10:          # proche du bas = rebond potentiel (BVC peu liquide)
+            score += 0.3
 
     return round(min(max(score, 0), 10), 2)
 
@@ -392,6 +392,8 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
     warn_msg = (f"Alpha historique NÉGATIF ({sent['alpha']}%) · "
                 f"Win rate {sent['win']*100:.0f}% · Signal enrichi = ÉVITER") if warn else ""
 
+    conv = "CONFIRME" if (bvc_bull and nlp_bull) else "DIVERGE"
+
     return {
         "v53":    final,
         "bvc":    round(bvc_score, 2),
@@ -401,6 +403,7 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
         "win":    round(sent["win"] * 100),
         "sig":    sig,
         "biais":  sent.get("biais", "NEUTRE"),
+        "conv":   conv,
         "bonus":  bonus_log,
         "poids":  {"f": round(w["fondamental"]*100), "n": round(w["comportemental"]*100), "t": round(w["technique"]*100)},
         "warn":   warn,
@@ -418,7 +421,7 @@ def run(dry_run=False, push=False, token=""):
     logger.info("═" * 60)
 
     # 1. Contexte marché
-    now_ca = datetime.utcnow() + timedelta(hours=1)  # UTC+1 Casablanca
+    now_ca = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=1)  # UTC+1 Casablanca
     h, mn = now_ca.hour, now_ca.minute
     tot = h * 60 + mn
     day = now_ca.weekday()  # 0=lun, 5=sam, 6=dim
@@ -440,6 +443,13 @@ def run(dry_run=False, push=False, token=""):
     logger.info("Récupération IDBourse (batch)...")
     live_prices = fetch_all_idb()
     logger.info(f"IDBourse: {len(live_prices)}/{len(TICKERS)} tickers reçus")
+
+    # Circuit breaker : ne pas écraser data.json avec des zéros si toutes les sources sont down
+    idb_ok = len(live_prices) > 0
+    if not idb_ok and mkt_status == "CLOSED" and not dry_run:
+        logger.info("Circuit breaker : marché fermé + IDBourse down — data.json inchangé")
+        return None
+
 
     # Contexte marché global
     mkt_ctx_base = {
@@ -526,6 +536,19 @@ def run(dry_run=False, push=False, token=""):
         v53 = compute_v53(ticker, score_tech, score_fond, bvc_score,
                           fd.get("flags", 0), fd.get("upside", 0), ctx)
 
+        # Setup technique (déduit du score et des MAs)
+        v53_final = v53["v53"]
+        if v53_final >= 7.0 and price > ma20 > ma50:
+            setup = "MOMENTUM CONFIRME"
+        elif v53_final >= 5.5 and price < ma20 and price >= ma50:
+            setup = "PULLBACK HAUSSIER"
+        elif v53_final >= 5.0 and price < ma50:
+            setup = "CONTRARIEN"
+        elif v53_final < 4.5:
+            setup = "FAIBLESSE"
+        else:
+            setup = "NEUTRE"
+
         tickers_out.append({
             "symbol": ticker,
             "price":  round(price, 2),
@@ -550,6 +573,8 @@ def run(dry_run=False, push=False, token=""):
             "win":    v53["win"],
             "sig":    v53["sig"],
             "biais":  v53["biais"],
+            "conv":   v53["conv"],
+            "setup":  setup,
             "bonus":  v53["bonus"],
             "poids":  v53["poids"],
             "warn":   v53["warn"],

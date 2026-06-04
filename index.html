@@ -84,7 +84,7 @@ const ISIN_MAP={
 // IDBourse utilise des noms différents pour certains tickers BVC
 const IDB_NAME_MAP={MTO:"CMT", ALLI:"ADI", TGC:"TGCC", GTM:"SGTM"};
 // Yahoo Finance fallback symbols
-const YF_MAP={CMT:"CMT.CS",SMI:"SMI.CS",CASH:"CIH.CS",MNG:"MNG.CS",AKD:"AKD.CS",SOT:"SOT.CS",SGTM:"SGTM.CS",MSA:"MSA.CS",CFGB:"CFGB.CS",RIS:"RIS.CS",ADI:"ADI.CS",VCNE:"VE.CS",CMGP:"CMGP.CS",CSR:"CSR.CS",TGCC:"TGCC.CS",ADH:"ADH.CS",SRM:"SRM.CS",SNA:"SNA.CS",RDS:"RDS.CS"};
+const YF_MAP={CMT:"CMT.CS",SMI:"SMI.CS",CASH:"CIH.CS",MNG:"MNG.CS",AKD:"AKD.CS",SOT:"SOT.CS",SGTM:"SGTM.CS",MSA:"MSA.CS",CFGB:"CFGB.CS",RIS:"RIS.CS",ADI:"ADI.CS",VCNE:"VCNE.CS",CMGP:"CMGP.CS",CSR:"CSR.CS",TGCC:"TGCC.CS",ADH:"ADH.CS",SRM:"SRM.CS",SNA:"SNA.CS",RDS:"RDS.CS"};
 
 // Fetch helper: essaie direct puis via proxy CORS
 async function bvcGet(url){
@@ -103,9 +103,9 @@ async function fetchIDB(){
     const n=(d.name||"").toUpperCase();
     const sym=IDB_NAME_MAP[n]||n; // map vers notre ticker BVC
     if(!ISIN_MAP[sym])return;     // filtrer aux 19 titres de notre liste
-    out[sym]={price:+d.dernier_cours,chg:d.variation!=null?+d.variation:0,open:d.ouverture?+d.ouverture:null,close:+d.dernier_cours,live:true,src:"IDBourse"};
+    out[sym]={price:+d.dernier_cours,chg:d.variation!=null?+d.variation:0,open:d.ouverture?+d.ouverture:null,close:+d.dernier_cours,vol:d.volume?+d.volume:(d.volume_echange?+d.volume_echange:0),live:true,src:"IDBourse"};
   });
-  return Object.keys(out).length>3?out:null;
+  return Object.keys(out).length>0?out:null;
 }
 
 // Médias24: cours individuel par ISIN
@@ -984,7 +984,8 @@ function App(){
           bvc:t.bvc,v53:t.v53,delta:t.delta,nlp:t.nlp,
           alpha:t.alpha,win:t.win,sig:t.sig,biais:t.biais,
           bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
-          bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags
+          bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,
+          conv:t.conv,setup:t.setup
         };});
         mergeLive(m);
         const upd=d.updated?new Date(d.updated):null;
@@ -992,7 +993,10 @@ function App(){
         const dateStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit"}):"";
         const maj=dateStr&&timeStr?`${dateStr} · ${timeStr}`:"";
         setTs(maj);
-        setSrc(`BVC clôture${dateStr?" · "+dateStr:""}`);
+        const mktNow=getMarketStatus();
+        const ageMin=upd?(Date.now()-upd.getTime())/60000:Infinity;
+        const stale=mktNow==="OPEN"&&ageMin>30;
+        setSrc(`BVC${stale?" ⚠ données >30min":""}${dateStr?" · "+dateStr:""}`);
         setLoading(false);return;
       }
     }catch{}
