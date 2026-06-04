@@ -112,11 +112,20 @@ async function fetchIDB(){
   if(!Array.isArray(data)||data.length===0)return null;
   const out={};
   data.forEach(d=>{
-    if(!d.name||!d.dernier_cours)return;
-    const n=(d.name||"").toUpperCase();
-    const sym=CONFIG.IDB_NAME_MAP[n]||n; // map vers notre ticker BVC
-    if(!CONFIG.ISIN_MAP[sym])return;     // filtrer aux 19 titres de notre liste
-    out[sym]={price:+d.dernier_cours,chg:d.variation!=null?+d.variation:0,open:d.ouverture?+d.ouverture:null,close:+d.dernier_cours,vol:d.volume?+d.volume:(d.volume_echange?+d.volume_echange:0),live:true,src:"IDBourse"};
+    if(!d.dernier_cours)return;
+    // Extraire le code BVC depuis l'URL (.../instruments/CSR → "CSR")
+    const url=d.url||"";
+    const fromUrl=url.includes("/instruments/")?url.split("/instruments/").pop().toUpperCase():"";
+    let sym=fromUrl&&CONFIG.ISIN_MAP[fromUrl]?fromUrl:null;
+    if(!sym){const n=(d.name||"").toUpperCase();sym=CONFIG.IDB_NAME_MAP[n]||n;}
+    if(!CONFIG.ISIN_MAP[sym])return;
+    // volume_en_titres: "3 726" (espaces insécables) → entier
+    const volStr=String(d.volume_en_titres||"0").replace(/[ \s,]/g,"");
+    const vol=volStr&&volStr!=="0"?Math.round(parseFloat(volStr))||0:0;
+    // ouverture: "181,10" (virgule décimale française) → float
+    const opnStr=String(d.ouverture||"").replace(",",".");
+    const open=opnStr?parseFloat(opnStr)||null:null;
+    out[sym]={price:+d.dernier_cours,chg:d.variation!=null?+d.variation:0,open,close:+d.dernier_cours,vol,live:true,src:"IDBourse"};
   });
   return Object.keys(out).length>0?out:null;
 }

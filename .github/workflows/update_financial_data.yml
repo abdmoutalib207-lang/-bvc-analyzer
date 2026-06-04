@@ -68,15 +68,25 @@ jobs:
           git config user.email "noreply@github.com"
           git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
 
-          HEURE=$(TZ="Africa/Casablanca" date "+%H:%M")
-          DATE=$(TZ="Africa/Casablanca" date "+%d/%m/%Y")
-
-          git add financial_data.json data.json || true
-          git diff --cached --quiet && echo "Aucun changement." && exit 0
-
-          git commit -m "data: BVC pipeline v9 — ${DATE} ${HEURE} (Casablanca)"
-          git pull --rebase origin main
-          git push origin HEAD:main
+          # Boucle retry : fetch → reset sur origin/main → commit → push
+          # Évite git pull --rebase qui échoue si un autre workflow a pushé en parallèle
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset origin/main          # mixed reset : préserve les fichiers générés
+            git add financial_data.json data.json || true
+            if git diff --cached --quiet; then
+              echo "Aucun changement vs origin/main — skip commit"
+              exit 0
+            fi
+            HEURE=$(TZ="Africa/Casablanca" date "+%H:%M")
+            DATE=$(TZ="Africa/Casablanca" date "+%d/%m/%Y")
+            git commit -m "data: BVC pipeline v9 — ${DATE} ${HEURE} (Casablanca)"
+            git push origin HEAD:main && echo "✅ Push réussi (tentative $attempt)" && exit 0
+            echo "⚠️ Push échoué (tentative $attempt/3), retry dans $((attempt * 3))s..."
+            sleep $((attempt * 3))
+          done
+          echo "❌ Push échoué après 3 tentatives"
+          exit 1
 
       - name: Summary
         run: |
