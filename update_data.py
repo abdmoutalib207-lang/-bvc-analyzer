@@ -52,9 +52,9 @@ try:
 except NameError:
     OUTPUT = Path("data.json")  # Colab : dossier courant
 
-from bvc_config import ISIN_MAP, IDB_NAME_MAP
+from bvc_config import ISIN_MAP, IDB_NAME_MAP, TICKERS_ACTIFS
 
-TICKERS = list(ISIN_MAP.keys())
+TICKERS = TICKERS_ACTIFS
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DONNÉES FONDAMENTALES STABLES (source: bilans / rapports d'introduction BVC)
