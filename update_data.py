@@ -428,6 +428,11 @@ def run(dry_run=False, push=False, token=""):
     live_prices = fetch_all_idb()
     logger.info(f"IDBourse: {len(live_prices)}/{len(TICKERS)} tickers reçus")
 
+    # Skip si marché fermé ET aucune donnée live — évite les commits inutiles
+    if mkt_status == "CLOSED" and len(live_prices) == 0 and not dry_run:
+        logger.info("Marché fermé et aucune donnée live — skip (data.json inchangé)")
+        return None
+
     # Contexte marché global
     mkt_ctx_base = {
         "market_status":    mkt_status,
