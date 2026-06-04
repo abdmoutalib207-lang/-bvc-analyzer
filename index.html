@@ -189,7 +189,7 @@ async function fetchQuotes(){
 
 // fetchChart: Médias24 → Yahoo Finance → genCandles (simulé)
 async function fetchChart(sym,range){
-  const daysMap={"1mo":30,"3mo":90,"6mo":180,"1y":365};
+  const daysMap={"5d":7,"1mo":30,"3mo":90,"6mo":180,"1y":365};
   const days=daysMap[range]||90;
   const med=await fetchMed24History(sym,days);
   if(med)return med;
@@ -394,17 +394,31 @@ const StockChart=({r})=>{
   const [showBB,setShowBB]=useState(false);
   const [showIchi,setShowIchi]=useState(false);
   const sym=r.symbol||r.ticker;
-  const daysMap={"1M":22,"3M":65,"6M":130,"1A":260};
-  const rangeMap={"1M":"1mo","3M":"3mo","6M":"6mo","1A":"1y"};
+  const daysMap={"5J":7,"1M":22,"3M":65,"6M":130,"1A":260};
+  const rangeMap={"5J":"5d","1M":"1mo","3M":"3mo","6M":"6mo","1A":"1y"};
 
   useEffect(()=>{
     let alive=true;
     setLiveCandles(null);setIsLive(false);
     fetchChart(sym,rangeMap[period]||"3mo").then(c=>{
-      if(alive&&c){setLiveCandles(c);setIsLive(true);}
+      if(alive&&c){
+        // Ajouter la bougie d'aujourd'hui si données live disponibles et dernière bougie < aujourd'hui
+        if(r.live&&c.length>0){
+          const now=new Date(new Date().toLocaleString("en-US",{timeZone:"Africa/Casablanca"}));
+          const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
+          if(c[c.length-1].x<todayStart&&now.getDay()!==0&&now.getDay()!==6){
+            const prevClose=c[c.length-1].y[3];
+            const cur=r.price;
+            if(cur&&cur>0){
+              c.push({x:todayStart,y:[prevClose,Math.max(prevClose,cur),Math.min(prevClose,cur),cur].map(v=>+v.toFixed(2)),vol:r.vol||0});
+            }
+          }
+        }
+        setLiveCandles(c);setIsLive(true);
+      }
     });
     return()=>{alive=false;};
-  },[sym,period]);
+  },[sym,period,r.live,r.price,r.vol]);
 
   useEffect(()=>{
     if(!refMain.current||!refVol.current||!refMacd.current)return;
@@ -529,7 +543,7 @@ const StockChart=({r})=>{
     <div>
       <div style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
         <span style={{fontSize:10,color:"#8892a4"}}>PÉRIODE</span>
-        {["1M","3M","6M","1A"].map(p=>(
+        {["5J","1M","3M","6M","1A"].map(p=>(
           <button key={p} onClick={()=>changePeriod(p)} style={{background:period===p?"rgba(77,184,255,.15)":"transparent",border:period===p?"1px solid rgba(77,184,255,.4)":"1px solid #1a2540",color:period===p?"#4db8ff":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>{p}</button>
         ))}
         <span style={{color:"#1a2540",margin:"0 2px"}}>|</span>
