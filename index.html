@@ -1033,7 +1033,7 @@ function App(){
       const d=await fetch("data.json?t="+Date.now()).then(r=>r.ok?r.json():null);
       if(d?.tickers){
         const m={};
-        d.tickers.forEach(t=>{m[t.symbol]={price:t.price,chg:t.chg,open:t.open,close:t.close,h90:t.h90,l90:t.l90,rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,v53:t.v53,sig:t.sig,poids:t.poids};});
+        d.tickers.forEach(t=>{m[t.symbol]={price:t.price,chg:t.chg,vol:t.vol||0,open:t.open,close:t.close,h90:t.h90,l90:t.l90,rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,v53:t.v53,sig:t.sig,poids:t.poids};});
         mergeLive(m);
         const maj=d.updated?new Date(d.updated).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
         setTs(maj);
