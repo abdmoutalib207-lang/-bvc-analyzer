@@ -77,18 +77,25 @@ jobs:
           git config user.name  "BVC Bot"
           git config user.email "noreply@github.com"
           git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
-          git add data.json
-          # Ne committer que si le fichier a vraiment changé
-          if git diff --staged --quiet; then
-            echo "Aucun changement dans data.json — skip commit"
-          else
+
+          # Boucle retry : fetch → reset sur origin/main → commit → push
+          # Évite git pull --rebase qui échoue si un autre workflow a pushé en parallèle
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset origin/main          # mixed reset : préserve data.json généré
+            git add data.json
+            if git diff --cached --quiet; then
+              echo "Aucun changement dans data.json — skip commit"
+              exit 0
+            fi
             HEURE=$(TZ="Africa/Casablanca" date +'%Y-%m-%d %H:%M')
             git commit -m "data: BVC update ${HEURE} (Casablanca)"
-            # Pull --rebase avant push pour éviter les conflits entre runs simultanés
-            git pull --rebase origin main
-            git push origin HEAD:main
-            echo "✅ data.json mis à jour et pushé"
-          fi
+            git push origin HEAD:main && echo "✅ data.json mis à jour et pushé" && exit 0
+            echo "⚠️ Push échoué (tentative $attempt/3), retry dans $((attempt * 3))s..."
+            sleep $((attempt * 3))
+          done
+          echo "❌ Push échoué après 3 tentatives"
+          exit 1
 
       # ── 6. Résumé dans les logs ───────────────────────────
       - name: Résumé
