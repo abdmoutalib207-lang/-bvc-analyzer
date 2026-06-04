@@ -40,3 +40,10 @@ TICKERS_DEFAUT: list = [
 ]
 
 IDB_NAME_MAP: dict = {"MTO": "CMT", "ALLI": "ADI", "TGC": "TGCC", "GTM": "SGTM"}
+
+# 19 tickers actifs du pipeline BVC (MASI 1)
+TICKERS_ACTIFS: list = [
+    "ADH", "ADI", "AKD", "CASH", "CFGB", "CMGP", "CMT", "CSR",
+    "MNG", "MSA", "RDS", "RIS", "SGTM", "SMI", "SNA", "SOT",
+    "SRM", "TGCC", "VCNE",
+]

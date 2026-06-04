@@ -1,21 +1,16 @@
 # ════════════════════════════════════════════════════════════
 # BVC Data Auto-Update — GitHub Actions
-# Mise à jour automatique de data.json aux horaires BVC
-# Casablanca = UTC+1 toute l'année (pas de changement heure)
+# Mise à jour automatique de data.json toutes les 15 min
+# pendant la session BVC (9h30–15h45 Casablanca = UTC+1)
 # ════════════════════════════════════════════════════════════
 
 name: BVC Data Update
 
 on:
   schedule:
-    # Ouverture BVC : 9h30 Casablanca = 8h30 UTC (lun-ven)
-    - cron: '30 8  * * 1-5'
-    # Mi-séance : 12h00 Casablanca = 11h00 UTC
-    - cron: '0  11 * * 1-5'
-    # Clôture BVC : 15h30 Casablanca = 14h30 UTC
-    - cron: '30 14 * * 1-5'
-    # Règlement définitif : 15h45 Casablanca = 14h45 UTC
-    - cron: '45 14 * * 1-5'
+    # Toutes les 15 min de 8h30 à 14h45 UTC (9h30–15h45 Casablanca)
+    # Le script gère lui-même les runs hors session (skip si marché fermé)
+    - cron: '*/15 8-14 * * 1-5'
 
   # Déclenchement manuel depuis l'onglet Actions de GitHub
   workflow_dispatch:
@@ -28,6 +23,11 @@ on:
 
 permissions:
   contents: write   # nécessaire pour git push
+
+# Empêche deux runs simultanés d'écrire data.json en même temps
+concurrency:
+  group: bvc-data-push
+  cancel-in-progress: false
 
 jobs:
   update-bvc-data:

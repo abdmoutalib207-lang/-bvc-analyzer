@@ -1,51 +1,47 @@
-# BVC Ultimate Analyzer v4.0 PRO
+# BVC Analyzer v6.3
 
-Outil d'analyse de la Bourse de Valeurs de Casablanca (BVC) combinant indicateurs techniques et scoring fondamental.
+Terminal d'analyse multi-facteurs pour la Bourse de Casablanca — Technique 25% · Fondamental 47% · NLP 28%.
+
+## Site live
+
+**[https://abdmoutalib207-lang.github.io/-bvc-analyzer/](https://abdmoutalib207-lang.github.io/-bvc-analyzer/)**
 
 ## Fonctionnalités
 
-- **Scoring technique** : RSI Wilder, MACD + accélération, Bollinger, Ichimoku, Stochastique, ATR, MA20/50/100/200, Volume Ratio
-- **Scoring fondamental** : PER, Forward PER, croissance CA/BPA, ROIC/WACC, EVA, cash conversion, dette/EBITDA, dividende
-- **Pondération dynamique** Tech/Fond selon liquidité BVC (5 tiers)
-- **Décote liquidité** appliquée à la valorisation (0% à 20%)
-- **Valorisation** : objectifs analyst JSON (bear/base/bull) avec décote, fallback multi-facteurs
+- **19 titres MASI** suivis en temps réel
+- **Scoring multi-facteurs** : Technique 25% · Fondamental 47% · NLP 28%
+- **RSI(14) calculé** depuis l'historique réel (Wilder EMA — jamais scrapé)
+- **Données live** : IDBourse → Médias24 → Yahoo Finance (fallback automatique)
+- **Graphiques** : chandeliers OHLCV + Volume + MACD (3 panneaux synchronisés)
+- **Smart Money** : corpus backtesté sur 896 907 messages · 6 ans · 1 994 signaux
 - **Red Flags** : détection automatique avec sévérité (CRITIQUE/ÉLEVÉE/MOYENNE/FAIBLE)
-- **Note institutionnelle** 8 sections : résultat, cash-flow, structure, EVA, catalyseurs, red flags, valorisation, technique
-- **Données live BVC** : scraping temps réel casablanca-bourse.com
-- **Export Excel** automatique sous Colab
+- **Backtesting ATR** : stratégie stop-loss sur historique réel
+- **Mise à jour automatique** : GitHub Actions 5×/jour aux horaires BVC (9h30–15h30)
 
-## Utilisation sur Google Colab
+## Architecture
 
-```python
-# Cellule 1 — Dépendances
-!pip install openpyxl lxml html5lib -q
-
-# Cellule 2 — Télécharger et lancer
-!curl -sL "https://raw.githubusercontent.com/abdmoutalib207-lang/-bvc-analyzer/main/bvc_analyzer_v4.py" -o bvc_analyzer_v4.py
-exec(open("bvc_analyzer_v4.py").read())
-run_colab_analysis()
 ```
-
-Uploader ensuite vos fichiers Excel BVC (format `.xlsx` ou `.xlsm`) quand la boîte de dialogue s'ouvre.
-
-## Format fichier Excel BVC
-
-Le lecteur détecte automatiquement les colonnes via mots-clés (cloture, haut, bas, volume).  
-Colonnes par défaut si non détectées : Close=col 4, High=5, Low=6, Volume=7.  
-Le ticker est lu en cellule C2, B2 ou A2.  
-Minimum 30 séances requis.
-
-## Fondamentaux
-
-Les données fondamentales sont chargées depuis `fondamentaux.json` (ce dépôt, branche `main`).  
-Tickers supportés : ADI, RDS, RIS, SMI, MNG, SOT, CSR, LHM.  
-Pour ajouter un ticker, éditer `fondamentaux.json` en suivant la structure existante.
+index.html          — Frontend React standalone (GitHub Pages)
+bvc_app.py          — Backend Streamlit (Streamlit Cloud)
+bvc_analyzer_v50.py — Moteur de scoring v5.0 (production)
+bvc_analyzer_v53.py — Enrichissement NLP v5.3
+bvc_config.py       — Constantes partagées (ISIN_MAP, tickers)
+update_data.py      — Script de mise à jour data.json
+pipeline/           — Pipeline v9.0 collecte multi-sources
+```
 
 ## Méthodologie
 
-- WACC de référence BVC : Rf ~3% (Bons du Trésor 10Y) + ERP ~7% = ~10%
-- Pont RN→FCF via cash conversion
-- EVA = ROIC – WACC
-- Méthodologie note institutionnelle : [LKABAL-BVC/claude-skill-annual-report-analyzer](https://github.com/LKABAL-BVC/claude-skill-annual-report-analyzer)
+- **Pondération** : Fond 47% / NLP 28% / Tech 25% (WeightEngine contextuel)
+- **RSI** : Wilder Smoothed Moving Average (TA-Lib ou pandas)
+- **WACC BVC** : Rf ~3% (Bons du Trésor 10Y) + ERP ~7% = ~10%
+- **EVA** = ROIC – WACC
+- **NLP** : SENTIMENT_CORPUS backtesté sur 6 ans de messages groupe
+
+## Tickers suivis
+
+ADI · ADH · AKD · CASH · CFGB · CMGP · CMT · CSR · MNG · MSA · RDS · RIS · SGTM · SMI · SNA · SOT · SRM · TGCC · VCNE
+
+---
 
 > ⚠️ Ne constitue pas un conseil en investissement ni une recommandation personnalisée (AMMC / réglementation BVC).

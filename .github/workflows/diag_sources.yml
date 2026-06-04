@@ -1,0 +1,82 @@
+name: BVC Sources Diagnostic
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Test accessibilité sources données BVC
+        run: |
+          echo "## BVC Data Sources — Diagnostic $(date +'%Y-%m-%d %H:%M UTC')"
+          echo ""
+
+          test_url() {
+            local label="$1"
+            local url="$2"
+            local result
+            result=$(curl -s -o /dev/null -w "%{http_code}|%{time_total}" \
+              -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
+              -H "Accept: application/json, text/html, */*" \
+              --max-time 10 "$url" 2>/dev/null || echo "ERR|0")
+            local code=$(echo "$result" | cut -d'|' -f1)
+            local time=$(echo "$result" | cut -d'|' -f2)
+            if [ "$code" = "200" ]; then
+              echo "✅ $label → HTTP $code (${time}s)"
+            elif [ "$code" = "ERR" ]; then
+              echo "❌ $label → TIMEOUT / CONNEXION REFUSÉE"
+            else
+              echo "⚠️  $label → HTTP $code (${time}s)"
+            fi
+          }
+
+          echo "### Sources primaires (prix live)"
+          test_url "IDBourse — batch quotes"    "https://www.idbourse.com/api/proxy/get_all_data"
+          test_url "IDBourse — MASI"            "https://www.idbourse.com/api/proxy/masi-data"
+          test_url "Médias24 — historique ADI"  "https://medias24.com/content/api?method=getPriceHistory&ISIN=MA0000011512&format=json"
+          test_url "Casablanca-bourse.com"      "https://www.casablanca-bourse.com/fr/live-market/overview"
+          test_url "BourseNews.ma"              "https://boursenews.ma/articles/graphiques-et-analyse-technique"
+
+          echo ""
+          echo "### Test contenu IDBourse (données reçues ?)"
+          RESP=$(curl -s -H "User-Agent: Mozilla/5.0" --max-time 10 \
+            "https://www.idbourse.com/api/proxy/get_all_data" 2>/dev/null || echo "null")
+          COUNT=$(echo "$RESP" | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d))" 2>/dev/null || echo "0")
+          echo "IDBourse tickers reçus : $COUNT"
+          if [ "$COUNT" -gt "10" ] 2>/dev/null; then
+            echo "✅ IDBourse opérationnel — $COUNT titres"
+          else
+            echo "❌ IDBourse — données vides ou bloqué"
+            echo "Réponse brute (100 premiers chars) :"
+            echo "$RESP" | head -c 100
+          fi
+
+          echo ""
+          echo "### Test contenu Médias24 (historique ADI)"
+          RESP2=$(curl -s -H "User-Agent: Mozilla/5.0" --max-time 12 \
+            "https://medias24.com/content/api?method=getPriceHistory&ISIN=MA0000011512&format=json" 2>/dev/null || echo "null")
+          ROWS=$(echo "$RESP2" | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d.get('result',[])))" 2>/dev/null || echo "0")
+          if [ "$ROWS" -gt "5" ] 2>/dev/null; then
+            echo "✅ Médias24 opérationnel — $ROWS séances historiques"
+          else
+            echo "❌ Médias24 — données vides ou bloqué"
+          fi
+
+          echo ""
+          echo "### Test Casablanca-bourse.com (détection API interne)"
+          # Tenter quelques endpoints API typiques des bourses
+          test_url "BVC /api/quotes"            "https://www.casablanca-bourse.com/api/quotes"
+          test_url "BVC /webapi/market"         "https://www.casablanca-bourse.com/webapi/market-data"
+          test_url "BVC /fr/webapi/live"        "https://www.casablanca-bourse.com/fr/webapi/live-data"
+
+      - name: Résumé dans le job summary
+        if: always()
+        run: |
+          echo "## BVC Sources Diagnostic" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Lancé le : $(TZ='Africa/Casablanca' date +'%d/%m/%Y %H:%M') (Casablanca)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Voir les logs du step précédent pour le détail complet." >> $GITHUB_STEP_SUMMARY
