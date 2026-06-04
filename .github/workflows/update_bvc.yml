@@ -54,43 +54,7 @@ jobs:
       - name: Installer dépendances
         run: pip install requests numpy pandas -q
 
-      # ── 3. Diagnostic IDBourse (champs bruts — aide debug vol/chg=0) ─
-      - name: Diagnostic IDBourse champs bruts
-        run: |
-          python3 - <<'EOF'
-          import requests, json, sys
-          HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-          try:
-              r = requests.get("https://www.idbourse.com/api/proxy/get_all_data",
-                               headers=HEADERS, timeout=12)
-              if r.status_code != 200:
-                  print(f"HTTP {r.status_code} — IDBourse non accessible"); sys.exit(0)
-              data = r.json()
-              if not isinstance(data, list) or len(data) == 0:
-                  print("Réponse vide ou non-liste"); sys.exit(0)
-              print(f"Nb tickers reçus : {len(data)}")
-              # Premier enregistrement : tous les champs
-              first = data[0]
-              print(f"Champs disponibles : {sorted(first.keys())}")
-              print(f"Exemple enregistrement : {json.dumps(first, ensure_ascii=False)[:500]}")
-              # Chercher SOT spécifiquement
-              sot_candidates = [d for d in data if "SOT" in str(d.get("name","")).upper()
-                                or "SOTHEMA" in str(d.get("name","")).upper()]
-              print(f"Candidats SOT : {sot_candidates[:3]}")
-              # Stats variation et volume
-              n_chg_nz  = sum(1 for d in data if d.get("variation") not in (None, 0, "0", ""))
-              n_vol_nz  = sum(1 for d in data if d.get("volume") not in (None, 0, "0", ""))
-              n_qte_nz  = sum(1 for d in data if d.get("qte_echangee") not in (None, 0, "0", ""))
-              n_vole_nz = sum(1 for d in data if d.get("volume_echange") not in (None, 0, "0", ""))
-              print(f"variation   non-nul : {n_chg_nz}/{len(data)}")
-              print(f"volume      non-nul : {n_vol_nz}/{len(data)}")
-              print(f"qte_echangee non-nul: {n_qte_nz}/{len(data)}")
-              print(f"volume_echange n-nul: {n_vole_nz}/{len(data)}")
-          except Exception as e:
-              print(f"Erreur : {e}")
-          EOF
-
-      # ── 4. Mise à jour données ────────────────────────────
+      # ── 3. Mise à jour données ────────────────────────────
       - name: Mise à jour data.json (dry-run)
         if: ${{ github.event.inputs.dry_run == 'true' }}
         run: python update_data.py --dry-run
@@ -99,13 +63,13 @@ jobs:
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: python update_data.py
 
-      # ── 5. Scraping PDF + Web (optionnel, clôture seule) ──
+      # ── 4. Scraping PDF + Web (optionnel, clôture seule) ──
       # Décommentez pour scraper les sites à la clôture
       # - name: Enrichissement fondamentaux.json (clôture)
       #   if: github.event.schedule == '30 14 * * 1-5'
       #   run: python pdf_scraper.py --auto --tickers SMI,MNG,CSR
 
-      # ── 6. Commit et push ─────────────────────────────────
+      # ── 5. Commit et push ─────────────────────────────────
       - name: Commit data.json si modifié
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -126,7 +90,7 @@ jobs:
             echo "✅ data.json mis à jour et pushé"
           fi
 
-      # ── 7. Résumé dans les logs ───────────────────────────
+      # ── 6. Résumé dans les logs ───────────────────────────
       - name: Résumé
         if: always()
         run: |
