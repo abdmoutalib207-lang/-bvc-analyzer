@@ -145,51 +145,55 @@ def med_get(params, timeout=12):
     return None
 
 def fetch_all_idb():
-    """Toutes les cotations IDBourse en un seul appel."""
+    """Toutes les cotations IDBourse en un seul appel.
+
+    Champs IDBourse confirmés :
+      dernier_cours  — prix (float)
+      variation      — % variation (float, 53/86 non-nuls en séance)
+      volume_en_titres — nb titres échangés (string "3 726", espaces à supprimer)
+      volume         — montant en DH (NE PAS utiliser pour le nb de titres)
+      ouverture      — prix d'ouverture (string "181,10", virgule décimale)
+      url            — contient le code BVC : .../instruments/CSR → extrait "CSR"
+    """
     data = idb_get("/api/proxy/get_all_data")
     if not isinstance(data, list):
         return {}
     out = {}
-    _logged_keys = False
     for d in data:
         if not d.get("name") or not d.get("dernier_cours"):
             continue
-        # Log all field names once to diagnose vol/chg mapping
-        if not _logged_keys:
-            logger.info(f"IDBourse champs disponibles : {sorted(d.keys())}")
-            # Also log variation / volume sample values
-            logger.info(f"IDBourse sample — variation={d.get('variation')!r}  "
-                        f"volume={d.get('volume')!r}  "
-                        f"volume_echange={d.get('volume_echange')!r}  "
-                        f"qte_echangee={d.get('qte_echangee')!r}  "
-                        f"volume_total={d.get('volume_total')!r}")
-            _logged_keys = True
-        n = d["name"].upper()
-        sym = IDB_NAME_MAP.get(n, n)
-        if sym not in ISIN_MAP:
-            continue
+        # Extraire le code BVC depuis l'URL (.../instruments/CODE)
+        url = d.get("url", "")
+        ticker_from_url = url.split("/instruments/")[-1].upper() if "/instruments/" in url else ""
+        # Priorité : code URL → mapping nom → nom brut
+        if ticker_from_url and ticker_from_url in ISIN_MAP:
+            sym = ticker_from_url
+        else:
+            n = d["name"].upper()
+            sym = IDB_NAME_MAP.get(n, n)
+            if sym not in ISIN_MAP:
+                continue
         try:
-            # Try all known IDBourse volume field names
-            vol_raw = (d.get("volume") or d.get("volume_echange") or
-                       d.get("volume_total") or d.get("qte_echangee") or
-                       d.get("nb_titres_echanges") or d.get("quantite") or 0)
-            # Try all known variation field names
-            chg_raw = (d.get("variation") or d.get("variation_cours") or
-                       d.get("pourcentage_variation") or d.get("pct_variation") or 0)
+            # volume_en_titres = "3 726" (nombre de titres, espaces à supprimer)
+            vol_str = str(d.get("volume_en_titres") or "0").replace(" ", "").replace(" ", "").replace(",", "")
+            vol_int = int(float(vol_str)) if vol_str and vol_str not in ("0", "") else 0
+            # ouverture = "181,10" (virgule décimale française)
+            opn_str = str(d.get("ouverture") or "").replace(",", ".")
+            opn_val = float(opn_str) if opn_str else None
             out[sym] = {
                 "price": float(d["dernier_cours"]),
-                "chg":   float(chg_raw or 0),
-                "open":  float(d["ouverture"]) if d.get("ouverture") else None,
-                "vol":   int(float(vol_raw)) if vol_raw else 0,
-                "_idb_name": d["name"],  # garde le nom IDB pour diagnostic
+                "chg":   float(d.get("variation") or 0),
+                "open":  opn_val,
+                "vol":   vol_int,
             }
         except (ValueError, TypeError):
             continue
-    # Log mapping résultat (tickers trouvés + prix)
     if out:
-        mapping_str = "  ".join(f"{s}={v['price']}(chg={v['chg']},vol={v['vol']})"
-                                 for s, v in list(out.items())[:8])
-        logger.info(f"IDBourse mapping [{len(out)} tickers]: {mapping_str}")
+        mapping_str = "  ".join(
+            f"{s}={v['price']}(chg={v['chg']:+.2f}%,vol={v['vol']})"
+            for s, v in list(out.items())[:8]
+        )
+        logger.info(f"IDBourse [{len(out)} tickers]: {mapping_str}")
     return out
 
 def fetch_masi():
