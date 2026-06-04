@@ -976,7 +976,15 @@ function App(){
       const d=await fetch("data.json?t="+Date.now()).then(r=>r.ok?r.json():null);
       if(d?.tickers){
         const m={};
-        d.tickers.forEach(t=>{m[t.symbol]={price:t.price,chg:t.chg,open:t.open,close:t.close,h90:t.h90,l90:t.l90,rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,v53:t.v53,sig:t.sig,poids:t.poids};});
+        d.tickers.forEach(t=>{m[t.symbol]={
+          price:t.price,chg:t.chg,vol:t.vol||0,open:t.open,close:t.close,
+          pe:t.pe,pb:t.pb,div:t.div,cap:t.cap,
+          h90:t.h90,l90:t.l90,rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,
+          bvc:t.bvc,v53:t.v53,delta:t.delta,nlp:t.nlp,
+          alpha:t.alpha,win:t.win,sig:t.sig,biais:t.biais,
+          bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
+          bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags
+        };});
         mergeLive(m);
         const maj=d.updated?new Date(d.updated).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
         setTs(maj);
@@ -989,10 +997,10 @@ function App(){
     setLoading(false);
   },[mergeLive]);
 
-  // Initial load + auto-refresh every 5min when market is open
+  // Initial load + auto-refresh every 5min (always, pipeline may have updated data.json)
   useEffect(()=>{
     loadData();
-    const iv=setInterval(()=>{if(getMarketStatus().isOpen)loadData();},300000);
+    const iv=setInterval(()=>loadData(),300000);
     return()=>clearInterval(iv);
   },[loadData]);
 
