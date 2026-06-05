@@ -52,9 +52,120 @@ try:
 except NameError:
     OUTPUT = Path("data.json")  # Colab : dossier courant
 
-from bvc_config import ISIN_MAP, IDB_NAME_MAP, TICKERS_ACTIFS
+from bvc_config import ISIN_MAP, IDB_NAME_MAP, TICKERS_ALL
 
-TICKERS = TICKERS_ACTIFS
+TICKERS = TICKERS_ALL
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MÉTADONNÉES TICKERS (nom complet + secteur)
+# ─────────────────────────────────────────────────────────────────────────────
+
+TICKER_INFO = {
+    # ── Tickers actifs (19) ───────────────────────────────────────────
+    "CMT":  {"name": "Ciments du Maroc",       "sector": "Matériaux"},
+    "SMI":  {"name": "S.M. Imiter",             "sector": "Matériaux"},
+    "CASH": {"name": "CIH Bank",                "sector": "Finance"},
+    "MNG":  {"name": "Managem",                 "sector": "Mines"},
+    "AKD":  {"name": "Akdital",                 "sector": "Santé"},
+    "SOT":  {"name": "Sotherma",                "sector": "Agro"},
+    "SGTM": {"name": "SGTM",                    "sector": "Construction"},
+    "MSA":  {"name": "Mutandis",                "sector": "Agro"},
+    "CFGB": {"name": "CFG Bank",                "sector": "Finance"},
+    "RIS":  {"name": "Résidences Immo.",        "sector": "Immo"},
+    "ADI":  {"name": "Alliances Dév.",          "sector": "Immo"},
+    "VCNE": {"name": "Vivo Energy",             "sector": "Distribution"},
+    "CMGP": {"name": "CMGP Group",              "sector": "Distribution"},
+    "CSR":  {"name": "Ciments de l'Atlas",      "sector": "Industrie"},
+    "TGCC": {"name": "TGCC",                    "sector": "Construction"},
+    "ADH":  {"name": "Addoha",                  "sector": "Distribution"},
+    "SRM":  {"name": "Stokvis",                 "sector": "Industrie"},
+    "SNA":  {"name": "Sonasid",                 "sector": "Industrie"},
+    "RDS":  {"name": "RDSA Maroc",              "sector": "Industrie"},
+    # ── Grandes capitalisations ───────────────────────────────────────
+    "IAM":  {"name": "Maroc Telecom",           "sector": "Telecom"},
+    "ATW":  {"name": "Attijariwafa Bank",        "sector": "Finance"},
+    "BCP":  {"name": "Banque Populaire",         "sector": "Finance"},
+    "BOA":  {"name": "Bank of Africa",           "sector": "Finance"},
+    "CIH":  {"name": "CIH Bank",                 "sector": "Finance"},
+    "CDM":  {"name": "Crédit du Maroc",          "sector": "Finance"},
+    "WAF":  {"name": "Wafa Assurance",           "sector": "Assurances"},
+    "LHM":  {"name": "LafargeHolcim Maroc",      "sector": "Matériaux"},
+    "GAZ":  {"name": "Afriquia Gaz",             "sector": "Energie"},
+    "ATL":  {"name": "Auto Hall",                "sector": "Distribution"},
+    "HPS":  {"name": "HPS",                      "sector": "Tech"},
+    "LBV":  {"name": "Label'Vie",                "sector": "Distribution"},
+    "LES":  {"name": "Lesieur Cristal",          "sector": "Agro"},
+    "TQA":  {"name": "Taqa Morocco",             "sector": "Energie"},
+    "MRL":  {"name": "Marsa Maroc",              "sector": "Services"},
+    "TMA":  {"name": "TotalEnergies Maroc",      "sector": "Energie"},
+    # ── Moyennes capitalisations ─────────────────────────────────────
+    "ARD":  {"name": "Aradei Capital",           "sector": "Immo"},
+    "SAF":  {"name": "Saham Assurance",          "sector": "Assurances"},
+    "OUL":  {"name": "Oulmès",                   "sector": "Agro"},
+    "CIM":  {"name": "Cimat",                    "sector": "Matériaux"},
+    "CTM":  {"name": "CTM",                      "sector": "Transport"},
+    "ZLD":  {"name": "Zellidja",                 "sector": "Mines"},
+    "ALU":  {"name": "Aluminium du Maroc",       "sector": "Industrie"},
+    "MGL":  {"name": "Maghreb Steel",            "sector": "Industrie"},
+    "DAR":  {"name": "Dar Saada",                "sector": "Immo"},
+    "IMI":  {"name": "Immorente Invest",         "sector": "Immo"},
+    "DTT":  {"name": "Disty Technologies",       "sector": "Tech"},
+    # ── Petites capitalisations ──────────────────────────────────────
+    "DSW":  {"name": "Disway",                   "sector": "Tech"},
+    "MOX":  {"name": "Maghreb Oxygène",          "sector": "Industrie"},
+    "STR":  {"name": "Stroc Industrie",          "sector": "Industrie"},
+    "TIM":  {"name": "Timar",                    "sector": "Services"},
+    "SNP":  {"name": "SNEP",                     "sector": "Industrie"},
+    "SLM":  {"name": "Salafin",                  "sector": "Finance"},
+    "JET":  {"name": "Jet Contractors",          "sector": "Construction"},
+    "M2M":  {"name": "M2M Group",                "sector": "Tech"},
+    "INV":  {"name": "Involys",                  "sector": "Tech"},
+    "S2M":  {"name": "S2M",                      "sector": "Tech"},
+    "COL":  {"name": "Colorado",                 "sector": "Industrie"},
+    "AFM":  {"name": "Afma",                     "sector": "Assurances"},
+    "AGM":  {"name": "Agma Lahlou-Tazi",         "sector": "Assurances"},
+    "FNB":  {"name": "Finance.com",              "sector": "Finance"},
+    "BAL":  {"name": "Balima",                   "sector": "Assurances"},
+    "NEJ":  {"name": "Nejma",                    "sector": "Distribution"},
+    "HAL":  {"name": "Hala",                     "sector": "Agro"},
+    "BMC":  {"name": "Brasseries du Maroc",      "sector": "Agro"},
+    "CAR":  {"name": "Cartier Saada",            "sector": "Immo"},
+    "AFI":  {"name": "Afine",                    "sector": "Immo"},
+    "MIC":  {"name": "Microdata",                "sector": "Tech"},
+    "MUT":  {"name": "Mutandis SCA",             "sector": "Agro"},
+    "ENK":  {"name": "Enkaje",                   "sector": "Services"},
+    "EQD":  {"name": "Equity",                   "sector": "Finance"},
+    "DHO":  {"name": "Daho",                     "sector": "Holding"},
+    "PPM":  {"name": "Papier Industrie",         "sector": "Industrie"},
+    "REB":  {"name": "Rebab Company",            "sector": "Immo"},
+    "SBS":  {"name": "Super Céréales",           "sector": "Agro"},
+    "STK":  {"name": "Stokvis Nord Afrique",     "sector": "Industrie"},
+    "UNI":  {"name": "Unimer",                   "sector": "Agro"},
+    "IBM":  {"name": "IB Maroc.com",             "sector": "Tech"},
+}
+
+# Signal communauté BVC (consensus indépendant du score v5.3)
+SIG_BVC = {
+    # Tickers actifs (19)
+    "CMT":"ACHETER","SMI":"ACHETER","CASH":"SURVEILLER","MNG":"ACHETER",
+    "AKD":"ACHETER","SOT":"ACHETER","SGTM":"SURVEILLER","MSA":"SURVEILLER",
+    "CFGB":"ATTENDRE","RIS":"ATTENDRE","ADI":"ATTENDRE","VCNE":"ATTENDRE",
+    "CMGP":"ATTENDRE","CSR":"ATTENDRE","TGCC":"ATTENDRE","ADH":"ATTENDRE",
+    "SRM":"ATTENDRE","SNA":"EVITER","RDS":"EVITER",
+    # Grandes capitalisations
+    "IAM":"ACHETER","ATW":"ACHETER","BCP":"ACHETER","BOA":"SURVEILLER",
+    "CIH":"SURVEILLER","CDM":"SURVEILLER","WAF":"SURVEILLER",
+    "LHM":"ACHETER","GAZ":"ACHETER","ATL":"ACHETER","HPS":"ACHETER",
+    "LBV":"SURVEILLER","LES":"SURVEILLER","TQA":"ACHETER","MRL":"ACHETER","TMA":"SURVEILLER",
+    # Moyennes capitalisations
+    "ARD":"ACHETER","SAF":"SURVEILLER","OUL":"SURVEILLER","CIM":"ACHETER",
+    "CTM":"SURVEILLER","ZLD":"ATTENDRE","ALU":"ATTENDRE","MGL":"ATTENDRE",
+    "DAR":"ATTENDRE","IMI":"ACHETER","DTT":"SURVEILLER",
+    # Petites capitalisations — défaut ATTENDRE
+    "DSW":"ATTENDRE","MOX":"ATTENDRE","STR":"ATTENDRE","TIM":"ATTENDRE",
+    "SNP":"ATTENDRE","SLM":"ATTENDRE","JET":"ATTENDRE","M2M":"SURVEILLER",
+    "INV":"ATTENDRE","S2M":"ATTENDRE","COL":"ATTENDRE",
+}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DONNÉES FONDAMENTALES STABLES (source: bilans / rapports d'introduction BVC)
@@ -62,18 +173,89 @@ TICKERS = TICKERS_ACTIFS
 # ─────────────────────────────────────────────────────────────────────────────
 
 FOND_SCORES = {
+    # Tickers actifs (19)
     "CMT":7.73,"SMI":7.73,"CASH":7.95,"MNG":4.32,"AKD":7.50,"SOT":7.50,
     "SGTM":8.18,"MSA":6.59,"CFGB":7.73,"RIS":5.23,"ADI":7.05,"VCNE":6.59,
     "CMGP":6.59,"CSR":5.23,"TGCC":8.41,"ADH":4.09,"SRM":4.32,"SNA":4.09,"RDS":2.27,
+    # Grandes capitalisations
+    "IAM":7.50,"ATW":7.73,"BCP":7.50,"BOA":6.82,"CIH":7.05,"CDM":7.05,
+    "WAF":7.27,"LHM":7.73,"GAZ":7.50,"ATL":7.27,"HPS":7.50,"LBV":7.05,
+    "LES":7.05,"TQA":7.50,"MRL":7.27,"TMA":7.05,
+    # Moyennes capitalisations
+    "ARD":6.82,"SAF":6.82,"OUL":6.59,"CIM":7.05,"CTM":6.59,"ZLD":5.68,
+    "ALU":6.36,"MGL":5.91,"DAR":5.45,"IMI":6.59,"DTT":6.36,
+    # Petites capitalisations
+    "DSW":6.14,"MOX":6.14,"STR":5.91,"TIM":5.68,"SNP":5.45,"SLM":6.36,
+    "JET":5.91,"M2M":6.36,"INV":5.68,"S2M":5.91,"COL":6.14,
+    "AFM":6.36,"AGM":6.36,"FNB":5.91,"BAL":6.14,
 }
 
 BVC_SCORES_BASE = {
+    # Tickers actifs (19)
     "CMT":7.16,"SMI":6.95,"CASH":6.73,"MNG":6.59,"AKD":6.20,"SOT":6.62,
     "SGTM":5.77,"MSA":6.28,"CFGB":5.44,"RIS":4.71,"ADI":5.00,"VCNE":4.93,
     "CMGP":5.17,"CSR":4.58,"TGCC":5.22,"ADH":4.28,"SRM":4.88,"SNA":4.10,"RDS":3.76,
+    # Grandes capitalisations
+    "IAM":7.08,"ATW":7.25,"BCP":7.00,"BOA":6.58,"CIH":6.75,"CDM":6.75,
+    "WAF":6.92,"LHM":7.10,"GAZ":7.20,"ATL":6.90,"HPS":7.15,"LBV":6.70,
+    "LES":6.60,"TQA":7.05,"MRL":6.88,"TMA":6.65,
+    # Moyennes capitalisations
+    "ARD":6.45,"SAF":6.55,"OUL":6.30,"CIM":6.80,"CTM":6.20,"ZLD":5.40,
+    "ALU":6.10,"MGL":5.70,"DAR":5.20,"IMI":6.35,"DTT":6.15,
+    # Petites capitalisations
+    "DSW":5.90,"MOX":5.85,"STR":5.60,"TIM":5.45,"SNP":5.20,"SLM":6.10,
+    "JET":5.65,"M2M":6.10,"INV":5.40,"S2M":5.65,"COL":5.90,
+    "AFM":6.10,"AGM":6.05,"FNB":5.60,"BAL":5.85,
 }
 
 FOND_DATA = {
+    # ── Grandes capitalisations (nouvelles) ──────────────────────────
+    "IAM": {"pe":18.5,"pb":6.2,"div":5.5,"cap":121000,"bear":120,  "base":145,  "bull":175,  "upside":5.0, "flags":1},
+    "ATW": {"pe":13.5,"pb":1.8,"div":3.5,"cap":115000,"bear":420,  "base":530,  "bull":660,  "upside":8.0, "flags":0},
+    "BCP": {"pe":11.5,"pb":1.3,"div":3.2,"cap":50000, "bear":240,  "base":305,  "bull":385,  "upside":5.0, "flags":0},
+    "BOA": {"pe":12.0,"pb":1.3,"div":3.5,"cap":17000, "bear":185,  "base":235,  "bull":295,  "upside":7.0, "flags":0},
+    "CIH": {"pe":12.5,"pb":1.5,"div":4.2,"cap":8000,  "bear":275,  "base":350,  "bull":440,  "upside":6.0, "flags":0},
+    "CDM": {"pe":11.0,"pb":1.2,"div":4.5,"cap":5000,  "bear":520,  "base":660,  "bull":825,  "upside":6.0, "flags":0},
+    "WAF": {"pe":14.5,"pb":2.2,"div":4.8,"cap":6500,  "bear":3500, "base":4400, "bull":5500, "upside":5.0, "flags":0},
+    "LHM": {"pe":14.5,"pb":2.5,"div":4.2,"cap":16000, "bear":1520, "base":1900, "bull":2380, "upside":8.0, "flags":0},
+    "GAZ": {"pe":16.5,"pb":3.1,"div":4.8,"cap":7000,  "bear":2940, "base":3700, "bull":4625, "upside":6.0, "flags":0},
+    "ATL": {"pe":13.8,"pb":2.0,"div":4.5,"cap":3500,  "bear":65,   "base":82,   "bull":103,  "upside":7.0, "flags":0},
+    "HPS": {"pe":24.5,"pb":4.0,"div":2.2,"cap":3800,  "bear":3100, "base":4000, "bull":5000, "upside":2.0, "flags":0},
+    "LBV": {"pe":18.0,"pb":2.1,"div":2.8,"cap":4500,  "bear":4200, "base":5300, "bull":6625, "upside":4.0, "flags":0},
+    "LES": {"pe":16.5,"pb":2.6,"div":4.8,"cap":3700,  "bear":148,  "base":185,  "bull":230,  "upside":6.0, "flags":0},
+    "TQA": {"pe":18.5,"pb":3.8,"div":6.5,"cap":8500,  "bear":900,  "base":1150, "bull":1440, "upside":5.0, "flags":0},
+    "MRL": {"pe":16.8,"pb":3.5,"div":4.5,"cap":7500,  "bear":195,  "base":250,  "bull":315,  "upside":6.0, "flags":0},
+    "TMA": {"pe":15.5,"pb":3.0,"div":5.0,"cap":5000,  "bear":1450, "base":1850, "bull":2310, "upside":6.0, "flags":0},
+    # ── Moyennes capitalisations (nouvelles) ─────────────────────────
+    "ARD": {"pe":20.0,"pb":1.5,"div":5.5,"cap":3200,  "bear":365,  "base":465,  "bull":580,  "upside":6.0, "flags":0},
+    "SAF": {"pe":13.5,"pb":1.8,"div":4.0,"cap":3000,  "bear":1000, "base":1270, "bull":1590, "upside":6.0, "flags":0},
+    "OUL": {"pe":15.0,"pb":2.2,"div":3.0,"cap":2500,  "bear":1150, "base":1460, "bull":1825, "upside":6.0, "flags":0},
+    "CIM": {"pe":13.5,"pb":2.0,"div":3.8,"cap":4000,  "bear":1200, "base":1540, "bull":1925, "upside":6.0, "flags":0},
+    "CTM": {"pe":16.0,"pb":2.5,"div":3.5,"cap":1900,  "bear":1380, "base":1750, "bull":2190, "upside":6.0, "flags":0},
+    "ZLD": {"pe":12.0,"pb":0.9,"div":3.5,"cap":1200,  "bear":350,  "base":445,  "bull":560,  "upside":6.0, "flags":1},
+    "ALU": {"pe":13.0,"pb":1.8,"div":4.5,"cap":650,   "bear":880,  "base":1110, "bull":1390, "upside":6.0, "flags":0},
+    "MGL": {"pe":11.0,"pb":1.2,"div":3.0,"cap":1500,  "bear":268,  "base":340,  "bull":425,  "upside":6.0, "flags":1},
+    "DAR": {"pe":9.0, "pb":0.8,"div":2.0,"cap":2800,  "bear":88,   "base":112,  "bull":140,  "upside":7.0, "flags":2},
+    "IMI": {"pe":19.0,"pb":1.4,"div":5.5,"cap":1800,  "bear":133,  "base":170,  "bull":213,  "upside":6.0, "flags":0},
+    "DTT": {"pe":20.0,"pb":3.0,"div":2.5,"cap":2200,  "bear":375,  "base":475,  "bull":595,  "upside":6.0, "flags":0},
+    # ── Petites capitalisations (nouvelles) ──────────────────────────
+    "DSW": {"pe":14.0,"pb":2.0,"div":3.5,"cap":800,   "bear":350,  "base":445,  "bull":555,  "upside":5.0, "flags":0},
+    "MOX": {"pe":12.5,"pb":1.6,"div":4.0,"cap":750,   "bear":300,  "base":380,  "bull":475,  "upside":5.0, "flags":0},
+    "STR": {"pe":11.0,"pb":1.4,"div":3.5,"cap":600,   "bear":215,  "base":275,  "bull":344,  "upside":5.0, "flags":0},
+    "TIM": {"pe":13.0,"pb":1.5,"div":3.0,"cap":500,   "bear":162,  "base":207,  "bull":258,  "upside":5.0, "flags":0},
+    "SNP": {"pe":10.5,"pb":1.2,"div":3.5,"cap":1100,  "bear":890,  "base":1130, "bull":1415, "upside":5.0, "flags":1},
+    "SLM": {"pe":12.0,"pb":1.8,"div":5.0,"cap":1200,  "bear":445,  "base":565,  "bull":706,  "upside":5.0, "flags":0},
+    "JET": {"pe":13.5,"pb":1.5,"div":3.0,"cap":800,   "bear":324,  "base":415,  "bull":519,  "upside":6.0, "flags":0},
+    "M2M": {"pe":18.0,"pb":2.5,"div":2.0,"cap":1500,  "bear":253,  "base":323,  "bull":404,  "upside":6.0, "flags":0},
+    "INV": {"pe":14.0,"pb":1.8,"div":3.0,"cap":300,   "bear":100,  "base":128,  "bull":160,  "upside":5.0, "flags":0},
+    "S2M": {"pe":15.0,"pb":2.0,"div":2.5,"cap":450,   "bear":150,  "base":191,  "bull":239,  "upside":5.0, "flags":0},
+    "COL": {"pe":14.5,"pb":2.0,"div":4.0,"cap":1000,  "bear":74,   "base":93,   "bull":116,  "upside":6.0, "flags":0},
+    "AFM": {"pe":13.0,"pb":1.7,"div":4.5,"cap":600,   "bear":484,  "base":615,  "bull":769,  "upside":5.0, "flags":0},
+    "AGM": {"pe":12.5,"pb":1.5,"div":4.0,"cap":500,   "bear":3000, "base":3820, "bull":4775, "upside":5.0, "flags":0},
+    "FNB": {"pe":11.0,"pb":1.3,"div":3.5,"cap":800,   "bear":733,  "base":935,  "bull":1169, "upside":5.0, "flags":0},
+    "BAL": {"pe":12.0,"pb":1.5,"div":4.5,"cap":700,   "bear":1210, "base":1540, "bull":1925, "upside":5.0, "flags":0},
+    "COL": {"pe":14.5,"pb":2.0,"div":4.0,"cap":1000,  "bear":74,   "base":93,   "bull":116,  "upside":6.0, "flags":0},
+    # ── Tickers actifs (19) ──────────────────────────────────────────
     "CMT":{"pe":15.4,"pb":2.2,"div":4.1,"cap":8500,  "bear":4446,"base":5700, "bull":7125, "upside":14.0,"flags":0},
     "SMI":{"pe":12.1,"pb":1.5,"div":2.0,"cap":4200,  "bear":7695,"base":9865, "bull":12331,"upside":7.0, "flags":0},
     "CASH":{"pe":13.8,"pb":1.8,"div":3.2,"cap":2800, "bear":244, "base":313,  "bull":392,  "upside":12.0,"flags":0},
