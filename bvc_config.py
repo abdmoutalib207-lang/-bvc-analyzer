@@ -21,7 +21,7 @@ ISIN_MAP: dict = {
     "RDS": "MA0000012239", "RIS": "MA0000011462", "S2M": "MA0000012106",
     "SLM": "MA0000012007", "SAF": "MA0000011744", "SMI": "MA0000010068",
     "STK": "MA0000011843", "SNP": "MA0000011728", "MSA": "MA0000012312",
-    "SON": "MA0000010019", "SOT": "MA0000012502", "SRM": "MA0000011595",
+    "SON": "MA0000010019", "SOT": "MA0000012833", "SRM": "MA0000011595",
     "SBS": "MA0000010365", "STR": "MA0000012056", "TQA": "MA0000012205",
     "TGC": "MA0000012528", "TIM": "MA0000011686", "TMA": "MA0000012262",
     "UNI": "MA0000012023", "WAF": "MA0000010928", "ZLD": "MA0000010571",
@@ -46,4 +46,23 @@ TICKERS_ACTIFS: list = [
     "ADH", "ADI", "AKD", "CASH", "CFGB", "CMGP", "CMT", "CSR",
     "MNG", "MSA", "RDS", "RIS", "SGTM", "SMI", "SNA", "SOT",
     "SRM", "TGCC", "VCNE",
+]
+
+# Tous les tickers uniques de la BVC (TGCC/SNA = formes canoniques, TGC/SON exclus)
+# 77 valeurs — ordre : grande cap → moyenne → petite
+TICKERS_ALL: list = [
+    # Grandes capitalisations
+    "IAM", "ATW", "BCP", "BOA", "CIH", "CDM", "WAF",
+    "LHM", "GAZ", "ATL", "HPS", "LBV", "LES", "TQA", "MRL", "TMA",
+    "CMT", "MNG", "SMI",
+    # Moyennes capitalisations
+    "AKD", "ARD", "SAF", "OUL", "CIM", "CTM", "ZLD",
+    "SOT", "MSA", "ADI", "ADH", "TGCC", "CFGB", "CASH", "SGTM",
+    "CMGP", "VCNE", "RIS", "CSR", "SNA", "SRM", "RDS",
+    "ALU", "MGL", "DAR", "IMI", "DTT",
+    # Petites capitalisations
+    "DSW", "MOX", "STR", "TIM", "SNP", "SLM", "JET", "M2M",
+    "INV", "S2M", "COL", "AFM", "AGM", "FNB", "BAL", "NEJ",
+    "HAL", "BMC", "CAR", "AFI", "MIC", "MUT", "ENK", "EQD",
+    "DHO", "PPM", "REB", "SBS", "STK", "UNI", "IBM",
 ]
