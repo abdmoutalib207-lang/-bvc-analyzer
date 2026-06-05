@@ -484,7 +484,8 @@ def analyze_signal_propagation(
             else:
                 same_sig_ticker = same_sig
 
-            propagators = same_sig_ticker['author'].nunique()
+            same_sig_ticker = same_sig_ticker.reset_index(drop=True) if not same_sig_ticker.empty else same_sig_ticker
+            propagators = same_sig_ticker['author'].nunique() if 'author' in same_sig_ticker.columns else 0
             results.append({
                 'sm_author': sm_row['author'],
                 'sm_timestamp': sm_ts,
@@ -493,7 +494,7 @@ def analyze_signal_propagation(
                 'horizon_hours': horizon_h,
                 'n_propagators': propagators,
                 'n_messages': len(same_sig_ticker),
-                'propagator_authors': list(same_sig_ticker['author'].unique())[:10],
+                'propagator_authors': list(same_sig_ticker['author'].unique())[:10] if 'author' in same_sig_ticker.columns else [],
             })
 
     return pd.DataFrame(results)
