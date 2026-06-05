@@ -788,6 +788,8 @@ const Ranking=({rows,sort,setSort,setSel,setTab})=>{
               const s=SS(r.sig);const sym=r.symbol||r.ticker;
               const rsiVal=r.rsi||r.rsi14||50;
               const rsiColor=rsiVal>70?"#ff4f5a":rsiVal<30?"#00e5a0":"#ffd740";
+              /* indicateurs tech estimés : MA20 = MA50 (données live non encore reçues) */
+              const isStat=r.ma20>0&&r.ma50>0&&Math.abs(r.ma20-r.ma50)<0.01;
               return(
                 <tr key={sym} onClick={()=>{setSel(sym);setTab("detail");}}
                   style={{borderBottom:"1px solid #0d1829",cursor:"pointer",transition:"background .12s"}}
@@ -798,6 +800,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab})=>{
                     <div style={{display:"flex",alignItems:"center",gap:4}}>
                       <span style={{fontSize:14,color:"#fff",fontWeight:700}}>{sym}</span>
                       {r.warn&&<span title={r.warnMsg} style={{fontSize:10,cursor:"help"}}>⚠️</span>}
+                      {isStat&&<span title="Indicateurs techniques estimés — données live en attente" style={{fontSize:9,color:"#8892a4",border:"1px solid #1a2540",borderRadius:2,padding:"1px 3px",cursor:"default"}}>~stat</span>}
                     </div>
                     <div style={{fontSize:9,color:"#8892a4"}}>{r.sector}</div>
                   </td>
@@ -820,10 +823,10 @@ const Ranking=({rows,sort,setSort,setSel,setTab})=>{
                   <td style={{padding:"8px 8px",fontSize:12,color:r.alpha>=0?"#00e5a0":"#ff4f5a",fontWeight:600}}>{r.alpha>0?"+":""}{r.alpha}%{r.alpha<0&&<span style={{fontSize:10}}>⚠️</span>}</td>
                   <td style={{padding:"8px 8px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:5}}>
-                      <span style={{fontSize:12,color:rsiColor,fontWeight:700}}>{rsiVal}</span>
-                      <div style={{width:30,background:"#0a1220",borderRadius:2,height:4}}>
+                      <span style={{fontSize:12,color:isStat?"#8892a4":rsiColor,fontWeight:700}}>{isStat?"~":""}{rsiVal}</span>
+                      {!isStat&&<div style={{width:30,background:"#0a1220",borderRadius:2,height:4}}>
                         <div style={{width:`${rsiVal}%`,height:"100%",background:rsiColor,borderRadius:2}}/>
-                      </div>
+                      </div>}
                     </div>
                   </td>
                   <td style={{padding:"8px 8px"}}><Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd}/></td>
@@ -841,6 +844,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab})=>{
         <span style={{color:"#00e5a0"}}>●</span> Score v5.3 = Tech×25% + Fond×47% + NLP×28% (pondération dynamique) &nbsp;|&nbsp;
         <span style={{color:"#ffd740"}}>●</span> WIN = % signaux corrects 6 mois glissants (1994 signaux V3) &nbsp;|&nbsp;
         <span style={{color:"#b388ff"}}>●</span> Δ = différence v5.3 vs BVC original &nbsp;|&nbsp;
+        <span style={{color:"#8892a4"}}>~stat</span> = indicateurs techniques estimés (RSI/MA calculés dès la prochaine mise à jour) &nbsp;|&nbsp;
         <span style={{color:"#ff4f5a"}}>⚠️</span> Alpha/RSI rouge = prudence &nbsp;|&nbsp; PE = Price/Earnings · DIV = dividende &nbsp;|&nbsp; Clic → vue détaillée
       </div>
     </div>
@@ -1189,7 +1193,7 @@ const Chat=()=>{
 // ── APP ───────────────────────────────────────────────────────────────────────
 function App(){
   const [tab,setTab]=useState(()=>localStorage.getItem("bvc_tab")||"ranking");
-  const [sort,setSort]=useState("az");
+  const [sort,setSort]=useState("v53");
   const [sel,setSel]=useState("CMT");
   const [rows,setRows]=useState(STATIC);
   const [ts,setTs]=useState(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}));
