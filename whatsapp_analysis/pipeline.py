@@ -91,7 +91,8 @@ def run_pipeline(
                         **DEFAULT_CONFIG.__dict__,
                         "chunk_size": 5_000
                     })
-                df, activity_stats = parse_chat(input_file, cfg=cfg)
+                max_rows = 50_000 if fast else None
+                df, activity_stats = parse_chat(input_file, cfg=cfg, max_rows=max_rows)
                 _save(df, "df", out)
                 _save(activity_stats, "activity_stats", out)
                 df.to_csv(out / "messages.csv", index=False)
@@ -103,7 +104,8 @@ def run_pipeline(
         R["df"] = df
         _ok(t0)
     else:
-        df = _load("df", out) or pd.DataFrame()
+        loaded = _load("df", out)
+        df = loaded if loaded is not None else pd.DataFrame()
         R["df"] = df
 
     if df.empty:
@@ -139,7 +141,8 @@ def run_pipeline(
             from whatsapp_analysis.phase3_nlp import enrich_dataframe
             df = enrich_dataframe(df)
             _save(df, "df", out)
-            sig_dist = df["signal"].value_counts().to_dict() if "signal" in df.columns else {}
+            sig_col = "dominant_signal" if "dominant_signal" in df.columns else "signal"
+            sig_dist = df[sig_col].value_counts().to_dict() if sig_col in df.columns else {}
             print(f"  → Signaux : {sig_dist}")
             R["df"] = df
         except Exception as e:
@@ -169,7 +172,7 @@ def run_pipeline(
             R["fear_greed"] = fear_greed
         _ok(t0)
     else:
-        R["fear_greed"] = _load("fear_greed", out) or pd.Series(dtype=float)
+        R["fear_greed"] = (_load("fear_greed", out) if _load("fear_greed", out) is not None else pd.Series(dtype=float))
 
     # ── PHASE 5 — Smart Money ────────────────────────────
     if _run(5):
@@ -183,9 +186,9 @@ def run_pipeline(
             if isinstance(member_scores, pd.DataFrame) and not member_scores.empty:
                 member_scores.to_csv(out / "smart_money_ranking.csv")
                 print(f"  → {len(member_scores)} membres scorés")
-                sms_col = "smart_money_score" if "smart_money_score" in member_scores.columns else member_scores.columns[0]
-                top3 = member_scores[sms_col].nlargest(3).to_dict()
-                print(f"  → Top 3 SMS : {list(top3.items())}")
+                if "author" in member_scores.columns:
+                    top3 = member_scores.nlargest(3, "smart_money_score")[["author","smart_money_score"]].values.tolist()
+                    print(f"  → Top 3 SMS : {top3}")
             R["member_scores"] = member_scores
             R["sm_list"]       = sm_list
         except Exception as e:
@@ -194,7 +197,7 @@ def run_pipeline(
             R["sm_list"]       = []
         _ok(t0)
     else:
-        R["member_scores"] = _load("member_scores", out) or pd.DataFrame()
+        R["member_scores"] = (_load("member_scores", out) if _load("member_scores", out) is not None else pd.DataFrame())
         R["sm_list"]       = _load("sm_list", out) or []
 
     # ── PHASE 6 — Analyse réseau ─────────────────────────
@@ -220,7 +223,7 @@ def run_pipeline(
             R["communities"]  = {}
         _ok(t0)
     else:
-        R["node_metrics"] = _load("node_metrics", out) or pd.DataFrame()
+        R["node_metrics"] = (_load("node_metrics", out) if _load("node_metrics", out) is not None else pd.DataFrame())
 
     # ── PHASE 7 — Stock picking ──────────────────────────
     if _run(7):
@@ -233,16 +236,18 @@ def run_pipeline(
             stock_scores.to_csv(out / "stock_scores.csv")
             print(f"  → {len(stock_scores)} valeurs analysées")
             if not stock_scores.empty:
-                sm_col = "smart_sentiment" if "smart_sentiment" in stock_scores.columns else stock_scores.columns[0]
-                top3 = stock_scores[sm_col].nlargest(3).index.tolist()
-                print(f"  → Top 3 SM sentiment : {top3}")
+                score_col = next((c for c in ["general_score", "sm_weighted_sentiment", "mean_sentiment"]
+                                  if c in stock_scores.columns), None)
+                if score_col and "ticker" in stock_scores.columns:
+                    top3 = stock_scores.nlargest(3, score_col)["ticker"].tolist()
+                    print(f"  → Top 3 ({score_col}) : {top3}")
             R["stock_scores"] = stock_scores
         except Exception as e:
             _err(e, "Stock Picking")
             R["stock_scores"] = pd.DataFrame()
         _ok(t0)
     else:
-        R["stock_scores"] = _load("stock_scores", out) or pd.DataFrame()
+        R["stock_scores"] = (_load("stock_scores", out) if _load("stock_scores", out) is not None else pd.DataFrame())
 
     # ── PHASE 8 — Corrélations marché ────────────────────
     if _run(8):

@@ -296,6 +296,7 @@ def _detect_reply_to(text: str, prev_authors: List[str]) -> Optional[str]:
 def parse_chat(
     filepath: str,
     cfg: Config = DEFAULT_CONFIG,
+    max_rows: Optional[int] = None,
 ) -> Tuple[pd.DataFrame, dict]:
     """
     Stream-parse WhatsApp chat file.
@@ -411,6 +412,10 @@ def parse_chat(
             'ticker_count': len(tickers),
         }
         rows.append(row)
+
+        # Fast mode: stop after max_rows
+        if max_rows and len(rows) >= max_rows:
+            break
 
         # Update recent authors window
         recent_authors.append(author)
