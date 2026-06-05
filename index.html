@@ -686,7 +686,7 @@ const StockChart=({r})=>{
 const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount})=>{
   const [pulse,setPulse]=useState(false);
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
-  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"chat",label:"CHAT 3 MAJ",badge:CHAT.length}];
+  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"chat",label:"CHAT 3 MAJ",badge:CHAT.length},{id:"nlp",label:"NLP CORPUS",badge:"NEW"}];
   return(
     <div style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
@@ -1216,6 +1216,260 @@ const Chat=()=>{
   );
 };
 
+// ── NLP DASHBOARD DATA (source: corpus WhatsApp 882 734 msgs · 6 ans · 14 phases) ──
+const NLP_CORPUS={msgs:"882 734",membres:2013,annees:6,signals:110000,smart_money:14,duree:"102 min"};
+const NLP_FG={actuel:41.5,moy:42.0,max:48.2,min:35.6,label:"Peur légère",regimes:126,inflexions:34};
+const NLP_LANGS=[["Français",510120,0.578,"#4db8ff"],["Arabe",78126,0.088,"#b388ff"],["Arabizi",70018,0.079,"#ffd740"],["Mixte",56640,0.064,"#00e5a0"],["Darija",12799,0.014,"#ff8f00"],["Anglais",5969,0.007,"#8892a4"]];
+const NLP_SIGS=[["VENTE",60440,"#ff4f5a"],["ACHAT",21527,"#00e5a0"],["IRONIE",8342,"#8892a4"],["DOUTE",6849,"#ffd740"],["EUPHORIE",4551,"#ff8f00"],["PANIQUE",4016,"#ff4f5a"],["ACHAT FORT",2927,"#00e5a0"],["RENFORCEMENT",1480,"#4db8ff"],["RUMEUR",548,"#b388ff"]];
+const NLP_SM=[
+  {name:"El Alaoui",      calls:143,  timeliness:0.895, sm:true},
+  {name:"Hamza Alami",    calls:263,  timeliness:0.894, sm:true},
+  {name:"mastafa",        calls:44,   timeliness:0.726, sm:true},
+  {name:"Reda",           calls:96,   timeliness:0.748, sm:true},
+  {name:"elmarini Taoufik",calls:97,  timeliness:0.682, sm:true},
+  {name:"Med",            calls:79,   timeliness:0.632, sm:true},
+  {name:"Driss.alaoui",   calls:379,  timeliness:0.596, sm:true},
+  {name:"Abdel",          calls:81,   timeliness:0.648, sm:true},
+  {name:"Y.M",            calls:365,  timeliness:0.399, sm:true},
+  {name:"Mehdi Sekkat",   calls:3849, timeliness:0.473, sm:true},
+];
+const NLP_RANKS=[
+  {t:"CMT", score:68.0, sig:"ACHAT", sm:91,  alpha:42.1, upside:14,  mentions:4142,  pe:18.5},
+  {t:"AKD", score:64.2, sig:"ACHAT", sm:80,  alpha:22.8, upside:18,  mentions:2888,  pe:22.4},
+  {t:"MNG", score:63.1, sig:"ACHAT", sm:100, alpha:55.3, upside:2,   mentions:6665,  pe:58.7},
+  {t:"SMI", score:61.4, sig:"ACHAT", sm:89,  alpha:38.5, upside:7,   mentions:4279,  pe:37.0},
+  {t:"TGCC",score:61.3, sig:"ACHAT", sm:75,  alpha:18.7, upside:27,  mentions:9537,  pe:14.5},
+  {t:"CFGB",score:61.2, sig:"ACHAT", sm:69,  alpha:14.6, upside:17,  mentions:900,   pe:14.2},
+  {t:"SGTM",score:60.4, sig:"ACHAT", sm:70,  alpha:15.9, upside:27,  mentions:1841,  pe:15.0},
+  {t:"SRM", score:58.8, sig:"NEUTRE",sm:60,  alpha:9.8,  upside:8,   mentions:853,   pe:8.2},
+  {t:"SOT", score:58.0, sig:"NEUTRE",sm:67,  alpha:5.0,  upside:12,  mentions:1772,  pe:19.5},
+  {t:"CMGP",score:57.4, sig:"NEUTRE",sm:65,  alpha:11.5, upside:-3,  mentions:1251,  pe:11.8},
+  {t:"CDM", score:56.1, sig:"NEUTRE",sm:50,  alpha:0.0,  upside:6,   mentions:699,   pe:11.0},
+  {t:"CASH",score:56.0, sig:"NEUTRE",sm:64,  alpha:10.1, upside:12,  mentions:4410,  pe:28.4},
+  {t:"ADI", score:55.6, sig:"NEUTRE",sm:47,  alpha:8.5,  upside:17,  mentions:22893, pe:9.8},
+  {t:"ADH", score:51.0, sig:"NEUTRE",sm:40,  alpha:3.1,  upside:0,   mentions:18290, pe:12.5},
+  {t:"RDS", score:49.9, sig:"NEUTRE",sm:42,  alpha:5.2,  upside:-38, mentions:14692, pe:8.5},
+  {t:"SNA", score:50.8, sig:"NEUTRE",sm:57,  alpha:7.6,  upside:-11, mentions:2669,  pe:18.5},
+  {t:"MSA", score:54.1, sig:"NEUTRE",sm:77,  alpha:21.0, upside:-13, mentions:1433,  pe:38.0},
+  {t:"RIS", score:53.7, sig:"NEUTRE",sm:62,  alpha:10.3, upside:-20, mentions:3096,  pe:17.7},
+  {t:"CSR", score:54.9, sig:"NEUTRE",sm:72,  alpha:19.2, upside:-15, mentions:202,   pe:24.2},
+];
+
+const NlpDash=()=>{
+  const [view,setView]=useState("rankings");
+  const SC=s=>s==="ACHAT"?"#00e5a0":s==="VENTE"?"#ff4f5a":"#8892a4";
+  const fgColor=v=>v>=60?"#00e5a0":v>=45?"#ffd740":v>=35?"#ff8f00":"#ff4f5a";
+  const fgLabel=v=>v>=60?"Greed":v>=45?"Neutre":v>=35?"Peur":"Panique";
+
+  // Fear & Greed arc SVG
+  const FGGauge=({v})=>{
+    const pct=(v-0)/100;
+    const r=54,cx=70,cy=70,sw=10;
+    const arc=(a1,a2,c)=>{
+      const t1=Math.PI*(1+a1),t2=Math.PI*(1+a2);
+      const x1=cx+r*Math.cos(t1),y1=cy+r*Math.sin(t1);
+      const x2=cx+r*Math.cos(t2),y2=cy+r*Math.sin(t2);
+      return `<path d="M${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2}" stroke="${c}" stroke-width="${sw}" fill="none" stroke-linecap="round"/>`;
+    };
+    const needle=()=>{
+      const a=Math.PI*(1+pct);
+      const nx=cx+38*Math.cos(a),ny=cy+38*Math.sin(a);
+      return `<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="${cx}" cy="${cy}" r="4" fill="#fff"/>`;
+    };
+    const svgContent=`<svg width="140" height="80" viewBox="0 0 140 80">
+      ${arc(0,0.25,"#ff4f5a")}${arc(0.25,0.5,"#ff8f00")}${arc(0.5,0.75,"#ffd740")}${arc(0.75,1,"#00e5a0")}
+      ${needle()}
+      <text x="${cx}" y="${cy+22}" text-anchor="middle" fill="${fgColor(v)}" font-size="18" font-weight="700" font-family="monospace">${v}</text>
+    </svg>`;
+    return React.createElement("div",{dangerouslySetInnerHTML:{__html:svgContent}});
+  };
+
+  const top7=NLP_RANKS.filter(r=>r.sig==="ACHAT").slice(0,7);
+  const maxMentions=Math.max(...NLP_RANKS.map(r=>r.mentions));
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+
+      {/* ── BANDEAU CORPUS ── */}
+      <div style={{background:"linear-gradient(90deg,#0d1829,#0a1a30)",border:"1px solid rgba(0,229,160,.2)",borderRadius:8,padding:"10px 16px",display:"flex",gap:24,flexWrap:"wrap",alignItems:"center"}}>
+        <span style={{fontSize:12,color:"#00e5a0",fontWeight:700,letterSpacing:1}}>CORPUS WHATSAPP BVC</span>
+        {[[NLP_CORPUS.msgs,"messages","#c8d3e8"],[NLP_CORPUS.membres.toLocaleString(),"membres","#4db8ff"],[NLP_CORPUS.annees+" ans","période","#b388ff"],["110 000","signaux NLP","#ffd740"],[NLP_CORPUS.smart_money+" SM","identifiés","#00e5a0"],[NLP_CORPUS.duree,"analyse","#8892a4"]].map(([v,l,c])=>(
+          <div key={l} style={{textAlign:"center"}}>
+            <div style={{fontSize:15,fontWeight:700,color:c}}>{v}</div>
+            <div style={{fontSize:9,color:"#8892a4",textTransform:"uppercase",letterSpacing:.5}}>{l}</div>
+          </div>
+        ))}
+        <div style={{marginLeft:"auto",fontSize:10,color:"#8892a4"}}>Analyse 14 phases · sept 2020 → juin 2026</div>
+      </div>
+
+      {/* ── ROW 1 : FEAR&GREED + SIGNAUX + LANGUES ── */}
+      <div style={{display:"grid",gridTemplateColumns:"220px 1fr 1fr",gap:12}}>
+
+        {/* Fear & Greed */}
+        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,textAlign:"center"}}>
+          <div style={{fontSize:11,color:"#8892a4",marginBottom:4,textTransform:"uppercase",letterSpacing:1}}>Fear & Greed BVC</div>
+          <FGGauge v={NLP_FG.actuel}/>
+          <div style={{fontSize:14,fontWeight:700,color:fgColor(NLP_FG.actuel),marginTop:2}}>{NLP_FG.label}</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,marginTop:8}}>
+            {[["Moy 6 ans",NLP_FG.moy],["Max",NLP_FG.max],["Min",NLP_FG.min],["Régimes",NLP_FG.regimes]].map(([k,v])=>(
+              <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"4px 6px"}}>
+                <div style={{fontSize:8,color:"#8892a4",textTransform:"uppercase"}}>{k}</div>
+                <div style={{fontSize:12,fontWeight:700,color:"#c8d3e8"}}>{v}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Distribution signaux */}
+        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+          <div style={{fontSize:11,color:"#8892a4",marginBottom:10,textTransform:"uppercase",letterSpacing:1}}>Distribution des Signaux NLP</div>
+          <div style={{fontSize:11,color:"#ffd740",marginBottom:8}}>Ratio SELL/BUY = <strong>2.8×</strong> — groupe majoritairement prudent (signal contrarian)</div>
+          {NLP_SIGS.map(([lbl,cnt,c])=>{
+            const pct=cnt/60440*100;
+            return(
+              <div key={lbl} style={{marginBottom:5,display:"flex",alignItems:"center",gap:8}}>
+                <span style={{fontSize:10,color:"#8892a4",minWidth:88,textAlign:"right"}}>{lbl}</span>
+                <div style={{flex:1,background:"#0a1220",borderRadius:2,height:14,position:"relative"}}>
+                  <div style={{width:`${Math.min(pct*100/100,100)}%`,height:"100%",background:c,borderRadius:2,opacity:.8}}/>
+                </div>
+                <span style={{fontSize:10,color:c,minWidth:46,textAlign:"right",fontWeight:600}}>{cnt.toLocaleString()}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Langues */}
+        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+          <div style={{fontSize:11,color:"#8892a4",marginBottom:10,textTransform:"uppercase",letterSpacing:1}}>Langues détectées</div>
+          {NLP_LANGS.map(([lbl,cnt,pct,c])=>(
+            <div key={lbl} style={{marginBottom:8}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+                <span style={{fontSize:11,color:"#c8d3e8"}}>{lbl}</span>
+                <span style={{fontSize:11,color:c,fontWeight:700}}>{(pct*100).toFixed(1)}%</span>
+              </div>
+              <div style={{background:"#0a1220",borderRadius:2,height:8}}>
+                <div style={{width:`${pct*100}%`,height:"100%",background:c,borderRadius:2}}/>
+              </div>
+            </div>
+          ))}
+          <div style={{marginTop:8,fontSize:10,color:"#8892a4",lineHeight:1.6}}>
+            <span style={{color:"#ffd740"}}>Darija</span> + <span style={{color:"#ffd740"}}>Arabizi</span> = 9.3% — lexique financier spécialisé inclus
+          </div>
+        </div>
+      </div>
+
+      {/* ── TOP 7 ACHAT ── */}
+      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+        <div style={{fontSize:11,color:"#8892a4",marginBottom:10,textTransform:"uppercase",letterSpacing:1}}>TOP 7 — Signal ACHAT ★★★★ (corpus complet 6 ans)</div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:8}}>
+          {top7.map((r,i)=>(
+            <div key={r.t} style={{background:"#0a1220",border:"1px solid rgba(0,229,160,.2)",borderRadius:8,padding:"10px 8px",textAlign:"center",position:"relative"}}>
+              <div style={{position:"absolute",top:6,left:8,fontSize:9,color:"#8892a4"}}>#{i+1}</div>
+              <div style={{fontSize:20,fontWeight:800,color:"#00e5a0",marginBottom:4}}>{r.t}</div>
+              <div style={{fontSize:22,fontWeight:900,color:"#fff",marginBottom:2}}>{r.score}</div>
+              <div style={{fontSize:9,color:"#8892a4",marginBottom:8}}>score composite</div>
+              <div style={{display:"flex",flexDirection:"column",gap:3}}>
+                {[["SM",`${r.sm}/100`,"#ffd740"],["Alpha",`+${r.alpha}%`,"#00e5a0"],["Upside",`${r.upside>0?"+":""}${r.upside}%`,r.upside>0?"#00e5a0":"#ff4f5a"],["Mentions",r.mentions.toLocaleString(),"#4db8ff"]].map(([k,v,c])=>(
+                  <div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:10}}>
+                    <span style={{color:"#8892a4"}}>{k}</span>
+                    <span style={{color:c,fontWeight:600}}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── ROW 3 : SMART MONEY + CLASSEMENT COMPLET ── */}
+      <div style={{display:"grid",gridTemplateColumns:"320px 1fr",gap:12}}>
+
+        {/* Smart Money */}
+        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+          <div style={{fontSize:11,color:"#8892a4",marginBottom:4,textTransform:"uppercase",letterSpacing:1}}>Smart Money identifiés</div>
+          <div style={{fontSize:10,color:"#4db8ff",marginBottom:10}}>14 membres sur 2013 · score = timeliness</div>
+          {NLP_SM.map((m,i)=>(
+            <div key={m.name} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 0",borderBottom:"1px solid #0a1220"}}>
+              <span style={{fontSize:11,color:"#8892a4",minWidth:16}}>#{i+1}</span>
+              <span style={{fontSize:12,color:"#c8d3e8",flex:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{m.name}</span>
+              <div style={{width:60,background:"#0a1220",borderRadius:2,height:6}}>
+                <div style={{width:`${m.timeliness*100}%`,height:"100%",background:m.timeliness>0.8?"#00e5a0":m.timeliness>0.6?"#ffd740":"#4db8ff",borderRadius:2}}/>
+              </div>
+              <span style={{fontSize:11,color:m.timeliness>0.8?"#00e5a0":m.timeliness>0.6?"#ffd740":"#4db8ff",minWidth:36,textAlign:"right",fontWeight:700}}>{m.timeliness.toFixed(3)}</span>
+              <span style={{fontSize:9,color:"#8892a4",minWidth:42,textAlign:"right"}}>{m.calls} calls</span>
+            </div>
+          ))}
+          <div style={{marginTop:10,padding:"8px 10px",background:"#0a1220",borderRadius:5,fontSize:10,color:"#8892a4",lineHeight:1.7}}>
+            <span style={{color:"#ffd740"}}>Timeliness</span> = proportion de signaux émis avant le mouvement de prix · Phase 5 pipeline NLP
+          </div>
+        </div>
+
+        {/* Classement complet */}
+        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,overflow:"auto"}}>
+          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:10}}>
+            <div style={{fontSize:11,color:"#8892a4",textTransform:"uppercase",letterSpacing:1}}>Classement final Phase 13 — {NLP_RANKS.length} valeurs</div>
+            <div style={{marginLeft:"auto",display:"flex",gap:6}}>
+              {[["rankings","CLASSEMENT"],["mentions","MENTIONS"]].map(([v,l])=>(
+                <button key={v} onClick={()=>setView(v)} style={{background:view===v?"rgba(0,229,160,.12)":"transparent",border:view===v?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:view===v?"#00e5a0":"#8892a4",padding:"3px 10px",borderRadius:3,fontSize:10}}>{l}</button>
+              ))}
+            </div>
+          </div>
+          {view==="rankings"?(
+            <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
+              <thead>
+                <tr style={{borderBottom:"1px solid #1a2540"}}>
+                  {["#","TICKER","SCORE","SIGNAL","SM/100","ALPHA","UPSIDE","MENTIONS"].map(h=>(
+                    <th key={h} style={{padding:"5px 8px",color:"#8892a4",fontWeight:500,textAlign:h==="#"||h==="TICKER"?"left":"right",fontSize:10,letterSpacing:.5}}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {NLP_RANKS.map((r,i)=>(
+                  <tr key={r.t} style={{borderBottom:"1px solid #0a1220",background:i%2===0?"transparent":"rgba(255,255,255,.01)"}}>
+                    <td style={{padding:"5px 8px",color:"#8892a4"}}>{i+1}</td>
+                    <td style={{padding:"5px 8px",fontWeight:700,color:"#fff"}}>{r.t}</td>
+                    <td style={{padding:"5px 8px",textAlign:"right"}}>
+                      <span style={{fontWeight:700,color:r.score>=60?"#00e5a0":r.score>=55?"#ffd740":"#8892a4"}}>{r.score}</span>
+                    </td>
+                    <td style={{padding:"5px 8px",textAlign:"right"}}>
+                      <span style={{color:SC(r.sig),fontSize:10,fontWeight:600}}>{r.sig}</span>
+                    </td>
+                    <td style={{padding:"5px 8px",textAlign:"right"}}>
+                      <div style={{display:"flex",alignItems:"center",justifyContent:"flex-end",gap:4}}>
+                        <div style={{width:30,background:"#0a1220",borderRadius:2,height:4}}>
+                          <div style={{width:`${r.sm}%`,height:"100%",background:r.sm>=80?"#00e5a0":r.sm>=60?"#ffd740":"#4db8ff",borderRadius:2}}/>
+                        </div>
+                        <span style={{color:"#c8d3e8",minWidth:24}}>{r.sm}</span>
+                      </div>
+                    </td>
+                    <td style={{padding:"5px 8px",textAlign:"right",color:"#00e5a0",fontWeight:600}}>+{r.alpha}%</td>
+                    <td style={{padding:"5px 8px",textAlign:"right",color:r.upside>0?"#00e5a0":"#ff4f5a",fontWeight:600}}>{r.upside>0?"+":""}{r.upside}%</td>
+                    <td style={{padding:"5px 8px",textAlign:"right",color:"#4db8ff"}}>{r.mentions.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ):(
+            <div style={{display:"flex",flexDirection:"column",gap:5}}>
+              {[...NLP_RANKS].sort((a,b)=>b.mentions-a.mentions).map(r=>(
+                <div key={r.t} style={{display:"flex",alignItems:"center",gap:8}}>
+                  <span style={{fontSize:11,fontWeight:700,color:r.sig==="ACHAT"?"#00e5a0":"#8892a4",minWidth:40}}>{r.t}</span>
+                  <div style={{flex:1,background:"#0a1220",borderRadius:2,height:16,position:"relative"}}>
+                    <div style={{width:`${r.mentions/maxMentions*100}%`,height:"100%",background:r.sig==="ACHAT"?"rgba(0,229,160,.5)":"rgba(77,184,255,.3)",borderRadius:2}}/>
+                    <span style={{position:"absolute",right:6,top:1,fontSize:10,color:"#c8d3e8",fontWeight:600}}>{r.mentions.toLocaleString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+    </div>
+  );
+};
+
 // ── APP ───────────────────────────────────────────────────────────────────────
 function App(){
   const [tab,setTab]=useState(()=>localStorage.getItem("bvc_tab")||"ranking");
@@ -1325,6 +1579,7 @@ function App(){
         {tab==="weights"  &&<Weights/>}
         {tab==="smart"    &&<Smart/>}
         {tab==="chat"     &&<Chat/>}
+        {tab==="nlp"      &&<NlpDash/>}
       </div>
     </div>
   );
