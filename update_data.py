@@ -361,6 +361,28 @@ def med_get(params, timeout=12):
         logger.debug(f"Médias24 {params.get('method')}: {e}")
     return None
 
+def fetch_med24_quote(ticker):
+    """Cours individuel Médias24 via getStockInfo (prix live + volume du jour)."""
+    isin = ISIN_MAP.get(ticker)
+    if not isin:
+        return None
+    data = med_get({"method": "getStockInfo", "ISIN": isin})
+    r = (data or {}).get("result")
+    if not r:
+        return None
+    try:
+        price = float(r.get("cours") or 0)
+        if price <= 0:
+            return None
+        return {
+            "price": price,
+            "chg":   float(r.get("variation") or 0),
+            "vol":   int(float(r.get("volume") or r.get("volumeEchange") or 0)),
+            "open":  float(r.get("ouverture") or price),
+        }
+    except Exception:
+        return None
+
 def fetch_all_idb():
     """Toutes les cotations IDBourse en un seul appel.
 
@@ -777,8 +799,11 @@ def run(dry_run=False, push=False, token=""):
             l90    = round(float(lows.min()), 2)
             if not price:
                 price = round(float(closes.iloc[-1]), 2)
-            if not chg and len(closes) >= 2:
-                chg = round((closes.iloc[-1] - closes.iloc[-2]) / closes.iloc[-2] * 100, 2)
+            # Variation = prix live vs dernière clôture historique
+            if not chg and price and len(closes) >= 1:
+                prev = float(closes.iloc[-1])
+                if prev > 0:
+                    chg = round((price - prev) / prev * 100, 2)
             if not opn and len(df) >= 1:
                 opn = round(float(df["open"].iloc[-1]), 2)
             # Volume de la dernière séance Médias24 si IDBourse n'en a pas
@@ -792,7 +817,7 @@ def run(dry_run=False, push=False, token=""):
             if len(closes) >= 14:
                 stoch_k, stoch_d = calc_stoch(closes, highs, lows)
         else:
-            # Fallback indicateurs depuis data.json existant
+            # Fallback indicateurs depuis data.json existant (quand pas d'historique)
             try:
                 existing = json.loads(OUTPUT.read_text()) if OUTPUT.exists() else {}
                 ex_t = next((t for t in existing.get("tickers", []) if t["symbol"] == ticker), {})
@@ -856,6 +881,19 @@ def run(dry_run=False, push=False, token=""):
                         logger.info(f"  {ticker}: prix depuis static_fallback.json ({price} DH) — données statiques")
             except Exception:
                 pass
+
+        # Patch Médias24 getStockInfo : prix/chg/vol live si IDB a renvoyé des zéros
+        if mkt_status in ("OPEN", "PRE_OPEN") and (not chg or not vol):
+            q = fetch_med24_quote(ticker)
+            if q:
+                if not chg:
+                    price = q["price"]
+                    chg   = q["chg"]
+                if not opn:
+                    opn   = q["open"]
+                if not vol:
+                    vol   = q["vol"]
+                time.sleep(0.2)
 
         if not price:
             logger.warning(f"  {ticker}: ignoré (aucune donnée)")
