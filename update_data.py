@@ -818,6 +818,26 @@ def run(dry_run=False, push=False, token=""):
                 h90 = price * 1.15 if price else 0
                 l90 = price * 0.85 if price else 0
 
+        # Fallback 3 : financial_data.json (produit par collect_financial_data.py)
+        if not price:
+            try:
+                fd_path = Path(__file__).parent / "financial_data.json"
+                if fd_path.exists():
+                    fd_all = json.loads(fd_path.read_text(encoding="utf-8"))
+                    fd_t   = fd_all.get("data", {}).get(ticker, {})
+                    fd_p   = fd_t.get("market", {}).get("price") or 0
+                    if fd_p:
+                        price = fd_p
+                        tech  = fd_t.get("technical", {})
+                        if not ma20: ma20 = tech.get("ma20") or price
+                        if not ma50: ma50 = tech.get("ma50") or price
+                        if rsi == 50: rsi = tech.get("rsi_14") or 50
+                        if not h90:  h90  = tech.get("high_90d") or round(price * 1.15, 2)
+                        if not l90:  l90  = tech.get("low_90d")  or round(price * 0.85, 2)
+                        logger.info(f"  {ticker}: prix depuis financial_data.json ({price} DH)")
+            except Exception:
+                pass
+
         if not price:
             logger.warning(f"  {ticker}: ignoré (aucune donnée)")
             continue
