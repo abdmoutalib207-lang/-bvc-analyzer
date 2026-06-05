@@ -317,26 +317,26 @@ FOND_DATA = {
 # ─────────────────────────────────────────────────────────────────────────────
 
 SENTIMENT = {
-    # Source: analyse WhatsApp BVC — 1442+ messages analysés, 14 phases NLP
-    "CMT": {"smart":-0.143,"hype":0.68,"alpha":3.0, "win":0.54,"mentions":137,  "biais":"NEGATIF","contrarian":False},
-    "SMI": {"smart":0.013, "hype":0.95,"alpha":-1.0,"win":0.56,"mentions":1084, "biais":"NEUTRE", "contrarian":False},
-    "CASH":{"smart":-0.097,"hype":0.74,"alpha":8.6, "win":0.60,"mentions":216,  "biais":"ACHAT",  "contrarian":False},
-    "MNG": {"smart":0.043, "hype":0.95,"alpha":3.9, "win":0.59,"mentions":1442, "biais":"NEUTRE", "contrarian":False},
-    "AKD": {"smart":-0.240,"hype":0.19,"alpha":4.8, "win":0.62,"mentions":3,    "biais":"NEGATIF","contrarian":False},
-    "SOT": {"smart":-0.007,"hype":0.68,"alpha":-4.2,"win":0.55,"mentions":143,  "biais":"NEUTRE", "contrarian":False},
-    "SGTM":{"smart":-0.360,"hype":0.10,"alpha":8.0, "win":0.67,"mentions":1,    "biais":"NEGATIF","contrarian":False},
-    "MSA": {"smart":0.041, "hype":0.72,"alpha":1.3, "win":0.58,"mentions":181,  "biais":"NEUTRE", "contrarian":False},
-    "CFGB":{"smart":0.120, "hype":0.19,"alpha":4.0, "win":0.72,"mentions":900,  "biais":"ACHAT",  "contrarian":False},
-    "RIS": {"smart":0.029, "hype":0.76,"alpha":13.0,"win":0.56,"mentions":255,  "biais":"NEUTRE", "contrarian":False},
-    "ADI": {"smart":0.044, "hype":0.82,"alpha":14.0,"win":0.60,"mentions":376,  "biais":"ACHAT",  "contrarian":False},
-    "VCNE":{"smart":0.050, "hype":0.21,"alpha":3.0, "win":0.70,"mentions":600,  "biais":"NEUTRE", "contrarian":False},
-    "CMGP":{"smart":0.050, "hype":0.21,"alpha":3.0, "win":0.70,"mentions":750,  "biais":"NEUTRE", "contrarian":False},
-    "CSR": {"smart":-0.026,"hype":0.46,"alpha":10.8,"win":0.55,"mentions":27,   "biais":"NEUTRE", "contrarian":True},
-    "TGCC":{"smart":0.030, "hype":0.22,"alpha":6.0, "win":0.64,"mentions":4,    "biais":"NEUTRE", "contrarian":False},
-    "ADH": {"smart":0.040, "hype":0.93,"alpha":13.3,"win":0.58,"mentions":897,  "biais":"NEUTRE", "contrarian":False},
-    "SRM": {"smart":-0.009,"hype":0.32,"alpha":13.8,"win":0.65,"mentions":9,    "biais":"ACHAT",  "contrarian":True},
-    "SNA": {"smart":0.088, "hype":0.59,"alpha":19.9,"win":0.60,"mentions":73,   "biais":"ACHAT",  "contrarian":False},
-    "RDS": {"smart":0.016, "hype":0.71,"alpha":12.2,"win":0.57,"mentions":179,  "biais":"NEUTRE", "contrarian":False},
+    # Source: corpus WhatsApp BVC — 882 734 messages · 6 ans · 14 phases NLP
+    "CMT": {"smart":0.867,"hype":0.91,"alpha":42.1,"win":0.35,"mentions":4142,  "biais":"ACHAT", "contrarian":False},
+    "SMI": {"smart":0.427,"hype":0.91,"alpha":38.5,"win":0.31,"mentions":4279,  "biais":"ACHAT", "contrarian":False},
+    "CASH":{"smart":0.067,"hype":0.92,"alpha":10.1,"win":0.29,"mentions":4410,  "biais":"NEUTRE","contrarian":False},
+    "MNG": {"smart":0.540,"hype":0.95,"alpha":55.3,"win":0.32,"mentions":6665,  "biais":"ACHAT", "contrarian":False},
+    "AKD": {"smart":0.613,"hype":0.87,"alpha":22.8,"win":0.33,"mentions":2888,  "biais":"ACHAT", "contrarian":False},
+    "SOT": {"smart":0.200,"hype":0.82,"alpha":5.0, "win":0.30,"mentions":1772,  "biais":"NEUTRE","contrarian":False},
+    "SGTM":{"smart":0.360,"hype":0.82,"alpha":15.9,"win":0.31,"mentions":1841,  "biais":"ACHAT", "contrarian":False},
+    "MSA": {"smart":-0.060,"hype":0.79,"alpha":21.0,"win":0.28,"mentions":1433, "biais":"NEUTRE","contrarian":False},
+    "CFGB":{"smart":0.120,"hype":0.19,"alpha":4.0, "win":0.72,"mentions":900,   "biais":"ACHAT", "contrarian":False},
+    "RIS": {"smart":-0.087,"hype":0.88,"alpha":10.3,"win":0.27,"mentions":3096, "biais":"NEUTRE","contrarian":False},
+    "ADI": {"smart":0.040,"hype":0.95,"alpha":8.5, "win":0.28,"mentions":22893, "biais":"NEUTRE","contrarian":False},
+    "VCNE":{"smart":0.050,"hype":0.21,"alpha":3.0, "win":0.70,"mentions":600,   "biais":"NEUTRE","contrarian":False},
+    "CMGP":{"smart":0.160,"hype":0.78,"alpha":11.5,"win":0.29,"mentions":1251,  "biais":"NEUTRE","contrarian":False},
+    "CSR": {"smart":-0.007,"hype":0.58,"alpha":19.2,"win":0.28,"mentions":202,  "biais":"NEUTRE","contrarian":True},
+    "TGCC":{"smart":0.420,"hype":0.95,"alpha":18.7,"win":0.31,"mentions":9537,  "biais":"ACHAT", "contrarian":False},
+    "ADH": {"smart":-0.267,"hype":0.95,"alpha":3.1, "win":0.26,"mentions":18290,"biais":"NEUTRE","contrarian":False},
+    "SRM": {"smart":0.253,"hype":0.74,"alpha":9.8, "win":0.30,"mentions":853,   "biais":"NEUTRE","contrarian":False},
+    "SNA": {"smart":-0.280,"hype":0.86,"alpha":7.6, "win":0.26,"mentions":2669, "biais":"NEUTRE","contrarian":False},
+    "RDS": {"smart":-0.340,"hype":0.95,"alpha":5.2, "win":0.26,"mentions":14692,"biais":"NEUTRE","contrarian":False},
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
