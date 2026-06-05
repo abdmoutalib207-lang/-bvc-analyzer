@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-BVC ANALYZER — update_data.py v6.3
+BVC ANALYZER — update_data.py v6.4
 ═══════════════════════════════════════════════════════════════════════════════
 Récupère les cours live BVC (IDBourse → Médias24), recalcule les indicateurs
-techniques (RSI, MA20/50, Fibonacci) et les scores v5.3, puis met à jour
-data.json pour le site GitHub Pages.
+techniques (RSI, MA20/50, MACD, Bollinger, Stochastique, Fibonacci) et les
+scores v5.3, puis met à jour data.json pour le site GitHub Pages.
 
 Usage depuis Colab ou terminal :
     python update_data.py
@@ -165,6 +165,41 @@ SIG_BVC = {
     "DSW":"ATTENDRE","MOX":"ATTENDRE","STR":"ATTENDRE","TIM":"ATTENDRE",
     "SNP":"ATTENDRE","SLM":"ATTENDRE","JET":"ATTENDRE","M2M":"SURVEILLER",
     "INV":"ATTENDRE","S2M":"ATTENDRE","COL":"ATTENDRE",
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MÉTADONNÉES TICKERS (nom complet + secteur)
+# ─────────────────────────────────────────────────────────────────────────────
+
+TICKER_INFO = {
+    "CMT":  {"name": "Ciments du Maroc",       "sector": "Matériaux"},
+    "SMI":  {"name": "S.M. Imiter",             "sector": "Matériaux"},
+    "CASH": {"name": "CIH Bank",                "sector": "Finance"},
+    "MNG":  {"name": "Managem",                 "sector": "Mines"},
+    "AKD":  {"name": "Akdital",                 "sector": "Santé"},
+    "SOT":  {"name": "Sotherma",                "sector": "Agro"},
+    "SGTM": {"name": "SGTM",                    "sector": "Construction"},
+    "MSA":  {"name": "Mutandis",                "sector": "Agro"},
+    "CFGB": {"name": "CFG Bank",                "sector": "Finance"},
+    "RIS":  {"name": "Résidences Immo.",        "sector": "Immo"},
+    "ADI":  {"name": "Alliances Dév.",          "sector": "Immo"},
+    "VCNE": {"name": "Vivo Energy",             "sector": "Distribution"},
+    "CMGP": {"name": "CMGP Group",              "sector": "Distribution"},
+    "CSR":  {"name": "Ciments de l'Atlas",      "sector": "Industrie"},
+    "TGCC": {"name": "TGCC",                    "sector": "Construction"},
+    "ADH":  {"name": "Addoha",                  "sector": "Distribution"},
+    "SRM":  {"name": "Stokvis",                 "sector": "Industrie"},
+    "SNA":  {"name": "Sonasid",                 "sector": "Industrie"},
+    "RDS":  {"name": "RDSA Maroc",              "sector": "Industrie"},
+}
+
+# Signal communauté BVC (consensus indépendant du score v5.3)
+SIG_BVC = {
+    "CMT":"ACHETER","SMI":"ACHETER","CASH":"SURVEILLER","MNG":"ACHETER",
+    "AKD":"ACHETER","SOT":"ACHETER","SGTM":"SURVEILLER","MSA":"SURVEILLER",
+    "CFGB":"ATTENDRE","RIS":"ATTENDRE","ADI":"ATTENDRE","VCNE":"ATTENDRE",
+    "CMGP":"ATTENDRE","CSR":"ATTENDRE","TGCC":"ATTENDRE","ADH":"ATTENDRE",
+    "SRM":"ATTENDRE","SNA":"EVITER","RDS":"EVITER",
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -449,6 +484,55 @@ def calc_ma(closes: pd.Series, period: int) -> float:
         return round(float(closes.mean()), 2)
     return round(float(closes.tail(period).mean()), 2)
 
+def calc_macd(closes: pd.Series, fast=12, slow=26, signal=9) -> tuple:
+    """MACD(12,26,9) — retourne (macd, signal, histogram) ou (None,None,None)."""
+    if len(closes) < slow + signal:
+        return None, None, None
+    ema_fast   = closes.ewm(span=fast, adjust=False).mean()
+    ema_slow   = closes.ewm(span=slow, adjust=False).mean()
+    macd_line  = ema_fast - ema_slow
+    sig_line   = macd_line.ewm(span=signal, adjust=False).mean()
+    histogram  = macd_line - sig_line
+    return (
+        round(float(macd_line.iloc[-1]), 4),
+        round(float(sig_line.iloc[-1]),  4),
+        round(float(histogram.iloc[-1]), 4),
+    )
+
+def calc_bollinger(closes: pd.Series, period=20, n_std=2.0) -> tuple:
+    """Bollinger Bands(20,2) — retourne (upper, middle, lower) ou (None,None,None)."""
+    if len(closes) < period:
+        return None, None, None
+    tail    = closes.tail(period)
+    middle  = tail.mean()
+    std     = tail.std(ddof=1)
+    return (
+        round(float(middle + n_std * std), 2),
+        round(float(middle), 2),
+        round(float(middle - n_std * std), 2),
+    )
+
+def calc_stoch(closes: pd.Series, highs: pd.Series, lows: pd.Series,
+               k_period=14, d_period=3) -> tuple:
+    """Stochastique(14,3) — retourne (%K, %D) ou (None, None)."""
+    if len(closes) < k_period:
+        return None, None
+    k_values = []
+    for i in range(d_period):
+        idx   = len(closes) - 1 - i
+        if idx < k_period - 1:
+            break
+        c     = float(closes.iloc[idx])
+        hh    = float(highs.iloc[idx - k_period + 1: idx + 1].max())
+        ll    = float(lows.iloc[idx  - k_period + 1: idx + 1].min())
+        denom = hh - ll
+        k_values.append(100 * (c - ll) / denom if denom > 0 else 50.0)
+    if not k_values:
+        return None, None
+    k_now = round(k_values[0], 2)
+    d_now = round(float(np.mean(k_values)), 2)
+    return k_now, d_now
+
 def calc_score_tech(rsi, price, ma20, ma50, h90, l90) -> float:
     """
     Score technique simplifié [0-10].
@@ -615,7 +699,7 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
 def run(dry_run=False, push=False, token=""):
     ts_start = time.time()
     logger.info("═" * 60)
-    logger.info("BVC ANALYZER — update_data.py v6.2")
+    logger.info("BVC ANALYZER — update_data.py v6.3")
     logger.info("═" * 60)
 
     # 1. Contexte marché
@@ -678,6 +762,10 @@ def run(dry_run=False, push=False, token=""):
 
         # Indicateurs techniques
         vol = lp.get("vol", 0)  # volume du jour depuis IDBourse
+        macd_val = macd_sig = macd_hist = None
+        bb_upper = bb_mid = bb_lower = None
+        stoch_k = stoch_d = None
+
         if not df.empty and len(df) >= 14:
             closes = df["close"]
             highs  = df["high"]
@@ -696,6 +784,13 @@ def run(dry_run=False, push=False, token=""):
             # Volume de la dernière séance Médias24 si IDBourse n'en a pas
             if not vol and "vol" in df.columns:
                 vol = int(df["vol"].iloc[-1])
+            # Indicateurs avancés (besoin d'historique suffisant)
+            if len(closes) >= 35:
+                macd_val, macd_sig, macd_hist = calc_macd(closes)
+            if len(closes) >= 20:
+                bb_upper, bb_mid, bb_lower = calc_bollinger(closes)
+            if len(closes) >= 14:
+                stoch_k, stoch_d = calc_stoch(closes, highs, lows)
         else:
             # Fallback indicateurs depuis data.json existant
             try:
@@ -706,6 +801,14 @@ def run(dry_run=False, push=False, token=""):
                 ma50 = ex_t.get("ma50", price or 0)
                 h90  = ex_t.get("h90",  price * 1.15 if price else 0)
                 l90  = ex_t.get("l90",  price * 0.85 if price else 0)
+                macd_val  = ex_t.get("macd")
+                macd_sig  = ex_t.get("macd_signal")
+                macd_hist = ex_t.get("macd_hist")
+                bb_upper  = ex_t.get("bb_upper")
+                bb_mid    = ex_t.get("bb_mid")
+                bb_lower  = ex_t.get("bb_lower")
+                stoch_k   = ex_t.get("stoch_k")
+                stoch_d   = ex_t.get("stoch_d")
                 if not price:
                     price = ex_t.get("price", 0)
                 if not vol:
@@ -766,8 +869,11 @@ def run(dry_run=False, push=False, token=""):
         else:
             setup = "NEUTRE"
 
+        info = TICKER_INFO.get(ticker, {})
         tickers_out.append({
             "symbol": ticker,
+            "name":   info.get("name", ticker),
+            "sector": info.get("sector", ""),
             "price":  round(price, 2),
             "chg":    round(chg, 2),
             "vol":    int(vol) if vol else 0,
@@ -782,7 +888,16 @@ def run(dry_run=False, push=False, token=""):
             "rsi":    rsi,
             "ma20":   ma20,
             "ma50":   ma50,
-            # Scores v5.3
+            # Indicateurs avancés
+            "macd":        macd_val,
+            "macd_signal": macd_sig,
+            "macd_hist":   macd_hist,
+            "bb_upper":    bb_upper,
+            "bb_mid":      bb_mid,
+            "bb_lower":    bb_lower,
+            "stoch_k":     stoch_k,
+            "stoch_d":     stoch_d,
+            # Scores v5.3 (INVIOLABLE — ne pas modifier la logique)
             "bvc":    v53["bvc"],
             "v53":    v53["v53"],
             "delta":  v53["delta"],
@@ -790,6 +905,7 @@ def run(dry_run=False, push=False, token=""):
             "alpha":  v53["alpha"],
             "win":    v53["win"],
             "sig":    v53["sig"],
+            "sigBvc": SIG_BVC.get(ticker, "ATTENDRE"),
             "biais":  v53["biais"],
             "conv":   v53["conv"],
             "setup":  setup,

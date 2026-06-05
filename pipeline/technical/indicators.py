@@ -152,13 +152,66 @@ def _fetch_yfinance_history(sym: str, period: str = "6mo") -> pd.DataFrame | Non
     return None
 
 
-# ── Indicateurs techniques ────────────────────────────────────────────────────
+# ── Indicateurs avancés ──────────────────────────────────────────────────────
+
+def _macd(closes: pd.Series, fast=12, slow=26, signal=9) -> tuple:
+    """MACD(12,26,9) → (macd, signal, histogram) ou (None, None, None)."""
+    if len(closes) < slow + signal:
+        return None, None, None
+    ema_fast  = closes.ewm(span=fast, adjust=False).mean()
+    ema_slow  = closes.ewm(span=slow, adjust=False).mean()
+    macd_line = ema_fast - ema_slow
+    sig_line  = macd_line.ewm(span=signal, adjust=False).mean()
+    hist      = macd_line - sig_line
+    return (
+        round(float(macd_line.iloc[-1]), 4),
+        round(float(sig_line.iloc[-1]),  4),
+        round(float(hist.iloc[-1]),      4),
+    )
+
+
+def _bollinger(closes: pd.Series, period=20, n_std=2.0) -> tuple:
+    """Bollinger Bands(20,2) → (upper, middle, lower) ou (None, None, None)."""
+    if len(closes) < period:
+        return None, None, None
+    tail   = closes.tail(period)
+    mid    = float(tail.mean())
+    std    = float(tail.std(ddof=1))
+    return (
+        round(mid + n_std * std, 2),
+        round(mid,               2),
+        round(mid - n_std * std, 2),
+    )
+
+
+def _stochastic(closes: pd.Series, highs: pd.Series, lows: pd.Series,
+                k_period=14, d_period=3) -> tuple:
+    """Stochastique(14,3) → (%K, %D) ou (None, None)."""
+    if len(closes) < k_period:
+        return None, None
+    k_vals = []
+    for i in range(d_period):
+        idx = len(closes) - 1 - i
+        if idx < k_period - 1:
+            break
+        c   = float(closes.iloc[idx])
+        hh  = float(highs.iloc[idx - k_period + 1: idx + 1].max())
+        ll  = float(lows.iloc[idx  - k_period + 1: idx + 1].min())
+        denom = hh - ll
+        k_vals.append(100 * (c - ll) / denom if denom > 0 else 50.0)
+    if not k_vals:
+        return None, None
+    return round(k_vals[0], 2), round(float(np.mean(k_vals)), 2)
+
+
+# ── Calcul global des indicateurs techniques ─────────────────────────────────
 
 def compute_technical(sym: str, rsi_period: int = 14,
                       ma_short: int = 20, ma_long: int = 50,
                       history_days: int = 130) -> dict | None:
     """
-    Calcule RSI(14), MA20, MA50, high_90d, low_90d depuis l'historique réel.
+    Calcule RSI(14), MA20, MA50, MACD(12,26,9), Bollinger(20,2),
+    Stochastique(14,3) et high/low 90j depuis l'historique réel.
     Retourne None si impossible de calculer.
     """
     # Récupération de l'historique
@@ -178,7 +231,7 @@ def compute_technical(sym: str, rsi_period: int = 14,
     highs  = df["high"].astype(float)
     lows   = df["low"].astype(float)
 
-    # RSI calculé (jamais scrapé)
+    # RSI (jamais scrapé — calculé obligatoirement)
     rsi = compute_rsi(closes.values, rsi_period)
 
     # Moyennes mobiles simples
@@ -191,19 +244,39 @@ def compute_technical(sym: str, rsi_period: int = 14,
     ma50 = sma(closes, ma_long)
 
     # High/Low sur 90 jours glissants
-    last_90 = df.tail(90)
+    last_90  = df.tail(90)
     high_90d = round(float(last_90["high"].max()), 2) if len(last_90) > 5 else None
     low_90d  = round(float(last_90["low"].min()),  2) if len(last_90) > 5 else None
 
+    # MACD(12,26,9)
+    macd_val, macd_sig, macd_hist = _macd(closes) if len(closes) >= 35 else (None, None, None)
+
+    # Bollinger Bands(20,2)
+    bb_upper, bb_mid, bb_lower = _bollinger(closes) if len(closes) >= 20 else (None, None, None)
+
+    # Stochastique(14,3)
+    stoch_k, stoch_d = _stochastic(closes, highs, lows) if len(closes) >= 14 else (None, None)
+
     result = {
-        "rsi_14":   rsi,
-        "ma20":     ma20,
-        "ma50":     ma50,
-        "high_90d": high_90d,
-        "low_90d":  low_90d,
-        "_source":  source,
+        "rsi_14":      rsi,
+        "ma20":        ma20,
+        "ma50":        ma50,
+        "high_90d":    high_90d,
+        "low_90d":     low_90d,
+        "macd":        macd_val,
+        "macd_signal": macd_sig,
+        "macd_hist":   macd_hist,
+        "bb_upper":    bb_upper,
+        "bb_mid":      bb_mid,
+        "bb_lower":    bb_lower,
+        "stoch_k":     stoch_k,
+        "stoch_d":     stoch_d,
+        "_source":     source,
         "_nb_candles": len(df),
     }
 
-    log.debug(f"{sym} RSI={rsi} MA20={ma20} MA50={ma50} src={source}")
+    log.debug(
+        f"{sym} RSI={rsi} MA20={ma20} MA50={ma50} "
+        f"MACD={macd_val} BB={bb_upper}/{bb_lower} src={source}"
+    )
     return result

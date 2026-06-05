@@ -27,7 +27,7 @@
 <script type="text/babel">
 const {useState,useEffect,useMemo,useCallback,useRef} = React;
 
-// ── STATIC FALLBACK DATA (19 tickers) ─────────────────────────────────────────
+// ── STATIC FALLBACK DATA (77 tickers) ─────────────────────────────────────────
 const STATIC = [
   {symbol:"CMT", name:"Ciments du Maroc",      sector:"Matériaux",    price:5330,  chg:6.60,  vol:2345678,cap:8500, pe:15.4,pb:2.2,div:4.1,h90:5800, l90:4200, rsi:67,ma20:5085, ma50:4820, bvc:7.16,v53:7.99,delta:0.83,nlp:0.51,alpha:8.3,  win:92, flags:0,upside:14, bear:4446, base:5700,  bull:7125,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30","+Smart Money (92%) +0.40"], warn:false},
   {symbol:"SMI", name:"S.M. Imiter",            sector:"Matériaux",    price:9372,  chg:1.65,  vol:456789, cap:4200, pe:12.1,pb:1.5,div:2.0,h90:10200,l90:7500, rsi:61,ma20:9100, ma50:8600, bvc:6.95,v53:7.66,delta:0.71,nlp:0.46,alpha:30.7, win:100,flags:0,upside:7,  bear:7695, base:9865,  bull:12331, setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30","+Smart Money (100%) +0.40"],warn:false},
@@ -741,6 +741,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab})=>{
   },[rows,sector,search]);
 
   const sorted=useMemo(()=>[...filtered].sort((a,b)=>{
+    if(sort==="az")  return (a.name||a.symbol||"").localeCompare(b.name||b.symbol||"","fr");
     if(sort==="v53") return b.v53-a.v53;
     if(sort==="bvc") return b.bvc-a.bvc;
     if(sort==="delta") return b.delta-a.delta;
@@ -750,7 +751,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab})=>{
     if(sort==="rsi") return (a.rsi||a.rsi14||50)-(b.rsi||b.rsi14||50);
     return 0;
   }),[filtered,sort]);
-  const SORTS=[["v53","SCORE v5.3"],["bvc","BVC"],["delta","DELTA"],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
+  const SORTS=[["az","A → Z"],["v53","SCORE v5.3"],["bvc","BVC"],["delta","DELTA"],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
   const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","PE","DIV%","BVC","v5.3","Δ","NLP%","WIN","ALPHA","RSI","SIGNAL v5.3","POIDS"];
   return(
     <div>
@@ -917,6 +918,32 @@ const Detail=({rows,sel,setSel})=>{
                     </div>
                   ))}
                 </div>
+                {/* Indicateurs avancés si disponibles dans data.json */}
+                {(r.macd!=null||r.bb_upper!=null||r.stoch_k!=null)&&(
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginTop:6}}>
+                    {r.macd!=null&&(
+                      <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
+                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>MACD</div>
+                        <div style={{fontSize:11,color:r.macd>0?"#00e5a0":"#ff4f5a",fontWeight:700}}>{r.macd>0?"+":""}{r.macd?.toFixed(2)}</div>
+                        <div style={{fontSize:9,color:"#8892a4"}}>{r.macd>0&&r.macd>(r.macd_signal||0)?"haussier":"baissier"}</div>
+                      </div>
+                    )}
+                    {r.bb_upper!=null&&(
+                      <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
+                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>BB(20,2)</div>
+                        <div style={{fontSize:10,color:"#ffd740",fontWeight:700}}>{px(r.bb_upper)}</div>
+                        <div style={{fontSize:9,color:"#8892a4"}}>{px(r.bb_lower)}</div>
+                      </div>
+                    )}
+                    {r.stoch_k!=null&&(
+                      <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
+                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>STOCH</div>
+                        <div style={{fontSize:11,color:r.stoch_k>80?"#ff4f5a":r.stoch_k<20?"#00e5a0":"#ffd740",fontWeight:700}}>{r.stoch_k?.toFixed(0)}</div>
+                        <div style={{fontSize:9,color:"#8892a4"}}>{r.stoch_k>80?"survente":r.stoch_k<20?"survente":"neutre"}</div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               <RSIGauge value={rsiVal}/>
             </div>
@@ -1162,7 +1189,7 @@ const Chat=()=>{
 // ── APP ───────────────────────────────────────────────────────────────────────
 function App(){
   const [tab,setTab]=useState(()=>localStorage.getItem("bvc_tab")||"ranking");
-  const [sort,setSort]=useState("v53");
+  const [sort,setSort]=useState("az");
   const [sel,setSel]=useState("CMT");
   const [rows,setRows]=useState(STATIC);
   const [ts,setTs]=useState(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}));
@@ -1203,17 +1230,23 @@ function App(){
         setLoading(false);return;
       }
     }catch{}
-    // Fallback: data.json (manually maintained)
+    // Fallback: data.json (pipeline GitHub Actions)
     try{
       const d=await fetch("data.json?t="+Date.now()).then(r=>r.ok?r.json():null);
       if(d?.tickers){
         const m={};
         d.tickers.forEach(t=>{m[t.symbol]={
           price:t.price,chg:t.chg,vol:t.vol||0,open:t.open,close:t.close,
+          name:t.name,sector:t.sector,
           pe:t.pe,pb:t.pb,div:t.div,cap:t.cap,
           h90:t.h90,l90:t.l90,rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,
+          // Indicateurs avancés pré-calculés par le pipeline
+          macd:t.macd,macd_signal:t.macd_signal,macd_hist:t.macd_hist,
+          bb_upper:t.bb_upper,bb_mid:t.bb_mid,bb_lower:t.bb_lower,
+          stoch_k:t.stoch_k,stoch_d:t.stoch_d,
+          // Scores v5.3
           bvc:t.bvc,v53:t.v53,delta:t.delta,nlp:t.nlp,
-          alpha:t.alpha,win:t.win,sig:t.sig,biais:t.biais,
+          alpha:t.alpha,win:t.win,sig:t.sig,sigBvc:t.sigBvc,biais:t.biais,
           bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
           bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,
           conv:t.conv,setup:t.setup
@@ -1227,21 +1260,24 @@ function App(){
         const mktNow=getMarketStatus();
         const ageMin=upd?(Date.now()-upd.getTime())/60000:Infinity;
         const stale=mktNow.isOpen&&ageMin>30;
-        setSrc(`BVC${stale?" ⚠ données >30min":""}${dateStr?" · "+dateStr:""}`);
+        setSrc(`IDBourse/M24${stale?" ⚠ >30min":""}${dateStr?" · "+dateStr:""}`);
         setLoading(false);return;
       }
     }catch{}
-    // Last resort: keep STATIC values
+    // Dernier recours : valeurs STATIC (avec avertissement visible)
     setFetchErr(true);
-    setSrc("données statiques");
+    setSrc("⚠ données statiques");
     setLoading(false);
   },[mergeLive]);
 
-  // Initial load + auto-refresh every 5min (always, pipeline may have updated data.json)
+  // Chargement initial + auto-refresh toutes les 3 min pendant la séance, 10 min hors séance
   useEffect(()=>{
     loadData();
-    const iv=setInterval(()=>loadData(),300000);
-    return()=>clearInterval(iv);
+    const getInterval=()=>{const s=getMarketStatus();return s.isOpen?180000:600000;};
+    let iv=setInterval(()=>loadData(),getInterval());
+    // Recalcule l'intervalle toutes les 10 min (transition ouverture/fermeture)
+    const adjuster=setInterval(()=>{clearInterval(iv);iv=setInterval(()=>loadData(),getInterval());},600000);
+    return()=>{clearInterval(iv);clearInterval(adjuster);};
   },[loadData]);
 
   const changeTab=(t)=>{setTab(t);localStorage.setItem("bvc_tab",t);};
