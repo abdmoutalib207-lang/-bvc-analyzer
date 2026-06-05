@@ -12,6 +12,11 @@ on:
     # Le script gère lui-même les runs hors session (skip si marché fermé)
     - cron: '*/15 8-14 * * 1-5'
 
+  # Déclenchement automatique après le pipeline financier (sync garantie)
+  workflow_run:
+    workflows: ["BVC Financial Data Pipeline v9"]
+    types: [completed]
+
   # Déclenchement manuel depuis l'onglet Actions de GitHub
   workflow_dispatch:
     inputs:
