@@ -838,6 +838,25 @@ def run(dry_run=False, push=False, token=""):
             except Exception:
                 pass
 
+        # Fallback 4 : static_fallback.json (prix extraits de index.html — dernier recours)
+        if not price:
+            try:
+                sf_path = Path(__file__).parent / "pipeline" / "static_fallback.json"
+                if sf_path.exists():
+                    sf_all = json.loads(sf_path.read_text(encoding="utf-8"))
+                    sf_t   = sf_all.get(ticker, {})
+                    sf_p   = sf_t.get("price") or 0
+                    if sf_p:
+                        price = sf_p
+                        if not ma20: ma20 = sf_t.get("ma20") or price
+                        if not ma50: ma50 = sf_t.get("ma50") or price
+                        if rsi == 50: rsi = sf_t.get("rsi_14") or 50
+                        if not h90:  h90  = sf_t.get("high_90d") or round(price * 1.15, 2)
+                        if not l90:  l90  = sf_t.get("low_90d")  or round(price * 0.85, 2)
+                        logger.info(f"  {ticker}: prix depuis static_fallback.json ({price} DH) — données statiques")
+            except Exception:
+                pass
+
         if not price:
             logger.warning(f"  {ticker}: ignoré (aucune donnée)")
             continue
