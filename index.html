@@ -683,10 +683,10 @@ const StockChart=({r})=>{
 };
 
 // ── HEADER ────────────────────────────────────────────────────────────────────
-const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus})=>{
+const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount})=>{
   const [pulse,setPulse]=useState(false);
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
-  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"detail",label:"DÉTAIL"},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"chat",label:"CHAT 3 MAJ",badge:CHAT.length}];
+  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"chat",label:"CHAT 3 MAJ",badge:CHAT.length}];
   return(
     <div style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
@@ -725,7 +725,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus})=>{
 };
 
 // ── RANKING ───────────────────────────────────────────────────────────────────
-const Ranking=({rows,sort,setSort,setSel,setTab})=>{
+const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchlist=false})=>{
   const [search,setSearch]=useState("");
   const [sector,setSector]=useState("ALL");
   const sectors=useMemo(()=>["ALL",...new Set(rows.map(r=>r.sector).filter(Boolean).sort())],[rows]);
@@ -753,6 +753,13 @@ const Ranking=({rows,sort,setSort,setSel,setTab})=>{
   }),[filtered,sort]);
   const SORTS=[["az","A → Z"],["v53","SCORE v5.3"],["bvc","BVC"],["delta","DELTA"],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
   const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","PE","DIV%","BVC","v5.3","Δ","NLP%","WIN","ALPHA","RSI","SIGNAL v5.3","POIDS"];
+  if(isWatchlist&&rows.length===0) return(
+    <div style={{textAlign:"center",padding:"60px 20px",color:"#8892a4"}}>
+      <div style={{fontSize:52,marginBottom:16,color:"#2a3550"}}>★</div>
+      <div style={{fontSize:16,marginBottom:8,color:"#c8d3e8"}}>Aucun favori</div>
+      <div style={{fontSize:12}}>Cliquez sur ☆ dans le classement pour suivre un titre</div>
+    </div>
+  );
   return(
     <div>
       {/* ── Barre de recherche + filtre secteur ─────────────── */}
@@ -801,6 +808,10 @@ const Ranking=({rows,sort,setSort,setSel,setTab})=>{
                       <span style={{fontSize:14,color:"#fff",fontWeight:700}}>{sym}</span>
                       {r.warn&&<span title={r.warnMsg} style={{fontSize:10,cursor:"help"}}>⚠️</span>}
                       {isStat&&<span title="Indicateurs techniques estimés — données live en attente" style={{fontSize:9,color:"#8892a4",border:"1px solid #1a2540",borderRadius:2,padding:"1px 3px",cursor:"default"}}>~stat</span>}
+                      <button onClick={e=>{e.stopPropagation();toggleFav(sym);}} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
+                        style={{fontSize:13,color:fav.includes(sym)?"#ffd740":"#2a3550",border:"none",background:"none",cursor:"pointer",padding:"0 1px",lineHeight:1,transition:"color .15s"}}>
+                        {fav.includes(sym)?"★":"☆"}
+                      </button>
                     </div>
                     <div style={{fontSize:9,color:"#8892a4"}}>{r.sector}</div>
                   </td>
@@ -852,7 +863,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab})=>{
 };
 
 // ── DETAIL ────────────────────────────────────────────────────────────────────
-const Detail=({rows,sel,setSel})=>{
+const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
   const [detSearch,setDetSearch]=useState("");
   const r=rows.find(x=>(x.symbol||x.ticker)===sel)||rows[0];
   const s=SS(r.sig);
@@ -887,7 +898,13 @@ const Detail=({rows,sel,setSel})=>{
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {/* Score card */}
           <div style={{background:`linear-gradient(135deg,${s.bg},#0d1829)`,border:`1px solid ${s.bd}`,borderRadius:8,padding:16,textAlign:"center"}}>
-            <div style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4}}>{sym} · {px(price)} DH <span style={{color:VC(r.chg),marginLeft:8,fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%</span></div>
+            <div style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+              <span>{sym} · {px(price)} DH <span style={{color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%</span></span>
+              <button onClick={()=>toggleFav(sym)} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
+                style={{fontSize:18,color:fav.includes(sym)?"#ffd740":"#2a3550",border:"none",background:"none",cursor:"pointer",padding:"0 2px",lineHeight:1,transition:"color .2s"}}>
+                {fav.includes(sym)?"★":"☆"}
+              </button>
+            </div>
             <div style={{fontSize:52,fontWeight:700,color:s.fg,textShadow:`0 0 30px ${s.fg}40`,lineHeight:1}}>{r.v53.toFixed(2)}</div>
             <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 10px"}}>Score v5.3 / 10</div>
             <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd} sz={12}/>
@@ -1196,6 +1213,8 @@ function App(){
   const [sort,setSort]=useState("v53");
   const [sel,setSel]=useState("CMT");
   const [rows,setRows]=useState(STATIC);
+  const [fav,setFav]=useState(()=>{try{return JSON.parse(localStorage.getItem("bvc_fav")||"[]");}catch{return [];}});
+  const toggleFav=useCallback(sym=>{setFav(prev=>{const next=prev.includes(sym)?prev.filter(x=>x!==sym):[...prev,sym];localStorage.setItem("bvc_fav",JSON.stringify(next));return next;});},[]);
   const [ts,setTs]=useState(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}));
   const [src,setSrc]=useState("connexion…");
   const [loading,setLoading]=useState(false);
@@ -1288,13 +1307,14 @@ function App(){
 
   return(
     <div style={{minHeight:"100vh"}}>
-      <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus}/>
+      <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
-        {tab==="ranking"&&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab}/>}
-        {tab==="detail" &&<Detail rows={rows} sel={sel} setSel={setSel}/>}
-        {tab==="weights"&&<Weights/>}
-        {tab==="smart"  &&<Smart/>}
-        {tab==="chat"   &&<Chat/>}
+        {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab} fav={fav} toggleFav={toggleFav}/>}
+        {tab==="watchlist"&&<Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true}/>}
+        {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={setSel} fav={fav} toggleFav={toggleFav}/>}
+        {tab==="weights"  &&<Weights/>}
+        {tab==="smart"    &&<Smart/>}
+        {tab==="chat"     &&<Chat/>}
       </div>
     </div>
   );
