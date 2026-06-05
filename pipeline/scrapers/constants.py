@@ -7,15 +7,11 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from bvc_config import ISIN_MAP, TICKERS_DEFAUT  # noqa: E402
+from bvc_config import ISIN_MAP, TICKERS_DEFAUT, TICKERS_ALL  # noqa: E402
 
 PROXY = "https://corsproxy.io/?"
 
-TICKERS = [
-    "ADI", "ADH", "AKD", "CASH", "CFGB", "CMGP", "CMT", "CSR",
-    "MNG", "MSA", "RDS", "RIS", "SGTM", "SMI", "SNA", "SOT",
-    "SRM", "TGCC", "VCNE",
-]
+TICKERS = TICKERS_ALL
 
 IPO_RECENT = {"CASH", "VCNE", "SGTM"}
 
@@ -27,8 +23,9 @@ IDB_NAME_MAP = {
     "GTM":  "SGTM",
 }
 
-# Yahoo Finance suffix map
+# Yahoo Finance suffix map (.CS = Bourse de Casablanca)
 YF_MAP = {
+    # Tickers actifs (19)
     "ADI":  "ADI.CS",  "ADH":  "ADH.CS",  "AKD":  "AKD.CS",
     "CASH": "CASH.CS", "CFGB": "CFGB.CS", "CMGP": "CMGP.CS",
     "CMT":  "CMT.CS",  "CSR":  "CSR.CS",  "MNG":  "MNG.CS",
@@ -36,6 +33,30 @@ YF_MAP = {
     "SGTM": "SGTM.CS", "SMI":  "SMI.CS",  "SNA":  "SNA.CS",
     "SOT":  "SOT.CS",  "SRM":  "SRM.CS",  "TGCC": "TGC.CS",
     "VCNE": "VCNE.CS",
+    # Grandes capitalisations
+    "IAM":  "IAM.CS",  "ATW":  "ATW.CS",  "BCP":  "BCP.CS",
+    "BOA":  "BOA.CS",  "CIH":  "CIH.CS",  "CDM":  "CDM.CS",
+    "WAF":  "WAF.CS",  "LHM":  "LHM.CS",  "GAZ":  "GAZ.CS",
+    "ATL":  "ATL.CS",  "HPS":  "HPS.CS",  "LBV":  "LBV.CS",
+    "LES":  "LES.CS",  "TQA":  "TQA.CS",  "MRL":  "MRL.CS",
+    "TMA":  "TMA.CS",
+    # Moyennes capitalisations
+    "ARD":  "ARD.CS",  "SAF":  "SAF.CS",  "OUL":  "OUL.CS",
+    "CIM":  "CIM.CS",  "CTM":  "CTM.CS",  "ZLD":  "ZLD.CS",
+    "ALU":  "ALU.CS",  "MGL":  "MGL.CS",  "DAR":  "DAR.CS",
+    "IMI":  "IMI.CS",  "DTT":  "DTT.CS",
+    # Petites capitalisations
+    "DSW":  "DSW.CS",  "MOX":  "MOX.CS",  "STR":  "STR.CS",
+    "TIM":  "TIM.CS",  "SNP":  "SNP.CS",  "SLM":  "SLM.CS",
+    "JET":  "JET.CS",  "M2M":  "M2M.CS",  "INV":  "INV.CS",
+    "S2M":  "S2M.CS",  "COL":  "COL.CS",  "AFM":  "AFM.CS",
+    "AGM":  "AGM.CS",  "FNB":  "FNB.CS",  "BAL":  "BAL.CS",
+    "NEJ":  "NEJ.CS",  "HAL":  "HAL.CS",  "BMC":  "BMC.CS",
+    "CAR":  "CAR.CS",  "AFI":  "AFI.CS",  "MIC":  "MIC.CS",
+    "MUT":  "MUT.CS",  "ENK":  "ENK.CS",  "EQD":  "EQD.CS",
+    "DHO":  "DHO.CS",  "PPM":  "PPM.CS",  "REB":  "REB.CS",
+    "SBS":  "SBS.CS",  "STK":  "STK.CS",  "UNI":  "UNI.CS",
+    "IBM":  "IBM.CS",
 }
 
 HEADERS_LIST = [

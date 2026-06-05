@@ -47,3 +47,22 @@ TICKERS_ACTIFS: list = [
     "MNG", "MSA", "RDS", "RIS", "SGTM", "SMI", "SNA", "SOT",
     "SRM", "TGCC", "VCNE",
 ]
+
+# Tous les tickers uniques de la BVC (TGCC/SNA = formes canoniques, TGC/SON exclus)
+# 77 valeurs — ordre : grande cap → moyenne → petite
+TICKERS_ALL: list = [
+    # Grandes capitalisations
+    "IAM", "ATW", "BCP", "BOA", "CIH", "CDM", "WAF",
+    "LHM", "GAZ", "ATL", "HPS", "LBV", "LES", "TQA", "MRL", "TMA",
+    "CMT", "MNG", "SMI",
+    # Moyennes capitalisations
+    "AKD", "ARD", "SAF", "OUL", "CIM", "CTM", "ZLD",
+    "SOT", "MSA", "ADI", "ADH", "TGCC", "CFGB", "CASH", "SGTM",
+    "CMGP", "VCNE", "RIS", "CSR", "SNA", "SRM", "RDS",
+    "ALU", "MGL", "DAR", "IMI", "DTT",
+    # Petites capitalisations
+    "DSW", "MOX", "STR", "TIM", "SNP", "SLM", "JET", "M2M",
+    "INV", "S2M", "COL", "AFM", "AGM", "FNB", "BAL", "NEJ",
+    "HAL", "BMC", "CAR", "AFI", "MIC", "MUT", "ENK", "EQD",
+    "DHO", "PPM", "REB", "SBS", "STK", "UNI", "IBM",
+]
