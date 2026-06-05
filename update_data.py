@@ -67,7 +67,7 @@ TICKER_INFO = {
     "CASH": {"name": "CIH Bank",                "sector": "Finance"},
     "MNG":  {"name": "Managem",                 "sector": "Mines"},
     "AKD":  {"name": "Akdital",                 "sector": "Santé"},
-    "SOT":  {"name": "Sotherma",                "sector": "Agro"},
+    "SOT":  {"name": "Sothema",                 "sector": "Santé"},
     "SGTM": {"name": "SGTM",                    "sector": "Construction"},
     "MSA":  {"name": "Mutandis",                "sector": "Agro"},
     "CFGB": {"name": "CFG Bank",                "sector": "Finance"},
@@ -212,8 +212,8 @@ FOND_DATA = {
     # ── Grandes capitalisations (nouvelles) ──────────────────────────
     "IAM": {"pe":18.5,"pb":6.2,"div":5.5,"cap":121000,"bear":120,  "base":145,  "bull":175,  "upside":5.0, "flags":1},
     "ATW": {"pe":13.5,"pb":1.8,"div":3.5,"cap":115000,"bear":420,  "base":530,  "bull":660,  "upside":8.0, "flags":0},
-    "BCP": {"pe":11.5,"pb":1.3,"div":3.2,"cap":50000, "bear":240,  "base":305,  "bull":385,  "upside":5.0, "flags":0},
-    "BOA": {"pe":12.0,"pb":1.3,"div":3.5,"cap":17000, "bear":185,  "base":235,  "bull":295,  "upside":7.0, "flags":0},
+    "BCP": {"pe":11.5,"pb":1.3,"div":3.2,"cap":42000, "bear":205,  "base":260,  "bull":325,  "upside":7.0, "flags":0},
+    "BOA": {"pe":12.0,"pb":1.3,"div":3.5,"cap":15000, "bear":170,  "base":215,  "bull":270,  "upside":7.0, "flags":0},
     "CIH": {"pe":12.5,"pb":1.5,"div":4.2,"cap":8000,  "bear":275,  "base":350,  "bull":440,  "upside":6.0, "flags":0},
     "CDM": {"pe":11.0,"pb":1.2,"div":4.5,"cap":5000,  "bear":520,  "base":660,  "bull":825,  "upside":6.0, "flags":0},
     "WAF": {"pe":14.5,"pb":2.2,"div":4.8,"cap":6500,  "bear":3500, "base":4400, "bull":5500, "upside":5.0, "flags":0},
@@ -253,7 +253,7 @@ FOND_DATA = {
     "AFM": {"pe":13.0,"pb":1.7,"div":4.5,"cap":600,   "bear":484,  "base":615,  "bull":769,  "upside":5.0, "flags":0},
     "AGM": {"pe":12.5,"pb":1.5,"div":4.0,"cap":500,   "bear":3000, "base":3820, "bull":4775, "upside":5.0, "flags":0},
     "FNB": {"pe":11.0,"pb":1.3,"div":3.5,"cap":800,   "bear":733,  "base":935,  "bull":1169, "upside":5.0, "flags":0},
-    "BAL": {"pe":12.0,"pb":1.5,"div":4.5,"cap":700,   "bear":1210, "base":1540, "bull":1925, "upside":5.0, "flags":0},
+    "BAL": {"pe":12.0,"pb":1.5,"div":4.5,"cap":600,   "bear":190,  "base":240,  "bull":300,  "upside":5.0, "flags":0},
     "COL": {"pe":14.5,"pb":2.0,"div":4.0,"cap":1000,  "bear":74,   "base":93,   "bull":116,  "upside":6.0, "flags":0},
     # ── Tickers actifs (19) ──────────────────────────────────────────
     "CMT":{"pe":15.4,"pb":2.2,"div":4.1,"cap":8500,  "bear":4446,"base":5700, "bull":7125, "upside":14.0,"flags":0},
