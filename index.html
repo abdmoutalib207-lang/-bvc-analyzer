@@ -27,7 +27,7 @@
 <script type="text/babel">
 const {useState,useEffect,useMemo,useCallback,useRef} = React;
 
-// ── STATIC FALLBACK DATA (19 tickers) ─────────────────────────────────────────
+// ── STATIC FALLBACK DATA (77 tickers) ─────────────────────────────────────────
 const STATIC = [
   {symbol:"CMT", name:"Ciments du Maroc",      sector:"Matériaux",    price:5330,  chg:6.60,  vol:2345678,cap:8500, pe:15.4,pb:2.2,div:4.1,h90:5800, l90:4200, rsi:67,ma20:5085, ma50:4820, bvc:7.16,v53:7.99,delta:0.83,nlp:0.51,alpha:8.3,  win:92, flags:0,upside:14, bear:4446, base:5700,  bull:7125,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30","+Smart Money (92%) +0.40"], warn:false},
   {symbol:"SMI", name:"S.M. Imiter",            sector:"Matériaux",    price:9372,  chg:1.65,  vol:456789, cap:4200, pe:12.1,pb:1.5,div:2.0,h90:10200,l90:7500, rsi:61,ma20:9100, ma50:8600, bvc:6.95,v53:7.66,delta:0.71,nlp:0.46,alpha:30.7, win:100,flags:0,upside:7,  bear:7695, base:9865,  bull:12331, setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30","+Smart Money (100%) +0.40"],warn:false},
@@ -741,6 +741,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab})=>{
   },[rows,sector,search]);
 
   const sorted=useMemo(()=>[...filtered].sort((a,b)=>{
+    if(sort==="az")  return (a.name||a.symbol||"").localeCompare(b.name||b.symbol||"","fr");
     if(sort==="v53") return b.v53-a.v53;
     if(sort==="bvc") return b.bvc-a.bvc;
     if(sort==="delta") return b.delta-a.delta;
@@ -750,7 +751,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab})=>{
     if(sort==="rsi") return (a.rsi||a.rsi14||50)-(b.rsi||b.rsi14||50);
     return 0;
   }),[filtered,sort]);
-  const SORTS=[["v53","SCORE v5.3"],["bvc","BVC"],["delta","DELTA"],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
+  const SORTS=[["az","A → Z"],["v53","SCORE v5.3"],["bvc","BVC"],["delta","DELTA"],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
   const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","PE","DIV%","BVC","v5.3","Δ","NLP%","WIN","ALPHA","RSI","SIGNAL v5.3","POIDS"];
   return(
     <div>
@@ -1188,7 +1189,7 @@ const Chat=()=>{
 // ── APP ───────────────────────────────────────────────────────────────────────
 function App(){
   const [tab,setTab]=useState(()=>localStorage.getItem("bvc_tab")||"ranking");
-  const [sort,setSort]=useState("v53");
+  const [sort,setSort]=useState("az");
   const [sel,setSel]=useState("CMT");
   const [rows,setRows]=useState(STATIC);
   const [ts,setTs]=useState(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}));
