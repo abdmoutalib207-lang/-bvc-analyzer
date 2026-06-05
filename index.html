@@ -728,17 +728,20 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount})
 const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchlist=false})=>{
   const [search,setSearch]=useState("");
   const [sector,setSector]=useState("ALL");
+  const [group,setGroup]=useState("MASI1"); // MASI1 = 19 tickers NLP / ALL = univers élargi
+  const NLP_TICKERS=new Set(["CMT","SMI","CASH","MNG","AKD","SOT","SGTM","MSA","CFGB","RIS","ADI","VCNE","CMGP","CSR","TGCC","ADH","SRM","SNA","RDS"]);
   const sectors=useMemo(()=>["ALL",...new Set(rows.map(r=>r.sector).filter(Boolean).sort())],[rows]);
 
   const filtered=useMemo(()=>{
     let r=rows;
+    if(group==="MASI1") r=r.filter(x=>NLP_TICKERS.has(x.symbol||x.ticker||""));
     if(sector!=="ALL") r=r.filter(x=>x.sector===sector);
     if(search.trim()){
       const q=search.trim().toUpperCase();
       r=r.filter(x=>(x.symbol||x.ticker||"").includes(q)||(x.name||"").toUpperCase().includes(q));
     }
     return r;
-  },[rows,sector,search]);
+  },[rows,sector,search,group]);
 
   const sorted=useMemo(()=>[...filtered].sort((a,b)=>{
     if(sort==="az")  return (a.name||a.symbol||"").localeCompare(b.name||b.symbol||"","fr");
@@ -773,8 +776,14 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
           style={{background:"#0d1829",border:"1px solid #1a2540",color:"#8892a4",borderRadius:4,padding:"5px 8px",fontSize:11,fontFamily:"var(--font)",cursor:"pointer"}}>
           {sectors.map(s=><option key={s} value={s}>{s==="ALL"?`Tous (${rows.length})`:s}</option>)}
         </select>
+        {/* Filtre NLP group */}
+        <div style={{display:"flex",gap:4,background:"#0a1220",borderRadius:4,padding:2,border:"1px solid #1a2540"}}>
+          {[["MASI1","MASI 1 · NLP","#00e5a0"],["ALL","ÉLARGI","#4db8ff"]].map(([g,lbl,c])=>(
+            <button key={g} onClick={()=>setGroup(g)} style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:3,border:"none",cursor:"pointer",background:group===g?`${c}18`:"transparent",color:group===g?c:"#8892a4",transition:"all .2s"}}>{lbl}</button>
+          ))}
+        </div>
         {(search||sector!=="ALL")&&<button onClick={()=>{setSearch("");setSector("ALL");}} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"3px 8px",background:"transparent"}}>✕ Réinitialiser</button>}
-        <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{sorted.length}/{rows.length} titres</span>
+        <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{sorted.length}/{group==="MASI1"?19:rows.length} titres{group==="MASI1"&&<span style={{color:"#00e5a0",marginLeft:4}}>NLP ✓</span>}</span>
       </div>
       {/* ── Tri ────────────────────────────────────────────────── */}
       <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center",flexWrap:"wrap"}}>
