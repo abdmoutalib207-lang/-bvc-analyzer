@@ -1240,20 +1240,9 @@ function App(){
   const loadData=useCallback(async()=>{
     setLoading(true);
     setFetchErr(false);
-    // IDBourse → Médias24 → Yahoo Finance (chaîne automatique dans fetchQuotes)
-    try{
-      const liveMap=await fetchQuotes();
-      if(liveMap&&Object.keys(liveMap).length>0){
-        mergeLive(liveMap);
-        setTs(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}));
-        // Show the actual source used (first non-null src field)
-        const srcs=Object.values(liveMap).map(v=>v.src).filter(Boolean);
-        const mainSrc=srcs[0]||"live";
-        setSrc(`${mainSrc} ●`);
-        setLoading(false);return;
-      }
-    }catch{}
-    // Fallback: data.json (pipeline GitHub Actions)
+    // Étape 1 : data.json (pipeline GitHub Actions — base MA/RSI pour 77 tickers)
+    let pipelineLoaded=false;
+    let nLive=0;
     try{
       const d=await fetch("data.json?t="+Date.now()).then(r=>r.ok?r.json():null);
       if(d?.tickers){
@@ -1263,11 +1252,9 @@ function App(){
           name:t.name,sector:t.sector,
           pe:t.pe,pb:t.pb,div:t.div,cap:t.cap,
           h90:t.h90,l90:t.l90,rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,
-          // Indicateurs avancés pré-calculés par le pipeline
           macd:t.macd,macd_signal:t.macd_signal,macd_hist:t.macd_hist,
           bb_upper:t.bb_upper,bb_mid:t.bb_mid,bb_lower:t.bb_lower,
           stoch_k:t.stoch_k,stoch_d:t.stoch_d,
-          // Scores v5.3
           bvc:t.bvc,v53:t.v53,delta:t.delta,nlp:t.nlp,
           alpha:t.alpha,win:t.win,sig:t.sig,sigBvc:t.sigBvc,biais:t.biais,
           bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
@@ -1275,18 +1262,32 @@ function App(){
           conv:t.conv,setup:t.setup
         };});
         mergeLive(m);
+        nLive=d.tickers.filter(t=>t.chg&&t.chg!==0).length;
         const upd=d.updated?new Date(d.updated):null;
         const timeStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}):"";
         const dateStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit"}):"";
-        const maj=dateStr&&timeStr?`${dateStr} · ${timeStr}`:"";
-        setTs(maj);
+        setTs(dateStr&&timeStr?`${dateStr} · ${timeStr}`:"");
         const mktNow=getMarketStatus();
         const ageMin=upd?(Date.now()-upd.getTime())/60000:Infinity;
         const stale=mktNow.isOpen&&ageMin>30;
-        setSrc(`IDBourse/M24${stale?" ⚠ >30min":""}${dateStr?" · "+dateStr:""}`);
+        setSrc(`Pipeline${nLive?" · "+nLive+" live":""}${stale?" ⚠ >30min":""}${dateStr?" · "+dateStr:""}`);
+        pipelineLoaded=true;
+      }
+    }catch{}
+    // Étape 2 : prix live IDBourse/Médias24/Yahoo directement dans le navigateur (overlay sur data.json)
+    try{
+      const liveMap=await fetchQuotes();
+      if(liveMap&&Object.keys(liveMap).length>0){
+        mergeLive(liveMap);
+        const nIdb=Object.keys(liveMap).length;
+        const srcs=Object.values(liveMap).map(v=>v.src).filter(Boolean);
+        const mainSrc=srcs[0]||"live";
+        setTs(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}));
+        setSrc(`${mainSrc} · ${nIdb} live ●`);
         setLoading(false);return;
       }
     }catch{}
+    if(pipelineLoaded){setLoading(false);return;}
     // Dernier recours : valeurs STATIC (avec avertissement visible)
     setFetchErr(true);
     setSrc("⚠ données statiques");
