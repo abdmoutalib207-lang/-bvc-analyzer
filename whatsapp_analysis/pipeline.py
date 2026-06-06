@@ -344,7 +344,7 @@ def run_pipeline(
             for strat, metrics in p11.get("strategy_metrics", {}).items():
                 sharpe = metrics.get("sharpe", "N/A")
                 ret    = metrics.get("total_return_pct", "N/A")
-                if isinstance(sharpe, float):
+                if isinstance(sharpe, float) and isinstance(ret, float):
                     print(f"  → {strat}: Return={ret:.1f}% Sharpe={sharpe:.2f}")
             R["phase11"] = p11
         except Exception as e:

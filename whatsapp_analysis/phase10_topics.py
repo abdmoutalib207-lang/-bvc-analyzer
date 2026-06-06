@@ -338,7 +338,7 @@ def compute_topic_evolution(
     df: pd.DataFrame,
     valid_idx: pd.Index,
     doc_topic_matrix: np.ndarray,
-    freq: str = "ME",  # mensuel
+    freq: str = "M",  # mensuel
 ) -> pd.DataFrame:
     """
     Calcule l'évolution mensuelle de la distribution des topics.
@@ -382,7 +382,7 @@ def identify_bull_bear_precursors(
         # Calcule le rendement mensuel du marché
         monthly_ret = price_panel.pct_change(min_rise_days).mean(axis=1)
         monthly_ret.index = pd.to_datetime(monthly_ret.index)
-        monthly_ret_monthly = monthly_ret.resample("ME").mean()
+        monthly_ret_monthly = monthly_ret.resample("M").mean()
 
         bull_months = monthly_ret_monthly[monthly_ret_monthly > threshold_pct / 100].index
         bear_months = monthly_ret_monthly[monthly_ret_monthly < -threshold_pct / 100].index
