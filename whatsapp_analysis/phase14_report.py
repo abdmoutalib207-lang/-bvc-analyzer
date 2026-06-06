@@ -1,15 +1,13 @@
 """
 Phase 14 — Génération du Rapport HTML Institutionnel
-Rapport complet auto-contenu avec graphiques base64 et Jinja2
+Rapport complet auto-contenu avec ApexCharts et Jinja2
+Style Bloomberg Terminal — BVC WhatsApp Intelligence System
 """
 from __future__ import annotations
 
-import base64
-import io
 import json
 import logging
 import os
-import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -17,16 +15,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-warnings.filterwarnings("ignore")
 logger = logging.getLogger(__name__)
-
-# Matplotlib en mode non-interactif
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from matplotlib.gridspec import GridSpec
-from matplotlib.ticker import FuncFormatter
 
 # Jinja2
 try:
@@ -39,681 +28,683 @@ except ImportError:
 # CONFIGURATION
 # ─────────────────────────────────────────────────────────────
 
-REPORT_TITLE = "Analyse Intelligence Artificielle — Bourse de Casablanca"
-REPORT_SUBTITLE = "Analyse Multi-Signaux du Groupe WhatsApp BVC"
 REPORT_DATE = datetime.now().strftime("%d %B %Y")
 
-# Palette de couleurs BVC
-COLORS = {
-    "primary": "#1a5276",
-    "secondary": "#2980b9",
-    "success": "#27ae60",
-    "danger": "#e74c3c",
-    "warning": "#f39c12",
-    "neutral": "#7f8c8d",
-    "background": "#f8f9fa",
-    "white": "#ffffff",
-    "dark": "#2c3e50",
-    "light": "#ecf0f1",
-    "gold": "#d4ac0d",
-}
-
-SIGNAL_COLORS = {
-    "FORT_ACHAT": "#27ae60",
-    "ACHAT": "#2ecc71",
-    "NEUTRE": "#f39c12",
-    "VENTE": "#e67e22",
-    "FORT_VENTE": "#e74c3c",
-}
-
 
 # ─────────────────────────────────────────────────────────────
-# UTILITAIRES GRAPHIQUES
+# SÉRIALISATION DES DONNÉES POUR APEXCHARTS
 # ─────────────────────────────────────────────────────────────
 
-def fig_to_base64(fig: plt.Figure, dpi: int = 100) -> str:
-    """Convertit une figure matplotlib en chaîne base64."""
-    buf = io.BytesIO()
-    fig.savefig(buf, format="png", dpi=dpi, bbox_inches="tight",
-                facecolor=fig.get_facecolor())
-    buf.seek(0)
-    img_b64 = base64.b64encode(buf.read()).decode("utf-8")
-    buf.close()
-    plt.close(fig)
-    return img_b64
+def _ts_ms(ts) -> int:
+    """Convert pandas Timestamp to milliseconds."""
+    return int(pd.Timestamp(ts).timestamp() * 1000)
 
 
-def set_style():
-    """Configure le style matplotlib."""
-    plt.rcParams.update({
-        "figure.facecolor": COLORS["white"],
-        "axes.facecolor": COLORS["white"],
-        "axes.edgecolor": "#dee2e6",
-        "axes.labelcolor": COLORS["dark"],
-        "text.color": COLORS["dark"],
-        "xtick.color": COLORS["dark"],
-        "ytick.color": COLORS["dark"],
-        "grid.color": "#dee2e6",
-        "grid.alpha": 0.5,
-        "font.size": 10,
-        "axes.titlesize": 12,
-        "axes.titleweight": "bold",
-    })
+def serialize_fear_greed(fear_greed_series):
+    """Resample weekly, return list of {x: ms, y: float}."""
+    if fear_greed_series is None or (hasattr(fear_greed_series, "empty") and fear_greed_series.empty):
+        return []
+    fg = fear_greed_series.copy()
+    fg.index = pd.to_datetime(fg.index)
+    fg = fg.resample("W").mean().dropna()
+    return [{"x": _ts_ms(ts), "y": round(float(v), 1)} for ts, v in fg.items()]
 
 
-# ─────────────────────────────────────────────────────────────
-# GRAPHIQUES
-# ─────────────────────────────────────────────────────────────
-
-def chart_fear_greed_evolution(
-    fear_greed_series: Optional[pd.Series],
-    daily_sentiment: Optional[pd.DataFrame] = None,
-) -> str:
-    """Graphique évolution Fear & Greed dans le temps."""
-    set_style()
-    fig, ax = plt.subplots(figsize=(12, 4))
-
-    if fear_greed_series is not None and not fear_greed_series.empty:
-        fg = fear_greed_series.copy()
-        fg.index = pd.to_datetime(fg.index)
-        fg = fg.resample("W").mean().dropna()
-
-        ax.fill_between(fg.index, fg.values, 50, where=fg.values >= 50,
-                        color=COLORS["success"], alpha=0.3, label="Greed")
-        ax.fill_between(fg.index, fg.values, 50, where=fg.values < 50,
-                        color=COLORS["danger"], alpha=0.3, label="Fear")
-        ax.plot(fg.index, fg.values, color=COLORS["primary"], linewidth=2)
-
-        # Zones colorées
-        ax.axhspan(80, 100, alpha=0.08, color=COLORS["danger"], label="Greed Extrême")
-        ax.axhspan(0, 20, alpha=0.08, color=COLORS["success"], label="Fear Extrême")
-        ax.axhline(50, color=COLORS["neutral"], linestyle="--", alpha=0.5)
-
-    elif daily_sentiment is not None and not daily_sentiment.empty:
-        # Proxy depuis sentiment
-        sent = daily_sentiment.copy()
-        sent["date"] = pd.to_datetime(sent["date"])
-        sent = sent.set_index("date").resample("W").mean()
-        if "sentiment_mean" in sent.columns:
-            fg_proxy = (sent["sentiment_mean"] + 1) / 2 * 100
-            ax.plot(fg_proxy.index, fg_proxy.values, color=COLORS["primary"],
-                    linewidth=2, label="Fear & Greed (proxy sentiment)")
-
-    ax.set_ylim(0, 100)
-    ax.set_ylabel("Index Fear & Greed")
-    ax.set_title("Évolution du Fear & Greed Index du Groupe")
-    ax.legend(loc="upper right", fontsize=8)
-    ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{int(x)}"))
-    plt.tight_layout()
-    return fig_to_base64(fig)
+def serialize_sentiment(daily_sentiment):
+    """Resample weekly, return list of {x: ms, y: float}."""
+    if daily_sentiment is None or (hasattr(daily_sentiment, "empty") and daily_sentiment.empty):
+        return []
+    ds = daily_sentiment.copy()
+    ds["date"] = pd.to_datetime(ds["date"])
+    ds = ds.set_index("date")
+    if "sentiment_mean" in ds.columns:
+        w = ds["sentiment_mean"].resample("W").mean().dropna()
+        return [{"x": _ts_ms(ts), "y": round(float(v), 3)} for ts, v in w.items()]
+    return []
 
 
-def chart_sentiment_evolution(daily_sentiment: Optional[pd.DataFrame]) -> str:
-    """Graphique évolution du sentiment quotidien."""
-    set_style()
-    fig, axes = plt.subplots(2, 1, figsize=(12, 6), sharex=True)
-
-    if daily_sentiment is not None and not daily_sentiment.empty:
-        ds = daily_sentiment.copy()
-        ds["date"] = pd.to_datetime(ds["date"])
-        ds = ds.set_index("date").resample("W").mean()
-
-        # Sentiment moyen
-        ax1 = axes[0]
-        if "sentiment_mean" in ds.columns:
-            colors = [COLORS["success"] if s >= 0 else COLORS["danger"]
-                      for s in ds["sentiment_mean"]]
-            ax1.bar(ds.index, ds["sentiment_mean"], color=colors, alpha=0.7, width=5)
-            ax1.axhline(0, color=COLORS["dark"], linewidth=0.8)
-            ax1.set_ylabel("Sentiment Moyen")
-            ax1.set_title("Sentiment du Groupe (hebdomadaire)")
-
-        # Volume de messages
-        ax2 = axes[1]
-        if "message_count" in ds.columns:
-            ax2.fill_between(ds.index, ds["message_count"].values, alpha=0.5,
-                             color=COLORS["secondary"])
-            ax2.plot(ds.index, ds["message_count"].values, color=COLORS["primary"], linewidth=1)
-            ax2.set_ylabel("Volume Messages")
-            ax2.set_title("Activité du Groupe")
-
-    for ax in axes:
-        ax.grid(True, alpha=0.3)
-
-    plt.tight_layout()
-    return fig_to_base64(fig)
-
-
-def chart_signal_distribution(df: pd.DataFrame) -> str:
-    """Diagramme camembert de la distribution des signaux."""
-    set_style()
-    fig, ax = plt.subplots(figsize=(8, 6))
-
-    if "signal" in df.columns:
-        signal_counts = df["signal"].value_counts()
-        signal_counts = signal_counts[signal_counts.index.notna()]
-
-        labels = signal_counts.index.tolist()
-        sizes = signal_counts.values.tolist()
-        colors_list = [SIGNAL_COLORS.get(s, COLORS["neutral"]) for s in labels]
-
-        wedges, texts, autotexts = ax.pie(
-            sizes,
-            labels=labels,
-            colors=colors_list,
-            autopct="%1.1f%%",
-            startangle=90,
-            wedgeprops={"edgecolor": "white", "linewidth": 2},
-        )
-        for text in autotexts:
-            text.set_fontsize(9)
-    else:
-        ax.text(0.5, 0.5, "Données non disponibles", ha="center", va="center",
-                transform=ax.transAxes)
-
-    ax.set_title("Distribution des Signaux de Trading")
-    plt.tight_layout()
-    return fig_to_base64(fig)
-
-
-def chart_equity_curves(equity_curves: Optional[Dict[str, pd.Series]]) -> str:
-    """Graphique des courbes d'equity des stratégies."""
-    set_style()
-    fig, ax = plt.subplots(figsize=(12, 6))
-
-    if equity_curves:
-        strategy_colors = [
-            COLORS["primary"], COLORS["success"], COLORS["warning"],
-            COLORS["danger"], COLORS["secondary"]
-        ]
-        bench_color = COLORS["neutral"]
-
-        sorted_strats = sorted(
-            equity_curves.items(),
-            key=lambda x: (x[0] == "BuyAndHold_MASI", x[0])
-        )
-
-        for i, (name, eq) in enumerate(sorted_strats):
-            if eq is None or (hasattr(eq, "empty") and eq.empty):
-                continue
-            eq = eq.dropna()
-            if len(eq) < 2:
-                continue
-
-            if "BuyAndHold" in name or "MASI" in name:
-                color = bench_color
-                lw = 2
-                ls = "--"
-            else:
-                color = strategy_colors[i % len(strategy_colors)]
-                lw = 2
-                ls = "-"
-
-            display_name = name.replace("_", " ").replace("BuyAndHold MASI", "Buy & Hold MASI")
-            ax.plot(eq.index, eq.values, color=color, linewidth=lw,
-                    linestyle=ls, label=display_name, alpha=0.85)
-
-    ax.set_ylabel("Valeur du Portefeuille (base 100)")
-    ax.set_title("Courbes d'Equity — Comparaison des Stratégies")
-    ax.legend(loc="upper left", fontsize=9)
-    ax.grid(True, alpha=0.3)
-    ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{x:.0f}"))
-    plt.tight_layout()
-    return fig_to_base64(fig)
-
-
-def chart_top_tickers(predictions: Optional[pd.DataFrame]) -> str:
-    """Graphique barres horizontales des top tickers par score composite."""
-    set_style()
-    fig, ax = plt.subplots(figsize=(10, 8))
-
-    if predictions is not None and not predictions.empty:
-        top20 = predictions.head(20)
-        y_pos = range(len(top20))
-
-        bar_colors = [SIGNAL_COLORS.get(s, COLORS["neutral"])
-                      for s in top20["signal"]]
-        bars = ax.barh(list(y_pos), top20["composite_score"].values,
-                       color=bar_colors, alpha=0.8, height=0.6)
-
-        ax.set_yticks(list(y_pos))
-        ax.set_yticklabels(top20["ticker"].values, fontsize=9)
-        ax.set_xlim(0, 100)
-        ax.set_xlabel("Score Composite (0-100)")
-        ax.set_title("Top 20 Valeurs BVC — Classement par Score Composite")
-        ax.axvline(75, color=COLORS["success"], linestyle="--", alpha=0.5, label="Fort Achat (>75)")
-        ax.axvline(60, color=COLORS["warning"], linestyle="--", alpha=0.5, label="Achat (>60)")
-        ax.axvline(40, color=COLORS["danger"], linestyle="--", alpha=0.5, label="Neutre (40-60)")
-
-        # Scores sur les barres
-        for bar, score in zip(bars, top20["composite_score"]):
-            ax.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height() / 2,
-                    f"{score:.0f}", va="center", fontsize=8)
-
-        ax.legend(loc="lower right", fontsize=8)
-        ax.invert_yaxis()  # Top ticker en haut
-
-    plt.tight_layout()
-    return fig_to_base64(fig)
-
-
-def chart_feature_importance(feature_importance: Optional[pd.DataFrame]) -> str:
-    """Graphique des top features importantes."""
-    set_style()
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    if feature_importance is not None and not feature_importance.empty:
-        top_n = 15
-        feat_col = "feature" if "feature" in feature_importance.columns else feature_importance.columns[0]
-        imp_col = "importance_mean" if "importance_mean" in feature_importance.columns else "importance"
-
-        top_feats = feature_importance.head(top_n)
-        y_pos = range(len(top_feats))
-
-        ax.barh(list(y_pos), top_feats[imp_col].values,
-                color=COLORS["secondary"], alpha=0.8)
-        ax.set_yticks(list(y_pos))
-        ax.set_yticklabels(
-            [str(f)[:30] for f in top_feats[feat_col].values], fontsize=9
-        )
-        ax.set_xlabel("Importance Moyenne (normalisée)")
-        ax.set_title(f"Top {top_n} Features — Importance pour la Prédiction ML")
-        ax.invert_yaxis()
-    else:
-        ax.text(0.5, 0.5, "Feature importance non disponible",
-                ha="center", va="center", transform=ax.transAxes)
-
-    plt.tight_layout()
-    return fig_to_base64(fig)
-
-
-def chart_language_breakdown(df: pd.DataFrame) -> str:
-    """Distribution des langues."""
-    set_style()
-    fig, ax = plt.subplots(figsize=(7, 5))
-
-    if "language" in df.columns:
-        lang_counts = df["language"].value_counts()
-        lang_labels = {
-            "fr": "Français", "ar": "Arabe", "darija": "Darija",
-            "arabizi": "Arabizi", "en": "Anglais", "mixed": "Mixte",
-        }
-        labels = [lang_labels.get(l, l) for l in lang_counts.index]
-        lang_colors = [
-            "#3498db", "#e74c3c", "#2ecc71", "#f39c12", "#9b59b6", "#1abc9c"
-        ][:len(lang_counts)]
-
-        wedges, texts, autotexts = ax.pie(
-            lang_counts.values,
-            labels=labels,
-            colors=lang_colors,
-            autopct="%1.1f%%",
-            startangle=90,
-            wedgeprops={"edgecolor": "white", "linewidth": 1.5},
-        )
-    else:
-        ax.text(0.5, 0.5, "Données de langue non disponibles",
-                ha="center", va="center", transform=ax.transAxes)
-
-    ax.set_title("Distribution des Langues dans le Groupe")
-    plt.tight_layout()
-    return fig_to_base64(fig)
-
-
-def chart_smart_money_scores(member_scores: Optional[pd.DataFrame]) -> str:
-    """Graphique des scores Smart Money des membres."""
-    set_style()
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    if member_scores is not None and not member_scores.empty:
-        sms_col = next(
-            (c for c in ["sms_score", "smart_money_score", "score"] if c in member_scores.columns),
-            None,
-        )
-        if sms_col:
-            top20_members = member_scores.nlargest(20, sms_col).copy()
-            if hasattr(top20_members.index, "name") and top20_members.index.name:
-                member_names = [str(n)[:15] for n in top20_members.index]
-            elif "author" in top20_members.columns:
-                member_names = [str(n)[:15] for n in top20_members["author"].values]
-            else:
-                member_names = [f"Membre {i}" for i in range(len(top20_members))]
-
-            scores = top20_members[sms_col].values
-            bar_colors = [COLORS["success"] if s > 70 else COLORS["warning"] if s > 50
-                          else COLORS["danger"] for s in scores]
-
-            ax.barh(range(len(member_names)), scores, color=bar_colors, alpha=0.8)
-            ax.set_yticks(range(len(member_names)))
-            ax.set_yticklabels(member_names, fontsize=8)
-            ax.set_xlabel("Score Smart Money")
-            ax.set_title("Top 20 Membres — Score Smart Money")
-            ax.axvline(70, color=COLORS["success"], linestyle="--",
-                       alpha=0.5, label="Smart Money (>70)")
-            ax.legend(fontsize=8)
-            ax.invert_yaxis()
-        else:
-            ax.text(0.5, 0.5, "Données SMS non disponibles",
-                    ha="center", va="center", transform=ax.transAxes)
-    else:
-        ax.text(0.5, 0.5, "Données membres non disponibles",
-                ha="center", va="center", transform=ax.transAxes)
-
-    plt.tight_layout()
-    return fig_to_base64(fig)
-
-
-def chart_backtest_metrics_table(strategy_metrics: Optional[Dict[str, Any]]) -> str:
-    """Génère un graphique tableau des métriques de backtest."""
-    set_style()
-
-    if not strategy_metrics:
-        fig, ax = plt.subplots(figsize=(10, 3))
-        ax.text(0.5, 0.5, "Métriques non disponibles", ha="center", va="center",
-                transform=ax.transAxes)
-        return fig_to_base64(fig)
-
-    # Prépare les données
-    rows = []
-    for strat, metrics in strategy_metrics.items():
-        if not isinstance(metrics, dict):
+def serialize_equity_curves(equity_curves):
+    """Resample monthly for performance. Return list of {name, data: [{x,y}]}."""
+    if not equity_curves:
+        return []
+    result = []
+    for name, eq in equity_curves.items():
+        if eq is None or (hasattr(eq, "empty") and eq.empty):
             continue
-        rows.append([
-            strat.replace("_", " ")[:25],
-            f"{metrics.get('cagr', 0):.1%}",
-            f"{metrics.get('sharpe', 0):.2f}",
-            f"{metrics.get('sortino', 0):.2f}",
-            f"{metrics.get('max_drawdown', 0):.1%}",
-            f"{metrics.get('calmar', 0):.2f}",
-            f"{metrics.get('win_rate', 0):.1%}",
-        ])
+        eq = eq.dropna()
+        if len(eq) < 2:
+            continue
+        if len(eq) > 200:
+            eq = eq.resample("ME").last().dropna()
+        data = []
+        for ts, val in eq.items():
+            try:
+                data.append({"x": _ts_ms(ts), "y": round(float(val), 2)})
+            except Exception:
+                pass
+        if data:
+            result.append({
+                "name": name.replace("_", " "),
+                "data": data,
+                "bench": "BuyAndHold" in name or "MASI" in name,
+            })
+    return result
 
-    if not rows:
-        fig, ax = plt.subplots(figsize=(10, 3))
-        ax.text(0.5, 0.5, "Aucune métrique", ha="center", va="center",
-                transform=ax.transAxes)
-        return fig_to_base64(fig)
 
-    col_headers = ["Stratégie", "CAGR", "Sharpe", "Sortino", "Max DD", "Calmar", "Win Rate"]
-
-    fig_height = max(3, len(rows) * 0.6 + 1)
-    fig, ax = plt.subplots(figsize=(14, fig_height))
-    ax.axis("off")
-
-    table = ax.table(
-        cellText=rows,
-        colLabels=col_headers,
-        loc="center",
-        cellLoc="center",
+def serialize_smart_money(member_scores, n=20):
+    """Return {categories: [names], data: [scores]}."""
+    if member_scores is None or (hasattr(member_scores, "empty") and member_scores.empty):
+        return {"categories": [], "data": []}
+    sms_col = next(
+        (c for c in ["sms_score", "smart_money_score", "score"] if c in member_scores.columns),
+        None,
     )
-    table.auto_set_font_size(False)
-    table.set_fontsize(9)
-    table.scale(1.2, 1.5)
+    if sms_col is None:
+        return {"categories": [], "data": []}
+    top = member_scores.nlargest(n, sms_col)
+    names, scores = [], []
+    for idx, row in top.iterrows():
+        name = str(row.get("author", idx))[:15]
+        names.append(name)
+        scores.append(round(float(row[sms_col]), 1))
+    return {"categories": names[::-1], "data": scores[::-1]}  # reversed for horizontal bar
 
-    # Style header
-    for j in range(len(col_headers)):
-        table[(0, j)].set_facecolor(COLORS["primary"])
-        table[(0, j)].set_text_props(color="white", fontweight="bold")
 
-    # Couleurs alternées des lignes
-    for i in range(1, len(rows) + 1):
-        bg = COLORS["light"] if i % 2 == 0 else COLORS["white"]
-        # Colore en vert si CAGR > benchmark
-        for j in range(len(col_headers)):
-            table[(i, j)].set_facecolor(bg)
-
-    ax.set_title("Métriques de Performance — Stratégies NLP vs Benchmark", fontsize=12,
-                 fontweight="bold", pad=10)
-    plt.tight_layout()
-    return fig_to_base64(fig)
+def serialize_ml_models(phase9_results):
+    """Return list of {model, auc, f1, precision, recall, is_best}."""
+    if not phase9_results or "model_results" not in phase9_results:
+        return []
+    best = phase9_results["model_results"].get("_best_model_name", "")
+    result = []
+    for model, metrics in phase9_results["model_results"].items():
+        if model.startswith("_") or not isinstance(metrics, dict):
+            continue
+        result.append({
+            "model": model,
+            "auc": round(float(metrics.get("auc_roc", 0.5)), 4),
+            "f1": round(float(metrics.get("f1", 0)), 4),
+            "precision": round(float(metrics.get("precision", 0)), 4),
+            "recall": round(float(metrics.get("recall", 0)), 4),
+            "is_best": model == best,
+        })
+    return result
 
 
 # ─────────────────────────────────────────────────────────────
-# TEMPLATE HTML
+# TEMPLATE HTML — DARK BLOOMBERG TERMINAL THEME
 # ─────────────────────────────────────────────────────────────
 
 HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ title }}</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>BVC WhatsApp Intelligence System — Rapport Phase 14</title>
+<meta name="theme-color" content="#080d1a"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.2/dist/apexcharts.min.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #2c3e50; line-height: 1.6; }
-  .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+:root {
+  --bg: #080d1a;
+  --bg2: #0d1829;
+  --bg3: #0a1220;
+  --bd: #1a2540;
+  --text: #c8d3e8;
+  --dim: #8892a4;
+  --green: #00e5a0;
+  --blue: #4db8ff;
+  --yel: #ffd740;
+  --red: #ff4f5a;
+  --pur: #b388ff;
+  --org: #ff8f00;
+  --font: 'IBM Plex Mono', 'Courier New', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 3px; }
 
-  /* Header */
-  .report-header { background: linear-gradient(135deg, #1a5276 0%, #2980b9 100%);
-    color: white; padding: 40px; border-radius: 12px; margin-bottom: 30px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
-  .report-header h1 { font-size: 2em; margin-bottom: 8px; }
-  .report-header h2 { font-size: 1.2em; opacity: 0.85; font-weight: 400; }
-  .report-meta { margin-top: 16px; opacity: 0.75; font-size: 0.9em; }
+/* ── NAV ── */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--bd);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  height: 44px;
+  gap: 24px;
+}
+.nav-logo {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 2px;
+  white-space: nowrap;
+  text-shadow: 0 0 12px rgba(0,229,160,0.5);
+}
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  overflow-x: auto;
+}
+.nav-tabs::-webkit-scrollbar { height: 2px; }
+.nav-tab {
+  color: var(--dim);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  white-space: nowrap;
+  transition: color .2s, background .2s;
+}
+.nav-tab:hover {
+  color: var(--blue);
+  background: rgba(77,184,255,0.08);
+}
+.nav-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--dim);
+  white-space: nowrap;
+}
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-  /* KPI cards */
-  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 30px; }
-  .kpi-card { background: white; border-radius: 10px; padding: 20px; text-align: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08); border-top: 4px solid #2980b9; }
-  .kpi-value { font-size: 2em; font-weight: 700; color: #1a5276; }
-  .kpi-label { font-size: 0.85em; color: #7f8c8d; margin-top: 4px; }
+/* ── LAYOUT ── */
+.page { max-width: 1400px; margin: 0 auto; padding: 24px 24px 80px; }
 
-  /* Sections */
-  .section { background: white; border-radius: 12px; padding: 30px; margin-bottom: 25px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-  .section-header { display: flex; align-items: center; margin-bottom: 20px;
-    border-bottom: 3px solid #2980b9; padding-bottom: 10px; }
-  .section-number { background: #1a5276; color: white; width: 36px; height: 36px;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-weight: bold; margin-right: 12px; flex-shrink: 0; }
-  .section-title { font-size: 1.3em; font-weight: 700; color: #1a5276; }
+/* ── HEADER BLOCK ── */
+.report-header {
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  padding: 32px 36px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.report-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--green), var(--blue), var(--pur));
+}
+.report-header-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 3px;
+  text-shadow: 0 0 20px rgba(0,229,160,0.4);
+  margin-bottom: 8px;
+}
+.report-header-sub {
+  font-size: 13px;
+  color: var(--dim);
+  letter-spacing: 1px;
+}
+.report-header-meta {
+  margin-top: 16px;
+  font-size: 11px;
+  color: var(--dim);
+}
+.report-header-meta span { color: var(--blue); }
 
-  /* Tables */
-  table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
-  th { background: #1a5276; color: white; padding: 10px 12px; text-align: left; }
-  td { padding: 8px 12px; border-bottom: 1px solid #ecf0f1; }
-  tr:nth-child(even) { background: #f8f9fa; }
-  tr:hover { background: #eaf2fb; }
+/* ── KPI STRIP ── */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+@media (max-width: 1100px) { .kpi-strip { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px)  { .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
+.kpi-card {
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  padding: 16px 14px;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+}
+.kpi-label {
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.kpi-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--green);
+  text-shadow: 0 0 12px rgba(0,229,160,0.35);
+  letter-spacing: 1px;
+}
+.kpi-sub { font-size: 10px; color: var(--dim); margin-top: 4px; }
 
-  /* Signal badges */
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.8em; font-weight: 600; }
-  .badge-FORT_ACHAT { background: #d5f5e3; color: #1e8449; }
-  .badge-ACHAT { background: #e8f8f5; color: #27ae60; }
-  .badge-NEUTRE { background: #fef9e7; color: #d68910; }
-  .badge-VENTE { background: #fdf2e9; color: #ca6f1e; }
-  .badge-FORT_VENTE { background: #fdedec; color: #cb4335; }
+/* ── SECTION WRAPPER ── */
+.section {
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  padding: 28px;
+  margin-bottom: 20px;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--bd);
+}
+.section-tag {
+  background: rgba(0,229,160,0.12);
+  color: var(--green);
+  border: 1px solid rgba(0,229,160,0.25);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.section-dim { font-size: 11px; color: var(--dim); margin-left: auto; }
 
-  /* Charts */
-  .chart-container { margin: 20px 0; text-align: center; }
-  .chart-container img { max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+/* ── GRID LAYOUTS ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
 
-  /* Alerts */
-  .alert { padding: 14px 18px; border-radius: 8px; margin: 12px 0; border-left: 5px solid; }
-  .alert-warning { background: #fef9e7; border-color: #f39c12; color: #7d6608; }
-  .alert-info { background: #eaf2fb; border-color: #2980b9; color: #1a5276; }
-  .alert-danger { background: #fdedec; border-color: #e74c3c; color: #922b21; }
-  .alert-success { background: #eafaf1; border-color: #27ae60; color: #1e8449; }
+/* ── PICKS GRID ── */
+.picks-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+@media (max-width: 1100px) { .picks-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px)  { .picks-grid { grid-template-columns: repeat(2, 1fr); } }
+.pick-card {
+  background: var(--bg3);
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  padding: 16px 12px;
+  text-align: center;
+  transition: transform .2s, border-color .2s;
+}
+.pick-card:hover { transform: translateY(-2px); }
+.pick-card.FORT_ACHAT { border-color: var(--green); box-shadow: 0 0 16px rgba(0,229,160,0.15); }
+.pick-card.ACHAT      { border-color: rgba(0,229,160,0.4); }
+.pick-card.NEUTRE     { border-color: var(--yel); }
+.pick-card.VENTE      { border-color: var(--org); }
+.pick-card.FORT_VENTE { border-color: var(--red); }
+.pick-ticker { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: 2px; }
+.pick-name   { font-size: 10px; color: var(--dim); margin: 4px 0 8px; }
+.pick-score  { font-size: 18px; font-weight: 700; }
+.pick-card.FORT_ACHAT .pick-score { color: var(--green); text-shadow: 0 0 10px rgba(0,229,160,0.5); }
+.pick-card.ACHAT      .pick-score { color: var(--green); }
+.pick-card.NEUTRE     .pick-score { color: var(--yel); }
+.pick-card.VENTE      .pick-score { color: var(--org); }
+.pick-card.FORT_VENTE .pick-score { color: var(--red); }
 
-  /* Two column layout */
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+/* ── SIGNAL BADGE ── */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+.badge-FORT_ACHAT { background: rgba(0,229,160,0.18); color: var(--green); border: 1px solid rgba(0,229,160,0.35); box-shadow: 0 0 8px rgba(0,229,160,0.2); }
+.badge-ACHAT      { background: rgba(0,229,160,0.1);  color: var(--green); border: 1px solid rgba(0,229,160,0.2); }
+.badge-NEUTRE     { background: rgba(255,215,64,0.12); color: var(--yel);  border: 1px solid rgba(255,215,64,0.25); }
+.badge-VENTE      { background: rgba(255,143,0,0.12);  color: var(--org);  border: 1px solid rgba(255,143,0,0.25); }
+.badge-FORT_VENTE { background: rgba(255,79,90,0.15);  color: var(--red);  border: 1px solid rgba(255,79,90,0.3); }
 
-  /* Top picks */
-  .picks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
-  .pick-card { border-radius: 10px; padding: 16px; text-align: center; border: 2px solid;
-    transition: transform 0.2s; }
-  .pick-card:hover { transform: translateY(-2px); }
-  .pick-card .ticker { font-size: 1.5em; font-weight: 800; }
-  .pick-card .score { font-size: 1.2em; font-weight: 600; }
-  .pick-card.FORT_ACHAT { border-color: #27ae60; background: #d5f5e3; }
-  .pick-card.ACHAT { border-color: #2ecc71; background: #e8f8f5; }
-  .pick-card.NEUTRE { border-color: #f39c12; background: #fef9e7; }
-  .pick-card.VENTE { border-color: #e67e22; background: #fdf2e9; }
-  .pick-card.FORT_VENTE { border-color: #e74c3c; background: #fdedec; }
+/* ── CHARTS ── */
+.chart-wrap { background: var(--bg3); border: 1px solid var(--bd); border-radius: 6px; padding: 16px; }
+.chart-title { font-size: 11px; font-weight: 600; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
 
-  /* Footer */
-  .footer { display: flex; justify-content: space-between; align-items: flex-start;
-    padding: 20px 30px; color: #7f8c8d; font-size: 0.85em;
-    border-top: 2px solid #1a5276; margin-top: 30px; background: #f8f9fa; }
-  .footer-left { text-align: left; font-weight: 600; color: #1a5276; font-size: 0.95em; }
-  .footer-center { text-align: center; flex: 1; }
-  .footer-right { text-align: right; font-size: 0.8em; }
+/* ── TABLES ── */
+.tbl-wrap { overflow-x: auto; }
+.tbl-search {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 12px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  outline: none;
+  transition: border-color .2s;
+}
+.tbl-search:focus { border-color: var(--blue); }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th {
+  background: var(--bg3);
+  color: var(--dim);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--bd);
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+th:hover { color: var(--blue); }
+th.sort-asc::after  { content: ' ▲'; color: var(--green); }
+th.sort-desc::after { content: ' ▼'; color: var(--green); }
+td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(26,37,64,0.5);
+  color: var(--text);
+  white-space: nowrap;
+}
+tr:hover td { background: rgba(77,184,255,0.05); }
 
-  /* Print: pied de page fixe sur chaque page */
-  @media print {
-    @page { margin: 20mm 15mm 25mm 15mm; }
-    body { background: white; }
-    .footer { position: fixed; bottom: 0; left: 0; right: 0;
-      border-top: 1px solid #1a5276; padding: 6px 15mm; font-size: 0.75em; }
-    .section { page-break-inside: avoid; }
-  }
-  /* Watermark auteur en bas gauche (visible à l'écran aussi) */
-  .author-stamp { font-weight: 700; color: #1a5276; letter-spacing: 0.5px; }
+/* ── STAT ROW ── */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(26,37,64,0.6);
+}
+.stat-label { color: var(--dim); font-size: 12px; }
+.stat-value { color: var(--text); font-weight: 600; }
 
-  /* Stats inline */
-  .stat-row { display: flex; justify-content: space-between; align-items: center;
-    padding: 8px 0; border-bottom: 1px solid #ecf0f1; }
-  .stat-label { color: #7f8c8d; font-size: 0.9em; }
-  .stat-value { font-weight: 600; }
+/* ── KEY FINDINGS ── */
+.finding {
+  padding: 8px 12px;
+  border-left: 2px solid var(--blue);
+  background: rgba(77,184,255,0.05);
+  margin-bottom: 8px;
+  border-radius: 0 4px 4px 0;
+  font-size: 12px;
+  color: var(--text);
+}
 
-  /* Progress bar */
-  .progress-bar { background: #ecf0f1; border-radius: 4px; height: 8px; overflow: hidden; }
-  .progress-fill { height: 100%; border-radius: 4px; }
+/* ── ALERTS ── */
+.alert {
+  padding: 12px 16px;
+  border-radius: 4px;
+  border-left: 3px solid;
+  font-size: 12px;
+  margin: 10px 0;
+}
+.alert-warning { background: rgba(255,215,64,0.08); border-color: var(--yel); color: var(--yel); }
+.alert-danger   { background: rgba(255,79,90,0.08);  border-color: var(--red); color: var(--red); }
+.alert-info     { background: rgba(77,184,255,0.08); border-color: var(--blue); color: var(--blue); }
+.alert-success  { background: rgba(0,229,160,0.08);  border-color: var(--green); color: var(--green); }
+
+/* ── PROGRESS BAR ── */
+.prog-wrap { display: inline-flex; align-items: center; gap: 6px; }
+.prog-bar { background: var(--bd); border-radius: 2px; height: 5px; width: 60px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 2px; }
+.prog-val  { font-size: 12px; font-weight: 600; }
+
+/* ── TRANSPARENCY TABLE ── */
+.transp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.transp-table th { background: rgba(26,37,64,0.9); color: var(--blue); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; padding: 10px 12px; border-bottom: 1px solid var(--bd); text-align: left; cursor: default; }
+.transp-table td { padding: 8px 12px; border-bottom: 1px solid rgba(26,37,64,0.5); }
+.transp-table tr:nth-child(odd) td { background: rgba(10,18,32,0.4); }
+.transp-note { margin-top: 12px; padding: 12px 16px; border-radius: 4px; font-size: 12px; }
+.transp-note.warn { background: rgba(255,215,64,0.08); border-left: 3px solid var(--yel); color: var(--dim); }
+.transp-note.ok   { background: rgba(0,229,160,0.08);  border-left: 3px solid var(--green); color: var(--dim); }
+
+/* ── FOOTER ── */
+.footer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--bg3);
+  border-top: 1px solid var(--bd);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 24px;
+  font-size: 11px;
+  z-index: 90;
+}
+.footer-left  { color: var(--green); font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 8px rgba(0,229,160,0.4); }
+.footer-center { color: var(--dim); text-align: center; flex: 1; }
+.footer-right { color: var(--dim); }
+
+/* ── APEXCHARTS overrides ── */
+.apexcharts-tooltip { font-family: var(--font) !important; font-size: 11px !important; }
+.apexcharts-menu { background: #0d1829 !important; border-color: #1a2540 !important; }
+.apexcharts-menu-item { color: #c8d3e8 !important; }
+
+/* ── PRINT ── */
+@media print {
+  @page { margin: 20mm 15mm 25mm 15mm; }
+  .nav  { display: none; }
+  .footer { position: fixed; bottom: 0; left: 0; right: 0; }
+  .section { page-break-inside: avoid; }
+  body { background: #080d1a; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 </style>
 </head>
 <body>
-<div class="container">
 
-<!-- HEADER -->
+<!-- ── FIXED NAV ── -->
+<nav class="nav">
+  <div class="nav-logo">BVC// ANALYZER</div>
+  <div class="nav-tabs">
+    <a class="nav-tab" href="#section-synthese">SYNTHÈSE</a>
+    <a class="nav-tab" href="#section-smart-money">SMART MONEY</a>
+    <a class="nav-tab" href="#section-sentiment">SENTIMENT</a>
+    <a class="nav-tab" href="#section-backtest">BACKTEST</a>
+    <a class="nav-tab" href="#section-ml">ML</a>
+    <a class="nav-tab" href="#section-classement">CLASSEMENT</a>
+    <a class="nav-tab" href="#section-network">RÉSEAU</a>
+    <a class="nav-tab" href="#section-transparence">TRANSPARENCE</a>
+  </div>
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    <span>{{ date }}</span>
+  </div>
+</nav>
+
+<!-- ── DATA INJECTION ── -->
+<script>
+const DATA = {{ chart_json | safe }};
+</script>
+
+<div class="page">
+
+<!-- ── HEADER ── -->
 <div class="report-header">
-  <h1>{{ title }}</h1>
-  <h2>{{ subtitle }}</h2>
-  <div class="report-meta">
-    Généré le {{ date }} | {{ n_messages | format_number }} messages analysés |
-    {{ n_members }} membres | {{ n_tickers }} valeurs BVC couvertes
+  <div class="report-header-title">BVC WHATSAPP INTELLIGENCE SYSTEM</div>
+  <div class="report-header-sub">
+    {{ n_messages | format_number }} messages · {{ n_members }} membres · {{ date_range }}
+  </div>
+  <div class="report-header-meta">
+    Généré le <span>{{ date }}</span> &nbsp;|&nbsp;
+    <span>{{ n_tickers }}</span> valeurs analysées &nbsp;|&nbsp;
+    Phases 1–14 complètes
   </div>
 </div>
 
-<!-- KPI CARDS -->
-<div class="kpi-grid">
+<!-- ── KPI STRIP ── -->
+<div class="kpi-strip">
   <div class="kpi-card">
+    <div class="kpi-label">Messages</div>
     <div class="kpi-value">{{ n_messages | format_number }}</div>
-    <div class="kpi-label">Messages analysés</div>
+    <div class="kpi-sub">corpus total</div>
   </div>
   <div class="kpi-card">
+    <div class="kpi-label">Membres</div>
     <div class="kpi-value">{{ n_members }}</div>
-    <div class="kpi-label">Membres actifs</div>
+    <div class="kpi-sub">participants actifs</div>
   </div>
   <div class="kpi-card">
+    <div class="kpi-label">Smart Money</div>
     <div class="kpi-value">{{ n_smart_money }}</div>
-    <div class="kpi-label">Smart Money identifiés</div>
+    <div class="kpi-sub">identifiés (score &gt;70)</div>
   </div>
   <div class="kpi-card">
+    <div class="kpi-label">Tickers</div>
     <div class="kpi-value">{{ n_tickers }}</div>
-    <div class="kpi-label">Valeurs couvertes</div>
+    <div class="kpi-sub">valeurs couvertes</div>
   </div>
   <div class="kpi-card">
-    <div class="kpi-value">{{ n_fort_achat }}</div>
-    <div class="kpi-label">Signaux FORT ACHAT</div>
-  </div>
-  <div class="kpi-card">
+    <div class="kpi-label">Meilleur Sharpe</div>
     <div class="kpi-value">{{ best_sharpe }}</div>
-    <div class="kpi-label">Meilleur Sharpe (backtest)</div>
+    <div class="kpi-sub">backtest NLP</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">FORT ACHAT</div>
+    <div class="kpi-value">{{ n_fort_achat }}</div>
+    <div class="kpi-sub">signaux forts</div>
   </div>
 </div>
 
-<!-- SECTION 1: RÉSUMÉ EXÉCUTIF -->
-<div class="section">
+<!-- ── SECTION SYNTHÈSE ── -->
+<div class="section" id="section-synthese">
   <div class="section-header">
-    <div class="section-number">1</div>
-    <div class="section-title">Résumé Exécutif</div>
+    <div class="section-tag">01</div>
+    <div class="section-title">SYNTHÈSE — TOP 5 PICKS</div>
+    <div class="section-dim">Scores composites 0-100</div>
   </div>
-  <p style="margin-bottom: 16px; color: #555;">
-    Ce rapport présente l'analyse complète d'un groupe WhatsApp dédié à la Bourse de Casablanca,
-    couvrant {{ date_range }}. Le système d'intelligence artificielle a traité
-    {{ n_messages | format_number }} messages en {% if languages %}{{ languages | join(", ") }}{% else %}plusieurs langues{% endif %}
-    pour extraire des signaux d'investissement actionnables.
-  </p>
 
-  <h3 style="margin-bottom: 12px; color: #1a5276;">Top 5 Recommandations</h3>
   <div class="picks-grid">
     {% for pick in top5 %}
     <div class="pick-card {{ pick.signal }}">
-      <div class="ticker">{{ pick.ticker }}</div>
-      <div style="font-size: 0.85em; color: #666;">{{ pick.name[:20] }}</div>
-      <div class="score" style="margin-top: 8px;">{{ pick.composite_score | round(0) | int }}/100</div>
-      <div style="margin-top: 6px;">
+      <div class="pick-ticker">{{ pick.ticker }}</div>
+      <div class="pick-name">{{ pick.name[:22] if pick.name else '' }}</div>
+      <div class="pick-score">{{ pick.composite_score | round(0) | int }}<span style="font-size:12px;color:var(--dim)">/100</span></div>
+      <div style="margin-top:8px;">
         <span class="badge badge-{{ pick.signal }}">{{ pick.signal.replace("_", " ") }}</span>
       </div>
+    </div>
+    {% else %}
+    <div style="color:var(--dim);font-size:12px;grid-column:1/-1;padding:20px 0;">
+      Données top 5 non disponibles
     </div>
     {% endfor %}
   </div>
 
-  <div style="margin-top: 20px;">
-    <h3 style="margin-bottom: 10px; color: #1a5276;">Découvertes Clés</h3>
-    <ul style="list-style: none;">
-      {% for finding in key_findings %}
-      <li style="padding: 6px 0; border-bottom: 1px solid #ecf0f1;">
-        <span style="color: #2980b9; margin-right: 8px;">▶</span> {{ finding }}
-      </li>
-      {% endfor %}
-    </ul>
+  <div style="margin-top:20px;">
+    <div class="chart-title" style="margin-bottom:10px;">DÉCOUVERTES CLÉS</div>
+    {% for finding in key_findings %}
+    <div class="finding">{{ finding }}</div>
+    {% endfor %}
   </div>
 </div>
 
-<!-- SECTION 2: CARTOGRAPHIE DU GROUPE -->
-<div class="section">
+<!-- ── SECTION SMART MONEY ── -->
+<div class="section" id="section-smart-money">
   <div class="section-header">
-    <div class="section-number">2</div>
-    <div class="section-title">Cartographie du Groupe WhatsApp</div>
+    <div class="section-tag">02</div>
+    <div class="section-title">SMART MONEY — SCORES MEMBRES</div>
+    <div class="section-dim">Top 20 par score SMS</div>
   </div>
-  <div class="two-col">
-    <div>
-      <h3 style="margin-bottom: 12px;">Statistiques Globales</h3>
-      {% for stat in group_stats %}
-      <div class="stat-row">
-        <span class="stat-label">{{ stat.label }}</span>
-        <span class="stat-value">{{ stat.value }}</span>
-      </div>
-      {% endfor %}
-    </div>
-    <div>
-      <h3 style="margin-bottom: 12px;">Top 10 Contributeurs</h3>
-      {% if top_contributors %}
-      <table>
-        <tr><th>Membre</th><th>Messages</th><th>Signaux</th></tr>
-        {% for c in top_contributors %}
+
+  <div class="chart-wrap" style="margin-bottom:20px;">
+    <div class="chart-title">DISTRIBUTION SMART MONEY SCORES</div>
+    <div id="chart-smart-money"></div>
+  </div>
+
+  {% if smart_money_table %}
+  <div class="tbl-wrap">
+    <table id="tbl-smart-money">
+      <thead>
         <tr>
-          <td>{{ c.author }}</td>
-          <td>{{ c.messages }}</td>
-          <td>{{ c.signals }}</td>
+          <th onclick="sortTable('tbl-smart-money',0)">#</th>
+          <th onclick="sortTable('tbl-smart-money',1)">MEMBRE</th>
+          <th onclick="sortTable('tbl-smart-money',2)">SCORE SMS</th>
+          <th onclick="sortTable('tbl-smart-money',3)">WIN RATE</th>
+          <th onclick="sortTable('tbl-smart-money',4)">SIGNAUX</th>
+          <th onclick="sortTable('tbl-smart-money',5)">PRÉCISION</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in smart_money_table %}
+        <tr>
+          <td style="color:var(--dim)">{{ m.rank }}</td>
+          <td style="color:var(--blue);font-weight:600">{{ m.author }}</td>
+          <td style="color:var(--green)">{{ m.sms_score | round(1) }}</td>
+          <td>{{ m.win_rate }}%</td>
+          <td>{{ m.n_signals }}</td>
+          <td>{{ m.accuracy }}%</td>
         </tr>
         {% endfor %}
-      </table>
-      {% else %}
-      <div class="alert alert-info">Données contributeurs non disponibles</div>
-      {% endif %}
-    </div>
+      </tbody>
+    </table>
   </div>
+  {% else %}
+  <div class="alert alert-info">Données Smart Money non disponibles pour cette session.</div>
+  {% endif %}
 </div>
 
-<!-- SECTION 3: ANALYSE COMPORTEMENTALE -->
-<div class="section">
+<!-- ── SECTION SENTIMENT & FEAR GREED ── -->
+<div class="section" id="section-sentiment">
   <div class="section-header">
-    <div class="section-number">3</div>
-    <div class="section-title">Analyse Comportementale</div>
+    <div class="section-tag">03</div>
+    <div class="section-title">SENTIMENT &amp; FEAR GREED INDEX</div>
+    <div class="section-dim">Évolution hebdomadaire</div>
   </div>
-  {% if chart_fear_greed %}
-  <div class="chart-container">
-    <img src="data:image/png;base64,{{ chart_fear_greed }}" alt="Fear & Greed Evolution">
+
+  <div class="grid-2">
+    <div class="chart-wrap">
+      <div class="chart-title">FEAR &amp; GREED INDEX (HEBDO)</div>
+      <div id="chart-fear-greed"></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">SENTIMENT MOYEN (HEBDO)</div>
+      <div id="chart-sentiment"></div>
+    </div>
   </div>
-  {% endif %}
-  {% if chart_sentiment %}
-  <div class="chart-container">
-    <img src="data:image/png;base64,{{ chart_sentiment }}" alt="Sentiment Evolution">
-  </div>
-  {% endif %}
-  <div class="two-col" style="margin-top: 16px;">
+
+  {% if behavioral_stats %}
+  <div style="margin-top:20px;">
     {% for stat in behavioral_stats %}
     <div class="stat-row">
       <span class="stat-label">{{ stat.label }}</span>
@@ -721,134 +712,110 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
     {% endfor %}
   </div>
-</div>
-
-<!-- SECTION 4: ANALYSE SMART MONEY -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-number">4</div>
-    <div class="section-title">Analyse Smart Money</div>
-  </div>
-  {% if chart_smart_money %}
-  <div class="chart-container">
-    <img src="data:image/png;base64,{{ chart_smart_money }}" alt="Smart Money Scores">
-  </div>
-  {% endif %}
-  {% if smart_money_table %}
-  <table>
-    <tr>
-      <th>#</th><th>Membre</th><th>Score SMS</th><th>Win Rate</th><th>Signaux</th><th>Précision</th>
-    </tr>
-    {% for m in smart_money_table %}
-    <tr>
-      <td>{{ m.rank }}</td>
-      <td>{{ m.author }}</td>
-      <td>{{ m.sms_score | round(1) }}</td>
-      <td>{{ m.win_rate }}%</td>
-      <td>{{ m.n_signals }}</td>
-      <td>{{ m.accuracy }}%</td>
-    </tr>
-    {% endfor %}
-  </table>
-  {% else %}
-  <div class="alert alert-info">Données Smart Money non disponibles</div>
   {% endif %}
 </div>
 
-<!-- SECTION 5: ANALYSE RÉSEAU -->
-<div class="section">
+<!-- ── SECTION BACKTEST ── -->
+<div class="section" id="section-backtest">
   <div class="section-header">
-    <div class="section-number">5</div>
-    <div class="section-title">Analyse Réseau (Graph Theory)</div>
+    <div class="section-tag">04</div>
+    <div class="section-title">BACKTEST — COURBES D'EQUITY</div>
+    <div class="section-dim">Base 100 — frais 0.2% + slippage 0.1%</div>
   </div>
-  {% if network_stats %}
-  <div class="two-col">
-    <div>
-      {% for stat in network_stats %}
-      <div class="stat-row">
-        <span class="stat-label">{{ stat.label }}</span>
-        <span class="stat-value">{{ stat.value }}</span>
-      </div>
-      {% endfor %}
-    </div>
-    <div>
-      {% if top_nodes %}
-      <h3 style="margin-bottom: 12px;">Top Nœuds par Centralité</h3>
-      <table>
-        <tr><th>Membre</th><th>Centralité</th><th>Communauté</th></tr>
-        {% for node in top_nodes %}
-        <tr><td>{{ node.name }}</td><td>{{ node.centrality }}</td><td>{{ node.community }}</td></tr>
+
+  <div class="chart-wrap" style="margin-bottom:20px;">
+    <div class="chart-title">PERFORMANCE DES STRATÉGIES NLP</div>
+    <div id="chart-equity"></div>
+  </div>
+
+  {% if backtest_table %}
+  <div class="tbl-wrap">
+    <table id="tbl-backtest">
+      <thead>
+        <tr>
+          <th onclick="sortTable('tbl-backtest',0)">STRATÉGIE</th>
+          <th onclick="sortTable('tbl-backtest',1)">CAGR</th>
+          <th onclick="sortTable('tbl-backtest',2)">SHARPE</th>
+          <th onclick="sortTable('tbl-backtest',3)">SORTINO</th>
+          <th onclick="sortTable('tbl-backtest',4)">MAX DD</th>
+          <th onclick="sortTable('tbl-backtest',5)">WIN RATE</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in backtest_table %}
+        <tr>
+          <td style="color:var(--blue)">{{ b.strategy }}</td>
+          <td style="color:{% if b.cagr_raw > 0 %}var(--green){% else %}var(--red){% endif %}">{{ b.cagr }}</td>
+          <td style="color:{% if b.sharpe_raw > 1 %}var(--green){% elif b.sharpe_raw > 0 %}var(--yel){% else %}var(--red){% endif %}">{{ b.sharpe }}</td>
+          <td>{{ b.sortino }}</td>
+          <td style="color:var(--red)">{{ b.max_dd }}</td>
+          <td>{{ b.win_rate }}</td>
+        </tr>
         {% endfor %}
-      </table>
-      {% endif %}
-    </div>
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <div class="alert alert-warning" style="margin-top:14px;">{{ backtest_disclaimer }}</div>
+</div>
+
+<!-- ── SECTION MACHINE LEARNING ── -->
+<div class="section" id="section-ml">
+  <div class="section-header">
+    <div class="section-tag">05</div>
+    <div class="section-title">MACHINE LEARNING — MODÈLES PRÉDICTIFS</div>
+    <div class="section-dim">AUC-ROC · F1 · Précision · Rappel</div>
+  </div>
+
+  <div class="chart-wrap" style="margin-bottom:20px;">
+    <div class="chart-title">COMPARAISON DES MODÈLES ML</div>
+    <div id="chart-ml"></div>
+  </div>
+
+  {% if ml_results_table %}
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>MODÈLE</th>
+          <th>AUC-ROC</th>
+          <th>F1</th>
+          <th>PRÉCISION</th>
+          <th>RAPPEL</th>
+          <th>STATUT</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in ml_results_table %}
+        <tr>
+          <td style="color:{% if m.is_best %}var(--green){% else %}var(--blue){% endif %};font-weight:{% if m.is_best %}700{% else %}400{% endif %}">
+            {{ m.model }}{% if m.is_best %} ★{% endif %}
+          </td>
+          <td style="color:{% if m.auc > 0.6 %}var(--green){% elif m.auc > 0.55 %}var(--yel){% else %}var(--red){% endif %}">
+            {{ "%.4f" | format(m.auc) }}
+          </td>
+          <td>{{ "%.4f" | format(m.f1) }}</td>
+          <td>{{ "%.4f" | format(m.precision) }}</td>
+          <td>{{ "%.4f" | format(m.recall) }}</td>
+          <td>
+            {% if m.is_best %}
+            <span class="badge badge-FORT_ACHAT">BEST</span>
+            {% else %}
+            <span class="badge badge-NEUTRE">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
   {% else %}
-  <div class="alert alert-info">Métriques réseau non disponibles</div>
+  <div class="alert alert-info">Résultats ML non disponibles pour cette session.</div>
   {% endif %}
-</div>
 
-<!-- SECTION 6: ANALYSE NLP -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-number">6</div>
-    <div class="section-title">Analyse NLP Multi-Lingue</div>
-  </div>
-  <div class="two-col">
-    <div>
-      {% if chart_signals %}
-      <div class="chart-container">
-        <img src="data:image/png;base64,{{ chart_signals }}" alt="Signal Distribution">
-      </div>
-      {% endif %}
-    </div>
-    <div>
-      {% if chart_language %}
-      <div class="chart-container">
-        <img src="data:image/png;base64,{{ chart_language }}" alt="Language Breakdown">
-      </div>
-      {% endif %}
-    </div>
-  </div>
-  {% if nlp_stats %}
-  {% for stat in nlp_stats %}
-  <div class="stat-row">
-    <span class="stat-label">{{ stat.label }}</span>
-    <span class="stat-value">{{ stat.value }}</span>
-  </div>
-  {% endfor %}
-  {% endif %}
-</div>
-
-<!-- SECTION 7: ANALYSE PRÉDICTIVE ML -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-number">7</div>
-    <div class="section-title">Analyse Prédictive — Machine Learning</div>
-  </div>
-  {% if ml_results_table %}
-  <table>
-    <tr><th>Modèle</th><th>AUC-ROC</th><th>F1</th><th>Précision</th><th>Rappel</th><th>Accuracy</th></tr>
-    {% for m in ml_results_table %}
-    <tr>
-      <td><strong>{{ m.model }}</strong>{% if m.is_best %} ★{% endif %}</td>
-      <td>{{ "%.4f" | format(m.auc) }}</td>
-      <td>{{ "%.4f" | format(m.f1) }}</td>
-      <td>{{ "%.4f" | format(m.precision) }}</td>
-      <td>{{ "%.4f" | format(m.recall) }}</td>
-      <td>{{ "%.4f" | format(m.accuracy) }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-  {% endif %}
-  {% if chart_feature_importance %}
-  <div class="chart-container" style="margin-top: 20px;">
-    <img src="data:image/png;base64,{{ chart_feature_importance }}" alt="Feature Importance">
-  </div>
-  {% endif %}
   {% if stats_highlights %}
-  <div style="margin-top: 16px;">
-    <h3 style="margin-bottom: 10px;">Robustesse Statistique</h3>
+  <div style="margin-top:16px;">
     {% for s in stats_highlights %}
     <div class="alert alert-{{ s.level }}">{{ s.text }}</div>
     {% endfor %}
@@ -856,222 +823,428 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   {% endif %}
 </div>
 
-<!-- SECTION 8: BACKTESTING -->
-<div class="section">
+<!-- ── SECTION CLASSEMENT ── -->
+<div class="section" id="section-classement">
   <div class="section-header">
-    <div class="section-number">8</div>
-    <div class="section-title">Backtesting des Stratégies NLP</div>
+    <div class="section-tag">06</div>
+    <div class="section-title">CLASSEMENT VALEURS BVC</div>
+    <div class="section-dim">Score composite multi-facteurs</div>
   </div>
-  {% if chart_equity %}
-  <div class="chart-container">
-    <img src="data:image/png;base64,{{ chart_equity }}" alt="Equity Curves">
-  </div>
-  {% endif %}
-  {% if chart_backtest_table %}
-  <div class="chart-container">
-    <img src="data:image/png;base64,{{ chart_backtest_table }}" alt="Backtest Metrics">
-  </div>
-  {% endif %}
-  {% if backtest_disclaimer %}
-  <div class="alert alert-warning">{{ backtest_disclaimer }}</div>
-  {% endif %}
-</div>
 
-<!-- SECTION 9: CLASSEMENT DES VALEURS -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-number">9</div>
-    <div class="section-title">Classement des Valeurs BVC</div>
-  </div>
-  {% if chart_tickers %}
-  <div class="chart-container">
-    <img src="data:image/png;base64,{{ chart_tickers }}" alt="Top Tickers">
-  </div>
-  {% endif %}
+  <input
+    type="text"
+    class="tbl-search"
+    placeholder="Filtrer par ticker, signal..."
+    oninput="filterTable('tbl-rankings', this.value)"
+  />
+
   {% if rankings_table %}
-  <div style="overflow-x: auto;">
-    <table>
-      <tr>
-        <th>#</th><th>Ticker</th><th>Score</th><th>Signal</th>
-        <th>Fondamental</th><th>Technique</th><th>NLP</th><th>Smart Money</th>
-        <th>P(Surperf. 1M)</th><th>P/E</th><th>Div%</th>
-      </tr>
-      {% for r in rankings_table %}
-      <tr>
-        <td>{{ r.rank }}</td>
-        <td><strong>{{ r.ticker }}</strong></td>
-        <td>
-          <div class="progress-bar" style="width: 80px; display: inline-block;">
-            <div class="progress-fill" style="width: {{ r.composite_score }}%; background: {% if r.composite_score >= 75 %}#27ae60{% elif r.composite_score >= 60 %}#2ecc71{% elif r.composite_score >= 40 %}#f39c12{% else %}#e74c3c{% endif %};"></div>
-          </div>
-          <span style="margin-left: 6px; font-weight: 600;">{{ r.composite_score }}</span>
-        </td>
-        <td><span class="badge badge-{{ r.signal }}">{{ r.signal.replace("_", " ") }}</span></td>
-        <td>{{ r.fundamental_score }}</td>
-        <td>{{ r.technical_score }}</td>
-        <td>{{ r.nlp_score }}</td>
-        <td>{{ r.smart_money_score }}</td>
-        <td>{{ "%.1f" | format(r.p1m * 100) }}%</td>
-        <td>{{ r.pe }}</td>
-        <td>{{ r.div }}%</td>
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
-  {% endif %}
-</div>
-
-<!-- SECTION 10: LIMITES MÉTHODOLOGIQUES -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-number">10</div>
-    <div class="section-title">Limites Méthodologiques</div>
-  </div>
-  <div class="alert alert-warning">
-    <strong>Avertissement Important:</strong> Cette analyse est basée sur des messages WhatsApp
-    et ne constitue pas un conseil en investissement. Les performances passées ne garantissent pas
-    les performances futures.
-  </div>
-  <ul style="list-style: disc; padding-left: 20px; margin-top: 12px;">
-    <li style="padding: 4px 0;">Les prix utilisés dans le backtesting sont partiellement synthétiques (GBM) faute de données historiques complètes.</li>
-    <li style="padding: 4px 0;">Le biais de survie: les tickers qui ont disparu de la cote ne sont pas analysés.</li>
-    <li style="padding: 4px 0;">Le biais de look-ahead: la connaissance du groupe inclut des membres qui peuvent avoir des informations non publiques.</li>
-    <li style="padding: 4px 0;">Le NLP multilingue (Darija/Arabizi) introduit des incertitudes de traduction.</li>
-    <li style="padding: 4px 0;">Les modèles ML sont entraînés sur un historique limité et peuvent sur-apprendre.</li>
-    <li style="padding: 4px 0;">L'analyse de réseau suppose que l'interaction = influence, ce qui n'est pas toujours vrai.</li>
-    <li style="padding: 4px 0;">Le marché BVC est relativement peu liquide; les stratégies peuvent être difficiles à répliquer en pratique.</li>
-  </ul>
-  {% if overfitting_warning %}
-  <div class="alert alert-danger" style="margin-top: 12px;">
-    <strong>Risque de sur-apprentissage ({{ overfitting_level }}):</strong> {{ overfitting_warning }}
-  </div>
-  {% endif %}
-</div>
-
-<!-- SECTION 11: RECOMMANDATIONS -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-number">11</div>
-    <div class="section-title">Recommandations Opérationnelles</div>
-  </div>
-  <ol style="padding-left: 20px;">
-    <li style="padding: 6px 0;">Utiliser les signaux FORT_ACHAT uniquement comme point de départ d'une due diligence approfondie, jamais comme seul critère d'investissement.</li>
-    <li style="padding: 6px 0;">Prioriser les signaux où Smart Money (>70) ET NLP sentiment (>0.5) convergent.</li>
-    <li style="padding: 6px 0;">En période de Fear & Greed < 20, renforcer les positions sur les valeurs de qualité avec bons fondamentaux.</li>
-    <li style="padding: 6px 0;">Surveiller les topics en émergence rapide (weak signals) pour anticiper les mouvements de foule.</li>
-    <li style="padding: 6px 0;">Limiter la taille des positions: ne pas dépasser 5% du portefeuille sur un seul signal NLP.</li>
-    <li style="padding: 6px 0;">Renouveler l'analyse mensuellement pour tenir compte de l'évolution du groupe.</li>
-  </ol>
-</div>
-
-<!-- SECTION 12: AXES D'AMÉLIORATION -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-number">12</div>
-    <div class="section-title">Axes d'Amélioration</div>
-  </div>
-  <div class="two-col">
-    <div>
-      <h3 style="margin-bottom: 10px; color: #1a5276;">Court terme</h3>
-      <ul style="list-style: disc; padding-left: 18px;">
-        <li style="padding: 4px 0;">Intégrer les données de prix réels BVC via l'API officielle</li>
-        <li style="padding: 4px 0;">Affiner le modèle Darija avec un corpus étiqueté BVC</li>
-        <li style="padding: 4px 0;">Ajouter la détection de sarcasme et d'ironie</li>
-        <li style="padding: 4px 0;">Implémenter un modèle BERT multilingue pour le NLP</li>
-      </ul>
-    </div>
-    <div>
-      <h3 style="margin-bottom: 10px; color: #1a5276;">Moyen terme</h3>
-      <ul style="list-style: disc; padding-left: 18px;">
-        <li style="padding: 4px 0;">Pipeline temps-réel avec alertes automatiques</li>
-        <li style="padding: 4px 0;">Intégration des rapports financiers semestriels BVC</li>
-        <li style="padding: 4px 0;">Analyse comparative multi-groupes WhatsApp</li>
-        <li style="padding: 4px 0;">Modèle de prédiction des volumes de trading</li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<!-- SECTION TRANSPARENCE DONNÉES -->
-<div class="section" style="margin-top:40px;">
-  <div class="section-header">
-    <h2>🔍 Transparence des Données</h2>
-  </div>
-  <div class="card" style="padding:24px;">
-    <h3 style="color:#1a5276; margin-bottom:16px;">Sources & Couverture Historique</h3>
-    <p style="margin-bottom:12px; color:#555;">
-      Les analyses de prix et de corrélation reposent sur des données historiques réelles
-      récupérées via l'API casabourse.ma et BVCscrap. Voici le détail exact de la couverture :
-    </p>
-    <table style="width:100%; border-collapse:collapse; font-size:0.88em;">
+  <div class="tbl-wrap">
+    <table id="tbl-rankings">
       <thead>
-        <tr style="background:#1a5276; color:white;">
-          <th style="padding:8px 12px; text-align:left;">Groupe</th>
-          <th style="padding:8px 12px; text-align:left;">Période réelle</th>
-          <th style="padding:8px 12px; text-align:center;">Obs.</th>
-          <th style="padding:8px 12px; text-align:left;">Tickers</th>
+        <tr>
+          <th onclick="sortTable('tbl-rankings',0)">#</th>
+          <th onclick="sortTable('tbl-rankings',1)">TICKER</th>
+          <th onclick="sortTable('tbl-rankings',2)">SCORE</th>
+          <th onclick="sortTable('tbl-rankings',3)">SIGNAL</th>
+          <th onclick="sortTable('tbl-rankings',4)">FOND.</th>
+          <th onclick="sortTable('tbl-rankings',5)">TECH.</th>
+          <th onclick="sortTable('tbl-rankings',6)">NLP</th>
+          <th onclick="sortTable('tbl-rankings',7)">SMART$</th>
+          <th onclick="sortTable('tbl-rankings',8)">P(SURPERF 1M)</th>
+          <th onclick="sortTable('tbl-rankings',9)">P/E</th>
+          <th onclick="sortTable('tbl-rankings',10)">DIV%</th>
         </tr>
       </thead>
       <tbody>
-        <tr style="background:#eaf2ff;">
-          <td style="padding:8px 12px; font-weight:600;">Groupe A — 3 ans</td>
-          <td style="padding:8px 12px;">Juin 2023 → Juin 2026</td>
-          <td style="padding:8px 12px; text-align:center;">739</td>
-          <td style="padding:8px 12px; font-size:0.85em;">IAM, ATW, BCP, BOA, CIH, CDM, HPS, MNG, ATL, ADH, ADI, AFI, AFM, AGM, ARD, BAL, COL, CSR, CTM, DHO, EQD, GAZ, INV, JET, LBV, LES, LHM, M2M, MOX, NEJ</td>
+        {% for r in rankings_table %}
+        <tr>
+          <td style="color:var(--dim)">{{ r.rank }}</td>
+          <td style="color:var(--blue);font-weight:700;letter-spacing:1px">{{ r.ticker }}</td>
+          <td>
+            <div class="prog-wrap">
+              <div class="prog-bar">
+                <div class="prog-fill" style="width:{{ r.composite_score }}%;background:{% if r.composite_score >= 75 %}var(--green){% elif r.composite_score >= 60 %}#7bc47f{% elif r.composite_score >= 40 %}var(--yel){% else %}var(--red){% endif %}"></div>
+              </div>
+              <span class="prog-val" style="color:{% if r.composite_score >= 75 %}var(--green){% elif r.composite_score >= 60 %}var(--text){% elif r.composite_score >= 40 %}var(--yel){% else %}var(--red){% endif %}">{{ r.composite_score }}</span>
+            </div>
+          </td>
+          <td><span class="badge badge-{{ r.signal }}">{{ r.signal.replace("_", " ") }}</span></td>
+          <td>{{ r.fundamental_score }}</td>
+          <td>{{ r.technical_score }}</td>
+          <td>{{ r.nlp_score }}</td>
+          <td>{{ r.smart_money_score }}</td>
+          <td style="color:var(--pur)">{{ "%.1f" | format(r.p1m * 100) }}%</td>
+          <td style="color:var(--dim)">{{ r.pe }}</td>
+          <td style="color:var(--dim)">{{ r.div }}%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info">Classement non disponible — données phase 13 absentes.</div>
+  {% endif %}
+</div>
+
+<!-- ── SECTION RÉSEAU ── -->
+<div class="section" id="section-network">
+  <div class="section-header">
+    <div class="section-tag">07</div>
+    <div class="section-title">ANALYSE RÉSEAU</div>
+    <div class="section-dim">Graph Theory — Centralité &amp; Communautés</div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="chart-title" style="margin-bottom:10px;">STATISTIQUES RÉSEAU</div>
+      {% if network_stats %}
+        {% for stat in network_stats %}
+        <div class="stat-row">
+          <span class="stat-label">{{ stat.label }}</span>
+          <span class="stat-value">{{ stat.value }}</span>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="alert alert-info">Métriques réseau non disponibles.</div>
+      {% endif %}
+    </div>
+    <div>
+      {% if top_nodes %}
+      <div class="chart-title" style="margin-bottom:10px;">TOP 10 NOEUDS PAR CENTRALITÉ</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>MEMBRE</th>
+              <th>CENTRALITÉ</th>
+              <th>COMMUNAUTÉ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for node in top_nodes %}
+            <tr>
+              <td style="color:var(--blue)">{{ node.name }}</td>
+              <td style="color:var(--green)">{{ node.centrality }}</td>
+              <td style="color:var(--dim)">{{ node.community }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ── SECTION TRANSPARENCE ── -->
+<div class="section" id="section-transparence">
+  <div class="section-header">
+    <div class="section-tag">08</div>
+    <div class="section-title">TRANSPARENCE DES DONNÉES</div>
+    <div class="section-dim">Sources &amp; Couverture Historique</div>
+  </div>
+
+  <p style="margin-bottom:14px;color:var(--dim);font-size:12px;">
+    Les analyses de prix et de corrélation reposent sur des données historiques réelles
+    récupérées via l'API casabourse.ma et BVCscrap. Voici le détail exact de la couverture :
+  </p>
+
+  <div class="tbl-wrap">
+    <table class="transp-table">
+      <thead>
+        <tr>
+          <th>GROUPE</th>
+          <th>PÉRIODE RÉELLE</th>
+          <th>OBS.</th>
+          <th>TICKERS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:600;color:var(--blue)">Groupe A — 3 ans</td>
+          <td style="color:var(--text)">Juin 2023 → Juin 2026</td>
+          <td style="color:var(--green);text-align:center">739</td>
+          <td style="color:var(--dim);font-size:11px">IAM, ATW, BCP, BOA, CIH, CDM, HPS, MNG, ATL, ADH, ADI, AFI, AFM, AGM, ARD, BAL, COL, CSR, CTM, DHO, EQD, GAZ, INV, JET, LBV, LES, LHM, M2M, MOX, NEJ</td>
         </tr>
         <tr>
-          <td style="padding:8px 12px; font-weight:600;">Groupe B — 2 ans</td>
-          <td style="padding:8px 12px;">Mai 2024 → Mai 2026</td>
-          <td style="padding:8px 12px; text-align:center;">493</td>
-          <td style="padding:8px 12px; font-size:0.85em;">CFGB, CMT, MSA, RDS, RIS, SMI, SOT, SRM, TGC</td>
-        </tr>
-        <tr style="background:#eaf2ff;">
-          <td style="padding:8px 12px; font-weight:600;">TGCC — 4.5 ans</td>
-          <td style="padding:8px 12px;">Déc 2021 → Juin 2026</td>
-          <td style="padding:8px 12px; text-align:center;">1 112</td>
-          <td style="padding:8px 12px; font-size:0.85em;">TGCC (via BVCscrap)</td>
+          <td style="font-weight:600;color:var(--blue)">Groupe B — 2 ans</td>
+          <td style="color:var(--text)">Mai 2024 → Mai 2026</td>
+          <td style="color:var(--green);text-align:center">493</td>
+          <td style="color:var(--dim);font-size:11px">CFGB, CMT, MSA, RDS, RIS, SMI, SOT, SRM, TGC</td>
         </tr>
         <tr>
-          <td style="padding:8px 12px; font-weight:600;">Extension GBM</td>
-          <td style="padding:8px 12px;">Sept 2020 → début données réelles</td>
-          <td style="padding:8px 12px; text-align:center;">—</td>
-          <td style="padding:8px 12px; font-size:0.85em; font-style:italic;">Simulation calibrée sur μ, σ réels — identifiée par _simulated=True dans les données</td>
+          <td style="font-weight:600;color:var(--blue)">TGCC — 4.5 ans</td>
+          <td style="color:var(--text)">Déc 2021 → Juin 2026</td>
+          <td style="color:var(--green);text-align:center">1 112</td>
+          <td style="color:var(--dim);font-size:11px">TGCC (via BVCscrap)</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--yel)">Extension GBM</td>
+          <td style="color:var(--dim)">Sept 2020 → début données réelles</td>
+          <td style="color:var(--dim);text-align:center">—</td>
+          <td style="color:var(--dim);font-size:11px;font-style:italic">Simulation calibrée sur μ, σ réels — identifiée par _simulated=True dans les données</td>
         </tr>
       </tbody>
     </table>
-    <div style="margin-top:16px; padding:12px; background:#fff8e1; border-left:4px solid #f39c12; border-radius:4px;">
-      <strong>⚠️ Note méthodologique :</strong> L'API casabourse est limitée à 739 enregistrements
-      (~3 ans de données journalières). Les périodes antérieures sont comblées par simulation
-      GBM (Geometric Brownian Motion) calibrée sur les paramètres statistiques réels (μ annuel, σ annuel)
-      de chaque titre. Les résultats de corrélation et de backtest sont fiables sur la période réelle.
-    </div>
-    <div style="margin-top:12px; padding:12px; background:#e8f8f5; border-left:4px solid #27ae60; border-radius:4px;">
-      <strong>✅ Sources :</strong> casabourse.ma (API officielle BVC) · BVCscrap (open-source) ·
-      Corpus WhatsApp : {{ n_messages | default('~1,2M') }} messages · {{ n_authors | default('N') }} participants
-    </div>
+  </div>
+
+  <div class="transp-note warn" style="margin-top:14px;">
+    <strong style="color:var(--yel)">NOTE MÉTHODOLOGIQUE :</strong>
+    <span style="color:var(--dim)">
+      L'API casabourse est limitée à 739 enregistrements (~3 ans de données journalières).
+      Les périodes antérieures sont comblées par simulation GBM (Geometric Brownian Motion)
+      calibrée sur les paramètres statistiques réels (μ annuel, σ annuel) de chaque titre.
+      Les résultats de corrélation et de backtest sont fiables sur la période réelle.
+    </span>
+  </div>
+
+  <div class="transp-note ok" style="margin-top:10px;">
+    <strong style="color:var(--green)">SOURCES :</strong>
+    <span style="color:var(--dim)">
+      casabourse.ma (API officielle BVC) · BVCscrap (open-source) ·
+      Corpus WhatsApp : {{ n_messages | format_number }} messages · {{ n_members }} participants
+    </span>
   </div>
 </div>
 
-<!-- FOOTER -->
+</div><!-- end .page -->
+
+<!-- ── FOOTER ── -->
 <div class="footer">
-  <div class="footer-left">
-    <span class="author-stamp">Fekak Noureddine</span>
-  </div>
+  <div class="footer-left">Fekak Noureddine</div>
   <div class="footer-center">
-    <p>Rapport généré automatiquement par BVC WhatsApp Analysis System v1.0</p>
-    <p style="margin-top: 4px;">{{ date }} | Données: {{ date_range }}</p>
-    <p style="margin-top: 8px; font-style: italic; color: #95a5a6;">
-      Ce rapport est fourni à titre informatif uniquement. Il ne constitue pas un conseil en investissement.
-      Investir en bourse comporte des risques de perte en capital.
-    </p>
+    BVC WhatsApp Analysis System v1.0 &nbsp;|&nbsp; {{ date }} &nbsp;|&nbsp; Données: {{ date_range }}
   </div>
-  <div class="footer-right">
-    <p>BVC Analysis System</p>
-    <p>v1.0 — {{ date }}</p>
-  </div>
+  <div class="footer-right">BVC ANALYZER v1.0</div>
 </div>
 
-</div>
+<!-- ── APEXCHARTS INIT ── -->
+<script>
+(function() {
+
+const APEX_BASE = {
+  theme: { mode: "dark" },
+  chart: {
+    background: "#0d1829",
+    foreColor: "#c8d3e8",
+    toolbar: { show: true },
+    zoom: { enabled: true },
+    fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+  },
+  grid: { borderColor: "#1a2540" },
+  tooltip: { theme: "dark" },
+  xaxis: { labels: { style: { colors: "#8892a4", fontFamily: "'IBM Plex Mono', monospace" } } },
+  yaxis: { labels: { style: { colors: "#8892a4", fontFamily: "'IBM Plex Mono', monospace" } } },
+};
+
+/* ── Smart Money Bar ── */
+(function() {
+  const el = document.getElementById("chart-smart-money");
+  if (!el) return;
+  const sm = DATA.smart_money || { categories: [], data: [] };
+  if (!sm.categories || sm.categories.length === 0) {
+    el.innerHTML = '<div style="color:#8892a4;padding:40px;text-align:center;font-size:12px;">Données Smart Money non disponibles</div>';
+    return;
+  }
+  const opts = Object.assign({}, APEX_BASE, {
+    chart: Object.assign({}, APEX_BASE.chart, { type: "bar", height: Math.max(280, sm.categories.length * 22) }),
+    plotOptions: { bar: { horizontal: true, borderRadius: 3, barHeight: "60%" } },
+    colors: ["#00e5a0"],
+    series: [{ name: "Score SMS", data: sm.data }],
+    xaxis: Object.assign({}, APEX_BASE.xaxis, { categories: sm.categories }),
+    dataLabels: { enabled: true, style: { colors: ["#080d1a"], fontSize: "10px" } },
+    fill: { opacity: 0.85 },
+  });
+  new ApexCharts(el, opts).render();
+})();
+
+/* ── Fear & Greed Area ── */
+(function() {
+  const el = document.getElementById("chart-fear-greed");
+  if (!el) return;
+  const fg = DATA.fear_greed || [];
+  if (fg.length === 0) {
+    el.innerHTML = '<div style="color:#8892a4;padding:40px;text-align:center;font-size:12px;">Données Fear &amp; Greed non disponibles</div>';
+    return;
+  }
+  const opts = Object.assign({}, APEX_BASE, {
+    chart: Object.assign({}, APEX_BASE.chart, { type: "area", height: 240 }),
+    colors: ["#4db8ff"],
+    fill: { type: "gradient", gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.05, stops: [0, 100] } },
+    stroke: { curve: "smooth", width: 2 },
+    series: [{ name: "Fear & Greed", data: fg }],
+    xaxis: Object.assign({}, APEX_BASE.xaxis, {
+      type: "datetime",
+      labels: { style: { colors: "#8892a4" }, datetimeUTC: false },
+    }),
+    yaxis: Object.assign({}, APEX_BASE.yaxis, {
+      min: 0, max: 100,
+      tickAmount: 5,
+      labels: Object.assign({}, APEX_BASE.yaxis.labels, {
+        formatter: function(v) { return v.toFixed(0); }
+      }),
+    }),
+    annotations: {
+      yaxis: [
+        { y: 80, y2: 100, fillColor: "rgba(255,79,90,0.08)", label: { text: "Greed Extrême", style: { color: "#ff4f5a", background: "transparent", fontSize: "10px" } } },
+        { y: 0,  y2: 20,  fillColor: "rgba(0,229,160,0.08)", label: { text: "Fear Extrême", style: { color: "#00e5a0", background: "transparent", fontSize: "10px" } } },
+      ]
+    },
+    dataLabels: { enabled: false },
+  });
+  new ApexCharts(el, opts).render();
+})();
+
+/* ── Sentiment Bar ── */
+(function() {
+  const el = document.getElementById("chart-sentiment");
+  if (!el) return;
+  const sent = DATA.sentiment || [];
+  if (sent.length === 0) {
+    el.innerHTML = '<div style="color:#8892a4;padding:40px;text-align:center;font-size:12px;">Données sentiment non disponibles</div>';
+    return;
+  }
+  const colors = sent.map(function(d) { return d.y >= 0 ? "#00e5a0" : "#ff4f5a"; });
+  const opts = Object.assign({}, APEX_BASE, {
+    chart: Object.assign({}, APEX_BASE.chart, { type: "bar", height: 240 }),
+    colors: ["#00e5a0"],
+    plotOptions: { bar: { borderRadius: 2, colors: { ranges: [{ from: -999, to: 0, color: "#ff4f5a" }, { from: 0, to: 999, color: "#00e5a0" }] } } },
+    series: [{ name: "Sentiment", data: sent }],
+    xaxis: Object.assign({}, APEX_BASE.xaxis, {
+      type: "datetime",
+      labels: { style: { colors: "#8892a4" }, datetimeUTC: false },
+    }),
+    yaxis: Object.assign({}, APEX_BASE.yaxis, {
+      labels: Object.assign({}, APEX_BASE.yaxis.labels, {
+        formatter: function(v) { return v.toFixed(2); }
+      }),
+    }),
+    dataLabels: { enabled: false },
+  });
+  new ApexCharts(el, opts).render();
+})();
+
+/* ── Equity Curves Line ── */
+(function() {
+  const el = document.getElementById("chart-equity");
+  if (!el) return;
+  const ec = DATA.equity_curves || [];
+  if (ec.length === 0) {
+    el.innerHTML = '<div style="color:#8892a4;padding:40px;text-align:center;font-size:12px;">Données backtest non disponibles</div>';
+    return;
+  }
+  const palette = ["#00e5a0","#4db8ff","#ffd740","#b388ff","#ff8f00","#ff4f5a"];
+  const series = ec.map(function(s, i) {
+    return { name: s.name, data: s.data };
+  });
+  const strokeWidths = ec.map(function(s) { return s.bench ? 1.5 : 2; });
+  const strokeDashes = ec.map(function(s) { return s.bench ? 5 : 0; });
+  const opts = Object.assign({}, APEX_BASE, {
+    chart: Object.assign({}, APEX_BASE.chart, { type: "line", height: 320 }),
+    colors: ec.map(function(s, i) { return s.bench ? "#8892a4" : palette[i % palette.length]; }),
+    stroke: { curve: "smooth", width: strokeWidths, dashArray: strokeDashes },
+    series: series,
+    xaxis: Object.assign({}, APEX_BASE.xaxis, {
+      type: "datetime",
+      labels: { style: { colors: "#8892a4" }, datetimeUTC: false },
+    }),
+    yaxis: Object.assign({}, APEX_BASE.yaxis, {
+      labels: Object.assign({}, APEX_BASE.yaxis.labels, {
+        formatter: function(v) { return v.toFixed(0); }
+      }),
+    }),
+    legend: { labels: { colors: "#c8d3e8" } },
+    dataLabels: { enabled: false },
+    markers: { size: 0 },
+  });
+  new ApexCharts(el, opts).render();
+})();
+
+/* ── ML Models Grouped Bar ── */
+(function() {
+  const el = document.getElementById("chart-ml");
+  if (!el) return;
+  const ml = DATA.ml_models || [];
+  if (ml.length === 0) {
+    el.innerHTML = '<div style="color:#8892a4;padding:40px;text-align:center;font-size:12px;">Données ML non disponibles</div>';
+    return;
+  }
+  const cats  = ml.map(function(m) { return m.model; });
+  const auc   = ml.map(function(m) { return m.auc; });
+  const f1    = ml.map(function(m) { return m.f1; });
+  const prec  = ml.map(function(m) { return m.precision; });
+  const rec   = ml.map(function(m) { return m.recall; });
+  const opts = Object.assign({}, APEX_BASE, {
+    chart: Object.assign({}, APEX_BASE.chart, { type: "bar", height: 280 }),
+    colors: ["#00e5a0","#4db8ff","#ffd740","#b388ff"],
+    plotOptions: { bar: { horizontal: false, columnWidth: "65%", borderRadius: 2 } },
+    series: [
+      { name: "AUC-ROC",   data: auc },
+      { name: "F1",        data: f1 },
+      { name: "Précision", data: prec },
+      { name: "Rappel",    data: rec },
+    ],
+    xaxis: Object.assign({}, APEX_BASE.xaxis, {
+      categories: cats,
+      labels: { style: { colors: "#8892a4" }, rotate: -20 },
+    }),
+    yaxis: Object.assign({}, APEX_BASE.yaxis, {
+      min: 0, max: 1,
+      labels: Object.assign({}, APEX_BASE.yaxis.labels, {
+        formatter: function(v) { return v.toFixed(2); }
+      }),
+    }),
+    legend: { labels: { colors: "#c8d3e8" } },
+    dataLabels: { enabled: false },
+  });
+  new ApexCharts(el, opts).render();
+})();
+
+})(); // end IIFE
+
+
+/* ── TABLE SORT ── */
+const sortState = {};
+function sortTable(id, colIdx) {
+  const table = document.getElementById(id);
+  if (!table) return;
+  const key = id + "_" + colIdx;
+  const asc = !sortState[key];
+  sortState[key] = asc;
+  // Reset all headers
+  Array.from(table.querySelectorAll("th")).forEach(function(th) {
+    th.classList.remove("sort-asc", "sort-desc");
+  });
+  const th = table.querySelectorAll("th")[colIdx];
+  if (th) th.classList.add(asc ? "sort-asc" : "sort-desc");
+
+  const tbody = table.querySelector("tbody");
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+  rows.sort(function(a, b) {
+    const aText = (a.querySelectorAll("td")[colIdx] || {}).textContent || "";
+    const bText = (b.querySelectorAll("td")[colIdx] || {}).textContent || "";
+    const aNum = parseFloat(aText.replace(/[^0-9.\-]/g, ""));
+    const bNum = parseFloat(bText.replace(/[^0-9.\-]/g, ""));
+    if (!isNaN(aNum) && !isNaN(bNum)) {
+      return asc ? aNum - bNum : bNum - aNum;
+    }
+    return asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
+  });
+  rows.forEach(function(r) { tbody.appendChild(r); });
+}
+
+/* ── TABLE FILTER ── */
+function filterTable(id, query) {
+  const table = document.getElementById(id);
+  if (!table) return;
+  const q = query.toLowerCase();
+  Array.from(table.querySelectorAll("tbody tr")).forEach(function(row) {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? "" : "none";
+  });
+}
+</script>
+
 </body>
 </html>"""
 
@@ -1083,7 +1256,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 def format_number(n: Any) -> str:
     """Formate un nombre avec séparateurs de milliers."""
     try:
-        return f"{int(n):,}".replace(",", " ")
+        return f"{int(n):,}".replace(",", " ")
     except Exception:
         return str(n)
 
@@ -1283,7 +1456,7 @@ def run_phase14(
     Génère le rapport HTML institutionnel complet.
     Retourne: {'report_path': str, 'summary': dict}
     """
-    logger.info("=== Phase 14: Génération du Rapport HTML ===")
+    logger.info("=== Phase 14: Génération du Rapport HTML (Dark Terminal Theme) ===")
 
     os.makedirs(output_dir, exist_ok=True)
     report_path = os.path.join(output_dir, "report.html")
@@ -1329,70 +1502,25 @@ def run_phase14(
     if phase13_results:
         n_fort_achat = phase13_results.get("summary", {}).get("n_fort_achat", 0)
 
-    # ── Génération des graphiques ──────────────────────────
-    logger.info("Génération des graphiques...")
-    daily_sentiment = phase8_results.get("daily_sentiment", pd.DataFrame()) if phase8_results else pd.DataFrame()
+    # ── Données sentiment quotidien ────────────────────────
+    daily_sentiment = (
+        phase8_results.get("daily_sentiment", pd.DataFrame())
+        if phase8_results else pd.DataFrame()
+    )
 
-    charts = {}
-    try:
-        charts["fear_greed"] = chart_fear_greed_evolution(fear_greed_series, daily_sentiment)
-    except Exception as e:
-        logger.warning(f"Chart fear_greed: {e}")
-        charts["fear_greed"] = ""
+    # ── Sérialisation des données pour ApexCharts ──────────
+    logger.info("Sérialisation des données pour ApexCharts...")
 
-    try:
-        charts["sentiment"] = chart_sentiment_evolution(daily_sentiment)
-    except Exception as e:
-        logger.warning(f"Chart sentiment: {e}")
-        charts["sentiment"] = ""
+    equity_curves = phase11_results.get("equity_curves") if phase11_results else {}
 
-    try:
-        charts["signals"] = chart_signal_distribution(df)
-    except Exception as e:
-        logger.warning(f"Chart signals: {e}")
-        charts["signals"] = ""
-
-    try:
-        charts["language"] = chart_language_breakdown(df)
-    except Exception as e:
-        logger.warning(f"Chart language: {e}")
-        charts["language"] = ""
-
-    try:
-        charts["smart_money"] = chart_smart_money_scores(member_scores)
-    except Exception as e:
-        logger.warning(f"Chart smart_money: {e}")
-        charts["smart_money"] = ""
-
-    try:
-        equity_curves = phase11_results.get("equity_curves") if phase11_results else None
-        charts["equity"] = chart_equity_curves(equity_curves)
-    except Exception as e:
-        logger.warning(f"Chart equity: {e}")
-        charts["equity"] = ""
-
-    try:
-        predictions = phase13_results.get("predictions") if phase13_results else None
-        charts["tickers"] = chart_top_tickers(predictions)
-    except Exception as e:
-        logger.warning(f"Chart tickers: {e}")
-        charts["tickers"] = ""
-
-    try:
-        feat_imp = phase9_results.get("feature_importance") if phase9_results else None
-        charts["feature_importance"] = chart_feature_importance(feat_imp)
-    except Exception as e:
-        logger.warning(f"Chart feature_importance: {e}")
-        charts["feature_importance"] = ""
-
-    try:
-        strategy_metrics = phase11_results.get("strategy_metrics") if phase11_results else None
-        charts["backtest_table"] = chart_backtest_metrics_table(strategy_metrics)
-    except Exception as e:
-        logger.warning(f"Chart backtest_table: {e}")
-        charts["backtest_table"] = ""
-
-    logger.info("Graphiques générés.")
+    chart_data = {
+        "fear_greed": serialize_fear_greed(fear_greed_series),
+        "sentiment": serialize_sentiment(daily_sentiment),
+        "equity_curves": serialize_equity_curves(equity_curves if equity_curves else {}),
+        "smart_money": serialize_smart_money(member_scores),
+        "ml_models": serialize_ml_models(phase9_results),
+    }
+    chart_json = json.dumps(chart_data, default=str)
 
     # ── Préparation des données template ──────────────────
     summary_data = {
@@ -1446,7 +1574,6 @@ def run_phase14(
             "level": ov_level_map.get(risk, "info"),
             "text": f"Risque de sur-apprentissage: {risk} | IS AUC={ov.get('is_auc', 0):.3f} → OOS AUC={ov.get('oos_auc', 0):.3f}",
         })
-
         mc_auc = sr.get("monte_carlo_auc", {}).get("best_model", {})
         if mc_auc:
             sig = mc_auc.get("significant", False)
@@ -1492,8 +1619,8 @@ def run_phase14(
 
     if fear_greed_series is not None and not fear_greed_series.empty:
         fg_last = float(fear_greed_series.dropna().iloc[-1])
-        fg_regime = "Greed Extrême" if fg_last > 80 else "Greed" if fg_last > 60 else \
-                    "Neutre" if fg_last > 40 else "Fear" if fg_last > 20 else "Fear Extrême"
+        fg_regime = ("Greed Extrême" if fg_last > 80 else "Greed" if fg_last > 60 else
+                     "Neutre" if fg_last > 40 else "Fear" if fg_last > 20 else "Fear Extrême")
         behavioral_stats.append({"label": "Fear & Greed actuel", "value": f"{fg_last:.0f} ({fg_regime})"})
 
     # NLP stats
@@ -1523,12 +1650,30 @@ def run_phase14(
         "Ces résultats ne constituent pas une garantie de performance future."
     )
 
+    # Backtest table from strategy_metrics
+    backtest_table = []
+    if phase11_results:
+        strategy_metrics = phase11_results.get("strategy_metrics", {})
+        for strat, metrics in strategy_metrics.items():
+            if not isinstance(metrics, dict):
+                continue
+            cagr_v = float(metrics.get("cagr", 0))
+            sharpe_v = float(metrics.get("sharpe", 0))
+            backtest_table.append({
+                "strategy": strat.replace("_", " ")[:28],
+                "cagr": f"{cagr_v:.1%}",
+                "cagr_raw": cagr_v,
+                "sharpe": f"{sharpe_v:.2f}",
+                "sharpe_raw": sharpe_v,
+                "sortino": f"{float(metrics.get('sortino', 0)):.2f}",
+                "max_dd": f"{float(metrics.get('max_drawdown', 0)):.1%}",
+                "win_rate": f"{float(metrics.get('win_rate', 0)):.1%}",
+            })
+
     # ── Rendu du template ──────────────────────────────────
-    logger.info("Rendu du template HTML...")
+    logger.info("Rendu du template HTML (dark terminal theme)...")
 
     template_vars = {
-        "title": REPORT_TITLE,
-        "subtitle": REPORT_SUBTITLE,
         "date": REPORT_DATE,
         "date_range": date_range,
         "n_messages": n_messages,
@@ -1554,16 +1699,9 @@ def run_phase14(
         "overfitting_warning": overfitting_warning,
         "overfitting_level": overfitting_level,
         "backtest_disclaimer": backtest_disclaimer,
-        # Charts
-        "chart_fear_greed": charts.get("fear_greed", ""),
-        "chart_sentiment": charts.get("sentiment", ""),
-        "chart_signals": charts.get("signals", ""),
-        "chart_language": charts.get("language", ""),
-        "chart_smart_money": charts.get("smart_money", ""),
-        "chart_equity": charts.get("equity", ""),
-        "chart_tickers": charts.get("tickers", ""),
-        "chart_feature_importance": charts.get("feature_importance", ""),
-        "chart_backtest_table": charts.get("backtest_table", ""),
+        "backtest_table": backtest_table,
+        # ApexCharts JSON data
+        "chart_json": chart_json,
     }
 
     if JINJA2_AVAILABLE:
@@ -1572,7 +1710,7 @@ def run_phase14(
         template = env.from_string(HTML_TEMPLATE)
         html_content = template.render(**template_vars)
     else:
-        # Fallback: f-string basique
+        # Fallback: simple string replacement
         html_content = HTML_TEMPLATE
         for key, value in template_vars.items():
             placeholder = "{{ " + key + " }}"
@@ -1607,7 +1745,7 @@ def run_phase14(
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
-    print("Test Phase 14: génération du rapport HTML...")
+    print("Test Phase 14: génération du rapport HTML (dark terminal theme)...")
 
     rng = np.random.RandomState(42)
     dates = pd.date_range("2022-01-01", "2024-12-31", freq="h")[:3000]
