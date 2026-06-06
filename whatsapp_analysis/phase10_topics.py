@@ -382,7 +382,7 @@ def identify_bull_bear_precursors(
         # Calcule le rendement mensuel du marché
         monthly_ret = price_panel.pct_change(min_rise_days).mean(axis=1)
         monthly_ret.index = pd.to_datetime(monthly_ret.index)
-        monthly_ret_monthly = monthly_ret.resample("M").mean()
+        monthly_ret_monthly = monthly_ret.resample("ME").mean()
 
         bull_months = monthly_ret_monthly[monthly_ret_monthly > threshold_pct / 100].index
         bear_months = monthly_ret_monthly[monthly_ret_monthly < -threshold_pct / 100].index
