@@ -1,0 +1,50 @@
+name: Fetch BVC Historical Data (6 ans)
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: 'Date de début (YYYY-MM-DD)'
+        required: false
+        default: '2019-01-01'
+      tickers:
+        description: 'Tickers séparés par virgule (vide = tous)'
+        required: false
+        default: ''
+
+jobs:
+  fetch-historical:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: claude/bvc-whatsapp-analysis-Lzj6G
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install requests pandas openpyxl numpy beautifulsoup4 lxml bvcscrap casabourse yfinance
+
+      - name: Fetch historical data
+        run: python .github/scripts/fetch_bvc_history.py
+        env:
+          START_DATE: ${{ github.event.inputs.start_date }}
+          TICKERS_FILTER: ${{ github.event.inputs.tickers }}
+
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/historique/ data/masi_history.csv
+          git diff --cached --stat
+          git commit -m "data: historique BVC 6 ans — $(date +%Y-%m-%d)" || echo "Rien à committer"
+          git push origin claude/bvc-whatsapp-analysis-Lzj6G
