@@ -91,23 +91,43 @@ def serialize_equity_curves(equity_curves):
     return result
 
 
+def _compute_sms_score(ms: pd.DataFrame) -> pd.Series:
+    """Compute a proxy Smart Money score from available columns when sms_score is all NaN."""
+    sms_col = next((c for c in ["sms_score", "smart_money_score", "score"] if c in ms.columns), None)
+    if sms_col and ms[sms_col].notna().any():
+        return ms[sms_col].fillna(0)
+    # Fallback: compose from normalized columns that exist
+    score = pd.Series(0.0, index=ms.index)
+    if "win_rate_norm" in ms.columns:
+        score += ms["win_rate_norm"].fillna(0) * 0.40
+    if "timeliness_norm" in ms.columns:
+        score += ms["timeliness_norm"].fillna(0) * 0.35
+    if "n_calls" in ms.columns:
+        c = ms["n_calls"].fillna(0)
+        mx = c.max()
+        if mx > 0:
+            score += (c / mx * 100) * 0.25
+    elif "n_signals" in ms.columns:
+        c = ms["n_signals"].fillna(0)
+        mx = c.max()
+        if mx > 0:
+            score += (c / mx * 100) * 0.25
+    return score.clip(0, 100)
+
+
 def serialize_smart_money(member_scores, n=20):
     """Return {categories: [names], data: [scores]}."""
     if member_scores is None or (hasattr(member_scores, "empty") and member_scores.empty):
         return {"categories": [], "data": []}
-    sms_col = next(
-        (c for c in ["sms_score", "smart_money_score", "score"] if c in member_scores.columns),
-        None,
-    )
-    if sms_col is None:
-        return {"categories": [], "data": []}
-    top = member_scores.nlargest(n, sms_col)
+    ms = member_scores.copy()
+    ms["_score"] = _compute_sms_score(ms)
+    top = ms.nlargest(n, "_score")
     names, scores = [], []
     for idx, row in top.iterrows():
-        name = str(row.get("author", idx))[:15]
+        name = str(row.get("author", idx))[:18]
         names.append(name)
-        scores.append(round(float(row[sms_col]), 1))
-    return {"categories": names[::-1], "data": scores[::-1]}  # reversed for horizontal bar
+        scores.append(round(float(row["_score"]), 1))
+    return {"categories": names[::-1], "data": scores[::-1]}
 
 
 def serialize_ml_models(phase9_results):
@@ -1316,33 +1336,35 @@ def extract_smart_money_table(
     if member_scores is None or member_scores.empty:
         return []
 
-    sms_col = next(
-        (c for c in ["sms_score", "smart_money_score", "score"] if c in member_scores.columns),
-        None,
-    )
-    if sms_col is None:
-        return []
-
-    top_members = member_scores.nlargest(n, sms_col).copy()
+    ms = member_scores.copy()
+    ms["_score"] = _compute_sms_score(ms)
+    top_members = ms.nlargest(n, "_score")
     result = []
 
     for rank, (idx, row) in enumerate(top_members.iterrows(), 1):
-        if "author" in top_members.columns:
-            author_name = str(row.get("author", idx))[:15]
-        else:
-            author_name = str(idx)[:15]
+        author_name = str(row.get("author", idx))[:18]
 
-        win_rate_val = row.get("win_rate", row.get("sms_win_rate", 50))
-        n_signals = row.get("n_signals", row.get("total_signals", 0))
-        accuracy = row.get("accuracy", row.get("precision", win_rate_val))
+        # win_rate peut être 0.021 (fraction) ou 21.0 (pourcentage)
+        wr_raw = row.get("win_rate", row.get("sms_win_rate", 0))
+        if pd.isna(wr_raw):
+            wr_raw = 0.0
+        wr_float = float(wr_raw)
+        wr_pct = wr_float * 100 if wr_float <= 1.0 else wr_float
+
+        n_signals = row.get("n_calls", row.get("n_signals", row.get("total_signals", 0)))
+        precision = row.get("precision", row.get("accuracy", 0))
+        if pd.isna(precision):
+            precision = 0.0
+        prec_float = float(precision)
+        prec_pct = prec_float * 100 if prec_float <= 1.0 else prec_float
 
         result.append({
             "rank": rank,
             "author": author_name,
-            "sms_score": float(row[sms_col]),
-            "win_rate": f"{float(win_rate_val):.1f}",
+            "sms_score": round(float(row["_score"]), 1),
+            "win_rate": f"{wr_pct:.1f}",
             "n_signals": int(n_signals) if pd.notna(n_signals) else 0,
-            "accuracy": f"{float(accuracy):.1f}",
+            "accuracy": f"{prec_pct:.1f}",
         })
 
     return result
