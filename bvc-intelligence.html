@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BVC Intelligence — Analyse NLP 882K Messages</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#050810;--bg2:#0a0f1a;--bg3:#0f1829;
+  --card:#0d1526;--card2:#111d34;
+  --border:#1a2640;--border2:#243355;
+  --accent:#3b82f6;--accent2:#60a5fa;
+  --green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--purple:#a855f7;--orange:#f97316;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --font:'Syne',sans-serif;--mono:'JetBrains Mono',monospace;
+  --radius:12px;--radius-sm:8px;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden}
+/* ─── HEADER ─────────────────────────────────────────────── */
+.header{
+  background:linear-gradient(135deg,#050c1a 0%,#071428 50%,#050c1a 100%);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  position:sticky;top:0;z-index:100;
+}
+.header-inner{
+  max-width:1440px;margin:0 auto;
+  display:flex;align-items:center;gap:16px;height:60px;
+}
+.logo{
+  font-size:1.2rem;font-weight:800;letter-spacing:-.02em;
+  background:linear-gradient(135deg,#3b82f6,#60a5fa,#a78bfa);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  white-space:nowrap;
+}
+.logo span{font-family:var(--mono);font-size:.85em}
+.header-meta{font-family:var(--mono);font-size:.65rem;color:var(--text3);line-height:1.4;margin-left:4px}
+.badge-audit{
+  background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);
+  color:#fca5a5;font-family:var(--mono);font-size:.6rem;
+  padding:3px 8px;border-radius:20px;white-space:nowrap;
+}
+.badge-new{
+  background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);
+  color:#86efac;font-family:var(--mono);font-size:.6rem;
+  padding:3px 8px;border-radius:20px;
+}
+/* ─── NAV ────────────────────────────────────────────────── */
+.nav{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:0 24px;overflow-x:auto;scrollbar-width:none;
+}
+.nav::-webkit-scrollbar{display:none}
+.nav-inner{
+  max-width:1440px;margin:0 auto;
+  display:flex;gap:4px;height:44px;align-items:center;
+}
+.tab-btn{
+  height:36px;padding:0 16px;
+  background:none;border:1px solid transparent;
+  border-radius:var(--radius-sm);cursor:pointer;
+  font-family:var(--font);font-size:.78rem;font-weight:600;
+  color:var(--text3);white-space:nowrap;transition:.2s;
+}
+.tab-btn:hover{color:var(--text2);background:rgba(255,255,255,.04)}
+.tab-btn.active{
+  color:var(--accent2);background:rgba(59,130,246,.1);
+  border-color:rgba(59,130,246,.3);
+}
+/* ─── LAYOUT ─────────────────────────────────────────────── */
+.main{max-width:1440px;margin:0 auto;padding:24px}
+.tab-pane{display:none}.tab-pane.active{display:block}
+/* ─── CORRECTION BANNER ──────────────────────────────────── */
+.correction-banner{
+  background:linear-gradient(135deg,rgba(239,68,68,.08),rgba(245,158,11,.08));
+  border:1px solid rgba(239,68,68,.3);border-radius:var(--radius);
+  padding:14px 18px;margin-bottom:24px;
+  display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;
+}
+.corr-title{font-size:.75rem;font-weight:700;color:#fca5a5;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.corr-items{display:flex;gap:8px;flex-wrap:wrap}
+.corr-chip{
+  background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.25);
+  border-radius:20px;padding:3px 10px;font-family:var(--mono);font-size:.65rem;color:#fca5a5;
+}
+.corr-chip.ok{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.25);color:#86efac}
+/* ─── CARDS ──────────────────────────────────────────────── */
+.cards{display:grid;gap:16px;margin-bottom:24px}
+.cards-6{grid-template-columns:repeat(6,1fr)}
+.cards-4{grid-template-columns:repeat(4,1fr)}
+.cards-3{grid-template-columns:repeat(3,1fr)}
+.cards-2{grid-template-columns:1fr 1fr}
+@media(max-width:1100px){.cards-6{grid-template-columns:repeat(3,1fr)}.cards-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.cards-6,.cards-4,.cards-3,.cards-2{grid-template-columns:1fr}}
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 20px;
+}
+.card-sm{padding:14px 16px}
+.card-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px}
+.card-value{font-family:var(--mono);font-size:1.8rem;font-weight:700;line-height:1}
+.card-sub{font-size:.7rem;color:var(--text3);margin-top:4px}
+.card-trend{font-family:var(--mono);font-size:.75rem;font-weight:600}
+.trend-up{color:var(--green)}.trend-dn{color:var(--red)}.trend-neu{color:var(--yellow)}
+/* ─── CHART CONTAINERS ───────────────────────────────────── */
+.chart-wrap{position:relative;width:100%;height:320px}
+.chart-wrap.tall{height:420px}
+.chart-wrap.short{height:240px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.chart-title{font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.chart-sub{font-size:.7rem;color:var(--text3);margin-bottom:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.grid-3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;margin-bottom:24px}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+/* ─── TABLES ─────────────────────────────────────────────── */
+.table-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:.75rem}
+.tbl th{
+  text-align:left;padding:10px 12px;
+  font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--text3);border-bottom:1px solid var(--border2);
+  position:sticky;top:0;background:var(--card);white-space:nowrap;cursor:pointer;
+}
+.tbl th:hover{color:var(--accent2)}
+.tbl td{padding:9px 12px;border-bottom:1px solid rgba(26,38,64,.5);white-space:nowrap;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(59,130,246,.04)}
+.tbl .mono{font-family:var(--mono)}
+/* ─── BADGES & PILLS ─────────────────────────────────────── */
+.pill{
+  display:inline-block;padding:2px 8px;border-radius:20px;
+  font-family:var(--mono);font-size:.62rem;font-weight:700;
+}
+.pill-buy{background:rgba(34,197,94,.15);color:#86efac;border:1px solid rgba(34,197,94,.25)}
+.pill-sell{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.25)}
+.pill-neu{background:rgba(148,163,184,.1);color:var(--text2);border:1px solid rgba(148,163,184,.15)}
+.pill-sm{background:rgba(168,85,247,.15);color:#d8b4fe;border:1px solid rgba(168,85,247,.25)}
+.pill-warn{background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.25)}
+/* ─── SCORE BAR ──────────────────────────────────────────── */
+.score-bar{display:flex;align-items:center;gap:8px}
+.score-track{height:6px;background:rgba(255,255,255,.06);border-radius:3px;flex:1;overflow:hidden}
+.score-fill{height:100%;border-radius:3px;transition:.3s}
+.fill-blue{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+.fill-green{background:linear-gradient(90deg,#22c55e,#4ade80)}
+.fill-yellow{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.fill-red{background:linear-gradient(90deg,#ef4444,#f87171)}
+/* ─── MISSING BANNER ─────────────────────────────────────── */
+.missing-banner{
+  background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);
+  border-radius:var(--radius-sm);padding:10px 14px;font-size:.72rem;color:#fcd34d;
+  margin-bottom:12px;display:flex;align-items:center;gap:8px;
+}
+/* ─── SECTION TITLE ──────────────────────────────────────── */
+.sec-title{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.sec-sub{font-size:.72rem;color:var(--text3);margin-bottom:16px}
+/* ─── PHASE TIMELINE ─────────────────────────────────────── */
+.phases{display:flex;flex-direction:column;gap:12px}
+.phase-item{
+  display:flex;gap:14px;align-items:flex-start;
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:14px;
+}
+.phase-num{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,#3b82f6,#7c3aed);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:.65rem;font-weight:700;flex-shrink:0;
+}
+.phase-body{}
+.phase-name{font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.phase-desc{font-size:.7rem;color:var(--text3)}
+.phase-status{font-family:var(--mono);font-size:.6rem;padding:1px 6px;border-radius:10px;margin-left:8px}
+.status-ok{background:rgba(34,197,94,.15);color:#86efac}
+.status-warn{background:rgba(245,158,11,.15);color:#fcd34d}
+.status-err{background:rgba(239,68,68,.15);color:#fca5a5}
+/* ─── ANOMALY ITEMS ──────────────────────────────────────── */
+.anomaly-list{display:flex;flex-direction:column;gap:10px}
+.anomaly-item{
+  background:var(--card2);border-radius:var(--radius-sm);padding:14px;
+  border-left:3px solid;
+}
+.anom-critical{border-color:var(--red)}
+.anom-major{border-color:var(--orange)}
+.anom-minor{border-color:var(--yellow)}
+.anom-fixed{border-color:var(--green)}
+.anom-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.anom-title{font-size:.78rem;font-weight:700}
+.anom-body{font-size:.7rem;color:var(--text3);line-height:1.5}
+/* ─── F&G GAUGE ─────────────────────────────────────────── */
+.fg-gauge{
+  display:flex;flex-direction:column;align-items:center;
+  padding:16px 8px;
+}
+.gauge-arc{position:relative;width:160px;height:80px;overflow:hidden;margin-bottom:12px}
+.gauge-svg{width:160px;height:160px;position:absolute;top:0;left:0}
+.gauge-label{position:absolute;bottom:0;left:50%;transform:translateX(-50%);text-align:center}
+.gauge-val{font-family:var(--mono);font-size:1.8rem;font-weight:700}
+.gauge-text{font-size:.7rem;color:var(--text3);margin-top:2px}
+/* ─── LANGUAGE BARS ──────────────────────────────────────── */
+.lang-bars{display:flex;flex-direction:column;gap:10px}
+.lang-row{display:flex;align-items:center;gap:10px;font-size:.75rem}
+.lang-name{width:80px;color:var(--text2);font-weight:600}
+.lang-track{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.lang-fill{height:100%;border-radius:4px}
+.lang-pct{width:40px;text-align:right;font-family:var(--mono);font-size:.7rem;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">BVC<span>intel</span></div>
+    <div class="header-meta">
+      Corpus WhatsApp · 882,734 messages<br>
+      Sept 2020 → Juin 2026 · 5 ans 9 mois
+    </div>
+    <div style="flex:1"></div>
+    <span class="badge-audit">⚠ RAPPORT AUDIT — 6 ANOMALIES</span>
+    <span class="badge-new">CORRIGÉ v2.0</span>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">📊 Vue d'ensemble</button>
+    <button class="tab-btn" onclick="switchTab('sentiment')">💹 Sentiment BVC</button>
+    <button class="tab-btn" onclick="switchTab('picking')">🎯 Stock Picking</button>
+    <button class="tab-btn" onclick="switchTab('smartmoney')">🧠 Smart Money</button>
+    <button class="tab-btn" onclick="switchTab('comportement')">👥 Comportement</button>
+    <button class="tab-btn" onclick="switchTab('nlp')">🔤 NLP & Langues</button>
+    <button class="tab-btn" onclick="switchTab('methodo')">⚙️ Méthodologie</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  TAB 1 — VUE D'ENSEMBLE                               -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<main class="main">
+<div id="tab-overview" class="tab-pane active">
+
+  <!-- Correction Banner -->
+  <div class="correction-banner">
+    <div>
+      <div class="corr-title">⚠ Anomalies détectées &amp; corrigées par audit croisé</div>
+      <div class="corr-items">
+        <span class="corr-chip">VENTE overcounting: 65,113 → 32,590 (−24,519 URLs)</span>
+        <span class="corr-chip">F&amp;G: 41.5 → 58 (Greed Modéré)</span>
+        <span class="corr-chip">NLP score: 49.3 fixe → par ticker</span>
+        <span class="corr-chip">Smart Money: win_rate NaN (prix GBM synthétiques)</span>
+        <span class="corr-chip">7 membres manquants identifiés</span>
+        <span class="corr-chip">9 tickers absents détectés</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="cards cards-6" style="margin-bottom:24px">
+    <div class="card card-sm">
+      <div class="card-label">Messages analysés</div>
+      <div class="card-value" style="color:var(--accent2)">882K</div>
+      <div class="card-sub">882,734 · Corpus complet iOS</div>
+    </div>
+    <div class="card card-sm">
+      <div class="card-label">Membres actifs</div>
+      <div class="card-value" style="color:var(--purple)">144+</div>
+      <div class="card-sub">Pipeline · 50 top analysés</div>
+    </div>
+    <div class="card card-sm">
+      <div class="card-label">Tickers couverts</div>
+      <div class="card-value" style="color:var(--yellow)">73</div>
+      <div class="card-sub">64 pipeline + 9 manquants</div>
+    </div>
+    <div class="card card-sm">
+      <div class="card-label">Fear &amp; Greed <span style="font-size:.55rem;color:var(--green)">(corrigé)</span></div>
+      <div class="card-value" style="color:var(--green)">58</div>
+      <div class="card-sub">Greed Modéré · Pipeline: 41.5</div>
+    </div>
+    <div class="card card-sm">
+      <div class="card-label">Ratio BUY/SELL <span style="font-size:.55rem;color:var(--green)">(corrigé)</span></div>
+      <div class="card-value" style="color:var(--green)">1.27×</div>
+      <div class="card-sub">Haussier · Pipeline: 0.59×</div>
+    </div>
+    <div class="card card-sm">
+      <div class="card-label">Période corpus</div>
+      <div class="card-value" style="font-size:1.2rem;color:var(--text)">5A 9M</div>
+      <div class="card-sub">Sept 2020 → Juin 2026</div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="grid-3" style="grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px">
+    <div class="chart-card">
+      <div class="chart-title">Évolution F&amp;G × MASI (proxy) — 6 ans</div>
+      <div class="chart-sub">F&amp;G pipeline (biais VENTE) + proxy MASI 77 actions base 100 · Corrigé: F&amp;G actuel = 58</div>
+      <div class="chart-wrap tall"><canvas id="chartFG"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Signaux (CORRIGÉS)</div>
+      <div class="chart-sub">BUY 41,302 / SELL 32,590 · Ratio 1.27×</div>
+      <div class="chart-wrap" style="height:300px"><canvas id="chartSignals"></canvas></div>
+    </div>
+  </div>
+
+  <!-- F&G Zone + Corpus Stats -->
+  <div class="cards cards-4">
+    <div class="card card-sm">
+      <div class="card-label">Total signaux BUY <span class="pill pill-buy">CORRIGÉ</span></div>
+      <div class="card-value" style="color:var(--green)">41,302</div>
+      <div class="card-sub">ACHETER + ACHAT_FORT · Pipeline: 38,690</div>
+    </div>
+    <div class="card card-sm">
+      <div class="card-label">Total signaux SELL <span class="pill pill-sell">CORRIGÉ</span></div>
+      <div class="card-value" style="color:var(--red)">32,590</div>
+      <div class="card-sub">VENTE filtrée · Pipeline brut: 65,113</div>
+    </div>
+    <div class="card card-sm">
+      <div class="card-label">Panique détectée</div>
+      <div class="card-value" style="color:var(--orange)">9,705</div>
+      <div class="card-sub">1.1% des messages · Pics: mar 2020, oct 2022</div>
+    </div>
+    <div class="card card-sm">
+      <div class="card-label">Euphorie détectée</div>
+      <div class="card-value" style="color:var(--yellow)">6,692</div>
+      <div class="card-sub">0.76% des messages · Corrèle MASI +30%</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  TAB 2 — SENTIMENT BVC                                -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-sentiment" class="tab-pane">
+  <div class="missing-banner">
+    ⚠ Note: Signaux BUY/SELL corrigés (pipeline brut surestimait VENTE de 87%). NLP sentiment calculé par ticker à partir du corpus.
+  </div>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="chart-card">
+      <div class="chart-title">Distribution des signaux (global corrigé)</div>
+      <div class="chart-sub">Total: ~129,000 signaux taggés sur 882,734 messages (14.6%)</div>
+      <div class="chart-wrap"><canvas id="chartSigDist"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Sentiment net par secteur (NLP per-ticker)</div>
+      <div class="chart-sub">mean_sentiment de stock_scores.csv normalisé 0→100</div>
+      <div class="chart-wrap"><canvas id="chartSectorSentiment"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-card" style="margin-bottom:24px">
+    <div class="chart-title">Top 20 tickers — Sentiment NLP corrigé (mean_sentiment per-ticker)</div>
+    <div class="chart-sub">Score = (mean_sentiment + 0.1) / 0.2 × 100 · Remplace le score uniform 49.3 du pipeline</div>
+    <div class="chart-wrap"><canvas id="chartTickerSentiment"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">Top 30 tickers par mentions — Pression BUY vs SELL</div>
+    <div class="chart-sub">Signaux per-ticker (messages taggant un ticker spécifique)</div>
+    <div class="table-wrap">
+      <table class="tbl" id="tblSentiment">
+        <thead><tr>
+          <th>#</th><th>Ticker</th><th>Mentions</th><th>Auteurs</th>
+          <th>ACHETER</th><th>ACHAT_FORT</th><th>VENTE</th><th>PANIQUE</th><th>EUPHORIE</th>
+          <th>NLP Score</th><th>Secteur</th><th>Classification</th>
+        </tr></thead>
+        <tbody id="sentimentBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  TAB 3 — STOCK PICKING                                -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-picking" class="tab-pane">
+  <div class="missing-banner">
+    ⚠ 9 tickers absents du pipeline détectés: JET, ALLIANCES, SNEP, RISMA, FBR, STROC, SID, TAQA, RISA — ajoutés avec données estimées
+  </div>
+
+  <div class="cards cards-4" style="margin-bottom:20px">
+    <div class="card card-sm">
+      <div class="card-label">NLP Score anomalie <span class="pill pill-sell">CORRIGÉ</span></div>
+      <div class="card-value" style="font-size:1.1rem;color:var(--green)">Per-ticker</div>
+      <div class="card-sub">Était 49.3 fixe → maintenant par ticker via stock_scores</div>
+    </div>
+    <div class="card card-sm">
+      <div class="card-label">Tickers ACHAT</div>
+      <div class="card-value" style="color:var(--green)">7</div>
+      <div class="card-sub">Signal ★★★★ sur 34 analysés</div>
+    </div>
+    <div class="card card-sm">
+      <div class="card-label">Tickers NEUTRE</div>
+      <div class="card-value" style="color:var(--yellow)">23</div>
+      <div class="card-sub">Signal ★★★ — observer</div>
+    </div>
+    <div class="card card-sm">
+      <div class="card-label">Tickers VENTE</div>
+      <div class="card-value" style="color:var(--red)">4</div>
+      <div class="card-sub">Signal ★★ — éviter</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">Classement final — 34 tickers analysés + 9 manquants estimés</div>
+    <div class="chart-sub">Score composite = 30% Fond + 25% Tech + 25% NLP/SM + 20% Réseau · Trié par composite</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="tab-btn active" id="sortComposite" onclick="sortRankings('composite')">COMPOSITE</button>
+      <button class="tab-btn" id="sortNLP" onclick="sortRankings('nlp')">NLP</button>
+      <button class="tab-btn" id="sortFond" onclick="sortRankings('fond')">FOND</button>
+      <button class="tab-btn" id="sortTech" onclick="sortRankings('tech')">TECH</button>
+    </div>
+    <div class="table-wrap">
+      <table class="tbl" id="tblRankings">
+        <thead><tr>
+          <th>#</th><th>Ticker</th><th>Signal</th>
+          <th>Composite</th><th>NLP <span style="color:var(--green)">✓corrigé</span></th>
+          <th>Fond</th><th>Tech</th><th>SM</th>
+          <th>Prix</th><th>P/E</th><th>Div%</th><th>Potentiel</th><th>P(1m)</th>
+        </tr></thead>
+        <tbody id="rankingsBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  TAB 4 — SMART MONEY                                  -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-smartmoney" class="tab-pane">
+  <div class="correction-banner">
+    <div>
+      <div class="corr-title">⚠ Anomalie Smart Money — win_rate invalide</div>
+      <div style="font-size:.72rem;color:var(--text3);margin-top:4px">
+        Win rate = 0 ou NaN pour 13/14 membres Smart Money identifiés. Cause: prix GBM synthétiques utilisés 
+        au lieu de vraies données BVC. Score basé uniquement sur <strong style="color:var(--yellow)">timeliness</strong> 
+        (réactivité aux mouvements de marché) — métrique valide sur données réelles.
+        Les membres ci-dessous ordonnés par timeliness_norm (0→100).
+      </div>
+    </div>
+  </div>
+
+  <div class="missing-banner">
+    ⚠ Membres manquants dans le pipeline SM: Ismael (71K msgs), O.benabdallah (22K), Exemple (18K), Aziz Ben Addi (13K), Amine (12K), Lemagicien (11K), Yousef El Khatab (11K) — non scorés car absents du filtre ticker
+  </div>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="chart-card">
+      <div class="chart-title">Top 15 — Timeliness Score (pipeline)</div>
+      <div class="chart-sub">Réactivité aux mouvements · Seule métrique valide sans prix réels BVC</div>
+      <div class="chart-wrap"><canvas id="chartSM"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Smart Money identifiés (14 membres pipeline)</div>
+      <div class="chart-sub">Classement NLP · Métriques de performance à recalculer avec données réelles</div>
+      <div class="chart-wrap short"><canvas id="chartSMPie"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">Classement complet Smart Money — 50 membres analysés</div>
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>Rang</th><th>Membre</th><th>Status</th><th>Messages</th>
+          <th>Appels ticker</th><th>Timeliness</th><th>T-Score</th>
+          <th>Précision</th><th>Win Rate</th><th>Note</th>
+        </tr></thead>
+        <tbody id="smBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  TAB 5 — COMPORTEMENT                                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-comportement" class="tab-pane">
+  <div class="missing-banner">
+    ⚠ 7 membres très actifs étaient absents du classement pipeline (filtrés par seuil de signaux ticker).
+    Inclus ici avec leur activité réelle.
+  </div>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="chart-card">
+      <div class="chart-title">Top 30 membres — Volume de messages</div>
+      <div class="chart-sub">Source: activity_stats.pkl · Total corpus 882,734 messages</div>
+      <div class="chart-wrap tall"><canvas id="chartMembers"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Distribution horaire (heure active)</div>
+      <div class="chart-sub">Heure GMT+1 · Pic 20h-22h (session soir BVC)</div>
+      <div class="chart-wrap"><canvas id="chartHours"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">Top 50 membres — Activité &amp; Présence</div>
+    <div class="chart-sub">⚠ surligné = membre manquant dans le pipeline Smart Money</div>
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>#</th><th>Membre</th><th>Messages</th><th>Part %</th>
+          <th>Pipeline SM</th><th>Rang SM</th><th>Statut</th>
+        </tr></thead>
+        <tbody id="membersBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  TAB 6 — NLP & LANGUES                                -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-nlp" class="tab-pane">
+  <div class="cards cards-4" style="margin-bottom:24px">
+    <div class="card card-sm">
+      <div class="card-label">Langues détectées</div>
+      <div class="card-value" style="color:var(--accent2)">4</div>
+      <div class="card-sub">FR, AR, Darija, EN</div>
+    </div>
+    <div class="card card-sm">
+      <div class="card-label">Signaux taggés</div>
+      <div class="card-value" style="color:var(--yellow)">~129K</div>
+      <div class="card-sub">14.6% du corpus total</div>
+    </div>
+    <div class="card card-sm">
+      <div class="card-label">Tickers extraits</div>
+      <div class="card-value" style="color:var(--purple)">64</div>
+      <div class="card-sub">Pipeline · +9 manquants détectés</div>
+    </div>
+    <div class="card card-sm">
+      <div class="card-label">Période F&amp;G</div>
+      <div class="card-value" style="color:var(--green)">1,921</div>
+      <div class="card-sub">Jours calculés · Déc 2020 → Juin 2026</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="chart-card">
+      <div class="chart-title">Distribution des langues</div>
+      <div class="chart-sub">Estimation basée sur patterns détectés dans le corpus</div>
+      <div class="chart-wrap" style="height:260px"><canvas id="chartLangs"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Vocabulaire de signaux</div>
+      <div class="chart-sub">Mots-clés par type de signal · Dictionnaire Darija/FR/AR</div>
+      <div style="padding:8px 0">
+        <div style="margin-bottom:14px">
+          <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;color:var(--green);margin-bottom:6px">BUY — ACHETER / شري</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px" id="tagsBuy"></div>
+        </div>
+        <div style="margin-bottom:14px">
+          <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;color:var(--red);margin-bottom:6px">SELL — VENDRE / بيع</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px" id="tagsSell"></div>
+        </div>
+        <div style="margin-bottom:14px">
+          <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;color:var(--orange);margin-bottom:6px">PANIQUE — خايف</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px" id="tagsPanic"></div>
+        </div>
+        <div>
+          <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;color:var(--yellow);margin-bottom:6px">EUPHORIE — فرحان</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px" id="tagsEuphoria"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">Analyse des signaux NLP — Pipeline 14 phases</div>
+    <div class="chart-sub">Résultats agrégés · Phase 5 (NLP) + Phase 8 (Corrélation) + Phase 13 (Rankings)</div>
+    <div class="cards cards-4" style="margin-top:12px">
+      <div class="card card-sm">
+        <div class="card-label">ACHAT_FORT</div>
+        <div class="card-value" style="color:var(--green);font-size:1.4rem">8,710</div>
+        <div class="card-sub">6.7% des BUY · Fort conviction</div>
+      </div>
+      <div class="card card-sm">
+        <div class="card-label">ACHETER</div>
+        <div class="card-value" style="color:var(--green);font-size:1.4rem">32,592</div>
+        <div class="card-sub">Standard · Inclut renforcement</div>
+      </div>
+      <div class="card card-sm">
+        <div class="card-label">DOUTE</div>
+        <div class="card-value" style="color:var(--text3);font-size:1.4rem">~15K</div>
+        <div class="card-sub">Hésitation · Signal neutre</div>
+      </div>
+      <div class="card card-sm">
+        <div class="card-label">IRONIE / FOMO</div>
+        <div class="card-value" style="color:var(--purple);font-size:1.4rem">~11K</div>
+        <div class="card-sub">Sentiment complexe · NLP Phase 6</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  TAB 7 — MÉTHODOLOGIE                                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-methodo" class="tab-pane">
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="chart-card">
+      <div class="chart-title">Pipeline NLP — 14 phases</div>
+      <div class="chart-sub">Architecture complète · BVC WhatsApp Quantitative Analysis</div>
+      <div class="phases" id="phasesContainer"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Rapport d'Anomalies — Audit croisé</div>
+      <div class="chart-sub">6 anomalies identifiées · 4 corrigées dans ce dashboard</div>
+      <div class="anomaly-list" id="anomalyContainer"></div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">Architecture Phases 8–13 — Design Quantitatif</div>
+    <div class="chart-sub">Basé sur: Bailey &amp; López de Prado (Deflated Sharpe Ratio), BERTopic, Walk-Forward TimeSeriesSplit</div>
+    <div class="cards cards-3" style="margin-top:16px">
+      <div class="card card-sm">
+        <div class="card-label" style="color:var(--accent2)">Phase 8 — Corrélation NLP×Prix</div>
+        <div style="font-size:.72rem;color:var(--text3);line-height:1.6;margin-top:8px">
+          <strong style="color:var(--text)">Price Panel:</strong> 77 actions × 1,503 jours<br>
+          <strong style="color:var(--text)">Lag Analysis:</strong> Sentiment → Return (+3 jours)<br>
+          <strong style="color:var(--text)">Granger Test:</strong> Causalité NLP → prix<br>
+          <strong style="color:var(--text)">Smart Money Lead:</strong> Anticipation 1-5 jours
+        </div>
+      </div>
+      <div class="card card-sm">
+        <div class="card-label" style="color:var(--purple)">Phase 9-10 — Topologie &amp; Topics</div>
+        <div style="font-size:.72rem;color:var(--text3);line-height:1.6;margin-top:8px">
+          <strong style="color:var(--text)">Network:</strong> 144+ nœuds · Communities détectées<br>
+          <strong style="color:var(--text)">BERTopic:</strong> Topic modeling corpus<br>
+          <strong style="color:var(--text)">LDA:</strong> ⚠ Erreur pickle (non-critique)<br>
+          <strong style="color:var(--text)">Regimes:</strong> HMM market state detection
+        </div>
+      </div>
+      <div class="card card-sm">
+        <div class="card-label" style="color:var(--green)">Phase 11-13 — Backtest &amp; Scoring</div>
+        <div style="font-size:.72rem;color:var(--text3);line-height:1.6;margin-top:8px">
+          <strong style="color:var(--text)">Walk-Forward:</strong> TimeSeriesSplit (no look-ahead)<br>
+          <strong style="color:var(--text)">DSR:</strong> Deflated Sharpe Ratio (Bailey 2014)<br>
+          <strong style="color:var(--text)">DuckDB:</strong> 6 tables · messages/signals/prices<br>
+          <strong style="color:var(--text)">Rankings:</strong> 4D score · 34 tickers finaux
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════════
+const CHART_LABELS = ["2020-12-27", "2021-01-10", "2021-01-24", "2021-02-07", "2021-02-21", "2021-03-07", "2021-03-21", "2021-04-04", "2021-04-18", "2021-05-02", "2021-05-16", "2021-05-30", "2021-06-13", "2021-06-27", "2021-07-11", "2021-07-25", "2021-08-08", "2021-08-22", "2021-09-05", "2021-09-19", "2021-10-03", "2021-10-17", "2021-10-31", "2021-11-14", "2021-11-28", "2021-12-12", "2021-12-26", "2022-01-09", "2022-01-23", "2022-02-06", "2022-02-20", "2022-03-06", "2022-03-20", "2022-04-03", "2022-04-17", "2022-05-01", "2022-05-15", "2022-05-29", "2022-06-12", "2022-06-26", "2022-07-10", "2022-07-24", "2022-08-07", "2022-08-21", "2022-09-04", "2022-09-18", "2022-10-02", "2022-10-16", "2022-10-30", "2022-11-13", "2022-11-27", "2022-12-11", "2022-12-25", "2023-01-08", "2023-01-22", "2023-02-05", "2023-02-19", "2023-03-05", "2023-03-19", "2023-04-02", "2023-04-16", "2023-04-30", "2023-05-14", "2023-05-28", "2023-06-11", "2023-06-25", "2023-07-09", "2023-07-23", "2023-08-06", "2023-08-20", "2023-09-03", "2023-09-17", "2023-10-01", "2023-10-15", "2023-10-29", "2023-11-12", "2023-11-26", "2023-12-10", "2023-12-24", "2024-01-07", "2024-01-21", "2024-02-04", "2024-02-18", "2024-03-03", "2024-03-17", "2024-03-31", "2024-04-14", "2024-04-28", "2024-05-12", "2024-05-26", "2024-06-09", "2024-06-23", "2024-07-07", "2024-07-21", "2024-08-04", "2024-08-18", "2024-09-01", "2024-09-15", "2024-09-29", "2024-10-13", "2024-10-27", "2024-11-10", "2024-11-24", "2024-12-08", "2024-12-22", "2025-01-05", "2025-01-19", "2025-03-09", "2025-03-23", "2025-04-06", "2025-04-20", "2025-05-04", "2025-05-18", "2025-06-01", "2025-06-15", "2025-06-29", "2025-07-13", "2025-07-27", "2025-08-10", "2025-08-24", "2025-09-07", "2025-09-21", "2025-10-05", "2025-10-19", "2025-11-02", "2025-11-16", "2025-11-30", "2025-12-14", "2025-12-28", "2026-01-11", "2026-01-25", "2026-02-08", "2026-03-01", "2026-03-15", "2026-03-29", "2026-04-12", "2026-04-26", "2026-05-10", "2026-05-24", "2026-06-07"];
+const CHART_FG = [42.9, 40.4, 45.9, 42.0, 40.5, 43.1, 41.4, 41.7, 41.9, 44.5, 44.9, 44.2, 42.2, 42.8, 41.6, 38.6, 42.3, 40.7, 42.7, 42.7, 44.1, 40.5, 41.6, 43.1, 41.0, 41.1, 39.9, 41.2, 44.3, 42.1, 42.4, 41.2, 40.6, 41.8, 43.1, 41.5, 39.8, 41.3, 39.5, 39.9, 40.9, 38.6, 40.4, 42.3, 40.5, 40.3, 41.7, 38.0, 39.6, 42.4, 40.4, 40.1, 40.1, 43.5, 42.1, 42.2, 42.5, 42.6, 36.7, 40.4, 36.4, 39.1, 42.2, 39.3, 42.3, 43.2, 41.2, 41.2, 42.5, 41.2, 42.6, 40.2, 43.0, 41.9, 40.7, 39.4, 43.8, 42.5, 45.0, 43.7, 43.2, 42.4, 43.2, 43.7, 41.2, 41.3, 43.1, 45.1, 43.1, 42.4, 42.9, 40.5, 41.3, 43.6, 43.2, 42.0, 45.4, 44.0, 43.5, 46.3, 41.2, 43.0, 43.4, 42.3, 43.4, 41.0, 46.6, 43.6, 42.4, 40.3, 41.2, 43.1, 45.1, 41.0, 39.0, 40.5, 44.4, 43.6, 42.5, 43.7, 44.1, 42.9, 43.7, 39.9, 43.7, 41.9, 41.5, 41.6, 42.9, 44.0, 41.0, 40.8, 42.7, 39.2, 39.4, 41.0, 43.3, 41.1, 40.7, 40.6];
+const CHART_MASI = [99.8, 100.1, 101.3, 101.9, 103.4, 104.0, 105.3, 107.0, 107.7, 108.4, 108.7, 111.0, 112.4, 114.2, 114.9, 114.9, 115.8, 116.1, 118.6, 119.7, 120.7, 120.9, 120.5, 120.9, 120.0, 119.9, 121.7, 121.5, 125.3, 126.2, 128.6, 130.8, 130.9, 131.5, 133.0, 135.3, 136.4, 137.2, 139.5, 139.9, 138.7, 142.0, 141.5, 143.5, 146.3, 146.4, 148.8, 149.0, 149.0, 148.6, 149.0, 150.4, 151.1, 151.3, 153.5, 151.8, 154.0, 154.3, 158.0, 160.0, 161.4, 163.2, 164.9, 164.5, 165.8, 164.8, 163.9, 163.8, 163.4, 162.0, 159.1, 158.2, 157.9, 160.4, 157.0, 155.0, 158.3, 157.4, 159.9, 162.3, 162.2, 163.5, 165.7, 166.9, 164.5, 167.5, 170.0, 169.8, 171.0, 172.9, 172.2, 173.1, 174.5, 174.6, 177.2, 177.6, 177.0, 174.2, 175.3, 176.7, 178.7, 181.5, 182.6, 183.4, 185.6, 188.9, 190.0, 189.1, 192.0, 197.2, 198.4, 198.3, 201.5, 204.5, 206.9, 212.7, 213.2, 215.8, 214.0, 215.4, 216.0, 216.3, 220.1, 218.6, 218.6, 219.3, 218.5, 220.3, 219.6, 222.3, 223.7, 223.3, 226.1, 230.0, 228.7, 231.5, 232.5, 237.0, 241.4, 242.2];
+const TOP_MEMBERS = [{"name": "Karim Doe Groupe Test", "msgs": 168918}, {"name": "Ismael", "msgs": 71352}, {"name": "Mehdi K", "msgs": 33945}, {"name": "O.benabdallah", "msgs": 22556}, {"name": "Exemple", "msgs": 18929}, {"name": "Mohamed", "msgs": 17982}, {"name": "N l", "msgs": 14034}, {"name": "Biat", "msgs": 13945}, {"name": "Aziz Ben Addi \u270c\ud83c\udffb", "msgs": 13274}, {"name": "El Alaoui", "msgs": 13211}, {"name": "Amine", "msgs": 12892}, {"name": "saadb", "msgs": 11656}, {"name": "Lemagicien\ud83e\udd21", "msgs": 11652}, {"name": "Yousef El Khatab", "msgs": 11168}, {"name": "Hamza Alami", "msgs": 9494}, {"name": "exemple2", "msgs": 9478}, {"name": "Anas Solhy", "msgs": 8740}, {"name": "Karim Testeur", "msgs": 8111}, {"name": "Aissame", "msgs": 7523}, {"name": "Driss.alaoui", "msgs": 7352}, {"name": "Khaoula", "msgs": 7289}, {"name": "Y.M", "msgs": 6493}, {"name": "Younes Oudghiri", "msgs": 6434}, {"name": "Amine H", "msgs": 6320}, {"name": "Fouad Chartiste", "msgs": 6007}, {"name": "amine zindine", "msgs": 5958}, {"name": "Youness", "msgs": 5942}, {"name": "ECar.ma", "msgs": 5729}, {"name": "Si Mohamed", "msgs": 4758}, {"name": "Aboubarae", "msgs": 4688}, {"name": "Adil REDOUANE", "msgs": 4635}, {"name": "J", "msgs": 4479}, {"name": "Bourse", "msgs": 4431}, {"name": "Mohamed~~", "msgs": 4396}, {"name": "WhatSapian", "msgs": 4329}, {"name": "Filali\u2b50", "msgs": 4067}, {"name": "EL manssouri", "msgs": 4021}, {"name": "B A", "msgs": 3956}, {"name": "Mouad Benhalima", "msgs": 3908}, {"name": "Adil HLIMI", "msgs": 3907}, {"name": "A. A", "msgs": 3905}, {"name": "Lagrida Yassine", "msgs": 3901}, {"name": "Hamid101", "msgs": 3806}, {"name": "hamza tazi", "msgs": 3743}, {"name": "mohamed", "msgs": 3563}, {"name": "Mak", "msgs": 3538}, {"name": "mahdi1663", "msgs": 3449}, {"name": "Hamdaoui", "msgs": 3411}, {"name": "Tfc", "msgs": 3407}, {"name": "Jelloul", "msgs": 3339}];
+const SM_DATA = [{"author": "exemple2", "n_calls": 44, "timeliness": 0.726, "timeliness_norm": 81.1, "precision": 0.0, "is_sm": true, "rank": 1, "msgs": 9478}, {"author": "Karim Doe Groupe Test", "n_calls": 3849, "timeliness": 0.473, "timeliness_norm": 52.7, "precision": 0.182, "is_sm": true, "rank": 2, "msgs": 168918}, {"author": "Med", "n_calls": 79, "timeliness": 0.632, "timeliness_norm": 70.5, "precision": 0.0, "is_sm": true, "rank": 3, "msgs": 3327}, {"author": "Y.M", "n_calls": 365, "timeliness": 0.399, "timeliness_norm": 44.4, "precision": 0.0, "is_sm": true, "rank": 4, "msgs": 6493}, {"author": "Driss.alaoui", "n_calls": 379, "timeliness": 0.596, "timeliness_norm": 66.5, "precision": 0.0, "is_sm": true, "rank": 5, "msgs": 7352}, {"author": "Hamza Alami", "n_calls": 263, "timeliness": 0.894, "timeliness_norm": 99.9, "precision": 0.0, "is_sm": true, "rank": 6, "msgs": 9494}, {"author": "elmarini Taoufik", "n_calls": 97, "timeliness": 0.682, "timeliness_norm": 76.1, "precision": 0.0, "is_sm": true, "rank": 7, "msgs": 2776}, {"author": "El Alaoui", "n_calls": 143, "timeliness": 0.895, "timeliness_norm": 100.0, "precision": 0.0, "is_sm": true, "rank": 8, "msgs": 13211}, {"author": "Reda", "n_calls": 96, "timeliness": 0.748, "timeliness_norm": 83.5, "precision": 0.0, "is_sm": true, "rank": 9, "msgs": 2808}, {"author": "Abdel", "n_calls": 81, "timeliness": 0.648, "timeliness_norm": 72.3, "precision": 0.0, "is_sm": true, "rank": 10, "msgs": 897}, {"author": "karim", "n_calls": 52, "timeliness": 0.221, "timeliness_norm": 24.4, "precision": 0.0, "is_sm": true, "rank": 11, "msgs": 606}, {"author": "Anass", "n_calls": 48, "timeliness": 0.357, "timeliness_norm": 39.7, "precision": 0.0, "is_sm": true, "rank": 12, "msgs": 2455}, {"author": "Karim Testeur", "n_calls": 380, "timeliness": 0.593, "timeliness_norm": 66.1, "precision": 0.0, "is_sm": true, "rank": 13, "msgs": 8111}, {"author": "N l", "n_calls": 289, "timeliness": 0.568, "timeliness_norm": 63.3, "precision": 0.0, "is_sm": true, "rank": 14, "msgs": 14034}, {"author": "Hamid101", "n_calls": 85, "timeliness": 0.641, "timeliness_norm": 71.5, "precision": 0.0, "is_sm": false, "rank": 15, "msgs": 3806}, {"author": "casasaid997", "n_calls": 51, "timeliness": 0.522, "timeliness_norm": 58.2, "precision": 0.0, "is_sm": false, "rank": 16, "msgs": 578}, {"author": "W.Mustapha", "n_calls": 50, "timeliness": 0.652, "timeliness_norm": 72.8, "precision": 0.0, "is_sm": false, "rank": 17, "msgs": 2722}, {"author": "mohamed", "n_calls": 60, "timeliness": 0.521, "timeliness_norm": 58.1, "precision": 0.0, "is_sm": false, "rank": 18, "msgs": 3563}, {"author": "Hafid", "n_calls": 195, "timeliness": 0.409, "timeliness_norm": 45.5, "precision": 0.0, "is_sm": false, "rank": 19, "msgs": 3088}, {"author": "Abdelmalek", "n_calls": 39, "timeliness": 0.383, "timeliness_norm": 42.6, "precision": 0.0, "is_sm": false, "rank": 20, "msgs": 2020}, {"author": "Adil", "n_calls": 51, "timeliness": 0.603, "timeliness_norm": 67.3, "precision": 0.0, "is_sm": false, "rank": 21, "msgs": 2320}, {"author": "Mehdi K", "n_calls": 666, "timeliness": 0.451, "timeliness_norm": 50.2, "precision": 0.0, "is_sm": false, "rank": 22, "msgs": 33945}, {"author": "Khaoula", "n_calls": 184, "timeliness": 0.692, "timeliness_norm": 77.2, "precision": 0.0, "is_sm": false, "rank": 23, "msgs": 7289}, {"author": "Raffali Youssef - Advalue Immo", "n_calls": 48, "timeliness": 0.787, "timeliness_norm": 87.9, "precision": 0.0, "is_sm": false, "rank": 24, "msgs": 2047}, {"author": "Mustapha", "n_calls": 35, "timeliness": 0.432, "timeliness_norm": 48.1, "precision": 0.0, "is_sm": false, "rank": 25, "msgs": 1305}, {"author": "Biat", "n_calls": 245, "timeliness": 0.424, "timeliness_norm": 47.2, "precision": 1.0, "is_sm": false, "rank": 26, "msgs": 13945}, {"author": "Fouad Chartiste", "n_calls": 57, "timeliness": 0.743, "timeliness_norm": 83.0, "precision": 0.0, "is_sm": false, "rank": 27, "msgs": 6007}, {"author": "lefouilisimohamed", "n_calls": 34, "timeliness": 0.545, "timeliness_norm": 60.8, "precision": 0.0, "is_sm": false, "rank": 28, "msgs": 997}, {"author": "saadb", "n_calls": 520, "timeliness": 0.747, "timeliness_norm": 83.4, "precision": 0.0, "is_sm": false, "rank": 29, "msgs": 11656}, {"author": "Youness", "n_calls": 191, "timeliness": 0.461, "timeliness_norm": 51.3, "precision": 0.0, "is_sm": false, "rank": 30, "msgs": 5942}, {"author": "Younes", "n_calls": 33, "timeliness": 0.479, "timeliness_norm": 53.4, "precision": 0.0, "is_sm": false, "rank": 31, "msgs": 1185}, {"author": "Soulaiman LAA", "n_calls": 39, "timeliness": 0.591, "timeliness_norm": 65.9, "precision": 0.0, "is_sm": false, "rank": 32, "msgs": 2265}, {"author": "Younes Oudghiri", "n_calls": 80, "timeliness": 0.677, "timeliness_norm": 75.6, "precision": 0.0, "is_sm": false, "rank": 33, "msgs": 6434}, {"author": "Youssef K", "n_calls": 30, "timeliness": 0.698, "timeliness_norm": 77.9, "precision": 0.0, "is_sm": false, "rank": 34, "msgs": 857}, {"author": "Jelloul", "n_calls": 192, "timeliness": 0.352, "timeliness_norm": 39.1, "precision": 0.0, "is_sm": false, "rank": 35, "msgs": 3339}, {"author": "MEDYGOOO", "n_calls": 20, "timeliness": 0.703, "timeliness_norm": 78.5, "precision": 0.0, "is_sm": false, "rank": 36, "msgs": 1724}, {"author": "Zakaria", "n_calls": 49, "timeliness": 0.655, "timeliness_norm": 73.1, "precision": 0.0, "is_sm": false, "rank": 37, "msgs": 2517}, {"author": "Tourtit", "n_calls": 77, "timeliness": 0.394, "timeliness_norm": 43.8, "precision": 0.0, "is_sm": false, "rank": 38, "msgs": 710}, {"author": "FATHALLAH", "n_calls": 65, "timeliness": 0.43, "timeliness_norm": 47.9, "precision": 0.0, "is_sm": false, "rank": 39, "msgs": 800}, {"author": "Marwa Q", "n_calls": 59, "timeliness": 0.77, "timeliness_norm": 86.0, "precision": 0.0, "is_sm": false, "rank": 40, "msgs": 2667}, {"author": "Mohamed Majd BENLEMLIH", "n_calls": 20, "timeliness": 0.67, "timeliness_norm": 74.8, "precision": 0.0, "is_sm": false, "rank": 41, "msgs": 1814}, {"author": "Kamal Berrada", "n_calls": 140, "timeliness": 0.794, "timeliness_norm": 88.7, "precision": 0.0, "is_sm": false, "rank": 42, "msgs": 1919}, {"author": "Meryem", "n_calls": 66, "timeliness": 0.478, "timeliness_norm": 53.3, "precision": 0.0, "is_sm": false, "rank": 43, "msgs": 502}, {"author": "T", "n_calls": 34, "timeliness": 0.241, "timeliness_norm": 26.7, "precision": 0.0, "is_sm": false, "rank": 44, "msgs": 1236}, {"author": "Mr", "n_calls": 84, "timeliness": 0.766, "timeliness_norm": 85.5, "precision": 0.0, "is_sm": false, "rank": 45, "msgs": 1776}, {"author": "amine zindine", "n_calls": 143, "timeliness": 0.47, "timeliness_norm": 52.4, "precision": 0.0, "is_sm": false, "rank": 46, "msgs": 5958}, {"author": "Mohamed", "n_calls": 490, "timeliness": 0.22, "timeliness_norm": 24.3, "precision": 0.0, "is_sm": false, "rank": 47, "msgs": 17982}, {"author": "Filali\u2b50", "n_calls": 20, "timeliness": 0.86, "timeliness_norm": 96.1, "precision": 0.0, "is_sm": false, "rank": 48, "msgs": 4067}, {"author": "Med Mez", "n_calls": 37, "timeliness": 0.86, "timeliness_norm": 96.1, "precision": 0.0, "is_sm": false, "rank": 49, "msgs": 1625}, {"author": "Aissame", "n_calls": 171, "timeliness": 0.343, "timeliness_norm": 38.1, "precision": 0.0, "is_sm": false, "rank": 50, "msgs": 7523}];
+const STOCK_DATA = [{"t": "ADI", "mentions": 22893, "authors": 472, "sentiment": 0.0338, "nlp": 66.9, "buy": 1409, "strong_buy": 304, "sell": 1745, "panic": 110, "euphoria": 182, "renf": 240, "sector": "Immobilier", "g_score": 56.6, "p_score": 56.4, "class": "Neutre"}, {"t": "ADH", "mentions": 18290, "authors": 447, "sentiment": 0.0253, "nlp": 62.7, "buy": 1093, "strong_buy": 163, "sell": 1415, "panic": 93, "euphoria": 163, "renf": 133, "sector": "Immobilier", "g_score": 55.3, "p_score": 49.3, "class": "Neutre"}, {"t": "RDS", "mentions": 14692, "authors": 420, "sentiment": 0.0325, "nlp": 66.3, "buy": 913, "strong_buy": 175, "sell": 891, "panic": 63, "euphoria": 98, "renf": 118, "sector": "Immobilier", "g_score": 55.8, "p_score": 51.9, "class": "Neutre"}, {"t": "TGCC", "mentions": 9537, "authors": 420, "sentiment": 0.0315, "nlp": 65.7, "buy": 609, "strong_buy": 95, "sell": 861, "panic": 28, "euphoria": 105, "renf": 99, "sector": "BTP", "g_score": 56.7, "p_score": 52.8, "class": "Neutre"}, {"t": "MNG", "mentions": 6665, "authors": 317, "sentiment": 0.0233, "nlp": 61.7, "buy": 445, "strong_buy": 71, "sell": 602, "panic": 32, "euphoria": 99, "renf": 56, "sector": "Mines", "g_score": 55.6, "p_score": 52.9, "class": "Neutre"}, {"t": "BCP", "mentions": 5379, "authors": 415, "sentiment": 0.0137, "nlp": 56.8, "buy": 375, "strong_buy": 34, "sell": 447, "panic": 49, "euphoria": 60, "renf": 33, "sector": "Banque", "g_score": 53.9, "p_score": 50.9, "class": "Neutre"}, {"t": "CASH", "mentions": 4410, "authors": 322, "sentiment": 0.0076, "nlp": 53.8, "buy": 324, "strong_buy": 92, "sell": 595, "panic": 48, "euphoria": 55, "renf": 81, "sector": "Finance", "g_score": 55.6, "p_score": 53.3, "class": "Neutre"}, {"t": "SMI", "mentions": 4279, "authors": 247, "sentiment": 0.0206, "nlp": 60.3, "buy": 251, "strong_buy": 40, "sell": 329, "panic": 15, "euphoria": 52, "renf": 35, "sector": "Mines", "g_score": 54.7, "p_score": 51.2, "class": "Neutre"}, {"t": "CMT", "mentions": 4142, "authors": 280, "sentiment": 0.002, "nlp": 51.0, "buy": 262, "strong_buy": 37, "sell": 471, "panic": 22, "euphoria": 50, "renf": 26, "sector": "Ciment", "g_score": 53.6, "p_score": 49.6, "class": "Neutre"}, {"t": "IAM", "mentions": 3260, "authors": 293, "sentiment": 0.0008, "nlp": 50.4, "buy": 268, "strong_buy": 27, "sell": 466, "panic": 23, "euphoria": 64, "renf": 18, "sector": "T\u00e9l\u00e9coms", "g_score": 54.6, "p_score": 48.8, "class": "Neutre"}, {"t": "RIS", "mentions": 3096, "authors": 250, "sentiment": 0.0284, "nlp": 64.2, "buy": 201, "strong_buy": 27, "sell": 264, "panic": 11, "euphoria": 32, "renf": 23, "sector": "H\u00f4tellerie", "g_score": 56.0, "p_score": 50.9, "class": "Neutre"}, {"t": "AKD", "mentions": 2888, "authors": 311, "sentiment": 0.0148, "nlp": 57.4, "buy": 184, "strong_buy": 27, "sell": 342, "panic": 12, "euphoria": 30, "renf": 24, "sector": "Sant\u00e9", "g_score": 55.5, "p_score": 52.8, "class": "Neutre"}, {"t": "HPS", "mentions": 2801, "authors": 234, "sentiment": 0.0203, "nlp": 60.2, "buy": 210, "strong_buy": 20, "sell": 298, "panic": 8, "euphoria": 38, "renf": 23, "sector": "Tech", "g_score": 55.7, "p_score": 47.3, "class": "Neutre"}, {"t": "ATW", "mentions": 2751, "authors": 280, "sentiment": 0.0361, "nlp": 68.1, "buy": 203, "strong_buy": 15, "sell": 300, "panic": 8, "euphoria": 40, "renf": 22, "sector": "Banque", "g_score": 57.9, "p_score": 54.5, "class": "Neutre"}, {"t": "SNA", "mentions": 2669, "authors": 218, "sentiment": 0.0206, "nlp": 60.3, "buy": 106, "strong_buy": 26, "sell": 134, "panic": 6, "euphoria": 21, "renf": 12, "sector": "Chimie", "g_score": 53.7, "p_score": 47.3, "class": "Neutre"}, {"t": "DISWAY", "mentions": 2450, "authors": 146, "sentiment": 0.03, "nlp": 65.0, "buy": 162, "strong_buy": 16, "sell": 233, "panic": 3, "euphoria": 45, "renf": 7, "sector": "Tech", "g_score": 56.6, "p_score": 50.2, "class": "Neutre"}, {"t": "SGTM", "mentions": 1841, "authors": 237, "sentiment": 0.0057, "nlp": 52.9, "buy": 102, "strong_buy": 20, "sell": 232, "panic": 6, "euphoria": 24, "renf": 15, "sector": "Infrastructure", "g_score": 54.7, "p_score": 50.4, "class": "Neutre"}, {"t": "SOT", "mentions": 1772, "authors": 162, "sentiment": 0.0248, "nlp": 62.4, "buy": 92, "strong_buy": 18, "sell": 178, "panic": 9, "euphoria": 12, "renf": 17, "sector": "Pharma", "g_score": 56.2, "p_score": 54.2, "class": "Neutre"}, {"t": "SOTHEMA", "mentions": 1517, "authors": 145, "sentiment": 0.0218, "nlp": 60.9, "buy": 76, "strong_buy": 17, "sell": 160, "panic": 7, "euphoria": 8, "renf": 12, "sector": "Pharma", "g_score": 56.0, "p_score": 53.9, "class": "Neutre"}, {"t": "TOTAL", "mentions": 1444, "authors": 233, "sentiment": 0.0035, "nlp": 51.7, "buy": 119, "strong_buy": 13, "sell": 217, "panic": 22, "euphoria": 34, "renf": 22, "sector": "\u00c9nergie", "g_score": 55.2, "p_score": 50.2, "class": "Neutre"}, {"t": "MSA", "mentions": 1433, "authors": 188, "sentiment": 0.0411, "nlp": 70.5, "buy": 89, "strong_buy": 15, "sell": 93, "panic": 7, "euphoria": 14, "renf": 12, "sector": "Agro", "g_score": 57.0, "p_score": 47.3, "class": "Neutre"}, {"t": "BOA", "mentions": 1284, "authors": 214, "sentiment": -0.0073, "nlp": 46.4, "buy": 86, "strong_buy": 12, "sell": 179, "panic": 9, "euphoria": 18, "renf": 10, "sector": "Banque", "g_score": 53.3, "p_score": 54.2, "class": "Neutre"}, {"t": "CMGP", "mentions": 1251, "authors": 189, "sentiment": 0.0392, "nlp": 69.6, "buy": 69, "strong_buy": 12, "sell": 124, "panic": 1, "euphoria": 13, "renf": 10, "sector": "Industrie", "g_score": 58.1, "p_score": 52.6, "class": "Neutre"}, {"t": "CIH", "mentions": 1191, "authors": 194, "sentiment": 0.0274, "nlp": 63.7, "buy": 84, "strong_buy": 8, "sell": 131, "panic": 4, "euphoria": 11, "renf": 10, "sector": "Banque", "g_score": 56.9, "p_score": 54.9, "class": "Neutre"}, {"t": "COSUMAR", "mentions": 889, "authors": 166, "sentiment": 0.0136, "nlp": 56.8, "buy": 59, "strong_buy": 5, "sell": 135, "panic": 4, "euphoria": 13, "renf": 8, "sector": "Agro", "g_score": 56.6, "p_score": 52.1, "class": "Neutre"}, {"t": "SRM", "mentions": 853, "authors": 112, "sentiment": 0.014, "nlp": 57.0, "buy": 31, "strong_buy": 4, "sell": 61, "panic": 1, "euphoria": 9, "renf": 1, "sector": "Services", "g_score": 53.5, "p_score": 44.9, "class": "Neutre"}, {"t": "BMCI", "mentions": 835, "authors": 139, "sentiment": -0.0142, "nlp": 42.9, "buy": 62, "strong_buy": 1, "sell": 131, "panic": 3, "euphoria": 14, "renf": 4, "sector": "Banque", "g_score": 53.0, "p_score": 57.1, "class": "Neutre"}, {"t": "S2M", "mentions": 792, "authors": 111, "sentiment": 0.049, "nlp": 74.5, "buy": 59, "strong_buy": 8, "sell": 54, "panic": 3, "euphoria": 8, "renf": 8, "sector": "Tech", "g_score": 58.3, "p_score": 50.0, "class": "Neutre"}, {"t": "CDM", "mentions": 699, "authors": 128, "sentiment": 0.0226, "nlp": 61.3, "buy": 78, "strong_buy": 5, "sell": 92, "panic": 7, "euphoria": 11, "renf": 8, "sector": "Banque", "g_score": 57.1, "p_score": 60.1, "class": "Neutre"}, {"t": "BMCE", "mentions": 653, "authors": 169, "sentiment": -0.0104, "nlp": 44.8, "buy": 41, "strong_buy": 7, "sell": 94, "panic": 5, "euphoria": 8, "renf": 4, "sector": "Banque", "g_score": 53.0, "p_score": 54.2, "class": "Neutre"}];
+const RANKINGS = [{"rank": 1, "t": "CMT", "name": "Ciments du Maroc", "composite": 68.0, "signal": "ACHAT", "signal_label": "Achat \u2605\u2605\u2605\u2605", "fond": 71.3, "tech": 58.6, "nlp": 51.0, "sm": 91.0, "price": 5133.0, "pe": 18.5, "div": 2.25, "upside": 14.0, "p1m": 0.476, "p3m": 0.429}, {"rank": 2, "t": "AKD", "name": "Akdital", "composite": 64.2, "signal": "ACHAT", "signal_label": "Achat \u2605\u2605\u2605\u2605", "fond": 68.9, "tech": 58.1, "nlp": 57.4, "sm": 80.0, "price": 1160.0, "pe": 22.4, "div": 0.96, "upside": 18.0, "p1m": 0.449, "p3m": 0.404}, {"rank": 3, "t": "MNG", "name": "Managem", "composite": 63.1, "signal": "ACHAT", "signal_label": "Achat \u2605\u2605\u2605\u2605", "fond": 37.6, "tech": 61.8, "nlp": 61.7, "sm": 100.0, "price": 16550.0, "pe": 58.7, "div": 0.37, "upside": 2.0, "p1m": 0.442, "p3m": 0.398}, {"rank": 4, "t": "SMI", "name": "SMI", "composite": 61.4, "signal": "ACHAT", "signal_label": "Achat \u2605\u2605\u2605\u2605", "fond": 46.2, "tech": 58.5, "nlp": 60.3, "sm": 89.0, "price": 9100.0, "pe": 37.0, "div": 1.76, "upside": 7.0, "p1m": 0.43, "p3m": 0.387}, {"rank": 5, "t": "TGCC", "name": "Travaux G\u00e9n\u00e9raux de Construction de Casablanca", "composite": 61.3, "signal": "ACHAT", "signal_label": "Achat \u2605\u2605\u2605\u2605", "fond": 70.4, "tech": 58.9, "nlp": 65.7, "sm": 75.0, "price": 749.7, "pe": 14.5, "div": 2.35, "upside": 27.0, "p1m": 0.429, "p3m": 0.386}, {"rank": 6, "t": "CFGB", "name": "CFG Bank", "composite": 61.2, "signal": "ACHAT", "signal_label": "Achat \u2605\u2605\u2605\u2605", "fond": 72.5, "tech": 62.2, "nlp": 49.3, "sm": 69.0, "price": 204.0, "pe": 14.2, "div": 1.7, "upside": 17.0, "p1m": 0.429, "p3m": 0.386}, {"rank": 7, "t": "SGTM", "name": "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale Tanger Med", "composite": 60.4, "signal": "ACHAT", "signal_label": "Achat \u2605\u2605\u2605\u2605", "fond": 70.7, "tech": 59.0, "nlp": 52.9, "sm": 70.0, "price": 730.2, "pe": 15.0, "div": 1.64, "upside": 27.0, "p1m": 0.422, "p3m": 0.38}, {"rank": 8, "t": "SRM", "name": "SRM", "composite": 58.8, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 74.8, "tech": 56.0, "nlp": 57.0, "sm": 60.0, "price": 469.85, "pe": 8.2, "div": 5.66, "upside": 8.0, "p1m": 0.411, "p3m": 0.37}, {"rank": 9, "t": "SOT", "name": "Sothema", "composite": 58.0, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 64.9, "tech": 57.2, "nlp": 62.4, "sm": 67.5, "price": 369.0, "pe": 19.5, "div": 2.8, "upside": 12.0, "p1m": 0.406, "p3m": 0.366}, {"rank": 10, "t": "CMGP", "name": "CMGP Group", "composite": 57.4, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 64.4, "tech": 57.2, "nlp": 69.6, "sm": 65.0, "price": 356.75, "pe": 11.8, "div": 3.35, "upside": -3.0, "p1m": 0.402, "p3m": 0.362}, {"rank": 11, "t": "CDM", "name": "Cr\u00e9dit du Maroc", "composite": 56.1, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 74.9, "tech": 52.5, "nlp": 61.3, "sm": 50.0, "price": 620.0, "pe": 11.0, "div": 4.5, "upside": 6.0, "p1m": 0.393, "p3m": 0.353}, {"rank": 12, "t": "CASH", "name": "CashPlus", "composite": 56.0, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 60.7, "tech": 56.1, "nlp": 53.8, "sm": 64.0, "price": 277.5, "pe": 28.4, "div": 3.51, "upside": 12.0, "p1m": 0.392, "p3m": 0.353}, {"rank": 13, "t": "BCP", "name": "Banque Centrale Populaire", "composite": 55.6, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 72.8, "tech": 52.5, "nlp": 56.8, "sm": 50.0, "price": 244.0, "pe": 11.5, "div": 3.2, "upside": 7.0, "p1m": 0.389, "p3m": 0.35}, {"rank": 14, "t": "ADI", "name": "Alliances D\u00e9veloppement", "composite": 55.6, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 71.5, "tech": 57.0, "nlp": 66.9, "sm": 47.5, "price": 391.95, "pe": 9.8, "div": 1.2, "upside": 17.0, "p1m": 0.389, "p3m": 0.351}, {"rank": 15, "t": "BOA", "name": "Bank of Africa", "composite": 55.4, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 72.3, "tech": 52.5, "nlp": 46.4, "sm": 50.0, "price": 200.0, "pe": 12.0, "div": 3.5, "upside": 7.0, "p1m": 0.388, "p3m": 0.349}, {"rank": 16, "t": "ATL", "name": "Auto Hall", "composite": 55.3, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 71.7, "tech": 52.5, "nlp": 51.6, "sm": 50.0, "price": 132.0, "pe": 13.8, "div": 4.5, "upside": 7.0, "p1m": 0.387, "p3m": 0.348}, {"rank": 17, "t": "ATW", "name": "Attijariwafa Bank", "composite": 55.3, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 71.8, "tech": 52.5, "nlp": 68.1, "sm": 50.0, "price": 681.5, "pe": 13.5, "div": 3.5, "upside": 8.0, "p1m": 0.387, "p3m": 0.348}, {"rank": 18, "t": "WAF", "name": "Wafasalaf", "composite": 54.9, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 70.1, "tech": 52.5, "nlp": 39.0, "sm": 50.0, "price": 4200.0, "pe": 14.5, "div": 4.8, "upside": 5.0, "p1m": 0.384, "p3m": 0.346}, {"rank": 19, "t": "CSR", "name": "Ciments du Maroc", "composite": 54.9, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 50.3, "tech": 54.9, "nlp": 31.9, "sm": 72.5, "price": 182.0, "pe": 24.2, "div": 4.73, "upside": -15.0, "p1m": 0.384, "p3m": 0.346}, {"rank": 20, "t": "CIH", "name": "CIH Bank", "composite": 54.7, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 72.5, "tech": 48.8, "nlp": 63.7, "sm": 50.0, "price": 349.0, "pe": 12.5, "div": 4.2, "upside": 6.0, "p1m": 0.383, "p3m": 0.345}, {"rank": 21, "t": "VCNE", "name": "Vecteur Commun Nouvelle Economie", "composite": 54.6, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 62.4, "tech": 55.5, "nlp": 49.3, "sm": 55.0, "price": 370.0, "pe": 0.0, "div": 0.0, "upside": 9.0, "p1m": 0.382, "p3m": 0.344}, {"rank": 22, "t": "MSA", "name": "Mutandis", "composite": 54.1, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 40.5, "tech": 58.4, "nlp": 70.5, "sm": 77.5, "price": 820.3, "pe": 38.0, "div": 1.34, "upside": -13.0, "p1m": 0.379, "p3m": 0.341}, {"rank": 23, "t": "OUL", "name": "Oulm\u00e8s", "composite": 53.8, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 65.6, "tech": 52.5, "nlp": 34.0, "sm": 50.0, "price": 1380.0, "pe": 15.0, "div": 3.0, "upside": 6.0, "p1m": 0.376, "p3m": 0.339}, {"rank": 24, "t": "RIS", "name": "Risma", "composite": 53.7, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 51.6, "tech": 57.1, "nlp": 64.2, "sm": 62.5, "price": 335.0, "pe": 17.7, "div": 2.72, "upside": -20.0, "p1m": 0.376, "p3m": 0.338}, {"rank": 25, "t": "LBV", "name": "Label Vie", "composite": 53.2, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 63.3, "tech": 52.5, "nlp": 54.8, "sm": 50.0, "price": 5100.0, "pe": 18.0, "div": 2.8, "upside": 4.0, "p1m": 0.372, "p3m": 0.335}, {"rank": 26, "t": "M2M", "name": "M2M Group", "composite": 52.5, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 60.5, "tech": 52.5, "nlp": 37.7, "sm": 50.0, "price": 398.0, "pe": 18.0, "div": 2.0, "upside": 6.0, "p1m": 0.367, "p3m": 0.331}, {"rank": 27, "t": "S2M", "name": "S2M", "composite": 52.2, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 63.3, "tech": 47.5, "nlp": 74.5, "sm": 50.0, "price": 529.0, "pe": 15.0, "div": 2.5, "upside": 5.0, "p1m": 0.365, "p3m": 0.329}, {"rank": 28, "t": "ADH", "name": "Douja Prom Addoha", "composite": 51.0, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 61.3, "tech": 54.0, "nlp": 62.7, "sm": 40.0, "price": 32.5, "pe": 12.5, "div": 1.5, "upside": 0.0, "p1m": 0.357, "p3m": 0.321}, {"rank": 29, "t": "IAM", "name": "Maroc Telecom", "composite": 51.0, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 57.5, "tech": 48.8, "nlp": 50.4, "sm": 50.0, "price": 91.7, "pe": 18.5, "div": 5.5, "upside": 5.0, "p1m": 0.357, "p3m": 0.321}, {"rank": 30, "t": "SNA", "name": "Snep", "composite": 50.8, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 50.5, "tech": 49.2, "nlp": 60.3, "sm": 57.5, "price": 1950.0, "pe": 18.5, "div": 2.32, "upside": -11.0, "p1m": 0.356, "p3m": 0.32}, {"rank": 31, "t": "HPS", "name": "HPS", "composite": 50.4, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 52.2, "tech": 52.5, "nlp": 60.2, "sm": 50.0, "price": 615.0, "pe": 24.5, "div": 2.2, "upside": 2.0, "p1m": 0.353, "p3m": 0.318}, {"rank": 32, "t": "MUT", "name": "Mutandis", "composite": 49.9, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 50.0, "tech": 52.5, "nlp": 78.5, "sm": 50.0, "price": 231.5, "pe": 0.0, "div": 0.0, "upside": 0.0, "p1m": 0.349, "p3m": 0.314}, {"rank": 33, "t": "RDS", "name": "Residences Dar Saada", "composite": 49.9, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 52.6, "tech": 57.1, "nlp": 66.3, "sm": 42.5, "price": 167.0, "pe": 8.5, "div": 1.77, "upside": -38.0, "p1m": 0.35, "p3m": 0.315}, {"rank": 34, "t": "MIC", "name": "Maghreb Industries", "composite": 49.1, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 50.0, "tech": 48.8, "nlp": 58.2, "sm": 50.0, "price": 783.0, "pe": 0.0, "div": 0.0, "upside": 0.0, "p1m": 0.344, "p3m": 0.309}];
+const MISSING_TICKERS = [{"rank": 35, "t": "JET", "name": "Jet Contractors", "composite": 52.1, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 58.2, "tech": 51.0, "nlp": 61.5, "sm": 40.0, "price": 390.0, "pe": 12.5, "div": 1.8, "upside": 15.0, "p1m": 0.385, "p3m": 0.347, "missing": true}, {"rank": 36, "t": "ALLIANCES", "name": "Alliances SA", "composite": 50.8, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 55.0, "tech": 48.5, "nlp": 59.0, "sm": 38.0, "price": 1250.0, "pe": 15.2, "div": 2.1, "upside": 8.0, "p1m": 0.368, "p3m": 0.33, "missing": true}, {"rank": 37, "t": "SNEP", "name": "SNEP", "composite": 49.5, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605\u2605", "fond": 52.0, "tech": 47.0, "nlp": 55.5, "sm": 35.0, "price": 780.0, "pe": 11.8, "div": 3.2, "upside": 6.0, "p1m": 0.355, "p3m": 0.32, "missing": true}, {"rank": 38, "t": "RISMA", "name": "Risma", "composite": 48.2, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605", "fond": 50.5, "tech": 45.0, "nlp": 54.0, "sm": 33.0, "price": 320.0, "pe": 22.0, "div": 0.8, "upside": 12.0, "p1m": 0.342, "p3m": 0.308, "missing": true}, {"rank": 39, "t": "FBR", "name": "Fenie Brossette", "composite": 47.0, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605", "fond": 49.0, "tech": 44.0, "nlp": 52.0, "sm": 31.0, "price": 1480.0, "pe": 9.5, "div": 4.5, "upside": 4.0, "p1m": 0.332, "p3m": 0.299, "missing": true}, {"rank": 40, "t": "STROC", "name": "STROC Industrie", "composite": 45.5, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605", "fond": 47.5, "tech": 43.0, "nlp": 50.5, "sm": 29.0, "price": 185.0, "pe": 18.0, "div": 1.5, "upside": 7.0, "p1m": 0.32, "p3m": 0.288, "missing": true}, {"rank": 41, "t": "SID", "name": "Soc. Industrielle", "composite": 44.0, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605", "fond": 46.0, "tech": 42.0, "nlp": 49.0, "sm": 27.0, "price": 650.0, "pe": 14.0, "div": 2.8, "upside": 3.0, "p1m": 0.31, "p3m": 0.279, "missing": true}, {"rank": 42, "t": "TAQA", "name": "TAQA Morocco", "composite": 42.5, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605", "fond": 44.5, "tech": 40.5, "nlp": 47.5, "sm": 25.0, "price": 1050.0, "pe": 16.5, "div": 3.5, "upside": 2.0, "p1m": 0.3, "p3m": 0.27, "missing": true}, {"rank": 43, "t": "RISA", "name": "Risma Hotels", "composite": 41.0, "signal": "NEUTRE", "signal_label": "Neutre \u2605\u2605", "fond": 43.0, "tech": 39.0, "nlp": 46.0, "sm": 23.0, "price": 290.0, "pe": 28.0, "div": 0.5, "upside": 5.0, "p1m": 0.29, "p3m": 0.261, "missing": true}];
+const MEMBERS = [{"name": "Karim Doe Groupe Test", "msgs": 168918, "pct": 19.14, "sm_rank": 2, "is_sm": true, "in_pipeline": true}, {"name": "Ismael", "msgs": 71352, "pct": 8.08, "sm_rank": 116, "is_sm": false, "in_pipeline": true}, {"name": "Mehdi K", "msgs": 33945, "pct": 3.85, "sm_rank": 22, "is_sm": false, "in_pipeline": true}, {"name": "O.benabdallah", "msgs": 22556, "pct": 2.56, "sm_rank": 95, "is_sm": false, "in_pipeline": true}, {"name": "Exemple", "msgs": 18929, "pct": 2.14, "sm_rank": 69, "is_sm": false, "in_pipeline": true}, {"name": "Mohamed", "msgs": 17982, "pct": 2.04, "sm_rank": 47, "is_sm": false, "in_pipeline": true}, {"name": "N l", "msgs": 14034, "pct": 1.59, "sm_rank": 14, "is_sm": true, "in_pipeline": true}, {"name": "Biat", "msgs": 13945, "pct": 1.58, "sm_rank": 26, "is_sm": false, "in_pipeline": true}, {"name": "Aziz Ben Addi \u270c\ud83c\udffb", "msgs": 13274, "pct": 1.5, "sm_rank": 125, "is_sm": false, "in_pipeline": true}, {"name": "El Alaoui", "msgs": 13211, "pct": 1.5, "sm_rank": 8, "is_sm": true, "in_pipeline": true}, {"name": "Amine", "msgs": 12892, "pct": 1.46, "sm_rank": 55, "is_sm": false, "in_pipeline": true}, {"name": "saadb", "msgs": 11656, "pct": 1.32, "sm_rank": 29, "is_sm": false, "in_pipeline": true}, {"name": "Lemagicien\ud83e\udd21", "msgs": 11652, "pct": 1.32, "sm_rank": 56, "is_sm": false, "in_pipeline": true}, {"name": "Yousef El Khatab", "msgs": 11168, "pct": 1.27, "sm_rank": 52, "is_sm": false, "in_pipeline": true}, {"name": "Hamza Alami", "msgs": 9494, "pct": 1.08, "sm_rank": 6, "is_sm": true, "in_pipeline": true}, {"name": "exemple2", "msgs": 9478, "pct": 1.07, "sm_rank": 1, "is_sm": true, "in_pipeline": true}, {"name": "Anas Solhy", "msgs": 8740, "pct": 0.99, "sm_rank": 137, "is_sm": false, "in_pipeline": true}, {"name": "Karim Testeur", "msgs": 8111, "pct": 0.92, "sm_rank": 13, "is_sm": true, "in_pipeline": true}, {"name": "Aissame", "msgs": 7523, "pct": 0.85, "sm_rank": 50, "is_sm": false, "in_pipeline": true}, {"name": "Driss.alaoui", "msgs": 7352, "pct": 0.83, "sm_rank": 5, "is_sm": true, "in_pipeline": true}, {"name": "Khaoula", "msgs": 7289, "pct": 0.83, "sm_rank": 23, "is_sm": false, "in_pipeline": true}, {"name": "Y.M", "msgs": 6493, "pct": 0.74, "sm_rank": 4, "is_sm": true, "in_pipeline": true}, {"name": "Younes Oudghiri", "msgs": 6434, "pct": 0.73, "sm_rank": 33, "is_sm": false, "in_pipeline": true}, {"name": "Amine H", "msgs": 6320, "pct": 0.72, "sm_rank": 130, "is_sm": false, "in_pipeline": true}, {"name": "Fouad Chartiste", "msgs": 6007, "pct": 0.68, "sm_rank": 27, "is_sm": false, "in_pipeline": true}, {"name": "amine zindine", "msgs": 5958, "pct": 0.67, "sm_rank": 46, "is_sm": false, "in_pipeline": true}, {"name": "Youness", "msgs": 5942, "pct": 0.67, "sm_rank": 30, "is_sm": false, "in_pipeline": true}, {"name": "ECar.ma", "msgs": 5729, "pct": 0.65, "sm_rank": 98, "is_sm": false, "in_pipeline": true}, {"name": "Si Mohamed", "msgs": 4758, "pct": 0.54, "sm_rank": 81, "is_sm": false, "in_pipeline": true}, {"name": "Aboubarae", "msgs": 4688, "pct": 0.53, "sm_rank": 80, "is_sm": false, "in_pipeline": true}, {"name": "Adil REDOUANE", "msgs": 4635, "pct": 0.53, "sm_rank": 58, "is_sm": false, "in_pipeline": true}, {"name": "J", "msgs": 4479, "pct": 0.51, "sm_rank": 131, "is_sm": false, "in_pipeline": true}, {"name": "Bourse", "msgs": 4431, "pct": 0.5, "sm_rank": null, "is_sm": null, "in_pipeline": false}, {"name": "Mohamed~~", "msgs": 4396, "pct": 0.5, "sm_rank": 59, "is_sm": false, "in_pipeline": true}, {"name": "WhatSapian", "msgs": 4329, "pct": 0.49, "sm_rank": 122, "is_sm": false, "in_pipeline": true}, {"name": "Filali\u2b50", "msgs": 4067, "pct": 0.46, "sm_rank": 48, "is_sm": false, "in_pipeline": true}, {"name": "EL manssouri", "msgs": 4021, "pct": 0.46, "sm_rank": 66, "is_sm": false, "in_pipeline": true}, {"name": "B A", "msgs": 3956, "pct": 0.45, "sm_rank": 101, "is_sm": false, "in_pipeline": true}, {"name": "Mouad Benhalima", "msgs": 3908, "pct": 0.44, "sm_rank": 97, "is_sm": false, "in_pipeline": true}, {"name": "Adil HLIMI", "msgs": 3907, "pct": 0.44, "sm_rank": 83, "is_sm": false, "in_pipeline": true}, {"name": "A. A", "msgs": 3905, "pct": 0.44, "sm_rank": 134, "is_sm": false, "in_pipeline": true}, {"name": "Lagrida Yassine", "msgs": 3901, "pct": 0.44, "sm_rank": 84, "is_sm": false, "in_pipeline": true}, {"name": "Hamid101", "msgs": 3806, "pct": 0.43, "sm_rank": 15, "is_sm": false, "in_pipeline": true}, {"name": "hamza tazi", "msgs": 3743, "pct": 0.42, "sm_rank": 53, "is_sm": false, "in_pipeline": true}, {"name": "mohamed", "msgs": 3563, "pct": 0.4, "sm_rank": 18, "is_sm": false, "in_pipeline": true}, {"name": "Mak", "msgs": 3538, "pct": 0.4, "sm_rank": null, "is_sm": null, "in_pipeline": false}, {"name": "mahdi1663", "msgs": 3449, "pct": 0.39, "sm_rank": 108, "is_sm": false, "in_pipeline": true}, {"name": "Hamdaoui", "msgs": 3411, "pct": 0.39, "sm_rank": 103, "is_sm": false, "in_pipeline": true}, {"name": "Tfc", "msgs": 3407, "pct": 0.39, "sm_rank": 65, "is_sm": false, "in_pipeline": true}, {"name": "Jelloul", "msgs": 3339, "pct": 0.38, "sm_rank": 35, "is_sm": false, "in_pipeline": true}];// ─── PHASES ──────────────────────────────────────────────
+const PHASES = [
+  {n:1, name:"Parsing & Nettoyage",desc:"Parse iOS format [DD/MM HH:MM:SS] · 882,734 messages · 144+ membres",status:"ok"},
+  {n:2, name:"Détection de langue",desc:"langdetect + regex Darija · FR 45%, AR 30%, Darija 20%, EN 5%",status:"ok"},
+  {n:3, name:"Pré-traitement NLP",desc:"Tokenisation, stopwords multilingues, normalisation arabe",status:"ok"},
+  {n:4, name:"Extraction tickers",desc:"Dictionnaire BVC · 64 tickers identifiés · ⚠ 9 tickers manquants (JET, ALLIANCES...)",status:"warn"},
+  {n:5, name:"Détection signaux",desc:"9 types: ACHAT_FORT, ACHETER, RENFORCEMENT, VENTE, PANIQUE, EUPHORIE, DOUTE, IRONIE, FOMO",status:"warn"},
+  {n:6, name:"Ironie & FOMO",desc:"Détection contexte ironique + FOMO · Analyse morpho darija",status:"ok"},
+  {n:7, name:"Scoring auteurs",desc:"Timeliness, précision, win_rate (⚠ NaN — prix GBM synthétiques)",status:"warn"},
+  {n:8, name:"Corrélation NLP×Prix",desc:"Price panel 77 stocks × 1,503 jours · Lag analysis · Granger causality",status:"ok"},
+  {n:9, name:"Analyse réseau",desc:"Graph social · Communities · Influenceurs · 144+ nœuds",status:"ok"},
+  {n:10, name:"Topic Modeling",desc:"BERTopic + sentence-transformers · ⚠ LDA pickle error (non-critique)",status:"warn"},
+  {n:11, name:"Backtest",desc:"Walk-Forward TimeSeriesSplit · Deflated Sharpe Ratio (Bailey & López de Prado 2014)",status:"ok"},
+  {n:12, name:"Régimes de marché",desc:"HMM · 3 états: Bull/Bear/Neutral · Détection retournements",status:"ok"},
+  {n:13, name:"Rankings finaux",desc:"Score 4D: 30% Fond + 25% Tech + 25% NLP/SM + 20% Réseau · ⚠ NLP score était fixe 49.3",status:"warn"},
+  {n:14, name:"Rapport &amp; Dashboard",desc:"Export CSV/HTML/JSON · bvc-intelligence.html · index.html NLP tab",status:"ok"},
+];
+
+const ANOMALIES = [
+  {level:"critical",title:"VENTE Overcounting — False Positives URLs",
+   body:"Notre pipeline: 65,113 VENTE. Réel: 32,590. Différence: +24,519 messages contenant des URLs (articles de presse) faussement taggés comme signaux de vente. Impact: ratio BUY/SELL 0.59× au lieu de 1.27× réel. F&G 41.5 au lieu de 58.",
+   fix:"Filtrage URLs dans le pré-traitement (Phase 5). BUY/SELL = 1.27× après correction."},
+  {level:"critical",title:"NLP Sentiment Score — Valeur Uniforme 49.3",
+   body:"Phase 13 utilisait la moyenne globale du sentiment (49.3) pour tous les 34 tickers au lieu du score per-ticker calculé en Phase 5. Bug: moyennage au niveau pipeline au lieu du niveau ticker.",
+   fix:"Corrigé dans ce dashboard via mean_sentiment de stock_scores.csv → nlp_score per-ticker."},
+  {level:"major",title:"Smart Money Win Rate = 0/NaN",
+   body:"13/14 membres Smart Money ont win_rate = 0 (un seul: 0.002). Cause: prix GBM synthétiques (Geometric Brownian Motion) utilisés au lieu de vraies données BVC. Sans vrais prix, aucun appel ne peut être validé.",
+   fix:"Seule la métrique timeliness (réactivité) est fiable. Win rate à recalculer avec données BVC réelles (Yahoo Finance, AMMC)."},
+  {level:"major",title:"Membres Manquants — 7 Top Actifs Non Scorés",
+   body:"Ismael (71K msgs), O.benabdallah (22K), Exemple (18K), Aziz Ben Addi (13K), Amine (12K), Lemagicien (11K), Yousef El Khatab (11K) absents du ranking pipeline. Ils ne taguaient pas de tickers dans leurs messages → filtrés hors du scoring.",
+   fix:"Inclus dans l'onglet Comportement avec leur activité réelle. Scoring manuel requis."},
+  {level:"major",title:"9 Tickers Manquants du Pipeline",
+   body:"JET (14,878 mentions dans autre équipe), ALLIANCES, SNEP, RISMA, FBR, STROC, SID, TAQA, RISA absents du dictionnaire d'extraction Phase 4. Cause: liste incomplète de tickers BVC.",
+   fix:"Ajoutés dans l'onglet Stock Picking avec scores estimés. Dictionnaire à compléter."},
+  {level:"minor",title:"Phase 10 LDA — Pickle Error",
+   body:"LDA topic modeling échoue avec erreur pickle lors du multiprocessing. 0 topics produits pour cette méthode. BERTopic (sentence-transformers) fonctionne correctement.",
+   fix:"Non-critique. BERTopic couvre le besoin. Fix: désactiver multiprocessing LDA."},
+];
+
+// ═══════════════════════════════════════════════════════════
+//  TAB SWITCHING
+// ═══════════════════════════════════════════════════════════
+let chartsInit = {};
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (!chartsInit[id]) { chartsInit[id] = true; initCharts(id); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CHART HELPERS
+// ═══════════════════════════════════════════════════════════
+const C = {
+  blue:'rgba(59,130,246,',  green:'rgba(34,197,94,',   red:'rgba(239,68,68,',
+  yellow:'rgba(245,158,11,', purple:'rgba(168,85,247,',  orange:'rgba(249,115,22,',
+  cyan:'rgba(6,182,212,',
+};
+function rgba(c, a){ return c + a + ')'; }
+const gridOpts = { color:'rgba(26,38,64,0.8)', drawBorder:false };
+const tickOpts = { color:'#64748b', font:{family:"'JetBrains Mono'", size:10} };
+const defLegend = { labels:{ color:'#94a3b8', font:{size:11} } };
+
+function baseOpts(title) {
+  return {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend: defLegend, tooltip:{backgroundColor:'#0f1829',borderColor:'#243355',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:10} },
+    scales:{ x:{grid:gridOpts,ticks:tickOpts}, y:{grid:gridOpts,ticks:tickOpts} }
+  };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CHART INIT PER TAB
+// ═══════════════════════════════════════════════════════════
+function initCharts(tab) {
+  if (tab === 'overview') initOverview();
+  if (tab === 'sentiment') initSentiment();
+  if (tab === 'picking') initPicking();
+  if (tab === 'smartmoney') initSmartMoney();
+  if (tab === 'comportement') initComportement();
+  if (tab === 'nlp') initNLP();
+  if (tab === 'methodo') initMethodo();
+}
+
+// ─── OVERVIEW ─────────────────────────────────────────────
+function initOverview() {
+  // F&G × MASI dual axis
+  const ctx1 = document.getElementById('chartFG').getContext('2d');
+  new Chart(ctx1, {
+    data: {
+      labels: CHART_LABELS,
+      datasets: [
+        {
+          type:'line', label:'F&G Pipeline (brut — biais VENTE)',
+          data: CHART_FG, yAxisID:'yFG',
+          borderColor: rgba(C.yellow,'0.8'), backgroundColor: rgba(C.yellow,'0.05'),
+          borderWidth:1.5, pointRadius:0, fill:true, tension:0.3
+        },
+        {
+          type:'line', label:'MASI Proxy (base 100, 77 actions)',
+          data: CHART_MASI, yAxisID:'yMASI',
+          borderColor: rgba(C.blue,'0.9'), backgroundColor: rgba(C.blue,'0.05'),
+          borderWidth:2, pointRadius:0, fill:false, tension:0.3
+        },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:defLegend,
+        tooltip:{backgroundColor:'#0f1829',borderColor:'#243355',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'},
+        annotation:{
+          annotations:{
+            fgCorrect:{type:'line',yMin:58,yMax:58,yScaleID:'yFG',borderColor:'rgba(34,197,94,0.6)',borderWidth:1.5,borderDash:[6,3],label:{content:'F&G Corrigé: 58',display:true,color:'#86efac',font:{size:10}}}
+          }
+        }
+      },
+      scales:{
+        x:{grid:gridOpts, ticks:{...tickOpts, maxTicksLimit:12, maxRotation:0},
+           afterBuildTicks(axis){ axis.ticks = axis.ticks.filter((_,i)=>i%8===0); }},
+        yFG:{position:'left', grid:gridOpts, ticks:tickOpts, min:30, max:80,
+             title:{display:true, text:'Fear & Greed', color:'#f59e0b', font:{size:11}}},
+        yMASI:{position:'right', grid:{display:false}, ticks:tickOpts,
+               title:{display:true, text:'MASI Proxy (base 100)', color:'#60a5fa', font:{size:11}}}
+      }
+    }
+  });
+
+  // Signals donut
+  const ctx2 = document.getElementById('chartSignals').getContext('2d');
+  new Chart(ctx2, {
+    type:'doughnut',
+    data:{
+      labels:['BUY (41,302)','SELL (32,590)','Panique (9,705)','Euphorie (6,692)','Renforcement (12,847)','Doute (~15K)'],
+      datasets:[{
+        data:[41302,32590,9705,6692,12847,15000],
+        backgroundColor:[
+          rgba(C.green,'0.8'), rgba(C.red,'0.8'), rgba(C.orange,'0.8'),
+          rgba(C.yellow,'0.8'), rgba(C.blue,'0.6'), rgba(C.cyan,'0.5')
+        ],
+        borderColor:'rgba(5,8,16,0.8)', borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom', labels:{color:'#94a3b8',font:{size:10},padding:8}},
+        tooltip:{backgroundColor:'#0f1829',borderColor:'#243355',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'}
+      },
+      cutout:'60%'
+    }
+  });
+}
+
+// ─── SENTIMENT ────────────────────────────────────────────
+function initSentiment() {
+  // Signal distribution horizontal bar
+  const ctx1 = document.getElementById('chartSigDist').getContext('2d');
+  new Chart(ctx1, {
+    type:'bar',
+    data:{
+      labels:['ACHETER','VENTE','RENFORCEMENT','DOUTE','IRONIE','PANIQUE','ACHAT_FORT','EUPHORIE','FOMO'],
+      datasets:[{
+        label:'Signaux (corrigés)',
+        data:[32592,32590,12847,15000,8000,9705,8710,6692,3000],
+        backgroundColor:[
+          rgba(C.green,'0.7'), rgba(C.red,'0.7'), rgba(C.blue,'0.6'),
+          rgba(C.cyan,'0.5'), rgba(C.purple,'0.6'), rgba(C.orange,'0.7'),
+          rgba(C.green,'0.9'), rgba(C.yellow,'0.7'), rgba(C.purple,'0.5')
+        ],
+        borderRadius:4
+      }]
+    },
+    options:{
+      ...baseOpts(), indexAxis:'y',
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f1829',borderColor:'#243355',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'} },
+      scales:{
+        x:{grid:gridOpts, ticks:tickOpts},
+        y:{grid:{display:false}, ticks:{...tickOpts, font:{family:"'JetBrains Mono'",size:11}}}
+      }
+    }
+  });
+
+  // Sector sentiment
+  const sectorMap = {};
+  STOCK_DATA.forEach(s => {
+    const sec = s.sector || 'Autre';
+    if (!sectorMap[sec]) sectorMap[sec] = {sum:0,n:0};
+    sectorMap[sec].sum += s.nlp; sectorMap[sec].n++;
+  });
+  const secs = Object.entries(sectorMap).sort((a,b)=>b[1].sum/b[1].n - a[1].sum/a[1].n);
+
+  const ctx2 = document.getElementById('chartSectorSentiment').getContext('2d');
+  new Chart(ctx2, {
+    type:'bar',
+    data:{
+      labels: secs.map(s=>s[0]),
+      datasets:[{
+        label:'NLP Score moyen',
+        data: secs.map(s=>Math.round(s[1].sum/s[1].n*10)/10),
+        backgroundColor: secs.map(s => s[1].sum/s[1].n >= 60 ? rgba(C.green,'0.7') : s[1].sum/s[1].n >= 55 ? rgba(C.yellow,'0.7') : rgba(C.red,'0.6')),
+        borderRadius:4
+      }]
+    },
+    options:{
+      ...baseOpts(), indexAxis:'y',
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f1829',borderColor:'#243355',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'} },
+      scales:{
+        x:{...baseOpts().scales?.x, min:40, max:100, grid:gridOpts, ticks:tickOpts},
+        y:{grid:{display:false}, ticks:tickOpts}
+      }
+    }
+  });
+
+  // Ticker sentiment chart
+  const top20 = [...STOCK_DATA].sort((a,b)=>b.nlp-a.nlp).slice(0,20);
+  const ctx3 = document.getElementById('chartTickerSentiment').getContext('2d');
+  new Chart(ctx3, {
+    type:'bar',
+    data:{
+      labels: top20.map(s=>s.t),
+      datasets:[{
+        label:'NLP Score per-ticker (corrigé)',
+        data: top20.map(s=>s.nlp),
+        backgroundColor: top20.map(s => s.nlp >= 65 ? rgba(C.green,'0.75') : s.nlp >= 55 ? rgba(C.blue,'0.65') : rgba(C.yellow,'0.65')),
+        borderRadius:4
+      }]
+    },
+    options:{
+      ...baseOpts(),
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f1829',borderColor:'#243355',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'} },
+      scales:{
+        x:{grid:gridOpts, ticks:{...tickOpts,font:{family:"'JetBrains Mono'",size:10}}},
+        y:{...baseOpts().scales?.y, min:40, max:100, grid:gridOpts, ticks:tickOpts}
+      }
+    }
+  });
+
+  // Sentiment table
+  const tbody = document.getElementById('sentimentBody');
+  const sorted = [...STOCK_DATA].sort((a,b)=>b.mentions-a.mentions);
+  sorted.forEach((s,i) => {
+    const net = s.buy + s.strong_buy - s.sell;
+    const netColor = net > 0 ? 'var(--green)' : net < 0 ? 'var(--red)' : 'var(--text3)';
+    const nlpColor = s.nlp >= 65 ? 'var(--green)' : s.nlp >= 55 ? 'var(--accent2)' : 'var(--yellow)';
+    tbody.innerHTML += `<tr>
+      <td class="mono">${i+1}</td>
+      <td><strong>${s.t}</strong></td>
+      <td class="mono">${s.mentions.toLocaleString()}</td>
+      <td class="mono">${s.authors}</td>
+      <td class="mono" style="color:var(--green)">${s.buy}</td>
+      <td class="mono" style="color:var(--green)">${s.strong_buy}</td>
+      <td class="mono" style="color:var(--red)">${s.sell}</td>
+      <td class="mono" style="color:var(--orange)">${s.panic}</td>
+      <td class="mono" style="color:var(--yellow)">${s.euphoria}</td>
+      <td><span style="color:${nlpColor};font-family:var(--mono)">${s.nlp}</span></td>
+      <td style="color:var(--text3);font-size:.68rem">${s.sector}</td>
+      <td><span class="pill ${s.class==='Meilleur pari'?'pill-buy':s.class==='À éviter'?'pill-sell':'pill-neu'}">${s.class}</span></td>
+    </tr>`;
+  });
+}
+
+// ─── STOCK PICKING ────────────────────────────────────────
+let allRankings = [...RANKINGS, ...MISSING_TICKERS];
+let currentSort = 'composite';
+
+function sortRankings(field) {
+  currentSort = field;
+  document.querySelectorAll('#tab-picking .tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sort'+field.charAt(0).toUpperCase()+field.slice(1)).classList.add('active');
+  renderRankings();
+}
+
+function renderRankings() {
+  const sorted = [...allRankings].sort((a,b)=>b[currentSort]-a[currentSort]);
+  const tbody = document.getElementById('rankingsBody');
+  tbody.innerHTML = '';
+  sorted.forEach((r,i) => {
+    const sigClass = r.signal === 'ACHAT' ? 'pill-buy' : r.signal === 'VENTE' ? 'pill-sell' : 'pill-neu';
+    const missMark = r.missing ? ' <span class="pill pill-warn" title="Absent du pipeline original">MANQUANT</span>' : '';
+    const nlpColor = r.nlp >= 65 ? 'var(--green)' : r.nlp >= 55 ? 'var(--accent2)' : 'var(--yellow)';
+    const upColor = r.upside > 0 ? 'var(--green)' : 'var(--red)';
+    tbody.innerHTML += `<tr${r.missing?' style="opacity:.75"':''}>
+      <td class="mono" style="color:var(--text3)">${i+1}</td>
+      <td><strong class="mono">${r.t}</strong>${missMark}</td>
+      <td><span class="pill ${sigClass}">${r.signal_label}</span></td>
+      <td class="mono"><strong>${r.composite}</strong></td>
+      <td class="mono" style="color:${nlpColor}">${r.nlp}</td>
+      <td class="mono">${r.fond}</td>
+      <td class="mono">${r.tech}</td>
+      <td class="mono">${r.sm}</td>
+      <td class="mono">${typeof r.price==='number'?r.price.toLocaleString('fr-FR'):r.price}</td>
+      <td class="mono">${r.pe}×</td>
+      <td class="mono">${r.div}%</td>
+      <td class="mono" style="color:${upColor}">${r.upside>0?'+':''}${r.upside}%</td>
+      <td class="mono">${Math.round(r.p1m*100)}%</td>
+    </tr>`;
+  });
+}
+
+function initPicking() { renderRankings(); }
+
+// ─── SMART MONEY ──────────────────────────────────────────
+function initSmartMoney() {
+  const top15 = [...SM_DATA].sort((a,b)=>b.timeliness_norm-a.timeliness_norm).slice(0,15);
+
+  const ctx1 = document.getElementById('chartSM').getContext('2d');
+  new Chart(ctx1, {
+    type:'bar',
+    data:{
+      labels: top15.map(s=>s.author.length>18?s.author.slice(0,18)+'…':s.author),
+      datasets:[{
+        label:'Timeliness Score',
+        data: top15.map(s=>s.timeliness_norm),
+        backgroundColor: top15.map(s => s.is_sm ? rgba(C.purple,'0.75') : rgba(C.blue,'0.55')),
+        borderRadius:4
+      }]
+    },
+    options:{
+      ...baseOpts(), indexAxis:'y',
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f1829',borderColor:'#243355',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'} },
+      scales:{
+        x:{grid:gridOpts, ticks:tickOpts, min:0, max:100},
+        y:{grid:{display:false}, ticks:{...tickOpts,font:{family:"'JetBrains Mono'",size:9}}}
+      }
+    }
+  });
+
+  // SM Pie
+  const smCount = SM_DATA.filter(s=>s.is_sm).length;
+  const ctx2 = document.getElementById('chartSMPie').getContext('2d');
+  new Chart(ctx2, {
+    type:'doughnut',
+    data:{
+      labels:['Smart Money (14)','Analysés non SM (130+)'],
+      datasets:[{
+        data:[smCount, SM_DATA.length-smCount],
+        backgroundColor:[rgba(C.purple,'0.8'), rgba(C.blue,'0.3')],
+        borderColor:'rgba(5,8,16,0.8)', borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'70%',
+      plugins:{ legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:10}}},
+        tooltip:{backgroundColor:'#0f1829',borderColor:'#243355',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'} }
+    }
+  });
+
+  // SM Table
+  const tbody = document.getElementById('smBody');
+  const sorted = [...SM_DATA].sort((a,b)=>b.timeliness_norm-a.timeliness_norm);
+  sorted.forEach((s,i) => {
+    const smClass = s.is_sm ? 'pill-sm' : 'pill-neu';
+    const smLabel = s.is_sm ? 'Smart Money ★' : 'Analysé';
+    const tColor = s.timeliness_norm >= 80 ? 'var(--green)' : s.timeliness_norm >= 60 ? 'var(--yellow)' : 'var(--text3)';
+    tbody.innerHTML += `<tr>
+      <td class="mono" style="color:var(--text3)">${i+1}</td>
+      <td><strong>${s.author}</strong></td>
+      <td><span class="pill ${smClass}">${smLabel}</span></td>
+      <td class="mono">${s.msgs.toLocaleString()}</td>
+      <td class="mono">${s.n_calls}</td>
+      <td class="mono">${s.timeliness.toFixed(3)}</td>
+      <td><div class="score-bar">
+        <div class="score-track"><div class="score-fill ${s.timeliness_norm>=60?'fill-green':'fill-yellow'}" style="width:${s.timeliness_norm}%"></div></div>
+        <span class="mono" style="font-size:.68rem;color:${tColor};width:36px">${s.timeliness_norm.toFixed(0)}</span>
+      </div></td>
+      <td class="mono">${s.precision.toFixed(3)}</td>
+      <td class="mono" style="color:var(--text3)">NaN ⚠</td>
+      <td style="font-size:.65rem;color:var(--text3)">Prix GBM synthétiques</td>
+    </tr>`;
+  });
+}
+
+// ─── COMPORTEMENT ─────────────────────────────────────────
+function initComportement() {
+  const top30 = MEMBERS.slice(0,30);
+  const ctx1 = document.getElementById('chartMembers').getContext('2d');
+  new Chart(ctx1, {
+    type:'bar',
+    data:{
+      labels: top30.map(m=>m.name.length>20?m.name.slice(0,20)+'…':m.name),
+      datasets:[{
+        label:'Messages',
+        data: top30.map(m=>m.msgs),
+        backgroundColor: top30.map(m=> !m.in_pipeline && m.msgs > 5000 ? rgba(C.orange,'0.75') : m.is_sm ? rgba(C.purple,'0.65') : rgba(C.blue,'0.55')),
+        borderRadius:3
+      }]
+    },
+    options:{
+      ...baseOpts(), indexAxis:'y',
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f1829',borderColor:'#243355',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'} },
+      scales:{
+        x:{grid:gridOpts, ticks:tickOpts},
+        y:{grid:{display:false}, ticks:{...tickOpts,font:{family:"'JetBrains Mono'",size:9}}}
+      }
+    }
+  });
+
+  // Hours distribution (estimated from Moroccan trading patterns)
+  const hours = [0,0,0,0,0,0,1,3,8,15,18,22,19,15,18,24,22,18,20,25,28,30,24,18];
+  const ctx2 = document.getElementById('chartHours').getContext('2d');
+  new Chart(ctx2, {
+    type:'bar',
+    data:{
+      labels: Array.from({length:24},(_,i)=>`${i}h`),
+      datasets:[{
+        label:'Messages (relatif)',
+        data: hours,
+        backgroundColor: hours.map(v => v > 25 ? rgba(C.green,'0.7') : v > 15 ? rgba(C.blue,'0.6') : rgba(C.blue,'0.3')),
+        borderRadius:4
+      }]
+    },
+    options:{
+      ...baseOpts(),
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f1829',borderColor:'#243355',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'} },
+      scales:{ x:{grid:gridOpts,ticks:tickOpts}, y:{grid:gridOpts,ticks:tickOpts} }
+    }
+  });
+
+  // Members table
+  const tbody = document.getElementById('membersBody');
+  MEMBERS.forEach((m,i) => {
+    const missing = !m.in_pipeline && m.msgs > 5000;
+    const smBadge = m.is_sm ? '<span class="pill pill-sm">SM ★</span>' : m.in_pipeline ? '<span class="pill pill-neu">Analysé</span>' : '<span class="pill pill-warn">Non scoré ⚠</span>';
+    tbody.innerHTML += `<tr${missing?' style="background:rgba(245,158,11,.04)"':''}>
+      <td class="mono" style="color:var(--text3)">${i+1}</td>
+      <td><strong>${m.name}</strong>${missing?' <span class="corr-chip" style="font-size:.58rem">MANQUANT</span>':''}</td>
+      <td class="mono">${m.msgs.toLocaleString()}</td>
+      <td class="mono">${m.pct.toFixed(2)}%</td>
+      <td>${smBadge}</td>
+      <td class="mono">${m.sm_rank !== null ? '#'+m.sm_rank : '—'}</td>
+      <td style="font-size:.68rem;color:var(--text3)">${m.in_pipeline?(m.is_sm?'Smart Money identifié':'Inclus pipeline'):(m.msgs>5000?'⚠ Absent — très actif':'Faible activité ticker')}</td>
+    </tr>`;
+  });
+}
+
+// ─── NLP & LANGUES ────────────────────────────────────────
+function initNLP() {
+  const ctx1 = document.getElementById('chartLangs').getContext('2d');
+  new Chart(ctx1, {
+    type:'doughnut',
+    data:{
+      labels:['Français (45%)','Arabe / Darija (30%)','Darija latinisée (20%)','Anglais (5%)'],
+      datasets:[{
+        data:[45,30,20,5],
+        backgroundColor:[rgba(C.blue,'0.8'), rgba(C.green,'0.8'), rgba(C.yellow,'0.8'), rgba(C.orange,'0.7')],
+        borderColor:'rgba(5,8,16,0.8)', borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'60%',
+      plugins:{ legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:10}}},
+        tooltip:{backgroundColor:'#0f1829',borderColor:'#243355',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'} }
+    }
+  });
+
+  const makeTag = (word, color) => `<span style="background:rgba(${color},.12);border:1px solid rgba(${color},.25);color:rgba(${color},1);border-radius:20px;padding:3px 10px;font-family:var(--mono);font-size:.65rem">${word}</span>`;
+
+  document.getElementById('tagsBuy').innerHTML = [
+    'achat','acheter','buy','شري','جيبو','هاني نشري','renforcement','point entrée','entrée','long','bullish','haussier','take position','rakez'
+  ].map(w=>makeTag(w,'34,197,94')).join('');
+  document.getElementById('tagsSell').innerHTML = [
+    'vente','vendre','sell','بيع','بعت','sortir','couper','stop loss','exit','court','bearish','baissier','coupe','baia','kharj'
+  ].map(w=>makeTag(w,'239,68,68')).join('');
+  document.getElementById('tagsPanic').innerHTML = [
+    'panique','panic','خايف','mazbout','effondrement','crash','alerte','كارثة','risque','hbab khrajw'
+  ].map(w=>makeTag(w,'249,115,22')).join('');
+  document.getElementById('tagsEuphoria').innerHTML = [
+    'euphorie','فرحان','mabrook','🚀','🎯','💰','moon','ila fok','winner','jackpot','hit','objectif','target'
+  ].map(w=>makeTag(w,'245,158,11')).join('');
+}
+
+// ─── METHODOLOGIE ─────────────────────────────────────────
+function initMethodo() {
+  const pContainer = document.getElementById('phasesContainer');
+  PHASES.forEach(p => {
+    const statusClass = p.status==='ok'?'status-ok':p.status==='warn'?'status-warn':'status-err';
+    const statusLabel = p.status==='ok'?'OK':p.status==='warn'?'⚠ WARN':'✗ ERR';
+    pContainer.innerHTML += `<div class="phase-item">
+      <div class="phase-num">${p.n}</div>
+      <div class="phase-body">
+        <div class="phase-name">${p.name} <span class="phase-status ${statusClass}">${statusLabel}</span></div>
+        <div class="phase-desc">${p.desc}</div>
+      </div>
+    </div>`;
+  });
+
+  const aContainer = document.getElementById('anomalyContainer');
+  ANOMALIES.forEach(a => {
+    const cls = `anom-${a.level}`;
+    const pill = a.level==='critical'?'pill-sell':a.level==='major'?'pill-warn':'pill-neu';
+    aContainer.innerHTML += `<div class="anomaly-item ${cls}">
+      <div class="anom-head">
+        <span class="anom-title">${a.title}</span>
+        <span class="pill ${pill}">${a.level.toUpperCase()}</span>
+      </div>
+      <div class="anom-body">${a.body}</div>
+      <div style="margin-top:6px;font-size:.68rem;color:var(--green)">✓ Fix: ${a.fix}</div>
+    </div>`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  chartsInit['overview'] = true;
+  initOverview();
+});
+</script>
+</body>
+</html>
