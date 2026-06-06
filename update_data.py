@@ -792,31 +792,61 @@ def run(dry_run=False, push=False, token=""):
             if len(closes) >= 14:
                 stoch_k, stoch_d = calc_stoch(closes, highs, lows)
         else:
-            # Fallback indicateurs depuis data.json existant
+            # Fallback A : historical_data.json (produit par collect_history_bvcscrap.py)
+            _hist_loaded = False
             try:
-                existing = json.loads(OUTPUT.read_text()) if OUTPUT.exists() else {}
-                ex_t = next((t for t in existing.get("tickers", []) if t["symbol"] == ticker), {})
-                rsi  = ex_t.get("rsi", 50)
-                ma20 = ex_t.get("ma20", price or 0)
-                ma50 = ex_t.get("ma50", price or 0)
-                h90  = ex_t.get("h90",  price * 1.15 if price else 0)
-                l90  = ex_t.get("l90",  price * 0.85 if price else 0)
-                macd_val  = ex_t.get("macd")
-                macd_sig  = ex_t.get("macd_signal")
-                macd_hist = ex_t.get("macd_hist")
-                bb_upper  = ex_t.get("bb_upper")
-                bb_mid    = ex_t.get("bb_mid")
-                bb_lower  = ex_t.get("bb_lower")
-                stoch_k   = ex_t.get("stoch_k")
-                stoch_d   = ex_t.get("stoch_d")
-                if not price:
-                    price = ex_t.get("price", 0)
-                if not vol:
-                    vol = ex_t.get("vol", 0)
+                hd_path = Path(__file__).parent / "pipeline" / "historical_data.json"
+                if hd_path.exists():
+                    hd_all = json.loads(hd_path.read_text(encoding="utf-8"))
+                    hd_t   = hd_all.get(ticker, {})
+                    if hd_t.get("rsi") and hd_t.get("ma20"):
+                        rsi       = hd_t["rsi"]
+                        ma20      = hd_t["ma20"]
+                        ma50      = hd_t.get("ma50", ma20)
+                        h90       = hd_t.get("h90",  price * 1.15 if price else 0)
+                        l90       = hd_t.get("l90",  price * 0.85 if price else 0)
+                        macd_val  = hd_t.get("macd")
+                        macd_sig  = hd_t.get("macd_signal")
+                        macd_hist = hd_t.get("macd_hist")
+                        bb_upper  = hd_t.get("bb_upper")
+                        bb_mid    = hd_t.get("bb_mid")
+                        bb_lower  = hd_t.get("bb_lower")
+                        stoch_k   = hd_t.get("stoch_k")
+                        stoch_d   = hd_t.get("stoch_d")
+                        if not price:
+                            price = hd_t.get("last_close", 0)
+                        _hist_loaded = True
+                        logger.info(f"  {ticker}: indicateurs depuis historical_data.json "
+                                    f"(BVCscrap, {hd_t.get('n_candles',0)} bougies)")
             except Exception:
-                rsi, ma20, ma50 = 50, price or 0, price or 0
-                h90 = price * 1.15 if price else 0
-                l90 = price * 0.85 if price else 0
+                pass
+
+            if not _hist_loaded:
+                # Fallback B : indicateurs depuis data.json existant
+                try:
+                    existing = json.loads(OUTPUT.read_text()) if OUTPUT.exists() else {}
+                    ex_t = next((t for t in existing.get("tickers", []) if t["symbol"] == ticker), {})
+                    rsi  = ex_t.get("rsi", 50)
+                    ma20 = ex_t.get("ma20", price or 0)
+                    ma50 = ex_t.get("ma50", price or 0)
+                    h90  = ex_t.get("h90",  price * 1.15 if price else 0)
+                    l90  = ex_t.get("l90",  price * 0.85 if price else 0)
+                    macd_val  = ex_t.get("macd")
+                    macd_sig  = ex_t.get("macd_signal")
+                    macd_hist = ex_t.get("macd_hist")
+                    bb_upper  = ex_t.get("bb_upper")
+                    bb_mid    = ex_t.get("bb_mid")
+                    bb_lower  = ex_t.get("bb_lower")
+                    stoch_k   = ex_t.get("stoch_k")
+                    stoch_d   = ex_t.get("stoch_d")
+                    if not price:
+                        price = ex_t.get("price", 0)
+                    if not vol:
+                        vol = ex_t.get("vol", 0)
+                except Exception:
+                    rsi, ma20, ma50 = 50, price or 0, price or 0
+                    h90 = price * 1.15 if price else 0
+                    l90 = price * 0.85 if price else 0
 
         # Fallback 3 : financial_data.json (produit par collect_financial_data.py)
         if not price:
