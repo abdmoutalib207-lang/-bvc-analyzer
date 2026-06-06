@@ -6,6 +6,7 @@ import os
 import sys
 import time
 import json
+import unicodedata
 import requests
 import pandas as pd
 import numpy as np
@@ -177,44 +178,57 @@ def fetch_yfinance(ticker: str) -> pd.DataFrame:
 # SOURCE 4 — casabourse
 # ─────────────────────────────────────────────
 
+def _ascii(s: str) -> str:
+    """Supprime les accents pour faciliter le matching de colonnes."""
+    return unicodedata.normalize("NFD", s).encode("ascii", "ignore").decode("ascii").lower().strip()
+
+# Colonnes exactes retournées par casabourse._legacy_bourse_api.get_historical_data()
+# (inspectées depuis le code source de la librairie)
+_CB_COL_MAP = {
+    "date":              "date",
+    "ouverture":         "open",
+    "cloture":           "close",      # "Clôture" → ascii → "cloture"
+    "dernier cours":     "_last",      # coursCourant — fallback close
+    "cours ajuste":      "_adj",       # coursAjuste — second fallback
+    "plus haut":         "high",
+    "plus bas":          "low",
+    "volume":            "volume",
+    "quantite echangee": "_qty",       # cumulTitresEchanges — fallback volume
+}
+
 def fetch_casabourse(ticker: str) -> pd.DataFrame:
     try:
         import casabourse as cb
         df = cb.get_historical_data_auto(ticker, START_DATE, END_DATE)
         if df is None or df.empty:
             return pd.DataFrame()
-        df = df.reset_index()
-        # Normaliser noms de colonnes (casabourse retourne parfois en français)
-        df.columns = [str(c).lower().strip() for c in df.columns]
-        col_map = {}
-        for c in df.columns:
-            if any(k in c for k in ["date", "time", "jour"]):
-                col_map[c] = "date"
-            elif any(k in c for k in ["close", "clot", "cours", "dernier", "last", "cloture", "clôture"]):
-                col_map[c] = "close"
-            elif any(k in c for k in ["high", "haut", "max"]):
-                col_map[c] = "high"
-            elif any(k in c for k in ["low", "bas", "min"]):
-                col_map[c] = "low"
-            elif any(k in c for k in ["open", "ouvert"]):
-                col_map[c] = "open"
-            elif "vol" in c:
-                col_map[c] = "volume"
+        df = df.reset_index(drop=True)
+        # Mapping avec normalisation unicode (suppression accents)
+        col_map = {c: _CB_COL_MAP[_ascii(str(c))]
+                   for c in df.columns if _ascii(str(c)) in _CB_COL_MAP}
         df = df.rename(columns=col_map)
-        # Si toujours pas de colonne "close", prendre la première colonne numérique
+        # Combiner Clôture + Dernier cours → close (closingPrice peut être None intraday)
         if "close" not in df.columns:
-            numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-            if numeric_cols:
-                df = df.rename(columns={numeric_cols[0]: "close"})
-            else:
-                return pd.DataFrame()
+            for fallback in ["_last", "_adj"]:
+                if fallback in df.columns:
+                    df = df.rename(columns={fallback: "close"})
+                    break
+        elif "_last" in df.columns:
+            df["close"] = df["close"].fillna(df["_last"])
+        # Volume fallback
+        if "volume" not in df.columns and "_qty" in df.columns:
+            df = df.rename(columns={"_qty": "volume"})
+        if "close" not in df.columns:
+            return pd.DataFrame()
         for col in ["high", "low", "open", "volume"]:
             if col not in df.columns:
                 df[col] = df["close"]
         if "date" not in df.columns:
             df["date"] = pd.date_range(START_DATE, periods=len(df), freq="B")
-        df["date"] = pd.to_datetime(df["date"], dayfirst=True, errors="coerce")
+        df["date"]  = pd.to_datetime(df["date"], errors="coerce")
         df["close"] = pd.to_numeric(df["close"], errors="coerce")
+        for col in ["high", "low", "open", "volume"]:
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(df["close"])
         return df[["date", "close", "high", "low", "open", "volume"]].dropna(subset=["close", "date"])
     except Exception as e:
         print(f"    casabourse {ticker}: {e}")
