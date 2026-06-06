@@ -529,7 +529,7 @@ def compute_horizon_metrics(
 
         # Prend les N derniers jours
         sub_equity = equity_curve.iloc[-n_days:]
-        sub_masi = masi.reindex(sub_equity.index, method="ffill").fillna(method="bfill")
+        sub_masi = masi.reindex(sub_equity.index, method="ffill").bfill()
 
         if sub_masi.empty or sub_masi.iloc[0] == 0:
             continue

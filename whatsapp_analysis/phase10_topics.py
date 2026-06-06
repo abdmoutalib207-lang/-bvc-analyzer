@@ -221,7 +221,7 @@ def train_lda_model(
         learning_method="online",
         learning_offset=50.0,
         random_state=42,
-        n_jobs=-1,
+        n_jobs=1,
         doc_topic_prior=0.1,
         topic_word_prior=0.01,
     )
