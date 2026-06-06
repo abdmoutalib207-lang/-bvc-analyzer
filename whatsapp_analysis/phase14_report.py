@@ -552,8 +552,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .pick-card.FORT_VENTE { border-color: #e74c3c; background: #fdedec; }
 
   /* Footer */
-  .footer { text-align: center; padding: 20px; color: #7f8c8d; font-size: 0.85em;
-    border-top: 1px solid #ecf0f1; margin-top: 30px; }
+  .footer { display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 20px 30px; color: #7f8c8d; font-size: 0.85em;
+    border-top: 2px solid #1a5276; margin-top: 30px; background: #f8f9fa; }
+  .footer-left { text-align: left; font-weight: 600; color: #1a5276; font-size: 0.95em; }
+  .footer-center { text-align: center; flex: 1; }
+  .footer-right { text-align: right; font-size: 0.8em; }
+
+  /* Print: pied de page fixe sur chaque page */
+  @media print {
+    @page { margin: 20mm 15mm 25mm 15mm; }
+    body { background: white; }
+    .footer { position: fixed; bottom: 0; left: 0; right: 0;
+      border-top: 1px solid #1a5276; padding: 6px 15mm; font-size: 0.75em; }
+    .section { page-break-inside: avoid; }
+  }
+  /* Watermark auteur en bas gauche (visible à l'écran aussi) */
+  .author-stamp { font-weight: 700; color: #1a5276; letter-spacing: 0.5px; }
 
   /* Stats inline */
   .stat-row { display: flex; justify-content: space-between; align-items: center;
@@ -977,14 +992,83 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   </div>
 </div>
 
+<!-- SECTION TRANSPARENCE DONNÉES -->
+<div class="section" style="margin-top:40px;">
+  <div class="section-header">
+    <h2>🔍 Transparence des Données</h2>
+  </div>
+  <div class="card" style="padding:24px;">
+    <h3 style="color:#1a5276; margin-bottom:16px;">Sources & Couverture Historique</h3>
+    <p style="margin-bottom:12px; color:#555;">
+      Les analyses de prix et de corrélation reposent sur des données historiques réelles
+      récupérées via l'API casabourse.ma et BVCscrap. Voici le détail exact de la couverture :
+    </p>
+    <table style="width:100%; border-collapse:collapse; font-size:0.88em;">
+      <thead>
+        <tr style="background:#1a5276; color:white;">
+          <th style="padding:8px 12px; text-align:left;">Groupe</th>
+          <th style="padding:8px 12px; text-align:left;">Période réelle</th>
+          <th style="padding:8px 12px; text-align:center;">Obs.</th>
+          <th style="padding:8px 12px; text-align:left;">Tickers</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background:#eaf2ff;">
+          <td style="padding:8px 12px; font-weight:600;">Groupe A — 3 ans</td>
+          <td style="padding:8px 12px;">Juin 2023 → Juin 2026</td>
+          <td style="padding:8px 12px; text-align:center;">739</td>
+          <td style="padding:8px 12px; font-size:0.85em;">IAM, ATW, BCP, BOA, CIH, CDM, HPS, MNG, ATL, ADH, ADI, AFI, AFM, AGM, ARD, BAL, COL, CSR, CTM, DHO, EQD, GAZ, INV, JET, LBV, LES, LHM, M2M, MOX, NEJ</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px; font-weight:600;">Groupe B — 2 ans</td>
+          <td style="padding:8px 12px;">Mai 2024 → Mai 2026</td>
+          <td style="padding:8px 12px; text-align:center;">493</td>
+          <td style="padding:8px 12px; font-size:0.85em;">CFGB, CMT, MSA, RDS, RIS, SMI, SOT, SRM, TGC</td>
+        </tr>
+        <tr style="background:#eaf2ff;">
+          <td style="padding:8px 12px; font-weight:600;">TGCC — 4.5 ans</td>
+          <td style="padding:8px 12px;">Déc 2021 → Juin 2026</td>
+          <td style="padding:8px 12px; text-align:center;">1 112</td>
+          <td style="padding:8px 12px; font-size:0.85em;">TGCC (via BVCscrap)</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px; font-weight:600;">Extension GBM</td>
+          <td style="padding:8px 12px;">Sept 2020 → début données réelles</td>
+          <td style="padding:8px 12px; text-align:center;">—</td>
+          <td style="padding:8px 12px; font-size:0.85em; font-style:italic;">Simulation calibrée sur μ, σ réels — identifiée par _simulated=True dans les données</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:16px; padding:12px; background:#fff8e1; border-left:4px solid #f39c12; border-radius:4px;">
+      <strong>⚠️ Note méthodologique :</strong> L'API casabourse est limitée à 739 enregistrements
+      (~3 ans de données journalières). Les périodes antérieures sont comblées par simulation
+      GBM (Geometric Brownian Motion) calibrée sur les paramètres statistiques réels (μ annuel, σ annuel)
+      de chaque titre. Les résultats de corrélation et de backtest sont fiables sur la période réelle.
+    </div>
+    <div style="margin-top:12px; padding:12px; background:#e8f8f5; border-left:4px solid #27ae60; border-radius:4px;">
+      <strong>✅ Sources :</strong> casabourse.ma (API officielle BVC) · BVCscrap (open-source) ·
+      Corpus WhatsApp : {{ n_messages | default('~1,2M') }} messages · {{ n_authors | default('N') }} participants
+    </div>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <div class="footer">
-  <p>Rapport généré automatiquement par BVC WhatsApp Analysis System v1.0</p>
-  <p style="margin-top: 4px;">{{ date }} | Données: {{ date_range }}</p>
-  <p style="margin-top: 8px; font-style: italic; color: #95a5a6;">
-    Ce rapport est fourni à titre informatif uniquement. Il ne constitue pas un conseil en investissement.
-    Investir en bourse comporte des risques de perte en capital.
-  </p>
+  <div class="footer-left">
+    <span class="author-stamp">Fekak Noureddine</span>
+  </div>
+  <div class="footer-center">
+    <p>Rapport généré automatiquement par BVC WhatsApp Analysis System v1.0</p>
+    <p style="margin-top: 4px;">{{ date }} | Données: {{ date_range }}</p>
+    <p style="margin-top: 8px; font-style: italic; color: #95a5a6;">
+      Ce rapport est fourni à titre informatif uniquement. Il ne constitue pas un conseil en investissement.
+      Investir en bourse comporte des risques de perte en capital.
+    </p>
+  </div>
+  <div class="footer-right">
+    <p>BVC Analysis System</p>
+    <p>v1.0 — {{ date }}</p>
+  </div>
 </div>
 
 </div>
@@ -1448,6 +1532,7 @@ def run_phase14(
         "date": REPORT_DATE,
         "date_range": date_range,
         "n_messages": n_messages,
+        "n_authors": n_members,
         "n_members": n_members,
         "n_tickers": n_tickers,
         "n_smart_money": n_smart_money,
