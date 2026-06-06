@@ -184,14 +184,38 @@ def fetch_casabourse(ticker: str) -> pd.DataFrame:
         if df is None or df.empty:
             return pd.DataFrame()
         df = df.reset_index()
-        df.columns = [c.lower() for c in df.columns]
+        # Normaliser noms de colonnes (casabourse retourne parfois en français)
+        df.columns = [str(c).lower().strip() for c in df.columns]
+        col_map = {}
+        for c in df.columns:
+            if any(k in c for k in ["date", "time", "jour"]):
+                col_map[c] = "date"
+            elif any(k in c for k in ["close", "clot", "cours", "dernier", "last", "cloture", "clôture"]):
+                col_map[c] = "close"
+            elif any(k in c for k in ["high", "haut", "max"]):
+                col_map[c] = "high"
+            elif any(k in c for k in ["low", "bas", "min"]):
+                col_map[c] = "low"
+            elif any(k in c for k in ["open", "ouvert"]):
+                col_map[c] = "open"
+            elif "vol" in c:
+                col_map[c] = "volume"
+        df = df.rename(columns=col_map)
+        # Si toujours pas de colonne "close", prendre la première colonne numérique
+        if "close" not in df.columns:
+            numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+            if numeric_cols:
+                df = df.rename(columns={numeric_cols[0]: "close"})
+            else:
+                return pd.DataFrame()
         for col in ["high", "low", "open", "volume"]:
             if col not in df.columns:
-                df[col] = df.get("close", df.get("price", 0))
+                df[col] = df["close"]
         if "date" not in df.columns:
-            df["date"] = df.index
-        df["date"] = pd.to_datetime(df["date"])
-        return df[["date", "close", "high", "low", "open", "volume"]].dropna(subset=["close"])
+            df["date"] = pd.date_range(START_DATE, periods=len(df), freq="B")
+        df["date"] = pd.to_datetime(df["date"], dayfirst=True, errors="coerce")
+        df["close"] = pd.to_numeric(df["close"], errors="coerce")
+        return df[["date", "close", "high", "low", "open", "volume"]].dropna(subset=["close", "date"])
     except Exception as e:
         print(f"    casabourse {ticker}: {e}")
         return pd.DataFrame()
