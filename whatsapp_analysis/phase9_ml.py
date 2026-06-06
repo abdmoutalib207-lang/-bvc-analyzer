@@ -100,7 +100,7 @@ def engineer_global_features(
     if fear_greed_series is not None and not fear_greed_series.empty:
         fg = fear_greed_series.copy()
         fg.index = pd.to_datetime(fg.index)
-        features["fear_greed"] = fg.reindex(features.index).fillna(method="ffill")
+        features["fear_greed"] = fg.reindex(features.index).ffill()
         features["fear_greed_change_5d"] = features["fear_greed"].diff(5)
         features["extreme_fear"] = (features["fear_greed"] < 20).astype(float)
         features["extreme_greed"] = (features["fear_greed"] > 80).astype(float)
