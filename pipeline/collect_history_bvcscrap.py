@@ -286,24 +286,27 @@ def fuzzy_match(name: str, available: set[str]) -> str | None:
 # COLLECTE PRINCIPALE
 # ─────────────────────────────────────────────────────────────────────────────
 
-def fetch_ticker_history(bvc, name: str, days: int = 95) -> pd.DataFrame:
-    """Récupère l'historique OHLCV BVCscrap et retourne un DataFrame standardisé."""
+def fetch_ticker_history(ticker: str, days: int = 95) -> pd.DataFrame:
+    """Récupère l'historique OHLCV via bvc.loadata(ticker, start, end)."""
     try:
+        import BVCscrap as bvc
         end   = datetime.now()
         start = end - timedelta(days=days + 30)
-        df    = bvc.historique(
-            name,
-            start.strftime("%Y-%m-%d"),
-            end.strftime("%Y-%m-%d"),
+        df    = bvc.loadata(
+            ticker,
+            start=start.strftime("%Y-%m-%d"),
+            end=end.strftime("%Y-%m-%d"),
         )
         if df is None or df.empty:
             return pd.DataFrame()
 
-        # Normalisation colonnes BVCscrap → nos noms
+        df = df.reset_index()
+
+        # Normalisation colonnes → noms standards
         col_map = {}
         for col in df.columns:
             cl = col.lower()
-            if any(k in cl for k in ["close", "clôture", "cloture", "dernier", "cours"]):
+            if any(k in cl for k in ["close", "clôture", "cloture", "dernier", "cours", "value"]):
                 col_map[col] = "close"
             elif any(k in cl for k in ["open", "ouvert"]):
                 col_map[col] = "open"
@@ -313,17 +316,15 @@ def fetch_ticker_history(bvc, name: str, days: int = 95) -> pd.DataFrame:
                 col_map[col] = "low"
             elif any(k in cl for k in ["vol", "volume"]):
                 col_map[col] = "vol"
-            elif any(k in cl for k in ["date"]):
+            elif any(k in cl for k in ["date", "index"]):
                 col_map[col] = "date"
         df = df.rename(columns=col_map)
 
-        # Colonne date
         if "date" not in df.columns:
-            df["date"] = pd.to_datetime(df.index)
+            df["date"] = pd.date_range(end=end, periods=len(df), freq="B")
         else:
             df["date"] = pd.to_datetime(df["date"], dayfirst=True, errors="coerce")
 
-        # Colonne close obligatoire
         if "close" not in df.columns:
             return pd.DataFrame()
 
@@ -341,63 +342,26 @@ def fetch_ticker_history(bvc, name: str, days: int = 95) -> pd.DataFrame:
         return df.tail(days)
 
     except Exception as e:
-        log.debug(f"fetch_ticker_history({name}): {e}")
+        log.debug(f"loadata({ticker}): {e}")
         return pd.DataFrame()
 
 
 def run(tickers_filter: list[str] | None = None, days: int = 95) -> dict:
     try:
-        from BVCscrap import BVCscrap
+        import BVCscrap as bvc  # noqa: F401
     except ImportError:
-        try:
-            from bvcscrap import BVCscrap
-        except ImportError:
-            log.error("BVCscrap non disponible — pip install bvcscrap")
-            return {}
+        log.error("BVCscrap non disponible — pip install bvcscrap")
+        return {}
 
-    bvc = BVCscrap()
-    log.info("BVCscrap initialisé")
-
-    # Découverte des noms disponibles
-    available = discover_bvcscrap_names(bvc)
-    if available:
-        log.info(f"{len(available)} noms disponibles dans BVCscrap")
-    else:
-        log.warning("notation() vide — on essaie quand même avec MANUAL_MAP")
-
-    # Résolution du mapping : MANUAL_MAP → vérification dans available
-    resolved: dict[str, str] = {}
-    unresolved: list[str] = []
+    log.info("BVCscrap importé (API loadata)")
 
     target = tickers_filter or list(MANUAL_MAP.keys())
-    for ticker in target:
-        if ticker not in MANUAL_MAP:
-            unresolved.append(ticker)
-            continue
-        name = MANUAL_MAP[ticker]
-        if available:
-            # Vérifier que le nom est dans BVCscrap (ou fuzzy-matcher)
-            if name in available:
-                resolved[ticker] = name
-            else:
-                matched = fuzzy_match(name, available)
-                if matched:
-                    log.info(f"  {ticker}: '{name}' → '{matched}' (fuzzy)")
-                    resolved[ticker] = matched
-                else:
-                    log.warning(f"  {ticker}: '{name}' introuvable dans BVCscrap")
-                    unresolved.append(ticker)
-        else:
-            # Pas de liste dispo → on essaie directement
-            resolved[ticker] = name
+    log.info(f"{len(target)} tickers à collecter")
 
-    log.info(f"{len(resolved)} tickers à collecter, {len(unresolved)} sans mapping")
-
-    # Collecte historique
     results: dict = {}
-    for i, (ticker, bvc_name) in enumerate(resolved.items(), 1):
-        log.info(f"[{i}/{len(resolved)}] {ticker} ({bvc_name})")
-        df = fetch_ticker_history(bvc, bvc_name, days=days)
+    for i, ticker in enumerate(target, 1):
+        log.info(f"[{i}/{len(target)}] {ticker}")
+        df = fetch_ticker_history(ticker, days=days)
         if df.empty or len(df) < 14:
             log.warning(f"  {ticker}: historique insuffisant ({len(df)} bougies) — ignoré")
             continue
