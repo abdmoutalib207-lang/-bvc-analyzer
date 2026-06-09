@@ -286,14 +286,14 @@ def fuzzy_match(name: str, available: set[str]) -> str | None:
 # COLLECTE PRINCIPALE
 # ─────────────────────────────────────────────────────────────────────────────
 
-def fetch_ticker_history(ticker: str, days: int = 95) -> pd.DataFrame:
-    """Récupère l'historique OHLCV via bvc.loadata(ticker, start, end)."""
+def fetch_ticker_history(ticker: str, name: str, days: int = 95) -> pd.DataFrame:
+    """Récupère l'historique OHLCV via bvc.loadata(name, start, end)."""
     try:
         import BVCscrap as bvc
         end   = datetime.now()
         start = end - timedelta(days=days + 30)
         df    = bvc.loadata(
-            ticker,
+            name,
             start=start.strftime("%Y-%m-%d"),
             end=end.strftime("%Y-%m-%d"),
         )
@@ -342,7 +342,7 @@ def fetch_ticker_history(ticker: str, days: int = 95) -> pd.DataFrame:
         return df.tail(days)
 
     except Exception as e:
-        log.debug(f"loadata({ticker}): {e}")
+        log.debug(f"loadata({name}): {e}")
         return pd.DataFrame()
 
 
@@ -353,15 +353,16 @@ def run(tickers_filter: list[str] | None = None, days: int = 95) -> dict:
         log.error("BVCscrap non disponible — pip install bvcscrap")
         return {}
 
-    log.info("BVCscrap importé (API loadata)")
+    log.info("BVCscrap importé (API loadata par nom société)")
 
-    target = tickers_filter or list(MANUAL_MAP.keys())
-    log.info(f"{len(target)} tickers à collecter")
+    target_map = {t: n for t, n in MANUAL_MAP.items()
+                  if not tickers_filter or t in tickers_filter}
+    log.info(f"{len(target_map)} tickers à collecter")
 
     results: dict = {}
-    for i, ticker in enumerate(target, 1):
-        log.info(f"[{i}/{len(target)}] {ticker}")
-        df = fetch_ticker_history(ticker, days=days)
+    for i, (ticker, name) in enumerate(target_map.items(), 1):
+        log.info(f"[{i}/{len(target_map)}] {ticker} ({name})")
+        df = fetch_ticker_history(ticker, name, days=days)
         if df.empty or len(df) < 14:
             log.warning(f"  {ticker}: historique insuffisant ({len(df)} bougies) — ignoré")
             continue
