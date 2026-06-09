@@ -1,14 +1,16 @@
-name: Fetch BVC Historical Data (6 ans)
+name: Fetch BVC Historical Data (BVCscrap)
 
 on:
+  schedule:
+    - cron: '0 4 * * 0'   # Dimanche 04h00 UTC
   workflow_dispatch:
     inputs:
-      start_date:
-        description: 'Date de début (YYYY-MM-DD)'
+      days:
+        description: 'Nombre de jours d historique (defaut 95)'
         required: false
-        default: '2019-01-01'
+        default: '95'
       tickers:
-        description: 'Tickers séparés par virgule (vide = tous)'
+        description: 'Tickers separés par virgule (vide = tous)'
         required: false
         default: ''
 
@@ -16,15 +18,15 @@ permissions:
   contents: write
 
 jobs:
-  fetch-historical:
+  collect-history:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 60
 
     steps:
-      - name: Checkout
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: claude/bvc-whatsapp-analysis-Lzj6G
+          ref: main
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Python
@@ -35,19 +37,23 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests pandas openpyxl numpy beautifulsoup4 lxml bvcscrap casabourse yfinance
+          pip install requests pandas numpy beautifulsoup4 lxml bvcscrap casabourse
 
-      - name: Fetch historical data
-        run: python .github/scripts/fetch_bvc_history.py
-        env:
-          START_DATE: ${{ github.event.inputs.start_date }}
-          TICKERS_FILTER: ${{ github.event.inputs.tickers }}
+      - name: Collect historical data & compute indicators
+        run: |
+          DAYS="${{ github.event.inputs.days }}"
+          TICKERS="${{ github.event.inputs.tickers }}"
+          ARGS="--days ${DAYS:-95}"
+          if [ -n "$TICKERS" ]; then
+            ARGS="$ARGS --tickers $TICKERS"
+          fi
+          python pipeline/collect_history_bvcscrap.py $ARGS
 
-      - name: Commit results
+      - name: Commit and push historical_data.json
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/historique/ data/masi_history.csv
+          git add pipeline/historical_data.json
           git diff --cached --stat
-          git commit -m "data: historique BVC 6 ans — $(date +%Y-%m-%d)" || echo "Rien à committer"
-          git push origin claude/bvc-whatsapp-analysis-Lzj6G
+          git commit -m "data: historical_data.json BVCscrap $(date +%Y-%m-%d)" || echo "Rien a committer"
+          git push origin main
