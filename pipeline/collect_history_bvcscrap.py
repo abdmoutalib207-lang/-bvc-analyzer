@@ -1,34 +1,9 @@
 #!/usr/bin/env python3
-"""
-BVC TERMINAL — collect_history_bvcscrap.py
-═══════════════════════════════════════════════════════════════════════════════
-Collecte 90 jours d'historique OHLCV via BVCscrap (wrapper Médias24) pour
-les 72/77 tickers du terminal BVC et calcule les indicateurs techniques.
-
-Résultat : pipeline/historical_data.json
-  → utilisé par update_data.py comme source de MA20/MA50/RSI quand
-    l'API Médias24 directe est bloquée (GitHub Actions).
-
-À exécuter depuis Colab ou une machine non bloquée, idéalement chaque semaine.
-
-Usage :
-    python pipeline/collect_history_bvcscrap.py
-    python pipeline/collect_history_bvcscrap.py --days 120
-    python pipeline/collect_history_bvcscrap.py --tickers IAM,ATW,BCP
-
-Dépendances :
-    pip install bvcscrap pandas numpy
-
-4 tickers sans mapping BVCscrap : SGTM, CMGP, VCNE, BMC
-═══════════════════════════════════════════════════════════════════════════════
-"""
-
 import sys, json, time, argparse, logging
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-# Auto-install
-for pkg in ["bvcscrap", "pandas", "numpy"]:
+for pkg in ["bvcscrap", "pandas", "numpy", "openpyxl"]:
     try:
         __import__(pkg if pkg != "bvcscrap" else "BVCscrap")
     except ImportError:
@@ -45,13 +20,7 @@ logging.basicConfig(
 )
 log = logging.getLogger("BVCSCRAP_HIST")
 
-# ─────────────────────────────────────────────────────────────────────────────
-# MAPPING ticker → nom BVCscrap (Médias24)
-# 4 sans mapping : SGTM, CMGP, VCNE, BMC
-# ─────────────────────────────────────────────────────────────────────────────
-
 MANUAL_MAP: dict[str, str] = {
-    # Noms exacts validés par bvc.notation_code()
     "IAM":  "Maroc Telecom",
     "ATW":  "Attijariwafa",
     "BCP":  "BCP",
@@ -116,13 +85,115 @@ MANUAL_MAP: dict[str, str] = {
     "STK":  "Stokvis Nord Afr",
     "UNI":  "Unimer",
     "IBM":  "IBMaroc",
-    # Non disponibles dans BVCscrap (ignorés) :
-    # SGTM, CMGP, VCNE, BMC, HAL, DHO, PPM, ENK, RDS, MGL, FNB, CSR, CASH
 }
 
-# ─────────────────────────────────────────────────────────────────────────────
-# INDICATEURS TECHNIQUES (même logique que update_data.py)
-# ─────────────────────────────────────────────────────────────────────────────
+XLSX_DIR = Path(__file__).parent.parent / "data" / "historique"
+
+
+def load_xlsx(ticker: str) -> pd.DataFrame:
+    path = XLSX_DIR / f"{ticker}.xlsx"
+    if not path.exists():
+        return pd.DataFrame()
+    try:
+        df = pd.read_excel(path, engine="openpyxl")
+        df.columns = [c.lower().strip() for c in df.columns]
+        col_map = {}
+        for col in df.columns:
+            if col == "date":
+                col_map[col] = "date"
+            elif col in ("close", "clôture", "cloture", "dernier", "cours"):
+                col_map[col] = "close"
+            elif col in ("open", "ouvert"):
+                col_map[col] = "open"
+            elif col in ("high", "haut", "max"):
+                col_map[col] = "high"
+            elif col in ("low", "bas", "min"):
+                col_map[col] = "low"
+            elif "vol" in col:
+                col_map[col] = "volume"
+        df = df.rename(columns=col_map)
+        if "date" not in df.columns or "close" not in df.columns:
+            return pd.DataFrame()
+        df["date"] = pd.to_datetime(df["date"], errors="coerce")
+        df = df.dropna(subset=["date", "close"])
+        df["close"] = pd.to_numeric(df["close"], errors="coerce")
+        for c in ["open", "high", "low"]:
+            if c not in df.columns:
+                df[c] = df["close"]
+            else:
+                df[c] = pd.to_numeric(df[c], errors="coerce").fillna(df["close"])
+        if "volume" not in df.columns:
+            df["volume"] = 0
+        else:
+            df["volume"] = pd.to_numeric(df["volume"], errors="coerce").fillna(0)
+        df = df[df["close"] > 0].sort_values("date").reset_index(drop=True)
+        return df[["date", "open", "high", "low", "close", "volume"]]
+    except Exception as e:
+        log.warning(f"Erreur lecture {path}: {e}")
+        return pd.DataFrame()
+
+
+def fetch_bvcscrap_extension(name: str, from_date: pd.Timestamp) -> pd.DataFrame:
+    try:
+        import BVCscrap as bvc
+        start = (from_date + timedelta(days=1)).strftime("%Y-%m-%d")
+        end = datetime.now().strftime("%Y-%m-%d")
+        if start >= end:
+            return pd.DataFrame()
+        df = bvc.loadata(name, start=start, end=end)
+        if df is None or df.empty:
+            return pd.DataFrame()
+        df = df.reset_index()
+        col_map = {}
+        for col in df.columns:
+            cl = col.lower()
+            if any(k in cl for k in ["close", "clôture", "cloture", "dernier", "cours", "value"]):
+                col_map[col] = "close"
+            elif any(k in cl for k in ["open", "ouvert"]):
+                col_map[col] = "open"
+            elif any(k in cl for k in ["high", "haut", "max"]):
+                col_map[col] = "high"
+            elif any(k in cl for k in ["low", "bas", "min"]):
+                col_map[col] = "low"
+            elif any(k in cl for k in ["vol", "volume"]):
+                col_map[col] = "volume"
+            elif any(k in cl for k in ["date", "index"]):
+                col_map[col] = "date"
+        df = df.rename(columns=col_map)
+        if "date" not in df.columns:
+            df["date"] = pd.date_range(end=datetime.now(), periods=len(df), freq="B")
+        else:
+            df["date"] = pd.to_datetime(df["date"], dayfirst=True, errors="coerce")
+        if "close" not in df.columns:
+            return pd.DataFrame()
+        for c in ["open", "high", "low"]:
+            if c not in df.columns:
+                df[c] = df["close"]
+        if "volume" not in df.columns:
+            df["volume"] = 0
+        df = df[["date", "open", "high", "low", "close", "volume"]].copy()
+        df = df.dropna(subset=["date", "close"])
+        df["close"]  = pd.to_numeric(df["close"],  errors="coerce")
+        df["high"]   = pd.to_numeric(df["high"],   errors="coerce").fillna(df["close"])
+        df["low"]    = pd.to_numeric(df["low"],    errors="coerce").fillna(df["close"])
+        df["open"]   = pd.to_numeric(df["open"],   errors="coerce").fillna(df["close"])
+        df["volume"] = pd.to_numeric(df["volume"], errors="coerce").fillna(0)
+        df = df[df["close"] > 0].sort_values("date").reset_index(drop=True)
+        return df
+    except Exception as e:
+        log.debug(f"loadata({name}): {e}")
+        return pd.DataFrame()
+
+
+def combine(xlsx_df: pd.DataFrame, ext_df: pd.DataFrame) -> pd.DataFrame:
+    if ext_df.empty:
+        return xlsx_df
+    if xlsx_df.empty:
+        return ext_df
+    combined = pd.concat([xlsx_df, ext_df], ignore_index=True)
+    combined = combined.drop_duplicates(subset=["date"]).sort_values("date").reset_index(drop=True)
+    return combined
+
 
 def calc_rsi(closes: pd.Series, period: int = 14) -> float:
     delta    = closes.diff()
@@ -159,9 +230,9 @@ def calc_macd(closes: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9
 def calc_bollinger(closes: pd.Series, period: int = 20, n_std: float = 2.0):
     if len(closes) < period:
         return None, None, None
-    tail   = closes.tail(period)
-    mid    = tail.mean()
-    std    = tail.std(ddof=1)
+    tail = closes.tail(period)
+    mid  = tail.mean()
+    std  = tail.std(ddof=1)
     return (
         round(float(mid + n_std * std), 2),
         round(float(mid), 2),
@@ -189,26 +260,52 @@ def calc_stoch(closes: pd.Series, highs: pd.Series, lows: pd.Series,
 
 
 def compute_indicators(df: pd.DataFrame) -> dict:
-    """Calcule tous les indicateurs à partir d'un DataFrame OHLCV."""
     closes = df["close"]
     highs  = df["high"]
     lows   = df["low"]
 
-    rsi            = calc_rsi(closes)
-    ma20           = calc_ma(closes, 20)
-    ma50           = calc_ma(closes, 50)
-    h90            = round(float(highs.max()), 2)
-    l90            = round(float(lows.min()), 2)
-    macd, ms, mh   = calc_macd(closes)
-    bbu, bbm, bbl  = calc_bollinger(closes)
-    sk, sd         = calc_stoch(closes, highs, lows)
+    now = pd.Timestamp.now()
+    w52_start = now - pd.Timedelta(weeks=52)
+    w90_start = now - pd.Timedelta(days=90)
+
+    df_52w = df[df["date"] >= w52_start]
+    df_90  = df[df["date"] >= w90_start]
+
+    h52w = round(float(df_52w["high"].max()), 2) if not df_52w.empty else round(float(highs.max()), 2)
+    l52w = round(float(df_52w["low"].min()),  2) if not df_52w.empty else round(float(lows.min()),  2)
+    h90  = round(float(df_90["high"].max()),  2) if not df_90.empty  else round(float(highs.max()), 2)
+    l90  = round(float(df_90["low"].min()),   2) if not df_90.empty  else round(float(lows.min()),  2)
+
+    rsi           = calc_rsi(closes)
+    ma20          = calc_ma(closes, 20)
+    ma50          = calc_ma(closes, 50)
+    ma200         = calc_ma(closes, 200)
+    macd, ms, mh  = calc_macd(closes)
+    bbu, bbm, bbl = calc_bollinger(closes)
+    sk, sd        = calc_stoch(closes, highs, lows)
+
+    candles_250 = df.tail(250).copy()
+    candles = [
+        {
+            "d": str(row["date"])[:10],
+            "o": round(float(row["open"]),  2),
+            "h": round(float(row["high"]),  2),
+            "l": round(float(row["low"]),   2),
+            "c": round(float(row["close"]), 2),
+            "v": int(row["volume"]),
+        }
+        for _, row in candles_250.iterrows()
+    ]
 
     return {
         "rsi":         rsi,
         "ma20":        ma20,
         "ma50":        ma50,
+        "ma200":       ma200,
         "h90":         h90,
         "l90":         l90,
+        "h52w":        h52w,
+        "l52w":        l52w,
         "macd":        macd,
         "macd_signal": ms,
         "macd_hist":   mh,
@@ -218,210 +315,118 @@ def compute_indicators(df: pd.DataFrame) -> dict:
         "stoch_k":     sk,
         "stoch_d":     sd,
         "last_close":  round(float(closes.iloc[-1]), 2),
-        "last_date":   str(df["date"].iloc[-1])[:10] if "date" in df.columns else "",
+        "last_date":   str(df["date"].iloc[-1])[:10],
         "n_candles":   len(df),
+        "candles":     candles,
     }
 
-# ─────────────────────────────────────────────────────────────────────────────
-# DÉCOUVERTE BVCscrap
-# ─────────────────────────────────────────────────────────────────────────────
 
-def discover_bvcscrap_names(bvc) -> set[str]:
-    """Retourne l'ensemble des noms disponibles dans BVCscrap."""
+def save_candle_file(ticker: str, df: pd.DataFrame, candles_dir: Path) -> None:
+    candles_dir.mkdir(parents=True, exist_ok=True)
+    candles = [
+        {
+            "d": str(row["date"])[:10],
+            "o": round(float(row["open"]),  2),
+            "h": round(float(row["high"]),  2),
+            "l": round(float(row["low"]),   2),
+            "c": round(float(row["close"]), 2),
+            "v": int(row["volume"]),
+        }
+        for _, row in df.iterrows()
+    ]
+    out = candles_dir / f"{ticker}.json"
+    out.write_text(json.dumps(candles, ensure_ascii=False), encoding="utf-8")
+
+
+def run(tickers_filter: list[str] | None = None) -> dict:
     try:
-        df = bvc.notation()
-        if df is None or df.empty:
-            return set()
-        # La colonne contenant les noms s'appelle 'Société' ou similaire
-        name_col = None
-        for col in df.columns:
-            if any(k in col.lower() for k in ["société", "societe", "company", "nom", "name", "valeur"]):
-                name_col = col
-                break
-        if name_col is None and len(df.columns) > 0:
-            name_col = df.columns[0]
-        if name_col:
-            return set(df[name_col].dropna().str.strip().tolist())
-        return set()
-    except Exception as e:
-        log.warning(f"notation() échoué: {e}")
-        return set()
-
-
-def fuzzy_match(name: str, available: set[str]) -> str | None:
-    """Cherche le meilleur match insensible à la casse et aux accents."""
-    import unicodedata
-
-    def normalize(s: str) -> str:
-        return unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode().lower()
-
-    norm_name = normalize(name)
-    # Exact match après normalisation
-    for a in available:
-        if normalize(a) == norm_name:
-            return a
-    # Contient
-    for a in available:
-        if norm_name in normalize(a) or normalize(a) in norm_name:
-            return a
-    # Premier mot
-    first = norm_name.split()[0] if norm_name.split() else ""
-    for a in available:
-        if normalize(a).startswith(first):
-            return a
-    return None
-
-# ─────────────────────────────────────────────────────────────────────────────
-# COLLECTE PRINCIPALE
-# ─────────────────────────────────────────────────────────────────────────────
-
-def fetch_ticker_history(ticker: str, name: str, days: int = 95) -> pd.DataFrame:
-    """Récupère l'historique OHLCV via bvc.loadata(name, start, end)."""
-    try:
-        import BVCscrap as bvc
-        end   = datetime.now()
-        start = end - timedelta(days=days + 30)
-        df    = bvc.loadata(
-            name,
-            start=start.strftime("%Y-%m-%d"),
-            end=end.strftime("%Y-%m-%d"),
-        )
-        if df is None or df.empty:
-            return pd.DataFrame()
-
-        df = df.reset_index()
-
-        # Normalisation colonnes → noms standards
-        col_map = {}
-        for col in df.columns:
-            cl = col.lower()
-            if any(k in cl for k in ["close", "clôture", "cloture", "dernier", "cours", "value"]):
-                col_map[col] = "close"
-            elif any(k in cl for k in ["open", "ouvert"]):
-                col_map[col] = "open"
-            elif any(k in cl for k in ["high", "haut", "max"]):
-                col_map[col] = "high"
-            elif any(k in cl for k in ["low", "bas", "min"]):
-                col_map[col] = "low"
-            elif any(k in cl for k in ["vol", "volume"]):
-                col_map[col] = "vol"
-            elif any(k in cl for k in ["date", "index"]):
-                col_map[col] = "date"
-        df = df.rename(columns=col_map)
-
-        if "date" not in df.columns:
-            df["date"] = pd.date_range(end=end, periods=len(df), freq="B")
-        else:
-            df["date"] = pd.to_datetime(df["date"], dayfirst=True, errors="coerce")
-
-        if "close" not in df.columns:
-            return pd.DataFrame()
-
-        for c in ["open", "high", "low", "vol"]:
-            if c not in df.columns:
-                df[c] = df["close"]
-
-        df = df[["date", "open", "high", "low", "close", "vol"]].copy()
-        df = df.dropna(subset=["date", "close"])
-        df["close"] = pd.to_numeric(df["close"], errors="coerce")
-        df["high"]  = pd.to_numeric(df["high"],  errors="coerce").fillna(df["close"])
-        df["low"]   = pd.to_numeric(df["low"],   errors="coerce").fillna(df["close"])
-        df["open"]  = pd.to_numeric(df["open"],  errors="coerce").fillna(df["close"])
-        df = df[df["close"] > 0].sort_values("date").reset_index(drop=True)
-        return df.tail(days)
-
-    except Exception as e:
-        log.debug(f"loadata({name}): {e}")
-        return pd.DataFrame()
-
-
-def run(tickers_filter: list[str] | None = None, days: int = 95) -> dict:
-    try:
-        import BVCscrap as bvc  # noqa: F401
+        import BVCscrap  # noqa: F401
+        bvcscrap_ok = True
     except ImportError:
-        log.error("BVCscrap non disponible — pip install bvcscrap")
-        return {}
+        log.warning("BVCscrap non disponible — extension BVCscrap désactivée")
+        bvcscrap_ok = False
 
-    log.info("BVCscrap importé (API loadata par nom société)")
+    xlsx_tickers = {f.stem for f in XLSX_DIR.glob("*.xlsx")} if XLSX_DIR.exists() else set()
+    all_tickers = sorted(xlsx_tickers | set(MANUAL_MAP.keys()))
 
-    target_map = {t: n for t, n in MANUAL_MAP.items()
-                  if not tickers_filter or t in tickers_filter}
-    log.info(f"{len(target_map)} tickers à collecter")
+    if tickers_filter:
+        all_tickers = [t for t in all_tickers if t in tickers_filter]
 
+    log.info(f"{len(all_tickers)} tickers à traiter")
+
+    candles_dir = Path(__file__).parent / "candles"
     results: dict = {}
-    for i, (ticker, name) in enumerate(target_map.items(), 1):
-        log.info(f"[{i}/{len(target_map)}] {ticker} ({name})")
-        df = fetch_ticker_history(ticker, name, days=days)
+
+    for i, ticker in enumerate(all_tickers, 1):
+        log.info(f"[{i}/{len(all_tickers)}] {ticker}")
+
+        xlsx_df = load_xlsx(ticker)
+
+        if bvcscrap_ok and ticker in MANUAL_MAP:
+            name = MANUAL_MAP[ticker]
+            if not xlsx_df.empty:
+                last_date = xlsx_df["date"].iloc[-1]
+            else:
+                last_date = pd.Timestamp(datetime.now() - timedelta(days=31))
+            ext_df = fetch_bvcscrap_extension(name, last_date)
+            df = combine(xlsx_df, ext_df)
+            if not ext_df.empty:
+                log.info(f"  +{len(ext_df)} bougies BVCscrap ajoutées")
+        else:
+            df = xlsx_df
+
         if df.empty or len(df) < 14:
             log.warning(f"  {ticker}: historique insuffisant ({len(df)} bougies) — ignoré")
             continue
+
         try:
             ind = compute_indicators(df)
             results[ticker] = ind
             log.info(
-                f"  ✓ {len(df)} bougies → RSI={ind['rsi']} "
-                f"MA20={ind['ma20']} MA50={ind['ma50']}"
+                f"  {len(df)} bougies → RSI={ind['rsi']} "
+                f"MA20={ind['ma20']} MA50={ind['ma50']} "
+                f"H52w={ind['h52w']} L52w={ind['l52w']}"
             )
+            save_candle_file(ticker, df, candles_dir)
         except Exception as e:
             log.warning(f"  {ticker}: calcul indicateurs échoué: {e}")
-        time.sleep(0.4)
+
+        time.sleep(0.2)
 
     return results
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# SAUVEGARDE
-# ─────────────────────────────────────────────────────────────────────────────
-
 def save(results: dict, out_path: Path) -> None:
-    existing: dict = {}
-    if out_path.exists():
-        try:
-            existing = json.loads(out_path.read_text(encoding="utf-8"))
-        except Exception:
-            pass
-
-    # Fusionner : nouvelles données écrasent l'existant ticker par ticker
-    merged = {k: v for k, v in existing.items() if not k.startswith("_")}
-    merged.update(results)
-
     output = {
         "_updated": datetime.now(timezone.utc).isoformat(),
-        "_source":  "BVCscrap v0.2.1 (Médias24)",
-        "_tickers": len(merged),
-        **merged,
+        "_source":  "xlsx 3ans + BVCscrap extension",
+        "_tickers": len(results),
+        **results,
     }
     out_path.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
-    log.info(f"Sauvegardé : {out_path} ({len(merged)} tickers)")
+    log.info(f"Sauvegardé : {out_path} ({len(results)} tickers)")
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# MAIN
-# ─────────────────────────────────────────────────────────────────────────────
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Collecte historique BVCscrap")
-    parser.add_argument("--days",    type=int, default=95,
-                        help="Fenêtre historique en jours (défaut: 95)")
     parser.add_argument("--tickers", type=str, default="",
-                        help="Liste CSV de tickers à collecter (défaut: tous)")
+                        help="Liste CSV de tickers (défaut: tous)")
     parser.add_argument("--dry-run", action="store_true",
                         help="N'écrit pas le fichier de sortie")
     args = parser.parse_args()
 
     tickers_filter = [t.strip().upper() for t in args.tickers.split(",") if t.strip()] or None
 
-    results = run(tickers_filter=tickers_filter, days=args.days)
+    results = run(tickers_filter=tickers_filter)
 
     if not results:
-        log.error("Aucun résultat — vérifier la connexion et BVCscrap")
+        log.error("Aucun résultat")
         sys.exit(1)
 
-    log.info(f"\n{'='*60}")
-    log.info(f"Résultats : {len(results)}/{len(MANUAL_MAP)} tickers collectés")
+    log.info(f"Résultats : {len(results)} tickers traités")
     missing = [t for t in MANUAL_MAP if t not in results]
     if missing:
-        log.info(f"Manquants : {missing}")
+        log.info(f"Manquants MANUAL_MAP : {missing}")
 
     if not args.dry_run:
         try:
@@ -430,7 +435,6 @@ def main() -> None:
             out = Path("pipeline/historical_data.json")
         save(results, out)
         print(f"\nFichier : {out}")
-        print("Prochaine étape : committer et pousser historical_data.json sur le repo.")
     else:
         log.info("[dry-run] Aucune écriture")
         for t, v in sorted(results.items()):
