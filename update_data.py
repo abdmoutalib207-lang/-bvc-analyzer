@@ -862,6 +862,17 @@ def run(dry_run=False, push=False, token=""):
                 bb_upper, bb_mid, bb_lower = calc_bollinger(closes)
             if len(closes) >= 14:
                 stoch_k, stoch_d = calc_stoch(closes, highs, lows)
+            # MA200 / H52w / L52w — nécessitent l'historique long (pipeline)
+            try:
+                hd_path = Path(__file__).parent / "pipeline" / "historical_data.json"
+                if hd_path.exists():
+                    hd_all = json.loads(hd_path.read_text(encoding="utf-8"))
+                    hd_t   = hd_all.get(ticker, {})
+                    ma200 = hd_t.get("ma200")
+                    h52w  = hd_t.get("h52w")
+                    l52w  = hd_t.get("l52w")
+            except Exception:
+                pass
         else:
             # Fallback A : historical_data.json (produit par collect_history_bvcscrap.py)
             _hist_loaded = False
