@@ -788,6 +788,7 @@ def run(dry_run=False, push=False, token=""):
         macd_val = macd_sig = macd_hist = None
         bb_upper = bb_mid = bb_lower = None
         stoch_k = stoch_d = None
+        ma200 = h52w = l52w = None
 
         if not df.empty and len(df) >= 14:
             closes = df["close"]
@@ -839,6 +840,9 @@ def run(dry_run=False, push=False, token=""):
                         bb_lower  = hd_t.get("bb_lower")
                         stoch_k   = hd_t.get("stoch_k")
                         stoch_d   = hd_t.get("stoch_d")
+                        ma200     = hd_t.get("ma200")
+                        h52w      = hd_t.get("h52w")
+                        l52w      = hd_t.get("l52w")
                         if not price:
                             price = hd_t.get("last_close", 0)
                         _hist_loaded = True
@@ -993,6 +997,9 @@ def run(dry_run=False, push=False, token=""):
             "cap":    fd.get("cap"),
             "h90":    round(h90, 2),
             "l90":    round(l90, 2),
+            "ma200":  round(ma200, 2) if ma200 else None,
+            "h52w":   round(h52w, 2) if h52w else None,
+            "l52w":   round(l52w, 2) if l52w else None,
             "rsi":    rsi,
             "ma20":   ma20,
             "ma50":   ma50,
