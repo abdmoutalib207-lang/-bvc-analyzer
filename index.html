@@ -23,6 +23,8 @@
     .apexcharts-tooltip{font-family:var(--font)!important;font-size:12px!important;}
     .apexcharts-menu{background:#0d1829!important;border-color:#1a2540!important;}
     .apexcharts-menu-item{color:#c8d3e8!important;}
+    .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
+    @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
   </style>
 </head>
 <body>
@@ -528,7 +530,7 @@ const StockChart=({r})=>{
 
     // ── Séries dynamiques selon toggles BB / Ichimoku ──────
     const seriesMain=[
-      {name:sym,type:"candlestick",data:candles},
+      {name:"Cours",type:"candlestick",data:candles},
       {name:"MA20",type:"line",data:ma20data},
       {name:"MA50",type:"line",data:ma50data},
     ];
@@ -869,7 +871,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
       </div>
       {r.warn&&<div style={{background:"rgba(255,215,64,.08)",border:"1px solid rgba(255,215,64,.3)",borderRadius:6,padding:"10px 14px",marginBottom:12,fontSize:13,color:"#ffd740"}}>⚠️ {r.warnMsg}</div>}
 
-      <div style={{display:"grid",gridTemplateColumns:"290px 1fr",gap:12}}>
+      <div className="detail-grid">
         {/* LEFT */}
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {/* Score card */}
@@ -907,8 +909,16 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
                 <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Indicateurs Techniques</div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6,marginBottom:6}}>
+                  {[["MA20",px(r.ma20||0),"#4db8ff"],["MA50",px(r.ma50||0),"#b388ff"],["MA200",r.ma200?px(r.ma200):"—","#ff9800"]].map(([k,v,c])=>(
+                    <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
+                      <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>{k}</div>
+                      <div style={{fontSize:12,color:c,fontWeight:700}}>{v}</div>
+                    </div>
+                  ))}
+                </div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-                  {[["MA20",px(r.ma20||0),"#4db8ff"],["MA50",px(r.ma50||0),"#b388ff"],["MA200",r.ma200?px(r.ma200):"—","#ff9800"],["Haut 90j",px(h90),"#00e5a0"],["Bas 90j",px(l90),"#ff4f5a"],["H 52s",r.h52w?px(r.h52w):"—","#00e5a0"],["B 52s",r.l52w?px(r.l52w):"—","#ff4f5a"]].map(([k,v,c])=>(
+                  {[["Haut 90j",px(h90),"#00e5a0"],["H 52s",r.h52w?px(r.h52w):"—","#00e5a0"],["Bas 90j",px(l90),"#ff4f5a"],["B 52s",r.l52w?px(r.l52w):"—","#ff4f5a"]].map(([k,v,c])=>(
                     <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
                       <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>{k}</div>
                       <div style={{fontSize:12,color:c,fontWeight:700}}>{v}</div>
@@ -999,7 +1009,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
 
           {/* Setup + formule */}
           <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,fontFamily:"var(--font)",fontSize:12,lineHeight:1.9}}>
-            <div style={{display:"flex",gap:6,marginBottom:10}}>
+            <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
               {[[`Setup: ${r.setup}`,"#ffd740"],[`Flags: ${r.flags===0?"✅ 0":"⚠️ "+r.flags}`,r.flags>=3?"#ff4f5a":r.flags>=1?"#ffd740":"#00e5a0"],[`Fond:${r.poids.f}% NLP:${r.poids.n}% Tech:${r.poids.t}%`,"#8892a4"]].map(([lbl,c])=>(
                 <span key={lbl} style={{fontSize:11,padding:"3px 8px",borderRadius:4,background:"#0a1220",color:c,border:"1px solid #1a2540"}}>{lbl}</span>
               ))}
