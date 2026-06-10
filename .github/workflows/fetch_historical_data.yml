@@ -5,10 +5,6 @@ on:
     - cron: '30 15 * * 1-5'   # Lun-Ven 15h30 UTC = après clôture BVC (15h30 Casablanca)
   workflow_dispatch:
     inputs:
-      days:
-        description: 'Nombre de jours d historique (defaut 95)'
-        required: false
-        default: '95'
       tickers:
         description: 'Tickers separés par virgule (vide = tous)'
         required: false
@@ -37,23 +33,22 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests pandas numpy beautifulsoup4 lxml bvcscrap casabourse
+          pip install requests pandas numpy beautifulsoup4 lxml bvcscrap casabourse openpyxl
 
       - name: Collect historical data & compute indicators
         run: |
-          DAYS="${{ github.event.inputs.days }}"
           TICKERS="${{ github.event.inputs.tickers }}"
-          ARGS="--days ${DAYS:-95}"
+          ARGS=""
           if [ -n "$TICKERS" ]; then
-            ARGS="$ARGS --tickers $TICKERS"
+            ARGS="--tickers $TICKERS"
           fi
           python pipeline/collect_history_bvcscrap.py $ARGS
 
-      - name: Commit and push historical_data.json
+      - name: Commit and push results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add pipeline/historical_data.json
+          git add pipeline/historical_data.json pipeline/candles/
           git diff --cached --stat
-          git commit -m "data: historical_data.json BVCscrap $(date +%Y-%m-%d)" || echo "Rien a committer"
+          git commit -m "data: historical_data.json + candles $(date +%Y-%m-%d)" || echo "Rien a committer"
           git push origin main
