@@ -269,11 +269,22 @@ async function fetchQuotes(){
   return Object.keys(out).length>0?out:null;
 }
 
-// fetchChart: Médias24 uniquement — données réelles ou rien
+// fetchChart: Médias24 → fallback pipeline/candles/{sym}.json
 async function fetchChart(sym,range){
   const daysMap={"5d":7,"1mo":30,"3mo":90,"6mo":180,"1y":365};
   const days=daysMap[range]||90;
-  return fetchMed24History(sym,days);
+  const med24=await fetchMed24History(sym,days);
+  if(med24&&med24.length>=5)return med24;
+  try{
+    const r=await fetch(`./pipeline/candles/${sym}.json`);
+    if(!r.ok)return null;
+    const data=await r.json();
+    const candles=Array.isArray(data)?data:(data.candles||[]);
+    const cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);
+    return candles
+      .filter(c=>new Date(c.d)>=cutoff)
+      .map(c=>({date:c.d,open:c.o,high:c.h,low:c.l,close:c.c,volume:c.v}));
+  }catch{return null;}
 }
 
 // ── MARKET STATUS (BVC Casablanca, UTC+1 toute l'année) ───────────────────────
@@ -883,7 +894,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
               <div>
                 <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Indicateurs Techniques</div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-                  {[["MA20",px(r.ma20||0),"#4db8ff"],["MA50",px(r.ma50||0),"#b388ff"],["Haut 90j",px(h90),"#00e5a0"],["Bas 90j",px(l90),"#ff4f5a"]].map(([k,v,c])=>(
+                  {[["MA20",px(r.ma20||0),"#4db8ff"],["MA50",px(r.ma50||0),"#b388ff"],["MA200",r.ma200?px(r.ma200):"—","#ff9800"],["Haut 90j",px(h90),"#00e5a0"],["Bas 90j",px(l90),"#ff4f5a"],["H 52s",r.h52w?px(r.h52w):"—","#00e5a0"],["B 52s",r.l52w?px(r.l52w):"—","#ff4f5a"]].map(([k,v,c])=>(
                     <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
                       <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>{k}</div>
                       <div style={{fontSize:12,color:c,fontWeight:700}}>{v}</div>
@@ -1617,7 +1628,8 @@ function App(){
           price:t.price,chg:t.chg,vol:t.vol||0,open:t.open,close:t.close,
           name:t.name,sector:t.sector,
           pe:t.pe,pb:t.pb,div:t.div,cap:t.cap,
-          h90:t.h90,l90:t.l90,rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,
+          h90:t.h90,l90:t.l90,ma200:t.ma200,h52w:t.h52w,l52w:t.l52w,
+          rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,
           macd:t.macd,macd_signal:t.macd_signal,macd_hist:t.macd_hist,
           bb_upper:t.bb_upper,bb_mid:t.bb_mid,bb_lower:t.bb_lower,
           stoch_k:t.stoch_k,stoch_d:t.stoch_d,
