@@ -279,11 +279,20 @@ async function fetchChart(sym,range){
     const r=await fetch(`./pipeline/candles/${sym}.json`);
     if(!r.ok)return null;
     const data=await r.json();
-    const candles=Array.isArray(data)?data:(data.candles||[]);
+    const raw=Array.isArray(data)?data:(data.candles||[]);
     const cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);
-    return candles
-      .filter(c=>new Date(c.d)>=cutoff)
-      .map(c=>({date:c.d,open:c.o,high:c.h,low:c.l,close:c.c,volume:c.v}));
+    const filtered=raw.filter(c=>new Date(c.d)>=cutoff);
+    if(filtered.length<5)return null;
+    // Convertir au format ApexCharts attendu par StockChart: {x:ts, y:[o,h,l,c], vol}
+    let prevClose=null;
+    return filtered.map(c=>{
+      const o=c.o!=null?c.o:(prevClose!=null?prevClose:c.c);
+      const h=c.h!=null?c.h:Math.max(o,c.c);
+      const l=c.l!=null?c.l:Math.min(o,c.c);
+      const ts=new Date(c.d).getTime();
+      prevClose=c.c;
+      return {x:ts,y:[o,h,l,c.c],vol:c.v||0};
+    });
   }catch{return null;}
 }
 
