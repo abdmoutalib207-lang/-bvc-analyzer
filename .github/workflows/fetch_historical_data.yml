@@ -2,7 +2,7 @@ name: Fetch BVC Historical Data (BVCscrap)
 
 on:
   schedule:
-    - cron: '0 4 * * 0'   # Dimanche 04h00 UTC
+    - cron: '30 15 * * 1-5'   # Lun-Ven 15h30 UTC = après clôture BVC (15h30 Casablanca)
   workflow_dispatch:
     inputs:
       days:
