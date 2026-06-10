@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Expires" content="0"/>
   <title>BVC Analyzer v6.4 — Bourse de Casablanca</title>
   <meta name="description" content="Terminal d'analyse multi-facteurs BVC : Technique 25% · Fondamental 47% · NLP 28% — 77 titres · 896 907 messages · 6 ans de données"/>
   <meta name="theme-color" content="#080d1a"/>
@@ -269,31 +272,33 @@ async function fetchQuotes(){
   return Object.keys(out).length>0?out:null;
 }
 
-// fetchChart: Médias24 → fallback pipeline/candles/{sym}.json
+// fetchChart: pipeline/candles EN PREMIER (OHLCV réel BVCscrap/xlsx) → Médias24 en secours
 async function fetchChart(sym,range){
   const daysMap={"5d":7,"1mo":30,"3mo":90,"6mo":180,"1y":365};
   const days=daysMap[range]||90;
-  const med24=await fetchMed24History(sym,days);
-  if(med24&&med24.length>=5)return med24;
+  // 1. Priorité : pipeline/candles/{sym}.json (données OHLCV réelles)
   try{
-    const r=await fetch(`./pipeline/candles/${sym}.json`);
-    if(!r.ok)return null;
-    const data=await r.json();
-    const raw=Array.isArray(data)?data:(data.candles||[]);
-    const cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);
-    const filtered=raw.filter(c=>new Date(c.d)>=cutoff);
-    if(filtered.length<5)return null;
-    // Convertir au format ApexCharts attendu par StockChart: {x:ts, y:[o,h,l,c], vol}
-    let prevClose=null;
-    return filtered.map(c=>{
-      const o=c.o!=null?c.o:(prevClose!=null?prevClose:c.c);
-      const h=c.h!=null?c.h:Math.max(o,c.c);
-      const l=c.l!=null?c.l:Math.min(o,c.c);
-      const ts=new Date(c.d).getTime();
-      prevClose=c.c;
-      return {x:ts,y:[o,h,l,c.c],vol:c.v||0};
-    });
-  }catch{return null;}
+    const r=await fetch(`./pipeline/candles/${sym}.json?t=${Math.floor(Date.now()/3600000)}`);
+    if(r.ok){
+      const data=await r.json();
+      const raw=Array.isArray(data)?data:(data.candles||[]);
+      const cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);
+      const filtered=raw.filter(c=>new Date(c.d)>=cutoff);
+      if(filtered.length>=5){
+        let prevClose=null;
+        return filtered.map(c=>{
+          const o=c.o!=null?c.o:(prevClose!=null?prevClose:c.c);
+          const h=c.h!=null?c.h:Math.max(o,c.c);
+          const l=c.l!=null?c.l:Math.min(o,c.c);
+          const ts=new Date(c.d).getTime();
+          prevClose=c.c;
+          return {x:ts,y:[o,h,l,c.c],vol:c.v||0};
+        });
+      }
+    }
+  }catch{}
+  // 2. Secours : Médias24 (close uniquement, mèches limitées)
+  return fetchMed24History(sym,days);
 }
 
 // ── MARKET STATUS (BVC Casablanca, UTC+1 toute l'année) ───────────────────────

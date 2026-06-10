@@ -339,6 +339,50 @@ SENTIMENT = {
     "RDS": {"smart":-0.340,"hype":0.95,"alpha":5.2, "win":0.26,"mentions":14692,"biais":"NEUTRE","contrarian":False},
 }
 
+# Overlay dynamique depuis whatsapp_analysis/output/ si les fichiers existent
+# (met à jour alpha, win, mentions, biais sans toucher smart/hype — INVIOLABLE)
+def _load_nlp_csv_overlay():
+    try:
+        import csv
+        base = Path(__file__).parent / "whatsapp_analysis" / "output"
+        final_path  = base / "final_rankings.csv"
+        scores_path = base / "stock_scores.csv"
+        if not final_path.exists() or not scores_path.exists():
+            return
+
+        # final_rankings: alpha_12m, p_outperform_12m, signal
+        with open(final_path, encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                t = row.get("ticker", "").strip()
+                if t not in SENTIMENT:
+                    continue
+                try:
+                    if row.get("alpha_12m"):
+                        SENTIMENT[t]["alpha"] = float(row["alpha_12m"])
+                    if row.get("p_outperform_12m"):
+                        SENTIMENT[t]["win"]   = float(row["p_outperform_12m"])
+                    sig = row.get("signal", "").strip().upper()
+                    if sig in ("ACHAT", "VENTE", "NEUTRE"):
+                        SENTIMENT[t]["biais"] = sig
+                except (ValueError, KeyError):
+                    pass
+
+        # stock_scores: total_mentions
+        with open(scores_path, encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                t = row.get("ticker", "").strip()
+                if t not in SENTIMENT:
+                    continue
+                try:
+                    if row.get("total_mentions"):
+                        SENTIMENT[t]["mentions"] = int(float(row["total_mentions"]))
+                except (ValueError, KeyError):
+                    pass
+    except Exception:
+        pass  # fallback silencieux sur le dict statique
+
+_load_nlp_csv_overlay()
+
 # ─────────────────────────────────────────────────────────────────────────────
 # CONNECTEUR IDBOURSE / MÉDIAS24
 # ─────────────────────────────────────────────────────────────────────────────
