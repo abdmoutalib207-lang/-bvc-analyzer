@@ -600,6 +600,60 @@ def calc_stoch(closes: pd.Series, highs: pd.Series, lows: pd.Series,
     d_now = round(float(np.mean(k_values)), 2)
     return k_now, d_now
 
+def calc_obv(closes: pd.Series, volumes: pd.Series) -> int:
+    """On-Balance Volume — pression acheteur cumulée."""
+    if len(closes) < 2:
+        return 0
+    obv = 0
+    prev = float(closes.iloc[0])
+    for i in range(1, len(closes)):
+        c   = float(closes.iloc[i])
+        vol = float(volumes.iloc[i]) if i < len(volumes) else 0
+        if c > prev:
+            obv += vol
+        elif c < prev:
+            obv -= vol
+        prev = c
+    return int(obv)
+
+
+def calc_adx(highs: pd.Series, lows: pd.Series, closes: pd.Series,
+             period: int = 14) -> tuple:
+    """ADX de Wilder (14) — retourne (adx, +DI, -DI) ou (None, None, None)."""
+    n = len(closes)
+    if n < period * 2 + 1:
+        return None, None, None
+    try:
+        h = highs.values.astype(float)
+        l = lows.values.astype(float)
+        c = closes.values.astype(float)
+        tr   = np.maximum(h[1:] - l[1:], np.maximum(np.abs(h[1:] - c[:-1]), np.abs(l[1:] - c[:-1])))
+        pdm  = np.where((h[1:] - h[:-1]) > (l[:-1] - l[1:]), np.maximum(h[1:] - h[:-1], 0), 0)
+        mdm  = np.where((l[:-1] - l[1:]) > (h[1:] - h[:-1]), np.maximum(l[:-1] - l[1:], 0), 0)
+        # Wilder smoothing
+        def wilder(arr, p):
+            s = np.zeros(len(arr))
+            s[p - 1] = arr[:p].sum()
+            for i in range(p, len(arr)):
+                s[i] = s[i - 1] - s[i - 1] / p + arr[i]
+            return s
+        atr  = wilder(tr,  period)
+        pdi_ = wilder(pdm, period)
+        mdi_ = wilder(mdm, period)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            pdi = np.where(atr > 0, 100 * pdi_ / atr, 0)
+            mdi = np.where(atr > 0, 100 * mdi_ / atr, 0)
+            dx  = np.where((pdi + mdi) > 0, 100 * np.abs(pdi - mdi) / (pdi + mdi), 0)
+        adx = wilder(dx[period:], period)
+        if len(adx) == 0 or adx[-1] == 0:
+            return None, None, None
+        return (round(float(adx[-1]), 1),
+                round(float(pdi[-1]), 1),
+                round(float(mdi[-1]), 1))
+    except Exception:
+        return None, None, None
+
+
 def calc_score_tech(rsi, price, ma20, ma50, h90, l90) -> float:
     """
     Score technique simplifié [0-10].
@@ -807,6 +861,21 @@ def run(dry_run=False, push=False, token=""):
         "masi_ytd":         masi["chg"],
     }
 
+    # Pré-chargement des candles OHLCV (pipeline/candles/*.json) pour OBV / ADX
+    _candles_cache: dict = {}
+    try:
+        _candles_dir = Path(__file__).parent / "pipeline" / "candles"
+        if _candles_dir.exists():
+            for _jf in _candles_dir.glob("*.json"):
+                _sym = _jf.stem.upper()
+                _raw = json.loads(_jf.read_text(encoding="utf-8"))
+                if isinstance(_raw, list) and len(_raw) >= 20:
+                    _candles_cache[_sym] = pd.DataFrame(_raw)
+        if _candles_cache:
+            logger.info(f"  Candles OHLCV chargées : {len(_candles_cache)} tickers")
+    except Exception as _e:
+        logger.warning(f"  Candles cache : {_e}")
+
     # 4. Traitement par ticker
     tickers_out = []
     for ticker in TICKERS:
@@ -833,6 +902,23 @@ def run(dry_run=False, push=False, token=""):
         bb_upper = bb_mid = bb_lower = None
         stoch_k = stoch_d = None
         ma200 = h52w = l52w = None
+        obv_val = None
+        adx_val = pdi_val = mdi_val = None
+
+        # OBV + ADX depuis les candles OHLCV longues (pipeline/candles/)
+        _df_c = _candles_cache.get(ticker)
+        if _df_c is not None and len(_df_c) >= 20:
+            try:
+                _cc = pd.to_numeric(_df_c["c"], errors="coerce").dropna()
+                _hh = pd.to_numeric(_df_c["h"], errors="coerce").dropna()
+                _ll = pd.to_numeric(_df_c["l"], errors="coerce").dropna()
+                _vv = pd.to_numeric(_df_c["v"], errors="coerce").fillna(0)
+                if len(_cc) >= 20:
+                    obv_val = calc_obv(_cc, _vv)
+                if len(_cc) >= 30:
+                    adx_val, pdi_val, mdi_val = calc_adx(_hh, _ll, _cc)
+            except Exception:
+                pass
 
         if not df.empty and len(df) >= 14:
             closes = df["close"]
@@ -1067,6 +1153,10 @@ def run(dry_run=False, push=False, token=""):
             "bb_lower":    bb_lower,
             "stoch_k":     stoch_k,
             "stoch_d":     stoch_d,
+            "obv":         obv_val,
+            "adx":         adx_val,
+            "adx_pdi":     pdi_val,
+            "adx_mdi":     mdi_val,
             # Scores v5.3 (INVIOLABLE — ne pas modifier la logique)
             "bvc":    v53["bvc"],
             "v53":    v53["v53"],
