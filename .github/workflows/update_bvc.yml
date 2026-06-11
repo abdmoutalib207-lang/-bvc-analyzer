@@ -91,13 +91,17 @@ jobs:
             git fetch origin main
             git reset origin/main          # mixed reset : préserve data.json généré
             git add data.json
+            # Inclure les candles OHLCV si régénérées
+            if [ -d pipeline/candles ] && [ "$(ls pipeline/candles/*.json 2>/dev/null | wc -l)" -gt 0 ]; then
+              git add pipeline/candles/
+            fi
             if git diff --cached --quiet; then
-              echo "Aucun changement dans data.json — skip commit"
+              echo "Aucun changement — skip commit"
               exit 0
             fi
             HEURE=$(TZ="Africa/Casablanca" date +'%Y-%m-%d %H:%M')
             git commit -m "data: BVC update ${HEURE} (Casablanca)"
-            git push origin HEAD:main && echo "✅ data.json mis à jour et pushé" && exit 0
+            git push origin HEAD:main && echo "✅ data.json + candles mis à jour et pushés" && exit 0
             echo "⚠️ Push échoué (tentative $attempt/3), retry dans $((attempt * 3))s..."
             sleep $((attempt * 3))
           done
