@@ -752,7 +752,7 @@ const TickerTape=({rows})=>{
 const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode})=>{
   const [pulse,setPulse]=useState(false);
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
-  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"chat",label:"CHAT 3 MAJ",badge:CHAT.length},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS",badge:"NEW"}];
+  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"heatmap",label:"HEATMAP",badge:"NEW"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"chat",label:"CHAT 3 MAJ",badge:CHAT.length},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"}];
   return(
     <div style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
@@ -797,10 +797,77 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
 };
 
 // ── RANKING ───────────────────────────────────────────────────────────────────
+// ── HEATMAP SECTORIELLE ───────────────────────────────────────────────────────
+const Heatmap=({rows,setSel,setTab})=>{
+  const [hov,setHov]=useState(null);
+  const chgClr=v=>v>0?`rgba(0,229,160,${Math.min(.15+v/3*.5,.65)})`:v<0?`rgba(255,79,90,${Math.min(.15+(-v)/3*.5,.65)})`:"#0d1829";
+  const sectors=useMemo(()=>{
+    const map={};
+    rows.filter(r=>r.price>0).forEach(r=>{
+      const s=r.sector||"Autre";
+      if(!map[s])map[s]=[];
+      map[s].push(r);
+    });
+    return Object.entries(map)
+      .sort((a,b)=>b[1].reduce((s,r)=>s+(r.cap||0),0)-a[1].reduce((s,r)=>s+(r.cap||0),0))
+      .map(([name,rs])=>({name,rows:rs.sort((a,b)=>(b.cap||0)-(a.cap||0)),avgChg:rs.reduce((s,r)=>s+(r.chg||0),0)/rs.length}));
+  },[rows]);
+  return(
+    <div>
+      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16,flexWrap:"wrap"}}>
+        <span style={{fontSize:14,fontWeight:700,color:"#c8d3e8",letterSpacing:.5}}>HEATMAP SECTORIELLE</span>
+        <span style={{fontSize:11,color:"#8892a4"}}>{rows.filter(r=>r.price>0).length} titres · VAR% journalière</span>
+        <div style={{marginLeft:"auto",display:"flex",gap:6,alignItems:"center",fontSize:11}}>
+          <span style={{background:"rgba(255,79,90,.45)",borderRadius:3,padding:"2px 8px",color:"#ff4f5a",fontWeight:600}}>Baisse</span>
+          <span style={{background:"#131b2e",border:"1px solid #1a2540",borderRadius:3,padding:"2px 8px",color:"#8892a4"}}>Neutre</span>
+          <span style={{background:"rgba(0,229,160,.45)",borderRadius:3,padding:"2px 8px",color:"#00e5a0",fontWeight:600}}>Hausse</span>
+        </div>
+      </div>
+      {sectors.map(sec=>(
+        <div key={sec.name} style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6,paddingLeft:2}}>
+            <span style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",fontWeight:600}}>{sec.name}</span>
+            {sec.avgChg!==0&&<span style={{fontSize:9,color:sec.avgChg>0?"#00e5a0":"#ff4f5a"}}>
+              {sec.avgChg>0?"▲":"▼"} {Math.abs(sec.avgChg).toFixed(2)}% moy.
+            </span>}
+            <span style={{fontSize:9,color:"#2a3550"}}>{sec.rows.length}×</span>
+          </div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+            {sec.rows.map(r=>{
+              const sym=r.symbol||r.ticker;
+              const isH=hov===sym;
+              const chg=r.chg||0;
+              return(
+                <div key={sym}
+                  onClick={()=>{setSel(sym);setTab("detail");}}
+                  onMouseEnter={()=>setHov(sym)}
+                  onMouseLeave={()=>setHov(null)}
+                  title={`${r.name||sym} · ${px(r.price||0)} · ${chg>0?"▲":"▼"}${Math.abs(chg).toFixed(2)}% · v5.3=${r.v53?.toFixed(2)}`}
+                  style={{background:chgClr(chg),border:`1px solid ${isH?"#c8d3e8":"rgba(255,255,255,.04)"}`,borderRadius:5,padding:"7px 10px",minWidth:88,cursor:"pointer",transition:"border-color .12s,transform .1s",transform:isH?"scale(1.05)":"scale(1)"}}>
+                  <div style={{fontSize:12,fontWeight:700,color:"#fff",marginBottom:1}}>{sym}</div>
+                  <div style={{fontSize:10,color:"rgba(200,211,232,.7)",marginBottom:1}}>{px(r.price||0)}</div>
+                  <div style={{fontSize:11,fontWeight:700,color:chg>0?"#00e5a0":chg<0?"#ff4f5a":"#8892a4"}}>
+                    {chg>0?"▲":chg<0?"▼":"—"}{Math.abs(chg).toFixed(2)}%
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+      <div style={{marginTop:12,fontSize:10,color:"#4a5570",borderTop:"1px solid #0d1829",paddingTop:8}}>
+        Clic sur une cellule → vue détaillée · Trié par capitalisation · Couleur = variation journalière
+      </div>
+    </div>
+  );
+};
+
 const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchlist=false})=>{
   const [search,setSearch]=useState("");
   const [sector,setSector]=useState("ALL");
   const [group,setGroup]=useState("MASI1"); // MASI1 = 19 tickers NLP / ALL = univers élargi
+  const [sigFilter,setSigFilter]=useState(null);
+  const [rsiZone,setRsiZone]=useState(null);
   const NLP_TICKERS=new Set(["CMT","SMI","CASH","MNG","AKD","SOT","SGTM","MSA","CFGB","RIS","ADI","VCNE","CMGP","CSR","TGCC","ADH","SRM","SNA","RDS"]);
   const sectors=useMemo(()=>["ALL",...new Set(rows.map(r=>r.sector).filter(Boolean).sort())],[rows]);
 
@@ -812,8 +879,11 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       const q=search.trim().toUpperCase();
       r=r.filter(x=>(x.symbol||x.ticker||"").includes(q)||(x.name||"").toUpperCase().includes(q));
     }
+    if(sigFilter) r=r.filter(x=>(x.sig||"").startsWith(sigFilter));
+    if(rsiZone==="survendu") r=r.filter(x=>(x.rsi||x.rsi14||50)<30);
+    if(rsiZone==="surachete") r=r.filter(x=>(x.rsi||x.rsi14||50)>70);
     return r;
-  },[rows,sector,search,group]);
+  },[rows,sector,search,group,sigFilter,rsiZone]);
 
   const sorted=useMemo(()=>[...filtered].sort((a,b)=>{
     if(sort==="az")  return (a.name||a.symbol||"").localeCompare(b.name||b.symbol||"","fr");
@@ -854,8 +924,25 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
             <button key={g} onClick={()=>setGroup(g)} style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:3,border:"none",cursor:"pointer",background:group===g?`${c}18`:"transparent",color:group===g?c:"#8892a4",transition:"all .2s"}}>{lbl}</button>
           ))}
         </div>
-        {(search||sector!=="ALL")&&<button onClick={()=>{setSearch("");setSector("ALL");}} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"3px 8px",background:"transparent"}}>✕ Réinitialiser</button>}
+        {(search||sector!=="ALL"||sigFilter||rsiZone)&&<button onClick={()=>{setSearch("");setSector("ALL");setSigFilter(null);setRsiZone(null);}} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"3px 8px",background:"transparent"}}>✕ Réinitialiser</button>}
         <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{sorted.length}/{group==="MASI1"?19:rows.length} titres{group==="MASI1"&&<span style={{color:"#00e5a0",marginLeft:4}}>NLP ✓</span>}</span>
+      </div>
+      {/* ── Screener : filtres signal + RSI ──────────────────── */}
+      <div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:10,alignItems:"center"}}>
+        <span style={{fontSize:10,color:"#8892a4",letterSpacing:.5,marginRight:2}}>SIGNAL</span>
+        {[["ACHAT FORT","#00e5a0"],["ACHETER","#4db8ff"],["SURVEILLER","#ffd740"],["ATTENDRE","#ff8f00"],["ÉVITER","#ff4f5a"]].map(([s,c])=>(
+          <button key={s} onClick={()=>setSigFilter(sigFilter===s?null:s)}
+            style={{fontSize:10,padding:"3px 10px",borderRadius:12,border:`1px solid ${sigFilter===s?c:c+"35"}`,color:sigFilter===s?"#080d1a":c,background:sigFilter===s?c:"transparent",cursor:"pointer",fontFamily:"var(--font)",transition:"all .15s",fontWeight:sigFilter===s?700:400}}>
+            {s}
+          </button>
+        ))}
+        <span style={{marginLeft:8,fontSize:10,color:"#8892a4",letterSpacing:.5}}>RSI</span>
+        {[["survendu","<30 survendu","#00e5a0"],["surachete",">70 suracheté","#ff4f5a"]].map(([z,lbl,c])=>(
+          <button key={z} onClick={()=>setRsiZone(rsiZone===z?null:z)}
+            style={{fontSize:10,padding:"3px 10px",borderRadius:12,border:`1px solid ${rsiZone===z?c:c+"35"}`,color:rsiZone===z?"#080d1a":c,background:rsiZone===z?c:"transparent",cursor:"pointer",fontFamily:"var(--font)",transition:"all .15s",fontWeight:rsiZone===z?700:400}}>
+            {lbl}
+          </button>
+        ))}
       </div>
       {/* ── Tri ────────────────────────────────────────────────── */}
       <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center",flexWrap:"wrap"}}>
@@ -1959,6 +2046,7 @@ function App(){
       <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
         {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab} fav={fav} toggleFav={toggleFav}/>}
+        {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab}/>}
         {tab==="watchlist"&&<Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true}/>}
         {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={setSel} fav={fav} toggleFav={toggleFav}/>}
         {tab==="weights"  &&<Weights/>}
