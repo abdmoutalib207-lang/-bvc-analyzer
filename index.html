@@ -440,6 +440,30 @@ function calcIchimoku(candles){
   return{tenkan,kijun};
 }
 
+function calcSR(candles,price){
+  if(candles.length<10)return{sup:[],res:[]};
+  const highs=candles.map(c=>c.y[1]);
+  const lows =candles.map(c=>c.y[2]);
+  const n=candles.length,lb=3;
+  const swH=[],swL=[];
+  for(let i=lb;i<n-lb;i++){
+    if(highs.slice(i-lb,i).every(h=>h<=highs[i])&&highs.slice(i+1,i+lb+1).every(h=>h<=highs[i]))swH.push(highs[i]);
+    if(lows.slice(i-lb,i).every(l=>l>=lows[i])&&lows.slice(i+1,i+lb+1).every(l=>l>=lows[i]))swL.push(lows[i]);
+  }
+  function cluster(arr,tol=0.012){
+    const s=[...arr].sort((a,b)=>a-b);const out=[];let i=0;
+    while(i<s.length){
+      let sum=s[i],cnt=1;
+      while(i+cnt<s.length&&(s[i+cnt]-s[i])/s[i]<tol){sum+=s[i+cnt];cnt++;}
+      out.push(+(sum/cnt).toFixed(2));i+=cnt;
+    }
+    return out;
+  }
+  const sup=cluster(swL).filter(v=>v<price*1.03).slice(-3);
+  const res=cluster(swH).filter(v=>v>price*0.97).slice(0,3);
+  return{sup,res};
+}
+
 // ── ATOMS ────────────────────────────────────────────────────────────────────
 const Bar=({v,max=10,c,h=6})=>(
   <div style={{background:"#0d1829",borderRadius:3,height:h,overflow:"hidden"}}>
@@ -516,6 +540,7 @@ const StockChart=({r})=>{
   const [isLive,setIsLive]=useState(false);
   const [showBB,setShowBB]=useState(false);
   const [showIchi,setShowIchi]=useState(false);
+  const [showSR,setShowSR]=useState(true);
   const sym=r.symbol||r.ticker;
   const daysMap={"5J":7,"1M":22,"3M":65,"6M":130,"1A":260};
   const rangeMap={"5J":"5d","1M":"1mo","3M":"3mo","6M":"6mo","1A":"1y"};
@@ -554,11 +579,13 @@ const StockChart=({r})=>{
     const days=daysMap[period]||65;
     const candles=liveCandles;
     const closes=candles.map(c=>c.y[3]);
+    const curPrice=closes[closes.length-1]||0;
     const ma20=calcMA(closes,20);
     const ma50=calcMA(closes,50);
     const macdData=calcMACD(closes);
     const bbData=calcBollinger(closes);
     const ichiData=calcIchimoku(candles);
+    const srData=showSR?calcSR(candles,curPrice):{sup:[],res:[]};
     const grp="bvc_"+sym+"_"+period;
 
     const ma20data=candles.map((c,i)=>({x:c.x,y:ma20[i]})).filter(p=>p.y!==null);
@@ -609,7 +636,14 @@ const StockChart=({r})=>{
       theme:{mode:"dark"},
       plotOptions:{candlestick:{colors:{upward:"#00e5a0",downward:"#ff4f5a"},wick:{useFillColor:true}}},
       legend:{show:true,labels:{colors:slMain},fontSize:"10px",fontFamily:"var(--font)"},
-      annotations:{},
+      annotations:{yaxis:[
+        ...srData.sup.map(v=>({y:v,borderColor:"#00e5a060",borderWidth:1,strokeDashArray:5,
+          label:{text:`S ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`,offsetX:-4,
+            style:{background:"#00e5a015",color:"#00e5a0",fontSize:"8px",fontFamily:"var(--font)",padding:{left:3,right:3,top:1,bottom:1}}}})),
+        ...srData.res.map(v=>({y:v,borderColor:"#ff4f5a60",borderWidth:1,strokeDashArray:5,
+          label:{text:`R ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`,offsetX:-4,
+            style:{background:"#ff4f5a15",color:"#ff4f5a",fontSize:"8px",fontFamily:"var(--font)",padding:{left:3,right:3,top:1,bottom:1}}}})),
+      ]},
       tooltip:{theme:"dark",custom:function({seriesIndex,dataPointIndex,w}){
         const d=w.globals.initialSeries[0]?.data[dataPointIndex];
         if(!d||seriesIndex!==0)return"";
@@ -664,7 +698,7 @@ const StockChart=({r})=>{
     instMacd.current.render();
 
     return()=>{[instMain,instVol,instMacd].forEach(ref=>{if(ref.current){ref.current.destroy();ref.current=null;}});};
-  },[sym,period,liveCandles,showBB,showIchi]);
+  },[sym,period,liveCandles,showBB,showIchi,showSR]);
 
   const changePeriod=(p)=>{setPeriod(p);localStorage.setItem("bvc_period",p);};
 
@@ -678,6 +712,7 @@ const StockChart=({r})=>{
         <span style={{color:"#1a2540",margin:"0 2px"}}>|</span>
         <button onClick={()=>setShowBB(v=>!v)} title="Bollinger Bands (20,2)" style={{background:showBB?"rgba(255,215,64,.15)":"transparent",border:showBB?"1px solid rgba(255,215,64,.4)":"1px solid #1a2540",color:showBB?"#ffd740":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>BB</button>
         <button onClick={()=>setShowIchi(v=>!v)} title="Ichimoku (Tenkan 9 / Kijun 26)" style={{background:showIchi?"rgba(255,111,64,.15)":"transparent",border:showIchi?"1px solid rgba(255,111,64,.4)":"1px solid #1a2540",color:showIchi?"#ff6f40":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>ICHI</button>
+        <button onClick={()=>setShowSR(v=>!v)} title="Support / Résistance (swing highs & lows)" style={{background:showSR?"rgba(0,229,160,.12)":"transparent",border:showSR?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:showSR?"#00e5a0":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>S/R</button>
         <span style={{marginLeft:"auto",fontSize:9,color:isLive?"#00e5a0":"#8892a4"}}>
           {isLive&&"● "}RSI:{(r.rsi||r.rsi14||50).toFixed(0)} · MA20:{px(r.ma20||0)} · MA50:{px(r.ma50||0)}
         </span>
@@ -1095,7 +1130,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Graphique Chandeliers · MA20 · MA50 · Fibonacci</div>
             <StockChart r={r}/>
             <div style={{fontSize:9,color:"#8892a4",marginTop:6}}>
-              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff",textDecoration:"underline dashed"}}>── MA50</span> &nbsp; <span style={{color:"#ffd740"}}>─ Fib niveaux</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24 — données réelles uniquement
+              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff"}}>── MA50</span> &nbsp; <span style={{color:"#00e5a0"}}>── S support</span> &nbsp; <span style={{color:"#ff4f5a"}}>── R résistance</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24
             </div>
           </div>
 
