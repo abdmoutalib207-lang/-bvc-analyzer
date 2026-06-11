@@ -139,17 +139,35 @@ def generate_from_xlsx() -> dict:
 
 
 def generate_from_med24(skip_existing_tickers: set = None, days: int = 400) -> dict:
+    """Enrichit les candles depuis Médias24.
+    skip_existing_tickers : sautés seulement si leurs candles sont fraîches (< 10 jours).
+    Les candles XLSX vieilles (> 10 jours) sont enrichies automatiquement.
+    """
     import time
+    from datetime import date as _date
     CANDLES_DIR.mkdir(exist_ok=True)
     if skip_existing_tickers is None:
         skip_existing_tickers = set()
+    today = _date.today().isoformat()
     results = {}
 
     for ticker in TICKERS_ALL:
         canon = ticker
-        if (CANDLES_DIR / f"{canon}.json").exists() and canon in skip_existing_tickers:
-            log.info(f"  → {ticker}: candles XLSX déjà présentes, skip Médias24")
-            continue
+        out   = CANDLES_DIR / f"{canon}.json"
+
+        # Skip seulement si les candles existantes sont récentes (< 10 jours)
+        if out.exists() and canon in skip_existing_tickers:
+            try:
+                _existing = json.loads(out.read_text())
+                if _existing:
+                    last = _existing[-1].get("d", "")
+                    age  = (_date.fromisoformat(today) - _date.fromisoformat(last)).days
+                    if age < 10:
+                        log.info(f"  → {ticker}: candles fraîches ({last}), skip Médias24")
+                        continue
+                    log.info(f"  → {ticker}: candles vieilles de {age}j ({last}), enrichissement...")
+            except Exception:
+                pass
 
         isin = ISIN_MAP.get(ticker)
         if not isin:
