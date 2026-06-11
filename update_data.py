@@ -798,10 +798,12 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
     conv = "CONFIRME" if (bvc_bull and nlp_bull) else "DIVERGE"
 
     return {
-        "v53":    final,
-        "bvc":    round(bvc_score, 2),
-        "delta":  round(final - bvc_score, 2),
-        "nlp":    round(sent["smart"], 2),
+        "v53":       final,
+        "bvc":       round(bvc_score, 2),
+        "delta":     round(final - bvc_score, 2),
+        "nlp":       round(sent["smart"], 2),
+        "score_tech": round(score_tech, 2),
+        "score_nlp": round(score_nlp, 2),
         "alpha":  sent.get("alpha", 0),
         "win":    round(sent["win"] * 100),
         "sig":    sig,
@@ -1158,10 +1160,11 @@ def run(dry_run=False, push=False, token=""):
             "adx_pdi":     pdi_val,
             "adx_mdi":     mdi_val,
             # Scores v5.3 (INVIOLABLE — ne pas modifier la logique)
-            "bvc":    v53["bvc"],
-            "v53":    v53["v53"],
-            "delta":  v53["delta"],
-            "nlp":    v53["nlp"],
+            "bvc":        v53["bvc"],
+            "v53":        v53["v53"],
+            "delta":      v53["delta"],
+            "nlp":        v53["nlp"],
+            "score_tech": v53.get("score_tech", 5.0),
             "alpha":  v53["alpha"],
             "win":    v53["win"],
             "sig":    v53["sig"],

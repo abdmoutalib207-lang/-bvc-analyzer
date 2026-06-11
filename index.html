@@ -762,11 +762,18 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
         <div style={{display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
           <span style={{fontSize:22,fontWeight:700,letterSpacing:3,background:"linear-gradient(90deg,#00e5a0,#4db8ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>BVC ANALYZER</span>
           <span style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — TECH 25% · FOND 47% · NLP 28%</span>
-          {/* Score mode toggle */}
-          <div style={{display:"flex",gap:2,background:"rgba(10,18,32,.8)",border:"1px solid #1a2540",borderRadius:5,padding:2}}>
-            {[["composite","COMPOSITE","#c8d3e8"],["nlp","NLP","#00e5a0"],["fond","FOND","#b388ff"],["tech","TECH","#4db8ff"]].map(([m,lbl,c])=>(
-              <button key={m} onClick={()=>setScoreMode(m)} style={{background:scoreMode===m?`${c}22`:"transparent",border:scoreMode===m?`1px solid ${c}55`:"1px solid transparent",color:scoreMode===m?c:"#8892a4",borderRadius:3,padding:"3px 10px",fontSize:10,fontWeight:scoreMode===m?700:400,letterSpacing:.5,transition:"all .15s",cursor:"pointer"}}>{lbl}</button>
+          {/* Score mode — composantes indépendantes */}
+          <div style={{display:"flex",alignItems:"center",gap:4,background:"rgba(10,18,32,.8)",border:"1px solid #1a2540",borderRadius:5,padding:"3px 6px"}}>
+            <span style={{fontSize:9,color:"#4a5570",letterSpacing:.5,marginRight:2}}>SCORE</span>
+            {[["f","FOND 47%","#b388ff"],["n","NLP 28%","#00e5a0"],["t","TECH 25%","#4db8ff"]].map(([k,lbl,c])=>(
+              <button key={k} onClick={()=>setScoreMode(prev=>({...prev,[k]:!prev[k]}))}
+                style={{fontSize:10,padding:"2px 9px",borderRadius:3,border:`1px solid ${scoreMode[k]?c:c+"30"}`,color:scoreMode[k]?c:"#4a5570",background:scoreMode[k]?`${c}18`:"transparent",cursor:"pointer",fontFamily:"var(--font)",fontWeight:scoreMode[k]?700:400,transition:"all .15s",textDecoration:scoreMode[k]?"none":"line-through"}}>
+                {scoreMode[k]?"✓ ":""}{lbl}
+              </button>
             ))}
+            <span style={{fontSize:9,color:(!scoreMode.f&&!scoreMode.n&&!scoreMode.t)?"#ff4f5a":(scoreMode.f&&scoreMode.n&&scoreMode.t)?"#8892a4":"#ffd740",marginLeft:3}}>
+              {scoreModeLabel(scoreMode)}
+            </span>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
             <span style={{fontSize:12,color:"#ffd740",display:"flex",alignItems:"center",gap:6}}>
@@ -865,12 +872,13 @@ const Heatmap=({rows,setSel,setTab})=>{
   );
 };
 
-const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchlist=false})=>{
+const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchlist=false,scoreMode})=>{
   const [search,setSearch]=useState("");
   const [sector,setSector]=useState("ALL");
   const [group,setGroup]=useState("MASI1"); // MASI1 = 19 tickers NLP / ALL = univers élargi
   const [sigFilter,setSigFilter]=useState(null);
   const [rsiZone,setRsiZone]=useState(null);
+  const customMode=scoreMode&&!(scoreMode.f&&scoreMode.n&&scoreMode.t);
   const NLP_TICKERS=new Set(["CMT","SMI","CASH","MNG","AKD","SOT","SGTM","MSA","CFGB","RIS","ADI","VCNE","CMGP","CSR","TGCC","ADH","SRM","SNA","RDS"]);
   const sectors=useMemo(()=>["ALL",...new Set(rows.map(r=>r.sector).filter(Boolean).sort())],[rows]);
 
@@ -890,7 +898,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
 
   const sorted=useMemo(()=>[...filtered].sort((a,b)=>{
     if(sort==="az")  return (a.name||a.symbol||"").localeCompare(b.name||b.symbol||"","fr");
-    if(sort==="v53") return b.v53-a.v53;
+    if(sort==="v53") return computeDisplayScore(b,scoreMode)-computeDisplayScore(a,scoreMode);
     if(sort==="bvc") return b.bvc-a.bvc;
     if(sort==="delta") return b.delta-a.delta;
     if(sort==="nlp") return b.nlp-a.nlp;
@@ -899,8 +907,9 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
     if(sort==="rsi") return (a.rsi||a.rsi14||50)-(b.rsi||b.rsi14||50);
     return 0;
   }),[filtered,sort]);
-  const SORTS=[["az","A → Z"],["v53","SCORE v5.3"],["bvc","BVC"],["delta","DELTA"],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
-  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","PE","DIV%","BVC","v5.3","Δ","NLP%","WIN","ALPHA","RSI","SIGNAL v5.3","POIDS"];
+  const SORTS=[["az","A → Z"],["v53",customMode?"SCORE PERSO":("SCORE v5.3")],["bvc","BVC"],["delta","DELTA"],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
+  const scoreColLabel=customMode?scoreModeLabel(scoreMode):"v5.3";
+  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","PE","DIV%","BVC",scoreColLabel,"Δ","NLP%","WIN","ALPHA","RSI","SIGNAL v5.3","POIDS"];
   if(isWatchlist&&rows.length===0) return(
     <div style={{textAlign:"center",padding:"60px 20px",color:"#8892a4"}}>
       <div style={{fontSize:52,marginBottom:16,color:"#2a3550"}}>★</div>
@@ -954,6 +963,12 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
           <button key={id} onClick={()=>setSort(id)} style={{background:sort===id?"rgba(0,229,160,.12)":"transparent",border:sort===id?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:sort===id?"#00e5a0":"#8892a4",padding:"3px 10px",borderRadius:4,fontSize:11}}>{lbl}{sort===id?" ▼":""}</button>
         ))}
       </div>
+      {customMode&&<div style={{marginBottom:10,padding:"6px 12px",background:"rgba(255,215,64,.07)",border:"1px solid rgba(255,215,64,.25)",borderRadius:5,display:"flex",alignItems:"center",gap:8,fontSize:11}}>
+        <span style={{color:"#ffd740",fontWeight:700}}>✱ MODE PERSONNALISÉ</span>
+        <span style={{color:"#8892a4"}}>Score affiché :</span>
+        <span style={{color:"#ffd740"}}>{scoreModeLabel(scoreMode)}</span>
+        <span style={{color:"#4a5570",fontSize:10}}>— Le score v5.3 officiel et les signaux restent inchangés</span>
+      </div>}
       <div style={{overflowX:"auto"}}>
         <table style={{width:"100%",borderCollapse:"collapse",minWidth:1220}}>
           <thead>
@@ -964,6 +979,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
           <tbody>
             {sorted.map((r,i)=>{
               const s=SS(r.sig);const sym=r.symbol||r.ticker;
+              const displayScore=computeDisplayScore(r,scoreMode);
               const rsiVal=r.rsi||r.rsi14||50;
               const rsiColor=rsiVal>70?"#ff4f5a":rsiVal<30?"#00e5a0":"#ffd740";
               /* indicateurs tech estimés : MA20 = MA50 (données live non encore reçues) */
@@ -996,10 +1012,10 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   <td style={{padding:"8px 8px",fontSize:12,color:r.div>4?"#00e5a0":"#c8d3e8"}}>{r.div?.toFixed(1)||"—"}%</td>
                   <td style={{padding:"8px 8px",fontSize:13,color:SC(r.bvc)}}>{r.bvc.toFixed(2)}</td>
                   <td style={{padding:"8px 8px"}}>
-                    <div style={{fontSize:15,color:SC(r.v53),fontWeight:700,marginBottom:2}}>{r.v53.toFixed(2)}</div>
-                    <Bar v={r.v53} c={SC(r.v53)} h={4}/>
+                    <div style={{fontSize:15,color:SC(displayScore),fontWeight:700,marginBottom:2}}>{displayScore.toFixed(2)}{customMode&&<span style={{fontSize:8,color:"#ffd740",marginLeft:3,verticalAlign:"super"}}>✱</span>}</div>
+                    <Bar v={displayScore} c={SC(displayScore)} h={4}/>
                   </td>
-                  <td style={{padding:"8px 8px"}}><Delta d={r.delta}/></td>
+                  <td style={{padding:"8px 8px"}}><Delta d={customMode?+(displayScore-r.bvc).toFixed(2):r.delta}/></td>
                   <td style={{padding:"8px 8px",fontSize:13,color:NC(r.nlp),fontWeight:600}}>{r.nlp>0?"+":""}{(r.nlp*100).toFixed(0)}%</td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.win>=80?"#00e5a0":r.win>=70?"#ffd740":"#ff8f00",fontWeight:600}}>{r.win}%</td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.alpha>=0?"#00e5a0":"#ff4f5a",fontWeight:600}}>{r.alpha>0?"+":""}{r.alpha}%{r.alpha<0&&<span style={{fontSize:10}}>⚠️</span>}</td>
@@ -1935,17 +1951,40 @@ const NewsFeed=()=>{
   );
 };
 
+// ── SCORE PERSONNALISÉ ────────────────────────────────────────────────────────
+// Recalcule un score d'affichage selon les composantes actives (F/N/T)
+// Ne modifie PAS le score v5.3 stocké — lecture seule des sous-scores
+function computeDisplayScore(r, mode) {
+  if (!mode || (mode.f && mode.n && mode.t)) return r.v53; // complet → v5.3 intact
+  const sf = r.bvc || 5;                                   // Fondamental (0-10)
+  const sn = ((r.nlp || 0) + 1) * 5;                      // NLP [-1,+1] → [0,10]
+  const st = r.score_tech != null
+    ? r.score_tech
+    : Math.min(10, Math.max(0, (r.rsi || r.rsi14 || 50) / 10)); // fallback RSI/10
+  const wf = mode.f ? (r.poids?.f || 47) : 0;
+  const wn = mode.n ? (r.poids?.n || 28) : 0;
+  const wt = mode.t ? (r.poids?.t || 25) : 0;
+  const total = wf + wn + wt;
+  if (total === 0) return 0;
+  return +Math.min(10, Math.max(0, (sf*wf + sn*wn + st*wt) / total)).toFixed(2);
+}
+
+function scoreModeLabel(mode) {
+  if (!mode || (mode.f && mode.n && mode.t)) return "v5.3 COMPLET";
+  const parts = [];
+  if (mode.f) parts.push("FOND");
+  if (mode.n) parts.push("NLP");
+  if (mode.t) parts.push("TECH");
+  if (parts.length === 0) return "—";
+  return parts.join(" + ");
+}
+
 // ── APP ───────────────────────────────────────────────────────────────────────
 function App(){
   const [tab,setTab]=useState(()=>localStorage.getItem("bvc_tab")||"ranking");
   const [sort,setSort]=useState("v53");
-  const [scoreMode,setScoreMode]=useState("composite");
-  useEffect(()=>{
-    if(scoreMode==="nlp")  setSort("nlp");
-    else if(scoreMode==="fond") setSort("bvc");
-    else if(scoreMode==="tech") setSort("rsi");
-    else setSort("v53");
-  },[scoreMode]);
+  const [scoreMode,setScoreMode]=useState({f:true,n:true,t:true});
+  useEffect(()=>{setSort("v53");},[scoreMode]);
   const [sel,setSel]=useState("CMT");
   const [rows,setRows]=useState(STATIC);
   const [fav,setFav]=useState(()=>{try{return JSON.parse(localStorage.getItem("bvc_fav")||"[]");}catch{return [];}});
@@ -2048,9 +2087,9 @@ function App(){
       <TickerTape rows={rows}/>
       <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
-        {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab} fav={fav} toggleFav={toggleFav}/>}
+        {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab}/>}
-        {tab==="watchlist"&&<Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true}/>}
+        {tab==="watchlist"&&<Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true} scoreMode={scoreMode}/>}
         {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={setSel} fav={fav} toggleFav={toggleFav}/>}
         {tab==="weights"  &&<Weights/>}
         {tab==="smart"    &&<Smart/>}
