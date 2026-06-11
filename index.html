@@ -309,7 +309,7 @@ async function fetchChart(sym,range){
   // 1. Candles locales OHLCV
   let local=[];
   try{
-    const r=await fetch(`./pipeline/candles/${sym}.json?t=${Math.floor(Date.now()/3600000)}`);
+    const r=await fetch(`./pipeline/candles/${sym}.json?t=${Math.floor(Date.now()/900000)}`);
     if(r.ok){const data=await r.json();local=Array.isArray(data)?data:(data.candles||[]);}
   }catch{}
 
@@ -550,16 +550,19 @@ const StockChart=({r})=>{
     setLiveCandles(null);setIsLive(false);
     fetchChart(sym,rangeMap[period]||"3mo").then(c=>{
       if(alive&&c){
-        // Ajouter la bougie d'aujourd'hui si données live disponibles et dernière bougie < aujourd'hui
-        if(r.live&&c.length>0){
+        // Injecter la bougie du jour si la dernière candle est antérieure à aujourd'hui
+        const cur=r.price||r.prix||0;
+        if(c.length>0&&cur>0){
           const now=new Date(new Date().toLocaleString("en-US",{timeZone:"Africa/Casablanca"}));
+          const todayStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
           const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
-          if(c[c.length-1].x<todayStart&&now.getDay()!==0&&now.getDay()!==6){
-            const prevClose=c[c.length-1].y[3];
-            const cur=r.price;
-            if(cur&&cur>0){
-              c.push({x:todayStart,y:[prevClose,Math.max(prevClose,cur),Math.min(prevClose,cur),cur].map(v=>+v.toFixed(2)),vol:r.vol||0});
-            }
+          const lastCandle=c[c.length-1];
+          const lastDate=new Date(lastCandle.x);
+          const lastDateStr=`${lastDate.getUTCFullYear()}-${String(lastDate.getUTCMonth()+1).padStart(2,"0")}-${String(lastDate.getUTCDate()).padStart(2,"0")}`;
+          if(lastDateStr<todayStr&&now.getDay()!==0&&now.getDay()!==6){
+            const prevClose=lastCandle.y[3];
+            const openPrice=r.open||r.ouverture||prevClose;
+            c.push({x:todayStart,y:[+openPrice.toFixed(2),+Math.max(openPrice,cur).toFixed(2),+Math.min(openPrice,cur).toFixed(2),+cur.toFixed(2)],vol:r.vol||0,live:true});
           }
         }
         setLiveCandles(c);setIsLive(true);
