@@ -1,0 +1,90 @@
+# ════════════════════════════════════════════════════════════
+# BVC Candles Update — GitHub Actions
+# Régénère pipeline/candles/*.json depuis XLSX + Médias24
+# Quotidiennement à 16h UTC (17h Casablanca, après clôture)
+# ════════════════════════════════════════════════════════════
+
+name: BVC Candles Update
+
+on:
+  schedule:
+    # Après clôture BVC (16h UTC = 17h Casablanca)
+    - cron: '0 16 * * 1-5'
+
+  # Déclenchement manuel
+  workflow_dispatch:
+    inputs:
+      xlsx_only:
+        description: 'Générer uniquement depuis XLSX (sans Médias24)'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bvc-candles-update
+  cancel-in-progress: true
+
+jobs:
+  update-candles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Installer dépendances
+        run: pip install requests pandas openpyxl numpy -q
+
+      - name: Générer candles (XLSX + Médias24)
+        run: |
+          if [ "${{ github.event.inputs.xlsx_only }}" = "true" ]; then
+            python pipeline/generate_candles.py --xlsx-only
+          else
+            python pipeline/generate_candles.py
+          fi
+
+      - name: Commit candles si modifiées
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name  "BVC Bot"
+          git config user.email "noreply@github.com"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset origin/main
+            git add pipeline/candles/
+            if git diff --cached --quiet; then
+              echo "Candles inchangées — skip commit"
+              exit 0
+            fi
+            N=$(git diff --cached --name-only | wc -l)
+            DATE=$(TZ="Africa/Casablanca" date +'%Y-%m-%d')
+            git commit -m "data: candles OHLCV ${DATE} — ${N} fichiers mis à jour"
+            git push origin HEAD:main && echo "✅ Candles pushées" && exit 0
+            echo "⚠️ Push échoué (tentative $attempt/3)..."
+            sleep $((attempt * 3))
+          done
+          exit 1
+
+      - name: Résumé
+        if: always()
+        run: |
+          echo "## BVC Candles Update" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date** : $(TZ='Africa/Casablanca' date +'%Y-%m-%d %H:%M') (Casablanca)" >> $GITHUB_STEP_SUMMARY
+          N=$(ls pipeline/candles/*.json 2>/dev/null | wc -l)
+          echo "- **Fichiers candles** : ${N}" >> $GITHUB_STEP_SUMMARY

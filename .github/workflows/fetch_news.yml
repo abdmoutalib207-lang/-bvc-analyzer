@@ -1,0 +1,110 @@
+# ════════════════════════════════════════════════════════════
+# BVC NewsEngine — GitHub Actions
+# Récupère les actualités boursières BVC, AMMC, Médias24,
+# IDBourse, L'Économiste et génère news.json
+# ════════════════════════════════════════════════════════════
+
+name: BVC News Fetch
+
+on:
+  schedule:
+    # Toutes les 2h : 7h, 9h, 11h, 13h, 15h, 17h UTC (8h–18h Casablanca)
+    - cron: '0 7,9,11,13,15,17 * * 1-5'
+    # Fetch spécial après clôture BVC (14h35 UTC = 15h35 Casablanca)
+    - cron: '35 14 * * 1-5'
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bvc-news-fetch
+  cancel-in-progress: true
+
+jobs:
+  fetch-news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Python ────────────────────────────────────────
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Installer dépendances
+        run: pip install requests -q
+
+      # ── 3. Fetch actualités ───────────────────────────────
+      - name: Fetch actualités BVC
+        run: python pipeline/fetch_news.py
+
+      # ── 4. Commit et push ─────────────────────────────────
+      - name: Commit news.json si modifié
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name  "BVC Bot"
+          git config user.email "noreply@github.com"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset origin/main
+            git add news.json
+            if git diff --cached --quiet; then
+              echo "Aucune modification dans news.json — skip commit"
+              exit 0
+            fi
+            HEURE=$(TZ="Africa/Casablanca" date +'%Y-%m-%d %H:%M')
+            git commit -m "news: BVC actualités ${HEURE} (Casablanca)"
+            git push origin HEAD:main && echo "✅ news.json mis à jour et pushé" && exit 0
+            echo "⚠️ Push échoué (tentative $attempt/3), retry dans $((attempt * 3))s..."
+            sleep $((attempt * 3))
+          done
+          echo "❌ Push échoué après 3 tentatives"
+          exit 1
+
+      # ── 5. Résumé ─────────────────────────────────────────
+      - name: Résumé
+        if: always()
+        run: |
+          echo "## BVC News Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger** : ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date** : $(TZ='Africa/Casablanca' date +'%Y-%m-%d %H:%M') (Casablanca)" >> $GITHUB_STEP_SUMMARY
+          if [ -f news.json ]; then
+            python3 - <<'PYEOF' >> $GITHUB_STEP_SUMMARY
+          import json
+          try:
+              d = json.load(open('news.json'))
+              articles = d.get('articles', [])
+              print(f"- **Articles** : {d.get('count', len(articles))}")
+              print(f"- **Mis à jour** : {d.get('updated','?')}")
+              tickers = sorted(set(t for a in articles for t in a.get('tickers', [])))
+              print(f"- **Tickers couverts** : {len(tickers)} ({', '.join(tickers[:12])}{'...' if len(tickers)>12 else ''})")
+              pos = sum(1 for a in articles if a.get('sentiment')=='POSITIF')
+              neg = sum(1 for a in articles if a.get('sentiment')=='NEGATIF')
+              print(f"- **Sentiment** : ✅ {pos} positifs · ❌ {neg} négatifs · ◦ {len(articles)-pos-neg} neutres")
+              sources = {}
+              for a in articles:
+                  s = a.get('source','?')
+                  sources[s] = sources.get(s,0)+1
+              for src,cnt in sorted(sources.items(), key=lambda x:-x[1])[:5]:
+                  print(f"  - {src} : {cnt} articles")
+          except Exception as e:
+              print(f"- **Erreur** : {e}")
+          PYEOF
+          fi

@@ -25,6 +25,9 @@
     .apexcharts-menu-item{color:#c8d3e8!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
+    @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    .ticker-inner{display:inline-flex;align-items:center;animation:ticker 55s linear infinite;}
+    .ticker-inner:hover{animation-play-state:paused;}
   </style>
 </head>
 <body>
@@ -274,32 +277,75 @@ async function fetchQuotes(){
   return Object.keys(out).length>0?out:null;
 }
 
-// fetchChart: pipeline/candles EN PREMIER (OHLCV réel BVCscrap/xlsx) → Médias24 en secours
+// fetchMed24Raw: Médias24 → [{d,o,h,l,c,v}] (même format que pipeline/candles)
+async function fetchMed24Raw(sym,days){
+  const isin=CONFIG.ISIN_MAP[sym];if(!isin)return null;
+  const to=new Date();const from=new Date(+to-days*86400000);
+  const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  const data=await bvcGet(`${MED_BASE}?method=getPriceHistory&ISIN=${isin}&from=${fmt(from)}&to=${fmt(to)}&format=json`);
+  const recs=data?.result;if(!Array.isArray(recs)||recs.length<2)return null;
+  const rows=[];
+  recs.forEach(rec=>{
+    const raw=rec.date||"";
+    let dt;
+    if(raw.includes("/")){const[d,m,y]=raw.split("/");dt=`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;}
+    else{dt=raw.slice(0,10);}
+    const c=+(rec.value||0);if(!c||c<=0)return;
+    rows.push({d:dt,c:+c.toFixed(2),h:+(+(rec.max||c)).toFixed(2),l:+(+(rec.min||c)).toFixed(2),v:Math.round(+(rec.volume||0))});
+  });
+  if(rows.length<2)return null;
+  // Calculer open = clôture J-1
+  rows.sort((a,b)=>a.d.localeCompare(b.d));
+  for(let i=0;i<rows.length;i++) rows[i].o=i===0?rows[i].c:+rows[i-1].c.toFixed(2);
+  return rows;
+}
+
+// fetchChart: pipeline/candles EN PREMIER (OHLCV réel) + enrichissement Médias24 si données manquantes
 async function fetchChart(sym,range){
   const daysMap={"5d":7,"1mo":30,"3mo":90,"6mo":180,"1y":365};
   const days=daysMap[range]||90;
-  // 1. Priorité : pipeline/candles/{sym}.json (données OHLCV réelles)
+  const todayStr=new Date().toISOString().slice(0,10);
+
+  // 1. Candles locales OHLCV
+  let local=[];
   try{
     const r=await fetch(`./pipeline/candles/${sym}.json?t=${Math.floor(Date.now()/3600000)}`);
-    if(r.ok){
-      const data=await r.json();
-      const raw=Array.isArray(data)?data:(data.candles||[]);
-      const cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);
-      const filtered=raw.filter(c=>new Date(c.d)>=cutoff);
-      if(filtered.length>=5){
-        let prevClose=null;
-        return filtered.map(c=>{
-          const o=c.o!=null?c.o:(prevClose!=null?prevClose:c.c);
-          const h=c.h!=null?c.h:Math.max(o,c.c);
-          const l=c.l!=null?c.l:Math.min(o,c.c);
-          const ts=new Date(c.d).getTime();
-          prevClose=c.c;
-          return {x:ts,y:[o,h,l,c.c],vol:c.v||0};
-        });
-      }
-    }
+    if(r.ok){const data=await r.json();local=Array.isArray(data)?data:(data.candles||[]);}
   }catch{}
-  // 2. Secours : Médias24 (close uniquement, mèches limitées)
+
+  // 2. Si les candles locales ne couvrent pas aujourd'hui → enrichir avec Médias24 (15 jours)
+  const lastLocal=local.length>0?local[local.length-1].d:"";
+  if(local.length>=5&&lastLocal<todayStr){
+    try{
+      const fresh=await fetchMed24Raw(sym,15);
+      if(fresh&&fresh.length>0){
+        const map={};
+        local.forEach(c=>map[c.d]=c);
+        // Ajouter les jours nouveaux (ne pas écraser les OHLCV réels locaux)
+        fresh.forEach(c=>{if(!map[c.d])map[c.d]=c;});
+        local=Object.values(map).sort((a,b)=>a.d.localeCompare(b.d));
+      }
+    }catch{}
+  }
+
+  // 3. Filtrer par fenêtre temporelle et convertir au format ApexCharts
+  if(local.length>=5){
+    const cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);
+    const filtered=local.filter(c=>new Date(c.d)>=cutoff);
+    if(filtered.length>=5){
+      let prevClose=null;
+      return filtered.map(c=>{
+        const o=c.o!=null?c.o:(prevClose!=null?prevClose:c.c);
+        const h=c.h!=null?c.h:Math.max(o,c.c);
+        const l=c.l!=null?c.l:Math.min(o,c.c);
+        const ts=new Date(c.d).getTime();
+        prevClose=c.c;
+        return{x:ts,y:[o,h,l,c.c],vol:c.v||0};
+      });
+    }
+  }
+
+  // 4. Secours total : Médias24 (close uniquement)
   return fetchMed24History(sym,days);
 }
 
@@ -394,6 +440,30 @@ function calcIchimoku(candles){
   return{tenkan,kijun};
 }
 
+function calcSR(candles,price){
+  if(candles.length<10)return{sup:[],res:[]};
+  const highs=candles.map(c=>c.y[1]);
+  const lows =candles.map(c=>c.y[2]);
+  const n=candles.length,lb=3;
+  const swH=[],swL=[];
+  for(let i=lb;i<n-lb;i++){
+    if(highs.slice(i-lb,i).every(h=>h<=highs[i])&&highs.slice(i+1,i+lb+1).every(h=>h<=highs[i]))swH.push(highs[i]);
+    if(lows.slice(i-lb,i).every(l=>l>=lows[i])&&lows.slice(i+1,i+lb+1).every(l=>l>=lows[i]))swL.push(lows[i]);
+  }
+  function cluster(arr,tol=0.012){
+    const s=[...arr].sort((a,b)=>a-b);const out=[];let i=0;
+    while(i<s.length){
+      let sum=s[i],cnt=1;
+      while(i+cnt<s.length&&(s[i+cnt]-s[i])/s[i]<tol){sum+=s[i+cnt];cnt++;}
+      out.push(+(sum/cnt).toFixed(2));i+=cnt;
+    }
+    return out;
+  }
+  const sup=cluster(swL).filter(v=>v<price*1.03).slice(-3);
+  const res=cluster(swH).filter(v=>v>price*0.97).slice(0,3);
+  return{sup,res};
+}
+
 // ── ATOMS ────────────────────────────────────────────────────────────────────
 const Bar=({v,max=10,c,h=6})=>(
   <div style={{background:"#0d1829",borderRadius:3,height:h,overflow:"hidden"}}>
@@ -470,6 +540,7 @@ const StockChart=({r})=>{
   const [isLive,setIsLive]=useState(false);
   const [showBB,setShowBB]=useState(false);
   const [showIchi,setShowIchi]=useState(false);
+  const [showSR,setShowSR]=useState(true);
   const sym=r.symbol||r.ticker;
   const daysMap={"5J":7,"1M":22,"3M":65,"6M":130,"1A":260};
   const rangeMap={"5J":"5d","1M":"1mo","3M":"3mo","6M":"6mo","1A":"1y"};
@@ -508,11 +579,13 @@ const StockChart=({r})=>{
     const days=daysMap[period]||65;
     const candles=liveCandles;
     const closes=candles.map(c=>c.y[3]);
+    const curPrice=closes[closes.length-1]||0;
     const ma20=calcMA(closes,20);
     const ma50=calcMA(closes,50);
     const macdData=calcMACD(closes);
     const bbData=calcBollinger(closes);
     const ichiData=calcIchimoku(candles);
+    const srData=showSR?calcSR(candles,curPrice):{sup:[],res:[]};
     const grp="bvc_"+sym+"_"+period;
 
     const ma20data=candles.map((c,i)=>({x:c.x,y:ma20[i]})).filter(p=>p.y!==null);
@@ -563,7 +636,14 @@ const StockChart=({r})=>{
       theme:{mode:"dark"},
       plotOptions:{candlestick:{colors:{upward:"#00e5a0",downward:"#ff4f5a"},wick:{useFillColor:true}}},
       legend:{show:true,labels:{colors:slMain},fontSize:"10px",fontFamily:"var(--font)"},
-      annotations:{},
+      annotations:{yaxis:[
+        ...srData.sup.map(v=>({y:v,borderColor:"#00e5a060",borderWidth:1,strokeDashArray:5,
+          label:{text:`S ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`,offsetX:-4,
+            style:{background:"#00e5a015",color:"#00e5a0",fontSize:"8px",fontFamily:"var(--font)",padding:{left:3,right:3,top:1,bottom:1}}}})),
+        ...srData.res.map(v=>({y:v,borderColor:"#ff4f5a60",borderWidth:1,strokeDashArray:5,
+          label:{text:`R ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`,offsetX:-4,
+            style:{background:"#ff4f5a15",color:"#ff4f5a",fontSize:"8px",fontFamily:"var(--font)",padding:{left:3,right:3,top:1,bottom:1}}}})),
+      ]},
       tooltip:{theme:"dark",custom:function({seriesIndex,dataPointIndex,w}){
         const d=w.globals.initialSeries[0]?.data[dataPointIndex];
         if(!d||seriesIndex!==0)return"";
@@ -618,7 +698,7 @@ const StockChart=({r})=>{
     instMacd.current.render();
 
     return()=>{[instMain,instVol,instMacd].forEach(ref=>{if(ref.current){ref.current.destroy();ref.current=null;}});};
-  },[sym,period,liveCandles,showBB,showIchi]);
+  },[sym,period,liveCandles,showBB,showIchi,showSR]);
 
   const changePeriod=(p)=>{setPeriod(p);localStorage.setItem("bvc_period",p);};
 
@@ -632,6 +712,7 @@ const StockChart=({r})=>{
         <span style={{color:"#1a2540",margin:"0 2px"}}>|</span>
         <button onClick={()=>setShowBB(v=>!v)} title="Bollinger Bands (20,2)" style={{background:showBB?"rgba(255,215,64,.15)":"transparent",border:showBB?"1px solid rgba(255,215,64,.4)":"1px solid #1a2540",color:showBB?"#ffd740":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>BB</button>
         <button onClick={()=>setShowIchi(v=>!v)} title="Ichimoku (Tenkan 9 / Kijun 26)" style={{background:showIchi?"rgba(255,111,64,.15)":"transparent",border:showIchi?"1px solid rgba(255,111,64,.4)":"1px solid #1a2540",color:showIchi?"#ff6f40":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>ICHI</button>
+        <button onClick={()=>setShowSR(v=>!v)} title="Support / Résistance (swing highs & lows)" style={{background:showSR?"rgba(0,229,160,.12)":"transparent",border:showSR?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:showSR?"#00e5a0":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>S/R</button>
         <span style={{marginLeft:"auto",fontSize:9,color:isLive?"#00e5a0":"#8892a4"}}>
           {isLive&&"● "}RSI:{(r.rsi||r.rsi14||50).toFixed(0)} · MA20:{px(r.ma20||0)} · MA50:{px(r.ma50||0)}
         </span>
@@ -645,11 +726,33 @@ const StockChart=({r})=>{
   );
 };
 
+// ── TICKER TAPE ───────────────────────────────────────────────────────────────
+const TickerTape=({rows})=>{
+  const items=rows.filter(r=>r.price>0).slice(0,40);
+  if(items.length===0)return null;
+  const nc=c=>c>0?"#00e5a0":c<0?"#ff4f5a":"#8892a4";
+  const doubled=[...items,...items];
+  return(
+    <div style={{background:"#060b16",borderBottom:"1px solid #1a2540",padding:"4px 0",overflow:"hidden",userSelect:"none"}}>
+      <div className="ticker-inner">
+        {doubled.map((r,i)=>(
+          <span key={i} style={{display:"inline-flex",alignItems:"center",marginRight:24,gap:4,fontSize:11,whiteSpace:"nowrap"}}>
+            <span style={{color:"#2a3550",fontSize:8}}>◆</span>
+            <span style={{color:"#c8d3e8",fontWeight:600,letterSpacing:.5}}>{r.symbol||r.ticker}</span>
+            <span style={{color:"#4db8ff"}}>{(r.price||0).toFixed(2)}</span>
+            <span style={{color:nc(r.chg)}}>{r.chg>0?"▲":"▼"}{Math.abs(r.chg||0).toFixed(2)}%</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // ── HEADER ────────────────────────────────────────────────────────────────────
 const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode})=>{
   const [pulse,setPulse]=useState(false);
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
-  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"chat",label:"CHAT 3 MAJ",badge:CHAT.length},{id:"nlp",label:"NLP CORPUS",badge:"NEW"}];
+  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"chat",label:"CHAT 3 MAJ",badge:CHAT.length},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS",badge:"NEW"}];
   return(
     <div style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
@@ -840,6 +943,37 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
   );
 };
 
+// ── TICKER NEWS (inline dans Detail) ─────────────────────────────────────────
+const TickerNews=({sym})=>{
+  const [articles,setArticles]=useState([]);
+  const [ok,setOk]=useState(false);
+  useEffect(()=>{
+    fetch("news.json?t="+Math.floor(Date.now()/3600000))
+      .then(r=>r.ok?r.json():null)
+      .then(d=>{if(d?.articles)setArticles((d.articles||[]).filter(a=>(a.tickers||[]).includes(sym)).slice(0,6));setOk(true);})
+      .catch(()=>setOk(true));
+  },[sym]);
+  const SC=s=>s==="POSITIF"?"#00e5a0":s==="NEGATIF"?"#ff4f5a":"#8892a4";
+  const fmtD=iso=>{try{return new Date(iso).toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}catch{return "";}};
+  if(!ok||articles.length===0)return null;
+  return(
+    <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+      <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Actualités — {sym}</div>
+      {articles.map(a=>(
+        <a key={a.id} href={a.url} target="_blank" rel="noopener noreferrer"
+          style={{display:"block",paddingLeft:8,paddingBottom:8,marginBottom:8,borderBottom:"1px solid #0a1220",borderLeft:`2px solid ${SC(a.sentiment)}`,textDecoration:"none"}}>
+          <div style={{fontSize:11,color:"#c8d3e8",lineHeight:1.4,marginBottom:3}}>{a.title}</div>
+          <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+            <span style={{fontSize:9,color:SC(a.sentiment),fontWeight:700}}>{a.sentiment||"NEUTRE"}</span>
+            <span style={{fontSize:9,color:"#8892a4"}}>{a.source}</span>
+            <span style={{fontSize:9,color:"#2a3550",marginLeft:"auto"}}>{fmtD(a.date)}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  );
+};
+
 // ── DETAIL ────────────────────────────────────────────────────────────────────
 const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
   const [detSearch,setDetSearch]=useState("");
@@ -951,6 +1085,25 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                     )}
                   </div>
                 )}
+                {/* OBV + ADX depuis candles OHLCV longues */}
+                {(r.obv!=null||r.adx!=null)&&(
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5,marginTop:6}}>
+                    {r.obv!=null&&(
+                      <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
+                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>OBV</div>
+                        <div style={{fontSize:11,color:r.obv>0?"#00e5a0":"#ff4f5a",fontWeight:700}}>{r.obv>0?"+":""}{(r.obv/1000).toFixed(0)}K</div>
+                        <div style={{fontSize:9,color:"#8892a4"}}>{r.obv>0?"pression achat":"pression vente"}</div>
+                      </div>
+                    )}
+                    {r.adx!=null&&(
+                      <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
+                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>ADX(14)</div>
+                        <div style={{fontSize:11,color:r.adx>25?"#ffd740":"#8892a4",fontWeight:700}}>{r.adx?.toFixed(0)}{r.adx_pdi!=null?` +${r.adx_pdi?.toFixed(0)}`:""}{r.adx_mdi!=null?`/-${r.adx_mdi?.toFixed(0)}`:""}</div>
+                        <div style={{fontSize:9,color:"#8892a4"}}>{r.adx>40?"tendance forte":r.adx>25?"tendance":r.adx>20?"émergente":"range"}{r.adx_pdi>r.adx_mdi?" ▲":" ▼"}</div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               <RSIGauge value={rsiVal}/>
             </div>
@@ -977,7 +1130,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Graphique Chandeliers · MA20 · MA50 · Fibonacci</div>
             <StockChart r={r}/>
             <div style={{fontSize:9,color:"#8892a4",marginTop:6}}>
-              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff",textDecoration:"underline dashed"}}>── MA50</span> &nbsp; <span style={{color:"#ffd740"}}>─ Fib niveaux</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24 — données réelles uniquement
+              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff"}}>── MA50</span> &nbsp; <span style={{color:"#00e5a0"}}>── S support</span> &nbsp; <span style={{color:"#ff4f5a"}}>── R résistance</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24
             </div>
           </div>
 
@@ -1027,6 +1180,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
               {r.bonus.map((b,i)=><div key={i} style={{color:b.startsWith("-")?"#ff8f00":"#00e5a0"}}>{b.startsWith("-")?"▼":"▲"} {b.slice(1)}</div>)}
             </div>}
           </div>
+          <TickerNews sym={sym}/>
         </div>
       </div>
     </div>
@@ -1601,6 +1755,96 @@ const NlpDash=()=>{
   );
 };
 
+// ── NEWS FEED ─────────────────────────────────────────────────────────────────
+const NewsFeed=()=>{
+  const [allNews,setAllNews]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [ticker,setTicker]=useState("ALL");
+  const [updated,setUpdated]=useState(null);
+  const [total,setTotal]=useState(0);
+
+  useEffect(()=>{
+    fetch("news.json?t="+Math.floor(Date.now()/3600000))
+      .then(r=>r.ok?r.json():null)
+      .then(d=>{if(d?.articles){setAllNews(d.articles);setUpdated(d.updated||null);setTotal(d.count||d.articles.length);}setLoading(false);})
+      .catch(()=>setLoading(false));
+  },[]);
+
+  const SC=s=>s==="POSITIF"?"#00e5a0":s==="NEGATIF"?"#ff4f5a":"#8892a4";
+  const SBG=s=>s==="POSITIF"?"rgba(0,229,160,.1)":s==="NEGATIF"?"rgba(255,79,90,.1)":"rgba(136,146,164,.08)";
+  const fmtD=iso=>{try{return new Date(iso).toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}catch{return iso||"";}};
+  const fmtFull=iso=>{try{return new Date(iso).toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch{return iso||"";}};
+
+  const tickersList=useMemo(()=>{const s=new Set();allNews.forEach(a=>(a.tickers||[]).forEach(t=>s.add(t)));return["ALL",...[...s].sort()];},[allNews]);
+  const filtered=useMemo(()=>ticker==="ALL"?allNews:allNews.filter(a=>(a.tickers||[]).includes(ticker)),[allNews,ticker]);
+
+  const sentPos=allNews.filter(a=>a.sentiment==="POSITIF").length;
+  const sentNeg=allNews.filter(a=>a.sentiment==="NEGATIF").length;
+
+  if(loading)return<div style={{textAlign:"center",padding:"80px 20px",color:"#8892a4",fontSize:13}}>Chargement des actualités…</div>;
+
+  if(allNews.length===0)return(
+    <div style={{textAlign:"center",padding:"80px 20px",color:"#8892a4"}}>
+      <div style={{fontSize:44,marginBottom:16,color:"#2a3550",letterSpacing:4}}>FIL VIDE</div>
+      <div style={{fontSize:15,color:"#c8d3e8",marginBottom:10}}>Aucune actualité disponible</div>
+      <div style={{fontSize:12,maxWidth:440,margin:"0 auto",lineHeight:1.8}}>
+        Le workflow <code style={{background:"#0d1829",padding:"1px 6px",borderRadius:3,color:"#4db8ff"}}>fetch_news.yml</code> doit s'exécuter pour générer <code style={{background:"#0d1829",padding:"1px 6px",borderRadius:3,color:"#4db8ff"}}>news.json</code>.<br/>
+        Déclenchement : automatique lun–ven toutes les 2h, ou manuel via GitHub Actions.
+      </div>
+    </div>
+  );
+
+  return(
+    <div>
+      {/* Stats bar */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:14}}>
+        {[["Articles","#4db8ff",total||allNews.length],["Ton positif","#00e5a0",sentPos],["Ton négatif","#ff4f5a",sentNeg],["Dernière MAJ","#ffd740",updated?fmtFull(updated):"—"]].map(([lbl,c,val])=>(
+          <div key={lbl} style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,padding:"10px 12px"}}>
+            <div style={{fontSize:9,color:"#8892a4",marginBottom:3,textTransform:"uppercase",letterSpacing:.5}}>{lbl}</div>
+            <div style={{fontSize:lbl==="Dernière MAJ"?11:20,fontWeight:700,color:c,lineHeight:1.3}}>{val}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filtre ticker */}
+      <div style={{display:"flex",gap:5,marginBottom:14,flexWrap:"wrap",alignItems:"center"}}>
+        <span style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginRight:2}}>FILTRE</span>
+        {tickersList.map(t=>(
+          <button key={t} onClick={()=>setTicker(t)}
+            style={{background:ticker===t?"rgba(0,229,160,.12)":"transparent",border:ticker===t?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:ticker===t?"#00e5a0":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10,cursor:"pointer",transition:"all .15s"}}>
+            {t==="ALL"?"TOUS":t}
+          </button>
+        ))}
+        {ticker!=="ALL"&&<button onClick={()=>setTicker("ALL")} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"2px 8px",background:"transparent",cursor:"pointer",marginLeft:4}}>✕ reset</button>}
+        <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{filtered.length} article{filtered.length!==1?"s":""}</span>
+      </div>
+
+      {/* Liste articles */}
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {filtered.map(a=>(
+          <a key={a.id} href={a.url} target="_blank" rel="noopener noreferrer"
+            style={{display:"block",background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 14px",textDecoration:"none",borderLeft:`3px solid ${SC(a.sentiment)}`,transition:"background .12s"}}
+            onMouseEnter={e=>e.currentTarget.style.background="#0f1e30"}
+            onMouseLeave={e=>e.currentTarget.style.background="#0d1829"}>
+            <div style={{display:"flex",justifyContent:"space-between",gap:12,marginBottom:5,flexWrap:"wrap"}}>
+              <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,lineHeight:1.4,flex:1}}>{a.title}</div>
+              <span style={{fontSize:10,color:"#8892a4",whiteSpace:"nowrap",flexShrink:0}}>{fmtD(a.date)}</span>
+            </div>
+            {a.summary&&<div style={{fontSize:11,color:"#8892a4",lineHeight:1.6,marginBottom:7}}>{a.summary.slice(0,240)}{a.summary.length>240?"…":""}</div>}
+            <div style={{display:"flex",gap:5,alignItems:"center",flexWrap:"wrap"}}>
+              <span style={{background:SBG(a.sentiment),border:`1px solid ${SC(a.sentiment)}35`,borderRadius:3,padding:"1px 7px",fontSize:9,color:SC(a.sentiment),fontWeight:700,letterSpacing:.5}}>{a.sentiment||"NEUTRE"}</span>
+              {(a.tickers||[]).map(t=>(
+                <span key={t} style={{background:"rgba(77,184,255,.1)",border:"1px solid rgba(77,184,255,.25)",borderRadius:3,padding:"1px 6px",fontSize:9,color:"#4db8ff",fontWeight:600}}>{t}</span>
+              ))}
+              <span style={{fontSize:10,color:"#8892a4",marginLeft:"auto"}}>{a.source}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // ── APP ───────────────────────────────────────────────────────────────────────
 function App(){
   const [tab,setTab]=useState(()=>localStorage.getItem("bvc_tab")||"ranking");
@@ -1661,7 +1905,8 @@ function App(){
           alpha:t.alpha,win:t.win,sig:t.sig,sigBvc:t.sigBvc,biais:t.biais,
           bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
           bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,
-          conv:t.conv,setup:t.setup
+          conv:t.conv,setup:t.setup,
+          obv:t.obv,adx:t.adx,adx_pdi:t.adx_pdi,adx_mdi:t.adx_mdi
         };});
         mergeLive(m);
         nLive=d.tickers.filter(t=>t.chg&&t.chg!==0).length;
@@ -1710,6 +1955,7 @@ function App(){
 
   return(
     <div style={{minHeight:"100vh"}}>
+      <TickerTape rows={rows}/>
       <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
         {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab} fav={fav} toggleFav={toggleFav}/>}
@@ -1719,6 +1965,7 @@ function App(){
         {tab==="smart"    &&<Smart/>}
         {tab==="chat"     &&<Chat/>}
         {tab==="nlp"      &&<NlpDash/>}
+        {tab==="news"     &&<NewsFeed/>}
       </div>
     </div>
   );
