@@ -25,6 +25,9 @@
     .apexcharts-menu-item{color:#c8d3e8!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
+    @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    .ticker-inner{display:inline-flex;align-items:center;animation:ticker 55s linear infinite;}
+    .ticker-inner:hover{animation-play-state:paused;}
   </style>
 </head>
 <body>
@@ -645,6 +648,28 @@ const StockChart=({r})=>{
   );
 };
 
+// ── TICKER TAPE ───────────────────────────────────────────────────────────────
+const TickerTape=({rows})=>{
+  const items=rows.filter(r=>r.price>0).slice(0,40);
+  if(items.length===0)return null;
+  const nc=c=>c>0?"#00e5a0":c<0?"#ff4f5a":"#8892a4";
+  const doubled=[...items,...items];
+  return(
+    <div style={{background:"#060b16",borderBottom:"1px solid #1a2540",padding:"4px 0",overflow:"hidden",userSelect:"none"}}>
+      <div className="ticker-inner">
+        {doubled.map((r,i)=>(
+          <span key={i} style={{display:"inline-flex",alignItems:"center",marginRight:24,gap:4,fontSize:11,whiteSpace:"nowrap"}}>
+            <span style={{color:"#2a3550",fontSize:8}}>◆</span>
+            <span style={{color:"#c8d3e8",fontWeight:600,letterSpacing:.5}}>{r.symbol||r.ticker}</span>
+            <span style={{color:"#4db8ff"}}>{(r.price||0).toFixed(2)}</span>
+            <span style={{color:nc(r.chg)}}>{r.chg>0?"▲":"▼"}{Math.abs(r.chg||0).toFixed(2)}%</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // ── HEADER ────────────────────────────────────────────────────────────────────
 const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode})=>{
   const [pulse,setPulse]=useState(false);
@@ -978,6 +1003,25 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                         <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>STOCH</div>
                         <div style={{fontSize:11,color:r.stoch_k>80?"#ff4f5a":r.stoch_k<20?"#00e5a0":"#ffd740",fontWeight:700}}>{r.stoch_k?.toFixed(0)}</div>
                         <div style={{fontSize:9,color:"#8892a4"}}>{r.stoch_k>80?"survente":r.stoch_k<20?"survente":"neutre"}</div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {/* OBV + ADX depuis candles OHLCV longues */}
+                {(r.obv!=null||r.adx!=null)&&(
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5,marginTop:6}}>
+                    {r.obv!=null&&(
+                      <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
+                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>OBV</div>
+                        <div style={{fontSize:11,color:r.obv>0?"#00e5a0":"#ff4f5a",fontWeight:700}}>{r.obv>0?"+":""}{(r.obv/1000).toFixed(0)}K</div>
+                        <div style={{fontSize:9,color:"#8892a4"}}>{r.obv>0?"pression achat":"pression vente"}</div>
+                      </div>
+                    )}
+                    {r.adx!=null&&(
+                      <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
+                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>ADX(14)</div>
+                        <div style={{fontSize:11,color:r.adx>25?"#ffd740":"#8892a4",fontWeight:700}}>{r.adx?.toFixed(0)}{r.adx_pdi!=null?` +${r.adx_pdi?.toFixed(0)}`:""}{r.adx_mdi!=null?`/-${r.adx_mdi?.toFixed(0)}`:""}</div>
+                        <div style={{fontSize:9,color:"#8892a4"}}>{r.adx>40?"tendance forte":r.adx>25?"tendance":r.adx>20?"émergente":"range"}{r.adx_pdi>r.adx_mdi?" ▲":" ▼"}</div>
                       </div>
                     )}
                   </div>
@@ -1783,7 +1827,8 @@ function App(){
           alpha:t.alpha,win:t.win,sig:t.sig,sigBvc:t.sigBvc,biais:t.biais,
           bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
           bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,
-          conv:t.conv,setup:t.setup
+          conv:t.conv,setup:t.setup,
+          obv:t.obv,adx:t.adx,adx_pdi:t.adx_pdi,adx_mdi:t.adx_mdi
         };});
         mergeLive(m);
         nLive=d.tickers.filter(t=>t.chg&&t.chg!==0).length;
@@ -1832,6 +1877,7 @@ function App(){
 
   return(
     <div style={{minHeight:"100vh"}}>
+      <TickerTape rows={rows}/>
       <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
         {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab} fav={fav} toggleFav={toggleFav}/>}
