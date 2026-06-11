@@ -277,32 +277,75 @@ async function fetchQuotes(){
   return Object.keys(out).length>0?out:null;
 }
 
-// fetchChart: pipeline/candles EN PREMIER (OHLCV réel BVCscrap/xlsx) → Médias24 en secours
+// fetchMed24Raw: Médias24 → [{d,o,h,l,c,v}] (même format que pipeline/candles)
+async function fetchMed24Raw(sym,days){
+  const isin=CONFIG.ISIN_MAP[sym];if(!isin)return null;
+  const to=new Date();const from=new Date(+to-days*86400000);
+  const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  const data=await bvcGet(`${MED_BASE}?method=getPriceHistory&ISIN=${isin}&from=${fmt(from)}&to=${fmt(to)}&format=json`);
+  const recs=data?.result;if(!Array.isArray(recs)||recs.length<2)return null;
+  const rows=[];
+  recs.forEach(rec=>{
+    const raw=rec.date||"";
+    let dt;
+    if(raw.includes("/")){const[d,m,y]=raw.split("/");dt=`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;}
+    else{dt=raw.slice(0,10);}
+    const c=+(rec.value||0);if(!c||c<=0)return;
+    rows.push({d:dt,c:+c.toFixed(2),h:+(+(rec.max||c)).toFixed(2),l:+(+(rec.min||c)).toFixed(2),v:Math.round(+(rec.volume||0))});
+  });
+  if(rows.length<2)return null;
+  // Calculer open = clôture J-1
+  rows.sort((a,b)=>a.d.localeCompare(b.d));
+  for(let i=0;i<rows.length;i++) rows[i].o=i===0?rows[i].c:+rows[i-1].c.toFixed(2);
+  return rows;
+}
+
+// fetchChart: pipeline/candles EN PREMIER (OHLCV réel) + enrichissement Médias24 si données manquantes
 async function fetchChart(sym,range){
   const daysMap={"5d":7,"1mo":30,"3mo":90,"6mo":180,"1y":365};
   const days=daysMap[range]||90;
-  // 1. Priorité : pipeline/candles/{sym}.json (données OHLCV réelles)
+  const todayStr=new Date().toISOString().slice(0,10);
+
+  // 1. Candles locales OHLCV
+  let local=[];
   try{
     const r=await fetch(`./pipeline/candles/${sym}.json?t=${Math.floor(Date.now()/3600000)}`);
-    if(r.ok){
-      const data=await r.json();
-      const raw=Array.isArray(data)?data:(data.candles||[]);
-      const cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);
-      const filtered=raw.filter(c=>new Date(c.d)>=cutoff);
-      if(filtered.length>=5){
-        let prevClose=null;
-        return filtered.map(c=>{
-          const o=c.o!=null?c.o:(prevClose!=null?prevClose:c.c);
-          const h=c.h!=null?c.h:Math.max(o,c.c);
-          const l=c.l!=null?c.l:Math.min(o,c.c);
-          const ts=new Date(c.d).getTime();
-          prevClose=c.c;
-          return {x:ts,y:[o,h,l,c.c],vol:c.v||0};
-        });
-      }
-    }
+    if(r.ok){const data=await r.json();local=Array.isArray(data)?data:(data.candles||[]);}
   }catch{}
-  // 2. Secours : Médias24 (close uniquement, mèches limitées)
+
+  // 2. Si les candles locales ne couvrent pas aujourd'hui → enrichir avec Médias24 (15 jours)
+  const lastLocal=local.length>0?local[local.length-1].d:"";
+  if(local.length>=5&&lastLocal<todayStr){
+    try{
+      const fresh=await fetchMed24Raw(sym,15);
+      if(fresh&&fresh.length>0){
+        const map={};
+        local.forEach(c=>map[c.d]=c);
+        // Ajouter les jours nouveaux (ne pas écraser les OHLCV réels locaux)
+        fresh.forEach(c=>{if(!map[c.d])map[c.d]=c;});
+        local=Object.values(map).sort((a,b)=>a.d.localeCompare(b.d));
+      }
+    }catch{}
+  }
+
+  // 3. Filtrer par fenêtre temporelle et convertir au format ApexCharts
+  if(local.length>=5){
+    const cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);
+    const filtered=local.filter(c=>new Date(c.d)>=cutoff);
+    if(filtered.length>=5){
+      let prevClose=null;
+      return filtered.map(c=>{
+        const o=c.o!=null?c.o:(prevClose!=null?prevClose:c.c);
+        const h=c.h!=null?c.h:Math.max(o,c.c);
+        const l=c.l!=null?c.l:Math.min(o,c.c);
+        const ts=new Date(c.d).getTime();
+        prevClose=c.c;
+        return{x:ts,y:[o,h,l,c.c],vol:c.v||0};
+      });
+    }
+  }
+
+  // 4. Secours total : Médias24 (close uniquement)
   return fetchMed24History(sym,days);
 }
 

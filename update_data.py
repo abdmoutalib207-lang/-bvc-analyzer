@@ -1208,6 +1208,45 @@ def run(dry_run=False, push=False, token=""):
     OUTPUT.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
     logger.info(f"✅ data.json écrit → {OUTPUT}")
 
+    # 6b. Mise à jour des candles du jour (ajouter le point J pour que le graphique affiche aujourd'hui)
+    try:
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        candles_dir = Path(__file__).parent / "pipeline" / "candles"
+        if candles_dir.exists():
+            updated_count = 0
+            for entry in tickers_out:
+                sym  = entry["symbol"]
+                cfp  = candles_dir / f"{sym}.json"
+                if not cfp.exists():
+                    continue
+                c_price = entry.get("price", 0)
+                if c_price <= 0:
+                    continue
+                try:
+                    existing = json.loads(cfp.read_text(encoding="utf-8"))
+                    # Vérifier si le point du jour est déjà présent
+                    if existing and existing[-1].get("d") == today_str:
+                        continue
+                    # Calculer OHLCV du jour depuis les données live
+                    prev_close = existing[-1]["c"] if existing else c_price
+                    today_candle = {
+                        "d": today_str,
+                        "o": round(float(entry.get("open") or prev_close), 2),
+                        "h": round(float(c_price), 2),
+                        "l": round(float(c_price), 2),
+                        "c": round(float(c_price), 2),
+                        "v": int(entry.get("vol") or 0),
+                    }
+                    existing.append(today_candle)
+                    cfp.write_text(json.dumps(existing, separators=(",", ":")), encoding="utf-8")
+                    updated_count += 1
+                except Exception:
+                    pass
+            if updated_count:
+                logger.info(f"  Candles J mis à jour : {updated_count} tickers → {today_str}")
+    except Exception as _e:
+        logger.warning(f"  Candles J update : {_e}")
+
     # 7. Git commit + push (optionnel)
     if push:
         _git_push(OUTPUT, token)
