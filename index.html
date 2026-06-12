@@ -10,7 +10,7 @@
   <meta name="description" content="Terminal d'analyse multi-facteurs BVC : Technique 25% · Fondamental 47% · NLP 28% — 77 titres · 896 907 messages WhatsApp · 24 777 signaux · 6 ans de données"/>
   <meta name="theme-color" content="#080d1a"/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.2/dist/apexcharts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -20,9 +20,7 @@
     body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5;}
     button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:12px;}
     ::-webkit-scrollbar{width:5px;height:5px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px;}
-    .apexcharts-tooltip{font-family:var(--font)!important;font-size:12px!important;}
-    .apexcharts-menu{background:#0d1829!important;border-color:#1a2540!important;}
-    .apexcharts-menu-item{color:#c8d3e8!important;}
+    .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -534,8 +532,9 @@ const FibTable=({high,low,price})=>{
 
 // ── STOCK CHART — Chandeliers + Volume + MACD ─────────────────────────────────
 const StockChart=({r})=>{
-  const refMain=useRef(null),refVol=useRef(null),refMacd=useRef(null);
-  const instMain=useRef(null),instVol=useRef(null),instMacd=useRef(null);
+  const refMain=useRef(null),refVol=useRef(null),refMacd=useRef(null),refTooltip=useRef(null);
+  const chartMain=useRef(null),chartVol=useRef(null),chartMacd=useRef(null);
+  const syncing=useRef(false);
   const [period,setPeriod]=useState(()=>localStorage.getItem("bvc_period")||"3M");
   const [liveCandles,setLiveCandles]=useState(null);
   const [isLive,setIsLive]=useState(false);
@@ -543,8 +542,9 @@ const StockChart=({r})=>{
   const [showIchi,setShowIchi]=useState(false);
   const [showSR,setShowSR]=useState(true);
   const sym=r.symbol||r.ticker;
-  const daysMap={"5J":7,"1M":22,"3M":65,"6M":130,"1A":260};
   const rangeMap={"5J":"5d","1M":"1mo","3M":"3mo","6M":"6mo","1A":"1y"};
+  const toDate=ts=>{const d=new Date(ts);return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;};
+  const mapS=(fn)=>liveCandles.map((c,i)=>{const v=fn(i);return v!=null?{time:toDate(c.x),value:v}:null;}).filter(Boolean);
 
   useEffect(()=>{
     let alive=true;
@@ -573,14 +573,13 @@ const StockChart=({r})=>{
   },[sym,period,r.live,r.price,r.vol]);
 
   useEffect(()=>{
+    [chartMain,chartVol,chartMacd].forEach(ref=>{if(ref.current){ref.current.remove();ref.current=null;}});
     if(!refMain.current||!refVol.current||!refMacd.current)return;
     if(!liveCandles||liveCandles.length<5){
-      [instMain,instVol,instMacd].forEach(ref=>{if(ref.current){ref.current.destroy();ref.current=null;}});
       refMain.current.innerHTML='<div style="height:220px;display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-family:var(--font)">Données historiques non disponibles pour ce titre</div>';
       refVol.current.innerHTML='';refMacd.current.innerHTML='';
       return;
     }
-    const days=daysMap[period]||65;
     const candles=liveCandles;
     const closes=candles.map(c=>c.y[3]);
     const curPrice=closes[closes.length-1]||0;
@@ -590,118 +589,88 @@ const StockChart=({r})=>{
     const bbData=calcBollinger(closes);
     const ichiData=calcIchimoku(candles);
     const srData=showSR?calcSR(candles,curPrice):{sup:[],res:[]};
-    const grp="bvc_"+sym+"_"+period;
 
-    const ma20data=candles.map((c,i)=>({x:c.x,y:ma20[i]})).filter(p=>p.y!==null);
-    const ma50data=candles.map((c,i)=>({x:c.x,y:ma50[i]})).filter(p=>p.y!==null);
-
-    // Volume: couleur selon direction de la bougie
-    const volData=candles.map(c=>({x:c.x,y:c.vol||0,fillColor:c.y[3]>=c.y[0]?"#00e5a045":"#ff4f5a45"}));
-
-    // MACD: histogramme vert/rouge
-    const macdLine=candles.map((c,i)=>({x:c.x,y:macdData.macd[i]})).filter(p=>p.y!==null);
-    const sigLine=candles.map((c,i)=>({x:c.x,y:macdData.signal[i]})).filter(p=>p.y!==null);
-    const histData=candles.map((c,i)=>({x:c.x,y:macdData.hist[i],fillColor:(macdData.hist[i]||0)>=0?"#00e5a045":"#ff4f5a45"})).filter(p=>p.y!==null);
-
-    const xAxisBase={type:"datetime",labels:{style:{colors:"#8892a4",fontSize:"9px"},datetimeFormatter:{month:"MMM yy",day:"dd MMM"}}};
-
-    // ── Séries dynamiques selon toggles BB / Ichimoku ──────
-    const seriesMain=[
-      {name:"Cours",type:"candlestick",data:candles},
-      {name:"MA20",type:"line",data:ma20data},
-      {name:"MA50",type:"line",data:ma50data},
-    ];
-    const swMain=[1,1.5,1.5],sdMain=[0,0,4],scMain=["","#4db8ff","#b388ff"],slMain=["#c8d3e8","#4db8ff","#b388ff"];
-    if(showBB){
-      const bbU=candles.map((c,i)=>({x:c.x,y:bbData.upper[i]})).filter(p=>p.y!==null);
-      const bbL=candles.map((c,i)=>({x:c.x,y:bbData.lower[i]})).filter(p=>p.y!==null);
-      seriesMain.push({name:"BB+",type:"line",data:bbU},{name:"BB−",type:"line",data:bbL});
-      swMain.push(1,1);sdMain.push(2,2);scMain.push("#ffd740","#ffd740");slMain.push("#ffd740","#ffd740");
-    }
-    if(showIchi){
-      const tkData=candles.map((c,i)=>({x:c.x,y:ichiData.tenkan[i]})).filter(p=>p.y!==null);
-      const kjData=candles.map((c,i)=>({x:c.x,y:ichiData.kijun[i]})).filter(p=>p.y!==null);
-      seriesMain.push({name:"Tenkan",type:"line",data:tkData},{name:"Kijun",type:"line",data:kjData});
-      swMain.push(1.5,1.5);sdMain.push(0,4);scMain.push("#ff6f40","#66b0ff");slMain.push("#ff6f40","#66b0ff");
-    }
+    const lwData=candles.map(c=>({time:toDate(c.x),open:c.y[0],high:c.y[1],low:c.y[2],close:c.y[3]}));
+    const LW=window.LightweightCharts;
+    const W=refMain.current.offsetWidth||600;
+    const baseOpts={
+      layout:{background:{color:"#0d1829"},textColor:"#8892a4"},
+      grid:{vertLines:{color:"#1a2540"},horzLines:{color:"#1a2540"}},
+      crosshair:{mode:LW.CrosshairMode.Normal},
+      timeScale:{timeVisible:false,borderColor:"#1a2540",fixLeftEdge:true,fixRightEdge:true},
+      handleScroll:{mouseWheel:true,pressedMouseMove:true},
+      handleScale:{axisPressedMouseMove:{time:true,price:false},mouseWheel:true}
+    };
 
     // ── Graphique principal : chandeliers + MA ──────────────
-    const optsMain={
-      chart:{id:"main_"+grp,group:grp,type:"candlestick",height:220,background:"#0d1829",
-        toolbar:{show:true,tools:{zoom:true,reset:true,pan:true,download:false}},
-        animations:{enabled:false}
-      },
-      series:seriesMain,
-      stroke:{width:swMain,dashArray:sdMain},
-      colors:scMain,
-      xaxis:{...xAxisBase,labels:{show:false}},
-      yaxis:{labels:{formatter:v=>v>=1000?v.toLocaleString("fr-FR"):v?.toFixed(2)||"",style:{colors:"#8892a4",fontSize:"10px"}}},
-      grid:{borderColor:"#1a2540",padding:{bottom:0}},
-      theme:{mode:"dark"},
-      plotOptions:{candlestick:{colors:{upward:"#00e5a0",downward:"#ff4f5a"},wick:{useFillColor:true}}},
-      legend:{show:true,labels:{colors:slMain},fontSize:"10px",fontFamily:"var(--font)"},
-      annotations:{yaxis:[
-        ...srData.sup.map(v=>({y:v,borderColor:"#00e5a060",borderWidth:1,strokeDashArray:5,
-          label:{text:`S ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`,offsetX:-4,
-            style:{background:"#00e5a015",color:"#00e5a0",fontSize:"8px",fontFamily:"var(--font)",padding:{left:3,right:3,top:1,bottom:1}}}})),
-        ...srData.res.map(v=>({y:v,borderColor:"#ff4f5a60",borderWidth:1,strokeDashArray:5,
-          label:{text:`R ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`,offsetX:-4,
-            style:{background:"#ff4f5a15",color:"#ff4f5a",fontSize:"8px",fontFamily:"var(--font)",padding:{left:3,right:3,top:1,bottom:1}}}})),
-      ]},
-      tooltip:{theme:"dark",custom:function({seriesIndex,dataPointIndex,w}){
-        const d=w.globals.initialSeries[0]?.data[dataPointIndex];
-        if(!d||seriesIndex!==0)return"";
-        const[o,h,l,c]=d.y;const col=c>=o?"#00e5a0":"#ff4f5a";
-        return`<div style="padding:8px 10px;font-family:var(--font);font-size:11px;background:#0d1829;border:1px solid #1a2540;border-radius:4px"><b style="color:#fff">${sym}</b><br/><span style="color:#8892a4">O</span> <span style="color:#c8d3e8">${o}</span> <span style="color:#8892a4"> H</span> <span style="color:${col}">${h}</span> <span style="color:#8892a4"> L</span> <span style="color:#ff4f5a">${l}</span> <span style="color:#8892a4"> C</span> <span style="color:${col};font-weight:700">${c}</span></div>`;
-      }}
-    };
+    const main=LW.createChart(refMain.current,{...baseOpts,width:W,height:220,rightPriceScale:{borderColor:"#1a2540"}});
+    chartMain.current=main;
+    const cs=main.addCandlestickSeries({upColor:"#00e5a0",downColor:"#ff4f5a",borderUpColor:"#00e5a0",borderDownColor:"#ff4f5a",wickUpColor:"#00e5a0",wickDownColor:"#ff4f5a"});
+    cs.setData(lwData);
+    main.addLineSeries({color:"#4db8ff",lineWidth:1.5,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>ma20[i]));
+    main.addLineSeries({color:"#b388ff",lineWidth:1.5,lineStyle:LW.LineStyle.Dashed,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>ma50[i]));
+    if(showBB){
+      main.addLineSeries({color:"#ffd740",lineWidth:1,lineStyle:LW.LineStyle.Dashed,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>bbData.upper[i]));
+      main.addLineSeries({color:"#ffd740",lineWidth:1,lineStyle:LW.LineStyle.Dashed,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>bbData.lower[i]));
+    }
+    if(showIchi){
+      main.addLineSeries({color:"#ff6f40",lineWidth:1.5,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>ichiData.tenkan[i]));
+      main.addLineSeries({color:"#66b0ff",lineWidth:1.5,lineStyle:LW.LineStyle.Dashed,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>ichiData.kijun[i]));
+    }
+    srData.sup.forEach(v=>cs.createPriceLine({price:v,color:"#00e5a060",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`S ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`}));
+    srData.res.forEach(v=>cs.createPriceLine({price:v,color:"#ff4f5a60",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`R ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`}));
+
+    main.subscribeCrosshairMove(param=>{
+      if(!refTooltip.current)return;
+      const bar=param.seriesData?.get(cs);
+      if(!bar||!param.time){refTooltip.current.style.display="none";return;}
+      const{open:o,high:h,low:l,close:c}=bar;
+      const col=c>=o?"#00e5a0":"#ff4f5a";
+      refTooltip.current.style.display="block";
+      refTooltip.current.innerHTML=`<b style="color:#fff">${sym}</b>&nbsp;<span style="color:#8892a4">O</span>&nbsp;<span style="color:#c8d3e8">${o}</span>&nbsp;<span style="color:#8892a4">H</span>&nbsp;<span style="color:${col}">${h}</span>&nbsp;<span style="color:#8892a4">L</span>&nbsp;<span style="color:#ff4f5a">${l}</span>&nbsp;<span style="color:#8892a4">C</span>&nbsp;<span style="color:${col};font-weight:700">${c}</span>`;
+    });
 
     // ── Volume ──────────────────────────────────────────────
-    const optsVol={
-      chart:{id:"vol_"+grp,group:grp,type:"bar",height:65,background:"#0d1829",
-        toolbar:{show:false},animations:{enabled:false},sparkline:{enabled:false}
-      },
-      series:[{name:"Volume",data:volData}],
-      dataLabels:{enabled:false},
-      xaxis:{...xAxisBase,labels:{show:false}},
-      yaxis:{labels:{show:false},min:0},
-      grid:{borderColor:"#1a2540",padding:{top:0,bottom:0,left:0}},
-      theme:{mode:"dark"},
-      plotOptions:{bar:{columnWidth:"90%"}},
-      tooltip:{theme:"dark",y:{formatter:v=>v>=1e6?`${(v/1e6).toFixed(1)}M`:v>=1e3?`${(v/1e3).toFixed(0)}K`:v||"N/A"}},
-    };
+    const volChart=LW.createChart(refVol.current,{...baseOpts,width:W,height:65,rightPriceScale:{visible:false}});
+    chartVol.current=volChart;
+    volChart.addHistogramSeries({priceLineVisible:false,lastValueVisible:false}).setData(
+      candles.map(c=>({time:toDate(c.x),value:c.vol||0,color:c.y[3]>=c.y[0]?"#00e5a045":"#ff4f5a45"}))
+    );
 
     // ── MACD ────────────────────────────────────────────────
-    const optsMacd={
-      chart:{id:"macd_"+grp,group:grp,type:"line",height:80,background:"#0d1829",
-        toolbar:{show:false},animations:{enabled:false}
-      },
-      series:[
-        {name:"MACD",type:"line",data:macdLine},
-        {name:"Signal",type:"line",data:sigLine},
-        {name:"Hist",type:"bar",data:histData},
-      ],
-      stroke:{width:[1.5,1.5,1],dashArray:[0,4,0]},
-      colors:["#4db8ff","#ffd740","#00e5a0"],
-      dataLabels:{enabled:false},
-      xaxis:xAxisBase,
-      yaxis:{labels:{formatter:v=>v?.toFixed(1)||"",style:{colors:"#8892a4",fontSize:"8px"}}},
-      grid:{borderColor:"#1a2540",padding:{top:0}},
-      theme:{mode:"dark"},
-      legend:{show:false},
-      tooltip:{theme:"dark",x:{format:"dd MMM yy"}},
-      annotations:{yaxis:[{y:0,borderColor:"#8892a440",borderWidth:1,label:{show:false}}]},
+    const macdChart=LW.createChart(refMacd.current,{...baseOpts,width:W,height:80,timeScale:{...baseOpts.timeScale,timeVisible:true},rightPriceScale:{borderColor:"#1a2540"}});
+    chartMacd.current=macdChart;
+    macdChart.addLineSeries({color:"#4db8ff",lineWidth:1.5,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>macdData.macd[i]));
+    macdChart.addLineSeries({color:"#ffd740",lineWidth:1.5,lineStyle:LW.LineStyle.Dashed,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>macdData.signal[i]));
+    macdChart.addHistogramSeries({priceLineVisible:false,lastValueVisible:false}).setData(
+      candles.map((c,i)=>macdData.hist[i]!=null?{time:toDate(c.x),value:macdData.hist[i],color:(macdData.hist[i]||0)>=0?"#00e5a045":"#ff4f5a45"}:null).filter(Boolean)
+    );
+    macdChart.addLineSeries({color:"#8892a440",lineWidth:1,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(()=>0));
+
+    // ── Synchronisation des axes temporels ──────────────────
+    const all=[main,volChart,macdChart];
+    all.forEach(src=>{
+      src.timeScale().subscribeVisibleLogicalRangeChange(range=>{
+        if(syncing.current||!range)return;
+        syncing.current=true;
+        all.filter(t=>t!==src).forEach(t=>t.timeScale().setVisibleLogicalRange(range));
+        syncing.current=false;
+      });
+    });
+    main.timeScale().fitContent();
+
+    // ── Responsive resize ───────────────────────────────────
+    const ro=new ResizeObserver(([e])=>{
+      const w=Math.floor(e.contentRect.width);
+      if(w<50)return;
+      all.forEach(chart=>chart.applyOptions({width:w}));
+    });
+    ro.observe(refMain.current.parentElement||refMain.current);
+
+    return()=>{
+      ro.disconnect();
+      [chartMain,chartVol,chartMacd].forEach(ref=>{if(ref.current){ref.current.remove();ref.current=null;}});
     };
-
-    [instMain,instVol,instMacd].forEach(ref=>{if(ref.current){ref.current.destroy();ref.current=null;}});
-    instMain.current=new ApexCharts(refMain.current,optsMain);
-    instVol.current=new ApexCharts(refVol.current,optsVol);
-    instMacd.current=new ApexCharts(refMacd.current,optsMacd);
-    instMain.current.render();
-    instVol.current.render();
-    instMacd.current.render();
-
-    return()=>{[instMain,instVol,instMacd].forEach(ref=>{if(ref.current){ref.current.destroy();ref.current=null;}});};
   },[sym,period,liveCandles,showBB,showIchi,showSR]);
 
   const changePeriod=(p)=>{setPeriod(p);localStorage.setItem("bvc_period",p);};
@@ -721,7 +690,10 @@ const StockChart=({r})=>{
           {isLive&&"● "}RSI:{(r.rsi||r.rsi14||50).toFixed(0)} · MA20:{px(r.ma20||0)} · MA50:{px(r.ma50||0)}
         </span>
       </div>
-      <div ref={refMain}/>
+      <div style={{position:"relative"}}>
+        <div ref={refMain}/>
+        <div ref={refTooltip} style={{display:"none",position:"absolute",top:4,left:4,background:"rgba(13,24,41,.92)",border:"1px solid #1a2540",borderRadius:4,padding:"4px 8px",fontSize:10,fontFamily:"var(--font)",pointerEvents:"none",zIndex:10,whiteSpace:"nowrap"}}/>
+      </div>
       <div style={{fontSize:8,color:"#8892a4",letterSpacing:1,marginTop:2}}>VOLUME</div>
       <div ref={refVol}/>
       <div style={{fontSize:8,color:"#8892a4",letterSpacing:1,marginTop:2}}>MACD (12,26,9) · <span style={{color:"#4db8ff"}}>MACD</span> · <span style={{color:"#ffd740"}}>Signal</span></div>
