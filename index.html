@@ -906,10 +906,10 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
     if(sort==="alpha") return b.alpha-a.alpha;
     if(sort==="rsi") return (a.rsi||a.rsi14||50)-(b.rsi||b.rsi14||50);
     return 0;
-  }),[filtered,sort]);
+  }),[filtered,sort,scoreMode]);
   const SORTS=[["az","A → Z"],["v53",customMode?"SCORE PERSO":("SCORE v5.3")],["bvc","BVC"],["delta","DELTA"],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
-  const scoreColLabel=customMode?scoreModeLabel(scoreMode):"v5.3";
-  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","PE","DIV%","BVC",scoreColLabel,"Δ","NLP%","WIN","ALPHA","RSI","SIGNAL v5.3","POIDS"];
+  const scoreColLabel=customMode?scoreModeLabel(scoreMode):"SCORE";
+  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","PE","DIV%","BVC",scoreColLabel,"Δ","NLP%","WIN","ALPHA","RSI","SIGNAL","POIDS"];
   if(isWatchlist&&rows.length===0) return(
     <div style={{textAlign:"center",padding:"60px 20px",color:"#8892a4"}}>
       <div style={{fontSize:52,marginBottom:16,color:"#2a3550"}}>★</div>
@@ -967,7 +967,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         <span style={{color:"#ffd740",fontWeight:700}}>✱ MODE PERSONNALISÉ</span>
         <span style={{color:"#8892a4"}}>Score affiché :</span>
         <span style={{color:"#ffd740"}}>{scoreModeLabel(scoreMode)}</span>
-        <span style={{color:"#4a5570",fontSize:10}}>— Le score v5.3 officiel et les signaux restent inchangés</span>
+        <span style={{color:"#4a5570",fontSize:10}}>— Le score composite officiel et les signaux restent inchangés</span>
       </div>}
       <div style={{overflowX:"auto"}}>
         <table style={{width:"100%",borderCollapse:"collapse",minWidth:1220}}>
@@ -1039,9 +1039,9 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         </table>
       </div>
       <div style={{marginTop:12,padding:"10px 14px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
-        <span style={{color:"#00e5a0"}}>●</span> Score v5.3 = Tech×25% + Fond×47% + NLP×28% (pondération dynamique) &nbsp;|&nbsp;
+        <span style={{color:"#00e5a0"}}>●</span> SCORE = Tech×25% + Fond×47% + NLP×28% (moteur v6.4) &nbsp;|&nbsp;
         <span style={{color:"#ffd740"}}>●</span> WIN = % signaux corrects 6 mois glissants (1994 signaux V3) &nbsp;|&nbsp;
-        <span style={{color:"#b388ff"}}>●</span> Δ = différence v5.3 vs BVC original &nbsp;|&nbsp;
+        <span style={{color:"#b388ff"}}>●</span> Δ = différence SCORE vs BVC fondamental &nbsp;|&nbsp;
         <span style={{color:"#8892a4"}}>~stat</span> = indicateurs techniques estimés (RSI/MA calculés dès la prochaine mise à jour) &nbsp;|&nbsp;
         <span style={{color:"#ff4f5a"}}>⚠️</span> Alpha/RSI rouge = prudence &nbsp;|&nbsp; PE = Price/Earnings · DIV = dividende &nbsp;|&nbsp; Clic → vue détaillée
       </div>
@@ -1124,7 +1124,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
               </button>
             </div>
             <div style={{fontSize:52,fontWeight:700,color:s.fg,textShadow:`0 0 30px ${s.fg}40`,lineHeight:1}}>{r.v53.toFixed(2)}</div>
-            <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 10px"}}>Score v5.3 / 10</div>
+            <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 10px"}}>Score composite / 10</div>
             <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd} sz={12}/>
             <div style={{marginTop:8,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
               <Delta d={r.delta}/><span style={{fontSize:11,color:"#8892a4"}}>vs BVC {r.bvc.toFixed(2)}</span>
@@ -1970,7 +1970,7 @@ function computeDisplayScore(r, mode) {
 }
 
 function scoreModeLabel(mode) {
-  if (!mode || (mode.f && mode.n && mode.t)) return "v5.3 COMPLET";
+  if (!mode || (mode.f && mode.n && mode.t)) return "COMPLET";
   const parts = [];
   if (mode.f) parts.push("FOND");
   if (mode.n) parts.push("NLP");
