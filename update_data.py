@@ -871,7 +871,10 @@ def run(dry_run=False, push=False, token=""):
     logger.info("BVC ANALYZER — update_data.py v6.3")
     logger.info("═" * 60)
 
-    # 1. Contexte marché
+    # 0. Chargement BPA (PE dynamique)
+    bpa_path = Path(__file__).parent / "bpa.json"
+    BPA_DATA = json.loads(bpa_path.read_text(encoding="utf-8")) if bpa_path.exists() else {}
+    logger.info(f"BPA chargé : {len(BPA_DATA)} tickers")
     now_ca = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=1)  # UTC+1 Casablanca
     h, mn = now_ca.hour, now_ca.minute
     tot = h * 60 + mn
@@ -1180,9 +1183,11 @@ def run(dry_run=False, push=False, token=""):
             "vol":    int(vol) if vol else 0,
             "open":   round(opn, 2),
             "close":  round(price, 2),
-            "pe":     fd.get("pe"),
+            "pe":     round(price / BPA_DATA[ticker]["bpa"], 1) if (ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0) else fd.get("pe"),
+            "bpa":    BPA_DATA[ticker]["bpa"] if ticker in BPA_DATA else None,
             "pb":     fd.get("pb"),
-            "div":    fd.get("div"),
+            "div":    round(BPA_DATA[ticker]["div_dh"] / price * 100, 2) if (ticker in BPA_DATA and BPA_DATA[ticker].get("div_dh") and price > 0) else fd.get("div"),
+            "div_dh": BPA_DATA[ticker].get("div_dh") if ticker in BPA_DATA else None,
             "cap":    fd.get("cap"),
             "h90":    round(h90, 2),
             "l90":    round(l90, 2),
