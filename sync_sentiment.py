@@ -93,10 +93,12 @@ def update_file(new_block: str):
     TARGET.write_text("\n".join(new_lines), encoding="utf-8")
 
 
+TOTAL_MSGS = 896_907  # messages WhatsApp bruts (corpus complet, fixe)
+
+
 def compute_meta(scores):
     """Calcule les stats du corpus depuis les CSV."""
     import datetime
-    total_mentions = sum(s.get("mentions", 0) for s in scores.values())
     with open(SCORES_CSV, encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
     total_signals = sum(
@@ -110,13 +112,13 @@ def compute_meta(scores):
     )
     dates_first = [r["first_mention"][:10] for r in rows if r.get("first_mention", "").strip()]
     dates_last  = [r["last_mention"][:10]  for r in rows if r.get("last_mention",  "").strip()]
-    years = 5
+    years = 6
     if dates_first and dates_last:
         d1 = datetime.date.fromisoformat(min(dates_first))
         d2 = datetime.date.fromisoformat(max(dates_last))
-        years = round((d2 - d1).days / 365, 1)
+        years = max(6, round((d2 - d1).days / 365, 1))
     return {
-        "msgs":    f"{total_mentions:,}".replace(",", " "),
+        "msgs":    f"{TOTAL_MSGS:,}".replace(",", " "),
         "signals": f"{total_signals:,}".replace(",", " "),
         "years":   int(years),
         "tickers": len(scores),
