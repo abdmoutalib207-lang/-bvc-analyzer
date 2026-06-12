@@ -30,85 +30,119 @@ OUTPUT_PATH = Path(__file__).parent.parent / "news.json"
 MAX_ARTICLES = 80
 TIMEOUT = 15
 
-# ── Mapping ticker → mots-clés de tagging ────────────────────────────────────
+# ── Tickers dont le symbole est un mot commun → ne pas rechercher en brut ─────
+# Ces tickers ne seront jamais matchés via leur symbole seul (risque de faux positifs).
+# Ils ne sont reconnus QUE via les mots-clés du nom complet ci-dessous.
+SKIP_RAW_SYMBOL = {
+    "LES",  # "les" = article défini français (présent dans tout texte)
+    "CAR",  # "car" = conjonction française + mot anglais générique
+    "UNI",  # préfixe courant : université, unique, union…
+    "SOT",  # mot français : sot = idiot/fou
+    "COL",  # col de montagne, col de chemise, colonel…
+    "DAR",  # mot arabe courant (maison)
+    "JET",  # jet d'eau, jet privé… trop générique
+    "BAL",  # bal populaire, balance…
+    "HAL",  # prénom, hal en informatique…
+    "MOX",  # trop court / peut apparaître dans mots composés
+    "IBM",  # confond avec IBM International (multinationale tech)
+    "SMI",  # confond avec Swiss Market Index (indice boursier suisse)
+    "ARD",  # chaîne de TV allemande ARD
+    "RIS",  # trop court et ambigu
+    "MIC",  # prénom, micro, mick…
+    "INV",  # "inv" = préfixe investissement trop générique
+    "STR",  # "str" préfixe dans string, structure, stratégie…
+    "TIM",  # prénom commun
+    "SNA",  # trop court
+    "SRM",  # trop court
+    "SLM",  # trop court
+    "MGL",  # trop court
+    "FNB",  # trop court
+    "ENK",  # trop court
+    "PPM",  # ppm = unité de mesure (parts per million)
+}
+
+# ── Mapping ticker → noms complets pour le tagging ───────────────────────────
+# Règle : uniquement des noms de sociétés complets ou suffisamment distinctifs.
+# Ne jamais mettre le symbole court seul (3 lettres) ici — il y a la boucle
+# de détection brute ci-dessous pour ça.
 TICKER_KEYWORDS = {
-    "IAM":  ["maroc telecom", "iam", "itissalat"],
-    "ATW":  ["attijariwafa", "attijari"],
-    "BCP":  ["banque populaire", "bcp", "groupe banques populaires"],
-    "BOA":  ["bank of africa", "bmce", "boa"],
-    "CIH":  ["cih bank", "cih"],
-    "CDM":  ["crédit du maroc", "credit du maroc", "cdm"],
-    "WAF":  ["wafa assurance", "wafa"],
-    "LHM":  ["lafargeholcim", "lafarge holcim", "lhm"],
-    "GAZ":  ["afriquia gaz", "afriquia"],
+    "IAM":  ["maroc telecom", "itissalat al maghrib"],
+    "ATW":  ["attijariwafa", "attijari wafa bank"],
+    "BCP":  ["banque centrale populaire", "banques populaires", "crédit populaire du maroc"],
+    "BOA":  ["bank of africa", "bmce bank of africa"],
+    "CIH":  ["cih bank", "crédit immobilier et hôtelier"],
+    "CDM":  ["crédit du maroc"],
+    "WAF":  ["wafa assurance"],
+    "LHM":  ["lafargeholcim maroc", "lafarge holcim maroc", "lafarge maroc"],
+    "GAZ":  ["afriquia gaz"],
     "ATL":  ["auto hall", "autohall"],
-    "HPS":  ["hps", "hightech payment"],
-    "LBV":  ["label'vie", "labelvie", "label vie", "lbv"],
-    "LES":  ["lesieur cristal", "lesieur"],
-    "TQA":  ["taqa morocco", "taqa", "jlec"],
-    "MRL":  ["marsa maroc", "mrl"],
-    "TMA":  ["totalenergies maroc", "total maroc", "tma"],
-    "CMT":  ["ciments du maroc", "asment", "cmt"],
-    "MNG":  ["managem", "mng"],
-    "SMI":  ["s.m. imiter", "sm imiter", "imiter", "smi"],
-    "AKD":  ["akdital", "akd"],
-    "ARD":  ["aradei capital", "aradei"],
-    "SAF":  ["saham assurance", "saham"],
-    "OUL":  ["oulmès", "oulmes"],
-    "CIM":  ["cimat", "ciment de l'atlas", "ciments atlas"],
-    "CTM":  ["ctm", "compagnie transport maroc"],
-    "ZLD":  ["zalagh", "zld"],
-    "SOT":  ["sothema", "sot"],
-    "MSA":  ["mutandis", "msa"],
-    "ADI":  ["alliances développement", "alliances dev", "adi"],
-    "ADH":  ["addoha", "adh"],
-    "TGCC": ["tgcc", "total gaou côte", "tgc"],
-    "CFGB": ["cfg bank", "cfg"],
-    "CASH": ["cash plus", "cash+"],
-    "SGTM": ["sgtm"],
-    "CMGP": ["cmgp group", "cmgp"],
-    "VCNE": ["vivo energy", "vicenne", "vcne"],
-    "RIS":  ["résidences immobilières", "ris"],
-    "CSR":  ["cosumar", "csr"],
-    "SNA":  ["sonasid", "sna"],
-    "SRM":  ["stokvis", "srm"],
-    "RDS":  ["rdsa", "rds"],
-    "ALU":  ["aluminium du maroc", "alum"],
-    "MGL":  ["maghrebail", "mgl"],
-    "DAR":  ["dari couspate", "dari"],
-    "IMI":  ["imi", "immobilière"],
-    "DTT":  ["disty technologies", "dtt"],
-    "DSW":  ["delattre levivier", "dsw"],
-    "MOX":  ["maghreb oxygene", "mox"],
-    "STR":  ["stradim", "str"],
-    "TIM":  ["timar", "tim"],
-    "SNP":  ["snep", "snp"],
-    "SLM":  ["salafin", "slm"],
-    "JET":  ["jet contractors", "jet"],
-    "M2M":  ["m2m group", "m2m"],
-    "INV":  ["involys", "inv"],
-    "S2M":  ["s2m", "soft mobile"],
-    "COL":  ["colorado", "col"],
-    "AFM":  ["afm", "agro farma"],
-    "AGM":  ["afric industries", "agm"],
-    "FNB":  ["fenié brossette", "fnb"],
-    "BAL":  ["balima", "bal"],
-    "NEJ":  ["nejma", "nejmah"],
-    "HAL":  ["haliopolis", "hal"],
-    "BMC":  ["bmc", "brasseries maroc"],
-    "CAR":  ["cartier saada", "car"],
-    "AFI":  ["afi", "afriquia"],
-    "MIC":  ["microdata", "mic"],
-    "MUT":  ["mutuelle centrale", "mut"],
-    "ENK":  ["encg", "enk"],
-    "EQD":  ["eqdom", "eqd"],
-    "DHO":  ["douja prom", "dhom", "dho"],
-    "PPM":  ["papelera", "ppm"],
-    "REB":  ["rebab company", "reb"],
-    "SBS":  ["sbs", "société de brasseries"],
-    "STK":  ["stroc industrie", "stk"],
-    "UNI":  ["unimer", "uni"],
-    "IBM":  ["ibm", "industrie biologique"],
+    "HPS":  ["hightech payment systems", "hightech payment"],
+    "LBV":  ["label'vie", "labelvie", "groupe label vie"],
+    "LES":  ["lesieur cristal"],
+    "TQA":  ["taqa morocco", "jlec", "taqa maroc"],
+    "MRL":  ["marsa maroc", "sodep maroc"],
+    "TMA":  ["totalenergies marketing maroc", "total energies maroc", "total maroc"],
+    "CMT":  ["ciments du maroc", "asment tanger"],
+    "MNG":  ["managem", "groupe managem"],
+    "SMI":  ["s.m. imiter", "sm imiter", "société métallurgique imiter"],
+    "AKD":  ["akdital", "groupe akdital"],
+    "ARD":  ["aradei capital"],
+    "SAF":  ["saham assurance", "sanlam maroc"],
+    "OUL":  ["oulmès", "eaux minérales d'oulmès"],
+    "CIM":  ["cimat", "ciments de l'atlas"],
+    "CTM":  ["compagnie de transports au maroc", "ctm voyages"],
+    "ZLD":  ["zalagh"],
+    "SOT":  ["sothema"],
+    "MSA":  ["mutandis"],
+    "ADI":  ["alliances développement", "alliance développement immobilier", "alliances immobilier"],
+    "ADH":  ["addoha", "groupe addoha"],
+    "TGCC": ["tgcc", "travaux généraux de construction de casablanca"],
+    "CFGB": ["cfg bank"],
+    "CASH": ["cash plus"],
+    "SGTM": ["sgtm", "société générale de travaux du maroc"],
+    "CMGP": ["cmgp group"],
+    "VCNE": ["vivo energy maroc"],
+    "RIS":  ["risma", "résidences touristiques"],
+    "CSR":  ["cosumar"],
+    "SNA":  ["sonasid"],
+    "SRM":  ["stokvis maroc"],
+    "RDS":  ["résidences dar saada"],
+    "ALU":  ["aluminium du maroc"],
+    "MGL":  ["maghrebail"],
+    "DAR":  ["dari couspate"],
+    "IMI":  ["immorente invest"],
+    "DTT":  ["disty technologies"],
+    "DSW":  ["delattre levivier maroc"],
+    "MOX":  ["maghreb oxygene"],
+    "STR":  ["stradim"],
+    "TIM":  ["timar"],
+    "SNP":  ["snep maroc"],
+    "SLM":  ["salafin"],
+    "JET":  ["jet contractors"],
+    "M2M":  ["m2m group"],
+    "INV":  ["involys"],
+    "S2M":  ["s2m group", "soft mobile maroc"],
+    "COL":  ["colorado peintures", "colorado maroc"],
+    "AFM":  ["africa middle east resources"],
+    "AGM":  ["afric industries"],
+    "FNB":  ["fenié brossette"],
+    "BAL":  ["balima"],
+    "NEJ":  ["nejma"],
+    "HAL":  ["haliopolis"],
+    "BMC":  ["brasseries du maroc"],
+    "CAR":  ["cartier saada"],
+    "AFI":  ["afriquia immobilier"],
+    "MIC":  ["microdata maroc"],
+    "MUT":  ["mutuelle centrale maroc"],
+    "ENK":  ["encg maroc"],
+    "EQD":  ["eqdom"],
+    "DHO":  ["douja prom"],
+    "PPM":  ["papelera de tetuan", "papelera maroc"],
+    "REB":  ["rebab company"],
+    "SBS":  ["société de brasseries du maroc"],
+    "STK":  ["stroc industrie"],
+    "UNI":  ["unimer"],
+    "IBM":  ["industrie biologique maroc"],
 }
 
 # ── Mots-clés sentiment ───────────────────────────────────────────────────────
@@ -138,11 +172,15 @@ def _sentiment(text: str) -> str:
 def _tag_tickers(text: str) -> list:
     t = text.lower()
     found = []
+    # 1. Noms complets — source fiable, pas d'ambiguïté
     for ticker, kws in TICKER_KEYWORDS.items():
         if any(kw in t for kw in kws):
             found.append(ticker)
-    # aussi chercher les symboles directement (ex: "ATW", "MNG")
+    # 2. Symboles bruts (ex: "ATW", "MNG") avec frontière de mot \b
+    #    Exclus : tickers dont le symbole est un mot français/anglais courant
     for ticker in TICKER_KEYWORDS:
+        if ticker in SKIP_RAW_SYMBOL:
+            continue
         pattern = r'\b' + re.escape(ticker) + r'\b'
         if re.search(pattern, text, re.IGNORECASE) and ticker not in found:
             found.append(ticker)
