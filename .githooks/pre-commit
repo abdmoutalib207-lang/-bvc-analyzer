@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# BVC pre-commit validator
+# Active avec : git config core.hooksPath .githooks
+
+# Seulement si des fichiers de données sont dans le staged index
+STAGED=$(git diff --cached --name-only 2>/dev/null)
+DATA_CHANGED=$(echo "$STAGED" | grep -E '(bpa|fondamentaux|news)\.json' || true)
+
+if [ -n "$DATA_CHANGED" ]; then
+  echo "🔍 BVC Validator — fichiers modifiés détectés :"
+  echo "$DATA_CHANGED" | sed 's/^/   /'
+  echo ""
+
+  if ! python3 pipeline/validate.py; then
+    echo ""
+    echo "❌ Commit annulé — corrigez les erreurs ci-dessus."
+    echo "   Pour bypasser (déconseillé) : git commit --no-verify"
+    exit 1
+  fi
+fi
+
+exit 0

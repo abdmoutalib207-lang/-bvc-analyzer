@@ -1,0 +1,64 @@
+# ════════════════════════════════════════════════════════════
+# BVC Data Validator — GitHub Actions
+# Vérifie l'intégrité de bpa.json, fondamentaux.json, news.json
+# Déclenché sur push/PR touchant les données ou le pipeline
+# ════════════════════════════════════════════════════════════
+
+name: BVC Data Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'bpa.json'
+      - 'fondamentaux.json'
+      - 'news.json'
+      - 'pipeline/validate.py'
+      - 'pipeline/fetch_news.py'
+      - 'bvc_config.py'
+  pull_request:
+    paths:
+      - 'bpa.json'
+      - 'fondamentaux.json'
+      - 'news.json'
+      - 'pipeline/**'
+      - 'bvc_config.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Intégrité des données BVC
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      # ── 1. Checkout ───────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── 2. Python ─────────────────────────────────────────────
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # ── 3. Validation ─────────────────────────────────────────
+      - name: Valider l'intégrité des données
+        id: validate
+        run: python pipeline/validate.py
+
+      # ── 4. Résumé CI ──────────────────────────────────────────
+      - name: Résumé
+        if: always()
+        run: |
+          echo "## 🔍 BVC Data Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger** : ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date** : $(TZ='Africa/Casablanca' date +'%Y-%m-%d %H:%M') (Casablanca)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          python pipeline/validate.py 2>&1 >> $GITHUB_STEP_SUMMARY || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
