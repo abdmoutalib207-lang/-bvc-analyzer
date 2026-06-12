@@ -93,13 +93,68 @@ def update_file(new_block: str):
     TARGET.write_text("\n".join(new_lines), encoding="utf-8")
 
 
+def compute_meta(scores):
+    """Calcule les stats du corpus depuis les CSV."""
+    import datetime
+    total_mentions = sum(s.get("mentions", 0) for s in scores.values())
+    with open(SCORES_CSV, encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    total_signals = sum(
+        int(float(r.get("signal_ACHAT_FORT", 0) or 0)) +
+        int(float(r.get("signal_ACHETER", 0) or 0)) +
+        int(float(r.get("signal_RENFORCEMENT", 0) or 0)) +
+        int(float(r.get("signal_VENTE", 0) or 0)) +
+        int(float(r.get("signal_PANIQUE", 0) or 0)) +
+        int(float(r.get("signal_EUPHORIE", 0) or 0))
+        for r in rows
+    )
+    dates_first = [r["first_mention"][:10] for r in rows if r.get("first_mention", "").strip()]
+    dates_last  = [r["last_mention"][:10]  for r in rows if r.get("last_mention",  "").strip()]
+    years = 5
+    if dates_first and dates_last:
+        d1 = datetime.date.fromisoformat(min(dates_first))
+        d2 = datetime.date.fromisoformat(max(dates_last))
+        years = round((d2 - d1).days / 365, 1)
+    return {
+        "msgs":    f"{total_mentions:,}".replace(",", " "),
+        "signals": f"{total_signals:,}".replace(",", " "),
+        "years":   int(years),
+        "tickers": len(scores),
+    }
+
+
+def update_meta_in_index(meta: dict):
+    """Met à jour le bloc META dans index.html."""
+    idx = ROOT / "index.html"
+    if not idx.exists():
+        return
+    content = idx.read_text(encoding="utf-8")
+    new_block = (
+        f'// ── MÉTADONNÉES CORPUS (synchronisé depuis whatsapp_analysis/output/) ────────\n'
+        f'const META = {{\n'
+        f'  msgs:    "{meta["msgs"]}",   // mentions boursières\n'
+        f'  years:   {meta["years"]},           // années de données\n'
+        f'  signals: "{meta["signals"]}",    // tous types de signaux\n'
+        f'  tickers: {meta["tickers"]},          // tickers avec activité NLP\n'
+        f'}};'
+    )
+    content = re.sub(
+        r'// ── MÉTADONNÉES CORPUS.*?const META\s*=\s*\{[^}]+\};',
+        new_block, content, flags=re.DOTALL
+    )
+    idx.write_text(content, encoding="utf-8")
+    print(f"   index.html META mis à jour : {meta}")
+
+
 def main():
     scores   = load_scores()
     rankings = load_rankings()
     new_block = build_sentiment(scores, rankings)
+    meta      = compute_meta(scores)
 
     n = new_block.count('"smart"')
     print(f"{'[DRY RUN] ' if DRY_RUN else ''}SENTIMENT reconstruit — {n} tickers")
+    print(f"  META: {meta}")
 
     if DRY_RUN:
         print("\n--- Aperçu (10 premières entrées) ---")
@@ -108,7 +163,8 @@ def main():
         return
 
     update_file(new_block)
-    print(f"✅ update_data.py mis à jour ({TARGET})")
+    update_meta_in_index(meta)
+    print(f"✅ update_data.py + index.html mis à jour")
     print("   Relance update_data.py ou le workflow BVC Data Update pour appliquer.")
 
 

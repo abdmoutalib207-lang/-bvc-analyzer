@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache"/>
   <meta http-equiv="Expires" content="0"/>
   <title>BVC Analyzer v6.4 — Bourse de Casablanca</title>
-  <meta name="description" content="Terminal d'analyse multi-facteurs BVC : Technique 25% · Fondamental 47% · NLP 28% — 77 titres · 896 907 messages · 6 ans de données"/>
+  <meta name="description" content="Terminal d'analyse multi-facteurs BVC : Technique 25% · Fondamental 47% · NLP 28% — 77 titres · 132 330 mentions boursières · 24 777 signaux · 5 ans de données"/>
   <meta name="theme-color" content="#080d1a"/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.2/dist/apexcharts.min.js"></script>
@@ -138,11 +138,13 @@ const CHAT=[
   {id:5,time:"10:33",date:"31/05/2026",member:"M2158",      tier:"Tier 2",snr:6.8, alpha:21.9,ticker:"SRM", signal:"EVITER",conf:68,ctx:"Chute -8.5% + 4 red flags",msg:"SRM: -8.54% aujourd'hui. 4 red flags actifs. Biais groupe NÉGATIF. Smart money absent. À éviter absolument jusqu'à clarification."},
 ];
 
-// ── MÉTADONNÉES CORPUS (point de mise à jour unique) ─────────────────────────
+// ── MÉTADONNÉES CORPUS (synchronisé depuis whatsapp_analysis/output/) ────────
 const META = {
-  msgs:    "896 907",
-  years:   6,
-  signals: "1 994",
+  msgs:    "132 330",   // mentions boursières (stock_scores.csv — total_mentions)
+  years:   5,           // 2020-12 → 2026-06
+  signals: "24 777",    // tous types : ACHAT_FORT + ACHETER + RENFORCEMENT + VENTE + PANIQUE + EUPHORIE
+  tickers: 64,          // tickers avec activité NLP
+};
 };
 
 // ── SOURCES DONNÉES BVC (IDBourse + Médias24) ────────────────────────────────
@@ -755,7 +757,7 @@ const TickerTape=({rows})=>{
 const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode})=>{
   const [pulse,setPulse]=useState(false);
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
-  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"heatmap",label:"HEATMAP",badge:"NEW"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"chat",label:"CHAT 3 MAJ",badge:CHAT.length},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"}];
+  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"}];
   return(
     <div style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
@@ -1040,7 +1042,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       </div>
       <div style={{marginTop:12,padding:"10px 14px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
         <span style={{color:"#00e5a0"}}>●</span> SCORE = Tech×25% + Fond×47% + NLP×28% (moteur v6.4) &nbsp;|&nbsp;
-        <span style={{color:"#ffd740"}}>●</span> WIN = % signaux corrects 6 mois glissants (1994 signaux V3) &nbsp;|&nbsp;
+        <span style={{color:"#ffd740"}}>●</span> WIN = probabilité de surperformance 1 mois ({META.signals} signaux · {META.years} ans) &nbsp;|&nbsp;
         <span style={{color:"#b388ff"}}>●</span> Δ = différence SCORE vs BVC fondamental &nbsp;|&nbsp;
         <span style={{color:"#8892a4"}}>~stat</span> = indicateurs techniques estimés (RSI/MA calculés dès la prochaine mise à jour) &nbsp;|&nbsp;
         <span style={{color:"#ff4f5a"}}>⚠️</span> Alpha/RSI rouge = prudence &nbsp;|&nbsp; PE = Price/Earnings · DIV = dividende &nbsp;|&nbsp; Clic → vue détaillée
@@ -1217,7 +1219,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
 
           {/* NLP */}
           <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>NLP — Groupe MASI 1 (6 ans)</div>
+            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>NLP — {META.tickers} tickers ({META.years} ans)</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
               {[["Biais groupe",r.biais,NC(r.nlp)],["Smart Sentiment",`${r.nlp>0?"+":""}${(r.nlp*100).toFixed(0)}%`,NC(r.nlp)],["Win rate 6M",`${r.win}%`,r.win>=80?"#00e5a0":"#ffd740"],["Convergence",r.conv==="CONFIRME"?"✅ OK":"⚠️ Div.",r.conv==="CONFIRME"?"#00e5a0":"#ffd740"]].map(([k,v,c])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
@@ -2093,7 +2095,6 @@ function App(){
         {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={setSel} fav={fav} toggleFav={toggleFav}/>}
         {tab==="weights"  &&<Weights/>}
         {tab==="smart"    &&<Smart/>}
-        {tab==="chat"     &&<Chat/>}
         {tab==="nlp"      &&<NlpDash/>}
         {tab==="news"     &&<NewsFeed/>}
       </div>
