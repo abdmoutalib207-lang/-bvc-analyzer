@@ -942,11 +942,13 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         <button onClick={()=>{
           const cols=["TICKER","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE","SIGNAL","ALPHA","WIN%","BVC"];
           const rows_csv=sorted.map(r=>[r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",r.pe?.toFixed(1)||"",r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",computeDisplayScore(r,scoreMode).toFixed(2),r.sig||"",r.alpha||"",r.win||"",r.bvc?.toFixed(2)||""]);
-          const csv=[cols,...rows_csv].map(r=>r.join(";")).join("\n");
+          const csv="﻿"+[cols,...rows_csv].map(r=>r.join(";")).join("\n");
+          const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+          const url=URL.createObjectURL(blob);
           const a=document.createElement("a");
-          a.href="data:text/csv;charset=utf-8,﻿"+encodeURIComponent(csv);
-          a.download=`bvc_${new Date().toISOString().slice(0,10)}.csv`;
-          a.click();
+          a.href=url; a.download=`bvc_${new Date().toISOString().slice(0,10)}.csv`;
+          document.body.appendChild(a); a.click();
+          document.body.removeChild(a); URL.revokeObjectURL(url);
         }} style={{fontSize:10,padding:"3px 10px",borderRadius:3,border:"1px solid #4db8ff40",color:"#4db8ff",background:"transparent",cursor:"pointer",letterSpacing:.5}}>
           ↓ CSV
         </button>
