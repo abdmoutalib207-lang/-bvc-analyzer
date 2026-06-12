@@ -939,6 +939,17 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         </div>
         {(search||sector!=="ALL"||sigFilter||rsiZone)&&<button onClick={()=>{setSearch("");setSector("ALL");setSigFilter(null);setRsiZone(null);}} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"3px 8px",background:"transparent"}}>✕ Réinitialiser</button>}
         <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{sorted.length}/{group==="MASI1"?19:rows.length} titres{group==="MASI1"&&<span style={{color:"#00e5a0",marginLeft:4}}>NLP ✓</span>}</span>
+        <button onClick={()=>{
+          const cols=["TICKER","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE","SIGNAL","ALPHA","WIN%","BVC"];
+          const rows_csv=sorted.map(r=>[r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",r.pe?.toFixed(1)||"",r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",computeDisplayScore(r,scoreMode).toFixed(2),r.sig||"",r.alpha||"",r.win||"",r.bvc?.toFixed(2)||""]);
+          const csv=[cols,...rows_csv].map(r=>r.join(";")).join("\n");
+          const a=document.createElement("a");
+          a.href="data:text/csv;charset=utf-8,﻿"+encodeURIComponent(csv);
+          a.download=`bvc_${new Date().toISOString().slice(0,10)}.csv`;
+          a.click();
+        }} style={{fontSize:10,padding:"3px 10px",borderRadius:3,border:"1px solid #4db8ff40",color:"#4db8ff",background:"transparent",cursor:"pointer",letterSpacing:.5}}>
+          ↓ CSV
+        </button>
       </div>
       {/* ── Screener : filtres signal + RSI ──────────────────── */}
       <div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:10,alignItems:"center"}}>
