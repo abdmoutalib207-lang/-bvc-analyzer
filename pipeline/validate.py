@@ -43,7 +43,7 @@ def validate_bpa():
 
     ok(f"{len(data)} tickers chargés")
 
-    zero_bpa, neg_div, missing_flds = [], [], []
+    no_bpa, neg_bpa, neg_div, missing_flds = [], [], [], []
 
     for ticker, v in data.items():
         if not isinstance(v, dict):
@@ -51,15 +51,19 @@ def validate_bpa():
         bpa     = v.get("bpa")
         # Le champ dividende est div_dh dans les entrées mises à jour, div dans les anciennes
         div_val = v.get("div_dh") if "div_dh" in v else v.get("div")
-        if bpa is None or bpa <= 0:
-            zero_bpa.append(f"{ticker}(bpa={bpa})")
+        if bpa is None:
+            no_bpa.append(ticker)
+        elif bpa < 0:
+            neg_bpa.append(f"{ticker}(bpa={bpa})")
         if div_val is not None and div_val < 0:
             neg_div.append(f"{ticker}(div={div_val})")
         if "bpa" not in v:
             missing_flds.append(f"{ticker}.bpa")
 
-    if zero_bpa:
-        warn(f"BPA nul/négatif ({len(zero_bpa)}) : {', '.join(zero_bpa[:8])}")
+    if neg_bpa:
+        err(f"BPA négatifs ({len(neg_bpa)}) : {', '.join(neg_bpa[:8])}")
+    elif no_bpa:
+        warn(f"BPA manquants ({len(no_bpa)}) : {', '.join(no_bpa[:8])}")
     else:
         ok("Tous les BPA > 0")
 
@@ -102,7 +106,7 @@ def validate_fondamentaux():
         # Champs optionnels (FY2025) — avertissement seulement
         missing_opt = [f for f in OPTIONAL_FOND_FIELDS if f not in v]
         if missing_opt and "bpa_2025" not in v:
-            warnings.append(f"{ticker} : sans bpa_2025/dps_2025 (données FY non renseignées)")
+            warn(f"{ticker} : sans bpa_2025/dps_2025 (données FY non renseignées)")
 
         bpa   = v.get("bpa_2025")
         per   = v.get("per")
