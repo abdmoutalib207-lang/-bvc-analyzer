@@ -14,6 +14,8 @@ sys.path.insert(0, str(ROOT))
 try:
     from bvc_config import ISIN_MAP, TICKERS_ALL
 except ImportError:
+    import warnings
+    warnings.warn("bvc_config introuvable — TICKERS_ALL=[] : la vérification de couverture est désactivée")
     TICKERS_ALL, ISIN_MAP = [], {}
 
 errors: list = []

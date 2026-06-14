@@ -25,6 +25,8 @@ def _f(v, default=0.0):
 
 
 def load_scores():
+    if not SCORES_CSV.exists():
+        raise FileNotFoundError(f"CSV introuvable : {SCORES_CSV}\nLance d'abord whatsapp_analysis/pipeline.py")
     rows = {}
     with open(SCORES_CSV, encoding="utf-8") as f:
         for r in csv.DictReader(f):
@@ -41,6 +43,8 @@ def load_scores():
 
 
 def load_rankings():
+    if not RANKINGS_CSV.exists():
+        raise FileNotFoundError(f"CSV introuvable : {RANKINGS_CSV}")
     rows = {}
     with open(RANKINGS_CSV, encoding="utf-8") as f:
         for r in csv.DictReader(f):
@@ -48,7 +52,7 @@ def load_rankings():
             if not t:
                 continue
             sig = r.get("signal", "NEUTRE").strip().upper()
-            biais = "ACHAT" if sig in ("ACHAT", "ACHAT_FORT") else "NÉGATIF" if "VENTE" in sig else "NEUTRE"
+            biais = "ACHAT" if sig in ("ACHAT", "ACHAT_FORT") else "NEGATIF" if "VENTE" in sig else "NEUTRE"
             rows[t] = {
                 "alpha": round(_f(r.get("alpha_12m", 0)), 1),
                 "win":   round(_f(r.get("p_outperform_1m", 0.5)), 2),
@@ -85,9 +89,13 @@ def update_file(new_block: str):
     lines   = content.split("\n")
     try:
         start = next(i for i, l in enumerate(lines) if l.startswith("SENTIMENT = {"))
-        end   = next(i for i, l in enumerate(lines[start + 1:], start + 1) if l.strip() == "}")
     except StopIteration:
-        print("❌ Impossible de localiser le bloc SENTIMENT dans update_data.py")
+        print("❌ Impossible de localiser 'SENTIMENT = {' dans update_data.py")
+        sys.exit(1)
+    try:
+        end = next(i for i, l in enumerate(lines[start + 1:], start + 1) if l.strip() == "}")
+    except StopIteration:
+        print("❌ Impossible de localiser la fermeture '}' du bloc SENTIMENT")
         sys.exit(1)
     new_lines = lines[:start] + new_block.split("\n") + lines[end + 1:]
     TARGET.write_text("\n".join(new_lines), encoding="utf-8")

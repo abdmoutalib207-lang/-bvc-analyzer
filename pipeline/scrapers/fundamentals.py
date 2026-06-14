@@ -13,10 +13,26 @@ from .constants import HEADERS_LIST, ISIN_MAP, timeout_session
 
 log = logging.getLogger(__name__)
 
-CSB_BASE  = "https://www.casabourse.ma"
+CSB_BASE  = "https://casabourse.ma"
+CBC_BASE  = "https://www.casablancabourse.com"
 ZB_BASE   = "https://www.zonebourse.com"
 SA_BASE   = "https://stockanalysis.com"
 MED_BASE  = "https://medias24.com/content/api"
+
+# Mapping ticker → slug pour casabourse.ma /entreprise/{slug}/
+CSB_SLUG_MAP = {
+    "STR":  "stroc-industrie",
+    "REB":  "rebab-company",
+    "UNI":  "unimer",
+    "INV":  "involys",
+    "CAR":  "cartier-saada",
+    "CIM":  "cimat",
+    "IBM":  "ib-maroc-com",
+    "MUT":  "mutuelle-centrale-maroc",
+    "SBS":  "societe-des-boissons-du-maroc",
+    "SLM":  "salafin",
+    "ZLD":  "zellidja",
+}
 
 
 def _extract(text: str, pattern: str, mult: float = 1.0) -> float | None:
@@ -34,10 +50,11 @@ def _fetch_casabourse_fund(sym: str) -> dict:
     """Scrape PER, BPA, P/B, dividende depuis casabourse.ma."""
     sess = timeout_session()
     result = {}
+    slug = CSB_SLUG_MAP.get(sym, sym.lower())
     urls = [
+        f"{CSB_BASE}/entreprise/{slug}/",
         f"{CSB_BASE}/valeurs/{sym.lower()}",
         f"{CSB_BASE}/Societe/cours/{sym}",
-        f"{CSB_BASE}/valeurs/fiche/{sym}",
     ]
     for url in urls:
         try:
@@ -180,6 +197,42 @@ def _fetch_medias24_fund(sym: str) -> dict:
         return {}
 
 
+def _fetch_casablancabourse_div(sym: str) -> dict:
+    """Historique dividendes depuis casablancabourse.com/{sym}/action/dividendes/"""
+    sess = timeout_session()
+    url = f"{CBC_BASE}/{sym}/action/dividendes/"
+    try:
+        r = sess.get(url, headers=random.choice(HEADERS_LIST), timeout=15)
+        r.raise_for_status()
+        soup = BeautifulSoup(r.text, "lxml")
+        rows = soup.select("table tr")
+        dividendes = []
+        for row in rows[1:]:
+            cells = [td.get_text(strip=True) for td in row.find_all("td")]
+            if len(cells) >= 2:
+                try:
+                    annee = int(re.search(r"\d{4}", cells[0]).group())
+                    montant_str = cells[1].replace(",", ".").replace(" ", "")
+                    montant = float(re.search(r"[\d.]+", montant_str).group())
+                    if 2015 < annee <= 2030 and 0 < montant < 10000:
+                        dividendes.append({"annee": annee, "dpa": montant})
+                except (AttributeError, ValueError):
+                    continue
+        if not dividendes:
+            return {}
+        dividendes.sort(key=lambda x: x["annee"], reverse=True)
+        result = {
+            "dividend_per_share": dividendes[0]["dpa"],
+            "dividendes_hist":    dividendes[:5],
+            "_source":            "casablancabourse.com",
+        }
+        log.debug(f"{sym} dividendes ← casablancabourse.com ({len(dividendes)} années)")
+        return result
+    except Exception as e:
+        log.debug(f"casablancabourse.com div {sym}: {e}")
+        return {}
+
+
 def fetch_fundamentals(sym: str) -> dict | None:
     """
     Chaîne de fallback pour les fondamentaux :
@@ -193,13 +246,22 @@ def fetch_fundamentals(sym: str) -> dict | None:
     merged.update(med)
     time.sleep(1 + random.random())
 
-    # casabourse.ma — complète
+    # casabourse.ma (URL /entreprise/{slug}/ — couverture élargie petites caps)
     if len(merged) < 3:
         csb = _fetch_casabourse_fund(sym)
         for k, v in csb.items():
             if k not in merged or merged[k] is None:
                 merged[k] = v
         time.sleep(1.5 + random.random())
+
+    # casablancabourse.com — dividendes historiques (petites caps non couvertes ailleurs)
+    if "dividend_per_share" not in merged:
+        cbc = _fetch_casablancabourse_div(sym)
+        for k, v in cbc.items():
+            if k not in merged or merged[k] is None:
+                merged[k] = v
+        if cbc:
+            time.sleep(1 + random.random())
 
     # Zonebourse — complète si encore vide
     if len(merged) < 2:

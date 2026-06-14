@@ -342,15 +342,27 @@ def fetch_idb_news(max_items=15) -> list:
 # ── Orchestration ─────────────────────────────────────────────────────────────
 
 SOURCES_RSS = [
+    # ── BVC / Marchés ────────────────────────────────────────────────────────
     ("https://www.casablanca-bourse.com/bourseweb/Rss-Actualite.aspx",     "BVC Officiel"),
     ("https://www.ammc.ma/fr/rss.xml",                                      "AMMC"),
     ("https://www.leboursier.ma/feed",                                      "Le Boursier"),
-    ("https://leboursier.ma/feed/",                                         "Le Boursier"),
-    ("https://www.medias24.com/rss/bourse.xml",                             "Medias24"),
-    ("https://medias24.com/rss/bourse.xml",                                 "Medias24"),
-    ("https://www.medias24.com/feed/bourse",                                "Medias24"),
+    # ── Presse économique marocaine ──────────────────────────────────────────
+    ("https://www.medias24.com/rss/bourse.xml",                             "Medias24 Bourse"),
+    ("https://www.medias24.com/rss/economie.xml",                           "Medias24 Éco"),
     ("https://www.leconomiste.com/flux-rss/bourse",                         "L'Économiste"),
-    ("https://telquel.ma/feed/?cat=economie",                               "Telquel Eco"),
+    ("https://www.leconomiste.com/flux-rss/actualite",                      "L'Économiste Actu"),
+    ("https://fnh.ma/rss",                                                  "Finances News"),
+    ("https://www.boursenews.ma/rss",                                       "BourseNews"),
+    ("https://telquel.ma/feed/?cat=economie",                               "Telquel Éco"),
+    ("https://lavieeco.com/feed/",                                           "La Vie Éco"),
+    ("https://www.challenge.ma/feed/",                                      "Challenge Maroc"),
+    ("https://lematin.ma/feed/",                                            "Le Matin"),
+    # ── Finance islamique / HCP / BAM ────────────────────────────────────────
+    ("https://www.hcp.ma/rss.xml",                                          "HCP"),
+    ("https://www.bkam.ma/rss.xml",                                         "Bank Al-Maghrib"),
+    # ── Afrique / Marchés émergents ──────────────────────────────────────────
+    ("https://www.agenceecofin.com/flux-rss/maroc",                        "Agence Ecofin Maroc"),
+    ("https://www.financialafrik.com/feed/",                                "Financial Afrik"),
 ]
 
 def run():
