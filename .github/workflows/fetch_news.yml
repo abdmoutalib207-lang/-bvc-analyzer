@@ -1,17 +1,16 @@
 # ════════════════════════════════════════════════════════════
 # BVC NewsEngine — GitHub Actions
-# Récupère les actualités boursières BVC, AMMC, Médias24,
-# IDBourse, L'Économiste et génère news.json
+# Récupère les actualités financières marocaines (BVC, AMMC,
+# Médias24, presse éco, HCP, BAM…) et génère news.json
+# Fréquence : toutes les 60 min — 7j/7 — 24h/24
 # ════════════════════════════════════════════════════════════
 
 name: BVC News Fetch
 
 on:
   schedule:
-    # Toutes les 2h : 7h, 9h, 11h, 13h, 15h, 17h UTC (8h–18h Casablanca)
-    - cron: '0 7,9,11,13,15,17 * * 1-5'
-    # Fetch spécial après clôture BVC (14h35 UTC = 15h35 Casablanca)
-    - cron: '35 14 * * 1-5'
+    # Toutes les heures pile — 7j/7 — 24h/24
+    - cron: '0 * * * *'
 
   workflow_dispatch:
 

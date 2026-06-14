@@ -26,9 +26,10 @@ HEADERS = {
     "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
 }
 
-OUTPUT_PATH = Path(__file__).parent.parent / "news.json"
-MAX_ARTICLES = 80
-TIMEOUT = 15
+OUTPUT_PATH  = Path(__file__).parent.parent / "news.json"
+MAX_ARTICLES = 200   # articles conservés dans news.json (rolling archive)
+ARCHIVE_DAYS = 7     # ancienneté max des articles archivés (jours)
+TIMEOUT      = 15
 
 # ── Tickers dont le symbole est un mot commun → ne pas rechercher en brut ─────
 # Ces tickers ne seront jamais matchés via leur symbole seul (risque de faux positifs).
@@ -346,37 +347,68 @@ SOURCES_RSS = [
     ("https://www.casablanca-bourse.com/bourseweb/Rss-Actualite.aspx",     "BVC Officiel"),
     ("https://www.ammc.ma/fr/rss.xml",                                      "AMMC"),
     ("https://www.leboursier.ma/feed",                                      "Le Boursier"),
+    ("https://www.boursenews.ma/rss",                                       "BourseNews"),
     # ── Presse économique marocaine ──────────────────────────────────────────
     ("https://www.medias24.com/rss/bourse.xml",                             "Medias24 Bourse"),
     ("https://www.medias24.com/rss/economie.xml",                           "Medias24 Éco"),
-    ("https://www.leconomiste.com/flux-rss/bourse",                         "L'Économiste"),
+    ("https://www.leconomiste.com/flux-rss/bourse",                         "L'Économiste Bourse"),
     ("https://www.leconomiste.com/flux-rss/actualite",                      "L'Économiste Actu"),
     ("https://fnh.ma/rss",                                                  "Finances News"),
-    ("https://www.boursenews.ma/rss",                                       "BourseNews"),
-    ("https://telquel.ma/feed/?cat=economie",                               "Telquel Éco"),
     ("https://lavieeco.com/feed/",                                           "La Vie Éco"),
     ("https://www.challenge.ma/feed/",                                      "Challenge Maroc"),
+    ("https://telquel.ma/feed/?cat=economie",                               "Telquel Éco"),
     ("https://lematin.ma/feed/",                                            "Le Matin"),
+    ("https://aujourdhui.ma/feed/",                                         "Aujourd'hui le Maroc"),
+    ("https://www.lopinion.ma/feed/",                                       "L'Opinion Maroc"),
+    ("https://ledesk.ma/feed/",                                             "Le Desk"),
+    ("https://ecoactu.ma/feed/",                                            "EcoActu"),
+    ("https://maroc-hebdo.press.ma/feed/",                                  "Maroc Hebdo"),
+    ("https://fr.hespress.com/category/economie/feed/",                     "Hespress Éco"),
+    ("https://www.infomediaire.net/feed/",                                  "Infomediaire"),
+    ("https://www.usinenouvelle.com/rss/maroc.xml",                        "Usine Nouvelle Maroc"),
     # ── Finance islamique / HCP / BAM ────────────────────────────────────────
     ("https://www.hcp.ma/rss.xml",                                          "HCP"),
     ("https://www.bkam.ma/rss.xml",                                         "Bank Al-Maghrib"),
     # ── Afrique / Marchés émergents ──────────────────────────────────────────
     ("https://www.agenceecofin.com/flux-rss/maroc",                        "Agence Ecofin Maroc"),
     ("https://www.financialafrik.com/feed/",                                "Financial Afrik"),
+    ("https://www.africaintelligence.fr/rss",                              "Africa Intelligence"),
 ]
 
+def _load_archive() -> tuple[list, set]:
+    """Charge les articles existants depuis news.json (rolling archive)."""
+    if not OUTPUT_PATH.exists():
+        return [], set()
+    try:
+        data = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+        articles = data.get("articles", [])
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=ARCHIVE_DAYS)).isoformat()
+        fresh = [a for a in articles if a.get("date", "") >= cutoff]
+        ids = {a["id"] for a in fresh}
+        log.info(f"Archive chargée : {len(fresh)}/{len(articles)} articles (< {ARCHIVE_DAYS}j)")
+        return fresh, ids
+    except Exception as e:
+        log.warning(f"Impossible de charger l'archive : {e}")
+        return [], set()
+
+
 def run():
-    all_articles = []
-    seen_ids = set()
+    from collections import Counter
+
+    # 0. Charger archive existante (rolling)
+    archived, seen_ids = _load_archive()
+    all_articles = list(archived)
 
     # 1. RSS feeds
     for url, name in SOURCES_RSS:
         arts = fetch_rss(url, name, max_items=25)
+        new_count = 0
         for a in arts:
             if a["id"] not in seen_ids:
                 all_articles.append(a)
                 seen_ids.add(a["id"])
-        if arts: time.sleep(0.5)
+                new_count += 1
+        if arts: time.sleep(0.4)
 
     # 2. Medias24 API
     for a in fetch_medias24_api(20):
@@ -390,9 +422,9 @@ def run():
             all_articles.append(a)
             seen_ids.add(a["id"])
 
-    # Tri par date (plus récent en premier) + troncature
+    # Tri par date (plus récent en premier) + troncature rolling
     def _sort_key(a):
-        try: return a["date"]
+        try: return a.get("date", "")
         except: return ""
     all_articles.sort(key=_sort_key, reverse=True)
     all_articles = all_articles[:MAX_ARTICLES]
@@ -406,12 +438,10 @@ def run():
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
-    log.info(f"news.json écrit → {OUTPUT_PATH} ({len(all_articles)} articles)")
+    log.info(f"news.json écrit → {OUTPUT_PATH} ({len(all_articles)} articles, rolling {ARCHIVE_DAYS}j)")
 
-    # Stats par source
-    from collections import Counter
     srcs = Counter(a["source"] for a in all_articles)
-    for src, n in srcs.most_common():
+    for src, n in srcs.most_common(10):
         log.info(f"  {src}: {n}")
 
     tagged = [a for a in all_articles if a["tickers"]]
