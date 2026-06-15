@@ -62,7 +62,7 @@ TICKERS = TICKERS_ALL
 
 TICKER_INFO = {
     # ── Tickers actifs (19) ───────────────────────────────────────────
-    "CMT":  {"name": "Ciments du Maroc",       "sector": "Matériaux"},
+    "CMT":  {"name": "Cie Minière de Touissit", "sector": "Mines"},
     "SMI":  {"name": "S.M. Imiter",             "sector": "Matériaux"},
     "CASH": {"name": "Cash Plus",               "sector": "Finance"},
     "MNG":  {"name": "Managem",                 "sector": "Mines"},
@@ -255,10 +255,10 @@ FOND_DATA = {
     "FNB": {"pe":11.0,"pb":1.3,"div":3.5,"cap":800,   "bear":733,  "base":935,  "bull":1169, "upside":5.0, "flags":0},
     "BAL": {"pe":12.0,"pb":1.5,"div":4.5,"cap":600,   "bear":190,  "base":240,  "bull":300,  "upside":5.0, "flags":0},
     # ── Tickers actifs (19) ──────────────────────────────────────────
-    "CMT":{"pe":15.4,"pb":2.2,"div":4.1,"cap":8500,  "bear":4446,"base":5700, "bull":7125, "upside":14.0,"flags":0},
-    "SMI":{"pe":12.1,"pb":1.5,"div":2.0,"cap":4200,  "bear":7695,"base":9865, "bull":12331,"upside":7.0, "flags":0},
-    "CASH":{"pe":13.8,"pb":1.8,"div":3.2,"cap":2800, "bear":244, "base":313,  "bull":392,  "upside":12.0,"flags":0},
-    "MNG":{"pe":21.3,"pb":3.1,"div":1.5,"cap":15000, "bear":13847,"base":17753,"bull":22191,"upside":2.0,"flags":3},
+    "CMT": {"pe":22.7,"pb":2.0,"div":0.50,"cap":8300,  "bear":4500,"base":5700, "bull":7125, "upside":13.9,"flags":0},
+    "SMI": {"pe":24.8,"pb":1.4,"div":1.04,"cap":3550,  "bear":6900,"base":8800, "bull":11000,"upside":14.3,"flags":0},
+    "CASH":{"pe":13.8,"pb":1.8,"div":3.2, "cap":2800,  "bear":244, "base":313,  "bull":392,  "upside":12.0,"flags":0},
+    "MNG": {"pe":64.0,"pb":3.1,"div":0.27,"cap":178000,"bear":13000,"base":17000,"bull":22000,"upside":13.4,"flags":2},
     "AKD":{"pe":28.4,"pb":4.2,"div":0.8,"cap":6280,  "bear":535, "base":660,  "bull":750,  "upside":18.0,"flags":0},
     "SOT":{"pe":19.5,"pb":2.5,"div":2.8,"cap":1100,  "bear":322, "base":413,  "bull":516,  "upside":12.0,"flags":0},
     "SGTM":{"pe":16.2,"pb":1.9,"div":3.1,"cap":2800, "bear":724, "base":928,  "bull":1160, "upside":27.0,"flags":0},
