@@ -37,14 +37,14 @@ MANUAL_MAP: dict[str, str] = {
     "TQA":  "TAQA Morocco",
     "MRL":  "SODEP",
     "TMA":  "Total Maroc",
-    "CMT":  "Ciments Maroc",
+    "CMT":  "CMT",
     "MNG":  "Managem",
     "SMI":  "SMI",
     "AKD":  "Akdital",
     "ARD":  "Aradei Capital",
     "SAF":  "Sanlam Maroc",
     "OUL":  "Oulmes",
-    "CIM":  "CMT",
+    "CIM":  "Ciments du Maroc",
     "CTM":  "CTM",
     "ZLD":  "Zellidja",
     "SOT":  "SOTHEMA",
@@ -274,7 +274,7 @@ def compute_indicators(df: pd.DataFrame) -> dict:
     h52w = round(float(df_52w["high"].max()), 2) if not df_52w.empty else round(float(highs.max()), 2)
     l52w = round(float(df_52w["low"].min()),  2) if not df_52w.empty else round(float(lows.min()),  2)
     h90  = round(float(df_90["high"].max()),  2) if not df_90.empty  else round(float(highs.max()), 2)
-    l90  = round(float(df_90["low"].min()),   2) if not df_90.empty  else round(float(lows.min()),  2)
+    l90  = round(float(df_90["low"].min(),   2) if not df_90.empty  else round(float(lows.min()),  2)
 
     rsi           = calc_rsi(closes)
     ma20          = calc_ma(closes, 20)
