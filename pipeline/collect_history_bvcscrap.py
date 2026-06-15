@@ -374,6 +374,30 @@ def run(tickers_filter: list[str] | None = None) -> dict:
         else:
             df = xlsx_df
 
+        # Merge candles manually preserved in existing candle file (newer than XLSX/BVCscrap)
+        existing_path = candles_dir / f"{ticker}.json"
+        if existing_path.exists() and not df.empty:
+            try:
+                existing = json.loads(existing_path.read_text(encoding="utf-8"))
+                if existing:
+                    ex_df = pd.DataFrame(existing)
+                    ex_df = ex_df.rename(columns={"d": "date", "o": "open", "h": "high",
+                                                   "l": "low", "c": "close", "v": "volume"})
+                    ex_df["date"] = pd.to_datetime(ex_df["date"], errors="coerce")
+                    if "volume" not in ex_df.columns:
+                        ex_df["volume"] = 0
+                    for col in ["open", "high", "low", "close"]:
+                        if col not in ex_df.columns:
+                            ex_df[col] = ex_df.get("close", 0)
+                    ex_df = ex_df[["date", "open", "high", "low", "close", "volume"]].copy()
+                    ex_df["close"] = pd.to_numeric(ex_df["close"], errors="coerce")
+                    newer = ex_df[ex_df["date"] > df["date"].iloc[-1]].copy()
+                    if not newer.empty:
+                        df = combine(df, newer)
+                        log.info(f"  +{len(newer)} bougies manuelles préservées depuis candle file")
+            except Exception:
+                pass
+
         if df.empty or len(df) < 14:
             log.warning(f"  {ticker}: historique insuffisant ({len(df)} bougies) — ignoré")
             continue
