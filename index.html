@@ -597,9 +597,9 @@ const StockChart=({r})=>{
       layout:{background:{color:"#0d1829"},textColor:"#8892a4"},
       grid:{vertLines:{color:"#1a2540"},horzLines:{color:"#1a2540"}},
       crosshair:{mode:LW.CrosshairMode.Normal},
-      timeScale:{timeVisible:false,borderColor:"#1a2540",fixLeftEdge:true,fixRightEdge:true},
-      handleScroll:{mouseWheel:true,pressedMouseMove:true},
-      handleScale:{axisPressedMouseMove:{time:true,price:false},mouseWheel:true}
+      timeScale:{timeVisible:false,borderColor:"#1a2540",fixRightEdge:true},
+      handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:false},
+      handleScale:{axisPressedMouseMove:{time:true,price:true},mouseWheel:true,pinch:true}
     };
 
     // ── Graphique principal : chandeliers + MA ──────────────

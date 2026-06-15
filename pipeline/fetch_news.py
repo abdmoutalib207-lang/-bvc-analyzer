@@ -97,7 +97,7 @@ TICKER_KEYWORDS = {
     "TQA":  ["taqa morocco", "jlec", "taqa maroc"],
     "MRL":  ["marsa maroc", "sodep maroc"],
     "TMA":  ["totalenergies marketing maroc", "total energies maroc", "total maroc"],
-    "CMT":  ["ciments du maroc", "asment tanger"],
+    "CMT":  ["minière de touissit", "compagnie minière de touissit", "touissit"],
     "MNG":  ["managem", "groupe managem"],
     "SMI":  ["s.m. imiter", "sm imiter", "société métallurgique imiter"],
     "AKD":  ["akdital", "groupe akdital"],

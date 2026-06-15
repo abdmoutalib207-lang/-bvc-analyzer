@@ -98,14 +98,14 @@ jobs:
         if: steps.gate.outputs.run == 'true' && github.event.inputs.dry_run != 'true'
         run: python update_data.py
 
-      # ── 4. Scraping PDF + Web (optionnel, clôture seule) ──
-      # Décommentez pour scraper les sites à la clôture
-      # - name: Enrichissement fondamentaux.json (clôture)
-      #   if: github.event.schedule == '30 14 * * 1-5'
-      #   run: python pdf_scraper.py --auto --tickers SMI,MNG,CSR
+      # ── 4. Fetch actualités (intégré — garantit la mise à jour même si le cron news est skippé) ──
+      - name: Mise à jour news.json
+        if: steps.gate.outputs.run == 'true' && github.event.inputs.dry_run != 'true'
+        run: python pipeline/fetch_news.py
+        continue-on-error: true   # ne bloque pas le commit data.json si une source échoue
 
       # ── 5. Commit et push ─────────────────────────────────
-      - name: Commit data.json si modifié
+      - name: Commit data.json + news.json si modifiés
         if: steps.gate.outputs.run == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -115,11 +115,11 @@ jobs:
           git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
 
           # Boucle retry : fetch → reset sur origin/main → commit → push
-          # Évite git pull --rebase qui échoue si un autre workflow a pushé en parallèle
           for attempt in 1 2 3; do
             git fetch origin main
-            git reset origin/main          # mixed reset : préserve data.json généré
+            git reset origin/main          # mixed reset : préserve les fichiers générés
             git add data.json
+            [ -f news.json ] && git add news.json
             # Inclure les candles OHLCV si régénérées
             if [ -d pipeline/candles ] && [ "$(ls pipeline/candles/*.json 2>/dev/null | wc -l)" -gt 0 ]; then
               git add pipeline/candles/
@@ -130,7 +130,7 @@ jobs:
             fi
             HEURE=$(TZ="Africa/Casablanca" date +'%Y-%m-%d %H:%M')
             git commit -m "data: BVC update ${HEURE} (Casablanca)"
-            git push origin HEAD:main && echo "✅ data.json + candles mis à jour et pushés" && exit 0
+            git push origin HEAD:main && echo "✅ data.json + news.json mis à jour et pushés" && exit 0
             echo "⚠️ Push échoué (tentative $attempt/3), retry dans $((attempt * 3))s..."
             sleep $((attempt * 3))
           done
