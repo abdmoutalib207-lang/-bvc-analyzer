@@ -1079,18 +1079,20 @@ def run(dry_run=False, push=False, token=""):
                 if not l90:  l90  = sf_t.get("low_90d")  or round(price * 0.85, 2)
                 logger.info(f"  {ticker}: prix depuis static_fallback.json ({price} DH) — données statiques")
 
-        # Patch Médias24 getStockInfo : prix/chg/vol live si IDB a renvoyé des zéros
-        if mkt_status in ("OPEN", "PRE_MARKET") and (not chg or not vol):
+        # Médias24 getStockInfo — données fraîches pour tout ticker sans prix/chg/vol
+        # (appelé peu importe l'état de session : couvre hors-session et IDB manquant)
+        if not price or not chg or not vol:
             q = fetch_med24_quote(ticker)
             if q:
-                if not chg:
+                if not price or not chg:
                     price = q["price"]
                     chg   = q["chg"]
                 if not opn:
                     opn   = q["open"]
                 if not vol:
                     vol   = q["vol"]
-                time.sleep(0.2)
+                logger.info(f"  {ticker}: Médias24 → {price} DH (chg={chg:+.2f}%, vol={vol})")
+                time.sleep(0.15)
 
         if not price:
             logger.warning(f"  {ticker}: ignoré (aucune donnée)")
