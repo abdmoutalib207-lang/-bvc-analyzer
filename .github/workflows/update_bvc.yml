@@ -37,8 +37,10 @@ on:
     - cron: '30 14 * * 1-5'
 
   # Déclenchement automatique après le pipeline financier (sync garantie)
+  # + après chaque run du bot news (toutes les heures, 7j/7) — filet de sécurité
+  # si GitHub rate un cron planifié, le bot news prend le relais
   workflow_run:
-    workflows: ["BVC Financial Data Pipeline v9"]
+    workflows: ["BVC Financial Data Pipeline v9", "BVC News Fetch"]
     types: [completed]
 
   # Déclenchement manuel depuis l'onglet Actions de GitHub
@@ -68,8 +70,32 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
+      # ── 0. Gate session BVC ───────────────────────────────
+      # Pour les triggers workflow_run (news bot, pipeline) : ne pas tourner
+      # hors session BVC (nuit, week-end). Les crons et workflow_dispatch passent.
+      - name: Vérifier session BVC
+        id: gate
+        run: |
+          TRIGGER="${{ github.event_name }}"
+          # schedule et workflow_dispatch → toujours exécuter
+          if [ "$TRIGGER" = "workflow_dispatch" ] || [ "$TRIGGER" = "schedule" ]; then
+            echo "run=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          # workflow_run → vérifier heure Casablanca
+          NOW=$(TZ="Africa/Casablanca" date +%H%M)
+          DAY=$(TZ="Africa/Casablanca" date +%u)   # 1=lun … 7=dim
+          if [ "$DAY" -le 5 ] && [ "$NOW" -ge 0915 ] && [ "$NOW" -lt 1540 ]; then
+            echo "run=true"  >> $GITHUB_OUTPUT
+            echo "✅ Session BVC ouverte (${NOW} Casablanca)"
+          else
+            echo "run=false" >> $GITHUB_OUTPUT
+            echo "⏸️ Hors session BVC — skip (${NOW} Casablanca, jour=$DAY)"
+          fi
+
       # ── 1. Checkout ──────────────────────────────────────
       - name: Checkout
+        if: steps.gate.outputs.run == 'true'
         uses: actions/checkout@v4
         with:
           ref: main          # toujours mettre à jour main (GitHub Pages)
@@ -77,21 +103,23 @@ jobs:
 
       # ── 2. Python ────────────────────────────────────────
       - name: Setup Python 3.11
+        if: steps.gate.outputs.run == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
 
       - name: Installer dépendances
+        if: steps.gate.outputs.run == 'true'
         run: pip install requests numpy pandas -q
 
       # ── 3. Mise à jour données ────────────────────────────
       - name: Mise à jour data.json (dry-run)
-        if: ${{ github.event.inputs.dry_run == 'true' }}
+        if: steps.gate.outputs.run == 'true' && github.event.inputs.dry_run == 'true'
         run: python update_data.py --dry-run
 
       - name: Mise à jour data.json
-        if: ${{ github.event.inputs.dry_run != 'true' }}
+        if: steps.gate.outputs.run == 'true' && github.event.inputs.dry_run != 'true'
         run: python update_data.py
 
       # ── 4. Scraping PDF + Web (optionnel, clôture seule) ──
@@ -102,6 +130,7 @@ jobs:
 
       # ── 5. Commit et push ─────────────────────────────────
       - name: Commit data.json si modifié
+        if: steps.gate.outputs.run == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
