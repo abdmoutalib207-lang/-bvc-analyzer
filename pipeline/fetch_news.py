@@ -22,8 +22,22 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | 
 log = logging.getLogger("NewsEngine")
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-    "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive",
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
 }
 
 OUTPUT_PATH  = Path(__file__).parent.parent / "news.json"
@@ -210,7 +224,18 @@ def _parse_date(raw: str) -> str:
 def fetch_rss(url: str, source_name: str, max_items=30) -> list:
     articles = []
     try:
-        r = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
+        from urllib.parse import urlparse
+        domain = f"{urlparse(url).scheme}://{urlparse(url).netloc}"
+        hdrs = {**HEADERS, "Referer": domain, "Origin": domain}
+        r = requests.get(url, headers=hdrs, timeout=TIMEOUT, allow_redirects=True)
+        if r.status_code == 403:
+            # Retry with minimal headers (some servers refuse Sec-Fetch-* headers)
+            hdrs2 = {
+                "User-Agent": HEADERS["User-Agent"],
+                "Accept": "application/rss+xml, application/xml, text/xml, */*",
+                "Accept-Language": "fr-FR,fr;q=0.9",
+            }
+            r = requests.get(url, headers=hdrs2, timeout=TIMEOUT, allow_redirects=True)
         r.raise_for_status()
         root = ET.fromstring(r.content)
         ns = {"atom": "http://www.w3.org/2005/Atom"}
