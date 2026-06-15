@@ -37,7 +37,6 @@ MANUAL_MAP: dict[str, str] = {
     "TQA":  "TAQA Morocco",
     "MRL":  "SODEP",
     "TMA":  "Total Maroc",
-    "CMT":  "CMT",
     "MNG":  "Managem",
     "SMI":  "SMI",
     "AKD":  "Akdital",
