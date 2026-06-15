@@ -362,14 +362,17 @@ def tool_fetch_bvc(target: str) -> str:
         if isinstance(candles, list) and candles:
             last = candles[-1]
             prev = candles[-2] if len(candles) > 1 else last
-            lc, pc = last.get("close", 0), prev.get("close", 0)
+            lc = last.get("c") or last.get("close", 0)
+            pc = prev.get("c") or prev.get("close", 0)
             chg = ((lc - pc) / pc * 100) if pc else 0
             sections.append(f"📈 **{ticker}** — {lc:.2f} DH ({chg:+.2f}%)")
             sections.append(
-                f"   Open: {last.get('open','?')} | High: {last.get('high','?')} | "
-                f"Low: {last.get('low','?')} | Vol: {last.get('volume','?')}"
+                f"   Open: {last.get('o') or last.get('open','?')} | "
+                f"High: {last.get('h') or last.get('high','?')} | "
+                f"Low: {last.get('l') or last.get('low','?')} | "
+                f"Vol: {last.get('v') or last.get('volume','?')}"
             )
-            sections.append(f"   Date: {last.get('date','?')} | {len(candles)} séances")
+            sections.append(f"   Date: {last.get('d') or last.get('date','?')} | {len(candles)} séances")
 
     fond_p = ROOT / "fondamentaux.json"
     if fond_p.exists():
@@ -570,8 +573,10 @@ def tool_analyze_ticker(ticker: str, mode: str = "full") -> str:
         if candle_p.exists():
             candles = json.loads(candle_p.read_text(encoding="utf-8"))
             if isinstance(candles, list) and len(candles) > 0:
-                closes = [c.get("close", 0) for c in candles if c.get("close")]
-                volumes = [c.get("volume", 0) for c in candles if c.get("volume")]
+                closes = [c.get("c") or c.get("close") for c in candles]
+                closes = [x for x in closes if x]
+                volumes = [c.get("v") or c.get("volume") for c in candles]
+                volumes = [x for x in volumes if x]
                 lc = closes[-1] if closes else 0
                 pc = closes[-2] if len(closes) > 1 else lc
                 chg = ((lc - pc) / pc * 100) if pc else 0
