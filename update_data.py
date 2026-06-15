@@ -64,7 +64,7 @@ TICKER_INFO = {
     # ── Tickers actifs (19) ───────────────────────────────────────────
     "CMT":  {"name": "Ciments du Maroc",       "sector": "Matériaux"},
     "SMI":  {"name": "S.M. Imiter",             "sector": "Matériaux"},
-    "CASH": {"name": "CIH Bank",                "sector": "Finance"},
+    "CASH": {"name": "Cash Plus",               "sector": "Finance"},
     "MNG":  {"name": "Managem",                 "sector": "Mines"},
     "AKD":  {"name": "Akdital",                 "sector": "Santé"},
     "SOT":  {"name": "Sothema",                 "sector": "Santé"},
@@ -168,41 +168,6 @@ SIG_BVC = {
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# MÉTADONNÉES TICKERS (nom complet + secteur)
-# ─────────────────────────────────────────────────────────────────────────────
-
-TICKER_INFO = {
-    "CMT":  {"name": "Ciments du Maroc",       "sector": "Matériaux"},
-    "SMI":  {"name": "S.M. Imiter",             "sector": "Matériaux"},
-    "CASH": {"name": "CIH Bank",                "sector": "Finance"},
-    "MNG":  {"name": "Managem",                 "sector": "Mines"},
-    "AKD":  {"name": "Akdital",                 "sector": "Santé"},
-    "SOT":  {"name": "Sotherma",                "sector": "Agro"},
-    "SGTM": {"name": "SGTM",                    "sector": "Construction"},
-    "MSA":  {"name": "Mutandis",                "sector": "Agro"},
-    "CFGB": {"name": "CFG Bank",                "sector": "Finance"},
-    "RIS":  {"name": "Résidences Immo.",        "sector": "Immo"},
-    "ADI":  {"name": "Alliances Dév.",          "sector": "Immo"},
-    "VCNE": {"name": "Vivo Energy",             "sector": "Distribution"},
-    "CMGP": {"name": "CMGP Group",              "sector": "Distribution"},
-    "CSR":  {"name": "Ciments de l'Atlas",      "sector": "Industrie"},
-    "TGCC": {"name": "TGCC",                    "sector": "Construction"},
-    "ADH":  {"name": "Addoha",                  "sector": "Distribution"},
-    "SRM":  {"name": "Stokvis",                 "sector": "Industrie"},
-    "SNA":  {"name": "Sonasid",                 "sector": "Industrie"},
-    "RDS":  {"name": "RDSA Maroc",              "sector": "Industrie"},
-}
-
-# Signal communauté BVC (consensus indépendant du score v5.3)
-SIG_BVC = {
-    "CMT":"ACHETER","SMI":"ACHETER","CASH":"SURVEILLER","MNG":"ACHETER",
-    "AKD":"ACHETER","SOT":"ACHETER","SGTM":"SURVEILLER","MSA":"SURVEILLER",
-    "CFGB":"ATTENDRE","RIS":"ATTENDRE","ADI":"ATTENDRE","VCNE":"ATTENDRE",
-    "CMGP":"ATTENDRE","CSR":"ATTENDRE","TGCC":"ATTENDRE","ADH":"ATTENDRE",
-    "SRM":"ATTENDRE","SNA":"EVITER","RDS":"EVITER",
-}
-
-# ─────────────────────────────────────────────────────────────────────────────
 # DONNÉES FONDAMENTALES STABLES (source: bilans / rapports d'introduction BVC)
 # Mise à jour manuelle lors de nouvelles publications de résultats
 # ─────────────────────────────────────────────────────────────────────────────
@@ -289,7 +254,6 @@ FOND_DATA = {
     "AGM": {"pe":12.5,"pb":1.5,"div":4.0,"cap":500,   "bear":3000, "base":3820, "bull":4775, "upside":5.0, "flags":0},
     "FNB": {"pe":11.0,"pb":1.3,"div":3.5,"cap":800,   "bear":733,  "base":935,  "bull":1169, "upside":5.0, "flags":0},
     "BAL": {"pe":12.0,"pb":1.5,"div":4.5,"cap":600,   "bear":190,  "base":240,  "bull":300,  "upside":5.0, "flags":0},
-    "COL": {"pe":14.5,"pb":2.0,"div":4.0,"cap":1000,  "bear":74,   "base":93,   "bull":116,  "upside":6.0, "flags":0},
     # ── Tickers actifs (19) ──────────────────────────────────────────
     "CMT":{"pe":15.4,"pb":2.2,"div":4.1,"cap":8500,  "bear":4446,"base":5700, "bull":7125, "upside":14.0,"flags":0},
     "SMI":{"pe":12.1,"pb":1.5,"div":2.0,"cap":4200,  "bear":7695,"base":9865, "bull":12331,"upside":7.0, "flags":0},
@@ -927,6 +891,37 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:
         logger.warning(f"  Candles cache : {_e}")
 
+    # Pré-chargement des fichiers JSON statiques (une seule lecture pour tous les tickers)
+    _hd_all  = {}
+    _fd_all  = {}
+    _sf_all  = {}
+    _ex_all  = {}
+    try:
+        _p = Path(__file__).parent / "pipeline" / "historical_data.json"
+        if _p.exists():
+            _hd_all = json.loads(_p.read_text(encoding="utf-8"))
+            logger.info(f"  historical_data.json préchargé : {len(_hd_all)} tickers")
+    except Exception as _e:
+        logger.warning(f"  historical_data.json : {_e}")
+    try:
+        _p = Path(__file__).parent / "financial_data.json"
+        if _p.exists():
+            _fd_all = json.loads(_p.read_text(encoding="utf-8")).get("data", {})
+    except Exception:
+        pass
+    try:
+        _p = Path(__file__).parent / "pipeline" / "static_fallback.json"
+        if _p.exists():
+            _sf_all = json.loads(_p.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    try:
+        if OUTPUT.exists():
+            _ex_raw = json.loads(OUTPUT.read_text(encoding="utf-8"))
+            _ex_all = {t["symbol"]: t for t in _ex_raw.get("tickers", []) if "symbol" in t}
+    except Exception:
+        pass
+
     # 4. Traitement par ticker
     tickers_out = []
     for ticker in TICKERS:
@@ -999,55 +994,42 @@ def run(dry_run=False, push=False, token=""):
                 bb_upper, bb_mid, bb_lower = calc_bollinger(closes)
             if len(closes) >= 14:
                 stoch_k, stoch_d = calc_stoch(closes, highs, lows)
-            # MA200 / H52w / L52w — nécessitent l'historique long (pipeline)
-            try:
-                hd_path = Path(__file__).parent / "pipeline" / "historical_data.json"
-                if hd_path.exists():
-                    hd_all = json.loads(hd_path.read_text(encoding="utf-8"))
-                    hd_t   = hd_all.get(ticker, {})
-                    ma200 = hd_t.get("ma200")
-                    h52w  = hd_t.get("h52w")
-                    l52w  = hd_t.get("l52w")
-            except Exception:
-                pass
+            # MA200 / H52w / L52w depuis le cache préchargé
+            hd_t  = _hd_all.get(ticker, {})
+            ma200 = hd_t.get("ma200")
+            h52w  = hd_t.get("h52w")
+            l52w  = hd_t.get("l52w")
         else:
-            # Fallback A : historical_data.json (produit par collect_history_bvcscrap.py)
+            # Fallback A : historical_data.json (cache préchargé)
             _hist_loaded = False
-            try:
-                hd_path = Path(__file__).parent / "pipeline" / "historical_data.json"
-                if hd_path.exists():
-                    hd_all = json.loads(hd_path.read_text(encoding="utf-8"))
-                    hd_t   = hd_all.get(ticker, {})
-                    if hd_t.get("rsi") and hd_t.get("ma20"):
-                        rsi       = hd_t["rsi"]
-                        ma20      = hd_t["ma20"]
-                        ma50      = hd_t.get("ma50", ma20)
-                        h90       = hd_t.get("h90",  price * 1.15 if price else 0)
-                        l90       = hd_t.get("l90",  price * 0.85 if price else 0)
-                        macd_val  = hd_t.get("macd")
-                        macd_sig  = hd_t.get("macd_signal")
-                        macd_hist = hd_t.get("macd_hist")
-                        bb_upper  = hd_t.get("bb_upper")
-                        bb_mid    = hd_t.get("bb_mid")
-                        bb_lower  = hd_t.get("bb_lower")
-                        stoch_k   = hd_t.get("stoch_k")
-                        stoch_d   = hd_t.get("stoch_d")
-                        ma200     = hd_t.get("ma200")
-                        h52w      = hd_t.get("h52w")
-                        l52w      = hd_t.get("l52w")
-                        if not price:
-                            price = hd_t.get("last_close", 0)
-                        _hist_loaded = True
-                        logger.info(f"  {ticker}: indicateurs depuis historical_data.json "
-                                    f"(BVCscrap, {hd_t.get('n_candles',0)} bougies)")
-            except Exception:
-                pass
+            hd_t = _hd_all.get(ticker, {})
+            if hd_t.get("rsi") and hd_t.get("ma20"):
+                rsi       = hd_t["rsi"]
+                ma20      = hd_t["ma20"]
+                ma50      = hd_t.get("ma50", ma20)
+                h90       = hd_t.get("h90",  price * 1.15 if price else 0)
+                l90       = hd_t.get("l90",  price * 0.85 if price else 0)
+                macd_val  = hd_t.get("macd")
+                macd_sig  = hd_t.get("macd_signal")
+                macd_hist = hd_t.get("macd_hist")
+                bb_upper  = hd_t.get("bb_upper")
+                bb_mid    = hd_t.get("bb_mid")
+                bb_lower  = hd_t.get("bb_lower")
+                stoch_k   = hd_t.get("stoch_k")
+                stoch_d   = hd_t.get("stoch_d")
+                ma200     = hd_t.get("ma200")
+                h52w      = hd_t.get("h52w")
+                l52w      = hd_t.get("l52w")
+                if not price:
+                    price = hd_t.get("last_close", 0)
+                _hist_loaded = True
+                logger.info(f"  {ticker}: indicateurs depuis historical_data.json "
+                            f"(BVCscrap, {hd_t.get('n_candles',0)} bougies)")
 
             if not _hist_loaded:
-                # Fallback B : indicateurs depuis data.json existant
-                try:
-                    existing = json.loads(OUTPUT.read_text()) if OUTPUT.exists() else {}
-                    ex_t = next((t for t in existing.get("tickers", []) if t["symbol"] == ticker), {})
+                # Fallback B : indicateurs depuis data.json (cache préchargé)
+                ex_t = _ex_all.get(ticker, {})
+                if ex_t:
                     rsi  = ex_t.get("rsi", 50)
                     ma20 = ex_t.get("ma20", price or 0)
                     ma50 = ex_t.get("ma50", price or 0)
@@ -1065,62 +1047,52 @@ def run(dry_run=False, push=False, token=""):
                         price = ex_t.get("price", 0)
                     if not vol:
                         vol = ex_t.get("vol", 0)
-                except Exception:
+                else:
                     rsi, ma20, ma50 = 50, price or 0, price or 0
                     h90 = price * 1.15 if price else 0
                     l90 = price * 0.85 if price else 0
 
-        # Fallback 3 : financial_data.json (produit par collect_financial_data.py)
+        # Fallback 3 : financial_data.json (cache préchargé)
         if not price:
-            try:
-                fd_path = Path(__file__).parent / "financial_data.json"
-                if fd_path.exists():
-                    fd_all = json.loads(fd_path.read_text(encoding="utf-8"))
-                    fd_t   = fd_all.get("data", {}).get(ticker, {})
-                    fd_p   = fd_t.get("market", {}).get("price") or 0
-                    if fd_p:
-                        price = fd_p
-                        tech  = fd_t.get("technical", {})
-                        if not ma20: ma20 = tech.get("ma20") or price
-                        if not ma50: ma50 = tech.get("ma50") or price
-                        if rsi == 50: rsi = tech.get("rsi_14") or 50
-                        if not h90:  h90  = tech.get("high_90d") or round(price * 1.15, 2)
-                        if not l90:  l90  = tech.get("low_90d")  or round(price * 0.85, 2)
-                        logger.info(f"  {ticker}: prix depuis financial_data.json ({price} DH)")
-            except Exception:
-                pass
+            fd_t = _fd_all.get(ticker, {})
+            fd_p = fd_t.get("market", {}).get("price") or 0
+            if fd_p:
+                price = fd_p
+                tech  = fd_t.get("technical", {})
+                if not ma20: ma20 = tech.get("ma20") or price
+                if not ma50: ma50 = tech.get("ma50") or price
+                if rsi == 50: rsi = tech.get("rsi_14") or 50
+                if not h90:  h90  = tech.get("high_90d") or round(price * 1.15, 2)
+                if not l90:  l90  = tech.get("low_90d")  or round(price * 0.85, 2)
+                logger.info(f"  {ticker}: prix depuis financial_data.json ({price} DH)")
 
-        # Fallback 4 : static_fallback.json (prix extraits de index.html — dernier recours)
+        # Fallback 4 : static_fallback.json (cache préchargé)
         if not price:
-            try:
-                sf_path = Path(__file__).parent / "pipeline" / "static_fallback.json"
-                if sf_path.exists():
-                    sf_all = json.loads(sf_path.read_text(encoding="utf-8"))
-                    sf_t   = sf_all.get(ticker, {})
-                    sf_p   = sf_t.get("price") or 0
-                    if sf_p:
-                        price = sf_p
-                        if not ma20: ma20 = sf_t.get("ma20") or price
-                        if not ma50: ma50 = sf_t.get("ma50") or price
-                        if rsi == 50: rsi = sf_t.get("rsi_14") or 50
-                        if not h90:  h90  = sf_t.get("high_90d") or round(price * 1.15, 2)
-                        if not l90:  l90  = sf_t.get("low_90d")  or round(price * 0.85, 2)
-                        logger.info(f"  {ticker}: prix depuis static_fallback.json ({price} DH) — données statiques")
-            except Exception:
-                pass
+            sf_t = _sf_all.get(ticker, {})
+            sf_p = sf_t.get("price") or 0
+            if sf_p:
+                price = sf_p
+                if not ma20: ma20 = sf_t.get("ma20") or price
+                if not ma50: ma50 = sf_t.get("ma50") or price
+                if rsi == 50: rsi = sf_t.get("rsi_14") or 50
+                if not h90:  h90  = sf_t.get("high_90d") or round(price * 1.15, 2)
+                if not l90:  l90  = sf_t.get("low_90d")  or round(price * 0.85, 2)
+                logger.info(f"  {ticker}: prix depuis static_fallback.json ({price} DH) — données statiques")
 
-        # Patch Médias24 getStockInfo : prix/chg/vol live si IDB a renvoyé des zéros
-        if mkt_status in ("OPEN", "PRE_OPEN") and (not chg or not vol):
+        # Médias24 getStockInfo — données fraîches pour tout ticker sans prix/chg/vol
+        # (appelé peu importe l'état de session : couvre hors-session et IDB manquant)
+        if not price or not chg or not vol:
             q = fetch_med24_quote(ticker)
             if q:
-                if not chg:
+                if not price or not chg:
                     price = q["price"]
                     chg   = q["chg"]
                 if not opn:
                     opn   = q["open"]
                 if not vol:
                     vol   = q["vol"]
-                time.sleep(0.2)
+                logger.info(f"  {ticker}: Médias24 → {price} DH (chg={chg:+.2f}%, vol={vol})")
+                time.sleep(0.15)
 
         if not price:
             logger.warning(f"  {ticker}: ignoré (aucune donnée)")
