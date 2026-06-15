@@ -26,89 +26,124 @@ HEADERS = {
     "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
 }
 
-OUTPUT_PATH = Path(__file__).parent.parent / "news.json"
-MAX_ARTICLES = 80
-TIMEOUT = 15
+OUTPUT_PATH  = Path(__file__).parent.parent / "news.json"
+MAX_ARTICLES = 200   # articles conservés dans news.json (rolling archive)
+ARCHIVE_DAYS = 7     # ancienneté max des articles archivés (jours)
+TIMEOUT      = 15
 
-# ── Mapping ticker → mots-clés de tagging ────────────────────────────────────
+# ── Tickers dont le symbole est un mot commun → ne pas rechercher en brut ─────
+# Ces tickers ne seront jamais matchés via leur symbole seul (risque de faux positifs).
+# Ils ne sont reconnus QUE via les mots-clés du nom complet ci-dessous.
+SKIP_RAW_SYMBOL = {
+    "LES",  # "les" = article défini français (présent dans tout texte)
+    "CAR",  # "car" = conjonction française + mot anglais générique
+    "UNI",  # préfixe courant : université, unique, union…
+    "SOT",  # mot français : sot = idiot/fou
+    "COL",  # col de montagne, col de chemise, colonel…
+    "DAR",  # mot arabe courant (maison)
+    "JET",  # jet d'eau, jet privé… trop générique
+    "BAL",  # bal populaire, balance…
+    "HAL",  # prénom, hal en informatique…
+    "MOX",  # trop court / peut apparaître dans mots composés
+    "IBM",  # confond avec IBM International (multinationale tech)
+    "SMI",  # confond avec Swiss Market Index (indice boursier suisse)
+    "ARD",  # chaîne de TV allemande ARD
+    "RIS",  # trop court et ambigu
+    "MIC",  # prénom, micro, mick…
+    "INV",  # "inv" = préfixe investissement trop générique
+    "STR",  # "str" préfixe dans string, structure, stratégie…
+    "TIM",  # prénom commun
+    "SNA",  # trop court
+    "SRM",  # trop court
+    "SLM",  # trop court
+    "MGL",  # trop court
+    "FNB",  # trop court
+    "ENK",  # trop court
+    "PPM",  # ppm = unité de mesure (parts per million)
+}
+
+# ── Mapping ticker → noms complets pour le tagging ───────────────────────────
+# Règle : uniquement des noms de sociétés complets ou suffisamment distinctifs.
+# Ne jamais mettre le symbole court seul (3 lettres) ici — il y a la boucle
+# de détection brute ci-dessous pour ça.
 TICKER_KEYWORDS = {
-    "IAM":  ["maroc telecom", "iam", "itissalat"],
-    "ATW":  ["attijariwafa", "attijari"],
-    "BCP":  ["banque populaire", "bcp", "groupe banques populaires"],
-    "BOA":  ["bank of africa", "bmce", "boa"],
-    "CIH":  ["cih bank", "cih"],
-    "CDM":  ["crédit du maroc", "credit du maroc", "cdm"],
-    "WAF":  ["wafa assurance", "wafa"],
-    "LHM":  ["lafargeholcim", "lafarge holcim", "lhm"],
-    "GAZ":  ["afriquia gaz", "afriquia"],
+    "IAM":  ["maroc telecom", "itissalat al maghrib"],
+    "ATW":  ["attijariwafa", "attijari wafa bank"],
+    "BCP":  ["banque centrale populaire", "banques populaires", "crédit populaire du maroc"],
+    "BOA":  ["bank of africa", "bmce bank of africa"],
+    "CIH":  ["cih bank", "crédit immobilier et hôtelier"],
+    "CDM":  ["crédit du maroc"],
+    "WAF":  ["wafa assurance"],
+    "LHM":  ["lafargeholcim maroc", "lafarge holcim maroc", "lafarge maroc"],
+    "GAZ":  ["afriquia gaz"],
     "ATL":  ["auto hall", "autohall"],
-    "HPS":  ["hps", "hightech payment"],
-    "LBV":  ["label'vie", "labelvie", "label vie", "lbv"],
-    "LES":  ["lesieur cristal", "lesieur"],
-    "TQA":  ["taqa morocco", "taqa", "jlec"],
-    "MRL":  ["marsa maroc", "mrl"],
-    "TMA":  ["totalenergies maroc", "total maroc", "tma"],
-    "CMT":  ["ciments du maroc", "asment", "cmt"],
-    "MNG":  ["managem", "mng"],
-    "SMI":  ["s.m. imiter", "sm imiter", "imiter", "smi"],
-    "AKD":  ["akdital", "akd"],
-    "ARD":  ["aradei capital", "aradei"],
-    "SAF":  ["saham assurance", "saham"],
-    "OUL":  ["oulmès", "oulmes"],
-    "CIM":  ["cimat", "ciment de l'atlas", "ciments atlas"],
-    "CTM":  ["ctm", "compagnie transport maroc"],
-    "ZLD":  ["zalagh", "zld"],
-    "SOT":  ["sothema", "sot"],
-    "MSA":  ["mutandis", "msa"],
-    "ADI":  ["alliances développement", "alliances dev", "adi"],
-    "ADH":  ["addoha", "adh"],
-    "TGCC": ["tgcc", "total gaou côte", "tgc"],
-    "CFGB": ["cfg bank", "cfg"],
-    "CASH": ["cash plus", "cash+"],
-    "SGTM": ["sgtm"],
-    "CMGP": ["cmgp group", "cmgp"],
-    "VCNE": ["vivo energy", "vicenne", "vcne"],
-    "RIS":  ["résidences immobilières", "ris"],
-    "CSR":  ["cosumar", "csr"],
-    "SNA":  ["sonasid", "sna"],
-    "SRM":  ["stokvis", "srm"],
-    "RDS":  ["rdsa", "rds"],
-    "ALU":  ["aluminium du maroc", "alum"],
-    "MGL":  ["maghrebail", "mgl"],
-    "DAR":  ["dari couspate", "dari"],
-    "IMI":  ["imi", "immobilière"],
-    "DTT":  ["disty technologies", "dtt"],
-    "DSW":  ["delattre levivier", "dsw"],
-    "MOX":  ["maghreb oxygene", "mox"],
-    "STR":  ["stradim", "str"],
-    "TIM":  ["timar", "tim"],
-    "SNP":  ["snep", "snp"],
-    "SLM":  ["salafin", "slm"],
-    "JET":  ["jet contractors", "jet"],
-    "M2M":  ["m2m group", "m2m"],
-    "INV":  ["involys", "inv"],
-    "S2M":  ["s2m", "soft mobile"],
-    "COL":  ["colorado", "col"],
-    "AFM":  ["afm", "agro farma"],
-    "AGM":  ["afric industries", "agm"],
-    "FNB":  ["fenié brossette", "fnb"],
-    "BAL":  ["balima", "bal"],
-    "NEJ":  ["nejma", "nejmah"],
-    "HAL":  ["haliopolis", "hal"],
-    "BMC":  ["bmc", "brasseries maroc"],
-    "CAR":  ["cartier saada", "car"],
-    "AFI":  ["afi", "afriquia"],
-    "MIC":  ["microdata", "mic"],
-    "MUT":  ["mutuelle centrale", "mut"],
-    "ENK":  ["encg", "enk"],
-    "EQD":  ["eqdom", "eqd"],
-    "DHO":  ["douja prom", "dhom", "dho"],
-    "PPM":  ["papelera", "ppm"],
-    "REB":  ["rebab company", "reb"],
-    "SBS":  ["sbs", "société de brasseries"],
-    "STK":  ["stroc industrie", "stk"],
-    "UNI":  ["unimer", "uni"],
-    "IBM":  ["ibm", "industrie biologique"],
+    "HPS":  ["hightech payment systems", "hightech payment"],
+    "LBV":  ["label'vie", "labelvie", "groupe label vie"],
+    "LES":  ["lesieur cristal"],
+    "TQA":  ["taqa morocco", "jlec", "taqa maroc"],
+    "MRL":  ["marsa maroc", "sodep maroc"],
+    "TMA":  ["totalenergies marketing maroc", "total energies maroc", "total maroc"],
+    "CMT":  ["ciments du maroc", "asment tanger"],
+    "MNG":  ["managem", "groupe managem"],
+    "SMI":  ["s.m. imiter", "sm imiter", "société métallurgique imiter"],
+    "AKD":  ["akdital", "groupe akdital"],
+    "ARD":  ["aradei capital"],
+    "SAF":  ["saham assurance", "sanlam maroc"],
+    "OUL":  ["oulmès", "eaux minérales d'oulmès"],
+    "CIM":  ["cimat", "ciments de l'atlas"],
+    "CTM":  ["compagnie de transports au maroc", "ctm voyages"],
+    "ZLD":  ["zalagh"],
+    "SOT":  ["sothema"],
+    "MSA":  ["mutandis"],
+    "ADI":  ["alliances développement", "alliance développement immobilier", "alliances immobilier"],
+    "ADH":  ["addoha", "groupe addoha"],
+    "TGCC": ["tgcc", "travaux généraux de construction de casablanca"],
+    "CFGB": ["cfg bank"],
+    "CASH": ["cash plus"],
+    "SGTM": ["sgtm", "société générale de travaux du maroc"],
+    "CMGP": ["cmgp group"],
+    "VCNE": ["vivo energy maroc"],
+    "RIS":  ["risma", "résidences touristiques"],
+    "CSR":  ["cosumar"],
+    "SNA":  ["sonasid"],
+    "SRM":  ["stokvis maroc"],
+    "RDS":  ["résidences dar saada"],
+    "ALU":  ["aluminium du maroc"],
+    "MGL":  ["maghrebail"],
+    "DAR":  ["dari couspate"],
+    "IMI":  ["immorente invest"],
+    "DTT":  ["disty technologies"],
+    "DSW":  ["delattre levivier maroc"],
+    "MOX":  ["maghreb oxygene"],
+    "STR":  ["stradim"],
+    "TIM":  ["timar"],
+    "SNP":  ["snep maroc"],
+    "SLM":  ["salafin"],
+    "JET":  ["jet contractors"],
+    "M2M":  ["m2m group"],
+    "INV":  ["involys"],
+    "S2M":  ["s2m group", "soft mobile maroc"],
+    "COL":  ["colorado peintures", "colorado maroc"],
+    "AFM":  ["africa middle east resources"],
+    "AGM":  ["afric industries"],
+    "FNB":  ["fenié brossette"],
+    "BAL":  ["balima"],
+    "NEJ":  ["nejma"],
+    "HAL":  ["haliopolis"],
+    "BMC":  ["brasseries du maroc"],
+    "CAR":  ["cartier saada"],
+    "AFI":  ["afriquia immobilier"],
+    "MIC":  ["microdata maroc"],
+    "MUT":  ["mutuelle centrale maroc"],
+    "ENK":  ["encg maroc"],
+    "EQD":  ["eqdom"],
+    "DHO":  ["douja prom"],
+    "PPM":  ["papelera de tetuan", "papelera maroc"],
+    "REB":  ["rebab company"],
+    "SBS":  ["société de brasseries du maroc"],
+    "STK":  ["stroc industrie"],
+    "UNI":  ["unimer"],
+    "IBM":  ["industrie biologique maroc"],
 }
 
 # ── Mots-clés sentiment ───────────────────────────────────────────────────────
@@ -138,11 +173,15 @@ def _sentiment(text: str) -> str:
 def _tag_tickers(text: str) -> list:
     t = text.lower()
     found = []
+    # 1. Noms complets — source fiable, pas d'ambiguïté
     for ticker, kws in TICKER_KEYWORDS.items():
         if any(kw in t for kw in kws):
             found.append(ticker)
-    # aussi chercher les symboles directement (ex: "ATW", "MNG")
+    # 2. Symboles bruts (ex: "ATW", "MNG") avec frontière de mot \b
+    #    Exclus : tickers dont le symbole est un mot français/anglais courant
     for ticker in TICKER_KEYWORDS:
+        if ticker in SKIP_RAW_SYMBOL:
+            continue
         pattern = r'\b' + re.escape(ticker) + r'\b'
         if re.search(pattern, text, re.IGNORECASE) and ticker not in found:
             found.append(ticker)
@@ -304,29 +343,72 @@ def fetch_idb_news(max_items=15) -> list:
 # ── Orchestration ─────────────────────────────────────────────────────────────
 
 SOURCES_RSS = [
+    # ── BVC / Marchés ────────────────────────────────────────────────────────
     ("https://www.casablanca-bourse.com/bourseweb/Rss-Actualite.aspx",     "BVC Officiel"),
     ("https://www.ammc.ma/fr/rss.xml",                                      "AMMC"),
     ("https://www.leboursier.ma/feed",                                      "Le Boursier"),
-    ("https://leboursier.ma/feed/",                                         "Le Boursier"),
-    ("https://www.medias24.com/rss/bourse.xml",                             "Medias24"),
-    ("https://medias24.com/rss/bourse.xml",                                 "Medias24"),
-    ("https://www.medias24.com/feed/bourse",                                "Medias24"),
-    ("https://www.leconomiste.com/flux-rss/bourse",                         "L'Économiste"),
-    ("https://telquel.ma/feed/?cat=economie",                               "Telquel Eco"),
+    ("https://www.boursenews.ma/rss",                                       "BourseNews"),
+    # ── Presse économique marocaine ──────────────────────────────────────────
+    ("https://www.medias24.com/rss/bourse.xml",                             "Medias24 Bourse"),
+    ("https://www.medias24.com/rss/economie.xml",                           "Medias24 Éco"),
+    ("https://www.leconomiste.com/flux-rss/bourse",                         "L'Économiste Bourse"),
+    ("https://www.leconomiste.com/flux-rss/actualite",                      "L'Économiste Actu"),
+    ("https://fnh.ma/rss",                                                  "Finances News"),
+    ("https://lavieeco.com/feed/",                                           "La Vie Éco"),
+    ("https://www.challenge.ma/feed/",                                      "Challenge Maroc"),
+    ("https://telquel.ma/feed/?cat=economie",                               "Telquel Éco"),
+    ("https://lematin.ma/feed/",                                            "Le Matin"),
+    ("https://aujourdhui.ma/feed/",                                         "Aujourd'hui le Maroc"),
+    ("https://www.lopinion.ma/feed/",                                       "L'Opinion Maroc"),
+    ("https://ledesk.ma/feed/",                                             "Le Desk"),
+    ("https://ecoactu.ma/feed/",                                            "EcoActu"),
+    ("https://maroc-hebdo.press.ma/feed/",                                  "Maroc Hebdo"),
+    ("https://fr.hespress.com/category/economie/feed/",                     "Hespress Éco"),
+    ("https://www.infomediaire.net/feed/",                                  "Infomediaire"),
+    ("https://www.usinenouvelle.com/rss/maroc.xml",                        "Usine Nouvelle Maroc"),
+    # ── Finance islamique / HCP / BAM ────────────────────────────────────────
+    ("https://www.hcp.ma/rss.xml",                                          "HCP"),
+    ("https://www.bkam.ma/rss.xml",                                         "Bank Al-Maghrib"),
+    # ── Afrique / Marchés émergents ──────────────────────────────────────────
+    ("https://www.agenceecofin.com/flux-rss/maroc",                        "Agence Ecofin Maroc"),
+    ("https://www.financialafrik.com/feed/",                                "Financial Afrik"),
+    ("https://www.africaintelligence.fr/rss",                              "Africa Intelligence"),
 ]
 
+def _load_archive() -> tuple[list, set]:
+    """Charge les articles existants depuis news.json (rolling archive)."""
+    if not OUTPUT_PATH.exists():
+        return [], set()
+    try:
+        data = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+        articles = data.get("articles", [])
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=ARCHIVE_DAYS)).isoformat()
+        fresh = [a for a in articles if a.get("date", "") >= cutoff]
+        ids = {a["id"] for a in fresh}
+        log.info(f"Archive chargée : {len(fresh)}/{len(articles)} articles (< {ARCHIVE_DAYS}j)")
+        return fresh, ids
+    except Exception as e:
+        log.warning(f"Impossible de charger l'archive : {e}")
+        return [], set()
+
+
 def run():
-    all_articles = []
-    seen_ids = set()
+    from collections import Counter
+
+    # 0. Charger archive existante (rolling)
+    archived, seen_ids = _load_archive()
+    all_articles = list(archived)
 
     # 1. RSS feeds
     for url, name in SOURCES_RSS:
         arts = fetch_rss(url, name, max_items=25)
+        new_count = 0
         for a in arts:
             if a["id"] not in seen_ids:
                 all_articles.append(a)
                 seen_ids.add(a["id"])
-        if arts: time.sleep(0.5)
+                new_count += 1
+        if arts: time.sleep(0.4)
 
     # 2. Medias24 API
     for a in fetch_medias24_api(20):
@@ -340,9 +422,9 @@ def run():
             all_articles.append(a)
             seen_ids.add(a["id"])
 
-    # Tri par date (plus récent en premier) + troncature
+    # Tri par date (plus récent en premier) + troncature rolling
     def _sort_key(a):
-        try: return a["date"]
+        try: return a.get("date", "")
         except: return ""
     all_articles.sort(key=_sort_key, reverse=True)
     all_articles = all_articles[:MAX_ARTICLES]
@@ -356,12 +438,10 @@ def run():
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
-    log.info(f"news.json écrit → {OUTPUT_PATH} ({len(all_articles)} articles)")
+    log.info(f"news.json écrit → {OUTPUT_PATH} ({len(all_articles)} articles, rolling {ARCHIVE_DAYS}j)")
 
-    # Stats par source
-    from collections import Counter
     srcs = Counter(a["source"] for a in all_articles)
-    for src, n in srcs.most_common():
+    for src, n in srcs.most_common(10):
         log.info(f"  {src}: {n}")
 
     tagged = [a for a in all_articles if a["tickers"]]
