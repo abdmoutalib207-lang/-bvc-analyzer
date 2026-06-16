@@ -11,9 +11,9 @@
   <meta name="theme-color" content="#080d1a"/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.10/babel.min.js"></script>
   <style>
     :root{--bg:#080d1a;--bg2:#0d1829;--bg3:#0a1220;--bd:#1a2540;--text:#c8d3e8;--dim:#8892a4;--green:#00e5a0;--blue:#4db8ff;--yel:#ffd740;--red:#ff4f5a;--pur:#b388ff;--org:#ff8f00;--font:'IBM Plex Mono','Courier New',monospace;}
     *{margin:0;padding:0;box-sizing:border-box;}
@@ -29,7 +29,8 @@
   </style>
 </head>
 <body>
-<div id="root"></div>
+<div id="root"><div id="loading-msg" style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#080d1a;font-family:'IBM Plex Mono',monospace"><div style="color:#00e5a0;font-size:18px;font-weight:700;letter-spacing:3px">BVC ANALYZER</div><div style="color:#8892a4;font-size:12px">Chargement en cours…</div><div id="cdn-err" style="display:none;color:#ff4f5a;font-size:11px;max-width:400px;text-align:center">Erreur de chargement des scripts (CDN). Vérifiez votre connexion et rechargez la page.</div></div></div>
+<script>setTimeout(function(){var e=document.getElementById('loading-msg');if(e&&e.parentNode.children.length===1){var c=document.getElementById('cdn-err');if(c)c.style.display='block';}},8000);</script>
 <script type="text/babel">
 const {useState,useEffect,useMemo,useCallback,useRef} = React;
 
