@@ -727,7 +727,14 @@ const TickerTape=({rows})=>{
 // ── HEADER ────────────────────────────────────────────────────────────────────
 const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode})=>{
   const [pulse,setPulse]=useState(false);
+  const [clock,setClock]=useState("");
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
+  useEffect(()=>{
+    const tick=()=>setClock(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit",second:"2-digit"}));
+    tick();
+    const t=setInterval(tick,1000);
+    return()=>clearInterval(t);
+  },[]);
   const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"}];
   return(
     <div style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
@@ -749,10 +756,12 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
             </span>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-            <span style={{fontSize:12,color:"#ffd740",display:"flex",alignItems:"center",gap:6}}>
-              <span style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:pulse?"#00e5a0":"transparent",border:"1px solid #00e5a0",transition:"background .4s"}}/>
-              <span style={{color:"#8892a4",fontSize:10,letterSpacing:.3}}>Mis à jour :</span>
-              <span style={{fontWeight:600}}>{ts||"—"}</span>
+            <span style={{fontSize:13,color:"#00e5a0",fontWeight:700,letterSpacing:1,minWidth:72}}>{clock}</span>
+            <span style={{color:"#1a2540"}}>|</span>
+            <span style={{fontSize:11,color:"#8892a4",display:"flex",alignItems:"center",gap:5}}>
+              <span style={{display:"inline-block",width:7,height:7,borderRadius:"50%",background:pulse?"#00e5a0":"transparent",border:"1px solid #00e5a0",transition:"background .4s"}}/>
+              <span style={{letterSpacing:.3}}>données :</span>
+              <span style={{color:"#c8d3e8",fontWeight:600}}>{ts||"—"}</span>
             </span>
             {mktStatus&&<span style={{background:`${mktStatus.color}18`,border:`1px solid ${mktStatus.color}40`,borderRadius:4,padding:"3px 10px",fontSize:11,color:mktStatus.color,fontWeight:700,letterSpacing:.5}}>BVC {mktStatus.label}</span>}
           </div>
@@ -2056,10 +2065,10 @@ function App(){
     setLoading(false);
   },[mergeLive]);
 
-  // Chargement initial + auto-refresh toutes les 3 min pendant la séance, 10 min hors séance
+  // Chargement initial + auto-refresh toutes les 60s pendant la séance, 5 min hors séance
   useEffect(()=>{
     loadData();
-    const getInterval=()=>{const s=getMarketStatus();return s.isOpen?180000:600000;};
+    const getInterval=()=>{const s=getMarketStatus();return s.isOpen?60000:300000;};
     let iv=setInterval(()=>loadData(),getInterval());
     // Recalcule l'intervalle toutes les 10 min (transition ouverture/fermeture)
     const adjuster=setInterval(()=>{clearInterval(iv);iv=setInterval(()=>loadData(),getInterval());},600000);
