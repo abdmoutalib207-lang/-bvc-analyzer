@@ -250,19 +250,11 @@ async function fetchMed24History(sym,days){
   return candles.length>=5?candles:null;
 }
 
-// fetchQuotes: CLÔTURE → Médias24 direct | OUVERT → IDBourse + patch Médias24 | Fallback → Médias24
+// fetchQuotes: appelé UNIQUEMENT pendant session ouverte (isOpen=true)
+// IDBourse (batch rapide) + patch Médias24 si chg=0 | Fallback → Médias24 titre par titre
 async function fetchQuotes(){
   const out={};
   const mkt=getMarketStatus();
-
-  // Après clôture (15h40→minuit) : Médias24 directement — cours de clôture officiels
-  if(mkt.label==="CLÔTURE"){
-    await Promise.all(STATIC.map(async s=>{
-      const q=await fetchMed24Quote(s.symbol);
-      if(q)out[s.symbol]={...q,src:"Médias24·Clôture"};
-    }));
-    return Object.keys(out).length>0?out:null;
-  }
 
   // Pendant la session : IDBourse (batch rapide) + patch Médias24 si chg=0
   const idb=await fetchIDB();
@@ -2071,16 +2063,15 @@ function App(){
     }));
   },[]);
 
-  // Load data: Yahoo Finance → data.json → STATIC (silent fallback chain)
+  // Load data: data.json (backend pipeline) → overlay live IDBourse/Médias24 pendant session
   const loadData=useCallback(async()=>{
     setLoading(true);
-    setFetchErr(false);
-    // Étape 1 : data.json (pipeline GitHub Actions — base MA/RSI pour 77 tickers)
+    // Étape 1 : data.json — source principale (pipeline GitHub Actions)
     let pipelineLoaded=false;
     let nLive=0;
     try{
       const d=await fetch("data.json?t="+Date.now()).then(r=>r.ok?r.json():null);
-      if(d?.tickers){
+      if(d?.tickers&&d.tickers.length>0){
         const m={};
         d.tickers.forEach(t=>{m[t.symbol]={
           price:t.price,chg:t.chg,vol:t.vol||0,open:t.open,close:t.close,
@@ -2104,28 +2095,40 @@ function App(){
         const timeStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit",second:"2-digit"}):"";
         const dateStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",year:"numeric"}):"";
         setTs(dateStr&&timeStr?`${dateStr} ${timeStr}`:"");
-        const mktNow=getMarketStatus();
-        const ageMin=upd?(Date.now()-upd.getTime())/60000:Infinity;
-        const stale=mktNow.isOpen&&ageMin>30;
-        setSrc(`Pipeline${nLive?" · "+nLive+" live":""}${stale?" ⚠ >30min":""}`);
         pipelineLoaded=true;
       }
     }catch{}
-    // Étape 2 : prix live IDBourse/Médias24/Yahoo directement dans le navigateur (overlay sur data.json)
-    try{
-      const liveMap=await fetchQuotes();
-      if(liveMap&&Object.keys(liveMap).length>0){
-        mergeLive(liveMap);
-        const nIdb=Object.keys(liveMap).length;
-        const srcs=Object.values(liveMap).map(v=>v.src).filter(Boolean);
-        const mainSrc=srcs[0]||"live";
-        setTs(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"}));
-        setSrc(`${mainSrc} · ${nIdb} live ●`);
-        setLoading(false);return;
-      }
-    }catch{}
-    if(pipelineLoaded){setLoading(false);return;}
-    // Dernier recours : valeurs STATIC (avec avertissement visible)
+
+    const mktNow=getMarketStatus();
+
+    // Étape 2 : overlay live — SEULEMENT pendant la session ouverte
+    // Hors session (CLÔTURE/FERMÉ) : data.json est la source officielle, pas d'appels CORS
+    if(mktNow.isOpen){
+      try{
+        const liveMap=await fetchQuotes();
+        if(liveMap&&Object.keys(liveMap).length>0){
+          mergeLive(liveMap);
+          const nIdb=Object.keys(liveMap).length;
+          const srcs=Object.values(liveMap).map(v=>v.src).filter(Boolean);
+          const mainSrc=srcs[0]||"live";
+          setTs(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"}));
+          setSrc(`${mainSrc} · ${nIdb} live ●`);
+          setFetchErr(false);
+          setLoading(false);return;
+        }
+      }catch{}
+    }
+
+    if(pipelineLoaded){
+      const ageMin=nLive>0?0:Infinity;
+      const label=mktNow.label==="CLÔTURE"?`Clôture · ${nLive} titres`
+                 :mktNow.isOpen?`Pipeline · ${nLive} live`
+                 :`Pipeline · ${nLive} titres`;
+      setSrc(label);
+      setFetchErr(false);
+      setLoading(false);return;
+    }
+    // Dernier recours : aucune donnée disponible
     setFetchErr(true);
     setSrc("⚠ données statiques");
     setLoading(false);
