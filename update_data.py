@@ -168,9 +168,17 @@ SIG_BVC = {
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# DONNÉES FONDAMENTALES STABLES (source: bilans / rapports d'introduction BVC)
-# Mise à jour manuelle lors de nouvelles publications de résultats
+# SCORES FONDAMENTAUX
+# Priorité 1 : fondamentaux.json → compute_fond_score() (formule dynamique)
+# Priorité 2 : FOND_SCORES ci-dessous (table statique — fallback pour tickers non couverts)
 # ─────────────────────────────────────────────────────────────────────────────
+try:
+    from pipeline.smart_money.fond_score import compute_fond_score as _cfs, score_all as _fond_all
+    _FOND_COMPUTED = _fond_all()   # {sym: score} pour tous les tickers dans fondamentaux.json
+    logger.info(f"fond_score: {len(_FOND_COMPUTED)} tickers chargés depuis fondamentaux.json")
+except Exception as _e:
+    _FOND_COMPUTED = {}
+    logger.warning(f"fond_score: chargement fondamentaux.json échoué — scores statiques utilisés ({_e})")
 
 FOND_SCORES = {
     # Tickers actifs (19)
@@ -1147,7 +1155,8 @@ def run(dry_run=False, push=False, token=""):
 
         # Score technique
         score_tech = calc_score_tech(rsi, price, ma20, ma50, h90, l90)
-        score_fond = FOND_SCORES.get(ticker, 5.0)
+        # Score fondamental : fondamentaux.json en priorité, table statique en fallback
+        score_fond = _FOND_COMPUTED.get(ticker) or FOND_SCORES.get(ticker, 5.0)
         bvc_score  = BVC_SCORES_BASE.get(ticker, 5.0)
 
         # Contexte spécifique ticker
