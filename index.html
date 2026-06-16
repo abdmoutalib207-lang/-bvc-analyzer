@@ -358,6 +358,7 @@ function getMarketStatus(){
   if(tot>=560&&tot<570)return{label:"PRÉ-OUVERTURE",color:"#ffd740",isOpen:false};  // 9h20-9h30
   if(tot>=570&&tot<930)return{label:"OUVERT",color:"#00e5a0",isOpen:true};           // 9h30-15h30
   if(tot>=930&&tot<940)return{label:"POST-CLÔTURE",color:"#4db8ff",isOpen:false};   // 15h30-15h40
+  if(tot>=940)return{label:"CLÔTURE",color:"#ffd740",isOpen:false};                  // 15h40 → fin journée
   return{label:"FERMÉ",color:"#ff4f5a",isOpen:false};
 }
 
