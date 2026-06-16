@@ -19,6 +19,13 @@ on:
     workflows: ["BVC Financial Data Pipeline v9", "BVC News Fetch"]
     types: [completed]
 
+  # Filet de sécurité 2 : push de news.json (GITHUB_TOKEN) → ne re-trigger PAS ce workflow.
+  # Mais le push manuel ou d'un autre bot DÉCLENCHE le BVC update si session ouverte.
+  # Garantit qu'au moins une mise à jour BVC par heure pendant la session.
+  push:
+    branches: [main]
+    paths: [news.json]
+
   # Déclenchement manuel depuis l'onglet Actions de GitHub
   workflow_dispatch:
     inputs:
