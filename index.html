@@ -372,6 +372,49 @@ function getMarketStatus(){
   return{label:"FERMÉ",color:"#ff4f5a",isOpen:false};
 }
 
+// ── MASI INDEX ────────────────────────────────────────────────────────────────
+// Essaie IDBourse indices, puis Médias24 (méthode index), puis Médias24 historyrique
+async function fetchMASI(){
+  // 1. IDBourse — scan get_all_data pour l'entrée MASI/indices
+  try{
+    const data=await bvcGet(`${IDB_BASE}/api/proxy/get_all_data`);
+    if(Array.isArray(data)){
+      const e=data.find(d=>{
+        const u=(d.url||"").toLowerCase();
+        const n=(d.name||"").toUpperCase();
+        return u.includes("/indices/masi")||u.includes("masi")||n==="MASI"||n.includes("MASI");
+      });
+      if(e&&e.dernier_cours)return{value:+e.dernier_cours,chg:e.variation!=null?+e.variation:0,src:"IDB"};
+    }
+  }catch{}
+  // 2. Médias24 — méthode getIndexInfo (si disponible)
+  try{
+    const d=await bvcGet(`${MED_BASE}?method=getIndexInfo&index=MASI&format=json`);
+    const r=d?.result;
+    if(r?.valeur||r?.cours||r?.value){
+      const v=+(r.valeur||r.cours||r.value);
+      const c=+(r.variation||r.chg||0);
+      if(v>0)return{value:v,chg:c,src:"M24"};
+    }
+  }catch{}
+  // 3. Médias24 — getPriceHistory MASI (ISIN index marocain)
+  try{
+    const to=new Date();const from=new Date(+to-2*86400000);
+    const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    const d=await bvcGet(`${MED_BASE}?method=getMASIHistory&from=${fmt(from)}&to=${fmt(to)}&format=json`);
+    const recs=d?.result;
+    if(Array.isArray(recs)&&recs.length>0){
+      const last=recs[recs.length-1];
+      const prev=recs.length>1?recs[recs.length-2]:null;
+      const v=+(last.value||last.cours||0);
+      const p=prev?+(prev.value||prev.cours||0):0;
+      const c=p>0?+((v-p)/p*100).toFixed(2):0;
+      if(v>0)return{value:v,chg:c,src:"M24"};
+    }
+  }catch{}
+  return null;
+}
+
 // ── UTILS ──────────────────────────────────────────────────────────────────────
 const SS=s=>{const u=(s||"").toUpperCase();
   if(u.includes("ACHAT FORT")||u.includes("★★★")) return{bg:"rgba(0,229,160,.18)",fg:"#00ffb3",bd:"rgba(0,229,160,.5)"};
@@ -737,7 +780,7 @@ const TickerTape=({rows})=>{
 };
 
 // ── HEADER ────────────────────────────────────────────────────────────────────
-const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode})=>{
+const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode,masi})=>{
   const [pulse,setPulse]=useState(false);
   const [clock,setClock]=useState("");
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
@@ -776,6 +819,11 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
               <span style={{color:"#c8d3e8",fontWeight:600}}>{ts||"—"}</span>
             </span>
             {mktStatus&&<span style={{background:`${mktStatus.color}18`,border:`1px solid ${mktStatus.color}40`,borderRadius:4,padding:"3px 10px",fontSize:11,color:mktStatus.color,fontWeight:700,letterSpacing:.5}}>BVC {mktStatus.label}</span>}
+            {masi&&<span style={{display:"flex",alignItems:"center",gap:6,background:"rgba(77,184,255,.08)",border:"1px solid rgba(77,184,255,.25)",borderRadius:4,padding:"3px 12px",fontSize:11}}>
+              <span style={{color:"#8892a4",letterSpacing:.5}}>MASI</span>
+              <span style={{color:"#c8d3e8",fontWeight:700}}>{masi.value.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+              <span style={{color:masi.chg>0?"#00e5a0":masi.chg<0?"#ff4f5a":"#8892a4",fontWeight:600}}>{masi.chg>0?"▲":"▼"}{Math.abs(masi.chg).toFixed(2)}%</span>
+            </span>}
           </div>
         </div>
         <div style={{display:"flex",gap:8,alignItems:"center"}}>
@@ -869,7 +917,7 @@ const Heatmap=({rows,setSel,setTab})=>{
 const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchlist=false,scoreMode})=>{
   const [search,setSearch]=useState("");
   const [sector,setSector]=useState("ALL");
-  const [group,setGroup]=useState("MASI1"); // MASI1 = 19 tickers NLP / ALL = univers élargi
+  const [group,setGroup]=useState("ALL"); // ALL = 77 titres / MASI1 = 19 tickers NLP
   const [sigFilter,setSigFilter]=useState(null);
   const [rsiZone,setRsiZone]=useState(null);
   const customMode=scoreMode&&!(scoreMode.f&&scoreMode.n&&scoreMode.t);
@@ -1998,10 +2046,19 @@ function App(){
   const [loading,setLoading]=useState(false);
   const [fetchErr,setFetchErr]=useState(false);
   const [mktStatus,setMktStatus]=useState(getMarketStatus());
+  const [masi,setMasi]=useState(null);
 
   // Update market status every 30s
   useEffect(()=>{
     const t=setInterval(()=>setMktStatus(getMarketStatus()),30000);
+    return()=>clearInterval(t);
+  },[]);
+
+  // MASI index — refresh toutes les 2 min
+  useEffect(()=>{
+    const load=()=>fetchMASI().then(m=>{if(m)setMasi(m);});
+    load();
+    const t=setInterval(load,120000);
     return()=>clearInterval(t);
   },[]);
 
@@ -2089,7 +2146,7 @@ function App(){
   return(
     <div style={{minHeight:"100vh"}}>
       <TickerTape rows={rows}/>
-      <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode}/>
+      <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode} masi={masi}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
         {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab}/>}
