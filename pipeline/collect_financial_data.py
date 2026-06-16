@@ -24,9 +24,10 @@ from pathlib import Path
 # Résolution des imports relatifs
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from pipeline.scrapers.constants import TICKERS, IPO_RECENT
-from pipeline.scrapers.market      import fetch_market_data
-from pipeline.scrapers.fundamentals import fetch_fundamentals
+from pipeline.scrapers.constants      import TICKERS, IPO_RECENT
+from pipeline.scrapers.market         import fetch_market_data
+from pipeline.scrapers.fundamentals   import fetch_fundamentals
+from pipeline.smart_money.fond_score  import compute_fond_score, reload as fond_reload
 from pipeline.scrapers.financials   import fetch_financials
 from pipeline.technical.indicators  import compute_technical
 from pipeline.smart_money.alpha     import get_smart_money
@@ -191,7 +192,7 @@ def to_legacy_format(pipeline_out: dict) -> dict:
         elif price < ma50:     score_tech -= 1.2
         score_tech = round(min(max(score_tech, 0), 10), 2)
 
-        fond_score = 5.0  # sera remplacé si update_data.py tourne
+        fond_score = compute_fond_score(sym)  # fondamentaux.json → 5.0 si absent
         nlp_score  = round((sc.get("smart", 0) + 1) * 5, 2)
         v53        = round(score_tech * 0.25 + fond_score * 0.47 + nlp_score * 0.28, 2)
 

@@ -1,0 +1,134 @@
+# ════════════════════════════════════════════════════════════
+# BVC Fondamentaux — Mise à jour via analyse de rapports annuels
+# Extraits PDF avec Claude API → fondamentaux.json
+# ════════════════════════════════════════════════════════════
+
+name: BVC Fondamentaux Update
+
+on:
+  schedule:
+    # Trimestriel : janvier, avril, juillet, octobre (après publications résultats)
+    - cron: '0 6 15 1,4,7,10 *'
+
+  workflow_dispatch:
+    inputs:
+      ticker:
+        description: 'Ticker spécifique (ex: MNG) ou vide pour tous'
+        required: false
+        default: ''
+        type: string
+      pdf_url:
+        description: 'URL PDF directe (optionnel)'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bvc-fondamentaux-update
+  cancel-in-progress: false
+
+jobs:
+  update-fondamentaux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Installer dépendances
+        run: pip install requests anthropic -q
+
+      - name: Vérifier ANTHROPIC_API_KEY
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "❌ ANTHROPIC_API_KEY non configuré — ajoutez le secret dans Settings → Secrets → Actions"
+            exit 1
+          fi
+          echo "✅ ANTHROPIC_API_KEY présent"
+
+      - name: Analyser ticker spécifique
+        if: github.event.inputs.ticker != ''
+        run: |
+          ARGS="--ticker ${{ github.event.inputs.ticker }}"
+          if [ -n "${{ github.event.inputs.pdf_url }}" ]; then
+            ARGS="$ARGS --pdf-url ${{ github.event.inputs.pdf_url }}"
+          fi
+          python pipeline/fetch_annual_reports.py $ARGS
+
+      - name: Analyser tous les tickers
+        if: github.event.inputs.ticker == '' || github.event_name == 'schedule'
+        run: python pipeline/fetch_annual_reports.py --all
+
+      - name: Recalculer les scores fondamentaux
+        run: |
+          python3 << 'EOF'
+          import sys
+          sys.path.insert(0, '.')
+          from pipeline.smart_money.fond_score import reload, score_all
+          data = reload()
+          scores = score_all(data)
+          import json
+          print("Scores fondamentaux recalculés:")
+          for sym, score in sorted(scores.items(), key=lambda x: -x[1]):
+              print(f"  {sym}: {score}/10")
+          print(f"Total: {len(scores)} tickers couverts")
+          EOF
+
+      - name: Commit fondamentaux.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name  "BVC Fundamentals Bot"
+          git config user.email "noreply@github.com"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset origin/main
+            git add fondamentaux.json
+            if git diff --cached --quiet; then
+              echo "Aucun changement dans fondamentaux.json — skip"
+              exit 0
+            fi
+            DATE=$(TZ="Africa/Casablanca" date "+%Y-%m-%d")
+            TICKER="${{ github.event.inputs.ticker }}"
+            MSG="data: fondamentaux ${TICKER:-all} — ${DATE}"
+            git commit -m "$MSG"
+            git push origin HEAD:main && echo "✅ fondamentaux.json mis à jour" && exit 0
+            echo "⚠️ Push échoué (tentative $attempt/3)..."
+            sleep $((attempt * 5))
+          done
+          exit 1
+
+      - name: Résumé
+        if: always()
+        run: |
+          echo "## BVC Fondamentaux — Résumé" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date** : $(TZ='Africa/Casablanca' date +'%Y-%m-%d %H:%M')" >> $GITHUB_STEP_SUMMARY
+          echo "- **Ticker** : ${{ github.event.inputs.ticker || 'tous' }}" >> $GITHUB_STEP_SUMMARY
+          if [ -f fondamentaux.json ]; then
+            python3 -c "
+          import json
+          d = json.load(open('fondamentaux.json'))
+          print(f'- **Tickers couverts** : {len(d)}')
+          from datetime import datetime, timezone
+          recent = [(s, v.get('date_maj','')) for s,v in d.items()]
+          recent.sort(key=lambda x: x[1], reverse=True)
+          top5 = recent[:5]
+          print(f'- **Mises à jour récentes** : {', '.join(s for s,_ in top5)}')
+          " >> $GITHUB_STEP_SUMMARY
+          fi
