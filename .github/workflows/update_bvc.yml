@@ -11,6 +11,9 @@ on:
     # Toutes les 15 min, lun-ven 8h-15h UTC (9h-16h Casablanca)
     # marge large — le gate step filtre l'heure exacte de session BVC
     - cron: '*/15 8-14 * * 1-5'
+    # Clôture officielle : capture les cours de clôture à 15h40 et 16h Casablanca
+    - cron: '45 14 * * 1-5'
+    - cron: '0 15 * * 1-5'
 
   # Déclenchement automatique après le pipeline financier (sync garantie)
   # + après chaque run du bot news (toutes les heures, 7j/7) — filet de sécurité

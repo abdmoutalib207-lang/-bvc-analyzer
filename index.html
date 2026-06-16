@@ -250,14 +250,24 @@ async function fetchMed24History(sym,days){
   return candles.length>=5?candles:null;
 }
 
-// fetchQuotes: IDBourse (batch) → patch Médias24 si chg=0 → Médias24 complet
+// fetchQuotes: CLÔTURE → Médias24 direct | OUVERT → IDBourse + patch Médias24 | Fallback → Médias24
 async function fetchQuotes(){
   const out={};
+  const mkt=getMarketStatus();
+
+  // Après clôture (15h40→minuit) : Médias24 directement — cours de clôture officiels
+  if(mkt.label==="CLÔTURE"){
+    await Promise.all(STATIC.map(async s=>{
+      const q=await fetchMed24Quote(s.symbol);
+      if(q)out[s.symbol]={...q,src:"Médias24·Clôture"};
+    }));
+    return Object.keys(out).length>0?out:null;
+  }
+
+  // Pendant la session : IDBourse (batch rapide) + patch Médias24 si chg=0
   const idb=await fetchIDB();
   if(idb){
     Object.assign(out,idb);
-    // Patch Médias24 pour les tickers où IDB renvoie chg=0 (cours figé/clôture)
-    const mkt=getMarketStatus();
     if(mkt.isOpen){
       const stale=Object.entries(out).filter(([,v])=>v.chg===0||v.chg==null).map(([k])=>k);
       if(stale.length>0){
@@ -269,7 +279,7 @@ async function fetchQuotes(){
     }
     return out;
   }
-  // Médias24 par titre (plus lent mais fiable)
+  // Fallback : Médias24 par titre
   await Promise.all(STATIC.map(async s=>{
     const q=await fetchMed24Quote(s.symbol);
     if(q)out[s.symbol]=q;
