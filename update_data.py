@@ -896,6 +896,7 @@ def run(dry_run=False, push=False, token=""):
     _fd_all  = {}
     _sf_all  = {}
     _ex_all  = {}
+    _ex_raw  = {}
     try:
         _p = Path(__file__).parent / "pipeline" / "historical_data.json"
         if _p.exists():
@@ -922,6 +923,20 @@ def run(dry_run=False, push=False, token=""):
     except Exception:
         pass
 
+    # Déterminer si on est sur une nouvelle session (date changée depuis dernier data.json)
+    _tz_ca = timezone(timedelta(hours=1))
+    _today_str = datetime.now(_tz_ca).strftime("%Y-%m-%d")
+    _prev_date_str = ""
+    try:
+        _prev_upd = _ex_raw.get("updated", "") if _ex_raw else ""
+        if _prev_upd:
+            _prev_date_str = datetime.fromisoformat(_prev_upd).astimezone(_tz_ca).strftime("%Y-%m-%d")
+    except Exception:
+        pass
+    _new_session = _today_str != _prev_date_str
+    if _new_session:
+        logger.info(f"Nouvelle session détectée ({_prev_date_str} → {_today_str}) — recalcul chg depuis clôtures")
+
     # 4. Traitement par ticker
     tickers_out = []
     for ticker in TICKERS:
@@ -932,6 +947,23 @@ def run(dry_run=False, push=False, token=""):
         price = lp.get("price") or 0
         chg   = lp.get("chg", 0)
         opn   = lp.get("open")
+
+        # Correction données périmées IDBourse :
+        # Si nouvelle session ET candle disponible → recalculer chg vs vraie clôture j-1
+        if price and _new_session:
+            _df_c = _candles_cache.get(ticker)
+            if _df_c is not None and len(_df_c) >= 1:
+                try:
+                    last_close = float(pd.to_numeric(_df_c["c"], errors="coerce").dropna().iloc[-1])
+                    if last_close > 0:
+                        if abs(price - last_close) < 0.01:
+                            # Prix inchangé par rapport à la clôture j-1 → titre non encore échangé
+                            chg = 0.0
+                        else:
+                            # Recalculer la vraie variation journalière
+                            chg = round((price - last_close) / last_close * 100, 2)
+                except Exception:
+                    pass
 
         # Historique Médias24 pour indicateurs techniques
         df = pd.DataFrame()
