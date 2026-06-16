@@ -54,6 +54,7 @@ SOURCE_CATEGORY = {
     "Medias24 Bourse":       "bvc",
     "Medias24":              "bvc",
     "IDBourse":              "bvc",
+    "Ilboursa":              "bvc",
     "L'Économiste Bourse":   "bvc",
     "HCP":                   "macro",
     "Bank Al-Maghrib":       "macro",
@@ -359,6 +360,7 @@ SOURCES_RSS = [
     ("https://www.ammc.ma/fr/rss.xml",                                  "AMMC"),
     ("https://www.leboursier.ma/feed",                                  "Le Boursier"),
     ("https://www.boursenews.ma/rss",                                   "BourseNews"),
+    ("https://www.ilboursa.com/actualites/rss",                        "Ilboursa"),
     ("https://www.alphabourse.com/feed/",                               "Alpha Bourse"),
     # ── Presse économique marocaine ──────────────────────────────────────────
     ("https://www.medias24.com/rss/bourse.xml",                         "Medias24 Bourse"),

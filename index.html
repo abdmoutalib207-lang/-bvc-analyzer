@@ -191,6 +191,12 @@ async function bvcGet(url){
   }
   return null;
 }
+async function bvcGetHTML(url){
+  for(const proxy of PROXY_LIST){
+    try{const r=await fetch(proxy+encodeURIComponent(url),{cache:"no-store"});if(r.ok)return r.text();}catch{}
+  }
+  return null;
+}
 
 // IDBourse: tous les tickers en un seul appel
 async function fetchIDB(){
@@ -365,9 +371,50 @@ function getMarketStatus(){
 }
 
 // ── MASI INDEX ────────────────────────────────────────────────────────────────
-// Essaie IDBourse indices, puis Médias24 (méthode index), puis Médias24 historyrique
+const CBC_BASE="https://www.casablanca-bourse.com/bourseweb";
 async function fetchMASI(){
-  // 1. IDBourse — scan get_all_data pour l'entrée MASI/indices
+  // 1. Casablanca Bourse officielle — Cours-Indices.aspx (scraping HTML)
+  try{
+    const html=await bvcGetHTML(`${CBC_BASE}/Cours-Indices.aspx`);
+    if(html){
+      const doc=new DOMParser().parseFromString(html,"text/html");
+      const rows=doc.querySelectorAll("tr");
+      for(const row of rows){
+        const cells=[...row.querySelectorAll("td")];
+        const labelCell=cells.find(c=>c.textContent.trim().toUpperCase()==="MASI");
+        if(labelCell){
+          // La valeur est généralement dans la cellule suivante ou celle d'après
+          for(let i=cells.indexOf(labelCell)+1;i<cells.length;i++){
+            const raw=cells[i].textContent.replace(/\s/g,"").replace(",",".");
+            const v=parseFloat(raw);
+            if(v>10000&&v<25000){
+              // Chercher la variation dans les cellules restantes
+              let c=0;
+              for(let j=i+1;j<cells.length;j++){
+                const vc=cells[j].textContent.replace(/\s/g,"").replace(",",".");
+                const p=parseFloat(vc);
+                if(!isNaN(p)&&Math.abs(p)<10)c=p;
+              }
+              return{value:v,chg:c,src:"CBC"};
+            }
+          }
+        }
+      }
+    }
+  }catch{}
+  // 2. IDBourse — endpoint indices spécifique
+  try{
+    const data=await bvcGet(`${IDB_BASE}/api/proxy/get_indices`);
+    if(Array.isArray(data)){
+      const masi=data.find(d=>(d.code||d.ticker||d.symbol||d.name||"").toUpperCase().includes("MASI"));
+      if(masi){
+        const v=+(masi.cours||masi.valeur||masi.last||masi.value||0);
+        const c=+(masi.variation||masi.chg||masi.change||0);
+        if(v>0)return{value:v,chg:c,src:"IDB"};
+      }
+    }
+  }catch{}
+  // 3. IDBourse — scan get_all_data pour l'entrée MASI
   try{
     const data=await bvcGet(`${IDB_BASE}/api/proxy/get_all_data`);
     if(Array.isArray(data)){
@@ -379,7 +426,7 @@ async function fetchMASI(){
       if(e&&e.dernier_cours)return{value:+e.dernier_cours,chg:e.variation!=null?+e.variation:0,src:"IDB"};
     }
   }catch{}
-  // 2. Médias24 — méthode getIndexInfo (si disponible)
+  // 4. Médias24 — méthode getIndexInfo
   try{
     const d=await bvcGet(`${MED_BASE}?method=getIndexInfo&index=MASI&format=json`);
     const r=d?.result;
@@ -389,7 +436,7 @@ async function fetchMASI(){
       if(v>0)return{value:v,chg:c,src:"M24"};
     }
   }catch{}
-  // 3. Médias24 — getPriceHistory MASI (ISIN index marocain)
+  // 5. Médias24 — historique MASI
   try{
     const to=new Date();const from=new Date(+to-2*86400000);
     const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
@@ -815,6 +862,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
               <span style={{color:"#8892a4",letterSpacing:.5}}>MASI</span>
               <span style={{color:"#c8d3e8",fontWeight:700}}>{masi.value.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
               <span style={{color:masi.chg>0?"#00e5a0":masi.chg<0?"#ff4f5a":"#8892a4",fontWeight:600}}>{masi.chg>0?"▲":"▼"}{Math.abs(masi.chg).toFixed(2)}%</span>
+              <span style={{fontSize:9,color:"#4a5568",marginLeft:2}}>{masi.src}</span>
             </span>}
           </div>
         </div>
