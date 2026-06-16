@@ -1111,20 +1111,19 @@ def run(dry_run=False, push=False, token=""):
                 if not l90:  l90  = sf_t.get("low_90d")  or round(price * 0.85, 2)
                 logger.info(f"  {ticker}: prix depuis static_fallback.json ({price} DH) — données statiques")
 
-        # Médias24 getStockInfo — données fraîches pour tout ticker sans prix/chg/vol
-        # (appelé peu importe l'état de session : couvre hors-session et IDB manquant)
-        if not price or not chg or not vol:
-            q = fetch_med24_quote(ticker)
-            if q:
-                if not price or not chg:
-                    price = q["price"]
-                    chg   = q["chg"]
-                if not opn:
-                    opn   = q["open"]
-                if not vol:
-                    vol   = q["vol"]
-                logger.info(f"  {ticker}: Médias24 → {price} DH (chg={chg:+.2f}%, vol={vol})")
-                time.sleep(0.15)
+        # Médias24 getStockInfo — source primaire pour prix et variation
+        # IDBourse retourne parfois la session précédente pour les titres peu échangés
+        # → Médias24 garantit des données fraîches de la session en cours
+        q = fetch_med24_quote(ticker)
+        if q:
+            price = q["price"]          # Médias24 prioritaire
+            chg   = q["chg"]
+            if not opn: opn = q.get("open")
+            if not vol: vol = q.get("vol") or lp.get("vol", 0)
+            logger.info(f"  {ticker}: Médias24 → {price} DH (chg={chg:+.2f}%, vol={vol})")
+            time.sleep(0.2)
+        elif not price:
+            logger.warning(f"  {ticker}: Médias24 et IDBourse indisponibles — données statiques")
 
         if not price:
             logger.warning(f"  {ticker}: ignoré (aucune donnée)")
