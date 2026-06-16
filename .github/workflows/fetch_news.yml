@@ -9,15 +9,18 @@ name: BVC News Fetch
 
 on:
   schedule:
-    # Toutes les heures pile — 7j/7 — 24h/24
+    # Toutes les heures pile — 7j/7 — 24h/24 (filet de sécurité si la chaîne se casse)
     - cron: '0 * * * *'
 
-  # Filet de sécurité : si le cron est sauté par GitHub, le push du bot BVC
-  # (data.json toutes les 15 min pendant session) déclenche aussi un fetch news.
-  # Les pushes du bot news lui-même (avec GITHUB_TOKEN) ne retriggent PAS ce workflow.
-  push:
-    branches: [main]
-    paths: [data.json]
+  # Chaîne auto-entretenue : BVC Data Update termine → déclenche news
+  # News termine → déclenche BVC Data Update (avec gate session)
+  # Cycle : BVC → news → BVC → news pendant toute la session (≈3-5 min/cycle)
+  # Hors session : news tourne seul via le cron horaire
+  workflow_run:
+    workflows: ["BVC Data Update"]
+    types: [completed]
+
+  workflow_dispatch:
 
   workflow_dispatch:
 
