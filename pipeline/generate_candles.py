@@ -6,7 +6,7 @@ Format: [{d:"YYYY-MM-DD", o:float, h:float, l:float, c:float, v:int}]
 """
 import sys, os, json, logging
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone, date as _date
 
 for pkg in ["pandas", "openpyxl", "requests", "numpy"]:
     try: __import__(pkg)
@@ -35,8 +35,17 @@ except Exception:
     TICKERS_ALL = []
 
 
+_TZ_CA = timezone(timedelta(hours=1))   # Africa/Casablanca (UTC+1 stable)
+
+def _is_trading_day(d: str) -> bool:
+    try:
+        dt = _date.fromisoformat(d)
+        return dt.weekday() < 5  # lun=0 … ven=4
+    except Exception:
+        return True
+
 def _med_history(isin: str, days: int = 400) -> pd.DataFrame:
-    to  = datetime.now()
+    to  = datetime.now(_TZ_CA)
     frm = to - timedelta(days=days + 30)
     try:
         r = requests.get(MED_BASE, params={
@@ -79,7 +88,10 @@ def _med_history(isin: str, days: int = 400) -> pd.DataFrame:
     if not rows:
         return pd.DataFrame()
     df = pd.DataFrame(rows).sort_values("d").reset_index(drop=True)
+    df = df[df["d"].apply(_is_trading_day)].reset_index(drop=True)
     df["o"] = df["c"].shift(1).fillna(df["c"]).round(2)
+    df["o"] = df[["o", "l"]].max(axis=1).round(2)
+    df["o"] = df[["o", "h"]].min(axis=1).round(2)
     return df
 
 
@@ -144,11 +156,10 @@ def generate_from_med24(skip_existing_tickers: set = None, days: int = 400) -> d
     Les candles XLSX vieilles (> 10 jours) sont enrichies automatiquement.
     """
     import time
-    from datetime import date as _date
     CANDLES_DIR.mkdir(exist_ok=True)
     if skip_existing_tickers is None:
         skip_existing_tickers = set()
-    today = _date.today().isoformat()
+    today = datetime.now(_TZ_CA).date().isoformat()
     results = {}
 
     for ticker in TICKERS_ALL:
