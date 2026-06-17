@@ -381,7 +381,7 @@ async function fetchMASI(){
       const rows=doc.querySelectorAll("tr");
       for(const row of rows){
         const cells=[...row.querySelectorAll("td")];
-        const labelCell=cells.find(c=>c.textContent.trim().toUpperCase()==="MASI");
+        const labelCell=cells.find(c=>c.textContent.trim().toUpperCase().includes("MASI"));
         if(labelCell){
           // La valeur est généralement dans la cellule suivante ou celle d'après
           for(let i=cells.indexOf(labelCell)+1;i<cells.length;i++){
@@ -1979,8 +1979,8 @@ const NewsFeed=()=>{
   const CAT_COLOR={"bvc":"#4db8ff","economie":"#8892a4","macro":"#ffd740","geopolitique":"#a78bfa","commodites":"#fb923c"};
 
   const scopeFiltered=useMemo(()=>{
-    if(scope==="MAROC")       return allNews.filter(a=>!INTL_CATS.has(a.category));
-    if(scope==="INTERNATIONAL") return allNews.filter(a=>INTL_CATS.has(a.category));
+    if(scope==="MAROC")         return allNews.filter(a=>!INTL_CATS.has(a.category||"economie"));
+    if(scope==="INTERNATIONAL") return allNews.filter(a=> INTL_CATS.has(a.category||"economie"));
     return allNews;
   },[allNews,scope]);
 
@@ -2012,8 +2012,8 @@ const NewsFeed=()=>{
     </div>
   );
 
-  const nMaroc=allNews.filter(a=>!INTL_CATS.has(a.category)).length;
-  const nIntl =allNews.filter(a=> INTL_CATS.has(a.category)).length;
+  const nMaroc=allNews.filter(a=>!INTL_CATS.has(a.category||"economie")).length;
+  const nIntl =allNews.filter(a=> INTL_CATS.has(a.category||"economie")).length;
 
   return(
     <div>
@@ -2067,8 +2067,8 @@ const NewsFeed=()=>{
       {/* Liste articles */}
       <div style={{display:"flex",flexDirection:"column",gap:8}}>
         {filtered.map(a=>{
-          const catColor=CAT_COLOR[a.category]||"#8892a4";
-          const catLabel=CAT_LABEL[a.category]||a.category||"";
+          const catColor=CAT_COLOR[a.category||"economie"]||"#8892a4";
+          const catLabel=CAT_LABEL[a.category||"economie"]||"Éco";
           return(
             <a key={a.id} href={a.url} target="_blank" rel="noopener noreferrer"
               style={{display:"block",background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 14px",textDecoration:"none",borderLeft:`3px solid ${SC(a.sentiment)}`,transition:"background .12s"}}
@@ -2100,7 +2100,7 @@ const NewsFeed=()=>{
 // Ne modifie PAS le score v5.3 stocké — lecture seule des sous-scores
 function computeDisplayScore(r, mode) {
   if (!mode || (mode.f && mode.n && mode.t)) return r.v53; // complet → v5.3 intact
-  const sf = r.bvc || 5;                                   // Fondamental (0-10)
+  const sf = r.bvc ?? 5;                                   // Fondamental (0-10)
   const sn = ((r.nlp || 0) + 1) * 5;                      // NLP [-1,+1] → [0,10]
   const st = r.score_tech != null
     ? r.score_tech
