@@ -52,96 +52,20 @@ try:
 except NameError:
     OUTPUT = Path("data.json")  # Colab : dossier courant
 
-from bvc_config import ISIN_MAP, IDB_NAME_MAP, TICKERS_ALL
+from bvc_config import ISIN_MAP, IDB_NAME_MAP, TICKERS_ALL, COMPANY_NAMES, COMPANY_SECTORS
 
 TICKERS = TICKERS_ALL
 
 # ─────────────────────────────────────────────────────────────────────────────
 # MÉTADONNÉES TICKERS (nom complet + secteur)
+# Source de vérité : bvc_config.COMPANY_NAMES / COMPANY_SECTORS
 # ─────────────────────────────────────────────────────────────────────────────
-
 TICKER_INFO = {
-    # ── Tickers actifs (19) ───────────────────────────────────────────
-    "CMT":  {"name": "Cie Minière de Touissit", "sector": "Mines"},
-    "SMI":  {"name": "S.M. Imiter",             "sector": "Matériaux"},
-    "CASH": {"name": "Cash Plus",               "sector": "Finance"},
-    "MNG":  {"name": "Managem",                 "sector": "Mines"},
-    "AKD":  {"name": "Akdital",                 "sector": "Santé"},
-    "SOT":  {"name": "Sothema",                 "sector": "Santé"},
-    "SGTM": {"name": "SGTM",                    "sector": "Construction"},
-    "MSA":  {"name": "Mutandis",                "sector": "Agro"},
-    "CFGB": {"name": "CFG Bank",                "sector": "Finance"},
-    "RIS":  {"name": "Résidences Immo.",        "sector": "Immo"},
-    "ADI":  {"name": "Alliances Dév.",          "sector": "Immo"},
-    "VCNE": {"name": "Vivo Energy",             "sector": "Distribution"},
-    "CMGP": {"name": "CMGP Group",              "sector": "Distribution"},
-    "CSR":  {"name": "Ciments de l'Atlas",      "sector": "Industrie"},
-    "TGCC": {"name": "TGCC",                    "sector": "Construction"},
-    "ADH":  {"name": "Addoha",                  "sector": "Distribution"},
-    "SRM":  {"name": "Stokvis",                 "sector": "Industrie"},
-    "SNA":  {"name": "Sonasid",                 "sector": "Industrie"},
-    "RDS":  {"name": "RDSA Maroc",              "sector": "Industrie"},
-    # ── Grandes capitalisations ───────────────────────────────────────
-    "IAM":  {"name": "Maroc Telecom",           "sector": "Telecom"},
-    "ATW":  {"name": "Attijariwafa Bank",        "sector": "Finance"},
-    "BCP":  {"name": "Banque Populaire",         "sector": "Finance"},
-    "BOA":  {"name": "Bank of Africa",           "sector": "Finance"},
-    "CIH":  {"name": "CIH Bank",                 "sector": "Finance"},
-    "CDM":  {"name": "Crédit du Maroc",          "sector": "Finance"},
-    "WAF":  {"name": "Wafa Assurance",           "sector": "Assurances"},
-    "LHM":  {"name": "LafargeHolcim Maroc",      "sector": "Matériaux"},
-    "GAZ":  {"name": "Afriquia Gaz",             "sector": "Energie"},
-    "ATL":  {"name": "Auto Hall",                "sector": "Distribution"},
-    "HPS":  {"name": "HPS",                      "sector": "Tech"},
-    "LBV":  {"name": "Label'Vie",                "sector": "Distribution"},
-    "LES":  {"name": "Lesieur Cristal",          "sector": "Agro"},
-    "TQA":  {"name": "Taqa Morocco",             "sector": "Energie"},
-    "MRL":  {"name": "Marsa Maroc",              "sector": "Services"},
-    "TMA":  {"name": "TotalEnergies Maroc",      "sector": "Energie"},
-    # ── Moyennes capitalisations ─────────────────────────────────────
-    "ARD":  {"name": "Aradei Capital",           "sector": "Immo"},
-    "SAF":  {"name": "Saham Assurance",          "sector": "Assurances"},
-    "OUL":  {"name": "Oulmès",                   "sector": "Agro"},
-    "CIM":  {"name": "Cimat",                    "sector": "Matériaux"},
-    "CTM":  {"name": "CTM",                      "sector": "Transport"},
-    "ZLD":  {"name": "Zellidja",                 "sector": "Mines"},
-    "ALU":  {"name": "Aluminium du Maroc",       "sector": "Industrie"},
-    "MGL":  {"name": "Maghreb Steel",            "sector": "Industrie"},
-    "DAR":  {"name": "Dar Saada",                "sector": "Immo"},
-    "IMI":  {"name": "Immorente Invest",         "sector": "Immo"},
-    "DTT":  {"name": "Disty Technologies",       "sector": "Tech"},
-    # ── Petites capitalisations ──────────────────────────────────────
-    "DSW":  {"name": "Disway",                   "sector": "Tech"},
-    "MOX":  {"name": "Maghreb Oxygène",          "sector": "Industrie"},
-    "STR":  {"name": "Stroc Industrie",          "sector": "Industrie"},
-    "TIM":  {"name": "Timar",                    "sector": "Services"},
-    "SNP":  {"name": "SNEP",                     "sector": "Industrie"},
-    "SLM":  {"name": "Salafin",                  "sector": "Finance"},
-    "JET":  {"name": "Jet Contractors",          "sector": "Construction"},
-    "M2M":  {"name": "M2M Group",                "sector": "Tech"},
-    "INV":  {"name": "Involys",                  "sector": "Tech"},
-    "S2M":  {"name": "S2M",                      "sector": "Tech"},
-    "COL":  {"name": "Colorado",                 "sector": "Industrie"},
-    "AFM":  {"name": "Afma",                     "sector": "Assurances"},
-    "AGM":  {"name": "Agma Lahlou-Tazi",         "sector": "Assurances"},
-    "FNB":  {"name": "Finance.com",              "sector": "Finance"},
-    "BAL":  {"name": "Balima",                   "sector": "Assurances"},
-    "NEJ":  {"name": "Nejma",                    "sector": "Distribution"},
-    "HAL":  {"name": "Hala",                     "sector": "Agro"},
-    "BMC":  {"name": "Brasseries du Maroc",      "sector": "Agro"},
-    "CAR":  {"name": "Cartier Saada",            "sector": "Immo"},
-    "AFI":  {"name": "Afine",                    "sector": "Immo"},
-    "MIC":  {"name": "Microdata",                "sector": "Tech"},
-    "MUT":  {"name": "Mutandis SCA",             "sector": "Agro"},
-    "ENK":  {"name": "Enkaje",                   "sector": "Services"},
-    "EQD":  {"name": "Equity",                   "sector": "Finance"},
-    "DHO":  {"name": "Daho",                     "sector": "Holding"},
-    "PPM":  {"name": "Papier Industrie",         "sector": "Industrie"},
-    "REB":  {"name": "Rebab Company",            "sector": "Immo"},
-    "SBS":  {"name": "Super Céréales",           "sector": "Agro"},
-    "STK":  {"name": "Stokvis Nord Afrique",     "sector": "Industrie"},
-    "UNI":  {"name": "Unimer",                   "sector": "Agro"},
-    "IBM":  {"name": "IB Maroc.com",             "sector": "Tech"},
+    sym: {
+        "name":   COMPANY_NAMES.get(sym, sym),
+        "sector": COMPANY_SECTORS.get(sym, "")
+    }
+    for sym in TICKERS_ALL
 }
 
 # Signal communauté BVC (consensus indépendant du score v5.3)
