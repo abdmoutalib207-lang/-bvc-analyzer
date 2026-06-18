@@ -880,22 +880,24 @@ def run(dry_run=False, push=False, token=""):
         chg   = lp.get("chg", 0)
         opn   = lp.get("open")
 
-        # Correction données périmées IDBourse :
-        # Si nouvelle session ET candle disponible → recalculer chg vs vraie clôture j-1
-        if price and _new_session:
+        # Correction données IDBourse : toujours recalculer vs vraie clôture j-1 (candle)
+        # IDBourse peut référencer une mauvaise date de référence, surtout sur 2e run intraday
+        if price:
             _df_c = _candles_cache.get(ticker)
             if _df_c is not None and len(_df_c) >= 1:
                 try:
                     last_close = float(pd.to_numeric(_df_c["c"], errors="coerce").dropna().iloc[-1])
                     if last_close > 0:
                         if abs(price - last_close) < 0.01:
-                            # Prix inchangé par rapport à la clôture j-1 → titre non encore échangé
                             chg = 0.0
                         else:
-                            # Recalculer la vraie variation journalière
                             chg = round((price - last_close) / last_close * 100, 2)
                 except Exception:
                     pass
+
+        # Safety cap : BVC fourchette de cours ±10% — toute valeur au-delà est une erreur source
+        if abs(chg) > 10:
+            chg = 0.0  # sera recalculé vs Médias24 si disponible (ligne ci-dessous)
 
         # Historique Médias24 pour indicateurs techniques
         df = pd.DataFrame()
