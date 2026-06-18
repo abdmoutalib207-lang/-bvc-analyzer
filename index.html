@@ -858,7 +858,7 @@ const TickerTape=({rows})=>{
             <span style={{color:"#2a3550",fontSize:8}}>◆</span>
             <span style={{color:"#c8d3e8",fontWeight:600,letterSpacing:.5}}>{r.symbol||r.ticker}</span>
             <span style={{color:"#4db8ff"}}>{(r.price||0).toFixed(2)}</span>
-            <span style={{color:nc(r.chg)}}>{r.chg>0?"▲":"▼"}{Math.abs(r.chg||0).toFixed(2)}%</span>
+            <span style={{color:nc(r.chg)}}>{r.chg>0?"▲":"▼"}{Math.abs(r.chg||0).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC">⚡</span>}</span>
           </span>
         ))}
       </div>
@@ -1155,7 +1155,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                     {px(r.close||r.price||r.prix)}
                     {r.live&&<span style={{fontSize:8,color:"#00e5a0",marginLeft:3,verticalAlign:"super"}}>●</span>}
                   </td>
-                  <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%</td>
+                  <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.pe>25?"#ff8f00":"#c8d3e8"}}>{r.pe?.toFixed(1)||"—"}</td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.div>4?"#00e5a0":"#c8d3e8"}}>{r.div?.toFixed(1)||"—"}%</td>
                   <td style={{padding:"8px 8px",fontSize:13,color:SC(r.bvc)}}>{r.bvc.toFixed(2)}</td>
@@ -1265,7 +1265,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
           {/* Score card */}
           <div style={{background:`linear-gradient(135deg,${s.bg},#0d1829)`,border:`1px solid ${s.bd}`,borderRadius:8,padding:16,textAlign:"center"}}>
             <div style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-              <span>{sym} · {px(price)} DH <span style={{color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%</span></span>
+              <span>{sym} · {px(price)} DH <span style={{color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
               <button onClick={()=>toggleFav(sym)} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
                 style={{fontSize:18,color:fav.includes(sym)?"#ffd740":"#2a3550",border:"none",background:"none",cursor:"pointer",padding:"0 2px",lineHeight:1,transition:"color .2s"}}>
                 {fav.includes(sym)?"★":"☆"}

@@ -1165,6 +1165,8 @@ def run(dry_run=False, push=False, token=""):
             "poids":  v53["poids"],
             "warn":   v53["warn"],
             "warnMsg":v53["warnMsg"],
+            # Alerte variation extrême (≥ ±8% approche limite BVC ±10%)
+            "chg_alert": abs(round(chg, 2)) >= 8.0,
             # Fondamentaux
             "bear":   fd.get("bear"),
             "base":   fd.get("base"),
@@ -1200,7 +1202,23 @@ def run(dry_run=False, push=False, token=""):
     OUTPUT.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
     logger.info(f"✅ data.json écrit → {OUTPUT}")
 
-    # 6b. Mise à jour des candles du jour (ajouter le point J pour que le graphique affiche aujourd'hui)
+    # 6b. Snapshot post-clôture — sauvegarde les vrais cours de fermeture
+    # Permet de recalculer la variation J+1 même si IDBourse retourne des prix stales
+    try:
+        snap_path = Path(__file__).parent / "snapshot_cloture.json"
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        snap_closes = {e["symbol"]: e["price"] for e in tickers_out if e.get("price", 0) > 0}
+        snap_data = {"date": today_str, "closes": snap_closes, "generated": datetime.now().isoformat()}
+        # Charger snapshot existant pour garder historique J-1
+        if snap_path.exists():
+            prev = json.loads(snap_path.read_text(encoding="utf-8"))
+            snap_data["prev"] = {"date": prev.get("date"), "closes": prev.get("closes", {})}
+        snap_path.write_text(json.dumps(snap_data, ensure_ascii=False, indent=2), encoding="utf-8")
+        logger.info(f"  📸 snapshot_cloture.json sauvegardé ({len(snap_closes)} tickers)")
+    except Exception as _e:
+        logger.warning(f"  snapshot_cloture : {_e}")
+
+    # 6c. Mise à jour des candles du jour (ajouter le point J pour que le graphique affiche aujourd'hui)
     try:
         today_str = datetime.now().strftime("%Y-%m-%d")
         candles_dir = Path(__file__).parent / "pipeline" / "candles"
