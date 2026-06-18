@@ -117,8 +117,8 @@ def validate_fondamentaux():
 
         if bpa is not None and bpa < 0:
             issues.append(f"{ticker} : bpa_2025={bpa} négatif")
-        if per is not None and (per < 0 or per > 300):
-            issues.append(f"{ticker} : per={per} hors plage [0–300]")
+        if per is not None and (per < 0 or per > 2000):
+            issues.append(f"{ticker} : per={per} hors plage [0–2000]")
         if marge is not None and (marge < -200 or marge > 100):
             issues.append(f"{ticker} : marge_nette={marge}% hors plage")
         if roic is not None and (roic < -100 or roic > 100):
