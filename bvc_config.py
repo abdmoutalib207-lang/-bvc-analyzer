@@ -32,7 +32,7 @@ COMPANY_NAMES: dict = {
     "CTM":  "Compagnie de Transports au Maroc",
     "ZLD":  "Zellidja",
     "SOT":  "Sothema",
-    "MSA":  "Mutandis SCA",
+    "MSA":  "Marsa Maroc",
     "ADI":  "Alliances Développement Immobilier",
     "ADH":  "Douja Promotion Addoha",
     "TGCC": "TGCC",                   # Travaux Généraux de Construction de Casablanca
@@ -143,7 +143,7 @@ COMPANY_SECTORS: dict = {
     "MIC":  "Technologies",
     "INV":  "Technologies",
     "HPS":  "Technologies & Paiement",
-    "MSA":  "FMCG",
+    "MSA":  "Logistique portuaire",
     "MUT":  "FMCG",
     "CTM":  "Transport",
     "TIM":  "Transport & Logistique",
