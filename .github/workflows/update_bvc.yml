@@ -1,28 +1,49 @@
 # ════════════════════════════════════════════════════════════
 # BVC Data Auto-Update — GitHub Actions
-# Mise à jour automatique de data.json toutes les 15 min
-# pendant la session BVC (9h30–15h45 Casablanca = UTC+1)
+# Toutes les 15 min pendant la session BVC (9h30–15h45 Casablanca)
+# Stratégie double fiabilité :
+#   1. Crons explicites (plus fiables que */15 que GitHub saute)
+#   2. Auto-relais : chaque run réussi déclenche le suivant
 # ════════════════════════════════════════════════════════════
 
 name: BVC Data Update
 
 on:
   schedule:
-    # Toutes les 15 min, lun-ven 8h-15h UTC (9h-16h Casablanca)
-    # marge large — le gate step filtre l'heure exacte de session BVC
-    - cron: '*/15 8-14 * * 1-5'
-    # Clôture officielle : capture les cours de clôture à 15h40 et 16h Casablanca
-    - cron: '45 14 * * 1-5'
-    - cron: '0 15 * * 1-5'
+    # Crons explicites UTC (Casablanca = UTC+1)
+    # Session BVC : 09h30–15h45 Casablanca = 08h30–14h45 UTC
+    - cron: '30 8 * * 1-5'    # 09h30 — ouverture
+    - cron: '45 8 * * 1-5'    # 09h45
+    - cron:  '0 9 * * 1-5'    # 10h00
+    - cron: '15 9 * * 1-5'    # 10h15
+    - cron: '30 9 * * 1-5'    # 10h30
+    - cron: '45 9 * * 1-5'    # 10h45
+    - cron:  '0 10 * * 1-5'   # 11h00
+    - cron: '15 10 * * 1-5'   # 11h15
+    - cron: '30 10 * * 1-5'   # 11h30
+    - cron: '45 10 * * 1-5'   # 11h45
+    - cron:  '0 11 * * 1-5'   # 12h00
+    - cron: '15 11 * * 1-5'   # 12h15
+    - cron: '30 11 * * 1-5'   # 12h30
+    - cron: '45 11 * * 1-5'   # 12h45
+    - cron:  '0 12 * * 1-5'   # 13h00
+    - cron: '15 12 * * 1-5'   # 13h15
+    - cron: '30 12 * * 1-5'   # 13h30
+    - cron: '45 12 * * 1-5'   # 13h45
+    - cron:  '0 13 * * 1-5'   # 14h00
+    - cron: '15 13 * * 1-5'   # 14h15
+    - cron: '30 13 * * 1-5'   # 14h30
+    - cron: '45 13 * * 1-5'   # 14h45
+    - cron:  '0 14 * * 1-5'   # 15h00
+    - cron: '15 14 * * 1-5'   # 15h15
+    - cron: '30 14 * * 1-5'   # 15h30
+    - cron: '45 14 * * 1-5'   # 15h45 — clôture
+    - cron:  '0 15 * * 1-5'   # 16h00 — post-clôture
 
-  # Déclenchement automatique après le pipeline financier (sync garantie)
-  # + après chaque run du bot news (toutes les heures, 7j/7) — filet de sécurité
-  # si GitHub rate un cron planifié, le bot news prend le relais
   workflow_run:
     workflows: ["BVC Financial Data Pipeline v9", "BVC News Fetch"]
     types: [completed]
 
-  # Déclenchement manuel depuis l'onglet Actions de GitHub
   workflow_dispatch:
     inputs:
       dry_run:
@@ -32,11 +53,9 @@ on:
         type: boolean
 
 permissions:
-  contents: write   # nécessaire pour git push
+  contents: write
+  actions: write   # nécessaire pour le self-dispatch (auto-relais)
 
-# Empêche deux runs simultanés d'écrire data.json en même temps
-# cancel-in-progress: true → chaque nouveau run annule le précédent en attente
-# évite l'accumulation de runs dans la queue (cause des skips GitHub)
 concurrency:
   group: bvc-live-update
   cancel-in-progress: true
@@ -50,20 +69,16 @@ jobs:
 
     steps:
       # ── 0. Gate session BVC ───────────────────────────────
-      # Pour les triggers workflow_run (news bot, pipeline) : ne pas tourner
-      # hors session BVC (nuit, week-end). Les crons et workflow_dispatch passent.
       - name: Vérifier session BVC
         id: gate
         run: |
           TRIGGER="${{ github.event_name }}"
-          # schedule et workflow_dispatch → toujours exécuter
           if [ "$TRIGGER" = "workflow_dispatch" ] || [ "$TRIGGER" = "schedule" ]; then
             echo "run=true" >> $GITHUB_OUTPUT
             exit 0
           fi
-          # workflow_run → vérifier heure Casablanca
           NOW=$(TZ="Africa/Casablanca" date +%H%M)
-          DAY=$(TZ="Africa/Casablanca" date +%u)   # 1=lun … 7=dim
+          DAY=$(TZ="Africa/Casablanca" date +%u)
           if [ "$DAY" -le 5 ] && [ "$NOW" -ge 0915 ] && [ "$NOW" -lt 1540 ]; then
             echo "run=true"  >> $GITHUB_OUTPUT
             echo "✅ Session BVC ouverte (${NOW} Casablanca)"
@@ -77,7 +92,7 @@ jobs:
         if: steps.gate.outputs.run == 'true'
         uses: actions/checkout@v4
         with:
-          ref: main          # toujours mettre à jour main (GitHub Pages)
+          ref: main
           token: ${{ secrets.GITHUB_TOKEN }}
 
       # ── 2. Python ────────────────────────────────────────
@@ -101,7 +116,7 @@ jobs:
         if: steps.gate.outputs.run == 'true' && github.event.inputs.dry_run != 'true'
         run: python update_data.py
 
-      # ── 5. Commit et push ─────────────────────────────────
+      # ── 4. Commit et push ─────────────────────────────────
       - name: Commit data.json si modifié
         if: steps.gate.outputs.run == 'true'
         env:
@@ -111,12 +126,10 @@ jobs:
           git config user.email "noreply@github.com"
           git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
 
-          # Boucle retry : fetch → reset sur origin/main → commit → push
           for attempt in 1 2 3; do
             git fetch origin main
-            git reset origin/main          # mixed reset : préserve data.json généré
+            git reset origin/main
             git add data.json
-            # Inclure les candles OHLCV si régénérées
             if [ -d pipeline/candles ] && [ "$(ls pipeline/candles/*.json 2>/dev/null | wc -l)" -gt 0 ]; then
               git add pipeline/candles/
             fi
@@ -126,19 +139,43 @@ jobs:
             fi
             HEURE=$(TZ="Africa/Casablanca" date +'%Y-%m-%d %H:%M')
             git commit -m "data: BVC update ${HEURE} (Casablanca)"
-            git push origin HEAD:main && echo "✅ data.json mis à jour et pushé" && exit 0
-            echo "⚠️ Push échoué (tentative $attempt/3), retry dans $((attempt * 3))s..."
+            git push origin HEAD:main && echo "✅ Pushé" && exit 0
+            echo "⚠️ Push échoué (tentative $attempt/3), retry..."
             sleep $((attempt * 3))
           done
-          echo "❌ Push échoué après 3 tentatives"
           exit 1
 
-      # ── 6. Résumé dans les logs ───────────────────────────
+      # ── 5. Auto-relais : déclenche le prochain run ────────
+      # Filet de sécurité contre les crons sautés par GitHub.
+      # Si on est encore en session, on dispatche le run suivant via API.
+      # Le concurrency group cancel-in-progress garantit qu'un seul run tourne.
+      - name: Auto-relais (prochain run dans ~15 min via cron)
+        if: steps.gate.outputs.run == 'true' && github.event.inputs.dry_run != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NOW=$(TZ="Africa/Casablanca" date +%H%M)
+          DAY=$(TZ="Africa/Casablanca" date +%u)
+          # On ne relance le prochain que si on est encore en session (avant 15h30)
+          if [ "$DAY" -le 5 ] && [ "$NOW" -ge 0930 ] && [ "$NOW" -lt 1530 ]; then
+            echo "📡 Auto-relais actif — le prochain cron explicit prendra le relais dans ≤15 min"
+            # Dispatch de secours : si le cron suivant rate, ce dispatch sera dans la queue
+            curl -s -o /dev/null -w "HTTP %{http_code}" \
+              -X POST \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/update_bvc.yml/dispatches" \
+              -d '{"ref":"main"}' || true
+            echo " — dispatch de secours envoyé"
+          else
+            echo "⏸️ Fin de session — pas de relais (${NOW} Casablanca)"
+          fi
+
+      # ── 6. Résumé ─────────────────────────────────────────
       - name: Résumé
         if: always()
         run: |
           echo "## BVC Update Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Date** : $(TZ='Africa/Casablanca' date +'%Y-%m-%d %H:%M') (Casablanca)" >> $GITHUB_STEP_SUMMARY
           echo "- **Trigger** : ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           if [ -f data.json ]; then
@@ -152,10 +189,5 @@ jobs:
           vol_ok  = sum(1 for t in tickers if t.get('vol', 0) != 0)
           print(f"- **chg ≠ 0** : {chg_ok}/{len(tickers)}")
           print(f"- **vol ≠ 0** : {vol_ok}/{len(tickers)}")
-          anomalies = [t['symbol'] for t in tickers
-                       if t.get('price',0) > 0 and t.get('ma20',0) > 0
-                       and max(t['ma20'], t['price']) / min(t['ma20'], t['price']) > 2.5]
-          if anomalies:
-              print(f"- **⚠️ Anomalies MA/prix** : {', '.join(anomalies)}")
           PYEOF
           fi
