@@ -579,21 +579,33 @@ const WBar=({f,n,t})=>(
   </div>
 );
 const LOGO_MAP={
+  /* Banques & Finance */
   IAM:"iam.ma",ATW:"attijariwafabank.com",BCP:"gbp.ma",BOA:"bankofafrica.net",
-  CIH:"cih.co.ma",CDM:"creditdumaroc.ma",WAF:"wafaassurance.ma",
-  LHM:"lafargeholcim.ma",GAZ:"afriquiagaz.ma",ATL:"atlantasanad.ma",
-  HPS:"hps-worldwide.com",LBV:"labelvie.ma",LES:"lesieur.ma",TQA:"taqa.com",
-  MSA:"marsamaroc.ma",TMA:"totalenergies.ma",CMT:"cmt.ma",MNG:"managem.ma",
-  SMI:"smimiter.com",AKD:"akdital.ma",CSR:"cosumar.ma",SOT:"sothema.ma",
-  TGCC:"tgcc.ma",CFGB:"cfgbank.ma",CMGP:"cmgp.ma",VCNE:"vivoenergy.ma",
-  RIS:"risma.ma",ADH:"addoha.ma",ADI:"alliances.ma",SNA:"sonasid.ma",
-  SGTM:"sgtm.ma",CASH:"cashplus.ma",MUT:"mutandis.ma",SRM:"srm.ma",
-  RDS:"residences-dar-saada.com",CIM:"cimentsdumaroc.ma",SAF:"sahamassurance.ma",
-  CTM:"ctm.ma",OUL:"oulmes.ma",ARD:"aradei.com",MGL:"maghrebail.ma",
-  DAR:"daricouspate.ma",IMI:"immorente.ma",DSW:"disway.ma",DTT:"distytechnologies.ma",
-  M2M:"m2mgroup.ma",INV:"involys.ma",SNP:"snep.ma",SLM:"salafin.ma",
-  JET:"jetcontractors.ma",ALU:"aluminium-maroc.ma",COL:"colorado.ma",
-  DHO:"deltaholding.ma",HAL:"auto-hall.ma",ZLD:"zellidja.ma",
+  CIH:"cih.co.ma",CDM:"creditdumaroc.ma",WAF:"wafaassurance.ma",CFGB:"cfgbank.ma",
+  ATL:"atlantasanad.ma",SAF:"salafin.ma",SLM:"sanlammaroc.ma",MGL:"maghrebail.ma",
+  EQD:"eqdom.ma",MRL:"marocleasing.ma",S2M:"s2m.ma",IBM:"ib-maroc.com",
+  /* Mines & Energie */
+  MNG:"managem.ma",SMI:"smimiter.com",CMT:"cmt.ma",ZLD:"zellidja.ma",
+  GAZ:"afriquiagaz.ma",TQA:"taqamorocco.ma",TMA:"totalenergies.ma",MOX:"maghreboxy.com",
+  /* Industrie & Construction */
+  LHM:"holcim.ma",CIM:"cimentsdumaroc.ma",TGCC:"tgcc.ma",SGTM:"sgtm.ma",
+  STR:"stroc.ma",ALU:"aluminium-maroc.ma",SNP:"snep.ma",SNA:"sonasid.ma",
+  STK:"stokvisna.com",AFI:"africind.com",
+  /* Distribution & Commerce */
+  LBV:"labelvie.ma",LES:"lesieurchristal.ma",CMGP:"cmgp.ma",DSW:"disway.ma",
+  DTT:"distytechnologies.ma",COL:"colorado.ma",HAL:"auto-hall.ma",NEJ:"autonnejma.com",
+  CSR:"cosumar.ma",DAR:"daricouspate.ma",FNB:"feniebrossette.ma",
+  /* Immobilier & Hôtellerie */
+  ADH:"addoha.ma",ADI:"alliances.ma",ARD:"aradei.com",RDS:"residences-dar-saada.com",
+  RIS:"risma.ma",IMI:"immorente.ma",BAL:"balima.ma",
+  /* Tech & Santé */
+  HPS:"hps-worldwide.com",AKD:"akdital.ma",SOT:"sothema.ma",MIC:"microdata.ma",
+  ENK:"ennakl.com.tn",PPM:"promopharm.ma",M2M:"m2mgroup.ma",INV:"involys.ma",
+  /* Divers */
+  MSA:"marsamaroc.ma",CTM:"ctm.ma",OUL:"oulmes.ma",VCNE:"vivoenergy.ma",
+  CASH:"cashplus.ma",MUT:"mutandis.ma",SRM:"srm.ma",DHO:"deltaholding.ma",
+  JET:"jetcontractors.ma",AGM:"agma.ma",AFM:"afma.ma",BMC:"bmci.ma",
+  CAR:"cartier-saada.ma",SBS:"sbm.ma",REB:"rebabcompany.com",
 };
 const SECTOR_COL={
   "Banques":"#1565C0","Finance":"#E65100","Assurances":"#6A1B9A",
@@ -607,20 +619,21 @@ const SECTOR_COL={
   "Matériaux":"#3E2723","Services":"#006064","Transport":"#1A237E",
   "FMCG":"#2E7D32","Grande distribution":"#0D47A1",
 };
-function CompanyLogo({sym,sector}){
+function CompanyLogo({sym,sector,size=32}){
   const domain=LOGO_MAP[sym];
   const bg=SECTOR_COL[sector]||"#1a2540";
   const [imgOk,setImgOk]=React.useState(!!domain);
+  const fs=Math.max(7,Math.round(size*0.28));
   return(
-    <div style={{width:26,height:26,borderRadius:5,overflow:"hidden",flexShrink:0,
-      border:"1px solid #1e2d4a",background:imgOk?"#fff":bg,display:"flex",
-      alignItems:"center",justifyContent:"center"}}>
+    <div style={{width:size,height:size,borderRadius:"50%",overflow:"hidden",flexShrink:0,
+      border:"2px solid #1e2d4a",background:imgOk?"#fff":bg,display:"flex",
+      alignItems:"center",justifyContent:"center",boxShadow:"0 1px 4px rgba(0,0,0,.4)"}}>
       {domain&&imgOk
-        ?<img src={`https://logo.clearbit.com/${domain}`} alt={sym} width={26} height={26}
-            style={{objectFit:"contain",width:"100%",height:"100%",display:"block"}}
+        ?<img src={`https://logo.clearbit.com/${domain}`} alt={sym}
+            style={{objectFit:"contain",width:"90%",height:"90%",display:"block"}}
             onError={()=>setImgOk(false)}/>
-        :<span style={{fontSize:8,fontWeight:700,color:"#fff",fontFamily:"monospace",
-            letterSpacing:0,lineHeight:1}}>{sym.slice(0,3)}</span>
+        :<span style={{fontSize:fs,fontWeight:700,color:"#fff",fontFamily:"monospace",
+            letterSpacing:-0.5,lineHeight:1,textAlign:"center"}}>{sym.slice(0,4)}</span>
       }
     </div>
   );
@@ -1264,6 +1277,9 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {/* Score card */}
           <div style={{background:`linear-gradient(135deg,${s.bg},#0d1829)`,border:`1px solid ${s.bd}`,borderRadius:8,padding:16,textAlign:"center"}}>
+            <div style={{display:"flex",justifyContent:"center",marginBottom:10}}>
+              <CompanyLogo sym={sym} sector={r.sector} size={56}/>
+            </div>
             <div style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
               <span>{sym} · {px(price)} DH <span style={{color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
               <button onClick={()=>toggleFav(sym)} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
