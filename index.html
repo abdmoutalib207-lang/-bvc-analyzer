@@ -1164,7 +1164,8 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                             {fav.includes(sym)?"★":"☆"}
                           </button>
                         </div>
-                        <div style={{fontSize:9,color:"#8892a4"}}>{r.sector}</div>
+                        {r.name&&<div style={{fontSize:9,color:"#a0aabf",maxWidth:140,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.name}</div>}
+                        <div style={{fontSize:8,color:"#5a6580"}}>{r.sector}</div>
                       </div>
                     </div>
                   </td>
