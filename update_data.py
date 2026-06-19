@@ -895,9 +895,9 @@ def run(dry_run=False, push=False, token=""):
                 except Exception:
                     pass
 
-        # Safety cap : BVC limite ±10%/j mais peut dépasser en cas de reprise après suspension
-        # On tolère jusqu'à 25% — au-delà c'est une erreur source quasi-certaine
-        if abs(chg) > 25:
+        # Safety cap : BVC limite réglementaire stricte ±10%/j
+        # Toute variation > 10% est une erreur source (mauvais cours de référence IDBourse)
+        if abs(chg) > 10:
             chg = 0.0  # sera recalculé vs Médias24 si disponible (ligne ci-dessous)
 
         # Historique Médias24 pour indicateurs techniques
