@@ -895,10 +895,16 @@ def run(dry_run=False, push=False, token=""):
                 except Exception:
                     pass
 
+        # Détection données stales IDBourse : prix = cours de référence J-1
+        # Se produit pour les titres peu liquides ou en début de séance
+        _idb_vol = lp.get("vol", 0)
+        if price > 0 and chg == 0 and _idb_vol == 0:
+            logger.warning(f"  {ticker}: IDBourse suspect — chg=0%, vol=0 → vérification Médias24")
+
         # Safety cap : BVC limite réglementaire stricte ±10%/j
         # Toute variation > 10% est une erreur source (mauvais cours de référence IDBourse)
         if abs(chg) > 10:
-            chg = 0.0  # sera recalculé vs Médias24 si disponible (ligne ci-dessous)
+            chg = 0.0  # sera recalculé par Médias24 puis recalcul final depuis candles
 
         # Historique Médias24 pour indicateurs techniques
         df = pd.DataFrame()
@@ -1063,6 +1069,33 @@ def run(dry_run=False, push=False, token=""):
         if not price:
             logger.warning(f"  {ticker}: ignoré (aucune donnée)")
             continue
+
+        # ── Recalcul final chg depuis candles ─────────────────────────────────
+        # IDBourse ET Médias24 peuvent retourner variation=0 alors que le prix a bougé
+        # (IDBourse retourne parfois le cours de référence J-1 comme cours actuel).
+        # On recalcule toujours la variation depuis la dernière clôture connue (candles).
+        # Si le résultat dépasse ±10% → anomalie de données → on garde 0 et on alerte.
+        _df_c_final = _candles_cache.get(ticker)
+        if _df_c_final is not None and len(_df_c_final) >= 1 and price > 0:
+            try:
+                _last_c = float(pd.to_numeric(_df_c_final["c"], errors="coerce").dropna().iloc[-1])
+                if _last_c > 0 and abs(price - _last_c) > 0.01:
+                    _chg_calc = round((price - _last_c) / _last_c * 100, 2)
+                    if abs(_chg_calc) <= 10.0:
+                        if _chg_calc != chg:
+                            logger.info(
+                                f"  {ticker}: chg corrigé {chg:+.2f}% → {_chg_calc:+.2f}%"
+                                f" (prix={price}, clôture_j-1={_last_c})"
+                            )
+                        chg = _chg_calc
+                    else:
+                        logger.warning(
+                            f"  {ticker}: variation calculée {_chg_calc:+.2f}% > ±10%"
+                            f" — cours de référence IDBourse suspect (prix={price}, ref={_last_c})"
+                        )
+                        chg = 0.0
+            except Exception:
+                pass
 
         if not opn:
             opn = round(price / (1 + chg / 100), 2) if chg else price
