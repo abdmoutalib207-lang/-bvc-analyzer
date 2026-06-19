@@ -620,18 +620,23 @@ const SECTOR_COL={
   "FMCG":"#2E7D32","Grande distribution":"#0D47A1",
 };
 function CompanyLogo({sym,sector,size=32}){
-  const domain=LOGO_MAP[sym];
   const bg=SECTOR_COL[sector]||"#1a2540";
-  const [imgOk,setImgOk]=React.useState(!!domain);
+  const [state,setState]=React.useState("svg");
+  const domain=LOGO_MAP[sym];
   const fs=Math.max(7,Math.round(size*0.28));
+  const svgSrc=`logos/${sym}.svg`;
   return(
     <div style={{width:size,height:size,borderRadius:"50%",overflow:"hidden",flexShrink:0,
-      border:"2px solid #1e2d4a",background:imgOk?"#fff":bg,display:"flex",
+      border:"2px solid #1e2d4a",background:state==="text"?bg:"#fff",display:"flex",
       alignItems:"center",justifyContent:"center",boxShadow:"0 1px 4px rgba(0,0,0,.4)"}}>
-      {domain&&imgOk
+      {state==="svg"
+        ?<img src={svgSrc} alt={sym}
+            style={{objectFit:"contain",width:"100%",height:"100%",display:"block"}}
+            onError={()=>setState(domain?"clearbit":"text")}/>
+        :state==="clearbit"
         ?<img src={`https://logo.clearbit.com/${domain}`} alt={sym}
             style={{objectFit:"contain",width:"90%",height:"90%",display:"block"}}
-            onError={()=>setImgOk(false)}/>
+            onError={()=>setState("text")}/>
         :<span style={{fontSize:fs,fontWeight:700,color:"#fff",fontFamily:"monospace",
             letterSpacing:-0.5,lineHeight:1,textAlign:"center"}}>{sym.slice(0,4)}</span>
       }
