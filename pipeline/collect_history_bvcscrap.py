@@ -3,15 +3,11 @@ import sys, json, time, argparse, logging
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-for pkg in ["bvcscrap", "pandas", "numpy", "openpyxl"]:
-    try:
-        __import__(pkg if pkg != "bvcscrap" else "BVCscrap")
-    except ImportError:
-        import subprocess
-        subprocess.run([sys.executable, "-m", "pip", "install", pkg, "-q"], check=True)
-
-import pandas as pd
-import numpy as np
+try:
+    import pandas as pd
+    import numpy as np
+except ImportError as _e:
+    sys.exit(f"Dépendance manquante : {_e}\nInstalle : pip install -r requirements_pipeline.txt")
 
 logging.basicConfig(
     level=logging.INFO,

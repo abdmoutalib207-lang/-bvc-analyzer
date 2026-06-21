@@ -90,7 +90,7 @@ jobs:
 
       - name: Installer dépendances
         if: steps.gate.outputs.run == 'true'
-        run: pip install requests numpy pandas -q
+        run: pip install -r requirements_pipeline.txt -q
 
       # ── 3. Mise à jour données ────────────────────────────
       - name: Mise à jour data.json (dry-run)

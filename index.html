@@ -2192,6 +2192,16 @@ function scoreModeLabel(mode) {
   return parts.join(" + ");
 }
 
+// ── DISCLAIMER AMMC ───────────────────────────────────────────────────────────
+const Disclaimer=()=>(
+  <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:200,background:"rgba(8,13,26,.93)",borderTop:"1px solid #1a2540",padding:"5px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:6}}>
+    <span style={{fontSize:10,color:"#4a5570",letterSpacing:.3}}>
+      ⚠ <strong style={{color:"#6b7a99"}}>À titre informatif uniquement</strong> — ne constitue pas un conseil en investissement. BVC Analyzer n'est pas agréé par l'AMMC. Les données sont fournies sans garantie d'exactitude.
+    </span>
+    <span style={{fontSize:9,color:"#2d3748",letterSpacing:.5}}>Sources : IDBourse · Médias24 · BVC · Rapports financiers annuels</span>
+  </div>
+);
+
 // ── APP ───────────────────────────────────────────────────────────────────────
 function App(){
   const [tab,setTab]=useState(()=>localStorage.getItem("bvc_tab")||"ranking");
@@ -2316,7 +2326,7 @@ function App(){
   const changeTab=(t)=>{setTab(t);localStorage.setItem("bvc_tab",t);};
 
   return(
-    <div style={{minHeight:"100vh"}}>
+    <div style={{minHeight:"100vh",paddingBottom:34}}>
       <TickerTape rows={rows}/>
       <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode} masi={masi}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
@@ -2329,6 +2339,7 @@ function App(){
         {tab==="nlp"      &&<NlpDash/>}
         {tab==="news"     &&<NewsFeed/>}
       </div>
+      <Disclaimer/>
     </div>
   );
 }

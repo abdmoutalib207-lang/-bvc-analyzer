@@ -19,12 +19,10 @@ import sys, os, json, time, argparse, logging, subprocess
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-# Auto-install deps si besoin (Colab)
-for pkg in ["requests", "numpy", "pandas"]:
-    try:
-        __import__(pkg)
-    except ImportError:
-        subprocess.run([sys.executable, "-m", "pip", "install", pkg, "-q"], check=True)
+try:
+    import requests, numpy, pandas
+except ImportError as _e:
+    sys.exit(f"Dépendance manquante : {_e}\nInstalle : pip install -r requirements_pipeline.txt")
 
 import requests
 import numpy as np
