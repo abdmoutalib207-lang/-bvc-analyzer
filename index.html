@@ -880,9 +880,10 @@ const TickerTape=({rows})=>{
 };
 
 // ── HEADER ────────────────────────────────────────────────────────────────────
-const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode,masi})=>{
+const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode,masi,dataUpdatedAt})=>{
   const [pulse,setPulse]=useState(false);
   const [clock,setClock]=useState("");
+  const [ageMin,setAgeMin]=useState(null);
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
   useEffect(()=>{
     const tick=()=>setClock(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit",second:"2-digit"}));
@@ -890,6 +891,13 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
     const t=setInterval(tick,1000);
     return()=>clearInterval(t);
   },[]);
+  // Recalcule l'âge des données toutes les 30s
+  useEffect(()=>{
+    const upd=()=>{if(dataUpdatedAt){setAgeMin(Math.round((Date.now()-new Date(dataUpdatedAt))/60000));}};
+    upd();const t=setInterval(upd,30000);return()=>clearInterval(t);
+  },[dataUpdatedAt]);
+  const ageColor=ageMin==null?"#4a5570":ageMin<20?"#00e5a0":ageMin<60?"#ffd740":"#ff4f5a";
+  const ageLabel=ageMin==null?"":ageMin<60?`${ageMin} min`:`${Math.round(ageMin/60)}h${ageMin%60>0?String(ageMin%60).padStart(2,"0"):""}`;
   const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"}];
   return(
     <div style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
@@ -914,9 +922,10 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
             <span style={{fontSize:13,color:"#00e5a0",fontWeight:700,letterSpacing:1,minWidth:72}}>{clock}</span>
             <span style={{color:"#1a2540"}}>|</span>
             <span style={{fontSize:11,color:"#8892a4",display:"flex",alignItems:"center",gap:5}}>
-              <span style={{display:"inline-block",width:7,height:7,borderRadius:"50%",background:pulse?"#00e5a0":"transparent",border:"1px solid #00e5a0",transition:"background .4s"}}/>
+              <span style={{display:"inline-block",width:7,height:7,borderRadius:"50%",background:ageColor,border:`1px solid ${ageColor}`,transition:"background .4s"}}/>
               <span style={{letterSpacing:.3}}>données :</span>
               <span style={{color:"#c8d3e8",fontWeight:600}}>{ts||"—"}</span>
+              {ageLabel&&<span style={{fontSize:10,color:ageColor,fontWeight:700,letterSpacing:.3,background:`${ageColor}18`,borderRadius:3,padding:"1px 5px"}}>{ageLabel}</span>}
             </span>
             {mktStatus&&<span style={{background:`${mktStatus.color}18`,border:`1px solid ${mktStatus.color}40`,borderRadius:4,padding:"3px 10px",fontSize:11,color:mktStatus.color,fontWeight:700,letterSpacing:.5}}>BVC {mktStatus.label}</span>}
             {masi&&<span style={{display:"flex",alignItems:"center",gap:6,background:"rgba(77,184,255,.08)",border:"1px solid rgba(77,184,255,.25)",borderRadius:4,padding:"3px 12px",fontSize:11}}>
@@ -2213,6 +2222,7 @@ function App(){
   const [fav,setFav]=useState(()=>{try{return JSON.parse(localStorage.getItem("bvc_fav")||"[]");}catch{return [];}});
   const toggleFav=useCallback(sym=>{setFav(prev=>{const next=prev.includes(sym)?prev.filter(x=>x!==sym):[...prev,sym];localStorage.setItem("bvc_fav",JSON.stringify(next));return next;});},[]);
   const [ts,setTs]=useState(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}));
+  const [dataUpdatedAt,setDataUpdatedAt]=useState(null); // timestamp ISO de la dernière mise à jour pipeline
   const [src,setSrc]=useState("connexion…");
   const [loading,setLoading]=useState(false);
   const [fetchErr,setFetchErr]=useState(false);
@@ -2274,6 +2284,7 @@ function App(){
         const timeStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit",second:"2-digit"}):"";
         const dateStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",year:"numeric"}):"";
         setTs(dateStr&&timeStr?`${dateStr} ${timeStr}`:"");
+        if(upd)setDataUpdatedAt(upd.toISOString());
         pipelineLoaded=true;
       }
     }catch{}
@@ -2328,7 +2339,7 @@ function App(){
   return(
     <div style={{minHeight:"100vh",paddingBottom:34}}>
       <TickerTape rows={rows}/>
-      <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode} masi={masi}/>
+      <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode} masi={masi} dataUpdatedAt={dataUpdatedAt}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
         {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab}/>}
