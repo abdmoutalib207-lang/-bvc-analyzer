@@ -157,5 +157,13 @@ jobs:
                        and max(t['ma20'], t['price']) / min(t['ma20'], t['price']) > 2.5]
           if anomalies:
               print(f"- **⚠️ Anomalies MA/prix** : {', '.join(anomalies)}")
+          stales = [t['symbol'] for t in tickers if t.get('stale')]
+          if stales:
+              lt = {t['symbol']: t.get('last_traded','?') for t in tickers if t.get('stale')}
+              print(f"- **⏸️ Stales (R9 — vol=0)** : {len(stales)}/77 — {', '.join(stales[:12])}")
+              # Détecter si tous stales depuis la même date (signature d'un problème systémique)
+              dates = set(lt.values())
+              if len(dates) == 1:
+                  print(f"  → Tous depuis : {list(dates)[0]} (vérifier IDBourse / marché fermé)")
           PYEOF
           fi

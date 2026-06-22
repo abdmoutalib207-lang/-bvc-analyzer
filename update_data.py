@@ -821,6 +821,23 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:
         logger.warning(f"  Candles cache : {_e}")
 
+    # Dernière date de transaction réelle par ticker (vol > 0, hors candle J si vol=0)
+    # Utilisé pour détecter les données stales (R9 : chg=0 + vol=0 en session ouverte)
+    _last_traded: dict[str, str] = {}
+    for _sym, _df in _candles_cache.items():
+        try:
+            if "d" not in _df.columns or "v" not in _df.columns:
+                continue
+            _vv = pd.to_numeric(_df["v"], errors="coerce").fillna(0)
+            _dd = _df["d"].astype(str)
+            _mask = _vv > 0
+            if _mask.any():
+                _last_traded[_sym] = _dd[_mask].iloc[-1]
+        except Exception:
+            pass
+    if _last_traded:
+        logger.info(f"  Derniers échanges réels (vol>0) : {len(_last_traded)} tickers indexés")
+
     # Pré-chargement des fichiers JSON statiques (une seule lecture pour tous les tickers)
     _hd_all  = {}
     _fd_all  = {}
@@ -1109,6 +1126,14 @@ def run(dry_run=False, push=False, token=""):
         else:
             setup = "NEUTRE"
 
+        # Détection stale (R9) : vol=0 pendant la session ouverte
+        # Signifie que ni IDBourse ni Médias24 n'ont de transaction aujourd'hui
+        # Prix affiché = dernière clôture connue — pas un mouvement du jour
+        is_stale = (mkt_status == "OPEN") and (int(vol) == 0)
+        if is_stale:
+            _lt = _last_traded.get(ticker, "?")
+            logger.info(f"  {ticker}: ⚠️ STALE — aucun échange aujourd'hui (dernier échange: {_lt})")
+
         info = TICKER_INFO.get(ticker, {})
         tickers_out.append({
             "symbol": ticker,
@@ -1165,6 +1190,9 @@ def run(dry_run=False, push=False, token=""):
             "warnMsg":v53["warnMsg"],
             # Alerte variation extrême (≥ ±8% approche limite BVC ±10%)
             "chg_alert": abs(round(chg, 2)) >= 8.0,
+            # Données stales (R9) : vol=0 en session ouverte → prix = dernière clôture connue
+            "stale":       is_stale,
+            "last_traded": _last_traded.get(ticker),
             # Fondamentaux
             "bear":   fd.get("bear"),
             "base":   fd.get("base"),
