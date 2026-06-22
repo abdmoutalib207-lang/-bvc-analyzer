@@ -15,8 +15,25 @@ try:
 except ImportError as _e:
     sys.exit(f"Dépendance manquante : {_e}\nInstalle : pip install -r requirements_pipeline.txt")
 
+try:
+    from rapidfuzz import fuzz as _fuzz
+    _RAPIDFUZZ_OK = True
+except ImportError:
+    _RAPIDFUZZ_OK = False
+
+sys.path.insert(0, str(Path(__file__).parent))
+try:
+    from ticker_aliases import TICKER_ALIASES
+except ImportError:
+    TICKER_ALIASES = {}
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s", datefmt="%H:%M:%S")
 log = logging.getLogger("NewsEngine")
+
+if not _RAPIDFUZZ_OK:
+    log.debug("rapidfuzz absent — fuzzy matching désactivé (pip install rapidfuzz)")
+if not TICKER_ALIASES:
+    log.warning("ticker_aliases.py introuvable — aucun ticker ne sera tagué")
 
 HEADERS = {
     "User-Agent": (
@@ -68,88 +85,7 @@ SOURCE_CATEGORY = {
     "Financial Afrik":       "geopolitique",
 }
 
-# ── Noms complets des sociétés cotées BVC ─────────────────────────────────────
-# Règle stricte : un ticker n'est tagué QUE si l'un de ces noms complets
-# apparaît dans le texte de l'article. Aucune détection par symbole court (3 lettres).
-TICKER_KEYWORDS = {
-    "IAM":  ["maroc telecom", "itissalat al maghrib", "itissalat al-maghrib"],
-    "ATW":  ["attijariwafa", "attijari wafa bank", "attijariwafa bank"],
-    "BCP":  ["banque centrale populaire", "banques populaires", "crédit populaire du maroc", "groupe banque populaire"],
-    "BOA":  ["bank of africa", "bmce bank of africa", "banque of africa"],
-    "CIH":  ["cih bank", "crédit immobilier et hôtelier", "cih banque"],
-    "CDM":  ["crédit du maroc", "credit du maroc"],
-    "WAF":  ["wafa assurance", "wafa insurance"],
-    "LHM":  ["lafargeholcim maroc", "lafarge holcim maroc", "lafarge maroc", "holcim maroc"],
-    "GAZ":  ["afriquia gaz", "afriquia gazs"],
-    "ATL":  ["auto hall", "autohall", "groupe auto hall"],
-    "HPS":  ["hightech payment systems", "hightech payment", "hps worldwide"],
-    "LBV":  ["label'vie", "labelvie", "groupe label vie", "label vie"],
-    "LES":  ["lesieur cristal", "lesieur-cristal"],
-    "TQA":  ["taqa morocco", "jlec", "taqa maroc", "jordanie low electricity"],
-    "MRL":  ["marsa maroc", "sodep maroc", "marsa maroc sa"],
-    "TMA":  ["totalenergies marketing maroc", "total energies maroc", "total maroc", "total marketing maroc"],
-    "CMT":  ["minière de touissit", "compagnie minière de touissit", "touissit", "cmt touissit"],
-    "MNG":  ["managem", "groupe managem", "managem group"],
-    "SMI":  ["s.m. imiter", "sm imiter", "société métallurgique imiter", "smiter"],
-    "AKD":  ["akdital", "groupe akdital", "cliniques akdital"],
-    "ARD":  ["aradei capital", "aradei"],
-    "SAF":  ["saham assurance", "sanlam maroc", "saham finances"],
-    "OUL":  ["oulmès", "eaux minérales d'oulmès", "brasseries du maroc oulmès"],
-    "CIM":  ["cimat", "ciments de l'atlas", "cimat maroc"],
-    "CTM":  ["compagnie de transports au maroc", "ctm voyages", "ctm transport"],
-    "ZLD":  ["zalagh", "groupe zalagh", "zalagh holding"],
-    "SOT":  ["sothema", "laboratoires sothema"],
-    "MSA":  ["mutandis", "mutandis sca"],
-    "ADI":  ["alliances développement", "alliance développement immobilier", "alliances immobilier", "alliances dév"],
-    "ADH":  ["addoha", "groupe addoha", "douja promotion addoha"],
-    "TGCC": ["tgcc", "travaux généraux de construction de casablanca"],
-    "CFGB": ["cfg bank", "cfg banks"],
-    "CASH": ["cash plus", "cash plus maroc"],
-    "SGTM": ["sgtm", "société générale de travaux du maroc"],
-    "CMGP": ["cmgp group", "cmgp"],
-    "VCNE": ["vivo energy maroc", "vivo energy"],
-    "RIS":  ["risma", "résidences touristiques de montagne et d'affaires"],
-    "CSR":  ["cosumar", "cosumar sa", "compagnie sucrière marocaine"],
-    "SNA":  ["sonasid", "société nationale de sidérurgie"],
-    "SRM":  ["stokvis maroc", "stokvis"],
-    "RDS":  ["résidences dar saada", "dar saada"],
-    "ALU":  ["aluminium du maroc", "aluminium maroc"],
-    "MGL":  ["maghrebail", "maroc leasing"],
-    "DAR":  ["dari couspate", "dar couspate"],
-    "IMI":  ["immorente invest", "immorente"],
-    "DTT":  ["disty technologies", "disty tech"],
-    "DSW":  ["delattre levivier maroc", "delattre levivier"],
-    "MOX":  ["maghreb oxygene", "maghreb oxygène"],
-    "STR":  ["stradim", "stradim immobilier"],
-    "TIM":  ["timar", "timar maroc"],
-    "SNP":  ["snep maroc", "société nationale d'électrolyse et de pétrochimie"],
-    "SLM":  ["salafin", "salafin maroc"],
-    "JET":  ["jet contractors", "jet contractor"],
-    "M2M":  ["m2m group", "m2m maroc"],
-    "INV":  ["involys", "involys maroc"],
-    "S2M":  ["s2m group", "soft mobile maroc", "s2m maroc"],
-    "COL":  ["colorado peintures", "colorado maroc", "colorado paints"],
-    "AFM":  ["africa middle east resources", "africa middle east"],
-    "AGM":  ["afric industries", "afric industries sa"],
-    "FNB":  ["fenié brossette", "fenie brossette"],
-    "BAL":  ["balima", "société balima"],
-    "NEJ":  ["nejma", "groupe nejma"],
-    "HAL":  ["haliopolis", "groupe haliopolis"],
-    "BMC":  ["brasseries du maroc", "brasseries marocaines"],
-    "CAR":  ["cartier saada", "cartier saâda"],
-    "AFI":  ["afriquia immobilier", "afriquia immo"],
-    "MIC":  ["microdata maroc", "microdata"],
-    "MUT":  ["mutuelle centrale maroc", "mutuelle centrale"],
-    "ENK":  ["encg maroc", "école nationale de commerce"],
-    "EQD":  ["eqdom", "eqdom maroc"],
-    "DHO":  ["douja prom", "douja promotion"],
-    "PPM":  ["papelera de tetuan", "papelera maroc", "papelera de tétouan"],
-    "REB":  ["rebab company", "rebab"],
-    "SBS":  ["société de brasseries du maroc"],
-    "STK":  ["stroc industrie", "stroc"],
-    "UNI":  ["unimer", "unimer maroc"],
-    "IBM":  ["industrie biologique maroc", "industrie biologique du maroc"],
-}
+FUZZY_THRESHOLD = 85
 
 # ── Mots-clés sentiment ───────────────────────────────────────────────────────
 POSITIVE_KW = [
@@ -176,14 +112,36 @@ def _sentiment(text: str) -> str:
     return "NEUTRE"
 
 def _tag_tickers(text: str) -> list:
-    """Tag uniquement si le NOM COMPLET de la société apparaît dans le texte.
-    Aucune détection par symbole court (3 lettres) — trop de faux positifs."""
+    """Tag tickers via substring exact (rapide) + fuzzy fallback (rapidfuzz si dispo).
+    Ne détecte jamais par symbole court — trop de faux positifs.
+    """
     t = text.lower()
-    found = []
-    for ticker, kws in TICKER_KEYWORDS.items():
-        if any(kw in t for kw in kws):
-            found.append(ticker)
-    return found
+    found: set[str] = set()
+
+    # Pass 1 : substring exact (O(n_tickers × n_aliases))
+    for ticker, aliases in TICKER_ALIASES.items():
+        if any(alias in t for alias in aliases):
+            found.add(ticker)
+
+    # Pass 2 : fuzzy matching par phrase (uniquement si rapidfuzz disponible)
+    if _RAPIDFUZZ_OK and len(t) > 30:
+        sentences = re.split(r"[.!?;:\n]", t)
+        for ticker, aliases in TICKER_ALIASES.items():
+            if ticker in found:
+                continue
+            for alias in aliases:
+                if len(alias) < 6:
+                    continue
+                for sent in sentences:
+                    if len(sent) < max(len(alias) - 8, 4):
+                        continue
+                    if _fuzz.token_set_ratio(alias, sent) >= FUZZY_THRESHOLD:
+                        found.add(ticker)
+                        break
+                if ticker in found:
+                    break
+
+    return list(found)
 
 def _article_id(url: str, title: str) -> str:
     return hashlib.md5(f"{url}{title}".encode()).hexdigest()[:12]
