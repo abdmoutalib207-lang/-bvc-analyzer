@@ -17,6 +17,7 @@ logging.basicConfig(
 log = logging.getLogger("BVCSCRAP_HIST")
 
 MANUAL_MAP: dict[str, str] = {
+    # ── Grandes capitalisations ───────────────────────────────────────────────
     "IAM":  "Maroc Telecom",
     "ATW":  "Attijariwafa",
     "BCP":  "BCP",
@@ -26,15 +27,17 @@ MANUAL_MAP: dict[str, str] = {
     "WAF":  "Wafa Assur",
     "LHM":  "LafargeHolcim",
     "GAZ":  "Afriquia Gaz",
-    "ATL":  "Auto Hall",
+    "ATL":  "AtlantaSanad",    # ATL = AtlantaSanad (assurance) — PAS Auto Hall (= HAL)
     "HPS":  "HPS",
     "LBV":  "LABEL VIE",
     "LES":  "Lesieur Cristal",
     "TQA":  "TAQA Morocco",
-    "MRL":  "SODEP",
+    "MRL":  "SODEP",           # SODEP = ancien nom BVCscrap pour Marsa Maroc (MRL)
     "TMA":  "Total Maroc",
+    "CMT":  "CMT",
     "MNG":  "Managem",
     "SMI":  "SMI",
+    # ── Moyennes capitalisations ──────────────────────────────────────────────
     "AKD":  "Akdital",
     "ARD":  "Aradei Capital",
     "SAF":  "Sanlam Maroc",
@@ -43,18 +46,26 @@ MANUAL_MAP: dict[str, str] = {
     "CTM":  "CTM",
     "ZLD":  "Zellidja",
     "SOT":  "SOTHEMA",
-    "MSA":  "Mutandis",
+    "MSA":  "Marsa Maroc",     # MSA = Marsa Maroc — PAS Mutandis (= MUT)
     "ADI":  "Alliances",
     "ADH":  "Addoha",
     "TGCC": "TGCC",
-    "CFGB": "BMCI",
-    "SRM":  "SRM",
-    "SNA":  "Sonasid",
+    "CFGB": "CFG Bank",        # CFGB = CFG Bank — PAS BMCI (= BMC)
+    "CASH": "Cash Plus",
+    "SGTM": "SGTM",
+    "CMGP": "CMGP Group",
+    "VCNE": "Vivo Energy",
     "RIS":  "Risma",
+    "CSR":  "Cosumar",
+    "SNA":  "Sonasid",
+    "SRM":  "SRM",
+    "RDS":  "Dar Saada",       # RDS = Résidences Dar Saada — DAR est Dari Couspate
     "ALU":  "Aluminium Maroc",
-    "DAR":  "Res.Dar Saada",
+    "MGL":  "Maghrebail",
+    "DAR":  "Dari Couspate",   # DAR = Dari Couspate (agroalim.) — PAS Dar Saada (= RDS)
     "IMI":  "Immr Invest",
     "DTT":  "Disty Technolog",
+    # ── Petites capitalisations ───────────────────────────────────────────────
     "DSW":  "DISWAY",
     "MOX":  "Maghreb Oxygene",
     "STR":  "STROC Indus",
@@ -68,15 +79,21 @@ MANUAL_MAP: dict[str, str] = {
     "COL":  "Colorado",
     "AFM":  "AFMA",
     "AGM":  "Agma",
+    "FNB":  "Fenie Brossette",
     "BAL":  "BALIMA",
     "NEJ":  "Auto Nejma",
+    "HAL":  "Auto Hall",       # HAL = Auto Hall — PAS ATL (= AtlantaSanad)
+    "BMC":  "BMCI",            # BMC = BMCI — PAS CFGB (= CFG Bank)
     "CAR":  "Cartier Saada",
     "AFI":  "Afric Indus",
     "MIC":  "Microdata",
-    "MUT":  "Mutandis",
+    "MUT":  "Mutandis",        # MUT = Mutandis SCA — PAS MSA (= Marsa Maroc)
+    "ENK":  "Enkaje",
     "EQD":  "EQDOM",
+    "DHO":  "Delta Holding",
+    "PPM":  "Papelera Tetuan",
     "REB":  "Rebab Company",
-    "SBS":  "Ste Boissons",
+    "SBS":  "Super Cereales",  # SBS = Super Céréales — PAS Société des Boissons
     "STK":  "Stokvis Nord Afr",
     "UNI":  "Unimer",
     "IBM":  "IBMaroc",

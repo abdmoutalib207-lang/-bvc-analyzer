@@ -33,7 +33,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests pandas numpy beautifulsoup4 lxml bvcscrap casabourse openpyxl
+          pip install requests pandas numpy openpyxl BVCscrap rapidfuzz
 
       - name: Collect historical data & compute indicators
         run: |
