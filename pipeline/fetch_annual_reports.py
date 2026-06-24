@@ -33,15 +33,11 @@ from pathlib import Path
 from io import BytesIO
 from urllib.parse import urljoin, urlparse
 
-for pkg in ["requests", "anthropic"]:
-    try:
-        __import__(pkg)
-    except ImportError:
-        import subprocess
-        subprocess.run([sys.executable, "-m", "pip", "install", pkg, "-q"], check=True)
-
-import requests
-import anthropic
+try:
+    import requests
+    import anthropic
+except ImportError as _e:
+    sys.exit(f"Dépendance manquante : {_e}\nInstalle : pip install -r requirements_pipeline.txt")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s", datefmt="%H:%M:%S")
 log = logging.getLogger("AnnualReports")

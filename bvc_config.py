@@ -26,7 +26,7 @@ COMPANY_NAMES: dict = {
     # ── Moyennes capitalisations ─────────────────────────────────────────────
     "AKD":  "Akdital",
     "ARD":  "Aradei Capital",
-    "SAF":  "Saham Assurance",
+    "SAF":  "Sanlam Maroc",               # ex-Saham Assurance (rebranding 2021)
     "OUL":  "Les Eaux Minérales d'Oulmès",
     "CIM":  "Ciments du Maroc",
     "CTM":  "Compagnie de Transports au Maroc",
