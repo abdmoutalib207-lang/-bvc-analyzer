@@ -1160,7 +1160,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   </td>
                   <td style={{padding:"8px 8px",fontSize:12,color:"#8892a4"}}>{px(r.open||+(( r.price||r.prix)/(1+(r.chg||0)/100)).toFixed(0))}</td>
                   <td style={{padding:"8px 8px",fontSize:13,color:"#c8d3e8",fontWeight:600}}>
-                    {px(r.close||r.price||r.prix)}
+                    {px(r.price||r.prix||r.close)}
                     {r.live&&<span style={{fontSize:8,color:"#00e5a0",marginLeft:3,verticalAlign:"super"}}>●</span>}
                   </td>
                   <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</td>
