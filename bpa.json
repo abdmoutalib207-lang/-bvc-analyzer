@@ -204,12 +204,12 @@
     "marge_nette": 7.0
   },
   "LES": {
-    "bpa": 0.26,
+    "bpa": null,
     "source": "resultats_officiels",
     "div_dh": 0.0,
     "roe": 1.0,
     "marge_nette": 0.15,
-    "note": "RNPG effondré à 8 MDH -66.7% FY2025 — pas de dividende"
+    "note": "RNPG 8 MDH FY2025 (-67%) — BPA proche zéro, PE courant non significatif — utilise estimation forward STATIC"
   },
   "ATL": {
     "bpa": 1.99,
@@ -436,11 +436,12 @@
     "marge_nette": 7.0
   },
   "SNA": {
-    "bpa": 7.4,
-    "source": "casablancabourse_derive",
+    "bpa": 148.1,
+    "source": "bookvaleur_2025",
     "div_dh": 0,
     "roe": 5.0,
-    "marge_nette": 2.0
+    "marge_nette": 2.0,
+    "note": "Corrigé depuis BOOKVALEUR 2025 (bpa_2026=148.1 MAD) — source casablancabourse_derive était erronée"
   },
   "BAL": {
     "bpa": 18.92,
