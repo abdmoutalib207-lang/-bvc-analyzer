@@ -11,7 +11,7 @@ COMPANY_NAMES: dict = {
     "CIH":  "Crédit Immobilier et Hôtelier",
     "CDM":  "Crédit du Maroc",
     "WAF":  "Wafa Assurance",
-    "LHM":  "LafargeHolcim Maroc",
+    "LHM":  "Holcim Maroc",
     "GAZ":  "Afriquia Gaz",
     "ATL":  "AtlantaSanad",
     "HPS":  "Hightech Payment System",
@@ -38,9 +38,9 @@ COMPANY_NAMES: dict = {
     "TGCC": "TGCC",                   # Travaux Généraux de Construction de Casablanca
     "CFGB": "CFG Bank",
     "CASH": "Cash Plus",
-    "SGTM": "SGTM",
+    "SGTM": "SGTM S.A.",
     "CMGP": "CMGP Group",
-    "VCNE": "Vivo Energy Maroc",
+    "VCNE": "Vivo Energy Maroc",   # Wafabourse affiche "VICENNE" — vérifier si renommage
     "RIS":  "Risma",
     "CSR":  "Cosumar",                # NE PAS CONFONDRE AVEC CIM (Ciments de l'Atlas)
     "SNA":  "Sonasid",
@@ -74,10 +74,10 @@ COMPANY_NAMES: dict = {
     "AFI":  "Afric Industries",
     "MIC":  "Microdata",
     "MUT":  "Mutandis SCA",
-    "ENK":  "Enkaje",
+    "ENK":  "Ennakl",
     "EQD":  "Crédit Eqdom",
     "DHO":  "Delta Holding",
-    "PPM":  "Promopharm",  # TODO: vérifier le nom officiel BVC (ticker ISIN MA0000011660)
+    "PPM":  "Promopharm",
     "REB":  "Rebab Company",
     "SBS":  "Super Céréales",
     "STK":  "Stokvis Nord Afrique",
@@ -161,7 +161,7 @@ COMPANY_SECTORS: dict = {
     "IBM":  "Technologies",
     "ENK":  "Services",
     "DHO":  "Holdings",
-    "PPM":  "Papier & Emballage",
+    "PPM":  "Pharmacie",
     "REB":  "Textile",
     "SBS":  "Agroalimentaire",
     "UNI":  "Agroalimentaire",
