@@ -77,9 +77,9 @@ COMPANY_NAMES: dict = {
     "ENK":  "Enkaje",
     "EQD":  "Crédit Eqdom",
     "DHO":  "Delta Holding",
-    "PPM":  "Papelera de Tétouan",
+    "PPM":  "Promopharm",  # TODO: vérifier le nom officiel BVC (ticker ISIN MA0000011660)
     "REB":  "Rebab Company",
-    "SBS":  "Société des Brasseries du Maroc",
+    "SBS":  "Super Céréales",
     "STK":  "Stokvis Nord Afrique",
     "UNI":  "Unimer",
     "IBM":  "IB Maroc.com",
