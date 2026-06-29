@@ -28,7 +28,6 @@ from pipeline.scrapers.constants      import TICKERS, IPO_RECENT
 from pipeline.scrapers.market         import fetch_market_data
 from pipeline.scrapers.fundamentals   import fetch_fundamentals
 from pipeline.smart_money.fond_score  import compute_fond_score, reload as fond_reload
-from pipeline.scrapers.financials   import fetch_financials
 from pipeline.technical.indicators  import compute_technical
 from pipeline.smart_money.alpha     import get_smart_money
 from pipeline.utils.validation      import validate_ticker_data
@@ -120,27 +119,11 @@ def collect_ticker(sym: str, fallback: dict, dry_run: bool = False) -> tuple[str
         result["fundamentals"] = {k: fb.get(k) for k in fund_keys if fb.get(k) is not None}
         result["_sources"]["fundamentals"] = "fallback"
 
-    # ── 4. Performance financière ─────────────────────────────────────────────
-    try:
-        fins = fetch_financials(sym)
-        if fins:
-            result["financials_performance"] = fins
-    except Exception as e:
-        log.warning(f"financials FAIL: {e} → fallback")
-        result["financials_performance"] = {
-            "revenue_mdh": {
-                y: fb.get(f"revenue_{y}")
-                for y in ["2025","2024","2023"]
-                if fb.get(f"revenue_{y}") is not None
-            } or None,
-            "net_income_mdh": {
-                y: fb.get(f"net_income_{y}")
-                for y in ["2025","2024","2023"]
-                if fb.get(f"net_income_{y}") is not None
-            } or None,
-            "net_debt_to_ebitda": fb.get("net_debt_to_ebitda"),
-            "free_cash_flow_mdh": None,
-        }
+    # ── 4. Performance financière ── désactivé
+    #    fetch_financials scrape des articles de presse Médias24 (jusqu'à 20 req/ticker)
+    #    et n'a jamais retourné de données (CA={}, RN={} sur tous les tickers).
+    #    Non consommé par to_legacy_format() ni par fond_score.py.
+    #    Cause principale du timeout à 20 min — à réactiver avec une source API structurée.
 
     # ── 5. Smart Money ────────────────────────────────────────────────────────
     result["smart_money"] = get_smart_money(sym)
