@@ -193,7 +193,7 @@ def to_legacy_format(pipeline_out: dict) -> dict:
             "open":     m.get("open"),
             "close":    m.get("price"),
             "chg":      m.get("variation_pct") or 0,
-            "volume":   m.get("volume"),
+            "vol":      m.get("volume"),            # index.html lit t.vol, pas t.volume
             "pe":       f.get("pe_ratio_ttm"),
             "pb":       f.get("pb_ratio"),
             "div":      f.get("dividend_yield"),
@@ -205,10 +205,11 @@ def to_legacy_format(pipeline_out: dict) -> dict:
             "ma50":     t.get("ma50"),
             "v53":      v53,
             "bvc":      round(fond_score, 2),
+            "delta":    round(v53 - fond_score, 2), # manquait → plantait Delta component
             "nlp":      nlp_score,
             "sig":      sig(v53),
             "alpha":    sm.get("alpha_12m"),
-            "win_rate": sm.get("win_rate_6m"),
+            "win":      sm.get("win_rate_6m"),      # index.html lit r.win, pas r.win_rate
             "stale":    d["flags"]["stale"],
             "partial":  d["flags"]["partial_data"],
         })

@@ -568,6 +568,7 @@ const Chip=({label,bg,fg,bd,sz=11})=>(
   <span style={{display:"inline-block",whiteSpace:"nowrap",background:bg,color:fg,border:`1px solid ${bd}`,borderRadius:4,padding:"2px 8px",fontSize:sz,fontWeight:600,fontFamily:"var(--font)"}}>{label}</span>
 );
 const Delta=({d})=>{
+  if(d==null||isNaN(d))return<span style={{fontSize:10,padding:"1px 5px",borderRadius:3,background:"#8892a415",color:"#8892a4",border:"1px solid #8892a428",fontWeight:700}}>—</span>;
   const c=d>0?"#00e5a0":d<0?"#ff4f5a":"#8892a4";
   return <span style={{fontSize:10,padding:"1px 5px",borderRadius:3,background:`${c}15`,color:c,border:`1px solid ${c}28`,fontWeight:700}}>{d>0?"+":""}{d.toFixed(2)}</span>;
 };
@@ -2223,7 +2224,8 @@ function App(){
     setRows(prev=>prev.map(s=>{
       const live=liveMap[s.symbol];
       if(!live)return s;
-      return{...s,...live};
+      const defined=Object.fromEntries(Object.entries(live).filter(([,v])=>v!==undefined));
+      return{...s,...defined};
     }));
   },[]);
 
