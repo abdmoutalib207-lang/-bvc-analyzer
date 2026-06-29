@@ -7,11 +7,11 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from bvc_config import ISIN_MAP, TICKERS_DEFAUT, TICKERS_ALL  # noqa: E402
+from bvc_config import ISIN_MAP, TICKERS_DEFAUT, TICKERS_ALL, TICKERS_ACTIFS  # noqa: E402
 
 PROXY = "https://corsproxy.io/?"
 
-TICKERS = TICKERS_ALL
+TICKERS = TICKERS_ACTIFS   # 19 MASI 1 — expansion 77 à traiter séparément (timeout)
 
 IPO_RECENT = {"CASH", "VCNE", "SGTM"}
 
