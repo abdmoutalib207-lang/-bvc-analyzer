@@ -134,6 +134,12 @@ Quand tu réponds à une question :
   **Prochain chantier prioritaire** : fiabiliser les sources fondamentales
   (proxy dédié ? autre IP ? source structurée type API officielle BVC/AMMC ?).
 
+- **Crash rendu corrigé** (`toFixed` sur undefined) : `to_legacy_format()` n'émettait pas
+  `delta`, utilisait `volume` au lieu de `vol` et `win_rate` au lieu de `win`. `mergeLive`
+  écrasait les valeurs STATIC avec `undefined`. Trois corrections : pipeline émet `delta/vol/win`,
+  `mergeLive` filtre les `undefined` avant spread, composant `Delta` null-safe. Terminal
+  s'affiche correctement ✅
+
 - **Reste à faire** :
   - 5 titres stale (RDS, RIS, SMI, SOT, SRM) — IDBourse + Médias24 ne les retournent
     pas depuis GitHub Actions, cause inconnue (nom différent dans le batch ? ISIN filtré ?)
