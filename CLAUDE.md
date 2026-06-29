@@ -117,3 +117,25 @@ Quand tu réponds à une question :
 2. Si tu n'es pas sûr, dis-le explicitement
 3. Propose toujours une alternative si tu refuses une approche
 4. Réponds en français (langue de travail du projet)
+
+## Journal des décisions
+
+### 2026-06-29
+
+- **Étape 4 (`fetch_financials`) désactivée** dans `pipeline/collect_financial_data.py`.
+  Cause : scraping d'articles Médias24 (jusqu'à 20 req/ticker, ~400s pire cas) → timeout
+  GitHub Actions 20 min systématique. La fonction n'avait jamais retourné de données
+  (CA={}, RN={} sur 19/19 tickers) et n'est consommée ni par `to_legacy_format()` ni par
+  `fond_score.py`. Résultat : pipeline passe en **3 min 29** ✅
+
+- **CONSTAT — scrapers fondamentaux** : Médias24 API et casabourse.ma échouent
+  systématiquement depuis l'IP GitHub Actions. Toutes les valeurs PE/BPA/DIV viennent
+  de `fallback_data.json` (données statiques historiques, cohérentes mais non fraîches).
+  **Prochain chantier prioritaire** : fiabiliser les sources fondamentales
+  (proxy dédié ? autre IP ? source structurée type API officielle BVC/AMMC ?).
+
+- **Reste à faire** :
+  - 5 titres stale (RDS, RIS, SMI, SOT, SRM) — IDBourse + Médias24 ne les retournent
+    pas depuis GitHub Actions, cause inconnue (nom différent dans le batch ? ISIN filtré ?)
+  - Expansion 77 titres — à traiter dans une session dédiée avec refonte du timeout
+    (découpage par batch ou parallélisme ProcessPool)
