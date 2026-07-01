@@ -158,3 +158,24 @@ Quand tu réponds à une question :
   `sm.get("win_rate_6m")` et `sm.get("alpha_12m")` retournent None depuis GitHub Actions.
   Cause liée au chantier sources Smart Money (même IP bloquée que pour les fondamentaux).
   À traiter dans la session dédiée aux sources GitHub Actions.
+
+- **Audit ISIN complet (77 tickers) + 4 corrections MASI1** (commit `a43d09e`) :
+  - **Cause des ISIN faux** : saisie manuelle sans validation croisée. Les ISINs erronés
+    ressemblent à des instruments temporaires (DPS/BSA lors d'augmentations de capital)
+    copiés à la place de l'ISIN de l'action permanente.
+  - **4 ISIN corrigés** (validés Médias24 ✅) :
+    - RIS `MA0000011140` → `MA0000011462` (Risma P, 334.60 DH)
+    - RDS `MA0000012130` → `MA0000012239` (Res.Dar Saada, 173.00 DH)
+    - SMI `MA0000011041` → `MA0000010068` (SMI P, 6149.00 DH — fallback était 9372, erreur +52%)
+    - SRM `MA0000011538` → `MA0000011595` (SRM P, 466.95 DH)
+  - **3 fallback critiques mis à jour** (`pipeline/fallback_data.json`) :
+    - SMI : 9372→6149 DH (ratios recalculés, EPS 253 inchangé)
+    - AKD : 628→1172 DH (+87% — pe/pb nullifiés, vérifier si split ou appréciation)
+    - SNA : 568→1984 DH (+249% — tous ratios nullifiés, probablement opération sur titres)
+  - **⚠️ STR ISIN dupliqué** : `MA0000011942` est l'ISIN d'Ennakl (ENK). STR affiche
+    silencieusement le prix d'Ennakl (~54 DH) au lieu de STROC Industrie. ISIN correct
+    de STROC à chercher (probablement `MA0000012056` dans Médias24). À corriger séparément.
+  - **SOT absent Médias24** : `MA0000012833` introuvable dans le référentiel Médias24 (75 stocks).
+    Piste : `yfinance SOT.CS`. À investiguer.
+  - **ZLD ISIN inconnu** : `MA0000011124` absent Médias24 ; Zellidja P → `MA0000010571`.
+    Non prioritaire (ZLD hors TICKERS_ACTIFS).
