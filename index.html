@@ -559,6 +559,7 @@ function calcSR(candles,price){
 }
 
 // ── ATOMS ────────────────────────────────────────────────────────────────────
+const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":(+n).toFixed(d);
 const Bar=({v,max=10,c,h=6})=>(
   <div style={{background:"#0d1829",borderRadius:3,height:h,overflow:"hidden"}}>
     <div style={{width:`${Math.min(100,v/max*100)}%`,height:"100%",background:c,boxShadow:`0 0 6px ${c}40`,transition:"width .5s"}}/>
@@ -917,7 +918,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
             {masi&&<span style={{display:"flex",alignItems:"center",gap:6,background:"rgba(77,184,255,.08)",border:"1px solid rgba(77,184,255,.25)",borderRadius:4,padding:"3px 12px",fontSize:11}}>
               <span style={{color:"#8892a4",letterSpacing:.5}}>MASI</span>
               <span style={{color:"#c8d3e8",fontWeight:700}}>{masi.value.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
-              <span style={{color:masi.chg>0?"#00e5a0":masi.chg<0?"#ff4f5a":"#8892a4",fontWeight:600}}>{masi.chg>0?"▲":"▼"}{Math.abs(masi.chg).toFixed(2)}%</span>
+              <span style={{color:(masi.chg||0)>0?"#00e5a0":(masi.chg||0)<0?"#ff4f5a":"#8892a4",fontWeight:600}}>{(masi.chg||0)>0?"▲":"▼"}{fmt(masi.chg!=null?Math.abs(masi.chg):null)}%</span>
               <span style={{fontSize:9,color:"#4a5568",marginLeft:2}}>{masi.src}</span>
             </span>}
           </div>
@@ -1167,15 +1168,15 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.pe>25?"#ff8f00":"#c8d3e8"}}>{r.pe?.toFixed(1)||"—"}</td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.div>4?"#00e5a0":"#c8d3e8"}}>{r.div?.toFixed(1)||"—"}%</td>
-                  <td style={{padding:"8px 8px",fontSize:13,color:SC(r.bvc)}}>{r.bvc.toFixed(2)}</td>
+                  <td style={{padding:"8px 8px",fontSize:13,color:SC(r.bvc)}}>{fmt(r.bvc)}</td>
                   <td style={{padding:"8px 8px"}}>
-                    <div style={{fontSize:15,color:SC(displayScore),fontWeight:700,marginBottom:2}}>{displayScore.toFixed(2)}{customMode&&<span style={{fontSize:8,color:"#ffd740",marginLeft:3,verticalAlign:"super"}}>✱</span>}</div>
-                    <Bar v={displayScore} c={SC(displayScore)} h={4}/>
+                    <div style={{fontSize:15,color:SC(displayScore),fontWeight:700,marginBottom:2}}>{fmt(displayScore)}{customMode&&<span style={{fontSize:8,color:"#ffd740",marginLeft:3,verticalAlign:"super"}}>✱</span>}</div>
+                    <Bar v={displayScore||0} c={SC(displayScore)} h={4}/>
                   </td>
-                  <td style={{padding:"8px 8px"}}><Delta d={customMode?+(displayScore-r.bvc).toFixed(2):r.delta}/></td>
+                  <td style={{padding:"8px 8px"}}><Delta d={customMode?(r.bvc!=null?+(displayScore-r.bvc).toFixed(2):null):r.delta}/></td>
                   <td style={{padding:"8px 8px",fontSize:13,color:NC(r.nlp),fontWeight:600}}>{r.nlp>0?"+":""}{(r.nlp*100).toFixed(0)}%</td>
-                  <td style={{padding:"8px 8px",fontSize:12,color:r.win>=80?"#00e5a0":r.win>=70?"#ffd740":"#ff8f00",fontWeight:600}}>{r.win}%</td>
-                  <td style={{padding:"8px 8px",fontSize:12,color:r.alpha>=0?"#00e5a0":"#ff4f5a",fontWeight:600}}>{r.alpha>0?"+":""}{r.alpha}%{r.alpha<0&&<span style={{fontSize:10}}>⚠️</span>}</td>
+                  <td style={{padding:"8px 8px",fontSize:12,color:r.win>=80?"#00e5a0":r.win>=70?"#ffd740":"#ff8f00",fontWeight:600}}>{r.win!=null?`${r.win}%`:"—"}</td>
+                  <td style={{padding:"8px 8px",fontSize:12,color:r.alpha>=0?"#00e5a0":"#ff4f5a",fontWeight:600}}>{r.alpha!=null?<>{r.alpha>0?"+":""}{r.alpha}%{r.alpha<0&&<span style={{fontSize:10}}>⚠️</span>}</>:"—"}</td>
                   <td style={{padding:"8px 8px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:5}}>
                       <span style={{fontSize:12,color:isStat?"#8892a4":rsiColor,fontWeight:700}}>{isStat?"~":""}{rsiVal}</span>
@@ -1283,11 +1284,11 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 {fav.includes(sym)?"★":"☆"}
               </button>
             </div>
-            <div style={{fontSize:52,fontWeight:700,color:s.fg,textShadow:`0 0 30px ${s.fg}40`,lineHeight:1}}>{r.v53.toFixed(2)}</div>
+            <div style={{fontSize:52,fontWeight:700,color:s.fg,textShadow:`0 0 30px ${s.fg}40`,lineHeight:1}}>{fmt(r.v53)}</div>
             <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 10px"}}>Score composite / 10</div>
             <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd} sz={12}/>
             <div style={{marginTop:8,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-              <Delta d={r.delta}/><span style={{fontSize:11,color:"#8892a4"}}>vs BVC {r.bvc.toFixed(2)}</span>
+              <Delta d={r.delta}/><span style={{fontSize:11,color:"#8892a4"}}>vs BVC {fmt(r.bvc)}</span>
             </div>
           </div>
 
@@ -1379,7 +1380,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
           <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>NLP — {META.tickers} tickers ({META.years} ans)</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-              {[["Biais groupe",r.biais,NC(r.nlp)],["Smart Sentiment",`${r.nlp>0?"+":""}${(r.nlp*100).toFixed(0)}%`,NC(r.nlp)],["Win rate 6M",`${r.win}%`,r.win>=80?"#00e5a0":"#ffd740"],["Convergence",r.conv==="CONFIRME"?"✅ OK":"⚠️ Div.",r.conv==="CONFIRME"?"#00e5a0":"#ffd740"]].map(([k,v,c])=>(
+              {[["Biais groupe",r.biais,NC(r.nlp)],["Smart Sentiment",`${r.nlp>0?"+":""}${(r.nlp*100).toFixed(0)}%`,NC(r.nlp)],["Win rate 6M",r.win!=null?`${r.win}%`:"—",r.win>=80?"#00e5a0":"#ffd740"],["Convergence",r.conv==="CONFIRME"?"✅ OK":"⚠️ Div.",r.conv==="CONFIRME"?"#00e5a0":"#ffd740"]].map(([k,v,c])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
                   <div style={{fontSize:12,color:c,fontWeight:700}}>{v}</div>
