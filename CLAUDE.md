@@ -145,3 +145,16 @@ Quand tu réponds à une question :
     pas depuis GitHub Actions, cause inconnue (nom différent dans le batch ? ISIN filtré ?)
   - Expansion 77 titres — à traiter dans une session dédiée avec refonte du timeout
     (découpage par batch ou parallélisme ProcessPool)
+
+### 2026-07-01
+
+- **Terminal blindé — helper `fmt()` null-safe** : ajout de `const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":(+n).toFixed(d)`
+  dans les ATOMS (index.html:562). Appliqué à 9 appels `.toFixed()` non gardés :
+  `r.bvc`, `r.v53`, `displayScore` (screener + detail), `masi.chg` (header), plus
+  les affichages `r.win` et `r.alpha` convertis en ternaires null-safe (→ "—" si absent).
+  Couvre : null, undefined, NaN, Infinity. Commit : `316b02a`.
+
+- **À investiguer** : `win` et `alpha` affichent souvent "—" pour certains tickers →
+  `sm.get("win_rate_6m")` et `sm.get("alpha_12m")` retournent None depuis GitHub Actions.
+  Cause liée au chantier sources Smart Money (même IP bloquée que pour les fondamentaux).
+  À traiter dans la session dédiée aux sources GitHub Actions.
