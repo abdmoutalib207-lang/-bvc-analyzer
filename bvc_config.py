@@ -12,16 +12,16 @@ COMPANY_NAMES: dict = {
     "CIH":  "CIH",
     "CDM":  "Crédit du Maroc",
     "WAF":  "Wafa Assurance",
-    "LHM":  "Holcim Maroc",
+    "LHM":  "Holcim Maroc SA",
     "GAZ":  "Afriquia Gaz",
     "ATL":  "AtlantaSanad",
     "HPS":  "HPS",
     "LBV":  "Label Vie",
-    "LES":  "Lesieur-Cristal",
+    "LES":  "Lesieur Cristal",
     "TQA":  "Taqa Morocco",
     "MRL":  "Maroc Leasing",
-    "TMA":  "TotalEnergies",
-    "CMT":  "CMT",
+    "TMA":  "TotalEnergies Marketing Maroc",
+    "CMT":  "Minière Touissit",
     "MNG":  "Managem",
     "SMI":  "SMI",
     # ── Moyennes capitalisations ─────────────────────────────────────────────
@@ -32,25 +32,25 @@ COMPANY_NAMES: dict = {
     "CIM":  "Ciments du Maroc",
     "CTM":  "CTM",
     "ZLD":  "Zellidja",
-    "SOT":  "Sothema VN10",
-    "MSA":  "Marsa Maroc",
+    "SOT":  "Sothema",
+    "MSA":  "Sodep-Marsa Maroc",
     "ADI":  "Alliances",
-    "ADH":  "Addoha",
-    "TGCC": "TGCC",
+    "ADH":  "Douja Prom Addoha",
+    "TGCC": "TGCC SA",
     "CFGB": "CFG Bank",
-    "CASH": "Cash Plus",
-    "SGTM": "SGTM S.A.",
+    "CASH": "Cash Plus SA",
+    "SGTM": "SGTM SA",
     "CMGP": "CMGP Group",
     "VCNE": "Vicenne",
     "RIS":  "Risma",
     "CSR":  "Cosumar",
     "SNA":  "Sonasid",
-    "SRM":  "SRM",
+    "SRM":  "Réalisations Mécaniques",
     "RDS":  "Résidences Dar Saada",
     "ALU":  "Aluminium du Maroc",
     "MGL":  "Maghrebail",
     "DAR":  "Dari Couspate",
-    "IMI":  "Immorente",
+    "IMI":  "Immorente Invest",
     "DTT":  "Disty Technologies",
     # ── Petites capitalisations ──────────────────────────────────────────────
     "DSW":  "Disway",
@@ -62,7 +62,7 @@ COMPANY_NAMES: dict = {
     "JET":  "Jet Contractors",
     "M2M":  "M2M Group",
     "INV":  "Involys",
-    "S2M":  "S2M",
+    "S2M":  "S.M Monétique",
     "COL":  "Colorado",
     "AFM":  "AFMA",
     "AGM":  "Agma",
@@ -72,18 +72,18 @@ COMPANY_NAMES: dict = {
     "HAL":  "Auto Hall",
     "BMC":  "BMCI",
     "CAR":  "Cartier Saada",
-    "AFI":  "Afric Industries",
+    "AFI":  "Afric Industries SA",
     "MIC":  "Microdata",
-    "MUT":  "Mutandis",
+    "MUT":  "Mutandis SCA",
     "ENK":  "Ennakl",
     "EQD":  "Crédit Eqdom",
     "DHO":  "Delta Holding",
-    "PPM":  "Promopharm",
+    "PPM":  "Promopharm SA",
     "REB":  "Rebab",
-    "SBS":  "SBM",
-    "STK":  "Stockvis Nord Afrique",
+    "SBS":  "Société des Boissons du Maroc",
+    "STK":  "Stokvis Nord Afrique",
     "UNI":  "Unimer",
-    "IBM":  "IB-Maroc.com",
+    "IBM":  "IB Maroc.com",
 }
 
 # ── Secteurs officiels ───────────────────────────────────────────────────────
@@ -209,6 +209,37 @@ TICKERS_DEFAUT: list = [
 ]
 
 IDB_NAME_MAP: dict = {"MTO": "CMT", "ALLI": "ADI", "TGC": "TGCC", "GTM": "SGTM"}
+
+# ── Mapping OFFICIEL IDBourse ↔ nos tickers ─────────────────────────────────
+# IDBourse (DATA+ / screener) utilise sa propre nomenclature de tickers.
+# Cette table fait AUTORITÉ : en cas d'anomalie nom/ticker, IDBourse prime.
+# clé = NOTRE ticker (bvc_config) → valeur = ticker IDBourse.
+# ⚠️ Inversions critiques à ne jamais confondre :
+#   - IDBourse "SNA" = STOKVIS NORD AFRIQUE  → notre STK
+#   - IDBourse "SID" = SONASID               → notre SNA
+#   - IDBourse "SBM" = STE DES BOISSONS MAROC → notre SBS
+IDB_TICKER_MAP: dict = {
+    "ADH": "ADH",   "ADI": "ADI",   "AFI": "AFI",   "AFM": "AFM",
+    "AGM": "AGM",   "AKD": "AKT",   "ALU": "ALM",   "ARD": "ARD",
+    "ATL": "ATL",   "ATW": "ATW",   "BCP": "BCP",   "BMC": "BCI",
+    "BOA": "BOA",   "CAR": "CRS",   "CASH": "CAP",  "CDM": "CDM",
+    "CFGB": "CFG",  "CIH": "CIH",   "CIM": "CMA",   "CMGP": "CMG",
+    "CMT": "CMT",   "COL": "COL",   "CSR": "CSR",   "CTM": "CTM",
+    "DAR": "DRI",   "DHO": "DHO",   "DSW": "DWY",   "DTT": "DYT",
+    "ENK": "NKL",   "EQD": "EQD",   "FNB": "FBR",   "GAZ": "GAZ",
+    "HAL": "ATH",   "HPS": "HPS",   "IAM": "IAM",   "IBM": "IBC",
+    "IMI": "IMO",   "INV": "INV",   "JET": "JET",   "LBV": "LBV",
+    "LES": "LES",   "LHM": "LHM",   "M2M": "M2M",   "MGL": "MAB",
+    "MIC": "MIC",   "MNG": "MNG",   "MOX": "MOX",   "MRL": "MLE",
+    "MSA": "MSA",   "MUT": "MUT",   "NEJ": "NEJ",   "OUL": "OUL",
+    "PPM": "PRO",   "RDS": "RDS",   "RIS": "RIS",   "S2M": "S2M",
+    "SAF": "SAH",   "SBS": "SBM",   "SGTM": "GTM",  "SLM": "SLF",
+    "SMI": "SMI",   "SNA": "SID",   "SNP": "SNP",   "SOT": "SOT",
+    "SRM": "SRM",   "STK": "SNA",   "STR": "STR",   "TGCC": "TGC",
+    "TMA": "TMA",   "TQA": "TQM",   "UNI": "UMR",   "VCNE": "VCN",
+    "WAF": "WAA",
+    # Hors export DATA+ (ticker IDBourse à confirmer) : BAL, REB, TIM, ZLD
+}
 
 # 19 tickers actifs du pipeline BVC (MASI 1)
 TICKERS_ACTIFS: list = [

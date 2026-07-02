@@ -146,6 +146,25 @@ Quand tu réponds à une question :
   - Expansion 77 titres — à traiter dans une session dédiée avec refonte du timeout
     (découpage par batch ou parallélisme ProcessPool)
 
+### 2026-07-02
+
+- **IDBourse fait autorité pour noms + mapping tickers** (décision Abd Moutalib).
+  En cas d'anomalie nom/ticker entre notre moteur historique et IDBourse, **IDBourse prime**.
+  - **Nouveau `IDB_TICKER_MAP`** dans `bvc_config.py` : table officielle NOTRE ticker → ticker IDBourse
+    (73 valeurs, depuis l'export DATA+). Inversions critiques figées : IDB `SNA`=Stokvis→notre `STK`,
+    IDB `SID`=Sonasid→notre `SNA`, IDB `SBM`=Bs.Maroc→notre `SBS`.
+  - **19 noms `COMPANY_NAMES` corrigés** sur les noms officiels IDBourse. Principaux :
+    CMT→Minière Touissit, SBS→Société des Boissons du Maroc (résout l'ambiguïté SBM/Super Céréales),
+    SRM→Réalisations Mécaniques, STK Stockvis→**Stokvis** (orthographe IDBourse), SOT→Sothema (drop VN10),
+    MSA→Sodep-Marsa Maroc, ADH→Douja Prom Addoha, TMA→TotalEnergies Marketing Maroc, S2M→S.M Monétique.
+  - **2 exceptions conservées** (troncatures du screener, pas des anomalies) : CDM=Crédit du Maroc,
+    EQD=Crédit Eqdom (IDBourse affiche juste "CDM"/"EQDOM").
+  - **On ne renomme PAS les symboles internes** (AKD, ALU, HAL, SNA…) : casserait ISIN_MAP (R2),
+    data.json, frontend, CI et corpus WhatsApp (R1). Le mapping suffit à croiser avec IDBourse.
+  - **⚠️ À vérifier** : `S2M`→"S.M Monétique" (rendu screener possiblement tronqué). `IDB_TICKER_MAP`
+    incomplet pour BAL/REB/TIM/ZLD (absents de l'export DATA+).
+  - Data source : `pipeline/idbourse_dataplus.json` (fondamentaux forward : PER 26e/27e, D/Y, ROE/ROA, P/B, marge nette).
+
 ### 2026-07-01
 
 - **Terminal blindé — helper `fmt()` null-safe** : ajout de `const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":(+n).toFixed(d)`
