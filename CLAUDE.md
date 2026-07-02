@@ -161,9 +161,12 @@ Quand tu réponds à une question :
     EQD=Crédit Eqdom (IDBourse affiche juste "CDM"/"EQDOM").
   - **On ne renomme PAS les symboles internes** (AKD, ALU, HAL, SNA…) : casserait ISIN_MAP (R2),
     data.json, frontend, CI et corpus WhatsApp (R1). Le mapping suffit à croiser avec IDBourse.
-  - **⚠️ À vérifier** : `S2M`→"S.M Monétique" (rendu screener possiblement tronqué). `IDB_TICKER_MAP`
-    incomplet pour BAL/REB/TIM/ZLD (absents de l'export DATA+).
   - Data source : `pipeline/idbourse_dataplus.json` (fondamentaux forward : PER 26e/27e, D/Y, ROE/ROA, P/B, marge nette).
+  - **Validation croisée page publique `idbourse.com/masi`** (PDF 02/07/2026) : les 19 noms confirmés
+    à 100 %, dont `S2M`="S.M Monétique" (était incertain → confirmé). Cette page est **publique**
+    (contrairement à DATA+) → piste de source de données pour le pipeline (prix live + noms officiels).
+  - **BAL, REB, ZLD sans ticker IDBourse** (colonne "-" sur /masi), **TIM absente** du listing →
+    laissées telles quelles, jamais de ticker IDBourse forcé. Règle : société sans abréviation IDBourse = inchangée.
 
 ### 2026-07-01
 

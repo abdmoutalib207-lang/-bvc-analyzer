@@ -238,7 +238,9 @@ IDB_TICKER_MAP: dict = {
     "SRM": "SRM",   "STK": "SNA",   "STR": "STR",   "TGCC": "TGC",
     "TMA": "TMA",   "TQA": "TQM",   "UNI": "UMR",   "VCNE": "VCN",
     "WAF": "WAA",
-    # Hors export DATA+ (ticker IDBourse à confirmer) : BAL, REB, TIM, ZLD
+    # Sociétés SANS ticker IDBourse (colonne "-" sur idbourse.com/masi) :
+    # BAL (Balima), REB (Rebab Company), ZLD (Zellidja S.A) → laissées telles quelles.
+    # TIM (Timar) : absente du listing MASI IDBourse.
 }
 
 # 19 tickers actifs du pipeline BVC (MASI 1)
