@@ -5,10 +5,104 @@
         "msg": "BVC Agent OK"
       },
       "timestamp": "2026-06-15T01:06:32.345981+00:00"
+    },
+    "isin/audit_complet_2026_07": {
+      "value": {
+        "statut": "CLOS",
+        "date": "2026-07-02",
+        "description": "Ré-audit ISIN complet 77 tickers vs référentiel officiel BVC (api.casablanca-bourse.com, 80 actions équités).",
+        "resultats": {
+          "ok": 41,
+          "alias_ticker_seul": 27,
+          "isin_divergent_corriges": 7,
+          "isin_fantome_corriges": 2,
+          "inconnus_a_investiguer": 2
+        },
+        "corrections_appliquees": [
+          {"ticker": "STR", "ancien": "MA0000011942", "nouveau": "MA0000012056", "commit": "09401f5", "session": "parallele"},
+          {"ticker": "RIS", "ancien": "MA0000011140", "nouveau": "MA0000011462", "commit": "a43d09e"},
+          {"ticker": "RDS", "ancien": "MA0000012130", "nouveau": "MA0000012239", "commit": "a43d09e"},
+          {"ticker": "SMI", "ancien": "MA0000011041", "nouveau": "MA0000010068", "commit": "a43d09e"},
+          {"ticker": "SRM", "ancien": "MA0000011538", "nouveau": "MA0000011595", "commit": "a43d09e"},
+          {"ticker": "SAF", "ancien": "inconnu", "nouveau": "MA0000012007", "commit": "session_parallele"},
+          {"ticker": "SLM", "ancien": "MA0000011611", "nouveau": "MA0000011744", "commit": "session_parallele"},
+          {"ticker": "NEJ", "ancien": "MA0000011496", "nouveau": "MA0000011009", "commit": "eff13fa"},
+          {"ticker": "S2M", "ancien": "MA0000011959", "nouveau": "MA0000012106", "commit": "eff13fa"},
+          {"ticker": "SNP", "ancien": "MA0000011629", "nouveau": "MA0000011728", "commit": "eff13fa"},
+          {"ticker": "TMA", "ancien": "MA0000012148", "nouveau": "MA0000012262", "commit": "eff13fa"},
+          {"ticker": "TQA", "ancien": "MA0000012213", "nouveau": "MA0000012205", "commit": "cb3c7e3"},
+          {"ticker": "ZLD", "ancien": "MA0000011124", "nouveau": "MA0000010571", "commit": "cb3c7e3"},
+          {"ticker": "STK", "ancien": "MA0000011843", "nouveau": "MA0000012700", "commit": "cb3c7e3"}
+        ],
+        "a_investiguer": [
+          {"ticker": "MRL", "isin": "MA0000012270", "note": "ISIN absent du référentiel BVC officiel (80 actions). Société inconnue. MRL=SODEP dans MANUAL_MAP BVCscrap (ancien nom Marsa Maroc?). Vérifier si redirigé ou radié."},
+          {"ticker": "TIM", "isin": "MA0000011686", "note": "ISIN absent du référentiel BVC officiel. TIM=Timar dans MANUAL_MAP BVCscrap. Vérifier si radié ou ticker différent côté BVC."}
+        ],
+        "tickers_officiels_bvc_hors_config": [
+          {"bvc_ticker": "DIS", "isin": "MA0000010639", "nom": "DIAC SALAF"},
+          {"bvc_ticker": "DLM", "isin": "MA0000012551", "nom": "DELATTRE LEVIVIER MAROC"},
+          {"bvc_ticker": "MDP", "isin": "MA0000012593", "nom": "MED PAPER"},
+          {"bvc_ticker": "MLE", "isin": "MA0000010035", "nom": "MAROC LEASING"},
+          {"bvc_ticker": "SAM", "isin": "MA0000010803", "nom": "SAMIR", "note": "Radiée/suspendue — exclure"}
+        ]
+      },
+      "timestamp": "2026-07-02T14:00:00+01:00"
+    },
+    "isin/sot_prix": {
+      "value": {
+        "statut": "RESOLU",
+        "date": "2026-07-02",
+        "isin": "MA0000012833",
+        "isin_ok": true,
+        "prix_reel_dh": "369-380",
+        "prix_pipeline_actuel": 379.5,
+        "nb_titres_officiels": 38309500,
+        "cap_mdh_actuelle": 14543,
+        "note": "Prix 791 DH (erreur calcul — 13.5M titres supposés vs 38.3M réels) et 1865 DH (source inconnue, cap impossible >70Mrd) sont des artefacts. SOT absent Médias24 (MA0000012833 hors référentiel 75 stocks)."
+      },
+      "timestamp": "2026-07-02T14:00:00+01:00"
+    },
+    "pipeline/historique_par_nom": {
+      "value": {
+        "statut": "CONFIRME",
+        "date": "2026-07-02",
+        "source": "collect_history_bvcscrap.py — MANUAL_MAP ligne 19-100",
+        "conclusion": "collect_history_bvcscrap.py identifie les sociétés par NOM (bvc.loadata(name)) et par fichiers XLSX nommés par ticker. Il n'utilise JAMAIS l'ISIN. L'historique n'était donc pas affecté par les ISIN faux. Confirmé pour NEJ : 756 chandeliers Auto Nejma valides (last_close=4834 DH, 2026-07-01).",
+        "impact_corrections_isin": "AUCUN sur l'historique. Seuls update_data.py et les scrapers marché (IDBourse par ISIN, Médias24 par ISIN) étaient affectés."
+      },
+      "timestamp": "2026-07-02T14:00:00+01:00"
+    },
+    "fallback/caps_corrigees_2026_07": {
+      "value": {
+        "statut": "CLOS",
+        "date": "2026-07-02",
+        "commit": "2b9454b",
+        "fichier": "pipeline/static_fallback.json",
+        "description": "6 market_cap_mdh recalculées via prix × nb_titres officiels BVC après corrections ISIN. S2M inchangé (écart 7%, tolérance LOI N°3).",
+        "corrections": [
+          {"ticker": "NEJ", "ancien_mdhs": 400, "nouveau_mdhs": 4946.5, "nb_titres": 1023264, "prix": 4834},
+          {"ticker": "SNP", "ancien_mdhs": 1100, "nouveau_mdhs": 780, "nb_titres": 2400000, "prix": 325},
+          {"ticker": "TMA", "ancien_mdhs": 5000, "nouveau_mdhs": 13664, "nb_titres": 8960000, "prix": 1525},
+          {"ticker": "TQA", "ancien_mdhs": 8500, "nouveau_mdhs": 41280, "nb_titres": 23588542, "prix": 1750},
+          {"ticker": "ZLD", "ancien_mdhs": 1200, "nouveau_mdhs": 115.3, "nb_titres": 572849, "prix": 201.2},
+          {"ticker": "STK", "ancien_mdhs": 300, "nouveau_mdhs": 1313, "nb_titres": 17695150, "prix": 74.2}
+        ],
+        "source_nb_titres": "api.casablanca-bourse.com (référentiel officiel BVC, 80 actions, 02/07/2026)"
+      },
+      "timestamp": "2026-07-02T14:00:00+01:00"
+    },
+    "chantier/prochain": {
+      "value": {
+        "priorite": "P1.1",
+        "description": "40 tickers bloqués depuis 12/06 — historical_data incomplet. Reprendre après clôture du chantier ISIN/caps (CLOS 02/07/2026).",
+        "chantier_precedent_clos": "Fiabilité ISIN/caps — 14 ISIN corrigés, 6 caps assainies, historique validé.",
+        "note_data_json": "data.json stale pour NEJ/S2M/SNP/TMA/TQA/ZLD/STK (pipeline 13h08 avant corrections ISIN). Sera rafraîchi au prochain run update_bvc (schedule BVC ou workflow_dispatch manuel depuis GitHub Actions)."
+      },
+      "timestamp": "2026-07-02T14:00:00+01:00"
     }
   },
   "_meta": {
     "created": "2026-06-15T01:06:32.345926+00:00",
-    "updated": "2026-06-15T01:06:32.345986+00:00"
+    "updated": "2026-07-02T14:00:00+01:00"
   }
 }
