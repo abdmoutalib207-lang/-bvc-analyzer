@@ -168,6 +168,14 @@ Quand tu réponds à une question :
   - **BAL, REB, ZLD sans ticker IDBourse** (colonne "-" sur /masi), **TIM absente** du listing →
     laissées telles quelles, jamais de ticker IDBourse forcé. Règle : société sans abréviation IDBourse = inchangée.
 
+- **Swap ISIN SAF/SLM corrigé** (source BVC officiel, fiches instruments) :
+  - `SAF` (Sanlam Maroc) pointait sur `MA0000011744` = ISIN de **Salafin** → affichait 430 DH
+    (prix Salafin) au lieu de ~2990 DH. Corrigé → `MA0000012007` (Sanlam, 4 116 874 actions, IPO 21/11/2010).
+  - `SLM` (Salafin) : `MA0000011611` (introuvable sur BVC) → `MA0000011744` (Salafin officiel, IPO 16/12/2007).
+- **static_fallback.json réaligné** sur prix officiels MASI 02/07 (70/79 étaient faux, jusqu'à +2366 %).
+  Les fiches `casablanca-bourse.com/en/live-market/instruments/<IDB_TICKER>` sont **publiques et scrapables**
+  (ISIN + prix + capitalisation officiels) → source idéale pour un ré-audit ISIN complet des 77.
+
 ### 2026-07-01
 
 - **Terminal blindé — helper `fmt()` null-safe** : ajout de `const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":(+n).toFixed(d)`
