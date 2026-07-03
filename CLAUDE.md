@@ -118,6 +118,81 @@ Quand tu réponds à une question :
 3. Propose toujours une alternative si tu refuses une approche
 4. Réponds en français (langue de travail du projet)
 
+## État des données — Référence post-corrections (LOI N°3)
+
+> Mis à jour : **02/07/2026**. Ces valeurs sont les ancres de validation.
+> Un prix ou cap s'écartant de >20% sans justification = erreur de données à corriger.
+> Source ISIN : `api.casablanca-bourse.com` (80 actions, référentiel officiel BVC).
+
+### ISIN_MAP — 14 corrections cumulées (état validé 02/07/2026)
+
+| Ticker | Société | ISIN validé | Commit |
+|--------|---------|-------------|--------|
+| RIS | Risma | MA0000011462 | a43d09e |
+| RDS | Résidences Dar Saada | MA0000012239 | a43d09e |
+| SMI | SMI | MA0000010068 | a43d09e |
+| SRM | Réalisations Mécaniques | MA0000011595 | a43d09e |
+| STR | STROC Industrie | MA0000012056 | 09401f5 |
+| SAF | Sanlam Maroc | MA0000012007 | session parallèle |
+| SLM | Salafin | MA0000011744 | session parallèle |
+| NEJ | Auto Nejma | MA0000011009 | eff13fa |
+| S2M | S.M Monétique | MA0000012106 | eff13fa |
+| SNP | SNEP | MA0000011728 | eff13fa |
+| TMA | TotalEnergies Marketing Maroc | MA0000012262 | eff13fa |
+| TQA | Taqa Morocco | MA0000012205 | cb3c7e3 |
+| ZLD | Zellidja S.A | MA0000010571 | cb3c7e3 |
+| STK | Stokvis Nord Afrique | MA0000012700 | cb3c7e3 |
+
+**ISIN non résolus (à investiguer) :**
+- `MRL` MA0000012270 — absent du référentiel BVC officiel (80 actions). TIM: même statut.
+- `TIM` MA0000011686 — absent du référentiel BVC officiel. Probablement radié ou alias.
+
+**Rappel :** `collect_history_bvcscrap.py` identifie par NOM société (MANUAL_MAP), **jamais par ISIN**. L'historique n'est pas affecté par les corrections ISIN.
+
+### Prix de référence MASI1 — `fallback_data.json` (juillet 2026)
+
+| Ticker | Société | Prix réf. (DH) | Cap (MDHS) | PE | Statut |
+|--------|---------|:--------------:|:----------:|:--:|--------|
+| ADH | Douja Prom Addoha | 33.4 | 2 950 | 12.5 | ✅ |
+| ADI | Alliances | 390.0 | 5 460 | 9.8 | ✅ |
+| AKD | Akdital | 1 172.0 | 15 500 | — | PE/PB nullifiés (gap >80% — split?) |
+| CASH | Cash Plus | 277.05 | 6 870 | 28.4 | IPO récent, partiel |
+| CFGB | CFG Bank | 208.0 | 3 120 | 14.2 | ✅ |
+| CMGP | CMGP Group | 358.0 | 2 680 | 11.8 | ✅ |
+| CMT | Minière Touissit | 5 330.0 | 10 980 | 18.5 | ✅ |
+| CSR | Cosumar | 212.90 | 19 970 | 24.2 | ✅ |
+| MNG | Managem | 14 850.0 | 176 190 | 58.7 | ✅ |
+| MSA | Sodep-Marsa Maroc | 822.60 | 60 380 | 38.0 | ✅ |
+| RDS | Résidences Dar Saada | 169.7 | 3 740 | 8.5 | ISIN corrigé 01/07 |
+| RIS | Risma | 331.0 | 4 790 | 17.7 | ISIN corrigé 01/07 |
+| SGTM | SGTM | 732.0 | 5 490 | 15.0 | IPO récent, partiel |
+| SMI | SMI | 6 149.0 | 17 100 | 24.3 | ISIN corrigé 01/07 |
+| SNA | Sonasid | 1 984.0 | — | — | Ratios nullifiés (opération sur titres) |
+| SOT | Sothema | 369–380 | ~14 500 | 16.8 | 38 309 500 titres. Toute val. >500 ou <300 = artefact |
+| SRM | Réalisations Mécaniques | 442.0 | 1 330 | 8.2 | ISIN corrigé 01/07 |
+| TGCC | TGCC | 767.0 | 7 670 | 14.5 | ✅ |
+| VCNE | Vicenne | 390.0 | 3 120 | — | IPO récent, partiel |
+
+### Caps de référence non-MASI1 corrigées — `static_fallback.json` (02/07/2026)
+
+Caps recalculées via `prix × nb_titres officiels BVC` après corrections ISIN :
+
+| Ticker | Société | Prix (DH) | Cap (MDHS) | Nb titres BVC officiel |
+|--------|---------|:---------:|:----------:|:---------------------:|
+| NEJ | Auto Nejma | 4 834 | 4 946.5 | 1 023 264 |
+| SNP | SNEP | 325 | 780.0 | 2 400 000 |
+| TMA | TotalEnergies Mkg Maroc | 1 525 | 13 664.0 | 8 960 000 |
+| TQA | Taqa Morocco | 1 750 | 41 280.0 | 23 588 542 |
+| ZLD | Zellidja S.A | 201.2 | 115.3 | 572 849 |
+| STK | Stokvis Nord Afrique | 74.2 | 1 313.0 | 17 695 150 |
+
+### Règles d'application LOI N°3
+
+1. **Prix** : écart >20% vs référence → vérifier source. Si origine incertaine → nullifier ratios, ne pas inventer.
+2. **Cap** : valider via `prix × nb_titres` (source : `api.casablanca-bourse.com`). La cap dans data.json doit être cohérente avec ce calcul.
+3. **ISIN** : tout ISIN non listé dans les 14 corrections ci-dessus est supposé correct. Avant toute correction ISIN → audit croisé BVC officiel obligatoire.
+4. **SAM (SAMIR)** : radiée/suspendue — exclure de toute analyse, ne pas intégrer.
+
 ## Journal des décisions
 
 ### 2026-06-29
