@@ -387,9 +387,11 @@ def run(tickers_filter: list[str] | None = None) -> dict:
         else:
             df = xlsx_df
 
-        # Merge candles manually preserved in existing candle file (newer than XLSX/BVCscrap)
+        # Merge / base depuis le candle file existant.
+        # Si df est vide (pas de XLSX, BVCscrap indisponible), on utilise le candle
+        # file comme base — permet de débloquer les tickers sans XLSX.
         existing_path = candles_dir / f"{ticker}.json"
-        if existing_path.exists() and not df.empty:
+        if existing_path.exists():
             try:
                 existing = json.loads(existing_path.read_text(encoding="utf-8"))
                 if existing:
@@ -404,10 +406,14 @@ def run(tickers_filter: list[str] | None = None) -> dict:
                             ex_df[col] = ex_df.get("close", 0)
                     ex_df = ex_df[["date", "open", "high", "low", "close", "volume"]].copy()
                     ex_df["close"] = pd.to_numeric(ex_df["close"], errors="coerce")
-                    newer = ex_df[ex_df["date"] > df["date"].iloc[-1]].copy()
-                    if not newer.empty:
-                        df = combine(df, newer)
-                        log.info(f"  +{len(newer)} bougies manuelles préservées depuis candle file")
+                    if df.empty:
+                        df = ex_df
+                        log.info(f"  candle file utilisé comme base ({len(ex_df)} bougies)")
+                    else:
+                        newer = ex_df[ex_df["date"] > df["date"].iloc[-1]].copy()
+                        if not newer.empty:
+                            df = combine(df, newer)
+                            log.info(f"  +{len(newer)} bougies préservées depuis candle file")
             except Exception:
                 pass
 
