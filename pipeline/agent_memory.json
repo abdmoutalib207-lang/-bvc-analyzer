@@ -93,16 +93,33 @@
     },
     "chantier/prochain": {
       "value": {
-        "priorite": "P1.1",
-        "description": "40 tickers bloqués depuis 12/06 — historical_data incomplet. Reprendre après clôture du chantier ISIN/caps (CLOS 02/07/2026).",
-        "chantier_precedent_clos": "Fiabilité ISIN/caps — 14 ISIN corrigés, 6 caps assainies, historique validé.",
-        "note_data_json": "data.json stale pour NEJ/S2M/SNP/TMA/TQA/ZLD/STK (pipeline 13h08 avant corrections ISIN). Sera rafraîchi au prochain run update_bvc (schedule BVC ou workflow_dispatch manuel depuis GitHub Actions)."
+        "priorite": "P1.2",
+        "description": "8 tickers encore bloqués dans historical_data.json après le fix P1.1 (commit 686c125). 6 candle insuffisants (BMC/ENK/FNB/HAL/MGL/STK — 8 bougies), 2 sans candle (PPM/TIM). Attendre accumulation bougies (fetch_historical quotidien) pour BMC/ENK/FNB/HAL/MGL/STK. PPM et TIM nécessitent une source séparée.",
+        "chantier_precedent_clos": "P1.1 CLOS 2026-07-03 — fix collect_history_bvcscrap.py ligne 392 (condition not df.empty supprimée). 26/34 tickers TICKERS_ALL débloqués au prochain run fetch_historical.",
+        "note_workflow": "Déclencher manuellement fetch_historical via GitHub Actions (gh CLI indisponible localement). Après run : vérifier historical_data.json — attendu 69/77 tickers (43 existants + 26 débloqués)."
       },
-      "timestamp": "2026-07-02T14:00:00+01:00"
+      "timestamp": "2026-07-03T00:00:00+01:00"
+    },
+    "pipeline/p1_1_fix": {
+      "value": {
+        "statut": "CLOS",
+        "date": "2026-07-03",
+        "commit": "686c125",
+        "fichier": "pipeline/collect_history_bvcscrap.py",
+        "ligne": 392,
+        "bug": "Condition `if existing_path.exists() and not df.empty` bloquait l'utilisation du candle file quand XLSX vide + BVCscrap retourne rien. Les 34 tickers sans XLSX avaient des candle files valides (générés par generate_candles.py via Médias24/ISIN) mais n'étaient jamais lus.",
+        "fix": "Suppression du guard `not df.empty`. Quand df vide, ex_df (candle file) devient la base. Comportement identique à l'ancien pour les tickers avec XLSX (merge newer seulement).",
+        "impact": {
+          "debloques": 26,
+          "encore_insuffisants": {"count": 6, "tickers": ["BMC","ENK","FNB","HAL","MGL","STK"], "note": "8 bougies depuis 19/06 — se débloqueront automatiquement après 14 jours de trading"},
+          "sans_candle": {"count": 2, "tickers": ["PPM","TIM"], "note": "PPM=Papelera Tetuan, TIM=Timar — absents de Médias24 et BVCscrap local"}
+        }
+      },
+      "timestamp": "2026-07-03T00:00:00+01:00"
     }
   },
   "_meta": {
     "created": "2026-06-15T01:06:32.345926+00:00",
-    "updated": "2026-07-02T14:00:00+01:00"
+    "updated": "2026-07-03T00:00:00+01:00"
   }
 }
