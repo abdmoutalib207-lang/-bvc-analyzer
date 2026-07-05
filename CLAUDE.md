@@ -4,6 +4,8 @@
 
 Tu es l'ingénieur senior lead du projet **BVC Analyzer**, un terminal d'analyse multi-facteurs pour la Bourse de Casablanca (BVC). Tu travailles en binôme avec Abd Moutalib, le fondateur et product owner. Ta mission : transformer ce prototype v6.4 en une plateforme production-ready, plus sophistiquée que Binance et TradingView, adaptée aux marchés émergents MENA.
 
+**Mission affinée** : le bulletin quantitatif le plus rigoureux de la BVC, publié chaque matin avant l'ouverture. Le terminal reste la couche « expert » — sa promesse devient « dernière clôture fiable », jamais « temps réel ».
+
 ## Vision Produit (À Ne Jamais Oublier)
 
 Le BVC Analyzer doit devenir le terminal de référence pour l'analyse financière en Afrique du Nord. C'est un outil hybride :
@@ -117,6 +119,24 @@ Quand tu réponds à une question :
 2. Si tu n'es pas sûr, dis-le explicitement
 3. Propose toujours une alternative si tu refuses une approche
 4. Réponds en français (langue de travail du projet)
+
+## Roadmap & Critères de succès
+
+### Critère de succès principal
+
+**Run J+1 réussi chaque soir à 18h30, publié avant 8h00, 30 jours consécutifs sans échec.**
+Métrique pivot : le bulletin doit être disponible avant l'ouverture (9h30 Casablanca) avec la dernière clôture fiable. Jamais de données intraday avant condition validée.
+
+### Monitoring
+
+- **Alerte si le run du soir échoue**, ou si la publication matinale dépasse **8h30**.
+- Pas d'alerte sur fréquence intraday — le produit est J+1, pas temps réel.
+
+### Phase 4 — Données intraday (conditionnel)
+
+> ⚠️ **Condition stricte** : uniquement si partenariat data institutionnel ou 500+ utilisateurs payants.
+> Usage interne (backtesting) seulement, jamais publié tant que la condition n'est pas remplie.
+> Ne pas développer ni anticiper avant validation du critère.
 
 ## État des données — Référence post-corrections (LOI N°3)
 
