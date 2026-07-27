@@ -181,7 +181,7 @@ Métrique pivot : le bulletin doit être disponible avant l'ouverture (9h30 Casa
 | CMGP | CMGP Group | 358.0 | 2 680 | 11.8 | ✅ |
 | CMT | Minière Touissit | 5 330.0 | 10 980 | 18.5 | ✅ |
 | CSR | Cosumar | 212.90 | 19 970 | 24.2 | ✅ |
-| MNG | Managem | 14 850.0 | 176 190 | 58.7 | ✅ |
+| MNG | Managem | 1 369.0 | 162 430 | 58.7 | ⚠️ Split 10:1 le 27/07/2026 (VN10). Prix ÷10, PE inchangé, cap = prix×118 646 760. Toute val. >2000 = pré-split |
 | MSA | Sodep-Marsa Maroc | 822.60 | 60 380 | 38.0 | ✅ |
 | RDS | Résidences Dar Saada | 169.7 | 3 740 | 8.5 | ISIN corrigé 01/07 |
 | RIS | Risma | 331.0 | 4 790 | 17.7 | ISIN corrigé 01/07 |
@@ -214,6 +214,23 @@ Caps recalculées via `prix × nb_titres officiels BVC` après corrections ISIN 
 4. **SAM (SAMIR)** : radiée/suspendue — exclure de toute analyse, ne pas intégrer.
 
 ## Journal des décisions
+
+### 2026-07-27
+
+- **Split 10:1 Managem (MNG)** — effectif ce jour (VN 100 → VN 10).
+  Source : boursenews.ma / BVC officiel. Nouvelles actions : **118 646 760** (×10),
+  ticker inchangé (MNG), **nouvel ISIN `MA0000012866`** (ancien `MA0000011058` radié).
+  - **ISIN_MAP mis à jour** — critique : sans ça la source live pointe sur le titre radié.
+  - **Ajustement split sur toutes les couches** (prix ÷10, volumes ×10, ratios/RSI/stoch et
+    capitalisation INCHANGÉS) : `candles/MNG.json` (771), `historical_data.json` (indicateurs +
+    candles), `fallback_data.json` (price/eps/dps ÷10, PE/cap inchangés), `static_fallback.json`
+    (13060→1306), `data.json` (scores bvc/v53 et ratios INTACTS — R8), `fondamentaux.json`
+    (bpa_2026 822.2→82.22, dps_2026 30→3.0). `idbourse_dataplus.json` non touché (ratios invariants).
+  - Le run pipeline du 27/07 avait raté le split (ancien ISIN → prix 12500 pré-split). Valeurs du jour
+    recalées sur le réel post-split ~**1369 DH** (+9,5% en séance) ; candle 27/07 o=1250/c=1369.
+  - Nom d'affichage gardé "**Managem**" (règle IDBourse, cf. Sothema VN10 retiré).
+  - **⚠️ Après 1er run sur le nouvel ISIN** : vérifier que le live renvoie ~1369 et que le pipeline
+    ne re-télécharge pas des candles déjà split-ajustées (risque double ÷10 — historique bvcscrap par NOM).
 
 ### 2026-06-29
 
