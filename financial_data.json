@@ -1,7 +1,13 @@
 {
-  "timestamp": "2026-07-28T10:46:58Z",
+  "timestamp": "2026-07-28T12:27:15Z",
   "version": "v9.0_unified",
   "sources_used": {
+    "ADH": {
+      "price": "Médias24",
+      "technical": "Médias24",
+      "rsi": "calculated_wilder_ema",
+      "fundamentals": "fallback"
+    },
     "ADI": {
       "price": "Médias24",
       "technical": "Médias24",
@@ -14,7 +20,7 @@
       "rsi": "calculated_wilder_ema",
       "fundamentals": "fallback"
     },
-    "ADH": {
+    "CFGB": {
       "price": "Médias24",
       "technical": "Médias24",
       "rsi": "calculated_wilder_ema",
@@ -26,19 +32,7 @@
       "rsi": "calculated_wilder_ema",
       "fundamentals": "fallback"
     },
-    "CFGB": {
-      "price": "Médias24",
-      "technical": "Médias24",
-      "rsi": "calculated_wilder_ema",
-      "fundamentals": "fallback"
-    },
     "CMGP": {
-      "price": "Médias24",
-      "technical": "Médias24",
-      "rsi": "calculated_wilder_ema",
-      "fundamentals": "fallback"
-    },
-    "CSR": {
       "price": "Médias24",
       "technical": "Médias24",
       "rsi": "calculated_wilder_ema",
@@ -50,13 +44,19 @@
       "rsi": "calculated_wilder_ema",
       "fundamentals": "fallback"
     },
-    "RDS": {
+    "CSR": {
       "price": "Médias24",
       "technical": "Médias24",
       "rsi": "calculated_wilder_ema",
       "fundamentals": "fallback"
     },
     "MSA": {
+      "price": "Médias24",
+      "technical": "Médias24",
+      "rsi": "calculated_wilder_ema",
+      "fundamentals": "fallback"
+    },
+    "RDS": {
       "price": "Médias24",
       "technical": "Médias24",
       "rsi": "calculated_wilder_ema",
@@ -103,27 +103,74 @@
       "rsi": "calculated_wilder_ema",
       "fundamentals": "fallback"
     },
-    "SOT": {
-      "price": "fallback",
-      "rsi": "fallback",
-      "fundamentals": "fallback"
-    },
     "VCNE": {
       "price": "Médias24",
       "technical": "Médias24",
       "rsi": "calculated_wilder_ema",
       "fundamentals": "fallback"
+    },
+    "SOT": {
+      "price": "fallback",
+      "rsi": "fallback",
+      "fundamentals": "fallback"
     }
   },
   "data": {
-    "ADI": {
+    "ADH": {
       "market": {
-        "price": 367.0,
+        "price": 32.84,
         "open": null,
         "high": null,
         "low": null,
-        "volume": 308647.0,
-        "variation_pct": 0.14,
+        "volume": 909306.0,
+        "variation_pct": -1.97,
+        "market_cap_mdh": null
+      },
+      "technical": {
+        "rsi_14": 48.71,
+        "ma20": 33.97,
+        "ma50": 33.46,
+        "high_90d": 37.6,
+        "low_90d": 28.83,
+        "macd": -0.3487,
+        "macd_signal": -0.1985,
+        "macd_hist": -0.1502,
+        "bb_upper": 36.14,
+        "bb_mid": 33.97,
+        "bb_lower": 31.8,
+        "stoch_k": 48.99,
+        "stoch_d": 29.5,
+        "_nb_candles": 85
+      },
+      "fundamentals": {
+        "pe_ratio_ttm": 12.5,
+        "pb_ratio": 0.65,
+        "eps_ttm": 2.67,
+        "dividend_per_share": 0.5,
+        "dividend_yield": 1.5,
+        "market_cap_mdh": 2950,
+        "pe_ratio_2026e": null
+      },
+      "financials_performance": {},
+      "smart_money": {
+        "alpha_12m": 3.1,
+        "smart_sentiment": 40.0,
+        "win_rate_6m": 58
+      },
+      "flags": {
+        "stale": false,
+        "partial_data": false,
+        "ipo_recent": false
+      }
+    },
+    "ADI": {
+      "market": {
+        "price": 362.0,
+        "open": null,
+        "high": null,
+        "low": null,
+        "volume": 340642.0,
+        "variation_pct": -1.23,
         "market_cap_mdh": null
       },
       "technical": {
@@ -165,12 +212,12 @@
     },
     "AKD": {
       "market": {
-        "price": 1145.0,
+        "price": 1140.0,
         "open": null,
         "high": null,
         "low": null,
-        "volume": 728220.0,
-        "variation_pct": 0.0,
+        "volume": 748980.0,
+        "variation_pct": -0.44,
         "market_cap_mdh": null
       },
       "technical": {
@@ -210,108 +257,14 @@
         "ipo_recent": false
       }
     },
-    "ADH": {
-      "market": {
-        "price": 33.0,
-        "open": null,
-        "high": null,
-        "low": null,
-        "volume": 809259.0,
-        "variation_pct": -1.49,
-        "market_cap_mdh": null
-      },
-      "technical": {
-        "rsi_14": 48.71,
-        "ma20": 33.97,
-        "ma50": 33.46,
-        "high_90d": 37.6,
-        "low_90d": 28.83,
-        "macd": -0.3487,
-        "macd_signal": -0.1985,
-        "macd_hist": -0.1502,
-        "bb_upper": 36.14,
-        "bb_mid": 33.97,
-        "bb_lower": 31.8,
-        "stoch_k": 48.99,
-        "stoch_d": 29.5,
-        "_nb_candles": 85
-      },
-      "fundamentals": {
-        "pe_ratio_ttm": 12.5,
-        "pb_ratio": 0.65,
-        "eps_ttm": 2.67,
-        "dividend_per_share": 0.5,
-        "dividend_yield": 1.5,
-        "market_cap_mdh": 2950,
-        "pe_ratio_2026e": null
-      },
-      "financials_performance": {},
-      "smart_money": {
-        "alpha_12m": 3.1,
-        "smart_sentiment": 40.0,
-        "win_rate_6m": 58
-      },
-      "flags": {
-        "stale": false,
-        "partial_data": false,
-        "ipo_recent": false
-      }
-    },
-    "CASH": {
-      "market": {
-        "price": 242.0,
-        "open": null,
-        "high": null,
-        "low": null,
-        "volume": 151492.0,
-        "variation_pct": -2.02,
-        "market_cap_mdh": null
-      },
-      "technical": {
-        "rsi_14": 40.48,
-        "ma20": 253.34,
-        "ma50": 264.11,
-        "high_90d": 301.0,
-        "low_90d": 240.25,
-        "macd": -5.8129,
-        "macd_signal": -5.819,
-        "macd_hist": 0.0061,
-        "bb_upper": 269.83,
-        "bb_mid": 253.34,
-        "bb_lower": 236.85,
-        "stoch_k": 31.03,
-        "stoch_d": 23.28,
-        "_nb_candles": 85
-      },
-      "fundamentals": {
-        "pe_ratio_ttm": 28.41,
-        "eps_ttm": 9.86,
-        "dividend_per_share": 9.73,
-        "dividend_yield": 3.51,
-        "market_cap_mdh": 6870,
-        "pe_ratio_2026e": null,
-        "pb_ratio": null
-      },
-      "financials_performance": {},
-      "smart_money": {
-        "alpha_12m": 10.1,
-        "smart_sentiment": 64.0,
-        "win_rate_6m": 66
-      },
-      "flags": {
-        "stale": false,
-        "partial_data": true,
-        "ipo_recent": true
-      }
-    },
     "CFGB": {
       "market": {
-        "price": 194.95,
+        "price": 194.9,
         "open": null,
         "high": null,
         "low": null,
-        "volume": 58679.0,
-        "variation_pct": -0.03,
+        "volume": 77570.0,
+        "variation_pct": -0.05,
         "market_cap_mdh": null
       },
       "technical": {
@@ -351,14 +304,61 @@
         "ipo_recent": false
       }
     },
-    "CMGP": {
+    "CASH": {
       "market": {
-        "price": 320.0,
+        "price": 245.8,
         "open": null,
         "high": null,
         "low": null,
-        "volume": 189440.0,
-        "variation_pct": 0.31,
+        "volume": 203768.0,
+        "variation_pct": -0.49,
+        "market_cap_mdh": null
+      },
+      "technical": {
+        "rsi_14": 40.48,
+        "ma20": 253.34,
+        "ma50": 264.11,
+        "high_90d": 301.0,
+        "low_90d": 240.25,
+        "macd": -5.8129,
+        "macd_signal": -5.819,
+        "macd_hist": 0.0061,
+        "bb_upper": 269.83,
+        "bb_mid": 253.34,
+        "bb_lower": 236.85,
+        "stoch_k": 31.03,
+        "stoch_d": 23.28,
+        "_nb_candles": 85
+      },
+      "fundamentals": {
+        "pe_ratio_ttm": 28.41,
+        "eps_ttm": 9.86,
+        "dividend_per_share": 9.73,
+        "dividend_yield": 3.51,
+        "market_cap_mdh": 6870,
+        "pe_ratio_2026e": null,
+        "pb_ratio": null
+      },
+      "financials_performance": {},
+      "smart_money": {
+        "alpha_12m": 10.1,
+        "smart_sentiment": 64.0,
+        "win_rate_6m": 66
+      },
+      "flags": {
+        "stale": false,
+        "partial_data": true,
+        "ipo_recent": true
+      }
+    },
+    "CMGP": {
+      "market": {
+        "price": 319.0,
+        "open": null,
+        "high": null,
+        "low": null,
+        "volume": 218196.0,
+        "variation_pct": 0.0,
         "market_cap_mdh": null
       },
       "technical": {
@@ -391,53 +391,6 @@
         "alpha_12m": 11.5,
         "smart_sentiment": 65.0,
         "win_rate_6m": 68
-      },
-      "flags": {
-        "stale": false,
-        "partial_data": false,
-        "ipo_recent": false
-      }
-    },
-    "CSR": {
-      "market": {
-        "price": 182.0,
-        "open": null,
-        "high": null,
-        "low": null,
-        "volume": 33306.0,
-        "variation_pct": 0.0,
-        "market_cap_mdh": null
-      },
-      "technical": {
-        "rsi_14": 40.15,
-        "ma20": 191.67,
-        "ma50": 186.57,
-        "high_90d": 206.1,
-        "low_90d": 178.0,
-        "macd": -0.773,
-        "macd_signal": 0.7532,
-        "macd_hist": -1.5262,
-        "bb_upper": 202.52,
-        "bb_mid": 191.67,
-        "bb_lower": 180.82,
-        "stoch_k": 0.36,
-        "stoch_d": 1.28,
-        "_nb_candles": 85
-      },
-      "fundamentals": {
-        "pe_ratio_ttm": 24.17,
-        "pb_ratio": 3.8,
-        "eps_ttm": 8.74,
-        "dividend_per_share": 3.0,
-        "dividend_yield": 4.73,
-        "market_cap_mdh": 19970,
-        "pe_ratio_2026e": null
-      },
-      "financials_performance": {},
-      "smart_money": {
-        "alpha_12m": 19.2,
-        "smart_sentiment": 72.5,
-        "win_rate_6m": 74
       },
       "flags": {
         "stale": false,
@@ -492,46 +445,46 @@
         "ipo_recent": false
       }
     },
-    "RDS": {
+    "CSR": {
       "market": {
-        "price": 167.75,
+        "price": 184.85,
         "open": null,
         "high": null,
         "low": null,
-        "volume": 68609.0,
-        "variation_pct": -2.61,
+        "volume": 46212.0,
+        "variation_pct": 1.57,
         "market_cap_mdh": null
       },
       "technical": {
-        "rsi_14": 53.29,
-        "ma20": 171.22,
-        "ma50": 169.92,
-        "high_90d": 181.9,
-        "low_90d": 135.05,
-        "macd": -0.3446,
-        "macd_signal": -0.0204,
-        "macd_hist": -0.3242,
-        "bb_upper": 176.93,
-        "bb_mid": 171.22,
-        "bb_lower": 165.52,
-        "stoch_k": 72.31,
-        "stoch_d": 41.29,
+        "rsi_14": 40.15,
+        "ma20": 191.67,
+        "ma50": 186.57,
+        "high_90d": 206.1,
+        "low_90d": 178.0,
+        "macd": -0.773,
+        "macd_signal": 0.7532,
+        "macd_hist": -1.5262,
+        "bb_upper": 202.52,
+        "bb_mid": 191.67,
+        "bb_lower": 180.82,
+        "stoch_k": 0.36,
+        "stoch_d": 1.28,
         "_nb_candles": 85
       },
       "fundamentals": {
-        "pe_ratio_ttm": 8.5,
-        "pb_ratio": 0.5,
-        "eps_ttm": 20.0,
+        "pe_ratio_ttm": 24.17,
+        "pb_ratio": 3.8,
+        "eps_ttm": 8.74,
         "dividend_per_share": 3.0,
-        "dividend_yield": 1.77,
-        "market_cap_mdh": 3740,
+        "dividend_yield": 4.73,
+        "market_cap_mdh": 19970,
         "pe_ratio_2026e": null
       },
       "financials_performance": {},
       "smart_money": {
-        "alpha_12m": 5.2,
-        "smart_sentiment": 42.5,
-        "win_rate_6m": 62
+        "alpha_12m": 19.2,
+        "smart_sentiment": 72.5,
+        "win_rate_6m": 74
       },
       "flags": {
         "stale": false,
@@ -541,12 +494,12 @@
     },
     "MSA": {
       "market": {
-        "price": 865.0,
+        "price": 868.0,
         "open": null,
         "high": null,
         "low": null,
-        "volume": 159160.0,
-        "variation_pct": -0.23,
+        "volume": 424452.0,
+        "variation_pct": 0.12,
         "market_cap_mdh": null
       },
       "technical": {
@@ -579,6 +532,53 @@
         "alpha_12m": 21.0,
         "smart_sentiment": 77.5,
         "win_rate_6m": 76
+      },
+      "flags": {
+        "stale": false,
+        "partial_data": false,
+        "ipo_recent": false
+      }
+    },
+    "RDS": {
+      "market": {
+        "price": 168.0,
+        "open": null,
+        "high": null,
+        "low": null,
+        "volume": 492240.0,
+        "variation_pct": -2.47,
+        "market_cap_mdh": null
+      },
+      "technical": {
+        "rsi_14": 53.29,
+        "ma20": 171.22,
+        "ma50": 169.92,
+        "high_90d": 181.9,
+        "low_90d": 135.05,
+        "macd": -0.3446,
+        "macd_signal": -0.0204,
+        "macd_hist": -0.3242,
+        "bb_upper": 176.93,
+        "bb_mid": 171.22,
+        "bb_lower": 165.52,
+        "stoch_k": 72.31,
+        "stoch_d": 41.29,
+        "_nb_candles": 85
+      },
+      "fundamentals": {
+        "pe_ratio_ttm": 8.5,
+        "pb_ratio": 0.5,
+        "eps_ttm": 20.0,
+        "dividend_per_share": 3.0,
+        "dividend_yield": 1.77,
+        "market_cap_mdh": 3740,
+        "pe_ratio_2026e": null
+      },
+      "financials_performance": {},
+      "smart_money": {
+        "alpha_12m": 5.2,
+        "smart_sentiment": 42.5,
+        "win_rate_6m": 62
       },
       "flags": {
         "stale": false,
@@ -622,12 +622,12 @@
     },
     "RIS": {
       "market": {
-        "price": 316.0,
+        "price": 317.0,
         "open": null,
         "high": null,
         "low": null,
-        "volume": 139988.0,
-        "variation_pct": -2.47,
+        "volume": 200661.0,
+        "variation_pct": -2.16,
         "market_cap_mdh": null
       },
       "technical": {
@@ -669,12 +669,12 @@
     },
     "SGTM": {
       "market": {
-        "price": 675.0,
+        "price": 673.0,
         "open": null,
         "high": null,
         "low": null,
-        "volume": 4928850.0,
-        "variation_pct": -0.44,
+        "volume": 5409574.0,
+        "variation_pct": -0.74,
         "market_cap_mdh": null
       },
       "technical": {
@@ -716,12 +716,12 @@
     },
     "SMI": {
       "market": {
-        "price": 6000.0,
+        "price": 6060.0,
         "open": null,
         "high": null,
         "low": null,
-        "volume": 816000.0,
-        "variation_pct": -3.07,
+        "volume": 884760.0,
+        "variation_pct": -2.1,
         "market_cap_mdh": null
       },
       "technical": {
@@ -763,12 +763,12 @@
     },
     "SNA": {
       "market": {
-        "price": 1920.0,
+        "price": 1914.0,
         "open": null,
         "high": null,
         "low": null,
-        "volume": 49920.0,
-        "variation_pct": -1.03,
+        "volume": 82302.0,
+        "variation_pct": -1.34,
         "market_cap_mdh": null
       },
       "technical": {
@@ -855,12 +855,12 @@
     },
     "TGCC": {
       "market": {
-        "price": 738.5,
+        "price": 737.9,
         "open": null,
         "high": null,
         "low": null,
-        "volume": 1119566.0,
-        "variation_pct": -0.87,
+        "volume": 1353308.0,
+        "variation_pct": -0.95,
         "market_cap_mdh": null
       },
       "technical": {
@@ -900,47 +900,13 @@
         "ipo_recent": false
       }
     },
-    "SOT": {
-      "market": {
-        "price": 369.0,
-        "variation_pct": null,
-        "volume": null
-      },
-      "technical": {
-        "rsi_14": 56.0,
-        "ma20": 362.0,
-        "ma50": 350.0,
-        "high_90d": 400.0,
-        "low_90d": 330.0
-      },
-      "fundamentals": {
-        "pe_ratio_ttm": 16.8,
-        "pb_ratio": 2.6,
-        "eps_ttm": 21.96,
-        "dividend_per_share": 10.0,
-        "dividend_yield": 2.71,
-        "market_cap_mdh": 4980,
-        "pe_ratio_2026e": null
-      },
-      "financials_performance": {},
-      "smart_money": {
-        "alpha_12m": 13.4,
-        "smart_sentiment": 67.5,
-        "win_rate_6m": 70
-      },
-      "flags": {
-        "stale": true,
-        "partial_data": false,
-        "ipo_recent": false
-      }
-    },
     "VCNE": {
       "market": {
         "price": 350.0,
         "open": null,
         "high": null,
         "low": null,
-        "volume": 65100.0,
+        "volume": 91700.0,
         "variation_pct": -0.28,
         "market_cap_mdh": null
       },
@@ -978,6 +944,40 @@
         "stale": false,
         "partial_data": true,
         "ipo_recent": true
+      }
+    },
+    "SOT": {
+      "market": {
+        "price": 369.0,
+        "variation_pct": null,
+        "volume": null
+      },
+      "technical": {
+        "rsi_14": 56.0,
+        "ma20": 362.0,
+        "ma50": 350.0,
+        "high_90d": 400.0,
+        "low_90d": 330.0
+      },
+      "fundamentals": {
+        "pe_ratio_ttm": 16.8,
+        "pb_ratio": 2.6,
+        "eps_ttm": 21.96,
+        "dividend_per_share": 10.0,
+        "dividend_yield": 2.71,
+        "market_cap_mdh": 4980,
+        "pe_ratio_2026e": null
+      },
+      "financials_performance": {},
+      "smart_money": {
+        "alpha_12m": 13.4,
+        "smart_sentiment": 67.5,
+        "win_rate_6m": 70
+      },
+      "flags": {
+        "stale": true,
+        "partial_data": false,
+        "ipo_recent": false
       }
     }
   }
