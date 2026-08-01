@@ -181,7 +181,7 @@ Métrique pivot : le bulletin doit être disponible avant l'ouverture (9h30 Casa
 | CMGP | CMGP Group | 358.0 | 2 680 | 11.8 | ✅ |
 | CMT | Minière Touissit | 5 330.0 | 10 980 | 18.5 | ✅ |
 | CSR | Cosumar | 212.90 | 19 970 | 24.2 | ✅ |
-| MNG | Managem | 1 369.0 | 162 430 | 58.7 | ⚠️ Split 10:1 le 27/07/2026 (VN10). Prix ÷10, PE inchangé, cap = prix×118 646 760. Toute val. >2000 = pré-split |
+| MNG | Managem | 1 319.0 | 156 495 | 52.1 | ⚠️ Split 10:1 le 27/07/2026 (VN10). Prix ÷10, PE inchangé, cap = prix×118 646 760. Toute val. >2000 = pré-split |
 | MSA | Sodep-Marsa Maroc | 822.60 | 60 380 | 38.0 | ✅ |
 | RDS | Résidences Dar Saada | 169.7 | 3 740 | 8.5 | ISIN corrigé 01/07 |
 | RIS | Risma | 331.0 | 4 790 | 17.7 | ISIN corrigé 01/07 |
@@ -214,6 +214,43 @@ Caps recalculées via `prix × nb_titres officiels BVC` après corrections ISIN 
 4. **SAM (SAMIR)** : radiée/suspendue — exclure de toute analyse, ne pas intégrer.
 
 ## Journal des décisions
+
+### 2026-08-01
+
+- **MNG recalé sur la clôture officielle : 1 319 DH** (source CDG Capital Bourse,
+  séance 31/07/2026). Trois défauts de l'ajustement split de la veille corrigés :
+  - **Prix 1 485 → 1 319**. Le 1 485 venait de `fallback_data` (14 850 pré-split ÷10),
+    une valeur périmée jamais recalée sur le marché réel. Ratios recalculés :
+    PE 52.13, PE26e 44.11, PB 14.64, yield 0.42 %. Cap **156 495 MDHS**
+    (= 1319 × 118 646 760, conforme au chiffre officiel CDG 156 495 076 440 DH).
+  - **Clôture 27/07 : 1 369 → 1 364**. Le 1 369 était le *plus-haut intraday*
+    relayé par la presse, jamais une clôture. ⚠️ Ne pas prendre un cours de presse
+    en séance pour une clôture.
+  - **Volumes** : le ×10 appliqué la veille était erroné (un split ne change pas
+    le volume échangé) → annulé.
+- **CAUSE RACINE identifiée — l'ajustement split ne tenait qu'un run.** Le run du
+  31/07 avait re-téléchargé l'historique depuis la source (identification par NOM)
+  et écrasé 531 candles avec des cours pré-split. Discontinuité mesurée :
+  2026-06-05 c=16501 → 2026-06-08 c=1668 (ratio 0.101).
+- **Correctif durable (commit `260c267`)** :
+  - **Registre `SPLITS`** dans `bvc_config.py` (date d'effet + ratio) + helper
+    `adjust_splits()`. MNG 27/07/2026 1:10 déclaré.
+  - Ajustement appliqué **aux données fraîchement téléchargées uniquement**, avant
+    fusion avec les candles stockées (déjà ajustées) — sinon double ÷10.
+    Branché dans `collect_history_bvcscrap.py` et `generate_candles.py` (XLSX + Médias24).
+  - **`validate.py` : `validate_candles()`** signale toute rupture > ±50 % entre deux
+    séances (R10 : la BVC plafonne à ±10 %/jour, donc un tel saut est toujours une
+    opération sur titres non déclarée ou un double ajustement). Non bloquant.
+  - **Procédure pour un futur split** : ajouter l'entrée dans `SPLITS`, mettre à jour
+    `ISIN_MAP` (l'ISIN change !), ajuster les candles stockées une fois à la main.
+- **⚠️ 10 ruptures préexistantes révélées par le validateur** (à traiter séparément) :
+  - `HPS` 2023-10-06 6400 → 2023-10-09 658 (ratio 0.103) — **ressemble à un vrai
+    split 1:10 d'octobre 2023 jamais déclaré**. À vérifier puis ajouter à `SPLITS`.
+  - `CFGB`, `MSA`, `STK`, `DAR`, `CIM`, `MRL` — sauts aller-retour sur quelques
+    séances : ce ne sont pas des splits mais des **valeurs erronées injectées dans
+    l'historique**. Plusieurs correspondent aux anciens prix faux de
+    `static_fallback.json` (STK 490, MRL 235) → **le fallback statique a fui dans les
+    candles**. Corrigé à la source le 02/07, mais l'historique pollué reste à nettoyer.
 
 ### 2026-07-27
 
