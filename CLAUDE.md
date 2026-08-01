@@ -181,7 +181,7 @@ Métrique pivot : le bulletin doit être disponible avant l'ouverture (9h30 Casa
 | CMGP | CMGP Group | 358.0 | 2 680 | 11.8 | ✅ |
 | CMT | Minière Touissit | 5 330.0 | 10 980 | 18.5 | ✅ |
 | CSR | Cosumar | 212.90 | 19 970 | 24.2 | ✅ |
-| MNG | Managem | 1 319.0 | 156 495 | 52.1 | ⚠️ Split 10:1 le 27/07/2026 (VN10). Prix ÷10, PE inchangé, cap = prix×118 646 760. Toute val. >2000 = pré-split |
+| MNG | Managem | 1 319.0 | 156 495 | 52.1 | ⚠️ Split 10:1 le 27/07/2026 (VN10). Clôture off. CDG 31/07. Le split ne change ni PE ni cap ; ici PE 58.7→52.1 car le cours a baissé depuis. cap = prix×118 646 760. Toute val. >2000 = pré-split |
 | MSA | Sodep-Marsa Maroc | 822.60 | 60 380 | 38.0 | ✅ |
 | RDS | Résidences Dar Saada | 169.7 | 3 740 | 8.5 | ISIN corrigé 01/07 |
 | RIS | Risma | 331.0 | 4 790 | 17.7 | ISIN corrigé 01/07 |
