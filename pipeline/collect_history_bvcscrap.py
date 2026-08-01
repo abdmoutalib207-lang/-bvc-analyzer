@@ -9,12 +9,41 @@ try:
 except ImportError as _e:
     sys.exit(f"Dépendance manquante : {_e}\nInstalle : pip install -r requirements_pipeline.txt")
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from bvc_config import SPLITS
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)-8s | %(message)s",
     datefmt="%H:%M:%S",
 )
 log = logging.getLogger("BVCSCRAP_HIST")
+
+
+def adjust_splits_df(ticker: str, df: "pd.DataFrame") -> "pd.DataFrame":
+    """Ajuste les cours pré-split d'une source BRUTE (XLSX / BVCscrap).
+
+    Ces sources identifient les sociétés par NOM et renvoient des cours NON
+    ajustés : sans ce correctif, l'historique antérieur à un split reste à
+    l'ancienne échelle (fausse chute de -90%, MA/Bollinger/52w faussés).
+
+    ⚠️ À n'appliquer QUE sur des données fraîchement téléchargées. Les candles
+    déjà stockées sont ajustées ; les repasser ici provoquerait un double split.
+    """
+    splits = SPLITS.get(ticker)
+    if not splits or df.empty or "date" not in df.columns:
+        return df
+    df = df.copy()
+    for sp in splits:
+        eff = pd.Timestamp(sp["date"])
+        mask = df["date"] < eff
+        if mask.any():
+            for col in ("open", "high", "low", "close"):
+                if col in df.columns:
+                    df.loc[mask, col] = (df.loc[mask, col] / sp["ratio"]).round(2)
+            log.info(f"  split {ticker} {sp['date']} 1:{sp['ratio']} — "
+                     f"{int(mask.sum())} bougies ajustées")
+    return df
 
 MANUAL_MAP: dict[str, str] = {
     # ── Grandes capitalisations ───────────────────────────────────────────────
@@ -372,7 +401,9 @@ def run(tickers_filter: list[str] | None = None) -> dict:
     for i, ticker in enumerate(all_tickers, 1):
         log.info(f"[{i}/{len(all_tickers)}] {ticker}")
 
-        xlsx_df = load_xlsx(ticker)
+        # Sources BRUTES → ajustement split immédiat, avant toute fusion avec
+        # les candles stockées (qui sont, elles, déjà ajustées).
+        xlsx_df = adjust_splits_df(ticker, load_xlsx(ticker))
 
         if bvcscrap_ok and ticker in MANUAL_MAP:
             name = MANUAL_MAP[ticker]
@@ -380,7 +411,7 @@ def run(tickers_filter: list[str] | None = None) -> dict:
                 last_date = xlsx_df["date"].iloc[-1]
             else:
                 last_date = pd.Timestamp(datetime.now() - timedelta(days=31))
-            ext_df = fetch_bvcscrap_extension(name, last_date)
+            ext_df = adjust_splits_df(ticker, fetch_bvcscrap_extension(name, last_date))
             df = combine(xlsx_df, ext_df)
             if not ext_df.empty:
                 log.info(f"  +{len(ext_df)} bougies BVCscrap ajoutées")

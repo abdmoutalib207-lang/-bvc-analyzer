@@ -27,10 +27,12 @@ XLSX_ALIAS = {"TGC": "TGCC"}
 
 try:
     sys.path.insert(0, str(ROOT))
-    from bvc_config import ISIN_MAP, TICKERS_ALL
+    from bvc_config import ISIN_MAP, TICKERS_ALL, adjust_splits
 except Exception:
     ISIN_MAP = {}
     TICKERS_ALL = []
+    def adjust_splits(ticker, candles, date_key="d"):  # no-op si config absente
+        return candles
 
 
 _TZ_CA = timezone(timedelta(hours=1))   # Africa/Casablanca (UTC+1 stable)
@@ -126,7 +128,9 @@ def generate_from_xlsx() -> dict:
     for xlsx in sorted(XLSX_DIR.glob("*.xlsx")):
         ticker = XLSX_ALIAS.get(xlsx.stem.upper(), xlsx.stem.upper())
         try:
-            candles = _xlsx_to_candles(xlsx)
+            # XLSX = source brute (cours non ajustés) → ajustement split avant
+            # fusion avec l'existant, qui est déjà ajusté.
+            candles = adjust_splits(ticker, _xlsx_to_candles(xlsx))
             if not candles:
                 log.warning(f"  {ticker}: XLSX vide")
                 continue
@@ -190,11 +194,11 @@ def generate_from_med24(skip_existing_tickers: set = None, days: int = 400) -> d
                 time.sleep(0.3)
                 continue
 
-            candles = [
+            candles = adjust_splits(ticker, [
                 {"d": row["d"], "o": float(row["o"]), "h": float(row["h"]),
                  "l": float(row["l"]), "c": float(row["c"]),   "v": int(row["v"])}
                 for _, row in df.iterrows()
-            ]
+            ])
 
             out = CANDLES_DIR / f"{ticker}.json"
             if out.exists():

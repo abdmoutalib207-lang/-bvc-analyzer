@@ -243,6 +243,46 @@ IDB_TICKER_MAP: dict = {
     # TIM (Timar) : absente du listing MASI IDBourse.
 }
 
+# ── Opérations sur titres : splits (divisions de valeur nominale) ───────────
+# Les sources historiques (XLSX, BVCscrap) identifient les sociétés par NOM et
+# renvoient des cours NON ajustés : après un split, tout l'historique antérieur
+# reste à l'ancienne échelle → fausse chute de -90% dans le graphe, indicateurs
+# (MA, Bollinger, 52w) faussés, et variation calculée hors limite BVC ±10% (R10).
+#
+# Chaque entrée : date d'effet + ratio. Les cours ANTÉRIEURS à la date d'effet
+# sont divisés par le ratio. Ne s'applique qu'aux données FRAÎCHEMENT
+# téléchargées — les candles déjà stockées sont ajustées (cf. adjust_splits).
+SPLITS: dict = {
+    # Managem : VN 100 → VN 10 le 27/07/2026. Actions 11 864 676 → 118 646 760.
+    # Nouvel ISIN MA0000012866 (ancien MA0000011058 radié).
+    "MNG": [{"date": "2026-07-27", "ratio": 10}],
+}
+
+
+def adjust_splits(ticker: str, candles: list, date_key: str = "d") -> list:
+    """Ajuste les cours pré-split d'une série FRAÎCHEMENT téléchargée.
+
+    `candles` : liste de dicts façon {"d": "YYYY-MM-DD", "o","h","l","c","v"}.
+    Les champs de prix antérieurs à chaque date d'effet sont divisés par le ratio.
+    Le volume n'est PAS touché (unité non homogène entre sources).
+
+    ⚠️ Ne JAMAIS appliquer à des candles déjà stockées/ajustées : le second
+    passage re-diviserait les cours (double split). À n'utiliser que sur la
+    sortie brute d'une source externe, avant fusion avec l'existant.
+    """
+    splits = SPLITS.get(ticker)
+    if not splits or not candles:
+        return candles
+    for sp in splits:
+        eff, ratio = sp["date"], sp["ratio"]
+        for k in candles:
+            if str(k.get(date_key, ""))[:10] < eff:
+                for f in ("o", "h", "l", "c"):
+                    if isinstance(k.get(f), (int, float)):
+                        k[f] = round(k[f] / ratio, 2)
+    return candles
+
+
 # 19 tickers actifs du pipeline BVC (MASI 1)
 TICKERS_ACTIFS: list = [
     "ADH", "ADI", "AKD", "CASH", "CFGB", "CMGP", "CMT", "CSR",

@@ -216,6 +216,51 @@ def validate_news():
         ok(f"Top tickers : {', '.join(f'{t}({c})' for t,c in top[:6])}")
 
 
+# ── candles/*.json : ruptures de série ───────────────────────────────────────
+def validate_candles():
+    """Détecte les discontinuités de cours dans les séries de chandelles.
+
+    La BVC limite les variations à ±10%/jour (R10) : un saut au-delà de ±50%
+    entre deux séances consécutives n'est jamais un mouvement de marché. C'est
+    presque toujours une opération sur titres non déclarée dans SPLITS
+    (historique brut non ajusté), ou un double ajustement.
+
+    Non bloquant : un split légitime tout juste survenu doit pouvoir passer le
+    temps qu'on l'ajoute à SPLITS.
+    """
+    hdr("candles/*.json — continuité des séries")
+    cdir = ROOT / "pipeline" / "candles"
+    if not cdir.is_dir():
+        warn("pipeline/candles/ introuvable — vérification ignorée")
+        return
+
+    files = sorted(cdir.glob("*.json"))
+    if not files:
+        warn("aucun fichier candle trouvé")
+        return
+
+    breaks = 0
+    for f in files:
+        try:
+            candles = json.loads(f.read_text(encoding="utf-8"))
+        except Exception as e:
+            err(f"{f.name} illisible : {e}")
+            continue
+        prev = None
+        for k in candles:
+            c = k.get("c")
+            if not isinstance(c, (int, float)) or c <= 0:
+                continue
+            if prev and not 0.5 < c / prev[1] < 2.0:
+                warn(f"{f.stem} : rupture {prev[0]} ({prev[1]}) → {k.get('d')} ({c}) "
+                     f"ratio {c/prev[1]:.3f} — split non déclaré dans SPLITS ?")
+                breaks += 1
+            prev = (k.get("d"), c)
+
+    if not breaks:
+        ok(f"{len(files)} séries continues — aucune rupture > ±50%")
+
+
 # ── Résumé final ──────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     banner = "  BVC Analyzer — Validation Intégrité"
@@ -227,6 +272,7 @@ if __name__ == "__main__":
     validate_bpa()
     validate_fondamentaux()
     validate_news()
+    validate_candles()
 
     print("\n" + "═"*60)
     print(f"  RÉSUMÉ : {len(errors)} erreur(s) critique(s) · {len(warnings)} avertissement(s)")
