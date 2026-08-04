@@ -34,13 +34,18 @@ def adjust_splits_df(ticker: str, df: "pd.DataFrame") -> "pd.DataFrame":
     if not splits or df.empty or "date" not in df.columns:
         return df
     df = df.copy()
+    # Les sources renvoient souvent des cours entiers (dtype int64). Diviser
+    # produit des décimales (5119/10 = 511.9) : sans ce cast, pandas 3 lève
+    # "TypeError: Invalid value '[511.9 ...]' for dtype 'int64'".
+    price_cols = [c for c in ("open", "high", "low", "close") if c in df.columns]
+    for col in price_cols:
+        df[col] = pd.to_numeric(df[col], errors="coerce").astype("float64")
     for sp in splits:
         eff = pd.Timestamp(sp["date"])
         mask = df["date"] < eff
         if mask.any():
-            for col in ("open", "high", "low", "close"):
-                if col in df.columns:
-                    df.loc[mask, col] = (df.loc[mask, col] / sp["ratio"]).round(2)
+            for col in price_cols:
+                df.loc[mask, col] = (df.loc[mask, col] / sp["ratio"]).round(2)
             log.info(f"  split {ticker} {sp['date']} 1:{sp['ratio']} — "
                      f"{int(mask.sum())} bougies ajustées")
     return df
