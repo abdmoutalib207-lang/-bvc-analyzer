@@ -30,6 +30,20 @@ CONFIG    → bvc_config.py : ISIN_MAP (77 tickers), TICKERS_ALL, TICKERS_ACTIFS
 DATA      → data.json, financial_data.json, fondamentaux.json, pipeline/historical_data.json
 ```
 
+### Architecture J+1 — Flux de production
+
+> Principe : **scraping sur Mac local (cron 19h), publication via GitHub Pages.**
+> GitHub Actions = CI léger (deploy uniquement), **jamais source de scraping principal**.
+
+```
+[19h00 Mac local]  → collect_pipeline.py  → data.json + candles/historical_data.json
+[19h30 Mac local]  → git push main
+[~19h35 Actions]   → deploy GitHub Pages (< 2 min, automatique)
+[J+1 avant 8h00]   → bulletin disponible avant ouverture (9h30 Casablanca)
+```
+
+**Pourquoi pas Actions ?** IDBourse et Médias24 bloquent les IPs GitHub Actions (constat 2026-06-29). GitHub Actions ne doit **jamais** scraper ces sources.
+
 ## Règles Absolues (Priorité Maximale)
 
 <rules>
@@ -55,7 +69,7 @@ DATA      → data.json, financial_data.json, fondamentaux.json, pipeline/histor
 **La méthode de travail d'Abd Moutalib est itérative par petits pas.** Il préfère 10 petites améliorations vérifiées à 1 grosse refonte risquée. Privilégier les PR petites et reviewables.
 </rule>
 <rule id="R8">
-**Le scoring v5.3 est sacré.** La formule Score = Fond×47% + NLP×36% + Tech×25% est validée. Toute modification de pondération doit être justifiée par backtesting et approuvée.
+**Le scoring v5.3 est sacré.** La formule exacte est `Tech×25% + Fond×47% + NLP×28% = 100%` (référence : `pipeline/collect_financial_data.py:180`). ⚠️ L'ancienne documentation indiquait NLP×36% — erreur de saisie : 47+36+25=108%, mathématiquement impossible. Toute modification de pondération doit être justifiée par backtesting et approuvée.
 </rule>
 <rule id="R9">
 **Quand IDBourse retourne chg=0% et vol=0**, c'est une donnée stale (cours de référence J-1 retourné comme prix actuel). Toujours vérifier et recalculer depuis les candles puis Médias24. Ne jamais afficher 0% sans vérification.
@@ -86,6 +100,9 @@ DATA      → data.json, financial_data.json, fondamentaux.json, pipeline/histor
 - **CORS proxies publics** — Hack temporaire. Travailler sur un proxy backend propre.
 - **Duplication de config** — La config existe dans bvc_config.py. Ne pas créer de nouveaux fichiers dispersés.
 - **Noms MSA/MUT** — MSA = Marsa Maroc, MUT = Mutandis SCA. Ne jamais les confondre.
+- **Scraping dans GitHub Actions** — IDBourse et Médias24 bloquent les IPs GitHub. Le scraping principal s'exécute sur Mac local (cron 19h). Actions = deploy uniquement.
+- **Signal sans confidence** — Ne pas émettre ACHAT/ÉVITER si `confidence ≤ 1`. Afficher "Données insuffisantes". Un score calculé sur données stale ou 100% fallback est trompeur.
+- **`_meta` absent de data.json** — Tout objet ticker généré par le pipeline doit porter un bloc `_meta`. Son absence masque les données stale au frontend.
 </antipatterns>
 
 ## Contexte Technique Clé
@@ -100,6 +117,37 @@ DATA      → data.json, financial_data.json, fondamentaux.json, pipeline/histor
 - **Frontend** : React 18 via CDN UMD, ApexCharts 3.45, Babel standalone (compilation JSX à la volée)
 - **Hébergement** : GitHub Pages (frontend), branche main
 </tech-context>
+
+## Score de confiance (0–5) — À IMPLÉMENTER
+
+> ⚠️ **Spécification — non encore en place.** À implémenter dans `pipeline/collect_financial_data.py` (calcul backend) et `index.html` (affichage frontend).
+
+Chaque ticker exposera un entier `confidence` (0–5) calculé à la génération :
+- +1 si prix live (non stale, variation ≠ 0 ou vérifiée)
+- +1 si fondamentaux réels (pas 100% `fallback_data.json`)
+- +1 si RSI calculé depuis candles réels (≥ 14 séances disponibles)
+- +1 si NLP : corpus > 10 messages pour ce ticker
+- +1 si smart_money disponible (`win_rate_6m` non None)
+
+**Règle d'affichage** : si `confidence ≤ 1`, le signal ACHAT/ÉVITER est grisé côté frontend, remplacé par "Données insuffisantes". Le score v53 reste affiché mais signalé en gris.
+
+**UI** : indicateur ●●●○○ sous le score v53, jamais caché.
+
+## Bloc `_meta` dans `data.json` — À IMPLÉMENTER
+
+> ⚠️ **Spécification — non encore en place.** Chaque entrée ticker dans `data.json` devra porter ce bloc, émis par `collect_financial_data.py`.
+
+```json
+"_meta": {
+  "source_prix":  "idbourse | medias24 | fallback",
+  "source_fond":  "idbourse_dataplus | fallback_data | static",
+  "stale":        false,
+  "confidence":   3,
+  "generated_at": "2026-07-05T19:00:00+01:00"
+}
+```
+
+**Règle (extension R9)** : `stale: true` → frontend affiche le badge ⚠️ J-1 sur le prix. Sans `_meta`, le frontend doit supposer `stale: true`.
 
 ## Mémoire des Erreurs et Apprentissages
 
@@ -137,6 +185,28 @@ Métrique pivot : le bulletin doit être disponible avant l'ouverture (9h30 Casa
 > ⚠️ **Condition stricte** : uniquement si partenariat data institutionnel ou 500+ utilisateurs payants.
 > Usage interne (backtesting) seulement, jamais publié tant que la condition n'est pas remplie.
 > Ne pas développer ni anticiper avant validation du critère.
+
+## Checklist de validation produit (Run J+1)
+
+Avant publication matinale (objectif : < 8h00 Casablanca) :
+
+- [ ] `data.json` : timestamp `generated_at` compris entre 18h00 et 20h30 (UTC+1)
+- [ ] 19 tickers MASI1 présents, prix non-nuls sur chacun (règle R1)
+- [ ] Score v53 dans `[0, 10]` pour tous les tickers actifs — aucun null
+- [ ] Aucune variation > ±10% sans vérification manuelle (règle R10)
+- [ ] `stale: false` sur les 19 MASI1 (quand `_meta` implémenté — cf. section dédiée)
+- [ ] 1 ticker vérifié manuellement dans le frontend (prix + score cohérents)
+- [ ] GitHub Actions deploy passé vert (log Actions)
+
+## Éléments à vérifier / Non confirmés (v6.5)
+
+Les points suivants figuraient dans des propositions d'architecture. Ils sont **non confirmés** — ne pas les traiter comme des faits établis ni les documenter comme acquis.
+
+> ⚠️ **Drahmi API** — existence non confirmée comme source de fondamentaux. Ne pas intégrer dans le pipeline tant que la disponibilité n'est pas vérifiée manuellement (endpoint, authentification, couverture des 77 tickers).
+
+> ⚠️ **Légalité T+1 "par analogie"** — l'argument selon lequel la publication J+1 serait légalement couverte par analogie avec les délais réglementaires BVC est une hypothèse juridique, pas un avis AMMC. Consulter avant toute commercialisation.
+
+> ⚠️ **P4 — Monétisation B2B** — les implications d'un agrément d'analyse financière (AMMC) et du traitement de données personnelles (CNDP) pour une offre B2B ne sont pas tranchées. Ne pas présenter comme acquis dans des communications externes ou négociations de partenariat.
 
 ## État des données — Référence post-corrections (LOI N°3)
 
