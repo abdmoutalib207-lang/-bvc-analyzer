@@ -25,6 +25,27 @@ _IDB_TS: float = 0.0
 _IDB_TTL: float = 120.0  # 2 min
 
 
+def _num(v):
+    """Convertit une valeur IDBourse en float, ou None.
+
+    L'API mélange les formats : nombres JSON (380), chaînes anglaises ("379.0")
+    et chaînes françaises ("1 742,00" — espace de milliers, virgule décimale).
+    Un float() direct sur la forme française lève ValueError et faisait échouer
+    le lot entier (0 ticker au lieu de 92).
+    """
+    if v is None or v == "":
+        return None
+    if isinstance(v, (int, float)):
+        return float(v)
+    s = str(v).replace(" ", "").replace("\xa0", "").replace(" ", "")
+    if "," in s:                      # format français : virgule décimale
+        s = s.replace(".", "").replace(",", ".")
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
 def _get_idb_batch() -> dict:
     """Récupère tous les cours IDBourse en une requête, avec cache."""
     global _IDB_CACHE, _IDB_TS
@@ -32,9 +53,15 @@ def _get_idb_batch() -> dict:
         return _IDB_CACHE
 
     sess = timeout_session()
+    # Depuis le 05/08/2026, IDBourse contrôle la provenance : sans Referer,
+    # /api/proxy/* répond HTTP 403 {"error":"Forbidden"}. Cf. update_data.idb_get.
+    _idb_ref = {"Referer": "https://www.idbourse.com/masi",
+                "Origin": "https://www.idbourse.com",
+                "Accept": "application/json, text/plain, */*"}
     for url in [IDB_API, f"{PROXY}{IDB_API}"]:
         try:
-            r = sess.get(url, headers=random.choice(HEADERS_LIST), timeout=15)
+            r = sess.get(url, headers={**random.choice(HEADERS_LIST), **_idb_ref},
+                         timeout=15)
             r.raise_for_status()
             data = r.json()
             if isinstance(data, list) and len(data) > 5:
@@ -44,14 +71,16 @@ def _get_idb_batch() -> dict:
                         continue
                     name = d["name"].upper()
                     sym = IDB_NAME_MAP.get(name, name)
+                    cap = _num(d.get("capitalisation_boursiere"))
                     out[sym] = {
-                        "price":      float(d["dernier_cours"]),
-                        "open":       float(d["ouverture"])    if d.get("ouverture")    else None,
-                        "high":       float(d["plus_haut"])    if d.get("plus_haut")    else None,
-                        "low":        float(d["plus_bas"])     if d.get("plus_bas")     else None,
-                        "volume":     float(d["volume"])       if d.get("volume")       else None,
-                        "variation_pct": float(d["variation"]) if d.get("variation") is not None else 0.0,
-                        "market_cap_mdh": float(d["capitalisation"]) / 1e6 if d.get("capitalisation") else None,
+                        "price":      _num(d.get("dernier_cours")),
+                        "open":       _num(d.get("ouverture")),
+                        # IDBourse expose haut/bas (et non plus_haut/plus_bas)
+                        "high":       _num(d.get("haut")),
+                        "low":        _num(d.get("bas")),
+                        "volume":     _num(d.get("volume")),
+                        "variation_pct": _num(d.get("variation")) or 0.0,
+                        "market_cap_mdh": cap / 1e6 if cap else None,
                         "_source": "IDBourse",
                     }
                 _IDB_CACHE = out

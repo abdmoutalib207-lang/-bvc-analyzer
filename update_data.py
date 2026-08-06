@@ -330,10 +330,17 @@ _load_nlp_csv_overlay()
 # ─────────────────────────────────────────────────────────────────────────────
 
 def idb_get(endpoint, timeout=10):
+    # Depuis le 05/08/2026 (~12h Casablanca), IDBourse contrôle la provenance :
+    # sans Referer, /api/proxy/* renvoie HTTP 403 {"error":"Forbidden"} — d'où
+    # "IDBourse: 0/77 tickers reçus" et le basculement de tout le moteur sur les
+    # fallbacks. Le Referer de la page publique suffit à rétablir l'accès.
+    hdrs = {**HEADERS, "Referer": f"{IDB_BASE}/masi", "Origin": IDB_BASE,
+            "Accept": "application/json, text/plain, */*"}
     try:
-        r = requests.get(f"{IDB_BASE}{endpoint}", headers=HEADERS, timeout=timeout)
+        r = requests.get(f"{IDB_BASE}{endpoint}", headers=hdrs, timeout=timeout)
         if r.status_code == 200:
             return r.json()
+        logger.warning(f"IDBourse {endpoint}: HTTP {r.status_code} — {r.text[:80]}")
     except Exception as e:
         logger.debug(f"IDBourse {endpoint}: {e}")
     return None
@@ -389,7 +396,9 @@ def fetch_all_idb():
         if not d.get("name") or not d.get("dernier_cours"):
             continue
         # Extraire le code BVC depuis l'URL (.../instruments/CODE)
-        url = d.get("url", "")
+        # `or ""` volontaire : IDBourse renvoie url:null sur certains titres
+        # (DIAC SALAF, STROC, HOLCIM) — .get("url","") laisserait passer None.
+        url = d.get("url") or ""
         ticker_from_url = url.split("/instruments/")[-1].upper() if "/instruments/" in url else ""
         # Priorité : code URL → mapping nom → nom brut
         if ticker_from_url and ticker_from_url in ISIN_MAP:
