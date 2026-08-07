@@ -2356,5 +2356,44 @@ if(root){
   document.body.innerHTML='<div style="color:#ff4f5a;padding:40px;font-family:monospace">Erreur: élément #root introuvable</div>';
 }
 </script>
+
+<!-- ── Mesure d'audience — facultative, sans cookie ─────────────────────────
+     Isolée du moteur par construction :
+       · exécutée après le rendu React, hors du bundle applicatif
+       · chargement asynchrone (ne bloque jamais l'affichage)
+       · try/catch : une panne du fournisseur ne peut pas casser le terminal
+       · totalement inerte tant qu'aucun identifiant n'est renseigné ci-dessous
+     Aucun cookie, aucun localStorage, aucune donnée personnelle conservée par
+     le terminal — choix délibéré au regard de la CNDP.
+
+     Pour activer, renseigner UN SEUL des deux identifiants :
+       · GoatCounter : compte gratuit sur goatcounter.com → coller le code choisi
+       · Cloudflare  : Web Analytics → coller le token du site
+-->
+<script>
+(function () {
+  var GOATCOUNTER = "";   // ex. "bvc-analyzer"  (donne bvc-analyzer.goatcounter.com)
+  var CF_TOKEN    = "";   // ex. "a1b2c3d4e5f6..."
+  try {
+    var s;
+    if (GOATCOUNTER) {
+      s = document.createElement("script");
+      s.async = true;
+      s.src = "https://gc.zgo.at/count.js";
+      s.setAttribute("data-goatcounter",
+                     "https://" + GOATCOUNTER + ".goatcounter.com/count");
+      document.body.appendChild(s);
+    } else if (CF_TOKEN) {
+      s = document.createElement("script");
+      s.defer = true;
+      s.src = "https://static.cloudflareinsights.com/beacon.min.js";
+      s.setAttribute("data-cf-beacon", JSON.stringify({ token: CF_TOKEN }));
+      document.body.appendChild(s);
+    }
+  } catch (e) {
+    /* La mesure d'audience ne doit jamais empêcher le terminal de fonctionner. */
+  }
+})();
+</script>
 </body>
 </html>
