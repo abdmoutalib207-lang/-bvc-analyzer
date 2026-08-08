@@ -71,6 +71,7 @@ SOURCE_CATEGORY = {
     "IDBourse":              "bvc",
     "Ilboursa":              "bvc",
     "L'Économiste Bourse":   "bvc",
+    "L'Économiste":          "bvc",
     "Casabourse":            "bvc",
     "FLM":                   "bvc",
     "Investing Maroc":       "bvc",
@@ -197,6 +198,11 @@ def fetch_rss(url: str, source_name: str, max_items=30) -> list:
         # RSS 2.0
         for item in root.iter("item"):
             title = (item.findtext("title") or "").strip()
+            # Google News suffixe chaque titre du domaine source
+            # ("… - boursenews.ma") : on le retire, la source est déjà portée
+            # par le champ `source`.
+            if "news.google.com" in url:
+                title = re.sub(r"\s+-\s+[\w.-]+\.\w{2,4}\s*$", "", title)
             link  = (item.findtext("link")  or "").strip()
             desc  = (item.findtext("description") or "").strip()
             date  = (item.findtext("pubDate") or item.findtext("dc:date") or "").strip()
@@ -330,62 +336,69 @@ GNEWS = "https://news.google.com/rss/search?q={q}&hl=fr&gl=MA&ceid=MA:fr"
 
 SOURCES_RSS = [
     # ── BVC / Marchés ────────────────────────────────────────────────────────
-    ("https://www.casablanca-bourse.com/bourseweb/Rss-Actualite.aspx", "BVC Officiel"),
-    ("https://www.ammc.ma/fr/rss.xml",                                  "AMMC"),
-    ("https://www.leboursier.ma/feed",                                  "Le Boursier"),
-    ("https://www.boursenews.ma/rss",                                   "BourseNews"),
-    ("https://www.ilboursa.com/actualites/rss",                        "Ilboursa"),
-    ("https://casabourse.ma/feed/",                                      "Casabourse"),
+    (GNEWS.format(q="site:casablanca-bourse.com"),              "BVC Officiel", 25),
+    ("https://www.ammc.ma/fr/rss.xml",                                  "AMMC", 25),
+    # ("https://www.leboursier.ma/feed", "Le Boursier"),  # domaine injoignable
+    # depuis le 07/08/2026 et absent de l'index Google News. Son contenu est
+    # désormais couvert par Medias24 (même groupe).
+    (GNEWS.format(q="site:boursenews.ma"),                      "BourseNews", 25),
+    (GNEWS.format(q="site:ilboursa.com"),                       "Ilboursa", 25),
+    ("https://casabourse.ma/feed/",                                      "Casabourse", 25),
     # Sites sans flux RSS propre → relais Google News restreint au domaine.
     # Vérifié le 07/08/2026 : alphabourse.com ET .ma ne servent aucun flux
     # (l'ancienne entrée alphabourse.com/feed/ était morte et ne remontait rien).
-    (GNEWS.format(q="site:alphabourse.ma"),                             "Alpha Bourse"),
-    (GNEWS.format(q="site:flm.ma"),                                     "FLM"),
+    (GNEWS.format(q="site:alphabourse.ma"),                             "Alpha Bourse", 20),
+    (GNEWS.format(q="site:flm.ma"),                                     "FLM", 15),
     # ── Presse économique marocaine ──────────────────────────────────────────
-    ("https://www.medias24.com/rss/bourse.xml",                         "Medias24 Bourse"),
-    ("https://www.medias24.com/rss/economie.xml",                       "Medias24 Éco"),
-    ("https://www.leconomiste.com/flux-rss/bourse",                     "L'Économiste Bourse"),
-    ("https://www.leconomiste.com/flux-rss/actualite",                  "L'Économiste Actu"),
-    ("https://fnh.ma/rss",                                              "Finances News"),
-    ("https://lavieeco.com/feed/",                                       "La Vie Éco"),
-    ("https://www.challenge.ma/feed/",                                  "Challenge Maroc"),
-    ("https://telquel.ma/feed/?cat=economie",                           "Telquel Éco"),
-    ("https://lematin.ma/feed/",                                        "Le Matin"),
-    ("https://aujourdhui.ma/feed/",                                     "Aujourd'hui le Maroc"),
-    ("https://www.lopinion.ma/feed/",                                   "L'Opinion Maroc"),
-    ("https://ledesk.ma/feed/",                                         "Le Desk"),
-    ("https://ecoactu.ma/feed/",                                        "EcoActu"),
-    ("https://maroc-hebdo.press.ma/feed/",                              "Maroc Hebdo"),
-    ("https://fr.hespress.com/category/economie/feed/",                 "Hespress Éco"),
-    ("https://www.infomediaire.net/feed/",                              "Infomediaire"),
-    ("https://leseco.ma/feed/",                                          "Les Inspirations Éco"),
-    ("https://www.usinenouvelle.com/rss/maroc.xml",                    "Usine Nouvelle Maroc"),
-    (GNEWS.format(q="site:mapnews.ma"),                                 "MAP"),
-    (GNEWS.format(q="site:laquotidienne.ma"),                           "La Quotidienne"),
-    (GNEWS.format(q="site:maroc-diplomatique.net"),                     "Maroc Diplomatique"),
+    (GNEWS.format(q="site:medias24.com"),                       "Medias24", 25),
+    # ('https://www.medias24.com/rss/economie.xml', 'Medias24 Éco'),  # 403 ; le
+    # domaine medias24.com est couvert en entier par le relais ci-dessus.
+    (GNEWS.format(q="site:leconomiste.com"),                    "L'Économiste", 20),
+    # ('https://www.leconomiste.com/flux-rss/actualite', "L'Économiste Actu"),  # 403 ;
+    # leconomiste.com est couvert en entier par le relais ci-dessus.
+    (GNEWS.format(q="site:fnh.ma"),                             "Finances News", 20),
+    ("https://lavieeco.com/feed/",                                       "La Vie Éco", 12),
+    ("https://www.challenge.ma/feed/",                                  "Challenge Maroc", 12),
+    (GNEWS.format(q="site:telquel.ma"),                         "Telquel Éco", 8),
+    (GNEWS.format(q="site:lematin.ma"),                         "Le Matin", 10),
+    ("https://aujourdhui.ma/feed/",                                     "Aujourd'hui le Maroc", 10),
+    (GNEWS.format(q="site:lopinion.ma"),                        "L'Opinion Maroc", 8),
+    (GNEWS.format(q="site:ledesk.ma"),                          "Le Desk", 8),
+    ("https://ecoactu.ma/feed/",                                        "EcoActu", 12),
+    (GNEWS.format(q="site:maroc-hebdo.com"),                    "Maroc Hebdo", 8),
+    ("https://fr.hespress.com/category/economie/feed/",                 "Hespress Éco", 10),
+    ("https://www.infomediaire.net/feed/",                              "Infomediaire", 10),
+    ("https://leseco.ma/feed/",                                          "Les Inspirations Éco", 12),
+    ("https://www.usinenouvelle.com/rss",                              "Usine Nouvelle Maroc", 8),
+    (GNEWS.format(q="site:mapnews.ma"),                                 "MAP", 12),
+    (GNEWS.format(q="site:laquotidienne.ma"),                           "La Quotidienne", 10),
+    (GNEWS.format(q="site:maroc-diplomatique.net"),                     "Maroc Diplomatique", 6),
     # ── Finance islamique / Banque centrale / HCP ────────────────────────────
-    ("https://www.hcp.ma/rss.xml",                                      "HCP"),
-    ("https://www.bkam.ma/rss.xml",                                     "Bank Al-Maghrib"),
+    (GNEWS.format(q="site:hcp.ma"),                             "HCP", 8),
+    (GNEWS.format(q="site:bkam.ma"),                            "Bank Al-Maghrib", 10),
     # ── Afrique / Marchés émergents ──────────────────────────────────────────
-    ("https://www.agenceecofin.com/flux-rss/maroc",                    "Agence Ecofin Maroc"),
-    ("https://www.financialafrik.com/feed/",                            "Financial Afrik"),
-    ("https://www.africaintelligence.fr/rss",                          "Africa Intelligence"),
-    ("https://www.jeuneafrique.com/feed/",                             "Jeune Afrique"),
+    (GNEWS.format(q="site:agenceecofin.com"),                   "Agence Ecofin Maroc", 8),
+    ("https://www.financialafrik.com/feed/",                            "Financial Afrik", 8),
+    (GNEWS.format(q="site:africaintelligence.fr"),              "Africa Intelligence", 6),
+    ("https://www.jeuneafrique.com/feed/",                             "Jeune Afrique", 6),
     # ── International — cadré sur le Maroc ────────────────────────────────────
     # Les flux globaux de ces éditeurs noieraient l'actualité BVC (des milliers
     # d'articles sans rapport). On les restreint donc au Maroc via Google News.
     # Reuters a fermé ses flux RSS publics ; Bloomberg n'expose que du global.
-    (GNEWS.format(q="site:reuters.com+Morocco"),                        "Reuters Maroc"),
-    (GNEWS.format(q="site:bloomberg.com+Morocco"),                      "Bloomberg Maroc"),
-    (GNEWS.format(q="site:investing.com+Morocco+bourse"),               "Investing Maroc"),
+    (GNEWS.format(q="site:reuters.com+Morocco"),                        "Reuters Maroc", 8),
+    (GNEWS.format(q="site:bloomberg.com+Morocco"),                      "Bloomberg Maroc", 8),
+    (GNEWS.format(q="site:investing.com+Morocco+bourse"),               "Investing Maroc", 15),
     # ── Géopolitique / International ──────────────────────────────────────────
-    ("https://www.rfi.fr/fr/rss-economie.xml",                         "RFI Économie"),
-    ("https://www.france24.com/fr/economie/rss",                       "France24 Éco"),
-    ("https://www.lemonde.fr/afrique/rss_full.xml",                    "Le Monde Afrique"),
+    ("https://www.rfi.fr/fr/economie/rss",                             "RFI Économie", 6),
+    ("https://www.france24.com/fr/economie/rss",                       "France24 Éco", 6),
+    ("https://www.lemonde.fr/afrique/rss_full.xml",                    "Le Monde Afrique", 6),
     # ── Matières premières (pétrole, métaux, mines, phosphates) ─────────────
-    ("https://oilprice.com/rss/main",                                   "OilPrice"),
-    ("https://www.mining.com/rss/",                                     "Mining.com"),
-    ("https://www.kitco.com/rss/",                                      "Kitco Métaux"),
+    ("https://oilprice.com/rss/main",                                   "OilPrice", 8),
+    ("https://www.mining.com/rss/",                                     "Mining.com", 8),
+    # Kitco a supprimé ses flux RSS publics (404). Un relais site:kitco.com ne
+    # rend que 7 articles ; une requête thématique couvre bien mieux le besoin
+    # réel — le cours des métaux précieux, qui pèse sur MNG, SMI et CMT.
+    (GNEWS.format(q="cours+de+l%27or+m%C3%A9taux+pr%C3%A9cieux"),        "Kitco Métaux", 6),
 ]
 
 
@@ -419,8 +432,14 @@ def run():
     all_articles = list(archived)
 
     # 1. RSS feeds
-    for url, name in SOURCES_RSS:
-        arts = fetch_rss(url, name, max_items=25)
+    for entry in SOURCES_RSS:
+        # 3e élément facultatif : plafond d'articles propre à la source.
+        # Les relais Google News renvoient 100 articles chacun ; sans plafond
+        # réduit ils satureraient MAX_ARTICLES et évinceraient les flux natifs,
+        # dont les liens pointent directement sur l'article.
+        url, name = entry[0], entry[1]
+        cap = entry[2] if len(entry) > 2 else 25
+        arts = fetch_rss(url, name, max_items=cap)
         new_count = 0
         for a in arts:
             if a["id"] not in seen_ids:
