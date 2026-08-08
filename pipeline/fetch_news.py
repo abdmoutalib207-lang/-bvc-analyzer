@@ -71,8 +71,12 @@ SOURCE_CATEGORY = {
     "IDBourse":              "bvc",
     "Ilboursa":              "bvc",
     "L'Économiste Bourse":   "bvc",
+    "Casabourse":            "bvc",
+    "FLM":                   "bvc",
+    "Investing Maroc":       "bvc",
     "HCP":                   "macro",
     "Bank Al-Maghrib":       "macro",
+    "MAP":                   "macro",
     "OilPrice":              "commodites",
     "Mining.com":            "commodites",
     "Kitco Métaux":          "commodites",
@@ -83,6 +87,9 @@ SOURCE_CATEGORY = {
     "Africa Intelligence":   "geopolitique",
     "Agence Ecofin Maroc":   "geopolitique",
     "Financial Afrik":       "geopolitique",
+    "Reuters Maroc":         "geopolitique",
+    "Bloomberg Maroc":       "geopolitique",
+    "Maroc Diplomatique":    "geopolitique",
 }
 
 FUZZY_THRESHOLD = 85
@@ -170,12 +177,18 @@ def fetch_rss(url: str, source_name: str, max_items=30) -> list:
         domain = f"{urlparse(url).scheme}://{urlparse(url).netloc}"
         hdrs = {**HEADERS, "Referer": domain, "Origin": domain}
         r = requests.get(url, headers=hdrs, timeout=TIMEOUT, allow_redirects=True)
-        if r.status_code == 403:
-            hdrs2 = {
-                "User-Agent": HEADERS["User-Agent"],
-                "Accept": "application/rss+xml, application/xml, text/xml, */*",
-                "Accept-Language": "fr-FR,fr;q=0.9",
-            }
+        hdrs2 = {
+            "User-Agent": HEADERS["User-Agent"],
+            "Accept": "application/rss+xml, application/xml, text/xml, */*",
+            "Accept-Language": "fr-FR,fr;q=0.9",
+        }
+        # Repli sans Referer/Origin. Le 403 ne suffit pas : certains éditeurs
+        # (WordPress derrière un CDN) répondent 200 avec un flux VIDE mais valide
+        # quand un Referer est présent, l'interprétant comme un hotlink. Constaté
+        # le 07/08/2026 sur casabourse.ma et leseco.ma — 0 article au lieu de 4 et 50.
+        if r.status_code == 403 or (
+            r.ok and b"<item" not in r.content and b"<entry" not in r.content
+        ):
             r = requests.get(url, headers=hdrs2, timeout=TIMEOUT, allow_redirects=True)
         r.raise_for_status()
         root = ET.fromstring(r.content)
@@ -310,6 +323,11 @@ def fetch_idb_news(max_items=15) -> list:
 
 # ── Liste des sources RSS ─────────────────────────────────────────────────────
 
+# Relais Google News : certains éditeurs marocains ne publient aucun flux RSS.
+# Restreindre la requête au domaine (site:...) donne un flux propre à l'éditeur,
+# sans scraper son HTML. `q` doit être encodé pour une URL.
+GNEWS = "https://news.google.com/rss/search?q={q}&hl=fr&gl=MA&ceid=MA:fr"
+
 SOURCES_RSS = [
     # ── BVC / Marchés ────────────────────────────────────────────────────────
     ("https://www.casablanca-bourse.com/bourseweb/Rss-Actualite.aspx", "BVC Officiel"),
@@ -317,7 +335,12 @@ SOURCES_RSS = [
     ("https://www.leboursier.ma/feed",                                  "Le Boursier"),
     ("https://www.boursenews.ma/rss",                                   "BourseNews"),
     ("https://www.ilboursa.com/actualites/rss",                        "Ilboursa"),
-    ("https://www.alphabourse.com/feed/",                               "Alpha Bourse"),
+    ("https://casabourse.ma/feed/",                                      "Casabourse"),
+    # Sites sans flux RSS propre → relais Google News restreint au domaine.
+    # Vérifié le 07/08/2026 : alphabourse.com ET .ma ne servent aucun flux
+    # (l'ancienne entrée alphabourse.com/feed/ était morte et ne remontait rien).
+    (GNEWS.format(q="site:alphabourse.ma"),                             "Alpha Bourse"),
+    (GNEWS.format(q="site:flm.ma"),                                     "FLM"),
     # ── Presse économique marocaine ──────────────────────────────────────────
     ("https://www.medias24.com/rss/bourse.xml",                         "Medias24 Bourse"),
     ("https://www.medias24.com/rss/economie.xml",                       "Medias24 Éco"),
@@ -335,7 +358,11 @@ SOURCES_RSS = [
     ("https://maroc-hebdo.press.ma/feed/",                              "Maroc Hebdo"),
     ("https://fr.hespress.com/category/economie/feed/",                 "Hespress Éco"),
     ("https://www.infomediaire.net/feed/",                              "Infomediaire"),
+    ("https://leseco.ma/feed/",                                          "Les Inspirations Éco"),
     ("https://www.usinenouvelle.com/rss/maroc.xml",                    "Usine Nouvelle Maroc"),
+    (GNEWS.format(q="site:mapnews.ma"),                                 "MAP"),
+    (GNEWS.format(q="site:laquotidienne.ma"),                           "La Quotidienne"),
+    (GNEWS.format(q="site:maroc-diplomatique.net"),                     "Maroc Diplomatique"),
     # ── Finance islamique / Banque centrale / HCP ────────────────────────────
     ("https://www.hcp.ma/rss.xml",                                      "HCP"),
     ("https://www.bkam.ma/rss.xml",                                     "Bank Al-Maghrib"),
@@ -344,6 +371,13 @@ SOURCES_RSS = [
     ("https://www.financialafrik.com/feed/",                            "Financial Afrik"),
     ("https://www.africaintelligence.fr/rss",                          "Africa Intelligence"),
     ("https://www.jeuneafrique.com/feed/",                             "Jeune Afrique"),
+    # ── International — cadré sur le Maroc ────────────────────────────────────
+    # Les flux globaux de ces éditeurs noieraient l'actualité BVC (des milliers
+    # d'articles sans rapport). On les restreint donc au Maroc via Google News.
+    # Reuters a fermé ses flux RSS publics ; Bloomberg n'expose que du global.
+    (GNEWS.format(q="site:reuters.com+Morocco"),                        "Reuters Maroc"),
+    (GNEWS.format(q="site:bloomberg.com+Morocco"),                      "Bloomberg Maroc"),
+    (GNEWS.format(q="site:investing.com+Morocco+bourse"),               "Investing Maroc"),
     # ── Géopolitique / International ──────────────────────────────────────────
     ("https://www.rfi.fr/fr/rss-economie.xml",                         "RFI Économie"),
     ("https://www.france24.com/fr/economie/rss",                       "France24 Éco"),
