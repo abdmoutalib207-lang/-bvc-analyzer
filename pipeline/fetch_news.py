@@ -198,11 +198,14 @@ def fetch_rss(url: str, source_name: str, max_items=30) -> list:
         # RSS 2.0
         for item in root.iter("item"):
             title = (item.findtext("title") or "").strip()
-            # Google News suffixe chaque titre du domaine source
-            # ("… - boursenews.ma") : on le retire, la source est déjà portée
-            # par le champ `source`.
-            if "news.google.com" in url:
-                title = re.sub(r"\s+-\s+[\w.-]+\.\w{2,4}\s*$", "", title)
+            # Google News suffixe chaque titre du nom de l'éditeur, tantôt un
+            # domaine ("… - boursenews.ma"), tantôt un nom ("… - L'Economiste").
+            # On retire ce qui suit le dernier " - " si c'est court et sans
+            # ponctuation finale — un vrai bout de titre en contiendrait.
+            if "news.google.com" in url and " - " in title:
+                tete, _, queue = title.rpartition(" - ")
+                if tete and len(queue) <= 40 and not queue.rstrip().endswith((".", "!", "?", ":")):
+                    title = tete.rstrip()
             link  = (item.findtext("link")  or "").strip()
             desc  = (item.findtext("description") or "").strip()
             date  = (item.findtext("pubDate") or item.findtext("dc:date") or "").strip()
@@ -332,6 +335,9 @@ def fetch_idb_news(max_items=15) -> list:
 # Relais Google News : certains éditeurs marocains ne publient aucun flux RSS.
 # Restreindre la requête au domaine (site:...) donne un flux propre à l'éditeur,
 # sans scraper son HTML. `q` doit être encodé pour une URL.
+# Éditeurs généralistes : la requête est cadrée sur la finance. Sans ce
+# filtre, le relais rapatriait sport et culture, qui héritaient ensuite de la
+# catégorie de leur source (SOURCE_CATEGORY est par source, pas par article).
 GNEWS = "https://news.google.com/rss/search?q={q}&hl=fr&gl=MA&ceid=MA:fr"
 
 SOURCES_RSS = [
@@ -350,29 +356,31 @@ SOURCES_RSS = [
     (GNEWS.format(q="site:alphabourse.ma"),                             "Alpha Bourse", 20),
     (GNEWS.format(q="site:flm.ma"),                                     "FLM", 15),
     # ── Presse économique marocaine ──────────────────────────────────────────
-    (GNEWS.format(q="site:medias24.com"),                       "Medias24", 25),
+    (GNEWS.format(q="site:medias24.com+(bourse+OR+MASI+OR+entreprise+OR+r%C3%A9sultats+OR+%C3%A9conomie)"),                       "Medias24", 25),
     # ('https://www.medias24.com/rss/economie.xml', 'Medias24 Éco'),  # 403 ; le
     # domaine medias24.com est couvert en entier par le relais ci-dessus.
-    (GNEWS.format(q="site:leconomiste.com"),                    "L'Économiste", 20),
+    (GNEWS.format(q="site:leconomiste.com+(bourse+OR+MASI+OR+entreprise+OR+r%C3%A9sultats+OR+%C3%A9conomie)"),                    "L'Économiste", 20),
     # ('https://www.leconomiste.com/flux-rss/actualite', "L'Économiste Actu"),  # 403 ;
     # leconomiste.com est couvert en entier par le relais ci-dessus.
     (GNEWS.format(q="site:fnh.ma"),                             "Finances News", 20),
     ("https://lavieeco.com/feed/",                                       "La Vie Éco", 12),
     ("https://www.challenge.ma/feed/",                                  "Challenge Maroc", 12),
-    (GNEWS.format(q="site:telquel.ma"),                         "Telquel Éco", 8),
-    (GNEWS.format(q="site:lematin.ma"),                         "Le Matin", 10),
+    (GNEWS.format(q="site:telquel.ma+(bourse+OR+MASI+OR+entreprise+OR+r%C3%A9sultats+OR+%C3%A9conomie)"),                         "Telquel Éco", 8),
+    (GNEWS.format(q="site:lematin.ma+(bourse+OR+MASI+OR+entreprise+OR+r%C3%A9sultats+OR+%C3%A9conomie)"),                         "Le Matin", 10),
     ("https://aujourdhui.ma/feed/",                                     "Aujourd'hui le Maroc", 10),
-    (GNEWS.format(q="site:lopinion.ma"),                        "L'Opinion Maroc", 8),
-    (GNEWS.format(q="site:ledesk.ma"),                          "Le Desk", 8),
+    (GNEWS.format(q="site:lopinion.ma+(bourse+OR+MASI+OR+entreprise+OR+r%C3%A9sultats+OR+%C3%A9conomie)"),                        "L'Opinion Maroc", 8),
+    (GNEWS.format(q="site:ledesk.ma+(bourse+OR+MASI+OR+entreprise+OR+r%C3%A9sultats+OR+%C3%A9conomie)"),                          "Le Desk", 8),
     ("https://ecoactu.ma/feed/",                                        "EcoActu", 12),
-    (GNEWS.format(q="site:maroc-hebdo.com"),                    "Maroc Hebdo", 8),
+    (GNEWS.format(q="site:maroc-hebdo.com+(bourse+OR+MASI+OR+entreprise+OR+r%C3%A9sultats+OR+%C3%A9conomie)"),                    "Maroc Hebdo", 8),
     ("https://fr.hespress.com/category/economie/feed/",                 "Hespress Éco", 10),
     ("https://www.infomediaire.net/feed/",                              "Infomediaire", 10),
     ("https://leseco.ma/feed/",                                          "Les Inspirations Éco", 12),
-    ("https://www.usinenouvelle.com/rss",                              "Usine Nouvelle Maroc", 8),
-    (GNEWS.format(q="site:mapnews.ma"),                                 "MAP", 12),
-    (GNEWS.format(q="site:laquotidienne.ma"),                           "La Quotidienne", 10),
-    (GNEWS.format(q="site:maroc-diplomatique.net"),                     "Maroc Diplomatique", 6),
+    # Le flux /rss/maroc.xml a disparu ; /rss existe mais il est GLOBAL —
+    # il remontait du champagne et des podcasts historiques. Relais cadré Maroc.
+    (GNEWS.format(q="site:usinenouvelle.com+Maroc"),                    "Usine Nouvelle Maroc", 6),
+    (GNEWS.format(q="site:mapnews.ma+(bourse+OR+MASI+OR+entreprise+OR+r%C3%A9sultats+OR+%C3%A9conomie)"),                                 "MAP", 12),
+    (GNEWS.format(q="site:laquotidienne.ma+(bourse+OR+MASI+OR+entreprise+OR+r%C3%A9sultats+OR+%C3%A9conomie)"),                           "La Quotidienne", 10),
+    (GNEWS.format(q="site:maroc-diplomatique.net+(bourse+OR+MASI+OR+entreprise+OR+r%C3%A9sultats+OR+%C3%A9conomie)"),                     "Maroc Diplomatique", 6),
     # ── Finance islamique / Banque centrale / HCP ────────────────────────────
     (GNEWS.format(q="site:hcp.ma"),                             "HCP", 8),
     (GNEWS.format(q="site:bkam.ma"),                            "Bank Al-Maghrib", 10),
