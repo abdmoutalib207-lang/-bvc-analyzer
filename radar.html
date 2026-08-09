@@ -32,6 +32,27 @@
   h1 span{color:var(--vert)}
   .sub{color:var(--dim);font-size:11.5px;margin-bottom:14px}
 
+  /* Bandeau des cours : défile en continu, comme sur un terminal de marché.
+     Le contenu est dupliqué pour que la boucle soit sans couture. */
+  .bandeau{
+    overflow:hidden;white-space:nowrap;background:var(--card);
+    border:1px solid var(--line);border-radius:8px;padding:8px 0;margin-bottom:12px;
+  }
+  .defile{display:inline-block;animation:glisse 90s linear infinite}
+  .bandeau:hover .defile,.bandeau:active .defile{animation-play-state:paused}
+  @keyframes glisse{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .val{display:inline-block;padding:0 14px;font-size:11.5px}
+  .val b{color:#e6edf7;font-weight:600;margin-right:6px}
+  @media (prefers-reduced-motion:reduce){.defile{animation:none}}
+
+  .rech{
+    width:100%;padding:11px 12px;margin-bottom:12px;border-radius:8px;
+    border:1px solid var(--line);background:var(--card);color:var(--txt);
+    font:13px/1.4 inherit;-webkit-appearance:none;
+  }
+  .rech:focus{outline:0;border-color:var(--vert)}
+  .rech::placeholder{color:var(--dim)}
+
   .row{display:flex;gap:7px;margin-bottom:10px}
   .scope{
     flex:1;padding:12px 6px;border:1px solid var(--line);border-radius:9px;
@@ -100,6 +121,9 @@
 <h1>📡 RADAR <span>BVC</span></h1>
 <div class="sub" id="maj">Chargement…</div>
 
+<div class="bandeau" id="bandeau" hidden><div class="defile" id="defile"></div></div>
+<input class="rech" id="rech" type="search" inputmode="search"
+       placeholder="Rechercher un titre, une source, un ticker…"/>
 <div class="row" id="scopes"></div>
 <div class="stats" id="stats"></div>
 <div class="chips" id="fenetres"></div>
@@ -130,7 +154,7 @@ const HORS_SUJET = /\b(football|foot|athl[ée]tisme|basket|tennis|olympique|mond
 
 const FENETRES = [{h:6,l:"6 h"},{h:12,l:"12 h"},{h:24,l:"24 h"},{h:72,l:"3 j"}];
 
-let tous = [], scope = "ALL", ticker = "ALL", fenetre = 24;
+let tous = [], scope = "ALL", ticker = "ALL", fenetre = 24, recherche = "";
 const choisis = new Set();
 
 const dateDe = a => { const d = new Date((a.date||"").replace(" ","T")); return isNaN(d)?null:d; };
@@ -152,14 +176,39 @@ function pertinents(){
 }
 const parScope = l => scope==="MAROC" ? l.filter(a=>!INTL.has(a.category||"economie"))
                     : scope==="INTL"  ? l.filter(a=> INTL.has(a.category||"economie")) : l;
+/* Recherche insensible à la casse ET aux accents : « economie » doit trouver
+   « économie ». Porte sur le titre, la source et les tickers. */
+const sansAccent = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+
 const affichables = () => {
   let l = parScope(pertinents());
   if(ticker!=="ALL") l = l.filter(a=>(a.tickers||[]).includes(ticker));
+  if(recherche){
+    const q = sansAccent(recherche);
+    l = l.filter(a => sansAccent(
+      (a.title||"")+" "+(a.source||"")+" "+(a.tickers||[]).join(" ")+" "+(a.summary||"")
+    ).includes(q));
+  }
   return l.sort((x,y)=>{
     const tk = b => (b.tickers||[]).length?1:0;
     return (tk(y)-tk(x)) || ((dateDe(y)||0)-(dateDe(x)||0));
   });
 };
+
+/* Une recherche infructueuse doit dire POURQUOI : le plus souvent l'article
+   existe mais tombe hors de la fenêtre choisie. */
+function vide(){
+  if(!recherche) return `<div class="vide">Aucune actualité sur cette période.</div>`;
+  const q = sansAccent(recherche);
+  const ailleurs = tous.filter(a => sansAccent(
+      (a.title||"")+" "+(a.source||"")+" "+(a.tickers||[]).join(" ")
+    ).includes(q)).length;
+  return ailleurs
+    ? `<div class="vide">Rien sur cette période.<br/>
+       <b style="color:var(--jaune)">${ailleurs}</b> résultat${ailleurs>1?"s":""}
+       en élargissant la période ci-dessus.</div>`
+    : `<div class="vide">Aucun résultat pour « ${recherche} ».</div>`;
+}
 
 function dessiner(){
   const base = pertinents();
@@ -222,7 +271,7 @@ function dessiner(){
           ${tags}<span class="src">${a.source||""} ↗</span>
         </div>
       </a></div>`;
-  }).join("") : `<div class="vide">Aucune actualité sur cette période.</div>`;
+  }).join("") : vide();
 
   document.getElementById("compteur").innerHTML = choisis.size
     ? `<b>${choisis.size}</b> article${choisis.size>1?"s":""} sélectionné${choisis.size>1?"s":""}`
@@ -267,6 +316,14 @@ document.addEventListener("click", e=>{
   }
 });
 
+let minuteur;
+document.getElementById("rech").addEventListener("input", e=>{
+  // léger différé : évite de redessiner la liste à chaque frappe
+  clearTimeout(minuteur);
+  const v = e.target.value.trim();
+  minuteur = setTimeout(()=>{ recherche = v; dessiner(); }, 180);
+});
+
 document.getElementById("tout").onclick = ()=>{
   if(choisis.size) choisis.clear();
   else affichables().slice(0,12).forEach(a=>choisis.add(cle(a)));  // 12 max : au-delà
@@ -289,6 +346,29 @@ document.getElementById("copier").onclick = async ()=>{
     location.href="https://whatsapp.com/channel/0029VbD0KnTLtOj4NmBCUR1Z";
   },900);
 };
+
+/* Bandeau des cours. Lit data.json — le même fichier que le terminal, en
+   lecture seule. Son échec n'empêche jamais la console de fonctionner :
+   les actualités sont l'essentiel, les cours un complément. */
+fetch("data.json?t="+Date.now())
+  .then(r=>r.ok?r.json():Promise.reject(r.status))
+  .then(d=>{
+    const ts=(d.tickers||[]).filter(t=>t.price);
+    if(!ts.length) return;
+    const item = t => {
+      const c = Number(t.chg)||0;
+      const col = c>0?"var(--vert)":c<0?"var(--rouge)":"var(--dim)";
+      const fl = c>0?"▲":c<0?"▼":"—";
+      const px = Number(t.price).toLocaleString("fr-FR",{maximumFractionDigits:2});
+      return `<span class="val"><b>${t.symbol}</b>${px}` +
+             `<span style="color:${col}"> ${fl}${c?Math.abs(c).toFixed(2)+"%":""}</span></span>`;
+    };
+    // contenu dupliqué : l'animation translate de -50%, la boucle est invisible
+    const html = ts.map(item).join("");
+    document.getElementById("defile").innerHTML = html + html;
+    document.getElementById("bandeau").hidden = false;
+  })
+  .catch(()=>{});   // pas de cours : le bandeau reste masqué
 
 fetch("news.json?t="+Date.now())
   .then(r=>r.ok?r.json():Promise.reject(r.status))

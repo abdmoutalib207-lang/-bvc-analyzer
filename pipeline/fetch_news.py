@@ -65,6 +65,7 @@ SOURCE_CATEGORY = {
     "L'Économiste Bourse":   "bvc",
     "L'Économiste":          "bvc",
     "Casabourse":            "bvc",
+    "LeBrief":               "bvc",
     "BVC Sociétés":          "bvc",
     "FLM":                   "bvc",
     "Investing Maroc":       "bvc",
@@ -369,6 +370,9 @@ SOURCES_RSS = [
     (GNEWS.format(q="site:maroc-hebdo.com+(bourse+OR+MASI+OR+entreprise+OR+r%C3%A9sultats+OR+%C3%A9conomie)"),                    "Maroc Hebdo", 8),
     ("https://fr.hespress.com/category/economie/feed/",                 "Hespress Éco", 10),
     ("https://www.infomediaire.net/feed/",                              "Infomediaire", 10),
+    ("https://lebrief.ma/feed/",                                         "LeBrief", 12),
+    (GNEWS.format(q="site:le360.ma+(bourse+OR+MASI+OR+entreprise+OR+r%C3%A9sultats+OR+%C3%A9conomie)"),
+     "Le360", 10),
     ("https://leseco.ma/feed/",                                          "Les Inspirations Éco", 12),
     # Le flux /rss/maroc.xml a disparu ; /rss existe mais il est GLOBAL —
     # il remontait du champagne et des podcasts historiques. Relais cadré Maroc.
