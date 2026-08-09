@@ -402,6 +402,13 @@ document.getElementById("copier").onclick = async ()=>{
    un serveur maintenant des connexions ouvertes, ce dont on n'a pas besoin
    ici. Chaque session n'incrémente qu'une fois par seau, puis se contente
    de lire — sans quoi un onglet resté ouvert gonflerait le chiffre. */
+/* Le paramètre ?r= sert uniquement à contourner le cache lors d'un
+   rafraîchissement manuel. Une fois la page chargée il n'a plus d'objet et
+   salit la barre d'adresse — on le retire sans recharger. */
+if (location.search) {
+  try { history.replaceState(null, "", location.pathname); } catch (_) {}
+}
+
 const AUDIENCE = "https://abacus.jasoncameron.dev";
 const ESPACE   = "radarbvc-ma";
 let totalVus = null;
