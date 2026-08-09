@@ -89,7 +89,7 @@ jobs:
           for attempt in 1 2 3; do
             git fetch origin main
             git reset origin/main
-            git add news.json pipeline/.radar_envoyes.json
+            git add news.json pipeline/.radar_envoyes.json pipeline/.radar_liens_courts.json
             if git diff --cached --quiet; then
               echo "Aucune modification dans news.json — skip commit"
               exit 0

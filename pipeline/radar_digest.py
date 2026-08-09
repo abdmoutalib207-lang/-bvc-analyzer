@@ -42,6 +42,50 @@ HORS_SUJET = re.compile(
     r"pape|religion|ramadan|a[îi]d)\b", re.IGNORECASE)
 
 
+_CACHE_URL = Path(__file__).parent / ".radar_liens_courts.json"
+
+
+def raccourcir(url: str) -> str:
+    """Raccourcit une URL Google News, sinon renvoie l'URL telle quelle.
+
+    Les liens relayés par Google font jusqu'à 500 caractères et occupent huit
+    lignes dans un message WhatsApp. Leur jeton est opaque et la redirection se
+    fait côté navigateur : l'adresse d'origine n'est pas récupérable, on passe
+    donc par un raccourcisseur.
+
+    Le résultat est mis en cache sur disque — un même article peut apparaître
+    dans plusieurs bulletins, inutile de rappeler le service. En cas d'échec
+    (service indisponible, quota), on retombe sur l'URL longue : un lien laid
+    vaut mieux qu'un lien absent.
+    """
+    if not url or "news.google.com" not in url:
+        return url
+    cache = {}
+    if _CACHE_URL.exists():
+        try:
+            cache = json.loads(_CACHE_URL.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    if url in cache:
+        return cache[url]
+    try:
+        import requests
+        from urllib.parse import quote
+        r = requests.get("https://tinyurl.com/api-create.php?url=" + quote(url, safe=""),
+                         headers={"User-Agent": "Mozilla/5.0"}, timeout=12)
+        court = r.text.strip()
+        if r.ok and court.startswith("http"):
+            cache[url] = court
+            # bornage : le cache ne doit pas gonfler indéfiniment
+            if len(cache) > 800:
+                cache = dict(list(cache.items())[-500:])
+            _CACHE_URL.write_text(json.dumps(cache), encoding="utf-8")
+            return court
+    except Exception:
+        pass
+    return url
+
+
 def _dt(article):
     """Date de l'article en UTC, ou None si illisible."""
     raw = (article.get("date") or "").strip()
@@ -122,7 +166,7 @@ def construire(heures=6, maxi=12, rubrique=None):
             tickers = a.get("tickers") or []
             tag = f" `{' '.join(tickers[:3])}`" if tickers else ""
             out.append(f"{puce} {a['title'].strip()}{tag}")
-            out.append(f"   _{a.get('source', '?')}_ — {a.get('url', '')}")
+            out.append(f"   _{a.get('source', '?')}_ — {raccourcir(a.get('url', ''))}")
         out.append("")
 
     out.append("—")

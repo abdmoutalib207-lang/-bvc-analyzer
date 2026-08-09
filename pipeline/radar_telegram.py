@@ -30,7 +30,7 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from radar_digest import construire, HORS_SUJET, _dt   # même logique de tri
+from radar_digest import construire, HORS_SUJET, _dt, raccourcir  # même logique de tri
 
 RACINE = Path(__file__).parent.parent
 NEWS   = RACINE / "news.json"
@@ -101,7 +101,7 @@ def formater(a):
     tag = f" `{' '.join(tk[:3])}`" if tk else ""
     return (f"📡 *RADAR BVC*\n\n"
             f"{puce} {a['title'].strip()}{tag}\n"
-            f"_{a.get('source', '?')}_\n{a.get('url', '')}\n\n"
+            f"_{a.get('source', '?')}_\n{raccourcir(a.get('url', ''))}\n\n"
             f"—\n_Information financière, pas un conseil en investissement._")
 
 
