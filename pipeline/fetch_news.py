@@ -103,13 +103,37 @@ NEGATIVE_KW = [
     "stagnation", "déprime", "faible",
 ]
 
+# Motifs compilés une fois : la correspondance doit respecter les limites de
+# mots. En simple sous-chaîne, « vendre » matchait « vendredi » — un décès
+# survenu un vendredi comptait comme signal négatif. Un suffixe court est
+# toléré pour couvrir pluriels et conjugaisons (« baisses », « pertes »).
+def _motif(mots):
+    return re.compile(
+        r"\b(?:" + "|".join(re.escape(m) for m in mots) + r")(?:s|e|es|nt|r|rs)?\b",
+        re.IGNORECASE)
+
+_RE_POS = _motif(POSITIVE_KW)
+_RE_NEG = _motif(NEGATIVE_KW)
+
+
 def _sentiment(text: str) -> str:
-    t = text.lower()
-    pos = sum(1 for w in POSITIVE_KW if w in t)
-    neg = sum(1 for w in NEGATIVE_KW if w in t)
-    if pos > neg + 1: return "POSITIF"
-    if neg > pos + 1: return "NEGATIF"
+    """Tonalité d'un article, d'après le vocabulaire employé.
+
+    On compte les mots-clés DISTINCTS présents, pas leurs occurrences : un
+    titre répétant « hausse » trois fois n'est pas trois fois plus positif.
+
+    Majorité simple. L'ancien seuil exigeait deux mots d'écart, si bien qu'un
+    article ne portant qu'un seul terme négatif — « légère baisse des
+    livraisons de ciment » — restait classé neutre. Résultat mesuré le
+    10/08/2026 : 1 seul négatif sur 300 articles, ce qui n'a aucun sens pour
+    de l'actualité financière.
+    """
+    pos = len(set(m.lower() for m in _RE_POS.findall(text)))
+    neg = len(set(m.lower() for m in _RE_NEG.findall(text)))
+    if pos > neg: return "POSITIF"
+    if neg > pos: return "NEGATIF"
     return "NEUTRE"
+
 
 def _tag_tickers(text: str) -> list:
     """Associe un article aux sociétés cotées qu'il mentionne nommément.
@@ -417,10 +441,14 @@ def _load_archive() -> tuple:
         articles = data.get("articles", [])
         cutoff = (datetime.now(timezone.utc) - timedelta(days=ARCHIVE_DAYS)).isoformat()
         fresh = [a for a in articles if a.get("date", "") >= cutoff]
-        # Re-tagger avec les règles actuelles + ajouter champ category si absent
+        # Re-tagger avec les règles actuelles + ajouter champ category si absent.
+        # Le sentiment est recalculé lui aussi : sans ça, une correction des
+        # règles ne s'appliquerait qu'aux articles neufs et l'archive
+        # continuerait d'afficher des étiquettes produites par l'ancien code.
         for a in fresh:
             text = f"{a.get('title','')} {a.get('summary','')}"
             a["tickers"] = _tag_tickers(text)
+            a["sentiment"] = _sentiment(text)
             if "category" not in a:
                 a["category"] = SOURCE_CATEGORY.get(a.get("source", ""), "economie")
         ids = {a["id"] for a in fresh}
