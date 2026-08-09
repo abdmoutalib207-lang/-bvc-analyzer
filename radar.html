@@ -4,7 +4,28 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#080d1a"/>
-<title>Radar BVC — Console de publication</title>
+
+<!-- Nom affiché sous l'icône une fois ajouté à l'écran d'accueil : sans cette
+     balise iOS reprendrait le <title> entier, bien trop long. -->
+<meta name="apple-mobile-web-app-title" content="Radar BVC"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<link rel="manifest" href="radar.webmanifest"/>
+
+<!-- Aperçu au partage (WhatsApp, Telegram…) : le destinataire voit « Radar BVC »
+     et non l'URL complète. -->
+<meta property="og:title" content="Radar BVC"/>
+<meta property="og:description" content="Veille automatisée de la Bourse de Casablanca — 46 sources, 77 valeurs."/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary"/>
+
+<!-- Sans cela, une page ajoutée à l'écran d'accueil reste figée sur la version
+     mise en cache par iOS, parfois pendant des jours. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+
+<title>Radar BVC</title>
 <!--
   Console de publication Radar BVC.
 
@@ -120,6 +141,7 @@
 
 <h1>📡 RADAR <span>BVC</span></h1>
 <div class="sub" id="maj">Chargement…</div>
+<div class="sub" id="audience" style="margin-top:-8px"></div>
 
 <div class="bandeau" id="bandeau" hidden><div class="defile" id="defile"></div></div>
 <input class="rech" id="rech" type="search" inputmode="search"
@@ -132,6 +154,7 @@
 
 <div class="barre">
   <div class="n" id="compteur">Coche pour publier · touche le titre pour lire</div>
+  <button class="g" id="maj-btn" title="Rafraîchir">↻</button>
   <button class="g" id="tout">Tout</button>
   <button id="copier" disabled>Copier</button>
 </div>
@@ -350,6 +373,54 @@ document.getElementById("copier").onclick = async ()=>{
 /* Bandeau des cours. Lit data.json — le même fichier que le terminal, en
    lecture seule. Son échec n'empêche jamais la console de fonctionner :
    les actualités sont l'essentiel, les cours un complément. */
+
+/* ── Audience ──────────────────────────────────────────────────────────
+   Service de compteur public (abacus), sans compte ni clé. Aucune donnée
+   personnelle : on incrémente des entiers, rien d'autre — ni cookie, ni
+   identifiant, ni adresse IP conservée de notre côté.
+
+   « En ligne » est une approximation : on compte les ouvertures de page
+   dans le seau de 5 minutes en cours. Un vrai suivi de présence exigerait
+   un serveur maintenant des connexions ouvertes, ce dont on n'a pas besoin
+   ici. Chaque session n'incrémente qu'une fois par seau, puis se contente
+   de lire — sans quoi un onglet resté ouvert gonflerait le chiffre. */
+const AUDIENCE = "https://abacus.jasoncameron.dev";
+const ESPACE   = "radarbvc-ma";
+let seauCourant = null, totalVus = null;
+
+const seau = () => Math.floor(Date.now() / 300000);   // tranches de 5 min
+
+async function audience(){
+  try{
+    const s = seau();
+    const premiere = seauCourant !== s;
+    seauCourant = s;
+    const [enLigne, total] = await Promise.all([
+      fetch(`${AUDIENCE}/${premiere?"hit":"get"}/${ESPACE}/live-${s}`)
+        .then(r=>r.ok?r.json():null).catch(()=>null),
+      totalVus === null
+        ? fetch(`${AUDIENCE}/hit/${ESPACE}/total`).then(r=>r.ok?r.json():null).catch(()=>null)
+        : Promise.resolve({value: totalVus}),
+    ]);
+    if(total) totalVus = total.value;
+    const n = enLigne?.value;
+    if(n){
+      document.getElementById("audience").innerHTML =
+        `<span style="color:var(--vert)">●</span> ${n} en ligne` +
+        (totalVus ? ` · ${totalVus.toLocaleString("fr-FR")} visites` : "");
+    }
+  }catch(_){ /* le compteur ne doit jamais gêner la console */ }
+}
+audience();
+setInterval(audience, 60000);
+
+/* Rafraîchissement manuel : une page ajoutée à l'écran d'accueil peut rester
+   figée sur la version mise en cache par iOS. Recharger en contournant le
+   cache est le seul moyen fiable de forcer la mise à jour. */
+document.getElementById("maj-btn").onclick = ()=>{
+  location.replace(location.pathname + "?r=" + Date.now());
+};
+
 fetch("data.json?t="+Date.now())
   .then(r=>r.ok?r.json():Promise.reject(r.status))
   .then(d=>{
