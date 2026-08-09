@@ -52,6 +52,10 @@ jobs:
           cache: 'pip'
 
       - name: Installer dépendances
+        # rapidfuzz volontairement ABSENT : la passe floue de _tag_tickers
+        # utilise token_set_ratio, bien trop permissif — mesuré le 09/08, elle
+        # taggue 40 sociétés sur un article traitant du taux de chômage. Tant
+        # qu'elle n'est pas revue, seule la correspondance exacte doit courir.
         run: pip install requests -q
 
       # ── 3. Fetch actualités ───────────────────────────────

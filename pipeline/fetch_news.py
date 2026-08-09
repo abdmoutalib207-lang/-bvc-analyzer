@@ -15,12 +15,6 @@ try:
 except ImportError as _e:
     sys.exit(f"Dépendance manquante : {_e}\nInstalle : pip install -r requirements_pipeline.txt")
 
-try:
-    from rapidfuzz import fuzz as _fuzz
-    _RAPIDFUZZ_OK = True
-except ImportError:
-    _RAPIDFUZZ_OK = False
-
 sys.path.insert(0, str(Path(__file__).parent))
 try:
     from ticker_aliases import TICKER_ALIASES
@@ -30,8 +24,6 @@ except ImportError:
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s", datefmt="%H:%M:%S")
 log = logging.getLogger("NewsEngine")
 
-if not _RAPIDFUZZ_OK:
-    log.debug("rapidfuzz absent — fuzzy matching désactivé (pip install rapidfuzz)")
 if not TICKER_ALIASES:
     log.warning("ticker_aliases.py introuvable — aucun ticker ne sera tagué")
 
@@ -73,6 +65,7 @@ SOURCE_CATEGORY = {
     "L'Économiste Bourse":   "bvc",
     "L'Économiste":          "bvc",
     "Casabourse":            "bvc",
+    "BVC Sociétés":          "bvc",
     "FLM":                   "bvc",
     "Investing Maroc":       "bvc",
     "HCP":                   "macro",
@@ -92,8 +85,6 @@ SOURCE_CATEGORY = {
     "Bloomberg Maroc":       "geopolitique",
     "Maroc Diplomatique":    "geopolitique",
 }
-
-FUZZY_THRESHOLD = 85
 
 # ── Mots-clés sentiment ───────────────────────────────────────────────────────
 POSITIVE_KW = [
@@ -120,36 +111,22 @@ def _sentiment(text: str) -> str:
     return "NEUTRE"
 
 def _tag_tickers(text: str) -> list:
-    """Tag tickers via substring exact (rapide) + fuzzy fallback (rapidfuzz si dispo).
-    Ne détecte jamais par symbole court — trop de faux positifs.
+    """Associe un article aux sociétés cotées qu'il mentionne nommément.
+
+    Correspondance exacte sur les alias uniquement. Jamais par symbole court
+    (« CAR », « MSA »… produiraient des faux positifs en pagaille).
+
+    Une passe floue (rapidfuzz, token_set_ratio ≥ 85) a existé ici : elle est
+    retirée. Mesurée le 09/08/2026, elle taggue 40 sociétés sur un article
+    traitant du taux de chômage — token_set_ratio ignore les mots en trop, si
+    bien que « maroc leasing » matche toute phrase contenant « Maroc ». Elle
+    n'avait jamais tourné en production (rapidfuzz n'est pas installé par la
+    CI), ce qui a évité le pire ; la laisser en place aurait été une mine.
     """
     t = text.lower()
-    found: set[str] = set()
+    return [ticker for ticker, aliases in TICKER_ALIASES.items()
+            if any(alias in t for alias in aliases)]
 
-    # Pass 1 : substring exact (O(n_tickers × n_aliases))
-    for ticker, aliases in TICKER_ALIASES.items():
-        if any(alias in t for alias in aliases):
-            found.add(ticker)
-
-    # Pass 2 : fuzzy matching par phrase (uniquement si rapidfuzz disponible)
-    if _RAPIDFUZZ_OK and len(t) > 30:
-        sentences = re.split(r"[.!?;:\n]", t)
-        for ticker, aliases in TICKER_ALIASES.items():
-            if ticker in found:
-                continue
-            for alias in aliases:
-                if len(alias) < 6:
-                    continue
-                for sent in sentences:
-                    if len(sent) < max(len(alias) - 8, 4):
-                        continue
-                    if _fuzz.token_set_ratio(alias, sent) >= FUZZY_THRESHOLD:
-                        found.add(ticker)
-                        break
-                if ticker in found:
-                    break
-
-    return list(found)
 
 def _article_id(url: str, title: str) -> str:
     return hashlib.md5(f"{url}{title}".encode()).hexdigest()[:12]
@@ -353,6 +330,24 @@ SOURCES_RSS = [
     # Sites sans flux RSS propre → relais Google News restreint au domaine.
     # Vérifié le 07/08/2026 : alphabourse.com ET .ma ne servent aucun flux
     # (l'ancienne entrée alphabourse.com/feed/ était morte et ne remontait rien).
+    # ── Sociétés cotées — le levier du tagging ───────────────────────────────
+    # Les flux thématiques remontent surtout du macro et du marché ; seuls 9
+    # articles sur 300 mentionnaient une société cotée, ce qui plafonnait le
+    # tagging quelle que soit la qualité des alias. Ces requêtes nomment
+    # directement les valeurs : ce qu'elles rapportent est taggable par
+    # construction (résultats, contrats, opérations sur capital).
+    (GNEWS.format(q='%22Attijariwafa%22+OR+%22Maroc+Telecom%22+OR+%22Bank+of+Africa%22'
+                    '+OR+%22BCP%22+OR+%22CIH+Bank%22+OR+%22Cr%C3%A9dit+du+Maroc%22'
+                    '+OR+%22Wafa+Assurance%22+OR+%22Sanlam+Maroc%22+OR+%22CFG+Bank%22'),
+     "BVC Sociétés", 12),
+    (GNEWS.format(q='%22Managem%22+OR+%22Mini%C3%A8re+Touissit%22+OR+%22Taqa+Morocco%22'
+                    '+OR+%22Afriquia+Gaz%22+OR+%22TotalEnergies+Maroc%22+OR+%22Ciments+du+Maroc%22'
+                    '+OR+%22Holcim+Maroc%22+OR+%22Sonasid%22+OR+%22Aluminium+du+Maroc%22'),
+     "BVC Sociétés", 12),
+    (GNEWS.format(q='%22Cosumar%22+OR+%22Label+Vie%22+OR+%22Lesieur+Cristal%22+OR+%22Marsa+Maroc%22'
+                    '+OR+%22Akdital%22+OR+%22TGCC%22+OR+%22Alliances%22+OR+%22Addoha%22'
+                    '+OR+%22R%C3%A9sidences+Dar+Saada%22+OR+%22Risma%22+OR+%22Vicenne%22'),
+     "BVC Sociétés", 12),
     (GNEWS.format(q="site:alphabourse.ma"),                             "Alpha Bourse", 20),
     (GNEWS.format(q="site:flm.ma"),                                     "FLM", 15),
     # ── Presse économique marocaine ──────────────────────────────────────────

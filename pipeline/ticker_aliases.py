@@ -63,11 +63,7 @@ TICKER_ALIASES: dict[str, list[str]] = {
         "taqa morocco", "taqa maroc", "jlec",
         "jordan low electricity", "taqa power", "taqa energy",
     ],
-    "MRL":  [
-        # MRL = Marsa Maroc (entité distincte de MSA — ISINs différents)
-        "marsa maroc", "sodep maroc", "marsa maroc sa",
-        "sodep-marsa", "port maroc",
-    ],
+    "MRL": ["maroc leasing", "maroclease", "maroc-leasing"],
     "TMA":  [
         "totalenergies marketing maroc", "total energies maroc",
         "total maroc", "total marketing maroc", "totalenergies maroc",
@@ -153,10 +149,7 @@ TICKER_ALIASES: dict[str, list[str]] = {
         "cmgp group", "cmgp", "cmgp distribution",
         "cmgp matériaux", "cmgp groupe",
     ],
-    "VCNE": [
-        "vivo energy maroc", "vivo energy", "vivo maroc",
-        "vivo energy distribution",
-    ],
+    "VCNE": ["vicenne", "vicenne maroc", "groupe vicenne"],
     "RIS":  [
         "risma", "résidences touristiques de montagne",
         "risma hôtellerie", "risma tourisme", "risma hotels",
@@ -298,32 +291,19 @@ TICKER_ALIASES: dict[str, list[str]] = {
         "mutandis sca", "mutandis",
         "mutandis maroc", "mutandis groupe",
     ],
-    "ENK":  [
-        "enkaje", "enkaje maroc",
-        "enkaje services", "société enkaje",
-    ],
-    "EQD":  [
-        "equity", "eqdom",
-        "eqdom maroc", "equity maroc",
-    ],
+    "ENK": ["ennakl", "ennakl automobiles", "ennakl maroc"],
+    "EQD": ["eqdom", "eqdom maroc", "crédit eqdom", "credit eqdom"],
     "DHO":  [
         # DHO = Delta Holding — NE PAS CONFONDRE avec ADH = Douja/Addoha
         "delta holding", "delta holding maroc",
         "groupe delta holding", "delta industries",
     ],
-    "PPM":  [
-        "papelera de tetuan", "papelera maroc",
-        "papelera de tétouan", "papeteries maroc",
-    ],
+    "PPM": ["promopharm", "promopharm sa", "promopharm maroc"],
     "REB":  [
         "rebab company", "rebab",
         "rebab maroc", "rebab textile",
     ],
-    "SBS":  [
-        # SBS = Super Céréales
-        "super céréales", "super cereales",
-        "super céréales maroc", "sbs céréales",
-    ],
+    "SBS": ["société des boissons du maroc", "societe des boissons du maroc", "boissons du maroc", "brasseries du maroc", "sbm brasseries"],
     "STK":  [
         # STK = Stokvis Nord Afrique (distribution industrielle) — NE PAS CONFONDRE avec STR = Stroc Industrie
         "stokvis nord afrique", "stokvis",
