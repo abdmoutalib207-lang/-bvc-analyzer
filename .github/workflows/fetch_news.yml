@@ -58,6 +58,25 @@ jobs:
       - name: Fetch actualités BVC
         run: python pipeline/fetch_news.py
 
+      # ── Relais Telegram (facultatif) ────────────────────────────────
+      # Placé AVANT le commit : la mémoire des alertes (.radar_envoyes.json)
+      # doit être versionnée, sinon chaque run CI repartirait d'une copie
+      # neuve et renverrait les mêmes alertes indéfiniment.
+      # Étape ajoutée ici plutôt que dans un workflow dédié : la file est déjà
+      # saturée par la chaîne update_bvc ↔ fetch_news.
+      - name: Relais Telegram
+        continue-on-error: true
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          # Le contexte `secrets` n'est pas exploitable dans un `if:` de step.
+          if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+            echo "Relais Telegram non configuré — étape ignorée."
+            exit 0
+          fi
+          python3 pipeline/radar_telegram.py --max 3
+
       # ── 4. Commit et push ─────────────────────────────────
       - name: Commit news.json si modifié
         env:
@@ -70,7 +89,7 @@ jobs:
           for attempt in 1 2 3; do
             git fetch origin main
             git reset origin/main
-            git add news.json
+            git add news.json pipeline/.radar_envoyes.json
             if git diff --cached --quiet; then
               echo "Aucune modification dans news.json — skip commit"
               exit 0
@@ -115,24 +134,3 @@ jobs:
               print(f"- **Erreur** : {e}")
           PYEOF
           fi
-
-      # ── Relais Telegram (facultatif) ────────────────────────────────
-      # Étape ajoutée ici plutôt que dans un workflow dédié : la file
-      # d'exécution est déjà saturée par la chaîne update_bvc ↔ fetch_news,
-      # inutile d'ajouter un déclencheur de plus.
-      # Ne fait rien tant que les secrets ne sont pas définis, et n'échoue
-      # jamais le workflow : une notification manquée ne doit pas bloquer la
-      # collecte d'actualités.
-      - name: Relais Telegram
-        continue-on-error: true
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          # Le contexte `secrets` n'est pas exploitable dans un `if:` de step —
-          # on teste la variable d'environnement à la place.
-          if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
-            echo "Relais Telegram non configuré — étape ignorée."
-            exit 0
-          fi
-          python3 pipeline/radar_telegram.py --max 3
