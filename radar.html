@@ -57,15 +57,21 @@
   .art{
     display:flex;gap:10px;background:var(--card);border:1px solid var(--line);
     border-left:3px solid var(--line);border-radius:9px;padding:12px;margin-bottom:9px;
-    cursor:pointer;
   }
   .art.sel{border-color:var(--vert);background:rgba(0,229,160,.07)}
+  /* Zone de touche élargie : 20px de case dans 44px de cible, minimum
+     recommandé sur mobile pour éviter les erreurs de sélection. */
   .box{
-    flex:0 0 20px;height:20px;margin-top:2px;border:1.5px solid var(--line);
+    flex:0 0 44px;height:44px;margin:-6px 0 0 -8px;display:flex;
+    align-items:center;justify-content:center;cursor:pointer;
+  }
+  .box::before{
+    content:attr(data-c);width:20px;height:20px;border:1.5px solid var(--line);
     border-radius:5px;display:flex;align-items:center;justify-content:center;
     font-size:12px;color:var(--bg);
   }
-  .art.sel .box{background:var(--vert);border-color:var(--vert)}
+  .art.sel .box::before{background:var(--vert);border-color:var(--vert)}
+  .corps{flex:1;min-width:0;color:inherit;text-decoration:none;display:block}
   .art h3{margin:0 0 5px;font-size:13.5px;line-height:1.45;font-weight:600;color:#e6edf7}
   .art p{margin:0 0 8px;font-size:11.5px;line-height:1.5;color:var(--dim)}
   .tags{display:flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:9.5px}
@@ -101,7 +107,7 @@
 <div id="liste"></div>
 
 <div class="barre">
-  <div class="n" id="compteur">Touche un article pour le sélectionner</div>
+  <div class="n" id="compteur">Coche pour publier · touche le titre pour lire</div>
   <button class="g" id="tout">Tout</button>
   <button id="copier" disabled>Copier</button>
 </div>
@@ -193,13 +199,19 @@ function dessiner(){
     const sc = s==="POSITIF"?"var(--vert)" : s==="NEGATIF"?"var(--rouge)" : "var(--dim)";
     const bord = s==="POSITIF"?"var(--vert)" : s==="NEGATIF"?"var(--rouge)" : "var(--line)";
     const k = cle(a), on = choisis.has(k);
-    const ex = (a.summary||a.description||"").trim().slice(0,150);
+    // Sur les articles relayés, le résumé reprend mot pour mot le titre :
+    // on ne l'affiche que s'il apporte vraiment quelque chose.
+    let ex = (a.summary||a.description||"").trim();
+    const t0 = (a.title||"").trim().toLowerCase().slice(0,40);
+    if(t0 && ex.toLowerCase().startsWith(t0)) ex = "";
+    ex = ex.slice(0,150);
     const tags = (a.tickers||[]).map(t=>
       `<span class="tag" style="color:var(--bleu);border-color:rgba(77,184,255,.4)">${t}</span>`).join("");
-    return `<div class="art${on?" sel":""}" data-k="${encodeURIComponent(k)}"
-              style="border-left-color:${bord}">
-      <div class="box">${on?"✓":""}</div>
-      <div style="flex:1;min-width:0">
+    // Deux gestes distincts : la case sélectionne, le corps ouvre la source.
+    // Un même clic ne peut pas faire les deux sans surprendre l'utilisateur.
+    return `<div class="art${on?" sel":""}" style="border-left-color:${bord}">
+      <div class="box" data-sel="${encodeURIComponent(k)}" data-c="${on?"✓":""}"></div>
+      <a class="corps" href="${a.url||"#"}" target="_blank" rel="noopener">
         <div style="display:flex;align-items:flex-start">
           <h3>${a.title||""}</h3><span class="date">${fmt(dateDe(a))}</span>
         </div>
@@ -207,14 +219,14 @@ function dessiner(){
         <div class="tags">
           ${s&&s!=="NEUTRE"?`<span class="tag" style="color:${sc};border-color:${sc}55">${s}</span>`:""}
           <span class="tag" style="color:${col};border-color:${col}55">${CAT_LBL[c]||c}</span>
-          ${tags}<span class="src">${a.source||""}</span>
+          ${tags}<span class="src">${a.source||""} ↗</span>
         </div>
-      </div></div>`;
+      </a></div>`;
   }).join("") : `<div class="vide">Aucune actualité sur cette période.</div>`;
 
   document.getElementById("compteur").innerHTML = choisis.size
     ? `<b>${choisis.size}</b> article${choisis.size>1?"s":""} sélectionné${choisis.size>1?"s":""}`
-    : "Touche un article pour le sélectionner";
+    : "Coche pour publier · touche le titre pour lire";
   document.getElementById("copier").disabled = !choisis.size;
   document.getElementById("tout").textContent = choisis.size ? "Aucun" : "Tout";
 }
@@ -244,12 +256,12 @@ function composer(){
 
 document.addEventListener("click", e=>{
   const s=e.target.closest("[data-s]"), f=e.target.closest("[data-f]"),
-        t=e.target.closest("[data-t]"), a=e.target.closest("[data-k]");
+        t=e.target.closest("[data-t]"), a=e.target.closest("[data-sel]");
   if(s){ scope=s.dataset.s; ticker="ALL"; dessiner(); }
   else if(f){ fenetre=+f.dataset.f; dessiner(); }
   else if(t){ ticker=t.dataset.t; dessiner(); }
   else if(a){
-    const k=decodeURIComponent(a.dataset.k);
+    const k=decodeURIComponent(a.dataset.sel);
     choisis.has(k)?choisis.delete(k):choisis.add(k);
     dessiner();
   }
