@@ -49,6 +49,17 @@
     margin:0;padding:14px 12px 96px;background:var(--bg);color:var(--txt);
     font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,"IBM Plex Mono",monospace;
   }
+  .entete{display:flex;align-items:flex-start;gap:10px;margin-bottom:4px}
+  .entete>div:first-child{flex:1;min-width:0}
+  .refresh{
+    flex:0 0 auto;width:46px;height:46px;padding:0;border-radius:12px;
+    background:var(--card);border:1px solid var(--line);color:var(--vert);
+    font-size:22px;line-height:1;font-weight:400;
+  }
+  .refresh:active{transform:rotate(180deg);transition:transform .3s}
+  .refresh.tourne{animation:tourner .7s linear}
+  @keyframes tourner{to{transform:rotate(360deg)}}
+
   h1{font-size:17px;margin:0 0 3px;letter-spacing:1px}
   h1 span{color:var(--vert)}
   .sub{color:var(--dim);font-size:11.5px;margin-bottom:14px}
@@ -139,8 +150,15 @@
 </head>
 <body>
 
-<h1>📡 RADAR <span>BVC</span></h1>
-<div class="sub" id="maj">Chargement…</div>
+<div class="entete">
+  <div>
+    <h1>📡 RADAR <span>BVC</span></h1>
+    <div class="sub" id="maj">Chargement…</div>
+  </div>
+  <!-- Placé près de la date de mise à jour : c'est là qu'on regarde quand on
+       se demande si les données sont fraîches. -->
+  <button class="refresh" id="maj-btn" aria-label="Rafraîchir">↻</button>
+</div>
 <div class="sub" id="audience" style="margin-top:-8px"></div>
 
 <div class="bandeau" id="bandeau" hidden><div class="defile" id="defile"></div></div>
@@ -154,7 +172,6 @@
 
 <div class="barre">
   <div class="n" id="compteur">Coche pour publier · touche le titre pour lire</div>
-  <button class="g" id="maj-btn" title="Rafraîchir">↻</button>
   <button class="g" id="tout">Tout</button>
   <button id="copier" disabled>Copier</button>
 </div>
@@ -417,8 +434,10 @@ setInterval(audience, 60000);
 /* Rafraîchissement manuel : une page ajoutée à l'écran d'accueil peut rester
    figée sur la version mise en cache par iOS. Recharger en contournant le
    cache est le seul moyen fiable de forcer la mise à jour. */
-document.getElementById("maj-btn").onclick = ()=>{
-  location.replace(location.pathname + "?r=" + Date.now());
+document.getElementById("maj-btn").onclick = (e)=>{
+  e.currentTarget.classList.add("tourne");
+  document.getElementById("maj").textContent = "Rafraîchissement…";
+  setTimeout(()=>location.replace(location.pathname + "?r=" + Date.now()), 260);
 };
 
 fetch("data.json?t="+Date.now())
