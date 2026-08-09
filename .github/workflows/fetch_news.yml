@@ -115,3 +115,24 @@ jobs:
               print(f"- **Erreur** : {e}")
           PYEOF
           fi
+
+      # ── Relais Telegram (facultatif) ────────────────────────────────
+      # Étape ajoutée ici plutôt que dans un workflow dédié : la file
+      # d'exécution est déjà saturée par la chaîne update_bvc ↔ fetch_news,
+      # inutile d'ajouter un déclencheur de plus.
+      # Ne fait rien tant que les secrets ne sont pas définis, et n'échoue
+      # jamais le workflow : une notification manquée ne doit pas bloquer la
+      # collecte d'actualités.
+      - name: Relais Telegram
+        continue-on-error: true
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          # Le contexte `secrets` n'est pas exploitable dans un `if:` de step —
+          # on teste la variable d'environnement à la place.
+          if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+            echo "Relais Telegram non configuré — étape ignorée."
+            exit 0
+          fi
+          python3 pipeline/radar_telegram.py --max 3
