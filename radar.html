@@ -403,28 +403,55 @@ document.getElementById("copier").onclick = async ()=>{
    de lire — sans quoi un onglet resté ouvert gonflerait le chiffre. */
 const AUDIENCE = "https://abacus.jasoncameron.dev";
 const ESPACE   = "radarbvc-ma";
-let seauCourant = null, totalVus = null;
+let totalVus = null;
 
-const seau = () => Math.floor(Date.now() / 300000);   // tranches de 5 min
+/* Tranches de 5 minutes : un appareil actif est compté « en ligne » tant qu'il
+   se manifeste dans la tranche courante. */
+const seau = () => Math.floor(Date.now() / 300000);
+
+/* Mémoire locale de l'appareil. Sans elle, le compteur additionnait les
+   OUVERTURES de page et non les appareils : onze rechargements affichaient
+   « 11 en ligne » pour une seule personne. On note donc la dernière tranche
+   déjà signalée par cet appareil ; s'il revient dans la même tranche, il se
+   contente de lire le compteur au lieu de l'incrémenter.
+   Navigation privée : localStorage lève une exception, on retombe alors sur
+   une mémoire en RAM — le comportement reste correct le temps de la session. */
+const memoire = (() => {
+  try {
+    localStorage.setItem("__t", "1"); localStorage.removeItem("__t");
+    return localStorage;
+  } catch (_) {
+    const ram = {};
+    return { getItem: k => ram[k] ?? null, setItem: (k, v) => { ram[k] = String(v); } };
+  }
+})();
 
 async function audience(){
   try{
-    const s = seau();
-    const premiere = seauCourant !== s;
-    seauCourant = s;
+    const s = String(seau());
+    const nouvelleTranche = memoire.getItem("radar-seau") !== s;
+    if (nouvelleTranche) memoire.setItem("radar-seau", s);
+
+    // Le total ne compte que les appareils distincts : un même appareil ne
+    // l'incrémente qu'à sa toute première visite.
+    const jamaisVenu = !memoire.getItem("radar-connu");
+    if (jamaisVenu) memoire.setItem("radar-connu", "1");
+
     const [enLigne, total] = await Promise.all([
-      fetch(`${AUDIENCE}/${premiere?"hit":"get"}/${ESPACE}/live-${s}`)
-        .then(r=>r.ok?r.json():null).catch(()=>null),
+      fetch(`${AUDIENCE}/${nouvelleTranche ? "hit" : "get"}/${ESPACE}/live-${s}`)
+        .then(r => r.ok ? r.json() : null).catch(() => null),
       totalVus === null
-        ? fetch(`${AUDIENCE}/hit/${ESPACE}/total`).then(r=>r.ok?r.json():null).catch(()=>null)
-        : Promise.resolve({value: totalVus}),
+        ? fetch(`${AUDIENCE}/${jamaisVenu ? "hit" : "get"}/${ESPACE}/appareils`)
+            .then(r => r.ok ? r.json() : null).catch(() => null)
+        : Promise.resolve({ value: totalVus }),
     ]);
-    if(total) totalVus = total.value;
+    if (total) totalVus = total.value;
+
     const n = enLigne?.value;
-    if(n){
+    if (n) {
       document.getElementById("audience").innerHTML =
         `<span style="color:var(--vert)">●</span> ${n} en ligne` +
-        (totalVus ? ` · ${totalVus.toLocaleString("fr-FR")} visites` : "");
+        (totalVus ? ` · ${totalVus.toLocaleString("fr-FR")} visiteur${totalVus > 1 ? "s" : ""}` : "");
     }
   }catch(_){ /* le compteur ne doit jamais gêner la console */ }
 }
