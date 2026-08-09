@@ -68,6 +68,9 @@ def construire(heures=6, maxi=12, rubrique=None):
         cle = re.sub(r"\W+", "", titre.lower())[:60]
         if not titre or cle in vus:          # dédoublonnage : le relais Google
             continue                          # peut répéter un même article
+        if not (a.get("url") or "").strip():
+            continue                          # sans lien, le lecteur ne peut
+                                              # pas vérifier — on écarte
         if HORS_SUJET.search(titre) and not a.get("tickers"):
             continue                          # un article taggué ticker reste
         vus.add(cle)                          # pertinent même s'il parle de sport
