@@ -229,10 +229,11 @@ const affichables = () => {
       (a.title||"")+" "+(a.source||"")+" "+(a.tickers||[]).join(" ")+" "+(a.summary||"")
     ).includes(q));
   }
-  return l.sort((x,y)=>{
-    const tk = b => (b.tickers||[]).length?1:0;
-    return (tk(y)-tk(x)) || ((dateDe(y)||0)-(dateDe(x)||0));
-  });
+  // Ordre strictement chronologique, le plus récent en tête. On ne remonte plus
+  // les articles tagués : dans une liste d'actualités, l'heure prime — sans quoi
+  // une dépêche de la veille rattachée à un ticker passait devant une info du
+  // matin, ce qui rend la lecture déroutante.
+  return l.sort((x,y) => (dateDe(y)||0) - (dateDe(x)||0));
 };
 
 /* Une recherche infructueuse doit dire POURQUOI : le plus souvent l'article
