@@ -8,232 +8,288 @@
 <!--
   Console de publication Radar BVC.
 
-  N'automatise RIEN sur WhatsApp : elle prépare le texte, l'utilisateur copie
-  et colle lui-même dans sa chaîne. Aucune session, aucune API, aucun risque
-  pour le numéro.
+  Reprend la charte de l'onglet ACTUALITÉS du terminal (mêmes couleurs, mêmes
+  filtres) et y ajoute ce qui lui manque : la sélection des articles à publier.
+  On coche, on copie, on colle dans la chaîne WhatsApp.
 
-  Page autonome : aucune dépendance externe, aucun CDN. Elle lit news.json,
-  le même fichier que le terminal — en lecture seule. Le moteur de cours n'est
-  jamais sollicité.
+  N'automatise RIEN sur WhatsApp : pas de session, pas d'API, pas de risque
+  pour le numéro. Page autonome, aucun CDN. Lit news.json en lecture seule —
+  le moteur de cours n'est jamais sollicité.
 -->
 <style>
   :root{
-    --bg:#080d1a; --card:#0f1626; --line:#1e2a42;
-    --txt:#e6edf7; --dim:#8b9ab5; --accent:#2ee6a8; --warn:#ffb547;
+    --bg:#080d1a; --card:#0d1829; --line:#1e2a42;
+    --txt:#c8d3e8; --dim:#8892a4;
+    --vert:#00e5a0; --rouge:#ff4f5a; --bleu:#4db8ff;
+    --jaune:#ffd740; --violet:#a78bfa; --orange:#fb923c;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{
-    margin:0;padding:16px 14px 60px;background:var(--bg);color:var(--txt);
-    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    margin:0;padding:14px 12px 96px;background:var(--bg);color:var(--txt);
+    font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,"IBM Plex Mono",monospace;
   }
-  header{margin-bottom:18px}
-  h1{font-size:19px;margin:0 0 4px;letter-spacing:.5px}
-  h1 span{color:var(--accent)}
-  .meta{color:var(--dim);font-size:12.5px}
-  .tabs{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}
-  .tab{
-    flex:1;min-width:78px;padding:11px 8px;border:1px solid var(--line);
-    border-radius:9px;background:var(--card);color:var(--dim);
-    font-size:13px;text-align:center;cursor:pointer;transition:.15s;
+  h1{font-size:17px;margin:0 0 3px;letter-spacing:1px}
+  h1 span{color:var(--vert)}
+  .sub{color:var(--dim);font-size:11.5px;margin-bottom:14px}
+
+  .row{display:flex;gap:7px;margin-bottom:10px}
+  .scope{
+    flex:1;padding:12px 6px;border:1px solid var(--line);border-radius:9px;
+    background:var(--card);text-align:center;font-size:11.5px;color:var(--dim);
+    letter-spacing:.5px;cursor:pointer;
   }
-  .tab.on{border-color:var(--accent);color:var(--accent);background:#0d2b22}
-  .card{
-    background:var(--card);border:1px solid var(--line);border-radius:12px;
-    padding:14px;margin-bottom:14px;
+  .scope b{display:block;font-size:15px;margin-top:3px;color:inherit}
+  .scope.on{border-color:currentColor}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px 7px}
+  .stat i{display:block;font-style:normal;color:var(--dim);font-size:9.5px;letter-spacing:.5px}
+  .stat b{display:block;font-size:17px;margin-top:3px}
+
+  .chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px}
+  .chip{
+    padding:6px 11px;border:1px solid var(--line);border-radius:6px;
+    background:var(--card);color:var(--dim);font-size:11px;cursor:pointer;
   }
-  .card h2{font-size:13px;margin:0 0 10px;color:var(--dim);font-weight:600;
-    text-transform:uppercase;letter-spacing:.6px}
-  pre{
-    white-space:pre-wrap;word-break:break-word;margin:0;font-size:13.5px;
-    line-height:1.55;font-family:inherit;max-height:46vh;overflow:auto;
+  .chip.on{border-color:var(--vert);color:var(--vert);background:rgba(0,229,160,.1)}
+  .lbl{color:var(--dim);font-size:10.5px;letter-spacing:.5px;margin-right:2px}
+
+  .art{
+    display:flex;gap:10px;background:var(--card);border:1px solid var(--line);
+    border-left:3px solid var(--line);border-radius:9px;padding:12px;margin-bottom:9px;
+    cursor:pointer;
   }
-  .count{color:var(--dim);font-size:12px;margin-top:10px}
+  .art.sel{border-color:var(--vert);background:rgba(0,229,160,.07)}
+  .box{
+    flex:0 0 20px;height:20px;margin-top:2px;border:1.5px solid var(--line);
+    border-radius:5px;display:flex;align-items:center;justify-content:center;
+    font-size:12px;color:var(--bg);
+  }
+  .art.sel .box{background:var(--vert);border-color:var(--vert)}
+  .art h3{margin:0 0 5px;font-size:13.5px;line-height:1.45;font-weight:600;color:#e6edf7}
+  .art p{margin:0 0 8px;font-size:11.5px;line-height:1.5;color:var(--dim)}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:9.5px}
+  .tag{padding:2.5px 7px;border-radius:4px;border:1px solid}
+  .src{margin-left:auto;color:var(--dim);font-size:10px}
+  .date{color:var(--dim);font-size:10px;white-space:nowrap;margin-left:8px}
+
+  .barre{
+    position:fixed;left:0;right:0;bottom:0;padding:11px 12px calc(11px + env(safe-area-inset-bottom));
+    background:rgba(8,13,26,.96);border-top:1px solid var(--line);
+    backdrop-filter:blur(10px);display:flex;gap:8px;align-items:center;
+  }
+  .barre .n{color:var(--dim);font-size:11px;flex:1}
+  .barre .n b{color:var(--vert);font-size:14px}
   button{
-    width:100%;padding:15px;margin-top:12px;border:0;border-radius:10px;
-    background:var(--accent);color:#04150f;font-size:15.5px;font-weight:700;
-    cursor:pointer;font-family:inherit;
+    padding:12px 15px;border:0;border-radius:8px;background:var(--vert);
+    color:#04150f;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
   }
-  button:active{transform:scale(.985)}
-  button.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);font-weight:500}
-  .ok{background:var(--warn);color:#2a1a00}
-  .note{
-    color:var(--dim);font-size:12px;line-height:1.6;border-left:2px solid var(--line);
-    padding-left:11px;margin-top:22px;
-  }
-  .err{color:var(--warn)}
+  button:disabled{opacity:.35}
+  button.g{background:transparent;border:1px solid var(--line);color:var(--txt);font-weight:500}
+  .vide{color:var(--dim);text-align:center;padding:36px 12px;font-size:12.5px}
 </style>
 </head>
 <body>
 
-<header>
-  <h1>📡 RADAR <span>BVC</span></h1>
-  <div class="meta" id="meta">Chargement…</div>
-</header>
+<h1>📡 RADAR <span>BVC</span></h1>
+<div class="sub" id="maj">Chargement…</div>
 
-<div class="tabs" id="tabs"></div>
+<div class="row" id="scopes"></div>
+<div class="stats" id="stats"></div>
+<div class="chips" id="fenetres"></div>
+<div class="chips" id="tickers"></div>
+<div id="liste"></div>
 
-<div class="card">
-  <h2 id="titreBloc">Bulletin</h2>
-  <pre id="apercu">…</pre>
-  <div class="count" id="compte"></div>
-  <button id="copier">📋 Copier le message</button>
-  <button class="ghost" id="ouvrir">Ouvrir WhatsApp</button>
-</div>
-
-<div class="note">
-  Colle le message dans la chaîne <b>Radar BVC</b>.<br/>
-  Cette page ne publie rien elle-même : elle prépare le texte, tu gardes la main
-  sur ce qui part. Aucun risque pour ton numéro.
+<div class="barre">
+  <div class="n" id="compteur">Touche un article pour le sélectionner</div>
+  <button class="g" id="tout">Tout</button>
+  <button id="copier" disabled>Copier</button>
 </div>
 
 <script>
-/* ── Rubriques : ordre d'affichage et libellés ────────────────────────── */
-const RUBRIQUES = [
-  ["bvc","🇲🇦 MARCHÉ BVC"], ["macro","🏛️ MACRO"], ["economie","📈 ÉCONOMIE"],
-  ["commodites","🛢️ MATIÈRES PREMIÈRES"], ["geopolitique","🌍 GÉOPOLITIQUE"],
-];
-/* Quotas par rubrique : sans eux, « économie » — la plus volumineuse —
-   occupe tout le bulletin et la BVC disparaît. */
-const QUOTAS = {bvc:5, macro:2, economie:3, commodites:2, geopolitique:2};
+/* Même vocabulaire que l'onglet ACTUALITÉS du terminal, pour que l'utilisateur
+   ne change pas de repères en passant de l'un à l'autre. */
+const INTL = new Set(["geopolitique","commodites"]);
+const CAT_LBL = {bvc:"BVC", economie:"Éco", macro:"Macro",
+                 geopolitique:"Géopolitique", commodites:"Matières 1ères"};
+const CAT_COL = {bvc:"#4db8ff", economie:"#8892a4", macro:"#ffd740",
+                 geopolitique:"#a78bfa", commodites:"#fb923c"};
+const CAT_ORDRE = ["bvc","macro","economie","commodites","geopolitique"];
+const CAT_ENTETE = {bvc:"🇲🇦 MARCHÉ BVC", macro:"🏛️ MACRO", economie:"📈 ÉCONOMIE",
+                    commodites:"🛢️ MATIÈRES PREMIÈRES", geopolitique:"🌍 GÉOPOLITIQUE"};
 
-/* Sujets écartés : les éditeurs généralistes publient sport et culture dans
-   le même flux que l'économie. */
+/* Les éditeurs généralistes publient sport et culture dans le même flux que
+   l'économie ; ces articles héritent de la catégorie de leur source. */
 const HORS_SUJET = /\b(football|foot|athl[ée]tisme|basket|tennis|olympique|mondiaux|match|joueur|club|cin[ée]ma|festival|film|musique|concert|m[ée]t[ée]o|canicule|accident|pape|ramadan)\b/i;
 
-const PRESETS = [
-  {id:"6",  label:"6 h",  heures:6,  max:10},
-  {id:"12", label:"12 h", heures:12, max:12},
-  {id:"24", label:"Journée", heures:24, max:12},
-  {id:"bvc",label:"BVC seul", heures:24, max:8, cat:"bvc"},
-];
+const FENETRES = [{h:6,l:"6 h"},{h:12,l:"12 h"},{h:24,l:"24 h"},{h:72,l:"3 j"}];
 
-let articles = [], actif = PRESETS[0], texteCourant = "";
+let tous = [], scope = "ALL", ticker = "ALL", fenetre = 24;
+const choisis = new Set();
 
-const dateDe = a => {
-  const d = new Date((a.date||"").replace(" ","T"));
-  return isNaN(d) ? null : d;
+const dateDe = a => { const d = new Date((a.date||"").replace(" ","T")); return isNaN(d)?null:d; };
+const fmt = d => d ? d.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",
+              day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}) : "";
+const cle = a => a.id || a.url || a.title;
+
+/* Pertinents : dans la fenêtre, avec un lien, non dupliqués, hors sujets écartés. */
+function pertinents(){
+  const limite = Date.now() - fenetre*3600*1000, vus = new Set();
+  return tous.filter(a=>{
+    const d = dateDe(a), t = (a.title||"").trim();
+    if(!d || d.getTime() < limite || !t || !(a.url||"").trim()) return false;
+    const k = t.toLowerCase().replace(/\W+/g,"").slice(0,60);
+    if(vus.has(k)) return false;
+    if(HORS_SUJET.test(t) && !(a.tickers||[]).length) return false;
+    vus.add(k); return true;
+  });
+}
+const parScope = l => scope==="MAROC" ? l.filter(a=>!INTL.has(a.category||"economie"))
+                    : scope==="INTL"  ? l.filter(a=> INTL.has(a.category||"economie")) : l;
+const affichables = () => {
+  let l = parScope(pertinents());
+  if(ticker!=="ALL") l = l.filter(a=>(a.tickers||[]).includes(ticker));
+  return l.sort((x,y)=>{
+    const tk = b => (b.tickers||[]).length?1:0;
+    return (tk(y)-tk(x)) || ((dateDe(y)||0)-(dateDe(x)||0));
+  });
 };
 
-function construire(p){
-  const limite = Date.now() - p.heures*3600*1000;
-  const vus = new Set();
-  let pool = articles.filter(a=>{
-    const d = dateDe(a);
-    if(!d || d.getTime() < limite) return false;
-    const t = (a.title||"").trim();
-    if(!t) return false;
-    // Un article sans lien n'a pas sa place dans un bulletin : le lecteur ne
-    // peut pas vérifier. Le flux AMMC en produit quelques-uns.
-    if(!(a.url||"").trim()) return false;
-    const cle = t.toLowerCase().replace(/\W+/g,"").slice(0,60);
-    if(vus.has(cle)) return false;                      // le relais Google répète
-    if(HORS_SUJET.test(t) && !(a.tickers||[]).length) return false;
-    vus.add(cle);
-    return true;
-  });
+function dessiner(){
+  const base = pertinents();
+  const nMa = base.filter(a=>!INTL.has(a.category||"economie")).length;
+  const nIn = base.length - nMa;
 
-  const rang = (x,y)=>{
-    const tk = (b)=> (b.tickers||[]).length ? 1 : 0;
-    if(tk(y)-tk(x)) return tk(y)-tk(x);
-    const dir = (b)=> (b.url||"").includes("news.google.com") ? 0 : 1;
-    if(dir(y)-dir(x)) return dir(y)-dir(x);
-    return (dateDe(y)||0) - (dateDe(x)||0);
-  };
+  document.getElementById("scopes").innerHTML =
+    [["ALL","TOUTES",base.length,"var(--txt)"],
+     ["MAROC","🇲🇦 MAROC",nMa,"var(--vert)"],
+     ["INTL","🌍 INTERNATIONAL",nIn,"var(--violet)"]]
+    .map(([id,l,n,c])=>`<div class="scope${scope===id?" on":""}" data-s="${id}"
+         style="color:${scope===id?c:"var(--dim)"}">${l}<b>${n}</b></div>`).join("");
 
-  let retenus;
-  if(p.cat){
-    retenus = pool.filter(a=>a.category===p.cat).sort(rang).slice(0,p.max);
-  }else{
-    retenus = [];
-    for(const [cat,quota] of Object.entries(QUOTAS)){
-      retenus.push(...pool.filter(a=>a.category===cat).sort(rang).slice(0,quota));
-    }
-    retenus = retenus.slice(0,p.max);
-  }
-  if(!retenus.length) return {texte:"", n:0};
+  const vus = affichables();
+  const pos = vus.filter(a=>a.sentiment==="POSITIF").length;
+  const neg = vus.filter(a=>a.sentiment==="NEGATIF").length;
+  document.getElementById("stats").innerHTML =
+    `<div class="stat"><i>ARTICLES</i><b style="color:var(--bleu)">${vus.length}</b></div>
+     <div class="stat"><i>TON POSITIF</i><b style="color:var(--vert)">${pos}</b></div>
+     <div class="stat"><i>TON NÉGATIF</i><b style="color:var(--rouge)">${neg}</b></div>
+     <div class="stat"><i>SÉLECTION</i><b style="color:var(--jaune)">${choisis.size}</b></div>`;
 
-  const now = new Date();
-  const hh = String(now.getHours()).padStart(2,"0"),
-        mm = String(now.getMinutes()).padStart(2,"0"),
-        jj = String(now.getDate()).padStart(2,"0"),
-        mo = String(now.getMonth()+1).padStart(2,"0");
-  const L = [`📡 *RADAR BVC* — ${jj}/${mo}/${now.getFullYear()} · ${hh}:${mm}`,
-             `_Dernières ${p.heures}h · ${retenus.length} actualités_`, ""];
-  for(const [cat,entete] of RUBRIQUES){
-    const lot = retenus.filter(a=>a.category===cat);
+  document.getElementById("fenetres").innerHTML =
+    `<span class="lbl">PÉRIODE</span>` + FENETRES.map(f=>
+      `<span class="chip${fenetre===f.h?" on":""}" data-f="${f.h}">${f.l}</span>`).join("");
+
+  const tk = new Set();
+  parScope(pertinents()).forEach(a=>(a.tickers||[]).forEach(t=>tk.add(t)));
+  document.getElementById("tickers").innerHTML =
+    `<span class="lbl">TICKER</span><span class="chip${ticker==="ALL"?" on":""}" data-t="ALL">TOUS</span>` +
+    [...tk].sort().map(t=>`<span class="chip${ticker===t?" on":""}" data-t="${t}">${t}</span>`).join("");
+
+  document.getElementById("liste").innerHTML = vus.length ? vus.map(a=>{
+    const c = a.category||"economie";
+    const col = CAT_COL[c]||"#8892a4";
+    const s = a.sentiment;
+    const sc = s==="POSITIF"?"var(--vert)" : s==="NEGATIF"?"var(--rouge)" : "var(--dim)";
+    const bord = s==="POSITIF"?"var(--vert)" : s==="NEGATIF"?"var(--rouge)" : "var(--line)";
+    const k = cle(a), on = choisis.has(k);
+    const ex = (a.summary||a.description||"").trim().slice(0,150);
+    const tags = (a.tickers||[]).map(t=>
+      `<span class="tag" style="color:var(--bleu);border-color:rgba(77,184,255,.4)">${t}</span>`).join("");
+    return `<div class="art${on?" sel":""}" data-k="${encodeURIComponent(k)}"
+              style="border-left-color:${bord}">
+      <div class="box">${on?"✓":""}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:flex-start">
+          <h3>${a.title||""}</h3><span class="date">${fmt(dateDe(a))}</span>
+        </div>
+        ${ex?`<p>${ex}…</p>`:""}
+        <div class="tags">
+          ${s&&s!=="NEUTRE"?`<span class="tag" style="color:${sc};border-color:${sc}55">${s}</span>`:""}
+          <span class="tag" style="color:${col};border-color:${col}55">${CAT_LBL[c]||c}</span>
+          ${tags}<span class="src">${a.source||""}</span>
+        </div>
+      </div></div>`;
+  }).join("") : `<div class="vide">Aucune actualité sur cette période.</div>`;
+
+  document.getElementById("compteur").innerHTML = choisis.size
+    ? `<b>${choisis.size}</b> article${choisis.size>1?"s":""} sélectionné${choisis.size>1?"s":""}`
+    : "Touche un article pour le sélectionner";
+  document.getElementById("copier").disabled = !choisis.size;
+  document.getElementById("tout").textContent = choisis.size ? "Aucun" : "Tout";
+}
+
+/* Le message reprend la mise en forme WhatsApp : *gras*, _italique_. */
+function composer(){
+  const sel = affichables().filter(a=>choisis.has(cle(a)));
+  const n = new Date();
+  const p = x => String(x).padStart(2,"0");
+  const L = [`📡 *RADAR BVC* — ${p(n.getDate())}/${p(n.getMonth()+1)}/${n.getFullYear()} · ${p(n.getHours())}:${p(n.getMinutes())}`,
+             `_${sel.length} actualité${sel.length>1?"s":""}_`, ""];
+  for(const c of CAT_ORDRE){
+    const lot = sel.filter(a=>(a.category||"economie")===c);
     if(!lot.length) continue;
-    L.push(`*${entete}*`);
+    L.push(`*${CAT_ENTETE[c]}*`);
     for(const a of lot){
-      const puce = a.sentiment==="POSITIF" ? "🟢" : a.sentiment==="NEGATIF" ? "🔴" : "•";
+      const puce = a.sentiment==="POSITIF"?"🟢" : a.sentiment==="NEGATIF"?"🔴" : "•";
       const tk = (a.tickers||[]).length ? " `"+a.tickers.slice(0,3).join(" ")+"`" : "";
       L.push(`${puce} ${(a.title||"").trim()}${tk}`);
       L.push(`   _${a.source||"?"}_ — ${a.url||""}`);
     }
     L.push("");
   }
-  L.push("—", "_Information financière, pas un conseil en investissement._");
-  return {texte:L.join("\n"), n:retenus.length};
+  L.push("—","_Information financière, pas un conseil en investissement._");
+  return L.join("\n");
 }
 
-function afficher(){
-  const {texte,n} = construire(actif);
-  texteCourant = texte;
-  document.getElementById("titreBloc").textContent =
-    actif.cat ? "Bulletin — marché BVC" : "Bulletin — " + actif.label;
-  document.getElementById("apercu").textContent =
-    texte || "Aucune actualité sur cette période.";
-  document.getElementById("compte").textContent =
-    n ? `${n} actualités · ${texte.length} caractères` : "";
-  document.getElementById("copier").disabled = !n;
-}
+document.addEventListener("click", e=>{
+  const s=e.target.closest("[data-s]"), f=e.target.closest("[data-f]"),
+        t=e.target.closest("[data-t]"), a=e.target.closest("[data-k]");
+  if(s){ scope=s.dataset.s; ticker="ALL"; dessiner(); }
+  else if(f){ fenetre=+f.dataset.f; dessiner(); }
+  else if(t){ ticker=t.dataset.t; dessiner(); }
+  else if(a){
+    const k=decodeURIComponent(a.dataset.k);
+    choisis.has(k)?choisis.delete(k):choisis.add(k);
+    dessiner();
+  }
+});
 
-function onglets(){
-  const box = document.getElementById("tabs");
-  box.innerHTML = "";
-  PRESETS.forEach(p=>{
-    const b = document.createElement("div");
-    b.className = "tab" + (p.id===actif.id ? " on" : "");
-    b.textContent = p.label;
-    b.onclick = ()=>{ actif = p; onglets(); afficher(); };
-    box.appendChild(b);
-  });
-}
+document.getElementById("tout").onclick = ()=>{
+  if(choisis.size) choisis.clear();
+  else affichables().slice(0,12).forEach(a=>choisis.add(cle(a)));  // 12 max : au-delà
+  dessiner();                                                      // le message devient illisible
+};
 
 document.getElementById("copier").onclick = async ()=>{
-  const btn = document.getElementById("copier");
-  try{
-    await navigator.clipboard.writeText(texteCourant);
-  }catch(e){
-    // Safari refuse l'API presse-papier hors geste direct ou en HTTP :
-    // on retombe sur une sélection manuelle.
-    const z = document.createElement("textarea");
-    z.value = texteCourant; document.body.appendChild(z);
-    z.select(); try{ document.execCommand("copy"); }catch(_){}
+  const b=document.getElementById("copier"), txt=composer();
+  try{ await navigator.clipboard.writeText(txt); }
+  catch(_){
+    // Safari refuse l'API presse-papier hors geste direct ou en HTTP.
+    const z=document.createElement("textarea"); z.value=txt;
+    document.body.appendChild(z); z.select();
+    try{ document.execCommand("copy"); }catch(__){}
     document.body.removeChild(z);
   }
-  btn.textContent = "✅ Copié — colle dans Radar BVC";
-  btn.classList.add("ok");
-  setTimeout(()=>{ btn.textContent="📋 Copier le message"; btn.classList.remove("ok"); }, 2600);
+  b.textContent="✅ Copié"; b.style.background="var(--jaune)";
+  setTimeout(()=>{
+    b.textContent="Copier"; b.style.background="";
+    location.href="https://whatsapp.com/channel/0029VbD0KnTLtOj4NmBCUR1Z";
+  },900);
 };
 
-document.getElementById("ouvrir").onclick = ()=>{
-  location.href = "https://whatsapp.com/channel/0029VbD0KnTLtOj4NmBCUR1Z";
-};
-
-fetch("news.json?t=" + Date.now())
-  .then(r=>r.ok ? r.json() : Promise.reject(r.status))
+fetch("news.json?t="+Date.now())
+  .then(r=>r.ok?r.json():Promise.reject(r.status))
   .then(d=>{
-    articles = d.articles || (Array.isArray(d) ? d : []);
-    const maj = d.updated || d.generated_at || "";
-    document.getElementById("meta").textContent =
-      `${articles.length} articles en base` + (maj ? ` · maj ${String(maj).slice(0,16).replace("T"," ")}` : "");
-    onglets(); afficher();
+    tous = d.articles || (Array.isArray(d)?d:[]);
+    const m = d.updated || "";
+    document.getElementById("maj").textContent =
+      `${tous.length} articles en base` + (m?` · maj ${fmt(new Date(m))}`:"");
+    dessiner();
   })
   .catch(e=>{
-    document.getElementById("meta").innerHTML =
-      `<span class="err">news.json illisible (${e})</span>`;
-    document.getElementById("apercu").textContent =
-      "Impossible de charger les actualités.";
+    document.getElementById("maj").innerHTML =
+      `<span style="color:var(--rouge)">news.json illisible (${e})</span>`;
   });
 </script>
 </body>
