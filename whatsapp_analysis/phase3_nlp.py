@@ -19,6 +19,7 @@ from whatsapp_analysis.config import (
     PRICE_TARGET_PATTERNS,
     BVC_TICKERS,
     DARIJA_FINANCE_DICT,
+    TICKER_ALIASES,
     extract_tickers_from_text,
 )
 
@@ -105,42 +106,25 @@ def get_dominant_signal(signals: Dict[str, bool]) -> Optional[str]:
 # NAMED ENTITY RECOGNITION (rule-based)
 # ─────────────────────────────────────────────
 
-# BVC tickers already in config; add company synonyms
+# Reconnaissance des sociétés citées par leur nom.
+#
+# Cette table était saisie à la main et produisait des codes qui n'existent
+# pas dans notre univers : 'cosumar' → COSUMAR au lieu de CSR, 'disway' →
+# DISWAY au lieu de DSW, 'sonasid' → SID (le ticker officiel BVC, pas le
+# nôtre). Pire, 'ciments du maroc' et 'cimar' pointaient sur CMT — Minière
+# Touissit — au lieu de CIM.
+#
+# On la dérive maintenant de TICKER_ALIASES, déjà construit depuis
+# bvc_config : un seul référentiel, et les codes produits sont les nôtres.
 COMPANY_NAMES: Dict[str, str] = {
-    'maroc telecom': 'IAM',
-    'attijariwafa': 'ATW',
-    'banque populaire': 'BCP',
-    'managem': 'MNG',
-    'addoha': 'ADH',
-    'alliances': 'ADI',
-    'akdital': 'AKD',
-    'cosumar': 'COSUMAR',
-    'lesieur': 'LESIEUR',
-    'sothema': 'SOT',
-    'ciments du maroc': 'CMT',
-    'cimar': 'CMT',
-    'risma': 'RIS',
-    'label vie': 'LBV',
-    'sonasid': 'SID',
-    'sid': 'SID',
-    'oulmès': 'OUL',
-    'oulmes': 'OUL',
-    'disway': 'DISWAY',
-    'tgcc': 'TGCC',
-    'cfgb': 'CFGB',
-    'cfg bank': 'CFGB',
-    'wafa assurance': 'WAFA',
-    'rma': 'RMA',
-    'bmci': 'BMCI',
-    'cih': 'CIH',
-    'sgmb': 'SGMB',
-    'société générale': 'SGMB',
-    'bank of africa': 'BOA',
-    'bmce': 'BOA',
+    alias: ticker
+    for ticker, alias_list in TICKER_ALIASES.items()
+    for alias in alias_list
 }
 
 _COMPANY_RE = re.compile(
-    r'\b(' + '|'.join(re.escape(k) for k in sorted(COMPANY_NAMES, key=len, reverse=True)) + r')\b',
+    r'\b(' + '|'.join(re.escape(k) for k in
+                      sorted(COMPANY_NAMES, key=len, reverse=True)) + r')\b',
     re.IGNORECASE,
 )
 

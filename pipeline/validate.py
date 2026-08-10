@@ -261,6 +261,52 @@ def validate_candles():
         ok(f"{len(files)} séries continues — aucune rupture > ±50%")
 
 
+def validate_referentiel():
+    """Le module NLP doit dériver ses tickers de bvc_config, pas les recopier.
+
+    Il entretenait quatre tables saisies à la main — noms, alias, secteurs,
+    synonymes — qui avaient divergé : SNA y valait « Snep », MSA « Mutandis »,
+    CMT « Ciments du Maroc ». Le NLP pesant 28 % du score, un message sur SNEP
+    remontait dans la note de Sonasid.
+
+    Erreur bloquante, pas avertissement : une divergence ici fausse un quart
+    de la note sans que rien ne le signale à l'écran.
+    """
+    hdr("référentiel unique — bvc_config ↔ whatsapp_analysis")
+    try:
+        sys.path.insert(0, str(ROOT))
+        from bvc_config import COMPANY_NAMES, COMPANY_SECTORS
+        from whatsapp_analysis.config import BVC_TICKERS, TICKER_ALIASES
+        from whatsapp_analysis.phase7_stocks import SECTOR_MAP
+    except Exception as e:
+        warn(f"modules NLP non importables ({type(e).__name__}) — contrôle ignoré")
+        return
+
+    if BVC_TICKERS != COMPANY_NAMES:
+        ecarts = {t for t in set(BVC_TICKERS) | set(COMPANY_NAMES)
+                  if BVC_TICKERS.get(t) != COMPANY_NAMES.get(t)}
+        err(f"noms NLP divergents de bvc_config : {sorted(ecarts)[:10]}")
+    else:
+        ok(f"{len(BVC_TICKERS)} noms alignés sur bvc_config")
+
+    if SECTOR_MAP != COMPANY_SECTORS:
+        ecarts = {t for t in set(SECTOR_MAP) | set(COMPANY_SECTORS)
+                  if SECTOR_MAP.get(t) != COMPANY_SECTORS.get(t)}
+        err(f"secteurs NLP divergents de bvc_config : {sorted(ecarts)[:10]}")
+    else:
+        ok(f"{len(SECTOR_MAP)} secteurs alignés sur bvc_config")
+
+    index = {}
+    for t, alias in TICKER_ALIASES.items():
+        for a in alias:
+            index.setdefault(a, []).append(t)
+    partages = {a: ts for a, ts in index.items() if len(ts) > 1}
+    if partages:
+        err(f"alias désignant plusieurs sociétés : {partages}")
+    else:
+        ok(f"{sum(len(v) for v in TICKER_ALIASES.values())} alias, aucun partagé")
+
+
 # ── Résumé final ──────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     banner = "  BVC Analyzer — Validation Intégrité"
@@ -273,6 +319,7 @@ if __name__ == "__main__":
     validate_fondamentaux()
     validate_news()
     validate_candles()
+    validate_referentiel()
 
     print("\n" + "═"*60)
     print(f"  RÉSUMÉ : {len(errors)} erreur(s) critique(s) · {len(warnings)} avertissement(s)")

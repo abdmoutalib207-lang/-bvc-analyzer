@@ -4,105 +4,198 @@ Constantes, dictionnaires, tickers, signaux multilingues
 """
 from __future__ import annotations
 import re
+import sys
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, List, Set
 
+# Référentiel unique des sociétés cotées. Le module NLP entretenait autrefois
+# sa propre table, qui a divergé — d'où l'import plutôt que la recopie.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from bvc_config import COMPANY_NAMES  # noqa: E402
+
 # ─────────────────────────────────────────────
-# TICKERS BVC (77 valeurs, tous marchés)
+# TICKERS BVC — dérivés de bvc_config, source unique
 # ─────────────────────────────────────────────
-BVC_TICKERS: Dict[str, str] = {
-    # Large Cap
-    "IAM": "Maroc Telecom", "ATW": "Attijariwafa Bank",
-    "BCP": "Banque Centrale Populaire", "BOA": "Bank of Africa",
-    "CIH": "CIH Bank", "CDM": "Crédit du Maroc", "WAF": "Wafasalaf",
-    # Ciment & Matériaux
-    "CMT": "Ciments du Maroc", "CIMAR": "Ciments du Maroc",
-    "HPS": "HPS", "MNG": "Managem", "MIC": "Maghreb Industries",
-    "ADH": "Douja Prom Addoha", "ADI": "Alliances Développement",
-    "AKD": "Akdital", "CASH": "CashPlus",
-    "CFGB": "CFG Bank", "CMGP": "CMGP Group",
-    "CSR": "Ciments du Maroc", "MSA": "Mutandis",
-    "RDS": "Residences Dar Saada", "RIS": "Risma",
-    "SGTM": "Société Générale Tanger Med", "SMI": "SMI",
-    "SNA": "Snep", "SOT": "Sothema", "SRM": "SRM",
-    "TGCC": "Travaux Généraux de Construction de Casablanca",
-    "VCNE": "Vecteur Commun Nouvelle Economie",
-    # Banques & Finance
-    "ATL": "Auto Hall", "BMCE": "Bank of Africa", "BMCI": "BMCI",
-    "SGMB": "Société Générale Maroc", "CAM": "Crédit Agricole du Maroc",
-    "LBV": "Label Vie", "MUT": "Mutandis", "DARI": "Dari Couspate",
-    # Industrie
-    "DWY": "Doha Water & Energy", "IMACID": "Imacid",
-    "MINTRA": "Mintraoui", "M2M": "M2M Group",
-    "ZELLIDJA": "Zellidja", "REBAB": "Rebab Company",
-    "TIMAR": "Timar", "UNIMER": "Unimer", "YNNA": "Ynna Holding",
-    # Assurance
-    "ATLANTA": "Atlanta", "MAMDA": "MAMDA", "MFIN": "Maroc Factoring",
-    "RMA": "RMA Watanya", "WAFA": "Wafa Assurance",
-    # Immobilier
-    "AFMA": "AFMA", "CCA": "Colorado", "SODEP": "Marsa Maroc",
-    "NEXANS": "Nexans Maroc", "MSIN": "M Sin",
-    # Agro & Services
-    "COSUMAR": "Cosumar", "LESIEUR": "Lesieur Cristal",
-    "DARI2": "Dari Couspate", "SFBT": "Brasseries du Maroc",
-    "OUL": "Oulmès", "HALIMA": "Les Eaux Minérales d'Oulmès",
-    # Pharmacie
-    "PHARM": "Promopharm", "SOTHEMA": "Sothema",
-    # Télécoms & Tech
-    "S2M": "S2M", "NAPS": "NAPS", "DISWAY": "Disway",
-    "INVOLYS": "Involys", "IB_MAROC": "IB Maroc",
-    # Énergie
-    "ENGIE": "Engie Maroc", "TANGER_MED": "Tanger Med",
-    # Divers
-    "TOTAL": "TotalEnergies Maroc", "TIMAR2": "Timar",
-    "DELATTRE": "Delattre Levivier Maroc",
+# Cette table était auparavant saisie à la main, et fausse sur 11 sociétés :
+# SNA y valait « Snep », MSA « Mutandis » (la confusion que le CLAUDE.md
+# interdit nommément), CMT « Ciments du Maroc » alors que c'est une minière.
+# Comme le NLP pèse 28 % du score, un message sur SNEP remontait dans la note
+# de Sonasid. Elle contenait aussi une quarantaine de codes inexistants à la
+# BVC — CIMAR, YNNA, MAMDA, SFBT (société tunisienne), DOHA WATER…
+#
+# Il n'y a désormais qu'un référentiel : bvc_config.COMPANY_NAMES.
+BVC_TICKERS: Dict[str, str] = dict(COMPANY_NAMES)
+
+# Surnoms réellement employés dans les groupes : anciennes raisons sociales,
+# formes courtes, fautes de frappe fréquentes. Le nom officiel est ajouté
+# automatiquement plus bas — inutile de le répéter ici.
+#
+# Règle : un surnom doit désigner UNE société. Les termes de secteur en sont
+# exclus — l'ancienne table associait « ciments|holcim|lafarge » à Minière
+# Touissit, « clinique » à Akdital, « hotel » à Risma, « pharma » à Sothema,
+# « sucre » à Cosumar. Un message sur le prix du sucre n'est pas un avis sur
+# Cosumar.
+SURNOMS: Dict[str, List[str]] = {
+    "IAM":  ["maroc telecom", "maroctelecom", "itissalat", "ittissalat"],
+    "ATW":  ["attijari", "attijariwafa", "attijariwafabank"],
+    "BCP":  ["banque populaire", "banque centrale populaire", "chaabi"],
+    "BOA":  ["bank of africa", "bmce", "bmce bank"],
+    "CIH":  ["cih bank", "credit immobilier"],
+    "CDM":  ["credit du maroc"],
+    "BMC":  ["bmci"],
+    "CFGB": ["cfg bank", "cfg"],
+    "WAF":  ["wafa assurance", "wafa assurances"],
+    "SAF":  ["sanlam", "sanlam maroc"],
+    "ATL":  ["atlantasanad", "atlanta sanad", "atlanta"],
+    "MGL":  ["maghrebail"],
+    "MRL":  ["maroc leasing"],
+    "SLM":  ["salafin"],
+    "EQD":  ["eqdom", "credit eqdom"],
+    "CASH": ["cash plus", "cashplus"],
+    "MNG":  ["managem", "mangem", "manageme"],
+    "CMT":  ["miniere touissit", "touissit", "cmt maroc"],
+    "SMI":  ["smi imiter", "societe metallurgique imiter"],
+    "ZLD":  ["zellidja"],
+    "SNA":  ["sonasid"],
+    "SNP":  ["snep"],
+    "ALU":  ["aluminium du maroc", "alu maroc"],
+    "STK":  ["stokvis", "stockvis", "stokvis nord afrique"],
+    "STR":  ["stroc", "stroc industrie"],
+    "SRM":  ["realisations mecaniques", "srm maroc"],
+    "LHM":  ["holcim", "lafarge", "lafargeholcim", "holcim maroc"],
+    "CIM":  ["ciments du maroc", "cimar"],
+    "AFI":  ["afric industries"],
+    "TGCC": ["tgcc", "travaux generaux de construction"],
+    "SGTM": ["sgtm", "societe generale des travaux du maroc"],
+    "JET":  ["jet contractors", "jet alu"],
+    "ADH":  ["addoha", "douja", "douja prom"],
+    "ADI":  ["alliances", "alliances developpement"],
+    "RDS":  ["dar saada", "residences dar saada"],
+    "ARD":  ["aradei", "aradei capital"],
+    "IMI":  ["immorente", "immorente invest"],
+    "BAL":  ["balima"],
+    "AKD":  ["akdital"],
+    "SOT":  ["sothema"],
+    "PPM":  ["promopharm"],
+    "VCNE": ["vicenne"],
+    "CSR":  ["cosumar"],
+    "LES":  ["lesieur", "lesieur cristal"],
+    "DAR":  ["dari couspate", "couspate"],
+    "UNI":  ["unimer"],
+    "MUT":  ["mutandis"],
+    "CAR":  ["cartier saada", "cartier"],
+    "OUL":  ["oulmes", "eaux minerales oulmes", "sidi ali"],
+    "SBS":  ["boissons du maroc", "brasseries du maroc", "societe des boissons"],
+    "LBV":  ["label vie", "labelvie", "carrefour maroc"],
+    "FNB":  ["fenie brossette", "fenie"],
+    "HAL":  ["auto hall"],
+    "NEJ":  ["auto nejma", "nejma"],
+    "ENK":  ["ennakl", "ennakl automobiles"],
+    "CMGP": ["cmgp group"],
+    "MSA":  ["marsa maroc", "sodep", "sodep marsa"],
+    "CTM":  ["ctm", "compagnie de transports"],
+    "TIM":  ["timar"],
+    "TQA":  ["taqa morocco", "taqa"],
+    "GAZ":  ["afriquia gaz", "afriquia"],
+    "TMA":  ["totalenergies", "total maroc", "totalenergies marketing"],
+    "MOX":  ["maghreb oxygene"],
+    "COL":  ["colorado"],
+    "HPS":  ["hps", "hightech payment", "highteh payment"],
+    "M2M":  ["m2m group"],
+    "MIC":  ["microdata"],
+    "INV":  ["involys"],
+    "IBM":  ["ib maroc", "ibmaroc"],
+    "S2M":  ["s2m", "sm monetique", "societe maroc monetique"],
+    "DSW":  ["disway"],
+    "DTT":  ["disty", "disty technologies"],
+    "DHO":  ["delta holding"],
+    "REB":  ["rebab", "rebab company"],
+    "AFM":  ["afma"],
+    "AGM":  ["agma"],
+    "RIS":  ["risma", "accor maroc"],
 }
 
-# Surnoms/abréviations utilisés dans les groupes WhatsApp
-TICKER_ALIASES: Dict[str, str] = {
-    "IAM": "Maroc Telecom|maroctelecom|iam|telecom|itissalat",
-    "ATW": "attijari|attijariwafa|atw|wafa banque",
-    "BCP": "bcp|populaire|banque populaire|bp|cpbp",
-    "MNG": "managem|mng|mangem",
-    "CMT": "ciments|cmt|cimar|holcim|lafarge",
-    "ADH": "addoha|adh|douja",
-    "ADI": "alliances|adi|alliance",
-    "HPS": "hps",
-    "AKD": "akdital|akd|clinique",
-    "TGCC": "tgcc|travaux généraux|tgc",
-    "SOT": "sothema|sot|pharma",
-    "MIC": "maghreb industries|mic|mic maroc",
-    "RIS": "risma|ris|hotel|hôtel",
-    "COSUMAR": "cosumar|sucre|sugar",
-    "LESIEUR": "lesieur|huile|cristal",
-    "OUL": "oulmès|oulmes|eau minérale",
-    "TOTAL": "total|totalenergies",
-    "BOA": "bank of africa|boa|bmce",
-    "CIH": "cih|cih bank",
-    "SGMB": "sg|société générale|sgmb",
-    "BMCI": "bmci|bnp|paribas",
-    "WAF": "wafasalaf|wafa",
+# Symboles qui sont aussi des mots courants en français ou en darija. Écrits
+# en minuscules ils ne désignent pas la société : « les » (article), « dar »
+# (maison), « car » (conjonction), « adi » (ordinaire), « gaz », « bal »,
+# « sot », « col », « uni », « cash », « ris », « mic ». On exige donc la
+# forme MAJUSCULE exacte pour ceux-là — c'est ainsi que les tickers
+# s'écrivent dans les groupes.
+#
+# Liste établie en mesurant, sur un corpus français réel (les 300 articles de
+# news.json), combien de fois chaque ticker apparaît en minuscules comme mot
+# isolé : « les » sortait 140 fois. Les formes darija ont été ajoutées à la
+# main, le corpus de presse ne les contenant pas.
+#
+# Ne pas l'allonger par précaution : chaque entrée coûte du rappel, puisqu'un
+# message écrivant le ticker en minuscules ne sera plus reconnu.
+SYMBOLES_AMBIGUS: Set[str] = {
+    "LES", "CAR", "DAR", "GAZ", "BAL", "SOT", "COL", "UNI",
+    "CASH", "RIS", "SAF", "TIM", "MIC", "MUT", "ADI", "NEJ",
 }
+
+
+def _sans_accent(s: str) -> str:
+    import unicodedata
+    return "".join(c for c in unicodedata.normalize("NFD", s)
+                   if unicodedata.category(c) != "Mn")
+
+
+def _construire_alias() -> Dict[str, List[str]]:
+    """Nom officiel + surnoms, en formes accentuée et non accentuée."""
+    out: Dict[str, List[str]] = {}
+    for t, nom in BVC_TICKERS.items():
+        formes = {nom.lower(), _sans_accent(nom.lower())}
+        for s in SURNOMS.get(t, []):
+            formes.add(s.lower())
+            formes.add(_sans_accent(s.lower()))
+        # trop court = trop de faux positifs sur du texte libre
+        out[t] = sorted(f for f in formes if len(f) >= 4)
+    return out
+
+
+TICKER_ALIASES: Dict[str, List[str]] = _construire_alias()
+
+# Un alias ne doit jamais désigner deux sociétés : sans ce contrôle,
+# « maroc leasing » figurait dans les alias de Maghrebail.
+_collisions = {}
+for _t, _als in TICKER_ALIASES.items():
+    for _a in _als:
+        _collisions.setdefault(_a, []).append(_t)
+_ambigus = {a: ts for a, ts in _collisions.items() if len(ts) > 1}
+if _ambigus:  # pragma: no cover — garde-fou de développement
+    raise ValueError(f"alias partagés par plusieurs tickers : {_ambigus}")
 
 # Regex compilés pour extraction de tickers depuis le texte
 _alias_patterns: Dict[str, re.Pattern] = {
-    ticker: re.compile(r'\b(' + aliases + r')\b', re.IGNORECASE)
-    for ticker, aliases in TICKER_ALIASES.items()
+    ticker: re.compile(r'\b(' + "|".join(re.escape(a) for a in aliases) + r')\b',
+                       re.IGNORECASE)
+    for ticker, aliases in TICKER_ALIASES.items() if aliases
+}
+_symbole_patterns: Dict[str, re.Pattern] = {
+    t: re.compile(r'\b' + t + r'\b',
+                  0 if t in SYMBOLES_AMBIGUS else re.IGNORECASE)
+    for t in BVC_TICKERS
 }
 
+
 def extract_tickers_from_text(text: str) -> List[str]:
-    """Extrait les tickers BVC mentionnés dans un message."""
-    found = []
-    text_lower = text.lower()
-    # Recherche directe par ticker
-    for ticker in BVC_TICKERS:
-        if re.search(r'\b' + ticker + r'\b', text, re.IGNORECASE):
-            found.append(ticker)
-    # Recherche par alias
-    for ticker, pattern in _alias_patterns.items():
-        if ticker not in found and pattern.search(text_lower):
-            found.append(ticker)
-    return list(set(found))
+    """Tickers BVC mentionnés dans un message.
+
+    Deux passes : le symbole lui-même, puis les alias. Les symboles qui sont
+    aussi des mots courants ne comptent qu'en majuscules (cf. SYMBOLES_AMBIGUS),
+    sans quoi « la dar » ou « car il monte » taggueraient Dari Couspate et
+    Cartier Saada.
+    """
+    trouves = []
+    for ticker, motif in _symbole_patterns.items():
+        if motif.search(text):
+            trouves.append(ticker)
+    for ticker, motif in _alias_patterns.items():
+        if ticker not in trouves and motif.search(text):
+            trouves.append(ticker)
+    return sorted(set(trouves))
 
 
 # ─────────────────────────────────────────────

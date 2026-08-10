@@ -17,42 +17,25 @@ from whatsapp_analysis.config import (
     Config,
     BVC_TICKERS,
 )
+# config a déjà mis la racine du dépôt sur sys.path
+from bvc_config import COMPANY_SECTORS  # noqa: E402
 
 warnings.filterwarnings('ignore', category=RuntimeWarning)
 
 # ─────────────────────────────────────────────
-# TICKER SECTOR MAP
+# SECTEURS — dérivés de bvc_config, source unique
 # ─────────────────────────────────────────────
+# Cette table était saisie à la main et reprenait les erreurs de l'ancienne
+# table de tickers du module : SNA classé « Chimie » (c'est SNEP qui l'est,
+# Sonasid est sidérurgiste), CSR « Ciment » alors que Cosumar est sucrier,
+# MSA « Agro » pour un opérateur portuaire, ATL « Auto » pour un assureur.
+# Elle contenait aussi une trentaine de codes inexistants à la BVC.
+#
+# Les agrégats sectoriels de ce module — sector_rank, moyennes par secteur —
+# reposent dessus : une société mal classée fausse le classement de tout son
+# secteur, pas seulement le sien.
 
-SECTOR_MAP: Dict[str, str] = {
-    'IAM': 'Télécoms', 'ATW': 'Banque', 'BCP': 'Banque', 'BOA': 'Banque',
-    'CIH': 'Banque', 'CDM': 'Banque', 'WAF': 'Finance',
-    'CMT': 'Ciment', 'CIMAR': 'Ciment', 'HPS': 'Tech',
-    'MNG': 'Mines', 'MIC': 'Industrie', 'ADH': 'Immobilier',
-    'ADI': 'Immobilier', 'AKD': 'Santé', 'CASH': 'Finance',
-    'CFGB': 'Banque', 'CMGP': 'Industrie', 'CSR': 'Ciment',
-    'MSA': 'Agro', 'RDS': 'Immobilier', 'RIS': 'Hôtellerie',
-    'SGTM': 'Infrastructure', 'SMI': 'Mines', 'SNA': 'Chimie',
-    'SOT': 'Pharma', 'SRM': 'Services', 'TGCC': 'BTP',
-    'VCNE': 'Tech', 'ATL': 'Auto', 'BMCE': 'Banque', 'BMCI': 'Banque',
-    'SGMB': 'Banque', 'CAM': 'Banque', 'LBV': 'Distribution',
-    'MUT': 'Agro', 'DARI': 'Agro', 'DWY': 'Énergie',
-    'IMACID': 'Chimie', 'MINTRA': 'Transport', 'M2M': 'Tech',
-    'ZELLIDJA': 'Mines', 'REBAB': 'Industrie', 'TIMAR': 'Transport',
-    'UNIMER': 'Agro', 'YNNA': 'Conglomérat',
-    'ATLANTA': 'Assurance', 'MAMDA': 'Assurance', 'MFIN': 'Finance',
-    'RMA': 'Assurance', 'WAFA': 'Assurance',
-    'AFMA': 'Finance', 'CCA': 'Distribution', 'SODEP': 'Port',
-    'NEXANS': 'Industrie', 'MSIN': 'Finance',
-    'COSUMAR': 'Agro', 'LESIEUR': 'Agro', 'DARI2': 'Agro',
-    'SFBT': 'Agro', 'OUL': 'Agro', 'HALIMA': 'Agro',
-    'PHARM': 'Pharma', 'SOTHEMA': 'Pharma',
-    'S2M': 'Tech', 'NAPS': 'Tech', 'DISWAY': 'Tech',
-    'INVOLYS': 'Tech', 'IB_MAROC': 'Tech',
-    'ENGIE': 'Énergie', 'TANGER_MED': 'Infrastructure',
-    'TOTAL': 'Énergie', 'TIMAR2': 'Transport',
-    'DELATTRE': 'Industrie', 'SID': 'Sidérurgie',
-}
+SECTOR_MAP: Dict[str, str] = dict(COMPANY_SECTORS)
 
 
 def get_sector(ticker: str) -> str:
