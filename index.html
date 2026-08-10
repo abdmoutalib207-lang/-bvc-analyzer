@@ -326,7 +326,16 @@ async function fetchChart(sym,range){
   const lastLocal=local.length>0?local[local.length-1].d:"";
   if(local.length>=5&&lastLocal<todayStr){
     try{
-      const fresh=await fetchMed24Raw(sym,15);
+      /* Enrichissement borné à 4 s. Médias24 passe par des proxies CORS
+         publics : quand ils ne répondent pas, l'appel a été mesuré à 38 s.
+         Le graphique restait alors vide en permanence — l'effet React se
+         relance à chaque rafraîchissement des cours et annulait la requête
+         avant qu'elle n'aboutisse. Les chandelles locales portent déjà la
+         dernière clôture ; l'enrichissement est un bonus, pas une dépendance. */
+      const fresh=await Promise.race([
+        fetchMed24Raw(sym,15),
+        new Promise(res=>setTimeout(()=>res(null),4000))
+      ]);
       if(fresh&&fresh.length>0){
         const map={};
         local.forEach(c=>map[c.d]=c);
@@ -1245,8 +1254,14 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
   const s=SS(r.sig);
   const price=r.price||r.prix;
   const h90=r.h90||r.high90;const l90=r.l90||r.low90;
-  const upside=((r.bull-price)/price*100).toFixed(1);
-  const pos=Math.min(98,Math.max(2,(price-r.bear)/(r.bull-r.bear)*100));
+  /* Les objectifs sont nullifiés côté pipeline quand ils ne sont plus à
+     l'échelle du cours (opération sur titres, cible périmée). Sans garde,
+     `null - price` valait 0 et l'écart s'affichait -100%. */
+  const objectifs=r.bear!=null&&r.base!=null&&r.bull!=null;
+  const ecart=v=>v==null||!price?"—":`${((v-price)/price*100).toFixed(1)}%`;
+  const upside=objectifs?((r.bull-price)/price*100).toFixed(1):null;
+  const pos=objectifs&&r.bull!==r.bear
+    ?Math.min(98,Math.max(2,(price-r.bear)/(r.bull-r.bear)*100)):50;
   const sym=r.symbol||r.ticker;
   const rsiVal=r.rsi||r.rsi14||50;
 
@@ -1296,7 +1311,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
           <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Fondamentaux</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-              {[["PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff"],["Upside Base",`${((r.base-price)/price*100).toFixed(1)}%`,((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"],["Alpha 12M",`${r.alpha>0?"+":""}${r.alpha}%`,r.alpha>=0?"#00e5a0":"#ff4f5a"]].map(([k,v,c])=>(
+              {[["PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"],["Alpha 12M",`${r.alpha>0?"+":""}${r.alpha}%`,r.alpha>=0?"#00e5a0":"#ff4f5a"]].map(([k,v,c])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
                   <div style={{fontSize:13,color:c,fontWeight:700}}>{v}</div>
@@ -1409,8 +1424,9 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
           {/* Scénarios */}
           <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Scénarios Prix (fondamentaux)</div>
+            {!objectifs&&<div style={{fontSize:11,color:"#ff8f00",marginBottom:10}}>Objectifs indisponibles — cible périmée écartée</div>}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
-              {[["BEAR",r.bear,"#ff4f5a",`${((r.bear-price)/price*100).toFixed(1)}%`],["BASE",r.base,"#ffd740",`${((r.base-price)/price*100).toFixed(1)}%`],["BULL",r.bull,"#00e5a0",`+${upside}%`]].map(([lbl,val,c,pct])=>(
+              {[["BEAR",r.bear,"#ff4f5a",ecart(r.bear)],["BASE",r.base,"#ffd740",ecart(r.base)],["BULL",r.bull,"#00e5a0",upside==null?"—":`+${upside}%`]].map(([lbl,val,c,pct])=>(
                 <div key={lbl} style={{background:"#0a1220",borderRadius:6,padding:"10px 8px",border:`1px solid ${c}20`,textAlign:"center"}}>
                   <div style={{fontSize:9,color:"#8892a4",marginBottom:3,letterSpacing:1}}>{lbl}</div>
                   <div style={{fontSize:18,fontWeight:700,color:c,marginBottom:2}}>{px(val)}</div>

@@ -481,11 +481,21 @@ def fetch_all_idb():
             opn_str = (str(d.get("ouverture") or "")
                        .replace(" ", "").replace(" ", "").replace(",", "."))
             opn_val = float(opn_str) if opn_str and opn_str != "-" else None
+            # capitalisation_boursiere est en DH ; le terminal l'affiche en
+            # millions. C'est la seule capitalisation calculée sur le cours du
+            # jour — celle de FOND_DATA est figée depuis des mois.
+            cap_str = (str(d.get("capitalisation_boursiere") or "")
+                       .replace(" ", "").replace(" ", "").replace(",", "."))
+            try:
+                cap_mdh = round(float(cap_str) / 1e6) if cap_str and cap_str != "-" else None
+            except ValueError:
+                cap_mdh = None
             out[sym] = {
                 "price": float(d["dernier_cours"]),
                 "chg":   float(d.get("variation") or 0),
                 "open":  opn_val,
                 "vol":   vol_int,
+                "cap":   cap_mdh,
             }
         except (ValueError, TypeError):
             continue
@@ -739,6 +749,34 @@ def get_weights(context: dict) -> dict:
     total = sum(w.values())
     return {k: round(v / total, 4) for k, v in w.items()}
 
+def _objectifs(ticker, price, fd) -> dict:
+    """Objectifs bear/base/bull, écartés s'ils ne sont plus à l'échelle du cours.
+
+    Ils viennent de FOND_DATA, une table codée en dur qui n'a pas suivi les
+    opérations sur titres : HPS y vise 3 100 DH après un split 1:10 qui a
+    ramené le cours à 634, Managem 13 000 après le sien. Un objectif quatre
+    fois éloigné du cours n'est pas une prévision, c'est un vestige.
+
+    Seuil : un facteur 2 dans un sens ou dans l'autre. Un objectif qui double
+    le cours ou le divise par deux n'est plus une prévision.
+
+    ⚠️ Ce filtre n'attrape que l'absurde. La table est périmée bien au-delà —
+    les deux tiers des objectifs sont sous le cours du jour. Entre « cible
+    obsolète » et « titre jugé surévalué », rien ne permet de trancher depuis
+    une valeur figée : il faut recalculer les objectifs, pas les filtrer.
+
+    Règle LOI N°3 : origine incertaine → nullifier, ne pas inventer. On ne
+    les rééchelonne pas — le ratio de split ne suffirait pas à valider une
+    cible dont on ignore la date et la méthode.
+    """
+    base = fd.get("base")
+    if price and isinstance(base, (int, float)) and base > 0 and not (0.5 < base / price < 2):
+        logger.warning(f"  {ticker}: objectifs périmés (base={base} vs cours={price}) — nullifiés")
+        return {"bear": None, "base": None, "bull": None, "upside": None}
+    return {"bear": fd.get("bear"), "base": fd.get("base"),
+            "bull": fd.get("bull"), "upside": fd.get("upside")}
+
+
 def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, context) -> dict:
     """ScoreEngineV53.compute() — score enrichi avec bonus/malus."""
     sent = SENTIMENT.get(ticker, {
@@ -788,7 +826,7 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
         bonus -= 0.60; bonus_log.append(f"-Alpha négatif ({sent['alpha']}%) -0.60")
 
     # Upside négatif avec signal positif
-    if upside < -10 and bvc_bull:
+    if (upside or 0) < -10 and bvc_bull:
         bonus -= 0.20; bonus_log.append("-Upside négatif -0.20")
 
     final = round(min(max(base + bonus, 0), 10), 2)
@@ -1222,7 +1260,7 @@ def run(dry_run=False, push=False, token=""):
 
         # Score enrichi v5.3
         v53 = compute_v53(ticker, score_tech, score_fond, bvc_score,
-                          fd.get("flags", 0), fd.get("upside", 0), ctx)
+                          fd.get("flags", 0), fd.get("upside") or 0, ctx)
 
         # Setup technique (déduit du score et des MAs)
         v53_final = v53["v53"]
@@ -1252,7 +1290,11 @@ def run(dry_run=False, push=False, token=""):
             "pb":     fd.get("pb"),
             "div":    round(BPA_DATA[ticker]["div_dh"] / price * 100, 2) if (ticker in BPA_DATA and BPA_DATA[ticker].get("div_dh") and price > 0) else fd.get("div"),
             "div_dh": BPA_DATA[ticker].get("div_dh") if ticker in BPA_DATA else None,
-            "cap":    fd.get("cap"),
+            # Capitalisation : celle d'IDBourse, calculée sur le cours du jour,
+            # prime sur FOND_DATA — table codée en dur qui n'a suivi ni les
+            # splits ni les corrections d'ISIN (Sonasid y valait 1 100 MDHS
+            # pour une capitalisation réelle de 7 800).
+            "cap":    lp.get("cap") or fd.get("cap"),
             "h90":    round(h90, 2),
             "l90":    round(l90, 2),
             "ma200":  round(ma200, 2) if ma200 else None,
@@ -1294,10 +1336,7 @@ def run(dry_run=False, push=False, token=""):
             # Alerte variation extrême (≥ ±8% approche limite BVC ±10%)
             "chg_alert": abs(round(chg, 2)) >= 8.0,
             # Fondamentaux
-            "bear":   fd.get("bear"),
-            "base":   fd.get("base"),
-            "bull":   fd.get("bull"),
-            "upside": fd.get("upside"),
+            **_objectifs(ticker, price, fd),
             "flags":  fd.get("flags", 0),
         })
 
