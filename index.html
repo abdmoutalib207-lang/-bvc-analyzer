@@ -569,6 +569,12 @@ function calcSR(candles,price){
 
 // ── ATOMS ────────────────────────────────────────────────────────────────────
 const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":(+n).toFixed(d);
+/* Code affiché : celui de la BVC, pas notre clé interne. Le marché lit
+   « SNA » comme Stokvis et « SID » comme Sonasid ; afficher nos symboles
+   désoriente dès qu'on compare le terminal à une autre source. Nos clés
+   restent inchangées partout ailleurs — sélection, favoris, chandelles,
+   corpus WhatsApp. Repli sur le symbole si le champ manque (tableau STATIC). */
+const tk=r=>r&&(r.code_bvc||r.symbol||r.ticker)||"";
 const Bar=({v,max=10,c,h=6})=>(
   <div style={{background:"#0d1829",borderRadius:3,height:h,overflow:"hidden"}}>
     <div style={{width:`${Math.min(100,v/max*100)}%`,height:"100%",background:c,boxShadow:`0 0 6px ${c}40`,transition:"width .5s"}}/>
@@ -787,7 +793,7 @@ const StockChart=({r})=>{
       const{open:o,high:h,low:l,close:c}=bar;
       const col=c>=o?"#00e5a0":"#ff4f5a";
       refTooltip.current.style.display="block";
-      refTooltip.current.innerHTML=`<b style="color:#fff">${sym}</b>&nbsp;<span style="color:#8892a4">O</span>&nbsp;<span style="color:#c8d3e8">${o}</span>&nbsp;<span style="color:#8892a4">H</span>&nbsp;<span style="color:${col}">${h}</span>&nbsp;<span style="color:#8892a4">L</span>&nbsp;<span style="color:#ff4f5a">${l}</span>&nbsp;<span style="color:#8892a4">C</span>&nbsp;<span style="color:${col};font-weight:700">${c}</span>`;
+      refTooltip.current.innerHTML=`<b style="color:#fff">${tk(r)}</b>&nbsp;<span style="color:#8892a4">O</span>&nbsp;<span style="color:#c8d3e8">${o}</span>&nbsp;<span style="color:#8892a4">H</span>&nbsp;<span style="color:${col}">${h}</span>&nbsp;<span style="color:#8892a4">L</span>&nbsp;<span style="color:#ff4f5a">${l}</span>&nbsp;<span style="color:#8892a4">C</span>&nbsp;<span style="color:${col};font-weight:700">${c}</span>`;
     });
 
     // ── Volume ──────────────────────────────────────────────
@@ -874,7 +880,7 @@ const TickerTape=({rows})=>{
         {doubled.map((r,i)=>(
           <span key={i} style={{display:"inline-flex",alignItems:"center",marginRight:24,gap:4,fontSize:11,whiteSpace:"nowrap"}}>
             <span style={{color:"#2a3550",fontSize:8}}>◆</span>
-            <span style={{color:"#c8d3e8",fontWeight:600,letterSpacing:.5}}>{r.symbol||r.ticker}</span>
+            <span style={{color:"#c8d3e8",fontWeight:600,letterSpacing:.5}}>{tk(r)}</span>
             <span style={{color:"#4db8ff"}}>{(r.price||0).toFixed(2)}</span>
             <span style={{color:nc(r.chg)}}>{r.chg>0?"▲":"▼"}{Math.abs(r.chg||0).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC">⚡</span>}</span>
           </span>
@@ -1002,7 +1008,7 @@ const Heatmap=({rows,setSel,setTab})=>{
                   onMouseLeave={()=>setHov(null)}
                   title={`${r.name||sym} · ${px(r.price||0)} · ${chg>0?"▲":"▼"}${Math.abs(chg).toFixed(2)}% · v5.3=${r.v53?.toFixed(2)}`}
                   style={{background:chgClr(chg),border:`1px solid ${isH?"#c8d3e8":"rgba(255,255,255,.04)"}`,borderRadius:5,padding:"7px 10px",minWidth:88,cursor:"pointer",transition:"border-color .12s,transform .1s",transform:isH?"scale(1.05)":"scale(1)"}}>
-                  <div style={{fontSize:12,fontWeight:700,color:"#fff",marginBottom:1}}>{sym}</div>
+                  <div style={{fontSize:12,fontWeight:700,color:"#fff",marginBottom:1}}>{tk(r)}</div>
                   <div style={{fontSize:10,color:"rgba(200,211,232,.7)",marginBottom:1}}>{px(r.price||0)}</div>
                   <div style={{fontSize:11,fontWeight:700,color:chg>0?"#00e5a0":chg<0?"#ff4f5a":"#8892a4"}}>
                     {chg>0?"▲":chg<0?"▼":"—"}{Math.abs(chg).toFixed(2)}%
@@ -1036,7 +1042,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
     if(sector!=="ALL") r=r.filter(x=>x.sector===sector);
     if(search.trim()){
       const q=search.trim().toUpperCase();
-      r=r.filter(x=>(x.symbol||x.ticker||"").includes(q)||(x.name||"").toUpperCase().includes(q));
+      r=r.filter(x=>(x.symbol||x.ticker||"").includes(q)||tk(x).includes(q)||(x.name||"").toUpperCase().includes(q));
     }
     if(sigFilter) r=r.filter(x=>(x.sig||"").startsWith(sigFilter));
     if(rsiZone==="survendu") r=r.filter(x=>(x.rsi||x.rsi14||50)<30);
@@ -1087,8 +1093,8 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         {(search||sector!=="ALL"||sigFilter||rsiZone)&&<button onClick={()=>{setSearch("");setSector("ALL");setSigFilter(null);setRsiZone(null);}} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"3px 8px",background:"transparent"}}>✕ Réinitialiser</button>}
         <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{sorted.length}/{group==="MASI1"?19:rows.length} titres{group==="MASI1"&&<span style={{color:"#00e5a0",marginLeft:4}}>NLP ✓</span>}</span>
         <button onClick={()=>{
-          const cols=["TICKER","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE","SIGNAL","ALPHA","WIN%","BVC"];
-          const rows_csv=sorted.map(r=>[r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",r.pe?.toFixed(1)||"",r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",computeDisplayScore(r,scoreMode).toFixed(2),r.sig||"",r.alpha||"",r.win||"",r.bvc?.toFixed(2)||""]);
+          const cols=["TICKER BVC","CODE INTERNE","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE","SIGNAL","ALPHA","WIN%","BVC"];
+          const rows_csv=sorted.map(r=>[tk(r),r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",r.pe?.toFixed(1)||"",r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",computeDisplayScore(r,scoreMode).toFixed(2),r.sig||"",r.alpha||"",r.win||"",r.bvc?.toFixed(2)||""]);
           const csv="﻿"+[cols,...rows_csv].map(r=>r.join(";")).join("\n");
           const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
           const url=URL.createObjectURL(blob);
@@ -1153,10 +1159,10 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   <td style={{padding:"8px 8px",fontSize:12,color:"#8892a4"}}>{i+1}</td>
                   <td style={{padding:"10px 8px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      <CompanyLogo sym={sym} sector={r.sector} size={46}/>
+                      <CompanyLogo sym={tk(r)} sector={r.sector} size={46}/>
                       <div style={{minWidth:0}}>
                         <div style={{display:"flex",alignItems:"center",gap:5}}>
-                          <span style={{fontSize:16,color:"#fff",fontWeight:800,letterSpacing:.3}}>{sym}</span>
+                          <span style={{fontSize:16,color:"#fff",fontWeight:800,letterSpacing:.3}}>{tk(r)}</span>
                           {r.warn&&<span title={r.warnMsg} style={{fontSize:10,cursor:"help"}}>⚠️</span>}
                           {isStat&&<span title="Indicateurs techniques estimés — données live en attente" style={{fontSize:9,color:"#8892a4",border:"1px solid #1a2540",borderRadius:2,padding:"1px 3px",cursor:"default"}}>~stat</span>}
                           <button onClick={e=>{e.stopPropagation();toggleFav(sym);}} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
@@ -1266,7 +1272,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
   const rsiVal=r.rsi||r.rsi14||50;
 
   const visRows=detSearch.trim()
-    ? rows.filter(d=>{const q=detSearch.trim().toUpperCase();return (d.symbol||d.ticker||"").includes(q)||(d.name||"").toUpperCase().includes(q);})
+    ? rows.filter(d=>{const q=detSearch.trim().toUpperCase();return (d.symbol||d.ticker||"").includes(q)||tk(d).includes(q)||(d.name||"").toUpperCase().includes(q);})
     : rows;
 
   return(
@@ -1279,7 +1285,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
       </div>
       <div style={{display:"flex",gap:4,marginBottom:14,flexWrap:"wrap",maxHeight:96,overflowY:"auto",padding:"4px 0"}}>
         {visRows.map(d=>{const sym2=d.symbol||d.ticker;const ds=SS(d.sig);const a=sel===sym2;return(
-          <button key={sym2} onClick={()=>setSel(sym2)} style={{background:a?ds.bg:"transparent",border:a?`1px solid ${ds.bd}`:"1px solid #1a2540",color:a?ds.fg:"#8892a4",padding:"2px 7px",borderRadius:3,fontSize:10,fontWeight:a?700:400,transition:"all .15s"}}>{sym2}</button>
+          <button key={sym2} onClick={()=>setSel(sym2)} style={{background:a?ds.bg:"transparent",border:a?`1px solid ${ds.bd}`:"1px solid #1a2540",color:a?ds.fg:"#8892a4",padding:"2px 7px",borderRadius:3,fontSize:10,fontWeight:a?700:400,transition:"all .15s"}}>{tk(d)}</button>
         );})}
       </div>
       {r.warn&&<div style={{background:"rgba(255,215,64,.08)",border:"1px solid rgba(255,215,64,.3)",borderRadius:6,padding:"10px 14px",marginBottom:12,fontSize:13,color:"#ffd740"}}>⚠️ {r.warnMsg}</div>}
@@ -1290,10 +1296,10 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
           {/* Score card */}
           <div style={{background:`linear-gradient(135deg,${s.bg},#0d1829)`,border:`1px solid ${s.bd}`,borderRadius:8,padding:16,textAlign:"center"}}>
             <div style={{display:"flex",justifyContent:"center",marginBottom:10}}>
-              <CompanyLogo sym={sym} sector={r.sector} size={56}/>
+              <CompanyLogo sym={tk(r)} sector={r.sector} size={56}/>
             </div>
             <div style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-              <span>{sym} · {px(price)} DH <span style={{color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
+              <span>{tk(r)} · {px(price)} DH <span style={{color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
               <button onClick={()=>toggleFav(sym)} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
                 style={{fontSize:18,color:fav.includes(sym)?"#ffd740":"#2a3550",border:"none",background:"none",cursor:"pointer",padding:"0 2px",lineHeight:1,transition:"color .2s"}}>
                 {fav.includes(sym)?"★":"☆"}
@@ -2258,7 +2264,7 @@ function App(){
         const m={};
         d.tickers.forEach(t=>{m[t.symbol]={
           price:t.price,chg:t.chg,vol:t.vol||0,open:t.open,close:t.close,
-          name:t.name,sector:t.sector,
+          name:t.name,sector:t.sector,code_bvc:t.code_bvc,
           pe:t.pe,pb:t.pb,div:t.div,cap:t.cap,
           h90:t.h90,l90:t.l90,ma200:t.ma200,h52w:t.h52w,l52w:t.l52w,
           rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,

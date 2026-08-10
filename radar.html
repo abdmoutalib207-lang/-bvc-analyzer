@@ -195,6 +195,12 @@ const HORS_SUJET = /\b(football|foot|athl[ée]tisme|basket|tennis|olympique|mond
 const FENETRES = [{h:6,l:"6 h"},{h:12,l:"12 h"},{h:24,l:"24 h"},{h:72,l:"3 j"}];
 
 let tous = [], scope = "ALL", ticker = "ALL", fenetre = 24, recherche = "";
+/* Nos codes internes → codes officiels BVC, pour l'affichage seulement.
+   Le marché lit « SNA » comme Stokvis et « SID » comme Sonasid ; nos symboles
+   restent la clé du filtrage et du tagging. Renseignée par data.json ; vide
+   tant qu'il n'a pas répondu, auquel cas on affiche notre code. */
+let codesBVC = {};
+const codeAff = t => codesBVC[t] || t;
 const choisis = new Set();
 
 const dateDe = a => { const d = new Date((a.date||"").replace(" ","T")); return isNaN(d)?null:d; };
@@ -280,7 +286,7 @@ function dessiner(){
   parScope(pertinents()).forEach(a=>(a.tickers||[]).forEach(t=>tk.add(t)));
   document.getElementById("tickers").innerHTML =
     `<span class="lbl">TICKER</span><span class="chip${ticker==="ALL"?" on":""}" data-t="ALL">TOUS</span>` +
-    [...tk].sort().map(t=>`<span class="chip${ticker===t?" on":""}" data-t="${t}">${t}</span>`).join("");
+    [...tk].sort().map(t=>`<span class="chip${ticker===t?" on":""}" data-t="${t}">${codeAff(t)}</span>`).join("");
 
   document.getElementById("liste").innerHTML = vus.length ? vus.map(a=>{
     const c = a.category||"economie";
@@ -296,7 +302,7 @@ function dessiner(){
     if(t0 && ex.toLowerCase().startsWith(t0)) ex = "";
     ex = ex.slice(0,150);
     const tags = (a.tickers||[]).map(t=>
-      `<span class="tag" style="color:var(--bleu);border-color:rgba(77,184,255,.4)">${t}</span>`).join("");
+      `<span class="tag" style="color:var(--bleu);border-color:rgba(77,184,255,.4)">${codeAff(t)}</span>`).join("");
     // Deux gestes distincts : la case sélectionne, le corps ouvre la source.
     // Un même clic ne peut pas faire les deux sans surprendre l'utilisateur.
     return `<div class="art${on?" sel":""}" style="border-left-color:${bord}">
@@ -485,13 +491,20 @@ fetch("data.json?t="+Date.now())
       const col = c>0?"var(--vert)":c<0?"var(--rouge)":"var(--dim)";
       const fl = c>0?"▲":c<0?"▼":"—";
       const px = Number(t.price).toLocaleString("fr-FR",{maximumFractionDigits:2});
-      return `<span class="val"><b>${t.symbol}</b>${px}` +
+      // code officiel BVC quand il est présent : le marché lit « SNA » comme
+      // Stokvis, pas comme Sonasid. Repli sur notre symbole sinon.
+      const code = t.code_bvc || t.symbol;
+      return `<span class="val"><b>${code}</b>${px}` +
              `<span style="color:${col}"> ${fl}${c?Math.abs(c).toFixed(2)+"%":""}</span></span>`;
     };
     // contenu dupliqué : l'animation translate de -50%, la boucle est invisible
     const html = ts.map(item).join("");
     document.getElementById("defile").innerHTML = html + html;
     document.getElementById("bandeau").hidden = false;
+    // La liste d'actualités a pu être rendue avant l'arrivée de data.json :
+    // on redessine une fois la correspondance connue.
+    ts.forEach(t=>{ if(t.code_bvc) codesBVC[t.symbol] = t.code_bvc; });
+    if(tous.length) dessiner();
   })
   .catch(()=>{});   // pas de cours : le bandeau reste masqué
 

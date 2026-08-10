@@ -1278,6 +1278,13 @@ def run(dry_run=False, push=False, token=""):
         info = TICKER_INFO.get(ticker, {})
         tickers_out.append({
             "symbol": ticker,
+            # Code officiel BVC, pour l'affichage seulement. Nos symboles
+            # internes sont la clé primaire d'ISIN_MAP, des chandelles et de
+            # six ans de corpus WhatsApp : on ne les renomme pas. Mais un
+            # investisseur marocain lit « SNA » comme Stokvis, pas comme
+            # Sonasid — afficher notre code à l'écran désoriente face à
+            # n'importe quelle autre source.
+            "code_bvc": IDB_TICKER_MAP.get(ticker, ticker),
             "name":   info.get("name", ticker),
             "sector": info.get("sector", ""),
             "price":  round(price, 2),
