@@ -2244,12 +2244,26 @@ function App(){
 
   // Merge live quote data into rows (functional update, no dep on rows)
   const mergeLive=useCallback((liveMap)=>{
-    setRows(prev=>prev.map(s=>{
-      const live=liveMap[s.symbol];
-      if(!live)return s;
-      const defined=Object.fromEntries(Object.entries(live).filter(([,v])=>v!==undefined));
-      return{...s,...defined};
-    }));
+    const propres=o=>Object.fromEntries(Object.entries(o).filter(([,v])=>v!==undefined));
+    setRows(prev=>{
+      const fusion=prev.map(s=>{
+        const live=liveMap[s.symbol];
+        return live?{...s,...propres(live)}:s;
+      });
+      /* Un titre présent dans data.json mais absent du tableau STATIC ne
+         s'affichait jamais : prev.map() ne fait que mettre à jour l'existant.
+         Toute nouvelle introduction en bourse restait donc invisible tant
+         qu'on ne l'ajoutait pas à la main au frontend — c'était le cas de
+         T2S, cotée depuis le 27/07/2026.
+         On exige `name` pour n'ajouter que depuis data.json : l'overlay live
+         de séance ne porte que des cours, il créerait une ligne sans nom ni
+         score. */
+      const connus=new Set(prev.map(s=>s.symbol||s.ticker));
+      const nouveaux=Object.entries(liveMap)
+        .filter(([sym,live])=>!connus.has(sym)&&live&&live.name)
+        .map(([sym,live])=>({symbol:sym,...propres(live)}));
+      return nouveaux.length?[...fusion,...nouveaux]:fusion;
+    });
   },[]);
 
   // Load data: data.json (backend pipeline) → overlay live IDBourse/Médias24 pendant session

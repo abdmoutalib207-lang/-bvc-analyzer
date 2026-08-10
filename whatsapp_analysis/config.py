@@ -114,6 +114,11 @@ SURNOMS: Dict[str, List[str]] = {
     "AFM":  ["afma"],
     "AGM":  ["agma"],
     "RIS":  ["risma", "accor maroc"],
+    # ── Sociétés ajoutées le 10/08/2026 ─────────────────────────────────────
+    "T2S":  ["t2s group", "technique science sante", "technique science santé"],
+    "MDP":  ["med paper", "medpaper"],
+    "DLM":  ["delattre levivier", "delattre"],
+    "DIS":  ["diac salaf", "diac"],
 }
 
 # Symboles qui sont aussi des mots courants en français ou en darija. Écrits
@@ -133,6 +138,7 @@ SURNOMS: Dict[str, List[str]] = {
 SYMBOLES_AMBIGUS: Set[str] = {
     "LES", "CAR", "DAR", "GAZ", "BAL", "SOT", "COL", "UNI",
     "CASH", "RIS", "SAF", "TIM", "MIC", "MUT", "ADI", "NEJ",
+    "DIS", "MDP",   # « dis-moi », « mdp » pour mot de passe
 }
 
 

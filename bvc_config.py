@@ -84,10 +84,17 @@ COMPANY_NAMES: dict = {
     "STK":  "Stokvis Nord Afrique",
     "UNI":  "Unimer",
     "IBM":  "IB Maroc.com",
+    # ── Ajouts du 10/08/2026 : cotés à la BVC mais absents de notre univers.
+    # ISIN vérifiés chacun sur au moins deux sources indépendantes ; détail
+    # dans ISIN_MAP plus bas.
+    "T2S":  "T2S Group Holding",
+    "MDP":  "Med Paper",
+    "DLM":  "Delattre Levivier Maroc",
+    "DIS":  "Diac Salaf",
 }
 
 # ── Secteurs ────────────────────────────────────────────────────────────────
-# Taxonomie canonique, 21 secteurs pour 77 sociétés (moyenne 3,7 par secteur).
+# Taxonomie canonique, 22 secteurs pour 81 sociétés (moyenne 3,7 par secteur).
 #
 # Elle remplace une table qui comptait 43 libellés — dont « Technologies »,
 # « Technologies & Paiement » et « Distribution IT » comme trois secteurs
@@ -193,6 +200,13 @@ COMPANY_SECTORS: dict = {
     "RIS":  "Tourisme & Loisirs",
     "DHO":  "Holdings",
     "REB":  "Holdings",            # ⚠️ à valider — était « Textile »
+    # ── Ajouts du 10/08/2026 ────────────────────────────────────────────────
+    "T2S":  "Santé & Pharmacie",   # dispositifs médicaux, diagnostic in vitro,
+                                   # radiopharmacie (note d'information AMMC)
+    "DLM":  "Ingénierie & Industrie",   # chaudronnerie, charpente métallique
+    "DIS":  "Sociétés de financement",  # crédit à la consommation
+    "MDP":  "Papier",              # cellulose, papier, carton — aucune autre
+                                   # cotée sur ce métier, d'où un secteur seul
 }
 
 ISIN_MAP: dict = {
@@ -226,6 +240,18 @@ ISIN_MAP: dict = {
     # Aliases utilisés par le pipeline v9
     "TGCC": "MA0000012528",  # alias de TGC
     "SNA":  "MA0000010019",  # alias de SON
+    # ── Ajouts du 10/08/2026 ────────────────────────────────────────────────
+    # Sociétés cotées qui manquaient à notre univers. Chaque ISIN est recoupé
+    # sur deux sources au moins, conformément à la règle d'audit croisé (R2) :
+    #   T2S  note d'information AMMC (« Code ISIN MA0000012858 · Ticker T2S »)
+    #        + capitalisation IDBourse = 240,20 × 21 785 174 au centime près
+    #   MDP  URL instrument CDG Capital Bourse + fiche BVC codevaleur 6500
+    #   DLM  URL instrument CDG Capital Bourse (profil société)
+    #   DIS  URL instrument CDG Capital Bourse ET ebourse CIH Bank
+    "T2S":  "MA0000012858",
+    "MDP":  "MA0000012593",
+    "DLM":  "MA0000012551",
+    "DIS":  "MA0000010639",
 }
 
 TICKERS_DEFAUT: list = [
@@ -264,6 +290,7 @@ IDB_TICKER_MAP: dict = {
     "SRM": "SRM",   "STK": "SNA",   "STR": "STR",   "TGCC": "TGC",
     "TMA": "TMA",   "TQA": "TQM",   "UNI": "UMR",   "VCNE": "VCN",
     "WAF": "WAA",   "ZLD": "ZDJ",
+    "T2S": "T2S",   "MDP": "MDP",   "DLM": "DLM",   "DIS": "DIS",
     # ZLD ajouté le 10/08/2026. La colonne "-" observée le 02/07 venait de la
     # page idbourse.com/masi, qui ne liste que les composantes de l'indice —
     # Zellidja n'en fait pas partie. L'API la renvoie bien :
@@ -339,4 +366,6 @@ TICKERS_ALL: list = [
     "INV", "S2M", "COL", "AFM", "AGM", "FNB", "BAL", "NEJ",
     "HAL", "BMC", "CAR", "AFI", "MIC", "MUT", "ENK", "EQD",
     "DHO", "PPM", "REB", "SBS", "STK", "UNI", "IBM",
+    # Ajouts du 10/08/2026 — T2S est l'introduction du 27/07/2026
+    "T2S", "MDP", "DLM", "DIS",
 ]
