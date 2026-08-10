@@ -408,6 +408,24 @@ document.getElementById("copier").onclick = async ()=>{
    un serveur maintenant des connexions ouvertes, ce dont on n'a pas besoin
    ici. Chaque session n'incrémente qu'une fois par seau, puis se contente
    de lire — sans quoi un onglet resté ouvert gonflerait le chiffre. */
+/* Affichage de la fréquentation : réservé au propriétaire.
+   Le chiffre continue d'être mesuré pour tout le monde, mais il n'est plus
+   montré au visiteur — « 1 en ligne · 30 visiteurs » sur une console qui
+   démarre dessert le produit au lieu de le servir.
+   Ouvrir radar.html?stats l'active et le retient sur cet appareil ;
+   ?stats=0 le désactive. Le choix survit au nettoyage de l'URL ci-dessous
+   et aux visites suivantes, y compris depuis un signet sans paramètre. */
+const AFFICHER_STATS = (() => {
+  const p = new URLSearchParams(location.search).get("stats");
+  try {
+    if (p !== null) {
+      if (p === "0") { localStorage.removeItem("radar-stats"); return false; }
+      localStorage.setItem("radar-stats", "1"); return true;
+    }
+    return localStorage.getItem("radar-stats") === "1";
+  } catch (_) { return p !== null && p !== "0"; }
+})();
+
 /* Le paramètre ?r= sert uniquement à contourner le cache lors d'un
    rafraîchissement manuel. Une fois la page chargée il n'a plus d'objet et
    salit la barre d'adresse — on le retire sans recharger. */
@@ -462,7 +480,7 @@ async function audience(){
     if (total) totalVus = total.value;
 
     const n = enLigne?.value;
-    if (n) {
+    if (n && AFFICHER_STATS) {
       document.getElementById("audience").innerHTML =
         `<span style="color:var(--vert)">●</span> ${n} en ligne` +
         (totalVus ? ` · ${totalVus.toLocaleString("fr-FR")} visiteur${totalVus > 1 ? "s" : ""}` : "");
