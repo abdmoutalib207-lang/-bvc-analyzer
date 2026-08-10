@@ -285,6 +285,51 @@ Caps recalculées via `prix × nb_titres officiels BVC` après corrections ISIN 
 
 ## Journal des décisions
 
+### 2026-08-10
+
+- **Bulletin « Indices » de CDG Capital Bourse retenu comme source d'arbitrage.**
+  Le PDF publie par instrument : cours, variation, ouverture, quantité échangée,
+  plus-haut, plus-bas et heure du dernier échange. Recoupé avec le champ
+  `previous_close` de casabourse.app, **concordance 67/67** sur la clôture de la
+  veille. C'est aujourd'hui notre meilleur juge de paix quand IDBourse est muet
+  ou périmé sur un titre.
+  - ⚠️ Le titre du bulletin porte la date de **publication**, pas celle de la
+    séance : « Indices du lundi 10 août » contient la séance du vendredi 07/08.
+  - Les codes y sont les tickers **officiels BVC** (`SID`=Sonasid, `SNA`=Stokvis,
+    `ZDJ`=Zellidja) : passer par `IDB_TICKER_MAP` avant toute comparaison.
+  - Parsing : les montants portent deux décimales et groupent les milliers par
+    espaces, la quantité échangée est un entier sans séparateur. Sans cette
+    distinction `3 652.00 546 2 009 253.00` se recolle et les colonnes glissent.
+
+- **Attribution des cotations IDBourse réparée** (commit `c82e2ca`). Le code de
+  l'URL `/instruments/XXX` est le ticker officiel BVC, pas le nôtre ; il était
+  cherché tel quel dans `ISIN_MAP`. Conséquences : 29 titres rejetés en silence,
+  et Sonasid qui héritait des valeurs de Stokvis (74 DH au lieu de 2000, avec
+  `chg` et `vol` de Stokvis à l'identique). Ingestion passée de 47 à 76 tickers,
+  et de 6 à 76 côté pipeline v9. **`IDB_TICKER_MAP` n'est plus de la
+  documentation : c'est du code chargé.**
+
+- **Règle : une ligne IDBourse antérieure à la séance de référence est rejetée.**
+  La source garde des reliquats non rafraîchis (Holcim au 05/08, Stroc au 05/08).
+  Les laisser passer affichait un cours périmé comme dernier connu.
+
+- **Repli prix : les chandelles avant `historical_data.json`.** Ce dernier n'est
+  qu'un instantané dérivé, régénéré moins souvent ; son `last_close` retenait
+  Holcim à 1736 alors que la clôture valait 1800.
+
+- **⚠️ Séances du 04 au 06 août polluées — non corrigées.** Pendant la panne
+  IDBourse (gel du 05/08), le pipeline a réécrit la dernière valeur connue à
+  l'identique : `675, 675, 675` pour SGTM, `5350 ×3` pour WAF, `1133 ×3` pour
+  AKD. **31 clôtures du 06/08 sont incompatibles** avec la variation publiée par
+  CDG — jusqu'à 21 % d'écart sur FNB, 12 % sur STK, SNP et ZLD. Les vraies
+  valeurs sont connues (deux sources concordantes) mais **rien n'a été réécrit** :
+  corriger le 06/08 sans le 04 ni le 05 ne ferait que déplacer la rupture d'une
+  séance. À traiter en re-téléchargeant l'historique depuis une vraie source.
+  - Effet visible : FNB et SNP affichent `chg = 0` — la variation réelle dépasse
+    le plafond R10 face à une clôture de veille fausse, donc le garde-fou
+    l'annule. Ce n'est pas un bug du plafond, c'est l'historique qui est faux.
+
+
 ### 2026-08-01
 
 - **MNG recalé sur la clôture officielle : 1 319 DH** (source CDG Capital Bourse,

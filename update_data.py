@@ -443,6 +443,14 @@ def fetch_all_idb():
     for d in data:
         if not d.get("name") or not d.get("dernier_cours"):
             continue
+        # Une ligne antérieure à la séance de référence n'est pas une cotation
+        # du jour : c'est un reliquat que la source n'a pas rafraîchi. La
+        # laisser passer fait afficher un cours périmé comme s'il était le
+        # dernier connu — Holcim est resté à 1750 (séance du 05/08) alors que
+        # la clôture du 07/08 était 1800. Mieux vaut la rejeter et laisser la
+        # chaîne de repli (R3) prendre le relais depuis les chandelles.
+        if IDB_ASOF and str(d.get("updated_at") or "")[:10] < IDB_ASOF:
+            continue
         # Extraire le code BVC depuis l'URL (.../instruments/CODE)
         # `or ""` volontaire : IDBourse renvoie url:null sur certains titres
         # (DIAC SALAF, STROC, HOLCIM) — .get("url","") laisserait passer None.
@@ -1040,6 +1048,23 @@ def run(dry_run=False, push=False, token=""):
             h52w  = hd_t.get("h52w")
             l52w  = hd_t.get("l52w")
         else:
+            # Repli prix : dernière clôture des chandelles, avant tout le reste.
+            # pipeline/candles/*.json est le fichier OHLCV tenu à jour à chaque
+            # run ; historical_data.json n'en est qu'un instantané dérivé,
+            # régénéré bien moins souvent, dont last_close peut donc être en
+            # retard de plusieurs séances. Holcim y restait à 1736 alors que la
+            # clôture du 07/08 valait 1800.
+            if not price:
+                _df_p = _candles_cache.get(ticker)
+                if _df_p is not None and "c" in _df_p and len(_df_p):
+                    try:
+                        _s = pd.to_numeric(_df_p["c"], errors="coerce").dropna()
+                        if len(_s) and float(_s.iloc[-1]) > 0:
+                            price = round(float(_s.iloc[-1]), 2)
+                            logger.info(f"  {ticker}: prix depuis les chandelles ({price} DH)")
+                    except Exception:
+                        pass
+
             # Fallback A : historical_data.json (cache préchargé)
             _hist_loaded = False
             hd_t = _hd_all.get(ticker, {})
