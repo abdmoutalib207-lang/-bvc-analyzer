@@ -86,87 +86,113 @@ COMPANY_NAMES: dict = {
     "IBM":  "IB Maroc.com",
 }
 
-# ── Secteurs officiels ───────────────────────────────────────────────────────
+# ── Secteurs ────────────────────────────────────────────────────────────────
+# Taxonomie canonique, 21 secteurs pour 77 sociétés (moyenne 3,7 par secteur).
+#
+# Elle remplace une table qui comptait 43 libellés — dont « Technologies »,
+# « Technologies & Paiement » et « Distribution IT » comme trois secteurs
+# distincts, et 19 secteurs à membre unique. À cette granularité un filtre
+# sectoriel ne filtre rien et une moyenne sectorielle n'a aucun sens
+# statistique (cf. whatsapp_analysis/phase7_stocks.py, qui calcule un
+# sector_rank et des agrégats par secteur).
+#
+# Méthode : croisement de notre table historique avec celle de casabourse.app
+# (82 sociétés, relevé du 09/08/2026). Aucune des deux ne fait autorité — les
+# deux contenaient des erreurs, corrigées ici :
+#   VCNE  était « Distribution pétrolière » chez nous, « Immobilier » chez eux
+#   NEJ   était « Pétrole & Gaz » chez nous — Auto Nejma distribue des voitures
+#   BAL   était « Assurances » chez nous — Balima est une foncière
+#   AFI   était « Industrie » chez nous — Afric Industries produit des abrasifs
+#
+# ⚠️ Le référentiel officiel BVC (casablanca-bourse.com) n'était pas joignable
+# au moment de cette révision. Les six classements ci-dessous restent à valider
+# contre la fiche officielle : VCNE, REB, BAL, NEJ, AFI, SRM.
 COMPANY_SECTORS: dict = {
-    "IAM":  "Télécommunications",
+    # ── Finance ─────────────────────────────────────────────────────────────
     "ATW":  "Banques",
     "BCP":  "Banques",
     "BOA":  "Banques",
     "CIH":  "Banques",
     "CDM":  "Banques",
+    "BMC":  "Banques",
+    "CFGB": "Banques",
     "WAF":  "Assurances",
     "SAF":  "Assurances",
-    "LHM":  "Matériaux de construction",
-    "CIM":  "Matériaux de construction",
-    "GAZ":  "Distribution GPL",
-    "TMA":  "Distribution pétrolière",
-    "VCNE": "Distribution pétrolière",
     "ATL":  "Assurances",
-    "HPS":  "Technologies & Paiement",
-    "LBV":  "Grande distribution",
-    "LES":  "Agroalimentaire",
-    "CSR":  "Agroalimentaire",
-    "OUL":  "Agroalimentaire",
-    "BMC":  "Banques",
-    "CAR":  "Agroalimentaire",
-    "LHM":  "Matériaux de construction",
-    "TQA":  "Énergie & Électricité",
+    "AFM":  "Assurances",          # courtage — pas un secteur à part entière
+    "AGM":  "Assurances",          # idem
     "MRL":  "Sociétés de financement",
-    "CMT":  "Mines",
-    "MNG":  "Mines",
-    "SMI":  "Mines",
-    "ZLD":  "Mines & Holdings",
     "MGL":  "Sociétés de financement",
-    "SNA":  "Sidérurgie",
-    "ALU":  "Métallurgie",
-    "AKD":  "Santé",
-    "SOT":  "Pharmacie",
-    "ARD":  "Foncière cotée (REIT)",
-    "IMI":  "Foncière cotée (REIT)",
-    "RIS":  "Hôtellerie",
+    "SLM":  "Sociétés de financement",
+    "EQD":  "Sociétés de financement",
+    "CASH": "Sociétés de financement",
+    # ── Immobilier & construction ───────────────────────────────────────────
     "ADH":  "Immobilier",
     "ADI":  "Immobilier",
     "RDS":  "Immobilier",
-    "DAR":  "Agroalimentaire et Production",
+    "ARD":  "Immobilier",          # foncière cotée
+    "IMI":  "Immobilier",          # foncière cotée
+    "BAL":  "Immobilier",          # ⚠️ à valider — était « Assurances »
     "TGCC": "BTP & Construction",
     "SGTM": "BTP & Construction",
     "JET":  "BTP & Construction",
-    "STR":  "BTP & Construction",
-    "CFGB": "Banques",
-    "CASH": "Transfert d'argent",
-    "SLM":  "Crédit à la consommation",
-    "CMGP": "Distribution matériaux",
-    "SRM":  "Distribution industrielle",
-    "STK":  "Distribution industrielle",
-    "DSW":  "Distribution IT",
-    "DTT":  "Distribution IT",
+    "LHM":  "Matériaux de construction",
+    "CIM":  "Matériaux de construction",
+    "AFI":  "Matériaux de construction",   # ⚠️ à valider — abrasifs
+    # ── Industrie & matières premières ──────────────────────────────────────
+    "CMT":  "Mines",
+    "MNG":  "Mines",
+    "SMI":  "Mines",
+    "ZLD":  "Mines",
+    "SNA":  "Sidérurgie & Métallurgie",
+    "ALU":  "Sidérurgie & Métallurgie",
+    "SRM":  "Ingénierie & Industrie",      # ⚠️ à valider
+    "STR":  "Ingénierie & Industrie",
+    "COL":  "Chimie",
+    "SNP":  "Chimie",
+    "MOX":  "Chimie",              # gaz industriels
+    # ── Énergie ─────────────────────────────────────────────────────────────
+    "TQA":  "Énergie",
+    "GAZ":  "Énergie",
+    "TMA":  "Énergie",
+    # ── Consommation ────────────────────────────────────────────────────────
+    "CSR":  "Agroalimentaire",
+    "LES":  "Agroalimentaire",
+    "DAR":  "Agroalimentaire",
+    "CAR":  "Agroalimentaire",
+    "UNI":  "Agroalimentaire",
+    "MUT":  "Agroalimentaire",
+    "OUL":  "Boissons",
+    "SBS":  "Boissons",
+    "LBV":  "Distribution",
+    "FNB":  "Distribution",
+    "HAL":  "Distribution",
+    "NEJ":  "Distribution",        # ⚠️ à valider — était « Pétrole & Gaz »
+    "ENK":  "Distribution",
+    "CMGP": "Distribution",
+    "STK":  "Distribution",
+    # ── Santé ───────────────────────────────────────────────────────────────
+    "SOT":  "Santé & Pharmacie",
+    "PPM":  "Santé & Pharmacie",
+    "AKD":  "Santé & Pharmacie",
+    "VCNE": "Santé & Pharmacie",   # ⚠️ à valider — dispositifs médicaux
+    # ── Technologies ────────────────────────────────────────────────────────
+    "IAM":  "Télécommunications",
+    "HPS":  "Technologies",
     "M2M":  "Technologies",
     "MIC":  "Technologies",
     "INV":  "Technologies",
-    "HPS":  "Technologies & Paiement",
-    "MSA":  "Logistique portuaire",
-    "MUT":  "FMCG",
-    "CTM":  "Transport",
-    "TIM":  "Transport & Logistique",
-    "MOX":  "Gaz industriels",
-    "SNP":  "Chimie",
-    "COL":  "Chimie",
-    "AFM":  "Assurances courtage",
-    "AGM":  "Assurances courtage",
-    "FNB":  "Distributeurs",
-    "EQD":  "Services financiers",
-    "BAL":  "Assurances",
-    "NEJ":  "Pétrole & Gaz",
-    "HAL":  "Distribution automobile",
-    "AFI":  "Industrie",
     "IBM":  "Technologies",
-    "ENK":  "Services",
-    "DHO":  "Holdings",
-    "PPM":  "Pharmacie",
-    "REB":  "Textile",
-    "SBS":  "Agroalimentaire",
-    "UNI":  "Agroalimentaire",
     "S2M":  "Technologies",
+    "DSW":  "Distribution IT",
+    "DTT":  "Distribution IT",
+    # ── Services ────────────────────────────────────────────────────────────
+    "CTM":  "Transport & Logistique",
+    "MSA":  "Transport & Logistique",
+    "TIM":  "Transport & Logistique",
+    "RIS":  "Tourisme & Loisirs",
+    "DHO":  "Holdings",
+    "REB":  "Holdings",            # ⚠️ à valider — était « Textile »
 }
 
 ISIN_MAP: dict = {
@@ -237,10 +263,16 @@ IDB_TICKER_MAP: dict = {
     "SMI": "SMI",   "SNA": "SID",   "SNP": "SNP",   "SOT": "SOT",
     "SRM": "SRM",   "STK": "SNA",   "STR": "STR",   "TGCC": "TGC",
     "TMA": "TMA",   "TQA": "TQM",   "UNI": "UMR",   "VCNE": "VCN",
-    "WAF": "WAA",
-    # Sociétés SANS ticker IDBourse (colonne "-" sur idbourse.com/masi) :
-    # BAL (Balima), REB (Rebab Company), ZLD (Zellidja S.A) → laissées telles quelles.
-    # TIM (Timar) : absente du listing MASI IDBourse.
+    "WAF": "WAA",   "ZLD": "ZDJ",
+    # ZLD ajouté le 10/08/2026. La colonne "-" observée le 02/07 venait de la
+    # page idbourse.com/masi, qui ne liste que les composantes de l'indice —
+    # Zellidja n'en fait pas partie. L'API la renvoie bien :
+    #     {"name": "ZELLIDJA S.A", "url": ".../instruments/ZDJ", "dernier_cours": 345}
+    # Sans cette entrée, la ligne était rejetée et ZLD retombait sur le
+    # statique (243 DH au lieu de 345, soit -30%).
+    #
+    # Sociétés SANS ticker IDBourse : BAL (Balima), REB (Rebab Company)
+    # → laissées telles quelles. TIM (Timar) : absente du listing.
 }
 
 # ── Opérations sur titres : splits (divisions de valeur nominale) ───────────
