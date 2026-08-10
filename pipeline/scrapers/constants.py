@@ -7,7 +7,14 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from bvc_config import ISIN_MAP, TICKERS_DEFAUT, TICKERS_ALL, TICKERS_ACTIFS  # noqa: E402
+from bvc_config import (ISIN_MAP, TICKERS_DEFAUT, TICKERS_ALL,  # noqa: E402
+                        TICKERS_ACTIFS, IDB_TICKER_MAP)
+
+# Ticker officiel BVC/IDBourse → le nôtre. Indispensable à l'ingestion : la
+# source renvoie le code officiel, qui n'est pas toujours le nôtre (SID pour
+# Sonasid, ZDJ pour Zellidja), et attribue même SNA à Stokvis là où nous
+# l'attribuons à Sonasid.
+IDB_TICKER_INV = {idb: nous for nous, idb in IDB_TICKER_MAP.items()}
 
 PROXY = "https://corsproxy.io/?"
 

@@ -10,7 +10,8 @@ import time
 import requests
 from bs4 import BeautifulSoup
 
-from .constants import HEADERS_LIST, ISIN_MAP, IDB_NAME_MAP, PROXY, timeout_session
+from .constants import (HEADERS_LIST, ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_INV,
+                        PROXY, timeout_session)
 
 log = logging.getLogger(__name__)
 
@@ -66,11 +67,29 @@ def _get_idb_batch() -> dict:
             data = r.json()
             if isinstance(data, list) and len(data) > 5:
                 out = {}
+                # IDBourse sert plusieurs lignes par instrument, sous des
+                # raisons sociales successives et à des dates de séance
+                # différentes (AGMA : 6860 au 07/08 et 6700 au 05/08). Trier
+                # par date fait gagner la plus récente à l'écrasement.
+                data = sorted(data, key=lambda d: str(d.get("updated_at") or ""))
                 for d in data:
                     if not d.get("name") or not d.get("dernier_cours"):
                         continue
-                    name = d["name"].upper()
-                    sym = IDB_NAME_MAP.get(name, name)
+                    # Le batch doit être indexé par NOTRE ticker : c'est ainsi
+                    # que fetch_market_data() l'interroge. L'indexer par nom de
+                    # société ne donnait que 6 correspondances sur 77 — celles
+                    # où le nom vaut le ticker (BCP, CIH, HPS…) — et faisait
+                    # basculer tout le reste sur Médias24/casabourse.ma, que
+                    # les IP GitHub Actions ne joignent pas.
+                    url = d.get("url") or ""
+                    code = (url.split("/instruments/")[-1].upper()
+                            if "/instruments/" in url else "")
+                    sym = IDB_TICKER_INV.get(code, code)
+                    if sym not in ISIN_MAP:
+                        name = d["name"].upper()
+                        sym = IDB_NAME_MAP.get(name, name)
+                        if sym not in ISIN_MAP:
+                            continue
                     cap = _num(d.get("capitalisation_boursiere"))
                     out[sym] = {
                         "price":      _num(d.get("dernier_cours")),
@@ -78,7 +97,12 @@ def _get_idb_batch() -> dict:
                         # IDBourse expose haut/bas (et non plus_haut/plus_bas)
                         "high":       _num(d.get("haut")),
                         "low":        _num(d.get("bas")),
-                        "volume":     _num(d.get("volume")),
+                        # volume_en_titres = nombre de titres échangés.
+                        # `volume` est le montant en DH — 10 511 904 pour
+                        # Sonasid le 07/08, soit 2000 DH × 5 256 titres. Le
+                        # confondre gonflait le volume d'un facteur ≈ prix et
+                        # faussait l'OBV comme les moyennes de volume.
+                        "volume":     _num(d.get("volume_en_titres")),
                         "variation_pct": _num(d.get("variation")) or 0.0,
                         "market_cap_mdh": cap / 1e6 if cap else None,
                         "_source": "IDBourse",

@@ -52,9 +52,22 @@ try:
 except NameError:
     OUTPUT = Path("data.json")  # Colab : dossier courant
 
-from bvc_config import ISIN_MAP, IDB_NAME_MAP, TICKERS_ALL, COMPANY_NAMES, COMPANY_SECTORS
+from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
+                        COMPANY_NAMES, COMPANY_SECTORS)
 
 TICKERS = TICKERS_ALL
+
+# Ticker officiel BVC/IDBourse → le nôtre. La table est déclarée dans l'autre
+# sens (le nôtre → IDBourse) ; l'ingestion, elle, part du code renvoyé par la
+# source. Sans collision : vérifié à la construction.
+IDB_TICKER_INV = {idb: nous for nous, idb in IDB_TICKER_MAP.items()}
+assert len(IDB_TICKER_INV) == len(IDB_TICKER_MAP), \
+    "IDB_TICKER_MAP : deux tickers pointent sur le même code IDBourse"
+
+# Date de la séance renvoyée par IDBourse (≠ date du run). Renseignée par
+# fetch_all_idb() ; sert à n'écrire une bougie que pour une séance réellement
+# cotée. Vide tant que la source n'a pas répondu.
+IDB_ASOF = ""
 
 # ─────────────────────────────────────────────────────────────────────────────
 # MÉTADONNÉES TICKERS (nom complet + secteur)
@@ -377,6 +390,25 @@ def fetch_med24_quote(ticker):
     except Exception:
         return None
 
+def _cloture_precedente(df, asof):
+    """Dernière clôture STRICTEMENT antérieure à la séance `asof`.
+
+    `.iloc[-1]` ne convient pas : l'étape 6c écrit la bougie de la séance en
+    cours à la fin de chaque run, si bien que dès le second run du jour la
+    dernière bougie EST la séance cotée. Comparer le prix à elle-même donnait
+    une variation de 0,00% sur tout le marché.
+    """
+    if df is None or "c" not in df:
+        return None
+    serie = df["c"]
+    if asof and "d" in df:
+        serie = df.loc[df["d"].astype(str) < asof, "c"]
+    elif len(df) > 1:
+        serie = df["c"].iloc[:-1]
+    serie = pd.to_numeric(serie, errors="coerce").dropna()
+    return float(serie.iloc[-1]) if len(serie) else None
+
+
 def fetch_all_idb():
     """Toutes les cotations IDBourse en un seul appel.
 
@@ -387,10 +419,26 @@ def fetch_all_idb():
       volume         — montant en DH (NE PAS utiliser pour le nb de titres)
       ouverture      — prix d'ouverture (string "181,10", virgule décimale)
       url            — contient le code BVC : .../instruments/CSR → extrait "CSR"
+      updated_at     — date de la séance cotée (≠ date du run)
+
+    Renseigne au passage IDB_ASOF, la date de séance de la source. Sans elle
+    on ne peut pas distinguer « le marché a coté aujourd'hui » de « la source
+    ressert la dernière clôture », les deux renvoyant exactement le même prix.
     """
+    global IDB_ASOF
     data = idb_get("/api/proxy/get_all_data")
     if not isinstance(data, list):
         return {}
+    dates = sorted({str(d["updated_at"])[:10] for d in data if d.get("updated_at")})
+    IDB_ASOF = dates[-1] if dates else ""
+    # IDBourse sert plusieurs lignes pour un même instrument, sous des raisons
+    # sociales successives et avec des dates de séance différentes :
+    #   AGMA   → 6860 (07/08)  et  6700 (05/08)
+    #   LHM    → « Holcim Maroc S.A » 1750 (05/08) et « LAFARGEHOLCIM MAROC »
+    #            1800 (03/06)
+    # Le code gardait la dernière ligne rencontrée, soit une fois sur deux la
+    # plus ancienne. On trie par date de séance pour que la plus récente écrase.
+    data = sorted(data, key=lambda d: str(d.get("updated_at") or ""))
     out = {}
     for d in data:
         if not d.get("name") or not d.get("dernier_cours"):
@@ -400,10 +448,16 @@ def fetch_all_idb():
         # (DIAC SALAF, STROC, HOLCIM) — .get("url","") laisserait passer None.
         url = d.get("url") or ""
         ticker_from_url = url.split("/instruments/")[-1].upper() if "/instruments/" in url else ""
-        # Priorité : code URL → mapping nom → nom brut
-        if ticker_from_url and ticker_from_url in ISIN_MAP:
-            sym = ticker_from_url
-        else:
+        # Le code de l'URL est le ticker OFFICIEL BVC, qui n'est pas toujours
+        # le nôtre. Le traduire AVANT de le chercher dans ISIN_MAP, sinon :
+        #   — un code inconnu de nous fait rejeter la ligne (SID=Sonasid,
+        #     SBM=Bs.Maroc, ZDJ=Zellidja… 29 titres perdus silencieusement) ;
+        #   — pire, un code qui existe chez nous mais désigne une AUTRE société
+        #     écrase la bonne. C'est le cas de SNA : BVC l'attribue à Stokvis,
+        #     nous à Sonasid. Sonasid affichait donc 74 DH au lieu de 2000.
+        # IDB_TICKER_MAP est déjà la table de correspondance officielle (02/07).
+        sym = IDB_TICKER_INV.get(ticker_from_url, ticker_from_url)
+        if not (sym and sym in ISIN_MAP):
             n = d["name"].upper()
             sym = IDB_NAME_MAP.get(n, n)
             if sym not in ISIN_MAP:
@@ -411,10 +465,14 @@ def fetch_all_idb():
         try:
             # volume_en_titres = "3 726" (nombre de titres, espaces à supprimer)
             vol_str = str(d.get("volume_en_titres") or "0").replace(" ", "").replace(" ", "").replace(",", "")
-            vol_int = int(float(vol_str)) if vol_str and vol_str not in ("0", "") else 0
-            # ouverture = "181,10" (virgule décimale française)
-            opn_str = str(d.get("ouverture") or "").replace(",", ".")
-            opn_val = float(opn_str) if opn_str else None
+            vol_int = int(float(vol_str)) if vol_str and vol_str not in ("0", "-", "") else 0
+            # ouverture : "181,10", mais aussi "1 742,00" au-delà du millier et
+            # "-" quand la séance n'a pas ouvert. Ne pas retirer l'espace des
+            # milliers faisait lever ValueError, et l'except emportait TOUTE la
+            # ligne : Holcim disparaissait du batch pour un séparateur.
+            opn_str = (str(d.get("ouverture") or "")
+                       .replace(" ", "").replace(" ", "").replace(",", "."))
+            opn_val = float(opn_str) if opn_str and opn_str != "-" else None
             out[sym] = {
                 "price": float(d["dernier_cours"]),
                 "chg":   float(d.get("variation") or 0),
@@ -895,7 +953,7 @@ def run(dry_run=False, push=False, token=""):
             _df_c = _candles_cache.get(ticker)
             if _df_c is not None and len(_df_c) >= 1:
                 try:
-                    last_close = float(pd.to_numeric(_df_c["c"], errors="coerce").dropna().iloc[-1])
+                    last_close = _cloture_precedente(_df_c, IDB_ASOF) or 0
                     if last_close > 0:
                         if abs(price - last_close) < 0.01:
                             chg = 0.0
@@ -1087,7 +1145,7 @@ def run(dry_run=False, push=False, token=""):
         _df_c_final = _candles_cache.get(ticker)
         if _df_c_final is not None and len(_df_c_final) >= 1 and price > 0:
             try:
-                _last_c = float(pd.to_numeric(_df_c_final["c"], errors="coerce").dropna().iloc[-1])
+                _last_c = _cloture_precedente(_df_c_final, IDB_ASOF) or 0
                 if _last_c > 0 and abs(price - _last_c) > 0.01:
                     _chg_calc = round((price - _last_c) / _last_c * 100, 2)
                     if abs(_chg_calc) <= 10.0:
@@ -1261,11 +1319,23 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:
         logger.warning(f"  snapshot_cloture : {_e}")
 
-    # 6c. Mise à jour des candles du jour (ajouter le point J pour que le graphique affiche aujourd'hui)
+    # 6c. Bougie de la séance cotée (pour que le graphique affiche le jour même)
     try:
-        today_str = datetime.now().strftime("%Y-%m-%d")
+        # La date à écrire est celle de la SÉANCE, donnée par la source, pas
+        # celle du run. Les deux diffèrent dès qu'on tourne hors séance : un run
+        # lancé lundi 00h16 reçoit les cours de la clôture de vendredi et les
+        # écrivait comme une séance du lundi — 73 bougies fantômes dupliquant
+        # vendredi, avant même l'ouverture (9h30). Le week-end, même effet.
+        # Se fier à updated_at couvre aussi les jours fériés, qu'un simple test
+        # lundi-vendredi laisserait passer.
         candles_dir = Path(__file__).parent / "pipeline" / "candles"
-        if candles_dir.exists():
+        today_str = IDB_ASOF
+        if not today_str:
+            logger.info("  Candles J : date de séance inconnue (IDBourse muet) — ignoré")
+        elif today_str != datetime.now().strftime("%Y-%m-%d"):
+            logger.info(f"  Candles J : dernière séance cotée = {today_str}, "
+                        f"pas aujourd'hui — aucune bougie ajoutée")
+        elif candles_dir.exists():
             updated_count = 0
             for entry in tickers_out:
                 sym  = entry["symbol"]
