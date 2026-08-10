@@ -118,36 +118,66 @@ DATA      → data.json, financial_data.json, fondamentaux.json, pipeline/histor
 - **Hébergement** : GitHub Pages (frontend), branche main
 </tech-context>
 
-## Score de confiance (0–5) — À IMPLÉMENTER
+## Score de confiance (0–5) — EN PLACE
 
-> ⚠️ **Spécification — non encore en place.** À implémenter dans `pipeline/collect_financial_data.py` (calcul backend) et `index.html` (affichage frontend).
+> ✅ Implémenté le 10/08/2026 dans `update_data.py` (`_meta_ticker()`) et
+> `index.html` (composant `Confiance`). ⚠️ `pipeline/collect_financial_data.py`
+> ne l'émet pas encore : les deux pipelines écrivent `data.json`, celui-ci
+> produirait des tickers sans `_meta`.
 
-Chaque ticker exposera un entier `confidence` (0–5) calculé à la génération :
-- +1 si prix live (non stale, variation ≠ 0 ou vérifiée)
-- +1 si fondamentaux réels (pas 100% `fallback_data.json`)
-- +1 si RSI calculé depuis candles réels (≥ 14 séances disponibles)
-- +1 si NLP : corpus > 10 messages pour ce ticker
-- +1 si smart_money disponible (`win_rate_6m` non None)
+Chaque ticker expose un entier `confidence` (0–5), un point par garantie :
+- +1 prix de la dernière séance cotée — ni périmé, ni statique
+- +1 fondamentaux réels — présents dans `fondamentaux.json`, pas la table figée
+- +1 RSI calculable — au moins 14 chandelles réelles
+- +1 corpus NLP significatif — plus de 10 mentions
+- +1 smart money disponible — `win` renseigné
 
-**Règle d'affichage** : si `confidence ≤ 1`, le signal ACHAT/ÉVITER est grisé côté frontend, remplacé par "Données insuffisantes". Le score v53 reste affiché mais signalé en gris.
+**Règle d'affichage** : si `confidence ≤ 1`, le signal est remplacé par
+« Données insuffisantes », en gris, dans le classement ET sur la fiche. Le
+score v53 reste affiché mais passe en gris — il ne doit pas se lire comme une
+conclusion.
 
-**UI** : indicateur ●●●○○ sous le score v53, jamais caché.
+**UI** : indicateur ●●●○○ sous le score v53, jamais caché. Couleur graduée —
+rouge ≤1, orange 2, jaune 3, vert ≥4.
 
-## Bloc `_meta` dans `data.json` — À IMPLÉMENTER
+Relevé du 10/08 sur 81 titres : `{0: 1, 1: 4, 2: 5, 3: 37, 4: 2, 5: 32}`.
+Le palier 3 domine parce que les fondamentaux viennent encore de la table
+figée pour la majorité — c'est le chantier ouvert depuis le 29/06.
 
-> ⚠️ **Spécification — non encore en place.** Chaque entrée ticker dans `data.json` devra porter ce bloc, émis par `collect_financial_data.py`.
+## Bloc `_meta` dans `data.json` — EN PLACE
+
+> ✅ Émis par `update_data.py` depuis le 10/08/2026, pour les 81 tickers.
 
 ```json
 "_meta": {
-  "source_prix":  "idbourse | medias24 | fallback",
-  "source_fond":  "idbourse_dataplus | fallback_data | static",
+  "source_prix":  "idbourse",          // voir la liste ci-dessous
+  "source_fond":  "fondamentaux_json | table_statique",
+  "prix_asof":    "2026-08-10",        // séance du cours retenu, null si inconnue
   "stale":        false,
-  "confidence":   3,
-  "generated_at": "2026-07-05T19:00:00+01:00"
+  "confidence":   5,
+  "n_candles":    781,
+  "generated_at": "2026-08-10T16:18:48+01:00"
 }
 ```
 
-**Règle (extension R9)** : `stale: true` → frontend affiche le badge ⚠️ J-1 sur le prix. Sans `_meta`, le frontend doit supposer `stale: true`.
+`source_prix`, par ordre de préséance dans la chaîne de repli :
+`idbourse` → `medias24` → `candles` → `idbourse_perime` → `historical` →
+`data_json_precedent` → `financial` → `static`.
+
+**Règle (extension R9)** : `stale: true` → le frontend affiche un badge
+⚠️ portant la date réelle du cours (« ⚠ 05/08 »), pas un simple « J-1 ».
+Sans `_meta`, le frontend suppose `stale: true` et `confidence: 0`.
+
+Est `stale` tout cours dont la séance est antérieure à la dernière séance
+cotée, **ainsi que** tout cours issu d'une source sans date propre —
+`static`, `financial`, `data_json_precedent`. Ces dernières recopient un run
+antérieur et se reconduiraient indéfiniment sans jamais le signaler.
+
+⚠️ **Ne jamais écrire de chandelle depuis un prix `stale`.** L'étape 6c le
+refuse désormais. Sans cette garde, un titre non rafraîchi par la source se
+confirmait lui-même : le prix retombait sur la dernière chandelle, qu'on
+réécrivait ensuite à la date du jour. Holcim s'est ainsi vu attribuer une
+clôture au 10/08 alors qu'IDBourse ne l'avait plus coté depuis le 05/08.
 
 ## Mémoire des Erreurs et Apprentissages
 

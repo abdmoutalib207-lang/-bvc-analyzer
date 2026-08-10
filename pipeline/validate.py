@@ -261,6 +261,57 @@ def validate_candles():
         ok(f"{len(files)} séries continues — aucune rupture > ±50%")
 
 
+def validate_meta():
+    """Chaque ticker de data.json doit porter un bloc _meta (anti-pattern).
+
+    Sans lui, le frontend ne peut pas distinguer un cours du jour d'une valeur
+    figée depuis des semaines — il suppose alors le pire et grise tout.
+    """
+    hdr("data.json — bloc _meta")
+    f = ROOT / "data.json"
+    if not f.is_file():
+        warn("data.json introuvable")
+        return
+    try:
+        tickers = json.loads(f.read_text(encoding="utf-8")).get("tickers", [])
+    except Exception as e:
+        err(f"data.json illisible : {e}")
+        return
+
+    sans = [t.get("symbol") for t in tickers if not t.get("_meta")]
+    if sans:
+        err(f"{len(sans)} tickers sans _meta : {sans[:10]}")
+    else:
+        ok(f"{len(tickers)} tickers avec _meta")
+
+    champs = {"source_prix", "source_fond", "stale", "confidence", "generated_at"}
+    incomplets = [t.get("symbol") for t in tickers
+                  if t.get("_meta") and not champs <= set(t["_meta"])]
+    if incomplets:
+        err(f"_meta incomplet : {incomplets[:10]}")
+
+    # `t["_meta"].get("confidence") or -1` serait faux : en Python `0 or -1`
+    # vaut -1, et une confiance nulle — parfaitement légitime — serait
+    # signalée hors bornes.
+    def _conf(t):
+        c = t["_meta"].get("confidence")
+        return c if isinstance(c, int) else -1
+    hors = [t.get("symbol") for t in tickers
+            if t.get("_meta") and not 0 <= _conf(t) <= 5]
+    if hors:
+        err(f"confidence hors [0,5] : {hors[:10]}")
+
+    perimes = [t.get("symbol") for t in tickers if (t.get("_meta") or {}).get("stale")]
+    faibles = [t.get("symbol") for t in tickers
+               if (t.get("_meta") or {}).get("confidence", 0) <= 1]
+    # note : le défaut 0 est volontaire — un ticker sans _meta est déjà en
+    # erreur plus haut, et doit compter parmi les peu fiables ici aussi.
+    if perimes:
+        warn(f"{len(perimes)} cours périmés (badge ⚠️ affiché) : {sorted(perimes)}")
+    if faibles:
+        warn(f"{len(faibles)} titres à confiance ≤ 1 (signal grisé) : {sorted(faibles)}")
+
+
 def validate_referentiel():
     """Le module NLP doit dériver ses tickers de bvc_config, pas les recopier.
 
@@ -320,6 +371,7 @@ if __name__ == "__main__":
     validate_news()
     validate_candles()
     validate_referentiel()
+    validate_meta()
 
     print("\n" + "═"*60)
     print(f"  RÉSUMÉ : {len(errors)} erreur(s) critique(s) · {len(warnings)} avertissement(s)")

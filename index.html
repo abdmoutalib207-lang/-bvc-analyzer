@@ -575,6 +575,26 @@ const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":(+n).toFixed(d);
    restent inchangées partout ailleurs — sélection, favoris, chandelles,
    corpus WhatsApp. Repli sur le symbole si le champ manque (tableau STATIC). */
 const tk=r=>r&&(r.code_bvc||r.symbol||r.ticker)||"";
+/* Bloc _meta : provenance du prix et confiance 0–5, émis par le pipeline.
+   En son absence on suppose le pire — c'est la règle du CLAUDE.md : sans
+   _meta, le frontend doit considérer la donnée comme périmée. */
+const meta=r=>{const m=(r&&r._meta)||null;
+  return m?{stale:!!m.stale,conf:m.confidence??0,asof:m.prix_asof||null,src:m.source_prix||"inconnu"}
+          :{stale:true,conf:0,asof:null,src:"inconnu"};};
+const jjmm=d=>{const p=String(d||"").slice(0,10).split("-");return p.length===3?`${p[2]}/${p[1]}`:"";};
+/* Pastille de fraîcheur : n'apparaît que si le cours n'est pas celui de la
+   dernière séance cotée. Le titre porte la date réelle et la source. */
+const Perime=({r})=>{const m=meta(r);if(!m.stale)return null;
+  return <span title={`Cours du ${m.asof?jjmm(m.asof):"dernier run"} · source ${m.src}`}
+    style={{marginLeft:5,fontSize:9,fontWeight:700,color:"#ffd740",border:"1px solid rgba(255,215,64,.45)",
+            borderRadius:3,padding:"1px 4px",whiteSpace:"nowrap",verticalAlign:"middle"}}>
+    ⚠ {m.asof?jjmm(m.asof):"périmé"}</span>;};
+/* Indicateur de confiance ●●●○○ — jamais masqué (spécification CLAUDE.md). */
+const Confiance=({r,sz=11})=>{const {conf}=meta(r);
+  const col=conf<=1?"#ff4f5a":conf<=2?"#ff8f00":conf<=3?"#ffd740":"#00e5a0";
+  return <span title={`Confiance ${conf}/5 — prix du jour, fondamentaux réels, historique suffisant, corpus NLP, smart money`}
+    style={{fontSize:sz,letterSpacing:1,color:col,userSelect:"none"}}>
+    {"●".repeat(conf)}<span style={{color:"#2a3550"}}>{"○".repeat(5-conf)}</span></span>;};
 const Bar=({v,max=10,c,h=6})=>(
   <div style={{background:"#0d1829",borderRadius:3,height:h,overflow:"hidden"}}>
     <div style={{width:`${Math.min(100,v/max*100)}%`,height:"100%",background:c,boxShadow:`0 0 6px ${c}40`,transition:"width .5s"}}/>
@@ -1177,7 +1197,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   </td>
                   <td style={{padding:"8px 8px",fontSize:12,color:"#8892a4"}}>{px(r.open||+(( r.price||r.prix)/(1+(r.chg||0)/100)).toFixed(0))}</td>
                   <td style={{padding:"8px 8px",fontSize:13,color:"#c8d3e8",fontWeight:600}}>
-                    {px(r.price||r.prix||r.close)}
+                    {px(r.price||r.prix||r.close)}<Perime r={r}/>
                     {r.live&&<span style={{fontSize:8,color:"#00e5a0",marginLeft:3,verticalAlign:"super"}}>●</span>}
                   </td>
                   <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</td>
@@ -1185,7 +1205,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   <td style={{padding:"8px 8px",fontSize:12,color:r.div>4?"#00e5a0":"#c8d3e8"}}>{r.div?.toFixed(1)||"—"}%</td>
                   <td style={{padding:"8px 8px",fontSize:13,color:SC(r.bvc)}}>{fmt(r.bvc)}</td>
                   <td style={{padding:"8px 8px"}}>
-                    <div style={{fontSize:15,color:SC(displayScore),fontWeight:700,marginBottom:2}}>{fmt(displayScore)}{customMode&&<span style={{fontSize:8,color:"#ffd740",marginLeft:3,verticalAlign:"super"}}>✱</span>}</div>
+                    <div style={{fontSize:15,color:meta(r).conf<=1?"#8892a4":SC(displayScore),fontWeight:700,marginBottom:2}}>{fmt(displayScore)}{customMode&&<span style={{fontSize:8,color:"#ffd740",marginLeft:3,verticalAlign:"super"}}>✱</span>}</div>
                     <Bar v={displayScore||0} c={SC(displayScore)} h={4}/>
                   </td>
                   <td style={{padding:"8px 8px"}}><Delta d={customMode?(r.bvc!=null?+(displayScore-r.bvc).toFixed(2):null):r.delta}/></td>
@@ -1200,7 +1220,9 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       </div>}
                     </div>
                   </td>
-                  <td style={{padding:"8px 8px"}}><Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd}/></td>
+                  <td style={{padding:"8px 8px"}}>{meta(r).conf<=1
+                    ? <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550"/>
+                    : <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd}/>}</td>
                   <td style={{padding:"8px 8px",minWidth:85}}>
                     {r.poids&&<WBar f={r.poids.f} n={r.poids.n} t={r.poids.t}/>}
                     {r.poids&&<div style={{fontSize:9,color:"#8892a4",marginTop:2}}>F{r.poids.f}·N{r.poids.n}·T{r.poids.t}</div>}
@@ -1299,15 +1321,26 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
               <CompanyLogo sym={tk(r)} sector={r.sector} size={56}/>
             </div>
             <div style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-              <span>{tk(r)} · {px(price)} DH <span style={{color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
+              <span>{tk(r)} · {px(price)} DH<Perime r={r}/> <span style={{color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
               <button onClick={()=>toggleFav(sym)} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
                 style={{fontSize:18,color:fav.includes(sym)?"#ffd740":"#2a3550",border:"none",background:"none",cursor:"pointer",padding:"0 2px",lineHeight:1,transition:"color .2s"}}>
                 {fav.includes(sym)?"★":"☆"}
               </button>
             </div>
-            <div style={{fontSize:52,fontWeight:700,color:s.fg,textShadow:`0 0 30px ${s.fg}40`,lineHeight:1}}>{fmt(r.v53)}</div>
-            <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 10px"}}>Score composite / 10</div>
-            <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd} sz={12}/>
+            {/* Le score reste affiché même à faible confiance — mais en gris,
+                pour qu'il ne se lise pas comme une conclusion (CLAUDE.md). */}
+            <div style={{fontSize:52,fontWeight:700,
+                 color:meta(r).conf<=1?"#8892a4":s.fg,
+                 textShadow:meta(r).conf<=1?"none":`0 0 30px ${s.fg}40`,
+                 lineHeight:1}}>{fmt(r.v53)}</div>
+            <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 6px"}}>Score composite / 10</div>
+            <div style={{marginBottom:10}}><Confiance r={r} sz={13}/></div>
+            {/* Un signal calculé sur des données de repli induit en erreur :
+                à confiance ≤ 1 on l'annonce comme tel plutôt que d'afficher
+                un ACHETER que rien ne soutient (règle CLAUDE.md). */}
+            {meta(r).conf<=1
+              ? <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550" sz={12}/>
+              : <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd} sz={12}/>}
             <div style={{marginTop:8,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
               <Delta d={r.delta}/><span style={{fontSize:11,color:"#8892a4"}}>vs BVC {fmt(r.bvc)}</span>
             </div>
@@ -2278,7 +2311,7 @@ function App(){
         const m={};
         d.tickers.forEach(t=>{m[t.symbol]={
           price:t.price,chg:t.chg,vol:t.vol||0,open:t.open,close:t.close,
-          name:t.name,sector:t.sector,code_bvc:t.code_bvc,
+          name:t.name,sector:t.sector,code_bvc:t.code_bvc,_meta:t._meta,
           pe:t.pe,pb:t.pb,div:t.div,cap:t.cap,
           h90:t.h90,l90:t.l90,ma200:t.ma200,h52w:t.h52w,l52w:t.l52w,
           rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,

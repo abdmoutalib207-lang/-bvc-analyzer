@@ -443,14 +443,13 @@ def fetch_all_idb():
     for d in data:
         if not d.get("name") or not d.get("dernier_cours"):
             continue
-        # Une ligne antérieure à la séance de référence n'est pas une cotation
-        # du jour : c'est un reliquat que la source n'a pas rafraîchi. La
-        # laisser passer fait afficher un cours périmé comme s'il était le
-        # dernier connu — Holcim est resté à 1750 (séance du 05/08) alors que
-        # la clôture du 07/08 était 1800. Mieux vaut la rejeter et laisser la
-        # chaîne de repli (R3) prendre le relais depuis les chandelles.
-        if IDB_ASOF and str(d.get("updated_at") or "")[:10] < IDB_ASOF:
-            continue
+        # La date de séance de la ligne est conservée telle quelle. Une ligne
+        # antérieure à IDB_ASOF n'est pas la cotation du jour mais un reliquat
+        # non rafraîchi : elle ne doit pas primer sur les chandelles (Holcim
+        # restait à 1750 du 05/08 alors que la clôture du 07/08 valait 1800).
+        # On ne la jette plus pour autant — c'est le dernier cours réellement
+        # coté, et il vaut mieux que le statique pour un titre peu liquide
+        # comme Diac Salaf. Le consommateur arbitre, et marque `stale`.
         # Extraire le code BVC depuis l'URL (.../instruments/CODE)
         # `or ""` volontaire : IDBourse renvoie url:null sur certains titres
         # (DIAC SALAF, STROC, HOLCIM) — .get("url","") laisserait passer None.
@@ -496,6 +495,7 @@ def fetch_all_idb():
                 "open":  opn_val,
                 "vol":   vol_int,
                 "cap":   cap_mdh,
+                "asof":  str(d.get("updated_at") or "")[:10],
             }
         except (ValueError, TypeError):
             continue
@@ -749,6 +749,51 @@ def get_weights(context: dict) -> dict:
     total = sum(w.values())
     return {k: round(v / total, 4) for k, v in w.items()}
 
+def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles) -> dict:
+    """Provenance du prix et score de confiance 0–5.
+
+    Le score suit la spécification du CLAUDE.md, un point par garantie :
+      1. prix de la dernière séance cotée (ni périmé, ni statique)
+      2. fondamentaux réels — présents dans fondamentaux.json, pas la table figée
+      3. RSI calculable — au moins 14 chandelles réelles
+      4. corpus NLP significatif — plus de 10 mentions
+      5. smart money disponible — win rate renseigné
+
+    Un score ≤ 1 signifie que la note repose sur des données de repli : le
+    frontend grise alors le signal plutôt que d'afficher un ACHETER trompeur.
+    """
+    # Une source sans date propre est périmée par construction : elle recopie
+    # un run antérieur et se reconduirait indéfiniment sans jamais le signaler.
+    stale = (src_prix in ("static", "financial", "data_json_precedent", "")
+             or not prix_asof
+             or bool(IDB_ASOF and prix_asof < IDB_ASOF))
+
+    n_bougies = 0
+    if df_candles is not None:
+        try:
+            n_bougies = len(df_candles)
+        except TypeError:
+            n_bougies = 0
+
+    confiance = sum((
+        0 if stale else 1,
+        1 if ticker in _FOND_COMPUTED else 0,
+        1 if n_bougies >= 14 else 0,
+        1 if (sent.get("mentions") or 0) > 10 else 0,
+        1 if sent.get("win") is not None else 0,
+    ))
+
+    return {
+        "source_prix":  src_prix or "inconnu",
+        "source_fond":  "fondamentaux_json" if ticker in _FOND_COMPUTED else "table_statique",
+        "prix_asof":    prix_asof or None,
+        "stale":        stale,
+        "confidence":   confiance,
+        "n_candles":    n_bougies,
+        "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+    }
+
+
 def _objectifs(ticker, price, fd) -> dict:
     """Objectifs bear/base/bull, écartés s'ils ne sont plus à l'échelle du cours.
 
@@ -988,10 +1033,16 @@ def run(dry_run=False, push=False, token=""):
         fd = FOND_DATA.get(ticker, {})
         lp = live_prices.get(ticker, {})
 
-        # Prix
-        price = lp.get("price") or 0
-        chg   = lp.get("chg", 0)
-        opn   = lp.get("open")
+        # Prix — on trace d'où il vient et de quelle séance, pour le bloc
+        # _meta émis plus bas : sans ça le frontend ne peut pas distinguer un
+        # cours du jour d'une valeur figée dans un fichier statique.
+        lp_asof   = lp.get("asof") or ""
+        lp_perime = bool(IDB_ASOF and lp_asof and lp_asof < IDB_ASOF)
+        price = 0 if lp_perime else (lp.get("price") or 0)
+        chg   = 0.0 if lp_perime else lp.get("chg", 0)
+        opn   = None if lp_perime else lp.get("open")
+        src_prix  = "idbourse" if price else ""
+        prix_asof = (lp_asof or IDB_ASOF) if price else ""
 
         # Correction données IDBourse : toujours recalculer vs vraie clôture j-1 (candle)
         # IDBourse peut référencer une mauvaise date de référence, surtout sur 2e run intraday
@@ -1063,6 +1114,7 @@ def run(dry_run=False, push=False, token=""):
             l90    = round(float(lows.min()), 2)
             if not price:
                 price = round(float(closes.iloc[-1]), 2)
+                src_prix, prix_asof = "medias24_hist", str(df["date"].iloc[-1])[:10]
             # Variation = prix live vs dernière clôture historique
             if not chg and price and len(closes) >= 1:
                 prev = float(closes.iloc[-1])
@@ -1099,9 +1151,23 @@ def run(dry_run=False, push=False, token=""):
                         _s = pd.to_numeric(_df_p["c"], errors="coerce").dropna()
                         if len(_s) and float(_s.iloc[-1]) > 0:
                             price = round(float(_s.iloc[-1]), 2)
+                            src_prix = "candles"
+                            _d_col = _df_p["d"] if "d" in _df_p else None
+                            prix_asof = str(_d_col.iloc[-1])[:10] if _d_col is not None else IDB_ASOF
                             logger.info(f"  {ticker}: prix depuis les chandelles ({price} DH)")
                     except Exception:
                         pass
+
+            # Une cotation réelle, même d'une séance antérieure, prime sur
+            # toute valeur dérivée : historical_data.json et le data.json du
+            # run précédent sont des copies sans date propre, qui se
+            # reconduisent d'un run à l'autre. Diac Salaf n'a pas coté depuis
+            # le 05/08 — mieux vaut ce cours daté, marqué `stale`.
+            if not price and lp_perime and lp.get("price"):
+                price = lp["price"]
+                src_prix, prix_asof = "idbourse_perime", lp_asof
+                logger.info(f"  {ticker}: dernière cotation connue {price} DH "
+                            f"(séance {lp_asof})")
 
             # Fallback A : historical_data.json (cache préchargé)
             _hist_loaded = False
@@ -1125,6 +1191,9 @@ def run(dry_run=False, push=False, token=""):
                 l52w      = hd_t.get("l52w")
                 if not price:
                     price = hd_t.get("last_close", 0)
+                    if price:
+                        src_prix  = "historical"
+                        prix_asof = str(hd_t.get("last_date") or "")[:10]
                 _hist_loaded = True
                 logger.info(f"  {ticker}: indicateurs depuis historical_data.json "
                             f"(BVCscrap, {hd_t.get('n_candles',0)} bougies)")
@@ -1148,6 +1217,8 @@ def run(dry_run=False, push=False, token=""):
                     stoch_d   = ex_t.get("stoch_d")
                     if not price:
                         price = ex_t.get("price", 0)
+                        if price:
+                            src_prix, prix_asof = "data_json_precedent", ""
                     if not vol:
                         vol = ex_t.get("vol", 0)
                 else:
@@ -1167,6 +1238,7 @@ def run(dry_run=False, push=False, token=""):
                 if rsi == 50: rsi = tech.get("rsi_14") or 50
                 if not h90:  h90  = tech.get("high_90d") or round(price * 1.15, 2)
                 if not l90:  l90  = tech.get("low_90d")  or round(price * 0.85, 2)
+                src_prix, prix_asof = "financial", ""
                 logger.info(f"  {ticker}: prix depuis financial_data.json ({price} DH)")
 
         # Fallback 4 : static_fallback.json (cache préchargé)
@@ -1180,6 +1252,7 @@ def run(dry_run=False, push=False, token=""):
                 if rsi == 50: rsi = sf_t.get("rsi_14") or 50
                 if not h90:  h90  = sf_t.get("high_90d") or round(price * 1.15, 2)
                 if not l90:  l90  = sf_t.get("low_90d")  or round(price * 0.85, 2)
+                src_prix, prix_asof = "static", ""
                 logger.info(f"  {ticker}: prix depuis static_fallback.json ({price} DH) — données statiques")
 
         # Médias24 getStockInfo — source primaire pour prix et variation
@@ -1189,6 +1262,7 @@ def run(dry_run=False, push=False, token=""):
         if q:
             price = q["price"]          # Médias24 prioritaire
             chg   = q["chg"]
+            src_prix, prix_asof = "medias24", IDB_ASOF
             if not opn: opn = q.get("open")
             if not vol: vol = q.get("vol") or lp.get("vol", 0)
             logger.info(f"  {ticker}: Médias24 → {price} DH (chg={chg:+.2f}%, vol={vol})")
@@ -1278,6 +1352,12 @@ def run(dry_run=False, push=False, token=""):
         info = TICKER_INFO.get(ticker, {})
         tickers_out.append({
             "symbol": ticker,
+            # ── Bloc _meta (spécification CLAUDE.md) ─────────────────────────
+            # Sans lui, rien ne distingue à l'écran un cours coté ce jour d'une
+            # valeur figée depuis des semaines dans static_fallback.json. Le
+            # frontend doit supposer stale=true en son absence.
+            "_meta": _meta_ticker(ticker, src_prix, prix_asof, sent,
+                                  _candles_cache.get(ticker)),
             # Code officiel BVC, pour l'affichage seulement. Nos symboles
             # internes sont la clé primaire d'ISIN_MAP, des chandelles et de
             # six ans de corpus WhatsApp : on ne les renomme pas. Mais un
@@ -1415,6 +1495,15 @@ def run(dry_run=False, push=False, token=""):
                     continue
                 c_price = entry.get("price", 0)
                 if c_price <= 0:
+                    continue
+                # N'écrire une bougie que si le prix vient bien d'une cotation
+                # de la séance. Sans cette garde, un titre non rafraîchi par la
+                # source se confirmait lui-même : le prix retombait sur la
+                # dernière chandelle, qu'on réécrivait ensuite à la date du
+                # jour — Holcim se voyait ainsi attribuer une clôture au 10/08
+                # alors qu'IDBourse ne l'avait plus cotée depuis le 05/08.
+                _m = entry.get("_meta") or {}
+                if _m.get("stale") or _m.get("source_prix") not in ("idbourse", "medias24"):
                     continue
                 try:
                     existing = json.loads(cfp.read_text(encoding="utf-8"))
