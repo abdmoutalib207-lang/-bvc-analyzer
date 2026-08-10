@@ -317,17 +317,43 @@ Caps recalculées via `prix × nb_titres officiels BVC` après corrections ISIN 
   qu'un instantané dérivé, régénéré moins souvent ; son `last_close` retenait
   Holcim à 1736 alors que la clôture valait 1800.
 
-- **⚠️ Séances du 04 au 06 août polluées — non corrigées.** Pendant la panne
-  IDBourse (gel du 05/08), le pipeline a réécrit la dernière valeur connue à
-  l'identique : `675, 675, 675` pour SGTM, `5350 ×3` pour WAF, `1133 ×3` pour
-  AKD. **31 clôtures du 06/08 sont incompatibles** avec la variation publiée par
-  CDG — jusqu'à 21 % d'écart sur FNB, 12 % sur STK, SNP et ZLD. Les vraies
-  valeurs sont connues (deux sources concordantes) mais **rien n'a été réécrit** :
-  corriger le 06/08 sans le 04 ni le 05 ne ferait que déplacer la rupture d'une
-  séance. À traiter en re-téléchargeant l'historique depuis une vraie source.
-  - Effet visible : FNB et SNP affichent `chg = 0` — la variation réelle dépasse
-    le plafond R10 face à une clôture de veille fausse, donc le garde-fou
-    l'annule. Ce n'est pas un bug du plafond, c'est l'historique qui est faux.
+- **Séances du 05 et 06 août réparées.** Pendant la panne IDBourse, le pipeline
+  a réécrit la clôture du 04/08 à l'identique les deux jours suivants (`1133 ×3`
+  pour AKD, `5350 ×3` pour WAF, `295 ×3` pour FNB). Le **04/08 lui-même est
+  sain** — c'est ce qu'établit l'ancrage à deux bornes ci-dessous.
+  - Source : colonne `DataChart` de la variante « graphique » du bulletin CDG,
+    qui publie 30 clôtures par instrument. 60 de nos titres y figurent.
+  - **Méthode d'ancrage** : une série n'est retenue pour un titre que si ses deux
+    bornes tombent juste — `series[-4]` = notre 04/08 ET `series[-1]` = notre
+    07/08. Les deux encadrent `[-3]` et `[-2]`, donc les 05 et 06 août, sans
+    supposer aucun calendrier de séances (jours fériés compris). 51 titres ont
+    passé l'ancrage.
+  - Le 06/08 est recoupé une seconde fois avec le `previous_close` de
+    casabourse : 60/61. Le seul désaccord, TGCC, venait de la série (788 contre
+    773) — le contrôle croisé l'a écarté, et le titre a été traité par l'autre
+    voie.
+  - Pour les 5 titres cotés sans série (CASH, CMGP, MNG, SGTM, SOT), le 06/08
+    est déduit du bulletin lui-même (`cours ÷ (1 + variation)`) et confirmé par
+    casabourse. **Leur 05/08 reste non vérifié** : aucune source ne le donne.
+  - Seule la clôture est publiée. Pour les séances réparées on écrit
+    `o = h = l = c` et `v = 0`, plutôt que de conserver des extrêmes et des
+    volumes qui sont des copies fabriquées du 04/08.
+  - Résultat : **65/65 prix et 61/65 variations** conformes au bulletin. Les 4
+    restants (ARD, IBM, IMI, RDS) sont des écarts inférieurs à 0,2 % où le
+    bulletin se contredit lui-même — sa colonne `variation` et sa série
+    `DataChart` ne donnent pas la même clôture de veille.
+
+- **⚠️ Reste faux : les séances antérieures au 04/08.** Les séries CDG montrent
+  que nos clôtures des 31/07 et 03/08 divergent aussi (STK à 74,2 au lieu de
+  66,16 — la fuite de `static_fallback.json` dans les chandelles, déjà repérée
+  le 01/08). Non traité : réparer plus loin demande un ancrage sur des séances
+  dont nous n'avons pas la liste exacte. Les 10 ruptures signalées par
+  `validate_candles()` restent ouvertes.
+
+- **Outil : `pipeline/parse_cdg_bulletin.py`.** Lit les deux variantes du
+  bulletin, traduit les codes officiels BVC via `IDB_TICKER_MAP`, et compare à
+  nos chandelles (`--verifier AAAA-MM-JJ`). Dépendance `pdfplumber`, déjà
+  déclarée dans `requirements.txt`.
 
 
 ### 2026-08-01
