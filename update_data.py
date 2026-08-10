@@ -1507,20 +1507,37 @@ def run(dry_run=False, push=False, token=""):
                     continue
                 try:
                     existing = json.loads(cfp.read_text(encoding="utf-8"))
-                    # Vérifier si le point du jour est déjà présent
-                    if existing and existing[-1].get("d") == today_str:
-                        continue
-                    # Calculer OHLCV du jour depuis les données live
-                    prev_close = existing[-1]["c"] if existing else c_price
-                    today_candle = {
-                        "d": today_str,
-                        "o": round(float(entry.get("open") or prev_close), 2),
-                        "h": round(float(c_price), 2),
-                        "l": round(float(c_price), 2),
-                        "c": round(float(c_price), 2),
-                        "v": int(entry.get("vol") or 0),
-                    }
-                    existing.append(today_candle)
+                    # La bougie du jour se RAFRAÎCHIT à chaque run, elle ne se
+                    # fige pas au premier. L'ancien code passait son tour dès
+                    # qu'un point du jour existait : le premier run de la
+                    # journée — souvent en pleine séance — gravait un cours de
+                    # milieu de séance comme clôture définitive. Relevé du
+                    # 10/08 : la bougie disait IAM 100,70 et Managem 1 660,
+                    # là où la clôture réelle valait 99,85 et 1 624.
+                    c_price = round(float(c_price), 2)
+                    veille = existing[-1] if existing else None
+                    jour = veille if veille and veille.get("d") == today_str else None
+                    if jour:
+                        # l'ouverture reste celle du premier point ; les
+                        # extrêmes s'étendent, la clôture suit le dernier cours
+                        today_candle = {
+                            "d": today_str,
+                            "o": jour.get("o", c_price),
+                            "h": round(max(jour.get("h", c_price), c_price), 2),
+                            "l": round(min(jour.get("l", c_price), c_price), 2),
+                            "c": c_price,
+                            "v": max(int(entry.get("vol") or 0), int(jour.get("v") or 0)),
+                        }
+                        existing[-1] = today_candle
+                    else:
+                        prev_close = veille["c"] if veille else c_price
+                        today_candle = {
+                            "d": today_str,
+                            "o": round(float(entry.get("open") or prev_close), 2),
+                            "h": c_price, "l": c_price, "c": c_price,
+                            "v": int(entry.get("vol") or 0),
+                        }
+                        existing.append(today_candle)
                     cfp.write_text(json.dumps(existing, separators=(",", ":")), encoding="utf-8")
                     updated_count += 1
                 except Exception:

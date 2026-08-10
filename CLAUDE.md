@@ -317,6 +317,22 @@ Caps recalculées via `prix × nb_titres officiels BVC` après corrections ISIN 
 
 ### 2026-08-10
 
+- **⚠️ La bougie du jour se figeait sur le premier run de la journée.** L'étape
+  6c passait son tour dès qu'un point du jour existait (`if existing[-1].d ==
+  today_str: continue`). Le premier run — souvent en pleine séance — gravait
+  donc un cours de milieu de séance comme clôture définitive, et aucun run
+  ultérieur ne le corrigeait. Relevé sur la séance du 10/08 : **57 bougies
+  fausses sur 72 cotées**, la bougie disant IAM 100,70 et Managem 1 660 là où
+  la clôture réelle valait 99,85 et 1 624.
+  - `data.json`, lui, était juste : il se régénère intégralement à chaque run.
+    L'écart ne se voyait donc que sur les graphiques et les indicateurs.
+  - Corrigé : la bougie du jour se **rafraîchit** à chaque run. L'ouverture
+    reste celle du premier point, les extrêmes s'étendent, la clôture suit le
+    dernier cours connu. Le dernier run après 15h30 fixe la clôture.
+  - Séance du 10/08 recalée depuis le bulletin CDG : 0 écart > 0,1 % sur les
+    72 titres cotés.
+
+
 - **Bulletin « Indices » de CDG Capital Bourse retenu comme source d'arbitrage.**
   Le PDF publie par instrument : cours, variation, ouverture, quantité échangée,
   plus-haut, plus-bas et heure du dernier échange. Recoupé avec le champ
