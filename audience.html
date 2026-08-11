@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>Audience — Radar BVC</title>
+<!--
+  Page de fréquentation, à usage du propriétaire.
+
+  Elle n'est liée depuis nulle part : ni la console, ni le terminal n'y
+  renvoient, et les moteurs de recherche sont priés de l'ignorer. Ce n'est
+  pas une protection — l'adresse est devinable et les compteurs sont
+  publiquement interrogeables — mais elle suffit à ce qu'un visiteur de la
+  console ne tombe jamais dessus.
+
+  Pourquoi une page séparée plutôt qu'un réglage sur la console : sur iPhone,
+  une page ajoutée à l'écran d'accueil possède son propre espace de stockage,
+  distinct de celui de Safari. Le réglage « ?stats » activé dans le navigateur
+  n'existait donc pas dans l'application, et inversement. Une adresse dédiée
+  ne dépend d'aucune mémoire locale : elle marche partout, tout de suite.
+-->
+<style>
+  :root{
+    --bg:#080d1a; --carte:#0d1829; --ligne:#1a2540;
+    --texte:#c8d3e8; --faible:#8892a4;
+    --vert:#00e5a0; --bleu:#4db8ff; --jaune:#ffd740; --rouge:#ff4f5a;
+    --font:'IBM Plex Mono','SFMono-Regular',Menlo,'Courier New',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--texte);font-family:var(--font);
+       padding:18px 14px 40px;max-width:640px;margin:0 auto;
+       -webkit-text-size-adjust:100%}
+  h1{font-size:15px;letter-spacing:2px;font-weight:700}
+  h1 span{color:var(--vert)}
+  .sub{color:var(--faible);font-size:11px;margin-top:4px}
+  .grille{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+  .carte{background:var(--carte);border:1px solid var(--ligne);border-radius:8px;
+         padding:14px}
+  .carte i{display:block;font-style:normal;font-size:9px;letter-spacing:1.4px;
+           color:var(--faible);text-transform:uppercase}
+  .carte b{display:block;font-size:30px;font-weight:700;margin-top:6px;line-height:1}
+  .bloc{background:var(--carte);border:1px solid var(--ligne);border-radius:8px;
+        padding:14px;margin-bottom:12px}
+  .titre{font-size:9px;letter-spacing:1.4px;color:var(--faible);
+         text-transform:uppercase;margin-bottom:12px}
+  .barre{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px}
+  .barre span:first-child{color:var(--faible);width:44px;flex:none}
+  .barre .jauge{height:9px;border-radius:2px;background:var(--bleu);flex:none;
+                min-width:3px;transition:width .3s}
+  .vide{color:var(--faible);font-size:12px;line-height:1.7}
+  button{background:transparent;color:var(--vert);border:1px solid var(--vert);
+         border-radius:6px;padding:9px 16px;font-family:var(--font);font-size:12px;
+         cursor:pointer;-webkit-tap-highlight-color:transparent}
+  button:active{background:rgba(0,229,160,.12)}
+  .pied{color:var(--faible);font-size:10px;line-height:1.8;margin-top:20px;
+        border-top:1px solid var(--ligne);padding-top:14px}
+</style>
+</head>
+<body>
+
+<h1>AUDIENCE <span>RADAR BVC</span></h1>
+<div class="sub" id="maj">chargement…</div>
+
+<div class="grille">
+  <div class="carte"><i>Appareils cumulés</i><b id="total" style="color:var(--bleu)">—</b></div>
+  <div class="carte"><i>En ligne</i><b id="live" style="color:var(--vert)">—</b></div>
+</div>
+
+<div class="bloc">
+  <div class="titre">Activité — 3 dernières heures</div>
+  <div id="histo"><div class="vide">chargement…</div></div>
+</div>
+
+<button id="rafraichir">↻ Rafraîchir</button>
+
+<div class="pied">
+  Un appareil compte une fois. Vider le cache, la navigation privée ou un
+  second appareil recomptent.<br/>
+  « En ligne » = appareils actifs dans la tranche de 5 minutes en cours.<br/>
+  Page non référencée, non liée depuis la console.
+</div>
+
+<script>
+const SERVICE = "https://abacus.jasoncameron.dev";
+const ESPACE  = "radarbvc-ma";
+/* Fenêtres de 5 minutes, identiques à celles qu'écrit la console. */
+const seau = t => Math.floor(t / 300000);
+
+/* Délai maximal : un service gratuit peut ralentir ou ne pas répondre du tout.
+   Sans borne, la page reste indéfiniment sur « chargement… » et on ne sait pas
+   si le compteur est à zéro ou injoignable. */
+const lire = (cle, ms = 8000) => {
+  const stop = new AbortController();
+  const minuteur = setTimeout(() => stop.abort(), ms);
+  return fetch(`${SERVICE}/get/${ESPACE}/${cle}`, { signal: stop.signal })
+    .then(r => r.ok ? r.json() : null)
+    .then(j => j && typeof j.value === "number" ? j.value : null)
+    .catch(() => null)
+    .finally(() => clearTimeout(minuteur));
+};
+
+const hhmm = ms => new Date(ms).toLocaleTimeString("fr-FR",
+  { timeZone: "Africa/Casablanca", hour: "2-digit", minute: "2-digit" });
+
+async function charger(){
+  document.getElementById("maj").textContent = "interrogation du compteur…";
+
+  const maintenant = Date.now();
+  const s = seau(maintenant);
+
+  /* 36 tranches = 3 heures. Requêtes groupées : le service répond en ~0,3 s,
+     les lancer en série prendrait dix secondes. */
+  const [total, ...tranches] = await Promise.all([
+    lire("appareils"),
+    ...Array.from({ length: 36 }, (_, i) => lire(`live-${s - i}`)),
+  ]);
+
+  document.getElementById("total").textContent =
+    total === null ? "—" : total.toLocaleString("fr-FR");
+  document.getElementById("live").textContent =
+    tranches[0] === null ? "—" : tranches[0];
+
+  const actives = tranches
+    .map((v, i) => ({ v: v || 0, t: (s - i) * 300000 }))
+    .filter(x => x.v > 0);
+
+  const cible = document.getElementById("histo");
+  if (!actives.length) {
+    cible.innerHTML = total === null
+      ? `<div class="vide">Compteur injoignable. Le service est gratuit et
+         sans garantie ; la console, elle, continue de fonctionner.</div>`
+      : `<div class="vide">Aucune visite dans les trois dernières heures.</div>`;
+  } else {
+    const max = Math.max(...actives.map(x => x.v));
+    cible.innerHTML = actives.map(x => `
+      <div class="barre">
+        <span>${hhmm(x.t)}</span>
+        <span class="jauge" style="width:${Math.round(x.v / max * 74) + 4}%"></span>
+        <span>${x.v}</span>
+      </div>`).join("");
+  }
+
+  const cumul = actives.reduce((n, x) => n + x.v, 0);
+  document.getElementById("maj").textContent =
+    `relevé de ${hhmm(maintenant)} · ${actives.length} tranche${actives.length > 1 ? "s" : ""} active${actives.length > 1 ? "s" : ""} · ${cumul} passage${cumul > 1 ? "s" : ""}`;
+}
+
+document.getElementById("rafraichir").onclick = charger;
+charger();
+setInterval(charger, 60000);
+</script>
+</body>
+</html>
