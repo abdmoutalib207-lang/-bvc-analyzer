@@ -209,6 +209,22 @@ COMPANY_SECTORS: dict = {
                                    # cotée sur ce métier, d'où un secteur seul
 }
 
+# ── Sigles ambigus ──────────────────────────────────────────────────────────
+# Tickers qui sont aussi des mots courants en français ou en darija. Partout où
+# l'on cherche un sigle dans du texte libre — actualités, corpus WhatsApp — ils
+# ne comptent qu'en MAJUSCULES, et encore : « une DAR à Marrakech » ou « paiement
+# CASH » restent des faux positifs. On les exclut donc de la reconnaissance par
+# sigle ; leur nom complet suffit à les retrouver (« dari couspate », « cash plus »).
+#
+# Liste établie en mesurant, sur un corpus français réel, combien de fois chaque
+# ticker apparaît comme mot isolé : « les » sortait 140 fois sur 300 articles.
+# Ne pas l'allonger par précaution — chaque entrée coûte du rappel.
+SIGLES_AMBIGUS: set = {
+    "LES", "CAR", "DAR", "GAZ", "BAL", "SOT", "COL", "UNI",
+    "CASH", "RIS", "SAF", "TIM", "MIC", "MUT", "ADI", "NEJ",
+    "DIS", "MDP",
+}
+
 ISIN_MAP: dict = {
     "ADH": "MA0000011512", "AFM": "MA0000012296", "AFI": "MA0000012114",
     "GAZ": "MA0000010951", "AGM": "MA0000010944", "AKD": "MA0000012585",

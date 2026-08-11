@@ -12,7 +12,7 @@ from typing import Dict, List, Set
 # Référentiel unique des sociétés cotées. Le module NLP entretenait autrefois
 # sa propre table, qui a divergé — d'où l'import plutôt que la recopie.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from bvc_config import COMPANY_NAMES  # noqa: E402
+from bvc_config import COMPANY_NAMES, SIGLES_AMBIGUS  # noqa: E402
 
 # ─────────────────────────────────────────────
 # TICKERS BVC — dérivés de bvc_config, source unique
@@ -121,25 +121,9 @@ SURNOMS: Dict[str, List[str]] = {
     "DIS":  ["diac salaf", "diac"],
 }
 
-# Symboles qui sont aussi des mots courants en français ou en darija. Écrits
-# en minuscules ils ne désignent pas la société : « les » (article), « dar »
-# (maison), « car » (conjonction), « adi » (ordinaire), « gaz », « bal »,
-# « sot », « col », « uni », « cash », « ris », « mic ». On exige donc la
-# forme MAJUSCULE exacte pour ceux-là — c'est ainsi que les tickers
-# s'écrivent dans les groupes.
-#
-# Liste établie en mesurant, sur un corpus français réel (les 300 articles de
-# news.json), combien de fois chaque ticker apparaît en minuscules comme mot
-# isolé : « les » sortait 140 fois. Les formes darija ont été ajoutées à la
-# main, le corpus de presse ne les contenant pas.
-#
-# Ne pas l'allonger par précaution : chaque entrée coûte du rappel, puisqu'un
-# message écrivant le ticker en minuscules ne sera plus reconnu.
-SYMBOLES_AMBIGUS: Set[str] = {
-    "LES", "CAR", "DAR", "GAZ", "BAL", "SOT", "COL", "UNI",
-    "CASH", "RIS", "SAF", "TIM", "MIC", "MUT", "ADI", "NEJ",
-    "DIS", "MDP",   # « dis-moi », « mdp » pour mot de passe
-}
+# Sigles ambigus : la liste vit dans bvc_config, partagée avec le moteur
+# d'actualités. Une seule liste, pas trois — c'est ce qui avait dérivé.
+SYMBOLES_AMBIGUS: Set[str] = set(SIGLES_AMBIGUS)
 
 
 def _sans_accent(s: str) -> str:

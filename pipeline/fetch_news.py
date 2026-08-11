@@ -16,10 +16,15 @@ except ImportError as _e:
     sys.exit(f"Dépendance manquante : {_e}\nInstalle : pip install -r requirements_pipeline.txt")
 
 sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 try:
     from ticker_aliases import TICKER_ALIASES
 except ImportError:
     TICKER_ALIASES = {}
+try:
+    from bvc_config import SIGLES_AMBIGUS
+except ImportError:          # le moteur doit tourner même sans le référentiel
+    SIGLES_AMBIGUS = set()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s", datefmt="%H:%M:%S")
 log = logging.getLogger("NewsEngine")
@@ -138,8 +143,8 @@ def _sentiment(text: str) -> str:
 def _tag_tickers(text: str) -> list:
     """Associe un article aux sociétés cotées qu'il mentionne nommément.
 
-    Correspondance exacte sur les alias uniquement. Jamais par symbole court
-    (« CAR », « MSA »… produiraient des faux positifs en pagaille).
+    Deux passes : les alias — correspondance exacte de sous-chaîne, insensible
+    à la casse — puis les sigles en majuscules (cf. _sigles plus bas).
 
     Une passe floue (rapidfuzz, token_set_ratio ≥ 85) a existé ici : elle est
     retirée. Mesurée le 09/08/2026, elle taggue 40 sociétés sur un article
@@ -149,8 +154,34 @@ def _tag_tickers(text: str) -> list:
     CI), ce qui a évité le pire ; la laisser en place aurait été une mine.
     """
     t = text.lower()
-    return [ticker for ticker, aliases in TICKER_ALIASES.items()
-            if any(alias in t for alias in aliases)]
+    trouves = {ticker for ticker, aliases in TICKER_ALIASES.items()
+               if any(alias in t for alias in aliases)}
+    return sorted(trouves | _sigles(text))
+
+
+# Aucun alias ne fait moins de 5 caractères — garde-fou posé le 09/08 contre la
+# correspondance floue. Conséquence : les sigles employés partout par la presse
+# marocaine (« BCP décroche l'ISO 45001 », « TGCC remporte le marché ») n'étaient
+# jamais reconnus, et le taux de rattachement plafonnait à 7 %.
+#
+# On ajoute donc une passe par sigle, sur trois conditions strictes :
+#   — MAJUSCULES exactes : c'est ainsi que la presse écrit un ticker ;
+#   — frontières de mot, pour ne pas mordre à l'intérieur d'un autre mot ;
+#   — sigle absent de SIGLES_AMBIGUS (bvc_config), qui écarte ceux qui sont
+#     aussi des mots courants — « une DAR à Marrakech », « paiement CASH ».
+#
+# Un titre écrit tout en capitales ne porte plus d'information de casse : la
+# passe s'y désactive, sans quoi « LE GAZ ET LE PÉTROLE EN BAISSE » taggerait
+# Afriquia Gaz.
+_SIGLES = {t: re.compile(r'\b' + t + r'\b')
+           for t in TICKER_ALIASES if t not in SIGLES_AMBIGUS}
+
+
+def _sigles(text: str) -> set:
+    lettres = [c for c in text if c.isalpha()]
+    if lettres and sum(c.isupper() for c in lettres) / len(lettres) > 0.6:
+        return set()
+    return {t for t, motif in _SIGLES.items() if motif.search(text)}
 
 
 def _article_id(url: str, title: str) -> str:
