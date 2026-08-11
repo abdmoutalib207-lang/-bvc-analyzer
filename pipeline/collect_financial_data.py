@@ -267,8 +267,38 @@ def run(tickers=None, dry_run=False, max_workers=3):
 
     # Écriture data.json (format legacy index.html)
     legacy = to_legacy_format(output)
-    OUT_LEGACY.write_text(json.dumps(legacy, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
-    log.info(f"→ {OUT_LEGACY}")
+    # ── Garde : ne jamais appauvrir data.json ────────────────────────────────
+    # Ce pipeline ne couvre que TICKERS_ACTIFS (19 valeurs) et n'émet ni
+    # code_bvc ni _meta. update_data.py, lui, publie les 81 titres avec les
+    # deux. Les deux écrivent le même fichier : le 11/08 à 15h29, celui-ci a
+    # écrasé la version complète de 15h14. Conséquence en production —
+    # 62 titres disparus du terminal, Sonasid réaffiché sous notre code
+    # interne, et « Données insuffisantes » partout, puisque l'absence de
+    # _meta vaut confiance nulle côté frontend.
+    #
+    # On refuse donc d'écrire une version qui perdrait des titres ou des
+    # champs. R1 : jamais de régression sur les données.
+    _neufs = legacy.get("tickers") or []
+    _refus = None
+    if OUT_LEGACY.exists():
+        try:
+            _av = (json.loads(OUT_LEGACY.read_text(encoding="utf-8")).get("tickers") or [])
+            if len(_av) > len(_neufs):
+                _refus = f"{len(_av)} titres déjà publiés contre {len(_neufs)} ici"
+            elif _av and _neufs:
+                _perdus = {c for c in ("code_bvc", "_meta") if c in _av[0]} - set(_neufs[0])
+                if _perdus:
+                    _refus = f"champs perdus : {', '.join(sorted(_perdus))}"
+        except Exception as _e:
+            log.warning(f"data.json existant illisible ({_e}) — écriture autorisée")
+
+    if _refus:
+        log.warning(f"⚠️  data.json NON réécrit — {_refus}. "
+                    f"financial_data.json reste à jour ; c'est update_data.py "
+                    f"qui publie data.json.")
+    else:
+        OUT_LEGACY.write_text(json.dumps(legacy, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+        log.info(f"→ {OUT_LEGACY}")
 
     return output
 
