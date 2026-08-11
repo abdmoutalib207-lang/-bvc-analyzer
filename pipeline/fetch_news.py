@@ -382,7 +382,6 @@ SOURCES_RSS = [
     # désormais couvert par Medias24 (même groupe).
     (GNEWS.format(q="site:boursenews.ma"),                      "BourseNews", 25),
     (GNEWS.format(q="site:ilboursa.com"),                       "Ilboursa", 25),
-    ("https://casabourse.ma/feed/",                                      "Casabourse", 25),
     # Sites sans flux RSS propre → relais Google News restreint au domaine.
     # Vérifié le 07/08/2026 : alphabourse.com ET .ma ne servent aucun flux
     # (l'ancienne entrée alphabourse.com/feed/ était morte et ne remontait rien).
@@ -449,7 +448,6 @@ SOURCES_RSS = [
     # Reuters a fermé ses flux RSS publics ; Bloomberg n'expose que du global.
     (GNEWS.format(q="site:reuters.com+Morocco"),                        "Reuters Maroc", 8),
     (GNEWS.format(q="site:bloomberg.com+Morocco"),                      "Bloomberg Maroc", 8),
-    (GNEWS.format(q="site:investing.com+Morocco+bourse"),               "Investing Maroc", 15),
     # ── Géopolitique / International ──────────────────────────────────────────
     ("https://www.rfi.fr/fr/economie/rss",                             "RFI Économie", 6),
     ("https://www.france24.com/fr/economie/rss",                       "France24 Éco", 6),
@@ -526,8 +524,36 @@ def run():
             all_articles.append(a)
             seen_ids.add(a["id"])
 
+    # Fenêtre glissante appliquée à TOUT, pas seulement à l'archive rechargée.
+    # Les articles fraîchement collectés n'étaient jamais filtrés par âge : un
+    # flux mal réglé pouvait injecter des dépêches de 2017 — c'était le cas du
+    # relais « site:investing.com », dont le plus récent article datait de
+    # 237 jours. Le fichier annonce « rolling 7j », il doit le tenir.
+    _limite = (datetime.now(timezone.utc) - timedelta(days=ARCHIVE_DAYS)).isoformat()
+    _avant = len(all_articles)
+    all_articles = [a for a in all_articles if (a.get("date") or "") >= _limite]
+    if _avant != len(all_articles):
+        log.info(f"Hors fenêtre {ARCHIVE_DAYS}j écartés : {_avant - len(all_articles)}")
+
     all_articles.sort(key=lambda a: a.get("date", ""), reverse=True)
-    all_articles = all_articles[:MAX_ARTICLES]
+
+    # Coupe à MAX_ARTICLES, mais en réservant d'abord les plus récents de CHAQUE
+    # source. Sans cette réserve, un éditeur qui publie peu disparaît totalement
+    # du fichier : trié par date sur sept jours et 44 sources, il n'atteint
+    # jamais les 300 premières places. Mesuré le 11/08 — Le Matin sortait
+    # 10 articles de moins d'un jour et aucun n'était retenu, Bank Al-Maghrib
+    # non plus. Un flux institutionnel publie rarement mais rarement pour rien.
+    RESERVE_PAR_SOURCE = 2
+    vus_source, reserves, reste = {}, [], []
+    for a in all_articles:
+        src = a.get("source", "?")
+        if vus_source.get(src, 0) < RESERVE_PAR_SOURCE:
+            vus_source[src] = vus_source.get(src, 0) + 1
+            reserves.append(a)
+        else:
+            reste.append(a)
+    all_articles = (reserves + reste)[:MAX_ARTICLES]
+    all_articles.sort(key=lambda a: a.get("date", ""), reverse=True)
 
     now = datetime.now(timezone.utc)
     output = {

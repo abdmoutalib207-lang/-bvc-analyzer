@@ -9,8 +9,12 @@ name: BVC News Fetch
 
 on:
   schedule:
-    # Toutes les heures pile — 7j/7 — 24h/24 (filet de sécurité si la chaîne se casse)
-    - cron: '0 * * * *'
+    # Filet de sécurité horaire, 7j/7 — si la chaîne update_bvc ↔ news se casse.
+    # Réglé à la demie et non à l'heure pile : GitHub ne déclenche pas les tâches
+    # programmées à l'heure demandée, il les décale de 30 à 50 minutes selon la
+    # charge. Mesuré le 11/08 — le cron « 0 * * * * » partait à :44 et :47.
+    # À la demie, les publications retombent autour de l'heure pile.
+    - cron: '30 * * * *'
 
   # Chaîne auto-entretenue : BVC Data Update termine → déclenche news
   # News termine → déclenche BVC Data Update (avec gate session)
