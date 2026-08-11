@@ -332,21 +332,25 @@ function composer(){
   const sel = affichables().filter(a=>choisis.has(cle(a)));
   const n = new Date();
   const p = x => String(x).padStart(2,"0");
-  const L = [`📡 *RADAR BVC* — ${p(n.getDate())}/${p(n.getMonth()+1)}/${n.getFullYear()} · ${p(n.getHours())}:${p(n.getMinutes())}`,
-             `_${sel.length} actualité${sel.length>1?"s":""}_`, ""];
+  /* Texte neutre, sans marqueurs de mise en forme. Il portait auparavant la
+     syntaxe WhatsApp (*gras*, _italique_, `code`) : collé dans un mail, une
+     note ou un message d'un autre réseau, elle ressortait en astérisques et
+     tirets bas. L'utilisateur colle où il veut, le texte doit y être lisible. */
+  const L = [`📡 RADAR BVC — ${p(n.getDate())}/${p(n.getMonth()+1)}/${n.getFullYear()} · ${p(n.getHours())}:${p(n.getMinutes())}`,
+             `${sel.length} actualité${sel.length>1?"s":""}`, ""];
   for(const c of CAT_ORDRE){
     const lot = sel.filter(a=>(a.category||"economie")===c);
     if(!lot.length) continue;
-    L.push(`*${CAT_ENTETE[c]}*`);
+    L.push(CAT_ENTETE[c]);
     for(const a of lot){
       const puce = a.sentiment==="POSITIF"?"🟢" : a.sentiment==="NEGATIF"?"🔴" : "•";
-      const tk = (a.tickers||[]).length ? " `"+a.tickers.slice(0,3).join(" ")+"`" : "";
+      const tk = (a.tickers||[]).length ? " ["+a.tickers.slice(0,3).join(" ")+"]" : "";
       L.push(`${puce} ${(a.title||"").trim()}${tk}`);
-      L.push(`   _${a.source||"?"}_ — ${a.url||""}`);
+      L.push(`   ${a.source||"?"} — ${a.url||""}`);
     }
     L.push("");
   }
-  L.push("—","_Information financière, pas un conseil en investissement._");
+  L.push("—","Information financière, pas un conseil en investissement.");
   return L.join("\n");
 }
 
@@ -387,11 +391,12 @@ document.getElementById("copier").onclick = async ()=>{
     try{ document.execCommand("copy"); }catch(__){}
     document.body.removeChild(z);
   }
+  /* Le bouton copie, et rien d'autre. Il renvoyait auparavant chaque
+     utilisateur vers une chaîne WhatsApp : un clic sur « Copier » ne doit
+     jamais faire quitter la page, et le destinataire du texte regarde
+     l'utilisateur, pas nous. */
   b.textContent="✅ Copié"; b.style.background="var(--jaune)";
-  setTimeout(()=>{
-    b.textContent="Copier"; b.style.background="";
-    location.href="https://whatsapp.com/channel/0029VbD0KnTLtOj4NmBCUR1Z";
-  },900);
+  setTimeout(()=>{ b.textContent="Copier"; b.style.background=""; }, 1600);
 };
 
 /* Bandeau des cours. Lit data.json — le même fichier que le terminal, en
