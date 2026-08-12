@@ -509,9 +509,14 @@ def fetch_all_idb():
 
 def fetch_masi():
     """Indice MASI (variation % pour contexte marché)."""
-    m = idb_get("/api/proxy/masi-data")
+    # 45 s et non les 10 s par défaut : mesuré le 12/08, cet endpoint répond en
+    # 33 secondes. Il échouait donc à chaque run et l'indice restait à zéro dans
+    # l'en-tête du terminal — sans que rien ne le signale, `fetch_masi` renvoyant
+    # silencieusement {value: 0} en cas d'échec.
+    m = idb_get("/api/proxy/masi-data", timeout=45)
     if m and m.get("value"):
         return {"value": float(m["value"]), "chg": float(m.get("variation", 0) or 0)}
+    logger.warning("MASI indisponible — l'en-tête affichera 0")
     return {"value": 0, "chg": 0}
 
 def fetch_history(ticker, days=90):
