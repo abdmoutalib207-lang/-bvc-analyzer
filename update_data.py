@@ -515,9 +515,18 @@ def fetch_masi():
     # silencieusement {value: 0} en cas d'échec.
     m = idb_get("/api/proxy/masi-data", timeout=45)
     if m and m.get("value"):
-        return {"value": float(m["value"]), "chg": float(m.get("variation", 0) or 0)}
+        # La charge utile porte sa propre date et un drapeau `stale` — on les
+        # lisait pas. Relevé le 14/08 : l'endpoint servait encore la valeur du
+        # 10/08 avec « stale: true », et l'en-tête l'affichait comme l'indice
+        # du jour. Quatre jours d'un chiffre faux, sans le moindre signe.
+        asof = str(m.get("date") or "")[:10]
+        perime = bool(m.get("stale")) or (bool(IDB_ASOF) and bool(asof) and asof < IDB_ASOF)
+        if perime:
+            logger.warning(f"MASI périmé — valeur de la séance {asof or 'inconnue'}")
+        return {"value": float(m["value"]), "chg": float(m.get("variation", 0) or 0),
+                "asof": asof or None, "stale": perime}
     logger.warning("MASI indisponible — l'en-tête affichera 0")
-    return {"value": 0, "chg": 0}
+    return {"value": 0, "chg": 0, "asof": None, "stale": True}
 
 def fetch_history(ticker, days=90):
     """Historique OHLCV Médias24 → DataFrame."""
@@ -1442,6 +1451,8 @@ def run(dry_run=False, push=False, token=""):
         "masi": {
             "value":      masi["value"],
             "change_pct": masi["chg"],
+            "asof":       masi.get("asof"),
+            "stale":      masi.get("stale", True),
         },
         "tickers": tickers_out,
     }

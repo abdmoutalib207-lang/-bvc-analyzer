@@ -954,7 +954,13 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
               <span style={{color:"#8892a4",letterSpacing:.5}}>MASI</span>
               <span style={{color:"#c8d3e8",fontWeight:700}}>{masi.value.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
               <span style={{color:(masi.chg||0)>0?"#00e5a0":(masi.chg||0)<0?"#ff4f5a":"#8892a4",fontWeight:600}}>{(masi.chg||0)>0?"▲":"▼"}{fmt(masi.chg!=null?Math.abs(masi.chg):null)}%</span>
-              <span style={{fontSize:9,color:"#4a5568",marginLeft:2}}>{masi.src}</span>
+              {masi.stale
+                ? <span title={`Indice de la séance du ${masi.asof||"?"} — la source ne l'a pas rafraîchi`}
+                        style={{fontSize:9,fontWeight:700,color:"#ffd740",
+                                border:"1px solid rgba(255,215,64,.45)",borderRadius:3,
+                                padding:"1px 4px",marginLeft:2,whiteSpace:"nowrap"}}>
+                    ⚠ {masi.asof?masi.asof.slice(8,10)+"/"+masi.asof.slice(5,7):"périmé"}</span>
+                : <span style={{fontSize:9,color:"#4a5568",marginLeft:2}}>{masi.src}</span>}
             </span>}
           </div>
         </div>
@@ -2327,6 +2333,13 @@ function App(){
         };});
         mergeLive(m);
         nLive=d.tickers.filter(t=>t.chg&&t.chg!==0).length;
+        /* data.json nomme la variation `change_pct`, l'en-tête lit `chg` :
+           sans cette traduction la variation s'affiche « —% » dès que l'appel
+           direct à la Bourse de Casablanca échoue, ce qui est le cas courant
+           depuis un navigateur (CORS). */
+        if(d.masi) setMasi(m=>({...(m||{}),...d.masi,
+                                chg:d.masi.change_pct!=null?d.masi.change_pct:(m&&m.chg),
+                                src:"IDBourse"}));
         const upd=d.updated?new Date(d.updated):null;
         const timeStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit",second:"2-digit"}):"";
         const dateStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",year:"numeric"}):"";
