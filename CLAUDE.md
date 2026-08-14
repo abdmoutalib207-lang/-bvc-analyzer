@@ -315,6 +315,50 @@ Caps recalculées via `prix × nb_titres officiels BVC` après corrections ISIN 
 
 ## Journal des décisions
 
+### 2026-08-14
+
+- **⚠️ Séance fantôme un jour férié — 114 bougies écrites pour un jour sans
+  cotation.** Le 14/08 est férié au Maroc, la Bourse n'a pas ouvert. IDBourse
+  et Médias24 ont l'une et l'autre rediffusé la clôture du 13/08 en
+  l'estampillant du 14. `updated_at` étant notre seule autorité sur la date de
+  séance, **les trois écrivains de chandelles ont suivi** : 71 bougies par
+  l'étape 6c de `update_data.py`, 43 de plus par `generate_candles.py`,
+  143 occurrences dans `historical_data.json` par `collect_history_bvcscrap.py`,
+  et 77 tickers étiquetés d'une séance fictive dans `_meta.prix_asof`.
+  - **La règle R9 ne détecte pas ce cas.** Les sources rediffusent aussi la
+    variation de la veille : 67 titres sur 77 portaient un `chg` non nul, donc
+    le test `chg=0 ET vol=0` ne voyait rien. Le signal n'existe **qu'à l'échelle
+    du marché** — une séance réelle ne reproduit jamais toutes les clôtures au
+    centime près. Mesuré sur les deux cas : **71/71 clôtures identiques le
+    14/08** (férié), **6/44 le 13/08** (séance cotée). La marge est telle qu'un
+    seuil à 95 % ne peut pas se tromper de côté.
+  - **Aucun calendrier de jours fériés n'a été introduit** — le test se déduit
+    des données. C'est ce qui le rend fiable : les fériés marocains suivent en
+    partie le calendrier lunaire et cette liste ne serait pas maintenue.
+  - **Deux points d'application**, parce que les deux problèmes sont distincts :
+    `_recaler_seance_fantome()` dans `update_data.py` ramène `IDB_ASOF` et la
+    date de chaque ligne à la séance réelle dès la sortie de la source — c'est
+    ce qui corrige `_meta.prix_asof` ; et `pipeline/seance.py`, balayage
+    **après écriture** appelé par les trois écrivains. Les sources livrent
+    ticker par ticker et aucune n'a la vue d'ensemble au moment d'écrire : le
+    contrôle ne peut être que global et postérieur. C'est aussi la seule forme
+    qui répare l'existant, y compris ce qu'un autre pipeline vient de déposer.
+  - Les prix n'ont jamais été faux : ils étaient et restent la clôture du
+    13/08, exacte. **Seule la date annoncée était une fiction.**
+  - ⚠️ **`n_candles` compte la série source, pas la liste stockée** (tronquée à
+    250 points). `compute_indicators()` renvoie `candles`, `last_close`,
+    `last_date` et `n_candles` décrivant *sa* série tronquée : les recopier en
+    bloc fait retomber `n_candles` de 784 à 249. D'où `_CHAMPS_SERIE`.
+
+- **Séance du 13/08 vérifiée exacte** — bulletin CDG (« Indices du vendredi
+  14 août », qui contient la séance du 13) : **0 écart > 0,1 % sur les 69 titres
+  cotés**. Aucune réparation nécessaire.
+
+- **MASI : l'indice affiché datait du 10/08 sans le dire.** La charge utile
+  porte `date`, `status.message` et `stale`, dont nous ne lisions ni l'un ni
+  l'autre — seuls `value` et `variation`. Les trois sont désormais lus et
+  propagés.
+
 ### 2026-08-10
 
 - **⚠️ La bougie du jour se figeait sur le premier run de la journée.** L'étape
