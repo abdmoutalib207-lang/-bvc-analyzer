@@ -474,6 +474,65 @@ def run(tickers_filter: list[str] | None = None) -> dict:
     return results
 
 
+# Champs qui décrivent la série elle-même, pas un indicateur.
+_CHAMPS_SERIE = {"candles", "last_close", "last_date", "n_candles"}
+
+
+def _purger_fantome(results: dict) -> None:
+    """Retire la séance fantôme des chandelles ET des indicateurs, sur place.
+
+    `seance.purger_seance_fantome()` nettoie les fichiers de chandelles ; les
+    indicateurs, eux, viennent d'être calculés en mémoire sur la série avec le
+    doublon. Les laisser tels quels décalerait les moyennes mobiles — MA20 d'ADH
+    à 34,80 au lieu de 34,67, écart faible mais qui se propage au scoring.
+
+    `n_candles` est décrémenté d'une séance et non recompté : il compte la série
+    source complète, pas la liste stockée qui est tronquée à 250 points.
+    """
+    try:
+        from seance import purger_seance_fantome
+    except ImportError:
+        from pipeline.seance import purger_seance_fantome
+
+    date_fantome, n = purger_seance_fantome()
+    if not date_fantome:
+        return
+    log.warning(f"Séance fantôme {date_fantome} : {n} fichiers de chandelles purgés")
+
+    recales = 0
+    for ticker, v in results.items():
+        candles = v.get("candles")
+        if not isinstance(candles, list) or not candles:
+            continue
+        gardees = [c for c in candles if c.get("d") != date_fantome]
+        if len(gardees) == len(candles):
+            continue
+        df = pd.DataFrame([
+            {"date": pd.Timestamp(c["d"]), "open": c["o"], "high": c["h"],
+             "low": c["l"], "close": c["c"], "volume": c.get("v", 0)}
+            for c in gardees
+        ])
+        try:
+            indicateurs = compute_indicators(df)
+        except Exception as e:
+            log.warning(f"  {ticker}: recalcul indicateurs échoué après purge: {e}")
+            continue
+        # Ne recopier que les indicateurs. `compute_indicators` renvoie aussi
+        # candles / last_close / last_date / n_candles, qui décrivent la série
+        # tronquée à 250 points qu'il vient de construire — les laisser passer
+        # ferait retomber n_candles de 784 à 249.
+        for cle, val in indicateurs.items():
+            if cle in v and cle not in _CHAMPS_SERIE:
+                v[cle] = val
+        v["candles"]    = gardees
+        v["last_close"] = gardees[-1]["c"]
+        v["last_date"]  = gardees[-1]["d"]
+        v["n_candles"]  = max(0, v.get("n_candles", len(gardees)) - 1)
+        recales += 1
+    if recales:
+        log.warning(f"Indicateurs recalculés sans le {date_fantome} : {recales} tickers")
+
+
 def save(results: dict, out_path: Path) -> None:
     output = {
         "_updated": datetime.now(timezone.utc).isoformat(),
@@ -500,6 +559,13 @@ def main() -> None:
     if not results:
         log.error("Aucun résultat")
         sys.exit(1)
+
+    # Séance fantôme : la source date parfois ses cours d'un jour où la Bourse
+    # n'a pas ouvert. Le 14/08 (férié), la clôture du 13 est revenue estampillée
+    # du 14 et s'est écrite ici comme partout ailleurs. Le contrôle ne peut se
+    # faire qu'après coup, à l'échelle du marché : titre par titre, une clôture
+    # inchangée d'une séance à l'autre est parfaitement banale.
+    _purger_fantome(results)
 
     log.info(f"Résultats : {len(results)} tickers traités")
     missing = [t for t in MANUAL_MAP if t not in results]
