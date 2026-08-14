@@ -240,6 +240,19 @@ def run(xlsx_only: bool = False):
     total = len(xlsx_results) + len(med24_results)
     log.info(f"\n✅ Total: {total} fichiers candles générés dans pipeline/candles/")
 
+    # Les sources datent parfois leurs cours d'un jour où la Bourse n'a pas
+    # ouvert : le 14/08 (férié), Médias24 a rediffusé la clôture du 13 sous la
+    # date du 14, et 43 fichiers ont pris une bougie fantôme. Le contrôle ne
+    # peut se faire qu'ici, une fois tous les titres écrits : c'est à l'échelle
+    # du marché que la rediffusion se voit, jamais titre par titre.
+    try:
+        from seance import purger_seance_fantome
+    except ImportError:
+        from pipeline.seance import purger_seance_fantome
+    _date_fantome, _n = purger_seance_fantome()
+    if _date_fantome:
+        log.warning(f"   Séance {_date_fantome} purgée : {_n} bougies retirées")
+
     all_results = {**xlsx_results, **med24_results}
     log.info(f"   Tickers couverts: {', '.join(sorted(all_results.keys()))}")
     missing = [t for t in TICKERS_ALL if t not in all_results]

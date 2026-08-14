@@ -507,6 +507,63 @@ def fetch_all_idb():
         logger.info(f"IDBourse [{len(out)} tickers]: {mapping_str}")
     return out
 
+def _recaler_seance_fantome(live_prices):
+    """Ramène IDB_ASOF à la séance réelle quand la source date un jour fermé.
+
+    Le 14/08/2026 — férié au Maroc — IDBourse a rediffusé les cours du 13/08 en
+    les estampillant du 14. `updated_at` étant notre seule autorité sur la date
+    de séance, tout le pipeline a suivi : 77 tickers étiquetés d'une séance qui
+    n'a pas eu lieu, et 71 bougies dupliquant le 13/08.
+
+    La règle R9 (chg=0 ET vol=0) ne détecte pas ce cas : la source rediffuse
+    aussi la variation de la veille, si bien que 67 titres sur 77 portaient un
+    chg non nul. Le signal n'existe qu'à l'échelle du marché — une séance réelle
+    ne reproduit jamais toutes les clôtures au centime près. Mesuré sur les deux
+    cas : 71/71 identiques le 14/08 (férié), 6/44 le 13/08 (séance cotée).
+
+    Ne dégrade pas les prix : ils restent la dernière clôture, exacte. Seule
+    l'étiquette de date est corrigée, pour ne pas annoncer comme fraîche une
+    séance fictive. Aucun calendrier de jours fériés n'est nécessaire.
+    """
+    global IDB_ASOF
+    if not IDB_ASOF or not live_prices:
+        return
+    candles_dir = Path(__file__).parent / "pipeline" / "candles"
+    if not candles_dir.exists():
+        return
+    ident = total = 0
+    veille = ""
+    for sym, row in live_prices.items():
+        if str(row.get("asof") or "")[:10] != IDB_ASOF:
+            continue  # ligne non rafraîchie : elle ne dit rien sur la séance
+        prix = row.get("price") or 0
+        cfp = candles_dir / f"{sym}.json"
+        if prix <= 0 or not cfp.exists():
+            continue
+        try:
+            serie = json.loads(cfp.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not serie or serie[-1].get("d") >= IDB_ASOF:
+            continue  # séance déjà enregistrée : hors du test
+        total += 1
+        veille = max(veille, serie[-1].get("d") or "")
+        if round(float(prix), 2) == round(float(serie[-1].get("c") or 0), 2):
+            ident += 1
+    if total >= 20 and ident / total >= 0.95 and veille:
+        logger.warning(
+            f"Séance fantôme : la source date ses cours du {IDB_ASOF}, mais "
+            f"{ident}/{total} clôtures sont identiques au {veille}. Marché "
+            f"fermé (férié ?) — séance ramenée au {veille}.")
+        # Recaler aussi la date portée par chaque ligne : c'est elle qui
+        # alimente `_meta.prix_asof`. La laisser au 14/08 afficherait sur le
+        # terminal une séance fictive comme dernière cotation connue.
+        for row in live_prices.values():
+            if str(row.get("asof") or "")[:10] == IDB_ASOF:
+                row["asof"] = veille
+        IDB_ASOF = veille
+
+
 def fetch_masi():
     """Indice MASI (variation % pour contexte marché)."""
     # 45 s et non les 10 s par défaut : mesuré le 12/08, cet endpoint répond en
@@ -965,6 +1022,7 @@ def run(dry_run=False, push=False, token=""):
     logger.info("Récupération IDBourse (batch)...")
     live_prices = fetch_all_idb()
     logger.info(f"IDBourse: {len(live_prices)}/{len(TICKERS)} tickers reçus")
+    _recaler_seance_fantome(live_prices)
 
     # Circuit breaker : ne pas écraser data.json avec des zéros si toutes les sources sont down
     idb_ok = len(live_prices) > 0
@@ -1493,8 +1551,11 @@ def run(dry_run=False, push=False, token=""):
         # lancé lundi 00h16 reçoit les cours de la clôture de vendredi et les
         # écrivait comme une séance du lundi — 73 bougies fantômes dupliquant
         # vendredi, avant même l'ouverture (9h30). Le week-end, même effet.
-        # Se fier à updated_at couvre aussi les jours fériés, qu'un simple test
-        # lundi-vendredi laisserait passer.
+        # Se fier à updated_at ne suffit pas quand la source elle-même date un
+        # jour fermé : le 14/08 (férié) elle a estampillé du 14 les cours du 13,
+        # et 71 bougies ont dupliqué le 13. C'est _recaler_seance_fantome() qui
+        # ramène alors IDB_ASOF à la séance réelle, en amont — ce test devient
+        # « la séance cotée n'est pas aujourd'hui » et refuse d'écrire.
         candles_dir = Path(__file__).parent / "pipeline" / "candles"
         today_str = IDB_ASOF
         if not today_str:
@@ -1560,6 +1621,15 @@ def run(dry_run=False, push=False, token=""):
                     pass
             if updated_count:
                 logger.info(f"  Candles J mis à jour : {updated_count} tickers → {today_str}")
+        # Filet : les chandelles sont aussi écrites par generate_candles.py et
+        # collect_history_bvcscrap.py, qui tiennent leur date de leurs propres
+        # sources. Le recalage ci-dessus ne protège que ce run — ce balayage
+        # rattrape ce qu'un autre a pu déposer.
+        sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
+        from seance import purger_seance_fantome
+        _dj, _nj = purger_seance_fantome()
+        if _dj:
+            logger.warning(f"  Séance fantôme {_dj} purgée : {_nj} bougies retirées")
     except Exception as _e:
         logger.warning(f"  Candles J update : {_e}")
 
