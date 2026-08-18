@@ -338,6 +338,86 @@ def _load_nlp_csv_overlay():
 
 _load_nlp_csv_overlay()
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FONDAMENTAUX PRÉVISIONNELS — IDBourse DATA+
+# ─────────────────────────────────────────────────────────────────────────────
+# Bornes de vraisemblance. Elles ne « corrigent » rien : elles écartent ce qui
+# ne peut pas être une estimation d'analyste, plutôt que de l'afficher.
+#
+# Le seuil du PER vient de la distribution mesurée sur l'export : médiane 18,
+# troisième quartile 23, puis 40, 46, 50 — et ensuite un saut à 102, 204, 404.
+# Un seuil à 100 tombe dans ce vide. Il n'écarte que Lesieur et Unimer, dont
+# les valeurs ne sont pas des prévisions mais des artefacts de l'export.
+#
+# Un PER négatif est écarté de même : une société en perte n'a pas de PER,
+# elle a un ratio dépourvu de sens qu'il vaut mieux ne pas afficher. Idem pour
+# un price-to-book négatif, qui signale des capitaux propres négatifs.
+_DP_BORNES = {
+    "per_26e":        (0.1, 100),
+    "per_27e":        (0.1, 100),
+    "dy_26e":         (0,    25),
+    "dy_27e":         (0,    25),
+    "roe_25":         (-100, 100),
+    "roa_25":         (-100, 100),
+    "pb_25":          (0.01,  50),
+    "marge_nette_25": (-100, 100),
+}
+
+
+def _load_dataplus():
+    """Fondamentaux prévisionnels de l'export IDBourse DATA+.
+
+    ⚠️ Ces valeurs ne rejoignent JAMAIS `pe`, `pb` ou `div`. DATA+ publie du
+    prévisionnel — un PER calculé sur le bénéfice attendu 2026 — là où nos
+    champs portent du réalisé. Managem à 7,3 réalisé et 29,0 attendu n'est pas
+    une contradiction à arbitrer : ce sont deux mesures différentes. Les fondre
+    fausserait les ratios publiés et, par ricochet, le score v5.3 (règle R8).
+    Elles vivent donc dans un espace de noms à part, `fwd`, où la confusion est
+    structurellement impossible.
+
+    `cap_mad` est volontairement ignoré : la capitalisation de l'export est
+    calculée sur les cours du 1er juillet. Nous la recalculons à chaque run sur
+    le cours du jour, ce qui vaut mieux qu'un chiffre vieux de sept semaines.
+
+    Renvoie {symbole: {champs retenus, "asof": date d'export}}, vide si le
+    fichier manque — le terminal affiche alors simplement moins de choses.
+    """
+    chemin = Path(__file__).parent / "pipeline" / "idbourse_dataplus.json"
+    if not chemin.exists():
+        logger.info("DATA+ : fichier absent — fondamentaux prévisionnels non publiés")
+        return {}
+    try:
+        brut = json.loads(chemin.read_text(encoding="utf-8"))
+    except Exception as e:
+        logger.warning(f"DATA+ illisible ({e}) — fondamentaux prévisionnels ignorés")
+        return {}
+
+    export_asof = str(brut.get("_export_date") or "")[:10] or None
+    out, ecartes = {}, []
+    for sym, ligne in (brut.get("tickers") or {}).items():
+        champs = {}
+        for cle, (bas, haut) in _DP_BORNES.items():
+            val = ligne.get(cle)
+            if not isinstance(val, (int, float)):
+                continue
+            if bas <= val <= haut:
+                champs[cle] = round(float(val), 2)
+            else:
+                ecartes.append(f"{sym}.{cle}={val}")
+        if champs:
+            champs["asof"] = export_asof
+            out[sym] = champs
+
+    if ecartes:
+        logger.warning(f"DATA+ : {len(ecartes)} valeur(s) hors bornes, nullifiées — "
+                       f"{', '.join(ecartes[:6])}")
+    logger.info(f"DATA+ : {len(out)} sociétés chargées (export du {export_asof})")
+    return out
+
+
+DATAPLUS = _load_dataplus()
+
 # ─────────────────────────────────────────────────────────────────────────────
 # CONNECTEUR IDBOURSE / MÉDIAS24
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1443,6 +1523,12 @@ def run(dry_run=False, push=False, token=""):
             # Sonasid — afficher notre code à l'écran désoriente face à
             # n'importe quelle autre source.
             "code_bvc": IDB_TICKER_MAP.get(ticker, ticker),
+            # Fondamentaux PRÉVISIONNELS (IDBourse DATA+), dans leur propre
+            # espace de noms. Ils ne se mélangent pas à `pe`/`pb`/`div`, qui
+            # sont du réalisé, et n'entrent pas dans le score v5.3 : modifier
+            # la pondération exigerait un backtest (R8). Ils enrichissent la
+            # fiche, ils ne la notent pas.
+            "fwd": DATAPLUS.get(ticker) or None,
             "name":   info.get("name", ticker),
             "sector": info.get("sector", ""),
             "price":  round(price, 2),

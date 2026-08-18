@@ -1365,6 +1365,40 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
             </div>
           </div>
 
+          {/* Fondamentaux prévisionnels — IDBourse DATA+.
+              Bloc distinct, jamais fondu dans celui du dessus : ces ratios
+              portent sur le bénéfice ATTENDU, ceux du dessus sur le réalisé.
+              Un PER de 7 réalisé et 29 attendu ne se contredisent pas, ils
+              disent que le bénéfice est prévu en baisse. Le libellé et la date
+              d'export sont affichés pour que la distinction se lise. */}
+          {r.fwd&&(
+          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:10,gap:8,flexWrap:"wrap"}}>
+              <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Prévisionnel <span style={{color:"#4db8ff"}}>IDBourse DATA+</span></div>
+              {/* Date d'export en entier, année comprise : l'export est
+                  rafraîchi à la main et vieillit. « 01/07 » seul ne dit pas
+                  qu'il a sept semaines, « 01/07/2026 » le laisse voir. */}
+              <div style={{fontSize:9,color:"#8892a4"}}>estimations · export du {r.fwd.asof?r.fwd.asof.split("-").reverse().join("/"):"—"}</div>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
+              {[["PER 2026e",fmt(r.fwd.per_26e,1),r.fwd.per_26e>25?"#ff8f00":"#c8d3e8"],
+                ["PER 2027e",fmt(r.fwd.per_27e,1),r.fwd.per_27e>25?"#ff8f00":"#c8d3e8"],
+                ["Rendement 2026e",r.fwd.dy_26e!=null?`${fmt(r.fwd.dy_26e,1)}%`:"—",r.fwd.dy_26e>4?"#00e5a0":"#c8d3e8"],
+                ["Rendement 2027e",r.fwd.dy_27e!=null?`${fmt(r.fwd.dy_27e,1)}%`:"—",r.fwd.dy_27e>4?"#00e5a0":"#c8d3e8"],
+                ["ROE 2025",r.fwd.roe_25!=null?`${fmt(r.fwd.roe_25,1)}%`:"—",r.fwd.roe_25>=0?"#c8d3e8":"#ff4f5a"],
+                ["Marge nette 2025",r.fwd.marge_nette_25!=null?`${fmt(r.fwd.marge_nette_25,1)}%`:"—",r.fwd.marge_nette_25>=0?"#c8d3e8":"#ff4f5a"]].map(([k,v,c])=>(
+                <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
+                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
+                  <div style={{fontSize:13,color:c,fontWeight:700}}>{v}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{fontSize:9,color:"#8892a4",marginTop:9,lineHeight:1.5}}>
+              Estimations d'analystes, non retenues dans le score. Un tiret signale
+              une valeur écartée comme invraisemblable.
+            </div>
+          </div>)}
+
           {/* RSI + NLP */}
           <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
@@ -2318,7 +2352,7 @@ function App(){
         d.tickers.forEach(t=>{m[t.symbol]={
           price:t.price,chg:t.chg,vol:t.vol||0,open:t.open,close:t.close,
           name:t.name,sector:t.sector,code_bvc:t.code_bvc,_meta:t._meta,
-          pe:t.pe,pb:t.pb,div:t.div,cap:t.cap,
+          pe:t.pe,pb:t.pb,div:t.div,cap:t.cap,fwd:t.fwd,
           h90:t.h90,l90:t.l90,ma200:t.ma200,h52w:t.h52w,l52w:t.l52w,
           rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,
           macd:t.macd,macd_signal:t.macd_signal,macd_hist:t.macd_hist,
