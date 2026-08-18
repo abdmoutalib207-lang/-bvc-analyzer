@@ -32,17 +32,42 @@ DATA      → data.json, financial_data.json, fondamentaux.json, pipeline/histor
 
 ### Architecture J+1 — Flux de production
 
-> Principe : **scraping sur Mac local (cron 19h), publication via GitHub Pages.**
-> GitHub Actions = CI léger (deploy uniquement), **jamais source de scraping principal**.
+> Principe : **collecte depuis GitHub Actions, publication via GitHub Pages.**
+> Quatre passages par jour ouvré, celui de 15h45 fixant le cours définitif.
 
 ```
-[19h00 Mac local]  → collect_pipeline.py  → data.json + candles/historical_data.json
-[19h30 Mac local]  → git push main
-[~19h35 Actions]   → deploy GitHub Pages (< 2 min, automatique)
+[≈09h30 Actions]   → update_data.py → data.json + candles/   (le terminal ne
+                                       reste pas figé sur la veille)
+[≈12h00 Actions]   → update_data.py
+[≈15h45 Actions]   → update_data.py → LE run qui compte : 15 min après la
+                                       clôture de 15h30, il fixe le cours
+[≈17h00 Actions]   → generate_candles.py
+[≈18h00 Actions]   → update_data.py → filet de sécurité
 [J+1 avant 8h00]   → bulletin disponible avant ouverture (9h30 Casablanca)
 ```
 
-**Pourquoi pas Actions ?** IDBourse et Médias24 bloquent les IPs GitHub Actions (constat 2026-06-29). GitHub Actions ne doit **jamais** scraper ces sources.
+**⚠️ Le constat du 29/06 « IDBourse et Médias24 bloquent les IP GitHub Actions »
+est PÉRIMÉ.** Mesuré le 18/08/2026 sur cinq runs consécutifs d'`update_bvc` :
+**77 titres sur 81 servis directement par IDBourse, zéro repli statique**. La
+collecte depuis Actions fonctionne.
+
+Ce qui bloquait réellement le 05/08 n'était pas l'adresse IP mais un contrôle
+de provenance : sans en-tête `Referer`, `/api/proxy/*` renvoie HTTP 403. Un
+`curl` nu reçoit ce 403 depuis n'importe quelle machine, Mac marocain compris —
+ce n'est donc pas un test de blocage d'IP. `idb_get()` envoie le Referer depuis
+le 05/08 et l'accès est rétabli.
+
+**Conséquence : le projet de migration vers le Mac local est abandonné.** Il
+résolvait un problème qui n'existe plus. Ne pas le relancer sans avoir d'abord
+constaté un vrai blocage — c'est-à-dire des runs Actions retombant en masse sur
+`static` ou `data_json_precedent` dans `_meta.source_prix`.
+
+**⚠️ Dépendance à surveiller, en revanche** : IDBourse a installé ce contrôle
+délibérément, et 95 % de nos prix viennent d'une source qui cherche à filtrer
+ses appelants. La fragilité est technique — ils peuvent resserrer du jour au
+lendemain — et contractuelle si le produit devient payant. Le chantier
+stratégique est un accès légitime (API officielle BVC, ou accord IDBourse dont
+l'export DATA+ est déjà utilisé), pas une machine de collecte différente.
 
 ## Règles Absolues (Priorité Maximale)
 
@@ -100,7 +125,8 @@ DATA      → data.json, financial_data.json, fondamentaux.json, pipeline/histor
 - **CORS proxies publics** — Hack temporaire. Travailler sur un proxy backend propre.
 - **Duplication de config** — La config existe dans bvc_config.py. Ne pas créer de nouveaux fichiers dispersés.
 - **Noms MSA/MUT** — MSA = Marsa Maroc, MUT = Mutandis SCA. Ne jamais les confondre.
-- **Scraping dans GitHub Actions** — IDBourse et Médias24 bloquent les IPs GitHub. Le scraping principal s'exécute sur Mac local (cron 19h). Actions = deploy uniquement.
+- **Boucle entre workflows** — Ne PAS faire se déclencher deux workflows l'un l'autre par `workflow_run`. `update_bvc` et `fetch_news` le faisaient : cycle de 3 à 5 min pendant toute la séance, 112 commits par jour pour un quota Pages d'environ 10 reconstructions par heure. Rompu le 18/08.
+- **Multiplier les crons** — Le produit est J+1. Vingt-sept passages quotidiens ne servaient aucune promesse tenue. Quatre suffisent, et chaque commit consomme le quota de publication dont dépend le bulletin matinal.
 - **Signal sans confidence** — Ne pas émettre ACHAT/ÉVITER si `confidence ≤ 1`. Afficher "Données insuffisantes". Un score calculé sur données stale ou 100% fallback est trompeur.
 - **`_meta` absent de data.json** — Tout objet ticker généré par le pipeline doit porter un bloc `_meta`. Son absence masque les données stale au frontend.
 </antipatterns>
@@ -314,6 +340,53 @@ Caps recalculées via `prix × nb_titres officiels BVC` après corrections ISIN 
 4. **SAM (SAMIR)** : radiée/suspendue — exclure de toute analyse, ne pas intégrer.
 
 ## Journal des décisions
+
+### 2026-08-18
+
+- **Le blocage d'IP par IDBourse n'existe pas — le constat du 29/06 était
+  périmé.** Mesure sur cinq runs consécutifs d'`update_bvc` (tous depuis
+  GitHub Actions, l'identité git `BVC Bot` étant posée par le workflow) :
+  `idbourse=77, medias24=0, static=0` à chaque fois. La collecte depuis Actions
+  fonctionne, et le projet de migration vers le Mac local est **abandonné**.
+  - Le HTTP 403 obtenu par un `curl` nu depuis le Mac ne prouvait rien : depuis
+    le 05/08, `/api/proxy/*` exige un `Referer`, et le refus est identique
+    depuis n'importe quelle machine. `idb_get()` l'envoie déjà.
+  - ⚠️ `medias24=0` ne signifie pas que Médias24 échoue : IDBourse couvrant
+    tout, le repli n'est jamais atteint. Vérifié sur trente runs — jamais
+    utilisé. Son accès depuis Actions reste donc **non testé**.
+
+- **Boucle entre workflows rompue — cause réelle des 112 commits/jour.**
+  `update_bvc` se déclenchait à la fin de `fetch_news`, qui se déclenchait à la
+  fin d'`update_bvc`. Le commentaire du fichier l'assumait : « cycle BVC → news
+  → BVC → news pendant toute la session (≈3-5 min/cycle) ». Sur six heures de
+  séance, quatre-vingt-dix à cent vingt runs à soi seul.
+  - Coupé **des deux côtés** : une seule coupure laisserait le cycle repartir.
+  - Le déclenchement après le pipeline v9 est conservé — v9 écrit `data.json`
+    sans émettre `_meta`, un run derrière lui les rétablit.
+  - `update_bvc` passe de 27 crons à 4 : ouverture, mi-séance, 15h45 (quinze
+    minutes après la clôture, c'est celui qui fixe le cours définitif) et 18h.
+  - Attendu : au plus 28 runs/jour contre plus de 140, et seuls ceux qui
+    modifient un fichier commitent.
+
+- **Fondamentaux prévisionnels DATA+ publiés** dans un espace de noms `fwd`,
+  jamais fondu dans `pe`/`pb`/`div`. DATA+ donne du prévisionnel, ces champs du
+  réalisé — Managem à 7,5 réalisé et 29,0 attendu ne se contredisent pas, ils
+  disent que le bénéfice est prévu en baisse. Le score v5.3 n'y touche pas (R8).
+  - Seuil d'aberration déduit de la distribution : médiane 18, Q3 23, puis 40,
+    46, 50 — et un saut à 102, 204, 404. Le seuil de 100 tombe dans ce vide et
+    n'écarte que Lesieur et Unimer. Un PER ou un price-to-book négatif est
+    écarté de même. Cinq valeurs nullifiées, journalisées à chaque run.
+  - Les autres champs de ces sociétés sont conservés : le ROE de 0,5 % de
+    Lesieur explique précisément pourquoi son PER n'avait aucun sens.
+  - ⚠️ L'export se rafraîchit **à la main** et vieillit — celui-ci date du
+    01/07. La fiche affiche la date complète pour que ça se voie.
+
+- **⚠️ Le drapeau `stale` d'IDBourse ne veut pas dire « périmé » mais « pas en
+  direct ».** Il passe à vrai dès la clôture. Le correctif MASI du 14/08 s'y
+  fiait et allumait donc l'alerte en permanence hors séance — c'est-à-dire en
+  permanence pour un bulletin publié avant l'ouverture. Une alerte toujours
+  allumée n'alerte plus. Seule la date de la charge utile fait foi désormais,
+  et elle suffisait : au 14/08 la valeur était datée du 10.
 
 ### 2026-08-14
 
