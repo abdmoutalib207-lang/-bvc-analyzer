@@ -572,12 +572,18 @@ def fetch_masi():
     # silencieusement {value: 0} en cas d'échec.
     m = idb_get("/api/proxy/masi-data", timeout=45)
     if m and m.get("value"):
-        # La charge utile porte sa propre date et un drapeau `stale` — on les
-        # lisait pas. Relevé le 14/08 : l'endpoint servait encore la valeur du
-        # 10/08 avec « stale: true », et l'en-tête l'affichait comme l'indice
-        # du jour. Quatre jours d'un chiffre faux, sans le moindre signe.
+        # La charge utile porte sa propre date, qu'on ne lisait pas. Relevé le
+        # 14/08 : l'endpoint servait encore la valeur du 10/08 et l'en-tête
+        # l'affichait comme l'indice du jour. Quatre jours d'un chiffre faux.
+        #
+        # ⚠️ Le drapeau `stale` de la source ne dit PAS « donnée périmée » : il
+        # dit « pas en direct », et il vaut true dès la clôture. S'y fier
+        # allumait l'alerte en permanence hors séance — donc en permanence pour
+        # un produit J+1 publié avant l'ouverture. Une alerte toujours allumée
+        # n'alerte plus. Seule la date fait foi, et elle suffit : au 14/08 la
+        # charge utile était datée du 10, la comparaison l'aurait attrapée.
         asof = str(m.get("date") or "")[:10]
-        perime = bool(m.get("stale")) or (bool(IDB_ASOF) and bool(asof) and asof < IDB_ASOF)
+        perime = bool(IDB_ASOF) and bool(asof) and asof < IDB_ASOF
         if perime:
             logger.warning(f"MASI périmé — valeur de la séance {asof or 'inconnue'}")
         return {"value": float(m["value"]), "chg": float(m.get("variation", 0) or 0),
