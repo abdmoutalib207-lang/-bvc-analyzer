@@ -16,13 +16,13 @@ on:
     # À la demie, les publications retombent autour de l'heure pile.
     - cron: '30 * * * *'
 
-  # Chaîne auto-entretenue : BVC Data Update termine → déclenche news
-  # News termine → déclenche BVC Data Update (avec gate session)
-  # Cycle : BVC → news → BVC → news pendant toute la session (≈3-5 min/cycle)
-  # Hors session : news tourne seul via le cron horaire
-  workflow_run:
-    workflows: ["BVC Data Update"]
-    types: [completed]
+  # ⚠️ La chaîne auto-entretenue a été retirée le 18/08. Elle déclenchait
+  # news à la fin de chaque update_bvc, lequel se déclenchait à la fin de
+  # chaque news : un cycle toutes les 3 à 5 minutes pendant toute la séance.
+  # C'était la source réelle des 112 commits quotidiens — le quota Pages est
+  # d'environ dix reconstructions par heure, et la publication matinale en
+  # dépend. Ne pas la rétablir : le cron horaire suffit, et il ne commite que
+  # lorsque news.json a réellement changé.
 
   workflow_dispatch:
 

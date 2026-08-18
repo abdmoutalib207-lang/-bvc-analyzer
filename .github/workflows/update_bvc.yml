@@ -10,38 +10,39 @@ name: BVC Data Update
 
 on:
   schedule:
-    # Crons explicites UTC (Casablanca = UTC+1)
-    # Session BVC : 09h30–15h45 Casablanca = 08h30–14h45 UTC
-    - cron: '30 8 * * 1-5'    # 09h30 — ouverture
-    - cron: '45 8 * * 1-5'    # 09h45
-    - cron:  '0 9 * * 1-5'    # 10h00
-    - cron: '15 9 * * 1-5'    # 10h15
-    - cron: '30 9 * * 1-5'    # 10h30
-    - cron: '45 9 * * 1-5'    # 10h45
-    - cron:  '0 10 * * 1-5'   # 11h00
-    - cron: '15 10 * * 1-5'   # 11h15
-    - cron: '30 10 * * 1-5'   # 11h30
-    - cron: '45 10 * * 1-5'   # 11h45
-    - cron:  '0 11 * * 1-5'   # 12h00
-    - cron: '15 11 * * 1-5'   # 12h15
-    - cron: '30 11 * * 1-5'   # 12h30
-    - cron: '45 11 * * 1-5'   # 12h45
-    - cron:  '0 12 * * 1-5'   # 13h00
-    - cron: '15 12 * * 1-5'   # 13h15
-    - cron: '30 12 * * 1-5'   # 13h30
-    - cron: '45 12 * * 1-5'   # 13h45
-    - cron:  '0 13 * * 1-5'   # 14h00
-    - cron: '15 13 * * 1-5'   # 14h15
-    - cron: '30 13 * * 1-5'   # 14h30
-    - cron: '45 13 * * 1-5'   # 14h45
-    - cron:  '0 14 * * 1-5'   # 15h00
-    - cron: '15 14 * * 1-5'   # 15h15
-    - cron: '30 14 * * 1-5'   # 15h30
-    - cron: '45 14 * * 1-5'   # 15h45 — clôture
-    - cron:  '0 15 * * 1-5'   # 16h00 — post-clôture
+    # Crons explicites UTC (Casablanca = UTC+1).
+    #
+    # Quatre passages, et non plus vingt-sept. Le produit est J+1 : sa promesse
+    # est « dernière clôture fiable », pas le temps réel. Vingt-sept runs ne
+    # servaient aucune promesse tenue, et chaque run pousse un commit qui
+    # déclenche une reconstruction de GitHub Pages — quota d'environ dix par
+    # heure. Relevé sur huit jours : 112 commits par jour, pic à 135.
+    #
+    # ⚠️ GitHub décale les tâches programmées de 30 à 50 minutes selon la
+    # charge (mesuré le 11/08). Les heures ci-dessous sont donc des bornes
+    # basses, ce qui est sans conséquence ici : aucune ne vise une minute
+    # précise, et celle qui compte est postérieure à la clôture.
+    - cron: '30 8 * * 1-5'    # ≈09h30 — ouverture, pour que le terminal
+                              #          ne reste pas figé sur la veille
+    - cron:  '0 11 * * 1-5'   # ≈12h00 — mi-séance
+    - cron: '45 14 * * 1-5'   # ≈15h45 — LE run qui compte : 15 min après la
+                              #          clôture de 15h30, il fixe le cours
+                              #          définitif de la séance
+    - cron:  '0 17 * * 1-5'   # ≈18h00 — filet de sécurité, après que
+                              #          generate_candles (17h) soit passé
 
+  # ⚠️ NE PAS réintroduire « BVC News Fetch » ici. Les deux workflows se
+  # déclenchaient mutuellement — BVC → news → BVC → news, un cycle toutes les
+  # 3 à 5 minutes pendant toute la séance. C'était la source réelle des
+  # 112 commits quotidiens, bien avant les crons. La boucle est rompue côté
+  # update_bvc ici, et côté fetch_news dans son propre fichier ; les deux
+  # coupures sont nécessaires, une seule laisserait le cycle repartir.
+  #
+  # Le pipeline v9 reste, et pour une raison précise : il écrit data.json sans
+  # émettre les blocs `_meta`. Un run d'update_bvc derrière lui les rétablit.
+  # Il est déclenché à la main, donc sans effet sur le volume.
   workflow_run:
-    workflows: ["BVC Financial Data Pipeline v9", "BVC News Fetch"]
+    workflows: ["BVC Financial Data Pipeline v9"]
     types: [completed]
 
   workflow_dispatch:
