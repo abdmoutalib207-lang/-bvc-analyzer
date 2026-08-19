@@ -53,7 +53,7 @@ except NameError:
     OUTPUT = Path("data.json")  # Colab : dossier courant
 
 from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
-                        COMPANY_NAMES, COMPANY_SECTORS)
+                        COMPANY_NAMES, COMPANY_SECTORS, est_ferie_fixe)
 
 TICKERS = TICKERS_ALL
 
@@ -630,11 +630,21 @@ def _recaler_seance_fantome(live_prices):
         veille = max(veille, serie[-1].get("d") or "")
         if round(float(prix), 2) == round(float(serie[-1].get("c") or 0), 2):
             ident += 1
-    if total >= 20 and ident / total >= 0.95 and veille:
+    # Un férié connu abaisse le seuil sans se substituer à la mesure : le
+    # calendrier relève la présomption, la donnée tranche. Si la Bourse cotait
+    # malgré tout un jour férié, les clôtures différeraient et rien ne serait
+    # purgé.
+    ferie = est_ferie_fixe(IDB_ASOF)
+    seuil = 0.70 if ferie else 0.95
+    if ferie:
+        logger.warning(f"{IDB_ASOF} est un jour férié à date fixe — "
+                       f"seuil de détection abaissé à {seuil:.0%}")
+    if total >= 20 and ident / total >= seuil and veille:
         logger.warning(
             f"Séance fantôme : la source date ses cours du {IDB_ASOF}, mais "
             f"{ident}/{total} clôtures sont identiques au {veille}. Marché "
-            f"fermé (férié ?) — séance ramenée au {veille}.")
+            f"fermé{' — férié confirmé' if ferie else ' (férié ?)'} — "
+            f"séance ramenée au {veille}.")
         # Recaler aussi la date portée par chaque ligne : c'est elle qui
         # alimente `_meta.prix_asof`. La laisser au 14/08 afficherait sur le
         # terminal une séance fictive comme dernière cotation connue.
@@ -1595,7 +1605,13 @@ def run(dry_run=False, push=False, token=""):
 
     # 5. Construction data.json
     output = {
-        "updated": datetime.now().strftime("%Y-%m-%dT%H:%M:%S+01:00"),
+        # ⚠️ L'offset +01:00 était écrit en dur sur un `datetime.now()` naïf.
+        # Les runners GitHub sont en UTC : l'heure produite était donc celle
+        # d'UTC, étiquetée Casablanca — soit une heure de retard affichée en
+        # permanence dans l'en-tête du terminal. Le message de commit, lui,
+        # utilise `TZ=Africa/Casablanca date` et donnait l'heure juste : d'où
+        # un data.json marqué 11h31 dans un commit intitulé 12h31.
+        "updated": datetime.now(timezone(timedelta(hours=1))).strftime("%Y-%m-%dT%H:%M:%S%z"),
         "source":  "IDBourse / Médias24",
         "market_status": mkt_status,
         "masi": {

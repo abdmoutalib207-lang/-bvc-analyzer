@@ -25,8 +25,11 @@ permissions:
   contents: write
 
 # Même groupe que update_bvc.yml pour éviter les push simultanés sur main
+# Même groupe qu'update_bvc : les deux poussent sur main et se écrasaient
+# mutuellement. Un groupe partagé les met en file au lieu de les laisser
+# courir l'un contre l'autre.
 concurrency:
-  group: bvc-data-push
+  group: bvc-main-push
   cancel-in-progress: false
 
 jobs:
@@ -74,7 +77,16 @@ jobs:
           for attempt in 1 2 3; do
             git fetch origin main
             git reset origin/main          # mixed reset : préserve les fichiers générés
-            git add financial_data.json data.json || true
+            # ⚠️ NE PAS ajouter data.json ici. Ce fichier appartient à
+            # update_bvc, et lui seul. v9 le régénérait depuis l'instantané
+            # qu'il avait lu au démarrage de son run : le 19/08, parti à
+            # 15h40, il a commité à 16h08 et fait reculer 57 prix vers ceux
+            # de 11h31 — IAM de 101,1 à 100,0, CIH de 350 à 346. Le `git reset`
+            # ci-dessus est volontairement « mixed » et conserve les fichiers
+            # générés, si bien que le `git add` réappliquait la version
+            # périmée par-dessus celle qui venait d'être poussée.
+            # v9 n'écrit plus que financial_data.json, que le moteur relit.
+            git add financial_data.json || true
             if git diff --cached --quiet; then
               echo "Aucun changement vs origin/main — skip commit"
               exit 0

@@ -57,9 +57,10 @@ permissions:
   contents: write
   actions: write   # nécessaire pour le self-dispatch (auto-relais)
 
+# Groupe partagé avec le pipeline v9 : tous deux poussent sur main.
 concurrency:
-  group: bvc-live-update
-  cancel-in-progress: true
+  group: bvc-main-push
+  cancel-in-progress: false
 
 jobs:
   update-bvc-data:
