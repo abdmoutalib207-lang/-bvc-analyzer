@@ -327,6 +327,46 @@ IDB_TICKER_MAP: dict = {
 # Chaque entrée : date d'effet + ratio. Les cours ANTÉRIEURS à la date d'effet
 # sont divisés par le ratio. Ne s'applique qu'aux données FRAÎCHEMENT
 # téléchargées — les candles déjà stockées sont ajustées (cf. adjust_splits).
+# ─────────────────────────────────────────────────────────────────────────────
+# JOURS FÉRIÉS À DATE FIXE
+# ─────────────────────────────────────────────────────────────────────────────
+# UNIQUEMENT les fêtes du calendrier grégorien : leur date ne bouge jamais,
+# donc cette table ne périme pas. Les fêtes religieuses (Aïd al-Fitr, Aïd
+# al-Adha, Nouvel an hégirien, Mawlid) suivent le calendrier lunaire et ne sont
+# confirmées par décret que quelques jours à l'avance — les inscrire ici
+# produirait une liste fausse au bout d'un an, et une liste fausse est pire
+# que pas de liste : elle donne une confiance injustifiée.
+#
+# ⚠️ Ce calendrier n'est PAS l'autorité. Il ne fait qu'abaisser le seuil de
+# `_recaler_seance_fantome()`, qui reste le juge : c'est la donnée du marché
+# qui décide si une séance a eu lieu, pas une table écrite d'avance. Si la
+# Bourse cotait un jour férié, la détection statistique ne s'y tromperait pas.
+#
+# Le 14/08/2026 (Allégeance Oued Eddahab) est le cas qui a motivé cette table :
+# 71 bougies écrites pour un jour sans cotation.
+JOURS_FERIES_FIXES: set = {
+    (1,  1),   # Nouvel An
+    (1, 11),   # Manifeste de l'Indépendance
+    (1, 14),   # Nouvel An amazigh (Yennayer) — férié officiel depuis 2024
+    (5,  1),   # Fête du Travail
+    (7, 30),   # Fête du Trône
+    (8, 14),   # Allégeance Oued Eddahab
+    (8, 20),   # Révolution du Roi et du Peuple
+    (8, 21),   # Fête de la Jeunesse
+    (11, 6),   # Marche Verte
+    (11, 18),  # Fête de l'Indépendance
+}
+
+
+def est_ferie_fixe(date_iso: str) -> bool:
+    """Vrai si la date « AAAA-MM-JJ » tombe sur un férié à date fixe."""
+    try:
+        _, m, j = date_iso[:10].split("-")
+        return (int(m), int(j)) in JOURS_FERIES_FIXES
+    except (ValueError, AttributeError):
+        return False
+
+
 SPLITS: dict = {
     # Managem : VN 100 → VN 10 le 27/07/2026. Actions 11 864 676 → 118 646 760.
     # Nouvel ISIN MA0000012866 (ancien MA0000011058 radié).
