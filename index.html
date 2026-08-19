@@ -911,7 +911,7 @@ const TickerTape=({rows})=>{
 };
 
 // ── HEADER ────────────────────────────────────────────────────────────────────
-const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode,masi})=>{
+const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode,masi,majMsg})=>{
   const [pulse,setPulse]=useState(false);
   const [clock,setClock]=useState("");
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
@@ -966,7 +966,14 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
         </div>
         <div style={{display:"flex",gap:8,alignItems:"center"}}>
           {src&&<span style={{fontSize:10,color:"#8892a4"}}>données: {src}</span>}
-          <button onClick={onRefresh} disabled={loading} style={{background:"rgba(77,184,255,.12)",border:"1px solid rgba(77,184,255,.35)",color:"#4db8ff",borderRadius:4,padding:"5px 14px",fontSize:12,opacity:loading?.7:1}}>{loading?"↻ Chargement…":"↻ Actualiser"}</button>
+          {/* Le bouton dit ce qu'il a fait. « Rien ne se passe » veut le plus
+              souvent dire « rien de plus récent n'existe » — le pipeline
+              publie quatre fois par jour ouvré, pas en continu. Sans retour,
+              l'utilisateur croit le bouton cassé. */}
+          <button onClick={onRefresh} disabled={loading} title="Recharger data.json depuis le serveur"
+                  style={{background:"rgba(77,184,255,.12)",border:"1px solid rgba(77,184,255,.35)",color:"#4db8ff",borderRadius:4,padding:"5px 14px",fontSize:12,opacity:loading?.7:1,cursor:loading?"default":"pointer"}}>
+            {loading?"↻ Chargement…":"↻ Actualiser"}</button>
+          {majMsg&&<span style={{fontSize:10,color:majMsg.neuf?"#00e5a0":"#8892a4",whiteSpace:"nowrap"}}>{majMsg.texte}</span>}
           {fetchErr&&<span style={{fontSize:10,color:"#ff4f5a",marginLeft:8}}>⚠️ Données live indisponibles — affichage statique</span>}
         </div>
         <div style={{textAlign:"right",fontSize:11}}>
@@ -2315,6 +2322,14 @@ function App(){
     return()=>clearInterval(t);
   },[]);
 
+  // Retour visible du bouton Actualiser : neuf = données plus récentes qu'avant.
+  const [majMsg,setMajMsg]=useState(null);
+  const dernierUpd=useRef(null);
+  const annonce=useCallback((texte,neuf)=>{
+    setMajMsg({texte,neuf});
+    setTimeout(()=>setMajMsg(null),6000);
+  },[]);
+
   // Merge live quote data into rows (functional update, no dep on rows)
   const mergeLive=useCallback((liveMap)=>{
     const propres=o=>Object.fromEntries(Object.entries(o).filter(([,v])=>v!==undefined));
@@ -2340,7 +2355,7 @@ function App(){
   },[]);
 
   // Load data: data.json (backend pipeline) → overlay live IDBourse/Médias24 pendant session
-  const loadData=useCallback(async()=>{
+  const loadData=useCallback(async(manuel=false)=>{
     setLoading(true);
     // Étape 1 : data.json — source principale (pipeline GitHub Actions)
     let pipelineLoaded=false;
@@ -2378,6 +2393,12 @@ function App(){
         const timeStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit",second:"2-digit"}):"";
         const dateStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",year:"numeric"}):"";
         setTs(dateStr&&timeStr?`${dateStr} ${timeStr}`:"");
+        if(manuel){
+          const neuf=dernierUpd.current!==null&&d.updated!==dernierUpd.current;
+          annonce(neuf?`✓ mis à jour · ${timeStr}`
+                     :`déjà à jour · données de ${timeStr}`, neuf);
+        }
+        dernierUpd.current=d.updated;
         pipelineLoaded=true;
       }
     }catch{}
@@ -2415,7 +2436,7 @@ function App(){
     setFetchErr(true);
     setSrc("⚠ données statiques");
     setLoading(false);
-  },[mergeLive]);
+  },[mergeLive,annonce]);
 
   // Chargement initial + auto-refresh toutes les 60s pendant la séance, 5 min hors séance
   useEffect(()=>{
@@ -2432,7 +2453,7 @@ function App(){
   return(
     <div style={{minHeight:"100vh"}}>
       <TickerTape rows={rows}/>
-      <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={loadData} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode} masi={masi}/>
+      <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={()=>loadData(true)} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode} masi={masi} majMsg={majMsg}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
         {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab}/>}
