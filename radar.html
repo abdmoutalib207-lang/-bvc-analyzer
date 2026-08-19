@@ -179,7 +179,16 @@
 <script>
 /* Même vocabulaire que l'onglet ACTUALITÉS du terminal, pour que l'utilisateur
    ne change pas de repères en passant de l'un à l'autre. */
-const INTL = new Set(["geopolitique","commodites"]);
+/* La portée géographique est désormais posée par article, dans news.json.
+   Elle était auparavant déduite de la catégorie — « geopolitique » et
+   « commodites » réputées internationales, tout le reste marocain. Ça ne
+   pouvait pas marcher : « le taux d'emprunt des États-Unis au plus haut »
+   arrivait de BourseNews, catégorie « bvc », donc affiché comme marocain.
+   Un article sans champ `scope` (archive ancienne) retombe sur l'ancienne
+   règle, le temps qu'il expire. */
+const INTL_CAT = new Set(["geopolitique","commodites"]);
+const estIntl = a => a.scope ? a.scope === "INTL"
+                             : INTL_CAT.has(a.category || "economie");
 const CAT_LBL = {bvc:"BVC", economie:"Éco", macro:"Macro",
                  geopolitique:"Géopolitique", commodites:"Matières 1ères"};
 const CAT_COL = {bvc:"#4db8ff", economie:"#8892a4", macro:"#ffd740",
@@ -220,8 +229,8 @@ function pertinents(){
     vus.add(k); return true;
   });
 }
-const parScope = l => scope==="MAROC" ? l.filter(a=>!INTL.has(a.category||"economie"))
-                    : scope==="INTL"  ? l.filter(a=> INTL.has(a.category||"economie")) : l;
+const parScope = l => scope==="MAROC" ? l.filter(a=>!estIntl(a))
+                    : scope==="INTL"  ? l.filter(a=> estIntl(a)) : l;
 /* Recherche insensible à la casse ET aux accents : « economie » doit trouver
    « économie ». Porte sur le titre, la source et les tickers. */
 const sansAccent = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
@@ -259,7 +268,7 @@ function vide(){
 
 function dessiner(){
   const base = pertinents();
-  const nMa = base.filter(a=>!INTL.has(a.category||"economie")).length;
+  const nMa = base.filter(a=>!estIntl(a)).length;
   const nIn = base.length - nMa;
 
   document.getElementById("scopes").innerHTML =

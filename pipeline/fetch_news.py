@@ -70,7 +70,10 @@ SOURCE_CATEGORY = {
     "L'Économiste Bourse":   "bvc",
     "L'Économiste":          "bvc",
     "Casabourse":            "bvc",
-    "LeBrief":               "bvc",
+    # LeBrief publie de l'actualité générale, pas de la bourse : le classer
+    # « bvc » envoyait football et politique dans la catégorie la plus
+    # financière du radar.
+    "LeBrief":               "economie",
     "BVC Sociétés":          "bvc",
     "FLM":                   "bvc",
     "Investing Maroc":       "bvc",
@@ -121,6 +124,87 @@ _RE_POS = _motif(POSITIVE_KW)
 _RE_NEG = _motif(NEGATIVE_KW)
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# CADRAGE FINANCE DES ÉDITEURS GÉNÉRALISTES
+# ─────────────────────────────────────────────────────────────────────────────
+# La plupart des relais Google News sont cadrés dans leur requête
+# (« site:x.ma +(bourse OR MASI OR entreprise OR résultats OR économie) »).
+# Ces sept-là sont pris sur leur flux RSS direct, qui n'a aucun cadrage : ils
+# rapatrient tout ce que l'éditeur publie. Comme SOURCE_CATEGORY est par
+# source et non par article, le football et les élections héritaient de la
+# catégorie de leur média — LeBrief était même classé « bvc », si bien que
+# « Patrick Vieira nommé sélectionneur » et « Botola Pro » atterrissaient dans
+# la catégorie la plus financière du radar.
+SOURCES_GENERALISTES = {
+    "LeBrief", "Infomediaire", "Challenge Maroc", "Les Inspirations Éco",
+    "La Vie Éco", "Aujourd'hui le Maroc", "EcoActu",
+    # Généralistes internationaux : leurs flux couvrent toute l'Afrique et
+    # toute l'actualité, pas seulement l'économie.
+    "Jeune Afrique", "Le Monde Afrique",
+}
+
+# Vocabulaire délibérément FORT : chaque terme désigne une réalité financière
+# et rien d'autre. Les mots génériques — secteur, projet, contrat, groupe,
+# entreprise, marché — ont été retirés après mesure : ils laissaient passer
+# « Botola Pro : le passage à 20 clubs » et « les médecins alertent ».
+_FINANCE = re.compile("|".join([
+    r"bourse", r"masi\b", r"msi\s?20", r"cotation", r"cot[ée]e?s?\b",
+    r"introduction en bourse", r"capitalisation", r"dividende", r"r[ée]sultat net",
+    r"chiffre.s? d.affaires", r"b[ée]n[ée]fice", r"ebitda",
+    r"marge (nette|op[ée]rationnelle)", r"augmentation de capital", r"obligataire",
+    r"emprunt", r"opcvm", r"\bammc\b", r"actionnaire|actionnariat",
+    r"lev[ée]e de fonds", r"capital.risque", r"fusion|acquisition",
+    r"bank al.?maghrib", r"banque centrale", r"taux directeur", r"\bhcp\b",
+    r"\bpib\b", r"inflation", r"balance commerciale", r"d[ée]ficit", r"exc[ée]dent",
+    r"budget", r"finances publiques", r"imp[ôo]t|fiscal", r"dirham|devise",
+    r"banque|bancaire", r"assurance", r"cr[ée]dit", r"financement",
+    r"investissement|investisseur", r"exportation|importation",
+    r"[ée]conomie|[ée]conomique", r"conjoncture",
+    r"cours de l.or|m[ée]taux pr[ée]cieux", r"p[ée]trole|gaz naturel",
+]), re.IGNORECASE)
+
+
+# La géographie et le sujet sont deux axes distincts. `category` décrit le
+# sujet (bourse, macro, matières premières, géopolitique) ; le radar s'en
+# servait pour deviner le pays, ce qui ne pouvait pas marcher : « le taux
+# d'emprunt des États-Unis au plus haut » était classé « bvc », donc marocain.
+# La portée se déduit du texte de l'article, pas de sa source ni de son thème.
+_MAROCAIN = re.compile("|".join([
+    r"\bmaroc", r"marocain", r"\bmasi\b", r"\bmsi\s?20\b", r"bourse de casablanca",
+    r"casablanca", r"\brabat\b", r"tanger|marrakech|agadir|f[èe]s\b|oujda|t[ée]touan",
+    r"kenitra|safi\b|essaouira|la[aâ]youne|dakhla|mekn[èe]s|nador|el jadida",
+    r"dirham|\bmad\b|\bmdh\b|\bmmdh\b", r"bank al.?maghrib|\bbkam\b",
+    r"\bammc\b", r"\bhcp\b", r"\bbvc\b", r"\bcdg\b",
+    r"\bocp\b|\bonee\b|\bonda\b|\bcnss\b|\bmre\b|\bram\b",
+]), re.IGNORECASE)
+
+
+def _scope(text: str, tickers: list) -> str:
+    """« MAROC » ou « INTL » — la portée géographique de l'article.
+
+    Une société cotée citée tranche immédiatement : c'est du marocain.
+    Sinon, on cherche une marque explicite du pays. En son absence l'article
+    est international, y compris s'il vient d'un éditeur marocain — Medias24
+    couvre le Nigeria, BourseNews les taux américains.
+    """
+    return "MAROC" if (tickers or _MAROCAIN.search(text)) else "INTL"
+
+
+def _est_financier(source: str, text: str, tickers: list) -> bool:
+    """L'article a-t-il sa place dans un radar financier ?
+
+    Ne s'applique qu'aux éditeurs généralistes : les flux spécialisés (AMMC,
+    BourseNews, Hespress Éco, matières premières…) sont financiers par
+    construction et passent sans contrôle.
+
+    Une société cotée citée suffit — c'est le signal le plus fort dont on
+    dispose, et il précède le vocabulaire.
+    """
+    if source not in SOURCES_GENERALISTES:
+        return True
+    return bool(tickers) or bool(_FINANCE.search(text))
+
+
 def _sentiment(text: str) -> str:
     """Tonalité d'un article, d'après le vocabulaire employé.
 
@@ -154,8 +238,19 @@ def _tag_tickers(text: str) -> list:
     CI), ce qui a évité le pire ; la laisser en place aurait été une mine.
     """
     t = text.lower()
-    trouves = {ticker for ticker, aliases in TICKER_ALIASES.items()
-               if any(alias in t for alias in aliases)}
+    trouves = set()
+    for ticker, aliases in TICKER_ALIASES.items():
+        for alias in aliases:
+            if alias in ALIAS_AMBIGUS:
+                # Nom commun français : n'accepter que la forme capitalisée du
+                # texte d'origine. Sans ça « les milices forment des alliances
+                # fragiles » taggait Alliances Développement Immobilier, et
+                # l'article remontait dans le fil marocain comme actualité
+                # d'une société cotée.
+                if re.search(r"\b" + re.escape(alias.capitalize()) + r"\b", text):
+                    trouves.add(ticker); break
+            elif alias in t:
+                trouves.add(ticker); break
     return sorted(trouves | _sigles(text))
 
 
@@ -173,6 +268,10 @@ def _tag_tickers(text: str) -> list:
 # Un titre écrit tout en capitales ne porte plus d'information de casse : la
 # passe s'y désactive, sans quoi « LE GAZ ET LE PÉTROLE EN BAISSE » taggerait
 # Afriquia Gaz.
+# Alias qui sont aussi des noms communs français. Même problème que
+# SIGLES_AMBIGUS, mais sur la passe alias : ils ne comptent que capitalisés.
+ALIAS_AMBIGUS = {"alliances"}
+
 _SIGLES = {t: re.compile(r'\b' + t + r'\b')
            for t in TICKER_ALIASES if t not in SIGLES_AMBIGUS}
 
@@ -244,6 +343,10 @@ def fetch_rss(url: str, source_name: str, max_items=30) -> list:
             date  = (item.findtext("pubDate") or item.findtext("dc:date") or "").strip()
             if not title: continue
             text = f"{title} {desc}"
+            tickers = _tag_tickers(text)
+            # Éditeur généraliste : l'article doit prouver qu'il est financier.
+            if not _est_financier(source_name, text, tickers):
+                continue
             articles.append({
                 "id":        _article_id(link, title),
                 "title":     title,
@@ -252,7 +355,8 @@ def fetch_rss(url: str, source_name: str, max_items=30) -> list:
                 "source":    source_name,
                 "category":  category,
                 "date":      _parse_date(date),
-                "tickers":   _tag_tickers(text),
+                "tickers":   tickers,
+                "scope":     _scope(text, tickers),
                 "sentiment": _sentiment(text),
             })
             if len(articles) >= max_items: break
@@ -281,6 +385,7 @@ def fetch_rss(url: str, source_name: str, max_items=30) -> list:
                     "category":  category,
                     "date":      _parse_date(date),
                     "tickers":   _tag_tickers(text),
+                    "scope":     _scope(text, _tag_tickers(text)),
                     "sentiment": _sentiment(text),
                 })
                 if len(articles) >= max_items: break
@@ -320,6 +425,7 @@ def fetch_medias24_api(max_items=20) -> list:
                         "category":  "bvc",
                         "date":      _parse_date(date),
                         "tickers":   _tag_tickers(text),
+                        "scope":     _scope(text, _tag_tickers(text)),
                         "sentiment": _sentiment(text),
                     })
                 if articles:
@@ -355,6 +461,7 @@ def fetch_idb_news(max_items=15) -> list:
                     "category":  "bvc",
                     "date":      _parse_date(date),
                     "tickers":   _tag_tickers(text),
+                    "scope":     _scope(text, _tag_tickers(text)),
                     "sentiment": _sentiment(text),
                 })
             log.info(f"IDBourse news: {len(articles)} articles")
@@ -474,14 +581,22 @@ def _load_archive() -> tuple:
         # Le sentiment est recalculé lui aussi : sans ça, une correction des
         # règles ne s'appliquerait qu'aux articles neufs et l'archive
         # continuerait d'afficher des étiquettes produites par l'ancien code.
+        retenus = []
         for a in fresh:
             text = f"{a.get('title','')} {a.get('summary','')}"
             a["tickers"] = _tag_tickers(text)
             a["sentiment"] = _sentiment(text)
-            if "category" not in a:
-                a["category"] = SOURCE_CATEGORY.get(a.get("source", ""), "economie")
+            a["category"] = SOURCE_CATEGORY.get(a.get("source", ""), "economie")
+            a["scope"] = _scope(text, a["tickers"])
+            # Le cadrage finance s'applique aussi à l'archive : sans ça, les
+            # articles déjà stockés continueraient de polluer le fil jusqu'à
+            # leur expiration, soit une semaine.
+            if _est_financier(a.get("source", ""), text, a["tickers"]):
+                retenus.append(a)
+        ecartes = len(fresh) - len(retenus)
+        fresh = retenus
         ids = {a["id"] for a in fresh}
-        log.info(f"Archive chargée : {len(fresh)}/{len(articles)} articles (< {ARCHIVE_DAYS}j), re-taggés")
+        log.info(f"Archive chargée : {len(fresh)}/{len(articles)} articles (< {ARCHIVE_DAYS}j), re-taggés · {ecartes} écartés comme non financiers")
         return fresh, ids
     except Exception as e:
         log.warning(f"Impossible de charger l'archive : {e}")
