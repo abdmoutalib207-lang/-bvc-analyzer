@@ -1123,7 +1123,11 @@ def run(dry_run=False, push=False, token=""):
     h, mn = now_ca.hour, now_ca.minute
     tot = h * 60 + mn
     day = now_ca.weekday()  # 0=lun, 5=sam, 6=dim
-    if day >= 5:
+    # Un férié à date fixe ferme la Bourse aussi sûrement qu'un dimanche. Sans
+    # ce test, le statut annonçait OPEN de 9h30 à 15h30 les 20 et 21/08, deux
+    # jours fériés : l'en-tête du terminal affichait un marché ouvert, et le
+    # disjoncteur « marché fermé + source en panne » ne protégeait pas.
+    if day >= 5 or est_ferie_fixe(now_ca.strftime("%Y-%m-%d")):
         mkt_status = "CLOSED"
     elif 9*60+20 <= tot < 9*60+30:
         mkt_status = "PRE_MARKET"
