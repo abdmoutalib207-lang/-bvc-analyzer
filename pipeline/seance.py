@@ -97,6 +97,27 @@ def purger_seance_fantome(candles_dir=None, dry_run=False):
     return derniere, n
 
 
+def derniere_seance_connue(candles_dir=None):
+    """Date de la séance la plus récente présente dans les chandelles.
+
+    Sert de repère quand la source est muette : sans elle, rien ne permet de
+    contredire une charge utile qui se date elle-même du jour. Renvoie une
+    chaîne « AAAA-MM-JJ », ou "" si aucune chandelle n'est lisible.
+    """
+    d = Path(candles_dir) if candles_dir else CANDLES_DIR
+    if not d.exists():
+        return ""
+    dernieres = []
+    for f in d.glob("*.json"):
+        try:
+            s = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if isinstance(s, list) and s:
+            dernieres.append(s[-1].get("d") or "")
+    return max(dernieres) if dernieres else ""
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     import argparse

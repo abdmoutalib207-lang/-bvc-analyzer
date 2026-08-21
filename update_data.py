@@ -673,8 +673,31 @@ def fetch_masi():
         # n'alerte plus. Seule la date fait foi, et elle suffit : au 14/08 la
         # charge utile était datée du 10, la comparaison l'aurait attrapée.
         asof = str(m.get("date") or "")[:10]
-        perime = bool(IDB_ASOF) and bool(asof) and asof < IDB_ASOF
-        if perime:
+        # Repère de séance. IDB_ASOF vient de la cotation des titres ; quand
+        # IDBourse est muette — panne, ou jour férié où son API renvoie 500 —
+        # il est vide, et plus rien ne contredit une charge utile qui se date
+        # elle-même du jour. Relevé le 21/08, férié : l'indice valait la
+        # clôture du 19 et s'affichait « à jour au 21 ». On retombe alors sur
+        # la dernière séance présente dans les chandelles.
+        try:
+            sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
+            from seance import derniere_seance_connue
+            reference = IDB_ASOF or derniere_seance_connue()
+        except Exception:
+            reference = IDB_ASOF
+        # Un férié à date fixe tranche à lui seul : la Bourse n'a pas coté,
+        # donc l'indice ne peut pas être celui du jour.
+        impossible = est_ferie_fixe(asof)
+        perime = (bool(reference) and bool(asof) and asof < reference) or impossible
+        # Quand la source se date d'un jour sans cotation, sa date est fausse
+        # et l'afficher telle quelle ferait mentir le badge (« ⚠ 21/08 » pour
+        # une valeur du 19). On retient alors la dernière séance réelle : c'est
+        # la date la plus tardive à laquelle cette valeur a pu être produite.
+        if impossible and reference:
+            logger.warning(f"MASI : la source le date du {asof}, jour férié — "
+                           f"ramené à la séance du {reference}")
+            asof = reference
+        elif perime:
             logger.warning(f"MASI périmé — valeur de la séance {asof or 'inconnue'}")
         return {"value": float(m["value"]), "chg": float(m.get("variation", 0) or 0),
                 "asof": asof or None, "stale": perime}
