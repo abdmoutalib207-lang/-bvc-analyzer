@@ -93,6 +93,13 @@ SOURCE_CATEGORY = {
     "Reuters Maroc":         "geopolitique",
     "Bloomberg Maroc":       "geopolitique",
     "Maroc Diplomatique":    "geopolitique",
+    # Politique monétaire et grands partenaires : ce sont des canaux macro,
+    # pas de la géopolitique au sens strict, mais tous internationaux.
+    "Fed / Taux US":         "macro",
+    "BCE / Zone euro":       "macro",
+    "Inflation US-EU":       "macro",
+    "Proche-Orient":         "geopolitique",
+    "Europe / Partenaires":  "macro",
 }
 
 # ── Mots-clés sentiment ───────────────────────────────────────────────────────
@@ -559,9 +566,26 @@ SOURCES_RSS = [
     ("https://www.rfi.fr/fr/economie/rss",                             "RFI Économie", 6),
     ("https://www.france24.com/fr/economie/rss",                       "France24 Éco", 6),
     ("https://www.lemonde.fr/afrique/rss_full.xml",                    "Le Monde Afrique", 6),
+    # ── Politique monétaire — le canal externe le plus lourd ─────────────────
+    # Mesuré le 21/08 : la Fed et la BCE pesaient 1,6 % du fil international,
+    # l'inflation américaine et européenne 0 %. C'était le trou le plus grave.
+    # Le raisonnement : les taux américains et européens commandent les flux
+    # vers les marchés émergents, et l'euro-dollar meut le panier du dirham —
+    # donc les taux de Bank Al-Maghrib, donc la valorisation de la cote.
+    (GNEWS.format(q="R%C3%A9serve%20f%C3%A9d%C3%A9rale%20taux%20directeur%20Fed%20march%C3%A9s"),      "Fed / Taux US", 6),
+    (GNEWS.format(q="BCE%20taux%20directeur%20zone%20euro%20politique%20mon%C3%A9taire"),      "BCE / Zone euro", 6),
+    (GNEWS.format(q="inflation%20%C3%89tats-Unis%20zone%20euro%20chiffres"),     "Inflation US-EU", 5),
+    # ── Proche et Moyen-Orient ───────────────────────────────────────────────
+    # Y compris hors pétrole : le détroit d'Ormuz, le fret et les
+    # investissements du Golfe touchent le Maroc par d'autres canaux.
+    (GNEWS.format(q="Proche-Orient%20Moyen-Orient%20tensions%20march%C3%A9s%20p%C3%A9trole"),       "Proche-Orient", 6),
+    # ── Europe, premier partenaire commercial du Maroc ────────────────────────
+    # Espagne et France font l'essentiel des exportations, du tourisme et des
+    # transferts des Marocains résidant à l'étranger.
+    (GNEWS.format(q="%C3%A9conomie%20Espagne%20France%20croissance%20%C3%A9changes%20Maroc"),      "Europe / Partenaires", 5),
     # ── Matières premières (pétrole, métaux, mines, phosphates) ─────────────
-    ("https://oilprice.com/rss/main",                                   "OilPrice", 8),
-    ("https://www.mining.com/rss/",                                     "Mining.com", 8),
+    ("https://oilprice.com/rss/main",                                   "OilPrice", 5),
+    ("https://www.mining.com/rss/",                                     "Mining.com", 5),
     # Kitco a supprimé ses flux RSS publics (404). Un relais site:kitco.com ne
     # rend que 7 articles ; une requête thématique couvre bien mieux le besoin
     # réel — le cours des métaux précieux, qui pèse sur MNG, SMI et CMT.
@@ -659,6 +683,19 @@ def run():
     # 10 articles de moins d'un jour et aucun n'était retenu, Bank Al-Maghrib
     # non plus. Un flux institutionnel publie rarement mais rarement pour rien.
     RESERVE_PAR_SOURCE = 2
+
+    # Plafond par source dans le fil PUBLIÉ, et non seulement à la collecte.
+    # Les plafonds de collecte ne bornent que ce qu'un run rapporte ; sur sept
+    # jours de fenêtre, une source prolifique s'accumule et finit par occuper
+    # le fil. Relevé le 21/08 : OilPrice tenait 50 places sur 300 — un sixième
+    # d'un fil consacré à la Bourse de Casablanca, essentiellement des projets
+    # miniers canadiens. Financial Afrik en tenait 36, Mining.com 27 : trois
+    # sources pour un tiers du fichier.
+    #
+    # 12 places, soit 4 % du fil, laissent à une source le moyen de couvrir un
+    # sujet suivi sans étouffer les autres.
+    PLAFOND_PAR_SOURCE = 12
+
     vus_source, reserves, reste = {}, [], []
     for a in all_articles:
         src = a.get("source", "?")
@@ -667,7 +704,29 @@ def run():
             reserves.append(a)
         else:
             reste.append(a)
-    all_articles = (reserves + reste)[:MAX_ARTICLES]
+
+    # Le plafond s'applique après la réserve : chaque source garde ses deux
+    # places garanties, puis complète jusqu'à douze au maximum.
+    quota, retenus, surnombre = dict(vus_source), [], []
+    for a in reste:
+        src = a.get("source", "?")
+        if quota.get(src, 0) < PLAFOND_PAR_SOURCE:
+            quota[src] = quota.get(src, 0) + 1
+            retenus.append(a)
+        else:
+            surnombre.append(a)
+
+    # Le surnombre est écarté, et non pas utilisé à combler les places
+    # restantes : le rattrapage rendait le plafond inopérant, puisque les
+    # places libérées par les petites sources retournaient aussitôt aux
+    # grosses — OilPrice remontait de 12 à 38. Mieux vaut un fil de 243
+    # articles équilibré qu'un fil de 300 dont un sixième traite de projets
+    # miniers canadiens. Le fil se remplira à mesure que les sources récentes
+    # accumulent de l'historique.
+    if surnombre:
+        log.info(f"Plafond par source : {len(surnombre)} articles écartés "
+                 f"(sources les plus prolifiques)")
+    all_articles = (reserves + retenus)[:MAX_ARTICLES]
     all_articles.sort(key=lambda a: a.get("date", ""), reverse=True)
 
     now = datetime.now(timezone.utc)
