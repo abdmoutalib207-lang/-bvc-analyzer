@@ -22,8 +22,11 @@ on:
     # charge (mesuré le 11/08). Les heures ci-dessous sont donc des bornes
     # basses, ce qui est sans conséquence ici : aucune ne vise une minute
     # précise, et celle qui compte est postérieure à la clôture.
-    - cron: '30 8 * * 1-5'    # ≈09h30 — ouverture, pour que le terminal
-                              #          ne reste pas figé sur la veille
+    - cron: '40 8 * * 1-5'    # ≈09h40 — dix minutes après l'ouverture, le
+                              #          temps que les titres peu liquides
+                              #          impriment un premier cours. À 9h30
+                              #          pile, ils n'ont encore rien coté et
+                              #          le run les compte comme périmés.
     - cron:  '0 11 * * 1-5'   # ≈12h00 — mi-séance
     - cron: '45 14 * * 1-5'   # ≈15h45 — LE run qui compte : 15 min après la
                               #          clôture de 15h30, il fixe le cours
