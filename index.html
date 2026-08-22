@@ -2142,13 +2142,25 @@ const NewsFeed=()=>{
   const fmtD=iso=>{try{return new Date(iso).toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}catch{return iso||"";}};
   const fmtFull=iso=>{try{return new Date(iso).toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch{return iso||"";}};
 
+  /* La portée géographique est posée par article dans news.json, comme sur le
+     radar. Elle était auparavant déduite de la catégorie — « geopolitique » et
+     « commodites » réputées internationales, tout le reste marocain — ce qui
+     confondait le SUJET et le PAYS : « le taux d'emprunt des États-Unis au
+     plus haut », relayé par BourseNews en catégorie « bvc », comptait comme
+     marocain. Le radar a été corrigé le 19/08 mais pas cet onglet, d'où deux
+     décomptes contradictoires : le radar affichait 90 articles internationaux
+     sur une fenêtre de trois jours quand le moteur n'en comptait que 88 sur
+     la totalité. Un sous-ensemble ne peut pas être plus grand que le tout.
+     Un article d'archive sans `scope` retombe sur l'ancienne règle, le temps
+     qu'il expire. */
   const INTL_CATS=new Set(["geopolitique","commodites"]);
+  const estIntl=a=>a.scope?a.scope==="INTL":INTL_CATS.has(a.category||"economie");
   const CAT_LABEL={"bvc":"BVC","economie":"Éco","macro":"Macro","geopolitique":"Géopolitique","commodites":"Matières 1ères"};
   const CAT_COLOR={"bvc":"#4db8ff","economie":"#8892a4","macro":"#ffd740","geopolitique":"#a78bfa","commodites":"#fb923c"};
 
   const scopeFiltered=useMemo(()=>{
-    if(scope==="MAROC")         return allNews.filter(a=>!INTL_CATS.has(a.category||"economie"));
-    if(scope==="INTERNATIONAL") return allNews.filter(a=> INTL_CATS.has(a.category||"economie"));
+    if(scope==="MAROC")         return allNews.filter(a=>!estIntl(a));
+    if(scope==="INTERNATIONAL") return allNews.filter(a=> estIntl(a));
     return allNews;
   },[allNews,scope]);
 
@@ -2180,8 +2192,8 @@ const NewsFeed=()=>{
     </div>
   );
 
-  const nMaroc=allNews.filter(a=>!INTL_CATS.has(a.category||"economie")).length;
-  const nIntl =allNews.filter(a=> INTL_CATS.has(a.category||"economie")).length;
+  const nMaroc=allNews.filter(a=>!estIntl(a)).length;
+  const nIntl =allNews.filter(a=> estIntl(a)).length;
 
   return(
     <div>
