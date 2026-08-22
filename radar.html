@@ -201,7 +201,11 @@ const CAT_ENTETE = {bvc:"🇲🇦 MARCHÉ BVC", macro:"🏛️ MACRO", economie:
    l'économie ; ces articles héritent de la catégorie de leur source. */
 const HORS_SUJET = /\b(football|foot|athl[ée]tisme|basket|tennis|olympique|mondiaux|match|joueur|club|cin[ée]ma|festival|film|musique|concert|m[ée]t[ée]o|canicule|accident|pape|ramadan)\b/i;
 
-const FENETRES = [{h:6,l:"6 h"},{h:12,l:"12 h"},{h:24,l:"24 h"},{h:72,l:"3 j"}];
+/* « Tout » (h:0) lève la borne d'âge et montre l'intégralité du fil conservé,
+   soit sept jours d'archive. Il existe pour deux raisons : lire ce qu'on a
+   manqué après une absence, et pouvoir recouper les décomptes du radar avec
+   ceux de l'onglet ACTUALITÉS du terminal, qui n'a pas de filtre de période. */
+const FENETRES = [{h:6,l:"6 h"},{h:12,l:"12 h"},{h:24,l:"24 h"},{h:72,l:"3 j"},{h:0,l:"Tout"}];
 
 let tous = [], scope = "ALL", ticker = "ALL", fenetre = 24, recherche = "";
 /* Nos codes internes → codes officiels BVC, pour l'affichage seulement.
@@ -219,7 +223,9 @@ const cle = a => a.id || a.url || a.title;
 
 /* Pertinents : dans la fenêtre, avec un lien, non dupliqués, hors sujets écartés. */
 function pertinents(){
-  const limite = Date.now() - fenetre*3600*1000, vus = new Set();
+  // fenetre === 0 → aucune borne d'âge : tout le fil conservé.
+  const limite = fenetre ? Date.now() - fenetre*3600*1000 : -Infinity;
+  const vus = new Set();
   return tous.filter(a=>{
     const d = dateDe(a), t = (a.title||"").trim();
     if(!d || d.getTime() < limite || !t || !(a.url||"").trim()) return false;
