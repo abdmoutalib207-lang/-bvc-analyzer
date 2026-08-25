@@ -231,9 +231,29 @@ Quand tu réponds à une question :
 **Run J+1 réussi chaque soir à 18h30, publié avant 8h00, 30 jours consécutifs sans échec.**
 Métrique pivot : le bulletin doit être disponible avant l'ouverture (9h30 Casablanca) avec la dernière clôture fiable. Jamais de données intraday avant condition validée.
 
-### Monitoring
+### Monitoring — EN PLACE
 
-- **Alerte si le run du soir échoue**, ou si la publication matinale dépasse **8h30**.
+> ✅ Implémenté le 25/08/2026 : `pipeline/verifier_seance.py`, déclenché par
+> `.github/workflows/verifier_seance.yml` chaque jour ouvré à 19h32 Casablanca.
+
+Dix contrôles sur la **dernière séance échue** : data.json lisible, horodatage
+du jour, ≥50 titres au prix de la séance, sources réelles et non des replis
+muets, les 19 MASI 1 avec un prix, v5.3 dans [0, 10], aucune variation > ±10 %
+(R10), `_meta` sur chaque titre, MASI daté et non périmé, ≥50 bougies écrites.
+
+**L'alerte est l'échec du workflow** : GitHub envoie alors un courriel au
+propriétaire du dépôt. Pas de service tiers, pas de secret à gérer.
+
+⚠️ **Le contrôle ne commite rien.** Le quota de publication de Pages est la
+ressource rare du projet ; un contrôle qui produirait un commit par jour
+consommerait ce qu'il protège. Le détail va dans le résumé du workflow.
+
+⚠️ Il vise la dernière séance **échue**, jamais la date du jour — sinon il
+échouerait chaque matin sur une séance qui n'a pas encore eu lieu. Seuil à
+17h, parce que **GitHub décale ses tâches programmées de 30 à 50 minutes**
+(mesuré trois fois le 24/08 : 34, 49 et 39 min). Un jour sans séance —
+week-end ou férié à date fixe — sort en silence.
+
 - Pas d'alerte sur fréquence intraday — le produit est J+1, pas temps réel.
 
 ### Phase 4 — Données intraday (conditionnel)
@@ -340,6 +360,51 @@ Caps recalculées via `prix × nb_titres officiels BVC` après corrections ISIN 
 4. **SAM (SAMIR)** : radiée/suspendue — exclure de toute analyse, ne pas intégrer.
 
 ## Journal des décisions
+
+### 2026-08-25
+
+- **Le critère de succès devient mesurable.** « Trente jours consécutifs sans
+  échec » ne l'était pas : rien ne prévenait quand un run manquait, il fallait
+  que quelqu'un regarde. `verifier_seance.py` regarde désormais chaque jour
+  ouvré à 19h32, et l'échec du workflow déclenche le courriel de GitHub.
+  - **L'alerte passe par le canal déjà en place.** Aucun service tiers, aucun
+    secret : un code de sortie non nul suffit.
+  - **Aucun commit produit.** Un contrôle quotidien qui commiterait
+    consommerait le quota de publication qu'il est censé protéger.
+
+- **⚠️ GitHub décale ses tâches programmées de 30 à 50 minutes.** Mesuré trois
+  fois le 24/08 : 34, 49 et 39 minutes. L'heure inscrite dans un cron est une
+  intention, pas un rendez-vous. Deux conséquences : le contrôle vise la
+  dernière séance **échue** et non la date du jour, et **le run de 15h45 est
+  un point unique de défaillance** depuis la réduction à quatre crons — s'il
+  est sauté, seul le filet de 18h rattrape la séance.
+
+- **Séance du 19/08 recoupée au bulletin CDG : 68 cours exacts sur 70.** Les
+  deux écarts sont STR et LHM, que **IDBourse ne sert plus depuis le 10/08**.
+  Le bulletin les cote pourtant — STROC 184,95 pour 514 titres, Holcim 1 800
+  pour 1 939 titres. Réparés à la main ; leur série garde un trou du 11 au 18.
+  - ⚠️ Comparer le bulletin à nos chandelles **exige** de passer par
+    `IDB_TICKER_MAP` : le `SNA` du bulletin est Stokvis, pas Sonasid. Sans
+    traduction, l'écart affiché est de 96 %.
+
+- **Le pipeline v9 faisait reculer les cours.** Il lit `data.json` au démarrage,
+  calcule une demi-heure, puis commite par-dessus le run d'`update_bvc` parti
+  après lui. Mesuré le 19/08 : 57 cours ramenés à ceux de 11h31. `data.json`
+  n'a plus qu'un propriétaire, `update_bvc` ; v9 n'écrit que
+  `financial_data.json`, et les deux partagent un groupe de concurrence.
+
+- **⚠️ Le champ `updated` retardait d'une heure en permanence.**
+  `datetime.now().strftime("...+01:00")` écrit l'heure UTC du runner en
+  l'étiquetant Casablanca. Le message de commit, lui, utilisait la vraie
+  horloge — d'où un data.json marqué 11h31 dans un commit intitulé 12h31.
+
+- **Les proxys CORS du terminal sont hors d'usage, et irréparables.**
+  corsproxy.io fonctionne encore (gratuit pour `github.io`) mais IDBourse
+  exige un `Referer` depuis le 05/08, et **un navigateur n'a pas le droit de
+  choisir cet en-tête** — il est « interdit » au sens de la norme. Aucun proxy
+  public ne rétablira la couche live ; seul un intermédiaire qu'on contrôle le
+  peut. Sans objet tant que la condition intraday de la Phase 4 n'est pas
+  remplie.
 
 ### 2026-08-18
 
