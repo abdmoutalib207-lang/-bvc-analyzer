@@ -607,10 +607,10 @@ def _recaler_seance_fantome(live_prices):
     """
     global IDB_ASOF
     if not IDB_ASOF or not live_prices:
-        return
+        return None
     candles_dir = Path(__file__).parent / "pipeline" / "candles"
     if not candles_dir.exists():
-        return
+        return None
     ident = total = 0
     veille = ""
     for sym, row in live_prices.items():
@@ -651,7 +651,10 @@ def _recaler_seance_fantome(live_prices):
         for row in live_prices.values():
             if str(row.get("asof") or "")[:10] == IDB_ASOF:
                 row["asof"] = veille
+        annoncee = IDB_ASOF
         IDB_ASOF = veille
+        return annoncee   # la date que la source annonçait à tort
+    return None
 
 
 def fetch_masi():
@@ -1145,7 +1148,24 @@ def run(dry_run=False, push=False, token=""):
     logger.info("Récupération IDBourse (batch)...")
     live_prices = fetch_all_idb()
     logger.info(f"IDBourse: {len(live_prices)}/{len(TICKERS)} tickers reçus")
-    _recaler_seance_fantome(live_prices)
+    seance_fictive = _recaler_seance_fantome(live_prices)
+    if seance_fictive:
+        # La Bourse n'a pas coté : ni le calendrier des fériés à date fixe ni
+        # l'horaire ne le savaient — le Mawlid suit le calendrier lunaire et
+        # n'est confirmé par décret que quelques jours avant. C'est la donnée
+        # du marché qui l'établit, et elle doit primer sur les deux.
+        if mkt_status != "CLOSED":
+            logger.warning(f"Statut marché corrigé : {mkt_status} → CLOSED "
+                           f"(aucune cotation le {seance_fictive})")
+            mkt_status = "CLOSED"
+        # Le MASI est récupéré AVANT la cotation des titres, donc avant que le
+        # détecteur ait pu s'exprimer : il portait encore la date annoncée par
+        # la source. Relevé le 25/08 — l'indice valait la clôture du 24 et
+        # s'affichait « à jour au 25 », non périmé.
+        if masi.get("asof") == seance_fictive:
+            logger.warning(f"MASI : la source le date du {seance_fictive}, jour "
+                           f"sans cotation — ramené à la séance du {IDB_ASOF}")
+            masi["asof"], masi["stale"] = IDB_ASOF, True
 
     # Circuit breaker : ne pas écraser data.json avec des zéros si toutes les sources sont down
     idb_ok = len(live_prices) > 0

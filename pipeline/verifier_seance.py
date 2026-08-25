@@ -30,7 +30,8 @@ RACINE = Path(__file__).parent.parent
 sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(Path(__file__).parent))
 
-from bvc_config import TICKERS_ACTIFS, est_ferie_fixe   # noqa: E402
+from bvc_config import TICKERS_ACTIFS                    # noqa: E402
+from seance import derniere_seance_connue                # noqa: E402
 
 # Casablanca est à UTC+1 toute l'année.
 TZ_CA = timezone(timedelta(hours=1))
@@ -42,46 +43,45 @@ MIN_BOUGIES = 50
 MIN_PRIX_DU_JOUR = 50
 
 
-# Heure à partir de laquelle la séance du jour doit être gravée. La clôture
-# est à 15h30 et le run qui la fixe part à 15h45, mais GitHub décale ses
-# tâches programmées de 30 à 50 minutes — mesuré trois fois le 24/08 : 34, 49
-# et 39 minutes. Avant 17h, une séance absente ne prouve donc rien.
-HEURE_SEANCE_GRAVEE = 17
-
-
-def _est_cote(jour):
-    return jour.weekday() < 5 and not est_ferie_fixe(jour.strftime("%Y-%m-%d"))
+# Écart maximal toléré entre aujourd'hui et la dernière séance enregistrée.
+# Cinq jours couvrent le plus long enchaînement réel : les 20 et 21/08 étaient
+# fériés, suivis du week-end, soit cinq jours entre le 19 et le 24.
+# Au-delà, ce n'est plus un calendrier chargé, c'est un pipeline arrêté.
+JOURS_SANS_SEANCE_MAX = 5
 
 
 def _seance_de_reference():
-    """Dernière séance qui DEVRAIT être enregistrée, ou None s'il n'y en a pas.
+    """Dernière séance réellement enregistrée, et son âge en jours.
 
-    Viser « aujourd'hui » ne marche pas : lancé le matin, le contrôle
-    échouerait sur une séance qui n'a pas encore eu lieu. On remonte donc à la
-    dernière séance échue — celle du jour si la clôture est passée et gravée,
-    sinon le jour coté précédent.
+    ⚠️ Volontairement déduite des DONNÉES et non d'un calendrier. Les fériés
+    marocains sont en partie lunaires — le Mawlid des 25 et 26/08 n'a pas de
+    date fixe et n'est confirmé par décret que peu de temps avant. Un contrôle
+    fondé sur une liste écrite d'avance aurait crié à l'échec ces jours-là,
+    alors que le moteur se comportait parfaitement. Une alerte qui se trompe
+    est pire que pas d'alerte : on cesse de la lire.
+
+    La question posée n'est donc pas « la Bourse a-t-elle coté aujourd'hui ? »,
+    à laquelle on ne sait pas répondre, mais « la dernière séance connue est-
+    elle trop ancienne ? », à laquelle les chandelles répondent seules.
     """
-    maintenant = datetime.now(TZ_CA)
-    candidat = maintenant
-    if not (_est_cote(candidat) and maintenant.hour >= HEURE_SEANCE_GRAVEE):
-        candidat = candidat - timedelta(days=1)
-        # Remonter jusqu'au précédent jour coté. La borne de dix jours couvre
-        # le plus long enchaînement de fériés et de week-end possible.
-        for _ in range(10):
-            if _est_cote(candidat):
-                break
-            candidat = candidat - timedelta(days=1)
-        else:
-            return None, "aucune séance cotée dans les dix derniers jours"
-    return candidat.strftime("%Y-%m-%d"), ""
+    derniere = derniere_seance_connue()
+    if not derniere:
+        return None, 0
+    ecart = (datetime.now(TZ_CA).date()
+             - datetime.strptime(derniere, "%Y-%m-%d").date()).days
+    return derniere, ecart
 
 
-def _controles(jour):
+def _controles(jour, ecart):
     """Liste de (intitulé, réussi, détail). Aucun effet de bord."""
     resultats = []
 
     def ajouter(intitule, ok, detail=""):
         resultats.append((intitule, bool(ok), detail))
+
+    ajouter(f"séance récente ({JOURS_SANS_SEANCE_MAX} jours au plus)",
+            ecart <= JOURS_SANS_SEANCE_MAX,
+            f"dernière séance le {jour}, il y a {ecart} jour(s)")
 
     # ── data.json ────────────────────────────────────────────────────────
     try:
@@ -96,9 +96,20 @@ def _controles(jour):
     titres = {x.get("symbol"): x for x in lignes if x.get("symbol")}
     ajouter("data.json lisible", True, f"{len(titres)} titres")
 
+    # `updated` est l'heure du RUN, pas la date de la séance. Les deux
+    # diffèrent dès qu'un jour n'est pas coté : le 25/08, férié, le pipeline
+    # tournait bien et republiait la séance du 24. Exiger l'égalité faisait
+    # échouer le contrôle alors que le moteur se comportait parfaitement.
+    # Ce qui importe est que le fichier ait été régénéré récemment.
     horodatage = str(data.get("updated") or "")
-    ajouter("horodatage du jour", horodatage[:10] == jour,
-            horodatage or "absent")
+    try:
+        age_h = (datetime.now(TZ_CA)
+                 - datetime.fromisoformat(horodatage)).total_seconds() / 3600
+    except Exception:
+        age_h = 1e9
+    ajouter("data.json régénéré depuis moins de 24 h", age_h <= 24,
+            f"{horodatage or 'absent'} ({age_h:.1f} h)" if age_h < 1e8
+            else (horodatage or "absent"))
 
     asof = Counter((x.get("_meta") or {}).get("prix_asof") for x in titres.values())
     du_jour = asof.get(jour, 0)
@@ -128,9 +139,13 @@ def _controles(jour):
     ajouter("chaque titre porte son bloc _meta", not sans_meta,
             sans_meta or "tous")
 
+    # On vérifie que l'indice porte la date de la dernière séance, pas qu'il
+    # soit « non périmé » : un jour sans cotation, il EST périmé au sens du
+    # terminal — c'est la valeur de la veille — et c'est le comportement
+    # attendu. Exiger le contraire punissait le moteur d'avoir raison.
     masi = data.get("masi") or {}
-    ajouter("MASI daté de la séance",
-            str(masi.get("asof") or "")[:10] == jour and not masi.get("stale"),
+    ajouter("MASI daté de la dernière séance",
+            str(masi.get("asof") or "")[:10] == jour,
             f"{masi.get('value')} au {masi.get('asof')} · périmé={masi.get('stale')}")
 
     # ── chandelles ───────────────────────────────────────────────────────
@@ -150,12 +165,12 @@ def _controles(jour):
 
 
 def main():
-    jour, raison = _seance_de_reference()
+    jour, ecart = _seance_de_reference()
     if jour is None:
-        print(f"Aucun contrôle : {raison}.")
-        return 0
+        print("ÉCHEC : aucune chandelle lisible — le pipeline n'a jamais écrit.")
+        return 1
 
-    resultats = _controles(jour)
+    resultats = _controles(jour, ecart)
     echecs = [r for r in resultats if not r[1]]
 
     largeur = max(len(i) for i, _, _ in resultats)
