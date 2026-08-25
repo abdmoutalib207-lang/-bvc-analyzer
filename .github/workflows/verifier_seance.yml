@@ -1,0 +1,54 @@
+# ════════════════════════════════════════════════════════════
+# BVC — Contrôle de séance
+#
+# Le critère de succès du projet est « trente jours consécutifs sans échec ».
+# Il n'était pas mesurable : rien ne prévenait quand un run manquait, il
+# fallait que quelqu'un regarde.
+#
+# Ce workflow regarde à sa place, une fois par jour ouvré, après le filet de
+# sécurité de 18h. S'il échoue, GitHub envoie un courriel au propriétaire du
+# dépôt — c'est l'alerte, et elle ne demande ni service tiers ni secret.
+#
+# ⚠️ Il ne commite RIEN et ne déclenche donc aucune reconstruction de Pages.
+# Le quota de publication est la ressource rare du projet ; un contrôle qui
+# le consommerait irait contre son propre but.
+# ════════════════════════════════════════════════════════════
+
+name: BVC Contrôle de séance
+
+on:
+  schedule:
+    # 18h30 UTC = 19h30 Casablanca. Après le run de 18h, et assez tard pour
+    # absorber les 30 à 50 minutes de retard que GitHub applique à ses tâches
+    # programmées — mesuré trois fois le 24/08 : 34, 49 et 39 minutes.
+    - cron: '32 18 * * 1-5'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bvc-controle-seance
+  cancel-in-progress: true
+
+jobs:
+  controler:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Aucune dépendance : le script ne lit que des fichiers du dépôt avec la
+      # bibliothèque standard. Rien à installer, rien à faire tomber en panne.
+      - name: Contrôler la dernière séance échue
+        run: python pipeline/verifier_seance.py
