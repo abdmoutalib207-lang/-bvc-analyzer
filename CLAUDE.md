@@ -20,14 +20,46 @@ La pondération est dynamique et contextuelle (WeightEngine), pas statique.
 
 ## Architecture Actuelle (À Connaître Par Cœur)
 
+> Chiffres mesurés le 25/08/2026. Les remettre à jour lors d'une passe de
+> documentation plutôt que de les laisser vieillir : le bloc annonçait encore
+> « ~1700 lignes » pour un fichier qui en compte 2 547, et citait trois
+> fichiers archivés depuis des mois.
+
 ```
-FRONTEND  → index.html (GitHub Pages) — React 18 inline via CDN Babel — ~1700 lignes
-BACKEND   → Python : bvc_app.py (Streamlit), bvc_analyzer_v50.py, bvc_analyzer_v53.py
-PIPELINE  → pipeline/ : scrapers/, technical/, candles/, smart_money/, utils/
-NLP       → whatsapp_analysis/ : 14 phases (parser → langues → NLP → ML → backtest → report)
-CI/CD     → .github/workflows/ : update_bvc, update_financial, fetch_historical, diag_sources
-CONFIG    → bvc_config.py : ISIN_MAP (77 tickers), TICKERS_ALL, TICKERS_ACTIFS (19)
-DATA      → data.json, financial_data.json, fondamentaux.json, pipeline/historical_data.json
+FRONTEND  → index.html      2 547 lignes — React 18 + JSX compilé au navigateur
+             radar.html       564 lignes — console de veille (JS sans framework)
+             audience.html    154 lignes — fréquentation, non liée, non indexée
+             ⚠️ Aucune étape de build : Babel compile le JSX à la volée. Pas de
+             package.json, pas de node_modules. Le dépôt PARAÎT vanilla, il ne
+             l'est pas.
+
+MOTEUR    → update_data.py   ~1 700 lignes — propriétaire unique de data.json
+             bvc_config.py                 — le référentiel (voir CONFIG)
+             sync_sentiment.py
+             ⚠️ bvc_app.py, bvc_analyzer_v50/v53.py sont dans archive/ depuis
+             la phase A3 — ne plus les citer comme faisant partie du moteur.
+
+PIPELINE  → pipeline/ : 15 modules, 4 753 lignes
+             candles/ scrapers/ technical/ smart_money/ utils/
+
+NLP       → whatsapp_analysis/ : 14 phases, 18 modules, 11 866 lignes
+             (parser → langues → NLP → ML → backtest → report)
+             ⚠️ Aucun workflow ne le déclenche : il tourne hors ligne et
+             dépose ses résultats en CSV dans whatsapp_analysis/output/.
+
+CI/CD     → .github/workflows/ : 9 workflows, 13 crons
+             update_bvc · fetch_news · update_candles · fetch_historical_data
+             update_financial_data · update_fondamentaux · verifier_seance
+             validate_data · diag_sources
+             92 % des commits du dépôt sont produits par ces automates.
+
+CONFIG    → bvc_config.py : ISIN_MAP (83) · TICKERS_ALL (81) · TICKERS_ACTIFS (19)
+             IDB_TICKER_MAP (78) · COMPANY_SECTORS (22 secteurs)
+             JOURS_FERIES_FIXES · SPLITS · SIGLES_AMBIGUS
+
+DATA      → data.json (81 titres) · news.json (~290 articles) · fondamentaux.json
+             financial_data.json · pipeline/historical_data.json
+             pipeline/candles/ : 74 fichiers, 32 260 séances
 ```
 
 ### Architecture J+1 — Flux de production
@@ -73,7 +105,7 @@ l'export DATA+ est déjà utilisé), pas une machine de collecte différente.
 
 <rules>
 <rule id="R1">
-**JAMAIS de régression sur les données.** Avant toute modification touchant data.json, financial_data.json, ou les fichiers du pipeline, vérifier que les 77 tickers restent accessibles et que les 19 tickers MASI 1 ont des données complètes. Si un ticker est cassé, le réparer immédiatement ou notifier.
+**JAMAIS de régression sur les données.** Avant toute modification touchant data.json, financial_data.json, ou les fichiers du pipeline, vérifier que les **81** tickers restent accessibles et que les 19 tickers MASI 1 ont des données complètes. Si un ticker est cassé, le réparer immédiatement ou notifier.
 </rule>
 <rule id="R2">
 **JAMAIS supprimer ou modifier le ISIN_MAP sans accord explicite.** C'est le point de vérité unique. Les ISIN sont la colonne vertébrale du système. Un ISIN erroné = données incorrectes pour ce ticker à jamais.
@@ -118,7 +150,10 @@ l'export DATA+ est déjà utilisé), pas une machine de collecte différente.
 ## Anti-Patterns Identifiés (À Éviter à Tout Prix)
 
 <antipatterns>
-- **Monolithiser le frontend** — Ne PAS ajouter de code dans index.html au-delà de 1800 lignes.
+- **Monolithiser le frontend** — Le plafond de 1 800 lignes pour index.html est
+  **déjà franchi : 2 547 au 25/08**. Ce n'est donc plus une limite à respecter
+  mais une dette constatée. Toute fonctionnalité substantielle devrait sortir
+  du fichier plutôt que s'y ajouter ; à défaut, l'écart se creuse.
 - **Données hardcodées** — Ne PAS ajouter de nouvelles valeurs statiques dans le tableau STATIC. Utiliser le pipeline pour les générer dynamiquement.
 - **Imports sauvages** — Ne PAS utiliser `from module import *`. Toujours importer explicitement.
 - **Subprocess pip install** — Le `subprocess.run(["pip", "install", ...])` est une dette. Ne pas répliquer.
@@ -278,7 +313,7 @@ Avant publication matinale (objectif : < 8h00 Casablanca) :
 
 Les points suivants figuraient dans des propositions d'architecture. Ils sont **non confirmés** — ne pas les traiter comme des faits établis ni les documenter comme acquis.
 
-> ⚠️ **Drahmi API** — existence non confirmée comme source de fondamentaux. Ne pas intégrer dans le pipeline tant que la disponibilité n'est pas vérifiée manuellement (endpoint, authentification, couverture des 77 tickers).
+> ⚠️ **Drahmi API** — existence non confirmée comme source de fondamentaux. Ne pas intégrer dans le pipeline tant que la disponibilité n'est pas vérifiée manuellement (endpoint, authentification, couverture des 81 tickers).
 
 > ⚠️ **Légalité T+1 "par analogie"** — l'argument selon lequel la publication J+1 serait légalement couverte par analogie avec les délais réglementaires BVC est une hypothèse juridique, pas un avis AMMC. Consulter avant toute commercialisation.
 
