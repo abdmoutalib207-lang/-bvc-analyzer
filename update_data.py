@@ -1238,28 +1238,59 @@ def run(dry_run=False, push=False, token=""):
     logger.info("Récupération IDBourse (batch)...")
     live_prices = fetch_all_idb()
     logger.info(f"IDBourse: {len(live_prices)}/{len(TICKERS)} tickers reçus")
-    # ── Repli CDG Capital Bourse, quand IDBourse a une séance de retard ──
-    # Le 27/08, IDBourse servait encore les cours du 26 alors que la Bourse
-    # cotait : 63 titres échangés, 73 M MAD de volume. Le repli déclaré,
-    # Médias24, répond HTTP 403 derrière Cloudflare — la chaîne n'avait donc
-    # plus qu'un seul maillon vivant, et la séance était perdue.
+    # ── Fusion des deux sources de cotation ─────────────────────────────
+    # CDG Capital Bourse passe en PREMIÈRE source, IDBourse en seconde.
+    # Décision d'Abd Moutalib du 27/08, appuyée sur trois constats mesurés :
     #
-    # On ne remplace pas IDBourse : on la complète quand elle est en retard.
-    # Le juge est la date, pas la préférence — si CDG n'est pas plus fraîche,
-    # rien ne bouge.
+    #   1. CDG est une société de bourse agréée, membre du marché ; IDBourse
+    #      est une plateforme d'information qui lit elle-même une copie.
+    #   2. L'univers de CDG EST celui de la BVC : 80 titres sur 81 s'apparient
+    #      à notre référentiel, et les deux exceptions sont exactement les deux
+    #      anomalies déjà documentées — SAM radiée, TIM probablement radié.
+    #   3. CDG laisse les champs VIDES quand un titre n'a pas coté, et fournit
+    #      son cours de référence à part. IDBourse rediffuse la veille comme
+    #      s'il s'agissait du jour : c'est la source de la moitié de nos
+    #      incidents de séance fantôme.
+    #
+    # CDG apporte en outre le chandelier complet (ouverture, haut, bas,
+    # clôture, quantité) et les seuils réglementaires, là où IDBourse ne donne
+    # que le dernier cours.
+    #
+    # ⚠️ Mais IDBourse reste indispensable : elle est la SEULE à fournir la
+    # capitalisation boursière, absente des 26 champs de CDG.
+    #
+    # L'arbitrage se fait ligne par ligne et par la DATE, jamais par la
+    # préférence : la cotation la plus récente gagne, et CDG ne l'emporte à
+    # égalité que parce qu'elle est désormais la source de référence. Si CDG
+    # prend du retard un jour, IDBourse reprend la main d'elle-même — c'est ce
+    # mécanisme, dans l'autre sens, qui a sauvé la séance du 27/08.
     cdg = fetch_all_cdg()
     if cdg:
+        repris = complete = 0
+        for sym, v in cdg.items():
+            idb = live_prices.get(sym) or {}
+            # La capitalisation vient d'IDBourse quoi qu'il arrive : CDG ne la
+            # publie pas, et la perdre viderait le classement par taille.
+            fusion = {**v, "src": "cdg", "cap": idb.get("cap")}
+            if v["asof"] >= (idb.get("asof") or ""):
+                live_prices[sym] = fusion
+                repris += 1
+            else:
+                complete += 1
+        # Titres connus d'IDBourse mais absents de CDG : ils gardent leur ligne
+        # IDBourse, datée, que la chaîne de repli traitera selon sa fraîcheur.
+        absents = [s for s in live_prices if s not in cdg]
         cdg_asof = max(v["asof"] for v in cdg.values())
+        logger.info(f"CDG première source : {repris} titres retenus, "
+                    f"{complete} plus anciens qu'IDBourse, "
+                    f"{len(absents)} titres hors de son périmètre")
         if not IDB_ASOF or cdg_asof > IDB_ASOF:
-            logger.warning(f"IDBourse en retard (séance {IDB_ASOF or 'inconnue'}) — "
-                           f"CDG Capital Bourse fournit le {cdg_asof} : "
-                           f"{len(cdg)} titres repris")
-            for sym, v in cdg.items():
-                live_prices[sym] = {**v, "src": "cdg"}
+            if IDB_ASOF:
+                logger.warning(f"IDBourse en retard (séance {IDB_ASOF}) — "
+                               f"séance de référence portée au {cdg_asof} par CDG")
             IDB_ASOF = cdg_asof
-        else:
-            logger.info(f"CDG Capital Bourse au {cdg_asof} — pas plus fraîche "
-                        f"qu'IDBourse ({IDB_ASOF}), ignorée")
+    else:
+        logger.warning("CDG Capital Bourse muette — IDBourse reste la source de tête")
 
     seance_fictive = _recaler_seance_fantome(live_prices)
     if seance_fictive:
