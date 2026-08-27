@@ -111,7 +111,25 @@ l'export DATA+ est déjà utilisé), pas une machine de collecte différente.
 **JAMAIS supprimer ou modifier le ISIN_MAP sans accord explicite.** C'est le point de vérité unique. Les ISIN sont la colonne vertébrale du système. Un ISIN erroné = données incorrectes pour ce ticker à jamais.
 </rule>
 <rule id="R3">
-**TOUJOURS préserver la chaîne de fallback** : IDBourse → Médias24 → BVCscrap → Yahoo Finance → statique. Chaque nouvelle source de données doit s'intégrer dans cette chaîne, pas la remplacer.
+**TOUJOURS préserver la chaîne de fallback.** Ordre au 27/08/2026 :
+**CDG Capital Bourse → IDBourse → chandelles → historique → statique.**
+Chaque nouvelle source s'intègre dans la chaîne, elle ne la remplace pas, et
+c'est la **date** qui arbitre ligne par ligne — jamais la préférence.
+
+- **CDG en tête** depuis le 27/08 : société de bourse agréée, son univers est
+  celui de la BVC (80/81 appariés), elle laisse les champs **vides** quand un
+  titre n'a pas coté au lieu de rediffuser la veille, et elle fournit le
+  chandelier complet plus les seuils ±10 %.
+- **IDBourse reste indispensable** : elle est la SEULE à fournir la
+  **capitalisation boursière**, absente des 26 champs de CDG.
+- ⚠️ **Médias24 est HORS SERVICE** : HTTP 403 derrière Cloudflare (vérifié le
+  27/08). Le CLAUDE.md la disait « non testée » — elle l'est, et elle échoue.
+- ⚠️ **Wafabourse n'est pas exploitable** : API en 403 derrière un pare-feu
+  applicatif. Utilisable seulement en PDF exporté à la main.
+- ⚠️ **CDG et Wafabourse ne sont PAS indépendantes** : même éditeur
+  (`nt-soft.ma`), même convention de champs, faute de frappe comprise
+  (« CoursDeReferance »). Leur accord ne prouve pas l'exactitude. Le seul
+  contrôle réellement extérieur reste le bulletin PDF de fin de journée.
 </rule>
 <rule id="R4">
 **TOUJOURS expliciter les dépendances.** Si tu ajoutes un import Python (sklearn, networkx, nltk, etc.), TU DOIS l'ajouter dans requirements.txt OU requirements_pipeline.txt. Un import sans dépendance déclarée est un bug.
