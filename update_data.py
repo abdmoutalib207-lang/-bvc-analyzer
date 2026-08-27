@@ -15,7 +15,7 @@ Dépendances : requests, numpy, pandas (auto-installées si absentes)
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
-import sys, os, json, time, argparse, logging, subprocess
+import sys, os, json, time, argparse, logging, subprocess, collections
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -657,6 +657,93 @@ def _recaler_seance_fantome(live_prices):
     return None
 
 
+CDG_API = "https://www.cdgcapitalbourse.ma/api/"
+
+
+def fetch_all_cdg():
+    """Cotations de la séance depuis CDG Capital Bourse, différées de 15 min.
+
+    Deuxième maillon réel de la chaîne de repli. Le premier repli déclaré,
+    Médias24, ne fonctionne plus : son API répond HTTP 403 derrière un
+    contrôle Cloudflare (« Just a moment… »), vérifié le 27/08/2026. La
+    chaîne n'avait donc qu'un seul maillon vivant — le jour où IDBourse
+    prend du retard, comme ce 27/08 où elle servait encore le 26, plus rien
+    ne rattrapait la séance.
+
+    Cette source est meilleure qu'IDBourse sur un point : elle livre un
+    chandelier complet (ouverture, plus-haut, plus-bas, clôture, quantité)
+    plus le cours de référence, là où IDBourse ne donne que le dernier cours.
+
+    ⚠️ Les codes renvoyés sont les tickers OFFICIELS BVC — le `SNA` de CDG
+    est Stokvis, pas Sonasid. La traduction par IDB_TICKER_INV est obligatoire,
+    comme pour IDBourse et pour le bulletin PDF.
+
+    Renvoie {notre_symbole: {price, chg, open, high, low, vol, asof}}.
+    """
+    corps = {"ACTIONS": [{
+        "ACTION": {"NAME": "MARKET-RESUME", "TYPE": "SELECT", "VALUE": "MARKET-RESUME"},
+        "PARAMS": [{"NAME": "Lang_", "TYPE": "S", "VALUE": "fr"},
+                   {"NAME": "Espace_", "TYPE": "I", "VALUE": "1"},
+                   {"NAME": "IdPartener_", "TYPE": "I", "VALUE": "1"},
+                   {"NAME": "TypeStocks_", "TYPE": "S", "VALUE": "1"},
+                   {"NAME": "TypeCotation_", "TYPE": "S", "VALUE": "1"}]}]}
+    try:
+        r = requests.post(CDG_API, json=corps, timeout=30, headers={
+            **HEADERS,
+            "Content-Type": "application/json",
+            "Referer": "https://www.cdgcapitalbourse.ma/Bourse/market",
+            "Origin":  "https://www.cdgcapitalbourse.ma"})
+        if r.status_code != 200:
+            logger.warning(f"CDG Capital Bourse : HTTP {r.status_code}")
+            return {}
+        bloc = r.json()[0]["MARKET-RESUME"]
+        if not bloc.get("Valid"):
+            logger.warning(f"CDG : réponse invalide — {str(bloc.get('Data'))[:80]}")
+            return {}
+        lignes = bloc["Data"]
+        if lignes and isinstance(lignes[0], list):
+            lignes = lignes[0]
+    except Exception as e:
+        logger.warning(f"CDG Capital Bourse injoignable : {e}")
+        return {}
+
+    def _f(v):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return None
+
+    out = {}
+    for d in lignes:
+        sym = IDB_TICKER_INV.get(str(d.get("Symbol") or "").upper())
+        prix = _f(d.get("Cours"))
+        if not sym or not prix or prix <= 0:
+            continue
+        # « 27/08/2026 » → « 2026-08-27 ». Une ligne sans date est écartée :
+        # sans elle on ne peut pas juger la fraîcheur, et c'est précisément
+        # ce qui manquait le 14/08 pour repérer la séance fantôme.
+        brut = str(d.get("DateDernierCours") or "")
+        asof = ""
+        if "/" in brut:
+            j, m, a = brut[:10].split("/")
+            asof = f"{a}-{m}-{j}"
+        if not asof:
+            continue
+        out[sym] = {
+            "price": round(prix, 2),
+            "chg":   round(_f(d.get("Variation")) or 0, 2),
+            "open":  _f(d.get("Ouverture")),
+            "high":  _f(d.get("PlusHaut")),
+            "low":   _f(d.get("PlusBas")),
+            "vol":   int(_f(d.get("QteEchangee")) or 0),
+            "asof":  asof,
+        }
+    if out:
+        dates = collections.Counter(v["asof"] for v in out.values())
+        logger.info(f"CDG Capital Bourse : {len(out)} titres · séances {dict(dates)}")
+    return out
+
+
 def fetch_masi():
     """Indice MASI (variation % pour contexte marché)."""
     # 45 s et non les 10 s par défaut : mesuré le 12/08, cet endpoint répond en
@@ -1113,6 +1200,9 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
 # ─────────────────────────────────────────────────────────────────────────────
 
 def run(dry_run=False, push=False, token=""):
+    # IDB_ASOF est réécrit ici quand CDG Capital Bourse fournit une séance
+    # plus fraîche qu'IDBourse.
+    global IDB_ASOF
     ts_start = time.time()
     logger.info("═" * 60)
     logger.info("BVC ANALYZER — update_data.py v6.3")
@@ -1148,6 +1238,29 @@ def run(dry_run=False, push=False, token=""):
     logger.info("Récupération IDBourse (batch)...")
     live_prices = fetch_all_idb()
     logger.info(f"IDBourse: {len(live_prices)}/{len(TICKERS)} tickers reçus")
+    # ── Repli CDG Capital Bourse, quand IDBourse a une séance de retard ──
+    # Le 27/08, IDBourse servait encore les cours du 26 alors que la Bourse
+    # cotait : 63 titres échangés, 73 M MAD de volume. Le repli déclaré,
+    # Médias24, répond HTTP 403 derrière Cloudflare — la chaîne n'avait donc
+    # plus qu'un seul maillon vivant, et la séance était perdue.
+    #
+    # On ne remplace pas IDBourse : on la complète quand elle est en retard.
+    # Le juge est la date, pas la préférence — si CDG n'est pas plus fraîche,
+    # rien ne bouge.
+    cdg = fetch_all_cdg()
+    if cdg:
+        cdg_asof = max(v["asof"] for v in cdg.values())
+        if not IDB_ASOF or cdg_asof > IDB_ASOF:
+            logger.warning(f"IDBourse en retard (séance {IDB_ASOF or 'inconnue'}) — "
+                           f"CDG Capital Bourse fournit le {cdg_asof} : "
+                           f"{len(cdg)} titres repris")
+            for sym, v in cdg.items():
+                live_prices[sym] = {**v, "src": "cdg"}
+            IDB_ASOF = cdg_asof
+        else:
+            logger.info(f"CDG Capital Bourse au {cdg_asof} — pas plus fraîche "
+                        f"qu'IDBourse ({IDB_ASOF}), ignorée")
+
     seance_fictive = _recaler_seance_fantome(live_prices)
     if seance_fictive:
         # La Bourse n'a pas coté : ni le calendrier des fériés à date fixe ni
@@ -1256,7 +1369,7 @@ def run(dry_run=False, push=False, token=""):
         price = 0 if lp_perime else (lp.get("price") or 0)
         chg   = 0.0 if lp_perime else lp.get("chg", 0)
         opn   = None if lp_perime else lp.get("open")
-        src_prix  = "idbourse" if price else ""
+        src_prix  = (lp.get("src") or "idbourse") if price else ""
         prix_asof = (lp_asof or IDB_ASOF) if price else ""
 
         # Correction données IDBourse : toujours recalculer vs vraie clôture j-1 (candle)
@@ -1735,7 +1848,12 @@ def run(dry_run=False, push=False, token=""):
                 # jour — Holcim se voyait ainsi attribuer une clôture au 10/08
                 # alors qu'IDBourse ne l'avait plus cotée depuis le 05/08.
                 _m = entry.get("_meta") or {}
-                if _m.get("stale") or _m.get("source_prix") not in ("idbourse", "medias24"):
+                # `cdg` est une cotation réelle et datée, au même titre
+                # qu'IDBourse ou Médias24 — elle a même l'avantage de porter
+                # un chandelier complet. L'omettre de cette liste revenait à
+                # refuser d'écrire la moindre bougie les jours où elle est la
+                # seule source fraîche, ce qui est précisément son rôle.
+                if _m.get("stale") or _m.get("source_prix") not in ("idbourse", "medias24", "cdg"):
                     continue
                 try:
                     existing = json.loads(cfp.read_text(encoding="utf-8"))
