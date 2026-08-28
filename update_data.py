@@ -15,7 +15,7 @@ Dépendances : requests, numpy, pandas (auto-installées si absentes)
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
-import sys, os, json, time, argparse, logging, subprocess, collections
+import sys, os, re, json, time, argparse, logging, subprocess, collections, unicodedata
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -738,10 +738,173 @@ def fetch_all_cdg():
             "vol":   int(_f(d.get("QteEchangee")) or 0),
             "asof":  asof,
         }
+    global _cdg_lignes
+    _cdg_lignes = lignes          # libellés officiels, réutilisés par BMCE
     if out:
         dates = collections.Counter(v["asof"] for v in out.values())
         logger.info(f"CDG Capital Bourse : {len(out)} titres · séances {dict(dates)}")
     return out
+
+
+# Liste « TK » du portail BMCE Capital Bourse. Le paramètre q identifie la liste
+# — la Bourse de Casablanca — et non une session : vérifié le 28/08, la même
+# adresse fonctionne le lendemain depuis un autre poste, sans cookie préalable.
+BMCE_URL = ("https://www.bmcecapitalbourse.com/bkbbourse/lists/TK"
+            "?q=AE31180F8E3BE20E762758E81EDC1204")
+
+_ALIAS_LIBELLE = {}   # rempli au premier appel, cf. _construire_alias()
+_cdg_lignes = []      # lignes brutes du dernier appel CDG (libellés officiels)
+
+# Libellés propres à BMCE qu'aucune des trois passes d'appariement ne résout :
+# abréviations maison ou raisons sociales tronquées. Les déclarer ici plutôt
+# que d'abaisser le seuil de la correspondance floue — un seuil plus bas
+# appariait Maghrebail avec une autre société, et une identité fausse est
+# pire qu'une identité manquante (règle R2).
+BMCE_LIBELLES = {
+    "RESIDDARSAADA":  "RDS",   # Résidences Dar Saada
+    "SODEP":          "MSA",   # Sodep-Marsa Maroc
+    "STEBOISSONS":    "SBS",   # Société des Boissons du Maroc
+    "T2SGROHOLDING":  "T2S",   # TGCC Services / T2S
+}
+
+
+def _bmce_nombre(s):
+    """« 2 434 771,59 » → 2434771.59 ; « +0,41% » → 0.41 ; « - » → None."""
+    s = (str(s).replace("\u202f", "").replace("\xa0", "").replace(" ", "")
+         .replace("%", "").replace("+", "").replace(",", "."))
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
+def fetch_all_bmce(libelles):
+    """Cotations de la séance depuis BMCE Capital Bourse.
+
+    Troisième source de la chaîne, et la première à ne pas partager d'origine
+    avec les deux autres : CDG et Wafabourse citent le même éditeur
+    (`nt-soft.ma`) et emploient la même convention de champs, faute de frappe
+    comprise. BMCE appartient au groupe Bank of Africa et sert une application
+    Java sans rapport technique — c'est donc le seul contrôle réellement
+    extérieur dont nous disposions en automatique.
+
+    Elle cote plus large que CDG — 77 titres contre 69 le 27/08 — et donne
+    l'heure exacte du dernier échange, que personne d'autre ne publie.
+
+    Le tableau est rendu côté serveur : pas d'API à interroger, huit colonnes
+    à lire. Ordre des cellules :
+        nom · heure (HH:MM:SS) · ouverture · cours · variation %
+        · quantité · volume MAD · plus-haut · plus-bas
+
+    ⚠️ BMCE désigne les valeurs par leur RAISON SOCIALE, pas par un ticker.
+    `libelles` doit fournir {libellé normalisé: notre symbole}, construit sur
+    les libellés officiels de CDG. La correspondance est volontairement stricte
+    — égalité exacte, sinon préfixe d'au moins 9 caractères : à 6 caractères,
+    Maghrebail s'appariait avec une autre société et affichait 58 % d'écart.
+
+    ⚠️ La page ne porte pas de date, seulement des heures. La séance est donc
+    celle du jour du relevé, ce qui n'a de sens que si le marché a coté — c'est
+    au détecteur de séance fantôme d'en juger, comme pour les autres sources.
+    """
+    try:
+        r = requests.get(BMCE_URL, headers=HEADERS, timeout=30)
+        if r.status_code != 200 or len(r.text) < 20000:
+            logger.warning(f"BMCE Capital Bourse : HTTP {r.status_code}, "
+                           f"{len(r.text)} octets — ignorée")
+            return {}
+        page = r.text
+    except Exception as e:
+        logger.warning(f"BMCE Capital Bourse injoignable : {e}")
+        return {}
+    return _bmce_parser(page, libelles)
+
+
+def _bmce_parser(page, libelles):
+    """Extraction pure, sans réseau — pour pouvoir la tester hors ligne."""
+    import html as _html
+    global _ALIAS_LIBELLE
+    if not _ALIAS_LIBELLE:
+        _ALIAS_LIBELLE = _construire_alias()
+    heure_re = re.compile(r"^\d{2}:\d{2}:\d{2}$")
+
+    def _cellules(tr):
+        return [re.sub(r"\s+", " ",
+                       _html.unescape(re.sub(r"<[^>]+>", "", c))).strip()
+                for c in re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", tr, re.S | re.I)]
+
+    seance = datetime.now(timezone(timedelta(hours=1))).strftime("%Y-%m-%d")
+    out, sans_corresp = {}, []
+    for c in (_cellules(l) for l in re.findall(r"<tr[^>]*>(.*?)</tr>", page, re.S | re.I)):
+        if len(c) < 9 or not heure_re.match(c[1] or ""):
+            continue
+        nom = _normaliser_libelle(c[0])
+        # Trois passes, de la plus sûre à la plus permissive.
+        # 1. Égalité exacte avec un libellé officiel CDG.
+        sym = libelles.get(nom)
+        # 2. La table d'alias du projet, qui connaît déjà les noms d'usage :
+        #    BMCE écrit « Addoha », « BCP », « BoA », « IAM », quand le libellé
+        #    officiel dit « DOUJA PROM ADDOHA ». Sans cette passe, 22 titres
+        #    sur 77 restaient sans correspondance, dont Maroc Telecom.
+        if not sym:
+            sym = BMCE_LIBELLES.get(nom) or _ALIAS_LIBELLE.get(nom)
+        # 3. Préfixe d'au moins 9 caractères, en dernier recours. Le seuil est
+        #    haut à dessein : à 6 caractères, Maghrebail s'appariait avec une
+        #    autre société et affichait 58 % d'écart.
+        if not sym:
+            for lib, s in libelles.items():
+                if len(nom) >= 9 and len(lib) >= 9 and (
+                        lib.startswith(nom[:9]) or nom.startswith(lib[:9])):
+                    sym = s
+                    break
+        cours = _bmce_nombre(c[3])
+        if not sym:
+            sans_corresp.append(c[0])
+            continue
+        if not cours or cours <= 0:
+            continue
+        out[sym] = {
+            "price": round(cours, 2),
+            "chg":   round(_bmce_nombre(c[4]) or 0, 2),
+            "open":  _bmce_nombre(c[2]),
+            "high":  _bmce_nombre(c[7]),
+            "low":   _bmce_nombre(c[8]),
+            "vol":   int(_bmce_nombre(c[5]) or 0),
+            "asof":  seance,
+            "heure": c[1],
+        }
+    if sans_corresp:
+        logger.info(f"BMCE : {len(sans_corresp)} libellés sans correspondance "
+                    f"— {', '.join(sans_corresp[:5])}")
+    if out:
+        logger.info(f"BMCE Capital Bourse : {len(out)} titres cotés (séance {seance})")
+    return out
+
+
+def _construire_alias():
+    """{nom normalisé: ticker}, depuis la table d'alias déjà maintenue.
+
+    `pipeline/ticker_aliases.py` sert au rattachement des actualités ; elle
+    connaît les noms d'usage de la place, ce qui est exactement ce dont on a
+    besoin pour lire un tableau écrit par des humains. La réutiliser évite une
+    table de plus à tenir à jour — l'anti-pattern « duplication de config ».
+    """
+    table = {}
+    try:
+        sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
+        from ticker_aliases import TICKER_ALIASES
+    except ImportError:
+        return table
+    for tk, alias in TICKER_ALIASES.items():
+        table[_normaliser_libelle(tk)] = tk
+        for a in alias:
+            table.setdefault(_normaliser_libelle(a), tk)
+    return table
+
+
+def _normaliser_libelle(s):
+    """Majuscules sans accents ni ponctuation, pour apparier des raisons sociales."""
+    s = unicodedata.normalize("NFD", str(s)).encode("ascii", "ignore").decode()
+    return re.sub(r"[^A-Z0-9]", "", s.upper())
 
 
 def fetch_masi():
@@ -1291,6 +1454,31 @@ def run(dry_run=False, push=False, token=""):
             IDB_ASOF = cdg_asof
     else:
         logger.warning("CDG Capital Bourse muette — IDBourse reste la source de tête")
+
+    # ── BMCE Capital Bourse, troisième maillon ───────────────────────────
+    # Elle cote plus large que CDG — 77 titres contre 69 le 27/08 — et c'est
+    # la seule source qui ne partage pas d'origine avec les autres : CDG et
+    # Wafabourse citent le même éditeur, BMCE appartient au groupe Bank of
+    # Africa et sert une application sans rapport technique.
+    #
+    # Elle ne prime pas sur CDG : elle comble ce que CDG ne cote pas, et
+    # devance IDBourse, qui accuse un jour de retard deux séances de suite.
+    # L'arbitrage reste la date — une ligne BMCE n'est retenue que si elle est
+    # au moins aussi récente que ce qu'on a déjà.
+    if cdg:
+        libelles = {_normaliser_libelle(r["Libelle"]):
+                    IDB_TICKER_INV.get(str(r.get("Symbol") or "").upper())
+                    for r in _cdg_lignes if r.get("Libelle")}
+        libelles = {k: v for k, v in libelles.items() if v}
+        bmce = fetch_all_bmce(libelles)
+        comble = 0
+        for sym, v in bmce.items():
+            actuel = live_prices.get(sym) or {}
+            if v["asof"] >= (actuel.get("asof") or "") and actuel.get("src") != "cdg":
+                live_prices[sym] = {**v, "src": "bmce", "cap": actuel.get("cap")}
+                comble += 1
+        if comble:
+            logger.info(f"BMCE : {comble} titres comblés là où CDG ne cote pas")
 
     seance_fictive = _recaler_seance_fantome(live_prices)
     if seance_fictive:
@@ -1884,7 +2072,7 @@ def run(dry_run=False, push=False, token=""):
                 # un chandelier complet. L'omettre de cette liste revenait à
                 # refuser d'écrire la moindre bougie les jours où elle est la
                 # seule source fraîche, ce qui est précisément son rôle.
-                if _m.get("stale") or _m.get("source_prix") not in ("idbourse", "medias24", "cdg"):
+                if _m.get("stale") or _m.get("source_prix") not in ("idbourse", "medias24", "cdg", "bmce"):
                     continue
                 try:
                     existing = json.loads(cfp.read_text(encoding="utf-8"))
