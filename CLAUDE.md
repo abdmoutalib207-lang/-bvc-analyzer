@@ -414,6 +414,51 @@ Caps recalculées via `prix × nb_titres officiels BVC` après corrections ISIN 
 
 ## Journal des décisions
 
+### 2026-08-28
+
+- **⚠️ Une source peut RECULER, et l'arbitrage par la date ne le voit pas.**
+  À 15h59, sept minutes après un run parfait, `data.json` est passé de 73 titres
+  à la séance du 28 à **zéro** : les 79 titres se sont retrouvés datés du 27, et
+  Addoha affichait 36,95 — la clôture de la veille — au lieu de 36,05.
+  - Cause : CDG a servi, pendant une fenêtre transitoire juste après la clôture,
+    la séance **précédente**. Son champ `Cours` valait le `CoursDeReferance` du
+    27 et `DateDernierCours` portait le 27. À 16h00 elle était revenue au 28
+    avec le bon cours. La fenêtre a duré quelques minutes.
+  - **R3 ne pouvait pas l'attraper** : l'arbitrage compare les sources ENTRE
+    ELLES, et IDBourse était elle aussi au 27 ce jour-là. Les deux ont reculé
+    ensemble, plus rien ne contredisait la date. Ce qui manquait n'était pas un
+    arbitre de plus, mais **la comparaison avec ce qu'on savait déjà**.
+  - Les chandelles sont restées justes : le garde-fou de l'étape 6c avait refusé
+    d'y écrire un prix daté du 27. La protection existait pour les bougies, pas
+    pour `data.json`.
+  - Correctif : **`_cliquet_seance()`** — toute ligne antérieure à la dernière
+    séance enregistrée est écartée, et la chaîne de repli reprend la main. Six
+    cas testés, dont les trois où le cliquet ne doit PAS jouer.
+  - ⚠️ **Ne pas déclencher de run juste après 15h30.** L'incident a été provoqué
+    par un run manuel non nécessaire tombé dans cette fenêtre. Le run de 15h45
+    et le filet de 18h suffisent.
+
+- **Le MASI était resté sur IDBourse alors que les prix étaient passés à CDG.**
+  73 titres cotés au 28, mais un indice daté du 27. La preuve tenait dans la
+  charge utile : le `CoursVeille` de CDG valait 19046.9191, exactement ce
+  qu'IDBourse donnait comme valeur « du jour ». Migré sur `INDICE-SYNTHESE`
+  (même API, `Indice_=MASI`), avec le même arbitrage par la date.
+  - L'endpoint livre en prime la **largeur de marché** — hausses, baisses,
+    inchangés, nombre de valeurs — non exploitée pour l'instant.
+  - ⚠️ `DateCotation` porte une heure (08:03) qui n'est pas celle de la clôture.
+    N'en retenir que la date.
+
+- **BMCE a comblé 10 titres à la clôture**, dont **SRM (MASI 1)** — qui serait
+  sinon retombé sur les chandelles, daté du 27. Les six affichant `chg=0`
+  avaient tous un volume non nul (1 à 37 titres) : ils ont coté à prix inchangé,
+  R9 est satisfaite. ⚠️ Le run suivant n'en a servi aucun, cause non établie.
+
+- **⚠️ Le cron `schedule` n'est plus fiable du tout** : trois jours consécutifs
+  sans déclenchement de la clôture. Le 28, à 15h50, rien n'était même en file
+  d'attente — ce n'est plus le décalage de 30 à 50 min constaté le 24/08, c'est
+  une absence. **C'est aujourd'hui le premier risque sur la promesse « bulletin
+  avant 8h00 »**, devant toute dette de code.
+
 ### 2026-08-25
 
 - **Le critère de succès devient mesurable.** « Trente jours consécutifs sans
