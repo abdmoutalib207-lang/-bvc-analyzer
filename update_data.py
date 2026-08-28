@@ -587,6 +587,51 @@ def fetch_all_idb():
         logger.info(f"IDBourse [{len(out)} tickers]: {mapping_str}")
     return out
 
+def _cliquet_seance(live_prices, idb_asof, plancher=None):
+    """Une séance déjà gravée ne peut pas reculer. Renvoie la séance retenue.
+
+    Relevé le 28/08 à 15h59. CDG a servi, pendant une fenêtre transitoire
+    juste après la clôture, la séance PRÉCÉDENTE : son `Cours` valait le
+    `CoursDeReferance` du 27 et `DateDernierCours` portait le 27. IDBourse
+    étant elle aussi au 27 ce jour-là, plus aucune source ne contredisait
+    cette date — la séance de référence est retombée au 27/08 et data.json
+    est passé de 73 titres au 28 à zéro. Addoha affichait 36,95 (clôture du
+    27) au lieu de 36,05. Sept minutes plus tôt, le même run avait tout juste.
+
+    ⚠️ L'arbitrage par la date (R3) ne protège pas de ce cas : il compare les
+    sources ENTRE ELLES, et elles avaient toutes reculé ensemble. Il manquait
+    la comparaison avec ce que nous savions déjà.
+
+    Les chandelles font foi : elles portaient le 28 et l'étape 6c avait refusé
+    d'y écrire un prix daté du 27, ce qui les a laissées justes. On écarte donc
+    les lignes antérieures à la dernière séance enregistrée et on laisse la
+    chaîne de repli faire son travail — elles retomberont sur `candles`, qui
+    tiennent la vraie clôture. Rien n'est inventé : on refuse seulement de
+    remplacer du connu par du plus ancien (R1).
+
+    `plancher` n'est explicite que pour les tests ; en production il est déduit
+    des chandelles.
+    """
+    if plancher is None:
+        try:
+            sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
+            from seance import derniere_seance_connue
+            plancher = derniere_seance_connue()
+        except Exception:
+            plancher = None
+    if not plancher or not idb_asof or idb_asof >= plancher:
+        return idb_asof
+    recules = [s for s, v in live_prices.items()
+               if str(v.get("asof") or "")[:10] < plancher]
+    logger.warning(
+        f"Cliquet de séance : les sources datent leurs cours du {idb_asof}, "
+        f"mais la séance du {plancher} est déjà enregistrée. "
+        f"{len(recules)} ligne(s) écartée(s) — repli sur les chandelles.")
+    for s in recules:
+        live_prices.pop(s, None)
+    return plancher
+
+
 def _recaler_seance_fantome(live_prices):
     """Ramène IDB_ASOF à la séance réelle quand la source date un jour fermé.
 
@@ -1586,6 +1631,27 @@ def run(dry_run=False, push=False, token=""):
             logger.warning(f"MASI : la source le date du {seance_fictive}, jour "
                            f"sans cotation — ramené à la séance du {IDB_ASOF}")
             masi["asof"], masi["stale"] = IDB_ASOF, True
+
+    # ── Cliquet de séance : une séance déjà gravée ne peut pas reculer ───
+    # Relevé le 28/08 à 15h59. CDG a servi pendant une fenêtre transitoire,
+    # juste après la clôture, la séance PRÉCÉDENTE : son `Cours` valait le
+    # `CoursDeReferance` du 27 et `DateDernierCours` portait le 27. IDBourse
+    # étant elle aussi au 27 ce jour-là, plus aucune source ne contredisait
+    # cette date — la séance de référence est retombée au 27/08 et data.json
+    # est passé de 73 titres au 28 à zéro. Addoha affichait 36,95 (clôture du
+    # 27) au lieu de 36,05. Sept minutes plus tôt le même run avait tout juste.
+    #
+    # L'arbitrage par la date (R3) ne protège pas de ce cas : il compare les
+    # sources ENTRE ELLES, et elles avaient toutes reculé ensemble. Il manquait
+    # la comparaison avec ce que nous savions déjà.
+    #
+    # Les chandelles font foi : elles portaient le 28 et l'étape 6c avait
+    # refusé d'y écrire un prix daté du 27, ce qui les a laissées justes. On
+    # écarte donc les lignes antérieures à la dernière séance enregistrée et
+    # on laisse la chaîne de repli faire son travail — elles retomberont sur
+    # `candles`, qui tiennent la vraie clôture. Rien n'est inventé : on refuse
+    # seulement de remplacer du connu par du plus ancien (R1).
+    IDB_ASOF = _cliquet_seance(live_prices, IDB_ASOF)
 
     # Circuit breaker : ne pas écraser data.json avec des zéros si toutes les sources sont down
     idb_ok = len(live_prices) > 0
