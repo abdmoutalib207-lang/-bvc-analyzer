@@ -150,6 +150,36 @@ jobs:
           done
           exit 1
 
+      # ── 4b. Contrôle qualité ──────────────────────────────
+      # Le contrôle vit aussi dans verifier_seance.yml, mais celui-ci dépend
+      # du déclencheur `schedule` de GitHub — devenu inutilisable sur ce dépôt :
+      # mesuré les 26, 27 et 28/08, les tâches partent avec 2 à 8 heures de
+      # retard, le cron de 17h00 s'étant déclenché à 01h12 le lendemain.
+      # L'alarme était donc branchée sur le courant qu'elle surveille.
+      #
+      # L'attacher ici la rend indépendante : quelle que soit la façon dont ce
+      # run a été déclenché — cron, dispatch manuel, réveil externe — la séance
+      # est contrôlée juste après avoir été écrite.
+      #
+      # ⚠️ Il n'échoue que sur le passage du soir (≥ 17h00 UTC, soit 18h00 à
+      # Casablanca). En journée la séance est encore en cours : exiger qu'elle
+      # soit complète ferait échouer le contrôle tous les matins, et une alarme
+      # toujours allumée n'alerte plus — c'est la leçon du drapeau `stale` du
+      # 14/08. Le reste du temps il informe sans bloquer.
+      - name: Contrôle de la séance
+        if: always()
+        run: |
+          set +e
+          python pipeline/verifier_seance.py
+          CODE=$?
+          set -e
+          if [ "$CODE" -ne 0 ] && [ "$(date -u +%H)" -ge 17 ]; then
+            echo "::error::Le contrôle de séance a échoué sur le passage du soir."
+            exit 1
+          fi
+          [ "$CODE" -ne 0 ] && echo "::notice::Contrôle non conforme — séance en cours, non bloquant."
+          exit 0
+
       # ── 5. Résumé ─────────────────────────────────────────
       - name: Résumé
         if: always()
