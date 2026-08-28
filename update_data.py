@@ -907,8 +907,69 @@ def _normaliser_libelle(s):
     return re.sub(r"[^A-Z0-9]", "", s.upper())
 
 
+def fetch_masi_cdg():
+    """Indice MASI depuis CDG Capital Bourse. Renvoie None si indisponible.
+
+    Ajouté le 28/08 parce que le contrôle de séance a signalé le seul défaut
+    qui restait ce jour-là : 73 titres cotés au 28, mais un indice daté du 27.
+    On avait migré les PRIX vers CDG sans migrer l'INDICE, qui restait servi
+    par IDBourse — la source dont le retard d'un jour avait justement motivé
+    la bascule.
+
+    La preuve est dans la charge utile elle-même : le `CoursVeille` de CDG
+    valait 19046.9191, exactement ce qu'IDBourse nous donnait comme valeur
+    « du jour ». La veille de l'un était l'aujourd'hui de l'autre.
+
+    ⚠️ `DateCotation` porte une heure (08:03) qui n'est pas celle de la
+    clôture. On n'en retient que la DATE — la seule chose dont la chaîne a
+    besoin pour arbitrer — sans rien conclure de l'heure.
+    """
+    corps = {"ACTIONS": [{
+        "ACTION": {"NAME": "INDICE-SYNTHESE", "TYPE": "SELECT",
+                   "VALUE": "INDICE-SYNTHESE"},
+        "PARAMS": [{"NAME": "Lang_", "TYPE": "S", "VALUE": "fr"},
+                   {"NAME": "Espace_", "TYPE": "I", "VALUE": "1"},
+                   {"NAME": "Indice_", "TYPE": "S", "VALUE": "MASI"}]}]}
+    try:
+        r = requests.post(CDG_API, json=corps, timeout=30, headers={
+            **HEADERS,
+            "Content-Type": "application/json",
+            "Referer": "https://www.cdgcapitalbourse.ma/Bourse/market",
+            "Origin":  "https://www.cdgcapitalbourse.ma"})
+        if r.status_code != 200:
+            logger.warning(f"MASI CDG : HTTP {r.status_code}")
+            return None
+        bloc = r.json()[0]["INDICE-SYNTHESE"]
+        if not bloc.get("Valid"):
+            logger.warning("MASI CDG : réponse invalide")
+            return None
+        ligne = (bloc.get("Data") or [None])[0]
+        if not ligne or not ligne.get("Cours"):
+            return None
+        # « 28/08/2026 08:03:00 » → « 2026-08-28 »
+        brut = str(ligne.get("DateCotation") or "")
+        asof = None
+        if re.match(r"\d{2}/\d{2}/\d{4}", brut):
+            j, mo, a = brut[:10].split("/")
+            asof = f"{a}-{mo}-{j}"
+        return {"value": float(ligne["Cours"]),
+                "chg": float(ligne.get("VariationP") or 0),
+                "asof": asof}
+    except Exception as e:
+        logger.warning(f"MASI CDG indisponible : {e}")
+        return None
+
+
 def fetch_masi():
-    """Indice MASI (variation % pour contexte marché)."""
+    """Indice MASI (variation % pour contexte marché).
+
+    Deux sources, arbitrées par la DATE et jamais par la préférence — même
+    règle que pour les cours (R3). CDG est interrogée d'abord parce qu'elle
+    est aujourd'hui la source de référence, mais si elle prend du retard un
+    jour, IDBourse reprend la main d'elle-même.
+    """
+    cdg = fetch_masi_cdg()
+
     # 45 s et non les 10 s par défaut : mesuré le 12/08, cet endpoint répond en
     # 33 secondes. Il échouait donc à chaque run et l'indice restait à zéro dans
     # l'en-tête du terminal — sans que rien ne le signale, `fetch_masi` renvoyant
@@ -952,10 +1013,37 @@ def fetch_masi():
             asof = reference
         elif perime:
             logger.warning(f"MASI périmé — valeur de la séance {asof or 'inconnue'}")
-        return {"value": float(m["value"]), "chg": float(m.get("variation", 0) or 0),
-                "asof": asof or None, "stale": perime}
-    logger.warning("MASI indisponible — l'en-tête affichera 0")
+        idb = {"value": float(m["value"]),
+               "chg": float(m.get("variation", 0) or 0),
+               "asof": asof or None, "stale": perime}
+        return _arbitrer_masi(cdg, idb, reference)
+
+    logger.warning("MASI IDBourse indisponible")
+    if cdg:
+        return _arbitrer_masi(cdg, None, IDB_ASOF)
+    logger.warning("MASI indisponible des deux sources — l'en-tête affichera 0")
     return {"value": 0, "chg": 0, "asof": None, "stale": True}
+
+
+def _arbitrer_masi(cdg, idb, reference):
+    """Retient l'indice de la séance la plus récente. La date arbitre (R3).
+
+    À égalité de date, CDG l'emporte : c'est une société de bourse agréée,
+    IDBourse une plateforme d'information qui lit elle-même une copie.
+    """
+    if cdg and (not idb or not idb.get("asof")
+                or (cdg.get("asof") or "") >= idb["asof"]):
+        asof = cdg.get("asof")
+        # Périmé si la séance de l'indice est antérieure à celle des cours,
+        # ou si la source le date d'un jour où la Bourse n'a pas coté.
+        perime = bool(est_ferie_fixe(asof)) or (
+            bool(reference) and bool(asof) and asof < reference)
+        if idb and idb.get("asof") and (cdg.get("asof") or "") > idb["asof"]:
+            logger.info(f"MASI : CDG au {asof} devance IDBourse au "
+                        f"{idb['asof']} — CDG retenue")
+        return {"value": cdg["value"], "chg": cdg["chg"],
+                "asof": asof, "stale": perime}
+    return idb
 
 def fetch_history(ticker, days=90):
     """Historique OHLCV Médias24 → DataFrame."""
