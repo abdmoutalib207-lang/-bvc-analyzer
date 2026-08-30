@@ -260,8 +260,36 @@ clôture au 10/08 alors qu'IDBourse ne l'avait plus coté depuis le 05/08.
 
 ## Mémoire des Erreurs et Apprentissages
 
+> ⚠️ Ces deux fichiers étaient réclamés ici depuis le début du projet **mais
+> n'avaient jamais été créés**. Ouverts le 28/08/2026 et remplis à partir du
+> journal des décisions. La mémoire que le projet croyait avoir n'existait pas.
+
 - Lire `.claude/memory/ERRORS.md` à chaque session pour ne pas répéter les erreurs passées
 - Lire `.claude/memory/LEARNINGS.md` pour les apprentissages et découvertes du projet
+- **Y écrire** dès qu'un incident nouveau survient : cause + signal pour ERRORS,
+  fait durable pour LEARNINGS. Un incident non écrit sera refait — le piège
+  `IDB_TICKER_MAP` était documenté et on est quand même retombé dedans.
+
+## L'équipe d'agents permanents
+
+> Recrutée le 28/08/2026. Définitions dans `.claude/agents/`, règles de
+> coopération dans `.claude/agents/README.md`.
+
+| Agent | Périmètre exclusif |
+|---|---|
+| `gardien-donnees` | publier ou refuser un jeu de données (R1, R9, R10) |
+| `veilleur-sources` | santé et contrat des sources CDG / BMCE / IDBourse |
+| `relecteur-pipeline` | conformité d'un diff aux règles R1–R10, avant commit |
+| `ingenieur-tests` | ce qui est vérifié automatiquement (priorité n°1) |
+| `analyste-nlp` | le calcul du champ `nlp` — 28 % du score, aujourd'hui creux |
+| `quant-backtest` | mesurer et publier la performance historique |
+
+**Séquence pour tout changement de code :**
+`relecteur-pipeline` → `ingenieur-tests` → `gardien-donnees` → commit.
+
+**Séquence en cas d'incident :** `veilleur-sources` (est-ce la source ?) →
+`gardien-donnees` (qu'est-ce qui a bougé ?) → `relecteur-pipeline` (est-ce nous ?).
+Toujours dans cet ordre : la cause la plus fréquente est extérieure.
 
 ## Format de Réponse Attendu
 

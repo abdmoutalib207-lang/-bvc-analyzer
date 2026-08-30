@@ -224,6 +224,18 @@ data/nlp_output/
 whatsapp_analysis/output/*.pkl
 whatsapp_analysis/output/messages.csv
 whatsapp_analysis/output/*.pkl
-.claude/
+# ⚠️ `.claude/` était ignoré en bloc — et c'est la cause racine d'une anomalie
+# qui a duré tout le projet : le CLAUDE.md réclamait de lire
+# `.claude/memory/ERRORS.md` et `LEARNINGS.md` à chaque session, alors que ces
+# fichiers ne POUVAIENT pas exister. La mémoire du projet était exclue du dépôt
+# par construction.
+#
+# On garde ignoré ce qui est propre à une machine (réglages locaux, sessions),
+# et on versionne ce qui est du savoir partagé : les agents et la mémoire.
+.claude/*
+!.claude/agents/
+!.claude/memory/
+.claude/settings.local.json
+.claude/*.local.json
 fc-f8a7fcd7773043d0be78f1cdceb20cee
 .mcp.json
