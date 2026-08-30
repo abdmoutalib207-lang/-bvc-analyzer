@@ -2304,6 +2304,49 @@ function scoreModeLabel(mode) {
 }
 
 // ── APP ───────────────────────────────────────────────────────────────────────
+// Mention légale — permanente, non masquable, présente sur tous les onglets.
+//
+// Le terminal publie des signaux ACHETER / SURVEILLER / ÉVITER sur des valeurs
+// cotées. Sans agrément AMMC, cela doit être présenté comme une analyse
+// quantitative et non comme un conseil en investissement. L'absence de cette
+// mention était le risque le plus sérieux du projet, et le moins coûteux à
+// écarter.
+//
+// ⚠️ Volontairement SANS bouton de fermeture. Un avertissement qu'on peut faire
+// disparaître ne protège personne — ni l'utilisateur, ni l'éditeur.
+const MentionLegale=()=>(
+  <footer role="contentinfo" aria-label="Mentions légales"
+    style={{marginTop:32,padding:"18px 20px",borderTop:"1px solid rgba(255,255,255,.08)",
+            background:"rgba(255,255,255,.02)",fontSize:11,lineHeight:1.7,color:"#6b7689",
+            fontFamily:"'IBM Plex Mono',monospace"}}>
+    <div style={{maxWidth:900,margin:"0 auto"}}>
+      <div style={{color:"#8892a4",fontWeight:700,marginBottom:6,letterSpacing:1}}>
+        AVERTISSEMENT
+      </div>
+      <p style={{margin:"0 0 8px"}}>
+        BVC Analyzer est un <strong style={{color:"#8892a4"}}>outil d'analyse
+        quantitative à vocation informative</strong>. Les scores, signaux et
+        indicateurs présentés ne constituent ni un conseil en investissement, ni
+        une recommandation personnalisée, ni une offre ou sollicitation d'achat
+        ou de vente d'instruments financiers.
+      </p>
+      <p style={{margin:"0 0 8px"}}>
+        L'éditeur n'est pas agréé par l'AMMC en qualité de conseiller en
+        investissement financier. Les données proviennent de sources publiques
+        tierces, sont différées et peuvent comporter des erreurs ou des
+        omissions&nbsp;; leur exactitude n'est pas garantie. L'indicateur de
+        confiance ●●●○○ affiché sous chaque score indique le niveau de
+        vérification réellement atteint pour cette valeur.
+      </p>
+      <p style={{margin:0}}>
+        Les performances passées ne préjugent pas des performances futures.
+        Toute décision d'investissement relève de votre seule responsabilité et
+        devrait être précédée de l'avis d'un professionnel habilité.
+      </p>
+    </div>
+  </footer>
+);
+
 function App(){
   const [tab,setTab]=useState(()=>localStorage.getItem("bvc_tab")||"ranking");
   const [sort,setSort]=useState("v53");
@@ -2475,6 +2518,7 @@ function App(){
         {tab==="smart"    &&<Smart/>}
         {tab==="nlp"      &&<NlpDash/>}
         {tab==="news"     &&<NewsFeed/>}
+        <MentionLegale/>
       </div>
     </div>
   );
