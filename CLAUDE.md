@@ -266,6 +266,8 @@ clôture au 10/08 alors qu'IDBourse ne l'avait plus coté depuis le 05/08.
 
 - Lire `.claude/memory/ERRORS.md` à chaque session pour ne pas répéter les erreurs passées
 - Lire `.claude/memory/LEARNINGS.md` pour les apprentissages et découvertes du projet
+- **Lire `.claude/memory/EN_COURS.md` EN PREMIER** : ce qui est attendu, ce qui
+  est incertain, et l'ordre de la feuille de route. Fichier court, tenu à jour.
 - **Y écrire** dès qu'un incident nouveau survient : cause + signal pour ERRORS,
   fait durable pour LEARNINGS. Un incident non écrit sera refait — le piège
   `IDB_TICKER_MAP` était documenté et on est quand même retombé dedans.
