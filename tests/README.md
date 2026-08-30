@@ -1,0 +1,71 @@
+# Le filet de sécurité — ce qui est couvert, et ce qui ne l'est pas
+
+Ouvert le **28/08/2026**. Constat de départ : **0 fichier de test, 1 assertion
+dans tout le dépôt, 0 workflow de test**. Toutes les garanties du projet
+reposaient sur une vérification manuelle.
+
+```
+pip install -r requirements_dev.txt
+python -m pytest
+```
+
+La suite tourne en **moins d'une seconde** et ne touche ni le réseau ni les
+fichiers de production. Ces deux propriétés ne sont pas négociables : une suite
+lente est contournée, une suite qui dépend d'un serveur tiers devient une alarme
+peu fiable, et une alarme peu fiable finit désactivée.
+
+## Couverture des dix règles absolues
+
+| Règle | Ce qu'elle exige | Couverture |
+|---|---|---|
+| **R1** | 81 tickers, 19 MASI 1 avec prix | ✅ automatique |
+| **R2** | `ISIN_MAP` est la vérité unique | ✅ format, unicité, alias documentés |
+| **R3** | La chaîne de repli s'étend et la date arbitre | 🟡 partiel — arbitrage MASI et cliquet couverts, fusion des sources non |
+| **R4** | Toute dépendance déclarée | ❌ non couvert |
+| **R5** | Pas de `filterwarnings` silencieux | ❌ non couvert |
+| **R6** | Testé avant commit | ✅ c'est ce fichier |
+| **R8** | `Tech + Fond + NLP = 100 %`, score dans [0, 10] | ✅ automatique |
+| **R9** | `chg=0` ET `vol=0` ⇒ donnée périmée | 🟡 borné, question ouverte (voir plus bas) |
+| **R10** | Variation plafonnée à ±10 %/séance | ✅ automatique |
+
+## Ce que chaque fichier protège
+
+| Fichier | Incident qu'il empêche de revenir |
+|---|---|
+| `test_cliquet_seance.py` | 28/08 — une source recule, `data.json` passe de 73 titres à la séance à zéro |
+| `test_arbitrage_masi.py` | 28/08 — l'indice reste sur la source en retard quand les prix ont migré |
+| `test_seance_fantome.py` | 14/08 — 114 bougies écrites un jour férié |
+| `test_config.py` | 01/07 — un ISIN dupliqué fait afficher le cours d'une autre société |
+| `test_regles_donnees.py` | Toute collecte dégradée qui atteindrait le terminal |
+| `test_contrat_data_json.py` | 29/06 — trois champs disparaissent, écran blanc en production |
+
+## Ce que les tests ont trouvé en s'écrivant
+
+- **`est_ferie_fixe(None)` levait `TypeError`.** La fonction absorbait
+  `ValueError` et `AttributeError`, mais `None[:10]` lève `TypeError`. Or
+  `prix_asof` vaut `None` dès qu'un titre n'a pas de séance connue. Corrigé.
+- **Le vocabulaire des signaux est plus riche que la documentation.** Le
+  CLAUDE.md annonce ACHETER / SURVEILLER / ÉVITER ; le moteur émet aussi
+  ATTENDRE, ÉVITER FORT et ACHAT FORT.
+- **Deux ISIN sont partagés** — `TGC`/`TGCC` et `SON`/`SNA`. Ce sont des alias
+  hérités, inoffensifs car hors univers collecté, désormais figés par un test
+  pour qu'un vrai doublon saute aux yeux.
+
+## ⚠️ Ce qui reste découvert — à traiter, pas à oublier
+
+1. **La fusion des sources** (CDG → BMCE → IDBourse) n'est pas testée. C'est le
+   cœur de R3 et l'endroit où deux bugs identiques sont nés en deux jours. Elle
+   vit dans `run()`, 768 lignes : **elle n'est pas testable en l'état**. C'est
+   l'argument principal de l'étape 5 de la feuille de route — extraire d'abord,
+   tester ensuite.
+2. **`_recaler_seance_fantome()`** n'est couvert qu'indirectement, via
+   `pipeline/seance.py`. Elle lit le dossier de chandelles réel sans paramètre
+   pour le rediriger.
+3. **`compute_v53()`** — le calcul du score lui-même. Il demande un contexte
+   riche ; sa couverture appartient à `quant-backtest`.
+4. **Les parseurs de sources** (`fetch_all_cdg`, `_bmce_parser`) attendent des
+   charges utiles enregistrées dans `tests/fixtures/`. Prochaine tranche.
+5. **La question R9 ouverte** : 8 titres portent `chg=0` et `vol=0` sans être
+   marqués périmés. Ils n'ont simplement pas coté et affichent leur cours de
+   référence. Faut-il les marquer ? Le test borne le nombre à 16 pour détecter
+   une dérive, sans trancher. **Avis de `gardien-donnees` attendu.**

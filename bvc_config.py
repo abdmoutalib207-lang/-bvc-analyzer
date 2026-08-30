@@ -360,10 +360,14 @@ JOURS_FERIES_FIXES: set = {
 
 def est_ferie_fixe(date_iso: str) -> bool:
     """Vrai si la date « AAAA-MM-JJ » tombe sur un férié à date fixe."""
+    # ⚠️ `TypeError` fait partie des cas à absorber : `date_iso` vaut None dès
+    # qu'un titre n'a pas de séance connue (`_meta.prix_asof` peut être nul), et
+    # `None[:10]` lève TypeError et non AttributeError. Sans lui, un appel sur
+    # un titre non coté faisait tomber le run entier. Trouvé par les tests.
     try:
         _, m, j = date_iso[:10].split("-")
         return (int(m), int(j)) in JOURS_FERIES_FIXES
-    except (ValueError, AttributeError):
+    except (ValueError, AttributeError, TypeError):
         return False
 
 

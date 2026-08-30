@@ -1,0 +1,9 @@
+# Dépendances de DÉVELOPPEMENT — jamais installées par les runs de production.
+#
+# Séparées de requirements.txt à dessein : les workflows de collecte tournent
+# quatre fois par jour ouvré et n'ont aucun besoin de pytest. Les y ajouter
+# allongerait chaque run sans rien apporter.
+#
+# Installation : pip install -r requirements_dev.txt
+-r requirements.txt
+pytest>=8.0

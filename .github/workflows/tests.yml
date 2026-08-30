@@ -1,0 +1,60 @@
+name: Tests
+
+# ⚠️ Ce workflow ne COMMITE RIEN. Le quota de publication de GitHub Pages est la
+# ressource rare du projet ; un contrôle qui produirait un commit consommerait
+# ce qu'il protège.
+#
+# Il tourne aussi sur les modifications de `data.json` — donc sur les commits
+# des automates. C'est délibéré : les tests de règles R1–R10 portent sur le
+# fichier réellement publié, et c'est là qu'ils rattrapent une collecte
+# dégradée avant qu'elle n'atteigne le terminal.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.py'
+      - 'tests/**'
+      - 'data.json'
+      - 'requirements*.txt'
+      - 'pytest.ini'
+      - '.github/workflows/tests.yml'
+  pull_request:
+    paths:
+      - '**.py'
+      - 'tests/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Installer les dépendances
+        run: pip install -r requirements_dev.txt
+
+      - name: Lancer la suite
+        run: python -m pytest --tb=short
+
+      - name: Résumé
+        if: always()
+        run: |
+          echo "## Filet de sécurité" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          python -m pytest --collect-only -q 2>/dev/null | tail -1 \
+            | sed 's/^/- Tests collectés : /' >> $GITHUB_STEP_SUMMARY || true
+          echo "- Déclencheur : ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
