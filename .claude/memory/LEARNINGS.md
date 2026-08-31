@@ -46,6 +46,19 @@
   30 à 50 minutes de retard le 24/08, puis **2 à 8 heures** les 26–28/08 — le
   cron de 17h00 UTC parti à 01h12 le lendemain. Un produit dont la promesse est
   horaire ne peut pas reposer dessus seul.
+  ⚠️ **Le 31/08, DEUX créneaux de journée n'ont pas été déclenchés du tout** —
+  ni 08h40 ni 14h45 UTC. Ce n'est plus du retard, c'est une absence. Les deux
+  séances ont dû être déclenchées à la main. Ne jamais supposer qu'un cron est
+  parti : le vérifier.
+- **Pour un bulletin J+1, l'échéance est 8h du matin, pas l'heure du cron.**
+  Un run qui aboutit à 1h du matin publie à temps — c'est ce qu'a fait celui du
+  samedi 00h47, tenant la promesse avec sept heures de retard. C'est ce constat
+  qui justifie la redondance du soir (18h, 20h, 22h) plutôt qu'une course à la
+  ponctualité qu'on ne gagnera pas.
+- ⚠️ **Une alarme attachée à un run ne peut pas s'alarmer d'une absence de run.**
+  `verifier_seance` est solide quand il tourne, mais il ne tourne que si un run
+  part. Le jour où rien ne part, rien ne prévient. Le seul remède est un
+  observateur EXTÉRIEUR à la plateforme d'exécution.
 - **Le quota de publication de GitHub Pages est la ressource rare du projet**,
   environ 10 reconstructions par heure. Chaque commit le consomme. Un contrôle
   qui commiterait chaque jour consommerait ce qu'il protège.
