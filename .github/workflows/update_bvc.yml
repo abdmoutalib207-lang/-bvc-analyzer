@@ -34,6 +34,26 @@ on:
     - cron:  '0 17 * * 1-5'   # ≈18h00 — filet de sécurité, après que
                               #          generate_candles (17h) soit passé
 
+    # ── Redondance du soir, ajoutée le 31/08/2026 ────────────────────────
+    # ⚠️ Le décalage n'est plus de 30 à 50 minutes mais de 2 à 8 HEURES, et
+    # certains crons ne partent pas du tout. Mesuré : le cron de 17h00 du
+    # vendredi 28 s'est déclenché le samedi à 00h47 ; celui du lundi 31 à
+    # 08h40 n'est jamais parti — le terminal est resté sur la clôture de
+    # vendredi jusqu'à un déclenchement manuel à 11h35.
+    #
+    # La parade tient à une observation : pour un bulletin J+1, l'échéance
+    # est 8h00 du matin, pas 18h00. Un run qui aboutit à 1h du matin publie
+    # à temps. Trois créneaux du soir donnent donc trois chances d'atterrir
+    # avant l'ouverture, là où un seul est un point unique de défaillance.
+    #
+    # Le coût est nul : un run qui ne modifie aucun fichier ne commite pas,
+    # donc le quota de reconstruction de Pages n'est pas entamé. Ce n'est
+    # PAS un retour aux vingt-sept crons — ceux-là visaient un temps réel
+    # que le produit ne promet pas ; ceux-ci protègent la seule promesse
+    # qu'il tient.
+    - cron:  '0 19 * * 1-5'   # ≈20h00 — deuxième chance
+    - cron:  '0 21 * * 1-5'   # ≈22h00 — troisième chance
+
   # ⚠️ NE PAS réintroduire « BVC News Fetch » ici. Les deux workflows se
   # déclenchaient mutuellement — BVC → news → BVC → news, un cycle toutes les
   # 3 à 5 minutes pendant toute la séance. C'était la source réelle des
