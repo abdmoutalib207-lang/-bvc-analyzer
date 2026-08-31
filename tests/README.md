@@ -20,7 +20,7 @@ peu fiable, et une alarme peu fiable finit désactivée.
 |---|---|---|
 | **R1** | 81 tickers, 19 MASI 1 avec prix | ✅ automatique |
 | **R2** | `ISIN_MAP` est la vérité unique | ✅ format, unicité, alias documentés |
-| **R3** | La chaîne de repli s'étend et la date arbitre | 🟡 partiel — arbitrage MASI et cliquet couverts, fusion des sources non |
+| **R3** | La chaîne de repli s'étend et la date arbitre | ✅ fusion des trois sources, arbitrage MASI et cliquet |
 | **R4** | Toute dépendance déclarée | ❌ non couvert |
 | **R5** | Pas de `filterwarnings` silencieux | ❌ non couvert |
 | **R6** | Testé avant commit | ✅ c'est ce fichier |
@@ -38,6 +38,7 @@ peu fiable, et une alarme peu fiable finit désactivée.
 | `test_config.py` | 01/07 — un ISIN dupliqué fait afficher le cours d'une autre société |
 | `test_regles_donnees.py` | Toute collecte dégradée qui atteindrait le terminal |
 | `test_contrat_data_json.py` | 29/06 — trois champs disparaissent, écran blanc en production |
+| `test_fusion_sources.py` | Les deux bugs jumeaux : une source oubliée dans la chaîne |
 
 ## Ce que les tests ont trouvé en s'écrivant
 
@@ -53,11 +54,13 @@ peu fiable, et une alarme peu fiable finit désactivée.
 
 ## ⚠️ Ce qui reste découvert — à traiter, pas à oublier
 
-1. **La fusion des sources** (CDG → BMCE → IDBourse) n'est pas testée. C'est le
-   cœur de R3 et l'endroit où deux bugs identiques sont nés en deux jours. Elle
-   vit dans `run()`, 768 lignes : **elle n'est pas testable en l'état**. C'est
-   l'argument principal de l'étape 5 de la feuille de route — extraire d'abord,
-   tester ensuite.
+1. ~~La fusion des sources~~ — ✅ **couverte le 31/08**. Extraite de `run()` en
+   `fusionner_cotations()`, qui accepte ses sources en paramètres : c'est ce qui
+   permet de la tester sans réseau. 12 cas, dont l'arbitrage dans les DEUX sens,
+   la capitalisation IDBourse jamais perdue, et BMCE qui comble sans jamais
+   remplacer une ligne CDG.
+   L'extraction a été validée en comparant `data.json` avant et après sur
+   **4 779 champs de 81 titres : aucun écart hors horodatage.**
 2. **`_recaler_seance_fantome()`** n'est couvert qu'indirectement, via
    `pipeline/seance.py`. Elle lit le dossier de chandelles réel sans paramètre
    pour le rediriger.

@@ -587,6 +587,94 @@ def fetch_all_idb():
         logger.info(f"IDBourse [{len(out)} tickers]: {mapping_str}")
     return out
 
+def fusionner_cotations(live_prices, idb_asof, cdg=None, bmce=None, lignes_cdg=None):
+    """Fusionne les trois sources de cotation. Renvoie la séance de référence.
+
+    ⚠️ `live_prices` est modifié SUR PLACE — il arrive rempli par IDBourse et
+    ressort enrichi. Seule la séance de référence est renvoyée, parce qu'elle
+    peut avancer si CDG cote plus frais qu'IDBourse.
+
+    ORDRE DE LA CHAÎNE : CDG → BMCE → IDBourse (R3).
+
+    CDG passe en PREMIÈRE source depuis le 27/08/2026, sur trois constats :
+    c'est une société de bourse agréée là où IDBourse est une plateforme
+    d'information qui lit elle-même une copie ; son univers EST celui de la BVC
+    (80 titres sur 81 appariés) ; et elle laisse les champs VIDES quand un titre
+    n'a pas coté, au lieu de rediffuser la veille comme s'il s'agissait du jour
+    — c'était la source de la moitié de nos incidents de séance fantôme.
+
+    ⚠️ IDBourse reste indispensable : elle est la SEULE à fournir la
+    capitalisation boursière, absente des 26 champs de CDG. D'où le `cap`
+    récupéré sur la ligne IDBourse à chaque fusion.
+
+    BMCE est le troisième maillon et le seul réellement indépendant : CDG et
+    Wafabourse partagent l'éditeur `nt-soft.ma`, la convention de champs et
+    jusqu'à la faute de frappe « CoursDeReferance ». Leur accord ne prouve donc
+    rien. BMCE ne prime pas sur CDG — elle comble ce que CDG ne cote pas.
+
+    L'arbitrage se fait ligne par ligne et par la DATE, jamais par la
+    préférence : si CDG prend du retard un jour, IDBourse reprend la main
+    d'elle-même. C'est ce mécanisme, dans l'autre sens, qui a sauvé la séance
+    du 27/08.
+
+    `cdg`, `bmce` et `lignes_cdg` ne sont explicites que pour les tests, qui ne
+    doivent jamais toucher le réseau. En production, les sources sont
+    interrogées ici.
+    """
+    if cdg is None:
+        cdg = fetch_all_cdg()
+
+    if cdg:
+        repris = complete = 0
+        for sym, v in cdg.items():
+            idb = live_prices.get(sym) or {}
+            # La capitalisation vient d'IDBourse quoi qu'il arrive : CDG ne la
+            # publie pas, et la perdre viderait le classement par taille.
+            fusion = {**v, "src": "cdg", "cap": idb.get("cap")}
+            if v["asof"] >= (idb.get("asof") or ""):
+                live_prices[sym] = fusion
+                repris += 1
+            else:
+                complete += 1
+        # Titres connus d'IDBourse mais absents de CDG : ils gardent leur ligne
+        # IDBourse, datée, que la chaîne de repli traitera selon sa fraîcheur.
+        absents = [s for s in live_prices if s not in cdg]
+        cdg_asof = max(v["asof"] for v in cdg.values())
+        logger.info(f"CDG première source : {repris} titres retenus, "
+                    f"{complete} plus anciens qu'IDBourse, "
+                    f"{len(absents)} titres hors de son périmètre")
+        if not idb_asof or cdg_asof > idb_asof:
+            if idb_asof:
+                logger.warning(f"IDBourse en retard (séance {idb_asof}) — "
+                               f"séance de référence portée au {cdg_asof} par CDG")
+            idb_asof = cdg_asof
+    else:
+        logger.warning("CDG Capital Bourse muette — IDBourse reste la source de tête")
+
+    # BMCE n'est interrogée que si CDG a répondu : ses libellés sont appariés
+    # contre la table officielle que CDG fournit. Sans elle, l'appariement par
+    # raison sociale n'a pas de référence, et un appariement faux est pire
+    # qu'un appariement manquant (R2).
+    if cdg:
+        source_lignes = _cdg_lignes if lignes_cdg is None else lignes_cdg
+        libelles = {_normaliser_libelle(r["Libelle"]):
+                    IDB_TICKER_INV.get(str(r.get("Symbol") or "").upper())
+                    for r in source_lignes if r.get("Libelle")}
+        libelles = {k: v for k, v in libelles.items() if v}
+        if bmce is None:
+            bmce = fetch_all_bmce(libelles)
+        comble = 0
+        for sym, v in bmce.items():
+            actuel = live_prices.get(sym) or {}
+            if v["asof"] >= (actuel.get("asof") or "") and actuel.get("src") != "cdg":
+                live_prices[sym] = {**v, "src": "bmce", "cap": actuel.get("cap")}
+                comble += 1
+        if comble:
+            logger.info(f"BMCE : {comble} titres comblés là où CDG ne cote pas")
+
+    return idb_asof
+
+
 def _cliquet_seance(live_prices, idb_asof, plancher=None):
     """Une séance déjà gravée ne peut pas reculer. Renvoie la séance retenue.
 
@@ -1560,58 +1648,7 @@ def run(dry_run=False, push=False, token=""):
     # égalité que parce qu'elle est désormais la source de référence. Si CDG
     # prend du retard un jour, IDBourse reprend la main d'elle-même — c'est ce
     # mécanisme, dans l'autre sens, qui a sauvé la séance du 27/08.
-    cdg = fetch_all_cdg()
-    if cdg:
-        repris = complete = 0
-        for sym, v in cdg.items():
-            idb = live_prices.get(sym) or {}
-            # La capitalisation vient d'IDBourse quoi qu'il arrive : CDG ne la
-            # publie pas, et la perdre viderait le classement par taille.
-            fusion = {**v, "src": "cdg", "cap": idb.get("cap")}
-            if v["asof"] >= (idb.get("asof") or ""):
-                live_prices[sym] = fusion
-                repris += 1
-            else:
-                complete += 1
-        # Titres connus d'IDBourse mais absents de CDG : ils gardent leur ligne
-        # IDBourse, datée, que la chaîne de repli traitera selon sa fraîcheur.
-        absents = [s for s in live_prices if s not in cdg]
-        cdg_asof = max(v["asof"] for v in cdg.values())
-        logger.info(f"CDG première source : {repris} titres retenus, "
-                    f"{complete} plus anciens qu'IDBourse, "
-                    f"{len(absents)} titres hors de son périmètre")
-        if not IDB_ASOF or cdg_asof > IDB_ASOF:
-            if IDB_ASOF:
-                logger.warning(f"IDBourse en retard (séance {IDB_ASOF}) — "
-                               f"séance de référence portée au {cdg_asof} par CDG")
-            IDB_ASOF = cdg_asof
-    else:
-        logger.warning("CDG Capital Bourse muette — IDBourse reste la source de tête")
-
-    # ── BMCE Capital Bourse, troisième maillon ───────────────────────────
-    # Elle cote plus large que CDG — 77 titres contre 69 le 27/08 — et c'est
-    # la seule source qui ne partage pas d'origine avec les autres : CDG et
-    # Wafabourse citent le même éditeur, BMCE appartient au groupe Bank of
-    # Africa et sert une application sans rapport technique.
-    #
-    # Elle ne prime pas sur CDG : elle comble ce que CDG ne cote pas, et
-    # devance IDBourse, qui accuse un jour de retard deux séances de suite.
-    # L'arbitrage reste la date — une ligne BMCE n'est retenue que si elle est
-    # au moins aussi récente que ce qu'on a déjà.
-    if cdg:
-        libelles = {_normaliser_libelle(r["Libelle"]):
-                    IDB_TICKER_INV.get(str(r.get("Symbol") or "").upper())
-                    for r in _cdg_lignes if r.get("Libelle")}
-        libelles = {k: v for k, v in libelles.items() if v}
-        bmce = fetch_all_bmce(libelles)
-        comble = 0
-        for sym, v in bmce.items():
-            actuel = live_prices.get(sym) or {}
-            if v["asof"] >= (actuel.get("asof") or "") and actuel.get("src") != "cdg":
-                live_prices[sym] = {**v, "src": "bmce", "cap": actuel.get("cap")}
-                comble += 1
-        if comble:
-            logger.info(f"BMCE : {comble} titres comblés là où CDG ne cote pas")
+    IDB_ASOF = fusionner_cotations(live_prices, IDB_ASOF)
 
     seance_fictive = _recaler_seance_fantome(live_prices)
     if seance_fictive:
