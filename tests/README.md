@@ -26,7 +26,7 @@ peu fiable, et une alarme peu fiable finit désactivée.
 | **R6** | Testé avant commit | ✅ c'est ce fichier |
 | **R8** | `Tech + Fond + NLP = 100 %`, score dans [0, 10] | ✅ automatique |
 | **R9** | `chg=0` ET `vol=0` ⇒ donnée périmée | 🟡 borné, question ouverte (voir plus bas) |
-| **R10** | Variation plafonnée à ±10 %/séance | ✅ automatique |
+| **R10** | Variation plafonnée à ±10 %/séance | ✅ sur les données publiées ET sur la fonction de recalcul |
 
 ## Ce que chaque fichier protège
 
@@ -39,6 +39,7 @@ peu fiable, et une alarme peu fiable finit désactivée.
 | `test_regles_donnees.py` | Toute collecte dégradée qui atteindrait le terminal |
 | `test_contrat_data_json.py` | 29/06 — trois champs disparaissent, écran blanc en production |
 | `test_fusion_sources.py` | Les deux bugs jumeaux : une source oubliée dans la chaîne |
+| `test_variation_et_isin.py` | Une variation impossible affichée comme un mouvement réel ; un ISIN croisé qui contamine les indicateurs |
 
 ## Ce que les tests ont trouvé en s'écrivant
 
@@ -64,6 +65,9 @@ peu fiable, et une alarme peu fiable finit désactivée.
 2. **`_recaler_seance_fantome()`** n'est couvert qu'indirectement, via
    `pipeline/seance.py`. Elle lit le dossier de chandelles réel sans paramètre
    pour le rediriger.
+   ⚠️ **La chaîne de repli par ticker reste le plus gros trou** : les quatre
+   niveaux de repli (chandelles → historique → financial → statique) vivent
+   encore dans la boucle de 405 lignes. C'est la tranche 3 du découpage.
 3. **`compute_v53()`** — le calcul du score lui-même. Il demande un contexte
    riche ; sa couverture appartient à `quant-backtest`.
 4. **Les parseurs de sources** (`fetch_all_cdg`, `_bmce_parser`) attendent des

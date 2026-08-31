@@ -587,6 +587,74 @@ def fetch_all_idb():
         logger.info(f"IDBourse [{len(out)} tickers]: {mapping_str}")
     return out
 
+def recalculer_variation(ticker, price, chg, candles, seance):
+    """Recalcule la variation depuis la dernière clôture connue. Renvoie `chg`.
+
+    Les sources renvoient parfois `variation=0` alors que le cours a bougé —
+    IDBourse sert le cours de référence de la veille comme cours du jour pour
+    les titres peu échangés (R9). La clôture précédente, elle, est dans nos
+    chandelles et ne ment pas.
+
+    ⚠️ Garde-fou R10 : la BVC plafonne la variation à ±10 % par séance. Au-delà,
+    ce n'est jamais un mouvement réel mais un cours de référence erroné — on
+    garde 0 et on alerte, plutôt que d'afficher une variation impossible qui
+    ferait paniquer un lecteur.
+
+    ⚠️ Le seuil de 0,01 DH évite de recalculer pour un écart d'arrondi : sans
+    lui, chaque run réécrirait une variation infinitésimale et journaliserait
+    une correction qui n'en est pas une.
+    """
+    if candles is None or len(candles) < 1 or not price or price <= 0:
+        return chg
+    try:
+        veille = _cloture_precedente(candles, seance) or 0
+    except Exception:
+        return chg
+    if veille <= 0 or abs(price - veille) <= 0.01:
+        return chg
+    calcule = round((price - veille) / veille * 100, 2)
+    if abs(calcule) > 10.0:
+        logger.warning(
+            f"  {ticker}: variation calculée {calcule:+.2f}% > ±10%"
+            f" — cours de référence suspect (prix={price}, ref={veille})")
+        return 0.0
+    if calcule != chg:
+        logger.info(f"  {ticker}: chg corrigé {chg:+.2f}% → {calcule:+.2f}%"
+                    f" (prix={price}, clôture_j-1={veille})")
+    return calcule
+
+
+def neutraliser_si_isin_suspect(ticker, price, rsi, ma20, ma50, h90, l90):
+    """Neutralise les indicateurs quand le prix et la MA20 sont incohérents.
+
+    Renvoie le sextuplet (rsi, ma20, ma50, h90, l90, suspect).
+
+    Une moyenne mobile qui s'écarte du prix d'un facteur 3 ne décrit pas le même
+    instrument : c'est la signature d'un ISIN erroné, où l'on croise le cours
+    d'une société avec l'historique d'une autre. Le cas d'école est Sothema —
+    cours réel autour de 360 DH, MA20 à 1 666 DH par un ISIN faux.
+
+    Le facteur 3 est délibérément large. La BVC plafonnant les variations à
+    ±10 % par séance, une MA20 ne peut pas s'éloigner du prix de plus de
+    quelques dizaines de pourcents en fonctionnement normal ; un facteur 3
+    n'arrive jamais par le marché.
+
+    ⚠️ On neutralise plutôt que d'écarter le titre : le prix, lui, peut être
+    juste. Ce sont les indicateurs techniques dérivés de l'historique qui sont
+    contaminés. Le score de confiance retombera de lui-même.
+    """
+    if not (price > 0 and ma20 > 0):
+        return rsi, ma20, ma50, h90, l90, False
+    if not (ma20 > 3.0 * price or price > 3.0 * ma20):
+        return rsi, ma20, ma50, h90, l90, False
+    logger.warning(
+        f"  {ticker}: ANOMALIE ISIN — MA20={ma20} vs prix={price} "
+        f"(ratio {max(ma20, price) / min(ma20, price):.1f}x) — "
+        f"indicateurs resetés à neutres")
+    return (50.0, round(price, 2), round(price, 2),
+            round(price * 1.15, 2), round(price * 0.85, 2), True)
+
+
 def fusionner_cotations(live_prices, idb_asof, cdg=None, bmce=None, lignes_cdg=None):
     """Fusionne les trois sources de cotation. Renvoie la séance de référence.
 
@@ -2017,43 +2085,14 @@ def run(dry_run=False, push=False, token=""):
         # (IDBourse retourne parfois le cours de référence J-1 comme cours actuel).
         # On recalcule toujours la variation depuis la dernière clôture connue (candles).
         # Si le résultat dépasse ±10% → anomalie de données → on garde 0 et on alerte.
-        _df_c_final = _candles_cache.get(ticker)
-        if _df_c_final is not None and len(_df_c_final) >= 1 and price > 0:
-            try:
-                _last_c = _cloture_precedente(_df_c_final, IDB_ASOF) or 0
-                if _last_c > 0 and abs(price - _last_c) > 0.01:
-                    _chg_calc = round((price - _last_c) / _last_c * 100, 2)
-                    if abs(_chg_calc) <= 10.0:
-                        if _chg_calc != chg:
-                            logger.info(
-                                f"  {ticker}: chg corrigé {chg:+.2f}% → {_chg_calc:+.2f}%"
-                                f" (prix={price}, clôture_j-1={_last_c})"
-                            )
-                        chg = _chg_calc
-                    else:
-                        logger.warning(
-                            f"  {ticker}: variation calculée {_chg_calc:+.2f}% > ±10%"
-                            f" — cours de référence IDBourse suspect (prix={price}, ref={_last_c})"
-                        )
-                        chg = 0.0
-            except Exception:
-                pass
+        chg = recalculer_variation(ticker, price, chg,
+                                   _candles_cache.get(ticker), IDB_ASOF)
 
         if not opn:
             opn = round(price / (1 + chg / 100), 2) if chg else price
 
-        # Sanity check ISIN : si MA20 diffère du prix de plus de 3x → ISIN probablement erroné
-        # (ex: SOT — IDBourse retourne ~369 DH mais Médias24 ISIN donne ~1666 MA20 = mauvais ISIN)
-        if price > 0 and ma20 > 0 and (ma20 > 3.0 * price or price > 3.0 * ma20):
-            logger.warning(
-                f"  {ticker}: ANOMALIE ISIN — MA20={ma20} vs prix={price} "
-                f"(ratio {max(ma20,price)/min(ma20,price):.1f}x) — indicateurs resetés à neutres"
-            )
-            rsi  = 50.0
-            ma20 = round(price, 2)
-            ma50 = round(price, 2)
-            h90  = round(price * 1.15, 2)
-            l90  = round(price * 0.85, 2)
+        rsi, ma20, ma50, h90, l90, _ = neutraliser_si_isin_suspect(
+            ticker, price, rsi, ma20, ma50, h90, l90)
 
         # Score technique
         score_tech = calc_score_tech(rsi, price, ma20, ma50, h90, l90)
