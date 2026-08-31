@@ -108,3 +108,38 @@ def test_valeurs_absentes_ne_declenchent_rien(ud, prix, ma20):
     _, _, _, _, _, suspect = ud.neutraliser_si_isin_suspect(
         "TST", prix, 50.0, ma20, 0.0, 0.0, 0.0)
     assert suspect is False
+
+
+# ── Le drapeau doit atteindre la confiance, pas mourir chez l'appelant ──────
+
+def test_isin_suspect_plafonne_la_confiance(ud):
+    """Relevé par `relecteur-pipeline` le 31/08 : le garde-fou n'était pas branché.
+
+    La détection renvoyait bien son drapeau, mais l'appelant le jetait dans un
+    `_`. Conséquence : un titre à l'ISIN croisé gardait 5 sur 5 — ses chandelles
+    sont nombreuses (celles de la mauvaise société), ses fondamentaux présents,
+    son corpus fourni. Le terminal affichait donc un ACHETER en couleur pleine
+    sur une donnée dont le moteur venait de journaliser l'incohérence.
+
+    Sous une confiance de 1, le frontend grise le signal — c'est la promesse
+    « pas de signal sans confiance » du CLAUDE.md.
+    """
+    import pandas as pd
+    sent = {"mentions": 500, "win": 60}
+    bougies = pd.DataFrame([{"d": f"2026-0{1 + i // 28}-{1 + i % 28:02d}", "c": 100.0}
+                            for i in range(60)])
+
+    sain = ud._meta_ticker("IAM", "cdg", "2026-08-31", sent, bougies,
+                           isin_suspect=False)
+    suspect = ud._meta_ticker("IAM", "cdg", "2026-08-31", sent, bougies,
+                              isin_suspect=True)
+
+    assert sain["confidence"] > 1, "un titre sain doit garder sa confiance"
+    assert suspect["confidence"] <= 1, "un ISIN suspect doit faire griser le signal"
+
+
+def test_le_plafond_ne_remonte_jamais_une_confiance_basse(ud):
+    """Le plafond abaisse, il ne relève pas : `min`, pas une affectation."""
+    m = ud._meta_ticker("XXX", "static", "", {"mentions": 0, "win": None}, None,
+                        isin_suspect=True)
+    assert m["confidence"] == 0

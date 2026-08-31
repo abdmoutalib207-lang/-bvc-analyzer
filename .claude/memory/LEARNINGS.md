@@ -24,6 +24,18 @@
 
 ## Sur les sources
 
+- ⚠️ **IDBourse peut rester bloquée sur la séance précédente pendant des
+  heures.** Relevé le 31/08 par `veilleur-sources` : plus de deux heures après
+  la clôture du lundi, ni `get_all_data` ni `masi-data` n'avaient une seule
+  ligne datée du jour — 84 lignes sur 92 encore au vendredi. Le pipeline l'a
+  correctement écartée (zéro ticker en source `idbourse` fraîche), mais la
+  **capitalisation boursière** en dépend seule et se calcule alors sur le cours
+  de la veille, sans drapeau propre pour le signaler.
+- ⚠️ **CDG ne sert pas 80 titres sur 81 mais environ 65**, dont 63 avec un
+  cours — chiffre stable sur quatre runs vérifiés du 27 au 31/08. La règle R3
+  du CLAUDE.md annonce « 80/81 appariés » : c'est le taux d'APPARIEMENT du
+  référentiel, pas la couverture d'une séance. Ne pas confondre les deux.
+
 - **Aucune source n'est indépendante par défaut.** CDG et Wafabourse partagent
   l'éditeur `nt-soft.ma`, la convention de nommage et jusqu'à la faute de frappe
   « CoursDeReferance ». Leur accord ne prouve rien. BMCE (groupe Bank of Africa)

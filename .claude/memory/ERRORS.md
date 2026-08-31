@@ -101,6 +101,22 @@ définitive. 57 bougies fausses sur 72 cotées.
 
 ---
 
+## Famille 6 — Un garde-fou écrit mais pas branché
+
+### Le drapeau d'ISIN suspect jeté par son appelant (31/08)
+`neutraliser_si_isin_suspect()` renvoyait bien un booléen `suspect`, et sa
+docstring promettait que « le score de confiance retombera de lui-même ». Or
+l'appelant le déballait dans un `_` : le drapeau mourait sur place.
+**Conséquence** : un titre à l'ISIN croisé gardait 5 sur 5 — ses chandelles sont
+nombreuses (celles de la mauvaise société), ses fondamentaux présents, son
+corpus fourni. Le terminal affichait un ACHETER en couleur pleine sur une donnée
+dont le moteur venait lui-même de journaliser l'incohérence.
+**Trouvé par `relecteur-pipeline`**, pas par les tests : la validation par
+comparaison de `data.json` ne pouvait pas le voir, aucun titre n'étant suspect
+ce jour-là. **Une docstring qui affirme un comportement non implémenté est un
+mensonge dans le code** — plus dangereux qu'un commentaire absent, parce qu'on
+s'y fie.
+
 ## Le motif commun
 
 Presque toutes ces erreurs ont la même forme : **une autorité unique à laquelle

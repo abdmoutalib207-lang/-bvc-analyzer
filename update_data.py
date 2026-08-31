@@ -587,6 +587,45 @@ def fetch_all_idb():
         logger.info(f"IDBourse [{len(out)} tickers]: {mapping_str}")
     return out
 
+def prendre_prix_live(ligne, seance):
+    """Porte d'entrée de la chaîne de repli (R3) : la ligne live est-elle utilisable ?
+
+    Renvoie (price, chg, open, src_prix, prix_asof, perime). Un prix nul signifie
+    que la ligne est rejetée et que la chaîne de repli doit prendre le relais —
+    chandelles, historique, puis fichiers figés.
+
+    `perime` distingue les deux raisons d'un prix nul : la source n'avait rien,
+    ou elle avait une ligne trop ancienne. La différence compte plus bas dans la
+    chaîne — un dernier repli `idbourse_perime` réutilise le cours écarté ici,
+    en l'annonçant honnêtement pour ce qu'il est.
+
+    ⚠️ **Une ligne antérieure à la séance de référence est rejetée**, même si
+    elle porte un prix. Règle établie le 10/08 : les sources conservent des
+    reliquats non rafraîchis — Holcim et Stroc sont restés au 05/08 pendant des
+    jours. Les laisser passer affichait un cours périmé comme dernier connu,
+    sans que rien ne le signale.
+
+    ⚠️ Rejeter, ce n'est pas jeter la donnée : c'est refuser de l'annoncer comme
+    fraîche. La chaîne de repli retrouvera généralement le même cours via les
+    chandelles, mais avec la bonne date et le bon `source_prix`. La différence
+    est invisible sur le chiffre et décisive sur ce que le terminal en dit.
+
+    `src_prix` reste vide quand le prix est nul : c'est ce vide qui déclenche
+    les replis successifs plus bas dans la boucle.
+    """
+    asof = ligne.get("asof") or ""
+    perime = bool(seance and asof and asof < seance)
+    price = 0 if perime else (ligne.get("price") or 0)
+    return (
+        price,
+        0.0 if perime else ligne.get("chg", 0),
+        None if perime else ligne.get("open"),
+        (ligne.get("src") or "idbourse") if price else "",
+        (asof or seance) if price else "",
+        perime,
+    )
+
+
 def recalculer_variation(ticker, price, chg, candles, seance):
     """Recalcule la variation depuis la dernière clôture connue. Renvoie `chg`.
 
@@ -641,7 +680,9 @@ def neutraliser_si_isin_suspect(ticker, price, rsi, ma20, ma50, h90, l90):
 
     ⚠️ On neutralise plutôt que d'écarter le titre : le prix, lui, peut être
     juste. Ce sont les indicateurs techniques dérivés de l'historique qui sont
-    contaminés. Le score de confiance retombera de lui-même.
+    contaminés. Le drapeau `suspect` renvoyé plafonne la confiance à 1 dans
+    `_meta_ticker`, ce qui fait griser le signal — sans ce câblage, le titre
+    gardait 5 sur 5 et affichait un ACHETER en couleur pleine.
     """
     if not (price > 0 and ma20 > 0):
         return rsi, ma20, ma50, h90, l90, False
@@ -1481,7 +1522,8 @@ def get_weights(context: dict) -> dict:
     total = sum(w.values())
     return {k: round(v / total, 4) for k, v in w.items()}
 
-def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles) -> dict:
+def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
+                 isin_suspect=False) -> dict:
     """Provenance du prix et score de confiance 0–5.
 
     Le score suit la spécification du CLAUDE.md, un point par garantie :
@@ -1493,6 +1535,18 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles) -> dict:
 
     Un score ≤ 1 signifie que la note repose sur des données de repli : le
     frontend grise alors le signal plutôt que d'afficher un ACHETER trompeur.
+
+    ⚠️ `isin_suspect` plafonne la confiance à 1. Quand la moyenne mobile
+    s'écarte du prix d'un facteur 3, on soupçonne un ISIN croisé — le cours
+    d'une société mariée à l'historique d'une autre. Sans ce plafond, un tel
+    titre gardait 5 sur 5 : ses chandelles sont nombreuses (celles de la
+    mauvaise société), ses fondamentaux présents, son corpus fourni. Le
+    terminal affichait donc un ACHETER en couleur pleine sur une donnée dont
+    le moteur venait lui-même de journaliser l'incohérence.
+
+    Relevé par `relecteur-pipeline` le 31/08 : la fonction de détection
+    renvoyait bien le drapeau, mais l'appelant le jetait. Le garde-fou
+    existait sans être branché.
     """
     # Une source sans date propre est périmée par construction : elle recopie
     # un run antérieur et se reconduirait indéfiniment sans jamais le signaler.
@@ -1514,6 +1568,8 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles) -> dict:
         1 if (sent.get("mentions") or 0) > 10 else 0,
         1 if sent.get("win") is not None else 0,
     ))
+    if isin_suspect:
+        confiance = min(confiance, 1)
 
     return {
         "source_prix":  src_prix or "inconnu",
@@ -1842,13 +1898,9 @@ def run(dry_run=False, push=False, token=""):
         # Prix — on trace d'où il vient et de quelle séance, pour le bloc
         # _meta émis plus bas : sans ça le frontend ne peut pas distinguer un
         # cours du jour d'une valeur figée dans un fichier statique.
-        lp_asof   = lp.get("asof") or ""
-        lp_perime = bool(IDB_ASOF and lp_asof and lp_asof < IDB_ASOF)
-        price = 0 if lp_perime else (lp.get("price") or 0)
-        chg   = 0.0 if lp_perime else lp.get("chg", 0)
-        opn   = None if lp_perime else lp.get("open")
-        src_prix  = (lp.get("src") or "idbourse") if price else ""
-        prix_asof = (lp_asof or IDB_ASOF) if price else ""
+        lp_asof = lp.get("asof") or ""
+        price, chg, opn, src_prix, prix_asof, lp_perime = prendre_prix_live(
+            lp, IDB_ASOF)
 
         # Correction données IDBourse : toujours recalculer vs vraie clôture j-1 (candle)
         # IDBourse peut référencer une mauvaise date de référence, surtout sur 2e run intraday
@@ -2091,7 +2143,7 @@ def run(dry_run=False, push=False, token=""):
         if not opn:
             opn = round(price / (1 + chg / 100), 2) if chg else price
 
-        rsi, ma20, ma50, h90, l90, _ = neutraliser_si_isin_suspect(
+        rsi, ma20, ma50, h90, l90, isin_suspect = neutraliser_si_isin_suspect(
             ticker, price, rsi, ma20, ma50, h90, l90)
 
         # Score technique
@@ -2134,7 +2186,7 @@ def run(dry_run=False, push=False, token=""):
             # valeur figée depuis des semaines dans static_fallback.json. Le
             # frontend doit supposer stale=true en son absence.
             "_meta": _meta_ticker(ticker, src_prix, prix_asof, sent,
-                                  _candles_cache.get(ticker)),
+                                  _candles_cache.get(ticker), isin_suspect),
             # Code officiel BVC, pour l'affichage seulement. Nos symboles
             # internes sont la clé primaire d'ISIN_MAP, des chandelles et de
             # six ans de corpus WhatsApp : on ne les renomme pas. Mais un
