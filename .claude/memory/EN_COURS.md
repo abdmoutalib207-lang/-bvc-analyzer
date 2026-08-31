@@ -1,6 +1,6 @@
 # En cours — à lire au démarrage de chaque session
 
-> Mis à jour le **31/08/2026, 11h40 Casablanca** (lundi, séance en cours).
+> Mis à jour le **31/08/2026, 20h00 Casablanca** (lundi soir, après clôture).
 > Ce fichier est court par construction. Ce qui est terminé en sort et va dans
 > le journal du CLAUDE.md ; ce qui est appris va dans LEARNINGS.md.
 
@@ -34,8 +34,27 @@
     la routine (claude.ai → Routines → « BVC — réveil des robots »), qui ajoute
     une voie B autonome — faire tourner le pipeline soi-même et pousser, avec
     l'autorisation explicite de commiter dans ce cas.
-  - ⚠️ **Non vérifié** : on ignore si la session déclenchée reçoit une copie du
-    dépôt. Si non, la voie B échouera aussi — mais elle le DIRA cette fois.
+  - ✅ **VÉRIFIÉ le 31/08 à 19h56**, la session déclenchée a rendu son rapport :
+    elle a bien une copie du dépôt (clone git) mais **en LECTURE SEULE**.
+    `GITHUB_TOKEN` répond 403 « GitHub access to this repository is not enabled
+    for this session. Use add_repo to request access with push », aucun outil
+    MCP GitHub n'est chargé, et `gh` n'est pas installé.
+  - ⚠️ **Ma voie B était donc fausse elle aussi** : elle se terminait par un
+    `git push` que la session ne peut pas faire. Le texte de remplacement doit
+    commencer par un appel à **`add_repo` avec `access: "push"`**, sans quoi
+    aucune des deux voies ne fonctionne.
+
+- ✅ **La redondance du soir a fonctionné dès le premier soir.** Deux runs
+  `schedule` le 31/08 — 16h22 et 17h57 UTC — après que les créneaux de 08h40 et
+  14h45 aient été sautés. Résultat : **79 titres sur 81 à la séance du jour**,
+  publiés sans intervention. La promesse J+1 est tenue pour demain matin.
+
+- ⚠️ **Attention aux inférences causales sur les titres en retard.** Le réveil
+  a rapporté « 16 titres bloqués au 28/08, correspond exactement aux 3 jours de
+  panne du schedule ». C'était FAUX : ces titres attendaient simplement
+  qu'IDBourse rattrape le week-end, comme `veilleur-sources` l'avait diagnostiqué
+  à 17h33. IDBourse a rattrapé vers 18h et ils sont passés à 79/81. Un chiffre
+  juste peut porter une explication fausse.
 
 - [x] **Redondance du soir posée le 31/08** (dans `update_bvc.yml`).
   Trois créneaux — 18h, 20h, 22h — au lieu d'un. L'observation qui la justifie :
