@@ -77,6 +77,23 @@
 - **Casablanca est à UTC+1 toute l'année.** `datetime.now()` sur un runner GitHub
   donne l'heure UTC : l'étiqueter `+01:00` produit une heure fausse en permanence.
 
+## Preuves de justesse — recoupements au bulletin CDG
+
+- **Séance du 31/08/2026 : 70 titres comparés, ZÉRO écart.** Pas « inférieur à
+  0,1 % » — exactement 0,000 % sur chaque titre. Premier recoupement complet
+  d'une séance produite par la chaîne à trois sources (CDG 63 + BMCE 10 +
+  IDBourse 6), et par un moteur refactoré trois fois dans la journée.
+  Les 19 titres du MASI 1 sont couverts : 18 ont coté et concordent, CMT n'a pas
+  coté — ce que nos données disaient déjà (`stale`, source `candles`).
+  Les 11 titres non comparés affichent tous `cours = 0.0` au bulletin : ils
+  n'ont pas coté. Ce n'est pas un trou de couverture, c'est le marché.
+- ⚠️ **Le bulletin « Indices » ne contient PAS la valeur des indices** — malgré
+  son titre. C'est un tableau par instrument. L'indice MASI n'est donc pas
+  vérifiable par cette pièce ; il faut une autre source pour le recouper.
+- ⚠️ Rappel confirmé une fois de plus : le titre du bulletin porte la date de
+  **publication**. « Indices du mardi 1er septembre » contient la séance du
+  lundi 31 août.
+
 ## Sur la conception du produit
 
 - **L'honnêteté est la fonctionnalité.** Le bloc `_meta`, l'indicateur de
