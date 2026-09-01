@@ -53,6 +53,27 @@ peu fiable, et une alarme peu fiable finit désactivée.
   hérités, inoffensifs car hors univers collecté, désormais figés par un test
   pour qu'un vrai doublon saute aux yeux.
 
+## ⚠️ Où la suite tourne réellement — corrigé le 01/09/2026
+
+Elle est lancée à **deux endroits**, et il a fallu un échec pour le comprendre :
+
+| Déclencheur | Ce qu'il valide |
+|---|---|
+| `tests.yml` sur un push | les commits **humains**, avant qu'ils n'atteignent la production |
+| étape d'`update_bvc.yml` | le `data.json` **réellement publié**, juste après l'écriture |
+
+⚠️ **Le commentaire d'origine de `tests.yml` était faux.** Il affirmait que le
+workflow tournait sur les commits des automates. Mesuré le 01/09 : sur six
+exécutions, **toutes portaient sur un commit humain, aucune sur un commit
+« data: BVC update »**. GitHub ne déclenche pas de workflow sur les commits
+poussés avec son propre jeton — protection contre les boucles infinies. Le
+filtre `paths: data.json` était donc purement décoratif, et les tests des
+règles R1–R10 n'examinaient jamais le fichier publié.
+
+D'où l'étape ajoutée dans `update_bvc.yml`. Elle est **non bloquante** : un run
+qui a déjà écrit et poussé ne doit pas être marqué en échec pour un test. Le
+contrôle de séance, lui, échoue et alerte.
+
 ## ⚠️ Ce qui reste découvert — à traiter, pas à oublier
 
 1. ~~La fusion des sources~~ — ✅ **couverte le 31/08**. Extraite de `run()` en

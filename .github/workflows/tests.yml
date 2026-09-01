@@ -4,10 +4,19 @@ name: Tests
 # ressource rare du projet ; un contrôle qui produirait un commit consommerait
 # ce qu'il protège.
 #
-# Il tourne aussi sur les modifications de `data.json` — donc sur les commits
-# des automates. C'est délibéré : les tests de règles R1–R10 portent sur le
-# fichier réellement publié, et c'est là qu'ils rattrapent une collecte
-# dégradée avant qu'elle n'atteigne le terminal.
+# ⚠️ CORRECTION DU 01/09/2026. Le commentaire d'origine affirmait que ce
+# workflow tournait « sur les commits des automates, là où les règles R1–R10
+# rattrapent une collecte dégradée ». C'ÉTAIT FAUX.
+#
+# Mesuré : sur six exécutions, toutes portaient sur un commit humain, aucune
+# sur un commit « data: BVC update ». GitHub ne déclenche pas de workflow sur
+# les commits poussés avec son propre jeton — protection contre les boucles
+# infinies. Le filtre `paths: data.json` ci-dessous est donc décoratif.
+#
+# La suite tourne désormais AUSSI comme étape d'`update_bvc.yml`, juste après
+# l'écriture des données. C'est là qu'elle voit le fichier publié.
+# Ce workflow-ci garde son rôle : valider les commits humains avant qu'ils
+# n'atteignent la production.
 
 on:
   push:

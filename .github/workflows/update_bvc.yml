@@ -170,6 +170,27 @@ jobs:
           done
           exit 1
 
+      # ── 4a. Suite de tests ────────────────────────────────
+      # ⚠️ Elle est ici parce que `tests.yml` NE VOIT PAS les données publiées.
+      # Relevé le 01/09 : sur six exécutions, toutes portaient sur un commit
+      # humain, aucune sur un commit « data: BVC update ». GitHub ne déclenche
+      # pas de workflow sur les commits poussés avec son propre jeton — une
+      # protection contre les boucles infinies, qui rend le filtre `paths:
+      # data.json` de tests.yml purement décoratif.
+      #
+      # Or les tests des règles R1 à R10 portent justement sur le data.json
+      # RÉELLEMENT PUBLIÉ. Sans cette étape, ils ne l'examinent jamais.
+      #
+      # Non bloquant : un run qui a déjà écrit et poussé ne doit pas être
+      # marqué en échec pour un test — le fichier est publié de toute façon.
+      # Le contrôle de séance ci-dessous, lui, échoue et alerte.
+      - name: Suite de tests
+        if: always()
+        continue-on-error: true
+        run: |
+          pip install --quiet pytest
+          python -m pytest --tb=line -q || echo "::warning::La suite de tests signale un écart sur les données publiées."
+
       # ── 4b. Contrôle qualité ──────────────────────────────
       # Le contrôle vit aussi dans verifier_seance.yml, mais celui-ci dépend
       # du déclencheur `schedule` de GitHub — devenu inutilisable sur ce dépôt :
