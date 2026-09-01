@@ -1556,8 +1556,58 @@ def _volume_median(df_candles, n=20):
         return None
 
 
+def _est_rediffusion(chg, vol, df_candles, seance=None):
+    """Le cours annoncé est-il une rediffusion plutôt qu'une cotation ?
+
+    Deux signatures, établies contre le bulletin officiel du 01/09/2026 :
+
+    1. **R9 littérale** — `chg=0` ET `vol=0`. La source sert son cours de
+       référence comme s'il s'agissait du cours du jour. Minière Touissit
+       affichait ainsi un prix daté du 01/09, non périmé, alors que le bulletin
+       officiel portait « cours 0,00 » : elle n'avait pas coté.
+
+    2. **Volume rejoué** — `chg=0`, et un volume identique à celui de la séance
+       précédente pour une clôture elle aussi identique. Réalisations Mécaniques
+       affichait 465,0 DH pour 56 titres le 31/08, puis exactement 465,0 pour
+       exactement 56 titres le 01/09 — quand le bulletin dit qu'elle n'a pas
+       coté. Un volume réel ne se répète pas au titre près.
+
+    ⚠️ Ne PAS confondre avec un titre qui cote à prix inchangé : le 28/08, six
+    valeurs affichaient `chg=0` avec des volumes de 1 à 37 titres, tous
+    différents de la veille. Elles avaient bien coté. C'est la RÉPÉTITION qui
+    trahit, pas la stabilité.
+
+    ⚠️ Le détecteur de séance fantôme ne voit pas ces cas : il raisonne à
+    l'échelle du marché, et le marché, lui, a coté ce jour-là.
+
+    ⚠️⚠️ `seance` est INDISPENSABLE, et son oubli a produit un faux positif dès
+    la première mise en service. Le cache de chandelles contient DÉJÀ la bougie
+    du jour, écrite par un run antérieur — comparer à `iloc[-1]` revient donc à
+    comparer la ligne du jour à elle-même, ce qui est toujours vrai. AtlantaSanad
+    et CFG Bank ont ainsi été marqués périmés alors que le bulletin officiel
+    leur donnait 962 et 3 745 titres échangés. On cherche la dernière séance
+    STRICTEMENT ANTÉRIEURE, jamais la dernière tout court.
+    """
+    if chg is None or (chg or 0) != 0:
+        return False
+    if not vol:
+        return True                       # R9 littérale
+    if df_candles is None or len(df_candles) < 2 or not seance:
+        return False
+    try:
+        anterieures = df_candles[df_candles["d"].astype(str) < str(seance)]
+        if not len(anterieures):
+            return False
+        veille = anterieures.iloc[-1]
+        return bool(float(veille.get("v") or 0) == float(vol)
+                    and float(veille.get("c") or 0) > 0)
+    except Exception:
+        return False
+
+
 def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
-                 isin_suspect=False, ratios_calcules=False) -> dict:
+                 isin_suspect=False, ratios_calcules=False,
+                 chg=None, vol=None) -> dict:
     """Provenance du prix et score de confiance 0–5.
 
     Le score suit la spécification du CLAUDE.md, un point par garantie :
@@ -1598,7 +1648,13 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
     # un run antérieur et se reconduirait indéfiniment sans jamais le signaler.
     stale = (src_prix in ("static", "financial", "data_json_precedent", "")
              or not prix_asof
-             or bool(IDB_ASOF and prix_asof < IDB_ASOF))
+             or bool(IDB_ASOF and prix_asof < IDB_ASOF)
+             # ⚠️ R9 enfin appliquée à `stale`, le 01/09/2026. La règle était
+             # documentée depuis l'origine mais n'alimentait que des messages de
+             # journal : un titre qui n'avait pas coté ressortait quand même
+             # avec la date du jour et `stale: false`. Le bulletin officiel l'a
+             # prouvé sur deux valeurs du MASI 1.
+             or _est_rediffusion(chg, vol, df_candles, prix_asof))
 
     n_bougies = 0
     if df_candles is not None:
@@ -2262,7 +2318,8 @@ def run(dry_run=False, push=False, token=""):
                 ticker, src_prix, prix_asof, sent,
                 _candles_cache.get(ticker), isin_suspect,
                 ratios_calcules=bool(
-                    ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0)),
+                    ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0),
+                chg=chg, vol=vol),
             # Code officiel BVC, pour l'affichage seulement. Nos symboles
             # internes sont la clé primaire d'ISIN_MAP, des chandelles et de
             # six ans de corpus WhatsApp : on ne les renomme pas. Mais un
