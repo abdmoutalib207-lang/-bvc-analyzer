@@ -391,10 +391,20 @@ Les points suivants figuraient dans des propositions d'architecture. Ils sont **
 | TQA | Taqa Morocco | MA0000012205 | cb3c7e3 |
 | ZLD | Zellidja S.A | MA0000010571 | cb3c7e3 |
 | STK | Stokvis Nord Afrique | MA0000012700 | cb3c7e3 |
+| MRL | Maroc Leasing | MA0000010035 | 01/09/2026 |
 
 **ISIN non résolus (à investiguer) :**
-- `MRL` MA0000012270 — absent du référentiel BVC officiel (80 actions). TIM: même statut.
 - `TIM` MA0000011686 — absent du référentiel BVC officiel. Probablement radié ou alias.
+
+> ✅ **`MRL` résolu le 01/09/2026.** Il portait MA0000012270, signalé « absent du
+> référentiel BVC officiel » depuis le 02/07 sans qu'on sache par quoi le
+> remplacer. La fiche société de CDG Capital Bourse donne
+> **MA0000010035** pour « MLE · MAROC LEASING ».
+> **Ce n'est pas le code qui a tranché, c'est l'arithmétique** : capital social
+> 277 676 800 ÷ valeur nominale 100 = 2 776 768 titres, et la capitalisation de
+> la fiche (1 081 689 974,40) divisée par ce nombre redonne 389,55 — au centime
+> le cours que nous publions. Deux sources qui citent le même code peuvent se
+> tromper ensemble ; une identité qui se recoupe par le calcul, non.
 
 **Rappel :** `collect_history_bvcscrap.py` identifie par NOM société (MANUAL_MAP), **jamais par ISIN**. L'historique n'est pas affecté par les corrections ISIN.
 

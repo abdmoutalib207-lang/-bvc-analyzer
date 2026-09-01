@@ -94,6 +94,14 @@
   **publication**. « Indices du mardi 1er septembre » contient la séance du
   lundi 31 août.
 
+- **Pour valider une identité, chercher un recoupement ARITHMÉTIQUE, pas un
+  second avis.** L'ISIN de Maroc Leasing est resté douteux deux mois parce qu'on
+  cherchait une source qui le confirme. Ce qui a tranché le 01/09 n'est pas le
+  code lu sur une fiche, c'est que `capital social ÷ valeur nominale` donne un
+  nombre de titres qui, divisant la capitalisation publiée, redonne exactement
+  notre cours. Deux sources peuvent se tromper ensemble — un calcul qui boucle,
+  non. Réutiliser cette méthode pour TIM, seul ISIN encore non résolu.
+
 ## Sur la conception du produit
 
 - **L'honnêteté est la fonctionnalité.** Le bloc `_meta`, l'indicateur de

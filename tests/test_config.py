@@ -60,6 +60,34 @@ def test_alias_hors_univers_documentes(config):
             f"un seul de {tickers} doit être dans TICKERS_ALL"
 
 
+def test_isin_maroc_leasing_fige(config):
+    """MRL — question ouverte depuis le 02/07/2026, refermée le 01/09.
+
+    Le référentiel portait MA0000012270, que le journal du projet signalait déjà
+    comme « absent du référentiel BVC officiel » sans savoir par quoi le
+    remplacer. La fiche société de CDG Capital Bourse donne MA0000010035 pour
+    « MLE · MAROC LEASING ».
+
+    ⚠️ Ce n'est pas le code qui a emporté la décision, c'est l'arithmétique :
+    capital social 277 676 800 ÷ valeur nominale 100 = 2 776 768 titres, et la
+    capitalisation de la fiche divisée par ce nombre redonne exactement le cours
+    que nous publions. Deux sources qui citent le même code peuvent se tromper
+    ensemble ; une identité qui se recoupe par le calcul, non.
+
+    Ce test fige la valeur pour qu'un futur audit ne la défasse pas par
+    inadvertance.
+    """
+    assert config.ISIN_MAP["MRL"] == "MA0000010035"
+    assert config.IDB_TICKER_MAP["MRL"] == "MLE", "ticker officiel BVC"
+
+
+def test_recoupement_arithmetique_maroc_leasing():
+    """Fige le calcul qui a servi de preuve, pour qu'il reste vérifiable."""
+    titres = 277_676_800 // 100
+    assert titres == 2_776_768
+    assert round(1_081_689_974.40 / titres, 2) == 389.55
+
+
 def test_tickers_actifs_inclus_dans_tickers_all(config):
     manquants = set(config.TICKERS_ACTIFS) - set(config.TICKERS_ALL)
     assert not manquants, f"MASI 1 absents de TICKERS_ALL : {manquants}"

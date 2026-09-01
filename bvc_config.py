@@ -240,7 +240,18 @@ ISIN_MAP: dict = {
     "IBM": "MA0000011132", "IMI": "MA0000012387", "INV": "MA0000011579",
     "JET": "MA0000012080", "LBV": "MA0000011801", "LHM": "MA0000012320",
     "LES": "MA0000012031", "M2M": "MA0000011678", "MOX": "MA0000010985",
-    "MGL": "MA0000011215", "MNG": "MA0000012866", "MRL": "MA0000012270",
+    "MGL": "MA0000011215", "MNG": "MA0000012866",
+    # MRL — Maroc Leasing. Corrigé le 01/09/2026 : portait MA0000012270, que le
+    # journal du 02/07 signalait déjà comme « absent du référentiel BVC officiel »
+    # sans savoir par quoi le remplacer.
+    # Source : fiche société CDG Capital Bourse (société de bourse agréée),
+    # /Bourse/market/MLE?tab=FicheSociete, relevée le 01/09/2026 — « MLE ·
+    # MAROC LEASING · MA0000010035 ».
+    # Recoupement arithmétique, c'est lui qui emporte la décision : capital
+    # social 277 676 800 ÷ valeur nominale 100 = 2 776 768 titres ; la
+    # capitalisation de la fiche, 1 081 689 974,40, divisée par ce nombre donne
+    # 389,55 — au centime le cours que nous publions. Même instrument, donc.
+    "MRL": "MA0000010035",
     "IAM": "MA0000011488", "MIC": "MA0000012163", "MUT": "MA0000012395",
     "OUL": "MA0000010415", "PPM": "MA0000011660", "REB": "MA0000010993",
     "RDS": "MA0000012239", "RIS": "MA0000011462", "S2M": "MA0000012106",

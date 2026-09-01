@@ -96,6 +96,12 @@ L'ordre est délibéré. Ne pas le réordonner sans raison écrite.
 6. **Accessibilité et mobile** — 3 jours. 1 seul attribut `aria` dans tout le
    frontend (ajouté avec la mention légale).
 
+## ✅ Refermé le 01/09
+
+- **ISIN de Maroc Leasing** — MA0000012270 → **MA0000010035**, validé par
+  recoupement arithmétique sur la fiche CDG. Question ouverte depuis le 02/07.
+- **Séance du 31/08 recoupée au bulletin CDG** : 70 titres, zéro écart.
+
 ## 🧑‍💼 Recrutements humains prioritaires
 
 Les agents couvrent l'exécution ; ces trois rôles couvrent ce qu'un agent ne
