@@ -11,7 +11,12 @@ lendemain, et une alarme peu fiable finit ignorée.
 
 import pytest
 
-NB_TICKERS = 81          # R1 — l'univers complet
+# R1 — l'univers complet. Passé de 81 à 80 le 01/09/2026 : Timar a été retirée
+# après vérification qu'elle est radiée de la cote depuis le 10/06/2024. Une
+# réduction délibérée, pas une régression — une société radiée n'a plus de
+# cours, et la publier revenait à recopier indéfiniment un prix de 195 DH quand
+# son retrait s'est fait à 660.
+NB_TICKERS = 80
 NB_MASI1 = 19            # R1 — les valeurs suivies en priorité
 LIMITE_VARIATION = 10.0  # R10 — plafond réglementaire BVC, ±10 %/séance
 

@@ -39,7 +39,11 @@ CHAMPS_OBLIGATOIRES = {
 }
 
 CHAMPS_META = {"source_prix", "source_fond", "prix_asof", "stale",
-               "confidence", "n_candles", "generated_at"}
+               "confidence", "n_candles", "generated_at",
+               # Ajoutés le 01/09/2026, pour que le bloc de provenance cesse
+               # de mentir sur les fondamentaux :
+               "pb_fige",        # le price-to-book vient toujours de FOND_DATA
+               "vol_median20"}   # liquidité, qui plafonne la confiance
 
 NUMERIQUES = {"price", "chg", "vol", "bvc", "v53", "score_tech", "nlp",
               "rsi", "ma20", "ma50", "ma200", "upside"}
@@ -95,6 +99,43 @@ def test_symbole_coherent_avec_la_cle(titres):
     incoherents = {k: t.get("symbol") for k, t in titres.items()
                    if t.get("symbol") != k}
     assert not incoherents, f"symboles incohérents : {incoherents}"
+
+
+def test_source_des_fondamentaux_dit_la_verite(titres):
+    """`source_fond` décrit les RATIOS AFFICHÉS, pas l'existence d'un score.
+
+    Jusqu'au 01/09/2026 il annonçait « fondamentaux_json » dès qu'un score
+    fondamental existait — vingt titres étaient ainsi présentés comme ayant des
+    fondamentaux réels alors que leur PER venait d'une table codée en dur.
+    """
+    connues = {"bpa_calcule", "table_figee"}
+    vues = {(t.get("_meta") or {}).get("source_fond") for t in titres.values()}
+    assert vues <= connues, f"valeurs inattendues : {vues - connues}"
+
+
+def test_price_to_book_declare_comme_fige(titres):
+    """⚠️ Tant que `pb` vient de FOND_DATA, tous les titres doivent le dire.
+
+    Ce test tombera le jour où le price-to-book sera calculé sur des capitaux
+    propres réels — et c'est le but : il rappellera de retirer le drapeau.
+    """
+    sans = [s for s, t in titres.items() if not (t.get("_meta") or {}).get("pb_fige")]
+    assert not sans, f"titres sans le drapeau pb_fige : {sans}"
+
+
+def test_illiquidite_plafonne_la_confiance(titres):
+    """Un signal sur un titre que personne n'échange n'est pas actionnable.
+
+    Dari Couspate échange 4 560 titres par AN — dix-huit par séance — et
+    obtenait 3/5 avec un signal, autant qu'Attijariwafa.
+    """
+    fautifs = {}
+    for sym, t in titres.items():
+        m = t.get("_meta") or {}
+        v, c = m.get("vol_median20"), m.get("confidence")
+        if v is not None and v < 10 and c is not None and c > 2:
+            fautifs[sym] = f"volume médian {v} mais confiance {c}"
+    assert not fautifs, f"confiance non plafonnée malgré l'illiquidité : {fautifs}"
 
 
 def test_pas_de_signal_sans_confiance(titres):

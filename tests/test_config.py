@@ -60,6 +60,34 @@ def test_alias_hors_univers_documentes(config):
             f"un seul de {tickers} doit être dans TICKERS_ALL"
 
 
+def test_valeurs_radiees_hors_univers(config):
+    """Une société radiée n'a plus de cours — la publier, c'est inventer.
+
+    Timar est sortie de la cote le 10/06/2024, après une offre publique de
+    retrait obligatoire à 660 DH. Vingt-sept mois plus tard, le terminal
+    l'affichait encore à 195 DH avec un PER : aucune source ne la servant, elle
+    tombait jusqu'au dernier repli, qui recopiait le run précédent
+    indéfiniment.
+
+    ⚠️ Elles restent dans COMPANY_NAMES et ISIN_MAP : on archive, on ne supprime
+    pas. L'historique des chandelles et le corpus NLP les mentionnent encore, et
+    un nom manquant ferait apparaître « ? » là où une explication est due.
+    """
+    for sym, info in config.VALEURS_RADIEES.items():
+        assert sym not in config.TICKERS_ALL, \
+            f"{sym} est radiée depuis le {info['date']} — elle ne doit plus être collectée"
+        assert sym not in config.TICKERS_ACTIFS
+
+
+def test_registre_des_radiees_documente(config):
+    """Chaque radiation porte sa date et son motif, pour qu'on n'ait pas à
+
+    rouvrir l'enquête si la question revient dans six mois.
+    """
+    for sym, info in config.VALEURS_RADIEES.items():
+        assert info.get("date") and info.get("motif"), f"{sym} mal documentée"
+
+
 def test_isin_maroc_leasing_fige(config):
     """MRL — question ouverte depuis le 02/07/2026, refermée le 01/09.
 

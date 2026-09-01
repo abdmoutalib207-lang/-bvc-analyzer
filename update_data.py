@@ -353,14 +353,32 @@ _load_nlp_csv_overlay()
 # Un PER négatif est écarté de même : une société en perte n'a pas de PER,
 # elle a un ratio dépourvu de sens qu'il vaut mieux ne pas afficher. Idem pour
 # un price-to-book négatif, qui signale des capitaux propres négatifs.
+# ⚠️ Les bornes plafonnent la MAGNITUDE, jamais le SIGNE. Un ratio négatif
+# n'est pas une aberration, c'est une information — souvent la plus importante
+# de toutes.
+#
+# Corrigé le 01/09/2026. Les bornes écartaient tout PER et tout price-to-book
+# négatif « parce qu'ils n'ont pas de sens ». Or un PER négatif dit que la
+# société perd de l'argent, et un price-to-book négatif que ses capitaux propres
+# le sont. Ce sont des faits, pas des erreurs de saisie.
+#
+# Le cas qui l'a révélé : STROC Industrie. DATA+ donnait `pb_25 = -0.6`, valeur
+# écartée par la borne à 0,01. Une enquête de presse a établi que ses capitaux
+# propres s'établissaient à -341 millions de dirhams fin 2024, et qu'elle est
+# techniquement en cessation de paiement. Notre garde-fou avait jeté le seul
+# chiffre qui le disait.
+#
+# Le seuil de magnitude, lui, reste fondé : la distribution des PER de l'export
+# donne médiane 18, Q3 23, puis 40, 46, 50 — et un saut à 102, 204, 404. Le
+# seuil de 100 tombe dans ce vide.
 _DP_BORNES = {
-    "per_26e":        (0.1, 100),
-    "per_27e":        (0.1, 100),
-    "dy_26e":         (0,    25),
-    "dy_27e":         (0,    25),
+    "per_26e":        (-100, 100),
+    "per_27e":        (-100, 100),
+    "dy_26e":         (0,     25),   # un rendement négatif n'existe pas
+    "dy_27e":         (0,     25),
     "roe_25":         (-100, 100),
     "roa_25":         (-100, 100),
-    "pb_25":          (0.01,  50),
+    "pb_25":          (-50,   50),
     "marge_nette_25": (-100, 100),
 }
 
@@ -1522,8 +1540,24 @@ def get_weights(context: dict) -> dict:
     total = sum(w.values())
     return {k: round(v / total, 4) for k, v in w.items()}
 
+def _volume_median(df_candles, n=20):
+    """Volume médian des `n` dernières séances. None si indéterminable.
+
+    La médiane, et non la moyenne : une seule séance animée sur un titre mort
+    suffirait à faire remonter une moyenne, alors que la médiane reste à zéro.
+    C'est précisément ce qu'on cherche à voir.
+    """
+    if df_candles is None:
+        return None
+    try:
+        v = df_candles["v"].tail(n).dropna()
+        return float(v.median()) if len(v) else None
+    except Exception:
+        return None
+
+
 def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
-                 isin_suspect=False) -> dict:
+                 isin_suspect=False, ratios_calcules=False) -> dict:
     """Provenance du prix et score de confiance 0–5.
 
     Le score suit la spécification du CLAUDE.md, un point par garantie :
@@ -1535,6 +1569,18 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
 
     Un score ≤ 1 signifie que la note repose sur des données de repli : le
     frontend grise alors le signal plutôt que d'afficher un ACHETER trompeur.
+
+    ⚠️ `ratios_calcules` dit si `pe` et `div` sont CALCULÉS sur un bénéfice réel
+    (bpa.json) ou lus dans FOND_DATA, la table figée du moteur. Jusqu'au
+    01/09/2026, `source_fond` annonçait « fondamentaux_json » dès qu'un SCORE
+    fondamental existait — ce qui est une autre question. Vingt titres étaient
+    ainsi présentés comme ayant des fondamentaux réels alors que leur PER venait
+    d'une table codée en dur. Le bloc de provenance mentait, et c'est
+    exactement ce qu'il existe pour empêcher.
+
+    ⚠️ `pb_fige` est vrai pour TOUS les titres aujourd'hui : le price-to-book
+    publié vient sans exception de FOND_DATA. Le dire explicitement plutôt que
+    de le taire — c'est un chantier ouvert, pas un détail.
 
     ⚠️ `isin_suspect` plafonne la confiance à 1. Quand la moyenne mobile
     s'écarte du prix d'un facteur 3, on soupçonne un ISIN croisé — le cours
@@ -1571,9 +1617,31 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
     if isin_suspect:
         confiance = min(confiance, 1)
 
+    # ⚠️ Plafond de liquidité, ajouté le 01/09/2026.
+    #
+    # Un signal sur un titre que personne ne peut acheter ni vendre n'est pas
+    # actionnable — il suggère une décision que le marché n'autorise pas. Or la
+    # confiance ne comptait que la fraîcheur, les fondamentaux, l'historique et
+    # le corpus : une valeur échangeant dix-huit titres par AN obtenait la même
+    # note qu'Attijariwafa.
+    #
+    # Constaté sur trois cas documentés par la presse : Dari Couspate (4 560
+    # titres sur l'année 2025), Maghreb Oxygène (28 650, soit une centaine par
+    # séance), Afriquia Gaz (zéro échange trois jours de suite). Les trois
+    # affichaient 3/5 et portaient un signal.
+    #
+    # La médiane sur vingt séances, et non la moyenne : une seule séance animée
+    # sur un titre mort suffirait à masquer le problème.
+    vol_median = _volume_median(df_candles)
+    if vol_median is not None and vol_median < 10:
+        confiance = min(confiance, 2)
+
     return {
         "source_prix":  src_prix or "inconnu",
-        "source_fond":  "fondamentaux_json" if ticker in _FOND_COMPUTED else "table_statique",
+        # Décrit d'où viennent les RATIOS AFFICHÉS, pas l'existence d'un score.
+        "source_fond":  "bpa_calcule" if ratios_calcules else "table_figee",
+        "pb_fige":      True,          # le price-to-book vient toujours de FOND_DATA
+        "vol_median20": vol_median,
         "prix_asof":    prix_asof or None,
         "stale":        stale,
         "confidence":   confiance,
@@ -2185,8 +2253,16 @@ def run(dry_run=False, push=False, token=""):
             # Sans lui, rien ne distingue à l'écran un cours coté ce jour d'une
             # valeur figée depuis des semaines dans static_fallback.json. Le
             # frontend doit supposer stale=true en son absence.
-            "_meta": _meta_ticker(ticker, src_prix, prix_asof, sent,
-                                  _candles_cache.get(ticker), isin_suspect),
+            # `ratios_calcules` : vrai quand `pe` et `div` sortent d'un
+            # bénéfice réel (bpa.json) plutôt que de la table figée FOND_DATA.
+            # C'est la même condition que celle qui gouverne les champs `pe` et
+            # `div` juste en dessous — elle est écrite ici pour que la
+            # provenance annoncée ne puisse pas diverger de la valeur publiée.
+            "_meta": _meta_ticker(
+                ticker, src_prix, prix_asof, sent,
+                _candles_cache.get(ticker), isin_suspect,
+                ratios_calcules=bool(
+                    ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0)),
             # Code officiel BVC, pour l'affichage seulement. Nos symboles
             # internes sont la clé primaire d'ISIN_MAP, des chandelles et de
             # six ans de corpus WhatsApp : on ne les renomme pas. Mais un

@@ -422,6 +422,25 @@ TICKERS_ACTIFS: list = [
 
 # Tous les tickers uniques de la BVC (TGCC/SNA = formes canoniques, TGC/SON exclus)
 # 77 valeurs — ordre : grande cap → moyenne → petite
+# ⚠️ Valeurs RADIÉES de la cote — exclues de toute analyse.
+# Une société radiée n'a plus de cours : aucune source ne la sert, elle tombe
+# jusqu'au dernier repli qui la recopie d'un run à l'autre, indéfiniment. Le
+# terminal affichait ainsi Timar à 195 DH avec un PER, vingt-sept mois après sa
+# sortie de cote — et son cours de retrait était de 660 DH, pas 195.
+#
+#   SAM  SAMIR   suspendue depuis le 06/08/2015, cours figé à 127,80,
+#                liquidation judiciaire depuis 2016 — jamais intégrée
+#   TIM  Timar   radiée le 10/06/2024, après une offre publique de retrait
+#                obligatoire de Financière Clasquin Euromed à 660 DH
+#                (franchissement du seuil de 95 %)
+#
+# Vérifié le 01/09/2026 : Timar est absente du bulletin officiel de la BVC
+# (81 instruments) comme du flux CDG en direct (81 instruments).
+VALEURS_RADIEES: dict = {
+    "SAM": {"date": "2015-08-06", "motif": "suspension prolongée, liquidation judiciaire"},
+    "TIM": {"date": "2024-06-10", "motif": "offre publique de retrait obligatoire à 660 DH"},
+}
+
 TICKERS_ALL: list = [
     # Grandes capitalisations
     "IAM", "ATW", "BCP", "BOA", "CIH", "CDM", "WAF",
@@ -433,7 +452,7 @@ TICKERS_ALL: list = [
     "CMGP", "VCNE", "RIS", "CSR", "SNA", "SRM", "RDS",
     "ALU", "MGL", "DAR", "IMI", "DTT",
     # Petites capitalisations
-    "DSW", "MOX", "STR", "TIM", "SNP", "SLM", "JET", "M2M",
+    "DSW", "MOX", "STR", "SNP", "SLM", "JET", "M2M",   # TIM retiré : radiée le 10/06/2024
     "INV", "S2M", "COL", "AFM", "AGM", "FNB", "BAL", "NEJ",
     "HAL", "BMC", "CAR", "AFI", "MIC", "MUT", "ENK", "EQD",
     "DHO", "PPM", "REB", "SBS", "STK", "UNI", "IBM",
