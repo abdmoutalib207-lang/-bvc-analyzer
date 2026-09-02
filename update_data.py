@@ -946,7 +946,19 @@ def fetch_all_cdg():
                    {"NAME": "Espace_", "TYPE": "I", "VALUE": "1"},
                    {"NAME": "IdPartener_", "TYPE": "I", "VALUE": "1"},
                    {"NAME": "TypeStocks_", "TYPE": "S", "VALUE": "1"},
-                   {"NAME": "TypeCotation_", "TYPE": "S", "VALUE": "1"}]}]}
+                   # ⚠️ TypeCotation_ vaut 0, et non 1. Corrigé le 02/09/2026.
+                   #
+                   # La vue « 1 » ne renvoie que 65 instruments sur 81 — elle
+                   # omet précisément les valeurs les moins liquides, celles qui
+                   # cotent une poignée de titres en fin de séance. Le bulletin
+                   # officiel du 02/09 a révélé trois écarts sur REB, AFM et
+                   # MAB : leurs transactions étaient dans l'API depuis 14h30,
+                   # mais dans l'autre vue.
+                   #
+                   # Contrat vérifié identique avant le changement : mêmes
+                   # 26 champs, aucun instrument perdu, toutes les lignes cotées
+                   # datées. Couverture CDG de nos titres : 65 → 78.
+                   {"NAME": "TypeCotation_", "TYPE": "S", "VALUE": "0"}]}]}
     try:
         r = requests.post(CDG_API, json=corps, timeout=30, headers={
             **HEADERS,

@@ -309,6 +309,14 @@ IDB_TICKER_MAP: dict = {
     "HAL": "ATH",   "HPS": "HPS",   "IAM": "IAM",   "IBM": "IBC",
     "IMI": "IMO",   "INV": "INV",   "JET": "JET",   "LBV": "LBV",
     "LES": "LES",   "LHM": "LHM",   "M2M": "M2M",   "MGL": "MAB",
+    # BAL et REB — ajoutés le 02/09/2026. Le CLAUDE.md les notait « sans
+    # ticker IDBourse » depuis le 02/07, et `fetch_all_cdg` les écartait donc
+    # en silence faute de traduction. CDG les sert pourtant sous leur propre
+    # code : « BALIMA » et « REBAB COMPANY », vérifiés sur la charge utile, et
+    # aucun de nos autres titres ne revendiquait ces codes.
+    # ⚠️ L'identité n'est PAS supposée par égalité de chaîne — c'est le piège
+    # SNA/Stokvis. Elle est lue dans le libellé servi par la source.
+    "BAL": "BAL",   "REB": "REB",
     "MIC": "MIC",   "MNG": "MNG",   "MOX": "MOX",   "MRL": "MLE",
     "MSA": "MSA",   "MUT": "MUT",   "NEJ": "NEJ",   "OUL": "OUL",
     "PPM": "PRO",   "RDS": "RDS",   "RIS": "RIS",   "S2M": "S2M",
