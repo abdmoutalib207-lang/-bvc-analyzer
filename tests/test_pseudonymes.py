@@ -254,3 +254,68 @@ def test_le_nettoyage_est_relancable(tmp_path):
     assert t.pseudonyme(premier) == premier, "un pseudonyme doit être stable par lui-même"
     t.amorcer([premier, "M0001", "m9999"])
     assert len(t) == taille, "des pseudonymes ont été enregistrés comme membres"
+
+
+# ── Le remplacement en texte libre ne doit pas manger la prose ────────────
+
+def test_un_nom_d_un_seul_mot_ne_touche_pas_la_prose(tmp_path):
+    """Incident du 02/09 : un membre s'appelle « analyse ». Le remplacement en
+    texte libre a effacé le mot français dans la description de la page et dans
+    la mention légale — « outil d'M0545 ». Un nom d'un seul mot n'est donc
+    remplacé qu'en position de VALEUR (entre quotes, chevrons, séparateurs)."""
+    from whatsapp_analysis.pseudonymiser_sorties import _traiter_html
+
+    f = tmp_path / "page.html"
+    f.write_text(
+        '<meta content="Terminal d\'analyse multi-facteurs">\n'
+        '<p>présenté comme une analyse quantitative</p>\n'
+        '{member:"analyse", tier:"Tier 1"}\n',
+        encoding="utf-8",
+    )
+    t = TablePseudonymes(tmp_path / "p.json")
+    _traiter_html(f, t, {"analyse"})
+    sortie = f.read_text(encoding="utf-8")
+
+    assert "Terminal d'analyse" in sortie, "la prose a été mangée"
+    assert "comme une analyse quantitative" in sortie, "la prose a été mangée"
+    assert 'member:"analyse"' not in sortie, "la valeur structurée n'a pas été traitée"
+
+
+def test_un_nom_compose_est_remplace_meme_en_texte_libre(tmp_path):
+    """Un nom en plusieurs mots est sans ambiguïté : on le remplace partout,
+    sinon un membre nommé dans une phrase resterait en clair."""
+    from whatsapp_analysis.pseudonymiser_sorties import _traiter_html
+
+    f = tmp_path / "page.html"
+    f.write_text("<p>Selon ~ Karim Doe Groupe Test, le titre monte.</p>", encoding="utf-8")
+    t = TablePseudonymes(tmp_path / "p.json")
+    _traiter_html(f, t, {"Karim Doe Groupe Test"})
+    sortie = f.read_text(encoding="utf-8")
+
+    assert "Mehdi" not in sortie and "Doe" not in sortie
+    assert "Selon M" in sortie, "le tilde ou l'espace du texte a été mangé"
+
+
+def test_le_frontend_publie_ne_contient_aucun_nom_de_membre():
+    """Garde-fou sur le fichier réellement servi aux visiteurs. index.html
+    nommait 17 membres du groupe jusqu'au 02/09.
+
+    Ne vise QUE les tables de membres — reconnaissables à leur champ `tier:`.
+    Le même mot-clé `name:` sert aussi aux raisons sociales (« Minière
+    Touissit », « Akdital »), qui sont publiques et doivent le rester.
+    """
+    from pathlib import Path
+    import re as _re
+
+    idx = Path(__file__).resolve().parent.parent / "index.html"
+    if not idx.exists():
+        pytest.skip("index.html absent")
+    texte = idx.read_text(encoding="utf-8", errors="ignore")
+
+    fautes = []
+    for objet in _re.findall(r"\{[^{}]*\btier\s*:[^{}]*\}", texte):
+        for _, valeur in _re.findall(r'\b(name|member)\s*:\s*"([^"]{2,60})"', objet):
+            if not _re.fullmatch(r"M\d{4,}", valeur):
+                fautes.append(valeur)
+
+    assert not fautes, f"nom de personne en clair dans index.html : {fautes[:5]}"

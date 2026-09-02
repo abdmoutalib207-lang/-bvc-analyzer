@@ -107,10 +107,27 @@ def _traiter_html(chemin: Path, table: TablePseudonymes, noms) -> int:
     for nom in sorted(noms, key=len, reverse=True):
         if len(nom) < 4:
             continue  # trop court : mordrait sur des fragments de mots
+
         # Le « ~ » que WhatsApp place devant un membre absent du carnet
         # d'adresses fait partie de l'affichage, pas du nom. Sans l'absorber,
         # « M9925 » deviendrait « ~ M0421 » et garderait sa marque.
-        motif = r"~?\s*" + re.escape(nom)
+        # ⚠️ `\s*` et non `\s?` : il ne doit PAS manger l'espace du texte qui
+        # précède quand il n'y a pas de tilde — c'est ce qui avait produit
+        # « présenté comme uneM0545 » dans le frontend le 02/09.
+        prefixe = r"(?:~\s*)?"
+
+        # ⚠️ UN NOM D'UN SEUL MOT N'EST REMPLACÉ QU'EN POSITION STRUCTURÉE.
+        # Un membre du groupe s'appelle « analyse ». En texte libre, le motif
+        # a effacé le mot français partout où il apparaissait — jusque dans la
+        # description de la page et la mention légale (« outil d'M0545 »).
+        # Entre quotes, chevrons ou séparateurs de colonne, la chaîne est une
+        # VALEUR ; ailleurs, c'est de la prose et on n'y touche pas. Un nom en
+        # plusieurs mots reste sans ambiguïté : on l'accepte partout.
+        if " " in nom.strip():
+            motif = prefixe + re.escape(nom) + r"\b"
+        else:
+            motif = r'(?<=[">\t,|])' + prefixe + re.escape(nom) + r'(?=["<\t,|])'
+
         texte, k = re.subn(motif, table.pseudonyme(nom), texte, flags=re.IGNORECASE)
         n += k
     if n:

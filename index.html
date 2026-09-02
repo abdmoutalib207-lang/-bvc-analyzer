@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache"/>
   <meta http-equiv="Expires" content="0"/>
   <title>BVC Analyzer v6.4 — Bourse de Casablanca</title>
-  <meta name="description" content="Terminal d'M0545 multi-facteurs BVC : Technique 25% · Fondamental 47% · NLP 28% — 77 titres · 896 907 messages WhatsApp · 24 777 signaux · 6 ans de données"/>
+  <meta name="description" content="Terminal d'analyse multi-facteurs BVC : Technique 25% · Fondamental 47% · NLP 28% — 77 titres · 896 907 messages WhatsApp · 24 777 signaux · 6 ans de données"/>
   <meta name="theme-color" content="#080d1a"/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
@@ -1850,13 +1850,13 @@ const NlpDash=()=>{
       {/* ── BANDEAU CORPUS ── */}
       <div style={{background:"linear-gradient(90deg,#0d1829,#0a1a30)",border:"1px solid rgba(0,229,160,.2)",borderRadius:8,padding:"10px 16px",display:"flex",gap:24,flexWrap:"wrap",alignItems:"center"}}>
         <span style={{fontSize:12,color:"#00e5a0",fontWeight:700,letterSpacing:1}}>CORPUS WHATSAPP BVC</span>
-        {[[NLP_CORPUS.msgs,"messages","#c8d3e8"],[NLP_CORPUS.membres.toLocaleString(),"membres","#4db8ff"],[NLP_CORPUS.annees+" ans","période","#b388ff"],["110 000","signaux NLP","#ffd740"],[NLP_CORPUS.smart_money+" SM","identifiés","#00e5a0"],[NLP_CORPUS.duree,"M0545","#8892a4"]].map(([v,l,c])=>(
+        {[[NLP_CORPUS.msgs,"messages","#c8d3e8"],[NLP_CORPUS.membres.toLocaleString(),"membres","#4db8ff"],[NLP_CORPUS.annees+" ans","période","#b388ff"],["110 000","signaux NLP","#ffd740"],[NLP_CORPUS.smart_money+" SM","identifiés","#00e5a0"],[NLP_CORPUS.duree,"analyse","#8892a4"]].map(([v,l,c])=>(
           <div key={l} style={{textAlign:"center"}}>
             <div style={{fontSize:15,fontWeight:700,color:c}}>{v}</div>
             <div style={{fontSize:9,color:"#8892a4",textTransform:"uppercase",letterSpacing:.5}}>{l}</div>
           </div>
         ))}
-        <div style={{marginLeft:"auto",fontSize:10,color:"#8892a4"}}>M0545 14 phases · sept 2020 → juin 2026</div>
+        <div style={{marginLeft:"auto",fontSize:10,color:"#8892a4"}}>Analyse 14 phases · sept 2020 → juin 2026</div>
       </div>
 
       {/* ── GRAPHIQUE Fear & Greed × MASI 6 ans ── */}
@@ -2307,7 +2307,7 @@ function scoreModeLabel(mode) {
 // Mention légale — permanente, non masquable, présente sur tous les onglets.
 //
 // Le terminal publie des signaux ACHETER / SURVEILLER / ÉVITER sur des valeurs
-// cotées. Sans agrément AMMC, cela doit être présenté comme uneM0545
+// cotées. Sans agrément AMMC, cela doit être présenté comme une analyse
 // quantitative et non comme un conseil en investissement. L'absence de cette
 // mention était le risque le plus sérieux du projet, et le moins coûteux à
 // écarter.
@@ -2324,7 +2324,7 @@ const MentionLegale=()=>(
         AVERTISSEMENT
       </div>
       <p style={{margin:"0 0 8px"}}>
-        BVC Analyzer est un <strong style={{color:"#8892a4"}}>outil d'M0545
+        BVC Analyzer est un <strong style={{color:"#8892a4"}}>outil d'analyse
         quantitative à vocation informative</strong>. Les scores, signaux et
         indicateurs présentés ne constituent ni un conseil en investissement, ni
         une recommandation personnalisée, ni une offre ou sollicitation d'achat
