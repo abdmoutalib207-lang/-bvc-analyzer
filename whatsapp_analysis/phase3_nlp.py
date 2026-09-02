@@ -628,19 +628,32 @@ def enrich_dataframe(
     total = len(text_df)
     print(f"  Processing {total:,} text messages...")
 
+    # ⚠️ Le découpage en lots ci-dessous n'était que décoratif : la boucle
+    # accumulait `results`, une liste de 792 828 dictionnaires d'une trentaine
+    # de clés (dont des listes), puis en construisait un DataFrame — les deux
+    # vivants en même temps au pic. Sur le corpus complet, le processus était
+    # tué par le système à ~760 000 messages, systématiquement au même point.
+    #
+    # Chaque lot est désormais converti en DataFrame tout de suite : pandas
+    # range les colonnes en tableaux typés là où la liste gardait un objet
+    # Python par cellule. Le lot brut est libéré aussitôt, et seuls les
+    # DataFrames compacts s'accumulent jusqu'à la concaténation finale.
     batch_size = 10_000
-    results = []
+    morceaux = []
     for i in range(0, total, batch_size):
-        batch = text_df.iloc[i:i+batch_size]
+        batch = text_df.iloc[i:i + batch_size]
         batch_results = batch[text_col].apply(process_message)
-        results.extend(batch_results.tolist())
+        morceaux.append(pd.DataFrame(batch_results.tolist(), index=batch.index))
+        del batch_results
         if (i // batch_size) % 5 == 0:
             print(f"  Progress: {min(i+batch_size, total):,}/{total:,}")
 
     # Assign results back
-    result_df = pd.DataFrame(results, index=text_df.index)
+    result_df = pd.concat(morceaux) if morceaux else pd.DataFrame(index=text_df.index)
+    del morceaux
     for col in result_df.columns:
         df.loc[text_mask, col] = result_df[col]
+    del result_df
 
     print("NLP enrichment complete.")
     return df
