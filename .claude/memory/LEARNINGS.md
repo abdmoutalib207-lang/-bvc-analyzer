@@ -181,3 +181,23 @@
   écrit puis retiré le même jour. La mesure qui l'avait motivé reste valable et
   documentée plus haut ; c'est le choix produit qui a tranché, pas la mesure.
   Ne pas le réintroduire sans instruction explicite.
+
+## Sur la lecture des drapeaux « périmé » (02/09/2026)
+
+- **Dix titres périmés un soir n'est pas une anomalie.** Vérifié le 02/09 :
+  sept portaient un volume identique AU TITRE PRÈS à celui de la veille, pour
+  une clôture identique (MRL 15 titres à 389,55 deux jours de suite, UNI 200 à
+  173,00). La source rejoue sa séance précédente ; `_est_rediffusion` les
+  attrape correctement. Les trois autres ont `vol=0` — R9 littérale.
+- **⚠️ Ne pas conclure d'un `prix_asof` daté du jour que le cours est frais.**
+  C'est la date que la SOURCE annonce, pas la preuve d'une cotation. Neuf des
+  dix périmés du 02/09 portaient la date du jour. Le volume est le juge, pas
+  la date.
+- **⚠️ Un titre MASI 1 périmé n'est pas forcément une régression R1.** CMT
+  affichait `vol=0` le 02/09 : il n'a réellement pas coté. C'est un fait de
+  marché, pas une défaillance de collecte. R1 exige que le titre reste
+  accessible et renseigné — il l'était.
+- **Ne pas prendre le diagnostic d'une autre session pour argent comptant.**
+  Une session lancée sur une copie locale a signalé « DLM et DIS absents de
+  bvc_config.py, à documenter ». Les deux y sont, avec ISIN et raison sociale
+  (Delattre Levivier Maroc, Diac Salaf). Vérifier avant d'agir.
