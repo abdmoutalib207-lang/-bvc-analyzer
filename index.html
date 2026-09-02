@@ -1715,7 +1715,8 @@ const Chat=()=>{
 
 // ── NLP DASHBOARD DATA (source: corpus WhatsApp 882 734 msgs · 6 ans · 14 phases) ──
 const NLP_CORPUS={msgs:"882 734",membres:2013,annees:6,signals:110000,smart_money:14,duree:"102 min"};
-const NLP_FG={actuel:41.5,moy:42.0,max:48.2,min:35.6,label:"Peur légère",regimes:126,inflexions:34};
+// NLP_FG retiré le 03/09/2026 : constante figée présentée comme une mesure de marché.
+// Voir la note dans le bloc d'affichage. Code d'origine dans l'historique git.
 const NLP_LANGS=[["Français",510120,0.578,"#4db8ff"],["Arabe",78126,0.088,"#b388ff"],["Arabizi",70018,0.079,"#ffd740"],["Mixte",56640,0.064,"#00e5a0"],["Darija",12799,0.014,"#ff8f00"],["Anglais",5969,0.007,"#8892a4"]];
 const NLP_SIGS=[["VENTE",60440,"#ff4f5a"],["ACHAT",21527,"#00e5a0"],["IRONIE",8342,"#8892a4"],["DOUTE",6849,"#ffd740"],["EUPHORIE",4551,"#ff8f00"],["PANIQUE",4016,"#ff4f5a"],["ACHAT FORT",2927,"#00e5a0"],["RENFORCEMENT",1480,"#4db8ff"],["RUMEUR",548,"#b388ff"]];
 const NLP_SM=[
@@ -1764,85 +1765,18 @@ const NLP_RECENT6M=[
   {t:"CASH", mentions:490, authors:88, buy:39, strong_buy:6, sell:52, net:-13, pos:51, neg:55, sentiment:0.005},
   {t:"RIS",  mentions:415, authors:76, buy:30, strong_buy:5, sell:26, net:4,   pos:51, neg:36, sentiment:0.044},
 ];
-// Weekly Fear&Greed (éch.35-48) + MASI proxy base100 — déc.2020→juin2026
-const NLP_CHART_DATA=[["2020-12-27",42.9,106.0],["2021-01-03",42.7,106.7],["2021-01-10",40.4,106.6],["2021-01-17",40.4,106.9],["2021-01-24",45.9,107.8],["2021-01-31",44.0,108.7],["2021-02-07",42.0,109.0],["2021-02-14",41.9,109.0],["2021-02-21",40.5,109.9],["2021-02-28",41.4,110.1],["2021-03-07",43.1,110.9],["2021-03-14",43.1,111.3],["2021-03-21",41.4,112.3],["2021-03-28",42.0,113.1],["2021-04-04",41.7,114.9],["2021-04-11",40.8,115.2],["2021-04-18",41.9,115.5],["2021-04-25",40.8,116.7],["2021-05-02",44.5,117.1],["2021-05-09",43.6,117.6],["2021-05-16",44.9,117.4],["2021-05-23",44.8,117.5],["2021-05-30",44.2,118.9],["2021-06-06",43.3,119.3],["2021-06-13",42.2,120.4],["2021-06-20",43.8,122.4],["2021-06-27",42.8,123.5],["2021-07-04",42.5,123.9],["2021-07-11",41.6,124.2],["2021-07-18",41.1,125.5],["2021-07-25",38.6,125.2],["2021-08-01",37.7,125.5],["2021-08-08",42.3,125.4],["2021-08-15",41.3,125.2],["2021-08-22",40.7,125.4],["2021-08-29",40.8,125.1],["2021-09-05",42.7,127.4],["2021-09-12",40.9,127.6],["2021-09-19",42.7,127.7],["2021-09-26",44.1,127.9],["2021-10-03",44.1,128.3],["2021-10-10",42.9,128.7],["2021-10-17",40.5,129.1],["2021-10-24",40.0,130.4],["2021-10-31",41.6,130.1],["2021-11-07",42.5,128.6],["2021-11-14",43.1,129.1],["2021-11-21",43.0,128.9],["2021-11-28",41.0,128.0],["2021-12-05",40.1,129.0],["2021-12-12",41.1,129.0],["2021-12-19",42.9,127.7],["2021-12-26",39.9,129.6],["2022-01-02",39.6,131.1],["2022-01-09",41.2,130.1],["2022-01-16",42.8,131.3],["2022-01-23",44.3,133.9],["2022-01-30",42.1,134.4],["2022-02-06",42.1,134.8],["2022-02-13",42.4,134.8],["2022-02-20",42.4,136.6],["2022-02-27",43.1,138.2],["2022-03-06",41.2,138.7],["2022-03-13",41.1,139.8],["2022-03-20",40.6,139.7],["2022-03-27",43.1,140.0],["2022-04-03",41.8,140.1],["2022-04-10",37.8,141.2],["2022-04-17",43.1,142.2],["2022-04-24",40.8,142.4],["2022-05-01",41.5,144.1],["2022-05-08",37.8,144.6],["2022-05-15",39.8,145.8],["2022-05-22",39.9,147.1],["2022-05-29",41.3,148.5],["2022-06-05",39.5,148.6],["2022-06-12",39.5,149.8],["2022-06-19",39.3,149.6],["2022-06-26",39.9,150.7],["2022-07-03",38.8,149.3],["2022-07-10",40.9,148.0],["2022-07-17",41.3,150.3],["2022-07-24",38.6,152.0],["2022-07-31",39.6,151.9],["2022-08-07",40.4,152.0],["2022-08-14",43.6,153.1],["2022-08-21",42.3,153.9],["2022-08-28",41.8,156.9],["2022-09-04",40.5,158.2],["2022-09-11",40.5,157.8],["2022-09-18",40.3,158.1],["2022-09-25",40.8,156.7],["2022-10-02",41.7,159.1],["2022-10-09",39.9,160.1],["2022-10-16",38.0,160.3],["2022-10-23",39.8,161.0],["2022-10-30",39.6,159.9],["2022-11-06",42.5,161.3],["2022-11-13",42.4,160.7],["2022-11-20",43.2,161.0],["2022-11-27",40.4,160.7],["2022-12-04",41.0,160.6],["2022-12-11",40.1,162.2],["2022-12-18",38.3,164.1],["2022-12-25",40.1,164.0],["2023-01-01",44.1,164.3],["2023-01-08",43.5,164.9],["2023-01-15",43.1,167.1],["2023-01-22",42.1,166.9],["2023-01-29",41.8,166.1],["2023-02-05",42.2,165.8],["2023-02-12",42.9,167.3],["2023-02-19",42.5,167.7],["2023-02-26",42.9,168.1],["2023-03-05",42.6,168.2],["2023-03-12",39.2,169.7],["2023-03-19",36.7,171.2],["2023-03-26",40.6,171.5],["2023-04-02",40.4,172.2],["2023-04-09",40.4,174.0],["2023-04-16",36.4,175.4],["2023-04-23",38.3,175.1],["2023-04-30",39.1,176.1],["2023-05-07",41.8,175.9],["2023-05-14",42.2,178.0],["2023-05-21",41.6,178.9],["2023-05-28",39.3,177.5],["2023-06-04",40.9,178.4],["2023-06-11",42.3,179.1],["2023-06-18",43.1,178.2],["2023-06-25",43.2,178.0],["2023-07-02",39.7,177.5],["2023-07-09",41.2,176.7],["2023-07-16",40.6,176.6],["2023-07-23",41.2,176.2],["2023-07-30",41.5,176.6],["2023-08-06",42.5,175.7],["2023-08-13",41.4,175.5],["2023-08-20",41.2,174.5],["2023-08-27",41.2,173.0],["2023-09-03",42.6,170.8],["2023-09-10",44.0,170.9],["2023-09-17",40.2,171.0],["2023-09-24",42.9,170.9],["2023-10-01",43.0,169.7],["2023-10-08",43.3,171.6],["2023-10-15",41.9,172.6],["2023-10-22",40.3,171.2],["2023-10-29",40.7,170.2],["2023-11-05",38.9,168.5],["2023-11-12",39.4,168.2],["2023-11-19",42.3,167.1],["2023-11-26",43.8,170.6],["2023-12-03",43.3,172.6],["2023-12-10",42.5,172.2],["2023-12-17",44.0,172.0],["2023-12-24",45.0,173.9],["2023-12-31",42.5,173.2],["2024-01-07",43.7,176.4],["2024-01-14",45.8,176.6],["2024-01-21",43.2,176.7],["2024-01-28",43.4,178.8],["2024-02-04",42.4,178.4],["2024-02-11",44.2,179.0],["2024-02-18",43.2,179.9],["2024-02-25",42.3,180.2],["2024-03-03",43.7,181.9],["2024-03-10",42.6,180.4],["2024-03-17",41.2,178.3],["2024-03-24",41.7,180.1],["2024-03-31",41.3,180.5],["2024-04-07",45.0,181.8],["2024-04-14",43.1,183.0],["2024-04-21",43.0,182.5],["2024-04-28",45.1,183.1],["2024-05-05",44.6,183.8],["2024-05-12",43.1,185.3],["2024-05-19",42.0,186.6],["2024-05-26",42.4,187.0],["2024-06-02",41.7,187.6],["2024-06-09",42.9,186.6],["2024-06-16",43.8,186.6],["2024-06-23",40.5,186.8],["2024-06-30",40.8,187.1],["2024-07-07",41.3,188.4],["2024-07-14",43.5,188.6],["2024-07-21",43.6,188.1],["2024-07-28",44.9,189.3],["2024-08-04",43.2,190.6],["2024-08-11",41.8,193.2],["2024-08-18",42.0,192.5],["2024-08-25",43.3,192.5],["2024-09-01",45.4,192.3],["2024-09-08",44.4,191.1],["2024-09-15",44.0,189.2],["2024-09-22",39.3,187.3],["2024-09-29",43.5,188.4],["2024-10-06",46.1,188.0],["2024-10-13",46.3,189.7],["2024-10-20",41.7,191.8],["2024-10-27",41.2,191.8],["2024-11-03",42.5,194.8],["2024-11-10",43.0,195.4],["2024-11-17",42.9,194.3],["2024-11-24",43.4,195.7],["2024-12-01",43.3,198.4],["2024-12-08",42.3,198.1],["2024-12-15",42.5,197.3],["2024-12-22",43.4,198.4],["2024-12-29",44.3,200.6],["2025-01-05",41.0,202.6],["2025-01-12",44.0,204.5],["2025-01-19",46.6,204.7],["2025-01-26",44.6,205.4],["2025-02-02",null,203.5],["2025-02-09",null,204.0],["2025-02-16",null,204.5],["2025-02-23",null,204.9],["2025-03-02",null,204.2],["2025-03-09",43.6,203.6],["2025-03-16",41.7,204.3],["2025-03-23",42.4,205.0],["2025-03-30",43.7,208.5],["2025-04-06",40.3,210.9],["2025-04-13",41.6,210.8],["2025-04-20",41.2,211.7],["2025-04-27",44.6,212.3],["2025-05-04",43.1,212.3],["2025-05-11",42.0,213.4],["2025-05-18",45.1,215.5],["2025-05-25",42.5,217.4],["2025-06-01",41.0,220.8],["2025-06-08",40.9,221.9],["2025-06-15",39.0,223.4],["2025-06-22",39.2,223.6],["2025-06-29",40.5,228.4],["2025-07-06",43.7,230.2],["2025-07-13",44.4,230.3],["2025-07-20",42.9,231.7],["2025-07-27",43.6,232.2],["2025-08-03",40.9,231.7],["2025-08-10",42.5,230.2],["2025-08-17",44.9,234.0],["2025-08-24",43.7,235.0],["2025-08-31",45.3,233.6],["2025-09-07",44.1,233.2],["2025-09-14",41.4,233.9],["2025-09-21",42.9,235.9],["2025-09-28",43.4,236.9],["2025-10-05",43.7,239.5],["2025-10-12",39.9,240.0],["2025-10-19",39.9,238.3],["2025-10-26",40.9,237.2],["2025-11-02",43.7,236.7],["2025-11-09",43.4,238.0],["2025-11-16",41.9,236.6],["2025-11-23",42.0,236.9],["2025-11-30",41.5,236.8],["2025-12-07",41.6,237.5],["2025-12-14",41.6,237.8],["2025-12-21",41.7,237.3],["2025-12-28",42.9,237.0],["2026-01-04",43.7,241.6],["2026-01-11",44.0,243.6],["2026-01-18",46.1,242.1],["2026-01-25",41.0,243.8],["2026-02-01",40.4,242.2],["2026-02-08",40.8,243.9],["2026-02-15",null,245.2],["2026-02-22",41.6,245.9],["2026-03-01",42.7,247.8],["2026-03-08",42.8,247.7],["2026-03-15",39.2,249.7],["2026-03-22",38.0,250.9],["2026-03-29",39.4,250.7],["2026-04-05",40.4,251.4],["2026-04-12",41.0,253.5],["2026-04-19",42.9,253.2],["2026-04-26",43.3,253.8],["2026-05-03",41.5,256.4],["2026-05-10",41.1,258.5],["2026-05-17",39.7,260.5],["2026-05-24",40.7,262.0],["2026-05-31",42.4,261.6],["2026-06-07",40.6,265.3]];
 const NlpDash=()=>{
+  // fgColor / fgLabel / FGGauge retirés le 03/09/2026 avec l'indicateur
+  // Fear & Greed : plus rien ne les appelait, et les laisser invitait à
+  // rebrancher un cadran sur une valeur figée.
   const [view,setView]=useState("rankings");
   const SC=s=>s==="ACHAT"?"#00e5a0":s==="VENTE"?"#ff4f5a":"#8892a4";
-  const fgColor=v=>v>=60?"#00e5a0":v>=45?"#ffd740":v>=35?"#ff8f00":"#ff4f5a";
-  const fgLabel=v=>v>=60?"Greed":v>=45?"Neutre":v>=35?"Peur":"Panique";
 
   // Fear & Greed arc SVG
-  const FGGauge=({v})=>{
-    const pct=(v-0)/100;
-    const r=54,cx=70,cy=70,sw=10;
-    const arc=(a1,a2,c)=>{
-      const t1=Math.PI*(1+a1),t2=Math.PI*(1+a2);
-      const x1=cx+r*Math.cos(t1),y1=cy+r*Math.sin(t1);
-      const x2=cx+r*Math.cos(t2),y2=cy+r*Math.sin(t2);
-      return `<path d="M${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2}" stroke="${c}" stroke-width="${sw}" fill="none" stroke-linecap="round"/>`;
-    };
-    const needle=()=>{
-      const a=Math.PI*(1+pct);
-      const nx=cx+38*Math.cos(a),ny=cy+38*Math.sin(a);
-      return `<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-              <circle cx="${cx}" cy="${cy}" r="4" fill="#fff"/>`;
-    };
-    const svgContent=`<svg width="140" height="80" viewBox="0 0 140 80">
-      ${arc(0,0.25,"#ff4f5a")}${arc(0.25,0.5,"#ff8f00")}${arc(0.5,0.75,"#ffd740")}${arc(0.75,1,"#00e5a0")}
-      ${needle()}
-      <text x="${cx}" y="${cy+22}" text-anchor="middle" fill="${fgColor(v)}" font-size="18" font-weight="700" font-family="monospace">${v}</text>
-    </svg>`;
-    return React.createElement("div",{dangerouslySetInnerHTML:{__html:svgContent}});
-  };
 
   const top7=NLP_RANKS.filter(r=>r.sig==="ACHAT").slice(0,7);
   const maxMentions=Math.max(...NLP_RANKS.map(r=>r.mentions));
 
-  // ── Fear & Greed + MASI dual-axis SVG chart ──
-  const FGChart=()=>{
-    const W=820,H=190,PL=34,PR=36,PT=14,PB=24;
-    const cW=W-PL-PR,cH=H-PT-PB;
-    const FG_MIN=35,FG_MAX=48,M_MIN=100,M_MAX=270;
-    const n=NLP_CHART_DATA.length;
-    const xS=i=>PL+(i/(n-1))*cW;
-    const yFG=v=>PT+cH-((v-FG_MIN)/(FG_MAX-FG_MIN))*cH;
-    const yM=v=>PT+cH-((v-M_MIN)/(M_MAX-M_MIN))*cH;
-    // F&G path with NaN gap handling
-    let fgPath='',fgArea=`M${PL.toFixed(0)},${(PT+cH).toFixed(0)}`;
-    NLP_CHART_DATA.forEach(([d,fg],i)=>{
-      const x=xS(i).toFixed(1);
-      fgArea+=` L${x},${fg!=null?yFG(fg).toFixed(1):(PT+cH).toFixed(1)}`;
-      if(fg==null){fgPath+=' ';return;}
-      const y=yFG(fg).toFixed(1);
-      const prev=i>0?NLP_CHART_DATA[i-1][1]:null;
-      fgPath+=(prev==null?`M${x},${y}`:`L${x},${y}`)+' ';
-    });
-    fgArea+=` L${xS(n-1).toFixed(0)},${(PT+cH).toFixed(0)} Z`;
-    const masiPath=NLP_CHART_DATA.map(([d,fg,m],i)=>`${i===0?'M':'L'}${xS(i).toFixed(1)},${yM(m).toFixed(1)}`).join(' ');
-    const masiArea=`M${PL},${PT+cH} `+NLP_CHART_DATA.map(([d,fg,m],i)=>`L${xS(i).toFixed(1)},${yM(m).toFixed(1)}`).join(' ')+` L${xS(n-1).toFixed(0)},${PT+cH} Z`;
-    const years=[['2021',52],['2022',104],['2023',157],['2024',210],['2025',262],['2026',268]];
-    const last=NLP_CHART_DATA[n-1];
-    const svgStr=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">
-      <defs>
-        <linearGradient id="gFG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffd740" stop-opacity="0.18"/><stop offset="100%" stop-color="#ffd740" stop-opacity="0.02"/></linearGradient>
-        <linearGradient id="gM"  x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4db8ff" stop-opacity="0.12"/><stop offset="100%" stop-color="#4db8ff" stop-opacity="0.01"/></linearGradient>
-      </defs>
-      ${[38,40,42,44,46].map(v=>`<line x1="${PL}" y1="${yFG(v).toFixed(1)}" x2="${PL+cW}" y2="${yFG(v).toFixed(1)}" stroke="#1a2540" stroke-width="0.5"/><text x="${PL-4}" y="${(yFG(v)+4).toFixed(1)}" font-size="8" fill="#8892a4" text-anchor="end">${v}</text>`).join('')}
-      <line x1="${PL}" y1="${yFG(42).toFixed(1)}" x2="${PL+cW}" y2="${yFG(42).toFixed(1)}" stroke="#ff8f00" stroke-width="0.8" stroke-dasharray="4,3" opacity="0.5"/>
-      ${[100,150,200,250].map(v=>`<text x="${PL+cW+4}" y="${(yM(v)+4).toFixed(1)}" font-size="8" fill="#4db8ff" opacity="0.55">${v}</text>`).join('')}
-      ${years.map(([y,i])=>`<line x1="${xS(i).toFixed(1)}" y1="${PT}" x2="${xS(i).toFixed(1)}" y2="${PT+cH}" stroke="#1a2540" stroke-width="0.5"/><text x="${xS(i).toFixed(1)}" y="${PT+cH+14}" font-size="9" fill="#8892a4" text-anchor="middle">${y}</text>`).join('')}
-      <path d="${masiArea}" fill="url(#gM)"/>
-      <path d="${masiPath}" fill="none" stroke="#4db8ff" stroke-width="2" opacity="0.9"/>
-      <path d="${fgArea}" fill="url(#gFG)"/>
-      <path d="${fgPath}" fill="none" stroke="#ffd740" stroke-width="1.5" opacity="0.85"/>
-      <circle cx="${xS(n-1).toFixed(1)}" cy="${yFG(last[1]||42).toFixed(1)}" r="3.5" fill="#ffd740"/>
-      <circle cx="${xS(n-1).toFixed(1)}" cy="${yM(last[2]).toFixed(1)}" r="3.5" fill="#4db8ff"/>
-      <text x="${PL+6}" y="${PT+13}" font-size="9" fill="#ffd740">Fear &amp; Greed BVC</text>
-      <text x="${PL+90}" y="${PT+13}" font-size="9" fill="#4db8ff">— MASI (base 100 → ${last[2].toFixed(0)})</text>
-    </svg>`;
-    return React.createElement("div",{dangerouslySetInnerHTML:{__html:svgStr}});
-  };
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -1859,41 +1793,34 @@ const NlpDash=()=>{
         <div style={{marginLeft:"auto",fontSize:10,color:"#8892a4"}}>Analyse 14 phases · sept 2020 → juin 2026</div>
       </div>
 
-      {/* ── GRAPHIQUE Fear & Greed × MASI 6 ans ── */}
-      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 16px"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:6}}>
-          <span style={{fontSize:11,fontWeight:700,color:"#c8d3e8",textTransform:"uppercase",letterSpacing:1}}>Fear &amp; Greed BVC × MASI — 6 ans (déc 2020 → juin 2026)</span>
-          <div style={{display:"flex",gap:14,fontSize:10,color:"#8892a4"}}>
-            <span>Min F&amp;G : <strong style={{color:"#ff4f5a"}}>36.4</strong></span>
-            <span>Max F&amp;G : <strong style={{color:"#00e5a0"}}>46.6</strong></span>
-            <span>MASI : <strong style={{color:"#4db8ff"}}>×2.65</strong> sur la période</span>
-          </div>
-        </div>
-        <FGChart/>
-        <div style={{display:"flex",gap:16,marginTop:8,fontSize:10,color:"#8892a4",flexWrap:"wrap"}}>
-          <span style={{color:"#ff8f00"}}>— — ligne 42 (seuil peur/neutre)</span>
-          <span>Période de panique max : <strong style={{color:"#ff4f5a"}}>mars–avr 2023</strong> (36.4)</span>
-          <span>Euphorie max : <strong style={{color:"#00e5a0"}}>janv 2025</strong> (46.6)</span>
-          <span>Actuel : <strong style={{color:"#ffd740"}}>41.5</strong></span>
-        </div>
+      {/* ── Indicateur Fear & Greed retiré le 03/09/2026 ────────────────
+          La courbe publiée ici n'était pas le MASI. Mesuré sur ses 285 points :
+          +150 % sur la période quand l'indice réel a fait +64 %, et une baisse
+          maximale de 6,7 % quand le MASI en a perdu 27 entre mi-2022 et mars
+          2023 — la courbe MONTAIT de 13 % pendant cet effondrement. L'indice de
+          sentiment, lui, n'a jamais quitté la bande 36,4–46,6 : les mentions
+          « panique » et « euphorie » qualifiaient un écart-type de 1,8.
+          Un graphique inventé ne peut pas figurer sur une page qui promet une
+          analyse quantitative. Il reviendra adossé à un historique réel du
+          MASI — data.json n'en garde aujourd'hui que la valeur du jour.
+          Le code retiré reste dans l'historique git. */}
+      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 16px",fontSize:11,color:"#6b7689",lineHeight:1.6}}>
+        <strong style={{color:"#8892a4"}}>Fear &amp; Greed BVC × MASI</strong> — indicateur retiré.
+        La série publiée jusqu'ici ne reproduisait pas la trajectoire réelle de l'indice.
+        Il reviendra une fois adossé à un historique vérifiable.
       </div>
 
       {/* ── ROW 1 : FEAR&GREED + SIGNAUX + LANGUES ── */}
       <div style={{display:"grid",gridTemplateColumns:"220px 1fr 1fr",gap:12}}>
 
-        {/* Fear & Greed */}
-        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,textAlign:"center"}}>
-          <div style={{fontSize:11,color:"#8892a4",marginBottom:4,textTransform:"uppercase",letterSpacing:1}}>Fear & Greed BVC</div>
-          <FGGauge v={NLP_FG.actuel}/>
-          <div style={{fontSize:14,fontWeight:700,color:fgColor(NLP_FG.actuel),marginTop:2}}>{NLP_FG.label}</div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,marginTop:8}}>
-            {[["Moy 6 ans",NLP_FG.moy],["Max",NLP_FG.max],["Min",NLP_FG.min],["Régimes",NLP_FG.regimes]].map(([k,v])=>(
-              <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"4px 6px"}}>
-                <div style={{fontSize:8,color:"#8892a4",textTransform:"uppercase"}}>{k}</div>
-                <div style={{fontSize:12,fontWeight:700,color:"#c8d3e8"}}>{v}</div>
-              </div>
-            ))}
-          </div>
+        {/* Jauge Fear & Greed retirée le 03/09/2026 — même motif que la
+            courbe : NLP_FG était une constante écrite en dur (41,5 · « Peur
+            légère »), immobile depuis la mise en ligne, affichée comme une
+            mesure du sentiment de marché. Retirer la courbe en laissant le
+            cadran n'aurait corrigé que la moitié du mensonge. */}
+        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,fontSize:11,color:"#6b7689",lineHeight:1.6}}>
+          <div style={{fontSize:11,color:"#8892a4",marginBottom:6,textTransform:"uppercase",letterSpacing:1}}>Fear &amp; Greed BVC</div>
+          Indicateur retiré — il affichait une valeur figée, non recalculée.
         </div>
 
         {/* Distribution signaux */}
