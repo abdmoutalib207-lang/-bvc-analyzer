@@ -31,6 +31,13 @@ CSV_A_TRAITER = ("smart_money_ranking.csv", "network_metrics.csv")
 # Fichiers versionnés où les noms apparaissent en texte libre.
 HTML_A_TRAITER = ("report.html",)
 
+# ⚠️ Hors du dossier de sorties : le FRONTEND lui-même. `index.html` nommait
+# 17 membres réels dans ses tables `MEMBERS` et `CHAT` — avec leur rang, leur
+# taux de réussite et des messages qui leur étaient attribués. C'est la page
+# publiée sur GitHub Pages : plus exposée encore que les fichiers de données,
+# parce qu'elle se lit sans savoir ce qu'est un dépôt.
+AUTRES_A_TRAITER = (RACINE / "index.html",)
+
 COLONNES_AUTEUR = ("author", "auteur", "member", "source", "target", "from", "to")
 
 
@@ -100,11 +107,29 @@ def _traiter_html(chemin: Path, table: TablePseudonymes, noms) -> int:
     for nom in sorted(noms, key=len, reverse=True):
         if len(nom) < 4:
             continue  # trop court : mordrait sur des fragments de mots
-        texte, k = re.subn(re.escape(nom), table.pseudonyme(nom), texte, flags=re.IGNORECASE)
+        # Le « ~ » que WhatsApp place devant un membre absent du carnet
+        # d'adresses fait partie de l'affichage, pas du nom. Sans l'absorber,
+        # « M9925 » deviendrait « ~ M0421 » et garderait sa marque.
+        motif = r"~?\s*" + re.escape(nom)
+        texte, k = re.subn(motif, table.pseudonyme(nom), texte, flags=re.IGNORECASE)
         n += k
     if n:
         chemin.write_text(texte, encoding="utf-8")
     return n
+
+
+def _noms_du_frontend(chemin: Path) -> set[str]:
+    """Relève les noms de personnes codés en dur dans le frontend.
+
+    Ils vivent dans les tables de démonstration `MEMBERS` et `CHAT`, sous les
+    clés `name:` et `member:`. On ne retient que ceux que le corpus connaît :
+    les autres champs `name:` du fichier désignent des sociétés cotées, qu'il
+    ne faut évidemment pas toucher.
+    """
+    if not chemin.exists():
+        return set()
+    texte = chemin.read_text(encoding="utf-8", errors="ignore")
+    return set(re.findall(r'(?:name|member)\s*:\s*"([^"]+)"', texte))
 
 
 def main() -> int:
@@ -131,6 +156,17 @@ def main() -> int:
         n = _traiter_csv(SORTIES / nom, table)
         total += n
         print(f"  {nom:28} {n:>7,} valeurs pseudonymisées".replace(",", " "))
+
+    # Le frontend en dernier : seuls les noms que le corpus reconnaît sont
+    # remplacés, pour ne pas toucher aux raisons sociales des 80 titres qui
+    # partagent la même clé `name:` dans le fichier.
+    for chemin in AUTRES_A_TRAITER:
+        candidats = _noms_du_frontend(chemin)
+        connus = {c for c in candidats if _normaliser(c.lstrip("~ ")) in table._table}
+        n = _traiter_html(chemin, table, {c.lstrip("~ ").strip() for c in connus})
+        total += n
+        print(f"  {chemin.name:28} {n:>7,} occurrences remplacées "
+              f"({len(connus)} membres)".replace(",", " "))
 
     table.enregistrer()
     print(

@@ -69,6 +69,8 @@ from typing import Dict
 CHEMIN_TABLE = Path(__file__).resolve().parent.parent / "data" / "pseudonymes.json"
 
 PREFIXE = "M"
+# Reconnaît un identifiant déjà attribué — rend le nettoyage relançable.
+DEJA_PSEUDO = re.compile(r"m\d{4,}")
 LARGEUR = 4  # M0001 … M9999 ; au-delà le numéro s'allonge naturellement
 
 
@@ -135,6 +137,12 @@ class TablePseudonymes:
         cle = _normaliser(nom)
         if not cle:
             return f"{PREFIXE}0000"  # auteur absent ou message système
+        if DEJA_PSEUDO.fullmatch(cle):
+            # Le script de nettoyage est relançable, et il l'a été : sans cette
+            # garde, un second passage prend les pseudonymes du premier pour de
+            # nouveaux membres et double la table (1 994 → 3 988 le 02/09).
+            # Un pseudonyme est déjà le résultat voulu : on le rend tel quel.
+            return cle.upper()
         if cle not in self._table:
             self._table[cle] = f"{PREFIXE}{len(self._table) + 1:0{LARGEUR}d}"
         return self._table[cle]
@@ -148,7 +156,8 @@ class TablePseudonymes:
         gardent leur numéro — c'est ce qui rend la table stable dans le temps.
         """
         nouveaux = {_normaliser(n) for n in noms}
-        nouveaux = {c for c in nouveaux if c and c not in self._table}
+        nouveaux = {c for c in nouveaux
+                    if c and c not in self._table and not DEJA_PSEUDO.fullmatch(c)}
         for cle in sorted(nouveaux, key=self._rang):
             self._table[cle] = f"{PREFIXE}{len(self._table) + 1:0{LARGEUR}d}"
 

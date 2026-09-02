@@ -240,3 +240,17 @@ def test_le_corpus_n_est_jamais_versionne():
             or "pseudonymes.json" in p)
     ]
     assert not suspects, f"fichier de corpus ou table d'identité versionné : {suspects}"
+
+
+def test_le_nettoyage_est_relancable(tmp_path):
+    """Bug réel du 02/09 : relancé, le script prenait les pseudonymes du
+    premier passage pour de nouveaux membres et doublait la table
+    (1 994 → 3 988). Un pseudonyme doit se rendre lui-même, sans rien créer."""
+    t = TablePseudonymes(tmp_path / "p.json")
+    t.amorcer(["Karim Doe", "exemple2"])
+    taille = len(t)
+    premier = t.pseudonyme("Karim Doe")
+
+    assert t.pseudonyme(premier) == premier, "un pseudonyme doit être stable par lui-même"
+    t.amorcer([premier, "M0001", "m9999"])
+    assert len(t) == taille, "des pseudonymes ont été enregistrés comme membres"

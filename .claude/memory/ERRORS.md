@@ -125,3 +125,39 @@ l'URL, le premier run de la journée, le cron de GitHub.
 
 Le correctif a toujours la même forme aussi : **une seconde opinion, et un
 arbitrage explicite entre les deux.**
+
+## 02/09/2026 — 17 membres nommés sur le SITE PUBLIÉ, pas seulement dans les données
+
+**Signal** : un balayage des fichiers suivis par git, lancé pour vérifier la
+pseudonymisation des sorties NLP, a trouvé « karim doe » et « doe karim »
+dans `index.html`.
+
+**Cause** : les tables de démonstration `MEMBERS` et `CHAT` du frontend étaient
+remplies avec de vrais membres du groupe — nom, rang, taux de réussite, alpha,
+et des messages qui leur étaient attribués. Ce n'était pas un fichier de
+données mais **la page publiée sur GitHub Pages** : lisible sans savoir ce
+qu'est un dépôt.
+
+**Ce qui a failli le faire manquer** : le premier balayage a signalé 85
+fichiers, dont `CLAUDE.md` et les définitions d'agents. C'étaient des fausses
+alertes — des membres se sont nommés « Bourse » ou « IDBourse », et le
+détecteur les retrouvait dans du texte projet ordinaire. **Le bruit a bien
+failli enterrer les deux vraies fuites.** Un détecteur d'identité doit filtrer
+sur les noms composés, pas sur toute chaîne de six caractères.
+
+**Leçon** : chercher les données personnelles là où on ne les a pas mises. La
+pseudonymisation visait `whatsapp_analysis/output/` ; l'exposition la plus
+grave était ailleurs, à la racine, dans le fichier le plus consulté du dépôt.
+
+## 02/09/2026 — Un nettoyage relancé qui se mord la queue
+
+**Signal** : « Membres connus : 3 988 (+1 994 nouveaux) » — la table avait
+exactement doublé.
+
+**Cause** : `pseudonymiser_sorties` relancé sur des fichiers déjà nettoyés
+prenait les pseudonymes du premier passage (`M0745`) pour de nouveaux noms de
+membres et leur attribuait des numéros à leur tour.
+
+**Leçon** : tout script de nettoyage sera relancé — par prudence, par erreur,
+ou parce qu'un run a échoué au milieu. Il doit reconnaître son propre résultat
+et le laisser tel quel. `DEJA_PSEUDO` + un test dédié.
