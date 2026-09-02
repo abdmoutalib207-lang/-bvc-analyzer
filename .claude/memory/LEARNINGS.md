@@ -127,3 +127,31 @@
   126 variables locales) n'est pas testable ; sortie en fonction nommée, elle se
   vérifie en une seconde. Le cliquet de séance et l'arbitrage MASI l'ont prouvé
   le 28/08.
+
+## Sur le corpus WhatsApp (02/09/2026)
+
+- **Un filtre de bruit se justifie par une mesure, jamais par l'intuition.**
+  Le hors-sujet football semblait un nettoyage évident. Mesuré : 3 953 messages
+  de football dans 919 372, mais seulement **111 mentionnent aussi un ticker**
+  — 0,23 % du corpus réellement scoré. Le filtre est juste, il ne change
+  presque rien. L'écrire était bon marché ; en attendre un effet visible aurait
+  été une erreur.
+- **⚠️ Le danger d'un filtre n'est pas ce qu'il laisse passer, c'est ce qu'il
+  détruit.** Les mots « évidents » sont des pièges mesurés : « but » est à
+  97 % « dans le but de », « transfert » à 99 % un virement bancaire, « match »
+  à 92 % « ça match avec ». Les inclure aurait supprimé ~2 900 messages pour
+  n'écarter que ~150 de football : **19 messages financiers détruits par
+  message de foot**. `TERMES_ECARTES_A_DESSEIN` et son test figent ce constat.
+- **Vérifier les collisions de sigles avant d'écrire un filtre par mots-clés.**
+  Les clubs marocains portent des sigles (RCA, WAC, MAS, FAR, FUS, RSB) qui
+  auraient pu heurter un ticker BVC. Vérifié sur les 110 sigles connus : aucune
+  collision. La vérification a coûté une minute ; la collision aurait coûté un
+  titre entier.
+- **Un drapeau posé et jamais lu ne protège rien.** `is_spam` est calculé par
+  `phase1_parser` depuis l'origine et **consommé nulle part**. Le filtre
+  hors-sujet est donc appliqué dans `_explode_tickers` — le passage obligé de
+  toute métrique par titre — et non en phase 1 où il aurait été décoratif.
+  Même défaut que le drapeau `suspect` ignoré par son appelant (28/08).
+- **Seuls 48 832 messages sur 919 372 mentionnent un ticker** (5,3 %), et
+  67 titres seulement sont cités. C'est le vrai plafond du pilier NLP : le
+  corpus est vaste, la matière exploitable l'est beaucoup moins.

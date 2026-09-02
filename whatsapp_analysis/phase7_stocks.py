@@ -18,6 +18,7 @@ from whatsapp_analysis.config import (
     BVC_TICKERS,
 )
 # config a déjà mis la racine du dépôt sur sys.path
+from whatsapp_analysis.hors_sujet import est_hors_sujet
 from bvc_config import COMPANY_SECTORS  # noqa: E402
 
 warnings.filterwarnings('ignore', category=RuntimeWarning)
@@ -69,6 +70,19 @@ def _explode_tickers(df: pd.DataFrame) -> pd.DataFrame:
     df_with_tickers = df_text[df_text[ticker_col].apply(len) > 0].copy()
     if df_with_tickers.empty:
         return pd.DataFrame()
+
+    # Écarte le hors-sujet — football principalement. Ce point est le passage
+    # obligé de TOUTE métrique par titre : sentiment, conviction, polarisation,
+    # smart money. Filtrer ici est la seule façon de garantir que le drapeau
+    # sert à quelque chose. Un drapeau posé en phase 1 et consommé nulle part
+    # ne protège rien (cf. `is_spam`, calculé depuis toujours et jamais lu).
+    if 'message_text' in df_with_tickers.columns:
+        hs = df_with_tickers['message_text'].apply(est_hors_sujet)
+        if hs.any():
+            print(f"  Hors-sujet écarté : {int(hs.sum())} message(s) mentionnant un ticker")
+            df_with_tickers = df_with_tickers[~hs].copy()
+        if df_with_tickers.empty:
+            return pd.DataFrame()
 
     # Explode
     exploded = df_with_tickers.explode(ticker_col).rename(columns={ticker_col: 'ticker'})
