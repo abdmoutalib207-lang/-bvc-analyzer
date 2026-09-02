@@ -155,3 +155,29 @@
 - **Seuls 48 832 messages sur 919 372 mentionnent un ticker** (5,3 %), et
   67 titres seulement sont cités. C'est le vrai plafond du pilier NLP : le
   corpus est vaste, la matière exploitable l'est beaucoup moins.
+
+## ⚠️ Données personnelles dans le dépôt public (02/09/2026)
+
+- **Le dépôt est PUBLIC et contient les noms de 2 013 personnes.**
+  `whatsapp_analysis/output/smart_money_ranking.csv` et `network_metrics.csv`
+  sont versionnés depuis le 5 juin 2026 et portent les noms WhatsApp réels des
+  membres du groupe, associés à un jugement de compétence (taux de réussite,
+  alpha, régularité) et à leur influence dans le réseau. **Deux entrées sont
+  des numéros de téléphone en clair.**
+- Ces personnes n'ont pas consenti à ce traitement. Sur le plan légal c'est un
+  traitement de données personnelles non déclaré (CNDP) ; sur le plan pratique
+  c'est ce qui fait perdre l'accès au groupe le jour où quelqu'un le découvre —
+  et le groupe est la seule source du pilier NLP.
+- **Règle désormais : aucun nom, numéro ou identifiant direct ne doit atteindre
+  un fichier du dépôt.** Les sorties NLP doivent être pseudonymisées (`M0417`)
+  avant tout commit. La table de correspondance reste hors dépôt. Le moteur n'a
+  besoin que de la performance d'un membre, jamais de son identité.
+- ⚠️ Retirer les noms des fichiers ne suffit pas : ils restent dans l'historique
+  git. Un effacement réel demande une réécriture d'historique.
+
+## Sur le filtrage du corpus (02/09/2026)
+
+- **Décision du product owner : aucun filtre thématique.** Le filtre football
+  écrit puis retiré le même jour. La mesure qui l'avait motivé reste valable et
+  documentée plus haut ; c'est le choix produit qui a tranché, pas la mesure.
+  Ne pas le réintroduire sans instruction explicite.

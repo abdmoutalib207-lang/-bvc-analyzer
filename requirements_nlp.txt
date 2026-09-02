@@ -1,0 +1,19 @@
+# Dépendances du pipeline NLP WhatsApp (whatsapp_analysis/).
+#
+# Fichier séparé À DESSEIN. Ce pipeline tourne HORS LIGNE, à la main, sur le
+# poste de l'analyste : aucun workflow GitHub ne le déclenche. Ses dépendances
+# sont lourdes (scikit-learn, matplotlib) et les faire installer par chaque run
+# de CI ralentirait tout le monde pour du code que la CI n'exécute jamais.
+#
+# ⚠️ Elles n'étaient déclarées NULLE PART avant le 02/09/2026, alors que la
+# règle R4 l'exige et cite `sklearn` en exemple. Le pipeline ne pouvait donc
+# s'installer que par tâtonnement. Si tu ajoutes un import ici, déclare-le.
+#
+#   pip install -r requirements_nlp.txt
+
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.11.0
+scikit-learn>=1.3.0
+matplotlib>=3.7.0
+emoji>=2.8.0
