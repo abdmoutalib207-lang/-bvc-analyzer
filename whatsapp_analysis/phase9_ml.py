@@ -100,7 +100,11 @@ def engineer_global_features(
     if fear_greed_series is not None and not fear_greed_series.empty:
         fg = fear_greed_series.copy()
         fg.index = pd.to_datetime(fg.index)
-        features["fear_greed"] = fg.reindex(features.index).fillna(method="ffill")
+        # .fillna(method="ffill") a été retiré de pandas 3.0 : l'appel levait
+        # un TypeError qui tuait TOUTE la phase 9 en 0,1 s — le pipeline
+        # affichait « ✓ Terminé » et personne ne voyait que le modèle
+        # prédictif ne tournait plus du tout.
+        features["fear_greed"] = fg.reindex(features.index).ffill()
         features["fear_greed_change_5d"] = features["fear_greed"].diff(5)
         features["extreme_fear"] = (features["fear_greed"] < 20).astype(float)
         features["extreme_greed"] = (features["fear_greed"] > 80).astype(float)

@@ -218,6 +218,11 @@ __marimo__/
 .streamlit/secrets.toml
 
 # Corpus WhatsApp (données privées)
+# ⚠️ Le dépôt est PUBLIC. Rien de ce qui identifie un membre du groupe ne doit
+# y entrer : ni le corpus, ni la table de correspondance nom → pseudonyme, ni
+# le sel qui la rend stable. `data/` est donc ignoré EN ENTIER, avec une liste
+# blanche explicite si un fichier public doit un jour y vivre.
+data/
 data/chat_parts/
 data/_chat.txt
 data/nlp_output/
