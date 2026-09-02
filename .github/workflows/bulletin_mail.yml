@@ -1,0 +1,86 @@
+name: Bulletin quotidien par courriel
+
+# Envoie chaque matin ouvré la dernière clôture fiable, avant l'ouverture.
+#
+# ⚠️ HORAIRE CHOISI POUR SURVIVRE AUX RETARDS DE GITHUB, pas pour être précis.
+# Mesuré fin août 2026 : les tâches programmées partent avec 2 à 8 heures de
+# retard, et certaines ne partent pas du tout. En visant 03h00 UTC (04h00 à
+# Casablanca), même un retard de quatre heures laisse le courriel arriver avant
+# l'ouverture de 9h30. Un créneau de secours à 05h00 UTC double la chance.
+#
+# ⚠️ Le doublon est assumé : recevoir deux fois le même bulletin est un
+# désagrément, ne pas le recevoir est une promesse rompue. Le sujet porte la
+# date de SÉANCE, donc deux exemplaires se reconnaissent au premier coup d'œil.
+#
+# ⚠️ Il ne commite rien. Le quota de reconstruction de GitHub Pages est la
+# ressource rare du projet.
+
+on:
+  schedule:
+    - cron: '0 3 * * 1-5'    # ≈04h00 Casablanca
+    - cron: '0 5 * * 1-5'    # ≈06h00 — deuxième chance
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bulletin-mail
+  cancel-in-progress: false
+
+jobs:
+  envoyer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Compose le bulletin depuis le data.json publié. Le script sort en code 2
+      # si la collecte est trop pauvre — dans ce cas AUCUN courriel ne part.
+      # Un bulletin qui arrive tous les matins finit par être lu sans
+      # vérification : il ne doit jamais porter une séance non établie.
+      - name: Composer le bulletin
+        id: compose
+        run: |
+          if python pipeline/bulletin_mail.py; then
+            echo "envoyer=true" >> $GITHUB_OUTPUT
+            {
+              echo "sujet<<FIN"
+              cat bulletin_out/sujet.txt
+              echo ""
+              echo "FIN"
+            } >> $GITHUB_OUTPUT
+          else
+            echo "envoyer=false" >> $GITHUB_OUTPUT
+            echo "::warning::Collecte insuffisante — bulletin non envoyé."
+          fi
+
+      - name: Envoyer
+        if: steps.compose.outputs.envoyer == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          from: BVC Analyzer
+          to: ${{ secrets.MAIL_TO }}
+          subject: ${{ steps.compose.outputs.sujet }}
+          body: file://bulletin_out/corps.txt
+          html_body: file://bulletin_out/corps.html
+          convert_markdown: false
+
+      - name: Résumé
+        if: always()
+        run: |
+          echo "## Bulletin quotidien" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.compose.outputs.envoyer }}" = "true" ]; then
+            echo "- Envoyé : \`$(cat bulletin_out/sujet.txt)\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Non envoyé** — collecte insuffisante." >> $GITHUB_STEP_SUMMARY
+          fi
