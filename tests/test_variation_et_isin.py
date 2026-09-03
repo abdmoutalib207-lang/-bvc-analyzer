@@ -143,3 +143,56 @@ def test_le_plafond_ne_remonte_jamais_une_confiance_basse(ud):
     m = ud._meta_ticker("XXX", "static", "", {"mentions": 0, "win": None}, None,
                         isin_suspect=True)
     assert m["confidence"] == 0
+
+
+# ── ADX : un indicateur borné doit rester dans ses bornes ─────────────────
+# ⚠️ Signalé par un audit extérieur le 03/09/2026. L'ADX publié valait environ
+# QUATORZE FOIS sa vraie valeur — 72 titres sur 73 hors de [0, 100], DAR à
+# 937,8. La cause : `wilder()` renvoie une somme lissée, pas une moyenne ; pour
+# +DI et -DI le rapport annule l'échelle, pour l'ADX non.
+#
+# L'indicateur était faux depuis l'origine. Aucun test ne bornait sa valeur —
+# c'est ce qui a permis à un défaut aussi visible de durer.
+
+import numpy as np
+import pandas as pd
+import pytest
+
+
+def _serie(pente, bruit, n=120, graine=7):
+    rng = np.random.default_rng(graine)
+    c = pd.Series(np.cumsum(rng.normal(pente, bruit, n)) + 100)
+    return c * 1.01, c * 0.99, c
+
+
+@pytest.mark.parametrize("nom,pente,bruit", [
+    ("tendance haussière franche", 1.0, 0.3),
+    ("tendance baissière franche", -1.0, 0.3),
+    ("marché sans direction",       0.0, 1.0),
+    ("quasi immobile",              0.0, 0.05),
+])
+def test_adx_reste_entre_0_et_100(ud, nom, pente, bruit):
+    h, l, c = _serie(pente, bruit)
+    adx, pdi, mdi = ud.calc_adx(h, l, c)
+    assert adx is not None, f"{nom} : ADX non calculé"
+    assert 0 <= adx <= 100, f"{nom} : ADX = {adx}, hors bornes"
+    assert 0 <= pdi <= 100 and 0 <= mdi <= 100
+
+
+def test_adx_distingue_une_tendance_d_un_marche_plat():
+    """Au-delà des bornes : l'indicateur doit encore vouloir dire quelque
+    chose. Une tendance franche doit sortir nettement au-dessus du bruit."""
+    import update_data as ud
+    h1, l1, c1 = _serie(1.0, 0.3)
+    h2, l2, c2 = _serie(0.0, 1.0)
+    fort, _, _ = ud.calc_adx(h1, l1, c1)
+    plat, _, _ = ud.calc_adx(h2, l2, c2)
+    assert fort > plat + 20, f"tendance {fort} vs plat {plat} : indistinguables"
+
+
+def test_adx_de_tous_les_titres_publies_est_borne(data):
+    """Le contrôle qui aurait attrapé le défaut : il porte sur ce qui est
+    RÉELLEMENT publié, pas sur un cas fabriqué."""
+    hors = [(x["symbol"], x["adx"]) for x in data["tickers"]
+            if x.get("adx") is not None and not (0 <= x["adx"] <= 100)]
+    assert not hors, f"ADX hors bornes sur {len(hors)} titre(s) : {hors[:5]}"

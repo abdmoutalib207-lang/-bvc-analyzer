@@ -1474,7 +1474,24 @@ def calc_adx(highs: pd.Series, lows: pd.Series, closes: pd.Series,
             pdi = np.where(atr > 0, 100 * pdi_ / atr, 0)
             mdi = np.where(atr > 0, 100 * mdi_ / atr, 0)
             dx  = np.where((pdi + mdi) > 0, 100 * np.abs(pdi - mdi) / (pdi + mdi), 0)
-        adx = wilder(dx[period:], period)
+        # ⚠️ `wilder()` renvoie une SOMME lissée, pas une moyenne. Pour +DI et
+        # -DI cela n'a aucune conséquence : le rapport `100 * pdi_ / atr`
+        # annule l'échelle. Pour l'ADX, la somme était publiée telle quelle —
+        # donc environ QUATORZE FOIS la vraie valeur.
+        #
+        # Mesuré le 03/09/2026 sur les 73 titres pourvus d'un ADX : 72 hors
+        # des bornes [0, 100], DAR à 937,8 · NEJ 693,7 · IAM 560,6.
+        # Signalé par un audit extérieur ; l'indicateur était faux depuis
+        # l'origine et personne ne l'avait vu — aucun test ne bornait sa valeur.
+        #
+        # Diviser par la période rétablit la forme de Wilder :
+        #   somme/p à l'amorce   = moyenne des p premiers DX
+        #   puis (s - s/p + x)/p = moyenne_préc × (p-1)/p + DX/p
+        #
+        # ⚠️ Le classement n'était PAS faussé : `calc_score_tech` ne reçoit pas
+        # l'ADX, il ne sert qu'à l'affichage. Mais toute lecture de force de
+        # tendance était invalide.
+        adx = wilder(dx[period:], period) / period
         if len(adx) == 0 or adx[-1] == 0:
             return None, None, None
         return (round(float(adx[-1]), 1),
