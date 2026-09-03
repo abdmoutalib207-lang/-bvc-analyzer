@@ -53,6 +53,21 @@ on:
     # qu'il tient.
     - cron:  '0 19 * * 1-5'   # ≈20h00 — deuxième chance
     - cron:  '0 21 * * 1-5'   # ≈22h00 — troisième chance
+    #
+    # ⚠️ RATTRAPAGE HORAIRE — ajouté le 03/09/2026 après un troisième oubli.
+    # Ce jour-là aucun des crons ci-dessus n'a été déclenché : data.json est
+    # resté sur la veille pendant toute la matinée, deux heures après
+    # l'ouverture. `fetch_news` a tourné normalement le même matin.
+    #
+    # La différence est le NOMBRE D'OCCASIONS. fetch_news a un cron horaire :
+    # 24 chances par jour, en sauter une ne se voit pas. update_bvc en avait 6,
+    # donc 6 chances d'être oublié pour de bon.
+    #
+    # Ce cron-ci fire toutes les heures mais ne TRAVAILLE que si la journée
+    # manque réellement (voir la porte plus bas). Un run à vide coûte quelques
+    # secondes et ne commite rien — le quota de publication de Pages, ressource
+    # rare du projet, n'est pas touché.
+    - cron: '25 * * * 1-5'    # rattrapage — la porte décide s'il y a lieu
 
   # ⚠️ NE PAS réintroduire « BVC News Fetch » ici. Les deux workflows se
   # déclenchaient mutuellement — BVC → news → BVC → news, un cycle toutes les
@@ -98,6 +113,50 @@ jobs:
         id: gate
         run: |
           TRIGGER="${{ github.event_name }}"
+          CRON="${{ github.event.schedule }}"
+
+          # Le cron de rattrapage ne travaille que si la journée manque. Sans
+          # ce filtre il ferait 24 runs et autant de commits par jour.
+          if [ "$CRON" = "25 * * * 1-5" ]; then
+            NOW=$(TZ="Africa/Casablanca" date +%H%M)
+            AUJ=$(TZ="Africa/Casablanca" date +%Y-%m-%d)
+            MAJ=$(curl -sf --max-time 20 \
+                  "https://raw.githubusercontent.com/${{ github.repository }}/main/data.json" \
+                  | python3 -c "import json,sys; print(json.load(sys.stdin).get('updated',''))" \
+                  2>/dev/null || echo "")
+            echo "data.json publié : ${MAJ:-illisible} · il est $NOW Casablanca"
+
+            # Illisible ou absent : on lance, c'est plus sûr que de supposer.
+            if [ -z "$MAJ" ]; then
+              echo "run=true" >> $GITHUB_OUTPUT
+              echo "🛟 data.json illisible — rattrapage"
+              exit 0
+            fi
+
+            JOUR_MAJ="${MAJ%%T*}"
+            HEURE_MAJ=$(echo "$MAJ" | sed -n 's/.*T\([0-9][0-9]\):\([0-9][0-9]\).*/\1\2/p')
+
+            # Cas 1 — après 10h30 et rien du jour : le run du matin a sauté.
+            if [ "$JOUR_MAJ" != "$AUJ" ] && [ "$NOW" -ge 1030 ]; then
+              echo "run=true" >> $GITHUB_OUTPUT
+              echo "🛟 aucun run aujourd'hui (dernier : $JOUR_MAJ) — rattrapage"
+              exit 0
+            fi
+
+            # Cas 2 — après 16h30 et rien depuis la clôture : LE run qui fixe
+            # le cours définitif a sauté. C'est celui qui compte le plus.
+            if [ "$JOUR_MAJ" = "$AUJ" ] && [ "$NOW" -ge 1630 ] \
+               && [ -n "$HEURE_MAJ" ] && [ "$HEURE_MAJ" -lt 1545 ]; then
+              echo "run=true" >> $GITHUB_OUTPUT
+              echo "🛟 rien depuis la clôture (dernier : $HEURE_MAJ) — rattrapage"
+              exit 0
+            fi
+
+            echo "run=false" >> $GITHUB_OUTPUT
+            echo "✅ à jour — rien à rattraper"
+            exit 0
+          fi
+
           if [ "$TRIGGER" = "workflow_dispatch" ] || [ "$TRIGGER" = "schedule" ]; then
             echo "run=true" >> $GITHUB_OUTPUT
             exit 0
