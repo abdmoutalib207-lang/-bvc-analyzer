@@ -201,3 +201,40 @@
   Une session lancée sur une copie locale a signalé « DLM et DIS absents de
   bvc_config.py, à documenter ». Les deux y sont, avec ISIN et raison sociale
   (Delattre Levivier Maroc, Diac Salaf). Vérifier avant d'agir.
+
+## Le fil de discussion vaut douze fois la mention (03/09/2026)
+
+**Idée d'Abd Moutalib, mesurée et confirmée.** Compter les messages qui
+*contiennent* le code d'un titre sous-estime la matière d'un facteur douze.
+Quand quelqu'un écrit « ADI ? », les quinze messages suivants parlent d'ADI
+sans jamais le nommer — un lecteur humain suit le fil, notre compteur le
+jetait.
+
+Mesure sur les 919 372 messages, fil suivi tant que l'écart entre deux
+messages reste sous 10 minutes et qu'aucun autre titre n'est cité :
+
+    messages exploitables      48 832  →  591 430     (×12,1)
+    part du corpus utilisée       5 %  →      64 %
+    taille médiane d'un fil                11 messages
+
+Et surtout, le chiffre qui décidait de tout :
+
+    titre    mentions/jour        fil/jour
+    ADI            4          →      49
+    RDS            4          →      58
+    ADH            3          →      35
+
+    titres avec ≥10 messages/jour :  0  →  15
+    (ADH ADI ATW CIH CMT HPS IAM JET MDP MNG MSA RDS SMI SNA TGCC)
+
+**Conséquence : un sentiment quotidien par titre est possible sur 15 valeurs.**
+La conclusion inverse, tirée le 02/09, reposait sur un comptage littéral et
+était fausse.
+
+⚠️ **C'est une heuristique, pas une vérité.** Un fil peut dériver sans citer
+d'autre titre, et le seuil de 10 minutes est arbitraire (30 min donne ×15,1).
+À valider en relisant des blocs à l'œil avant d'en faire un signal publié.
+
+⚠️ **Leçon de méthode** : une mesure qui contredit l'intuition du propriétaire
+du produit doit être suspectée AVANT d'être opposée. Il connaît son corpus ;
+ici il savait comment se lit une discussion, et le compteur ne le savait pas.
