@@ -161,3 +161,24 @@ membres et leur attribuait des numéros à leur tour.
 **Leçon** : tout script de nettoyage sera relancé — par prudence, par erreur,
 ou parce qu'un run a échoué au milieu. Il doit reconnaître son propre résultat
 et le laisser tel quel. `DEJA_PSEUDO` + un test dédié.
+
+## 03/09/2026 — 2 092 identités publiques pendant trois mois
+
+**Détail complet dans `.claude/memory/INCIDENT_VIE_PRIVEE.md`.** Résumé :
+
+- **Cause** : les CSV de sortie du pipeline NLP étaient versionnés sur un dépôt
+  PUBLIC avec les noms réels des membres, leur taux de réussite et leur
+  influence. `.gitignore` n'excluait que `.pkl` et `messages.csv`.
+- **Signal qui aurait dû alerter** : aucun test ne lisait le contenu des
+  fichiers versionnés. Le garde-fou qui existe aujourd'hui
+  (`test_aucun_nom_reel_dans_les_csv_versionnes`) échouait dès sa création — il
+  décrivait un défaut réel, pas une précaution théorique.
+- **Aggravation par Claude** : le nom d'un membre servait de donnée de test
+  dans 70 endroits et d'exemple dans la documentation, y compris dans les
+  commentaires expliquant comment on protège les gens.
+- **⚠️ Trois pièges de réécriture d'historique** : `--blob-callback` attend un
+  CORPS de fonction (sinon l'outil annonce « finished » sans rien faire) ; un
+  TAG maintient des commits en vie et `push --all` ne le pousse pas ; les
+  `refs/pull/N/head` ne se suppriment PAS — seul GitHub Support les purge.
+- **Reste ouvert** : demande à GitHub Support pour purger `refs/pull/8` et
+  `refs/pull/9`, qui exposent encore 2 013 personnes et 588 numéros.

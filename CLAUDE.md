@@ -265,6 +265,10 @@ clôture au 10/08 alors qu'IDBourse ne l'avait plus coté depuis le 05/08.
 > journal des décisions. La mémoire que le projet croyait avoir n'existait pas.
 
 - Lire `.claude/memory/ERRORS.md` à chaque session pour ne pas répéter les erreurs passées
+- **`.claude/memory/INCIDENT_VIE_PRIVEE.md`** — les noms et numéros de
+  2 092 personnes sont restés publics du 05/06 au 03/09/2026. À lire avant
+  toute manipulation touchant le corpus WhatsApp, les sorties NLP ou
+  l'historique git. Contient cinq pièges rencontrés pour de vrai.
 - Lire `.claude/memory/LEARNINGS.md` pour les apprentissages et découvertes du projet
 - **Lire `.claude/memory/EN_COURS.md` EN PREMIER** : ce qui est attendu, ce qui
   est incertain, et l'ordre de la feuille de route. Fichier court, tenu à jour.

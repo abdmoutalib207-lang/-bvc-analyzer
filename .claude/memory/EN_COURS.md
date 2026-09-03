@@ -1,3 +1,15 @@
+# En cours
+
+## ⚠️ EN ATTENTE — ne pas oublier
+
+**Demande à GitHub Support** : purger `refs/pull/8/head` et
+`refs/pull/9/head`, qui exposent encore 2 013 personnes et 588 numéros de
+téléphone (catégorie « Removing sensitive data »). Tout le reste est
+nettoyé. Détail : `.claude/memory/INCIDENT_VIE_PRIVEE.md`.
+
+⚠️ **Ne pas rouvrir de pull request depuis une branche portant l'ancien
+historique** — cela recréerait une référence exposée.
+
 # En cours — à lire au démarrage de chaque session
 
 > Mis à jour le **31/08/2026, 20h00 Casablanca** (lundi soir, après clôture).

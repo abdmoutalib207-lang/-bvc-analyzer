@@ -238,3 +238,25 @@ d'autre titre, et le seuil de 10 minutes est arbitraire (30 min donne ×15,1).
 ⚠️ **Leçon de méthode** : une mesure qui contredit l'intuition du propriétaire
 du produit doit être suspectée AVANT d'être opposée. Il connaît son corpus ;
 ici il savait comment se lit une discussion, et le compteur ne le savait pas.
+
+## Sur les données personnelles (03/09/2026)
+
+- **Un jeu de test ne porte jamais l'identité d'une personne réelle.** Inventer
+  un nom coûte trois secondes ; le retirer de 106 commits a coûté une journée.
+- **Un commentaire qui explique comment on protège quelqu'un ne le nomme pas.**
+- **⚠️ Vérifier le RÉSULTAT, jamais le message de l'outil.** `git filter-repo`
+  a annoncé « Completely finished » deux fois de suite sans avoir nettoyé quoi
+  que ce soit. Seule la relecture du dépôt réécrit l'a montré.
+- **Supprimer un fichier ne l'efface pas de git.** Cela ajoute un commit qui
+  dit « ce fichier n'existe plus » ; toutes les versions passées restent
+  lisibles en deux clics. C'est la question qu'a posée Abd Moutalib, et c'est
+  le piège central de git.
+- **Après une réécriture d'historique, contrôler TROIS endroits distincts** :
+  les branches, les tags, les références de pull requests. Un seul oublié
+  maintient tout le reste en vie — le tag `v1.0-data` retenait 164 commits.
+- **Purger un fichier vaut mieux que le réécrire ligne à ligne**, quand c'est
+  une sortie régénérable : 21 secondes contre 75 minutes, et le résultat est
+  total au lieu d'être approché.
+- **Ne pas confondre « introuvable » et « effacé ».** Après réparation, un
+  clone normal ne donne rien — mais les objets existent encore. Le dire
+  autrement serait mentir au propriétaire.
