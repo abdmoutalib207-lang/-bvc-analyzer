@@ -97,7 +97,7 @@ def _noms_originaux(chemins) -> set[str]:
 def _traiter_html(chemin: Path, table: TablePseudonymes, noms) -> int:
     """Remplace les noms connus dans un fichier texte.
 
-    Les plus longs d'abord : sans cela « Mehdi » remplacerait le début de
+    Les plus longs d'abord : sans cela « Karim » remplacerait le début de
     « Karim Doe Groupe Test » et laisserait la fin du nom en clair.
     """
     if not chemin.exists():
@@ -110,7 +110,7 @@ def _traiter_html(chemin: Path, table: TablePseudonymes, noms) -> int:
 
         # Le « ~ » que WhatsApp place devant un membre absent du carnet
         # d'adresses fait partie de l'affichage, pas du nom. Sans l'absorber,
-        # « M9925 » deviendrait « ~ M0421 » et garderait sa marque.
+        # « ~ Doe Karim » deviendrait « ~ M0421 » et garderait sa marque.
         # ⚠️ `\s*` et non `\s?` : il ne doit PAS manger l'espace du texte qui
         # précède quand il n'y a pas de tilde — c'est ce qui avait produit
         # « présenté comme uneM0545 » dans le frontend le 02/09.

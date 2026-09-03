@@ -105,7 +105,7 @@ def test_un_nouveau_membre_ne_renumerote_pas_les_anciens(tmp_path):
     ("Karim Doe", "karim doe"),          # casse
     ("Karim  Doe", "Karim Doe"),         # espaces multiples
     ("Karim Doe ", " Karim Doe"),        # bords
-    ("Mehdi Doe", "Karim Doe"),     # espace insécable
+    ("Karim Doe", "Karim Doe"),     # espace insécable
     ("Méhdi", "Méhdi"),             # accent composé vs précomposé
 ])
 def test_les_variantes_d_ecriture_donnent_le_meme_numero(table, a, b):
@@ -292,7 +292,7 @@ def test_un_nom_compose_est_remplace_meme_en_texte_libre(tmp_path):
     _traiter_html(f, t, {"Karim Doe Groupe Test"})
     sortie = f.read_text(encoding="utf-8")
 
-    assert "Mehdi" not in sortie and "Doe" not in sortie
+    assert "Karim" not in sortie and "Doe" not in sortie
     assert "Selon M" in sortie, "le tilde ou l'espace du texte a été mangé"
 
 
@@ -335,7 +335,7 @@ def test_une_mention_arobase_est_remplacee():
         t = TablePseudonymes(Path(d) / "p.json")
         noms = {"Karim Doe Groupe Test", "analyse"}
         sortie = pseudonymiser_texte("@Karim Doe Groupe Test jbedtini 😂", t, noms)
-        assert "Mehdi" not in sortie and "Doe" not in sortie
+        assert "Karim" not in sortie and "Doe" not in sortie
         assert "jbedtini" in sortie
 
 
@@ -361,4 +361,4 @@ def test_un_nom_compose_est_remplace_meme_sans_arobase():
     with tempfile.TemporaryDirectory() as d:
         t = TablePseudonymes(Path(d) / "p.json")
         s = pseudonymiser_texte("comme disait Karim Doe hier", t, {"Karim Doe"})
-        assert "Mehdi" not in s and "comme disait" in s
+        assert "Karim" not in s and "comme disait" in s
