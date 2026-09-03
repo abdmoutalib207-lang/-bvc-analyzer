@@ -11,6 +11,7 @@ Trois façons d'échouer :
   3. échantillonner sans plafond et n'annoter que cinq personnes.
 """
 
+import re
 from datetime import datetime, timedelta
 
 import pytest
@@ -205,3 +206,53 @@ def test_une_ligne_mal_formee_ne_fait_pas_planter(tmp_path):
     )
     msgs = list(lire_corpus(f))
     assert len(msgs) == 1 and msgs[0].auteur == "B"
+
+
+# ── Marques Unicode invisibles ────────────────────────────────────────────
+
+def test_les_marques_invisibles_ne_masquent_pas_un_message(tmp_path):
+    """WhatsApp insère des marques de direction invisibles (U+200E, U+200F…)
+    en tête de certaines lignes — fréquent dans un corpus arabe/darija, où le
+    sens d'écriture change.
+
+    Ancrer le motif sur « ^[ » sans les retirer fait manquer ces lignes : elles
+    sont recollées au message précédent, et LE NOM DE L'AUTEUR se retrouve dans
+    le corps du texte, là où la pseudonymisation ne le cherche pas.
+
+    Mesuré le 03/09/2026 : 116 940 messages avalés sur 1 036 309, soit plus de
+    11 % du corpus — et un nom réel visible dans le premier échantillon relu.
+    """
+    from whatsapp_analysis.fils import lire_corpus
+
+    f = tmp_path / "chat.txt"
+    f.write_text(
+        "[12/03/2026 10:00:00] Alice: ADI monte\n"
+        "‎[12/03/2026 10:01:00] Bob Dupont: je confirme\n"
+        "‏[12/03/2026 10:02:00] Carole: موافق\n",
+        encoding="utf-8",
+    )
+    msgs = list(lire_corpus(f))
+
+    assert len(msgs) == 3, "une ligne précédée d'une marque invisible a été avalée"
+    assert [m.auteur for m in msgs] == ["Alice", "Bob Dupont", "Carole"]
+    for m in msgs:
+        assert "Bob Dupont" not in m.texte, "nom d'auteur recollé dans le corps"
+        assert not re.search(r"\[\d{2}/\d{2}/\d{4}", m.texte), "en-tête recollé"
+
+
+def test_aucun_en_tete_ne_survit_dans_le_corps_d_un_message(tmp_path):
+    """Garde-fou général : quelle que soit la marque, un en-tête de message ne
+    doit jamais se retrouver dans le texte d'un autre."""
+    from whatsapp_analysis.fils import lire_corpus
+
+    f = tmp_path / "chat.txt"
+    f.write_text(
+        "".join(
+            f"{marque}[12/03/2026 10:0{i}:00] Auteur{i}: message {i}\n"
+            for i, marque in enumerate("‎‏‪⁦﻿")
+        ),
+        encoding="utf-8",
+    )
+    msgs = list(lire_corpus(f))
+    assert len(msgs) == 5
+    assert all("Auteur" not in m.texte for m in msgs)

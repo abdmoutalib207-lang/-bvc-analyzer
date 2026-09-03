@@ -174,3 +174,31 @@ def pseudonymiser_colonne(serie, table: TablePseudonymes):
     """
     table.amorcer(serie.dropna().unique())
     return serie.map(lambda n: table.pseudonyme(n))
+
+
+def pseudonymiser_texte(texte: str, table: "TablePseudonymes", noms) -> str:
+    """Remplace les noms de membres CITÉS DANS LE CORPS d'un message.
+
+    ⚠️ Angle mort découvert le 03/09/2026. La pseudonymisation ne traitait que
+    la colonne auteur. Or les membres se citent entre eux : « @Karim Doe
+    Groupe Masi jbedtini 😂 ». Un extrait de conversation nettoyé côté auteur
+    laissait donc des noms en clair dans le texte.
+
+    Toute sortie contenant du texte de message doit passer par ici.
+
+    Deux formes acceptées, et pas une de plus :
+    - `@Nom` — l'arobase délimite, aucune ambiguïté ;
+    - un nom en PLUSIEURS MOTS — improbable dans une phrase ordinaire.
+
+    Un nom d'un seul mot sans arobase n'est PAS remplacé : un membre s'appelle
+    « analyse », et le remplacer partout avait effacé le mot français jusque
+    dans la mention légale du terminal (incident du 02/09).
+    """
+    if not texte:
+        return texte
+    for nom in sorted({n for n in noms if n and len(n) >= 4}, key=len, reverse=True):
+        pseudo = table.pseudonyme(nom)
+        texte = re.sub(r"@\s*" + re.escape(nom), pseudo, texte, flags=re.IGNORECASE)
+        if " " in nom.strip():
+            texte = re.sub(re.escape(nom), pseudo, texte, flags=re.IGNORECASE)
+    return texte

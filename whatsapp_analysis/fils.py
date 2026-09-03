@@ -67,6 +67,16 @@ from typing import Iterable, Iterator, List, Sequence
 from whatsapp_analysis.config import BVC_TICKERS
 
 # Format d'export WhatsApp iOS : [JJ/MM/AAAA HH:MM:SS] Auteur: texte
+#
+# ⚠️ WhatsApp insère des marques Unicode INVISIBLES en tête de certaines lignes
+# (U+200E left-to-right mark, U+200F right-to-left, U+202A…U+202E). Ancrer le
+# motif sur « ^\[ » sans les enlever fait manquer ces lignes : elles sont alors
+# recollées au message précédent comme s'il s'agissait d'une continuation — et
+# le NOM DE L'AUTEUR se retrouve dans le corps du message, où la
+# pseudonymisation ne le cherche pas. Repéré le 03/09/2026 sur le premier
+# échantillon relu : « Karim Doe Groupe Test » en clair au milieu d'un texte.
+# Un corpus arabe/darija en contient beaucoup : le sens d'écriture change.
+MARQUES_INVISIBLES = str.maketrans("", "", "\u200e\u200f\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069\ufeff")
 LIGNE = re.compile(r"^\[(\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2})\]\s*([^:]+):\s*(.*)$")
 HORODATAGE = "%d/%m/%Y %H:%M:%S"
 
@@ -132,6 +142,7 @@ def lire_corpus(chemin: Path | str) -> Iterator[Message]:
     courant: Message | None = None
     with open(chemin, encoding="utf-8", errors="ignore") as f:
         for ligne in f:
+            ligne = ligne.translate(MARQUES_INVISIBLES)
             m = LIGNE.match(ligne)
             if m:
                 if courant is not None:

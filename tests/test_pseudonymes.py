@@ -319,3 +319,46 @@ def test_le_frontend_publie_ne_contient_aucun_nom_de_membre():
                 fautes.append(valeur)
 
     assert not fautes, f"nom de personne en clair dans index.html : {fautes[:5]}"
+
+
+# ── Noms cités DANS le corps des messages ─────────────────────────────────
+
+def test_une_mention_arobase_est_remplacee():
+    """Les membres se citent entre eux. Nettoyer la colonne auteur ne suffit
+    pas : « @Karim Doe Groupe Test jbedtini » laissait un nom en clair dans
+    un extrait de conversation (03/09/2026)."""
+    from whatsapp_analysis.pseudonymes import pseudonymiser_texte
+    import tempfile
+    from pathlib import Path
+
+    with tempfile.TemporaryDirectory() as d:
+        t = TablePseudonymes(Path(d) / "p.json")
+        noms = {"Karim Doe Groupe Test", "analyse"}
+        sortie = pseudonymiser_texte("@Karim Doe Groupe Test jbedtini 😂", t, noms)
+        assert "Mehdi" not in sortie and "Doe" not in sortie
+        assert "jbedtini" in sortie
+
+
+def test_un_nom_d_un_seul_mot_sans_arobase_est_laisse():
+    """Même garde que pour le frontend : un membre s'appelle « analyse »."""
+    from whatsapp_analysis.pseudonymes import pseudonymiser_texte
+    import tempfile
+    from pathlib import Path
+
+    with tempfile.TemporaryDirectory() as d:
+        t = TablePseudonymes(Path(d) / "p.json")
+        phrase = "je fais une analyse rapide du titre"
+        assert pseudonymiser_texte(phrase, t, {"analyse"}) == phrase
+        # mais avec l'arobase, c'est bien une mention
+        assert "analyse" not in pseudonymiser_texte("@analyse tu en penses quoi", t, {"analyse"})
+
+
+def test_un_nom_compose_est_remplace_meme_sans_arobase():
+    from whatsapp_analysis.pseudonymes import pseudonymiser_texte
+    import tempfile
+    from pathlib import Path
+
+    with tempfile.TemporaryDirectory() as d:
+        t = TablePseudonymes(Path(d) / "p.json")
+        s = pseudonymiser_texte("comme disait Karim Doe hier", t, {"Karim Doe"})
+        assert "Mehdi" not in s and "comme disait" in s
