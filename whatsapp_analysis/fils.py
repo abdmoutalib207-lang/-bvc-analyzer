@@ -82,14 +82,91 @@ HORODATAGE = "%d/%m/%Y %H:%M:%S"
 
 TROU_DEFAUT = 10  # minutes de silence qui ferment un fil
 
+# Messages sans contenu textuel exploitable. Le corps est un libellé posé par
+# WhatsApp là où le média a été retiré de l'export.
+MEDIA_OU_SUPPRIME = re.compile(
+    r"image absente|vidéo absente|audio absent|sticker omis|GIF absent|"
+    r"document absent|fichier joint absent|contact partagé|<Media omitted>|"
+    r"Ce message a été supprimé|This message was deleted",
+    re.IGNORECASE,
+)
+
 # ⚠️ 81 tickers ici contre 80 dans `bvc_config.TICKERS_ALL` : l'écart est TIM,
 # radié le 10/06/2024. C'est VOULU. La radiation interdit de publier une note
 # sur TIM aujourd'hui ; elle n'efface pas les conversations de 2020 à 2024, qui
 # restent de la matière d'apprentissage légitime. Ne pas « corriger » cet écart
 # sans mesurer ce qu'on perd.
+# Les membres emploient AUSSI les codes officiels de la Bourse, qui diffèrent
+# des nôtres : « Sid » est Sonasid (notre SNA), « Fbr » Fenie Brossette, « Tgc »
+# TGCC. Ne pas les connaître laissait la conversation dériver sans qu'on le voie
+# — repéré par Abd Moutalib le 03/09/2026 en relisant un fil parti de SNEP et
+# terminé sur FBR. 10,1 % des fils contenaient un tel code après leur amorce.
+#
+# Chaque code officiel est traduit vers NOTRE ticker : sans ça on créerait des
+# titres fantômes au lieu d'enrichir les vrais.
+#
+# ⚠️ PRO et CAP sont exclus : ce sont des mots français, écrits en minuscules
+# dans 82 % et 78 % des cas contre 20-30 % pour les vrais codes. Même piège que
+# le membre nommé « analyse » (02/09). Les 28 autres ont été vérifiés sur des
+# exemples réels — tous étaient des mentions de titre, « Imo » compris.
+_CODES_EXCLUS = {"PRO", "CAP"}
+
+def _table_detection() -> dict:
+    """token reconnu (majuscules) → notre ticker."""
+    table = {t.upper(): t for t in BVC_TICKERS}
+    try:
+        from bvc_config import IDB_TICKER_MAP
+    except ImportError:                     # le module doit rester utilisable seul
+        return table
+    for notre, officiel in IDB_TICKER_MAP.items():
+        code = (officiel or "").upper()
+        if code and code not in table and code not in _CODES_EXCLUS:
+            table[code] = notre
+    return table
+
+
+TOKENS = _table_detection()
+
 _RX_TICKERS = re.compile(
-    r"\b(" + "|".join(sorted(set(BVC_TICKERS), key=len, reverse=True)) + r")\b"
+    r"\b(" + "|".join(sorted(TOKENS, key=len, reverse=True)) + r")\b",
+    re.IGNORECASE,
 )
+
+
+# ⚠️ NEUF TOKENS SONT AUSSI DES MOTS COURANTS et n'ont le droit d'être reconnus
+# qu'ÉCRITS EN CAPITALES. Mesuré sur le corpus, part écrite en minuscules :
+#
+#     LES  126 164 occurrences  87 %   l'article français
+#     CASH   4 365              90 %   « cash »
+#     CAR    4 485              81 %   la conjonction
+#     DIS    3 636              94 %   « dis »
+#     BCP    3 815              79 %   abréviation de « beaucoup »
+#     GAZ      938              80 %   « gaz »
+#     DAR      449              67 %   « dar » — maison, en darija
+#     DSW      110              75 %
+#     UNI       65              62 %
+#
+# Une majuscule initiale ne suffit PAS pour eux : « Les actions montent » en
+# début de phrase porte une capitale. Seule la forme tout en capitales tranche.
+# On perd quelques mentions réelles ; on évite 126 000 faux positifs sur le seul
+# mot « les ». Sans cette garde, rendre la recherche insensible à la casse — ce
+# qu'exigent « Sid » et « fbr » — inondait le corpus de bruit.
+EXIGENT_CAPITALES = frozenset(
+    {"LES", "CASH", "CAR", "DIS", "BCP", "GAZ", "DAR", "DSW", "UNI"}
+)
+
+
+def detecter_tickers(texte: str) -> frozenset:
+    """Tickers cités dans un texte, codes officiels traduits vers les nôtres."""
+    trouves = set()
+    for brut in _RX_TICKERS.findall(texte or ""):
+        cle = brut.upper()
+        if cle not in TOKENS:
+            continue
+        if cle in EXIGENT_CAPITALES and brut != cle:
+            continue                        # écrit en minuscules : c'est un mot
+        trouves.add(TOKENS[cle])
+    return frozenset(trouves)
 
 
 @dataclass
@@ -128,6 +205,34 @@ class Fil:
     def auteurs(self) -> set:
         return {m.auteur for m in self.messages}
 
+    @property
+    def part_lisible(self) -> float:
+        """Part des messages qui contiennent réellement quelque chose à lire.
+
+        ⚠️ Constat d'Abd Moutalib le 03/09/2026, en relisant un fil : « les
+        images qui ne figurent pas, on ne sait pas de quel titre on parle ».
+        Mesuré sur les 698 590 messages rattachés :
+
+            images, médias, messages supprimés    81 539    11,7 %
+            deux mots ou moins (« ok », « 👍 »)   99 698    14,3 %
+            ─────────────────────────────────────────────────────
+            réellement lisibles                  517 353    74,1 %
+
+        Une capture d'écran d'un carnet d'ordres est peut-être le message le
+        plus informatif d'un fil, et elle est perdue définitivement : l'export
+        « sans médias » ne contient pas les images.
+
+        Un fil composé pour moitié d'images ne doit donc pas peser autant qu'un
+        fil argumenté. Sans cette mesure ils comptent pareil.
+        """
+        if not self.messages:
+            return 0.0
+        lisibles = sum(
+            1 for m in self.messages
+            if not MEDIA_OU_SUPPRIME.search(m.texte) and len(m.texte.split()) > 2
+        )
+        return lisibles / len(self.messages)
+
     def __len__(self) -> int:
         return len(self.messages)
 
@@ -157,12 +262,12 @@ def lire_corpus(chemin: Path | str) -> Iterator[Message]:
                     ts=ts,
                     auteur=m.group(2).strip(),
                     texte=texte,
-                    tickers=frozenset(_RX_TICKERS.findall(texte)),
+                    tickers=detecter_tickers(texte),
                 )
             elif courant is not None:
                 suite = ligne.rstrip("\n")
                 courant.texte += "\n" + suite
-                courant.tickers |= frozenset(_RX_TICKERS.findall(suite))
+                courant.tickers |= detecter_tickers(suite)
     if courant is not None:
         yield courant
 

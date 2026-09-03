@@ -256,3 +256,62 @@ def test_aucun_en_tete_ne_survit_dans_le_corps_d_un_message(tmp_path):
     msgs = list(lire_corpus(f))
     assert len(msgs) == 5
     assert all("Auteur" not in m.texte for m in msgs)
+
+
+# ── Codes officiels BVC ───────────────────────────────────────────────────
+
+def test_les_codes_officiels_sont_traduits_vers_nos_tickers():
+    """Les membres écrivent « Sid » pour Sonasid, « Fbr » pour Fenie Brossette.
+    Ne pas les connaître laissait les fils dériver — 10,1 % d'entre eux."""
+    from whatsapp_analysis.fils import detecter_tickers
+
+    assert detecter_tickers("Sid volume") == frozenset({"SNA"})
+    assert detecter_tickers("Tgc un titre de PEA") == frozenset({"TGCC"})
+    assert "SID" not in detecter_tickers("Sid volume"), "titre fantôme créé"
+
+
+@pytest.mark.parametrize("phrase", [
+    "Daba tous les monde vers le marché",   # « les » ≠ Lesieur
+    "je dis que car il faut attendre",      # « dis », « car »
+    "bcp de volume aujourd'hui",            # « bcp » = beaucoup
+    "khouya dar dyalo bعيدة",               # « dar » = maison, en darija
+    "je suis pro du cap sur ce dossier",    # PRO et CAP, exclus
+])
+def test_les_mots_courants_ne_sont_pas_pris_pour_des_titres(phrase):
+    """126 164 occurrences de « les » dans le corpus, à 87 % en minuscules.
+    Rendre la recherche insensible à la casse — nécessaire pour « Sid » — sans
+    cette garde inondait le corpus de faux positifs."""
+    from whatsapp_analysis.fils import detecter_tickers
+
+    assert detecter_tickers(phrase) == frozenset(), f"faux positif sur : {phrase!r}"
+
+
+def test_les_memes_mots_en_capitales_restent_des_titres():
+    """La garde ne doit pas rendre ces titres indétectables : en capitales,
+    l'intention est claire."""
+    from whatsapp_analysis.fils import detecter_tickers
+
+    assert detecter_tickers("CASH et GAZ en hausse") == frozenset({"CASH", "GAZ"})
+    assert detecter_tickers("LES a bien clôturé") == frozenset({"LES"})
+
+
+# ── Lisibilité d'un fil ───────────────────────────────────────────────────
+
+def test_part_lisible_ecarte_images_et_messages_vides():
+    """« Les images qui ne figurent pas, on ne sait pas de quel titre on parle. »
+    Un fil moitié images ne doit pas peser autant qu'un fil argumenté."""
+    fils = decouper_en_fils([
+        msg(0, "ADI publie ses résultats demain matin", tickers=["ADI"]),
+        msg(1, "image absente"),
+        msg(2, "👍"),
+        msg(3, "le chiffre d'affaires progresse de 12 %"),
+    ])
+    assert fils[0].part_lisible == 0.5
+
+
+def test_part_lisible_d_un_fil_entierement_lisible():
+    fils = decouper_en_fils([
+        msg(0, "ADI publie ses résultats demain", tickers=["ADI"]),
+        msg(1, "oui je surveille ça de près"),
+    ])
+    assert fils[0].part_lisible == 1.0
