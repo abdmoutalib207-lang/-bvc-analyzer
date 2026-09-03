@@ -35,8 +35,12 @@ def test_le_pseudonyme_ne_contient_rien_du_nom(table):
     for nom in ["Karim Doe Groupe Test", "exemple2", "+212 6 00 00 00 00"]:
         p = table.pseudonyme(nom)
         assert p.startswith("M") and p[1:].isdigit()
+        # Fragments d'au moins trois caractères seulement : « 00 » se
+        # retrouve forcément dans « M0003 » sans que rien n'ait fuité. Un
+        # fragment de deux caractères ne dit rien de l'identité.
         for morceau in nom.lower().replace("+", " ").split():
-            assert morceau not in p.lower()
+            if len(morceau) >= 3:
+                assert morceau not in p.lower()
 
 
 def test_un_numero_de_telephone_est_traite_comme_un_nom(table):
