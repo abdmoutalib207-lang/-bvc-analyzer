@@ -117,6 +117,37 @@ ce jour-là. **Une docstring qui affirme un comportement non implémenté est un
 mensonge dans le code** — plus dangereux qu'un commentaire absent, parce qu'on
 s'y fie.
 
+## Famille 7 — Un objet composite qu'aucun test ne relit entier
+
+### 3 238 bougies impossibles, depuis l'origine (trouvé le 04/09)
+L'étape 6c d'`update_data.py` amorçait les extrêmes sur la seule clôture
+(`"h": c_price, "l": c_price`) puis ne les étendait qu'avec les cours des runs
+suivants. **L'ouverture, qui vient d'une autre source, n'entrait jamais dans la
+fourchette.** Dès que `o ≠ c`, la bougie naissait impossible : plus haut sous
+l'ouverture quand le titre baissait, plus bas au-dessus quand il montait.
+
+    ADI 28/08   o=438,00  h=434,10   ← le plus haut sous l'ouverture
+    ADI 24/08   o=430,00  l=436,20   ← le plus bas au-dessus
+
+**Portée** : 3 238 bougies sur 32 677 (**9,9 %**), **73 tickers sur 74**.
+**Cause** : les quatre champs d'une bougie sont écrits séparément et personne
+ne relisait l'objet entier. Le projet vérifiait les **dates** des bougies
+(séance fantôme, cliquet), leurs **ruptures** entre séances (`validate_candles`,
+±50 %), leur **nombre** — jamais leur cohérence interne. Une bougie fausse mais
+plausible ligne à ligne passe tous ces filtres.
+**Signal** : un invariant arithmétique gratuit — `l ≤ min(o,c) ≤ max(o,c) ≤ h`.
+Il ne demande aucune source extérieure et ne peut pas produire de faux positif.
+**Trouvé** parce qu'Abd Moutalib a imprimé la page officielle de la BVC depuis
+un poste marocain et l'a envoyée : les dates et les ouvertures concordaient
+10/10, ce qui a mis l'œil sur des colonnes qu'on ne regardait jamais.
+**Correctif** : source corrigée (l'ouverture entre dans la fourchette),
+`seance.reparer_ohlc()` pour l'existant, contrôle dans `verifier_seance.py`,
+7 tests.
+
+**Leçon générale : ce qui n'est jamais relu comme un tout se casse comme un
+tout.** Chercher les invariants internes des objets composites du projet —
+il en reste (`_meta` contre le prix qu'il décrit, cap contre prix × titres).
+
 ## Le motif commun
 
 Presque toutes ces erreurs ont la même forme : **une autorité unique à laquelle

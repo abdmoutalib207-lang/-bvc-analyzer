@@ -161,6 +161,30 @@ def _controles(jour, ecart):
     ajouter(f"bougies de la séance ({MIN_BOUGIES} minimum)",
             n >= MIN_BOUGIES, f"{n} titres")
 
+    # Une bougie ne peut pas ouvrir ni clôturer hors de sa propre fourchette.
+    # Contrôle ajouté le 04/09/2026, après avoir trouvé 3 238 bougies (9,9 %)
+    # dont le plus haut était inférieur à l'ouverture : l'étape 6c amorçait
+    # les extrêmes sur la seule clôture. La source est corrigée, ce test
+    # interdit la rechute — et il porte sur TOUT l'historique, pas seulement
+    # sur la dernière séance, parce que trois écrivains distincts y touchent.
+    incoherentes = []
+    for f in dossier.glob("*.json"):
+        try:
+            serie = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(serie, list):
+            continue
+        for b in serie:
+            o, h, l, c = (b.get(k) for k in ("o", "h", "l", "c"))
+            if None in (o, h, l, c):
+                continue
+            if l > min(o, c) + 1e-9 or h < max(o, c) - 1e-9:
+                incoherentes.append(f"{f.stem} {b.get('d')}")
+    ajouter("bougies cohérentes (l ≤ o,c ≤ h)", not incoherentes,
+            f"{len(incoherentes)} incohérentes — {', '.join(incoherentes[:3])}…"
+            if incoherentes else "toutes")
+
     return resultats
 
 

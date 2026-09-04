@@ -97,6 +97,73 @@ def purger_seance_fantome(candles_dir=None, dry_run=False):
     return derniere, n
 
 
+def reparer_ohlc(candles_dir=None, dry_run=False):
+    """Force l'invariant `l ≤ min(o, c) ≤ max(o, c) ≤ h` sur toutes les bougies.
+
+    POURQUOI
+    ────────
+    Découvert le 04/09/2026 en recoupant nos chandelles ADI avec la page
+    officielle `casablanca-bourse.com/market-data/cours` : les dates et les
+    ouvertures concordaient 10/10, mais plusieurs bougies portaient un plus
+    haut INFÉRIEUR à leur ouverture. Structurellement impossible.
+
+    Cause : l'étape 6c d'`update_data.py` amorçait `h` et `l` sur la seule
+    clôture, puis ne les étendait qu'avec les cours suivants. L'ouverture,
+    qui vient d'une autre source, n'entrait jamais dans la fourchette. Dès que
+    o ≠ c la bougie naissait fausse — d'où **3 238 bougies sur 32 677 (9,9 %),
+    sur 73 tickers**. La source est corrigée ; ceci répare l'existant.
+
+    ⚠️ CE QUE CETTE RÉPARATION N'EST PAS. Elle n'invente aucun extrême et ne
+    prétend pas retrouver le vrai plus-haut de la séance. Elle n'écrit que ce
+    qui est certain : le titre a coté à `o` et à `c`, donc son plus haut réel
+    était au moins `max(o, c)` et son plus bas au plus `min(o, c)`. Les bornes
+    obtenues restent des minorants — la vraie amplitude intraday leur est
+    supérieure ou égale. C'est le seul élargissement démontrable sans source
+    intraday, et il est strictement plus juste que l'état actuel.
+
+    Retourne (bougies_corrigées, fichiers_touchés).
+    """
+    d = Path(candles_dir) if candles_dir else CANDLES_DIR
+    if not d.exists():
+        return 0, 0
+
+    total, fichiers = 0, 0
+    for f in sorted(d.glob("*.json")):
+        try:
+            serie = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(serie, list):
+            continue
+
+        n = 0
+        for bougie in serie:
+            o, h, l, c = (bougie.get(k) for k in ("o", "h", "l", "c"))
+            if None in (o, h, l, c):
+                continue
+            try:
+                o, h, l, c = float(o), float(h), float(l), float(c)
+            except (TypeError, ValueError):
+                continue
+            haut, bas = round(max(h, o, c), 2), round(min(l, o, c), 2)
+            if haut != round(h, 2) or bas != round(l, 2):
+                bougie["h"], bougie["l"] = haut, bas
+                n += 1
+
+        if n and not dry_run:
+            f.write_text(json.dumps(serie, separators=(",", ":")), encoding="utf-8")
+        if n:
+            total += n
+            fichiers += 1
+
+    if total:
+        log.warning(
+            f"OHLC incohérentes : {total} bougies sur {fichiers} tickers — "
+            f"fourchette élargie à [min(o,c), max(o,c)]."
+            + (" [simulation]" if dry_run else ""))
+    return total, fichiers
+
+
 def derniere_seance_connue(candles_dir=None):
     """Date de la séance la plus récente présente dans les chandelles.
 
@@ -124,6 +191,13 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--dry-run", action="store_true",
                    help="signaler sans modifier les fichiers")
+    p.add_argument("--ohlc", action="store_true",
+                   help="réparer les fourchettes qui n'englobent pas o/c")
     a = p.parse_args()
-    date, n = purger_seance_fantome(dry_run=a.dry_run)
-    print(f"{n} bougies retirées ({date})" if date else "aucune séance fantôme")
+    if a.ohlc:
+        n, fichiers = reparer_ohlc(dry_run=a.dry_run)
+        print(f"{n} bougies corrigées sur {fichiers} tickers"
+              if n else "aucune bougie incohérente")
+    else:
+        date, n = purger_seance_fantome(dry_run=a.dry_run)
+        print(f"{n} bougies retirées ({date})" if date else "aucune séance fantôme")

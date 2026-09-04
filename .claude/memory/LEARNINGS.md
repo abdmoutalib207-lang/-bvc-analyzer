@@ -52,6 +52,34 @@
   La fragilité est technique et contractuelle. Le vrai chantier stratégique est
   un accès légitime, pas une machine de collecte plus astucieuse.
 
+### La BVC elle-même — `casablanca-bourse.com/market-data/cours` (04/09/2026)
+
+Relevé sur la page officielle, imprimée depuis un poste marocain (le domaine
+est injoignable depuis le conteneur : TLS coupé à la poignée de main, tunnel
+fermé code 1006 — ce n'est pas testable d'ici, seulement de là-bas).
+
+- **La BVC publie l'historique par instrument, gratuitement, sur 3 ans**, avec
+  un bouton **« Télécharger les données (Excel) »**. Au-delà de 3 ans, il faut
+  passer par l'offre Market Data payante (« Obtenir un devis »).
+- ⚠️ **C'est une page par titre, pas un instantané du marché.** Elle ne
+  remplace pas la chaîne de collecte : il faudrait 81 requêtes pour une séance.
+  Sa valeur est celle d'un **juge de paix**, au même titre que le bulletin CDG,
+  et avec une autorité supérieure — c'est l'opérateur du marché lui-même.
+- **La BVC compte 81 actions.** Chiffre affiché sur la page, « Nombre total
+  d'actions / Instruments disponibles ». Cela tranche l'hésitation 77/80/81 du
+  projet **du côté du référentiel** : `TICKERS_ALL` (81) est le bon univers.
+  Attention, cela ne dit rien de la couverture d'une séance donnée.
+- **Elle ne liste que les séances où l'instrument a réellement coté.** Pour ADI
+  du 01/08 au 04/09 : 19 séances, sans les 20, 21, 25 et 26/08. C'est
+  exactement l'information qui manque au projet — « ce titre a-t-il coté ce
+  jour-là ? » — et qu'on déduit aujourd'hui par des détours statistiques.
+- **Recoupement du 04/09, ADI, 10 séances : 10 dates et 10 ouvertures
+  identiques aux nôtres.** Aucune séance inventée, aucune manquante. C'est le
+  premier contrôle de nos chandelles contre l'opérateur du marché lui-même.
+  ⚠️ Et c'est ce même recoupement qui a révélé l'incohérence OHLC — cf.
+  `ERRORS.md`, famille 7 : ce qu'on cherche à confirmer n'est pas toujours ce
+  qu'on trouve.
+
 ## Sur l'infrastructure
 
 - **Le déclencheur `schedule` de GitHub n'est pas un rendez-vous.** Mesuré :
