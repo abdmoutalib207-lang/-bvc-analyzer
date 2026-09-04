@@ -2530,24 +2530,38 @@ def run(dry_run=False, push=False, token=""):
                     c_price = round(float(c_price), 2)
                     veille = existing[-1] if existing else None
                     jour = veille if veille and veille.get("d") == today_str else None
+                    # ⚠️ Les extrêmes doivent TOUJOURS englober l'ouverture.
+                    # Le code d'origine amorçait `h` et `l` sur la seule
+                    # clôture puis ne les étendait qu'avec les cours suivants :
+                    # l'ouverture, qui vient d'une autre source, restait hors
+                    # de la fourchette. Dès que o ≠ c la bougie naissait
+                    # impossible — h < o quand le titre baissait, l > o quand
+                    # il montait. Mesuré le 04/09 : **3 238 bougies sur 32 677
+                    # (9,9 %), 73 tickers sur 74**. Un chandelier ne peut pas
+                    # ouvrir hors de son propre range ; RSI, Bollinger et
+                    # Stochastique lisent ces bornes.
                     if jour:
                         # l'ouverture reste celle du premier point ; les
                         # extrêmes s'étendent, la clôture suit le dernier cours
+                        o_price = round(float(jour.get("o", c_price)), 2)
                         today_candle = {
                             "d": today_str,
-                            "o": jour.get("o", c_price),
-                            "h": round(max(jour.get("h", c_price), c_price), 2),
-                            "l": round(min(jour.get("l", c_price), c_price), 2),
+                            "o": o_price,
+                            "h": round(max(jour.get("h", c_price), c_price, o_price), 2),
+                            "l": round(min(jour.get("l", c_price), c_price, o_price), 2),
                             "c": c_price,
                             "v": max(int(entry.get("vol") or 0), int(jour.get("v") or 0)),
                         }
                         existing[-1] = today_candle
                     else:
                         prev_close = veille["c"] if veille else c_price
+                        o_price = round(float(entry.get("open") or prev_close), 2)
                         today_candle = {
                             "d": today_str,
-                            "o": round(float(entry.get("open") or prev_close), 2),
-                            "h": c_price, "l": c_price, "c": c_price,
+                            "o": o_price,
+                            "h": round(max(o_price, c_price), 2),
+                            "l": round(min(o_price, c_price), 2),
+                            "c": c_price,
                             "v": int(entry.get("vol") or 0),
                         }
                         existing.append(today_candle)
@@ -2562,10 +2576,17 @@ def run(dry_run=False, push=False, token=""):
         # sources. Le recalage ci-dessus ne protège que ce run — ce balayage
         # rattrape ce qu'un autre a pu déposer.
         sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
-        from seance import purger_seance_fantome
+        from seance import purger_seance_fantome, reparer_ohlc
         _dj, _nj = purger_seance_fantome()
         if _dj:
             logger.warning(f"  Séance fantôme {_dj} purgée : {_nj} bougies retirées")
+        # Même logique : un balayage global après écriture. Les trois écrivains
+        # de chandelles ont chacun leur façon de composer une bougie, et une
+        # fourchette qui n'englobe pas son ouverture ne se voit qu'en relisant
+        # le fichier. Coût mesuré : 0,3 s sur 32 677 bougies.
+        _no, _fo = reparer_ohlc()
+        if _no:
+            logger.warning(f"  OHLC : {_no} bougies élargies sur {_fo} tickers")
     except Exception as _e:
         logger.warning(f"  Candles J update : {_e}")
 

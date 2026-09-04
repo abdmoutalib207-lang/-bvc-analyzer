@@ -246,12 +246,15 @@ def run(xlsx_only: bool = False):
     # peut se faire qu'ici, une fois tous les titres écrits : c'est à l'échelle
     # du marché que la rediffusion se voit, jamais titre par titre.
     try:
-        from seance import purger_seance_fantome
+        from seance import purger_seance_fantome, reparer_ohlc
     except ImportError:
-        from pipeline.seance import purger_seance_fantome
+        from pipeline.seance import purger_seance_fantome, reparer_ohlc
     _date_fantome, _n = purger_seance_fantome()
     if _date_fantome:
         log.warning(f"   Séance {_date_fantome} purgée : {_n} bougies retirées")
+    _no, _fo = reparer_ohlc()
+    if _no:
+        log.warning(f"   OHLC : {_no} bougies élargies sur {_fo} tickers")
 
     all_results = {**xlsx_results, **med24_results}
     log.info(f"   Tickers couverts: {', '.join(sorted(all_results.keys()))}")
