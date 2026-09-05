@@ -1545,7 +1545,22 @@ def calc_score_tech(rsi, price, ma20, ma50, h90, l90) -> float:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def get_weights(context: dict) -> dict:
-    """WeightEngine.get_weights() — pondération dynamique selon contexte."""
+    """WeightEngine.get_weights() — pondération dynamique selon contexte.
+
+    ⚠️ `masi_ytd` attend la performance de l'indice DEPUIS LE 1ER JANVIER, en
+    pourcentage. Les deux seuils (-5 % et +10 %) sont annuels. Jusqu'au
+    05/09/2026 l'appelant y passait `masi["chg"]`, c'est-à-dire la variation
+    de la SÉANCE : un chiffre qui vaut typiquement ±1 %, donc deux régimes —
+    le mode défensif de marché baissier et le mode haussier — qui ne se sont
+    jamais déclenchés depuis l'origine du projet. Signalé par l'audit externe
+    du 05/09, vérifié ligne par ligne avant correction.
+
+    `None` signifie « inconnu » et neutralise le bloc. C'est volontaire : le
+    projet ne stocke aucun historique de l'indice, donc le YTD réel n'est pas
+    calculable aujourd'hui (cf. `pipeline/masi_history.json`, qui commence à
+    l'enregistrer). Un `0` par défaut aurait affirmé « marché plat » —
+    une affirmation, alors que nous ne savons pas.
+    """
     w = {"technique": 0.25, "fondamental": 0.47, "comportemental": 0.28}
 
     if context.get("market_status") in ["CLOSED", "PRE_MARKET"]:
@@ -1557,11 +1572,12 @@ def get_weights(context: dict) -> dict:
     if context.get("smart_money_active"):
         w["comportemental"] += 0.07; w["technique"] -= 0.04; w["fondamental"] -= 0.03
 
-    masi_ytd = context.get("masi_ytd", 0)
-    if masi_ytd < -5:
-        w["fondamental"] += 0.08; w["comportemental"] -= 0.05; w["technique"] -= 0.03
-    elif masi_ytd > 10:
-        w["technique"] += 0.03; w["fondamental"] -= 0.03
+    masi_ytd = context.get("masi_ytd")
+    if masi_ytd is not None:
+        if masi_ytd < -5:
+            w["fondamental"] += 0.08; w["comportemental"] -= 0.05; w["technique"] -= 0.03
+        elif masi_ytd > 10:
+            w["technique"] += 0.03; w["fondamental"] -= 0.03
 
     if context.get("ticker_coverage", 100) < 50:
         w["comportemental"] -= 0.10; w["fondamental"] += 0.07; w["technique"] += 0.03
@@ -1974,11 +1990,33 @@ def run(dry_run=False, push=False, token=""):
         return None
 
 
+    # Enregistrement de l'indice du jour, AVANT de calculer son YTD : sans
+    # série conservée, la performance depuis janvier n'existe pas. Écriture
+    # idempotente — quatre runs par jour ouvré déposent la même date.
+    _masi_ytd = None
+    try:
+        sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
+        from masi_history import enregistrer as _masi_enr, performance_ytd as _masi_ytd_calc
+        if _masi_enr(masi.get("value"), masi.get("asof")):
+            logger.info(f"  MASI {masi.get('value')} enregistré au {str(masi.get('asof'))[:10]}")
+        _masi_ytd = _masi_ytd_calc(masi.get("asof"))
+    except Exception as _e:
+        logger.warning(f"  Historique MASI indisponible : {_e}")
+
     # Contexte marché global
     mkt_ctx_base = {
         "market_status":    mkt_status,
-        "has_results":      False,
-        "masi_ytd":         masi["chg"],
+        # ⚠️ Non branché : aucun calendrier de publication de résultats
+        # n'existe dans le projet. Le bloc `has_results` de `get_weights()`
+        # est donc inactif — il l'a toujours été, mais un `False` écrit en dur
+        # le faisait passer pour une décision. Le laisser absent dit la
+        # vérité : l'information n'est pas disponible.
+        #
+        # ⚠️ `masi_ytd` attend la performance DEPUIS JANVIER. On y passait la
+        # variation de la séance — un chiffre cent fois trop petit pour des
+        # seuils annuels de ±5 % et +10 %, donc deux régimes de marché morts
+        # depuis l'origine. `None` tant que la série est trop courte.
+        "masi_ytd":         _masi_ytd,
     }
 
     # Pré-chargement des candles OHLCV (pipeline/candles/*.json) pour OBV / ADX

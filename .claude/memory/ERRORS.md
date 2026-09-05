@@ -148,6 +148,53 @@ un poste marocain et l'a envoyée : les dates et les ouvertures concordaient
 tout.** Chercher les invariants internes des objets composites du projet —
 il en reste (`_meta` contre le prix qu'il décrit, cap contre prix × titres).
 
+## Famille 8 — Un nombre qui change de sens en traversant le code
+
+### Le champ `win` : trois horizons pour une seule valeur (05/09)
+La légende du classement l'appelait « probabilité de surperformance **1 mois** »,
+la fiche détaillée « WIN RATE **6M** », et `update_data.py` y injectait
+`p_outperform_**12m**`. Le même nombre portait trois horizons contradictoires.
+
+**Pire** : ce n'était pas une probabilité. Le repli de `phase13_prediction.py`
+calcule `composite / 100 * 0.7`, puis multiplie par 0,9 à chaque horizon.
+Vérifié sur `final_rankings.csv` : **12 lignes sur 12** retrouvent la formule à
+moins de 0,002 près. Aucune fréquence n'a jamais été observée — c'est le score
+remis à l'échelle et rebaptisé.
+
+**Cause** : trois écrivains différents (`update_data.py`, `sync_sentiment.py`,
+le front) alimentaient et affichaient le même champ sans contrat commun.
+`sync_sentiment.py` y met même `p_outperform_1m` quand `update_data.py` y met
+`p_outperform_12m` : selon qui écrit en dernier, l'horizon change.
+**Signal** : un champ écrit par plus d'un programme et lu sous plus d'un nom.
+**Correctif** : libellé unique `SM~`, mention « heuristique, non calibré »,
+suffixe `%` retiré, et deux tests qui échouent si le mot « probabilité »
+revient.
+
+### Des chiffres de performance écrits en dur dans la page (05/09)
+83 % de réussite, +38,3 % de rendement à 12 mois, inscrits dans `index.html`.
+Le dépôt ne contient **ni jeu de données figé, ni commande, ni journal**
+permettant de refaire le calcul.
+**Leçon générale : un résultat qu'on ne peut pas reproduire n'est pas un
+résultat, c'est une affirmation.** Elle est plus dangereuse qu'une donnée
+manquante, parce qu'elle a l'air d'une mesure.
+
+### Deux régimes de marché morts depuis l'origine (05/09)
+`masi_ytd` recevait `masi["chg"]` — la variation de la **séance** — quand ses
+deux seuils (-5 % et +10 %) décrivent une performance **annuelle**. Une
+variation quotidienne vaut ±1 % et la BVC la plafonne à ±10 % par titre : le
+mode défensif ne pouvait s'armer que le jour d'un krach de l'indice entier, et
+le mode haussier jamais. Même famille : `"has_results": False` écrit en dur
+faisait passer une absence d'information pour une décision.
+**Cause** : le nom de la variable disait « ytd », rien ne le vérifiait.
+**Signal** : une unité implicite. `chg`, `ytd`, `pct` — trois choses
+différentes que le typage Python ne distingue pas.
+**Et corriger l'appelant ne suffisait pas** : le projet ne conservait aucune
+valeur passée de l'indice, donc il n'y avait rien à calculer. D'où
+`pipeline/masi_history.py`.
+
+**Trouvé par l'audit externe**, comme l'ADX ×14. Deux fois de suite, le défaut
+structurant a été vu de l'extérieur — pas par les tests, pas par nous.
+
 ## Le motif commun
 
 Presque toutes ces erreurs ont la même forme : **une autorité unique à laquelle
