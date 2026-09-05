@@ -34,7 +34,7 @@
 <script type="text/babel">
 const {useState,useEffect,useMemo,useCallback,useRef} = React;
 
-// ── STATIC FALLBACK DATA (77 tickers) ─────────────────────────────────────────
+// ── STATIC FALLBACK DATA (76 tickers) ─────────────────────────────────────────
 const STATIC = [
   {symbol:"CMT", name:"Minière Touissit"       ,sector:"Mines",        price:4350,  chg:0,vol:150000, cap:10980, pe:22.7,pb:2.0,div:0.50,h90:5162.63, l90:1720.88, rsi:58,ma20:4270.78, ma50:3938.76, bvc:7.16,v53:7.99,delta:0.83,nlp:0.51,alpha:8.3,  win:92, flags:0,upside:13.9,bear:3911.08, base:4954.04,  bull:6192.56,  setup:"MOMENTUM CONFIRME", biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30","+Smart Money (92%) +0.40"], warn:false},
   {symbol:"SMI", name:"SMI"        ,            sector:"Mines",        price:6350,  chg:5.03,vol:500000, cap:17100, pe:24.8,pb:1.4,div:1.04,h90:10641.64,l90:4143.96, rsi:65,  ma20:8046.93, ma50:7010.64, bvc:6.95,v53:7.66,delta:0.71,nlp:0.46,alpha:30.7, win:100,flags:0,upside:14.3,bear:5692.48, base:7259.97,  bull:9074.96, setup:"MOMENTUM CONFIRME", biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30","+Smart Money (100%) +0.40"],warn:false},
@@ -88,7 +88,6 @@ const STATIC = [
   {symbol:"DSW", name:"Disway",                      sector:"Tech",         price:770,   chg:-0.65,  vol:22000,  cap:800,   pe:14.0,pb:2.0,div:3.5,h90:847,  l90:693,  rsi:51,ma20:770,   ma50:770,   bvc:5.90,v53:6.10,delta:0.20,nlp:0.05,alpha:3.0,  win:70, flags:0,upside:5,  bear:641.66,  base:815.83,   bull:1017.5,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
   {symbol:"MOX", name:"Maghreb Oxygène",             sector:"Industrie",    price:401,   chg:8.22,  vol:18000,  cap:750,   pe:12.5,pb:1.6,div:4.0,h90:441.1,  l90:360.9,  rsi:51,ma20:401,   ma50:401,   bvc:5.85,v53:6.05,delta:0.20,nlp:0.04,alpha:3.0,  win:70, flags:0,upside:5,  bear:334.17,  base:423.27,   bull:529.09,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
   {symbol:"STR", name:"Stroc Industrie",             sector:"Industrie",    price:190,   chg:0.08,  vol:15000,  cap:600,   pe:11.0,pb:1.4,div:3.5,h90:246.83,  l90:153.19,  rsi:39.1,ma20:211.51,   ma50:194.76,   bvc:5.60,v53:5.80,delta:0.20,nlp:0.04,alpha:2.0,  win:68, flags:0,upside:5,  bear:217.4,  base:278.07,   bull:347.84,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"TIM", name:"Timar",                       sector:"Services",     price:195,   chg:0,  vol:12000,  cap:500,   pe:13.0,pb:1.5,div:3.0,h90:215,  l90:176,  rsi:51,ma20:195,   ma50:195,   bvc:5.45,v53:5.65,delta:0.20,nlp:0.03,alpha:2.0,  win:67, flags:0,upside:5,  bear:162,  base:207,   bull:258,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
   {symbol:"SNP", name:"SNEP",                        sector:"Industrie",    price:316,  chg:0.64,  vol:9000,   cap:780,  pe:10.5,pb:1.2,div:3.5,h90:420.48, l90:314.3,  rsi:37.4,ma20:322.49,  ma50:331.76,  bvc:5.20,v53:5.40,delta:0.20,nlp:0.03,alpha:2.0,  win:66, flags:1,upside:5,  bear:756.02,  base:959.89,  bull:1201.99,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
   {symbol:"SLM", name:"Salafin",                     sector:"Finance",      price:440,   chg:0,  vol:16000,  cap:1200,  pe:12.0,pb:1.8,div:5.0,h90:484.41,  l90:396.41,  rsi:52,ma20:440,   ma50:440,   bvc:6.10,v53:6.30,delta:0.20,nlp:0.06,alpha:3.0,  win:71, flags:0,upside:5,  bear:365.98,  base:464.67,   bull:580.64,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"ATTENDRE",   bonus:[],warn:false},
   {symbol:"JET", name:"Jet Contractors",             sector:"Construction", price:2084,   chg:0.92,  vol:20000,  cap:6211,   pe:13.5,pb:1.5,div:3.0,h90:2292.4,  l90:1875.6,  rsi:51,ma20:2084,   ma50:2084,   bvc:5.65,v53:5.85,delta:0.20,nlp:0.04,alpha:2.0,  win:68, flags:0,upside:6,  bear:1731.33,  base:2217.59,   bull:2773.33,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
@@ -911,7 +910,7 @@ const TickerTape=({rows})=>{
 };
 
 // ── HEADER ────────────────────────────────────────────────────────────────────
-const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode,masi,majMsg})=>{
+const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode,masi,majMsg,univers})=>{
   const [pulse,setPulse]=useState(false);
   const [clock,setClock]=useState("");
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
@@ -977,7 +976,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
           {fetchErr&&<span style={{fontSize:10,color:"#ff4f5a",marginLeft:8}}>⚠️ Données live indisponibles — affichage statique</span>}
         </div>
         <div style={{textAlign:"right",fontSize:11}}>
-          <div style={{color:"#8892a4"}}>BVC · {STATIC.length} titres</div>
+          <div style={{color:"#8892a4"}}>BVC · {univers??STATIC.length} titres</div>
           <div style={{color:"#ffd740"}}>{META.msgs} msgs · {META.years} ans · {META.signals} signaux</div>
         </div>
       </div>
@@ -1096,7 +1095,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
   }),[filtered,sort,scoreMode]);
   const SORTS=[["az","A → Z"],["v53",customMode?"SCORE PERSO":("SCORE v5.3")],["bvc","BVC"],["delta","DELTA"],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
   const scoreColLabel=customMode?scoreModeLabel(scoreMode):"SCORE";
-  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","PE","DIV%","BVC",scoreColLabel,"Δ","NLP%","WIN","ALPHA","RSI","SIGNAL","POIDS"];
+  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","PE","DIV%","BVC",scoreColLabel,"Δ","NLP%","SM~","ALPHA","RSI","SIGNAL","POIDS"];
   if(isWatchlist&&rows.length===0) return(
     <div style={{textAlign:"center",padding:"60px 20px",color:"#8892a4"}}>
       <div style={{fontSize:52,marginBottom:16,color:"#2a3550"}}>★</div>
@@ -1126,7 +1125,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         {(search||sector!=="ALL"||sigFilter||rsiZone)&&<button onClick={()=>{setSearch("");setSector("ALL");setSigFilter(null);setRsiZone(null);}} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"3px 8px",background:"transparent"}}>✕ Réinitialiser</button>}
         <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{sorted.length}/{group==="MASI1"?19:rows.length} titres{group==="MASI1"&&<span style={{color:"#00e5a0",marginLeft:4}}>NLP ✓</span>}</span>
         <button onClick={()=>{
-          const cols=["TICKER BVC","CODE INTERNE","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE","SIGNAL","ALPHA","WIN%","BVC"];
+          const cols=["TICKER BVC","CODE INTERNE","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE","SIGNAL","ALPHA","SM_HEUR_NON_CALIBRE","BVC"];
           const rows_csv=sorted.map(r=>[tk(r),r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",r.pe?.toFixed(1)||"",r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",computeDisplayScore(r,scoreMode).toFixed(2),r.sig||"",r.alpha||"",r.win||"",r.bvc?.toFixed(2)||""]);
           const csv="﻿"+[cols,...rows_csv].map(r=>r.join(";")).join("\n");
           const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
@@ -1223,7 +1222,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   </td>
                   <td style={{padding:"8px 8px"}}><Delta d={customMode?(r.bvc!=null?+(displayScore-r.bvc).toFixed(2):null):r.delta}/></td>
                   <td style={{padding:"8px 8px",fontSize:13,color:NC(r.nlp),fontWeight:600}}>{r.nlp>0?"+":""}{(r.nlp*100).toFixed(0)}%</td>
-                  <td style={{padding:"8px 8px",fontSize:12,color:r.win>=80?"#00e5a0":r.win>=70?"#ffd740":"#ff8f00",fontWeight:600}}>{r.win!=null?`${r.win}%`:"—"}</td>
+                  <td style={{padding:"8px 8px",fontSize:12,color:r.win>=80?"#00e5a0":r.win>=70?"#ffd740":"#ff8f00",fontWeight:600}}>{r.win!=null?`${r.win}`:"—"}</td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.alpha>=0?"#00e5a0":"#ff4f5a",fontWeight:600}}>{r.alpha!=null?<>{r.alpha>0?"+":""}{r.alpha}%{r.alpha<0&&<span style={{fontSize:10}}>⚠️</span>}</>:"—"}</td>
                   <td style={{padding:"8px 8px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:5}}>
@@ -1248,7 +1247,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       </div>
       <div style={{marginTop:12,padding:"10px 14px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
         <span style={{color:"#00e5a0"}}>●</span> SCORE = Tech×25% + Fond×47% + NLP×28% (moteur v6.4) &nbsp;|&nbsp;
-        <span style={{color:"#ffd740"}}>●</span> WIN = probabilité de surperformance 1 mois ({META.signals} signaux · {META.years} ans) &nbsp;|&nbsp;
+        <span style={{color:"#ffd740"}}>●</span> SM~ = score Smart Money <b>heuristique, NON calibré</b> — dérivé du score composite, ce n'est pas une probabilité mesurée &nbsp;|&nbsp;
         <span style={{color:"#b388ff"}}>●</span> Δ = différence SCORE vs BVC fondamental &nbsp;|&nbsp;
         <span style={{color:"#8892a4"}}>~stat</span> = indicateurs techniques estimés (RSI/MA calculés dès la prochaine mise à jour) &nbsp;|&nbsp;
         <span style={{color:"#ff4f5a"}}>⚠️</span> Alpha/RSI rouge = prudence &nbsp;|&nbsp; PE = Price/Earnings · DIV = dividende &nbsp;|&nbsp; Clic → vue détaillée
@@ -1481,7 +1480,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
           <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>NLP — {META.tickers} tickers ({META.years} ans)</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-              {[["Biais groupe",r.biais,NC(r.nlp)],["Smart Sentiment",`${r.nlp>0?"+":""}${(r.nlp*100).toFixed(0)}%`,NC(r.nlp)],["Win rate 6M",r.win!=null?`${r.win}%`:"—",r.win>=80?"#00e5a0":"#ffd740"],["Convergence",r.conv==="CONFIRME"?"✅ OK":"⚠️ Div.",r.conv==="CONFIRME"?"#00e5a0":"#ffd740"]].map(([k,v,c])=>(
+              {[["Biais groupe",r.biais,NC(r.nlp)],["Smart Sentiment",`${r.nlp>0?"+":""}${(r.nlp*100).toFixed(0)}%`,NC(r.nlp)],["Score SM~ (non calibré)",r.win!=null?`${r.win}`:"—",r.win>=80?"#00e5a0":"#ffd740"],["Convergence",r.conv==="CONFIRME"?"✅ OK":"⚠️ Div.",r.conv==="CONFIRME"?"#00e5a0":"#ffd740"]].map(([k,v,c])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
                   <div style={{fontSize:12,color:c,fontWeight:700}}>{v}</div>
@@ -1555,11 +1554,11 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
 
 // ── WEIGHTS ───────────────────────────────────────────────────────────────────
 const Weights=()=>{
-  const CTX=[["Marché ouvert (base)","47%","28%","25%","#00e5a0","Pondération standard"],["Marché fermé / férié","52%","28%","20%","#4db8ff","Fondamentaux dominent"],["Publication résultats","57%","25%","18%","#b388ff","Fondamentaux mis à jour"],["Hype spike (>2σ NLP)","42%","36%","22%","#ffd740","Comportemental précoce"],["Smart Money Tier 1","44%","35%","21%","#00e5a0","Win rate 83%+"],["Bear market MASI<-5%","55%","28%","17%","#ff8f00","Mode défensif"],["Titre peu suivi","54%","18%","28%","#ff4f5a","NLP peu fiable"]];
+  const CTX=[["Marché ouvert (base)","47%","28%","25%","#00e5a0","Pondération standard"],["Marché fermé / férié","52%","28%","20%","#4db8ff","Fondamentaux dominent"],["Publication résultats","57%","25%","18%","#b388ff","Fondamentaux mis à jour"],["Hype spike (>2σ NLP)","42%","36%","22%","#ffd740","Comportemental précoce"],["Smart Money Tier 1","44%","35%","21%","#00e5a0","Membres à fort signal/bruit"],["Bear market MASI<-5%","55%","28%","17%","#ff8f00","Mode défensif"],["Titre peu suivi","54%","18%","28%","#ff4f5a","NLP peu fiable"]];
   return(
     <div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:14}}>
-        {[["Fondamental","47%","#b388ff","Marché semi-efficient. Alpha long terme 6-12M. Données fondamentaux.json validées."],["NLP Comportemental","28%","#00e5a0","896 907 messages · 6 ans · 8 membres backtestés sur 1994 signaux. Win rate 83%."],["Technique","25%","#4db8ff","Timing d'entrée. RSI, MA20/50, Fibonacci. Marché peu liquide — BVC 492 séances."]].map(([lbl,pct,c,desc])=>(
+        {[["Fondamental","47%","#b388ff","Marché semi-efficient. Alpha long terme 6-12M. Données fondamentaux.json validées."],["NLP Comportemental","28%","#00e5a0","896 907 messages · 6 ans. ⚠️ Performance historique non republiée : aucun backtest reproductible à ce jour."],["Technique","25%","#4db8ff","Timing d'entrée. RSI, MA20/50, Fibonacci. Marché peu liquide — BVC 492 séances."]].map(([lbl,pct,c,desc])=>(
           <div key={lbl} style={{background:"#0d1829",borderRadius:8,padding:16,border:`1px solid ${c}20`}}>
             <div style={{fontSize:44,fontWeight:700,color:c,marginBottom:4}}>{pct}</div>
             <div style={{fontSize:15,color:"#fff",marginBottom:6,fontWeight:600}}>{lbl}</div>
@@ -1590,7 +1589,23 @@ const Weights=()=>{
 
 // ── SMART MONEY ───────────────────────────────────────────────────────────────
 const Smart=()=>{
-  const BT=[["Horizon 12M","83%","+38.3%","#00e5a0"],["Horizon 6M","80%","+18.1%","#00e5a0"],["Horizon 3M","78%","+8.7%","#ffd740"],["Horizon 1M","73%","+2.7%","#ff8f00"]];
+  // ⚠️ RETIRÉ LE 05/09/2026 — ces quatre lignes affichaient 83 % de réussite
+  // et +38,3 % de rendement à 12 mois, écrits EN DUR dans ce fichier. Le
+  // dépôt ne contient aucun artefact permettant de refaire le calcul et de
+  // retrouver ces chiffres : ni jeu de données figé, ni commande, ni journal.
+  // Un résultat de backtest qu'on ne peut pas reproduire n'est pas un
+  // résultat, c'est une affirmation. Signalé par l'audit externe du 05/09.
+  //
+  // Pour les republier il faudra : une commande unique et documentée qui
+  // régénère exactement le résultat, des séries réelles figées et sans
+  // regard sur le futur, les frais réels de la place, le vrai historique du
+  // MASI comme référence, et le nombre de signaux avec son intervalle de
+  // confiance. Le code d'origine est conservé ci-dessous, en commentaire,
+  // pour que le chantier reparte de quelque chose.
+  //
+  // const BT=[["Horizon 12M","83%","+38.3%"],["Horizon 6M","80%","+18.1%"],
+  //           ["Horizon 3M","78%","+8.7%"],["Horizon 1M","73%","+2.7%"]];
+  const BT=[];
   const CT=[["MNG","0%","100% du temps cours monte après signal vente"],["RDS","0%","0% réussite vendeur (contrarian parfait)"],["SMI","19%","81% cours monte après signal vente"],["TGCC","39%","Seul titre validant une confirmation vente"]];
   return(
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
@@ -1614,8 +1629,21 @@ const Smart=()=>{
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:10}}>
         <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-          <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:10}}>BACKTESTING V3 — 1994 SIGNAUX / 2020-2026</div>
-          {BT.map(([h,wr,rdt,c])=>(
+          <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:10}}>PERFORMANCE HISTORIQUE</div>
+          {BT.length===0 ? (
+            <div style={{fontSize:12,color:"#ffd740",lineHeight:1.8}}>
+              ⚠️ <b>Non publiée.</b> Les chiffres affichés ici jusqu'au 05/09/2026
+              (83 % de réussite, +38,3 % à 12 mois) étaient écrits en dur dans la
+              page. Aucun élément du dépôt ne permet de refaire le calcul et de
+              retrouver ces valeurs.
+              <div style={{marginTop:8,color:"#8892a4"}}>
+                Ils reviendront quand une commande unique et documentée régénèrera
+                exactement le résultat, sur des séries réelles figées, avec les
+                frais de la place, le vrai historique du MASI comme référence, et
+                le nombre de signaux avec son intervalle de confiance.
+              </div>
+            </div>
+          ) : BT.map(([h,wr,rdt,c])=>(
             <div key={h} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:"1px solid #0d1829"}}>
               <span style={{fontSize:13,color:"#c8d3e8"}}>{h}</span>
               <span style={{fontSize:13,color:c,fontWeight:700}}>Win {wr}</span>
@@ -2435,7 +2463,7 @@ function App(){
   return(
     <div style={{minHeight:"100vh"}}>
       <TickerTape rows={rows}/>
-      <Header tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={()=>loadData(true)} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode} masi={masi} majMsg={majMsg}/>
+      <Header univers={rows.length} tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={()=>loadData(true)} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode} masi={masi} majMsg={majMsg}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
         {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab}/>}
