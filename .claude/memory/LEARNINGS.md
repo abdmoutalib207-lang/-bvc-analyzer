@@ -122,6 +122,34 @@ fermé code 1006 — ce n'est pas testable d'ici, seulement de là-bas).
   **publication**. « Indices du mardi 1er septembre » contient la séance du
   lundi 31 août.
 
+### Maroclear — le dépositaire central, et notre meilleur référentiel d'ISIN
+
+Relevé le **05/09/2026** sur `maroclear.com/fr/data-services/referentiel/valeurs`
+(classe E, type S, statut ACTIVE), 81 valeurs, apporté par Abd Moutalib.
+
+- ⚠️ **Passer par `IDB_TICKER_MAP` avant toute comparaison.** Les codes de
+  Maroclear sont ceux de la BVC : leur `SNA` est **Stokvis**, pas Sonasid.
+  Sans traduction, la comparaison est fausse sur une dizaine de titres.
+- **78 de nos 80 ISIN concordent**, et **les 15 corrections accumulées depuis
+  juillet sont TOUTES confirmées** — RIS, RDS, SMI, SRM, STR, SAF, SLM, NEJ,
+  S2M, SNP, TMA, TQA, ZLD, STK, MNG post-split, et **MRL**, celui qui avait
+  été tranché par l'arithmétique le 01/09 sans confirmation extérieure. La
+  méthode du recoupement par le calcul est validée après coup.
+- **`TIM` est radié.** Ni le symbole ni son ISIN `MA0000011686` n'apparaissent
+  au référentiel des valeurs actives. Le doute datait du 02/07 ; il est levé.
+- ⚠️ **Deux écarts restent ouverts** — `CFGB` (nous `MA0000012627`, Maroclear
+  `MA0000011983`) et `SOT` (nous `MA0000012833`, Maroclear `MA0000012502`).
+  Le cas SOT est le plus suspect : notre ISIN était déjà « introuvable dans le
+  référentiel Médias24 » au 02/07. Deux sources indépendantes ne le trouvent
+  donc pas. **Non corrigés — R2 exige l'accord explicite d'Abd Moutalib.**
+- ⚠️ **`SAM` (SAMIR) est listé ACTIF chez Maroclear**, alors que la règle 4 du
+  CLAUDE.md le dit radié/suspendu. Statut de dépositaire ≠ statut de cotation :
+  un titre peut exister sans coter. Ne pas en conclure qu'il faut le réintégrer.
+- Un ISIN faux ne corrompt plus les **prix** depuis que CDG et BMCE apparient
+  par code et par nom — mais il corrompt tout ce qui est indexé par ISIN.
+  SOT cotait 377 DH le 04/09, dans sa fourchette de référence, malgré un ISIN
+  probablement erroné : **une donnée juste ne prouve pas que la clé est bonne.**
+
 - **Pour valider une identité, chercher un recoupement ARITHMÉTIQUE, pas un
   second avis.** L'ISIN de Maroc Leasing est resté douteux deux mois parce qu'on
   cherchait une source qui le confirme. Ce qui a tranché le 01/09 n'est pas le
