@@ -56,7 +56,34 @@ def _charger(chemin: Path | None = None) -> dict:
     return d.get("seances", {}) if isinstance(d, dict) else {}
 
 
-def enregistrer(valeur, asof: str, chemin: Path | None = None) -> bool:
+def _apports(chemin: Path | None = None) -> list:
+    p = Path(chemin) if chemin else CHEMIN
+    if not p.exists():
+        return []
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    return list(d.get("_apports", [])) if isinstance(d, dict) else []
+
+
+def _ecrire(p: Path, seances: dict, apports: list) -> None:
+    p.parent.mkdir(parents=True, exist_ok=True)
+    charge = {
+        "_note": ("Une clôture par séance, en AJOUT SEULEMENT : une date déjà "
+                  "connue n'est jamais réécrite. Le YTD reste indisponible "
+                  "tant que la série ne couvre pas la dernière séance de "
+                  "l'année précédente."),
+        "_apports": apports,
+        "seances": dict(sorted(seances.items())),
+    }
+    tmp = p.with_suffix(".tmp")
+    tmp.write_text(json.dumps(charge, ensure_ascii=False, indent=1), encoding="utf-8")
+    tmp.replace(p)
+
+
+def enregistrer(valeur, asof: str, chemin: Path | None = None,
+                source: str = "pipeline") -> bool:
     """Ajoute la clôture d'une séance. Ne réécrit jamais une date connue.
 
     L'écriture est idempotente : quatre runs par jour ouvré déposent la même
@@ -81,19 +108,54 @@ def enregistrer(valeur, asof: str, chemin: Path | None = None) -> bool:
         return False
     seances[jour] = round(v, 4)
 
-    p.parent.mkdir(parents=True, exist_ok=True)
-    charge = {
-        "_source": "MASI, tel que publié par la chaîne de collecte du projet",
-        "_note": ("Une valeur par séance, en ajout seulement. La série ne "
-                  "remonte pas avant sa création (05/09/2026) : le YTD reste "
-                  "indisponible tant qu'elle ne couvre pas le 31 décembre "
-                  "précédent."),
-        "seances": dict(sorted(seances.items())),
-    }
-    tmp = p.with_suffix(".tmp")
-    tmp.write_text(json.dumps(charge, ensure_ascii=False, indent=1), encoding="utf-8")
-    tmp.replace(p)
+    apports = _apports(p)
+    for a in apports:
+        if a.get("source") == source:
+            a["n"] = int(a.get("n", 0)) + 1
+            a["jusqu_au"] = max(str(a.get("jusqu_au", "")), jour)
+            break
+    else:
+        apports.append({"source": source, "depuis": jour, "jusqu_au": jour, "n": 1})
+
+    _ecrire(p, seances, apports)
     return True
+
+
+def importer(series: dict, source: str, url: str = "",
+             chemin: Path | None = None) -> int:
+    """Insère un lot de clôtures datées venues d'une source extérieure.
+
+    ⚠️ Les dates déjà présentes ne sont PAS écrasées. C'est ce qui rend
+    l'import rejouable et empêche une source tierce de contredire en silence
+    ce que notre propre chaîne a mesuré. Si une divergence existe, elle doit
+    se voir et se trancher à la main, pas se résoudre par ordre d'écriture.
+
+    Renvoie le nombre de séances réellement ajoutées.
+    """
+    p = Path(chemin) if chemin else CHEMIN
+    seances = _charger(p)
+    ajout = {}
+    for d, v in series.items():
+        jour = str(d)[:10]
+        if jour in seances or len(jour) < 10:
+            continue
+        try:
+            f = float(v)
+        except (TypeError, ValueError):
+            continue
+        if f > 0:
+            ajout[jour] = round(f, 4)
+    if not ajout:
+        return 0
+
+    seances.update(ajout)
+    apports = _apports(p)
+    apports.append({
+        "source": source, "url": url,
+        "depuis": min(ajout), "jusqu_au": max(ajout), "n": len(ajout),
+    })
+    _ecrire(p, seances, apports)
+    return len(ajout)
 
 
 def performance_ytd(asof: str | None = None, chemin: Path | None = None):

@@ -160,3 +160,41 @@ def test_ytd_ignore_les_seances_posterieures_a_la_date_demandee(tmp_path):
 def test_fichier_absent_ne_plante_pas(tmp_path):
     assert performance_ytd("2026-09-05", tmp_path / "rien.json") is None
     assert profondeur(tmp_path / "rien.json") == 0
+
+
+def test_import_ne_recouvre_jamais_une_seance_deja_connue(tmp_path):
+    """⚠️ Une source extérieure ne doit pas contredire en silence notre mesure.
+
+    L'import est rejouable, et une divergence entre investing.com et notre
+    chaîne doit se voir plutôt que se résoudre par ordre d'écriture. C'est la
+    même règle que le cliquet de séance du 28/08 : ce qu'on sait déjà ne se
+    laisse pas remplacer sans arbitrage explicite.
+    """
+    from masi_history import importer
+    f = _fichier(tmp_path)
+    enregistrer(18710.3128, "2026-09-03", f)
+    n = importer({"2026-09-03": 99999.0, "2026-09-04": 18792.25},
+                 source="test", chemin=f)
+    assert n == 1, "seule la date inconnue doit entrer"
+    seances = json.loads(f.read_text())["seances"]
+    assert seances["2026-09-03"] == 18710.3128
+    assert seances["2026-09-04"] == 18792.25
+
+
+def test_import_journalise_sa_provenance(tmp_path):
+    """Toute valeur importée doit pouvoir être rattachée à sa source."""
+    from masi_history import importer
+    f = _fichier(tmp_path)
+    importer({"2026-09-03": 18710.31, "2026-09-04": 18792.25},
+             source="investing.com", url="https://exemple", chemin=f)
+    ap = json.loads(f.read_text())["_apports"]
+    assert ap[0]["source"] == "investing.com" and ap[0]["n"] == 2
+    assert ap[0]["depuis"] == "2026-09-03" and ap[0]["jusqu_au"] == "2026-09-04"
+
+
+def test_import_ecarte_les_valeurs_inutilisables(tmp_path):
+    from masi_history import importer
+    f = _fichier(tmp_path)
+    n = importer({"2026-09-04": 18792.25, "2026-09-05": 0, "2026-09-06": None,
+                  "2026-09-07": "x", "mauvaise": 18000}, source="test", chemin=f)
+    assert n == 1
