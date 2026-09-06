@@ -205,11 +205,21 @@ def test_import_ecarte_les_valeurs_inutilisables(tmp_path):
 def test_historique_masi_versionne_est_sain():
     """Contrôle du fichier réellement livré, pas d'un cas fabriqué.
 
-    Il porte des valeurs venues d'une source extérieure : elles doivent
-    rester vérifiables. Un saut de plus de 10 % en une séance sur l'INDICE
-    serait extraordinaire — la BVC plafonne déjà chaque titre à ±10 % (R10),
-    et l'indice est une moyenne pondérée : il ne peut pas bouger plus que ses
-    composantes. Un tel saut signalerait une valeur corrompue à l'import.
+    ⚠️ LA RÈGLE R10 NE S'APPLIQUE PAS À L'INDICE. Corrigé le 05/09/2026 par
+    Abd Moutalib : le plafond réglementaire de ±10 % par séance porte sur le
+    COURS DES SOCIÉTÉS COTÉES, pas sur le MASI. Le seuil retenu ici n'est donc
+    pas une règle de marché mais une **borne dérivée** : l'indice étant une
+    moyenne pondérée de titres chacun plafonné à ±10 %, sa variation ne peut
+    mécaniquement pas excéder ce plafond. La borne tient, sa justification
+    n'était pas la bonne — et confondre une règle réglementaire avec une
+    conséquence arithmétique est exactement le genre d'imprécision qui finit
+    par produire un contrôle mal calibré.
+
+    ⚠️ Cette borne cesserait d'être valable si la composition de l'indice
+    changeait en séance (entrée, sortie, opération sur titres). Le seuil est
+    donc un filtre anti-corruption à l'import, pas une vérité de marché.
+    Amplitude réellement observée sur les 185 séances de la série :
+    -5,63 % (03/03/2026) à +4,46 % (15/06/2026).
     """
     from datetime import date
     from pathlib import Path

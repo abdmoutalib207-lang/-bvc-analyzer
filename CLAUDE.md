@@ -150,7 +150,15 @@ c'est la **date** qui arbitre ligne par ligne — jamais la préférence.
 **Quand IDBourse retourne chg=0% et vol=0**, c'est une donnée stale (cours de référence J-1 retourné comme prix actuel). Toujours vérifier et recalculer depuis les candles puis Médias24. Ne jamais afficher 0% sans vérification.
 </rule>
 <rule id="R10">
-**La limite de variation BVC est ±10%/jour** — règle réglementaire stricte. Toute variation calculée > ±10% est une erreur de données source, pas un mouvement réel.
+**La limite de variation BVC est ±10%/jour SUR LE COURS D'UNE SOCIÉTÉ COTÉE** — règle réglementaire stricte. Toute variation calculée > ±10% sur un titre est une erreur de données source, pas un mouvement réel.
+
+⚠️ **Précision apportée par Abd Moutalib le 05/09/2026 : R10 NE S'APPLIQUE PAS
+AU MASI.** Le plafond porte sur les instruments, pas sur l'indice. Un contrôle
+à ±10 % sur l'indice reste utile comme **borne dérivée** — une moyenne pondérée
+de titres chacun plafonné à ±10 % ne peut pas excéder ce plafond — mais c'est
+une conséquence arithmétique, pas la règle. Elle tomberait si la composition de
+l'indice changeait en séance. Amplitude réellement observée sur 185 séances
+(déc. 2025 → sept. 2026) : **-5,63 % à +4,46 %**.
 </rule>
 </rules>
 
