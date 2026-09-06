@@ -198,3 +198,52 @@ def test_import_ecarte_les_valeurs_inutilisables(tmp_path):
     n = importer({"2026-09-04": 18792.25, "2026-09-05": 0, "2026-09-06": None,
                   "2026-09-07": "x", "mauvaise": 18000}, source="test", chemin=f)
     assert n == 1
+
+
+# ── le fichier versionné lui-même ────────────────────────────────────────
+
+def test_historique_masi_versionne_est_sain():
+    """Contrôle du fichier réellement livré, pas d'un cas fabriqué.
+
+    Il porte des valeurs venues d'une source extérieure : elles doivent
+    rester vérifiables. Un saut de plus de 10 % en une séance sur l'INDICE
+    serait extraordinaire — la BVC plafonne déjà chaque titre à ±10 % (R10),
+    et l'indice est une moyenne pondérée : il ne peut pas bouger plus que ses
+    composantes. Un tel saut signalerait une valeur corrompue à l'import.
+    """
+    from datetime import date
+    from pathlib import Path
+    chemin = Path(__file__).resolve().parent.parent / "pipeline" / "masi_history.json"
+    if not chemin.exists():
+        return  # la série se construit ; son absence n'est pas une régression
+    d = json.loads(chemin.read_text(encoding="utf-8"))
+    seances = d["seances"]
+    assert seances, "fichier présent mais vide"
+    assert d.get("_apports"), "toute valeur doit être rattachable à son apport"
+
+    jours = sorted(seances)
+    for j in jours:
+        assert len(j) == 10 and j[4] == "-" and j[7] == "-", f"date mal formée : {j}"
+        assert float(seances[j]) > 0, f"valeur non positive au {j}"
+
+    def _d(s):
+        a, m, jj = (int(x) for x in s.split("-"))
+        return date(a, m, jj)
+
+    for prec, suiv in zip(jours, jours[1:]):
+        if (_d(suiv) - _d(prec)).days > 4:
+            continue  # trou assumé dans la série, pas deux séances voisines
+        var = abs(seances[suiv] / seances[prec] - 1) * 100
+        assert var <= 10, f"saut de {var:.1f} % entre {prec} et {suiv}"
+
+
+def test_le_ytd_reste_plausible_ou_indisponible():
+    """Si l'ancrage existe, la performance annuelle doit rester crédible.
+
+    Ce test ne fixe pas une valeur — elle bouge chaque jour. Il vérifie que
+    le calcul ne produit pas d'aberration, et qu'il répond `None` plutôt
+    qu'un nombre douteux quand la série ne le permet pas.
+    """
+    from datetime import date
+    y = performance_ytd(date.today().isoformat())
+    assert y is None or -80 < y < 200, f"YTD aberrant : {y}"
