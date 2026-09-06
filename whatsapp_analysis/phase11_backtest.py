@@ -5,6 +5,7 @@ Tests de 4 stratégies avec métriques complètes de performance
 from __future__ import annotations
 
 import logging
+import os
 import warnings
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -14,6 +15,15 @@ import pandas as pd
 warnings.filterwarnings("ignore")
 logger = logging.getLogger(__name__)
 
+
+class PrixIndisponibles(RuntimeError):
+    """Levée quand le backtest n'a aucun prix réel sur quoi travailler.
+
+    Échouer bruyamment est le comportement voulu. Un backtest qui fabrique ses
+    prix produit toujours un résultat, et ce résultat ne veut rien dire — c'est
+    le défaut le plus grave relevé par l'audit du 05/09/2026.
+    """
+
 # ─────────────────────────────────────────────────────────────
 # CONSTANTES
 # ─────────────────────────────────────────────────────────────
@@ -22,6 +32,10 @@ RF_ANNUAL = 0.03          # taux sans risque annuel (Maroc, BAM)
 TRADING_DAYS_YEAR = 252
 TRANSACTION_COST = 0.002  # 0.2% par transaction (BVC)
 SLIPPAGE = 0.001          # 0.1% de slippage
+
+# En deçà, une série d'indice ne permet aucune mesure de performance : trop
+# courte pour un rendement annualisé, une volatilité ou un maximum drawdown.
+MIN_SEANCES_MASI = 30
 
 # Horizons de test en jours calendaires
 TEST_HORIZONS = {
@@ -36,23 +50,103 @@ TEST_HORIZONS = {
 # CONSTRUCTION DES PRIX
 # ─────────────────────────────────────────────────────────────
 
+def charger_masi_reel(debut=None, fin=None) -> Optional[pd.Series]:
+    """Le vrai MASI, depuis `pipeline/masi_history.json`. None s'il manque.
+
+    Introduit le 05/09/2026. Jusque-là, la référence du backtest était une
+    moyenne équipondérée des titres présents dans le panel — une référence
+    fabriquée à partir de l'univers testé, donc qui bouge avec lui. Une
+    stratégie qui surpondère les grandes capitalisations « bat » mécaniquement
+    une moyenne équipondérée, sans qu'aucune compétence n'entre en jeu.
+
+    Le vrai MASI est pondéré par les capitalisations flottantes. C'est la
+    seule référence qui ait un sens pour juger une stratégie marocaine.
+    """
+    try:
+        import sys
+        from pathlib import Path as _P
+        racine = _P(__file__).resolve().parent.parent
+        sys.path.insert(0, str(racine / "pipeline"))
+        from masi_history import serie as _serie
+    except Exception as e:                                    # pragma: no cover
+        logger.warning(f"  Historique MASI illisible ({e}) — repli sur le proxy")
+        return None
+
+    s = _serie(debut, fin)
+    if len(s) < MIN_SEANCES_MASI:
+        logger.warning(
+            f"  MASI réel : {len(s)} séance(s) sur la période demandée, "
+            f"minimum {MIN_SEANCES_MASI} — repli sur le proxy équipondéré")
+        return None
+    serie_masi = pd.Series(s, name="MASI")
+    serie_masi.index = pd.to_datetime(serie_masi.index)
+    logger.info(f"  MASI réel : {len(serie_masi)} séances "
+                f"({serie_masi.index.min().date()} → {serie_masi.index.max().date()})")
+    return serie_masi.sort_index()
+
+
 def load_or_generate_market_prices(
     price_panel: Optional[pd.DataFrame],
     daily_sentiment: Optional[pd.DataFrame],
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
+    autoriser_synthetique: Optional[bool] = None,
 ) -> Tuple[pd.Series, pd.DataFrame]:
     """
     Charge ou génère les prix du marché.
     Retourne: (masi_series, individual_prices_df)
+
+    ⚠️ TROIS NIVEAUX, DU MEILLEUR AU PIRE :
+    1. le VRAI MASI (`pipeline/masi_history.json`) — la seule référence qui
+       ait un sens ;
+    2. à défaut, une moyenne équipondérée du panel, explicitement journalisée
+       comme un proxy ;
+    3. des prix ENTIÈREMENT INVENTÉS — refusés par défaut depuis le
+       05/09/2026.
+
+    Le niveau 3 est le défaut le plus grave signalé par l'audit du 05/09 : un
+    backtest qui fabrique ses prix quand il n'en a pas produit toujours un
+    résultat, et ce résultat ne veut rien dire. Il échoue désormais bruyamment.
+    Pour l'autoriser — démonstration, test du moteur lui-même — il faut le dire
+    explicitement, par l'argument ou par `BVC_PRIX_SYNTHETIQUES=1`.
     """
     if price_panel is not None and not price_panel.empty:
-        # MASI proxy = portfolio équipondéré
+        debut = str(price_panel.index.min())[:10]
+        fin = str(price_panel.index.max())[:10]
+        masi_reel = charger_masi_reel(debut, fin)
+        if masi_reel is not None:
+            # Restreint aux dates communes : le backtest ne doit pas comparer
+            # une stratégie et sa référence sur des calendriers différents.
+            communes = price_panel.index.intersection(masi_reel.index)
+            if len(communes) >= MIN_SEANCES_MASI:
+                return masi_reel.reindex(communes), price_panel.loc[communes]
+            logger.warning(
+                f"  MASI réel et panel ne partagent que {len(communes)} "
+                f"séance(s) — repli sur le proxy équipondéré")
+
+        # ⚠️ PROXY, PAS LE MASI. Référence construite depuis l'univers testé :
+        # elle se déforme avec lui. À ne garder que faute de mieux, et à dire.
+        logger.warning("  Référence = proxy équipondéré du panel, PAS le MASI "
+                       "réel. Toute surperformance mesurée est à lire avec "
+                       "cette réserve.")
         returns = price_panel.pct_change().fillna(0)
         masi_returns = returns.mean(axis=1)
         masi_prices = (1 + masi_returns).cumprod() * 1000
         masi_prices.iloc[0] = 1000.0
         return masi_prices, price_panel
+
+    if autoriser_synthetique is None:
+        autoriser_synthetique = os.environ.get("BVC_PRIX_SYNTHETIQUES") == "1"
+    if not autoriser_synthetique:
+        raise PrixIndisponibles(
+            "Aucun prix réel disponible : le backtest refuse de tourner sur "
+            "des prix inventés. Fournir un `price_panel` (phase 8), ou poser "
+            "BVC_PRIX_SYNTHETIQUES=1 pour une démonstration explicitement "
+            "non exploitable."
+        )
+
+    logger.warning("  ⚠️ PRIX SYNTHÉTIQUES — résultat NON exploitable, "
+                   "démonstration du moteur uniquement.")
 
     # Génère des prix synthétiques réalistes du marché marocain
     if start_date is None:

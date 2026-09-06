@@ -191,3 +191,21 @@ def performance_ytd(asof: str | None = None, chemin: Path | None = None):
 def profondeur(chemin: Path | None = None) -> int:
     """Nombre de séances enregistrées — sert aux contrôles et aux journaux."""
     return len(_charger(chemin))
+
+
+def serie(debut: str | None = None, fin: str | None = None,
+          chemin: Path | None = None) -> dict:
+    """Les clôtures de l'indice sur une période, triées par date.
+
+    C'est le point d'entrée des consommateurs extérieurs au moteur de prix —
+    en particulier `phase11_backtest.py`, qui fabriquait jusqu'ici son propre
+    « MASI » en moyennant les titres dont il disposait. Comparer une stratégie
+    à une référence qu'on construit soi-même revient à se noter sur sa propre
+    copie : la référence bouge avec l'univers testé.
+
+    Bornes incluses. Renvoie un dictionnaire vide si rien ne correspond.
+    """
+    s = _charger(chemin)
+    d = str(debut)[:10] if debut else ""
+    f = str(fin)[:10] if fin else "9999-99-99"
+    return {k: v for k, v in sorted(s.items()) if d <= k <= f}

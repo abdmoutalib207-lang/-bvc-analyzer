@@ -195,6 +195,43 @@ valeur passée de l'indice, donc il n'y avait rien à calculer. D'où
 **Trouvé par l'audit externe**, comme l'ADX ×14. Deux fois de suite, le défaut
 structurant a été vu de l'extérieur — pas par les tests, pas par nous.
 
+## Famille 9 — Combler une absence de donnée au lieu de la dire
+
+### Le backtest fabriquait ses prix (corrigé le 05/09)
+`load_or_generate_market_prices()` générait, faute de panel, une série
+entièrement aléatoire : dérive de 8 % l'an, volatilité de 12 %, changements de
+régime tirés au sort, **graine fixée à 42** pour que ce soit reproductible.
+Le résultat était donc stable, plausible, et vide de sens.
+
+**Ce qui rend ce défaut particulièrement dangereux : un backtest qui invente
+ses prix produit TOUJOURS un résultat.** Rien dans la sortie ne signale que
+l'entrée était fictive — au contraire, la reproductibilité de la graine lui
+donne l'apparence du sérieux.
+
+La phase 8 faisait de même pour la corrélation avance-retard : `rng.normal`
+quand le panel manquait. Corréler le sentiment du groupe à des nombres tirés
+au hasard ne mesure rien, mais produit un coefficient et un « décalage
+optimal » que la phase 14 publie ensuite comme un résultat.
+
+**Correctif** : `PrixIndisponibles` levée par défaut ; la génération reste
+accessible pour éprouver le moteur, mais il faut la demander explicitement.
+La phase 8 renvoie désormais une erreur plutôt qu'un chiffre.
+
+### La référence n'était pas le MASI
+Quand un panel existait, l'« indice » de comparaison était la moyenne
+**équipondérée** des titres du panel, rebasée à 1000. Deux conséquences :
+la référence se déforme avec l'univers testé, et une stratégie qui
+surpondère les grandes valeurs « bat » mécaniquement une moyenne
+équipondérée sans qu'aucune compétence n'entre en jeu.
+
+**Cause** : le projet ne conservait aucun historique de l'indice. La
+correction était impossible avant que `masi_history.json` n'existe.
+**Signal** : une référence construite à partir de ce qu'on veut évaluer.
+
+**Leçon générale : une absence de donnée doit se dire, jamais se combler.**
+C'est la même famille que le `0` mis pour `masi_ytd` inconnu, et que le
+`win = 50` du NLP quand la valeur manque. Trois endroits, un seul réflexe.
+
 ## Le motif commun
 
 Presque toutes ces erreurs ont la même forme : **une autorité unique à laquelle
