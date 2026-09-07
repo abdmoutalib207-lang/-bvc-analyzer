@@ -20,47 +20,108 @@ La pondération est dynamique et contextuelle (WeightEngine), pas statique.
 
 ## Architecture Actuelle (À Connaître Par Cœur)
 
-> Chiffres mesurés le 25/08/2026. Les remettre à jour lors d'une passe de
-> documentation plutôt que de les laisser vieillir : le bloc annonçait encore
-> « ~1700 lignes » pour un fichier qui en compte 2 547, et citait trois
-> fichiers archivés depuis des mois.
+> Chiffres remesurés le **07/09/2026**. Les remettre à jour lors d'une passe de
+> documentation plutôt que de les laisser vieillir.
 
 ```
-FRONTEND  → index.html      2 547 lignes — React 18 + JSX compilé au navigateur
+FRONTEND  → index.html      2 546 lignes — React 18 + JSX compilé au navigateur
              radar.html       564 lignes — console de veille (JS sans framework)
              audience.html    154 lignes — fréquentation, non liée, non indexée
              ⚠️ Aucune étape de build : Babel compile le JSX à la volée. Pas de
              package.json, pas de node_modules. Le dépôt PARAÎT vanilla, il ne
-             l'est pas.
+             l'est pas. Une faute de syntaxe casse le site ENTIER et aucun test
+             Python ne la voit — vérifier la compilation JSX (skill run-tests).
 
-MOTEUR    → update_data.py   ~1 700 lignes — propriétaire unique de data.json
+MOTEUR    → update_data.py   2 675 lignes — propriétaire UNIQUE de data.json
              bvc_config.py                 — le référentiel (voir CONFIG)
-             sync_sentiment.py
-             ⚠️ bvc_app.py, bvc_analyzer_v50/v53.py sont dans archive/ depuis
-             la phase A3 — ne plus les citer comme faisant partie du moteur.
+             sync_sentiment.py             — injecte les sorties NLP
 
-PIPELINE  → pipeline/ : 15 modules, 4 753 lignes
+PIPELINE  → pipeline/ : 17 modules, 5 391 lignes
              candles/ scrapers/ technical/ smart_money/ utils/
+             seance.py            séances fantômes + invariant OHLC
+             masi_history.py      historique de l'indice (nouveau, 05/09)
+             verifier_seance.py   les 12 contrôles quotidiens
+             parse_cdg_bulletin.py  juge de paix PDF
 
-NLP       → whatsapp_analysis/ : 14 phases, 18 modules, 11 866 lignes
-             (parser → langues → NLP → ML → backtest → report)
-             ⚠️ Aucun workflow ne le déclenche : il tourne hors ligne et
-             dépose ses résultats en CSV dans whatsapp_analysis/output/.
+NLP       → whatsapp_analysis/ : 21 modules, 12 759 lignes, 14 phases
+             ⚠️ Aucun workflow ne le déclenche : il tourne hors ligne et dépose
+             ses résultats en CSV dans whatsapp_analysis/output/.
+             ⚠️ Il porte sa PROPRE formule de score (phase13), différente de la
+             v5.3 du terminal — voir « Deux moteurs de score » plus bas.
 
-CI/CD     → .github/workflows/ : 9 workflows, 13 crons
-             update_bvc · fetch_news · update_candles · fetch_historical_data
-             update_financial_data · update_fondamentaux · verifier_seance
-             validate_data · diag_sources
-             92 % des commits du dépôt sont produits par ces automates.
+TESTS     → tests/ : 16 fichiers, 220 tests
+             ⚠️ Deux familles : ceux qui décrivent le CODE, et ceux qui relisent
+             les DONNÉES PUBLIÉES. Un échec de la seconde famille peut vouloir
+             dire « le correctif est bon mais le moteur n'a pas encore tourné ».
 
-CONFIG    → bvc_config.py : ISIN_MAP (83) · TICKERS_ALL (81) · TICKERS_ACTIFS (19)
-             IDB_TICKER_MAP (78) · COMPANY_SECTORS (22 secteurs)
+SKILLS    → .claude/skills/ : check-data · run-tests · audit-quick
+
+CI/CD     → .github/workflows/ : 11 fichiers
+             ⚠️ Le déclencheur `schedule` de GitHub n'est PAS fiable : retards
+             de 30 min à 8 h, et journées entières sans déclenchement. C'est le
+             premier risque sur la promesse « bulletin avant 8h00 ».
+
+CONFIG    → bvc_config.py : ISIN_MAP (83) · TICKERS_ALL (80) · TICKERS_ACTIFS (19)
+             IDB_TICKER_MAP (80) · COMPANY_SECTORS (22 secteurs)
              JOURS_FERIES_FIXES · SPLITS · SIGLES_AMBIGUS
+             ⚠️ ISIN_MAP compte 83 entrées pour 80 titres : SON, TGC et TIM sont
+             des alias ou des radiés. TIM est radié (Maroclear, 05/09).
 
-DATA      → data.json (81 titres) · news.json (~290 articles) · fondamentaux.json
+DATA      → data.json (80 titres) · news.json · fondamentaux.json (77 sociétés)
              financial_data.json · pipeline/historical_data.json
-             pipeline/candles/ : 74 fichiers, 32 260 séances
+             pipeline/candles/ : 74 fichiers, 32 741 séances
+             pipeline/masi_history.json : 185 séances de l'indice
+             pipeline/maroclear_isin.json : référentiel du dépositaire central
 ```
+
+## Les sources de données — état au 07/09/2026
+
+| Source | Ce qu'elle donne | Couverture | Fiabilité |
+|---|---|---|---|
+| **CDG Capital Bourse** | cours, chandelier complet, seuils ±10 % | ~69 titres | tête de chaîne depuis le 27/08 |
+| **BMCE Capital Bourse** | cours | ~8 titres | complément réel, seule source techniquement distincte |
+| **IDBourse** | cours **et la CAPITALISATION**, absente partout ailleurs | ~2 titres en secours | irremplaçable pour la cap ; exige un `Referer` |
+| **chandelles** | dernier cours connu | repli | daté, jamais périmé en silence |
+| **statique** | table figée | dernier recours | ⚠️ recopie sans le dire |
+| **investing.com** | historique du MASI | 185 séances | apporté à la main ; recoupé 185/185 avec nos chandelles |
+| **Maroclear** | ISIN officiels | 81 valeurs | dépositaire central — autorité |
+| **casablanca-bourse.com** | historique par titre, 3 ans, export Excel | 81 actions | l'opérateur lui-même ; injoignable depuis Actions |
+| **bulletin PDF CDG** | cours, variation, extrêmes | ~70 titres | juge de paix de fin de journée |
+| ⚠️ **Médias24** | — | — | **HORS SERVICE** : 403 Cloudflare |
+| ⚠️ **Wafabourse** | — | — | **403** ; et même éditeur que CDG, donc pas indépendante |
+| **fondamentaux** | PER, PB, BPA, dividende, ROIC… | 77 sociétés | ⚠️ **saisis à la main**, ~40 sources différentes, tout date de juin 2026 |
+
+## ⚠️ Deux moteurs de score coexistent
+
+```
+  terminal (v5.3)   Technique 25 · Fondamental 47 · NLP 28
+  NLP (phase 13)    Fondamental 25 · Technique 20 · NLP 20
+                    Smart Money 20 · Réseau 10 · Comportement 5
+```
+
+Les deux totalisent 100 %. **Le terminal affiche le score de la première à côté
+du signal et du champ `SM~` produits par la seconde.** Ce n'est pas documenté à
+l'écran. À trancher : unifier, ou dire clairement lequel explique quoi.
+
+## Les six chantiers prioritaires — audit externe du 05/09/2026
+
+Note globale **5,6 / 10**. Prototype 7,8 · outil de décision 4,7 · produit
+commercialisable 3,5. **Ces trois notes ne se réconcilient pas tant que la
+destination n'est pas choisie** : outil personnel, ou produit vendu.
+
+| # | Chantier | État au 07/09 |
+|---|---|---|
+| 1 | **Fiabilité du run** — le cron GitHub saute des journées entières | ⚠️ NON TRAITÉ, et c'est le premier risque : un terminal juste qui ne se met pas à jour ne vaut rien. L'audit ne l'avait pas vu. |
+| 2 | **Identités NLP** — 15 collisions sur 34 (`CMT` porte le sentiment de Ciments du Maroc) | ouvert |
+| 3 | **Fondamentaux** — `pb_fige` sur 80/80, saisie manuelle de juin, ~40 sources | ouvert ; écart mesuré sur ADH : notre ROIC 8 % contre 2,3 % au rapport annuel |
+| 4 | **Backtest reproductible** | prix inventés et faux MASI corrigés le 05/09 ; reste la commande unique et l'artefact daté |
+| 5 | **Droit des données** — conditions IDBourse, accord écrit | ouvert, et hors de notre contrôle |
+| 6 | **Vie privée** — ré-identification indirecte, revue CNDP | pseudonymisation faite ; gouvernance à finir. `refs/pull/8` et `/9` attendent GitHub Support |
+
+**Déjà réglé depuis l'audit** : ADX ×14, invariant OHLC (3 238 bougies), régimes
+de marché morts (`masi_ytd`, `has_results`), « probabilités » heuristiques,
+backtest écrit en dur, titre fantôme TIM, prix synthétiques, référence du
+backtest.
 
 ### Architecture J+1 — Flux de production
 
