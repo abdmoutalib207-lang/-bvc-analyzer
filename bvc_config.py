@@ -394,6 +394,22 @@ SPLITS: dict = {
     # Managem : VN 100 → VN 10 le 27/07/2026. Actions 11 864 676 → 118 646 760.
     # Nouvel ISIN MA0000012866 (ancien MA0000011058 radié).
     "MNG": [{"date": "2026-07-27", "ratio": 10}],
+
+    # Sothema : VN 50 → VN 10 le 05/05/2026. Actions ×5 → 38 309 500.
+    # AGE du 25/03/2026. Ajouté le 08/09/2026 — le split avait été appliqué à
+    # la main dans `bpa.json` et dans les chandelles, mais JAMAIS déclaré ici.
+    # ⚠️ Sans cette entrée, un re-téléchargement complet de l'historique
+    # réintroduisait des cours pré-split : c'est exactement le défaut du 01/08
+    # sur Managem, « l'ajustement split ne tenait qu'un run ». Sothema était
+    # juste par chance, pas par construction.
+    # ⚠️ Les chandelles stockées sont DÉJÀ ajustées (aucune rupture détectée le
+    # 08/09). `adjust_splits()` ne s'applique qu'aux séries fraîchement
+    # téléchargées, avant fusion : aucun risque de double division.
+    # ⚠️ ISIN À TRANCHER : la presse donne MA0000012833 comme code POST-split,
+    # ce que porte notre ISIN_MAP ; le référentiel Maroclear des valeurs
+    # actives, relevé le 05/09, donne MA0000012502. Les deux ne peuvent pas
+    # être vrais. Ne rien changer sans recoupement — R2.
+    "SOT": [{"date": "2026-05-05", "ratio": 5}],
 }
 
 
