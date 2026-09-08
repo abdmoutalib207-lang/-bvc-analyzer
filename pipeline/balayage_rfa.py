@@ -93,6 +93,25 @@ NB = (r"(\d{1,3}(?:[ \u00a0.]\d{3})+(?:[.,]\d{1,2})?"    # 1 186 467 600,00
       r"|\d+(?:[.,]\d{1,2})?)")                            # 3002.0 · 733956000
 
 
+def _premier_plausible(ligne: str, etiquette: str, mini: float, maxi: float):
+    """Le premier nombre de la ligne, APRÈS l'étiquette, qui tienne dans les
+    bornes. Renvoie None si aucun ne convient.
+
+    Prendre le premier nombre rencontré échoue dès qu'un appel de note, un
+    numéro de rubrique ou une année s'intercale — et c'est fréquent dans un
+    bilan. Balayer et filtrer par l'ordre de grandeur est à la fois plus simple
+    et plus sûr que d'essayer d'écrire un motif qui les évite tous.
+    """
+    m = re.search(etiquette, ligne)
+    if not m:
+        return None
+    for candidat in re.finditer(NB, ligne[m.end():]):
+        v = _nombre(candidat.group(1))
+        if v is not None and mini <= v <= maxi:
+            return v
+    return None
+
+
 def extraire(pages: dict) -> dict:
     """Relève ce qui est trouvable, avec la page. Silence si rien de sûr."""
     res: dict = {}
@@ -100,20 +119,24 @@ def extraire(pages: dict) -> dict:
     for i, t in pages.items():
         for l in t.split("\n"):
             # ── capital social ────────────────────────────────────────────
+            # ⚠️ Ne PAS prendre le premier nombre venu. Le 08/09, sur
+            # « * Capital social ou personnel (1) 733.956.000,00 », le motif
+            # attrapait le « 1 » de l'appel de note et le rejetait ensuite
+            # comme hors bornes — le capital de Marsa Maroc était donc déclaré
+            # illisible alors qu'il figurait deux mots plus loin. On parcourt
+            # désormais TOUS les nombres de la ligne et l'on retient le premier
+            # qui tombe dans la fourchette plausible.
             if "capital" in l.lower() and "capital_social" not in res:
-                m = re.search(r"[Cc]apital\s+social[^\d]{0,40}" + NB, l)
-                if m:
-                    v = _nombre(m.group(1))
-                    if v and 1e6 <= v <= 5e10:
-                        res["capital_social"] = {"valeur": v, "page": int(i)}
+                v = _premier_plausible(l, r"[Cc]apital\s+social", 1e6, 5e10)
+                if v is not None:
+                    res["capital_social"] = {"valeur": v, "page": int(i)}
 
             # ── nombre d'actions ──────────────────────────────────────────
             if "action" in l.lower() and "nombre_actions" not in res:
-                m = re.search(r"[Nn]ombre\s+(?:moyen\s+)?d[e']\s?actions[^\d]{0,60}" + NB, l)
-                if m:
-                    v = _nombre(m.group(1))
-                    if v and 1e4 <= v <= 1e10:
-                        res["nombre_actions"] = {"valeur": v, "page": int(i)}
+                v = _premier_plausible(
+                    l, r"[Nn]ombre\s+(?:moyen\s+)?d[e']\s?actions", 1e4, 1e10)
+                if v is not None:
+                    res["nombre_actions"] = {"valeur": v, "page": int(i)}
 
             # ── résultat net part du groupe ───────────────────────────────
             # ⚠️ Une ligne de PROSE contient aussi « résultat net part du
