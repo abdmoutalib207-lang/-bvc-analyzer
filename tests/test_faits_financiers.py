@@ -171,3 +171,67 @@ def test_les_publications_vont_de_la_plus_recente_a_la_plus_ancienne():
         dates = [p["arrete_au"] for p in e.get("publications", [])]
         assert dates == sorted(dates, reverse=True), (
             f"{tic} : publications dans le désordre — {dates}")
+
+
+# ── contrôles de vraisemblance sur les données PUBLIÉES ──────────────────
+
+def test_aucun_benefice_par_action_n_excede_le_cours():
+    """Un BPA supérieur au cours signale presque toujours une opération sur
+    titres non répercutée.
+
+    ⚠️ C'est le défaut trouvé le 08/09 sur Managem : `bpa.json` porte 234,0
+    avec la note « PER réel 64 (cours 14 998 DH) » — un cours d'AVANT le split
+    10:1 du 27/07/2026. Le split a divisé le cours par dix, pas le BPA. Le
+    terminal affichait donc Managem à 7,5 fois ses bénéfices, un titre bon
+    marché, alors qu'il se paie 69 fois.
+
+    Le seuil est volontairement large : un BPA vaut rarement plus du tiers du
+    cours (PER 3), et jamais sur un marché comme la BVC.
+    """
+    racine = Path(__file__).resolve().parent.parent
+    d = json.loads((racine / "data.json").read_text(encoding="utf-8"))
+    coupables = []
+    for x in d["tickers"]:
+        bpa, prix = x.get("bpa"), x.get("price")
+        if not bpa or not prix or prix <= 0:
+            continue
+        if bpa > prix / 3:
+            coupables.append((x["symbol"], bpa, prix, round(prix / bpa, 1)))
+
+    # ⚠️ Les cas déjà constatés et non encore tranchés sont en quarantaine
+    # dans faits_financiers.json, avec leur date et ce qu'il faut pour les
+    # lever. Sans cela, ce test resterait rouge en permanence — et une alarme
+    # toujours allumée n'alerte plus. Il échoue donc sur les cas NOUVEAUX.
+    connus = set(_charge().get("_defauts_connus", {}).get("bpa_implausible", {}))
+    nouveaux = [c for c in coupables if c[0] not in connus]
+    assert not nouveaux, (
+        "BPA implausible — vérifier une opération sur titres non répercutée "
+        f"(cf. SPLITS dans bvc_config.py) : {nouveaux}")
+
+
+def test_aucun_resultat_net_n_excede_la_capitalisation():
+    """Le contrôle qui aurait attrapé la collision MRL / Marsa Maroc.
+
+    `bpa.json["MRL"]` — Maroc Leasing, société de financement — porte la note
+    « RNPG 1 589 MDH, trafic 67 Mt ». C'est la description de Marsa Maroc.
+    Maroc Leasing capitalise 1 076 MMAD : un tel résultat donnerait un PER de
+    0,68, ce qui n'existe pas.
+
+    Le test porte sur `bpa × nombre d'actions` reconstitué depuis la
+    capitalisation et le cours — donc sur ce que le terminal publie
+    réellement, pas sur une intention.
+    """
+    racine = Path(__file__).resolve().parent.parent
+    d = json.loads((racine / "data.json").read_text(encoding="utf-8"))
+    coupables = []
+    for x in d["tickers"]:
+        bpa, prix, cap = x.get("bpa"), x.get("price"), x.get("cap")
+        if not bpa or not prix or not cap or prix <= 0 or cap <= 0:
+            continue
+        actions = cap * 1e6 / prix
+        rn = bpa * actions / 1e6           # en MMAD
+        if rn > cap:                        # PER < 1
+            coupables.append((x["symbol"], round(rn), cap, round(prix / bpa, 2)))
+    assert not coupables, (
+        "résultat net reconstitué supérieur à la capitalisation — identité "
+        f"probablement croisée : {coupables}")
