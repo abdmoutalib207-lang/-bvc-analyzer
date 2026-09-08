@@ -4,7 +4,6 @@
  "_regle": "AUCUNE valeur n'entre ici sans `page`. Un chiffre sans page redevient un chiffre de seconde main, et on aura seulement déplacé le problème.",
  "_unites": "Montants en MMAD (millions de dirhams) sauf mention contraire. Les ratios ne sont PAS stockés : ils se recalculent depuis ces faits et le cours du jour, sinon ils se figent — c'est exactement le défaut de `pb_fige` sur 80 titres sur 80.",
  "_etat": "AMORCE — un seul émetteur, à titre de démonstration. Ne pas brancher sur le moteur avant d'avoir tranché la question des définitions (cf. `_ecarts_mesures`).",
-
  "ADI": {
   "societe": "Alliances Développement Immobilier",
   "exercice": 2025,
@@ -13,39 +12,207 @@
   "depose_aupres_de": "AMMC",
   "pages_document": 151,
   "releve_le": "2026-09-07",
-
   "faits": {
-   "chiffre_affaires":              {"valeur": 2432.0,    "page": 17, "note": "consolidé, 31/12/2025"},
-   "chiffre_affaires_2024":         {"valeur": 2363.0,    "page": 17},
-   "resultat_exploitation":         {"valeur": 586.0,     "page": 17},
-   "resultat_financier":            {"valeur": -45.0,     "page": 17},
-   "excedent_brut_exploitation":    {"valeur": 603.0,     "page": 14, "note": "EBE 2024 : 568"},
-   "resultat_net_consolide":        {"valeur": 401.758,   "page": 23},
-   "resultat_net_part_groupe":      {"valeur": 407.601,   "page": 21, "note": "supérieur au consolidé : les minoritaires sont en perte"},
-   "capitaux_propres_part_groupe":  {"valeur": 3993.181,  "page": 21},
-   "capitaux_propres_consolides":   {"valeur": 4084.918,  "page": 21},
-   "endettement_net":               {"valeur": 1303.0,    "page": 17, "note": "dont emprunt obligataire de 449 MMAD émis en déc. 2025"},
-   "endettement_net_2024":          {"valeur": 1136.0,    "page": 17},
-   "capital_social":                {"valeur": 2207.8588, "page": 50},
-   "nombre_actions":                {"valeur": 22078588,  "page": 50, "unite": "actions", "note": "valeur nominale 100 MAD"},
-   "carnet_commandes_unites":       {"valeur": 6205,      "page": 14, "unite": "unités"},
-   "encaissements":                 {"valeur": 1900.0,    "page": 14, "note": "1 600 en 2024, +17 %"}
+   "chiffre_affaires": {
+    "valeur": 2432.0,
+    "page": 17,
+    "note": "consolidé, 31/12/2025"
+   },
+   "chiffre_affaires_2024": {
+    "valeur": 2363.0,
+    "page": 17
+   },
+   "resultat_exploitation": {
+    "valeur": 586.0,
+    "page": 17
+   },
+   "resultat_financier": {
+    "valeur": -45.0,
+    "page": 17
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 603.0,
+    "page": 14,
+    "note": "EBE 2024 : 568"
+   },
+   "resultat_net_consolide": {
+    "valeur": 401.758,
+    "page": 23
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 407.601,
+    "page": 21,
+    "note": "supérieur au consolidé : les minoritaires sont en perte"
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 3993.181,
+    "page": 21
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 4084.918,
+    "page": 21
+   },
+   "endettement_net": {
+    "valeur": 1303.0,
+    "page": 17,
+    "note": "dont emprunt obligataire de 449 MMAD émis en déc. 2025"
+   },
+   "endettement_net_2024": {
+    "valeur": 1136.0,
+    "page": 17
+   },
+   "capital_social": {
+    "valeur": 2207.8588,
+    "page": 50
+   },
+   "nombre_actions": {
+    "valeur": 22078588,
+    "page": 50,
+    "unite": "actions",
+    "note": "valeur nominale 100 MAD"
+   },
+   "carnet_commandes_unites": {
+    "valeur": 6205,
+    "page": 14,
+    "unite": "unités"
+   },
+   "encaissements": {
+    "valeur": 1900.0,
+    "page": 14,
+    "note": "1 600 en 2024, +17 %"
+   }
   },
-
   "_recoupement_arithmetique": "capital 2 207 858 800 ÷ VN 100 = 22 078 588 actions. La série 2022-2025 de la page 17 est cohérente ligne à ligne avec les évolutions annoncées.",
-
   "_ecarts_mesures": {
    "_quand": "2026-09-07, cours de 416,00 DH (séance du 07/09)",
    "_comment_lire": "à gauche ce que le rapport permet de calculer, à droite ce que le terminal publie aujourd'hui. Seul le nombre d'actions concorde.",
-   "price_to_book":      {"rapport": 2.30,  "terminal": 0.8,   "ecart": "×2,9 — le terminal montre un titre sous sa valeur comptable alors qu'il vaut 2,3 fois ses fonds propres. Le sens de la thèse d'investissement est INVERSÉ. Champ marqué pb_fige."},
-   "bpa":                {"rapport": 18.46, "terminal": 20.9,  "ecart": "+13 %"},
-   "per":                {"rapport": 22.5,  "terminal": 19.9,  "ecart": "conséquence du BPA"},
-   "dette_nette_ebitda": {"rapport": 2.16,  "terminal": 5.5,   "ecart": "×2,5 — le terminal fait passer pour surendetté un groupe qui s'est désendetté"},
-   "croissance_ca":      {"rapport": 2.9,   "terminal": 25.7,  "ecart": "×9 — le rapport annonce +3 %, ou +14 % à normes comptables constantes. Ni l'un ni l'autre ne donne 25,7 %."},
-   "marge_nette":        {"rapport": 16.8,  "terminal": 12.9,  "ecart": "+3,9 points"},
-   "roic":               {"rapport": 7.6,   "terminal": 13.0,  "ecart": "⚠️ notre valeur de gauche est une ESTIMATION : NOPAT ≈ résultat d'exploitation × (1 − 30 %), capitaux employés = capitaux propres + dette nette. Le rapport ne publie pas de ROIC. À ne pas opposer aux autres lignes, qui sont de l'arithmétique pure."},
-   "capitalisation":     {"rapport": 9185,  "terminal": 9361,  "ecart": "2 % — écart de cours entre les deux calculs, sans gravité"},
-   "nombre_actions":     {"rapport": 22078588, "terminal": 22078588, "ecart": "identique ✓ — le seul champ qui concorde"}
-  }
+   "price_to_book": {
+    "rapport": 2.3,
+    "terminal": 0.8,
+    "ecart": "×2,9 — le terminal montre un titre sous sa valeur comptable alors qu'il vaut 2,3 fois ses fonds propres. Le sens de la thèse d'investissement est INVERSÉ. Champ marqué pb_fige.",
+    "cause_trouvee": "Le champ `cours_bv` de fondamentaux.json vaut 535,00 DH. L'actif net par action calculé depuis le rapport vaut 180,86 DH (3 993,181 MMAD ÷ 22 078 588). 535 impliquerait 7 463 890 actions — un nombre d'actions d'avant les augmentations de capital de la restructuration. La valeur par action a été figée, le nombre d'actions a triplé, et personne n'a recalculé. 416 ÷ 535 = 0,78, exactement le 0,8 publié."
+   },
+   "bpa": {
+    "rapport": 18.46,
+    "terminal": 20.9,
+    "ecart": "+13 %"
+   },
+   "per": {
+    "rapport": 22.5,
+    "terminal": 19.9,
+    "ecart": "conséquence du BPA"
+   },
+   "dette_nette_ebitda": {
+    "rapport": 2.16,
+    "terminal": 5.5,
+    "ecart": "×2,5 — le terminal fait passer pour surendetté un groupe qui s'est désendetté"
+   },
+   "croissance_ca": {
+    "rapport": 2.9,
+    "terminal": 25.7,
+    "ecart": "×9 — le rapport annonce +3 %, ou +14 % à normes comptables constantes. Ni l'un ni l'autre ne donne 25,7 %."
+   },
+   "marge_nette": {
+    "rapport": 16.8,
+    "terminal": 12.9,
+    "ecart": "+3,9 points"
+   },
+   "roic": {
+    "rapport": 7.6,
+    "terminal": 13.0,
+    "ecart": "⚠️ notre valeur de gauche est une ESTIMATION : NOPAT ≈ résultat d'exploitation × (1 − 30 %), capitaux employés = capitaux propres + dette nette. Le rapport ne publie pas de ROIC. À ne pas opposer aux autres lignes, qui sont de l'arithmétique pure."
+   },
+   "capitalisation": {
+    "rapport": 9185,
+    "terminal": 9361,
+    "ecart": "2 % — écart de cours entre les deux calculs, sans gravité"
+   },
+   "nombre_actions": {
+    "rapport": 22078588,
+    "terminal": 22078588,
+    "ecart": "identique ✓ — le seul champ qui concorde"
+   }
+  },
+  "publications": [
+   {
+    "periode": "T2-2026",
+    "arrete_au": "2026-06-30",
+    "type": "indicateurs trimestriels",
+    "document": "Communication financière au 30 juin 2026",
+    "url": "https://www.ammc.ma/sites/default/files/CP_ADI_T2_26.pdf",
+    "publie_le": "2026-08-12",
+    "pages_document": 1,
+    "faits": {
+     "chiffre_affaires_trimestre": {
+      "valeur": 803.0,
+      "page": 1,
+      "note": "T2-2025 : 618 → +30 %"
+     },
+     "chiffre_affaires_cumule": {
+      "valeur": 1418.0,
+      "page": 1,
+      "note": "S1-2025 : 1 333 → +6,4 %"
+     },
+     "endettement_net": {
+      "valeur": 1179.0,
+      "page": 1,
+      "note": "1 278 au T1-2026, 1 303 au 31/12/2025"
+     },
+     "preventes_unites": {
+      "valeur": 1639,
+      "page": 1,
+      "unite": "unités",
+      "note": "T2-2025 : 1 409 → +16 %"
+     },
+     "unites_en_production": {
+      "valeur": 6312,
+      "page": 1,
+      "unite": "unités"
+     },
+     "carnet_commandes_vit": {
+      "valeur": 4500.0,
+      "page": 1,
+      "note": "valeur immobilière totale sécurisée"
+     }
+    }
+   },
+   {
+    "periode": "T1-2026",
+    "arrete_au": "2026-03-31",
+    "type": "indicateurs trimestriels",
+    "document": "Communication financière au 31 mars 2026",
+    "url": "https://www.ammc.ma/sites/default/files/CP_ADI_T1_26.pdf",
+    "publie_le": "2026-05-29",
+    "pages_document": 1,
+    "faits": {
+     "chiffre_affaires_trimestre": {
+      "valeur": 615.0,
+      "page": 1,
+      "note": "T1-2025 : 715 → -14 %"
+     },
+     "endettement_net": {
+      "valeur": 1278.0,
+      "page": 1,
+      "note": "1 060 un an plus tôt ; intègre l'obligataire de 449 de déc. 2025"
+     },
+     "preventes_unites": {
+      "valeur": 1776,
+      "page": 1,
+      "unite": "unités"
+     },
+     "unites_en_production": {
+      "valeur": 6297,
+      "page": 1,
+      "unite": "unités"
+     },
+     "encaissements": {
+      "valeur": 437.0,
+      "page": 1
+     }
+    }
+   }
+  ],
+  "_ce_que_les_trimestriels_ne_donnent_pas": "⚠️ Au Maroc, une communication trimestrielle publie le chiffre d'affaires, l'endettement net et l'activité commerciale — JAMAIS le résultat net ni les capitaux propres. Conséquence directe : le PER, le price-to-book et la marge nette ne peuvent être rafraîchis que DEUX FOIS PAR AN, au semestriel et à l'annuel. Ce n'est pas une excuse pour `pb_fige`, mais c'est la contrainte réelle : la fraîcheur maximale d'un PB est de six mois, et il faut donc l'afficher avec sa date d'arrêté plutôt que de le laisser passer pour courant.",
+  "_quatre_per_dans_une_seule_fiche": "⚠️ fondamentaux.json ADI porte per=15,0, pe_24=39,12, pe_25c=30,13 et forward_per=12,5. Quatre PER, aucun libellé ne dit lequel le terminal affiche. Le PER calculé du rapport au cours de 416 DH vaut 22,5."
  }
 }

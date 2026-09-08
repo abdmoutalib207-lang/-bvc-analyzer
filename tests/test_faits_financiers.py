@@ -42,6 +42,18 @@ def _emetteurs(d):
     return {k: v for k, v in d.items() if not k.startswith("_")}
 
 
+def _blocs(e):
+    """Le bloc annuel, puis chaque publication trimestrielle.
+
+    Les mêmes règles s'appliquent partout : sans cela, un fait déposé dans
+    `publications` échapperait au contrôle de page et à l'interdiction des
+    ratios — et le fichier dériverait par le bas.
+    """
+    yield e
+    for pub in e.get("publications", []):
+        yield pub
+
+
 def test_chaque_fait_porte_sa_page():
     """La règle non négociable du fichier.
 
@@ -49,12 +61,13 @@ def test_chaque_fait_porte_sa_page():
     plus que `fondamentaux.json`.
     """
     for tic, e in _emetteurs(_charge()).items():
-        for nom, fait in e["faits"].items():
-            assert "page" in fait, f"{tic}.{nom} n'a pas de page"
-            assert isinstance(fait["page"], int) and fait["page"] > 0
-            assert fait["page"] <= e["pages_document"], (
-                f"{tic}.{nom} renvoie à la page {fait['page']} d'un document "
-                f"qui en compte {e['pages_document']}")
+        for bloc in _blocs(e):
+            for nom, fait in bloc["faits"].items():
+                assert "page" in fait, f"{tic}.{nom} n'a pas de page"
+                assert isinstance(fait["page"], int) and fait["page"] > 0
+                assert fait["page"] <= bloc["pages_document"], (
+                    f"{tic}.{nom} renvoie à la page {fait['page']} d'un "
+                    f"document qui en compte {bloc['pages_document']}")
 
 
 def test_chaque_emetteur_porte_son_document_et_sa_date():
@@ -112,10 +125,11 @@ def test_les_ratios_ne_sont_pas_stockes():
     interdits = {"per", "pe", "pb", "price_to_book", "roic", "div_yield",
                  "marge_nette", "croissance_ca", "dette_nette_ebitda"}
     for tic, e in _emetteurs(_charge()).items():
-        trouves = interdits & set(e["faits"])
-        assert not trouves, (
-            f"{tic} : {sorted(trouves)} sont des ratios, pas des faits. "
-            f"Les stocker revient à refaire `pb_fige`.")
+        for bloc in _blocs(e):
+            trouves = interdits & set(bloc["faits"])
+            assert not trouves, (
+                f"{tic} : {sorted(trouves)} sont des ratios, pas des faits. "
+                f"Les stocker revient à refaire `pb_fige`.")
 
 
 def test_les_ecarts_mesures_citent_les_deux_cotes():
@@ -131,3 +145,29 @@ def test_les_ecarts_mesures_citent_les_deux_cotes():
                 continue
             assert {"rapport", "terminal", "ecart"} <= set(val), (
                 f"{tic}.{nom} : un écart doit porter rapport, terminal et ecart")
+
+
+def test_chaque_publication_porte_sa_date_et_son_document():
+    """Une publication trimestrielle sans date d'arrêté est inutilisable.
+
+    ⚠️ Au Maroc, un trimestriel publie le chiffre d'affaires, l'endettement et
+    l'activité commerciale — jamais le résultat net ni les capitaux propres.
+    Le PER et le price-to-book ne peuvent donc être rafraîchis que deux fois
+    par an. La date d'arrêté est ce qui permet de dire à l'écran « PB au
+    31/12/2025 » plutôt que de le laisser passer pour courant.
+    """
+    for tic, e in _emetteurs(_charge()).items():
+        for pub in e.get("publications", []):
+            for champ in ("periode", "arrete_au", "type", "document",
+                          "url", "publie_le", "pages_document"):
+                assert pub.get(champ), f"{tic}/{pub.get('periode','?')} : « {champ} » manquant"
+            assert pub["arrete_au"] <= pub["publie_le"], (
+                f"{tic}/{pub['periode']} : publié avant sa propre date d'arrêté")
+
+
+def test_les_publications_vont_de_la_plus_recente_a_la_plus_ancienne():
+    """L'ordre porte du sens : la première ligne est l'état le plus frais."""
+    for tic, e in _emetteurs(_charge()).items():
+        dates = [p["arrete_au"] for p in e.get("publications", [])]
+        assert dates == sorted(dates, reverse=True), (
+            f"{tic} : publications dans le désordre — {dates}")
