@@ -464,6 +464,31 @@ async function fetchMASI(){
 }
 
 // ── UTILS ──────────────────────────────────────────────────────────────────────
+// ── PONDÉRATIONS ──────────────────────────────────────────────────────────
+// UNE seule pondération est OFFICIELLE : c'est elle qui porte le signal, qui
+// va dans le bulletin, et qui pourra un jour être backtestée. Les autres sont
+// des vues d'exploration.
+//
+// ⚠️ POURQUOI LE SIGNAL DISPARAÎT HORS DU MODE OFFICIEL. Une note est une
+// exploration ; un signal est une recommandation. Si l'on peut faire glisser
+// les poids jusqu'à ce que le classement dise ce qu'on pensait, la note cesse
+// d'être un jugement et devient le miroir d'une opinion. Le classement reste
+// consultable — c'est le mot ACHETER qui s'efface.
+//
+// ⚠️ Avant le 08/09/2026, ce réglage recalculait la NOTE mais laissait la
+// colonne SIGNAL telle que le moteur l'avait produite. Les deux colonnes,
+// côte à côte, ne parlaient plus de la même formule, et rien ne le disait :
+// 28 titres sur 80 auraient changé de palier. C'est ce défaut que corrige ce
+// bloc, autant que l'ajout des vues.
+const PONDERATIONS=[
+  {nom:"OFFICIEL",f:47,n:28,t:25,officiel:true,aide:"Formule v5.3 publiée — Fond 47 · NLP 28 · Tech 25"},
+  {nom:"70/30",f:70,n:0,t:30,aide:"Fondamental dominant — horizon long"},
+  {nom:"60/40",f:60,n:0,t:40,aide:"Fondamental dominant, technique renforcée"},
+  {nom:"50/50",f:50,n:0,t:50,aide:"Équilibre"},
+  {nom:"40/60",f:40,n:0,t:60,aide:"Technique dominante"},
+  {nom:"30/70",f:30,n:0,t:70,aide:"Technique dominante — horizon court"},
+];
+
 const SS=s=>{const u=(s||"").toUpperCase();
   if(u.includes("ACHAT FORT")||u.includes("★★★")) return{bg:"rgba(0,229,160,.18)",fg:"#00ffb3",bd:"rgba(0,229,160,.5)"};
   if(u.includes("★★")||u==="ACHETER")              return{bg:"rgba(0,229,160,.10)",fg:"#00e5a0",bd:"rgba(0,229,160,.35)"};
@@ -930,15 +955,20 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
           {/* Score mode — composantes indépendantes */}
           <div style={{display:"flex",alignItems:"center",gap:4,background:"rgba(10,18,32,.8)",border:"1px solid #1a2540",borderRadius:5,padding:"3px 6px"}}>
             <span style={{fontSize:9,color:"#4a5570",letterSpacing:.5,marginRight:2}}>SCORE</span>
-            {[["f","FOND 47%","#b388ff"],["n","NLP 28%","#00e5a0"],["t","TECH 25%","#4db8ff"]].map(([k,lbl,c])=>(
-              <button key={k} onClick={()=>setScoreMode(prev=>({...prev,[k]:!prev[k]}))}
-                style={{fontSize:10,padding:"2px 9px",borderRadius:3,border:`1px solid ${scoreMode[k]?c:c+"30"}`,color:scoreMode[k]?c:"#4a5570",background:scoreMode[k]?`${c}18`:"transparent",cursor:"pointer",fontFamily:"var(--font)",fontWeight:scoreMode[k]?700:400,transition:"all .15s",textDecoration:scoreMode[k]?"none":"line-through"}}>
-                {scoreMode[k]?"✓ ":""}{lbl}
-              </button>
-            ))}
-            <span style={{fontSize:9,color:(!scoreMode.f&&!scoreMode.n&&!scoreMode.t)?"#ff4f5a":(scoreMode.f&&scoreMode.n&&scoreMode.t)?"#8892a4":"#ffd740",marginLeft:3}}>
-              {scoreModeLabel(scoreMode)}
-            </span>
+            {PONDERATIONS.map(p=>{
+              const on=scoreMode.nom===p.nom, c=p.officiel?"#00e5a0":"#ffd740";
+              return(
+                <button key={p.nom} onClick={()=>setScoreMode(p)} title={p.aide}
+                  style={{fontSize:10,padding:"2px 9px",borderRadius:3,border:`1px solid ${on?c:c+"30"}`,color:on?c:"#4a5570",background:on?`${c}18`:"transparent",cursor:"pointer",fontFamily:"var(--font)",fontWeight:on?700:400,transition:"all .15s"}}>
+                  {p.nom}
+                </button>
+              );
+            })}
+            {!scoreMode.officiel&&(
+              <span style={{fontSize:9,color:"#ffd740",marginLeft:4,letterSpacing:.5}}>
+                SIMULATION — signal masqué
+              </span>
+            )}
           </div>
           <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
             <span style={{fontSize:13,color:"#00e5a0",fontWeight:700,letterSpacing:1,minWidth:72}}>{clock}</span>
@@ -1064,7 +1094,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
   const [group,setGroup]=useState("ALL"); // ALL = 77 titres / MASI1 = 19 tickers NLP
   const [sigFilter,setSigFilter]=useState(null);
   const [rsiZone,setRsiZone]=useState(null);
-  const customMode=scoreMode&&!(scoreMode.f&&scoreMode.n&&scoreMode.t);
+  const customMode=!!(scoreMode&&!scoreMode.officiel);
   const NLP_TICKERS=new Set(["CMT","SMI","CASH","MNG","AKD","SOT","SGTM","MSA","CFGB","RIS","ADI","VCNE","CMGP","CSR","TGCC","ADH","SRM","SNA","RDS"]);
   const sectors=useMemo(()=>["ALL",...new Set(rows.map(r=>r.sector).filter(Boolean).sort())],[rows]);
 
@@ -1125,13 +1155,18 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         {(search||sector!=="ALL"||sigFilter||rsiZone)&&<button onClick={()=>{setSearch("");setSector("ALL");setSigFilter(null);setRsiZone(null);}} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"3px 8px",background:"transparent"}}>✕ Réinitialiser</button>}
         <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{sorted.length}/{group==="MASI1"?19:rows.length} titres{group==="MASI1"&&<span style={{color:"#00e5a0",marginLeft:4}}>NLP ✓</span>}</span>
         <button onClick={()=>{
-          const cols=["TICKER BVC","CODE INTERNE","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE","SIGNAL","ALPHA","SM_HEUR_NON_CALIBRE","BVC"];
-          const rows_csv=sorted.map(r=>[tk(r),r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",r.pe?.toFixed(1)||"",r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",computeDisplayScore(r,scoreMode).toFixed(2),r.sig||"",r.alpha||"",r.win||"",r.bvc?.toFixed(2)||""]);
+          // ⚠️ La pondération part avec le fichier : un CSV survit à l'écran
+          // qui l'a produit, et une note sans sa formule est ininterprétable.
+          const cols=["TICKER BVC","CODE INTERNE","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE","PONDERATION","SIGNAL","ALPHA","SM_HEUR_NON_CALIBRE","BVC"];
+          const rows_csv=sorted.map(r=>[tk(r),r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",r.pe?.toFixed(1)||"",r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",computeDisplayScore(r,scoreMode).toFixed(2),scoreModeLabel(scoreMode),customMode?"":(r.sig||""),r.alpha||"",r.win||"",r.bvc?.toFixed(2)||""]);
           const csv="﻿"+[cols,...rows_csv].map(r=>r.join(";")).join("\n");
           const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
           const url=URL.createObjectURL(blob);
           const a=document.createElement("a");
-          a.href=url; a.download=`bvc_${new Date().toISOString().slice(0,10)}.csv`;
+          a.href=url;
+          // Le nom du fichier porte la pondération : deux exports du même jour
+          // sous deux vues ne doivent pas se ressembler.
+          a.download=`bvc_${new Date().toISOString().slice(0,10)}_${scoreModeLabel(scoreMode).replace("/","-")}.csv`;
           document.body.appendChild(a); a.click();
           document.body.removeChild(a); URL.revokeObjectURL(url);
         }} style={{fontSize:10,padding:"3px 10px",borderRadius:3,border:"1px solid #4db8ff40",color:"#4db8ff",background:"transparent",cursor:"pointer",letterSpacing:.5}}>
@@ -1232,7 +1267,15 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       </div>}
                     </div>
                   </td>
-                  <td style={{padding:"8px 8px"}}>{meta(r).conf<=1
+                  {/* ⚠️ Hors pondération officielle, le SIGNAL disparaît. Le
+                      moteur l'a calculé avec 47/28/25 ; l'afficher à côté
+                      d'une note recalculée autrement mettrait deux formules
+                      côte à côte sans le dire. Une note s'explore, un signal
+                      se recommande. */}
+                  <td style={{padding:"8px 8px"}}>{customMode
+                    ? <span title="Le signal n'existe que pour la pondération officielle"
+                        style={{fontSize:11,color:"#4a5570",letterSpacing:1}}>—</span>
+                    : meta(r).conf<=1
                     ? <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550"/>
                     : <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd}/>}</td>
                   <td style={{padding:"8px 8px",minWidth:85}}>
@@ -2233,29 +2276,24 @@ const NewsFeed=()=>{
 // ── SCORE PERSONNALISÉ ────────────────────────────────────────────────────────
 // Recalcule un score d'affichage selon les composantes actives (F/N/T)
 // Ne modifie PAS le score v5.3 stocké — lecture seule des sous-scores
-function computeDisplayScore(r, mode) {
-  if (!mode || (mode.f && mode.n && mode.t)) return r.v53; // complet → v5.3 intact
+function computeDisplayScore(r, p) {
+  // Le mode officiel rend le v5.3 du moteur TEL QUEL — bonus et malus compris.
+  // Le recalculer ici donnerait un chiffre légèrement différent de celui du
+  // bulletin, et personne ne saurait lequel croire.
+  if (!p || p.officiel) return r.v53;
   const sf = r.bvc ?? 5;                                   // Fondamental (0-10)
-  const sn = ((r.nlp || 0) + 1) * 5;                      // NLP [-1,+1] → [0,10]
+  const sn = ((r.nlp || 0) + 1) * 5;                        // NLP [-1,+1] → [0,10]
   const st = r.score_tech != null
     ? r.score_tech
-    : Math.min(10, Math.max(0, (r.rsi || r.rsi14 || 50) / 10)); // fallback RSI/10
-  const wf = mode.f ? (r.poids?.f || 47) : 0;
-  const wn = mode.n ? (r.poids?.n || 28) : 0;
-  const wt = mode.t ? (r.poids?.t || 25) : 0;
-  const total = wf + wn + wt;
+    : Math.min(10, Math.max(0, (r.rsi || r.rsi14 || 50) / 10)); // repli RSI/10
+  const total = (p.f||0) + (p.n||0) + (p.t||0);
   if (total === 0) return 0;
-  return +Math.min(10, Math.max(0, (sf*wf + sn*wn + st*wt) / total)).toFixed(2);
+  return +Math.min(10, Math.max(0, (sf*(p.f||0) + sn*(p.n||0) + st*(p.t||0)) / total)).toFixed(2);
 }
 
-function scoreModeLabel(mode) {
-  if (!mode || (mode.f && mode.n && mode.t)) return "COMPLET";
-  const parts = [];
-  if (mode.f) parts.push("FOND");
-  if (mode.n) parts.push("NLP");
-  if (mode.t) parts.push("TECH");
-  if (parts.length === 0) return "—";
-  return parts.join(" + ");
+function scoreModeLabel(p) {
+  if (!p || p.officiel) return "OFFICIEL";
+  return `F${p.f}/T${p.t}`;
 }
 
 // ── APP ───────────────────────────────────────────────────────────────────────
@@ -2305,7 +2343,7 @@ const MentionLegale=()=>(
 function App(){
   const [tab,setTab]=useState(()=>localStorage.getItem("bvc_tab")||"ranking");
   const [sort,setSort]=useState("v53");
-  const [scoreMode,setScoreMode]=useState({f:true,n:true,t:true});
+  const [scoreMode,setScoreMode]=useState(PONDERATIONS[0]);
   useEffect(()=>{setSort("v53");},[scoreMode]);
   const [sel,setSel]=useState("CMT");
   const [rows,setRows]=useState(STATIC);
