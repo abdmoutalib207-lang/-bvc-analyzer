@@ -232,6 +232,42 @@ correction était impossible avant que `masi_history.json` n'existe.
 C'est la même famille que le `0` mis pour `masi_ytd` inconnu, et que le
 `win = 50` du NLP quand la valeur manque. Trois endroits, un seul réflexe.
 
+## Famille 10 — Mon propre outil, pris au même piège (08/09)
+
+### « ONE » apparié à « S.M M-ONE-tique »
+Le catalogue AMMC apparie les émetteurs par le NOM. Mon bonus de containment
+testait `nb in na` sur les **chaînes brutes** : « one » est une sous-chaîne de
+« monétique », et l'Office National de l'Électricité a décroché 0,80 face à
+S2M — au-dessus du seuil, donc retenu sans alerte, avec zéro document.
+
+**C'est exactement la faute que je venais de documenter** dans les collisions
+d'identité du NLP : comparer des chaînes sans respecter les frontières de mots.
+Écrire la leçon ne protège pas de la refaire.
+**Correctif** : le containment se mesure sur des ENSEMBLES DE MOTS, jamais sur
+les caractères. `{marsa, maroc} ⊆ {sodep, marsa, maroc}` est un vrai
+sous-ensemble ; « one » dans « monétique » n'en est pas un.
+
+### « 0 rapport annuel » pour Managem, dont je venais de lire les 121 pages
+Le script annonçait 14 émetteurs sur 75 avec un rapport annuel, et 0 pour
+Managem — alors que `Managem_RFA_2025.pdf` était ouvert dans le répertoire de
+travail. La fiche émetteur de l'AMMC ne liste que les communiqués et les avis ;
+le rapport annuel existe sous un nom voisin, non lié depuis cette page :
+
+    fiche émetteur   Managem_2025.pdf       communiqué de résultats
+    rapport annuel   Managem_RFA_2025.pdf   le document de 121 pages
+
+**Signal** : un résultat contredit par ce qu'on a déjà sous la main. « 8 doc »
+pour les 75 émetteurs sans exception aurait dû suffire à alerter — une
+régularité parfaite décrit rarement le monde, elle décrit un artefact.
+**Correctif** : dériver le nom du rapport, puis **VÉRIFIER qu'il est servi**.
+Deviner une URL sans la tester aurait reproduit le travers combattu.
+⚠️ Et vérifier le type MIME, pas le seul code HTTP : l'AMMC renvoie une page
+d'erreur HTML de 105 ko avec un statut exploitable.
+
+**Leçon générale, la troisième fois qu'elle se vérifie : contrôler le
+RÉSULTAT, jamais le message de l'outil.** « Completely finished » l'avait déjà
+menti deux fois lors de la purge de l'historique.
+
 ## Le motif commun
 
 Presque toutes ces erreurs ont la même forme : **une autorité unique à laquelle

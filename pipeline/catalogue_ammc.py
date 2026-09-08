@@ -73,13 +73,21 @@ def _similarite(a: str, b: str) -> float:
 
     Volontairement simple et lisible : un appariement qu'on ne sait pas
     expliquer est un appariement qu'on ne peut pas contester.
+
+    ⚠️ LE CONTAINMENT SE MESURE SUR LES MOTS, JAMAIS SUR LES CARACTÈRES.
+    Corrigé le 08/09/2026 : la version précédente testait `nb in na` sur les
+    chaînes brutes, et « ONE » — l'Office National de l'Électricité — décrochait
+    0,80 face à « S.M M-ONE-tique » parce que ses trois lettres se trouvent au
+    milieu de « monétique ». S2M s'est ainsi retrouvé apparié à l'ONE, avec
+    zéro document. C'est le même défaut que les collisions d'identité du NLP :
+    comparer des chaînes sans respecter les frontières de mots.
     """
     ma, mb = _mots(a), _mots(b)
     if not ma or not mb:
         return 0.0
     j = len(ma & mb) / len(ma | mb)
-    na, nb = _norm(a).strip(), _norm(b).strip()
-    if na and nb and (na in nb or nb in na):
+    # Sous-ensemble strict de mots : « MARSA MAROC » ⊂ « SODEP MARSA MAROC ».
+    if ma <= mb or mb <= ma:
         j = max(j, 0.80)
     return j
 
@@ -169,10 +177,53 @@ def documents(ident: str) -> list:
     return docs
 
 
-def _est_rapport_annuel(doc: dict) -> bool:
-    t = _norm(doc["titre"] + " " + doc["fichier"])
-    return ("rfa" in t.split() or "rapport financier annuel" in t
-            or re.search(r"\brfa[_ ]", t) is not None)
+def _existe(url: str) -> bool:
+    """Le fichier est-il réellement servi ? ⚠️ L'AMMC renvoie une page HTML
+    d'erreur en 404 avec un corps de ~105 ko : se fier au seul code HTTP ne
+    suffit pas, il faut vérifier le type de contenu."""
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": UA}, method="HEAD")
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return r.status == 200 and "pdf" in r.headers.get("Content-Type", "").lower()
+    except Exception:
+        return False
+
+
+def rapports_annuels(docs: list) -> list:
+    """Retrouve le RAPPORT ANNUEL, qui n'est PAS listé sur la fiche émetteur.
+
+    ⚠️ Découvert le 08/09/2026 en vérifiant le résultat plutôt que le message
+    du script : celui-ci annonçait « 0 RFA » pour Managem, dont je venais de
+    télécharger le rapport de 121 pages. La fiche émetteur de l'AMMC ne liste
+    que les communiqués et les avis. Le rapport annuel existe bien, sous un
+    nom voisin :
+
+        fiche émetteur   Managem_2025.pdf      (communiqué de résultats)
+        rapport annuel   Managem_RFA_2025.pdf  (le document de 121 pages)
+
+    On dérive donc le second du premier, et on VÉRIFIE qu'il est servi avant
+    de l'inscrire — deviner une URL sans la tester reproduirait exactement le
+    travers qu'on cherche à corriger.
+    """
+    trouves, vus = [], set()
+    for d in docs:
+        f = d["fichier"]
+        m = re.match(r"^(?!CP_|Avis_)(.+?)_(20\d\d)\.pdf$", f, re.I)
+        if not m:
+            continue
+        base, annee = m.group(1), m.group(2)
+        for motif in (f"{base}_RFA_{annee}.pdf", f"{base}_RFA_{annee[2:]}.pdf"):
+            url = f"{BASE}/sites/default/files/{motif}"
+            if url in vus:
+                continue
+            vus.add(url)
+            if _existe(url):
+                trouves.append({"url": url, "fichier": motif, "exercice": int(annee),
+                                "derive_de": f, "date_communique": d["date"],
+                                "verifie": True})
+                break
+        time.sleep(PAUSE / 2)
+    return sorted(trouves, key=lambda x: -x["exercice"])
 
 
 def main() -> int:
@@ -199,7 +250,7 @@ def main() -> int:
 
     for n, (tic, info) in enumerate(sorted(surs.items()), 1):
         docs = documents(info["id"])
-        annuels = [d for d in docs if _est_rapport_annuel(d)]
+        annuels = rapports_annuels(docs)
         catalogue["emetteurs"][tic] = {**info, "n_documents": len(docs),
                                        "rapports_annuels": annuels[:5],
                                        "documents": docs[:25]}
