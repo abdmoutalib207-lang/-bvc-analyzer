@@ -7,9 +7,21 @@
 
 ## Sur le marché marocain
 
-- **La BVC plafonne la variation à ±10 % par séance** (R10). Toute variation
-  calculée au-delà est une erreur de données, jamais un mouvement réel. C'est un
-  invariant réglementaire, donc un contrôle fiable et gratuit.
+- **La BVC plafonne la variation à ±10 % par séance — SUR LE COURS D'UNE
+  SOCIÉTÉ, pas sur l'indice** (R10). Toute variation calculée au-delà sur un
+  titre est une erreur de données, jamais un mouvement réel. C'est un invariant
+  réglementaire, donc un contrôle fiable et gratuit.
+  - ⚠️ **Le MASI n'est pas soumis à ce plafond.** Précision d'Abd Moutalib le
+    05/09/2026, après que j'aie justifié un contrôle sur l'indice « par R10 ».
+    Le seuil de ±10 % sur l'indice reste défendable comme **borne dérivée** —
+    une moyenne pondérée de titres chacun plafonné ne peut pas excéder le
+    plafond — mais c'est une conséquence arithmétique, pas la règle, et elle
+    tomberait si la composition changeait en séance.
+  - **Leçon générale : ne pas invoquer une règle pour justifier un contrôle
+    qu'elle ne couvre pas.** Le contrôle était bon, sa justification fausse ;
+    c'est ainsi qu'un seuil finit par être appliqué là où il n'a pas de sens.
+  - Amplitude réellement observée du MASI sur 185 séances (déc. 2025 →
+    sept. 2026) : **-5,63 % le 03/03/2026, +4,46 % le 15/06/2026**.
 - **Les jours fériés marocains sont en partie lunaires.** Le Mawlid n'a pas de
   date fixe et n'est confirmé par décret que peu de temps avant. **Ne jamais
   coder une liste de fériés complète** : elle vieillira sans prévenir. Seules

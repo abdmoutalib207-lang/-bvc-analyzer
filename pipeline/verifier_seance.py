@@ -129,7 +129,9 @@ def _controles(jour, ecart):
             if x.get("v53") is not None and not 0 <= x["v53"] <= 10]
     ajouter("score v5.3 dans [0, 10]", not hors, hors or "conforme")
 
-    # Règle R10 : la BVC plafonne la variation à ±10 % par séance.
+    # Règle R10 : la BVC plafonne la variation à ±10 % par séance, sur le
+    # COURS D'UNE SOCIÉTÉ. Le contrôle porte bien sur les titres un à un —
+    # l'indice, lui, n'est pas soumis à ce plafond (précision du 05/09/2026).
     aberrantes = [(t, x.get("chg")) for t, x in titres.items()
                   if abs(x.get("chg") or 0) > 10]
     ajouter("aucune variation au-delà de ±10 %", not aberrantes,

@@ -585,16 +585,34 @@ def analyze_smart_money_lead(
 
     sms = daily_sentiment.set_index("date")["smart_money_sentiment"]
 
-    # Proxy MASI: moyenne des rendements du panel de prix
-    if not price_panel.empty:
+    # ── Rendements de l'indice de référence ──────────────────────────────
+    # Ordre : vrai MASI, puis proxy équipondéré, puis rien. Le bruit aléatoire
+    # a été retiré le 05/09/2026 : corréler le sentiment du groupe à des
+    # nombres tirés au hasard ne mesure rien, mais produit tout de même un
+    # coefficient et un « décalage optimal » que la phase 14 publie ensuite
+    # comme un résultat. Une absence de donnée doit se dire, pas se combler.
+    masi_proxy = None
+    try:
+        import sys
+        from pathlib import Path as _P
+        sys.path.insert(0, str(_P(__file__).resolve().parent.parent / "pipeline"))
+        from masi_history import serie as _serie
+        s = _serie(str(sms.index.min())[:10], str(sms.index.max())[:10])
+        if len(s) >= 30:
+            reel = pd.Series(s, name="masi")
+            reel.index = pd.to_datetime(reel.index)
+            masi_proxy = reel.sort_index().pct_change().dropna()
+            logger.info(f"  Référence = MASI réel ({len(masi_proxy)} séances)")
+    except Exception as e:                                    # pragma: no cover
+        logger.warning(f"  Historique MASI indisponible ({e})")
+
+    if masi_proxy is None:
+        if price_panel.empty:
+            return {"error": "aucun indice de référence : ni MASI réel, "
+                             "ni panel de prix. Corrélation non calculable."}
+        # ⚠️ PROXY, PAS LE MASI : moyenne équipondérée de l'univers testé.
+        logger.warning("  Référence = proxy équipondéré du panel, PAS le MASI.")
         masi_proxy = price_panel.pct_change().mean(axis=1)
-    else:
-        # Génère un proxy MASI synthétique
-        idx = sms.index
-        rng = np.random.RandomState(42)
-        masi_proxy = pd.Series(
-            rng.normal(0.0003, 0.008, len(idx)), index=idx, name="masi_proxy"
-        )
 
     ll_df = compute_lead_lag_correlation(sms, masi_proxy, lags=lags)
     optimal = find_optimal_lead(ll_df)

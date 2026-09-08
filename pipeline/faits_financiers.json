@@ -1,0 +1,396 @@
+{
+ "_quoi": "Faits financiers extraits des documents PRIMAIRES — rapports financiers annuels déposés à l'AMMC, pas la presse.",
+ "_pourquoi": "fondamentaux.json est saisi à la main depuis une quarantaine de sources secondaires (Boursenews, Zonebourse, notes de courtiers), et tout y date de juin 2026. Personne ne peut vérifier d'où vient un chiffre. Ici, chaque valeur porte son document, sa page et sa date : elle se recontrôle en une minute.",
+ "_regle": "AUCUNE valeur n'entre ici sans `page`. Un chiffre sans page redevient un chiffre de seconde main, et on aura seulement déplacé le problème.",
+ "_unites": "Montants en MMAD (millions de dirhams) sauf mention contraire. Les ratios ne sont PAS stockés : ils se recalculent depuis ces faits et le cours du jour, sinon ils se figent — c'est exactement le défaut de `pb_fige` sur 80 titres sur 80.",
+ "_etat": "AMORCE — un seul émetteur, à titre de démonstration. Ne pas brancher sur le moteur avant d'avoir tranché la question des définitions (cf. `_ecarts_mesures`).",
+ "ADI": {
+  "societe": "Alliances Développement Immobilier",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/ADI_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "pages_document": 151,
+  "releve_le": "2026-09-07",
+  "faits": {
+   "chiffre_affaires": {
+    "valeur": 2432.0,
+    "page": 17,
+    "note": "consolidé, 31/12/2025"
+   },
+   "chiffre_affaires_2024": {
+    "valeur": 2363.0,
+    "page": 17
+   },
+   "resultat_exploitation": {
+    "valeur": 586.0,
+    "page": 17
+   },
+   "resultat_financier": {
+    "valeur": -45.0,
+    "page": 17
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 603.0,
+    "page": 14,
+    "note": "EBE 2024 : 568"
+   },
+   "resultat_net_consolide": {
+    "valeur": 401.758,
+    "page": 23
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 407.601,
+    "page": 21,
+    "note": "supérieur au consolidé : les minoritaires sont en perte"
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 3993.181,
+    "page": 21
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 4084.918,
+    "page": 21
+   },
+   "endettement_net": {
+    "valeur": 1303.0,
+    "page": 17,
+    "note": "dont emprunt obligataire de 449 MMAD émis en déc. 2025"
+   },
+   "endettement_net_2024": {
+    "valeur": 1136.0,
+    "page": 17
+   },
+   "capital_social": {
+    "valeur": 2207.8588,
+    "page": 50
+   },
+   "nombre_actions": {
+    "valeur": 22078588,
+    "page": 50,
+    "unite": "actions",
+    "note": "valeur nominale 100 MAD"
+   },
+   "carnet_commandes_unites": {
+    "valeur": 6205,
+    "page": 14,
+    "unite": "unités"
+   },
+   "encaissements": {
+    "valeur": 1900.0,
+    "page": 14,
+    "note": "1 600 en 2024, +17 %"
+   }
+  },
+  "_recoupement_arithmetique": "capital 2 207 858 800 ÷ VN 100 = 22 078 588 actions. La série 2022-2025 de la page 17 est cohérente ligne à ligne avec les évolutions annoncées.",
+  "_ecarts_mesures": {
+   "_quand": "2026-09-07, cours de 416,00 DH (séance du 07/09)",
+   "_comment_lire": "à gauche ce que le rapport permet de calculer, à droite ce que le terminal publie aujourd'hui. Seul le nombre d'actions concorde.",
+   "price_to_book": {
+    "rapport": 2.3,
+    "terminal": 0.8,
+    "ecart": "×2,9 — le terminal montre un titre sous sa valeur comptable alors qu'il vaut 2,3 fois ses fonds propres. Le sens de la thèse d'investissement est INVERSÉ. Champ marqué pb_fige.",
+    "cause_trouvee": "⚠️ CORRIGÉ le 08/09. J'avais d'abord attribué l'erreur au champ `cours_bv` (535 DH) de fondamentaux.json, parce que 416 ÷ 535 = 0,78 tombait sur le 0,8 publié. C'était une COÏNCIDENCE ARITHMÉTIQUE, et j'ai conclu sans lire le code. La vraie cause est plus simple et plus grave : le price-to-book est écrit EN DUR dans `FOND_DATA`, une table codée dans update_data.py — `\"ADI\": {\"pe\":22, \"pb\":0.8, ...}`. Il ne dérive d'aucun calcul. `cours_bv` n'est lu nulle part par le moteur. Leçon : une coïncidence numérique n'est pas une explication ; il faut lire le code qui produit la valeur."
+   },
+   "bpa": {
+    "rapport": 18.46,
+    "terminal": 20.9,
+    "ecart": "+13 %"
+   },
+   "per": {
+    "rapport": 22.5,
+    "terminal": 19.9,
+    "ecart": "conséquence du BPA"
+   },
+   "dette_nette_ebitda": {
+    "rapport": 2.16,
+    "terminal": 5.5,
+    "ecart": "×2,5 — le terminal fait passer pour surendetté un groupe qui s'est désendetté"
+   },
+   "croissance_ca": {
+    "rapport": 2.9,
+    "terminal": 25.7,
+    "ecart": "×9 — le rapport annonce +3 %, ou +14 % à normes comptables constantes. Ni l'un ni l'autre ne donne 25,7 %."
+   },
+   "marge_nette": {
+    "rapport": 16.8,
+    "terminal": 12.9,
+    "ecart": "+3,9 points"
+   },
+   "roic": {
+    "rapport": 7.6,
+    "terminal": 13.0,
+    "ecart": "⚠️ notre valeur de gauche est une ESTIMATION : NOPAT ≈ résultat d'exploitation × (1 − 30 %), capitaux employés = capitaux propres + dette nette. Le rapport ne publie pas de ROIC. À ne pas opposer aux autres lignes, qui sont de l'arithmétique pure."
+   },
+   "capitalisation": {
+    "rapport": 9185,
+    "terminal": 9361,
+    "ecart": "2 % — écart de cours entre les deux calculs, sans gravité"
+   },
+   "nombre_actions": {
+    "rapport": 22078588,
+    "terminal": 22078588,
+    "ecart": "identique ✓ — le seul champ qui concorde"
+   }
+  },
+  "publications": [
+   {
+    "periode": "T2-2026",
+    "arrete_au": "2026-06-30",
+    "type": "indicateurs trimestriels",
+    "document": "Communication financière au 30 juin 2026",
+    "url": "https://www.ammc.ma/sites/default/files/CP_ADI_T2_26.pdf",
+    "publie_le": "2026-08-12",
+    "pages_document": 1,
+    "faits": {
+     "chiffre_affaires_trimestre": {
+      "valeur": 803.0,
+      "page": 1,
+      "note": "T2-2025 : 618 → +30 %"
+     },
+     "chiffre_affaires_cumule": {
+      "valeur": 1418.0,
+      "page": 1,
+      "note": "S1-2025 : 1 333 → +6,4 %"
+     },
+     "endettement_net": {
+      "valeur": 1179.0,
+      "page": 1,
+      "note": "1 278 au T1-2026, 1 303 au 31/12/2025"
+     },
+     "preventes_unites": {
+      "valeur": 1639,
+      "page": 1,
+      "unite": "unités",
+      "note": "T2-2025 : 1 409 → +16 %"
+     },
+     "unites_en_production": {
+      "valeur": 6312,
+      "page": 1,
+      "unite": "unités"
+     },
+     "carnet_commandes_vit": {
+      "valeur": 4500.0,
+      "page": 1,
+      "note": "valeur immobilière totale sécurisée"
+     }
+    }
+   },
+   {
+    "periode": "T1-2026",
+    "arrete_au": "2026-03-31",
+    "type": "indicateurs trimestriels",
+    "document": "Communication financière au 31 mars 2026",
+    "url": "https://www.ammc.ma/sites/default/files/CP_ADI_T1_26.pdf",
+    "publie_le": "2026-05-29",
+    "pages_document": 1,
+    "faits": {
+     "chiffre_affaires_trimestre": {
+      "valeur": 615.0,
+      "page": 1,
+      "note": "T1-2025 : 715 → -14 %"
+     },
+     "endettement_net": {
+      "valeur": 1278.0,
+      "page": 1,
+      "note": "1 060 un an plus tôt ; intègre l'obligataire de 449 de déc. 2025"
+     },
+     "preventes_unites": {
+      "valeur": 1776,
+      "page": 1,
+      "unite": "unités"
+     },
+     "unites_en_production": {
+      "valeur": 6297,
+      "page": 1,
+      "unite": "unités"
+     },
+     "encaissements": {
+      "valeur": 437.0,
+      "page": 1
+     }
+    }
+   }
+  ],
+  "_ce_que_les_trimestriels_ne_donnent_pas": "⚠️ Au Maroc, une communication trimestrielle publie le chiffre d'affaires, l'endettement net et l'activité commerciale — JAMAIS le résultat net ni les capitaux propres. Conséquence directe : le PER, le price-to-book et la marge nette ne peuvent être rafraîchis que DEUX FOIS PAR AN, au semestriel et à l'annuel. Ce n'est pas une excuse pour `pb_fige`, mais c'est la contrainte réelle : la fraîcheur maximale d'un PB est de six mois, et il faut donc l'afficher avec sa date d'arrêté plutôt que de le laisser passer pour courant.",
+  "_quatre_per_dans_une_seule_fiche": "⚠️ fondamentaux.json ADI porte per=15,0, pe_24=39,12, pe_25c=30,13 et forward_per=12,5. Quatre PER, aucun libellé ne dit lequel le terminal affiche. Le PER calculé du rapport au cours de 416 DH vaut 22,5."
+ },
+ "MNG": {
+  "societe": "Managem",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Managem_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "pages_document": 121,
+  "releve_le": "2026-09-08",
+  "faits": {
+   "chiffre_affaires": {
+    "valeur": 13694.0,
+    "page": 10
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 5982.0,
+    "page": 10
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 3002.0,
+    "page": 86,
+    "note": "619,8 en 2024 — ×4,8"
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 11478.3,
+    "page": 86,
+    "note": "« attribuables aux actionnaires ordinaires de la société mère »"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 12529.6,
+    "page": 86
+   },
+   "endettement_net": {
+    "valeur": 12674.0,
+    "page": 68,
+    "note": "10 272 en 2024"
+   },
+   "capital_social": {
+    "valeur": 1186.4676,
+    "page": 71
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 11864676,
+    "page": 98,
+    "unite": "actions",
+    "note": "⚠️ AVANT le split 10:1 du 27/07/2026. Valeur nominale 100 MAD à l'époque."
+   },
+   "capitalisation_31_12_2025": {
+    "valeur": 75934.0,
+    "page": 10
+   }
+  },
+  "_action_sur_titres": "⚠️ SPLIT 10:1 LE 27/07/2026, postérieur à la publication du rapport (30/04). Le nombre d'actions est passé de 11 864 676 à 118 646 760, valeur nominale 100 → 10. Tout ratio par action calculé depuis ce rapport DOIT être divisé par 10. Le registre `SPLITS` de bvc_config.py le déclare déjà.",
+  "_ecarts_mesures": {
+   "_quand": "2026-09-08, cours de 1 753,00 DH (séance du 08/09), 118 646 760 actions",
+   "bpa": {
+    "rapport": 25.3,
+    "terminal": 234.0,
+    "ecart": "×9,25 — le BPA du terminal est resté à l'échelle PRÉ-SPLIT"
+   },
+   "per": {
+    "rapport": 69.3,
+    "terminal": 7.5,
+    "ecart": "⚠️ LE PLUS GRAVE. Le terminal affiche Managem à 7,5 fois ses bénéfices — un titre bon marché — alors qu'il se paie 69 fois. Conséquence directe du BPA pré-split."
+   },
+   "price_to_book": {
+    "rapport": 18.12,
+    "terminal": 3.1,
+    "ecart": "le pb vient de FOND_DATA, table codée en dur, jamais ajustée du split"
+   },
+   "capitalisation": {
+    "rapport": 207988,
+    "terminal": 206327,
+    "ecart": "0,8 % — la capitalisation, elle, est juste : elle se calcule sur le cours et le bon nombre d'actions"
+   }
+  }
+ },
+ "MSA": {
+  "societe": "Sodep-Marsa Maroc",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Marsa_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "pages_document": 170,
+  "releve_le": "2026-09-08",
+  "faits": {
+   "chiffre_affaires": {
+    "valeur": 5784.894,
+    "page": 122,
+    "note": "5 008,150 en 2024"
+   },
+   "resultat_net_entreprises_integrees": {
+    "valeur": 1810.107,
+    "page": 122
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 1588.764,
+    "page": 121,
+    "note": "1 266,978 en 2024"
+   },
+   "interets_minoritaires": {
+    "valeur": 551.099,
+    "page": 121
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 4048.148,
+    "page": 124,
+    "note": "capital 733,956 + réserves 1 725,428 + résultat 1 588,764"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 4599.247,
+    "page": 121
+   },
+   "endettement_net": {
+    "valeur": -752.628,
+    "page": 129,
+    "note": "⚠️ NÉGATIF : le groupe est en TRÉSORERIE NETTE, pas endetté"
+   },
+   "capital_social": {
+    "valeur": 733.956,
+    "page": 136
+   },
+   "resultat_par_action_publie": {
+    "valeur": 21.65,
+    "page": 122,
+    "unite": "MAD",
+    "note": "publié par la société elle-même — 17,26 en 2024"
+   }
+  },
+  "_recoupement_arithmetique": "capital 733 956 000 ÷ VN 10 = 73 395 600 actions. Et 1 588 764 KMAD ÷ 21,65 = 73 384 018, le nombre moyen pondéré retenu pour le résultat par action. Les deux concordent.",
+  "_ecarts_mesures": {
+   "_quand": "2026-09-08, cours de 865,00 DH (séance du 08/09)",
+   "bpa": {
+    "rapport": 21.65,
+    "terminal": 13.64,
+    "ecart": "⚠️ LE CHIFFRE DU TERMINAL EST CELUI D'UNE AUTRE SOCIÉTÉ — voir _collision_identite"
+   },
+   "per": {
+    "rapport": 40.0,
+    "terminal": 63.4,
+    "ecart": "+59 % — conséquence directe du BPA emprunté à Mutandis"
+   },
+   "price_to_book": {
+    "rapport": 15.68,
+    "terminal": 1.8,
+    "ecart": "×8,7 — le pb vient de FOND_DATA, table codée en dur"
+   },
+   "marge_nette": {
+    "rapport": 27.5,
+    "terminal": 27.4,
+    "ecart": "concordant ✓"
+   },
+   "capitalisation": {
+    "rapport": 63487,
+    "terminal": 63120,
+    "ecart": "0,6 % ✓"
+   }
+  },
+  "_collision_identite": "⚠️ bpa.json[\"MSA\"] porte la note « Mutandis SCA — RN courant 140 MDH +10% FY2025 ». MSA est Sodep-Marsa Maroc ; MUT est Mutandis SCA. Le BPA de 13,64 est celui de Mutandis, pas de Marsa Maroc dont le rapport publie 21,65. L'anti-pattern est écrit noir sur blanc dans le CLAUDE.md — « MSA = Marsa Maroc, MUT = Mutandis SCA. Ne jamais les confondre » — et il s'est produit quand même. ⚠️ bpa.json[\"MUT\"] est VIDE : la donnée de Mutandis n'a pas été dupliquée, elle a été DÉPLACÉE."
+ },
+ "_defauts_systemiques": {
+  "_releve_le": "2026-09-08, sur trois émetteurs (ADI, MNG, MSA)",
+  "1_price_to_book_ecrit_en_dur": "Le champ `pb` ne vient d'aucun calcul : il est écrit littéralement dans la table `FOND_DATA` d'update_data.py — ADI 0,8 · MNG 3,1 · MSA 1,8. Les trois sont faux d'un facteur 3 à 9. `pb_fige: true` sur 80 titres sur 80 ne décrit pas une donnée périmée mais une CONSTANTE tapée dans le code.",
+  "2_le_split_n_a_pas_atteint_les_fondamentaux": "bpa.json[\"MNG\"] vaut 234,0 avec la note « PER réel 64 (cours 14 998 DH) » — un cours PRÉ-SPLIT. Le split 10:1 du 27/07/2026 a divisé le cours par dix, pas le BPA. Le terminal affiche donc Managem à PER 7,5 au lieu de 69. Le CLAUDE.md documente que « l'ajustement split ne tenait qu'un run » POUR LES CHANDELLES ; personne n'a vérifié les fondamentaux.",
+  "3_collision_d_identite_en_chaine": "MSA porte le BPA de Mutandis. Et bpa.json[\"MRL\"] — Maroc Leasing, une société de financement — porte la note « RNPG 1 589 MDH +25,4 % FY2025, trafic 67 Mt » : c'est la description de Marsa Maroc, dont le RFA publie 1 588,764 MMAD. Maroc Leasing n'a pas de trafic, et sa capitalisation de 1 076 MMAD rendrait un tel résultat impossible (PER 0,68). Les identités se sont décalées en chaîne. Un contrôle de vraisemblance — résultat net supérieur à la capitalisation — l'aurait attrapé."
+ },
+ "_defauts_connus": {
+  "_quoi": "Anomalies détectées par les contrôles de vraisemblance, PAS ENCORE tranchées faute d'avoir lu le rapport de la société. Elles sont ici pour que les tests échouent sur toute NOUVELLE occurrence sans rester rouges en permanence — une alarme toujours allumée n'alerte plus.",
+  "_regle": "Chaque entrée porte sa date et ce qu'il faut faire pour la lever. Une entrée qui traîne est une dette, pas une exception acquise.",
+  "bpa_implausible": {
+   "SNP": {
+    "constate_le": "2026-09-08",
+    "mesure": "BPA 117,50 DH pour un cours de 349,00 → PER 2,97",
+    "pourquoi_c_est_douteux": "Les champs de bpa.json se contredisent entre eux : BPA ÷ ROE(12 %) donne un actif net par action de 979 DH, soit 2,8 fois le cours ; le résultat net impliqué (275 MMAD) rapporté à la marge nette annoncée (5 %) exigerait un chiffre d'affaires de 5 495 MMAD, pour une société qui capitalise 816 MMAD ; et le dividende de 39 DH donnerait un rendement de 11,2 %.",
+    "source_du_champ": "casablancabourse_derive — dérivé, pas issu des résultats officiels",
+    "pour_lever": "lire le rapport financier annuel 2025 de SNEP sur ammc.ma et remplacer le BPA par le résultat net part du groupe ÷ nombre d'actions, avec la page."
+   }
+  }
+ }
+}
