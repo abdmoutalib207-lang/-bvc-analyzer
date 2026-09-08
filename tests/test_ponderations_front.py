@@ -124,3 +124,44 @@ def test_l_export_csv_emporte_la_ponderation():
 def test_un_bandeau_signale_la_simulation():
     assert "SIMULATION" in _src(), (
         "rien à l'écran ne distingue une vue d'exploration de la note publiée")
+
+
+# ── la fiche détaillée ───────────────────────────────────────────────────
+#
+# ⚠️ CES TESTS N'EXISTAIENT PAS le 08/09, et c'est pourquoi le défaut est
+# passé. J'avais fait suivre la pondération au CLASSEMENT en oubliant la
+# FICHE. Résultat : le même titre affichait un score dans le tableau et un
+# autre sur sa fiche, pour la même vue — et le grand chiffre de la fiche ne
+# bougeait jamais. Signalé par Abd Moutalib : « le score ne bouge pas même
+# après changement de pourcentage ».
+#
+# La leçon dépasse ce cas : un réglage qui traverse l'interface doit être
+# vérifié À CHAQUE ENDROIT où il s'applique, pas au premier.
+
+def test_la_fiche_detaillee_recoit_la_ponderation():
+    assert "const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})" in _src(), (
+        "le composant Detail ne reçoit pas scoreMode : sa note ne peut pas suivre")
+    assert "<Detail rows={rows}" in _src() and "scoreMode={scoreMode}/>" in _src(), (
+        "scoreMode n'est pas passé à Detail à l'appel")
+
+
+def test_la_fiche_affiche_la_note_de_la_vue_choisie():
+    """Le grand chiffre de la fiche doit venir de computeDisplayScore, pas de
+    `r.v53` — sinon il reste figé sur la formule officielle."""
+    s = _src()
+    assert "const scoreAffiche=computeDisplayScore(r,scoreMode);" in s
+    assert "lineHeight:1}}>{fmt(scoreAffiche)}</div>" in s, (
+        "la fiche affiche encore fmt(r.v53) : la note n'y bougera jamais")
+
+
+def test_le_signal_disparait_aussi_sur_la_fiche():
+    """Même règle qu'au classement. Un signal qui survit sur la fiche pendant
+    qu'il disparaît du tableau serait pire que pas de règle du tout."""
+    s = _src()
+    assert 'label="SIMULATION — signal masqué"' in s, (
+        "la fiche affiche encore le signal du moteur en mode simulation")
+
+
+def test_la_fiche_annonce_la_vue_utilisee():
+    assert "scoreModeLabel(scoreMode)}</span>" in _src(), (
+        "rien sur la fiche ne dit quelle pondération produit le chiffre affiché")

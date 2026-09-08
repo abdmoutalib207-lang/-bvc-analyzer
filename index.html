@@ -1331,10 +1331,16 @@ const TickerNews=({sym})=>{
 };
 
 // ── DETAIL ────────────────────────────────────────────────────────────────────
-const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
+const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
   const [detSearch,setDetSearch]=useState("");
   const r=rows.find(x=>(x.symbol||x.ticker)===sel)||rows[0];
   const s=SS(r.sig);
+  // ⚠️ La fiche doit suivre la pondération choisie, exactement comme le
+  // classement. Sans cela elle affiche le v5.3 du moteur quelle que soit la
+  // vue, et donne pour le même titre un score qui contredit le tableau.
+  // Oublié le 08/09 ; signalé par Abd Moutalib : « le score ne bouge pas ».
+  const simu=!!(scoreMode&&!scoreMode.officiel);
+  const scoreAffiche=computeDisplayScore(r,scoreMode);
   const price=r.price||r.prix;
   const h90=r.h90||r.high90;const l90=r.l90||r.low90;
   /* Les objectifs sont nullifiés côté pipeline quand ils ne sont plus à
@@ -1387,17 +1393,26 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
             <div style={{fontSize:52,fontWeight:700,
                  color:meta(r).conf<=1?"#8892a4":s.fg,
                  textShadow:meta(r).conf<=1?"none":`0 0 30px ${s.fg}40`,
-                 lineHeight:1}}>{fmt(r.v53)}</div>
-            <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 6px"}}>Score composite / 10</div>
+                 lineHeight:1}}>{fmt(scoreAffiche)}</div>
+            <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 6px"}}>
+              Score composite / 10{simu&&<span style={{color:"#ffd740"}}> · {scoreModeLabel(scoreMode)}</span>}
+            </div>
             <div style={{marginBottom:10}}><Confiance r={r} sz={13}/></div>
             {/* Un signal calculé sur des données de repli induit en erreur :
                 à confiance ≤ 1 on l'annonce comme tel plutôt que d'afficher
                 un ACHETER que rien ne soutient (règle CLAUDE.md). */}
-            {meta(r).conf<=1
+            {/* ⚠️ Même règle qu'au classement : le signal n'existe que pour
+                la pondération officielle. Oublié ici le 08/09 — la fiche
+                affichait le v5.3 du moteur quelle que soit la vue choisie,
+                donc un score qui contredisait le classement pour le même
+                titre. Signalé par Abd Moutalib : « le score ne bouge pas ». */}
+            {simu
+              ? <Chip label="SIMULATION — signal masqué" bg="rgba(255,215,64,.10)" fg="#ffd740" bd="#ffd74040" sz={12}/>
+              : meta(r).conf<=1
               ? <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550" sz={12}/>
               : <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd} sz={12}/>}
             <div style={{marginTop:8,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-              <Delta d={r.delta}/><span style={{fontSize:11,color:"#8892a4"}}>vs BVC {fmt(r.bvc)}</span>
+              <Delta d={simu?(r.bvc!=null?+(scoreAffiche-r.bvc).toFixed(2):null):r.delta}/><span style={{fontSize:11,color:"#8892a4"}}>vs BVC {fmt(r.bvc)}</span>
             </div>
           </div>
 
@@ -2506,7 +2521,7 @@ function App(){
         {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab}/>}
         {tab==="watchlist"&&<Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true} scoreMode={scoreMode}/>}
-        {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={setSel} fav={fav} toggleFav={toggleFav}/>}
+        {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={setSel} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="weights"  &&<Weights/>}
         {tab==="smart"    &&<Smart/>}
         {tab==="nlp"      &&<NlpDash/>}
