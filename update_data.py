@@ -662,6 +662,21 @@ def recalculer_variation(ticker, price, chg, candles, seance):
     lui, chaque run réécrirait une variation infinitésimale et journaliserait
     une correction qui n'en est pas une.
     """
+    # ⚠️ Un titre SUSPENDU sort d'ici inchangé, et c'est le cœur du problème.
+    #
+    # `chg=0` avec `vol=0` est la signature que R9 traque comme une donnée non
+    # rafraîchie. Sur un titre suspendu, c'est LA VÉRITÉ : il n'a pas coté, il
+    # n'a donc pas varié. Le remède de R9 — recalculer depuis la dernière
+    # clôture connue — fabrique alors une variation à partir d'un écart vieux
+    # de deux mois : CMT ressortait à −3,35 %, l'écart entre le cours diffusé
+    # (4 350) et sa dernière séance échangée (4 501 le 16/07).
+    #
+    # C'est la troisième voie de calcul de `chg` qu'il a fallu neutraliser. La
+    # leçon est celle de la famille 11 : R9 sait reconnaître la SIGNATURE d'une
+    # suspension, mais pas la distinguer d'une panne de rafraîchissement — et
+    # son correctif, appliqué au mauvais cas, aggrave ce qu'il devait réparer.
+    if est_suspendu(ticker, seance):
+        return 0.0
     if candles is None or len(candles) < 1 or not price or price <= 0:
         return chg
     try:
@@ -2017,7 +2032,14 @@ def run(dry_run=False, push=False, token=""):
     try:
         sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
         from masi_history import enregistrer as _masi_enr, performance_ytd as _masi_ytd_calc
-        if _masi_enr(masi.get("value"), masi.get("asof")):
+        # ⚠️ `--dry-run` promet « aperçu sans écrire » (docstring, ligne 12) et
+        # écrivait pourtant masi_history.json à chaque appel. Trouvé le
+        # 09/09/2026 : un dry-run laissait le fichier modifié dans git status.
+        # Un mode d'essai qui modifie l'état n'est pas un mode d'essai — et
+        # c'est précisément l'outil qu'on utilise pour vérifier sans risque.
+        if dry_run:
+            logger.info(f"  [DRY RUN] MASI {masi.get('value')} NON enregistré")
+        elif _masi_enr(masi.get("value"), masi.get("asof")):
             logger.info(f"  MASI {masi.get('value')} enregistré au {str(masi.get('asof'))[:10]}")
         _masi_ytd = _masi_ytd_calc(masi.get("asof"))
     except Exception as _e:
@@ -2115,7 +2137,22 @@ def run(dry_run=False, push=False, token=""):
 
         # Correction données IDBourse : toujours recalculer vs vraie clôture j-1 (candle)
         # IDBourse peut référencer une mauvaise date de référence, surtout sur 2e run intraday
-        if price:
+        # ⚠️ Un titre SUSPENDU n'a pas de variation du jour : il n'a pas coté.
+        #
+        # Sa série s'arrête à la dernière séance échangée, pendant que la
+        # source continue de diffuser le dernier cours connu. L'écart entre
+        # les deux n'est pas un mouvement de la séance, c'est la marche qui a
+        # PRÉCÉDÉ la suspension. CMT affichait ainsi −3,35 % tous les jours —
+        # 4 350 comparés au 4 501 du 16/07 — sur un titre qui n'a plus échangé
+        # un seul titre depuis.
+        #
+        # Ce défaut est apparu EN RETIRANT les 28 bougies fantômes : tant
+        # qu'elles étaient là, la comparaison portait 4 350 contre 4 350 et
+        # donnait zéro. Nettoyer une donnée fausse a mis au jour un calcul qui
+        # s'appuyait dessus — le zéro affiché était juste par accident.
+        if price and est_suspendu(ticker, IDB_ASOF):
+            chg = 0.0
+        elif price:
             _df_c = _candles_cache.get(ticker)
             if _df_c is not None and len(_df_c) >= 1:
                 try:
@@ -2185,7 +2222,19 @@ def run(dry_run=False, push=False, token=""):
                 price = round(float(closes.iloc[-1]), 2)
                 src_prix, prix_asof = "medias24_hist", str(df["date"].iloc[-1])[:10]
             # Variation = prix live vs dernière clôture historique
-            if not chg and price and len(closes) >= 1:
+            #
+            # ⚠️ SAUF si le titre est suspendu. Sa série s'arrête à la dernière
+            # séance cotée, et la source continue de diffuser le dernier cours
+            # connu : l'écart entre les deux n'est pas une variation du jour,
+            # c'est la marche qui a précédé la suspension. CMT affichait ainsi
+            # −3,35 % chaque jour depuis le 17/07 — 4 350 comparés au 4 501 du
+            # 16/07 — sur un titre qui n'a pas échangé un seul titre depuis.
+            #
+            # Ce défaut est apparu EN RETIRANT les 28 bougies fantômes : tant
+            # qu'elles étaient là, la comparaison portait sur 4 350 contre
+            # 4 350 et donnait zéro. Nettoyer une donnée fausse a révélé un
+            # calcul qui s'appuyait dessus.
+            if not chg and price and len(closes) >= 1 and not est_suspendu(ticker, prix_asof):
                 prev = float(closes.iloc[-1])
                 if prev > 0:
                     chg = round((price - prev) / prev * 100, 2)
@@ -2492,7 +2541,13 @@ def run(dry_run=False, push=False, token=""):
             "flags":  fd.get("flags", 0),
         })
 
-        logger.info(f"  ✓ {ticker}: {price} DH | RSI {rsi} | Score v5.3: {bvc_score} → {v53['v53']} | {v53['sig']}")
+        # Le signal JOURNALISÉ doit être celui qui sera PUBLIÉ. Il imprimait
+        # `v53['sig']`, calculé avant la substitution : le dry-run annonçait
+        # « ACHETER ★★ » sur CMT pendant que le fichier écrivait « SUSPENDU ».
+        # Un journal qui contredit le fichier qu'il décrit est pire qu'un
+        # journal muet — c'est là qu'on va vérifier quand on doute.
+        _sig_publie = "SUSPENDU" if est_suspendu(ticker, prix_asof) else v53["sig"]
+        logger.info(f"  ✓ {ticker}: {price} DH | RSI {rsi} | Score v5.3: {bvc_score} → {v53['v53']} | {_sig_publie}")
 
     # 5. Construction data.json
     output = {
