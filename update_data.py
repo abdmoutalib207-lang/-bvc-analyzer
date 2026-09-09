@@ -53,7 +53,8 @@ except NameError:
     OUTPUT = Path("data.json")  # Colab : dossier courant
 
 from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
-                        COMPANY_NAMES, COMPANY_SECTORS, est_ferie_fixe)
+                        COMPANY_NAMES, COMPANY_SECTORS, est_ferie_fixe,
+                        est_suspendu)
 
 TICKERS = TICKERS_ALL
 
@@ -1737,7 +1738,26 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
     if vol_median is not None and vol_median < 10:
         confiance = min(confiance, 2)
 
+    # ⚠️ Suspension de cotation — ajouté le 09/09/2026 après CMT.
+    #
+    # Le plafond de liquidité ci-dessus s'en approchait mais ne pouvait pas
+    # conclure : il mesure un volume, or un titre suspendu et un titre
+    # simplement délaissé produisent le même volume nul. La suspension est un
+    # fait publié par le régulateur, elle ne se déduit pas de la série.
+    #
+    # `confidence: 0` parce que la première garantie — « prix de la dernière
+    # séance cotée » — est justement ce qui manque : le cours diffusé est celui
+    # d'avant la suspension, reconduit indéfiniment. Le titre bascule donc en
+    # « Données insuffisantes » à l'écran, ce qui est exact : il n'y a plus de
+    # donnée de marché, et il n'y en aura pas avant la reprise.
+    suspension = est_suspendu(ticker, prix_asof)
+    if suspension:
+        confiance = 0
+
     return {
+        "suspendu":       bool(suspension),
+        "suspendu_depuis": suspension["depuis"] if suspension else None,
+        "suspendu_motif":  suspension["motif"] if suspension else None,
         "source_prix":  src_prix or "inconnu",
         # Décrit d'où viennent les RATIOS AFFICHÉS, pas l'existence d'un score.
         "source_fond":  "bpa_calcule" if ratios_calcules else "table_figee",
@@ -2446,7 +2466,17 @@ def run(dry_run=False, push=False, token=""):
             "score_tech": v53.get("score_tech", 5.0),
             "alpha":  v53["alpha"],
             "win":    v53["win"],
-            "sig":    v53["sig"],
+            # ⚠️ Un titre suspendu ne reçoit PAS de recommandation.
+            #
+            # Le 09/09/2026 le terminal affichait « ACHETER ★★ » sur CMT,
+            # suspendue depuis le 17/07 dans l'attente d'une OPA obligatoire.
+            # Le score, lui, reste calculé et affiché : les fondamentaux sont
+            # réels et le lecteur a le droit de les voir. C'est la CONCLUSION
+            # qui n'a pas lieu d'être — on ne recommande pas d'acheter ce qui
+            # ne s'achète pas. Le raisonnement est celui du plafond de
+            # liquidité du 01/09, poussé jusqu'à son terme.
+            "sig":    ("SUSPENDU" if est_suspendu(ticker, prix_asof)
+                       else v53["sig"]),
             "sigBvc": SIG_BVC.get(ticker, "ATTENDRE"),
             "biais":  v53["biais"],
             "conv":   v53["conv"],
@@ -2555,6 +2585,15 @@ def run(dry_run=False, push=False, token=""):
                 # refuser d'écrire la moindre bougie les jours où elle est la
                 # seule source fraîche, ce qui est précisément son rôle.
                 if _m.get("stale") or _m.get("source_prix") not in ("idbourse", "medias24", "cdg", "bmce"):
+                    continue
+                # Un titre suspendu ne cote pas : il ne peut pas produire de
+                # chandelle. La source, elle, continue de rediffuser le dernier
+                # cours estampillé du jour, et le test `stale` ci-dessus ne
+                # l'attrape pas toujours — 28 bougies fantômes ont ainsi été
+                # écrites sur CMT entre le 17/07 et le 01/09, toutes à 4 350 DH
+                # et volume nul. Le bulletin CDG du 09/09 la donne à zéro sur
+                # toutes les colonnes, sans même une heure d'échange.
+                if _m.get("suspendu"):
                     continue
                 try:
                     existing = json.loads(cfp.read_text(encoding="utf-8"))

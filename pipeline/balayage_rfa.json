@@ -1,0 +1,659 @@
+{
+ "_quoi": "Relevé automatique sur les rapports annuels AMMC — nombre d'actions et résultat net part du groupe.",
+ "_avertissement": "⚠️ Signale les titres à OUVRIR. Aucun de ces chiffres n'entre dans faits_financiers.json sans une lecture à la main et sa page. Les mises en page varient : ce qui n'a pas pu être lu est DIT, pas comblé.",
+ "_releve_le": "2026-09-08",
+ "_echecs": [],
+ "emetteurs": {
+  "ADH": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Addoha_RFA_2025.pdf",
+   "fichier": "Addoha_RFA_2025.pdf",
+   "faits": {
+    "rnpg": {
+     "valeur": 454.0,
+     "page": 73,
+     "brut": "En 2025, le résultat net Part du Groupe ressort à 454 M MAD, contre 274 M MAD en 2024, soit une hausse de"
+    }
+   }
+  },
+  "AFI": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf",
+   "fichier": "AFI_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 14575000.0,
+     "page": 3
+    },
+    "nombre_actions": {
+     "valeur": 291500,
+     "page": 3,
+     "deduit": "capital ÷ nominale 50",
+     "arbitre": "capitalisation ÷ cours = 291 116 (écart 0.1%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.001
+  },
+  "AKD": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf",
+   "fichier": "Akdital_RFA_2025.pdf",
+   "faits": {}
+  },
+  "ARD": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Aradei_Capital_RFA_2025.pdf",
+   "fichier": "Aradei_Capital_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 12568130.0,
+     "page": 6
+    },
+    "nombre_actions_indeterminable": {
+     "capital_social": 12568130.0,
+     "actions_selon_marche": 12568182,
+     "raison": "aucune nominale ne colle au marché (meilleur écart 90%)"
+    }
+   }
+  },
+  "ATL": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf",
+   "fichier": "AtlantaSanad_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 602835950.0,
+     "page": 121
+    },
+    "nombre_actions": {
+     "valeur": 60283595,
+     "page": 121,
+     "deduit": "capital ÷ nominale 10",
+     "arbitre": "capitalisation ÷ cours = 60 282 486 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "ATW": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
+   "fichier": "AWB_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 2151408.0,
+     "page": 67
+    }
+   }
+  },
+  "BMC": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf",
+   "fichier": "BMCI_RFA_2025.pdf",
+   "faits": {
+    "nombre_actions": {
+     "valeur": 13279286.0,
+     "page": 19
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "CASH": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Cash_Plus_RFA_2025.pdf",
+   "fichier": "Cash_Plus_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 245530900.0,
+     "page": 50
+    },
+    "nombre_actions": {
+     "valeur": 24553090,
+     "page": 50,
+     "deduit": "capital ÷ nominale 10",
+     "arbitre": "capitalisation ÷ cours = 24 551 349 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "CMGP": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/CMGP_RFA_2025.pdf",
+   "fichier": "CMGP_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 1700090000.0,
+     "page": 54
+    },
+    "nombre_actions": {
+     "valeur": 17000900.0,
+     "page": 76
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "CMT": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/CMT_RFA_2025.pdf",
+   "fichier": "CMT_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 168123300.0,
+     "page": 39
+    },
+    "rnpg": {
+     "valeur": 196465103.0,
+     "page": 58,
+     "brut": "Résultat net (Part du groupe) 196 465 103 (12 125 978) Variation de flux de trésorerie (I + II + III + IV) 99 "
+    },
+    "nombre_actions": {
+     "valeur": 1681233,
+     "page": 39,
+     "deduit": "capital ÷ nominale 100",
+     "arbitre": "capitalisation ÷ cours = 1 681 149 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0,
+   "coherence": {
+    "bpa_publie": 435.56,
+    "actions": 1681233,
+    "rnpg_rapport": 196465103.0,
+    "ecart_min_relatif": 0.996,
+    "facteur_bpa_actions_sur_rnpg": 3.73
+   }
+  },
+  "COL": {
+   "exercice": 2024,
+   "url": "https://www.ammc.ma/sites/default/files/Colorado_RFA_2024.pdf",
+   "fichier": "Colorado_RFA_2024.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 161176110.0,
+     "page": 4
+    },
+    "nombre_actions": {
+     "valeur": 16117611,
+     "page": 4,
+     "deduit": "capital ÷ nominale 10",
+     "arbitre": "capitalisation ÷ cours = 16 123 457 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "CSR": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Cosumar_RFA_2025.pdf",
+   "fichier": "Cosumar_RFA_2025.pdf",
+   "faits": {
+    "rnpg": {
+     "valeur": 703.7,
+     "page": 131,
+     "brut": "Résultat net part du groupe 703,7 850,4 -146,7 -17,2"
+    },
+    "capital_social": {
+     "valeur": 944871430.0,
+     "page": 137
+    },
+    "nombre_actions": {
+     "valeur": 94487143,
+     "page": 137,
+     "deduit": "capital ÷ nominale 10",
+     "arbitre": "capitalisation ÷ cours = 94 489 691 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0,
+   "coherence": {
+    "bpa_publie": 11,
+    "actions": 94487143,
+    "rnpg_rapport": 703.7,
+    "ecart_min_relatif": 0.477,
+    "facteur_bpa_actions_sur_rnpg": 1476991.01
+   }
+  },
+  "EQD": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Eqdom_RFA_2025.pdf",
+   "fichier": "Eqdom_RFA_2025.pdf",
+   "faits": {}
+  },
+  "FNB": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Fenie_Brossette_RFA_2025.pdf",
+   "fichier": "Fenie_Brossette_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 143898400.0,
+     "page": 43
+    },
+    "nombre_actions": {
+     "valeur": 1438984,
+     "page": 43,
+     "deduit": "capital ÷ nominale 100",
+     "arbitre": "capitalisation ÷ cours = 1 438 887 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "HPS": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/HPS_RFA_2025.pdf",
+   "fichier": "HPS_RFA_2025.pdf",
+   "faits": {
+    "rnpg": {
+     "valeur": 106.0,
+     "page": 46,
+     "brut": "à l’international. (+43,1%) et un résultat net part du Groupe de 106 MMAD du profil financier du Groupe."
+    },
+    "capital_social": {
+     "valeur": 74061900.0,
+     "page": 54
+    },
+    "nombre_actions": {
+     "valeur": 7406190,
+     "page": 54,
+     "deduit": "capital ÷ nominale 10",
+     "arbitre": "capitalisation ÷ cours = 7 406 577 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0,
+   "coherence": {
+    "bpa_publie": 28.4,
+    "actions": 7406190,
+    "rnpg_rapport": 106.0,
+    "ecart_min_relatif": 0.984,
+    "facteur_bpa_actions_sur_rnpg": 1984299.96
+   }
+  },
+  "LES": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Lesieur_Cristal_RFA_2025.pdf",
+   "fichier": "Lesieur_Cristal_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 276315100.0,
+     "page": 70
+    },
+    "nombre_actions": {
+     "valeur": 27631510,
+     "page": 70,
+     "deduit": "capital ÷ nominale 10",
+     "arbitre": "capitalisation ÷ cours = 27 630 000 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "MDP": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf",
+   "fichier": "Med_Paper_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 47838230.0,
+     "page": 38
+    },
+    "nombre_actions": {
+     "valeur": 4783823,
+     "page": 38,
+     "deduit": "capital ÷ nominale 10",
+     "arbitre": "capitalisation ÷ cours = 4 784 314 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "MIC": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Microdata_RFA_2025.pdf",
+   "fichier": "Microdata_RFA_2025.pdf",
+   "faits": {}
+  },
+  "MNG": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Managem_RFA_2025.pdf",
+   "fichier": "Managem_RFA_2025.pdf",
+   "faits": {
+    "rnpg": {
+     "valeur": 3002.0,
+     "page": 67,
+     "brut": "Chiffre d’affaires MDH 1 556 1 043 49% Résultat net part du groupe MDH 3 002.0 619.8 2 382.2 384.3%"
+    },
+    "capital_social": {
+     "valeur": 1186467600.0,
+     "page": 71
+    },
+    "nombre_actions": {
+     "valeur": 11864676.0,
+     "page": 98
+    }
+   },
+   "actions_rapport_sur_marche": 0.1,
+   "alerte": "nombre d'actions du rapport (11 864 676) contre le marché (118 646 825) — rapport 0.10. Opération sur titres entre la date du rapport et aujourd'hui ?",
+   "coherence": {
+    "bpa_publie": 25.3,
+    "actions": 11864676.0,
+    "rnpg_rapport": 3002.0,
+    "ecart_min_relatif": 0.9,
+    "facteur_bpa_actions_sur_rnpg": 99992.11
+   }
+  },
+  "MRL": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/MLE_RFA_2025.pdf",
+   "fichier": "MLE_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 277676800.0,
+     "page": 4
+    },
+    "nombre_actions": {
+     "valeur": 2776768,
+     "page": 4,
+     "deduit": "capital ÷ nominale 100",
+     "arbitre": "capitalisation ÷ cours = 2 777 849 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "MSA": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Marsa_RFA_2025.pdf",
+   "fichier": "Marsa_RFA_2025.pdf",
+   "faits": {
+    "rnpg": {
+     "valeur": 1588764.0,
+     "page": 121,
+     "brut": "Résultat net de l'exercice part du Groupe 1.588.764 1.266.978"
+    },
+    "capital_social": {
+     "valeur": 733956000.0,
+     "page": 136
+    },
+    "nombre_actions": {
+     "valeur": 73395600,
+     "page": 136,
+     "deduit": "capital ÷ nominale 10",
+     "arbitre": "capitalisation ÷ cours = 73 395 402 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0,
+   "coherence": {
+    "bpa_publie": 21.65,
+    "actions": 73395600,
+    "rnpg_rapport": 1588764.0,
+    "ecart_min_relatif": 0.0,
+    "facteur_bpa_actions_sur_rnpg": 1000.16
+   }
+  },
+  "MUT": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Mutandis_RFA_2025.pdf",
+   "fichier": "Mutandis_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 924673700.0,
+     "page": 42
+    },
+    "nombre_actions": {
+     "valeur": 9246737,
+     "page": 42,
+     "deduit": "capital ÷ nominale 100",
+     "arbitre": "capitalisation ÷ cours = 9 246 312 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "PPM": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf",
+   "fichier": "Promopharm_RFA_2025.pdf",
+   "faits": {}
+  },
+  "RDS": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/RDS_RFA_2025.pdf",
+   "fichier": "RDS_RFA_2025.pdf",
+   "faits": {
+    "nombre_actions": {
+     "valeur": 26208850.0,
+     "page": 23
+    },
+    "capital_social": {
+     "valeur": 1310442500.0,
+     "page": 29
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "RIS": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Risma_RFA_2025.pdf",
+   "fichier": "Risma_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 14326947.0,
+     "page": 45
+    },
+    "nombre_actions": {
+     "valeur": 14326947.0,
+     "page": 45
+    },
+    "rnpg": {
+     "valeur": 270.0,
+     "page": 63,
+     "brut": " Un Résultat Net Part du Groupe de 270 MDH en hausse de 87 MDH par rapport à 2024."
+    }
+   },
+   "actions_rapport_sur_marche": 0.895,
+   "coherence": {
+    "bpa_publie": 23.1,
+    "actions": 14326947.0,
+    "rnpg_rapport": 270.0,
+    "ecart_min_relatif": 0.226,
+    "facteur_bpa_actions_sur_rnpg": 1225749.91
+   }
+  },
+  "SGTM": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/SGTM_RFA_2025.pdf",
+   "fichier": "SGTM_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 1200000000.0,
+     "page": 62
+    },
+    "nombre_actions_indeterminable": {
+     "capital_social": 1200000000.0,
+     "actions_selon_marche": 60000000,
+     "raison": "aucune nominale ne colle au marché (meilleur écart 60%)"
+    }
+   }
+  },
+  "SLM": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Salafin_RFA_2025.pdf",
+   "fichier": "Salafin_RFA_2025.pdf",
+   "faits": {
+    "nombre_actions": {
+     "valeur": 3124119.0,
+     "page": 57
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "SMI": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/SMI_RFA_2025.pdf",
+   "fichier": "SMI_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 164509000.0,
+     "page": 43
+    },
+    "nombre_actions": {
+     "valeur": 1645090,
+     "page": 43,
+     "deduit": "capital ÷ nominale 100",
+     "arbitre": "capitalisation ÷ cours = 1 645 060 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "SNA": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Sonasid_RFA_2025.pdf",
+   "fichier": "Sonasid_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 390000000.0,
+     "page": 57
+    },
+    "rnpg": {
+     "valeur": 271.8,
+     "page": 75,
+     "brut": "Résultat net - Part du groupe 271,8 141,2"
+    },
+    "nombre_actions": {
+     "valeur": 3900000,
+     "page": 57,
+     "deduit": "capital ÷ nominale 100",
+     "arbitre": "capitalisation ÷ cours = 3 900 000 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0,
+   "coherence": {
+    "bpa_publie": 148.1,
+    "actions": 3900000,
+    "rnpg_rapport": 271.8,
+    "ecart_min_relatif": 1.125,
+    "facteur_bpa_actions_sur_rnpg": 2125055.19
+   }
+  },
+  "SNP": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/SNEP_RFA_2025.pdf",
+   "fichier": "SNEP_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 240000000.0,
+     "page": 35
+    },
+    "nombre_actions": {
+     "valeur": 2400000,
+     "page": 35,
+     "deduit": "capital ÷ nominale 100",
+     "arbitre": "capitalisation ÷ cours = 2 400 000 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "SOT": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Sothema_RFA_2025.pdf",
+   "fichier": "Sothema_RFA_2025.pdf",
+   "faits": {
+    "rnpg": {
+     "valeur": 418.0,
+     "page": 25,
+     "brut": "Résultat Net Part du Groupe 418 21% 386 22% 315 croissance. l’ambition de Sothema à l’échelle continentale"
+    },
+    "capital_social": {
+     "valeur": 380336400.0,
+     "page": 50
+    },
+    "nombre_actions": {
+     "valeur": 7606728.0,
+     "page": 53
+    }
+   },
+   "actions_rapport_sur_marche": 0.199,
+   "alerte": "nombre d'actions du rapport (7 606 728) contre le marché (38 308 416) — rapport 0.20. Opération sur titres entre la date du rapport et aujourd'hui ?",
+   "coherence": {
+    "bpa_publie": 32.0,
+    "actions": 7606728.0,
+    "rnpg_rapport": 418.0,
+    "ecart_min_relatif": 0.418,
+    "facteur_bpa_actions_sur_rnpg": 582333.24
+   }
+  },
+  "STR": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Stroc_RFA_2025.pdf",
+   "fichier": "Stroc_RFA_2025.pdf",
+   "faits": {}
+  },
+  "TGCC": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/TGCC_RFA_2025.pdf",
+   "fichier": "TGCC_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 2199999450.0,
+     "page": 64
+    },
+    "nombre_actions": {
+     "valeur": 34674332.0,
+     "page": 102
+    }
+   },
+   "actions_rapport_sur_marche": 1.0
+  },
+  "TQA": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Taqa_Morocco_RFA_2025.pdf",
+   "fichier": "Taqa_Morocco_RFA_2025.pdf",
+   "faits": {
+    "rnpg": {
+     "valeur": 981.0,
+     "page": 24,
+     "brut": "Résultat Net - Part du Groupe 981 1 053 -72 -6,8% engagements en matière de développement durable, articulés o"
+    },
+    "capital_social": {
+     "valeur": 2358854200.0,
+     "page": 84
+    },
+    "nombre_actions": {
+     "valeur": 23588542,
+     "page": 84,
+     "deduit": "capital ÷ nominale 100",
+     "arbitre": "capitalisation ÷ cours = 23 588 764 (écart 0.0%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.0,
+   "coherence": {
+    "bpa_publie": 63.4,
+    "actions": 23588542,
+    "rnpg_rapport": 981.0,
+    "ecart_min_relatif": 0.524,
+    "facteur_bpa_actions_sur_rnpg": 1524478.66
+   }
+  },
+  "WAF": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf",
+   "fichier": "Wafa_Assurance_RFA_2025.pdf",
+   "faits": {
+    "rnpg": {
+     "valeur": 821684.0,
+     "page": 33,
+     "brut": "Résultat net consolidé - Part du groupe 821 684 47 606 12 465 47 681 55 176 41 424 1 026 036 805 237 46 651 40"
+    }
+   }
+  },
+  "ZLD": {
+   "exercice": 2025,
+   "url": "https://www.ammc.ma/sites/default/files/Zellidja_RFA_2025.pdf",
+   "fichier": "Zellidja_RFA_2025.pdf",
+   "faits": {
+    "capital_social": {
+     "valeur": 57284900.0,
+     "page": 33
+    },
+    "nombre_actions": {
+     "valeur": 572849,
+     "page": 33,
+     "deduit": "capital ÷ nominale 100",
+     "arbitre": "capitalisation ÷ cours = 571 906 (écart 0.2%)"
+    }
+   },
+   "actions_rapport_sur_marche": 1.002
+  }
+ }
+}

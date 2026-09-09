@@ -603,8 +603,9 @@ const tk=r=>r&&(r.code_bvc||r.symbol||r.ticker)||"";
    En son absence on suppose le pire — c'est la règle du CLAUDE.md : sans
    _meta, le frontend doit considérer la donnée comme périmée. */
 const meta=r=>{const m=(r&&r._meta)||null;
-  return m?{stale:!!m.stale,conf:m.confidence??0,asof:m.prix_asof||null,src:m.source_prix||"inconnu"}
-          :{stale:true,conf:0,asof:null,src:"inconnu"};};
+  return m?{stale:!!m.stale,conf:m.confidence??0,asof:m.prix_asof||null,src:m.source_prix||"inconnu",
+            susp:!!m.suspendu,suspDepuis:m.suspendu_depuis||null,suspMotif:m.suspendu_motif||null}
+          :{stale:true,conf:0,asof:null,src:"inconnu",susp:false,suspDepuis:null,suspMotif:null};};
 const jjmm=d=>{const p=String(d||"").slice(0,10).split("-");return p.length===3?`${p[2]}/${p[1]}`:"";};
 /* Pastille de fraîcheur : n'apparaît que si le cours n'est pas celui de la
    dernière séance cotée. Le titre porte la date réelle et la source. */
@@ -1275,6 +1276,12 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   <td style={{padding:"8px 8px"}}>{customMode
                     ? <span title="Le signal n'existe que pour la pondération officielle"
                         style={{fontSize:11,color:"#4a5570",letterSpacing:1}}>—</span>
+                    /* Un titre suspendu passe AVANT le test de confiance : sa
+                       confiance est nulle, mais « Données insuffisantes » serait
+                       un contresens. Les données ne manquent pas — le titre ne
+                       cote plus. */
+                    : meta(r).susp
+                    ? <Chip label="SUSPENDU" bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40"/>
                     : meta(r).conf<=1
                     ? <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550"/>
                     : <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd}/>}</td>
@@ -1331,10 +1338,16 @@ const TickerNews=({sym})=>{
 };
 
 // ── DETAIL ────────────────────────────────────────────────────────────────────
-const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
+const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
   const [detSearch,setDetSearch]=useState("");
   const r=rows.find(x=>(x.symbol||x.ticker)===sel)||rows[0];
   const s=SS(r.sig);
+  // ⚠️ La fiche doit suivre la pondération choisie, exactement comme le
+  // classement. Sans cela elle affiche le v5.3 du moteur quelle que soit la
+  // vue, et donne pour le même titre un score qui contredit le tableau.
+  // Oublié le 08/09 ; signalé par Abd Moutalib : « le score ne bouge pas ».
+  const simu=!!(scoreMode&&!scoreMode.officiel);
+  const scoreAffiche=computeDisplayScore(r,scoreMode);
   const price=r.price||r.prix;
   const h90=r.h90||r.high90;const l90=r.l90||r.low90;
   /* Les objectifs sont nullifiés côté pipeline quand ils ne sont plus à
@@ -1387,17 +1400,33 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
             <div style={{fontSize:52,fontWeight:700,
                  color:meta(r).conf<=1?"#8892a4":s.fg,
                  textShadow:meta(r).conf<=1?"none":`0 0 30px ${s.fg}40`,
-                 lineHeight:1}}>{fmt(r.v53)}</div>
-            <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 6px"}}>Score composite / 10</div>
+                 lineHeight:1}}>{fmt(scoreAffiche)}</div>
+            <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 6px"}}>
+              Score composite / 10{simu&&<span style={{color:"#ffd740"}}> · {scoreModeLabel(scoreMode)}</span>}
+            </div>
             <div style={{marginBottom:10}}><Confiance r={r} sz={13}/></div>
             {/* Un signal calculé sur des données de repli induit en erreur :
                 à confiance ≤ 1 on l'annonce comme tel plutôt que d'afficher
                 un ACHETER que rien ne soutient (règle CLAUDE.md). */}
-            {meta(r).conf<=1
+            {/* ⚠️ Même règle qu'au classement : le signal n'existe que pour
+                la pondération officielle. Oublié ici le 08/09 — la fiche
+                affichait le v5.3 du moteur quelle que soit la vue choisie,
+                donc un score qui contredisait le classement pour le même
+                titre. Signalé par Abd Moutalib : « le score ne bouge pas ». */}
+            {simu
+              ? <Chip label="SIMULATION — signal masqué" bg="rgba(255,215,64,.10)" fg="#ffd740" bd="#ffd74040" sz={12}/>
+              : meta(r).susp
+              ? <Chip label={`SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`} bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40" sz={12}/>
+              : meta(r).conf<=1
               ? <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550" sz={12}/>
               : <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd} sz={12}/>}
+            {/* Le motif, pour que la suspension ne soit pas une énigme : une
+                OPA n'est pas une sanction, et la nuance change tout pour le
+                lecteur. */}
+            {meta(r).susp&&meta(r).suspMotif&&!simu&&
+              <div style={{marginTop:6,fontSize:10,color:"#8892a4"}}>{meta(r).suspMotif}</div>}
             <div style={{marginTop:8,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-              <Delta d={r.delta}/><span style={{fontSize:11,color:"#8892a4"}}>vs BVC {fmt(r.bvc)}</span>
+              <Delta d={simu?(r.bvc!=null?+(scoreAffiche-r.bvc).toFixed(2):null):r.delta}/><span style={{fontSize:11,color:"#8892a4"}}>vs BVC {fmt(r.bvc)}</span>
             </div>
           </div>
 
@@ -2506,7 +2535,7 @@ function App(){
         {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab}/>}
         {tab==="watchlist"&&<Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true} scoreMode={scoreMode}/>}
-        {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={setSel} fav={fav} toggleFav={toggleFav}/>}
+        {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={setSel} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="weights"  &&<Weights/>}
         {tab==="smart"    &&<Smart/>}
         {tab==="nlp"      &&<NlpDash/>}

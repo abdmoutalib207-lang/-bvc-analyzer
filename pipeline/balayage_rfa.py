@@ -93,6 +93,25 @@ NB = (r"(\d{1,3}(?:[ \u00a0.]\d{3})+(?:[.,]\d{1,2})?"    # 1 186 467 600,00
       r"|\d+(?:[.,]\d{1,2})?)")                            # 3002.0 · 733956000
 
 
+def _premier_plausible(ligne: str, etiquette: str, mini: float, maxi: float):
+    """Le premier nombre de la ligne, APRÈS l'étiquette, qui tienne dans les
+    bornes. Renvoie None si aucun ne convient.
+
+    Prendre le premier nombre rencontré échoue dès qu'un appel de note, un
+    numéro de rubrique ou une année s'intercale — et c'est fréquent dans un
+    bilan. Balayer et filtrer par l'ordre de grandeur est à la fois plus simple
+    et plus sûr que d'essayer d'écrire un motif qui les évite tous.
+    """
+    m = re.search(etiquette, ligne)
+    if not m:
+        return None
+    for candidat in re.finditer(NB, ligne[m.end():]):
+        v = _nombre(candidat.group(1))
+        if v is not None and mini <= v <= maxi:
+            return v
+    return None
+
+
 def extraire(pages: dict) -> dict:
     """Relève ce qui est trouvable, avec la page. Silence si rien de sûr."""
     res: dict = {}
@@ -100,20 +119,24 @@ def extraire(pages: dict) -> dict:
     for i, t in pages.items():
         for l in t.split("\n"):
             # ── capital social ────────────────────────────────────────────
+            # ⚠️ Ne PAS prendre le premier nombre venu. Le 08/09, sur
+            # « * Capital social ou personnel (1) 733.956.000,00 », le motif
+            # attrapait le « 1 » de l'appel de note et le rejetait ensuite
+            # comme hors bornes — le capital de Marsa Maroc était donc déclaré
+            # illisible alors qu'il figurait deux mots plus loin. On parcourt
+            # désormais TOUS les nombres de la ligne et l'on retient le premier
+            # qui tombe dans la fourchette plausible.
             if "capital" in l.lower() and "capital_social" not in res:
-                m = re.search(r"[Cc]apital\s+social[^\d]{0,40}" + NB, l)
-                if m:
-                    v = _nombre(m.group(1))
-                    if v and 1e6 <= v <= 5e10:
-                        res["capital_social"] = {"valeur": v, "page": int(i)}
+                v = _premier_plausible(l, r"[Cc]apital\s+social", 1e6, 5e10)
+                if v is not None:
+                    res["capital_social"] = {"valeur": v, "page": int(i)}
 
             # ── nombre d'actions ──────────────────────────────────────────
             if "action" in l.lower() and "nombre_actions" not in res:
-                m = re.search(r"[Nn]ombre\s+(?:moyen\s+)?d[e']\s?actions[^\d]{0,60}" + NB, l)
-                if m:
-                    v = _nombre(m.group(1))
-                    if v and 1e4 <= v <= 1e10:
-                        res["nombre_actions"] = {"valeur": v, "page": int(i)}
+                v = _premier_plausible(
+                    l, r"[Nn]ombre\s+(?:moyen\s+)?d[e']\s?actions", 1e4, 1e10)
+                if v is not None:
+                    res["nombre_actions"] = {"valeur": v, "page": int(i)}
 
             # ── résultat net part du groupe ───────────────────────────────
             # ⚠️ Une ligne de PROSE contient aussi « résultat net part du
@@ -126,7 +149,14 @@ def extraire(pages: dict) -> dict:
                 m = re.search(r"[Rr]ésultat\s+[Nn]et.{0,40}[Pp]art\s+du\s+[Gg]roupe[^\d\-]{0,40}-?" + NB, l)
                 if m and len(re.findall(NB, l)) >= 2:
                     v = _nombre(m.group(1))
-                    if v and abs(v) >= 100 and not (1990 <= v <= 2100):
+                    # ⚠️ Borne haute : aucune société cotée à la BVC ne dégage
+                    # 15 milliards de dirhams de résultat net — la plus grosse,
+                    # Attijariwafa, tourne autour de 10,6. Au-delà, le nombre
+                    # est un artefact de lecture, pas un montant. Sans cette
+                    # borne, ATW sortait 6,76 × 10¹⁸ le 08/09. Les unités
+                    # varient (MAD, KMAD, MMAD), d'où un plafond large.
+                    if (v and abs(v) >= 100 and not (1990 <= v <= 2100)
+                            and abs(v) <= 1.5e10):
                         res["rnpg"] = {"valeur": v, "page": int(i), "brut": l.strip()[:110]}
 
     return res
@@ -178,9 +208,35 @@ def deduire_actions(res: dict, actions_marche: float | None) -> dict:
 
 
 def _pages(chemin: Path) -> dict:
+    """Lit le PDF page par page et LIBÈRE chaque page après extraction.
+
+    ⚠️ `pdfplumber` met en cache les objets de chaque page traitée. Sur un
+    rapport de 25 Mo comme celui de BMCI, garder les 200 pages en mémoire
+    pendant tout le balayage finit par coûter cher — et surtout inutilement,
+    puisqu'on ne cherche que deux faits. `page.flush_cache()` rend la mémoire
+    dès que le texte est extrait.
+    """
     import pdfplumber
+    pages = {}
     with pdfplumber.open(chemin) as pdf:
-        return {str(i): (p.extract_text() or "") for i, p in enumerate(pdf.pages, 1)}
+        for i, page in enumerate(pdf.pages, 1):
+            pages[str(i)] = page.extract_text() or ""
+            page.flush_cache()
+    return pages
+
+
+def _ecrire(resultats: dict, echecs: list) -> None:
+    SORTIE.write_text(json.dumps({
+        "_quoi": "Relevé automatique sur les rapports annuels AMMC — nombre "
+                 "d'actions et résultat net part du groupe.",
+        "_avertissement": "⚠️ Signale les titres à OUVRIR. Aucun de ces chiffres "
+                          "n'entre dans faits_financiers.json sans une lecture "
+                          "à la main et sa page. Les mises en page varient : ce "
+                          "qui n'a pas pu être lu est DIT, pas comblé.",
+        "_releve_le": time.strftime("%Y-%m-%d"),
+        "_echecs": [{"ticker": t, "cause": c} for t, c in echecs],
+        "emetteurs": resultats,
+    }, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
 def main() -> int:
@@ -191,10 +247,26 @@ def main() -> int:
     CACHE.mkdir(exist_ok=True)
 
     cibles = {t: v for t, v in cat["emetteurs"].items() if v["rapports_annuels"]}
-    print(f"  {len(cibles)} émetteurs avec un rapport annuel\n")
 
+    # ⚠️ REPRISE. Le premier lancement du 08/09 est mort au 10e rapport sur 36
+    # et n'avait RIEN écrit : trois quarts d'heure de téléchargement perdus.
+    # Un balayage long qui ne sauvegarde qu'à la fin est mal conçu — c'est le
+    # même défaut que je relèverais dans le pipeline. La sortie est désormais
+    # écrite après CHAQUE émetteur, et une relance reprend où elle s'est
+    # arrêtée au lieu de tout refaire.
     resultats, echecs = {}, []
+    if SORTIE.exists():
+        try:
+            deja = json.loads(SORTIE.read_text(encoding="utf-8"))
+            resultats = deja.get("emetteurs", {})
+            echecs = [(e["ticker"], e["cause"]) for e in deja.get("_echecs", [])]
+            print(f"  reprise : {len(resultats)} émetteurs déjà traités")
+        except Exception:
+            pass
+    print(f"  {len(cibles)} émetteurs avec un rapport annuel\n")
     for n, (tic, v) in enumerate(sorted(cibles.items()), 1):
+        if tic in resultats:
+            continue
         rfa = v["rapports_annuels"][0]
         dest = CACHE / rfa["fichier"]
         if not _telecharger(rfa["url"], dest):
@@ -245,22 +317,13 @@ def main() -> int:
                 "facteur_bpa_actions_sur_rnpg": round(implique / rn, 2) if rn else None,
             }
         resultats[tic] = ligne
+        _ecrire(resultats, echecs)          # au fil de l'eau, jamais à la fin
         marque = "✓" if faits.get("nombre_actions") else "·"
         print(f"  {marque} {n:>3}/{len(cibles)} {tic:6} "
               f"actions={na or '—'}  rnpg={rn or '—'}")
         time.sleep(0.2)
 
-    SORTIE.write_text(json.dumps({
-        "_quoi": "Relevé automatique sur les rapports annuels AMMC — nombre "
-                 "d'actions et résultat net part du groupe.",
-        "_avertissement": "⚠️ Signale les titres à OUVRIR. Aucun de ces chiffres "
-                          "n'entre dans faits_financiers.json sans une lecture "
-                          "à la main et sa page. Les mises en page varient : ce "
-                          "qui n'a pas pu être lu est dit, pas comblé.",
-        "_releve_le": time.strftime("%Y-%m-%d"),
-        "_echecs": [{"ticker": t, "cause": c} for t, c in echecs],
-        "emetteurs": resultats,
-    }, ensure_ascii=False, indent=1), encoding="utf-8")
+    _ecrire(resultats, echecs)
 
     avec = sum(1 for v in resultats.values() if v["faits"].get("nombre_actions"))
     print(f"\n  {avec}/{len(cibles)} avec un nombre d'actions lisible")

@@ -268,6 +268,57 @@ d'erreur HTML de 105 ko avec un statut exploitable.
 RÉSULTAT, jamais le message de l'outil.** « Completely finished » l'avait déjà
 menti deux fois lors de la purge de l'historique.
 
+## Famille 11 — Un fait juridique qu'aucune donnée ne porte (09/09)
+
+**Le terminal a recommandé « ACHETER ★★ » sur un titre qu'il est interdit
+d'acheter.** CMT — MASI 1 — est suspendue de cotation depuis le 17/07/2026,
+dans l'attente d'une OPA obligatoire (Ayrad / OSEAD / CIMR, avis AMMC
+DO/EM/07/2026). Le moteur lui a en outre écrit **28 chandelles pour des
+séances qui n'ont pas eu lieu**, du 17/07 au 01/09, toutes à 4 350 DH et
+toutes à volume nul.
+
+**Trois garde-fous s'en sont approchés sans pouvoir conclure**, et c'est ça
+qui est instructif :
+
+- **R9** (`chg=0` ET `vol=0`) a reconnu la donnée — c'est exactement sa
+  signature. Mais elle conclut *stale*, « pas rafraîchi ». Le titre était donc
+  marqué stale ET porteur d'un signal d'achat, sans contradiction apparente :
+  les deux verdicts ne parlent pas de la même chose.
+- **le plafond de liquidité du 01/09** a ramené la confiance à 2, le volume
+  médian étant nul. Le garde-fou d'affichage, lui, se déclenche à 1. Il s'en
+  est fallu d'un point — et le raisonnement écrit ce jour-là était pourtant le
+  bon mot pour mot : « un signal sur un titre que personne ne peut acheter ni
+  vendre n'est pas actionnable ».
+- **l'étape 6c** refuse d'écrire une bougie depuis un prix stale, et elle a
+  joué : les 28 bougies datent d'avant, quand la source estampillait encore le
+  cours du jour.
+
+**La leçon.** Une suspension **ne se déduit pas des cours**. Un titre suspendu
+et un titre délaissé produisent rigoureusement les mêmes nombres — volume nul,
+variation nulle, cours immobile. Aucune statistique ne les sépare, parce que
+la différence n'est pas dans la série : elle est juridique, et publiée
+ailleurs. Elle doit donc **entrer par un registre tenu à la main**, comme
+`SPLITS` — même nature de fait, même remède.
+
+C'est le prolongement de la famille 9 (« combler une absence au lieu de la
+dire ») avec une nuance qui compte : ici l'absence n'était pas une absence de
+donnée, mais une absence de **droit d'agir**. Le score restait légitime ; c'est
+la conclusion qui ne l'était pas. D'où le correctif retenu — on garde le score
+affiché, on supprime la recommandation.
+
+**Le signal qui aurait dû alerter, et qui existait :** le bulletin CDG donne
+CMT à `0.00` sur toutes les colonnes, sans même une heure de dernier échange
+(`NaN:NaN:NaN`), là où IDBourse rediffuse 4 350 DH estampillé du jour. R3 le
+dit depuis le 27/08 — « CDG laisse les champs VIDES quand un titre n'a pas
+coté au lieu de rediffuser la veille » — mais un prix à zéro est rejeté en
+amont comme invalide, et l'information se perdait là. **Un champ vide est une
+information ; le traiter comme une donnée manquante la détruit.**
+
+⚠️ **Piste non traitée** : combien d'autres titres CDG donne-t-il à zéro ?
+Le bulletin du 09/09 compte 81 instruments pour **64 cotés**. Les 17 autres
+n'ont pas coté ce jour-là — la plupart par simple illiquidité, mais rien ne
+distingue aujourd'hui ces deux cas dans le moteur.
+
 ## Le motif commun
 
 Presque toutes ces erreurs ont la même forme : **une autorité unique à laquelle
