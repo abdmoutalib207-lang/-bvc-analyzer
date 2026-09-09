@@ -165,3 +165,76 @@ def test_le_signal_disparait_aussi_sur_la_fiche():
 def test_la_fiche_annonce_la_vue_utilisee():
     assert "scoreModeLabel(scoreMode)}</span>" in _src(), (
         "rien sur la fiche ne dit quelle pondération produit le chiffre affiché")
+
+
+# ── la barre de répartition ──────────────────────────────────────────────
+#
+# ⚠️ TROISIÈME fois que le même défaut se reproduit à un endroit nouveau.
+# Signalé par Abd Moutalib le 09/09 : « le curseur ne bouge pas quand je change
+# les pourcentages ».
+#
+# Les quatre endroits qui DESSINENT la répartition lisaient `r.poids` — les
+# poids retenus par le moteur pour ce titre. Choisir 60/40 changeait donc la
+# note sans changer la barre : l'écran montrait une note calculée avec une
+# répartition, à côté d'une répartition qui n'était pas celle-là.
+#
+# La note du 08/09 disait déjà « un réglage qui traverse l'interface doit être
+# vérifié À CHAQUE ENDROIT où il s'applique ». Je l'avais écrite, puis vérifié
+# la note et oublié la barre. Ces tests couvrent maintenant les quatre.
+
+def test_l_helper_de_poids_existe():
+    m = re.search(r"function poidsAffiches\(r, p\) \{(.*?)\n\}", _src(), re.S)
+    assert m, "poidsAffiches introuvable"
+    assert "if (!p || p.officiel) return r.poids" in m.group(1), (
+        "en mode officiel la barre doit rendre les poids DU MOTEUR : le "
+        "WeightEngine les module par titre (ATW est à 52/28/20, pas 47/28/25), "
+        "et les remplacer par 47/28/25 afficherait un chiffre que le moteur "
+        "n'a pas utilisé")
+
+
+def test_plus_aucun_affichage_ne_lit_r_poids_directement():
+    """Le contrôle qui compte : `r.poids` ne doit plus apparaître que DANS
+    l'helper. Partout ailleurs, il fige la barre."""
+    s = _src()
+    # Le corps de l'helper est le seul endroit légitime : c'est lui qui rend
+    # `r.poids` en mode officiel. On le retire du texte avant de chercher.
+    helper = re.search(r"function poidsAffiches\(r, p\) \{.*?\n\}", s, re.S)
+    assert helper, "poidsAffiches introuvable"
+    s = s.replace(helper.group(0), "")
+    dehors = [l for l in s.splitlines()
+              if "r.poids" in l and not l.strip().startswith("//")]
+    assert not dehors, (
+        "ces lignes lisent encore r.poids et ne suivront pas la pondération :\n"
+        + "\n".join("  " + l.strip()[:110] for l in dehors))
+
+
+def test_les_quatre_affichages_utilisent_les_poids_de_la_vue():
+    s = _src()
+    assert "poidsAffiches(r,scoreMode)" in s, "le classement n'appelle pas l'helper"
+    assert "const pdsAff=poidsAffiches(r,scoreMode);" in s, "la fiche n'appelle pas l'helper"
+    for attendu, ou in ((("<WBar f={pw.f} n={pw.n} t={pw.t}/>"), "barre du classement"),
+                        (("F{pw.f}·N{pw.n}·T{pw.t}"), "libellé du classement"),
+                        (("<WBar f={pdsAff.f} n={pdsAff.n} t={pdsAff.t}/>"), "barre de la fiche"),
+                        (("fond×{pdsAff.f}%"), "formule de la fiche")):
+        assert attendu in s, f"{ou} : ne suit pas la pondération choisie"
+
+
+def test_la_formule_simulee_n_annonce_pas_de_bonus():
+    """computeDisplayScore est une moyenne pondérée PURE — ni bonus ni malus.
+    Écrire « + bonus/malus » en simulation rendrait la formule affichée
+    incapable de redonner le chiffre affiché juste à côté d'elle."""
+    assert 'simu?" =":" + bonus/malus ="' in _src(), (
+        "la fiche annonce un bonus que la note simulée n'applique pas")
+
+
+def test_la_formule_conclut_sur_la_note_affichee():
+    """Elle se terminait sur `r.v53` en dur : la ligne « fond×60% + tech×40% »
+    aboutissait donc à la note OFFICIELLE."""
+    s = _src()
+    assert "fond×{pdsAff.f}%" in s
+    i = s.index("fond×{pdsAff.f}%")
+    fin = s[i:i+900]
+    assert "{fmt(scoreAffiche)}" in fin, (
+        "la formule de la fiche ne conclut pas sur la note qu'elle décrit")
+    assert "(r.v53||0).toFixed(2)" not in fin, (
+        "la formule conclut encore sur le v5.3 du moteur")
