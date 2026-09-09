@@ -1,5 +1,7 @@
 """Point de vérité unique pour les constantes BVC Analyzer."""
 
+from datetime import datetime
+
 # ── Noms officiels des sociétés cotées BVC ──────────────────────────────────
 # Source de vérité : ces noms priment sur tout ce que retournent les scrapers.
 COMPANY_NAMES: dict = {
@@ -411,6 +413,84 @@ SPLITS: dict = {
     # être vrais. Ne rien changer sans recoupement — R2.
     "SOT": [{"date": "2026-05-05", "ratio": 5}],
 }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Suspensions de cotation
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Ouvert le 09/09/2026, après CMT.
+#
+# CE QUE LE MOTEUR NE SAVAIT PAS FAIRE
+# ────────────────────────────────────
+# Un titre suspendu ne cote plus. La source, elle, continue de rediffuser le
+# dernier cours connu, estampillé du jour. Le moteur y voyait donc une séance
+# normale à variation nulle : il a écrit 28 chandelles fantômes sur CMT, du
+# 17/07 au 01/09, toutes à 4 350 DH et volume zéro — et il a publié dessus un
+# signal **ACHETER ★★** sur un instrument que personne n'a le droit d'acheter.
+#
+# POURQUOI LES GARDE-FOUS EXISTANTS N'ONT PAS SUFFI
+# ─────────────────────────────────────────────────
+# Trois s'en sont approchés sans conclure :
+#   · R9 (chg=0 ET vol=0) a bien reconnu la donnée comme stale — c'est même
+#     exactement sa signature — mais « stale » veut dire « pas rafraîchi », pas
+#     « ne cote plus ». Le titre était marqué stale ET portait un signal.
+#   · le plafond de liquidité du 01/09 a ramené la confiance à 2, parce que le
+#     volume médian est nul. Mais le garde-fou d'affichage se déclenche à 1.
+#   · l'étape 6c refuse d'écrire une bougie depuis un prix stale — elle a bien
+#     joué ; les 28 bougies viennent d'avant, quand la source datait encore le
+#     cours du jour.
+# Aucun ne pouvait conclure, parce qu'aucun ne dispose de l'information : la
+# suspension est un FAIT JURIDIQUE publié par le régulateur, pas une propriété
+# statistique de la série. Elle ne se déduit pas des cours — un titre suspendu
+# et un titre simplement illiquide produisent exactement les mêmes nombres.
+# D'où ce registre, tenu à la main comme SPLITS, et sourcé.
+#
+# ⚠️ Une suspension a une FIN, et elle n'est pas connue d'avance. Laisser
+# `reprise` à None signifie « toujours suspendu ». À relire à chaque avis AMMC.
+SUSPENSIONS: dict = {
+    # Compagnie Minière de Touissit — MASI 1.
+    # OPA obligatoire d'AYRAD GROUP LIMITED, OSEAD Fund, OSEAD MAROC MINING et
+    # la CIMR agissant de concert, déposée le 16/07/2026 après le franchissement
+    # du seuil de 40 % des droits de vote (pacte d'actionnaires du 13/07/2026).
+    # L'AMMC a demandé la suspension à la Bourse le 17/07 — avis DO/EM/07/2026.
+    "CMT": [{
+        "depuis": "2026-07-17",
+        "reprise": None,
+        "motif": "OPA obligatoire (Ayrad / OSEAD / CIMR)",
+        "source": "AMMC, avis de dépôt DO/EM/07/2026 du 17/07/2026",
+        "url": "https://www.ammc.ma/sites/default/files/OPA_Avis%20d%C3%A9p%C3%B4t_CMT_%20FR.pdf",
+        # Dernière séance portant un VOLUME réel : 67 515 titres échangés.
+        # ⚠️ La source diffuse depuis le 17/07 un cours de 4 350 DH, que le
+        # moteur a recopié en 28 bougies à volume nul. On ne sait pas trancher
+        # entre un dernier échange réel le matin du 17 avant la suspension et
+        # un simple cours de référence : aucune de ces 28 lignes ne porte de
+        # volume, et le bulletin CDG donne le titre entièrement à zéro. Le
+        # chiffre est donc consigné tel qu'observé, sans lui prêter un sens
+        # qu'aucune source ne confirme.
+        "dernier_cours_cote": {"date": "2026-07-16", "valeur": 4501.0, "volume": 67515},
+        "cours_diffuse_depuis_suspension": 4350.0,
+    }],
+}
+
+
+def est_suspendu(ticker: str, date_iso: str | None = None) -> dict | None:
+    """Renvoie la suspension en vigueur à `date_iso`, ou None.
+
+    `date_iso` par défaut : aujourd'hui. Le dict renvoyé est celui du registre —
+    ne pas le muter, il est partagé.
+    """
+    periodes = SUSPENSIONS.get(ticker)
+    if not periodes:
+        return None
+    jour = (date_iso or datetime.now().strftime("%Y-%m-%d"))[:10]
+    for p in periodes:
+        if jour < p["depuis"]:
+            continue
+        reprise = p.get("reprise")
+        if reprise is None or jour < reprise:
+            return p
+    return None
 
 
 def adjust_splits(ticker: str, candles: list, date_key: str = "d") -> list:

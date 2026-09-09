@@ -603,8 +603,9 @@ const tk=r=>r&&(r.code_bvc||r.symbol||r.ticker)||"";
    En son absence on suppose le pire — c'est la règle du CLAUDE.md : sans
    _meta, le frontend doit considérer la donnée comme périmée. */
 const meta=r=>{const m=(r&&r._meta)||null;
-  return m?{stale:!!m.stale,conf:m.confidence??0,asof:m.prix_asof||null,src:m.source_prix||"inconnu"}
-          :{stale:true,conf:0,asof:null,src:"inconnu"};};
+  return m?{stale:!!m.stale,conf:m.confidence??0,asof:m.prix_asof||null,src:m.source_prix||"inconnu",
+            susp:!!m.suspendu,suspDepuis:m.suspendu_depuis||null,suspMotif:m.suspendu_motif||null}
+          :{stale:true,conf:0,asof:null,src:"inconnu",susp:false,suspDepuis:null,suspMotif:null};};
 const jjmm=d=>{const p=String(d||"").slice(0,10).split("-");return p.length===3?`${p[2]}/${p[1]}`:"";};
 /* Pastille de fraîcheur : n'apparaît que si le cours n'est pas celui de la
    dernière séance cotée. Le titre porte la date réelle et la source. */
@@ -1275,6 +1276,12 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   <td style={{padding:"8px 8px"}}>{customMode
                     ? <span title="Le signal n'existe que pour la pondération officielle"
                         style={{fontSize:11,color:"#4a5570",letterSpacing:1}}>—</span>
+                    /* Un titre suspendu passe AVANT le test de confiance : sa
+                       confiance est nulle, mais « Données insuffisantes » serait
+                       un contresens. Les données ne manquent pas — le titre ne
+                       cote plus. */
+                    : meta(r).susp
+                    ? <Chip label="SUSPENDU" bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40"/>
                     : meta(r).conf<=1
                     ? <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550"/>
                     : <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd}/>}</td>
@@ -1408,9 +1415,16 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                 titre. Signalé par Abd Moutalib : « le score ne bouge pas ». */}
             {simu
               ? <Chip label="SIMULATION — signal masqué" bg="rgba(255,215,64,.10)" fg="#ffd740" bd="#ffd74040" sz={12}/>
+              : meta(r).susp
+              ? <Chip label={`SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`} bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40" sz={12}/>
               : meta(r).conf<=1
               ? <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550" sz={12}/>
               : <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd} sz={12}/>}
+            {/* Le motif, pour que la suspension ne soit pas une énigme : une
+                OPA n'est pas une sanction, et la nuance change tout pour le
+                lecteur. */}
+            {meta(r).susp&&meta(r).suspMotif&&!simu&&
+              <div style={{marginTop:6,fontSize:10,color:"#8892a4"}}>{meta(r).suspMotif}</div>}
             <div style={{marginTop:8,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
               <Delta d={simu?(r.bvc!=null?+(scoreAffiche-r.bvc).toFixed(2):null):r.delta}/><span style={{fontSize:11,color:"#8892a4"}}>vs BVC {fmt(r.bvc)}</span>
             </div>
