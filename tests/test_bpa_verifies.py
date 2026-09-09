@@ -14,7 +14,7 @@ Sept titres passés au crible, **sept BPA faux, tous dans le même sens** :
     ADH  2,50 → 1,13    ×2,21      PER 14,2 → 31,4
     CSR    11 → 7,45    ×1,48      PER 17,6 → 26,0
     HPS  28,4 → 14,31   ×1,98      PER 23,6 → 46,8
-    RIS  23,1 → 18,82   ×1,23      PER 13,9 → 17,0
+    RIS  23,1 → 16,84   ×1,37      PER 13,9 → 19,1
     SNA 148,1 → 69,69   ×2,13      PER 13,0 → 27,7
     SOT  32,0 → 10,14   ×3,16      PER 11,3 → 35,6
     TQA  63,4 → 41,58   ×1,52      PER 28,1 → 42,8
@@ -49,7 +49,7 @@ VERIFIES = {
     "CMT": 116.86,
     "CSR": 7.45,
     "HPS": 14.31,
-    "RIS": 18.82,
+    "RIS": 16.84,
     "SNA": 69.69,
     "SOT": 10.14,
     "TQA": 41.58,
@@ -105,7 +105,17 @@ def test_le_bpa_decoule_des_faits_enregistres(faits, bpa, ticker):
     """
     f = faits[ticker]["faits"]
     rnpg = f.get("resultat_net_part_groupe")
-    actions = (f.get("nombre_actions_retenu_pour_le_bpa")
+    # Ordre de préséance du diviseur, et il compte :
+    #   1. le nombre d'actions EXISTANT établi par une résolution d'AG — c'est
+    #      lui qui vaut pour un ratio par action d'aujourd'hui ;
+    #   2. à défaut, le nombre retenu par la société pour son propre BPA
+    #      (moyenne pondérée au sens d'IAS 33) ;
+    #   3. à défaut, le total inscrit au rapport.
+    # Risma a fait basculer 1 devant 2 : sa résolution du 02/06/2026 établit
+    # 16 012 132 titres quand le rapport en moyenne 14 326 947. Les deux sont
+    # justes — ils répondent à deux questions différentes.
+    actions = (f.get("nombre_actions_existant")
+               or f.get("nombre_actions_retenu_pour_le_bpa")
                or f.get("nombre_actions_au_rapport"))
     if not rnpg or not actions:
         pytest.skip(f"{ticker} : le rapport ne donne pas les deux termes")
