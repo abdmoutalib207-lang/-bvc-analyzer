@@ -59,6 +59,51 @@ jobs:
             echo "::warning::Collecte insuffisante — bulletin non envoyé."
           fi
 
+      # ⚠️ AJOUTÉ LE 10/09/2026 — 12 exécutions, 12 ÉCHECS, ZÉRO envoi.
+      #
+      # Depuis le 03/09, chaque tentative se terminait sur « At least one of
+      # 'to', 'cc' or 'bcc' must be specified » : le secret MAIL_TO n'est pas
+      # renseigné dans le dépôt. Le bulletin matinal — la promesse centrale du
+      # produit — n'a donc jamais été livré, une seule fois, en une semaine.
+      #
+      # Le message d'origine ne nommait ni le secret manquant ni le dépôt où le
+      # poser. Une alerte qu'on ne sait pas interpréter n'est pas une alerte :
+      # on la classe en « ça échoue encore » et on cesse de la lire.
+      #
+      # Cette étape échoue AVANT la tentative d'envoi, en disant quoi faire.
+      - name: Vérifier la configuration du courriel
+        if: steps.compose.outputs.envoyer == 'true'
+        env:
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        run: |
+          manquants=""
+          [ -z "$MAIL_TO"       ] && manquants="$manquants MAIL_TO"
+          [ -z "$MAIL_USERNAME" ] && manquants="$manquants MAIL_USERNAME"
+          [ -z "$MAIL_PASSWORD" ] && manquants="$manquants MAIL_PASSWORD"
+          if [ -n "$manquants" ]; then
+            echo "::error::Bulletin NON envoyé — secret(s) absent(s) :$manquants"
+            {
+              echo "## ⚠️ Bulletin non envoyé"
+              echo ""
+              echo "Secret(s) manquant(s) :\`$manquants\`"
+              echo ""
+              echo "À renseigner dans **Settings → Secrets and variables →"
+              echo "Actions → New repository secret** :"
+              echo ""
+              echo "| Secret | Contenu attendu |"
+              echo "|---|---|"
+              echo "| \`MAIL_TO\` | l'adresse destinataire du bulletin |"
+              echo "| \`MAIL_USERNAME\` | l'adresse Gmail expéditrice |"
+              echo "| \`MAIL_PASSWORD\` | un **mot de passe d'application** Google, pas le mot de passe du compte |"
+              echo ""
+              echo "Le bulletin lui-même a été composé correctement : seul l'envoi manque."
+            } >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          echo "Configuration du courriel complète."
+
       - name: Envoyer
         if: steps.compose.outputs.envoyer == 'true'
         uses: dawidd6/action-send-mail@v3
