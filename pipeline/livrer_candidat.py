@@ -414,8 +414,12 @@ def main() -> None:
     # relevé, à raison, qu'il ne pouvait certifier « trois bulletins
     # consécutifs » à partir d'une archive qui ne les contenait pas. Un
     # dossier de réception qui invoque une preuve doit la joindre.
-    pieces = sorted((RACINE / "pipeline" / "bulletins").glob("*.pdf")) \
-        if (RACINE / "pipeline" / "bulletins").exists() else []
+    # ⚠️ `*.pdf` SEULEMENT laissait la note explicative dans le dépôt. Le
+    # dossier livré citait donc une réserve documentaire — l'unité du volume
+    # de la bougie CMT du 16/07, présumée et non certifiée — sans la contenir.
+    # Relevé par l'auditeur. Tout le répertoire voyage.
+    _b = RACINE / "pipeline" / "bulletins"
+    pieces = sorted(p for p in _b.iterdir() if p.is_file()) if _b.exists() else []
     if pieces:
         (sortie / "pieces").mkdir(exist_ok=True)
         for p in pieces:
