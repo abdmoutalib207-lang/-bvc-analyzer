@@ -125,7 +125,9 @@ def aligner_entrees(source: Path, cible: Path) -> None:
 
 
 def executer(dossier: Path, date_analyse: str) -> Path:
-    env = dict(os.environ, BVC_DATE_ANALYSE=date_analyse)
+    # ⚠️ Mode audit : une date invalide arrête la livraison plutôt que de la
+    # laisser annoncer une date que le moteur n'utilise pas.
+    env = dict(os.environ, BVC_DATE_ANALYSE=date_analyse, BVC_MODE_AUDIT="1")
     journal = dossier / "run.log"
     with open(journal, "w") as log:
         r = subprocess.run([sys.executable, "update_data.py"], cwd=dossier,
@@ -176,11 +178,62 @@ def rediger_manifeste(avant: Path, apres: Path, meta: dict) -> str:
     w(f"  {empreinte(apres)}  data_candidat.json")
     w("")
     w("CONDITIONS D'EXÉCUTION")
-    w(f"  date d'analyse imposée aux deux runs : {meta['date_analyse']}")
+    w(f"  date d'analyse DEMANDÉE  : {meta['date_analyse']}")
+    w(f"  date d'analyse ENREGISTRÉE dans les fichiers produits :")
+    w(f"      avant    {a.get('date_analyse', '(champ absent)')}")
+    w(f"      candidat {b.get('date_analyse', '(champ absent)')}")
+    w( "      (lue dans le JSON, pas recopiée de la demande : c'est le moteur")
+    w( "       qui l'écrit, donc elle ne peut pas diverger de ce qu'il a fait)")
     w(f"  avant     généré {a['updated']}   marché {a['market_status']}")
     w(f"  candidat  généré {b['updated']}   marché {b['market_status']}")
     w("  entrées   chandelles, historique et data.json de départ de la version")
     w("            « avant » imposés AUX DEUX copies")
+    w("")
+    # ── ce qui a été VÉRIFIÉ identique, nommé un par un ──────────────────
+    #
+    # ⚠️ La version précédente concluait « toute différence est imputable au
+    # code ». L'auditeur a jugé cette promesse trop forte, et il a raison : des
+    # cours identiques ne prouvent pas que TOUTES les informations reçues le
+    # soient. Volumes, actualités, réponses de repli et contexte temporel
+    # peuvent différer sans que les prix bougent.
+    #
+    # Le script impose les chandelles, l'historique et le data.json de départ ;
+    # il ne rejoue PAS les réponses des fournisseurs. Une garantie de rejeu
+    # complet demanderait de les enregistrer une fois et de servir exactement
+    # les mêmes aux deux moteurs. Tant que ce n'est pas fait, on énumère ce
+    # qu'on a contrôlé et on s'arrête là.
+    contexte = {
+        "MASI (valeur)": a.get("masi", {}).get("value") == b.get("masi", {}).get("value"),
+        "MASI (date)": a.get("masi", {}).get("asof") == b.get("masi", {}).get("asof"),
+        "statut du marché": a.get("market_status") == b.get("market_status"),
+        "date d'analyse": a.get("date_analyse") == b.get("date_analyse"),
+        "cours": not bouge,
+        "volumes": all(ta[s].get("vol") == tb[s].get("vol") for s in ta),
+        "pondérations": all(ta[s].get("poids") == tb[s].get("poids") for s in ta),
+        "scores techniques": all(ta[s].get("score_tech") == tb[s].get("score_tech") for s in ta),
+        "univers (symboles)": set(ta) == set(tb),
+    }
+    w("CONTEXTE VÉRIFIÉ IDENTIQUE ENTRE LES DEUX EXÉCUTIONS")
+    for nom, ok in contexte.items():
+        w(f"  {'identique  ' if ok else 'DIFFÉRENT  '}{nom}")
+    w("")
+    w("PORTÉE DE LA COMPARAISON")
+    if all(contexte.values()):
+        w("  Les cours et les éléments de contexte énumérés ci-dessus sont")
+        w("  identiques. Les écarts observés sont COMPATIBLES avec les")
+        w("  modifications apportées.")
+    else:
+        w("  ⚠️ Au moins un élément de contexte diffère : les écarts ne peuvent")
+        w("  pas être attribués aux seules modifications de code.")
+    w("")
+    w("  ⚠️ SANS GARANTIE GÉNÉRALE DE REJEU FIGÉ. Le script impose les")
+    w("  chandelles, l'historique et le data.json de départ, mais chaque moteur")
+    w("  interroge les fournisseurs pour son compte. Des cours identiques ne")
+    w("  prouvent pas que toutes les réponses reçues le soient — volumes,")
+    w("  actualités, replis et contexte temporel peuvent différer. Fermer le")
+    w("  marché ne suffit pas à figer les sources. Une garantie complète exige")
+    w("  d'enregistrer les réponses externes une fois, puis de servir exactement")
+    w("  les mêmes aux deux moteurs. Ce n'est pas fait à ce jour.")
     w("")
     if bouge:
         w(f"⚠️ {len(bouge)} cours ont bougé entre les deux exécutions. Ces écarts")
@@ -190,12 +243,8 @@ def rediger_manifeste(avant: Path, apres: Path, meta: dict) -> str:
         w(f"   Les {len(ta) - len(bouge)} autres sont identiques. Les champs techniques")
         w("   dérivés de ces cours bougent en conséquence.")
         w("")
-        w("   ⚠️ Marché ouvert : la comparaison reste DESCRIPTIVE. Elle ne permet")
-        w("   pas d'attribuer chaque différence au seul code. Une attribution")
-        w("   stricte demande une exécution hors séance.")
-    else:
-        w(f"Les {len(ta)} cours sont identiques entre les deux exécutions : toute")
-        w("différence est imputable au code et aux fichiers de faits.")
+        w("   ⚠️ Marché ouvert : ces écarts s'ajoutent aux limites énoncées")
+        w("   ci-dessus.")
     w("")
     w("CHAMPS QUI DIFFÈRENT — comptés sur les titres communs")
     for k, v in sorted(champs.items(), key=lambda x: -len(x[1])):

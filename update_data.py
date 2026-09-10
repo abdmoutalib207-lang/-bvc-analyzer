@@ -1768,25 +1768,50 @@ def _suspendu_maintenant(ticker: str):
 def date_analyse() -> str:
     """La date à laquelle l'analyse est réputée rendue. Aujourd'hui par défaut.
 
-    Surchargée par `BVC_DATE_ANALYSE` pour rejouer une analyse passée à
-    l'identique. Une valeur mal formée est ignorée avec un avertissement
-    plutôt que d'arrêter le run : un rejeu raté ne doit pas empêcher le
-    bulletin du jour.
+    Surchargée par `BVC_DATE_ANALYSE` pour rejouer une analyse passée.
+
+    ⚠️ DEUX MODES, sur remarque de l'audit externe du 10/09/2026. Une date
+    invalide ne peut pas avoir la même conséquence dans les deux cas :
+
+      · BULLETIN QUOTIDIEN — le retour à aujourd'hui est acceptable, avec un
+        avertissement : un rejeu raté ne doit pas empêcher la publication du
+        jour.
+      · REJEU OU LIVRAISON D'AUDIT — une date explicitement demandée mais
+        invalide doit ARRÊTER l'opération. Sinon le dossier annonce une date
+        pendant que le moteur en utilise une autre : c'est exactement le genre
+        d'écart entre le dit et le fait qui a fait refuser deux livraisons.
+
+    `BVC_MODE_AUDIT=1` bascule en mode strict, et y exige une date déclarée.
+
+    ⚠️ Ce n'est PAS la date du cours. La confusion entre les deux était le
+    défaut circulaire qui laissait CMT porter « ACHETER » alors qu'elle est
+    suspendue.
     """
     v = os.environ.get("BVC_DATE_ANALYSE", "").strip()
+    strict = os.environ.get("BVC_MODE_AUDIT", "").strip() in ("1", "true", "oui")
     if v:
         try:
             datetime.strptime(v, "%Y-%m-%d")
             return v
         except ValueError:
+            if strict:
+                raise SystemExit(
+                    f"BVC_DATE_ANALYSE={v!r} est mal formée et le mode audit est "
+                    f"actif : l'opération s'arrête. Une livraison ne peut pas "
+                    f"annoncer une date de décision que le moteur n'utilise pas. "
+                    f"Format attendu : AAAA-MM-JJ.")
             logger.warning(f"BVC_DATE_ANALYSE={v!r} mal formée — ignorée, "
                            f"la date du jour est retenue")
+    elif strict:
+        raise SystemExit(
+            "BVC_MODE_AUDIT=1 sans BVC_DATE_ANALYSE : en rejeu, la date de "
+            "décision doit être déclarée, jamais déduite de l'horloge.")
     return datetime.now().strftime("%Y-%m-%d")
 
 
 def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
                  isin_suspect=False, ratios_calcules=False,
-                 chg=None, vol=None) -> dict:
+                 chg=None, vol=None, prix_diffuse=None) -> dict:
     """Provenance du prix et score de confiance 0–5.
 
     Le score suit la spécification du CLAUDE.md, un point par garantie :
@@ -1889,6 +1914,9 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
 
     return {
         "suspendu":       bool(suspension),
+        # Le cours que la source continue de diffuser, conservé pour que
+        # l'écart avec la dernière cotation réelle reste vérifiable.
+        "prix_diffuse_source": prix_diffuse,
         "suspendu_depuis": suspension["depuis"] if suspension else None,
         "suspendu_motif":  suspension["motif"] if suspension else None,
         "source_prix":  src_prix or "inconnu",
@@ -2545,6 +2573,46 @@ def run(dry_run=False, push=False, token=""):
         chg = recalculer_variation(ticker, price, chg,
                                    _candles_cache.get(ticker), IDB_ASOF)
 
+        # ── Titre suspendu : la référence de prix est la DERNIÈRE COTATION ──
+        #
+        # ⚠️ Ajouté le 10/09/2026, sur la troisième remarque de l'audit externe :
+        # « clarifier la référence de prix de CMT et ses dates ».
+        #
+        # Trois dates se confondaient dans un seul champ :
+        #   · la date de RÉCUPÉRATION chez le fournisseur — aujourd'hui, toujours ;
+        #   · la date de la dernière COTATION RÉELLE — le 16/07 pour CMT ;
+        #   · la date du prix retenu pour les RATIOS.
+        #
+        # La source rediffuse 4 350 DH estampillés du jour ; le bulletin de CDG
+        # donne CMT à 0,00 sur toutes les colonnes, trois séances de suite. La
+        # dernière cotation réelle est celle du 16/07 à 4 501 DH, seule à porter
+        # un volume (67 515 titres). Publier 4 350 daté d'aujourd'hui affirme un
+        # échange qui n'a pas eu lieu.
+        #
+        # On retient donc la dernière bougie PORTANT UN VOLUME, et sa date. Le
+        # cours rediffusé est conservé à part, pour que l'écart reste visible
+        # plutôt que d'être arbitré en silence.
+        _susp = _suspendu_maintenant(ticker)
+        _prix_diffuse = None
+        if _susp:
+            _df_s = _candles_cache.get(ticker)
+            try:
+                _reelles = [b for b in (_df_s.to_dict("records") if _df_s is not None else [])
+                            if (b.get("v") or 0) > 0]
+            except Exception:
+                _reelles = []
+            if _reelles:
+                _der = _reelles[-1]
+                _c, _d = _der.get("c"), str(_der.get("d") or "")[:10]
+                if _c and _d and (price != _c or prix_asof != _d):
+                    _prix_diffuse = price
+                    logger.info(f"  {ticker}: suspendu — référence ramenée à la "
+                                f"dernière cotation réelle {_c} du {_d} "
+                                f"(la source diffusait {price})")
+                    price, prix_asof = _c, _d
+                    src_prix = "derniere_cotation_avant_suspension"
+                    chg = 0.0
+
         if not opn:
             opn = round(price / (1 + chg / 100), 2) if chg else price
 
@@ -2600,7 +2668,7 @@ def run(dry_run=False, push=False, token=""):
                 _candles_cache.get(ticker), isin_suspect,
                 ratios_calcules=bool(
                     ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0),
-                chg=chg, vol=vol),
+                chg=chg, vol=vol, prix_diffuse=_prix_diffuse),
             # Code officiel BVC, pour l'affichage seulement. Nos symboles
             # internes sont la clé primaire d'ISIN_MAP, des chandelles et de
             # six ans de corpus WhatsApp : on ne les renomme pas. Mais un
@@ -2726,6 +2794,10 @@ def run(dry_run=False, push=False, token=""):
         # utilise `TZ=Africa/Casablanca date` et donnait l'heure juste : d'où
         # un data.json marqué 11h31 dans un commit intitulé 12h31.
         "updated": datetime.now(timezone(timedelta(hours=1))).strftime("%Y-%m-%dT%H:%M:%S%z"),
+        # ⚠️ La date RÉELLEMENT utilisée pour les décisions datées (suspensions).
+        # Écrite dans le fichier produit, et non seulement dans un manifeste :
+        # un dossier peut se tromper, le fichier ne peut pas.
+        "date_analyse": date_analyse(),
         "source":  "IDBourse / Médias24",
         "market_status": mkt_status,
         "masi": {
