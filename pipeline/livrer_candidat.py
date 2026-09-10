@@ -150,7 +150,11 @@ def eprouver(dossier: Path) -> tuple[str, str]:
     Le résultat entre au manifeste. Un dossier de réception qui annonce une
     suite verte doit l'avoir exécutée sur le fichier qu'il contient.
     """
-    r = subprocess.run([sys.executable, "-m", "pytest", "-q", "--tb=line"],
+    # ⚠️ NE PAS ajouter `-q` : pytest.ini le pose déjà, et un second `-q`
+    # devient `-qq`, qui SUPPRIME la ligne de résumé. Le script rendait alors
+    # « résumé illisible » sur une suite parfaitement verte — un dossier de
+    # réception qui n'arrive pas à lire son propre résultat ne vaut rien.
+    r = subprocess.run([sys.executable, "-m", "pytest", "--tb=line"],
                        cwd=dossier, capture_output=True, text=True, timeout=900)
     sortie = (r.stdout or "") + (r.stderr or "")
     import re as _re
