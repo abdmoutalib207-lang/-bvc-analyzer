@@ -1751,8 +1751,37 @@ def _suspendu_maintenant(ticker: str):
 
     La bonne question est « ce titre est-il suspendu AUJOURD'HUI ? », parce que
     c'est aujourd'hui que le bulletin est lu et qu'un ordre serait passé.
+
+    ⚠️ DATE INJECTABLE, ajoutée le 10/09/2026 à la demande de l'auditeur.
+    « Aujourd'hui » répond au besoin du terminal courant, mais rend
+    irreproductible le rejeu d'une analyse passée : relancer le moteur sur les
+    données du 20 juillet donnerait le statut d'aujourd'hui, pas celui du
+    20 juillet. `BVC_DATE_ANALYSE=AAAA-MM-JJ` fixe la date de décision.
+
+    Ce n'est PAS la date du cours — la confusion entre les deux est justement
+    le défaut qu'on vient de corriger. C'est la date à laquelle l'analyse est
+    réputée rendue, et donc celle où un ordre serait passé.
     """
-    return est_suspendu(ticker, datetime.now().strftime("%Y-%m-%d"))
+    return est_suspendu(ticker, date_analyse())
+
+
+def date_analyse() -> str:
+    """La date à laquelle l'analyse est réputée rendue. Aujourd'hui par défaut.
+
+    Surchargée par `BVC_DATE_ANALYSE` pour rejouer une analyse passée à
+    l'identique. Une valeur mal formée est ignorée avec un avertissement
+    plutôt que d'arrêter le run : un rejeu raté ne doit pas empêcher le
+    bulletin du jour.
+    """
+    v = os.environ.get("BVC_DATE_ANALYSE", "").strip()
+    if v:
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+            return v
+        except ValueError:
+            logger.warning(f"BVC_DATE_ANALYSE={v!r} mal formée — ignorée, "
+                           f"la date du jour est retenue")
+    return datetime.now().strftime("%Y-%m-%d")
 
 
 def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
