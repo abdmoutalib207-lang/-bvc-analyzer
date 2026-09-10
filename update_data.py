@@ -54,7 +54,7 @@ except NameError:
 
 from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
                         COMPANY_NAMES, COMPANY_SECTORS, est_ferie_fixe,
-                        est_suspendu)
+                        est_suspendu, SPLITS)
 
 TICKERS = TICKERS_ALL
 
@@ -1666,6 +1666,65 @@ def _est_rediffusion(chg, vol, df_candles, seance=None):
         return False
 
 
+FAITS_DATA: dict = {}
+
+
+def _pb_sourcé(ticker: str, price: float):
+    """Price-to-book calculé depuis des faits SOURCÉS, ou None.
+
+        PB = cours × nombre d'actions ÷ capitaux propres part du groupe
+
+    ⚠️ Pourquoi ce calcul remplace une constante, et pourquoi il rend None
+    plutôt qu'une valeur de repli.
+
+    Le champ `pb` publié venait de FOND_DATA, une table codée en dur, et
+    portait `pb_fige: true` sur 80 titres sur 80. L'audit externe du 09/09 a
+    montré que l'étiquette ne suffit pas : sur Alliances, la fiche annonçait
+    0,80 — une société valorisée sous ses fonds propres — quand le calcul sur
+    les comptes 2025 donne 2,32. **Le sens de l'information s'inversait.**
+    « Une constante signalée comme figée reste une constante ; l'étiquette ne
+    corrige pas le chiffre. »
+
+    D'où le choix : calculer là où les deux termes sont sourcés et datés,
+    n'afficher RIEN ailleurs. Publier un nombre faux avec un avertissement est
+    pire que ne rien publier — le lecteur retient le nombre.
+
+    Les capitaux propres retenus sont ceux de la PART DU GROUPE, cohérents
+    avec un nombre d'actions de la société mère. Les prendre consolidés, donc
+    minoritaires inclus, sous-estimerait le ratio.
+    """
+    e = FAITS_DATA.get(ticker)
+    if not isinstance(e, dict) or not price or price <= 0:
+        return None
+    faits = e.get("faits") or {}
+    cp = faits.get("capitaux_propres_part_groupe")
+    na = (faits.get("nombre_actions_existant")
+          or faits.get("nombre_actions_au_rapport")
+          or faits.get("nombre_actions_retenu_pour_le_bpa"))
+    if not cp or not na:
+        return None
+    try:
+        n = float(na["valeur"])
+        # ⚠️ Le rapport arrête ses comptes au 31/12 de l'exercice. Un split
+        # postérieur à cette date n'y figure pas : son nombre d'actions est
+        # celui d'AVANT, et il faut l'ajuster pour le comparer au cours
+        # d'aujourd'hui. Managem (10:1 le 27/07/2026) et Sothema (5:1 le
+        # 05/05/2026) sont tous deux dans ce cas pour l'exercice 2025.
+        #
+        # Le registre SPLITS fait foi, comme pour les chandelles — c'est le
+        # même fait extérieur, et il ne doit pas être redéclaré ici.
+        cloture = f"{e.get('exercice', 2025)}-12-31"
+        for sp in SPLITS.get(ticker, []):
+            if sp["date"] > cloture:
+                n *= sp["ratio"]
+        fp = float(cp["valeur"]) * 1e6          # les faits sont en MMAD
+        if fp <= 0:
+            return None
+        return round(price * n / fp, 2)
+    except (TypeError, ValueError, KeyError):
+        return None
+
+
 def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
                  isin_suspect=False, ratios_calcules=False,
                  chg=None, vol=None) -> dict:
@@ -1776,7 +1835,10 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         "source_prix":  src_prix or "inconnu",
         # Décrit d'où viennent les RATIOS AFFICHÉS, pas l'existence d'un score.
         "source_fond":  "bpa_calcule" if ratios_calcules else "table_figee",
-        "pb_fige":      True,          # le price-to-book vient toujours de FOND_DATA
+        # `pb_fige` disparaît : il annonçait une constante là où le champ est
+        # désormais soit calculé depuis un dépôt AMMC, soit absent.
+        "pb_source":    ("faits_ammc" if _pb_sourcé(ticker, 1.0) is not None
+                         else "non_disponible"),
         "vol_median20": vol_median,
         "prix_asof":    prix_asof or None,
         "stale":        stale,
@@ -1930,6 +1992,24 @@ def run(dry_run=False, push=False, token=""):
     bpa_path = Path(__file__).parent / "bpa.json"
     BPA_DATA = json.loads(bpa_path.read_text(encoding="utf-8")) if bpa_path.exists() else {}
     logger.info(f"BPA chargé : {len(BPA_DATA)} tickers")
+
+    # ── Faits financiers sourcés ─────────────────────────────────────────
+    #
+    # ⚠️ Branché le 10/09/2026. L'audit externe du 09/09 relevait que
+    # `faits_financiers.json` — onze émetteurs relus page par page dans les
+    # dépôts AMMC — n'était « pas lu directement par update_data.py » : les
+    # corrections passaient par des reprises manuelles. Un référentiel qu'aucun
+    # programme ne consulte n'est pas un référentiel, c'est une archive.
+    global FAITS_DATA
+    faits_path = Path(__file__).parent / "pipeline" / "faits_financiers.json"
+    try:
+        FAITS_DATA = json.loads(faits_path.read_text(encoding="utf-8")) if faits_path.exists() else {}
+    except Exception as _e:
+        logger.warning(f"faits_financiers.json illisible ({_e})")
+        FAITS_DATA = {}
+    _n_pb = sum(1 for t in FAITS_DATA if not t.startswith("_") and _pb_sourcé(t, 1.0) is not None)
+    logger.info(f"Faits AMMC chargés : {len([t for t in FAITS_DATA if not t.startswith('_')])} "
+                f"émetteurs, dont {_n_pb} avec un price-to-book calculable")
     now_ca = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=1)  # UTC+1 Casablanca
     h, mn = now_ca.hour, now_ca.minute
     tot = h * 60 + mn
@@ -2484,7 +2564,13 @@ def run(dry_run=False, push=False, token=""):
             "close":  round(price, 2),
             "pe":     round(price / BPA_DATA[ticker]["bpa"], 1) if (ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0) else fd.get("pe"),
             "bpa":    BPA_DATA[ticker]["bpa"] if ticker in BPA_DATA else None,
-            "pb":     fd.get("pb"),
+            # ⚠️ Le price-to-book vient désormais des FAITS SOURCÉS quand ils
+            # existent, et vaut None sinon — jamais la constante de FOND_DATA.
+            # Sur Alliances, la table annonçait 0,80 quand les comptes 2025
+            # donnent 2,32 : le sens de l'information s'inversait. Publier un
+            # nombre faux avec un avertissement est pire que ne rien publier,
+            # parce que le lecteur retient le nombre.
+            "pb":     _pb_sourcé(ticker, price),
             # ⚠️ ZÉRO N'EST PAS UNE ABSENCE. Le test était
             # `BPA_DATA[ticker].get("div_dh")` — une valeur, pas une présence.
             # En Python `0.0` est faux : un dividende de zéro, VÉRIFIÉ dans le

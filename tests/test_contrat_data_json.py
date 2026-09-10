@@ -42,7 +42,7 @@ CHAMPS_META = {"source_prix", "source_fond", "prix_asof", "stale",
                "confidence", "n_candles", "generated_at",
                # Ajoutés le 01/09/2026, pour que le bloc de provenance cesse
                # de mentir sur les fondamentaux :
-               "pb_fige",        # le price-to-book vient toujours de FOND_DATA
+               "pb_source",      # « faits_ammc » ou « non_disponible »
                "vol_median20"}   # liquidité, qui plafonne la confiance
 
 NUMERIQUES = {"price", "chg", "vol", "bvc", "v53", "score_tech", "nlp",
@@ -125,14 +125,31 @@ def test_source_des_fondamentaux_dit_la_verite(titres):
     assert vues <= connues, f"valeurs inattendues : {vues - connues}"
 
 
-def test_price_to_book_declare_comme_fige(titres):
-    """⚠️ Tant que `pb` vient de FOND_DATA, tous les titres doivent le dire.
+def test_price_to_book_calcule_ou_absent(titres):
+    """Le 10/09/2026, `pb_fige` a été retiré au profit de `pb_source`.
 
-    Ce test tombera le jour où le price-to-book sera calculé sur des capitaux
-    propres réels — et c'est le but : il rappellera de retirer le drapeau.
+    ⚠️ Le test qui occupait cette place avait ANNONCÉ sa propre fin : « ce test
+    tombera le jour où le price-to-book sera calculé sur des capitaux propres
+    réels — et c'est le but ». Il est tombé dans les contrôles bloquants
+    d'avant-publication, exactement comme prévu.
+
+    La règle qui le remplace est plus stricte : un price-to-book publié DOIT
+    venir d'un dépôt AMMC ; ailleurs le champ est vide. L'audit externe avait
+    montré pourquoi une constante étiquetée reste une constante — sur
+    Alliances, elle inversait le sens de l'information (0,80 affiché contre
+    2,32 calculé).
     """
-    sans = [s for s, t in titres.items() if not (t.get("_meta") or {}).get("pb_fige")]
-    assert not sans, f"titres sans le drapeau pb_fige : {sans}"
+    fautifs = {}
+    for sym, t in titres.items():
+        src = (t.get("_meta") or {}).get("pb_source")
+        pb = t.get("pb")
+        if src not in ("faits_ammc", "non_disponible"):
+            fautifs[sym] = f"pb_source inconnu : {src!r}"
+        elif src == "non_disponible" and pb is not None:
+            fautifs[sym] = f"pb={pb} sans source AMMC — c'est une constante"
+        elif src == "faits_ammc" and pb is None:
+            fautifs[sym] = "source AMMC annoncée mais aucune valeur"
+    assert not fautifs, f"price-to-book incohérent : {fautifs}"
 
 
 def test_illiquidite_plafonne_la_confiance(titres):
