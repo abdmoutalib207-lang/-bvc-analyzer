@@ -137,6 +137,29 @@ def executer(dossier: Path, date_analyse: str) -> Path:
     return dossier / "data.json"
 
 
+def eprouver(dossier: Path) -> tuple[str, str]:
+    """Lance la suite SUR le fichier candidat, dans son propre dossier.
+
+    ⚠️ Ajouté le 10/09/2026, après avoir livré un candidat ROUGE en annonçant
+    361 tests verts. Ma suite tournait sur le `data.json` du dépôt, daté du
+    08/09, qui ne contenait pas la nouvelle valeur `source_prix` ; le candidat,
+    lui, la portait. J'avais donc mesuré un autre fichier que celui que je
+    livrais — la « seconde famille » du CLAUDE.md, dans laquelle je suis tombé
+    en la documentant.
+
+    Le résultat entre au manifeste. Un dossier de réception qui annonce une
+    suite verte doit l'avoir exécutée sur le fichier qu'il contient.
+    """
+    r = subprocess.run([sys.executable, "-m", "pytest", "-q", "--tb=line"],
+                       cwd=dossier, capture_output=True, text=True, timeout=900)
+    sortie = (r.stdout or "") + (r.stderr or "")
+    resume = next((l.strip() for l in reversed(sortie.splitlines())
+                   if "passed" in l or "failed" in l or "error" in l), "résumé illisible")
+    echecs = "\n".join(l.strip() for l in sortie.splitlines()
+                       if l.startswith("FAILED") or l.startswith("ERROR"))
+    return resume, echecs
+
+
 def rediger_manifeste(avant: Path, apres: Path, meta: dict) -> str:
     """Tout est LU dans les fichiers. Rien n'est recopié d'une note."""
     a, b = json.loads(avant.read_text()), json.loads(apres.read_text())
@@ -176,6 +199,18 @@ def rediger_manifeste(avant: Path, apres: Path, meta: dict) -> str:
     w("EMPREINTES DES FICHIERS PRODUITS")
     w(f"  {empreinte(avant)}  data_avant.json")
     w(f"  {empreinte(apres)}  data_candidat.json")
+    w("")
+    w("SUITE DE TESTS EXÉCUTÉE SUR LE CANDIDAT")
+    w(f"  {meta['tests_resume']}")
+    if meta["tests_echecs"]:
+        w("  ⚠️ ÉCHECS :")
+        for l in meta["tests_echecs"].splitlines():
+            w(f"    {l}")
+    else:
+        w("  aucun échec")
+    w("  Exécutée dans le dossier du candidat, donc sur le data.json joint —")
+    w("  et non sur celui du dépôt. La distinction n'est pas théorique : une")
+    w("  livraison précédente annonçait 361 verts mesurés sur un autre fichier.")
     w("")
     w("CONDITIONS D'EXÉCUTION")
     w(f"  date d'analyse DEMANDÉE  : {meta['date_analyse']}")
@@ -242,10 +277,14 @@ def rediger_manifeste(avant: Path, apres: Path, meta: dict) -> str:
     vol_diff = [s for s in ta if ta[s].get("vol") != tb[s].get("vol")]
 
     if expliques:
-        w("ÉCARTS DE COURS EXPLIQUÉS PAR LE CODE")
+        w("ÉCARTS DE COURS COMPATIBLES AVEC LE CORRECTIF")
         for s, (x, y) in sorted(expliques.items()):
-            w(f"  {s:6} {x} → {y}   titre suspendu : la référence est ramenée à")
-            w( "         la dernière cotation portant un volume")
+            w(f"  {s:6} {x} → {y}   titre suspendu")
+        w("  Le correctif ramène la référence d'un titre suspendu à sa dernière")
+        w("  cotation portant un volume, ce qui produirait exactement cet écart.")
+        w("  ⚠️ « Compatible », pas « expliqué » : la suspension seule ne prouve")
+        w("  pas que le correctif soit la cause. Le script ne fait pas cette")
+        w("  démonstration, il constate la compatibilité.")
         w("")
     if inexpliques:
         w("ÉCARTS DE COURS NON EXPLIQUÉS PAR LE CODE")
@@ -257,10 +296,11 @@ def rediger_manifeste(avant: Path, apres: Path, meta: dict) -> str:
     if vol_diff:
         w(f"VOLUMES DIFFÉRENTS SUR {len(vol_diff)} TITRE(S)")
         w(f"  {', '.join(sorted(vol_diff))}")
-        w("  ⚠️ Démonstration directe de la limite énoncée ci-dessous : les cours")
-        w("  peuvent être identiques pendant que d'autres réponses varient. Ces")
-        w("  volumes proviennent des fournisseurs, interrogés séparément par")
-        w("  chaque moteur.")
+        w("  ⚠️ Les cours peuvent être identiques pendant que d'autres champs")
+        w("  varient. Ces JSON prouvent une différence de SORTIE ; ils n'en")
+        w("  établissent pas l'origine. Attribuer ces écarts aux réponses des")
+        w("  fournisseurs exigerait leurs réponses brutes, que le script")
+        w("  n'enregistre pas.")
         w("")
 
     w("PORTÉE DE LA COMPARAISON")
@@ -321,7 +361,24 @@ def main() -> None:
     shutil.copy2(f_avant, sortie / "data_avant.json")
     shutil.copy2(f_apres, sortie / "data_candidat.json")
 
+    # ⚠️ Les pièces CITÉES doivent voyager avec le dossier. L'auditeur a
+    # relevé, à raison, qu'il ne pouvait certifier « trois bulletins
+    # consécutifs » à partir d'une archive qui ne les contenait pas. Un
+    # dossier de réception qui invoque une preuve doit la joindre.
+    pieces = sorted((RACINE / "pipeline" / "bulletins").glob("*.pdf")) \
+        if (RACINE / "pipeline" / "bulletins").exists() else []
+    if pieces:
+        (sortie / "pieces").mkdir(exist_ok=True)
+        for p in pieces:
+            shutil.copy2(p, sortie / "pieces" / p.name)
+
+    print("Exécution de la suite sur le candidat…")
+    resume, echecs = eprouver(d_apres)
+    print(f"  {resume}")
+
     meta = {
+        "tests_resume": resume,
+        "tests_echecs": echecs,
         "commit_apres": git("rev-parse", "HEAD"),
         "sujet_apres": git("log", "-1", "--format=%s"),
         "commit_avant": git("rev-parse", args.base),

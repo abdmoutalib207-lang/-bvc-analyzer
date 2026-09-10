@@ -1,0 +1,22 @@
+Bulletins « Indices » de CDG Capital Bourse, tels que reçus.
+
+⚠️ Le titre du bulletin porte la date de PUBLICATION, pas celle de la séance :
+« Indices du mercredi 9 septembre » contient la séance du 8.
+
+Ils sont ici pour qu'une affirmation qui s'appuie sur eux puisse être recoupée
+par le lecteur. L'audit externe a relevé, à raison, qu'un dossier citant
+« trois bulletins consécutifs » sans les joindre ne prouve rien.
+
+CE QU'ILS ÉTABLISSENT SUR CMT
+  Les deux portent la ligne :
+      CMT 0.00 0 - 0.00 - 0.00 0.00 0.00 NaN:NaN:NaN
+  Tout à zéro, sans heure de dernier échange. CDG laisse les champs vides
+  quand un titre n'a pas coté, au lieu de rediffuser la veille — c'est la
+  raison pour laquelle R3 la place en tête de chaîne.
+
+UNITÉ DU VOLUME
+  L'en-tête distingue « QteEchangee » (nombre de titres) de « Volumes »
+  (montant en dirhams). Le moteur lit QteEchangee pour son champ `vol`
+  (update_data.py, l. 1029). ⚠️ La bougie CMT du 16/07 porte v=67515, mais le
+  programme qui l'a écrite n'est pas enregistré : l'unité y est présumée, non
+  certifiée.
