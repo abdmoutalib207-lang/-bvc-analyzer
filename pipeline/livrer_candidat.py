@@ -202,29 +202,78 @@ def rediger_manifeste(avant: Path, apres: Path, meta: dict) -> str:
     # complet demanderait de les enregistrer une fois et de servir exactement
     # les mêmes aux deux moteurs. Tant que ce n'est pas fait, on énumère ce
     # qu'on a contrôlé et on s'arrête là.
+    # ⚠️ Un champ absent d'un côté est un champ NOUVEAU, pas une différence de
+    # contexte. Les confondre ferait crier au loup à chaque ajout.
+    def _compare(cle, extraire):
+        va, vb = extraire(a), extraire(b)
+        if va is None and vb is not None:
+            return "nouveau"
+        return "identique" if va == vb else "DIFFÉRENT"
+
+    def _tous(champ):
+        return ("identique" if all(ta[s].get(champ) == tb[s].get(champ) for s in ta)
+                else "DIFFÉRENT")
+
     contexte = {
-        "MASI (valeur)": a.get("masi", {}).get("value") == b.get("masi", {}).get("value"),
-        "MASI (date)": a.get("masi", {}).get("asof") == b.get("masi", {}).get("asof"),
-        "statut du marché": a.get("market_status") == b.get("market_status"),
-        "date d'analyse": a.get("date_analyse") == b.get("date_analyse"),
-        "cours": not bouge,
-        "volumes": all(ta[s].get("vol") == tb[s].get("vol") for s in ta),
-        "pondérations": all(ta[s].get("poids") == tb[s].get("poids") for s in ta),
-        "scores techniques": all(ta[s].get("score_tech") == tb[s].get("score_tech") for s in ta),
-        "univers (symboles)": set(ta) == set(tb),
+        "MASI (valeur)": _compare("masi", lambda d: d.get("masi", {}).get("value")),
+        "MASI (date)": _compare("masi", lambda d: d.get("masi", {}).get("asof")),
+        "statut du marché": _compare("ms", lambda d: d.get("market_status")),
+        "date d'analyse": _compare("da", lambda d: d.get("date_analyse")),
+        "univers (symboles)": "identique" if set(ta) == set(tb) else "DIFFÉRENT",
+        "pondérations": _tous("poids"),
+        "cours": _tous("price"),
+        "volumes": _tous("vol"),
+        "scores techniques": _tous("score_tech"),
     }
-    w("CONTEXTE VÉRIFIÉ IDENTIQUE ENTRE LES DEUX EXÉCUTIONS")
-    for nom, ok in contexte.items():
-        w(f"  {'identique  ' if ok else 'DIFFÉRENT  '}{nom}")
+    w("CONTEXTE CONTRÔLÉ ENTRE LES DEUX EXÉCUTIONS")
+    for nom, etat in contexte.items():
+        w(f"  {etat:<11}{nom}")
     w("")
+
+    # ⚠️ NE PAS ATTRIBUER CE QU'ON NE PEUT PAS ÉTABLIR. La version précédente
+    # rangeait TOUT écart de cours sous « vient du marché ». C'était faux : sur
+    # un titre suspendu, c'est le code qui fixe le prix de référence. On sépare
+    # donc ce qu'on sait expliquer de ce qu'on ne sait pas.
+    suspendus = {s for s in tb
+                 if (tb[s].get("_meta") or {}).get("suspendu")
+                 or (ta[s].get("_meta") or {}).get("suspendu")}
+    expliques = {s: v for s, v in bouge.items() if s in suspendus}
+    inexpliques = {s: v for s, v in bouge.items() if s not in suspendus}
+    vol_diff = [s for s in ta if ta[s].get("vol") != tb[s].get("vol")]
+
+    if expliques:
+        w("ÉCARTS DE COURS EXPLIQUÉS PAR LE CODE")
+        for s, (x, y) in sorted(expliques.items()):
+            w(f"  {s:6} {x} → {y}   titre suspendu : la référence est ramenée à")
+            w( "         la dernière cotation portant un volume")
+        w("")
+    if inexpliques:
+        w("ÉCARTS DE COURS NON EXPLIQUÉS PAR LE CODE")
+        for s, (x, y) in sorted(inexpliques.items()):
+            w(f"  {s:6} {x} → {y}")
+        w("  Ces titres ne sont pas suspendus : l'écart vient vraisemblablement")
+        w("  du marché ou de la source, mais le script ne peut pas le CERTIFIER.")
+        w("")
+    if vol_diff:
+        w(f"VOLUMES DIFFÉRENTS SUR {len(vol_diff)} TITRE(S)")
+        w(f"  {', '.join(sorted(vol_diff))}")
+        w("  ⚠️ Démonstration directe de la limite énoncée ci-dessous : les cours")
+        w("  peuvent être identiques pendant que d'autres réponses varient. Ces")
+        w("  volumes proviennent des fournisseurs, interrogés séparément par")
+        w("  chaque moteur.")
+        w("")
+
     w("PORTÉE DE LA COMPARAISON")
-    if all(contexte.values()):
-        w("  Les cours et les éléments de contexte énumérés ci-dessus sont")
-        w("  identiques. Les écarts observés sont COMPATIBLES avec les")
-        w("  modifications apportées.")
+    non_explique = [n for n, e in contexte.items() if e == "DIFFÉRENT"
+                    and not (n == "cours" and not inexpliques)
+                    and not (n == "scores techniques" and set(bouge) <= suspendus)]
+    if not non_explique:
+        w("  Tout écart de contexte constaté s'explique par les modifications")
+        w("  apportées. Les différences observées sont COMPATIBLES avec elles.")
     else:
-        w("  ⚠️ Au moins un élément de contexte diffère : les écarts ne peuvent")
-        w("  pas être attribués aux seules modifications de code.")
+        w(f"  ⚠️ Écarts de contexte non expliqués : {', '.join(non_explique)}.")
+        w("  Les différences ne peuvent pas être attribuées aux seules")
+        w("  modifications de code.")
     w("")
     w("  ⚠️ SANS GARANTIE GÉNÉRALE DE REJEU FIGÉ. Le script impose les")
     w("  chandelles, l'historique et le data.json de départ, mais chaque moteur")
@@ -235,16 +284,6 @@ def rediger_manifeste(avant: Path, apres: Path, meta: dict) -> str:
     w("  d'enregistrer les réponses externes une fois, puis de servir exactement")
     w("  les mêmes aux deux moteurs. Ce n'est pas fait à ce jour.")
     w("")
-    if bouge:
-        w(f"⚠️ {len(bouge)} cours ont bougé entre les deux exécutions. Ces écarts")
-        w("   viennent du MARCHÉ, pas du code :")
-        for s, (x, y) in sorted(bouge.items()):
-            w(f"     {s:6} {x} → {y}")
-        w(f"   Les {len(ta) - len(bouge)} autres sont identiques. Les champs techniques")
-        w("   dérivés de ces cours bougent en conséquence.")
-        w("")
-        w("   ⚠️ Marché ouvert : ces écarts s'ajoutent aux limites énoncées")
-        w("   ci-dessus.")
     w("")
     w("CHAMPS QUI DIFFÈRENT — comptés sur les titres communs")
     for k, v in sorted(champs.items(), key=lambda x: -len(x[1])):
