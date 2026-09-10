@@ -137,7 +137,7 @@ def executer(dossier: Path, date_analyse: str) -> Path:
     return dossier / "data.json"
 
 
-def eprouver(dossier: Path) -> tuple[str, str]:
+def eprouver(dossier: Path, rapport: Path) -> dict:
     """Lance la suite SUR le fichier candidat, dans son propre dossier.
 
     ⚠️ Ajouté le 10/09/2026, après avoir livré un candidat ROUGE en annonçant
@@ -149,12 +149,28 @@ def eprouver(dossier: Path) -> tuple[str, str]:
 
     Le résultat entre au manifeste. Un dossier de réception qui annonce une
     suite verte doit l'avoir exécutée sur le fichier qu'il contient.
+
+    ⚠️ LE CODE DE RETOUR FAIT FOI, ajouté le 10/09/2026 sur remarque de
+    l'auditeur. La première version se contentait de LIRE la sortie : elle
+    relevait les échecs sans les rendre bloquants, et la livraison continuait
+    jusqu'à « Dossier prêt ». Pire, sur une erreur interne de pytest — sortie
+    non analysable, aucune ligne commençant par FAILED — le manifeste pouvait
+    afficher « résumé illisible » ET « aucun échec » en même temps.
+
+    Un garde-fou qui constate sans arrêter n'est pas un garde-fou. Le code de
+    retour est désormais conservé, et tout code non nul fait échouer la
+    livraison.
+
+    Un rapport JUnit XML est produit en parallèle : il porte les échecs, les
+    erreurs ET LES RAISONS DES TESTS IGNORÉS, que la ligne de résumé ne donne
+    pas. Il voyage avec le dossier.
     """
     # ⚠️ NE PAS ajouter `-q` : pytest.ini le pose déjà, et un second `-q`
     # devient `-qq`, qui SUPPRIME la ligne de résumé. Le script rendait alors
     # « résumé illisible » sur une suite parfaitement verte — un dossier de
     # réception qui n'arrive pas à lire son propre résultat ne vaut rien.
-    r = subprocess.run([sys.executable, "-m", "pytest", "--tb=line"],
+    r = subprocess.run([sys.executable, "-m", "pytest", "--tb=line",
+                        f"--junitxml={rapport}"],
                        cwd=dossier, capture_output=True, text=True, timeout=900)
     sortie = (r.stdout or "") + (r.stderr or "")
     import re as _re
@@ -166,7 +182,20 @@ def eprouver(dossier: Path) -> tuple[str, str]:
     resume = m[-1].strip() if m else f"résumé illisible (code {r.returncode})"
     echecs = "\n".join(l.strip() for l in sortie.splitlines()
                        if l.startswith("FAILED") or l.startswith("ERROR"))
-    return resume, echecs
+    # Les raisons d'IGNORÉ sont lues dans le rapport structuré : la ligne de
+    # résumé les compte sans jamais les nommer.
+    ignores = []
+    if rapport.exists():
+        try:
+            import xml.etree.ElementTree as ET
+            for cas in ET.parse(rapport).getroot().iter("testcase"):
+                for sk in cas.findall("skipped"):
+                    ignores.append(f"{cas.get('classname','')}::{cas.get('name','')}"
+                                   f" — {(sk.get('message') or '').strip()[:150]}")
+        except Exception as e:                                # pragma: no cover
+            ignores.append(f"(rapport JUnit illisible : {e})")
+    return {"code": r.returncode, "resume": resume, "echecs": echecs,
+            "ignores": ignores, "sortie": sortie}
 
 
 def rediger_manifeste(avant: Path, apres: Path, meta: dict) -> str:
@@ -211,12 +240,23 @@ def rediger_manifeste(avant: Path, apres: Path, meta: dict) -> str:
     w("")
     w("SUITE DE TESTS EXÉCUTÉE SUR LE CANDIDAT")
     w(f"  {meta['tests_resume']}")
+    w(f"  code de retour de pytest : {meta['tests_code']}  "
+      f"({'succès' if meta['tests_code'] == 0 else 'ÉCHEC'})")
+    w("  ⚠️ C'est le CODE DE RETOUR qui fait foi, pas la lecture de la sortie :")
+    w("  sur une erreur interne, celle-ci peut être illisible sans qu'aucune")
+    w("  ligne ne commence par FAILED. Un code non nul interrompt la livraison")
+    w("  et produit un fichier CANDIDAT_NON_VALIDE.txt au lieu d'un manifeste.")
     if meta["tests_echecs"]:
         w("  ⚠️ ÉCHECS :")
         for l in meta["tests_echecs"].splitlines():
             w(f"    {l}")
     else:
         w("  aucun échec")
+    if meta["tests_ignores"]:
+        w(f"  {len(meta['tests_ignores'])} test(s) ignoré(s), avec leur raison :")
+        for l in meta["tests_ignores"]:
+            w(f"    {l}")
+    w("  Rapport structuré joint : rapport_tests.xml (JUnit)")
     w("  Exécutée dans le dossier du candidat, donc sur le data.json joint —")
     w("  et non sur celui du dépôt. La distinction n'est pas théorique : une")
     w("  livraison précédente annonçait 361 verts mesurés sur un autre fichier.")
@@ -382,12 +422,38 @@ def main() -> None:
             shutil.copy2(p, sortie / "pieces" / p.name)
 
     print("Exécution de la suite sur le candidat…")
-    resume, echecs = eprouver(d_apres)
-    print(f"  {resume}")
+    rapport = sortie / "rapport_tests.xml"
+    verdict = eprouver(d_apres, rapport)
+    print(f"  {verdict['resume']}")
+
+    # ⚠️ ARRÊT BLOQUANT. Le code de retour de pytest fait foi — pas l'analyse
+    # de sa sortie, qui peut être illisible sur erreur interne. Un dossier
+    # produit malgré des tests rouges serait présenté comme une livraison
+    # validée alors qu'il n'en est pas une.
+    if verdict["code"] != 0:
+        (sortie / "CANDIDAT_NON_VALIDE.txt").write_text(
+            "CANDIDAT NON VALIDÉ\n"
+            "===================\n\n"
+            f"pytest a retourné le code {verdict['code']} sur le fichier candidat.\n"
+            f"Résumé : {verdict['resume']}\n\n"
+            + (f"Échecs :\n{verdict['echecs']}\n\n" if verdict["echecs"] else "")
+            + "Ce dossier est un DIAGNOSTIC, pas une livraison. Il ne doit pas\n"
+              "être présenté comme validé. Le rapport structuré des tests est\n"
+              "joint sous rapport_tests.xml.\n",
+            encoding="utf-8")
+        (sortie / "sortie_tests.txt").write_text(verdict["sortie"], encoding="utf-8")
+        print(f"\n❌ CANDIDAT NON VALIDÉ — pytest code {verdict['code']}", file=sys.stderr)
+        print(f"   {verdict['resume']}", file=sys.stderr)
+        if verdict["echecs"]:
+            print(verdict["echecs"], file=sys.stderr)
+        print(f"   Diagnostic conservé dans {sortie}", file=sys.stderr)
+        raise SystemExit(1)
 
     meta = {
-        "tests_resume": resume,
-        "tests_echecs": echecs,
+        "tests_code": verdict["code"],
+        "tests_resume": verdict["resume"],
+        "tests_echecs": verdict["echecs"],
+        "tests_ignores": verdict["ignores"],
         "commit_apres": git("rev-parse", "HEAD"),
         "sujet_apres": git("log", "-1", "--format=%s"),
         "commit_avant": git("rev-parse", args.base),
