@@ -2316,12 +2316,25 @@ const NewsFeed=()=>{
 // ── SCORE PERSONNALISÉ ────────────────────────────────────────────────────────
 // Recalcule un score d'affichage selon les composantes actives (F/N/T)
 // Ne modifie PAS le score v5.3 stocké — lecture seule des sous-scores
+/* Les composantes du score v5.3, transportées telles quelles depuis data.json.
+   Déclarées ici, à côté de la fonction qui les consomme, plutôt que noyées
+   dans le mapping de loadData où l'absence de score_tech est passée inaperçue
+   pendant tout le temps qu'a duré le mode personnalisé. */
+const CHAMPS_SCORE = ["score_tech", "score_fond", "score_nlp"];
+
 function computeDisplayScore(r, p) {
   // Le mode officiel rend le v5.3 du moteur TEL QUEL — bonus et malus compris.
   // Le recalculer ici donnerait un chiffre légèrement différent de celui du
   // bulletin, et personne ne saurait lequel croire.
   if (!p || p.officiel) return r.v53;
-  const sf = r.bvc ?? 5;                                   // Fondamental (0-10)
+  /* ⚠️ `r.bvc` est la note BVC DE RÉFÉRENCE, pas la note fondamentale.
+     Le mode personnalisé la lisait à sa place : il ne changeait donc pas
+     seulement les POIDS mais les INGRÉDIENTS, ce qui rend toute comparaison
+     entre deux vues trompeuse. Mesuré par l'audit externe du 09/09 :
+     ADH 4,28 au lieu de 6,15 · HPS 7,15 au lieu de 6,40.
+     `score_fond` n'était d'ailleurs émis nulle part — le frontend ne pouvait
+     pas l'utiliser même en le voulant. Corrigé des deux côtés le 10/09. */
+  const sf = r.score_fond != null ? r.score_fond : (r.bvc ?? 5);   // Fondamental 0-10
   const sn = ((r.nlp || 0) + 1) * 5;                        // NLP [-1,+1] → [0,10]
   const st = r.score_tech != null
     ? r.score_tech
@@ -2480,6 +2493,16 @@ function App(){
           bb_upper:t.bb_upper,bb_mid:t.bb_mid,bb_lower:t.bb_lower,
           stoch_k:t.stoch_k,stoch_d:t.stoch_d,
           bvc:t.bvc,v53:t.v53,delta:t.delta,nlp:t.nlp,
+          /* ⚠️ LES COMPOSANTES DU SCORE, oubliées jusqu'au 10/09/2026.
+             `score_tech` existait dans data.json et n'arrivait jamais ici :
+             computeDisplayScore retombait donc sur son repli `RSI / 10`, qui
+             n'est pas la même formule (le moteur tient aussi compte des
+             moyennes mobiles et de la position dans la fourchette). Mesuré :
+             ADI 7,50 → 5,72 · ADH 6,70 → 4,99 · Taqa 6,70 → 4,80.
+             Signalé par l'audit externe du 09/09. Elles passent par une liste
+             NOMMÉE pour qu'un oubli futur se voie — une énumération de
+             quarante champs cache ce qui lui manque. */
+          ...Object.fromEntries(CHAMPS_SCORE.map(c=>[c,t[c]])),
           alpha:t.alpha,win:t.win,sig:t.sig,sigBvc:t.sigBvc,biais:t.biais,
           bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
           bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,

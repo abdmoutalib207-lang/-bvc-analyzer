@@ -1895,6 +1895,12 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
         "delta":     round(final - bvc_score, 2),
         "nlp":       round(sent["smart"], 2),
         "score_tech": round(score_tech, 2),
+        # ⚠️ `score_fond` n'était émis NULLE PART. Le moteur le calcule pour
+        # composer la v5.3 et ne le publiait pas : le frontend ne pouvait donc
+        # pas l'utiliser même en le voulant, et son mode personnalisé lisait
+        # `r.bvc` — la note BVC de référence — faute de mieux. Publier une note
+        # sans ses composantes rend le calcul invérifiable pour le lecteur.
+        "score_fond": round(score_fond, 2),
         "score_nlp": round(score_nlp, 2),
         "alpha":  sent.get("alpha", 0),
         "win":    round(sent["win"] * 100),
@@ -2528,6 +2534,8 @@ def run(dry_run=False, push=False, token=""):
             "delta":      v53["delta"],
             "nlp":        v53["nlp"],
             "score_tech": v53.get("score_tech", 5.0),
+            "score_fond": v53.get("score_fond", 5.0),
+            "score_nlp":  v53.get("score_nlp", 5.0),
             "alpha":  v53["alpha"],
             "win":    v53["win"],
             # ⚠️ Un titre suspendu ne reçoit PAS de recommandation.
