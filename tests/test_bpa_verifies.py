@@ -148,3 +148,54 @@ def test_aucun_bpa_verifie_ne_reste_sur_une_source_secondaire(bpa):
         n = bpa[t].get("note", "")
         assert "CORRIGÉ" in n or "AMMC" in bpa[t].get("source", ""), (
             f"{t} : rien n'atteste que ce BPA a été relu dans le rapport")
+
+
+# ── recoupement à trois sources (10/09/2026) ─────────────────────────────
+#
+# Le calendrier des dividendes d'IDBourse, apporté par Abd Moutalib, donne une
+# TROISIÈME lecture, indépendante d'Attijari et des dépôts AMMC. Résultat du
+# recoupement sur 47 valeurs appariées : **40 concordances**.
+#
+# ⚠️ MON EXTRACTEUR S'EST TROMPÉ AVANT LES DONNÉES. Ce PDF mélange les deux
+# conventions décimales — « 3.5 » avec un point, « 8,44 » avec une virgule — et
+# ma première passe supprimait tous les points : Colorado passait de 3,5 à 35,
+# TotalEnergies de 89,57 à 8 957. J'ai failli conclure à neuf écarts qui
+# n'existaient pas. Contrôler le résultat, jamais l'outil.
+
+def test_les_dividendes_restent_dans_un_ordre_de_grandeur_plausible(bpa):
+    """Un dividende par action de plusieurs milliers de dirhams n'existe pas
+    sur ce marché — sauf pour les très hauts cours. Le rapport dividende/cours
+    borne l'absurdité mieux qu'un seuil absolu.
+
+    Ce test attrape la classe d'erreur qui m'a piégé : un séparateur décimal
+    mal lu déplace la virgule d'un facteur 10, 100 ou 1000.
+    """
+    import json as _j
+    d = _j.loads((RACINE / "data.json").read_text(encoding="utf-8"))
+    cours = {x["symbol"]: x.get("price") for x in d["tickers"]}
+    for t, e in bpa.items():
+        v, p = e.get("div_dh"), cours.get(t)
+        if v is None or not p:
+            continue
+        assert 0 <= v <= p, (
+            f"{t} : dividende de {v} DH pour un cours de {p} DH — un titre ne "
+            "distribue pas plus que sa propre valeur ; séparateur décimal ?")
+        if v > 0:
+            rendement = v / p * 100
+            assert rendement <= 25, (
+                f"{t} : rendement de {rendement:.1f} % ({v} DH sur {p} DH). "
+                "Au-delà de 25 %, c'est une erreur de saisie ou d'unité, pas "
+                "une politique de distribution.")
+
+
+def test_les_dividendes_issus_de_deux_sources_le_disent(bpa):
+    """Une valeur qui repose sur deux sources secondaires concordantes n'est
+    pas une valeur vérifiée en source primaire. La différence doit rester
+    lisible dans le fichier, sinon elle se perd à la première relecture."""
+    for t, e in bpa.items():
+        src = e.get("div_source") or ""
+        if "deux sources" not in src:
+            continue
+        assert "non relue" in (e.get("div_statut") or ""), (
+            f"{t} : deux sources concordantes, mais le statut ne dit pas que "
+            "la résolution d'assemblée n'a pas été lue")
