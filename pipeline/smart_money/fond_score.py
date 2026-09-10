@@ -83,8 +83,19 @@ def compute_fond_score(sym: str, fondamentaux: dict = None) -> float:
     else:            v = 1.5   # spéculatif
 
     # BILAN (10%) — dette/EBITDA + cash conversion
-    dne = float(f.get("dette_nette_ebitda") or 1.0)
-    cc  = float(f.get("cash_conversion")    or 70)
+    # ⚠️ `X or défaut` prend UNE VALEUR pour UNE ABSENCE quand cette valeur
+    # vaut zéro — et ici le zéro est le cas le plus favorable qui soit :
+    # une société sans dette nette. Elle héritait d'un ratio de 1,0, donc de
+    # 7,0/10 au bilan, là où elle mérite 8,5. Le défaut pénalisait exactement
+    # les bilans les plus sains.
+    #
+    # Même écriture, même piège que le dividende à zéro de CMT : signalé par
+    # l'audit externe du 09/09/2026, qui a eu raison de dire que le défaut
+    # dépassait le seul dividende. Tester la PRÉSENCE, jamais la valeur.
+    _dne = f.get("dette_nette_ebitda")
+    dne = float(_dne) if _dne is not None else 1.0
+    _cc = f.get("cash_conversion")
+    cc  = float(_cc) if _cc is not None else 70
     if   dne < 0:   bs = 9.0   # trésorerie nette positive
     elif dne < 0.5: bs = 8.5
     elif dne < 1.5: bs = 7.0

@@ -83,9 +83,21 @@ def test_signaux_dans_le_vocabulaire_connu(titres):
     # moteur émet aussi ATTENDRE, ÉVITER FORT et ACHAT FORT. Écrire ce test a
     # révélé l'écart. Les étoiles portent l'intensité et sont retirées avant
     # comparaison ; `EVITER` sans accent existe côté `sigBvc`.
+    # ⚠️ « SUSPENDU » ajouté le 10/09/2026, et il s'en est fallu de peu.
+    #
+    # Le moteur émet ce statut depuis le 09/09 pour un titre dont la cotation
+    # est suspendue. La suite passait pourtant au vert : `data.json` n'avait
+    # pas encore été régénéré, donc aucun titre ne le portait. Le test lisait
+    # des données ANTÉRIEURES au code qu'il est censé décrire — c'est la
+    # « seconde famille » du CLAUDE.md, et ici elle a masqué une panne
+    # certaine : au premier run publiant CMT, l'intégration continue cassait.
+    #
+    # Trouvé par l'audit externe du 09/09/2026, pas par nous. La leçon : un
+    # test qui relit les données publiées ne protège rien tant que ces données
+    # n'ont pas traversé le code neuf.
     connus = {"ACHAT FORT", "ACHAT", "ACHETER", "SURVEILLER", "ATTENDRE",
               "ÉVITER", "ÉVITER FORT", "EVITER", "NEUTRE",
-              "Données insuffisantes"}
+              "SUSPENDU", "Données insuffisantes"}
     vus = set()
     for t in titres.values():
         for cle in ("sig", "sigBvc"):

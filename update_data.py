@@ -2479,7 +2479,22 @@ def run(dry_run=False, push=False, token=""):
             "pe":     round(price / BPA_DATA[ticker]["bpa"], 1) if (ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0) else fd.get("pe"),
             "bpa":    BPA_DATA[ticker]["bpa"] if ticker in BPA_DATA else None,
             "pb":     fd.get("pb"),
-            "div":    round(BPA_DATA[ticker]["div_dh"] / price * 100, 2) if (ticker in BPA_DATA and BPA_DATA[ticker].get("div_dh") and price > 0) else fd.get("div"),
+            # ⚠️ ZÉRO N'EST PAS UNE ABSENCE. Le test était
+            # `BPA_DATA[ticker].get("div_dh")` — une valeur, pas une présence.
+            # En Python `0.0` est faux : un dividende de zéro, VÉRIFIÉ dans le
+            # rapport annuel, retombait donc sur le rendement figé de FOND_DATA.
+            # CMT publiait 0,5 % de rendement là où la société n'a rien versé
+            # (« Dividende 0,00 dirhams », RFA 2025 p.79) — et neuf autres
+            # titres avec elle. Signalé par l'audit externe du 09/09/2026.
+            #
+            # C'est la famille 9 d'ERRORS retournée : non plus combler une
+            # absence, mais PRENDRE UNE VALEUR RÉELLE POUR UNE ABSENCE. Le
+            # remède est le même — tester la présence, jamais la valeur.
+            "div":    (round(BPA_DATA[ticker]["div_dh"] / price * 100, 2)
+                       if (ticker in BPA_DATA
+                           and BPA_DATA[ticker].get("div_dh") is not None
+                           and price > 0)
+                       else fd.get("div")),
             "div_dh": BPA_DATA[ticker].get("div_dh") if ticker in BPA_DATA else None,
             # Capitalisation : celle d'IDBourse, calculée sur le cours du jour,
             # prime sur FOND_DATA — table codée en dur qui n'a suivi ni les

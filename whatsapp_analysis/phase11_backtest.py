@@ -358,7 +358,23 @@ def strategy_smart_sentiment(
             ret = exit_price / entry_price - 1.0
             trades.append({"date": date, "action": "SELL", "price": exit_price,
                            "sentiment": s, "return": ret})
-            equity.append(equity[-1] * (1 + ret))
+            # ⚠️ UN GAIN ÉTAIT COMPTÉ DEUX FOIS. Le code écrivait
+            # `equity[-1] * (1 + ret)`, où `ret` est le rendement TOTAL depuis
+            # l'achat — alors qu'`equity[-1]` a déjà encaissé, jour après jour,
+            # toutes les hausses de la période de détention.
+            #
+            # Cas de contrôle de l'audit externe : acheter à 100, le cours
+            # monte à 110, vendre à 120. Le capital doit finir à 120. Le code
+            # rendait 110 × 1,20 = 132, soit +32 % pour une hausse de +20 %.
+            # La fonction retournait donc un rendement de transaction de 20 %
+            # tout en traçant une courbe finissant à +32 % : elle se
+            # contredisait elle-même.
+            #
+            # Le jour de la vente n'apporte que le chemin de la clôture
+            # précédente au prix de sortie, frais compris — le reste est déjà
+            # dans la courbe.
+            ret_jour = (exit_price / prev_p - 1.0) if prev_p > 0 else 0.0
+            equity.append(equity[-1] * (1 + ret_jour))
             position = 0.0
         elif position == 1.0:
             equity.append(equity[-1] * (1 + daily_ret))
@@ -478,7 +494,13 @@ def strategy_achat_fort_consensus(
                 ret = exit_price / entry_price - 1.0
                 trades.append({"date": date, "action": "SELL", "price": exit_price,
                                "days_held": days_held, "return": ret})
-                equity.append(equity[-1] * (1 + ret))
+                # ⚠️ Même double comptage qu'en stratégie sentiment (l. 355) :
+                # `equity[-1]` a déjà encaissé les variations quotidiennes de
+                # la détention ; le remultiplier par le rendement TOTAL depuis
+                # l'achat compte une partie du gain deux fois. Acheter à 100,
+                # monter à 110, vendre à 120 donnait 132 au lieu de 120.
+                ret_jour = (exit_price / prev_p - 1.0) if prev_p > 0 else 0.0
+                equity.append(equity[-1] * (1 + ret_jour))
                 position = 0.0
                 entry_date = None
             else:
@@ -573,7 +595,13 @@ def strategy_contrarian_fear_greed(
                 ret = exit_price / entry_price - 1.0
                 trades.append({"date": date, "action": "SELL_CONTRARIAN",
                                "price": exit_price, "fg": fg_val, "return": ret})
-                equity.append(equity[-1] * (1 + ret))
+                # ⚠️ Même double comptage qu'en stratégie sentiment (l. 355) :
+                # `equity[-1]` a déjà encaissé les variations quotidiennes de
+                # la détention ; le remultiplier par le rendement TOTAL depuis
+                # l'achat compte une partie du gain deux fois. Acheter à 100,
+                # monter à 110, vendre à 120 donnait 132 au lieu de 120.
+                ret_jour = (exit_price / prev_p - 1.0) if prev_p > 0 else 0.0
+                equity.append(equity[-1] * (1 + ret_jour))
                 position = 0.0
                 entry_date = None
             else:
