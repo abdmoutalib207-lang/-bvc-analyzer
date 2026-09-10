@@ -49,6 +49,32 @@ NUMERIQUES = {"price", "chg", "vol", "bvc", "v53", "score_tech", "nlp",
               "rsi", "ma20", "ma50", "ma200", "upside"}
 
 
+
+def _exiger_champ_meta(titres, champ):
+    """Ignore le test si le fichier publié PRÉCÈDE l'introduction du champ.
+
+    ⚠️ C'est la « seconde famille » du CLAUDE.md, et elle demande une conduite
+    précise. Un test qui relit `data.json` décrit les DONNÉES ; quand le code
+    vient de changer et que le moteur n'a pas encore tourné, son échec ne dit
+    pas « le code est faux », il dit « le fichier est antérieur au code ». Le
+    laisser rouge apprend à ignorer le rouge.
+
+    Mais l'ignorer TOUJOURS serait pire : le contrôle disparaîtrait. D'où la
+    distinction — aucun titre ne porte le champ, c'est un fichier d'avant, on
+    ignore en le disant ; certains le portent et pas d'autres, c'est une vraie
+    incohérence, on échoue.
+
+    Dans les contrôles bloquants d'avant-publication, le fichier vient d'être
+    écrit par le code courant : ce chemin d'échappement ne s'y déclenche jamais.
+    """
+    porteurs = [s for s, t in titres.items() if champ in (t.get("_meta") or {})]
+    if not porteurs:
+        pytest.skip(f"`_meta.{champ}` absent de TOUS les titres : le data.json "
+                    f"publié est antérieur au code qui l'émet. Le contrôle "
+                    f"reprendra au premier passage du moteur.")
+    return porteurs
+
+
 def test_aucun_champ_obligatoire_ne_manque(titres):
     manques = {}
     for sym, t in titres.items():
@@ -60,6 +86,7 @@ def test_aucun_champ_obligatoire_ne_manque(titres):
 
 def test_bloc_meta_complet(titres):
     """Sans `_meta`, le frontend suppose `stale: true` et `confidence: 0`."""
+    _exiger_champ_meta(titres, "pb_source")
     manques = {}
     for sym, t in titres.items():
         absents = CHAMPS_META - set(t.get("_meta") or {})
@@ -139,6 +166,7 @@ def test_price_to_book_calcule_ou_absent(titres):
     Alliances, elle inversait le sens de l'information (0,80 affiché contre
     2,32 calculé).
     """
+    _exiger_champ_meta(titres, "pb_source")
     fautifs = {}
     for sym, t in titres.items():
         src = (t.get("_meta") or {}).get("pb_source")
