@@ -153,8 +153,13 @@ def eprouver(dossier: Path) -> tuple[str, str]:
     r = subprocess.run([sys.executable, "-m", "pytest", "-q", "--tb=line"],
                        cwd=dossier, capture_output=True, text=True, timeout=900)
     sortie = (r.stdout or "") + (r.stderr or "")
-    resume = next((l.strip() for l in reversed(sortie.splitlines())
-                   if "passed" in l or "failed" in l or "error" in l), "résumé illisible")
+    import re as _re
+    # ⚠️ pytest colore et découpe sa dernière ligne ; on cherche le compte,
+    # pas une ligne entière. Une première version rendait « résumé illisible »
+    # alors que la suite avait bien tourné.
+    m = [l for l in sortie.splitlines()
+         if _re.search(r"\d+ (passed|failed|error)", l)]
+    resume = m[-1].strip() if m else f"résumé illisible (code {r.returncode})"
     echecs = "\n".join(l.strip() for l in sortie.splitlines()
                        if l.startswith("FAILED") or l.startswith("ERROR"))
     return resume, echecs
