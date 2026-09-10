@@ -352,7 +352,15 @@ def strategy_smart_sentiment(
             position = 1.0
             entry_price = p * (1 + TRANSACTION_COST + SLIPPAGE)
             trades.append({"date": date, "action": "BUY", "price": entry_price, "sentiment": s})
-            equity.append(equity[-1])  # pas de gain ce jour
+            # ⚠️ LES FRAIS D'ENTRÉE DOIVENT TOUCHER LA COURBE.
+            # Ils n'existaient que dans `entry_price`, lequel ne sert plus au
+            # calcul du capital depuis la correction du double comptage : un
+            # aller-retour à prix identique ne coûtait donc que la moitié des
+            # frais (0,20 % au lieu de 0,40 %). Défaut de mon propre correctif,
+            # révélé par la batterie de contrôles demandée par l'audit externe.
+            # Convertir E dirhams en titres à p×(1+f) puis valoriser à p laisse
+            # E/(1+f) — c'est cette perte qu'on inscrit ici.
+            equity.append(equity[-1] / (1 + TRANSACTION_COST + SLIPPAGE))
         elif position == 1.0 and s < sell_threshold:
             exit_price = p * (1 - TRANSACTION_COST - SLIPPAGE)
             ret = exit_price / entry_price - 1.0
@@ -485,7 +493,15 @@ def strategy_achat_fort_consensus(
             entry_date = date
             trades.append({"date": date, "action": "BUY", "price": entry_price,
                            "reason": "consensus_achat_fort"})
-            equity.append(equity[-1])
+            # ⚠️ LES FRAIS D'ENTRÉE DOIVENT TOUCHER LA COURBE.
+            # Ils n'existaient que dans `entry_price`, lequel ne sert plus au
+            # calcul du capital depuis la correction du double comptage : un
+            # aller-retour à prix identique ne coûtait donc que la moitié des
+            # frais (0,20 % au lieu de 0,40 %). Défaut de mon propre correctif,
+            # révélé par la batterie de contrôles demandée par l'audit externe.
+            # Convertir E dirhams en titres à p×(1+f) puis valoriser à p laisse
+            # E/(1+f) — c'est cette perte qu'on inscrit ici.
+            equity.append(equity[-1] / (1 + TRANSACTION_COST + SLIPPAGE))
         elif position == 1.0:
             days_held = (date - entry_date).days if entry_date else 0
             exit_signal = (days_held >= hold_days) or (net_signal < -0.3)
@@ -586,7 +602,15 @@ def strategy_contrarian_fear_greed(
             entry_date = date
             trades.append({"date": date, "action": "BUY_CONTRARIAN",
                            "price": entry_price, "fear_greed": fg_val})
-            equity.append(equity[-1])
+            # ⚠️ LES FRAIS D'ENTRÉE DOIVENT TOUCHER LA COURBE.
+            # Ils n'existaient que dans `entry_price`, lequel ne sert plus au
+            # calcul du capital depuis la correction du double comptage : un
+            # aller-retour à prix identique ne coûtait donc que la moitié des
+            # frais (0,20 % au lieu de 0,40 %). Défaut de mon propre correctif,
+            # révélé par la batterie de contrôles demandée par l'audit externe.
+            # Convertir E dirhams en titres à p×(1+f) puis valoriser à p laisse
+            # E/(1+f) — c'est cette perte qu'on inscrit ici.
+            equity.append(equity[-1] / (1 + TRANSACTION_COST + SLIPPAGE))
         elif position == 1.0:
             days_held = (date - entry_date).days if entry_date else 0
             exit_cond = (fg_val > greed_sell_threshold) or (days_held >= hold_days * 2)
