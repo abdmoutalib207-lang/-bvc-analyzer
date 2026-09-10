@@ -124,7 +124,7 @@ def test_le_meta_porte_la_suspension():
 
 
 def test_le_signal_devient_suspendu():
-    assert re.search(r'"sig":\s*\("SUSPENDU" if est_suspendu\(', _moteur()), (
+    assert re.search(r'"sig":\s*\("SUSPENDU" if _suspendu_maintenant\(', _moteur()), (
         "LE test qui compte : sans lui, le moteur recommande d'acheter un "
         "titre qu'on ne peut pas acheter")
 
@@ -135,7 +135,7 @@ def test_l_ecriture_de_chandelle_est_refusee():
 
 
 def test_la_confiance_tombe_a_zero():
-    assert re.search(r"suspension = est_suspendu\(ticker, prix_asof\)\s*\n\s*if suspension:\s*\n\s*confiance = 0",
+    assert re.search(r"suspension = _suspendu_maintenant\(ticker\)\s*\n\s*if suspension:\s*\n\s*confiance = 0",
                      _moteur()), (
         "un titre suspendu doit tomber à 0 : la première garantie du score de "
         "confiance est « prix de la dernière séance cotée », et c'est "
@@ -203,12 +203,12 @@ def test_la_variation_d_un_titre_suspendu_est_nulle_aux_trois_endroits():
     symptôme.
     """
     s = _moteur()
-    assert "if price and est_suspendu(ticker, IDB_ASOF):" in s, (
+    assert "if price and _suspendu_maintenant(ticker):" in s, (
         "boucle principale : la variation se recalcule encore depuis la "
         "dernière clôture")
-    assert "and not est_suspendu(ticker, prix_asof):" in s, (
+    assert "and not _suspendu_maintenant(ticker):" in s, (
         "repli Médias24 : idem")
-    assert re.search(r"if est_suspendu\(ticker, seance\):\s*\n\s*return 0\.0", s), (
+    assert re.search(r"if _suspendu_maintenant\(ticker\):\s*\n\s*return 0\.0", s), (
         "recalculer_variation : le correctif de R9 fabrique une variation sur "
         "un titre qui n'a pas coté")
 
@@ -219,7 +219,7 @@ def test_le_journal_annonce_le_signal_reellement_publie():
     la substitution. Un journal qui contredit le fichier qu'il décrit est pire
     qu'un journal muet — c'est là qu'on va vérifier quand on doute."""
     s = _moteur()
-    assert '_sig_publie = "SUSPENDU" if est_suspendu(ticker, prix_asof) else v53["sig"]' in s
+    assert '_sig_publie = "SUSPENDU" if _suspendu_maintenant(ticker) else v53["sig"]' in s
     assert "{_sig_publie}\")" in s, "la ligne de journal n'utilise pas le signal publié"
 
 

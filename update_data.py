@@ -675,7 +675,10 @@ def recalculer_variation(ticker, price, chg, candles, seance):
     # leçon est celle de la famille 11 : R9 sait reconnaître la SIGNATURE d'une
     # suspension, mais pas la distinguer d'une panne de rafraîchissement — et
     # son correctif, appliqué au mauvais cas, aggrave ce qu'il devait réparer.
-    if est_suspendu(ticker, seance):
+    # ⚠️ « maintenant », pas « à la date de la séance de référence » : même
+    # circularité que partout ailleurs. Sur un titre suspendu, la séance de
+    # référence précède forcément la suspension.
+    if _suspendu_maintenant(ticker):
         return 0.0
     if candles is None or len(candles) < 1 or not price or price <= 0:
         return chg
@@ -1725,6 +1728,33 @@ def _pb_sourcé(ticker: str, price: float):
         return None
 
 
+def _suspendu_maintenant(ticker: str):
+    """La suspension se juge à la DATE DE L'ANALYSE, jamais à celle du cours.
+
+    ⚠️ DÉFAUT CIRCULAIRE, trouvé par l'audit externe le 10/09/2026.
+
+    Le code demandait `est_suspendu(ticker, prix_asof)` — « ce titre était-il
+    suspendu le jour de son dernier cours ? ». Sur un titre suspendu, cette
+    question ne peut structurellement recevoir qu'une réponse : NON. Le dernier
+    cours est par définition ANTÉRIEUR à la suspension, puisque c'est elle qui
+    l'a arrêté.
+
+    Le piège est resté invisible tant que la source rediffusait un cours daté
+    du jour : `prix_asof` valait alors la date courante et le test répondait
+    juste, par accident. En purgeant les 28 chandelles fantômes de CMT, le prix
+    est retombé sur la dernière séance réelle — le 16 juillet — et le test s'est
+    mis à répondre « non suspendue » sur un titre suspendu depuis le 17.
+    **Nettoyer les données de la suspension a masqué la suspension.**
+
+    Le fichier candidat livré à l'auditeur portait donc « ACHETER ★★ » sur CMT,
+    avec `suspendu: false` et une confiance de 4/5.
+
+    La bonne question est « ce titre est-il suspendu AUJOURD'HUI ? », parce que
+    c'est aujourd'hui que le bulletin est lu et qu'un ordre serait passé.
+    """
+    return est_suspendu(ticker, datetime.now().strftime("%Y-%m-%d"))
+
+
 def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
                  isin_suspect=False, ratios_calcules=False,
                  chg=None, vol=None) -> dict:
@@ -1824,7 +1854,7 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
     # d'avant la suspension, reconduit indéfiniment. Le titre bascule donc en
     # « Données insuffisantes » à l'écran, ce qui est exact : il n'y a plus de
     # donnée de marché, et il n'y en aura pas avant la reprise.
-    suspension = est_suspendu(ticker, prix_asof)
+    suspension = _suspendu_maintenant(ticker)
     if suspension:
         confiance = 0
 
@@ -2236,7 +2266,7 @@ def run(dry_run=False, push=False, token=""):
         # qu'elles étaient là, la comparaison portait 4 350 contre 4 350 et
         # donnait zéro. Nettoyer une donnée fausse a mis au jour un calcul qui
         # s'appuyait dessus — le zéro affiché était juste par accident.
-        if price and est_suspendu(ticker, IDB_ASOF):
+        if price and _suspendu_maintenant(ticker):
             chg = 0.0
         elif price:
             _df_c = _candles_cache.get(ticker)
@@ -2320,7 +2350,7 @@ def run(dry_run=False, push=False, token=""):
             # qu'elles étaient là, la comparaison portait sur 4 350 contre
             # 4 350 et donnait zéro. Nettoyer une donnée fausse a révélé un
             # calcul qui s'appuyait dessus.
-            if not chg and price and len(closes) >= 1 and not est_suspendu(ticker, prix_asof):
+            if not chg and price and len(closes) >= 1 and not _suspendu_maintenant(ticker):
                 prev = float(closes.iloc[-1])
                 if prev > 0:
                     chg = round((price - prev) / prev * 100, 2)
@@ -2633,7 +2663,7 @@ def run(dry_run=False, push=False, token=""):
             # qui n'a pas lieu d'être — on ne recommande pas d'acheter ce qui
             # ne s'achète pas. Le raisonnement est celui du plafond de
             # liquidité du 01/09, poussé jusqu'à son terme.
-            "sig":    ("SUSPENDU" if est_suspendu(ticker, prix_asof)
+            "sig":    ("SUSPENDU" if _suspendu_maintenant(ticker)
                        else v53["sig"]),
             "sigBvc": SIG_BVC.get(ticker, "ATTENDRE"),
             "biais":  v53["biais"],
@@ -2655,7 +2685,7 @@ def run(dry_run=False, push=False, token=""):
         # « ACHETER ★★ » sur CMT pendant que le fichier écrivait « SUSPENDU ».
         # Un journal qui contredit le fichier qu'il décrit est pire qu'un
         # journal muet — c'est là qu'on va vérifier quand on doute.
-        _sig_publie = "SUSPENDU" if est_suspendu(ticker, prix_asof) else v53["sig"]
+        _sig_publie = "SUSPENDU" if _suspendu_maintenant(ticker) else v53["sig"]
         logger.info(f"  ✓ {ticker}: {price} DH | RSI {rsi} | Score v5.3: {bvc_score} → {v53['v53']} | {_sig_publie}")
 
     # 5. Construction data.json
