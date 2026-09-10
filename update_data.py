@@ -2723,7 +2723,8 @@ def run(dry_run=False, push=False, token=""):
         # sources. Le recalage ci-dessus ne protège que ce run — ce balayage
         # rattrape ce qu'un autre a pu déposer.
         sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
-        from seance import purger_seance_fantome, reparer_ohlc
+        from seance import (purger_seance_fantome, reparer_ohlc,
+                            purger_suspensions)
         _dj, _nj = purger_seance_fantome()
         if _dj:
             logger.warning(f"  Séance fantôme {_dj} purgée : {_nj} bougies retirées")
@@ -2732,6 +2733,11 @@ def run(dry_run=False, push=False, token=""):
         # fourchette qui n'englobe pas son ouverture ne se voit qu'en relisant
         # le fichier. Coût mesuré : 0,3 s sur 32 677 bougies.
         _no, _fo = reparer_ohlc()
+        # Balayage des suspensions — après écriture, comme les deux autres.
+        _ns, _fs = purger_suspensions()
+        if _ns:
+            logger.info(f"  Suspensions : {_ns} bougie(s) fantôme(s) retirée(s) "
+                        f"de {_fs} fichier(s)")
         if _no:
             logger.warning(f"  OHLC : {_no} bougies élargies sur {_fo} tickers")
     except Exception as _e:

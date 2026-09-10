@@ -242,8 +242,14 @@ def test_les_champs_derives_suivent_la_serie_purgee():
         e = h.get(t)
         if not isinstance(e, dict) or "candles" not in e:
             continue
-        assert e.get("n_candles") == len(e["candles"]), (
-            f"{t} : n_candles={e.get('n_candles')} pour {len(e['candles'])} bougies")
+        # ⚠️ PAS d'égalité avec len(candles) : `n_candles` décrit la série
+        # SOURCE, la liste stockée est tronquée à 250 points. Exiger l'égalité
+        # est précisément l'erreur commise le 09/09 — 222 inscrits pour une
+        # série de 514. On vérifie seulement qu'il reste plausible.
+        assert e.get("n_candles") is None or e["n_candles"] >= len(e["candles"]), (
+            f"{t} : n_candles={e.get('n_candles')} inférieur à la liste stockée "
+            f"({len(e['candles'])}) — la série source ne peut pas être plus "
+            "courte que sa propre troncature")
         assert e.get("last_date") == e["candles"][-1]["d"], f"{t} : last_date périmé"
         assert e.get("last_close") == e["candles"][-1]["c"], f"{t} : last_close périmé"
 

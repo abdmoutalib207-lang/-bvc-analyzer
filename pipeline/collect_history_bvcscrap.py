@@ -490,11 +490,17 @@ def _purger_fantome(results: dict) -> None:
     source complète, pas la liste stockée qui est tronquée à 250 points.
     """
     try:
-        from seance import purger_seance_fantome
+        from seance import purger_seance_fantome, purger_suspensions
     except ImportError:
         from pipeline.seance import purger_seance_fantome
 
     date_fantome, n = purger_seance_fantome()
+    # ⚠️ Ce programme réécrit historical_data.json DEPUIS LA SOURCE : il
+    # ignore le registre des suspensions et ramenait les séances fantômes
+    # que le nettoyage précédent avait retirées. Le balayage les reprend.
+    _ns, _fs = purger_suspensions()
+    if _ns:
+        print(f"  Suspensions : {_ns} bougie(s) retirée(s) de {_fs} fichier(s)")
     if not date_fantome:
         return
     log.warning(f"Séance fantôme {date_fantome} : {n} fichiers de chandelles purgés")

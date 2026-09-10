@@ -223,13 +223,30 @@ jobs:
       #   · les CONTRÔLES DE DONNÉES bloquent la publication ;
       #   · le reste de la suite reste informatif (un test décrivant le code
       #     n'a pas à empêcher la diffusion d'une séance juste).
+      # ⚠️ LA SUITE ENTIÈRE, ET PAS UNE SÉLECTION.
+      #
+      # Première version du 10/09 : seuls `test_contrat_data_json.py` et
+      # `test_regles_donnees.py` bloquaient. L'auditeur externe a objecté
+      # qu'« un échec critique ne doit pas devenir acceptable simplement parce
+      # qu'il appartient à un autre fichier de tests ». Mesuré dans la foulée :
+      # TREIZE fichiers relisent les données publiées et restaient dehors —
+      # dont la cohérence des chandelles (test_ohlc), les séances fantômes,
+      # le cliquet de séance et les faits financiers. Objection fondée.
+      #
+      # Choisir quels tests méritent de bloquer, c'est refaire chaque semaine
+      # un arbitrage qu'on finira par rater. La suite entière tranche seule :
+      # un test de code en échec signale un moteur cassé, et un moteur cassé
+      # n'a pas à publier de données non plus.
+      #
+      # Le coût est assumé : un test rouge suspend le bulletin du matin. C'est
+      # le sens même d'un contrôle bloquant, et l'échec du job envoie un
+      # courriel au propriétaire.
       - name: Contrôles bloquants sur le fichier généré
         if: steps.gate.outputs.run == 'true' && github.event.inputs.dry_run != 'true'
         run: |
           pip install --quiet pytest
-          echo "Contrôle du data.json généré, AVANT publication."
-          python -m pytest tests/test_contrat_data_json.py tests/test_regles_donnees.py \
-                 --tb=short -q
+          echo "Suite complète sur le data.json généré, AVANT publication."
+          python -m pytest --tb=short -q
 
       # ── 4. Commit et push ─────────────────────────────────
       # N'est atteint que si les contrôles bloquants ci-dessus ont réussi :
@@ -273,16 +290,17 @@ jobs:
       # Or les tests des règles R1 à R10 portent justement sur le data.json
       # RÉELLEMENT PUBLIÉ. Sans cette étape, ils ne l'examinent jamais.
       #
-      # ⚠️ Depuis le 10/09/2026, les contrôles qui COMPTENT tournent à l'étape
-      # 3b, AVANT la publication, et ils bloquent. Cette étape-ci ne garde que
-      # le reste de la suite — les tests qui décrivent le CODE — et reste donc
-      # légitimement non bloquante : un test de code en échec ne doit pas
-      # empêcher la diffusion d'une séance par ailleurs correcte, et le fichier
-      # est de toute façon déjà publié à ce stade.
-      #
-      # Ne JAMAIS y redéplacer les contrôles de données : c'est précisément ce
-      # qui a laissé passer trois défauts le 09/09.
-      - name: Suite de tests (informatif)
+      # ⚠️ Cette étape est devenue REDONDANTE le 10/09/2026 : la suite entière
+      # tourne désormais à l'étape 3b, avant publication, et elle bloque. On la
+      # garde uniquement pour tracer l'état APRÈS écriture — utile lorsqu'une
+      # étape ultérieure modifie un fichier. Elle ne protège plus rien à elle
+      # seule, et ne doit jamais redevenir le seul contrôle : c'est cette
+      # configuration qui a laissé publier, le 09/09 à 23h50, un rendement de
+      # 0,5 % sur une société sans dividende et une variation de −3,35 % sur un
+      # titre suspendu. Le journal de ce run est formel : la suite n'a signalé
+      # QUE le signal hors contrat, un seul échec sur 295 tests. Les deux
+      # autres anomalies n'étaient couvertes par aucun test.
+      - name: Suite de tests (trace, après écriture)
         if: always()
         continue-on-error: true
         run: |
