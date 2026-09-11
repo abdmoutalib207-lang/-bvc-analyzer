@@ -27,9 +27,20 @@ que le site sert ?**
 ⚠️ LA DÉPENDANCE QUE CETTE COUPURE SUPPOSE — ET QUI EST MESURÉE
 Le lot A ne doit rien importer du lot B, sans quoi la coupure produirait un
 arbre qui ne démarre pas. `verifier_independance()` le vérifie sur l'arbre
-syntaxique, et un test permanent l'appelle. Une seule pièce du lot B remonte
-dans le lot A, et elle est nommée : `resoudre_historique.py`, parce que la
-résolution du conflit en dépend.
+syntaxique, et un test permanent l'appelle. **Aucune pièce du lot B ne remonte
+dans le lot A.**
+
+⚠️ L'HISTORIQUE N'EST PAS TOUCHÉ, ET CE N'EST PAS UN DÉTAIL
+Une version antérieure importait `pipeline/historical_data.json` depuis la
+branche et résolvait le conflit de la fusion globale. La revue a montré que
+c'était une dépendance inutile : en construisant DEPUIS main par reprise de
+fichiers, il n'y a pas de conflit à résoudre — il suffit de ne pas y toucher.
+Le patch ne changeait d'ailleurs aucune valeur : il ajoutait un bloc
+`_resolution` qui déclarait quatre arbitrages d'extrema que la revue n'a pas
+validés. Déclarer « la fenêtre a glissé, les deux valeurs sont justes » est une
+affirmation, pas une mesure.
+
+    historique existant conservé, assainissement hors périmètre.
 
 CE QUE CE PROGRAMME NE FAIT PAS
 ───────────────────────────────
@@ -74,10 +85,12 @@ LOT_A = [
     # Les garde-fous de publication
     ".github/workflows/update_bvc.yml",
     ".github/workflows/bulletin_mail.yml",
-    # ⚠️ SEULE PIÈCE DU LOT B REMONTÉE ICI, et pour une raison nommée :
-    # la résolution du conflit historical_data.json en dépend.
-    "pipeline/resoudre_historique.py",
-    # Les tests qui décrivent tout ce qui précède
+    ".github/workflows/tests.yml",
+    # Les tests qui décrivent tout ce qui précède, et leur socle commun.
+    # ⚠️ `conftest.py` porte le point d'entrée unique vers le fichier publié
+    # soumis aux contrôles (`BVC_DATA_JSON`) : c'est lui qui permet de REJOUER
+    # une livraison hors ligne sur le fichier exact qui l'accompagne.
+    "tests/conftest.py",
     "tests/test_bpa_verifies.py",
     "tests/test_contrat_data_json.py",
     "tests/test_regles_donnees.py",
@@ -90,10 +103,16 @@ LOT_A = [
     "tests/test_backtest_identite.py",
     "tests/test_comparateur_bulletin.py",
     "tests/test_pseudonymes.py",
+    # ⚠️ Ces deux-là ne portent aucune correction : ils sont repris parce
+    # qu'ils LISENT le fichier publié. Les laisser en arrière ferait lire à
+    # une partie de la suite la livraison et à l'autre le dépôt.
+    "tests/test_faits_financiers.py",
+    "tests/test_univers.py",
 ]
 
-# Le fichier en conflit : ni repris tel quel de la branche, ni de main.
-CONFLIT = "pipeline/historical_data.json"
+# ⚠️ NON REPRIS. Celui de main est conservé tel quel, à l'octet près.
+# L'assainissement de l'historique est hors périmètre de cette livraison.
+HISTORIQUE_CONSERVE = "pipeline/historical_data.json"
 
 # ── LOT B ──────────────────────────────────────────────────────────────────
 # Retenu. Aucune de ces pièces n'est lue par le lot A (mesuré, pas supposé).
@@ -106,7 +125,7 @@ MODULES_LOT_B = {
     "qualification", "regimes_variation", "ruptures", "normaliser",
     "import_source", "importer_export", "journal_differences",
     "unites_volume", "confronter_export", "graphique", "calculer_indicateur",
-    "bilan_lot", "inventaire", "livrer_candidat",
+    "bilan_lot", "inventaire", "livrer_candidat", "resoudre_historique",
 }
 
 
@@ -138,8 +157,7 @@ def verifier_independance(fichiers: list[str] | None = None) -> dict:
             elif isinstance(n, ast.ImportFrom) and n.module:
                 noms = [n.module.split(".")[0]]
             for nom in noms:
-                # `resoudre_historique` est la pièce nommée, remontée exprès.
-                if nom in MODULES_LOT_B and rel != "pipeline/resoudre_historique.py":
+                if nom in MODULES_LOT_B:
                     fautes.append({"fichier": rel, "importe": nom,
                                    "ligne": n.lineno})
     return {
@@ -162,37 +180,12 @@ def construire(sortie: Path, base: str = BASE, branche: str = BRANCHE) -> dict:
 
     _git("checkout", branche, "--", *LOT_A, cwd=sortie)
 
-    # ── Le conflit, résolu entrée par entrée (jamais sur la date du fichier)
-    sys.path.insert(0, str(sortie / "pipeline"))
-    from resoudre_historique import resoudre  # noqa: E402
-
-    cible = sortie / CONFLIT
-    cote_main = json.loads(cible.read_text(encoding="utf-8"))
-    cote_branche = json.loads(_git("show", f"{branche}:{CONFLIT}"))
-    r = resoudre(cote_branche, cote_main, "branche", "main")
-
-    sortie_json = {k: v for k, v in cote_main.items() if k.startswith("_")}
-    sortie_json["_resolution"] = {
-        "quoi": "conflit de fusion résolu entrée par entrée",
-        "regle": "séance la plus récente ; à séance égale, seuls les extrema "
-                 "glissants sont arbitrés ; tout autre désaccord est signalé "
-                 "et non tranché",
-        "decisions_par_cas": r["decisions_par_cas"],
-        "non_arbitres": [x["titre"] for x in r["non_arbitres"]],
-    }
-    sortie_json["_tickers"] = len(r["resolu"])
-    sortie_json.update(r["resolu"])
-    # ⚠️ `indent=2` : la mise en forme du producteur. Voir resoudre_historique.
-    cible.write_text(json.dumps(sortie_json, ensure_ascii=False, indent=2),
-                     encoding="utf-8")
-
-    # ── Contrôles d'acceptation sur la résolution
-    titres = {k for k in cote_branche if not k.startswith("_")} | \
-             {k for k in cote_main if not k.startswith("_")}
-    recul = [t for t in titres
-             if (r["resolu"][t].get("last_date") or "")
-             < max((cote_branche.get(t, {}).get("last_date") or ""),
-                   (cote_main.get(t, {}).get("last_date") or ""))]
+    # ⚠️ L'HISTORIQUE DE `main` EST CONSERVÉ TEL QUEL, ET ON LE VÉRIFIE.
+    # Ne pas y toucher est une décision, pas un oubli : elle doit donc se
+    # constater. Si un fichier du lot A venait un jour à l'emporter avec lui,
+    # ce contrôle le dirait au lieu de le laisser passer.
+    empreinte_main = _git("rev-parse", f"{base}:{HISTORIQUE_CONSERVE}")
+    empreinte_candidat = _git("hash-object", HISTORIQUE_CONSERVE, cwd=sortie)
 
     return {
         "_quoi": "candidat de fusion limité — construit, pas fusionné",
@@ -200,13 +193,13 @@ def construire(sortie: Path, base: str = BASE, branche: str = BRANCHE) -> dict:
         "branche": _git("rev-parse", "--short", branche),
         "sortie": str(sortie),
         "lot_a_fichiers": len(LOT_A),
-        "conflit_resolu": {
-            "fichier": CONFLIT,
-            "titres": len(r["resolu"]),
-            "decisions_par_cas": r["decisions_par_cas"],
-            "non_arbitres": [x["titre"] for x in r["non_arbitres"]],
-            "titres_perdus": sorted(titres - set(r["resolu"])),
-            "seances_en_recul": recul,
+        "historique": {
+            "fichier": HISTORIQUE_CONSERVE,
+            "conserve_a_l_identique": empreinte_main == empreinte_candidat,
+            "empreinte": empreinte_main[:12],
+            "_lecture": "historique existant conservé, assainissement hors "
+                        "périmètre. Ce candidat ne prétend RIEN sur la "
+                        "justesse de cet historique : il n'y touche pas.",
         },
         "independance_du_lot_a": verifier_independance(),
     }

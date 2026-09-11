@@ -41,6 +41,8 @@ from pathlib import Path
 
 import pytest
 
+from conftest import chemin_data_json  # noqa: E402
+
 RACINE = Path(__file__).resolve().parent.parent
 
 # ticker: (bpa attendu, page du RNPG, page du nombre d'actions)
@@ -171,7 +173,7 @@ def test_les_dividendes_restent_dans_un_ordre_de_grandeur_plausible(bpa):
     mal lu déplace la virgule d'un facteur 10, 100 ou 1000.
     """
     import json as _j
-    d = _j.loads((RACINE / "data.json").read_text(encoding="utf-8"))
+    d = _j.loads(chemin_data_json().read_text(encoding="utf-8"))
     cours = {x["symbol"]: x.get("price") for x in d["tickers"]}
     for t, e in bpa.items():
         v, p = e.get("div_dh"), cours.get(t)

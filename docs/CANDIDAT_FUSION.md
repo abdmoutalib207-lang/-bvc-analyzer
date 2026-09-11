@@ -11,10 +11,10 @@ python pipeline/candidat_fusion.py --sortie /tmp/candidat
 |---|---|
 | base | `origin/main` `27228f46` — 11/09/2026 15h57 |
 | apport | branche `claude/terminal-bvc-review-AmnBU` `0c4c53ea` |
-| fichiers repris | **24** |
-| conflit | `pipeline/historical_data.json`, **résolu entrée par entrée** |
-| suite sur ce candidat | **373 passés, 0 ignoré, 0 échec** |
-| construction | **déterministe** — deux exécutions, 26 fichiers, 0 écart |
+| fichiers repris | **27** |
+| historique | `pipeline/historical_data.json` **conservé à l'identique** — assainissement hors périmètre |
+| suite sur ce candidat | **373 passés, 0 ignoré, 0 échec** — sur le fichier généré par ce code |
+| construction | **déterministe** |
 
 ---
 
@@ -43,13 +43,20 @@ qui prouve que le contrôle sait échouer.
 independant : true · imports_interdits : [] · fichiers_absents : []
 ```
 
-**Une seule pièce du lot B remonte dans le lot A, et elle est nommée** :
-`pipeline/resoudre_historique.py`, parce que la résolution du conflit en
-dépend. Rien d'autre.
+**Aucune pièce du lot B ne remonte dans le lot A.** La coupure n'a plus
+d'exception, et un test l'exige.
 
-**Une pièce a été retirée du lot A après mesure** : `pipeline/calendrier_bvc.json`
-n'est lu que par `normaliser.py` et deux tests du lot B. Le laisser entrer
-aurait brouillé la coupure sans rien apporter.
+Deux pièces ont été **retirées** du lot A après mesure :
+
+- `pipeline/calendrier_bvc.json` — lu seulement par `normaliser.py` et deux
+  tests du lot B.
+- `pipeline/resoudre_historique.py` — voir §3 : il n'y a pas de conflit à
+  résoudre dans cette méthode de construction.
+
+Deux pièces ont été **ajoutées** après mesure, et elles ne portent aucune
+correction : `tests/test_faits_financiers.py` et `tests/test_univers.py` sont
+repris parce qu'ils **lisent le fichier publié**. Les laisser en arrière ferait
+lire à une partie de la suite la livraison et à l'autre le dépôt — voir §5.
 
 ---
 
@@ -69,16 +76,23 @@ celui que le site sert aujourd'hui.
 | 5 | **Dividendes sur résolution d'assemblée générale** — la table avait un an de retard hors MASI 1 | `div` corrigé sur **37 titres**, `div_dh` sur **32** (ex. BCP 4,29 % → 4,49 %, 10,50 → 11,00 DH) |
 | 6 | **Sept BPA corrigés sur pièces** | ex. RIS **18,82 → 16,84** |
 
-> ### ⚠️ La correction n°4 retire un chiffre de 56 fiches
+> ### ⚠️ La correction n°4 — le compte exact
 >
-> C'est le changement le plus visible du candidat, et il faut le décider en le
-> sachant. Les 56 valeurs retirées portaient **toutes** `pb_fige: true` : elles
-> venaient de la table figée de juin, pas d'un dépôt. Les 4 conservées portent
-> `pb_source: faits_ammc`.
+> | | titres |
+> |---|--:|
+> | **P/BOOK disponible** — `pb_source: faits_ammc` | **4** |
+> | **P/BOOK indisponible** | **76** |
+> | dont **valeurs retirées** par cette correction | **56** |
+> | dont déjà absentes avant | 20 |
 >
-> Le terminal affichera **« — »** en P/BOOK pour 56 titres sur 80. Ce n'est pas
-> une perte de données : c'est l'arrêt d'une affirmation sans source. Mais
-> l'utilisateur verra un tableau plus vide qu'hier.
+> Les 56 retirées portaient **toutes** `pb_fige: true` : elles venaient de la
+> table figée de juin, pas d'un dépôt. Ce n'est pas une perte de données —
+> c'est l'arrêt d'une affirmation sans source. Mais l'utilisateur verra un
+> tableau plus vide qu'hier, et c'est la décision qui revient au propriétaire.
+>
+> ⚠️ **Un ratio absent n'est jamais présenté comme zéro.** Le terminal rend
+> `r.pb?.toFixed(2) || "—"` : une valeur absente affiche **« — »**, jamais
+> `0.00`. Vérifié à l'écran (§5).
 
 ### Corrections invisibles sur le terminal, mais décisives
 
@@ -98,82 +112,110 @@ raison.
 
 ---
 
-## 3. Le conflit, résolu sans perte ni recul
+## 3. L'historique : conservé tel quel, assainissement hors périmètre
 
-```
-pipeline/historical_data.json — 74 entrées de part et d'autre, 62 divergent
-```
+**`pipeline/historical_data.json` n'est pas repris.** Celui de `main` est
+conservé **à l'octet près** — empreinte `711b851b0048`, vérifiée à chaque
+construction.
 
-> Consigne de la revue : *« N'arbitrez pas globalement sur la date du
-> fichier. »* `_updated` dit quand un fichier a été **écrit**, pas ce qu'il
-> contient. Le 28/08/2026, deux sources ont reculé d'une séance et le fichier
-> le plus récent portait les cours les plus anciens.
-
-La résolution est donc **une décision par entrée**, produite par
-`pipeline/resoudre_historique.py`, qui **ne lit `_updated` nulle part** — un
-test le vérifie sur l'arbre syntaxique.
-
-| Cas | Règle | Entrées |
-|---|---|--:|
-| dernière séance plus récente | l'entrée qui porte la séance la plus récente | **58** |
-| séance et contenu identiques | rien à trancher | **12** |
-| séance identique, seul un extremum glissant diffère | `h52w`/`l52w`/`h90`/`l90` dépendent de la **date d'ancrage de la fenêtre**, pas de la séance : les deux valeurs sont justes, on retient celle du run le plus récent **en le disant** | **4** |
-| désaccord sur un autre champ | **non arbitré** — signalé, conservé tel quel | **0** |
-
-Les quatre du troisième cas : `AFM` (h52w 1367,0 → 1360,0), `SBS` (h90 2199,0 →
-2175,0), `SRM` (h52w 555,9 → 555,0), `DAR` (l90 161,2 → 165,25). `last_date` et
-`n_candles` identiques des deux côtés.
-
-**Contrôles d'acceptation, mesurés sur le fichier résolu :**
-
-```
-titres          : 74   (aucun perdu)
-séances en recul : 0
-non arbitrés     : 0
-```
-
-Le résultat porte sa propre trace : le fichier écrit contient un bloc
-`_resolution` avec la règle et le décompte par cas.
-
-**Diff réel du fichier résolu contre `main` : 10 lignes ajoutées**, le bloc
-`_resolution` et rien d'autre. C'est la confirmation chiffrée du point
-ci-dessous : le contenu retenu coïncide avec celui de `main`, et la raison
-mesurée en est que **la branche ne porte de séance plus récente pour aucun
-titre**. Si elle en avait porté une, la règle l'aurait conservée — un test le
-démontre sur un cas construit où le fichier le plus frais perd sur un titre.
-
-> ### ⚠️ Défaut de ma résolution, trouvé en préparant ce candidat
+> ### ⚠️ Ce que je faisais, et pourquoi c'était une dépendance inutile
 >
-> La première version écrivait le fichier **compacté** là où le collecteur
-> l'écrit `indent=2` : le diff annonçait **103 836 suppressions** sans qu'une
-> seule valeur change. Un diff pareil ne montre rien, il cache tout.
-> Corrigé, et un test vérifie désormais que la résolution conserve la mise en
-> forme du producteur.
+> La version précédente importait ce fichier depuis la branche et
+> « résolvait » le conflit de la fusion globale. La revue a montré que ce
+> conflit **n'existe pas dans cette méthode** : en partant de `main` par
+> reprise de fichiers choisis, il suffit de ne pas y toucher.
+>
+> Le patch ne changeait d'ailleurs **aucune valeur**. Il ajoutait un bloc
+> `_resolution` — et ce bloc **déclarait** quatre arbitrages d'extrema que la
+> revue n'avait pas validés. Écrire « la fenêtre a glissé, les deux valeurs
+> sont justes » est une **affirmation**, pas une mesure : retenir l'argument de
+> droite ne prouve ni l'un ni l'autre.
+>
+> `pipeline/resoudre_historique.py` sort donc du périmètre. Il reste sur la
+> branche de recherche, avec la couche retenue.
 
-⚠️ **Résoudre ce conflit n'assainit rien.** Aucune des deux versions n'a été
-produite par le collecteur muni du garde-fou d'identité — ce sont deux sorties
-de l'ancien moteur.
+**Ce candidat ne prétend rien sur la justesse de cet historique.** Il n'y
+touche pas. Les cinq semaines de cours Mutandis dans l'historique de MSA y
+restent, comme elles y sont aujourd'hui.
 
 ---
 
-## 4. Tests exécutés sur ce candidat précis
+## 4. Tests : le nouveau code jugé sur un fichier écrit par lui
 
+### ⚠️ Le problème que la revue a relevé, et qui bloquait la demande de fusion
+
+`.github/workflows/tests.yml` lançait la suite **juste après l'installation**,
+donc sur le `data.json` du dépôt — écrit par le moteur **précédent**. Les
+contrôles qui relisent les données publiées échouaient donc sur toute demande
+de fusion touchant le moteur.
+
+**Et ils avaient raison** : le fichier publié ne satisfait pas encore le nouveau
+contrat. Ce n'est pas un défaut de la demande.
+
+**La mauvaise réponse aurait été de déclarer ces échecs « attendus »** et de
+fusionner par-dessus. Un échec qu'on apprend à ignorer ne protège plus rien —
+c'est exactement l'habitude qui a laissé publier, le 09/09 à 23h50, un
+rendement sur une société qui n'a rien versé.
+
+### La procédure
+
+| Étape | Ce qu'elle fait | Pourquoi |
+|---|---|---|
+| 1. **Générer** | `python update_data.py` écrit `data.json` **et** les chandelles | juger le code sur un fichier écrit **par lui** |
+| 2. **Identifier** | empreinte sha256, horodatage, 80 titres, **provenance des prix par source** | un rouge doit être attribuable sans relire les journaux |
+| 3. **Juger** | la suite entière, sur l'état complet que le moteur vient d'écrire | même règle que la garde de publication |
+| 4. **Joindre** | le fichier jugé et le rapport JUnit, en artefacts | permettre de **rejouer** ce vert ailleurs |
+
+⚠️ **Rien n'est restauré entre 1 et 3.** Remettre les chandelles du dépôt
+ferait juger un `data.json` neuf contre des séries anciennes — une paire
+incohérente que personne n'aura jamais en production. C'est une erreur que j'ai
+commise en écrivant cette procédure, et que la mesure a rattrapée : avec les
+chandelles restaurées, la suite passe de **373 passés, 0 ignoré** à
+**1 échec, 367 passés, 5 ignorés**.
+
+⚠️ **Cette étape sort du réseau.** C'est le seul endroit de la chaîne de tests
+qui le fasse, et elle est **en dehors** de la suite : la règle « aucun test ne
+touche le réseau » (`tests/conftest.py`) reste intacte.
+
+⚠️ **Si la collecte est dégradée, cela se voit avant le résultat.** L'étape 2
+compte les titres servis par un repli muet (`static`, `data_json_precedent`,
+`financial`) et le dit dans le résumé. Un rouge peut alors venir d'une source
+en panne, pas de la modification — **il faut établir la cause, pas écarter le
+contrôle**.
+
+### Rejouer ce vert ailleurs — `BVC_DATA_JSON`
+
+`tests/conftest.py` expose un **point d'entrée unique** vers le fichier publié
+soumis aux contrôles. `BVC_DATA_JSON` le désigne :
+
+```bash
+BVC_DATA_JSON=data_teste.json python -m pytest
 ```
-/tmp/candidat2 (base 27228f46 + 24 fichiers + conflit résolu)
-```
+
+⚠️ **Ce n'est pas une soupape pour rendre la suite verte.** Pointer vers un
+fichier arbitraire ne prouve rien : le fichier doit être **identifié** —
+empreinte et provenance — et c'est ce que la CI et ce dossier publient à côté
+du résultat. Un chemin qui n'existe pas lève une erreur au lieu de retomber en
+silence sur le dépôt, et un test le vérifie.
+
+⚠️ **Le point d'entrée doit être le SEUL.** Une première version ne branchait
+que la fixture partagée : **six lectures en dur subsistaient** dans cinq
+fichiers, et une relecture hors ligne jugeait alors un mélange — une partie de
+la suite lisant la livraison, l'autre le dépôt. Un mécanisme à moitié branché
+est pire que pas de mécanisme ; c'est la faute que ce projet a déjà payée cette
+semaine avec un garde-fou défini et appelé de nulle part. Un test parcourt
+désormais l'arbre syntaxique de tous les fichiers de tests et refuse toute
+lecture directe de `data.json`.
+
+### Ce que le candidat donne
 
 | Moment | Résultat |
 |---|---|
-| avant le run du moteur | **1 échec** — `test_un_titre_suspendu_ne_porte_aucun_signal[CMT]` |
-| après le run du moteur | **373 passés, 0 ignoré, 0 échec** |
+| sur le `data.json` du dépôt (celui de `main`) | **1 échec** — `test_un_titre_suspendu_ne_porte_aucun_signal[CMT]` |
+| après l'étape 1, sur le fichier généré | **373 passés, 0 ignoré, 0 échec** |
 
-⚠️ **L'échec initial n'est pas un défaut : c'est la démonstration.** Ce test
-relit le **fichier publié**, pas le code. Il échoue parce que le `data.json` de
-`main` a été écrit par l'ancien moteur, qui laissait CMT à −3,35 %. Le moteur
-corrigé écrit 0,00 %, et le test passe.
-
-C'est exactement ce que le garde-fou n°7 institue : **tester le fichier
-fraîchement écrit, avant publication**, et non le dépôt.
+L'échec initial n'est pas un défaut : c'est le test qui relit le **fichier
+publié**, écrit par l'ancien moteur, qui laissait CMT à −3,35 %.
 
 ---
 
@@ -186,6 +228,15 @@ fraîchement écrit, avant publication**, et non le dépôt.
 > servies localement, **aux mêmes versions**. L'`index.html` du bac est celui du
 > candidat, **aux quatre URL près**.
 > Cet aperçu ne dit donc **rien** sur la disponibilité des CDN en production.
+>
+> **Versions exactes conservées dans le dossier de réception** (`apercu/vendor/`) :
+>
+> | fichier | bibliothèque | taille | sha256 |
+> |---|---|--:|---|
+> | `react.js` | React 18 `react.production.min.js` | 10 751 o | `d949f1c3687aedadcedac85261865f29…` |
+> | `react-dom.js` | ReactDOM 18 `react-dom.production.min.js` | 131 835 o | `35f4f974f4b2bcd44da73963347f8952…` |
+> | `babel.js` | `@babel/standalone` 7.23.10 | 2 849 975 o | `85ba0c7207cf1b1850e40372f26a7e69…` |
+> | `lwc.js` | `lightweight-charts` 4.2.0 standalone | 163 551 o | `46fc69534ec098f095bbcd1d9a26d693…` |
 
 | Contrôle | Résultat |
 |---|---|
@@ -217,9 +268,19 @@ fraîchement écrit, avant publication**, et non le dépôt.
 >
 > **Non corrigé ici, délibérément** : ce candidat ne contient que des
 > corrections déjà constatées et éprouvées. Y glisser un correctif écrit à
-> l'instant contredirait sa raison d'être. Le correctif tient en une ligne
-> (vider le conteneur avant de créer le graphique) et peut faire l'objet d'un
-> lot séparé.
+> l'instant contredirait sa raison d'être.
+>
+> **Inscrit comme prochain petit correctif**, avec les trois états à vérifier :
+>
+> | état | ce que le terminal doit montrer |
+> |---|---|
+> | **chargement** — la série n'est pas encore arrivée | un indicateur d'attente, **pas** « données non disponibles » |
+> | **données présentes** | le graphique seul, **sans message résiduel** |
+> | **données absentes** — titre sans chandelles | le message, **et pas de toile vide** |
+>
+> Le correctif tient en une ligne — vider le conteneur avant de créer le
+> graphique — mais les trois états doivent être éprouvés, faute de quoi on
+> déplacerait le défaut au lieu de le corriger.
 
 ### CMT
 
@@ -257,7 +318,80 @@ personnalisé lit bien `score_fond`, et non plus `bvc`.
 
 ---
 
-## 6. Le candidat comme objet applicable
+## 6. Séquence de déploiement — ce qui devient accessible, et quand
+
+> ⚠️ **« Le premier run après fusion » ne doit pas rester une étape supposée.**
+> Elle est ici mesurée, et elle a une conséquence que je n'avais pas vue.
+
+**Aucun workflow ne déploie GitHub Pages** : il n'existe pas de `pages.yml`.
+Pages sert donc **directement depuis `main`**. Tout commit sur `main` déclenche
+une reconstruction ; le délai est une caractéristique de GitHub que nous ne
+contrôlons pas.
+
+| # | Événement | Ce qui devient accessible | Délai |
+|---|---|---|---|
+| 1 | fusion sur `main` | **le nouveau `index.html`** — et lui seul | reconstruction Pages |
+| 2 | — | **`data.json` est encore l'ancien** | ⚠️ jusqu'au run suivant |
+| 3 | `update_bvc` s'exécute | garde bloquante : suite entière sur le fichier fraîchement écrit | — |
+| 4 | la garde passe | `data.json` corrigé poussé sur `main` | |
+| 5 | reconstruction Pages | **les corrections 1 à 6 deviennent visibles** | |
+
+### ⚠️ L'étape 2 n'est pas neutre — mesurée dans le bac d'aperçu
+
+J'ai servi le **nouveau `index.html` avec l'ancien `data.json`** :
+
+| | attendu après le run | pendant la fenêtre |
+|---|--:|--:|
+| ADH en 70/30 | 6,32 | **5,01** |
+| IAM en 70/30 | 7,08 | **6,97** |
+| CMT, variation | 0,00 % | **−3,35 %** |
+| IAM, P/BOOK | — | **6,20** |
+
+**Rien ne casse** — 80 titres rendus, aucune erreur JavaScript. Mais
+`score_fond` étant absent de l'ancien fichier, `computeDisplayScore` retombe
+sur son repli `r.bvc` : **pendant cette fenêtre, le mode personnalisé affiche à
+nouveau la valeur que l'audit du 09/09 avait signalée.**
+
+Seuls les éléments purement frontaux sont immédiats : le bandeau
+« SIMULATION », le signal masqué hors pondération officielle, l'affichage des
+poids.
+
+### Fermer la fenêtre au lieu de l'attendre
+
+Les crons sont à ≈09h40, 12h00, 15h45, 18h00 (Casablanca), avec un décalage
+**mesuré de 2 à 8 heures** et des journées entières sans déclenchement. Attendre
+le prochain run peut donc durer un jour.
+
+`update_bvc.yml` accepte `workflow_dispatch`, et sa porte d'entrée s'ouvre sur
+ce déclencheur. **La séquence doit donc être :**
+
+```
+1. fusionner
+2. déclencher update_bvc À LA MAIN, immédiatement  (Actions → update_bvc → Run workflow)
+3. surveiller ce run : c'est la garde bloquante qui décide
+4. vérifier le terminal une fois data.json publié
+```
+
+⚠️ **Ne pas lancer ce run entre 15h30 et 16h00** : une source a servi la séance
+précédente dans cette fenêtre le 28/08, et un run manuel non nécessaire avait
+provoqué l'incident.
+
+### Vérifier que l'étape 5 a eu lieu
+
+```bash
+python3 -c "import json,urllib.request as u; \
+d=json.load(u.urlopen('https://<site>/data.json')); \
+t={x['symbol']:x for x in d['tickers']}; \
+print('CMT chg =', t['CMT']['chg'], '| IAM score_fond =', t['IAM'].get('score_fond'))"
+```
+
+`0.0` et `7.25` : les corrections sont en ligne.
+`-3.35` et `None` : le run n'a pas encore publié — la fenêtre de l'étape 2 est
+toujours ouverte.
+
+---
+
+## 7. Le candidat comme objet applicable
 
 Le candidat n'est pas qu'un dossier : il existe aussi comme **patch qui
 s'applique sur `origin/main`**.
@@ -281,14 +415,12 @@ python -m pytest                                    → 1 échec attendu (§4),
 par le robot, pas apportés par la fusion. Les inclure ferait passer pour un
 apport ce qui n'est qu'une sortie de moteur.
 
-⚠️ **Aucune branche n'a été poussée pour ce candidat.** Ma consigne permanente
-est de ne pousser que sur `claude/terminal-bvc-review-AmnBU`. Si vous voulez
-le candidat sous forme de branche prête à fusionner, nommez-la et je la
-pousserai.
+La branche `release/bvc-correctifs-valides-20260911` porte le même contenu —
+voir §10.
 
 ---
 
-## 7. Contrôles d'acceptation sur les 80 titres
+## 8. Contrôles d'acceptation sur les 80 titres
 
 | Contrôle | avant | candidat |
 |---|--:|--:|
@@ -307,14 +439,16 @@ Aucun ticker perdu, aucune fraîcheur dégradée, aucune variation hors R10.
 
 ---
 
-## 8. Limites qui subsistent après cette mise en ligne
+## 9. Limites qui subsistent après cette mise en ligne
 
 1. **Le moteur publié n'est pas protégé contre la contamination d'identité.**
    `update_data.py` et `generate_candles.py` écrivent des chandelles sans
    aucun contrôle d'identité. **Ne pas cocher « moteur publié protégé ».**
-2. **Les cinq semaines de cours Mutandis dans `pipeline/candles/MSA.json`
-   restent en place.** Le lot B empêche d'en écrire de nouvelles ; il ne
-   nettoie pas l'existant, et il est retenu.
+2. **L'historique n'est pas assaini, et ce candidat n'y touche pas.** Les cinq
+   semaines de cours Mutandis dans `pipeline/candles/MSA.json` et dans
+   `pipeline/historical_data.json` restent exactement où elles sont. Le lot B
+   empêche d'en écrire de nouvelles ; il ne nettoie pas l'existant, et il est
+   retenu.
 3. **Les historiques d'ATL, CFGB et DAR**, nommés par la pièce de juin, sont
    inchangés.
 4. **Le cron GitHub reste le premier risque du projet** — journées entières
@@ -324,54 +458,92 @@ Aucun ticker perdu, aucune fraîcheur dégradée, aucune variation hors R10.
    bloquant, mais il faut le savoir avant, pas le découvrir un matin.
 6. **56 fiches perdent leur P/BOOK.** Correction voulue, régression visible.
 7. **La mention « Données historiques non disponibles »** s'affiche par-dessus
-   les graphiques — préexistant, non corrigé ici.
-8. **Aucune performance n'est démontrée**, et rien dans ce candidat n'y touche.
+   les graphiques — préexistant, non corrigé ici, inscrit comme prochain petit
+   correctif avec ses trois états (§5).
+8. **Une fenêtre suit la fusion** pendant laquelle le nouveau terminal sert
+   l'ancien `data.json`, et le mode personnalisé y réaffiche la valeur
+   signalée par l'audit (§6). Elle se ferme en déclenchant `update_bvc` à la
+   main.
+9. **Aucune performance n'est démontrée**, et rien dans ce candidat n'y touche.
 
 ---
 
-## 9. Procédure de retour arrière
+## 10. Branche de livraison et retour arrière
 
-### Point de retour
+### La branche
 
 ```
-origin/main = 27228f46   (11/09/2026 15h57, avant toute fusion)
+release/bvc-correctifs-valides-20260911
 ```
 
-### Si la fusion pose problème
+Partie de `origin/main` `27228f46`, elle contient **uniquement** le candidat
+limité. **La branche de recherche n'y est pas fusionnée** — ni en tout, ni en
+partie au-delà des 27 fichiers listés.
+
+⚠️ **Mode de fusion, et ce qu'il change pour le retour arrière.** La branche
+n'a qu'un commit au-dessus de `main`. Deux modes sont possibles, et ils
+n'annulent pas de la même façon :
+
+| mode | ce que `main` reçoit | comment on annule |
+|---|---|---|
+| **fusion sans avance rapide** (`--no-ff`, recommandé) | un commit de fusion | `git revert -m 1 <fusion>` — une seule commande, et l'apport est nommé dans l'historique |
+| avance rapide / écrasement | un commit ordinaire | `git revert <commit>` — l'apport se confond avec les commits de données du robot |
+
+Le premier est recommandé **parce qu'il rend l'annulation évidente** : le
+commit de fusion porte l'apport entier et se désigne d'un coup d'œil.
+
+### Contrôles de cette branche, avant publication
+
+| contrôle | résultat |
+|---|--:|
+| la branche part bien de `main` retenu | `27228f46` |
+| fichiers apportés | **27** |
+| `pipeline/historical_data.json` conservé à l'identique | ✔ `711b851b0048` |
+| le lot A n'importe rien de la couche retenue | ✔ 0 import interdit |
+| suite sur le fichier généré par ce code | **373 passés, 0 ignoré** |
+| titres servis · MASI 1 · variations hors R10 | 80 · 19 · 0 |
+
+### Annuler
 
 ⚠️ **Ne pas utiliser `reset --hard` :** le robot pousse des commits de données
-toutes les quelques heures, et un `reset` les effacerait. Il faut **annuler la
-fusion sans effacer ce qui a suivi**.
+toutes les quelques heures, et un `reset` les effacerait.
 
 ```bash
-git fetch origin main
-git checkout main && git pull
+git fetch origin main && git checkout main && git pull
 git log --oneline --merges -3          # repérer le commit de fusion
 git revert -m 1 <commit-de-fusion>     # annule l'apport, garde les données
 git push origin main
 ```
 
-### Si seul le garde-fou bloquant pose problème
+### Si seule la garde bloquante pose problème
 
-Il suspend la publication sans rien casser d'autre. Le retirer seul suffit, et
-c'est la réponse proportionnée :
+⚠️ **Ne pas la retirer parce qu'un test échoue.** Un contrôle qu'on désactive
+au premier rouge ne protège plus rien — c'est la configuration qui a laissé
+publier le 09/09 à 23h50. **Établir d'abord la cause** : l'étape « Identifier
+le fichier testé » dit si la collecte était dégradée.
+
+Si, la cause établie, le retrait reste la bonne décision :
 
 ```bash
 git checkout 27228f46 -- .github/workflows/update_bvc.yml
-git commit -m "Retour au workflow antérieur : le contrôle bloquant suspend une publication légitime"
+git commit -m "Retour au workflow antérieur — cause établie : <la cause>"
 git push origin main
 ```
 
+Le message de commit doit **nommer la cause**. Un retrait sans cause écrite se
+reconduit indéfiniment.
+
 ### ⚠️ Ce que le retour arrière NE défait PAS
 
-Le premier run du robot après fusion réécrit `data.json` avec le moteur
-corrigé. **Annuler le code n'annule pas ce fichier** : il faut attendre le run
-suivant, où l'ancien moteur le réécrira à son tour. Le délai est donc d'**un
-run**, pas instantané — et un run peut être sauté (limite n°4).
+Le run qui suit la fusion réécrit `data.json` avec le moteur corrigé. **Annuler
+le code n'annule pas ce fichier** : il faut attendre le run suivant, où
+l'ancien moteur le réécrira. Le délai est d'**un run** — et un run peut être
+sauté pendant une journée entière (§9, limite 4). Pour ne pas attendre :
+déclencher `update_bvc` à la main, comme à l'aller.
 
-Les chandelles écrites entre-temps ne sont pas réécrites automatiquement.
-Elles restent bien formées : le candidat ne change pas la manière dont une
-bougie est calculée.
+Les chandelles écrites entre-temps ne sont pas réécrites automatiquement. Elles
+restent bien formées : ce candidat ne change pas la manière dont une bougie est
+calculée.
 
 ### Vérifier que le retour a pris
 

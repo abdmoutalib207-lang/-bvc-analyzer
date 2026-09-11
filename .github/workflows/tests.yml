@@ -56,8 +56,82 @@ jobs:
       - name: Installer les dépendances
         run: pip install -r requirements_dev.txt
 
+      # ── GÉNÉRER LE FICHIER SOUMIS AUX CONTRÔLES DE DONNÉES ──────────────
+      #
+      # ⚠️ AJOUTÉ LE 11/09/2026, SUR OBJECTION DE LA REVUE EXTERNE.
+      #
+      # Cette étape lançait la suite juste après l'installation, donc sur le
+      # `data.json` du dépôt — écrit par le moteur PRÉCÉDENT. Les contrôles qui
+      # relisent les données publiées échouaient alors sur toute demande de
+      # fusion touchant le moteur, et ils avaient RAISON : le fichier publié ne
+      # satisfaisait pas encore le nouveau contrat.
+      #
+      # La mauvaise réponse aurait été de déclarer ces échecs « attendus » et
+      # de fusionner par-dessus. Un échec qu'on apprend à ignorer ne protège
+      # plus rien — c'est cette habitude qui a laissé publier, le 09/09 à
+      # 23h50, un rendement sur une société qui n'a rien versé.
+      #
+      # La bonne réponse est de juger le nouveau code sur un fichier écrit PAR
+      # LUI. C'est exactement ce que fait la garde de publication d'update_bvc,
+      # et c'est la même règle ici.
+      #
+      # ⚠️ Cette étape SORT DU RÉSEAU. C'est le seul endroit de la chaîne de
+      # tests qui le fasse, et elle est en dehors de la suite : la règle
+      # « aucun test ne touche le réseau » (tests/conftest.py) est intacte.
+      - name: Générer le fichier soumis aux contrôles
+        id: generer
+        run: |
+          set -o pipefail
+          mkdir -p .ci
+          python update_data.py 2>&1 | tail -25
+          cp data.json .ci/data_teste.json
+          git checkout -- data.json pipeline/candles snapshot_cloture.json             pipeline/masi_history.json 2>/dev/null || true
+
+      # Un échec de la suite doit être attribuable SANS relire les journaux.
+      # Si la collecte a été dégradée, cela se voit ici, avant le résultat.
+      - name: Identifier le fichier testé
+        run: |
+          python - <<'PY' >> $GITHUB_STEP_SUMMARY
+          import collections, hashlib, json, pathlib
+          p = pathlib.Path(".ci/data_teste.json")
+          d = json.loads(p.read_text(encoding="utf-8"))
+          t = d.get("tickers") or []
+          src = collections.Counter((x.get("_meta") or {}).get("source_prix")
+                                    for x in t)
+          print("## Fichier soumis aux contrôles de données\n")
+          print(f"- empreinte sha256 : `{hashlib.sha256(p.read_bytes()).hexdigest()}`")
+          print(f"- écrit le : `{d.get('updated')}`")
+          print(f"- titres : **{len(t)}**")
+          print("- provenance des prix :")
+          for k, n in src.most_common():
+              print(f"  - `{k}` : {n}")
+          replis = sum(n for k, n in src.items()
+                       if k in ("static", "data_json_precedent", "financial"))
+          if replis:
+              print(f"\n> ⚠️ **{replis} titre(s) sur repli muet.** Un échec de "
+                    f"la suite peut venir d'une collecte dégradée, pas de la "
+                    f"modification proposée. Établir la cause AVANT de conclure.")
+          PY
+
+      # La suite lit `data.json` à sa place habituelle — celui que l'étape
+      # précédente vient d'écrire. `BVC_DATA_JSON` n'est pas utilisé ici : il
+      # sert à REJOUER hors ligne, sur le fichier joint (voir ci-dessous).
       - name: Lancer la suite
-        run: python -m pytest --tb=short
+        run: python -m pytest --tb=short --junitxml=.ci/rapport_tests.xml
+
+      # Les pièces voyagent avec le résultat : le fichier jugé et le rapport.
+      # Un relecteur peut ainsi rejouer la suite hors ligne sur le fichier
+      # EXACT qui a produit ce vert :
+      #     BVC_DATA_JSON=data_teste.json python -m pytest
+      - name: Joindre le fichier testé et le rapport
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: candidat-teste-${{ github.sha }}
+          path: |
+            .ci/data_teste.json
+            .ci/rapport_tests.xml
+          retention-days: 30
 
       - name: Résumé
         if: always()
@@ -67,3 +141,8 @@ jobs:
           python -m pytest --collect-only -q 2>/dev/null | tail -1 \
             | sed 's/^/- Tests collectés : /' >> $GITHUB_STEP_SUMMARY || true
           echo "- Déclencheur : ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Fichier jugé : celui GÉNÉRÉ par ce code, pas celui du dépôt" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ Un contrôle rouge ne se contourne pas : il s'explique." >> $GITHUB_STEP_SUMMARY
+          echo "Ni \`--no-verify\`, ni fusion forcée, ni retrait global des" >> $GITHUB_STEP_SUMMARY
+          echo "contrôles bloquants. Établir la cause d'abord." >> $GITHUB_STEP_SUMMARY

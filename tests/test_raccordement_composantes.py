@@ -45,6 +45,8 @@ from pathlib import Path
 
 import pytest
 
+from conftest import chemin_data_json  # noqa: E402
+
 RACINE = Path(__file__).resolve().parent.parent
 
 
@@ -155,7 +157,7 @@ def candidat():
     On prend un cas réel plutôt qu'un objet fabriqué : un test sur des données
     inventées ne dirait rien de ce que le terminal affiche vraiment.
     """
-    d = json.loads((RACINE / "data.json").read_text(encoding="utf-8"))
+    d = json.loads(chemin_data_json().read_text(encoding="utf-8"))
     for t in d["tickers"]:
         if all(t.get(k) is not None for k in ("score_tech", "score_fond", "bvc")):
             return t

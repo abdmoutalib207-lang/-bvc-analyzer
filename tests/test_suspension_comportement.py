@@ -36,6 +36,8 @@ import pytest
 
 from bvc_config import SUSPENSIONS
 
+from conftest import chemin_data_json  # noqa: E402
+
 RACINE = Path(__file__).resolve().parent.parent
 
 
@@ -82,7 +84,7 @@ def test_le_moteur_n_interroge_plus_la_date_du_cours():
 # ── le FICHIER PRODUIT, et non le code qui le produit ────────────────────
 
 def _publie():
-    f = RACINE / "data.json"
+    f = chemin_data_json()
     if not f.exists():
         pytest.skip("data.json absent")
     d = json.loads(f.read_text(encoding="utf-8"))

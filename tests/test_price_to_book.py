@@ -31,6 +31,8 @@ from pathlib import Path
 
 import pytest
 
+from conftest import chemin_data_json  # noqa: E402
+
 RACINE = Path(__file__).resolve().parent.parent
 
 
@@ -111,7 +113,7 @@ def test_les_deux_termes_sont_sources_avec_leur_page(faits, ticker):
 def test_le_pb_publie_reste_dans_une_plage_defendable():
     """Un price-to-book négatif n'a pas de sens ici, et au-delà de 50 il
     signale une erreur d'unité plutôt qu'une valorisation."""
-    d = json.loads((RACINE / "data.json").read_text(encoding="utf-8"))
+    d = json.loads(chemin_data_json().read_text(encoding="utf-8"))
     for t in d["tickers"]:
         pb = t.get("pb")
         if pb is None:
