@@ -121,3 +121,26 @@ peut pas trancher :
 - **Juriste AMMC / CNDP** — droit de publier, puis de monétiser.
 - **Data scientist NLP** — valider la méthode, pas seulement la brancher.
 - **Quant** — valider empiriquement la pondération 25 / 47 / 28, jamais testée.
+
+## Prochain petit correctif — message superposé au graphique
+
+`index.html:790` injecte « Données historiques non disponibles pour ce titre »
+par `innerHTML` au premier rendu ; la bibliothèque ajoute ensuite sa toile dans
+le même conteneur et le message n'est jamais retiré. Résultat : la phrase
+s'affiche **par-dessus un graphique correctement tracé**, sur tous les titres.
+
+⚠️ Préexistant — le bloc est identique dans `main`. Ce n'est pas une régression
+de la livraison du 11/09, qui l'a seulement rendu visible.
+
+Le correctif tient en une ligne (vider le conteneur avant de créer le
+graphique), mais **trois états doivent être éprouvés**, faute de quoi on
+déplace le défaut au lieu de le corriger :
+
+| état | attendu |
+|---|---|
+| chargement — série pas encore arrivée | indicateur d'attente, PAS « données non disponibles » |
+| données présentes | le graphique seul, sans message résiduel |
+| données absentes — titre sans chandelles | le message, et pas de toile vide |
+
+Décision de la revue du 11/09 : **non bloquant** pour la livraison limitée.
+

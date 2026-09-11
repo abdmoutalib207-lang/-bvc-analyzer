@@ -9,12 +9,15 @@ python pipeline/candidat_fusion.py --sortie /tmp/candidat
 
 | | |
 |---|---|
+| **branche de livraison** | `release/bvc-correctifs-valides-20260911` |
+| **commit** | `9a95d5cdbf3707ec4006c8f7333d913eca9fda63` |
 | base | `origin/main` `27228f46` — 11/09/2026 15h57 |
 | apport | branche `claude/terminal-bvc-review-AmnBU` `0c4c53ea` |
 | fichiers repris | **27** |
 | historique | `pipeline/historical_data.json` **conservé à l'identique** — assainissement hors périmètre |
 | suite sur ce candidat | **373 passés, 0 ignoré, 0 échec** — sur le fichier généré par ce code |
 | construction | **déterministe** |
+| artefacts de revue | `data_teste.json` + rapport JUnit + 3 captures + bibliothèques épinglées |
 
 ---
 
