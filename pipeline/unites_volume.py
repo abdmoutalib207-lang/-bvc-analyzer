@@ -65,6 +65,12 @@ CIBLE = RACINE / "docs" / "UNITE_DES_VOLUMES.md"
 # Tant qu'elle manque, ce script ALERTE, il ne conclut pas.
 VOLUME_MARCHE_DH = 3.0e8               # hypothèse : ordre de grandeur du marché
 SEUIL_INVRAISEMBLABLE = 5.0e9          # hypothèse : ~17 fois cet ordre
+
+# ⚠️ CE SEUIL EST ARBITRAIRE, ET ON L'A VU BOUGER.
+# Un test affirmait « au moins une série le dépasse ». Trois jours de cotations
+# plus tard, MNG est passé de 8,05 à 4,92 milliards et l'assertion est tombée,
+# bloquant une livraison. Le nombre de séries signalées est un CONSTAT du jour,
+# jamais une propriété du projet : ne jamais l'exiger dans un test.
 SEANCES = 120
 
 

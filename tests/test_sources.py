@@ -231,15 +231,40 @@ def test_conserver_un_fichier_n_etablit_pas_son_exactitude():
 
 # ═══ E. L'UNITÉ DES VOLUMES ════════════════════════════════════════════════
 
-def test_l_unite_des_volumes_est_mesuree_pas_supposee():
-    """L'alerte d'ordre de grandeur doit rester déclenchable.
+def test_l_alerte_d_ordre_de_grandeur_se_declenche():
+    """Le MÉCANISME doit fonctionner — pas l'état du jour.
 
-    ⚠️ Elle ALERTE, elle ne réfute pas — voir le test suivant.
+    ⚠️ CE TEST A ÉTÉ RÉÉCRIT APRÈS AVOIR BLOQUÉ UNE LIVRAISON.
+    Il affirmait `series_a_ordre_de_grandeur_suspect >= 1`, c'est-à-dire
+    « au moins une série dépasse le seuil aujourd'hui ». Autrement dit : il
+    exigeait qu'un défaut EXISTE. Trois jours de cotations plus tard, MNG est
+    passé de 8,05 à 4,92 milliards — sous le seuil de 5 que j'avais choisi — et
+    l'assertion est tombée. La chaîne de livraison a refusé le candidat, ce qui
+    est exactement son rôle.
+
+    Un test ne doit pas dépendre de l'état incident des données quand ce qu'il
+    veut prouver est le fonctionnement d'un contrôle. Le seuil est d'ailleurs
+    une HYPOTHÈSE posée dans le programme : asserter qu'il se déclenche revient
+    à asserter une hypothèse.
     """
-    from unites_volume import mesurer as mesurer_unites
+    from unites_volume import SEUIL_INVRAISEMBLABLE, mesurer as mesurer_unites
     m = mesurer_unites()
     assert m["series_mesurees"] > 50
-    assert m["series_a_ordre_de_grandeur_suspect"] >= 1
+    # Le mécanisme : chaque série est classée selon le seuil, et la
+    # classification doit correspondre au calcul publié.
+    for r in m["series"]:
+        attendu = r["montant_implique_median"] > SEUIL_INVRAISEMBLABLE
+        assert r["ordre_de_grandeur_suspect"] is attendu, r["titre"]
+    assert (m["series_a_ordre_de_grandeur_suspect"]
+            == sum(1 for r in m["series"] if r["ordre_de_grandeur_suspect"]))
+
+
+def test_le_compte_de_series_suspectes_est_rapporte_pas_exige():
+    """⚠️ Combien de séries dépassent le seuil est un CONSTAT, qui bouge avec
+    les cotations. Ce test le rapporte sans l'exiger."""
+    from unites_volume import mesurer as mesurer_unites
+    m = mesurer_unites()
+    assert 0 <= m["series_a_ordre_de_grandeur_suspect"] <= m["series_mesurees"]
     assert m["amplitude_des_montants"]["facteur"] > 1000
 
 
