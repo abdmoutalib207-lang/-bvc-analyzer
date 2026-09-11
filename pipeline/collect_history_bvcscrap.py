@@ -69,12 +69,80 @@ except ImportError:                                   # exécution hors paquet
 
 
 try:
-    from contamination import usage_permis
+    from identites import source_utilisable
+except ImportError:
+    import sys as _sys3
+    from pathlib import Path as _Path3
+    _sys3.path.insert(0, str(_Path3(__file__).resolve().parent))
+    from identites import source_utilisable
+
+try:
+    from contamination import indicateurs_permis, usage_permis
 except ImportError:                                   # exécution hors paquet
     import sys as _sys2
     from pathlib import Path as _Path2
     _sys2.path.insert(0, str(_Path2(__file__).resolve().parent))
-    from contamination import usage_permis
+    from contamination import indicateurs_permis, usage_permis
+
+
+SOURCES_DIR = Path(__file__).resolve().parent.parent / "sources"
+
+
+def load_export(ticker: str) -> tuple:
+    """L'export de l'opérateur : les cours ET leur identité, dans la même ligne.
+
+    ⚠️ C'EST LE POINT QUE LA REVUE A RELEVÉ, ET IL EST STRUCTUREL.
+    Lire l'identité dans un fichier et les cours dans un autre ne prouve rien :
+    c'est la configuration même de juin, où `MANUAL_MAP` nommait « Mutandis »
+    et une autre source livrait les cours. Ici, les deux viennent des mêmes
+    lignes — si la ligne ment sur l'instrument, elle ment à côté de son prix.
+
+    Rend `(DataFrame, nom d'instrument)`. Rend `(vide, None)` s'il n'y a pas
+    d'export, ou si son identité n'est pas constante sur toutes les lignes de
+    cours : dans ce cas rien n'est importé, plutôt qu'importé sans garantie.
+    """
+    dossier = SOURCES_DIR / ticker
+    fichiers = sorted(dossier.glob("*.csv")) if dossier.exists() else []
+    if not fichiers:
+        return pd.DataFrame(), None
+    try:
+        from identite_source import identite_de_l_export
+        from importer_export import importer
+    except ImportError:
+        return pd.DataFrame(), None
+
+    chemin = fichiers[-1]
+    lu = identite_de_l_export(chemin)
+    if not lu["identite_portee"]:
+        log.warning(f"  {ticker}: export écarté — {lu['motif']}")
+        return pd.DataFrame(), None
+
+    brut = importer(chemin, ticker)
+    lignes = []
+    for o in brut["observations"]:
+        # ⚠️ Une observation sans clôture n'est pas une bougie à zéro : elle
+        # n'est pas une bougie. On ne comble rien.
+        if o.get("cloture") is None:
+            continue
+        c = o["cloture"]
+        lignes.append({
+            "date": o["date"],
+            "open":  o["ouverture"] if o.get("ouverture") is not None else c,
+            "high":  o["plus_haut"] if o.get("plus_haut") is not None else c,
+            "low":   o["plus_bas"]  if o.get("plus_bas")  is not None else c,
+            "close": c,
+            # ⚠️ « Titres Échangés », jamais « Volume (MAD) ». Les deux
+            # colonnes existent et ne disent pas la même chose.
+            "volume": int(o["titres_echanges"] or 0),
+        })
+    if not lignes:
+        return pd.DataFrame(), None
+    df = pd.DataFrame(lignes)
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    df = df.dropna(subset=["date"]).sort_values("date").reset_index(drop=True)
+    log.info(f"  {ticker}: {len(df)} bougies depuis l'export « {chemin.name} » "
+             f"— identité portée : « {lu['instrument']} »")
+    return df, lu["instrument"]
 
 
 def ecriture_autorisee(ticker: str, identite_recue: str | None = None) -> dict:
@@ -460,11 +528,50 @@ def _run(tickers_filter, identites_recues, refus, rendre_refus, candles_dir=None
     for i, ticker in enumerate(all_tickers, 1):
         log.info(f"[{i}/{len(all_tickers)}] {ticker}")
 
+        # ── CHAQUE CONTRIBUTION PROUVE SON IDENTITÉ, OU N'ENTRE PAS ────────
+        #
+        # ⚠️ DÉFAUT RELEVÉ PAR LA REVUE. Le garde-fou consultait un dictionnaire
+        # d'identités fourni de l'extérieur : il démontrait que la décision
+        # était appliquée, pas que l'identité contrôlée venait de la MÊME
+        # réponse que les cours. Et une identité donnée « pour le titre »
+        # blanchirait toutes les contributions fusionnées sous elle.
+        #
+        # Les deux sources de ce programme sont aujourd'hui INCAPABLES de
+        # prouver ce qu'elles renvoient — l'XLSX est nommé d'après notre propre
+        # ticker, et la bibliothèque est interrogée par nom sans rien rendre
+        # qui identifie l'instrument. Elles sont donc explicitement désactivées.
+        # L'export de l'opérateur, quand il existe, est la SEULE source qui
+        # porte son identité. On ne fusionne alors RIEN d'autre sous elle :
+        # une identité prouvée pour un fichier ne blanchit pas les lignes d'un
+        # autre. Mieux vaut un historique plus court que nommé par hypothèse.
+        export_df, identite_export = load_export(ticker)
+        if identite_export:
+            identites_recues = {**identites_recues, ticker: identite_export}
+
+        etats_sources = {n: source_utilisable(n)
+                         for n in ("xlsx_local", "bvcscrap_extension")}
+        inutilisables = [e for e in etats_sources.values() if not e["utilisable"]]
+        if inutilisables and not identites_recues.get(ticker):
+            motifs = " · ".join(f"{e['source']} : {e['motif']}"
+                                for e in inutilisables)
+            log.warning(f"  {ticker}: SOURCES DÉSACTIVÉES — {motifs}")
+            refus[ticker] = {"autorise": False, "ticker": ticker,
+                             "motif": "aucune source ne peut prouver son "
+                                      "identité pour ce titre",
+                             "sources": etats_sources}
+            continue
+
         # Sources BRUTES → ajustement split immédiat, avant toute fusion avec
         # les candles stockées (qui sont, elles, déjà ajustées).
-        xlsx_df = adjust_splits_df(ticker, load_xlsx(ticker))
+        if identite_export:
+            df = adjust_splits_df(ticker, export_df)
+            xlsx_df = df
+        else:
+            xlsx_df = adjust_splits_df(ticker, load_xlsx(ticker))
 
-        if bvcscrap_ok and ticker in MANUAL_MAP:
+        if identite_export:
+            pass                      # aucune fusion : voir ci-dessus
+        elif bvcscrap_ok and ticker in MANUAL_MAP:
             name = MANUAL_MAP[ticker]
             if not xlsx_df.empty:
                 last_date = xlsx_df["date"].iloc[-1]
@@ -481,7 +588,7 @@ def _run(tickers_filter, identites_recues, refus, rendre_refus, candles_dir=None
         # Si df est vide (pas de XLSX, BVCscrap indisponible), on utilise le candle
         # file comme base — permet de débloquer les tickers sans XLSX.
         existing_path = candles_dir / f"{ticker}.json"
-        if existing_path.exists():
+        if existing_path.exists() and not identite_export:
             try:
                 existing = json.loads(existing_path.read_text(encoding="utf-8"))
                 if existing:
@@ -531,23 +638,46 @@ def _run(tickers_filter, identites_recues, refus, rendre_refus, candles_dir=None
             # valides.
             continue
 
-        # ── Les dates RÉELLEMENT utilisées sont-elles contaminées ? ────────
-        # ⚠️ On ne bannit pas un titre parce qu'une période ancienne l'est.
+        # ── Contamination : INDICATEUR PAR INDICATEUR ─────────────────────
+        #
+        # ⚠️ DÉFAUT RELEVÉ PAR LA REVUE. On passait TOUTES les dates de la série
+        # au contrôle, si bien qu'une observation suspecte de juin refusait une
+        # moyenne sur vingt clôtures de juillet — qui ne la touche jamais. Le
+        # refus était prudent pour ce qui consomme l'ancienne observation, trop
+        # large pour tout le reste.
+        #
+        # Chaque indicateur déclare la profondeur qu'il lit, amorçage compris.
+        # Ceux qui atteignent une date contaminée sont retirés ; les autres
+        # restent. ⚠️ On ne supprime JAMAIS les anciennes lignes pour
+        # « nettoyer » : cela changerait les valeurs sans le dire.
         dates_utilisees = [str(d)[:10] for d in df["date"].tolist()]
-        u = usage_permis(ticker, dates_utilisees)
-        if not u["permis"]:
-            log.warning(f"  {ticker}: INDICATEURS REFUSÉS — {u['motif']}")
-            refus[ticker] = {"autorise": False, "ticker": ticker,
-                             "motif": u["motif"], "contamination": u}
-            continue
+        tri = indicateurs_permis(ticker, dates_utilisees)
 
         try:
             ind = compute_indicators(df)
+            if tri["refuses"]:
+                log.warning(
+                    f"  {ticker}: {len(tri['refuses'])} indicateur(s) retiré(s) "
+                    f"— fenêtre contaminée : {', '.join(sorted(tri['refuses']))}")
+                for nom in tri["refuses"]:
+                    ind.pop(nom, None)
+                ind["_indicateurs_retires"] = tri["refuses"]
+                ind["_pourquoi"] = (
+                    "ces indicateurs lisent une fenêtre où le titre pourrait "
+                    "porter les cours d'une autre société. Les valeurs y sont "
+                    "bien formées : c'est leur APPARTENANCE qui est en cause.")
+                refus.setdefault(ticker, {
+                    "autorise": True, "ticker": ticker, "partiel": True,
+                    "motif": "indicateurs partiellement retirés",
+                    "indicateurs_retires": sorted(tri["refuses"])})
             results[ticker] = ind
+            # ⚠️ Le journal ne peut pas citer un indicateur retiré : il lit
+            # donc ce qui reste, et dit combien manquent.
             log.info(
-                f"  {len(df)} bougies → RSI={ind['rsi']} "
-                f"MA20={ind['ma20']} MA50={ind['ma50']} "
-                f"H52w={ind['h52w']} L52w={ind['l52w']}"
+                f"  {len(df)} bougies → RSI={ind.get('rsi', '—')} "
+                f"MA20={ind.get('ma20', '—')} MA50={ind.get('ma50', '—')} "
+                f"H52w={ind.get('h52w', '—')} L52w={ind.get('l52w', '—')}"
+                + (f" · {len(tri['refuses'])} retiré(s)" if tri["refuses"] else "")
             )
             save_candle_file(ticker, df, candles_dir)
         except Exception as e:
@@ -628,15 +758,65 @@ def _purger_fantome(results: dict) -> None:
         log.warning(f"Indicateurs recalculés sans le {date_fantome} : {recales} tickers")
 
 
-def save(results: dict, out_path: Path) -> None:
+def save(results: dict, out_path: Path, refus: dict | None = None) -> None:
+    """Écrit le cache commun SANS effacer ce qui n'a pas été réimporté.
+
+    ⚠️ DÉFAUT RELEVÉ PAR LA REVUE. Cette fonction remplaçait le fichier entier
+    par les seuls résultats du run. Un titre refusé à l'import DISPARAISSAIT
+    donc du cache — le fichier individuel de chandelles était bien préservé,
+    mais l'entrée commune s'évaporait. Contre-épreuve de la revue : cache
+    contenant MSA et CDM, import de MSA accepté, import de CDM refusé,
+    sauvegarde → CDM disparu.
+
+    ⚠️ DEUX DÉCISIONS DISTINCTES, ET IL NE FAUT PAS LES CONFONDRE :
+      · CONSERVER une donnée ancienne — un refus d'import ne doit rien effacer ;
+      · AUTORISER SA RÉUTILISATION — une donnée reconnue contaminée reste
+        lisible, mais porte la marque qui l'écarte des calculs concernés.
+    Effacer reviendrait à perdre la trace ; réutiliser en silence reviendrait à
+    propager le défaut. On garde, et on marque.
+    """
+    refus = refus or {}
+    ancien: dict = {}
+    if out_path.exists():
+        try:
+            ancien = json.loads(out_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError) as e:
+            log.warning(f"cache illisible ({e}) — il ne sera pas fusionné, "
+                        f"et RIEN n'est écrasé tant qu'on ne sait pas lire")
+            raise
+
+    conserves = {k: v for k, v in ancien.items()
+                 if not k.startswith("_") and k not in results}
+
+    # ⚠️ Marquer, jamais supprimer. L'entrée reste, sa réutilisation non.
+    for t in list(conserves):
+        if t in refus:
+            conserves[t] = dict(conserves[t]) if isinstance(conserves[t], dict) \
+                else {"_valeur": conserves[t]}
+            conserves[t]["_reimport_refuse"] = {
+                "le": datetime.now(timezone.utc).isoformat(),
+                "motif": refus[t].get("motif"),
+                "_lecture": "donnée ANCIENNE conservée. Le réimport a été "
+                            "refusé ; cette entrée n'a pas été rafraîchie et "
+                            "ne doit pas être lue comme récente.",
+            }
+
     output = {
         "_updated": datetime.now(timezone.utc).isoformat(),
         "_source":  "xlsx 3ans + BVCscrap extension",
-        "_tickers": len(results),
+        "_tickers": len(results) + len(conserves),
+        "_importes_ce_run": sorted(results),
+        "_conserves_sans_reimport": sorted(conserves),
+        "_refuses_ce_run": sorted(refus),
+        "_politique": "un refus d'import ne supprime AUCUNE donnée ancienne. "
+                      "Conserver un fichier et autoriser sa réutilisation sont "
+                      "deux décisions distinctes.",
+        **conserves,
         **results,
     }
     out_path.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
-    log.info(f"Sauvegardé : {out_path} ({len(results)} tickers)")
+    log.info(f"Sauvegardé : {out_path} — {len(results)} importé(s), "
+             f"{len(conserves)} conservé(s) sans réimport")
 
 
 def main() -> None:
@@ -649,7 +829,27 @@ def main() -> None:
 
     tickers_filter = [t.strip().upper() for t in args.tickers.split(",") if t.strip()] or None
 
-    results = run(tickers_filter=tickers_filter)
+    # ⚠️ L'IDENTITÉ VIENT DES DONNÉES IMPORTÉES, PAS DE NOTRE TABLE.
+    # `MANUAL_MAP` nomme les sociétés depuis NOTRE dépôt : s'en servir pour
+    # vérifier l'identité reviendrait à confronter la table à elle-même —
+    # c'est exactement ce qui a laissé passer « MSA = Mutandis » en juin.
+    # Seuls les exports de l'opérateur portent une colonne d'identité SUR LA
+    # LIGNE DU COURS. Les titres qui n'en ont pas restent sans identité, et
+    # le collecteur refusera de les écrire. Un refus large est assumé : nous
+    # ne savons pas nommer ce que nous importons.
+    try:
+        from identite_source import pour_le_collecteur
+        identites = pour_le_collecteur()
+    except ImportError:
+        identites = {}
+    if identites:
+        log.info(f"Identité portée par la source pour {len(identites)} titre(s) : "
+                 f"{', '.join(sorted(identites))}")
+    else:
+        log.warning("Aucune source ne porte d'identité — le run refusera "
+                    "chaque titre. Voir identites.SOURCES.")
+
+    results = run(tickers_filter=tickers_filter, identites_recues=identites)
 
     if not results:
         log.error("Aucun résultat")

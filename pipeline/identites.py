@@ -351,6 +351,70 @@ def autoriser_ecriture(ticker: str, identite_recue: str | None = None) -> dict:
             "etat": e}
 
 
+# ── QUELLES SOURCES PEUVENT PROUVER CE QU'ELLES RENVOIENT ? ────────────────
+#
+# ⚠️ Une identité doit voyager AVEC les cours, depuis la même réponse. Une
+# identité fournie « pour le titre » ne certifie pas chaque contribution :
+# si l'XLSX et l'extension du fournisseur sont fusionnés, chacun doit prouver
+# la sienne, sinon la fusion blanchit la contribution non prouvée.
+#
+# ⚠️ Une source incapable de cette preuve reste EXPLICITEMENT DÉSACTIVÉE. Ce
+# n'est pas un échec silencieux : c'est une décision, nommée, avec son motif.
+SOURCES = {
+    "xlsx_local": {
+        "identite_verifiable": False,
+        "motif": "le fichier est nommé d'après NOTRE ticker et ne porte aucune "
+                 "colonne d'identité. Le nom du fichier est notre convention, "
+                 "pas une affirmation du fournisseur.",
+        "active": False,
+        "ce_qui_debloquerait": "un export portant une colonne d'identité — "
+                               "les CSV de la Bourse en ont une (« Instrument »)",
+    },
+    "bvcscrap_extension": {
+        "identite_verifiable": False,
+        "motif": "la bibliothèque est interrogée PAR NOM et rend un tableau de "
+                 "cours sans rien qui identifie l'instrument. C'est exactement "
+                 "par là que MSA a reçu les cours de Mutandis.",
+        "active": False,
+        "ce_qui_debloquerait": "une réponse portant le nom ou le code de "
+                               "l'instrument effectivement servi",
+    },
+    "export_bourse_csv": {
+        "identite_verifiable": True,
+        "motif": "l'export porte une colonne « Instrument » — « DOUJA PROM "
+                 "ADDOHA », « COSUMAR » — et une colonne « Ticker ». "
+                 "L'identité voyage avec les cours, dans la même ligne.",
+        "active": True,
+        "ce_qui_debloquerait": None,
+        # Branchée dans le parcours d'import : `identite_source.py` lit
+        # l'identité, `collect_history_bvcscrap.load_export()` importe les
+        # cours du MÊME fichier, et rien d'autre n'est fusionné dessous.
+        "branchee": "pipeline/identite_source.py → collect_history_bvcscrap.load_export",
+        # ⚠️ COUVERTURE MESURÉE, PAS ESPÉRÉE. Deux titres sur quatre-vingt-un.
+        # Les 79 autres n'ont aucune source portant leur identité : le
+        # collecteur refuse de les écrire, et c'est la conséquence assumée.
+        "couverture": {"titres": ["ADH", "CSR"], "sur": 81,
+                       "au": "2026-09-11",
+                       "_lecture": "un refus large vaut mieux qu'un import "
+                                   "nommé par hypothèse"},
+    },
+}
+
+
+def source_utilisable(nom: str) -> dict:
+    """Cette source a-t-elle le droit d'alimenter un import ?"""
+    s = SOURCES.get(nom)
+    if s is None:
+        return {"utilisable": False, "source": nom,
+                "motif": f"source « {nom} » non déclarée — une source non "
+                         f"déclarée ne peut pas prouver son identité"}
+    if not s["active"]:
+        return {"utilisable": False, "source": nom,
+                "motif": f"source DÉSACTIVÉE explicitement — {s['motif']}",
+                "ce_qui_debloquerait": s["ce_qui_debloquerait"]}
+    return {"utilisable": True, "source": nom, "motif": s["motif"]}
+
+
 def inventaire() -> dict:
     tickers = sorted(set(manual_map()) | set(getattr(cfg, "COMPANY_NAMES", {})))
     etats = [etat(t) for t in tickers]

@@ -233,6 +233,85 @@ def usage_permis(ticker: str, dates) -> dict:
     }
 
 
+# ── CE QUE CHAQUE INDICATEUR CONSOMME RÉELLEMENT ──────────────────────────
+#
+# ⚠️ DÉFAUT RELEVÉ PAR LA REVUE. Le collecteur passait TOUTES les dates de la
+# série à `usage_permis()`. Une observation suspecte de juin refusait donc une
+# moyenne sur vingt clôtures de juillet, qui ne la touche jamais. Le refus
+# était prudent pour un indicateur qui consomme l'ancienne observation ; il
+# était trop large pour tous les autres.
+#
+# ⚠️ AMORÇAGE COMPRIS. Un indicateur RÉCURSIF — RSI de Wilder, EMA, MACD — ne
+# consomme pas seulement sa fenêtre nominale : sa valeur d'aujourd'hui porte la
+# trace de tout ce qui a été lissé depuis son amorçage. On ne peut donc pas se
+# contenter des n dernières lignes, et on ne doit surtout pas supprimer les
+# anciennes en silence pour « nettoyer » la série : cela changerait la valeur
+# sans le dire.
+#
+# CONVENTION DÉCLARÉE, faute de mieux : pour un indicateur récursif, la fenêtre
+# consommée est réputée s'étendre sur `PROFONDEUR_RECURSIVE × période`. Au-delà,
+# le poids d'une observation dans le lissage est inférieur au millième.
+PROFONDEUR_RECURSIVE = 5
+
+FENETRES_INDICATEURS = {
+    # nom            période   récursif
+    "rsi":          (14,       True),
+    "ma20":         (20,       False),
+    "ma50":         (50,       False),
+    "ma200":        (200,      False),
+    "macd":         (26,       True),
+    "macd_signal":  (35,       True),
+    "macd_hist":    (35,       True),
+    "bb_upper":     (20,       False),
+    "bb_mid":       (20,       False),
+    "bb_lower":     (20,       False),
+    "stoch_k":      (14,       False),
+    "stoch_d":      (17,       False),
+    "h90":          (90,       False),
+    "l90":          (90,       False),
+    "h52w":         (252,      False),
+    "l52w":         (252,      False),
+    "last_close":   (1,        False),
+    "last_date":    (1,        False),
+}
+
+
+def dates_consommees(indicateur: str, dates: list) -> list:
+    """Les dates que CET indicateur lit pour rendre sa dernière valeur."""
+    spec = FENETRES_INDICATEURS.get(indicateur)
+    if spec is None:
+        return list(dates)          # inconnu ⇒ on suppose qu'il lit tout
+    periode, recursif = spec
+    profondeur = periode * PROFONDEUR_RECURSIVE if recursif else periode
+    return list(dates)[-profondeur:]
+
+
+def indicateurs_permis(ticker: str, dates: list) -> dict:
+    """Trie les indicateurs entre ceux qui touchent une contamination et les autres.
+
+    Rend {"permis": [...], "refuses": {nom: motif}}. ⚠️ Un indicateur refusé
+    n'entraîne PAS le refus des autres : c'est tout l'objet du tri.
+    """
+    permis, refuses = [], {}
+    for nom in FENETRES_INDICATEURS:
+        consommees = dates_consommees(nom, dates)
+        u = usage_permis(ticker, consommees)
+        if u["permis"]:
+            permis.append(nom)
+        else:
+            refuses[nom] = {
+                "motif": u["motif"],
+                "dates_contaminees_consommees": u["dates_contaminees"][:5],
+                "profondeur_lue": len(consommees),
+            }
+    return {"ticker": ticker, "permis": sorted(permis), "refuses": refuses,
+            "_convention": (
+                f"indicateur récursif : fenêtre réputée = période × "
+                f"{PROFONDEUR_RECURSIVE}. Les anciennes lignes ne sont JAMAIS "
+                f"supprimées pour « nettoyer » — cela changerait la valeur sans "
+                f"le dire.")}
+
+
 def rendre(inv: dict) -> str:
     L = ["# Contaminations entre entreprises — inventaire",
          "",

@@ -130,34 +130,67 @@ def test_isin_suffit(parcours):
 
 # ═══ CONTAMINATION — SUR LES DATES RÉELLEMENT UTILISÉES ════════════════════
 
-def test_une_fenetre_contaminee_ne_produit_aucun_indicateur(parcours, monkeypatch):
+def test_une_fenetre_entierement_contaminee_ne_rend_aucun_indicateur(parcours, monkeypatch):
     """⚠️ Le collecteur calculait un RSI de 35,0 et une MA20 de 232,0 sur les
-    18 observations contaminées de MSA. Le contrôle n'était branché que sur les
-    nouveaux chemins de qualification."""
+    18 observations contaminées de MSA."""
     monkeypatch.setattr(col, "load_xlsx", lambda t: pd.DataFrame({
         "date": pd.date_range("2026-05-13", periods=25, freq="B"),
         "open": [230.0] * 25, "high": [232.0] * 25, "low": [228.0] * 25,
         "close": [231.0] * 25, "volume": [100] * 25,
     }))
     res, refus = lancer(parcours, {"MSA": "Sodep-Marsa Maroc"})
-    assert "MSA" not in res, "un indicateur a été calculé sur une fenêtre contaminée"
-    assert "contamination" in refus["MSA"]
-    assert "APPARTENANCE" in refus["MSA"]["motif"]
-    assert list(parcours.glob("*.json")) == [] if parcours.exists() else True
+    ind = res.get("MSA", {})
+    for nom in ("rsi", "ma20", "ma50", "h52w"):
+        assert nom not in ind, f"{nom} calculé sur une fenêtre contaminée"
+    assert "APPARTENANCE" in ind.get("_pourquoi", "")
 
 
 def test_une_periode_ancienne_contaminee_ne_bannit_pas_le_titre(parcours, monkeypatch):
     """⚠️ Exigence de la revue : ne pas interdire toute analyse d'un titre
-    parce qu'une période ANCIENNE est contaminée. Un indicateur qui ne regarde
-    que des séances postérieures ne touche pas la fenêtre de mai."""
+    parce qu'une période ANCIENNE est contaminée."""
     monkeypatch.setattr(col, "load_xlsx", lambda t: pd.DataFrame({
         "date": pd.date_range("2026-07-01", periods=30, freq="B"),
         "open": [850.0] * 30, "high": [860.0] * 30, "low": [840.0] * 30,
         "close": [855.0] * 30, "volume": [100] * 30,
     }))
     res, refus = lancer(parcours, {"MSA": "Sodep-Marsa Maroc"})
-    assert "MSA" in res, "le titre est banni alors que la fenêtre est propre"
+    assert "MSA" in res and res["MSA"].get("ma20") is not None
     assert (parcours / "MSA.json").exists()
+
+
+def test_le_cas_exact_de_la_revue_une_moyenne_recente_survit(parcours, monkeypatch):
+    """⚠️ LE CONTRE-EXEMPLE DE LA REVUE, REJOUÉ.
+
+    Une observation suspecte le 10 juin, puis quarante observations propres à
+    partir de juillet. Le collecteur refusait TOUT le résultat parce qu'il
+    passait toutes les dates au contrôle. Une moyenne sur vingt clôtures de
+    juillet ne touche pourtant jamais le 10 juin.
+    """
+    monkeypatch.setattr(col, "load_xlsx", lambda t: pd.concat([
+        pd.DataFrame({"date": [pd.Timestamp("2026-06-10")], "open": [231.0],
+                      "high": [232.0], "low": [230.0], "close": [231.0],
+                      "volume": [100]}),
+        pd.DataFrame({
+            "date": pd.date_range("2026-07-01", periods=40, freq="B"),
+            "open": [850.0] * 40, "high": [860.0] * 40, "low": [840.0] * 40,
+            "close": [855.0] * 40, "volume": [100] * 40}),
+    ], ignore_index=True))
+    res, _ = lancer(parcours, {"MSA": "Sodep-Marsa Maroc"})
+    ind = res.get("MSA", {})
+    assert ind.get("ma20") == 855.0, "la moyenne récente a été refusée à tort"
+    # ⚠️ Et ce qui remonte jusqu'au 10 juin reste bien retiré.
+    assert "h52w" not in ind and "ma200" not in ind
+    assert "rsi" not in ind, "le RSI est récursif : son amorçage touche juin"
+
+
+def test_les_anciennes_lignes_ne_sont_jamais_supprimees(parcours, monkeypatch):
+    """⚠️ On ne « nettoie » pas une série en retirant les lignes gênantes :
+    cela changerait les valeurs sans le dire. On retire l'INDICATEUR, pas la
+    donnée."""
+    from contamination import indicateurs_permis
+    tri = indicateurs_permis("MSA", ["2026-06-10"] + ["2026-07-01"] * 40)
+    assert "supprim" in tri["_convention"].lower()
+    assert "JAMAIS" in tri["_convention"]
 
 
 # ═══ LA PROPOSITION DE FUSION DIT CE QUE LE SITE LIT VRAIMENT ══════════════
@@ -190,3 +223,63 @@ def test_la_proposition_n_annonce_plus_un_recul_certain():
     assert "Aucun recul" in doc
     assert "ne démontre pas son" in doc or "ne démontre pas" in doc
     assert "CONFLIT" in doc, "le conflit réel doit être annoncé"
+
+
+# ═══ LE REFUS N'EFFACE RIEN — JUSQU'AU FICHIER ÉCRIT ═══════════════════════
+
+def test_un_refus_ne_supprime_pas_la_donnee_ancienne(parcours, tmp_path, monkeypatch):
+    """⚠️ LA CONTRE-ÉPREUVE DE LA REVUE, JOUÉE DE BOUT EN BOUT.
+
+    Elle ne s'arrêtait pas au garde-fou : elle allait jusqu'au fichier. Le
+    cache commun était REMPLACÉ par les seuls résultats du run, donc un titre
+    refusé à l'import disparaissait du cache — silencieusement, alors même que
+    son fichier de chandelles était préservé.
+
+    Ici : le cache contient MSA et CDM. MSA est importé (identité prouvée),
+    CDM est refusé (la source renvoie une autre société). Après sauvegarde,
+    CDM doit être TOUJOURS LÀ, avec ses anciennes valeurs, et MARQUÉ.
+    """
+    cache = tmp_path / "historical_data.json"
+    cache.write_text(json.dumps({
+        "_updated": "2026-06-01T00:00:00+00:00",
+        "_tickers": 2,
+        "MSA": {"last_close": 800.0, "rsi": 50.0},
+        "CDM": {"last_close": 742.0, "rsi": 61.0},
+    }), encoding="utf-8")
+
+    res, refus = lancer(parcours,
+                        {"MSA": "MSA", "CDM": "Crédit Eqdom"},
+                        titres=["MSA", "CDM"])
+    assert "MSA" in res and "CDM" not in res
+    assert "CDM" in refus
+
+    col.save(res, cache, refus=refus)
+    apres = json.loads(cache.read_text(encoding="utf-8"))
+
+    # ⚠️ Conservé — et avec SES valeurs, pas celles d'un autre titre.
+    assert "CDM" in apres, "un refus d'import a effacé la donnée ancienne"
+    assert apres["CDM"]["last_close"] == 742.0
+    assert apres["CDM"]["rsi"] == 61.0
+
+    # ⚠️ Et marqué : conserver n'est pas autoriser à relire comme récent.
+    marque = apres["CDM"]["_reimport_refuse"]
+    assert marque["motif"], "la donnée est conservée sans dire pourquoi"
+    assert "ANCIENNE" in marque["_lecture"]
+    assert "CDM" in apres["_conserves_sans_reimport"]
+    assert "CDM" in apres["_refuses_ce_run"]
+    assert apres["_tickers"] == 2, "le compte du cache a bougé sous un refus"
+
+    # ⚠️ Et le titre importé, lui, est bien rafraîchi.
+    assert apres["MSA"]["last_close"] != 800.0
+
+
+def test_un_cache_illisible_n_est_jamais_ecrase(parcours, tmp_path):
+    """⚠️ Ne pas lire un fichier n'autorise pas à le remplacer. Sans cette
+    règle, une écriture interrompue effacerait 81 historiques."""
+    cache = tmp_path / "historical_data.json"
+    cache.write_text('{"MSA": {"last_close": 800.0}, TRONQU', encoding="utf-8")
+    avant = cache.read_text(encoding="utf-8")
+    res, refus = lancer(parcours, {"MSA": "MSA"})
+    with pytest.raises(json.JSONDecodeError):
+        col.save(res, cache, refus=refus)
+    assert cache.read_text(encoding="utf-8") == avant
