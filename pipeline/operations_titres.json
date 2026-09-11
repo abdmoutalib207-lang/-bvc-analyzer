@@ -1,0 +1,64 @@
+{
+  "_quoi": "Registre des opérations sur titres, ADOSSÉ À DES PIÈCES.",
+  "_ce_qu_une_piece_etablit": "⚠️ Une pièce établit l'ÉVÉNEMENT — sa nature, son ratio, sa date d'effet. Elle n'établit PAS la manière dont notre fichier l'a traité. Les deux questions sont distinctes : la première se règle avec un document, la seconde en examinant la série. Ne JAMAIS réappliquer un ajustement sur la seule existence d'une opération.",
+  "_ce_qu_une_absence_n_etablit_pas": "⚠️ « Aucune opération retrouvée dans les sources examinées » n'est PAS « historique certifié ». C'est le compte rendu d'une recherche, bornée dans le temps et dans ses sources. Le champ `fenetres_examinees` dit ce qui a été regardé ; ce qui n'y figure pas n'a pas été regardé.",
+  "_entretien": "⚠️ Ce registre n'est pas un travail ponctuel. Les opérations nouvelles et les corrections des fournisseurs devront y entrer au fil de l'eau. Un registre figé vieillit en silence.",
+  "version": "2026-09-11",
+  "operations": {
+    "HPS": [
+      {
+        "nature": "division de la valeur nominale",
+        "ratio": 10,
+        "sens": "10 actions nouvelles pour 1 ancienne",
+        "valeur_nominale": {
+          "avant": 100,
+          "apres": 10,
+          "devise": "MAD"
+        },
+        "nombre_actions": {
+          "avant": 740619,
+          "apres": 7406190
+        },
+        "date_decision": "2023-09-20",
+        "date_decision_organe": "Assemblée Générale Extraordinaire",
+        "date_effet": "2023-10-09",
+        "piece": {
+          "titre": "DIVISION EFFECTIVE DE LA VALEUR NOMINALE DES ACTIONS HPS",
+          "deposant": "HPS",
+          "autorite": "AMMC",
+          "url": "https://www.ammc.ma/sites/default/files/CP_HPS_Division_VN_actions.pdf",
+          "copie_conservee": "pieces/ammc/CP_HPS_Division_VN_actions.pdf",
+          "empreinte_sha256": "65dbe2c2ac4c83e6878741429bd4f840c497136aa6ec0d0d4f8c5024f75af50a",
+          "recupere_le": "2026-09-11",
+          "lu_par_nous": true,
+          "_note": "⚠️ Téléchargée et lue directement, pas seulement relayée. Le contrôle arithmétique du document tient : 740 619 × 10 = 7 406 190."
+        },
+        "traitement_dans_notre_serie": {
+          "niveau": "non ajusté — hypothèse, à confirmer",
+          "fait_observe": "clôtures 6 400,00 le 06/10/2023 puis 658,00 le 09/10/2023, rapport 0,1028 ; médiane des 83 séances antérieures 5 900,00 contre 579,00 sur les 706 postérieures",
+          "hypothese": "le fournisseur n'a PAS retraité l'historique : les cours antérieurs au 09/10/2023 sont des cotations pré-division, sur l'ancienne valeur nominale",
+          "ce_qui_manque": "le journal des écritures du fournisseur. La discontinuité montre qu'aucun ajustement n'a été appliqué À CETTE DATE ; elle ne prouve pas qu'aucune autre transformation n'a touché la série ailleurs.",
+          "consequence": "toute fenêtre enjambant le 09/10/2023 mêle deux bases de prix. AUCUNE correction appliquée.",
+          "oppose_a": "MNG, dont la série est continue à travers son split : là l'ajustement a eu lieu, ici non. Deux titres, deux traitements — d'où l'interdiction de généraliser."
+        }
+      }
+    ]
+  },
+  "fenetres_examinees": {
+    "HPS": {
+      "periode": [
+        "2023-06-05",
+        "2026-09-08"
+      ],
+      "sources_consultees": [
+        "AMMC — communiqué de la société",
+        "notre propre série de chandelles"
+      ],
+      "operations_identifiees": 1,
+      "incertitudes_restantes": [
+        "aucune recherche systématique n'a été menée sur les autres opérations possibles de la période (augmentations de capital, attributions gratuites, regroupements)"
+      ],
+      "conclusion": "UNE opération établie. La période n'est PAS certifiée exempte d'autres opérations."
+    }
+  }
+}

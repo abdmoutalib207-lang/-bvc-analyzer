@@ -8,8 +8,8 @@ par cinq états, et les deux derniers sont distincts :
 
     Ouvert → En cours → Livré pour revue → Vérifié sur candidat → Vérifié en production
 
-Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **73 entrées**, dont
-**35 vérifiées sur candidat, 32 livrées pour revue,
+Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **85 entrées**, dont
+**35 vérifiées sur candidat, 44 livrées pour revue,
 6 ouvertes, et 0 vérifiée EN PRODUCTION** — parce que rien n'est fusionné.
 
 ⚠️ Cette synthèse est recalculée à chaque mise à jour du registre. Une version
@@ -95,6 +95,43 @@ officiel, ni une probabilité, ni une performance présentée comme validée.
 ⚠️ **Aucune valeur de prix n'a été modifiée.** L'instantané `datasets/lot1a/`
 reste intact et ses empreintes sont vérifiées par test.
 
+### Lot 1C — sources, opérations sur titres, ruptures
+
+**Périmètre volontairement étroit** : ADH et CSR d'abord, une pièce à la fois.
+
+| Livrable | Où |
+|---|---|
+| Registre des opérations, adossé à des pièces | `pipeline/operations_titres.json` |
+| Conservation des fichiers source + provenance | `pipeline/import_source.py`, `sources/` |
+| Ruptures reproductibles | `pipeline/ruptures.py` → `docs/RUPTURES_OBSERVEES.md` |
+| Unité des volumes, mesurée | `pipeline/unites_volume.py` → `docs/UNITE_DES_VOLUMES.md` |
+
+**HPS — première opération établie par une pièce.** Communiqué déposé à l'AMMC,
+téléchargé et **lu directement** : AGE du 20/09/2023, valeur nominale 100 → 10
+DH, effet le **09/10/2023**, dix actions nouvelles pour une ancienne, capital
+passant de 740 619 à 7 406 190 actions. Le document se recoupe par
+l'arithmétique — 740 619 × 10 = 7 406 190.
+
+⚠️ **La pièce établit l'événement, pas le traitement de notre série.** Notre
+série montre 6 400,00 le 06/10 puis 658,00 le 09/10 : rapport 0,1028. Le
+fournisseur n'a donc **pas** retraité l'historique — l'inverse de MNG. Aucun
+ajustement n'est appliqué.
+
+**Les 13 ruptures, triées.** La règle est publiée, le calcul se relance d'une
+commande. Trois discriminants mécaniques réduisent le champ :
+
+| Forme | Nombre | Lecture |
+|---|--:|---|
+| aller-retour | 8 | une opération sur titres **ne revient jamais** — valeur injectée |
+| sans transaction de part et d'autre | 3 | le prix a changé dans le fichier, pas sur le marché |
+| **candidates réelles** | **4** | CIM, DAR, HPS, SOT — dont une seule documentée |
+
+**L'unité des volumes n'est pas établie, et c'est mesuré.** Si `v` comptait des
+titres, deux séries impliqueraient plus de 5 milliards de dirhams échangés par
+séance — davantage que le marché entier. Les montants s'étalent sur un facteur
+25 millions. Une unité unique est incompatible avec les données ; ce que `v`
+est réellement reste inconnu.
+
 ## Lot 2 — Normaliser les indicateurs techniques
 
 **État : socle mathématique livré, branchement exploratoire démontré.**
@@ -125,6 +162,24 @@ toujours son verdict et sa réserve.
 
 Le refus de SOT nomme ses motifs : la fenêtre traverse l'alerte du 05/05/2026
 et 473 observations sans usage admissible.
+
+**Premier graphique** — `pipeline/graphique.py`, SVG écrit à la main, aucune
+dépendance externe, ouvrable hors ligne. Trois exigences tenues :
+
+1. l'axe du temps est un **calendrier**, pas un compteur de lignes — un trou
+   occupe la place qu'il mérite ;
+2. une interruption **n'est pas reliée** — relier deux points séparés d'un mois
+   dessine une tendance qui n'a jamais existé ;
+3. le statut de qualité est **en haut, en grand** — un exploratoire qu'on ne
+   distingue pas d'un publiable finira lu comme publiable.
+
+⚠️ L'axe des prix était **inversé** dans la première version : 176 en haut,
+200 en bas. Aucun test de calcul ne pouvait l'attraper — les nombres étaient
+justes, seule leur mise en place était fausse. Le défaut n'est apparu qu'en
+regardant l'image. `tests/test_graphique.py` teste désormais la **géométrie**.
+
+⚠️ Le RSI a son **propre panneau** : sur l'échelle d'un titre à 200 DH, une
+courbe de 0 à 100 s'écraserait en bas du cadre et se lirait comme un prix.
 
 ⚠️ Reste à faire : ADX et DI±, force relative au MASI, niveaux de prix. Et
 surtout — la contribution de ces indicateurs au scoring n'est **pas** évaluée.
