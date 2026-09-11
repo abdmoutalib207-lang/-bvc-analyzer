@@ -129,4 +129,10 @@ def test_le_calendrier_ne_declare_jamais_ouvert_par_defaut():
     assert "N'EST PAS" in c["_statuts"]["non_confirme"]
     for jour, e in c["jours"].items():
         assert e["statut"] in ("ferme", "ouvert", "non_confirme")
-        assert e.get("source"), f"{jour} : statut sans source nommée"
+        # ⚠️ Seul un statut TRANCHÉ exige une source. « non confirmé » est
+        # une absence de preuve : lui réclamer une source reviendrait à
+        # pousser à en inventer une.
+        if e["statut"] in ("ferme", "ouvert"):
+            assert e.get("source"), f"{jour} : statut tranché sans source"
+        else:
+            assert e.get("source") is None, f"{jour} : non confirmé mais sourcé"

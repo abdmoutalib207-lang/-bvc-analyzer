@@ -4,13 +4,38 @@
   "_statuts": {
     "ferme": "marché fermé — établi par une source nommée",
     "ouvert": "séance tenue — établie par une source nommée",
-    "non_confirme": "aucune source ne permet de trancher. ⚠️ N'EST PAS « ouvert » : c'est une absence de preuve, et elle doit le rester."
+    "non_confirme": "aucune source ne permet de trancher. ⚠️ N'EST PAS « ouvert » et n'est pas « fermé » : c'est une absence de preuve, et elle doit le rester. Des INDICES peuvent être consignés à côté ; ils ne changent pas le statut."
   },
   "_reserve": "⚠️ INCOMPLET PAR CONSTRUCTION. Les fériés marocains suivent en partie le calendrier lunaire. Toute date absente de ce fichier est « non confirmée », jamais « ouverte » par défaut.",
-  "version": "2026-09-11",
+  "version": "2026-09-11b",
   "jours": {
-    "2026-08-14": {"statut": "ferme", "motif": "férié", "source": "constaté le 14/08/2026 : 71 clôtures sur 71 identiques à la veille, recoupé au bulletin CDG"},
-    "2026-09-08": {"statut": "ouvert", "motif": "séance", "source": "bulletin CDG « Indices du mercredi 9 septembre 2026 », 61 titres recoupés à 0,1 % près"}
+    "2026-08-14": {
+      "statut": "non_confirme",
+      "motif": null,
+      "source": null,
+      "_pourquoi_declasse": "Cette entrée était marquée « fermé » sur la foi de « 71 clôtures sur 71 identiques à la veille ». C'est exactement le raisonnement que la revue externe a écarté, réintroduit sous forme de source. La conclusion est peut-être exacte — elle n'est pas établie.",
+      "indices": [
+        {
+          "nature": "observation de prix",
+          "contenu": "71 clôtures sur 71 identiques à la veille le 14/08/2026",
+          "vaut_preuve": false,
+          "reserve": "compatible avec une fermeture, une rediffusion par la source, ou une panne de collecte. N'établit aucune des trois."
+        },
+        {
+          "nature": "registre interne",
+          "contenu": "le couple (8, 14) figure dans JOURS_FERIES_FIXES de bvc_config.py — fête de Oued Eddahab",
+          "vaut_preuve": false,
+          "reserve": "registre du projet, sans citation de source. Et un jour férié national n'établit pas par lui-même la fermeture de la Bourse : c'est le calendrier de la BVC qui en décide."
+        }
+      ],
+      "piece_qui_trancherait": "le calendrier officiel des séances publié par la Bourse de Casablanca, ou un bulletin CDG couvrant la période du 13 au 17/08/2026 et montrant qu'aucune séance n'a été tenue le 14."
+    },
+    "2026-09-08": {
+      "statut": "ouvert",
+      "motif": "séance",
+      "source": "bulletin CDG « Indices du mercredi 9 septembre 2026 », 61 titres recoupés à 0,1 % près"
+    }
   },
-  "_a_faire": "Étendre depuis une source officielle de la Bourse de Casablanca. En l'état ce fichier ne couvre que deux dates : il sert de CONTRAT, pas encore de référence."
+  "_a_faire": "Étendre depuis une source officielle de la Bourse de Casablanca. En l'état ce fichier ne contient AUCUNE date « fermée » établie et UNE date « ouverte » : il sert de CONTRAT, pas encore de référence.",
+  "_regle_de_preuve": "⚠️ NE JAMAIS DÉDUIRE L'OUVERTURE OU LA FERMETURE DU MARCHÉ DE L'IMMOBILITÉ DES COURS. Des clôtures identiques peuvent relever d'une fermeture, d'une rediffusion par la source, ou d'une panne de collecte : l'observation est compatible avec les trois et n'en établit aucune. Une entrée « fermé » ou « ouvert » exige une pièce qui porte sur la TENUE DE LA SÉANCE, pas sur le niveau des prix."
 }

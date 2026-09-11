@@ -8,8 +8,8 @@ par cinq états, et les deux derniers sont distincts :
 
     Ouvert → En cours → Livré pour revue → Vérifié sur candidat → Vérifié en production
 
-Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **43 entrées**, dont
-**33 vérifiées sur candidat, 4 livrées pour revue,
+Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **58 entrées**, dont
+**30 vérifiées sur candidat, 22 livrées pour revue,
 6 ouvertes, et 0 vérifiée EN PRODUCTION** — parce que rien n'est fusionné.
 
 ⚠️ Cette synthèse est recalculée à chaque mise à jour du registre. Une version
@@ -43,30 +43,38 @@ d'un workflow avec la fraîcheur du fichier réellement servi.
 pour la définition des champs et `docs/INVENTAIRE_LOT1.md` pour la couverture
 mesurée titre par titre.
 
-### Lot 1B — livré pour revue
+### Lot 1B.1 — livré pour revue
 
-| Livrable | Où | État |
-|---|---|---|
-| Contrat d'admissibilité | `pipeline/qualification.py` | 11 tests |
-| Calendrier versionné | `pipeline/calendrier_bvc.json` | 2 dates établies, le reste `non_confirme` |
-| Diagnostic des bases de prix | `docs/DIAGNOSTIC_SPLITS.md` | MNG et SOT tranchés |
-| Couche normalisée | `datasets/lot1b/` | 7 séries, dérivée de l'instantané |
-| Journal des transformations | `docs/JOURNAL_TRANSFORMATIONS.md` | appliqué **et** non appliqué |
-| Tests de comportement | `tests/test_normalisation.py` | 46 tests |
+Le lot 1B a été **reçu partiellement** : reproductibilité et conservation des
+valeurs validées, **contrat d'admissibilité refusé**. Cette passe corrige les
+règles d'usage.
 
-**Deux résultats à retenir.**
+| Livrable | Où |
+|---|---|
+| Contrat d'admissibilité | `pipeline/qualification.py` |
+| Régimes de variation sourcés | `pipeline/regimes_variation.py` |
+| Calendrier versionné | `pipeline/calendrier_bvc.json` |
+| Couche normalisée | `datasets/lot1b/` — 7 séries |
+| Journal des transformations | `docs/JOURNAL_TRANSFORMATIONS.md` |
+| Tests de comportement | `tests/test_normalisation.py` + `tests/test_qualification.py` — 81 tests |
 
-- **MNG est déjà ajusté** : les clôtures 24/07 → 27/07 donnent un rapport de
-  1,091, continu à travers le split. Le risque sur ce titre est **d'agir**, pas
-  de s'abstenir — réappliquer l'ajustement produirait une double division.
-- **SOT porte une double division par 5** avant le 05/05/2026. **487 des
-  542 observations sortent sans aucun usage admissible.** La correction n'est
-  pas appliquée : multiplier par 5 fabriquerait 486 prix qu'aucune source en
-  notre possession ne confirme.
+**Quatre usages, séparés** : `prix_analyse`, `volume`, `indicateur`,
+`execution`. L'exécution est **refusée par défaut** et exige un ajustement
+**documenté** — un prix ajusté croisé avec une quantité non ajustée produit un
+montant faux. Chaque refus porte son motif.
 
-⚠️ **Aucune valeur de prix n'a été modifiée dans ce lot.** La couche normalisée
-qualifie ; elle ne retouche pas. L'instantané `datasets/lot1a/` reste intact et
-ses empreintes sont vérifiées par test.
+**Les diagnostics portent un niveau de preuve** : ajustement documenté ·
+ajustement probable, à confirmer · base incohérente ou suspecte · état inconnu.
+Le fait observé, l'hypothèse et la pièce manquante sont consignés séparément.
+
+⚠️ **Conséquence lourde et assumée** : « état inconnu » est le défaut, parce
+que l'absence d'entrée au registre `SPLITS` ne prouve rien. **Cinq titres sur
+sept n'autorisent aujourd'hui aucun indicateur**, et **aucune observation du
+lot n'autorise l'exécution**. Le lot 2 ne peut pas se brancher sur ces séries
+avant que les diagnostics soient conduits.
+
+⚠️ **Aucune valeur de prix n'a été modifiée.** L'instantané `datasets/lot1a/`
+reste intact et ses empreintes sont vérifiées par test.
 
 ## Lot 2 — Normaliser les indicateurs techniques
 

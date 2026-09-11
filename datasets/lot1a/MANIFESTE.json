@@ -10,7 +10,7 @@
   "cas_de_controle": {
     "CMT": "suspension — le système doit refuser l'exécution",
     "TQA": "historique de 65 lignes — indicateur non calculable",
-    "SOT": "base de prix incohérente — double division par 5 avant le 05/05/2026 (le volume médian de 4 titres n'était que le symptôme visible)"
+    "SOT": "base de prix suspecte — l'historique antérieur au 05/05/2026 paraît cinq fois trop bas (hypothèse, non démontrée observation par observation)"
   },
   "series": {
     "ADH": {
@@ -36,9 +36,11 @@
       "commit_source_date": "2026-09-08 19:15:36 +0000",
       "source": "pipeline/candles/ADH.json",
       "etat_ajustement": {
-        "etat": "sans_operation_declaree",
-        "preuve": null,
-        "consequence": "aucun diagnostic n'a été conduit sur cette série",
+        "niveau_de_preuve": "état inconnu",
+        "fait_observe": "aucun diagnostic n'a été conduit sur cette série",
+        "hypothese": null,
+        "ce_qui_manque": "un diagnostic. ⚠️ L'absence d'entrée au registre SPLITS n'est pas une preuve d'absence d'opération : le registre recense ce que nous y avons inscrit.",
+        "consequence": "aucun usage supposant une base connue n'est autorisé",
         "corrige": false
       }
     },
@@ -65,9 +67,11 @@
       "commit_source_date": "2026-09-08 19:15:36 +0000",
       "source": "pipeline/candles/ADI.json",
       "etat_ajustement": {
-        "etat": "sans_operation_declaree",
-        "preuve": null,
-        "consequence": "aucun diagnostic n'a été conduit sur cette série",
+        "niveau_de_preuve": "état inconnu",
+        "fait_observe": "aucun diagnostic n'a été conduit sur cette série",
+        "hypothese": null,
+        "ce_qui_manque": "un diagnostic. ⚠️ L'absence d'entrée au registre SPLITS n'est pas une preuve d'absence d'opération : le registre recense ce que nous y avons inscrit.",
+        "consequence": "aucun usage supposant une base connue n'est autorisé",
         "corrige": false
       }
     },
@@ -94,9 +98,11 @@
       "commit_source_date": "2026-09-08 19:15:36 +0000",
       "source": "pipeline/candles/CSR.json",
       "etat_ajustement": {
-        "etat": "sans_operation_declaree",
-        "preuve": null,
-        "consequence": "aucun diagnostic n'a été conduit sur cette série",
+        "niveau_de_preuve": "état inconnu",
+        "fait_observe": "aucun diagnostic n'a été conduit sur cette série",
+        "hypothese": null,
+        "ce_qui_manque": "un diagnostic. ⚠️ L'absence d'entrée au registre SPLITS n'est pas une preuve d'absence d'opération : le registre recense ce que nous y avons inscrit.",
+        "consequence": "aucun usage supposant une base connue n'est autorisé",
         "corrige": false
       }
     },
@@ -128,9 +134,11 @@
       "commit_source_date": "2026-09-08 19:15:36 +0000",
       "source": "pipeline/candles/MNG.json",
       "etat_ajustement": {
-        "etat": "ajuste_une_fois",
-        "preuve": "clôtures 24/07 → 27/07, rapport 1,091 : la série est continue à travers le split, donc déjà divisée par 10",
-        "consequence": "réappliquer adjust_splits produirait une double division",
+        "niveau_de_preuve": "ajustement probable, à confirmer",
+        "fait_observe": "rapport des clôtures du 24/07/2026 au 27/07/2026 = 1,091 ; la série ne présente aucune discontinuité au passage de l'opération déclarée au registre",
+        "hypothese": "la division par 10 a été appliquée une fois à l'historique antérieur",
+        "ce_qui_manque": "le journal des écritures ayant produit la série. La continuité montre qu'une division a eu lieu ; elle ne prouve pas qu'elle n'a été appliquée qu'UNE fois, ni qu'aucune autre transformation n'a touché la série plus tôt.",
+        "consequence": "NE PAS réappliquer adjust_splits : le risque est d'agir, pas de s'abstenir",
         "corrige": false
       }
     },
@@ -171,9 +179,11 @@
       "commit_source_date": "2026-09-09 15:12:37 +0000",
       "source": "pipeline/candles/CMT.json",
       "etat_ajustement": {
-        "etat": "sans_operation_declaree",
-        "preuve": null,
-        "consequence": "aucun diagnostic n'a été conduit sur cette série",
+        "niveau_de_preuve": "état inconnu",
+        "fait_observe": "aucun diagnostic n'a été conduit sur cette série",
+        "hypothese": null,
+        "ce_qui_manque": "un diagnostic. ⚠️ L'absence d'entrée au registre SPLITS n'est pas une preuve d'absence d'opération : le registre recense ce que nous y avons inscrit.",
+        "consequence": "aucun usage supposant une base connue n'est autorisé",
         "corrige": false
       }
     },
@@ -200,15 +210,17 @@
       "commit_source_date": "2026-09-08 19:40:08 +0000",
       "source": "pipeline/candles/TQA.json",
       "etat_ajustement": {
-        "etat": "sans_operation_declaree",
-        "preuve": null,
-        "consequence": "aucun diagnostic n'a été conduit sur cette série",
+        "niveau_de_preuve": "état inconnu",
+        "fait_observe": "aucun diagnostic n'a été conduit sur cette série",
+        "hypothese": null,
+        "ce_qui_manque": "un diagnostic. ⚠️ L'absence d'entrée au registre SPLITS n'est pas une preuve d'absence d'opération : le registre recense ce que nous y avons inscrit.",
+        "consequence": "aucun usage supposant une base connue n'est autorisé",
         "corrige": false
       }
     },
     "SOT": {
       "role": "contrôle",
-      "motif": "base de prix incohérente — double division par 5 avant le 05/05/2026 (le volume médian de 4 titres n'était que le symptôme visible)",
+      "motif": "base de prix suspecte — l'historique antérieur au 05/05/2026 paraît cinq fois trop bas (hypothèse, non démontrée observation par observation)",
       "fichier": "SOT.json",
       "empreinte_sha256": "34a9840120877e9d8626a6fa9a69ffa1c34753be5cc2d5d3b8e315c43f8184d1",
       "lignes": 542,
@@ -234,9 +246,11 @@
       "commit_source_date": "2026-09-08 19:15:36 +0000",
       "source": "pipeline/candles/SOT.json",
       "etat_ajustement": {
-        "etat": "double_ajustement",
-        "preuve": "clôtures 04/05 → 05/05, rapport 5,000 exact ; l'ouverture du 05/05 (1700) est un prix pré-split resté dans la bougie",
-        "consequence": "l'historique antérieur au 05/05/2026 est 5× trop bas — 486 observations déclarées NON ADMISSIBLES dans la couche normalisée",
+        "niveau_de_preuve": "base incohérente ou suspecte",
+        "fait_observe": "rapport des clôtures du 04/05/2026 au 05/05/2026 = 5,000 ; l'ouverture du 05/05 (1700) est d'un ordre de grandeur incompatible avec la clôture du même jour (369) ; le niveau médian de l'historique antérieur (52–74) est cinq fois inférieur à ce qu'impliquerait une division unique par 5",
+        "hypothese": "l'historique antérieur au 05/05/2026 a subi DEUX divisions par 5 au lieu d'une",
+        "ce_qui_manque": "une source primaire de cours pré-split. Sans elle, ni l'hypothèse ni sa portée exacte — toutes les observations, ou seulement certaines — ne sont établies observation par observation.",
+        "consequence": "mise à l'écart CONSERVATOIRE de l'historique antérieur ; AUCUNE correction appliquée",
         "corrige": false
       },
       "volume_mediane_60_reserve": "4,0 titres est la médiane telle que mesurée. Elle porte sur une fenêtre postérieure au 05/05, donc sur des prix de base correcte — mais la liquidité n'est pas la seule anomalie du titre."
@@ -245,5 +259,5 @@
   "_ce_que_ce_n_est_pas": "⚠️ CE NE SONT PAS DES « DONNÉES BRUTES FOURNISSEUR ». Aucune charge utile de source n'est conservée dans ce dépôt — ni réponse HTTP, ni PDF, ni export. Ces fichiers ont été ÉCRITS PAR LE MOTEUR, à des dates et par des versions de code qui ne sont pas enregistrées dans la donnée. L'expression « données brutes fournisseur » est réservée aux charges utiles effectivement conservées ; nous n'en gardons aucune à ce jour.",
   "_commit_depot": "9949dc7ad3b260bf574ce3d4cee234a9ae1f2b2f",
   "_couche_derivee": "datasets/lot1b/ — couche normalisée, qui qualifie chaque observation sans modifier aucune valeur.",
-  "_etat_ajustements": "Déclaré série par série ci-dessous. « inconnu » est le défaut et ne se lit pas comme « aucun ajustement » : il signifie que l'état n'a pas été diagnostiqué."
+  "_etat_ajustements": "Déclaré série par série ci-dessous, avec son NIVEAU DE PREUVE. Quatre niveaux : « ajustement documenté », « ajustement probable, à confirmer », « base incohérente ou suspecte », « état inconnu ». ⚠️ « état inconnu » est le défaut et ne se lit pas comme « aucun ajustement » — l'absence d'entrée au registre SPLITS ne prouve pas l'absence d'opération."
 }
