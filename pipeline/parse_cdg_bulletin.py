@@ -151,9 +151,22 @@ def vers_nos_tickers(donnees: dict) -> dict:
     return out
 
 
-def comparer(cotations: dict, date: str) -> list:
-    """Écarts entre le bulletin et nos chandelles, pour la séance `date`."""
-    ecarts = []
+def comparer(cotations: dict, date: str) -> tuple:
+    """Écarts entre le bulletin et nos chandelles, pour la séance `date`.
+
+    Retourne (écarts, nombre de titres RÉELLEMENT comparés).
+
+    ⚠️ LE COMPTE DES COMPARAISONS EST INDISPENSABLE. Sans lui, « 0 écart »
+    pouvait vouloir dire « 0 comparaison » : la fonction passait en silence
+    chaque titre dont la chandelle du jour manquait. Mesuré le 11/09/2026 — le
+    bulletin du 09/09 ressortait à « 0 écart » contre les séances du 08, du 09
+    ET du 10, ce qui ne discrimine rien.
+
+    Un contrôle qui réussit en ne mesurant rien est pire qu'un contrôle absent :
+    il produit une preuve apparente. C'est la même famille que le test vert sur
+    un fichier qui n'était pas celui livré.
+    """
+    ecarts, compares = [], 0
     for t, v in sorted(vers_nos_tickers(cotations).items()):
         f = CANDLES / f"{t}.json"
         if not v["cours"] or not f.exists():
@@ -162,10 +175,11 @@ def comparer(cotations: dict, date: str) -> list:
         jour = next((k for k in bougies if k.get("d") == date), None)
         if not jour or not jour.get("c"):
             continue
+        compares += 1
         e = (v["cours"] - jour["c"]) / v["cours"] * 100
         if abs(e) > 0.1:
             ecarts.append((t, jour["c"], v["cours"], e))
-    return ecarts
+    return ecarts, compares
 
 
 def main():
@@ -217,8 +231,14 @@ def main():
         print(f"→ {a.json}")
 
     if a.verifier:
-        ecarts = comparer(cot, a.verifier)
-        print(f"\nséance {a.verifier} — {len(ecarts)} écart(s) > 0,1% :")
+        ecarts, compares = comparer(cot, a.verifier)
+        if compares == 0:
+            print(f"\n⚠️ séance {a.verifier} — AUCUNE COMPARAISON POSSIBLE : nos "
+                  f"chandelles ne portent pas cette date. Ce n'est PAS une "
+                  f"concordance, c'est une absence de mesure.")
+            return
+        print(f"\nséance {a.verifier} — {compares} titre(s) comparé(s), "
+              f"{len(ecarts)} écart(s) > 0,1% :")
         for t, nous, eux, e in sorted(ecarts, key=lambda x: -abs(x[3])):
             print(f"   {t:6}{COMPANY_NAMES.get(t, '?')[:26]:26}"
                   f"nous={nous:<10} CDG={eux:<10} {e:+.2f}%")

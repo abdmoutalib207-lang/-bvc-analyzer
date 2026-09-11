@@ -257,6 +257,8 @@ def rediger_manifeste(avant: Path, apres: Path, meta: dict) -> str:
         for l in meta["tests_ignores"]:
             w(f"    {l}")
     w("  Rapport structuré joint : rapport_tests.xml (JUnit)")
+    w(f"  ⚠️ Empreinte du fichier TESTÉ = empreinte du fichier EMPAQUETÉ,")
+    w(f"     vérifiée avant écriture de ce manifeste : {meta['hash_teste'][:32]}…")
     w("  Exécutée dans le dossier du candidat, donc sur le data.json joint —")
     w("  et non sur celui du dépôt. La distinction n'est pas théorique : une")
     w("  livraison précédente annonçait 361 verts mesurés sur un autre fichier.")
@@ -357,8 +359,9 @@ def rediger_manifeste(avant: Path, apres: Path, meta: dict) -> str:
                     and not (n == "cours" and not inexpliques)
                     and not (n == "scores techniques" and set(bouge) <= suspendus)]
     if not non_explique:
-        w("  Tout écart de contexte constaté s'explique par les modifications")
-        w("  apportées. Les différences observées sont COMPATIBLES avec elles.")
+        w("  Tout écart de contexte constaté est COMPATIBLE avec les")
+        w("  modifications apportées. « Compatible », et non « expliqué » : le")
+        w("  script constate une concordance, il n'établit pas de causalité.")
     else:
         w(f"  ⚠️ Écarts de contexte non expliqués : {', '.join(non_explique)}.")
         w("  Les différences ne peuvent pas être attribuées aux seules")
@@ -430,6 +433,28 @@ def main() -> None:
     verdict = eprouver(d_apres, rapport)
     print(f"  {verdict['resume']}")
 
+    # ⚠️ LE FICHIER TESTÉ DOIT ÊTRE CELUI EMPAQUETÉ, demandé par l'auditeur.
+    #
+    # La suite tourne dans le dossier de travail ; le dossier livré en reçoit
+    # une copie. Rien ne prouvait que les deux soient identiques — et c'est
+    # précisément l'écart qui a fait annoncer « 361 verts » sur un fichier qui
+    # n'était pas celui livré. Un contrôle suffit à fermer la question, plutôt
+    # qu'un raisonnement sur l'ordre des opérations.
+    h_teste = empreinte(f_apres)
+    h_livre = empreinte(sortie / "data_candidat.json")
+    if h_teste != h_livre:
+        (sortie / "CANDIDAT_NON_VALIDE.txt").write_text(
+            "CANDIDAT NON VALIDÉ\n===================\n\n"
+            "Le fichier TESTÉ et le fichier EMPAQUETÉ diffèrent.\n"
+            f"  testé     {h_teste}\n"
+            f"  empaqueté {h_livre}\n\n"
+            "Le résultat des tests ne décrit donc pas le fichier livré.\n",
+            encoding="utf-8")
+        print(f"\n❌ CANDIDAT NON VALIDÉ — le JSON testé n'est pas celui livré",
+              file=sys.stderr)
+        raise SystemExit(1)
+    print(f"  empreinte testée = empreinte livrée ({h_teste[:16]}…)")
+
     # ⚠️ ARRÊT BLOQUANT. Le code de retour de pytest fait foi — pas l'analyse
     # de sa sortie, qui peut être illisible sur erreur interne. Un dossier
     # produit malgré des tests rouges serait présenté comme une livraison
@@ -454,6 +479,7 @@ def main() -> None:
         raise SystemExit(1)
 
     meta = {
+        "hash_teste": h_teste,
         "tests_code": verdict["code"],
         "tests_resume": verdict["resume"],
         "tests_echecs": verdict["echecs"],
