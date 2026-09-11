@@ -1,0 +1,181 @@
+{
+  "_quoi": "Dataset BRUT figé du lot 1A. Copie conforme des séries du dépôt au commit indiqué, jamais retraitée.",
+  "_fige_le": "2026-09-11 00:28",
+  "univers_chaine": [
+    "ADH",
+    "ADI",
+    "CSR",
+    "MNG"
+  ],
+  "cas_de_controle": {
+    "CMT": "suspension — le système doit refuser l'exécution",
+    "TQA": "historique de 65 lignes — indicateur non calculable",
+    "SOT": "volume médian de 4 titres — liquidité dégradée"
+  },
+  "series": {
+    "ADH": {
+      "role": "chaîne",
+      "motif": "univers de recette technique",
+      "fichier": "ADH.json",
+      "empreinte_sha256": "adfa99891b3ceaca6446b077f9a9585b165ea16085156b241c17bf405de3f0d2",
+      "lignes": 797,
+      "periode": [
+        "2023-06-05",
+        "2026-09-08"
+      ],
+      "secteur": "Immobilier",
+      "isin": "MA0000011512",
+      "volume_unite": "nombre de titres",
+      "volume_certitude": "présumée — convention du moteur (QteEchangee), non enregistrée dans la chandelle elle-même",
+      "volume_mediane_60": 121846.0,
+      "part_seances_sans_volume": 0.0063,
+      "trous_calendrier": 28,
+      "operations_sur_titres": [],
+      "suspension": []
+    },
+    "ADI": {
+      "role": "chaîne",
+      "motif": "univers de recette technique",
+      "fichier": "ADI.json",
+      "empreinte_sha256": "6108a668b6dc9d50d7314db3ffd2875aa22115691d992b6dcfe7161f69a8b058",
+      "lignes": 797,
+      "periode": [
+        "2023-06-05",
+        "2026-09-08"
+      ],
+      "secteur": "Immobilier",
+      "isin": "MA0000011819",
+      "volume_unite": "nombre de titres",
+      "volume_certitude": "présumée — convention du moteur (QteEchangee), non enregistrée dans la chandelle elle-même",
+      "volume_mediane_60": 21984.0,
+      "part_seances_sans_volume": 0.0063,
+      "trous_calendrier": 28,
+      "operations_sur_titres": [],
+      "suspension": []
+    },
+    "CSR": {
+      "role": "chaîne",
+      "motif": "univers de recette technique",
+      "fichier": "CSR.json",
+      "empreinte_sha256": "fe8fc84cedd956fb91136fc0eea9b3897fb42a9ca84cec4c5160ff5ed5dfa3b0",
+      "lignes": 794,
+      "periode": [
+        "2023-06-05",
+        "2026-09-08"
+      ],
+      "secteur": "Agroalimentaire",
+      "isin": "MA0000012247",
+      "volume_unite": "nombre de titres",
+      "volume_certitude": "présumée — convention du moteur (QteEchangee), non enregistrée dans la chandelle elle-même",
+      "volume_mediane_60": 25440.5,
+      "part_seances_sans_volume": 0.005,
+      "trous_calendrier": 31,
+      "operations_sur_titres": [],
+      "suspension": []
+    },
+    "MNG": {
+      "role": "chaîne",
+      "motif": "univers de recette technique",
+      "fichier": "MNG.json",
+      "empreinte_sha256": "4528629309e5977f9cf7104799353d8ec6e0b1ee483e44b9605c599153d348ae",
+      "lignes": 797,
+      "periode": [
+        "2023-06-05",
+        "2026-09-08"
+      ],
+      "secteur": "Mines",
+      "isin": "MA0000012866",
+      "volume_unite": "nombre de titres",
+      "volume_certitude": "présumée — convention du moteur (QteEchangee), non enregistrée dans la chandelle elle-même",
+      "volume_mediane_60": 34574.0,
+      "part_seances_sans_volume": 0.0138,
+      "trous_calendrier": 28,
+      "operations_sur_titres": [
+        {
+          "date": "2026-07-27",
+          "ratio": 10
+        }
+      ],
+      "suspension": []
+    },
+    "CMT": {
+      "role": "contrôle",
+      "motif": "suspension — le système doit refuser l'exécution",
+      "fichier": "CMT.json",
+      "empreinte_sha256": "6514c01e3b388de675957bca870664b0b9a1dee80705c62dd75eb0d7e564843b",
+      "lignes": 514,
+      "periode": [
+        "2024-05-13",
+        "2026-07-16"
+      ],
+      "secteur": "Mines",
+      "isin": "MA0000011793",
+      "volume_unite": "nombre de titres",
+      "volume_certitude": "présumée — convention du moteur (QteEchangee), non enregistrée dans la chandelle elle-même",
+      "volume_mediane_60": 4660.0,
+      "part_seances_sans_volume": 0.0019,
+      "trous_calendrier": 37,
+      "operations_sur_titres": [],
+      "suspension": [
+        {
+          "depuis": "2026-07-17",
+          "reprise": null,
+          "motif": "OPA obligatoire (Ayrad / OSEAD / CIMR)",
+          "source": "AMMC, avis de dépôt DO/EM/07/2026 du 17/07/2026",
+          "url": "https://www.ammc.ma/sites/default/files/OPA_Avis%20d%C3%A9p%C3%B4t_CMT_%20FR.pdf",
+          "dernier_cours_cote": {
+            "date": "2026-07-16",
+            "valeur": 4501.0,
+            "volume": 67515
+          },
+          "cours_diffuse_depuis_suspension": 4350.0
+        }
+      ]
+    },
+    "TQA": {
+      "role": "contrôle",
+      "motif": "historique de 65 lignes — indicateur non calculable",
+      "fichier": "TQA.json",
+      "empreinte_sha256": "b8104556ece66ebd20ffbddb9807503212e5952d2b24fc8e5b211f135c58be90",
+      "lignes": 65,
+      "periode": [
+        "2026-05-19",
+        "2026-09-08"
+      ],
+      "secteur": "Énergie",
+      "isin": "MA0000012205",
+      "volume_unite": "nombre de titres",
+      "volume_certitude": "présumée — convention du moteur (QteEchangee), non enregistrée dans la chandelle elle-même",
+      "volume_mediane_60": 1134.0,
+      "part_seances_sans_volume": 0.1385,
+      "trous_calendrier": 13,
+      "operations_sur_titres": [],
+      "suspension": []
+    },
+    "SOT": {
+      "role": "contrôle",
+      "motif": "volume médian de 4 titres — liquidité dégradée",
+      "fichier": "SOT.json",
+      "empreinte_sha256": "34a9840120877e9d8626a6fa9a69ffa1c34753be5cc2d5d3b8e315c43f8184d1",
+      "lignes": 542,
+      "periode": [
+        "2024-05-14",
+        "2026-09-08"
+      ],
+      "secteur": "Santé & Pharmacie",
+      "isin": "MA0000012833",
+      "volume_unite": "nombre de titres",
+      "volume_certitude": "présumée — convention du moteur (QteEchangee), non enregistrée dans la chandelle elle-même",
+      "volume_mediane_60": 4.0,
+      "part_seances_sans_volume": 0.0535,
+      "trous_calendrier": 43,
+      "operations_sur_titres": [
+        {
+          "date": "2026-05-05",
+          "ratio": 5
+        }
+      ],
+      "suspension": []
+    }
+  }
+}

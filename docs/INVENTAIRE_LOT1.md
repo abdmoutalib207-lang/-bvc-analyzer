@@ -1,84 +1,154 @@
-# Inventaire du lot 1 — couverture réelle des données
+# Inventaire des données — calculé
 
-Mesuré le 11/09/2026 sur le dépôt, pas sur une documentation.
+Produit par `pipeline/inventaire.py`. **Aucun chiffre n'est recopié.**
+Chaque grandeur porte sa définition ; un désaccord se règle sur la
+formule, pas sur le résultat.
+
+⚠️ Le premier inventaire, écrit à la main, portait quatre volumes
+médians faux : `sorted(v)[len(v)//2]` rend l'élément supérieur du
+milieu, pas la médiane. Sur un effectif pair, la médiane est la MOYENNE
+des deux valeurs centrales.
 
 ## Vue d'ensemble
 
 - univers : **80 titres**, dont 19 au MASI 1
-- séries de chandelles : **74** (6 titres sans historique)
-- profondeur : min **49**, médiane **543**, max **1170** séances
-- au moins 250 séances : **42** · au moins 500 : **39**
-- fondamentaux relus sur dépôt AMMC : **11**
+- séries présentes : **73**
+- sans série : DIS, DLM, MDP, PPM, SAF, SLM, T2S
+- profondeur : min **49**, médiane **543**, max **1170** lignes
+- au moins 250 lignes : **41** · au moins 500 : **39**
+- fondamentaux relus en source primaire : **11** (ADH ADI CMT CSR HPS MNG MSA RIS SNA SOT TQA)
 - dividendes sur résolution d'assemblée : **12**
-- price-to-book calculable : **4**
 
-## Anomalies ouvertes
+## Volume — unité et certitude
 
-- **5 séries** comptent plus de la moitié de séances sans volume : DAR, MGL, MRL, STK, UNI.
-  Une séance sans transaction n'est pas une transaction à volume nul ; la distinction
-  reste à porter dans la donnée (lot 1).
-- **DAT-10** : l'unité du volume historique de CMT (`v=67515` au 16/07) est présumée,
-  non certifiée — le programme qui a écrit la bougie n'est pas enregistré.
-- Aucun doublon de date, aucune série désordonnée, aucune incohérence OHLC.
+- unité retenue : **nombre de titres**
+- certitude : *présumée — convention du moteur (QteEchangee), non enregistrée dans la chandelle elle-même*
+- fenêtre d'activité : **60** dernières lignes présentes
+- formule : `statistics.median`, valeurs absentes comptées comme 0
 
-## Candidats pour une chaîne historique vérifiable de bout en bout
+## Séries
 
-Critère : les DEUX bouts de la chaîne doivent être vérifiables — un historique
-profond ET des fondamentaux relus en source primaire. Le volume médian mesure
-la possibilité d'exécution, pas l'attrait du titre.
+| Titre | Secteur | Lignes | Première | Dernière | Médiane vol. | Sans vol. | Trous |
+|---|---|---:|---|---|---:|---:|---:|
+| ADH | Immobilier | 797 | 2023-06-05 | 2026-09-08 | 121 846.0 | 1% | 28 |
+| ADI | Immobilier | 797 | 2023-06-05 | 2026-09-08 | 21 984.0 | 1% | 28 |
+| AFI | Matériaux de construction | 797 | 2023-06-05 | 2026-09-08 | 199.0 | 1% | 28 |
+| AFM | Assurances | 796 | 2023-06-05 | 2026-09-08 | 0.0 | 5% | 29 |
+| AGM | Assurances | 792 | 2023-06-05 | 2026-09-03 | 0.0 | 5% | 30 |
+| AKD | Santé & Pharmacie | 69 | 2026-05-19 | 2026-09-08 | 15 091.0 | 7% | 9 |
+| ALU | Sidérurgie & Métallurgie | 68 | 2026-05-19 | 2026-09-08 | 37.0 | 15% | 10 |
+| ARD | Immobilier | 797 | 2023-06-05 | 2026-09-08 | 3 498.0 | 1% | 28 |
+| ATL | Assurances | 797 | 2023-06-05 | 2026-09-08 | 4 543.0 | 1% | 28 |
+| ATW | Banques | 797 | 2023-06-05 | 2026-09-08 | 57 340.5 | 1% | 28 |
+| BAL | Immobilier | 797 | 2023-06-05 | 2026-09-07 | 0.0 | 4% | 27 |
+| BCP | Banques | 797 | 2023-06-05 | 2026-09-08 | 30 805.0 | 1% | 28 |
+| BMC | Banques | 50 | 2026-06-19 | 2026-09-08 | 507.5 | 40% | 5 |
+| BOA | Banques | 797 | 2023-06-05 | 2026-09-08 | 19 823.5 | 1% | 28 |
+| CAR | Agroalimentaire | 69 | 2026-05-19 | 2026-09-08 | 4 925.5 | 7% | 9 |
+| CASH | Sociétés de financement | 162 | 2025-12-08 | 2026-09-08 | 23 876.0 | 4% | 29 |
+| CDM | Banques | 797 | 2023-06-05 | 2026-09-08 | 2 057.0 | 1% | 28 |
+| CFGB | Banques | 566 | 2024-05-13 | 2026-09-08 | 13 751.5 | 1% | 20 |
+| CIH | Banques | 797 | 2023-06-05 | 2026-09-08 | 9 664.0 | 1% | 28 |
+| CIM | Matériaux de construction | 74 | 2026-05-11 | 2026-09-08 | 3 205.5 | 11% | 10 |
+| CMGP | Distribution | 403 | 2024-12-16 | 2026-09-08 | 17 419.5 | 1% | 34 |
+| CMT | Mines | 514 | 2024-05-13 | 2026-07-16 | 4 660.0 | 0% | 37 |
+| COL | Chimie | 797 | 2023-06-05 | 2026-09-08 | 1 628.0 | 1% | 28 |
+| CSR | Agroalimentaire | 794 | 2023-06-05 | 2026-09-08 | 25 440.5 | 0% | 31 |
+| CTM | Transport & Logistique | 797 | 2023-06-05 | 2026-09-08 | 45.5 | 2% | 28 |
+| DAR | Agroalimentaire | 65 | 2026-05-25 | 2026-09-07 | 0.0 | 65% | 8 |
+| DHO | Holdings | 794 | 2023-06-05 | 2026-09-08 | 17 708.0 | 1% | 31 |
+| DSW | Distribution IT | 69 | 2026-05-19 | 2026-09-08 | 192.5 | 12% | 9 |
+| DTT | Distribution IT | 69 | 2026-05-19 | 2026-09-08 | 2 555.0 | 7% | 9 |
+| ENK | Distribution | 50 | 2026-06-19 | 2026-09-08 | 3 655.5 | 10% | 5 |
+| EQD | Sociétés de financement | 796 | 2023-06-05 | 2026-09-04 | 0.0 | 5% | 27 |
+| FNB | Distribution | 50 | 2026-06-19 | 2026-09-08 | 5 310.5 | 18% | 5 |
+| GAZ | Énergie | 797 | 2023-06-05 | 2026-09-08 | 225.0 | 1% | 28 |
+| HAL | Distribution | 50 | 2026-06-19 | 2026-09-08 | 5 502.0 | 10% | 5 |
+| HPS | Technologies | 789 | 2023-06-05 | 2026-09-08 | 8 648.0 | 1% | 36 |
+| IAM | Télécommunications | 797 | 2023-06-05 | 2026-09-08 | 144 149.5 | 1% | 28 |
+| IBM | Technologies | 66 | 2026-05-21 | 2026-09-08 | 34.5 | 29% | 10 |
+| IMI | Immobilier | 69 | 2026-05-19 | 2026-09-08 | 5 447.5 | 7% | 9 |
+| INV | Technologies | 797 | 2023-06-05 | 2026-09-08 | 181.0 | 1% | 28 |
+| JET | BTP & Construction | 797 | 2023-06-05 | 2026-09-08 | 595.5 | 2% | 28 |
+| LBV | Distribution | 797 | 2023-06-05 | 2026-09-08 | 3 077.5 | 2% | 28 |
+| LES | Agroalimentaire | 797 | 2023-06-05 | 2026-09-08 | 80.5 | 3% | 28 |
+| LHM | Matériaux de construction | 791 | 2023-06-05 | 2026-09-08 | 13 433.5 | 1% | 34 |
+| M2M | Technologies | 796 | 2023-06-05 | 2026-09-08 | 14.0 | 2% | 29 |
+| MGL | Sociétés de financement | 49 | 2026-06-19 | 2026-09-08 | 0.0 | 55% | 6 |
+| MIC | Technologies | 68 | 2026-05-19 | 2026-09-07 | 80.0 | 22% | 9 |
+| MNG | Mines | 797 | 2023-06-05 | 2026-09-08 | 34 574.0 | 1% | 28 |
+| MOX | Chimie | 797 | 2023-06-05 | 2026-09-08 | 3.0 | 3% | 28 |
+| MRL | Sociétés de financement | 64 | 2026-05-25 | 2026-09-07 | 0.0 | 61% | 9 |
+| MSA | Transport & Logistique | 566 | 2024-05-13 | 2026-09-08 | 17 143.0 | 1% | 20 |
+| MUT | Agroalimentaire | 69 | 2026-05-19 | 2026-09-08 | 3 877.0 | 6% | 9 |
+| NEJ | Distribution | 795 | 2023-06-05 | 2026-09-01 | 0.0 | 5% | 25 |
+| OUL | Boissons | 64 | 2026-05-25 | 2026-09-04 | 0.0 | 48% | 8 |
+| RDS | Immobilier | 543 | 2024-05-13 | 2026-09-08 | 45 040.0 | 1% | 43 |
+| REB | Holdings | 68 | 2026-05-25 | 2026-09-08 | 0.5 | 44% | 6 |
+| RIS | Tourisme & Loisirs | 565 | 2024-05-13 | 2026-09-08 | 6 991.0 | 1% | 21 |
+| S2M | Technologies | 65 | 2026-05-19 | 2026-09-08 | 374.0 | 22% | 13 |
+| SBS | Boissons | 67 | 2026-05-19 | 2026-09-08 | 43.0 | 22% | 11 |
+| SGTM | BTP & Construction | 155 | 2025-12-17 | 2026-09-08 | 408 353.5 | 3% | 29 |
+| SMI | Mines | 566 | 2024-05-13 | 2026-09-08 | 1 621.5 | 2% | 20 |
+| SNA | Sidérurgie & Métallurgie | 69 | 2026-05-19 | 2026-09-08 | 671.5 | 14% | 9 |
+| SNP | Chimie | 65 | 2026-05-19 | 2026-09-08 | 448.0 | 9% | 13 |
+| SOT | Santé & Pharmacie | 542 | 2024-05-14 | 2026-09-08 | 4.0 | 5% | 43 |
+| SRM | Ingénierie & Industrie | 562 | 2024-05-13 | 2026-09-08 | 1.5 | 5% | 24 |
+| STK | Distribution | 50 | 2026-06-19 | 2026-09-08 | 0.0 | 62% | 5 |
+| STR | Ingénierie & Industrie | 57 | 2026-05-19 | 2026-09-08 | 1 380.0 | 16% | 21 |
+| TGCC | BTP & Construction | 1170 | 2021-12-16 | 2026-09-08 | 40 005.5 | 0% | 33 |
+| TMA | Énergie | 65 | 2026-05-19 | 2026-09-08 | 391.5 | 17% | 13 |
+| TQA | Énergie | 65 | 2026-05-19 | 2026-09-08 | 1 134.0 | 14% | 13 |
+| UNI | Agroalimentaire | 62 | 2026-05-25 | 2026-09-07 | 0.0 | 58% | 11 |
+| VCNE | Santé & Pharmacie | 259 | 2025-07-15 | 2026-09-08 | 19 477.5 | 2% | 30 |
+| WAF | Assurances | 67 | 2026-05-19 | 2026-09-07 | 3.5 | 40% | 10 |
+| ZLD | Mines | 64 | 2026-05-26 | 2026-09-08 | 3.5 | 31% | 9 |
 
-| Titre | Séances | Volume médian 60j | Fondamentaux AMMC | Remarque |
-|---|---:|---:|:---:|---|
-| ADH | 797 | 124 625 | oui |  |
-| ADI | 797 | 22 380 | oui |  |
-| CMT | 514 | 4 670 | oui | suspendu depuis le 17/07 |
-| CSR | 794 | 27 504 | oui |  |
-| HPS | 789 | 9 915 | oui |  |
-| MNG | 797 | 34 625 | oui |  |
-| MSA | 566 | 17 220 | oui |  |
-| RIS | 565 | 7 340 | oui |  |
-| SNA | 69 | 711 | oui | historique trop court |
-| SOT | 542 | 4 | oui | quasi sans échanges |
-| TQA | 65 | 1 136 | oui | historique trop court |
+---
 
-## Univers proposé pour le lot 1 : **ADH, ADI, CSR, MNG**
+## Univers du lot 1A : **ADH, ADI, CSR, MNG** — et trois cas de contrôle
 
-Quatre titres, choisis pour la **qualité de leurs données** — jamais pour leurs
-performances, que ce document ne mentionne pas et dont il ne tient pas compte.
+Choisis sur la **qualité des données**. Leurs performances ne sont ni
+mentionnées, ni consultées, ni utilisées comme critère.
 
-**Pourquoi ces quatre**
+⚠️ **Correction d'un argument que j'avais donné à tort.** J'avais annoncé
+« quatre secteurs distincts ». ADH et ADI sont **tous deux Immobilier** dans
+notre propre référentiel : il y a **trois** secteurs — Immobilier (deux
+titres), Agroalimentaire, Mines. La revue externe l'a relevé. Le choix reste
+valable pour une recette technique, mais l'argument de diversification était
+faux et je le retire.
 
-1. **Historique profond et continu** : 794 à 797 séances chacun, soit plus de
-   trois ans. La plus longue moyenne mobile du socle du lot 2 en demande 200 ;
-   il faut de la marge au-delà pour que la fenêtre ne soit pas le facteur
-   limitant.
-2. **Fondamentaux relus en source primaire**, page par page, dans le rapport
-   déposé à l'AMMC — et corrigés : ADH 2,50 → 1,13 · CSR 11 → 7,45.
-3. **Échanges réguliers** : volume médian sur 60 séances de 22 380 à 124 625
-   titres. Une exécution y est plausible ; un backtest sur un titre qui échange
-   quatre titres par séance mesurerait surtout notre imagination.
-4. **Quatre secteurs distincts** — immobilier, immobilier/BTP, agroalimentaire,
-   mines. Un univers d'un seul secteur testerait un facteur commun plutôt
-   qu'une méthode.
-5. **Un cas d'opération sur titres** : Managem porte un split 10:1 au
-   27/07/2026, déclaré au registre. La chaîne doit le traverser correctement,
-   et c'est précisément ce qu'on veut vérifier de bout en bout.
+| Titre | Lignes | Période | Secteur | Rôle |
+|---|---:|---|---|---|
+| ADH | 797 | 2023-06-05 → 2026-09-08 | Immobilier | chaîne |
+| ADI | 797 | 2023-06-05 → 2026-09-08 | Immobilier | chaîne |
+| CSR | 794 | 2023-06-05 → 2026-09-08 | Agroalimentaire | chaîne |
+| MNG | 797 | 2023-06-05 → 2026-09-08 | Mines | opération sur titres |
 
-**Pourquoi pas les autres**
+**Ce que chacun apporte à la recette**
 
-| Écarté | Raison — de données, pas de performance |
+- **ADH, ADI, CSR** : profondeur au-delà de 200 lignes (la fenêtre de la SMA la
+  plus longue), fondamentaux relus page par page en source primaire et
+  corrigés, échanges réguliers rendant une exécution plausible.
+- **MNG** : porte un split 10:1 au 27/07/2026, déclaré au registre. La chaîne
+  doit le traverser correctement — c'est précisément ce qu'on veut éprouver.
+  ⚠️ Ses données avant et après l'opération restent à vérifier séparément.
+
+**Les trois cas de contrôle, conservés à la demande de la revue**
+
+| Titre | Ce qu'il éprouve |
 |---|---|
-| CMT | suspendu depuis le 17/07 : pas de chaîne d'exécution à vérifier |
-| SNA, TQA | 69 et 65 séances : trop court pour une SMA 200 |
-| SOT | volume médian de 4 titres sur 60 séances : exécution invérifiable |
-| HPS, MSA, RIS | profondeur et fondamentaux corrects, mais n'ajoutent aucun cas de figure nouveau au lot ; réserves pour l'extension |
+| CMT | suspension : le système doit **refuser** l'exécution. Ne pas l'écarter parce qu'on ne peut pas y passer d'ordre — c'est exactement le cas qu'il doit savoir refuser. |
+| TQA | 65 lignes : indicateur non calculable. La SMA 200 doit être **absente**, pas approximée. |
+| SOT | volume médian de 4 titres sur 60 séances : absence de transaction, données manquantes, liquidité dégradée. |
 
-**Ce que cet univers permet de vérifier**
+**Ce que cet univers permet** : éprouver la chaîne collecte → chandelles →
+indicateurs → score → backtest, sur des données dont chaque maillon est
+rattachable à une observation ou à un calcul documenté.
 
-Collecte → chandelles → indicateurs → score → backtest → mesure, sur des
-données dont chaque maillon est rattachable à une observation ou à un calcul
-documenté. C'est le critère de réception du lot 1, et quatre titres suffisent à
-l'établir.
+**Ce qu'il ne permet pas** : aucune conclusion statistique, aucune allocation,
+aucune proposition d'investissement. Sept titres ne valident pas une méthode —
+ils éprouvent une **architecture**.
 
-**Ce qu'il ne permet pas** : aucune conclusion statistique. Quatre titres ne
-valident pas une méthode — ils valident une **chaîne**.
+Dataset brut figé : `datasets/lot1a/`, avec `MANIFESTE.json` portant empreinte,
+période, unité du volume et son niveau de certitude pour chaque série.

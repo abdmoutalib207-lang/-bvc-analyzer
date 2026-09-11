@@ -63,10 +63,23 @@ compilation avant livraison, obligations d'attribution respectées.
 
 ## Lot 5 — Remplacer les historiques synthétiques dans la recherche
 
-**État : partiellement acquis.** Les prix synthétiques sont refusés par défaut
-depuis le 05/09 et la comptabilité du portefeuille est corrigée (BT-01, BT-02).
-Reste le journal daté, les dividendes, la règle d'exécution au prochain prix
-et la reproductibilité depuis un dataset figé.
+**État : OUVERT.** ⚠️ Une version antérieure de ce fichier annonçait que « les
+prix synthétiques sont refusés par défaut depuis le 05/09 ». **C'était faux
+par généralisation** : le refus porte sur `phase11_backtest.py` seulement. La
+revue externe a retrouvé, au commit livré :
+
+- `phase8_correlations.py:186` — `generate_synthetic_price_series()` est
+  toujours appelée dans `build_price_panel()` ;
+- `phase9_ml.py:227` — `rng.binomial(1, 0.35, …)` produit encore des étiquettes
+  de résultat tirées au sort en l'absence de prix.
+
+Ce sont **deux problèmes distincts** de la comptabilité du portefeuille, qui
+est corrigée (BT-01, BT-02). Les inscrire sous les identifiants déjà clos
+aurait présenté un chantier ouvert comme acquis. Ils portent donc des
+identifiants neufs : **RCH-01, RCH-02, RCH-03**.
+
+Reste aussi : journal daté, dividendes, exécution au prochain prix exécutable,
+reproductibilité depuis un dataset figé.
 
 ## Lot 6 — Valider hors échantillon
 
