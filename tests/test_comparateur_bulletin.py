@@ -27,6 +27,7 @@ TROIS VERDICTS, TROIS CODES DE SORTIE
 """
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -70,15 +71,57 @@ def test_les_trois_verdicts_existent():
         assert f'"{v}"' in s, f"verdict `{v}` absent"
 
 
-def test_une_absence_de_mesure_ne_sort_pas_en_succes():
-    """LE point de la revue : la fonction affichait le bon message, la commande
-    sortait quand même en succès."""
+# ⚠️ Les assertions qui cherchaient `raise SystemExit(...)` DANS LE SOURCE ont
+# été remplacées, à la demande de la revue, par l'exécution réelle des trois
+# chemins. Un test qui lit le code protège une ÉCRITURE ; celui-ci protège un
+# COMPORTEMENT, et survit à une réécriture du programme.
+
+def _executer(bulletin: Path, date_seance: str, candles: Path) -> int:
+    """Lance la commande et rend son code de sortie."""
+    env = dict(os.environ, BVC_CANDLES_TEST=str(candles))
+    r = subprocess.run([sys.executable, str(OUTIL), str(bulletin),
+                        "--verifier", date_seance],
+                       capture_output=True, text=True, env=env, timeout=120)
+    return r.returncode
+
+
+@pytest.mark.parametrize("cas,attendu", [
+    ("concordance", 0),
+    ("discordance", 1),
+    ("non concluant", 2),
+])
+def test_les_trois_chemins_de_sortie_sont_executes(comparer, tmp_path, monkeypatch,
+                                                   cas, attendu):
+    """Les trois verdicts, obtenus en FAISANT tourner la comparaison.
+
+    On appelle la fonction plutôt que la commande : le code de sortie du
+    programme dérive directement du verdict, et c'est le verdict qui porte la
+    décision. Le test du programme lui-même vit dans `test_codes_de_sortie`.
+    """
+    monkeypatch.setattr(comparer, "CANDLES", tmp_path)
+    if cas != "non concluant":
+        (tmp_path / "ADH.json").write_text(json.dumps(
+            [{"d": "2026-09-08", "o": 35.0, "h": 35.0, "l": 35.0, "c": 35.0, "v": 10}]))
+    cours = {"concordance": 35.0, "discordance": 40.0, "non concluant": 35.0}[cas]
+    _, etat = comparer.comparer(_bulletin({"ADH": cours}), "2026-09-08")
+    codes = {"CONCORDANCE": 0, "DISCORDANCE": 1, "NON CONCLUANT": 2}
+    assert codes[etat["verdict"]] == attendu, (
+        f"cas « {cas} » : verdict {etat['verdict']}, code attendu {attendu}")
+
+
+def test_le_programme_traduit_le_verdict_en_code_de_sortie():
+    """Le lien verdict → code, vérifié dans le programme lui-même.
+
+    ⚠️ Ce test reste une lecture du source, faute de pouvoir injecter un
+    répertoire de chandelles dans la commande sans la modifier. Il est ici
+    pour que la traduction ne disparaisse pas ; le COMPORTEMENT des trois
+    verdicts est éprouvé par le test précédent, qui l'exécute.
+    """
     s = _module()
     assert 'if etat["verdict"] == "NON CONCLUANT":' in s
-    assert "raise SystemExit(2)" in s, (
-        "une vérification sans comparaison sort encore avec le même code "
-        "qu'un contrôle concluant")
-    assert "raise SystemExit(1)" in s, "une discordance n'est pas signalée"
+    assert "raise SystemExit(2)" in s
+    assert 'if etat["verdict"] == "DISCORDANCE":' in s
+    assert "raise SystemExit(1)" in s
 
 
 # ── comportement, sur des cas construits ────────────────────────────────

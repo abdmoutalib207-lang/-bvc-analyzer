@@ -8,9 +8,13 @@ par cinq états, et les deux derniers sont distincts :
 
     Ouvert → En cours → Livré pour revue → Vérifié sur candidat → Vérifié en production
 
-Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : 27 entrées au 11/09/2026,
-dont **21 vérifiées sur candidat, 0 vérifiée en production** — parce que rien
-n'est fusionné.
+Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **43 entrées**, dont
+**33 vérifiées sur candidat, 4 livrées pour revue,
+6 ouvertes, et 0 vérifiée EN PRODUCTION** — parce que rien n'est fusionné.
+
+⚠️ Cette synthèse est recalculée à chaque mise à jour du registre. Une version
+antérieure annonçait encore 27 entrées quand le fichier en portait 33 : la
+revue externe l'a relevé.
 
 ---
 
@@ -38,6 +42,31 @@ d'un workflow avec la fraîcheur du fichier réellement servi.
 **État : inventaire fourni, univers proposé.** Voir `docs/CONTRATS_DONNEES.md`
 pour la définition des champs et `docs/INVENTAIRE_LOT1.md` pour la couverture
 mesurée titre par titre.
+
+### Lot 1B — livré pour revue
+
+| Livrable | Où | État |
+|---|---|---|
+| Contrat d'admissibilité | `pipeline/qualification.py` | 11 tests |
+| Calendrier versionné | `pipeline/calendrier_bvc.json` | 2 dates établies, le reste `non_confirme` |
+| Diagnostic des bases de prix | `docs/DIAGNOSTIC_SPLITS.md` | MNG et SOT tranchés |
+| Couche normalisée | `datasets/lot1b/` | 7 séries, dérivée de l'instantané |
+| Journal des transformations | `docs/JOURNAL_TRANSFORMATIONS.md` | appliqué **et** non appliqué |
+| Tests de comportement | `tests/test_normalisation.py` | 46 tests |
+
+**Deux résultats à retenir.**
+
+- **MNG est déjà ajusté** : les clôtures 24/07 → 27/07 donnent un rapport de
+  1,091, continu à travers le split. Le risque sur ce titre est **d'agir**, pas
+  de s'abstenir — réappliquer l'ajustement produirait une double division.
+- **SOT porte une double division par 5** avant le 05/05/2026. **487 des
+  542 observations sortent sans aucun usage admissible.** La correction n'est
+  pas appliquée : multiplier par 5 fabriquerait 486 prix qu'aucune source en
+  notre possession ne confirme.
+
+⚠️ **Aucune valeur de prix n'a été modifiée dans ce lot.** La couche normalisée
+qualifie ; elle ne retouche pas. L'instantané `datasets/lot1a/` reste intact et
+ses empreintes sont vérifiées par test.
 
 ## Lot 2 — Normaliser les indicateurs techniques
 

@@ -1,5 +1,5 @@
 {
-  "_quoi": "Dataset BRUT figé du lot 1A. Copie conforme des séries du dépôt au commit indiqué, jamais retraitée.",
+  "_quoi": "INSTANTANÉ des séries du dépôt, figé au commit indiqué. Copie octet pour octet des fichiers pipeline/candles/, jamais retraitée.",
   "_fige_le": "2026-09-11 00:28",
   "univers_chaine": [
     "ADH",
@@ -10,7 +10,7 @@
   "cas_de_controle": {
     "CMT": "suspension — le système doit refuser l'exécution",
     "TQA": "historique de 65 lignes — indicateur non calculable",
-    "SOT": "volume médian de 4 titres — liquidité dégradée"
+    "SOT": "base de prix incohérente — double division par 5 avant le 05/05/2026 (le volume médian de 4 titres n'était que le symptôme visible)"
   },
   "series": {
     "ADH": {
@@ -31,7 +31,16 @@
       "part_seances_sans_volume": 0.0063,
       "trous_calendrier": 28,
       "operations_sur_titres": [],
-      "suspension": []
+      "suspension": [],
+      "commit_source_complet": "befb795a188143e810b8a7214b84705be612b150",
+      "commit_source_date": "2026-09-08 19:15:36 +0000",
+      "source": "pipeline/candles/ADH.json",
+      "etat_ajustement": {
+        "etat": "sans_operation_declaree",
+        "preuve": null,
+        "consequence": "aucun diagnostic n'a été conduit sur cette série",
+        "corrige": false
+      }
     },
     "ADI": {
       "role": "chaîne",
@@ -51,7 +60,16 @@
       "part_seances_sans_volume": 0.0063,
       "trous_calendrier": 28,
       "operations_sur_titres": [],
-      "suspension": []
+      "suspension": [],
+      "commit_source_complet": "befb795a188143e810b8a7214b84705be612b150",
+      "commit_source_date": "2026-09-08 19:15:36 +0000",
+      "source": "pipeline/candles/ADI.json",
+      "etat_ajustement": {
+        "etat": "sans_operation_declaree",
+        "preuve": null,
+        "consequence": "aucun diagnostic n'a été conduit sur cette série",
+        "corrige": false
+      }
     },
     "CSR": {
       "role": "chaîne",
@@ -71,7 +89,16 @@
       "part_seances_sans_volume": 0.005,
       "trous_calendrier": 31,
       "operations_sur_titres": [],
-      "suspension": []
+      "suspension": [],
+      "commit_source_complet": "befb795a188143e810b8a7214b84705be612b150",
+      "commit_source_date": "2026-09-08 19:15:36 +0000",
+      "source": "pipeline/candles/CSR.json",
+      "etat_ajustement": {
+        "etat": "sans_operation_declaree",
+        "preuve": null,
+        "consequence": "aucun diagnostic n'a été conduit sur cette série",
+        "corrige": false
+      }
     },
     "MNG": {
       "role": "chaîne",
@@ -96,7 +123,16 @@
           "ratio": 10
         }
       ],
-      "suspension": []
+      "suspension": [],
+      "commit_source_complet": "befb795a188143e810b8a7214b84705be612b150",
+      "commit_source_date": "2026-09-08 19:15:36 +0000",
+      "source": "pipeline/candles/MNG.json",
+      "etat_ajustement": {
+        "etat": "ajuste_une_fois",
+        "preuve": "clôtures 24/07 → 27/07, rapport 1,091 : la série est continue à travers le split, donc déjà divisée par 10",
+        "consequence": "réappliquer adjust_splits produirait une double division",
+        "corrige": false
+      }
     },
     "CMT": {
       "role": "contrôle",
@@ -130,7 +166,16 @@
           },
           "cours_diffuse_depuis_suspension": 4350.0
         }
-      ]
+      ],
+      "commit_source_complet": "0a19d97f67d90e226961b928388085f832de68ec",
+      "commit_source_date": "2026-09-09 15:12:37 +0000",
+      "source": "pipeline/candles/CMT.json",
+      "etat_ajustement": {
+        "etat": "sans_operation_declaree",
+        "preuve": null,
+        "consequence": "aucun diagnostic n'a été conduit sur cette série",
+        "corrige": false
+      }
     },
     "TQA": {
       "role": "contrôle",
@@ -150,11 +195,20 @@
       "part_seances_sans_volume": 0.1385,
       "trous_calendrier": 13,
       "operations_sur_titres": [],
-      "suspension": []
+      "suspension": [],
+      "commit_source_complet": "3ff62baae2596c19b1c5b8a871f2dbfff80a48c3",
+      "commit_source_date": "2026-09-08 19:40:08 +0000",
+      "source": "pipeline/candles/TQA.json",
+      "etat_ajustement": {
+        "etat": "sans_operation_declaree",
+        "preuve": null,
+        "consequence": "aucun diagnostic n'a été conduit sur cette série",
+        "corrige": false
+      }
     },
     "SOT": {
       "role": "contrôle",
-      "motif": "volume médian de 4 titres — liquidité dégradée",
+      "motif": "base de prix incohérente — double division par 5 avant le 05/05/2026 (le volume médian de 4 titres n'était que le symptôme visible)",
       "fichier": "SOT.json",
       "empreinte_sha256": "34a9840120877e9d8626a6fa9a69ffa1c34753be5cc2d5d3b8e315c43f8184d1",
       "lignes": 542,
@@ -175,7 +229,21 @@
           "ratio": 5
         }
       ],
-      "suspension": []
+      "suspension": [],
+      "commit_source_complet": "befb795a188143e810b8a7214b84705be612b150",
+      "commit_source_date": "2026-09-08 19:15:36 +0000",
+      "source": "pipeline/candles/SOT.json",
+      "etat_ajustement": {
+        "etat": "double_ajustement",
+        "preuve": "clôtures 04/05 → 05/05, rapport 5,000 exact ; l'ouverture du 05/05 (1700) est un prix pré-split resté dans la bougie",
+        "consequence": "l'historique antérieur au 05/05/2026 est 5× trop bas — 486 observations déclarées NON ADMISSIBLES dans la couche normalisée",
+        "corrige": false
+      },
+      "volume_mediane_60_reserve": "4,0 titres est la médiane telle que mesurée. Elle porte sur une fenêtre postérieure au 05/05, donc sur des prix de base correcte — mais la liquidité n'est pas la seule anomalie du titre."
     }
-  }
+  },
+  "_ce_que_ce_n_est_pas": "⚠️ CE NE SONT PAS DES « DONNÉES BRUTES FOURNISSEUR ». Aucune charge utile de source n'est conservée dans ce dépôt — ni réponse HTTP, ni PDF, ni export. Ces fichiers ont été ÉCRITS PAR LE MOTEUR, à des dates et par des versions de code qui ne sont pas enregistrées dans la donnée. L'expression « données brutes fournisseur » est réservée aux charges utiles effectivement conservées ; nous n'en gardons aucune à ce jour.",
+  "_commit_depot": "9949dc7ad3b260bf574ce3d4cee234a9ae1f2b2f",
+  "_couche_derivee": "datasets/lot1b/ — couche normalisée, qui qualifie chaque observation sans modifier aucune valeur.",
+  "_etat_ajustements": "Déclaré série par série ci-dessous. « inconnu » est le défaut et ne se lit pas comme « aucun ajustement » : il signifie que l'état n'a pas été diagnostiqué."
 }

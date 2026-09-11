@@ -1,34 +1,44 @@
 id,titre,priorite,statut,commit_correctif,preuve,verifie_candidat,verifie_production,note
-LIV-01,"Manifeste décrivant une autre expérience que les fichiers joints",P0,Vérifié sur candidat,389d143d,"manifeste généré par lecture des fichiers",oui,non,"deux runs de 03h19 et 12h58 empaquetés ensemble"
-LIV-02,"Commit annoncé différent du code exécuté",P0,Vérifié sur candidat,389d143d,"git archive depuis le commit + refus d'arbre sale",oui,non,"git rev-parse appelé avant le commit"
-LIV-03,"Suite de tests exécutée sur un autre fichier que le candidat",P0,Vérifié sur candidat,29cecdd7,"pytest lancé dans le dossier du candidat",oui,non,"361 verts annoncés sur le data.json du dépôt"
-LIV-04,"Garde-fou de livraison constatant sans bloquer",P0,Vérifié sur candidat,4c5d94f2,"code de retour + épreuve par test rouge délibéré",oui,non,"vérifié indépendamment par l'auditeur sur 3 scénarios"
-LIV-05,"Note sur l'unité du volume absente du ZIP",P2,Vérifié sur candidat,0d2bc32b,"pieces/LISEZ-MOI.txt joint",oui,non,"le script ne copiait que *.pdf"
-LIV-06,"Empreinte du JSON testé non comparée à celle du JSON livré",P1,Livré pour revue,,"contrôle ajouté, arrêt si divergence",non,non,"lot 0"
-LIV-07,"Phrase résiduelle d'attribution dans le manifeste",P2,Livré pour revue,,"formulation de compatibilité",non,non,"lot 0"
-DAT-01,"CMT : signal ACHETER sur un titre suspendu",P0,Vérifié sur candidat,b09112eb,"registre SUSPENSIONS + test de comportement",oui,non,"OPA obligatoire, avis AMMC du 17/07"
-DAT-02,"Contrat ignorant la source derniere_cotation_avant_suspension",P0,Vérifié sur candidat,29cecdd7,"vocabulaire élargi, vérifié sur candidat",oui,non,"trouvé par l'auditeur"
-DAT-03,"Suspension jugée à la date du cours — défaut circulaire",P0,Vérifié sur candidat,46c1f78e,"_suspendu_maintenant + date d'analyse injectable",oui,non,"le dernier cours précède toujours la suspension"
-DAT-04,"Zéro pris pour une absence (dividendes)",P0,Vérifié sur candidat,b09112eb,"test de présence, 7 sociétés concernées",oui,non,"CMT publiait 0,5 % sur un dividende nul"
-DAT-05,"Zéro pris pour une absence (dette nette)",P1,Vérifié sur candidat,aac111ac,"exclusion des secteurs sans objet",oui,non,"6 banques + 1 assureur : remplissage, pas mesure"
-DAT-06,"Huit BPA faux, tous surestimés",P0,Vérifié sur candidat,0cfd0f9c,"faits AMMC page par page + test de redéduction",oui,non,"facteurs de 1,37 à 3,73"
-DAT-07,"Dividendes en retard d'un exercice",P0,Vérifié sur candidat,7e553326,"résolutions d'AG + recoupement IDBourse",oui,non,"cause : ligne ETIC de l'exercice précédent"
-DAT-08,"Price-to-book issu d'une table codée en dur",P1,Vérifié sur candidat,0f21bd2c,"calcul depuis faits sourcés, sinon absent",oui,non,"ADI : 0,80 publié contre 2,30 calculé"
-DAT-09,"28 chandelles fantômes pendant une suspension",P1,Vérifié sur candidat,13052ec5,"purger_suspensions appelé par les 3 écrivains",oui,non,"réapparaissaient au re-téléchargement"
-DAT-10,"Unité du volume historique CMT (v=67515) présumée",P2,Ouvert,,,non,non,"le programme qui a écrit la bougie n'est pas enregistré"
-DAT-11,"Datation du bulletin du 09/09 — correspondance OBSERVÉE",P2,Vérifié sur candidat,,"61 titres comparés, 0 écart au-delà de 0,1 % de tolérance",oui,non,"⚠️ PORTÉE : observation sur UN bulletin contre les chandelles du 08/09. Ne vaut PAS règle générale J-1."
-OUT-01,"parse_cdg_bulletin — 0 écart sans comparaison, et sortie en succès",P1,Livré pour revue,,"état structuré + verdict + codes 0/1/2 + 9 tests de comportement",non,non,"le compteur ne suffisait pas : la commande sortait quand même en succès"
-UI-01,"Fiche détaillée ne suivant pas la pondération",P1,Vérifié sur candidat,acc603e9,"tests de la fiche",oui,non,"signalé par le propriétaire"
-UI-02,"Barre de répartition figée sur les poids du moteur",P1,Vérifié sur candidat,bfd13d94,"helper poidsAffiches + interdiction de r.poids",oui,non,"4 emplacements"
-UI-03,"Mode personnalisé combinant de faux ingrédients",P0,Vérifié sur candidat,5f7d6e73,"critère 100 % T = score_tech vérifié sur 5 titres",oui,non,"score_fond n'était émis nulle part"
-BT-01,"Gain compté deux fois dans le backtest",P0,Vérifié sur candidat,b09112eb,"cas 100-110-120 + 3 stratégies",oui,non,"132 au lieu de 120"
-BT-02,"Frais d'entrée absents de la courbe",P0,Vérifié sur candidat,13f3d9ee,"aller-retour à prix égal = (1-f)/(1+f)",oui,non,"défaut de mon propre correctif"
-OPS-01,"Bulletin matinal jamais envoyé — secret MAIL_TO absent",P0,Ouvert,eca5d891,"étape de vérification qui nomme le secret",non,non,"12 runs, 12 échecs depuis le 03/09"
-OPS-02,"Planificateur GitHub ne déclenche plus le moteur",P0,Ouvert,,,non,non,"journaux du robot à fournir séparément"
-OPS-03,"Publication avant exécution des contrôles",P0,Vérifié sur candidat,13f3d9ee,"suite complète bloquante avant push",oui,non,"tests en continue-on-error après le push"
-RCH-01,"Prix synthétiques encore générés dans la chaîne de recherche",P0,Ouvert,,,non,non,"phase8_correlations.py:186 appelle generate_synthetic_price_series dans build_price_panel — DISTINCT de BT-01/BT-02 qui portaient sur la comptabilité"
-RCH-02,"Cibles aléatoires dans phase9_ml",P0,Ouvert,,,non,non,"phase9_ml.py:227 rng.binomial(1, 0.35) en l absence de prix — une étiquette tirée au sort n est pas un résultat"
-RCH-03,"Séparation temporelle du protocole non établie",P0,Ouvert,,,non,non,"lot 6 — aucun protocole hors échantillon écrit à ce jour"
-OUT-02,"Datation des chandelles — origine à documenter",P2,Vérifié sur candidat,,"dates issues de DateDernierCours/DateCotation des charges utiles, jamais du titre du PDF",oui,non,"⚠️ 64 des 79 titres de la séance 08/09 viennent de CDG, même éditeur que le bulletin : recoupement de canal, pas de source indépendante"
-INV-01,"Quatre volumes médians faux dans le premier inventaire",P1,Vérifié sur candidat,,"pipeline/inventaire.py calcule, statistics.median",oui,non,"sorted(v)[n//2] rend l élément supérieur du milieu, pas la médiane"
-INV-02,"Argument de diversification sectorielle erroné",P2,Vérifié sur candidat,,"ADH et ADI sont tous deux Immobilier : TROIS secteurs, pas quatre",oui,non,"corrigé dans INVENTAIRE_LOT1"
+LIV-01,Manifeste décrivant une autre expérience que les fichiers joints,P0,Vérifié sur candidat,389d143d,manifeste généré par lecture des fichiers,oui,non,deux runs de 03h19 et 12h58 empaquetés ensemble
+LIV-02,Commit annoncé différent du code exécuté,P0,Vérifié sur candidat,389d143d,git archive depuis le commit + refus d'arbre sale,oui,non,git rev-parse appelé avant le commit
+LIV-03,Suite de tests exécutée sur un autre fichier que le candidat,P0,Vérifié sur candidat,29cecdd7,pytest lancé dans le dossier du candidat,oui,non,361 verts annoncés sur le data.json du dépôt
+LIV-04,Garde-fou de livraison constatant sans bloquer,P0,Vérifié sur candidat,4c5d94f2,code de retour + épreuve par test rouge délibéré,oui,non,vérifié indépendamment par l'auditeur sur 3 scénarios
+LIV-05,Note sur l'unité du volume absente du ZIP,P2,Vérifié sur candidat,0d2bc32b,pieces/LISEZ-MOI.txt joint,oui,non,le script ne copiait que *.pdf
+LIV-06,Empreinte du JSON testé non comparée à celle du JSON livré,P1,Livré pour revue,,"contrôle ajouté, arrêt si divergence",non,non,lot 0
+LIV-07,Phrase résiduelle d'attribution dans le manifeste,P2,Livré pour revue,,formulation de compatibilité,non,non,lot 0
+DAT-01,CMT : signal ACHETER sur un titre suspendu,P0,Vérifié sur candidat,b09112eb,registre SUSPENSIONS + test de comportement,oui,non,"OPA obligatoire, avis AMMC du 17/07"
+DAT-02,Contrat ignorant la source derniere_cotation_avant_suspension,P0,Vérifié sur candidat,29cecdd7,"vocabulaire élargi, vérifié sur candidat",oui,non,trouvé par l'auditeur
+DAT-03,Suspension jugée à la date du cours — défaut circulaire,P0,Vérifié sur candidat,46c1f78e,_suspendu_maintenant + date d'analyse injectable,oui,non,le dernier cours précède toujours la suspension
+DAT-04,Zéro pris pour une absence (dividendes),P0,Vérifié sur candidat,b09112eb,"test de présence, 7 sociétés concernées",oui,non,"CMT publiait 0,5 % sur un dividende nul"
+DAT-05,Zéro pris pour une absence (dette nette),P1,Vérifié sur candidat,aac111ac,exclusion des secteurs sans objet,oui,non,"6 banques + 1 assureur : remplissage, pas mesure"
+DAT-06,"Huit BPA faux, tous surestimés",P0,Vérifié sur candidat,0cfd0f9c,faits AMMC page par page + test de redéduction,oui,non,"facteurs de 1,37 à 3,73"
+DAT-07,Dividendes en retard d'un exercice,P0,Vérifié sur candidat,7e553326,résolutions d'AG + recoupement IDBourse,oui,non,cause : ligne ETIC de l'exercice précédent
+DAT-08,Price-to-book issu d'une table codée en dur,P1,Vérifié sur candidat,0f21bd2c,"calcul depuis faits sourcés, sinon absent",oui,non,"ADI : 0,80 publié contre 2,30 calculé"
+DAT-09,28 chandelles fantômes pendant une suspension,P1,Vérifié sur candidat,13052ec5,purger_suspensions appelé par les 3 écrivains,oui,non,réapparaissaient au re-téléchargement
+DAT-10,Unité du volume historique CMT (v=67515) présumée,P2,Ouvert,,,non,non,le programme qui a écrit la bougie n'est pas enregistré
+DAT-11,Datation du bulletin du 09/09 — correspondance OBSERVÉE,P2,Vérifié sur candidat,,"61 titres comparés, 0 écart au-delà de 0,1 % de tolérance",oui,non,⚠️ PORTÉE : observation sur UN bulletin contre les chandelles du 08/09. Ne vaut PAS règle générale J-1.
+OUT-01,"parse_cdg_bulletin — 0 écart sans comparaison, et sortie en succès",P1,Livré pour revue,,état structuré + verdict + codes 0/1/2 + 9 tests de comportement,non,non,le compteur ne suffisait pas : la commande sortait quand même en succès
+UI-01,Fiche détaillée ne suivant pas la pondération,P1,Vérifié sur candidat,acc603e9,tests de la fiche,oui,non,signalé par le propriétaire
+UI-02,Barre de répartition figée sur les poids du moteur,P1,Vérifié sur candidat,bfd13d94,helper poidsAffiches + interdiction de r.poids,oui,non,4 emplacements
+UI-03,Mode personnalisé combinant de faux ingrédients,P0,Vérifié sur candidat,5f7d6e73,critère 100 % T = score_tech vérifié sur 5 titres,oui,non,score_fond n'était émis nulle part
+BT-01,Gain compté deux fois dans le backtest,P0,Vérifié sur candidat,b09112eb,cas 100-110-120 + 3 stratégies,oui,non,132 au lieu de 120
+BT-02,Frais d'entrée absents de la courbe,P0,Vérifié sur candidat,13f3d9ee,aller-retour à prix égal = (1-f)/(1+f),oui,non,défaut de mon propre correctif
+OPS-01,Bulletin matinal jamais envoyé — secret MAIL_TO absent,P0,Ouvert,eca5d891,étape de vérification qui nomme le secret,non,non,"12 runs, 12 échecs depuis le 03/09"
+OPS-02,Planificateur GitHub ne déclenche plus le moteur,P0,Ouvert,,,non,non,journaux du robot à fournir séparément
+OPS-03,Publication avant exécution des contrôles,P0,Vérifié sur candidat,13f3d9ee,suite complète bloquante avant push,oui,non,tests en continue-on-error après le push
+RCH-01,Prix synthétiques encore générés dans la chaîne de recherche,P0,Ouvert,,,non,non,phase8_correlations.py:186 appelle generate_synthetic_price_series dans build_price_panel — DISTINCT de BT-01/BT-02 qui portaient sur la comptabilité
+RCH-02,Cibles aléatoires dans phase9_ml,P0,Ouvert,,,non,non,"phase9_ml.py:227 rng.binomial(1, 0.35) en l absence de prix — une étiquette tirée au sort n est pas un résultat"
+RCH-03,Séparation temporelle du protocole non établie,P0,Ouvert,,,non,non,lot 6 — aucun protocole hors échantillon écrit à ce jour
+OUT-02,Datation des chandelles — origine à documenter,P2,Vérifié sur candidat,,"dates issues de DateDernierCours/DateCotation des charges utiles, jamais du titre du PDF",oui,non,"⚠️ 64 des 79 titres de la séance 08/09 viennent de CDG, même éditeur que le bulletin : recoupement de canal, pas de source indépendante"
+INV-01,Quatre volumes médians faux dans le premier inventaire,P1,Vérifié sur candidat,,"pipeline/inventaire.py calcule, statistics.median",oui,non,"sorted(v)[n//2] rend l élément supérieur du milieu, pas la médiane"
+INV-02,Argument de diversification sectorielle erroné,P2,Vérifié sur candidat,,"ADH et ADI sont tous deux Immobilier : TROIS secteurs, pas quatre",oui,non,corrigé dans INVENTAIRE_LOT1
+NRM-01,Instantané et couche normalisée confondus,P1,Vérifié sur candidat,,"datasets/lot1b/ dérivé, distinct de datasets/lot1a/ figé",oui,non,"lot 1B — 46 tests, dont l'identité des valeurs observation par observation"
+NRM-02,Manifeste qualifiant l'instantané de données brutes fournisseur,P1,Vérifié sur candidat,,MANIFESTE 1A réécrit : « INSTANTANÉ des séries du dépôt » + réserve explicite,oui,non,"aucune charge utile de source n'est conservée dans le dépôt — c'est une lacune, pas une convention"
+NRM-03,Commit du gel absent du manifeste,P1,Vérifié sur candidat,,"_commit_depot complet + commit_source_complet par série, testés sur 40 caractères",oui,non,un commit abrégé ne permet pas de rejouer le gel
+NRM-04,État d'ajustement non déclaré série par série,P1,Vérifié sur candidat,,etat_ajustement sur les 7 séries ; « inconnu » est le défaut,oui,non,« sans opération déclarée » n'est pas « vérifié sans opération »
+NRM-05,Bougie mêlant deux bases de prix admise en l'état,P0,Vérifié sur candidat,,"contrôle d'amplitude déduit de R10 : h/l > 1,222 impossible",oui,non,SOT 05/05 satisfait l'invariant OHLC : aucun contrôle de forme ne pouvait la voir
+NRM-06,Premier détecteur d'écart de base faux — ne trouvait rien,P1,Vérifié sur candidat,,remplacé ; consigné dans docs/JOURNAL_TRANSFORMATIONS.md,oui,non,"cherchait h/l == ratio à 1 % près ; SOT vaut 4,607 et non 5,000 car le cours bouge en séance"
+NRM-07,Historique SOT 5x trop bas exploité sans réserve,P0,Livré pour revue,,487 observations sur 542 déclarées sans usage admissible,oui,non,NON CORRIGÉ : multiplier par 5 fabriquerait 486 prix qu'aucune source ne confirme
+NRM-08,Risque de double division sur MNG,P0,Vérifié sur candidat,,base déclarée « ajusté une fois » ; le journal interdit de réappliquer,oui,non,"sur MNG le risque est d'agir, pas de s'abstenir"
+NRM-09,Tests relisant l'artefact sans chaînage au code,P1,Vérifié sur candidat,,test de reproductibilité : l'artefact livré == sortie du code au commit,oui,non,mesuré par mutation : le seuil neutralisé ne faisait tomber qu'un test sur 46
+NRM-10,Journal des transformations inexistant,P1,Vérifié sur candidat,,"docs/JOURNAL_TRANSFORMATIONS.md — applique ET non appliqué, avec motifs",oui,non,une transformation absente du journal n'a pas le droit d'exister dans le code

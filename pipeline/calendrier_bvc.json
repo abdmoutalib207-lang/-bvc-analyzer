@@ -1,0 +1,16 @@
+{
+  "_quoi": "Calendrier de la Bourse de Casablanca, versionné et sourcé.",
+  "_pourquoi": "La revue externe a écarté la règle « des clôtures identiques signalent une fermeture ». Des cours immobiles ou rediffusés peuvent relever de plusieurs situations : leur ressemblance peut déclencher une ALERTE, elle ne décide pas qu'un jour est férié. Un calendrier se construit à partir de sources identifiées ; à défaut, le statut reste « non confirmé ».",
+  "_statuts": {
+    "ferme": "marché fermé — établi par une source nommée",
+    "ouvert": "séance tenue — établie par une source nommée",
+    "non_confirme": "aucune source ne permet de trancher. ⚠️ N'EST PAS « ouvert » : c'est une absence de preuve, et elle doit le rester."
+  },
+  "_reserve": "⚠️ INCOMPLET PAR CONSTRUCTION. Les fériés marocains suivent en partie le calendrier lunaire. Toute date absente de ce fichier est « non confirmée », jamais « ouverte » par défaut.",
+  "version": "2026-09-11",
+  "jours": {
+    "2026-08-14": {"statut": "ferme", "motif": "férié", "source": "constaté le 14/08/2026 : 71 clôtures sur 71 identiques à la veille, recoupé au bulletin CDG"},
+    "2026-09-08": {"statut": "ouvert", "motif": "séance", "source": "bulletin CDG « Indices du mercredi 9 septembre 2026 », 61 titres recoupés à 0,1 % près"}
+  },
+  "_a_faire": "Étendre depuis une source officielle de la Bourse de Casablanca. En l'état ce fichier ne couvre que deux dates : il sert de CONTRAT, pas encore de référence."
+}

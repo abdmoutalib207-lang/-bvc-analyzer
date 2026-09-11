@@ -52,6 +52,9 @@ sys.path.insert(0, str(RACINE))
 from bvc_config import (COMPANY_SECTORS, ISIN_MAP, SPLITS,  # noqa: E402
                         SUSPENSIONS, TICKERS_ACTIFS, TICKERS_ALL,
                         est_ferie_fixe)
+sys.path.insert(0, str(RACINE / "pipeline"))
+from qualification import (COUVERTURE_MINIMALE,  # noqa: E402
+                           mediane_admissible, part_sans_transaction)
 
 # Fenêtre des statistiques d'activité. Nommée ici pour qu'un désaccord porte
 # sur la définition et non sur le résultat.
@@ -115,8 +118,13 @@ def inventorier_serie(ticker: str) -> dict:
     dates = [str(b.get("d") or "")[:10] for b in serie]
     vols = [b.get("v") for b in serie]
 
+    # ⚠️ PLUS DE `or 0`. Un volume inconnu devenait un zéro mesuré, ce qui
+    # contredisait le contrat du projet. Aucun volume absent n'existait dans
+    # les données du 11/09 — les médianes livrées restaient donc justes — mais
+    # la convention aurait produit une erreur dès la première donnée manquante.
+    # Relevé par la revue externe.
     fen = serie[-FENETRE_ACTIVITE:]
-    v_fen = [(b.get("v") or 0) for b in fen]
+    v_fen = [b.get("v") for b in fen]
 
     attendus = jours_ouvres(dates[0], dates[-1]) if dates else []
     presents = set(dates)
@@ -137,16 +145,8 @@ def inventorier_serie(ticker: str) -> dict:
         "volume": {
             "unite": UNITE_VOLUME,
             "certitude_unite": CERTITUDE_UNITE,
-            "inconnus": sum(1 for v in vols if v is None),
-            "nuls": sum(1 for v in vols if v == 0),
-            "positifs": sum(1 for v in vols if isinstance(v, (int, float)) and v > 0),
-            "part_seances_sans_volume": round(
-                sum(1 for v in vols if not v) / len(vols), 4) if vols else None,
-            "fenetre": FENETRE_ACTIVITE,
-            "formule": "statistics.median sur les N dernières lignes présentes, "
-                       "valeurs absentes comptées comme 0",
-            "mediane_fenetre": mediane(v_fen),
-            "lignes_dans_la_fenetre": len(fen),
+            **part_sans_transaction(vols),
+            "mediane": mediane_admissible(v_fen, FENETRE_ACTIVITE),
         },
         "calendrier": {
             "jours_ouvres_attendus": len(attendus),
@@ -176,6 +176,13 @@ def inventorier() -> dict:
         "series_presentes": len(avec),
         "series_absentes": sorted(s["ticker"] for s in series
                                   if not s.get("lignes_presentes")),
+        # ⚠️ 74 FICHIERS, 73 RATTACHÉS À L'UNIVERS. L'écart n'est pas une
+        # disparition de données : un fichier porte un code hors TICKERS_ALL.
+        # La revue a demandé de le nommer pour qu'on cesse de l'interpréter
+        # comme une perte.
+        "fichiers_presents": len(list(CANDLES.glob("*.json"))),
+        "fichiers_orphelins": sorted(
+            f.stem for f in CANDLES.glob("*.json") if f.stem not in TICKERS_ALL),
         "profondeur": {
             "min": prof[0] if prof else None,
             "mediane": mediane(prof),
@@ -208,6 +215,13 @@ def en_markdown(inv: dict) -> str:
     w(f"- séries présentes : **{inv['series_presentes']}**")
     if inv["series_absentes"]:
         w(f"- sans série : {', '.join(inv['series_absentes'])}")
+    w(f"- **{inv['fichiers_presents']} fichiers présents**, dont "
+      f"**{inv['series_presentes']} rattachés à l'univers actuel**")
+    if inv["fichiers_orphelins"]:
+        w(f"  - fichier(s) orphelin(s), hors `TICKERS_ALL` : "
+          f"**{', '.join(inv['fichiers_orphelins'])}**")
+        w("  - ⚠️ ce n'est PAS une disparition de données : le fichier existe,")
+        w("    son code n'appartient simplement plus à l'univers déclaré")
     w(f"- profondeur : min **{p['min']}**, médiane **{p['mediane']}**, "
       f"max **{p['max']}** lignes")
     w(f"- au moins 250 lignes : **{p['au_moins_250']}** · "
@@ -221,20 +235,24 @@ def en_markdown(inv: dict) -> str:
     w(f"- unité retenue : **{UNITE_VOLUME}**")
     w(f"- certitude : *{CERTITUDE_UNITE}*")
     w(f"- fenêtre d'activité : **{FENETRE_ACTIVITE}** dernières lignes présentes")
-    w(f"- formule : `statistics.median`, valeurs absentes comptées comme 0\n")
+    w("- formule : `statistics.median` sur les valeurs d'état « mesuré » ;")
+    w("  les inconnues et invalides sont EXCLUES, jamais remplacées par zéro")
+    w(f"- couverture minimale pour publier la statistique : **{COUVERTURE_MINIMALE:.0%}**")
+    w("  — en deçà, la statistique est **non calculable**, ce qui n'est pas zéro\n")
     w("## Séries\n")
     w("| Titre | Secteur | Lignes | Première | Dernière | Médiane vol. | "
-      "Sans vol. | Trous |")
-    w("|---|---|---:|---|---|---:|---:|---:|")
+      "Vol. mesuré nul | Vol. inconnu | Trous |")
+    w("|---|---|---:|---|---|---:|---:|---:|---:|")
     for s in inv["series"]:
         if not s.get("lignes_presentes"):
             continue
         v = s["volume"]
+        m = v["mediane"]
+        med = f"{m['valeur']:,.1f}".replace(",", " ") if m["calculable"] else "non calculable"
+        pmn = v["part_mesure_nulle"]
         w(f"| {s['ticker']} | {s['secteur'] or '—'} | {s['lignes_presentes']} | "
-          f"{s['premiere_date']} | {s['derniere_date']} | "
-          f"{v['mediane_fenetre']:,.1f} | "
-          f"{v['part_seances_sans_volume']:.0%} | {s['calendrier']['trous']} |"
-          .replace(",", " "))
+          f"{s['premiere_date']} | {s['derniere_date']} | {med} | "
+          f"{pmn:.0%} | {v['part_inconnue']:.0%} | {s['calendrier']['trous']} |")
     return "\n".join(L) + "\n"
 
 
