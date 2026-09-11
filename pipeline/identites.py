@@ -101,6 +101,16 @@ def manual_map() -> dict:
             re.finditer(r'"([A-Z0-9]{2,5})"\s*:\s*"([^"]*)"', bloc.group(1))}
 
 
+# Alias EXACTS et NON AMBIGUS, documentés un par un.
+# ⚠️ Une entrée ici autorise une écriture : elle doit donc nommer une source.
+# Un alias « probable » n'a rien à y faire — c'est une ressemblance, et une
+# ressemblance ne vaut pas identité.
+ALIAS_EXACTS: dict = {
+    # "IAM": {"alias": "Maroc Telecom",
+    #         "source": "à documenter — fiche instrument de la BVC"},
+}
+
+
 # Identités CONFRONTÉES à une réponse de fournisseur et retenues comme établies.
 # ⚠️ VIDE. Aucune réponse de fournisseur n'est conservée dans ce dépôt ; aucune
 # identité ne peut donc être déclarée vérifiée aujourd'hui. Une entrée écrite
@@ -275,22 +285,69 @@ def autoriser_ecriture(ticker: str, identite_recue: str | None = None) -> dict:
                               "identifiant l'instrument, et le comparer",
                 "etat": e}
 
+    # ── UNE RESSEMBLANCE N'AUTORISE RIEN ────────────────────────────────────
+    # ⚠️ DÉFAUT CORRIGÉ, RELEVÉ PAR LA REVUE. Cette fonction autorisait dès que
+    # la concordance dépassait le seuil. Or « Crédit du Maroc » et « Crédit
+    # Eqdom » partagent le mot « Crédit » : concordance 50 %, au-dessus du
+    # seuil de 34 %. Le collecteur aurait donc accepté, pour CDM, les cours
+    # d'Eqdom — et réciproquement. C'est exactement le défaut qu'on prétendait
+    # empêcher, reproduit par le contrôle censé l'empêcher.
+    #
+    # L'autorisation repose désormais sur une PREUVE EXACTE, jamais sur une
+    # distance entre chaînes :
+    #     · un identifiant fournisseur qui correspond exactement ;
+    #     · un ISIN qui correspond ;
+    #     · un alias exact, documenté et non ambigu.
+    # Une ressemblance conduit à une VÉRIFICATION, pas à une autorisation.
     attendu = e["nom_du_referentiel"] or ""
-    c = concordance(identite_recue, attendu)
-    codes = {(e["ticker_fournisseur"] or "").upper(), ticker.upper()}
-    if identite_recue.strip().upper() in codes or c >= SEUIL_DESACCORD:
-        return {"autorise": True, "ticker": ticker,
-                "motif": f"identité reçue « {identite_recue} » compatible avec "
-                         f"« {attendu} » (concordance {c:.0%})",
+    recu = (identite_recue or "").strip()
+    c = concordance(recu, attendu)
+
+    codes = {x.upper() for x in
+             ((e["ticker_fournisseur"] or ""), ticker) if x}
+    if recu.upper() in codes:
+        return {"autorise": True, "ticker": ticker, "preuve": "identifiant",
+                "motif": f"identifiant fournisseur « {recu} » reconnu",
+                "etat": e}
+
+    isin = (e["isin"] or "").upper()
+    if isin and recu.upper().replace(" ", "") == isin:
+        return {"autorise": True, "ticker": ticker, "preuve": "ISIN",
+                "motif": f"ISIN « {recu} » concordant", "etat": e}
+
+    al = ALIAS_EXACTS.get(ticker)
+    if al and _ascii(recu) == _ascii(al["alias"]):
+        return {"autorise": True, "ticker": ticker, "preuve": "alias documenté",
+                "motif": f"alias exact « {al['alias'] }» — {al['source']}",
+                "etat": e}
+
+    if _ascii(recu) and _ascii(recu) == _ascii(attendu):
+        return {"autorise": True, "ticker": ticker, "preuve": "nom exact",
+                "motif": f"nom reçu identique au référentiel : « {recu} »",
+                "etat": e}
+
+    # ── À partir d'ici, rien n'est prouvé. Deux refus, deux messages. ───────
+    autre = vise_un_autre_titre(ticker, recu)
+    if autre:
+        v = autre["vise"][0]
+        return {"autorise": False, "ticker": ticker,
+                "motif": f"LE FOURNISSEUR A RENVOYÉ UNE AUTRE ENTREPRISE : "
+                         f"« {recu} » désigne {v['ticker']} — « {v['nom']} » — "
+                         f"et non « {attendu} »",
+                "quoi_faire": "ne rien écrire. C'est le défaut qui a fait "
+                              "porter à MSA les cours de Mutandis pendant cinq "
+                              "semaines.",
                 "etat": e}
 
     return {"autorise": False, "ticker": ticker,
-            "motif": f"LE FOURNISSEUR A RENVOYÉ UNE AUTRE ENTREPRISE : "
-                     f"« {identite_recue} » au lieu de « {attendu} » "
-                     f"(concordance {c:.0%})",
-            "quoi_faire": "ne rien écrire. C'est exactement le défaut qui a "
-                          "fait porter à MSA les cours de Mutandis pendant "
-                          "cinq semaines.",
+            "motif": f"identité NON PROUVÉE : « {recu} » ne correspond ni à un "
+                     f"identifiant fournisseur, ni à un ISIN, ni à un alias "
+                     f"documenté, ni exactement à « {attendu} » "
+                     f"(ressemblance {c:.0%}, qui ne prouve rien)",
+            "quoi_faire": "vérifier l'identité auprès de la source, puis "
+                          "documenter un alias exact si elle se confirme. "
+                          "⚠️ Une ressemblance appelle une vérification, jamais "
+                          "une autorisation.",
             "etat": e}
 
 

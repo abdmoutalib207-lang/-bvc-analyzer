@@ -8,9 +8,9 @@ par cinq états, et les deux derniers sont distincts :
 
     Ouvert → En cours → Livré pour revue → Vérifié sur candidat → Vérifié en production
 
-Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **123 entrées**, dont
-**46 vérifiées sur candidat, 70 livrées pour revue,
-7 ouvertes, et 0 vérifiée EN PRODUCTION** — parce que rien n'est fusionné.
+Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **130 entrées**, dont
+**46 vérifiées sur candidat, 76 livrées pour revue,
+8 ouvertes, et 0 vérifiée EN PRODUCTION** — parce que rien n'est fusionné.
 
 ⚠️ Cette synthèse est recalculée à chaque mise à jour du registre. Une version
 antérieure annonçait encore 27 entrées quand le fichier en portait 33 : la
@@ -251,6 +251,20 @@ c'est ainsi que le défaut a été introduit en juin.
 
 **Trois horloges, désormais distinctes** : date de séance · date d'écriture ·
 date du correctif. Un import du 6 juin peut écrire des cours datés du 13 mai.
+
+⚠️ **Le garde-fou n'était appelé de nulle part.** Il était défini, testé en
+isolation, et `run()` allait jusqu'à l'écriture sans jamais le consulter. La
+revue l'a éprouvé : zéro appel, trois fichiers créés, indicateurs rendus pour
+les trois. Il est maintenant branché dans le parcours, avant tout calcul et
+toute écriture, et les tests **lancent ce parcours** au lieu d'interroger la
+fonction.
+
+⚠️ **Une ressemblance de noms autorisait la mauvaise entreprise.** « Crédit du
+Maroc » et « Crédit Eqdom » partagent un mot : 50 % de concordance, au-dessus
+du seuil. Le contrôle reproduisait le défaut qu'il devait empêcher.
+L'autorisation repose désormais sur une **preuve exacte** — identifiant
+fournisseur, ISIN, alias documenté, ou nom identique. Une ressemblance appelle
+une vérification, jamais une autorisation.
 
 ## Lot 2 — Normaliser les indicateurs techniques
 

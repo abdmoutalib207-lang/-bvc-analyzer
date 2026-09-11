@@ -1,109 +1,110 @@
-# Proposition de fusion — périmètre limité aux corrections destinées au site
+# Proposition de fusion — dépendances mesurées, pas supposées
 
 > ⚠️ **Proposition, pas exécution.** Rien n'est fusionné. La décision appartient
 > au propriétaire du projet.
 
-## Ce que j'avais affirmé, et qui était faux
+## Trois affirmations que j'ai faites et qui étaient fausses
 
-J'ai écrit que les deux ensembles de la branche — corrections et outillage —
-étaient « sans danger pour le site ». **La revue a refusé cette affirmation, et
-la vérification lui donne raison.**
+| Ce que j'avais écrit | Ce que la vérification donne |
+|---|---|
+| « Le site ne sert que `data.json` et `news.json` » | **Faux.** `fetchChart()` charge aussi `./pipeline/candles/${sym}.json` |
+| J'annonçais le reste comme fusionnable sans réserve | **Faux.** La branche modifie **66 fichiers de chandelles**, que le frontend lit |
+| « Une fusion ferait reculer le site de trois jours » | **Non établi.** La fusion d'essai garde la version de `main` |
 
-La branche modifie `.github/workflows/update_bvc.yml`, c'est-à-dire **le
-workflow qui écrit `data.json`**. Un changement de workflow n'est jamais neutre
-pour les données servies : il produit le fichier que le site sert.
+La dernière mérite d'être détaillée, parce que je l'avais annoncée comme
+certaine à partir des seules dates.
 
-## Ce que le site sert réellement
+## Ce que la fusion d'essai donne réellement
 
-Vérifié dans `index.html` : le terminal ne va chercher que **deux fichiers** —
-`data.json` et `news.json`. Tout le reste du dépôt ne l'atteint que par ce que
-le moteur y écrit.
+Procédure, rejouable :
 
-## ⚠️ Le danger principal : une fusion naïve ferait RECULER le site
+```
+git worktree add --detach /tmp/essai_fusion origin/main
+cd /tmp/essai_fusion && git merge --no-ff --no-commit claude/terminal-bvc-review-AmnBU
+```
 
-| | `origin/main` | notre branche |
+| Fichier | `main` | branche | **après fusion** |
+|---|---|---|---|
+| `data.json` (`updated`) | 11/09 14h01 | 08/09 20h40 | **11/09 14h01** |
+| MASI | 18 713,38 | 18 811,95 | **18 713,38** |
+
+**Aucun recul.** `data.json` et `news.json` sont identiques à l'ancêtre commun
+côté branche : seul `main` a changé, et une fusion Git normale conserve son
+état. L'ancienneté d'un fichier dans une branche ne démontre pas son
+écrasement — la revue a eu raison de refuser ce raccourci.
+
+Le risque de recul demeure, mais il porte sur une **copie forcée** ou une
+**mauvaise résolution de conflit**, pas sur la fusion elle-même.
+
+## ⚠️ La fusion ne s'applique PAS proprement
+
+```
+pipeline/historical_data.json — CONFLIT
+```
+
+77 entrées de part et d'autre, contenus divergents. Ce fichier n'est pas lu par
+le frontend, mais il alimente la chaîne de repli des prix. **Le conflit doit
+être résolu explicitement, jamais « au plus récent » par réflexe.**
+
+## Ce que le site lit réellement
+
+Relevé dans `index.html` :
+
+| Ressource | Où |
+|---|---|
+| `data.json` | rafraîchissement principal |
+| `news.json` | actualités |
+| `./pipeline/candles/${sym}.json` | **`fetchChart()` — lecture directe** |
+
+Les chandelles ne sont donc pas un détail d'arrière-boutique : **le graphique
+du terminal les lit en direct**. La branche en modifie 66.
+
+## Dépendances et comportements attendus
+
+| Élément | Dépendance | Comportement attendu après fusion |
 |---|---|---|
-| `data.json` daté du | **2026-09-11 14h01** | 2026-09-08 20h40 |
-| MASI | 18 713,38 | 18 811,95 |
+| `update_data.py` | produit `data.json` | même univers, mêmes 80 titres, fraîcheur inchangée |
+| `.github/workflows/update_bvc.yml` | **produit et publie** `data.json` | ⚠️ ajoute des contrôles bloquants : **une actualisation légitime peut être interrompue** si un test de données échoue. Ce n'est pas une garantie gratuite — c'est un arbitrage entre publier vite et publier juste. |
+| `pipeline/candles/*.json` (66) | **lus par `fetchChart()`** | le graphique doit continuer à s'afficher pour un titre pris au hasard |
+| `pipeline/collect_history_bvcscrap.py` | écrit les chandelles | ⚠️ **refuse désormais d'écrire** une identité non établie. Sans identité capturée par la source, il n'écrit rien. |
+| `index.html` | rendu | le JSX est compilé au navigateur : **aucun test Python ne voit une faute de syntaxe** |
+| `bpa.json`, `pipeline/faits_financiers.json` | lus par le moteur | valeurs vérifiées sur dépôts AMMC |
+| `pipeline/historical_data.json` | repli des prix | **en conflit — à résoudre explicitement** |
 
-Notre instantané a **trois jours de retard**. Le robot continue d'écrire sur
-`main` pendant que nous travaillons.
+## Ce qu'il faut vérifier sur le candidat de fusion, pas avant
 
-Fusionner la branche telle quelle réécrirait `data.json` et `news.json` avec
-notre copie périmée. **Le projet a déjà subi exactement cette régression** — le
-journal du 25/08 la décrit : « Le pipeline v9 faisait reculer les cours […]
-57 cours ramenés à ceux de 11h31. »
+1. Résoudre le conflit `historical_data.json` et **dire comment**.
+2. `gardien-donnees` en avant/après sur les 80 titres : aucun ticker perdu,
+   aucune fraîcheur dégradée, aucune variation hors R10.
+3. **Contrôle de rendu** : ouvrir le terminal fusionné, afficher un titre, et
+   vérifier que le **graphique** se charge — c'est le seul moyen de voir une
+   régression sur les chandelles ou une faute de JSX.
+4. Suite complète sur le candidat.
+5. Premier run du robot après fusion, **surveillé** : c'est lui qui régénérera
+   `data.json` avec le moteur corrigé, et c'est là qu'un contrôle bloquant
+   pourrait interrompre une publication légitime.
 
-## Périmètre proposé
+## Ce que la fusion changerait dans le fichier servi
 
-### À FUSIONNER — le moteur et ce qu'il produit
+Mesuré en exécutant les deux moteurs sur des entrées identiques :
 
-| Fichier | Ce que ça corrige |
-|---|---|
-| `update_data.py` | suspension jugée à la date d'analyse · price-to-book sourcé · dividendes · composantes du score publiées |
-| `bvc_config.py` | registre des suspensions · CMT |
-| `bpa.json`, `pipeline/faits_financiers.json` | 8 BPA et 29 dividendes vérifiés sur dépôts AMMC |
-| `index.html` | curseur de pondération réparé · puce SUSPENDU |
-| `.github/workflows/update_bvc.yml` | **contrôles bloquants avant publication** |
-
-⚠️ Le changement de workflow est le seul qui touche la production de manière
-structurelle. Il **ajoute une barrière** : la suite de tests s'exécute sur le
-fichier fraîchement écrit, avant publication, et un échec des contrôles de
-données interrompt la diffusion. C'est une garantie supplémentaire, pas un
-risque — mais c'est un changement de production et il doit être annoncé comme
-tel.
-
-### À EXCLURE de la fusion
-
-| Fichier | Pourquoi |
-|---|---|
-| `data.json` | **propriété du robot.** Notre copie a 3 jours de retard. Il se régénère au prochain run. |
-| `news.json` | idem |
-
-### Sans effet sur le site, fusionnables sans risque
-
-`pipeline/` (les modules de qualification, d'identité, de contamination),
-`docs/`, `tests/`, `datasets/`, `sources/`, `ROADMAP.md`, `AUDIT_TRACKER.csv`.
-Aucun n'est lu par `index.html` ni par le moteur de publication.
-
-⚠️ Une exception à surveiller : `pipeline/collect_history_bvcscrap.py` reçoit
-le garde-fou d'identité. Il n'écrit pas `data.json`, mais il écrit
-`pipeline/candles/`, dont le moteur se sert en repli. Le garde-fou **refuse**
-des écritures ; il ne peut donc pas en fabriquer de fausses.
-
-## Ce qu'il faut vérifier avant de fusionner
-
-1. **Contrôle avant/après par `gardien-donnees`** sur les 80 titres : aucun
-   ticker perdu, aucune fraîcheur dégradée, aucune variation hors R10.
-2. **Suite complète sur le candidat** — 621 tests au dépôt à ce jour.
-3. **Rendu du terminal** : le JSX est compilé au navigateur, aucun test Python
-   ne voit une faute de syntaxe. Un rendu réel est nécessaire.
-4. **Premier run du robot après fusion**, surveillé : c'est lui qui régénérera
-   `data.json` avec le moteur corrigé.
-
-## Ce que la fusion corrigerait sur le site
-
-Vérifié en comparant le `data.json` produit par les deux moteurs sur des
-entrées identiques :
-
-| Champ | Titres concernés |
+| Champ | Titres |
 |---|--:|
-| `div` (dividende) | 37 |
+| `div` | 37 |
 | `div_dh` | 32 |
-| `pb` (price-to-book) | 60 |
+| `pb` | 60 |
 | `score_fond`, `score_nlp` | 80 |
 | `v53` | 2 |
-| `pe`, `bpa`, `price`, `chg` | 1 à 2 |
 
-⚠️ Ces nombres viennent d'une exécution comparée des deux moteurs, pas du site
-en production. **Ce que le site sert aujourd'hui n'a pas été relevé
-séparément** : je ne peux donc pas affirmer combien d'erreurs y subsistent
-exactement, seulement ce que le moteur corrigé produit de différent.
+⚠️ Ces nombres viennent d'une **exécution comparée**, pas du site en production.
+**Je n'ai pas relevé l'état servi aujourd'hui** : je ne peux donc pas dire
+combien d'erreurs y subsistent, seulement ce que le moteur corrigé produit de
+différent.
 
-## Ce que la fusion ne corrigerait PAS
+## Ce que la fusion ne corrigerait pas
 
-- Les **cinq semaines de cours Mutandis dans `pipeline/candles/MSA.json`**.
-  Le garde-fou empêche d'en écrire de nouvelles ; il ne nettoie pas l'existant.
-- Les **historiques des titres nommés au commit de juin** — ATL, CFGB, DAR.
-- Le **cron GitHub**, premier risque du projet, non traité.
-- **Aucune performance** n'est démontrée, et rien ici ne s'en approche.
+- Les cinq semaines de cours Mutandis dans `pipeline/candles/MSA.json`. Le
+  garde-fou empêche d'en écrire de nouvelles ; il ne nettoie pas l'existant.
+- Les historiques d'ATL, CFGB et DAR, nommés par la pièce de juin.
+- Le cron GitHub, premier risque du projet.
+- Aucune performance n'est démontrée.

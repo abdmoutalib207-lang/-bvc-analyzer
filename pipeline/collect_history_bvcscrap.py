@@ -68,6 +68,15 @@ except ImportError:                                   # exécution hors paquet
     from identites import autoriser_ecriture
 
 
+try:
+    from contamination import usage_permis
+except ImportError:                                   # exécution hors paquet
+    import sys as _sys2
+    from pathlib import Path as _Path2
+    _sys2.path.insert(0, str(_Path2(__file__).resolve().parent))
+    from contamination import usage_permis
+
+
 def ecriture_autorisee(ticker: str, identite_recue: str | None = None) -> dict:
     """À appeler AVANT d'écrire l'historique d'un titre.
 
@@ -412,7 +421,22 @@ def save_candle_file(ticker: str, df: pd.DataFrame, candles_dir: Path) -> None:
     out.write_text(json.dumps(candles, ensure_ascii=False), encoding="utf-8")
 
 
-def run(tickers_filter: list[str] | None = None) -> dict:
+def run(tickers_filter: list[str] | None = None,
+        identites_recues: dict | None = None,
+        rendre_refus: bool = False,
+        candles_dir: Path | None = None):
+    """Collecte l'historique. ⚠️ N'écrit que les identités ÉTABLIES.
+
+    `identites_recues` : le nom ou le code que la SOURCE a réellement renvoyé,
+    ticker par ticker. Sans lui, l'écriture est refusée — une table cohérente
+    avec elle-même peut être fausse, et elle l'était.
+    """
+    identites_recues = identites_recues or {}
+    refus: dict = {}
+    return _run(tickers_filter, identites_recues, refus, rendre_refus, candles_dir)
+
+
+def _run(tickers_filter, identites_recues, refus, rendre_refus, candles_dir=None):
     try:
         import BVCscrap  # noqa: F401
         bvcscrap_ok = True
@@ -428,7 +452,9 @@ def run(tickers_filter: list[str] | None = None) -> dict:
 
     log.info(f"{len(all_tickers)} tickers à traiter")
 
-    candles_dir = Path(__file__).parent / "candles"
+    # ⚠️ Paramétrable : un test qui écrirait dans pipeline/candles/ abîmerait
+    # le dépôt qu'il est censé protéger.
+    candles_dir = candles_dir or (Path(__file__).parent / "candles")
     results: dict = {}
 
     for i, ticker in enumerate(all_tickers, 1):
@@ -485,6 +511,36 @@ def run(tickers_filter: list[str] | None = None) -> dict:
             log.warning(f"  {ticker}: historique insuffisant ({len(df)} bougies) — ignoré")
             continue
 
+        # ── GARDE-FOU D'IDENTITÉ — AVANT tout calcul et toute écriture ─────
+        #
+        # ⚠️ DÉFAUT CORRIGÉ, RELEVÉ PAR LA REVUE. Le garde-fou existait mais
+        # n'était appelé de nulle part : `run()` allait jusqu'à l'écriture sans
+        # jamais le consulter. Éprouvé en externe — zéro appel, trois fichiers
+        # créés, indicateurs renvoyés pour les trois. Une promesse non branchée
+        # ne protège rien, et les tests qui interrogeaient la fonction sans
+        # lancer le parcours ne pouvaient pas s'en apercevoir.
+        #
+        # Le contrôle est ici, au seul endroit qui compte : entre la donnée
+        # assemblée et son entrée dans les séries et les résultats.
+        verdict = ecriture_autorisee(ticker, identites_recues.get(ticker))
+        if not verdict["autorise"]:
+            log.warning(f"  {ticker}: ÉCRITURE REFUSÉE — {verdict['motif']}")
+            refus[ticker] = verdict
+            # ⚠️ Ni indicateur, ni fichier. Ce qui existait déjà reste INTACT :
+            # un import refusé ne doit pas détruire des données antérieures
+            # valides.
+            continue
+
+        # ── Les dates RÉELLEMENT utilisées sont-elles contaminées ? ────────
+        # ⚠️ On ne bannit pas un titre parce qu'une période ancienne l'est.
+        dates_utilisees = [str(d)[:10] for d in df["date"].tolist()]
+        u = usage_permis(ticker, dates_utilisees)
+        if not u["permis"]:
+            log.warning(f"  {ticker}: INDICATEURS REFUSÉS — {u['motif']}")
+            refus[ticker] = {"autorise": False, "ticker": ticker,
+                             "motif": u["motif"], "contamination": u}
+            continue
+
         try:
             ind = compute_indicators(df)
             results[ticker] = ind
@@ -499,6 +555,11 @@ def run(tickers_filter: list[str] | None = None) -> dict:
 
         time.sleep(0.2)
 
+    if refus:
+        log.warning(f"{len(refus)} titre(s) refusé(s) à l'écriture : "
+                    f"{', '.join(sorted(refus))}")
+    if rendre_refus:
+        return results, refus
     return results
 
 

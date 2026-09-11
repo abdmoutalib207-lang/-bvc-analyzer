@@ -195,6 +195,44 @@ def fenetre_contaminee(ticker: str, debut: str, fin: str) -> list:
     return touches
 
 
+def dates_contaminees(ticker: str, dates) -> list:
+    """Parmi les dates RÉELLEMENT utilisées, lesquelles sont contaminées ?
+
+    ⚠️ La revue a demandé de ne pas interdire toute analyse d'un titre parce
+    qu'une période ANCIENNE est contaminée. Un indicateur qui ne regarde que
+    les vingt dernières séances ne touche pas une fenêtre de mai.
+
+    On compare donc aux dates effectivement consommées, pas à l'historique.
+    """
+    fenetres = [s for s in SOUPCONS
+                if s["titre"] == ticker and s["debut_seance"]]
+    if not fenetres:
+        return []
+    return sorted(d for d in dates
+                  for f in fenetres
+                  if f["debut_seance"] <= str(d)[:10] <= f["fin_seance"])
+
+
+def usage_permis(ticker: str, dates) -> dict:
+    """Peut-on calculer un indicateur sur CES dates-là ?"""
+    touchees = dates_contaminees(ticker, dates)
+    if not touchees:
+        return {"permis": True, "ticker": ticker, "dates_contaminees": [],
+                "motif": None}
+    f = [s for s in SOUPCONS if s["titre"] == ticker and s["debut_seance"]][0]
+    return {
+        "permis": False, "ticker": ticker,
+        "dates_contaminees": touchees,
+        "premiere": touchees[0], "derniere": touchees[-1],
+        "suspect": f["suspect"], "niveau": f["niveau"],
+        "motif": (f"{len(touchees)} des dates utilisées tombent dans une "
+                  f"contamination ({f['niveau']}) : {ticker} pourrait y porter "
+                  f"les cours de {f['suspect'] or 'une autre société'}. "
+                  f"⚠️ Les valeurs sont bien formées — c'est leur APPARTENANCE "
+                  f"qui est en cause."),
+    }
+
+
 def rendre(inv: dict) -> str:
     L = ["# Contaminations entre entreprises — inventaire",
          "",
