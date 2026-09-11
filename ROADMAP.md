@@ -8,9 +8,9 @@ par cinq états, et les deux derniers sont distincts :
 
     Ouvert → En cours → Livré pour revue → Vérifié sur candidat → Vérifié en production
 
-Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **85 entrées**, dont
-**35 vérifiées sur candidat, 44 livrées pour revue,
-6 ouvertes, et 0 vérifiée EN PRODUCTION** — parce que rien n'est fusionné.
+Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **101 entrées**, dont
+**40 vérifiées sur candidat, 53 livrées pour revue,
+8 ouvertes, et 0 vérifiée EN PRODUCTION** — parce que rien n'est fusionné.
 
 ⚠️ Cette synthèse est recalculée à chaque mise à jour du registre. Une version
 antérieure annonçait encore 27 entrées quand le fichier en portait 33 : la
@@ -117,20 +117,71 @@ série montre 6 400,00 le 06/10 puis 658,00 le 09/10 : rapport 0,1028. Le
 fournisseur n'a donc **pas** retraité l'historique — l'inverse de MNG. Aucun
 ajustement n'est appliqué.
 
-**Les 13 ruptures, triées.** La règle est publiée, le calcul se relance d'une
-commande. Trois discriminants mécaniques réduisent le champ :
+**Les 13 ruptures, classées par forme.** La règle est publiée, le calcul se
+relance d'une commande.
 
-| Forme | Nombre | Lecture |
+| Forme | Nombre | Ce que cela oriente |
 |---|--:|---|
-| aller-retour | 8 | une opération sur titres **ne revient jamais** — valeur injectée |
-| sans transaction de part et d'autre | 3 | le prix a changé dans le fichier, pas sur le marché |
-| **candidates réelles** | **4** | CIM, DAR, HPS, SOT — dont une seule documentée |
+| aller-retour | 8 | plus **souvent** une valeur injectée qu'une opération sur titres |
+| aucun échange renseigné | 3 | rien n'est renseigné de part et d'autre |
+| couvertes par une pièce | 1 | HPS |
 
-**L'unité des volumes n'est pas établie, et c'est mesuré.** Si `v` comptait des
-titres, deux séries impliqueraient plus de 5 milliards de dirhams échangés par
-séance — davantage que le marché entier. Les montants s'étalent sur un facteur
-25 millions. Une unité unique est incompatible avec les données ; ce que `v`
-est réellement reste inconnu.
+⚠️ **Ce classement ordonne les recherches ; il n'explique aucun cas.** Un retour
+du prix près d'un niveau antérieur ne **prouve** pas une valeur injectée et
+n'**exclut** pas une opération sur titres. Les treize restent **treize alertes à
+expliquer** ; seule une pièce datée en referme une.
+
+⚠️ **Les catégories ne sont pas disjointes** — une rupture peut être en
+aller-retour *et* sans échange renseigné. Les totaux ne s'additionnent pas.
+
+⚠️ **Volume absent ≠ zéro enregistré ≠ absence de transaction.** Une version
+antérieure confondait les trois : `not a.get("v") and not b.get("v")` classait
+deux volumes **absents** comme « aucune transaction ». Corrigé en quatre états.
+
+⚠️ Le seuil de détection **n'a aucune portée réglementaire**, et il ne faut pas
+lui en redonner une : le contrôle d'amplitude vient précisément d'abandonner
+cette prétention.
+
+**L'alerte d'ordre de grandeur sur les volumes — sa portée, corrigée.** Le
+contrôle rend au mieux « ordre de grandeur suspect sous l'hypothèse de
+quantités en titres ». J'avais écrit qu'il « ne dépend d'aucune source
+extérieure » : **c'était faux**, il dépend de deux constantes posées dans le
+programme, `quantité × clôture` n'approxime le montant que grossièrement, et un
+grand écart entre titres ne prouve pas des unités différentes. Ce qui a
+réellement tranché est l'export — voir le lot 1D.
+
+### Lot 1D — premier export réel confronté
+
+**Deux exports reçus** (ADH et CSR, 3 ans, fournis par Noure). Le schéma est
+**relevé sur le fichier**, pas deviné : 11 colonnes, séparateur point-virgule,
+dates en JJ/MM/AAAA.
+
+**L'export porte deux colonnes là où nous n'avons qu'un champ** :
+`Volume (MAD)` et `Titres Échangés`. La confrontation ligne datée par ligne
+datée tranche : **notre `v` suit le montant en dirhams sur 92 % des 730 séances
+communes d'ADH** — pas un nombre de titres. Idem sur CSR.
+
+⚠️ Cela vaut pour **deux titres**. Rien ne l'étend aux 79 autres.
+
+**Les écarts avec l'opérateur sont bornés dans le temps** :
+
+| Mois | Écarts de prix (ADH) | `v` non concordants |
+|---|--:|--:|
+| avant juin 2026 | **0** | **0** |
+| 2026-06 | 30 | 6 |
+| 2026-07 | 50 | 22 |
+| 2026-08 | 23 | 4 |
+| 2026-09 | 2 | 0 |
+
+Sur deux ans et demi, nos valeurs et celles de l'opérateur concordent. Le
+désaccord n'est pas diffus : il est daté, et récent. ⚠️ **Un écart oppose deux
+sources ; il ne désigne pas la fautive.** Aucune correction n'est appliquée.
+
+**Trois séances manquent chez nous** et figurent chez l'opérateur : les 22, 23
+et 24 juin 2026.
+
+**Hypothèse testée puis écartée** : un décalage d'une séance. Un cas sur 730 —
+ce n'est pas un motif. Consignée écartée plutôt que passée sous silence.
 
 ## Lot 2 — Normaliser les indicateurs techniques
 

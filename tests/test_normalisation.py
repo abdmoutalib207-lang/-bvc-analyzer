@@ -662,3 +662,34 @@ def test_la_portee_sot_est_dite_sur_toute_la_serie():
     assert all("prix_analyse" not in o["admissible_pour"] for o in obs)
     bilan = (RACINE / "docs" / "BILAN_LOT1B.md").read_text(encoding="utf-8")
     assert "toute la série" in bilan
+
+
+# ═══ K. DÉFAUTS REPRODUITS PAR LA REVUE SUR LE LOT PRÉCÉDENT ═══════════════
+
+def test_une_bougie_vide_n_est_pas_conforme():
+    """⚠️ DÉFAUT RELEVÉ : une bougie sans AUCUN prix ressortait « conforme ».
+
+    La liste des dépassements restait vide, faute de champ à examiner, et le
+    code lisait cette absence comme une conformité. Ne rien examiner n'est pas
+    constater une conformité — c'est ne rien constater.
+    """
+    r = evaluer_conformite({}, cours_reference=100.0, nom_regime="continu",
+                           date_iso="2026-07-01")
+    assert r["statut"] == Conformite.NON_VERIFIABLE.value
+    assert r["champs_examines"] == []
+    assert any("aucun prix exploitable" in m for m in r["ce_qui_manque"])
+
+
+def test_une_bougie_partiellement_remplie_est_examinee_sur_ce_qu_elle_porte():
+    """La garde ne doit pas refuser une bougie qui porte une clôture seule."""
+    r = evaluer_conformite({"c": 102.0}, cours_reference=100.0,
+                           nom_regime="continu", date_iso="2026-07-01")
+    assert r["statut"] == Conformite.CONFORME.value
+    assert r["champs_examines"] == ["cloture"]
+
+
+def test_les_champs_examines_sont_publies():
+    """Savoir SUR QUOI un verdict porte fait partie du verdict."""
+    r = evaluer_conformite({"o": 100.0, "c": 102.0}, 100.0, "continu",
+                           "2026-07-01")
+    assert set(r["champs_examines"]) == {"ouverture", "cloture"}

@@ -38,8 +38,14 @@ from indicateurs import atr, bollinger, ema, macd, obv, rsi_wilder, sma  # noqa:
 LOT1B = RACINE / "datasets" / "lot1b"
 
 
-def calculer(nom: str, obs: list, periode: int):
-    """Applique l'indicateur demandé aux champs qu'il déclare utiliser."""
+def calculer(nom: str, obs: list, periode: int, macd_params=(12, 26, 9)):
+    """Applique l'indicateur demandé aux champs qu'il déclare utiliser.
+
+    ⚠️ Le MACD ne prend PAS `periode` : il en a trois. Une version antérieure
+    inscrivait `periode` dans la sortie tout en appelant `macd(c)` avec ses
+    valeurs par défaut — le fichier annonçait donc un paramètre qui n'avait
+    servi à rien. Les trois périodes sont maintenant passées et publiées.
+    """
     c = [o.get(Champ.CLOTURE.value) for o in obs]
     if nom == "sma":
         return {"valeurs": sma(c, periode)}
@@ -50,7 +56,8 @@ def calculer(nom: str, obs: list, periode: int):
     if nom == "bollinger":
         return bollinger(c, periode)
     if nom == "macd":
-        return macd(c)
+        court, long, signal = macd_params
+        return macd(c, court, long, signal)
     if nom == "atr":
         return {"valeurs": atr([o.get(Champ.PLUS_HAUT.value) for o in obs],
                                [o.get(Champ.PLUS_BAS.value) for o in obs],
@@ -65,6 +72,8 @@ def main() -> None:
     ap.add_argument("--titre", required=True)
     ap.add_argument("--indicateur", required=True, choices=sorted(BESOINS))
     ap.add_argument("--periode", type=int, default=20)
+    ap.add_argument("--macd", default="12,26,9",
+                    help="périodes du MACD : court,long,signal")
     ap.add_argument("--depuis", default="")
     ap.add_argument("--jusqu-a", default="")
     ap.add_argument("--sortie", type=Path, default=RACINE / "datasets" / "lot2")
@@ -75,8 +84,16 @@ def main() -> None:
            if (not a.depuis or o["date"] >= a.depuis)
            and (not a.jusqu_a or o["date"] <= a.jusqu_a)]
 
+    macd_params = tuple(int(x) for x in a.macd.split(","))
+    if a.indicateur == "macd":
+        # La longueur requise d'un MACD est celle de sa plus longue moyenne,
+        # augmentée de la période du signal.
+        periode_effective = macd_params[1] + macd_params[2]
+    else:
+        periode_effective = a.periode
     q = qualifier_fenetre(serie["observations"], a.indicateur,
-                          a.depuis, a.jusqu_a, longueur_requise=len(obs))
+                          a.depuis, a.jusqu_a, longueur_requise=len(obs),
+                          periode=periode_effective, ticker=a.titre)
 
     resultat = {
         "_quoi": f"{a.indicateur} sur {a.titre}, fenêtre identifiée.",
@@ -84,6 +101,8 @@ def main() -> None:
         "titre": a.titre,
         "indicateur": a.indicateur,
         "periode": a.periode,
+        "periode_effective_pour_la_qualification": periode_effective,
+        "macd_periodes": list(macd_params) if a.indicateur == "macd" else None,
         "genere_le": datetime.now().strftime("%Y-%m-%d %H:%M"),
         "source": f"datasets/lot1b/{a.titre}.json",
         "empreinte_source_lot1a": serie["empreinte_source"],
@@ -99,7 +118,7 @@ def main() -> None:
             "CALCUL NON EFFECTUÉ. La fenêtre ne permet pas cet indicateur.")
         resultat["usage_autorise"] = "aucun"
     else:
-        calc = calculer(a.indicateur, obs, a.periode)
+        calc = calculer(a.indicateur, obs, a.periode, macd_params)
         resultat["valeurs"] = {
             k: [{"date": o["date"], "valeur": v} for o, v in zip(obs, serie_v)]
             for k, serie_v in calc.items() if isinstance(serie_v, list)

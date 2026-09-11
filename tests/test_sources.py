@@ -124,7 +124,7 @@ def test_le_tri_reduit_reellement_le_champ():
     m = mesurer()
     candidates = [o for o in m["observations"]
                   if not o["aller_retour"]
-                  and not o["aucune_transaction_de_part_et_d_autre"]]
+                  and o["etat_des_volumes"]["echange_renseigne_d_au_moins_un_cote"]]
     assert len(candidates) < m["ruptures"], "le tri n'écarte rien"
 
 
@@ -232,23 +232,74 @@ def test_conserver_un_fichier_n_etablit_pas_son_exactitude():
 # ═══ E. L'UNITÉ DES VOLUMES ════════════════════════════════════════════════
 
 def test_l_unite_des_volumes_est_mesuree_pas_supposee():
-    """⚠️ « unite_etablie: False » n'était qu'une précaution de principe.
+    """L'alerte d'ordre de grandeur doit rester déclenchable.
 
-    La mesure la fonde : une unité unique « nombre de titres » est
-    incompatible avec les montants qu'elle impliquerait.
+    ⚠️ Elle ALERTE, elle ne réfute pas — voir le test suivant.
     """
     from unites_volume import mesurer as mesurer_unites
     m = mesurer_unites()
     assert m["series_mesurees"] > 50
-    assert m["series_invraisemblables"] >= 1, (
-        "aucune série invraisemblable — la réserve sur l'unité perd son appui")
+    assert m["series_a_ordre_de_grandeur_suspect"] >= 1
     assert m["amplitude_des_montants"]["facteur"] > 1000
 
 
 def test_la_mesure_ne_conclut_pas_sur_ce_que_v_est():
-    """Montrer qu'une unité est incompatible ne dit pas laquelle est la bonne."""
+    """⚠️ Les deux seuils sont des HYPOTHÈSES inscrites dans le programme.
+
+    J'avais écrit que le raisonnement « ne dépend d'aucune source extérieure ».
+    Il dépend de deux constantes que j'ai posées. Relevé par la revue.
+    """
     from unites_volume import mesurer as mesurer_unites
-    assert "ne dit PAS ce que" in mesurer_unites()["_ce_qui_n_est_pas_etabli"]
+    m = mesurer_unites()
+    assert "ne RÉFUTE aucune unité" in m["_ce_qui_n_est_pas_etabli"]
+    assert m["_verdict_possible"].startswith("ordre de grandeur suspect")
+    h = m["_les_seuils_sont_des_hypotheses"]
+    assert "posés dans le programme" in h["origine"]
+    assert h["ce_qui_manque"]
+
+
+def test_les_trois_etats_de_volume_sont_distincts():
+    """⚠️ DÉFAUT RELEVÉ : deux volumes ABSENTS donnaient « aucune transaction ».
+
+    Confondre l'absence d'information avec l'absence d'échange est exactement
+    la faute que ce projet s'interdit ailleurs.
+    """
+    from ruptures import etat_volume, etat_volumes
+    assert etat_volume(None) == "absent"
+    assert etat_volume(0) == "zéro enregistré"
+    assert etat_volume(12) == "positif"
+    assert etat_volume(-1) == "invalide"
+
+    absents = etat_volumes(None, None)
+    assert absents["avant"] == absents["apres"] == "absent"
+    assert "PAS « aucune transaction »" in absents["lecture"]
+    assert absents["echange_renseigne_d_au_moins_un_cote"] is False
+
+    zeros = etat_volumes(0, 0)
+    assert "affirmation de la source" in zeros["lecture"]
+
+
+def test_le_marqueur_aller_retour_n_affirme_plus_de_cause():
+    """Un retour ne PROUVE pas une valeur injectée, ni n'EXCLUT une opération."""
+    from ruptures import marquer_allers_retours
+    r = [rupture("X", "2026-06-05", "2026-06-08", 0.2),
+         rupture("X", "2026-06-16", "2026-06-18", 5.0)]
+    marquer_allers_retours(r)
+    ar = r[0]["aller_retour"]
+    assert "ne PROUVE pas" in ar["ce_que_cela_ne_prouve_pas"]
+    assert "EXCLUT pas" in ar["ce_que_cela_ne_prouve_pas"]
+
+
+def test_les_categories_de_ruptures_se_declarent_non_disjointes():
+    assert "NE SONT PAS DISJOINTES" in mesurer()["_recouvrement"]
+
+
+def test_le_seuil_de_rupture_n_a_aucune_portee_reglementaire():
+    """⚠️ Le contrôle d'amplitude vient d'abandonner cette prétention ; le
+    seuil de détection ne doit pas la lui reprendre."""
+    import ruptures
+    assert "AUCUNE portée" in ruptures.__doc__ or \
+        "aucune portée" in ruptures.__doc__.lower()
 
 
 def test_la_consequence_est_tenue_dans_le_code():

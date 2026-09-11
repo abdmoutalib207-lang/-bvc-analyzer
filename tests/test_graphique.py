@@ -154,8 +154,13 @@ def test_la_page_annonce_ses_interruptions(fichier):
     if not p.exists():
         pytest.skip(f"{fichier} non généré")
     html = p.read_text(encoding="utf-8")
-    assert "interruption" in html.lower()
-    assert "jamais comblé" in html
+    assert "écart" in html.lower() and "calendaire" in html.lower()
+    # ⚠️ Précision demandée : une coupure du TRAIT n'est pas une coupure du CALCUL.
+    assert "le calcul ne l'est pas" in html
+    # ⚠️ Précision demandée : le seuil ne voit pas toutes les séances manquantes.
+    assert "pas toutes les séances manquantes" in html
+    # ⚠️ Précision demandée : « clôtures absentes » porte sur les lignes REÇUES.
+    assert "parmi les lignes reçues" in html.lower()
 
 
 def test_la_page_ne_promet_aucune_performance():

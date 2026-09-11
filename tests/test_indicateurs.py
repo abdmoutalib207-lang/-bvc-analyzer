@@ -270,3 +270,38 @@ def test_le_socle_ne_calcule_aucune_performance():
 ])
 def test_serie_vide_ne_plante_pas(fn, args):
     assert fn(*args) == []
+
+
+# ═══ Défauts reproduits par la revue ═══════════════════════════════════════
+
+def test_atr_refuse_de_calculer_sans_cloture_de_la_veille():
+    """⚠️ DÉFAUT RELEVÉ : l'ATR retombait sur h − l quand la clôture de la
+    veille manquait.
+
+    Le « true range » vaut le maximum de trois écarts, dont deux se mesurent
+    CONTRE la clôture de la veille. Sans elle, retenir h − l seul produit un
+    TR systématiquement PLUS ÉTROIT que le vrai — un ATR sous-estimé se lit
+    comme un marché plus calme qu'il ne l'est.
+
+    Attendu calculé à la main, h = [10,12,11,13] · l = [8,9,10,11] ·
+    c = [9, None, 10, 12], n = 2. ⚠️ C'est la clôture de l'indice 1 qui manque,
+    donc c'est l'indice 2 qui perd sa veille :
+      i=0 : pas de veille par construction ⇒ TR = 10 − 8 = 2
+      i=1 : veille c[0] = 9, PRÉSENTE ⇒ TR = max(3 ; 3 ; 0) = 3
+            amorce sur deux TR ⇒ ATR = (2 + 3)/2 = 2,5
+      i=2 : veille c[1] = None ⇒ TR INDÉFINI, le lissage est rompu
+      i=3 : TR calculable, mais l'amorce exige deux TR consécutifs et
+            celui de l'indice 2 manque ⇒ rien
+
+    (Mon premier attendu plaçait le trou à l'indice 1 : le test était faux,
+    le code ne l'était pas. Corrigé après vérification.)
+    """
+    out = atr([10.0, 12.0, 11.0, 13.0], [8.0, 9.0, 10.0, 11.0],
+              [9.0, None, 10.0, 12.0], 2)
+    assert out == [None, 2.5, None, None], out
+
+
+def test_atr_reste_calculable_quand_rien_ne_manque():
+    """La garde ne doit pas rendre l'ATR inutilisable."""
+    out = atr([10.0, 12.0, 11.0], [8.0, 9.0, 10.0], [9.0, 11.0, 10.0], 2)
+    assert out == [None, 2.5, 1.75]

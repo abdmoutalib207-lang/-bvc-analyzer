@@ -27,8 +27,14 @@ from fenetre import BESOINS, Champ, Verdict, extraire, qualifier_fenetre  # noqa
 LOT1B = RACINE / "datasets" / "lot1b"
 
 
+# Usages de CHAMP, distincts des usages de provenance : une couverture ne
+# compte une valeur que si l'usage correspondant est accordé sur l'observation.
+CHAMPS_OK = ("prix_analyse", "volume")
+
+
 def obs(date, cloture="mesuré", ouverture="mesuré", haut="mesuré",
-        bas="mesuré", volume_etat="mesuré", usages=("indicateur",),
+        bas="mesuré", volume_etat="mesuré",
+        usages=("indicateur", "prix_analyse", "volume"),
         amplitude="compatible avec l'enveloppe testée", valeurs=None):
     """Observation construite, au format de la couche normalisée."""
     base = {
@@ -44,7 +50,8 @@ def obs(date, cloture="mesuré", ouverture="mesuré", haut="mesuré",
     return {**base, **(valeurs or {})}
 
 
-def fenetre_saine(n=30, usages=("indicateur", "indicateur_exploratoire")):
+def fenetre_saine(n=30, usages=("indicateur", "indicateur_exploratoire",
+                                "prix_analyse", "volume")):
     return [obs(f"2026-0{1 + i // 28}-{1 + i % 28:02d}", usages=usages)
             for i in range(n)]
 
@@ -94,15 +101,16 @@ def test_indicateur_inconnu_est_refuse_explicitement():
 # ═══ Les trois issues ═════════════════════════════════════════════════════
 
 def test_fenetre_qualifiee_quand_la_provenance_est_etablie():
-    q = qualifier_fenetre(fenetre_saine(usages=("indicateur",
-                                                "indicateur_exploratoire")), "sma")
+    q = qualifier_fenetre(fenetre_saine(usages=(
+        "indicateur", "indicateur_exploratoire", "prix_analyse", "volume")), "sma")
     assert q["verdict"] == Verdict.QUALIFIE.value
     assert q["reserve"] is None
 
 
 def test_fenetre_exploratoire_quand_la_provenance_est_incomplete():
     """§3 de la revue : permettre l'essai, en le signalant."""
-    q = qualifier_fenetre(fenetre_saine(usages=("indicateur_exploratoire",)), "sma")
+    q = qualifier_fenetre(fenetre_saine(usages=(
+        "indicateur_exploratoire", "prix_analyse", "volume")), "sma")
     assert q["verdict"] == Verdict.EXPLORATOIRE.value
     for mot in ("signal officiel", "probabilité", "performance"):
         assert mot in q["reserve"], mot
@@ -206,3 +214,61 @@ def test_aucune_fenetre_du_lot_n_est_publiable_aujourd_hui():
         q = qualifier_fenetre(charger(t)["observations"], "sma",
                               debut="2026-06-01")
         assert q["verdict"] != Verdict.QUALIFIE.value, t
+
+
+# ═══ Défauts reproduits par la revue, corrigés ici ═════════════════════════
+
+def test_une_valeur_mesuree_dont_l_usage_est_refuse_ne_compte_pas():
+    """⚠️ DÉFAUT RELEVÉ : la couverture ne regardait que l'état du CHAMP.
+
+    Sur MNG, 19 observations d'une fenêtre de 29 refusent l'usage « volume »
+    parce que la quantité n'est pas comparable à travers la division d'action.
+    L'ancienne couverture annonçait pourtant 100 % : une valeur lisible était
+    comptée comme une valeur utilisable.
+    """
+    serie = fenetre_saine(30)
+    for o in serie[:20]:
+        o["admissible_pour"] = [u for u in o["admissible_pour"] if u != "volume"]
+    q = qualifier_fenetre(serie, "obv")
+    assert q["verdict"] == Verdict.REFUSE.value
+    assert q["couvertures"]["volume"]["mesures"] == 30
+    assert q["couvertures"]["volume"]["exploitables"] == 10
+    assert q["couvertures"]["volume"]["mesures_mais_usage_refuse"] == 20
+    assert any("valeur lisible n'est pas" in m for m in q["motifs"])
+
+
+def test_obv_sur_mng_est_refuse_sur_la_fenetre_de_la_revue():
+    """Le cas exact, sur les données réelles : 01/07 → 10/08."""
+    q = qualifier_fenetre(charger("MNG")["observations"], "obv",
+                          "2026-07-01", "2026-08-10", ticker="MNG")
+    assert q["verdict"] == Verdict.REFUSE.value, q["motifs"]
+    assert q["couvertures"]["volume"]["mesures_mais_usage_refuse"] == 19
+
+
+def test_une_fenetre_plus_courte_que_la_periode_est_refusee():
+    """⚠️ Elle rendait « exploratoire » puis une série vide : le verdict
+    annonçait un calcul possible, le résultat n'en contenait aucun."""
+    q = qualifier_fenetre(fenetre_saine(6), "sma", periode=20)
+    assert q["verdict"] == Verdict.REFUSE.value
+    assert any("aucun point ne peut être calculé" in m for m in q["motifs"])
+
+
+def test_une_fenetre_assez_longue_reste_acceptee():
+    q = qualifier_fenetre(fenetre_saine(30), "sma", periode=20)
+    assert q["verdict"] != Verdict.REFUSE.value, q["motifs"]
+
+
+def test_une_fenetre_enjambant_une_operation_est_refusee():
+    """⚠️ Deux bases de prix s'y côtoient, même si chaque observation prise
+    isolément est irréprochable. Le défaut ne se voit qu'à l'échelle de la
+    fenêtre."""
+    q = qualifier_fenetre(charger("MNG")["observations"], "sma",
+                          "2026-07-01", "2026-08-10", periode=20, ticker="MNG")
+    assert q["verdict"] == Verdict.REFUSE.value
+    assert any("enjambe" in m and "2026-07-27" in m for m in q["motifs"])
+
+
+def test_une_fenetre_apres_l_operation_ne_l_enjambe_plus():
+    q = qualifier_fenetre(charger("MNG")["observations"], "sma",
+                          "2026-07-28", "2026-09-08", ticker="MNG")
+    assert not any("enjambe" in m for m in q["motifs"]), q["motifs"]

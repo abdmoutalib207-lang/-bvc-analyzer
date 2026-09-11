@@ -17,6 +17,18 @@ Trois exigences, et la troisième est celle qu'on oublie toujours.
    jours sans séance, le trait s'arrête et reprend de l'autre côté. Relier deux
    points séparés d'un mois dessine une tendance qui n'a jamais existé.
 
+   ⚠️ **UNE COUPURE DU TRAIT N'EST PAS UNE COUPURE DU CALCUL.** Les indicateurs
+   travaillent sur les observations REÇUES, dans leur ordre, sans tenir compte
+   de l'écart calendaire qui les sépare. Une moyenne sur vingt séances peut
+   donc enjamber une interruption que le trait, lui, montre rompue. Le dessin
+   dit « il manque des jours ici » ; il ne dit pas « le calcul s'est arrêté ».
+   Les deux sont affichés côte à côte pour qu'on ne les confonde pas.
+
+   ⚠️ Le seuil de quatre jours détecte des **écarts calendaires longs**, pas
+   toutes les séances manquantes. Une séance absente au milieu d'une semaine
+   ordinaire ne crée qu'un écart de deux jours et passe donc inaperçue ici —
+   le calendrier officiel des séances nous manque pour faire mieux.
+
 3. **Le statut de qualité est en haut, en grand, pas en note de bas de page.**
    Un résultat exploratoire qu'on ne distingue pas d'un résultat publiable
    finira par être lu comme publiable.
@@ -257,7 +269,7 @@ def construire(titre, nom_ind, periode, obs, q, ind) -> str:
     <line x1="110" y1="-4" x2="136" y2="-4" stroke="{COULEURS['indicateur']}" stroke-width="2.4"/>
     <text x="144" y="0" fill="{COULEURS['texte']}">{nom_ind}({periode})</text>
     <rect x="250" y="-11" width="22" height="11" fill="{COULEURS['manque']}" opacity="0.09"/>
-    <text x="280" y="0" fill="{COULEURS['texte']}">interruption — trait rompu, jamais comblé</text>
+    <text x="280" y="0" fill="{COULEURS['texte']}">écart calendaire — trait rompu, mais le CALCUL enjambe</text>
   </g>
 </svg>"""
 
@@ -293,25 +305,36 @@ def construire(titre, nom_ind, periode, obs, q, ind) -> str:
 <div class="carte"><h2>Ce que la fenêtre contient</h2>
 <table>
  <tr><th>Période</th><td>{q['debut']} → {q['fin']}</td></tr>
- <tr><th>Séances présentes</th><td>{q['lignes']}</td></tr>
- <tr><th>Clôtures absentes</th><td>{manquants}</td></tr>
+ <tr><th>Séances reçues dans la fenêtre</th><td>{q['lignes']}</td></tr>
+ <tr><th>Clôtures absentes parmi les lignes reçues</th><td>{manquants}</td></tr>
+ <tr><th>Séances manquantes au calendrier</th><td>non établi — calendrier officiel absent</td></tr>
  <tr><th>Points d'indicateur calculés</th><td>{calcules} sur {q['lignes']}</td></tr>
  <tr><th>Champs requis</th><td>{', '.join(q['besoins'])}</td></tr>
  <tr><th>Base de prix</th><td>{q.get('_base', '—')}</td></tr>
  <tr><th>Base des quantités</th><td>{q.get('_base_qte', '—')}</td></tr>
 </table></div>
-<div class="carte"><h2>Interruptions du calendrier</h2>
+<div class="carte"><h2>Écarts calendaires</h2>
 <ul>{lignes_trous}</ul>
 <p style="color:#6b665c;font-size:12.5px;margin:10px 0 0">
-⚠️ Une interruption n'est pas comblée : le trait s'arrête et reprend. Nous ne
-savons pas si le marché était fermé ou si la collecte a manqué — le calendrier
-officiel n'est pas en notre possession.</p></div>
+⚠️ <strong>Le trait est rompu, le calcul ne l'est pas.</strong> Les indicateurs
+travaillent sur les observations reçues, dans leur ordre, sans tenir compte de
+l'écart calendaire qui les sépare : une moyenne sur {periode} séances peut
+enjamber l'une de ces interruptions. Le dessin signale qu'il manque des jours ;
+il ne signale pas un arrêt du calcul.</p>
+<p style="color:#6b665c;font-size:12.5px;margin:10px 0 0">
+⚠️ Le seuil de {JOURS_AVANT_RUPTURE} jours détecte des <strong>écarts
+calendaires longs</strong>, pas toutes les séances manquantes : une séance
+absente au milieu d'une semaine ordinaire passe inaperçue. Et nous ne savons
+pas si le marché était fermé ou si la collecte a manqué — le calendrier officiel
+n'est pas en notre possession.</p></div>
 <div class="carte"><h2>Ce que ce graphique ne démontre pas</h2>
 <ul>
  <li>Aucune performance, aucun rendement, aucune capacité prédictive.</li>
  <li>Il ne prouve pas que les prix sont exacts — il dit sur quelle base ils
      sont exprimés, et avec quel niveau de preuve.</li>
  <li>L'indicateur est une spécification à tester, pas une formule validée.</li>
+ <li>Il ne montre pas les séances manquantes que le calendrier révélerait :
+     seuls les écarts de plus de {JOURS_AVANT_RUPTURE} jours sont visibles.</li>
 </ul></div>
 <p style="color:#8a857a;font-size:12px">
 Généré le {datetime.now().strftime('%d/%m/%Y %H:%M')} par
@@ -333,7 +356,7 @@ def main() -> None:
 
     serie = json.loads((LOT1B / f"{a.titre}.json").read_text(encoding="utf-8"))
     q = qualifier_fenetre(serie["observations"], a.indicateur,
-                          a.depuis, a.jusqu_a)
+                          a.depuis, a.jusqu_a, periode=a.periode, ticker=a.titre)
     q["_base"] = serie["diagnostic_base_prix"]["niveau"]
     q["_base_qte"] = serie["diagnostic_quantites"]["niveau"]
 

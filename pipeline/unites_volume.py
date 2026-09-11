@@ -8,21 +8,41 @@ CE QUE LE DÉPÔT DÉCLARE AUJOURD'HUI
 donnée ». Cette réserve n'était qu'une précaution de principe. Ce script la
 transforme en mesure.
 
-LE TEST, ET SON RAISONNEMENT
-───────────────────────────
-Si `v` comptait des TITRES, le montant échangé vaudrait `v × c`. Ce produit est
-donc vérifiable contre un ordre de grandeur connu : le volume quotidien de
-TOUTE la Bourse de Casablanca se compte en centaines de millions de dirhams.
+CE QUE CE TEST EST — ET CE QU'IL N'EST PAS
+──────────────────────────────────────────
+C'est une ALERTE D'ORDRE DE GRANDEUR, pas une réfutation.
 
-Un titre dont le produit `v × c` dépasse à lui seul plusieurs milliards par
-séance ne peut pas être exprimé en titres. Le raisonnement ne dépend d'aucune
-source : il oppose la donnée à sa propre conséquence arithmétique.
+Si `v` comptait des TITRES, le montant échangé vaudrait approximativement
+`v × c`. Le produit est confronté à un ordre de grandeur du marché.
 
-⚠️ CE QUE CE SCRIPT N'ÉTABLIT PAS
-Il ne dit pas ce que `v` est. Un montant en dirhams est l'hypothèse la plus
-simple, ce n'est pas la seule — un facteur d'échelle, un cumul, un champ hérité
-d'une autre source la produiraient aussi. Seule la convention écrite du
-fournisseur trancherait, et nous ne l'avons pas.
+⚠️ TROIS LIMITES, RELEVÉES PAR LA REVUE, QUI RESTREIGNENT LA PORTÉE :
+
+1. `VOLUME_MARCHE_DH` et `SEUIL_INVRAISEMBLABLE` sont des **hypothèses écrites
+   dans le programme**. Le contrôle ne confronte PAS les observations à des
+   totaux officiels du marché aux mêmes dates. J'avais écrit qu'il « ne dépend
+   d'aucune source extérieure » : c'était faux — il dépend de deux constantes
+   que j'ai posées.
+
+2. `quantité × clôture` est une **approximation** du montant échangé, pas sa
+   mesure. Les transactions de la séance ne se font pas toutes à la clôture.
+
+3. Un grand écart entre titres **ne prouve pas** des unités différentes. Des
+   prix erronés, un ajustement incompatible ou un cumul produiraient le même
+   effet.
+
+VERDICT QUE CE SCRIPT PEUT RENDRE
+─────────────────────────────────
+« Ordre de grandeur suspect sous l'hypothèse de quantités en titres. »
+Rien de plus.
+
+CE QUI A RÉELLEMENT TRANCHÉ, ET COMMENT
+───────────────────────────────────────
+Pas ce script : l'export de l'opérateur. Il porte DEUX colonnes distinctes —
+« Volume (MAD) » et « Titres Échangés » — et la comparaison ligne datée par
+ligne datée montre que notre `v` suit le MONTANT EN DIRHAMS sur 92 % des
+730 séances communes d'ADH. Voir `pipeline/confronter_export.py`.
+
+⚠️ Cela vaut pour DEUX titres. Rien ne permet de l'étendre aux 79 autres.
 
     python pipeline/unites_volume.py --ecrire
 """
@@ -38,10 +58,13 @@ RACINE = Path(__file__).resolve().parent.parent
 CANDLES = RACINE / "pipeline" / "candles"
 CIBLE = RACINE / "docs" / "UNITE_DES_VOLUMES.md"
 
-# Ordre de grandeur du volume quotidien de TOUT le marché, en dirhams.
-# Un seul titre qui le dépasse largement signale une unité incompatible.
-VOLUME_MARCHE_DH = 3.0e8
-SEUIL_INVRAISEMBLABLE = 5.0e9          # ~17 fois le marché entier
+# ⚠️ CES DEUX VALEURS SONT DES HYPOTHÈSES, PAS DES MESURES.
+# Elles sont posées ici, dans le programme, et ne proviennent d'aucun relevé
+# officiel daté. Un contrôle rigoureux confronterait chaque séance au total
+# réellement échangé ce jour-là — nous ne disposons pas de cette série.
+# Tant qu'elle manque, ce script ALERTE, il ne conclut pas.
+VOLUME_MARCHE_DH = 3.0e8               # hypothèse : ordre de grandeur du marché
+SEUIL_INVRAISEMBLABLE = 5.0e9          # hypothèse : ~17 fois cet ordre
 SEANCES = 120
 
 
@@ -68,24 +91,36 @@ def mesurer() -> dict:
             "volume_median": statistics.median(v),
             "cours_median": statistics.median(c),
             "montant_implique_median": statistics.median(vc),
-            "invraisemblable_en_titres":
+            "ordre_de_grandeur_suspect":
                 statistics.median(vc) > SEUIL_INVRAISEMBLABLE,
         })
     lignes.sort(key=lambda r: -r["montant_implique_median"])
-    suspects = [r for r in lignes if r["invraisemblable_en_titres"]]
+    suspects = [r for r in lignes if r["ordre_de_grandeur_suspect"]]
     montants = [r["montant_implique_median"] for r in lignes]
     return {
         "_quoi": "Le champ « v » est-il un nombre de titres ? Mesure.",
+        "_verdict_possible": "ordre de grandeur suspect sous l'hypothèse de "
+                             "quantités en titres",
         "_ce_qui_n_est_pas_etabli": (
-            "⚠️ Ce script ne dit PAS ce que « v » est. Il montre qu'une unité "
-            "unique « nombre de titres » est incompatible avec les données. "
-            "Seule la convention écrite du fournisseur trancherait."),
+            "⚠️ Ce script ne RÉFUTE aucune unité. Ses deux seuils sont des "
+            "hypothèses inscrites dans le programme, « quantité × clôture » "
+            "n'est qu'une approximation du montant, et un grand écart entre "
+            "titres ne prouve pas des unités différentes. Ce qui a tranché, "
+            "pour ADH et CSR seulement, est la confrontation à l'export de "
+            "l'opérateur — voir pipeline/confronter_export.py."),
+        "_les_seuils_sont_des_hypotheses": {
+            "volume_marche_dh": VOLUME_MARCHE_DH,
+            "seuil_invraisemblable": SEUIL_INVRAISEMBLABLE,
+            "origine": "posés dans le programme, sans relevé officiel daté",
+            "ce_qui_manque": "le total réellement échangé sur le marché, "
+                             "séance par séance",
+        },
         "seances_par_titre": SEANCES,
         "seuil_invraisemblable_dh": SEUIL_INVRAISEMBLABLE,
         "volume_quotidien_du_marche_dh": VOLUME_MARCHE_DH,
         "series_mesurees": len(lignes),
-        "series_invraisemblables": len(suspects),
-        "titres_invraisemblables": [r["titre"] for r in suspects],
+        "series_a_ordre_de_grandeur_suspect": len(suspects),
+        "titres_a_ordre_de_grandeur_suspect": [r["titre"] for r in suspects],
         "amplitude_des_montants": {
             "minimum": min(montants) if montants else None,
             "maximum": max(montants) if montants else None,
@@ -98,34 +133,57 @@ def mesurer() -> dict:
 
 def rendre(m: dict) -> str:
     a = m["amplitude_des_montants"]
-    L = ["# L'unité du champ « v » n'est pas établie",
+    L = ["# Ordre de grandeur des volumes — une alerte, pas une réfutation",
          "",
          "> ⚠️ **Généré** par `pipeline/unites_volume.py`. Ne pas modifier à la main.",
          "",
-         "## Le raisonnement",
+         "## Ce que ce contrôle peut dire",
          "",
-         "Si `v` comptait des **titres**, le montant échangé vaudrait `v × c`. "
-         "Ce produit s'oppose à un ordre de grandeur connu : le volume quotidien "
-         f"de **toute** la Bourse de Casablanca se compte en centaines de "
-         f"millions de dirhams (~{VOLUME_MARCHE_DH:,.0f} DH).",
+         "**Verdict possible : « ordre de grandeur suspect sous l'hypothèse de "
+         "quantités en titres ». Rien de plus.**",
          "",
-         "Le raisonnement ne dépend d'aucune source extérieure : il oppose la "
-         "donnée à sa propre conséquence arithmétique.",
+         "Si `v` comptait des **titres**, le montant échangé vaudrait "
+         "approximativement `v × c`.",
+         "",
+         "⚠️ **Trois limites restreignent la portée de ce contrôle.**",
+         "",
+         f"1. `VOLUME_MARCHE_DH` ({VOLUME_MARCHE_DH:,.0f}) et "
+         f"`SEUIL_INVRAISEMBLABLE` ({SEUIL_INVRAISEMBLABLE:,.0f}) sont des "
+         f"**hypothèses écrites dans le programme**. Aucune confrontation à des "
+         f"totaux officiels datés n'a lieu. Une version antérieure affirmait "
+         f"que le raisonnement « ne dépend d'aucune source extérieure » : "
+         f"**c'était faux**.",
+         "2. `quantité × clôture` **approxime** le montant échangé — les "
+         "transactions ne se font pas toutes à la clôture.",
+         "3. Un grand écart entre titres **ne prouve pas** des unités "
+         "différentes : des prix erronés, un ajustement incompatible ou un "
+         "cumul produiraient le même effet.",
+         "",
+         "## Ce qui a réellement tranché",
+         "",
+         "Pas ce contrôle — **l'export de l'opérateur**. Il porte deux colonnes "
+         "distinctes, `Volume (MAD)` et `Titres Échangés`, et la comparaison "
+         "ligne datée par ligne datée montre que notre `v` suit le **montant en "
+         "dirhams** sur **92 %** des 730 séances communes d'ADH. Voir "
+         "`docs/CONFRONTATION_EXPORT.md`.",
+         "",
+         "⚠️ Cela vaut pour **deux titres**. Rien ne permet de l'étendre aux "
+         "79 autres.",
          "",
          "## Ce que la mesure donne",
          "",
          f"- **{m['series_mesurees']} séries** mesurées sur leurs "
          f"{m['seances_par_titre']} dernières séances",
-         f"- **{m['series_invraisemblables']}** dépassent à elles seules "
-         f"{SEUIL_INVRAISEMBLABLE:,.0f} DH par séance : "
-         f"{', '.join(m['titres_invraisemblables']) or '—'}",
+         f"- **{m['series_a_ordre_de_grandeur_suspect']}** dépassent le seuil "
+         f"posé de {SEUIL_INVRAISEMBLABLE:,.0f} DH par séance : "
+         f"{', '.join(m['titres_a_ordre_de_grandeur_suspect']) or '—'}",
          f"- les montants impliqués s'étalent sur un facteur "
          f"**{a['facteur']:,.0f}** entre le plus petit et le plus grand",
          "",
-         "| Titre | Volume médian | Cours médian | Montant impliqué (DH) | En titres ? |",
+         "| Titre | Volume médian | Cours médian | Montant impliqué (DH) | Ordre de grandeur |",
          "|---|--:|--:|--:|---|"]
     for r in m["series"][:12]:
-        verdict = "**incompatible**" if r["invraisemblable_en_titres"] else "possible"
+        verdict = "**suspect**" if r["ordre_de_grandeur_suspect"] else "non signalé"
         L.append(f"| {r['titre']} | {r['volume_median']:,.0f} | "
                  f"{r['cours_median']:,.1f} | "
                  f"{r['montant_implique_median']:,.0f} | {verdict} |")
@@ -133,17 +191,17 @@ def rendre(m: dict) -> str:
     for r in m["series"][-4:]:
         L.append(f"| {r['titre']} | {r['volume_median']:,.0f} | "
                  f"{r['cours_median']:,.1f} | "
-                 f"{r['montant_implique_median']:,.0f} | possible |")
+                 f"{r['montant_implique_median']:,.0f} | non signalé |")
     L += ["",
           "## Ce qui est établi, et ce qui ne l'est pas",
           "",
-          "**Établi** : une unité unique « nombre de titres » sur l'ensemble des "
-          "séries est **incompatible** avec ces montants.",
+          "**Établi par ce contrôle** : rien de plus qu'une alerte d'ordre de "
+          "grandeur, sous des seuils que nous avons posés nous-mêmes.",
           "",
-          "**Non établi** : ce que `v` est réellement. Un montant en dirhams est "
-          "l'hypothèse la plus simple ; un facteur d'échelle, un cumul, ou un "
-          "champ hérité d'une autre source la produiraient aussi. Seule la "
-          "convention écrite du fournisseur trancherait, et nous ne l'avons pas.",
+          "**Établi par l'export, et pour deux titres seulement** : notre `v` "
+          "suit le montant en dirhams.",
+          "",
+          "**Non établi** : la convention du champ pour les 79 autres titres.",
           "",
           "## Conséquence tenue",
           "",

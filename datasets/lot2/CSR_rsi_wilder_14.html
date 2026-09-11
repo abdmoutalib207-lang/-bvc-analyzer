@@ -47,35 +47,46 @@
     <line x1="110" y1="-4" x2="136" y2="-4" stroke="#c0632a" stroke-width="2.4"/>
     <text x="144" y="0" fill="#2c2a26">rsi_wilder(14)</text>
     <rect x="250" y="-11" width="22" height="11" fill="#c8442e" opacity="0.09"/>
-    <text x="280" y="0" fill="#2c2a26">interruption — trait rompu, jamais comblé</text>
+    <text x="280" y="0" fill="#2c2a26">écart calendaire — trait rompu, mais le CALCUL enjambe</text>
   </g>
 </svg></div>
 <div class="avert"><strong>RÉSULTAT EXPLORATOIRE — n'alimente ni le signal officiel, ni une probabilité, ni une performance validée</strong><br>provenance ou ajustement incomplets sur au moins une observation de la fenêtre. ⚠️ RÉSULTAT EXPLORATOIRE : n'alimente NI le signal officiel, NI une probabilité, NI une performance présentée comme validée.</div>
 <div class="carte"><h2>Ce que la fenêtre contient</h2>
 <table>
  <tr><th>Période</th><td>2026-06-01 → 2026-09-08</td></tr>
- <tr><th>Séances présentes</th><td>60</td></tr>
- <tr><th>Clôtures absentes</th><td>0</td></tr>
+ <tr><th>Séances reçues dans la fenêtre</th><td>60</td></tr>
+ <tr><th>Clôtures absentes parmi les lignes reçues</th><td>0</td></tr>
+ <tr><th>Séances manquantes au calendrier</th><td>non établi — calendrier officiel absent</td></tr>
  <tr><th>Points d'indicateur calculés</th><td>46 sur 60</td></tr>
  <tr><th>Champs requis</th><td>cloture</td></tr>
  <tr><th>Base de prix</th><td>état inconnu</td></tr>
  <tr><th>Base des quantités</th><td>état inconnu</td></tr>
 </table></div>
-<div class="carte"><h2>Interruptions du calendrier</h2>
+<div class="carte"><h2>Écarts calendaires</h2>
 <ul><li>05/06/2026 → 11/06/2026 — 6 jours calendaires</li><li>19/06/2026 → 25/06/2026 — 6 jours calendaires</li><li>19/08/2026 → 24/08/2026 — 5 jours calendaires</li></ul>
 <p style="color:#6b665c;font-size:12.5px;margin:10px 0 0">
-⚠️ Une interruption n'est pas comblée : le trait s'arrête et reprend. Nous ne
-savons pas si le marché était fermé ou si la collecte a manqué — le calendrier
-officiel n'est pas en notre possession.</p></div>
+⚠️ <strong>Le trait est rompu, le calcul ne l'est pas.</strong> Les indicateurs
+travaillent sur les observations reçues, dans leur ordre, sans tenir compte de
+l'écart calendaire qui les sépare : une moyenne sur 14 séances peut
+enjamber l'une de ces interruptions. Le dessin signale qu'il manque des jours ;
+il ne signale pas un arrêt du calcul.</p>
+<p style="color:#6b665c;font-size:12.5px;margin:10px 0 0">
+⚠️ Le seuil de 4 jours détecte des <strong>écarts
+calendaires longs</strong>, pas toutes les séances manquantes : une séance
+absente au milieu d'une semaine ordinaire passe inaperçue. Et nous ne savons
+pas si le marché était fermé ou si la collecte a manqué — le calendrier officiel
+n'est pas en notre possession.</p></div>
 <div class="carte"><h2>Ce que ce graphique ne démontre pas</h2>
 <ul>
  <li>Aucune performance, aucun rendement, aucune capacité prédictive.</li>
  <li>Il ne prouve pas que les prix sont exacts — il dit sur quelle base ils
      sont exprimés, et avec quel niveau de preuve.</li>
  <li>L'indicateur est une spécification à tester, pas une formule validée.</li>
+ <li>Il ne montre pas les séances manquantes que le calendrier révélerait :
+     seuls les écarts de plus de 4 jours sont visibles.</li>
 </ul></div>
 <p style="color:#8a857a;font-size:12px">
-Généré le 11/09/2026 10:46 par
+Généré le 11/09/2026 11:49 par
 <code>pipeline/graphique.py</code> depuis <code>datasets/lot1b/CSR.json</code>.
 Aucune dépendance externe : SVG écrit à la main, ouvrable hors ligne.</p>
 </main></body></html>

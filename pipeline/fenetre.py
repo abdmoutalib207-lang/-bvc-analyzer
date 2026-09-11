@@ -34,6 +34,7 @@ from pathlib import Path
 RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(RACINE / "pipeline"))
+from bvc_config import SPLITS  # noqa: E402
 from qualification import COUVERTURE_MINIMALE  # noqa: E402
 
 
@@ -76,10 +77,41 @@ def _valeurs(obs: list, champ: Champ) -> list:
     return [o.get(champ.value) for o in obs]
 
 
+# Usage dont la présence est exigée pour qu'un champ soit exploitable.
+# ⚠️ Une valeur MESURÉE n'est pas une valeur UTILISABLE. Un volume peut être
+# parfaitement lisible et rester incomparable dans le temps — c'est le cas de
+# MNG avant sa division d'action. Une version antérieure ne regardait que
+# l'état du champ et accordait donc une couverture de 100 % sur une fenêtre où
+# 19 observations sur 29 refusaient l'usage du volume. Relevé par la revue.
+USAGE_REQUIS = {
+    Champ.VOLUME: "volume",
+    Champ.OUVERTURE: "prix_analyse",
+    Champ.PLUS_HAUT: "prix_analyse",
+    Champ.PLUS_BAS: "prix_analyse",
+    Champ.CLOTURE: "prix_analyse",
+}
+
+
+def operations_dans_la_fenetre(ticker: str, debut: str, fin: str) -> list:
+    """Opérations DÉCLARÉES au registre dont la date d'effet tombe dedans.
+
+    ⚠️ Une fenêtre qui enjambe une opération mêle deux bases de prix, même si
+    chaque observation prise isolément est irréprochable. Le défaut ne se voit
+    qu'à l'échelle de la fenêtre.
+
+    ⚠️ Le registre recense ce que nous y avons inscrit : une fenêtre sans
+    opération déclarée n'est PAS une fenêtre sans opération.
+    """
+    return [op for op in (SPLITS.get(ticker) or [])
+            if (not debut or op["date"] > debut) and (not fin or op["date"] <= fin)]
+
+
 def qualifier_fenetre(observations: list, indicateur: str,
                       debut: str = "", fin: str = "",
                       couverture_min: float = COUVERTURE_MINIMALE,
-                      longueur_requise: int | None = None) -> dict:
+                      longueur_requise: int | None = None,
+                      periode: int | None = None,
+                      ticker: str = "") -> dict:
     """Cette fenêtre permet-elle de calculer cet indicateur, et à quel titre ?
 
     `observations` : les lignes de la couche normalisée (datasets/lot1b), qui
@@ -106,21 +138,32 @@ def qualifier_fenetre(observations: list, indicateur: str,
 
     # ── 1. Les VALEURS sont-elles exploitables sur les champs requis ? ──────
     for champ in sorted(besoins, key=lambda c: c.value):
+        usage = USAGE_REQUIS[champ]
         if champ is Champ.VOLUME:
             etats = [o.get("volume_etat") for o in fen]
-            ok = sum(1 for e in etats if e == "mesuré")
-            invalides = sum(1 for e in etats if e == "invalide")
         else:
             etats = [o.get("prix_etats", {}).get(champ.value) for o in fen]
-            ok = sum(1 for e in etats if e == "mesuré")
-            invalides = sum(1 for e in etats if e == "invalide")
+        invalides = sum(1 for e in etats if e == "invalide")
+        mesures = sum(1 for e in etats if e == "mesuré")
+        # ⚠️ Exploitable = valeur mesurée ET usage accordé sur l'observation.
+        ok = sum(1 for o, e in zip(fen, etats)
+                 if e == "mesuré" and usage in o.get("admissible_pour", []))
+        refuses = mesures - ok
         couvertures[champ.value] = {
             "exploitables": ok, "sur": n,
+            "mesures": mesures,
+            "mesures_mais_usage_refuse": refuses,
+            "usage_requis": usage,
             "couverture": round(ok / max(requis, 1), 4),
             "invalides": invalides,
         }
         if invalides:
             motifs.append(f"{champ.value} : {invalides} valeur(s) invalide(s)")
+        if refuses:
+            motifs.append(
+                f"{champ.value} : {refuses} observation(s) mesurée(s) mais dont "
+                f"l'usage « {usage} » est refusé — une valeur lisible n'est pas "
+                f"une valeur utilisable")
         if ok / max(requis, 1) < couverture_min:
             motifs.append(
                 f"{champ.value} : couverture {ok / max(requis, 1):.0%} de la "
@@ -135,6 +178,26 @@ def qualifier_fenetre(observations: list, indicateur: str,
             f"résolue(s) : {', '.join(alertes[:5])}"
             + (" …" if len(alertes) > 5 else ""))
 
+    # ── La fenêtre est-elle assez longue pour l'indicateur demandé ? ───────
+    if periode is not None:
+        if periode < 1:
+            motifs.append(f"période demandée absurde : {periode}")
+        elif n < periode:
+            motifs.append(
+                f"fenêtre de {n} observation(s) pour un indicateur de période "
+                f"{periode} : aucun point ne peut être calculé")
+
+    # ── La fenêtre enjambe-t-elle une opération sur titres déclarée ? ──────
+    ops = operations_dans_la_fenetre(ticker, debut or (fen[0]["date"] if fen else ""),
+                                     fin or (fen[-1]["date"] if fen else ""))
+    if ops:
+        motifs.append(
+            "la fenêtre enjambe " + ", ".join(
+                f"une opération déclarée le {o['date']} (ratio {o['ratio']})"
+                for o in ops) +
+            " : deux bases de prix s'y côtoient, même si chaque observation "
+            "prise isolément est irréprochable")
+
     sans_usage = [o["date"] for o in fen if not o["admissible_pour"]]
     if sans_usage:
         motifs.append(
@@ -146,6 +209,7 @@ def qualifier_fenetre(observations: list, indicateur: str,
                 "debut": debut, "fin": fin, "lignes": n,
                 "longueur_requise": requis,
                 "besoins": sorted(c.value for c in besoins),
+                "periode": periode, "operations_enjambees": ops,
                 "couvertures": couvertures, "motifs": motifs,
                 "observations_retenues": []}
 
@@ -176,6 +240,7 @@ def qualifier_fenetre(observations: list, indicateur: str,
         "debut": fen[0]["date"], "fin": fen[-1]["date"],
         "lignes": n, "longueur_requise": requis,
         "besoins": sorted(c.value for c in besoins),
+        "periode": periode, "operations_enjambees": [],
         "couvertures": couvertures,
         "motifs": [], "reserve": note,
         "observations_retenues": [o["date"] for o in fen],

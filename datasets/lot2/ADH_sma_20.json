@@ -4,7 +4,9 @@
  "titre": "ADH",
  "indicateur": "sma",
  "periode": 20,
- "genere_le": "2026-09-11 10:26",
+ "periode_effective_pour_la_qualification": 20,
+ "macd_periodes": null,
+ "genere_le": "2026-09-11 11:45",
  "source": "datasets/lot1b/ADH.json",
  "empreinte_source_lot1a": "adfa99891b3ceaca6446b077f9a9585b165ea16085156b241c17bf405de3f0d2",
  "diagnostic_base_prix": "état inconnu",
@@ -19,10 +21,15 @@
   "besoins": [
    "cloture"
   ],
+  "periode": 20,
+  "operations_enjambees": [],
   "couvertures": {
    "cloture": {
     "exploitables": 63,
     "sur": 63,
+    "mesures": 63,
+    "mesures_mais_usage_refuse": 0,
+    "usage_requis": "prix_analyse",
     "couverture": 1.0,
     "invalides": 0
    }

@@ -198,11 +198,21 @@ def atr(plus_haut: list, plus_bas: list, cloture: list, n: int = 14) -> list:
         if not (_exploitable(h) and _exploitable(l)):
             continue
         if i == 0:
+            # ⚠️ CONVENTION DÉCLARÉE : au premier point il n'existe pas de
+            # clôture de veille, et le « true range » se réduit à h − l. C'est
+            # la convention usuelle ; elle ne vaut QU'AU PREMIER POINT.
             tr[i] = h - l
             continue
         cv = cloture[i - 1]
-        tr[i] = (h - l) if not _exploitable(cv) else max(
-            h - l, abs(h - cv), abs(l - cv))
+        if not _exploitable(cv):
+            # ⚠️ DÉFAUT CORRIGÉ : la version précédente retombait sur h − l
+            # quand la clôture de la veille manquait. Elle fabriquait ainsi un
+            # « true range » SYSTÉMATIQUEMENT PLUS ÉTROIT que le vrai, sans le
+            # dire — un ATR sous-estimé se lit comme un marché plus calme qu'il
+            # ne l'est. Sans clôture de veille, le TR n'est pas défini.
+            tr[i] = None
+            continue
+        tr[i] = max(h - l, abs(h - cv), abs(l - cv))
 
     out, precedent = [None] * len(cloture), None
     for i in range(len(cloture)):

@@ -17,11 +17,15 @@ LA RÈGLE DE DÉTECTION, ÉNONCÉE
 Deux clôtures consécutives dont le rapport sort de [1/1,5 ; 1,5] — soit un
 écart de plus de 50 % d'une séance à la suivante.
 
-Pourquoi 1,5 : sous la limite de variation la plus PERMISSIVE que nous ayons
-testée (±20 % sur les cinq premières séances suivant l'admission), deux
-clôtures consécutives ne peuvent s'écarter que d'un facteur 1,20. Le seuil de
-1,5 laisse donc une marge confortable au-delà de tout régime connu — il ne
-signale que ce qu'aucun mouvement de marché licite ne peut produire.
+Pourquoi 1,5 : l'ordre de grandeur vient des limites de variation que nous
+avons testées — sous ±20 %, deux clôtures consécutives ne s'écartent que d'un
+facteur 1,20 — et le seuil laisse une marge au-delà.
+
+⚠️ CE SEUIL EST UN SEUIL DE DÉTECTION, PAS UNE RÈGLE. Il n'a AUCUNE portée
+réglementaire, et il ne faut pas lui en redonner une : le contrôle d'amplitude
+vient précisément d'abandonner cette prétention, faute de disposer du cours de
+référence et du régime applicable. Dépasser 1,5 ne rend rien « illicite » —
+cela rend une ligne DIGNE D'EXAMEN.
 
 ⚠️ « Consécutives » signifie consécutives DANS NOTRE FICHIER. Si des séances
 manquent entre les deux lignes, l'écart peut recouvrir plusieurs jours de
@@ -67,6 +71,43 @@ HYPOTHESES = [
 FENETRE_ALLER_RETOUR = 20
 
 
+def etat_volume(v) -> str:
+    """absent · zéro enregistré · positif · invalide. Quatre états distincts.
+
+    ⚠️ « Absent » n'est pas « zéro », et « zéro enregistré » n'est pas « aucune
+    transaction ». Même un zéro inscrit par la source reste une AFFIRMATION DE
+    LA SOURCE, jamais une preuve indépendante de ce qui s'est passé sur le
+    marché — la source peut avoir omis de renseigner le champ.
+    """
+    if v is None:
+        return "absent"
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
+        return "invalide"
+    if v != v or v in (float("inf"), float("-inf")):
+        return "invalide"
+    if v < 0:
+        return "invalide"
+    return "zéro enregistré" if v == 0 else "positif"
+
+
+def etat_volumes(va, vb) -> dict:
+    """Ce que les deux volumes encadrant une rupture permettent de dire."""
+    ea, eb = etat_volume(va), etat_volume(vb)
+    if ea == "absent" and eb == "absent":
+        lecture = ("volumes ABSENTS des deux côtés : rien n'est renseigné. "
+                   "⚠️ Ce n'est PAS « aucune transaction » — c'est une absence "
+                   "d'information, qui ne dit rien du marché.")
+    elif ea in ("zéro enregistré", "absent") and eb in ("zéro enregistré", "absent"):
+        lecture = ("aucun échange RENSEIGNÉ de part et d'autre. ⚠️ Un zéro "
+                   "inscrit par la source reste une affirmation de la source, "
+                   "pas une preuve indépendante d'absence de transaction.")
+    else:
+        lecture = "au moins un des deux côtés porte un volume positif"
+    return {"avant": ea, "apres": eb, "lecture": lecture,
+            "echange_renseigne_d_au_moins_un_cote":
+                "positif" in (ea, eb)}
+
+
 def charger_repli_statique() -> dict:
     """La table de repli figée, pour confronter les cours de rupture.
 
@@ -85,12 +126,15 @@ def charger_repli_statique() -> dict:
 def marquer_allers_retours(ruptures: list) -> None:
     """Une rupture suivie de son inverse n'est pas une opération sur titres.
 
-    ⚠️ RAISONNEMENT : une division d'action ne revient jamais. Un cours qui
-    chute d'un facteur cinq puis remonte d'un facteur cinq quelques séances
-    plus tard décrit une VALEUR INJECTÉE, pas un événement de marché.
+    ⚠️ CE MARQUEUR ORIENTE, IL NE CONCLUT PAS.
+    Une version antérieure affirmait qu'un retour « décrit une valeur injectée,
+    pas un événement de marché ». C'était trop fort. Un retour du prix près d'un
+    niveau antérieur ne PROUVE pas une valeur injectée, et il ne suffit pas non
+    plus à EXCLURE une opération sur titres — un regroupement suivi d'une
+    division, ou deux corrections successives, produiraient la même forme.
 
-    Le signal est mécanique : deux ruptures du même titre, proches dans le
-    temps, dont le produit des rapports revient au voisinage de 1.
+    Ce que le marqueur fait : classer les ruptures par forme, pour ordonner les
+    recherches. Rien de plus.
     """
     from datetime import date
     for i, a in enumerate(ruptures):
@@ -112,16 +156,23 @@ def marquer_allers_retours(ruptures: list) -> None:
                     "avec": b["date_apres"],
                     "produit_des_rapports": round(produit, 4),
                     "jours_entre_les_deux": ecart,
-                    "lecture": "le cours revient à son niveau antérieur. Une "
-                               "opération sur titres NE REVIENT PAS : cette "
-                               "forme oriente vers une valeur injectée, non "
-                               "vers un événement de marché.",
+                    "hypothese_orientee": (
+                        "le cours revient près de son niveau antérieur. Cette "
+                        "forme est plus SOUVENT celle d'une valeur injectée que "
+                        "celle d'une opération sur titres, qui ne revient pas."),
+                    "ce_que_cela_ne_prouve_pas": (
+                        "⚠️ Un retour ne PROUVE pas une valeur injectée, et "
+                        "n'EXCLUT pas une opération sur titres. Le marqueur "
+                        "ordonne les recherches ; il ne clôt aucun cas."),
                 }
                 b["aller_retour"] = {
                     "avec": a["date_apres"],
                     "produit_des_rapports": round(produit, 4),
                     "jours_entre_les_deux": ecart,
-                    "lecture": "retour du couple signalé plus haut",
+                    "hypothese_orientee": "retour du couple signalé plus haut",
+                    "ce_que_cela_ne_prouve_pas": (
+                        "⚠️ Un retour ne PROUVE pas une valeur injectée, et "
+                        "n'EXCLUT pas une opération sur titres."),
                 }
 
 
@@ -182,10 +233,13 @@ def detecter(ticker: str, serie: list, pieces: dict) -> list:
             "piece_couvrant_la_date": piece,
             "aller_retour": None,
             "cours_egal_au_repli_statique": None,
-            # ⚠️ Un saut de cours SANS transaction de part et d'autre ne décrit
-            # aucun échange. Le prix a changé dans le fichier, pas sur le marché.
-            "aucune_transaction_de_part_et_d_autre": (
-                not a.get("v") and not b.get("v")),
+            # ⚠️ TROIS ÉTATS, PAS DEUX. Une version antérieure écrivait
+            # `not a.get("v") and not b.get("v")` : deux volumes ABSENTS
+            # produisaient alors « aucune transaction de part et d'autre ».
+            # Confondre l'absence d'information avec l'absence d'échange est
+            # exactement la faute que ce projet s'interdit ailleurs. Relevé par
+            # la revue, reproduit avec None.
+            "etat_des_volumes": etat_volumes(a.get("v"), b.get("v")),
             "conclusion": None if piece is None else (
                 f"opération établie par pièce : {piece.get('nature')} du "
                 f"{piece['date_effet']} — ⚠️ la pièce établit l'ÉVÉNEMENT, "
@@ -236,8 +290,17 @@ def mesurer() -> dict:
         "avec_piece": sum(1 for r in toutes if r["piece_couvrant_la_date"]),
         "sans_piece": sum(1 for r in toutes if not r["piece_couvrant_la_date"]),
         "allers_retours": sum(1 for r in toutes if r["aller_retour"]),
-        "sans_transaction": sum(
-            1 for r in toutes if r["aucune_transaction_de_part_et_d_autre"]),
+        "aucun_echange_renseigne": sum(
+            1 for r in toutes
+            if not r["etat_des_volumes"]["echange_renseigne_d_au_moins_un_cote"]),
+        "volumes_absents_des_deux_cotes": sum(
+            1 for r in toutes
+            if r["etat_des_volumes"]["avant"] == "absent"
+            and r["etat_des_volumes"]["apres"] == "absent"),
+        "_recouvrement": (
+            "⚠️ Les catégories NE SONT PAS DISJOINTES. Une même rupture peut "
+            "être à la fois en aller-retour et sans échange renseigné. Les "
+            "totaux ne s'additionnent donc pas."),
         "sens_unique": sum(1 for r in toutes if not r["aller_retour"]),
         "observations": toutes,
     }
@@ -274,15 +337,24 @@ def rendre(m: dict) -> str:
          f"**{m['sans_piece']}** sans pièce",
          f"- **{m['allers_retours']}** en **aller-retour**, "
          f"**{m['sens_unique']}** à **sens unique**",
-         f"- **{m['sans_transaction']}** sans aucune transaction de part et "
-         f"d'autre — le prix a changé dans le fichier, pas sur le marché",
+         f"- **{m['aucun_echange_renseigne']}** sans aucun échange RENSEIGNÉ de "
+         f"part et d'autre, dont **{m['volumes_absents_des_deux_cotes']}** où "
+         f"les volumes sont simplement **absents**",
          "",
-         "⚠️ La distinction aller-retour / sens unique est le tri le plus utile "
-         "de ce tableau. **Une opération sur titres ne revient jamais** : un "
-         "cours qui chute puis remonte au même niveau quelques séances plus "
-         "tard décrit une valeur injectée dans l'historique, pas un événement "
-         "de marché. Les ruptures à sens unique sont les seules candidates à "
-         "une opération — et il reste à le vérifier pièce en main.",
+         "⚠️ **Les catégories ci-dessus ne sont pas disjointes** : une même "
+         "rupture peut être en aller-retour ET sans échange renseigné. Les "
+         "totaux ne s'additionnent pas.",
+         "",
+         "⚠️ **Volume absent ≠ zéro enregistré ≠ absence de transaction.** Une "
+         "version antérieure confondait les trois. Même un zéro inscrit par la "
+         "source reste une affirmation de la source, pas une preuve "
+         "indépendante de ce qui s'est passé sur le marché.",
+         "",
+         "⚠️ **Ce tri ORDONNE les recherches ; il n'explique aucun cas.** Une "
+         "rupture en aller-retour est plus souvent une valeur injectée qu'une "
+         "opération sur titres, mais un retour du prix ne le **prouve** pas et "
+         "n'**exclut** pas une opération. Les treize restent treize alertes à "
+         "expliquer ; seule une pièce datée en referme une.",
          "",
          "## Les observations",
          "",
@@ -295,8 +367,8 @@ def rendre(m: dict) -> str:
         forme = "aller-retour" if r["aller_retour"] else "sens unique"
         if r["cours_egal_au_repli_statique"]:
             forme += " · = repli figé"
-        if r["aucune_transaction_de_part_et_d_autre"]:
-            forme += " · sans transaction"
+        if not r["etat_des_volumes"]["echange_renseigne_d_au_moins_un_cote"]:
+            forme += " · aucun échange renseigné"
         L.append(f"| {r['titre']} | {r['date_avant']} | {r['date_apres']} | "
                  f"{r['jours_calendaires_entre_les_deux']} | "
                  f"{r['cloture_avant']:,.2f} | {r['cloture_apres']:,.2f} | "

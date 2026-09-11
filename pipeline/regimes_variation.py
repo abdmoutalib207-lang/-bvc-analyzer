@@ -221,21 +221,34 @@ def evaluer_conformite(bougie: dict, cours_reference, nom_regime: str = "",
         manque.append(f"seuils en vigueur à la date {date_iso}")
     if manque:
         return {"statut": Conformite.NON_VERIFIABLE.value,
-                "ce_qui_manque": manque, "bornes": None, "hors_bornes": None}
+                "ce_qui_manque": manque, "champs_examines": [],
+                "bornes": None, "hors_bornes": None}
 
     s = REGIMES[nom_regime]["limite"]
     bas, haut = cours_reference * (1.0 - s), cours_reference * (1.0 + s)
-    hors = []
+    hors, examines = [], []
     for cle, nom in (("o", "ouverture"), ("h", "plus_haut"),
                      ("l", "plus_bas"), ("c", "cloture")):
         v = bougie.get(cle)
         if not isinstance(v, (int, float)) or isinstance(v, bool) or v != v:
             continue
+        examines.append(nom)
         if v < bas * (1.0 - EPS) or v > haut * (1.0 + EPS):
             hors.append({"champ": nom, "valeur": v})
+
+    # ⚠️ DÉFAUT CORRIGÉ : une bougie SANS AUCUN prix exploitable ressortait
+    # « conforme », parce que la liste des dépassements restait vide. Ne rien
+    # examiner n'est pas constater une conformité — c'est ne rien constater.
+    if not examines:
+        return {"statut": Conformite.NON_VERIFIABLE.value,
+                "ce_qui_manque": ["aucun prix exploitable dans la bougie — "
+                                  "rien à confronter aux bornes"],
+                "champs_examines": [], "bornes": [round(bas, 4), round(haut, 4)],
+                "hors_bornes": None}
     return {
         "statut": (Conformite.NON_CONFORME if hors else Conformite.CONFORME).value,
         "ce_qui_manque": [],
+        "champs_examines": examines,
         "regime": nom_regime,
         "cours_reference": cours_reference,
         "bornes": [round(bas, 4), round(haut, 4)],

@@ -130,8 +130,21 @@ def enregistrer(chemin: Path, titre: str, fournisseur: str, url: str,
     """
     dossier = SOURCES / titre
     dossier.mkdir(parents=True, exist_ok=True)
-    cible = dossier / chemin.name
-    if cible.resolve() != chemin.resolve():
+
+    # ⚠️ LE NOM D'ARRIVÉE PORTE L'EMPREINTE DU CONTENU.
+    # Une version antérieure copiait vers un nom fixe : deux exports différents
+    # téléchargés le même jour, portant le même nom de fichier, s'écrasaient
+    # l'un l'autre en silence — et l'enveloppe du second décrivait alors un
+    # contenu que le premier n'avait plus. Relevé par la revue.
+    # Deux fichiers identiques partagent leur empreinte : les réenregistrer ne
+    # crée pas de doublon, c'est le comportement voulu.
+    emp = empreinte(chemin)
+    cible = dossier / f"{chemin.stem}.{emp[:12]}{chemin.suffix}"
+    if cible.exists() and empreinte(cible) != emp:
+        raise RuntimeError(
+            f"collision impossible sur {cible} — même empreinte tronquée, "
+            f"contenu différent. Allonger le préfixe d'empreinte.")
+    if not cible.exists():
         shutil.copy2(chemin, cible)
 
     enveloppe = {
@@ -147,7 +160,8 @@ def enregistrer(chemin: Path, titre: str, fournisseur: str, url: str,
         "url": url,
         "recupere_le": recupere_le,
         "enregistre_le": datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "empreinte_sha256": empreinte(cible),
+        "empreinte_sha256": emp,
+        "nom_d_origine": chemin.name,
         "taille_octets": cible.stat().st_size,
         "unites_declarees": unites or {
             "prix": "non déclarée",
