@@ -7,3 +7,8 @@
 # Installation : pip install -r requirements_dev.txt
 -r requirements.txt
 pytest>=8.0
+
+# Lecture des workflows par tests/test_workflow_tests.py. ⚠️ Sans cette ligne,
+# le test s'abstenait en CI — et c'est en CI qu'il doit parler : il vérifie que
+# le workflow juge bien le fichier qu'il prétend juger.
+PyYAML>=6.0

@@ -108,6 +108,9 @@ LOT_A = [
     # une partie de la suite la livraison et à l'autre le dépôt.
     "tests/test_faits_financiers.py",
     "tests/test_univers.py",
+    # Le workflow de tests est dans le lot A : le contrôle qui le relit aussi.
+    "tests/test_workflow_tests.py",
+    "requirements_dev.txt",
 ]
 
 # ⚠️ NON REPRIS. Celui de main est conservé tel quel, à l'octet près.
