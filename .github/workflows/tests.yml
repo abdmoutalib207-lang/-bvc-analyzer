@@ -84,8 +84,17 @@ jobs:
           set -o pipefail
           mkdir -p .ci
           python update_data.py 2>&1 | tail -25
+          # ⚠️ RIEN N'EST RESTAURÉ ICI, ET C'EST LE POINT.
+          # Une version antérieure de ce fichier remettait `data.json` et les
+          # chandelles à l'état du dépôt juste après les avoir générés. La
+          # suite jugeait donc le fichier de l'ANCIEN moteur — CMT à −3,35 % —
+          # pendant que l'artefact joint portait le fichier corrigé. Le vert
+          # annoncé et le fichier livré ne décrivaient pas le même objet.
+          # J'avais cru retirer cette ligne sans le vérifier ; la revue l'a
+          # exécutée et l'a trouvée. L'étape « Vérifier » ci-dessous rend cette
+          # confusion impossible à refaire en silence.
           cp data.json .ci/data_teste.json
-          git checkout -- data.json pipeline/candles snapshot_cloture.json             pipeline/masi_history.json 2>/dev/null || true
+          cp -r pipeline/candles .ci/candles
 
       # Un échec de la suite doit être attribuable SANS relire les journaux.
       # Si la collecte a été dégradée, cela se voit ici, avant le résultat.
@@ -119,6 +128,27 @@ jobs:
       - name: Lancer la suite
         run: python -m pytest --tb=short --junitxml=.ci/rapport_tests.xml
 
+      # ⚠️ LE CONTRÔLE QUI REND LA CONFUSION IMPOSSIBLE.
+      # Le fichier que la suite vient de juger et le fichier qui part en
+      # artefact doivent être le MÊME OBJET. S'ils divergent, le vert annoncé
+      # ne décrit pas la pièce livrée — et c'est exactement ce qui s'est
+      # produit tant que la restauration subsistait.
+      - name: Vérifier que le fichier jugé est le fichier joint
+        if: always()
+        run: |
+          python - <<'PY'
+          import hashlib, pathlib, sys
+          def sha(p): return hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()
+          juge, joint = sha("data.json"), sha(".ci/data_teste.json")
+          print(f"jugé  : {juge}")
+          print(f"joint : {joint}")
+          if juge != joint:
+              sys.exit("ÉCHEC — le fichier jugé par la suite n'est pas celui "
+                       "qui part en artefact. Une étape a modifié data.json "
+                       "entre la génération et le contrôle.")
+          print("✔ même empreinte — le vert décrit bien la pièce livrée")
+          PY
+
       # Les pièces voyagent avec le résultat : le fichier jugé et le rapport.
       # Un relecteur peut ainsi rejouer la suite hors ligne sur le fichier
       # EXACT qui a produit ce vert :
@@ -131,6 +161,7 @@ jobs:
           path: |
             .ci/data_teste.json
             .ci/rapport_tests.xml
+            .ci/candles
           retention-days: 30
 
       - name: Résumé
@@ -138,7 +169,15 @@ jobs:
         run: |
           echo "## Filet de sécurité" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          python -m pytest --collect-only -q 2>/dev/null | tail -1 \
+          # ⚠️ `tail -1` attrapait la ligne VIDE de fin : le résumé annonçait
+          # « Tests collectés : » suivi de rien. Un résumé qui ne dit rien
+          # laisse croire qu'on a regardé.
+          # ⚠️ Le total n'apparaît PAS avec `-q` : cette forme ne liste que
+          # les comptes par fichier, et `tail -1` attrapait la ligne vide de
+          # fin. Le résumé annonçait « Tests collectés : » suivi de rien — un
+          # résumé qui ne dit rien laisse croire qu'on a regardé.
+          python -m pytest --collect-only 2>/dev/null \
+            | grep -E "[0-9]+ tests? collected" | tail -1 \
             | sed 's/^/- Tests collectés : /' >> $GITHUB_STEP_SUMMARY || true
           echo "- Déclencheur : ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- Fichier jugé : celui GÉNÉRÉ par ce code, pas celui du dépôt" >> $GITHUB_STEP_SUMMARY
