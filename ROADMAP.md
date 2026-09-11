@@ -8,8 +8,8 @@ par cinq états, et les deux derniers sont distincts :
 
     Ouvert → En cours → Livré pour revue → Vérifié sur candidat → Vérifié en production
 
-Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **58 entrées**, dont
-**30 vérifiées sur candidat, 22 livrées pour revue,
+Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **73 entrées**, dont
+**35 vérifiées sur candidat, 32 livrées pour revue,
 6 ouvertes, et 0 vérifiée EN PRODUCTION** — parce que rien n'est fusionné.
 
 ⚠️ Cette synthèse est recalculée à chaque mise à jour du registre. Une version
@@ -43,11 +43,11 @@ d'un workflow avec la fraîcheur du fichier réellement servi.
 pour la définition des champs et `docs/INVENTAIRE_LOT1.md` pour la couverture
 mesurée titre par titre.
 
-### Lot 1B.1 — livré pour revue
+### Lot 1B.2 — livré pour revue
 
-Le lot 1B a été **reçu partiellement** : reproductibilité et conservation des
-valeurs validées, **contrat d'admissibilité refusé**. Cette passe corrige les
-règles d'usage.
+Le lot 1B.1 a été **reçu partiellement** : corrections numériques vérifiées
+indépendamment, **portée du contrat d'usage à corriger**. Cette passe traite
+les six points de la revue.
 
 | Livrable | Où |
 |---|---|
@@ -56,35 +56,79 @@ règles d'usage.
 | Calendrier versionné | `pipeline/calendrier_bvc.json` |
 | Couche normalisée | `datasets/lot1b/` — 7 séries |
 | Journal des transformations | `docs/JOURNAL_TRANSFORMATIONS.md` |
-| Tests de comportement | `tests/test_normalisation.py` + `tests/test_qualification.py` — 81 tests |
+| Tests de comportement | `tests/test_normalisation.py`, `test_qualification.py`, `test_fenetre.py` |
+| Qualification par fenêtre datée | `pipeline/fenetre.py` |
+| Bilan mesuré dans les artefacts | `docs/BILAN_LOT1B.md` ← `pipeline/bilan_lot.py` |
 
-**Quatre usages, séparés** : `prix_analyse`, `volume`, `indicateur`,
-`execution`. L'exécution est **refusée par défaut** et exige un ajustement
-**documenté** — un prix ajusté croisé avec une quantité non ajustée produit un
-montant faux. Chaque refus porte son motif.
+**Cinq usages, séparés** : `prix_analyse`, `volume`, `indicateur`,
+`indicateur_exploratoire`, `execution_simulee`. Chaque refus porte son motif.
+
+**Trois situations, trois issues** — et non deux : refuser · calculer à titre
+exploratoire en le signalant · permettre. Le niveau exploratoire est la porte
+que la revue a demandé d'ouvrir : on peut essayer, à condition de dire qu'on
+essaie.
+
+**L'amplitude ne démontre pas la conformité.** `evaluer_amplitude` mesure
+l'écart des prix entre eux ; `evaluer_conformite` vérifie leur position autour
+du cours de référence, et répond « non vérifiable » tant qu'il lui manque la
+référence, le régime ou la période de validité — c'est le cas partout
+aujourd'hui.
+
+**La preuve sur les prix ne vaut pas preuve sur les quantités.** Deux
+registres, deux provenances. L'exécution simulée n'exige pas des prix ajustés,
+mais une comptabilité cohérente ; et elle n'établit pas qu'un ordre aurait été
+rempli — cela relève du protocole de backtest.
 
 **Les diagnostics portent un niveau de preuve** : ajustement documenté ·
 ajustement probable, à confirmer · base incohérente ou suspecte · état inconnu.
 Le fait observé, l'hypothèse et la pièce manquante sont consignés séparément.
 
-⚠️ **Conséquence lourde et assumée** : « état inconnu » est le défaut, parce
-que l'absence d'entrée au registre `SPLITS` ne prouve rien. **Cinq titres sur
-sept n'autorisent aujourd'hui aucun indicateur**, et **aucune observation du
-lot n'autorise l'exécution**. Le lot 2 ne peut pas se brancher sur ces séries
-avant que les diagnostics soient conduits.
+⚠️ **Conséquence, mesurée dans les artefacts** — voir `docs/BILAN_LOT1B.md`,
+généré par `pipeline/bilan_lot.py` : **aucun des 7 titres** n'autorise
+d'indicateur **publiable**, **6 sur 7** autorisent un calcul **exploratoire**,
+et **aucune observation** n'autorise l'exécution simulée.
+
+Le calcul exploratoire est la porte que la revue a demandé d'ouvrir : on peut
+essayer, à condition de signaler qu'on essaie. Il n'alimente ni le signal
+officiel, ni une probabilité, ni une performance présentée comme validée.
 
 ⚠️ **Aucune valeur de prix n'a été modifiée.** L'instantané `datasets/lot1a/`
 reste intact et ses empreintes sont vérifiées par test.
 
 ## Lot 2 — Normaliser les indicateurs techniques
 
-**État : non commencé.** Couche de calcul commune et versionnée, partagée par
-le graphique et le scoring. Socle spécifié par la revue : SMA 20/50/200, RSI
-de Wilder 14, MACD 12/26/9, ATR 14, ADX et DI± 14, Bollinger 20/2, activité et
-liquidité sur 20 et 60 séances, force relative au MASI, niveaux de prix.
+**État : socle mathématique livré, branchement exploratoire démontré.**
 
-⚠️ Spécification de départ **à tester**, pas une formule de performance
-validée. Leur contribution au scoring devra être évaluée séparément.
+`pipeline/indicateurs.py` — fonctions pures, sans TA-Lib : SMA, EMA, RSI de
+Wilder, MACD, Bollinger, ATR, OBV. Trois règles non négociables :
+
+1. **aucune valeur absente n'est comblée** — un trou produit `None`, jamais un
+   zéro ni un report ;
+2. **la longueur de sortie égale celle de l'entrée** — décaler une série
+   d'indicateur par rapport à ses dates est la faute classique, et invisible ;
+3. **aucune performance n'est calculée ici** — des nombres, pas des signaux.
+
+Les 29 tests du socle établissent leurs attendus **indépendamment** : soit par
+une arithmétique écrite dans le test, soit par un cas limite déduit de la
+définition. Les séries de contrôle portent le préfixe `SERIE_CONSTRUITE_` et un
+test vérifie qu'aucune ne se trouve sous `datasets/`.
+
+**Premier branchement réel** : `pipeline/calculer_indicateur.py` enchaîne la
+couche normalisée, la qualification par fenêtre et le calcul. Le résultat porte
+toujours son verdict et sa réserve.
+
+| Démonstration | Fenêtre | Verdict | Points |
+|---|---|---|--:|
+| ADH · SMA 20 | 01/06 → 08/09/2026, 63 lignes | exploratoire | 44 |
+| CSR · RSI 14 | 01/06 → 08/09/2026, 60 lignes | exploratoire | 46 |
+| SOT · SMA 20 | depuis 06/2024 | **refusé** | 0 |
+
+Le refus de SOT nomme ses motifs : la fenêtre traverse l'alerte du 05/05/2026
+et 473 observations sans usage admissible.
+
+⚠️ Reste à faire : ADX et DI±, force relative au MASI, niveaux de prix. Et
+surtout — la contribution de ces indicateurs au scoring n'est **pas** évaluée.
+Spécification à tester, pas formule de performance validée.
 
 ## Lot 3 — Graphique de référence
 

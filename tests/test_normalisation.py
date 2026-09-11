@@ -33,14 +33,16 @@ sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(RACINE / "pipeline"))
 
 from normaliser import (  # noqa: E402
-    Preuve, admissibilite, diagnostic_base, quantite_comparable,
+    Preuve, admissibilite, comptabilite_coherente, diagnostic_base,
+    diagnostic_quantites, quantite_comparable,
 )
 from qualification import (  # noqa: E402
     Seance, Volume, mediane_admissible, qualifier_bougie, qualifier_prix,
     qualifier_volume,
 )
 from regimes_variation import (  # noqa: E402
-    Amplitude, borne_amplitude, evaluer_amplitude,
+    Amplitude, Conformite, borne_amplitude, evaluer_amplitude,
+    evaluer_conformite, source_couvre,
 )
 
 LOT1A = RACINE / "datasets" / "lot1a"
@@ -67,11 +69,18 @@ def charger(dossier: Path, ticker: str):
 
 
 def juger(bougie, ticker="ADH", jour="2026-01-05", statut=Seance.NEGOCIEE,
-          diag=None):
+          diag=None, diag_qte=None):
     """Passe une bougie construite dans le contrat d'admissibilité."""
     d = diag if diag is not None else diagnostic_base(ticker)
+    dq = diag_qte if diag_qte is not None else diagnostic_quantites(ticker)
     amp = evaluer_amplitude(bougie, ticker, jour)
-    return admissibilite(statut, d, bougie, amp, ticker, jour)
+    return admissibilite(statut, d, bougie, amp, ticker, jour, dq)
+
+
+def tout_documente(ticker="ZZZ"):
+    """Diagnostics prix ET quantités au niveau « documenté »."""
+    return ({**diagnostic_base("MNG"), "niveau": Preuve.DOCUMENTE.value},
+            {**diagnostic_quantites(ticker), "niveau": Preuve.DOCUMENTE.value})
 
 
 # ═══ A. LES TROIS CONTRE-EXEMPLES DE LA REVUE ══════════════════════════════
@@ -95,8 +104,27 @@ def test_base_inconnue_n_autorise_pas_l_execution():
     """Défaut relevé : base « inconnu » ⇒ exécution autorisée."""
     v = juger(BOUGIE_SAINE, ticker="ADH")        # ADH : état inconnu
     assert diagnostic_base("ADH")["niveau"] == Preuve.INCONNU.value
-    assert "execution" not in v["admissible_pour"]
-    assert "DOCUMENTÉ" in v["refus"]["execution"]
+    assert "execution_simulee" not in v["admissible_pour"]
+    assert "cohérence prix × quantité" in v["refus"]["execution_simulee"]
+
+
+def test_base_inconnue_autorise_quand_meme_l_exploratoire():
+    """§3 de la revue : incertitude ≠ anomalie. On doit pouvoir essayer.
+
+    Une première version bloquait tout calcul dès que la base était
+    incertaine. C'était trop, et ça empêchait des essais utiles.
+    """
+    v = juger(BOUGIE_SAINE, ticker="ADH")
+    assert "indicateur_exploratoire" in v["admissible_pour"]
+    assert "indicateur" not in v["admissible_pour"]
+    assert "EXPLORATOIRE" in v["refus"]["indicateur"]
+
+
+def test_le_refus_de_l_indicateur_publiable_dit_ce_qu_il_interdit():
+    """Un exploratoire ne doit alimenter ni signal, ni probabilité, ni perf."""
+    motif = juger(BOUGIE_SAINE, ticker="ADH")["refus"]["indicateur"]
+    for mot in ("signal officiel", "probabilité", "performance"):
+        assert mot in motif, mot
 
 
 def test_volume_infini_est_invalide():
@@ -156,6 +184,88 @@ def test_prix_nul_ou_negatif_est_invalide():
 
 # ═══ C. AMPLITUDE — CONTEXTUALISÉE, SOURCÉE, ET NON CONCLUANTE SI BESOIN ═══
 
+def test_amplitude_faible_ne_vaut_pas_conformite_reglementaire():
+    """CONTRE-EXEMPLE DE LA REVUE — le plus sérieux du lot.
+
+    Référence 100 · ouverture et plus-bas 200 · plus-haut 201 · clôture 200.
+    Le rapport h/l vaut 1,005 : amplitude minuscule. Sous ±20 % autour de 100,
+    ces prix sont pourtant TOUS hors bornes.
+
+    L'ancienne version répondait « conforme — licite sous tous les régimes
+    connus ». Elle rendait un verdict réglementaire sans jamais recevoir le
+    cours de référence.
+    """
+    b = {"o": 200.0, "h": 201.0, "l": 200.0, "c": 200.0}
+    a = evaluer_amplitude(b, "XXX", "2026-07-01")
+
+    # l'amplitude reste compatible — ce n'est pas ce qui est faux
+    assert a["statut"] == Amplitude.COMPATIBLE.value
+    # mais aucune conformité n'est affirmée, et il est dit pourquoi
+    assert a["conformite_reglementaire"]["statut"] == Conformite.NON_VERIFIABLE.value
+    assert any("référence" in m for m in a["conformite_reglementaire"]["ce_qui_manque"])
+
+    # et le contrôle qui DISPOSE de la référence, lui, tranche
+    c = evaluer_conformite(b, cours_reference=100.0,
+                           nom_regime="admission_cinq_premieres_seances",
+                           date_iso="2026-07-01")
+    assert c["statut"] == Conformite.NON_CONFORME.value
+    assert {h["champ"] for h in c["hors_bornes"]} == {
+        "ouverture", "plus_haut", "plus_bas", "cloture"}
+
+
+def test_aucun_resultat_d_amplitude_n_affirme_la_conformite():
+    """Garde-fou général, pas seulement sur le contre-exemple."""
+    for b in ({"o": 100.0, "h": 101.0, "l": 99.0, "c": 100.0},
+              {"o": 100.0, "h": 400.0, "l": 80.0, "c": 100.0},
+              {"o": 100.0, "h": 130.0, "l": 100.0, "c": 120.0},
+              {"h": None, "l": None}):
+        a = evaluer_amplitude(b, "XXX", "2026-07-01")
+        assert a["conformite_reglementaire"]["statut"] == \
+            Conformite.NON_VERIFIABLE.value, b
+        assert "NE VAUT PAS conformité" in \
+            a["conformite_reglementaire"]["_avertissement"]
+
+
+def test_conformite_non_verifiable_sans_ses_trois_pieces():
+    b = {"o": 100.0, "h": 101.0, "l": 99.0, "c": 100.0}
+    sans_ref = evaluer_conformite(b, None, "continu", "2026-07-01")
+    sans_reg = evaluer_conformite(b, 100.0, "", "2026-07-01")
+    hors_periode = evaluer_conformite(b, 100.0, "continu", "2023-07-01")
+    for r in (sans_ref, sans_reg, hors_periode):
+        assert r["statut"] == Conformite.NON_VERIFIABLE.value
+        assert r["ce_qui_manque"]
+
+
+def test_conformite_accepte_des_prix_dans_les_bornes():
+    """Le contrôle doit rester ACCORDABLE, sinon il ne dit plus rien."""
+    r = evaluer_conformite({"o": 100.0, "h": 109.0, "l": 92.0, "c": 105.0},
+                           cours_reference=100.0, nom_regime="continu",
+                           date_iso="2026-07-01")
+    assert r["statut"] == Conformite.CONFORME.value
+    assert r["hors_bornes"] == []
+
+
+def test_periode_de_validite_de_la_source_est_respectee():
+    """La circulaire du 25/06/2026 ne régit pas une séance de 2023.
+
+    ⚠️ 3 999 de nos 4 306 observations lui sont antérieures : l'étiquette
+    réglementaire portait sur des données que le texte ne couvre pas.
+    """
+    assert source_couvre("2026-07-01") is True
+    assert source_couvre("2023-07-01") is False
+    ancienne = evaluer_amplitude({"h": 101.0, "l": 99.0}, "XXX", "2023-07-01")
+    assert ancienne["source_dans_sa_periode_de_validite"] is False
+    assert any("vigueur" in m
+               for m in ancienne["conformite_reglementaire"]["ce_qui_manque"])
+
+
+def test_alerte_extreme_vaut_a_toute_periode():
+    """Elle ne s'appuie sur aucun texte : elle ne dépend donc d'aucune date."""
+    for jour in ("2023-01-05", "2026-05-05", "2026-08-01"):
+        r = evaluer_amplitude({"h": 1700.0, "l": 369.0}, "SOT", jour)
+        assert r["statut"] == Amplitude.HORS_ENVELOPPE.value, jour
+
+
 def test_bougie_120_80_n_est_plus_declaree_impossible():
     """Contre-exemple de la revue : licite sous le régime ±20 % de l'admission.
 
@@ -168,7 +278,7 @@ def test_bougie_120_80_n_est_plus_declaree_impossible():
     """
     r = evaluer_amplitude({"h": 120.0, "l": 80.0}, "XXX", "2026-07-01")
     assert r["rapport_h_l"] == pytest.approx(1.5)
-    assert r["statut"] == Amplitude.NON_CONCLUANT.value
+    assert r["statut"] == Amplitude.INDETERMINE.value
     assert "AUCUNE conclusion" in r["motif"]
 
 
@@ -182,14 +292,16 @@ def test_borne_se_deduit_de_la_limite():
 def test_amplitude_conforme_sous_tous_les_regimes():
     """En deçà du régime le plus strict, la conclusion ne dépend plus du régime."""
     r = evaluer_amplitude({"h": 103.0, "l": 100.0}, "XXX", "2026-07-01")
-    assert r["statut"] == Amplitude.CONFORME.value
+    assert r["statut"] == Amplitude.COMPATIBLE.value
+    assert "Compatible ne veut pas dire conforme" in r["motif"]
 
 
 def test_amplitude_suspecte_au_dela_de_tous_les_regimes():
     """4,607 : aucun régime connu ne la rend licite."""
     r = evaluer_amplitude({"h": 1700.0, "l": 369.0}, "SOT", SPLIT_SOT)
-    assert r["statut"] == Amplitude.SUSPECTE.value
+    assert r["statut"] == Amplitude.HORS_ENVELOPPE.value
     assert r["rapport_h_l"] == pytest.approx(4.607, abs=0.001)
+    assert "N'établit NI la cause, NI une illégalité" in r["motif"]
 
 
 def test_amplitude_ne_nomme_jamais_la_cause():
@@ -230,10 +342,10 @@ def test_non_concluant_ne_refuse_pas_l_indicateur():
     convertir notre ignorance en verdict.
     """
     b = {"o": 100.0, "h": 120.0, "l": 80.0, "c": 110.0, "v": 500.0}
-    diag = {**diagnostic_base("MNG"), "niveau": Preuve.PROBABLE.value}
-    v = juger(b, ticker="ZZZ", diag=diag)
+    dp, dq = tout_documente()
+    v = juger(b, ticker="ZZZ", diag=dp, diag_qte=dq)
     assert evaluer_amplitude(b, "ZZZ", "2026-01-05")["statut"] == \
-        Amplitude.NON_CONCLUANT.value
+        Amplitude.INDETERMINE.value
     assert "indicateur" in v["admissible_pour"]
 
 
@@ -253,25 +365,68 @@ def test_quantite_non_comparable_avant_une_operation():
     Avant le split MNG et sans ajustement documenté, la quantité n'est pas
     comparable — donc ni mesurable comme volume, ni utilisable en exécution.
     """
-    avant = quantite_comparable("MNG", "2026-01-05", Preuve.PROBABLE.value)
-    jour_j = quantite_comparable("MNG", "2026-07-27", Preuve.PROBABLE.value)
-    apres = quantite_comparable("MNG", "2026-08-01", Preuve.PROBABLE.value)
+    inconnu = diagnostic_quantites("MNG")
+    avant = quantite_comparable("MNG", "2026-01-05", inconnu)
+    jour_j = quantite_comparable("MNG", "2026-07-27", inconnu)
+    apres = quantite_comparable("MNG", "2026-08-01", inconnu)
     assert avant is not None and "2026-07-27" in avant
     assert jour_j is not None, "le jour de l'opération est le plus ambigu, pas le moins"
     assert apres is None
 
 
-def test_quantite_comparable_si_ajustement_documente():
-    assert quantite_comparable("MNG", "2026-01-05", Preuve.DOCUMENTE.value) is None
+def test_quantite_comparable_si_les_QUANTITES_sont_documentees():
+    """⚠️ C'est la preuve sur les QUANTITÉS qui lève la réserve, pas celle sur
+    les prix. Une version antérieure acceptait le niveau des prix — la revue a
+    relevé le raccourci."""
+    doc = {**diagnostic_quantites("MNG"), "niveau": Preuve.DOCUMENTE.value}
+    assert quantite_comparable("MNG", "2026-01-05", doc) is None
+
+
+def test_une_preuve_sur_les_prix_ne_documente_pas_les_quantites():
+    """Le point exact soulevé par la revue, isolé dans un test."""
+    prix_documente = {**diagnostic_base("MNG"), "niveau": Preuve.DOCUMENTE.value}
+    qte_inconnue = diagnostic_quantites("MNG")
+    v = juger(BOUGIE_SAINE, ticker="MNG", jour="2026-01-05",
+              diag=prix_documente, diag_qte=qte_inconnue)
+    assert "volume" not in v["admissible_pour"]
+    assert "base des quantités" in v["refus"]["volume"]
+
+
+def test_les_deux_diagnostics_sont_publies_separement():
+    for t in TITRES:
+        d = charger(LOT1B, t)
+        assert "diagnostic_base_prix" in d and "diagnostic_quantites" in d
+        assert d["diagnostic_quantites"]["unite_etablie"] is False
+
+
+def test_execution_n_exige_pas_des_prix_ajustes_mais_une_comptabilite_coherente():
+    """§4 : ce qui est refusé, c'est le MÉLANGE, pas l'ajustement.
+
+    Prix documentés + quantités documentées ⇒ accordé, que les prix soient
+    ajustés ou non. Dès qu'un des deux côtés n'est pas établi, la comptabilité
+    n'est pas cohérente.
+    """
+    dp, dq = tout_documente()
+    assert comptabilite_coherente(dp, dq) is None
+    inconnu_qte = diagnostic_quantites("ZZZ")
+    motif = comptabilite_coherente(dp, inconnu_qte)
+    assert motif and "quantités" in motif
+
+
+def test_le_refus_d_execution_ne_se_prononce_pas_sur_le_remplissage():
+    """L'admissibilité des données n'est pas la probabilité d'exécution."""
+    motif = comptabilite_coherente(diagnostic_base("ADH"),
+                                   diagnostic_quantites("ADH"))
+    assert "liquidité" in motif and "protocole de backtest" in motif
 
 
 def test_volume_mesure_nul_refuse_l_execution():
     """Aucune contrepartie constatée : on ne suppose pas un ordre exécuté."""
-    diag = {**diagnostic_base("MNG"), "niveau": Preuve.DOCUMENTE.value}
-    v = juger({**BOUGIE_SAINE, "v": 0.0}, ticker="ZZZ", diag=diag)
+    dp, dq = tout_documente()
+    v = juger({**BOUGIE_SAINE, "v": 0.0}, ticker="ZZZ", diag=dp, diag_qte=dq)
     assert "volume" in v["admissible_pour"]
-    assert "execution" not in v["admissible_pour"]
-    assert "aucune contrepartie" in v["refus"]["execution"]
+    assert "execution_simulee" not in v["admissible_pour"]
+    assert "aucune contrepartie" in v["refus"]["execution_simulee"]
 
 
 def test_execution_accordee_quand_tout_est_reuni():
@@ -280,17 +435,18 @@ def test_execution_accordee_quand_tout_est_reuni():
     ⚠️ Un contrat qui refuse tout est aussi inutile qu'un contrat qui accepte
     tout. Ce test prouve qu'il existe un cas passant.
     """
-    diag = {**diagnostic_base("MNG"), "niveau": Preuve.DOCUMENTE.value}
-    v = juger(BOUGIE_SAINE, ticker="ZZZ", diag=diag)
+    dp, dq = tout_documente()
+    v = juger(BOUGIE_SAINE, ticker="ZZZ", diag=dp, diag_qte=dq)
     assert v["admissible_pour"] == ["prix_analyse", "volume", "indicateur",
-                                    "execution"], v["refus"]
+                                    "indicateur_exploratoire",
+                                    "execution_simulee"], v["refus"]
 
 
 def test_seance_non_negociee_refuse_l_execution():
-    diag = {**diagnostic_base("MNG"), "niveau": Preuve.DOCUMENTE.value}
+    dp, dq = tout_documente()
     for statut in (Seance.SUSPENDUE, Seance.INCONNUE, Seance.MARCHE_FERME):
-        v = juger(BOUGIE_SAINE, ticker="ZZZ", statut=statut, diag=diag)
-        assert "execution" not in v["admissible_pour"], statut
+        v = juger(BOUGIE_SAINE, ticker="ZZZ", statut=statut, diag=dp, diag_qte=dq)
+        assert "execution_simulee" not in v["admissible_pour"], statut
 
 
 def test_chaque_refus_porte_un_motif_non_vide():
@@ -358,22 +514,22 @@ def test_sot_bougie_du_split_relevee_a_la_main():
     assert (b["ouverture"], b["plus_haut"], b["plus_bas"], b["cloture"]) == \
            (SOT_0505["o"], SOT_0505["h"], SOT_0505["l"], SOT_0505["c"])
     assert b["plus_bas"] <= b["ouverture"] <= b["plus_haut"]   # OHLC tenu
-    assert b["amplitude"]["statut"] == Amplitude.SUSPECTE.value
+    assert b["amplitude"]["statut"] == Amplitude.HORS_ENVELOPPE.value
 
 
-def test_une_seule_amplitude_suspecte_sur_tout_le_lot():
+def test_une_seule_alerte_d_amplitude_sur_tout_le_lot():
     """Le contrôle ne disqualifie rien d'autre au passage."""
     trouvees = [(t, o["date"]) for t in TITRES
                 for o in charger(LOT1B, t)["observations"]
-                if o["amplitude"]["statut"] == Amplitude.SUSPECTE.value]
+                if o["amplitude"]["statut"] == Amplitude.HORS_ENVELOPPE.value]
     assert trouvees == [("SOT", SPLIT_SOT)], trouvees
 
 
 def test_aucune_execution_accordee_dans_tout_le_lot():
-    """Constat, pas objectif : aucune série ne porte d'ajustement documenté."""
+    """Constat, pas objectif : aucune série ne porte de comptabilité établie."""
     for t in TITRES:
         for o in charger(LOT1B, t)["observations"]:
-            assert "execution" not in o["admissible_pour"], (t, o["date"])
+            assert "execution_simulee" not in o["admissible_pour"], (t, o["date"])
 
 
 # ═══ G. LA COUCHE NE MODIFIE RIEN ══════════════════════════════════════════
@@ -465,3 +621,44 @@ def test_manifeste_1a_ne_dit_plus_donnees_brutes_fournisseur():
     assert len(m["_commit_depot"]) == 40
     for t, s in m["series"].items():
         assert len(s["commit_source_complet"]) == 40, t
+
+
+# ═══ J. LE BILAN EST MESURÉ, PAS RECOPIÉ ═══════════════════════════════════
+
+def test_le_bilan_publie_correspond_aux_artefacts():
+    """⚠️ J'ai écrit « cinq titres sur sept » quand les fichiers en montraient six.
+
+    Un chiffre énoncé de mémoire à côté d'un fichier qui dit autre chose. Le
+    bilan est désormais généré ; ce test vérifie qu'il n'a pas vieilli.
+    """
+    from bilan_lot import mesurer, rendre
+    publie = (RACINE / "docs" / "BILAN_LOT1B.md").read_text(encoding="utf-8")
+    assert publie.strip() == rendre(mesurer()).strip(), (
+        "docs/BILAN_LOT1B.md a vieilli — relancer pipeline/bilan_lot.py --ecrire")
+
+
+def test_le_bilan_compte_les_titres_comme_les_fichiers():
+    """Le comptage doit se déduire des artefacts, pas d'une constante."""
+    from bilan_lot import mesurer
+    m = mesurer()
+    sans_publiable = sum(1 for t in TITRES
+                         if not any("indicateur" in o["admissible_pour"]
+                                    for o in charger(LOT1B, t)["observations"]))
+    assert m["titres_sans_indicateur_publiable"] == sans_publiable
+    assert m["titres"] == len(TITRES)
+
+
+def test_aucun_document_n_annonce_un_compte_perime():
+    """Garde-fou textuel contre la formulation exacte qui était fausse."""
+    for chemin in ("ROADMAP.md", "docs/JOURNAL_TRANSFORMATIONS.md",
+                   "docs/BILAN_LOT1B.md"):
+        texte = (RACINE / chemin).read_text(encoding="utf-8").lower()
+        assert "cinq titres sur sept" not in texte, chemin
+
+
+def test_la_portee_sot_est_dite_sur_toute_la_serie():
+    """⚠️ J'avais écrit « historique antérieur » alors que le contrat écarte tout."""
+    obs = charger(LOT1B, "SOT")["observations"]
+    assert all("prix_analyse" not in o["admissible_pour"] for o in obs)
+    bilan = (RACINE / "docs" / "BILAN_LOT1B.md").read_text(encoding="utf-8")
+    assert "toute la série" in bilan

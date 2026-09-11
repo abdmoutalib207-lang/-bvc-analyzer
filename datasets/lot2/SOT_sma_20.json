@@ -1,0 +1,38 @@
+{
+ "_quoi": "sma sur SOT, fenêtre identifiée.",
+ "_avertissement": "CALCUL NON EFFECTUÉ. La fenêtre ne permet pas cet indicateur.",
+ "titre": "SOT",
+ "indicateur": "sma",
+ "periode": 20,
+ "genere_le": "2026-09-11 10:26",
+ "source": "datasets/lot1b/SOT.json",
+ "empreinte_source_lot1a": "34a9840120877e9d8626a6fa9a69ffa1c34753be5cc2d5d3b8e315c43f8184d1",
+ "diagnostic_base_prix": "base incohérente ou suspecte",
+ "diagnostic_quantites": "état inconnu",
+ "qualification_fenetre": {
+  "indicateur": "sma",
+  "verdict": "refusé",
+  "debut": "2024-06-01",
+  "fin": "",
+  "lignes": 528,
+  "longueur_requise": 528,
+  "besoins": [
+   "cloture"
+  ],
+  "couvertures": {
+   "cloture": {
+    "exploitables": 528,
+    "sur": 528,
+    "couverture": 1.0,
+    "invalides": 0
+   }
+  },
+  "motifs": [
+   "la fenêtre traverse 1 alerte(s) de cohérence non résolue(s) : 2026-05-05",
+   "473 observation(s) sans aucun usage admissible dans la fenêtre"
+  ],
+  "observations_retenues": []
+ },
+ "usage_autorise": "aucun",
+ "valeurs": null
+}

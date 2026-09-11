@@ -1,4 +1,4 @@
-# Journal des transformations — lot 1B.1
+# Journal des transformations — lot 1B.2
 
 > Ce qui a été appliqué aux données, ce qui ne l'a PAS été, et pourquoi.
 > Une transformation absente de ce journal n'a pas le droit d'exister dans le
@@ -19,24 +19,50 @@ brutes fournisseur**. Le dépôt ne conserve **aucune charge utile de source**.
 L'expression est réservée aux charges utiles effectivement conservées ; nous
 n'en gardons aucune. C'est une lacune, pas une convention.
 
-## Les quatre usages, et pourquoi ils sont séparés
+## Les cinq usages, et pourquoi ils sont séparés
 
 | Usage | Ce qu'il autorise |
 |---|---|
 | `prix_analyse` | valoriser, comparer, mesurer une variation |
 | `volume` | mesurer une quantité échangée |
-| `indicateur` | alimenter un calcul de série |
-| `execution` | **supposer qu'un ordre aurait pu être passé à ce prix** |
+| `indicateur` | alimenter un calcul de série **publiable** |
+| `indicateur_exploratoire` | calculer **pour voir**, en signalant les limites |
+| `execution_simulee` | rejouer une **comptabilité cohérente** prix × quantité |
 
-**`execution` est refusé par défaut**, et ce n'est pas une prudence de façade.
-Une série ajustée porte des prix qui n'ont jamais été cotés : un titre divisé
-par dix affiche 130 là où le marché traitait 1 300. Croiser ce prix avec une
-quantité **non ajustée** fabrique un montant faux d'un facteur dix. L'exécution
-exige donc un ajustement **documenté** — pas seulement probable.
+### Trois situations, trois issues — et non deux
 
-Le corollaire vaut pour les quantités : avant une opération déclarée et sans
-ajustement documenté, **le volume lui-même est refusé**. Une opération ne
-change pas que les prix, elle change le nombre de titres.
+Une première version bloquait tout calcul dès qu'une base restait incertaine.
+C'était trop : elle empêchait des essais utiles. La revue a précisé la règle.
+
+| Situation | Issue |
+|---|---|
+| valeurs invalides, ou fenêtre traversant une anomalie non résolue | **refuser**, avec le motif |
+| valeurs exploitables, provenance ou ajustement incomplets | **calcul exploratoire**, explicitement signalé |
+| fenêtre qualifiée pour l'usage demandé | **permettre**, dans le périmètre documenté |
+
+⚠️ Un calcul exploratoire n'alimente **ni** le signal officiel, **ni** une
+probabilité, **ni** une performance présentée comme validée. C'est sa raison
+d'être : pouvoir essayer sans pouvoir tricher.
+
+### Exécution simulée — ce qui est exigé, et ce qui ne l'est pas
+
+`execution_simulee` **n'exige pas** que les prix soient ajustés. Elle exige que
+prix et quantités racontent la **même histoire** : ou bien des prix
+effectivement cotés avec les opérations traitées explicitement, ou bien une
+représentation transformée dont **toutes** les grandeurs suivent. Ce qui est
+refusé, c'est le mélange — un cours divisé par dix multiplié par une quantité
+qui ne l'a pas été.
+
+⚠️ Et cette admissibilité **ne prouve pas** qu'un ordre aurait été exécuté. La
+liquidité et les règles de remplissage appartiennent au protocole de backtest,
+pas à la qualification des données.
+
+### La preuve sur les prix ne vaut pas preuve sur les quantités
+
+Deux registres distincts, deux provenances. `quantite_comparable()` acceptait
+le niveau de preuve des **prix** pour lever la réserve sur les **volumes** :
+c'était un raccourci. Le registre `BASES_QUANTITES` est vide, et l'unité
+« nombre de titres » y est déclarée **présumée, non établie**.
 
 ## Transformations APPLIQUÉES
 
@@ -50,38 +76,69 @@ base de prix, le statut réglementaire de son amplitude, les usages accordés et
 **Effet sur les valeurs : aucun.** Vérifié observation par observation contre
 l'instantané.
 
-### T2 — Contrôle d'amplitude, indexé par régime
+### T2 — Amplitude : ce qu'elle mesure, et ce qu'elle ne prouve pas
 
-Voir `pipeline/regimes_variation.py`. Trois issues, et non deux :
+Une version antérieure répondait « conforme » et écrivait « licite sous tous
+les régimes connus ». **C'était un verdict réglementaire rendu par une fonction
+qui n'en a pas les moyens.** La revue l'a démontré :
 
-| Statut | Quand | Effet |
+> référence 100 · ouverture et plus-bas 200 · plus-haut 201 · clôture 200
+
+Le rapport plus-haut / plus-bas vaut 1,005 — amplitude minuscule, donc
+« conforme ». Sous ±20 % autour de 100, ces prix sont pourtant **tous** hors
+bornes. La fonction ne reçoit pas le cours de référence : elle voit de combien
+les prix s'écartent entre eux, jamais **où** ils se situent.
+
+Second défaut de portée, plus large encore : la source citée n'entre en vigueur
+qu'au 23/06/2026, et **3 999 de nos 4 306 observations lui sont antérieures —
+93 %**. L'étiquette réglementaire était apposée sur des données que le texte
+invoqué ne couvre pas.
+
+**Les deux questions sont désormais séparées.**
+
+| Fonction | Répond à | Exige |
 |---|---|---|
-| `conforme` | en deçà du régime le **plus strict** | rien à signaler |
-| `contrôle réglementaire non concluant` | licite sous un régime, pas sous un autre | **ne refuse rien** |
-| `amplitude suspecte` | au-delà du régime le **plus permissif** | écarte l'observation |
+| `evaluer_amplitude` | de combien les prix s'écartent **entre eux** | la bougie seule |
+| `evaluer_conformite` | respectent-ils la limite **autour de la référence** | référence + régime + période de validité |
 
-Nous ignorons, titre par titre et jour par jour, quel régime s'applique — ni le
-mode de cotation, ni les dates d'admission. Le registre `REGIME_PAR_TITRE` est
-donc **vide à dessein** : une entrée inventée rendrait le contrôle concluant à
-tort.
+`evaluer_amplitude` rend trois états, et **aucun n'est un verdict de
+conformité** :
 
-Le contrôle reste néanmoins concluant dans un cas : quand l'amplitude dépasse
-**tous** les régimes connus, aucune hypothèse de régime ne la rend licite — la
-conclusion ne dépend plus de ce qu'on ignore.
+| Statut | Quand | Effet sur les usages |
+|---|---|---|
+| `compatible avec l'enveloppe testée` | sous l'enveloppe la plus étroite | rien — ⚠️ compatible ≠ conforme |
+| `enveloppe non concluante` | entre les deux enveloppes | **ne refuse rien** |
+| `hors enveloppe testée — alerte de cohérence` | au-delà de l'enveloppe la plus large | écarte l'observation |
 
-Répartition sur les 4 306 bougies : **4 292 conformes, 13 non concluantes,
-1 suspecte**.
+Chaque résultat porte `conformite_reglementaire`, qui vaut **toujours** « non
+vérifiable » aujourd'hui et **nomme ce qui manque** — à commencer par le cours
+de référence, qu'aucune de nos chandelles ne conserve.
 
-> ⚠️ **« Suspecte » qualifie l'amplitude, jamais sa cause.** Un contrôle de
-> forme ne diagnostique pas une opération sur titres. Un test vérifie que le
-> résultat ne contient aucun des mots « base », « split », « opération »,
-> « ajust ».
+Répartition sur les 4 306 bougies : **4 292 compatibles, 13 non concluantes,
+1 alerte**.
+
+> ⚠️ **L'alerte qualifie l'amplitude, jamais sa cause, jamais sa légalité.**
+> Elle ne s'appuie sur aucun texte — elle vaut donc à toute période, y compris
+> avant l'entrée en vigueur de la circulaire. Un test vérifie que le résultat
+> ne contient aucun des mots « base », « split », « opération », « ajust ».
 
 **Source des seuils** : circulaire AMMC du 25/06/2026 (±10 % en continu, ±6 %
-au fixing, ±20 % pendant les cinq premières séances suivant l'admission, en
-vigueur depuis le 23/06/2026), **relayée par la revue externe et NON vérifiée
-par nous sur le texte original**. Le champ `verifie_sur_source_primaire` vaut
-`False` et doit le rester tant que la pièce n'est pas jointe.
+au fixing, ±20 % pendant les cinq premières séances suivant l'admission),
+**relayée par la revue et NON vérifiée par nous sur le texte original**.
+`verifie_sur_source_primaire` vaut `False` et doit le rester.
+
+### T3 — Qualification par fenêtre datée et par besoins réels
+
+`pipeline/fenetre.py`. Deux principes :
+
+- **par fenêtre**, pour ne pas exiger de certifier tout l'historique d'un titre
+  avant de calculer quoi que ce soit ;
+- **par besoins**, parce qu'une moyenne de clôtures n'exige pas les colonnes
+  OHLC, tandis qu'un indicateur de volume doit vérifier leur disponibilité
+  **et** leur comparabilité.
+
+Surdéclarer un besoin refuse des calculs légitimes ; le sous-déclarer calcule
+sur des champs absents. Les deux sont des fautes, la seconde est pire.
 
 ## Transformations NON APPLIQUÉES — et la raison
 
@@ -104,14 +161,15 @@ tire, et la **pièce qui manque**.
 > ni l'absence d'opération sur tout l'historique, ni la validité des bases. Le
 > défaut est donc « état inconnu », pour tout le monde.
 
-**Conséquence mesurée, et elle est lourde** : « état inconnu » interdit
-l'usage `indicateur`, parce que rien ne garantit que deux points consécutifs
-s'expriment sur la même base. **Cinq titres sur sept n'autorisent aujourd'hui
-aucun indicateur.**
+**Conséquence, mesurée dans les artefacts** (`docs/BILAN_LOT1B.md`) :
+« état inconnu » interdit l'usage `indicateur` **publiable**, mais autorise
+l'`indicateur_exploratoire`. Aucun des 7 titres n'a d'indicateur publiable ;
+6 sur 7 ont un exploratoire.
 
-Ce n'est pas un effet de bord : c'est l'état réel de notre connaissance, rendu
-visible. Le lot 2 ne peut pas se brancher sur ces séries avant que les
-diagnostics soient conduits.
+⚠️ Une version antérieure annonçait un titre de moins que ce que les fichiers
+montraient. Le bilan est désormais **généré** par `pipeline/bilan_lot.py`, qui
+lit `datasets/lot1b/` ; un test vérifie qu'il n'a pas vieilli, et un autre
+interdit la formulation fautive dans la documentation.
 
 ### N2 — Comblement des trous de calendrier
 

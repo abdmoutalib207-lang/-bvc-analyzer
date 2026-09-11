@@ -15,20 +15,40 @@ sont des séries du dépôt, écrites par le moteur à des dates inconnues, par 
 programmes non enregistrés. L'expression est réservée aux charges utiles
 effectivement conservées — nous n'en gardons aucune.
 
-LES QUATRE USAGES, ET POURQUOI ILS SONT SÉPARÉS
-───────────────────────────────────────────────
-  prix_analyse   valoriser, comparer, mesurer une variation
-  volume         mesurer une quantité échangée
-  indicateur     alimenter un calcul de série (moyennes, RSI, bandes…)
-  execution      supposer qu'un ordre aurait pu être passé à ce prix
+LES USAGES, ET POURQUOI ILS SONT SÉPARÉS
+────────────────────────────────────────
+  prix_analyse              valoriser, comparer, mesurer une variation
+  volume                    mesurer une quantité échangée
+  indicateur                alimenter un calcul de série PUBLIABLE
+  indicateur_exploratoire   calculer pour VOIR, en signalant les limites
+  execution_simulee         rejouer une comptabilité cohérente prix × quantité
 
-⚠️ `execution` est REFUSÉ PAR DÉFAUT, et ce n'est pas une prudence de façade.
-Une série ajustée pour l'analyse porte des prix qui n'ont jamais été cotés :
-un titre divisé par dix affiche 130 là où le marché traitait 1 300. Croiser ce
-prix avec une quantité NON ajustée fabrique un montant faux d'un facteur dix.
-Des prix d'analyse ne doivent jamais devenir silencieusement des prix
-d'exécution. L'exécution exige donc un ajustement DOCUMENTÉ, pas seulement
-probable.
+⚠️ TROIS SITUATIONS, TROIS ISSUES — et non deux.
+La revue a précisé la règle après qu'une première version eut tout bloqué dès
+qu'une base restait incertaine :
+
+  valeurs invalides, ou fenêtre traversant une anomalie non résolue
+      → REFUSER le calcul, avec son motif
+  valeurs exploitables, mais provenance ou ajustement incomplets
+      → PERMETTRE un calcul EXPLORATOIRE, explicitement signalé
+  fenêtre qualifiée pour l'usage demandé
+      → PERMETTRE cet usage, dans le périmètre documenté
+
+⚠️ Un calcul exploratoire n'alimente NI le signal officiel, NI une probabilité,
+NI une performance présentée comme validée. C'est sa raison d'être : pouvoir
+essayer sans pouvoir tricher.
+
+⚠️ `execution_simulee` n'exige PAS que les prix soient ajustés. Elle exige une
+comptabilité COHÉRENTE : ou bien des prix effectivement cotés avec les
+opérations sur titres traitées explicitement, ou bien une représentation
+transformée dont TOUTES les grandeurs — prix et quantités — restent
+compatibles. Un prix divisé par dix croisé avec une quantité non ajustée
+fabrique un montant faux d'un facteur dix ; c'est l'incohérence qui est
+refusée, pas l'ajustement.
+
+⚠️ Et cette admissibilité ne prouve PAS qu'un ordre aurait été exécuté. La
+liquidité et les règles de remplissage appartiennent au protocole de backtest,
+pas à la qualification des données.
 
 CHAQUE REFUS PORTE SON MOTIF
 ────────────────────────────
@@ -121,6 +141,36 @@ DIAGNOSTICS = {
 }
 
 
+# ── Ce que l'on sait des QUANTITÉS — registre distinct de celui des prix ───
+#
+# ⚠️ VIDE À DESSEIN. Une preuve portant sur les prix ne documente PAS le
+# traitement des volumes : ce sont deux grandeurs, deux transformations
+# possibles, deux provenances. La revue externe a relevé que
+# `quantite_comparable()` levait la réserve sur les quantités dès que la base
+# des PRIX était documentée. C'était un raccourci.
+BASES_QUANTITES: dict = {}
+
+
+def diagnostic_quantites(ticker: str) -> dict:
+    """Unité et base des quantités, avec leur PROPRE provenance."""
+    if ticker in BASES_QUANTITES:
+        return BASES_QUANTITES[ticker]
+    return {
+        "niveau": Preuve.INCONNU.value,
+        "unite": "nombre de titres",
+        "unite_etablie": False,
+        "fait_observe": "les chandelles portent un entier nommé « v », hérité "
+                        "du champ QteEchangee des sources",
+        "hypothese": "il s'agit d'un nombre de titres, non d'un montant",
+        "ce_qui_manque": "la convention écrite de la source, et le traitement "
+                         "appliqué aux quantités lors des opérations sur "
+                         "titres. ⚠️ Aucune des deux n'est enregistrée dans la "
+                         "donnée.",
+        "consequence": "aucun usage supposant une quantité comparable dans le "
+                       "temps n'est autorisé",
+    }
+
+
 def diagnostic_base(ticker: str) -> dict:
     """Ce que l'on sait de la base de prix, et à quel titre on le sait.
 
@@ -162,123 +212,140 @@ def marche_ferme(jour: str, cal: dict):
 
 # ── Le contrat d'admissibilité ──────────────────────────────────────────────
 
-def quantite_comparable(ticker: str, jour: str, niveau: str) -> str | None:
+def quantite_comparable(ticker: str, jour: str, diag_qte: dict) -> str | None:
     """Motif de refus si la QUANTITÉ n'est pas comparable, sinon None.
 
-    ⚠️ Une opération sur titres ne change pas que les prix : elle change le
-    NOMBRE de titres. Une division par dix du cours s'accompagne d'une
-    multiplication par dix du nombre d'actions. Si nous ne savons pas comment
-    la série a été ajustée côté prix, nous ne le savons pas davantage côté
-    quantités.
+    ⚠️ Ne dépend PLUS du niveau de preuve des PRIX. Une preuve sur les prix ne
+    documente pas le traitement des volumes — relevé par la revue externe.
 
-    La revue a posé le principe : « des prix ajustés pour l'analyse ne doivent
-    pas devenir silencieusement des prix d'exécution avec des quantités non
-    ajustées ». Le corollaire est ici : avant une opération déclarée, une
-    quantité n'est comparable que si l'ajustement est DOCUMENTÉ.
+    Une opération sur titres change le nombre d'actions autant que le cours.
+    Sans provenance propre aux quantités, rien n'établit de quel côté de
+    l'opération une quantité est exprimée.
     """
-    if niveau == Preuve.DOCUMENTE.value:
+    if diag_qte["niveau"] == Preuve.DOCUMENTE.value:
         return None
     for op in SPLITS.get(ticker) or []:
-        # ⚠️ Le JOUR MÊME de l'opération est inclus : c'est précisément la
-        # séance où la quantité peut relever de l'une ou l'autre base, et où
-        # l'ambiguïté est maximale plutôt que minimale.
+        # Le JOUR MÊME est inclus : c'est la séance la plus ambiguë, pas la moins.
         if jour <= op["date"]:
             return (f"quantité au plus tard au jour de l'opération du "
-                    f"{op['date']} (ratio {op['ratio']}), base « {niveau} » : "
-                    f"rien n'établit si elle est exprimée avant ou après "
-                    f"l'opération")
+                    f"{op['date']} (ratio {op['ratio']}), base des quantités "
+                    f"« {diag_qte['niveau']} » : rien n'établit si elle est "
+                    f"exprimée avant ou après l'opération")
     return None
 
 
-def admissibilite(statut: Seance, diag: dict, bougie: dict,
-                  amplitude: dict, ticker: str = "", jour: str = "") -> dict:
+def comptabilite_coherente(diag_prix: dict, diag_qte: dict) -> str | None:
+    """Motif de refus si prix et quantités ne sont pas dans des bases compatibles.
+
+    ⚠️ L'exécution simulée n'exige PAS que les prix soient ajustés. Elle exige
+    que prix et quantités racontent la MÊME histoire :
+
+      · des prix effectivement cotés, avec les opérations traitées à part ; ou
+      · une représentation transformée dont toutes les grandeurs suivent.
+
+    Ce qui est refusé, c'est le mélange : un cours divisé par dix multiplié par
+    une quantité qui ne l'a pas été.
+    """
+    if diag_prix["niveau"] == Preuve.INCOHERENT.value:
+        return ("base des prix « incohérente ou suspecte » : aucune "
+                "comptabilité ne peut s'appuyer dessus")
+    if diag_prix["niveau"] == Preuve.DOCUMENTE.value and \
+            diag_qte["niveau"] == Preuve.DOCUMENTE.value:
+        return None
+    manquants = []
+    if diag_prix["niveau"] != Preuve.DOCUMENTE.value:
+        manquants.append(f"prix « {diag_prix['niveau']} »")
+    if diag_qte["niveau"] != Preuve.DOCUMENTE.value:
+        manquants.append(f"quantités « {diag_qte['niveau']} »")
+    return ("la cohérence prix × quantité n'est pas établie — " +
+            ", ".join(manquants) + ". ⚠️ Ce refus porte sur la COMPTABILITÉ, "
+            "pas sur la probabilité qu'un ordre soit exécuté : la liquidité et "
+            "les règles de remplissage relèvent du protocole de backtest.")
+
+
+def admissibilite(statut: Seance, diag: dict, bougie: dict, amplitude: dict,
+                  ticker: str = "", jour: str = "",
+                  diag_qte: dict | None = None) -> dict:
     """Usages autorisés, et motif de chaque refus.
 
     Retourne {"admissible_pour": [...], "refus": {usage: motif}}.
-
-    Les conditions sont cumulatives et vérifiées dans cet ordre : la validité
-    des VALEURS d'abord, la cohérence de la BOUGIE ensuite, le statut de la
-    SÉANCE, puis la base de PRIX. Un usage n'est accordé que si tout tient.
     """
     q = qualifier_bougie(bougie)
     etat_v, val_v = qualifier_volume(bougie.get("v"))
+    dq = diag_qte if diag_qte is not None else diagnostic_quantites(ticker)
     niveau = diag["niveau"]
     accorde, refus = [], {}
 
     # ── prix_analyse ────────────────────────────────────────────────────────
-    # Il faut au minimum une clôture exploitable. Une bougie sans clôture ne
-    # valorise rien, quel que soit son volume.
     if q["valeurs"]["cloture"] is None:
         refus["prix_analyse"] = "clôture absente ou invalide — " + \
             (q["motifs"][0] if q["motifs"] else "valeur inexploitable")
     elif q["ohlc_coherent"] is False:
         refus["prix_analyse"] = next(m for m in q["motifs"] if "OHLC" in m)
     elif niveau == Preuve.INCOHERENT.value:
-        refus["prix_analyse"] = (
-            f"base de prix : {niveau} — {diag['consequence']}")
-    elif amplitude["statut"] == Amplitude.SUSPECTE.value:
-        refus["prix_analyse"] = f"amplitude : {amplitude['motif']}"
+        refus["prix_analyse"] = f"base de prix : {niveau} — {diag['consequence']}"
+    elif amplitude["statut"] == Amplitude.HORS_ENVELOPPE.value:
+        refus["prix_analyse"] = f"alerte de cohérence — {amplitude['motif']}"
     else:
         accorde.append("prix_analyse")
 
     # ── volume ──────────────────────────────────────────────────────────────
+    # ⚠️ Indépendant de prix_analyse : un volume mesuré reste un volume mesuré
+    # même sans clôture exploitable. La revue a relevé que ma formulation
+    # « rien n'est autorisé » était trop générale — le code, lui, était juste.
     if etat_v is Volume.INCONNU:
         refus["volume"] = "volume non renseigné par la source — inconnu n'est pas zéro"
     elif etat_v is Volume.INVALIDE:
         refus["volume"] = "volume invalide : non numérique, non fini, ou négatif"
     elif statut in (Seance.SUSPENDUE, Seance.MARCHE_FERME):
         refus["volume"] = f"séance {statut.value} — aucune quantité à mesurer"
-    elif (motif := quantite_comparable(ticker, jour, niveau)):
+    elif (motif := quantite_comparable(ticker, jour, dq)):
         refus["volume"] = motif
     else:
         accorde.append("volume")
 
-    # ── indicateur ──────────────────────────────────────────────────────────
-    # Un indicateur de série enchaîne des observations : il exige une base de
-    # prix comparable d'un point au suivant. « État inconnu » ne le permet pas.
+    # ── indicateur / indicateur_exploratoire ────────────────────────────────
+    # Les deux exigent des VALEURS exploitables. Ce qui les sépare est la
+    # PROVENANCE : documentée d'un côté, incomplète de l'autre.
     if "prix_analyse" not in accorde:
-        refus["indicateur"] = "repose sur prix_analyse, refusé ci-dessus"
+        motif = "repose sur prix_analyse, refusé ci-dessus"
+        refus["indicateur"] = refus["indicateur_exploratoire"] = motif
     elif not q["complete"]:
+        # Une bougie incomplète n'interdit pas TOUT indicateur — une moyenne de
+        # clôtures n'a besoin que de la clôture. Le tri par besoins réels se
+        # fait au niveau de la FENÊTRE (pipeline/fenetre.py), pas ici.
         refus["indicateur"] = (
-            "bougie incomplète — " + " ; ".join(q["motifs"]))
-    elif niveau == Preuve.INCONNU.value:
-        refus["indicateur"] = (
-            "base de prix « état inconnu » : rien ne garantit que deux points "
-            "consécutifs s'expriment sur la même base")
-    else:
-        # ⚠️ Un « contrôle non concluant » NE REFUSE PAS. Ignorer quel régime
-        # s'applique n'est pas une preuve que la bougie est mauvaise : ce serait
-        # convertir notre ignorance en verdict. Seule une amplitude SUSPECTE —
-        # au-delà de TOUS les régimes connus — écarte une observation, et elle
-        # l'a déjà fait au niveau de prix_analyse.
+            "bougie incomplète pour un indicateur exigeant les quatre prix — " +
+            " ; ".join(q["motifs"]) +
+            ". ⚠️ Un indicateur n'utilisant que la clôture peut rester "
+            "calculable : voir la qualification par fenêtre et par besoins.")
+        accorde.append("indicateur_exploratoire")
+    elif niveau == Preuve.DOCUMENTE.value:
         accorde.append("indicateur")
-
-    # ── execution ───────────────────────────────────────────────────────────
-    # Refusé par défaut. Voir l'en-tête du module : un prix ajusté croisé avec
-    # une quantité non ajustée fabrique un montant faux.
-    if "prix_analyse" not in accorde:
-        refus["execution"] = "repose sur prix_analyse, refusé ci-dessus"
-    elif "volume" not in accorde:
-        refus["execution"] = "repose sur volume, refusé ci-dessus"
-    elif statut is not Seance.NEGOCIEE:
-        refus["execution"] = (
-            f"séance {statut.value} : rien n'établit qu'un ordre aurait pu "
-            f"être exécuté ce jour-là")
-    elif val_v == 0:
-        refus["execution"] = "volume mesuré nul — aucune contrepartie constatée"
-    elif niveau != Preuve.DOCUMENTE.value:
-        refus["execution"] = (
-            f"base de prix « {niveau} » : l'exécution exige un ajustement "
-            f"DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée "
-            f"produit un montant faux.")
-    elif amplitude["statut"] != Amplitude.CONFORME.value:
-        # Pour l'exécution, et pour elle seule, le doute vaut refus : un ordre
-        # supposé passé à un prix dont la licéité n'est pas établie engage un
-        # montant. C'est une PRÉCAUTION, pas un constat d'anomalie.
-        refus["execution"] = (f"précaution — amplitude non établie comme "
-                              f"conforme : {amplitude['motif']}")
+        accorde.append("indicateur_exploratoire")
     else:
-        accorde.append("execution")
+        refus["indicateur"] = (
+            f"base de prix « {niveau} » : provenance ou ajustement incomplets. "
+            f"Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le "
+            f"signal officiel, une probabilité, ni une performance validée.")
+        accorde.append("indicateur_exploratoire")
+
+    # ── execution_simulee ───────────────────────────────────────────────────
+    if "prix_analyse" not in accorde:
+        refus["execution_simulee"] = "repose sur prix_analyse, refusé ci-dessus"
+    elif "volume" not in accorde:
+        refus["execution_simulee"] = "repose sur volume, refusé ci-dessus"
+    elif statut is not Seance.NEGOCIEE:
+        refus["execution_simulee"] = (
+            f"séance {statut.value} : aucune transaction constatée à rejouer")
+    elif val_v == 0:
+        refus["execution_simulee"] = "volume mesuré nul — aucune contrepartie constatée"
+    elif (motif := comptabilite_coherente(diag, dq)):
+        refus["execution_simulee"] = motif
+    elif amplitude["statut"] == Amplitude.HORS_ENVELOPPE.value:
+        refus["execution_simulee"] = f"alerte de cohérence — {amplitude['motif']}"
+    else:
+        accorde.append("execution_simulee")
 
     return {"admissible_pour": accorde, "refus": refus,
             "prix": q["etats"], "ohlc_coherent": q["ohlc_coherent"]}
@@ -288,6 +355,7 @@ def normaliser(ticker: str, cal: dict) -> dict:
     src = SOURCE / f"{ticker}.json"
     serie = json.loads(src.read_text(encoding="utf-8"))
     diag = diagnostic_base(ticker)
+    diag_qte = diagnostic_quantites(ticker)
     obs = []
 
     for b in serie:
@@ -297,7 +365,7 @@ def normaliser(ticker: str, cal: dict) -> dict:
         statut = qualifier_seance(b, susp, mf)
         etat_v, val_v = qualifier_volume(b.get("v"))
         amp = evaluer_amplitude(b, ticker, jour)
-        verdict = admissibilite(statut, diag, b, amp, ticker, jour)
+        verdict = admissibilite(statut, diag, b, amp, ticker, jour, diag_qte)
         obs.append({
             "date": jour,
             "ouverture": b.get("o"), "plus_haut": b.get("h"),
@@ -311,6 +379,7 @@ def normaliser(ticker: str, cal: dict) -> dict:
             "statut_seance": statut.value,
             "calendrier_confirme": mf is not None,
             "base_prix_niveau": diag["niveau"],
+            "base_quantites_niveau": diag_qte["niveau"],
             "amplitude": amp,
             "admissible_pour": verdict["admissible_pour"],
             "refus": verdict["refus"],
@@ -330,6 +399,7 @@ def normaliser(ticker: str, cal: dict) -> dict:
     return {"ticker": ticker, "source": str(src.relative_to(RACINE)),
             "empreinte_source": hashlib.sha256(src.read_bytes()).hexdigest(),
             "lignes": len(obs), "diagnostic_base_prix": diag,
+            "diagnostic_quantites": diag_qte,
             "journal_transformations": journal, "observations": obs}
 
 
@@ -347,9 +417,14 @@ def main() -> None:
         "_usages": {
             "prix_analyse": "valoriser, comparer, mesurer une variation",
             "volume": "mesurer une quantité échangée",
-            "indicateur": "alimenter un calcul de série",
-            "execution": "supposer qu'un ordre aurait pu être passé à ce prix — "
-                         "REFUSÉ PAR DÉFAUT, exige un ajustement documenté",
+            "indicateur": "alimenter un calcul de série PUBLIABLE",
+            "indicateur_exploratoire": "calculer pour VOIR — n'alimente NI le "
+                                       "signal officiel, NI une probabilité, "
+                                       "NI une performance validée",
+            "execution_simulee": "rejouer une comptabilité cohérente "
+                                 "prix × quantité. ⚠️ N'établit PAS qu'un ordre "
+                                 "aurait été exécuté : liquidité et règles de "
+                                 "remplissage relèvent du protocole de backtest",
         },
         "_genere_le": datetime.now().strftime("%Y-%m-%d %H:%M"),
         "_calendrier": str(CALENDRIER.relative_to(RACINE)),
@@ -365,6 +440,7 @@ def main() -> None:
         manif["series"][f.stem] = {
             "lignes": n["lignes"],
             "base_prix_niveau": n["diagnostic_base_prix"]["niveau"],
+            "base_quantites_niveau": n["diagnostic_quantites"]["niveau"],
             "statuts": dict(Counter(o["statut_seance"] for o in n["observations"])),
             "usages_accordes": dict(usages),
             "observations_sans_aucun_usage":
@@ -374,7 +450,8 @@ def main() -> None:
             "empreinte_source": n["empreinte_source"],
         }
         print(f"  {f.stem:5} {n['lignes']:>4} obs · {n['diagnostic_base_prix']['niveau']:32} "
-              f"· exéc {usages['execution']:>4} · indic {usages['indicateur']:>4} "
+              f"· indic {usages['indicateur']:>4} · explo {usages['indicateur_exploratoire']:>4} "
+              f"· exéc {usages['execution_simulee']:>4} "
               f"· sans usage {manif['series'][f.stem]['observations_sans_aucun_usage']:>4}")
     (a.sortie / "MANIFESTE.json").write_text(
         json.dumps(manif, ensure_ascii=False, indent=2), encoding="utf-8")

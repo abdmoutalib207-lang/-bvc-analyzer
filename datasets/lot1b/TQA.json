@@ -11,6 +11,15 @@
   "consequence": "aucun usage supposant une base connue n'est autorisé",
   "operations_au_registre": []
  },
+ "diagnostic_quantites": {
+  "niveau": "état inconnu",
+  "unite": "nombre de titres",
+  "unite_etablie": false,
+  "fait_observe": "les chandelles portent un entier nommé « v », hérité du champ QteEchangee des sources",
+  "hypothese": "il s'agit d'un nombre de titres, non d'un montant",
+  "ce_qui_manque": "la convention écrite de la source, et le traitement appliqué aux quantités lors des opérations sur titres. ⚠️ Aucune des deux n'est enregistrée dans la donnée.",
+  "consequence": "aucun usage supposant une quantité comparable dans le temps n'est autorisé"
+ },
  "journal_transformations": [
   {
    "transformation": "qualification",
@@ -52,29 +61,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0086,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0086,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -97,29 +118,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0121,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0121,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -142,29 +175,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0169,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0169,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -187,29 +232,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0223,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0223,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -232,29 +289,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0156,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0156,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -277,29 +346,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0134,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0134,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -322,29 +403,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.04,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.04,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -367,29 +460,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0086,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0086,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -412,29 +517,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0057,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0057,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -457,29 +574,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0074,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0074,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -502,29 +631,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0523,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0523,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -547,29 +688,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0316,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0316,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -592,29 +745,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0114,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0114,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -637,29 +802,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0203,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0203,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -682,29 +859,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0349,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0349,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -727,29 +916,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0229,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0229,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -772,29 +973,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0566,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0566,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -817,29 +1030,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0476,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0476,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -862,29 +1087,41 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0314,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là",
+      "seuils applicables à cette date — la source citée n'entre en vigueur qu'au 2026-06-23"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": false,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0314,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -907,29 +1144,40 @@
    "statut_seance": "inconnue",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "séance inconnue : rien n'établit qu'un ordre aurait pu être exécuté ce jour-là"
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "séance inconnue : aucune transaction constatée à rejouer"
    }
   },
   {
@@ -952,29 +1200,40 @@
    "statut_seance": "inconnue",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "séance inconnue : rien n'établit qu'un ordre aurait pu être exécuté ce jour-là"
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "séance inconnue : aucune transaction constatée à rejouer"
    }
   },
   {
@@ -997,29 +1256,40 @@
    "statut_seance": "inconnue",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "séance inconnue : rien n'établit qu'un ordre aurait pu être exécuté ce jour-là"
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "séance inconnue : aucune transaction constatée à rejouer"
    }
   },
   {
@@ -1042,29 +1312,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1087,29 +1368,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0017,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0017,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1132,29 +1424,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0182,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0182,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1177,29 +1480,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.009,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.009,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1222,29 +1536,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1267,29 +1592,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1312,29 +1648,40 @@
    "statut_seance": "inconnue",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0093,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0093,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "séance inconnue : rien n'établit qu'un ordre aurait pu être exécuté ce jour-là"
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "séance inconnue : aucune transaction constatée à rejouer"
    }
   },
   {
@@ -1357,29 +1704,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0256,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0256,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1402,29 +1760,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0192,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0192,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1447,29 +1816,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0006,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0006,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1492,29 +1872,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1537,29 +1928,40 @@
    "statut_seance": "inconnue",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0288,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0288,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "séance inconnue : rien n'établit qu'un ordre aurait pu être exécuté ce jour-là"
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "séance inconnue : aucune transaction constatée à rejouer"
    }
   },
   {
@@ -1582,29 +1984,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0012,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0012,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1627,29 +2040,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1672,29 +2096,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1717,29 +2152,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1762,29 +2208,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0109,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0109,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1807,29 +2264,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0006,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0006,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1852,29 +2320,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0233,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0233,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1897,29 +2376,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0292,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0292,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -1942,29 +2432,40 @@
    "statut_seance": "inconnue",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0012,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0012,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "séance inconnue : rien n'établit qu'un ordre aurait pu être exécuté ce jour-là"
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "séance inconnue : aucune transaction constatée à rejouer"
    }
   },
   {
@@ -1987,29 +2488,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0116,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0116,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2032,29 +2544,40 @@
    "statut_seance": "inconnue",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0462,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0462,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "séance inconnue : rien n'établit qu'un ordre aurait pu être exécuté ce jour-là"
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "séance inconnue : aucune transaction constatée à rejouer"
    }
   },
   {
@@ -2077,29 +2600,40 @@
    "statut_seance": "inconnue",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "séance inconnue : rien n'établit qu'un ordre aurait pu être exécuté ce jour-là"
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "séance inconnue : aucune transaction constatée à rejouer"
    }
   },
   {
@@ -2122,29 +2656,40 @@
    "statut_seance": "inconnue",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "séance inconnue : rien n'établit qu'un ordre aurait pu être exécuté ce jour-là"
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "séance inconnue : aucune transaction constatée à rejouer"
    }
   },
   {
@@ -2167,29 +2712,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0497,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0497,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2212,29 +2768,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0155,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0155,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2257,29 +2824,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0182,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0182,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2302,29 +2880,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0261,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0261,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2347,29 +2936,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0306,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0306,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2392,29 +2992,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0137,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0137,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2437,29 +3048,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0154,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0154,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2482,29 +3104,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0192,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0192,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2527,29 +3160,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0368,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0368,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2572,29 +3216,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0145,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0145,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2617,29 +3272,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0106,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0106,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2662,29 +3328,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.027,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.027,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2707,29 +3384,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0112,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0112,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2752,29 +3440,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0108,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0108,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2797,29 +3496,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0193,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0193,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2842,29 +3552,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0135,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0135,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2887,29 +3608,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": false,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0028,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0028,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   },
   {
@@ -2932,29 +3664,40 @@
    "statut_seance": "négociée",
    "calendrier_confirme": true,
    "base_prix_niveau": "état inconnu",
+   "base_quantites_niveau": "état inconnu",
    "amplitude": {
-    "rapport_h_l": 1.0056,
-    "regime": null,
-    "regime_etabli": false,
-    "borne_la_plus_stricte": 1.1277,
-    "borne_la_plus_permissive": 1.5,
+    "conformite_reglementaire": {
+     "statut": "non vérifiable — pièces manquantes",
+     "ce_qui_manque": [
+      "cours de référence de la séance — absent de nos chandelles",
+      "régime de cotation applicable à ce titre ce jour-là"
+     ],
+     "_avertissement": "⚠️ Une amplitude compatible avec l'enveloppe testée NE VAUT PAS conformité réglementaire : l'écart entre deux prix ne dit rien de leur position par rapport au cours de référence."
+    },
+    "source_dans_sa_periode_de_validite": true,
     "source": {
      "reference": "circulaire AMMC du 25/06/2026",
      "relaye_par": "revue externe, message de réception du lot 1B",
      "verifie_sur_source_primaire": false,
      "ce_qui_manque": "copie de la circulaire, ou renvoi à l'article précis du règlement général de la Bourse de Casablanca",
-     "en_vigueur_depuis": "2026-06-23"
+     "en_vigueur_depuis": "2026-06-23",
+     "en_vigueur_jusqu_a": null,
+     "_portee": "⚠️ 93 % de nos observations sont antérieures au 23/06/2026. Le régime qui leur était applicable n'est pas établi."
     },
-    "statut": "conforme",
-    "motif": "licite sous TOUS les régimes connus, y compris le plus strict — la conclusion ne dépend pas du régime"
+    "rapport_h_l": 1.0056,
+    "enveloppe_la_plus_etroite": 1.1277,
+    "enveloppe_la_plus_large": 1.5,
+    "statut": "compatible avec l'enveloppe testée",
+    "motif": "écart compatible avec toutes les enveloppes testées. ⚠️ Compatible ne veut pas dire conforme."
    },
    "admissible_pour": [
     "prix_analyse",
-    "volume"
+    "volume",
+    "indicateur_exploratoire"
    ],
    "refus": {
-    "indicateur": "base de prix « état inconnu » : rien ne garantit que deux points consécutifs s'expriment sur la même base",
-    "execution": "base de prix « état inconnu » : l'exécution exige un ajustement DOCUMENTÉ. Un prix ajusté croisé avec une quantité non ajustée produit un montant faux."
+    "indicateur": "base de prix « état inconnu » : provenance ou ajustement incomplets. Le calcul reste possible À TITRE EXPLORATOIRE, sans alimenter le signal officiel, une probabilité, ni une performance validée.",
+    "execution_simulee": "la cohérence prix × quantité n'est pas établie — prix « état inconnu », quantités « état inconnu ». ⚠️ Ce refus porte sur la COMPTABILITÉ, pas sur la probabilité qu'un ordre soit exécuté : la liquidité et les règles de remplissage relèvent du protocole de backtest."
    }
   }
  ]
