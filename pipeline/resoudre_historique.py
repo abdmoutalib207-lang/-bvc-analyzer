@@ -178,7 +178,11 @@ def main() -> None:
         }
         sortie["_tickers"] = len(r["resolu"])
         sortie.update(r["resolu"])
-        a.ecrire.write_text(json.dumps(sortie, ensure_ascii=False), encoding="utf-8")
+        # ⚠️ MÊME MISE EN FORME QUE LE PRODUCTEUR (`collect_history_bvcscrap.save`,
+        # `indent=2`). Écrire compacté changerait 103 836 lignes sans changer
+        # une seule valeur, et rendrait tout diff ultérieur illisible.
+        a.ecrire.write_text(json.dumps(sortie, ensure_ascii=False, indent=2),
+                            encoding="utf-8")
         print(f"→ {a.ecrire}")
 
     print(json.dumps({k: v for k, v in r.items()

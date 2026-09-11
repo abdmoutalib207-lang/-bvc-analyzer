@@ -135,6 +135,21 @@ non arbitrés     : 0
 Le résultat porte sa propre trace : le fichier écrit contient un bloc
 `_resolution` avec la règle et le décompte par cas.
 
+**Diff réel du fichier résolu contre `main` : 10 lignes ajoutées**, le bloc
+`_resolution` et rien d'autre. C'est la confirmation chiffrée du point
+ci-dessous : le contenu retenu coïncide avec celui de `main`, et la raison
+mesurée en est que **la branche ne porte de séance plus récente pour aucun
+titre**. Si elle en avait porté une, la règle l'aurait conservée — un test le
+démontre sur un cas construit où le fichier le plus frais perd sur un titre.
+
+> ### ⚠️ Défaut de ma résolution, trouvé en préparant ce candidat
+>
+> La première version écrivait le fichier **compacté** là où le collecteur
+> l'écrit `indent=2` : le diff annonçait **103 836 suppressions** sans qu'une
+> seule valeur change. Un diff pareil ne montre rien, il cache tout.
+> Corrigé, et un test vérifie désormais que la résolution conserve la mise en
+> forme du producteur.
+
 ⚠️ **Résoudre ce conflit n'assainit rien.** Aucune des deux versions n'a été
 produite par le collecteur muni du garde-fou d'identité — ce sont deux sorties
 de l'ancien moteur.
@@ -242,7 +257,38 @@ personnalisé lit bien `score_fond`, et non plus `bvc`.
 
 ---
 
-## 6. Contrôles d'acceptation sur les 80 titres
+## 6. Le candidat comme objet applicable
+
+Le candidat n'est pas qu'un dossier : il existe aussi comme **patch qui
+s'applique sur `origin/main`**.
+
+```
+candidat_fusion_27228f46.patch   182 Ko   sha256 2ccac6960fc3fb69…
+25 fichiers · 2 650 insertions · 126 suppressions
+```
+
+Vérifié dans un arbre neuf tiré de `origin/main` :
+
+```
+git apply --check candidat_fusion_27228f46.patch   → s'applique proprement
+git apply         candidat_fusion_27228f46.patch
+python -m pytest                                    → 1 échec attendu (§4),
+                                                      0 après le run du moteur
+```
+
+⚠️ Le patch ne contient **ni `data.json`, ni les chandelles, ni
+`masi_history.json`, ni `snapshot_cloture.json`** : ces fichiers sont produits
+par le robot, pas apportés par la fusion. Les inclure ferait passer pour un
+apport ce qui n'est qu'une sortie de moteur.
+
+⚠️ **Aucune branche n'a été poussée pour ce candidat.** Ma consigne permanente
+est de ne pousser que sur `claude/terminal-bvc-review-AmnBU`. Si vous voulez
+le candidat sous forme de branche prête à fusionner, nommez-la et je la
+pousserai.
+
+---
+
+## 7. Contrôles d'acceptation sur les 80 titres
 
 | Contrôle | avant | candidat |
 |---|--:|--:|
@@ -261,7 +307,7 @@ Aucun ticker perdu, aucune fraîcheur dégradée, aucune variation hors R10.
 
 ---
 
-## 7. Limites qui subsistent après cette mise en ligne
+## 8. Limites qui subsistent après cette mise en ligne
 
 1. **Le moteur publié n'est pas protégé contre la contamination d'identité.**
    `update_data.py` et `generate_candles.py` écrivent des chandelles sans
@@ -283,7 +329,7 @@ Aucun ticker perdu, aucune fraîcheur dégradée, aucune variation hors R10.
 
 ---
 
-## 8. Procédure de retour arrière
+## 9. Procédure de retour arrière
 
 ### Point de retour
 

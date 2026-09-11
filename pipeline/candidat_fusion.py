@@ -182,7 +182,9 @@ def construire(sortie: Path, base: str = BASE, branche: str = BRANCHE) -> dict:
     }
     sortie_json["_tickers"] = len(r["resolu"])
     sortie_json.update(r["resolu"])
-    cible.write_text(json.dumps(sortie_json, ensure_ascii=False), encoding="utf-8")
+    # ⚠️ `indent=2` : la mise en forme du producteur. Voir resoudre_historique.
+    cible.write_text(json.dumps(sortie_json, ensure_ascii=False, indent=2),
+                     encoding="utf-8")
 
     # ── Contrôles d'acceptation sur la résolution
     titres = {k for k in cote_branche if not k.startswith("_")} | \

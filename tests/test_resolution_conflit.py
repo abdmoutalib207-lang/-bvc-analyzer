@@ -181,3 +181,25 @@ def test_le_document_ne_reattribue_pas_les_66_chandelles():
         "l'affirmation fautive est reprise comme si elle était juste"
     assert "ancêtre → **branche**" in doc, \
         "le document ne distingue plus différence et apport"
+
+
+def test_la_resolution_conserve_la_mise_en_forme_du_producteur(tmp_path):
+    """⚠️ Une résolution ne doit pas reformater le fichier.
+
+    La première version écrivait du JSON compacté là où le collecteur écrit
+    `indent=2` : 103 836 lignes de différence sans qu'une seule valeur bouge.
+    Un tel diff cache les vrais changements au lieu de les montrer.
+    """
+    import json
+    import subprocess
+    import sys
+
+    g = tmp_path / "g.json"; d = tmp_path / "d.json"; s = tmp_path / "s.json"
+    g.write_text(json.dumps({"_updated": "x", "ADH": e("2026-09-08")}), encoding="utf-8")
+    d.write_text(json.dumps({"_updated": "y", "ADH": e("2026-09-10")}), encoding="utf-8")
+    subprocess.run([sys.executable, str(RACINE / "pipeline" / "resoudre_historique.py"),
+                    "--notre", str(g), "--leur", str(d), "--ecrire", str(s)],
+                   check=True, capture_output=True)
+    lignes = s.read_text(encoding="utf-8").splitlines()
+    assert len(lignes) > 5, "le fichier a été écrit compacté"
+    assert lignes[1].startswith("  "), "l'indentation du producteur n'est pas conservée"
