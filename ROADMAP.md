@@ -8,9 +8,9 @@ par cinq états, et les deux derniers sont distincts :
 
     Ouvert → En cours → Livré pour revue → Vérifié sur candidat → Vérifié en production
 
-Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **113 entrées**, dont
-**46 vérifiées sur candidat, 59 livrées pour revue,
-8 ouvertes, et 0 vérifiée EN PRODUCTION** — parce que rien n'est fusionné.
+Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **123 entrées**, dont
+**46 vérifiées sur candidat, 70 livrées pour revue,
+7 ouvertes, et 0 vérifiée EN PRODUCTION** — parce que rien n'est fusionné.
 
 ⚠️ Cette synthèse est recalculée à chaque mise à jour du registre. Une version
 antérieure annonçait encore 27 entrées quand le fichier en portait 33 : la
@@ -227,6 +227,30 @@ dans la page. ADH · SMA 20 sur juin → septembre : **21 points sur 24 diffère
 ⚠️ Un écart **oppose** deux sources ; il ne désigne pas la fautive. Le candidat
 n'est pas établi comme faisant autorité et **aucune correction n'est appliquée**.
 Les graphiques restent **exploratoires**.
+
+### Lot 1F — sécurisation du collecteur et contaminations
+
+**Un titre peut recevoir les cours d'une autre société.** Établi sur MSA, qui a
+porté ceux de Mutandis — **18 clôtures identiques au centime sur 18 dates
+comparables**. ⚠️ **Aucun contrôle numérique ne pouvait l'attraper** : ces cours
+respectent l'invariant OHLC, la limite de variation, la continuité. Ils
+appartiennent simplement à quelqu'un d'autre.
+
+| Livrable | Où |
+|---|---|
+| Contrat d'identité + garde-fou d'écriture | `pipeline/identites.py` |
+| Inventaire des fenêtres contaminées | `pipeline/contamination.py` |
+| Protection des fenêtres de calcul | `pipeline/fenetre.py` |
+| Proposition de fusion vérifiée | `docs/PROPOSITION_FUSION.md` |
+
+**Deux défauts encore en place**, tous deux refusés à l'écriture : `MRL`
+demande « SODEP » — qui désigne MSA — et `SBS` demande « Super Cereales » alors
+que le référentiel dit « Société des Boissons du Maroc », ISIN MA0000010365.
+⚠️ Les chaînes ne sont **pas** remplacées par des noms supposés corrects :
+c'est ainsi que le défaut a été introduit en juin.
+
+**Trois horloges, désormais distinctes** : date de séance · date d'écriture ·
+date du correctif. Un import du 6 juin peut écrire des cours datés du 13 mai.
 
 ## Lot 2 — Normaliser les indicateurs techniques
 

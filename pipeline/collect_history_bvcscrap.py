@@ -50,6 +50,34 @@ def adjust_splits_df(ticker: str, df: "pd.DataFrame") -> "pd.DataFrame":
                      f"{int(mask.sum())} bougies ajustées")
     return df
 
+
+# ── GARDE-FOU D'IDENTITÉ ────────────────────────────────────────────────────
+# ⚠️ Ajouté après qu'un titre eut porté cinq semaines durant les cours d'une
+# AUTRE société sans qu'aucun contrôle ne s'en aperçoive. Les cours reçus
+# étaient valides : invariant OHLC respecté, variation dans les limites, série
+# continue. Ils appartenaient simplement à quelqu'un d'autre.
+#
+# Le garde-fou refuse l'ÉCRITURE quand l'identité n'est pas établie. Il
+# n'empêche pas d'interroger la source ni d'examiner ce qu'elle renvoie.
+try:
+    from identites import autoriser_ecriture
+except ImportError:                                   # exécution hors paquet
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent))
+    from identites import autoriser_ecriture
+
+
+def ecriture_autorisee(ticker: str, identite_recue: str | None = None) -> dict:
+    """À appeler AVANT d'écrire l'historique d'un titre.
+
+    `identite_recue` est le nom ou le code que la source a réellement renvoyé.
+    Sans lui, l'écriture est refusée : une table cohérente avec elle-même peut
+    être fausse, et c'est précisément ce qui s'est produit.
+    """
+    return autoriser_ecriture(ticker, identite_recue)
+
+
 MANUAL_MAP: dict[str, str] = {
     # ── Grandes capitalisations ───────────────────────────────────────────────
     "IAM":  "Maroc Telecom",

@@ -35,6 +35,7 @@ RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(RACINE / "pipeline"))
 from bvc_config import SPLITS  # noqa: E402
+from contamination import fenetre_contaminee  # noqa: E402
 from qualification import COUVERTURE_MINIMALE  # noqa: E402
 
 
@@ -268,6 +269,20 @@ def qualifier_fenetre(observations: list, indicateur: str,
             "correctement ajusté resterait comparable ; c'est l'absence de "
             "preuve que le raccordement l'est.")
 
+    # ── La fenêtre recouvre-t-elle une contamination entre entreprises ? ──
+    # ⚠️ Une valeur peut être parfaitement formée et appartenir à une AUTRE
+    # société. Aucun contrôle numérique ne le voit ; seul le registre le sait.
+    contamine = fenetre_contaminee(ticker, debut or (fen[0]["date"] if fen else ""),
+                                   fin or (fen[-1]["date"] if fen else ""))
+    for c in contamine:
+        autre = c["suspect"] or "une autre société"
+        motifs.append(
+            f"la fenêtre recouvre une contamination ({c['niveau']}) : {ticker} "
+            f"pourrait y porter les cours de {autre}, du {c['debut_seance']} "
+            f"au {c['fin_seance']}. ⚠️ Les valeurs y sont bien formées — c'est "
+            f"leur APPARTENANCE qui est en cause, et aucun contrôle numérique "
+            f"ne la voit.")
+
     sans_usage = [o["date"] for o in fen if not o["admissible_pour"]]
     if sans_usage:
         motifs.append(
@@ -282,6 +297,7 @@ def qualifier_fenetre(observations: list, indicateur: str,
                 "periode": periode, "longueur_minimale": minimum,
                 "operations_enjambees": ops,
                 "operations_non_raccordees": non_raccordees,
+                "contaminations": contamine,
                 "couvertures": couvertures, "motifs": motifs,
                 "observations_retenues": []}
 
@@ -314,6 +330,7 @@ def qualifier_fenetre(observations: list, indicateur: str,
         "besoins": sorted(c.value for c in besoins),
         "periode": periode, "longueur_minimale": minimum,
         "operations_enjambees": ops, "operations_non_raccordees": [],
+        "contaminations": [],
         "couvertures": couvertures,
         "motifs": [], "reserve": note,
         "observations_retenues": [o["date"] for o in fen],
