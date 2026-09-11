@@ -46,6 +46,7 @@ Usage :
 """
 import argparse
 import json
+import sys
 import re
 import sys
 from pathlib import Path
@@ -151,21 +152,62 @@ def vers_nos_tickers(donnees: dict) -> dict:
     return out
 
 
-def comparer(cotations: dict, date: str) -> list:
-    """Écarts entre le bulletin et nos chandelles, pour la séance `date`."""
-    ecarts = []
+TOLERANCE = 0.1   # %. Un écart en deçà n'est pas retenu — voir `comparer`.
+
+
+def comparer(cotations: dict, date: str) -> tuple:
+    """Écarts entre le bulletin et nos chandelles, pour la séance `date`.
+
+    Retourne (écarts, nombre de titres RÉELLEMENT comparés).
+
+    ⚠️ LE COMPTE DES COMPARAISONS EST INDISPENSABLE. Sans lui, « 0 écart »
+    pouvait vouloir dire « 0 comparaison » : la fonction passait en silence
+    chaque titre dont la chandelle du jour manquait. Mesuré le 11/09/2026 — le
+    bulletin du 09/09 ressortait à « 0 écart » contre les séances du 08, du 09
+    ET du 10, ce qui ne discrimine rien.
+
+    Un contrôle qui réussit en ne mesurant rien est pire qu'un contrôle absent :
+    il produit une preuve apparente. C'est la même famille que le test vert sur
+    un fichier qui n'était pas celui livré.
+    """
+    ecarts, compares = [], 0
+    non_compares = {"cours absent du bulletin": [], "aucune chandelle": [],
+                    "séance absente de la série": [], "clôture manquante": []}
     for t, v in sorted(vers_nos_tickers(cotations).items()):
         f = CANDLES / f"{t}.json"
-        if not v["cours"] or not f.exists():
-            continue
+        if not v["cours"]:
+            non_compares["cours absent du bulletin"].append(t); continue
+        if not f.exists():
+            non_compares["aucune chandelle"].append(t); continue
         bougies = json.loads(f.read_text(encoding="utf-8"))
         jour = next((k for k in bougies if k.get("d") == date), None)
-        if not jour or not jour.get("c"):
-            continue
+        if not jour:
+            non_compares["séance absente de la série"].append(t); continue
+        if not jour.get("c"):
+            non_compares["clôture manquante"].append(t); continue
+        compares += 1
         e = (v["cours"] - jour["c"]) / v["cours"] * 100
-        if abs(e) > 0.1:
+        if abs(e) > TOLERANCE:
             ecarts.append((t, jour["c"], v["cours"], e))
-    return ecarts
+
+    admissibles = compares + sum(len(x) for x in non_compares.values())
+    if compares == 0:
+        verdict = "NON CONCLUANT"
+    elif not ecarts:
+        verdict = "CONCORDANCE"
+    else:
+        verdict = "DISCORDANCE"
+    etat = {
+        "date_comparee": date,
+        "tolerance_pct": TOLERANCE,
+        "titres_admissibles": admissibles,
+        "titres_compares": compares,
+        "titres_non_compares": sum(len(x) for x in non_compares.values()),
+        "motifs_non_comparaison": {k: v for k, v in non_compares.items() if v},
+        "ecarts": len(ecarts),
+        "verdict": verdict,
+    }
+    return ecarts, etat
 
 
 def main():
@@ -173,6 +215,8 @@ def main():
     ap.add_argument("pdf", type=Path, nargs="+",
                     help="bulletin de cotations, et éventuellement la variante DataChart")
     ap.add_argument("--json", type=Path, help="écrit le relevé au format JSON")
+    ap.add_argument("--etat", type=Path,
+                    help="écrit l'état structuré de la vérification (JSON)")
     ap.add_argument("--verifier", metavar="AAAA-MM-JJ",
                     help="compare le bulletin à nos chandelles pour cette séance")
     a = ap.parse_args()
@@ -217,8 +261,34 @@ def main():
         print(f"→ {a.json}")
 
     if a.verifier:
-        ecarts = comparer(cot, a.verifier)
-        print(f"\nséance {a.verifier} — {len(ecarts)} écart(s) > 0,1% :")
+        ecarts, etat = comparer(cot, a.verifier)
+        print(f"\n── séance {etat['date_comparee']} · tolérance {etat['tolerance_pct']} % ──")
+        print(f"  admissibles      {etat['titres_admissibles']}")
+        print(f"  comparés         {etat['titres_compares']}")
+        print(f"  non comparés     {etat['titres_non_compares']}")
+        for motif, lst in etat["motifs_non_comparaison"].items():
+            print(f"      {motif} : {len(lst)} — {' '.join(sorted(lst)[:12])}"
+                  + (" …" if len(lst) > 12 else ""))
+        print(f"  écarts           {etat['ecarts']}")
+        print(f"  VERDICT          {etat['verdict']}")
+        if a.etat:
+            a.etat.write_text(json.dumps(etat, ensure_ascii=False, indent=2),
+                              encoding="utf-8")
+            print(f"  → état écrit dans {a.etat}")
+        # ⚠️ Le code de SORTIE distingue les trois verdicts. Une vérification
+        # sans comparaison ne peut pas avoir le même statut qu'un contrôle
+        # concluant : sinon un script appelant traite « je n'ai rien mesuré »
+        # comme « tout concorde ». C'est la remarque de l'audit externe du
+        # 11/09, et c'est la même famille que « 0 écart » sur 0 comparaison.
+        if etat["verdict"] == "NON CONCLUANT":
+            print("\n⚠️ AUCUNE COMPARAISON POSSIBLE — ce n'est pas une "
+                  "concordance, c'est une absence de mesure.", file=sys.stderr)
+            raise SystemExit(2)
+        if etat["verdict"] == "DISCORDANCE":
+            for t, nous, eux, e in ecarts[:20]:
+                print(f"    {t:6} nous {nous:>10} · bulletin {eux:>10} · {e:+.2f} %")
+            raise SystemExit(1)
+        return
         for t, nous, eux, e in sorted(ecarts, key=lambda x: -abs(x[3])):
             print(f"   {t:6}{COMPANY_NAMES.get(t, '?')[:26]:26}"
                   f"nous={nous:<10} CDG={eux:<10} {e:+.2f}%")

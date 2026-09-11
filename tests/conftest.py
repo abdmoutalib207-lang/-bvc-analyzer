@@ -14,6 +14,7 @@
 
 import importlib.util
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -22,6 +23,43 @@ import pytest
 RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(RACINE / "pipeline"))
+
+
+def chemin_data_json() -> Path:
+    """Le fichier PUBLIÉ que les contrôles de données relisent.
+
+    ⚠️ POURQUOI CE POINT EST PARAMÉTRABLE — ET CE QUE CELA NE DOIT PAS DEVENIR
+    ────────────────────────────────────────────────────────────────────────
+    La suite compte deux familles : celle qui décrit le CODE, et celle qui
+    relit les DONNÉES PUBLIÉES. La seconde juge un fichier, pas un programme.
+
+    Sur une demande de fusion, ce fichier est celui du dépôt — écrit par
+    l'ANCIEN moteur. Les contrôles de la seconde famille échouent alors, et ils
+    ont raison : le fichier publié ne satisfait pas encore le nouveau contrat.
+    Ce n'est pas un défaut de la demande, et ce n'est pas non plus un échec à
+    écarter à la main : il faut leur donner un fichier écrit par le code qu'on
+    juge.
+
+    `BVC_DATA_JSON` désigne ce fichier. La CI l'utilise après l'avoir GÉNÉRÉ
+    avec le moteur de la demande ; un relecteur peut l'utiliser pour rejouer
+    une livraison sur le fichier exact qui l'accompagne.
+
+    ⚠️ Ce n'est PAS une soupape pour rendre la suite verte. Pointer vers un
+    fichier arbitraire ne prouve rien : le fichier doit être identifié —
+    empreinte et provenance — et c'est ce que la CI et le dossier de réception
+    publient à côté du résultat.
+    """
+    surcharge = os.environ.get("BVC_DATA_JSON")
+    if surcharge:
+        p = Path(surcharge)
+        if not p.is_absolute():
+            p = RACINE / p
+        if not p.exists():
+            raise FileNotFoundError(
+                f"BVC_DATA_JSON désigne {p}, qui n'existe pas. Un contrôle de "
+                f"données ne doit pas retomber en silence sur un autre fichier.")
+        return p
+    return RACINE / "data.json"
 
 
 @pytest.fixture(scope="session")
@@ -55,7 +93,7 @@ def config():
 @pytest.fixture(scope="session")
 def data():
     """`data.json` tel qu'il est publié. C'est le contrat avec le frontend."""
-    return json.loads((RACINE / "data.json").read_text(encoding="utf-8"))
+    return json.loads(chemin_data_json().read_text(encoding="utf-8"))
 
 
 @pytest.fixture(scope="session")

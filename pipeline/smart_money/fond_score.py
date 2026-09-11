@@ -83,8 +83,37 @@ def compute_fond_score(sym: str, fondamentaux: dict = None) -> float:
     else:            v = 1.5   # spéculatif
 
     # BILAN (10%) — dette/EBITDA + cash conversion
-    dne = float(f.get("dette_nette_ebitda") or 1.0)
-    cc  = float(f.get("cash_conversion")    or 70)
+    #
+    # ⚠️ `X or défaut` prend UNE VALEUR pour UNE ABSENCE quand cette valeur
+    # vaut zéro. Défaut réel, signalé par l'audit externe du 09/09/2026.
+    #
+    # ⚠️ MAIS LE CORRECTIF NAÏF ÉTAIT FAUX, et l'auditeur l'avait pressenti en
+    # écrivant qu'« une dette nette nulle ne signifie pas automatiquement le
+    # meilleur bilan possible ». Mesuré le 10/09 : `fondamentaux.json` compte
+    # HUIT zéros exacts — six banques, un assureur, un agroalimentaire. Pour un
+    # établissement financier, le ratio dette nette / EBITDA n'a pas de sens :
+    # ce zéro est un REMPLISSAGE, pas une mesure. Traiter ces zéros comme un
+    # bilan sain relevait 19 titres de +0,08 sur la foi d'un blanc.
+    #
+    # Le fichier ne permet PAS de distinguer « mesuré à zéro » de « sans
+    # objet » — les deux s'écrivent 0.0. Tant que la donnée ne porte pas cette
+    # distinction, on ne l'invente pas : le zéro n'est retenu comme mesure que
+    # là où le ratio a un sens, et les secteurs financiers gardent le
+    # comportement antérieur. C'est une limite de la DONNÉE, consignée comme
+    # telle plutôt que masquée par une hypothèse.
+    # Relevé le 10/09 : les huit zéros sont ATW, BCP, BOA, CDM, CFGB, CIH
+    # (« Banque »), WAF (« Assurance ») et CSR (« Agroalimentaire - Sucre »).
+    # Seul ce dernier est une société industrielle, pour qui le ratio a un
+    # sens — son zéro est donc retenu comme mesure, avec la réserve qu'aucune
+    # source primaire ne l'a confirmé à ce jour.
+    _SANS_OBJET = ("Banque", "Assurance", "Société de financement", "Leasing")
+    _dne = f.get("dette_nette_ebitda")
+    _sect = f.get("secteur") or ""
+    if _dne == 0 and any(_sect.startswith(s) for s in _SANS_OBJET):
+        _dne = None                      # sans objet : on ne conclut rien
+    dne = float(_dne) if _dne is not None else 1.0
+    _cc = f.get("cash_conversion")
+    cc  = float(_cc) if _cc is not None else 70
     if   dne < 0:   bs = 9.0   # trésorerie nette positive
     elif dne < 0.5: bs = 8.5
     elif dne < 1.5: bs = 7.0

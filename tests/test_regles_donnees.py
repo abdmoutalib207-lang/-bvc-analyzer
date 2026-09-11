@@ -94,7 +94,20 @@ def test_source_du_prix_declaree_et_connue(titres):
     """Une source inconnue signale un chemin de repli non documenté."""
     connues = {"cdg", "bmce", "idbourse", "medias24", "candles",
                "idbourse_perime", "historical", "data_json_precedent",
-               "financial", "static"}
+               "financial", "static",
+               # ⚠️ Ajoutée le 10/09/2026 avec la référence de prix des titres
+               # SUSPENDUS. Ce n'est pas un repli de la chaîne R3 : c'est un
+               # choix délibéré. La source rediffuse un cours estampillé du
+               # jour sur un titre qui ne cote plus ; on lui préfère la
+               # dernière bougie portant un volume, et on le dit.
+               #
+               # ⚠️ Cette valeur a été livrée à l'auditeur AVANT d'être admise
+               # ici : ma suite lisait le data.json du dépôt, daté du 08/09,
+               # qui ne la contient pas. Le candidat, lui, la portait. J'ai
+               # donc annoncé 361 verts sur un fichier qui n'était pas celui
+               # que je livrais — la « seconde famille » du CLAUDE.md, dans
+               # laquelle je suis tombé en la documentant.
+               "derniere_cotation_avant_suspension"}
     vues = {(x.get("_meta") or {}).get("source_prix") for x in titres.values()}
     assert vues <= connues, f"sources non documentées : {vues - connues}"
 

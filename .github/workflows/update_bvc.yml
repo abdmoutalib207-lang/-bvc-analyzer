@@ -200,7 +200,57 @@ jobs:
         if: steps.gate.outputs.run == 'true' && github.event.inputs.dry_run != 'true'
         run: python update_data.py
 
+      # ── 3b. CONTRÔLES BLOQUANTS — avant toute publication ──
+      #
+      # ⚠️ Ajouté le 10/09/2026, après l'audit externe du 09/09.
+      #
+      # L'ordre était : générer → PUBLIER → tester, et les tests étaient
+      # `continue-on-error`. Un data.json fautif partait donc en production,
+      # après quoi la suite émettait un avertissement que personne ne lisait.
+      # Le 09/09 à 23h50, le fichier publié portait un signal hors contrat
+      # (SUSPENDU), un rendement de 0,5 % sur une société qui n'a rien versé,
+      # et une variation de -3,35 % sur un titre qui ne cote plus. La suite
+      # « signalait » les trois. Le site les servait quand même.
+      #
+      # L'obstacle réel était ailleurs, et le commentaire ci-dessous l'avait
+      # bien identifié : `tests.yml` ne voit jamais les commits du robot, donc
+      # les tests de données ne s'exécutaient jamais sur le fichier publié.
+      # La solution n'était pas de tester APRÈS le push, mais de tester le
+      # fichier FRAÎCHEMENT ÉCRIT, avant qu'il ne parte. Il est déjà sur le
+      # disque du runner : les tests le lisent tel qu'il sera publié.
+      #
+      # Deux familles, deux traitements :
+      #   · les CONTRÔLES DE DONNÉES bloquent la publication ;
+      #   · le reste de la suite reste informatif (un test décrivant le code
+      #     n'a pas à empêcher la diffusion d'une séance juste).
+      # ⚠️ LA SUITE ENTIÈRE, ET PAS UNE SÉLECTION.
+      #
+      # Première version du 10/09 : seuls `test_contrat_data_json.py` et
+      # `test_regles_donnees.py` bloquaient. L'auditeur externe a objecté
+      # qu'« un échec critique ne doit pas devenir acceptable simplement parce
+      # qu'il appartient à un autre fichier de tests ». Mesuré dans la foulée :
+      # TREIZE fichiers relisent les données publiées et restaient dehors —
+      # dont la cohérence des chandelles (test_ohlc), les séances fantômes,
+      # le cliquet de séance et les faits financiers. Objection fondée.
+      #
+      # Choisir quels tests méritent de bloquer, c'est refaire chaque semaine
+      # un arbitrage qu'on finira par rater. La suite entière tranche seule :
+      # un test de code en échec signale un moteur cassé, et un moteur cassé
+      # n'a pas à publier de données non plus.
+      #
+      # Le coût est assumé : un test rouge suspend le bulletin du matin. C'est
+      # le sens même d'un contrôle bloquant, et l'échec du job envoie un
+      # courriel au propriétaire.
+      - name: Contrôles bloquants sur le fichier généré
+        if: steps.gate.outputs.run == 'true' && github.event.inputs.dry_run != 'true'
+        run: |
+          pip install --quiet pytest
+          echo "Suite complète sur le data.json généré, AVANT publication."
+          python -m pytest --tb=short -q
+
       # ── 4. Commit et push ─────────────────────────────────
+      # N'est atteint que si les contrôles bloquants ci-dessus ont réussi :
+      # une étape en échec interrompt le job.
       - name: Commit data.json si modifié
         if: steps.gate.outputs.run == 'true'
         env:
@@ -240,10 +290,17 @@ jobs:
       # Or les tests des règles R1 à R10 portent justement sur le data.json
       # RÉELLEMENT PUBLIÉ. Sans cette étape, ils ne l'examinent jamais.
       #
-      # Non bloquant : un run qui a déjà écrit et poussé ne doit pas être
-      # marqué en échec pour un test — le fichier est publié de toute façon.
-      # Le contrôle de séance ci-dessous, lui, échoue et alerte.
-      - name: Suite de tests
+      # ⚠️ Cette étape est devenue REDONDANTE le 10/09/2026 : la suite entière
+      # tourne désormais à l'étape 3b, avant publication, et elle bloque. On la
+      # garde uniquement pour tracer l'état APRÈS écriture — utile lorsqu'une
+      # étape ultérieure modifie un fichier. Elle ne protège plus rien à elle
+      # seule, et ne doit jamais redevenir le seul contrôle : c'est cette
+      # configuration qui a laissé publier, le 09/09 à 23h50, un rendement de
+      # 0,5 % sur une société sans dividende et une variation de −3,35 % sur un
+      # titre suspendu. Le journal de ce run est formel : la suite n'a signalé
+      # QUE le signal hors contrat, un seul échec sur 295 tests. Les deux
+      # autres anomalies n'étaient couvertes par aucun test.
+      - name: Suite de tests (trace, après écriture)
         if: always()
         continue-on-error: true
         run: |

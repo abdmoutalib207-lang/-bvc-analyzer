@@ -152,6 +152,16 @@ def test_data_est_ignore_par_git():
     from pathlib import Path
 
     racine = Path(__file__).resolve().parent.parent
+    # ⚠️ Hors dépôt git, ce test ne peut rien AFFIRMER — il interroge git.
+    # Il échouait donc dans toute copie extraite par `git archive`, y compris
+    # celle du dossier de réception : une livraison qui doit montrer une suite
+    # verte sortait rouge sur un artefact d'environnement. Un test qui ne peut
+    # pas se prononcer doit s'abstenir, pas condamner.
+    if subprocess.run(["git", "rev-parse", "--git-dir"], cwd=racine,
+                      capture_output=True).returncode != 0:
+        import pytest as _p
+        _p.skip("hors dépôt git : le contrôle du .gitignore est sans objet ici")
+
     r = subprocess.run(
         ["git", "check-ignore", "-q", "data/pseudonymes.json"],
         cwd=racine, capture_output=True,

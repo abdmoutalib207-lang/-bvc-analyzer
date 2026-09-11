@@ -30,6 +30,8 @@ import json
 import re
 from pathlib import Path
 
+from conftest import chemin_data_json  # noqa: E402
+
 RACINE = Path(__file__).resolve().parent.parent
 FRONT = RACINE / "index.html"
 
@@ -41,7 +43,7 @@ def _static_du_front():
 
 
 def _symboles_data():
-    d = json.loads((RACINE / "data.json").read_text(encoding="utf-8"))
+    d = json.loads(chemin_data_json().read_text(encoding="utf-8"))
     return {t["symbol"] for t in d["tickers"]}
 
 

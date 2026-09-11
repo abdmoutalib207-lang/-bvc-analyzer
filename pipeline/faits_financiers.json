@@ -63,7 +63,8 @@
       },
       "capital_social": {
         "valeur": 2207.8588,
-        "page": 50
+        "page": 35,
+        "note": "« Capital social ou personnel 2.207.858.800,00 », identique p.91"
       },
       "nombre_actions": {
         "valeur": 22078588,
@@ -80,6 +81,12 @@
         "valeur": 1900.0,
         "page": 14,
         "note": "1 600 en 2024, +17 %"
+      },
+      "nombre_actions_au_rapport": {
+        "valeur": 22078588,
+        "page": 35,
+        "unite": "actions",
+        "note": "capital 2 207 858 800 ÷ 100 de valeur nominale. L'audit externe retient le même nombre."
       }
     },
     "_recoupement_arithmetique": "capital 2 207 858 800 ÷ VN 100 = 22 078 588 actions. La série 2022-2025 de la page 17 est cohérente ligne à ligne avec les évolutions annoncées.",
@@ -431,6 +438,12 @@
         "page": 122,
         "unite": "MAD",
         "note": "publié par la société elle-même — 17,26 en 2024"
+      },
+      "nombre_actions_au_rapport": {
+        "valeur": 73395600,
+        "page": 136,
+        "unite": "actions",
+        "note": "« Nombre d'actions (milliers) 73 396 » p.131 ; capital 733 956 000 ÷ 10 de nominale = 73 395 600. La résolution d'AG le confirme par une troisième voie : 807 351 600 DH distribués ÷ 11 DH = 73 395 600."
       }
     },
     "_recoupement_arithmetique": "capital 733 956 000 ÷ VN 10 = 73 395 600 actions. Et 1 588 764 KMAD ÷ 21,65 = 73 384 018, le nombre moyen pondéré retenu pour le résultat par action. Les deux concordent.",
@@ -623,20 +636,28 @@
         "valeur": 18.82,
         "page": 45,
         "unite": "DH",
-        "note": "PUBLIÉ PAR LA SOCIÉTÉ, arrondi à 19 dans le tableau (13 en 2024). 269 622 ÷ 14 326 947 = 18,82."
+        "note": "PUBLIÉ PAR LA SOCIÉTÉ, arrondi à 19 dans le tableau (13 en 2024). 269 622 ÷ 14 326 947 = 18,82. ⚠️ REVU le 09/09 : ce chiffre publié divise par la moyenne pondérée. Pour le PER affiché, le terminal retient désormais 269,622 ÷ 16 012 132 = 16,84."
+      },
+      "nombre_actions_existant": {
+        "valeur": 16012132,
+        "page": 5,
+        "unite": "actions",
+        "document": "Avis de convocation / résolutions de l'AGO du 02/06/2026, déposé à l'AMMC",
+        "url": "https://www.ammc.ma/sites/default/files/Avis_Risma_AGO_02_06_2026.pdf",
+        "note": "Déduit de la résolution : « A titre de dividendes, soit 9 DH / action… 144.109.188,00 » → 144 109 188 ÷ 9 = 16 012 132. Le marché confirme 16 012 461 (écart 0,002 %). ⚠️ À NE PAS CONFONDRE avec les 14 326 947 du rapport (p.45), qui sont la MOYENNE PONDÉRÉE de l'exercice. Les deux sont justes ; ils répondent à deux questions différentes. Un ratio par action d'AUJOURD'HUI se calcule sur les titres existants."
       }
     },
     "_ecarts_mesures": {
       "_quand": "2026-09-09, cours de 320.0 DH",
       "bpa": {
-        "rapport": 18.82,
+        "rapport": 16.84,
         "terminal": 23.1,
-        "ecart": "×1.23"
+        "ecart": "×1,37 — et le 18,82 retenu le 08/09 était lui-même la moyenne pondérée"
       },
       "per": {
-        "rapport": 17.0,
+        "rapport": 19.1,
         "terminal": 13.9,
-        "ecart": "le terminal présentait le titre moins cher qu'il n'est"
+        "ecart": "Attijari donne 19,0"
       }
     }
   },
