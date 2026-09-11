@@ -8,8 +8,8 @@ par cinq états, et les deux derniers sont distincts :
 
     Ouvert → En cours → Livré pour revue → Vérifié sur candidat → Vérifié en production
 
-Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **101 entrées**, dont
-**40 vérifiées sur candidat, 53 livrées pour revue,
+Le suivi détaillé vit dans `AUDIT_TRACKER.csv` : **113 entrées**, dont
+**46 vérifiées sur candidat, 59 livrées pour revue,
 8 ouvertes, et 0 vérifiée EN PRODUCTION** — parce que rien n'est fusionné.
 
 ⚠️ Cette synthèse est recalculée à chaque mise à jour du registre. Une version
@@ -157,11 +157,20 @@ réellement tranché est l'export — voir le lot 1D.
 dates en JJ/MM/AAAA.
 
 **L'export porte deux colonnes là où nous n'avons qu'un champ** :
-`Volume (MAD)` et `Titres Échangés`. La confrontation ligne datée par ligne
-datée tranche : **notre `v` suit le montant en dirhams sur 92 % des 730 séances
-communes d'ADH** — pas un nombre de titres. Idem sur CSR.
+`Volume (MAD)` et `Titres Échangés`.
 
-⚠️ Cela vaut pour **deux titres**. Rien ne l'étend aux 79 autres.
+⚠️ **Et notre champ `v` ne garde PAS le même contenu au fil de l'historique.**
+Le taux global de 92 % que j'avais annoncé masquait un changement récent :
+
+| ADH | Communes | = montant | = titres | ni l'un ni l'autre |
+|---|--:|--:|--:|--:|
+| avant juin 2026 | 668 | **668** | 0 | 0 |
+| depuis juin 2026 | 62 | 5 | **25** | **32** |
+
+La conclusion à retenir n'est donc pas « `v` est un montant », mais **« champ
+historique présentant des correspondances avec plusieurs grandeurs selon les
+périodes et les lignes »**. Aucune conversion générale n'est appliquée, et la
+couche candidate garde les deux grandeurs **séparées**.
 
 **Les écarts avec l'opérateur sont bornés dans le temps** :
 
@@ -180,8 +189,44 @@ sources ; il ne désigne pas la fautive.** Aucune correction n'est appliquée.
 **Trois séances manquent chez nous** et figurent chez l'opérateur : les 22, 23
 et 24 juin 2026.
 
-**Hypothèse testée puis écartée** : un décalage d'une séance. Un cas sur 730 —
-ce n'est pas un motif. Consignée écartée plutôt que passée sous silence.
+⚠️ **Hypothèse rouverte** : le décalage d'une séance. Je l'avais déclarée
+écartée après l'avoir cherchée **sur les seuls montants** — là où le champ
+n'avait justement pas changé. Cherchée aussi sur les **quantités**, elle donne
+5 cas sur ADH et 6 sur CSR, **en chaînes consécutives** : CSR porte au 12/06 la
+quantité du 11/06, au 15/06 celle du 12/06, au 16/06 celle du 15/06. Ce n'est
+pas le profil d'une coïncidence.
+
+### Lot 1E — couche candidate ADH/CSR
+
+**Chaîne complète, des fichiers reçus jusqu'aux graphiques**, l'ancien
+historique restant **intact**.
+
+| Étape | Où |
+|---|---|
+| Import contrôlé | `pipeline/importer_export.py` → `datasets/candidat/` |
+| Journal des différences, **non tronqué** | `pipeline/journal_differences.py` |
+| Graphiques comparés | `pipeline/graphique.py --candidat` |
+
+**Import** : fichier explicitement choisi, ticker vérifié ligne à ligne, dates
+et doublons contrôlés, **absences conservées** — le tiret « - » devient `None`,
+jamais zéro. 735 séances par titre, aucune anomalie ; CSR conserve ses deux
+absences du 08/11/2023 et du 21/03/2024.
+
+**Journal** : trois hypothèses tenues séparées — *unité différente*, *date
+différente*, *valeur différente* — auxquelles s'ajoutent *transformation*
+(196,80 → 196) et *non comparable*. Le détail complet est livré, et un test
+vérifie qu'il n'est pas tronqué.
+
+**Trois mesures de prix qui ne se confondent pas** : ADH compte **105 champs**
+OHLC différents, sur **48 dates**, dont **24 clôtures**. CSR : 105, 45, 29.
+
+**Graphiques comparés** : même fenêtre, même convention d'amorçage, déclarée
+dans la page. ADH · SMA 20 sur juin → septembre : **21 points sur 24 diffèrent**,
+écart maximal 0,50 %.
+
+⚠️ Un écart **oppose** deux sources ; il ne désigne pas la fautive. Le candidat
+n'est pas établi comme faisant autorité et **aucune correction n'est appliquée**.
+Les graphiques restent **exploratoires**.
 
 ## Lot 2 — Normaliser les indicateurs techniques
 

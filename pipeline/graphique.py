@@ -77,8 +77,13 @@ COULEURS = {
     "fond": "#fbfaf7", "cadre": "#e2ded4", "texte": "#2c2a26",
     "discret": "#8a857a", "cours": "#1f4e6b", "indicateur": "#c0632a",
     "manque": "#c8442e", "explo": "#8a5a00", "explo_fond": "#fdf3dc",
-    "refus_fond": "#fbe4e0",
+    "refus_fond": "#fbe4e0", "candidat": "#2f7d5c",
 }
+
+# Convention d'amorçage, DÉCLARÉE parce qu'elle n'est pas unique.
+AMORCAGE = ("moyennes exponentielles amorcées par la SMA des n premiers "
+            "points ; lissage de Wilder pour le RSI ; aucune valeur absente "
+            "n'est comblée, et un trou ré-amorce le calcul")
 
 
 def calculer(nom: str, valeurs: list, periode: int) -> list:
@@ -129,7 +134,8 @@ def segments(points: list, jours_max: int) -> list:
     return out
 
 
-def construire(titre, nom_ind, periode, obs, q, ind) -> str:
+def construire(titre, nom_ind, periode, obs, q, ind, ind_cand=None,
+               cand_info=None) -> str:
     jours = [date.fromisoformat(o["date"]) for o in obs]
     cours = [o["cloture"] for o in obs]
     j0, j1 = jours[0], jours[-1]
@@ -156,6 +162,8 @@ def construire(titre, nom_ind, periode, obs, q, ind) -> str:
           for j, c in zip(jours, cours)]
     pi = [{"jour": j, "y": (y_i(v) if v is not None else None), "v": v}
           for j, v in zip(jours, ind)]
+    pk = ([{"jour": j, "y": (y_i(v) if v is not None else None), "v": v}
+           for j, v in zip(jours, ind_cand)] if ind_cand else [])
 
     def trace(pts, couleur, largeur, tirets=""):
         d = ""
@@ -231,6 +239,25 @@ def construire(titre, nom_ind, periode, obs, q, ind) -> str:
         f'fill="{COULEURS["cours"]}" opacity="0.55"/>'
         for p in pc if p["y"] is not None)
 
+    cand_bloc = ""
+    if cand_info:
+        ec = cand_info["ecarts"]
+        cand_bloc = f"""<div class="carte"><h2>Comparaison ancien / candidat</h2>
+<p>Les deux séries d'indicateur sont tracées sur la même fenêtre, avec la
+<strong>même convention d'amorçage</strong> et la même période.</p>
+<table>
+ <tr><th>Source du candidat</th><td><code>{cand_info['fichier']}</code></td></tr>
+ <tr><th>Période comparée</th><td>{cand_info['debut']} → {cand_info['fin']}</td></tr>
+ <tr><th>Points comparables</th><td>{ec['comparables']}</td></tr>
+ <tr><th>Points différents au-delà de 0,1 %</th><td><strong>{ec['differents']}</strong></td></tr>
+ <tr><th>Écart relatif maximal</th><td>{ec['max_relatif']}</td></tr>
+ <tr><th>Clôtures divergentes dans la fenêtre</th><td>{cand_info['clotures_differentes']}</td></tr>
+</table>
+<p style="color:#6b665c;font-size:12.5px;margin:10px 0 0">
+⚠️ Un écart <strong>oppose</strong> deux sources ; il ne désigne pas la fautive.
+Le candidat n'est pas établi comme faisant autorité, et <strong>aucune
+correction n'est appliquée</strong> à l'ancien historique.</p></div>"""
+
     explo = q["verdict"] != Verdict.QUALIFIE.value
     fond_b = COULEURS["explo_fond"] if explo else "#eef4ee"
     bord_b = COULEURS["explo"] if explo else "#3d6b47"
@@ -260,6 +287,7 @@ def construire(titre, nom_ind, periode, obs, q, ind) -> str:
   {trace(pc, COULEURS['cours'], 1.9)}
   {pts_c}
   {trace(pi, COULEURS['indicateur'], 2.4)}
+  {trace(pk, COULEURS['candidat'], 2.0, "6 3") if pk else ""}
   <line x1="{MG['g']}" y1="{bas_graphe}" x2="{L - MG['d']}" y2="{bas_graphe}"
         stroke="{COULEURS['cadre']}" stroke-width="1.5"/>
   {gx}
@@ -267,9 +295,10 @@ def construire(titre, nom_ind, periode, obs, q, ind) -> str:
     <line x1="0" y1="-4" x2="26" y2="-4" stroke="{COULEURS['cours']}" stroke-width="1.9"/>
     <text x="34" y="0" fill="{COULEURS['texte']}">clôture</text>
     <line x1="110" y1="-4" x2="136" y2="-4" stroke="{COULEURS['indicateur']}" stroke-width="2.4"/>
-    <text x="144" y="0" fill="{COULEURS['texte']}">{nom_ind}({periode})</text>
-    <rect x="250" y="-11" width="22" height="11" fill="{COULEURS['manque']}" opacity="0.09"/>
-    <text x="280" y="0" fill="{COULEURS['texte']}">écart calendaire — trait rompu, mais le CALCUL enjambe</text>
+    <text x="144" y="0" fill="{COULEURS['texte']}">{nom_ind}({periode}) — ancien</text>
+    {f'<line x1="260" y1="-4" x2="286" y2="-4" stroke="{COULEURS["candidat"]}" stroke-width="2" stroke-dasharray="6 3"/><text x="294" y="0" fill="{COULEURS["texte"]}">{nom_ind}({periode}) — candidat</text>' if pk else ""}
+    <rect x="{500 if pk else 250}" y="-11" width="22" height="11" fill="{COULEURS['manque']}" opacity="0.09"/>
+    <text x="{530 if pk else 280}" y="0" fill="{COULEURS['texte']}">écart calendaire — trait rompu, le CALCUL enjambe</text>
   </g>
 </svg>"""
 
@@ -302,6 +331,7 @@ def construire(titre, nom_ind, periode, obs, q, ind) -> str:
 <div class="carte">{svg}</div>
 <div class="avert"><strong>{etiquette}</strong><br>{q.get('reserve') or
  'La fenêtre satisfait les conditions déclarées pour cet usage.'}</div>
+{cand_bloc}
 <div class="carte"><h2>Ce que la fenêtre contient</h2>
 <table>
  <tr><th>Période</th><td>{q['debut']} → {q['fin']}</td></tr>
@@ -312,6 +342,8 @@ def construire(titre, nom_ind, periode, obs, q, ind) -> str:
  <tr><th>Champs requis</th><td>{', '.join(q['besoins'])}</td></tr>
  <tr><th>Base de prix</th><td>{q.get('_base', '—')}</td></tr>
  <tr><th>Base des quantités</th><td>{q.get('_base_qte', '—')}</td></tr>
+ <tr><th>Longueur minimale exigée</th><td>{q.get('longueur_minimale', '—')}</td></tr>
+ <tr><th>Convention d'amorçage</th><td>{AMORCAGE}</td></tr>
 </table></div>
 <div class="carte"><h2>Écarts calendaires</h2>
 <ul>{lignes_trous}</ul>
@@ -352,6 +384,8 @@ def main() -> None:
     ap.add_argument("--depuis", default="")
     ap.add_argument("--jusqu-a", default="")
     ap.add_argument("--sortie", type=Path, default=RACINE / "datasets" / "lot2")
+    ap.add_argument("--candidat", action="store_true",
+                    help="superposer l'indicateur calculé sur la couche candidate")
     a = ap.parse_args()
 
     serie = json.loads((LOT1B / f"{a.titre}.json").read_text(encoding="utf-8"))
@@ -371,10 +405,46 @@ def main() -> None:
         raise SystemExit(2)
 
     ind = calculer(a.indicateur, [o["cloture"] for o in obs], a.periode)
+
+    ind_cand, cand_info = None, None
+    if a.candidat:
+        f = RACINE / "datasets" / "candidat" / f"{a.titre}.json"
+        if not f.exists():
+            raise SystemExit(f"couche candidate absente : {f}")
+        c = json.loads(f.read_text(encoding="utf-8"))
+        par_date = {o["date"]: o for o in c["observations"]}
+        # ⚠️ Mêmes dates, même convention d'amorçage : sans cela on
+        # comparerait deux choses qui ne se ressemblent que par leur nom.
+        clot_cand = [par_date.get(o["date"], {}).get("cloture") for o in obs]
+        ind_cand = calculer(a.indicateur, clot_cand, a.periode)
+        comparables = differents = 0
+        maxi = 0.0
+        for x, y in zip(ind, ind_cand):
+            if x is None or y is None or y == 0:
+                continue
+            comparables += 1
+            r = abs(x - y) / abs(y)
+            maxi = max(maxi, r)
+            if r > 0.001:
+                differents += 1
+        clot_diff = sum(
+            1 for o in obs
+            if (v := par_date.get(o["date"], {}).get("cloture")) is not None
+            and o["cloture"] is not None and v != 0
+            and abs(o["cloture"] - v) / v > 0.001)
+        cand_info = {
+            "fichier": c["source"]["fichier"],
+            "debut": obs[0]["date"], "fin": obs[-1]["date"],
+            "clotures_differentes": clot_diff,
+            "ecarts": {"comparables": comparables, "differents": differents,
+                       "max_relatif": f"{maxi:.2%}"},
+        }
+
     a.sortie.mkdir(parents=True, exist_ok=True)
-    cible = a.sortie / f"{a.titre}_{a.indicateur}_{a.periode}.html"
-    cible.write_text(construire(a.titre, a.indicateur, a.periode, obs, q, ind),
-                     encoding="utf-8")
+    suffixe = "_compare" if a.candidat else ""
+    cible = a.sortie / f"{a.titre}_{a.indicateur}_{a.periode}{suffixe}.html"
+    cible.write_text(construire(a.titre, a.indicateur, a.periode, obs, q, ind,
+                                ind_cand, cand_info), encoding="utf-8")
     print(f"{a.titre} · {a.indicateur}({a.periode}) · {q['verdict']}")
     print(f"  {q['lignes']} séances, {sum(1 for v in ind if v is not None)} points")
     print(f"→ {cible.relative_to(RACINE)}")

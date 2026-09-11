@@ -92,18 +92,84 @@ USAGE_REQUIS = {
 }
 
 
+# ⚠️ Longueur minimale RÉELLE, indicateur par indicateur.
+# Une version antérieure comparait la fenêtre à la seule « période » demandée.
+# C'est faux pour deux d'entre eux, et la revue l'a mesuré :
+#   · le RSI travaille sur les VARIATIONS : n variations exigent n+1 clôtures ;
+#   · le MACD ne sort son signal qu'après `long + signal − 1` observations.
+# Exiger trop refuse un calcul possible ; exiger trop peu annonce un calcul qui
+# ne produira rien. Les deux trompent le lecteur.
+def longueur_minimale(indicateur: str, periode: int | None,
+                      macd_params: tuple = (12, 26, 9)) -> int | None:
+    if indicateur == "macd":
+        _, long, signal = macd_params
+        return long + signal - 1
+    if periode is None:
+        return None
+    if indicateur == "rsi_wilder":
+        return periode + 1          # n variations ⇒ n+1 clôtures
+    if indicateur == "obv":
+        return 1
+    return periode
+
+
+def _registre_operations() -> dict:
+    """Les opérations, quelle que soit la table où elles ont été inscrites.
+
+    ⚠️ DÉFAUT CORRIGÉ : ce contrôle ne consultait que `SPLITS`, tandis que HPS
+    était documenté dans `operations_titres.json`. Il rendait donc une liste
+    vide pour octobre 2023 — l'opération la mieux établie du projet passait
+    inaperçue. Deux registres, un seul contrôle : il faut lire les deux.
+    """
+    ops: dict = {}
+    for t, entrees in (SPLITS or {}).items():
+        for e in entrees:
+            ops.setdefault(t, []).append({
+                "date_effet": e["date"], "ratio": e.get("ratio"),
+                "registre": "SPLITS", "traitement": None})
+
+    f = RACINE / "pipeline" / "operations_titres.json"
+    if f.exists():
+        import json
+        reg = json.loads(f.read_text(encoding="utf-8")).get("operations", {})
+        for t, entrees in reg.items():
+            for e in entrees:
+                d = e.get("date_effet")
+                if not d:
+                    continue
+                deja = [o for o in ops.get(t, []) if o["date_effet"] == d]
+                tr = e.get("traitement_dans_notre_serie")
+                if deja:
+                    deja[0]["traitement"] = tr
+                    deja[0]["registre"] += " + operations_titres"
+                else:
+                    ops.setdefault(t, []).append({
+                        "date_effet": d, "ratio": e.get("ratio"),
+                        "registre": "operations_titres", "traitement": tr})
+    return ops
+
+
+def raccordement_etabli(op: dict) -> bool:
+    """Le passage de l'opération est-il correctement raccordé dans NOTRE série ?
+
+    ⚠️ Une opération traversée ne signifie PAS deux bases incompatibles — la
+    revue l'a rappelé. Un historique correctement ajusté reste comparable de
+    part et d'autre. Ce qui doit refuser un calcul, c'est un raccordement NON
+    ÉTABLI ou INCOHÉRENT, pas la simple présence d'une date dans la fenêtre.
+    """
+    tr = op.get("traitement")
+    return bool(tr) and tr.get("niveau", "").startswith("ajustement documenté")
+
+
 def operations_dans_la_fenetre(ticker: str, debut: str, fin: str) -> list:
-    """Opérations DÉCLARÉES au registre dont la date d'effet tombe dedans.
+    """Opérations déclarées — dans l'UN OU L'AUTRE registre — tombant dedans.
 
-    ⚠️ Une fenêtre qui enjambe une opération mêle deux bases de prix, même si
-    chaque observation prise isolément est irréprochable. Le défaut ne se voit
-    qu'à l'échelle de la fenêtre.
-
-    ⚠️ Le registre recense ce que nous y avons inscrit : une fenêtre sans
+    ⚠️ Les registres recensent ce que nous y avons inscrit : une fenêtre sans
     opération déclarée n'est PAS une fenêtre sans opération.
     """
-    return [op for op in (SPLITS.get(ticker) or [])
-            if (not debut or op["date"] > debut) and (not fin or op["date"] <= fin)]
+    return [op for op in (_registre_operations().get(ticker) or [])
+            if (not debut or op["date_effet"] > debut)
+            and (not fin or op["date_effet"] <= fin)]
 
 
 def qualifier_fenetre(observations: list, indicateur: str,
@@ -111,7 +177,8 @@ def qualifier_fenetre(observations: list, indicateur: str,
                       couverture_min: float = COUVERTURE_MINIMALE,
                       longueur_requise: int | None = None,
                       periode: int | None = None,
-                      ticker: str = "") -> dict:
+                      ticker: str = "",
+                      macd_params: tuple = (12, 26, 9)) -> dict:
     """Cette fenêtre permet-elle de calculer cet indicateur, et à quel titre ?
 
     `observations` : les lignes de la couche normalisée (datasets/lot1b), qui
@@ -179,24 +246,27 @@ def qualifier_fenetre(observations: list, indicateur: str,
             + (" …" if len(alertes) > 5 else ""))
 
     # ── La fenêtre est-elle assez longue pour l'indicateur demandé ? ───────
-    if periode is not None:
-        if periode < 1:
-            motifs.append(f"période demandée absurde : {periode}")
-        elif n < periode:
-            motifs.append(
-                f"fenêtre de {n} observation(s) pour un indicateur de période "
-                f"{periode} : aucun point ne peut être calculé")
+    minimum = longueur_minimale(indicateur, periode, macd_params)
+    if periode is not None and periode < 1:
+        motifs.append(f"période demandée absurde : {periode}")
+    elif minimum is not None and n < minimum:
+        motifs.append(
+            f"fenêtre de {n} observation(s) pour un {indicateur} qui en exige "
+            f"{minimum} : aucun point ne peut être calculé")
 
-    # ── La fenêtre enjambe-t-elle une opération sur titres déclarée ? ──────
+    # ── Le raccordement d'une opération traversée est-il établi ? ──────────
     ops = operations_dans_la_fenetre(ticker, debut or (fen[0]["date"] if fen else ""),
                                      fin or (fen[-1]["date"] if fen else ""))
-    if ops:
+    non_raccordees = [o for o in ops if not raccordement_etabli(o)]
+    if non_raccordees:
         motifs.append(
             "la fenêtre enjambe " + ", ".join(
-                f"une opération déclarée le {o['date']} (ratio {o['ratio']})"
-                for o in ops) +
-            " : deux bases de prix s'y côtoient, même si chaque observation "
-            "prise isolément est irréprochable")
+                f"l'opération du {o['date_effet']} (ratio {o['ratio']}, "
+                f"registre {o['registre']})" for o in non_raccordees) +
+            " dont le RACCORDEMENT n'est pas établi dans notre série. "
+            "⚠️ Ce n'est pas la traversée qui refuse — un historique "
+            "correctement ajusté resterait comparable ; c'est l'absence de "
+            "preuve que le raccordement l'est.")
 
     sans_usage = [o["date"] for o in fen if not o["admissible_pour"]]
     if sans_usage:
@@ -209,7 +279,9 @@ def qualifier_fenetre(observations: list, indicateur: str,
                 "debut": debut, "fin": fin, "lignes": n,
                 "longueur_requise": requis,
                 "besoins": sorted(c.value for c in besoins),
-                "periode": periode, "operations_enjambees": ops,
+                "periode": periode, "longueur_minimale": minimum,
+                "operations_enjambees": ops,
+                "operations_non_raccordees": non_raccordees,
                 "couvertures": couvertures, "motifs": motifs,
                 "observations_retenues": []}
 
@@ -240,7 +312,8 @@ def qualifier_fenetre(observations: list, indicateur: str,
         "debut": fen[0]["date"], "fin": fen[-1]["date"],
         "lignes": n, "longueur_requise": requis,
         "besoins": sorted(c.value for c in besoins),
-        "periode": periode, "operations_enjambees": [],
+        "periode": periode, "longueur_minimale": minimum,
+        "operations_enjambees": ops, "operations_non_raccordees": [],
         "couvertures": couvertures,
         "motifs": [], "reserve": note,
         "observations_retenues": [o["date"] for o in fen],
