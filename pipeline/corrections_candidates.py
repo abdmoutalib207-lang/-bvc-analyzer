@@ -42,16 +42,45 @@ def _nos(t, ref="origin/main"):
     return {b["d"]: b for b in json.loads(s)}
 
 def _bougie(d, e):
-    """Une bougie depuis l'export. ⚠️ `v` porte les TITRES ÉCHANGÉS, jamais le
-    montant en dirhams : les deux grandeurs restent distinctes, et le montant
-    est conservé à côté sous son propre nom."""
+    """Une bougie depuis l'export — SANS RIEN COMBLER.
+
+    ⚠️ DÉFAUT RELEVÉ PAR LA REVUE, ET IL ÉTAIT GRAVE.
+    Ma première version écrivait `o = h = l = clôture` quand l'ouverture et les
+    extrêmes manquaient, et `v = 0` quand la quantité manquait. Sur la séance
+    SOT du 24/06/2026, l'export ne porte QUE la clôture (376) : le candidat
+    fabriquait une bougie plate à 376 et un volume nul.
+
+    Un zéro fabriqué se lit comme « aucun échange » ; une bougie plate se lit
+    comme « le cours n'a pas bougé ». Ni l'un ni l'autre n'a été observé. Une
+    absence reste une ABSENCE, et les usages qu'elle interdit sont nommés.
+
+    `v` porte les TITRES ÉCHANGÉS, jamais le montant en dirhams : les deux
+    grandeurs restent distinctes.
+    """
     c = e["cloture"]
-    if c is None: return None
-    return {"d": d, "o": e["ouverture"] if e["ouverture"] is not None else c,
-            "h": e["plus_haut"] if e["plus_haut"] is not None else c,
-            "l": e["plus_bas"] if e["plus_bas"] is not None else c, "c": c,
-            "v": int(e["titres_echanges"] or 0),
-            "_volume_mad": e["volume_mad"]}
+    if c is None:
+        return None
+    b = {"d": d, "o": e["ouverture"], "h": e["plus_haut"], "l": e["plus_bas"],
+         "c": c,
+         "v": int(e["titres_echanges"]) if e["titres_echanges"] is not None else None,
+         "_volume_mad": e["volume_mad"]}
+    absents = [k for k in ("o", "h", "l", "v") if b[k] is None]
+    if absents:
+        b["_champs_absents"] = absents
+        interdits = []
+        if {"o", "h", "l"} & set(absents):
+            interdits += ["amplitude de séance", "invariant OHLC",
+                          "chandelier (le corps et les mèches sont indéfinis)",
+                          "ATR, Bollinger sur extrêmes"]
+        if "v" in absents:
+            interdits += ["OBV", "volume médian", "tout filtre de liquidité"]
+        b["_usages_interdits"] = interdits
+        b["_usages_possibles"] = ["clôture", "rendement de clôture à clôture",
+                                  "moyennes mobiles de clôture", "RSI"]
+        b["_lecture"] = ("⚠️ absences CONSERVÉES. Ne jamais les remplacer par la "
+                         "clôture ni par zéro : un zéro fabriqué se lit comme "
+                         "« aucun échange ».")
+    return b
 
 def proposer(t, ref="origin/main"):
     exp, nous = _exp(t), _nos(t, ref)
@@ -131,14 +160,27 @@ def proposer(t, ref="origin/main"):
                          f"une dispersion de {seg['dispersion_relative']*100:.1f} %. "
                          f"Un rapport CONSTANT n'est pas du bruit : c'est un "
                          f"facteur {seg['facteur']} appliqué de trop.",
-                "facteur_a_corriger": seg["facteur"],
+                "facteur_observe": seg["facteur"],
+                "_le_facteur_n_est_pas_une_cause":
+                    "⚠️ Un rapport constant établit qu'un coefficient manque ou "
+                    "est de trop. Il ne dit NI lequel, NI pourquoi. Le facteur "
+                    "observé (4,61) est proche du pas de cours du jour du split "
+                    "(1700 → 368, soit 4,62) sans coïncider avec lui, et la "
+                    "dispersion de 1,7 % l'écarte d'une constante exacte. "
+                    "AUCUN coefficient ne doit être appliqué en bloc.",
+                "_comparaison_ligne_a_ligne":
+                    "journal_SOT_2024-05-14_2026-05-04.json — trois séries "
+                    "nommées : cours brut de l'opérateur, cours sur la base "
+                    "retenue (÷ ratio du split), et notre cours.",
                 "_comment_le_ratio_est_verifie":
                     "le ratio du split est déduit de la CAPITALISATION de "
                     "l'opérateur (capitalisation ÷ cours = nombre de titres), "
                     "jamais de notre propre registre.",
-                "_conséquence": "AUCUN remplacement automatique n'est écrit ici : "
-                                "remettre à l'échelle 486 séances est une "
-                                "opération à décider, pas à subir.",
+                "_conséquence": "AUCUN remplacement automatique n'est écrit ici. "
+                                "La voie sûre n'est pas d'appliquer un facteur, "
+                                "mais de REPRENDRE les cours de l'export sur la "
+                                "base retenue, ligne par ligne — ce que le "
+                                "journal permet de relire avant décision.",
             })
         for sp in (c.get("splits", {}).get("appliques_a_l_export") or []):
             v = sp.get("verification") or {}

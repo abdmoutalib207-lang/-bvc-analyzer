@@ -129,6 +129,17 @@ def ajuster_splits(ticker: str, seances: dict) -> dict:
                 for champ in ("ouverture", "cloture", "plus_haut", "plus_bas"):
                     if w.get(champ) is not None:
                         w[champ] = round(w[champ] / sp["ratio"], 2)
+                # ⚠️ LES QUANTITÉS NE SONT PAS TOUCHÉES, ET C'EST DÉCLARÉ.
+                # Un split multiplie le nombre de titres : 715 titres échangés
+                # avant un 10:1 en valent 7 150 sur la base postérieure. Nous
+                # ne convertissons pas — nous exposons les DEUX bases, nommées.
+                # Diviser les prix en laissant les quantités muettes laisserait
+                # croire que tout est sur la même base.
+                if w.get("titres_echanges") is not None:
+                    w["titres_echanges_base_posterieure"] = round(
+                        w["titres_echanges"] * sp["ratio"])
+                w["_base_des_quantites"] = "ANTÉRIEURE au split — non convertie"
+                w["_base_des_prix"] = f"postérieure au split (÷ {sp['ratio']})"
                 appliques.append(sp["date"])
         out[d] = w
     return {"seances": out,
@@ -209,7 +220,18 @@ def confronter(ticker: str, ref: str = "origin/main") -> dict:
     manquantes_dans_notre_plage = sorted(
         d for d in exp if debut_nous and d >= debut_nous and d not in nous)
     anterieures = sorted(d for d in exp if debut_nous and d < debut_nous)
+    # ⚠️ « CHEZ NOUS SEULEMENT » N'EST PAS « FANTÔME ».
+    # Une séance que l'export ne couvre pas — parce qu'il commence plus tard —
+    # est notre PROFONDEUR, pas une invention. Les mêler sous un seul nombre
+    # a produit une colonne « fantôme » annonçant 68 séances pour HPS et MNG
+    # là où il y en a une. La qualification était trompeuse même si le
+    # générateur, lui, ne proposait plus de les supprimer.
+    d1_exp, d2_exp = (min(exp), max(exp)) if exp else (None, None)
     chez_nous_seulement = sorted(set(nous) - set(exp))
+    notre_profondeur = [d for d in chez_nous_seulement
+                        if d1_exp and (d < d1_exp or d > d2_exp)]
+    fantomes = [d for d in chez_nous_seulement
+                if d1_exp and d1_exp <= d <= d2_exp]
 
     # ── 3. Les écarts de clôture ───────────────────────────────────────────
     ecarts = []
@@ -297,6 +319,15 @@ def confronter(ticker: str, ref: str = "origin/main") -> dict:
             "communes": len(comm),
             "anterieures_a_notre_historique": len(anterieures),
             "manquantes_dans_notre_plage": manquantes_dans_notre_plage,
+            "fantomes": fantomes,
+            "notre_profondeur_hors_export": {
+                "nombre": len(notre_profondeur),
+                "periode": [notre_profondeur[0], notre_profondeur[-1]] if notre_profondeur else None,
+                "_lecture": "séances que nous portons HORS de la période couverte "
+                            "par l'export. Ce n'est PAS un défaut : l'export "
+                            "commence plus tard. Ne jamais les compter comme "
+                            "fantômes ni proposer leur suppression.",
+            },
             "chez_nous_mais_pas_chez_l_operateur": chez_nous_seulement,
         },
         "clotures": {

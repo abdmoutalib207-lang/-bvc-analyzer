@@ -263,12 +263,34 @@
         },
         {
           "d": "2026-06-24",
-          "o": 376.0,
-          "h": 376.0,
-          "l": 376.0,
+          "o": null,
+          "h": null,
+          "l": null,
           "c": 376.0,
-          "v": 0,
-          "_volume_mad": null
+          "v": null,
+          "_volume_mad": null,
+          "_champs_absents": [
+            "o",
+            "h",
+            "l",
+            "v"
+          ],
+          "_usages_interdits": [
+            "amplitude de séance",
+            "invariant OHLC",
+            "chandelier (le corps et les mèches sont indéfinis)",
+            "ATR, Bollinger sur extrêmes",
+            "OBV",
+            "volume médian",
+            "tout filtre de liquidité"
+          ],
+          "_usages_possibles": [
+            "clôture",
+            "rendement de clôture à clôture",
+            "moyennes mobiles de clôture",
+            "RSI"
+          ],
+          "_lecture": "⚠️ absences CONSERVÉES. Ne jamais les remplacer par la clôture ni par zéro : un zéro fabriqué se lit comme « aucun échange »."
         }
       ]
     },
@@ -302,9 +324,11 @@
       "nombre": 486,
       "preuve": "etabli_par_la_mesure",
       "motif": "sur 486 séances, nos cours valent 0.2171 fois ceux de l'opérateur, avec une dispersion de 1.7 %. Un rapport CONSTANT n'est pas du bruit : c'est un facteur 4.61 appliqué de trop.",
-      "facteur_a_corriger": 4.61,
+      "facteur_observe": 4.61,
+      "_le_facteur_n_est_pas_une_cause": "⚠️ Un rapport constant établit qu'un coefficient manque ou est de trop. Il ne dit NI lequel, NI pourquoi. Le facteur observé (4,61) est proche du pas de cours du jour du split (1700 → 368, soit 4,62) sans coïncider avec lui, et la dispersion de 1,7 % l'écarte d'une constante exacte. AUCUN coefficient ne doit être appliqué en bloc.",
+      "_comparaison_ligne_a_ligne": "journal_SOT_2024-05-14_2026-05-04.json — trois séries nommées : cours brut de l'opérateur, cours sur la base retenue (÷ ratio du split), et notre cours.",
       "_comment_le_ratio_est_verifie": "le ratio du split est déduit de la CAPITALISATION de l'opérateur (capitalisation ÷ cours = nombre de titres), jamais de notre propre registre.",
-      "_conséquence": "AUCUN remplacement automatique n'est écrit ici : remettre à l'échelle 486 séances est une opération à décider, pas à subir."
+      "_conséquence": "AUCUN remplacement automatique n'est écrit ici. La voie sûre n'est pas d'appliquer un facteur, mais de REPRENDRE les cours de l'export sur la base retenue, ligne par ligne — ce que le journal permet de relire avant décision."
     },
     {
       "type": "signaler",

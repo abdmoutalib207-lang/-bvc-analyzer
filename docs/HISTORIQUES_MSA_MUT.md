@@ -109,6 +109,28 @@ le temps ; il l'est aussi **d'un titre à l'autre**. Deux titres suivent les
 dirhams, un autre les quantités. Toute lecture globale de `v` — OBV en tête —
 reste donc refusée, et cette mesure ne s'étend à aucun autre titre.
 
+## ═══ LE REMPLACEMENT DE LA FENÊTRE, DOCUMENTÉ ═══
+
+`datasets/historiques_candidats/journal_MSA_2026-05-13_2026-06-16.json`
+
+**22 séances, cinq champs, l'ancien état conservé à côté du proposé.**
+
+| | o | h | l | c | v |
+|---|--:|--:|--:|--:|--:|
+| champs modifiés | 22 | 22 | 22 | 22 | 22 |
+| absents dans l'export | 0 | 0 | 0 | 0 | 0 |
+
+```
+2026-05-13   brut 843.00 · base retenue 843.00 · nous 239.00 · rapport 0.2835
+   o: 239.0 → 850.0   h: 240.5 → 864.9   l: 239.0 → 843.0
+   c: 239.0 → 843.0   v: 659   → 5857
+```
+
+⚠️ **L'ancien état ne dépend d'aucune sauvegarde extérieure** : chaque ligne
+porte `ancien` à côté de `propose`, et rien n'est écrit dans
+`pipeline/candles/`. Marsa Maroc n'ayant subi aucune opération sur titres, la
+base brute et la base retenue sont ici la même série — c'est dit, pas supposé.
+
 ## ═══ CE QUI PEUT ÊTRE CORRIGÉ ═══
 
 Dans `datasets/historiques_candidats/`, **non appliqué** :

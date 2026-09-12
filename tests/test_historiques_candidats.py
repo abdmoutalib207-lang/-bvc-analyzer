@@ -136,3 +136,110 @@ def test_aucune_suppression_hors_de_la_periode_couverte_par_l_export():
                 assert bornes[0] <= d <= bornes[1], (
                     f"{t} : suppression proposée pour {d}, hors de la période "
                     f"couverte par l'export {bornes}")
+
+
+# ═══ CORRECTIONS DEMANDÉES PAR LA REVUE DU 12/09 ═══════════════════════════
+
+def test_une_absence_n_est_jamais_comblee(): 
+    """⚠️ SÉANCE SOT DU 24/06/2026 : l'export ne porte QUE la clôture (376).
+
+    Le candidat fabriquait `o = h = l = 376` et `v = 0`. Un zéro fabriqué se
+    lit comme « aucun échange » ; une bougie plate se lit comme « le cours n'a
+    pas bougé ». Ni l'un ni l'autre n'a été observé.
+    """
+    f = DOSSIER / "corrections_SOT.json"
+    if not f.exists():
+        pytest.skip("SOT non confronté")
+    r = json.loads(f.read_text(encoding="utf-8"))
+    trouve = False
+    for p in r["propositions"]:
+        for b in p.get("ajout", []):
+            if b["d"] != "2026-06-24":
+                continue
+            trouve = True
+            assert b["c"] == 376.0
+            for k in ("o", "h", "l", "v"):
+                assert b[k] is None, f"le champ {k} est fabriqué : {b[k]}"
+            assert set(b["_champs_absents"]) == {"o", "h", "l", "v"}
+            assert b["_usages_interdits"] and b["_usages_possibles"]
+    assert trouve, "la séance du 24/06 n'est pas proposée à l'ajout"
+
+
+def test_aucun_coefficient_n_est_applique_en_bloc():
+    """⚠️ « Le facteur observé voisin de 4,607 ne prouve pas la cause. »"""
+    f = DOSSIER / "corrections_SOT.json"
+    if not f.exists():
+        pytest.skip("SOT non confronté")
+    r = json.loads(f.read_text(encoding="utf-8"))
+    for p in r["propositions"]:
+        if p["type"] != "remettre_a_l_echelle":
+            continue
+        assert "facteur_a_corriger" not in p, (
+            "le facteur est présenté comme une correction à appliquer")
+        assert "facteur_observe" in p
+        # ⚠️ On éprouve la PROPRIÉTÉ, pas une tournure : aucune valeur de
+        # remplacement n'accompagne le facteur, et l'interdiction d'appliquer
+        # en bloc est écrite noir sur blanc.
+        assert "remplacement" not in p and "ajout" not in p, (
+            "un facteur observé s'accompagne de valeurs à écrire")
+        assert "en bloc" in p["_le_facteur_n_est_pas_une_cause"], (
+            "l'interdiction d'appliquer le facteur en bloc n'est pas énoncée")
+        assert p.get("_comparaison_ligne_a_ligne"), (
+            "aucune comparaison ligne à ligne n'est désignée pour décider")
+
+
+def test_le_journal_distingue_les_trois_series():
+    """cours brut · cours sur la base retenue · notre cours — et les deux
+    rapports. Les confondre produit des conclusions fausses."""
+    f = DOSSIER / "journal_SOT_2024-05-14_2026-05-04.json"
+    if not f.exists():
+        pytest.skip("journal SOT absent")
+    r = json.loads(f.read_text(encoding="utf-8"))
+    l = r["lignes"][0]
+    for k in ("cours_brut_operateur", "cours_sur_base_retenue", "notre_cours",
+              "rapport_sur_base_brut", "rapport_sur_base_retenue"):
+        assert k in l, f"{k} absent du journal"
+    assert l["cours_brut_operateur"] != l["cours_sur_base_retenue"], (
+        "les deux bases sont confondues alors qu'un split les sépare")
+
+
+def test_le_journal_conserve_l_ancien_etat_champ_par_champ():
+    f = DOSSIER / "journal_MSA_2026-05-13_2026-06-16.json"
+    if not f.exists():
+        pytest.skip("journal MSA absent")
+    r = json.loads(f.read_text(encoding="utf-8"))
+    assert r["seances"] == 22
+    for l in r["lignes"]:
+        for k in ("o", "h", "l", "c", "v"):
+            c = l["champs"][k]
+            assert "ancien" in c and "propose" in c and "etat" in c
+
+
+def test_la_base_des_quantites_est_declaree_apres_un_split():
+    """⚠️ Le 22/06, les prix de Managem sont divisés par dix ; `v` garde 715.
+    Sans base déclarée, un calcul ultérieur mélange deux échelles."""
+    import sys as _s
+    _s.path.insert(0, str(RACINE / "pipeline"))
+    from confronter_historique import lire_export, ajuster_splits
+    from pathlib import Path as _P
+    brut = lire_export(sorted((RACINE / "sources" / "MNG").glob("*.csv"))[-1])["seances"]
+    aju = ajuster_splits("MNG", brut)["seances"]
+    v = aju["2026-06-22"]
+    assert v["_base_des_quantites"].startswith("ANTÉRIEURE")
+    assert "postérieure" in v["_base_des_prix"]
+    assert v["titres_echanges_base_posterieure"] == round(v["titres_echanges"] * 10)
+
+
+def test_notre_profondeur_n_est_pas_comptee_comme_fantome():
+    """⚠️ 67 séances d'HPS et de Managem précèdent le début de l'export. Les
+    appeler « fantômes » est faux, même si on ne les supprime pas."""
+    for t in ("HPS", "MNG"):
+        f = DOSSIER / f"confrontation_{t}.json"
+        if not f.exists():
+            continue
+        c = json.loads(f.read_text(encoding="utf-8"))["couverture"]
+        assert len(c["fantomes"]) == 1, f"{t} : {len(c['fantomes'])} fantômes annoncés"
+        assert c["notre_profondeur_hors_export"]["nombre"] == 67
+    doc = (RACINE / "docs" / "HISTORIQUES_LOT2.md").read_text(encoding="utf-8")
+    assert "notre profondeur" in doc, (
+        "la synthèse ne distingue pas profondeur et fantôme")

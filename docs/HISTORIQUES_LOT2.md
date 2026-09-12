@@ -16,13 +16,21 @@ fichier.
 
 ## Vue d'ensemble
 
-| titre | instrument | communes | identiques | > 20 % | manque | fantôme |
-|---|---|--:|--:|--:|--:|--:|
-| HPS | HPS | 724 | **700 (96.7 %)** | 0 | 11 | 68 |
-| MNG | MANAGEM | 732 | **709 (96.9 %)** | 0 | 3 | 68 |
-| SOT | SOTHEMA | 544 | **25 (4.6 %)** | 486 | 26 | 1 |
-| CIM | CIMENTS DU MAROC | 76 | **27 (35.5 %)** | 20 | 4 | 1 |
-| STK | STOKVIS NORD AFRIQUE | 52 | **24 (46.2 %)** | 3 | 3 | 1 |
+| titre | instrument | communes | identiques | > 20 % | manque | fantôme | notre profondeur |
+|---|---|--:|--:|--:|--:|--:|--:|
+| HPS | HPS | 724 | **700 (96.7 %)** | 0 | 11 | 1 | 67 |
+| MNG | MANAGEM | 732 | **709 (96.9 %)** | 0 | 3 | 1 | 67 |
+| SOT | SOTHEMA | 544 | **25 (4.6 %)** | 486 | 26 | 1 | 0 |
+| CIM | CIMENTS DU MAROC | 76 | **27 (35.5 %)** | 20 | 4 | 1 | 0 |
+| STK | STOKVIS NORD AFRIQUE | 52 | **24 (46.2 %)** | 3 | 3 | 1 | 0 |
+
+⚠️ **« Fantôme » et « notre profondeur » ne se confondent pas.** Une séance
+que l'export ne couvre pas — il commence le 13/09/2023 — est notre profondeur,
+pas une invention. Une version antérieure de ce tableau annonçait **68
+fantômes** pour HPS et Managem là où il y en a **un** : les 67 autres sont de
+l'historique valide que nous avons et que l'export n'a pas. Le générateur ne
+proposait déjà plus de les supprimer, mais la colonne gardait la qualification
+trompeuse.
 
 ## Ce qui est établi
 
