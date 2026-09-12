@@ -64,6 +64,15 @@ def _bougie(d, e):
          "c": c,
          "v": int(e["titres_echanges"]) if e["titres_echanges"] is not None else None,
          "_volume_mad": e["volume_mad"]}
+    # ⚠️ LES MÉTADONNÉES DE BASE VOYAGENT AVEC LA LIGNE, pas seulement dans
+    # un LISEZ-MOI. Une bougie candidate destinée à l'import doit dire sur
+    # quelle base ses prix et ses quantités sont exprimés : c'est au moment de
+    # l'import que la question se pose, et c'est là que la réponse doit être.
+    for cle in ("_base_des_prix", "_base_des_quantites",
+                "titres_echanges_base_posterieure"):
+        if e.get(cle) is not None:
+            b[cle] = e[cle]
+
     absents = [k for k in ("o", "h", "l", "v") if b[k] is None]
     if absents:
         b["_champs_absents"] = absents

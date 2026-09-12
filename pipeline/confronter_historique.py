@@ -107,20 +107,40 @@ def ajuster_splits(ticker: str, seances: dict) -> dict:
         l'identité de MRL — une arithmétique qui se recoupe, non deux sources
         qui se citent.
         """
+        # ⚠️ LES DEUX SÉANCES QUI ENCADRENT, PAS UNE MOYENNE DE TRENTE.
+        # Ma première version moyennait trente séances de part et d'autre.
+        # Sur Sothema, le nombre de titres avait déjà bougé dans la fenêtre
+        # antérieure : la moyenne donnait 7 660 061 et un ratio de 5,0012,
+        # alors que les deux lignes qui encadrent la date d'effet donnent
+        # 7 661 900 puis 38 309 500 — exactement ×5. Une moyenne lisse ce
+        # qu'on cherche précisément à lire : une MARCHE.
         ds = sorted(seances)
         if date_effet not in ds:
             return None
         i = ds.index(date_effet)
-        def titres(fen):
-            v = [seances[d]["capitalisation"] / seances[d]["cloture"]
-                 for d in fen
-                 if seances[d].get("capitalisation") and seances[d].get("cloture")]
-            return sum(v) / len(v) if v else None
-        av, ap = titres(ds[max(0, i - 30):i]), titres(ds[i:i + 30])
+
+        def titres(d):
+            v = seances.get(d) or {}
+            if not (v.get("capitalisation") and v.get("cloture")):
+                return None
+            return v["capitalisation"] / v["cloture"]
+
+        def derniere_valeur(indices):
+            for j in indices:
+                t = titres(ds[j])
+                if t is not None:
+                    return ds[j], t
+            return None, None
+
+        d_av, av = derniere_valeur(range(i - 1, max(-1, i - 11), -1))
+        d_ap, ap = derniere_valeur(range(i, min(len(ds), i + 10)))
         if not av or not ap:
             return None
-        return {"titres_avant": round(av), "titres_apres": round(ap),
-                "ratio_mesure": round(ap / av, 4)}
+        return {"seance_avant": d_av, "titres_avant": round(av),
+                "seance_apres": d_ap, "titres_apres": round(ap),
+                "ratio_mesure": round(ap / av, 4),
+                "_methode": "les deux séances qui ENCADRENT la date d'effet — "
+                            "jamais une moyenne, qui lisserait la marche"}
     out, appliques = {}, []
     for d, v in seances.items():
         w = dict(v)

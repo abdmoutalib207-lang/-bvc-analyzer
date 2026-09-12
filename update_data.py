@@ -1383,16 +1383,63 @@ def fetch_history(ticker, days=90):
 # INDICATEURS TECHNIQUES
 # ─────────────────────────────────────────────────────────────────────────────
 
-def calc_rsi(closes: pd.Series, period=14) -> float:
-    """RSI(14) — méthode Wilder EMA."""
-    delta = closes.diff()
-    up    = delta.clip(lower=0)
-    down  = -delta.clip(upper=0)
-    ema_up   = up.ewm(com=period - 1, adjust=False).mean()
-    ema_down = down.ewm(com=period - 1, adjust=False).mean()
-    rs = ema_up / ema_down.replace(0, np.nan)
-    rsi = 100 - (100 / (1 + rs))
-    return round(float(rsi.iloc[-1]), 1) if not rsi.empty else 50.0
+def calc_rsi(closes: pd.Series, period: int = 14):
+    """RSI de Wilder — amorçage par moyenne arithmétique, limites définies.
+
+    ⚠️ DEUX DÉFAUTS REPRODUITS PAR LA REVUE DU 12/09, CORRIGÉS ICI.
+
+    1. **Une hausse continue rendait `nan` au lieu de 100.**
+       `ema_down.replace(0, np.nan)` transformait l'absence de baisse — qui est
+       la DÉFINITION du RSI à 100 — en valeur indéfinie. Un `nan` traverse
+       ensuite `calc_score_tech` sans déclencher aucune branche : le titre
+       recevait le score neutre, en silence.
+
+    2. **L'amorçage n'était pas celui de Wilder.**
+       `ewm(com=period-1, adjust=False)` démarre le lissage sur la PREMIÈRE
+       variation, ce qui laisse la série s'en souvenir longtemps. Wilder amorce
+       par la MOYENNE ARITHMÉTIQUE des `period` premières variations, puis
+       lisse. Sur les quinze clôtures alternées
+       [100, 101, 100, … 101, 100], l'ancienne forme rendait 66,5 ; la
+       définition en rend 50 — autant de hausses que de baisses, de même
+       amplitude.
+
+    AMORÇAGE ET LONGUEUR MINIMALE, DÉCLARÉS
+    ───────────────────────────────────────
+      · `period` variations sont nécessaires pour l'amorçage, donc
+        **`period + 1` clôtures** au minimum — QUINZE pour un RSI(14).
+      · en deçà, la fonction rend `None`. ⚠️ Pas 50 : un RSI absent n'est pas
+        un RSI neutre, et le faire passer pour neutre revient à inventer une
+        mesure.
+
+    LIMITES, QUI DÉCOULENT DE LA DÉFINITION
+    ───────────────────────────────────────
+      · aucune baisse et au moins une hausse → RS infini → **100**
+      · aucune hausse et au moins une baisse → RS nul    → **0**
+      · ni hausse ni baisse (série plate)    → indéterminé → **50**, et c'est
+        le seul cas où 50 est produit par le calcul lui-même.
+    """
+    vals = [float(x) for x in closes.tolist()
+            if x is not None and not pd.isna(x)]
+    if len(vals) < period + 1:
+        return None
+
+    variations = [vals[i] - vals[i - 1] for i in range(1, len(vals))]
+    gains = [max(d, 0.0) for d in variations]
+    pertes = [max(-d, 0.0) for d in variations]
+
+    # Amorçage de Wilder : moyenne arithmétique des `period` premières.
+    mg = sum(gains[:period]) / period
+    mp = sum(pertes[:period]) / period
+    # Puis lissage : moyenne = (précédente × (period − 1) + courante) / period.
+    for i in range(period, len(variations)):
+        mg = (mg * (period - 1) + gains[i]) / period
+        mp = (mp * (period - 1) + pertes[i]) / period
+
+    if mp == 0:
+        return 100.0 if mg > 0 else 50.0
+    if mg == 0:
+        return 0.0
+    return round(100.0 - 100.0 / (1.0 + mg / mp), 1)
 
 def calc_ma(closes: pd.Series, period: int) -> float:
     """Moyenne mobile simple."""
@@ -1527,8 +1574,15 @@ def calc_score_tech(rsi, price, ma20, ma50, h90, l90) -> float:
     """
     score = 5.0
 
+    # ⚠️ UN RSI ABSENT NE CONTRIBUE PAS — il ne vaut pas « neutre ».
+    # `calc_rsi` rendait `nan` quand la profondeur manquait ou qu'aucune baisse
+    # n'existait. Aucune comparaison ne se déclenche sur `nan` : le titre
+    # traversait ce bloc sans rien gagner ni perdre, et personne ne le voyait.
+    # Désormais l'absence est explicite, et l'abstention aussi.
+    if rsi is None:
+        pass
     # RSI (zone idéale 40-65 pour BVC, peu liquide)
-    if 40 <= rsi <= 65:
+    elif 40 <= rsi <= 65:
         score += 1.0
     elif rsi > 75:       # suracheté
         score -= 1.0

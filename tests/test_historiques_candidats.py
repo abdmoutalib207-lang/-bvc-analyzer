@@ -243,3 +243,43 @@ def test_notre_profondeur_n_est_pas_comptee_comme_fantome():
     doc = (RACINE / "docs" / "HISTORIQUES_LOT2.md").read_text(encoding="utf-8")
     assert "notre profondeur" in doc, (
         "la synthèse ne distingue pas profondeur et fantôme")
+
+
+def test_les_metadonnees_de_base_voyagent_avec_les_lignes_candidates():
+    """⚠️ Elles ne figuraient que dans le LISEZ-MOI.
+
+    Une bougie candidate destinée à l'import doit porter elle-même sa base de
+    prix et sa base de quantités : c'est au moment de l'import que la question
+    se pose, et une archive ne suit pas toujours la ligne.
+    """
+    f = DOSSIER / "corrections_MNG.json"
+    if not f.exists():
+        pytest.skip("MNG non confronté")
+    r = json.loads(f.read_text(encoding="utf-8"))
+    vues = 0
+    for p in r["propositions"]:
+        for b in p.get("ajout", []) + p.get("remplacement", []):
+            vues += 1
+            assert b["_base_des_prix"].startswith("postérieure")
+            assert b["_base_des_quantites"].startswith("ANTÉRIEURE")
+            assert b["titres_echanges_base_posterieure"] == b["v"] * 10
+    assert vues, "aucune ligne candidate à vérifier pour MNG"
+
+
+def test_le_ratio_de_split_est_lu_sur_les_seances_qui_encadrent():
+    """⚠️ Une moyenne de trente séances lissait la MARCHE qu'on cherche à lire.
+
+    Sur Sothema elle donnait 7 660 061 et 5,0012 ; les deux séances qui
+    encadrent la date d'effet donnent 7 661 900 → 38 309 500, soit ×5 exact.
+    """
+    for t, attendu in (("SOT", 5.0), ("MNG", 10.0)):
+        f = DOSSIER / f"confrontation_{t}.json"
+        if not f.exists():
+            continue
+        sp = json.loads(f.read_text(encoding="utf-8"))["splits"]["appliques_a_l_export"][0]
+        v = sp["verification"]
+        assert v["ratio_mesure"] == attendu, (
+            f"{t} : ratio mesuré {v['ratio_mesure']} au lieu de {attendu}")
+        assert v["seance_avant"] < sp["date"] <= v["seance_apres"], (
+            "les séances retenues n'encadrent pas la date d'effet")
+        assert "moyenne" in v["_methode"]
