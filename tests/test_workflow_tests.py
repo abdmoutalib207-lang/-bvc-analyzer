@@ -38,6 +38,11 @@ def etapes() -> list:
     return w["jobs"]["pytest"]["steps"]
 
 
+def _sans_commentaires(script: str) -> str:
+    """Le script shell, commentaires ôtés — on éprouve ce qui S'EXÉCUTE."""
+    return "\n".join(re.sub(r"(?<!\S)#.*$", "", l) for l in script.splitlines())
+
+
 def _index(etapes, fragment: str) -> int:
     for i, e in enumerate(etapes):
         if fragment.lower() in (e.get("name") or "").lower():
@@ -109,3 +114,50 @@ def test_aucun_echec_n_est_declare_attendu(etapes):
         "la suite ne doit jamais être non bloquante"
     assert "|| true" not in (suite.get("run") or "")
     assert "--exitfirst" not in (suite.get("run") or "")
+
+
+# ═══ TOUTE ÉTAPE QUI LANCE LA SUITE DOIT INSTALLER SES DÉPENDANCES ════════
+
+def test_chaque_etape_qui_lance_pytest_installe_les_dependances_de_test():
+    """⚠️ LE DÉFAUT DU 12/09, FIGÉ EN TEST.
+
+    `update_bvc.yml` installait `pytest` SEUL avant de lancer la suite
+    complète. Le jour où un test a eu besoin de `yaml` — déclaré dans
+    requirements_dev.txt — la garde de publication a échoué sur un
+    ModuleNotFoundError, alors que les données étaient saines.
+
+    Rien n'a été publié, ce qui est le bon comportement. Mais un rouge dû à
+    l'outillage est le plus dangereux de tous : c'est celui qu'on finit par
+    contourner. Une étape qui exécute la suite doit disposer de TOUTES ses
+    dépendances.
+    """
+    # ⚠️ Le contrôle porte sur le JOB, pas sur l'étape : `tests.yml` installe
+    # dans une étape et lance dans une autre, ce qui est parfaitement correct.
+    # Ma première version exigeait les deux dans la même étape et condamnait
+    # un workflow sain — un contrôle faux est un contrôle qu'on désactive.
+    fautifs = []
+    for f in sorted((RACINE / ".github" / "workflows").glob("*.yml")):
+        w = yaml.safe_load(f.read_text(encoding="utf-8"))
+        for nom_job, job in (w.get("jobs") or {}).items():
+            etapes = job.get("steps") or []
+            # ⚠️ UNE MENTION N'EST PAS UNE INSTALLATION. Ma première version
+            # cherchait la chaîne « requirements_dev.txt » dans le script : le
+            # commentaire qui EXPLIQUE l'installation la contient aussi, et la
+            # mutation ne faisait plus tomber le test. Troisième fois que ce
+            # piège se présente dans ce projet — on cherche la commande.
+            installe = any(
+                re.search(r"pip\s+install[^\n]*-r\s+requirements_dev\.txt",
+                          _sans_commentaires(e.get("run") or ""))
+                for e in etapes)
+            for e in etapes:
+                run = e.get("run") or ""
+                if not re.search(r"\bpytest\b", run):
+                    continue
+                if "--collect-only" in run:          # inventaire, pas exécution
+                    continue
+                if not installe:
+                    fautifs.append(f"{f.name} · {nom_job} · {e.get('name')}")
+                    break
+    assert fautifs == [], (
+        "ces étapes lancent la suite sans installer requirements_dev.txt : "
+        f"{fautifs}")
