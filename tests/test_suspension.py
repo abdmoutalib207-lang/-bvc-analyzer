@@ -124,7 +124,7 @@ def test_le_meta_porte_la_suspension():
 
 
 def test_le_signal_devient_suspendu():
-    assert re.search(r'"sig":\s*\("SUSPENDU" if est_suspendu\(', _moteur()), (
+    assert re.search(r'"sig":\s*\("SUSPENDU" if _suspendu_maintenant\(', _moteur()), (
         "LE test qui compte : sans lui, le moteur recommande d'acheter un "
         "titre qu'on ne peut pas acheter")
 
@@ -135,7 +135,7 @@ def test_l_ecriture_de_chandelle_est_refusee():
 
 
 def test_la_confiance_tombe_a_zero():
-    assert re.search(r"suspension = est_suspendu\(ticker, prix_asof\)\s*\n\s*if suspension:\s*\n\s*confiance = 0",
+    assert re.search(r"suspension = _suspendu_maintenant\(ticker\)\s*\n\s*if suspension:\s*\n\s*confiance = 0",
                      _moteur()), (
         "un titre suspendu doit tomber à 0 : la première garantie du score de "
         "confiance est « prix de la dernière séance cotée », et c'est "
@@ -180,6 +180,92 @@ def test_aucune_chandelle_apres_la_suspension():
             assert not fantomes, (
                 f"{ticker} : {len(fantomes)} chandelle(s) pendant la "
                 f"suspension ({fantomes[0]} → {fantomes[-1]})")
+
+
+# ── ce que le dry-run a révélé (09/09, demandé par Abd Moutalib) ─────────
+#
+# Lancer `update_data.py --dry-run` après le nettoyage a montré trois défauts
+# qu'aucun test ne voyait, dont deux que le nettoyage lui-même avait CRÉÉS.
+
+def test_la_variation_d_un_titre_suspendu_est_nulle_aux_trois_endroits():
+    """CMT affichait −3,35 % par jour sur un titre qui n'échange plus rien.
+
+    L'écart venait de la comparaison entre le cours diffusé (4 350) et la
+    dernière séance échangée (4 501 le 16/07). Tant que les 28 bougies
+    fantômes étaient là, elle donnait 4 350 contre 4 350 — zéro par accident.
+    **Retirer une donnée fausse a mis au jour un calcul qui s'appuyait
+    dessus.**
+
+    Il a fallu trois gardes : la boucle principale, le repli Médias24, et
+    `recalculer_variation`. Cette dernière est la plus instructive — c'est le
+    remède de R9, et appliqué à une suspension il FABRIQUE le défaut qu'il
+    croit corriger, parce que `chg=0` + `vol=0` y est la vérité, pas un
+    symptôme.
+    """
+    s = _moteur()
+    assert "if price and _suspendu_maintenant(ticker):" in s, (
+        "boucle principale : la variation se recalcule encore depuis la "
+        "dernière clôture")
+    assert "and not _suspendu_maintenant(ticker):" in s, (
+        "repli Médias24 : idem")
+    assert re.search(r"if _suspendu_maintenant\(ticker\):\s*\n\s*return 0\.0", s), (
+        "recalculer_variation : le correctif de R9 fabrique une variation sur "
+        "un titre qui n'a pas coté")
+
+
+def test_le_journal_annonce_le_signal_reellement_publie():
+    """Le dry-run affichait « ACHETER ★★ » sur CMT pendant que le fichier
+    écrivait « SUSPENDU » : le journal imprimait `v53['sig']`, calculé avant
+    la substitution. Un journal qui contredit le fichier qu'il décrit est pire
+    qu'un journal muet — c'est là qu'on va vérifier quand on doute."""
+    s = _moteur()
+    assert '_sig_publie = "SUSPENDU" if _suspendu_maintenant(ticker) else v53["sig"]' in s
+    assert "{_sig_publie}\")" in s, "la ligne de journal n'utilise pas le signal publié"
+
+
+def test_le_dry_run_n_ecrit_rien():
+    """`--dry-run` promet « aperçu sans écrire » et enregistrait pourtant le
+    MASI dans masi_history.json à chaque appel. Un mode d'essai qui modifie
+    l'état n'est pas un mode d'essai — et c'est précisément l'outil qu'on
+    emploie pour vérifier sans risque."""
+    s = _moteur()
+    assert re.search(r"if dry_run:\s*\n\s*logger\.info\(f\"  \[DRY RUN\] MASI", s), (
+        "le dry-run écrit encore masi_history.json")
+
+
+def test_les_champs_derives_suivent_la_serie_purgee():
+    """⚠️ Piège du 14/08, retombé dedans : `n_candles` décrivait encore 542
+    bougies pour une série qui n'en compte plus que 222."""
+    import json as _j
+    h = _j.loads((RACINE / "pipeline" / "historical_data.json").read_text(encoding="utf-8"))
+    for t in SUSPENSIONS:
+        e = h.get(t)
+        if not isinstance(e, dict) or "candles" not in e:
+            continue
+        # ⚠️ PAS d'égalité avec len(candles) : `n_candles` décrit la série
+        # SOURCE, la liste stockée est tronquée à 250 points. Exiger l'égalité
+        # est précisément l'erreur commise le 09/09 — 222 inscrits pour une
+        # série de 514. On vérifie seulement qu'il reste plausible.
+        assert e.get("n_candles") is None or e["n_candles"] >= len(e["candles"]), (
+            f"{t} : n_candles={e.get('n_candles')} inférieur à la liste stockée "
+            f"({len(e['candles'])}) — la série source ne peut pas être plus "
+            "courte que sa propre troncature")
+        assert e.get("last_date") == e["candles"][-1]["d"], f"{t} : last_date périmé"
+        assert e.get("last_close") == e["candles"][-1]["c"], f"{t} : last_close périmé"
+
+
+def test_les_deux_magasins_de_chandelles_sont_purges():
+    """Le premier nettoyage n'avait touché que pipeline/candles/. Trois
+    écrivains alimentent les chandelles (journal du 14/08) et
+    historical_data.json est un instantané dérivé, à purger aussi."""
+    import json as _j
+    for t, periodes in SUSPENSIONS.items():
+        h = _j.loads((RACINE / "pipeline" / "historical_data.json").read_text(encoding="utf-8"))
+        e = h.get(t) or {}
+        for p in periodes:
+            fin = p.get("reprise") or "9999-12-31"
+            reste = [b["d"] for b in e.get("candles", []) if p["depuis"] <= b["d"] < fin]
+            assert not reste, f"{t} : historical_data.json garde {len(reste)} fantôme(s)"
 
 
 def test_cmt_garde_sa_derniere_seance_reelle():

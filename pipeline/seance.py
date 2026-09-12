@@ -97,6 +97,105 @@ def purger_seance_fantome(candles_dir=None, dry_run=False):
     return derniere, n
 
 
+def purger_suspensions(candles_dir=None, historique=None, dry_run=False):
+    """Retire toute chandelle tombant pendant une suspension de cotation.
+
+    POURQUOI UN BALAYAGE, ET NON UNE GARDE À L'ÉCRITURE
+    ───────────────────────────────────────────────────
+    L'étape 6c d'`update_data.py` refuse déjà d'écrire pour un titre suspendu.
+    Elle ne suffit pas : **trois programmes écrivent des chandelles**, et
+    `collect_history_bvcscrap.py` réécrit `historical_data.json` depuis la
+    source, sans connaître le registre des suspensions. Vérifié le 10/09/2026 :
+    un re-téléchargement ramenait les 28 séances fantômes de CMT que le
+    nettoyage manuel de la veille avait retirées.
+
+    C'est exactement le motif du 14/08 — une garde posée chez un seul écrivain
+    ne tient qu'un run — et la réponse est la même : un balayage GLOBAL et
+    POSTÉRIEUR, que chaque écrivain appelle après avoir écrit. C'est aussi la
+    seule forme qui répare l'existant, y compris ce qu'un autre programme vient
+    de déposer.
+
+    Signalé par l'audit externe : « le bon contrôle n'est pas *le fichier a été
+    corrigé*, c'est *la correction traverse toutes les étapes* ».
+
+    Retourne (nombre_de_bougies_retirées, nombre_de_fichiers_touchés).
+    """
+    try:
+        from bvc_config import SUSPENSIONS
+    except ImportError:                                       # pragma: no cover
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+        from bvc_config import SUSPENSIONS
+    if not SUSPENSIONS:
+        return 0, 0
+
+    def _fantome(ticker, jour):
+        for p in SUSPENSIONS.get(ticker, ()):
+            fin = p.get("reprise") or "9999-12-31"
+            if p["depuis"] <= jour < fin:
+                return True
+        return False
+
+    retirees = fichiers = 0
+
+    d = Path(candles_dir) if candles_dir else CANDLES_DIR
+    if d.exists():
+        for ticker in SUSPENSIONS:
+            f = d / f"{ticker}.json"
+            if not f.exists():
+                continue
+            try:
+                s = json.loads(f.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            garde = [b for b in s if not _fantome(ticker, str(b.get("d", ""))[:10])]
+            if len(garde) != len(s):
+                retirees += len(s) - len(garde)
+                fichiers += 1
+                if not dry_run:
+                    f.write_text(json.dumps(garde, separators=(",", ":")),
+                                 encoding="utf-8")
+
+    h = Path(historique) if historique else CANDLES_DIR.parent / "historical_data.json"
+    if h.exists():
+        try:
+            data = json.loads(h.read_text(encoding="utf-8"))
+        except Exception:
+            return retirees, fichiers
+        touche = False
+        for ticker in SUSPENSIONS:
+            e = data.get(ticker)
+            if not isinstance(e, dict) or "candles" not in e:
+                continue
+            s = e["candles"]
+            garde = [b for b in s if not _fantome(ticker, str(b.get("d", ""))[:10])]
+            if len(garde) == len(s):
+                continue
+            retirees += len(s) - len(garde)
+            touche = True
+            e["candles"] = garde
+            # ⚠️ Les champs DÉRIVÉS doivent suivre, sinon ils décrivent une
+            # série qui n'existe plus — piège `n_candles` du 14/08, dans lequel
+            # on est retombé le 09/09 (542 annoncées pour 222 réelles).
+            if garde:
+                e["last_close"] = garde[-1].get("c")
+                e["last_date"] = garde[-1].get("d")
+            # ⚠️ ON NE TOUCHE PAS À `n_candles`. Il compte la SÉRIE SOURCE, pas
+            # la liste stockée — tronquée à 250 points (CLAUDE.md, l. 697). Le
+            # 09/09 je l'ai « corrigé » à la longueur de la liste purgée : 222
+            # pour une série de 514. C'était le piège du 14/08, dans lequel je
+            # suis tombé en croyant le réparer. Ce champ appartient au moteur,
+            # qui seul connaît la longueur de la série source ; un balayage
+            # postérieur n'a pas cette information et doit s'abstenir.
+        if touche:
+            fichiers += 1
+            if not dry_run:
+                h.write_text(json.dumps(data, separators=(",", ":")),
+                             encoding="utf-8")
+
+    return retirees, fichiers
+
+
 def reparer_ohlc(candles_dir=None, dry_run=False):
     """Force l'invariant `l ≤ min(o, c) ≤ max(o, c) ≤ h` sur toutes les bougies.
 

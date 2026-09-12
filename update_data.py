@@ -54,7 +54,7 @@ except NameError:
 
 from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
                         COMPANY_NAMES, COMPANY_SECTORS, est_ferie_fixe,
-                        est_suspendu)
+                        est_suspendu, SPLITS)
 
 TICKERS = TICKERS_ALL
 
@@ -662,6 +662,24 @@ def recalculer_variation(ticker, price, chg, candles, seance):
     lui, chaque run réécrirait une variation infinitésimale et journaliserait
     une correction qui n'en est pas une.
     """
+    # ⚠️ Un titre SUSPENDU sort d'ici inchangé, et c'est le cœur du problème.
+    #
+    # `chg=0` avec `vol=0` est la signature que R9 traque comme une donnée non
+    # rafraîchie. Sur un titre suspendu, c'est LA VÉRITÉ : il n'a pas coté, il
+    # n'a donc pas varié. Le remède de R9 — recalculer depuis la dernière
+    # clôture connue — fabrique alors une variation à partir d'un écart vieux
+    # de deux mois : CMT ressortait à −3,35 %, l'écart entre le cours diffusé
+    # (4 350) et sa dernière séance échangée (4 501 le 16/07).
+    #
+    # C'est la troisième voie de calcul de `chg` qu'il a fallu neutraliser. La
+    # leçon est celle de la famille 11 : R9 sait reconnaître la SIGNATURE d'une
+    # suspension, mais pas la distinguer d'une panne de rafraîchissement — et
+    # son correctif, appliqué au mauvais cas, aggrave ce qu'il devait réparer.
+    # ⚠️ « maintenant », pas « à la date de la séance de référence » : même
+    # circularité que partout ailleurs. Sur un titre suspendu, la séance de
+    # référence précède forcément la suspension.
+    if _suspendu_maintenant(ticker):
+        return 0.0
     if candles is None or len(candles) < 1 or not price or price <= 0:
         return chg
     try:
@@ -1651,9 +1669,149 @@ def _est_rediffusion(chg, vol, df_candles, seance=None):
         return False
 
 
+FAITS_DATA: dict = {}
+
+
+def _pb_sourcé(ticker: str, price: float):
+    """Price-to-book calculé depuis des faits SOURCÉS, ou None.
+
+        PB = cours × nombre d'actions ÷ capitaux propres part du groupe
+
+    ⚠️ Pourquoi ce calcul remplace une constante, et pourquoi il rend None
+    plutôt qu'une valeur de repli.
+
+    Le champ `pb` publié venait de FOND_DATA, une table codée en dur, et
+    portait `pb_fige: true` sur 80 titres sur 80. L'audit externe du 09/09 a
+    montré que l'étiquette ne suffit pas : sur Alliances, la fiche annonçait
+    0,80 — une société valorisée sous ses fonds propres — quand le calcul sur
+    les comptes 2025 donne 2,32. **Le sens de l'information s'inversait.**
+    « Une constante signalée comme figée reste une constante ; l'étiquette ne
+    corrige pas le chiffre. »
+
+    D'où le choix : calculer là où les deux termes sont sourcés et datés,
+    n'afficher RIEN ailleurs. Publier un nombre faux avec un avertissement est
+    pire que ne rien publier — le lecteur retient le nombre.
+
+    Les capitaux propres retenus sont ceux de la PART DU GROUPE, cohérents
+    avec un nombre d'actions de la société mère. Les prendre consolidés, donc
+    minoritaires inclus, sous-estimerait le ratio.
+    """
+    e = FAITS_DATA.get(ticker)
+    if not isinstance(e, dict) or not price or price <= 0:
+        return None
+    faits = e.get("faits") or {}
+    cp = faits.get("capitaux_propres_part_groupe")
+    na = (faits.get("nombre_actions_existant")
+          or faits.get("nombre_actions_au_rapport")
+          or faits.get("nombre_actions_retenu_pour_le_bpa"))
+    if not cp or not na:
+        return None
+    try:
+        n = float(na["valeur"])
+        # ⚠️ Le rapport arrête ses comptes au 31/12 de l'exercice. Un split
+        # postérieur à cette date n'y figure pas : son nombre d'actions est
+        # celui d'AVANT, et il faut l'ajuster pour le comparer au cours
+        # d'aujourd'hui. Managem (10:1 le 27/07/2026) et Sothema (5:1 le
+        # 05/05/2026) sont tous deux dans ce cas pour l'exercice 2025.
+        #
+        # Le registre SPLITS fait foi, comme pour les chandelles — c'est le
+        # même fait extérieur, et il ne doit pas être redéclaré ici.
+        cloture = f"{e.get('exercice', 2025)}-12-31"
+        for sp in SPLITS.get(ticker, []):
+            if sp["date"] > cloture:
+                n *= sp["ratio"]
+        fp = float(cp["valeur"]) * 1e6          # les faits sont en MMAD
+        if fp <= 0:
+            return None
+        return round(price * n / fp, 2)
+    except (TypeError, ValueError, KeyError):
+        return None
+
+
+def _suspendu_maintenant(ticker: str):
+    """La suspension se juge à la DATE DE L'ANALYSE, jamais à celle du cours.
+
+    ⚠️ DÉFAUT CIRCULAIRE, trouvé par l'audit externe le 10/09/2026.
+
+    Le code demandait `est_suspendu(ticker, prix_asof)` — « ce titre était-il
+    suspendu le jour de son dernier cours ? ». Sur un titre suspendu, cette
+    question ne peut structurellement recevoir qu'une réponse : NON. Le dernier
+    cours est par définition ANTÉRIEUR à la suspension, puisque c'est elle qui
+    l'a arrêté.
+
+    Le piège est resté invisible tant que la source rediffusait un cours daté
+    du jour : `prix_asof` valait alors la date courante et le test répondait
+    juste, par accident. En purgeant les 28 chandelles fantômes de CMT, le prix
+    est retombé sur la dernière séance réelle — le 16 juillet — et le test s'est
+    mis à répondre « non suspendue » sur un titre suspendu depuis le 17.
+    **Nettoyer les données de la suspension a masqué la suspension.**
+
+    Le fichier candidat livré à l'auditeur portait donc « ACHETER ★★ » sur CMT,
+    avec `suspendu: false` et une confiance de 4/5.
+
+    La bonne question est « ce titre est-il suspendu AUJOURD'HUI ? », parce que
+    c'est aujourd'hui que le bulletin est lu et qu'un ordre serait passé.
+
+    ⚠️ DATE INJECTABLE, ajoutée le 10/09/2026 à la demande de l'auditeur.
+    « Aujourd'hui » répond au besoin du terminal courant, mais rend
+    irreproductible le rejeu d'une analyse passée : relancer le moteur sur les
+    données du 20 juillet donnerait le statut d'aujourd'hui, pas celui du
+    20 juillet. `BVC_DATE_ANALYSE=AAAA-MM-JJ` fixe la date de décision.
+
+    Ce n'est PAS la date du cours — la confusion entre les deux est justement
+    le défaut qu'on vient de corriger. C'est la date à laquelle l'analyse est
+    réputée rendue, et donc celle où un ordre serait passé.
+    """
+    return est_suspendu(ticker, date_analyse())
+
+
+def date_analyse() -> str:
+    """La date à laquelle l'analyse est réputée rendue. Aujourd'hui par défaut.
+
+    Surchargée par `BVC_DATE_ANALYSE` pour rejouer une analyse passée.
+
+    ⚠️ DEUX MODES, sur remarque de l'audit externe du 10/09/2026. Une date
+    invalide ne peut pas avoir la même conséquence dans les deux cas :
+
+      · BULLETIN QUOTIDIEN — le retour à aujourd'hui est acceptable, avec un
+        avertissement : un rejeu raté ne doit pas empêcher la publication du
+        jour.
+      · REJEU OU LIVRAISON D'AUDIT — une date explicitement demandée mais
+        invalide doit ARRÊTER l'opération. Sinon le dossier annonce une date
+        pendant que le moteur en utilise une autre : c'est exactement le genre
+        d'écart entre le dit et le fait qui a fait refuser deux livraisons.
+
+    `BVC_MODE_AUDIT=1` bascule en mode strict, et y exige une date déclarée.
+
+    ⚠️ Ce n'est PAS la date du cours. La confusion entre les deux était le
+    défaut circulaire qui laissait CMT porter « ACHETER » alors qu'elle est
+    suspendue.
+    """
+    v = os.environ.get("BVC_DATE_ANALYSE", "").strip()
+    strict = os.environ.get("BVC_MODE_AUDIT", "").strip() in ("1", "true", "oui")
+    if v:
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+            return v
+        except ValueError:
+            if strict:
+                raise SystemExit(
+                    f"BVC_DATE_ANALYSE={v!r} est mal formée et le mode audit est "
+                    f"actif : l'opération s'arrête. Une livraison ne peut pas "
+                    f"annoncer une date de décision que le moteur n'utilise pas. "
+                    f"Format attendu : AAAA-MM-JJ.")
+            logger.warning(f"BVC_DATE_ANALYSE={v!r} mal formée — ignorée, "
+                           f"la date du jour est retenue")
+    elif strict:
+        raise SystemExit(
+            "BVC_MODE_AUDIT=1 sans BVC_DATE_ANALYSE : en rejeu, la date de "
+            "décision doit être déclarée, jamais déduite de l'horloge.")
+    return datetime.now().strftime("%Y-%m-%d")
+
+
 def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
                  isin_suspect=False, ratios_calcules=False,
-                 chg=None, vol=None) -> dict:
+                 chg=None, vol=None, prix_diffuse=None) -> dict:
     """Provenance du prix et score de confiance 0–5.
 
     Le score suit la spécification du CLAUDE.md, un point par garantie :
@@ -1750,18 +1908,24 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
     # d'avant la suspension, reconduit indéfiniment. Le titre bascule donc en
     # « Données insuffisantes » à l'écran, ce qui est exact : il n'y a plus de
     # donnée de marché, et il n'y en aura pas avant la reprise.
-    suspension = est_suspendu(ticker, prix_asof)
+    suspension = _suspendu_maintenant(ticker)
     if suspension:
         confiance = 0
 
     return {
         "suspendu":       bool(suspension),
+        # Le cours que la source continue de diffuser, conservé pour que
+        # l'écart avec la dernière cotation réelle reste vérifiable.
+        "prix_diffuse_source": prix_diffuse,
         "suspendu_depuis": suspension["depuis"] if suspension else None,
         "suspendu_motif":  suspension["motif"] if suspension else None,
         "source_prix":  src_prix or "inconnu",
         # Décrit d'où viennent les RATIOS AFFICHÉS, pas l'existence d'un score.
         "source_fond":  "bpa_calcule" if ratios_calcules else "table_figee",
-        "pb_fige":      True,          # le price-to-book vient toujours de FOND_DATA
+        # `pb_fige` disparaît : il annonçait une constante là où le champ est
+        # désormais soit calculé depuis un dépôt AMMC, soit absent.
+        "pb_source":    ("faits_ammc" if _pb_sourcé(ticker, 1.0) is not None
+                         else "non_disponible"),
         "vol_median20": vol_median,
         "prix_asof":    prix_asof or None,
         "stale":        stale,
@@ -1880,6 +2044,12 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
         "delta":     round(final - bvc_score, 2),
         "nlp":       round(sent["smart"], 2),
         "score_tech": round(score_tech, 2),
+        # ⚠️ `score_fond` n'était émis NULLE PART. Le moteur le calcule pour
+        # composer la v5.3 et ne le publiait pas : le frontend ne pouvait donc
+        # pas l'utiliser même en le voulant, et son mode personnalisé lisait
+        # `r.bvc` — la note BVC de référence — faute de mieux. Publier une note
+        # sans ses composantes rend le calcul invérifiable pour le lecteur.
+        "score_fond": round(score_fond, 2),
         "score_nlp": round(score_nlp, 2),
         "alpha":  sent.get("alpha", 0),
         "win":    round(sent["win"] * 100),
@@ -1909,6 +2079,24 @@ def run(dry_run=False, push=False, token=""):
     bpa_path = Path(__file__).parent / "bpa.json"
     BPA_DATA = json.loads(bpa_path.read_text(encoding="utf-8")) if bpa_path.exists() else {}
     logger.info(f"BPA chargé : {len(BPA_DATA)} tickers")
+
+    # ── Faits financiers sourcés ─────────────────────────────────────────
+    #
+    # ⚠️ Branché le 10/09/2026. L'audit externe du 09/09 relevait que
+    # `faits_financiers.json` — onze émetteurs relus page par page dans les
+    # dépôts AMMC — n'était « pas lu directement par update_data.py » : les
+    # corrections passaient par des reprises manuelles. Un référentiel qu'aucun
+    # programme ne consulte n'est pas un référentiel, c'est une archive.
+    global FAITS_DATA
+    faits_path = Path(__file__).parent / "pipeline" / "faits_financiers.json"
+    try:
+        FAITS_DATA = json.loads(faits_path.read_text(encoding="utf-8")) if faits_path.exists() else {}
+    except Exception as _e:
+        logger.warning(f"faits_financiers.json illisible ({_e})")
+        FAITS_DATA = {}
+    _n_pb = sum(1 for t in FAITS_DATA if not t.startswith("_") and _pb_sourcé(t, 1.0) is not None)
+    logger.info(f"Faits AMMC chargés : {len([t for t in FAITS_DATA if not t.startswith('_')])} "
+                f"émetteurs, dont {_n_pb} avec un price-to-book calculable")
     now_ca = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=1)  # UTC+1 Casablanca
     h, mn = now_ca.hour, now_ca.minute
     tot = h * 60 + mn
@@ -2017,7 +2205,14 @@ def run(dry_run=False, push=False, token=""):
     try:
         sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
         from masi_history import enregistrer as _masi_enr, performance_ytd as _masi_ytd_calc
-        if _masi_enr(masi.get("value"), masi.get("asof")):
+        # ⚠️ `--dry-run` promet « aperçu sans écrire » (docstring, ligne 12) et
+        # écrivait pourtant masi_history.json à chaque appel. Trouvé le
+        # 09/09/2026 : un dry-run laissait le fichier modifié dans git status.
+        # Un mode d'essai qui modifie l'état n'est pas un mode d'essai — et
+        # c'est précisément l'outil qu'on utilise pour vérifier sans risque.
+        if dry_run:
+            logger.info(f"  [DRY RUN] MASI {masi.get('value')} NON enregistré")
+        elif _masi_enr(masi.get("value"), masi.get("asof")):
             logger.info(f"  MASI {masi.get('value')} enregistré au {str(masi.get('asof'))[:10]}")
         _masi_ytd = _masi_ytd_calc(masi.get("asof"))
     except Exception as _e:
@@ -2115,7 +2310,22 @@ def run(dry_run=False, push=False, token=""):
 
         # Correction données IDBourse : toujours recalculer vs vraie clôture j-1 (candle)
         # IDBourse peut référencer une mauvaise date de référence, surtout sur 2e run intraday
-        if price:
+        # ⚠️ Un titre SUSPENDU n'a pas de variation du jour : il n'a pas coté.
+        #
+        # Sa série s'arrête à la dernière séance échangée, pendant que la
+        # source continue de diffuser le dernier cours connu. L'écart entre
+        # les deux n'est pas un mouvement de la séance, c'est la marche qui a
+        # PRÉCÉDÉ la suspension. CMT affichait ainsi −3,35 % tous les jours —
+        # 4 350 comparés au 4 501 du 16/07 — sur un titre qui n'a plus échangé
+        # un seul titre depuis.
+        #
+        # Ce défaut est apparu EN RETIRANT les 28 bougies fantômes : tant
+        # qu'elles étaient là, la comparaison portait 4 350 contre 4 350 et
+        # donnait zéro. Nettoyer une donnée fausse a mis au jour un calcul qui
+        # s'appuyait dessus — le zéro affiché était juste par accident.
+        if price and _suspendu_maintenant(ticker):
+            chg = 0.0
+        elif price:
             _df_c = _candles_cache.get(ticker)
             if _df_c is not None and len(_df_c) >= 1:
                 try:
@@ -2185,7 +2395,19 @@ def run(dry_run=False, push=False, token=""):
                 price = round(float(closes.iloc[-1]), 2)
                 src_prix, prix_asof = "medias24_hist", str(df["date"].iloc[-1])[:10]
             # Variation = prix live vs dernière clôture historique
-            if not chg and price and len(closes) >= 1:
+            #
+            # ⚠️ SAUF si le titre est suspendu. Sa série s'arrête à la dernière
+            # séance cotée, et la source continue de diffuser le dernier cours
+            # connu : l'écart entre les deux n'est pas une variation du jour,
+            # c'est la marche qui a précédé la suspension. CMT affichait ainsi
+            # −3,35 % chaque jour depuis le 17/07 — 4 350 comparés au 4 501 du
+            # 16/07 — sur un titre qui n'a pas échangé un seul titre depuis.
+            #
+            # Ce défaut est apparu EN RETIRANT les 28 bougies fantômes : tant
+            # qu'elles étaient là, la comparaison portait sur 4 350 contre
+            # 4 350 et donnait zéro. Nettoyer une donnée fausse a révélé un
+            # calcul qui s'appuyait dessus.
+            if not chg and price and len(closes) >= 1 and not _suspendu_maintenant(ticker):
                 prev = float(closes.iloc[-1])
                 if prev > 0:
                     chg = round((price - prev) / prev * 100, 2)
@@ -2351,6 +2573,46 @@ def run(dry_run=False, push=False, token=""):
         chg = recalculer_variation(ticker, price, chg,
                                    _candles_cache.get(ticker), IDB_ASOF)
 
+        # ── Titre suspendu : la référence de prix est la DERNIÈRE COTATION ──
+        #
+        # ⚠️ Ajouté le 10/09/2026, sur la troisième remarque de l'audit externe :
+        # « clarifier la référence de prix de CMT et ses dates ».
+        #
+        # Trois dates se confondaient dans un seul champ :
+        #   · la date de RÉCUPÉRATION chez le fournisseur — aujourd'hui, toujours ;
+        #   · la date de la dernière COTATION RÉELLE — le 16/07 pour CMT ;
+        #   · la date du prix retenu pour les RATIOS.
+        #
+        # La source rediffuse 4 350 DH estampillés du jour ; le bulletin de CDG
+        # donne CMT à 0,00 sur toutes les colonnes, trois séances de suite. La
+        # dernière cotation réelle est celle du 16/07 à 4 501 DH, seule à porter
+        # un volume (67 515 titres). Publier 4 350 daté d'aujourd'hui affirme un
+        # échange qui n'a pas eu lieu.
+        #
+        # On retient donc la dernière bougie PORTANT UN VOLUME, et sa date. Le
+        # cours rediffusé est conservé à part, pour que l'écart reste visible
+        # plutôt que d'être arbitré en silence.
+        _susp = _suspendu_maintenant(ticker)
+        _prix_diffuse = None
+        if _susp:
+            _df_s = _candles_cache.get(ticker)
+            try:
+                _reelles = [b for b in (_df_s.to_dict("records") if _df_s is not None else [])
+                            if (b.get("v") or 0) > 0]
+            except Exception:
+                _reelles = []
+            if _reelles:
+                _der = _reelles[-1]
+                _c, _d = _der.get("c"), str(_der.get("d") or "")[:10]
+                if _c and _d and (price != _c or prix_asof != _d):
+                    _prix_diffuse = price
+                    logger.info(f"  {ticker}: suspendu — référence ramenée à la "
+                                f"dernière cotation réelle {_c} du {_d} "
+                                f"(la source diffusait {price})")
+                    price, prix_asof = _c, _d
+                    src_prix = "derniere_cotation_avant_suspension"
+                    chg = 0.0
+
         if not opn:
             opn = round(price / (1 + chg / 100), 2) if chg else price
 
@@ -2406,7 +2668,7 @@ def run(dry_run=False, push=False, token=""):
                 _candles_cache.get(ticker), isin_suspect,
                 ratios_calcules=bool(
                     ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0),
-                chg=chg, vol=vol),
+                chg=chg, vol=vol, prix_diffuse=_prix_diffuse),
             # Code officiel BVC, pour l'affichage seulement. Nos symboles
             # internes sont la clé primaire d'ISIN_MAP, des chandelles et de
             # six ans de corpus WhatsApp : on ne les renomme pas. Mais un
@@ -2429,8 +2691,29 @@ def run(dry_run=False, push=False, token=""):
             "close":  round(price, 2),
             "pe":     round(price / BPA_DATA[ticker]["bpa"], 1) if (ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0) else fd.get("pe"),
             "bpa":    BPA_DATA[ticker]["bpa"] if ticker in BPA_DATA else None,
-            "pb":     fd.get("pb"),
-            "div":    round(BPA_DATA[ticker]["div_dh"] / price * 100, 2) if (ticker in BPA_DATA and BPA_DATA[ticker].get("div_dh") and price > 0) else fd.get("div"),
+            # ⚠️ Le price-to-book vient désormais des FAITS SOURCÉS quand ils
+            # existent, et vaut None sinon — jamais la constante de FOND_DATA.
+            # Sur Alliances, la table annonçait 0,80 quand les comptes 2025
+            # donnent 2,32 : le sens de l'information s'inversait. Publier un
+            # nombre faux avec un avertissement est pire que ne rien publier,
+            # parce que le lecteur retient le nombre.
+            "pb":     _pb_sourcé(ticker, price),
+            # ⚠️ ZÉRO N'EST PAS UNE ABSENCE. Le test était
+            # `BPA_DATA[ticker].get("div_dh")` — une valeur, pas une présence.
+            # En Python `0.0` est faux : un dividende de zéro, VÉRIFIÉ dans le
+            # rapport annuel, retombait donc sur le rendement figé de FOND_DATA.
+            # CMT publiait 0,5 % de rendement là où la société n'a rien versé
+            # (« Dividende 0,00 dirhams », RFA 2025 p.79) — et neuf autres
+            # titres avec elle. Signalé par l'audit externe du 09/09/2026.
+            #
+            # C'est la famille 9 d'ERRORS retournée : non plus combler une
+            # absence, mais PRENDRE UNE VALEUR RÉELLE POUR UNE ABSENCE. Le
+            # remède est le même — tester la présence, jamais la valeur.
+            "div":    (round(BPA_DATA[ticker]["div_dh"] / price * 100, 2)
+                       if (ticker in BPA_DATA
+                           and BPA_DATA[ticker].get("div_dh") is not None
+                           and price > 0)
+                       else fd.get("div")),
             "div_dh": BPA_DATA[ticker].get("div_dh") if ticker in BPA_DATA else None,
             # Capitalisation : celle d'IDBourse, calculée sur le cours du jour,
             # prime sur FOND_DATA — table codée en dur qui n'a suivi ni les
@@ -2464,6 +2747,8 @@ def run(dry_run=False, push=False, token=""):
             "delta":      v53["delta"],
             "nlp":        v53["nlp"],
             "score_tech": v53.get("score_tech", 5.0),
+            "score_fond": v53.get("score_fond", 5.0),
+            "score_nlp":  v53.get("score_nlp", 5.0),
             "alpha":  v53["alpha"],
             "win":    v53["win"],
             # ⚠️ Un titre suspendu ne reçoit PAS de recommandation.
@@ -2475,7 +2760,7 @@ def run(dry_run=False, push=False, token=""):
             # qui n'a pas lieu d'être — on ne recommande pas d'acheter ce qui
             # ne s'achète pas. Le raisonnement est celui du plafond de
             # liquidité du 01/09, poussé jusqu'à son terme.
-            "sig":    ("SUSPENDU" if est_suspendu(ticker, prix_asof)
+            "sig":    ("SUSPENDU" if _suspendu_maintenant(ticker)
                        else v53["sig"]),
             "sigBvc": SIG_BVC.get(ticker, "ATTENDRE"),
             "biais":  v53["biais"],
@@ -2492,7 +2777,13 @@ def run(dry_run=False, push=False, token=""):
             "flags":  fd.get("flags", 0),
         })
 
-        logger.info(f"  ✓ {ticker}: {price} DH | RSI {rsi} | Score v5.3: {bvc_score} → {v53['v53']} | {v53['sig']}")
+        # Le signal JOURNALISÉ doit être celui qui sera PUBLIÉ. Il imprimait
+        # `v53['sig']`, calculé avant la substitution : le dry-run annonçait
+        # « ACHETER ★★ » sur CMT pendant que le fichier écrivait « SUSPENDU ».
+        # Un journal qui contredit le fichier qu'il décrit est pire qu'un
+        # journal muet — c'est là qu'on va vérifier quand on doute.
+        _sig_publie = "SUSPENDU" if _suspendu_maintenant(ticker) else v53["sig"]
+        logger.info(f"  ✓ {ticker}: {price} DH | RSI {rsi} | Score v5.3: {bvc_score} → {v53['v53']} | {_sig_publie}")
 
     # 5. Construction data.json
     output = {
@@ -2503,6 +2794,10 @@ def run(dry_run=False, push=False, token=""):
         # utilise `TZ=Africa/Casablanca date` et donnait l'heure juste : d'où
         # un data.json marqué 11h31 dans un commit intitulé 12h31.
         "updated": datetime.now(timezone(timedelta(hours=1))).strftime("%Y-%m-%dT%H:%M:%S%z"),
+        # ⚠️ La date RÉELLEMENT utilisée pour les décisions datées (suspensions).
+        # Écrite dans le fichier produit, et non seulement dans un manifeste :
+        # un dossier peut se tromper, le fichier ne peut pas.
+        "date_analyse": date_analyse(),
         "source":  "IDBourse / Médias24",
         "market_status": mkt_status,
         "masi": {
@@ -2653,7 +2948,8 @@ def run(dry_run=False, push=False, token=""):
         # sources. Le recalage ci-dessus ne protège que ce run — ce balayage
         # rattrape ce qu'un autre a pu déposer.
         sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
-        from seance import purger_seance_fantome, reparer_ohlc
+        from seance import (purger_seance_fantome, reparer_ohlc,
+                            purger_suspensions)
         _dj, _nj = purger_seance_fantome()
         if _dj:
             logger.warning(f"  Séance fantôme {_dj} purgée : {_nj} bougies retirées")
@@ -2662,6 +2958,11 @@ def run(dry_run=False, push=False, token=""):
         # fourchette qui n'englobe pas son ouverture ne se voit qu'en relisant
         # le fichier. Coût mesuré : 0,3 s sur 32 677 bougies.
         _no, _fo = reparer_ohlc()
+        # Balayage des suspensions — après écriture, comme les deux autres.
+        _ns, _fs = purger_suspensions()
+        if _ns:
+            logger.info(f"  Suspensions : {_ns} bougie(s) fantôme(s) retirée(s) "
+                        f"de {_fs} fichier(s)")
         if _no:
             logger.warning(f"  OHLC : {_no} bougies élargies sur {_fo} tickers")
     except Exception as _e:

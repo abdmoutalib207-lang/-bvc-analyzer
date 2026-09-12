@@ -29,6 +29,8 @@ from pathlib import Path
 
 import pytest
 
+from conftest import chemin_data_json  # noqa: E402
+
 CHEMIN = Path(__file__).resolve().parent.parent / "pipeline" / "faits_financiers.json"
 
 
@@ -189,7 +191,7 @@ def test_aucun_benefice_par_action_n_excede_le_cours():
     cours (PER 3), et jamais sur un marché comme la BVC.
     """
     racine = Path(__file__).resolve().parent.parent
-    d = json.loads((racine / "data.json").read_text(encoding="utf-8"))
+    d = json.loads(chemin_data_json().read_text(encoding="utf-8"))
     coupables = []
     for x in d["tickers"]:
         bpa, prix = x.get("bpa"), x.get("price")
@@ -222,7 +224,7 @@ def test_aucun_resultat_net_n_excede_la_capitalisation():
     réellement, pas sur une intention.
     """
     racine = Path(__file__).resolve().parent.parent
-    d = json.loads((racine / "data.json").read_text(encoding="utf-8"))
+    d = json.loads(chemin_data_json().read_text(encoding="utf-8"))
     coupables = []
     for x in d["tickers"]:
         bpa, prix, cap = x.get("bpa"), x.get("price"), x.get("cap")
