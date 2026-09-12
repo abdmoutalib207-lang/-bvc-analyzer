@@ -120,3 +120,82 @@ def test_un_rsi_absent_ne_contribue_pas_au_score_technique():
     corps = src[i:i + 1200]
     assert "if rsi is None:" in corps, (
         "l'absence de RSI n'est pas traitée explicitement dans calc_score_tech")
+
+
+# ═══ FINITUDE, ABSENCES, ET LA DATE DU RÉSULTAT ═══════════════════════════
+
+@pytest.fixture(scope="module")
+def calc_rsi_collecteur():
+    """⚠️ L'AUTRE exemplaire — celui qui produit RÉELLEMENT les valeurs.
+
+    73 des 74 RSI publiés viennent de `pipeline/historical_data.json`, écrit
+    par le collecteur. Corriger `update_data.py` seul n'aurait presque rien
+    changé à l'écran.
+    """
+    sys.argv = ["collect_history_bvcscrap.py"]
+    sys.path.insert(0, str(RACINE / "pipeline"))
+    spec = importlib.util.spec_from_file_location(
+        "col_rsi", RACINE / "pipeline" / "collect_history_bvcscrap.py")
+    m = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(m)
+    except SystemExit:
+        pass
+    return m.calc_rsi
+
+
+SERIES = [
+    [100 + i for i in range(20)],
+    [120 - i for i in range(20)],
+    [100.0] * 20,
+    [100, 101, 100, 101, 100, 101, 100, 101, 100, 101, 100, 101, 100, 101, 100],
+    [100 + i for i in range(19)] + [None],
+    [100 + i for i in range(19)] + [float("inf")],
+    [100 + i for i in range(10)] + [None] + [110 + i for i in range(9)],
+    [100 + i for i in range(13)],
+]
+
+
+@pytest.mark.parametrize("serie", SERIES)
+def test_les_deux_exemplaires_ne_divergent_jamais(calc_rsi, calc_rsi_collecteur, serie):
+    """⚠️ La fonction est DUPLIQUÉE dans deux fichiers. Tant qu'elle l'est,
+    leur divergence doit être impossible à introduire sans qu'on le voie."""
+    s = pd.Series(serie, dtype=object)
+    assert calc_rsi(s) == calc_rsi_collecteur(s)
+
+
+@pytest.mark.parametrize("fin", [None, float("inf"), float("-inf"), float("nan")])
+def test_une_serie_croissante_terminee_par_une_valeur_inexploitable(calc_rsi, fin):
+    """⚠️ DÉFAUT RELEVÉ PAR LA REVUE DU 12/09.
+
+    Ma correction écartait les valeurs absentes AVANT de calculer. Une série
+    croissante terminée par `None` rendait donc 100 — un RSI daté de la séance
+    PRÉCÉDENTE, présenté comme celui de la dernière. Le trou était refermé sans
+    que personne le sache.
+
+    `+inf` traversait `pd.isna` sans être vu et contaminait toute la récurrence.
+    """
+    serie = [100 + i for i in range(19)] + [fin]
+    assert calc_rsi(pd.Series(serie, dtype=object)) is None
+
+
+def test_un_trou_au_milieu_interdit_le_calcul(calc_rsi):
+    """Le lissage de Wilder est RÉCURSIF : un trou propage sa correction
+    jusqu'au bout. Une série percée ne donne pas un RSI approximatif — elle
+    donne le RSI d'une AUTRE série."""
+    serie = [100 + i for i in range(10)] + [None] + [110 + i for i in range(9)]
+    assert calc_rsi(pd.Series(serie, dtype=object)) is None
+
+
+def test_le_resultat_porte_sur_la_derniere_cloture_recue(calc_rsi):
+    """⚠️ La date du résultat est tenue : ajouter une séance CHANGE la valeur.
+
+    Si la fonction pouvait ignorer la dernière observation, les deux appels
+    rendraient la même chose — et le RSI serait daté d'hier sans le dire.
+    """
+    base = [100, 102, 101, 105, 103, 107, 106, 110, 108, 112,
+            111, 115, 113, 117, 116]
+    avant = calc_rsi(pd.Series(base))
+    apres = calc_rsi(pd.Series(base + [90]))
+    assert avant is not None and apres is not None
+    assert apres < avant, "une clôture en forte baisse n'a pas déplacé le RSI"

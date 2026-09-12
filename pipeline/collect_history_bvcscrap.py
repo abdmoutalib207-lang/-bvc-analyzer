@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import sys, json, time, argparse, logging
+import sys, json, math, time, argparse, logging
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -346,16 +346,94 @@ def combine(xlsx_df: pd.DataFrame, ext_df: pd.DataFrame) -> pd.DataFrame:
     return combined
 
 
-def calc_rsi(closes: pd.Series, period: int = 14) -> float:
-    delta    = closes.diff()
-    up       = delta.clip(lower=0)
-    down     = -delta.clip(upper=0)
-    ema_up   = up.ewm(com=period - 1, adjust=False).mean()
-    ema_down = down.ewm(com=period - 1, adjust=False).mean()
-    rs       = ema_up / ema_down.replace(0, np.nan)
-    rsi      = 100 - (100 / (1 + rs))
-    return round(float(rsi.iloc[-1]), 1) if not rsi.empty else 50.0
+# ⚠️ COPIE CONFORME DE `update_data.py::calc_rsi`.
+# C'est CE calc_rsi-ci qui produit les RSI de `historical_data.json`, et
+# c'est ce cache que le moteur publié sert pour 73 titres sur 74. Corriger
+# la fonction de `update_data.py` seule n'aurait donc changé presque aucune
+# valeur affichée. Les deux exemplaires doivent rester identiques :
+# `tests/test_rsi_wilder_publie.py` les confronte sur une batterie de séries
+# et refuse toute divergence.
+def calc_rsi(closes: pd.Series, period: int = 14):
+    """RSI de Wilder — amorçage par moyenne arithmétique, limites définies.
 
+    ⚠️ DEUX DÉFAUTS REPRODUITS PAR LA REVUE DU 12/09, CORRIGÉS ICI.
+
+    1. **Une hausse continue rendait `nan` au lieu de 100.**
+       `ema_down.replace(0, np.nan)` transformait l'absence de baisse — qui est
+       la DÉFINITION du RSI à 100 — en valeur indéfinie. Un `nan` traverse
+       ensuite `calc_score_tech` sans déclencher aucune branche : le titre
+       recevait le score neutre, en silence.
+
+    2. **L'amorçage n'était pas celui de Wilder.**
+       `ewm(com=period-1, adjust=False)` démarre le lissage sur la PREMIÈRE
+       variation, ce qui laisse la série s'en souvenir longtemps. Wilder amorce
+       par la MOYENNE ARITHMÉTIQUE des `period` premières variations, puis
+       lisse. Sur les quinze clôtures alternées
+       [100, 101, 100, … 101, 100], l'ancienne forme rendait 66,5 ; la
+       définition en rend 50 — autant de hausses que de baisses, de même
+       amplitude.
+
+    AMORÇAGE ET LONGUEUR MINIMALE, DÉCLARÉS
+    ───────────────────────────────────────
+      · `period` variations sont nécessaires pour l'amorçage, donc
+        **`period + 1` clôtures** au minimum — QUINZE pour un RSI(14).
+      · en deçà, la fonction rend `None`. ⚠️ Pas 50 : un RSI absent n'est pas
+        un RSI neutre, et le faire passer pour neutre revient à inventer une
+        mesure.
+
+    LIMITES, QUI DÉCOULENT DE LA DÉFINITION
+    ───────────────────────────────────────
+      · aucune baisse et au moins une hausse → RS infini → **100**
+      · aucune hausse et au moins une baisse → RS nul    → **0**
+      · ni hausse ni baisse (série plate)    → indéterminé → **50**, et c'est
+        le seul cas où 50 est produit par le calcul lui-même.
+    """
+    # ⚠️ AUCUN FILTRAGE SILENCIEUX, ET LA DATE DU RÉSULTAT EST TENUE.
+    # Ma première version écartait les valeurs absentes avant de calculer.
+    # Conséquence : une série terminée par une absence rendait un RSI daté de
+    # la séance PRÉCÉDENTE, présenté comme celui de la dernière — et une série
+    # croissante terminée par `None` pouvait ainsi rendre 100. Le trou était
+    # refermé sans que personne le sache.
+    #
+    # Le lissage de Wilder est RÉCURSIF : un trou au milieu propage sa
+    # correction jusqu'au bout. Une série percée ne donne donc pas « un RSI
+    # approximatif », elle donne un RSI d'une autre série.
+    #
+    # POLITIQUE DES VALEURS ABSENTES : la fonction REFUSE. Elle ne comble pas,
+    # ne saute pas, ne rapproche pas. Le résultat porte toujours sur la
+    # DERNIÈRE clôture de la série reçue, jamais sur une antérieure.
+    brut = closes.tolist()
+    if any(x is None or pd.isna(x) for x in brut):
+        return None
+    try:
+        vals = [float(x) for x in brut]
+    except (TypeError, ValueError):
+        return None
+    # ⚠️ FINITUDE. `+inf` traverse `pd.isna` sans être signalé et contamine
+    # toute la récurrence : une moyenne infinie rend le RSI indéfini, ou 100
+    # par accident. Un infini n'est pas un cours.
+    if not all(math.isfinite(v) for v in vals):
+        return None
+    if len(vals) < period + 1:
+        return None
+
+    variations = [vals[i] - vals[i - 1] for i in range(1, len(vals))]
+    gains = [max(d, 0.0) for d in variations]
+    pertes = [max(-d, 0.0) for d in variations]
+
+    # Amorçage de Wilder : moyenne arithmétique des `period` premières.
+    mg = sum(gains[:period]) / period
+    mp = sum(pertes[:period]) / period
+    # Puis lissage : moyenne = (précédente × (period − 1) + courante) / period.
+    for i in range(period, len(variations)):
+        mg = (mg * (period - 1) + gains[i]) / period
+        mp = (mp * (period - 1) + pertes[i]) / period
+
+    if mp == 0:
+        return 100.0 if mg > 0 else 50.0
+    if mg == 0:
+        return 0.0
+    return round(100.0 - 100.0 / (1.0 + mg / mp), 1)
 
 def calc_ma(closes: pd.Series, period: int) -> float:
     if len(closes) < period:

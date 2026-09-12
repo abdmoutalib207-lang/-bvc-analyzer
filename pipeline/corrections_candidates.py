@@ -60,6 +60,24 @@ def _bougie(d, e):
     c = e["cloture"]
     if c is None:
         return None
+    # ⚠️ UNE LIGNE SANS ÉCHANGE N'EST PAS UNE BOUGIE NÉGOCIÉE.
+    # Le 17/07/2026, l'export porte une clôture de 4 350 pour CMT avec ZÉRO
+    # titre et ZÉRO transaction : c'est le cours de la veille reconduit, le
+    # jour où la suspension prend effet. En faire une bougie reviendrait à
+    # fabriquer une séance, et elle entrerait dans le RSI comme une variation
+    # nulle observée — ce qu'elle n'est pas.
+    if (e.get("titres_echanges") or 0) <= 0:
+        return {"d": d, "c": c, "_ligne_fournisseur_sans_echange": True,
+                "_titres_echanges": e.get("titres_echanges"),
+                "_nb_transactions": e.get("nb_transactions"),
+                "_lecture": "cours RECONDUIT par le fournisseur, sans échange. "
+                            "Conservé comme ligne de source, JAMAIS comme "
+                            "bougie négociée.",
+                "_usages_interdits": ["RSI", "MACD", "toute variation",
+                                      "moyennes mobiles", "extrêmes",
+                                      "« dernier cours » du titre"],
+                "_usages_possibles": ["trace de ce que le fournisseur publiait "
+                                      "à cette date"]}
     b = {"d": d, "o": e["ouverture"], "h": e["plus_haut"], "l": e["plus_bas"],
          "c": c,
          "v": int(e["titres_echanges"]) if e["titres_echanges"] is not None else None,
@@ -120,13 +138,41 @@ def proposer(t, ref="origin/main"):
     # ── 2. Séances cotées et absentes de chez nous ─────────────────────────
     deb = min(nous)
     manq = sorted(d for d in exp if d >= deb and d not in nous)
-    if manq:
+    bougies = [b for b in (_bougie(d, exp[d]) for d in manq) if b]
+    negociees = [b for b in bougies if not b.get("_ligne_fournisseur_sans_echange")]
+    reconduites = [b for b in bougies if b.get("_ligne_fournisseur_sans_echange")]
+    sans_cours = [d for d in manq if exp[d].get("cloture") is None]
+
+    # ⚠️ LE COMPTE ANNONCÉ EST CELUI DES LIGNES LIVRÉES.
+    # Ma version précédente annonçait « 57 séances » pour CMT et n'en livrait
+    # que 23 : `nombre` comptait les dates manquantes, `ajout` ne portait que
+    # celles qui ont une clôture. Un décompte qui ne décrit pas la pièce jointe
+    # est un décompte faux.
+    if negociees:
         props.append({
-            "type": "ajouter", "seances": manq, "nombre": len(manq),
+            "type": "ajouter", "seances": [b["d"] for b in negociees],
+            "nombre": len(negociees),
             "preuve": "etabli_par_la_mesure",
-            "motif": "l'opérateur cote ces séances, notre historique ne les "
-                     "porte pas. Panne de collecte du 22 au 24 juin 2026.",
-            "ajout": [b for b in (_bougie(d, exp[d]) for d in manq) if b],
+            "motif": "séances RÉELLEMENT ÉCHANGÉES chez l'opérateur (quantité "
+                     "strictement positive) que notre historique ne porte pas.",
+            "ajout": negociees,
+        })
+    if reconduites:
+        props.append({
+            "type": "conserver_ligne_fournisseur",
+            "seances": [b["d"] for b in reconduites], "nombre": len(reconduites),
+            "preuve": "etabli_par_la_mesure",
+            "motif": "l'export porte un cours pour ces séances mais ZÉRO titre "
+                     "échangé : cours reconduit, pas séance négociée. Conservé "
+                     "comme ligne de source, jamais comme bougie.",
+            "lignes": reconduites,
+        })
+    if sans_cours:
+        props.append({
+            "type": "sans_cotation", "seances": sans_cours,
+            "nombre": len(sans_cours), "preuve": "etabli_par_l_absence",
+            "motif": "l'export ne porte aucun cours pour ces séances. Rien à "
+                     "ajouter : elles n'ont pas eu lieu pour ce titre.",
         })
 
     # ── 3. Séances que nous seuls portons ──────────────────────────────────
@@ -225,7 +271,18 @@ def proposer(t, ref="origin/main"):
         petits.append({"seance": d, "notre_cloture": a, "operateur": b,
                        "ecart_pct": round((a - b) / b * 100, 2)})
     if petits:
+        # ⚠️ Un écart dont la valeur de référence EXISTE dans l'export n'est
+        # pas seulement « signalé » : la ligne de remplacement est fournie, et
+        # c'est au propriétaire de décider de l'appliquer. Le niveau de preuve
+        # porte sur la CAUSE, pas sur la disponibilité de la valeur juste.
+        remplacement = [b for b in (_bougie(p_["seance"], exp[p_["seance"]])
+                                    for p_ in petits)
+                        if b and not b.get("_ligne_fournisseur_sans_echange")]
         props.append({
+            "valeurs_de_reference": remplacement,
+            "_lecture_du_niveau": "« hypothèse » qualifie la CAUSE de l'écart, "
+                                  "pas la valeur de référence : celle-ci vient "
+                                  "de l'export, ligne par ligne.",
             "type": "signaler", "seances": [p["seance"] for p in petits],
             "nombre": len(petits), "preuve": "hypothese_a_confirmer",
             "motif": "écarts constatés, faibles et non systématiques — ni le "

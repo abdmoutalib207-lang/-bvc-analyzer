@@ -1,5 +1,18 @@
 # CMT et RSI — deux défauts établis, un écart TradingView expliqué
 
+> ## ⚠️ Reprise du 12/09 — quatre affirmations de ma part, corrigées
+>
+> | ce que j'avais écrit | ce que l'export établit |
+> |---|---|
+> | « 4 501 n'apparaît nulle part dans l'export » | **Faux.** 4 501 est l'**ouverture** et le **plus-bas** du **02/07/2026** (séance 4 501 → 5 000, clôture 4 880). Ce n'est pas la clôture du 16/07 — c'est ce point-là qui vaut, pas l'absence. |
+> | « 5 268 titres » présentés comme la dernière transaction | **Faux.** C'est le **total échangé sur la séance**, en 88 transactions. Le montant divisé par la quantité donne 4 357,51 DH : un cours **moyen**, pas un dernier prix. |
+> | capitalisation « 7 313 → 7 068 MDHS » | **Faux.** `7 313 363 550 = 4 350 × 1 681 233` — la capitalisation publiée était **déjà juste**. Mon 7 068 venait d'une règle de trois sur 4 501. **Elle ne change pas.** |
+> | « capture en séance » présentée comme établie | **Nuancé.** Une bougie contenue dans la fourchette du jour est **compatible** avec une capture en séance ; elle ne prouve pas l'heure de collecte. Le DÉFAUT est établi, le MÉCANISME reste nommé sans être démontré. |
+>
+> **Et une mesure refaite** : mes MA20/MA50/plus-haut corrigeaient les lignes
+> existantes **en conservant les trous**. Sur l'export complet, les valeurs
+> sont celles de la revue — reproduites ci-dessous au centime.
+
 > ⚠️ Le correctif RSI touche le moteur publié. Rien n'est fusionné ici.
 > La correction de l'historique CMT est **candidate**, non appliquée.
 
@@ -60,19 +73,30 @@ moteur corrigé lit le dernier cours dans nos chandelles, et notre chandelle
 
 À historique corrigé sur l'export, toutes choses égales par ailleurs :
 
-| champ | publié | corrigé |
+Sur la **série candidate complète** — les 681 lignes de l'export portant une
+quantité strictement positive, arrêtées au 16/07 :
+
+| champ | publié | candidat |
 |---|--:|--:|
 | dernier cours | 4 501,00 | **4 350,00** |
-| RSI | 45,9 | **41,4** |
-| MA20 | 4 676,2 | 4 663,0 |
-| MA50 | 4 691,3 | 4 686,0 |
-| **plus-haut 52 semaines** | 5 345,0 | **5 400,0** |
-| plus-bas 52 semaines | 1 551,0 | 1 551,0 |
+| séance du cours | 2026-07-16 | 2026-07-16 |
+| RSI | 45,9 | **42,0** |
+| MA20 | 4 676,2 | **4 624,45** |
+| MA50 | 4 691,3 | **4 769,04** |
+| plus-haut 52 semaines | 5 345,0 | **5 940 le 02/06** |
+| MACD | −8,9754 | **−43,3022** |
+| signal | 13,5519 | **−21,6577** |
+| histogramme | −22,5273 | **−21,6446** |
 | PE | 38,5 | **37,2** |
-| capitalisation | 7 313 MDHS | **7 068 MDHS** |
+| **capitalisation** | 7 313 MDHS | **7 313 MDHS — inchangée** |
 
-⚠️ Le plus-haut 52 semaines **monte** : nos captures tronquaient aussi les
-extrêmes. Un indicateur de position dans la fourchette s'en trouve affecté.
+Les quatre valeurs de la revue sont reproduites au millionième :
+RSI **42,006464** (avant arrondi), MACD **−43,302239**, signal **−21,657674**,
+histogramme **−21,644565**. Même compte de lignes : **681**.
+
+⚠️ Mes chiffres précédents (RSI 41,4 · MA20 4 663 · plus-haut 5 400)
+corrigeaient les lignes existantes **en conservant les trous**. La série
+candidate réintroduit les **22 séances échangées** manquantes.
 
 ⚠️ **Le statut de suspension ne dépend pas de cet arbitrage** et n'est pas
 touché : CMT reste suspendu depuis le 17/07, variation nulle.

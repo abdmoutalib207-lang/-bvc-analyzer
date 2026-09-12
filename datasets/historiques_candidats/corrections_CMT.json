@@ -26,46 +26,11 @@
         "2026-06-11",
         "2026-06-22",
         "2026-06-23",
-        "2026-06-24",
-        "2026-07-17",
-        "2026-07-20",
-        "2026-07-21",
-        "2026-07-22",
-        "2026-07-23",
-        "2026-07-24",
-        "2026-07-27",
-        "2026-07-28",
-        "2026-07-29",
-        "2026-07-31",
-        "2026-08-03",
-        "2026-08-04",
-        "2026-08-05",
-        "2026-08-06",
-        "2026-08-07",
-        "2026-08-10",
-        "2026-08-11",
-        "2026-08-12",
-        "2026-08-13",
-        "2026-08-17",
-        "2026-08-18",
-        "2026-08-19",
-        "2026-08-24",
-        "2026-08-27",
-        "2026-08-28",
-        "2026-08-31",
-        "2026-09-01",
-        "2026-09-02",
-        "2026-09-03",
-        "2026-09-04",
-        "2026-09-07",
-        "2026-09-08",
-        "2026-09-09",
-        "2026-09-10",
-        "2026-09-11"
+        "2026-06-24"
       ],
-      "nombre": 57,
+      "nombre": 22,
       "preuve": "etabli_par_la_mesure",
-      "motif": "l'opérateur cote ces séances, notre historique ne les porte pas. Panne de collecte du 22 au 24 juin 2026.",
+      "motif": "séances RÉELLEMENT ÉCHANGÉES chez l'opérateur (quantité strictement positive) que notre historique ne porte pas.",
       "ajout": [
         {
           "d": "2026-05-13",
@@ -264,37 +229,265 @@
           "c": 4372.0,
           "v": 4690,
           "_volume_mad": 20540110.0
-        },
-        {
-          "d": "2026-07-17",
-          "o": null,
-          "h": null,
-          "l": null,
-          "c": 4350.0,
-          "v": 0,
-          "_volume_mad": 0.0,
-          "_champs_absents": [
-            "o",
-            "h",
-            "l"
-          ],
-          "_usages_interdits": [
-            "amplitude de séance",
-            "invariant OHLC",
-            "chandelier (le corps et les mèches sont indéfinis)",
-            "ATR, Bollinger sur extrêmes"
-          ],
-          "_usages_possibles": [
-            "clôture",
-            "rendement de clôture à clôture",
-            "moyennes mobiles de clôture",
-            "RSI"
-          ],
-          "_lecture": "⚠️ absences CONSERVÉES. Ne jamais les remplacer par la clôture ni par zéro : un zéro fabriqué se lit comme « aucun échange »."
         }
       ]
     },
     {
+      "type": "conserver_ligne_fournisseur",
+      "seances": [
+        "2026-07-17"
+      ],
+      "nombre": 1,
+      "preuve": "etabli_par_la_mesure",
+      "motif": "l'export porte un cours pour ces séances mais ZÉRO titre échangé : cours reconduit, pas séance négociée. Conservé comme ligne de source, jamais comme bougie.",
+      "lignes": [
+        {
+          "d": "2026-07-17",
+          "c": 4350.0,
+          "_ligne_fournisseur_sans_echange": true,
+          "_titres_echanges": 0.0,
+          "_nb_transactions": 0.0,
+          "_lecture": "cours RECONDUIT par le fournisseur, sans échange. Conservé comme ligne de source, JAMAIS comme bougie négociée.",
+          "_usages_interdits": [
+            "RSI",
+            "MACD",
+            "toute variation",
+            "moyennes mobiles",
+            "extrêmes",
+            "« dernier cours » du titre"
+          ],
+          "_usages_possibles": [
+            "trace de ce que le fournisseur publiait à cette date"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sans_cotation",
+      "seances": [
+        "2026-07-20",
+        "2026-07-21",
+        "2026-07-22",
+        "2026-07-23",
+        "2026-07-24",
+        "2026-07-27",
+        "2026-07-28",
+        "2026-07-29",
+        "2026-07-31",
+        "2026-08-03",
+        "2026-08-04",
+        "2026-08-05",
+        "2026-08-06",
+        "2026-08-07",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-24",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-08-31",
+        "2026-09-01",
+        "2026-09-02",
+        "2026-09-03",
+        "2026-09-04",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-11"
+      ],
+      "nombre": 34,
+      "preuve": "etabli_par_l_absence",
+      "motif": "l'export ne porte aucun cours pour ces séances. Rien à ajouter : elles n'ont pas eu lieu pour ce titre."
+    },
+    {
+      "valeurs_de_reference": [
+        {
+          "d": "2026-06-15",
+          "o": 4948.0,
+          "h": 5006.0,
+          "l": 4901.0,
+          "c": 5006.0,
+          "v": 1002,
+          "_volume_mad": 4997351.0
+        },
+        {
+          "d": "2026-06-16",
+          "o": 5300.0,
+          "h": 5400.0,
+          "l": 5101.0,
+          "c": 5101.0,
+          "v": 5424,
+          "_volume_mad": 28403678.0
+        },
+        {
+          "d": "2026-06-18",
+          "o": 5100.0,
+          "h": 5100.0,
+          "l": 4765.0,
+          "c": 4785.0,
+          "v": 2726,
+          "_volume_mad": 13287953.0
+        },
+        {
+          "d": "2026-06-19",
+          "o": 4750.0,
+          "h": 4900.0,
+          "l": 4620.0,
+          "c": 4660.0,
+          "v": 467,
+          "_volume_mad": 2190077.0
+        },
+        {
+          "d": "2026-06-25",
+          "o": 4449.0,
+          "h": 4680.0,
+          "l": 4175.0,
+          "c": 4228.0,
+          "v": 5783,
+          "_volume_mad": 24583832.0
+        },
+        {
+          "d": "2026-06-26",
+          "o": 4231.0,
+          "h": 4499.0,
+          "l": 4231.0,
+          "c": 4341.0,
+          "v": 1635,
+          "_volume_mad": 7075762.0
+        },
+        {
+          "d": "2026-06-29",
+          "o": 4399.0,
+          "h": 4399.0,
+          "l": 4266.0,
+          "c": 4380.0,
+          "v": 446,
+          "_volume_mad": 1932839.0
+        },
+        {
+          "d": "2026-06-30",
+          "o": 4350.0,
+          "h": 4590.0,
+          "l": 4300.0,
+          "c": 4550.0,
+          "v": 1491,
+          "_volume_mad": 6629626.0
+        },
+        {
+          "d": "2026-07-01",
+          "o": 4546.0,
+          "h": 4647.0,
+          "l": 4400.0,
+          "c": 4555.0,
+          "v": 362,
+          "_volume_mad": 1655199.0
+        },
+        {
+          "d": "2026-07-02",
+          "o": 4501.0,
+          "h": 5000.0,
+          "l": 4501.0,
+          "c": 4880.0,
+          "v": 1369,
+          "_volume_mad": 6546572.0
+        },
+        {
+          "d": "2026-07-03",
+          "o": 5050.0,
+          "h": 5090.0,
+          "l": 4812.0,
+          "c": 4835.0,
+          "v": 2717,
+          "_volume_mad": 13333398.0
+        },
+        {
+          "d": "2026-07-06",
+          "o": 4924.0,
+          "h": 4925.0,
+          "l": 4750.0,
+          "c": 4750.0,
+          "v": 167,
+          "_volume_mad": 808937.0
+        },
+        {
+          "d": "2026-07-07",
+          "o": 4701.0,
+          "h": 4929.0,
+          "l": 4574.0,
+          "c": 4797.0,
+          "v": 349,
+          "_volume_mad": 1666476.0
+        },
+        {
+          "d": "2026-07-08",
+          "o": 4615.0,
+          "h": 4650.0,
+          "l": 4570.0,
+          "c": 4600.0,
+          "v": 305,
+          "_volume_mad": 1406075.0
+        },
+        {
+          "d": "2026-07-09",
+          "o": 4670.0,
+          "h": 4790.0,
+          "l": 4600.0,
+          "c": 4777.0,
+          "v": 26194,
+          "_volume_mad": 120707529.0
+        },
+        {
+          "d": "2026-07-10",
+          "o": 4654.0,
+          "h": 4810.0,
+          "l": 4654.0,
+          "c": 4810.0,
+          "v": 267,
+          "_volume_mad": 1275966.0
+        },
+        {
+          "d": "2026-07-13",
+          "o": 4700.0,
+          "h": 4740.0,
+          "l": 4650.0,
+          "c": 4740.0,
+          "v": 140,
+          "_volume_mad": 659091.0
+        },
+        {
+          "d": "2026-07-14",
+          "o": 4700.0,
+          "h": 4800.0,
+          "l": 4600.0,
+          "c": 4600.0,
+          "v": 835,
+          "_volume_mad": 3883315.0
+        },
+        {
+          "d": "2026-07-15",
+          "o": 4587.0,
+          "h": 4611.0,
+          "l": 4515.0,
+          "c": 4515.0,
+          "v": 1032,
+          "_volume_mad": 4661833.0
+        },
+        {
+          "d": "2026-07-16",
+          "o": 4531.0,
+          "h": 4600.0,
+          "l": 4300.0,
+          "c": 4350.0,
+          "v": 5268,
+          "_volume_mad": 22955345.0
+        }
+      ],
+      "_lecture_du_niveau": "« hypothèse » qualifie la CAUSE de l'écart, pas la valeur de référence : celle-ci vient de l'export, ligne par ligne.",
       "type": "signaler",
       "seances": [
         "2026-06-15",

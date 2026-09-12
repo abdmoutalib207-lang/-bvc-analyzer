@@ -26,6 +26,7 @@ for pkg in ["requests", "numpy", "pandas"]:
     except ImportError:
         subprocess.run([sys.executable, "-m", "pip", "install", pkg, "-q"], check=True)
 
+import math
 import requests
 import numpy as np
 import pandas as pd
@@ -1418,8 +1419,32 @@ def calc_rsi(closes: pd.Series, period: int = 14):
       · ni hausse ni baisse (série plate)    → indéterminé → **50**, et c'est
         le seul cas où 50 est produit par le calcul lui-même.
     """
-    vals = [float(x) for x in closes.tolist()
-            if x is not None and not pd.isna(x)]
+    # ⚠️ AUCUN FILTRAGE SILENCIEUX, ET LA DATE DU RÉSULTAT EST TENUE.
+    # Ma première version écartait les valeurs absentes avant de calculer.
+    # Conséquence : une série terminée par une absence rendait un RSI daté de
+    # la séance PRÉCÉDENTE, présenté comme celui de la dernière — et une série
+    # croissante terminée par `None` pouvait ainsi rendre 100. Le trou était
+    # refermé sans que personne le sache.
+    #
+    # Le lissage de Wilder est RÉCURSIF : un trou au milieu propage sa
+    # correction jusqu'au bout. Une série percée ne donne donc pas « un RSI
+    # approximatif », elle donne un RSI d'une autre série.
+    #
+    # POLITIQUE DES VALEURS ABSENTES : la fonction REFUSE. Elle ne comble pas,
+    # ne saute pas, ne rapproche pas. Le résultat porte toujours sur la
+    # DERNIÈRE clôture de la série reçue, jamais sur une antérieure.
+    brut = closes.tolist()
+    if any(x is None or pd.isna(x) for x in brut):
+        return None
+    try:
+        vals = [float(x) for x in brut]
+    except (TypeError, ValueError):
+        return None
+    # ⚠️ FINITUDE. `+inf` traverse `pd.isna` sans être signalé et contamine
+    # toute la récurrence : une moyenne infinie rend le RSI indéfini, ou 100
+    # par accident. Un infini n'est pas un cours.
+    if not all(math.isfinite(v) for v in vals):
+        return None
     if len(vals) < period + 1:
         return None
 
