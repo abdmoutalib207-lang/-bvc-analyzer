@@ -244,7 +244,18 @@ jobs:
       - name: Contrôles bloquants sur le fichier généré
         if: steps.gate.outputs.run == 'true' && github.event.inputs.dry_run != 'true'
         run: |
-          pip install --quiet pytest
+          # ⚠️ LA SUITE ENTIÈRE, DONC SES DÉPENDANCES ENTIÈRES.
+          # Cette ligne installait `pytest` SEUL. Le 12/09, la garde a refusé
+          # de publier sur un ModuleNotFoundError : `tests/test_workflow_tests.py`
+          # importe `yaml`, déclaré dans requirements_dev.txt que ce workflow
+          # n'installait pas. Les données étaient saines — 80/80 titres, 12/12
+          # contrôles de séance — et rien n'est parti, ce qui est le bon
+          # comportement ; mais l'échec venait de l'outillage, pas des données.
+          #
+          # Faire tourner la suite complète avec un sous-ensemble de ses
+          # dépendances, c'est se préparer à un rouge qu'on finira par
+          # contourner. `tests.yml` installe requirements_dev.txt ; ici aussi.
+          pip install --quiet -r requirements_dev.txt
           echo "Suite complète sur le data.json généré, AVANT publication."
           python -m pytest --tb=short -q
 
@@ -304,7 +315,18 @@ jobs:
         if: always()
         continue-on-error: true
         run: |
-          pip install --quiet pytest
+          # ⚠️ LA SUITE ENTIÈRE, DONC SES DÉPENDANCES ENTIÈRES.
+          # Cette ligne installait `pytest` SEUL. Le 12/09, la garde a refusé
+          # de publier sur un ModuleNotFoundError : `tests/test_workflow_tests.py`
+          # importe `yaml`, déclaré dans requirements_dev.txt que ce workflow
+          # n'installait pas. Les données étaient saines — 80/80 titres, 12/12
+          # contrôles de séance — et rien n'est parti, ce qui est le bon
+          # comportement ; mais l'échec venait de l'outillage, pas des données.
+          #
+          # Faire tourner la suite complète avec un sous-ensemble de ses
+          # dépendances, c'est se préparer à un rouge qu'on finira par
+          # contourner. `tests.yml` installe requirements_dev.txt ; ici aussi.
+          pip install --quiet -r requirements_dev.txt
           python -m pytest --tb=line -q || echo "::warning::La suite de tests signale un écart sur les données publiées."
 
       # ── 4b. Contrôle qualité ──────────────────────────────
