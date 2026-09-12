@@ -169,7 +169,15 @@ jobs:
         run: |
           echo "## Filet de sécurité" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          python -m pytest --collect-only -q 2>/dev/null | tail -1 \
+          # ⚠️ `tail -1` attrapait la ligne VIDE de fin : le résumé annonçait
+          # « Tests collectés : » suivi de rien. Un résumé qui ne dit rien
+          # laisse croire qu'on a regardé.
+          # ⚠️ Le total n'apparaît PAS avec `-q` : cette forme ne liste que
+          # les comptes par fichier, et `tail -1` attrapait la ligne vide de
+          # fin. Le résumé annonçait « Tests collectés : » suivi de rien — un
+          # résumé qui ne dit rien laisse croire qu'on a regardé.
+          python -m pytest --collect-only 2>/dev/null \
+            | grep -E "[0-9]+ tests? collected" | tail -1 \
             | sed 's/^/- Tests collectés : /' >> $GITHUB_STEP_SUMMARY || true
           echo "- Déclencheur : ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- Fichier jugé : celui GÉNÉRÉ par ce code, pas celui du dépôt" >> $GITHUB_STEP_SUMMARY
