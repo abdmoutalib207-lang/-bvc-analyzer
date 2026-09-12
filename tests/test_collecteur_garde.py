@@ -50,6 +50,11 @@ def serie_factice(n: int = 40, base: float = 100.0) -> "pd.DataFrame":
 def parcours(tmp_path, monkeypatch):
     """Le vrai `run()`, avec une source simulée et un dossier jetable."""
     monkeypatch.setattr(col, "XLSX_DIR", tmp_path / "xlsx")
+    # ⚠️ Le dossier `sources/` du DÉPÔT ne doit pas entrer dans un test.
+    # Le jour où un export MSA y est déposé, `load_export()` le trouve et le
+    # parcours change sous le test sans que le test ait bougé. Un test qui
+    # dépend du contenu du dépôt ne décrit plus le code.
+    monkeypatch.setattr(col, "SOURCES_DIR", tmp_path / "sources_absentes")
     monkeypatch.setattr(col, "MANUAL_MAP",
                         {"MSA": "Marsa Maroc", "CDM": "Crédit du Maroc"})
     monkeypatch.setattr(col, "load_xlsx", lambda t: serie_factice())
