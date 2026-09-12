@@ -96,6 +96,43 @@ def test_l_identite_est_exigee_avant_tout_rapprochement():
     from confronter_historique import confronter
     src = (RACINE / "pipeline" / "confronter_historique.py").read_text(encoding="utf-8")
     i_id = src.index("identite_de_l_export(chemin)")
-    i_cmp = src.index("exp = lire_export(chemin)")
+    i_cmp = src.index("brut = lire_export(chemin)")
     assert i_id < i_cmp, "les séries sont lues avant que l'identité soit établie"
     assert "_arret" in src, "aucun arrêt prévu quand l'identité n'est pas portée"
+
+
+def test_un_defaut_d_echelle_n_est_pas_compte_comme_des_ecarts_isoles():
+    """⚠️ SOT annonçait 519 écarts là où il y a UN défaut d'échelle sur un
+    segment. Présenter un défaut unique comme 486 écarts trompe sur sa nature
+    autant que sur son nombre."""
+    f = DOSSIER / "corrections_SOT.json"
+    if not f.exists():
+        pytest.skip("SOT non confronté")
+    r = json.loads(f.read_text(encoding="utf-8"))
+    ech = [p for p in r["propositions"] if p["type"] == "remettre_a_l_echelle"]
+    sig = [p for p in r["propositions"] if p["type"] == "signaler"]
+    assert ech, "le défaut d'échelle de SOT n'est pas détecté"
+    assert sig and sig[0]["nombre"] < ech[0]["nombre"], (
+        "les séances du segment à l'échelle sont recomptées comme des écarts")
+
+
+def test_aucune_suppression_hors_de_la_periode_couverte_par_l_export():
+    """⚠️ Ma première version proposait de retirer 68 séances de HPS, dont 67
+    ANTÉRIEURES au premier jour de l'export. L'export ne les cote pas parce
+    qu'il commence plus tard — pas parce qu'elles n'ont pas eu lieu."""
+    import sys as _s
+    _s.path.insert(0, str(RACINE / "pipeline"))
+    from corrections_candidates import _exp
+    for f, r in _propositions():
+        t = r["ticker"]
+        try:
+            bornes = (min(_exp(t)), max(_exp(t)))
+        except Exception:
+            continue
+        for p in r["propositions"]:
+            if p["type"] != "retirer":
+                continue
+            for d in p["seances"]:
+                assert bornes[0] <= d <= bornes[1], (
+                    f"{t} : suppression proposée pour {d}, hors de la période "
+                    f"couverte par l'export {bornes}")

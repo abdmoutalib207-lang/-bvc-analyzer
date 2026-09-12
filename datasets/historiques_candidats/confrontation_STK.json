@@ -1,0 +1,272 @@
+{
+  "_quoi": "confrontation de notre historique STK à l'export de l'opérateur",
+  "ticker": "STK",
+  "piece": {
+    "fichier": "cf64c89e-Cours_SNA_2023-09-13_2026-09-12.csv",
+    "sha256": "97214660d5c910fe550298b8d46211e30092f2151ed021de00ee43c2636fb4ce",
+    "octets": 68418
+  },
+  "identite": {
+    "instrument_porte": "STOKVIS NORD AFRIQUE",
+    "ticker_porte": "SNA",
+    "constante_sur": 735,
+    "autorisation": "nom exact",
+    "_lecture": "établie AVANT tout rapprochement, sur la ligne du cours"
+  },
+  "colonnes_et_unites": {
+    "ouverture": {
+      "colonne": "Ouverture",
+      "unite": "cours en dirhams"
+    },
+    "cloture": {
+      "colonne": "Dernier Cours",
+      "unite": "cours en dirhams"
+    },
+    "plus_haut": {
+      "colonne": "Plus Haut",
+      "unite": "cours en dirhams"
+    },
+    "plus_bas": {
+      "colonne": "Plus Bas",
+      "unite": "cours en dirhams"
+    },
+    "volume_mad": {
+      "colonne": "Volume (MAD)",
+      "unite": "MONTANT échangé, en dirhams"
+    },
+    "titres_echanges": {
+      "colonne": "Titres Échangés",
+      "unite": "NOMBRE de titres"
+    },
+    "nb_transactions": {
+      "colonne": "Nb Transactions",
+      "unite": "nombre de transactions"
+    },
+    "capitalisation": {
+      "colonne": "Capitalisation",
+      "unite": "capitalisation en dirhams"
+    }
+  },
+  "splits": {
+    "appliques_a_l_export": [],
+    "_lecture": "aucune opération déclarée pour ce titre dans SPLITS"
+  },
+  "periodes": {
+    "export": [
+      "2023-09-13",
+      "2026-09-11"
+    ],
+    "chez_nous": [
+      "2026-06-19",
+      "2026-09-11"
+    ],
+    "seances_export": 735,
+    "seances_chez_nous": 53
+  },
+  "couverture": {
+    "communes": 52,
+    "anterieures_a_notre_historique": 680,
+    "manquantes_dans_notre_plage": [
+      "2026-06-22",
+      "2026-06-23",
+      "2026-06-24"
+    ],
+    "chez_nous_mais_pas_chez_l_operateur": [
+      "2026-07-30"
+    ]
+  },
+  "clotures": {
+    "comparables": 52,
+    "identiques": 24,
+    "divergentes": 28,
+    "part_identiques_pct": 46.2,
+    "par_mois": {
+      "2026-06": 5,
+      "2026-07": 22,
+      "2026-08": 1
+    },
+    "ecart_median_pct": 8.88,
+    "ecart_max_pct": 571.23,
+    "superieurs_a_20_pct": 3,
+    "detail": [
+      {
+        "seance": "2026-06-19",
+        "notre_cloture": 77.9,
+        "operateur": 76.01,
+        "ecart_pct": 2.49
+      },
+      {
+        "seance": "2026-06-25",
+        "notre_cloture": 73.09,
+        "operateur": 73.99,
+        "ecart_pct": -1.22
+      },
+      {
+        "seance": "2026-06-26",
+        "notre_cloture": 73.09,
+        "operateur": 73.01,
+        "ecart_pct": 0.11
+      },
+      {
+        "seance": "2026-06-29",
+        "notre_cloture": 73.09,
+        "operateur": 73.95,
+        "ecart_pct": -1.16
+      },
+      {
+        "seance": "2026-06-30",
+        "notre_cloture": 490.0,
+        "operateur": 73.0,
+        "ecart_pct": 571.23
+      },
+      {
+        "seance": "2026-07-01",
+        "notre_cloture": 490.0,
+        "operateur": 74.2,
+        "ecart_pct": 560.38
+      },
+      {
+        "seance": "2026-07-02",
+        "notre_cloture": 490.0,
+        "operateur": 73.02,
+        "ecart_pct": 571.05
+      },
+      {
+        "seance": "2026-07-03",
+        "notre_cloture": 74.2,
+        "operateur": 73.05,
+        "ecart_pct": 1.57
+      },
+      {
+        "seance": "2026-07-06",
+        "notre_cloture": 74.2,
+        "operateur": 72.05,
+        "ecart_pct": 2.98
+      },
+      {
+        "seance": "2026-07-07",
+        "notre_cloture": 74.2,
+        "operateur": 72.5,
+        "ecart_pct": 2.34
+      },
+      {
+        "seance": "2026-07-08",
+        "notre_cloture": 74.2,
+        "operateur": 72.15,
+        "ecart_pct": 2.84
+      },
+      {
+        "seance": "2026-07-09",
+        "notre_cloture": 74.2,
+        "operateur": 71.0,
+        "ecart_pct": 4.51
+      },
+      {
+        "seance": "2026-07-10",
+        "notre_cloture": 74.2,
+        "operateur": 71.0,
+        "ecart_pct": 4.51
+      },
+      {
+        "seance": "2026-07-13",
+        "notre_cloture": 74.2,
+        "operateur": 69.69,
+        "ecart_pct": 6.47
+      },
+      {
+        "seance": "2026-07-14",
+        "notre_cloture": 74.2,
+        "operateur": 68.0,
+        "ecart_pct": 9.12
+      },
+      {
+        "seance": "2026-07-15",
+        "notre_cloture": 74.2,
+        "operateur": 68.1,
+        "ecart_pct": 8.96
+      },
+      {
+        "seance": "2026-07-16",
+        "notre_cloture": 74.2,
+        "operateur": 67.99,
+        "ecart_pct": 9.13
+      },
+      {
+        "seance": "2026-07-17",
+        "notre_cloture": 74.2,
+        "operateur": 67.12,
+        "ecart_pct": 10.55
+      },
+      {
+        "seance": "2026-07-20",
+        "notre_cloture": 74.2,
+        "operateur": 68.0,
+        "ecart_pct": 9.12
+      },
+      {
+        "seance": "2026-07-21",
+        "notre_cloture": 74.2,
+        "operateur": 68.2,
+        "ecart_pct": 8.8
+      },
+      {
+        "seance": "2026-07-22",
+        "notre_cloture": 74.2,
+        "operateur": 68.99,
+        "ecart_pct": 7.55
+      },
+      {
+        "seance": "2026-07-23",
+        "notre_cloture": 74.2,
+        "operateur": 68.99,
+        "ecart_pct": 7.55
+      },
+      {
+        "seance": "2026-07-24",
+        "notre_cloture": 74.2,
+        "operateur": 68.02,
+        "ecart_pct": 9.09
+      },
+      {
+        "seance": "2026-07-27",
+        "notre_cloture": 74.2,
+        "operateur": 68.1,
+        "ecart_pct": 8.96
+      },
+      {
+        "seance": "2026-07-28",
+        "notre_cloture": 74.2,
+        "operateur": 68.02,
+        "ecart_pct": 9.09
+      },
+      {
+        "seance": "2026-07-29",
+        "notre_cloture": 74.2,
+        "operateur": 67.5,
+        "ecart_pct": 9.93
+      },
+      {
+        "seance": "2026-07-31",
+        "notre_cloture": 74.2,
+        "operateur": 66.16,
+        "ecart_pct": 12.15
+      },
+      {
+        "seance": "2026-08-03",
+        "notre_cloture": 74.2,
+        "operateur": 66.81,
+        "ecart_pct": 11.06
+      }
+    ]
+  },
+  "echelle_systematique": null,
+  "champ_v": {
+    "comparables": 52,
+    "suit_le_montant_mad": 0,
+    "part_mad": 0.0,
+    "suit_le_nombre_de_titres": 21,
+    "part_titres": 40.4,
+    "_lecture": "⚠️ mesure propre à CE titre. Elle ne s'étend à aucun autre : la convention du champ varie d'un titre à l'autre et, sur un même titre, selon les périodes."
+  },
+  "_ce_qui_n_est_pas_etabli": "⚠️ Un écart est un ÉCART. L'export est la publication de l'opérateur, pas une preuve d'exactitude. Aucune correction n'est appliquée ici : les propositions vont dans une couche candidate."
+}

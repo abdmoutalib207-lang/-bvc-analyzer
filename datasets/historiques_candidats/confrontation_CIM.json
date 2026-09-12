@@ -1,0 +1,400 @@
+{
+  "_quoi": "confrontation de notre historique CIM à l'export de l'opérateur",
+  "ticker": "CIM",
+  "piece": {
+    "fichier": "56ad837f-Cours_CMA___2023-09-13_2026-09-12.csv",
+    "sha256": "b25f5096ba67cb62eb1e712094df1bda037bad2ac228c3796d8c9fe0761dfb34",
+    "octets": 72039
+  },
+  "identite": {
+    "instrument_porte": "CIMENTS DU MAROC",
+    "ticker_porte": "CMA",
+    "constante_sur": 735,
+    "autorisation": "nom exact",
+    "_lecture": "établie AVANT tout rapprochement, sur la ligne du cours"
+  },
+  "colonnes_et_unites": {
+    "ouverture": {
+      "colonne": "Ouverture",
+      "unite": "cours en dirhams"
+    },
+    "cloture": {
+      "colonne": "Dernier Cours",
+      "unite": "cours en dirhams"
+    },
+    "plus_haut": {
+      "colonne": "Plus Haut",
+      "unite": "cours en dirhams"
+    },
+    "plus_bas": {
+      "colonne": "Plus Bas",
+      "unite": "cours en dirhams"
+    },
+    "volume_mad": {
+      "colonne": "Volume (MAD)",
+      "unite": "MONTANT échangé, en dirhams"
+    },
+    "titres_echanges": {
+      "colonne": "Titres Échangés",
+      "unite": "NOMBRE de titres"
+    },
+    "nb_transactions": {
+      "colonne": "Nb Transactions",
+      "unite": "nombre de transactions"
+    },
+    "capitalisation": {
+      "colonne": "Capitalisation",
+      "unite": "capitalisation en dirhams"
+    }
+  },
+  "splits": {
+    "appliques_a_l_export": [],
+    "_lecture": "aucune opération déclarée pour ce titre dans SPLITS"
+  },
+  "periodes": {
+    "export": [
+      "2023-09-13",
+      "2026-09-11"
+    ],
+    "chez_nous": [
+      "2026-05-11",
+      "2026-09-11"
+    ],
+    "seances_export": 735,
+    "seances_chez_nous": 77
+  },
+  "couverture": {
+    "communes": 76,
+    "anterieures_a_notre_historique": 655,
+    "manquantes_dans_notre_plage": [
+      "2026-06-10",
+      "2026-06-22",
+      "2026-06-23",
+      "2026-06-24"
+    ],
+    "chez_nous_mais_pas_chez_l_operateur": [
+      "2026-07-30"
+    ]
+  },
+  "clotures": {
+    "comparables": 76,
+    "identiques": 27,
+    "divergentes": 49,
+    "part_identiques_pct": 35.5,
+    "par_mois": {
+      "2026-05": 12,
+      "2026-06": 16,
+      "2026-07": 20,
+      "2026-08": 1
+    },
+    "ecart_median_pct": 2.37,
+    "ecart_max_pct": 233.27,
+    "superieurs_a_20_pct": 20,
+    "detail": [
+      {
+        "seance": "2026-05-11",
+        "notre_cloture": 5071.0,
+        "operateur": 1700.0,
+        "ecart_pct": 198.29
+      },
+      {
+        "seance": "2026-05-12",
+        "notre_cloture": 4989.0,
+        "operateur": 1690.0,
+        "ecart_pct": 195.21
+      },
+      {
+        "seance": "2026-05-13",
+        "notre_cloture": 5449.0,
+        "operateur": 1685.0,
+        "ecart_pct": 223.38
+      },
+      {
+        "seance": "2026-05-14",
+        "notre_cloture": 5199.0,
+        "operateur": 1680.0,
+        "ecart_pct": 209.46
+      },
+      {
+        "seance": "2026-05-15",
+        "notre_cloture": 4680.0,
+        "operateur": 1656.0,
+        "ecart_pct": 182.61
+      },
+      {
+        "seance": "2026-05-18",
+        "notre_cloture": 4810.0,
+        "operateur": 1650.0,
+        "ecart_pct": 191.52
+      },
+      {
+        "seance": "2026-05-19",
+        "notre_cloture": 4350.0,
+        "operateur": 1600.0,
+        "ecart_pct": 171.88
+      },
+      {
+        "seance": "2026-05-20",
+        "notre_cloture": 4375.0,
+        "operateur": 1581.0,
+        "ecart_pct": 176.72
+      },
+      {
+        "seance": "2026-05-21",
+        "notre_cloture": 4547.0,
+        "operateur": 1591.0,
+        "ecart_pct": 185.8
+      },
+      {
+        "seance": "2026-05-22",
+        "notre_cloture": 4583.0,
+        "operateur": 1600.0,
+        "ecart_pct": 186.44
+      },
+      {
+        "seance": "2026-05-25",
+        "notre_cloture": 4850.0,
+        "operateur": 1671.0,
+        "ecart_pct": 190.25
+      },
+      {
+        "seance": "2026-05-26",
+        "notre_cloture": 5000.0,
+        "operateur": 1650.0,
+        "ecart_pct": 203.03
+      },
+      {
+        "seance": "2026-06-01",
+        "notre_cloture": 5499.0,
+        "operateur": 1650.0,
+        "ecart_pct": 233.27
+      },
+      {
+        "seance": "2026-06-02",
+        "notre_cloture": 5200.0,
+        "operateur": 1630.0,
+        "ecart_pct": 219.02
+      },
+      {
+        "seance": "2026-06-03",
+        "notre_cloture": 5200.0,
+        "operateur": 1613.0,
+        "ecart_pct": 222.38
+      },
+      {
+        "seance": "2026-06-04",
+        "notre_cloture": 5133.0,
+        "operateur": 1645.0,
+        "ecart_pct": 212.04
+      },
+      {
+        "seance": "2026-06-05",
+        "notre_cloture": 4905.0,
+        "operateur": 1640.0,
+        "ecart_pct": 199.09
+      },
+      {
+        "seance": "2026-06-08",
+        "notre_cloture": 4700.0,
+        "operateur": 1695.0,
+        "ecart_pct": 177.29
+      },
+      {
+        "seance": "2026-06-09",
+        "notre_cloture": 4770.0,
+        "operateur": 1650.0,
+        "ecart_pct": 189.09
+      },
+      {
+        "seance": "2026-06-11",
+        "notre_cloture": 4770.0,
+        "operateur": 1600.0,
+        "ecart_pct": 198.12
+      },
+      {
+        "seance": "2026-06-12",
+        "notre_cloture": 1650.0,
+        "operateur": 1595.0,
+        "ecart_pct": 3.45
+      },
+      {
+        "seance": "2026-06-15",
+        "notre_cloture": 1650.0,
+        "operateur": 1690.0,
+        "ecart_pct": -2.37
+      },
+      {
+        "seance": "2026-06-16",
+        "notre_cloture": 1690.0,
+        "operateur": 1689.0,
+        "ecart_pct": 0.06
+      },
+      {
+        "seance": "2026-06-18",
+        "notre_cloture": 1660.0,
+        "operateur": 1690.0,
+        "ecart_pct": -1.78
+      },
+      {
+        "seance": "2026-06-25",
+        "notre_cloture": 1640.0,
+        "operateur": 1631.0,
+        "ecart_pct": 0.55
+      },
+      {
+        "seance": "2026-06-26",
+        "notre_cloture": 1674.0,
+        "operateur": 1659.0,
+        "ecart_pct": 0.9
+      },
+      {
+        "seance": "2026-06-29",
+        "notre_cloture": 1638.0,
+        "operateur": 1658.0,
+        "ecart_pct": -1.21
+      },
+      {
+        "seance": "2026-06-30",
+        "notre_cloture": 1688.0,
+        "operateur": 1642.0,
+        "ecart_pct": 2.8
+      },
+      {
+        "seance": "2026-07-01",
+        "notre_cloture": 1680.0,
+        "operateur": 1690.0,
+        "ecart_pct": -0.59
+      },
+      {
+        "seance": "2026-07-02",
+        "notre_cloture": 1695.0,
+        "operateur": 1690.0,
+        "ecart_pct": 0.3
+      },
+      {
+        "seance": "2026-07-03",
+        "notre_cloture": 1699.0,
+        "operateur": 1690.0,
+        "ecart_pct": 0.53
+      },
+      {
+        "seance": "2026-07-06",
+        "notre_cloture": 1648.0,
+        "operateur": 1645.0,
+        "ecart_pct": 0.18
+      },
+      {
+        "seance": "2026-07-07",
+        "notre_cloture": 1645.0,
+        "operateur": 1631.0,
+        "ecart_pct": 0.86
+      },
+      {
+        "seance": "2026-07-08",
+        "notre_cloture": 1631.0,
+        "operateur": 1650.0,
+        "ecart_pct": -1.15
+      },
+      {
+        "seance": "2026-07-09",
+        "notre_cloture": 1622.0,
+        "operateur": 1620.0,
+        "ecart_pct": 0.12
+      },
+      {
+        "seance": "2026-07-10",
+        "notre_cloture": 1660.0,
+        "operateur": 1622.0,
+        "ecart_pct": 2.34
+      },
+      {
+        "seance": "2026-07-13",
+        "notre_cloture": 1686.0,
+        "operateur": 1620.0,
+        "ecart_pct": 4.07
+      },
+      {
+        "seance": "2026-07-14",
+        "notre_cloture": 1655.0,
+        "operateur": 1644.0,
+        "ecart_pct": 0.67
+      },
+      {
+        "seance": "2026-07-15",
+        "notre_cloture": 1645.0,
+        "operateur": 1635.0,
+        "ecart_pct": 0.61
+      },
+      {
+        "seance": "2026-07-16",
+        "notre_cloture": 1635.0,
+        "operateur": 1650.0,
+        "ecart_pct": -0.91
+      },
+      {
+        "seance": "2026-07-17",
+        "notre_cloture": 1635.0,
+        "operateur": 1610.0,
+        "ecart_pct": 1.55
+      },
+      {
+        "seance": "2026-07-20",
+        "notre_cloture": 1610.0,
+        "operateur": 1608.0,
+        "ecart_pct": 0.12
+      },
+      {
+        "seance": "2026-07-21",
+        "notre_cloture": 1610.0,
+        "operateur": 1649.0,
+        "ecart_pct": -2.37
+      },
+      {
+        "seance": "2026-07-22",
+        "notre_cloture": 1610.0,
+        "operateur": 1664.0,
+        "ecart_pct": -3.25
+      },
+      {
+        "seance": "2026-07-23",
+        "notre_cloture": 1667.0,
+        "operateur": 1659.0,
+        "ecart_pct": 0.48
+      },
+      {
+        "seance": "2026-07-27",
+        "notre_cloture": 1645.0,
+        "operateur": 1650.0,
+        "ecart_pct": -0.3
+      },
+      {
+        "seance": "2026-07-28",
+        "notre_cloture": 1650.0,
+        "operateur": 1653.0,
+        "ecart_pct": -0.18
+      },
+      {
+        "seance": "2026-07-29",
+        "notre_cloture": 1640.0,
+        "operateur": 1660.0,
+        "ecart_pct": -1.2
+      },
+      {
+        "seance": "2026-08-03",
+        "notre_cloture": 1669.0,
+        "operateur": 1660.0,
+        "ecart_pct": 0.54
+      }
+    ]
+  },
+  "echelle_systematique": null,
+  "champ_v": {
+    "comparables": 76,
+    "suit_le_montant_mad": 0,
+    "part_mad": 0.0,
+    "suit_le_nombre_de_titres": 21,
+    "part_titres": 27.6,
+    "_lecture": "⚠️ mesure propre à CE titre. Elle ne s'étend à aucun autre : la convention du champ varie d'un titre à l'autre et, sur un même titre, selon les périodes."
+  },
+  "_ce_qui_n_est_pas_etabli": "⚠️ Un écart est un ÉCART. L'export est la publication de l'opérateur, pas une preuve d'exactitude. Aucune correction n'est appliquée ici : les propositions vont dans une couche candidate."
+}

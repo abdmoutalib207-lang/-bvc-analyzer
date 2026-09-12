@@ -83,6 +83,61 @@ def lire_export(chemin: Path) -> dict:
     return {"colonnes": colonnes, "seances": lignes}
 
 
+def ajuster_splits(ticker: str, seances: dict) -> dict:
+    """Ramène l'export à NOTRE échelle quand une opération sur titres a eu lieu.
+
+    ⚠️ SANS CELA, MANAGEM SEMBLERAIT CONTAMINÉ. Nos chandelles sont ajustées
+    du split 10:1 du 27/07/2026 ; l'export de l'opérateur ne l'est pas. Les
+    comparer brutes donnerait un facteur 10 sur trois ans d'historique, qu'un
+    lecteur pressé lirait comme « nos cours sont faux ».
+
+    L'ajustement est déclaré dans le rapport : il ne se devine pas.
+    """
+    from bvc_config import SPLITS
+    splits = SPLITS.get(ticker) or []
+    if not splits:
+        return {"seances": seances, "splits_appliques": []}
+
+    def ratio_mesure(date_effet: str):
+        """Le ratio déduit de la CAPITALISATION de l'opérateur, pas de notre table.
+
+        ⚠️ Confronter notre registre à lui-même ne prouverait rien. Le nombre de
+        titres se déduit de `capitalisation / cours` : s'il est multiplié par N
+        à la date d'effet, le ratio est N. C'est la méthode qui avait tranché
+        l'identité de MRL — une arithmétique qui se recoupe, non deux sources
+        qui se citent.
+        """
+        ds = sorted(seances)
+        if date_effet not in ds:
+            return None
+        i = ds.index(date_effet)
+        def titres(fen):
+            v = [seances[d]["capitalisation"] / seances[d]["cloture"]
+                 for d in fen
+                 if seances[d].get("capitalisation") and seances[d].get("cloture")]
+            return sum(v) / len(v) if v else None
+        av, ap = titres(ds[max(0, i - 30):i]), titres(ds[i:i + 30])
+        if not av or not ap:
+            return None
+        return {"titres_avant": round(av), "titres_apres": round(ap),
+                "ratio_mesure": round(ap / av, 4)}
+    out, appliques = {}, []
+    for d, v in seances.items():
+        w = dict(v)
+        for sp in splits:
+            if d < sp["date"]:
+                for champ in ("ouverture", "cloture", "plus_haut", "plus_bas"):
+                    if w.get(champ) is not None:
+                        w[champ] = round(w[champ] / sp["ratio"], 2)
+                appliques.append(sp["date"])
+        out[d] = w
+    return {"seances": out,
+            "splits_appliques": [{"date": sp["date"], "ratio_declare": sp["ratio"],
+                                  "verification": ratio_mesure(sp["date"]),
+                                  "seances_ajustees": sum(1 for d in seances if d < sp["date"])}
+                                 for sp in splits]}
+
+
 def nos_chandelles(ticker: str, ref: str = "origin/main") -> dict:
     try:
         s = subprocess.check_output(
@@ -144,7 +199,9 @@ def confronter(ticker: str, ref: str = "origin/main") -> dict:
                           "référentiel — AUCUN rapprochement n'est fait"}
 
     # ── 2. Les deux séries ─────────────────────────────────────────────────
-    exp = lire_export(chemin)["seances"]
+    brut = lire_export(chemin)["seances"]
+    aju = ajuster_splits(ticker, brut)
+    exp, splits = aju["seances"], aju["splits_appliques"]
     nous = nos_chandelles(ticker, ref)
     comm = sorted(set(exp) & set(nous))
     debut_nous = min(nous) if nous else None
@@ -167,6 +224,40 @@ def confronter(ticker: str, ref: str = "origin/main") -> dict:
     for e in ecarts:
         par_mois[e["seance"][:7]] = par_mois.get(e["seance"][:7], 0) + 1
 
+    # ⚠️ UNE ÉCHELLE SYSTÉMATIQUE N'EST PAS UNE SÉRIE D'ÉCARTS.
+    # Si le rapport nous/opérateur est CONSTANT sur une longue période, ce
+    # n'est pas du bruit : c'est un facteur appliqué de trop, ou pas appliqué.
+    # Le compter comme « 486 écarts » masquerait un défaut unique.
+    # ⚠️ PAR SEGMENT. Une opération sur titres coupe l'historique en deux
+    # régimes ; mesurer le rapport sur l'ensemble les mélange et n'y voit que
+    # du bruit. Les bornes sont les dates d'effet des splits.
+    bornes = [sp["date"] for sp in splits]
+    segments, deb = [], None
+    for fin in bornes + [None]:
+        seg = [d for d in comm
+               if (deb is None or d >= deb) and (fin is None or d < fin)]
+        segments.append((deb or "début", fin or "fin", seg))
+        deb = fin
+    echelle = []
+    for d1, d2, seg in segments:
+        rap = [nous[d]["c"] / exp[d]["cloture"] for d in seg
+               if nous[d].get("c") and exp[d].get("cloture")]
+        if len(rap) < 30:
+            continue
+        med = statistics.median(rap)
+        disp = (max(rap) - min(rap)) / med if med else None
+        if med and abs(med - 1) > 0.02 and disp is not None and disp < 0.05:
+            echelle.append({
+                "de": d1, "a": d2, "seances": len(rap),
+                "rapport_median": round(med, 4), "facteur": round(1 / med, 2),
+                "dispersion_relative": round(disp, 4),
+                "_lecture": "rapport CONSTANT sur ce segment : défaut d'ÉCHELLE "
+                            "unique, et non une série d'écarts indépendants. "
+                            "Le compter comme N écarts masquerait un seul "
+                            "défaut derrière un grand nombre.",
+            })
+    echelle = echelle or None
+
     comparables = [d for d in comm
                    if nous[d].get("c") is not None and exp[d]["cloture"] is not None]
     pct = [abs(e["ecart_pct"]) for e in ecarts if e["ecart_pct"] is not None]
@@ -187,6 +278,16 @@ def confronter(ticker: str, ref: str = "origin/main") -> dict:
             "_lecture": "établie AVANT tout rapprochement, sur la ligne du cours",
         },
         "colonnes_et_unites": {k: {"colonne": c, "unite": u} for k, (c, u) in COLS.items()},
+        "splits": {
+            "appliques_a_l_export": splits,
+            "_lecture": "⚠️ Nos chandelles sont ajustées des opérations sur "
+                        "titres ; l'export de l'opérateur ne l'est pas. "
+                        "L'ajustement est appliqué À L'EXPORT avant la "
+                        "comparaison, et déclaré ici. Sans lui, un titre "
+                        "ayant subi un split paraîtrait contaminé."
+                        if splits else
+                        "aucune opération déclarée pour ce titre dans SPLITS",
+        },
         "periodes": {
             "export": [min(exp), max(exp)] if exp else [None, None],
             "chez_nous": [debut_nous, max(nous)] if nous else [None, None],
@@ -210,6 +311,7 @@ def confronter(ticker: str, ref: str = "origin/main") -> dict:
             "superieurs_a_20_pct": sum(1 for p in pct if p > 20),
             "detail": ecarts,
         },
+        "echelle_systematique": echelle,
         "champ_v": _unite_du_champ_v(comm, nous, exp),
         "_ce_qui_n_est_pas_etabli":
             "⚠️ Un écart est un ÉCART. L'export est la publication de "

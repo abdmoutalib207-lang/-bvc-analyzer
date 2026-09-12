@@ -14,16 +14,27 @@ TROIS NIVEAUX DE PREUVE, ET ILS NE SE VALENT PAS
   hypothese_a_confirmer  l'écart est constaté, sa cause est supposée
 """
 from __future__ import annotations
-import argparse, csv, json, subprocess
+import argparse, csv, json, subprocess, sys
 from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
+# `bvc_config` vit à la racine ; sans cela l'ajustement des splits lève.
+if str(RACINE) not in sys.path:
+    sys.path.insert(0, str(RACINE))
 SORTIE = RACINE / "datasets" / "historiques_candidats"
 CONTAMINATION = {"MSA": ("2026-05-13", "2026-06-16", "MUT")}
 
 def _exp(t):
-    from confronter_historique import lire_export
-    return lire_export(sorted((RACINE/"sources"/t).glob("*.csv"))[-1])["seances"]
+    """L'export, RAMENÉ À NOTRE ÉCHELLE quand une opération sur titres a eu lieu.
+
+    ⚠️ Ma première version lisait l'export brut. Sur Managem, dont nos
+    chandelles sont ajustées du split 10:1, cela produisait 704 « écarts » là
+    où il y en a 23. Un générateur de corrections qui compare deux échelles
+    différentes ne propose pas des corrections : il en fabrique.
+    """
+    from confronter_historique import lire_export, ajuster_splits
+    brut = lire_export(sorted((RACINE/"sources"/t).glob("*.csv"))[-1])["seances"]
+    return ajuster_splits(t, brut)["seances"]
 
 def _nos(t, ref="origin/main"):
     s = subprocess.check_output(["git","show",f"{ref}:pipeline/candles/{t}.json"],
@@ -81,13 +92,24 @@ def proposer(t, ref="origin/main"):
         })
 
     # ── 3. Séances que nous seuls portons ──────────────────────────────────
-    fantomes = sorted(set(nous) - set(exp))
+    # ⚠️ SEULEMENT DANS LA PÉRIODE QUE L'EXPORT COUVRE. Ma première version
+    # proposait de retirer 68 séances de HPS et de MNG — dont soixante-sept
+    # ANTÉRIEURES au premier jour de l'export. L'export ne les cote pas parce
+    # qu'il commence plus tard, pas parce qu'elles n'ont pas eu lieu.
+    # Proposer leur suppression aurait détruit de l'historique valide.
+    d1, d2 = min(exp), max(exp)
+    fantomes = sorted(d for d in set(nous) - set(exp) if d1 <= d <= d2)
     if fantomes:
         props.append({
             "type": "retirer", "seances": fantomes, "nombre": len(fantomes),
             "preuve": "etabli_par_l_absence",
-            "motif": "l'opérateur ne cote PAS ces séances ; nous les portons. "
-                     "Il les cote la veille et le lendemain.",
+            "motif": "l'opérateur ne cote PAS ces séances alors qu'elles "
+                     "tombent DANS la période qu'il couvre, et qu'il cote la "
+                     "veille et le lendemain.",
+            "_hors_perimetre": f"les séances antérieures à {d1} ne sont pas "
+                               f"concernées : l'export commence à cette date. "
+                               f"Notre profondeur supplémentaire n'est pas un "
+                               f"défaut.",
             "hypothese_sur_la_cause": "le 30/07/2026 est la Fête du Trône. "
                                       "⚠️ Nous ne disposons d'aucun calendrier "
                                       "officiel des fériés : l'attribution est "
@@ -96,9 +118,55 @@ def proposer(t, ref="origin/main"):
             "valeurs_actuelles": [nous[d] for d in fantomes],
         })
 
+    # ── 3bis. Défaut d'ÉCHELLE sur un segment entier ───────────────────────
+    conf = SORTIE / f"confrontation_{t}.json"
+    if conf.exists():
+        c = json.loads(conf.read_text(encoding="utf-8"))
+        for seg in (c.get("echelle_systematique") or []):
+            props.append({
+                "type": "remettre_a_l_echelle", "seances": [seg["de"], seg["a"]],
+                "nombre": seg["seances"], "preuve": "etabli_par_la_mesure",
+                "motif": f"sur {seg['seances']} séances, nos cours valent "
+                         f"{seg['rapport_median']} fois ceux de l'opérateur, avec "
+                         f"une dispersion de {seg['dispersion_relative']*100:.1f} %. "
+                         f"Un rapport CONSTANT n'est pas du bruit : c'est un "
+                         f"facteur {seg['facteur']} appliqué de trop.",
+                "facteur_a_corriger": seg["facteur"],
+                "_comment_le_ratio_est_verifie":
+                    "le ratio du split est déduit de la CAPITALISATION de "
+                    "l'opérateur (capitalisation ÷ cours = nombre de titres), "
+                    "jamais de notre propre registre.",
+                "_conséquence": "AUCUN remplacement automatique n'est écrit ici : "
+                                "remettre à l'échelle 486 séances est une "
+                                "opération à décider, pas à subir.",
+            })
+        for sp in (c.get("splits", {}).get("appliques_a_l_export") or []):
+            v = sp.get("verification") or {}
+            if v and abs(v.get("ratio_mesure", 0) - sp["ratio_declare"]) > 0.01:
+                props.append({
+                    "type": "signaler", "seances": [sp["date"]], "nombre": 1,
+                    "preuve": "etabli_par_la_mesure",
+                    "motif": f"le registre déclare 1:{sp['ratio_declare']} ; la "
+                             f"capitalisation de l'opérateur donne "
+                             f"{v['ratio_mesure']}.",
+                })
+
     # ── 4. Écarts dont la cause n'est pas établie ──────────────────────────
+    # ⚠️ Les séances déjà couvertes par un défaut d'ÉCHELLE en sont exclues.
+    # Sans cela, SOT annonçait 519 « écarts » là où il y a UN défaut sur un
+    # segment et 33 écarts indépendants. Présenter un défaut unique comme 486
+    # écarts trompe sur sa nature autant que sur son nombre.
+    couvert = []
+    for p_ in props:
+        if p_["type"] == "remettre_a_l_echelle":
+            couvert.append((p_["seances"][0], p_["seances"][1]))
+    def _dans_un_segment(d):
+        return any((a == "début" or d >= a) and (b == "fin" or d < b) for a, b in couvert)
+
     petits = []
     for d in sorted(set(exp) & set(nous)):
+        if _dans_un_segment(d):
+            continue
         a, b = nous[d].get("c"), exp[d]["cloture"]
         if a is None or b is None or abs(a - b) <= 0.005: continue
         if t in CONTAMINATION and CONTAMINATION[t][0] <= d <= CONTAMINATION[t][1]:
