@@ -1,0 +1,460 @@
+{
+  "_quoi": "Corrections de séances RÉCEPTIONNÉES pour MSA, réimposées après chaque import.",
+  "_pourquoi_ce_fichier_existe": "⚠️ Corriger les chandelles ne suffit pas : l'import quotidien les réécrit. Mesuré le 15/09/2026 — data/historique/MSA.xlsx s'arrête au 12/05/2026, soit la veille de la première séance contaminée. Les 22 séances viennent donc de l'extension BVCscrap, qui identifie les sociétés par NOM, et `combine()` fait primer ce qui vient d'être téléchargé sur les chandelles stockées. Une correction posée aujourd'hui serait défaite au prochain import.",
+  "_difference_avec_series_acceptees": "⚠️ `datasets/series_acceptees/` REMPLACE la série entière et FIGE le titre — ce qui convient à CMT, suspendu. MSA cote tous les jours : le figer lui interdirait toute séance nouvelle. Ce fichier ne corrige que des séances NOMMÉES et laisse le reste de l'import intact.",
+  "ticker": "MSA",
+  "instrument": "SODEP-Marsa Maroc",
+  "_statut": "RÉCEPTIONNÉ — instruction, pas signalement",
+  "_recu_de": "Abd Moutalib, 15/09/2026 (« Ok pour Marsa »)",
+  "_prepare_par": "datasets/historiques_candidats/MSA_22 (PR #18)",
+  "source": {
+    "fichier": "datasets/historiques_candidats/MSA_22/sources/MSA.csv",
+    "sha256": "f4dba91cebc5d0da2f42fb42476dcc2532ea404a6428f03db67f752c43c8bf3b",
+    "identite_portee_sur_chaque_ligne_de_cours": "MSA / SODEP-Marsa Maroc",
+    "_recoupement": "les 22 clôtures proposées ont été retrouvées 22/22 dans l'export archivé sources/MSA/, empreinte f4dba91cebc5d0da2f42fb42476dcc2532ea404a6428f03db67f752c43c8bf3b"
+  },
+  "_ce_qui_n_est_pas_etabli": "⚠️ Ce lot ne certifie que ces 22 séances. Le reste de la série n'est pas validé : 27 autres écarts de clôture et trois séances manquantes restent ouverts, et l'unité des volumes n'est prouvée que sur ces lignes.",
+  "seances": 22,
+  "lignes": [
+    {
+      "d": "2026-05-13",
+      "corrige": {
+        "o": 850.0,
+        "h": 864.9,
+        "l": 843.0,
+        "c": 843.0,
+        "v": 5857
+      },
+      "remplace": {
+        "o": 239.0,
+        "h": 240.5,
+        "l": 239.0,
+        "c": 239.0,
+        "v": 659
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (4971551.2) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-05-14",
+      "corrige": {
+        "o": 845.0,
+        "h": 849.0,
+        "l": 838.0,
+        "c": 840.0,
+        "v": 9685
+      },
+      "remplace": {
+        "o": 238.1,
+        "h": 239.0,
+        "l": 238.1,
+        "c": 238.1,
+        "v": 1248
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (8157113.7) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-05-15",
+      "corrige": {
+        "o": 839.0,
+        "h": 849.0,
+        "l": 817.0,
+        "c": 832.0,
+        "v": 6098
+      },
+      "remplace": {
+        "o": 238.0,
+        "h": 239.0,
+        "l": 238.0,
+        "c": 238.0,
+        "v": 1761
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (5054781.1) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-05-18",
+      "corrige": {
+        "o": 838.0,
+        "h": 838.0,
+        "l": 813.0,
+        "c": 828.0,
+        "v": 17898
+      },
+      "remplace": {
+        "o": 239.5,
+        "h": 240.0,
+        "l": 236.1,
+        "c": 239.5,
+        "v": 261
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (14818163.0) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-05-19",
+      "corrige": {
+        "o": 837.7,
+        "h": 837.7,
+        "l": 817.0,
+        "c": 817.0,
+        "v": 23574
+      },
+      "remplace": {
+        "o": 236.2,
+        "h": 239.5,
+        "l": 236.1,
+        "c": 236.2,
+        "v": 877
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (19498116.5) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-05-20",
+      "corrige": {
+        "o": 810.0,
+        "h": 829.9,
+        "l": 805.0,
+        "c": 805.2,
+        "v": 9888
+      },
+      "remplace": {
+        "o": 232.0,
+        "h": 240.0,
+        "l": 232.0,
+        "c": 232.0,
+        "v": 2984
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (7977637.4) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-05-21",
+      "corrige": {
+        "o": 810.0,
+        "h": 824.9,
+        "l": 810.0,
+        "c": 820.0,
+        "v": 9096
+      },
+      "remplace": {
+        "o": 234.0,
+        "h": 238.9,
+        "l": 232.15,
+        "c": 234.0,
+        "v": 123
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (7449103.6) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-05-22",
+      "corrige": {
+        "o": 823.0,
+        "h": 825.0,
+        "l": 815.0,
+        "c": 819.0,
+        "v": 7278
+      },
+      "remplace": {
+        "o": 234.0,
+        "h": 237.6,
+        "l": 234.0,
+        "c": 234.0,
+        "v": 648
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (5968717.6) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-05-25",
+      "corrige": {
+        "o": 850.0,
+        "h": 869.0,
+        "l": 841.0,
+        "c": 851.0,
+        "v": 21509
+      },
+      "remplace": {
+        "o": 225.0,
+        "h": 243.95,
+        "l": 225.0,
+        "c": 225.0,
+        "v": 5300
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (18234556.7) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-05-26",
+      "corrige": {
+        "o": 868.0,
+        "h": 868.0,
+        "l": 822.6,
+        "c": 822.6,
+        "v": 7298
+      },
+      "remplace": {
+        "o": 230.05,
+        "h": 238.8,
+        "l": 230.05,
+        "c": 230.05,
+        "v": 2537
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (6057452.6) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-01",
+      "corrige": {
+        "o": 845.0,
+        "h": 845.0,
+        "l": 830.0,
+        "c": 839.0,
+        "v": 11047
+      },
+      "remplace": {
+        "o": 232.2,
+        "h": 237.5,
+        "l": 230.0,
+        "c": 232.2,
+        "v": 1555
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (9251452.1) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-02",
+      "corrige": {
+        "o": 824.0,
+        "h": 850.0,
+        "l": 820.0,
+        "c": 820.2,
+        "v": 36016
+      },
+      "remplace": {
+        "o": 235.0,
+        "h": 237.0,
+        "l": 233.0,
+        "c": 235.0,
+        "v": 479
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (29663383.6) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-03",
+      "corrige": {
+        "o": 823.0,
+        "h": 830.0,
+        "l": 816.5,
+        "c": 816.5,
+        "v": 784
+      },
+      "remplace": {
+        "o": 234.9,
+        "h": 235.0,
+        "l": 234.0,
+        "c": 234.9,
+        "v": 369
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (641879.6) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-04",
+      "corrige": {
+        "o": 830.0,
+        "h": 844.0,
+        "l": 820.3,
+        "c": 820.3,
+        "v": 2399
+      },
+      "remplace": {
+        "o": 230.0,
+        "h": 234.85,
+        "l": 230.0,
+        "c": 230.0,
+        "v": 3883
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (1985703.4) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-05",
+      "corrige": {
+        "o": 837.6,
+        "h": 837.6,
+        "l": 821.3,
+        "c": 824.0,
+        "v": 8563
+      },
+      "remplace": {
+        "o": 231.5,
+        "h": 234.0,
+        "l": 231.5,
+        "c": 231.5,
+        "v": 1034
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (7058524.6) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-08",
+      "corrige": {
+        "o": 820.5,
+        "h": 824.0,
+        "l": 812.0,
+        "c": 824.0,
+        "v": 7156
+      },
+      "remplace": {
+        "o": 236.0,
+        "h": 237.0,
+        "l": 230.0,
+        "c": 236.0,
+        "v": 1621
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (5885988.6) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-09",
+      "corrige": {
+        "o": 824.0,
+        "h": 825.0,
+        "l": 820.0,
+        "c": 820.0,
+        "v": 51389
+      },
+      "remplace": {
+        "o": 231.0,
+        "h": 237.0,
+        "l": 231.0,
+        "c": 231.0,
+        "v": 417
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (42242853.1) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-10",
+      "corrige": {
+        "o": 821.0,
+        "h": 821.0,
+        "l": 812.1,
+        "c": 815.0,
+        "v": 9794
+      },
+      "remplace": {
+        "o": 230.0,
+        "h": 235.0,
+        "l": 230.0,
+        "c": 230.0,
+        "v": 1689
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (7983156.1) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-11",
+      "corrige": {
+        "o": 810.2,
+        "h": 815.0,
+        "l": 800.0,
+        "c": 800.1,
+        "v": 95814
+      },
+      "remplace": {
+        "o": 226.15,
+        "h": 234.9,
+        "l": 226.15,
+        "c": 226.15,
+        "v": 4771
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (76861307.6) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-12",
+      "corrige": {
+        "o": 825.0,
+        "h": 833.1,
+        "l": 812.2,
+        "c": 815.0,
+        "v": 9105
+      },
+      "remplace": {
+        "o": 229.0,
+        "h": 230.0,
+        "l": 227.1,
+        "c": 229.0,
+        "v": 1194
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (7430337.4) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-15",
+      "corrige": {
+        "o": 850.0,
+        "h": 869.0,
+        "l": 841.0,
+        "c": 869.0,
+        "v": 67589
+      },
+      "remplace": {
+        "o": 234.05,
+        "h": 236.0,
+        "l": 231.1,
+        "c": 234.05,
+        "v": 10595
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (57701023.9) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-16",
+      "corrige": {
+        "o": 860.0,
+        "h": 870.0,
+        "l": 860.0,
+        "c": 868.0,
+        "v": 18244
+      },
+      "remplace": {
+        "o": 235.0,
+        "h": 236.85,
+        "l": 232.0,
+        "c": 235.0,
+        "v": 152
+      },
+      "motif": "la bougie portait les cours de MUTANDIS SCA",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (15822446.9) reste distinct et n'est pas écrit"
+    }
+  ]
+}

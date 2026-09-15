@@ -266,7 +266,27 @@ def test_les_deux_operations_sont_nommees_separement():
     assert "--complet" in src and "--rsi-seul" in src
 
 
-def test_hors_CMT_le_cache_livre_ne_differe_que_par_le_rsi():
+def _titres_dont_la_serie_a_change() -> set:
+    """Les titres qu'un recalcul COMPLET a le droit de déplacer.
+
+    ⚠️ Cette liste se LIT dans le dépôt, elle ne se recopie pas. Écrite en dur,
+    elle disait « CMT » — et il aurait fallu y ajouter MSA à la main le jour de
+    sa correction, c'est-à-dire modifier le contrôle pour faire passer la
+    livraison. C'est précisément ce qu'il ne faut pas faire.
+
+    Deux dossiers, deux portées :
+      · `series_acceptees/`      la série ENTIÈRE est remplacée (CMT, suspendu)
+      · `corrections_acceptees/` des séances NOMMÉES sont réécrites (MSA, qui
+                                 cote tous les jours)
+    Dans les deux cas, les anciennes valeurs décrivaient une autre série. Pour
+    tous les autres titres, seul `rsi` peut bouger.
+    """
+    dossiers = (RACINE / "datasets" / "series_acceptees",
+                RACINE / "datasets" / "corrections_acceptees")
+    return {f.stem for d in dossiers if d.exists() for f in d.glob("*.json")}
+
+
+def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():
     """⚠️ Le contrôle sur la LIVRAISON elle-même, pas sur un bac de test."""
     import subprocess
     try:
@@ -277,10 +297,16 @@ def test_hors_CMT_le_cache_livre_ne_differe_que_par_le_rsi():
         pytest.skip("origin/main absent de ce clone")
     livre = json.loads((RACINE / "pipeline" / "historical_data.json")
                        .read_text(encoding="utf-8"))
+    exceptions = _titres_dont_la_serie_a_change()
+    # ⚠️ Une exception qui avalerait tout ne contrôlerait plus rien.
+    assert exceptions, "aucune série réceptionnée : le contrôle n'a plus d'objet"
+    assert len(exceptions) < 10, f"trop d'exceptions ({sorted(exceptions)})"
     fautifs = {}
-    for t in (k for k in base if not k.startswith("_") and k != "CMT"):
+    for t in (k for k in base if not k.startswith("_") and k not in exceptions):
         d = {k for k in set(base[t]) | set(livre.get(t, {}))
              if base[t].get(k) != livre.get(t, {}).get(k)}
         if d - {"rsi"}:
             fautifs[t] = sorted(d - {"rsi"})
-    assert fautifs == {}, f"champs hors rsi modifiés hors CMT : {fautifs}"
+    assert fautifs == {}, (
+        f"champs hors rsi modifiés sur des titres dont la série n'a pas "
+        f"changé : {fautifs}")
