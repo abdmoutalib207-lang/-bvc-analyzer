@@ -466,6 +466,14 @@ def save_candle_file(ticker: str, df: pd.DataFrame, candles_dir: Path) -> None:
     out.write_text(json.dumps(candles, ensure_ascii=False), encoding="utf-8")
 
 
+# ⚠️ Chemin inséré explicitement : ce fichier est tantôt exécuté comme script
+# (son dossier est alors dans sys.path), tantôt chargé par son chemin depuis
+# recalculer_cache.py. Sans cette ligne, l'import échouerait dans le second cas
+# et le collecteur tomberait sur un ModuleNotFoundError en production — c'est
+# exactement ce qui est arrivé le 12/09 avec `identites`.
+sys.path.insert(0, str(Path(__file__).parent))
+from corrections_acceptees import appliquer as appliquer_corrections  # noqa: E402
+
 SERIES_ACCEPTEES = Path(__file__).parent.parent / "datasets" / "series_acceptees"
 
 
@@ -593,6 +601,39 @@ def run(tickers_filter: list[str] | None = None) -> dict:
                             log.info(f"  +{len(newer)} bougies préservées depuis candle file")
             except Exception:
                 pass
+
+        # ── Séances corrigées et RÉCEPTIONNÉES, réimposées ────────────────
+        #
+        # ⚠️ ELLES DOIVENT ÊTRE RÉIMPOSÉES ICI, ET PAS SEULEMENT DANS LE
+        # FICHIER. Mesuré le 15/09/2026 sur MSA : `data/historique/MSA.xlsx`
+        # s'arrête au 12/05/2026, soit la veille de la première séance
+        # contaminée. Les 22 séances en cause viennent donc de l'extension
+        # BVCscrap — identification par NOM, la voie même par laquelle les
+        # cours de Mutandis sont entrés — et le bloc ci-dessus ne reprend les
+        # chandelles stockées que pour les dates POSTÉRIEURES au téléchargé.
+        # Une correction posée à la main aurait vécu moins d'une journée, et
+        # la valeur fausse serait revenue sans bruit.
+        #
+        # ⚠️ Placé AVANT `compute_indicators` à dessein : sinon le cache
+        # décrirait la série fausse et le fichier la série juste.
+        if not df.empty:
+            bougies = [{"d": str(r["date"])[:10], "o": r["open"], "h": r["high"],
+                        "l": r["low"], "c": r["close"], "v": r["volume"]}
+                       for _, r in df.iterrows()]
+            corrigees, rapport = appliquer_corrections(ticker, bougies)
+            if rapport["corrections"] or rapport["refus"] or rapport["seances_absentes"]:
+                log.warning(
+                    f"  {ticker}: {rapport['corrections']} séance(s) corrigée(s) "
+                    f"réimposée(s), {rapport['deja_conformes']} déjà conforme(s)"
+                    + (f", {len(rapport['refus'])} REFUS" if rapport["refus"] else "")
+                    + (f", {len(rapport['seances_absentes'])} absente(s) de la série"
+                       if rapport["seances_absentes"] else ""))
+                for r in rapport["refus"]:
+                    log.warning(f"     refus {r['seance']} : {r['motif']}")
+            if rapport["corrections"]:
+                df = pd.DataFrame([{"date": pd.Timestamp(b["d"]), "open": b["o"],
+                                    "high": b["h"], "low": b["l"], "close": b["c"],
+                                    "volume": b["v"]} for b in corrigees])
 
         if df.empty or len(df) < 14:
             log.warning(f"  {ticker}: historique insuffisant ({len(df)} bougies) — ignoré")
