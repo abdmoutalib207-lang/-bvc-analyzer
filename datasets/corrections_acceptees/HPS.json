@@ -1,0 +1,1802 @@
+{
+  "_quoi": "Corrections de séances RÉCEPTIONNÉES pour HPS.",
+  "_pourquoi": "⚠️ Le fractionnement du 09/10/2023 n'a JAMAIS été répercuté sur l'historique. Notre série passe de 6 400,00 à 658,00 entre le 06 et le 09/10 : le graphique montre une chute de 90 % qui n'a pas eu lieu, et toutes les moyennes longues la traversent.",
+  "_le_ratio_est_MESURÉ_pas_supposé": "capitalisation ÷ cours, sur les deux séances qui ENCADRENT la date d'effet : 4 739 961 600 ÷ 6 400 = 740 619 titres au 06/10, puis 4 873 273 020 ÷ 658 = 7 406 190 au 09/10. Exactement ×10.",
+  "_ce_que_la_confrontation_a_d_abord_manqué": "⚠️ Ma première lecture concluait que le split « n'apparaissait pas » : je cherchais un écart entre NOTRE série et l'export, et il n'y en a pas — l'opérateur publie lui aussi les cours BRUTS. Les deux séries portent la même marche. C'est un test sur la série elle-même, et non sur l'écart, qui l'a retrouvée.",
+  "_base_retenue": "⚠️ Les prix antérieurs sont ramenés à la base POSTÉRIEURE, en divisant par 10. Les quantités ne sont PAS converties et restent sur la base antérieure.",
+  "_pourquoi_le_registre_SPLITS_n_est_pas_touche": "⚠️ La procédure du 01/08/2026 prévoit d'ajouter l'entrée dans `SPLITS`. Je ne le fais PAS ici : cela changerait le traitement des données FRAÎCHEMENT téléchargées, un effet que ce lot ne mesure pas. Cette couche impose des valeurs absolues et suffit à l'historique. L'entrée au registre reste à décider, séparément.",
+  "ticker": "HPS",
+  "instrument": "HPS",
+  "_statut": "RÉCEPTIONNÉ — instruction, pas signalement",
+  "_recu_de": "Abd Moutalib — export HPS archivé",
+  "source": {
+    "fichier": "sources/HPS/ec65bf7d-Cours_HPS___2023-09-13_2026-09-12.csv",
+    "sha256": "f81cf1d937764f28fcad633fd09e2c109dff43605a81565c90c56ba9ae62fbf1",
+    "code_operateur": "HPS",
+    "identite_portee_sur_chaque_ligne_de_cours": "HPS / HPS"
+  },
+  "_ce_qui_n_est_pas_corrige_ici": "18 séances s'écartent de l'export sans écart d'ordre de grandeur — même famille que les bougies construites par instantanés. Cause non établie.",
+  "seances": 89,
+  "lignes": [
+    {
+      "d": "2023-06-05",
+      "corrige": {
+        "o": 589.0,
+        "h": 589.0,
+        "l": 589.0,
+        "c": 589.0,
+        "v": 5778090
+      },
+      "remplace": {
+        "o": 5890.0,
+        "h": 5890.0,
+        "l": 5890.0,
+        "c": 5890.0,
+        "v": 5778090
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-06",
+      "corrige": {
+        "o": 587.5,
+        "h": 587.5,
+        "l": 563.0,
+        "c": 563.0,
+        "v": 4477810
+      },
+      "remplace": {
+        "o": 5875.0,
+        "h": 5875.0,
+        "l": 5630.0,
+        "c": 5630.0,
+        "v": 4477810
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-07",
+      "corrige": {
+        "o": 578.0,
+        "h": 578.0,
+        "l": 578.0,
+        "c": 578.0,
+        "v": 502860
+      },
+      "remplace": {
+        "o": 5780.0,
+        "h": 5780.0,
+        "l": 5780.0,
+        "c": 5780.0,
+        "v": 502860
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-08",
+      "corrige": {
+        "o": 563.0,
+        "h": 574.0,
+        "l": 563.0,
+        "c": 574.0,
+        "v": 5887200
+      },
+      "remplace": {
+        "o": 5630.0,
+        "h": 5740.0,
+        "l": 5630.0,
+        "c": 5740.0,
+        "v": 5887200
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-09",
+      "corrige": {
+        "o": 578.9,
+        "h": 578.9,
+        "l": 578.9,
+        "c": 578.9,
+        "v": 2228765
+      },
+      "remplace": {
+        "o": 5789.0,
+        "h": 5789.0,
+        "l": 5789.0,
+        "c": 5789.0,
+        "v": 2228765
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-12",
+      "corrige": {
+        "o": 573.0,
+        "h": 573.0,
+        "l": 573.0,
+        "c": 573.0,
+        "v": 343800
+      },
+      "remplace": {
+        "o": 5730.0,
+        "h": 5730.0,
+        "l": 5730.0,
+        "c": 5730.0,
+        "v": 343800
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-13",
+      "corrige": {
+        "o": 580.0,
+        "h": 580.0,
+        "l": 580.0,
+        "c": 580.0,
+        "v": 5800
+      },
+      "remplace": {
+        "o": 5800.0,
+        "h": 5800.0,
+        "l": 5800.0,
+        "c": 5800.0,
+        "v": 5800
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-14",
+      "corrige": {
+        "o": 578.0,
+        "h": 585.0,
+        "l": 573.1,
+        "c": 585.0,
+        "v": 2264706
+      },
+      "remplace": {
+        "o": 5780.0,
+        "h": 5850.0,
+        "l": 5731.0,
+        "c": 5850.0,
+        "v": 2264706
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-15",
+      "corrige": {
+        "o": 575.0,
+        "h": 600.0,
+        "l": 575.0,
+        "c": 595.0,
+        "v": 1211798
+      },
+      "remplace": {
+        "o": 5750.0,
+        "h": 6000.0,
+        "l": 5750.0,
+        "c": 5950.0,
+        "v": 1211798
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-16",
+      "corrige": {
+        "o": 590.0,
+        "h": 590.0,
+        "l": 590.0,
+        "c": 590.0,
+        "v": 1150500
+      },
+      "remplace": {
+        "o": 5900.0,
+        "h": 5900.0,
+        "l": 5900.0,
+        "c": 5900.0,
+        "v": 1150500
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-19",
+      "corrige": {
+        "o": 577.5,
+        "h": 590.0,
+        "l": 577.5,
+        "c": 590.0,
+        "v": 35275
+      },
+      "remplace": {
+        "o": 5775.0,
+        "h": 5900.0,
+        "l": 5775.0,
+        "c": 5900.0,
+        "v": 35275
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-20",
+      "corrige": {
+        "o": 576.3,
+        "h": 594.9,
+        "l": 576.0,
+        "c": 590.0,
+        "v": 6844228
+      },
+      "remplace": {
+        "o": 5763.0,
+        "h": 5949.0,
+        "l": 5760.0,
+        "c": 5900.0,
+        "v": 6844228
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-21",
+      "corrige": {
+        "o": 595.0,
+        "h": 595.0,
+        "l": 589.0,
+        "c": 589.0,
+        "v": 6522625
+      },
+      "remplace": {
+        "o": 5950.0,
+        "h": 5950.0,
+        "l": 5890.0,
+        "c": 5890.0,
+        "v": 6522625
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-22",
+      "corrige": {
+        "o": 600.0,
+        "h": 600.0,
+        "l": 600.0,
+        "c": 600.0,
+        "v": 8400000
+      },
+      "remplace": {
+        "o": 6000.0,
+        "h": 6000.0,
+        "l": 6000.0,
+        "c": 6000.0,
+        "v": 8400000
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-23",
+      "corrige": {
+        "o": 589.0,
+        "h": 589.0,
+        "l": 589.0,
+        "c": 589.0,
+        "v": 5430580
+      },
+      "remplace": {
+        "o": 5890.0,
+        "h": 5890.0,
+        "l": 5890.0,
+        "c": 5890.0,
+        "v": 5430580
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-26",
+      "corrige": {
+        "o": 589.0,
+        "h": 589.0,
+        "l": 589.0,
+        "c": 589.0,
+        "v": 5890
+      },
+      "remplace": {
+        "o": 5890.0,
+        "h": 5890.0,
+        "l": 5890.0,
+        "c": 5890.0,
+        "v": 5890
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-27",
+      "corrige": {
+        "o": 589.0,
+        "h": 589.0,
+        "l": 589.0,
+        "c": 589.0,
+        "v": 5890
+      },
+      "remplace": {
+        "o": 5890.0,
+        "h": 5890.0,
+        "l": 5890.0,
+        "c": 5890.0,
+        "v": 5890
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-06-28",
+      "corrige": {
+        "o": 589.0,
+        "h": 589.0,
+        "l": 585.3,
+        "c": 585.3,
+        "v": 742103
+      },
+      "remplace": {
+        "o": 5890.0,
+        "h": 5890.0,
+        "l": 5853.0,
+        "c": 5853.0,
+        "v": 742103
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-03",
+      "corrige": {
+        "o": 600.0,
+        "h": 600.0,
+        "l": 585.0,
+        "c": 585.0,
+        "v": 1438300
+      },
+      "remplace": {
+        "o": 6000.0,
+        "h": 6000.0,
+        "l": 5850.0,
+        "c": 5850.0,
+        "v": 1438300
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-04",
+      "corrige": {
+        "o": 585.0,
+        "h": 585.0,
+        "l": 585.0,
+        "c": 585.0,
+        "v": 5850
+      },
+      "remplace": {
+        "o": 5850.0,
+        "h": 5850.0,
+        "l": 5850.0,
+        "c": 5850.0,
+        "v": 5850
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-05",
+      "corrige": {
+        "o": 563.1,
+        "h": 590.0,
+        "l": 563.0,
+        "c": 590.0,
+        "v": 152560
+      },
+      "remplace": {
+        "o": 5631.0,
+        "h": 5900.0,
+        "l": 5630.0,
+        "c": 5900.0,
+        "v": 152560
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-06",
+      "corrige": {
+        "o": 589.9,
+        "h": 589.9,
+        "l": 570.0,
+        "c": 589.3,
+        "v": 349853
+      },
+      "remplace": {
+        "o": 5899.0,
+        "h": 5899.0,
+        "l": 5700.0,
+        "c": 5893.0,
+        "v": 349853
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-07",
+      "corrige": {
+        "o": 590.0,
+        "h": 590.0,
+        "l": 590.0,
+        "c": 590.0,
+        "v": 29500
+      },
+      "remplace": {
+        "o": 5900.0,
+        "h": 5900.0,
+        "l": 5900.0,
+        "c": 5900.0,
+        "v": 29500
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-10",
+      "corrige": {
+        "o": 590.0,
+        "h": 590.0,
+        "l": 590.0,
+        "c": 590.0,
+        "v": 5900
+      },
+      "remplace": {
+        "o": 5900.0,
+        "h": 5900.0,
+        "l": 5900.0,
+        "c": 5900.0,
+        "v": 5900
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-11",
+      "corrige": {
+        "o": 580.0,
+        "h": 580.0,
+        "l": 579.9,
+        "c": 579.9,
+        "v": 237760
+      },
+      "remplace": {
+        "o": 5800.0,
+        "h": 5800.0,
+        "l": 5799.0,
+        "c": 5799.0,
+        "v": 237760
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-12",
+      "corrige": {
+        "o": 580.0,
+        "h": 580.0,
+        "l": 572.0,
+        "c": 572.0,
+        "v": 1059695
+      },
+      "remplace": {
+        "o": 5800.0,
+        "h": 5800.0,
+        "l": 5720.0,
+        "c": 5720.0,
+        "v": 1059695
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-13",
+      "corrige": {
+        "o": 572.0,
+        "h": 572.0,
+        "l": 572.0,
+        "c": 572.0,
+        "v": 297440
+      },
+      "remplace": {
+        "o": 5720.0,
+        "h": 5720.0,
+        "l": 5720.0,
+        "c": 5720.0,
+        "v": 297440
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-14",
+      "corrige": {
+        "o": 572.0,
+        "h": 579.3,
+        "l": 572.0,
+        "c": 579.3,
+        "v": 1204360
+      },
+      "remplace": {
+        "o": 5720.0,
+        "h": 5793.0,
+        "l": 5720.0,
+        "c": 5793.0,
+        "v": 1204360
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-17",
+      "corrige": {
+        "o": 579.3,
+        "h": 579.3,
+        "l": 579.3,
+        "c": 579.3,
+        "v": 6951600
+      },
+      "remplace": {
+        "o": 5793.0,
+        "h": 5793.0,
+        "l": 5793.0,
+        "c": 5793.0,
+        "v": 6951600
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-18",
+      "corrige": {
+        "o": 579.3,
+        "h": 579.3,
+        "l": 579.3,
+        "c": 579.3,
+        "v": 5793
+      },
+      "remplace": {
+        "o": 5793.0,
+        "h": 5793.0,
+        "l": 5793.0,
+        "c": 5793.0,
+        "v": 5793
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-20",
+      "corrige": {
+        "o": 579.0,
+        "h": 579.0,
+        "l": 570.0,
+        "c": 578.9,
+        "v": 733116
+      },
+      "remplace": {
+        "o": 5790.0,
+        "h": 5790.0,
+        "l": 5700.0,
+        "c": 5789.0,
+        "v": 733116
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-21",
+      "corrige": {
+        "o": 578.9,
+        "h": 578.9,
+        "l": 578.9,
+        "c": 578.9,
+        "v": 1157800
+      },
+      "remplace": {
+        "o": 5789.0,
+        "h": 5789.0,
+        "l": 5789.0,
+        "c": 5789.0,
+        "v": 1157800
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-24",
+      "corrige": {
+        "o": 575.0,
+        "h": 575.0,
+        "l": 575.0,
+        "c": 575.0,
+        "v": 483000
+      },
+      "remplace": {
+        "o": 5750.0,
+        "h": 5750.0,
+        "l": 5750.0,
+        "c": 5750.0,
+        "v": 483000
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-25",
+      "corrige": {
+        "o": 570.6,
+        "h": 574.0,
+        "l": 559.9,
+        "c": 559.9,
+        "v": 3358917
+      },
+      "remplace": {
+        "o": 5706.0,
+        "h": 5740.0,
+        "l": 5599.0,
+        "c": 5599.0,
+        "v": 3358917
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-26",
+      "corrige": {
+        "o": 545.0,
+        "h": 545.0,
+        "l": 539.0,
+        "c": 540.0,
+        "v": 8818272
+      },
+      "remplace": {
+        "o": 5450.0,
+        "h": 5450.0,
+        "l": 5390.0,
+        "c": 5400.0,
+        "v": 8818272
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-27",
+      "corrige": {
+        "o": 540.3,
+        "h": 571.0,
+        "l": 540.0,
+        "c": 571.0,
+        "v": 9989690
+      },
+      "remplace": {
+        "o": 5403.0,
+        "h": 5710.0,
+        "l": 5400.0,
+        "c": 5710.0,
+        "v": 9989690
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-28",
+      "corrige": {
+        "o": 571.0,
+        "h": 585.0,
+        "l": 550.6,
+        "c": 580.0,
+        "v": 14910814
+      },
+      "remplace": {
+        "o": 5710.0,
+        "h": 5850.0,
+        "l": 5506.0,
+        "c": 5800.0,
+        "v": 14910814
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-07-31",
+      "corrige": {
+        "o": 566.0,
+        "h": 580.0,
+        "l": 566.0,
+        "c": 571.0,
+        "v": 1380068
+      },
+      "remplace": {
+        "o": 5660.0,
+        "h": 5800.0,
+        "l": 5660.0,
+        "c": 5710.0,
+        "v": 1380068
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-01",
+      "corrige": {
+        "o": 574.0,
+        "h": 580.0,
+        "l": 574.0,
+        "c": 580.0,
+        "v": 842634
+      },
+      "remplace": {
+        "o": 5740.0,
+        "h": 5800.0,
+        "l": 5740.0,
+        "c": 5800.0,
+        "v": 842634
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-02",
+      "corrige": {
+        "o": 580.1,
+        "h": 594.0,
+        "l": 580.0,
+        "c": 586.0,
+        "v": 9343093
+      },
+      "remplace": {
+        "o": 5801.0,
+        "h": 5940.0,
+        "l": 5800.0,
+        "c": 5860.0,
+        "v": 9343093
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-03",
+      "corrige": {
+        "o": 586.0,
+        "h": 596.0,
+        "l": 586.0,
+        "c": 595.0,
+        "v": 6572444
+      },
+      "remplace": {
+        "o": 5860.0,
+        "h": 5960.0,
+        "l": 5860.0,
+        "c": 5950.0,
+        "v": 6572444
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-04",
+      "corrige": {
+        "o": 595.0,
+        "h": 596.7,
+        "l": 595.0,
+        "c": 595.0,
+        "v": 18250813
+      },
+      "remplace": {
+        "o": 5950.0,
+        "h": 5967.0,
+        "l": 5950.0,
+        "c": 5950.0,
+        "v": 18250813
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-07",
+      "corrige": {
+        "o": 595.1,
+        "h": 596.5,
+        "l": 595.0,
+        "c": 595.0,
+        "v": 3910051
+      },
+      "remplace": {
+        "o": 5951.0,
+        "h": 5965.0,
+        "l": 5950.0,
+        "c": 5950.0,
+        "v": 3910051
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-08",
+      "corrige": {
+        "o": 595.0,
+        "h": 596.0,
+        "l": 595.0,
+        "c": 595.0,
+        "v": 1791000
+      },
+      "remplace": {
+        "o": 5950.0,
+        "h": 5960.0,
+        "l": 5950.0,
+        "c": 5950.0,
+        "v": 1791000
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-09",
+      "corrige": {
+        "o": 592.2,
+        "h": 596.0,
+        "l": 592.2,
+        "c": 596.0,
+        "v": 3200321
+      },
+      "remplace": {
+        "o": 5922.0,
+        "h": 5960.0,
+        "l": 5922.0,
+        "c": 5960.0,
+        "v": 3200321
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-10",
+      "corrige": {
+        "o": 592.2,
+        "h": 596.0,
+        "l": 592.2,
+        "c": 595.0,
+        "v": 14238417
+      },
+      "remplace": {
+        "o": 5922.0,
+        "h": 5960.0,
+        "l": 5922.0,
+        "c": 5950.0,
+        "v": 14238417
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-11",
+      "corrige": {
+        "o": 590.0,
+        "h": 596.0,
+        "l": 590.0,
+        "c": 596.0,
+        "v": 2670835
+      },
+      "remplace": {
+        "o": 5900.0,
+        "h": 5960.0,
+        "l": 5900.0,
+        "c": 5960.0,
+        "v": 2670835
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-15",
+      "corrige": {
+        "o": 582.0,
+        "h": 590.0,
+        "l": 582.0,
+        "c": 590.0,
+        "v": 648600
+      },
+      "remplace": {
+        "o": 5820.0,
+        "h": 5900.0,
+        "l": 5820.0,
+        "c": 5900.0,
+        "v": 648600
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-16",
+      "corrige": {
+        "o": 582.1,
+        "h": 595.0,
+        "l": 582.1,
+        "c": 590.1,
+        "v": 1927183
+      },
+      "remplace": {
+        "o": 5821.0,
+        "h": 5950.0,
+        "l": 5821.0,
+        "c": 5901.0,
+        "v": 1927183
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-17",
+      "corrige": {
+        "o": 590.6,
+        "h": 595.0,
+        "l": 590.0,
+        "c": 590.1,
+        "v": 1554513
+      },
+      "remplace": {
+        "o": 5906.0,
+        "h": 5950.0,
+        "l": 5900.0,
+        "c": 5901.0,
+        "v": 1554513
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-18",
+      "corrige": {
+        "o": 595.0,
+        "h": 600.0,
+        "l": 590.6,
+        "c": 598.0,
+        "v": 6267446
+      },
+      "remplace": {
+        "o": 5950.0,
+        "h": 6000.0,
+        "l": 5906.0,
+        "c": 5980.0,
+        "v": 6267446
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-22",
+      "corrige": {
+        "o": 595.0,
+        "h": 599.0,
+        "l": 591.3,
+        "c": 595.0,
+        "v": 725792
+      },
+      "remplace": {
+        "o": 5950.0,
+        "h": 5990.0,
+        "l": 5913.0,
+        "c": 5950.0,
+        "v": 725792
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-23",
+      "corrige": {
+        "o": 591.5,
+        "h": 591.5,
+        "l": 590.0,
+        "c": 590.0,
+        "v": 4383935
+      },
+      "remplace": {
+        "o": 5915.0,
+        "h": 5915.0,
+        "l": 5900.0,
+        "c": 5900.0,
+        "v": 4383935
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-24",
+      "corrige": {
+        "o": 585.0,
+        "h": 592.5,
+        "l": 585.0,
+        "c": 592.4,
+        "v": 1598679
+      },
+      "remplace": {
+        "o": 5850.0,
+        "h": 5925.0,
+        "l": 5850.0,
+        "c": 5924.0,
+        "v": 1598679
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-25",
+      "corrige": {
+        "o": 590.0,
+        "h": 594.5,
+        "l": 585.2,
+        "c": 594.5,
+        "v": 783361
+      },
+      "remplace": {
+        "o": 5900.0,
+        "h": 5945.0,
+        "l": 5852.0,
+        "c": 5945.0,
+        "v": 783361
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-28",
+      "corrige": {
+        "o": 590.1,
+        "h": 592.0,
+        "l": 590.1,
+        "c": 591.0,
+        "v": 307398
+      },
+      "remplace": {
+        "o": 5901.0,
+        "h": 5920.0,
+        "l": 5901.0,
+        "c": 5910.0,
+        "v": 307398
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-29",
+      "corrige": {
+        "o": 589.9,
+        "h": 594.0,
+        "l": 585.5,
+        "c": 590.0,
+        "v": 2224299
+      },
+      "remplace": {
+        "o": 5899.0,
+        "h": 5940.0,
+        "l": 5855.0,
+        "c": 5900.0,
+        "v": 2224299
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-30",
+      "corrige": {
+        "o": 589.0,
+        "h": 590.0,
+        "l": 589.0,
+        "c": 590.0,
+        "v": 3645680
+      },
+      "remplace": {
+        "o": 5890.0,
+        "h": 5900.0,
+        "l": 5890.0,
+        "c": 5900.0,
+        "v": 3645680
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-08-31",
+      "corrige": {
+        "o": 590.0,
+        "h": 598.0,
+        "l": 590.0,
+        "c": 598.0,
+        "v": 5101314
+      },
+      "remplace": {
+        "o": 5900.0,
+        "h": 5980.0,
+        "l": 5900.0,
+        "c": 5980.0,
+        "v": 5101314
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-09-01",
+      "corrige": {
+        "o": 597.9,
+        "h": 620.0,
+        "l": 597.0,
+        "c": 620.0,
+        "v": 14265201
+      },
+      "remplace": {
+        "o": 5979.0,
+        "h": 6200.0,
+        "l": 5970.0,
+        "c": 6200.0,
+        "v": 14265201
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-09-04",
+      "corrige": {
+        "o": 619.9,
+        "h": 620.0,
+        "l": 600.0,
+        "c": 610.0,
+        "v": 1266062
+      },
+      "remplace": {
+        "o": 6199.0,
+        "h": 6200.0,
+        "l": 6000.0,
+        "c": 6100.0,
+        "v": 1266062
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-09-05",
+      "corrige": {
+        "o": 610.0,
+        "h": 620.0,
+        "l": 602.5,
+        "c": 620.0,
+        "v": 6568136
+      },
+      "remplace": {
+        "o": 6100.0,
+        "h": 6200.0,
+        "l": 6025.0,
+        "c": 6200.0,
+        "v": 6568136
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-09-06",
+      "corrige": {
+        "o": 620.0,
+        "h": 620.0,
+        "l": 619.9,
+        "c": 619.9,
+        "v": 223188
+      },
+      "remplace": {
+        "o": 6200.0,
+        "h": 6200.0,
+        "l": 6199.0,
+        "c": 6199.0,
+        "v": 223188
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-09-07",
+      "corrige": {
+        "o": 617.0,
+        "h": 625.0,
+        "l": 617.0,
+        "c": 625.0,
+        "v": 3415102
+      },
+      "remplace": {
+        "o": 6170.0,
+        "h": 6250.0,
+        "l": 6170.0,
+        "c": 6250.0,
+        "v": 3415102
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-09-08",
+      "corrige": {
+        "o": 620.0,
+        "h": 627.9,
+        "l": 620.0,
+        "c": 627.9,
+        "v": 11482667
+      },
+      "remplace": {
+        "o": 6200.0,
+        "h": 6279.0,
+        "l": 6200.0,
+        "c": 6279.0,
+        "v": 11482667
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-09-11",
+      "corrige": {
+        "o": 620.0,
+        "h": 620.0,
+        "l": 620.0,
+        "c": 620.0,
+        "v": 62000
+      },
+      "remplace": {
+        "o": 6200.0,
+        "h": 6200.0,
+        "l": 6200.0,
+        "c": 6200.0,
+        "v": 62000
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-09-12",
+      "corrige": {
+        "o": 625.0,
+        "h": 625.0,
+        "l": 625.0,
+        "c": 625.0,
+        "v": 625000
+      },
+      "remplace": {
+        "o": 6250.0,
+        "h": 6250.0,
+        "l": 6250.0,
+        "c": 6250.0,
+        "v": 625000
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : notre propre série"
+    },
+    {
+      "d": "2023-09-13",
+      "corrige": {
+        "o": 620.0,
+        "h": 630.0,
+        "l": 620.0,
+        "c": 630.0,
+        "v": 441
+      },
+      "remplace": {
+        "o": 6200.0,
+        "h": 6300.0,
+        "l": 6200.0,
+        "c": 6300.0,
+        "v": 2745746
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-09-14",
+      "corrige": {
+        "o": 627.5,
+        "h": 630.0,
+        "l": 627.5,
+        "c": 630.0,
+        "v": 648
+      },
+      "remplace": {
+        "o": 6275.0,
+        "h": 6300.0,
+        "l": 6275.0,
+        "c": 6300.0,
+        "v": 4081094
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-09-15",
+      "corrige": {
+        "o": 630.0,
+        "h": 650.0,
+        "l": 630.0,
+        "c": 650.0,
+        "v": 282
+      },
+      "remplace": {
+        "o": 6300.0,
+        "h": 6500.0,
+        "l": 6300.0,
+        "c": 6500.0,
+        "v": 1814125
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-09-18",
+      "corrige": {
+        "o": 650.0,
+        "h": 660.0,
+        "l": 640.0,
+        "c": 659.8,
+        "v": 524
+      },
+      "remplace": {
+        "o": 6500.0,
+        "h": 6600.0,
+        "l": 6400.0,
+        "c": 6598.0,
+        "v": 3411957
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-09-19",
+      "corrige": {
+        "o": 650.0,
+        "h": 650.0,
+        "l": 640.5,
+        "c": 650.0,
+        "v": 37
+      },
+      "remplace": {
+        "o": 6500.0,
+        "h": 6500.0,
+        "l": 6405.0,
+        "c": 6500.0,
+        "v": 240405
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-09-20",
+      "corrige": {
+        "o": 649.0,
+        "h": 650.1,
+        "l": 649.0,
+        "c": 650.0,
+        "v": 1445
+      },
+      "remplace": {
+        "o": 6490.0,
+        "h": 6501.0,
+        "l": 6490.0,
+        "c": 6500.0,
+        "v": 9392231
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-09-21",
+      "corrige": {
+        "o": 650.0,
+        "h": 660.0,
+        "l": 650.0,
+        "c": 660.0,
+        "v": 579
+      },
+      "remplace": {
+        "o": 6500.0,
+        "h": 6600.0,
+        "l": 6500.0,
+        "c": 6600.0,
+        "v": 3813750
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-09-22",
+      "corrige": {
+        "o": 650.0,
+        "h": 660.0,
+        "l": 650.0,
+        "c": 660.0,
+        "v": 1228
+      },
+      "remplace": {
+        "o": 6500.0,
+        "h": 6600.0,
+        "l": 6500.0,
+        "c": 6600.0,
+        "v": 8102100
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-09-25",
+      "corrige": {
+        "o": 640.3,
+        "h": 650.0,
+        "l": 630.0,
+        "c": 649.9,
+        "v": 488
+      },
+      "remplace": {
+        "o": 6403.0,
+        "h": 6500.0,
+        "l": 6300.0,
+        "c": 6499.0,
+        "v": 3150424
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-09-26",
+      "corrige": {
+        "o": 649.9,
+        "h": 649.9,
+        "l": 635.0,
+        "c": 635.0,
+        "v": 1606
+      },
+      "remplace": {
+        "o": 6499.0,
+        "h": 6499.0,
+        "l": 6350.0,
+        "c": 6350.0,
+        "v": 10206676
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-09-27",
+      "corrige": {
+        "o": 630.0,
+        "h": 635.5,
+        "l": 630.0,
+        "c": 630.6,
+        "v": 229
+      },
+      "remplace": {
+        "o": 6300.0,
+        "h": 6355.0,
+        "l": 6300.0,
+        "c": 6306.0,
+        "v": 1454670
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-10-02",
+      "corrige": {
+        "o": 630.0,
+        "h": 640.0,
+        "l": 625.1,
+        "c": 635.5,
+        "v": 582
+      },
+      "remplace": {
+        "o": 6300.0,
+        "h": 6400.0,
+        "l": 6251.0,
+        "c": 6355.0,
+        "v": 3697126
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-10-03",
+      "corrige": {
+        "o": 639.9,
+        "h": 639.9,
+        "l": 630.0,
+        "c": 630.0,
+        "v": 421
+      },
+      "remplace": {
+        "o": 6399.0,
+        "h": 6399.0,
+        "l": 6300.0,
+        "c": 6300.0,
+        "v": 2652795
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-10-04",
+      "corrige": {
+        "o": 628.2,
+        "h": 639.8,
+        "l": 625.6,
+        "c": 639.8,
+        "v": 64
+      },
+      "remplace": {
+        "o": 6282.0,
+        "h": 6398.0,
+        "l": 6256.0,
+        "c": 6398.0,
+        "v": 402676
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-10-05",
+      "corrige": {
+        "o": 670.0,
+        "h": 670.0,
+        "l": 650.0,
+        "c": 667.5,
+        "v": 830
+      },
+      "remplace": {
+        "o": 6700.0,
+        "h": 6700.0,
+        "l": 6500.0,
+        "c": 6675.0,
+        "v": 5547041
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2023-10-06",
+      "corrige": {
+        "o": 665.0,
+        "h": 665.0,
+        "l": 640.0,
+        "c": 640.0,
+        "v": 924
+      },
+      "remplace": {
+        "o": 6650.0,
+        "h": 6650.0,
+        "l": 6400.0,
+        "c": 6400.0,
+        "v": 5974585
+      },
+      "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+    },
+    {
+      "d": "2026-06-30",
+      "corrige": {
+        "o": 620.0,
+        "h": 639.0,
+        "l": 620.0,
+        "c": 639.0,
+        "v": 2969
+      },
+      "remplace": {
+        "o": 610.2,
+        "h": 620.4,
+        "l": 610.2,
+        "c": 620.4,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 2969 titres échangés"
+    },
+    {
+      "d": "2026-07-20",
+      "corrige": {
+        "o": 599.0,
+        "h": 614.0,
+        "l": 593.0,
+        "c": 593.0,
+        "v": 582
+      },
+      "remplace": {
+        "o": 600.0,
+        "h": 602.1,
+        "l": 600.0,
+        "c": 602.1,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 582 titres échangés"
+    },
+    {
+      "d": "2026-07-31",
+      "corrige": {
+        "o": 608.0,
+        "h": 608.0,
+        "l": 590.0,
+        "c": 594.0,
+        "v": 1023
+      },
+      "remplace": {
+        "o": 608.0,
+        "h": 608.0,
+        "l": 590.0,
+        "c": 590.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 1023 titres échangés"
+    },
+    {
+      "d": "2026-08-04",
+      "corrige": {
+        "o": 600.0,
+        "h": 604.0,
+        "l": 598.0,
+        "c": 604.0,
+        "v": 100
+      },
+      "remplace": {
+        "o": 608.0,
+        "h": 608.0,
+        "l": 590.0,
+        "c": 604.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 100 titres échangés"
+    },
+    {
+      "d": "2026-08-05",
+      "corrige": {
+        "o": 604.0,
+        "h": 610.0,
+        "l": 600.0,
+        "c": 610.0,
+        "v": 505
+      },
+      "remplace": {
+        "o": 610.0,
+        "h": 610.0,
+        "l": 610.0,
+        "c": 610.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 505 titres échangés"
+    },
+    {
+      "d": "2026-08-06",
+      "corrige": {
+        "o": 608.0,
+        "h": 610.0,
+        "l": 601.0,
+        "c": 610.0,
+        "v": 2288
+      },
+      "remplace": {
+        "o": 610.0,
+        "h": 610.0,
+        "l": 610.0,
+        "c": 610.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 2288 titres échangés"
+    }
+  ]
+}
