@@ -1,0 +1,146 @@
+{
+  "_quoi": "Corrections de séances RÉCEPTIONNÉES pour SNA (Sonasid), réimposées après chaque import.",
+  "_pourquoi": "⚠️ Six bougies de Sonasid portaient l'ouverture et le plus-bas de STOKVIS NORD AFRIQUE. C'est l'inversion de codes documentée depuis le 10/08 (R3) : `SNA` désigne Stokvis à la Bourse de Casablanca, Sonasid y est `SID`.",
+  "_ce_qui_l_etablit": "Pour chacune des six séances, notre ouverture et notre plus-bas se retrouvent À L'IDENTIQUE dans l'export de Stokvis — parfois du jour même, parfois de la veille. Et l'amplitude qu'ils impliquent (jusqu'à −96,5 % en séance) est interdite par la limite réglementaire de ±10 % (R10). Ce ne sont pas des écarts : ce sont les cours d'une autre société.",
+  "ticker": "SNA",
+  "instrument": "SONASID",
+  "_statut": "RÉCEPTIONNÉ — instruction, pas signalement",
+  "_recu_de": "Abd Moutalib, 15/09/2026 — export SID fourni à ma demande",
+  "source": {
+    "fichier": "sources/SNA/6a582f20-Cours_SID___2023-09-16_2026-09-15.csv",
+    "sha256": "fd6be7e64b9da751554c2d95a2b65f022cca63c79bddb79a48732c44c3eba467",
+    "code_operateur": "SID",
+    "identite_portee_sur_chaque_ligne_de_cours": "SID / SONASID",
+    "_attention": "⚠️ Le fichier `Cours_SNA` de l'opérateur est STOKVIS. Sonasid est `Cours_SID`. Se tromper de fichier ici aurait aggravé le défaut au lieu de le corriger."
+  },
+  "_ce_qui_n_est_pas_corrige_ici": "⚠️ 56 autres séances s'écartent de l'export, dont 23 sur la CLÔTURE. Leur cause n'est pas établie et elles ne sont PAS corrigées par ce lot. Elles sont mesurées et déposées en candidat dans datasets/historiques_candidats/SNA_ecarts/.",
+  "seances": 6,
+  "lignes": [
+    {
+      "d": "2026-06-18",
+      "corrige": {
+        "o": 1998.0,
+        "h": 2012.0,
+        "l": 1955.0,
+        "c": 1986.0,
+        "v": 3446
+      },
+      "remplace": {
+        "o": 80.77,
+        "h": 2012.0,
+        "l": 80.77,
+        "c": 2012.0,
+        "v": 4113
+      },
+      "motif": "la bougie mêlait deux sociétés : son ouverture et son plus-bas sont des cours de STOKVIS NORD AFRIQUE",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre ouverture (80.77) et notre plus-bas (80.77) se retrouvent à l'identique dans l'export de STOKVIS ; un plus-bas de 80.77 avec une clôture de 2012.0 serait une amplitude de séance de -96.0 %, impossible sous la limite réglementaire de ±10 % (R10)",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (6871585.0) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-25",
+      "corrige": {
+        "o": 1985.0,
+        "h": 2000.0,
+        "l": 1915.0,
+        "c": 2000.0,
+        "v": 1272
+      },
+      "remplace": {
+        "o": 75.0,
+        "h": 1995.0,
+        "l": 75.0,
+        "c": 1995.0,
+        "v": 4345
+      },
+      "motif": "la bougie mêlait deux sociétés : son ouverture et son plus-bas sont des cours de STOKVIS NORD AFRIQUE",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre ouverture (75.0) et notre plus-bas (75.0) se retrouvent à l'identique dans l'export de STOKVIS ; un plus-bas de 75.0 avec une clôture de 1995.0 serait une amplitude de séance de -96.2 %, impossible sous la limite réglementaire de ±10 % (R10)",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (2527013.0) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-26",
+      "corrige": {
+        "o": 1999.0,
+        "h": 1999.0,
+        "l": 1990.0,
+        "c": 1990.0,
+        "v": 1750
+      },
+      "remplace": {
+        "o": 74.99,
+        "h": 2000.0,
+        "l": 74.99,
+        "c": 2000.0,
+        "v": 4826
+      },
+      "motif": "la bougie mêlait deux sociétés : son ouverture et son plus-bas sont des cours de STOKVIS NORD AFRIQUE",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre ouverture (74.99) et notre plus-bas (74.99) se retrouvent à l'identique dans l'export de STOKVIS ; un plus-bas de 74.99 avec une clôture de 2000.0 serait une amplitude de séance de -96.3 %, impossible sous la limite réglementaire de ±10 % (R10)",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (3491750.0) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-06-29",
+      "corrige": {
+        "o": 1990.0,
+        "h": 1990.0,
+        "l": 1990.0,
+        "c": 1990.0,
+        "v": 12
+      },
+      "remplace": {
+        "o": 74.67,
+        "h": 1990.0,
+        "l": 74.67,
+        "c": 1990.0,
+        "v": 23428
+      },
+      "motif": "la bougie mêlait deux sociétés : son ouverture et son plus-bas sont des cours de STOKVIS NORD AFRIQUE",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre ouverture (74.67) et notre plus-bas (74.67) se retrouvent à l'identique dans l'export de STOKVIS ; un plus-bas de 74.67 avec une clôture de 1990.0 serait une amplitude de séance de -96.2 %, impossible sous la limite réglementaire de ±10 % (R10)",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (23880.0) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-09-10",
+      "corrige": {
+        "o": 1935.0,
+        "h": 1950.0,
+        "l": 1925.0,
+        "c": 1950.0,
+        "v": 45
+      },
+      "remplace": {
+        "o": 68.0,
+        "h": 1950.0,
+        "l": 68.0,
+        "c": 1950.0,
+        "v": 289
+      },
+      "motif": "la bougie mêlait deux sociétés : son ouverture et son plus-bas sont des cours de STOKVIS NORD AFRIQUE",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre ouverture (68.0) et notre plus-bas (68.0) se retrouvent à l'identique dans l'export de STOKVIS ; un plus-bas de 68.0 avec une clôture de 1950.0 serait une amplitude de séance de -96.5 %, impossible sous la limite réglementaire de ±10 % (R10)",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (86972.0) reste distinct et n'est pas écrit"
+    },
+    {
+      "d": "2026-09-11",
+      "corrige": {
+        "o": 1940.0,
+        "h": 1940.0,
+        "l": 1923.0,
+        "c": 1923.0,
+        "v": 521
+      },
+      "remplace": {
+        "o": 67.08,
+        "h": 1923.0,
+        "l": 67.08,
+        "c": 1923.0,
+        "v": 521
+      },
+      "motif": "la bougie mêlait deux sociétés : son ouverture et son plus-bas sont des cours de STOKVIS NORD AFRIQUE",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre ouverture (67.08) et notre plus-bas (67.08) se retrouvent à l'identique dans l'export de STOKVIS ; un plus-bas de 67.08 avec une clôture de 1923.0 serait une amplitude de séance de -96.5 %, impossible sous la limite réglementaire de ±10 % (R10)",
+      "_v": "NOMBRE DE TITRES échangés — le montant en dirhams (1010397.0) reste distinct et n'est pas écrit"
+    }
+  ]
+}
