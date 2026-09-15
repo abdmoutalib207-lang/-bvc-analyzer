@@ -1,0 +1,1467 @@
+{
+  "_quoi": "Confrontation ADI et SMI aux exports de l'opérateur, et deux constats qui dépassent ces deux titres.",
+  "_statut": "CANDIDAT — RIEN N'EST APPLIQUÉ ICI",
+  "_rappel": "⚠️ `historiques_candidats/` PROPOSE ; seul `corrections_acceptees/` instruit.",
+  "constat_1_trois_seances_manquent_au_marche_entier": {
+    "seances": [
+      "2026-06-22",
+      "2026-06-23",
+      "2026-06-24"
+    ],
+    "titres_dont_la_serie_couvre_la_fenetre": 73,
+    "titres_a_qui_les_TROIS_manquent": 63,
+    "liste": [
+      "ADH",
+      "ADI",
+      "AFI",
+      "AGM",
+      "AKD",
+      "ALU",
+      "ARD",
+      "ATL",
+      "ATW",
+      "BCP",
+      "BMC",
+      "BOA",
+      "CAR",
+      "CASH",
+      "CDM",
+      "CFGB",
+      "CIH",
+      "CIM",
+      "CMGP",
+      "COL",
+      "CSR",
+      "CTM",
+      "DHO",
+      "DSW",
+      "DTT",
+      "ENK",
+      "FNB",
+      "GAZ",
+      "HAL",
+      "HPS",
+      "IAM",
+      "IBM",
+      "IMI",
+      "INV",
+      "JET",
+      "LBV",
+      "LES",
+      "LHM",
+      "M2M",
+      "MGL",
+      "MIC",
+      "MNG",
+      "MOX",
+      "MSA",
+      "MUT",
+      "RDS",
+      "RIS",
+      "S2M",
+      "SBS",
+      "SGTM",
+      "SMI",
+      "SNA",
+      "SNP",
+      "SOT",
+      "SRM",
+      "STK",
+      "STR",
+      "TGCC",
+      "TMA",
+      "TQA",
+      "UNI",
+      "VCNE",
+      "WAF"
+    ],
+    "_ce_qui_est_etabli": "l'opérateur publie ces trois séances avec des volumes réels — 483, 1 808 et 3 098 titres pour SMI, 7 108, 3 088 et 5 023 pour ADI — et elles manquent chez nous. Ce n'est pas un jour férié : c'est un trou.",
+    "_ce_qui_ne_l_est_pas": "⚠️ POURQUOI elles manquent. Trois jours ouvrés consécutifs sans écriture évoquent un moteur qui n'a pas tourné, mais la cause n'est pas établie.",
+    "_pourquoi_je_ne_les_ajoute_pas": "⚠️ Ajouter une séance n'est pas corriger une bougie. La couche de corrections REFUSE de fabriquer une cotation, et c'est volontaire. Combler ce trou demande les exports des 63 titres — j'en ai 16."
+  },
+  "constat_2_le_champ_v_n_a_pas_la_meme_unite_selon_le_titre": {
+    "_ce_qui_est_etabli": "⚠️ Mesuré sur 16 titres dont l'export est archivé. Le champ `v` de pipeline/candles/ porte tantôt le NOMBRE DE TITRES, tantôt le MONTANT EN DIRHAMS, et pour trois titres ni l'un ni l'autre ne domine.",
+    "_consequence": "⚠️ Le volume affiché n'est PAS comparable d'un titre à l'autre, et `vol_median20` mélange des dirhams et des titres selon la ligne.",
+    "_pourquoi_je_ne_convertis_pas": "Convertir reviendrait à réécrire ~670 séances sur cinq titres au moins, sur la foi d'une convention déduite et non déclarée. La mesure se livre ; l'arbitrage revient au propriétaire.",
+    "par_titre": {
+      "ADH": {
+        "nombre_de_titres": 27,
+        "montant_mad": 673,
+        "ni_l_un_ni_l_autre": 27,
+        "v_nul": 5,
+        "convention": "MONTANT MAD"
+      },
+      "ADI": {
+        "nombre_de_titres": 29,
+        "montant_mad": 669,
+        "ni_l_un_ni_l_autre": 27,
+        "v_nul": 5,
+        "convention": "MONTANT MAD"
+      },
+      "CIM": {
+        "nombre_de_titres": 21,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 47,
+        "v_nul": 8,
+        "convention": "MÉLANGÉE"
+      },
+      "CMT": {
+        "nombre_de_titres": 681,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 0,
+        "v_nul": 0,
+        "convention": "TITRES"
+      },
+      "CSR": {
+        "nombre_de_titres": 21,
+        "montant_mad": 671,
+        "ni_l_un_ni_l_autre": 33,
+        "v_nul": 4,
+        "convention": "MONTANT MAD"
+      },
+      "HAL": {
+        "nombre_de_titres": 21,
+        "montant_mad": 1,
+        "ni_l_un_ni_l_autre": 25,
+        "v_nul": 5,
+        "convention": "MÉLANGÉE"
+      },
+      "HPS": {
+        "nombre_de_titres": 21,
+        "montant_mad": 672,
+        "ni_l_un_ni_l_autre": 25,
+        "v_nul": 6,
+        "convention": "MONTANT MAD"
+      },
+      "MNG": {
+        "nombre_de_titres": 28,
+        "montant_mad": 664,
+        "ni_l_un_ni_l_autre": 30,
+        "v_nul": 10,
+        "convention": "MONTANT MAD"
+      },
+      "MSA": {
+        "nombre_de_titres": 535,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 28,
+        "v_nul": 5,
+        "convention": "TITRES"
+      },
+      "MUT": {
+        "nombre_de_titres": 39,
+        "montant_mad": 1,
+        "ni_l_un_ni_l_autre": 27,
+        "v_nul": 4,
+        "convention": "MÉLANGÉE"
+      },
+      "SMI": {
+        "nombre_de_titres": 521,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 42,
+        "v_nul": 6,
+        "convention": "TITRES"
+      },
+      "SNA": {
+        "nombre_de_titres": 44,
+        "montant_mad": 1,
+        "ni_l_un_ni_l_autre": 17,
+        "v_nul": 10,
+        "convention": "TITRES"
+      },
+      "SOT": {
+        "nombre_de_titres": 478,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 38,
+        "v_nul": 28,
+        "convention": "TITRES"
+      },
+      "STK": {
+        "nombre_de_titres": 21,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 1,
+        "v_nul": 30,
+        "convention": "TITRES"
+      },
+      "T2S": {
+        "nombre_de_titres": 30,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 0,
+        "v_nul": 0,
+        "convention": "TITRES"
+      }
+    }
+  },
+  "constat_3_adi_confrontee": {
+    "seances_en_ecart": 57,
+    "_lecture": "57 séances s'écartent, dont 30 clôtures, d'au plus 3,42 %. 47 de nos bougies sont PLUS ÉTROITES que celles de l'opérateur et 3 plus larges — la signature d'une bougie construite par instantanés successifs. ⚠️ Aucun écart d'ordre de grandeur : pas de trace de contamination d'identité sur ADI.",
+    "_non_applique": "la cause n'est pas établie séance par séance",
+    "lignes": [
+      {
+        "d": "2026-06-08",
+        "notre_bougie": {
+          "o": 391.0,
+          "h": 397.9,
+          "l": 382.1,
+          "c": 391.0,
+          "v": 6382
+        },
+        "operateur": {
+          "o": 394.95,
+          "h": 397.9,
+          "l": 382.1,
+          "c": 391.0,
+          "titres_echanges": 6382.0,
+          "volume_mad": 2481788.6
+        },
+        "champs_en_ecart": [
+          "o"
+        ]
+      },
+      {
+        "d": "2026-06-09",
+        "notre_bougie": {
+          "o": 389.95,
+          "h": 398.0,
+          "l": 385.2,
+          "c": 389.95,
+          "v": 5771
+        },
+        "operateur": {
+          "o": 398.0,
+          "h": 398.0,
+          "l": 385.2,
+          "c": 389.95,
+          "titres_echanges": 5771.0,
+          "volume_mad": 2258458.2
+        },
+        "champs_en_ecart": [
+          "o"
+        ]
+      },
+      {
+        "d": "2026-06-10",
+        "notre_bougie": {
+          "o": 370.0,
+          "h": 390.0,
+          "l": 370.0,
+          "c": 370.0,
+          "v": 33569
+        },
+        "operateur": {
+          "o": 390.0,
+          "h": 390.0,
+          "l": 370.0,
+          "c": 370.0,
+          "titres_echanges": 33569.0,
+          "volume_mad": 12536522.95
+        },
+        "champs_en_ecart": [
+          "o"
+        ]
+      },
+      {
+        "d": "2026-06-11",
+        "notre_bougie": {
+          "o": 360.5,
+          "h": 372.0,
+          "l": 360.0,
+          "c": 360.5,
+          "v": 37072
+        },
+        "operateur": {
+          "o": 371.0,
+          "h": 372.0,
+          "l": 360.0,
+          "c": 360.5,
+          "titres_echanges": 37072.0,
+          "volume_mad": 13427979.9
+        },
+        "champs_en_ecart": [
+          "o"
+        ]
+      },
+      {
+        "d": "2026-06-12",
+        "notre_bougie": {
+          "o": 384.4,
+          "h": 387.0,
+          "l": 378.0,
+          "c": 384.4,
+          "v": 10910
+        },
+        "operateur": {
+          "o": 387.0,
+          "h": 387.0,
+          "l": 378.0,
+          "c": 384.4,
+          "titres_echanges": 10910.0,
+          "volume_mad": 4175945.7
+        },
+        "champs_en_ecart": [
+          "o"
+        ]
+      },
+      {
+        "d": "2026-06-15",
+        "notre_bougie": {
+          "o": 410.0,
+          "h": 415.0,
+          "l": 390.0,
+          "c": 410.0,
+          "v": 46693
+        },
+        "operateur": {
+          "o": 399.5,
+          "h": 415.0,
+          "l": 390.0,
+          "c": 410.0,
+          "titres_echanges": 46693.0,
+          "volume_mad": 18937723.15
+        },
+        "champs_en_ecart": [
+          "o"
+        ]
+      },
+      {
+        "d": "2026-06-16",
+        "notre_bougie": {
+          "o": 423.9,
+          "h": 432.0,
+          "l": 411.0,
+          "c": 423.9,
+          "v": 54682
+        },
+        "operateur": {
+          "o": 411.0,
+          "h": 432.0,
+          "l": 411.0,
+          "c": 423.9,
+          "titres_echanges": 54682.0,
+          "volume_mad": 23124226.8
+        },
+        "champs_en_ecart": [
+          "o"
+        ]
+      },
+      {
+        "d": "2026-06-18",
+        "notre_bougie": {
+          "o": 411.0,
+          "h": 420.0,
+          "l": 411.0,
+          "c": 420.0,
+          "v": 54682
+        },
+        "operateur": {
+          "o": 428.9,
+          "h": 430.0,
+          "l": 410.3,
+          "c": 414.5,
+          "titres_echanges": 9837.0,
+          "volume_mad": 4124396.4
+        },
+        "champs_en_ecart": [
+          "o",
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-06-19",
+        "notre_bougie": {
+          "o": 428.9,
+          "h": 430.0,
+          "l": 410.3,
+          "c": 414.5,
+          "v": 4124396
+        },
+        "operateur": {
+          "o": 415.0,
+          "h": 415.0,
+          "l": 392.05,
+          "c": 404.0,
+          "titres_echanges": 9779.0,
+          "volume_mad": 3920460.3
+        },
+        "champs_en_ecart": [
+          "o",
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-06-25",
+        "notre_bougie": {
+          "o": 402.0,
+          "h": 402.0,
+          "l": 400.0,
+          "c": 400.0,
+          "v": 5023
+        },
+        "operateur": {
+          "o": 404.5,
+          "h": 405.0,
+          "l": 393.1,
+          "c": 405.0,
+          "titres_echanges": 2055.0,
+          "volume_mad": 820741.15
+        },
+        "champs_en_ecart": [
+          "o",
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-06-26",
+        "notre_bougie": {
+          "o": 404.5,
+          "h": 404.95,
+          "l": 404.5,
+          "c": 404.95,
+          "v": 2055
+        },
+        "operateur": {
+          "o": 393.3,
+          "h": 405.0,
+          "l": 393.3,
+          "c": 399.0,
+          "titres_echanges": 4954.0,
+          "volume_mad": 1981439.9
+        },
+        "champs_en_ecart": [
+          "o",
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-06-29",
+        "notre_bougie": {
+          "o": 393.3,
+          "h": 400.0,
+          "l": 393.3,
+          "c": 400.0,
+          "v": 4954
+        },
+        "operateur": {
+          "o": 400.0,
+          "h": 402.0,
+          "l": 393.15,
+          "c": 393.5,
+          "titres_echanges": 1684.0,
+          "volume_mad": 670593.8
+        },
+        "champs_en_ecart": [
+          "o",
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-06-30",
+        "notre_bougie": {
+          "o": 393.0,
+          "h": 393.0,
+          "l": 392.2,
+          "c": 392.2,
+          "v": 109816
+        },
+        "operateur": {
+          "o": 393.0,
+          "h": 400.0,
+          "l": 392.2,
+          "c": 400.0,
+          "titres_echanges": 932.0,
+          "volume_mad": 369608.0
+        },
+        "champs_en_ecart": [
+          "h",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-01",
+        "notre_bougie": {
+          "o": 393.1,
+          "h": 394.0,
+          "l": 393.1,
+          "c": 394.0,
+          "v": 86286
+        },
+        "operateur": {
+          "o": 393.1,
+          "h": 401.5,
+          "l": 390.0,
+          "c": 390.0,
+          "titres_echanges": 1509.0,
+          "volume_mad": 590532.3
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-02",
+        "notre_bougie": {
+          "o": 395.0,
+          "h": 398.0,
+          "l": 395.0,
+          "c": 398.0,
+          "v": 42586
+        },
+        "operateur": {
+          "o": 395.0,
+          "h": 398.0,
+          "l": 390.0,
+          "c": 395.9,
+          "titres_echanges": 402.0,
+          "volume_mad": 157856.0
+        },
+        "champs_en_ecart": [
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-03",
+        "notre_bougie": {
+          "o": 396.0,
+          "h": 396.0,
+          "l": 396.0,
+          "c": 396.0,
+          "v": 1980
+        },
+        "operateur": {
+          "o": 396.0,
+          "h": 398.0,
+          "l": 390.1,
+          "c": 398.0,
+          "titres_echanges": 6599.0,
+          "volume_mad": 2614957.9
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-06",
+        "notre_bougie": {
+          "o": 398.05,
+          "h": 398.05,
+          "l": 392.5,
+          "c": 392.5,
+          "v": 702182
+        },
+        "operateur": {
+          "o": 398.05,
+          "h": 402.0,
+          "l": 392.0,
+          "c": 400.0,
+          "titres_echanges": 2543.0,
+          "volume_mad": 1011765.15
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-07",
+        "notre_bougie": {
+          "o": 394.0,
+          "h": 399.75,
+          "l": 394.0,
+          "c": 399.75,
+          "v": 17589
+        },
+        "operateur": {
+          "o": 394.0,
+          "h": 399.95,
+          "l": 391.5,
+          "c": 391.55,
+          "titres_echanges": 676.0,
+          "volume_mad": 264918.0
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-08",
+        "notre_bougie": {
+          "o": 391.65,
+          "h": 391.65,
+          "l": 390.0,
+          "c": 390.0,
+          "v": 919620
+        },
+        "operateur": {
+          "o": 391.65,
+          "h": 395.0,
+          "l": 386.0,
+          "c": 394.6,
+          "titres_echanges": 3173.0,
+          "volume_mad": 1239909.4
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-09",
+        "notre_bougie": {
+          "o": 388.0,
+          "h": 388.0,
+          "l": 388.0,
+          "c": 388.0,
+          "v": 19400
+        },
+        "operateur": {
+          "o": 388.0,
+          "h": 392.5,
+          "l": 385.35,
+          "c": 392.45,
+          "titres_echanges": 1547.0,
+          "volume_mad": 604690.85
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-10",
+        "notre_bougie": {
+          "o": 388.0,
+          "h": 388.0,
+          "l": 388.0,
+          "c": 388.0,
+          "v": 3104
+        },
+        "operateur": {
+          "o": 388.0,
+          "h": 390.0,
+          "l": 385.0,
+          "c": 388.95,
+          "titres_echanges": 3660.0,
+          "volume_mad": 1419045.95
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-13",
+        "notre_bougie": {
+          "o": 385.0,
+          "h": 385.0,
+          "l": 385.0,
+          "c": 385.0,
+          "v": 26565
+        },
+        "operateur": {
+          "o": 385.0,
+          "h": 395.0,
+          "l": 376.0,
+          "c": 395.0,
+          "titres_echanges": 4264.0,
+          "volume_mad": 1646865.9
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-14",
+        "notre_bougie": {
+          "o": 380.0,
+          "h": 392.9,
+          "l": 380.0,
+          "c": 392.9,
+          "v": 198807
+        },
+        "operateur": {
+          "o": 393.0,
+          "h": 393.0,
+          "l": 377.0,
+          "c": 379.9,
+          "titres_echanges": 16365.0,
+          "volume_mad": 6237750.45
+        },
+        "champs_en_ecart": [
+          "o",
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-15",
+        "notre_bougie": {
+          "o": 378.0,
+          "h": 378.0,
+          "l": 376.2,
+          "c": 376.2,
+          "v": 53420
+        },
+        "operateur": {
+          "o": 378.0,
+          "h": 388.9,
+          "l": 376.2,
+          "c": 388.9,
+          "titres_echanges": 2704.0,
+          "volume_mad": 1041050.5
+        },
+        "champs_en_ecart": [
+          "h",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-16",
+        "notre_bougie": {
+          "o": 387.9,
+          "h": 388.0,
+          "l": 387.9,
+          "c": 388.0,
+          "v": 34144
+        },
+        "operateur": {
+          "o": 387.9,
+          "h": 388.0,
+          "l": 378.0,
+          "c": 378.0,
+          "titres_echanges": 7077.0,
+          "volume_mad": 2682076.65
+        },
+        "champs_en_ecart": [
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-17",
+        "notre_bougie": {
+          "o": 378.0,
+          "h": 378.0,
+          "l": 378.0,
+          "c": 378.0,
+          "v": 33642
+        },
+        "operateur": {
+          "o": 378.0,
+          "h": 379.85,
+          "l": 370.0,
+          "c": 370.0,
+          "titres_echanges": 14870.0,
+          "volume_mad": 5522546.9
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-20",
+        "notre_bougie": {
+          "o": 369.0,
+          "h": 370.0,
+          "l": 369.0,
+          "c": 370.0,
+          "v": 0
+        },
+        "operateur": {
+          "o": 369.0,
+          "h": 374.0,
+          "l": 365.0,
+          "c": 365.0,
+          "titres_echanges": 9813.0,
+          "volume_mad": 3588059.0
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-21",
+        "notre_bougie": {
+          "o": 372.9,
+          "h": 373.0,
+          "l": 372.9,
+          "c": 373.0,
+          "v": 22380
+        },
+        "operateur": {
+          "o": 372.9,
+          "h": 374.0,
+          "l": 365.0,
+          "c": 365.0,
+          "titres_echanges": 5164.0,
+          "volume_mad": 1885869.0
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-22",
+        "notre_bougie": {
+          "o": 365.0,
+          "h": 369.0,
+          "l": 365.0,
+          "c": 369.0,
+          "v": 26937
+        },
+        "operateur": {
+          "o": 365.0,
+          "h": 370.0,
+          "l": 362.1,
+          "c": 370.0,
+          "titres_echanges": 1864.0,
+          "volume_mad": 684679.65
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-23",
+        "notre_bougie": {
+          "o": 370.0,
+          "h": 370.0,
+          "l": 370.0,
+          "c": 370.0,
+          "v": 540570
+        },
+        "operateur": {
+          "o": 370.0,
+          "h": 373.0,
+          "l": 366.05,
+          "c": 366.05,
+          "titres_echanges": 8001.0,
+          "volume_mad": 2935852.0
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-24",
+        "notre_bougie": {
+          "o": 377.0,
+          "h": 377.0,
+          "l": 368.0,
+          "c": 368.0,
+          "v": 30912
+        },
+        "operateur": {
+          "o": 377.0,
+          "h": 377.0,
+          "l": 360.0,
+          "c": 360.0,
+          "titres_echanges": 11301.0,
+          "volume_mad": 4076202.3
+        },
+        "champs_en_ecart": [
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-27",
+        "notre_bougie": {
+          "o": 369.0,
+          "h": 369.0,
+          "l": 367.0,
+          "c": 367.0,
+          "v": 51380
+        },
+        "operateur": {
+          "o": 369.0,
+          "h": 369.0,
+          "l": 362.15,
+          "c": 366.5,
+          "titres_echanges": 3573.0,
+          "volume_mad": 1307287.25
+        },
+        "champs_en_ecart": [
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-28",
+        "notre_bougie": {
+          "o": 363.0,
+          "h": 368.8,
+          "l": 363.0,
+          "c": 368.8,
+          "v": 289876
+        },
+        "operateur": {
+          "o": 363.0,
+          "h": 369.9,
+          "l": 361.0,
+          "c": 366.85,
+          "titres_echanges": 2277.0,
+          "volume_mad": 835316.0
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-29",
+        "notre_bougie": {
+          "o": 370.0,
+          "h": 370.0,
+          "l": 368.0,
+          "c": 368.0,
+          "v": 275632
+        },
+        "operateur": {
+          "o": 370.0,
+          "h": 370.0,
+          "l": 361.0,
+          "c": 369.0,
+          "titres_echanges": 4352.0,
+          "volume_mad": 1594771.55
+        },
+        "champs_en_ecart": [
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-07-31",
+        "notre_bougie": {
+          "o": 369.0,
+          "h": 369.0,
+          "l": 369.0,
+          "c": 369.0,
+          "v": 0
+        },
+        "operateur": {
+          "o": 368.4,
+          "h": 368.9,
+          "l": 363.2,
+          "c": 365.1,
+          "titres_echanges": 5732.0,
+          "volume_mad": 2094757.25
+        },
+        "champs_en_ecart": [
+          "o",
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-08-03",
+        "notre_bougie": {
+          "o": 365.5,
+          "h": 365.7,
+          "l": 365.5,
+          "c": 365.7,
+          "v": 13530
+        },
+        "operateur": {
+          "o": 365.5,
+          "h": 369.0,
+          "l": 365.0,
+          "c": 366.35,
+          "titres_echanges": 2820.0,
+          "volume_mad": 1032406.75
+        },
+        "champs_en_ecart": [
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-08-04",
+        "notre_bougie": {
+          "o": 365.71,
+          "h": 376.9,
+          "l": 365.71,
+          "c": 376.9,
+          "v": 0
+        },
+        "operateur": {
+          "o": 369.0,
+          "h": 386.0,
+          "l": 367.0,
+          "c": 376.9,
+          "titres_echanges": 3537.0,
+          "volume_mad": 1324200.15
+        },
+        "champs_en_ecart": [
+          "o",
+          "h",
+          "l"
+        ]
+      },
+      {
+        "d": "2026-08-05",
+        "notre_bougie": {
+          "o": 376.9,
+          "h": 376.9,
+          "l": 376.9,
+          "c": 376.9,
+          "v": 0
+        },
+        "operateur": {
+          "o": 377.4,
+          "h": 377.4,
+          "l": 370.0,
+          "c": 377.0,
+          "titres_echanges": 4179.0,
+          "volume_mad": 1560867.35
+        },
+        "champs_en_ecart": [
+          "o",
+          "h",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "d": "2026-08-06",
+        "notre_bougie": {
+          "o": 380.0,
+          "h": 380.0,
+          "l": 380.0,
+          "c": 380.0,
+          "v": 0
+        },
+        "operateur": {
+          "o": 379.0,
+          "h": 380.0,
+          "l": 371.65,
+          "c": 380.0,
+          "titres_echanges": 13271.0,
+          "volume_mad": 5028045.75
+        },
+        "champs_en_ecart": [
+          "o",
+          "l"
+        ]
+      },
+      {
+        "d": "2026-08-10",
+        "notre_bougie": {
+          "o": 413.0,
+          "h": 413.0,
+          "l": 410.0,
+          "c": 410.0,
+          "v": 8916
+        },
+        "operateur": {
+          "o": 413.0,
+          "h": 413.0,
+          "l": 393.0,
+          "c": 410.0,
+          "titres_echanges": 8916.0,
+          "volume_mad": 3613931.8
+        },
+        "champs_en_ecart": [
+          "l"
+        ]
+      },
+      {
+        "d": "2026-08-11",
+        "notre_bougie": {
+          "o": 410.0,
+          "h": 410.0,
+          "l": 398.0,
+          "c": 398.0,
+          "v": 12892
+        },
+        "operateur": {
+          "o": 410.0,
+          "h": 410.0,
+          "l": 390.0,
+          "c": 398.0,
+          "titres_echanges": 12892.0,
+          "volume_mad": 5118156.1
+        },
+        "champs_en_ecart": [
+          "l"
+        ]
+      },
+      {
+        "d": "2026-08-12",
+        "notre_bougie": {
+          "o": 400.0,
+          "h": 400.0,
+          "l": 393.0,
+          "c": 397.0,
+          "v": 4827
+        },
+        "operateur": {
+          "o": 400.0,
+          "h": 400.0,
+          "l": 390.0,
+          "c": 397.0,
+          "titres_echanges": 4827.0,
+          "volume_mad": 1914759.55
+        },
+        "champs_en_ecart": [
+          "l"
+        ]
+      },
+      {
+        "d": "2026-08-13",
+        "notre_bougie": {
+          "o": 425.0,
+          "h": 425.0,
+          "l": 422.05,
+          "c": 424.2,
+          "v": 68633
+        },
+        "operateur": {
+          "o": 425.0,
+          "h": 427.0,
+          "l": 418.1,
+          "c": 424.2,
+          "titres_echanges": 68633.0,
+          "volume_mad": 29100788.2
+        },
+        "champs_en_ecart": [
+          "h",
+          "l"
+        ]
+      },
+      {
+        "d": "2026-08-17",
+        "notre_bougie": {
+          "o": 425.0,
+          "h": 425.0,
+          "l": 418.0,
+          "c": 424.0,
+          "v": 11561
+        },
+        "operateur": {
+          "o": 425.0,
+          "h": 425.95,
+          "l": 415.3,
+          "c": 424.0,
+          "titres_echanges": 11561.0,
+          "volume_mad": 4893956.25
+        },
+        "champs_en_ecart": [
+          "h",
+          "l"
+        ]
+      },
+      {
+        "d": "2026-08-18",
+        "notre_bougie": {
+          "o": 420.0,
+          "h": 423.0,
+          "l": 418.0,
+          "c": 422.0,
+          "v": 7475
+        },
+        "operateur": {
+          "o": 420.0,
+          "h": 423.0,
+          "l": 417.15,
+          "c": 422.0,
+          "titres_echanges": 7475.0,
+          "volume_mad": 3138862.2
+        },
+        "champs_en_ecart": [
+          "l"
+        ]
+      },
+      {
+        "d": "2026-08-19",
+        "notre_bougie": {
+          "o": 420.0,
+          "h": 429.95,
+          "l": 419.0,
+          "c": 429.95,
+          "v": 18768
+        },
+        "operateur": {
+          "o": 420.0,
+          "h": 429.95,
+          "l": 415.05,
+          "c": 429.95,
+          "titres_echanges": 18768.0,
+          "volume_mad": 8018139.4
+        },
+        "champs_en_ecart": [
+          "l"
+        ]
+      },
+      {
+        "d": "2026-08-24",
+        "notre_bougie": {
+          "o": 430.0,
+          "h": 439.9,
+          "l": 430.0,
+          "c": 436.2,
+          "v": 27949
+        },
+        "operateur": {
+          "o": 430.0,
+          "h": 441.0,
+          "l": 426.1,
+          "c": 436.2,
+          "titres_echanges": 27949.0,
+          "volume_mad": 12203364.05
+        },
+        "champs_en_ecart": [
+          "h",
+          "l"
+        ]
+      },
+      {
+        "d": "2026-08-27",
+        "notre_bougie": {
+          "o": 436.2,
+          "h": 440.95,
+          "l": 436.2,
+          "c": 437.0,
+          "v": 27573
+        },
+        "operateur": {
+          "o": 436.2,
+          "h": 442.0,
+          "l": 433.15,
+          "c": 437.0,
+          "titres_echanges": 27573.0,
+          "volume_mad": 12052381.55
+        },
+        "champs_en_ecart": [
+          "h",
+          "l"
+        ]
+      },
+      {
+        "d": "2026-08-31",
+        "notre_bougie": {
+          "o": 426.0,
+          "h": 426.0,
+          "l": 415.5,
+          "c": 415.5,
+          "v": 4366
+        },
+        "operateur": {
+          "o": 426.0,
+          "h": 426.0,
+          "l": 415.4,
+          "c": 415.5,
+          "titres_echanges": 4366.0,
+          "volume_mad": 1819277.3
+        },
+        "champs_en_ecart": [
+          "l"
+        ]
+      },
+      {
+        "d": "2026-09-01",
+        "notre_bougie": {
+          "o": 415.2,
+          "h": 420.0,
+          "l": 410.0,
+          "c": 420.0,
+          "v": 11690
+        },
+        "operateur": {
+          "o": 415.2,
+          "h": 420.0,
+          "l": 406.8,
+          "c": 420.0,
+          "titres_echanges": 11690.0,
+          "volume_mad": 4879967.0
+        },
+        "champs_en_ecart": [
+          "l"
+        ]
+      },
+      {
+        "d": "2026-09-02",
+        "notre_bougie": {
+          "o": 417.0,
+          "h": 420.0,
+          "l": 412.0,
+          "c": 420.0,
+          "v": 12947
+        },
+        "operateur": {
+          "o": 417.0,
+          "h": 420.0,
+          "l": 410.0,
+          "c": 420.0,
+          "titres_echanges": 12947.0,
+          "volume_mad": 5429922.1
+        },
+        "champs_en_ecart": [
+          "l"
+        ]
+      },
+      {
+        "d": "2026-09-03",
+        "notre_bougie": {
+          "o": 420.0,
+          "h": 425.0,
+          "l": 420.0,
+          "c": 420.0,
+          "v": 2498
+        },
+        "operateur": {
+          "o": 420.0,
+          "h": 425.0,
+          "l": 415.15,
+          "c": 420.0,
+          "titres_echanges": 2498.0,
+          "volume_mad": 1048820.65
+        },
+        "champs_en_ecart": [
+          "l"
+        ]
+      },
+      {
+        "d": "2026-09-08",
+        "notre_bougie": {
+          "o": 423.55,
+          "h": 423.55,
+          "l": 417.9,
+          "c": 420.0,
+          "v": 444
+        },
+        "operateur": {
+          "o": 423.55,
+          "h": 423.55,
+          "l": 415.0,
+          "c": 420.0,
+          "titres_echanges": 444.0,
+          "volume_mad": 186358.25
+        },
+        "champs_en_ecart": [
+          "l"
+        ]
+      },
+      {
+        "d": "2026-09-09",
+        "notre_bougie": {
+          "o": 416.0,
+          "h": 419.8,
+          "l": 416.0,
+          "c": 419.8,
+          "v": 11418
+        },
+        "operateur": {
+          "o": 416.0,
+          "h": 419.95,
+          "l": 412.5,
+          "c": 419.8,
+          "titres_echanges": 11418.0,
+          "volume_mad": 4746783.0
+        },
+        "champs_en_ecart": [
+          "h",
+          "l"
+        ]
+      },
+      {
+        "d": "2026-09-10",
+        "notre_bougie": {
+          "o": 418.95,
+          "h": 418.95,
+          "l": 412.9,
+          "c": 412.9,
+          "v": 2129
+        },
+        "operateur": {
+          "o": 418.95,
+          "h": 419.4,
+          "l": 412.9,
+          "c": 412.9,
+          "titres_echanges": 2129.0,
+          "volume_mad": 884153.05
+        },
+        "champs_en_ecart": [
+          "h"
+        ]
+      },
+      {
+        "d": "2026-09-11",
+        "notre_bougie": {
+          "o": 413.0,
+          "h": 413.0,
+          "l": 410.0,
+          "c": 410.0,
+          "v": 6503
+        },
+        "operateur": {
+          "o": 413.0,
+          "h": 413.0,
+          "l": 409.0,
+          "c": 410.0,
+          "titres_echanges": 6503.0,
+          "volume_mad": 2672892.65
+        },
+        "champs_en_ecart": [
+          "l"
+        ]
+      },
+      {
+        "d": "2026-09-14",
+        "notre_bougie": {
+          "o": 408.0,
+          "h": 408.0,
+          "l": 405.0,
+          "c": 405.0,
+          "v": 719
+        },
+        "operateur": {
+          "o": 408.0,
+          "h": 415.0,
+          "l": 405.0,
+          "c": 405.0,
+          "titres_echanges": 719.0,
+          "volume_mad": 292926.55
+        },
+        "champs_en_ecart": [
+          "h"
+        ]
+      }
+    ]
+  }
+}
