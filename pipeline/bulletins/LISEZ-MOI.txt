@@ -1,0 +1,84 @@
+Bulletins « Indices » de CDG Capital Bourse, tels que reçus.
+
+Ils sont ici pour qu'une affirmation qui s'appuie sur eux puisse être
+recoupée par le lecteur. L'audit externe a relevé, à raison, qu'un dossier
+citant « trois bulletins consécutifs » sans les joindre ne prouve rien.
+
+⚠️ CE QUE CES PIÈCES NE SONT PAS
+Le bulletin est la publication de fin de journée d'une société de bourse.
+C'est la source la plus proche du marché dont nous disposions en automatique,
+ce n'est pas une preuve d'exactitude. Un écart est un ÉCART, pas une erreur de
+notre côté tant que sa cause n'est pas établie.
+
+⚠️ ET LE RECOUPEMENT N'EST PAS TOUJOURS INDÉPENDANT
+Nos cours viennent majoritairement de CDG, même éditeur que ce bulletin.
+Comparer les deux vérifie la chaîne de bout en bout — la traduction des codes,
+l'arbitrage par la date, l'écriture des chandelles — mais ne constitue PAS un
+contrôle extérieur au fournisseur.
+
+
+CDG_indices_2026-09-14.pdf
+──────────────────────────
+sha256 5afe25e5af340bd198ac2a390239c547f41a47cecb9b43f6f92bdb8a6421795b
+81 instruments, 69 cotés, dernier échange à 15:41:22.
+
+CE QU'IL ÉTABLIT
+
+1. LA SÉANCE DU 14/09 EST CONFORME.
+   python3 pipeline/parse_cdg_bulletin.py <ce fichier> --verifier 2026-09-14
+       admissibles 80 · comparés 65 · écarts 0 · tolérance 0,1 %
+       VERDICT CONCORDANCE
+   Non comparés : 11 titres que le bulletin ne cote pas (AGM BAL CMT DAR DIS
+   DLM EQD MGL SAF SRM ZLD) et 4 sans aucune chandelle (MDP PPM SLM T2S).
+
+2. ⚠️ ICI, LE TITRE DU BULLETIN PORTE LA DATE DE LA SÉANCE.
+   Le fichier s'intitule « Indices du lundi 14 septembre 2026 » et contient la
+   séance du lundi 14. Mesuré, non supposé : contre nos chandelles du 14/09,
+   40 clôtures concordent et 1 seule diverge ; contre celles du 11/09,
+   4 concordent et 32 divergent.
+
+   C'est un CONTRE-EXEMPLE à ce qui était écrit ici. La formulation antérieure
+   — « le titre porte la date de publication, pas celle de la séance » — avait
+   déjà été corrigée en « observation » après une revue externe ; ce bulletin
+   montre qu'elle ne se généralise pas du tout. Le bulletin du 9 septembre
+   concordait avec nos chandelles du 8 ; celui-ci concorde avec celles du 14.
+
+   ⚠️ La cause n'est pas établie. Le fichier seul ne dit pas s'il s'agit d'un
+   changement de convention, d'une édition du soir, ou d'autre chose. NE PAS
+   déduire la date d'une séance du nom du fichier, dans un sens ni dans
+   l'autre : `date_seance()` la lit dans la pièce, et la concordance la
+   confirme.
+
+3. ⚠️ L'UNIQUE « ÉCART » DE LA PASSE BRUTE ÉTAIT LE PIÈGE HABITUEL.
+   Sans traduction, le `SNA` du bulletin (65,60) tombait sur notre Sonasid
+   (1 900,00). `SNA` est STOKVIS à la Bourse de Casablanca ; Sonasid y est
+   `SID`. Une fois `IDB_TICKER_MAP` appliquée — ce que fait `--verifier` — les
+   deux lignes retombent chacune chez elle et l'écart disparaît. Le bulletin
+   donne d'ailleurs, pour SID au 14/09 : ouverture 1 937,00, plus-haut
+   1 937,00, plus-bas 1 900,00, clôture 1 900,00, 46 titres — exactement notre
+   chandelle.
+
+4. CMT N'A PAS COTÉ, POUR LA TROISIÈME FOIS DOCUMENTÉE.
+       CMT 0.00 0 - 0.00 - 0.00 0.00 0.00 NaN:NaN:NaN
+   Tout à zéro, sans heure de dernier échange. CDG laisse les champs vides
+   quand un titre n'a pas coté au lieu de rediffuser la veille — c'est la
+   raison pour laquelle R3 la place en tête de chaîne, et c'est la
+   confirmation extérieure de la variation nulle que nous publions.
+
+5. QUATRE TITRES SONT SERVIS SANS AUCUN HISTORIQUE.
+   MDP, PPM, SLM et T2S n'ont pas de fichier dans pipeline/candles/ : le
+   terminal leur affiche `n_candles: 0` et un RSI de 50, qui est la valeur
+   NEUTRE PAR DÉFAUT et non une mesure. Le bulletin cote pourtant les quatre
+   au 14/09 :
+       MDP   c 24,61   o 24,60    h 25,00    l 24,60    qté 401
+       PPM   c 1398,00 o 1398,00  h 1398,00  l 1398,00  qté 10
+       SLM   c 435,00  o 436,00   h 444,00   l 430,00   qté 606
+       T2S   c 225,00  o 226,80   h 227,00   l 224,00   qté 13 736
+   ⚠️ Trois d'entre eux sont à `confidence: 1` et le terminal remplace donc
+   leur signal par « Données insuffisantes ». SLM est à 2 — il affiche un
+   signal dont tout le bloc technique est un défaut.
+
+UNITÉ DU VOLUME
+  L'en-tête distingue « QteEchangee » (nombre de titres) de « Volumes »
+  (montant en dirhams). Le moteur lit QteEchangee pour son champ `vol`.
+  Les deux colonnes restent DISTINCTES et aucune conversion n'est appliquée.
