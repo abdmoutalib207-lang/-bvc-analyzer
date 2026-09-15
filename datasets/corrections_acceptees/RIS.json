@@ -1,0 +1,138 @@
+{
+  "_quoi": "Corrections de séances RÉCEPTIONNÉES pour RIS.",
+  "_pourquoi": "⚠️ 6 séances où notre volume est NUL — donc « aucun échange » — alors que l'opérateur enregistre des transactions et publie un autre cours. Le prix n'a pas été mesuré ces jours-là : il a été rediffusé.",
+  "ticker": "RIS",
+  "instrument": "RISMA",
+  "_statut": "RÉCEPTIONNÉ — instruction, pas signalement",
+  "_recu_de": "Abd Moutalib, 15/09/2026 — export fourni à ma demande",
+  "source": {
+    "fichier": "sources/RIS/6e88769d-Cours_RIS___2023-09-16_2026-09-15.csv",
+    "sha256": "a4224374b1896d736f01747c606379d41ea2fa2d7b90cb54654513ab7c38cfac",
+    "code_operateur": "RIS",
+    "identite_portee_sur_chaque_ligne_de_cours": "RIS / RISMA"
+  },
+  "_unite_du_champ_v": "NOMBRE DE TITRES — convention MESURÉE de ce titre. ⚠️ L'unification des unités entre titres reste un arbitrage ouvert : elle n'est pas tranchée ici.",
+  "seances": 6,
+  "lignes": [
+    {
+      "d": "2026-06-30",
+      "corrige": {
+        "o": 329.0,
+        "h": 336.9,
+        "l": 328.0,
+        "c": 336.9,
+        "v": 1492
+      },
+      "remplace": {
+        "o": 334.9,
+        "h": 334.9,
+        "l": 334.9,
+        "c": 334.9,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 1492 titres échangés pour 498487.7 DH"
+    },
+    {
+      "d": "2026-07-01",
+      "corrige": {
+        "o": 329.1,
+        "h": 334.6,
+        "l": 329.0,
+        "c": 334.6,
+        "v": 661
+      },
+      "remplace": {
+        "o": 334.9,
+        "h": 334.9,
+        "l": 334.9,
+        "c": 334.9,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 661 titres échangés pour 218246.65 DH"
+    },
+    {
+      "d": "2026-07-20",
+      "corrige": {
+        "o": 313.0,
+        "h": 315.0,
+        "l": 311.0,
+        "c": 315.0,
+        "v": 1230
+      },
+      "remplace": {
+        "o": 313.0,
+        "h": 314.0,
+        "l": 313.0,
+        "c": 314.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 1230 titres échangés pour 384807.5 DH"
+    },
+    {
+      "d": "2026-07-31",
+      "corrige": {
+        "o": 320.0,
+        "h": 322.9,
+        "l": 315.1,
+        "c": 315.6,
+        "v": 1852
+      },
+      "remplace": {
+        "o": 320.0,
+        "h": 320.0,
+        "l": 320.0,
+        "c": 320.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 1852 titres échangés pour 590947.05 DH"
+    },
+    {
+      "d": "2026-08-05",
+      "corrige": {
+        "o": 320.0,
+        "h": 323.5,
+        "l": 320.0,
+        "c": 320.0,
+        "v": 2317
+      },
+      "remplace": {
+        "o": 320.0,
+        "h": 320.0,
+        "l": 320.0,
+        "c": 320.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 2317 titres échangés pour 743262.75 DH"
+    },
+    {
+      "d": "2026-08-06",
+      "corrige": {
+        "o": 320.0,
+        "h": 326.0,
+        "l": 320.0,
+        "c": 325.0,
+        "v": 4813
+      },
+      "remplace": {
+        "o": 325.0,
+        "h": 325.0,
+        "l": 325.0,
+        "c": 325.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 4813 titres échangés pour 1556592.05 DH"
+    }
+  ]
+}

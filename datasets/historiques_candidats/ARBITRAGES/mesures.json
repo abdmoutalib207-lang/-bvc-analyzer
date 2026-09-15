@@ -3,7 +3,7 @@
   "_statut": "MESURE — AUCUNE DONNÉE SERVIE N'EST MODIFIÉE PAR CE LOT",
   "_methode": "on ne demande pas « faut-il ? » : on chiffre ce que chaque option coûte, et la décision se prend sur des nombres.",
   "arbitrage_1_la_moyenne_200_jours": {
-    "_le_fait": "28 titres sur 74 affichent une « MA200 » calculée sur moins de 200 séances. Depuis le 15/09/2026, `calc_ma` rend une absence sous la période : ils passeront à « — » au fil des recalculs de cache.",
+    "_le_fait": "27 titres sur 74 affichent une « MA200 » calculée sur moins de 200 séances. Depuis le 15/09/2026, `calc_ma` rend une absence sous la période : ils passeront à « — » au fil des recalculs de cache.",
     "_ce_que_cela_ne_change_PAS": "⚠️ Mesuré dans le code : `ma200` n'est passé NI à `calc_score_tech` NI à `compute_v53`. Aucun score, aucun signal ne dépend de lui. C'est un champ d'AFFICHAGE.",
     "_ce_que_cela_change": "le lecteur perd un repère de tendance sur 32 titres — et ce repère était faux de 20 à 56 % sur sept d'entre eux.",
     "_les_pires_ecarts": [
@@ -205,13 +205,6 @@
         "ecart_pct": 8.2
       },
       {
-        "ticker": "STR",
-        "bougies": 61,
-        "ma200_affichee": 185.72,
-        "cours": 175.0,
-        "ecart_pct": 6.1
-      },
-      {
         "ticker": "TMA",
         "bougies": 69,
         "ma200_affichee": 1522.99,
@@ -247,7 +240,7 @@
         "ecart_pct": -11.4
       }
     ],
-    "_le_compte_a_bouge": "⚠️ Ils étaient 32 à la première mesure. Quatre en sont SORTIS — CIM, HAL, MUT, STK — non pas parce que la règle a changé, mais parce que leur série a été corrigée : le recalcul de leur cache a retiré la fausse MA200 au passage. Le dossier est daté, et il le dit."
+    "_le_compte_a_bouge": "⚠️ 32 à la première mesure, 28 après le lot des sept titres, 27 maintenant. Le compte DESCEND à mesure que les séries sont corrigées : recalculer le cache d'un titre retire sa fausse MA200 au passage. Ce dossier est une PHOTO, pas une liste figée — il est remesuré à chaque lot, et un test exige qu'il concorde avec le dépôt."
   },
   "arbitrage_2_l_unite_du_champ_volume": {
     "_le_fait": "⚠️ Le champ `v` de pipeline/candles/ ne porte PAS la même unité selon le titre. Mesuré séance par séance sur les 15 exports archivés, en comparant à la MÊME séance chez l'opérateur.",

@@ -56,7 +56,7 @@ def test_les_titres_annonces_sont_bien_ceux_du_cache(mesures):
     annonces = {c["ticker"] for c in mesures["arbitrage_1_la_moyenne_200_jours"]["titres_concernes"]}
     assert annonces == reels
     assert 0 < len(reels) < 74
-    assert "Quatre en sont SORTIS" in mesures["arbitrage_1_la_moyenne_200_jours"]["_le_compte_a_bouge"]
+    assert "Le compte DESCEND" in mesures["arbitrage_1_la_moyenne_200_jours"]["_le_compte_a_bouge"]
 
 
 def test_la_ma200_n_entre_dans_aucun_score(mesures):
