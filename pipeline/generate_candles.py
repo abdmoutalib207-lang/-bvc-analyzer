@@ -25,6 +25,8 @@ TIMEOUT     = 15
 
 XLSX_ALIAS = {"TGC": "TGCC"}
 
+sys.path.insert(0, str(Path(__file__).parent))
+
 SERIES_ACCEPTEES = ROOT / "datasets" / "series_acceptees"
 
 
@@ -41,6 +43,33 @@ def serie_acceptee(ticker: str, dossier: Path | None = None) -> bool:
     Un import ne discute pas une instruction.
     """
     return ((dossier or SERIES_ACCEPTEES) / f"{ticker}.json").exists()
+
+
+def _reimposer(ticker, candles):
+    """Réimpose les séances corrigées avant d'écrire.
+
+    ⚠️ CE QUI EST ARRIVÉ LE 15/09/2026, ET CE QUE J'AVAIS MAL FAIT.
+    La couche `corrections_acceptees` avait été branchée dans
+    `collect_history_bvcscrap.py` — et là seulement. J'avais pourtant écrit, en
+    posant la garde des séries réceptionnées : « trois programmes écrivent dans
+    pipeline/candles/, en protéger un seul ne protège rien ». Je ne l'ai pas
+    appliqué à la couche de corrections.
+
+    Résultat, mesuré : les 486 séances de Sothema ramenées à la bonne échelle à
+    20h27 ont été réécrites à l'ancienne par ce programme-ci quelques minutes
+    plus tard. Le même défaut que CMT le 14/09, par l'autre porte.
+    """
+    try:
+        from corrections_acceptees import appliquer
+    except ImportError:          # couche absente : on n'invente rien
+        return candles
+    out, rapport = appliquer(ticker, candles)
+    if rapport["corrections"]:
+        log.warning(f"  {ticker}: {rapport['corrections']} séance(s) corrigée(s) "
+                    f"réimposée(s) avant écriture")
+    for r in rapport["refus"]:
+        log.warning(f"     refus {r['seance']} : {r['motif']}")
+    return out
 
 try:
     sys.path.insert(0, str(ROOT))
@@ -163,6 +192,7 @@ def generate_from_xlsx() -> dict:
                 except Exception:
                     pass
 
+            candles = _reimposer(ticker, candles)
             out.write_text(json.dumps(candles, separators=(",",":")))
             log.info(f"  ✓ {ticker}: {len(candles)} bougies (XLSX)")
             results[ticker] = len(candles)
@@ -232,6 +262,7 @@ def generate_from_med24(skip_existing_tickers: set = None, days: int = 400) -> d
                 except Exception:
                     pass
 
+            candles = _reimposer(ticker, candles)
             out.write_text(json.dumps(candles, separators=(",",":")))
             log.info(f"  ✓ {ticker}: {len(candles)} bougies (Médias24)")
             results[ticker] = len(candles)
