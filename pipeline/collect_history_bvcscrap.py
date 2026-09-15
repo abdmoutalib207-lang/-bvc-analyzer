@@ -335,8 +335,15 @@ def calc_rsi(closes: pd.Series, period: int = 14):
     return round(100.0 - 100.0 / (1.0 + mg / mp), 1)
 
 def calc_ma(closes: pd.Series, period: int) -> float:
+    # ⚠️ MOINS DE SÉANCES QUE LA PÉRIODE : PAS DE MOYENNE, PAS D'À-PEU-PRÈS.
+    # Cette fonction rendait la moyenne de CE QU'ELLE AVAIT. Un titre de
+    # trente séances sortait donc une « MA200 » qui était une moyenne de
+    # trente jours — et rien à l'écran ne le disait. Mesuré le 15/09/2026 :
+    # 32 titres sur 74 affichaient une MA200 calculée sur 52 à 166 séances.
+    # Le terminal rend une valeur absente par « — » ; c'est la seule
+    # écriture honnête tant que la période n'est pas atteinte.
     if len(closes) < period:
-        return round(float(closes.mean()), 2)
+        return None
     return round(float(closes.tail(period).mean()), 2)
 
 
