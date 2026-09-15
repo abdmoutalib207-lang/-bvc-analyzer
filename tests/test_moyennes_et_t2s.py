@@ -172,3 +172,31 @@ def test_les_extremes_de_t2s_ne_couvrent_pas_52_semaines(serie):
     assert cache["l52w"] == min(b["l"] for b in serie) == 224.0
     assert len(serie) < 250, (
         "si la série dépasse une année de cotation, ce test n'a plus d'objet")
+
+
+# ── L'écran : une moyenne absente s'affiche « — », jamais « 0,00 » ─────────
+
+def _jsx() -> str:
+    """Le bloc JSX d'index.html, COMMENTAIRES ÔTÉS.
+
+    ⚠️ Sans ce filtrage, les tests ci-dessous passeraient sur le commentaire
+    qui explique la correction plutôt que sur le code. Ce dépôt s'y est laissé
+    prendre cinq fois.
+    """
+    import re
+    s = (RACINE / "index.html").read_text(encoding="utf-8")
+    bloc = re.search(r'<script type="text/babel"[^>]*>(.*?)</script>', s, re.S).group(1)
+    bloc = re.sub(r"\{/\*.*?\*/\}", "", bloc, flags=re.S)
+    return re.sub(r"/\*.*?\*/", "", bloc, flags=re.S)
+
+
+def test_aucune_moyenne_n_est_rendue_par_un_zero():
+    """⚠️ `px(r.ma50||0)` affichait « 0,00 » pour une moyenne absente. Un zéro
+    se lit comme un cours, pas comme une absence — et depuis que `calc_ma`
+    rend None sous sa période, le cas se produit pour de vrai (T2S)."""
+    src = _jsx()
+    for champ in ("ma20", "ma50", "ma200"):
+        assert f"px(r.{champ}||0)" not in src, (
+            f"r.{champ} est rendu par zéro quand il est absent")
+        assert f"r.{champ}?px(r.{champ})" in src, (
+            f"r.{champ} doit être rendu « — » quand il est absent")

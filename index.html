@@ -898,7 +898,12 @@ const StockChart=({r})=>{
         <button onClick={()=>setShowIchi(v=>!v)} title="Ichimoku (Tenkan 9 / Kijun 26)" style={{background:showIchi?"rgba(255,111,64,.15)":"transparent",border:showIchi?"1px solid rgba(255,111,64,.4)":"1px solid #1a2540",color:showIchi?"#ff6f40":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>ICHI</button>
         <button onClick={()=>setShowSR(v=>!v)} title="Support / Résistance (swing highs & lows)" style={{background:showSR?"rgba(0,229,160,.12)":"transparent",border:showSR?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:showSR?"#00e5a0":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>S/R</button>
         <span style={{marginLeft:"auto",fontSize:9,color:isLive?"#00e5a0":"#8892a4"}}>
-          {isLive&&"● "}RSI:{(r.rsi||r.rsi14||50).toFixed(0)} · MA20:{px(r.ma20||0)} · MA50:{px(r.ma50||0)}
+          {/* ⚠️ Même correction qu'au bandeau des indicateurs : une moyenne
+              absente s'affiche « — », jamais « 0,00 ». ⚠️ Le `r.rsi||…||50`
+              reste : un RSI absent y devient 50, c'est-à-dire « neutre »
+              alors que rien n'a été mesuré. Signalé, non corrigé ici — il
+              touche l'affichage de tous les titres sans historique. */}
+          {isLive&&"● "}RSI:{(r.rsi||r.rsi14||50).toFixed(0)} · MA20:{r.ma20?px(r.ma20):"—"} · MA50:{r.ma50?px(r.ma50):"—"}
         </span>
       </div>
       <div style={{position:"relative"}}>
@@ -1518,7 +1523,13 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               <div>
                 <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Indicateurs Techniques</div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6,marginBottom:6}}>
-                  {[["MA20",px(r.ma20||0),"#4db8ff"],["MA50",px(r.ma50||0),"#b388ff"],["MA200",r.ma200?px(r.ma200):"—","#ff9800"]].map(([k,v,c])=>(
+                  {/* ⚠️ `px(r.ma50||0)` affichait « 0,00 » quand la moyenne est
+                      absente. Invisible tant que calc_ma rendait toujours un
+                      nombre ; elle rend désormais None sous sa période, et T2S,
+                      introduit il y a sept semaines, n'a pas de MA50. Un zéro
+                      se lit comme un cours, pas comme une absence. MA200 le
+                      faisait déjà correctement. */}
+                  {[["MA20",r.ma20?px(r.ma20):"—","#4db8ff"],["MA50",r.ma50?px(r.ma50):"—","#b388ff"],["MA200",r.ma200?px(r.ma200):"—","#ff9800"]].map(([k,v,c])=>(
                     <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
                       <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>{k}</div>
                       <div style={{fontSize:12,color:c,fontWeight:700}}>{v}</div>
