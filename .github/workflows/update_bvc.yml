@@ -311,8 +311,14 @@ jobs:
       # titre suspendu. Le journal de ce run est formel : la suite n'a signalé
       # QUE le signal hors contrat, un seul échec sur 295 tests. Les deux
       # autres anomalies n'étaient couvertes par aucun test.
+      # ⚠️ `always()` NE SUFFIT PAS : IL FAUT AUSSI QU'IL Y AIT UN DÉPÔT.
+      # Quand la porte décide qu'il n'y a rien à faire, le `checkout` est sauté
+      # — et cette étape s'exécutait quand même, sur un runner vide :
+      #     ERROR: Could not open requirements file: requirements_dev.txt
+      # Elle est `continue-on-error`, donc elle ne faisait « que » du bruit.
+      # L'étape suivante, elle, ne l'est pas : voir son propre encadré.
       - name: Suite de tests (trace, après écriture)
-        if: always()
+        if: always() && steps.gate.outputs.run == 'true'
         continue-on-error: true
         run: |
           # ⚠️ LA SUITE ENTIÈRE, DONC SES DÉPENDANCES ENTIÈRES.
@@ -345,8 +351,23 @@ jobs:
       # soit complète ferait échouer le contrôle tous les matins, et une alarme
       # toujours allumée n'alerte plus — c'est la leçon du drapeau `stale` du
       # 14/08. Le reste du temps il informe sans bloquer.
+      #
+      # ⚠️ ET IL FAUT UN DÉPÔT POUR CONTRÔLER QUELQUE CHOSE.
+      # Mesuré le 15/09/2026 sur les 100 derniers runs : **18 échecs** dont
+      # aucune donnée n'était en cause. Leur signature ne laisse aucun doute —
+      # ils tombent TOUS entre 17h et 23h UTC, c'est-à-dire exactement dans la
+      # fenêtre où la condition ci-dessous transforme un code de retour non nul
+      # en `exit 1`. Ce qui échouait n'était pas la séance :
+      #     python: can't open file '.../pipeline/verifier_seance.py'
+      # La porte avait décidé qu'il n'y avait rien à faire, le `checkout` avait
+      # donc été sauté, et le contrôle s'exécutait sur un runner vide.
+      #
+      # Conséquence, et c'est la vraie : 18 courriels d'échec pour rien, mêlés
+      # à 11 échecs réels dans la même liste, sans rien qui les distingue. Une
+      # alarme qui se déclenche sans motif finit ignorée puis désactivée —
+      # c'est mot pour mot la leçon du drapeau `stale` du 14/08.
       - name: Contrôle de la séance
-        if: always()
+        if: always() && steps.gate.outputs.run == 'true'
         run: |
           set +e
           python pipeline/verifier_seance.py
@@ -361,7 +382,7 @@ jobs:
 
       # ── 5. Résumé ─────────────────────────────────────────
       - name: Résumé
-        if: always()
+        if: always() && steps.gate.outputs.run == 'true'
         run: |
           echo "## BVC Update Summary" >> $GITHUB_STEP_SUMMARY
           echo "- **Date** : $(TZ='Africa/Casablanca' date +'%Y-%m-%d %H:%M') (Casablanca)" >> $GITHUB_STEP_SUMMARY

@@ -25,6 +25,23 @@ TIMEOUT     = 15
 
 XLSX_ALIAS = {"TGC": "TGCC"}
 
+SERIES_ACCEPTEES = ROOT / "datasets" / "series_acceptees"
+
+
+def serie_acceptee(ticker: str, dossier: Path | None = None) -> bool:
+    """Ce titre porte-t-il une série RÉCEPTIONNÉE ?
+
+    ⚠️ Même garde que dans `collect_history_bvcscrap.py`, et pour la même
+    raison : trois programmes écrivent dans `pipeline/candles/`, en protéger
+    un seul ne protège rien. Celui-ci fusionne l'export XLSX avec l'existant —
+    il n'écraserait pas la série entière, mais il peut réintroduire des
+    séances que la série réceptionnée a délibérément écartées.
+
+    La règle est celle du dossier : `datasets/series_acceptees/` INSTRUIT.
+    Un import ne discute pas une instruction.
+    """
+    return ((dossier or SERIES_ACCEPTEES) / f"{ticker}.json").exists()
+
 try:
     sys.path.insert(0, str(ROOT))
     from bvc_config import ISIN_MAP, TICKERS_ALL, adjust_splits
@@ -127,6 +144,9 @@ def generate_from_xlsx() -> dict:
 
     for xlsx in sorted(XLSX_DIR.glob("*.xlsx")):
         ticker = XLSX_ALIAS.get(xlsx.stem.upper(), xlsx.stem.upper())
+        if serie_acceptee(ticker):
+            log.warning(f"  {ticker}: série réceptionnée — XLSX non fusionné")
+            continue
         try:
             # XLSX = source brute (cours non ajustés) → ajustement split avant
             # fusion avec l'existant, qui est déjà ajusté.
@@ -167,6 +187,10 @@ def generate_from_med24(skip_existing_tickers: set = None, days: int = 400) -> d
     for ticker in TICKERS_ALL:
         canon = ticker
         out   = CANDLES_DIR / f"{canon}.json"
+
+        if serie_acceptee(canon):
+            log.warning(f"  {canon}: série réceptionnée — Médias24 non fusionné")
+            continue
 
         # Skip seulement si les candles existantes sont récentes (< 10 jours)
         if out.exists() and canon in skip_existing_tickers:
