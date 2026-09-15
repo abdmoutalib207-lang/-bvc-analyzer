@@ -1,0 +1,97 @@
+{
+  "_quoi": "Corrections de séances RÉCEPTIONNÉES pour MUT.",
+  "ticker": "MUT",
+  "instrument": "MUTANDIS SCA",
+  "_statut": "RÉCEPTIONNÉ — instruction, pas signalement",
+  "_recu_de": "Abd Moutalib — export archivé",
+  "source": {
+    "fichier": "sources/MUT/a7f52999-Cours_MUT___2023-09-13_2026-09-12.csv",
+    "sha256": "fbf084523b34e58554f8f32baf026fca1b3682d4cfb7b23c86bc7ae143155cab",
+    "code_operateur": "MUT",
+    "identite_portee_sur_chaque_ligne_de_cours": "MUT / MUTANDIS SCA"
+  },
+  "_unite_du_champ_v": "NOMBRE DE TITRES — convention MESURÉE de ce titre, suivie pour ne pas rendre ces séances incohérentes avec le reste de sa série. ⚠️ L'unification des unités entre titres reste un arbitrage ouvert : elle n'est pas tranchée ici.",
+  "seances": 4,
+  "lignes": [
+    {
+      "d": "2026-07-20",
+      "corrige": {
+        "o": 228.5,
+        "h": 229.1,
+        "l": 225.3,
+        "c": 225.3,
+        "v": 1680
+      },
+      "remplace": {
+        "o": 228.5,
+        "h": 228.5,
+        "l": 226.05,
+        "c": 226.05,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 1680 titres échangés"
+    },
+    {
+      "d": "2026-07-31",
+      "corrige": {
+        "o": 228.0,
+        "h": 231.9,
+        "l": 226.1,
+        "c": 226.1,
+        "v": 892
+      },
+      "remplace": {
+        "o": 232.0,
+        "h": 232.0,
+        "l": 226.1,
+        "c": 226.1,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 892 titres échangés"
+    },
+    {
+      "d": "2026-08-05",
+      "corrige": {
+        "o": 233.95,
+        "h": 236.5,
+        "l": 233.15,
+        "c": 235.0,
+        "v": 1018
+      },
+      "remplace": {
+        "o": 235.0,
+        "h": 235.0,
+        "l": 235.0,
+        "c": 235.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 1018 titres échangés"
+    },
+    {
+      "d": "2026-08-06",
+      "corrige": {
+        "o": 234.05,
+        "h": 236.0,
+        "l": 233.5,
+        "c": 235.95,
+        "v": 479
+      },
+      "remplace": {
+        "o": 235.95,
+        "h": 235.95,
+        "l": 235.95,
+        "c": 235.95,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 479 titres échangés"
+    }
+  ]
+}

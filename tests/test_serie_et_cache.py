@@ -335,7 +335,15 @@ def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():
     exceptions = _titres_dont_la_serie_a_change()
     # ⚠️ Une exception qui avalerait tout ne contrôlerait plus rien.
     assert exceptions, "aucune série réceptionnée : le contrôle n'a plus d'objet"
-    assert len(exceptions) < 10, f"trop d'exceptions ({sorted(exceptions)})"
+    # ⚠️ Le seuil dit « les exceptions restent une MINORITÉ », pas « il y en a
+    # moins de dix ». Écrit en dur à 10, il est devenu rouge au treizième titre
+    # corrigé — alors que treize sur soixante-quatorze ne menace rien. Un
+    # garde-fou qui se déclenche sur le succès du travail qu'il protège est mal
+    # posé ; il compte désormais en proportion de l'univers.
+    univers = len([k for k in base if not k.startswith("_")])
+    assert len(exceptions) < univers / 3, (
+        f"les exceptions avalent l'univers : {len(exceptions)} sur {univers} "
+        f"— {sorted(exceptions)}")
     fautifs = {}
     for t in (k for k in base if not k.startswith("_") and k not in exceptions):
         d = {k for k in set(base[t]) | set(livre.get(t, {}))

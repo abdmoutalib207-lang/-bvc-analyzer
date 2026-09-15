@@ -122,11 +122,14 @@ def test_hps_le_lot_couvre_les_deux_causes():
         (RACINE / "pipeline" / "candles" / "HPS.json").read_text(encoding="utf-8"))}
     for l in doc["lignes"]:
         assert {k: serie[l["d"]][k] for k in ("o", "h", "l", "c", "v")} == l["corrige"]
-    rediff = [l for l in doc["lignes"] if l["remplace"]["v"] == 0
-              and "rediffusé" in l["motif"]]
+    # ⚠️ `remplace` de ces six lignes porte l'état INTERMÉDIAIRE — le nombre de
+    # titres que j'avais écrit avant de constater qu'il rompait la convention
+    # de HPS. Le volume nul d'origine est dans `_remplace_initial`.
+    rediff = [l for l in doc["lignes"] if "rediffusé" in l["motif"]]
     assert len(rediff) == 6
     for l in rediff:
         assert serie[l["d"]]["v"] > 0
+        assert l.get("_remplace_initial", l["remplace"])["v"] == 0
 
 
 def test_le_fractionnement_de_2023_ne_coupe_plus_le_graphique():

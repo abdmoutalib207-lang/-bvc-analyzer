@@ -1,0 +1,97 @@
+{
+  "_quoi": "Corrections de séances RÉCEPTIONNÉES pour CSR.",
+  "ticker": "CSR",
+  "instrument": "COSUMAR",
+  "_statut": "RÉCEPTIONNÉ — instruction, pas signalement",
+  "_recu_de": "Abd Moutalib — export archivé",
+  "source": {
+    "fichier": "sources/CSR/971aceda-Cours_CSR___20230912_20260911.979b62ded595.csv",
+    "sha256": "cb24bd5b891c355d1b51ced06fba0fdccaf28383ec66e1384712bbb0e56076c6",
+    "code_operateur": "CSR",
+    "identite_portee_sur_chaque_ligne_de_cours": "CSR / COSUMAR"
+  },
+  "_unite_du_champ_v": "MONTANT EN DIRHAMS — convention MESURÉE de ce titre, suivie pour ne pas rendre ces séances incohérentes avec le reste de sa série. ⚠️ L'unification des unités entre titres reste un arbitrage ouvert : elle n'est pas tranchée ici.",
+  "seances": 4,
+  "lignes": [
+    {
+      "d": "2026-07-20",
+      "corrige": {
+        "o": 193.9,
+        "h": 196.0,
+        "l": 190.25,
+        "c": 193.0,
+        "v": 1195807
+      },
+      "remplace": {
+        "o": 195.0,
+        "h": 195.0,
+        "l": 194.0,
+        "c": 194.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 6194 titres échangés"
+    },
+    {
+      "d": "2026-07-31",
+      "corrige": {
+        "o": 185.0,
+        "h": 186.0,
+        "l": 182.25,
+        "c": 186.0,
+        "v": 1303955
+      },
+      "remplace": {
+        "o": 185.0,
+        "h": 185.0,
+        "l": 182.0,
+        "c": 182.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 7098 titres échangés"
+    },
+    {
+      "d": "2026-08-05",
+      "corrige": {
+        "o": 187.0,
+        "h": 187.3,
+        "l": 182.0,
+        "c": 187.3,
+        "v": 2235434
+      },
+      "remplace": {
+        "o": 187.0,
+        "h": 187.0,
+        "l": 187.0,
+        "c": 187.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 12225 titres échangés"
+    },
+    {
+      "d": "2026-08-06",
+      "corrige": {
+        "o": 186.9,
+        "h": 186.9,
+        "l": 184.0,
+        "c": 186.0,
+        "v": 7953900
+      },
+      "remplace": {
+        "o": 186.0,
+        "h": 186.0,
+        "l": 186.0,
+        "c": 186.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 42920 titres échangés"
+    }
+  ]
+}
