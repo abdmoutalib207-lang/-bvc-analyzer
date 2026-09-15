@@ -1,0 +1,426 @@
+{
+  "_quoi": "Deux arbitrages qui reviennent au propriétaire, MESURÉS plutôt que posés en question.",
+  "_statut": "MESURE — AUCUNE DONNÉE SERVIE N'EST MODIFIÉE PAR CE LOT",
+  "_methode": "on ne demande pas « faut-il ? » : on chiffre ce que chaque option coûte, et la décision se prend sur des nombres.",
+  "arbitrage_1_la_moyenne_200_jours": {
+    "_le_fait": "32 titres sur 74 affichent une « MA200 » calculée sur 52 à 166 séances. Depuis le 15/09/2026, `calc_ma` rend une absence sous la période : ces 32 passeront à « — » au fil des recalculs de cache.",
+    "_ce_que_cela_ne_change_PAS": "⚠️ Mesuré dans le code : `ma200` n'est passé NI à `calc_score_tech` NI à `compute_v53`. Aucun score, aucun signal ne dépend de lui. C'est un champ d'AFFICHAGE.",
+    "_ce_que_cela_change": "le lecteur perd un repère de tendance sur 32 titres — et ce repère était faux de 20 à 56 % sur sept d'entre eux.",
+    "_les_pires_ecarts": [
+      {
+        "ticker": "CIM",
+        "bougies": 78,
+        "ma200_affichee": 2500.22,
+        "cours": 1600.0,
+        "ecart_pct": 56.3
+      },
+      {
+        "ticker": "STK",
+        "bougies": 54,
+        "ma200_affichee": 95.38,
+        "cours": 64.75,
+        "ecart_pct": 47.3
+      },
+      {
+        "ticker": "MRL",
+        "bougies": 65,
+        "ma200_affichee": 518.31,
+        "cours": 367.0,
+        "ecart_pct": 41.2
+      },
+      {
+        "ticker": "CAR",
+        "bougies": 73,
+        "ma200_affichee": 25.71,
+        "cours": 20.0,
+        "ecart_pct": 28.6
+      },
+      {
+        "ticker": "DAR",
+        "bougies": 65,
+        "ma200_affichee": 3045.86,
+        "cours": 4200.0,
+        "ecart_pct": -27.5
+      },
+      {
+        "ticker": "SGTM",
+        "bougies": 159,
+        "ma200_affichee": 753.04,
+        "cours": 602.1,
+        "ecart_pct": 25.1
+      },
+      {
+        "ticker": "CASH",
+        "bougies": 166,
+        "ma200_affichee": 276.52,
+        "cours": 229.0,
+        "ecart_pct": 20.8
+      }
+    ],
+    "_options": {
+      "A_laisser_afficher": "garder une moyenne de 52 à 166 jours sous l'étiquette « MA200 ». Coût : jusqu'à 56 % d'erreur sur un repère de tendance, sans que rien ne le signale.",
+      "B_afficher_tiret": "ce que fait le code depuis le 15/09. Coût : 32 cases vides. Gain : plus aucune étiquette ne promet ce qu'elle ne tient pas.",
+      "C_afficher_la_periode_reelle": "« MA73 » au lieu de « MA200 » quand la série est courte. Coût : une modification du frontend, non faite ici. Gain : l'information est conservée ET honnête."
+    },
+    "_mon_avis": "B est déjà en place et ne coûte aucun score. C serait mieux pour le lecteur, et demande un lot à part.",
+    "titres_concernes": [
+      {
+        "ticker": "AKD",
+        "bougies": 73,
+        "ma200_affichee": 1157.44,
+        "cours": 1145.0,
+        "ecart_pct": 1.1
+      },
+      {
+        "ticker": "ALU",
+        "bougies": 72,
+        "ma200_affichee": 1850.65,
+        "cours": 1859.0,
+        "ecart_pct": -0.4
+      },
+      {
+        "ticker": "BMC",
+        "bougies": 54,
+        "ma200_affichee": 607.73,
+        "cours": 590.0,
+        "ecart_pct": 3.0
+      },
+      {
+        "ticker": "CAR",
+        "bougies": 73,
+        "ma200_affichee": 25.71,
+        "cours": 20.0,
+        "ecart_pct": 28.6
+      },
+      {
+        "ticker": "CASH",
+        "bougies": 166,
+        "ma200_affichee": 276.52,
+        "cours": 229.0,
+        "ecart_pct": 20.8
+      },
+      {
+        "ticker": "CIM",
+        "bougies": 78,
+        "ma200_affichee": 2500.22,
+        "cours": 1600.0,
+        "ecart_pct": 56.3
+      },
+      {
+        "ticker": "DAR",
+        "bougies": 65,
+        "ma200_affichee": 3045.86,
+        "cours": 4200.0,
+        "ecart_pct": -27.5
+      },
+      {
+        "ticker": "DSW",
+        "bougies": 73,
+        "ma200_affichee": 773.23,
+        "cours": 740.0,
+        "ecart_pct": 4.5
+      },
+      {
+        "ticker": "DTT",
+        "bougies": 73,
+        "ma200_affichee": 351.79,
+        "cours": 355.0,
+        "ecart_pct": -0.9
+      },
+      {
+        "ticker": "ENK",
+        "bougies": 54,
+        "ma200_affichee": 50.37,
+        "cours": 48.66,
+        "ecart_pct": 3.5
+      },
+      {
+        "ticker": "FNB",
+        "bougies": 54,
+        "ma200_affichee": 320.68,
+        "cours": 345.0,
+        "ecart_pct": -7.0
+      },
+      {
+        "ticker": "HAL",
+        "bougies": 54,
+        "ma200_affichee": 68.4,
+        "cours": 65.0,
+        "ecart_pct": 5.2
+      },
+      {
+        "ticker": "IBM",
+        "bougies": 70,
+        "ma200_affichee": 60.31,
+        "cours": 56.11,
+        "ecart_pct": 7.5
+      },
+      {
+        "ticker": "IMI",
+        "bougies": 73,
+        "ma200_affichee": 91.1,
+        "cours": 92.98,
+        "ecart_pct": -2.0
+      },
+      {
+        "ticker": "MGL",
+        "bougies": 52,
+        "ma200_affichee": 909.83,
+        "cours": 890.0,
+        "ecart_pct": 2.2
+      },
+      {
+        "ticker": "MIC",
+        "bougies": 71,
+        "ma200_affichee": 759.41,
+        "cours": 750.0,
+        "ecart_pct": 1.3
+      },
+      {
+        "ticker": "MRL",
+        "bougies": 65,
+        "ma200_affichee": 518.31,
+        "cours": 367.0,
+        "ecart_pct": 41.2
+      },
+      {
+        "ticker": "MUT",
+        "bougies": 73,
+        "ma200_affichee": 235.33,
+        "cours": 230.15,
+        "ecart_pct": 2.3
+      },
+      {
+        "ticker": "OUL",
+        "bougies": 67,
+        "ma200_affichee": 1175.07,
+        "cours": 1160.0,
+        "ecart_pct": 1.3
+      },
+      {
+        "ticker": "REB",
+        "bougies": 71,
+        "ma200_affichee": 95.86,
+        "cours": 97.62,
+        "ecart_pct": -1.8
+      },
+      {
+        "ticker": "S2M",
+        "bougies": 69,
+        "ma200_affichee": 506.1,
+        "cours": 511.0,
+        "ecart_pct": -1.0
+      },
+      {
+        "ticker": "SBS",
+        "bougies": 69,
+        "ma200_affichee": 2164.61,
+        "cours": 2109.0,
+        "ecart_pct": 2.6
+      },
+      {
+        "ticker": "SGTM",
+        "bougies": 159,
+        "ma200_affichee": 753.04,
+        "cours": 602.1,
+        "ecart_pct": 25.1
+      },
+      {
+        "ticker": "SNA",
+        "bougies": 74,
+        "ma200_affichee": 1971.72,
+        "cours": 1835.0,
+        "ecart_pct": 7.5
+      },
+      {
+        "ticker": "SNP",
+        "bougies": 69,
+        "ma200_affichee": 347.25,
+        "cours": 321.0,
+        "ecart_pct": 8.2
+      },
+      {
+        "ticker": "STK",
+        "bougies": 54,
+        "ma200_affichee": 95.38,
+        "cours": 64.75,
+        "ecart_pct": 47.3
+      },
+      {
+        "ticker": "STR",
+        "bougies": 61,
+        "ma200_affichee": 185.72,
+        "cours": 175.0,
+        "ecart_pct": 6.1
+      },
+      {
+        "ticker": "TMA",
+        "bougies": 69,
+        "ma200_affichee": 1522.99,
+        "cours": 1480.0,
+        "ecart_pct": 2.9
+      },
+      {
+        "ticker": "TQA",
+        "bougies": 69,
+        "ma200_affichee": 1772.13,
+        "cours": 1763.0,
+        "ecart_pct": 0.5
+      },
+      {
+        "ticker": "UNI",
+        "bougies": 63,
+        "ma200_affichee": 172.91,
+        "cours": 169.0,
+        "ecart_pct": 2.3
+      },
+      {
+        "ticker": "WAF",
+        "bougies": 69,
+        "ma200_affichee": 5568.61,
+        "cours": 5260.0,
+        "ecart_pct": 5.9
+      },
+      {
+        "ticker": "ZLD",
+        "bougies": 67,
+        "ma200_affichee": 246.32,
+        "cours": 278.0,
+        "ecart_pct": -11.4
+      }
+    ]
+  },
+  "arbitrage_2_l_unite_du_champ_volume": {
+    "_le_fait": "⚠️ Le champ `v` de pipeline/candles/ ne porte PAS la même unité selon le titre. Mesuré séance par séance sur les 15 exports archivés, en comparant à la MÊME séance chez l'opérateur.",
+    "_consequence": "le volume affiché n'est pas comparable d'un titre à l'autre, et `vol_median20` mélange des dirhams et des titres selon la ligne.",
+    "_ce_qui_n_est_PAS_etabli": "⚠️ L'unité des 65 titres dont nous n'avons pas l'export. Rien ne permet de supposer qu'ils suivent l'une ou l'autre convention : trois des quinze mesurés n'en suivent aucune.",
+    "_options": {
+      "A_convertir": "réécrire ~670 séances sur cinq titres au moins, sur la foi d'une convention DÉDUITE et jamais déclarée par le fournisseur. Impossible pour les 65 titres sans export. Coût : une réécriture massive non vérifiable. ⚠️ Je le déconseille.",
+      "B_declarer_l_unite": "ajouter `unite_volume` au bloc `_meta` des titres où elle est MESURÉE, et « non établie » ailleurs. Coût : un champ de plus et un affichage à adapter. Gain : plus personne ne compare deux volumes qui ne se comparent pas. Aucune donnée réécrite.",
+      "C_retirer_le_volume_du_comparatif": "cesser d'afficher `vol` dans le classement, le garder sur la fiche. Coût : une information en moins. Gain : le défaut cesse d'induire en erreur sans rien réécrire."
+    },
+    "_mon_avis": "B. C'est la seule option qui dit la vérité sur ce qu'on sait ET sur ce qu'on ignore, sans réécrire une seule séance.",
+    "par_titre": {
+      "ADH": {
+        "seances_comparees": 727,
+        "nombre_de_titres": 27,
+        "montant_mad": 673,
+        "ni_l_un_ni_l_autre": 27,
+        "v_nul": 5,
+        "convention": "MONTANT MAD"
+      },
+      "ADI": {
+        "seances_comparees": 725,
+        "nombre_de_titres": 29,
+        "montant_mad": 669,
+        "ni_l_un_ni_l_autre": 27,
+        "v_nul": 5,
+        "convention": "MONTANT MAD"
+      },
+      "CIM": {
+        "seances_comparees": 68,
+        "nombre_de_titres": 21,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 47,
+        "v_nul": 8,
+        "convention": "MÉLANGÉE"
+      },
+      "CMT": {
+        "seances_comparees": 681,
+        "nombre_de_titres": 681,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 0,
+        "v_nul": 0,
+        "convention": "TITRES"
+      },
+      "CSR": {
+        "seances_comparees": 725,
+        "nombre_de_titres": 21,
+        "montant_mad": 671,
+        "ni_l_un_ni_l_autre": 33,
+        "v_nul": 4,
+        "convention": "MONTANT MAD"
+      },
+      "HAL": {
+        "seances_comparees": 47,
+        "nombre_de_titres": 21,
+        "montant_mad": 1,
+        "ni_l_un_ni_l_autre": 25,
+        "v_nul": 5,
+        "convention": "MÉLANGÉE"
+      },
+      "HPS": {
+        "seances_comparees": 724,
+        "nombre_de_titres": 43,
+        "montant_mad": 656,
+        "ni_l_un_ni_l_autre": 25,
+        "v_nul": 0,
+        "convention": "MONTANT MAD"
+      },
+      "MNG": {
+        "seances_comparees": 722,
+        "nombre_de_titres": 28,
+        "montant_mad": 664,
+        "ni_l_un_ni_l_autre": 30,
+        "v_nul": 10,
+        "convention": "MONTANT MAD"
+      },
+      "MSA": {
+        "seances_comparees": 563,
+        "nombre_de_titres": 535,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 28,
+        "v_nul": 5,
+        "convention": "TITRES"
+      },
+      "MUT": {
+        "seances_comparees": 67,
+        "nombre_de_titres": 39,
+        "montant_mad": 1,
+        "ni_l_un_ni_l_autre": 27,
+        "v_nul": 4,
+        "convention": "MÉLANGÉE"
+      },
+      "SMI": {
+        "seances_comparees": 563,
+        "nombre_de_titres": 521,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 42,
+        "v_nul": 6,
+        "convention": "TITRES"
+      },
+      "SNA": {
+        "seances_comparees": 62,
+        "nombre_de_titres": 44,
+        "montant_mad": 1,
+        "ni_l_un_ni_l_autre": 17,
+        "v_nul": 10,
+        "convention": "TITRES"
+      },
+      "SOT": {
+        "seances_comparees": 514,
+        "nombre_de_titres": 507,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 7,
+        "v_nul": 30,
+        "convention": "TITRES"
+      },
+      "STK": {
+        "seances_comparees": 22,
+        "nombre_de_titres": 21,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 1,
+        "v_nul": 30,
+        "convention": "TITRES"
+      },
+      "T2S": {
+        "seances_comparees": 30,
+        "nombre_de_titres": 30,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 0,
+        "v_nul": 0,
+        "convention": "TITRES"
+      }
+    }
+  }
+}
