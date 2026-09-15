@@ -239,22 +239,45 @@ def test_un_recalcul_rsi_seul_ne_modifie_aucun_autre_champ(tmp_path, monkeypatch
 
 
 def test_le_recalcul_complet_est_reserve_aux_series_remplacees(tmp_path, monkeypatch):
-    """⚠️ La contre-épreuve : en mode COMPLET, SOT reprend bien 1 700.
+    """⚠️ La contre-épreuve : un recalcul COMPLET relit la bougie telle quelle.
 
     Ce n'est pas un défaut du calcul — c'est ce que la bougie contient. C'est
     précisément pourquoi le mode complet ne doit viser que les titres dont la
-    série a été remplacée.
+    série a été remplacée : sur des chandelles inchangées, il rejoue les
+    anomalies déjà présentes au lieu de les corriger.
+
+    ⚠️ CETTE DÉMONSTRATION NE S'APPUIE PLUS SUR SOT.
+    Elle lisait la vraie série de Sothema, dont la bougie du 05/05/2026 mêlait
+    les deux bases du regroupement — o=h=1700 avant, l=c=369 après — et elle
+    exigeait que le recalcul complet en ressorte `h52w = 1700`. Cette bougie est
+    CORRIGÉE depuis le 15/09/2026 : l'objet de la démonstration a disparu avec
+    le défaut. La contre-épreuve travaille donc sur une série FABRIQUÉE pour
+    l'occasion, ce qui la rend indépendante de l'état des données publiées —
+    elle ne pourra plus s'éteindre parce qu'on a réparé ailleurs.
     """
     import recalculer_cache as rc
 
     cache_f = _copie_bac(tmp_path, ["SOT"])
     monkeypatch.setattr(rc, "CACHE", cache_f)
-    monkeypatch.setattr(rc, "CANDLES", tmp_path / "pipeline" / "candles")
+    candles = tmp_path / "pipeline" / "candles"
+    monkeypatch.setattr(rc, "CANDLES", candles)
+
+    # Une série saine à 100, puis UNE bougie qui mêle deux bases de prix :
+    # un plus-haut de 1 700 hérité de l'ancienne échelle, une clôture de 369
+    # sur la nouvelle. C'est exactement la forme qu'avait SOT au 05/05.
+    serie = [{"d": f"2026-01-{j:02d}", "o": 100.0, "h": 101.0, "l": 99.0,
+              "c": 100.0, "v": 10} for j in range(1, 29)]
+    serie.append({"d": "2026-02-02", "o": 1700.0, "h": 1700.0,
+                  "l": 369.0, "c": 369.0, "v": 613})
+    (candles / "SOT.json").write_text(json.dumps(serie), encoding="utf-8")
 
     r = rc.recalculer(complets=["SOT"], rsi_seul=[])
     assert r["_nouveau"]["SOT"]["h52w"] == 1700.0, (
         "la contre-épreuve ne démontre plus rien : le mode complet ne reprend "
-        "plus la valeur de la bougie du 05/05")
+        "plus le plus-haut de la bougie mixte")
+    # ⚠️ Et le mode RSI SEUL, lui, ne doit PAS toucher à cet extremum.
+    r2 = rc.recalculer(complets=[], rsi_seul=["SOT"])
+    assert "h52w" not in (r2["changements_rsi"][0] if r2["changements_rsi"] else {})
 
 
 def test_les_deux_operations_sont_nommees_separement():
