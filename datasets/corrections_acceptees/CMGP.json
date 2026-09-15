@@ -1,0 +1,138 @@
+{
+  "_quoi": "Corrections de séances RÉCEPTIONNÉES pour CMGP.",
+  "_pourquoi": "⚠️ 6 séances où notre volume est NUL — donc « aucun échange » — alors que l'opérateur enregistre des transactions et publie un autre cours. Le prix n'a pas été mesuré ces jours-là : il a été rediffusé.",
+  "ticker": "CMGP",
+  "instrument": "CMGP GROUP",
+  "_statut": "RÉCEPTIONNÉ — instruction, pas signalement",
+  "_recu_de": "Abd Moutalib, 15/09/2026 — export fourni à ma demande",
+  "source": {
+    "fichier": "sources/CMGP/2fc10eb5-Cours_CMG_2023-09-16_2026-09-15.csv",
+    "sha256": "15918a9e030fd65d906630fe38c1636d90f409292647ec459f7271d05f989b79",
+    "code_operateur": "CMG",
+    "identite_portee_sur_chaque_ligne_de_cours": "CMG / CMGP GROUP"
+  },
+  "_unite_du_champ_v": "NOMBRE DE TITRES — convention MESURÉE de ce titre. ⚠️ L'unification des unités entre titres reste un arbitrage ouvert : elle n'est pas tranchée ici.",
+  "seances": 6,
+  "lignes": [
+    {
+      "d": "2026-06-11",
+      "corrige": {
+        "o": 340.0,
+        "h": 342.0,
+        "l": 331.0,
+        "c": 334.0,
+        "v": 3452
+      },
+      "remplace": {
+        "o": 360.0,
+        "h": 360.0,
+        "l": 360.0,
+        "c": 360.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 3452 titres échangés pour 1155792.3 DH"
+    },
+    {
+      "d": "2026-07-13",
+      "corrige": {
+        "o": 334.1,
+        "h": 335.0,
+        "l": 329.0,
+        "c": 330.05,
+        "v": 2382
+      },
+      "remplace": {
+        "o": 334.1,
+        "h": 338.95,
+        "l": 334.1,
+        "c": 338.95,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 2382 titres échangés pour 788917.5 DH"
+    },
+    {
+      "d": "2026-07-20",
+      "corrige": {
+        "o": 317.0,
+        "h": 326.0,
+        "l": 317.0,
+        "c": 317.0,
+        "v": 939
+      },
+      "remplace": {
+        "o": 317.0,
+        "h": 317.0,
+        "l": 317.0,
+        "c": 317.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 939 titres échangés pour 299389.5 DH"
+    },
+    {
+      "d": "2026-07-31",
+      "corrige": {
+        "o": 320.0,
+        "h": 324.0,
+        "l": 320.0,
+        "c": 324.0,
+        "v": 999
+      },
+      "remplace": {
+        "o": 320.0,
+        "h": 320.0,
+        "l": 320.0,
+        "c": 320.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 999 titres échangés pour 322194.25 DH"
+    },
+    {
+      "d": "2026-08-05",
+      "corrige": {
+        "o": 320.0,
+        "h": 325.0,
+        "l": 318.0,
+        "c": 325.0,
+        "v": 4275
+      },
+      "remplace": {
+        "o": 324.0,
+        "h": 324.0,
+        "l": 324.0,
+        "c": 324.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 4275 titres échangés pour 1383727.75 DH"
+    },
+    {
+      "d": "2026-08-06",
+      "corrige": {
+        "o": 326.0,
+        "h": 326.9,
+        "l": 318.1,
+        "c": 326.9,
+        "v": 2530
+      },
+      "remplace": {
+        "o": 326.9,
+        "h": 326.9,
+        "l": 326.9,
+        "c": 326.9,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 2530 titres échangés pour 818317.1 DH"
+    }
+  ]
+}
