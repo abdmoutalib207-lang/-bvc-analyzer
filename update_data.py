@@ -1496,8 +1496,15 @@ def calc_rsi(closes: pd.Series, period: int = 14):
 
 def calc_ma(closes: pd.Series, period: int) -> float:
     """Moyenne mobile simple."""
+    # ⚠️ MOINS DE SÉANCES QUE LA PÉRIODE : PAS DE MOYENNE, PAS D'À-PEU-PRÈS.
+    # Cette fonction rendait la moyenne de CE QU'ELLE AVAIT. Un titre de
+    # trente séances sortait donc une « MA200 » qui était une moyenne de
+    # trente jours — et rien à l'écran ne le disait. Mesuré le 15/09/2026 :
+    # 32 titres sur 74 affichaient une MA200 calculée sur 52 à 166 séances.
+    # Le terminal rend une valeur absente par « — » ; c'est la seule
+    # écriture honnête tant que la période n'est pas atteinte.
     if len(closes) < period:
-        return round(float(closes.mean()), 2)
+        return None
     return round(float(closes.tail(period).mean()), 2)
 
 def calc_macd(closes: pd.Series, fast=12, slow=26, signal=9) -> tuple:
@@ -1645,7 +1652,27 @@ def calc_score_tech(rsi, price, ma20, ma50, h90, l90) -> float:
         score -= 0.3
 
     # Alignement des moyennes mobiles
-    if price > ma20 > ma50:     # tendance haussière confirmée
+    # ⚠️ UNE MOYENNE ABSENTE NE VAUT NI POUR NI CONTRE — MÊME RÈGLE QUE LE RSI.
+    # Depuis que `calc_ma` refuse de rendre une moyenne sur moins de séances
+    # que sa période, `ma50` peut être None : un titre introduit il y a sept
+    # semaines n'a pas de moyenne 50 jours. Le bloc levait alors
+    # « '>' not supported between float and NoneType » et le run s'arrêtait
+    # net — mesuré sur T2S le 15/09/2026, avant toute publication.
+    #
+    # Comparer un prix à une moyenne qui n'existe pas n'a pas de sens, et lui
+    # attribuer zéro non plus : zéro se lirait comme « sous les deux moyennes »,
+    # c'est-à-dire −1,2. L'abstention est la seule lecture juste.
+    if ma20 is None and ma50 is None:
+        pass
+    elif ma50 is None:
+        if price > ma20:
+            score += 0.8
+    elif ma20 is None:
+        if price > ma50:
+            score += 0.3
+        elif price < ma50:
+            score -= 1.2
+    elif price > ma20 > ma50:   # tendance haussière confirmée
         score += 1.5
     elif price > ma20:           # au-dessus MA20 seulement
         score += 0.8
@@ -1655,7 +1682,7 @@ def calc_score_tech(rsi, price, ma20, ma50, h90, l90) -> float:
         score -= 1.2
 
     # Position dans la range 90 jours
-    if h90 > l90:
+    if h90 is not None and l90 is not None and h90 > l90:
         pos = (price - l90) / (h90 - l90)
         if 0.25 <= pos <= 0.70:  # zone médiane = saine
             score += 0.4
@@ -2746,8 +2773,15 @@ def run(dry_run=False, push=False, token=""):
                           fd.get("flags", 0), fd.get("upside") or 0, ctx)
 
         # Setup technique (déduit du score et des MAs)
+        # ⚠️ Trois des cinq cas lisent `ma50`, qui peut être absente depuis que
+        # `calc_ma` refuse de rendre une moyenne sur moins de séances que sa
+        # période. Sans cette garde, le run s'arrêtait sur T2S — trente séances,
+        # pas de moyenne 50. Un setup se DÉDUIT des moyennes : sans elles, il
+        # n'y a rien à déduire, et « NEUTRE » dit exactement cela.
         v53_final = v53["v53"]
-        if v53_final >= 7.0 and price > ma20 > ma50:
+        if ma20 is None or ma50 is None:
+            setup = "NEUTRE"
+        elif v53_final >= 7.0 and price > ma20 > ma50:
             setup = "MOMENTUM CONFIRME"
         elif v53_final >= 5.5 and price < ma20 and price >= ma50:
             setup = "PULLBACK HAUSSIER"
