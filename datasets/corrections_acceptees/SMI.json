@@ -1,0 +1,166 @@
+{
+  "_quoi": "Corrections de séances RÉCEPTIONNÉES pour SMI, réimposées après chaque import.",
+  "_pourquoi": "⚠️ Du 19/06 au 01/07/2026, notre série de SMI est restée FIGÉE à 6 976,00 DH — six séances — avec un volume nul, pendant que l'opérateur publie une baisse jusqu'à 5 801 et enregistre des échanges chaque jour. SMI figure parmi les cinq titres dont le journal du 29/06/2026 relève que les sources ne les servaient plus. Le prix n'a pas été mesuré : il a été rediffusé.",
+  "_et_aussi": "⚠️ Les 18 et 19/06, notre champ `v` valait 15 034 166 quand l'opérateur compte 2 126 puis 2 117 titres : c'est le MONTANT EN DIRHAMS écrit à la place du NOMBRE DE TITRES. Les deux colonnes sont distinctes chez l'opérateur et le restent ici.",
+  "ticker": "SMI",
+  "instrument": "SMI",
+  "_statut": "RÉCEPTIONNÉ — instruction, pas signalement",
+  "_recu_de": "Abd Moutalib, 15/09/2026 — export SMI fourni à ma demande",
+  "source": {
+    "fichier": "sources/SMI/c133e053-Cours_SMI___2023-09-16_2026-09-15.csv",
+    "sha256": "ad22045c524bbe465d38911889adf8a0f66767d205b255840fd724979659b6ef",
+    "code_operateur": "SMI",
+    "identite_portee_sur_chaque_ligne_de_cours": "SMI / SMI"
+  },
+  "_ce_qui_n_est_pas_corrige_ici": "⚠️ Trois séances manquent encore à SMI — les 22, 23 et 24/06/2026 — et elles manquent à 63 de nos 73 titres. Les AJOUTER n'est pas du ressort de cette couche, qui corrige des bougies fausses et refuse d'en fabriquer. Voir datasets/historiques_candidats/ADI_SMI/.",
+  "seances": 7,
+  "lignes": [
+    {
+      "d": "2026-06-18",
+      "corrige": {
+        "o": 7670.0,
+        "h": 7670.0,
+        "l": 6976.0,
+        "c": 6976.0,
+        "v": 2126
+      },
+      "remplace": {
+        "o": 7750.0,
+        "h": 7750.0,
+        "l": 6976.0,
+        "c": 6976.0,
+        "v": 15034166
+      },
+      "motif": "le champ `v` portait le MONTANT en dirhams à la place du nombre de titres",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 15034166 alors que l'opérateur enregistre 2126 titres échangés pour 15034166.0 DH",
+      "_v": "NOMBRE DE TITRES — convention mesurée de SMI (514 séances sur 569 portent déjà le nombre de titres)"
+    },
+    {
+      "d": "2026-06-19",
+      "corrige": {
+        "o": 6350.0,
+        "h": 6780.0,
+        "l": 6350.0,
+        "c": 6501.0,
+        "v": 2117
+      },
+      "remplace": {
+        "o": 7670.0,
+        "h": 7670.0,
+        "l": 6976.0,
+        "c": 6976.0,
+        "v": 15034166
+      },
+      "motif": "le cours est resté figé à 6 976 pendant que l'opérateur publie une baisse, et notre volume est nul alors qu'il enregistre des échanges",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre clôture 6976.0 avec v = 15034166 ; l'opérateur publie 6501.0 pour 2117 titres échangés",
+      "_v": "NOMBRE DE TITRES — convention mesurée de SMI (514 séances sur 569 portent déjà le nombre de titres)"
+    },
+    {
+      "d": "2026-06-25",
+      "corrige": {
+        "o": 5780.0,
+        "h": 6149.0,
+        "l": 5780.0,
+        "c": 5900.0,
+        "v": 1852
+      },
+      "remplace": {
+        "o": 6976.0,
+        "h": 6976.0,
+        "l": 6976.0,
+        "c": 6976.0,
+        "v": 0
+      },
+      "motif": "le cours est resté figé à 6 976 pendant que l'opérateur publie une baisse, et notre volume est nul alors qu'il enregistre des échanges",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre clôture 6976.0 avec v = 0 ; l'opérateur publie 5900.0 pour 1852 titres échangés",
+      "_v": "NOMBRE DE TITRES — convention mesurée de SMI (514 séances sur 569 portent déjà le nombre de titres)"
+    },
+    {
+      "d": "2026-06-26",
+      "corrige": {
+        "o": 6188.0,
+        "h": 6188.0,
+        "l": 5800.0,
+        "c": 5950.0,
+        "v": 683
+      },
+      "remplace": {
+        "o": 6976.0,
+        "h": 6976.0,
+        "l": 6976.0,
+        "c": 6976.0,
+        "v": 0
+      },
+      "motif": "le cours est resté figé à 6 976 pendant que l'opérateur publie une baisse, et notre volume est nul alors qu'il enregistre des échanges",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre clôture 6976.0 avec v = 0 ; l'opérateur publie 5950.0 pour 683 titres échangés",
+      "_v": "NOMBRE DE TITRES — convention mesurée de SMI (514 séances sur 569 portent déjà le nombre de titres)"
+    },
+    {
+      "d": "2026-06-29",
+      "corrige": {
+        "o": 5998.0,
+        "h": 5999.0,
+        "l": 5753.0,
+        "c": 5801.0,
+        "v": 944
+      },
+      "remplace": {
+        "o": 6976.0,
+        "h": 6976.0,
+        "l": 6976.0,
+        "c": 6976.0,
+        "v": 0
+      },
+      "motif": "le cours est resté figé à 6 976 pendant que l'opérateur publie une baisse, et notre volume est nul alors qu'il enregistre des échanges",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre clôture 6976.0 avec v = 0 ; l'opérateur publie 5801.0 pour 944 titres échangés",
+      "_v": "NOMBRE DE TITRES — convention mesurée de SMI (514 séances sur 569 portent déjà le nombre de titres)"
+    },
+    {
+      "d": "2026-06-30",
+      "corrige": {
+        "o": 5896.0,
+        "h": 6001.0,
+        "l": 5875.0,
+        "c": 6000.0,
+        "v": 1824
+      },
+      "remplace": {
+        "o": 6976.0,
+        "h": 6976.0,
+        "l": 6976.0,
+        "c": 6976.0,
+        "v": 0
+      },
+      "motif": "le cours est resté figé à 6 976 pendant que l'opérateur publie une baisse, et notre volume est nul alors qu'il enregistre des échanges",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre clôture 6976.0 avec v = 0 ; l'opérateur publie 6000.0 pour 1824 titres échangés",
+      "_v": "NOMBRE DE TITRES — convention mesurée de SMI (514 séances sur 569 portent déjà le nombre de titres)"
+    },
+    {
+      "d": "2026-07-01",
+      "corrige": {
+        "o": 5977.0,
+        "h": 6190.0,
+        "l": 5850.0,
+        "c": 6149.0,
+        "v": 335
+      },
+      "remplace": {
+        "o": 6976.0,
+        "h": 6976.0,
+        "l": 6976.0,
+        "c": 6976.0,
+        "v": 0
+      },
+      "motif": "le cours est resté figé à 6 976 pendant que l'opérateur publie une baisse, et notre volume est nul alors qu'il enregistre des échanges",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre clôture 6976.0 avec v = 0 ; l'opérateur publie 6149.0 pour 335 titres échangés",
+      "_v": "NOMBRE DE TITRES — convention mesurée de SMI (514 séances sur 569 portent déjà le nombre de titres)"
+    }
+  ]
+}
