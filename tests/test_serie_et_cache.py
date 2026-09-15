@@ -232,9 +232,21 @@ def test_un_recalcul_rsi_seul_ne_modifie_aucun_autre_champ(tmp_path, monkeypatch
         f"le chemin d'écriture n'est pas emprunté pour tous : {ecrits}")
 
     # ⚠️ La démonstration nommée : 1 700 ne revient pas.
-    assert apres["SOT"]["h52w"] == avant["SOT"]["h52w"] == 380.0, (
-        "le recalcul RSI seul a touché à h52w — l'anomalie du 05/05 revient")
-    assert apres["SOT"]["h52w"] != 1700.0
+    #
+    # ⚠️ ET ELLE NE FIGE PLUS DE VALEUR LITTÉRALE. Elle exigeait
+    # `h52w == 380.0` — l'état d'AVANT la réparation de Sothema du 15/09/2026.
+    # Ce lot a porté l'extremum à 389,60, légitimement : la série était à une
+    # échelle 23 fois trop basse. Le test est alors devenu rouge EN CI
+    # SEULEMENT, parce qu'en local la copie de référence vient d'`origin/main`,
+    # qui portait encore l'ancienne valeur. Un test dont le verdict dépend de
+    # l'instant où on le lance ne décrit rien.
+    #
+    # Ce qui est DURABLE, c'est la règle : un recalcul RSI SEUL laisse `h52w`
+    # exactement là où il était, quelle que soit sa valeur.
+    assert apres["SOT"]["h52w"] == avant["SOT"]["h52w"], (
+        "le recalcul RSI seul a touché à h52w")
+    assert apres["SOT"]["h52w"] != 1700.0, (
+        "l'anomalie de la bougie du 05/05 est revenue")
     assert apres["SGTM"]["l52w"] == avant["SGTM"]["l52w"]
 
 

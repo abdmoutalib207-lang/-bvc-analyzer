@@ -159,3 +159,66 @@ def test_ce_qui_reste_ouvert_est_nomme(recu):
     lui se lit comme s'il avait tout réglé."""
     txt = recu["_ce_qui_n_est_pas_corrige_ici"]
     assert "décalage d'une séance" in txt and "191" in txt
+
+
+def test_les_DEUX_ecrivains_reimposent_les_corrections():
+    """⚠️ LA FAUTE DU 15/09, FIGÉE EN TEST.
+
+    J'avais branché la couche de corrections dans `collect_history_bvcscrap.py`
+    — et là seulement. J'avais pourtant écrit, en posant la garde des séries
+    réceptionnées : « trois programmes écrivent dans pipeline/candles/, en
+    protéger un seul ne protège rien ». Je ne l'ai pas appliqué à la couche de
+    corrections.
+
+    Mesuré : les 486 séances de Sothema ramenées à la bonne échelle à 20h27 ont
+    été réécrites à l'ancienne par `generate_candles.py` quelques minutes plus
+    tard. Le même défaut que CMT le 14/09, par l'autre porte.
+
+    ⚠️ Lu sur l'ARBRE SYNTAXIQUE : une mention en commentaire ne compte pas.
+    ⚠️ Et la vérification porte sur CHAQUE FONCTION QUI ÉCRIT, pas sur le
+    fichier entier. Ma première version cherchait un appel n'importe où : elle
+    restait verte quand on retirait les deux branchements, parce que la
+    fonction d'aide, elle, appelait toujours la couche. Un contrôle qui ne
+    tombe pas quand on casse ce qu'il surveille ne surveille rien.
+    """
+    import ast
+
+    REIMPOSE = {"appliquer", "appliquer_corrections", "_reimposer"}
+
+    def _ecrit_des_bougies(fn):
+        """Écrit-elle dans pipeline/candles/ ? — et non dans le cache.
+
+        ⚠️ Un simple `write_text` ne suffit pas à reconnaître un écrivain de
+        bougies : `save()` écrit `historical_data.json` de la même façon. On
+        exige que la fonction NOMME le dossier des chandelles.
+        """
+        noms = {getattr(n, "id", "") for n in ast.walk(fn) if isinstance(n, ast.Name)}
+        if not (noms & {"candles_dir", "CANDLES_DIR"}):
+            return False
+        for n in ast.walk(fn):
+            if isinstance(n, ast.Call) and getattr(n.func, "attr", "") == "write_text":
+                return True
+            if isinstance(n, ast.Call) and getattr(n.func, "id", "") == "save_candle_file":
+                return True
+        return False
+
+    for nom in ("collect_history_bvcscrap.py", "generate_candles.py"):
+        arbre = ast.parse((RACINE / "pipeline" / nom).read_text(encoding="utf-8"))
+        importe = any(isinstance(n, ast.ImportFrom)
+                      and n.module == "corrections_acceptees"
+                      for n in ast.walk(arbre))
+        assert importe, f"{nom} n'importe pas la couche de corrections"
+        ecrivains = [f for f in ast.walk(arbre)
+                     if isinstance(f, ast.FunctionDef)
+                     and f.name not in ("_reimposer", "save_candle_file")
+                     and _ecrit_des_bougies(f)]
+        assert ecrivains, f"aucune fonction écrivant des bougies trouvée dans {nom}"
+        for fn in ecrivains:
+            noms = set()
+            for n in ast.walk(fn):
+                if isinstance(n, ast.Call):
+                    noms.add(getattr(n.func, "id", ""))
+                    noms.add(getattr(n.func, "attr", ""))
+            assert noms & REIMPOSE, (
+                f"{nom}::{fn.name} écrit des bougies sans réimposer les "
+                f"corrections réceptionnées")
