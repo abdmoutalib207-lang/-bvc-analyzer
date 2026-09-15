@@ -3,7 +3,7 @@
   "_statut": "MESURE — AUCUNE DONNÉE SERVIE N'EST MODIFIÉE PAR CE LOT",
   "_methode": "on ne demande pas « faut-il ? » : on chiffre ce que chaque option coûte, et la décision se prend sur des nombres.",
   "arbitrage_1_la_moyenne_200_jours": {
-    "_le_fait": "27 titres sur 74 affichent une « MA200 » calculée sur moins de 200 séances. Depuis le 15/09/2026, `calc_ma` rend une absence sous la période : ils passeront à « — » au fil des recalculs de cache.",
+    "_le_fait": "26 titres affichent une « MA200 » calculée sur moins de 200 séances. Depuis le 15/09/2026, `calc_ma` rend une absence sous la période : ils passeront à « — » au fil des recalculs de cache.",
     "_ce_que_cela_ne_change_PAS": "⚠️ Mesuré dans le code : `ma200` n'est passé NI à `calc_score_tech` NI à `compute_v53`. Aucun score, aucun signal ne dépend de lui. C'est un champ d'AFFICHAGE.",
     "_ce_que_cela_change": "le lecteur perd un repère de tendance sur 32 titres — et ce repère était faux de 20 à 56 % sur sept d'entre eux.",
     "_les_pires_ecarts": [
@@ -20,13 +20,6 @@
         "ma200_affichee": 25.71,
         "cours": 20.0,
         "ecart_pct": 28.6
-      },
-      {
-        "ticker": "DAR",
-        "bougies": 65,
-        "ma200_affichee": 3045.86,
-        "cours": 4200.0,
-        "ecart_pct": -27.5
       },
       {
         "ticker": "SGTM",
@@ -84,13 +77,6 @@
         "ma200_affichee": 276.52,
         "cours": 229.0,
         "ecart_pct": 20.8
-      },
-      {
-        "ticker": "DAR",
-        "bougies": 65,
-        "ma200_affichee": 3045.86,
-        "cours": 4200.0,
-        "ecart_pct": -27.5
       },
       {
         "ticker": "DSW",
@@ -240,12 +226,12 @@
         "ecart_pct": -11.4
       }
     ],
-    "_le_compte_a_bouge": "⚠️ 32 à la première mesure, 28 après le lot des sept titres, 27 maintenant. Le compte DESCEND à mesure que les séries sont corrigées : recalculer le cache d'un titre retire sa fausse MA200 au passage. Ce dossier est une PHOTO, pas une liste figée — il est remesuré à chaque lot, et un test exige qu'il concorde avec le dépôt."
+    "_le_compte_a_bouge": "⚠️ Ils étaient 32 à la première mesure, 27 avant ce relevé, 26 maintenant. Le compte DESCEND à mesure que les séries sont corrigées : recalculer le cache d'un titre retire sa fausse MA200 au passage. Ce dossier est une PHOTO — il se remesure avec `python pipeline/mesurer_arbitrages.py --ecrire`, et un test exige qu'il concorde avec le dépôt."
   },
   "arbitrage_2_l_unite_du_champ_volume": {
     "_le_fait": "⚠️ Le champ `v` de pipeline/candles/ ne porte PAS la même unité selon le titre. Mesuré séance par séance sur les 15 exports archivés, en comparant à la MÊME séance chez l'opérateur.",
     "_consequence": "le volume affiché n'est pas comparable d'un titre à l'autre, et `vol_median20` mélange des dirhams et des titres selon la ligne.",
-    "_ce_qui_n_est_PAS_etabli": "⚠️ L'unité des 65 titres dont nous n'avons pas l'export. Rien ne permet de supposer qu'ils suivent l'une ou l'autre convention : trois des quinze mesurés n'en suivent aucune.",
+    "_ce_qui_n_est_PAS_etabli": "⚠️ L'unité des 60 titres dont nous n'avons pas l'export. Rien ne permet de supposer une convention par défaut : trois des quinze premiers mesurés n'en suivaient aucune.",
     "_options": {
       "A_convertir": "réécrire ~670 séances sur cinq titres au moins, sur la foi d'une convention DÉDUITE et jamais déclarée par le fournisseur. Impossible pour les 65 titres sans export. Coût : une réécriture massive non vérifiable. ⚠️ Je le déconseille.",
       "B_declarer_l_unite": "ajouter `unite_volume` au bloc `_meta` des titres où elle est MESURÉE, et « non établie » ailleurs. Coût : un champ de plus et un affichage à adapter. Gain : plus personne ne compare deux volumes qui ne se comparent pas. Aucune donnée réécrite.",
@@ -254,11 +240,11 @@
     "_mon_avis": "B. C'est la seule option qui dit la vérité sur ce qu'on sait ET sur ce qu'on ignore, sans réécrire une seule séance.",
     "par_titre": {
       "ADH": {
-        "seances_comparees": 727,
+        "seances_comparees": 732,
         "nombre_de_titres": 27,
-        "montant_mad": 673,
+        "montant_mad": 678,
         "ni_l_un_ni_l_autre": 27,
-        "v_nul": 5,
+        "v_nul": 0,
         "convention": "MONTANT MAD"
       },
       "ADI": {
@@ -269,69 +255,93 @@
         "v_nul": 5,
         "convention": "MONTANT MAD"
       },
-      "CIM": {
-        "seances_comparees": 68,
-        "nombre_de_titres": 21,
+      "CFGB": {
+        "seances_comparees": 570,
+        "nombre_de_titres": 541,
         "montant_mad": 0,
-        "ni_l_un_ni_l_autre": 47,
-        "v_nul": 8,
+        "ni_l_un_ni_l_autre": 29,
+        "v_nul": 0,
+        "convention": "TITRES"
+      },
+      "CIM": {
+        "seances_comparees": 76,
+        "nombre_de_titres": 48,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 28,
+        "v_nul": 0,
         "convention": "MÉLANGÉE"
       },
-      "CMT": {
-        "seances_comparees": 681,
-        "nombre_de_titres": 681,
+      "CMGP": {
+        "seances_comparees": 407,
+        "nombre_de_titres": 376,
         "montant_mad": 0,
-        "ni_l_un_ni_l_autre": 0,
+        "ni_l_un_ni_l_autre": 31,
         "v_nul": 0,
         "convention": "TITRES"
       },
       "CSR": {
-        "seances_comparees": 725,
+        "seances_comparees": 729,
         "nombre_de_titres": 21,
-        "montant_mad": 671,
+        "montant_mad": 675,
         "ni_l_un_ni_l_autre": 33,
-        "v_nul": 4,
+        "v_nul": 0,
         "convention": "MONTANT MAD"
       },
+      "DAR": {
+        "seances_comparees": 7,
+        "nombre_de_titres": 7,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 0,
+        "v_nul": 57,
+        "convention": "TITRES"
+      },
       "HAL": {
-        "seances_comparees": 47,
-        "nombre_de_titres": 21,
+        "seances_comparees": 52,
+        "nombre_de_titres": 26,
         "montant_mad": 1,
         "ni_l_un_ni_l_autre": 25,
-        "v_nul": 5,
+        "v_nul": 0,
         "convention": "MÉLANGÉE"
       },
       "HPS": {
         "seances_comparees": 724,
-        "nombre_de_titres": 43,
-        "montant_mad": 656,
+        "nombre_de_titres": 37,
+        "montant_mad": 662,
         "ni_l_un_ni_l_autre": 25,
         "v_nul": 0,
         "convention": "MONTANT MAD"
       },
       "MNG": {
-        "seances_comparees": 722,
+        "seances_comparees": 732,
         "nombre_de_titres": 28,
-        "montant_mad": 664,
+        "montant_mad": 674,
         "ni_l_un_ni_l_autre": 30,
-        "v_nul": 10,
+        "v_nul": 0,
         "convention": "MONTANT MAD"
       },
-      "MSA": {
-        "seances_comparees": 563,
-        "nombre_de_titres": 535,
-        "montant_mad": 0,
-        "ni_l_un_ni_l_autre": 28,
-        "v_nul": 5,
-        "convention": "TITRES"
-      },
       "MUT": {
-        "seances_comparees": 67,
-        "nombre_de_titres": 39,
+        "seances_comparees": 71,
+        "nombre_de_titres": 43,
         "montant_mad": 1,
         "ni_l_un_ni_l_autre": 27,
-        "v_nul": 4,
+        "v_nul": 0,
         "convention": "MÉLANGÉE"
+      },
+      "RDS": {
+        "seances_comparees": 547,
+        "nombre_de_titres": 523,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 24,
+        "v_nul": 0,
+        "convention": "TITRES"
+      },
+      "RIS": {
+        "seances_comparees": 569,
+        "nombre_de_titres": 543,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 26,
+        "v_nul": 0,
+        "convention": "TITRES"
       },
       "SMI": {
         "seances_comparees": 563,
@@ -358,11 +368,19 @@
         "convention": "TITRES"
       },
       "STK": {
-        "seances_comparees": 22,
-        "nombre_de_titres": 21,
+        "seances_comparees": 52,
+        "nombre_de_titres": 51,
         "montant_mad": 0,
         "ni_l_un_ni_l_autre": 1,
-        "v_nul": 30,
+        "v_nul": 0,
+        "convention": "TITRES"
+      },
+      "STR": {
+        "seances_comparees": 61,
+        "nombre_de_titres": 44,
+        "montant_mad": 1,
+        "ni_l_un_ni_l_autre": 16,
+        "v_nul": 0,
         "convention": "TITRES"
       },
       "T2S": {
@@ -370,6 +388,14 @@
         "nombre_de_titres": 30,
         "montant_mad": 0,
         "ni_l_un_ni_l_autre": 0,
+        "v_nul": 0,
+        "convention": "TITRES"
+      },
+      "VCNE": {
+        "seances_comparees": 263,
+        "nombre_de_titres": 231,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 32,
         "v_nul": 0,
         "convention": "TITRES"
       }
