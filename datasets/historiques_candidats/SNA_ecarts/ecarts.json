@@ -1,0 +1,1266 @@
+{
+  "_quoi": "Écarts MESURÉS entre nos chandelles Sonasid et l'export de l'opérateur, hors les six séances dont la cause est établie.",
+  "_statut": "CANDIDAT — RIEN N'EST APPLIQUÉ",
+  "_ce_dossier_propose_il_n_instruit_pas": "⚠️ `datasets/historiques_candidats/` PROPOSE ; seul `datasets/corrections_acceptees/` instruit. Aucune valeur d'ici n'entre dans les chandelles publiées.",
+  "_ce_qui_est_etabli": "qu'il existe un écart, daté et chiffré, entre nos chandelles et la publication de l'opérateur",
+  "_ce_qui_ne_l_est_pas": "⚠️ QUI A RAISON. L'export est la publication de l'opérateur — la source la plus proche du marché dont nous disposions, pas une preuve d'exactitude. Un écart est un ÉCART tant que sa cause n'est pas établie, et ces causes ne le sont pas séance par séance.",
+  "ticker": "SNA",
+  "instrument": "SONASID",
+  "source": {
+    "fichier": "sources/SNA/6a582f20-Cours_SID___2023-09-16_2026-09-15.csv",
+    "sha256": "fd6be7e64b9da751554c2d95a2b65f022cca63c79bddb79a48732c44c3eba467",
+    "code_operateur": "SID"
+  },
+  "seances_en_ecart": 56,
+  "champs_en_ecart": {
+    "ouverture": 33,
+    "plus_haut": 25,
+    "plus_bas": 29,
+    "cloture": 23
+  },
+  "_hypothese_a_confirmer": {
+    "enonce": "nos bougies sont construites par instantanés successifs en séance : l'ouverture est le premier cours VU, les extrêmes s'étendent au fil des runs. Elles seraient donc plus ÉTROITES que la vraie séance, et l'ouverture vaudrait souvent la clôture de la veille.",
+    "ce_qui_la_soutient": "12 ouvertures en écart valent exactement la clôture de la veille",
+    "ce_qui_la_CONTREDIT": "⚠️ Sur neuf séances, notre plus-haut DÉPASSE celui de l'opérateur ou notre plus-bas lui est INFÉRIEUR — l'hypothèse de l'étroitesse ne les explique pas. Et 23 CLÔTURES diffèrent, ce qu'un instantané de milieu de séance n'explique pas non plus une fois le run de 15h45 passé.",
+    "_conclusion": "hypothese_a_confirmer — elle SIGNALE, elle ne remplace rien. Aucun coefficient, aucune règle générale n'est appliquée ici."
+  },
+  "_seances_absentes_de_l_export": {
+    "dates": [
+      "2026-07-30",
+      "2026-09-15"
+    ],
+    "_lecture": "⚠️ Le 30/07/2026 est la séance fantôme déjà relevée sur 72 de nos 74 titres : l'opérateur ne la publie pas. Le 15/09/2026 est postérieur à l'export, c'est normal. Retirer une séance d'une série touche 72 titres : hors périmètre de ce lot."
+  },
+  "lignes": [
+    {
+      "d": "2026-05-19",
+      "notre_bougie": {
+        "o": 2086.0,
+        "h": 2170.0,
+        "l": 2086.0,
+        "c": 2086.0,
+        "v": 1444
+      },
+      "operateur": {
+        "o": 2100.0,
+        "h": 2170.0,
+        "l": 2086.0,
+        "c": 2086.0,
+        "v": 1444.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-05-20",
+      "notre_bougie": {
+        "o": 1990.0,
+        "h": 2065.0,
+        "l": 1990.0,
+        "c": 1990.0,
+        "v": 2898
+      },
+      "operateur": {
+        "o": 2061.0,
+        "h": 2065.0,
+        "l": 1990.0,
+        "c": 1990.0,
+        "v": 2898.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-05-21",
+      "notre_bougie": {
+        "o": 2050.0,
+        "h": 2050.0,
+        "l": 1990.0,
+        "c": 2050.0,
+        "v": 85
+      },
+      "operateur": {
+        "o": 2000.0,
+        "h": 2050.0,
+        "l": 1990.0,
+        "c": 2050.0,
+        "v": 85.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-05-22",
+      "notre_bougie": {
+        "o": 2030.0,
+        "h": 2042.0,
+        "l": 2010.0,
+        "c": 2030.0,
+        "v": 304
+      },
+      "operateur": {
+        "o": 2042.0,
+        "h": 2042.0,
+        "l": 2010.0,
+        "c": 2030.0,
+        "v": 304.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-05-25",
+      "notre_bougie": {
+        "o": 2066.0,
+        "h": 2130.0,
+        "l": 2055.0,
+        "c": 2066.0,
+        "v": 268
+      },
+      "operateur": {
+        "o": 2055.0,
+        "h": 2130.0,
+        "l": 2055.0,
+        "c": 2066.0,
+        "v": 268.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-05-26",
+      "notre_bougie": {
+        "o": 2110.0,
+        "h": 2130.0,
+        "l": 2061.0,
+        "c": 2110.0,
+        "v": 835
+      },
+      "operateur": {
+        "o": 2130.0,
+        "h": 2130.0,
+        "l": 2061.0,
+        "c": 2110.0,
+        "v": 835.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-06-01",
+      "notre_bougie": {
+        "o": 2015.0,
+        "h": 2092.0,
+        "l": 1999.0,
+        "c": 2015.0,
+        "v": 825
+      },
+      "operateur": {
+        "o": 2000.0,
+        "h": 2092.0,
+        "l": 1999.0,
+        "c": 2015.0,
+        "v": 825.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-06-02",
+      "notre_bougie": {
+        "o": 1990.0,
+        "h": 2049.0,
+        "l": 1990.0,
+        "c": 1990.0,
+        "v": 773
+      },
+      "operateur": {
+        "o": 2006.0,
+        "h": 2049.0,
+        "l": 1990.0,
+        "c": 1990.0,
+        "v": 773.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-06-03",
+      "notre_bougie": {
+        "o": 1980.0,
+        "h": 2000.0,
+        "l": 1980.0,
+        "c": 1980.0,
+        "v": 1516
+      },
+      "operateur": {
+        "o": 2000.0,
+        "h": 2000.0,
+        "l": 1980.0,
+        "c": 1980.0,
+        "v": 1516.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-06-05",
+      "notre_bougie": {
+        "o": 1950.0,
+        "h": 1986.0,
+        "l": 1950.0,
+        "c": 1950.0,
+        "v": 95
+      },
+      "operateur": {
+        "o": 1986.0,
+        "h": 1986.0,
+        "l": 1950.0,
+        "c": 1950.0,
+        "v": 95.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": "notre ouverture est la CLÔTURE DE LA VEILLE"
+    },
+    {
+      "d": "2026-06-08",
+      "notre_bougie": {
+        "o": 1950.0,
+        "h": 1950.0,
+        "l": 1906.0,
+        "c": 1950.0,
+        "v": 195
+      },
+      "operateur": {
+        "o": 1945.0,
+        "h": 1950.0,
+        "l": 1906.0,
+        "c": 1950.0,
+        "v": 195.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": "notre ouverture est la CLÔTURE DE LA VEILLE"
+    },
+    {
+      "d": "2026-06-09",
+      "notre_bougie": {
+        "o": 1906.0,
+        "h": 1970.0,
+        "l": 1906.0,
+        "c": 1906.0,
+        "v": 1153
+      },
+      "operateur": {
+        "o": 1970.0,
+        "h": 1970.0,
+        "l": 1906.0,
+        "c": 1906.0,
+        "v": 1153.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-06-10",
+      "notre_bougie": {
+        "o": 1880.0,
+        "h": 1959.0,
+        "l": 1880.0,
+        "c": 1880.0,
+        "v": 630
+      },
+      "operateur": {
+        "o": 1959.0,
+        "h": 1959.0,
+        "l": 1880.0,
+        "c": 1880.0,
+        "v": 630.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-06-11",
+      "notre_bougie": {
+        "o": 1835.0,
+        "h": 1863.0,
+        "l": 1820.0,
+        "c": 1835.0,
+        "v": 444
+      },
+      "operateur": {
+        "o": 1852.0,
+        "h": 1863.0,
+        "l": 1820.0,
+        "c": 1835.0,
+        "v": 444.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-06-12",
+      "notre_bougie": {
+        "o": 1863.0,
+        "h": 1900.0,
+        "l": 1860.0,
+        "c": 1863.0,
+        "v": 759
+      },
+      "operateur": {
+        "o": 1860.0,
+        "h": 1900.0,
+        "l": 1860.0,
+        "c": 1863.0,
+        "v": 759.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-06-15",
+      "notre_bougie": {
+        "o": 1955.0,
+        "h": 2000.0,
+        "l": 1950.0,
+        "c": 1955.0,
+        "v": 711
+      },
+      "operateur": {
+        "o": 1950.0,
+        "h": 2000.0,
+        "l": 1950.0,
+        "c": 1955.0,
+        "v": 711.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-06-16",
+      "notre_bougie": {
+        "o": 2000.0,
+        "h": 2000.0,
+        "l": 1980.0,
+        "c": 2000.0,
+        "v": 127
+      },
+      "operateur": {
+        "o": 1981.0,
+        "h": 2000.0,
+        "l": 1980.0,
+        "c": 2000.0,
+        "v": 127.0
+      },
+      "champs_en_ecart": [
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-06-19",
+      "notre_bougie": {
+        "o": 1998.0,
+        "h": 2012.0,
+        "l": 1955.0,
+        "c": 1986.0,
+        "v": 6871585
+      },
+      "operateur": {
+        "o": 1962.0,
+        "h": 1962.0,
+        "l": 1961.0,
+        "c": 1961.0,
+        "v": 9.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h",
+        "l",
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-06-30",
+      "notre_bougie": {
+        "o": 1990.0,
+        "h": 1990.0,
+        "l": 1990.0,
+        "c": 1990.0,
+        "v": 23880
+      },
+      "operateur": {
+        "o": 1980.0,
+        "h": 1985.0,
+        "l": 1980.0,
+        "c": 1985.0,
+        "v": 1055.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h",
+        "l",
+        "o"
+      ],
+      "signature": "notre ouverture est la CLÔTURE DE LA VEILLE"
+    },
+    {
+      "d": "2026-07-01",
+      "notre_bougie": {
+        "o": 1980.0,
+        "h": 1985.0,
+        "l": 1980.0,
+        "c": 1985.0,
+        "v": 2094175
+      },
+      "operateur": {
+        "o": 1912.0,
+        "h": 1985.0,
+        "l": 1912.0,
+        "c": 1984.0,
+        "v": 519.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "l",
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-07-03",
+      "notre_bougie": {
+        "o": 1960.0,
+        "h": 1960.0,
+        "l": 1960.0,
+        "c": 1960.0,
+        "v": 21560
+      },
+      "operateur": {
+        "o": 1960.0,
+        "h": 1989.0,
+        "l": 1950.0,
+        "c": 1989.0,
+        "v": 1219.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h",
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-07-06",
+      "notre_bougie": {
+        "o": 1989.0,
+        "h": 1989.0,
+        "l": 1931.0,
+        "c": 1931.0,
+        "v": 3862
+      },
+      "operateur": {
+        "o": 1989.0,
+        "h": 1989.0,
+        "l": 1931.0,
+        "c": 1988.0,
+        "v": 5.0
+      },
+      "champs_en_ecart": [
+        "c"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-07-07",
+      "notre_bougie": {
+        "o": 1988.0,
+        "h": 1988.0,
+        "l": 1980.0,
+        "c": 1980.0,
+        "v": 1015740
+      },
+      "operateur": {
+        "o": 1988.0,
+        "h": 2000.0,
+        "l": 1924.0,
+        "c": 1930.0,
+        "v": 2624.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h",
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-07-08",
+      "notre_bougie": {
+        "o": 1990.0,
+        "h": 1990.0,
+        "l": 1990.0,
+        "c": 1990.0,
+        "v": 103480
+      },
+      "operateur": {
+        "o": 1926.0,
+        "h": 1990.0,
+        "l": 1925.0,
+        "c": 1989.0,
+        "v": 74.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "l",
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-07-09",
+      "notre_bougie": {
+        "o": 1989.99,
+        "h": 1989.99,
+        "l": 1989.0,
+        "c": 1989.0,
+        "v": 0
+      },
+      "operateur": {
+        "o": 1985.0,
+        "h": 1985.0,
+        "l": 1930.0,
+        "c": 1981.0,
+        "v": 19.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h",
+        "l",
+        "o"
+      ],
+      "signature": "notre ouverture est la CLÔTURE DE LA VEILLE"
+    },
+    {
+      "d": "2026-07-10",
+      "notre_bougie": {
+        "o": 1988.96,
+        "h": 1988.96,
+        "l": 1981.0,
+        "c": 1981.0,
+        "v": 0
+      },
+      "operateur": {
+        "o": 1924.0,
+        "h": 2035.0,
+        "l": 1924.0,
+        "c": 2035.0,
+        "v": 102.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h",
+        "l",
+        "o"
+      ],
+      "signature": "notre ouverture est la CLÔTURE DE LA VEILLE"
+    },
+    {
+      "d": "2026-07-13",
+      "notre_bougie": {
+        "o": 1982.0,
+        "h": 1982.0,
+        "l": 1982.0,
+        "c": 1982.0,
+        "v": 1982
+      },
+      "operateur": {
+        "o": 1982.0,
+        "h": 1995.0,
+        "l": 1980.0,
+        "c": 1992.0,
+        "v": 29.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h",
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-07-14",
+      "notre_bougie": {
+        "o": 1990.0,
+        "h": 2030.0,
+        "l": 1990.0,
+        "c": 2030.0,
+        "v": 203000
+      },
+      "operateur": {
+        "o": 1990.0,
+        "h": 2030.0,
+        "l": 1931.0,
+        "c": 1999.0,
+        "v": 295.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-07-15",
+      "notre_bougie": {
+        "o": 1999.0,
+        "h": 1999.0,
+        "l": 1990.0,
+        "c": 1990.0,
+        "v": 23880
+      },
+      "operateur": {
+        "o": 1999.0,
+        "h": 2000.0,
+        "l": 1940.0,
+        "c": 2000.0,
+        "v": 333.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h",
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-07-16",
+      "notre_bougie": {
+        "o": 1990.05,
+        "h": 2000.0,
+        "l": 1990.05,
+        "c": 2000.0,
+        "v": 0
+      },
+      "operateur": {
+        "o": 1946.0,
+        "h": 2000.0,
+        "l": 1946.0,
+        "c": 2000.0,
+        "v": 183.0
+      },
+      "champs_en_ecart": [
+        "l",
+        "o"
+      ],
+      "signature": "notre ouverture est la CLÔTURE DE LA VEILLE"
+    },
+    {
+      "d": "2026-07-17",
+      "notre_bougie": {
+        "o": 1941.0,
+        "h": 1941.0,
+        "l": 1941.0,
+        "c": 1941.0,
+        "v": 1941
+      },
+      "operateur": {
+        "o": 1941.0,
+        "h": 1994.0,
+        "l": 1940.0,
+        "c": 1994.0,
+        "v": 330.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h",
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-07-20",
+      "notre_bougie": {
+        "o": 1941.01,
+        "h": 1994.0,
+        "l": 1941.01,
+        "c": 1994.0,
+        "v": 0
+      },
+      "operateur": {
+        "o": 1942.0,
+        "h": 1999.0,
+        "l": 1942.0,
+        "c": 1999.0,
+        "v": 6.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h",
+        "l",
+        "o"
+      ],
+      "signature": "notre ouverture est la CLÔTURE DE LA VEILLE"
+    },
+    {
+      "d": "2026-07-21",
+      "notre_bougie": {
+        "o": 1994.01,
+        "h": 1999.0,
+        "l": 1994.01,
+        "c": 1999.0,
+        "v": 0
+      },
+      "operateur": {
+        "o": 1989.0,
+        "h": 1989.0,
+        "l": 1922.0,
+        "c": 1922.0,
+        "v": 495.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h",
+        "l",
+        "o"
+      ],
+      "signature": "notre ouverture est la CLÔTURE DE LA VEILLE"
+    },
+    {
+      "d": "2026-07-22",
+      "notre_bougie": {
+        "o": 1913.0,
+        "h": 1913.0,
+        "l": 1913.0,
+        "c": 1913.0,
+        "v": 57390
+      },
+      "operateur": {
+        "o": 1913.0,
+        "h": 1950.0,
+        "l": 1913.0,
+        "c": 1950.0,
+        "v": 285.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-07-23",
+      "notre_bougie": {
+        "o": 1925.0,
+        "h": 1925.0,
+        "l": 1925.0,
+        "c": 1925.0,
+        "v": 105875
+      },
+      "operateur": {
+        "o": 1925.0,
+        "h": 1950.0,
+        "l": 1925.0,
+        "c": 1950.0,
+        "v": 56.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-07-24",
+      "notre_bougie": {
+        "o": 1924.98,
+        "h": 1950.0,
+        "l": 1924.98,
+        "c": 1950.0,
+        "v": 0
+      },
+      "operateur": {
+        "o": 1927.0,
+        "h": 1945.0,
+        "l": 1916.0,
+        "c": 1945.0,
+        "v": 23.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h",
+        "l",
+        "o"
+      ],
+      "signature": "notre ouverture est la CLÔTURE DE LA VEILLE"
+    },
+    {
+      "d": "2026-07-27",
+      "notre_bougie": {
+        "o": 1950.07,
+        "h": 1950.07,
+        "l": 1945.0,
+        "c": 1945.0,
+        "v": 0
+      },
+      "operateur": {
+        "o": 1920.0,
+        "h": 1940.0,
+        "l": 1920.0,
+        "c": 1940.0,
+        "v": 18.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h",
+        "l",
+        "o"
+      ],
+      "signature": "notre ouverture est la CLÔTURE DE LA VEILLE"
+    },
+    {
+      "d": "2026-07-28",
+      "notre_bougie": {
+        "o": 1950.0,
+        "h": 1950.0,
+        "l": 1950.0,
+        "c": 1950.0,
+        "v": 3900
+      },
+      "operateur": {
+        "o": 1950.0,
+        "h": 1950.0,
+        "l": 1912.0,
+        "c": 1914.0,
+        "v": 43.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-07-29",
+      "notre_bougie": {
+        "o": 1945.0,
+        "h": 1945.0,
+        "l": 1945.0,
+        "c": 1945.0,
+        "v": 97250
+      },
+      "operateur": {
+        "o": 1945.0,
+        "h": 1945.0,
+        "l": 1925.0,
+        "c": 1935.0,
+        "v": 394.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-07-31",
+      "notre_bougie": {
+        "o": 1943.0,
+        "h": 1943.0,
+        "l": 1935.0,
+        "c": 1935.0,
+        "v": 0
+      },
+      "operateur": {
+        "o": 1940.0,
+        "h": 1950.0,
+        "l": 1930.0,
+        "c": 1950.0,
+        "v": 141.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h",
+        "l",
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-08-03",
+      "notre_bougie": {
+        "o": 1950.0,
+        "h": 1950.0,
+        "l": 1950.0,
+        "c": 1950.0,
+        "v": 23400
+      },
+      "operateur": {
+        "o": 1950.0,
+        "h": 1990.0,
+        "l": 1950.0,
+        "c": 1990.0,
+        "v": 656.0
+      },
+      "champs_en_ecart": [
+        "c",
+        "h"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-08-04",
+      "notre_bougie": {
+        "o": 1988.0,
+        "h": 1988.0,
+        "l": 1988.0,
+        "c": 1988.0,
+        "v": 1988
+      },
+      "operateur": {
+        "o": 1988.0,
+        "h": 1988.0,
+        "l": 1940.0,
+        "c": 1988.0,
+        "v": 121.0
+      },
+      "champs_en_ecart": [
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-08-05",
+      "notre_bougie": {
+        "o": 1997.0,
+        "h": 1997.0,
+        "l": 1997.0,
+        "c": 1997.0,
+        "v": 0
+      },
+      "operateur": {
+        "o": 1990.0,
+        "h": 1997.0,
+        "l": 1990.0,
+        "c": 1997.0,
+        "v": 151.0
+      },
+      "champs_en_ecart": [
+        "l",
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-08-06",
+      "notre_bougie": {
+        "o": 1995.0,
+        "h": 1995.0,
+        "l": 1995.0,
+        "c": 1995.0,
+        "v": 0
+      },
+      "operateur": {
+        "o": 1998.0,
+        "h": 1998.0,
+        "l": 1990.0,
+        "c": 1995.0,
+        "v": 31.0
+      },
+      "champs_en_ecart": [
+        "h",
+        "l",
+        "o"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-08-11",
+      "notre_bougie": {
+        "o": 2037.0,
+        "h": 2037.0,
+        "l": 2002.0,
+        "c": 2028.0,
+        "v": 19
+      },
+      "operateur": {
+        "o": 2003.0,
+        "h": 2028.0,
+        "l": 2002.0,
+        "c": 2028.0,
+        "v": 19.0
+      },
+      "champs_en_ecart": [
+        "h",
+        "o"
+      ],
+      "signature": "notre ouverture est la CLÔTURE DE LA VEILLE"
+    },
+    {
+      "d": "2026-08-12",
+      "notre_bougie": {
+        "o": 1971.0,
+        "h": 2019.0,
+        "l": 1971.0,
+        "c": 2019.0,
+        "v": 272
+      },
+      "operateur": {
+        "o": 1971.0,
+        "h": 2025.0,
+        "l": 1971.0,
+        "c": 2019.0,
+        "v": 272.0
+      },
+      "champs_en_ecart": [
+        "h"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-08-13",
+      "notre_bougie": {
+        "o": 2035.0,
+        "h": 2035.0,
+        "l": 2029.0,
+        "c": 2029.0,
+        "v": 25
+      },
+      "operateur": {
+        "o": 2035.0,
+        "h": 2035.0,
+        "l": 2028.0,
+        "c": 2029.0,
+        "v": 25.0
+      },
+      "champs_en_ecart": [
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-08-17",
+      "notre_bougie": {
+        "o": 2027.0,
+        "h": 2027.0,
+        "l": 2024.0,
+        "c": 2024.0,
+        "v": 116
+      },
+      "operateur": {
+        "o": 2027.0,
+        "h": 2027.0,
+        "l": 1995.0,
+        "c": 2024.0,
+        "v": 116.0
+      },
+      "champs_en_ecart": [
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-08-18",
+      "notre_bougie": {
+        "o": 2024.0,
+        "h": 2024.0,
+        "l": 1976.0,
+        "c": 2000.0,
+        "v": 103
+      },
+      "operateur": {
+        "o": 2001.0,
+        "h": 2001.0,
+        "l": 1976.0,
+        "c": 2000.0,
+        "v": 103.0
+      },
+      "champs_en_ecart": [
+        "h",
+        "o"
+      ],
+      "signature": "notre ouverture est la CLÔTURE DE LA VEILLE"
+    },
+    {
+      "d": "2026-08-24",
+      "notre_bougie": {
+        "o": 1981.0,
+        "h": 1999.0,
+        "l": 1970.0,
+        "c": 1970.0,
+        "v": 926
+      },
+      "operateur": {
+        "o": 1981.0,
+        "h": 2020.0,
+        "l": 1930.0,
+        "c": 1970.0,
+        "v": 926.0
+      },
+      "champs_en_ecart": [
+        "h",
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-08-27",
+      "notre_bougie": {
+        "o": 1998.0,
+        "h": 1998.0,
+        "l": 1950.0,
+        "c": 1950.0,
+        "v": 291
+      },
+      "operateur": {
+        "o": 1998.0,
+        "h": 1998.0,
+        "l": 1939.0,
+        "c": 1950.0,
+        "v": 291.0
+      },
+      "champs_en_ecart": [
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-08-28",
+      "notre_bougie": {
+        "o": 1942.0,
+        "h": 1970.0,
+        "l": 1935.0,
+        "c": 1935.0,
+        "v": 632
+      },
+      "operateur": {
+        "o": 1942.0,
+        "h": 1989.0,
+        "l": 1935.0,
+        "c": 1935.0,
+        "v": 632.0
+      },
+      "champs_en_ecart": [
+        "h"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-08-31",
+      "notre_bougie": {
+        "o": 1938.0,
+        "h": 1945.0,
+        "l": 1938.0,
+        "c": 1945.0,
+        "v": 13
+      },
+      "operateur": {
+        "o": 1938.0,
+        "h": 1950.0,
+        "l": 1938.0,
+        "c": 1945.0,
+        "v": 13.0
+      },
+      "champs_en_ecart": [
+        "h"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-09-02",
+      "notre_bougie": {
+        "o": 1945.0,
+        "h": 1945.0,
+        "l": 1890.0,
+        "c": 1940.0,
+        "v": 361
+      },
+      "operateur": {
+        "o": 1945.0,
+        "h": 1945.0,
+        "l": 1851.0,
+        "c": 1940.0,
+        "v": 361.0
+      },
+      "champs_en_ecart": [
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-09-03",
+      "notre_bougie": {
+        "o": 1949.0,
+        "h": 1949.0,
+        "l": 1935.0,
+        "c": 1935.0,
+        "v": 18
+      },
+      "operateur": {
+        "o": 1949.0,
+        "h": 1949.0,
+        "l": 1907.0,
+        "c": 1935.0,
+        "v": 18.0
+      },
+      "champs_en_ecart": [
+        "l"
+      ],
+      "signature": null
+    },
+    {
+      "d": "2026-09-09",
+      "notre_bougie": {
+        "o": 1930.0,
+        "h": 1930.0,
+        "l": 1925.0,
+        "c": 1925.0,
+        "v": 69
+      },
+      "operateur": {
+        "o": 1930.0,
+        "h": 1970.0,
+        "l": 1925.0,
+        "c": 1925.0,
+        "v": 69.0
+      },
+      "champs_en_ecart": [
+        "h"
+      ],
+      "signature": null
+    }
+  ]
+}
