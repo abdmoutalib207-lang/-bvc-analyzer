@@ -39,9 +39,15 @@ def test_le_dossier_ne_modifie_aucune_donnee_servie(mesures):
 
 # ── Arbitrage 1 : la moyenne 200 jours ────────────────────────────────────
 
-def test_les_32_titres_annonces_sont_bien_ceux_du_cache(mesures):
+def test_les_titres_annonces_sont_bien_ceux_du_cache(mesures):
     """⚠️ Le chiffre du dossier doit se retrouver dans le dépôt, sinon il ne
-    décrit rien."""
+    décrit rien.
+
+    ⚠️ ET IL BOUGE. Ils étaient 32 à la première mesure, 28 après la correction
+    de CIM, HAL, MUT et STK : le recalcul de leur cache a retiré leur fausse
+    MA200 au passage. Le test ne fige donc PAS un nombre — il exige que le
+    dossier décrive l'état courant du dépôt, et que le mouvement soit expliqué.
+    """
     cache = json.loads((RACINE / "pipeline" / "historical_data.json")
                        .read_text(encoding="utf-8"))
     reels = {t for t, v in cache.items()
@@ -49,7 +55,8 @@ def test_les_32_titres_annonces_sont_bien_ceux_du_cache(mesures):
              and (v.get("n_candles") or 0) < 200 and v.get("ma200") is not None}
     annonces = {c["ticker"] for c in mesures["arbitrage_1_la_moyenne_200_jours"]["titres_concernes"]}
     assert annonces == reels
-    assert len(reels) == 32
+    assert 0 < len(reels) < 74
+    assert "Quatre en sont SORTIS" in mesures["arbitrage_1_la_moyenne_200_jours"]["_le_compte_a_bouge"]
 
 
 def test_la_ma200_n_entre_dans_aucun_score(mesures):

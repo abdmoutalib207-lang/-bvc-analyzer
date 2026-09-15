@@ -1,0 +1,117 @@
+{
+  "_quoi": "Corrections de séances RÉCEPTIONNÉES pour HAL.",
+  "ticker": "HAL",
+  "instrument": "AUTO HALL",
+  "_statut": "RÉCEPTIONNÉ — instruction, pas signalement",
+  "_recu_de": "Abd Moutalib — export archivé",
+  "source": {
+    "fichier": "sources/HAL/2c9877c9-Cours_ATH___2023-09-13_2026-09-12.csv",
+    "sha256": "88d9e535e43c67068ce305572454e4c2398c2d6792a1609dbb2cc46f454576f2",
+    "code_operateur": "ATH",
+    "identite_portee_sur_chaque_ligne_de_cours": "ATH / AUTO HALL"
+  },
+  "_unite_du_champ_v": "NOMBRE DE TITRES — convention MESURÉE de ce titre, suivie pour ne pas rendre ces séances incohérentes avec le reste de sa série. ⚠️ L'unification des unités entre titres reste un arbitrage ouvert : elle n'est pas tranchée ici.",
+  "seances": 5,
+  "lignes": [
+    {
+      "d": "2026-07-13",
+      "corrige": {
+        "o": 69.3,
+        "h": 69.3,
+        "l": 67.02,
+        "c": 67.5,
+        "v": 1952
+      },
+      "remplace": {
+        "o": 69.3,
+        "h": 69.3,
+        "l": 68.0,
+        "c": 68.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 1952 titres échangés"
+    },
+    {
+      "d": "2026-07-20",
+      "corrige": {
+        "o": 67.0,
+        "h": 67.0,
+        "l": 65.0,
+        "c": 65.0,
+        "v": 18447
+      },
+      "remplace": {
+        "o": 68.9,
+        "h": 68.9,
+        "l": 65.0,
+        "c": 65.0,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 18447 titres échangés"
+    },
+    {
+      "d": "2026-07-31",
+      "corrige": {
+        "o": 66.9,
+        "h": 67.0,
+        "l": 66.0,
+        "c": 66.0,
+        "v": 4070
+      },
+      "remplace": {
+        "o": 66.9,
+        "h": 66.9,
+        "l": 65.5,
+        "c": 65.5,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 4070 titres échangés"
+    },
+    {
+      "d": "2026-08-05",
+      "corrige": {
+        "o": 66.98,
+        "h": 66.98,
+        "l": 66.1,
+        "c": 66.1,
+        "v": 1888
+      },
+      "remplace": {
+        "o": 66.1,
+        "h": 66.1,
+        "l": 66.1,
+        "c": 66.1,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 1888 titres échangés"
+    },
+    {
+      "d": "2026-08-06",
+      "corrige": {
+        "o": 66.9,
+        "h": 67.5,
+        "l": 66.3,
+        "c": 66.7,
+        "v": 9967
+      },
+      "remplace": {
+        "o": 66.7,
+        "h": 66.7,
+        "l": 66.7,
+        "c": 66.7,
+        "v": 0
+      },
+      "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
+      "niveau_de_preuve": "etabli_par_la_mesure",
+      "_preuve": "notre v = 0 alors que l'opérateur enregistre 9967 titres échangés"
+    }
+  ]
+}

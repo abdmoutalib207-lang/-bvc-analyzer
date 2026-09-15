@@ -3,24 +3,10 @@
   "_statut": "MESURE — AUCUNE DONNÉE SERVIE N'EST MODIFIÉE PAR CE LOT",
   "_methode": "on ne demande pas « faut-il ? » : on chiffre ce que chaque option coûte, et la décision se prend sur des nombres.",
   "arbitrage_1_la_moyenne_200_jours": {
-    "_le_fait": "32 titres sur 74 affichent une « MA200 » calculée sur 52 à 166 séances. Depuis le 15/09/2026, `calc_ma` rend une absence sous la période : ces 32 passeront à « — » au fil des recalculs de cache.",
+    "_le_fait": "28 titres sur 74 affichent une « MA200 » calculée sur moins de 200 séances. Depuis le 15/09/2026, `calc_ma` rend une absence sous la période : ils passeront à « — » au fil des recalculs de cache.",
     "_ce_que_cela_ne_change_PAS": "⚠️ Mesuré dans le code : `ma200` n'est passé NI à `calc_score_tech` NI à `compute_v53`. Aucun score, aucun signal ne dépend de lui. C'est un champ d'AFFICHAGE.",
     "_ce_que_cela_change": "le lecteur perd un repère de tendance sur 32 titres — et ce repère était faux de 20 à 56 % sur sept d'entre eux.",
     "_les_pires_ecarts": [
-      {
-        "ticker": "CIM",
-        "bougies": 78,
-        "ma200_affichee": 2500.22,
-        "cours": 1600.0,
-        "ecart_pct": 56.3
-      },
-      {
-        "ticker": "STK",
-        "bougies": 54,
-        "ma200_affichee": 95.38,
-        "cours": 64.75,
-        "ecart_pct": 47.3
-      },
       {
         "ticker": "MRL",
         "bougies": 65,
@@ -100,13 +86,6 @@
         "ecart_pct": 20.8
       },
       {
-        "ticker": "CIM",
-        "bougies": 78,
-        "ma200_affichee": 2500.22,
-        "cours": 1600.0,
-        "ecart_pct": 56.3
-      },
-      {
         "ticker": "DAR",
         "bougies": 65,
         "ma200_affichee": 3045.86,
@@ -142,13 +121,6 @@
         "ecart_pct": -7.0
       },
       {
-        "ticker": "HAL",
-        "bougies": 54,
-        "ma200_affichee": 68.4,
-        "cours": 65.0,
-        "ecart_pct": 5.2
-      },
-      {
         "ticker": "IBM",
         "bougies": 70,
         "ma200_affichee": 60.31,
@@ -182,13 +154,6 @@
         "ma200_affichee": 518.31,
         "cours": 367.0,
         "ecart_pct": 41.2
-      },
-      {
-        "ticker": "MUT",
-        "bougies": 73,
-        "ma200_affichee": 235.33,
-        "cours": 230.15,
-        "ecart_pct": 2.3
       },
       {
         "ticker": "OUL",
@@ -240,13 +205,6 @@
         "ecart_pct": 8.2
       },
       {
-        "ticker": "STK",
-        "bougies": 54,
-        "ma200_affichee": 95.38,
-        "cours": 64.75,
-        "ecart_pct": 47.3
-      },
-      {
         "ticker": "STR",
         "bougies": 61,
         "ma200_affichee": 185.72,
@@ -288,7 +246,8 @@
         "cours": 278.0,
         "ecart_pct": -11.4
       }
-    ]
+    ],
+    "_le_compte_a_bouge": "⚠️ Ils étaient 32 à la première mesure. Quatre en sont SORTIS — CIM, HAL, MUT, STK — non pas parce que la règle a changé, mais parce que leur série a été corrigée : le recalcul de leur cache a retiré la fausse MA200 au passage. Le dossier est daté, et il le dit."
   },
   "arbitrage_2_l_unite_du_champ_volume": {
     "_le_fait": "⚠️ Le champ `v` de pipeline/candles/ ne porte PAS la même unité selon le titre. Mesuré séance par séance sur les 15 exports archivés, en comparant à la MÊME séance chez l'opérateur.",
