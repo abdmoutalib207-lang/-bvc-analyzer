@@ -1,0 +1,172 @@
+{
+  "type": "integration_hors_reseau_sur_cotations_reconstituees",
+  "limite": "Fixtures issues du JSON publié ; pas un rejeu des réponses brutes, ni un run GitHub.",
+  "instant_fixe": "2026-09-13T16:54:19+00:00",
+  "sha256_snapshot_entree": "f12d84f23835ebd41a92742e123984296977e516980f748aec52c34254b7f016",
+  "empreintes_code": {
+    "update_data.py": "d7c8f9cdb2de0860fa34201e936392fb02b3b9e898533a82db18da9d54b25912",
+    "pipeline/verifier_candidat_msa.py": "50cc249a09c92a0f6296aae33b1fb32fa13480aadcc974eb33b85d1fe700e4b7"
+  },
+  "titres": 80,
+  "autres_titres_identiques": 79,
+  "ecritures_du_dry_run": 0,
+  "A_vers_B": {},
+  "B_vers_C": {
+    "adx": {
+      "avant": 36.4,
+      "apres": 21.0
+    },
+    "adx_mdi": {
+      "avant": 19.0,
+      "apres": 19.3
+    },
+    "adx_pdi": {
+      "avant": 35.2,
+      "apres": 30.3
+    },
+    "delta": {
+      "avant": -0.41,
+      "apres": -0.21
+    },
+    "l52w": {
+      "avant": 225.0,
+      "apres": 702.1
+    },
+    "l90": {
+      "avant": 231.1,
+      "apres": 841.0
+    },
+    "ma200": {
+      "avant": 810.25,
+      "apres": 875.64
+    },
+    "macd": {
+      "avant": 8.6495,
+      "apres": 1.0876
+    },
+    "macd_hist": {
+      "avant": -2.9656,
+      "apres": 0.4452
+    },
+    "macd_signal": {
+      "avant": 11.615,
+      "apres": 0.6424
+    },
+    "obv": {
+      "avant": 20503021,
+      "apres": 20300631
+    },
+    "rsi": {
+      "avant": 52.5,
+      "apres": 47.9
+    },
+    "score_tech": {
+      "avant": 4.2,
+      "apres": 5.2
+    },
+    "v53": {
+      "avant": 5.87,
+      "apres": 6.07
+    }
+  },
+  "MSA_candidat": {
+    "symbol": "MSA",
+    "_meta": {
+      "suspendu": false,
+      "prix_diffuse_source": null,
+      "suspendu_depuis": null,
+      "suspendu_motif": null,
+      "source_prix": "cdg",
+      "source_fond": "bpa_calcule",
+      "pb_source": "faits_ammc",
+      "vol_median20": 15485.0,
+      "prix_asof": "2026-09-11",
+      "stale": false,
+      "confidence": 5,
+      "n_candles": 569,
+      "generated_at": "2026-09-13T16:54:19+01:00"
+    },
+    "code_bvc": "MSA",
+    "fwd": {
+      "per_26e": 35.7,
+      "per_27e": 34.6,
+      "dy_26e": 1.4,
+      "dy_27e": 1.5,
+      "roe_25": 39.3,
+      "roa_25": 17.0,
+      "pb_25": 15.0,
+      "marge_nette_25": 27.5,
+      "asof": "2026-07-01"
+    },
+    "name": "Sodep-Marsa Maroc",
+    "sector": "Transport & Logistique",
+    "price": 860.1,
+    "chg": -1.25,
+    "vol": 61825,
+    "open": 872.0,
+    "close": 860.1,
+    "pe": 39.7,
+    "bpa": 21.65,
+    "pb": 15.59,
+    "div": 1.28,
+    "div_dh": 11.0,
+    "cap": 63128,
+    "h90": 890.0,
+    "l90": 841.0,
+    "ma200": 875.64,
+    "h52w": 1042.0,
+    "l52w": 702.1,
+    "rsi": 47.9,
+    "ma20": 864.62,
+    "ma50": 863.03,
+    "macd": 1.0876,
+    "macd_signal": 0.6424,
+    "macd_hist": 0.4452,
+    "bb_upper": 885.13,
+    "bb_mid": 864.62,
+    "bb_lower": 844.1,
+    "stoch_k": 40.16,
+    "stoch_d": 70.09,
+    "obv": 20300631,
+    "adx": 21.0,
+    "adx_pdi": 30.3,
+    "adx_mdi": 19.3,
+    "bvc": 6.28,
+    "v53": 6.07,
+    "delta": -0.21,
+    "nlp": 0.04,
+    "score_tech": 5.2,
+    "score_fond": 7.25,
+    "score_nlp": 5.21,
+    "alpha": 21.0,
+    "win": 28,
+    "sig": "SURVEILLER ★",
+    "sigBvc": "SURVEILLER",
+    "biais": "NEUTRE",
+    "conv": "DIVERGE",
+    "setup": "CONTRARIEN",
+    "bonus": [
+      "-Upside négatif -0.20"
+    ],
+    "poids": {
+      "f": 52,
+      "n": 28,
+      "t": 20
+    },
+    "warn": false,
+    "warnMsg": "",
+    "chg_alert": false,
+    "bear": 558,
+    "base": 715,
+    "bull": 894,
+    "upside": -13.0,
+    "flags": 0
+  },
+  "controles_preservation": {
+    "CMT_price": 4350.0,
+    "CMT_rsi": 42.0,
+    "CMT_n_candles": 681,
+    "SOT_h52w": 380.0,
+    "SGTM_l52w": 508.1
+  }
+}
