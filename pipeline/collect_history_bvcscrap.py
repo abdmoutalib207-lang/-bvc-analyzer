@@ -466,6 +466,39 @@ def save_candle_file(ticker: str, df: pd.DataFrame, candles_dir: Path) -> None:
     out.write_text(json.dumps(candles, ensure_ascii=False), encoding="utf-8")
 
 
+SERIES_ACCEPTEES = Path(__file__).parent.parent / "datasets" / "series_acceptees"
+
+
+def serie_acceptee(ticker: str, dossier: Path | None = None) -> bool:
+    """Ce titre porte-t-il une série RÉCEPTIONNÉE ?
+
+    ⚠️ CE QUI EST ARRIVÉ LE 14/09/2026, ET POURQUOI CETTE GARDE EXISTE.
+    La série CMT réceptionnée — 681 séances, dernière cotation le 16/07 à
+    4 350 DH — a été fusionnée dans `main` le 14/09 à 19h38. À 19h55, ce
+    programme a retéléchargé l'historique et réécrit `pipeline/candles/CMT.json`
+    avec 536 séances. Dix-sept minutes.
+
+    Les contrôles bloquants ont fait leur travail : ils ont refusé de publier,
+    et `data.json` est resté figé sur la séance du 14/09 pendant que le moteur
+    tournait quatre fois par jour sans rien pouvoir livrer. La donnée servie
+    était juste ; c'est la donnée SUIVANTE qui ne partait plus.
+
+    ⚠️ CE QUE CETTE GARDE N'EST PAS. Ce n'est pas un contrôle d'identité, et
+    elle ne permet pas de cocher « moteur publié protégé » : ce programme
+    identifie toujours les sociétés par NOM (`MANUAL_MAP`) et écrit sans
+    vérifier ce qu'il écrit pour les 73 autres titres. Elle ne protège QUE les
+    titres dont une série a été explicitement réceptionnée, et elle le déclare
+    ticker par ticker dans le journal.
+
+    ⚠️ ELLE FIGE LE TITRE. Tant que le fichier est là, aucune séance nouvelle
+    n'entrera par l'import — ce qui est exactement ce qu'on veut d'un titre
+    suspendu, et ce qu'il faudra défaire délibérément le jour où il reprend.
+    Retirer le fichier de `datasets/series_acceptees/` est un acte, pas un
+    effet de bord.
+    """
+    return ((dossier or SERIES_ACCEPTEES) / f"{ticker}.json").exists()
+
+
 def run(tickers_filter: list[str] | None = None) -> dict:
     try:
         import BVCscrap  # noqa: F401
@@ -485,8 +518,34 @@ def run(tickers_filter: list[str] | None = None) -> dict:
     candles_dir = Path(__file__).parent / "candles"
     results: dict = {}
 
+    # ⚠️ Le cache existant est relu AVANT la boucle. Un titre écarté doit
+    # garder son entrée : `save()` réécrit le fichier à partir de `results`
+    # seul, donc un titre absent de `results` disparaîtrait de
+    # `historical_data.json` — et le moteur perdrait ses indicateurs.
+    cache_actuel = {}
+    chemin_cache = Path(__file__).parent / "historical_data.json"
+    if chemin_cache.exists():
+        try:
+            cache_actuel = json.loads(chemin_cache.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as e:
+            log.warning(f"cache existant illisible ({e}) — aucune conservation possible")
+    conserves = []
+
     for i, ticker in enumerate(all_tickers, 1):
         log.info(f"[{i}/{len(all_tickers)}] {ticker}")
+
+        # ── Série réceptionnée : on ne retélécharge pas par-dessus ────────
+        if serie_acceptee(ticker):
+            entree = cache_actuel.get(ticker)
+            if entree is not None:
+                results[ticker] = entree
+            conserves.append(ticker)
+            log.warning(
+                f"  {ticker}: série RÉCEPTIONNÉE "
+                f"(datasets/series_acceptees/{ticker}.json) — import ignoré, "
+                f"chandelles et indicateurs conservés"
+                + ("" if entree is not None else " ⚠️ aucune entrée en cache à conserver"))
+            continue
 
         # Sources BRUTES → ajustement split immédiat, avant toute fusion avec
         # les candles stockées (qui sont, elles, déjà ajustées).
@@ -552,6 +611,10 @@ def run(tickers_filter: list[str] | None = None) -> dict:
             log.warning(f"  {ticker}: calcul indicateurs échoué: {e}")
 
         time.sleep(0.2)
+
+    if conserves:
+        log.warning(f"{len(conserves)} titre(s) à série réceptionnée, non "
+                    f"réimporté(s) : {', '.join(sorted(conserves))}")
 
     return results
 

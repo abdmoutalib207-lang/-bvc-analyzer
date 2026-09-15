@@ -66,6 +66,13 @@ IDB_TICKER_INV = {idb: nous for nous, idb in IDB_TICKER_MAP.items()}
 assert len(IDB_TICKER_INV) == len(IDB_TICKER_MAP), \
     "IDB_TICKER_MAP : deux tickers pointent sur le même code IDBourse"
 
+# Les codes officiels BVC, normalisés comme un libellé → NOTRE symbole. Sert
+# à reconnaître qu'une source a écrit un CODE là où on attendait un NOM — le
+# cas de la colonne « nom » de BMCE, qui mêle raisons sociales et codes. Un
+# code se traduit ; il ne se lit jamais comme s'il était le nôtre.
+_CODES_OFFICIELS_BVC = {re.sub(r"[^A-Z0-9]", "", str(idb).upper()): nous
+                        for nous, idb in IDB_TICKER_MAP.items() if idb}
+
 # Date de la séance renvoyée par IDBourse (≠ date du run). Renseignée par
 # fetch_all_idb() ; sert à n'écrire une bougie que pour une séance réellement
 # cotée. Vide tant que la source n'a pas répondu.
@@ -1130,16 +1137,37 @@ def _bmce_parser(page, libelles):
         if len(c) < 9 or not heure_re.match(c[1] or ""):
             continue
         nom = _normaliser_libelle(c[0])
-        # Trois passes, de la plus sûre à la plus permissive.
+        # Quatre passes, de la plus sûre à la plus permissive.
         # 1. Égalité exacte avec un libellé officiel CDG.
         sym = libelles.get(nom)
-        # 2. La table d'alias du projet, qui connaît déjà les noms d'usage :
-        #    BMCE écrit « Addoha », « BCP », « BoA », « IAM », quand le libellé
-        #    officiel dit « DOUJA PROM ADDOHA ». Sans cette passe, 22 titres
-        #    sur 77 restaient sans correspondance, dont Maroc Telecom.
+        # 2. ⚠️ LA COLONNE « NOM » DE BMCE PORTE PARFOIS UN CODE OFFICIEL BVC,
+        #    ET CE CODE NE DÉSIGNE PAS TOUJOURS CHEZ NOUS CE QU'IL DÉSIGNE
+        #    LÀ-BAS. Mesuré le 15/09/2026 sur les 58 lignes cotées : neuf
+        #    libellés sont des codes — BCP, BoA, CDM, CIH, CTM, HPS, S2M, SMI
+        #    et SNA. Les huit premiers coïncident avec notre symbole ; le
+        #    neuvième, non : `SNA` est STOKVIS à la Bourse de Casablanca et
+        #    SONASID chez nous.
+        #
+        #    La passe d'alias ci-dessous apparie la chaîne « SNA » à notre
+        #    ticker SNA, parce que `_construire_alias()` inscrit chaque ticker
+        #    comme son propre alias. Sonasid recevait donc le cours de Stokvis :
+        #    64,65 DH au lieu de 1 900 le 15/09 à 11h13, soit une chute
+        #    affichée de 96,6 %. C'est l'inversion documentée le 10/08 (R3),
+        #    revenue par une autre porte — celle du NOM, et non de l'URL.
+        #
+        #    La règle est déjà écrite pour IDBourse, pour CDG et pour le
+        #    bulletin PDF : un code officiel BVC se TRADUIT par IDB_TICKER_INV,
+        #    il ne se lit jamais tel quel. On l'applique ici AVANT toute
+        #    recherche par nom — une traduction exacte prime une ressemblance.
+        if not sym:
+            sym = _CODES_OFFICIELS_BVC.get(nom)
+        # 3. La table d'alias du projet, qui connaît déjà les noms d'usage :
+        #    BMCE écrit « Addoha », « IAM », quand le libellé officiel dit
+        #    « DOUJA PROM ADDOHA ». Sans cette passe, 22 titres sur 77
+        #    restaient sans correspondance, dont Maroc Telecom.
         if not sym:
             sym = BMCE_LIBELLES.get(nom) or _ALIAS_LIBELLE.get(nom)
-        # 3. Préfixe d'au moins 9 caractères, en dernier recours. Le seuil est
+        # 4. Préfixe d'au moins 9 caractères, en dernier recours. Le seuil est
         #    haut à dessein : à 6 caractères, Maghrebail s'appariait avec une
         #    autre société et affichait 58 % d'écart.
         if not sym:
