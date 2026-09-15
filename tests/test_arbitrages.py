@@ -57,6 +57,10 @@ def test_les_titres_annonces_sont_bien_ceux_du_cache(mesures):
     assert annonces == reels
     assert 0 < len(reels) < 74
     assert "Le compte DESCEND" in mesures["arbitrage_1_la_moyenne_200_jours"]["_le_compte_a_bouge"]
+    # ⚠️ Le dossier se remesure par PROGRAMME, pas à la main : je l'ai oublié
+    # trois fois et ce test est tombé trois fois.
+    assert "mesurer_arbitrages.py" in mesures["arbitrage_1_la_moyenne_200_jours"]["_le_compte_a_bouge"]
+    assert (RACINE / "pipeline" / "mesurer_arbitrages.py").exists()
 
 
 def test_la_ma200_n_entre_dans_aucun_score(mesures):
@@ -112,9 +116,16 @@ def test_l_ignorance_sur_les_autres_titres_est_declaree(mesures):
     65 autres — et surtout ne pas laisser supposer une convention par défaut,
     puisque trois des quinze n'en suivent aucune."""
     a = mesures["arbitrage_2_l_unite_du_champ_volume"]
-    assert "65 titres" in a["_ce_qui_n_est_PAS_etabli"]
-    assert "trois des quinze" in a["_ce_qui_n_est_PAS_etabli"]
-    assert len(a["par_titre"]) < 20
+    # ⚠️ Le nombre de titres non mesurés DESCEND à chaque export reçu. Le test
+    # exige la RÈGLE — le dossier dit combien il ignore, et interdit d'en
+    # déduire une convention par défaut — pas un chiffre figé qui rougirait à
+    # chaque livraison.
+    mesures_faites = len(a["par_titre"])
+    assert 0 < mesures_faites < 80, "le dossier prétend tout mesurer ou rien"
+    txt = a["_ce_qui_n_est_PAS_etabli"]
+    assert f"{80 - mesures_faites} titres" in txt, (
+        f"le dossier n'annonce pas les {80 - mesures_faites} titres qu'il ignore")
+    assert "convention par défaut" in txt
 
 
 def test_aucune_conversion_de_volume_n_a_ete_appliquee(mesures):
