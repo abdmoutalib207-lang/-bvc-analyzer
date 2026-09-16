@@ -89,7 +89,15 @@ def test_sans_date_la_fonction_repond_pour_aujourdhui():
     NameError sans — c'est-à-dire dans son usage par défaut."""
     r = est_suspendu("CMT")
     assert r is None or isinstance(r, dict)  # ne doit pas lever
-    assert est_suspendu("CMT", datetime.now().strftime("%Y-%m-%d")) is not None
+
+    # ⚠️ CE TEST EXIGEAIT « CMT EST SUSPENDUE AUJOURD'HUI ». Il est devenu faux
+    # le 16/09 — le titre a repris sa cotation — alors que la règle qu'il
+    # protège, elle, n'a pas bougé : sans date, la fonction répond POUR
+    # AUJOURD'HUI. C'est l'équivalence qu'il fallait écrire, pas l'état du jour.
+    auj = datetime.now().strftime("%Y-%m-%d")
+    for t in ("CMT", "ADH", "INCONNU"):
+        assert est_suspendu(t) == est_suspendu(t, auj), (
+            f"{t} : la réponse sans date diffère de celle du jour")
 
 
 def test_une_reprise_lève_la_suspension():
@@ -219,8 +227,20 @@ def test_le_journal_annonce_le_signal_reellement_publie():
     la substitution. Un journal qui contredit le fichier qu'il décrit est pire
     qu'un journal muet — c'est là qu'on va vérifier quand on doute."""
     s = _moteur()
-    assert '_sig_publie = "SUSPENDU" if _suspendu_maintenant(ticker) else v53["sig"]' in s
+    # ⚠️ CE TEST FIGEAIT LA LIGNE DE CALCUL, AU CARACTÈRE PRÈS. Le 16/09, un
+    # troisième cas s'y est ajouté — « Données insuffisantes » après une reprise
+    # de cotation — et le test est passé au rouge sans qu'aucune règle ne soit
+    # violée. Ce qui doit tenir est le LIEN : le journal imprime la variable que
+    # le fichier publie, et cette variable connaît les mêmes cas que lui.
+    assert "_sig_publie = (" in s or "_sig_publie = " in s, "la variable a disparu"
     assert "{_sig_publie}\")" in s, "la ligne de journal n'utilise pas le signal publié"
+
+    import re as _re
+    calcul = _re.search(r"_sig_publie = \(?(.*?)\n\n", s, _re.S).group(1)
+    publie = _re.search(r'"sig":\s+\((.*?)\),\n', s, _re.S).group(1)
+    for cas in ("SUSPENDU", "Données insuffisantes", 'v53["sig"]'):
+        assert cas in calcul, f"le journal ignore le cas « {cas} »"
+        assert cas in publie, f"le fichier ignore le cas « {cas} »"
 
 
 def test_le_dry_run_n_ecrit_rien():
@@ -273,7 +293,16 @@ def test_cmt_garde_sa_derniere_seance_reelle():
     serie = json.loads((RACINE / "pipeline" / "candles" / "CMT.json")
                        .read_text(encoding="utf-8"))
     assert len(serie) > 500, f"série tronquée : {len(serie)} bougies"
-    assert serie[-1]["d"] == "2026-07-16"
-    assert serie[-1]["v"] > 0, (
-        "la dernière séance conservée doit porter un volume réel — sinon "
-        "c'est encore un fantôme")
+
+    # ⚠️ CE TEST EXIGEAIT QUE LA SÉRIE S'ARRÊTE AU 16/07. C'était vrai tant que
+    # le titre était suspendu ; il a repris le 16/09, et une série qui ne
+    # grandirait plus serait le vrai défaut. Ce qu'il faut protéger, c'est que
+    # la période REÇUE ne soit pas amputée — pas que l'avenir soit interdit.
+    jusqu_a_la_suspension = [b for b in serie if b["d"] <= "2026-07-16"]
+    assert len(jusqu_a_la_suspension) == 681, (
+        f"{len(jusqu_a_la_suspension)} séances jusqu'au 16/07, la série reçue "
+        "en compte 681")
+    assert jusqu_a_la_suspension[-1]["d"] == "2026-07-16"
+    assert all(b["v"] > 0 for b in serie), (
+        "une séance à volume nul est revenue dans la série — les 28 fantômes "
+        "de la suspension avaient précisément cette signature")

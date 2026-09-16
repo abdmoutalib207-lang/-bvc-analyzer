@@ -33,14 +33,24 @@ def test_la_serie_acceptee_est_une_instruction_pas_un_signalement():
 def test_aucune_bougie_negociee_apres_la_suspension():
     """⚠️ Une séance sans échange ne doit jamais entrer comme bougie : ce
     serait fabriquer une cotation le jour où le titre a cessé d'en avoir."""
-    from appliquer_serie import verifier
-    v = verifier("CMT")
-    assert "refus" not in v, v.get("refus")
-    assert v["bougies_apres_suspension"] == 0
+    from bvc_config import SUSPENSIONS
     serie = json.loads((RACINE / "pipeline" / "candles" / "CMT.json")
                        .read_text(encoding="utf-8"))
-    susp = "2026-07-17"
-    assert [b["d"] for b in serie if b["d"] >= susp] == []
+    p = SUSPENSIONS["CMT"][0]
+    debut, reprise = p["depuis"], p.get("reprise")
+
+    # ⚠️ LA FENÊTRE EST CELLE DE LA SUSPENSION, PAS « TOUT CE QUI SUIT ». Ce
+    # test interdisait toute bougie postérieure au 17/07. La suspension a été
+    # levée le 16/09 : le titre cote de nouveau, et lui refuser des bougies
+    # reviendrait à le figer pour toujours. Ce qui reste interdit, c'est une
+    # bougie PENDANT la suspension — là où le titre ne cotait pas.
+    pendant = [b for b in serie
+               if b["d"] >= debut and (reprise is None or b["d"] < reprise)]
+    assert pendant == [], (
+        f"{len(pendant)} bougie(s) pendant la suspension : {[b['d'] for b in pendant][:5]}")
+    assert all(b["v"] > 0 for b in serie), (
+        "une séance sans échange est entrée comme bougie — ce serait fabriquer "
+        "une cotation")
 
 
 def test_la_serie_publiee_est_bien_celle_qui_a_ete_acceptee():
@@ -50,9 +60,23 @@ def test_la_serie_publiee_est_bien_celle_qui_a_ete_acceptee():
                           .read_text(encoding="utf-8"))
     publiee = json.loads((RACINE / "pipeline" / "candles" / "CMT.json")
                          .read_text(encoding="utf-8"))
-    assert len(publiee) == acceptee["seances_negociees"] == 681
-    assert [b["d"] for b in publiee] == [b["d"] for b in acceptee["serie"]]
-    assert publiee[-1]["c"] == 4350.0 and publiee[-1]["d"] == "2026-07-16"
+    # ⚠️ CETTE SÉRIE AVAIT LE DROIT DE GRANDIR, ET ELLE L'A FAIT. Minière
+    # Touissit a repris sa cotation le 16/09 — bulletin de l'opérateur à
+    # l'appui — après deux mois de suspension pour OPA. Un test qui exige que
+    # la série s'arrête au 16/07 n'énonce plus une règle : il interdit au titre
+    # de coter.
+    #
+    # La règle, elle, ne bouge pas : les 681 séances RÉCEPTIONNÉES doivent être
+    # intactes, date pour date et clôture pour clôture. Ce qui vient après leur
+    # est étranger, et légitime.
+    recues = acceptee["serie"]
+    assert acceptee["seances_negociees"] == 681
+    debut = publiee[:len(recues)]
+    assert [b["d"] for b in debut] == [b["d"] for b in recues], (
+        "les dates de la série réceptionnée ne sont plus celles publiées")
+    assert [b["c"] for b in debut] == [b["c"] for b in recues], (
+        "une clôture de la série réceptionnée a été réécrite")
+    assert debut[-1]["c"] == 4350.0 and debut[-1]["d"] == "2026-07-16"
 
 
 def test_le_refus_est_la_regle_si_une_bougie_depasse_la_suspension(tmp_path, monkeypatch):
@@ -81,16 +105,40 @@ def test_le_cache_recalcule_TOUS_ses_indicateurs():
         f"ces indicateurs du cache ne sont pas recalculés : {manquants}")
 
 
-def test_le_cache_de_CMT_porte_les_valeurs_receptionnees():
+def test_le_cache_de_CMT_decrit_la_serie_qu_il_pretend_decrire():
+    """⚠️ RÈGLE DE COHÉRENCE, ET NON PLUS RELEVÉ DE SEPT CONSTANTES.
+
+    Ce test épinglait `rsi == 42.0`, `n_candles == 681`, `last_date ==
+    "2026-07-16"`. Ces valeurs sont justes : ce sont celles du lot réceptionné.
+    Mais un test qui fige un instantané cesse de vérifier quoi que ce soit dès
+    que le travail avance — et ici il ferait pire. CMT a repris sa cotation le
+    16/09 ; le cache sera un jour recalculé, et ce test refuserait alors la
+    publication d'une séance parfaitement valide. On s'y est repris huit fois
+    dans ce projet.
+
+    Ce qui ne vieillit pas : le cache doit décrire LA SÉRIE QU'IL DIT DÉCRIRE.
+    Son `last_date`, son `last_close` et son `n_candles` doivent se retrouver
+    dans les chandelles arrêtées à cette même date. Un cache qui annonce une
+    date et compte les séances d'une autre est une entrée mélangée — le défaut
+    exact que le test précédent attrape indicateur par indicateur.
+    """
     cache = json.loads((RACINE / "pipeline" / "historical_data.json")
                        .read_text(encoding="utf-8"))["CMT"]
-    assert cache["rsi"] == 42.0
-    assert cache["ma20"] == 4624.45
-    assert cache["ma50"] == 4769.04
-    assert cache["h52w"] == 5940.0
-    assert cache["last_close"] == 4350.0
-    assert cache["last_date"] == "2026-07-16"
-    assert cache["n_candles"] == 681
+    serie = json.loads((RACINE / "pipeline" / "candles" / "CMT.json")
+                       .read_text(encoding="utf-8"))
+    jusqu_ici = [b for b in serie if b["d"] <= cache["last_date"]]
+    assert jusqu_ici, f"le cache annonce le {cache['last_date']}, absent de la série"
+    assert cache["n_candles"] == len(jusqu_ici), (
+        f"le cache compte {cache['n_candles']} séances jusqu'au "
+        f"{cache['last_date']}, la série en compte {len(jusqu_ici)}")
+    assert cache["last_close"] == jusqu_ici[-1]["c"]
+
+    # Et tant que le cache s'arrête à la réception, il en porte les valeurs —
+    # celles qui ont été vérifiées une à une lors du lot du 14/09.
+    if cache["last_date"] == "2026-07-16":
+        assert (cache["rsi"], cache["ma20"], cache["ma50"], cache["h52w"]) == (
+            42.0, 4624.45, 4769.04, 5940.0), "le cache réceptionné a été altéré"
+        assert cache["n_candles"] == 681
 
 
 def test_le_recalcul_n_interroge_aucune_source():
