@@ -18,6 +18,24 @@ historique** — cela recréerait une référence exposée.
 
 ---
 
+## 🔔 UNE DÉCISION À PRENDRE — reprise de cotation CMT (16/09/2026)
+
+- [ ] **Le registre porte une référence CALCULÉE là où une SOURCÉE existe.**
+  `SUSPENSIONS["CMT"][0]["reference_impliquee"]` vaut **2 216,97**, obtenu en
+  divisant le cours de reprise du bulletin par sa variation (2 438 ÷ 1,0997).
+  La décision AMMC du 15/09, désormais archivée dans `datasets/pieces_ammc/`,
+  établit le prix de l'offre à **2 217 MAD exactement**.
+  - **La variation publiée est identique** dans les deux cas : +9,97 %. Ce
+    changement ne déplacerait aucun chiffre à l'écran.
+  - Mais un nombre déduit d'un bulletin n'a pas le même statut qu'un nombre lu
+    dans une décision du régulateur. C'est la différence entre « nous pensons »
+    et « l'AMMC a fixé ».
+  - ⚠️ **Non appliqué** : Abd Moutalib a demandé le 16/09 de ne pas toucher au
+    moteur dans ce lot. La correction tient en une ligne de `bvc_config.py` et
+    attend son accord.
+
+---
+
 ## 🔔 ATTENDU DE ABD MOUTALIB
 
 - [ ] **Les trois secrets du bulletin par courriel — ⚠️ LE BULLETIN N'EST

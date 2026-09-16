@@ -220,6 +220,37 @@ de titres chacun plafonné à ±10 % ne peut pas excéder ce plafond — mais c'
 une conséquence arithmétique, pas la règle. Elle tomberait si la composition de
 l'indice changeait en séance. Amplitude réellement observée sur 185 séances
 (déc. 2025 → sept. 2026) : **-5,63 % à +4,46 %**.
+
+⚠️ **Seconde précision, 16/09/2026 : R10 ne couvre pas une RÉFÉRENCE REMISE À
+NEUF.** Le plafond dit qu'un COURS ne bouge pas de plus de 10 % en une séance.
+Il ne dit rien du cas où l'autorité change le point de départ. À la reprise de
+CMT après OPA, l'écart avec le cours diffusé pendant la suspension valait
+−43,95 % ; le plafond a conclu « erreur de source » et publié **0,00 %** un jour
+où le titre avait fait **+9,97 %** — ce que R9 interdit. Le jour d'une reprise
+inscrite au registre avec sa pièce, la variation se calcule sur la référence
+sourcée. Partout ailleurs, R10 s'applique inchangée.
+</rule>
+<rule id="R11">
+**Une opération sur titres se CONSTATE sur pièce, elle ne se DÉDUIT jamais
+d'une série de prix.** Split, suspension, reprise après OPA, changement de
+nominal : chacun se déclare dans un registre de `bvc_config.py` — `SPLITS`,
+`SUSPENSIONS` — avec la source qui l'établit (avis AMMC, bulletin d'opérateur,
+fiche BVC). Un décrochage dans une série n'est pas une preuve : il peut être un
+split, une référence remise à neuf, ou une donnée fausse, et **les trois
+appellent des traitements opposés**.
+
+⚠️ **Le test qui les sépare est le NOMBRE D'ACTIONS, pas l'ampleur du saut.**
+Un split le multiplie et laisse la valeur de la position inchangée : la série
+DOIT être rétro-ajustée. Une reprise après OPA le laisse inchangé et la valeur
+de la position change réellement : la série ne doit **PAS** être touchée — les
+cours d'avant sont ce qu'ils étaient, et les réécrire effacerait une perte
+réelle.
+
+⚠️ **Corollaire — un garde-fou ne peut pas deviner un fait juridique.** Quatre
+contrôles corrects ont échoué ensemble le 16/09 faute de connaître une décision
+de l'AMMC. La parade n'est pas de les assouplir, c'est de **porter le fait dans
+le registre pour qu'ils puissent le consulter**. Cas d'école complet :
+`docs/CAS_ECOLE_OPA_ET_REPRISE_DE_COTATION.md`.
 </rule>
 </rules>
 
@@ -354,7 +385,7 @@ clôture au 10/08 alors qu'IDBourse ne l'avait plus coté depuis le 05/08.
 |---|---|
 | `gardien-donnees` | publier ou refuser un jeu de données (R1, R9, R10) |
 | `veilleur-sources` | santé et contrat des sources CDG / BMCE / IDBourse |
-| `relecteur-pipeline` | conformité d'un diff aux règles R1–R10, avant commit |
+| `relecteur-pipeline` | conformité d'un diff aux règles R1–R11, avant commit |
 | `ingenieur-tests` | ce qui est vérifié automatiquement (priorité n°1) |
 | `analyste-nlp` | le calcul du champ `nlp` — 28 % du score, aujourd'hui creux |
 | `quant-backtest` | mesurer et publier la performance historique |
@@ -526,6 +557,28 @@ Caps recalculées via `prix × nb_titres officiels BVC` après corrections ISIN 
 4. **SAM (SAMIR)** : radiée/suspendue — exclure de toute analyse, ne pas intégrer.
 
 ## Journal des décisions
+
+### 2026-09-16
+
+- **Une OPA obligatoire remet la référence de cours, et c'est la loi.** Minière
+  Touissit a repris sa cotation à 2 438 DH (+9,97 %) après deux mois de
+  suspension, sur une référence de **2 217 DH** au lieu des 4 501 d'avant. Ce
+  prix n'est pas une prime : c'est la moyenne à parts égales du cours moyen
+  pondéré sur 12 mois (2 523) et d'une transaction de référence hors marché
+  (1 910), analyse multicritère examinée par l'AMMC au titre de la loi 26-03.
+  - **Le déclencheur n'est pas une décision d'acheter** : un pacte
+    d'actionnaires portant AYRAD et la CIMR au-delà de 40 % des droits de vote
+    a rendu l'offre obligatoire (art. 18), et l'AMMC a fait suspendre la
+    cotation (art. 30).
+  - ⚠️ **Ce n'est pas un split, l'historique n'est pas ajusté.** Le nombre
+    d'actions est inchangé — 1 681 233, confirmé par l'avis AMMC comme par
+    notre référentiel. La perte des porteurs est réelle ; la réécrire
+    l'effacerait.
+  - **La date de reprise était publique la veille**, dans la décision de
+    recevabilité du 15/09. Les avis AMMC sont accessibles en automatique.
+  - Nouvelle règle **R11**, seconde précision à **R10**, cas d'école dans
+    `docs/CAS_ECOLE_OPA_ET_REPRISE_DE_COTATION.md`, pièces dans
+    `datasets/pieces_ammc/`, famille 12 d'`ERRORS.md`.
 
 ### 2026-08-28
 
