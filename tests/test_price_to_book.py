@@ -90,12 +90,23 @@ def test_un_split_posterieur_a_la_cloture_est_applique(faits):
     """Le rapport arrête ses comptes au 31/12 : un split postérieur n'y figure
     pas. Managem (10:1 le 27/07/2026) et Sothema (5:1 le 05/05/2026) sont tous
     deux dans ce cas pour l'exercice 2025."""
-    corps = re.search(r"def _pb_sourcé.*?\n\ndef ", _moteur(), re.S).group(0)
+    # ⚠️ LE CALCUL A DÉMÉNAGÉ, PAS LA RÈGLE. Le nombre d'actions ajusté des
+    # splits est sorti de `_pb_sourcé` le 16/09 pour devenir
+    # `_actions_sourcees()`, parce que le contrôle de la capitalisation en a
+    # besoin lui aussi — et qu'une règle écrite deux fois finit par diverger.
+    # Ce test suit la règle là où elle vit, et exige en outre que le
+    # price-to-book la partage au lieu de la recopier.
+    corps = re.search(r"def _actions_sourcees.*?\n\n# ", _moteur(), re.S).group(0)
     assert 'cloture = f"{e.get(\'exercice\', 2025)}-12-31"' in corps
     assert 'if sp["date"] > cloture:' in corps
     assert "n *= sp[\"ratio\"]" in corps
     # Et le registre fait foi, il n'est pas redéclaré ici.
     assert "SPLITS.get(ticker" in corps
+
+    pb = re.search(r"def _pb_sourcé.*?\n\ndef ", _moteur(), re.S).group(0)
+    assert "_actions_sourcees(ticker)" in pb, (
+        "le price-to-book a recopié le calcul au lieu de le partager — deux "
+        "copies d'une même règle finissent par ne plus dire la même chose")
 
 
 def _emetteurs_avec_fonds_propres(faits):
