@@ -1835,31 +1835,102 @@ def _pb_sourcé(ticker: str, price: float):
         return None
     faits = e.get("faits") or {}
     cp = faits.get("capitaux_propres_part_groupe")
-    na = (faits.get("nombre_actions_existant")
-          or faits.get("nombre_actions_au_rapport")
-          or faits.get("nombre_actions_retenu_pour_le_bpa"))
-    if not cp or not na:
+    n = _actions_sourcees(ticker)
+    if not cp or not n:
         return None
     try:
-        n = float(na["valeur"])
-        # ⚠️ Le rapport arrête ses comptes au 31/12 de l'exercice. Un split
-        # postérieur à cette date n'y figure pas : son nombre d'actions est
-        # celui d'AVANT, et il faut l'ajuster pour le comparer au cours
-        # d'aujourd'hui. Managem (10:1 le 27/07/2026) et Sothema (5:1 le
-        # 05/05/2026) sont tous deux dans ce cas pour l'exercice 2025.
-        #
-        # Le registre SPLITS fait foi, comme pour les chandelles — c'est le
-        # même fait extérieur, et il ne doit pas être redéclaré ici.
-        cloture = f"{e.get('exercice', 2025)}-12-31"
-        for sp in SPLITS.get(ticker, []):
-            if sp["date"] > cloture:
-                n *= sp["ratio"]
         fp = float(cp["valeur"]) * 1e6          # les faits sont en MMAD
         if fp <= 0:
             return None
         return round(price * n / fp, 2)
     except (TypeError, ValueError, KeyError):
         return None
+
+
+def _actions_sourcees(ticker: str):
+    """Le nombre d'actions du rapport, ajusté des splits postérieurs. None sinon.
+
+    ⚠️ Le rapport arrête ses comptes au 31/12 de l'exercice. Un split
+    postérieur à cette date n'y figure pas : son nombre d'actions est celui
+    d'AVANT, et il faut l'ajuster pour le comparer au cours d'aujourd'hui.
+    Managem (10:1 le 27/07/2026) et Sothema (5:1 le 05/05/2026) sont tous deux
+    dans ce cas pour l'exercice 2025.
+
+    Le registre SPLITS fait foi, comme pour les chandelles — c'est le même fait
+    extérieur, et il ne doit pas être redéclaré ici.
+    """
+    e = FAITS_DATA.get(ticker)
+    if not isinstance(e, dict):
+        return None
+    faits = e.get("faits") or {}
+    na = (faits.get("nombre_actions_existant")
+          or faits.get("nombre_actions_au_rapport")
+          or faits.get("nombre_actions_retenu_pour_le_bpa"))
+    if not na:
+        return None
+    try:
+        n = float(na["valeur"])
+    except (TypeError, ValueError, KeyError):
+        return None
+    cloture = f"{e.get('exercice', 2025)}-12-31"
+    for sp in SPLITS.get(ticker, []):
+        if sp["date"] > cloture:
+            n *= sp["ratio"]
+    return n
+
+
+# Au-delà de cet écart, la capitalisation servie n'est plus celle de ce titre.
+# Relevé le 16/09 sur les 21 titres dont le nombre d'actions est sourcé : le
+# pire écart légitime vaut 3,2 % (Mutandis), et les autres tiennent sous 3 %.
+# Dix pour cent laisse donc trois fois la marge des écarts réels, et écarte
+# sans hésitation le facteur deux qui a bloqué la publication.
+ECART_CAP_TOLERE = 0.10
+
+
+def _capitalisation(ticker: str, price: float, cap_servie):
+    """(capitalisation retenue, provenance) — en refusant l'invraisemblable.
+
+    ⚠️ CE CONTRÔLE EXISTE À CAUSE D'UNE PUBLICATION ANNULÉE. Le 16/09 à 16h22
+    Casablanca, la source a servi pour Minière Touissit une capitalisation de
+    3 727 MDHS là où elle valait 7 313 un run plus tôt — exactement la moitié.
+    CMT est suspendue depuis le 17/07, son cours est figé et son volume nul :
+    rien, dans le titre, n'avait bougé.
+
+    Les contrôles de publication l'ont vu, et ils ont eu raison de le voir.
+    Mais comme ils sont bloquants, **la séance entière n'a pas été publiée** :
+    quatre-vingts titres retenus pour la capitalisation fautive d'un seul.
+
+    Le défaut n'était pas dans le contrôle, il était dans le moment. Une valeur
+    aberrante doit être refusée À L'ENTRÉE, là où l'on peut neutraliser UN
+    titre, et non à la porte de sortie, où l'on ne peut plus qu'annuler TOUT.
+
+    L'arbitre est celui que le CLAUDE.md fixe déjà (LOI N°3, règle 2) :
+    « valider via prix × nb_titres ; la cap dans data.json doit être cohérente
+    avec ce calcul ». Les deux termes sont sourcés — le cours par la chaîne de
+    repli, le nombre d'actions par un rapport déposé, avec sa page.
+
+    ⚠️ Sans nombre d'actions sourcé, on ne tranche pas : on garde ce qui est
+    servi et on le dit. Refuser faute de pouvoir vérifier reviendrait à
+    supprimer la capitalisation des cinquante-neuf titres dont le rapport n'est
+    pas encore relevé.
+    """
+    n = _actions_sourcees(ticker)
+    if not n or not price or price <= 0:
+        return cap_servie, ("servie" if cap_servie else "absente")
+
+    calculee = round(price * n / 1e6)           # data.json exprime en MDHS
+    if not cap_servie:
+        return calculee, "calculee_faute_de_source"
+
+    ecart = abs(calculee / cap_servie - 1)
+    if ecart <= ECART_CAP_TOLERE:
+        return cap_servie, "servie"
+
+    logger.warning(
+        f"{ticker} : capitalisation servie {cap_servie} MDHS refusée — "
+        f"prix {price} × {n:,.0f} actions sourcées = {calculee} MDHS "
+        f"(écart {ecart:.0%})".replace(",", " "))
+    return calculee, "calculee_apres_refus"
 
 
 def _suspendu_maintenant(ticker: str):
@@ -1945,7 +2016,7 @@ def date_analyse() -> str:
 
 def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
                  isin_suspect=False, ratios_calcules=False,
-                 chg=None, vol=None, prix_diffuse=None) -> dict:
+                 chg=None, vol=None, prix_diffuse=None, cap_source=None) -> dict:
     """Provenance du prix et score de confiance 0–5.
 
     Le score suit la spécification du CLAUDE.md, un point par garantie :
@@ -2060,6 +2131,13 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         # désormais soit calculé depuis un dépôt AMMC, soit absent.
         "pb_source":    ("faits_ammc" if _pb_sourcé(ticker, 1.0) is not None
                          else "non_disponible"),
+        # D'où vient la capitalisation publiée : « servie » par la source,
+        # « calculee_apres_refus » quand elle contredisait prix × actions
+        # sourcées de plus de 10 %, « calculee_faute_de_source » quand la
+        # source n'en donnait aucune. Sans cette ligne, un refus serait
+        # silencieux — et un chiffre remplacé sans le dire est exactement ce
+        # qu'on reproche à la table figée.
+        "cap_source":   cap_source,
         "vol_median20": vol_median,
         "prix_asof":    prix_asof or None,
         "stale":        stale,
@@ -2793,6 +2871,10 @@ def run(dry_run=False, push=False, token=""):
             setup = "NEUTRE"
 
         info = TICKER_INFO.get(ticker, {})
+        # La capitalisation est confrontée à prix × actions sourcées AVANT
+        # d'être publiée. Une valeur refusée ne bloque que ce titre-ci.
+        _cap_retenue, _cap_source = _capitalisation(
+            ticker, price, lp.get("cap") or fd.get("cap"))
         tickers_out.append({
             "symbol": ticker,
             # ── Bloc _meta (spécification CLAUDE.md) ─────────────────────────
@@ -2809,7 +2891,8 @@ def run(dry_run=False, push=False, token=""):
                 _candles_cache.get(ticker), isin_suspect,
                 ratios_calcules=bool(
                     ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0),
-                chg=chg, vol=vol, prix_diffuse=_prix_diffuse),
+                chg=chg, vol=vol, prix_diffuse=_prix_diffuse,
+                cap_source=_cap_source),
             # Code officiel BVC, pour l'affichage seulement. Nos symboles
             # internes sont la clé primaire d'ISIN_MAP, des chandelles et de
             # six ans de corpus WhatsApp : on ne les renomme pas. Mais un
@@ -2860,7 +2943,9 @@ def run(dry_run=False, push=False, token=""):
             # prime sur FOND_DATA — table codée en dur qui n'a suivi ni les
             # splits ni les corrections d'ISIN (Sonasid y valait 1 100 MDHS
             # pour une capitalisation réelle de 7 800).
-            "cap":    lp.get("cap") or fd.get("cap"),
+            # ⚠️ Mais elle est confrontée à prix × actions sourcées avant d'être
+            # publiée : voir `_capitalisation()`.
+            "cap":    _cap_retenue,
             "h90":    round(h90, 2),
             "l90":    round(l90, 2),
             "ma200":  round(ma200, 2) if ma200 else None,
