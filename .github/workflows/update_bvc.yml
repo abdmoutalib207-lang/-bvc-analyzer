@@ -108,52 +108,56 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-      # ── 0. Gate session BVC ───────────────────────────────
+      # ── 0. Le dépôt, AVANT la porte ───────────────────────
+      #
+      # ⚠️ La porte lit maintenant `data.json` et appelle un module du dépôt :
+      # elle ne peut plus s'exécuter sur un runner vide. Le checkout passe donc
+      # devant, et sans condition — c'est deux secondes, et cela supprime la
+      # classe de défauts « une étape qui se prononce sur un dépôt absent »,
+      # celle des 18 runs rouges du 15/09.
+      #
+      # Elle lit le fichier du dépôt plutôt que celui servi par
+      # raw.githubusercontent : c'est le même contenu, sans appel réseau et
+      # sans le retard de cache de l'un ni le risque d'échec de l'autre.
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 1. Gate session BVC ───────────────────────────────
       - name: Vérifier session BVC
         id: gate
         run: |
           TRIGGER="${{ github.event_name }}"
           CRON="${{ github.event.schedule }}"
 
-          # Le cron de rattrapage ne travaille que si la journée manque. Sans
-          # ce filtre il ferait 24 runs et autant de commits par jour.
+          # ── LE CRON DE RATTRAPAGE ──────────────────────────────────────
+          #
+          # ⚠️ IL JUGEAIT SUR LA DATE DU FICHIER, PAS SUR LA SÉANCE QU'IL PORTE.
+          #
+          # Mercredi 16/09/2026, 11h08 Casablanca — une heure trente-huit après
+          # l'ouverture : le terminal servait encore la clôture du 15.
+          # `data.json` portait `updated: 2026-09-16T03:15` et 78 titres sur 80
+          # au `prix_asof` du 15/09. Le cron de 09h40 n'était pas parti (le mal
+          # connu), et le filet de sécurité a répondu « à jour ».
+          #
+          # Il avait tort pour deux raisons cumulées : un run de 3h du matin —
+          # un rattrapage tardif de la VEILLE — lui suffisait à croire la
+          # journée couverte, et sa première règle exigeait de surcroît qu'il
+          # soit 10h30 passées. Entre 9h30 et 16h30, un fichier fabriqué avant
+          # l'ouverture était donc réputé à jour.
+          #
+          # La décision est désormais dans `pipeline/porte_rattrapage.py`, où
+          # elle est testable : quinze situations passent par la table de
+          # `tests/test_porte_rattrapage.py`. Une décision de quarante lignes
+          # de shell, personne ne l'éprouve.
           if [ "$CRON" = "25 * * * 1-5" ]; then
-            NOW=$(TZ="Africa/Casablanca" date +%H%M)
-            AUJ=$(TZ="Africa/Casablanca" date +%Y-%m-%d)
-            MAJ=$(curl -sf --max-time 20 \
-                  "https://raw.githubusercontent.com/${{ github.repository }}/main/data.json" \
-                  | python3 -c "import json,sys; print(json.load(sys.stdin).get('updated',''))" \
-                  2>/dev/null || echo "")
-            echo "data.json publié : ${MAJ:-illisible} · il est $NOW Casablanca"
-
-            # Illisible ou absent : on lance, c'est plus sûr que de supposer.
-            if [ -z "$MAJ" ]; then
-              echo "run=true" >> $GITHUB_OUTPUT
-              echo "🛟 data.json illisible — rattrapage"
-              exit 0
-            fi
-
-            JOUR_MAJ="${MAJ%%T*}"
-            HEURE_MAJ=$(echo "$MAJ" | sed -n 's/.*T\([0-9][0-9]\):\([0-9][0-9]\).*/\1\2/p')
-
-            # Cas 1 — après 10h30 et rien du jour : le run du matin a sauté.
-            if [ "$JOUR_MAJ" != "$AUJ" ] && [ "$NOW" -ge 1030 ]; then
-              echo "run=true" >> $GITHUB_OUTPUT
-              echo "🛟 aucun run aujourd'hui (dernier : $JOUR_MAJ) — rattrapage"
-              exit 0
-            fi
-
-            # Cas 2 — après 16h30 et rien depuis la clôture : LE run qui fixe
-            # le cours définitif a sauté. C'est celui qui compte le plus.
-            if [ "$JOUR_MAJ" = "$AUJ" ] && [ "$NOW" -ge 1630 ] \
-               && [ -n "$HEURE_MAJ" ] && [ "$HEURE_MAJ" -lt 1545 ]; then
-              echo "run=true" >> $GITHUB_OUTPUT
-              echo "🛟 rien depuis la clôture (dernier : $HEURE_MAJ) — rattrapage"
-              exit 0
-            fi
-
-            echo "run=false" >> $GITHUB_OUTPUT
-            echo "✅ à jour — rien à rattraper"
+            SORTIE=$(python3 pipeline/porte_rattrapage.py)
+            echo "$SORTIE"
+            echo "$SORTIE" | grep -q "run=true" \
+              && echo "run=true"  >> $GITHUB_OUTPUT \
+              || echo "run=false" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -171,13 +175,6 @@ jobs:
             echo "⏸️ Hors session BVC — skip (${NOW} Casablanca, jour=$DAY)"
           fi
 
-      # ── 1. Checkout ──────────────────────────────────────
-      - name: Checkout
-        if: steps.gate.outputs.run == 'true'
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       # ── 2. Python ────────────────────────────────────────
       - name: Setup Python 3.11
