@@ -177,16 +177,81 @@ def documents(ident: str) -> list:
     return docs
 
 
-def _existe(url: str) -> bool:
+# Un rapport annuel pèse au moins ceci. Mesuré le 16/09 sur les 66 rapports
+# téléchargés : le plus léger, celui de Rebab Company, fait 1,09 Mo, et la
+# médiane dépasse 8 Mo.
+#
+# ⚠️ CE SEUIL EXISTE À CAUSE D'UN FAUX POSITIF RÉEL. `Auto_Hall_RFA_2025.pdf`
+# est bien servi par l'AMMC, en PDF, sous exactement le nom attendu — mais il
+# fait 244 ko et UNE page, et c'est le COMMUNIQUÉ qui annonce le rapport :
+# « La Société Auto Hall met à la disposition du public son Rapport Financier
+# Annuel […] disponible sur le site internet de la société ». Le rapport
+# lui-même n'est pas déposé à l'AMMC.
+#
+# « Servi en PDF » ne veut donc pas dire « c'est le rapport ». Le seuil est
+# placé à 600 ko : 2,4 fois le communiqué d'Auto Hall, 1,8 fois moins que le
+# plus léger vrai rapport. Aucun des deux côtés n'est serré.
+TAILLE_MINIMALE_RAPPORT = 600_000
+
+
+def _existe(url: str, taille_min: int = 0) -> bool:
     """Le fichier est-il réellement servi ? ⚠️ L'AMMC renvoie une page HTML
     d'erreur en 404 avec un corps de ~105 ko : se fier au seul code HTTP ne
-    suffit pas, il faut vérifier le type de contenu."""
+    suffit pas, il faut vérifier le type de contenu — et, pour un rapport
+    annuel, la taille."""
     try:
         req = urllib.request.Request(url, headers={"User-Agent": UA}, method="HEAD")
         with urllib.request.urlopen(req, timeout=30) as r:
-            return r.status == 200 and "pdf" in r.headers.get("Content-Type", "").lower()
+            if r.status != 200 or "pdf" not in r.headers.get("Content-Type", "").lower():
+                return False
+            if taille_min:
+                taille = int(r.headers.get("Content-Length") or 0)
+                return taille >= taille_min
+            return True
     except Exception:
         return False
+
+
+# Les segments qui marquent la FIN du nom de la société dans un nom de fichier :
+# période, nature de l'acte, ou millésime. Tout ce qui suit décrit le document,
+# pas l'émetteur. Relevé sur les 74 fiches, pas supposé.
+_FIN_DU_NOM = re.compile(
+    r"^(T[1-4]|S[12]|20\d\d|\d{1,2}|post|avis|ago|age|agm|agoe|rfa|erratum"
+    r"|r%C3%A9sultats|resultats|communique|communiqu%C3%A9|cp|pr|fr|maj|cd"
+    r"|emission|augmentation|visa|fusion|signature|realisation|revision"
+    r"|cloture|convocation|eo|ipo|s%C3%A9ance)$", re.I)
+
+
+def _bases_possibles(docs: list) -> list:
+    """Les noms de société que ces fichiers peuvent porter, du plus long au
+    plus court.
+
+    On retire les préfixes `CP_` et `Avis_`, on coupe au premier segment qui
+    décrit le document plutôt que l'émetteur, puis on propose aussi les
+    troncatures — « CFG_Bank » donne « CFG_Bank » et « CFG », parce que le
+    rapport de CFG Bank s'appelle `CFG_RFA_2025.pdf`.
+
+    Les bases les plus fréquentes viennent en premier : c'est presque toujours
+    la bonne, et l'ordre limite le nombre d'appels au dépôt.
+    """
+    from collections import Counter
+    compte: Counter = Counter()
+    for d in docs:
+        f = re.sub(r"\.pdf$", "", d["fichier"], flags=re.I)
+        f = re.sub(r"^(CP|Avis)[_ ]", "", f, flags=re.I)
+        f = re.sub(r"_\d$", "", f)                    # suffixe _0 / _1 du dépôt
+        segments = [s for s in f.split("_") if s]
+        garde = []
+        for s in segments:
+            if _FIN_DU_NOM.match(s):
+                break
+            garde.append(s)
+        while garde:
+            compte["_".join(garde)] += 1
+            garde = garde[:-1]
+    # Un nom d'un seul caractère ou purement numérique ne désigne personne.
+    return [b for b, _ in compte.most_common(12)
+            if len(b) >= 2 and not b.isdigit()]
 
 
 def rapports_annuels(docs: list) -> list:
@@ -204,26 +269,77 @@ def rapports_annuels(docs: list) -> list:
     On dérive donc le second du premier, et on VÉRIFIE qu'il est servi avant
     de l'inscrire — deviner une URL sans la tester reproduirait exactement le
     travers qu'on cherche à corriger.
+
+    ⚠️ LA PREMIÈRE VERSION NE DÉRIVAIT QUE D'UN SEUL MOTIF, et déclarait donc
+    « pas de rapport annuel » pour 38 émetteurs sur 74. Constaté le 16/09 en
+    cherchant pourquoi le P/BOOK manquait sur les titres que Noure venait de
+    faire passer : huit rapports ont été retrouvés en une passe, dont six de
+    ces titres-là.
+
+        Vicenne          Vicenne_RFA_2025.pdf        ← CP_Vicenne_2025.pdf
+        Auto Hall        Auto_Hall_RFA_2025.pdf      ← CP_Auto_Hall_RFA_2025.pdf
+        Ciments du Maroc Cimar_RFA_2025.pdf          ← CP_Cimar_2025.pdf
+        Dari Couspate    Dari_Couspate_RFA_2025.pdf  ← Dari_Couspate_2025_1.pdf
+        Stokvis          Stokvis_RFA_2025.pdf        ← CP_Stokvis_post_AGO_…
+        CFG Bank         CFG_RFA_2025.pdf            ← CP_CFG_Bank_T2_26.pdf
+        Auto Nejma       Auto_Nejma_RFA_2025.pdf     ← CP_Auto_Nejma_2025.pdf
+        CIH Bank         CIH_Bank_RFA_2025.pdf       ← CP_CIH_Bank_T2_26.pdf
+
+    Ce que la première version ratait, et qui n'était pas devinable a priori :
+    le préfixe `CP_` qu'elle EXCLUAIT alors qu'il suffit de le retirer ; un
+    suffixe `_0`/`_1` ajouté par le dépôt ; et le fait que le nom du rapport se
+    déduit parfois d'un communiqué trimestriel, pas d'un communiqué annuel.
+
+    CFG Bank montre pourquoi il faut aussi RACCOURCIR la base : ses documents
+    disent « CFG_Bank », son rapport s'appelle `CFG_RFA_2025.pdf`.
+
+    ⚠️ La règle n'a pas changé d'un iota : on ESSAIE, et l'on n'inscrit que ce
+    qui répond en PDF. Élargir la recherche n'est pas deviner davantage — c'est
+    frapper à plus de portes, et n'entrer que par celles qui s'ouvrent.
     """
-    trouves, vus = [], set()
-    for d in docs:
-        f = d["fichier"]
-        m = re.match(r"^(?!CP_|Avis_)(.+?)_(20\d\d)\.pdf$", f, re.I)
-        if not m:
-            continue
-        base, annee = m.group(1), m.group(2)
-        for motif in (f"{base}_RFA_{annee}.pdf", f"{base}_RFA_{annee[2:]}.pdf"):
-            url = f"{BASE}/sites/default/files/{motif}"
-            if url in vus:
-                continue
-            vus.add(url)
-            if _existe(url):
-                trouves.append({"url": url, "fichier": motif, "exercice": int(annee),
-                                "derive_de": f, "date_communique": d["date"],
-                                "verifie": True})
+    # ⚠️ NE PAS SE LIMITER AUX MILLÉSIMES QUI FIGURENT DANS LES NOMS DE
+    # FICHIERS. CIH Bank ne publie que des communiqués trimestriels de 2026 :
+    # aucun de ses noms ne porte « 2025 », et l'exercice 2025 n'était donc
+    # jamais essayé — alors que `CIH_Bank_RFA_2025.pdf` est bien servi. Un
+    # rapport annuel porte l'exercice CLOS, c'est-à-dire l'année précédente.
+    #
+    # ⚠️ Et borner ce qu'on prend pour un millésime. `Communique%20Visa%20CIH%
+    # 20AUK%20750.pdf` contient « 2075 » — dans l'échappement d'une espace, pas
+    # dans une date. Cet exercice imaginaire devenait le plus récent, et
+    # écrasait 2025 dans les deux essais retenus : CIH Bank était déclarée sans
+    # rapport annuel alors que le sien est servi. Un exercice clos ne dépasse
+    # pas l'année en cours.
+    maxi = time.gmtime().tm_year + 1
+    vus_annees = {m.group(1) for d in docs
+                  for m in [re.search(r"(20\d\d)", d["fichier"])] if m
+                  and 2010 <= int(m.group(1)) <= maxi}
+    if vus_annees:
+        vus_annees.add(str(max(int(a) for a in vus_annees) - 1))
+    annees = sorted(vus_annees, reverse=True)[:2] or ["2025"]
+    trouves, vus, essais = [], set(), 0
+    for base in _bases_possibles(docs):
+        for annee in annees:
+            for motif in (f"{base}_RFA_{annee}.pdf",
+                          f"{base}_RFA_{annee[2:]}.pdf",
+                          f"{base}_{annee}_RFA.pdf"):
+                url = f"{BASE}/sites/default/files/{motif}"
+                if url in vus or essais >= 90:
+                    continue
+                vus.add(url)
+                essais += 1
+                time.sleep(PAUSE / 4)
+                if _existe(url, TAILLE_MINIMALE_RAPPORT):
+                    trouves.append({"url": url, "fichier": motif,
+                                    "exercice": int(annee), "derive_de": base,
+                                    "verifie": True})
+                    break
+            if any(t["exercice"] == int(annee) for t in trouves):
                 break
-        time.sleep(PAUSE / 2)
-    return sorted(trouves, key=lambda x: -x["exercice"])
+    # Un seul rapport par exercice : le premier trouvé fait foi.
+    par_exercice = {}
+    for t in trouves:
+        par_exercice.setdefault(t["exercice"], t)
+    return sorted(par_exercice.values(), key=lambda x: -x["exercice"])
 
 
 def main() -> int:

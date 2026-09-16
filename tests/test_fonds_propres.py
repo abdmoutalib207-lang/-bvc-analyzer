@@ -94,18 +94,27 @@ def test_la_conversion_se_refait_sans_rouvrir_le_pdf(faits):
 
 
 def test_la_colonne_retenue_est_declaree(faits):
-    """Chaque fait dit QUELLE colonne du tableau porte l'exercice clos.
+    """Chaque fait dit à QUEL RANG, dans la ligne citée, se trouve le montant.
 
-    Deux rapports sur dix-sept la mettent en second. Ce champ n'est pas une
-    précaution de style : c'est la trace de la seule chose qui distingue les
-    comptes 2025 de ceux de 2024 quand les deux sont sur la même ligne.
+    Dans un bilan, ce rang désigne l'exercice : deux rapports le mettent en
+    second. Ce champ n'est pas une précaution de style — c'est la trace de la
+    seule chose qui distingue les comptes 2025 de ceux de 2024 quand les deux
+    sont sur la même ligne.
+
+    ⚠️ La borne est à dix, pas à quatre. Un TABLEAU DE VARIATION DES CAPITAUX
+    PROPRES ne range pas ses colonnes par exercice mais par composante —
+    capital, primes, réserves, écarts, part du groupe, minoritaires, total — et
+    la ligne de clôture en porte huit chez CFG Bank, la part du groupe venant
+    en sixième position. Le rang garde le même rôle : il dit lequel des
+    montants de la ligne a été retenu, et c'est ce que vérifie le contrôle
+    suivant.
     """
     cp = _avec_fonds_propres(faits)
     for t, f in sorted(cp.items()):
         col = f.get("colonne_exercice_clos")
-        assert isinstance(col, int) and 1 <= col <= 4, (
-            f"{t} : rang de colonne {col!r} — sans lui, rien ne dit si le "
-            "chiffre est celui de l'exercice clos ou du précédent")
+        assert isinstance(col, int) and 1 <= col <= 10, (
+            f"{t} : rang {col!r} — sans lui, rien ne dit lequel des montants "
+            "de la ligne a été retenu")
 
 
 _NOMBRE_CITE = re.compile(
@@ -114,26 +123,72 @@ _NOMBRE_CITE = re.compile(
     r"|\b\d{4,}\b")                              # 12568130
 
 
-def _nombres_cites(note):
-    """Les montants de la ligne citée, après l'étiquette.
+def _degrouper_citation(jeton):
+    """Sépare deux colonnes recollées : « 700 159 645 289 » → deux montants.
 
-    Renvoie None quand la citation n'est pas exploitable — soit qu'un jeton y
-    atteigne douze chiffres, ce qui trahit deux colonnes recollées à l'extraction
-    du PDF (« 901 142 608 722 030 805 »), soit qu'elle n'en porte aucun. La borne
-    est physique : les fonds propres d'Attijariwafa, la plus grosse de la cote,
-    avoisinent 6 × 10¹⁰ dirhams, soit onze chiffres. Douze n'est plus un montant.
+    ⚠️ LE RECOLLAGE EST INHÉRENT AU TEXTE DES PDF. Dans un tableau, deux
+    montants voisins ne sont séparés que par une espace — la même que celle qui
+    sépare les milliers à l'intérieur d'un montant. Rien, dans la chaîne, ne dit
+    où l'un finit et où l'autre commence.
+
+    Ce qui tranche est la SYMÉTRIE : deux colonnes voisines d'un même tableau
+    portent des montants du même ordre, donc le même nombre de groupes de trois
+    chiffres. Un recollage a donc un nombre PAIR de groupes, et se coupe au
+    milieu. Vérifié sur les six cas du référentiel — CFG Bank, CTM, Oulmès,
+    Immorente, SNEP, Minière Touissit : tous se coupent en deux parts égales.
+
+    Un nombre IMPAIR de groupes ne se découpe pas ainsi : on rend None plutôt
+    que de choisir. Une lecture ambiguë se dit, elle ne se devine pas.
+    """
+    if len(re.sub(r"\D", "", jeton)) <= 11:
+        return [jeton]
+    groupes = re.split(r"[\s\u00a0.]", jeton)
+    if len(groupes) < 2 or len(groupes) % 2:
+        return None
+    m = len(groupes) // 2
+    return [" ".join(groupes[:m]), " ".join(groupes[m:])]
+
+
+def _nombres_cites(note):
+    """Les montants de la ligne citée, après l'étiquette, recollages défaits.
+
+    Rend None quand la citation ne s'analyse pas — aucun montant, ou un
+    recollage à nombre impair de groupes. La borne des onze chiffres est
+    physique : les fonds propres d'Attijariwafa, la plus grosse de la cote,
+    avoisinent 6 × 10¹⁰ dirhams. Douze chiffres ne sont plus un montant.
     """
     cite = re.search(r"«([^»]*)»", note or "")
     if not cite:
         return None
     m = re.search(r"capitaux\s+propres[^\d]{0,60}", cite.group(1), re.I)
-    jetons = _NOMBRE_CITE.findall(cite.group(1)[m.end():] if m else cite.group(1))
-    if not jetons or any(len(re.sub(r"\D", "", j)) >= 12 for j in jetons):
+    jetons = []
+    for x in _NOMBRE_CITE.findall(cite.group(1)[m.end():] if m else cite.group(1)):
+        part = _degrouper_citation(x)
+        if part is None:
+            return None
+        jetons += part
+    if not jetons:
         return None
-    return [float(j.replace(" ", "").replace(" ", "")
-                  .replace(".", "").replace(",", ".")) if "," in j
-            else float(j.replace(" ", "").replace(" ", "").replace(".", ""))
-            for j in jetons]
+    valeurs = []
+    for x in jetons:
+        brut = re.sub(r"[\s\u00a0]", "", x)
+        v = (float(brut.replace(".", "").replace(",", ".")) if "," in brut
+             else float(brut.replace(".", "")))
+        # ⚠️ UN MONTANT ENTRE PARENTHÈSES EST NÉGATIF. Convention comptable
+        # constante, et pas un détail de présentation : les fonds propres part
+        # du groupe de Stokvis valent « ( 97.214) », c'est-à-dire moins 97
+        # millions de dirhams — ses réserves consolidées, -299 928 KMAD,
+        # excèdent son capital. Lus positifs, ils produiraient un price-to-book
+        # là où la réponse juste est qu'il n'y en a pas : une société dont le
+        # livre est négatif ne se compare pas à son livre.
+        #
+        # La parenthèse se cherche dans la CITATION ENTIÈRE, pas dans ce qui
+        # suit l'étiquette : le motif d'étiquette, glouton jusqu'au premier
+        # chiffre, avale la parenthèse ouvrante de « part du groupe ( 97.214) ».
+        if re.search(r"\(\s*" + re.escape(x) + r"\s*\)", cite.group(1)):
+            v = -v
+        valeurs.append(v)
+    return valeurs
 
 
 def test_la_valeur_retenue_est_bien_celle_de_la_colonne_declaree(faits):
@@ -147,12 +202,13 @@ def test_la_valeur_retenue_est_bien_celle_de_la_colonne_declaree(faits):
     bornes, ni le recoupement avec la capitalisation, qui ne regardent que la
     grandeur.
 
-    ⚠️ IL NE S'APPLIQUE PAS PARTOUT, et c'est assumé. Quatre citations sur
-    vingt et une ne s'analysent pas : chez CMT, HPS et SNEP l'extraction du PDF
-    recolle deux colonnes en un seul jeton, et chez Marsa Maroc la part du
-    groupe n'a pas de colonne propre — elle se déduit du total moins les
-    minoritaires. Le plancher ci-dessous empêche cette exception de s'étendre
-    en silence jusqu'à ce que le test ne contrôle plus rien.
+    ⚠️ IL NE S'APPLIQUE PAS PARTOUT, et c'est assumé — mais l'exception s'est
+    réduite à UN cas sur trente : Marsa Maroc, dont la part du groupe n'a pas de
+    colonne propre et se déduit du total moins les minoritaires. Les citations
+    où le PDF recollait deux colonnes s'analysent désormais, la symétrie des
+    groupes de trois chiffres suffisant à les séparer. Le plancher ci-dessous
+    empêche l'exception de s'étendre en silence jusqu'à ce que le test ne
+    contrôle plus rien.
     """
     applique = 0
     for t, f in sorted(_avec_fonds_propres(faits).items()):
@@ -164,7 +220,7 @@ def test_la_valeur_retenue_est_bien_celle_de_la_colonne_declaree(faits):
         assert nombres[col - 1] == pytest.approx(f["valeur_au_rapport"], rel=1e-9), (
             f"{t} : la colonne {col} de la ligne citée porte {nombres[col - 1]}, "
             f"mais le fait retient {f['valeur_au_rapport']}")
-    assert applique >= 15, (
+    assert applique >= 25, (
         f"le contrôle ne s'est appliqué qu'à {applique} émetteurs : les "
         "citations sont devenues trop irrégulières pour qu'il morde encore")
 
@@ -295,6 +351,42 @@ def test_le_nombre_d_actions_du_rapport_colle_au_marche(publie, faits):
                         + "\n  ".join(ecarts))
 
 
+def test_les_fonds_propres_ont_un_ordre_de_grandeur_defendable(publie, faits):
+    """La capitalisation rapportée aux fonds propres reste dans une plage
+    tenable.
+
+    ⚠️ C'EST LE FILET CONTRE L'ERREUR D'UNITÉ QUI SE DÉCLARE ELLE-MÊME. Le test
+    de conversion vérifie que `valeur` découle de `valeur_au_rapport` et de
+    l'unité annoncée — mais si les DEUX sont faux ensemble, il passe. C'est
+    exactement ce qui arrive quand deux colonnes recollées sont prises pour un
+    montant : chez CTM, « 243 479 362 360 » lu comme un seul nombre donnerait
+    243 479 MMAD de fonds propres pour une société qui en capitalise 1 065. Le
+    ratio tomberait à 0,004, mille fois trop bas, sans qu'aucun autre contrôle
+    ne bronche.
+
+    La capitalisation vient d'IDBourse et n'entre dans aucun de ces faits :
+    c'est une mesure extérieure. La plage est large à dessein — de 0,2 à 50 —
+    parce qu'elle n'est pas là pour juger une valorisation, seulement pour
+    attraper un facteur mille. Les trente valeurs relevées le 16/09 s'étagent
+    de 1,04 à 17,8.
+
+    Les fonds propres négatifs sont hors sujet : il n'y a pas de rapport à
+    former, et le moteur s'en abstient déjà.
+    """
+    cap = {x["symbol"]: x.get("cap") for x in publie["tickers"]}
+    aberrants = []
+    for t, f in sorted(_avec_fonds_propres(faits).items()):
+        fp, c = f["valeur"], cap.get(t)
+        if not c or fp <= 0:
+            continue
+        r = c / fp
+        if not (0.2 <= r <= 50):
+            aberrants.append(f"{t} : capitalisation {c} MMAD ÷ fonds propres "
+                             f"{fp} MMAD = {r:.4f}")
+    assert not aberrants, ("ordre de grandeur indéfendable — erreur d'unité ou "
+                           "colonnes recollées :\n  " + "\n  ".join(aberrants))
+
+
 def test_le_releve_progresse_et_ne_recule_pas(faits):
     """Un plancher, pas un instantané.
 
@@ -316,7 +408,11 @@ def test_le_releve_progresse_et_ne_recule_pas(faits):
                    if any(k in faits[t]["faits"] for k in
                           ("nombre_actions_existant", "nombre_actions_au_rapport",
                            "nombre_actions_retenu_pour_le_bpa"))]
-    assert len(calculables) >= 21, (
+    assert len(calculables) >= 30, (
         f"{len(calculables)} émetteurs seulement ont de quoi calculer un "
-        "P/BOOK — le relevé du 16/09 en avait porté 21 sur 80. Une baisse "
+        "P/BOOK — le relevé du 16/09 en avait porté 30 sur 80, dont 29 qui donnent un ratio (Stokvis a des fonds propres négatifs). Une baisse "
         "signale un fait perdu, pas un progrès.")
+
+    # ⚠️ CE PLANCHER SE REMONTE À CHAQUE LOT, sinon il cesse de mordre : à 21
+    # alors que le référentiel en portait 29, retirer un fait passait inaperçu.
+    # Un cliquet qu'on oublie de remonter n'est plus un cliquet.

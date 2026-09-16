@@ -872,6 +872,45 @@
     "source_du_champ": "casablancabourse_derive — dérivé, pas issu des résultats officiels",
     "pour_lever": "lire le rapport financier annuel 2025 de SNEP sur ammc.ma et remplacer le BPA par le résultat net part du groupe ÷ nombre d'actions, avec la page."
    }
+  },
+  "fonds_propres_reperes_mais_non_retenus": {
+   "_quoi": "Des fonds propres ont été LUS dans un rapport, mais le P/BOOK reste incalculable ou trompeur. Ces cas sont inscrits ici pour qu'ils ne repassent pas pour une absence de donnée — on sait où ils sont, on sait ce qui manque.",
+   "_constate_le": "2026-09-16",
+   "BAL": {
+    "mesure": "Capitaux propres (part du groupe) 128 892 669 au 31/12/2024, page 36.",
+    "ce_qui_manque": "Le nombre d'actions. La ligne « Capital (1) » du bilan ne porte aucun montant, et aucune autre page ne donne le compte.",
+    "pour_lever": "Relire l'état de répartition du capital du rapport Balima."
+   },
+   "IMI": {
+    "mesure": "Total Capitaux propres, part du groupe 822 320 KMAD au 31/12/2025, page 21.",
+    "ce_qui_manque": "Le nombre d'actions ne se recoupe pas : le capital de 563 298 KMAD donne 5 632 980 titres de nominale 100, quand le marché en implique 9 001 936 — 60 % d'écart. Aucune nominale usuelle ne réconcilie les deux.",
+    "pour_lever": "Établir s'il y a eu augmentation de capital après la clôture, ou lire le nombre d'actions au rapport."
+   },
+   "SAF": {
+    "mesure": "CAPITAUX PROPRES - PART DU GROUPE 5 821 411 KMAD au 31/12/2024, page 9.",
+    "ce_qui_manque": "Le livre est antérieur à l'absorption d'Allianz. Le capital du rapport, 411 687 KMAD, donne 4 116 874 titres quand le marché en implique 5 341 880 — la fusion a émis des actions depuis. Rapprocher ce livre du cours d'aujourd'hui surestimerait le P/BOOK d'environ 30 %.",
+    "pour_lever": "Attendre le rapport 2025, ou relever les capitaux propres post-fusion."
+   },
+   "DLM": {
+    "mesure": "CAPITAUX PROPRES PART GROUPE (18 281) KMAD au 31/12/2020, page 13 — négatifs.",
+    "ce_qui_manque": "L'AMMC ne sert que le rapport 2020. Un livre vieux de cinq ans ne se rapproche pas du cours du jour.",
+    "pour_lever": "Un rapport plus récent, s'il est déposé."
+   },
+   "DAR": {
+    "mesure": "Aucune : le rapport 2025 de Dari Couspate est un PDF de 49 pages SANS COUCHE DE TEXTE — 0 caractère extractible. C'est un document scanné.",
+    "ce_qui_manque": "Une reconnaissance optique, ou le rapport sous une autre forme.",
+    "pour_lever": "Ne pas conclure que le fait est absent : il est illisible par nos moyens, ce qui n'est pas la même chose."
+   },
+   "HAL": {
+    "mesure": "Aucune. `Auto_Hall_RFA_2025.pdf` EXISTE bien sur le site de l'AMMC, en PDF, sous exactement le nom attendu — mais il fait 244 ko et UNE page : c'est le communiqué annonçant le rapport, lequel n'est publié que sur le site de la société.",
+    "ce_qui_manque": "Le rapport lui-même, hors du périmètre AMMC.",
+    "pour_lever": "Un dépôt AMMC, ou une source déclarée pour autohall.ma."
+   },
+   "VCNE": {
+    "mesure": "Deux montants coexistent et ne se recoupent pas : « CAPITAUX PROPRES 1 006 785 952,87 » page 40 et « Total Des Capitaux Propres-[A] 1.244.927.997 » page 57. Aucun ne porte la mention « part du groupe ».",
+    "ce_qui_manque": "Établir lequel est le périmètre consolidé au 31/12/2025. Vicenne s'est introduite en 2025 : ses fonds propres ont passé de 238 M à plus d'un milliard, ce qui rend les deux chiffres plausibles.",
+    "pour_lever": "Lire les pages 39-40 et 57 et trancher le périmètre."
+   }
   }
  },
  "AKD": {
@@ -1148,5 +1187,230 @@
    }
   },
   "pages_document": 154
+ },
+ "AFM": {
+  "societe": "AFMA",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Afma_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 70.369986,
+    "valeur_au_rapport": 70369986,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 56,
+    "note": "« Capitaux propres part du groupe 70 369 986 68 518 855 » ; en-tête « PASSIF CONSOLIDÉ (en MAD) 31/12/2025 31/12/2024 ». Capital 10 000 000 MAD sur la même page = 1 000 000 titres de nominale 10, exactement ce qu'implique le marché. Les minoritaires (1 130 482) et l'ensemble (71 500 469) figurent sur les deux lignes suivantes."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 1000000,
+    "page": 56,
+    "unite": "actions",
+    "note": "capital 10 000 000 MAD ÷ nominale 10. Le marché en implique exactement 1 000 000."
+   }
+  },
+  "pages_document": 89
+ },
+ "CFGB": {
+  "societe": "CFG Bank",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 2065.577,
+    "valeur_au_rapport": 2065577,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 6,
+    "page": 40,
+    "note": "« Capitaux propres au 31 décembre 2025 700 159 645 289 - 849 400 -130 645 2 065 577 21 553 2 087 129 », TABLEAU DE VARIATION DES CAPITAUX PROPRES. ⚠️ Ce tableau range ses colonnes par COMPOSANTE et non par exercice : la part du groupe est le sixième montant de la ligne de clôture. L'arithmétique ferme — 2 065 577 + 21 553 = 2 087 130, et le bilan de la page 38 porte bien 2 087 129 de capitaux propres totaux. Unité confirmée par le texte de la page 31 : « Capitaux propres 2 087 » en millions de MAD. Le capital, 700 159 KMAD, donne 35 007 950 titres de nominale 20 quand le marché en implique 35 009 662."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 35007950,
+    "page": 40,
+    "unite": "actions",
+    "note": "capital 700 159 KMAD ÷ nominale 20. ⚠️ La nominale de 20 ne figure pas parmi les six usuelles ; c'est le marché qui tranche — 35 009 662 titres implicites, soit 0,005 % d'écart."
+   }
+  },
+  "pages_document": 69
+ },
+ "CIM": {
+  "societe": "CIMENTS DU MAROC",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Cimar_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 3739.311,
+    "valeur_au_rapport": 3739311,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "note": "« Capitaux propres ( Part du groupe ) 3 739 311 3 329 472 » ; en-tête « PASSIF Au 31 décembre 2025 Au 31 décembre 2024 », « En milliers de dirhams ». Capital 1 443 600 KMAD = 14 436 000 titres de nominale 100. Le « Résultat net consolidé par action en dirhams 95 » recoupe : 1 377 432 KMAD ÷ 95 ≈ 14,5 millions de titres."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 14436000,
+    "page": 60,
+    "unite": "actions",
+    "note": "capital 1 443 600 KMAD ÷ nominale 100. Le marché en implique 14 436 250 (écart 0,002 %)."
+   }
+  },
+  "pages_document": 80
+ },
+ "CTM": {
+  "societe": "CTM",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/CTM_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 243.479,
+    "valeur_au_rapport": 243479,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 47,
+    "note": "« Capitaux propres - part du Groupe 243 479 362 360 -118 881 » ; en-tête « EN KMAD 2025 2024 Variation ». ⚠️ Les trois colonnes se recollent à la lecture automatique. Le texte de la même page tranche pour le total : « Les capitaux propres consolidés totalisent KMAD 342 031 contre KMAD 358 564 » — la part du groupe, 243 479, lui est bien inférieure, les minoritaires étant importants chez CTM."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 1225978,
+    "page": 52,
+    "unite": "actions",
+    "note": "« Capital social ou personnel (1) 122 597 800,00 » page 52, ÷ nominale 100. Le marché en implique 1 225 547 (écart 0,04 %)."
+   }
+  },
+  "pages_document": 80
+ },
+ "DSW": {
+  "societe": "DISWAY",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 685.85175864,
+    "valeur_au_rapport": 685851758.64,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 18,
+    "note": "« * Capitaux propres (part de groupe) 685 851 758,64 675 926 208,81 » ; en-tête « PASSIF 31/12/2025 31/12/2024 ». Les centimes signent des dirhams, et le Capital de la même page le confirme : 188 576 200,00 MAD = 1 885 762 titres de nominale 100."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 1885762,
+    "page": 18,
+    "unite": "actions",
+    "note": "capital 188 576 200,00 MAD ÷ nominale 100. Le marché en implique 1 885 135 (écart 0,03 %)."
+   }
+  },
+  "pages_document": 91
+ },
+ "GAZ": {
+  "societe": "AFRIQUIA GAZ",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/AFG_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 3387.007,
+    "valeur_au_rapport": 3387007,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 172,
+    "note": "« Total capitaux propres part du groupe 3 387 007 3 238 070 » ; en-tête « PASSIF (en milliers de dirhams) 31/12/2025 31/12/2024 ». Capital 343 750 KMAD = 3 437 500 titres de nominale 100, exactement ce qu'implique le marché. Le « Résultat net par action en DH 218 » recoupe : 750 500 KMAD ÷ 218 = 3 442 660."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 3437500,
+    "page": 172,
+    "unite": "actions",
+    "note": "capital 343 750 KMAD ÷ nominale 100. Le marché en implique exactement 3 437 500."
+   }
+  },
+  "pages_document": 174
+ },
+ "OUL": {
+  "societe": "OULMES",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Oulmes_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 788.101,
+    "valeur_au_rapport": 788101,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 76,
+    "note": "« Capitaux Propres Part du Groupe 788 101 720 476 » ; en-tête « PASSIF 31/12/2025 31/12/2024 (en milliers de dirhams) ». Capital 198 000 KMAD = 1 980 000 titres de nominale 100, et le « RÉSULTAT PAR ACTION EN DH 56,73 » boucle : 112 330 KMAD ÷ 56,73 = 1 980 083. L'ensemble consolidé vaut 809 500, soit 21 399 d'intérêts hors groupe."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 1980000,
+    "page": 76,
+    "unite": "actions",
+    "note": "capital 198 000 KMAD ÷ nominale 100. Le marché en implique 1 980 172 (écart 0,009 %)."
+   }
+  },
+  "pages_document": 85
+ },
+ "STK": {
+  "societe": "STOKVIS NORD AFRIQUE",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Stokvis_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": -97.214,
+    "valeur_au_rapport": -97214,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 30,
+    "note": "« Dont : Capitaux propres part du groupe ( 97.214) ( 113.253) » ; en-tête « PASSIF 31/12/2025 31/12/2024 ». ⚠️ FONDS PROPRES NÉGATIFS — les parenthèses sont la convention comptable du signe moins. Stokvis a des réserves consolidées de -299 928 KMAD qui excèdent son capital de 176 952 KMAD. Le moteur ne publiera donc PAS de price-to-book : une société dont le livre est négatif ne se compare pas à son livre. Ce fait est relevé pour que ce refus soit SOURCÉ, et non pris pour une donnée manquante. Capital 176 952 KMAD = 17 695 200 titres de nominale 10."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 17695200,
+    "page": 30,
+    "unite": "actions",
+    "note": "capital 176 952 KMAD ÷ nominale 10. Le marché en implique 17 698 842 (écart 0,02 %)."
+   }
+  },
+  "pages_document": 62
+ },
+ "TMA": {
+  "societe": "TotalEnergies Marketing Maroc",
+  "exercice": 2024,
+  "document": "Rapport Financier Annuel 2024",
+  "url": "https://www.ammc.ma/sites/default/files/Total_RFA_2024.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 2745.769,
+    "valeur_au_rapport": 2745769,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 21,
+    "note": "« Total des capitaux propres - part du Groupe 2 745 769 2 315 933 » ; en-tête « PASSIF 31/12/2024 31/12/2023 ». ⚠️ EXERCICE 2024 : l'AMMC ne sert pas de rapport 2025 pour cet émetteur. Capital 448 000 KMAD = 8 960 000 titres de nominale 50, ce que le marché confirme à 8 960 135 — le nombre d'actions n'a donc pas bougé depuis la clôture."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 8960000,
+    "page": 21,
+    "unite": "actions",
+    "note": "capital 448 000 KMAD ÷ nominale 50. Le marché en implique 8 960 135 (écart 0,002 %)."
+   }
+  },
+  "pages_document": 122
  }
 }
