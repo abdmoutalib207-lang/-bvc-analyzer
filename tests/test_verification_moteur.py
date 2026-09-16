@@ -163,11 +163,27 @@ def test_le_registre_des_splits_n_est_pas_touche_et_c_est_dit():
     fait pas — cela changerait le traitement des données FRAÎCHEMENT
     téléchargées, un effet qu'il ne mesure pas. Le dire vaut mieux que le
     laisser croire."""
+    import re
     import subprocess
     doc = json.loads((CORRECTIONS / "HPS.json").read_text(encoding="utf-8"))
     assert "SPLITS" in doc["_pourquoi_le_registre_SPLITS_n_est_pas_touche"]
+
+    # ⚠️ CE TEST COMPARAIT LE FICHIER ENTIER. Il est passé au rouge le 16/09
+    # parce que le registre des SUSPENSIONS — qui vit dans le même fichier — a
+    # dû enregistrer la reprise de cotation de Minière Touissit, constatée sur
+    # le bulletin de l'opérateur. Aucun split n'avait bougé.
+    #
+    # Un contrôle qui interdit de toucher AU FICHIER quand la règle porte sur
+    # UN REGISTRE finit par interdire des corrections légitimes — ou par être
+    # désactivé, ce qui est pire. On compare donc le bloc `SPLITS`, et lui seul.
+    def _bloc_splits(texte):
+        m = re.search(r"^SPLITS[^=]*=\s*\{.*?^\}", texte, re.S | re.M)
+        assert m, "le registre SPLITS est introuvable"
+        return m.group(0)
+
     avant = subprocess.run(["git", "show", "origin/main:bvc_config.py"],
                            capture_output=True, text=True, cwd=RACINE)
     if avant.returncode == 0:
-        assert avant.stdout == (RACINE / "bvc_config.py").read_text(encoding="utf-8"), (
-            "bvc_config.py a changé : le registre des splits est hors périmètre")
+        actuel = (RACINE / "bvc_config.py").read_text(encoding="utf-8")
+        assert _bloc_splits(avant.stdout) == _bloc_splits(actuel), (
+            "le registre des splits a changé : il est hors du périmètre de ce lot")

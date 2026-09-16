@@ -789,6 +789,17 @@ const RedFlags=({n})=>{
 };
 
 const FibTable=({high,low,price})=>{
+  /* ⚠️ UNE PLAGE ABSENTE N'EST PAS UNE PLAGE NULLE. Un titre qui vient de
+     reprendre sa cotation après une suspension n'a pas de haut ni de bas sur
+     90 jours comparables à son nouveau cours : le moteur rend `null`, et
+     `calcFib(null, null)` produirait sept lignes à « NaN » que l'œil lirait
+     comme des niveaux. On le dit plutôt que de le calculer. */
+  if(high==null||low==null||!(high>low))return(
+    <div>
+      <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>Retracements Fibonacci</div>
+      <div style={{fontSize:11,color:"#8892a4"}}>Plage 90 jours indisponible — pas assez de séances depuis la reprise de cotation.</div>
+    </div>
+  );
   const fibs=calcFib(high,low);
   return(
     <div>

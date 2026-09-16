@@ -55,7 +55,7 @@ except NameError:
 
 from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
                         COMPANY_NAMES, COMPANY_SECTORS, est_ferie_fixe,
-                        est_suspendu, SPLITS)
+                        est_suspendu, SPLITS, SUSPENSIONS)
 
 TICKERS = TICKERS_ALL
 
@@ -653,7 +653,7 @@ def prendre_prix_live(ligne, seance):
     )
 
 
-def recalculer_variation(ticker, price, chg, candles, seance):
+def recalculer_variation(ticker, price, chg, candles, seance, asof_prix=""):
     """Recalcule la variation depuis la dernière clôture connue. Renvoie `chg`.
 
     Les sources renvoient parfois `variation=0` alors que le cours a bougé —
@@ -688,6 +688,22 @@ def recalculer_variation(ticker, price, chg, candles, seance):
     # référence précède forcément la suspension.
     if _suspendu_maintenant(ticker):
         return 0.0
+
+    # ⚠️ ET LE JOUR DE LA REPRISE, LA CLÔTURE PRÉCÉDENTE N'EST PLUS LA RÉFÉRENCE.
+    #
+    # C'est ici que le 0,00 % du 16/09 se fabriquait, et nulle part ailleurs :
+    # cette fonction est le dernier écrivain de `chg`. Elle comparait les
+    # 2 438 de la reprise aux 4 350 diffusés pendant la suspension, trouvait
+    # −43,95 %, et son garde-fou R10 rendait 0. Trois raisonnements justes
+    # aboutissant à un chiffre faux — R9 interdit ce zéro-là.
+    #
+    # La référence retenue par l'opérateur est au registre, adossée au
+    # bulletin. Ce n'est pas un ajustement de série : aucune bougie n'est
+    # touchée, seule la variation DU JOUR de la reprise change de base.
+    _ref = reference_de_reprise(ticker, asof_prix or seance or "")
+    if _ref and price and price > 0:
+        return round((price - _ref) / _ref * 100, 2)
+
     if candles is None or len(candles) < 1 or not price or price <= 0:
         return chg
     try:
@@ -706,6 +722,78 @@ def recalculer_variation(ticker, price, chg, candles, seance):
         logger.info(f"  {ticker}: chg corrigé {chg:+.2f}% → {calcule:+.2f}%"
                     f" (prix={price}, clôture_j-1={veille})")
     return calcule
+
+
+# Nombre de séances qu'il faut avoir cotées APRÈS une reprise pour que les
+# indicateurs techniques décrivent de nouveau le titre. Vingt : c'est la plus
+# longue des fenêtres courtes (MA20), et elle couvre le RSI de 14.
+SEANCES_APRES_REPRISE = 20
+
+
+def reference_de_reprise(ticker: str, jour: str) -> float | None:
+    """La référence retenue par l'opérateur le jour où un titre reprend.
+
+    ⚠️ CE JOUR-LÀ, LA CLÔTURE D'AVANT NE SERT PLUS DE POINT DE COMPARAISON.
+    Minière Touissit a été suspendue le 17/07 sur 4 501, son cours diffusé est
+    resté 4 350 pendant deux mois, et elle a repris le 16/09 à 2 438. Comparer
+    2 438 à 4 350 donne −43,95 % : un chiffre qui ne décrit aucun échange, mais
+    le changement de référence décidé lors de la reprise.
+
+    Le garde-fou de R10 rabotait cette valeur à 0,00 %, et le terminal publiait
+    donc « inchangé » un jour où le titre avait fait +9,97 %. R9 l'interdit
+    explicitement : jamais de 0 % sans vérification.
+
+    ⚠️ CE N'EST PAS UN AJUSTEMENT DE SÉRIE. Les cours d'avant restent ce qu'ils
+    étaient — aucune bougie n'est retouchée. Seule la variation DU JOUR DE LA
+    REPRISE se calcule sur la référence que le bulletin implique, et elle est
+    inscrite au registre avec sa pièce.
+    """
+    for p in SUSPENSIONS.get(ticker, []):
+        if p.get("reprise") and jour == p["reprise"]:
+            ref = p.get("reference_impliquee")
+            if ref and float(ref) > 0:
+                return float(ref)
+    return None
+
+
+def reprise_trop_recente(ticker: str, df_candles) -> int | None:
+    """Combien de séances depuis la reprise de cotation, ou None si sans objet.
+
+    ⚠️ CE CONTRÔLE VIENT DU 16/09/2026, ET IL ÉTAIT URGENT. Ce jour-là, Minière
+    Touissit a repris sa cotation après deux mois de suspension pour OPA — à
+    2 438 DH, sur UN titre échangé, contre 4 350 à la dernière séance de
+    juillet. L'opérateur avait remis la référence à 2 217 : ce n'est pas une
+    chute de 44 %, c'est un autre point de départ.
+
+    Le moteur a alors publié **ACHETER ★★ avec une confiance de 5 sur 5**. Il
+    avait ses raisons, et elles étaient toutes fausses de la même façon : le
+    cours était frais, les fondamentaux présents, la série longue de 681
+    bougies — mais RSI, MA20, MA50 et MA200 décrivaient encore le régime de
+    prix d'avant la suspension, deux fois plus haut. Un cours très au-dessous
+    de ses moyennes se lit « survendu », donc « acheter ».
+
+    ⚠️ Le garde-fou existant ne pouvait pas le voir : `neutraliser_si_isin_suspect`
+    cherche un facteur 3 entre le prix et la MA20, et l'écart n'était que de
+    1,65. Le facteur 3 attrape une identité croisée ; il n'attrape pas un
+    changement de référence.
+
+    Tant que la série ne porte pas assez de séances POSTÉRIEURES à la reprise,
+    ses indicateurs ne décrivent pas le titre qui cote aujourd'hui. On ne les
+    corrige pas — on les retire, et le signal s'abstient.
+    """
+    susp = SUSPENSIONS.get(ticker)
+    if not susp:
+        return None
+    reprises = [p["reprise"] for p in susp if p.get("reprise")]
+    if not reprises:
+        return None
+    reprise = max(reprises)
+    try:
+        dates = [str(d)[:10] for d in df_candles["d"]] if df_candles is not None else []
+    except Exception:
+        return None
+    apres = [d for d in dates if d >= reprise]
+    return len(apres) if len(apres) < SEANCES_APRES_REPRISE else None
 
 
 def neutraliser_si_isin_suspect(ticker, price, rsi, ma20, ma50, h90, l90):
@@ -1887,7 +1975,12 @@ def _actions_sourcees(ticker: str):
 ECART_CAP_TOLERE = 0.10
 
 
-def _capitalisation(ticker: str, price: float, cap_servie):
+# Les provenances où le cours est celui de la séance en cours. Partout
+# ailleurs, il est recopié d'un passé plus ou moins lointain.
+SOURCES_PRIX_VIVANTES = {"idbourse", "cdg", "bmce", "medias24"}
+
+
+def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None):
     """(capitalisation retenue, provenance) — en refusant l'invraisemblable.
 
     ⚠️ CE CONTRÔLE EXISTE À CAUSE D'UNE PUBLICATION ANNULÉE. Le 16/09 à 16h22
@@ -1914,6 +2007,21 @@ def _capitalisation(ticker: str, price: float, cap_servie):
     supprimer la capitalisation des cinquante-neuf titres dont le rapport n'est
     pas encore relevé.
     """
+    # ⚠️ UN PRIX PÉRIMÉ N'ARBITRE RIEN, et ce garde-fou vient d'une faute que
+    # j'ai commise le 16/09 même. Le contrôle avait refusé la capitalisation de
+    # Minière Touissit — 3 727 MDHS contre 7 313 calculés — et l'avait
+    # remplacée. Or c'est LE CONTRÔLE qui avait tort : le bulletin de
+    # l'opérateur montre que CMT avait REPRIS SA COTATION ce jour-là à 2 438,
+    # après une nouvelle référence fixée à 2 217. La capitalisation servie,
+    # 3 727 MDHS, valait exactement 2 216,83 × 1 681 233 actions : elle était
+    # juste. C'est notre cours, figé au 16/07 à 4 350 parce que le registre
+    # croyait encore le titre suspendu, qui ne l'était plus.
+    #
+    # Un contrôle qui s'appuie sur une valeur périmée est pire que pas de
+    # contrôle : il remplace du juste par du faux, et il le fait avec autorité.
+    if src_prix is not None and src_prix not in SOURCES_PRIX_VIVANTES:
+        return cap_servie, ("servie" if cap_servie else "absente")
+
     n = _actions_sourcees(ticker)
     if not n or not price or price <= 0:
         return cap_servie, ("servie" if cap_servie else "absente")
@@ -2556,9 +2664,20 @@ def run(dry_run=False, push=False, token=""):
         if price > 0 and chg == 0 and _idb_vol == 0:
             logger.warning(f"  {ticker}: IDBourse suspect — chg=0%, vol=0 → vérification Médias24")
 
+        # ⚠️ AVANT DE RABOTER : une reprise de cotation n'est pas une erreur de
+        # source. Le jour où l'opérateur remet la référence, la variation se
+        # calcule sur CETTE référence — sinon on publie 0,00 % un jour où le
+        # titre a bougé de près de dix pour cent (R9).
+        _ref_reprise = reference_de_reprise(ticker, prix_asof or "")
+        if _ref_reprise and price > 0:
+            chg = round((price - _ref_reprise) / _ref_reprise * 100, 2)
+            logger.info(f"  {ticker}: reprise de cotation — variation calculée "
+                        f"sur la référence {_ref_reprise} du registre "
+                        f"({chg:+.2f} %)")
+
         # Safety cap : BVC limite réglementaire stricte ±10%/j
         # Toute variation > 10% est une erreur source (mauvais cours de référence IDBourse)
-        if abs(chg) > 10:
+        elif abs(chg) > 10:
             chg = 0.0  # sera recalculé par Médias24 puis recalcul final depuis candles
 
         # Historique Médias24 pour indicateurs techniques
@@ -2783,7 +2902,8 @@ def run(dry_run=False, push=False, token=""):
         # On recalcule toujours la variation depuis la dernière clôture connue (candles).
         # Si le résultat dépasse ±10% → anomalie de données → on garde 0 et on alerte.
         chg = recalculer_variation(ticker, price, chg,
-                                   _candles_cache.get(ticker), IDB_ASOF)
+                                   _candles_cache.get(ticker), IDB_ASOF,
+                                   asof_prix=prix_asof or "")
 
         # ── Titre suspendu : la référence de prix est la DERNIÈRE COTATION ──
         #
@@ -2806,6 +2926,29 @@ def run(dry_run=False, push=False, token=""):
         # plutôt que d'être arbitré en silence.
         _susp = _suspendu_maintenant(ticker)
         _prix_diffuse = None
+        _reprise_constatee = False
+        # ⚠️ UN REGISTRE NE SE PÉRIME PAS TOUT SEUL. La suspension de CMT était
+        # déclarée à la main, et rien ne pouvait la lever sans qu'un humain
+        # l'écrive. Le 16/09, le titre a recoté à 2 438 — le bulletin de
+        # l'opérateur le montre — et le terminal a continué d'afficher 4 350
+        # avec l'étiquette SUSPENDU, faute d'avoir été prévenu.
+        #
+        # Le marché, lui, sait toujours. Un ÉCHANGE RÉEL — un volume non nul
+        # sur une séance postérieure au début de la suspension — contredit le
+        # registre, et c'est le registre qui a tort.
+        #
+        # ⚠️ Le volume est le seul discriminant valable. Pendant deux mois la
+        # source a diffusé 4 350 tous les jours À VOLUME NUL : un cours
+        # rediffusé n'est pas une cotation, et s'y fier aurait « levé » la
+        # suspension dès le lendemain de sa déclaration.
+        if _susp and (vol or 0) > 0 and prix_asof and prix_asof > _susp["depuis"]:
+            _reprise_constatee = True
+            logger.warning(
+                f"  {ticker}: LE MARCHÉ CONTREDIT LE REGISTRE — cotation du "
+                f"{prix_asof} à {price} pour {vol} titre(s), alors que la "
+                f"suspension du {_susp['depuis']} est toujours déclarée. "
+                "Le cours coté est retenu ; mettre à jour SUSPENSIONS.")
+            _susp = None
         if _susp:
             _df_s = _candles_cache.get(ticker)
             try:
@@ -2830,6 +2973,20 @@ def run(dry_run=False, push=False, token=""):
 
         rsi, ma20, ma50, h90, l90, isin_suspect = neutraliser_si_isin_suspect(
             ticker, price, rsi, ma20, ma50, h90, l90)
+
+        # Reprise de cotation : les indicateurs d'avant ne décrivent plus ce
+        # titre-ci. On les retire plutôt que de les afficher à côté d'un cours
+        # qui n'a plus le même point de départ.
+        _seances_depuis_reprise = reprise_trop_recente(
+            ticker, _candles_cache.get(ticker))
+        if _seances_depuis_reprise is not None:
+            logger.warning(
+                f"  {ticker}: reprise de cotation — seulement "
+                f"{_seances_depuis_reprise} séance(s) depuis. Indicateurs "
+                "techniques neutralisés et signal suspendu : ceux d'avant "
+                "décrivent un autre régime de prix.")
+            rsi = ma20 = ma50 = h90 = l90 = ma200 = None
+            isin_suspect = True
 
         # Score technique
         score_tech = calc_score_tech(rsi, price, ma20, ma50, h90, l90)
@@ -2874,7 +3031,7 @@ def run(dry_run=False, push=False, token=""):
         # La capitalisation est confrontée à prix × actions sourcées AVANT
         # d'être publiée. Une valeur refusée ne bloque que ce titre-ci.
         _cap_retenue, _cap_source = _capitalisation(
-            ticker, price, lp.get("cap") or fd.get("cap"))
+            ticker, price, lp.get("cap") or fd.get("cap"), src_prix)
         tickers_out.append({
             "symbol": ticker,
             # ── Bloc _meta (spécification CLAUDE.md) ─────────────────────────
@@ -2946,8 +3103,11 @@ def run(dry_run=False, push=False, token=""):
             # ⚠️ Mais elle est confrontée à prix × actions sourcées avant d'être
             # publiée : voir `_capitalisation()`.
             "cap":    _cap_retenue,
-            "h90":    round(h90, 2),
-            "l90":    round(l90, 2),
+            # ⚠️ None-safe, comme `ma200` juste en dessous. Un titre qui
+            # reprend sa cotation n'a pas de plage 90 jours comparable à son
+            # nouveau cours : la borne est ABSENTE, pas égale au prix.
+            "h90":    round(h90, 2) if h90 is not None else None,
+            "l90":    round(l90, 2) if l90 is not None else None,
             "ma200":  round(ma200, 2) if ma200 else None,
             "h52w":   round(h52w, 2) if h52w else None,
             "l52w":   round(l52w, 2) if l52w else None,
@@ -2986,7 +3146,15 @@ def run(dry_run=False, push=False, token=""):
             # qui n'a pas lieu d'être — on ne recommande pas d'acheter ce qui
             # ne s'achète pas. Le raisonnement est celui du plafond de
             # liquidité du 01/09, poussé jusqu'à son terme.
+            # ⚠️ « Données insuffisantes » plutôt qu'un signal, et ce n'est pas
+            # une précaution de style. Au premier run après la reprise de CMT,
+            # le moteur a publié ACHETER ★★ : le cours venait de passer de
+            # 4 350 à 2 438 sur UN titre échangé, et des moyennes calculées sur
+            # le régime d'avant le faisaient paraître survendu. Un signal
+            # d'achat sorti d'indicateurs qui décrivent un autre prix est pire
+            # qu'une absence de signal.
             "sig":    ("SUSPENDU" if _suspendu_maintenant(ticker)
+                       else "Données insuffisantes" if _seances_depuis_reprise is not None
                        else v53["sig"]),
             "sigBvc": SIG_BVC.get(ticker, "ATTENDRE"),
             "biais":  v53["biais"],
@@ -3008,7 +3176,9 @@ def run(dry_run=False, push=False, token=""):
         # « ACHETER ★★ » sur CMT pendant que le fichier écrivait « SUSPENDU ».
         # Un journal qui contredit le fichier qu'il décrit est pire qu'un
         # journal muet — c'est là qu'on va vérifier quand on doute.
-        _sig_publie = "SUSPENDU" if _suspendu_maintenant(ticker) else v53["sig"]
+        _sig_publie = ("SUSPENDU" if _suspendu_maintenant(ticker)
+                       else "Données insuffisantes" if _seances_depuis_reprise is not None
+                       else v53["sig"])
         logger.info(f"  ✓ {ticker}: {price} DH | RSI {rsi} | Score v5.3: {bvc_score} → {v53['v53']} | {_sig_publie}")
 
     # 5. Construction data.json

@@ -456,7 +456,34 @@ SUSPENSIONS: dict = {
     # L'AMMC a demandé la suspension à la Bourse le 17/07 — avis DO/EM/07/2026.
     "CMT": [{
         "depuis": "2026-07-17",
-        "reprise": None,
+        # ⚠️ REPRISE CONSTATÉE, PAS SUPPOSÉE. Le bulletin « Indices du mercredi
+        # 16 septembre 2026 » de CDG Capital Bourse — sha256
+        # 55f7c0790efc62435f45fa4ad63e83e1c471b9e033f4c935593df7fcefdb4a97 —
+        # cote CMT à 2 438,00, +9,97 %, 1 titre échangé à 15:30:00. Les
+        # bulletins des 14 et 15/09 la donnaient encore entièrement à zéro :
+        # la reprise a donc eu lieu CE jour-là.
+        #
+        # ⚠️ LE COURS DE RÉFÉRENCE A ÉTÉ REMIS À ZÉRO PAR L'OPÉRATEUR. Le
+        # +9,97 % implique une veille à 2 216,97, alors que la dernière séance
+        # cotée du 16/07 fermait à 4 350. Ce n'est PAS un split et la série
+        # historique ne doit pas être ajustée : c'est une reprise après OPA,
+        # avec une nouvelle référence fixée par la Bourse.
+        "reprise": "2026-09-16",
+        "reprise_source": ("bulletin CDG « Indices du mercredi 16 septembre 2026 », "
+                           "sha256 55f7c079…, CMT 2 438,00 +9,97 % à 15:30:00"),
+        "cours_de_reprise": 2438.0,
+        "reference_impliquee": 2217.0,
+        # ⚠️ CHIFFRE LU CHEZ LE RÉGULATEUR, PLUS DÉDUIT D'UN BULLETIN.
+        # Il valait 2216.97, obtenu en divisant le cours de reprise par sa
+        # variation (2 438 ÷ 1,0997). La décision AMMC DO/EM/010/2026 du
+        # 15/09/2026 fixe le prix de l'offre à 2 217 MAD exactement :
+        # moyenne à parts égales du cours moyen pondéré 12 mois (2 523) et
+        # de la transaction de référence (1 910). La variation publiée est
+        # la même dans les deux cas — +9,97 % — mais un nombre déduit n'a
+        # pas le statut d'un nombre établi par l'autorité.
+        "reference_source": "AMMC, décision de recevabilité DO/EM/010/2026 du 15/09/2026, section 4 : cours moyen pondéré 12 mois 2 523 MAD (50 %) + transaction de référence 1 910 MAD (50 %) = 2 217 MAD",
+        "reference_piece": "datasets/pieces_ammc/AMMC_recevabilite_OPA_CMT_2026-09-15.pdf",
+        "reference_piece_sha256": "8240a798df3c4ef0d2c144e527beec377ce006ff19922181d1cd22ec15c028fa",
         "motif": "OPA obligatoire (Ayrad / OSEAD / CIMR)",
         "source": "AMMC, avis de dépôt DO/EM/07/2026 du 17/07/2026",
         "url": "https://www.ammc.ma/sites/default/files/OPA_Avis%20d%C3%A9p%C3%B4t_CMT_%20FR.pdf",
