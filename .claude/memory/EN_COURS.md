@@ -20,6 +20,30 @@ historique** — cela recréerait une référence exposée.
 
 ## 🔔 ATTENDU DE ABD MOUTALIB
 
+- [ ] **Les trois secrets du bulletin par courriel — ⚠️ LE BULLETIN N'EST
+  JAMAIS PARTI.** Relevé le 16/09 : **20 exécutions depuis le 02/09, 20 échecs,
+  zéro envoi**. Le bulletin se compose parfaitement à chaque fois ; seul
+  l'envoi manque, faute de configuration.
+  - À poser dans **Settings → Secrets and variables → Actions → New repository
+    secret** :
+    `MAIL_TO` (l'adresse destinataire) · `MAIL_USERNAME` (l'adresse Gmail
+    expéditrice) · `MAIL_PASSWORD` (un **mot de passe d'application** Google,
+    pas le mot de passe du compte).
+  - ⚠️ **Ne jamais demander ces valeurs ni les faire transiter par le fil de
+    discussion.** Elles se posent directement dans GitHub.
+  - Depuis le 16/09, l'absence de configuration ne fait PLUS échouer le
+    workflow : elle produisait deux courriels d'alerte par matinée sans rien
+    réparer, et noyait les vrais échecs. Le job se termine vert et l'explique
+    dans son résumé. **Conséquence : plus rien ne le rappellera tout seul —
+    c'est cette ligne-ci qui s'en charge.**
+
+- [ ] **Les 31 exports Excel d'historique** — `data/historique/`. La
+  profondeur de nos chandelles est exactement celle de ces exports : 31 titres
+  en ont trois ans, 31 autres n'en ont aucun et commencent le jour où la
+  collecte a démarré. Liste exacte : `python pipeline/profondeur_historique.py
+  --manquants`. Les plus utiles d'abord : CIM, AKD, MUT, SNA, TQA, WAF, TMA,
+  STK, DAR, STR.
+
 - [ ] **Corpus WhatsApp à jour — ⚠️ ÉCHÉANCE DÉPASSÉE.**
   Annoncé le 28/08 au soir pour « demain », soit le samedi 29/08. Non reçu à ce
   jour. **Le lui rappeler dès le premier échange**, sans insister : c'est un
