@@ -1,7 +1,7 @@
-"""Balayage des rapports annuels — le nombre d'actions et le résultat net.
+"""Balayage des rapports annuels — actions, résultat net, capitaux propres.
 
-POURQUOI CES DEUX FAITS, ET PAS D'AUTRES
-────────────────────────────────────────
+POURQUOI CES FAITS-LÀ, ET PAS D'AUTRES
+──────────────────────────────────────
 Les deux défauts trouvés les 07 et 08/09 sont l'un et l'autre des problèmes de
 DÉNOMINATEUR ou d'IDENTITÉ :
 
@@ -20,6 +20,24 @@ Un rapport de 10 signe un split non répercuté. Un écart sans rapport simple
 signe une identité croisée. C'est un contrôle d'ORDRE DE GRANDEUR, pas de
 précision comptable — et c'est précisément ce qu'il faut pour trouver des
 erreurs d'un facteur 10.
+
+LE TROISIÈME FAIT, AJOUTÉ LE 16/09/2026 : LES CAPITAUX PROPRES
+──────────────────────────────────────────────────────────────
+Noure : « il y'a plein de P/BOOK qui manque ». Mesuré le 16/09 : le moteur en
+affiche **4 sur 80**. Ce n'est pas un défaut de calcul. `_pb_sourcé()` demande
+`capitaux_propres_part_groupe`, et sur les onze émetteurs archivés dans
+`faits_financiers.json` quatre seulement le portent — ADI, CMT, MNG, MSA,
+c'est-à-dire exactement les quatre qui affichent un P/BOOK. Les sept autres
+avaient été relevés pour le BPA : résultat net et nombre d'actions. La ligne
+des fonds propres n'avait jamais été lue.
+
+Le balayage cherche donc aussi cette ligne. Il ne la publie pas : il dit sur
+quelle PAGE elle se trouve et ce qu'elle porte, mot pour mot.
+
+⚠️ L'UNITÉ N'EST PAS TRANCHÉE ICI. Les rapports publient en dirhams, en
+milliers ou en millions, et rien dans la ligne elle-même ne le dit. Deviner
+mettrait un facteur 1 000 dans le P/BOOK sans le moindre bruit. Le balayage
+relève les unités MENTIONNÉES sur la page ; c'est la lecture qui tranche.
 
 ⚠️ CE MODULE NE REMPLACE PAS LA LECTURE. Il signale les titres à ouvrir. Un
 fait n'entre dans `faits_financiers.json` qu'avec sa PAGE, relevée à la main.
@@ -51,6 +69,10 @@ UA = "BVC-Analyzer/1.0 (recherche quantitative; contact via le dépôt GitHub)"
 
 # Valeurs nominales autorisées au Maroc. Sert à valider capital ÷ actions.
 NOMINALES = (10, 50, 100, 250, 500, 1000)
+
+# Ce que le passage cherchait. Incrémenté dès qu'un fait s'ajoute : la
+# reprise refait alors les émetteurs relevés par un passage plus ancien.
+VERSION_BALAYAGE = 3
 
 
 def _telecharger(url: str, dest: Path) -> bool:
@@ -112,12 +134,184 @@ def _premier_plausible(ligne: str, etiquette: str, mini: float, maxi: float):
     return None
 
 
+def _degrouper(jeton: str, maxi: float) -> list[str]:
+    """Défait un recollage de colonnes : « 901 142 608 722 030 805 » → deux.
+
+    ⚠️ LE PIÈGE EST INHÉRENT AU TEXTE, pas au motif. Dans un tableau, deux
+    montants voisins ne sont séparés que par une espace — la même que celle qui
+    sépare les milliers à l'intérieur d'un montant. « 901 142 608 722 030 805 »
+    peut donc se lire comme un nombre ou comme deux, et aucune expression
+    régulière ne tranchera, parce qu'il n'y a rien à lire pour trancher.
+
+    Mesuré le 16/09 sur le rapport de Minière Touissit : la ligne « Capitaux
+    propres (Part du groupe) 901 142 608 722 030 805 » rendait 9×10¹⁷. La borne
+    de vraisemblance l'écartait ensuite — le fait était donc déclaré introuvable
+    sur un rapport qui le publie noir sur blanc, page 57.
+
+    Ce qui tranche est PHYSIQUE : aucune société de la cote n'a 9×10¹⁷ dirhams
+    de fonds propres. On retient donc le plus long préfixe de groupes qui reste
+    sous la borne, et l'on relit le reste comme le montant suivant. Chez CMT :
+    901 142 608 722 → 9×10¹¹, trop ; 901 142 608 → 9×10⁸, plausible. Reste
+    722 030 805, qui est bien la colonne 2024.
+
+    ⚠️ Ce découpage RESTE UNE HYPOTHÈSE DE LECTURE. C'est pourquoi la ligne
+    brute est conservée telle quelle dans la sortie : la valeur retenue se
+    vérifie sur la page, elle ne se croit pas sur parole.
+    """
+    v = _nombre(jeton)
+    if v is None or v <= maxi:
+        return [jeton]
+    groupes = re.split(r"[  .]", jeton)
+    if len(groupes) < 2:
+        return [jeton]
+    for k in range(len(groupes) - 1, 0, -1):
+        tete = " ".join(groupes[:k])
+        vt = _nombre(tete)
+        if vt is not None and vt <= maxi:
+            return [tete] + _degrouper(" ".join(groupes[k:]), maxi)
+    return [jeton]
+
+
+def _nombres_de_la_ligne(ligne: str, maxi: float) -> list[float]:
+    """Tous les montants de la ligne, recollages défaits, bornés par `maxi`."""
+    out = []
+    for m in re.finditer(NB, ligne):
+        for jeton in _degrouper(m.group(1), maxi):
+            v = _nombre(jeton)
+            if v is not None:
+                out.append(v)
+    return out
+
+
+# ⚠️ L'ÉTIQUETTE DES CAPITAUX PROPRES N'EST PAS STANDARDISÉE, et un motif
+# rigide en rate la moitié. Relevé le 16/09 sur sept rapports de la cote :
+#
+#   Addoha    CAPITAUX PROPRES PART DU GROUPE 9.481.694.524 …
+#   Akdital   Dont : Capitaux propres part du groupe 2 853 529 135 …
+#   Aradei    Capitaux propres part du groupe 5 444 531 …
+#   Atlanta   Dont : Capitaux propres part du groupe 2 481 937 …
+#   CMGP      TOTAL CAPITAUX PROPRES PART GROUPE 2 788 340 389 …   (pas de « du »)
+#   CMT       Capitaux propres (Part du groupe) 901 142 608 …      (parenthèses)
+#   Managem   Capitaux propres consolidés Part du Groupe 11 478,0  (mot intercalé)
+#
+# Un premier motif exigeant « capitaux propres » puis immédiatement « part du
+# groupe » en manquait DEUX sur sept — CMGP et Managem — et l'on aurait conclu
+# que leur rapport ne publie pas ses fonds propres alors qu'il les publie.
+#
+# D'où la forme retenue : « capitaux propres », puis n'importe quel qualificatif
+# court, puis « groupe ». Ce qui sépare compte plus que ce qui relie, et est
+# donc traité à part, par EXCLUSION.
+CP_ETIQUETTE = re.compile(
+    r"capitaux\s+propres\b(?P<qual>[^\d]{0,32}?)\bgroupe\b"
+    r"|capitaux\s+propres\b(?P<qual2>[^\d]{0,40}?)"
+    r"attribuables?\s+aux\s+(?:actionnaires|propriétaires)",
+    re.IGNORECASE)
+
+# ⚠️ CE QUI DOIT ÊTRE ÉCARTÉ, et pourquoi c'est le point sensible.
+# « Capitaux propres D'ENSEMBLE », « ... part des MINORITAIRES », « TOTAL
+# capitaux propres » désignent d'autres lignes du même bilan, minoritaires
+# inclus ou exclusivement. Les prendre pour la part du groupe SURESTIMERAIT les
+# fonds propres et donc SOUS-ESTIMERAIT le P/BOOK : le titre paraîtrait moins
+# cher qu'il n'est. C'est le sens d'erreur qu'on a corrigé sur le BPA d'Addoha,
+# et celui qui trompe un lecteur dans la direction la plus coûteuse.
+#
+# Chez Addoha les trois lignes se suivent : 9,48 / 0,93 / 10,41 milliards. Rien
+# dans leur forme ne les distingue — seul le qualificatif le fait.
+QUALIFICATIFS_EXCLUS = re.compile(
+    r"minorit|ensemble|hors\s+groupe|non\s+contrôl|ne\s+donnant\s+pas", re.IGNORECASE)
+
+# Mentions d'unité qu'un rapport porte en tête de tableau ou de colonne. Le
+# balayage les RELÈVE, il ne tranche pas : c'est la lecture de la page qui
+# tranche. Sans cela un facteur 1 000 entrerait dans le P/BOOK sans bruit.
+INDICES_UNITE = (
+    (r"\ben\s+milliers\s+de\s+dirhams\b|\bKMAD\b|\bKDH\b|\bK\s?MAD\b", "KMAD"),
+    (r"\ben\s+millions\s+de\s+dirhams\b|\bMMAD\b|\bMDH\b|\bM\s?MAD\b", "MMAD"),
+    (r"\ben\s+dirhams\b|\bMAD\b(?!\s*000)|\bDH\b", "MAD"),
+)
+
+
+def _unites_de_la_page(texte: str) -> list[str]:
+    """Les unités mentionnées sur la page, dans l'ordre où on les rencontre."""
+    vus = []
+    for motif, nom in INDICES_UNITE:
+        if re.search(motif, texte) and nom not in vus:
+            vus.append(nom)
+    return vus
+
+
 def extraire(pages: dict) -> dict:
     """Relève ce qui est trouvable, avec la page. Silence si rien de sûr."""
     res: dict = {}
 
     for i, t in pages.items():
         for l in t.split("\n"):
+            # ── capitaux propres part du groupe ───────────────────────────
+            # Le fait qui manquait pour calculer le P/BOOK : `_pb_sourcé()`
+            # exige `capitaux_propres_part_groupe`, et au 16/09 quatre
+            # émetteurs seulement le portaient sur les onze archivés — d'où
+            # un P/BOOK affiché sur 4 titres sur 80. Ce balayage n'y remédie
+            # pas tout seul : il dit OÙ lire, ligne et page.
+            #
+            # ⚠️ Deux nombres au moins sur la ligne : un bilan publie
+            # l'exercice ET le précédent. Une phrase de prose n'en porte
+            # qu'un — c'est ce qui sépare le tableau du commentaire, et c'est
+            # le même garde-fou que pour le résultat net.
+            if "capitaux propres" in l.lower() and "capitaux_propres_part_groupe" not in res:
+                # ⚠️ IGNORECASE n'est pas une commodité. Addoha écrit la ligne
+                # en capitales — « CAPITAUX PROPRES PART DU GROUPE
+                # 9.481.694.524 9.319.494.058 » — et un motif sensible à la
+                # casse l'aurait déclarée introuvable sur un rapport qui la
+                # publie noir sur blanc.
+                m = CP_ETIQUETTE.search(l)
+                # ⚠️ L'exclusion regarde des DEUX CÔTÉS de « groupe ». Minière
+                # Touissit écrit, page 59, « Capitaux propres groupe après ret.
+                # des minoritaires » : le mot qui disqualifie une ligne peut
+                # suivre l'étiquette au lieu de la précéder. On balaie donc
+                # jusqu'au premier chiffre — c'est-à-dire tout le libellé, et
+                # rien du tableau. Un libellé ambigu est écarté plutôt que
+                # deviné : une absence se dit, elle ne se comble pas.
+                qual = ""
+                if m:
+                    qual = (m.group("qual") or m.group("qual2") or "")
+                    qual += l[m.start():m.end()]
+                    qual += re.split(r"\d", l[m.end():], 1)[0]
+                # Borne haute à 2×10¹¹ : les fonds propres d'Attijariwafa, la
+                # plus grosse de la cote, avoisinent 60 milliards de dirhams.
+                # Au-delà, ce n'est pas un montant, c'est un recollage de
+                # colonnes. Les unités varient (MAD, KMAD, MMAD), d'où une
+                # fourchette large : elle écarte les artefacts, elle ne tranche
+                # pas l'unité.
+                nombres = _nombres_de_la_ligne(l, 2e11) if m else []
+                if m and not QUALIFICATIFS_EXCLUS.search(qual) and len(nombres) >= 2:
+                    # Le premier montant qui SUIT l'étiquette, jamais le premier
+                    # de la ligne : « Dont : … » et les appels de note se
+                    # placent avant.
+                    apres = _nombres_de_la_ligne(l[m.end():], 2e11)
+                    v = apres[0] if apres else None
+                    # Borne basse à 100 : sous ce seuil on lit un numéro de note
+                    # ou un pourcentage, pas des fonds propres.
+                    if v and abs(v) >= 100 and not (1990 <= v <= 2100):
+                        res["capitaux_propres_part_groupe"] = {
+                            "valeur_lue": v,
+                            "page": int(i),
+                            "brut": l.strip()[:140],
+                            "etiquette": l[m.start():m.end()].strip()[:80],
+                            # ⚠️ L'ORDRE DES COLONNES N'EST PAS CONSTANT, y
+                            # compris À L'INTÉRIEUR D'UN MÊME RAPPORT. Dans
+                            # celui d'Addoha, la page 9 porte « Capitaux
+                            # propres 10655 10364 » — 2025 puis 2024 — et la
+                            # page 26 « 10.363.635.188 10.654.958.878 »,
+                            # l'inverse. Retenir « le premier nombre » revient
+                            # donc à tirer l'exercice au sort. Tous les nombres
+                            # de la ligne sont conservés ; c'est la lecture de
+                            # l'en-tête qui dira lequel est l'exercice clos.
+                            "nombres_de_la_ligne": nombres[:6],
+                            "unites_sur_la_page": _unites_de_la_page(t),
+                            "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont "
+                                  "tranchés ici — à confirmer sur la page avant "
+                                  "tout usage.",
+                        }
+
             # ── capital social ────────────────────────────────────────────
             # ⚠️ Ne PAS prendre le premier nombre venu. Le 08/09, sur
             # « * Capital social ou personnel (1) 733.956.000,00 », le motif
@@ -228,11 +422,18 @@ def _pages(chemin: Path) -> dict:
 def _ecrire(resultats: dict, echecs: list) -> None:
     SORTIE.write_text(json.dumps({
         "_quoi": "Relevé automatique sur les rapports annuels AMMC — nombre "
-                 "d'actions et résultat net part du groupe.",
+                 "d'actions, résultat net part du groupe et capitaux "
+                 "propres part du groupe.",
         "_avertissement": "⚠️ Signale les titres à OUVRIR. Aucun de ces chiffres "
                           "n'entre dans faits_financiers.json sans une lecture "
                           "à la main et sa page. Les mises en page varient : ce "
                           "qui n'a pas pu être lu est DIT, pas comblé.",
+        "_unite_non_tranchee": "⚠️ `capitaux_propres_part_groupe.valeur_lue` "
+                               "est le nombre tel qu'il figure sur la ligne. "
+                               "Son UNITÉ (MAD, KMAD, MMAD) n'est PAS tranchée "
+                               "ici : `unites_sur_la_page` ne fait que citer ce "
+                               "que la page mentionne. Trancher au jugé mettrait "
+                               "un facteur 1 000 dans le P/BOOK sans bruit.",
         "_releve_le": time.strftime("%Y-%m-%d"),
         "_echecs": [{"ticker": t, "cause": c} for t, c in echecs],
         "emetteurs": resultats,
@@ -265,7 +466,13 @@ def main() -> int:
             pass
     print(f"  {len(cibles)} émetteurs avec un rapport annuel\n")
     for n, (tic, v) in enumerate(sorted(cibles.items()), 1):
-        if tic in resultats:
+        # ⚠️ LA REPRISE DOIT SAVOIR CE QU'ELLE A DÉJÀ CHERCHÉ, pas seulement
+        # qui elle a déjà vu. En ajoutant les capitaux propres le 16/09, la
+        # reprise « ce ticker est déjà là » aurait sauté les 36 émetteurs et
+        # rendu un balayage inchangé — un relevé vide qu'on aurait pris pour
+        # « aucun rapport ne publie ses fonds propres ». La version marque ce
+        # que le passage cherchait ; un passage plus ancien est refait.
+        if resultats.get(tic, {}).get("_version_balayage") == VERSION_BALAYAGE:
             continue
         rfa = v["rapports_annuels"][0]
         dest = CACHE / rfa["fichier"]
@@ -284,7 +491,8 @@ def main() -> int:
             print(f"  ✗ {n:>3}/{len(cibles)} {tic:6} lecture impossible")
             continue
 
-        ligne = {"exercice": rfa["exercice"], "url": rfa["url"],
+        ligne = {"_version_balayage": VERSION_BALAYAGE,
+                 "exercice": rfa["exercice"], "url": rfa["url"],
                  "fichier": rfa["fichier"], "faits": faits}
 
         # ⚠️ LE DÉTECTEUR D'OPÉRATION SUR TITRES NON RÉPERCUTÉE.
@@ -319,14 +527,19 @@ def main() -> int:
         resultats[tic] = ligne
         _ecrire(resultats, echecs)          # au fil de l'eau, jamais à la fin
         marque = "✓" if faits.get("nombre_actions") else "·"
+        cp = (faits.get("capitaux_propres_part_groupe") or {}).get("valeur_lue")
         print(f"  {marque} {n:>3}/{len(cibles)} {tic:6} "
-              f"actions={na or '—'}  rnpg={rn or '—'}")
+              f"actions={na or '—'}  rnpg={rn or '—'}  cp={cp or '—'}")
         time.sleep(0.2)
 
     _ecrire(resultats, echecs)
 
     avec = sum(1 for v in resultats.values() if v["faits"].get("nombre_actions"))
+    cp = sum(1 for v in resultats.values()
+             if v["faits"].get("capitaux_propres_part_groupe"))
     print(f"\n  {avec}/{len(cibles)} avec un nombre d'actions lisible")
+    print(f"  {cp}/{len(cibles)} avec une ligne de capitaux propres part du "
+          f"groupe À LIRE (unité non tranchée)")
     print(f"  {len(echecs)} échecs")
     print(f"  → {SORTIE}")
     return 0

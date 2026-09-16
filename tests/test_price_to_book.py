@@ -98,16 +98,54 @@ def test_un_split_posterieur_a_la_cloture_est_applique(faits):
     assert "SPLITS.get(ticker" in corps
 
 
-@pytest.mark.parametrize("ticker", ["ADI", "CMT", "MNG", "MSA"])
-def test_les_deux_termes_sont_sources_avec_leur_page(faits, ticker):
-    f = faits[ticker]["faits"]
-    cp = f.get("capitaux_propres_part_groupe")
-    na = (f.get("nombre_actions_existant") or f.get("nombre_actions_au_rapport")
-          or f.get("nombre_actions_retenu_pour_le_bpa"))
-    assert cp and isinstance(cp.get("page"), int), (
-        f"{ticker} : capitaux propres sans page — le PB serait invérifiable")
-    assert na and isinstance(na.get("page"), int), (
-        f"{ticker} : nombre d'actions sans page")
+def _emetteurs_avec_fonds_propres(faits):
+    return sorted(t for t, e in faits.items()
+                  if not t.startswith("_") and isinstance(e, dict)
+                  and (e.get("faits") or {}).get("capitaux_propres_part_groupe"))
+
+
+def test_les_deux_termes_sont_sources_avec_leur_page(faits):
+    """Tout émetteur portant des fonds propres porte aussi ses deux pages.
+
+    ⚠️ Ce test énumérait quatre tickers en dur — ADI, CMT, MNG, MSA, les seuls
+    qui portaient le fait le 09/09. Il décrivait donc l'ÉTAT du référentiel et
+    non sa RÈGLE : en y ajoutant un cinquième émetteur, il serait resté vert
+    sans rien vérifier de neuf. Un test qui fige un instantané cesse de mordre
+    dès que le travail avance — on s'y est repris trois fois dans ce projet
+    (T2S, SOT.h52w, les comptes d'ARBITRAGES).
+
+    La règle, elle, ne vieillit pas : un fait sans page est un chiffre de
+    seconde main, et le P/BOOK qui en découlerait serait invérifiable.
+    """
+    avec = _emetteurs_avec_fonds_propres(faits)
+    assert len(avec) >= 4, (
+        f"seuls {len(avec)} émetteurs portent des fonds propres — régression ?")
+    for ticker in avec:
+        f = faits[ticker]["faits"]
+        cp = f["capitaux_propres_part_groupe"]
+        na = (f.get("nombre_actions_existant")
+              or f.get("nombre_actions_au_rapport")
+              or f.get("nombre_actions_retenu_pour_le_bpa"))
+        assert isinstance(cp.get("page"), int), (
+            f"{ticker} : capitaux propres sans page — le PB serait invérifiable")
+        assert na and isinstance(na.get("page"), int), (
+            f"{ticker} : fonds propres relevés mais pas le nombre d'actions — "
+            "le P/BOOK reste incalculable, et l'à-peu-près n'est pas une option")
+
+
+def test_tout_pb_publie_remonte_a_un_fait_source(faits):
+    """Aucun P/BOOK à l'écran qui ne se retrouve dans un rapport déposé.
+
+    C'est l'inverse du test précédent, et c'est celui qui compte pour le
+    lecteur : le premier dit que nos faits sont vérifiables, celui-ci dit
+    qu'aucun chiffre publié ne vient d'ailleurs. Réintroduire une constante
+    dans FOND_DATA le ferait tomber.
+    """
+    d = json.loads(chemin_data_json().read_text(encoding="utf-8"))
+    avec = set(_emetteurs_avec_fonds_propres(faits))
+    orphelins = sorted(t["symbol"] for t in d["tickers"]
+                       if t.get("pb") is not None and t["symbol"] not in avec)
+    assert not orphelins, f"P/BOOK publié sans fait sourcé : {orphelins}"
 
 
 def test_le_pb_publie_reste_dans_une_plage_defendable():

@@ -1,811 +1,1152 @@
 {
-  "_quoi": "Faits financiers extraits des documents PRIMAIRES — rapports financiers annuels déposés à l'AMMC, pas la presse.",
-  "_pourquoi": "fondamentaux.json est saisi à la main depuis une quarantaine de sources secondaires (Boursenews, Zonebourse, notes de courtiers), et tout y date de juin 2026. Personne ne peut vérifier d'où vient un chiffre. Ici, chaque valeur porte son document, sa page et sa date : elle se recontrôle en une minute.",
-  "_regle": "AUCUNE valeur n'entre ici sans `page`. Un chiffre sans page redevient un chiffre de seconde main, et on aura seulement déplacé le problème.",
-  "_unites": "Montants en MMAD (millions de dirhams) sauf mention contraire. Les ratios ne sont PAS stockés : ils se recalculent depuis ces faits et le cours du jour, sinon ils se figent — c'est exactement le défaut de `pb_fige` sur 80 titres sur 80.",
-  "_etat": "AMORCE — un seul émetteur, à titre de démonstration. Ne pas brancher sur le moteur avant d'avoir tranché la question des définitions (cf. `_ecarts_mesures`).",
-  "ADI": {
-    "societe": "Alliances Développement Immobilier",
-    "exercice": 2025,
-    "document": "Rapport Financier Annuel 2025",
-    "url": "https://www.ammc.ma/sites/default/files/ADI_RFA_2025.pdf",
-    "depose_aupres_de": "AMMC",
-    "pages_document": 151,
-    "releve_le": "2026-09-07",
-    "faits": {
-      "chiffre_affaires": {
-        "valeur": 2432.0,
-        "page": 17,
-        "note": "consolidé, 31/12/2025"
-      },
-      "chiffre_affaires_2024": {
-        "valeur": 2363.0,
-        "page": 17
-      },
-      "resultat_exploitation": {
-        "valeur": 586.0,
-        "page": 17
-      },
-      "resultat_financier": {
-        "valeur": -45.0,
-        "page": 17
-      },
-      "excedent_brut_exploitation": {
-        "valeur": 603.0,
-        "page": 14,
-        "note": "EBE 2024 : 568"
-      },
-      "resultat_net_consolide": {
-        "valeur": 401.758,
-        "page": 23
-      },
-      "resultat_net_part_groupe": {
-        "valeur": 407.601,
-        "page": 21,
-        "note": "supérieur au consolidé : les minoritaires sont en perte"
-      },
-      "capitaux_propres_part_groupe": {
-        "valeur": 3993.181,
-        "page": 21
-      },
-      "capitaux_propres_consolides": {
-        "valeur": 4084.918,
-        "page": 21
-      },
-      "endettement_net": {
-        "valeur": 1303.0,
-        "page": 17,
-        "note": "dont emprunt obligataire de 449 MMAD émis en déc. 2025"
-      },
-      "endettement_net_2024": {
-        "valeur": 1136.0,
-        "page": 17
-      },
-      "capital_social": {
-        "valeur": 2207.8588,
-        "page": 35,
-        "note": "« Capital social ou personnel 2.207.858.800,00 », identique p.91"
-      },
-      "nombre_actions": {
-        "valeur": 22078588,
-        "page": 50,
-        "unite": "actions",
-        "note": "valeur nominale 100 MAD"
-      },
-      "carnet_commandes_unites": {
-        "valeur": 6205,
-        "page": 14,
-        "unite": "unités"
-      },
-      "encaissements": {
-        "valeur": 1900.0,
-        "page": 14,
-        "note": "1 600 en 2024, +17 %"
-      },
-      "nombre_actions_au_rapport": {
-        "valeur": 22078588,
-        "page": 35,
-        "unite": "actions",
-        "note": "capital 2 207 858 800 ÷ 100 de valeur nominale. L'audit externe retient le même nombre."
-      }
-    },
-    "_recoupement_arithmetique": "capital 2 207 858 800 ÷ VN 100 = 22 078 588 actions. La série 2022-2025 de la page 17 est cohérente ligne à ligne avec les évolutions annoncées.",
-    "_ecarts_mesures": {
-      "_quand": "2026-09-07, cours de 416,00 DH (séance du 07/09)",
-      "_comment_lire": "à gauche ce que le rapport permet de calculer, à droite ce que le terminal publie aujourd'hui. Seul le nombre d'actions concorde.",
-      "price_to_book": {
-        "rapport": 2.3,
-        "terminal": 0.8,
-        "ecart": "×2,9 — le terminal montre un titre sous sa valeur comptable alors qu'il vaut 2,3 fois ses fonds propres. Le sens de la thèse d'investissement est INVERSÉ. Champ marqué pb_fige.",
-        "cause_trouvee": "⚠️ CORRIGÉ le 08/09. J'avais d'abord attribué l'erreur au champ `cours_bv` (535 DH) de fondamentaux.json, parce que 416 ÷ 535 = 0,78 tombait sur le 0,8 publié. C'était une COÏNCIDENCE ARITHMÉTIQUE, et j'ai conclu sans lire le code. La vraie cause est plus simple et plus grave : le price-to-book est écrit EN DUR dans `FOND_DATA`, une table codée dans update_data.py — `\"ADI\": {\"pe\":22, \"pb\":0.8, ...}`. Il ne dérive d'aucun calcul. `cours_bv` n'est lu nulle part par le moteur. Leçon : une coïncidence numérique n'est pas une explication ; il faut lire le code qui produit la valeur."
-      },
-      "bpa": {
-        "rapport": 18.46,
-        "terminal": 20.9,
-        "ecart": "+13 %"
-      },
-      "per": {
-        "rapport": 22.5,
-        "terminal": 19.9,
-        "ecart": "conséquence du BPA"
-      },
-      "dette_nette_ebitda": {
-        "rapport": 2.16,
-        "terminal": 5.5,
-        "ecart": "×2,5 — le terminal fait passer pour surendetté un groupe qui s'est désendetté"
-      },
-      "croissance_ca": {
-        "rapport": 2.9,
-        "terminal": 25.7,
-        "ecart": "×9 — le rapport annonce +3 %, ou +14 % à normes comptables constantes. Ni l'un ni l'autre ne donne 25,7 %."
-      },
-      "marge_nette": {
-        "rapport": 16.8,
-        "terminal": 12.9,
-        "ecart": "+3,9 points"
-      },
-      "roic": {
-        "rapport": 7.6,
-        "terminal": 13.0,
-        "ecart": "⚠️ notre valeur de gauche est une ESTIMATION : NOPAT ≈ résultat d'exploitation × (1 − 30 %), capitaux employés = capitaux propres + dette nette. Le rapport ne publie pas de ROIC. À ne pas opposer aux autres lignes, qui sont de l'arithmétique pure."
-      },
-      "capitalisation": {
-        "rapport": 9185,
-        "terminal": 9361,
-        "ecart": "2 % — écart de cours entre les deux calculs, sans gravité"
-      },
-      "nombre_actions": {
-        "rapport": 22078588,
-        "terminal": 22078588,
-        "ecart": "identique ✓ — le seul champ qui concorde"
-      }
-    },
-    "publications": [
-      {
-        "periode": "T2-2026",
-        "arrete_au": "2026-06-30",
-        "type": "indicateurs trimestriels",
-        "document": "Communication financière au 30 juin 2026",
-        "url": "https://www.ammc.ma/sites/default/files/CP_ADI_T2_26.pdf",
-        "publie_le": "2026-08-12",
-        "pages_document": 1,
-        "faits": {
-          "chiffre_affaires_trimestre": {
-            "valeur": 803.0,
-            "page": 1,
-            "note": "T2-2025 : 618 → +30 %"
-          },
-          "chiffre_affaires_cumule": {
-            "valeur": 1418.0,
-            "page": 1,
-            "note": "S1-2025 : 1 333 → +6,4 %"
-          },
-          "endettement_net": {
-            "valeur": 1179.0,
-            "page": 1,
-            "note": "1 278 au T1-2026, 1 303 au 31/12/2025"
-          },
-          "preventes_unites": {
-            "valeur": 1639,
-            "page": 1,
-            "unite": "unités",
-            "note": "T2-2025 : 1 409 → +16 %"
-          },
-          "unites_en_production": {
-            "valeur": 6312,
-            "page": 1,
-            "unite": "unités"
-          },
-          "carnet_commandes_vit": {
-            "valeur": 4500.0,
-            "page": 1,
-            "note": "valeur immobilière totale sécurisée"
-          }
-        }
-      },
-      {
-        "periode": "T1-2026",
-        "arrete_au": "2026-03-31",
-        "type": "indicateurs trimestriels",
-        "document": "Communication financière au 31 mars 2026",
-        "url": "https://www.ammc.ma/sites/default/files/CP_ADI_T1_26.pdf",
-        "publie_le": "2026-05-29",
-        "pages_document": 1,
-        "faits": {
-          "chiffre_affaires_trimestre": {
-            "valeur": 615.0,
-            "page": 1,
-            "note": "T1-2025 : 715 → -14 %"
-          },
-          "endettement_net": {
-            "valeur": 1278.0,
-            "page": 1,
-            "note": "1 060 un an plus tôt ; intègre l'obligataire de 449 de déc. 2025"
-          },
-          "preventes_unites": {
-            "valeur": 1776,
-            "page": 1,
-            "unite": "unités"
-          },
-          "unites_en_production": {
-            "valeur": 6297,
-            "page": 1,
-            "unite": "unités"
-          },
-          "encaissements": {
-            "valeur": 437.0,
-            "page": 1
-          }
-        }
-      }
-    ],
-    "_ce_que_les_trimestriels_ne_donnent_pas": "⚠️ Au Maroc, une communication trimestrielle publie le chiffre d'affaires, l'endettement net et l'activité commerciale — JAMAIS le résultat net ni les capitaux propres. Conséquence directe : le PER, le price-to-book et la marge nette ne peuvent être rafraîchis que DEUX FOIS PAR AN, au semestriel et à l'annuel. Ce n'est pas une excuse pour `pb_fige`, mais c'est la contrainte réelle : la fraîcheur maximale d'un PB est de six mois, et il faut donc l'afficher avec sa date d'arrêté plutôt que de le laisser passer pour courant.",
-    "_quatre_per_dans_une_seule_fiche": "⚠️ fondamentaux.json ADI porte per=15,0, pe_24=39,12, pe_25c=30,13 et forward_per=12,5. Quatre PER, aucun libellé ne dit lequel le terminal affiche. Le PER calculé du rapport au cours de 416 DH vaut 22,5."
+ "_quoi": "Faits financiers extraits des documents PRIMAIRES — rapports financiers annuels déposés à l'AMMC, pas la presse.",
+ "_pourquoi": "fondamentaux.json est saisi à la main depuis une quarantaine de sources secondaires (Boursenews, Zonebourse, notes de courtiers), et tout y date de juin 2026. Personne ne peut vérifier d'où vient un chiffre. Ici, chaque valeur porte son document, sa page et sa date : elle se recontrôle en une minute.",
+ "_regle": "AUCUNE valeur n'entre ici sans `page`. Un chiffre sans page redevient un chiffre de seconde main, et on aura seulement déplacé le problème.",
+ "_unites": "Montants en MMAD (millions de dirhams) sauf mention contraire. Les ratios ne sont PAS stockés : ils se recalculent depuis ces faits et le cours du jour, sinon ils se figent — c'est exactement le défaut de `pb_fige` sur 80 titres sur 80. ⚠️ Les rapports, eux, publient indifféremment en MAD, en KMAD ou en MMAD, et l'ordre des colonnes n'est pas constant — Mutandis et Risma mettent l'exercice clos en SECOND. Chaque fait porte donc l'unité lue au rapport et le rang de la colonne retenue.",
+ "_etat": "21 émetteurs sur 80 au 16/09/2026. Les fonds propres part du groupe — le dénominateur du P/BOOK — ont été relevés sur 17 rapports supplémentaires ce jour-là, page par page. Ce n'est pas la cote entière : 38 émetteurs n'ont pas encore de rapport annuel au catalogue, et 17 des 36 catalogués ne publient pas la ligne sous une forme lisible. Ces absences sont DITES, elles ne sont pas comblées.",
+ "ADI": {
+  "societe": "Alliances Développement Immobilier",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/ADI_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "pages_document": 151,
+  "releve_le": "2026-09-07",
+  "faits": {
+   "chiffre_affaires": {
+    "valeur": 2432.0,
+    "page": 17,
+    "note": "consolidé, 31/12/2025"
+   },
+   "chiffre_affaires_2024": {
+    "valeur": 2363.0,
+    "page": 17
+   },
+   "resultat_exploitation": {
+    "valeur": 586.0,
+    "page": 17
+   },
+   "resultat_financier": {
+    "valeur": -45.0,
+    "page": 17
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 603.0,
+    "page": 14,
+    "note": "EBE 2024 : 568"
+   },
+   "resultat_net_consolide": {
+    "valeur": 401.758,
+    "page": 23
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 407.601,
+    "page": 21,
+    "note": "supérieur au consolidé : les minoritaires sont en perte"
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 3993.181,
+    "valeur_au_rapport": 3993181,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 21,
+    "note": "« Capitaux propres du Groupe 5.2.11 3.993.181 3.668.286 » ; en-tête « Etats Financiers Consolidés Au 31 Décembre 2025 » et « (EN MILLIERS DE DIRHAMS : KMAD) ». Le 5.2.11 est un renvoi de note, pas un montant. Capital 2.207.859 KMAD = 22 078 588 titres de nominale 100. L'ensemble consolidé vaut 4.084.918, minoritaires inclus.",
+    "relu_le": "2026-09-16"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 4084.918,
+    "page": 21
+   },
+   "endettement_net": {
+    "valeur": 1303.0,
+    "page": 17,
+    "note": "dont emprunt obligataire de 449 MMAD émis en déc. 2025"
+   },
+   "endettement_net_2024": {
+    "valeur": 1136.0,
+    "page": 17
+   },
+   "capital_social": {
+    "valeur": 2207.8588,
+    "page": 35,
+    "note": "« Capital social ou personnel 2.207.858.800,00 », identique p.91"
+   },
+   "nombre_actions": {
+    "valeur": 22078588,
+    "page": 50,
+    "unite": "actions",
+    "note": "valeur nominale 100 MAD"
+   },
+   "carnet_commandes_unites": {
+    "valeur": 6205,
+    "page": 14,
+    "unite": "unités"
+   },
+   "encaissements": {
+    "valeur": 1900.0,
+    "page": 14,
+    "note": "1 600 en 2024, +17 %"
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 22078588,
+    "page": 35,
+    "unite": "actions",
+    "note": "capital 2 207 858 800 ÷ 100 de valeur nominale. L'audit externe retient le même nombre."
+   }
   },
-  "CMT": {
-    "societe": "Compagnie Minière de Touissit",
-    "exercice": 2025,
-    "document": "Rapport Financier Annuel 2025",
-    "url": "https://www.ammc.ma/sites/default/files/CMT_RFA_2025.pdf",
-    "depose_aupres_de": "AMMC",
-    "pages_document": 82,
-    "releve_le": "2026-09-08",
+  "_recoupement_arithmetique": "capital 2 207 858 800 ÷ VN 100 = 22 078 588 actions. La série 2022-2025 de la page 17 est cohérente ligne à ligne avec les évolutions annoncées.",
+  "_ecarts_mesures": {
+   "_quand": "2026-09-07, cours de 416,00 DH (séance du 07/09)",
+   "_comment_lire": "à gauche ce que le rapport permet de calculer, à droite ce que le terminal publie aujourd'hui. Seul le nombre d'actions concorde.",
+   "price_to_book": {
+    "rapport": 2.3,
+    "terminal": 0.8,
+    "ecart": "×2,9 — le terminal montre un titre sous sa valeur comptable alors qu'il vaut 2,3 fois ses fonds propres. Le sens de la thèse d'investissement est INVERSÉ. Champ marqué pb_fige.",
+    "cause_trouvee": "⚠️ CORRIGÉ le 08/09. J'avais d'abord attribué l'erreur au champ `cours_bv` (535 DH) de fondamentaux.json, parce que 416 ÷ 535 = 0,78 tombait sur le 0,8 publié. C'était une COÏNCIDENCE ARITHMÉTIQUE, et j'ai conclu sans lire le code. La vraie cause est plus simple et plus grave : le price-to-book est écrit EN DUR dans `FOND_DATA`, une table codée dans update_data.py — `\"ADI\": {\"pe\":22, \"pb\":0.8, ...}`. Il ne dérive d'aucun calcul. `cours_bv` n'est lu nulle part par le moteur. Leçon : une coïncidence numérique n'est pas une explication ; il faut lire le code qui produit la valeur."
+   },
+   "bpa": {
+    "rapport": 18.46,
+    "terminal": 20.9,
+    "ecart": "+13 %"
+   },
+   "per": {
+    "rapport": 22.5,
+    "terminal": 19.9,
+    "ecart": "conséquence du BPA"
+   },
+   "dette_nette_ebitda": {
+    "rapport": 2.16,
+    "terminal": 5.5,
+    "ecart": "×2,5 — le terminal fait passer pour surendetté un groupe qui s'est désendetté"
+   },
+   "croissance_ca": {
+    "rapport": 2.9,
+    "terminal": 25.7,
+    "ecart": "×9 — le rapport annonce +3 %, ou +14 % à normes comptables constantes. Ni l'un ni l'autre ne donne 25,7 %."
+   },
+   "marge_nette": {
+    "rapport": 16.8,
+    "terminal": 12.9,
+    "ecart": "+3,9 points"
+   },
+   "roic": {
+    "rapport": 7.6,
+    "terminal": 13.0,
+    "ecart": "⚠️ notre valeur de gauche est une ESTIMATION : NOPAT ≈ résultat d'exploitation × (1 − 30 %), capitaux employés = capitaux propres + dette nette. Le rapport ne publie pas de ROIC. À ne pas opposer aux autres lignes, qui sont de l'arithmétique pure."
+   },
+   "capitalisation": {
+    "rapport": 9185,
+    "terminal": 9361,
+    "ecart": "2 % — écart de cours entre les deux calculs, sans gravité"
+   },
+   "nombre_actions": {
+    "rapport": 22078588,
+    "terminal": 22078588,
+    "ecart": "identique ✓ — le seul champ qui concorde"
+   }
+  },
+  "publications": [
+   {
+    "periode": "T2-2026",
+    "arrete_au": "2026-06-30",
+    "type": "indicateurs trimestriels",
+    "document": "Communication financière au 30 juin 2026",
+    "url": "https://www.ammc.ma/sites/default/files/CP_ADI_T2_26.pdf",
+    "publie_le": "2026-08-12",
+    "pages_document": 1,
     "faits": {
-      "chiffre_affaires": {
-        "valeur": 690.452,
-        "page": 58,
-        "note": "consolidé — 586,364 en 2024, soit +17,8 %"
-      },
-      "resultat_exploitation": {
-        "valeur": 387.848,
-        "page": 58,
-        "note": "après dotations aux amortissements"
-      },
-      "resultat_net_consolide": {
-        "valeur": 196.459,
-        "page": 58
-      },
-      "resultat_net_part_groupe": {
-        "valeur": 196.465,
-        "page": 57,
-        "note": "au passif du bilan consolidé ; recoupé p58 (flux de trésorerie) et p59 (variation des capitaux propres). Supérieur au consolidé de 6 120 DH : les minoritaires sont en perte. 2024 était une PERTE de 12,126."
-      },
-      "resultat_net_social": {
-        "valeur": 203.399,
-        "page": 79,
-        "note": "bénéfice net comptable des comptes sociaux, section « Affectation du résultat ». Ne pas confondre avec le RNPG consolidé."
-      },
-      "capitaux_propres_part_groupe": {
-        "valeur": 901.143,
-        "page": 59
-      },
-      "capitaux_propres_consolides": {
-        "valeur": 901.027,
-        "page": 59
-      },
-      "capital_social": {
-        "valeur": 168.1233,
-        "page": 57,
-        "note": "bilan passif consolidé ; identique au bilan social p39"
-      },
-      "nombre_actions_au_rapport": {
-        "valeur": 1681233,
-        "page": 54,
-        "unite": "actions",
-        "note": "ÉCRIT, pas déduit — tableau du capital social. Recoupé p79 (« Nombre d'actions 1 681 233 »). Trois identités arithmétiques indépendantes le confirment : capital 168 123 300 ÷ 100 de nominale ; capitalisation 7 313 MMAD ÷ 4 350 DH = 1 681 149 (écart 0,005 %) ; et bénéfices distribués 100 873 980 ÷ 60,00 DH par action (p54) = 1 681 233 au dirham près."
-      },
-      "resultat_net_par_action_social": {
-        "valeur": 120.98,
-        "page": 54,
-        "unite": "DH",
-        "note": "publié tel quel par la société. 203 399 078 ÷ 1 681 233 = 120,98 — quatrième recoupement du nombre d'actions."
-      },
-      "dividende_par_action": {
-        "valeur": 0.0,
-        "page": 79,
-        "unite": "DH",
-        "note": "AUCUN dividende au titre de 2025, ni de 2024. Le bénéfice est intégralement porté en report à nouveau (487,8 MMAD). Le terminal publiait 224,00 DH et un rendement de 5,15 %."
-      }
-    },
-    "_evenement": "⚠️ COTATION SUSPENDUE DEPUIS LE 17/07/2026. L'AMMC a demandé à la Bourse de suspendre les actions CMT après le dépôt, le 16/07/2026, d'un projet d'OFFRE PUBLIQUE D'ACHAT OBLIGATOIRE par AYRAD GROUP LIMITED, OSEAD Fund, OSEAD MAROC MINING et la CIMR agissant de concert, à la suite du franchissement du seuil de 40 % des droits de vote (pacte d'actionnaires entré en vigueur le 13/07/2026). Source : avis de dépôt AMMC DO/EM/07/2026 du 17/07/2026. Le titre ne cote plus : tout prix postérieur au 16/07 est une reconduction, et aucun signal ne devrait être émis sur un instrument qu'on ne peut pas acheter.",
-    "_ecarts_mesures": {
-      "_quand": "2026-09-08, dernier cours coté 4 350,00 DH (séance du 16/07, avant suspension), 1 681 233 actions",
-      "bpa": {
-        "rapport": 116.86,
-        "terminal": 435.56,
-        "ecart": "×3,73 — le terminal divise le résultat net par 450 000 actions, un nombre qui n'apparaît nulle part dans le rapport. Le vrai diviseur est 1 681 233."
-      },
-      "per": {
-        "rapport": 37.2,
-        "terminal": 10.0,
-        "ecart": "⚠️ Le terminal présente CMT à 10 fois ses bénéfices — le profil d'une valeur décotée — alors qu'elle se paie 37 fois. Et il en tire un signal ACHETER ★★."
-      },
-      "rendement": {
-        "rapport": 0.0,
-        "terminal": 5.15,
-        "ecart": "le terminal attribue 224,00 DH de dividende à une société qui n'en a versé aucun. Un rendement de 5,15 % entièrement fabriqué, qui alimente le score fondamental."
-      },
-      "capitalisation": {
-        "rapport": 7313.4,
-        "terminal": 7313.0,
-        "ecart": "JUSTE — et c'est ce qui rend le défaut instructif : la capitalisation était calculée avec les 1 681 233 actions réelles pendant que le BPA en utilisait 450 000. Deux nombres d'actions contradictoires dans le même enregistrement (ERRORS, famille 8)."
-      }
+     "chiffre_affaires_trimestre": {
+      "valeur": 803.0,
+      "page": 1,
+      "note": "T2-2025 : 618 → +30 %"
+     },
+     "chiffre_affaires_cumule": {
+      "valeur": 1418.0,
+      "page": 1,
+      "note": "S1-2025 : 1 333 → +6,4 %"
+     },
+     "endettement_net": {
+      "valeur": 1179.0,
+      "page": 1,
+      "note": "1 278 au T1-2026, 1 303 au 31/12/2025"
+     },
+     "preventes_unites": {
+      "valeur": 1639,
+      "page": 1,
+      "unite": "unités",
+      "note": "T2-2025 : 1 409 → +16 %"
+     },
+     "unites_en_production": {
+      "valeur": 6312,
+      "page": 1,
+      "unite": "unités"
+     },
+     "carnet_commandes_vit": {
+      "valeur": 4500.0,
+      "page": 1,
+      "note": "valeur immobilière totale sécurisée"
+     }
     }
-  },
-  "MNG": {
-    "societe": "Managem",
-    "exercice": 2025,
-    "document": "Rapport Financier Annuel 2025",
-    "url": "https://www.ammc.ma/sites/default/files/Managem_RFA_2025.pdf",
-    "depose_aupres_de": "AMMC",
-    "pages_document": 121,
-    "releve_le": "2026-09-08",
+   },
+   {
+    "periode": "T1-2026",
+    "arrete_au": "2026-03-31",
+    "type": "indicateurs trimestriels",
+    "document": "Communication financière au 31 mars 2026",
+    "url": "https://www.ammc.ma/sites/default/files/CP_ADI_T1_26.pdf",
+    "publie_le": "2026-05-29",
+    "pages_document": 1,
     "faits": {
-      "chiffre_affaires": {
-        "valeur": 13694.0,
-        "page": 10
-      },
-      "excedent_brut_exploitation": {
-        "valeur": 5982.0,
-        "page": 10
-      },
-      "resultat_net_part_groupe": {
-        "valeur": 3002.0,
-        "page": 86,
-        "note": "619,8 en 2024 — ×4,8"
-      },
-      "capitaux_propres_part_groupe": {
-        "valeur": 11478.3,
-        "page": 86,
-        "note": "« attribuables aux actionnaires ordinaires de la société mère »"
-      },
-      "capitaux_propres_consolides": {
-        "valeur": 12529.6,
-        "page": 86
-      },
-      "endettement_net": {
-        "valeur": 12674.0,
-        "page": 68,
-        "note": "10 272 en 2024"
-      },
-      "capital_social": {
-        "valeur": 1186.4676,
-        "page": 71
-      },
-      "nombre_actions_au_rapport": {
-        "valeur": 11864676,
-        "page": 98,
-        "unite": "actions",
-        "note": "⚠️ AVANT le split 10:1 du 27/07/2026. Valeur nominale 100 MAD à l'époque."
-      },
-      "capitalisation_31_12_2025": {
-        "valeur": 75934.0,
-        "page": 10
-      }
-    },
-    "_action_sur_titres": "⚠️ SPLIT 10:1 LE 27/07/2026, postérieur à la publication du rapport (30/04). Le nombre d'actions est passé de 11 864 676 à 118 646 760, valeur nominale 100 → 10. Tout ratio par action calculé depuis ce rapport DOIT être divisé par 10. Le registre `SPLITS` de bvc_config.py le déclare déjà.",
-    "_ecarts_mesures": {
-      "_quand": "2026-09-08, cours de 1 753,00 DH (séance du 08/09), 118 646 760 actions",
-      "bpa": {
-        "rapport": 25.3,
-        "terminal": 234.0,
-        "ecart": "×9,25 — le BPA du terminal est resté à l'échelle PRÉ-SPLIT"
-      },
-      "per": {
-        "rapport": 69.3,
-        "terminal": 7.5,
-        "ecart": "⚠️ LE PLUS GRAVE. Le terminal affiche Managem à 7,5 fois ses bénéfices — un titre bon marché — alors qu'il se paie 69 fois. Conséquence directe du BPA pré-split."
-      },
-      "price_to_book": {
-        "rapport": 18.12,
-        "terminal": 3.1,
-        "ecart": "le pb vient de FOND_DATA, table codée en dur, jamais ajustée du split"
-      },
-      "capitalisation": {
-        "rapport": 207988,
-        "terminal": 206327,
-        "ecart": "0,8 % — la capitalisation, elle, est juste : elle se calcule sur le cours et le bon nombre d'actions"
-      }
+     "chiffre_affaires_trimestre": {
+      "valeur": 615.0,
+      "page": 1,
+      "note": "T1-2025 : 715 → -14 %"
+     },
+     "endettement_net": {
+      "valeur": 1278.0,
+      "page": 1,
+      "note": "1 060 un an plus tôt ; intègre l'obligataire de 449 de déc. 2025"
+     },
+     "preventes_unites": {
+      "valeur": 1776,
+      "page": 1,
+      "unite": "unités"
+     },
+     "unites_en_production": {
+      "valeur": 6297,
+      "page": 1,
+      "unite": "unités"
+     },
+     "encaissements": {
+      "valeur": 437.0,
+      "page": 1
+     }
     }
+   }
+  ],
+  "_ce_que_les_trimestriels_ne_donnent_pas": "⚠️ Au Maroc, une communication trimestrielle publie le chiffre d'affaires, l'endettement net et l'activité commerciale — JAMAIS le résultat net ni les capitaux propres. Conséquence directe : le PER, le price-to-book et la marge nette ne peuvent être rafraîchis que DEUX FOIS PAR AN, au semestriel et à l'annuel. Ce n'est pas une excuse pour `pb_fige`, mais c'est la contrainte réelle : la fraîcheur maximale d'un PB est de six mois, et il faut donc l'afficher avec sa date d'arrêté plutôt que de le laisser passer pour courant.",
+  "_quatre_per_dans_une_seule_fiche": "⚠️ fondamentaux.json ADI porte per=15,0, pe_24=39,12, pe_25c=30,13 et forward_per=12,5. Quatre PER, aucun libellé ne dit lequel le terminal affiche. Le PER calculé du rapport au cours de 416 DH vaut 22,5."
+ },
+ "CMT": {
+  "societe": "Compagnie Minière de Touissit",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/CMT_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "pages_document": 82,
+  "releve_le": "2026-09-08",
+  "faits": {
+   "chiffre_affaires": {
+    "valeur": 690.452,
+    "page": 58,
+    "note": "consolidé — 586,364 en 2024, soit +17,8 %"
+   },
+   "resultat_exploitation": {
+    "valeur": 387.848,
+    "page": 58,
+    "note": "après dotations aux amortissements"
+   },
+   "resultat_net_consolide": {
+    "valeur": 196.459,
+    "page": 58
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 196.465,
+    "page": 57,
+    "note": "au passif du bilan consolidé ; recoupé p58 (flux de trésorerie) et p59 (variation des capitaux propres). Supérieur au consolidé de 6 120 DH : les minoritaires sont en perte. 2024 était une PERTE de 12,126."
+   },
+   "resultat_net_social": {
+    "valeur": 203.399,
+    "page": 79,
+    "note": "bénéfice net comptable des comptes sociaux, section « Affectation du résultat ». Ne pas confondre avec le RNPG consolidé."
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 901.142608,
+    "valeur_au_rapport": 901142608,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 57,
+    "note": "« Capitaux propres (Part du groupe) 901 142 608 722 030 805 » ; en-tête « (En dirhams) 31/12/2025 31/12/2024 ». Capital 168 123 300 MAD = 1 681 233 titres de nominale 100. Le Résultat Net Part Groupe de la même page, 196 465 103 MAD, est celui déjà relevé.",
+    "relu_le": "2026-09-16"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 901.027,
+    "page": 59
+   },
+   "capital_social": {
+    "valeur": 168.1233,
+    "page": 57,
+    "note": "bilan passif consolidé ; identique au bilan social p39"
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 1681233,
+    "page": 54,
+    "unite": "actions",
+    "note": "ÉCRIT, pas déduit — tableau du capital social. Recoupé p79 (« Nombre d'actions 1 681 233 »). Trois identités arithmétiques indépendantes le confirment : capital 168 123 300 ÷ 100 de nominale ; capitalisation 7 313 MMAD ÷ 4 350 DH = 1 681 149 (écart 0,005 %) ; et bénéfices distribués 100 873 980 ÷ 60,00 DH par action (p54) = 1 681 233 au dirham près."
+   },
+   "resultat_net_par_action_social": {
+    "valeur": 120.98,
+    "page": 54,
+    "unite": "DH",
+    "note": "publié tel quel par la société. 203 399 078 ÷ 1 681 233 = 120,98 — quatrième recoupement du nombre d'actions."
+   },
+   "dividende_par_action": {
+    "valeur": 0.0,
+    "page": 79,
+    "unite": "DH",
+    "note": "AUCUN dividende au titre de 2025, ni de 2024. Le bénéfice est intégralement porté en report à nouveau (487,8 MMAD). Le terminal publiait 224,00 DH et un rendement de 5,15 %."
+   }
   },
-  "MSA": {
-    "societe": "Sodep-Marsa Maroc",
-    "exercice": 2025,
-    "document": "Rapport Financier Annuel 2025",
-    "url": "https://www.ammc.ma/sites/default/files/Marsa_RFA_2025.pdf",
-    "depose_aupres_de": "AMMC",
-    "pages_document": 170,
-    "releve_le": "2026-09-08",
-    "faits": {
-      "chiffre_affaires": {
-        "valeur": 5784.894,
-        "page": 122,
-        "note": "5 008,150 en 2024"
-      },
-      "resultat_net_entreprises_integrees": {
-        "valeur": 1810.107,
-        "page": 122
-      },
-      "resultat_net_part_groupe": {
-        "valeur": 1588.764,
-        "page": 121,
-        "note": "1 266,978 en 2024"
-      },
-      "interets_minoritaires": {
-        "valeur": 551.099,
-        "page": 121
-      },
-      "capitaux_propres_part_groupe": {
-        "valeur": 4048.148,
-        "page": 124,
-        "note": "capital 733,956 + réserves 1 725,428 + résultat 1 588,764"
-      },
-      "capitaux_propres_consolides": {
-        "valeur": 4599.247,
-        "page": 121
-      },
-      "endettement_net": {
-        "valeur": -752.628,
-        "page": 129,
-        "note": "⚠️ NÉGATIF : le groupe est en TRÉSORERIE NETTE, pas endetté"
-      },
-      "capital_social": {
-        "valeur": 733.956,
-        "page": 136
-      },
-      "resultat_par_action_publie": {
-        "valeur": 21.65,
-        "page": 122,
-        "unite": "MAD",
-        "note": "publié par la société elle-même — 17,26 en 2024"
-      },
-      "nombre_actions_au_rapport": {
-        "valeur": 73395600,
-        "page": 136,
-        "unite": "actions",
-        "note": "« Nombre d'actions (milliers) 73 396 » p.131 ; capital 733 956 000 ÷ 10 de nominale = 73 395 600. La résolution d'AG le confirme par une troisième voie : 807 351 600 DH distribués ÷ 11 DH = 73 395 600."
-      }
-    },
-    "_recoupement_arithmetique": "capital 733 956 000 ÷ VN 10 = 73 395 600 actions. Et 1 588 764 KMAD ÷ 21,65 = 73 384 018, le nombre moyen pondéré retenu pour le résultat par action. Les deux concordent.",
-    "_ecarts_mesures": {
-      "_quand": "2026-09-08, cours de 865,00 DH (séance du 08/09)",
-      "bpa": {
-        "rapport": 21.65,
-        "terminal": 13.64,
-        "ecart": "⚠️ LE CHIFFRE DU TERMINAL EST CELUI D'UNE AUTRE SOCIÉTÉ — voir _collision_identite"
-      },
-      "per": {
-        "rapport": 40.0,
-        "terminal": 63.4,
-        "ecart": "+59 % — conséquence directe du BPA emprunté à Mutandis"
-      },
-      "price_to_book": {
-        "rapport": 15.68,
-        "terminal": 1.8,
-        "ecart": "×8,7 — le pb vient de FOND_DATA, table codée en dur"
-      },
-      "marge_nette": {
-        "rapport": 27.5,
-        "terminal": 27.4,
-        "ecart": "concordant ✓"
-      },
-      "capitalisation": {
-        "rapport": 63487,
-        "terminal": 63120,
-        "ecart": "0,6 % ✓"
-      }
-    },
-    "_collision_identite": "⚠️ bpa.json[\"MSA\"] porte la note « Mutandis SCA — RN courant 140 MDH +10% FY2025 ». MSA est Sodep-Marsa Maroc ; MUT est Mutandis SCA. Le BPA de 13,64 est celui de Mutandis, pas de Marsa Maroc dont le rapport publie 21,65. L'anti-pattern est écrit noir sur blanc dans le CLAUDE.md — « MSA = Marsa Maroc, MUT = Mutandis SCA. Ne jamais les confondre » — et il s'est produit quand même. ⚠️ bpa.json[\"MUT\"] est VIDE : la donnée de Mutandis n'a pas été dupliquée, elle a été DÉPLACÉE."
-  },
-  "ADH": {
-    "societe": "Douja Promotion Groupe Addoha",
-    "exercice": 2025,
-    "document": "Rapport Financier Annuel 2025",
-    "url": "https://www.ammc.ma/sites/default/files/Addoha_RFA_2025.pdf",
-    "depose_aupres_de": "AMMC",
-    "pages_document": 129,
-    "releve_le": "2026-09-09",
-    "faits": {
-      "resultat_net_part_groupe": {
-        "valeur": 453.719,
-        "page": 73,
-        "note": "« Total Résultat Net Part Groupe 453719 274184 » en KMAD ; le texte de la même page confirme « 454 M MAD contre 274 M MAD en 2024 »"
-      },
-      "capital_social": {
-        "valeur": 4025.51254,
-        "page": 26
-      },
-      "nombre_actions_au_rapport": {
-        "valeur": 402551254,
-        "page": 43,
-        "unite": "actions",
-        "note": "402 551 254 × 10 DH de nominale = 4 025 512 540 de capital. Le marché en implique 402 563 380 (capitalisation ÷ cours) — 0,003 % d'écart."
-      },
-      "nombre_actions_retenu_pour_le_bpa": {
-        "valeur": 402531474,
-        "page": 74,
-        "unite": "actions",
-        "note": "moyen pondéré au sens d'IAS 33 ; 19 780 titres de moins que le total, vraisemblablement auto-détenus"
-      },
-      "resultat_par_action": {
-        "valeur": 1.13,
-        "page": 74,
-        "unite": "DH",
-        "note": "PUBLIÉ PAR LA SOCIÉTÉ — « Résultat de base par action 1.13 » (0,68 en 2024). Résultat dilué identique."
-      },
-      "dividende_par_action": {
-        "valeur": 0.5,
-        "page": 74,
-        "unite": "DH",
-        "note": "total distribué 201 276 KMAD ; aucun dividende en 2024"
-      }
-    },
-    "_ecarts_mesures": {
-      "_quand": "2026-09-09, cours de 35.5 DH",
-      "bpa": {
-        "rapport": 1.13,
-        "terminal": 2.5,
-        "ecart": "×2.21"
-      },
-      "per": {
-        "rapport": 31.4,
-        "terminal": 14.2,
-        "ecart": "le terminal présentait le titre moins cher qu'il n'est"
-      }
-    }
-  },
-  "CSR": {
-    "societe": "Cosumar",
-    "exercice": 2025,
-    "document": "Rapport Financier Annuel 2025",
-    "url": "https://www.ammc.ma/sites/default/files/Cosumar_RFA_2025.pdf",
-    "depose_aupres_de": "AMMC",
-    "pages_document": 161,
-    "releve_le": "2026-09-09",
-    "faits": {
-      "resultat_net_part_groupe": {
-        "valeur": 703.7,
-        "page": 131,
-        "note": "850,4 en 2024, soit −17,2 %. Recoupé quatre fois dans le rapport : p.116, p.128, p.131 et p.151."
-      },
-      "capital_social": {
-        "valeur": 944.87143,
-        "page": 137
-      },
-      "nombre_actions_au_rapport": {
-        "valeur": 94487143,
-        "page": 137,
-        "unite": "actions",
-        "note": "capital 944 871 430 ÷ 10 de nominale. Le marché en implique 94 489 691 — 0,003 % d'écart."
-      }
-    },
-    "_ecarts_mesures": {
-      "_quand": "2026-09-09, cours de 194.0 DH",
-      "bpa": {
-        "rapport": 7.45,
-        "terminal": 11,
-        "ecart": "×1.48"
-      },
-      "per": {
-        "rapport": 26.0,
-        "terminal": 17.6,
-        "ecart": "le terminal présentait le titre moins cher qu'il n'est"
-      }
-    }
-  },
-  "HPS": {
-    "societe": "HPS — Hightech Payment Systems",
-    "exercice": 2025,
-    "document": "Rapport Financier Annuel 2025",
-    "url": "https://www.ammc.ma/sites/default/files/HPS_RFA_2025.pdf",
-    "depose_aupres_de": "AMMC",
-    "pages_document": 93,
-    "releve_le": "2026-09-09",
-    "faits": {
-      "resultat_net_part_groupe": {
-        "valeur": 106.0,
-        "page": 46,
-        "note": "+40,5 % sur 2024"
-      },
-      "capital_social": {
-        "valeur": 74.0619,
-        "page": 54
-      },
-      "nombre_actions_au_rapport": {
-        "valeur": 7406190,
-        "page": 54,
-        "unite": "actions",
-        "note": "capital 74 061 900 ÷ 10 de nominale. Le marché en implique 7 406 577 — 0,005 % d'écart."
-      }
-    },
-    "_ecarts_mesures": {
-      "_quand": "2026-09-09, cours de 669.0 DH",
-      "bpa": {
-        "rapport": 14.31,
-        "terminal": 28.4,
-        "ecart": "×1.98"
-      },
-      "per": {
-        "rapport": 46.8,
-        "terminal": 23.6,
-        "ecart": "le terminal présentait le titre moins cher qu'il n'est"
-      }
-    }
-  },
-  "RIS": {
-    "societe": "Risma",
-    "exercice": 2025,
-    "document": "Rapport Financier Annuel 2025",
-    "url": "https://www.ammc.ma/sites/default/files/Risma_RFA_2025.pdf",
-    "depose_aupres_de": "AMMC",
-    "pages_document": 91,
-    "releve_le": "2026-09-09",
-    "faits": {
-      "resultat_net_part_groupe": {
-        "valeur": 269.622,
-        "page": 35,
-        "note": "183 024 KMAD en 2024, soit +47 %. Recoupé p.14, p.45, p.47 et p.63."
-      },
-      "nombre_actions_retenu_pour_le_bpa": {
-        "valeur": 14326947,
-        "page": 45,
-        "unite": "actions",
-        "note": "« Nombre moyen d'actions en circulation », identique au nombre dilué"
-      },
-      "resultat_par_action": {
-        "valeur": 18.82,
-        "page": 45,
-        "unite": "DH",
-        "note": "PUBLIÉ PAR LA SOCIÉTÉ, arrondi à 19 dans le tableau (13 en 2024). 269 622 ÷ 14 326 947 = 18,82. ⚠️ REVU le 09/09 : ce chiffre publié divise par la moyenne pondérée. Pour le PER affiché, le terminal retient désormais 269,622 ÷ 16 012 132 = 16,84."
-      },
-      "nombre_actions_existant": {
-        "valeur": 16012132,
-        "page": 5,
-        "unite": "actions",
-        "document": "Avis de convocation / résolutions de l'AGO du 02/06/2026, déposé à l'AMMC",
-        "url": "https://www.ammc.ma/sites/default/files/Avis_Risma_AGO_02_06_2026.pdf",
-        "note": "Déduit de la résolution : « A titre de dividendes, soit 9 DH / action… 144.109.188,00 » → 144 109 188 ÷ 9 = 16 012 132. Le marché confirme 16 012 461 (écart 0,002 %). ⚠️ À NE PAS CONFONDRE avec les 14 326 947 du rapport (p.45), qui sont la MOYENNE PONDÉRÉE de l'exercice. Les deux sont justes ; ils répondent à deux questions différentes. Un ratio par action d'AUJOURD'HUI se calcule sur les titres existants."
-      }
-    },
-    "_ecarts_mesures": {
-      "_quand": "2026-09-09, cours de 320.0 DH",
-      "bpa": {
-        "rapport": 16.84,
-        "terminal": 23.1,
-        "ecart": "×1,37 — et le 18,82 retenu le 08/09 était lui-même la moyenne pondérée"
-      },
-      "per": {
-        "rapport": 19.1,
-        "terminal": 13.9,
-        "ecart": "Attijari donne 19,0"
-      }
-    }
-  },
-  "SNA": {
-    "societe": "Sonasid",
-    "exercice": 2025,
-    "document": "Rapport Financier Annuel 2025",
-    "url": "https://www.ammc.ma/sites/default/files/Sonasid_RFA_2025.pdf",
-    "depose_aupres_de": "AMMC",
-    "pages_document": 100,
-    "releve_le": "2026-09-09",
-    "faits": {
-      "resultat_net_part_groupe": {
-        "valeur": 271.8,
-        "page": 89,
-        "note": "141,2 en 2024, soit +93 %"
-      },
-      "capital_social": {
-        "valeur": 390.0,
-        "page": 57
-      },
-      "nombre_actions_au_rapport": {
-        "valeur": 3900000,
-        "page": 87,
-        "unite": "actions",
-        "note": "« Nombre d'actions retenu pour le calcul du résultat par action 3.900.000 ». Le marché en implique exactement 3 900 000."
-      }
-    },
-    "_ecarts_mesures": {
-      "_quand": "2026-09-09, cours de 1930.0 DH",
-      "bpa": {
-        "rapport": 69.69,
-        "terminal": 148.1,
-        "ecart": "×2.13"
-      },
-      "per": {
-        "rapport": 27.7,
-        "terminal": 13.0,
-        "ecart": "le terminal présentait le titre moins cher qu'il n'est"
-      }
-    }
-  },
-  "SOT": {
-    "societe": "Sothema",
-    "exercice": 2025,
-    "document": "Rapport Financier Annuel 2025",
-    "url": "https://www.ammc.ma/sites/default/files/Sothema_RFA_2025.pdf",
-    "depose_aupres_de": "AMMC",
-    "pages_document": 91,
-    "releve_le": "2026-09-09",
-    "faits": {
-      "resultat_net_consolide": {
-        "valeur": 388.229,
-        "page": 64,
-        "note": "« Résultat net consolidé de l'exercice 388 229 317 224 » en KMAD, compte de résultat consolidé audité"
-      },
-      "resultat_net_part_groupe": {
-        "valeur": 386.0,
-        "page": 64,
-        "note": "⚠️ Le balayage automatique avait lu 418 sur une page de faits marquants (p.25) dont l'extraction mélange les colonnes. Le chiffre est démenti par l'arithmétique : le BPA publié 50,7 × 7 606 728 actions = 385,7. C'est l'état audité qui fait foi, pas la page de synthèse."
-      },
-      "capital_social": {
-        "valeur": 380.3364,
-        "page": 50
-      },
-      "nombre_actions_au_rapport": {
-        "valeur": 7606728,
-        "page": 69,
-        "unite": "actions",
-        "note": "AVANT le split ×5 du 05/05/2026 (7 200 000 en 2024 — la société a émis des titres en 2025). Après split : 38 033 640, et le marché en implique 38 308 416."
-      },
-      "resultat_par_action": {
-        "valeur": 50.7,
-        "page": 69,
-        "unite": "DH",
-        "note": "PUBLIÉ PAR LA SOCIÉTÉ, avant split (43,8 en 2024). Résultat dilué identique. Après le split ×5 du 05/05/2026 : 10,14."
-      }
-    },
-    "_ecarts_mesures": {
-      "_quand": "2026-09-09, cours de 361.2 DH",
-      "bpa": {
-        "rapport": 10.14,
-        "terminal": 32.0,
-        "ecart": "×3.16"
-      },
-      "per": {
-        "rapport": 35.6,
-        "terminal": 11.3,
-        "ecart": "le terminal présentait le titre moins cher qu'il n'est"
-      }
-    }
-  },
-  "TQA": {
-    "societe": "Taqa Morocco",
-    "exercice": 2025,
-    "document": "Rapport Financier Annuel 2025",
-    "url": "https://www.ammc.ma/sites/default/files/Taqa_Morocco_RFA_2025.pdf",
-    "depose_aupres_de": "AMMC",
-    "pages_document": 135,
-    "releve_le": "2026-09-09",
-    "faits": {
-      "resultat_net_part_groupe": {
-        "valeur": 980.722,
-        "page": 32,
-        "note": "« 980 722 KMAD Résultat net Part du Groupe » ; −6,8 % sur 2024"
-      },
-      "capital_social": {
-        "valeur": 2358.8542,
-        "page": 84
-      },
-      "nombre_actions_au_rapport": {
-        "valeur": 23588542,
-        "page": 84,
-        "unite": "actions",
-        "note": "capital 2 358 854 200 ÷ 100 de nominale. Le marché en implique 23 588 764 — 0,001 % d'écart."
-      }
-    },
-    "_ecarts_mesures": {
-      "_quand": "2026-09-09, cours de 1780.0 DH",
-      "bpa": {
-        "rapport": 41.58,
-        "terminal": 63.4,
-        "ecart": "×1.52"
-      },
-      "per": {
-        "rapport": 42.8,
-        "terminal": 28.1,
-        "ecart": "le terminal présentait le titre moins cher qu'il n'est"
-      }
-    }
-  },
-  "_defauts_systemiques": {
-    "_releve_le": "2026-09-08, sur trois émetteurs (ADI, MNG, MSA)",
-    "1_price_to_book_ecrit_en_dur": "Le champ `pb` ne vient d'aucun calcul : il est écrit littéralement dans la table `FOND_DATA` d'update_data.py — ADI 0,8 · MNG 3,1 · MSA 1,8. Les trois sont faux d'un facteur 3 à 9. `pb_fige: true` sur 80 titres sur 80 ne décrit pas une donnée périmée mais une CONSTANTE tapée dans le code.",
-    "2_le_split_n_a_pas_atteint_les_fondamentaux": "bpa.json[\"MNG\"] vaut 234,0 avec la note « PER réel 64 (cours 14 998 DH) » — un cours PRÉ-SPLIT. Le split 10:1 du 27/07/2026 a divisé le cours par dix, pas le BPA. Le terminal affiche donc Managem à PER 7,5 au lieu de 69. Le CLAUDE.md documente que « l'ajustement split ne tenait qu'un run » POUR LES CHANDELLES ; personne n'a vérifié les fondamentaux.",
-    "3_collision_d_identite_en_chaine": "MSA porte le BPA de Mutandis. Et bpa.json[\"MRL\"] — Maroc Leasing, une société de financement — porte la note « RNPG 1 589 MDH +25,4 % FY2025, trafic 67 Mt » : c'est la description de Marsa Maroc, dont le RFA publie 1 588,764 MMAD. Maroc Leasing n'a pas de trafic, et sa capitalisation de 1 076 MMAD rendrait un tel résultat impossible (PER 0,68). Les identités se sont décalées en chaîne. Un contrôle de vraisemblance — résultat net supérieur à la capitalisation — l'aurait attrapé."
-  },
-  "_defauts_connus": {
-    "_quoi": "Anomalies détectées par les contrôles de vraisemblance, PAS ENCORE tranchées faute d'avoir lu le rapport de la société. Elles sont ici pour que les tests échouent sur toute NOUVELLE occurrence sans rester rouges en permanence — une alarme toujours allumée n'alerte plus.",
-    "_regle": "Chaque entrée porte sa date et ce qu'il faut faire pour la lever. Une entrée qui traîne est une dette, pas une exception acquise.",
-    "bpa_implausible": {
-      "SNP": {
-        "constate_le": "2026-09-08",
-        "mesure": "BPA 117,50 DH pour un cours de 349,00 → PER 2,97",
-        "pourquoi_c_est_douteux": "Les champs de bpa.json se contredisent entre eux : BPA ÷ ROE(12 %) donne un actif net par action de 979 DH, soit 2,8 fois le cours ; le résultat net impliqué (275 MMAD) rapporté à la marge nette annoncée (5 %) exigerait un chiffre d'affaires de 5 495 MMAD, pour une société qui capitalise 816 MMAD ; et le dividende de 39 DH donnerait un rendement de 11,2 %.",
-        "source_du_champ": "casablancabourse_derive — dérivé, pas issu des résultats officiels",
-        "pour_lever": "lire le rapport financier annuel 2025 de SNEP sur ammc.ma et remplacer le BPA par le résultat net part du groupe ÷ nombre d'actions, avec la page."
-      }
-    }
+  "_evenement": "⚠️ COTATION SUSPENDUE DEPUIS LE 17/07/2026. L'AMMC a demandé à la Bourse de suspendre les actions CMT après le dépôt, le 16/07/2026, d'un projet d'OFFRE PUBLIQUE D'ACHAT OBLIGATOIRE par AYRAD GROUP LIMITED, OSEAD Fund, OSEAD MAROC MINING et la CIMR agissant de concert, à la suite du franchissement du seuil de 40 % des droits de vote (pacte d'actionnaires entré en vigueur le 13/07/2026). Source : avis de dépôt AMMC DO/EM/07/2026 du 17/07/2026. Le titre ne cote plus : tout prix postérieur au 16/07 est une reconduction, et aucun signal ne devrait être émis sur un instrument qu'on ne peut pas acheter.",
+  "_ecarts_mesures": {
+   "_quand": "2026-09-08, dernier cours coté 4 350,00 DH (séance du 16/07, avant suspension), 1 681 233 actions",
+   "bpa": {
+    "rapport": 116.86,
+    "terminal": 435.56,
+    "ecart": "×3,73 — le terminal divise le résultat net par 450 000 actions, un nombre qui n'apparaît nulle part dans le rapport. Le vrai diviseur est 1 681 233."
+   },
+   "per": {
+    "rapport": 37.2,
+    "terminal": 10.0,
+    "ecart": "⚠️ Le terminal présente CMT à 10 fois ses bénéfices — le profil d'une valeur décotée — alors qu'elle se paie 37 fois. Et il en tire un signal ACHETER ★★."
+   },
+   "rendement": {
+    "rapport": 0.0,
+    "terminal": 5.15,
+    "ecart": "le terminal attribue 224,00 DH de dividende à une société qui n'en a versé aucun. Un rendement de 5,15 % entièrement fabriqué, qui alimente le score fondamental."
+   },
+   "capitalisation": {
+    "rapport": 7313.4,
+    "terminal": 7313.0,
+    "ecart": "JUSTE — et c'est ce qui rend le défaut instructif : la capitalisation était calculée avec les 1 681 233 actions réelles pendant que le BPA en utilisait 450 000. Deux nombres d'actions contradictoires dans le même enregistrement (ERRORS, famille 8)."
+   }
   }
+ },
+ "MNG": {
+  "societe": "Managem",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Managem_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "pages_document": 121,
+  "releve_le": "2026-09-08",
+  "faits": {
+   "chiffre_affaires": {
+    "valeur": 13694.0,
+    "page": 10
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 5982.0,
+    "page": 10
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 3002.0,
+    "page": 86,
+    "note": "619,8 en 2024 — ×4,8"
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 11478.3,
+    "valeur_au_rapport": 11478.3,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 86,
+    "note": "« Capitaux propres attribuables aux actionnaires ordinaires de la société mère 21 11 478,3 10 687,8 » ; en-tête « PASSIF (En millions de dirhams) Note 31/12/2025 31/12/2024 ». Le 21 est le renvoi de note. Capital 1 186,5 MMAD = 11 864 676 titres de nominale 100. ⚠️ Ne pas confondre avec la ligne « Capitaux propres consolidés Part du Groupe début d'exercice 10 687,7 » de la page 102 : c'est le solde d'OUVERTURE, donc les comptes 2024.",
+    "relu_le": "2026-09-16"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 12529.6,
+    "page": 86
+   },
+   "endettement_net": {
+    "valeur": 12674.0,
+    "page": 68,
+    "note": "10 272 en 2024"
+   },
+   "capital_social": {
+    "valeur": 1186.4676,
+    "page": 71
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 11864676,
+    "page": 98,
+    "unite": "actions",
+    "note": "⚠️ AVANT le split 10:1 du 27/07/2026. Valeur nominale 100 MAD à l'époque."
+   },
+   "capitalisation_31_12_2025": {
+    "valeur": 75934.0,
+    "page": 10
+   }
+  },
+  "_action_sur_titres": "⚠️ SPLIT 10:1 LE 27/07/2026, postérieur à la publication du rapport (30/04). Le nombre d'actions est passé de 11 864 676 à 118 646 760, valeur nominale 100 → 10. Tout ratio par action calculé depuis ce rapport DOIT être divisé par 10. Le registre `SPLITS` de bvc_config.py le déclare déjà.",
+  "_ecarts_mesures": {
+   "_quand": "2026-09-08, cours de 1 753,00 DH (séance du 08/09), 118 646 760 actions",
+   "bpa": {
+    "rapport": 25.3,
+    "terminal": 234.0,
+    "ecart": "×9,25 — le BPA du terminal est resté à l'échelle PRÉ-SPLIT"
+   },
+   "per": {
+    "rapport": 69.3,
+    "terminal": 7.5,
+    "ecart": "⚠️ LE PLUS GRAVE. Le terminal affiche Managem à 7,5 fois ses bénéfices — un titre bon marché — alors qu'il se paie 69 fois. Conséquence directe du BPA pré-split."
+   },
+   "price_to_book": {
+    "rapport": 18.12,
+    "terminal": 3.1,
+    "ecart": "le pb vient de FOND_DATA, table codée en dur, jamais ajustée du split"
+   },
+   "capitalisation": {
+    "rapport": 207988,
+    "terminal": 206327,
+    "ecart": "0,8 % — la capitalisation, elle, est juste : elle se calcule sur le cours et le bon nombre d'actions"
+   }
+  }
+ },
+ "MSA": {
+  "societe": "Sodep-Marsa Maroc",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Marsa_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "pages_document": 170,
+  "releve_le": "2026-09-08",
+  "faits": {
+   "chiffre_affaires": {
+    "valeur": 5784.894,
+    "page": 122,
+    "note": "5 008,150 en 2024"
+   },
+   "resultat_net_entreprises_integrees": {
+    "valeur": 1810.107,
+    "page": 122
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 1588.764,
+    "page": 121,
+    "note": "1 266,978 en 2024"
+   },
+   "interets_minoritaires": {
+    "valeur": 551.099,
+    "page": 121
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 4048.148,
+    "valeur_au_rapport": 4048148,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 124,
+    "note": "« Capitaux propres au 31/12/2025 733 956 - 1 725 428 1 588 764 551 099 4 599 247 » dans le TABLEAU DE VARIATIONS DES CAPITAUX PROPRES, « (En milliers de Dirhams) ». ⚠️ La part du groupe n'y a pas de colonne propre : elle se lit comme le total moins les intérêts minoritaires, 4 599 247 - 551 099 = 4 048 148, ce que confirme la somme des colonnes du groupe, 733 956 + 1 725 428 + 1 588 764. Capital 733 956 KMAD = 73 395 600 titres de nominale 10.",
+    "relu_le": "2026-09-16"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 4599.247,
+    "page": 121
+   },
+   "endettement_net": {
+    "valeur": -752.628,
+    "page": 129,
+    "note": "⚠️ NÉGATIF : le groupe est en TRÉSORERIE NETTE, pas endetté"
+   },
+   "capital_social": {
+    "valeur": 733.956,
+    "page": 136
+   },
+   "resultat_par_action_publie": {
+    "valeur": 21.65,
+    "page": 122,
+    "unite": "MAD",
+    "note": "publié par la société elle-même — 17,26 en 2024"
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 73395600,
+    "page": 136,
+    "unite": "actions",
+    "note": "« Nombre d'actions (milliers) 73 396 » p.131 ; capital 733 956 000 ÷ 10 de nominale = 73 395 600. La résolution d'AG le confirme par une troisième voie : 807 351 600 DH distribués ÷ 11 DH = 73 395 600."
+   }
+  },
+  "_recoupement_arithmetique": "capital 733 956 000 ÷ VN 10 = 73 395 600 actions. Et 1 588 764 KMAD ÷ 21,65 = 73 384 018, le nombre moyen pondéré retenu pour le résultat par action. Les deux concordent.",
+  "_ecarts_mesures": {
+   "_quand": "2026-09-08, cours de 865,00 DH (séance du 08/09)",
+   "bpa": {
+    "rapport": 21.65,
+    "terminal": 13.64,
+    "ecart": "⚠️ LE CHIFFRE DU TERMINAL EST CELUI D'UNE AUTRE SOCIÉTÉ — voir _collision_identite"
+   },
+   "per": {
+    "rapport": 40.0,
+    "terminal": 63.4,
+    "ecart": "+59 % — conséquence directe du BPA emprunté à Mutandis"
+   },
+   "price_to_book": {
+    "rapport": 15.68,
+    "terminal": 1.8,
+    "ecart": "×8,7 — le pb vient de FOND_DATA, table codée en dur"
+   },
+   "marge_nette": {
+    "rapport": 27.5,
+    "terminal": 27.4,
+    "ecart": "concordant ✓"
+   },
+   "capitalisation": {
+    "rapport": 63487,
+    "terminal": 63120,
+    "ecart": "0,6 % ✓"
+   }
+  },
+  "_collision_identite": "⚠️ bpa.json[\"MSA\"] porte la note « Mutandis SCA — RN courant 140 MDH +10% FY2025 ». MSA est Sodep-Marsa Maroc ; MUT est Mutandis SCA. Le BPA de 13,64 est celui de Mutandis, pas de Marsa Maroc dont le rapport publie 21,65. L'anti-pattern est écrit noir sur blanc dans le CLAUDE.md — « MSA = Marsa Maroc, MUT = Mutandis SCA. Ne jamais les confondre » — et il s'est produit quand même. ⚠️ bpa.json[\"MUT\"] est VIDE : la donnée de Mutandis n'a pas été dupliquée, elle a été DÉPLACÉE."
+ },
+ "ADH": {
+  "societe": "Douja Promotion Groupe Addoha",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Addoha_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "pages_document": 129,
+  "releve_le": "2026-09-09",
+  "faits": {
+   "resultat_net_part_groupe": {
+    "valeur": 453.719,
+    "page": 73,
+    "note": "« Total Résultat Net Part Groupe 453719 274184 » en KMAD ; le texte de la même page confirme « 454 M MAD contre 274 M MAD en 2024 »"
+   },
+   "capital_social": {
+    "valeur": 4025.51254,
+    "page": 26
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 402551254,
+    "page": 43,
+    "unite": "actions",
+    "note": "402 551 254 × 10 DH de nominale = 4 025 512 540 de capital. Le marché en implique 402 563 380 (capitalisation ÷ cours) — 0,003 % d'écart."
+   },
+   "nombre_actions_retenu_pour_le_bpa": {
+    "valeur": 402531474,
+    "page": 74,
+    "unite": "actions",
+    "note": "moyen pondéré au sens d'IAS 33 ; 19 780 titres de moins que le total, vraisemblablement auto-détenus"
+   },
+   "resultat_par_action": {
+    "valeur": 1.13,
+    "page": 74,
+    "unite": "DH",
+    "note": "PUBLIÉ PAR LA SOCIÉTÉ — « Résultat de base par action 1.13 » (0,68 en 2024). Résultat dilué identique."
+   },
+   "dividende_par_action": {
+    "valeur": 0.5,
+    "page": 74,
+    "unite": "DH",
+    "note": "total distribué 201 276 KMAD ; aucun dividende en 2024"
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 9481.694524,
+    "valeur_au_rapport": 9481694524,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 53,
+    "note": "« CAPITAUX PROPRES PART DU GROUPE 9.481.694.524 9.319.494.058 » ; en-tête « PASSIF MAD 31.12.2025 31.12.2024 ». Unité confirmée sur la page même : le Capital y vaut 4.025.512.540 MAD et le Résultat consolidé 453.719.263 MAD, soit exactement le résultat net part du groupe déjà relevé (453,719 MMAD)."
+   }
+  },
+  "_ecarts_mesures": {
+   "_quand": "2026-09-09, cours de 35.5 DH",
+   "bpa": {
+    "rapport": 1.13,
+    "terminal": 2.5,
+    "ecart": "×2.21"
+   },
+   "per": {
+    "rapport": 31.4,
+    "terminal": 14.2,
+    "ecart": "le terminal présentait le titre moins cher qu'il n'est"
+   }
+  }
+ },
+ "CSR": {
+  "societe": "Cosumar",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Cosumar_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "pages_document": 161,
+  "releve_le": "2026-09-09",
+  "faits": {
+   "resultat_net_part_groupe": {
+    "valeur": 703.7,
+    "page": 131,
+    "note": "850,4 en 2024, soit −17,2 %. Recoupé quatre fois dans le rapport : p.116, p.128, p.131 et p.151."
+   },
+   "capital_social": {
+    "valeur": 944.87143,
+    "page": 137
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 94487143,
+    "page": 137,
+    "unite": "actions",
+    "note": "capital 944 871 430 ÷ 10 de nominale. Le marché en implique 94 489 691 — 0,003 % d'écart."
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 5633.8,
+    "valeur_au_rapport": 5633.8,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 131,
+    "note": "« Capitaux propres - part du Groupe 5 633,8 5 878,5 -244,7 -4,2 » ; en-tête « (En Mdh) Évolution 2025 2024 ». La même page porte « Résultat net part du groupe 703,7 », identique au fait déjà relevé, ce qui confirme les millions."
+   }
+  },
+  "_ecarts_mesures": {
+   "_quand": "2026-09-09, cours de 194.0 DH",
+   "bpa": {
+    "rapport": 7.45,
+    "terminal": 11,
+    "ecart": "×1.48"
+   },
+   "per": {
+    "rapport": 26.0,
+    "terminal": 17.6,
+    "ecart": "le terminal présentait le titre moins cher qu'il n'est"
+   }
+  }
+ },
+ "HPS": {
+  "societe": "HPS — Hightech Payment Systems",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/HPS_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "pages_document": 93,
+  "releve_le": "2026-09-09",
+  "faits": {
+   "resultat_net_part_groupe": {
+    "valeur": 106.0,
+    "page": 46,
+    "note": "+40,5 % sur 2024"
+   },
+   "capital_social": {
+    "valeur": 74.0619,
+    "page": 54
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 7406190,
+    "page": 54,
+    "unite": "actions",
+    "note": "capital 74 061 900 ÷ 10 de nominale. Le marché en implique 7 406 577 — 0,005 % d'écart."
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 816.636777,
+    "valeur_au_rapport": 816636777,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« CAPITAUX PROPRES PART DU GROUPE 816 636 777 774 719 895 » ; en-tête « PASSIF 31/12/2025 31/12/2024 ». Unité tranchée par le Capital de la même page, 74 061 900 MAD = 7 406 190 titres de nominale 10. Part du groupe, total et capitaux propres coïncident : pas de minoritaires."
+   }
+  },
+  "_ecarts_mesures": {
+   "_quand": "2026-09-09, cours de 669.0 DH",
+   "bpa": {
+    "rapport": 14.31,
+    "terminal": 28.4,
+    "ecart": "×1.98"
+   },
+   "per": {
+    "rapport": 46.8,
+    "terminal": 23.6,
+    "ecart": "le terminal présentait le titre moins cher qu'il n'est"
+   }
+  }
+ },
+ "RIS": {
+  "societe": "Risma",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Risma_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "pages_document": 91,
+  "releve_le": "2026-09-09",
+  "faits": {
+   "resultat_net_part_groupe": {
+    "valeur": 269.622,
+    "page": 35,
+    "note": "183 024 KMAD en 2024, soit +47 %. Recoupé p.14, p.45, p.47 et p.63."
+   },
+   "nombre_actions_retenu_pour_le_bpa": {
+    "valeur": 14326947,
+    "page": 45,
+    "unite": "actions",
+    "note": "« Nombre moyen d'actions en circulation », identique au nombre dilué"
+   },
+   "resultat_par_action": {
+    "valeur": 18.82,
+    "page": 45,
+    "unite": "DH",
+    "note": "PUBLIÉ PAR LA SOCIÉTÉ, arrondi à 19 dans le tableau (13 en 2024). 269 622 ÷ 14 326 947 = 18,82. ⚠️ REVU le 09/09 : ce chiffre publié divise par la moyenne pondérée. Pour le PER affiché, le terminal retient désormais 269,622 ÷ 16 012 132 = 16,84."
+   },
+   "nombre_actions_existant": {
+    "valeur": 16012132,
+    "page": 5,
+    "unite": "actions",
+    "document": "Avis de convocation / résolutions de l'AGO du 02/06/2026, déposé à l'AMMC",
+    "url": "https://www.ammc.ma/sites/default/files/Avis_Risma_AGO_02_06_2026.pdf",
+    "note": "Déduit de la résolution : « A titre de dividendes, soit 9 DH / action… 144.109.188,00 » → 144 109 188 ÷ 9 = 16 012 132. Le marché confirme 16 012 461 (écart 0,002 %). ⚠️ À NE PAS CONFONDRE avec les 14 326 947 du rapport (p.45), qui sont la MOYENNE PONDÉRÉE de l'exercice. Les deux sont justes ; ils répondent à deux questions différentes. Un ratio par action d'AUJOURD'HUI se calcule sur les titres existants."
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 1687.9,
+    "valeur_au_rapport": 1687900,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 2,
+    "page": 36,
+    "note": "« Capitaux Propres Part Groupe 1 581 198 1 687 900 ». ⚠️ En-tête « EN KMAD 31/12/2024 31/12/2025 » : la colonne de gauche est 2024. Le texte de la page tranche sans ambiguïté — « Les capitaux propres s'élèvent à 1 803 MDH vs 1 695 MDH au 31 décembre 2024 » — et la ligne de total, « Capitaux Propres 1 694 751 1 803 813 », le confirme dans le même ordre."
+   }
+  },
+  "_ecarts_mesures": {
+   "_quand": "2026-09-09, cours de 320.0 DH",
+   "bpa": {
+    "rapport": 16.84,
+    "terminal": 23.1,
+    "ecart": "×1,37 — et le 18,82 retenu le 08/09 était lui-même la moyenne pondérée"
+   },
+   "per": {
+    "rapport": 19.1,
+    "terminal": 13.9,
+    "ecart": "Attijari donne 19,0"
+   }
+  }
+ },
+ "SNA": {
+  "societe": "Sonasid",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Sonasid_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "pages_document": 100,
+  "releve_le": "2026-09-09",
+  "faits": {
+   "resultat_net_part_groupe": {
+    "valeur": 271.8,
+    "page": 89,
+    "note": "141,2 en 2024, soit +93 %"
+   },
+   "capital_social": {
+    "valeur": 390.0,
+    "page": 57
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 3900000,
+    "page": 87,
+    "unite": "actions",
+    "note": "« Nombre d'actions retenu pour le calcul du résultat par action 3.900.000 ». Le marché en implique exactement 3 900 000."
+   }
+  },
+  "_ecarts_mesures": {
+   "_quand": "2026-09-09, cours de 1930.0 DH",
+   "bpa": {
+    "rapport": 69.69,
+    "terminal": 148.1,
+    "ecart": "×2.13"
+   },
+   "per": {
+    "rapport": 27.7,
+    "terminal": 13.0,
+    "ecart": "le terminal présentait le titre moins cher qu'il n'est"
+   }
+  }
+ },
+ "SOT": {
+  "societe": "Sothema",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Sothema_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "pages_document": 91,
+  "releve_le": "2026-09-09",
+  "faits": {
+   "resultat_net_consolide": {
+    "valeur": 388.229,
+    "page": 64,
+    "note": "« Résultat net consolidé de l'exercice 388 229 317 224 » en KMAD, compte de résultat consolidé audité"
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 386.0,
+    "page": 64,
+    "note": "⚠️ Le balayage automatique avait lu 418 sur une page de faits marquants (p.25) dont l'extraction mélange les colonnes. Le chiffre est démenti par l'arithmétique : le BPA publié 50,7 × 7 606 728 actions = 385,7. C'est l'état audité qui fait foi, pas la page de synthèse."
+   },
+   "capital_social": {
+    "valeur": 380.3364,
+    "page": 50
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 7606728,
+    "page": 69,
+    "unite": "actions",
+    "note": "AVANT le split ×5 du 05/05/2026 (7 200 000 en 2024 — la société a émis des titres en 2025). Après split : 38 033 640, et le marché en implique 38 308 416."
+   },
+   "resultat_par_action": {
+    "valeur": 50.7,
+    "page": 69,
+    "unite": "DH",
+    "note": "PUBLIÉ PAR LA SOCIÉTÉ, avant split (43,8 en 2024). Résultat dilué identique. Après le split ×5 du 05/05/2026 : 10,14."
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 2619.648,
+    "valeur_au_rapport": 2619648,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 52,
+    "note": "« Capitaux propres, part du groupe 2 619 648 1 684 172 » ; en-tête « En KMAD Déc-25 Déc-24 ». Le texte de la page confirme : « capitaux propres consolidés de l'ordre de 2,65 milliards de dirhams dont -30 millions d'intérêts hors groupe » — 2 649 675 - 30 028 = 2 619 647. Et la somme des composantes tombe juste : 380 336 + 610 092 + 1 243 509 + 185 + 385 526 = 2 619 648."
+   }
+  },
+  "_ecarts_mesures": {
+   "_quand": "2026-09-09, cours de 361.2 DH",
+   "bpa": {
+    "rapport": 10.14,
+    "terminal": 32.0,
+    "ecart": "×3.16"
+   },
+   "per": {
+    "rapport": 35.6,
+    "terminal": 11.3,
+    "ecart": "le terminal présentait le titre moins cher qu'il n'est"
+   }
+  }
+ },
+ "TQA": {
+  "societe": "Taqa Morocco",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Taqa_Morocco_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "pages_document": 135,
+  "releve_le": "2026-09-09",
+  "faits": {
+   "resultat_net_part_groupe": {
+    "valeur": 980.722,
+    "page": 32,
+    "note": "« 980 722 KMAD Résultat net Part du Groupe » ; −6,8 % sur 2024"
+   },
+   "capital_social": {
+    "valeur": 2358.8542,
+    "page": 84
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 23588542,
+    "page": 84,
+    "unite": "actions",
+    "note": "capital 2 358 854 200 ÷ 100 de nominale. Le marché en implique 23 588 764 — 0,001 % d'écart."
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 6773.0,
+    "valeur_au_rapport": 6773,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 104,
+    "note": "« Capitaux propres Part du Groupe 6 773 6 665 1,62% » ; en-tête « En MMAD 2025 2024 Var. 25/24 ». Le texte de la page recoupe l'écart : « Hausse des capitaux propres consolidés part du groupe de MMAD 108 », et 6 773 - 6 665 = 108."
+   }
+  },
+  "_ecarts_mesures": {
+   "_quand": "2026-09-09, cours de 1780.0 DH",
+   "bpa": {
+    "rapport": 41.58,
+    "terminal": 63.4,
+    "ecart": "×1.52"
+   },
+   "per": {
+    "rapport": 42.8,
+    "terminal": 28.1,
+    "ecart": "le terminal présentait le titre moins cher qu'il n'est"
+   }
+  }
+ },
+ "_defauts_systemiques": {
+  "_releve_le": "2026-09-08, sur trois émetteurs (ADI, MNG, MSA)",
+  "1_price_to_book_ecrit_en_dur": "Le champ `pb` ne vient d'aucun calcul : il est écrit littéralement dans la table `FOND_DATA` d'update_data.py — ADI 0,8 · MNG 3,1 · MSA 1,8. Les trois sont faux d'un facteur 3 à 9. `pb_fige: true` sur 80 titres sur 80 ne décrit pas une donnée périmée mais une CONSTANTE tapée dans le code.",
+  "2_le_split_n_a_pas_atteint_les_fondamentaux": "bpa.json[\"MNG\"] vaut 234,0 avec la note « PER réel 64 (cours 14 998 DH) » — un cours PRÉ-SPLIT. Le split 10:1 du 27/07/2026 a divisé le cours par dix, pas le BPA. Le terminal affiche donc Managem à PER 7,5 au lieu de 69. Le CLAUDE.md documente que « l'ajustement split ne tenait qu'un run » POUR LES CHANDELLES ; personne n'a vérifié les fondamentaux.",
+  "3_collision_d_identite_en_chaine": "MSA porte le BPA de Mutandis. Et bpa.json[\"MRL\"] — Maroc Leasing, une société de financement — porte la note « RNPG 1 589 MDH +25,4 % FY2025, trafic 67 Mt » : c'est la description de Marsa Maroc, dont le RFA publie 1 588,764 MMAD. Maroc Leasing n'a pas de trafic, et sa capitalisation de 1 076 MMAD rendrait un tel résultat impossible (PER 0,68). Les identités se sont décalées en chaîne. Un contrôle de vraisemblance — résultat net supérieur à la capitalisation — l'aurait attrapé."
+ },
+ "_defauts_connus": {
+  "_quoi": "Anomalies détectées par les contrôles de vraisemblance, PAS ENCORE tranchées faute d'avoir lu le rapport de la société. Elles sont ici pour que les tests échouent sur toute NOUVELLE occurrence sans rester rouges en permanence — une alarme toujours allumée n'alerte plus.",
+  "_regle": "Chaque entrée porte sa date et ce qu'il faut faire pour la lever. Une entrée qui traîne est une dette, pas une exception acquise.",
+  "bpa_implausible": {
+   "SNP": {
+    "constate_le": "2026-09-08",
+    "mesure": "BPA 117,50 DH pour un cours de 349,00 → PER 2,97",
+    "pourquoi_c_est_douteux": "Les champs de bpa.json se contredisent entre eux : BPA ÷ ROE(12 %) donne un actif net par action de 979 DH, soit 2,8 fois le cours ; le résultat net impliqué (275 MMAD) rapporté à la marge nette annoncée (5 %) exigerait un chiffre d'affaires de 5 495 MMAD, pour une société qui capitalise 816 MMAD ; et le dividende de 39 DH donnerait un rendement de 11,2 %.",
+    "source_du_champ": "casablancabourse_derive — dérivé, pas issu des résultats officiels",
+    "pour_lever": "lire le rapport financier annuel 2025 de SNEP sur ammc.ma et remplacer le BPA par le résultat net part du groupe ÷ nombre d'actions, avec la page."
+   }
+  }
+ },
+ "AKD": {
+  "societe": "AKDITAL",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 2853.529135,
+    "valeur_au_rapport": 2853529135,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 78,
+    "note": "« Dont : Capitaux propres part du groupe 2 853 529 135 2 583 560 166 » ; en-tête « (Montants en dhs) 31/12/2025 31/12/2024 ». Capital 141 592 070 MAD sur la même page, soit 14 159 207 titres de nominale 10 — le marché en implique 14 158 952."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 14159207,
+    "page": 78,
+    "unite": "actions",
+    "note": "capital 141 592 070 MAD ÷ nominale 10. Le marché en implique 14 158 952 (écart 0,002 %)."
+   }
+  },
+  "pages_document": 94
+ },
+ "ARD": {
+  "societe": "ARADEI CAPITAL",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Aradei_Capital_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 5444.531,
+    "valeur_au_rapport": 5444531,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 6,
+    "note": "« Capitaux propres part du groupe 5 444 531 5 191 827 4 500 158 » ; en-tête « (En KMAD) Notes 31/12/2025 31/12/2024 31/12/2023 ». La page porte aussi « Résultat net par action (en MAD) 42,52 » et un résultat part des propriétaires de 534 413 KMAD : le quotient redonne 12 568 milliers de titres, le nombre d'actions annoncé."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 12568130,
+    "page": 6,
+    "unite": "actions",
+    "note": "« Le capital social est composé au 13 mai 2025 de 12 568 130 actions », énoncé tel quel page 6. Le marché en implique 12 568 889 (écart 0,006 %)."
+   }
+  },
+  "pages_document": 199
+ },
+ "ATL": {
+  "societe": "ATLANTASANAD",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 2481.937,
+    "valeur_au_rapport": 2481937,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 140,
+    "note": "« Dont : Capitaux propres part du groupe 2 481 937 2 367 730 » ; en-tête « PASSIF 31 déc. 2025 31 déc. 2024 ». Aucune unité imprimée sur la page : elle est tranchée par le Capital, 602 836, qui vaut 602 836 000 MAD pour 60 283 600 titres de nominale 10 — donc des milliers."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 60283600,
+    "page": 140,
+    "unite": "actions",
+    "note": "capital 602 836 KMAD ÷ nominale 10. Le marché en implique 60 282 258 (écart 0,002 %)."
+   }
+  },
+  "pages_document": 184
+ },
+ "CMGP": {
+  "societe": "CMGP GROUP",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/CMGP_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 2788.340389,
+    "valeur_au_rapport": 2788340389,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 68,
+    "note": "« TOTAL CAPITAUX PROPRES PART GROUPE 2 788 340 389 2 634 396 857 » ; en-tête « (en MAD) Note 31/12/2025 31/12/2024 ». Capital social 1 700 090 000 MAD sur la même page = 17 000 900 titres de nominale 100."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 17000900,
+    "page": 68,
+    "unite": "actions",
+    "note": "capital 1 700 090 000 MAD ÷ nominale 100. Le marché en implique 17 000 000 (écart 0,005 %)."
+   }
+  },
+  "pages_document": 91
+ },
+ "LES": {
+  "societe": "LESIEUR CRISTAL",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Lesieur_Cristal_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 1672.0,
+    "valeur_au_rapport": 1672,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 81,
+    "note": "« Capitaux propres attribuables aux actionnaires ordinaires de la société mère 1 672 1 768 » ; en-tête « En millions de dirhams 31-Déc-25 31-Déc-24 ». Formulation IFRS de la part du groupe : la ligne suivante isole les intérêts minoritaires (-11) et l'ensemble consolidé (1 661)."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 27600000,
+    "page": 81,
+    "unite": "actions",
+    "note": "capital 276 MMAD ÷ nominale 10. ⚠️ Le bilan est publié en millions arrondis : la précision s'arrête là. Le marché implique 27 632 787 titres, soit 0,12 % de plus — l'écart est celui de l'arrondi, pas d'une divergence."
+   }
+  },
+  "pages_document": 92
+ },
+ "MUT": {
+  "societe": "MUTANDIS SCA",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Mutandis_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 1551.387,
+    "valeur_au_rapport": 1551387,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 2,
+    "page": 54,
+    "note": "« Total Capitaux propres, part du groupe 1 562 845 1 551 387 ». ⚠️ L'en-tête est « en KMAD Actif 31/12/2024 31/12/2025 » : la colonne de GAUCHE est 2024. L'exercice clos vaut donc 1 551 387 KMAD, et prendre le premier nombre aurait publié les comptes 2024. Capital 924 674 KMAD = 9 246 740 titres de nominale 100."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 9246740,
+    "page": 54,
+    "unite": "actions",
+    "note": "capital 924 674 KMAD ÷ nominale 100. Le marché en implique 9 246 144 (écart 0,006 %)."
+   }
+  },
+  "pages_document": 77
+ },
+ "RDS": {
+  "societe": "Résidences Dar Saada (RDS)",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/RDS_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 3739.48,
+    "valeur_au_rapport": 3739480,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 26,
+    "note": "« CAPITAUX PROPRES PART GROUPE 3.739.480 3.735.121 » ; en-tête « En milliers de dirhams 31/12/2025 31/12/2024 ». Capital 1.310.443 KMAD = 26 208 860 titres de nominale 50. Minoritaires 98 KMAD, d'où un total de 3.739.578."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 26208860,
+    "page": 26,
+    "unite": "actions",
+    "note": "capital 1.310.443 KMAD ÷ nominale 50. Le marché en implique 26 209 302 (écart 0,002 %)."
+   }
+  },
+  "pages_document": 91
+ },
+ "SGTM": {
+  "societe": "SGTM",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/SGTM_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 3550.399,
+    "valeur_au_rapport": 3550399,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 87,
+    "note": "« Dont : Capitaux propres part du groupe 3 550 399 2 619 799 » ; en-tête « (En Milliers de dirhams) Note 31/12/2025 31/12/2024 ». La part du groupe égale l'ensemble consolidé en 2025 parce que les intérêts minoritaires y sont nuls ; en 2024 ils valaient -1 934, d'où 2 617 864 + 1 934 = 2 619 799. L'arithmétique ferme."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 60000000,
+    "page": 87,
+    "unite": "actions",
+    "note": "capital 1 200 000 KMAD ÷ nominale 20. ⚠️ La nominale de 20 ne figure pas parmi les six usuelles ; c'est le marché qui tranche, et il donne exactement 60 000 000 titres — 1 200 000 000 ÷ 60 000 000 = 20 au dirham près. Le capital est passé de 300 000 à 1 200 000 KMAD sur l'exercice."
+   }
+  },
+  "pages_document": 101
+ },
+ "SNP": {
+  "societe": "SNEP",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/SNEP_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 487.051,
+    "valeur_au_rapport": 487051,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 50,
+    "note": "« Capitaux propres part du Groupe 487 051 672 236 -185 185 » ; en-tête « (En milliers MAD) 31 décembre 2025 31 décembre 2024 » et une troisième colonne de variation. ⚠️ Les trois nombres se recollent à la lecture automatique : la ligne du Capital, « 240 000 240 000 - », donne la structure des colonnes. Fonds propres 2025 = 487 051 KMAD, contre 672 236 en 2024, soit -185 185."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 2400000,
+    "page": 50,
+    "unite": "actions",
+    "note": "capital 240 000 KMAD ÷ nominale 100. Le marché en implique 2 398 754 (écart 0,05 %)."
+   }
+  },
+  "pages_document": 68
+ },
+ "TGCC": {
+  "societe": "TGCC SA",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/TGCC_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 4544.126,
+    "valeur_au_rapport": 4544126,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 96,
+    "note": "« Capitaux Propres Part Groupe 4 544 126 1 761 218 » ; en-tête « (En milliers de dirhams) 31/12/2025 31/12/2024 ». Capital social 346 743 KMAD = 34 674 300 titres de nominale 10. Le quasi-triplement vient de l'augmentation de capital : les primes passent de 481 717 à 2 651 372 KMAD."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 34674300,
+    "page": 96,
+    "unite": "actions",
+    "note": "capital social 346 743 KMAD ÷ nominale 10. Le marché en implique 34 673 913 (écart 0,001 %)."
+   }
+  },
+  "pages_document": 122
+ },
+ "WAF": {
+  "societe": "Wafa Assurance",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-16",
+  "faits": {
+   "capitaux_propres_part_groupe": {
+    "valeur": 14960.337,
+    "valeur_au_rapport": 14960337,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 16,
+    "note": "« Capitaux propres-part du groupe 14 960 337 12 566 785 10 894 830 » ; en-tête « (en milliers de dirhams) 31/12/2025 31/12/2024 01/01/2024 ». Capital social 350 000 KMAD = 3 500 000 titres de nominale 100, exactement le nombre qu'implique le marché."
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 3500000,
+    "page": 16,
+    "unite": "actions",
+    "note": "capital social 350 000 KMAD ÷ nominale 100. Le marché en implique exactement 3 500 000."
+   }
+  },
+  "pages_document": 154
+ }
 }
