@@ -328,3 +328,48 @@ ici il savait comment se lit une discussion, et le compteur ne le savait pas.
 - **Ne pas confondre « introuvable » et « effacé ».** Après réparation, un
   clone normal ne donne rien — mais les objets existent encore. Le dire
   autrement serait mentir au propriétaire.
+
+---
+
+## Lire un rapport financier déposé à l'AMMC (16/09/2026)
+
+Relevé en portant le P/BOOK de 4 titres à 29. Rien de tout cela n'était
+devinable ; tout a coûté un aller-retour.
+
+- **« Servi en PDF sous le nom attendu » ne veut pas dire « c'est le
+  rapport ».** `Auto_Hall_RFA_2025.pdf` existe bel et bien sur le site de
+  l'AMMC — et c'est le communiqué d'UNE page annonçant que le rapport est
+  disponible **ailleurs**. Une vérification d'existence n'est pas une
+  vérification d'identité. Le poids du fichier suffit à les séparer : 244 ko
+  contre 1,09 Mo pour le plus léger vrai rapport.
+- **L'ordre des colonnes n'est pas constant, y compris DANS UN MÊME
+  RAPPORT.** Chez Addoha, la page 9 donne « 2025 puis 2024 » et la page 26
+  l'inverse. Mutandis et Risma placent l'exercice clos en SECOND. Prendre « le
+  premier nombre » revient à tirer l'exercice au sort — et les deux chiffres
+  étant du même ordre, rien ne le signale ensuite.
+- **L'unité ne se devine pas, elle se tranche sur la page.** Les rapports
+  publient en MAD, en KMAD ou en MMAD. Le juge est un fait déjà connu qui
+  figure sur la même page : le Capital du bilan divisé par la valeur nominale
+  redonne le nombre d'actions, que la capitalisation confirme. Chez Aradei, le
+  « résultat net par action » et le résultat part des propriétaires bouclent à
+  12 568 milliers de titres — l'unité tombe toute seule.
+- **Deux colonnes voisines se recollent à l'extraction du texte, et la
+  SYMÉTRIE les sépare.** Rien dans « 901 142 608 722 030 805 » ne dit où l'une
+  finit ; mais deux colonnes d'un même tableau portent des montants du même
+  ordre, donc le même nombre de groupes de trois chiffres. Un recollage a un
+  nombre PAIR de groupes et se coupe au milieu. Vérifié sur six cas.
+- **Un montant entre parenthèses est négatif.** Stokvis a des fonds propres
+  part du groupe de −97,2 MDH. Lus positifs, ils auraient produit un
+  price-to-book là où la réponse juste est qu'il n'y en a pas.
+- **Une étiquette comptable n'est pas normalisée.** « part du groupe », « part
+  groupe », « (Part du Groupe) », « consolidés Part du Groupe »,
+  « attribuables aux actionnaires ordinaires de la société mère » : cinq
+  formes pour la même ligne. Un motif rigide en manquait deux sur sept.
+- **Ce qui SÉPARE compte plus que ce qui relie.** « d'ensemble », « des
+  minoritaires », « total » désignent d'autres lignes du même bilan. Chez
+  Addoha les trois se suivent — 9,48 / 0,93 / 10,41 milliards — et rien dans
+  leur forme ne les distingue. Prendre le total sous-estimerait le P/BOOK,
+  c'est-à-dire ferait paraître le titre moins cher qu'il n'est.
+- **Distinguer « le fait est absent » de « le document est illisible ».** Le
+  rapport 2025 de Dari Couspate est un scan : 49 pages, zéro caractère. Ce
+  n'est pas la même information, et cela n'appelle pas le même travail.
