@@ -24,7 +24,7 @@ Fige un `data.json` de référence. Après tout changement de code, régénère 
 
 **3. Tests de contrat sur les parseurs de sources**, à partir de charges utiles enregistrées sur disque — jamais sur le réseau, un test ne doit pas dépendre d'un serveur tiers.
 
-**4. Les règles R1 à R10 comme tests exécutables** : 81 tickers, 19 MASI 1 avec prix, variation ≤ ±10 %, `_meta` partout, v53 dans [0,10], scoring `Tech + Fond + NLP = 100 %`.
+**4. Les règles R1 à R11 comme tests exécutables** : 81 tickers, 19 MASI 1 avec prix, variation ≤ ±10 %, `_meta` partout, v53 dans [0,10], scoring `Tech + Fond + NLP = 100 %`.
 
 **5. Un workflow CI** qui lance la suite sur chaque push touchant `*.py`.
 

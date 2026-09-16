@@ -1,0 +1,57 @@
+Avis et décisions de l'AMMC, tels que publiés sur ammc.ma.
+
+Ils sont ici pour qu'une affirmation qui s'appuie sur eux puisse être recoupée
+par le lecteur, et parce qu'un document retiré du site d'une autorité cesse
+d'être vérifiable sans copie.
+
+⚠️ CE QUE CES PIÈCES SONT — et c'est différent d'un bulletin d'opérateur.
+L'AMMC est le régulateur. Ce qu'elle publie n'est pas une observation de
+marché susceptible d'erreur d'arrondi : c'est un acte. Le prix d'une offre
+publique, une date de reprise de cotation, la répartition d'un capital y sont
+établis, pas estimés.
+
+⚠️ CE QU'ELLES NE SONT PAS. Elles ne disent rien des cours quotidiens, et ne
+remplacent donc ni le bulletin de séance ni nos chandelles. Elles disent des
+FAITS JURIDIQUES qu'aucune série de prix ne porte — et que nos garde-fous ne
+peuvent pas deviner (voir R11 du CLAUDE.md).
+
+
+AMMC_avis_depot_OPA_CMT_2026-07-17.pdf
+──────────────────────────────────────
+sha256 568798921755ad80d2c1f984feb7819cfd168633713a7473f9cf33b990de5e8c
+Référence DO/EM/07/2026 · Rabat, le 17/07/2026 · 1 page.
+
+CE QU'IL ÉTABLIT
+  · Le dépôt, le 16/07/2026, d'un projet d'OPA obligatoire sur les actions CMT
+    par AYRAD GROUP LIMITED, OSEAD Fund, OSEAD MAROC MINING et la CIMR.
+  · La cause : entrée en vigueur le 13/07/2026 d'un pacte d'actionnaires
+    franchissant le seuil de 40 % des droits de vote.
+  · La demande de SUSPENSION de la cotation adressée à la Bourse de Casablanca.
+  · Le début de la période de l'offre, marqué par la publication de l'avis.
+
+C'est la pièce qui fonde l'entrée « depuis: 2026-07-17 » du registre
+SUSPENSIONS de bvc_config.py.
+
+
+AMMC_recevabilite_OPA_CMT_2026-09-15.pdf
+────────────────────────────────────────
+sha256 8240a798df3c4ef0d2c144e527beec377ce006ff19922181d1cd22ec15c028fa
+Référence DO/EM/010/2026 · Rabat, le 15 septembre 2026 · 4 pages.
+
+CE QU'ELLE ÉTABLIT
+  · Le PRIX de l'offre : 2 217 MAD par action, et son calcul (section 4) —
+    cours moyen pondéré 12 mois 2 523 MAD à 50 %, transaction de référence
+    1 910 MAD à 50 %.
+  · La DATE DE REPRISE : « l'AMMC demandera à la Bourse de Casablanca de
+    reprendre la cotation de la valeur de CMT le 16 Septembre 2026 ».
+  · La répartition du capital et son total : 1 681 233 actions (section 1).
+  · L'intention des initiateurs de MAINTENIR CMT à la cote (section 3).
+  · Que le calendrier définitif de l'offre n'était pas encore fixé.
+
+⚠️ C'est la pièce qui autorise l'entrée « reprise: 2026-09-16 ». Sans elle, la
+date serait une déduction tirée d'un bulletin — c'est-à-dire une supposition.
+
+⚠️ ET ELLE RECOUPE NOTRE RÉFÉRENTIEL. Le total de 1 681 233 actions est celui
+relevé au rapport annuel dans pipeline/faits_financiers.json. Deux sources
+indépendantes qui tombent juste, ce n'est pas la même chose qu'une source lue
+deux fois.

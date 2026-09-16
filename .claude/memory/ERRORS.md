@@ -423,3 +423,87 @@ entre deux tours : le temps que je croyais écoulé ne l'était pas. L'étape av
 en réalité vingt secondes.
 **Signal** : comparer `date -u` du conteneur aux horodatages de l'API AVANT de
 conclure qu'un travail est bloqué.
+
+---
+
+## Famille 12 — Un raisonnement juste, appliqué à un fait qu'il ne couvre pas (16/09/2026)
+
+> Cette famille est la plus difficile à voir, parce qu'**aucun des trois
+> raisonnements ci-dessous n'est faux**. Chacun est même un garde-fou que nous
+> avons écrit exprès. Ils échouent tous les trois sur le même fait : Minière
+> Touissit a repris sa cotation après une OPA obligatoire, avec une **référence
+> de cours remise à 2 217 DH** au lieu des 4 501 d'avant suspension.
+>
+> Le cas d'école complet : `docs/CAS_ECOLE_OPA_ET_REPRISE_DE_COTATION.md`.
+
+### Un contrôle nourri d'une valeur périmée (le mien, posé le matin même)
+
+Le contrôle de capitalisation compare la valeur servie à `prix × actions`. Le
+16/09, il a trouvé 3 727 MDHS servis contre 7 313 calculés, et a remplacé la
+première par la seconde. Or `3 727 000 000 ÷ 1 681 233 = 2 216,83`, exactement
+le prix de l'OPA : **la source avait raison, et notre prix était le périmé.**
+**Cause** : l'arbitre du contrôle était un cours gelé depuis deux mois par notre
+propre logique de suspension. Le contrôle vérifiait la source avec une valeur
+que la source avait cessé d'alimenter.
+**Signal** : le nombre d'actions implicite. `cap_servie ÷ actions_sourcées`
+redonnait un prix rond et plausible — 2 216,83 — pendant que notre prix, lui,
+ne correspondait à rien de récent.
+**Correctif** : `_capitalisation()` s'abstient dès que `src_prix` n'est pas une
+source de cotation vivante. Un contrôle sans arbitre valable ne tranche pas.
+**Règle** : *un contrôle qui s'appuie sur une valeur périmée est pire que pas de
+contrôle — il remplace du juste par du faux, et avec autorité.*
+
+### Des indicateurs qui survivent à leur objet
+
+MA20 4 624 et MA50 4 769 décrivaient un régime de prix disparu. Un cours de
+2 438 lu sous ces moyennes se lit « survendu », donc « acheter » : le moteur a
+publié **ACHETER ★★ avec 5/5 de confiance**, sur un titre dont **un seul titre**
+avait été échangé.
+**Cause** : `neutraliser_si_isin_suspect` cherche un facteur 3 entre prix et
+MA20. L'écart n'était que de 1,65. Ce garde-fou attrape une **identité croisée**,
+pas un **changement de référence** — deux accidents différents.
+**Signal** : le volume. Une séance de reprise à 1 titre échangé ne fonde rien.
+**Correctif** : `reprise_trop_recente()` neutralise les indicateurs tant que
+moins de 20 séances ont suivi la reprise, et le signal devient « Données
+insuffisantes ».
+
+### R10 appliquée à ce qui n'est pas une variation
+
+Comparé au 4 350 diffusé, le cours de reprise donnait −43,95 %. Le plafond des
+±10 % a conclu « erreur de source » et ramené la variation à **0,00 %** — un
+jour où le titre avait fait **+9,97 %**, ce que R9 interdit explicitement.
+**Cause** : R10 parle de **variations de cours**. Elle ne dit rien d'une
+**référence remise à neuf par le régulateur**. C'est la même faute que le
+05/09 sur le MASI : invoquer une règle pour un cas qu'elle ne couvre pas.
+**Signal** : trois chiffres justes qui produisent un résultat impossible. Quand
+un contrôle rend 0 % sur un titre qui a échangé, c'est le contrôle qu'il faut
+regarder, pas la donnée.
+**Correctif** : le jour d'une reprise inscrite au registre, la variation se
+calcule sur la référence sourcée. Hors de ce jour, R10 s'applique inchangée.
+
+### ⚠️ Et le correctif a d'abord été posé au mauvais endroit
+
+Première tentative : la règle à côté du plafond ±10 %. Le journal affichait
+« +9,97 % » et le fichier publiait toujours **0,00 %**. `chg` est réécrit plus
+bas par `recalculer_variation()`, qui repartait des chandelles.
+**Règle** : *une règle posée ailleurs que chez le dernier écrivain ne tient
+pas.* Avant de corriger une valeur publiée, établir QUI l'écrit en dernier —
+le journal ment par omission, il montre l'avant-dernier.
+
+### Le piège dormant trouvé au passage
+
+`appliquer_serie.py` réécrivait le fichier de chandelles **entier**. Tant que
+CMT était suspendue, cela ne se voyait pas : il n'y avait rien après. Le jour
+de la reprise, réappliquer le lot aurait effacé la séance nouvelle et remis
+4 350 — sans erreur, sans message.
+**Cause** : un lot réceptionné avait un droit d'écriture sans borne temporelle.
+**Règle** : *un lot instruit sur SA période. Ce qui lui est postérieur lui est
+étranger, et ne peut donc pas être nié par lui.*
+
+### Ce que cette famille apprend
+
+Quatre garde-fous corrects, un fait réglementaire qu'aucun ne connaissait. La
+parade n'est pas d'assouplir les garde-fous — c'est de **porter le fait dans le
+registre, sourcé**, pour qu'ils puissent le consulter. Un contrôle ne peut pas
+déduire d'une série de prix qu'une autorité a remis une référence à neuf : il
+faut le lui dire, avec la pièce.

@@ -373,3 +373,47 @@ devinable ; tout a coûté un aller-retour.
 - **Distinguer « le fait est absent » de « le document est illisible ».** Le
   rapport 2025 de Dari Couspate est un scan : 49 pages, zéro caractère. Ce
   n'est pas la même information, et cela n'appelle pas le même travail.
+
+## Une OPA obligatoire remet la référence de cours (16/09/2026)
+
+> Cas d'école complet, pièces AMMC à l'appui :
+> `docs/CAS_ECOLE_OPA_ET_REPRISE_DE_COTATION.md`.
+> Pièces : `datasets/pieces_ammc/`.
+
+- **Franchir 40 % des droits de vote OBLIGE à déposer une OPA** (loi 26-03,
+  art. 18). L'acheteur ne la choisit pas ; un pacte d'actionnaires suffit à la
+  déclencher. L'AMMC fait alors **suspendre la cotation** (art. 30), et la
+  suspension dure le temps de l'examen — deux mois pour CMT.
+- **Le prix de l'offre n'est pas une prime, c'est une moyenne pondérée.** Dans
+  une OPA *volontaire*, l'acheteur séduit le marché et offre au-dessus du
+  cours. Dans une OPA *obligatoire*, le prix est encadré par une analyse
+  multicritère examinée par l'AMMC. Pour CMT : cours moyen pondéré 12 mois
+  2 523 MAD (50 %) et transaction de référence hors marché 1 910 MAD (50 %),
+  soit **2 217 MAD**. Le cours de bourse ne pèse que la moitié.
+  - **Conséquence contre-intuitive : une OPA peut faire BAISSER la référence.**
+    Le porteur attend un « parachute » ; la formule peut le poser très au-dessous
+    de son prix de revient. Ce n'est pas une anomalie de marché, c'est la loi.
+- **À la reprise, la référence de séance est le prix de l'offre.** CMT a rouvert
+  le 16/09 à 2 438, +9,97 % — soit une référence de `2 438 ÷ 1,0997 = 2 216,97`.
+  Deux chemins indépendants, le régulateur et le marché, donnent 2 217.
+- ⚠️ **CE N'EST PAS UN SPLIT ET L'HISTORIQUE NE DOIT PAS ÊTRE AJUSTÉ.** Le test
+  qui sépare les deux cas est **le nombre d'actions**, jamais l'ampleur du
+  décrochage :
+
+  | | Split | Reprise après OPA |
+  |---|---|---|
+  | Nombre d'actions | multiplié | **inchangé** (1 681 233 pour CMT) |
+  | Valeur de la position | inchangée | **réellement modifiée** |
+  | Série historique | à rétro-ajuster | **à ne pas toucher** |
+  | Registre | `SPLITS` | `SUSPENSIONS[...]["reprise"]` |
+
+- **La date de reprise est publiée LA VEILLE, dans la décision de
+  recevabilité.** « L'AMMC demandera à la Bourse de Casablanca de reprendre la
+  cotation de la valeur de CMT le 16 Septembre 2026 » — décision du 15/09. Il y
+  a donc un délai pour préparer le registre, à condition de lire la pièce. Les
+  avis AMMC sont accessibles en automatique depuis le dépôt (vérifié : HTTP 200
+  sur les deux PDF).
+- **Un avis AMMC recoupe notre référentiel d'actions.** La décision publie la
+  répartition du capital et son total. Pour CMT, 1 681 233 — le même nombre que
+  celui relevé au rapport annuel dans `faits_financiers.json`. Deux sources
+  indépendantes qui tombent juste valent mieux qu'une source répétée deux fois.

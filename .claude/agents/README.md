@@ -8,7 +8,7 @@ et les corrections qui se marchent dessus.
 |---|---|---|
 | `gardien-donnees` | publier ou refuser un jeu de données | comment corriger le code |
 | `veilleur-sources` | l'état de santé des sources | l'écriture du pipeline |
-| `relecteur-pipeline` | la conformité d'un diff aux règles R1–R10 | le contenu fonctionnel |
+| `relecteur-pipeline` | la conformité d'un diff aux règles R1–R11 | le contenu fonctionnel |
 | `ingenieur-tests` | ce qui est vérifié automatiquement | les règles métier elles-mêmes |
 | `analyste-nlp` | le calcul du champ `nlp` | la pondération du score (R8) |
 | `quant-backtest` | la mesure de performance | la modification du scoring (R8) |
