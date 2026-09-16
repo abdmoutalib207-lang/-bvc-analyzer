@@ -309,8 +309,14 @@ async function fetchMed24Raw(sym,days){
 
 // fetchChart: pipeline/candles EN PREMIER (OHLCV réel) + enrichissement Médias24 si données manquantes
 async function fetchChart(sym,range){
-  const daysMap={"5d":7,"1mo":30,"3mo":90,"6mo":180,"1y":365};
-  const days=daysMap[range]||90;
+  /* ⚠️ La fenêtre la plus longue s'arrêtait à 365 jours alors que les fichiers
+     de pipeline/candles/ en portent bien davantage — 802 séances pour 31 titres
+     (depuis juin 2023) et 1 175 pour TGCC (depuis décembre 2021), médiane 548.
+     Plus de la moitié de l'historique collecté était donc invisible à l'écran.
+     `null` = aucune borne : on montre ce que le fichier contient, sans jamais
+     prolonger la série au-delà. */
+  const daysMap={"5d":7,"1mo":30,"3mo":90,"6mo":180,"1y":365,"3y":1095,"max":null};
+  const days=range in daysMap?daysMap[range]:90;
   const _dCas=new Date(new Date().toLocaleString("en-US",{timeZone:"Africa/Casablanca"}));
   const todayStr=`${_dCas.getFullYear()}-${String(_dCas.getMonth()+1).padStart(2,"0")}-${String(_dCas.getDate()).padStart(2,"0")}`;
 
@@ -347,8 +353,11 @@ async function fetchChart(sym,range){
 
   // 3. Filtrer par fenêtre temporelle et convertir au format ApexCharts
   if(local.length>=5){
-    const cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);
-    const filtered=local.filter(c=>new Date(c.d)>=cutoff);
+    let filtered=local;
+    if(days!=null){
+      const cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);
+      filtered=local.filter(c=>new Date(c.d)>=cutoff);
+    }
     if(filtered.length>=5){
       let prevClose=null;
       return filtered.map(c=>{
@@ -363,7 +372,7 @@ async function fetchChart(sym,range){
   }
 
   // 4. Secours total : Médias24 (close uniquement)
-  return fetchMed24History(sym,days);
+  return fetchMed24History(sym,days!=null?days:1825);
 }
 
 // ── MARKET STATUS (BVC Casablanca, UTC+1 toute l'année) ───────────────────────
@@ -753,7 +762,7 @@ const StockChart=({r})=>{
   const [showIchi,setShowIchi]=useState(false);
   const [showSR,setShowSR]=useState(true);
   const sym=r.symbol||r.ticker;
-  const rangeMap={"5J":"5d","1M":"1mo","3M":"3mo","6M":"6mo","1A":"1y"};
+  const rangeMap={"5J":"5d","1M":"1mo","3M":"3mo","6M":"6mo","1A":"1y","3A":"3y","TOUT":"max"};
   const toDate=ts=>{const d=new Date(ts);return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;};
   const mapS=(fn)=>liveCandles.map((c,i)=>{const v=fn(i);return v!=null?{time:toDate(c.x),value:v}:null;}).filter(Boolean);
 
@@ -890,7 +899,7 @@ const StockChart=({r})=>{
     <div>
       <div style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
         <span style={{fontSize:10,color:"#8892a4"}}>PÉRIODE</span>
-        {["5J","1M","3M","6M","1A"].map(p=>(
+        {["5J","1M","3M","6M","1A","3A","TOUT"].map(p=>(
           <button key={p} onClick={()=>changePeriod(p)} style={{background:period===p?"rgba(77,184,255,.15)":"transparent",border:period===p?"1px solid rgba(77,184,255,.4)":"1px solid #1a2540",color:period===p?"#4db8ff":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>{p}</button>
         ))}
         <span style={{color:"#1a2540",margin:"0 2px"}}>|</span>
@@ -1389,9 +1398,15 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
   const sym=r.symbol||r.ticker;
   const rsiVal=r.rsi||r.rsi14||50;
 
-  const visRows=detSearch.trim()
+  /* Les pastilles du filtre suivaient l'ordre du CLASSEMENT — donc un ordre qui
+     change à chaque run. On cherche un titre par son nom, pas par son rang :
+     l'ordre alphabétique est le seul stable. `[...rows]` : `rows` est la liste
+     du classement, la trier en place la réordonnerait aussi dans l'onglet
+     CLASSEMENT. Le tri porte sur le code AFFICHÉ (`tk`), pas sur le symbole
+     interne, sinon l'œil ne suit pas. */
+  const visRows=(detSearch.trim()
     ? rows.filter(d=>{const q=detSearch.trim().toUpperCase();return (d.symbol||d.ticker||"").includes(q)||tk(d).includes(q)||(d.name||"").toUpperCase().includes(q);})
-    : rows;
+    : [...rows]).sort((a,b)=>tk(a).localeCompare(tk(b)));
 
   return(
     <div>
