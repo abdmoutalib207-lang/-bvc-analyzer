@@ -1,14 +1,30 @@
 {
- "_quoi": "Relevé automatique sur les rapports annuels AMMC — nombre d'actions et résultat net part du groupe.",
+ "_quoi": "Relevé automatique sur les rapports annuels AMMC — nombre d'actions, résultat net part du groupe et capitaux propres part du groupe.",
  "_avertissement": "⚠️ Signale les titres à OUVRIR. Aucun de ces chiffres n'entre dans faits_financiers.json sans une lecture à la main et sa page. Les mises en page varient : ce qui n'a pas pu être lu est DIT, pas comblé.",
- "_releve_le": "2026-09-08",
+ "_unite_non_tranchee": "⚠️ `capitaux_propres_part_groupe.valeur_lue` est le nombre tel qu'il figure sur la ligne. Son UNITÉ (MAD, KMAD, MMAD) n'est PAS tranchée ici : `unites_sur_la_page` ne fait que citer ce que la page mentionne. Trancher au jugé mettrait un facteur 1 000 dans le P/BOOK sans bruit.",
+ "_releve_le": "2026-09-16",
  "_echecs": [],
  "emetteurs": {
   "ADH": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Addoha_RFA_2025.pdf",
    "fichier": "Addoha_RFA_2025.pdf",
    "faits": {
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 9481694524.0,
+     "page": 53,
+     "brut": "CAPITAUX PROPRES PART DU GROUPE 9.481.694.524 9.319.494.058",
+     "etiquette": "CAPITAUX PROPRES PART DU GROUPE",
+     "nombres_de_la_ligne": [
+      9481694524.0,
+      9319494058.0
+     ],
+     "unites_sur_la_page": [
+      "MAD"
+     ],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
+    },
     "rnpg": {
      "valeur": 454.0,
      "page": 73,
@@ -17,6 +33,7 @@
    }
   },
   "AFI": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf",
    "fichier": "AFI_RFA_2025.pdf",
@@ -29,18 +46,33 @@
      "valeur": 291500,
      "page": 3,
      "deduit": "capital ÷ nominale 50",
-     "arbitre": "capitalisation ÷ cours = 291 116 (écart 0.1%)"
+     "arbitre": "capitalisation ÷ cours = 291 291 (écart 0.1%)"
     }
    },
    "actions_rapport_sur_marche": 1.001
   },
   "AKD": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf",
    "fichier": "Akdital_RFA_2025.pdf",
-   "faits": {}
+   "faits": {
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 2853529135.0,
+     "page": 78,
+     "brut": "Dont : Capitaux propres part du groupe 2 853 529 135 2 583 560 166",
+     "etiquette": "Capitaux propres part du groupe",
+     "nombres_de_la_ligne": [
+      2853529135.0,
+      2583560166.0
+     ],
+     "unites_sur_la_page": [],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
+    }
+   }
   },
   "ARD": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Aradei_Capital_RFA_2025.pdf",
    "fichier": "Aradei_Capital_RFA_2025.pdf",
@@ -49,14 +81,31 @@
      "valeur": 12568130.0,
      "page": 6
     },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 5444531.0,
+     "page": 6,
+     "brut": "Capitaux propres part du groupe 5 444 531 5 191 827 4 500 158",
+     "etiquette": "Capitaux propres part du groupe",
+     "nombres_de_la_ligne": [
+      5444531.0,
+      5191827.0,
+      4500158.0
+     ],
+     "unites_sur_la_page": [
+      "KMAD",
+      "MAD"
+     ],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
+    },
     "nombre_actions_indeterminable": {
      "capital_social": 12568130.0,
-     "actions_selon_marche": 12568182,
+     "actions_selon_marche": 12568889,
      "raison": "aucune nominale ne colle au marché (meilleur écart 90%)"
     }
    }
   },
   "ATL": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf",
    "fichier": "AtlantaSanad_RFA_2025.pdf",
@@ -65,16 +114,29 @@
      "valeur": 602835950.0,
      "page": 121
     },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 2481937.0,
+     "page": 140,
+     "brut": "Dont : Capitaux propres part du groupe 2 481 937 2 367 730",
+     "etiquette": "Capitaux propres part du groupe",
+     "nombres_de_la_ligne": [
+      2481937.0,
+      2367730.0
+     ],
+     "unites_sur_la_page": [],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
+    },
     "nombre_actions": {
      "valeur": 60283595,
      "page": 121,
      "deduit": "capital ÷ nominale 10",
-     "arbitre": "capitalisation ÷ cours = 60 282 486 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 60 282 258 (écart 0.0%)"
     }
    },
    "actions_rapport_sur_marche": 1.0
   },
   "ATW": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
    "fichier": "AWB_RFA_2025.pdf",
@@ -86,6 +148,7 @@
    }
   },
   "BMC": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf",
    "fichier": "BMCI_RFA_2025.pdf",
@@ -98,6 +161,7 @@
    "actions_rapport_sur_marche": 1.0
   },
   "CASH": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Cash_Plus_RFA_2025.pdf",
    "fichier": "Cash_Plus_RFA_2025.pdf",
@@ -110,12 +174,13 @@
      "valeur": 24553090,
      "page": 50,
      "deduit": "capital ÷ nominale 10",
-     "arbitre": "capitalisation ÷ cours = 24 551 349 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 24 554 585 (écart 0.0%)"
     }
    },
    "actions_rapport_sur_marche": 1.0
   },
   "CMGP": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/CMGP_RFA_2025.pdf",
    "fichier": "CMGP_RFA_2025.pdf",
@@ -123,6 +188,20 @@
     "capital_social": {
      "valeur": 1700090000.0,
      "page": 54
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 2788340389.0,
+     "page": 68,
+     "brut": "TOTAL CAPITAUX PROPRES PART GROUPE 2 788 340 389 2 634 396 857",
+     "etiquette": "CAPITAUX PROPRES PART GROUPE",
+     "nombres_de_la_ligne": [
+      2788340389.0,
+      2634396857.0
+     ],
+     "unites_sur_la_page": [
+      "MAD"
+     ],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
     },
     "nombre_actions": {
      "valeur": 17000900.0,
@@ -132,6 +211,7 @@
    "actions_rapport_sur_marche": 1.0
   },
   "CMT": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/CMT_RFA_2025.pdf",
    "fichier": "CMT_RFA_2025.pdf",
@@ -139,6 +219,18 @@
     "capital_social": {
      "valeur": 168123300.0,
      "page": 39
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 901142608.0,
+     "page": 57,
+     "brut": "Capitaux propres (Part du groupe) 901 142 608 722 030 805",
+     "etiquette": "Capitaux propres (Part du groupe",
+     "nombres_de_la_ligne": [
+      901142608.0,
+      722030805.0
+     ],
+     "unites_sur_la_page": [],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
     },
     "rnpg": {
      "valeur": 196465103.0,
@@ -154,14 +246,15 @@
    },
    "actions_rapport_sur_marche": 1.0,
    "coherence": {
-    "bpa_publie": 435.56,
+    "bpa_publie": 116.86,
     "actions": 1681233,
     "rnpg_rapport": 196465103.0,
-    "ecart_min_relatif": 0.996,
-    "facteur_bpa_actions_sur_rnpg": 3.73
+    "ecart_min_relatif": 0.0,
+    "facteur_bpa_actions_sur_rnpg": 1.0
    }
   },
   "COL": {
+   "_version_balayage": 3,
    "exercice": 2024,
    "url": "https://www.ammc.ma/sites/default/files/Colorado_RFA_2024.pdf",
    "fichier": "Colorado_RFA_2024.pdf",
@@ -174,12 +267,13 @@
      "valeur": 16117611,
      "page": 4,
      "deduit": "capital ÷ nominale 10",
-     "arbitre": "capitalisation ÷ cours = 16 123 457 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 16 111 254 (écart 0.0%)"
     }
    },
    "actions_rapport_sur_marche": 1.0
   },
   "CSR": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Cosumar_RFA_2025.pdf",
    "fichier": "Cosumar_RFA_2025.pdf",
@@ -189,6 +283,20 @@
      "page": 131,
      "brut": "Résultat net part du groupe 703,7 850,4 -146,7 -17,2"
     },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 5633.8,
+     "page": 131,
+     "brut": "Capitaux propres - part du Groupe 5 633,8 5 878,5 -244,7 -4,2",
+     "etiquette": "Capitaux propres - part du Groupe",
+     "nombres_de_la_ligne": [
+      5633.8,
+      5878.5,
+      244.7,
+      4.2
+     ],
+     "unites_sur_la_page": [],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
+    },
     "capital_social": {
      "valeur": 944871430.0,
      "page": 137
@@ -197,25 +305,27 @@
      "valeur": 94487143,
      "page": 137,
      "deduit": "capital ÷ nominale 10",
-     "arbitre": "capitalisation ÷ cours = 94 489 691 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 94 489 247 (écart 0.0%)"
     }
    },
    "actions_rapport_sur_marche": 1.0,
    "coherence": {
-    "bpa_publie": 11,
+    "bpa_publie": 7.45,
     "actions": 94487143,
     "rnpg_rapport": 703.7,
-    "ecart_min_relatif": 0.477,
-    "facteur_bpa_actions_sur_rnpg": 1476991.01
+    "ecart_min_relatif": 0.0,
+    "facteur_bpa_actions_sur_rnpg": 1000325.73
    }
   },
   "EQD": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Eqdom_RFA_2025.pdf",
    "fichier": "Eqdom_RFA_2025.pdf",
    "faits": {}
   },
   "FNB": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Fenie_Brossette_RFA_2025.pdf",
    "fichier": "Fenie_Brossette_RFA_2025.pdf",
@@ -228,12 +338,13 @@
      "valeur": 1438984,
      "page": 43,
      "deduit": "capital ÷ nominale 100",
-     "arbitre": "capitalisation ÷ cours = 1 438 887 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 1 437 681 (écart 0.1%)"
     }
    },
-   "actions_rapport_sur_marche": 1.0
+   "actions_rapport_sur_marche": 1.001
   },
   "HPS": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/HPS_RFA_2025.pdf",
    "fichier": "HPS_RFA_2025.pdf",
@@ -247,23 +358,36 @@
      "valeur": 74061900.0,
      "page": 54
     },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 816636777.0,
+     "page": 58,
+     "brut": "CAPITAUX PROPRES PART DU GROUPE 816 636 777 774 719 895",
+     "etiquette": "CAPITAUX PROPRES PART DU GROUPE",
+     "nombres_de_la_ligne": [
+      816636777.0,
+      774719895.0
+     ],
+     "unites_sur_la_page": [],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
+    },
     "nombre_actions": {
      "valeur": 7406190,
      "page": 54,
      "deduit": "capital ÷ nominale 10",
-     "arbitre": "capitalisation ÷ cours = 7 406 577 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 7 405 864 (écart 0.0%)"
     }
    },
    "actions_rapport_sur_marche": 1.0,
    "coherence": {
-    "bpa_publie": 28.4,
+    "bpa_publie": 14.31,
     "actions": 7406190,
     "rnpg_rapport": 106.0,
-    "ecart_min_relatif": 0.984,
-    "facteur_bpa_actions_sur_rnpg": 1984299.96
+    "ecart_min_relatif": 0.0,
+    "facteur_bpa_actions_sur_rnpg": 999835.65
    }
   },
   "LES": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Lesieur_Cristal_RFA_2025.pdf",
    "fichier": "Lesieur_Cristal_RFA_2025.pdf",
@@ -272,16 +396,29 @@
      "valeur": 276315100.0,
      "page": 70
     },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 1672.0,
+     "page": 81,
+     "brut": "Capitaux propres attribuables aux actionnaires ordinaires de la société mère 1 672 1 768",
+     "etiquette": "Capitaux propres attribuables aux actionnaires",
+     "nombres_de_la_ligne": [
+      1672.0,
+      1768.0
+     ],
+     "unites_sur_la_page": [],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
+    },
     "nombre_actions": {
      "valeur": 27631510,
      "page": 70,
      "deduit": "capital ÷ nominale 10",
-     "arbitre": "capitalisation ÷ cours = 27 630 000 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 27 632 787 (écart 0.0%)"
     }
    },
    "actions_rapport_sur_marche": 1.0
   },
   "MDP": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf",
    "fichier": "Med_Paper_RFA_2025.pdf",
@@ -294,18 +431,20 @@
      "valeur": 4783823,
      "page": 38,
      "deduit": "capital ÷ nominale 10",
-     "arbitre": "capitalisation ÷ cours = 4 784 314 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 4 763 811 (écart 0.4%)"
     }
    },
-   "actions_rapport_sur_marche": 1.0
+   "actions_rapport_sur_marche": 1.004
   },
   "MIC": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Microdata_RFA_2025.pdf",
    "fichier": "Microdata_RFA_2025.pdf",
    "faits": {}
   },
   "MNG": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Managem_RFA_2025.pdf",
    "fichier": "Managem_RFA_2025.pdf",
@@ -322,10 +461,25 @@
     "nombre_actions": {
      "valeur": 11864676.0,
      "page": 98
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 10687.7,
+     "page": 102,
+     "brut": "Capitaux propres consolidés Part du Groupe début d'exercice 10 687,7 7 565,0",
+     "etiquette": "Capitaux propres consolidés Part du Groupe",
+     "nombres_de_la_ligne": [
+      10687.7,
+      7565.0
+     ],
+     "unites_sur_la_page": [
+      "MMAD",
+      "MAD"
+     ],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
     }
    },
    "actions_rapport_sur_marche": 0.1,
-   "alerte": "nombre d'actions du rapport (11 864 676) contre le marché (118 646 825) — rapport 0.10. Opération sur titres entre la date du rapport et aujourd'hui ?",
+   "alerte": "nombre d'actions du rapport (11 864 676) contre le marché (118 646 914) — rapport 0.10. Opération sur titres entre la date du rapport et aujourd'hui ?",
    "coherence": {
     "bpa_publie": 25.3,
     "actions": 11864676.0,
@@ -335,6 +489,7 @@
    }
   },
   "MRL": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/MLE_RFA_2025.pdf",
    "fichier": "MLE_RFA_2025.pdf",
@@ -347,12 +502,13 @@
      "valeur": 2776768,
      "page": 4,
      "deduit": "capital ÷ nominale 100",
-     "arbitre": "capitalisation ÷ cours = 2 777 849 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 2 776 567 (écart 0.0%)"
     }
    },
    "actions_rapport_sur_marche": 1.0
   },
   "MSA": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Marsa_RFA_2025.pdf",
    "fichier": "Marsa_RFA_2025.pdf",
@@ -370,7 +526,7 @@
      "valeur": 73395600,
      "page": 136,
      "deduit": "capital ÷ nominale 10",
-     "arbitre": "capitalisation ÷ cours = 73 395 402 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 73 395 642 (écart 0.0%)"
     }
    },
    "actions_rapport_sur_marche": 1.0,
@@ -383,6 +539,7 @@
    }
   },
   "MUT": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Mutandis_RFA_2025.pdf",
    "fichier": "Mutandis_RFA_2025.pdf",
@@ -391,22 +548,40 @@
      "valeur": 924673700.0,
      "page": 42
     },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 1562845.0,
+     "page": 54,
+     "brut": "Total Capitaux propres, part du groupe 1 562 845 1 551 387 Impôts sur les bénéfices -44 004 -48 809",
+     "etiquette": "Capitaux propres, part du groupe",
+     "nombres_de_la_ligne": [
+      1562845.0,
+      1551387.0,
+      44004.0,
+      48809.0
+     ],
+     "unites_sur_la_page": [
+      "KMAD"
+     ],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
+    },
     "nombre_actions": {
      "valeur": 9246737,
      "page": 42,
      "deduit": "capital ÷ nominale 100",
-     "arbitre": "capitalisation ÷ cours = 9 246 312 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 9 246 144 (écart 0.0%)"
     }
    },
    "actions_rapport_sur_marche": 1.0
   },
   "PPM": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf",
    "fichier": "Promopharm_RFA_2025.pdf",
    "faits": {}
   },
   "RDS": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/RDS_RFA_2025.pdf",
    "fichier": "RDS_RFA_2025.pdf",
@@ -414,6 +589,18 @@
     "nombre_actions": {
      "valeur": 26208850.0,
      "page": 23
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 3739480.0,
+     "page": 26,
+     "brut": "CAPITAUX PROPRES PART GROUPE 3.739.480 3.735.121",
+     "etiquette": "CAPITAUX PROPRES PART GROUPE",
+     "nombres_de_la_ligne": [
+      3739480.0,
+      3735121.0
+     ],
+     "unites_sur_la_page": [],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
     },
     "capital_social": {
      "valeur": 1310442500.0,
@@ -423,10 +610,27 @@
    "actions_rapport_sur_marche": 1.0
   },
   "RIS": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Risma_RFA_2025.pdf",
    "fichier": "Risma_RFA_2025.pdf",
    "faits": {
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 1581198.0,
+     "page": 36,
+     "brut": "Capitaux Propres Part Groupe 1 581 198 1 687 900 INTÉRÊTS",
+     "etiquette": "Capitaux Propres Part Groupe",
+     "nombres_de_la_ligne": [
+      1581198.0,
+      1687900.0
+     ],
+     "unites_sur_la_page": [
+      "KMAD",
+      "MMAD",
+      "MAD"
+     ],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
+    },
     "capital_social": {
      "valeur": 14326947.0,
      "page": 45
@@ -443,14 +647,15 @@
    },
    "actions_rapport_sur_marche": 0.895,
    "coherence": {
-    "bpa_publie": 23.1,
+    "bpa_publie": 16.84,
     "actions": 14326947.0,
     "rnpg_rapport": 270.0,
-    "ecart_min_relatif": 0.226,
-    "facteur_bpa_actions_sur_rnpg": 1225749.91
+    "ecart_min_relatif": 0.106,
+    "facteur_bpa_actions_sur_rnpg": 893576.99
    }
   },
   "SGTM": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/SGTM_RFA_2025.pdf",
    "fichier": "SGTM_RFA_2025.pdf",
@@ -458,6 +663,20 @@
     "capital_social": {
      "valeur": 1200000000.0,
      "page": 62
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 3550399.0,
+     "page": 87,
+     "brut": "Total actif immobilisé 2 076 888 2 016 674 Dont : Capitaux propres part du groupe 3 550 399 2 619 799",
+     "etiquette": "Capitaux propres part du groupe",
+     "nombres_de_la_ligne": [
+      2076888.0,
+      2016674.0,
+      3550399.0,
+      2619799.0
+     ],
+     "unites_sur_la_page": [],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
     },
     "nombre_actions_indeterminable": {
      "capital_social": 1200000000.0,
@@ -467,6 +686,7 @@
    }
   },
   "SLM": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Salafin_RFA_2025.pdf",
    "fichier": "Salafin_RFA_2025.pdf",
@@ -479,6 +699,7 @@
    "actions_rapport_sur_marche": 1.0
   },
   "SMI": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/SMI_RFA_2025.pdf",
    "fichier": "SMI_RFA_2025.pdf",
@@ -491,12 +712,13 @@
      "valeur": 1645090,
      "page": 43,
      "deduit": "capital ÷ nominale 100",
-     "arbitre": "capitalisation ÷ cours = 1 645 060 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 1 645 076 (écart 0.0%)"
     }
    },
    "actions_rapport_sur_marche": 1.0
   },
   "SNA": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Sonasid_RFA_2025.pdf",
    "fichier": "Sonasid_RFA_2025.pdf",
@@ -514,19 +736,20 @@
      "valeur": 3900000,
      "page": 57,
      "deduit": "capital ÷ nominale 100",
-     "arbitre": "capitalisation ÷ cours = 3 900 000 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 3 899 728 (écart 0.0%)"
     }
    },
    "actions_rapport_sur_marche": 1.0,
    "coherence": {
-    "bpa_publie": 148.1,
+    "bpa_publie": 69.69,
     "actions": 3900000,
     "rnpg_rapport": 271.8,
-    "ecart_min_relatif": 1.125,
-    "facteur_bpa_actions_sur_rnpg": 2125055.19
+    "ecart_min_relatif": 0.0,
+    "facteur_bpa_actions_sur_rnpg": 999966.89
    }
   },
   "SNP": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/SNEP_RFA_2025.pdf",
    "fichier": "SNEP_RFA_2025.pdf",
@@ -535,16 +758,32 @@
      "valeur": 240000000.0,
      "page": 35
     },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 487051672.0,
+     "page": 50,
+     "brut": "Capitaux propres part du Groupe 487 051 672 236 -185 185",
+     "etiquette": "Capitaux propres part du Groupe",
+     "nombres_de_la_ligne": [
+      487051672.0,
+      236.0,
+      185185.0
+     ],
+     "unites_sur_la_page": [
+      "MAD"
+     ],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
+    },
     "nombre_actions": {
      "valeur": 2400000,
      "page": 35,
      "deduit": "capital ÷ nominale 100",
-     "arbitre": "capitalisation ÷ cours = 2 400 000 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 2 398 754 (écart 0.1%)"
     }
    },
-   "actions_rapport_sur_marche": 1.0
+   "actions_rapport_sur_marche": 1.001
   },
   "SOT": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Sothema_RFA_2025.pdf",
    "fichier": "Sothema_RFA_2025.pdf",
@@ -558,28 +797,46 @@
      "valeur": 380336400.0,
      "page": 50
     },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 2619648.0,
+     "page": 52,
+     "brut": "Entité Activité Méthode de consolidation Capitaux propres, part du groupe 2 619 648 1 684 172",
+     "etiquette": "Capitaux propres, part du groupe",
+     "nombres_de_la_ligne": [
+      2619648.0,
+      1684172.0
+     ],
+     "unites_sur_la_page": [
+      "KMAD",
+      "MMAD",
+      "MAD"
+     ],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
+    },
     "nombre_actions": {
      "valeur": 7606728.0,
      "page": 53
     }
    },
    "actions_rapport_sur_marche": 0.199,
-   "alerte": "nombre d'actions du rapport (7 606 728) contre le marché (38 308 416) — rapport 0.20. Opération sur titres entre la date du rapport et aujourd'hui ?",
+   "alerte": "nombre d'actions du rapport (7 606 728) contre le marché (38 309 589) — rapport 0.20. Opération sur titres entre la date du rapport et aujourd'hui ?",
    "coherence": {
-    "bpa_publie": 32.0,
+    "bpa_publie": 10.14,
     "actions": 7606728.0,
     "rnpg_rapport": 418.0,
-    "ecart_min_relatif": 0.418,
-    "facteur_bpa_actions_sur_rnpg": 582333.24
+    "ecart_min_relatif": 0.815,
+    "facteur_bpa_actions_sur_rnpg": 184526.85
    }
   },
   "STR": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Stroc_RFA_2025.pdf",
    "fichier": "Stroc_RFA_2025.pdf",
    "faits": {}
   },
   "TGCC": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/TGCC_RFA_2025.pdf",
    "fichier": "TGCC_RFA_2025.pdf",
@@ -587,6 +844,20 @@
     "capital_social": {
      "valeur": 2199999450.0,
      "page": 64
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 4544126.0,
+     "page": 96,
+     "brut": "Capitaux Propres Part Groupe 4 544 126 1 761 218",
+     "etiquette": "Capitaux Propres Part Groupe",
+     "nombres_de_la_ligne": [
+      4544126.0,
+      1761218.0
+     ],
+     "unites_sur_la_page": [
+      "KMAD"
+     ],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
     },
     "nombre_actions": {
      "valeur": 34674332.0,
@@ -596,6 +867,7 @@
    "actions_rapport_sur_marche": 1.0
   },
   "TQA": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Taqa_Morocco_RFA_2025.pdf",
    "fichier": "Taqa_Morocco_RFA_2025.pdf",
@@ -609,27 +881,62 @@
      "valeur": 2358854200.0,
      "page": 84
     },
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 6773.0,
+     "page": 104,
+     "brut": "Résultat avant impôts 1 985 2 097 -113 -5,36% Capitaux propres Part du Groupe 6 773 6 665 1,62%",
+     "etiquette": "Capitaux propres Part du Groupe",
+     "nombres_de_la_ligne": [
+      1985.0,
+      2097.0,
+      113.0,
+      5.36,
+      6773.0,
+      6665.0
+     ],
+     "unites_sur_la_page": [
+      "MMAD",
+      "MAD"
+     ],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
+    },
     "nombre_actions": {
      "valeur": 23588542,
      "page": 84,
      "deduit": "capital ÷ nominale 100",
-     "arbitre": "capitalisation ÷ cours = 23 588 764 (écart 0.0%)"
+     "arbitre": "capitalisation ÷ cours = 23 588 769 (écart 0.0%)"
     }
    },
    "actions_rapport_sur_marche": 1.0,
    "coherence": {
-    "bpa_publie": 63.4,
+    "bpa_publie": 41.58,
     "actions": 23588542,
     "rnpg_rapport": 981.0,
-    "ecart_min_relatif": 0.524,
-    "facteur_bpa_actions_sur_rnpg": 1524478.66
+    "ecart_min_relatif": 0.0,
+    "facteur_bpa_actions_sur_rnpg": 999807.93
    }
   },
   "WAF": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf",
    "fichier": "Wafa_Assurance_RFA_2025.pdf",
    "faits": {
+    "capitaux_propres_part_groupe": {
+     "valeur_lue": 14960337.0,
+     "page": 16,
+     "brut": "Capitaux propres-part du groupe 14 960 337 12 566 785 10 894 830",
+     "etiquette": "Capitaux propres-part du groupe",
+     "nombres_de_la_ligne": [
+      14960337.0,
+      12566785.0,
+      10894830.0
+     ],
+     "unites_sur_la_page": [
+      "KMAD"
+     ],
+     "⚠️": "valeur LUE. Ni l'unité ni l'exercice ne sont tranchés ici — à confirmer sur la page avant tout usage."
+    },
     "rnpg": {
      "valeur": 821684.0,
      "page": 33,
@@ -638,6 +945,7 @@
    }
   },
   "ZLD": {
+   "_version_balayage": 3,
    "exercice": 2025,
    "url": "https://www.ammc.ma/sites/default/files/Zellidja_RFA_2025.pdf",
    "fichier": "Zellidja_RFA_2025.pdf",
@@ -650,7 +958,7 @@
      "valeur": 572849,
      "page": 33,
      "deduit": "capital ÷ nominale 100",
-     "arbitre": "capitalisation ÷ cours = 571 906 (écart 0.2%)"
+     "arbitre": "capitalisation ÷ cours = 571 942 (écart 0.2%)"
     }
    },
    "actions_rapport_sur_marche": 1.002
