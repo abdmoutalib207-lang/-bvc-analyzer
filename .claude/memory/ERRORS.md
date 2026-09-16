@@ -384,3 +384,42 @@ et le laisser tel quel. `DEJA_PSEUDO` + un test dédié.
   `refs/pull/N/head` ne se suppriment PAS — seul GitHub Support les purge.
 - **Reste ouvert** : demande à GitHub Support pour purger `refs/pull/8` et
   `refs/pull/9`, qui exposent encore 2 013 personnes et 588 numéros.
+
+---
+
+## Famille — Un contrôle qui ne mord plus (16/09/2026)
+
+### Le cliquet laissé à 21 quand le référentiel en portait 30
+Le plancher « au moins 21 émetteurs avec des fonds propres » protégeait contre
+une régression. Après le lot suivant il y en avait 30 : retirer un fait
+laissait le test vert.
+**Cause** : un plancher est une mesure datée, pas une règle. Il vieillit dès
+que le travail avance.
+**Signal** : la mutation « retirer un fait » est passée verte alors qu'elle
+était rouge la veille.
+**Correctif** : remonter le plancher à chaque lot. **Un cliquet qu'on oublie de
+remonter n'est plus un cliquet.**
+
+### Deux défauts que la vérification par mutation a seuls révélés
+Le contrôle de citation renonçait devant un jeton de douze chiffres — donc
+devant exactement les lignes les plus difficiles. Conséquence : prendre le
+total consolidé pour la part du groupe (CFG Bank), ou lire deux colonnes
+recollées comme un seul montant (CTM, mille fois trop), ne déclenchait rien.
+**Leçon** : un contrôle qui s'abstient sur les cas durs contrôle les cas
+faciles. Compter combien de fois il s'applique, et l'inscrire dans le test.
+
+### Le millésime 2075
+`Communique%20Visa%20CIH%20AUK%20750.pdf` contient « 2075 » — dans
+l'échappement d'une espace, pas dans une date. Cet exercice imaginaire devenait
+le plus récent et écrasait 2025 : CIH Bank était déclarée sans rapport annuel
+alors que le sien est servi.
+**Leçon** : borner ce qu'on accepte comme une année. Un motif `20\d\d` trouve
+des années partout, y compris là où il n'y en a pas.
+
+### J'ai annulé un cycle d'intégration qui se portait bien
+Croyant voir une étape bloquée « depuis trente minutes », j'ai annulé un run,
+puis perdu plusieurs tentatives à le relancer. La machine se met en veille
+entre deux tours : le temps que je croyais écoulé ne l'était pas. L'étape avait
+en réalité vingt secondes.
+**Signal** : comparer `date -u` du conteneur aux horodatages de l'API AVANT de
+conclure qu'un travail est bloqué.
