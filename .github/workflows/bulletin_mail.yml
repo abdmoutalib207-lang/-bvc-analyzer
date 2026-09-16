@@ -59,19 +59,36 @@ jobs:
             echo "::warning::Collecte insuffisante — bulletin non envoyé."
           fi
 
-      # ⚠️ AJOUTÉ LE 10/09/2026 — 12 exécutions, 12 ÉCHECS, ZÉRO envoi.
+      # ── LA CONFIGURATION N'EST PAS UN INCIDENT ────────────────────────
       #
-      # Depuis le 03/09, chaque tentative se terminait sur « At least one of
-      # 'to', 'cc' or 'bcc' must be specified » : le secret MAIL_TO n'est pas
-      # renseigné dans le dépôt. Le bulletin matinal — la promesse centrale du
-      # produit — n'a donc jamais été livré, une seule fois, en une semaine.
+      # ⚠️ 20 EXÉCUTIONS DEPUIS LE 03/09, 20 ÉCHECS, ZÉRO COURRIEL ENVOYÉ.
+      # Relevé le 16/09 : la totalité des exécutions de ce workflow depuis sa
+      # création. Chacune s'arrêtait ici, sur `exit 1`, et chaque `exit 1`
+      # envoie à Noure un courriel « workflow failed ». Deux par matinée
+      # ouvrée, autour de 9h et 11h à Casablanca.
       #
-      # Le message d'origine ne nommait ni le secret manquant ni le dépôt où le
-      # poser. Une alerte qu'on ne sait pas interpréter n'est pas une alerte :
-      # on la classe en « ça échoue encore » et on cesse de la lire.
+      # La version du 10/09 avait raison sur un point et tort sur l'autre.
+      # Raison : nommer le secret manquant et dire où le poser — le message
+      # d'origine ne disait ni l'un ni l'autre. Tort : ÉCHOUER pour le dire.
       #
-      # Cette étape échoue AVANT la tentative d'envoi, en disant quoi faire.
+      # Un secret absent n'est pas une panne, c'est un état de configuration.
+      # Il ne se répare pas en réessayant, et il ne changera pas parce qu'on
+      # aura crié vingt fois. Ce que produit `exit 1`, ce n'est pas une
+      # alerte : c'est un bruit quotidien qui finit par masquer les VRAIS
+      # échecs — ceux d'`update_bvc`, qui eux demandent une intervention.
+      # Le dépôt documente exactement ce piège depuis le 18/08 :
+      # « une alerte toujours allumée n'alerte plus ».
+      #
+      # Donc : tant que la configuration manque, le job se termine VERT et
+      # n'envoie rien. Ce qu'il a à dire, il le dit dans son résumé — et
+      # l'absence est consignée dans `.claude/memory/EN_COURS.md`, là où elle
+      # sera relue.
+      #
+      # ⚠️ Ce qui reste bloquant, c'est l'ENVOI. Le jour où les trois secrets
+      # existeront, un échec SMTP fera de nouveau échouer le job — celui-là
+      # est un vrai incident, et il mérite son courriel.
       - name: Vérifier la configuration du courriel
+        id: config
         if: steps.compose.outputs.envoyer == 'true'
         env:
           MAIL_TO: ${{ secrets.MAIL_TO }}
@@ -83,14 +100,16 @@ jobs:
           [ -z "$MAIL_USERNAME" ] && manquants="$manquants MAIL_USERNAME"
           [ -z "$MAIL_PASSWORD" ] && manquants="$manquants MAIL_PASSWORD"
           if [ -n "$manquants" ]; then
-            echo "::error::Bulletin NON envoyé — secret(s) absent(s) :$manquants"
+            echo "configuree=false" >> $GITHUB_OUTPUT
+            echo "::notice::Bulletin composé mais NON envoyé — secret(s) absent(s) :$manquants"
             {
-              echo "## ⚠️ Bulletin non envoyé"
+              echo "## ⏸️ Bulletin composé, envoi en attente de configuration"
               echo ""
-              echo "Secret(s) manquant(s) :\`$manquants\`"
+              echo "Le bulletin a été produit correctement. **Seul l'envoi manque.**"
               echo ""
-              echo "À renseigner dans **Settings → Secrets and variables →"
-              echo "Actions → New repository secret** :"
+              echo "Secret(s) à renseigner :\`$manquants\`"
+              echo ""
+              echo "**Settings → Secrets and variables → Actions → New repository secret**"
               echo ""
               echo "| Secret | Contenu attendu |"
               echo "|---|---|"
@@ -98,14 +117,20 @@ jobs:
               echo "| \`MAIL_USERNAME\` | l'adresse Gmail expéditrice |"
               echo "| \`MAIL_PASSWORD\` | un **mot de passe d'application** Google, pas le mot de passe du compte |"
               echo ""
-              echo "Le bulletin lui-même a été composé correctement : seul l'envoi manque."
+              echo "Ce job se termine en succès À DESSEIN : un secret absent est un"
+              echo "état de configuration, pas une panne. Le faire échouer envoyait"
+              echo "deux courriels d'alerte par matinée sans rien réparer, et noyait"
+              echo "les échecs qui, eux, demandent une intervention."
             } >> $GITHUB_STEP_SUMMARY
-            exit 1
+            exit 0
           fi
+          echo "configuree=true" >> $GITHUB_OUTPUT
           echo "Configuration du courriel complète."
 
+      # L'envoi, lui, reste bloquant : un refus du serveur SMTP est un vrai
+      # incident, et il doit se voir.
       - name: Envoyer
-        if: steps.compose.outputs.envoyer == 'true'
+        if: steps.compose.outputs.envoyer == 'true' && steps.config.outputs.configuree == 'true'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -124,8 +149,11 @@ jobs:
         if: always()
         run: |
           echo "## Bulletin quotidien" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.compose.outputs.envoyer }}" = "true" ]; then
+          if [ "${{ steps.compose.outputs.envoyer }}" != "true" ]; then
+            echo "- **Non composé** — collecte insuffisante, aucun courriel ne part." >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.config.outputs.configuree }}" = "true" ]; then
             echo "- Envoyé : \`$(cat bulletin_out/sujet.txt)\`" >> $GITHUB_STEP_SUMMARY
           else
-            echo "- **Non envoyé** — collecte insuffisante." >> $GITHUB_STEP_SUMMARY
+            echo "- Composé : \`$(cat bulletin_out/sujet.txt)\`" >> $GITHUB_STEP_SUMMARY
+            echo "- **Envoi en attente** — voir l'étape « Vérifier la configuration »." >> $GITHUB_STEP_SUMMARY
           fi

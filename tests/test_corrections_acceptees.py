@@ -89,8 +89,32 @@ def test_le_plus_bas_52_semaines_n_est_plus_un_cours_de_mutandis():
     cache = json.loads((RACINE / "pipeline" / "historical_data.json")
                        .read_text(encoding="utf-8"))["MSA"]
     assert cache["l52w"] == 702.1
-    assert cache["n_candles"] == len(json.loads(
-        (RACINE / "pipeline" / "candles" / "MSA.json").read_text(encoding="utf-8")))
+
+    # ⚠️ NE PAS COMPARER À LA LONGUEUR D'AUJOURD'HUI. Le fichier de chandelles
+    # et le cache ne sont pas écrits par le même programme : `update_data.py`
+    # ajoute la séance du jour à chaque run, `historical_data.json` n'est
+    # réécrit que par `collect_history_bvcscrap.py`. Le premier est donc
+    # légitimement EN AVANCE sur le second.
+    #
+    # Ce test comparait les deux longueurs. Il tenait tant que les deux
+    # programmes venaient de passer, et tombait dès que le moteur ajoutait une
+    # séance — 571 contre 572, mesuré le 16/09 en intégration continue. Or ce
+    # test est dans la GARDE BLOQUANTE d'`update_bvc` : il n'échouait pas tout
+    # seul, il EMPÊCHAIT LA PUBLICATION de la séance.
+    #
+    # Ce qu'il faut vérifier est ailleurs : `n_candles` doit décrire la série
+    # SOURCE et non la liste tronquée à 250 points (le piège `_CHAMPS_SERIE`
+    # du 14/08, qui faisait retomber 784 à 249). On compare donc au nombre de
+    # séances du fichier JUSQU'À la date du cache — exact, et qui ne vieillit
+    # pas.
+    serie = json.loads((RACINE / "pipeline" / "candles" / "MSA.json")
+                       .read_text(encoding="utf-8"))
+    jusqu_au_cache = [b for b in serie if b["d"] <= cache["last_date"]]
+    assert cache["n_candles"] == len(jusqu_au_cache), (
+        f"le cache annonce {cache['n_candles']} séances au {cache['last_date']}, "
+        f"le fichier en porte {len(jusqu_au_cache)} à cette date")
+    assert cache["n_candles"] > len(cache["candles"]), (
+        "n_candles est retombé sur la liste tronquée — le défaut du 14/08")
 
 
 # ── Le comportement : la correction résiste au réimport ────────────────────
