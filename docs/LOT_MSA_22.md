@@ -1,6 +1,26 @@
 # Lot candidat MSA — 22 séances contaminées
 
-État : **candidat vérifié, non appliqué aux données servies**.
+État : **RÉCEPTIONNÉ ET APPLIQUÉ** — le 15/09/2026, sur instruction de Noure
+(« Ok pour Marsa »). Les 22 séances sont dans `datasets/corrections_acceptees/MSA.json`,
+réimposées après chaque import, et elles sont dans les indicateurs publiés.
+
+⚠️ CETTE LIGNE A DIT LE CONTRAIRE PENDANT UNE JOURNÉE, et cela a induit un audit
+externe en erreur. Le 16/09, un diagnostic a conclu que « l'intégration du
+correctif dans le chemin de cache/production n'est pas démontrée par le résultat
+publié » — en s'appuyant sur cette phrase, qui n'avait pas été remise à jour au
+moment de l'application. Le fichier disait « non appliqué » alors que la
+correction l'était.
+
+**La preuve tient en un chiffre.** La MA200 publiée vaut 874,52. Recalculée
+indépendamment : 873,97 sur la série corrigée (avec la séance du 16/09), et
+**808,57 sur la série non corrigée**. Une MA200 à 874 ne peut pas sortir d'une
+série qui en donnerait 808. De même, le RSI publié de 38,6 est exactement celui
+de la série CORRIGÉE arrêtée au 15/09 — il passe à 44,5 avec la séance du 16.
+
+Leçon, et elle vaut au-delà de MSA : **un document de gouvernance qui ne suit
+pas l'état des données est pire qu'un document absent.** Celui qui le lit y
+croit, et il a raison d'y croire.
+
 Base : `50ce655486431e2986af9d62691df21e2ea735c7` (publication du 13 septembre 2026).
 Branche locale : `codex/msa-22-candidat`.
 
