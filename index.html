@@ -725,6 +725,69 @@ const RSIGauge=({value})=>{
   );
 };
 
+/* ── RED FLAGS ───────────────────────────────────────────────────────────────
+   « Je veux une réponse sur les red flag, qu'est-ce que ça veut dire » (Noure,
+   16/09). La réponse honnête tient en trois lignes, et elle n'est pas
+   flatteuse : AUJOURD'HUI, CE NOMBRE N'EST PAS UNE MESURE.
+
+   Il est écrit à la main, titre par titre, dans la table `FOND_DATA` du
+   moteur (`update_data.py`) — la même table dont le `pb` s'est révélé être une
+   constante tapée dans le code, fausse d'un facteur 3 à 9 sur trois titres.
+   Aucun commentaire, aucun document du dépôt ne dit ce que chaque unité
+   compte. Relevé le 16/09 sur les 80 titres publiés : 65 à zéro, 7 à un, 4 à
+   deux, 2 à trois, 2 à quatre.
+
+   Ce qu'il FAIT, en revanche, est parfaitement défini et vérifiable : au-delà
+   de deux, il retire 0,30 point de note v5.3 par unité supplémentaire. Quatre
+   titres sont dans ce cas — ADH, RDS, SNA, SRM.
+
+   On l'affiche donc avec sa provenance. Publier un chiffre sans dire d'où il
+   vient est exactement ce que l'audit du 09/09 reprochait au `pb_fige` : « une
+   constante signalée comme figée reste une constante ». Le corriger demanderait
+   de définir les critères ET de rejouer le backtest, puisqu'il entre dans la
+   note — R8. Ce n'est pas un travail d'affichage. */
+const RedFlags=({n})=>{
+  const [ouvert,setOuvert]=useState(false);
+  const c=n>=3?"#ff4f5a":n>=1?"#ffd740":"#00e5a0";
+  const penalite=n>=3?-0.30*(n-2):0;
+  return(
+    <>
+      <button onClick={()=>setOuvert(v=>!v)} title="Cliquer pour savoir ce que compte ce nombre"
+        style={{fontSize:11,padding:"3px 8px",borderRadius:4,background:"#0a1220",color:c,border:`1px solid ${ouvert?c+"66":"#1a2540"}`,cursor:"pointer",fontFamily:"var(--font)"}}>
+        Red flags : {n===0?"✅ 0":"⚠️ "+n} <span style={{color:"#4a5570"}}>{ouvert?"▲":"▼"}</span>
+      </button>
+      {ouvert&&(
+        <div style={{flexBasis:"100%",background:"#0a1220",border:`1px solid ${c}33`,borderRadius:6,padding:"10px 12px",fontSize:11,lineHeight:1.7,color:"#c8d3e8",marginTop:4}}>
+          <div style={{color:c,fontWeight:700,marginBottom:6}}>Ce que ce nombre fait, et ce qu'il ne dit pas</div>
+          <div style={{marginBottom:6}}>
+            <b>Effet sur la note.</b> Au-delà de deux, chaque unité retire
+            0,30 point à la note v5.3. Ici :{" "}
+            {n<3
+              ? <span style={{color:"#00e5a0"}}>aucune pénalité ({n} &lt; 3).</span>
+              : <span style={{color:"#ff4f5a"}}>{penalite.toFixed(2)} point ({n} − 2 = {n-2} × −0,30).</span>}
+          </div>
+          <div style={{marginBottom:6}}>
+            <b>D'où il vient.</b> D'une table écrite à la main dans le moteur,
+            titre par titre. <span style={{color:"#ff8f00"}}>Il n'est calculé à partir
+            d'aucun compte, d'aucun cours, d'aucune source datée</span> — et rien,
+            dans le dépôt, ne dit ce que chaque unité compte.
+          </div>
+          <div style={{marginBottom:6}}>
+            <b>Ce qu'on en sait de sûr.</b> Sur les 80 titres publiés : 65 à
+            zéro, 7 à un, 4 à deux, 2 à trois, 2 à quatre. Quatre titres sont
+            réellement pénalisés — ADH, RDS, SNA, SRM.
+          </div>
+          <div style={{color:"#8892a4",fontSize:10}}>
+            Le rendre mesurable suppose d'en définir les critères puis de
+            rejouer le backtest, puisqu'il entre dans la note (règle R8). C'est
+            un chantier ouvert, pas un réglage d'affichage.
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
 const FibTable=({high,low,price})=>{
   const fibs=calcFib(high,low);
   return(
@@ -758,19 +821,41 @@ const StockChart=({r})=>{
   const [period,setPeriod]=useState(()=>localStorage.getItem("bvc_period")||"3M");
   const [liveCandles,setLiveCandles]=useState(null);
   const [isLive,setIsLive]=useState(false);
+  /* ⚠️ ÉTAT EXPLICITE DU GRAPHIQUE. Auparavant, l'absence de chandelles
+     s'écrivait en `innerHTML` DANS le conteneur du graphique — et personne ne
+     l'effaçait ensuite. `createChart` ajoutait le graphique SOUS le message :
+     « Données historiques non disponibles pour ce titre » restait affiché en
+     permanence, sur 220 pixels, au-dessus d'un graphique qui fonctionnait.
+     Mesuré au navigateur le 16/09 : message visible, hauteur 220 px, alors
+     que trois graphiques étaient rendus.
+     Quatre états, dont deux que l'ancien code confondait : « en cours de
+     chargement » n'est pas « indisponible ». */
+  const [etat,setEtat]=useState("chargement");   // chargement · ok · court · vide
   const [showBB,setShowBB]=useState(false);
   const [showIchi,setShowIchi]=useState(false);
   const [showSR,setShowSR]=useState(true);
+  const [showFib,setShowFib]=useState(false);
+  /* ⚠️ LES MOYENNES NE SONT PLUS TRACÉES PAR DÉFAUT. Elles l'étaient toutes
+     les deux, en permanence, et brouillaient les chandelles — c'est la demande
+     de Noure. Le choix est mémorisé : on ne le refait pas à chaque fiche. */
+  const [mas,setMas]=useState(()=>{
+    try{const v=JSON.parse(localStorage.getItem("bvc_mas")||"null");
+        if(v&&typeof v==="object")return{20:!!v[20],50:!!v[50],200:!!v[200]};}catch{}
+    return{20:false,50:false,200:false};
+  });
+  const [plein,setPlein]=useState(false);
   const sym=r.symbol||r.ticker;
   const rangeMap={"5J":"5d","1M":"1mo","3M":"3mo","6M":"6mo","1A":"1y","3A":"3y","TOUT":"max"};
   const toDate=ts=>{const d=new Date(ts);return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;};
   const mapS=(fn)=>liveCandles.map((c,i)=>{const v=fn(i);return v!=null?{time:toDate(c.x),value:v}:null;}).filter(Boolean);
+  const basculeMa=p=>setMas(m=>{const n={...m,[p]:!m[p]};try{localStorage.setItem("bvc_mas",JSON.stringify(n));}catch{}return n;});
 
   useEffect(()=>{
     let alive=true;
-    setLiveCandles(null);setIsLive(false);
+    setLiveCandles(null);setIsLive(false);setEtat("chargement");
     fetchChart(sym,rangeMap[period]||"3mo").then(c=>{
-      if(alive&&c){
+      if(!alive)return;
+      if(c){
         // Injecter la bougie du jour si la dernière candle est antérieure à aujourd'hui
         const cur=r.price||r.prix||0;
         if(c.length>0&&cur>0){
@@ -787,24 +872,35 @@ const StockChart=({r})=>{
           }
         }
         setLiveCandles(c);setIsLive(true);
+        setEtat(c.length>=5?"ok":(c.length>0?"court":"vide"));
+      }else{
+        setLiveCandles([]);setEtat("vide");
       }
-    });
+    }).catch(()=>{if(alive){setLiveCandles([]);setEtat("vide");}});
     return()=>{alive=false;};
   },[sym,period,r.live,r.price,r.vol]);
+
+  // Échap referme le plein écran — un plein écran dont on ne sort pas est un piège.
+  useEffect(()=>{
+    if(!plein)return;
+    const h=e=>{if(e.key==="Escape")setPlein(false);};
+    window.addEventListener("keydown",h);
+    return()=>window.removeEventListener("keydown",h);
+  },[plein]);
 
   useEffect(()=>{
     [chartMain,chartVol,chartMacd].forEach(ref=>{if(ref.current){ref.current.remove();ref.current=null;}});
     if(!refMain.current||!refVol.current||!refMacd.current)return;
-    if(!liveCandles||liveCandles.length<5){
-      refMain.current.innerHTML='<div style="height:220px;display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-family:var(--font)">Données historiques non disponibles pour ce titre</div>';
-      refVol.current.innerHTML='';refMacd.current.innerHTML='';
-      return;
-    }
+    // ⚠️ VIDER les conteneurs à chaque passage, y compris quand on ne dessine
+    // rien : c'est l'oubli qui laissait le message d'indisponibilité collé
+    // au-dessus du graphique.
+    refMain.current.innerHTML="";refVol.current.innerHTML="";refMacd.current.innerHTML="";
+    if(etat!=="ok"||!liveCandles||liveCandles.length<5)return;
+
     const candles=liveCandles;
     const closes=candles.map(c=>c.y[3]);
     const curPrice=closes[closes.length-1]||0;
-    const ma20=calcMA(closes,20);
-    const ma50=calcMA(closes,50);
+    const maSeries={20:calcMA(closes,20),50:calcMA(closes,50),200:calcMA(closes,200)};
     const macdData=calcMACD(closes);
     const bbData=calcBollinger(closes);
     const ichiData=calcIchimoku(candles);
@@ -813,6 +909,10 @@ const StockChart=({r})=>{
     const lwData=candles.map(c=>({time:toDate(c.x),open:c.y[0],high:c.y[1],low:c.y[2],close:c.y[3]}));
     const LW=window.LightweightCharts;
     const W=refMain.current.offsetWidth||600;
+    // En plein écran on redonne au cours la place que la fiche ne peut pas lui
+    // laisser. Les trois panneaux gardent leurs proportions.
+    const dispo=plein?Math.max(360,(window.innerHeight||800)-300):220;
+    const H={main:dispo,vol:plein?90:65,macd:plein?120:80};
     const baseOpts={
       layout:{background:{color:"#0d1829"},textColor:"#8892a4"},
       grid:{vertLines:{color:"#1a2540"},horzLines:{color:"#1a2540"}},
@@ -822,13 +922,16 @@ const StockChart=({r})=>{
       handleScale:{axisPressedMouseMove:{time:true,price:true},mouseWheel:true,pinch:true}
     };
 
-    // ── Graphique principal : chandeliers + MA ──────────────
-    const main=LW.createChart(refMain.current,{...baseOpts,width:W,height:220,rightPriceScale:{borderColor:"#1a2540"}});
+    // ── Graphique principal : chandeliers + moyennes choisies ──
+    const main=LW.createChart(refMain.current,{...baseOpts,width:W,height:H.main,rightPriceScale:{borderColor:"#1a2540"}});
     chartMain.current=main;
     const cs=main.addCandlestickSeries({upColor:"#00e5a0",downColor:"#ff4f5a",borderUpColor:"#00e5a0",borderDownColor:"#ff4f5a",wickUpColor:"#00e5a0",wickDownColor:"#ff4f5a"});
     cs.setData(lwData);
-    main.addLineSeries({color:"#4db8ff",lineWidth:1.5,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>ma20[i]));
-    main.addLineSeries({color:"#b388ff",lineWidth:1.5,lineStyle:LW.LineStyle.Dashed,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>ma50[i]));
+    const COULEUR_MA={20:"#4db8ff",50:"#b388ff",200:"#ff9800"};
+    [20,50,200].forEach(p=>{
+      if(!mas[p])return;
+      main.addLineSeries({color:COULEUR_MA[p],lineWidth:1.5,lineStyle:p===50?LW.LineStyle.Dashed:LW.LineStyle.Solid,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>maSeries[p][i]));
+    });
     if(showBB){
       main.addLineSeries({color:"#ffd740",lineWidth:1,lineStyle:LW.LineStyle.Dashed,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>bbData.upper[i]));
       main.addLineSeries({color:"#ffd740",lineWidth:1,lineStyle:LW.LineStyle.Dashed,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>bbData.lower[i]));
@@ -836,6 +939,18 @@ const StockChart=({r})=>{
     if(showIchi){
       main.addLineSeries({color:"#ff6f40",lineWidth:1.5,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>ichiData.tenkan[i]));
       main.addLineSeries({color:"#66b0ff",lineWidth:1.5,lineStyle:LW.LineStyle.Dashed,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>ichiData.kijun[i]));
+    }
+    /* ⚠️ FIBONACCI SUR LA FENÊTRE AFFICHÉE, et c'est délibéré. Le tableau de
+       la fiche, lui, retrace une plage de 90 jours figée dans data.json. Les
+       deux ne peuvent pas coïncider dès qu'on regarde autre chose que trois
+       mois — les faire passer pour la même chose tromperait l'œil. Chacun
+       porte donc sa plage en toutes lettres. */
+    if(showFib){
+      const hh=candles.reduce((m,c)=>Math.max(m,c.y[1]),-Infinity);
+      const ll=candles.reduce((m,c)=>Math.min(m,c.y[2]), Infinity);
+      if(isFinite(hh)&&isFinite(ll)&&hh>ll){
+        calcFib(hh,ll).forEach(([ratio,val])=>cs.createPriceLine({price:val,color:"#ffd74070",lineWidth:1,lineStyle:LW.LineStyle.Dotted,axisLabelVisible:true,title:`Fib ${ratio===0?"0.0":ratio===1?"1.0":ratio}`}));
+      }
     }
     srData.sup.forEach(v=>cs.createPriceLine({price:v,color:"#00e5a060",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`S ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`}));
     srData.res.forEach(v=>cs.createPriceLine({price:v,color:"#ff4f5a60",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`R ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`}));
@@ -847,18 +962,18 @@ const StockChart=({r})=>{
       const{open:o,high:h,low:l,close:c}=bar;
       const col=c>=o?"#00e5a0":"#ff4f5a";
       refTooltip.current.style.display="block";
-      refTooltip.current.innerHTML=`<b style="color:#fff">${tk(r)}</b>&nbsp;<span style="color:#8892a4">O</span>&nbsp;<span style="color:#c8d3e8">${o}</span>&nbsp;<span style="color:#8892a4">H</span>&nbsp;<span style="color:${col}">${h}</span>&nbsp;<span style="color:#8892a4">L</span>&nbsp;<span style="color:#ff4f5a">${l}</span>&nbsp;<span style="color:#8892a4">C</span>&nbsp;<span style="color:${col};font-weight:700">${c}</span>`;
+      refTooltip.current.innerHTML=`<b style="color:#fff">${tk(r)}</b>&nbsp;<span style="color:#8892a4">${param.time}</span>&nbsp;<span style="color:#8892a4">O</span>&nbsp;<span style="color:#c8d3e8">${o}</span>&nbsp;<span style="color:#8892a4">H</span>&nbsp;<span style="color:${col}">${h}</span>&nbsp;<span style="color:#8892a4">L</span>&nbsp;<span style="color:#ff4f5a">${l}</span>&nbsp;<span style="color:#8892a4">C</span>&nbsp;<span style="color:${col};font-weight:700">${c}</span>`;
     });
 
     // ── Volume ──────────────────────────────────────────────
-    const volChart=LW.createChart(refVol.current,{...baseOpts,width:W,height:65,rightPriceScale:{visible:false}});
+    const volChart=LW.createChart(refVol.current,{...baseOpts,width:W,height:H.vol,rightPriceScale:{visible:false}});
     chartVol.current=volChart;
     volChart.addHistogramSeries({priceLineVisible:false,lastValueVisible:false}).setData(
       candles.map(c=>({time:toDate(c.x),value:c.vol||0,color:c.y[3]>=c.y[0]?"#00e5a045":"#ff4f5a45"}))
     );
 
     // ── MACD ────────────────────────────────────────────────
-    const macdChart=LW.createChart(refMacd.current,{...baseOpts,width:W,height:80,timeScale:{...baseOpts.timeScale,timeVisible:true},rightPriceScale:{borderColor:"#1a2540"}});
+    const macdChart=LW.createChart(refMacd.current,{...baseOpts,width:W,height:H.macd,timeScale:{...baseOpts.timeScale,timeVisible:true},rightPriceScale:{borderColor:"#1a2540"}});
     chartMacd.current=macdChart;
     macdChart.addLineSeries({color:"#4db8ff",lineWidth:1.5,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>macdData.macd[i]));
     macdChart.addLineSeries({color:"#ffd740",lineWidth:1.5,lineStyle:LW.LineStyle.Dashed,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>macdData.signal[i]));
@@ -879,6 +994,12 @@ const StockChart=({r})=>{
     });
     main.timeScale().fitContent();
 
+    // Double-clic = revenir à la vue entière. Molette et glisser fonctionnent
+    // déjà (vérifié au navigateur le 16/09) ; ce qui manquait, c'était le
+    // chemin du retour — une fois zoomé, il fallait changer de période.
+    const retour=()=>all.forEach(c=>c.timeScale().fitContent());
+    refMain.current.addEventListener("dblclick",retour);
+
     // ── Responsive resize ───────────────────────────────────
     const ro=new ResizeObserver(([e])=>{
       const w=Math.floor(e.contentRect.width);
@@ -887,34 +1008,63 @@ const StockChart=({r})=>{
     });
     ro.observe(refMain.current.parentElement||refMain.current);
 
+    const conteneur=refMain.current;
     return()=>{
       ro.disconnect();
+      if(conteneur)conteneur.removeEventListener("dblclick",retour);
       [chartMain,chartVol,chartMacd].forEach(ref=>{if(ref.current){ref.current.remove();ref.current=null;}});
     };
-  },[sym,period,liveCandles,showBB,showIchi,showSR]);
+  },[sym,period,liveCandles,etat,showBB,showIchi,showSR,showFib,mas,plein]);
 
   const changePeriod=(p)=>{setPeriod(p);localStorage.setItem("bvc_period",p);};
+  const reinitialiser=()=>[chartMain,chartVol,chartMacd].forEach(ref=>ref.current&&ref.current.timeScale().fitContent());
 
-  return(
+  const Btn=({on,c,titre,onClick,children})=>(
+    <button onClick={onClick} title={titre} style={{background:on?`${c}26`:"transparent",border:`1px solid ${on?c+"66":"#1a2540"}`,color:on?c:"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"var(--font)"}}>{children}</button>
+  );
+
+  /* Ce que l'on montre quand il n'y a pas de graphique. Trois phrases
+     différentes pour trois situations différentes — et sur 34 pixels, pas 220. */
+  const MESSAGES={
+    chargement:["Chargement de l'historique…","#8892a4"],
+    court:[`Moins de 5 séances sur « ${period} » — élargir la fenêtre`,"#ffd740"],
+    vide:["Aucune chandelle pour ce titre","#8892a4"],
+  };
+  const msg=etat!=="ok"?MESSAGES[etat]:null;
+
+  const corps=(
     <div>
-      <div style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
+      <div style={{display:"flex",gap:6,marginBottom:6,alignItems:"center",flexWrap:"wrap"}}>
         <span style={{fontSize:10,color:"#8892a4"}}>PÉRIODE</span>
         {["5J","1M","3M","6M","1A","3A","TOUT"].map(p=>(
-          <button key={p} onClick={()=>changePeriod(p)} style={{background:period===p?"rgba(77,184,255,.15)":"transparent",border:period===p?"1px solid rgba(77,184,255,.4)":"1px solid #1a2540",color:period===p?"#4db8ff":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>{p}</button>
+          <button key={p} onClick={()=>changePeriod(p)} style={{background:period===p?"rgba(77,184,255,.15)":"transparent",border:period===p?"1px solid rgba(77,184,255,.4)":"1px solid #1a2540",color:period===p?"#4db8ff":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"var(--font)"}}>{p}</button>
         ))}
         <span style={{color:"#1a2540",margin:"0 2px"}}>|</span>
-        <button onClick={()=>setShowBB(v=>!v)} title="Bollinger Bands (20,2)" style={{background:showBB?"rgba(255,215,64,.15)":"transparent",border:showBB?"1px solid rgba(255,215,64,.4)":"1px solid #1a2540",color:showBB?"#ffd740":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>BB</button>
-        <button onClick={()=>setShowIchi(v=>!v)} title="Ichimoku (Tenkan 9 / Kijun 26)" style={{background:showIchi?"rgba(255,111,64,.15)":"transparent",border:showIchi?"1px solid rgba(255,111,64,.4)":"1px solid #1a2540",color:showIchi?"#ff6f40":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>ICHI</button>
-        <button onClick={()=>setShowSR(v=>!v)} title="Support / Résistance (swing highs & lows)" style={{background:showSR?"rgba(0,229,160,.12)":"transparent",border:showSR?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:showSR?"#00e5a0":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10}}>S/R</button>
+        <Btn on={mas[20]} c="#4db8ff" titre="Moyenne mobile 20 séances" onClick={()=>basculeMa(20)}>MA20</Btn>
+        <Btn on={mas[50]} c="#b388ff" titre="Moyenne mobile 50 séances" onClick={()=>basculeMa(50)}>MA50</Btn>
+        <Btn on={mas[200]} c="#ff9800" titre="Moyenne mobile 200 séances — exige 200 séances d'historique" onClick={()=>basculeMa(200)}>MA200</Btn>
+        <span style={{color:"#1a2540",margin:"0 2px"}}>|</span>
+        <Btn on={showBB} c="#ffd740" titre="Bandes de Bollinger (20, 2σ)" onClick={()=>setShowBB(v=>!v)}>BB</Btn>
+        <Btn on={showIchi} c="#ff6f40" titre="Ichimoku (Tenkan 9 / Kijun 26)" onClick={()=>setShowIchi(v=>!v)}>ICHI</Btn>
+        <Btn on={showSR} c="#00e5a0" titre="Support / Résistance (sommets et creux)" onClick={()=>setShowSR(v=>!v)}>S/R</Btn>
+        <Btn on={showFib} c="#ffd740" titre="Retracements de Fibonacci, calculés sur la FENÊTRE AFFICHÉE (le tableau de la fiche, lui, retrace 90 jours)" onClick={()=>setShowFib(v=>!v)}>FIB</Btn>
+        <span style={{color:"#1a2540",margin:"0 2px"}}>|</span>
+        <Btn on={false} c="#8892a4" titre="Revenir à la vue entière (ou double-clic sur le graphique)" onClick={reinitialiser}>⟳</Btn>
+        <Btn on={plein} c="#4db8ff" titre={plein?"Réduire (Échap)":"Agrandir le graphique"} onClick={()=>setPlein(v=>!v)}>{plein?"⤡ RÉDUIRE":"⤢ AGRANDIR"}</Btn>
         <span style={{marginLeft:"auto",fontSize:9,color:isLive?"#00e5a0":"#8892a4"}}>
-          {/* ⚠️ Même correction qu'au bandeau des indicateurs : une moyenne
-              absente s'affiche « — », jamais « 0,00 ». ⚠️ Le `r.rsi||…||50`
-              reste : un RSI absent y devient 50, c'est-à-dire « neutre »
-              alors que rien n'a été mesuré. Signalé, non corrigé ici — il
-              touche l'affichage de tous les titres sans historique. */}
-          {isLive&&"● "}RSI:{(r.rsi||r.rsi14||50).toFixed(0)} · MA20:{r.ma20?px(r.ma20):"—"} · MA50:{r.ma50?px(r.ma50):"—"}
+          {/* ⚠️ Une moyenne absente s'affiche « — », jamais « 0,00 ». ⚠️ Le
+              `r.rsi||…||50` reste : un RSI absent y devient 50, c'est-à-dire
+              « neutre » alors que rien n'a été mesuré. Signalé, non corrigé
+              ici — il touche l'affichage de tous les titres sans historique. */}
+          {isLive&&"● "}RSI:{(r.rsi||r.rsi14||50).toFixed(0)} · MA20:{r.ma20?px(r.ma20):"—"} · MA50:{r.ma50?px(r.ma50):"—"} · MA200:{r.ma200?px(r.ma200):"—"}
         </span>
       </div>
+      {msg&&(
+        <div style={{height:34,display:"flex",alignItems:"center",gap:8,padding:"0 10px",background:"#0a1220",border:"1px solid #1a2540",borderRadius:4,fontSize:11,color:msg[1],marginBottom:6}}>
+          <span>{etat==="chargement"?"⏳":"⚠️"}</span><span>{msg[0]}</span>
+          {etat==="court"&&<button onClick={()=>changePeriod("TOUT")} style={{marginLeft:"auto",fontSize:10,padding:"2px 8px",borderRadius:3,border:"1px solid rgba(77,184,255,.4)",background:"rgba(77,184,255,.15)",color:"#4db8ff",cursor:"pointer",fontFamily:"var(--font)"}}>Tout l'historique</button>}
+        </div>
+      )}
       <div style={{position:"relative"}}>
         <div ref={refMain}/>
         <div ref={refTooltip} style={{display:"none",position:"absolute",top:4,left:4,background:"rgba(13,24,41,.92)",border:"1px solid #1a2540",borderRadius:4,padding:"4px 8px",fontSize:10,fontFamily:"var(--font)",pointerEvents:"none",zIndex:10,whiteSpace:"nowrap"}}/>
@@ -923,19 +1073,41 @@ const StockChart=({r})=>{
       <div ref={refVol}/>
       <div style={{fontSize:8,color:"#8892a4",letterSpacing:1,marginTop:2}}>MACD (12,26,9) · <span style={{color:"#4db8ff"}}>MACD</span> · <span style={{color:"#ffd740"}}>Signal</span></div>
       <div ref={refMacd}/>
+      {etat==="ok"&&<div style={{fontSize:9,color:"#4a5570",marginTop:4}}>Molette : zoom · Glisser : déplacer · Double-clic : vue entière</div>}
+    </div>
+  );
+
+  if(!plein)return corps;
+  return(
+    <div style={{position:"fixed",inset:0,zIndex:6000,background:"#060b16",padding:14,overflow:"auto"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+        <span style={{fontSize:14,fontWeight:700,color:"#c8d3e8",letterSpacing:1}}>{tk(r)} — {r.name||""}</span>
+        <button onClick={()=>setPlein(false)} style={{fontSize:11,padding:"4px 12px",borderRadius:4,border:"1px solid #1a2540",background:"#0d1829",color:"#8892a4",cursor:"pointer",fontFamily:"var(--font)"}}>✕ Fermer (Échap)</button>
+      </div>
+      {corps}
     </div>
   );
 };
 
 // ── TICKER TAPE ───────────────────────────────────────────────────────────────
 const TickerTape=({rows})=>{
-  const items=rows.filter(r=>r.price>0).slice(0,40);
+  /* ⚠️ LE BANDEAU NE MONTRAIT QUE 40 TITRES SUR 80. Le `slice(0,40)` datait
+     d'un temps où la liste venait du classement : la moitié de la cote ne
+     passait jamais, et toujours la même moitié — celle qui figure en tête du
+     tri du moment. Un bandeau de cotation qui trie est un bandeau qui cache.
+     On prend désormais tout ce qui cote, dans l'ordre alphabétique du code
+     affiché : stable d'un run à l'autre, et l'œil retrouve un titre. */
+  const items=rows.filter(r=>r.price>0).slice().sort((a,b)=>tk(a).localeCompare(tk(b)));
   if(items.length===0)return null;
   const nc=c=>c>0?"#00e5a0":c<0?"#ff4f5a":"#8892a4";
   const doubled=[...items,...items];
   return(
     <div style={{background:"#060b16",borderBottom:"1px solid #1a2540",padding:"4px 0",overflow:"hidden",userSelect:"none"}}>
-      <div className="ticker-inner">
+      {/* ⚠️ La durée suit le NOMBRE de titres, sinon doubler la liste double la
+          vitesse de défilement : 55 s convenaient pour 40 titres, elles font
+          filer les 80 deux fois plus vite. 1,4 s par titre redonne exactement
+          l'allure d'avant. */}
+      <div className="ticker-inner" style={{animationDuration:`${Math.max(40,Math.round(items.length*1.4))}s`}}>
         {doubled.map((r,i)=>(
           <span key={i} style={{display:"inline-flex",alignItems:"center",marginRight:24,gap:4,fontSize:11,whiteSpace:"nowrap"}}>
             <span style={{color:"#2a3550",fontSize:8}}>◆</span>
@@ -950,7 +1122,7 @@ const TickerTape=({rows})=>{
 };
 
 // ── HEADER ────────────────────────────────────────────────────────────────────
-const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode,masi,majMsg,univers})=>{
+const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode,masi,majMsg,univers,peutRevenir,onRetour})=>{
   const [pulse,setPulse]=useState(false);
   const [clock,setClock]=useState("");
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
@@ -1025,7 +1197,15 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
           <div style={{color:"#ffd740"}}>{META.msgs} msgs · {META.years} ans · {META.signals} signaux</div>
         </div>
       </div>
-      <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+      <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
+        {/* Retour à la vue précédente. Grisé quand il n'y a rien derrière —
+            un bouton qui ne fait rien sans le dire use la confiance. */}
+        <button onClick={onRetour} disabled={!peutRevenir}
+          title={peutRevenir?"Revenir à la vue précédente":"Aucune vue précédente"}
+          style={{background:peutRevenir?"rgba(77,184,255,.12)":"transparent",border:`1px solid ${peutRevenir?"rgba(77,184,255,.4)":"#141d30"}`,color:peutRevenir?"#4db8ff":"#2a3550",padding:"5px 12px",borderRadius:4,fontSize:12,letterSpacing:1,cursor:peutRevenir?"pointer":"default",fontFamily:"var(--font)",transition:"all .15s"}}>
+          ◀ RETOUR
+        </button>
+        <span style={{color:"#1a2540"}}>|</span>
         {TABS.map(t=>(
           <button key={t.id} onClick={()=>setTab(t.id)} style={{background:tab===t.id?"rgba(0,229,160,.15)":"transparent",border:tab===t.id?"1px solid rgba(0,229,160,.5)":"1px solid #1a2540",color:tab===t.id?"#00e5a0":"#8892a4",padding:"5px 16px",borderRadius:4,fontSize:12,letterSpacing:1,fontWeight:tab===t.id?600:400,transition:"all .15s",position:"relative"}}>
             {t.label}
@@ -1627,10 +1807,14 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {/* Chart */}
           <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Graphique Chandeliers · MA20 · MA50 · Fibonacci</div>
+            {/* ⚠️ Le titre annonçait « MA20 · MA50 · Fibonacci » alors que les moyennes
+                 sont désormais optionnelles et que Fibonacci ne se traçait nulle part
+                 sur ce graphique. Un titre qui promet ce que la vue ne montre pas
+                 est un mensonge de plus à corriger. */}
+            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Graphique — chandeliers, volume, MACD · indicateurs au choix</div>
             <StockChart r={r}/>
             <div style={{fontSize:9,color:"#8892a4",marginTop:6}}>
-              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff"}}>── MA50</span> &nbsp; <span style={{color:"#00e5a0"}}>── S support</span> &nbsp; <span style={{color:"#ff4f5a"}}>── R résistance</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24
+              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff"}}>── MA50</span> &nbsp; <span style={{color:"#ff9800"}}>── MA200</span> &nbsp; <span style={{color:"#ffd740"}}>┈ FIB</span> &nbsp; <span style={{color:"#00e5a0"}}>── S support</span> &nbsp; <span style={{color:"#ff4f5a"}}>── R résistance</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24
             </div>
           </div>
 
@@ -1664,9 +1848,12 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
           {/* Setup + formule */}
           <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,fontFamily:"var(--font)",fontSize:12,lineHeight:1.9}}>
             <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
-              {[[`Setup: ${r.setup||"—"}`,"#ffd740"],[`Flags: ${(r.flags||0)===0?"✅ 0":"⚠️ "+(r.flags||0)}`,(r.flags||0)>=3?"#ff4f5a":(r.flags||0)>=1?"#ffd740":"#00e5a0"],[pdsAff?`Fond:${pdsAff.f}% NLP:${pdsAff.n}% Tech:${pdsAff.t}%`:"Poids: —",simu?"#ffd740":"#8892a4"]].map(([lbl,c])=>(
+              {[[`Setup: ${r.setup||"—"}`,"#ffd740"],[pdsAff?`Fond:${pdsAff.f}% NLP:${pdsAff.n}% Tech:${pdsAff.t}%`:"Poids: —",simu?"#ffd740":"#8892a4"]].map(([lbl,c])=>(
                 <span key={lbl} style={{fontSize:11,padding:"3px 8px",borderRadius:4,background:"#0a1220",color:c,border:"1px solid #1a2540"}}>{lbl}</span>
               ))}
+              {/* ⚠️ La pastille « Flags » affichait un nombre que rien
+                  n'expliquait. Elle s'ouvre désormais. */}
+              <RedFlags n={r.flags||0}/>
             </div>
             {pdsAff&&<WBar f={pdsAff.f} n={pdsAff.n} t={pdsAff.t}/>}
             <div style={{marginTop:10}}>
@@ -2661,17 +2848,51 @@ function App(){
     return()=>{clearInterval(iv);clearInterval(adjuster);};
   },[loadData]);
 
-  const changeTab=(t)=>{setTab(t);localStorage.setItem("bvc_tab",t);};
+  /* ── PILE DE NAVIGATION ────────────────────────────────────────────────
+     « Je veux aussi un bouton de retour en arrière » (Noure, 16/09). Le
+     terminal n'a qu'une page : le bouton du navigateur ne revient pas à la vue
+     précédente, il QUITTE le terminal. On tient donc notre propre pile.
+
+     Une vue, ici, c'est un couple (onglet, titre sélectionné) — passer de
+     CLASSEMENT à la fiche de Sothema, puis de Sothema à Cosumar, fait deux pas
+     en arrière distincts.
+
+     ⚠️ Les doublons sont écartés à l'empilement. Ouvrir une fiche depuis le
+     classement appelle `setSel` PUIS `setTab` : sans cette garde, un seul geste
+     empilerait deux fois la même vue et il faudrait deux retours pour un
+     aller. */
+  const pile=useRef([]);
+  const [peutRevenir,setPeutRevenir]=useState(false);
+  const empiler=(t,sl)=>{
+    /* ⚠️ Premier jet fautif : la garde comparait la vue empilée à la vue
+       courante — or on empile TOUJOURS la vue courante, donc elle sortait à
+       chaque fois et la pile restait vide. Le bouton naissait grisé et le
+       restait. Seul le doublon avec le SOMMET de la pile doit être écarté. */
+    const haut=pile.current[pile.current.length-1];
+    if(haut&&haut.tab===t&&haut.sel===sl)return;
+    pile.current.push({tab:t,sel:sl});
+    if(pile.current.length>60)pile.current.shift();
+    setPeutRevenir(true);
+  };
+  const changeTab=(t)=>{if(t!==tab)empiler(tab,sel);setTab(t);localStorage.setItem("bvc_tab",t);};
+  const choisirTitre=(sl)=>{if(sl!==sel)empiler(tab,sel);setSel(sl);};
+  const revenir=()=>{
+    const v=pile.current.pop();
+    if(!v)return;
+    setPeutRevenir(pile.current.length>0);
+    setTab(v.tab);localStorage.setItem("bvc_tab",v.tab);
+    setSel(v.sel);
+  };
 
   return(
     <div style={{minHeight:"100vh"}}>
       <TickerTape rows={rows}/>
-      <Header univers={rows.length} tab={tab} setTab={changeTab} ts={ts} src={src} onRefresh={()=>loadData(true)} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode} masi={masi} majMsg={majMsg}/>
+      <Header univers={rows.length} tab={tab} setTab={changeTab} peutRevenir={peutRevenir} onRetour={revenir} ts={ts} src={src} onRefresh={()=>loadData(true)} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode} masi={masi} majMsg={majMsg}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
-        {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={setSel} setTab={changeTab} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
-        {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab}/>}
-        {tab==="watchlist"&&<Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{setSel(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true} scoreMode={scoreMode}/>}
-        {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={setSel} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
+        {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={choisirTitre} setTab={changeTab} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
+        {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab}/>}
+        {tab==="watchlist"&&<Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true} scoreMode={scoreMode}/>}
+        {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={choisirTitre} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="weights"  &&<Weights/>}
         {tab==="smart"    &&<Smart/>}
         {tab==="nlp"      &&<NlpDash/>}
