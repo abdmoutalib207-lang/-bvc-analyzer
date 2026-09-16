@@ -3,7 +3,7 @@
   "_statut": "MESURE — AUCUNE DONNÉE SERVIE N'EST MODIFIÉE PAR CE LOT",
   "_methode": "on ne demande pas « faut-il ? » : on chiffre ce que chaque option coûte, et la décision se prend sur des nombres.",
   "arbitrage_1_la_moyenne_200_jours": {
-    "_le_fait": "26 titres affichent une « MA200 » calculée sur moins de 200 séances. Depuis le 15/09/2026, `calc_ma` rend une absence sous la période : ils passeront à « — » au fil des recalculs de cache.",
+    "_le_fait": "23 titres affichent une « MA200 » calculée sur moins de 200 séances. Depuis le 15/09/2026, `calc_ma` rend une absence sous la période : ils passeront à « — » au fil des recalculs de cache.",
     "_ce_que_cela_ne_change_PAS": "⚠️ Mesuré dans le code : `ma200` n'est passé NI à `calc_score_tech` NI à `compute_v53`. Aucun score, aucun signal ne dépend de lui. C'est un champ d'AFFICHAGE.",
     "_ce_que_cela_change": "le lecteur perd un repère de tendance sur 32 titres — et ce repère était faux de 20 à 56 % sur sept d'entre eux.",
     "_les_pires_ecarts": [
@@ -18,22 +18,15 @@
         "ticker": "CAR",
         "bougies": 73,
         "ma200_affichee": 25.71,
-        "cours": 20.0,
-        "ecart_pct": 28.6
+        "cours": 20.3,
+        "ecart_pct": 26.7
       },
       {
         "ticker": "SGTM",
         "bougies": 159,
         "ma200_affichee": 753.04,
-        "cours": 602.1,
-        "ecart_pct": 25.1
-      },
-      {
-        "ticker": "CASH",
-        "bougies": 166,
-        "ma200_affichee": 276.52,
-        "cours": 229.0,
-        "ecart_pct": 20.8
+        "cours": 610.0,
+        "ecart_pct": 23.4
       }
     ],
     "_options": {
@@ -44,88 +37,81 @@
     "_mon_avis": "B est déjà en place et ne coûte aucun score. C serait mieux pour le lecteur, et demande un lot à part.",
     "titres_concernes": [
       {
-        "ticker": "AKD",
-        "bougies": 73,
-        "ma200_affichee": 1157.44,
-        "cours": 1145.0,
-        "ecart_pct": 1.1
-      },
-      {
         "ticker": "ALU",
         "bougies": 72,
         "ma200_affichee": 1850.65,
-        "cours": 1859.0,
-        "ecart_pct": -0.4
+        "cours": 1850.0,
+        "ecart_pct": 0.0
       },
       {
         "ticker": "BMC",
         "bougies": 54,
         "ma200_affichee": 607.73,
-        "cours": 590.0,
-        "ecart_pct": 3.0
+        "cours": 580.0,
+        "ecart_pct": 4.8
       },
       {
         "ticker": "CAR",
         "bougies": 73,
         "ma200_affichee": 25.71,
-        "cours": 20.0,
-        "ecart_pct": 28.6
+        "cours": 20.3,
+        "ecart_pct": 26.7
       },
       {
         "ticker": "CASH",
         "bougies": 166,
         "ma200_affichee": 276.52,
-        "cours": 229.0,
-        "ecart_pct": 20.8
+        "cours": 233.0,
+        "ecart_pct": 18.7
       },
       {
         "ticker": "DSW",
         "bougies": 73,
         "ma200_affichee": 773.23,
-        "cours": 740.0,
-        "ecart_pct": 4.5
+        "cours": 733.1,
+        "ecart_pct": 5.5
       },
       {
         "ticker": "DTT",
         "bougies": 73,
         "ma200_affichee": 351.79,
-        "cours": 355.0,
-        "ecart_pct": -0.9
+        "cours": 345.1,
+        "ecart_pct": 1.9
       },
       {
         "ticker": "ENK",
         "bougies": 54,
         "ma200_affichee": 50.37,
-        "cours": 48.66,
+        "cours": 48.65,
         "ecart_pct": 3.5
       },
       {
         "ticker": "FNB",
         "bougies": 54,
         "ma200_affichee": 320.68,
-        "cours": 345.0,
-        "ecart_pct": -7.0
+        "cours": 344.0,
+        "ecart_pct": -6.8
       },
       {
         "ticker": "IBM",
         "bougies": 70,
         "ma200_affichee": 60.31,
-        "cours": 56.11,
-        "ecart_pct": 7.5
+        "cours": 58.21,
+        "ecart_pct": 3.6
       },
       {
         "ticker": "IMI",
         "bougies": 73,
         "ma200_affichee": 91.1,
-        "cours": 92.98,
-        "ecart_pct": -2.0
+        "cours": 92.8,
+        "ecart_pct": -1.8
       },
       {
         "ticker": "MGL",
         "bougies": 52,
         "ma200_affichee": 909.83,
-        "cours": 890.0,
-        "ecart_pct": 2.2
+        "cours": 923.0,
+        "ecart_pct": -1.4
       },
       {
         "ticker": "MIC",
@@ -159,50 +145,36 @@
         "ticker": "S2M",
         "bougies": 69,
         "ma200_affichee": 506.1,
-        "cours": 511.0,
-        "ecart_pct": -1.0
+        "cours": 510.0,
+        "ecart_pct": -0.8
       },
       {
         "ticker": "SBS",
         "bougies": 69,
         "ma200_affichee": 2164.61,
-        "cours": 2109.0,
-        "ecart_pct": 2.6
+        "cours": 2107.0,
+        "ecart_pct": 2.7
       },
       {
         "ticker": "SGTM",
         "bougies": 159,
         "ma200_affichee": 753.04,
-        "cours": 602.1,
-        "ecart_pct": 25.1
+        "cours": 610.0,
+        "ecart_pct": 23.4
       },
       {
         "ticker": "SNA",
         "bougies": 74,
         "ma200_affichee": 1971.72,
-        "cours": 1835.0,
-        "ecart_pct": 7.5
+        "cours": 1840.0,
+        "ecart_pct": 7.2
       },
       {
         "ticker": "SNP",
         "bougies": 69,
         "ma200_affichee": 347.25,
-        "cours": 321.0,
-        "ecart_pct": 8.2
-      },
-      {
-        "ticker": "TMA",
-        "bougies": 69,
-        "ma200_affichee": 1522.99,
-        "cours": 1480.0,
-        "ecart_pct": 2.9
-      },
-      {
-        "ticker": "TQA",
-        "bougies": 69,
-        "ma200_affichee": 1772.13,
-        "cours": 1763.0,
-        "ecart_pct": 0.5
+        "cours": 323.0,
+        "ecart_pct": 7.5
       },
       {
         "ticker": "UNI",
@@ -215,18 +187,18 @@
         "ticker": "WAF",
         "bougies": 69,
         "ma200_affichee": 5568.61,
-        "cours": 5260.0,
-        "ecart_pct": 5.9
+        "cours": 5200.0,
+        "ecart_pct": 7.1
       },
       {
         "ticker": "ZLD",
         "bougies": 67,
         "ma200_affichee": 246.32,
-        "cours": 278.0,
-        "ecart_pct": -11.4
+        "cours": 281.0,
+        "ecart_pct": -12.3
       }
     ],
-    "_le_compte_a_bouge": "⚠️ Ils étaient 32 à la première mesure, 27 avant ce relevé, 26 maintenant. Le compte DESCEND à mesure que les séries sont corrigées : recalculer le cache d'un titre retire sa fausse MA200 au passage. Ce dossier est une PHOTO — il se remesure avec `python pipeline/mesurer_arbitrages.py --ecrire`, et un test exige qu'il concorde avec le dépôt."
+    "_le_compte_a_bouge": "⚠️ Ils étaient 32 à la première mesure, 26 avant ce relevé, 23 maintenant. Le compte DESCEND à mesure que les séries sont corrigées : recalculer le cache d'un titre retire sa fausse MA200 au passage. Ce dossier est une PHOTO — il se remesure avec `python pipeline/mesurer_arbitrages.py --ecrire`, et un test exige qu'il concorde avec le dépôt."
   },
   "arbitrage_2_l_unite_du_champ_volume": {
     "_le_fait": "⚠️ Le champ `v` de pipeline/candles/ ne porte PAS la même unité selon le titre. Mesuré séance par séance sur les 15 exports archivés, en comparant à la MÊME séance chez l'opérateur.",
@@ -296,12 +268,12 @@
         "convention": "TITRES"
       },
       "HAL": {
-        "seances_comparees": 52,
-        "nombre_de_titres": 26,
-        "montant_mad": 1,
-        "ni_l_un_ni_l_autre": 25,
+        "seances_comparees": 732,
+        "nombre_de_titres": 732,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 0,
         "v_nul": 0,
-        "convention": "MÉLANGÉE"
+        "convention": "TITRES"
       },
       "HPS": {
         "seances_comparees": 724,
@@ -320,12 +292,12 @@
         "convention": "MONTANT MAD"
       },
       "MUT": {
-        "seances_comparees": 71,
-        "nombre_de_titres": 43,
-        "montant_mad": 1,
-        "ni_l_un_ni_l_autre": 27,
+        "seances_comparees": 732,
+        "nombre_de_titres": 732,
+        "montant_mad": 0,
+        "ni_l_un_ni_l_autre": 0,
         "v_nul": 0,
-        "convention": "MÉLANGÉE"
+        "convention": "TITRES"
       },
       "RDS": {
         "seances_comparees": 547,

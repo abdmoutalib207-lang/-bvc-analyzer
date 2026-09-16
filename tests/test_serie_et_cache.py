@@ -357,15 +357,29 @@ def _titres_dont_la_serie_a_change() -> set:
     sa correction, c'est-à-dire modifier le contrôle pour faire passer la
     livraison. C'est précisément ce qu'il ne faut pas faire.
 
-    Deux dossiers, deux portées :
-      · `series_acceptees/`      la série ENTIÈRE est remplacée (CMT, suspendu)
+    Trois dossiers, trois portées :
+      · `series_acceptees/`      la série ENTIÈRE est remplacée ET le titre est
+                                 figé face aux imports (CMT, suspendu)
       · `corrections_acceptees/` des séances NOMMÉES sont réécrites (MSA, qui
                                  cote tous les jours)
-    Dans les deux cas, les anciennes valeurs décrivaient une autre série. Pour
+      · `historiques_importes/`  la série entière vient d'un export de
+                                 l'opérateur, sans figer le titre (AKD, HAL,
+                                 MUT, TMA, TQA — ajouté le 16/09/2026)
+
+    Dans les trois cas, les anciennes valeurs décrivaient une autre série. Pour
     tous les autres titres, seul `rsi` peut bouger.
+
+    ⚠️ LE TROISIÈME DOSSIER A ÉTÉ AJOUTÉ PARCE QUE CE TEST A ROUGI, et c'est la
+    seule façon acceptable de le faire taire. Il n'a pas rougi à tort : cinq
+    caches avaient bougé sans qu'aucun dossier du dépôt ne l'autorise. La
+    réponse n'est pas d'élargir l'exception à la main — ce serait modifier le
+    contrôle pour faire passer la livraison — mais d'écrire l'instruction qui
+    manquait, avec sa provenance, son empreinte et sa période. Le test continue
+    de LIRE le dépôt ; c'est le dépôt qui dit désormais ce qui a été réceptionné.
     """
     dossiers = (RACINE / "datasets" / "series_acceptees",
-                RACINE / "datasets" / "corrections_acceptees")
+                RACINE / "datasets" / "corrections_acceptees",
+                RACINE / "datasets" / "historiques_importes")
     return {f.stem for d in dossiers if d.exists() for f in d.glob("*.json")}
 
 

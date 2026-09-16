@@ -1,0 +1,36 @@
+{
+  "_statut": "INSTRUCTION — la série publiée de ce titre EST l'export de l'opérateur, date pour date. Ce n'est pas un signalement : le dossier historiques_candidats/ PROPOSE, celui-ci INSTRUIT.",
+  "_portee": "La série ENTIÈRE sur la période de l'export. Le titre n'est PAS figé : la séance du jour continue d'entrer normalement, et un export plus récent remplacera celui-ci. C'est la différence avec series_acceptees/.",
+  "ticker": "HAL",
+  "code_operateur": "ATH",
+  "instrument": "AUTO HALL",
+  "source": "casablanca-bourse.com — export « Cours » 3 ans, fourni par Abd Moutalib le 16/09/2026",
+  "fichier_recu": "564b2f1c-Cours_ATH___2023-09-17_2026-09-16.csv",
+  "sha256_fichier_recu": "e2c89bc143e6439fa94ad0b316dec13c57e2358e5776c630d690e649493d9227",
+  "fichier_dans_le_depot": "data/historique/HAL.xlsx",
+  "periode": [
+    "2023-09-18",
+    "2026-09-16"
+  ],
+  "seances": 735,
+  "_identite_verifiee": {
+    "code_dans_le_fichier": "ATH",
+    "concorde_avec_IDB_TICKER_MAP": true,
+    "instrument_dans_le_fichier": "AUTO HALL",
+    "capitalisation_divisee_par_le_cours": "redonne le nombre d'actions du rapport annuel, au titre près — contrôle arithmétique indépendant du nom et du code"
+  },
+  "_ce_que_le_recoupement_a_montre": {
+    "seances_communes_avec_notre_serie": 55,
+    "en_desaccord": 21,
+    "dont_notre_cours_tombe_dans_la_fourchette_du_jour": 21,
+    "hors_fourchette": 0,
+    "lecture": "Nos cours n'étaient pas faux de séance : c'étaient des cours de MILIEU de séance, écrits les jours où le run de 15h45 n'a pas eu lieu. Les valeurs hors fourchette sont nos cours figés."
+  },
+  "_colonne_de_volume": "« Titres Échangés », JAMAIS « Volume (MAD) ». L'export porte les deux, et le chargeur retient la première colonne contenant « vol » : le montant en dirhams entrerait comme un nombre de titres.",
+  "_seance_retiree": {
+    "date": "2026-07-30",
+    "motif": "Fête du Trône — la Bourse n'a pas ouvert. L'export liste toutes les séances réelles, y compris celles sans échange, et omet exactement les jours fériés. (7, 30) figure dans JOURS_FERIES_FIXES depuis toujours.",
+    "⚠️": "67 AUTRES titres portent encore cette bougie. Hors périmètre de cet import — voir .claude/memory/EN_COURS.md."
+  },
+  "_cache": "pipeline/historical_data.json recalculé pour ce titre par `recalculer_cache.py --complet` : ses anciens indicateurs décrivaient une série de moins de 80 séances et n'ont plus cours."
+}
