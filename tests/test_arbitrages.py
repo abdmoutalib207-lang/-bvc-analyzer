@@ -93,9 +93,29 @@ def test_les_ecarts_annonces_sont_recalculables(mesures):
     assert pires, "aucun écart cité : le dossier ne montre plus le problème"
     for c in pires:
         m = cache[c["ticker"]]["ma200"]
-        p = srv[c["ticker"]]["price"]
-        assert m == c["ma200_affichee"]
-        assert round((m / p - 1) * 100, 1) == c["ecart_pct"]
+        assert m == c["ma200_affichee"], (
+            f"{c['ticker']} : le dossier cite une MA200 de {c['ma200_affichee']}, "
+            f"le cache en porte {m}")
+
+        # ⚠️ L'ÉCART SE RECALCULE DEPUIS LA MESURE, PAS DEPUIS LE COURS DU JOUR.
+        # La mesure porte le cours qu'elle a utilisé ; le cours, lui, bouge
+        # chaque séance. Ce test recalculait avec le prix servi aujourd'hui et
+        # tombait donc dès le lendemain — mesuré le 16/09 : 25,7 contre 28,6
+        # annoncés sur CAR, simplement parce que le titre était passé de 20,00
+        # à 20,46. Et comme ce fichier est dans la garde bloquante
+        # d'`update_bvc`, il n'échouait pas tout seul : il EMPÊCHAIT LA
+        # PUBLICATION de la séance.
+        assert round((c["ma200_affichee"] / c["cours"] - 1) * 100, 1) == c["ecart_pct"], (
+            f"{c['ticker']} : la mesure ne tient pas debout toute seule")
+
+        # Et le problème doit être ENCORE LÀ aujourd'hui, sinon le dossier
+        # décrit un passé. Le seuil est plus bas que celui du relevé : un cours
+        # qui se rapproche de sa moyenne réduit l'écart sans rien régler.
+        aujourd_hui = round((m / srv[c["ticker"]]["price"] - 1) * 100, 1)
+        assert abs(aujourd_hui) > 10, (
+            f"{c['ticker']} : l'écart n'est plus que de {aujourd_hui} % — "
+            "régénérer le dossier avec `python pipeline/mesurer_arbitrages.py "
+            "--ecrire` plutôt que de laisser un constat périmé")
         assert abs(c["ecart_pct"]) > 20
 
 
