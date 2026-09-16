@@ -62,14 +62,23 @@ def _reimposer(ticker, candles):
     try:
         from corrections_acceptees import appliquer
     except ImportError:          # couche absente : on n'invente rien
-        return candles
+        return candles, []
     out, rapport = appliquer(ticker, candles)
     if rapport["corrections"]:
         log.warning(f"  {ticker}: {rapport['corrections']} séance(s) corrigée(s) "
                     f"réimposée(s) avant écriture")
-    for r in rapport["refus"]:
+
+    # ⚠️ `refus` EST ABSENT QUAND AUCUN LOT N'EXISTE, ET C'EST LE CAS ORDINAIRE.
+    # `appliquer()` renvoie alors {ticker, corrections, _lecture} — sans clé
+    # `refus`. L'indexer levait KeyError('refus'), l'exception remontait dans le
+    # `except Exception` de l'appelant, et le titre sortait sur « ✗ SRM: 'refus' »
+    # SANS que ses chandelles soient écrites. Soixante et un titres sur
+    # soixante-treize étaient dans ce cas le 16/09 : le message avait l'air d'un
+    # refus motivé, c'était un plantage.
+    refus = rapport.get("refus", [])
+    for r in refus:
         log.warning(f"     refus {r['seance']} : {r['motif']}")
-    return out
+    return out, refus
 
 try:
     sys.path.insert(0, str(ROOT))
@@ -192,7 +201,25 @@ def generate_from_xlsx() -> dict:
                 except Exception:
                     pass
 
-            candles = _reimposer(ticker, candles)
+            candles, refus = _reimposer(ticker, candles)
+
+            # ⚠️ UN REFUS INTERDIT D'ÉCRIRE. Il ne se journalise pas pour
+            # mémoire : il arrête le geste.
+            #
+            # Le 16/09 à 19h21, ce programme a refusé les 191 corrections
+            # réceptionnées de Sothema — « l'état actuel n'est ni l'ancien ni le
+            # corrigé » — puis a écrit sa propre série par-dessus. Les 220
+            # ruptures de l'ancienne échelle sont revenues, et la publication
+            # s'est bloquée. Le contrôle avait vu juste ; personne ne l'écoutait.
+            #
+            # « Conservez les données et indicateurs antérieurs valides lorsqu'un
+            # nouvel import est refusé. » Ce qui est déjà sur le disque a été
+            # réceptionné ; ce qui arrive ne l'a pas été.
+            if refus:
+                log.error(f"  ✗ {ticker}: {len(refus)} correction(s) réceptionnée(s) "
+                          f"refusée(s) — fichier CONSERVÉ, rien n'est écrit")
+                continue
+
             out.write_text(json.dumps(candles, separators=(",",":")))
             log.info(f"  ✓ {ticker}: {len(candles)} bougies (XLSX)")
             results[ticker] = len(candles)
@@ -262,7 +289,25 @@ def generate_from_med24(skip_existing_tickers: set = None, days: int = 400) -> d
                 except Exception:
                     pass
 
-            candles = _reimposer(ticker, candles)
+            candles, refus = _reimposer(ticker, candles)
+
+            # ⚠️ UN REFUS INTERDIT D'ÉCRIRE. Il ne se journalise pas pour
+            # mémoire : il arrête le geste.
+            #
+            # Le 16/09 à 19h21, ce programme a refusé les 191 corrections
+            # réceptionnées de Sothema — « l'état actuel n'est ni l'ancien ni le
+            # corrigé » — puis a écrit sa propre série par-dessus. Les 220
+            # ruptures de l'ancienne échelle sont revenues, et la publication
+            # s'est bloquée. Le contrôle avait vu juste ; personne ne l'écoutait.
+            #
+            # « Conservez les données et indicateurs antérieurs valides lorsqu'un
+            # nouvel import est refusé. » Ce qui est déjà sur le disque a été
+            # réceptionné ; ce qui arrive ne l'a pas été.
+            if refus:
+                log.error(f"  ✗ {ticker}: {len(refus)} correction(s) réceptionnée(s) "
+                          f"refusée(s) — fichier CONSERVÉ, rien n'est écrit")
+                continue
+
             out.write_text(json.dumps(candles, separators=(",",":")))
             log.info(f"  ✓ {ticker}: {len(candles)} bougies (Médias24)")
             results[ticker] = len(candles)
