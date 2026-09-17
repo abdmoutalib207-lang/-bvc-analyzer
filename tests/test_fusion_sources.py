@@ -85,13 +85,67 @@ def test_bmce_comble_un_titre_absent_de_cdg(ud):
     assert lp["SRM"]["asof"] == JOUR
 
 
-def test_bmce_ne_remplace_jamais_une_ligne_cdg(ud):
-    """BMCE ne prime pas sur CDG, même à date égale. Elle comble, c'est tout."""
+def test_a_seance_egale_cdg_garde_la_main(ud):
+    """À information égale, on préfère la source qui apparie par CODE.
+
+    CDG identifie par code officiel BVC ; BMCE est appariée par RAISON SOCIALE
+    contre la table que CDG fournit. Un appariement par nom est ce qui a mis
+    les cours de Marsa Maroc dans Maroc Leasing (ERRORS.md, famille 13).
+    """
     lp = {"IAM": _idb(100.0, HIER)}
     ud.fusionner_cotations(lp, HIER, cdg={"IAM": _ext(102.75, JOUR)},
-                           bmce={"IAM": _ext(999.0, JOUR)}, lignes_cdg=[])
+                           bmce={"IAM": _ext(103.0, JOUR)}, lignes_cdg=[])
     assert lp["IAM"]["price"] == 102.75
     assert lp["IAM"]["src"] == "cdg"
+
+
+def test_bmce_strictement_plus_fraiche_prend_la_main(ud):
+    """⚠️ CE TEST EXIGEAIT L'INVERSE, ET IL AVAIT TORT.
+
+    Il s'appelait « bmce_ne_remplace_jamais_une_ligne_cdg » et affirmait que
+    « BMCE ne prime pas sur CDG, même à date égale ». La première moitié de la
+    phrase est juste — à date ÉGALE, voir le test précédent. La seconde a
+    coûté une matinée de publication.
+
+    Le 17/09/2026 à 11h18, séance ouverte depuis 9h30 : CDG servait 69 titres
+    datés du 16 et BMCE 53 titres datés du 17. Le terminal a publié la veille.
+    La docstring de `fusionner_cotations` dit pourtant que « l'arbitrage se
+    fait par la DATE, jamais par la préférence » (R3) ; le code disait le
+    contraire.
+    """
+    lp = {"IAM": _idb(100.0, HIER)}
+    r = ud.fusionner_cotations(lp, HIER, cdg={"IAM": _ext(102.75, HIER)},
+                               bmce={"IAM": _ext(103.5, JOUR)}, lignes_cdg=[])
+    assert lp["IAM"]["price"] == 103.5
+    assert lp["IAM"]["src"] == "bmce"
+    assert r == JOUR, "la séance de référence doit avancer avec BMCE"
+
+
+def test_une_ligne_bmce_hors_plafond_est_refusee(ud):
+    """⚠️ LA GARDE D'IDENTITÉ QUI MANQUAIT.
+
+    BMCE est appariée par raison sociale. Un appariement qui se trompe de
+    société produit un saut de cours : la BVC plafonne à ±10 % par séance
+    (R10), au-delà ce n'est pas le même titre.
+
+    ⚠️ Mesuré avant d'écrire cette garde : sur les 53 titres où BMCE était plus
+    fraîche que CDG le 17/09, le plus grand écart valait 4,8 % et AUCUN ne
+    dépassait 10 %. La garde ne refuse donc rien de légitime aujourd'hui — elle
+    attend le jour où l'appariement dérapera.
+    """
+    lp = {"IAM": _idb(100.0, HIER)}
+    ud.fusionner_cotations(lp, HIER, cdg={"IAM": _ext(102.75, HIER)},
+                           bmce={"IAM": _ext(999.0, JOUR)}, lignes_cdg=[])
+    assert lp["IAM"]["price"] == 102.75, "une ligne aberrante a été retenue"
+    assert lp["IAM"]["src"] == "cdg"
+
+
+def test_un_ecart_sous_le_plafond_passe(ud):
+    """Contre-épreuve : une garde qui refuserait tout gèlerait la séance."""
+    lp = {"IAM": _idb(100.0, HIER)}
+    ud.fusionner_cotations(lp, HIER, cdg={"IAM": _ext(100.0, HIER)},
+                           bmce={"IAM": _ext(109.0, JOUR)}, lignes_cdg=[])
+    assert lp["IAM"]["price"] == 109.0 and lp["IAM"]["src"] == "bmce"
 
 
 def test_bmce_plus_ancienne_est_ignoree(ud):

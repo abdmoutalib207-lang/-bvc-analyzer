@@ -905,14 +905,67 @@ def fusionner_cotations(live_prices, idb_asof, cdg=None, bmce=None, lignes_cdg=N
         libelles = {k: v for k, v in libelles.items() if v}
         if bmce is None:
             bmce = fetch_all_bmce(libelles)
-        comble = 0
+        comble = double = refuse = 0
         for sym, v in bmce.items():
             actuel = live_prices.get(sym) or {}
-            if v["asof"] >= (actuel.get("asof") or "") and actuel.get("src") != "cdg":
-                live_prices[sym] = {**v, "src": "bmce", "cap": actuel.get("cap")}
+            a_act = str(actuel.get("asof") or "")[:10]
+
+            if v["asof"] < a_act:
+                continue                      # plus ancienne : jamais
+
+            # ⚠️ À SÉANCE ÉGALE, CDG GARDE LA MAIN, et c'est une question
+            # d'IDENTITÉ, pas de préférence. CDG apparie par code officiel ;
+            # BMCE est appariée par RAISON SOCIALE, contre la table que CDG
+            # fournit. Un appariement par nom est ce qui a mis les cours de
+            # Marsa Maroc dans Maroc Leasing (voir ERRORS.md, famille 13) : à
+            # information égale, on préfère celle qui porte un code.
+            if v["asof"] == a_act and actuel.get("src") == "cdg":
+                continue
+
+            # ⚠️ ET QUAND BMCE EST STRICTEMENT PLUS FRAÎCHE, ELLE PREND LA MAIN.
+            #
+            # Ce n'était pas le cas : la condition `actuel.get("src") != "cdg"`
+            # interdisait à BMCE de remplacer une ligne CDG, même vieille d'un
+            # jour. Le 17/09 à 11h18, séance ouverte, CDG servait 69 titres
+            # datés du 16 et BMCE 53 titres datés du 17 — le terminal a publié
+            # la veille. La docstring de cette fonction dit pourtant, trois
+            # paragraphes plus haut, que « l'arbitrage se fait par la DATE,
+            # jamais par la préférence » (R3). Le code disait l'inverse.
+            #
+            # La garde qui manquait n'est pas la préférence, c'est la
+            # CONTINUITÉ : un appariement par nom qui se trompe de société
+            # produit un saut de cours. La BVC plafonne à ±10 % par séance
+            # (R10) ; au-delà, ce n'est pas le même titre.
+            ref = actuel.get("price")
+            if ref and ref > 0 and abs(v["price"] / ref - 1) > 0.10:
+                logger.error(
+                    f"  ✗ {sym}: BMCE cote {v['price']} au {v['asof']} contre "
+                    f"{ref} au {a_act} — {v['price'] / ref - 1:+.0%}, au-delà du "
+                    f"plafond réglementaire. Ligne REFUSÉE (appariement par "
+                    f"raison sociale suspect).")
+                refuse += 1
+                continue
+
+            live_prices[sym] = {**v, "src": "bmce", "cap": actuel.get("cap")}
+            if actuel.get("src") == "cdg":
+                double += 1
+            else:
                 comble += 1
-        if comble:
-            logger.info(f"BMCE : {comble} titres comblés là où CDG ne cote pas")
+
+        if comble or double or refuse:
+            logger.info(f"BMCE : {comble} titres comblés, {double} rafraîchis "
+                        f"sur une séance plus récente que CDG, {refuse} refusés")
+
+        # ⚠️ LA SÉANCE DE RÉFÉRENCE DOIT POUVOIR AVANCER AVEC BMCE.
+        # Elle ne se calculait que sur IDBourse et CDG : même en servant des
+        # cours du jour, BMCE laissait la référence sur la veille, et les
+        # titres qu'elle rafraîchissait étaient alors comptés « en avance »
+        # plutôt que les autres « en retard ».
+        bmce_asof = max((v["asof"] for v in bmce.values()), default="")
+        if bmce_asof > (idb_asof or ""):
+            logger.warning(f"CDG et IDBourse en retard (séance {idb_asof}) — "
+                           f"séance de référence portée au {bmce_asof} par BMCE")
+            idb_asof = bmce_asof
 
     return idb_asof
 
