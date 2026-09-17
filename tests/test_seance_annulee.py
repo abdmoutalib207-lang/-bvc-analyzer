@@ -191,3 +191,80 @@ def test_la_capitalisation_de_la_veille_passe_avant_la_table_figee():
         "l'ordre du repli ne place plus la veille avant la table figée")
     assert '_cap_source = "publiee_la_veille"' in s, (
         "une capitalisation reprise de la veille est annoncée comme « servie »")
+
+
+# ── L'indice suit un autre chemin, et il l'a prouvé ─────────────────────────
+
+def test_l_indice_d_une_seance_annulee_n_est_pas_servi(moteur, tmp_path, monkeypatch):
+    """⚠️ MON PREMIER CORRECTIF A MANQUÉ LE MASI.
+
+    Les 55 lignes de cotation ont bien été écartées — et l'en-tête a continué
+    d'afficher 17 953,096 points « au 17/09, non périmé ». Le MASI est récupéré
+    par un autre appel, il ne passe pas par `live_prices`.
+    """
+    masi = {"value": 17953.096, "chg": -0.17, "asof": "2026-09-17", "stale": False}
+    moteur._ecarter_masi_annule(masi)
+    assert masi["asof"] != "2026-09-17", "l'indice de la séance annulée est servi"
+    assert masi["stale"] is True
+    assert masi["value"] != 17953.096
+
+
+def test_la_variation_de_l_indice_annule_n_est_pas_conservee(moteur):
+    """⚠️ ET LES CLÉS INTERNES NE SONT PAS CELLES DE LA SORTIE.
+
+    En interne c'est `chg` ; `change_pct` n'est que le nom publié. Ma première
+    version écrivait dans `change_pct` — une clé inexistante — et la variation
+    de la séance annulée continuait d'être servie à côté d'une valeur juste.
+    """
+    masi = {"value": 17953.096, "chg": -0.17, "asof": "2026-09-17", "stale": False}
+    moteur._ecarter_masi_annule(masi)
+    assert masi.get("chg") is None, (
+        f"la variation de la séance annulée a survécu : {masi.get('chg')}")
+
+
+def test_la_variation_est_aussi_neutralisee_par_le_repli_sur_l_historique(
+        moteur, tmp_path, monkeypatch):
+    """⚠️ DEUX CHEMINS DE REPLI, ET IL FAUT ÉPROUVER LES DEUX.
+
+    Le premier reprend l'indice du data.json précédent. Le second — quand ce
+    fichier porte lui aussi la séance annulée, ce qui arrive dès le deuxième
+    run de la journée — va chercher l'historique de l'indice.
+
+    Ma première rédaction n'exerçait que le premier : la mutation qui cassait
+    le second ne faisait rougir aucun test.
+    """
+    monkeypatch.setattr(moteur, "OUTPUT", tmp_path / "absent.json")
+    masi = {"value": 17953.096, "chg": -0.17, "asof": "2026-09-17", "stale": False}
+    moteur._ecarter_masi_annule(masi)
+    assert masi["asof"] != "2026-09-17"
+    assert masi["stale"] is True
+    assert masi.get("chg") is None, (
+        f"la variation de la séance annulée a survécu au repli sur "
+        f"l'historique : {masi.get('chg')}")
+
+
+def test_un_indice_de_seance_valide_passe_intact(moteur):
+    """Contre-épreuve."""
+    masi = {"value": 17983.9995, "chg": -1.13, "asof": "2026-09-16", "stale": False}
+    avant = dict(masi)
+    moteur._ecarter_masi_annule(masi)
+    assert masi == avant
+
+
+def test_l_historique_de_l_indice_ne_porte_aucune_seance_annulee():
+    """⚠️ `masi_history.json` n'écrit qu'en AJOUT et ne réécrit jamais une date
+    connue. Une séance annulée qui y entre y reste pour toujours — c'est arrivé
+    le 17/09, inscrite avant que l'annulation ne soit connue."""
+    from bvc_config import SEANCES_ANNULEES
+    h = json.loads((RACINE / "pipeline" / "masi_history.json")
+                   .read_text(encoding="utf-8"))
+    mauvaises = [d for d in h.get("seances", {}) if d in SEANCES_ANNULEES]
+    assert not mauvaises, f"séances annulées dans l'historique du MASI : {mauvaises}"
+
+
+def test_le_moteur_refuse_d_enregistrer_une_seance_annulee():
+    s = (RACINE / "update_data.py").read_text(encoding="utf-8")
+    i_garde = s.index('elif seance_annulee(str(masi.get("asof") or "")[:10]):')
+    i_enr = s.index('elif _masi_enr(masi.get("value"), masi.get("asof")):')
+    assert i_garde < i_enr, (
+        "la garde est posée après l'enregistrement qu'elle doit empêcher")

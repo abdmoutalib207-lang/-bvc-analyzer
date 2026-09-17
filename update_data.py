@@ -1037,6 +1037,76 @@ def _ecarter_seances_annulees(live_prices, idb_asof):
     return idb_asof
 
 
+def _ecarter_masi_annule(masi):
+    """L'indice d'une séance annulée n'est pas un indice. Modifie `masi` sur place.
+
+    ⚠️ LE MASI SUIT UN AUTRE CHEMIN QUE LES TITRES, et mon premier correctif
+    l'a manqué. Le 17/09, les 55 lignes de cotation ont bien été écartées — et
+    l'en-tête a continué d'afficher 17 953,096 points « au 17/09, non périmé ».
+    Pire : `masi_history.json` en a gardé une entrée, dans un fichier qui
+    n'écrit qu'en AJOUT et ne réécrit jamais une date connue. Elle y serait
+    restée pour toujours.
+
+    On reprend l'indice publié la veille — daté, cohérent avec les cours que la
+    chaîne de repli va servir — et on le marque périmé. Sans valeur de repli,
+    on préfère ne rien afficher plutôt qu'un indice sans objet.
+    """
+    if not masi or not seance_annulee(str(masi.get("asof") or "")[:10]):
+        return masi
+    annulee = str(masi.get("asof"))[:10]
+    precedent = {}
+    try:
+        if OUTPUT.exists():
+            precedent = (json.loads(OUTPUT.read_text(encoding="utf-8"))
+                         .get("masi") or {})
+    except (json.JSONDecodeError, OSError):
+        precedent = {}
+    if precedent and not seance_annulee(str(precedent.get("asof") or "")[:10]):
+        logger.warning(
+            f"MASI : la source le date du {annulee}, séance ANNULÉE — repris à "
+            f"{precedent.get('value')} au {precedent.get('asof')} (indice publié "
+            f"précédemment), marqué périmé")
+        # ⚠️ LE DICTIONNAIRE INTERNE N'A PAS LES MÊMES CLÉS QUE LA SORTIE.
+        # En interne c'est `chg` ; `change_pct` n'est que le nom publié. Ma
+        # première version écrivait dans `change_pct` — une clé inexistante —
+        # et la variation de la séance annulée continuait d'être servie.
+        masi["value"] = precedent.get("value")
+        masi["asof"] = precedent.get("asof")
+        masi["chg"] = precedent.get("change_pct")
+        masi["stale"] = True
+        return masi
+
+    # ⚠️ ET SI LE FICHIER PRÉCÉDENT PORTE LUI AUSSI LA SÉANCE ANNULÉE — ce qui
+    # arrive dès le deuxième run de la journée — l'historique de l'indice prend
+    # le relais. Il ne contient que des séances closes, une par jour.
+    try:
+        _h = Path(__file__).parent / "pipeline" / "masi_history.json"
+        seances = (json.loads(_h.read_text(encoding="utf-8")).get("seances") or {}
+                   if _h.exists() else {})
+    except (json.JSONDecodeError, OSError):
+        seances = {}
+    valides = sorted(d for d in seances if not seance_annulee(d))
+    if valides:
+        d = valides[-1]
+        logger.warning(f"MASI : séance {annulee} annulée, fichier précédent "
+                       f"inexploitable — repris à {seances[d]} au {d} "
+                       f"(historique de l'indice), marqué périmé")
+        masi["value"], masi["asof"] = seances[d], d
+        # ⚠️ La variation, elle, ne se récupère pas : l'historique ne stocke que
+        # des clôtures. La calculer contre la séance précédente serait exact,
+        # mais ce n'est pas ce que l'indice a fait AUJOURD'HUI — et aujourd'hui
+        # n'a pas eu lieu. On ne montre rien plutôt qu'un chiffre sans objet.
+        masi["chg"] = None
+    else:
+        logger.error(f"MASI : séance {annulee} annulée et aucun indice antérieur "
+                     f"exploitable — valeur retirée plutôt que servie sans objet")
+        masi["value"] = None
+        masi["chg"] = None
+        masi["asof"] = ""
+    masi["stale"] = True
+    return masi
+
+
 def _cliquet_seance(live_prices, idb_asof, plancher=None):
     """Une séance déjà gravée ne peut pas reculer. Renvoie la séance retenue.
 
@@ -2591,6 +2661,7 @@ def run(dry_run=False, push=False, token=""):
     # mécanisme, dans l'autre sens, qui a sauvé la séance du 27/08.
     IDB_ASOF = fusionner_cotations(live_prices, IDB_ASOF)
     IDB_ASOF = _ecarter_seances_annulees(live_prices, IDB_ASOF)
+    _ecarter_masi_annule(masi)
 
     seance_fictive = _recaler_seance_fantome(live_prices)
     if seance_fictive:
@@ -2653,6 +2724,13 @@ def run(dry_run=False, push=False, token=""):
         # c'est précisément l'outil qu'on utilise pour vérifier sans risque.
         if dry_run:
             logger.info(f"  [DRY RUN] MASI {masi.get('value')} NON enregistré")
+        elif seance_annulee(str(masi.get("asof") or "")[:10]):
+            # ⚠️ `masi_history.json` n'écrit qu'en AJOUT et ne réécrit jamais une
+            # date connue. Une séance annulée qui y entre y reste pour toujours.
+            # C'est arrivé le 17/09 : 2026-09-17 → 17 953,096, inscrit avant que
+            # l'annulation ne soit connue.
+            logger.error(f"  MASI : séance {str(masi.get('asof'))[:10]} ANNULÉE "
+                         f"— NON enregistrée dans l'historique")
         elif _masi_enr(masi.get("value"), masi.get("asof")):
             logger.info(f"  MASI {masi.get('value')} enregistré au {str(masi.get('asof'))[:10]}")
         _masi_ytd = _masi_ytd_calc(masi.get("asof"))
