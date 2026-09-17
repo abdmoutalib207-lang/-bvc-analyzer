@@ -48,9 +48,17 @@ def test_aucune_bougie_negociee_apres_la_suspension():
                if b["d"] >= debut and (reprise is None or b["d"] < reprise)]
     assert pendant == [], (
         f"{len(pendant)} bougie(s) pendant la suspension : {[b['d'] for b in pendant][:5]}")
-    assert all(b["v"] > 0 for b in serie), (
-        "une séance sans échange est entrée comme bougie — ce serait fabriquer "
-        "une cotation")
+    # ⚠️ UN VOLUME NUL N'EST PAS UNE FABRICATION.
+    #
+    # J'avais ajouté ici `all(b["v"] > 0)`, ce qui revient à dire qu'aucune
+    # séance ne peut se tenir sans échange. C'est faux : un titre peu liquide
+    # passe des journées entières sans transaction, et EN SÉANCE la bougie du
+    # jour commence à zéro. Ce contrôle a bloqué la publication du 17/09 à
+    # 10h11, alors que CMT n'avait pas encore échangé un seul titre.
+    #
+    # Ce qui est interdit est bien plus étroit : une bougie PENDANT la
+    # suspension — la fenêtre où le titre ne cotait pas — et c'est exactement
+    # ce que vérifie l'assertion précédente.
 
 
 def test_la_serie_publiee_est_bien_celle_qui_a_ete_acceptee():
@@ -387,10 +395,18 @@ def _titres_dont_la_serie_a_change() -> set:
 
 
 def _series_modifiees_dans_cette_livraison() -> set:
-    """Les titres dont le fichier de chandelles diffère de `origin/main`.
+    """Les titres dont l'HISTORIQUE DÉJÀ PUBLIÉ a été réécrit.
 
-    ⚠️ C'est la mesure de ce que la livraison FAIT, et non de ce que le dépôt
-    a déjà reçu. Sans elle, l'exemption ne fait que grandir.
+    ⚠️ AJOUTER LA SÉANCE DU JOUR N'EST PAS RÉÉCRIRE L'HISTOIRE.
+    Ma première version comparait les fichiers entiers à `origin/main`. Or le
+    moteur ajoute une bougie à chaque titre coté, tous les jours : le contrôle
+    a vu « 52 séries modifiées sur 75 », a conclu à une opération de masse, et
+    a bloqué la publication du 17/09 à 10h11 — en pleine séance.
+
+    Un run quotidien touche toutes les séries par construction. Ce qui doit
+    alarmer, c'est qu'une livraison RÉÉCRIVE des séances déjà servies. On ne
+    compare donc que la partie commune : jusqu'à la dernière date que
+    `origin/main` publiait pour ce titre.
     """
     import subprocess
     try:
@@ -399,7 +415,24 @@ def _series_modifiees_dans_cette_livraison() -> set:
             text=True, cwd=RACINE, stderr=subprocess.DEVNULL)
     except subprocess.CalledProcessError:
         return set()
-    return {Path(l).stem for l in sortie.split() if l.endswith(".json")}
+
+    reecrits = set()
+    for chemin in (l for l in sortie.split() if l.endswith(".json")):
+        t = Path(chemin).stem
+        try:
+            base = json.loads(subprocess.check_output(
+                ["git", "show", f"origin/main:{chemin}"],
+                text=True, cwd=RACINE, stderr=subprocess.DEVNULL))
+            livre = json.loads((RACINE / chemin).read_text(encoding="utf-8"))
+        except (subprocess.CalledProcessError, OSError, json.JSONDecodeError):
+            reecrits.add(t)          # illisible : on ne présume pas de l'innocence
+            continue
+        if not base:
+            continue
+        fin = base[-1]["d"]
+        if [b for b in base] != [b for b in livre if b["d"] <= fin]:
+            reecrits.add(t)
+    return reecrits
 
 
 def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():

@@ -303,6 +303,16 @@ def test_cmt_garde_sa_derniere_seance_reelle():
         f"{len(jusqu_a_la_suspension)} séances jusqu'au 16/07, la série reçue "
         "en compte 681")
     assert jusqu_a_la_suspension[-1]["d"] == "2026-07-16"
-    assert all(b["v"] > 0 for b in serie), (
-        "une séance à volume nul est revenue dans la série — les 28 fantômes "
-        "de la suspension avaient précisément cette signature")
+    # ⚠️ ET LA PORTÉE COMPTE. Écrit sur TOUTE la série, ce contrôle interdisait
+    # à CMT de traverser une séance sans échange — et il a bloqué la
+    # publication du 17/09 à 10h11, alors que le titre, rouvert la veille,
+    # n'avait pas encore trouvé de contrepartie. Un volume nul en séance n'est
+    # pas un fantôme : c'est un marché qui n'a pas encore traité.
+    #
+    # Les 28 fantômes, eux, étaient datés PENDANT la suspension — là où le
+    # titre ne cotait pas. Cette fenêtre est gardée par
+    # `test_aucune_bougie_negociee_apres_la_suspension`, qui n'y tolère aucune
+    # bougie, échangée ou non. Ici on protège ce qui a été REÇU : les 681
+    # séances réceptionnées avaient toutes un échange.
+    assert all(b["v"] > 0 for b in jusqu_a_la_suspension), (
+        "une séance à volume nul est apparue dans la période réceptionnée")

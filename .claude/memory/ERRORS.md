@@ -586,3 +586,71 @@ résultat** : `extension_credible()` refuse un historique rapatrié qui ne se
 raccorde pas au dernier cours connu (±10 %) ou qui tombe sur la série d'un autre
 émetteur trois séances de suite. Les deux épreuves, parce qu'aucune ne suffit :
 le raccord est muet quand on ne connaît rien du titre — le cas de Maroc Leasing.
+
+---
+
+## Famille 14 — Mes propres contrôles ont bloqué la publication (17/09/2026)
+
+> ⚠️ CETTE FAMILLE EST LA PLUS GÊNANTE DU FICHIER. Les quatre tests qui ont
+> empêché le terminal de se mettre à jour pendant une séance ouverte sont les
+> miens, écrits la veille et l'avant-veille. Aucun ne décrivait une règle : tous
+> figeaient l'état du jour où je les ai écrits.
+
+    17/09/2026, 10h11 UTC — séance ouverte depuis 9h30 (Casablanca).
+    Le moteur tourne, produit data.json, et les contrôles bloquants refusent.
+    Le terminal reste sur la clôture de la veille.
+
+### 1. « la série publiée EST l'export » — interdisait aux titres de coter
+
+    assert [b["d"] for b in serie] == sorted(export)
+
+L'export de l'opérateur s'arrête au 16/09. Dès que le moteur a ajouté la bougie
+du 17, cinq titres ont été déclarés fautifs.
+**Cause** : j'ai confondu « l'export fait foi » avec « l'export est tout ».
+**Règle** : sur la période QUE L'EXPORT COUVRE, la série est l'export. Après,
+elle est libre.
+⚠️ **J'avais corrigé exactement cette faute sur CMT l'avant-veille**, en écrivant
+qu'« un test qui exige que la série s'arrête à une date n'énonce plus une règle :
+il interdit au titre de coter ». Je l'ai refaite deux jours plus tard, sur cinq
+titres d'un coup. Savoir énoncer la leçon n'est pas la même chose que l'appliquer.
+
+### 2 et 3. « aucune bougie à volume nul » — interdisait une séance sans échange
+
+    assert all(b["v"] > 0 for b in serie)
+
+À 11h, CMT — rouverte la veille après deux mois de suspension — n'avait pas
+encore trouvé de contrepartie. Sa bougie du jour avait un volume nul.
+**Cause** : j'ai généralisé à toute la série une signature qui ne valait que
+dans la fenêtre de suspension. Les 28 fantômes de juillet étaient des bougies à
+volume nul PENDANT la suspension ; c'est la fenêtre qui les caractérisait, pas
+le volume.
+**Signal** : un contrôle qui se déclenche sur un titre peu liquide un jour
+ordinaire ne décrit pas une anomalie.
+
+### 4. « opération de masse » — un run quotidien en est une
+
+    bouges = {titres dont le fichier de chandelles diffère de origin/main}
+    assert len(bouges) < univers / 3
+
+Le moteur ajoute une bougie à chaque titre coté, tous les jours. Le contrôle a
+compté **52 séries modifiées sur 75** et conclu à une opération de masse.
+**Cause** : j'ai mesuré « le fichier a changé » là où je voulais dire « l'histoire
+déjà publiée a été réécrite ». Ajouter la séance du jour n'est pas réécrire.
+**Règle** : ne comparer que la partie commune — jusqu'à la dernière date que
+`origin/main` publiait pour ce titre.
+
+### Ce que cette famille apprend
+
+**Un test écrit sur l'état du jour hérite de tout ce que cet état a
+d'accidentel.** Les quatre sont passés au vert chez moi : j'avais lancé le
+moteur, donc mes données portaient déjà la séance du jour, et je les ai figées
+sans le voir.
+
+⚠️ **LA PARADE N'EST PAS DE RELIRE PLUS ATTENTIVEMENT.** C'est de se demander,
+pour chaque assertion : *« qu'est-ce qui, demain, la ferait rougir sans que rien
+soit cassé ? »* Une date qui avance, un titre qui ne traite pas, une séance qui
+s'ajoute. Si la réponse existe, l'assertion décrit un instantané.
+
+⚠️ **ET LA PORTE BLOQUANTE A BIEN FONCTIONNÉ.** Elle a refusé de publier un
+fichier que les contrôles rejetaient — c'est exactement son rôle. Le défaut
+n'était pas dans la porte, il était dans ce que je lui avais demandé de vérifier.
