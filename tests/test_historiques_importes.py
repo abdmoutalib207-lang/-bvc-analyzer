@@ -66,10 +66,28 @@ def _serie(ticker: str) -> list:
 def test_la_serie_est_celle_de_l_operateur(ticker):
     """Même dates, mêmes clôtures. C'est tout ce qu'un import doit garantir."""
     op, s = _export(ticker), _serie(ticker)
-    assert [b["d"] for b in s] == sorted(op), (
-        f"{ticker} : les dates publiées ne sont pas celles de l'export")
+
+    # ⚠️ L'EXPORT COUVRE UNE PÉRIODE, IL N'INTERDIT PAS L'AVENIR.
+    #
+    # Écrit `[b["d"] for b in s] == sorted(op)`, ce test exigeait que la série
+    # publiée soit EXACTEMENT l'export — donc que ces cinq titres ne cotent
+    # plus jamais. Il a bloqué la publication du 17/09 à 10h11, séance ouverte,
+    # dès que le moteur a ajouté la bougie du jour.
+    #
+    # ⚠️ C'EST LA MÊME FAUTE QUE J'AVAIS CORRIGÉE SUR CMT L'AVANT-VEILLE, en
+    # écrivant noir sur blanc qu'« un test qui exige que la série s'arrête à
+    # une date n'énonce plus une règle : il interdit au titre de coter ». Je
+    # l'ai refaite deux jours plus tard, sur cinq titres à la fois.
+    #
+    # La règle : sur la période que l'export couvre, la série publiée est
+    # l'export, date pour date et clôture pour clôture. Après, elle est libre.
+    fin = max(op)
+    couvert = [b for b in s if b["d"] <= fin]
+    assert [b["d"] for b in couvert] == sorted(op), (
+        f"{ticker} : sur la période de l'export ({min(op)} → {fin}), les dates "
+        f"publiées ne sont pas celles de l'export")
     ecarts = [f"{b['d']} : {b['c']} ≠ {op[b['d']]['close']}"
-              for b in s if abs(b["c"] - float(op[b["d"]]["close"])) > 0.011]
+              for b in couvert if abs(b["c"] - float(op[b["d"]]["close"])) > 0.011]
     assert not ecarts, f"{ticker} : {len(ecarts)} clôtures divergentes {ecarts[:4]}"
 
 
