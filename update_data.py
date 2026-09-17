@@ -55,7 +55,8 @@ except NameError:
 
 from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
                         COMPANY_NAMES, COMPANY_SECTORS, est_ferie_fixe,
-                        est_suspendu, SPLITS, SUSPENSIONS)
+                        est_suspendu, SPLITS, SUSPENSIONS,
+                        SEANCES_ANNULEES, seance_annulee)
 
 TICKERS = TICKERS_ALL
 
@@ -967,6 +968,72 @@ def fusionner_cotations(live_prices, idb_asof, cdg=None, bmce=None, lignes_cdg=N
                            f"séance de référence portée au {bmce_asof} par BMCE")
             idb_asof = bmce_asof
 
+    return idb_asof
+
+
+def _ecarter_seances_annulees(live_prices, idb_asof):
+    """Une séance annulée par l'opérateur n'a pas eu lieu. Renvoie la séance retenue.
+
+    ⚠️ CE N'EST NI UN FÉRIÉ NI UNE SÉANCE FANTÔME, et c'est pour cela qu'aucun
+    des deux garde-fous existants ne la voit.
+
+    Un férié se connaît d'avance : `est_ferie_fixe` le lit dans un calendrier.
+    Une séance fantôme se déduit des données : `_recaler_seance_fantome`
+    reconnaît la signature d'une source qui rediffuse la veille — au moins 95 %
+    de clôtures identiques.
+
+    Une séance ANNULÉE ne ressemble à ni l'une ni l'autre. Le 17/09/2026, la
+    Bourse de Casablanca a ouvert, coté de 09h30 à 11h18, puis arrêté la séance
+    pour incident technique et annulé toutes les transactions de la journée.
+    BMCE servait 55 titres datés du jour, avec des volumes réels et des heures
+    d'échange échelonnées : rien, dans les chiffres, ne trahissait quoi que ce
+    soit. Les cours étaient authentiques ; c'est leur EXISTENCE JURIDIQUE qui a
+    été retirée.
+
+    ⚠️ AUCUNE DE NOS SOURCES NE PUBLIE LE STATUT D'UNE SÉANCE. Elles servent des
+    cours. La seule défense possible est une déclaration écrite à la main dans
+    `SEANCES_ANNULEES`, et ce contrôle qui la fait respecter.
+
+    Les lignes écartées retombent sur la chaîne de repli (R3), qui les ramènera
+    aux chandelles — c'est-à-dire à la dernière séance réellement valide. Rien
+    n'est inventé : on refuse de servir ce que l'opérateur a retiré.
+    """
+    annulees = sorted(d for d in {str(v.get("asof") or "")[:10]
+                                  for v in live_prices.values()} if seance_annulee(d))
+    if not annulees:
+        return idb_asof
+
+    ecartes = [s for s, v in live_prices.items()
+               if seance_annulee(str(v.get("asof") or "")[:10])]
+    for sym in ecartes:
+        live_prices.pop(sym, None)
+    logger.warning(
+        f"Séance(s) ANNULÉE(S) par l'opérateur : {', '.join(annulees)} — "
+        f"{len(ecartes)} ligne(s) écartée(s), la chaîne de repli reprend la main. "
+        f"Motif : {SEANCES_ANNULEES[annulees[-1]]['motif'][:90]}…")
+
+    if seance_annulee(idb_asof):
+        # ⚠️ LA NOUVELLE RÉFÉRENCE SE PREND AUX CHANDELLES, PAS AUX LIGNES QUI
+        # RESTENT. Ma première version prenait le maximum des lignes
+        # survivantes : comme presque toutes les sources dataient du jour
+        # annulé, il n'en restait que trois, et la séance de référence est
+        # tombée au 05/08 — six semaines en arrière. Les chandelles, elles,
+        # tiennent la dernière séance réellement valide.
+        nouvelle = ""
+        try:
+            sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
+            from seance import derniere_seance_connue
+            nouvelle = derniere_seance_connue() or ""
+        except Exception:
+            nouvelle = ""
+        if not nouvelle:
+            restantes = [str(v.get("asof") or "")[:10] for v in live_prices.values()]
+            restantes = [d for d in restantes if d and not seance_annulee(d)]
+            nouvelle = max(restantes) if restantes else ""
+        logger.warning(f"  séance de référence ramenée du {idb_asof} au "
+                       f"{nouvelle or 'inconnue'} (dernière séance valide "
+                       f"enregistrée dans les chandelles)")
+        return nouvelle
     return idb_asof
 
 
@@ -2523,6 +2590,7 @@ def run(dry_run=False, push=False, token=""):
     # prend du retard un jour, IDBourse reprend la main d'elle-même — c'est ce
     # mécanisme, dans l'autre sens, qui a sauvé la séance du 27/08.
     IDB_ASOF = fusionner_cotations(live_prices, IDB_ASOF)
+    IDB_ASOF = _ecarter_seances_annulees(live_prices, IDB_ASOF)
 
     seance_fictive = _recaler_seance_fantome(live_prices)
     if seance_fictive:
@@ -3083,8 +3151,31 @@ def run(dry_run=False, push=False, token=""):
         info = TICKER_INFO.get(ticker, {})
         # La capitalisation est confrontée à prix × actions sourcées AVANT
         # d'être publiée. Une valeur refusée ne bloque que ce titre-ci.
+        # ⚠️ LA CAPITALISATION PUBLIÉE HIER PASSE AVANT LA TABLE FIGÉE.
+        #
+        # C'était `lp.get("cap") or fd.get("cap")` : dès que la ligne vivante
+        # disparaissait, on sautait par-dessus tout ce qu'on savait pour
+        # retomber sur `FOND_DATA` — une table écrite en dur où Wafa Assurance
+        # vaut 6 500 MDHS depuis toujours, contre 18 200 au marché.
+        #
+        # Le cas s'est présenté le 17/09 : la séance ayant été annulée, toutes
+        # les lignes vivantes ont été écartées et la capitalisation de la moitié
+        # de la cote est retombée sur la table. Les contrôles l'ont vu — quatre
+        # tests ont rougi d'un coup — mais le défaut, lui, existait depuis
+        # toujours : il suffisait que les sources soient muettes.
+        #
+        # `_ex_all` porte le data.json précédent. Une capitalisation publiée
+        # hier est datée, vérifiée, et cohérente avec le cours d'hier.
+        _cap_precedente = (_ex_all.get(ticker) or {}).get("cap")
         _cap_retenue, _cap_source = _capitalisation(
-            ticker, price, lp.get("cap") or fd.get("cap"), src_prix)
+            ticker, price, lp.get("cap") or _cap_precedente or fd.get("cap"),
+            src_prix)
+        # ⚠️ ET LE CHAMP DIT D'OÙ ELLE VIENT. « servie » pour une valeur reprise
+        # du fichier de la veille serait un mensonge par raccourci : elle a été
+        # servie, mais hier. Un chiffre repris sans le dire est exactement ce
+        # qu'on reproche à la table figée.
+        if _cap_source == "servie" and not lp.get("cap") and _cap_precedente:
+            _cap_source = "publiee_la_veille"
         tickers_out.append({
             "symbol": ticker,
             # ── Bloc _meta (spécification CLAUDE.md) ─────────────────────────
@@ -3303,6 +3394,13 @@ def run(dry_run=False, push=False, token=""):
         today_str = IDB_ASOF
         if not today_str:
             logger.info("  Candles J : date de séance inconnue (IDBourse muet) — ignoré")
+        elif seance_annulee(today_str):
+            # ⚠️ Ceinture ET bretelles. `_ecarter_seances_annulees` a déjà retiré
+            # les lignes en amont ; si l'on arrive ici, c'est qu'une autre voie
+            # a ramené la date. Une bougie écrite sur une séance annulée serait
+            # la trace durable d'un jour que la Bourse a effacé.
+            logger.error(f"  Candles J : la séance du {today_str} a été ANNULÉE "
+                         f"par l'opérateur — aucune bougie écrite")
         elif today_str != datetime.now().strftime("%Y-%m-%d"):
             logger.info(f"  Candles J : dernière séance cotée = {today_str}, "
                         f"pas aujourd'hui — aucune bougie ajoutée")

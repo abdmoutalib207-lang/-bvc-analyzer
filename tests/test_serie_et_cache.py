@@ -409,6 +409,12 @@ def _series_modifiees_dans_cette_livraison() -> set:
     `origin/main` publiait pour ce titre.
     """
     import subprocess
+    import sys as _sys
+    _sys.path.insert(0, str(RACINE))
+    try:
+        from bvc_config import SEANCES_ANNULEES as _annulees
+    except ImportError:
+        _annulees = {}
     try:
         sortie = subprocess.check_output(
             ["git", "diff", "--name-only", "origin/main", "--", "pipeline/candles"],
@@ -429,7 +435,16 @@ def _series_modifiees_dans_cette_livraison() -> set:
             continue
         if not base:
             continue
-        fin = base[-1]["d"]
+
+        # ⚠️ RETIRER UNE SÉANCE ANNULÉE N'EST PAS RÉÉCRIRE L'HISTOIRE.
+        # Le 17/09, la Bourse a arrêté sa séance et annulé toutes les
+        # transactions. La purge a retiré 54 bougies sur 54 titres — et ce
+        # contrôle, qui compte les séries touchées, a crié à l'opération de
+        # masse. Il avait raison de compter ; il lui manquait de savoir que ce
+        # retrait est DÉCLARÉ, ligne par ligne, dans `SEANCES_ANNULEES`.
+        base = [b for b in base if b["d"] not in _annulees]
+
+        fin = base[-1]["d"] if base else ""
         if [b for b in base] != [b for b in livre if b["d"] <= fin]:
             reecrits.add(t)
     return reecrits
