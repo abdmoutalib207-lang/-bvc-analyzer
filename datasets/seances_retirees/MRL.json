@@ -1,0 +1,616 @@
+{
+  "_statut": "INSTRUCTION — ces séances sont RETIRÉES de la série publiée. Ce n'est pas un signalement : datasets/historiques_candidats/ PROPOSE, ce dossier INSTRUIT.",
+  "_pourquoi_retirer_et_non_corriger": "Maroc Leasing n'a AUCUN export Excel dans le dépôt et n'apparaît dans aucun bulletin archivé avant septembre. Aucune source ne peut fournir ces séances.",
+  "ticker": "MRL",
+  "instrument": "Maroc Leasing",
+  "ecrit_par": "pipeline/collect_history_bvcscrap.py",
+  "mecanisme": "MANUAL_MAP associait MRL au nom « SODEP », avec ce commentaire dans le code : « SODEP = ancien nom BVCscrap pour Marsa Maroc (MRL) ». C'est une confusion : MRL est MAROC LEASING, et Sodep-Marsa Maroc est MSA. Le programme a donc demandé, et obtenu, l'historique de Marsa Maroc sous le ticker de Maroc Leasing. Sans export XLSX, la date de départ vaut « aujourd'hui moins 31 jours », ce qui place le début de la contamination au 2026-05-25.",
+  "preuve": "14 des 22 clôtures égalent au centime celles de MSA les mêmes jours ; les 22 sont entre 800 et 869 DH alors que Maroc Leasing cote 365–390 — sa capitalisation officielle (1 081 689 974,40 DH) divisée par ses 2 776 768 titres donne 389,55 DH.",
+  "lignes": [
+    {
+      "d": "2026-05-25",
+      "retiree": {
+        "o": 851.0,
+        "h": 869.0,
+        "l": 841.0,
+        "c": 851.0,
+        "v": 21509
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 851.0
+      }
+    },
+    {
+      "d": "2026-05-26",
+      "retiree": {
+        "o": 822.6,
+        "h": 868.0,
+        "l": 822.6,
+        "c": 822.6,
+        "v": 7298
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 822.6
+      }
+    },
+    {
+      "d": "2026-06-01",
+      "retiree": {
+        "o": 839.0,
+        "h": 845.0,
+        "l": 830.0,
+        "c": 839.0,
+        "v": 11047
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 839.0
+      }
+    },
+    {
+      "d": "2026-06-02",
+      "retiree": {
+        "o": 820.2,
+        "h": 850.0,
+        "l": 820.0,
+        "c": 820.2,
+        "v": 36016
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 820.2
+      }
+    },
+    {
+      "d": "2026-06-03",
+      "retiree": {
+        "o": 816.5,
+        "h": 830.0,
+        "l": 816.5,
+        "c": 816.5,
+        "v": 784
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 816.5
+      }
+    },
+    {
+      "d": "2026-06-04",
+      "retiree": {
+        "o": 820.3,
+        "h": 844.0,
+        "l": 820.3,
+        "c": 820.3,
+        "v": 2399
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 820.3
+      }
+    },
+    {
+      "d": "2026-06-05",
+      "retiree": {
+        "o": 824.0,
+        "h": 837.6,
+        "l": 821.3,
+        "c": 824.0,
+        "v": 8563
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 824.0
+      }
+    },
+    {
+      "d": "2026-06-08",
+      "retiree": {
+        "o": 824.0,
+        "h": 824.0,
+        "l": 812.0,
+        "c": 824.0,
+        "v": 7156
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 824.0
+      }
+    },
+    {
+      "d": "2026-06-09",
+      "retiree": {
+        "o": 820.0,
+        "h": 825.0,
+        "l": 820.0,
+        "c": 820.0,
+        "v": 51389
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 820.0
+      }
+    },
+    {
+      "d": "2026-06-10",
+      "retiree": {
+        "o": 815.0,
+        "h": 821.0,
+        "l": 812.1,
+        "c": 815.0,
+        "v": 9794
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 815.0
+      }
+    },
+    {
+      "d": "2026-06-11",
+      "retiree": {
+        "o": 800.1,
+        "h": 815.0,
+        "l": 800.0,
+        "c": 800.1,
+        "v": 95814
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 800.1
+      }
+    },
+    {
+      "d": "2026-06-12",
+      "retiree": {
+        "o": 815.0,
+        "h": 833.1,
+        "l": 812.2,
+        "c": 815.0,
+        "v": 9105
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 815.0
+      }
+    },
+    {
+      "d": "2026-06-15",
+      "retiree": {
+        "o": 869.0,
+        "h": 869.0,
+        "l": 841.0,
+        "c": 869.0,
+        "v": 67589
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 869.0
+      }
+    },
+    {
+      "d": "2026-06-16",
+      "retiree": {
+        "o": 868.0,
+        "h": 870.0,
+        "l": 860.0,
+        "c": 868.0,
+        "v": 18244
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 868.0
+      }
+    },
+    {
+      "d": "2026-06-18",
+      "retiree": {
+        "o": 861.5,
+        "h": 879.0,
+        "l": 860.0,
+        "c": 861.5,
+        "v": 14650
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 860.0
+      }
+    },
+    {
+      "d": "2026-06-19",
+      "retiree": {
+        "o": 855.0,
+        "h": 859.0,
+        "l": 845.0,
+        "c": 855.0,
+        "v": 15913
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 861.5
+      }
+    },
+    {
+      "d": "2026-06-22",
+      "retiree": {
+        "o": 848.1,
+        "h": 858.0,
+        "l": 848.1,
+        "c": 848.1,
+        "v": 4916
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": null
+      }
+    },
+    {
+      "d": "2026-06-23",
+      "retiree": {
+        "o": 863.0,
+        "h": 863.0,
+        "l": 845.0,
+        "c": 863.0,
+        "v": 14004
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": null
+      }
+    },
+    {
+      "d": "2026-06-24",
+      "retiree": {
+        "o": 868.0,
+        "h": 868.0,
+        "l": 868.0,
+        "c": 868.0,
+        "v": 0
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": null
+      }
+    },
+    {
+      "d": "2026-06-25",
+      "retiree": {
+        "o": 868.0,
+        "h": 868.0,
+        "l": 868.0,
+        "c": 868.0,
+        "v": 0
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 860.0
+      }
+    },
+    {
+      "d": "2026-06-26",
+      "retiree": {
+        "o": 868.0,
+        "h": 868.0,
+        "l": 868.0,
+        "c": 868.0,
+        "v": 0
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 842.0
+      }
+    },
+    {
+      "d": "2026-06-29",
+      "retiree": {
+        "o": 868.0,
+        "h": 868.0,
+        "l": 868.0,
+        "c": 868.0,
+        "v": 0
+      },
+      "motif": "cours de Sodep-Marsa Maroc (MSA) — Maroc Leasing cote autour de 367 DH",
+      "clôture_identique_a": {
+        "ticker": "MSA",
+        "valeur": 844.1
+      }
+    },
+    {
+      "d": "2026-06-30",
+      "retiree": {
+        "o": 235.0,
+        "h": 235.0,
+        "l": 235.0,
+        "c": 235.0,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-01",
+      "retiree": {
+        "o": 235.0,
+        "h": 235.0,
+        "l": 235.0,
+        "c": 235.0,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-02",
+      "retiree": {
+        "o": 235.0,
+        "h": 235.0,
+        "l": 235.0,
+        "c": 235.0,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-03",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-06",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-07",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-08",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-09",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-10",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-13",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-14",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-15",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-16",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-17",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-20",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-21",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-22",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-23",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-24",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-27",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-28",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-29",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-30",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-07-31",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    },
+    {
+      "d": "2026-08-03",
+      "retiree": {
+        "o": 350.25,
+        "h": 350.25,
+        "l": 350.25,
+        "c": 350.25,
+        "v": 0
+      },
+      "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
+    }
+  ]
+}

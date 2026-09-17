@@ -365,6 +365,8 @@ def _titres_dont_la_serie_a_change() -> set:
       · `historiques_importes/`  la série entière vient d'un export de
                                  l'opérateur, sans figer le titre (AKD, HAL,
                                  MUT, TMA, TQA — ajouté le 16/09/2026)
+      · `seances_retirees/`      des séances NOMMÉES sont retirées, faute de
+                                 pouvoir les corriger (ATL, MRL — 17/09/2026)
 
     Dans les trois cas, les anciennes valeurs décrivaient une autre série. Pour
     tous les autres titres, seul `rsi` peut bouger.
@@ -379,8 +381,25 @@ def _titres_dont_la_serie_a_change() -> set:
     """
     dossiers = (RACINE / "datasets" / "series_acceptees",
                 RACINE / "datasets" / "corrections_acceptees",
-                RACINE / "datasets" / "historiques_importes")
+                RACINE / "datasets" / "historiques_importes",
+                RACINE / "datasets" / "seances_retirees")
     return {f.stem for d in dossiers if d.exists() for f in d.glob("*.json")}
+
+
+def _series_modifiees_dans_cette_livraison() -> set:
+    """Les titres dont le fichier de chandelles diffère de `origin/main`.
+
+    ⚠️ C'est la mesure de ce que la livraison FAIT, et non de ce que le dépôt
+    a déjà reçu. Sans elle, l'exemption ne fait que grandir.
+    """
+    import subprocess
+    try:
+        sortie = subprocess.check_output(
+            ["git", "diff", "--name-only", "origin/main", "--", "pipeline/candles"],
+            text=True, cwd=RACINE, stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError:
+        return set()
+    return {Path(l).stem for l in sortie.split() if l.endswith(".json")}
 
 
 def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():
@@ -394,18 +413,32 @@ def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():
         pytest.skip("origin/main absent de ce clone")
     livre = json.loads((RACINE / "pipeline" / "historical_data.json")
                        .read_text(encoding="utf-8"))
-    exceptions = _titres_dont_la_serie_a_change()
-    # ⚠️ Une exception qui avalerait tout ne contrôlerait plus rien.
-    assert exceptions, "aucune série réceptionnée : le contrôle n'a plus d'objet"
-    # ⚠️ Le seuil dit « les exceptions restent une MINORITÉ », pas « il y en a
-    # moins de dix ». Écrit en dur à 10, il est devenu rouge au treizième titre
-    # corrigé — alors que treize sur soixante-quatorze ne menace rien. Un
-    # garde-fou qui se déclenche sur le succès du travail qu'il protège est mal
-    # posé ; il compte désormais en proportion de l'univers.
+    # ⚠️ LES REGISTRES SONT CUMULATIFS, LE CONTRÔLE NE DOIT PAS L'ÊTRE.
+    #
+    # Ce test comparait le cache livré au cache de `origin/main` et exemptait
+    # TOUS les titres jamais inscrits dans un registre. Au 17/09 ils étaient
+    # vingt-cinq sur soixante-quinze — exactement le tiers que le garde-fou
+    # refuse — et le contrôle s'est arrêté. Il avait raison de s'arrêter, et la
+    # réponse n'est pas de desserrer le seuil.
+    #
+    # Un titre corrigé le 15/09 n'a aucune raison d'être exempté le 17. Ce qui
+    # a le droit de bouger dans CETTE livraison, ce sont les titres dont la
+    # SÉRIE a changé dans cette livraison ET qui portent une instruction écrite.
+    # Les deux conditions, pas l'une ou l'autre.
+    #
+    # C'est un RESSERREMENT : l'exemption passe de vingt-cinq titres à ceux que
+    # la livraison touche réellement.
+    bouges = _series_modifiees_dans_cette_livraison()
+    exceptions = _titres_dont_la_serie_a_change() & bouges
+
+    # ⚠️ Et le seuil porte désormais sur ce que la livraison FAIT, pas sur ce
+    # que l'histoire contient. Toucher un tiers des séries d'un coup est une
+    # opération de masse : elle doit être refusée ici, quelle que soit la
+    # qualité des instructions qui l'accompagnent.
     univers = len([k for k in base if not k.startswith("_")])
-    assert len(exceptions) < univers / 3, (
-        f"les exceptions avalent l'univers : {len(exceptions)} sur {univers} "
-        f"— {sorted(exceptions)}")
+    assert len(bouges) < univers / 3, (
+        f"cette livraison modifie {len(bouges)} séries sur {univers} "
+        f"— opération de masse : {sorted(bouges)}")
     fautifs = {}
     for t in (k for k in base if not k.startswith("_") and k not in exceptions):
         d = {k for k in set(base[t]) | set(livre.get(t, {}))
