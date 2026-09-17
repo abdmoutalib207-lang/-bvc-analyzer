@@ -66,7 +66,18 @@ MANUAL_MAP: dict[str, str] = {
     "LBV":  "LABEL VIE",
     "LES":  "Lesieur Cristal",
     "TQA":  "TAQA Morocco",
-    "MRL":  "SODEP",           # SODEP = ancien nom BVCscrap pour Marsa Maroc (MRL)
+    # ⚠️ "MRL": "SODEP" RETIRÉ LE 17/09/2026 — C'ÉTAIT UNE CONFUSION D'IDENTITÉ.
+    # Le commentaire disait « SODEP = ancien nom BVCscrap pour Marsa Maroc (MRL) ».
+    # Or MRL est MAROC LEASING, et Sodep-Marsa Maroc est MSA (déjà mappé plus bas).
+    # Le programme a donc importé l'historique de Marsa Maroc sous le ticker de
+    # Maroc Leasing : 22 séances entre 800 et 869 DH sur un titre qui cote 367.
+    # Voir datasets/seances_retirees/MRL.json.
+    #
+    # ⚠️ AUCUN NOM DE REMPLACEMENT N'EST INSCRIT. La table des noms de BVCscrap
+    # est servie par le fournisseur, qui répond 403 : nous ne pouvons donc PAS
+    # vérifier sous quel libellé il connaît Maroc Leasing. Écrire un nom supposé
+    # correct rouvrirait exactement le défaut qu'on referme. Pas de nom vaut
+    # mieux qu'un nom invérifiable.
     "TMA":  "Total Maroc",
     "CMT":  "CMT",
     "MNG":  "Managem",
@@ -177,6 +188,84 @@ def load_xlsx(ticker: str) -> pd.DataFrame:
     except Exception as e:
         log.warning(f"Erreur lecture {path}: {e}")
         return pd.DataFrame()
+
+
+def _dernier_cours_publie(ticker, candles_dir):
+    """La dernière clôture que nous servons déjà pour ce titre, ou None."""
+    f = Path(candles_dir) / f"{ticker}.json"
+    if not f.exists():
+        return None
+    try:
+        s = json.loads(f.read_text(encoding="utf-8"))
+        return float(s[-1]["c"]) if s else None
+    except (json.JSONDecodeError, OSError, KeyError, ValueError, IndexError):
+        return None
+
+
+def _series_publiees(candles_dir, sauf):
+    """{ticker: {date: clôture}} pour tous les AUTRES titres déjà publiés."""
+    out = {}
+    for f in Path(candles_dir).glob("*.json"):
+        if f.stem == sauf:
+            continue
+        try:
+            out[f.stem] = {b["d"]: float(b["c"])
+                           for b in json.loads(f.read_text(encoding="utf-8"))}
+        except (json.JSONDecodeError, OSError, KeyError, ValueError):
+            continue
+    return out
+
+
+def extension_credible(ticker, ext_df, connu_dernier_cours, series_publiees):
+    """Un historique rapatrié par NOM doit prouver qu'il est bien le nôtre.
+
+    ⚠️ CE PROGRAMME IDENTIFIE LES SOCIÉTÉS PAR LEUR NOM, et la résolution du nom
+    se fait CHEZ LE FOURNISSEUR — une table que nous ne pouvons ni lire ni
+    auditer. C'est ainsi que Maroc Leasing a reçu l'historique de Marsa Maroc et
+    AtlantaSanad celui d'Auto Hall, en juin 2026, sans qu'aucun contrôle ne
+    bronche.
+
+    Deux épreuves, parce qu'aucune seule ne suffit :
+
+    1. LE RACCORD. La première clôture rapatriée doit tenir dans les ±10 % que
+       la BVC autorise par séance (R10) face au dernier cours que nous
+       connaissons. ATL est passé de 132,00 à 68,99 : −48 %, refusé.
+       ⚠️ Cette épreuve est muette quand nous ne connaissons RIEN du titre —
+       c'était le cas de Maroc Leasing, sans export. D'où la seconde.
+
+    2. LA COLLISION. Si les clôtures rapatriées tombent sur celles d'un AUTRE
+       titre déjà publié, plusieurs jours de suite, ce n'est pas une
+       coïncidence : c'est son historique. Deux titres distincts ne cotent pas
+       au centime le même prix trois séances durant.
+
+    Renvoie (True, "") ou (False, motif).
+    """
+    if ext_df is None or ext_df.empty:
+        return True, ""
+
+    prem = float(ext_df["close"].iloc[0])
+    if connu_dernier_cours and connu_dernier_cours > 0:
+        ecart = prem / connu_dernier_cours - 1
+        if abs(ecart) > 0.10:
+            return False, (f"la première clôture rapatriée ({prem}) s'écarte de "
+                           f"{ecart:+.0%} du dernier cours connu "
+                           f"({connu_dernier_cours}) — au-delà du plafond "
+                           f"réglementaire de ±10 % par séance")
+
+    par_date = {str(d)[:10]: float(c)
+                for d, c in zip(ext_df["date"], ext_df["close"])}
+    for autre, serie in series_publiees.items():
+        if autre == ticker:
+            continue
+        communes = [d for d in par_date if d in serie]
+        if len(communes) < 3:
+            continue
+        egales = [d for d in communes if abs(par_date[d] - serie[d]) < 1e-9]
+        if len(egales) >= 3:
+            return False, (f"{len(egales)} clôtures identiques à celles de "
+                           f"{autre} ({egales[0]} → {egales[-1]}) — cet "
+                           f"historique est celui d'un autre émetteur")
+    return True, ""
 
 
 def fetch_bvcscrap_extension(name: str, from_date: pd.Timestamp) -> pd.DataFrame:
@@ -573,6 +662,16 @@ def run(tickers_filter: list[str] | None = None) -> dict:
             else:
                 last_date = pd.Timestamp(datetime.now() - timedelta(days=31))
             ext_df = adjust_splits_df(ticker, fetch_bvcscrap_extension(name, last_date))
+
+            # ⚠️ ON N'AJOUTE PAS UN HISTORIQUE QU'ON N'A PAS IDENTIFIÉ.
+            _dernier = (float(xlsx_df["close"].iloc[-1])
+                        if not xlsx_df.empty else _dernier_cours_publie(ticker, candles_dir))
+            _ok, _motif = extension_credible(
+                ticker, ext_df, _dernier, _series_publiees(candles_dir, ticker))
+            if not _ok:
+                log.error(f"  ✗ {ticker}: extension REFUSÉE — {_motif}")
+                ext_df = pd.DataFrame()
+
             df = combine(xlsx_df, ext_df)
             if not ext_df.empty:
                 log.info(f"  +{len(ext_df)} bougies BVCscrap ajoutées")
@@ -628,15 +727,42 @@ def run(tickers_filter: list[str] | None = None) -> dict:
                         "l": r["low"], "c": r["close"], "v": r["volume"]}
                        for _, r in df.iterrows()]
             corrigees, rapport = appliquer_corrections(ticker, bougies)
-            if rapport["corrections"] or rapport["refus"] or rapport["seances_absentes"]:
+            # ⚠️ `.get`, PAS `[...]`. `appliquer()` ne renvoie NI `refus` NI
+            # `seances_absentes` quand aucun lot n'existe pour le titre — et
+            # c'est le cas ordinaire, 61 titres sur 73. L'indexer levait
+            # KeyError('refus'), qui remontait jusqu'à `main()` et faisait
+            # échouer le workflow entier : `fetch_historical_data` est rouge
+            # depuis le 15/09 pour cette seule raison.
+            #
+            # ⚠️ J'AVAIS CORRIGÉ CE DÉFAUT DANS generate_candles.py LE 16/09 ET
+            # PAS ICI, après avoir écrit moi-même que « trois programmes
+            # écrivent dans candles/, en protéger un seul ne protège rien ».
+            _refus = rapport.get("refus") or []
+            _absentes = rapport.get("seances_absentes") or []
+            if rapport["corrections"] or _refus or _absentes:
                 log.warning(
                     f"  {ticker}: {rapport['corrections']} séance(s) corrigée(s) "
                     f"réimposée(s), {rapport['deja_conformes']} déjà conforme(s)"
-                    + (f", {len(rapport['refus'])} REFUS" if rapport["refus"] else "")
-                    + (f", {len(rapport['seances_absentes'])} absente(s) de la série"
-                       if rapport["seances_absentes"] else ""))
-                for r in rapport["refus"]:
+                    + (f", {len(_refus)} REFUS" if _refus else "")
+                    + (f", {len(_absentes)} absente(s) de la série"
+                       if _absentes else ""))
+                for r in _refus:
                     log.warning(f"     refus {r['seance']} : {r['motif']}")
+
+            # ⚠️ UN REFUS INTERDIT D'ÉCRIRE. Il ne se journalise pas pour
+            # mémoire : il arrête le geste. Ce programme faisait exactement ce
+            # que faisait `generate_candles.py` le 16/09 — refuser les
+            # corrections réceptionnées de Sothema, puis écrire par-dessus.
+            # « Conservez les données et indicateurs antérieurs valides lorsqu'un
+            # nouvel import est refusé. »
+            if _refus:
+                log.error(f"  ✗ {ticker}: {len(_refus)} correction(s) réceptionnée(s) "
+                          f"refusée(s) — fichier CONSERVÉ, rien n'est écrit")
+                entree = cache_actuel.get(ticker)
+                if entree is not None:
+                    results[ticker] = entree
+                continue
+
             if rapport["corrections"]:
                 df = pd.DataFrame([{"date": pd.Timestamp(b["d"]), "open": b["o"],
                                     "high": b["h"], "low": b["l"], "close": b["c"],

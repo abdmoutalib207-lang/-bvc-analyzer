@@ -507,3 +507,82 @@ parade n'est pas d'assouplir les garde-fous — c'est de **porter le fait dans l
 registre, sourcé**, pour qu'ils puissent le consulter. Un contrôle ne peut pas
 déduire d'une série de prix qu'une autorité a remis une référence à neuf : il
 faut le lui dire, avec la pièce.
+
+---
+
+## Famille 13 — Identifier par le NOM, et croire le fournisseur sur parole (17/09/2026)
+
+> Deux titres servaient publiquement les cours d'un autre émetteur. Ce n'est pas
+> une erreur de calcul : c'est une erreur d'identité, et elle est restée invisible
+> trois mois parce que rien ne relisait le RÉSULTAT de l'appariement.
+
+### Maroc Leasing portait l'historique de Marsa Maroc
+
+`MANUAL_MAP` contenait, commentaire compris :
+
+    "MRL": "SODEP",   # SODEP = ancien nom BVCscrap pour Marsa Maroc (MRL)
+
+MRL est **Maroc Leasing**. Sodep-Marsa Maroc est **MSA**, mappé dix lignes plus
+bas sur « Marsa Maroc ». Le commentaire confond les deux sociétés et le code a
+suivi : 22 séances entre 800 et 869 DH sur un titre qui cote 367, dont 14
+égalant au centime les clôtures de MSA.
+**Cause** : une note de travail prise pour une vérification. Personne n'a
+recoupé « SODEP » avec la société que MRL désigne.
+**Signal** : le niveau de prix. Un cours ne quitte pas son ordre de grandeur.
+367 contre 850, c'est un facteur 2,3 — aucune séance ne fait ça.
+
+### AtlantaSanad portait l'historique d'Auto Hall
+
+7 séances du 08 au 16/06 à 66-69 DH sur un titre qui cote 130, les 7 clôtures
+égalant celles de HAL. `MANUAL_MAP` dit pourtant « AtlantaSanad », et porte même
+ce commentaire : « ATL = AtlantaSanad (assurance) — PAS Auto Hall (= HAL) ».
+**Cause** : la résolution du nom se fait CHEZ LE FOURNISSEUR. BVCscrap apparie
+« AtlantaSanad » contre une table servie par medias24.com, que nous ne pouvons
+ni lire ni auditer. Écrire le bon nom chez nous ne garantit rien.
+**Signal** : **la contamination commence exactement là où s'arrête la source
+fiable.** L'export XLSX d'ATL finit le 05/06 ; le programme demande la suite au
+fournisseur ; la contamination démarre le 08/06, séance suivante. Pour MRL, sans
+export, la date de départ vaut « aujourd'hui moins 31 jours » — et la
+contamination démarre 31 jours avant le run.
+
+### Ce que la réparation a appris sur les tests eux-mêmes
+
+Il a fallu **quatre versions** du détecteur avant qu'il n'accuse que les
+coupables. Chaque version ratée est une leçon :
+
+1. « bougie entière identique (o,h,l,c,v) » — ne trouvait RIEN. Les volumes
+   diffèrent : la contamination passe par le cours, pas par la bougie.
+2. « trois clôtures identiques » — accusait ADI et M2M sur trois égalités
+   espacées de **dix-neuf mois**. Deux titres finissent toujours par se croiser.
+3. « trois clôtures identiques D'AFFILÉE » — accusait AFI et RISMA, qui cotaient
+   tous deux **350,00** trois séances durant, avec des volumes sans rapport
+   (37 334 contre 30 246). Un prix rond est un rendez-vous.
+4. La bonne règle : une plage de ≥3 séances calées sur un autre titre, **dont le
+   niveau est incompatible avec celui du titre lui-même** (rapport > 1,5).
+
+⚠️ **ET LE RAPPORT DOIT ÊTRE SYMÉTRIQUE.** Écrit `dedans/ref - 1`, il donnait
+−48 % pour ATL (67 contre 130) et passait sous un seuil de 50 % : le titre
+échappait au contrôle de deux points. Une division par deux est aussi suspecte
+qu'un doublement.
+
+### Et R10 n'est pas une loi de la bande
+
+Mon premier test bloquait toute variation supérieure à ±10 % entre deux bougies.
+Il a accusé :
+- **VCNE** d'un −15 % qui s'étalait sur un MOIS — sa série a un trou du 12/05 au
+  11/06. « Deux bougies voisines » n'est pas « deux séances voisines » ; le
+  calendrier du marché se déduit des données (une date où plus de trente titres
+  ont coté est une séance).
+- **Crédit Eqdom** d'un −14,3 % le 11/02/2025 que **l'export de l'opérateur
+  porte lui-même**, après plusieurs séances sans échange réel.
+
+**R10 est un contrôle de NOTRE qualité, pas un invariant du marché.** Un test qui
+l'applique aveuglément refuse les données de la Bourse.
+
+### La parade
+
+Ne pas chercher à vérifier l'appariement — il est hors de portée. **Juger le
+résultat** : `extension_credible()` refuse un historique rapatrié qui ne se
+raccorde pas au dernier cours connu (±10 %) ou qui tombe sur la série d'un autre
+émetteur trois séances de suite. Les deux épreuves, parce qu'aucune ne suffit :
+le raccord est muet quand on ne connaît rien du titre — le cas de Maroc Leasing.

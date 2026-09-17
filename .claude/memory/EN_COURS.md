@@ -62,6 +62,42 @@ historique** — cela recréerait une référence exposée.
 
 ---
 
+## 🔴 LA SOURCE D'HISTORIQUE AUTOMATIQUE EST MORTE (constaté le 17/09/2026)
+
+- [ ] **`BVCscrap` n'interroge pas la Bourse de Casablanca : il interroge
+  `medias24.com`**, qui répond **HTTP 403 derrière Cloudflare**. Vérifié en
+  direct : `getPriceHistory` et `getMasiHistory` renvoient tous deux la page
+  « Just a moment… ».
+  - **Conséquence** : seuls les titres pour lesquels Abd Moutalib fournit un
+    export Excel ont un historique long. 44 en ont un ; **28 titres sont sous un
+    an et 6 n'ont aucune bougie**.
+  - **Ce n'est pas une perte** : l'historique git montre une progression
+    monotone (CIM : 19 → 41 → 63 → 79). Ces séries sont NÉES courtes le
+    10/06/2026 et grossissent d'une séance par jour.
+  - ⚠️ **Le workflow `fetch_historical_data` tourne chaque jour ouvré et sortait
+    VERT en ne rapatriant rien** — `except ImportError` journalisait
+    « BVCscrap non disponible » et continuait. Depuis le 15/09 il échouait
+    franchement sur `KeyError: 'refus'` (corrigé le 17/09).
+  - **À trancher** : chercher une source d'historique qui tienne (API officielle
+    BVC ? accord IDBourse ?), ou assumer que l'historique entre à la main.
+
+---
+
+## 🔔 DETTE CONNUE — anomalies sans source (17/09/2026)
+
+- [ ] **Sept variations hors plafond restent dans les séries publiées**, sur des
+  titres sans export Excel : FNB (04/08), IBM (16/07, 29/07, 30/07),
+  REB (04/08), ZLD (03/08). Ce sont des bougies à volume nul dont la valeur
+  saute. **Aucune source ne peut les corriger** — ni export, ni bulletin
+  archivé (les bulletins ne remontent qu'à septembre).
+  - ⚠️ **Ne pas les retirer à l'aveugle.** Contrairement à ATL et MRL, rien ne
+    prouve qu'elles appartiennent à un autre émetteur : elles sont seulement
+    invraisemblables. `datasets/seances_retirees/` exige la preuve, pas le
+    soupçon.
+  - Elles disparaîtront le jour où ces titres recevront un export 3 ans.
+
+---
+
 ## 🔔 ATTENDU DE ABD MOUTALIB
 
 - [ ] **Les trois secrets du bulletin par courriel — ⚠️ LE BULLETIN N'EST
