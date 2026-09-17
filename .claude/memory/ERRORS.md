@@ -654,3 +654,69 @@ s'ajoute. Si la réponse existe, l'assertion décrit un instantané.
 ⚠️ **ET LA PORTE BLOQUANTE A BIEN FONCTIONNÉ.** Elle a refusé de publier un
 fichier que les contrôles rejetaient — c'est exactement son rôle. Le défaut
 n'était pas dans la porte, il était dans ce que je lui avais demandé de vérifier.
+
+---
+
+## Famille 15 — Une séance qui a eu lieu, puis n'a plus existé (17/09/2026)
+
+> ⚠️ CELLE-CI N'A ÉTÉ TROUVÉE PAR AUCUN CONTRÔLE DU DÉPÔT. C'est Abd Moutalib
+> qui a signalé l'information, depuis un article de presse. Aucune de nos trois
+> sources ne l'aurait dite.
+
+    09h30   la Bourse de Casablanca ouvre, les échanges démarrent
+    10h39   Alphabourse : « la séance suspendue », incident technique
+    11h18   dernier échange, tous titres confondus
+    11h47   toujours rien — 47 484 titres au total, contre 216,3 MDH la veille
+    le soir la Bourse ARRÊTE DÉFINITIVEMENT la séance. Toutes les transactions,
+            saisies, modifications et annulations d'ordres sont annulées. La
+            reprise se fera sur les carnets arrêtés à la clôture du 16.
+
+### Pourquoi aucun garde-fou ne pouvait la voir
+
+| | Se reconnaît par | Le 17/09 |
+|---|---|---|
+| **Férié** | un calendrier écrit d'avance | la date n'y est pas |
+| **Séance fantôme** | ≥95 % de clôtures identiques à la veille | **17 %** |
+| **Séance annulée** | *rien dans les données* | — |
+
+Les cours étaient **authentiques** : volumes réels, heures d'échange
+échelonnées de 09h30 à 11h18, variations plausibles. **C'est leur existence
+juridique qui a été retirée, pas leur vraisemblance.**
+
+⚠️ **AUCUNE SOURCE DE COTATION NE PUBLIE LE STATUT D'UNE SÉANCE.** Elles
+servent des cours. BMCE a continué de servir 55 titres datés du 17/09 *après*
+l'annulation. Il n'existe aucun signal interne : la seule défense est une
+déclaration écrite à la main, `SEANCES_ANNULEES`.
+
+### Ce que la réparation a révélé au passage
+
+**La capitalisation retombait sur la table figée dès que les sources se
+taisaient.** Le code disait `lp.get("cap") or fd.get("cap")` : en écartant les
+lignes de la séance annulée, la capitalisation de la moitié de la cote est
+tombée sur `FOND_DATA`, où Wafa Assurance vaut 6 500 MDHS contre 18 200 au
+marché et Taqa 8 500 contre 41 068. Quatre contrôles ont rougi ensemble.
+
+⚠️ **CE DÉFAUT EXISTAIT DEPUIS TOUJOURS.** Il suffisait que les sources soient
+muettes une journée. L'annulation ne l'a pas créé, elle l'a exposé. La
+capitalisation publiée la veille passe désormais avant la table, et le champ
+`cap_source` le dit : `publiee_la_veille`, jamais « servie ».
+
+### Deux erreurs dans mon propre correctif, trouvées en le mesurant
+
+1. **J'ai écarté 77 lignes au lieu de 55.** Presque toutes les sources datent
+   leurs lignes du jour, même quand elles portent le cours de la veille.
+   Écarter par la date est juste — mais il ne restait que trois lignes.
+2. **La séance de référence est tombée au 05/08**, six semaines en arrière,
+   parce que je la recalculais sur le maximum des lignes SURVIVANTES. Elle se
+   reprend aux chandelles, qui tiennent la dernière séance réellement valide —
+   exactement comme le fait `_cliquet_seance` depuis le 28/08.
+
+**Un correctif se mesure avant d'être cru.** Les deux défauts ne se voyaient
+pas à la lecture ; ils ont sauté aux yeux au premier run.
+
+### La règle
+
+*Un cours peut être exact et sans objet.* Notre chaîne vérifie la
+vraisemblance — dates, continuité, identité, plafonds. Elle ne vérifie pas
+l'existence, parce que l'existence n'est pas dans les chiffres. Pour ça, il
+faut une déclaration reçue.

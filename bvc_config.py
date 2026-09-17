@@ -379,6 +379,56 @@ JOURS_FERIES_FIXES: set = {
 }
 
 
+# ⚠️ DES SÉANCES QUI ONT EU LIEU, PUIS N'ONT PLUS EXISTÉ.
+#
+# Un jour férié est connu d'avance. Une séance ANNULÉE ne l'est pas : elle
+# s'ouvre, elle cote, et l'opérateur la retire après coup. Les cours ont été
+# réellement échangés, et pourtant ils ne comptent pas.
+#
+# ⚠️ AUCUNE DE NOS TROIS SOURCES NE DIT QU'UNE SÉANCE A ÉTÉ ANNULÉE. Elles
+# servent des cours, pas leur statut. Le 17/09/2026, BMCE a continué de servir
+# 55 titres datés du jour, avec leurs volumes, des heures d'échange réparties de
+# 09h30 à 11h18 — une séance parfaitement crédible pour qui ne lit que les
+# chiffres. C'est un angle mort du moteur, et il ne se comble que par une
+# déclaration écrite à la main.
+#
+# Cette table est donc une INSTRUCTION, au même titre que SUSPENSIONS : elle
+# n'est pas déduite, elle est reçue.
+SEANCES_ANNULEES: dict = {
+    "2026-09-17": {
+        "motif": "séance définitivement arrêtée par la Bourse de Casablanca pour "
+                 "incident technique. Toutes les transactions, saisies, "
+                 "modifications et annulations d'ordres de la journée sont "
+                 "annulées. La reprise se fera sur la base des carnets d'ordres "
+                 "arrêtés à la clôture du mercredi 16 septembre, en tenant compte "
+                 "de la validité des ordres.",
+        "source": "communication de la Bourse de Casablanca relayée par Abd "
+                  "Moutalib le 17/09/2026 ; incident signalé le matin même par "
+                  "Alphabourse, « Bourse de Casablanca : la séance suspendue », "
+                  "publié le 17/09/2026 à 10h39",
+        "constate": "échanges observés de 09h30 à 11h18 puis plus rien ; "
+                    "47 484 titres au total contre 216,3 MDH pour la séance "
+                    "complète du 16/09",
+        "⚠️": "Les cours de cette journée ont réellement été cotés. Ils sont "
+              "néanmoins SANS OBJET : la Bourse les a annulés. Ne pas les "
+              "republier, ne pas les conserver comme clôture, ne pas les "
+              "utiliser comme référence de variation.",
+    },
+}
+
+
+def seance_annulee(date_iso: str) -> bool:
+    """Vrai si cette séance a été annulée par l'opérateur après coup.
+
+    ⚠️ Même prudence que `est_ferie_fixe` sur les entrées nulles : `date_iso`
+    vaut None dès qu'un titre n'a pas de séance connue.
+    """
+    try:
+        return date_iso[:10] in SEANCES_ANNULEES
+    except (TypeError, IndexError):
+        return False
+
+
 def est_ferie_fixe(date_iso: str) -> bool:
     """Vrai si la date « AAAA-MM-JJ » tombe sur un férié à date fixe."""
     # ⚠️ `TypeError` fait partie des cas à absorber : `date_iso` vaut None dès

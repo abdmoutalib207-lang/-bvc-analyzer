@@ -97,6 +97,43 @@ def purger_seance_fantome(candles_dir=None, dry_run=False):
     return derniere, n
 
 
+def purger_seances_annulees(candles_dir=None, dry_run=False):
+    """Retire des chandelles les séances que l'opérateur a annulées.
+
+    ⚠️ CETTE PURGE EST DIRIGÉE PAR UNE DÉCLARATION, PAS PAR UNE STATISTIQUE.
+    `purger_seance_fantome` devine : elle reconnaît une source qui rediffuse la
+    veille. Ici il n'y a rien à deviner — les cours étaient authentiques, les
+    volumes réels, les heures d'échange échelonnées. C'est la Bourse qui a
+    retiré la séance après coup, et seul `SEANCES_ANNULEES` le sait.
+
+    Renvoie (dates purgées, nombre de bougies retirées, tickers touchés).
+    """
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from bvc_config import SEANCES_ANNULEES
+
+    dossier = Path(candles_dir) if candles_dir else CANDLES_DIR
+    if not SEANCES_ANNULEES or not dossier.exists():
+        return [], 0, []
+
+    dates = set(SEANCES_ANNULEES)
+    retirees, touches = 0, []
+    for f in sorted(dossier.glob("*.json")):
+        try:
+            serie = json.loads(f.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        garde = [b for b in serie if str(b.get("d") or "")[:10] not in dates]
+        n = len(serie) - len(garde)
+        if not n:
+            continue
+        retirees += n
+        touches.append(f.stem)
+        if not dry_run:
+            f.write_text(json.dumps(garde, separators=(",", ":")), encoding="utf-8")
+    return sorted(dates), retirees, touches
+
+
 def purger_suspensions(candles_dir=None, historique=None, dry_run=False):
     """Retire toute chandelle tombant pendant une suspension de cotation.
 

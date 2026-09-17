@@ -346,9 +346,21 @@ def run(xlsx_only: bool = False):
     # peut se faire qu'ici, une fois tous les titres écrits : c'est à l'échelle
     # du marché que la rediffusion se voit, jamais titre par titre.
     try:
-        from seance import purger_seance_fantome, reparer_ohlc, purger_suspensions
+        from seance import (purger_seance_fantome, reparer_ohlc,
+                            purger_suspensions, purger_seances_annulees)
     except ImportError:
-        from pipeline.seance import purger_seance_fantome, reparer_ohlc
+        from pipeline.seance import (purger_seance_fantome, reparer_ohlc,
+                                     purger_seances_annulees)
+
+    # ⚠️ LA PURGE DÉCLARÉE PASSE EN PREMIER. Une séance annulée par l'opérateur
+    # ne se devine pas : ses cours étaient authentiques. Si on la laissait, les
+    # contrôles statistiques qui suivent raisonneraient sur un jour qui n'existe
+    # plus.
+    _da, _na, _ta = purger_seances_annulees()
+    if _na:
+        log.warning(f"   Séance(s) ANNULÉE(S) {', '.join(_da)} : {_na} bougies "
+                    f"retirées de {len(_ta)} fichiers")
+
     _date_fantome, _n = purger_seance_fantome()
     if _date_fantome:
         log.warning(f"   Séance {_date_fantome} purgée : {_n} bougies retirées")
