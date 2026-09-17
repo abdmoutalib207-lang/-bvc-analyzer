@@ -36,6 +36,32 @@ historique** — cela recréerait une référence exposée.
 
 ---
 
+## 🔔 UNE DÉCISION À PRENDRE — la séance fantôme du 30/07/2026
+
+- [ ] **Soixante-sept titres portent une bougie un jour où la Bourse était
+  fermée.** Le 30 juillet est la Fête du Trône, et `(7, 30)` figure dans
+  `JOURS_FERIES_FIXES` depuis toujours. L'export 3 ans de l'opérateur le
+  confirme sans ambiguïté : il liste TOUTES les séances réelles — Dari Couspate
+  y figure 629 fois sans le moindre échange — et omet exactement les fériés
+  (30/07, 14/08, 20/08, 21/08, 01/05, 11/01).
+  - **Pourquoi le garde-fou ne l'a pas vu** : `purger_seance_fantome` juge sur
+    une signature statistique — au moins 95 % de clôtures identiques à la
+    veille. Seules 26 des 72 bougies du 30/07 recopiaient la veille. Le seuil
+    n'a pas été atteint, et la liste de fériés que le projet POSSÈDE n'a jamais
+    été confrontée aux chandelles écrites.
+  - **Ce qui est déjà fait** : les 5 titres importés le 16/09 (AKD, HAL, MUT,
+    TMA, TQA) en sont purgés — leur série est exactement celle de l'opérateur —
+    et `tests/test_historiques_importes.py` interdit désormais toute bougie sur
+    un férié à date fixe, pour ces cinq titres.
+  - **Ce qui reste** : 67 séries. Les purger est une modification de données sur
+    67 titres, hors du périmètre d'un import d'historique. ⚠️ **Non appliqué,
+    en attente d'arbitrage.**
+  - Le correctif durable serait de brancher `JOURS_FERIES_FIXES` sur le
+    balayage de `pipeline/seance.py`, à côté de la signature statistique qui,
+    elle, attrape les fériés lunaires.
+
+---
+
 ## 🔔 ATTENDU DE ABD MOUTALIB
 
 - [ ] **Les trois secrets du bulletin par courriel — ⚠️ LE BULLETIN N'EST
