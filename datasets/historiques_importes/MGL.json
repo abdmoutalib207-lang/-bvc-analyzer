@@ -1,0 +1,30 @@
+{
+  "_statut": "INSTRUCTION — la série publiée de ce titre EST l'export de l'opérateur, date pour date.",
+  "_portee": "La série ENTIÈRE sur la période de l'export. Le titre n'est PAS figé.",
+  "ticker": "MGL",
+  "code_operateur": "MAB",
+  "instrument": "MAGHREBAIL",
+  "source": "casablanca-bourse.com — export « Cours » 3 ans, fourni par Abd Moutalib le 17/09/2026",
+  "fichier_recu": "a0e5b510-Cours_MAB___2023-09-18_2026-09-17.csv",
+  "sha256_fichier_recu": "bbd97f09973a51cfdc8d65235e2c92b616ac4ed1d0c3febd1327ebfc9065c3b0",
+  "fichier_dans_le_depot": "data/historique/MGL.xlsx",
+  "periode": [
+    "2023-09-18",
+    "2026-09-16"
+  ],
+  "seances": 735,
+  "_identite_verifiee": {
+    "code_dans_le_fichier": "MAB",
+    "instrument_dans_le_fichier": "MAGHREBAIL",
+    "isin_confronte_au_referentiel": "concordant",
+    "cloture_du_16_09_confrontee_au_releve_de_la_cote": "identique au centime"
+  },
+  "_seance_annulee_ecartee": {
+    "date": "2026-09-17",
+    "constat": "l'export porte une ligne au 17/09 SANS clôture — des transactions ont eu lieu, aucun cours n'a été arrêté. La Bourse a annulé la séance. Confirmation indépendante de SEANCES_ANNULEES."
+  },
+  "_seance_retiree": {
+    "date": "2026-07-30",
+    "motif": "Fête du Trône — absente de l'export de l'opérateur, qui liste pourtant toutes les séances réelles."
+  }
+}

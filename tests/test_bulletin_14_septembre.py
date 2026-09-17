@@ -127,8 +127,12 @@ def test_quatre_titres_sont_cotes_sans_que_nous_ayons_le_moindre_historique(cota
     sans_histoire = sorted(
         t for t, v in chez_nous.items()
         if v["cours"] and not (RACINE / "pipeline" / "candles" / f"{t}.json").exists())
-    assert sans_histoire == ["MDP", "PPM", "SLM"]
+    assert sans_histoire == ["MDP", "SLM"]
     # T2S est désormais servi avec son historique : c'est ce que ce bulletin
     # avait permis d'établir, et ce qui a été fait le soir même.
     assert (RACINE / "pipeline" / "candles" / "T2S.json").exists()
     assert chez_nous["T2S"]["cours"] == 225.0
+    # ⚠️ ET PROMOPHARM A QUITTÉ LA LISTE LE 17/09/2026, par le même chemin :
+    # Abd Moutalib a fourni son export 3 ans. Le titre passe de ZÉRO bougie à
+    # 735, et son RSI cesse d'être le 50 par défaut que ce test dénonçait.
+    assert (RACINE / "pipeline" / "candles" / "PPM.json").exists()
