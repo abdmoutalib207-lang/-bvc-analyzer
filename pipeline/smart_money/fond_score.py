@@ -106,7 +106,18 @@ def compute_fond_score(sym: str, fondamentaux: dict = None) -> float:
     # Seul ce dernier est une société industrielle, pour qui le ratio a un
     # sens — son zéro est donc retenu comme mesure, avec la réserve qu'aucune
     # source primaire ne l'a confirmé à ce jour.
-    _SANS_OBJET = ("Banque", "Assurance", "Société de financement", "Leasing")
+    # ⚠️ LE VOCABULAIRE DES SECTEURS A CHANGÉ LE 17/09/2026, ET CETTE LISTE EN
+    # DÉPEND. Elle citait « Société de financement » et « Leasing », deux
+    # libellés de l'ancienne taxonomie maison qui n'existent plus : le
+    # référentiel de la cote dit « Finance ». Une liste qui nomme des secteurs
+    # disparus ne protège plus personne — elle attend qu'une société de
+    # financement affiche une dette nette nulle pour se tromper en silence.
+    #
+    # ⚠️ Vérifié avant la bascule : sur les huit titres à dette nette nulle
+    # (ATW, BCP, BOA, CDM, CFGB, CIH, WAF, CSR), AUCUN ne change de traitement,
+    # et aucun titre au secteur « Finance » n'a de dette nette nulle. Aucune
+    # note ne bouge (R8).
+    _SANS_OBJET = ("Banque", "Assurance", "Finance")
     _dne = f.get("dette_nette_ebitda")
     _sect = f.get("secteur") or ""
     if _dne == 0 and any(_sect.startswith(s) for s in _SANS_OBJET):

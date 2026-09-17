@@ -6,12 +6,24 @@ from datetime import datetime
 # Source de vérité : ces noms priment sur tout ce que retournent les scrapers.
 COMPANY_NAMES: dict = {
     # ── Grandes capitalisations ─────────────────────────────────────────────
-    # Noms conformes PDF Wafabourse séance fermée 25/06/2026
-    "IAM":  "Itissalat Al-Maghrib",
+    # ⚠️ SOURCE DES LIBELLÉS, ET CE QU'ELLE N'EST PAS (17/09/2026).
+    #
+    # Ces noms sont confrontés au relevé de la cote
+    # (`datasets/referentiel/cote_bvc.json`) par un test bloquant, mais ils ne
+    # sont PAS recopiés depuis lui : ses libellés sont des noms d'affichage,
+    # tronqués. L'export de l'opérateur lui-même écrit « MUTANDIS SCA » et
+    # « TOTALENERGIES MARKETING MAROC » là où le relevé dit « Mutandis » et
+    # « TotalEnergies Maroc ».
+    #
+    # La règle retenue : on adopte le libellé du relevé UNIQUEMENT là où le
+    # nôtre était un sigle nu ou une raison sociale que le marché n'emploie
+    # pas. Cinq cas, chacun commenté. Partout ailleurs le nôtre est plus
+    # complet, et c'est lui qui reste.
+    "IAM":  "Maroc Telecom",  # raison sociale Itissalat Al-Maghrib ; la cote, la presse et le public disent Maroc Telecom
     "ATW":  "Attijariwafa Bank",
-    "BCP":  "BCP",
+    "BCP":  "Banque Populaire",  # le sigle nu ne disait rien au lecteur
     "BOA":  "Bank of Africa",
-    "CIH":  "CIH",
+    "CIH":  "CIH Bank",  # sigle nu — la banque se nomme CIH Bank
     "CDM":  "Crédit du Maroc",
     "WAF":  "Wafa Assurance",
     "LHM":  "Holcim Maroc SA",
@@ -25,7 +37,7 @@ COMPANY_NAMES: dict = {
     "TMA":  "TotalEnergies Marketing Maroc",
     "CMT":  "Minière Touissit",
     "MNG":  "Managem",
-    "SMI":  "SMI",
+    "SMI":  "Société Métallurgique d'Imiter",  # sigle nu
     # ── Moyennes capitalisations ─────────────────────────────────────────────
     "AKD":  "Akdital",
     "ARD":  "Aradei Capital",
@@ -47,7 +59,7 @@ COMPANY_NAMES: dict = {
     "RIS":  "Risma",
     "CSR":  "Cosumar",
     "SNA":  "Sonasid",
-    "SRM":  "Réalisations Mécaniques",
+    "SRM":  "Société de Réalisations Mécaniques",  # la forme sociale était amputée
     "RDS":  "Résidences Dar Saada",
     "ALU":  "Aluminium du Maroc",
     "MGL":  "Maghrebail",
@@ -64,7 +76,7 @@ COMPANY_NAMES: dict = {
     "JET":  "Jet Contractors",
     "M2M":  "M2M Group",
     "INV":  "Involys",
-    "S2M":  "S.M Monétique",
+    "S2M":  "S2M",  # « S.M Monétique » était une troncature de screener ; le relevé de la cote et le marché disent S2M
     "COL":  "Colorado",
     "AFM":  "AFMA",
     "AGM":  "Agma",
@@ -117,98 +129,100 @@ COMPANY_NAMES: dict = {
 # au moment de cette révision. Les six classements ci-dessous restent à valider
 # contre la fiche officielle : VCNE, REB, BAL, NEJ, AFI, SRM.
 COMPANY_SECTORS: dict = {
-    # ── Finance ─────────────────────────────────────────────────────────────
-    "ATW":  "Banques",
-    "BCP":  "Banques",
-    "BOA":  "Banques",
-    "CIH":  "Banques",
-    "CDM":  "Banques",
-    "BMC":  "Banques",
-    "CFGB": "Banques",
-    "WAF":  "Assurances",
-    "SAF":  "Assurances",
-    "ATL":  "Assurances",
-    "AFM":  "Assurances",          # courtage — pas un secteur à part entière
-    "AGM":  "Assurances",          # idem
-    "MRL":  "Sociétés de financement",
-    "MGL":  "Sociétés de financement",
-    "SLM":  "Sociétés de financement",
-    "EQD":  "Sociétés de financement",
-    "CASH": "Sociétés de financement",
-    # ── Immobilier & construction ───────────────────────────────────────────
-    "ADH":  "Immobilier",
-    "ADI":  "Immobilier",
-    "RDS":  "Immobilier",
-    "ARD":  "Immobilier",          # foncière cotée
-    "IMI":  "Immobilier",          # foncière cotée
-    "BAL":  "Immobilier",          # ⚠️ à valider — était « Assurances »
-    "TGCC": "BTP & Construction",
-    "SGTM": "BTP & Construction",
-    "JET":  "BTP & Construction",
-    "LHM":  "Matériaux de construction",
-    "CIM":  "Matériaux de construction",
-    "AFI":  "Matériaux de construction",   # ⚠️ à valider — abrasifs
-    # ── Industrie & matières premières ──────────────────────────────────────
-    "CMT":  "Mines",
-    "MNG":  "Mines",
-    "SMI":  "Mines",
-    "ZLD":  "Mines",
-    "SNA":  "Sidérurgie & Métallurgie",
-    "ALU":  "Sidérurgie & Métallurgie",
-    "SRM":  "Ingénierie & Industrie",      # ⚠️ à valider
-    "STR":  "Ingénierie & Industrie",
-    "COL":  "Chimie",
-    "SNP":  "Chimie",
-    "MOX":  "Chimie",              # gaz industriels
-    # ── Énergie ─────────────────────────────────────────────────────────────
-    "TQA":  "Énergie",
-    "GAZ":  "Énergie",
-    "TMA":  "Énergie",
-    # ── Consommation ────────────────────────────────────────────────────────
-    "CSR":  "Agroalimentaire",
-    "LES":  "Agroalimentaire",
-    "DAR":  "Agroalimentaire",
-    "CAR":  "Agroalimentaire",
-    "UNI":  "Agroalimentaire",
-    "MUT":  "Agroalimentaire",
-    "OUL":  "Boissons",
-    "SBS":  "Boissons",
-    "LBV":  "Distribution",
-    "FNB":  "Distribution",
-    "HAL":  "Distribution",
-    "NEJ":  "Distribution",        # ⚠️ à valider — était « Pétrole & Gaz »
-    "ENK":  "Distribution",
-    "CMGP": "Distribution",
-    "STK":  "Distribution",
-    # ── Santé ───────────────────────────────────────────────────────────────
-    "SOT":  "Santé & Pharmacie",
-    "PPM":  "Santé & Pharmacie",
-    "AKD":  "Santé & Pharmacie",
-    "VCNE": "Santé & Pharmacie",   # ⚠️ à valider — dispositifs médicaux
-    # ── Technologies ────────────────────────────────────────────────────────
-    "IAM":  "Télécommunications",
-    "HPS":  "Technologies",
-    "M2M":  "Technologies",
-    "MIC":  "Technologies",
-    "INV":  "Technologies",
-    "IBM":  "Technologies",
-    "S2M":  "Technologies",
-    "DSW":  "Distribution IT",
-    "DTT":  "Distribution IT",
-    # ── Services ────────────────────────────────────────────────────────────
-    "CTM":  "Transport & Logistique",
-    "MSA":  "Transport & Logistique",
-    "TIM":  "Transport & Logistique",
-    "RIS":  "Tourisme & Loisirs",
-    "DHO":  "Holdings",
-    "REB":  "Holdings",            # ⚠️ à valider — était « Textile »
-    # ── Ajouts du 10/08/2026 ────────────────────────────────────────────────
-    "T2S":  "Santé & Pharmacie",   # dispositifs médicaux, diagnostic in vitro,
-                                   # radiopharmacie (note d'information AMMC)
-    "DLM":  "Ingénierie & Industrie",   # chaudronnerie, charpente métallique
-    "DIS":  "Sociétés de financement",  # crédit à la consommation
-    "MDP":  "Papier",              # cellulose, papier, carton — aucune autre
-                                   # cotée sur ce métier, d'où un secteur seul
+    # ⚠️ SECTEURS ALIGNÉS SUR LE RÉFÉRENTIEL DE LA COTE (17/09/2026).
+    #
+    # Trois taxonomies coexistaient et se contredisaient : celle-ci (22 valeurs),
+    # `SECTOR_MAP` dans whatsapp_analysis/phase7_stocks.py, et le champ `secteur`
+    # de fondamentaux.json — 45 libellés libres, du type « Mines - Plomb/Argent/
+    # Zinc » ou « Fintech / Paiements SaaS ». 55 titres sur 77 divergeaient du
+    # relevé officiel. Un secteur écrit trois fois de trois façons n'est pas un
+    # classement, c'est trois classements.
+    #
+    # La source est désormais `datasets/referentiel/cote_bvc.json`, et un test
+    # bloquant vérifie la concordance.
+    #
+    # ⚠️ Le secteur n'entre dans AUCUN calcul de score — vérifié avant la bascule.
+    # Aucune note ne bouge (R8).
+    "ADH": "Immobilier",
+    "ADI": "Immobilier",
+    "AFI": "Industrie",
+    "AFM": "Assurance",
+    "AGM": "Assurance",
+    "AKD": "Santé",
+    "ALU": "Matériaux",
+    "ARD": "Immobilier",
+    "ATL": "Assurance",
+    "ATW": "Banque",
+    "BAL": "Immobilier",
+    "BCP": "Banque",
+    "BMC": "Banque",
+    "BOA": "Banque",
+    "CAR": "Agroalimentaire",
+    "CASH": "Finance",
+    "CDM": "Banque",
+    "CFGB": "Banque",
+    "CIH": "Banque",
+    "CIM": "Matériaux",
+    "CMGP": "Industrie",
+    "CMT": "Mines",  # absent du relevé du 16/09 — Minière Touissit — plomb, zinc, argent
+    "COL": "Matériaux",
+    "CSR": "Agroalimentaire",
+    "CTM": "Transport",
+    "DAR": "Agroalimentaire",
+    "DHO": "Holding",
+    "DIS": "Finance",  # absent du relevé du 16/09 — Diac Salaf — société de financement
+    "DLM": "Industrie",  # absent du relevé du 16/09 — Delattre Levivier Maroc — chaudronnerie et montage industriel
+    "DSW": "Technologie",
+    "DTT": "Technologie",
+    "ENK": "Automobile",
+    "EQD": "Finance",
+    "FNB": "Distribution",
+    "GAZ": "Énergie",
+    "HAL": "Distribution",
+    "HPS": "Technologie",
+    "IAM": "Télécom",
+    "IBM": "Technologie",
+    "IMI": "Immobilier",
+    "INV": "Technologie",
+    "JET": "Construction",
+    "LBV": "Distribution",
+    "LES": "Agroalimentaire",
+    "LHM": "Matériaux",
+    "M2M": "Technologie",
+    "MDP": "Industrie",
+    "MGL": "Finance",
+    "MIC": "Technologie",
+    "MNG": "Mines",
+    "MOX": "Matériaux",
+    "MRL": "Finance",
+    "MSA": "Transport",
+    "MUT": "Agroalimentaire",
+    "NEJ": "Distribution",
+    "OUL": "Agroalimentaire",
+    "PPM": "Santé",
+    "RDS": "Immobilier",
+    "REB": "Industrie",
+    "RIS": "Tourisme",
+    "S2M": "Technologie",
+    "SAF": "Assurance",
+    "SBS": "Agroalimentaire",
+    "SGTM": "Construction",
+    "SLM": "Finance",
+    "SMI": "Mines",
+    "SNA": "Matériaux",
+    "SNP": "Matériaux",
+    "SOT": "Santé",
+    "SRM": "Industrie",
+    "STK": "Distribution",
+    "STR": "Industrie",
+    "T2S": "Santé",
+    "TGCC": "Construction",
+    "TMA": "Énergie",
+    "TQA": "Énergie",
+    "UNI": "Agroalimentaire",
+    "VCNE": "Santé",
+    "WAF": "Assurance",
+    "ZLD": "Industrie",
 }
 
 # ── Sigles ambigus ──────────────────────────────────────────────────────────

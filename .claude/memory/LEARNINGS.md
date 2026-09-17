@@ -417,3 +417,39 @@ devinable ; tout a coûté un aller-retour.
   répartition du capital et son total. Pour CMT, 1 681 233 — le même nombre que
   celui relevé au rapport annuel dans `faits_financiers.json`. Deux sources
   indépendantes qui tombent juste valent mieux qu'une source répétée deux fois.
+
+## Le référentiel de la cote, et ce qu'il a établi (17/09/2026)
+
+> `datasets/referentiel/cote_bvc.json` — 77 sociétés avec code BVC, ISIN,
+> dénomination et secteur. Relevé du 16/09/2026 fourni par Abd Moutalib,
+> archivé avec son empreinte, rendu opposable par
+> `tests/test_referentiel_identite.py`.
+
+- **Nos ISIN étaient JUSTES : 77 sur 77, zéro divergence.** Et 75 des 77 sont
+  confirmés par Maroclear, le dépositaire central. La table a été assainie par
+  les corrections successives ; ce qui restait faux était ailleurs.
+- **La chaîne ticker → code BVC → cours est saine** : 65 clôtures du 16/09
+  comparées à nos chandelles, zéro écart. Une identité qui se recoupe par le
+  COURS ne dépend d'aucun nom — c'est la vérification qui compte.
+- **Ce qui était réellement faux** : une entrée d'une table de NOMS
+  (`MANUAL_MAP["MRL"] = "SODEP"`) et les SECTEURS, écrits trois fois de trois
+  façons — `COMPANY_SECTORS` (22 valeurs), `SECTOR_MAP` du NLP, et le champ
+  `secteur` de `fondamentaux.json` (**45 libellés libres**). 55 titres sur 77
+  divergeaient.
+- ⚠️ **Un relevé de cote n'est PAS l'autorité sur les dénominations.** Ses
+  libellés sont des noms d'affichage, tronqués : il écrit « Mutandis » et
+  « TotalEnergies Maroc » là où l'export de l'opérateur lui-même dit
+  « MUTANDIS SCA » et « TOTALENERGIES MARKETING MAROC ». Les recopier aurait
+  dégradé 31 noms. On n'adopte son libellé que là où le nôtre était un sigle nu.
+- ⚠️ **Le secteur n'entre dans aucun score, à une exception près** :
+  `fond_score` neutralise le ratio dette nette / EBITDA quand il vaut zéro dans
+  un secteur où il n'a pas de sens. Sa liste citait « Société de financement »
+  et « Leasing » — deux libellés que la nouvelle taxonomie ne connaît plus.
+  Une liste qui nomme des secteurs disparus ne protège plus personne.
+- **La table figée d'`index.html` est un troisième jeu de données**, et le plus
+  dangereux parce qu'on ne le lit jamais : elle classait Marsa Maroc, opérateur
+  portuaire, en « Agro », et BMCI, une banque, en « Agro » également.
+
+⚠️ **La leçon de méthode** : R2 interdit de modifier `ISIN_MAP` sans accord.
+Cela protège la table d'une modification étourdie — cela ne dit pas si son
+contenu est juste. Un interdit n'est pas une vérification.
