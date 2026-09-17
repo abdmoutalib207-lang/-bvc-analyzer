@@ -3,7 +3,7 @@
   "_statut": "MESURE — AUCUNE DONNÉE SERVIE N'EST MODIFIÉE PAR CE LOT",
   "_methode": "on ne demande pas « faut-il ? » : on chiffre ce que chaque option coûte, et la décision se prend sur des nombres.",
   "arbitrage_1_la_moyenne_200_jours": {
-    "_le_fait": "22 titres affichent une « MA200 » calculée sur moins de 200 séances. Depuis le 15/09/2026, `calc_ma` rend une absence sous la période : ils passeront à « — » au fil des recalculs de cache.",
+    "_le_fait": "19 titres affichent une « MA200 » calculée sur moins de 200 séances. Depuis le 15/09/2026, `calc_ma` rend une absence sous la période : ils passeront à « — » au fil des recalculs de cache.",
     "_ce_que_cela_ne_change_PAS": "⚠️ Mesuré dans le code : `ma200` n'est passé NI à `calc_score_tech` NI à `compute_v53`. Aucun score, aucun signal ne dépend de lui. C'est un champ d'AFFICHAGE.",
     "_ce_que_cela_change": "le lecteur perd un repère de tendance sur 32 titres — et ce repère était faux de 20 à 56 % sur sept d'entre eux.",
     "_les_pires_ecarts": [
@@ -79,13 +79,6 @@
         "ecart_pct": 3.5
       },
       {
-        "ticker": "FNB",
-        "bougies": 54,
-        "ma200_affichee": 320.68,
-        "cours": 344.0,
-        "ecart_pct": -6.8
-      },
-      {
         "ticker": "IBM",
         "bougies": 70,
         "ma200_affichee": 60.31,
@@ -98,13 +91,6 @@
         "ma200_affichee": 91.1,
         "cours": 92.8,
         "ecart_pct": -1.8
-      },
-      {
-        "ticker": "MGL",
-        "bougies": 52,
-        "ma200_affichee": 909.83,
-        "cours": 923.0,
-        "ecart_pct": -1.4
       },
       {
         "ticker": "MIC",
@@ -170,13 +156,6 @@
         "ecart_pct": 2.3
       },
       {
-        "ticker": "WAF",
-        "bougies": 69,
-        "ma200_affichee": 5568.61,
-        "cours": 5200.0,
-        "ecart_pct": 7.1
-      },
-      {
         "ticker": "ZLD",
         "bougies": 67,
         "ma200_affichee": 246.32,
@@ -184,7 +163,7 @@
         "ecart_pct": -12.3
       }
     ],
-    "_le_compte_a_bouge": "⚠️ Ils étaient 32 à la première mesure, 23 avant ce relevé, 22 maintenant. Le compte DESCEND à mesure que les séries sont corrigées : recalculer le cache d'un titre retire sa fausse MA200 au passage. Ce dossier est une PHOTO — il se remesure avec `python pipeline/mesurer_arbitrages.py --ecrire`, et un test exige qu'il concorde avec le dépôt."
+    "_le_compte_a_bouge": "⚠️ Ils étaient 32 à la première mesure, 22 avant ce relevé, 19 maintenant. Le compte DESCEND à mesure que les séries sont corrigées : recalculer le cache d'un titre retire sa fausse MA200 au passage. Ce dossier est une PHOTO — il se remesure avec `python pipeline/mesurer_arbitrages.py --ecrire`, et un test exige qu'il concorde avec le dépôt."
   },
   "arbitrage_2_l_unite_du_champ_volume": {
     "_le_fait": "⚠️ Le champ `v` de pipeline/candles/ ne porte PAS la même unité selon le titre. Mesuré séance par séance sur les 15 exports archivés, en comparant à la MÊME séance chez l'opérateur.",

@@ -49,7 +49,7 @@ CANDLES = RACINE / "pipeline" / "candles"
 # des corrections réceptionnées qui PRIMENT sur le fichier (SOT, MSA) : leur
 # exiger l'égalité avec l'XLSX ferait échouer le contrôle là où le dépôt a
 # raison.
-IMPORTES = ["AKD", "HAL", "MUT", "TMA", "TQA"]
+IMPORTES = ["AKD", "FNB", "HAL", "MGL", "MRL", "MUT", "PPM", "TMA", "TQA", "WAF"]
 
 
 def _export(ticker: str) -> dict:

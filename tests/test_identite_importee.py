@@ -151,12 +151,37 @@ def test_aucun_titre_ne_porte_les_cours_d_un_autre():
 
 @pytest.mark.parametrize("ticker,n", [("ATL", 7), ("MRL", 47)])
 def test_les_seances_retirees_le_sont_bien(ticker, n):
-    """Ce que l'instruction dit retirer ne doit plus être servi."""
+    """Ce que l'instruction dit retirer ne doit plus être servi.
+
+    ⚠️ SAUF SI UNE SOURCE EST ARRIVÉE DEPUIS, et c'est arrivé le lendemain.
+    Le retrait de Maroc Leasing était motivé par l'absence de source : « aucune
+    source ne donne la vraie valeur de ces séances ». L'export de l'opérateur
+    est arrivé le 17/09 et a confirmé 46 des 47 retraits — Maroc Leasing cotait
+    370 DH, pas 851. La 47e, le 30/07, est la Fête du Trône, absente de son
+    export : le même document confirme le retrait ET le jour férié.
+
+    Une instruction motivée par une absence s'éteint quand l'absence cesse. Ce
+    qui doit rester vrai, c'est qu'AUCUNE des valeurs retirées ne soit revenue —
+    la date peut revenir, la valeur fausse non.
+    """
     import seances_retirees as R
     doc = R.charger(ticker)
     assert doc and len(doc["lignes"]) == n
-    dates = {b["d"] for b in _serie(ticker)}
-    restantes = [l["d"] for l in doc["lignes"] if l["d"] in dates]
+    serie = {b["d"]: b for b in _serie(ticker)}
+
+    if doc.get("_supersede_par"):
+        assert Path(RACINE / doc["_supersede_par"]).exists(), (
+            f"{ticker} : l'instruction se dit remplacée par un document absent")
+        revenues = [l["d"] for l in doc["lignes"]
+                    if l["d"] in serie
+                    and abs(serie[l["d"]]["c"] - l["retiree"]["c"]) < 0.011]
+        assert not revenues, (
+            f"{ticker} : {len(revenues)} VALEURS retirées sont revenues à "
+            f"l'identique — l'import n'a pas corrigé, il a réécrit le faux : "
+            f"{revenues[:5]}")
+        return
+
+    restantes = [l["d"] for l in doc["lignes"] if l["d"] in serie]
     assert not restantes, f"{ticker} : {len(restantes)} séances retirées sont revenues"
 
 

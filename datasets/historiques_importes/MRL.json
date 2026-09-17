@@ -1,0 +1,27 @@
+{
+  "_statut": "INSTRUCTION — la série publiée de ce titre EST l'export de l'opérateur, date pour date.",
+  "_portee": "La série ENTIÈRE sur la période de l'export. Le titre n'est PAS figé.",
+  "ticker": "MRL",
+  "code_operateur": "MLE",
+  "instrument": "MAROC LEASING",
+  "source": "casablanca-bourse.com — export « Cours » 3 ans, fourni par Abd Moutalib le 17/09/2026",
+  "fichier_recu": "9b65e2b6-Cours_MLE___2023-09-18_2026-09-17.csv",
+  "sha256_fichier_recu": "d1539d7add282aa0ce2a0c345eb701d410f3057172d618420624051bf97853f2",
+  "fichier_dans_le_depot": "data/historique/MRL.xlsx",
+  "periode": [
+    "2023-09-18",
+    "2026-09-16"
+  ],
+  "seances": 735,
+  "_identite_verifiee": {
+    "code_dans_le_fichier": "MLE",
+    "instrument_dans_le_fichier": "MAROC LEASING",
+    "isin_confronte_au_referentiel": "concordant",
+    "cloture_du_16_09_confrontee_au_releve_de_la_cote": "identique au centime"
+  },
+  "_seance_annulee_ecartee": {
+    "date": "2026-09-17",
+    "constat": "l'export porte une ligne au 17/09 SANS clôture — des transactions ont eu lieu, aucun cours n'a été arrêté. La Bourse a annulé la séance. Confirmation indépendante de SEANCES_ANNULEES."
+  },
+  "_note": "⚠️ CE TITRE PORTAIT L'HISTORIQUE DE SODEP-MARSA MAROC. 22 séances entre 800 et 869 DH sur un titre qui cote 367, plus 25 séances aux valeurs 235 et 350,25 échappées du repli statique. Elles avaient été RETIRÉES le 17/09 faute de source. L'export de l'opérateur confirme 46 des 47 retraits — Maroc Leasing cotait 370 DH — et la 47e, le 30/07, est la Fête du Trône, absente de son export. L'instruction de retrait est donc caduque : la source existe désormais."
+}

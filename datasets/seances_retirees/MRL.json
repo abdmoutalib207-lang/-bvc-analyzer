@@ -1,5 +1,5 @@
 {
-  "_statut": "INSTRUCTION — ces séances sont RETIRÉES de la série publiée. Ce n'est pas un signalement : datasets/historiques_candidats/ PROPOSE, ce dossier INSTRUIT.",
+  "_statut": "INSTRUCTION CADUQUE depuis le 17/09/2026 — remplacée par l'import de l'historique de l'opérateur. Elle est conservée parce qu'elle établit CE QUI ÉTAIT PUBLIÉ et pourquoi il a fallu le retirer ; elle ne s'applique plus.",
   "_pourquoi_retirer_et_non_corriger": "Maroc Leasing n'a AUCUN export Excel dans le dépôt et n'apparaît dans aucun bulletin archivé avant septembre. Aucune source ne peut fournir ces séances.",
   "ticker": "MRL",
   "instrument": "Maroc Leasing",
@@ -612,5 +612,12 @@
       },
       "motif": "valeur échappée de static_fallback.json (le CLAUDE.md cite « MRL 235 » parmi les prix faux du repli statique) — volume nul, jamais échangée"
     }
-  ]
+  ],
+  "_supersede_par": "datasets/historiques_importes/MRL.json",
+  "_verdict_de_l_operateur": {
+    "seances_retirees": 47,
+    "confirmees_fausses_par_l_export": 46,
+    "absentes_de_l_export": 1,
+    "⚠️": "la seule séance absente de l'export est le 2026-07-30, Fête du Trône. Le même document confirme donc le retrait ET le jour férié."
+  }
 }
