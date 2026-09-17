@@ -1,0 +1,635 @@
+{
+  "_statut": "RÉFÉRENTIEL — source d'autorité pour l'identité des valeurs de la cote. Ce n'est pas un signalement : toute table du dépôt qui porte un ISIN, un code BVC ou un secteur doit s'y conformer, et un test bloquant le vérifie.",
+  "_source": "relevé de la cote de la Bourse de Casablanca au 16/09/2026, fourni par Abd Moutalib le 17/09/2026",
+  "_fichier": "cote_casablanca_2026-09-16.csv",
+  "_sha256": "d69e7a29ac3055863fa211323199edb7c3e7eddb00210287d3b83d89d5b4e792",
+  "_verifications": {
+    "isin_confrontes_a_notre_table": "77 sur 77 concordants, zéro divergence",
+    "isin_confirmes_par_maroclear": "75 sur 77 (dépositaire central, pipeline/maroclear_isin.json)",
+    "cours_confrontes_a_nos_chandelles_du_16_09": "65 comparaisons, zéro écart supérieur à un centime",
+    "⚠️ ce_que_ce_fichier_n_est_PAS": "l'autorité sur les DÉNOMINATIONS. Ses noms sont des libellés d'affichage, tronqués : l'export de l'opérateur lui-même dit « MUTANDIS SCA » et « TOTALENERGIES MARKETING MAROC » là où ce fichier écrit « Mutandis » et « TotalEnergies Maroc ». Le champ nom_bvc est conservé pour la recherche et le recoupement, jamais pour écraser COMPANY_NAMES."
+  },
+  "_absents": {
+    "CMT": "Minière Touissit — sous OPA, absente du relevé du 16/09",
+    "DIS": "Diac Salaf — plus cotée depuis le 05/08/2026",
+    "DLM": "Delattre Levivier Maroc — absente du relevé"
+  },
+  "valeurs": {
+    "ADH": {
+      "ticker": "ADH",
+      "nom_bvc": "Addoha",
+      "isin": "MA0000011512",
+      "secteur": "Immobilier",
+      "cours_16_09": 33.97,
+      "capitalisation_mad": 13674666098.38
+    },
+    "ADI": {
+      "ticker": "ADI",
+      "nom_bvc": "Alliances",
+      "isin": "MA0000011819",
+      "secteur": "Immobilier",
+      "cours_16_09": 390.0,
+      "capitalisation_mad": 8610649320.0
+    },
+    "AFI": {
+      "ticker": "AFI",
+      "nom_bvc": "Afric Industries",
+      "isin": "MA0000012114",
+      "secteur": "Industrie",
+      "cours_16_09": 333.0,
+      "capitalisation_mad": 97069500.0
+    },
+    "AFM": {
+      "ticker": "AFM",
+      "nom_bvc": "AFMA",
+      "isin": "MA0000012296",
+      "secteur": "Assurance",
+      "cours_16_09": 1250.0,
+      "capitalisation_mad": 1250000000.0
+    },
+    "AGM": {
+      "ticker": "AGM",
+      "nom_bvc": "Agma",
+      "isin": "MA0000010944",
+      "secteur": "Assurance",
+      "cours_16_09": 7080.0,
+      "capitalisation_mad": 1416000000.0
+    },
+    "AKT": {
+      "ticker": "AKD",
+      "nom_bvc": "Akdital",
+      "isin": "MA0000012585",
+      "secteur": "Santé",
+      "cours_16_09": 1140.0,
+      "capitalisation_mad": 16141495980.0
+    },
+    "ALM": {
+      "ticker": "ALU",
+      "nom_bvc": "Aluminium du Maroc",
+      "isin": "MA0000010936",
+      "secteur": "Matériaux",
+      "cours_16_09": 1850.0,
+      "capitalisation_mad": 862014900.0
+    },
+    "ARD": {
+      "ticker": "ARD",
+      "nom_bvc": "Aradei",
+      "isin": "MA0000012460",
+      "secteur": "Immobilier",
+      "cours_16_09": 449.95,
+      "capitalisation_mad": 5655030093.5
+    },
+    "ATH": {
+      "ticker": "HAL",
+      "nom_bvc": "Auto Hall",
+      "isin": "MA0000010969",
+      "secteur": "Distribution",
+      "cours_16_09": 65.0,
+      "capitalisation_mad": 3519137570.0
+    },
+    "ATL": {
+      "ticker": "ATL",
+      "nom_bvc": "AtlantaSanad",
+      "isin": "MA0000011710",
+      "secteur": "Assurance",
+      "cours_16_09": 124.0,
+      "capitalisation_mad": 7475165780.0
+    },
+    "ATW": {
+      "ticker": "ATW",
+      "nom_bvc": "Attijariwafa Bank",
+      "isin": "MA0000012445",
+      "secteur": "Banque",
+      "cours_16_09": 697.7,
+      "capitalisation_mad": 150103763370.3
+    },
+    "BAL": {
+      "ticker": "BAL",
+      "nom_bvc": "Balima",
+      "isin": "MA0000011991",
+      "secteur": "Immobilier",
+      "cours_16_09": 188.0,
+      "capitalisation_mad": 327872000.0
+    },
+    "BCI": {
+      "ticker": "BMC",
+      "nom_bvc": "BMCI",
+      "isin": "MA0000010811",
+      "secteur": "Banque",
+      "cours_16_09": 580.0,
+      "capitalisation_mad": 7701985880.0
+    },
+    "BCP": {
+      "ticker": "BCP",
+      "nom_bvc": "Banque Populaire",
+      "isin": "MA0000011884",
+      "secteur": "Banque",
+      "cours_16_09": 240.0,
+      "capitalisation_mad": 48794993520.0
+    },
+    "BOA": {
+      "ticker": "BOA",
+      "nom_bvc": "Bank of Africa",
+      "isin": "MA0000012437",
+      "secteur": "Banque",
+      "cours_16_09": 191.45,
+      "capitalisation_mad": 42172966117.45
+    },
+    "CAP": {
+      "ticker": "CASH",
+      "nom_bvc": "Cash Plus",
+      "isin": "MA0000012767",
+      "secteur": "Finance",
+      "cours_16_09": 233.0,
+      "capitalisation_mad": 5720869970.0
+    },
+    "CDM": {
+      "ticker": "CDM",
+      "nom_bvc": "Crédit du Maroc",
+      "isin": "MA0000010381",
+      "secteur": "Banque",
+      "cours_16_09": 986.5,
+      "capitalisation_mad": 11469541263.5
+    },
+    "CFG": {
+      "ticker": "CFGB",
+      "nom_bvc": "CFG Bank",
+      "isin": "MA0000012627",
+      "secteur": "Banque",
+      "cours_16_09": 205.0,
+      "capitalisation_mad": 7176631800.0
+    },
+    "CIH": {
+      "ticker": "CIH",
+      "nom_bvc": "CIH Bank",
+      "isin": "MA0000011454",
+      "secteur": "Banque",
+      "cours_16_09": 332.0,
+      "capitalisation_mad": 12828924216.0
+    },
+    "CMA": {
+      "ticker": "CIM",
+      "nom_bvc": "Ciments du Maroc",
+      "isin": "MA0000010506",
+      "secteur": "Matériaux",
+      "cours_16_09": 1599.0,
+      "capitalisation_mad": 23083170396.0
+    },
+    "CMG": {
+      "ticker": "CMGP",
+      "nom_bvc": "CMGP",
+      "isin": "MA0000012718",
+      "secteur": "Industrie",
+      "cours_16_09": 304.0,
+      "capitalisation_mad": 5168273600.0
+    },
+    "COL": {
+      "ticker": "COL",
+      "nom_bvc": "Colorado",
+      "isin": "MA0000011934",
+      "secteur": "Matériaux",
+      "cours_16_09": 79.65,
+      "capitalisation_mad": 1283767716.15
+    },
+    "CRS": {
+      "ticker": "CAR",
+      "nom_bvc": "Cartier Saada",
+      "isin": "MA0000011868",
+      "secteur": "Agroalimentaire",
+      "cours_16_09": 20.3,
+      "capitalisation_mad": 106879500.0
+    },
+    "CSR": {
+      "ticker": "CSR",
+      "nom_bvc": "Cosumar",
+      "isin": "MA0000012247",
+      "secteur": "Agroalimentaire",
+      "cours_16_09": 185.0,
+      "capitalisation_mad": 17480121455.0
+    },
+    "CTM": {
+      "ticker": "CTM",
+      "nom_bvc": "CTM",
+      "isin": "MA0000010340",
+      "secteur": "Transport",
+      "cours_16_09": 868.0,
+      "capitalisation_mad": 1064148904.0
+    },
+    "DHO": {
+      "ticker": "DHO",
+      "nom_bvc": "Delta Holding",
+      "isin": "MA0000011850",
+      "secteur": "Holding",
+      "cours_16_09": 52.4,
+      "capitalisation_mad": 4590240000.0
+    },
+    "DRI": {
+      "ticker": "DAR",
+      "nom_bvc": "Dari",
+      "isin": "MA0000011421",
+      "secteur": "Agroalimentaire",
+      "cours_16_09": 4200.0,
+      "capitalisation_mad": 1253175000.0
+    },
+    "DWY": {
+      "ticker": "DSW",
+      "nom_bvc": "Disway",
+      "isin": "MA0000011637",
+      "secteur": "Technologie",
+      "cours_16_09": 733.1,
+      "capitalisation_mad": 1382452122.2
+    },
+    "DYT": {
+      "ticker": "DTT",
+      "nom_bvc": "Disty",
+      "isin": "MA0000012536",
+      "secteur": "Technologie",
+      "cours_16_09": 345.1,
+      "capitalisation_mad": 344447761.0
+    },
+    "EQD": {
+      "ticker": "EQD",
+      "nom_bvc": "Eqdom",
+      "isin": "MA0000010357",
+      "secteur": "Finance",
+      "cours_16_09": 1480.0,
+      "capitalisation_mad": 2471970000.0
+    },
+    "FBR": {
+      "ticker": "FNB",
+      "nom_bvc": "Fenie Brossette",
+      "isin": "MA0000011587",
+      "secteur": "Distribution",
+      "cours_16_09": 344.0,
+      "capitalisation_mad": 495010496.0
+    },
+    "GAZ": {
+      "ticker": "GAZ",
+      "nom_bvc": "Afriquia Gaz",
+      "isin": "MA0000010951",
+      "secteur": "Énergie",
+      "cours_16_09": 3700.0,
+      "capitalisation_mad": 12718750000.0
+    },
+    "GTM": {
+      "ticker": "SGTM",
+      "nom_bvc": "SGTM",
+      "isin": "MA0000012783",
+      "secteur": "Construction",
+      "cours_16_09": 610.0,
+      "capitalisation_mad": 36600000000.0
+    },
+    "HPS": {
+      "ticker": "HPS",
+      "nom_bvc": "HPS",
+      "isin": "MA0000012619",
+      "secteur": "Technologie",
+      "cours_16_09": 635.1,
+      "capitalisation_mad": 4703671269.0
+    },
+    "IAM": {
+      "ticker": "IAM",
+      "nom_bvc": "Maroc Telecom",
+      "isin": "MA0000011488",
+      "secteur": "Télécom",
+      "cours_16_09": 95.2,
+      "capitalisation_mad": 83689876368.0
+    },
+    "IBC": {
+      "ticker": "IBM",
+      "nom_bvc": "IB Maroc",
+      "isin": "MA0000011132",
+      "secteur": "Technologie",
+      "cours_16_09": 58.21,
+      "capitalisation_mad": 24301860.06
+    },
+    "IMO": {
+      "ticker": "IMI",
+      "nom_bvc": "Immorente",
+      "isin": "MA0000012387",
+      "secteur": "Immobilier",
+      "cours_16_09": 92.8,
+      "capitalisation_mad": 835849600.0
+    },
+    "INV": {
+      "ticker": "INV",
+      "nom_bvc": "Involys",
+      "isin": "MA0000011579",
+      "secteur": "Technologie",
+      "cours_16_09": 130.0,
+      "capitalisation_mad": 49753080.0
+    },
+    "JET": {
+      "ticker": "JET",
+      "nom_bvc": "Jet Contractors",
+      "isin": "MA0000012080",
+      "secteur": "Construction",
+      "cours_16_09": 1969.0,
+      "capitalisation_mad": 5965128818.0
+    },
+    "LBV": {
+      "ticker": "LBV",
+      "nom_bvc": "Label Vie",
+      "isin": "MA0000011801",
+      "secteur": "Distribution",
+      "cours_16_09": 4098.0,
+      "capitalisation_mad": 11859435786.0
+    },
+    "LES": {
+      "ticker": "LES",
+      "nom_bvc": "Lesieur",
+      "isin": "MA0000012031",
+      "secteur": "Agroalimentaire",
+      "cours_16_09": 305.0,
+      "capitalisation_mad": 8427610550.0
+    },
+    "LHM": {
+      "ticker": "LHM",
+      "nom_bvc": "Holcim Maroc",
+      "isin": "MA0000012320",
+      "secteur": "Matériaux",
+      "cours_16_09": 1712.0,
+      "capitalisation_mad": 40114282880.0
+    },
+    "M2M": {
+      "ticker": "M2M",
+      "nom_bvc": "M2M Group",
+      "isin": "MA0000011678",
+      "secteur": "Technologie",
+      "cours_16_09": 403.6,
+      "capitalisation_mad": 261442797.2
+    },
+    "MAB": {
+      "ticker": "MGL",
+      "nom_bvc": "Maghrebail",
+      "isin": "MA0000011215",
+      "secteur": "Finance",
+      "cours_16_09": 923.0,
+      "capitalisation_mad": 1277599986.0
+    },
+    "MDP": {
+      "ticker": "MDP",
+      "nom_bvc": "Med Paper",
+      "isin": "MA0000012593",
+      "secteur": "Industrie",
+      "cours_16_09": 24.95,
+      "capitalisation_mad": 119356383.85
+    },
+    "MIC": {
+      "ticker": "MIC",
+      "nom_bvc": "Microdata",
+      "isin": "MA0000012163",
+      "secteur": "Technologie",
+      "cours_16_09": 750.0,
+      "capitalisation_mad": 1260000000.0
+    },
+    "MLE": {
+      "ticker": "MRL",
+      "nom_bvc": "Maroc Leasing",
+      "isin": "MA0000010035",
+      "secteur": "Finance",
+      "cours_16_09": 367.0,
+      "capitalisation_mad": 1019073856.0
+    },
+    "MNG": {
+      "ticker": "MNG",
+      "nom_bvc": "Managem",
+      "isin": "MA0000012866",
+      "secteur": "Mines",
+      "cours_16_09": 1589.0,
+      "capitalisation_mad": 188529701640.0
+    },
+    "MOX": {
+      "ticker": "MOX",
+      "nom_bvc": "Maghreb Oxygène",
+      "isin": "MA0000010985",
+      "secteur": "Matériaux",
+      "cours_16_09": 380.0,
+      "capitalisation_mad": 308750000.0
+    },
+    "MSA": {
+      "ticker": "MSA",
+      "nom_bvc": "Marsa Maroc",
+      "isin": "MA0000012312",
+      "secteur": "Transport",
+      "cours_16_09": 835.0,
+      "capitalisation_mad": 61285326000.0
+    },
+    "MUT": {
+      "ticker": "MUT",
+      "nom_bvc": "Mutandis",
+      "isin": "MA0000012395",
+      "secteur": "Agroalimentaire",
+      "cours_16_09": 235.0,
+      "capitalisation_mad": 2172983195.0
+    },
+    "NEJ": {
+      "ticker": "NEJ",
+      "nom_bvc": "Auto Nejma",
+      "isin": "MA0000011009",
+      "secteur": "Distribution",
+      "cours_16_09": 5621.0,
+      "capitalisation_mad": 5751766944.0
+    },
+    "NKL": {
+      "ticker": "ENK",
+      "nom_bvc": "Ennakl",
+      "isin": "MA0000011942",
+      "secteur": "Automobile",
+      "cours_16_09": 48.65,
+      "capitalisation_mad": 1459500000.0
+    },
+    "OUL": {
+      "ticker": "OUL",
+      "nom_bvc": "Oulmès",
+      "isin": "MA0000010415",
+      "secteur": "Agroalimentaire",
+      "cours_16_09": 1160.0,
+      "capitalisation_mad": 2296800000.0
+    },
+    "PRO": {
+      "ticker": "PPM",
+      "nom_bvc": "Promopharm",
+      "isin": "MA0000011660",
+      "secteur": "Santé",
+      "cours_16_09": 1398.0,
+      "capitalisation_mad": 1398000000.0
+    },
+    "RDS": {
+      "ticker": "RDS",
+      "nom_bvc": "Dar Saada",
+      "isin": "MA0000012239",
+      "secteur": "Immobilier",
+      "cours_16_09": 170.2,
+      "capitalisation_mad": 4460746270.0
+    },
+    "REB": {
+      "ticker": "REB",
+      "nom_bvc": "Rebab",
+      "isin": "MA0000010993",
+      "secteur": "Industrie",
+      "cours_16_09": 97.62,
+      "capitalisation_mad": 17225634.72
+    },
+    "RIS": {
+      "ticker": "RIS",
+      "nom_bvc": "Risma",
+      "isin": "MA0000011462",
+      "secteur": "Tourisme",
+      "cours_16_09": 320.05,
+      "capitalisation_mad": 5124682846.6
+    },
+    "S2M": {
+      "ticker": "S2M",
+      "nom_bvc": "S2M",
+      "isin": "MA0000012106",
+      "secteur": "Technologie",
+      "cours_16_09": 510.0,
+      "capitalisation_mad": 414155700.0
+    },
+    "SAH": {
+      "ticker": "SAF",
+      "nom_bvc": "Sanlam Maroc",
+      "isin": "MA0000012007",
+      "secteur": "Assurance",
+      "cours_16_09": 3150.0,
+      "capitalisation_mad": 16826903100.0
+    },
+    "SBM": {
+      "ticker": "SBS",
+      "nom_bvc": "Boissons du Maroc",
+      "isin": "MA0000010365",
+      "secteur": "Agroalimentaire",
+      "cours_16_09": 2107.0,
+      "capitalisation_mad": 5962078871.0
+    },
+    "SID": {
+      "ticker": "SNA",
+      "nom_bvc": "Sonasid",
+      "isin": "MA0000010019",
+      "secteur": "Matériaux",
+      "cours_16_09": 1840.0,
+      "capitalisation_mad": 7176000000.0
+    },
+    "SLF": {
+      "ticker": "SLM",
+      "nom_bvc": "Salafin",
+      "isin": "MA0000011744",
+      "secteur": "Finance",
+      "cours_16_09": 430.0,
+      "capitalisation_mad": 1343371170.0
+    },
+    "SMI": {
+      "ticker": "SMI",
+      "nom_bvc": "Société Métallurgique d'Imiter",
+      "isin": "MA0000010068",
+      "secteur": "Mines",
+      "cours_16_09": 6471.0,
+      "capitalisation_mad": 10645377390.0
+    },
+    "SNA": {
+      "ticker": "STK",
+      "nom_bvc": "Stokvis",
+      "isin": "MA0000012700",
+      "secteur": "Distribution",
+      "cours_16_09": 63.8,
+      "capitalisation_mad": 1128950570.0
+    },
+    "SNP": {
+      "ticker": "SNP",
+      "nom_bvc": "SNEP",
+      "isin": "MA0000011728",
+      "secteur": "Matériaux",
+      "cours_16_09": 323.0,
+      "capitalisation_mad": 775200000.0
+    },
+    "SOT": {
+      "ticker": "SOT",
+      "nom_bvc": "Sothema",
+      "isin": "MA0000012833",
+      "secteur": "Santé",
+      "cours_16_09": 365.0,
+      "capitalisation_mad": 13982967500.0
+    },
+    "SRM": {
+      "ticker": "SRM",
+      "nom_bvc": "Société de Réalisations Mécaniques",
+      "isin": "MA0000011595",
+      "secteur": "Industrie",
+      "cours_16_09": 463.5,
+      "capitalisation_mad": 148320000.0
+    },
+    "STR": {
+      "ticker": "STR",
+      "nom_bvc": "Stroc",
+      "isin": "MA0000012056",
+      "secteur": "Industrie",
+      "cours_16_09": 171.0,
+      "capitalisation_mad": 213496065.0
+    },
+    "T2S": {
+      "ticker": "T2S",
+      "nom_bvc": "T2S Group",
+      "isin": "MA0000012858",
+      "secteur": "Santé",
+      "cours_16_09": 220.1,
+      "capitalisation_mad": 4794916797.4
+    },
+    "TGC": {
+      "ticker": "TGCC",
+      "nom_bvc": "TGCC",
+      "isin": "MA0000012528",
+      "secteur": "Construction",
+      "cours_16_09": 688.0,
+      "capitalisation_mad": 23855940416.0
+    },
+    "TMA": {
+      "ticker": "TMA",
+      "nom_bvc": "TotalEnergies Maroc",
+      "isin": "MA0000012262",
+      "secteur": "Énergie",
+      "cours_16_09": 1448.0,
+      "capitalisation_mad": 12974080000.0
+    },
+    "TQM": {
+      "ticker": "TQA",
+      "nom_bvc": "TAQA Morocco",
+      "isin": "MA0000012205",
+      "secteur": "Énergie",
+      "cours_16_09": 1741.0,
+      "capitalisation_mad": 41067651622.0
+    },
+    "UMR": {
+      "ticker": "UNI",
+      "nom_bvc": "Unimer",
+      "isin": "MA0000012023",
+      "secteur": "Agroalimentaire",
+      "cours_16_09": 169.0,
+      "capitalisation_mad": 1928945720.0
+    },
+    "VCN": {
+      "ticker": "VCNE",
+      "nom_bvc": "Vicenne",
+      "isin": "MA0000012759",
+      "secteur": "Santé",
+      "cours_16_09": 326.5,
+      "capitalisation_mad": 3349514525.0
+    },
+    "WAA": {
+      "ticker": "WAF",
+      "nom_bvc": "Wafa Assurance",
+      "isin": "MA0000010928",
+      "secteur": "Assurance",
+      "cours_16_09": 5200.0,
+      "capitalisation_mad": 18200000000.0
+    },
+    "ZDJ": {
+      "ticker": "ZLD",
+      "nom_bvc": "Zellidja",
+      "isin": "MA0000010571",
+      "secteur": "Industrie",
+      "cours_16_09": 281.0,
+      "capitalisation_mad": 160970569.0
+    }
+  }
+}
