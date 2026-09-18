@@ -1,7 +1,9 @@
 {
   "_quoi": "Écarts MESURÉS entre nos chandelles Sonasid et l'export de l'opérateur, hors les six séances dont la cause est établie.",
-  "_statut": "CANDIDAT — RIEN N'EST APPLIQUÉ",
-  "_ce_dossier_propose_il_n_instruit_pas": "⚠️ `datasets/historiques_candidats/` PROPOSE ; seul `datasets/corrections_acceptees/` instruit. Aucune valeur d'ici n'entre dans les chandelles publiées.",
+  "_statut": "SUPERSÉDÉ — conservé comme trace d'audit ; ses valeurs opérateur sont désormais reprises par l'import historique complet SNA.",
+  "_supersede_par": "datasets/historiques_importes/SNA.json",
+  "_lecture_actuelle": "Ce dossier décrivait 56 écarts lorsque l'export opérateur n'était encore qu'un candidat. L'identité SID=SONASID a depuis été vérifiée par le code, l'instrument et 3 900 000 actions ; l'export est maintenant la source historique reçue sur sa période. Les lignes restent ici pour expliquer la décision, mais ce dossier n'instruit plus rien.",
+  "_ce_dossier_propose_il_n_instruit_pas": "Historique conservé. Il ne doit plus servir de candidat actif : l'instruction qui le remplace est datasets/historiques_importes/SNA.json.",
   "_ce_qui_est_etabli": "qu'il existe un écart, daté et chiffré, entre nos chandelles et la publication de l'opérateur",
   "_ce_qui_ne_l_est_pas": "⚠️ QUI A RAISON. L'export est la publication de l'opérateur — la source la plus proche du marché dont nous disposions, pas une preuve d'exactitude. Un écart est un ÉCART tant que sa cause n'est pas établie, et ces causes ne le sont pas séance par séance.",
   "ticker": "SNA",
@@ -29,7 +31,7 @@
       "2026-07-30",
       "2026-09-15"
     ],
-    "_lecture": "⚠️ Le 30/07/2026 est la séance fantôme déjà relevée sur 72 de nos 74 titres : l'opérateur ne la publie pas. Le 15/09/2026 est postérieur à l'export, c'est normal. Retirer une séance d'une série touche 72 titres : hors périmètre de ce lot."
+    "_lecture": "Le 30/07/2026 est un jour férié déclaré et disparaît avec l'import opérateur. Le 15/09/2026 est postérieur à cet export et reste conservé depuis la série validée du dépôt."
   },
   "lignes": [
     {

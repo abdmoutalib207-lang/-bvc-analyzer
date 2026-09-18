@@ -21,7 +21,9 @@ Stokvis. Les trois paires ont des codes voisins.
 ⚠️ ET UNE FUITE DE LA TABLE STATIQUE
 Stokvis affichait 490,00 DH sur trois séances — la valeur de
 `static_fallback.json`, signalée le 01/08/2026 comme fausse. Son plus-haut
-52 semaines en découlait : 490,00 pour un titre à 65. Il vaut 80.
+52 semaines en découlait : 490,00 pour un titre à 65. La première correction
+courte l'avait ramené à 80 ; l'export opérateur sur trois ans établit désormais
+le vrai sommet de la fenêtre : 138,00 le 07/10/2025.
 
 ⚠️ CE QUI N'A PAS ÉTÉ CORRIGÉ, ET POURQUOI
 Managem s'écarte de l'export sur 703 séances — d'un facteur 10. Ce n'est PAS un
@@ -115,8 +117,11 @@ def test_stokvis_ne_porte_plus_la_valeur_de_la_table_statique():
     assert [b["d"] for b in serie if b["c"] == 490.0] == []
     cache = json.loads((RACINE / "pipeline" / "historical_data.json")
                        .read_text(encoding="utf-8"))
-    assert cache["STK"]["h52w"] == 80.0
+    assert cache["STK"]["h52w"] == 138.0, (
+        "l'historique complet doit voir le sommet réel du 07/10/2025")
     assert cache["STK"]["h52w"] < 200, "490 revient par le plus-haut annuel"
+    sommet = next(b for b in serie if b["d"] == "2025-10-07")
+    assert sommet["h"] == 138.0 and sommet["c"] == 135.0
 
 
 # ── Managem : ce qui n'est PAS corrigé ────────────────────────────────────

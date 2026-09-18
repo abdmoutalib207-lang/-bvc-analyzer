@@ -1,0 +1,33 @@
+{
+  "_statut": "INSTRUCTION — la série publiée de ce titre reprend l'export de l'opérateur sur toute sa période, puis les séances plus récentes déjà validées.",
+  "_portee": "Historique complet sur la période de l'export. Le titre n'est PAS figé : les séances postérieures restent admises par le pipeline.",
+  "ticker": "STK",
+  "code_operateur": "SNA",
+  "instrument": "STOKVIS NORD AFRIQUE",
+  "source": "Bourse de Casablanca — export historique « Cours » archivé dans le dépôt",
+  "fichier_recu": "4b146aac-Cours_SNA_2023-09-17_2026-09-16.csv",
+  "fichier_dans_le_depot": "sources/STK/4b146aac-Cours_SNA_2023-09-17_2026-09-16.csv",
+  "sha256_fichier_recu": "1725a10a672b42f8a3010622fd0f374530f5ada7691318cfd4345bb6ddc8b8dc",
+  "periode_source": [
+    "2023-09-18",
+    "2026-09-15"
+  ],
+  "seances_source": 734,
+  "seances_publiees_apres_fusion": 735,
+  "_seances_posterieures_conservees": [
+    "2026-09-16"
+  ],
+  "_identite_verifiee": {
+    "code_dans_le_fichier": "SNA",
+    "instrument_dans_le_fichier": "STOKVIS NORD AFRIQUE",
+    "ticker_projet": "STK",
+    "nombre_actions_actuel": 17695150,
+    "historique_nombre_actions": "9 195 150 jusqu'au 17/10/2024 ; 17 695 150 à partir du 18/10/2024, établi par capitalisation ÷ cours",
+    "controle_arithmetique": "la capitalisation de l'export reproduit exactement ces deux régimes de nombre d'actions"
+  },
+  "_normalisation_champs_vides": "Quand l'opérateur publie une clôture mais laisse O/H/L vides, la convention déjà utilisée par le chargeur historique est O=H=L=C ; Titres Échangés vide devient 0.",
+  "_corrections_receptionnees": "Les 30 séances de datasets/corrections_acceptees/STK.json sont déjà conformes dans l'export complet : 0 correction à réappliquer, 0 refus.",
+  "_preuve_du_plus_haut": "07/10/2025 : ouverture 133,60 ; plus haut 138,00 ; clôture 135,00 ; 120 405 titres échangés. L'ancien h52w=80 venait d'une série de 56 bougies.",
+  "_seance_17_09": "Aucune bougie 17/09/2026 n'est importée ; la séance est annulée dans le registre global.",
+  "_preuve_de_non_inversion": "Le code opérateur SNA est Stokvis, pas Sonasid ; le nombre d'actions courant 17 695 150 est incompatible avec les 3 900 000 de Sonasid."
+}

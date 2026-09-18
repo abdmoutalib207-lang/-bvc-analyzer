@@ -330,6 +330,25 @@ def combine(xlsx_df: pd.DataFrame, ext_df: pd.DataFrame) -> pd.DataFrame:
     return combined
 
 
+def fusionner_avec_existant(ticker: str, source_df: pd.DataFrame,
+                            existant_df: pd.DataFrame) -> pd.DataFrame:
+    """Fusionne sans permettre à une source secondaire d'écraser un import reçu."""
+    if existant_df.empty:
+        return source_df
+    if source_df.empty:
+        return existant_df
+
+    fin_import = fin_historique_importe(ticker)
+    if fin_import:
+        apres = source_df[source_df["date"] > pd.Timestamp(fin_import)].copy()
+        # `combine` conserve la première occurrence : l'existant réceptionné
+        # gagne sur tout doublon, les seules nouveautés admises sont postérieures.
+        return combine(existant_df, apres)
+
+    newer = existant_df[existant_df["date"] > source_df["date"].iloc[-1]].copy()
+    return combine(source_df, newer) if not newer.empty else source_df
+
+
 # ⚠️ COPIE CONFORME DE `update_data.py::calc_rsi`, ET RIEN D'AUTRE.
 # C'est CE calc_rsi-ci qui écrit les RSI de `historical_data.json`, et
 # c'est ce cache que le moteur sert pour 73 titres sur 74 : corriger la
@@ -568,7 +587,10 @@ def save_candle_file(ticker: str, df: pd.DataFrame, candles_dir: Path) -> None:
 # et le collecteur tomberait sur un ModuleNotFoundError en production — c'est
 # exactement ce qui est arrivé le 12/09 avec `identites`.
 sys.path.insert(0, str(Path(__file__).parent))
-from candle_write_policy import appliquer_corrections_avant_ecriture as appliquer_corrections  # noqa: E402
+from candle_write_policy import (  # noqa: E402
+    appliquer_corrections_avant_ecriture as appliquer_corrections,
+    fin_historique_importe,
+)
 
 SERIES_ACCEPTEES = Path(__file__).parent.parent / "datasets" / "series_acceptees"
 
@@ -697,14 +719,18 @@ def run(tickers_filter: list[str] | None = None) -> dict:
                             ex_df[col] = ex_df.get("close", 0)
                     ex_df = ex_df[["date", "open", "high", "low", "close", "volume"]].copy()
                     ex_df["close"] = pd.to_numeric(ex_df["close"], errors="coerce")
-                    if df.empty:
-                        df = ex_df
+                    _avant = len(df)
+                    _fin_import = fin_historique_importe(ticker)
+                    df = fusionner_avec_existant(ticker, df, ex_df)
+                    if _avant == 0:
                         log.info(f"  candle file utilisé comme base ({len(ex_df)} bougies)")
-                    else:
-                        newer = ex_df[ex_df["date"] > df["date"].iloc[-1]].copy()
-                        if not newer.empty:
-                            df = combine(df, newer)
-                            log.info(f"  +{len(newer)} bougies préservées depuis candle file")
+                    elif _fin_import:
+                        log.info(
+                            f"  historique importé protégé jusqu'au {_fin_import} ; "
+                            "seules les séances postérieures peuvent s'ajouter")
+                    elif len(df) > _avant:
+                        log.info(
+                            f"  +{len(df) - _avant} bougies préservées depuis candle file")
             except Exception:
                 pass
 
@@ -739,13 +765,16 @@ def run(tickers_filter: list[str] | None = None) -> dict:
             # écrivent dans candles/, en protéger un seul ne protège rien ».
             _refus = rapport.get("refus") or []
             _absentes = rapport.get("seances_absentes") or []
-            if rapport["corrections"] or _refus or _absentes:
+            _annulees = rapport.get("seances_annulees_retirees") or []
+            if rapport["corrections"] or _refus or _absentes or _annulees:
                 log.warning(
                     f"  {ticker}: {rapport['corrections']} séance(s) corrigée(s) "
                     f"réimposée(s), {rapport['deja_conformes']} déjà conforme(s)"
                     + (f", {len(_refus)} REFUS" if _refus else "")
                     + (f", {len(_absentes)} absente(s) de la série"
-                       if _absentes else ""))
+                       if _absentes else "")
+                    + (f", {len(_annulees)} séance(s) annulée(s) retirée(s)"
+                       if _annulees else ""))
                 for r in _refus:
                     log.warning(f"     refus {r['seance']} : {r['motif']}")
 
@@ -763,7 +792,7 @@ def run(tickers_filter: list[str] | None = None) -> dict:
                     results[ticker] = entree
                 continue
 
-            if rapport["corrections"]:
+            if rapport["corrections"] or _annulees:
                 df = pd.DataFrame([{"date": pd.Timestamp(b["d"]), "open": b["o"],
                                     "high": b["h"], "low": b["l"], "close": b["c"],
                                     "volume": b["v"]} for b in corrigees])

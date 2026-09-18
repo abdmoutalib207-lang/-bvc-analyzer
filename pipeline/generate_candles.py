@@ -26,7 +26,10 @@ TIMEOUT     = 15
 XLSX_ALIAS = {"TGC": "TGCC"}
 
 sys.path.insert(0, str(Path(__file__).parent))
-from candle_write_policy import appliquer_corrections_avant_ecriture  # noqa: E402
+from candle_write_policy import (  # noqa: E402
+    appliquer_corrections_avant_ecriture,
+    fin_historique_importe,
+)
 
 SERIES_ACCEPTEES = ROOT / "datasets" / "series_acceptees"
 
@@ -173,6 +176,15 @@ def _merge_candles(existing: list, new_candles: list) -> list:
     return sorted(combined.values(), key=lambda x: x["d"])
 
 
+def _merge_respectant_historique_importe(ticker: str, existing: list,
+                                           new_candles: list) -> list:
+    """Une source secondaire ne réécrit pas la période opérateur réceptionnée."""
+    fin = fin_historique_importe(ticker)
+    if fin:
+        new_candles = [c for c in new_candles if str(c.get("d") or "")[:10] > fin]
+    return _merge_candles(existing, new_candles)
+
+
 def generate_from_xlsx() -> dict:
     CANDLES_DIR.mkdir(exist_ok=True)
     results = {}
@@ -194,7 +206,8 @@ def generate_from_xlsx() -> dict:
             if out.exists():
                 try:
                     existing = json.loads(out.read_text())
-                    candles  = _merge_candles(existing, candles)
+                    candles  = _merge_respectant_historique_importe(
+                        ticker, existing, candles)
                 except Exception:
                     pass
 
@@ -282,7 +295,8 @@ def generate_from_med24(skip_existing_tickers: set = None, days: int = 400) -> d
             if out.exists():
                 try:
                     existing = json.loads(out.read_text())
-                    candles  = _merge_candles(existing, candles)
+                    candles  = _merge_respectant_historique_importe(
+                        ticker, existing, candles)
                 except Exception:
                     pass
 
