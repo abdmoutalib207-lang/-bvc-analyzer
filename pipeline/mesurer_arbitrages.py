@@ -101,10 +101,17 @@ def mesurer() -> dict:
     a["_les_pires_ecarts"] = sorted(
         [c for c in courts if c["ecart_pct"] and abs(c["ecart_pct"]) > 20],
         key=lambda c: -abs(c["ecart_pct"]))
-    a["_le_fait"] = (
-        f"{len(courts)} titres affichent une « MA200 » calculée sur moins de "
-        f"200 séances. Depuis le 15/09/2026, `calc_ma` rend une absence sous la "
-        f"période : ils passeront à « — » au fil des recalculs de cache.")
+    a["_resolu"] = len(courts) == 0
+    if courts:
+        a["_le_fait"] = (
+            f"{len(courts)} titres affichent une « MA200 » calculée sur moins de "
+            f"200 séances. Depuis le 15/09/2026, `calc_ma` rend une absence sous la "
+            f"période : ils passeront à « — » au fil des recalculs de cache.")
+    else:
+        a["_le_fait"] = (
+            "0 titre n'affiche désormais de « MA200 » calculée sur moins de "
+            "200 séances. Le défaut mesuré le 15/09/2026 est résolu dans le "
+            "cache courant ; l'historique du dossier reste conservé.")
     a["_le_compte_a_bouge"] = (
         f"⚠️ Ils étaient 32 à la première mesure, {avant} avant ce relevé, "
         f"{len(courts)} maintenant. Le compte DESCEND à mesure que les séries "
