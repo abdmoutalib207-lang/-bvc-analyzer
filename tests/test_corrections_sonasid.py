@@ -22,9 +22,11 @@ cours d'une autre société.
 C'est l'inversion de codes documentée depuis le 10/08 : `SNA` désigne STOKVIS
 à la Bourse de Casablanca, et Sonasid y est `SID`.
 
-⚠️ CE QUE CE LOT NE CORRIGE PAS
-56 autres séances s'écartent de l'export, dont 23 sur la CLÔTURE. Leur cause
-n'est pas établie ; elles sont mesurées et déposées en candidat, pas appliquées.
+⚠️ ÉVOLUTION DU DOSSIER
+56 autres séances avaient d'abord été déposées en candidat, sans être appliquées.
+L'export opérateur complet a ensuite été réceptionné comme historique de
+référence après vérification indépendante de l'identité SID = SONASID. Le
+candidat est conservé pour l'audit, mais il est désormais supersédé.
 """
 
 from __future__ import annotations
@@ -123,19 +125,26 @@ def test_la_correction_resiste_a_une_recontamination(recu, serie):
 
 # ── Le candidat : il propose, il n'instruit pas ────────────────────────────
 
-def test_les_56_autres_ecarts_sont_candidats_et_non_appliques(serie):
-    """⚠️ Un écart est un ÉCART tant que sa cause n'est pas établie. Ces
-    séances sont mesurées, datées, chiffrées — et laissées telles quelles
-    dans les chandelles publiées."""
+def test_l_ancien_candidat_est_conserve_et_supersede(serie):
+    """Le dossier de mesure reste auditable mais n'est plus une instruction active."""
     c = json.loads(CANDIDAT.read_text(encoding="utf-8"))
-    assert c["_statut"].startswith("CANDIDAT")
+    assert c["_statut"].startswith("SUPERSÉDÉ")
+    assert c["_supersede_par"] == "datasets/historiques_importes/SNA.json"
+    assert (RACINE / c["_supersede_par"]).exists()
     assert c["seances_en_ecart"] == 56
     assert c["champs_en_ecart"]["cloture"] == 23
-    # Aucune valeur du candidat n'a été écrite dans la série publiée.
-    ecrites = [l["d"] for l in c["lignes"]
-               if all(serie[l["d"]][k] == l["operateur"][k]
-                      for k in l["champs_en_ecart"])]
-    assert ecrites == [], f"des valeurs candidates ont été appliquées : {ecrites}"
+
+    # Sur la période de l'export, les anciennes valeurs candidates sont
+    # désormais celles de la série publiée. On conserve les lignes pour
+    # expliquer le changement de décision, pas pour continuer à les refuser.
+    non_alignees = [
+        l["d"] for l in c["lignes"]
+        if not all(serie[l["d"]][k] == l["operateur"][k]
+                   for k in l["champs_en_ecart"])
+    ]
+    assert non_alignees == [], (
+        f"l'import opérateur n'a pas repris toutes les valeurs supersédées : "
+        f"{non_alignees[:5]}")
 
 
 def test_l_hypothese_porte_ce_qui_la_contredit():
@@ -147,9 +156,10 @@ def test_l_hypothese_porte_ce_qui_la_contredit():
     assert "ce_qui_la_CONTREDIT" in h and h["ce_qui_la_CONTREDIT"]
 
 
-def test_la_seance_fantome_du_30_juillet_est_signalee_pas_supprimee(serie):
-    """L'opérateur ne publie pas le 30/07/2026. Nous la portons encore — comme
-    72 de nos 74 titres. La retirer dépasse ce lot ; la taire serait pire."""
+def test_le_30_juillet_disparait_avec_l_import_operateur(serie):
+    """Le 30/07 est un jour férié déclaré et l'export opérateur l'omet."""
     c = json.loads(CANDIDAT.read_text(encoding="utf-8"))
     assert "2026-07-30" in c["_seances_absentes_de_l_export"]["dates"]
-    assert "2026-07-30" in serie, "la séance n'a pas à disparaître dans ce lot"
+    assert c["_statut"].startswith("SUPERSÉDÉ")
+    assert "2026-07-30" not in serie, (
+        "une bougie du jour de la Fête du Trône a survécu à l'import complet")
