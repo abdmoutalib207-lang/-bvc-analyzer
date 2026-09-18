@@ -89,8 +89,10 @@ def test_les_trois_ecrivains_passent_par_la_meme_politique():
             n.module for n in ast.walk(arbre)
             if isinstance(n, ast.ImportFrom) and n.module
         }
-        assert "candle_write_policy" in imports, (
-            f"{chemin} contourne la politique commune")
+        assert any(
+            m == "candle_write_policy" or m.endswith(".candle_write_policy")
+            for m in imports
+        ), f"{chemin} contourne la politique commune"
         appels = {
             getattr(n.func, "id", "")
             for n in ast.walk(arbre) if isinstance(n, ast.Call)
