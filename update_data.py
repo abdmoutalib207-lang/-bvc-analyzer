@@ -19,6 +19,8 @@ import sys, os, re, json, time, argparse, logging, subprocess, collections, unic
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from pipeline.candle_write_policy import appliquer_corrections_avant_ecriture
+
 # Auto-install deps si besoin (Colab)
 for pkg in ["requests", "numpy", "pandas"]:
     try:
@@ -2648,6 +2650,35 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
         "warnMsg": warn_msg,
     }
 
+def _ecrire_candles_sous_garde(sym: str, existing: list, cfp: Path) -> bool:
+    """Écrit une série seulement si les corrections réceptionnées l'acceptent.
+
+    Cette fonction protège l'écriture intraday de update_data.py, troisième
+    chemin capable d'écrire dans pipeline/candles/. En cas de refus, le fichier
+    déjà publié reste strictement inchangé.
+    """
+    corrigees, rapport = appliquer_corrections_avant_ecriture(sym, existing)
+    refus = rapport.get("refus") or []
+    if refus:
+        logger.error(
+            f"  ✗ {sym}: {len(refus)} correction(s) réceptionnée(s) refusée(s) "
+            "— fichier CONSERVÉ, rien n'est écrit")
+        for r in refus[:3]:
+            logger.error(
+                f"     refus {r.get('seance', '?')} : {r.get('motif', 'sans motif')}")
+        return False
+
+    n = int(rapport.get("corrections") or 0)
+    if n:
+        logger.warning(
+            f"  {sym}: {n} correction(s) réceptionnée(s) réimposée(s) "
+            "avant écriture de la bougie du jour")
+
+    cfp.write_text(
+        json.dumps(corrigees, separators=(",", ":")), encoding="utf-8")
+    return True
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # PIPELINE PRINCIPAL
 # ─────────────────────────────────────────────────────────────────────────────
@@ -3644,8 +3675,8 @@ def run(dry_run=False, push=False, token=""):
                             "v": int(entry.get("vol") or 0),
                         }
                         existing.append(today_candle)
-                    cfp.write_text(json.dumps(existing, separators=(",", ":")), encoding="utf-8")
-                    updated_count += 1
+                    if _ecrire_candles_sous_garde(sym, existing, cfp):
+                        updated_count += 1
                 except Exception:
                     pass
             if updated_count:
