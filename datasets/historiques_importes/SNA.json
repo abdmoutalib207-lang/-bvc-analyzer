@@ -1,0 +1,33 @@
+{
+  "_statut": "INSTRUCTION — la série publiée de ce titre reprend l'export de l'opérateur sur toute sa période, puis les séances plus récentes déjà validées.",
+  "_portee": "Historique complet sur la période de l'export. Le titre n'est PAS figé : les séances postérieures restent admises par le pipeline.",
+  "ticker": "SNA",
+  "code_operateur": "SID",
+  "instrument": "SONASID",
+  "source": "Bourse de Casablanca — export historique « Cours » archivé dans le dépôt",
+  "fichier_recu": "6a582f20-Cours_SID___2023-09-16_2026-09-15.csv",
+  "fichier_dans_le_depot": "sources/SNA/6a582f20-Cours_SID___2023-09-16_2026-09-15.csv",
+  "sha256_fichier_recu": "fd6be7e64b9da751554c2d95a2b65f022cca63c79bddb79a48732c44c3eba467",
+  "periode_source": [
+    "2023-09-18",
+    "2026-09-14"
+  ],
+  "seances_source": 733,
+  "seances_publiees_apres_fusion": 735,
+  "_seances_posterieures_conservees": [
+    "2026-09-15",
+    "2026-09-16"
+  ],
+  "_identite_verifiee": {
+    "code_dans_le_fichier": "SID",
+    "instrument_dans_le_fichier": "SONASID",
+    "ticker_projet": "SNA",
+    "nombre_actions": 3900000,
+    "controle_arithmetique": "capitalisation ÷ dernier cours = 3 900 000 sur les 733 lignes de l'export"
+  },
+  "_normalisation_champs_vides": "Quand l'opérateur publie une clôture mais laisse O/H/L vides, la convention déjà utilisée par le chargeur historique est O=H=L=C ; Titres Échangés vide devient 0. Aucune cotation n'est inventée.",
+  "_corrections_receptionnees": "Les 6 séances de datasets/corrections_acceptees/SNA.json sont déjà conformes dans l'export complet : 0 correction à réappliquer, 0 refus.",
+  "_candidat_supersede": "datasets/historiques_candidats/SNA_ecarts/ecarts.json",
+  "_seances_ecartees": "Le 30/07/2026 est absent de l'export opérateur et est un jour férié déclaré ; aucune bougie 17/09/2026 n'est importée, la séance étant annulée dans le registre global.",
+  "_preuve_de_non_inversion": "SID est Sonasid ; le code opérateur SNA est Stokvis. Le nombre d'actions 3 900 000 distingue aussi arithmétiquement Sonasid de Stokvis."
+}
