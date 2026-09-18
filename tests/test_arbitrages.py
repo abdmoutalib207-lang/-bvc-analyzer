@@ -55,8 +55,14 @@ def test_les_titres_annonces_sont_bien_ceux_du_cache(mesures):
              and (v.get("n_candles") or 0) < 200 and v.get("ma200") is not None}
     annonces = {c["ticker"] for c in mesures["arbitrage_1_la_moyenne_200_jours"]["titres_concernes"]}
     assert annonces == reels
-    assert 0 < len(reels) < 74
-    assert "Le compte DESCEND" in mesures["arbitrage_1_la_moyenne_200_jours"]["_le_compte_a_bouge"]
+    a = mesures["arbitrage_1_la_moyenne_200_jours"]
+    if reels:
+        assert 0 < len(reels) < 74
+        assert not a.get("_resolu", False)
+    else:
+        assert a.get("_resolu") is True, (
+            "plus aucune fausse MA200 courte : le dossier doit déclarer le constat résolu")
+    assert "Le compte DESCEND" in a["_le_compte_a_bouge"]
     # ⚠️ Le dossier se remesure par PROGRAMME, pas à la main : je l'ai oublié
     # trois fois et ce test est tombé trois fois.
     assert "mesurer_arbitrages.py" in mesures["arbitrage_1_la_moyenne_200_jours"]["_le_compte_a_bouge"]
@@ -90,7 +96,9 @@ def test_les_ecarts_annonces_sont_recalculables(mesures):
     srv = {t["symbol"]: t for t in json.loads(
         (RACINE / "data.json").read_text(encoding="utf-8"))["tickers"]}
     pires = mesures["arbitrage_1_la_moyenne_200_jours"]["_les_pires_ecarts"]
-    assert pires, "aucun écart cité : le dossier ne montre plus le problème"
+    if not pires:
+        assert mesures["arbitrage_1_la_moyenne_200_jours"].get("_resolu") is True
+        return
     for c in pires:
         m = cache[c["ticker"]]["ma200"]
         assert m == c["ma200_affichee"], (
