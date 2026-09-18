@@ -26,6 +26,7 @@ TIMEOUT     = 15
 XLSX_ALIAS = {"TGC": "TGCC"}
 
 sys.path.insert(0, str(Path(__file__).parent))
+from candle_write_policy import appliquer_corrections_avant_ecriture  # noqa: E402
 
 SERIES_ACCEPTEES = ROOT / "datasets" / "series_acceptees"
 
@@ -59,11 +60,7 @@ def _reimposer(ticker, candles):
     20h27 ont été réécrites à l'ancienne par ce programme-ci quelques minutes
     plus tard. Le même défaut que CMT le 14/09, par l'autre porte.
     """
-    try:
-        from corrections_acceptees import appliquer
-    except ImportError:          # couche absente : on n'invente rien
-        return candles, []
-    out, rapport = appliquer(ticker, candles)
+    out, rapport = appliquer_corrections_avant_ecriture(ticker, candles)
     if rapport["corrections"]:
         log.warning(f"  {ticker}: {rapport['corrections']} séance(s) corrigée(s) "
                     f"réimposée(s) avant écriture")
