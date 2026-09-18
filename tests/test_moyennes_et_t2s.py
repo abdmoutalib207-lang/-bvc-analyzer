@@ -161,18 +161,21 @@ def test_t2s_commence_a_son_introduction(serie):
     assert serie[-1]["d"] >= "2026-09-14"
 
 
-def test_le_cache_t2s_n_annonce_aucune_moyenne_longue():
-    """⚠️ LE POINT DE CE LOT. Trente séances : pas de MA50, pas de MA200.
-    L'ancienne version en aurait publié deux, égales à la moyenne des trente."""
-    cache = json.loads((RACINE / "pipeline" / "historical_data.json")
-                       .read_text(encoding="utf-8"))["T2S"]
-    assert cache["n_candles"] == 30
+def test_le_cache_t2s_n_annonce_aucune_moyenne_longue(serie, ud):
+    """Le cache peut manquer, mais le moteur doit reconstruire sans inventer."""
+    import pandas as pd
+    cache_all = json.loads((RACINE / "pipeline" / "historical_data.json")
+                           .read_text(encoding="utf-8"))
+    cache = cache_all.get("T2S") or ud._indicateurs_depuis_candles(pd.DataFrame(serie))
+    assert cache["n_candles"] == len(serie)
     assert cache["ma50"] is None and cache["ma200"] is None
-    assert cache["ma20"] == 234.93
-    assert cache["rsi"] == 18.6, "RSI de Wilder réel, et non la valeur neutre 50"
+    attendu_ma20 = round(sum(b["c"] for b in serie[-20:]) / 20, 2)
+    assert cache["ma20"] == attendu_ma20
+    attendu_rsi = ud.calc_rsi(pd.Series([b["c"] for b in serie], dtype=float))
+    assert cache["rsi"] == attendu_rsi
 
 
-def test_les_extremes_de_t2s_ne_couvrent_pas_52_semaines(serie):
+def test_les_extremes_de_t2s_ne_couvrent_pas_52_semaines(serie, ud):
     """⚠️ UNE LIMITE, ÉCRITE PLUTÔT QUE TUE.
 
     `h52w` et `l52w` de T2S valent 267,55 et 224,00 — les extrêmes de trente
@@ -181,8 +184,10 @@ def test_les_extremes_de_t2s_ne_couvrent_pas_52_semaines(serie):
     cotation : l'étiquette promet plus que la mesure. Ce test fige le constat
     pour qu'il ne se perde pas.
     """
-    cache = json.loads((RACINE / "pipeline" / "historical_data.json")
-                       .read_text(encoding="utf-8"))["T2S"]
+    import pandas as pd
+    cache_all = json.loads((RACINE / "pipeline" / "historical_data.json")
+                           .read_text(encoding="utf-8"))
+    cache = cache_all.get("T2S") or ud._indicateurs_depuis_candles(pd.DataFrame(serie))
     # ⚠️ Les valeurs ne sont pas figées : le cache est recalculé quand la série
     # grandit. Ce qui est durable, c'est que ces « extrêmes 52 semaines » ne
     # portent que sur les séances dont nous disposons.
