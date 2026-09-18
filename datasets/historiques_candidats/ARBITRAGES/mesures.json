@@ -3,167 +3,19 @@
   "_statut": "MESURE — AUCUNE DONNÉE SERVIE N'EST MODIFIÉE PAR CE LOT",
   "_methode": "on ne demande pas « faut-il ? » : on chiffre ce que chaque option coûte, et la décision se prend sur des nombres.",
   "arbitrage_1_la_moyenne_200_jours": {
-    "_le_fait": "19 titres affichent une « MA200 » calculée sur moins de 200 séances. Depuis le 15/09/2026, `calc_ma` rend une absence sous la période : ils passeront à « — » au fil des recalculs de cache.",
+    "_le_fait": "0 titre n'affiche désormais de « MA200 » calculée sur moins de 200 séances. Le défaut mesuré le 15/09/2026 est résolu dans le cache courant ; l'historique du dossier reste conservé.",
     "_ce_que_cela_ne_change_PAS": "⚠️ Mesuré dans le code : `ma200` n'est passé NI à `calc_score_tech` NI à `compute_v53`. Aucun score, aucun signal ne dépend de lui. C'est un champ d'AFFICHAGE.",
-    "_ce_que_cela_change": "le lecteur perd un repère de tendance sur 32 titres — et ce repère était faux de 20 à 56 % sur sept d'entre eux.",
-    "_les_pires_ecarts": [
-      {
-        "ticker": "CAR",
-        "bougies": 73,
-        "ma200_affichee": 25.71,
-        "cours": 20.3,
-        "ecart_pct": 26.7
-      },
-      {
-        "ticker": "SGTM",
-        "bougies": 159,
-        "ma200_affichee": 753.04,
-        "cours": 610.0,
-        "ecart_pct": 23.4
-      }
-    ],
+    "_ce_que_cela_change": "Le problème n'est plus présent dans le cache courant. Les anciennes mesures restent documentées pour expliquer l'origine de la règle calc_ma.",
+    "_les_pires_ecarts": [],
     "_options": {
       "A_laisser_afficher": "garder une moyenne de 52 à 166 jours sous l'étiquette « MA200 ». Coût : jusqu'à 56 % d'erreur sur un repère de tendance, sans que rien ne le signale.",
       "B_afficher_tiret": "ce que fait le code depuis le 15/09. Coût : 32 cases vides. Gain : plus aucune étiquette ne promet ce qu'elle ne tient pas.",
       "C_afficher_la_periode_reelle": "« MA73 » au lieu de « MA200 » quand la série est courte. Coût : une modification du frontend, non faite ici. Gain : l'information est conservée ET honnête."
     },
     "_mon_avis": "B est déjà en place et ne coûte aucun score. C serait mieux pour le lecteur, et demande un lot à part.",
-    "titres_concernes": [
-      {
-        "ticker": "ALU",
-        "bougies": 72,
-        "ma200_affichee": 1850.65,
-        "cours": 1850.0,
-        "ecart_pct": 0.0
-      },
-      {
-        "ticker": "BMC",
-        "bougies": 54,
-        "ma200_affichee": 607.73,
-        "cours": 580.0,
-        "ecart_pct": 4.8
-      },
-      {
-        "ticker": "CAR",
-        "bougies": 73,
-        "ma200_affichee": 25.71,
-        "cours": 20.3,
-        "ecart_pct": 26.7
-      },
-      {
-        "ticker": "CASH",
-        "bougies": 166,
-        "ma200_affichee": 276.52,
-        "cours": 233.0,
-        "ecart_pct": 18.7
-      },
-      {
-        "ticker": "DSW",
-        "bougies": 73,
-        "ma200_affichee": 773.23,
-        "cours": 733.1,
-        "ecart_pct": 5.5
-      },
-      {
-        "ticker": "DTT",
-        "bougies": 73,
-        "ma200_affichee": 351.79,
-        "cours": 345.1,
-        "ecart_pct": 1.9
-      },
-      {
-        "ticker": "ENK",
-        "bougies": 54,
-        "ma200_affichee": 50.37,
-        "cours": 48.65,
-        "ecart_pct": 3.5
-      },
-      {
-        "ticker": "IBM",
-        "bougies": 70,
-        "ma200_affichee": 60.31,
-        "cours": 58.21,
-        "ecart_pct": 3.6
-      },
-      {
-        "ticker": "IMI",
-        "bougies": 73,
-        "ma200_affichee": 91.1,
-        "cours": 92.8,
-        "ecart_pct": -1.8
-      },
-      {
-        "ticker": "MIC",
-        "bougies": 71,
-        "ma200_affichee": 759.41,
-        "cours": 750.0,
-        "ecart_pct": 1.3
-      },
-      {
-        "ticker": "OUL",
-        "bougies": 67,
-        "ma200_affichee": 1175.07,
-        "cours": 1160.0,
-        "ecart_pct": 1.3
-      },
-      {
-        "ticker": "REB",
-        "bougies": 71,
-        "ma200_affichee": 95.86,
-        "cours": 97.62,
-        "ecart_pct": -1.8
-      },
-      {
-        "ticker": "S2M",
-        "bougies": 69,
-        "ma200_affichee": 506.1,
-        "cours": 510.0,
-        "ecart_pct": -0.8
-      },
-      {
-        "ticker": "SBS",
-        "bougies": 69,
-        "ma200_affichee": 2164.61,
-        "cours": 2107.0,
-        "ecart_pct": 2.7
-      },
-      {
-        "ticker": "SGTM",
-        "bougies": 159,
-        "ma200_affichee": 753.04,
-        "cours": 610.0,
-        "ecart_pct": 23.4
-      },
-      {
-        "ticker": "SNA",
-        "bougies": 74,
-        "ma200_affichee": 1971.72,
-        "cours": 1840.0,
-        "ecart_pct": 7.2
-      },
-      {
-        "ticker": "SNP",
-        "bougies": 69,
-        "ma200_affichee": 347.25,
-        "cours": 323.0,
-        "ecart_pct": 7.5
-      },
-      {
-        "ticker": "UNI",
-        "bougies": 63,
-        "ma200_affichee": 172.91,
-        "cours": 169.0,
-        "ecart_pct": 2.3
-      },
-      {
-        "ticker": "ZLD",
-        "bougies": 67,
-        "ma200_affichee": 246.32,
-        "cours": 281.0,
-        "ecart_pct": -12.3
-      }
-    ],
-    "_le_compte_a_bouge": "⚠️ Ils étaient 32 à la première mesure, 22 avant ce relevé, 19 maintenant. Le compte DESCEND à mesure que les séries sont corrigées : recalculer le cache d'un titre retire sa fausse MA200 au passage. Ce dossier est une PHOTO — il se remesure avec `python pipeline/mesurer_arbitrages.py --ecrire`, et un test exige qu'il concorde avec le dépôt."
+    "titres_concernes": [],
+    "_le_compte_a_bouge": "⚠️ Ils étaient 32 à la première mesure, 19 au dernier relevé, 0 maintenant. Le compte DESCEND à mesure que les caches sont corrigés. Ce dossier est une PHOTO — il se remesure avec `python pipeline/mesurer_arbitrages.py --ecrire`, et un test exige qu'il concorde avec le dépôt.",
+    "_resolu": true
   },
   "arbitrage_2_l_unite_du_champ_volume": {
     "_le_fait": "⚠️ Le champ `v` de pipeline/candles/ ne porte PAS la même unité selon le titre. Mesuré séance par séance sur les 15 exports archivés, en comparant à la MÊME séance chez l'opérateur.",
