@@ -330,6 +330,25 @@ def combine(xlsx_df: pd.DataFrame, ext_df: pd.DataFrame) -> pd.DataFrame:
     return combined
 
 
+def fusionner_avec_existant(ticker: str, source_df: pd.DataFrame,
+                            existant_df: pd.DataFrame) -> pd.DataFrame:
+    """Fusionne sans permettre à une source secondaire d'écraser un import reçu."""
+    if existant_df.empty:
+        return source_df
+    if source_df.empty:
+        return existant_df
+
+    fin_import = fin_historique_importe(ticker)
+    if fin_import:
+        apres = source_df[source_df["date"] > pd.Timestamp(fin_import)].copy()
+        # `combine` conserve la première occurrence : l'existant réceptionné
+        # gagne sur tout doublon, les seules nouveautés admises sont postérieures.
+        return combine(existant_df, apres)
+
+    newer = existant_df[existant_df["date"] > source_df["date"].iloc[-1]].copy()
+    return combine(source_df, newer) if not newer.empty else source_df
+
+
 # ⚠️ COPIE CONFORME DE `update_data.py::calc_rsi`, ET RIEN D'AUTRE.
 # C'est CE calc_rsi-ci qui écrit les RSI de `historical_data.json`, et
 # c'est ce cache que le moteur sert pour 73 titres sur 74 : corriger la
@@ -700,25 +719,18 @@ def run(tickers_filter: list[str] | None = None) -> dict:
                             ex_df[col] = ex_df.get("close", 0)
                     ex_df = ex_df[["date", "open", "high", "low", "close", "volume"]].copy()
                     ex_df["close"] = pd.to_numeric(ex_df["close"], errors="coerce")
-                    if df.empty:
-                        df = ex_df
+                    _avant = len(df)
+                    _fin_import = fin_historique_importe(ticker)
+                    df = fusionner_avec_existant(ticker, df, ex_df)
+                    if _avant == 0:
                         log.info(f"  candle file utilisé comme base ({len(ex_df)} bougies)")
-                    else:
-                        fin_import = fin_historique_importe(ticker)
-                        if fin_import:
-                            # Une série opérateur réceptionnée est le socle.
-                            # BVCscrap peut ajouter APRÈS sa période, jamais
-                            # réécrire ce qui a déjà été réceptionné.
-                            apres = df[df["date"] > pd.Timestamp(fin_import)].copy()
-                            df = combine(ex_df, apres)
-                            log.info(
-                                f"  historique importé protégé jusqu'au {fin_import} ; "
-                                f"{len(apres)} séance(s) source postérieure(s) admissible(s)")
-                        else:
-                            newer = ex_df[ex_df["date"] > df["date"].iloc[-1]].copy()
-                            if not newer.empty:
-                                df = combine(df, newer)
-                                log.info(f"  +{len(newer)} bougies préservées depuis candle file")
+                    elif _fin_import:
+                        log.info(
+                            f"  historique importé protégé jusqu'au {_fin_import} ; "
+                            "seules les séances postérieures peuvent s'ajouter")
+                    elif len(df) > _avant:
+                        log.info(
+                            f"  +{len(df) - _avant} bougies préservées depuis candle file")
             except Exception:
                 pass
 
