@@ -87,9 +87,21 @@ def test_le_plus_bas_52_semaines_n_est_plus_un_cours_de_stokvis():
     annuel de Sonasid — un titre à 1 900 DH."""
     cache = json.loads((RACINE / "pipeline" / "historical_data.json")
                        .read_text(encoding="utf-8"))["SNA"]
-    assert cache["l52w"] == 1820.0
-    assert cache["l90"] == 1890.0
-    assert cache["l52w"] > 1000, "un plancher sous 1 000 DH serait encore Stokvis"
+    import pandas as pd
+    ordonnee = json.loads((RACINE / "pipeline" / "candles" / "SNA.json")
+                          .read_text(encoding="utf-8"))
+    df = pd.DataFrame(ordonnee)
+    dates = pd.to_datetime(df["d"], errors="coerce")
+    maintenant = pd.Timestamp.now()
+    d52 = df[dates >= maintenant - pd.Timedelta(weeks=52)]
+    d90 = df[dates >= maintenant - pd.Timedelta(days=90)]
+    attendu_l52 = float((d52 if not d52.empty else df)["l"].min())
+    attendu_l90 = float((d90 if not d90.empty else df)["l"].min())
+
+    assert cache["l52w"] == attendu_l52
+    assert cache["l90"] == attendu_l90
+    assert cache["l52w"] > 1000 and cache["l90"] > 1000, (
+        "un plancher sous 1 000 DH serait encore une contamination Stokvis")
 
 
 def test_la_correction_resiste_a_une_recontamination(recu, serie):
