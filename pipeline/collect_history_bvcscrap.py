@@ -568,7 +568,10 @@ def save_candle_file(ticker: str, df: pd.DataFrame, candles_dir: Path) -> None:
 # et le collecteur tomberait sur un ModuleNotFoundError en production — c'est
 # exactement ce qui est arrivé le 12/09 avec `identites`.
 sys.path.insert(0, str(Path(__file__).parent))
-from candle_write_policy import appliquer_corrections_avant_ecriture as appliquer_corrections  # noqa: E402
+from candle_write_policy import (  # noqa: E402
+    appliquer_corrections_avant_ecriture as appliquer_corrections,
+    fin_historique_importe,
+)
 
 SERIES_ACCEPTEES = Path(__file__).parent.parent / "datasets" / "series_acceptees"
 
@@ -701,10 +704,21 @@ def run(tickers_filter: list[str] | None = None) -> dict:
                         df = ex_df
                         log.info(f"  candle file utilisé comme base ({len(ex_df)} bougies)")
                     else:
-                        newer = ex_df[ex_df["date"] > df["date"].iloc[-1]].copy()
-                        if not newer.empty:
-                            df = combine(df, newer)
-                            log.info(f"  +{len(newer)} bougies préservées depuis candle file")
+                        fin_import = fin_historique_importe(ticker)
+                        if fin_import:
+                            # Une série opérateur réceptionnée est le socle.
+                            # BVCscrap peut ajouter APRÈS sa période, jamais
+                            # réécrire ce qui a déjà été réceptionné.
+                            apres = df[df["date"] > pd.Timestamp(fin_import)].copy()
+                            df = combine(ex_df, apres)
+                            log.info(
+                                f"  historique importé protégé jusqu'au {fin_import} ; "
+                                f"{len(apres)} séance(s) source postérieure(s) admissible(s)")
+                        else:
+                            newer = ex_df[ex_df["date"] > df["date"].iloc[-1]].copy()
+                            if not newer.empty:
+                                df = combine(df, newer)
+                                log.info(f"  +{len(newer)} bougies préservées depuis candle file")
             except Exception:
                 pass
 
@@ -739,13 +753,16 @@ def run(tickers_filter: list[str] | None = None) -> dict:
             # écrivent dans candles/, en protéger un seul ne protège rien ».
             _refus = rapport.get("refus") or []
             _absentes = rapport.get("seances_absentes") or []
-            if rapport["corrections"] or _refus or _absentes:
+            _annulees = rapport.get("seances_annulees_retirees") or []
+            if rapport["corrections"] or _refus or _absentes or _annulees:
                 log.warning(
                     f"  {ticker}: {rapport['corrections']} séance(s) corrigée(s) "
                     f"réimposée(s), {rapport['deja_conformes']} déjà conforme(s)"
                     + (f", {len(_refus)} REFUS" if _refus else "")
                     + (f", {len(_absentes)} absente(s) de la série"
-                       if _absentes else ""))
+                       if _absentes else "")
+                    + (f", {len(_annulees)} séance(s) annulée(s) retirée(s)"
+                       if _annulees else ""))
                 for r in _refus:
                     log.warning(f"     refus {r['seance']} : {r['motif']}")
 
@@ -763,7 +780,7 @@ def run(tickers_filter: list[str] | None = None) -> dict:
                     results[ticker] = entree
                 continue
 
-            if rapport["corrections"]:
+            if rapport["corrections"] or _annulees:
                 df = pd.DataFrame([{"date": pd.Timestamp(b["d"]), "open": b["o"],
                                     "high": b["h"], "low": b["l"], "close": b["c"],
                                     "volume": b["v"]} for b in corrigees])
