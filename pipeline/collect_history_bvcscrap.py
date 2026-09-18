@@ -568,7 +568,7 @@ def save_candle_file(ticker: str, df: pd.DataFrame, candles_dir: Path) -> None:
 # et le collecteur tomberait sur un ModuleNotFoundError en production — c'est
 # exactement ce qui est arrivé le 12/09 avec `identites`.
 sys.path.insert(0, str(Path(__file__).parent))
-from corrections_acceptees import appliquer as appliquer_corrections  # noqa: E402
+from candle_write_policy import appliquer_corrections_avant_ecriture as appliquer_corrections  # noqa: E402
 
 SERIES_ACCEPTEES = Path(__file__).parent.parent / "datasets" / "series_acceptees"
 
