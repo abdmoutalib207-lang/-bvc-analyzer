@@ -2016,6 +2016,82 @@ def get_weights(context: dict) -> dict:
     total = sum(w.values())
     return {k: round(v / total, 4) for k, v in w.items()}
 
+def _indicateurs_depuis_candles(df_candles):
+    """Recalcule les indicateurs depuis les chandelles stockées.
+
+    `historical_data.json` est un cache dérivé, pas une source d'autorité.
+    S'il manque une entrée alors que `pipeline/candles/TICKER.json` existe,
+    le moteur doit pouvoir continuer sans retomber sur un ancien `data.json`.
+    """
+    if df_candles is None or not len(df_candles):
+        return {}
+    try:
+        x = df_candles.copy()
+        for col in ("c", "h", "l"):
+            if col not in x:
+                return {}
+            x[col] = pd.to_numeric(x[col], errors="coerce")
+        x = x.dropna(subset=["c", "h", "l"])
+        if x.empty:
+            return {}
+
+        closes = x["c"]
+        highs = x["h"]
+        lows = x["l"]
+
+        out = {
+            "rsi": calc_rsi(closes),
+            "ma20": calc_ma(closes, 20),
+            "ma50": calc_ma(closes, 50),
+            "ma200": calc_ma(closes, 200),
+            "macd": None,
+            "macd_signal": None,
+            "macd_hist": None,
+            "bb_upper": None,
+            "bb_mid": None,
+            "bb_lower": None,
+            "stoch_k": None,
+            "stoch_d": None,
+            "h90": None,
+            "l90": None,
+            "h52w": None,
+            "l52w": None,
+            "last_close": round(float(closes.iloc[-1]), 2),
+            "last_date": str(x["d"].iloc[-1])[:10] if "d" in x else None,
+            "n_candles": int(len(x)),
+        }
+
+        if len(closes) >= 35:
+            out["macd"], out["macd_signal"], out["macd_hist"] = calc_macd(closes)
+        if len(closes) >= 20:
+            out["bb_upper"], out["bb_mid"], out["bb_lower"] = calc_bollinger(closes)
+        if len(closes) >= 14:
+            out["stoch_k"], out["stoch_d"] = calc_stoch(closes, highs, lows)
+
+        if "d" in x:
+            dates = pd.to_datetime(x["d"], errors="coerce")
+            ref = pd.Timestamp(date_analyse())
+            m90 = dates >= ref - pd.Timedelta(days=90)
+            m52 = dates >= ref - pd.Timedelta(weeks=52)
+            if m90.any():
+                out["h90"] = round(float(highs[m90].max()), 2)
+                out["l90"] = round(float(lows[m90].min()), 2)
+            if m52.any():
+                out["h52w"] = round(float(highs[m52].max()), 2)
+                out["l52w"] = round(float(lows[m52].min()), 2)
+
+        if out["h90"] is None:
+            out["h90"] = round(float(highs.max()), 2)
+            out["l90"] = round(float(lows.min()), 2)
+        if out["h52w"] is None:
+            out["h52w"] = round(float(highs.max()), 2)
+            out["l52w"] = round(float(lows.min()), 2)
+        return out
+    except Exception as e:
+        logger.warning(f"indicateurs depuis candles impossibles : {e}")
+        return {}
+
+
 def _volume_median(df_candles, n=20):
     """Volume médian des `n` dernières séances. None si indéterminable.
 
@@ -2993,7 +3069,13 @@ def run(dry_run=False, push=False, token=""):
             # Fallback A : historical_data.json (cache préchargé)
             _hist_loaded = False
             hd_t = _hd_all.get(ticker, {})
-            if hd_t.get("rsi") and hd_t.get("ma20"):
+            if not hd_t:
+                hd_t = _indicateurs_depuis_candles(_candles_cache.get(ticker))
+                if hd_t:
+                    logger.warning(
+                        f"  {ticker}: absent de historical_data.json — "
+                        f"indicateurs recalculés depuis {hd_t.get('n_candles', 0)} chandelles")
+            if hd_t.get("rsi") is not None and hd_t.get("ma20") is not None:
                 rsi       = hd_t["rsi"]
                 ma20      = hd_t["ma20"]
                 ma50      = hd_t.get("ma50", ma20)
