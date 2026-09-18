@@ -207,9 +207,9 @@ def test_le_collecteur_appelle_bien_la_couche():
     import ast
     arbre = ast.parse((RACINE / "pipeline" / "collect_history_bvcscrap.py")
                       .read_text(encoding="utf-8"))
-    importe = any(isinstance(n, ast.ImportFrom) and n.module == "corrections_acceptees"
+    importe = any(isinstance(n, ast.ImportFrom) and n.module == "candle_write_policy"
                   for n in ast.walk(arbre))
     appele = any(isinstance(n, ast.Call) and getattr(n.func, "id", "") ==
                  "appliquer_corrections" for n in ast.walk(arbre))
-    assert importe, "collect_history_bvcscrap n'importe pas la couche"
-    assert appele, "la couche est importée mais jamais appelée"
+    assert importe, "collect_history_bvcscrap ne passe pas par la politique commune"
+    assert appele, "la politique commune est importée mais jamais appelée"

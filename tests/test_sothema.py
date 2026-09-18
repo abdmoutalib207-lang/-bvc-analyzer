@@ -205,9 +205,9 @@ def test_les_DEUX_ecrivains_reimposent_les_corrections():
     for nom in ("collect_history_bvcscrap.py", "generate_candles.py"):
         arbre = ast.parse((RACINE / "pipeline" / nom).read_text(encoding="utf-8"))
         importe = any(isinstance(n, ast.ImportFrom)
-                      and n.module == "corrections_acceptees"
+                      and n.module == "candle_write_policy"
                       for n in ast.walk(arbre))
-        assert importe, f"{nom} n'importe pas la couche de corrections"
+        assert importe, f"{nom} ne passe pas par la politique commune d'écriture"
         ecrivains = [f for f in ast.walk(arbre)
                      if isinstance(f, ast.FunctionDef)
                      and f.name not in ("_reimposer", "save_candle_file")
