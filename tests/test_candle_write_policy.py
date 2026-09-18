@@ -72,3 +72,27 @@ def test_update_data_necrit_plus_directement_la_serie_intraday():
     bloc = src[src.index("# 6c. Bougie de la séance cotée"):]
     assert "_ecrire_candles_sous_garde(sym, existing, cfp)" in bloc
     assert 'cfp.write_text(json.dumps(existing' not in bloc
+
+
+def test_les_trois_ecrivains_passent_par_la_meme_politique():
+    """Une seule porte logique pour les trois producteurs de candles."""
+    import ast
+
+    attendus = {
+        "update_data.py": "appliquer_corrections_avant_ecriture",
+        "pipeline/generate_candles.py": "appliquer_corrections_avant_ecriture",
+        "pipeline/collect_history_bvcscrap.py": "appliquer_corrections",
+    }
+    for chemin, appel in attendus.items():
+        arbre = ast.parse((RACINE / chemin).read_text(encoding="utf-8"))
+        imports = {
+            n.module for n in ast.walk(arbre)
+            if isinstance(n, ast.ImportFrom) and n.module
+        }
+        assert "candle_write_policy" in imports, (
+            f"{chemin} contourne la politique commune")
+        appels = {
+            getattr(n.func, "id", "")
+            for n in ast.walk(arbre) if isinstance(n, ast.Call)
+        }
+        assert appel in appels, f"{chemin} importe la politique sans l'appeler"
