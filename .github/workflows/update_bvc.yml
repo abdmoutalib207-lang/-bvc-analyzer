@@ -211,8 +211,8 @@ jobs:
             echo "Aucune chandelle modifiée — cache inchangé"
             exit 0
           fi
-          echo "Recalcul cache complet pour: $TICKERS"
-          python pipeline/recalculer_cache.py --complet $TICKERS --ecrire
+          echo "Synchronisation incrémentale sûre du cache pour: $TICKERS"
+          python pipeline/recalculer_cache.py --sync-ajouts $TICKERS --ecrire
 
       # ── 3b. CONTRÔLES BLOQUANTS — avant toute publication ──
       #
