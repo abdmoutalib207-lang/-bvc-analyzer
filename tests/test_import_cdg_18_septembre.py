@@ -58,11 +58,36 @@ def test_import_est_transactionnel_et_idempotent(tmp_path):
     identite = lambda ticker, serie: (serie, {"refus": []})
     r1 = imp.importer(src, candles, ecrire=True, policy=identite)
     assert r1["n_ajoutes"] == 2
+    assert r1["series_creees"] == []
     assert json.loads((candles / "ADI.json").read_text())[-1]["d"] == "2026-09-18"
 
     r2 = imp.importer(src, candles, ecrire=True, policy=identite)
     assert r2["n_ajoutes"] == 0
+    assert r2["series_creees"] == []
     assert sorted(r2["deja_presents_identiques"]) == ["ADI", "SNA"]
+
+
+def test_import_initialise_une_serie_absente_sans_inventer_d_historique(tmp_path):
+    doc = {
+        "_meta": {"session_date": "2026-09-18", "source": "test"},
+        "cotations": {
+            "MDP": {"cours": 24, "ouverture": 24.2, "haut": 24.4,
+                    "bas": 23.8, "qte": 10, "volume": 1000},
+        },
+    }
+    src = tmp_path / "src.json"
+    src.write_text(json.dumps(doc), encoding="utf-8")
+    candles = tmp_path / "candles"
+    candles.mkdir()
+
+    identite = lambda ticker, serie: (serie, {"refus": []})
+    r = imp.importer(src, candles, ecrire=True, policy=identite)
+    assert r["n_ajoutes"] == 1
+    assert r["series_creees"] == ["MDP"]
+    assert json.loads((candles / "MDP.json").read_text()) == [
+        {"d": "2026-09-18", "o": 24.2, "h": 24.4,
+         "l": 23.8, "c": 24.0, "v": 1000.0}
+    ]
 
 
 def test_import_refuse_un_ecrasement_different(tmp_path):
