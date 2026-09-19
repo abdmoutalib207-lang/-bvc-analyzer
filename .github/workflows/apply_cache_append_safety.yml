@@ -19,6 +19,12 @@ jobs:
         with:
           ref: fix/publish-18sep-candles
           token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Installer les dépendances de test
+        run: pip install -r requirements_dev.txt
       - name: Appliquer le patch et tester sa règle dédiée
         run: |
           python tools/patch_cache_append_safety.py
