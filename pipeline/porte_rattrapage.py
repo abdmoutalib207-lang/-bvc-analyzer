@@ -97,7 +97,8 @@ def _hhmm(horodatage: str) -> int | None:
         return None
 
 
-def decider(maintenant: int, aujourd_hui: str, data: dict | None) -> tuple[bool, str]:
+def decider(maintenant: int, aujourd_hui: str, data: dict | None,
+            seance_source=None, bougies_source=None) -> tuple[bool, str]:
     """(faut-il lancer le moteur, pourquoi).
 
     `maintenant` est en HHMM Casablanca, `aujourd_hui` en AAAA-MM-JJ.
@@ -113,6 +114,13 @@ def decider(maintenant: int, aujourd_hui: str, data: dict | None) -> tuple[bool,
     if asof is None:
         return True, "aucun titre ne porte de date de séance — fichier douteux"
 
+    if seance_source:
+        if asof < seance_source:
+            return True, f"Séance {seance_source} manquante dans la publication"
+        if bougies_source is not None and bougies_source < 50:
+            return True, f"Séance {seance_source} : seulement {bougies_source} chandelles"
+        if maintenant < OUVERTURE_FENETRE_MATIN or datetime.fromisoformat(aujourd_hui).weekday() >= 5:
+            return False, f"Séance {seance_source} déjà publiée avec ses chandelles"
     porte_le_jour = asof == aujourd_hui
     ecrit_aujourd_hui = jour_ecriture == aujourd_hui
 
@@ -156,7 +164,20 @@ def main() -> int:
     now = datetime.now(CASA)
     maintenant = now.hour * 100 + now.minute
     aujourd_hui = now.strftime("%Y-%m-%d")
-    run, pourquoi = decider(maintenant, aujourd_hui, data)
+    source, nb = None, None
+    if maintenant < OUVERTURE_FENETRE_MATIN or now.weekday() >= 5:
+        sys.path.insert(0, str(RACINE))
+        from pipeline.seance_source import derniere_seance_source
+        try:
+            source = derniere_seance_source()
+            nb = sum(any(b.get('d') == source for b in json.loads(f.read_text()))
+                     for f in (RACINE / 'pipeline' / 'candles').glob('*.json'))
+        except Exception as e:
+            print(f'Fraîcheur non vérifiable : {e}')
+            if '--pourquoi' not in sys.argv:
+                print('run=true')
+            return 0
+    run, pourquoi = decider(maintenant, aujourd_hui, data, source, nb)
     print(f"{'🛟' if run else '✅'} {pourquoi}")
     if "--pourquoi" not in sys.argv:
         print(f"run={'true' if run else 'false'}")

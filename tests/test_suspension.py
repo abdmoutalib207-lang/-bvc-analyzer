@@ -137,9 +137,12 @@ def test_le_signal_devient_suspendu():
         "titre qu'on ne peut pas acheter")
 
 
-def test_l_ecriture_de_chandelle_est_refusee():
-    assert re.search(r'if _m\.get\("suspendu"\):\s*\n\s*continue', _moteur()), (
-        "l'étape 6c écrira de nouveau des séances fantômes")
+def test_l_ecriture_de_chandelle_est_refusee(tmp_path):
+    from pipeline.session_candles import preparer
+    q = dict(open=4350, high=4350, low=4350, price=4350, vol=10,
+             asof='2026-09-15', src='cdg')
+    assert not preparer({'CMT': q}, '2026-09-15', '2026-09-19', tmp_path, ['CMT'])
+    assert not list(tmp_path.iterdir())
 
 
 def test_la_confiance_tombe_a_zero():

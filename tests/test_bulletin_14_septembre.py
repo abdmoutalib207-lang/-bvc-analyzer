@@ -127,7 +127,12 @@ def test_quatre_titres_sont_cotes_sans_que_nous_ayons_le_moindre_historique(cota
     sans_histoire = sorted(
         t for t, v in chez_nous.items()
         if v["cours"] and not (RACINE / "pipeline" / "candles" / f"{t}.json").exists())
-    assert sans_histoire == ["MDP", "SLM"]
+    assert sans_histoire == []
+    # Ces deux séries commencent seulement au bulletin prouvé du 18/09.
+    import json
+    for ticker in ('MDP', 'SLM'):
+        serie = json.loads((RACINE/'pipeline'/'candles'/f'{ticker}.json').read_text())
+        assert serie[0]['d'] == '2026-09-18'
     # T2S est désormais servi avec son historique : c'est ce que ce bulletin
     # avait permis d'établir, et ce qui a été fait le soir même.
     assert (RACINE / "pipeline" / "candles" / "T2S.json").exists()
