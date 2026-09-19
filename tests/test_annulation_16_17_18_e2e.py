@@ -94,6 +94,6 @@ def test_cache_historique_est_recalcule_avant_la_garde_et_commite():
     assert nom_sync in workflow, "le cache n'est pas synchronisé après écriture des candles"
     assert workflow.index(nom_sync) < workflow.index(nom_garde), (
         "le cache est recalculé après les tests : la garde voit encore un état incohérent")
-    assert "pipeline/recalculer_cache.py --complet" in workflow
+    assert "pipeline/recalculer_cache.py --sync-ajouts" in workflow
     assert "git add pipeline/historical_data.json" in workflow, (
         "un cache recalculé mais non commité disparaîtrait à la fin du runner")
