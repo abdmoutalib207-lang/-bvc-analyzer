@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import tempfile
 from pathlib import Path
 from typing import Callable
@@ -26,6 +27,8 @@ CANDLES = RACINE / "pipeline" / "candles"
 
 def _seance_annulee(date_iso: str) -> bool:
     try:
+        if str(RACINE) not in sys.path:
+            sys.path.insert(0, str(RACINE))
         from bvc_config import seance_annulee
         return bool(seance_annulee(date_iso))
     except Exception:
@@ -83,7 +86,11 @@ def finaliser(data_path: Path = DATA, candles_dir: Path = CANDLES,
 
     courant = json.loads(data_path.read_text(encoding="utf-8"))
     if runner is None:
-        # Import tardif : les tests unitaires ne chargent ni réseau ni moteur.
+        # Exécuté comme ``python pipeline/finaliser_snapshot.py`` : Python place
+        # ``pipeline/`` en tête de sys.path, pas la racine où vit update_data.py.
+        # On ajoute explicitement la racine avant l'import tardif.
+        if str(RACINE) not in sys.path:
+            sys.path.insert(0, str(RACINE))
         import update_data
         runner = lambda: update_data.run(dry_run=True)
 
