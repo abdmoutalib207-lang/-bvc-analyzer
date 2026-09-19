@@ -720,3 +720,79 @@ pas à la lecture ; ils ont sauté aux yeux au premier run.
 vraisemblance — dates, continuité, identité, plafonds. Elle ne vérifie pas
 l'existence, parce que l'existence n'est pas dans les chiffres. Pour ça, il
 faut une déclaration reçue.
+
+---
+
+## Famille 16 — Une règle juste, sans issue de secours (18–19/09/2026)
+
+**La séance du 18/09 a été cotée, publiée en prix, et n'a jamais eu de bougie.**
+
+### L'enchaînement
+
+```
+18/09  les cinq tests de la famille 14 échouent à nouveau — dont un qui
+       épinglait deux dates — et font échouer TOUS les runs de séance.
+       Les deux runs tardifs (17h47, 17h57) « réussissent » sans rien faire :
+       la porte horaire saute les étapes 4 à 12.
+       → aucune bougie du 18/09 n'est jamais commitée
+19/09  l'étape 6c : « dernière séance cotée = 2026-09-18, pas aujourd'hui
+       — aucune bougie ajoutée »
+       → le trou devient DÉFINITIF
+```
+
+### Ce qui distingue cette famille de la 14
+
+La règle de l'étape 6c **était juste**. Elle protégeait contre un vrai défaut :
+un run du week-end reçoit la clôture de vendredi et l'écrivait comme une séance
+du samedi. Elle n'avait simplement **aucune issue de secours**. Une journée
+dont tous les runs échouent perdait sa bougie pour toujours, et rien dans le
+système ne pouvait plus la rattraper.
+
+⚠️ **Un garde-fou sans porte de sortie transforme une panne d'un jour en perte
+définitive.** C'est la leçon. Chaque refus d'écrire devrait répondre à la
+question : « et si personne n'écrit aujourd'hui, qui écrira demain ? »
+
+### Le symptôme était lisible, et on le prenait pour du bruit
+
+`verifier_seance.py` échouait chaque jour avec deux contrôles rouges. Il ne
+criait pas au loup : il comparait la séance portée par `data.json` (18/09) à
+celle déduite des chandelles (16/09) et signalait exactement le trou. Une fois
+la bougie rattrapée, les douze contrôles sont passés au vert sans qu'on touche
+au contrôle lui-même.
+
+⚠️ **Avant de corriger une alerte qui se répète, vérifier qu'elle n'a pas
+raison.** Ici elle décrivait le défaut avec précision depuis le premier jour.
+
+### Trouvé en chemin — deux mines amorcées pour le lundi
+
+1. **T2S**, seul titre à avoir des chandelles sans entrée de cache. Dès qu'une
+   séance ordinaire modifie ses bougies, `--sync-ajouts` refuse — il
+   synchronise, il ne crée pas — et sort en **code 2**, ce qui bloque la
+   publication. Le refus est juste ; il manquait l'entrée.
+
+2. **`tests.yml` jugeait un état que la production ne publie jamais.** Il lance
+   le moteur pour de vrai, mais n'avait pas l'étape de synchronisation du cache
+   que `update_bvc.yml` exécute entre la génération et les contrôles. L'écart
+   restait invisible tant que le moteur n'ajoutait qu'une bougie par jour.
+
+⚠️ Ces deux-là auraient bloqué le moteur lundi **indépendamment** du correctif.
+Elles n'ont été vues que parce que le rattrapage a fait entrer 65 bougies d'un
+coup. Une panne les a révélées ; sans elle, elles explosaient en séance.
+
+### Et un défaut de données, non traité
+
+**11 titres portent 655 bougies OHLC incohérentes dans le cache**, alors que
+tous les fichiers de chandelles sont sains : la réparation du 04/09 a corrigé
+les fichiers sans re-dériver `historical_data.json`.
+
+```
+TGC 92 · SMI 83 · SRM 80 · VCNE 62 · RIS 60 · RDS 57
+CMGP 55 · MSA 54 · SGTM 47 · CASH 34 · CFGB 31
+```
+
+Huit sont des MASI 1. C'est ce que lit le graphique du terminal, et ça se
+propage : SGTM affiche un plus-bas 52 semaines de **508,10 au lieu de 461,95**.
+
+⚠️ **CFGB et CMGP portent des corrections réceptionnées** : un `--complet`
+aveugle risquerait de les annuler — c'est le piège SOT documenté le 18/08.
+À traiter avec `gardien-donnees`, pas en passant.
