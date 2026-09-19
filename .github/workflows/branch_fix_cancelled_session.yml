@@ -1,0 +1,66 @@
+name: Branch Fix - Cancelled Session Bound
+
+on:
+  push:
+    branches:
+      - fix/cancelled-session-bound-20260919
+
+permissions:
+  contents: write
+
+concurrency:
+  group: branch-fix-cancelled-session-bound
+  cancel-in-progress: true
+
+jobs:
+  patch-test-commit:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout isolated branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/cancelled-session-bound-20260919
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -q requests numpy pandas
+          pip install -q -r requirements_dev.txt
+
+      - name: Apply deterministic patch
+        run: python tools/apply_cancelled_session_fix.py
+
+      - name: Focused regression tests
+        run: |
+          python -m pytest -q --tb=short \
+            tests/test_annulation_16_17_18_e2e.py \
+            tests/test_seance_annulee.py
+
+      - name: Full test suite
+        run: python -m pytest -q --tb=short
+
+      - name: Remove temporary patch machinery
+        run: |
+          git rm tools/apply_cancelled_session_fix.py
+          git rm .github/workflows/branch_fix_cancelled_session.yml
+
+      - name: Commit validated fix to isolated branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "BVC Fix Bot"
+          git config user.email "noreply@github.com"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+          git add pipeline/seance.py update_data.py .github/workflows/update_bvc.yml \
+                  tests/test_annulation_16_17_18_e2e.py
+          git commit -m "fix: bound cancelled-session fallbacks and sync candle cache"
+          git push origin HEAD:fix/cancelled-session-bound-20260919
