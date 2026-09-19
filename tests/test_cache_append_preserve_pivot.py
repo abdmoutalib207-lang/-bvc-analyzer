@@ -1,4 +1,13 @@
-from pipeline.recalculer_cache import _fusion_candles_cache
+import importlib.util
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SPEC = importlib.util.spec_from_file_location(
+    "bvc_recalculer_cache_test", ROOT / "pipeline" / "recalculer_cache.py"
+)
+RC = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(RC)
+_fusion_candles_cache = RC._fusion_candles_cache
 
 
 def test_append_preserve_la_bougie_pivot_deja_corrigee():
