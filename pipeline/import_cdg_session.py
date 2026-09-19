@@ -48,7 +48,7 @@ def _bougie(date: str, ligne: dict) -> dict:
     h = float(ligne["haut"])
     l = float(ligne["bas"])
     c = float(ligne["cours"])
-    v = float(ligne.get("volume") or 0)
+    montant_mad = float(ligne.get("volume") or 0)
     q = int(ligne.get("qte") or 0)
     if min(o, h, l, c) <= 0:
         raise ValueError(f"OHLC non positif: o={o} h={h} l={l} c={c}")
@@ -56,10 +56,12 @@ def _bougie(date: str, ligne: dict) -> dict:
         raise ValueError(f"OHLC incohérent: o={o} h={h} l={l} c={c}")
     if q <= 0:
         raise ValueError(f"cours coté mais quantité nulle: c={c} q={q}")
-    if v < 0:
-        raise ValueError(f"volume monétaire négatif: {v}")
-    # Dans ce projet, ``v`` est le volume monétaire MAD, pas le nombre de titres.
-    return {"d": date, "o": o, "h": h, "l": l, "c": c, "v": v}
+    if montant_mad < 0:
+        raise ValueError(f"volume monétaire négatif: {montant_mad}")
+    # Convention historique du projet : ``v`` = nombre de titres échangés.
+    # Le bulletin fournit aussi un montant MAD, utile pour contrôle mais qui ne
+    # doit jamais être injecté dans l'OBV ou les indicateurs de volume.
+    return {"d": date, "o": o, "h": h, "l": l, "c": c, "v": q}
 
 
 def traduire_source(doc: dict) -> tuple[dict[str, dict], dict]:
