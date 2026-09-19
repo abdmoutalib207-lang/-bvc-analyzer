@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Diagnostic temporaire : vérifie si le cache actuel est reproductible par son préfixe."""
 from __future__ import annotations
 
 import importlib.util
