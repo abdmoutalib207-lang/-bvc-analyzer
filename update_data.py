@@ -2654,6 +2654,55 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
         "warnMsg": warn_msg,
     }
 
+def bougie_a_ecrire(seance: str, aujourd_hui: str,
+                    derniere_bougie: str | None) -> str:
+    """Que faut-il faire de la séance `seance` pour ce titre ?
+
+    Renvoie « rafraichir », « ajouter » ou « ignorer ». Fonction pure : elle ne
+    lit rien, n'écrit rien, et se prouve sur trois chaînes de caractères.
+
+    ⚠️ POURQUOI ELLE EXISTE — LA SÉANCE DU 18/09/2026 N'A JAMAIS EU DE BOUGIE
+    ─────────────────────────────────────────────────────────────────────────
+    L'étape 6c refusait d'écrire dès que la séance cotée n'était pas la date du
+    jour. La raison était juste : un run lancé le week-end reçoit la clôture de
+    vendredi et l'écrivait comme une séance du samedi. Mais cette règle n'a pas
+    d'issue de secours, et le 18/09 l'a montré :
+
+        18/09  les runs de séance échouent tous aux contrôles bloquants ;
+               les deux runs tardifs sont écartés par la porte horaire.
+               → aucune bougie du 18/09 n'est jamais commitée
+        19/09  la séance cotée est le 18, « pas aujourd'hui » → refus
+               → le trou devient DÉFINITIF
+
+    Une journée sans run réussi perdait sa bougie pour toujours. Le prix, lui,
+    était publié dans data.json : le terminal affichait un cours du 18 que
+    AUCUN graphique, RSI ou moyenne mobile ne connaissait.
+
+    ⚠️ CE QU'ELLE N'AUTORISE PAS, ET C'EST L'ESSENTIEL
+    ──────────────────────────────────────────────────
+    Le rattrapage **ajoute ce qui manque, il ne réécrit jamais le passé**. Dès
+    que la série porte déjà cette séance — ou une plus récente — on ignore. La
+    bougie d'une séance échue n'est donc écrite qu'UNE fois, et un run tardif
+    ne peut pas revenir bousculer une clôture déjà arrêtée.
+
+    Le rafraîchissement — les extrêmes qui s'étendent, la clôture qui suit le
+    dernier cours — reste réservé à la séance du JOUR, qui elle évolue encore.
+
+    Une séance postérieure à aujourd'hui est toujours ignorée : elle n'existe
+    pas, et aucune source ne doit pouvoir en fabriquer une.
+    """
+    if not seance or seance > aujourd_hui:
+        return "ignorer"
+    if seance == aujourd_hui:
+        # La séance du jour se rafraîchit à chaque run (cf. le 10/08 : 57
+        # bougies figées sur un cours de milieu de séance).
+        return "rafraichir" if derniere_bougie == seance else "ajouter"
+    # ── séance échue : rattrapage, et rien d'autre ──────────────────────
+    if derniere_bougie and derniere_bougie >= seance:
+        return "ignorer"
+    return "ajouter"
+
+
 def _ecrire_candles_sous_garde(sym: str, existing: list, cfp: Path) -> bool:
     """Écrit une série seulement si les corrections réceptionnées l'acceptent.
 
@@ -3596,11 +3645,18 @@ def run(dry_run=False, push=False, token=""):
             # la trace durable d'un jour que la Bourse a effacé.
             logger.error(f"  Candles J : la séance du {today_str} a été ANNULÉE "
                          f"par l'opérateur — aucune bougie écrite")
-        elif today_str != datetime.now().strftime("%Y-%m-%d"):
-            logger.info(f"  Candles J : dernière séance cotée = {today_str}, "
-                        f"pas aujourd'hui — aucune bougie ajoutée")
+        elif today_str > datetime.now().strftime("%Y-%m-%d"):
+            # Une séance postérieure à aujourd'hui n'existe pas. C'est la
+            # protection d'origine de l'étape, et elle ne bouge pas.
+            logger.info(f"  Candles J : séance annoncée {today_str}, postérieure "
+                        f"à aujourd'hui — aucune bougie écrite")
         elif candles_dir.exists():
-            updated_count = 0
+            aujourd_hui = datetime.now().strftime("%Y-%m-%d")
+            # ⚠️ Quand la séance cotée n'est pas celle du jour, on est en
+            # RATTRAPAGE : on ajoute la bougie manquante, on ne réécrit jamais
+            # une clôture déjà arrêtée. Voir `bougie_a_ecrire`, et le 18/09.
+            rattrapage = (today_str != aujourd_hui)
+            updated_count = ignores_rattrapage = 0
             for entry in tickers_out:
                 sym  = entry["symbol"]
                 cfp  = candles_dir / f"{sym}.json"
@@ -3643,7 +3699,15 @@ def run(dry_run=False, push=False, token=""):
                     # là où la clôture réelle valait 99,85 et 1 624.
                     c_price = round(float(c_price), 2)
                     veille = existing[-1] if existing else None
-                    jour = veille if veille and veille.get("d") == today_str else None
+                    verdict = bougie_a_ecrire(
+                        today_str, aujourd_hui,
+                        veille.get("d") if veille else None)
+                    if verdict == "ignorer":
+                        # En rattrapage : la séance est déjà écrite, ou la
+                        # série est plus avancée. On n'y revient pas.
+                        ignores_rattrapage += 1
+                        continue
+                    jour = veille if verdict == "rafraichir" else None
                     # ⚠️ Les extrêmes doivent TOUJOURS englober l'ouverture.
                     # Le code d'origine amorçait `h` et `l` sur la seule
                     # clôture puis ne les étendait qu'avec les cours suivants :
@@ -3684,7 +3748,11 @@ def run(dry_run=False, push=False, token=""):
                 except Exception:
                     pass
             if updated_count:
-                logger.info(f"  Candles J mis à jour : {updated_count} tickers → {today_str}")
+                quoi = "RATTRAPÉE" if rattrapage else "mis à jour"
+                logger.info(f"  Candles J {quoi} : {updated_count} tickers → {today_str}")
+            if rattrapage and ignores_rattrapage:
+                logger.info(f"  Candles J rattrapage : {ignores_rattrapage} titres "
+                            f"déjà à jour sur le {today_str} — non réécrits")
         # Filet : les chandelles sont aussi écrites par generate_candles.py et
         # collect_history_bvcscrap.py, qui tiennent leur date de leurs propres
         # sources. Le recalage ci-dessus ne protège que ce run — ce balayage
