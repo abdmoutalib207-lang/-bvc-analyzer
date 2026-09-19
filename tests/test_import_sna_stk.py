@@ -108,10 +108,62 @@ def test_la_serie_publiee_est_l_export_sur_toute_sa_periode():
 
 
 def test_les_seances_valides_post_export_sont_conservees():
-    sna, stk = _serie("SNA"), _serie("STK")
-    assert [b["d"] for b in sna[-2:]] == ["2026-09-15", "2026-09-16"]
-    assert stk[-1]["d"] == "2026-09-16"
-    assert len(sna) == len(stk) == 735
+    """Les séances réelles postérieures à l'export ne disparaissent pas.
+
+    ⚠️ ÉCRIT COMME UNE RÈGLE, PAS COMME UN INSTANTANÉ — ET VOICI POURQUOI.
+    La version d'origine épinglait `sna[-2:] == ["2026-09-15", "2026-09-16"]`
+    et `len == 735`. Elle ne décrivait pas une règle : elle photographiait le
+    dépôt un jour donné. Elle rougissait donc à CHAQUE séance nouvelle sans que
+    rien ne soit cassé — et elle faisait partie des cinq tests qui ont bloqué
+    la publication du 18/09, journée entière perdue. Le 19/09, en rattrapant la
+    bougie manquante, elle a rougi de nouveau.
+
+    Parade appliquée : « qu'est-ce qui, demain, la ferait rougir sans que rien
+    soit cassé ? » Ici la réponse était « le lendemain ». Ce qui doit rester
+    vrai, c'est qu'aucune séance réelle postérieure à l'export ne se perde, et
+    qu'aucune série ne rétrécisse.
+    """
+    import sys as _sys
+    _sys.path.insert(0, str(RACINE))
+    from bvc_config import SEANCES_ANNULEES
+
+    for t, a in ATTENDU.items():
+        serie = _serie(t)
+        apres = [b["d"] for b in serie if b["d"] > a["fin"]]
+        assert apres, (
+            f"{t}: plus aucune séance postérieure au {a['fin']} — l'import a "
+            f"écrasé les séances réelles qui suivaient l'export")
+        assert apres == sorted(set(apres)), (
+            f"{t}: séances postérieures désordonnées ou dupliquées : {apres}")
+        survivantes = [d for d in apres if d in SEANCES_ANNULEES]
+        assert not survivantes, (
+            f"{t}: séance(s) annulée(s) survivante(s) : {survivantes}")
+        # 735 est le nombre RÉCEPTIONNÉ le 17/09. C'est un plancher, pas une
+        # photographie : une série gagne des séances, elle n'en perd jamais.
+        assert len(serie) >= 735, (
+            f"{t}: {len(serie)} séances — la série a RÉTRÉCI sous le nombre "
+            f"réceptionné (735). Une série ne perd pas de séances.")
+
+        # ⚠️ LE CONTRÔLE QUI MORD VRAIMENT : aucune séance déjà publiée n'a
+        # disparu. Un plancher sur le nombre ne le dit pas — retirer une séance
+        # et en ajouter une autre le laisse passer. Seule la comparaison au
+        # dépôt publié établit qu'on n'a rien perdu en route.
+        #
+        # Une séance ANNULÉE fait exception : son retrait est déclaré, ligne à
+        # ligne, dans `SEANCES_ANNULEES`. C'est le seul effacement légitime.
+        import subprocess
+        try:
+            publiee = json.loads(subprocess.check_output(
+                ["git", "show", f"origin/main:pipeline/candles/{t}.json"],
+                text=True, cwd=RACINE, stderr=subprocess.DEVNULL))
+        except (subprocess.CalledProcessError, json.JSONDecodeError):
+            continue                       # dépôt distant absent de ce clone
+        perdues = sorted({b["d"] for b in publiee}
+                         - {b["d"] for b in serie}
+                         - set(SEANCES_ANNULEES))
+        assert not perdues, (
+            f"{t}: {len(perdues)} séance(s) publiée(s) ont disparu sans être "
+            f"déclarées annulées : {perdues[:5]}")
 
 
 def test_aucune_seance_feriee_ou_annulee_ne_survit():
