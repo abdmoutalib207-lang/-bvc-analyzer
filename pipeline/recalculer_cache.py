@@ -92,12 +92,26 @@ def _bougie_cache(entree: dict, date: str):
 
 
 def _fusion_candles_cache(candles_cache: list, candles_calculees: list,
-                           depuis: str) -> list:
-    """Préserve le passé du cache et remplace/ajoute seulement sa queue récente."""
-    base = [dict(b) for b in (candles_cache or [])
-            if str(b.get("d") or "")[:10] < depuis]
-    queue = [dict(b) for b in (candles_calculees or [])
-             if str(b.get("d") or "")[:10] >= depuis]
+                           pivot: str, remplacer_pivot: bool) -> list:
+    """Préserve le passé corrigé du cache et ne fusionne que la queue utile.
+
+    Pour un APPEND (nouvelle séance > pivot), la dernière bougie déjà livrée
+    fait partie du passé réceptionné et doit être conservée telle quelle : le
+    brut peut encore contenir une anomalie que le cache avait corrigée.
+
+    Pour un REMPLACEMENT de la dernière séance (intraday), le pivot lui-même
+    est au contraire remplacé par le nouveau calcul.
+    """
+    if remplacer_pivot:
+        base = [dict(b) for b in (candles_cache or [])
+                if str(b.get("d") or "")[:10] < pivot]
+        queue = [dict(b) for b in (candles_calculees or [])
+                 if str(b.get("d") or "")[:10] >= pivot]
+    else:
+        base = [dict(b) for b in (candles_cache or [])
+                if str(b.get("d") or "")[:10] <= pivot]
+        queue = [dict(b) for b in (candles_calculees or [])
+                 if str(b.get("d") or "")[:10] > pivot]
     par_date = {str(b.get("d") or "")[:10]: b for b in base + queue
                 if b.get("d")}
     return [par_date[d] for d in sorted(par_date)][-250:]
@@ -173,7 +187,8 @@ def _synchroniser_un_ajout(t: str, entree: dict, serie: list, m):
     # correction historique déjà présente dans le cache ne peut pas être
     # écrasée par une anomalie plus ancienne encore présente dans le brut.
     entree_nouvelle["candles"] = _fusion_candles_cache(
-        entree.get("candles") or [], calc_apres.get("candles") or [], ancienne_date)
+        entree.get("candles") or [], calc_apres.get("candles") or [], ancienne_date,
+        remplacer_pivot=(derniere_date == ancienne_date))
 
     change = entree_nouvelle != entree
     return entree_nouvelle, {
