@@ -450,6 +450,74 @@ def _series_modifiees_dans_cette_livraison() -> set:
     return reecrits
 
 
+# Champs que l'ajout d'une séance FAIT LÉGITIMEMENT AVANCER : fenêtres
+# glissantes et indicateurs, qui dépendent de la dernière bougie par
+# construction. C'est le vocabulaire déjà employé par `recalculer_cache.py`
+# et par `test_import_sna_stk.py` — une seule liste, pas trois.
+_CHAMPS_QUI_AVANCENT = {
+    "rsi", "ma20", "ma50", "ma200", "h52w", "l52w", "h90", "l90",
+    "macd", "macd_signal", "macd_hist", "bb_upper", "bb_mid", "bb_lower",
+    "stoch_k", "stoch_d", "last_close", "last_date", "n_candles", "candles",
+}
+
+
+def _series_prolongees_dans_cette_livraison() -> set:
+    """Titres dont la série a UNIQUEMENT gagné des séances postérieures.
+
+    ⚠️ PROLONGER N'EST PAS RÉÉCRIRE — ET LE CACHE L'IGNORAIT
+    ────────────────────────────────────────────────────────
+    Depuis le 19/09, la livraison emporte aussi `pipeline/historical_data.json` :
+    une bougie ajoutée rend l'entrée de cache correspondante obsolète, et le
+    workflow la synchronise avant les contrôles bloquants. C'est correct.
+
+    Mais le contrôle ci-dessous interdisait à tout champ autre que `rsi` de
+    bouger. Or une séance ordinaire fait avancer `ma20`, `macd`, `bb_*`,
+    `last_close`, `n_candles`… sur les soixante-cinq titres cotés. Le contrôle
+    aurait donc bloqué la publication de CHAQUE séance — la même mécanique qui
+    a coûté la journée du 18/09, à un fichier près.
+
+    On distingue donc les deux gestes. Une série RÉÉCRITE reste intégralement
+    contrôlée ; une série seulement PROLONGÉE voit ses champs dérivés avancer,
+    et rien d'autre. Un resserrement, pas un desserrement : tout champ hors de
+    `_CHAMPS_QUI_AVANCENT` reste interdit, y compris sur un titre prolongé.
+    """
+    import subprocess
+    import sys as _sys
+    _sys.path.insert(0, str(RACINE))
+    try:
+        from bvc_config import SEANCES_ANNULEES as _annulees
+    except ImportError:
+        _annulees = {}
+    try:
+        sortie = subprocess.check_output(
+            ["git", "diff", "--name-only", "origin/main", "--", "pipeline/candles"],
+            text=True, cwd=RACINE, stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError:
+        return set()
+
+    prolongees = set()
+    for chemin in (l for l in sortie.split() if l.endswith(".json")):
+        t = Path(chemin).stem
+        try:
+            base = json.loads(subprocess.check_output(
+                ["git", "show", f"origin/main:{chemin}"],
+                text=True, cwd=RACINE, stderr=subprocess.DEVNULL))
+            livre = json.loads((RACINE / chemin).read_text(encoding="utf-8"))
+        except (subprocess.CalledProcessError, OSError, json.JSONDecodeError):
+            continue                 # illisible : on ne présume pas de l'innocence
+        base = [b for b in base if b["d"] not in _annulees]
+        if not base:
+            continue
+        fin = base[-1]["d"]
+        # La partie commune doit être INTACTE, et la série doit avoir gagné au
+        # moins une séance postérieure. Les deux conditions, pas l'une ou l'autre.
+        if base != [b for b in livre if b["d"] <= fin]:
+            continue                 # réécrite : ce n'est pas une prolongation
+        if [b for b in livre if b["d"] > fin]:
+            prolongees.add(t)
+    return prolongees
+
+
 def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():
     """⚠️ Le contrôle sur la LIVRAISON elle-même, pas sur un bac de test."""
     import subprocess
@@ -487,12 +555,16 @@ def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():
     assert len(bouges) < univers / 3, (
         f"cette livraison modifie {len(bouges)} séries sur {univers} "
         f"— opération de masse : {sorted(bouges)}")
+    # ⚠️ Une série PROLONGÉE — qui a seulement gagné des séances — a le droit
+    # de voir ses champs dérivés avancer. Une série RÉÉCRITE, non.
+    prolongees = _series_prolongees_dans_cette_livraison()
     fautifs = {}
     for t in (k for k in base if not k.startswith("_") and k not in exceptions):
         d = {k for k in set(base[t]) | set(livre.get(t, {}))
              if base[t].get(k) != livre.get(t, {}).get(k)}
-        if d - {"rsi"}:
-            fautifs[t] = sorted(d - {"rsi"})
+        toleres = _CHAMPS_QUI_AVANCENT if t in prolongees else {"rsi"}
+        if d - toleres:
+            fautifs[t] = sorted(d - toleres)
     assert fautifs == {}, (
         f"champs hors rsi modifiés sur des titres dont la série n'a pas "
         f"changé : {fautifs}")

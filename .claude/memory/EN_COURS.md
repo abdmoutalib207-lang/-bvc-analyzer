@@ -18,6 +18,38 @@ historique** — cela recréerait une référence exposée.
 
 ---
 
+## 🔔 EN ATTENTE DE FUSION — PR #63, le moteur (19/09/2026)
+
+- [ ] **`fix/bougie-rattrapage-seance-echue` — CI verte, non fusionnée.**
+  Le moteur publie de nouveau `data.json` (séance du 18/09, 79 titres) depuis
+  le 19/09 15h04, mais **les chandelles s'arrêtent au 16/09**. La PR ouvre la
+  porte de rattrapage, crée l'entrée de cache manquante de T2S, et répare deux
+  tests qui auraient rebloqué la publication lundi.
+  - ⚠️ **Sans cette fusion, la séance du 18/09 reste sans bougie**, et le
+    contrôle quotidien continue d'échouer chaque soir.
+  - Mesuré : 65 tickers rattrapés, invariant OHLC intact, R10 respectée,
+    second run idempotent au bit près, `verifier_seance.py` 12/12.
+
+- [ ] **Recoupement du 18/09 au bulletin CDG — non fait.** Les bulletins sont
+  déposés à la main ; le dernier sur disque est celui du 16/09. Les clôtures
+  concordent avec les prix publiés, mais **le juge de paix externe n'a pas
+  parlé**. Déposer le PDF dans `pipeline/bulletins/` puis
+  `python pipeline/parse_cdg_bulletin.py <pdf> --verifier 2026-09-18`.
+
+- [ ] **655 bougies OHLC incohérentes dans le cache, 11 titres, 8 MASI 1.**
+  Les fichiers de chandelles sont sains ; c'est `historical_data.json` qui n'a
+  jamais été re-dérivé après la réparation du 04/09. SGTM affiche un plus-bas
+  52 semaines de 508,10 au lieu de 461,95.
+  ⚠️ CFGB et CMGP portent des corrections réceptionnées — un `--complet`
+  aveugle les annulerait (piège SOT). Passer par `gardien-donnees`.
+
+- [ ] **PR #62 — sa prémisse est inversée.** Elle rattrapait `data.json` depuis
+  les chandelles ; depuis le run du 19/09, c'est `data.json` qui est frais et
+  les chandelles qui retardent. 81 fichiers, +5 118/−4 013 : la fusionner
+  telle quelle ferait reculer `data.json`. À relire avant toute décision.
+
+---
+
 ## 🔔 UNE DÉCISION À PRENDRE — reprise de cotation CMT (16/09/2026)
 
 - [ ] **Le registre porte une référence CALCULÉE là où une SOURCÉE existe.**
