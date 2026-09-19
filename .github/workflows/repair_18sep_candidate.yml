@@ -1,0 +1,101 @@
+name: Repair 18sep candidate
+
+on:
+  push:
+    branches: ["fix/publish-18sep-candles"]
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/publish-18sep-candles
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Installer dépendances
+        run: pip install -q requests numpy pandas -r requirements_dev.txt
+
+      - name: Diagnostic avant rattrapage
+        run: |
+          python - <<'PY'
+          import json
+          from collections import Counter
+          from pathlib import Path
+          from pipeline.finaliser_snapshot import retards_snapshot
+          data=json.loads(Path('data.json').read_text())
+          print('prix_asof avant =', Counter((x.get('_meta') or {}).get('prix_asof') for x in data.get('tickers',[])))
+          r=retards_snapshot()
+          print('tickers data.json derrière candles =', len(r), r)
+          PY
+
+      - name: Synchroniser prudemment les caches déjà derrière leurs chandelles
+        run: |
+          TICKERS=$(python - <<'PY'
+          import json
+          from pathlib import Path
+          from bvc_config import seance_annulee
+          hd=json.loads(Path('pipeline/historical_data.json').read_text())
+          out=[]
+          for f in Path('pipeline/candles').glob('*.json'):
+              t=f.stem.upper(); e=hd.get(t) or {}
+              if not e.get('last_date'): continue
+              try: s=json.loads(f.read_text())
+              except Exception: continue
+              ds=sorted({str(b.get('d') or '')[:10] for b in s if b.get('d') and not seance_annulee(str(b.get('d'))[:10])})
+              if ds and ds[-1] > str(e.get('last_date') or '')[:10]: out.append(t)
+          print(' '.join(sorted(out)))
+          PY
+          )
+          echo "Caches en retard: $TICKERS"
+          for T in $TICKERS; do
+            echo "--- sync $T ---"
+            python pipeline/recalculer_cache.py --sync-ajouts "$T" --ecrire || echo "::warning::sync cache refusée pour $T; cache historique préservé"
+          done
+
+      - name: Rattraper data.json depuis les chandelles validées
+        run: python pipeline/finaliser_snapshot.py
+
+      - name: Vérifier le 18 septembre dans le snapshot candidat
+        run: |
+          python - <<'PY'
+          import json
+          from collections import Counter
+          from pathlib import Path
+          from pipeline.finaliser_snapshot import retards_snapshot
+          data=json.loads(Path('data.json').read_text())
+          c=Counter((x.get('_meta') or {}).get('prix_asof') for x in data.get('tickers',[]))
+          print('prix_asof après =', c)
+          print('18/09 =', c.get('2026-09-18',0))
+          r=retards_snapshot()
+          if r:
+              raise SystemExit('snapshot encore en retard: '+repr(r))
+          if c.get('2026-09-18',0) == 0:
+              raise SystemExit('aucun titre au 18/09 après rattrapage')
+          PY
+
+      - name: Suite complète de non-régression
+        run: python -m pytest --tb=short -q
+
+      - name: Enregistrer le candidat validé sur la branche
+        run: |
+          git config user.name "BVC Repair Bot"
+          git config user.email "noreply@github.com"
+          git add data.json pipeline/historical_data.json
+          if git diff --cached --quiet; then
+            echo "Aucune donnée à committer"
+            exit 0
+          fi
+          git commit -m "data: rattrapage validé de la séance 2026-09-18"
+          git push origin HEAD:fix/publish-18sep-candles
