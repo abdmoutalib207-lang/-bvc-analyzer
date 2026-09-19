@@ -87,3 +87,25 @@ def test_snapshot_aligne_ne_relance_pas_le_moteur(tmp_path):
     rapport = fs.finaliser(data, candles, runner=runner)
     assert rapport["modifie"] is False
     assert appele is False
+
+
+def test_serie_legacy_absente_de_data_est_ignoree(tmp_path):
+    data = tmp_path / "data.json"
+    candles = tmp_path / "candles"
+    _ecrire(data, {"tickers": [_ticker("TGCC", "2026-09-18", 672)]})
+    _ecrire(candles / "TGCC.json", [{"d": "2026-09-18", "c": 672}])
+    # Ancien symbole conservé pour l'historique local mais absent de l'univers
+    # public courant : il ne doit pas créer un faux retard.
+    _ecrire(candles / "TGC.json", [{"d": "2026-05-12", "c": 500}])
+
+    assert fs.retards_snapshot(data, candles) == {}
+
+    appele = False
+    def runner():
+        nonlocal appele
+        appele = True
+        return {}
+
+    rapport = fs.finaliser(data, candles, runner=runner)
+    assert rapport["modifie"] is False
+    assert appele is False
