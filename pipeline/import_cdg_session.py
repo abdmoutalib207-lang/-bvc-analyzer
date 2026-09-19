@@ -10,6 +10,10 @@ L'import est transactionnel : toutes les lignes sont validées et soumises à la
 politique commune de corrections avant la première écriture. Une bougie déjà
 présente à la même date doit être strictement identique, sinon l'import refuse
 au lieu d'écraser silencieusement une autre source.
+
+Un titre explicitement connu de ``ISIN_MAP`` peut ne pas encore avoir de série
+locale. Dans ce seul cas, une série est initialisée avec la bougie réellement
+observée dans le bulletin. Aucun historique antérieur n'est inventé.
 """
 from __future__ import annotations
 
@@ -113,12 +117,20 @@ def importer(source: Path, candles_dir: Path = CANDLES, *, ecrire: bool = False,
 
     # Préparer TOUTES les séries avant la première écriture.
     candidats: dict[str, list] = {}
-    deja, ajoutes = [], []
+    deja, ajoutes, series_creees = [], [], []
     for ticker, nouvelle in bougies.items():
         f = candles_dir / f"{ticker}.json"
-        if not f.exists():
-            raise FileNotFoundError(f"série absente pour {ticker}: {f}")
-        serie = json.loads(f.read_text(encoding="utf-8"))
+        if f.exists():
+            serie = json.loads(f.read_text(encoding="utf-8"))
+        else:
+            # _ticker_interne() n'admet ici que des titres explicitement connus
+            # de notre référentiel. On démarre à la première séance prouvée ;
+            # surtout, on ne fabrique aucune séance antérieure.
+            if ticker not in ISIN_MAP:
+                raise FileNotFoundError(f"série absente pour ticker non référencé {ticker}: {f}")
+            serie = []
+            series_creees.append(ticker)
+
         existantes = [b for b in serie if str(b.get("d") or "")[:10] == date]
         if len(existantes) > 1:
             raise ValueError(f"{ticker}: date {date} dupliquée dans la série")
@@ -156,6 +168,7 @@ def importer(source: Path, candles_dir: Path = CANDLES, *, ecrire: bool = False,
     rapport.update({
         "ecriture": bool(ecrire),
         "ajoutes": sorted(ajoutes),
+        "series_creees": sorted(series_creees),
         "deja_presents_identiques": sorted(deja),
         "n_ajoutes": len(ajoutes),
     })
