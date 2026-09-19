@@ -395,21 +395,19 @@ def _titres_dont_la_serie_a_change() -> set:
 
 
 def _series_modifiees_dans_cette_livraison() -> set:
-    """Les titres dont l'HISTORIQUE DÉJÀ PUBLIÉ a été réécrit.
+    """Titres dont l'HISTORIQUE DÉJÀ PUBLIÉ a réellement été réécrit.
 
-    ⚠️ AJOUTER LA SÉANCE DU JOUR N'EST PAS RÉÉCRIRE L'HISTOIRE.
-    Ma première version comparait les fichiers entiers à `origin/main`. Or le
-    moteur ajoute une bougie à chaque titre coté, tous les jours : le contrôle
-    a vu « 52 séries modifiées sur 75 », a conclu à une opération de masse, et
-    a bloqué la publication du 17/09 à 10h11 — en pleine séance.
-
-    Un run quotidien touche toutes les séries par construction. Ce qui doit
-    alarmer, c'est qu'une livraison RÉÉCRIVE des séances déjà servies. On ne
-    compare donc que la partie commune : jusqu'à la dernière date que
-    `origin/main` publiait pour ce titre.
+    Ajouter la séance du jour n'est pas réécrire l'histoire. Remplacer la
+    dernière bougie du jour pendant la séance ne l'est pas non plus : à 12h et
+    à 15h45, le même jour évolue encore. En revanche, toute différence avant
+    cette dernière date quotidienne reste une réécriture historique et doit
+    disposer d'une instruction réceptionnée dans le dépôt.
     """
     import subprocess
     import sys as _sys
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
     _sys.path.insert(0, str(RACINE))
     try:
         from bvc_config import SEANCES_ANNULEES as _annulees
@@ -422,6 +420,7 @@ def _series_modifiees_dans_cette_livraison() -> set:
     except subprocess.CalledProcessError:
         return set()
 
+    aujourd_hui = datetime.now(ZoneInfo("Africa/Casablanca")).strftime("%Y-%m-%d")
     reecrits = set()
     for chemin in (l for l in sortie.split() if l.endswith(".json")):
         t = Path(chemin).stem
@@ -431,28 +430,58 @@ def _series_modifiees_dans_cette_livraison() -> set:
                 text=True, cwd=RACINE, stderr=subprocess.DEVNULL))
             livre = json.loads((RACINE / chemin).read_text(encoding="utf-8"))
         except (subprocess.CalledProcessError, OSError, json.JSONDecodeError):
-            reecrits.add(t)          # illisible : on ne présume pas de l'innocence
+            reecrits.add(t)
             continue
         if not base:
             continue
 
-        # ⚠️ RETIRER UNE SÉANCE ANNULÉE N'EST PAS RÉÉCRIRE L'HISTOIRE.
-        # Le 17/09, la Bourse a arrêté sa séance et annulé toutes les
-        # transactions. La purge a retiré 54 bougies sur 54 titres — et ce
-        # contrôle, qui compte les séries touchées, a crié à l'opération de
-        # masse. Il avait raison de compter ; il lui manquait de savoir que ce
-        # retrait est DÉCLARÉ, ligne par ligne, dans `SEANCES_ANNULEES`.
+        # Une séance juridiquement annulée doit disparaître des deux côtés de
+        # la comparaison : son retrait n'est pas une correction historique.
         base = [b for b in base if b["d"] not in _annulees]
+        if not base:
+            continue
 
-        fin = base[-1]["d"] if base else ""
-        if [b for b in base] != [b for b in livre if b["d"] <= fin]:
+        fin = base[-1]["d"]
+        # Si origin/main contient déjà la bougie d'AUJOURD'HUI, elle est encore
+        # mutable pendant la séance. Tout ce qui la précède reste immuable.
+        if fin == aujourd_hui:
+            base_immuable = base[:-1]
+            livre_immuable = [b for b in livre if b["d"] < fin]
+        else:
+            base_immuable = base
+            livre_immuable = [b for b in livre if b["d"] <= fin]
+        if base_immuable != livre_immuable:
             reecrits.add(t)
     return reecrits
 
 
-def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():
-    """⚠️ Le contrôle sur la LIVRAISON elle-même, pas sur un bac de test."""
+def _candles_touchees_dans_cette_livraison() -> set:
+    """Tous les fichiers candles modifiés, append quotidien compris."""
     import subprocess
+    try:
+        sortie = subprocess.check_output(
+            ["git", "diff", "--name-only", "origin/main", "--", "pipeline/candles"],
+            text=True, cwd=RACINE, stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError:
+        return set()
+    return {Path(x).stem for x in sortie.split() if x.endswith(".json")}
+
+
+def test_hors_series_corrigees_le_cache_livre_suit_exactement_le_mode_autorise():
+    """Le cache livré n'a que deux chemins légitimes.
+
+    1. Une série historique explicitement réceptionnée peut être recalculée en
+       complet.
+    2. Une bougie quotidienne ajoutée/remplacée peut utiliser --sync-ajouts,
+       mais le résultat livré doit être EXACTEMENT celui que ce mode produit à
+       partir du cache de origin/main. Les corrections historiques divergentes
+       restent donc protégées champ par champ.
+
+    Sans changement de candle, seul le RSI peut encore varier.
+    """
+    import subprocess
+    import recalculer_cache as rc
+
     try:
         base = json.loads(subprocess.check_output(
             ["git", "show", "origin/main:pipeline/historical_data.json"],
@@ -461,38 +490,49 @@ def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():
         pytest.skip("origin/main absent de ce clone")
     livre = json.loads((RACINE / "pipeline" / "historical_data.json")
                        .read_text(encoding="utf-8"))
-    # ⚠️ LES REGISTRES SONT CUMULATIFS, LE CONTRÔLE NE DOIT PAS L'ÊTRE.
-    #
-    # Ce test comparait le cache livré au cache de `origin/main` et exemptait
-    # TOUS les titres jamais inscrits dans un registre. Au 17/09 ils étaient
-    # vingt-cinq sur soixante-quinze — exactement le tiers que le garde-fou
-    # refuse — et le contrôle s'est arrêté. Il avait raison de s'arrêter, et la
-    # réponse n'est pas de desserrer le seuil.
-    #
-    # Un titre corrigé le 15/09 n'a aucune raison d'être exempté le 17. Ce qui
-    # a le droit de bouger dans CETTE livraison, ce sont les titres dont la
-    # SÉRIE a changé dans cette livraison ET qui portent une instruction écrite.
-    # Les deux conditions, pas l'une ou l'autre.
-    #
-    # C'est un RESSERREMENT : l'exemption passe de vingt-cinq titres à ceux que
-    # la livraison touche réellement.
-    bouges = _series_modifiees_dans_cette_livraison()
-    exceptions = _titres_dont_la_serie_a_change() & bouges
 
-    # ⚠️ Et le seuil porte désormais sur ce que la livraison FAIT, pas sur ce
-    # que l'histoire contient. Toucher un tiers des séries d'un coup est une
-    # opération de masse : elle doit être refusée ici, quelle que soit la
-    # qualité des instructions qui l'accompagnent.
+    reecrits = _series_modifiees_dans_cette_livraison()
+    autorises_complet = _titres_dont_la_serie_a_change() & reecrits
     univers = len([k for k in base if not k.startswith("_")])
-    assert len(bouges) < univers / 3, (
-        f"cette livraison modifie {len(bouges)} séries sur {univers} "
-        f"— opération de masse : {sorted(bouges)}")
+    assert len(reecrits) < univers / 3, (
+        f"cette livraison réécrit {len(reecrits)} séries sur {univers} "
+        f"— opération de masse : {sorted(reecrits)}")
+
+    candles_touchees = _candles_touchees_dans_cette_livraison()
+    moteur = rc._collecteur()
     fautifs = {}
-    for t in (k for k in base if not k.startswith("_") and k not in exceptions):
-        d = {k for k in set(base[t]) | set(livre.get(t, {}))
-             if base[t].get(k) != livre.get(t, {}).get(k)}
-        if d - {"rsi"}:
-            fautifs[t] = sorted(d - {"rsi"})
+
+    for t in (k for k in base if not k.startswith("_") and k not in autorises_complet):
+        actuel = livre.get(t, {})
+        if actuel == base[t]:
+            continue
+
+        # Append/remplacement quotidien : le cache doit être celui du mode sûr,
+        # pas seulement « ressembler » à un recalcul plausible.
+        if t in candles_touchees and t not in reecrits:
+            f = RACINE / "pipeline" / "candles" / f"{t}.json"
+            if not f.exists():
+                fautifs[t] = ["candles_absentes"]
+                continue
+            serie = json.loads(f.read_text(encoding="utf-8"))
+            attendu, rapport = rc._synchroniser_un_ajout(
+                t, dict(base[t]), serie, moteur)
+            if attendu is None:
+                fautifs[t] = ["sync_refusee: " + rapport.get("motif", "?")]
+                continue
+            champs = sorted(k for k in set(attendu) | set(actuel)
+                            if attendu.get(k) != actuel.get(k))
+            if champs:
+                fautifs[t] = champs
+            continue
+
+        # Sans candle quotidienne, l'ancien contrat reste strict : seul RSI.
+        champs = {k for k in set(base[t]) | set(actuel)
+                  if base[t].get(k) != actuel.get(k)}
+        hors_rsi = sorted(champs - {"rsi"})
+        if hors_rsi:
+            fautifs[t] = hors_rsi
+
     assert fautifs == {}, (
-        f"champs hors rsi modifiés sur des titres dont la série n'a pas "
-        f"changé : {fautifs}")
+        "cache modifié hors du chemin autorisé (recalcul réceptionné, "
+        f"sync-ajouts exacte ou RSI seul) : {fautifs}")
