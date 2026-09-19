@@ -30,7 +30,7 @@ def test_identites_critiques_sont_traduites_avant_import():
     assert bougies["AKD"]["c"] == 1120.0  # AKT = Akdital
     assert bougies["ADI"] == {
         "d": "2026-09-18", "o": 400.0, "h": 400.0,
-        "l": 376.0, "c": 377.0, "v": 30140155.2,
+        "l": 376.0, "c": 377.0, "v": 78887,
     }
 
 
@@ -59,7 +59,10 @@ def test_import_est_transactionnel_et_idempotent(tmp_path):
     r1 = imp.importer(src, candles, ecrire=True, policy=identite)
     assert r1["n_ajoutes"] == 2
     assert r1["series_creees"] == []
-    assert json.loads((candles / "ADI.json").read_text())[-1]["d"] == "2026-09-18"
+    assert json.loads((candles / "ADI.json").read_text())[-1] == {
+        "d": "2026-09-18", "o": 400.0, "h": 400.0,
+        "l": 376.0, "c": 377.0, "v": 10,
+    }
 
     r2 = imp.importer(src, candles, ecrire=True, policy=identite)
     assert r2["n_ajoutes"] == 0
@@ -86,7 +89,7 @@ def test_import_initialise_une_serie_absente_sans_inventer_d_historique(tmp_path
     assert r["series_creees"] == ["MDP"]
     assert json.loads((candles / "MDP.json").read_text()) == [
         {"d": "2026-09-18", "o": 24.2, "h": 24.4,
-         "l": 23.8, "c": 24.0, "v": 1000.0}
+         "l": 23.8, "c": 24.0, "v": 10}
     ]
 
 
@@ -102,7 +105,7 @@ def test_import_refuse_un_ecrasement_different(tmp_path):
     src.write_text(json.dumps(doc), encoding="utf-8")
     candles = tmp_path / "candles"
     candles.mkdir()
-    original = [{"d": "2026-09-18", "o": 400, "h": 400, "l": 376, "c": 378, "v": 1000}]
+    original = [{"d": "2026-09-18", "o": 400, "h": 400, "l": 376, "c": 378, "v": 10}]
     (candles / "ADI.json").write_text(json.dumps(original), encoding="utf-8")
 
     with pytest.raises(ValueError, match="déjà présente mais différente"):
