@@ -96,6 +96,31 @@ jobs:
           cp data.json .ci/data_teste.json
           cp -r pipeline/candles .ci/candles
 
+      # ── SYNCHRONISER LE CACHE, COMME EN PRODUCTION ──────────────────────
+      #
+      # ⚠️ SANS CETTE ÉTAPE, CE WORKFLOW JUGE UN ÉTAT QUE LA PRODUCTION NE
+      # PUBLIE JAMAIS. `update_bvc.yml` synchronise `historical_data.json`
+      # entre la génération et les contrôles : une bougie ajoutée rend
+      # immédiatement l'entrée de cache correspondante obsolète. Ici l'étape
+      # manquait, et l'écart ne s'est vu que le 19/09, quand le rattrapage de
+      # la séance du 18 a fait entrer 65 bougies d'un coup : trois tests ont
+      # rougi en dénonçant une désynchronisation que la production, elle,
+      # corrige avant de publier.
+      #
+      # Le but affiché de ce fichier est de juger LE FICHIER LIVRÉ. Il doit
+      # donc reproduire la chaîne de production, pas une variante.
+      - name: Synchroniser le cache historique des chandelles modifiées
+        run: |
+          TICKERS=$(git diff --name-only -- 'pipeline/candles/*.json' \
+            | sed -n 's#^pipeline/candles/\(.*\)\.json$#\1#p' \
+            | sort -u | tr '\n' ' ')
+          if [ -z "$TICKERS" ]; then
+            echo "Aucune chandelle modifiée — cache inchangé"
+            exit 0
+          fi
+          echo "Synchronisation incrémentale sûre du cache pour: $TICKERS"
+          python pipeline/recalculer_cache.py --sync-ajouts $TICKERS --ecrire
+
       # Un échec de la suite doit être attribuable SANS relire les journaux.
       # Si la collecte a été dégradée, cela se voit ici, avant le résultat.
       - name: Identifier le fichier testé
