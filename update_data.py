@@ -1025,12 +1025,14 @@ def _ecarter_seances_annulees(live_prices, idb_asof):
         try:
             sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
             from seance import derniere_seance_connue
-            nouvelle = derniere_seance_connue() or ""
+            nouvelle = derniere_seance_connue(avant=str(idb_asof)[:10]) or ""
         except Exception:
             nouvelle = ""
         if not nouvelle:
+            borne = str(idb_asof or "")[:10]
             restantes = [str(v.get("asof") or "")[:10] for v in live_prices.values()]
-            restantes = [d for d in restantes if d and not seance_annulee(d)]
+            restantes = [d for d in restantes
+                          if d and d < borne and not seance_annulee(d)]
             nouvelle = max(restantes) if restantes else ""
         logger.warning(f"  séance de référence ramenée du {idb_asof} au "
                        f"{nouvelle or 'inconnue'} (dernière séance valide "
@@ -1063,7 +1065,9 @@ def _ecarter_masi_annule(masi):
                          .get("masi") or {})
     except (json.JSONDecodeError, OSError):
         precedent = {}
-    if precedent and not seance_annulee(str(precedent.get("asof") or "")[:10]):
+    date_precedent = str(precedent.get("asof") or "")[:10]
+    if (precedent and date_precedent and date_precedent < annulee
+            and not seance_annulee(date_precedent)):
         logger.warning(
             f"MASI : la source le date du {annulee}, séance ANNULÉE — repris à "
             f"{precedent.get('value')} au {precedent.get('asof')} (indice publié "
@@ -1074,7 +1078,7 @@ def _ecarter_masi_annule(masi):
         # et la variation de la séance annulée continuait d'être servie.
         masi["value"] = precedent.get("value")
         masi["asof"] = precedent.get("asof")
-        masi["chg"] = precedent.get("change_pct")
+        masi["chg"] = None
         masi["stale"] = True
         return masi
 
@@ -1087,7 +1091,7 @@ def _ecarter_masi_annule(masi):
                    if _h.exists() else {})
     except (json.JSONDecodeError, OSError):
         seances = {}
-    valides = sorted(d for d in seances if not seance_annulee(d))
+    valides = sorted(d for d in seances if d < annulee and not seance_annulee(d))
     if valides:
         d = valides[-1]
         logger.warning(f"MASI : séance {annulee} annulée, fichier précédent "
