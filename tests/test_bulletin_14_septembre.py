@@ -109,30 +109,27 @@ def test_cmt_n_a_pas_cote_et_le_bulletin_le_dit_en_creux(cotations):
         f"une heure de dernier échange sur CMT : {cmt['heure']}")
 
 
-def test_quatre_titres_sont_cotes_sans_que_nous_ayons_le_moindre_historique(cotations):
-    """⚠️ Un fait, pas un correctif. MDP, PPM, SLM et T2S n'ont aucun fichier
-    de chandelles : leur RSI publié vaut 50, qui est la valeur NEUTRE par
-    défaut et non une mesure. Le bulletin, lui, les cote.
+def test_les_historiques_absents_le_14_ne_sont_pas_retroactivement_inventes(cotations):
+    """MDP et SLM étaient cotés le 14/09 sans série locale mesurable.
 
-    Ce test tombera le jour où l'un d'eux recevra un historique — et ce sera
-    une bonne nouvelle, à traiter en retirant son nom d'ici.
-
-    ⚠️ C'EST ARRIVÉ LE 15/09/2026 : T2S a reçu ses 30 séances et a quitté la
-    liste. Son nom est retiré ici, délibérément, plutôt que d'assouplir
-    l'égalité en « au moins trois » — chaque départ doit rester une
-    modification consciente, pas un effet de bord.
+    Le 18/09, leur première bougie officielle a désormais été importée. Le test
+    conserve le fait historique important : aucune bougie antérieure au 18/09
+    n'a été fabriquée pour faire croire que nous disposions d'un historique le
+    14. T2S et PPM, eux, disposent bien de leurs historiques importés.
     """
+    import json
     from parse_cdg_bulletin import vers_nos_tickers
+
     chez_nous = vers_nos_tickers(cotations)
-    sans_histoire = sorted(
-        t for t, v in chez_nous.items()
-        if v["cours"] and not (RACINE / "pipeline" / "candles" / f"{t}.json").exists())
-    assert sans_histoire == ["MDP", "SLM"]
-    # T2S est désormais servi avec son historique : c'est ce que ce bulletin
-    # avait permis d'établir, et ce qui a été fait le soir même.
+    for ticker in ("MDP", "SLM"):
+        assert chez_nous[ticker]["cours"] > 0
+        fichier = RACINE / "pipeline" / "candles" / f"{ticker}.json"
+        assert fichier.exists(), f"{ticker}: la première série validée du 18/09 manque"
+        serie = json.loads(fichier.read_text(encoding="utf-8"))
+        assert serie, f"{ticker}: série vide"
+        assert min(b["d"] for b in serie) == "2026-09-18", (
+            f"{ticker}: un historique antérieur au premier relevé prouvé a été inventé")
+
     assert (RACINE / "pipeline" / "candles" / "T2S.json").exists()
     assert chez_nous["T2S"]["cours"] == 225.0
-    # ⚠️ ET PROMOPHARM A QUITTÉ LA LISTE LE 17/09/2026, par le même chemin :
-    # Abd Moutalib a fourni son export 3 ans. Le titre passe de ZÉRO bougie à
-    # 735, et son RSI cesse d'être le 50 par défaut que ce test dénonçait.
     assert (RACINE / "pipeline" / "candles" / "PPM.json").exists()

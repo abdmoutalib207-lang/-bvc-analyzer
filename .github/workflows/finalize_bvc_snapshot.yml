@@ -1,0 +1,120 @@
+name: BVC Snapshot Finalizer
+
+on:
+  workflow_run:
+    workflows: ["BVC Data Update"]
+    types: [completed]
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "pipeline/finaliser_snapshot.py"
+      - ".github/workflows/finalize_bvc_snapshot.yml"
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: bvc-main-push
+  cancel-in-progress: false
+
+jobs:
+  finalize:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Installer dépendances
+        run: pip install -q requests numpy pandas -r requirements_dev.txt
+
+      - name: Diagnostic des retards
+        run: |
+          python - <<'PY'
+          import json
+          from collections import Counter
+          from pathlib import Path
+          from pipeline.finaliser_snapshot import retards_snapshot
+          data=json.loads(Path('data.json').read_text())
+          print('prix_asof =', Counter((x.get('_meta') or {}).get('prix_asof') for x in data.get('tickers',[])))
+          print('snapshot derrière candles =', retards_snapshot())
+          PY
+
+      - name: Synchroniser prudemment les caches déjà derrière leurs chandelles
+        run: |
+          TICKERS=$(python - <<'PY'
+          import json
+          from pathlib import Path
+          from bvc_config import seance_annulee
+          hd=json.loads(Path('pipeline/historical_data.json').read_text())
+          out=[]
+          for f in Path('pipeline/candles').glob('*.json'):
+              t=f.stem.upper(); e=hd.get(t) or {}
+              if not e.get('last_date'): continue
+              try: s=json.loads(f.read_text())
+              except Exception: continue
+              ds=sorted({str(b.get('d') or '')[:10] for b in s
+                         if b.get('d') and not seance_annulee(str(b.get('d'))[:10])})
+              if ds and ds[-1] > str(e.get('last_date') or '')[:10]: out.append(t)
+          print(' '.join(sorted(out)))
+          PY
+          )
+          echo "Caches en retard: $TICKERS"
+          for T in $TICKERS; do
+            echo "--- sync $T ---"
+            python pipeline/recalculer_cache.py --sync-ajouts "$T" --ecrire \
+              || echo "::warning::sync cache refusée pour $T; cache historique préservé"
+          done
+
+      - name: Rattraper data.json depuis les chandelles validées
+        run: python pipeline/finaliser_snapshot.py
+
+      - name: Vérifier que data.json n'est plus derrière les chandelles
+        run: |
+          python - <<'PY'
+          import json
+          from collections import Counter
+          from pathlib import Path
+          from pipeline.finaliser_snapshot import retards_snapshot
+          data=json.loads(Path('data.json').read_text())
+          counts=Counter((x.get('_meta') or {}).get('prix_asof') for x in data.get('tickers',[]))
+          print('prix_asof après finalisation =', counts)
+          retards=retards_snapshot()
+          if retards:
+              raise SystemExit('snapshot encore en retard: '+repr(retards))
+          PY
+
+      - name: Suite complète de non-régression
+        run: python -m pytest --tb=short -q
+
+      - name: Publier le snapshot finalisé si modifié
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "BVC Snapshot Bot"
+          git config user.email "noreply@github.com"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+          git add data.json pipeline/historical_data.json
+          if git diff --cached --quiet; then
+            echo "Snapshot déjà aligné — aucun commit"
+            exit 0
+          fi
+          git commit -m "data: finalise BVC snapshot from validated candles"
+          git push origin HEAD:main

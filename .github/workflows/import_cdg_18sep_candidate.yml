@@ -1,0 +1,158 @@
+name: Import CDG 18sep candidate
+
+on:
+  push:
+    branches: ["fix/publish-18sep-candles"]
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  import-session:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/publish-18sep-candles
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Installer les dépendances de test
+        run: pip install -r requirements_dev.txt
+      - name: Préparer le garde-fou cache quotidien
+        run: python tools/patch_cache_delivery_guard.py
+      - name: Importer les cotations validées du 18 septembre
+        run: |
+          mkdir -p .ci
+          python pipeline/import_cdg_session.py \
+            pipeline/bulletins/cdg_2026-09-18.json \
+            --ecrire --rapport .ci/import_18sep.json
+      - name: Vérifier 66 bougies sans aucune réécriture historique
+        run: |
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+
+          r=json.loads(Path('.ci/import_18sep.json').read_text())
+          assert r['n_ajoutes']==66, r
+          assert len(r['tickers'])==66, r
+          assert not r['hors_univers'], r
+          attendus=set(r['tickers'])
+          diff={Path(x).stem for x in subprocess.check_output(
+              ['git','diff','--name-only','origin/main','--','pipeline/candles'],
+              text=True).splitlines() if x.endswith('.json')}
+          nouveaux={Path(x).stem for x in subprocess.check_output(
+              ['git','ls-files','--others','--exclude-standard','--','pipeline/candles'],
+              text=True).splitlines() if x.endswith('.json')}
+          modifies=diff|nouveaux
+          assert modifies==attendus, (len(modifies), sorted(modifies^attendus))
+
+          absents_main=set()
+          for t in sorted(attendus):
+              path=f'pipeline/candles/{t}.json'
+              p=subprocess.run(['git','cat-file','-e',f'origin/main:{path}'],
+                               stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+              cur=json.loads(Path(path).read_text())
+              if p.returncode:
+                  absents_main.add(t)
+                  assert len(cur)==1, (t,cur)
+                  assert cur[0]['d']=='2026-09-18', (t,cur)
+              else:
+                  base=json.loads(subprocess.check_output(
+                      ['git','show',f'origin/main:{path}'],text=True))
+                  assert len(cur)==len(base)+1, (t,len(base),len(cur))
+                  assert cur[:-1]==base, f'{t}: historique antérieur modifié'
+                  assert cur[-1]['d']=='2026-09-18', (t,cur[-1])
+          assert set(r.get('series_creees') or [])==absents_main, (r.get('series_creees'),sorted(absents_main))
+
+          samples={'SNA':1800.0,'STK':63.26,'TGCC':672.0,'AKD':1120.0,
+                   'ADI':377.0,'ADH':32.5,'IMI':91.6,'SMI':6700.0,'T2S':215.6,'MDP':24.0}
+          for t,c in samples.items():
+              cur=json.loads(Path(f'pipeline/candles/{t}.json').read_text())
+              assert cur[-1]['c']==c, (t,cur[-1])
+          assert json.loads(Path('pipeline/candles/ADI.json').read_text())[-1]['v']==78887
+          print('IMPORT_OK',len(attendus),'SERIES_CREEES',sorted(absents_main))
+          PY
+      - name: Synchroniser uniquement les caches déjà existants
+        run: |
+          TICKERS=$(python - <<'PY'
+          import json
+          r=json.load(open('.ci/import_18sep.json'))
+          cache=json.load(open('pipeline/historical_data.json'))
+          print(' '.join(t for t in r['tickers'] if t in cache))
+          PY
+          )
+          echo "Caches à synchroniser: $TICKERS"
+          if [ -n "$TICKERS" ]; then
+            python pipeline/recalculer_cache.py --sync-ajouts $TICKERS --ecrire | tee .ci/cache_sync_18sep.log
+          fi
+      - name: Régénérer le snapshot public
+        run: |
+          python update_data.py
+          python pipeline/finaliser_snapshot.py
+      - name: Contrôler chandelles cache et data.json
+        run: |
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+
+          r=json.loads(Path('.ci/import_18sep.json').read_text())
+          attendus=set(r['tickers'])
+          diff={Path(x).stem for x in subprocess.check_output(
+              ['git','diff','--name-only','origin/main','--','pipeline/candles'],
+              text=True).splitlines() if x.endswith('.json')}
+          nouveaux={Path(x).stem for x in subprocess.check_output(
+              ['git','ls-files','--others','--exclude-standard','--','pipeline/candles'],
+              text=True).splitlines() if x.endswith('.json')}
+          assert diff|nouveaux==attendus, ('candles inattendues',sorted((diff|nouveaux)^attendus))
+          for t in sorted(attendus):
+              path=f'pipeline/candles/{t}.json'
+              cur=json.loads(Path(path).read_text())
+              exists=subprocess.run(['git','cat-file','-e',f'origin/main:{path}'],
+                                    stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0
+              if exists:
+                  base=json.loads(subprocess.check_output(['git','show',f'origin/main:{path}'],text=True))
+                  assert cur[:-1]==base, f'{t}: passé modifié après régénération'
+              else:
+                  assert len(cur)==1, (t,cur)
+              assert cur[-1]['d']=='2026-09-18'
+
+          data=json.loads(Path('data.json').read_text())
+          rows={x['symbol']:x for x in data['tickers']}
+          manquants=sorted(t for t in attendus if t not in rows)
+          assert not manquants, manquants
+          retards={t:(rows[t].get('_meta') or {}).get('prix_asof') for t in attendus
+                   if str((rows[t].get('_meta') or {}).get('prix_asof') or '')[:10] != '2026-09-18'}
+          assert not retards, ('data.json pas au 18/09',retards)
+          samples={'SNA':1800.0,'STK':63.26,'TGCC':672.0,'AKD':1120.0,
+                   'ADI':377.0,'ADH':32.5,'IMI':91.6,'SMI':6700.0,'T2S':215.6,'MDP':24.0}
+          for t,c in samples.items():
+              assert float(rows[t]['price'])==c, (t,rows[t]['price'],c)
+          assert all(str((x.get('_meta') or {}).get('prix_asof') or '')[:10] != '2026-09-17'
+                     for x in data['tickers'])
+
+          cache=json.loads(Path('pipeline/historical_data.json').read_text())
+          couverts=[t for t in attendus if t in cache]
+          avances=[t for t in couverts if str(cache[t].get('last_date') or '')[:10]=='2026-09-18']
+          assert len(avances)==len(couverts), ('cache en retard',sorted(set(couverts)-set(avances)))
+          print('DATA_18SEP_OK',len(attendus),'CACHE_18SEP',len(avances),'SUR',len(couverts),
+                'SERIES_CREEES',r.get('series_creees'))
+          PY
+      - name: Lancer toute la suite de tests
+        run: python -m pytest --tb=short -q
+      - name: Enregistrer le candidat validé
+        run: |
+          git config user.name "BVC Repair Bot"
+          git config user.email "noreply@github.com"
+          git rm tools/patch_cache_delivery_guard.py
+          git add data.json pipeline/historical_data.json pipeline/candles tests/test_serie_et_cache.py
+          git status --short
+          git commit -m "data: intégrer la séance BVC du 18 septembre 2026"
+          git push origin HEAD:fix/publish-18sep-candles

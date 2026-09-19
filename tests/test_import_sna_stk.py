@@ -109,9 +109,11 @@ def test_la_serie_publiee_est_l_export_sur_toute_sa_periode():
 
 def test_les_seances_valides_post_export_sont_conservees():
     sna, stk = _serie("SNA"), _serie("STK")
-    assert [b["d"] for b in sna[-2:]] == ["2026-09-15", "2026-09-16"]
-    assert stk[-1]["d"] == "2026-09-16"
-    assert len(sna) == len(stk) == 735
+    # Les séances validées 15/16 restent intactes et la vraie séance suivante
+    # est bien le 18 : le 17 annulé ne doit jamais s'intercaler.
+    assert [b["d"] for b in sna[-3:]] == ["2026-09-15", "2026-09-16", "2026-09-18"]
+    assert [b["d"] for b in stk[-3:]] == ["2026-09-15", "2026-09-16", "2026-09-18"]
+    assert len(sna) == len(stk) == 736
 
 
 def test_aucune_seance_feriee_ou_annulee_ne_survit():
