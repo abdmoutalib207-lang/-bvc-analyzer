@@ -300,24 +300,34 @@ def reparer_ohlc(candles_dir=None, dry_run=False):
     return total, fichiers
 
 
-def derniere_seance_connue(candles_dir=None):
+def derniere_seance_connue(candles_dir=None, avant=None):
     """Date de la séance la plus récente présente dans les chandelles.
 
-    Sert de repère quand la source est muette : sans elle, rien ne permet de
-    contredire une charge utile qui se date elle-même du jour. Renvoie une
-    chaîne « AAAA-MM-JJ », ou "" si aucune chandelle n'est lisible.
+    `avant` est une borne EXCLUSIVE ``AAAA-MM-JJ``. Elle est indispensable
+    quand on traite après coup une séance annulée D : une chandelle réelle de
+    D+1 peut déjà exister, mais aucun repli de D n'a le droit de voyager vers
+    D ou vers le futur. Sans borne, le cycle 16 valide → 17 annulé → 18 réel
+    ramenait à tort la référence du 17 sur le 18.
+
+    Sans borne, conserve le comportement historique : dernière séance connue.
+    Renvoie une chaîne « AAAA-MM-JJ », ou "" si aucune chandelle n'est lisible.
     """
     d = Path(candles_dir) if candles_dir else CANDLES_DIR
     if not d.exists():
         return ""
+    borne = str(avant or "")[:10]
     dernieres = []
     for f in d.glob("*.json"):
         try:
             s = json.loads(f.read_text(encoding="utf-8"))
         except Exception:
             continue
-        if isinstance(s, list) and s:
-            dernieres.append(s[-1].get("d") or "")
+        if not isinstance(s, list) or not s:
+            continue
+        dates = [str(b.get("d") or "")[:10] for b in s]
+        dates = [jour for jour in dates if jour and (not borne or jour < borne)]
+        if dates:
+            dernieres.append(max(dates))
     return max(dernieres) if dernieres else ""
 
 

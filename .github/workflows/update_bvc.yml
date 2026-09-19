@@ -197,6 +197,23 @@ jobs:
         if: steps.gate.outputs.run == 'true' && github.event.inputs.dry_run != 'true'
         run: python update_data.py
 
+      # ── 3a. SYNCHRONISER LE CACHE DÉRIVÉ ────────────────────
+      # Une bougie ajoutée/remplacée rend immédiatement l'entrée correspondante
+      # de historical_data.json obsolète. La garde doit donc voir cache et
+      # chandelles issus du même état, pas un instantané de la veille.
+      - name: Synchroniser le cache historique des chandelles modifiées
+        if: steps.gate.outputs.run == 'true' && github.event.inputs.dry_run != 'true'
+        run: |
+          TICKERS=$(git diff --name-only -- 'pipeline/candles/*.json' \
+            | sed -n 's#^pipeline/candles/\(.*\)\.json$#\1#p' \
+            | sort -u | tr '\n' ' ')
+          if [ -z "$TICKERS" ]; then
+            echo "Aucune chandelle modifiée — cache inchangé"
+            exit 0
+          fi
+          echo "Synchronisation incrémentale sûre du cache pour: $TICKERS"
+          python pipeline/recalculer_cache.py --sync-ajouts $TICKERS --ecrire
+
       # ── 3b. CONTRÔLES BLOQUANTS — avant toute publication ──
       #
       # ⚠️ Ajouté le 10/09/2026, après l'audit externe du 09/09.
@@ -272,6 +289,9 @@ jobs:
             git fetch origin main
             git reset origin/main
             git add data.json
+            if [ -f pipeline/historical_data.json ]; then
+              git add pipeline/historical_data.json
+            fi
             if [ -d pipeline/candles ] && [ "$(ls pipeline/candles/*.json 2>/dev/null | wc -l)" -gt 0 ]; then
               git add pipeline/candles/
             fi
