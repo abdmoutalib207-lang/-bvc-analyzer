@@ -10,6 +10,11 @@ remplace que les tickers dont data.json était réellement en retard.
 Aucune chandelle n'est créée ici et aucune séance annulée n'est prise comme
 référence. Le fichier courant reste intact si le recalcul n'arrive pas au moins
 à la date déjà prouvée par les chandelles locales.
+
+Le dossier des chandelles peut contenir d'anciens symboles techniques/legacy
+qui ne font plus partie de l'univers public. Ils ne doivent jamais forcer la
+création d'une ligne dans data.json : le finaliseur contrôle uniquement les
+symboles effectivement présents dans le snapshot public courant.
 """
 from __future__ import annotations
 
@@ -46,21 +51,29 @@ def _derniere_date_valide(fichier: Path) -> str:
 
 
 def retards_snapshot(data_path: Path = DATA, candles_dir: Path = CANDLES) -> dict[str, str]:
-    """Renvoie {ticker: date_chandelle} quand data.json est derrière le brut validé."""
+    """Renvoie les seuls tickers publics dont data.json est derrière les chandelles.
+
+    Une série locale absente du tableau ``tickers`` de data.json est considérée
+    comme legacy/hors univers et ignorée. Le finaliseur n'a pas vocation à
+    étendre l'univers public à partir d'un reliquat de fichier historique.
+    """
     try:
         data = json.loads(data_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return {}
     actuels = {str(x.get("symbol") or "").upper():
                str((x.get("_meta") or {}).get("prix_asof") or "")[:10]
-               for x in data.get("tickers", [])}
+               for x in data.get("tickers", [])
+               if x.get("symbol")}
     retards: dict[str, str] = {}
     if not candles_dir.exists():
         return retards
     for f in candles_dir.glob("*.json"):
         ticker = f.stem.upper()
+        if ticker not in actuels:
+            continue
         derniere = _derniere_date_valide(f)
-        if derniere and derniere > actuels.get(ticker, ""):
+        if derniere and derniere > actuels[ticker]:
             retards[ticker] = derniere
     return dict(sorted(retards.items()))
 
