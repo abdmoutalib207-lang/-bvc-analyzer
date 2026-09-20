@@ -2913,6 +2913,13 @@ def run(dry_run=False, push=False, token=""):
         "masi_ytd":         _masi_ytd,
     }
 
+    from zoneinfo import ZoneInfo
+    from pipeline.session_candles import preparer
+    _series_cotations = preparer(
+        live_prices, IDB_ASOF,
+        datetime.now(ZoneInfo('Africa/Casablanca')).date().isoformat(),
+        Path(__file__).parent / 'pipeline' / 'candles', TICKERS)
+
     # Pré-chargement des candles OHLCV (pipeline/candles/*.json) pour OBV / ADX
     _candles_cache: dict = {}
     try:
@@ -2923,6 +2930,8 @@ def run(dry_run=False, push=False, token=""):
                 _raw = json.loads(_jf.read_text(encoding="utf-8"))
                 if isinstance(_raw, list) and len(_raw) >= 20:
                     _candles_cache[_sym] = pd.DataFrame(_raw)
+        for _sym, _serie in _series_cotations.items():
+            _candles_cache[_sym] = pd.DataFrame(_serie)
         if _candles_cache:
             logger.info(f"  Candles OHLCV chargées : {len(_candles_cache)} tickers")
     except Exception as _e:
@@ -2941,6 +2950,19 @@ def run(dry_run=False, push=False, token=""):
             logger.info(f"  historical_data.json préchargé : {len(_hd_all)} tickers")
     except Exception as _e:
         logger.warning(f"  historical_data.json : {_e}")
+    # Calculer AVANT le tableau de bord sur la même série que son graphique.
+    if _series_cotations:
+        from recalculer_cache import _collecteur, _df, _synchroniser_un_ajout
+        _producteur = _collecteur()
+        for _sym, _serie in _series_cotations.items():
+            if _sym not in _hd_all:
+                _hd_all[_sym] = _producteur.compute_indicators(_df(_serie))
+            else:
+                _entree, _rapport = _synchroniser_un_ajout(
+                    _sym, _hd_all[_sym], _serie, _producteur)
+                if _entree is None:
+                    raise ValueError(f'Cache {_sym}: {_rapport}')
+                _hd_all[_sym] = _entree
     try:
         _p = Path(__file__).parent / "financial_data.json"
         if _p.exists():
@@ -3622,137 +3644,17 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:
         logger.warning(f"  snapshot_cloture : {_e}")
 
-    # 6c. Bougie de la séance cotée (pour que le graphique affiche le jour même)
+    # 6c. Bougie de la séance cotée : OHLCV observés, jamais d'extrêmes inventés.
+    candles_dir = Path(__file__).parent / "pipeline" / "candles"
+    for sym, existing in _series_cotations.items():
+        cfp = candles_dir / f"{sym}.json"
+        if not _ecrire_candles_sous_garde(sym, existing, cfp):
+            raise ValueError(f"{sym}: écriture refusée, publication interrompue")
+    if _series_cotations:
+        (Path(__file__).parent / "pipeline" / "historical_data.json").write_text(
+            json.dumps(_hd_all, ensure_ascii=False, indent=2), encoding="utf-8")
+        logger.info(f"Chandelles et cache synchronisés : {len(_series_cotations)} titres au {IDB_ASOF}")
     try:
-        # La date à écrire est celle de la SÉANCE, donnée par la source, pas
-        # celle du run. Les deux diffèrent dès qu'on tourne hors séance : un run
-        # lancé lundi 00h16 reçoit les cours de la clôture de vendredi et les
-        # écrivait comme une séance du lundi — 73 bougies fantômes dupliquant
-        # vendredi, avant même l'ouverture (9h30). Le week-end, même effet.
-        # Se fier à updated_at ne suffit pas quand la source elle-même date un
-        # jour fermé : le 14/08 (férié) elle a estampillé du 14 les cours du 13,
-        # et 71 bougies ont dupliqué le 13. C'est _recaler_seance_fantome() qui
-        # ramène alors IDB_ASOF à la séance réelle, en amont — ce test devient
-        # « la séance cotée n'est pas aujourd'hui » et refuse d'écrire.
-        candles_dir = Path(__file__).parent / "pipeline" / "candles"
-        today_str = IDB_ASOF
-        if not today_str:
-            logger.info("  Candles J : date de séance inconnue (IDBourse muet) — ignoré")
-        elif seance_annulee(today_str):
-            # ⚠️ Ceinture ET bretelles. `_ecarter_seances_annulees` a déjà retiré
-            # les lignes en amont ; si l'on arrive ici, c'est qu'une autre voie
-            # a ramené la date. Une bougie écrite sur une séance annulée serait
-            # la trace durable d'un jour que la Bourse a effacé.
-            logger.error(f"  Candles J : la séance du {today_str} a été ANNULÉE "
-                         f"par l'opérateur — aucune bougie écrite")
-        elif today_str > datetime.now().strftime("%Y-%m-%d"):
-            # Une séance postérieure à aujourd'hui n'existe pas. C'est la
-            # protection d'origine de l'étape, et elle ne bouge pas.
-            logger.info(f"  Candles J : séance annoncée {today_str}, postérieure "
-                        f"à aujourd'hui — aucune bougie écrite")
-        elif candles_dir.exists():
-            aujourd_hui = datetime.now().strftime("%Y-%m-%d")
-            # ⚠️ Quand la séance cotée n'est pas celle du jour, on est en
-            # RATTRAPAGE : on ajoute la bougie manquante, on ne réécrit jamais
-            # une clôture déjà arrêtée. Voir `bougie_a_ecrire`, et le 18/09.
-            rattrapage = (today_str != aujourd_hui)
-            updated_count = ignores_rattrapage = 0
-            for entry in tickers_out:
-                sym  = entry["symbol"]
-                cfp  = candles_dir / f"{sym}.json"
-                if not cfp.exists():
-                    continue
-                c_price = entry.get("price", 0)
-                if c_price <= 0:
-                    continue
-                # N'écrire une bougie que si le prix vient bien d'une cotation
-                # de la séance. Sans cette garde, un titre non rafraîchi par la
-                # source se confirmait lui-même : le prix retombait sur la
-                # dernière chandelle, qu'on réécrivait ensuite à la date du
-                # jour — Holcim se voyait ainsi attribuer une clôture au 10/08
-                # alors qu'IDBourse ne l'avait plus cotée depuis le 05/08.
-                _m = entry.get("_meta") or {}
-                # `cdg` est une cotation réelle et datée, au même titre
-                # qu'IDBourse ou Médias24 — elle a même l'avantage de porter
-                # un chandelier complet. L'omettre de cette liste revenait à
-                # refuser d'écrire la moindre bougie les jours où elle est la
-                # seule source fraîche, ce qui est précisément son rôle.
-                if _m.get("stale") or _m.get("source_prix") not in ("idbourse", "medias24", "cdg", "bmce"):
-                    continue
-                # Un titre suspendu ne cote pas : il ne peut pas produire de
-                # chandelle. La source, elle, continue de rediffuser le dernier
-                # cours estampillé du jour, et le test `stale` ci-dessus ne
-                # l'attrape pas toujours — 28 bougies fantômes ont ainsi été
-                # écrites sur CMT entre le 17/07 et le 01/09, toutes à 4 350 DH
-                # et volume nul. Le bulletin CDG du 09/09 la donne à zéro sur
-                # toutes les colonnes, sans même une heure d'échange.
-                if _m.get("suspendu"):
-                    continue
-                try:
-                    existing = json.loads(cfp.read_text(encoding="utf-8"))
-                    # La bougie du jour se RAFRAÎCHIT à chaque run, elle ne se
-                    # fige pas au premier. L'ancien code passait son tour dès
-                    # qu'un point du jour existait : le premier run de la
-                    # journée — souvent en pleine séance — gravait un cours de
-                    # milieu de séance comme clôture définitive. Relevé du
-                    # 10/08 : la bougie disait IAM 100,70 et Managem 1 660,
-                    # là où la clôture réelle valait 99,85 et 1 624.
-                    c_price = round(float(c_price), 2)
-                    veille = existing[-1] if existing else None
-                    verdict = bougie_a_ecrire(
-                        today_str, aujourd_hui,
-                        veille.get("d") if veille else None)
-                    if verdict == "ignorer":
-                        # En rattrapage : la séance est déjà écrite, ou la
-                        # série est plus avancée. On n'y revient pas.
-                        ignores_rattrapage += 1
-                        continue
-                    jour = veille if verdict == "rafraichir" else None
-                    # ⚠️ Les extrêmes doivent TOUJOURS englober l'ouverture.
-                    # Le code d'origine amorçait `h` et `l` sur la seule
-                    # clôture puis ne les étendait qu'avec les cours suivants :
-                    # l'ouverture, qui vient d'une autre source, restait hors
-                    # de la fourchette. Dès que o ≠ c la bougie naissait
-                    # impossible — h < o quand le titre baissait, l > o quand
-                    # il montait. Mesuré le 04/09 : **3 238 bougies sur 32 677
-                    # (9,9 %), 73 tickers sur 74**. Un chandelier ne peut pas
-                    # ouvrir hors de son propre range ; RSI, Bollinger et
-                    # Stochastique lisent ces bornes.
-                    if jour:
-                        # l'ouverture reste celle du premier point ; les
-                        # extrêmes s'étendent, la clôture suit le dernier cours
-                        o_price = round(float(jour.get("o", c_price)), 2)
-                        today_candle = {
-                            "d": today_str,
-                            "o": o_price,
-                            "h": round(max(jour.get("h", c_price), c_price, o_price), 2),
-                            "l": round(min(jour.get("l", c_price), c_price, o_price), 2),
-                            "c": c_price,
-                            "v": max(int(entry.get("vol") or 0), int(jour.get("v") or 0)),
-                        }
-                        existing[-1] = today_candle
-                    else:
-                        prev_close = veille["c"] if veille else c_price
-                        o_price = round(float(entry.get("open") or prev_close), 2)
-                        today_candle = {
-                            "d": today_str,
-                            "o": o_price,
-                            "h": round(max(o_price, c_price), 2),
-                            "l": round(min(o_price, c_price), 2),
-                            "c": c_price,
-                            "v": int(entry.get("vol") or 0),
-                        }
-                        existing.append(today_candle)
-                    if _ecrire_candles_sous_garde(sym, existing, cfp):
-                        updated_count += 1
-                except Exception:
-                    pass
-            if updated_count:
-                quoi = "RATTRAPÉE" if rattrapage else "mis à jour"
-                logger.info(f"  Candles J {quoi} : {updated_count} tickers → {today_str}")
-            if rattrapage and ignores_rattrapage:
-                logger.info(f"  Candles J rattrapage : {ignores_rattrapage} titres "
-                            f"déjà à jour sur le {today_str} — non réécrits")
         # Filet : les chandelles sont aussi écrites par generate_candles.py et
         # collect_history_bvcscrap.py, qui tiennent leur date de leurs propres
         # sources. Le recalage ci-dessus ne protège que ce run — ce balayage

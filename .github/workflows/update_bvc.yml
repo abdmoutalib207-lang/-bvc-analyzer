@@ -152,7 +152,7 @@ jobs:
           # elle est testable : quinze situations passent par la table de
           # `tests/test_porte_rattrapage.py`. Une décision de quarante lignes
           # de shell, personne ne l'éprouve.
-          if [ "$CRON" = "25 * * * 1-5" ]; then
+          if [ "$CRON" = "25 * * * 1-5" ] || [ "$TRIGGER" = "workflow_run" ]; then
             SORTIE=$(python3 pipeline/porte_rattrapage.py)
             echo "$SORTIE"
             echo "$SORTIE" | grep -q "run=true" \
@@ -288,7 +288,7 @@ jobs:
           for attempt in 1 2 3; do
             git fetch origin main
             git reset origin/main
-            git add data.json
+            git add data.json pipeline/masi_history.json
             if [ -f pipeline/historical_data.json ]; then
               git add pipeline/historical_data.json
             fi

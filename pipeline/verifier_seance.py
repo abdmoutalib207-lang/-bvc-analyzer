@@ -24,6 +24,7 @@ import json
 import sys
 from collections import Counter
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 RACINE = Path(__file__).parent.parent
@@ -34,7 +35,7 @@ from bvc_config import TICKERS_ACTIFS                    # noqa: E402
 from seance import derniere_seance_connue                # noqa: E402
 
 # Casablanca est à UTC+1 toute l'année.
-TZ_CA = timezone(timedelta(hours=1))
+TZ_CA = ZoneInfo('Africa/Casablanca')
 
 # En deçà, la séance n'a pas été collectée : un jour coté normal grave une
 # bougie pour environ soixante-dix titres. Le seuil laisse la marge d'une
@@ -51,20 +52,9 @@ JOURS_SANS_SEANCE_MAX = 5
 
 
 def _seance_de_reference():
-    """Dernière séance réellement enregistrée, et son âge en jours.
-
-    ⚠️ Volontairement déduite des DONNÉES et non d'un calendrier. Les fériés
-    marocains sont en partie lunaires — le Mawlid des 25 et 26/08 n'a pas de
-    date fixe et n'est confirmé par décret que peu de temps avant. Un contrôle
-    fondé sur une liste écrite d'avance aurait crié à l'échec ces jours-là,
-    alors que le moteur se comportait parfaitement. Une alerte qui se trompe
-    est pire que pas d'alerte : on cesse de la lire.
-
-    La question posée n'est donc pas « la Bourse a-t-elle coté aujourd'hui ? »,
-    à laquelle on ne sait pas répondre, mais « la dernière séance connue est-
-    elle trop ancienne ? », à laquelle les chandelles répondent seules.
-    """
-    derniere = derniere_seance_connue()
+    """La source extérieure détermine la séance attendue, pas le dépôt."""
+    from pipeline.seance_source import derniere_seance_source
+    derniere = derniere_seance_source()
     if not derniere:
         return None, 0
     ecart = (datetime.now(TZ_CA).date()
@@ -191,7 +181,11 @@ def _controles(jour, ecart):
 
 
 def main():
-    jour, ecart = _seance_de_reference()
+    try:
+        jour, ecart = _seance_de_reference()
+    except Exception as e:
+        print(f"ÉCHEC — fraîcheur non vérifiable : {e}")
+        return 1
     if jour is None:
         print("ÉCHEC : aucune chandelle lisible — le pipeline n'a jamais écrit.")
         return 1

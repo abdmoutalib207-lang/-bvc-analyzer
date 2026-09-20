@@ -69,14 +69,16 @@ def _apports(chemin: Path | None = None) -> list:
 
 def _ecrire(p: Path, seances: dict, apports: list) -> None:
     p.parent.mkdir(parents=True, exist_ok=True)
-    charge = {
+    # Préserver aussi le journal des retraits de séances annulées.
+    charge = json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+    charge.update({
         "_note": ("Une clôture par séance, en AJOUT SEULEMENT : une date déjà "
                   "connue n'est jamais réécrite. Le YTD reste indisponible "
                   "tant que la série ne couvre pas la dernière séance de "
                   "l'année précédente."),
         "_apports": apports,
         "seances": dict(sorted(seances.items())),
-    }
+    })
     tmp = p.with_suffix(".tmp")
     tmp.write_text(json.dumps(charge, ensure_ascii=False, indent=1), encoding="utf-8")
     tmp.replace(p)

@@ -54,6 +54,7 @@ def _collecteur():
     chemin = RACINE / "pipeline"
     if str(chemin) not in sys.path:
         sys.path.insert(0, str(chemin))
+    arguments = sys.argv
     sys.argv = ["collect_history_bvcscrap.py"]
     spec = importlib.util.spec_from_file_location(
         "col_cache", chemin / "collect_history_bvcscrap.py")
@@ -62,6 +63,8 @@ def _collecteur():
         spec.loader.exec_module(m)
     except SystemExit:
         pass
+    finally:
+        sys.argv = arguments
     return m
 
 
