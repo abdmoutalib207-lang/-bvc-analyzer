@@ -181,11 +181,18 @@ def test_stokvis_retrouve_son_vrai_sommet_et_jamais_490():
     assert not [x for x in serie if x["c"] == 490.0]
 
 
-def test_le_cache_est_exactement_recalculable_par_le_producteur():
+def test_le_cache_est_exactement_recalculable_par_le_producteur(monkeypatch):
     import recalculer_cache as rc
 
     livre = json.loads((RACINE / "pipeline" / "historical_data.json")
                        .read_text(encoding="utf-8"))
+    # Les extrema glissants dépendent de la date de calcul. Rejouer à la
+    # date du cache permet une comparaison exacte même plusieurs jours après.
+    from functools import partial
+    producteur = rc._collecteur()
+    producteur.compute_indicators = partial(
+        producteur.compute_indicators, as_of=livre["_updated"])
+    monkeypatch.setattr(rc, "_collecteur", lambda: producteur)
     r = rc.recalculer(["SNA", "STK"], [])
     recalcule = r["_nouveau"]
 
