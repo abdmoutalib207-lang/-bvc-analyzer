@@ -17,6 +17,7 @@ except ImportError as _e:
 
 sys.path.insert(0, str(Path(__file__).parent))
 sys.path.insert(0, str(Path(__file__).parent.parent))
+from official_news import AMMC_URL, OFFICIAL_DOMAINS, parse_ammc, annotate_provenance
 try:
     from ticker_aliases import TICKER_ALIASES
 except ImportError:
@@ -58,8 +59,11 @@ TIMEOUT      = 15
 
 # ── Catégorie par source ───────────────────────────────────────────────────────
 SOURCE_CATEGORY = {
+    **{name: ("macro" if name in {"MEF", "Maroclear"} else "bvc")
+       for name in OFFICIAL_DOMAINS if name.endswith(" IR") or name in {"MEF", "Maroclear"}},
     "BVC Officiel":          "bvc",
     "AMMC":                  "bvc",
+    "AMMC documents":        "bvc",
     "Le Boursier":           "bvc",
     "BourseNews":            "bvc",
     "Alpha Bourse":          "bvc",
@@ -294,7 +298,7 @@ def _article_id(url: str, title: str) -> str:
     return hashlib.md5(f"{url}{title}".encode()).hexdigest()[:12]
 
 def _parse_date(raw: str) -> str:
-    if not raw: return datetime.now(timezone.utc).isoformat()
+    if not raw: return ""  # Une collecte n'est pas une date de publication.
     for fmt in [
         "%a, %d %b %Y %H:%M:%S %z",
         "%a, %d %b %Y %H:%M:%S GMT",
@@ -488,6 +492,10 @@ def fetch_idb_news(max_items=15) -> list:
 GNEWS = "https://news.google.com/rss/search?q={q}&hl=fr&gl=MA&ceid=MA:fr"
 
 SOURCES_RSS = [
+    # Découverte indirecte, explicitement marquée SIGNAL non vérifié.
+    *[(GNEWS.format(q="site:" + domain + ("+(r%C3%A9sultats+OR+financiers+OR+dividende+OR+actionnaires+OR+capital)" if name.endswith(" IR") else "")), name, 6)
+      for name, domain in OFFICIAL_DOMAINS.items()
+      if name.endswith(" IR") or name in {"MEF", "Maroclear"}],
     # ── BVC / Marchés ────────────────────────────────────────────────────────
     (GNEWS.format(q="site:casablanca-bourse.com"),              "BVC Officiel", 25),
     ("https://www.ammc.ma/fr/rss.xml",                                  "AMMC", 25),
@@ -610,8 +618,9 @@ def _load_archive() -> tuple:
             text = f"{a.get('title','')} {a.get('summary','')}"
             a["tickers"] = _tag_tickers(text)
             a["sentiment"] = _sentiment(text)
+            a = annotate_provenance(a)
             a["category"] = SOURCE_CATEGORY.get(a.get("source", ""), "economie")
-            a["scope"] = _scope(text, a["tickers"])
+            a["scope"] = "MAROC" if a.get("validation_status") == "listed_officially" else _scope(text, a["tickers"])
             # Le cadrage finance s'applique aussi à l'archive : sans ça, les
             # articles déjà stockés continueraient de polluer le fil jusqu'à
             # leur expiration, soit une semaine.
@@ -629,27 +638,60 @@ def _load_archive() -> tuple:
 
 def run():
     from collections import Counter
+    from concurrent.futures import ThreadPoolExecutor
 
     # 0. Archive existante (rolling) + re-tag
     archived, seen_ids = _load_archive()
     all_articles = list(archived)
+    fetched_at = datetime.now(timezone.utc).isoformat()
+    source_health = {}
+
+    # Index officiel natif : liens PDF, date publiée et état de collecte.
+    try:
+        response = requests.get(AMMC_URL, headers=HEADERS, timeout=TIMEOUT)
+        response.raise_for_status()
+        official = parse_ammc(response.text, fetched_at)
+        if not official:
+            raise ValueError("aucune publication datée détectée dans l'index")
+        previous = {a["id"]: a for a in archived}
+        for article in official:
+            article["tickers"] = _tag_tickers(article["title"])
+            old = previous.get(article["id"], {})
+            article["first_seen_at"] = old.get("first_seen_at", fetched_at)
+            all_articles = [a for a in all_articles if a["id"] != article["id"]]
+            all_articles.append(article)
+            seen_ids.add(article["id"])
+        source_health["AMMC documents"] = {"status": "ok", "checked_at": fetched_at,
+            "items": len(official), "latest_published_at": max(a["date"] for a in official)}
+    except Exception as exc:
+        log.warning("AMMC documents : %s", exc)
+        source_health["AMMC documents"] = {"status": "error", "checked_at": fetched_at,
+            "message": "Collecte directe indisponible ; dernières publications conservées dans la fenêtre d'archive."}
 
     # 1. RSS feeds
-    for entry in SOURCES_RSS:
+    def collect(entry):
+        return fetch_rss(entry[0], entry[1], max_items=entry[2] if len(entry) > 2 else 25)
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        batches = list(pool.map(collect, SOURCES_RSS))
+    for entry, arts in zip(SOURCES_RSS, batches):
         # 3e élément facultatif : plafond d'articles propre à la source.
         # Les relais Google News renvoient 100 articles chacun ; sans plafond
         # réduit ils satureraient MAX_ARTICLES et évinceraient les flux natifs,
         # dont les liens pointent directement sur l'article.
         url, name = entry[0], entry[1]
         cap = entry[2] if len(entry) > 2 else 25
-        arts = fetch_rss(url, name, max_items=cap)
+        # Zéro résultat ne signifie pas une collecte réussie : RSS peut être
+        # vide ou indisponible. Ne pas afficher une fausse santé verte.
+        key = name + " — " + url
+        source_health[key] = {"status": "ok" if arts else "no_items_or_error",
+                              "checked_at": fetched_at, "items": len(arts)}
         new_count = 0
         for a in arts:
             if a["id"] not in seen_ids:
                 all_articles.append(a)
                 seen_ids.add(a["id"])
                 new_count += 1
-        if arts: time.sleep(0.4)
 
     # 2. Medias24 API
     for a in fetch_medias24_api(20):
@@ -670,7 +712,13 @@ def run():
     # 237 jours. Le fichier annonce « rolling 7j », il doit le tenir.
     _limite = (datetime.now(timezone.utc) - timedelta(days=ARCHIVE_DAYS)).isoformat()
     _avant = len(all_articles)
-    all_articles = [a for a in all_articles if (a.get("date") or "") >= _limite]
+    all_articles = [a for a in all_articles if _limite <= (a.get("date") or "") <= fetched_at]
+    archived_ids = {x["id"] for x in archived}
+    all_articles = [annotate_provenance(a, fetched_at if a["id"] not in archived_ids else None)
+                    for a in all_articles]
+    # Un même lien PDF provenant de l'index et du RSS ne compte qu'une fois.
+    official_urls = {a["url"] for a in all_articles if a.get("validation_status") == "listed_officially"}
+    all_articles = [a for a in all_articles if a.get("validation_status") == "listed_officially" or a.get("url") not in official_urls]
     if _avant != len(all_articles):
         log.info(f"Hors fenêtre {ARCHIVE_DAYS}j écartés : {_avant - len(all_articles)}")
 
@@ -710,7 +758,7 @@ def run():
     quota, retenus, surnombre = dict(vus_source), [], []
     for a in reste:
         src = a.get("source", "?")
-        if quota.get(src, 0) < PLAFOND_PAR_SOURCE:
+        if quota.get(src, 0) < (30 if src == "AMMC documents" else PLAFOND_PAR_SOURCE):
             quota[src] = quota.get(src, 0) + 1
             retenus.append(a)
         else:
@@ -726,7 +774,11 @@ def run():
     if surnombre:
         log.info(f"Plafond par source : {len(surnombre)} articles écartés "
                  f"(sources les plus prolifiques)")
-    all_articles = (reserves + retenus)[:MAX_ARTICLES]
+    # Les documents officiels récents ne doivent pas être évincés par le
+    # volume de la presse ; au plus 30 places sur 300 leur sont réservées.
+    documents = [a for a in all_articles if a.get("validation_status") == "listed_officially"][:30]
+    document_ids = {a["id"] for a in documents}
+    all_articles = (documents + [a for a in reserves + retenus if a["id"] not in document_ids])[:MAX_ARTICLES]
     all_articles.sort(key=lambda a: a.get("date", ""), reverse=True)
 
     now = datetime.now(timezone.utc)
@@ -734,6 +786,7 @@ def run():
         "updated":  now.isoformat(),
         "count":    len(all_articles),
         "articles": all_articles,
+        "source_health": source_health,
     }
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
