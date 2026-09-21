@@ -330,7 +330,7 @@ function dessiner(){
         <div class="tags">
           ${s&&s!=="NEUTRE"?`<span class="tag" style="color:${sc};border-color:${sc}55">${s}</span>`:""}
           <span class="tag" style="color:${col};border-color:${col}55">${CAT_LBL[c]||c}</span>
-          ${tags}<span class="src">${a.source||""} ↗</span>
+          ${tags}<span class="src">${a.source||""} · ${a.validation_status==="listed_officially"?"Document officiel référencé":"Alerte à recouper"} ↗</span>
         </div>
       </a></div>`;
   }).join("") : vide();
@@ -418,97 +418,7 @@ document.getElementById("copier").onclick = async ()=>{
    lecture seule. Son échec n'empêche jamais la console de fonctionner :
    les actualités sont l'essentiel, les cours un complément. */
 
-/* ── Audience ──────────────────────────────────────────────────────────
-   Service de compteur public (abacus), sans compte ni clé. Aucune donnée
-   personnelle : on incrémente des entiers, rien d'autre — ni cookie, ni
-   identifiant, ni adresse IP conservée de notre côté.
-
-   « En ligne » est une approximation : on compte les ouvertures de page
-   dans le seau de 5 minutes en cours. Un vrai suivi de présence exigerait
-   un serveur maintenant des connexions ouvertes, ce dont on n'a pas besoin
-   ici. Chaque session n'incrémente qu'une fois par seau, puis se contente
-   de lire — sans quoi un onglet resté ouvert gonflerait le chiffre. */
-/* Affichage de la fréquentation : réservé au propriétaire.
-   Le chiffre continue d'être mesuré pour tout le monde, mais il n'est plus
-   montré au visiteur — « 1 en ligne · 30 visiteurs » sur une console qui
-   démarre dessert le produit au lieu de le servir.
-   Ouvrir radar.html?stats l'active et le retient sur cet appareil ;
-   ?stats=0 le désactive. Le choix survit au nettoyage de l'URL ci-dessous
-   et aux visites suivantes, y compris depuis un signet sans paramètre. */
-const AFFICHER_STATS = (() => {
-  const p = new URLSearchParams(location.search).get("stats");
-  try {
-    if (p !== null) {
-      if (p === "0") { localStorage.removeItem("radar-stats"); return false; }
-      localStorage.setItem("radar-stats", "1"); return true;
-    }
-    return localStorage.getItem("radar-stats") === "1";
-  } catch (_) { return p !== null && p !== "0"; }
-})();
-
-/* Le paramètre ?r= sert uniquement à contourner le cache lors d'un
-   rafraîchissement manuel. Une fois la page chargée il n'a plus d'objet et
-   salit la barre d'adresse — on le retire sans recharger. */
-if (location.search) {
-  try { history.replaceState(null, "", location.pathname); } catch (_) {}
-}
-
-const AUDIENCE = "https://abacus.jasoncameron.dev";
-const ESPACE   = "radarbvc-ma";
-let totalVus = null;
-
-/* Tranches de 5 minutes : un appareil actif est compté « en ligne » tant qu'il
-   se manifeste dans la tranche courante. */
-const seau = () => Math.floor(Date.now() / 300000);
-
-/* Mémoire locale de l'appareil. Sans elle, le compteur additionnait les
-   OUVERTURES de page et non les appareils : onze rechargements affichaient
-   « 11 en ligne » pour une seule personne. On note donc la dernière tranche
-   déjà signalée par cet appareil ; s'il revient dans la même tranche, il se
-   contente de lire le compteur au lieu de l'incrémenter.
-   Navigation privée : localStorage lève une exception, on retombe alors sur
-   une mémoire en RAM — le comportement reste correct le temps de la session. */
-const memoire = (() => {
-  try {
-    localStorage.setItem("__t", "1"); localStorage.removeItem("__t");
-    return localStorage;
-  } catch (_) {
-    const ram = {};
-    return { getItem: k => ram[k] ?? null, setItem: (k, v) => { ram[k] = String(v); } };
-  }
-})();
-
-async function audience(){
-  try{
-    const s = String(seau());
-    const nouvelleTranche = memoire.getItem("radar-seau") !== s;
-    if (nouvelleTranche) memoire.setItem("radar-seau", s);
-
-    // Le total ne compte que les appareils distincts : un même appareil ne
-    // l'incrémente qu'à sa toute première visite.
-    const jamaisVenu = !memoire.getItem("radar-connu");
-    if (jamaisVenu) memoire.setItem("radar-connu", "1");
-
-    const [enLigne, total] = await Promise.all([
-      fetch(`${AUDIENCE}/${nouvelleTranche ? "hit" : "get"}/${ESPACE}/live-${s}`)
-        .then(r => r.ok ? r.json() : null).catch(() => null),
-      totalVus === null
-        ? fetch(`${AUDIENCE}/${jamaisVenu ? "hit" : "get"}/${ESPACE}/appareils`)
-            .then(r => r.ok ? r.json() : null).catch(() => null)
-        : Promise.resolve({ value: totalVus }),
-    ]);
-    if (total) totalVus = total.value;
-
-    const n = enLigne?.value;
-    if (n && AFFICHER_STATS) {
-      document.getElementById("audience").innerHTML =
-        `<span style="color:var(--vert)">●</span> ${n} en ligne` +
-        (totalVus ? ` · ${totalVus.toLocaleString("fr-FR")} visiteur${totalVus > 1 ? "s" : ""}` : "");
-    }
-  }catch(_){ /* le compteur ne doit jamais gêner la console */ }
-}
-audience();
-setInterval(audience, 60000);
+// Aucune mesure d'audience transmise à un tiers depuis le radar.
 
 /* Rafraîchissement manuel : une page ajoutée à l'écran d'accueil peut rester
    figée sur la version mise en cache par iOS. Recharger en contournant le
@@ -552,7 +462,8 @@ fetch("news.json?t="+Date.now())
     tous = d.articles || (Array.isArray(d)?d:[]);
     const m = d.updated || "";
     document.getElementById("maj").textContent =
-      `${tous.length} articles en base` + (m?` · maj ${fmt(new Date(m))}`:"");
+      `${tous.length} articles en base` + (m?` · maj ${fmt(new Date(m))}`:"") +
+      (d.source_health?.["AMMC documents"]?.status === "error" ? " · Collecte AMMC indisponible" : "");
     dessiner();
   })
   .catch(e=>{

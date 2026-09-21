@@ -502,12 +502,14 @@ def calc_stoch(closes: pd.Series, highs: pd.Series, lows: pd.Series,
     return round(k_vals[0], 2), round(float(np.mean(k_vals)), 2)
 
 
-def compute_indicators(df: pd.DataFrame) -> dict:
+def compute_indicators(df: pd.DataFrame, *, as_of=None) -> dict:
     closes = df["close"]
     highs  = df["high"]
     lows   = df["low"]
 
-    now = pd.Timestamp.now()
+    # Un rejeu historique doit utiliser la date du cache, pas celle du test.
+    # Le calcul courant conserve son comportement habituel.
+    now = pd.Timestamp.now() if as_of is None else pd.Timestamp(as_of).tz_localize(None)
     w52_start = now - pd.Timedelta(weeks=52)
     w90_start = now - pd.Timedelta(days=90)
 
