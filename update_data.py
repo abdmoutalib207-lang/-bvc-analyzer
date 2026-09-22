@@ -2555,6 +2555,35 @@ def _objectifs(ticker, price, fd) -> dict:
             "bull": fd.get("bull"), "upside": fd.get("upside")}
 
 
+# Relevé du sentiment d'actualité, chargé UNE fois par run.
+#
+# ⚠️ Un flux absent, illisible ou vide laisse le moteur strictement inchangé :
+# le pilier retombe sur sa seule table, comme avant ce branchement. Une entrée
+# neuve ne doit jamais pouvoir empêcher la publication.
+_NEWS_SENT = None
+
+
+def _apport_actualites(ticker: str) -> float:
+    """La part que l'actualité ajoute à `smart` pour ce titre, ou 0,0."""
+    global _NEWS_SENT
+    if _NEWS_SENT is None:
+        try:
+            sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
+            import news_sentiment
+            _NEWS_SENT = (news_sentiment.charger(), news_sentiment.contribution)
+            retenus = sum(1 for m in _NEWS_SENT[0].values()
+                          if m.get("n", 0) >= news_sentiment.MIN_ARTICLES)
+            logger.info(f"  Actualités : {len(_NEWS_SENT[0])} titre(s) avec "
+                        f"sentiment, {retenus} au-dessus du seuil de "
+                        f"{news_sentiment.MIN_ARTICLES} article(s)")
+        except Exception as e:                       # noqa: BLE001
+            logger.warning(f"  Actualités indisponibles ({e}) — pilier NLP "
+                           f"inchangé")
+            _NEWS_SENT = ({}, lambda _m: 0.0)
+    mesures, contribution = _NEWS_SENT
+    return contribution(mesures.get(ticker))
+
+
 def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, context) -> dict:
     """ScoreEngineV53.compute() — score enrichi avec bonus/malus."""
     sent = SENTIMENT.get(ticker, {
@@ -2563,7 +2592,22 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
     })
 
     w = get_weights(context)
-    score_nlp = (sent["smart"] + 1) * 5   # [-1,+1] → [0,10]
+
+    # ⚠️ LE PILIER NLP PÈSE 28 % ET N'EN EXPLIQUAIT QUE 2,6 %.
+    #
+    # Son entrée est une table de sentiment écrite en dur, couvrant 34 titres
+    # sur 80, d'écart-type 0,078 contre 1,1 pour les deux autres piliers.
+    # Quarante-neuf titres y sont strictement neutres. Le sentiment
+    # d'actualité lui apporte une seconde entrée.
+    #
+    # ⚠️ AUCUNE PONDÉRATION N'EST TOUCHÉE — R8 reste intact. On remplit une
+    # entrée creuse ; on ne redistribue pas les poids. La contribution est
+    # plafonnée à ±0,10 sur `smart`, l'ordre de grandeur de ce que la table
+    # produit déjà : au-delà, l'entrée neuve écraserait l'ancienne et
+    # changerait DE FAIT le poids du pilier.
+    apport_news = _apport_actualites(ticker)
+    smart = max(-1.0, min(1.0, sent["smart"] + apport_news))
+    score_nlp = (smart + 1) * 5   # [-1,+1] → [0,10]
 
     base = (score_tech   * w["technique"]
             + score_fond * w["fondamental"]
@@ -2634,7 +2678,13 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
         "v53":       final,
         "bvc":       round(bvc_score, 2),
         "delta":     round(final - bvc_score, 2),
-        "nlp":       round(sent["smart"], 2),
+        # ⚠️ `nlp` porte désormais la valeur EFFECTIVEMENT utilisée par le
+        # pilier — corpus + actualité — et non plus la seule table. Sans ça,
+        # le terminal afficherait une entrée différente de celle qui a compté,
+        # et le champ cesserait d'expliquer le score qu'il accompagne.
+        "nlp":       round(smart, 2),
+        "nlp_corpus": round(sent["smart"], 2),
+        "nlp_news":   round(apport_news, 4),
         "score_tech": round(score_tech, 2),
         # ⚠️ `score_fond` n'était émis NULLE PART. Le moteur le calcule pour
         # composer la v5.3 et ne le publiait pas : le frontend ne pouvait donc
@@ -3542,6 +3592,12 @@ def run(dry_run=False, push=False, token=""):
             "v53":        v53["v53"],
             "delta":      v53["delta"],
             "nlp":        v53["nlp"],
+            # ⚠️ Les deux entrées du pilier, séparées et publiées. Sans elles,
+            # `nlp` serait une valeur composite qu'on ne pourrait plus
+            # décomposer : impossible de dire, devant un score, ce qui vient du
+            # corpus WhatsApp et ce qui vient de l'actualité.
+            "nlp_corpus": v53.get("nlp_corpus"),
+            "nlp_news":   v53.get("nlp_news"),
             "score_tech": v53.get("score_tech", 5.0),
             "score_fond": v53.get("score_fond", 5.0),
             "score_nlp":  v53.get("score_nlp", 5.0),
