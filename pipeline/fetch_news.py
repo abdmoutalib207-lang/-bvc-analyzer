@@ -55,6 +55,30 @@ HEADERS = {
 OUTPUT_PATH  = Path(__file__).parent.parent / "news.json"
 MAX_ARTICLES = 300   # rolling archive étendue (plus de sources)
 ARCHIVE_DAYS = 7
+
+# ⚠️ UN DÉPÔT RÉGLEMENTAIRE NE VIEILLIT PAS COMME UNE DÉPÊCHE.
+#
+# La fenêtre de sept jours est juste pour la presse : un commentaire de marché
+# de la semaine dernière n'intéresse plus personne. Elle est fausse pour un
+# document déposé à l'AMMC. Les résultats semestriels d'un émetteur publiés le
+# 10/09 restent, le 22/09, le DERNIER mot connu sur cette société — les garder
+# n'est pas servir du périmé, c'est être complet.
+#
+# Mesuré le 22/09 sur l'index des communiqués d'émetteurs :
+#
+#      7 jours   16 dépôts   12 rattachés   12 titres couverts
+#     30 jours   50 dépôts   37 rattachés   28 titres couverts
+#     90 jours   50 dépôts   37 rattachés   28 titres couverts
+#
+# Trente jours capturent tout ce que l'index publie — l'historique s'arrête au
+# 31/08. Aller au-delà n'apporterait rien et prétendrait une profondeur que la
+# source n'offre pas.
+DOCUMENTS_DAYS = 30
+
+# Places réservées aux documents officiels dans les MAX_ARTICLES. Relevé de 30
+# à 60 avec la fenêtre : trente places pour cinquante dépôts en aurait évincé
+# vingt, donc perdu des titres — exactement ce qu'on vient chercher.
+DOCUMENTS_RESERVES = 60
 TIMEOUT      = 15
 
 # ── Catégorie par source ───────────────────────────────────────────────────────
@@ -601,6 +625,61 @@ SOURCES_RSS = [
 ]
 
 
+# Nombre de pages lues sur l'index des communiqués d'émetteurs de l'AMMC.
+#
+# ⚠️ POURQUOI PLUS D'UNE — « L'ONGLET ACTUALITÉS EST PRESQUE À L'ARRÊT »
+# ─────────────────────────────────────────────────────────────────────
+# L'index est paginé par dix. On n'en lisait qu'une page : dix dépôts couvrant
+# quatre jours. Or c'est le SEUL canal du flux qui publie de l'information
+# d'émetteur — les 286 autres articles sont de la presse générale, et sur les
+# 82 classés « bvc » on trouve la météo, les élections, Tanjazz et le Bitcoin.
+#
+# Mesuré le 22/09, en lisant cinq pages au lieu d'une :
+#
+#     dépôts récupérés    10  ->  50        (31/08 → 22/09 au lieu de 4 jours)
+#     titres couverts     20  ->  28        par l'AMMC SEUL
+#
+# Vingt titres sur quatre-vingts affichaient une actualité ; la fiche des
+# soixante autres ne montrait rien du tout, `TickerNews` renvoyant `null`
+# faute d'article. Treize titres entrent avec ce seul changement — ATL, CMT,
+# HAL, LES, RDS, TQA et sept autres.
+#
+# ⚠️ Cinq pages, pas davantage : au-delà, les dates se tassent sur une seule
+# journée d'archive et on paierait des requêtes pour des dépôts que la fenêtre
+# de rétention écartera de toute façon.
+AMMC_PAGES = 5
+
+
+def _collecter_ammc(fetched_at, pages=AMMC_PAGES, get=None):
+    """Lit l'index AMMC page par page et renvoie les dépôts DISTINCTS.
+
+    ⚠️ Trois garde-fous, et chacun a sa raison :
+      1. l'arrêt dès qu'une page n'apporte aucune URL nouvelle — une pagination
+         qui se répète ne doit pas nous faire tourner en rond ;
+      2. une page en échec n'annule pas les précédentes — mieux vaut quatre
+         pages que rien ;
+      3. la déduplication se fait sur l'URL, pas sur le rang : deux pages qui
+         se recouvrent partiellement ne créent pas de doublon.
+    """
+    get = get or (lambda url: requests.get(url, headers=HEADERS, timeout=TIMEOUT))
+    vus, articles = set(), []
+    for page in range(pages):
+        url = AMMC_URL if page == 0 else f"{AMMC_URL}?page={page}"
+        try:
+            reponse = get(url)
+            reponse.raise_for_status()
+            lot = parse_ammc(reponse.text, fetched_at)
+        except Exception as exc:                       # noqa: BLE001
+            log.warning("AMMC page %s : %s", page, exc)
+            break
+        nouveaux = [a for a in lot if a["url"] not in vus]
+        if not nouveaux:
+            break
+        vus.update(a["url"] for a in nouveaux)
+        articles.extend(nouveaux)
+    return articles
+
+
 def _load_archive() -> tuple:
     if not OUTPUT_PATH.exists():
         return [], set()
@@ -608,7 +687,16 @@ def _load_archive() -> tuple:
         data = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
         articles = data.get("articles", [])
         cutoff = (datetime.now(timezone.utc) - timedelta(days=ARCHIVE_DAYS)).isoformat()
-        fresh = [a for a in articles if a.get("date", "") >= cutoff]
+        cutoff_doc = (datetime.now(timezone.utc)
+                      - timedelta(days=DOCUMENTS_DAYS)).isoformat()
+        # ⚠️ La même borne différenciée qu'à l'écriture. Sans elle, l'archive
+        # rejetterait à la RELECTURE les dépôts que la coupe finale accepte :
+        # ils disparaîtraient au premier run suivant leur septième jour, et la
+        # fenêtre de trente jours n'existerait que sur le papier.
+        fresh = [a for a in articles
+                 if a.get("date", "") >= (
+                     cutoff_doc if a.get("validation_status") == "listed_officially"
+                     else cutoff)]
         # Re-tagger avec les règles actuelles + ajouter champ category si absent.
         # Le sentiment est recalculé lui aussi : sans ça, une correction des
         # règles ne s'appliquerait qu'aux articles neufs et l'archive
@@ -646,11 +734,10 @@ def run():
     fetched_at = datetime.now(timezone.utc).isoformat()
     source_health = {}
 
+
     # Index officiel natif : liens PDF, date publiée et état de collecte.
     try:
-        response = requests.get(AMMC_URL, headers=HEADERS, timeout=TIMEOUT)
-        response.raise_for_status()
-        official = parse_ammc(response.text, fetched_at)
+        official = _collecter_ammc(fetched_at)
         if not official:
             raise ValueError("aucune publication datée détectée dans l'index")
         previous = {a["id"]: a for a in archived}
@@ -711,8 +798,15 @@ def run():
     # relais « site:investing.com », dont le plus récent article datait de
     # 237 jours. Le fichier annonce « rolling 7j », il doit le tenir.
     _limite = (datetime.now(timezone.utc) - timedelta(days=ARCHIVE_DAYS)).isoformat()
+    _limite_doc = (datetime.now(timezone.utc)
+                   - timedelta(days=DOCUMENTS_DAYS)).isoformat()
     _avant = len(all_articles)
-    all_articles = [a for a in all_articles if _limite <= (a.get("date") or "") <= fetched_at]
+    # La borne dépend de la NATURE de l'article, pas de sa source : un dépôt
+    # attesté par l'index du régulateur tient trente jours, la presse sept.
+    all_articles = [
+        a for a in all_articles
+        if (_limite_doc if a.get("validation_status") == "listed_officially"
+            else _limite) <= (a.get("date") or "") <= fetched_at]
     archived_ids = {x["id"] for x in archived}
     all_articles = [annotate_provenance(a, fetched_at if a["id"] not in archived_ids else None)
                     for a in all_articles]
@@ -758,7 +852,21 @@ def run():
     quota, retenus, surnombre = dict(vus_source), [], []
     for a in reste:
         src = a.get("source", "?")
-        if quota.get(src, 0) < (30 if src == "AMMC documents" else PLAFOND_PAR_SOURCE):
+        # ⚠️ LE PLAFOND PAR SOURCE NE DOIT PAS MANGER UN ARTICLE RATTACHÉ.
+        #
+        # Il existe pour empêcher une source prolifique de saturer le fil —
+        # OilPrice remontait à 38 articles sur 300. Mais appliqué sans nuance,
+        # il a évincé l'UNIQUE article d'Attijariwafa, « ATW rejoint le Swift
+        # Payments Scheme » du 21/09 : treizième de sa source, donc écarté,
+        # alors que c'était le seul article du fil concernant ce titre.
+        #
+        # Un article rattaché à un émetteur n'est pas du volume, c'est la
+        # denrée rare : il double le plafond de sa source plutôt que de s'y
+        # heurter. Le garde-fou reste — une source ne peut pas inonder le fil
+        # d'articles rattachés — mais il cesse de coûter des titres.
+        _plafond = (DOCUMENTS_RESERVES if src == "AMMC documents"
+                    else PLAFOND_PAR_SOURCE * (2 if a.get("tickers") else 1))
+        if quota.get(src, 0) < _plafond:
             quota[src] = quota.get(src, 0) + 1
             retenus.append(a)
         else:
@@ -776,9 +884,28 @@ def run():
                  f"(sources les plus prolifiques)")
     # Les documents officiels récents ne doivent pas être évincés par le
     # volume de la presse ; au plus 30 places sur 300 leur sont réservées.
-    documents = [a for a in all_articles if a.get("validation_status") == "listed_officially"][:30]
+    documents = [a for a in all_articles
+                 if a.get("validation_status") == "listed_officially"][:DOCUMENTS_RESERVES]
     document_ids = {a["id"] for a in documents}
-    all_articles = (documents + [a for a in reserves + retenus if a["id"] not in document_ids])[:MAX_ARTICLES]
+    # ⚠️ UN ARTICLE RATTACHÉ À UN TITRE EST LA DENRÉE RARE DU FIL.
+    #
+    # Sans cette priorité, l'arrivée des cinquante dépôts AMMC a évincé
+    # 105 articles récents — dont l'UNIQUE article d'Attijariwafa, « ATW rejoint
+    # le Swift Payments Scheme » du 21/09. On gagnait treize titres et on en
+    # perdait un : exactement le contraire du but, puisque `TickerNews`
+    # n'affiche rien pour un titre sans article.
+    #
+    # Les articles rattachés passent donc juste après les documents officiels,
+    # avant le volume de presse générale qui, lui, ne concerne aucun émetteur.
+    _restants = [a for a in reserves + retenus if a["id"] not in document_ids]
+    _rattaches = [a for a in _restants if a.get("tickers")]
+    _rattaches_ids = {a["id"] for a in _rattaches}
+    all_articles = (documents + _rattaches
+                    + [a for a in _restants
+                       if a["id"] not in _rattaches_ids])[:MAX_ARTICLES]
+    if _rattaches:
+        log.info(f"Priorité aux articles rattachés : {len(_rattaches)} "
+                 f"placés avant la presse générale")
     all_articles.sort(key=lambda a: a.get("date", ""), reverse=True)
 
     now = datetime.now(timezone.utc)
