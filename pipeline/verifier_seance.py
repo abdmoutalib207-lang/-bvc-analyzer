@@ -50,6 +50,76 @@ MIN_PRIX_DU_JOUR = 50
 # Au-delà, ce n'est plus un calendrier chargé, c'est un pipeline arrêté.
 JOURS_SANS_SEANCE_MAX = 5
 
+# Heure de clôture de la Bourse de Casablanca.
+HEURE_CLOTURE = (15, 30)
+
+
+def derniere_cloture_ecoulee(maintenant: datetime) -> datetime:
+    """Le dernier 15h30 Casablanca déjà passé, à l'instant donné.
+
+    Fonction pure : elle ne lit ni fichier ni réseau.
+
+    ⚠️ POURQUOI ELLE EXISTE — LE CHIEN DE GARDE A DIT « TOUT VA BIEN » LES DEUX
+    JOURS OÙ LE PRODUIT ÉTAIT CASSÉ
+    ────────────────────────────────────────────────────────────────────────
+        18/09 21h07   contrôle VERT.   data.json écrit à 04h44, portant le 16/09.
+                      La séance du 18 avait eu lieu et n'était nulle part.
+        21/09 22h07   contrôle VERT.   data.json écrit à 11h44, annonçant 60
+                      titres « au 21/09 » — des cours figés EN PLEINE SÉANCE,
+                      clôtures et volumes tronqués. BCP publiait 1 337 titres
+                      échangés quand la séance en avait vu 469 537.
+
+    Les douze contrôles vérifiaient la présence, la cohérence, les bornes.
+    Aucun ne demandait la seule chose qui tranche : **un fichier écrit à 11h44
+    ne peut pas contenir la clôture de 15h30.** C'est une comparaison de deux
+    dates, et elle aurait attrapé les deux jours.
+
+    ⚠️ ET ELLE NE CRIE PAS AU LOUP UN JOUR FÉRIÉ. Le moteur tourne les jours
+    fériés comme les autres et réécrit `data.json` — avec les mêmes cours, mais
+    avec un horodatage frais. Le contrôle ne demande pas « la Bourse a-t-elle
+    coté ? », question à laquelle nous ne savons pas répondre sans calendrier
+    lunaire, mais « le moteur a-t-il tourné depuis la dernière clôture ? », à
+    laquelle l'horloge répond seule. C'est le même raisonnement que pour les
+    séances fantômes du 14/08 : déduire des données, jamais d'une liste.
+    """
+    cloture = maintenant.replace(hour=HEURE_CLOTURE[0], minute=HEURE_CLOTURE[1],
+                                 second=0, microsecond=0)
+    if maintenant < cloture:
+        cloture -= timedelta(days=1)
+    return cloture
+
+
+def horodatage_couvre_la_cloture(horodatage: str,
+                                 maintenant: datetime) -> tuple[bool, str]:
+    """Le fichier a-t-il été écrit après la dernière clôture écoulée ?
+
+    Renvoie (verdict, détail lisible). Fonction pure, et c'est volontaire :
+    la DÉCISION doit être éprouvable seule.
+
+    ⚠️ ELLE EXISTE PARCE QU'UN MUTANT A SURVÉCU. La première version comparait
+    les dates à l'intérieur de la liste des contrôles, et mes tests ne
+    vérifiaient que la présence de la ligne dans le source. Inverser `>=` en
+    `<=` — donc accepter exactement ce qu'on voulait refuser — ne faisait
+    rougir aucun test. **Vérifier qu'une ligne existe n'est pas vérifier
+    qu'elle fonctionne.**
+
+    Un horodatage illisible ou absent vaut échec : on ne présume pas de
+    l'innocence d'un fichier qui ne sait pas dire quand il a été écrit.
+    """
+    cloture = derniere_cloture_ecoulee(maintenant)
+    try:
+        ecrit = datetime.fromisoformat(horodatage)
+    except (TypeError, ValueError):
+        return False, f"horodatage illisible : {horodatage or 'absent'}"
+    if ecrit.tzinfo is None:
+        ecrit = ecrit.replace(tzinfo=cloture.tzinfo)
+    detail = (f"écrit le {ecrit:%d/%m à %Hh%M}, clôture du "
+              f"{cloture:%d/%m à %Hh%M}")
+    if ecrit < cloture:
+        return False, detail + (" — le fichier est ANTÉRIEUR à la clôture "
+                                "qu'il prétend porter")
+    return True, detail
+
 
 def _seance_de_reference():
     """La source extérieure détermine la séance attendue, pas le dépôt."""
@@ -100,6 +170,13 @@ def _controles(jour, ecart):
     ajouter("data.json régénéré depuis moins de 24 h", age_h <= 24,
             f"{horodatage or 'absent'} ({age_h:.1f} h)" if age_h < 1e8
             else (horodatage or "absent"))
+
+    # ⚠️ LE CONTRÔLE QUI MANQUAIT, ET QUI AURAIT VU LES DEUX PANNES.
+    # Un fichier écrit avant la clôture ne peut pas la contenir. Voir
+    # `derniere_cloture_ecoulee()` pour le détail des 18 et 21/09.
+    apres_cloture, detail = horodatage_couvre_la_cloture(
+        horodatage, datetime.now(TZ_CA))
+    ajouter("data.json écrit après la dernière clôture", apres_cloture, detail)
 
     asof = Counter((x.get("_meta") or {}).get("prix_asof") for x in titres.values())
     du_jour = asof.get(jour, 0)
