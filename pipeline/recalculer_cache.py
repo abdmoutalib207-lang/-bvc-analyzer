@@ -33,6 +33,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Une série plus courte ne permet pas de calculer un RSI : le producteur
+# refuse alors d'écrire une entrée de cache, et c'est le bon comportement.
+# Même seuil que le score de confiance (« au moins 14 chandelles réelles »).
+SEANCES_MIN_INDICATEURS = 14
+
 RACINE = Path(__file__).resolve().parent.parent
 CACHE = RACINE / "pipeline" / "historical_data.json"
 CANDLES = RACINE / "pipeline" / "candles"
@@ -120,7 +125,30 @@ def _synchroniser_un_ajout(t: str, entree: dict, serie: list, m):
     même préfixe en nombre de séances jusqu'à l'ancienne date.
     """
     if not entree:
-        return None, {"ticker": t, "motif": "aucune entrée de cache existante"}
+        # ⚠️ UN REFUS QUI NE PROTÈGE RIEN NE DOIT PAS BLOQUER LA PUBLICATION.
+        #
+        # Ce refus existe pour empêcher d'écraser des valeurs corrigées. Quand
+        # aucune entrée n'existe, il n'y a rien à protéger — et deux situations
+        # très différentes se cachent derrière :
+        #
+        #   série exploitable (≥ SEANCES_MIN_INDICATEURS) : l'entrée DEVRAIT
+        #     exister. C'est un vrai défaut, on refuse — c'est ainsi que le trou
+        #     de T2S a fini par se voir.
+        #
+        #   série trop courte : le producteur REFUSE lui-même d'écrire une
+        #     entrée, faute de pouvoir calculer un RSI. Exiger sa présence
+        #     rendrait le refus permanent. C'est ce qui est arrivé le 22/09 :
+        #     l'import du bulletin ouvre une série d'une ou deux séances pour
+        #     un titre nouvellement coté (MDP, SAF), `--sync-ajouts` sort en
+        #     code 2, l'étape échoue et le bulletin ne part pas — pour un titre
+        #     qui n'a strictement rien à synchroniser.
+        if len(serie) >= SEANCES_MIN_INDICATEURS:
+            return None, {"ticker": t,
+                          "motif": "aucune entrée de cache existante"}
+        return None, {"ticker": t, "_sans_objet": True,
+                      "motif": (f"série de {len(serie)} séance(s) — trop courte "
+                                f"pour porter des indicateurs ; rien à "
+                                f"synchroniser")}
     ancienne_date = str(entree.get("last_date") or "")[:10]
     if not ancienne_date:
         return None, {"ticker": t, "motif": "cache sans last_date"}
@@ -198,6 +226,7 @@ def recalculer(complets: list[str], rsi_seul: list[str],
     cache = json.loads(CACHE.read_text(encoding="utf-8"))
     nouveau = dict(cache)
     chg_complet, chg_rsi, intouches, refus, absents, chg_sync = [], [], [], [], [], []
+    sans_objet = []
 
     # ── 1. RECALCUL COMPLET — série explicitement remplacée ────────────────
     for t in complets:
@@ -231,7 +260,10 @@ def recalculer(complets: list[str], rsi_seul: list[str],
             continue
         entree, rapport = _synchroniser_un_ajout(t, dict(cache.get(t) or {}), serie, m)
         if entree is None:
-            refus.append(rapport)
+            # ⚠️ « sans objet » n'est pas un refus : rien n'était à
+            # synchroniser. Le confondre avec un échec bloque la publication.
+            (sans_objet if rapport.pop("_sans_objet", False)
+             else refus).append(rapport)
             continue
         nouveau[t] = entree
         chg_sync.append(rapport)
@@ -278,6 +310,11 @@ def recalculer(complets: list[str], rsi_seul: list[str],
             "modifies": len(chg_rsi), "inchanges": len(intouches),
         },
         "refus": refus,
+        "sans_objet": sans_objet,
+        "_lecture_sans_objet":
+            "séries trop courtes pour porter des indicateurs. Le producteur "
+            "refuse d'écrire leur entrée, à raison : il n'y a rien à "
+            "synchroniser, et ce n'est pas un échec.",
         "sans_chandelles": absents,
         "entrees_preservees": sorted(k for k in cache
                                      if not k.startswith("_") and k not in vises),

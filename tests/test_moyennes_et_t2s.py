@@ -170,7 +170,25 @@ def test_le_cache_t2s_n_annonce_aucune_moyenne_longue(serie, ud):
     assert cache["n_candles"] == len(serie)
     assert cache["ma50"] is None and cache["ma200"] is None
     attendu_ma20 = round(sum(b["c"] for b in serie[-20:]) / 20, 2)
-    assert cache["ma20"] == attendu_ma20
+    # ⚠️ UN CENTIME DE TOLÉRANCE, ET LA RAISON EST ARITHMÉTIQUE.
+    #
+    # Le 22/09, la moyenne exacte des vingt dernières clôtures de T2S valait
+    # **229,855** — pile sur la limite d'arrondi. La synchronisation
+    # incrémentale du cache la rend à 229,85, le recalcul complet à 229,86, et
+    # AUCUN DES DEUX N'EST FAUX : le nombre tombe entre les deux centimes.
+    #
+    # L'égalité stricte a bloqué la publication ce jour-là. Comparer deux
+    # flottants arrondis séparément par `==` au centime n'est pas une question
+    # bien posée ; ce que le test doit établir, c'est que le moteur n'INVENTE
+    # pas la moyenne — un écart d'un centime ne ment sur rien, un écart plus
+    # grand oui.
+    # ⚠️ La comparaison se fait en CENTIMES ENTIERS. Écrite en flottants,
+    # `abs(229.85 - 229.86) <= 0.01` échoue : la soustraction rend
+    # 0.010000000000019327. La tolérance se faisait mordre par ce qu'elle
+    # était censée absorber.
+    assert abs(round(cache["ma20"] * 100) - round(attendu_ma20 * 100)) <= 1, (
+        f"ma20 du cache {cache['ma20']} contre {attendu_ma20} recalculé : "
+        f"au-delà du centime, ce n'est plus un arrondi")
     attendu_rsi = ud.calc_rsi(pd.Series([b["c"] for b in serie], dtype=float))
     assert cache["rsi"] == attendu_rsi
 

@@ -122,6 +122,68 @@ def traduire_source(doc: dict) -> tuple[dict[str, dict], dict]:
     return actives, rapport
 
 
+def completion(capturee: dict, officielle: dict) -> bool:
+    """La bougie du bulletin est-elle la COMPLÉTION de celle qu'on a capturée ?
+
+    Fonction pure : elle compare deux bougies et ne lit rien d'autre.
+
+    ⚠️ POURQUOI CETTE NOTION EXISTE — LA SÉANCE DU 21/09/2026
+    ─────────────────────────────────────────────────────────
+    Le moteur écrit la bougie du jour dès le premier run et la RAFRAÎCHIT à
+    chaque passage suivant. Le 21/09, le dernier run réussi date de 10h44 —
+    en pleine séance — et tous ceux d'après la clôture ont échoué. Les bougies
+    sont donc restées figées en vol : ouverture juste, extrêmes partiels,
+    clôture et volume tronqués.
+
+    Mesuré sur les 60 titres comparables : **l'ouverture n'est JAMAIS en écart,
+    le volume l'est TOUJOURS**, et les extrêmes seulement là où la séance a
+    débordé après notre dernière capture. Ce n'est pas une source qui en
+    contredit une autre, c'est la même séance, inachevée.
+
+    ⚠️ CE QUE LA RÈGLE EXIGE, ET POURQUOI ELLE N'EST PAS UN BLANC-SEING
+    ──────────────────────────────────────────────────────────────────
+    Une séance ne peut que s'étendre. La bougie officielle doit donc
+    ENVELOPPER la nôtre :
+
+        même ouverture  ·  le haut ne recule pas  ·  le bas ne remonte pas
+        ·  le volume ne décroît pas
+
+    Si l'une de ces quatre conditions tombe, les deux bougies ne décrivent pas
+    la même séance vue à deux instants : elles se contredisent, et
+    l'écrasement reste refusé. Sur les 60 titres du 21/09, zéro violation.
+
+    ⚠️ La CLÔTURE a le droit de bouger dans les deux sens — c'est précisément
+    ce qu'on vient chercher — MAIS SEULEMENT SI LE VOLUME A CRÛ. Une clôture
+    ne se déplace que lorsqu'un échange a lieu, et un échange incrémente le
+    volume. Une clôture qui change à volume constant n'est donc pas une séance
+    vue plus tard : c'est une contradiction entre deux relevés, et elle reste
+    refusée. Cette condition manquait à ma première version ; c'est un test
+    déjà présent qui l'a établie, sur le cas `c 378 → 377, v 10 → 10`.
+    """
+    if not capturee or not officielle:
+        return False
+    if str(capturee.get("d") or "") != str(officielle.get("d") or ""):
+        return False
+    try:
+        if float(capturee["o"]) != float(officielle["o"]):
+            return False
+        if float(officielle["h"]) < float(capturee["h"]):
+            return False
+        if float(officielle["l"]) > float(capturee["l"]):
+            return False
+        if int(officielle["v"]) < int(capturee["v"]):
+            return False
+        # ⚠️ Une clôture ne bouge qu'avec un échange, et un échange fait
+        # croître le volume. Clôture différente + volume identique =
+        # contradiction, pas complétion.
+        if (float(officielle["c"]) != float(capturee["c"])
+                and int(officielle["v"]) == int(capturee["v"])):
+            return False
+    except (KeyError, TypeError, ValueError):
+        return False
+    return True
+
+
 def importer(source: Path, candles_dir: Path = CANDLES, *, ecrire: bool = False,
              policy: Callable = appliquer_corrections_avant_ecriture) -> dict:
     doc = json.loads(source.read_text(encoding="utf-8"))
@@ -130,7 +192,7 @@ def importer(source: Path, candles_dir: Path = CANDLES, *, ecrire: bool = False,
 
     # Préparer TOUTES les séries avant la première écriture.
     candidats: dict[str, list] = {}
-    deja, ajoutes, series_creees = [], [], []
+    deja, ajoutes, series_creees, completees = [], [], [], []
     for ticker, nouvelle in bougies.items():
         f = candles_dir / f"{ticker}.json"
         if f.exists():
@@ -147,14 +209,19 @@ def importer(source: Path, candles_dir: Path = CANDLES, *, ecrire: bool = False,
         existantes = [b for b in serie if str(b.get("d") or "")[:10] == date]
         if len(existantes) > 1:
             raise ValueError(f"{ticker}: date {date} dupliquée dans la série")
+        est_completion = False
         if existantes:
-            if existantes[0] != nouvelle:
+            if existantes[0] == nouvelle:
+                deja.append(ticker)
+                candidats[ticker] = serie
+                continue
+            if not completion(existantes[0], nouvelle):
                 raise ValueError(
                     f"{ticker}: bougie {date} déjà présente mais différente; "
                     "écrasement automatique refusé")
-            deja.append(ticker)
-            candidats[ticker] = serie
-            continue
+            # ⚠️ COMPLÉTION, PAS ÉCRASEMENT — voir `completion()`.
+            est_completion = True
+            serie = [b for b in serie if str(b.get("d") or "")[:10] != date]
 
         serie_candidate = sorted(serie + [nouvelle], key=lambda b: str(b.get("d") or ""))
         corrigee, garde = policy(ticker, serie_candidate)
@@ -165,12 +232,13 @@ def importer(source: Path, candles_dir: Path = CANDLES, *, ecrire: bool = False,
         if trouvee != nouvelle:
             raise ValueError(f"{ticker}: la politique a altéré/retiré la bougie source {date}")
         candidats[ticker] = corrigee
-        ajoutes.append(ticker)
+        (completees if est_completion else ajoutes).append(ticker)
 
     if ecrire:
         candles_dir.mkdir(parents=True, exist_ok=True)
+        a_ecrire = set(ajoutes) | set(completees)
         for ticker, serie in candidats.items():
-            if ticker not in ajoutes:
+            if ticker not in a_ecrire:
                 continue
             cible = candles_dir / f"{ticker}.json"
             cible.write_text(
@@ -183,7 +251,14 @@ def importer(source: Path, candles_dir: Path = CANDLES, *, ecrire: bool = False,
         "ajoutes": sorted(ajoutes),
         "series_creees": sorted(series_creees),
         "deja_presents_identiques": sorted(deja),
+        "completees": sorted(completees),
         "n_ajoutes": len(ajoutes),
+        "n_completees": len(completees),
+        "_lecture_completees":
+            "bougies capturées EN SÉANCE puis complétées par la clôture du "
+            "bulletin. Chacune a dû ENVELOPPER la capture — même ouverture, "
+            "haut qui ne recule pas, bas qui ne remonte pas, volume qui ne "
+            "décroît pas. Toute contradiction a été refusée.",
     })
     return rapport
 
