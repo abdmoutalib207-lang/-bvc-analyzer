@@ -821,6 +821,26 @@ def run(tickers_filter: list[str] | None = None) -> dict:
         log.warning(f"{len(conserves)} titre(s) à série réceptionnée, non "
                     f"réimporté(s) : {', '.join(sorted(conserves))}")
 
+    # ⚠️ LES TITRES QUE CETTE BOUCLE NE CONNAÎT PAS DOIVENT SURVIVRE.
+    #
+    # La conservation ci-dessus ne couvre que les titres ÉCARTÉS pendant la
+    # boucle. Or `all_tickers` vaut `xlsx ∪ MANUAL_MAP` : un titre qui n'a ni
+    # export ni entrée manuelle n'est jamais parcouru, donc jamais conservé, et
+    # `save()` réécrivant le fichier depuis `results` seul, il DISPARAÎT.
+    #
+    # Mesuré : T2S a été ajouté au cache le 19/09, puis effacé par le run du
+    # 21/09. Le moteur a alors recalculé ses indicateurs à la volée, et le
+    # contrôle qui compare cache et recalcul a divergé d'un centime sur `ma20`
+    # — assez pour faire échouer la publication du 22/09. Deux jours de
+    # bulletin perdus pour une entrée absente.
+    #
+    # Une entrée de cache est une donnée publiée : elle ne se perd pas parce
+    # que le collecteur ignore le titre.
+    orphelins = conserver_orphelins(results, cache_actuel)
+    if orphelins:
+        log.warning(f"{len(orphelins)} titre(s) hors du périmètre de collecte, "
+                    f"entrée de cache CONSERVÉE : {', '.join(orphelins)}")
+
     return results
 
 
@@ -881,6 +901,36 @@ def _purger_fantome(results: dict) -> None:
         recales += 1
     if recales:
         log.warning(f"Indicateurs recalculés sans le {date_fantome} : {recales} tickers")
+
+
+def conserver_orphelins(results: dict, cache_actuel: dict) -> list:
+    """Recopie dans `results` les entrées de cache que ce run ne produit pas.
+
+    Fonction pure au sens utile : elle ne lit ni disque ni réseau, et mute
+    `results` — qui est précisément ce qu'on veut sauver. Renvoie la liste
+    triée des titres conservés.
+
+    ⚠️ POURQUOI ELLE EXISTE — T2S, EFFACÉ DEUX FOIS
+    ───────────────────────────────────────────────
+    `save()` réécrit `historical_data.json` à partir de `results` SEUL. Un
+    titre absent de `results` disparaît donc du fichier. La garde en tête de
+    `run()` protège les titres ÉCARTÉS pendant la boucle — mais `all_tickers`
+    vaut `xlsx ∪ MANUAL_MAP`, et un titre absent des deux n'entre jamais dans
+    la boucle. Il n'est pas écarté : il est INCONNU, et rien ne le rattrapait.
+
+    Mesuré : T2S ajouté au cache le 19/09, effacé par le run du 21/09. Le
+    moteur a recalculé ses indicateurs à la volée, le contrôle de
+    reproductibilité a divergé d'un centime sur `ma20` (229,75 contre 229,76),
+    et la publication du 22/09 a été bloquée. Deux jours de bulletin perdus.
+
+    Une entrée de cache est une donnée publiée. Elle ne se perd pas parce que
+    le collecteur ignore le titre.
+    """
+    orphelins = sorted(t for t in cache_actuel
+                       if not t.startswith("_") and t not in results)
+    for t in orphelins:
+        results[t] = cache_actuel[t]
+    return orphelins
 
 
 def save(results: dict, out_path: Path) -> None:

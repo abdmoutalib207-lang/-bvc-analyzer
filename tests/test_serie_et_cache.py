@@ -445,8 +445,34 @@ def _series_modifiees_dans_cette_livraison() -> set:
         base = [b for b in base if b["d"] not in _annulees]
 
         fin = base[-1]["d"] if base else ""
-        if [b for b in base] != [b for b in livre if b["d"] <= fin]:
-            reecrits.add(t)
+        commun = [b for b in livre if b["d"] <= fin]
+        if base != commun:
+            # ⚠️ COMPLÉTER UNE SÉANCE FIGÉE EN VOL N'EST PAS RÉÉCRIRE L'HISTOIRE.
+            #
+            # Le 21/09, le dernier run réussi date de 10h44 : les bougies sont
+            # restées figées en pleine séance, clôture et volume tronqués. Le
+            # bulletin de clôture les complète. Ce contrôle les comptait comme
+            # 56 réécritures et criait à l'opération de masse — il avait raison
+            # de compter, il lui manquait de savoir ce qu'est une complétion.
+            #
+            # ⚠️ ON RÉUTILISE ICI LA DÉFINITION QUI A GOUVERNÉ L'ÉCRITURE,
+            # `import_cdg_session.completion()`, plutôt que d'en écrire une
+            # seconde. Le risque est réel et connu — deux contrôles qui
+            # partagent une hypothèse fausse se trompent ensemble. Il est
+            # accepté ici parce que cette fonction est établie de son côté par
+            # `tests/test_completion_seance.py`, y compris sur ses refus : haut
+            # qui recule, bas qui remonte, volume qui décroît, et clôture qui
+            # bouge à volume constant. Écrire une seconde version exposerait à
+            # une dérive entre les deux, ce qui serait pire.
+            import sys as _s
+            _s.path.insert(0, str(RACINE))
+            from pipeline.import_cdg_session import completion
+
+            par_date = {b["d"]: b for b in commun}
+            if not all(b == par_date.get(b["d"])
+                       or completion(b, par_date.get(b["d"]) or {})
+                       for b in base):
+                reecrits.add(t)
     return reecrits
 
 
@@ -509,11 +535,33 @@ def _series_prolongees_dans_cette_livraison() -> set:
         if not base:
             continue
         fin = base[-1]["d"]
-        # La partie commune doit être INTACTE, et la série doit avoir gagné au
-        # moins une séance postérieure. Les deux conditions, pas l'une ou l'autre.
-        if base != [b for b in livre if b["d"] <= fin]:
+        commun = [b for b in livre if b["d"] <= fin]
+
+        # ⚠️ DEUX FAÇONS D'AVANCER, PAS UNE SEULE.
+        #
+        # Une série gagne une séance (ajout), ou voit sa dernière bougie
+        # COMPLÉTÉE — le 21/09, le moteur s'est arrêté à 10h44 et les bougies
+        # sont restées figées en pleine séance ; le bulletin de clôture les a
+        # complétées. Les deux gestes font avancer exactement les mêmes champs
+        # dérivés : `last_close`, les moyennes, MACD, Bollinger, stochastique.
+        #
+        # Ne reconnaître que l'ajout classait les 56 complétions du 21/09 dans
+        # « série inchangée », et le contrôle interdisait alors à leur cache de
+        # bouger — bloquant la publication de la séance qu'on venait de réparer.
+        import sys as _s
+        _s.path.insert(0, str(RACINE))
+        from pipeline.import_cdg_session import completion
+
+        par_date = {b["d"]: b for b in commun}
+        divergentes = [b for b in base if b != par_date.get(b["d"])]
+        # ⚠️ TOUTES les divergences doivent être des complétions. Une seule
+        # réécriture véritable suffit à disqualifier la série — sinon il
+        # suffirait d'accompagner une réécriture d'une complétion pour la
+        # faire passer.
+        if any(not completion(b, par_date.get(b["d"]) or {})
+               for b in divergentes):
             continue                 # réécrite : ce n'est pas une prolongation
-        if [b for b in livre if b["d"] > fin]:
+        if [b for b in livre if b["d"] > fin] or divergentes:
             prolongees.add(t)
     return prolongees
 
