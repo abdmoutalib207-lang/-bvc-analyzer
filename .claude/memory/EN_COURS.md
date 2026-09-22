@@ -50,6 +50,21 @@ historique** — cela recréerait une référence exposée.
 
 ---
 
+## ✅ MOTEUR REMIS EN MARCHE — 22/09/2026
+
+- [x] **Séance du 21/09 réparée** depuis le bulletin CDG : 56 bougies
+  complétées, 8 ajoutées, **68/68 conformes**. Le moteur republie (PR #66).
+- [x] **T2S ne disparaîtra plus du cache** — `conserver_orphelins()` + un
+  invariant du dépôt qui rouge si une série exploitable perd son entrée.
+- [ ] ⚠️ **Le cron reste le premier risque.** Le 21/09 comme le 18/09, la
+  séance a été perdue parce que les runs d'après-clôture ont échoué ET que
+  personne ne regardait. Le rattrapage existe désormais (bougie manquante ET
+  bougie figée), mais il faut toujours un bulletin déposé à la main.
+- [ ] **655 bougies OHLC incohérentes dans le cache**, 11 titres dont 8 MASI 1
+  — toujours ouvert, voir le bloc ci-dessous.
+
+---
+
 ## 🔔 UNE DÉCISION À PRENDRE — reprise de cotation CMT (16/09/2026)
 
 - [ ] **Le registre porte une référence CALCULÉE là où une SOURCÉE existe.**

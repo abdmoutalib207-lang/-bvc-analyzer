@@ -796,3 +796,77 @@ propage : SGTM affiche un plus-bas 52 semaines de **508,10 au lieu de 461,95**.
 ⚠️ **CFGB et CMGP portent des corrections réceptionnées** : un `--complet`
 aveugle risquerait de les annuler — c'est le piège SOT documenté le 18/08.
 À traiter avec `gardien-donnees`, pas en passant.
+
+---
+
+## Famille 17 — Une séance figée en vol, et trois refus qui ne protégeaient rien (21–22/09/2026)
+
+**Le moteur s'est arrêté à 10h44 le 21/09 et a publié des clôtures fausses
+pendant deux jours.**
+
+### L'enchaînement
+
+```
+21/09 10h44  dernier run réussi — EN PLEINE SÉANCE
+21/09 16h55+ tous les runs d'après-clôture échouent aux contrôles bloquants
+             → les bougies restent figées : ouverture juste, extrêmes
+               partiels, clôture et volume TRONQUÉS
+22/09        le moteur ne publie toujours rien
+```
+
+Mesuré : BCP publiait `c=247,0 v=1 337` quand la clôture valait `c=248,0
+qte=469 537`. **Le volume capturé représentait 0,3 % du volume réel.**
+
+⚠️ **Une clôture figée en séance n'a l'air de rien.** Elle est du bon ordre de
+grandeur, elle respecte l'invariant OHLC, elle passe R10. Seul le volume la
+dénonce — et seul un recoupement au bulletin le montre.
+
+### Ce que la réparation a appris
+
+**Compléter n'est pas écraser, et ça se démontre.** Une bougie officielle ne
+remplace une bougie capturée que si elle l'ENVELOPPE : même ouverture, haut qui
+ne recule pas, bas qui ne remonte pas, volume qui ne décroît pas. Sur les 60
+titres comparables du 21/09, zéro violation. Ce n'est pas une source qui en
+contredit une autre, c'est la même séance vue à deux instants.
+
+⚠️ **Une condition me manquait, et c'est un test DÉJÀ PRÉSENT qui l'a établie.**
+Une clôture ne bouge qu'avec un échange, et un échange fait croître le volume.
+Clôture différente à volume constant = contradiction, pas complétion. Le cas :
+ADI `c=378 v=10` contre `c=377 v=10`. J'avais écrit la règle sans elle ; le
+test a rougi, et il avait raison.
+
+### Trois refus qui ne protégeaient rien
+
+1. **T2S disparaissait du cache à chaque passage du collecteur.** La garde
+   protège les titres ÉCARTÉS par la boucle ; `all_tickers` vaut
+   `xlsx ∪ MANUAL_MAP`, et un titre absent des deux n'y entre jamais. Il
+   n'était pas écarté — il était INCONNU. Ajouté le 19/09, effacé le 21/09.
+   ⚠️ **Réparer une entrée sans réparer l'écrivain, c'est réparer pour un jour.**
+
+2. **`--sync-ajouts` sortait en code 2 sur un titre sans entrée de cache.**
+   Juste quand la série est exploitable ; absurde quand elle fait une ou deux
+   séances et que le producteur refuse lui-même d'écrire l'entrée, faute de RSI
+   calculable. Un import de bulletin ouvre précisément de telles séries.
+
+3. **Les deux garde-fous de livraison comptaient 56 complétions comme une
+   réécriture de masse**, puis interdisaient au cache de bouger.
+
+### L'écart d'un centime n'était l'erreur de personne
+
+La moyenne 20 séances de T2S valait exactement **229,855** — pile sur la limite
+d'arrondi. Le calcul incrémental rend 229,85, le recalcul complet 229,86.
+**Aucun des deux n'est faux.** Le test exigeait l'égalité stricte et bloquait
+la publication.
+
+⚠️ **Et la tolérance s'est fait mordre par ce qu'elle devait absorber** :
+`abs(229.85 - 229.86)` vaut `0.010000000000019327`, donc `<= 0.01` échoue. La
+comparaison se fait désormais en CENTIMES ENTIERS.
+
+### La leçon commune aux trois
+
+**Avant de corriger un contrôle qui bloque, demander ce qu'il protège
+exactement dans CE cas.** S'il ne protège rien — pas d'entrée à écraser, pas
+d'histoire à réécrire, pas de valeur inventée — il ne doit pas bloquer. S'il
+protège quelque chose, c'est la donnée qu'il faut réparer, pas le contrôle.
+Les trois refus ci-dessus étaient corrects dans leur intention et faux dans
+leur portée.
