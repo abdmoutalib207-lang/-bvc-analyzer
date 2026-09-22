@@ -62,9 +62,16 @@ jobs:
         # qu'elle n'est pas revue, seule la correspondance exacte doit courir.
         run: pip install requests -q
 
-      # ── 3. Fetch actualités ───────────────────────────────
+      # ── 3. Fetch + enrichissement actualités ──────────────
       - name: Fetch actualités BVC
         run: python pipeline/fetch_news.py
+
+      # Le terminal et Radar BVC lisent le MÊME news.json. L'enrichissement est
+      # donc volontairement placé ici, avant le relais Telegram et avant le
+      # commit : une seule qualification, trois consommateurs, aucun écart entre
+      # la copie de publication et l'onglet Actualités.
+      - name: Enrichir importance et type d'événement
+        run: python pipeline/enrich_news.py
 
       # ── Relais Telegram (facultatif) ────────────────────────────────
       # Placé AVANT le commit : la mémoire des alertes (.radar_envoyes.json)
@@ -132,6 +139,16 @@ jobs:
               pos = sum(1 for a in articles if a.get('sentiment')=='POSITIF')
               neg = sum(1 for a in articles if a.get('sentiment')=='NEGATIF')
               print(f"- **Sentiment** : ✅ {pos} positifs · ❌ {neg} négatifs · ◦ {len(articles)-pos-neg} neutres")
+              material = sum(1 for a in articles if a.get('material'))
+              # `source_tier` reste celui du collecteur : S1 = index du
+              # régulateur. L'enrichissement ne le réécrit pas.
+              official = sum(1 for a in articles if a.get('source_tier')=='S1')
+              print(f"- **Importance** : {material} articles matériels · {official} de source institutionnelle")
+              events = {}
+              for a in articles:
+                  e = a.get('event_type','autre')
+                  events[e] = events.get(e,0)+1
+              print("- **Événements dominants** : " + ", ".join(f"{k}={v}" for k,v in sorted(events.items(), key=lambda x:-x[1])[:5]))
               sources = {}
               for a in articles:
                   s = a.get('source','?')
