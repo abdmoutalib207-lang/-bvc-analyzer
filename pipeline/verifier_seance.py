@@ -53,6 +53,20 @@ JOURS_SANS_SEANCE_MAX = 5
 # Heure de clôture de la Bourse de Casablanca.
 HEURE_CLOTURE = (15, 30)
 
+# ⚠️ DÉCALAGE FIXE, PAS `ZoneInfo`. Le moteur horodate `data.json` avec un
+# `+01:00` littéral (« Casablanca est à UTC+1 toute l'année »). Or le runner
+# GitHub ne résout PAS `Africa/Casablanca` au même décalage : deux tests ont
+# échoué en intégration alors qu'ils passaient en local, et **seuls ceux dont
+# la marge était inférieure à une heure** — 15h45 contre 15h30, puis 15h30
+# pile. Ceux dont la marge dépassait l'heure passaient. Signature nette d'un
+# décalage d'exactement 1 h.
+#
+# En production, cela aurait fait crier le contrôle sur un run de clôture
+# parfaitement normal : l'alerte fausse que ce fichier existe pour éviter.
+# Comparer une heure écrite `+01:00` à une heure issue d'une base de fuseaux
+# dont on ne maîtrise pas la version, c'est comparer deux choses différentes.
+UTC_PLUS_1 = timezone(timedelta(hours=1))
+
 
 def derniere_cloture_ecoulee(maintenant: datetime) -> datetime:
     """Le dernier 15h30 Casablanca déjà passé, à l'instant donné.
@@ -82,9 +96,15 @@ def derniere_cloture_ecoulee(maintenant: datetime) -> datetime:
     laquelle l'horloge répond seule. C'est le même raisonnement que pour les
     séances fantômes du 14/08 : déduire des données, jamais d'une liste.
     """
-    cloture = maintenant.replace(hour=HEURE_CLOTURE[0], minute=HEURE_CLOTURE[1],
-                                 second=0, microsecond=0)
-    if maintenant < cloture:
+    # ⚠️ On raisonne dans le décalage FIXE UTC+1, celui que le moteur écrit.
+    # `maintenant` peut arriver naïf ou dans n'importe quel fuseau ; ce qui
+    # compte est l'instant, pas l'étiquette.
+    if maintenant.tzinfo is None:
+        maintenant = maintenant.replace(tzinfo=UTC_PLUS_1)
+    ici = maintenant.astimezone(UTC_PLUS_1)
+    cloture = ici.replace(hour=HEURE_CLOTURE[0], minute=HEURE_CLOTURE[1],
+                          second=0, microsecond=0)
+    if ici < cloture:
         cloture -= timedelta(days=1)
     return cloture
 
@@ -112,7 +132,8 @@ def horodatage_couvre_la_cloture(horodatage: str,
     except (TypeError, ValueError):
         return False, f"horodatage illisible : {horodatage or 'absent'}"
     if ecrit.tzinfo is None:
-        ecrit = ecrit.replace(tzinfo=cloture.tzinfo)
+        ecrit = ecrit.replace(tzinfo=UTC_PLUS_1)
+    ecrit = ecrit.astimezone(UTC_PLUS_1)
     detail = (f"écrit le {ecrit:%d/%m à %Hh%M}, clôture du "
               f"{cloture:%d/%m à %Hh%M}")
     if ecrit < cloture:

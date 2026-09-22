@@ -28,7 +28,7 @@ fantômes — déduire des données, jamais d'une liste écrite d'avance.
 from __future__ import annotations
 
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -39,9 +39,11 @@ sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(RACINE / "pipeline"))
 
 from verifier_seance import (derniere_cloture_ecoulee,  # noqa: E402
-                             horodatage_couvre_la_cloture)
+                             horodatage_couvre_la_cloture, UTC_PLUS_1)
 
-CASA = ZoneInfo("Africa/Casablanca")
+# ⚠️ DÉCALAGE FIXE, PAS `ZoneInfo`. Voir le test de non-régression en fin de
+# fichier : le runner GitHub ne résout pas `Africa/Casablanca` comme `+01:00`.
+CASA = UTC_PLUS_1
 
 
 def _t(txt):
@@ -183,3 +185,55 @@ def test_un_horodatage_illisible_vaut_echec(mauvais):
     ok, detail = horodatage_couvre_la_cloture(mauvais, _t("2026-09-22T19:32:00"))
     assert ok is False
     assert "illisible" in detail
+
+
+# ── LA PANNE D'INTÉGRATION, REJOUÉE ────────────────────────────────────────
+#
+# ⚠️ Deux tests passaient en local et échouaient en CI — et SEULEMENT ceux dont
+# la marge était inférieure à une heure (15h45 contre 15h30, puis 15h30 pile).
+# Ceux dont la marge dépassait l'heure passaient. Signature nette d'un décalage
+# d'exactement 1 h : le runner ne résout pas `Africa/Casablanca` comme le
+# `+01:00` que le moteur écrit dans `data.json`.
+#
+# En production, cela aurait fait crier le contrôle sur un run de clôture
+# parfaitement normal — l'alerte fausse que ce fichier existe pour éviter.
+
+@pytest.mark.parametrize("fuseau_du_contexte", [
+    timezone.utc,                      # runner en UTC
+    timezone(timedelta(hours=0)),      # Casablanca résolu à UTC+0
+    timezone(timedelta(hours=1)),      # Casablanca correct
+    timezone(timedelta(hours=-5)),     # fuseau franchement exotique
+    ZoneInfo("Africa/Casablanca"),     # ce que la base de fuseaux en dit
+])
+def test_le_verdict_ne_depend_pas_du_fuseau_de_la_machine(fuseau_du_contexte):
+    """Le même instant, étiqueté dans n'importe quel fuseau, doit donner le
+    même verdict. C'est l'instant qui compte, pas l'étiquette."""
+    # Un run de clôture à 15h45 Casablanca, vu depuis 19h32 Casablanca.
+    ecrit = "2026-09-22T15:45:00+01:00"
+    maintenant = datetime.fromisoformat("2026-09-22T19:32:00+01:00")
+    ok, _ = horodatage_couvre_la_cloture(
+        ecrit, maintenant.astimezone(fuseau_du_contexte))
+    assert ok is True, (
+        f"un run de clôture normal refusé parce que la machine est en "
+        f"{fuseau_du_contexte}")
+
+
+@pytest.mark.parametrize("fuseau_du_contexte", [
+    timezone.utc, timezone(timedelta(hours=0)), timezone(timedelta(hours=-5)),
+])
+def test_la_panne_du_21_reste_vue_quel_que_soit_le_fuseau(fuseau_du_contexte):
+    """Contre-épreuve : rendre le contrôle insensible au fuseau ne doit pas le
+    rendre insensible tout court."""
+    maintenant = datetime.fromisoformat("2026-09-21T22:07:00+01:00")
+    ok, _ = horodatage_couvre_la_cloture(
+        "2026-09-21T11:44:32+01:00", maintenant.astimezone(fuseau_du_contexte))
+    assert ok is False
+
+
+def test_un_horodatage_naif_est_lu_en_utc_plus_1():
+    """`data.json` porte toujours un décalage explicite, mais un fichier
+    ancien ou bricolé peut ne pas en avoir. On l'interprète dans la convention
+    du projet plutôt que dans celle de la machine."""
+    ok, _ = horodatage_couvre_la_cloture(
+        "2026-09-22T15:45:00", _t("2026-09-22T19:32:00"))
+    assert ok is True
