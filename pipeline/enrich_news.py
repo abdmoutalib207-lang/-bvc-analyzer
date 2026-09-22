@@ -20,14 +20,38 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 NEWS = ROOT / "news.json"
 
-OFFICIAL = {
-    "AMMC", "BVC Officiel", "Bank Al-Maghrib", "HCP", "MAP",
-}
-TRUSTED = {
-    "Medias24", "L'Économiste", "BourseNews", "Finances News",
-    "Reuters Maroc", "Financial Afrik", "Agence Ecofin Maroc", "Le Matin",
-    "Les Inspirations Éco", "LeBrief", "Telquel Éco", "Jeune Afrique",
-}
+# ⚠️ AUCUNE LISTE DE NOMS DE SOURCES ICI, ET C'EST DÉLIBÉRÉ.
+#
+# La première version portait deux tables écrites à la main — `OFFICIAL` et
+# `TRUSTED` — contenant « AMMC » et « BVC Officiel ». Or le collecteur renvoie
+# « AMMC documents » et « BVC Sociétés ». Mesuré sur le flux réel : les deux
+# sources les plus autoritaires tombaient au rang le PLUS BAS, à égalité avec
+# un site de cours de matières premières.
+#
+#     AMMC documents   S1 (le plus haut)  ->  C (le plus bas)
+#     BVC Sociétés     S1                 ->  C
+#
+# L'enrichissement rétrogradait exactement ce que le collecteur avait promu :
+# les dépôts réglementaires recevaient +7 d'importance au lieu de +25.
+#
+# C'est la famille d'erreurs la plus coûteuse de ce projet — `IDB_TICKER_MAP`,
+# `MANUAL_MAP`, les clés de `SENTIMENT` : des noms SUPPOSÉS au lieu des noms
+# OBSERVÉS. La parade n'est pas de corriger la liste, c'est de ne plus en avoir.
+#
+# Le collecteur établit déjà la qualité de la source, structurellement, et sa
+# partition est nette sur les 300 articles du flux :
+#
+#     regulator_index  ·  S1  ·  listed_officially  ·  PUBLICATION    14
+#     publisher_feed   ·  S2  ·  unverified         ·  SIGNAL        133
+#     search_relay     ·  S2  ·  unverified         ·  SIGNAL        153
+#
+# On s'en sert. Un dépôt réglementaire est reconnu parce qu'il VIENT de l'index
+# du régulateur, pas parce que son libellé ressemble à « AMMC ».
+
+# Poids d'importance selon ce que le collecteur a établi de la source.
+POIDS_REGULATEUR = 25      # dépôt à l'index du régulateur
+POIDS_EDITEUR    = 15      # flux direct d'un éditeur
+POIDS_RELAIS     = 7       # relais de recherche
 
 EVENTS = [
     ("operation_capital", re.compile(
@@ -90,12 +114,25 @@ def _event(text: str, category: str) -> str:
     return "autre"
 
 
-def _source_tier(source: str) -> str:
-    if source in OFFICIAL:
-        return "A"
-    if source in TRUSTED:
-        return "B"
-    return "C"
+def poids_source(article: dict) -> int:
+    """Le poids d'une source se déduit de ce que le COLLECTEUR a établi.
+
+    Fonction pure. Elle ne lit aucun libellé : un dépôt réglementaire est
+    reconnu parce qu'il vient de l'index du régulateur, pas parce que son nom
+    ressemble à « AMMC ». Voir l'en-tête du fichier.
+
+    ⚠️ Deux marqueurs pour le rang le plus haut, et c'est volontaire :
+    `source_tier == "S1"` et `validation_status == "listed_officially"` sont
+    posés ensemble par `official_news.py`. Exiger les deux rendrait la règle
+    fragile au moindre changement d'un seul ; en accepter un suffit.
+    """
+    if (article.get("source_tier") == "S1"
+            or article.get("validation_status") == "listed_officially"
+            or article.get("source_type") == "regulator_index"):
+        return POIDS_REGULATEUR
+    if article.get("source_type") == "publisher_feed":
+        return POIDS_EDITEUR
+    return POIDS_RELAIS
 
 
 def _horizon(event: str) -> str:
@@ -124,10 +161,9 @@ def enrich_article(article: dict) -> dict:
     text = f"{title} {summary}"
     tickers = list(a.get("tickers") or [])
     event = _event(text, str(a.get("category") or ""))
-    tier = _source_tier(str(a.get("source") or ""))
 
     score = EVENT_WEIGHT[event]
-    score += {"A": 25, "B": 15, "C": 7}[tier]
+    score += poids_source(a)
     if tickers:
         score += 22
     if len(tickers) > 1:
@@ -148,7 +184,10 @@ def enrich_article(article: dict) -> dict:
     a["sentiment_lexical"] = old_sent
     a["sentiment"] = new_sent
     a["event_type"] = event
-    a["source_tier"] = tier
+    # ⚠️ `source_tier` N'EST PAS RÉÉCRIT. Il appartient au collecteur, qui y
+    # pose S1/S2. L'écraser avec une seconde échelle détruisait l'information
+    # et faisait cohabiter deux vocabulaires pour un même champ — le défaut
+    # que le projet a déjà payé sur les secteurs.
     a["importance"] = score
     a["material"] = score >= 65
     a["horizon"] = _horizon(event)
@@ -163,7 +202,9 @@ def enrich_payload(payload: dict) -> dict:
     out["enrichment"] = {
         "version": 1,
         "methode": "deterministe",
-        "champs": ["event_type", "source_tier", "importance", "material", "horizon"],
+        # `source_tier` n'y figure plus : il reste au collecteur.
+        "champs": ["event_type", "importance", "material", "horizon",
+                   "sentiment_lexical"],
         "material_count": sum(1 for a in articles if a["material"]),
         "ticker_tagged_count": sum(1 for a in articles if a.get("tickers")),
     }

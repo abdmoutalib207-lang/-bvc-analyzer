@@ -140,7 +140,9 @@ jobs:
               neg = sum(1 for a in articles if a.get('sentiment')=='NEGATIF')
               print(f"- **Sentiment** : ✅ {pos} positifs · ❌ {neg} négatifs · ◦ {len(articles)-pos-neg} neutres")
               material = sum(1 for a in articles if a.get('material'))
-              official = sum(1 for a in articles if a.get('source_tier')=='A')
+              # `source_tier` reste celui du collecteur : S1 = index du
+              # régulateur. L'enrichissement ne le réécrit pas.
+              official = sum(1 for a in articles if a.get('source_tier')=='S1')
               print(f"- **Importance** : {material} articles matériels · {official} de source institutionnelle")
               events = {}
               for a in articles:
