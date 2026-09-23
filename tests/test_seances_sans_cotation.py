@@ -111,9 +111,7 @@ def test_la_bougie_est_retiree_avant_ecriture():
     nettoie tout au premier run rend le découpage illusoire : on la branche
     quand le terrain est nettoyé, pas avant.
     """
-    import pytest as _p
-    _p.skip("la porte d'écriture est branchée au lot B — brancher maintenant "
-            "purgerait les 34 titres d'un coup ; voir .claude/memory/EN_COURS.md")
+
     serie, _ = appliquer_corrections_avant_ecriture(
         "ZZZ", [_b("2026-07-29"), _b("2026-07-30"), _b("2026-07-31")])
     assert [b["d"] for b in serie] == ["2026-07-29", "2026-07-31"]
@@ -125,8 +123,7 @@ def test_le_rapport_distingue_les_deux_causes():
 
     Même raison que ci-dessus : s'arme au lot B, avec la porte.
     """
-    import pytest as _p
-    _p.skip("la porte d'écriture est branchée au lot B")
+
     _, r = appliquer_corrections_avant_ecriture(
         "ZZZ", [_b("2026-07-30"), _b("2026-09-17"), _b("2026-07-31")])
     assert r["seances_sans_cotation_retirees"] == ["2026-07-30"]
@@ -161,9 +158,7 @@ def test_aucune_serie_publiee_ne_porte_une_seance_sans_cotation():
     Il s'arme donc au second lot, quand il passe au vert. D'ici là, le chantier
     est consigné dans `.claude/memory/EN_COURS.md`.
     """
-    import pytest as _p
-    _p.skip("chantier en cours — ce contrôle s'arme au second lot de la "
-            "correction du 30/07 ; voir .claude/memory/EN_COURS.md")
+
     import json
     dossier = RACINE / "pipeline" / "candles"
     if not dossier.exists():

@@ -110,13 +110,17 @@ def purger_seances_annulees(candles_dir=None, dry_run=False):
     """
     import sys as _sys
     _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from bvc_config import SEANCES_ANNULEES
+    from bvc_config import SEANCES_ANNULEES, SEANCES_SANS_COTATION
 
     dossier = Path(candles_dir) if candles_dir else CANDLES_DIR
-    if not SEANCES_ANNULEES or not dossier.exists():
+    # ⚠️ DEUX REGISTRES, DEUX CAUSES. Une séance ANNULÉE a été cotée puis
+    # effacée par la Bourse ; une séance SANS COTATION n'a jamais eu lieu.
+    # Aucune statistique n'aurait trouvé la seconde : le test de
+    # `purger_seance_fantome` exige 95 % de clôtures identiques à la veille, et
+    # le 30/07 n'en comptait que 8 sur 34.
+    dates = set(SEANCES_ANNULEES) | set(SEANCES_SANS_COTATION)
+    if not dates or not dossier.exists():
         return [], 0, []
-
-    dates = set(SEANCES_ANNULEES)
     retirees, touches = 0, []
     for f in sorted(dossier.glob("*.json")):
         try:
