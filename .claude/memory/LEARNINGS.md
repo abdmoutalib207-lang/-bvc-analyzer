@@ -453,3 +453,49 @@ devinable ; tout a coûté un aller-retour.
 ⚠️ **La leçon de méthode** : R2 interdit de modifier `ISIN_MAP` sans accord.
 Cela protège la table d'une modification étourdie — cela ne dit pas si son
 contenu est juste. Un interdit n'est pas une vérification.
+
+## L'export « Cours » de l'opérateur est une pièce, pas une source de plus (23/09/2026)
+
+`casablanca-bourse.com` publie, par titre, trois ans de séances avec
+**ouverture, plus-haut, plus-bas, dernier cours, volume en dirhams, titres
+échangés, nombre de transactions et capitalisation**. C'est l'opérateur du
+marché lui-même : sur la période couverte, il fait foi contre nos séries, qui
+sont des reconstitutions.
+
+### Ce qu'il permet de faire, et qu'aucune autre source ne permet
+
+1. **Prouver une identité sans passer par un nom.** `Capitalisation ÷ Dernier
+   Cours` rend le nombre d'actions. Constant sur la période récente = le titre
+   est bien celui qu'on croit. Auto Nejma rend 1 023 264, exactement le
+   référentiel du projet. Deux sources peuvent citer le même code par erreur ;
+   une identité qui se recoupe par le calcul, non. (Même raisonnement que pour
+   `MRL` le 01/09.)
+2. **Distinguer une séance sans échange d'un jour de fermeture.** L'export
+   liste TOUTES les séances réelles, y compris celles où le titre n'a pas
+   traité (colonnes de volume à `-`), et omet exactement les jours où la Bourse
+   n'a pas ouvert. Une date que nous portons, comprise dans la période et
+   absente de l'export, est donc une **séance fantôme** — sans avoir besoin
+   d'un calendrier de fériés.
+3. **Voir les clôtures fausses** qu'aucun contrôle interne ne peut voir, parce
+   qu'une série fausse mais cohérente ne se contredit pas elle-même.
+
+### ⚠️ Ce qu'il ne dit pas
+
+- Il **contient** les séances ANNULÉES par la Bourse : le 17/09 y figure. Un
+  import doit repasser par `SEANCES_ANNULEES` APRÈS la fusion, sinon il les
+  réintroduit.
+- Il s'arrête à la **veille**. La séance du jour reste celle du moteur.
+- Il ne couvre que la période exportée : hors d'elle, nos séries gardent leur
+  profondeur. TGCC a 1 182 bougies pour 734 dans l'export.
+
+### La règle d'or de l'import
+
+**Ce que l'export ne dit pas ne l'autorise pas à effacer.** Trois zones :
+avant (intact) · pendant (remplacé) · après (intact). Un import qui « remplace
+la série » ampute les titres les plus anciens.
+
+### ⚠️ Un export par titre, et l'identité se lit DANS le fichier
+
+Le nom de fichier porte le code de l'opérateur, pas le nôtre : `TGC` est TGCC,
+`NKL` est ENK, `SNA` est Stokvis. On résout par `IDB_TICKER_MAP` inversé sur
+la colonne `Ticker`, et un code inconnu se refuse au lieu de se deviner.
