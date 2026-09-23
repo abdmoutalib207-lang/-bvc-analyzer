@@ -968,3 +968,63 @@ bougies retirées valaient `o=h=l=c=v=1219` répété du 10/12/2024 au 10/02/202
 titre non coté, trou comblé par recopie, et le cours écrit dans le volume. Les
 retirer était la correction, pas la perte. **Une série qui rétrécit mérite
 toujours d'être regardée avant d'être acceptée.**
+
+## Famille 19 — Le bulletin ne porte pas la date qu'on lui prêtait (23/09/2026)
+
+### ⚠️ Une règle du CLAUDE.md est fausse, et elle servait à dater des séances
+
+Le CLAUDE.md affirme depuis le 10/08 :
+
+> « Le titre du bulletin porte la date de **publication**, pas celle de la
+> séance : "Indices du lundi 10 août" contient la séance du vendredi 07/08. »
+
+**Le bulletin « Indices du mercredi 23 septembre » contient la séance du
+mercredi 23 septembre.** Vérifié contre les clôtures officielles du 22/09,
+issues de l'export de l'opérateur : sur 27 titres, **5 concordent et 22
+diffèrent**. Ce n'est donc pas la séance du 22.
+
+Le contrôle qui tranche est extérieur aux deux pièces : on ne compare pas le
+bulletin à nos propres chandelles — qui peuvent être fausses, et l'étaient —
+mais à une troisième source indépendante.
+
+⚠️ **Ne pas en déduire la règle inverse.** Le constat du 10/08 était
+probablement exact pour ce bulletin-là : un bulletin publié un lundi ne peut
+pas contenir une séance du lundi s'il paraît le matin. Ce qui est faux, c'est
+d'en avoir tiré une règle générale. **Chaque bulletin doit être daté sur son
+contenu**, et `parse_cdg_bulletin.py --verifier <date>` le fait déjà : il
+suffit de l'essayer sur les deux dates candidates et de retenir celle qui
+concorde.
+
+### Le run de clôture du 23/09 n'a pas eu lieu
+
+Dernier run de données à **15h09**, soit 21 minutes avant la clôture de 15h30.
+Le terminal publiait des cours de milieu de séance : **35 écarts sur 65 titres**
+au bulletin.
+
+Cause : les crons recalés par la correction d'heure n'ont été fusionnés qu'à
+**16h20**. À 15h45, le cron en vigueur était encore l'ancien, calé une heure
+trop tôt. **Le correctif est arrivé après le créneau qu'il devait sauver.**
+
+Réparé par un run manuel à 16h30 — une heure après la clôture, donc hors de la
+fenêtre transitoire où CDG sert la veille (incident du 28/08), et
+`_cliquet_seance()` protège désormais du recul. Résultat : **66/66 cours exacts,
+0 écart, verdict CONCORDANCE**, et 13 contrôles sur 13.
+
+⚠️ **La leçon n'est pas « déclencher un run manuel ».** C'est que le créneau de
+15h45 reste un point unique de défaillance : s'il saute, rien ne le rattrape
+avant 18h, et personne ne le sait. Le contrôle quotidien tourne à 19h32 — il
+aurait vu le défaut, mais quatre heures après la publication.
+
+### ⚠️ Une pull request de pures données ne lançait aucun test
+
+Constaté sur la PR du lot 3/3 : neuf séries réécrites, aucun `.py` touché,
+aucun pytest lancé. Le déclencheur `pull_request` de `tests.yml` ne listait que
+`**.py` et `tests/**`.
+
+C'est le cas où les tests servent le plus : la moitié de la suite relit les
+données publiées, et le garde-fou d'opération de masse n'existe que pour juger
+une livraison de séries. **Il ne s'armait pas sur une livraison de séries.**
+
+Les trois livraisons étaient saines — suite passée en local avant chacune —
+mais rien dans la chaîne ne l'établissait. **Un garde-fou qui ne s'arme pas vaut
+son absence, à la fausse tranquillité près.**
