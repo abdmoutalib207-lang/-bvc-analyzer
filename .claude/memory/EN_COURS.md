@@ -18,6 +18,51 @@ historique** — cela recréerait une référence exposée.
 
 ---
 
+## ⚠️ EN ATTENTE — le jeton du déclencheur externe
+
+**Date d'expiration à noter ici dès la création du jeton fine-grained**, avec
+un rappel un mois avant.
+
+Le jour où il expire, le déclenchement cesse **sans bruit** : cron-job.org
+reçoit un `401`, GitHub ne lance rien, le bulletin porte la veille. C'est la
+panne du 23/09 à nouveau, mais silencieuse.
+
+Parade indispensable : activer les **notifications d'échec** de cron-job.org.
+C'est la seule alerte qui vienne du bon côté — elle part même si GitHub ne
+fait rien. Procédure complète : `docs/DECLENCHEUR_EXTERNE.md`.
+
+  - [ ] jeton créé le ………, expire le ………
+  - [ ] tâche « run de clôture » — `45 15 * * 1-5` UTC
+  - [ ] tâche « contrôle de séance » — `30 18 * * 1-5` UTC
+  - [ ] notifications d'échec activées
+  - [ ] premier déclenchement vérifié dans l'onglet Actions
+
+---
+
+## ⚠️ EN ATTENTE — le jeton du déclencheur externe
+
+**Date d'expiration à noter ici dès la création du jeton**, avec un rappel un
+mois avant.
+
+Le jour où il expire, tout s'arrête **sans bruit** : Cloudflare reçoit un
+`401`, GitHub ne lance rien, et — c'est le pire — **l'alerte ne peut pas être
+ouverte non plus, puisqu'elle passe par le même jeton**. La panne du 23/09
+reviendrait, silencieuse.
+
+Procédure complète : `declencheur/README.md`.
+
+  - [ ] jeton créé le ………, **expire le ………**
+  - [ ] secret `GITHUB_TOKEN` posé dans Cloudflare (type *Secret*, pas *Text*)
+  - [ ] cron `45 15 * * 1-5` — déclenche le run de clôture
+  - [ ] cron `50 15 * * 1-5` — vérifie qu'il est parti, alerte sinon
+  - [ ] premier déclenchement vu dans l'onglet Actions
+
+⚠️ Les crons GitHub sont **gardés tels quels**, et ce n'est pas de la
+négligence : peu fiables, mais indépendants du jeton et de Cloudflare. Deux
+mécanismes qui ne tombent pas ensemble valent mieux qu'un seul, meilleur.
+
+---
+
 ## État au 23/09/2026 — ce qui vient d'être fait, et ce qui reste
 
 > Objectif donné par Abd Moutalib : **un moteur stable, sans erreur dans le
