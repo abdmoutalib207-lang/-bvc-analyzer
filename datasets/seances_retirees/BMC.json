@@ -1,0 +1,24 @@
+{
+  "_statut": "INSTRUCTION — cette séance est RETIRÉE de la série publiée. Ce n'est pas un signalement : datasets/historiques_candidats/ PROPOSE, ce dossier INSTRUIT.",
+  "_pourquoi_retirer_et_non_corriger": "Il n'y a rien à corriger : la séance N'A PAS EU LIEU. Corriger supposerait qu'une vraie valeur existe quelque part ; ici le marché était fermé. Toute valeur portée à cette date est fabriquée, quelle qu'elle soit.",
+  "ticker": "BMC",
+  "instrument": "BMCI",
+  "ecrit_par": "indéterminé — les trois écrivains de chandelles ont pu la produire ; aucun n'avait de garde sur les jours de fermeture avant le registre SEANCES_SANS_COTATION.",
+  "mecanisme": "Fête du Trône — la Bourse de Casablanca n'a pas ouvert. Aucune séance n'a eu lieu ce jour-là. Les sources ont néanmoins servi une valeur ce jour-là, et nos écrivains l'ont prise pour une clôture.",
+  "preuve": "(7, 30) figure dans JOURS_FERIES_FIXES depuis l'origine du projet ; et les 27 exports « Cours » de l'opérateur reçus les 22-23/09/2026 omettent tous cette date, alors qu'ils listent les séances SANS ÉCHANGE. Deux pièces indépendantes, dont une émanant de l'opérateur lui-même.",
+  "lignes": [
+    {
+      "d": "2026-07-30",
+      "retiree": {
+        "o": 590.0,
+        "h": 590.0,
+        "l": 590.0,
+        "c": 590.0,
+        "v": 601210
+      },
+      "motif": "jour de fermeture — Fête du Trône ; la valeur portée égale la clôture du LENDEMAIN (2026-07-31)"
+    }
+  ],
+  "_registre": "bvc_config.SEANCES_SANS_COTATION['2026-07-30'] — le registre empêche la bougie de REVENIR à chaque run ; ce document établit ce qui a été retiré, avec la bougie exacte.",
+  "_pourquoi_aucun_garde_fou_ne_l_a_vue": "purger_seance_fantome() ne regarde que la séance la plus récente, par conception ; et son test exige 95 % de clôtures identiques à la veille, or il n'y en avait que 8 sur 34. Un fait qui ne laisse pas de motif statistique ne se déduit pas : il se déclare."
+}
