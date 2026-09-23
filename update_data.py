@@ -55,6 +55,7 @@ try:
 except NameError:
     OUTPUT = Path("data.json")  # Colab : dossier courant
 
+from bvc_config import decalage_maroc
 from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
                         COMPANY_NAMES, COMPANY_SECTORS, est_ferie_fixe,
                         est_suspendu, SPLITS, SUSPENSIONS,
@@ -1415,7 +1416,7 @@ def _bmce_parser(page, libelles):
                        _html.unescape(re.sub(r"<[^>]+>", "", c))).strip()
                 for c in re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", tr, re.S | re.I)]
 
-    seance = datetime.now(timezone(timedelta(hours=1))).strftime("%Y-%m-%d")
+    seance = datetime.now(_tz_maroc()).strftime("%Y-%m-%d")
     out, sans_corresp = {}, []
     for c in (_cellules(l) for l in re.findall(r"<tr[^>]*>(.*?)</tr>", page, re.S | re.I)):
         if len(c) < 9 or not heure_re.match(c[1] or ""):
@@ -2753,6 +2754,26 @@ def bougie_a_ecrire(seance: str, aujourd_hui: str,
     return "ajouter"
 
 
+def _tz_maroc() -> timezone:
+    """Le fuseau marocain COURANT, d'après le registre `DECALAGES_MAROC`.
+
+    ⚠️ CE FICHIER ÉCRIVAIT `timezone(timedelta(hours=1))` À CINQ ENDROITS.
+    Le Maroc est passé à UTC+0 le dimanche 20/09/2026 à minuit : pendant trois
+    séances, le champ `updated` de data.json a donc AVANCÉ d'une heure — un run
+    de 15h08 locales s'annonçait « 16h08+01:00 ».
+
+    Ce n'est pas cosmétique : le contrôle d'horodatage compare cette étiquette
+    à l'heure de clôture. Mal étiqueté, un run fait APRÈS la clôture peut être
+    rejeté comme antérieur.
+
+    ⚠️ Ni une constante ni `ZoneInfo` : la première ignore les décrets, la
+    seconde dépend d'une base dont on ne maîtrise pas la fraîcheur — celle du
+    conteneur datait d'avril 2025 et ignorait le changement.
+    """
+    n = datetime.now(timezone.utc)
+    return timezone(timedelta(hours=decalage_maroc(n.date())))
+
+
 def _ecrire_candles_sous_garde(sym: str, existing: list, cfp: Path) -> bool:
     """Écrit une série seulement si les corrections réceptionnées l'acceptent.
 
@@ -2817,7 +2838,7 @@ def run(dry_run=False, push=False, token=""):
     _n_pb = sum(1 for t in FAITS_DATA if not t.startswith("_") and _pb_sourcé(t, 1.0) is not None)
     logger.info(f"Faits AMMC chargés : {len([t for t in FAITS_DATA if not t.startswith('_')])} "
                 f"émetteurs, dont {_n_pb} avec un price-to-book calculable")
-    now_ca = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=1)  # UTC+1 Casablanca
+    now_ca = datetime.now(_tz_maroc()).replace(tzinfo=None)  # heure locale, registre
     h, mn = now_ca.hour, now_ca.minute
     tot = h * 60 + mn
     day = now_ca.weekday()  # 0=lun, 5=sam, 6=dim
@@ -2967,7 +2988,7 @@ def run(dry_run=False, push=False, token=""):
     from pipeline.session_candles import preparer
     _series_cotations = preparer(
         live_prices, IDB_ASOF,
-        datetime.now(ZoneInfo('Africa/Casablanca')).date().isoformat(),
+        datetime.now(_tz_maroc()).date().isoformat(),
         Path(__file__).parent / 'pipeline' / 'candles', TICKERS)
 
     # Pré-chargement des candles OHLCV (pipeline/candles/*.json) pour OBV / ADX
@@ -3033,7 +3054,7 @@ def run(dry_run=False, push=False, token=""):
         pass
 
     # Déterminer si on est sur une nouvelle session (date changée depuis dernier data.json)
-    _tz_ca = timezone(timedelta(hours=1))
+    _tz_ca = _tz_maroc()
     _today_str = datetime.now(_tz_ca).strftime("%Y-%m-%d")
     _prev_date_str = ""
     try:
@@ -3655,7 +3676,7 @@ def run(dry_run=False, push=False, token=""):
         # permanence dans l'en-tête du terminal. Le message de commit, lui,
         # utilise `TZ=Africa/Casablanca date` et donnait l'heure juste : d'où
         # un data.json marqué 11h31 dans un commit intitulé 12h31.
-        "updated": datetime.now(timezone(timedelta(hours=1))).strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "updated": datetime.now(_tz_maroc()).strftime("%Y-%m-%dT%H:%M:%S%z"),
         # ⚠️ La date RÉELLEMENT utilisée pour les décisions datées (suspensions).
         # Écrite dans le fichier produit, et non seulement dans un manifeste :
         # un dossier peut se tromper, le fichier ne peut pas.
