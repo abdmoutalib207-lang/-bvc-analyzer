@@ -785,8 +785,13 @@ Caps recalculées via `prix × nb_titres officiels BVC` après corrections ISIN 
   `previous_close` de casabourse.app, **concordance 67/67** sur la clôture de la
   veille. C'est aujourd'hui notre meilleur juge de paix quand IDBourse est muet
   ou périmé sur un titre.
-  - ⚠️ Le titre du bulletin porte la date de **publication**, pas celle de la
-    séance : « Indices du lundi 10 août » contient la séance du vendredi 07/08.
+  - ⚠️ **La date du titre ne dit pas quelle séance le bulletin contient.**
+    « Indices du lundi 10 août » contenait la séance du vendredi 07/08 ; mais
+    « Indices du mercredi 23 septembre » contient bien celle du 23 — établi
+    contre l'export de l'opérateur, 22 titres sur 27 en désaccord avec le 22.
+    **Dater chaque bulletin sur son CONTENU** : `parse_cdg_bulletin.py
+    --verifier <date>` sur les deux dates candidates, et retenir celle qui
+    concorde. Une règle tirée d'un seul bulletin n'est pas une règle.
   - Les codes y sont les tickers **officiels BVC** (`SID`=Sonasid, `SNA`=Stokvis,
     `ZDJ`=Zellidja) : passer par `IDB_TICKER_MAP` avant toute comparaison.
   - Parsing : les montants portent deux décimales et groupent les milliers par
