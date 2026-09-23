@@ -36,14 +36,28 @@ on:
     #
     # Casablanca = UTC+1 toute l'année.
 
+    # ⚠️ HEURES RECALÉES LE 23/09/2026 — LE MAROC EST PASSÉ À UTC+0.
+    #
+    # Le changement a eu lieu le dimanche 20/09 à minuit. Les crons ci-dessous
+    # étaient calés sur UTC+1 : celui de « 45 14 », présenté comme le run de
+    # 15h45 qui fixe le cours, tombait en réalité à 14h45 LOCALES — quarante-
+    # cinq minutes AVANT la clôture de 15h30. Il aurait figé la séance comme
+    # celle du 21/09.
+    #
+    # ⚠️ UN CRON GITHUB EST EN UTC FIXE : il ne peut pas suivre un décret. À
+    # chaque changement d'heure du Maroc — Ramadan compris — ces quatre lignes
+    # dérivent d'une heure. C'est pourquoi la redondance de rattrapage couvre
+    # désormais 8h→18h UTC : la fenêtre englobe la séance dans les DEUX
+    # décalages possibles, et compense la dérive sans intervention.
+
     # ── Les quatre passages qui portent la promesse ──────────────────────
-    - cron: '40 8 * * 1-5'    # ≈09h40 — dix minutes après l'ouverture, le
+    - cron: '40 9 * * 1-5'    # ≈09h40 — dix minutes après l'ouverture, le
                               #          temps que les titres peu liquides
                               #          impriment un premier cours
-    - cron:  '0 11 * * 1-5'   # ≈12h00 — mi-séance
-    - cron: '45 14 * * 1-5'   # ≈15h45 — LE run qui compte : 15 min après la
+    - cron:  '0 12 * * 1-5'   # ≈12h00 — mi-séance
+    - cron: '45 15 * * 1-5'   # ≈15h45 — LE run qui compte : 15 min après la
                               #          clôture de 15h30, il fixe le cours
-    - cron:  '0 17 * * 1-5'   # ≈18h00 — filet, après generate_candles (17h)
+    - cron:  '0 18 * * 1-5'   # ≈18h00 — filet, après generate_candles (17h)
 
     # ── La redondance, DANS la fenêtre de cotation ───────────────────────
     #
@@ -54,7 +68,7 @@ on:
     #
     # ⚠️ RIEN AVANT 08h25 UTC NI APRÈS 17h55 UTC. Hors séance, il n'y a rien à
     # collecter : un run nocturne ne peut que republier ce qu'on a déjà.
-    - cron: '25,55 8-17 * * 1-5'
+    - cron: '25,55 8-18 * * 1-5'
 
   workflow_run:
     workflows: ["BVC Financial Data Pipeline v9"]

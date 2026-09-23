@@ -408,6 +408,70 @@ JOURS_FERIES_FIXES: set = {
 #
 # Cette table est donc une INSTRUCTION, au même titre que SUSPENSIONS : elle
 # n'est pas déduite, elle est reçue.
+# ─────────────────────────────────────────────────────────────────────────
+# DÉCALAGE HORAIRE DU MAROC — un fait réglementaire, donc un registre
+# ─────────────────────────────────────────────────────────────────────────
+#
+# ⚠️ POURQUOI CE REGISTRE EXISTE, ET CE QU'IL A COÛTÉ
+#
+# Le 23/09/2026, tout le raisonnement horaire du projet était faux d'une heure.
+# Le Maroc a changé d'heure le DIMANCHE 20/09 À MINUIT et est passé à UTC+0 ;
+# la base de fuseaux du conteneur, figée en avril 2025, l'ignorait et
+# répondait encore UTC+1.
+#
+# Conséquences mesurées, toutes en production :
+#   — le cron « 45 14 » présenté comme le run de 15h45 tombait en réalité à
+#     14h45 locales, soit QUARANTE-CINQ MINUTES AVANT la clôture de 15h30 ;
+#   — le contrôle d'horodatage plaçait la clôture une heure trop tôt et
+#     acceptait donc un fichier qui ne la contenait pas ;
+#   — le champ `updated` de data.json avançait d'une heure.
+#
+# ⚠️ ET J'AVAIS EU L'AVERTISSEMENT SANS LE COMPRENDRE. La veille, deux tests
+# passaient en local et échouaient en intégration, avec exactement une heure
+# d'écart. J'en ai conclu que le runner GitHub avait une base périmée et j'ai
+# FORCÉ UTC+1 en dur. C'était l'inverse : le runner était à jour, et c'est moi
+# qui ai inscrit l'erreur dans le code.
+#
+# La leçon tient en une ligne : **un décalage horaire est un fait déclaré par
+# un État, pas une constante à deviner.** Il se constate sur pièce, comme un
+# split ou une suspension — voir R11.
+#
+# Chaque entrée vaut À PARTIR de sa date, jusqu'à la suivante. Le Maroc est à
+# UTC+1 depuis 2018, sauf pendant le Ramadan où il revient à UTC+0.
+DECALAGES_MAROC: list = [
+    {"depuis": "2018-10-28", "offset": 1,
+     "source": "décret 2.18.855 — heure légale UTC+1 permanente"},
+    {"depuis": "2026-02-08", "offset": 0,
+     "source": "retour à UTC+0 pour le Ramadan 1447"},
+    {"depuis": "2026-03-29", "offset": 1,
+     "source": "fin du Ramadan, retour à UTC+1"},
+    {"depuis": "2026-09-20", "offset": 0,
+     "source": "changement d'heure du dimanche 20/09 à minuit, constaté sur "
+               "place par Abd Moutalib le 23/09/2026 ; la base de fuseaux du "
+               "conteneur (avril 2025) l'ignorait encore"},
+]
+
+
+def decalage_maroc(jour) -> int:
+    """Le décalage horaire du Maroc, en heures, à la date donnée.
+
+    `jour` est une chaîne « AAAA-MM-JJ » ou tout objet dont `str()` commence
+    par une telle date. Renvoie 0 ou 1.
+
+    ⚠️ Le registre FAIT FOI. On n'interroge pas la base de fuseaux du système :
+    elle peut être plus ancienne que le dernier décret, et c'est exactement ce
+    qui s'est produit le 23/09/2026.
+    """
+    d = str(jour)[:10]
+    offset = DECALAGES_MAROC[0]["offset"]
+    for e in DECALAGES_MAROC:
+        if d >= e["depuis"]:
+            offset = e["offset"]
+        else:
+            break
+    return offset
+
+
 SEANCES_ANNULEES: dict = {
     "2026-09-17": {
         "motif": "séance définitivement arrêtée par la Bourse de Casablanca pour "

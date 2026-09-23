@@ -31,11 +31,16 @@ RACINE = Path(__file__).parent.parent
 sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(Path(__file__).parent))
 
-from bvc_config import TICKERS_ACTIFS                    # noqa: E402
+from bvc_config import TICKERS_ACTIFS, decalage_maroc    # noqa: E402
 from seance import derniere_seance_connue                # noqa: E402
 
-# Casablanca est à UTC+1 toute l'année.
-TZ_CA = ZoneInfo('Africa/Casablanca')
+# ⚠️ PAS `ZoneInfo`. Voir le bloc sur `_fuseau()` plus bas : la base de
+# fuseaux du conteneur, figée en avril 2025, ignorait le passage du Maroc à
+# UTC+0 du 20/09/2026. Le fuseau se lit dans le registre `DECALAGES_MAROC`.
+def _maintenant_local() -> datetime:
+    """L'heure locale marocaine, d'après le registre."""
+    n = datetime.now(timezone.utc)
+    return n.astimezone(timezone(timedelta(hours=decalage_maroc(n.date()))))
 
 # En deçà, la séance n'a pas été collectée : un jour coté normal grave une
 # bougie pour environ soixante-dix titres. Le seuil laisse la marge d'une
@@ -53,19 +58,24 @@ JOURS_SANS_SEANCE_MAX = 5
 # Heure de clôture de la Bourse de Casablanca.
 HEURE_CLOTURE = (15, 30)
 
-# ⚠️ DÉCALAGE FIXE, PAS `ZoneInfo`. Le moteur horodate `data.json` avec un
-# `+01:00` littéral (« Casablanca est à UTC+1 toute l'année »). Or le runner
-# GitHub ne résout PAS `Africa/Casablanca` au même décalage : deux tests ont
-# échoué en intégration alors qu'ils passaient en local, et **seuls ceux dont
-# la marge était inférieure à une heure** — 15h45 contre 15h30, puis 15h30
-# pile. Ceux dont la marge dépassait l'heure passaient. Signature nette d'un
-# décalage d'exactement 1 h.
+# ⚠️ LE DÉCALAGE VIENT DU REGISTRE, PAS D'UNE CONSTANTE ET PAS DU SYSTÈME.
 #
-# En production, cela aurait fait crier le contrôle sur un run de clôture
-# parfaitement normal : l'alerte fausse que ce fichier existe pour éviter.
-# Comparer une heure écrite `+01:00` à une heure issue d'une base de fuseaux
-# dont on ne maîtrise pas la version, c'est comparer deux choses différentes.
-UTC_PLUS_1 = timezone(timedelta(hours=1))
+# Ce fichier a porté `UTC_PLUS_1 = timezone(timedelta(hours=1))` écrit en dur,
+# et c'était faux. Le Maroc est passé à UTC+0 le dimanche 20/09/2026 à minuit ;
+# pendant trois séances le contrôle a placé la clôture une heure trop tôt et
+# aurait accepté un fichier qui ne la contenait pas.
+#
+# ⚠️ J'avais eu l'avertissement et je l'ai mal lu. Deux tests passaient en
+# local et échouaient en intégration avec exactement une heure d'écart. J'en ai
+# conclu que le runner GitHub avait une base de fuseaux périmée et j'ai forcé
+# UTC+1. C'était l'inverse : le runner était à jour.
+#
+# Ni la constante ni `ZoneInfo` ne conviennent — la première ignore les
+# décrets, la seconde dépend d'une base dont on ne maîtrise ni la version ni la
+# fraîcheur. Le décalage est un FAIT DÉCLARÉ : il vit dans `DECALAGES_MAROC`.
+def _fuseau(jour) -> timezone:
+    """Le fuseau du Maroc à la date donnée, d'après le registre."""
+    return timezone(timedelta(hours=decalage_maroc(jour)))
 
 
 def derniere_cloture_ecoulee(maintenant: datetime) -> datetime:
@@ -99,9 +109,13 @@ def derniere_cloture_ecoulee(maintenant: datetime) -> datetime:
     # ⚠️ On raisonne dans le décalage FIXE UTC+1, celui que le moteur écrit.
     # `maintenant` peut arriver naïf ou dans n'importe quel fuseau ; ce qui
     # compte est l'instant, pas l'étiquette.
+    # Le fuseau dépend de la DATE, et la date du fuseau. On tranche par la
+    # date UTC : les deux ne divergent qu'entre minuit et 1h du matin, où le
+    # décalage vaut de toute façon la même chose des deux côtés.
     if maintenant.tzinfo is None:
-        maintenant = maintenant.replace(tzinfo=UTC_PLUS_1)
-    ici = maintenant.astimezone(UTC_PLUS_1)
+        maintenant = maintenant.replace(tzinfo=timezone.utc)
+    fuseau = _fuseau(maintenant.astimezone(timezone.utc).date())
+    ici = maintenant.astimezone(fuseau)
     cloture = ici.replace(hour=HEURE_CLOTURE[0], minute=HEURE_CLOTURE[1],
                           second=0, microsecond=0)
     if ici < cloture:
@@ -132,8 +146,8 @@ def horodatage_couvre_la_cloture(horodatage: str,
     except (TypeError, ValueError):
         return False, f"horodatage illisible : {horodatage or 'absent'}"
     if ecrit.tzinfo is None:
-        ecrit = ecrit.replace(tzinfo=UTC_PLUS_1)
-    ecrit = ecrit.astimezone(UTC_PLUS_1)
+        ecrit = ecrit.replace(tzinfo=cloture.tzinfo)
+    ecrit = ecrit.astimezone(cloture.tzinfo)
     detail = (f"écrit le {ecrit:%d/%m à %Hh%M}, clôture du "
               f"{cloture:%d/%m à %Hh%M}")
     if ecrit < cloture:
@@ -148,7 +162,7 @@ def _seance_de_reference():
     derniere = derniere_seance_source()
     if not derniere:
         return None, 0
-    ecart = (datetime.now(TZ_CA).date()
+    ecart = (_maintenant_local().date()
              - datetime.strptime(derniere, "%Y-%m-%d").date()).days
     return derniere, ecart
 
@@ -184,7 +198,7 @@ def _controles(jour, ecart):
     # Ce qui importe est que le fichier ait été régénéré récemment.
     horodatage = str(data.get("updated") or "")
     try:
-        age_h = (datetime.now(TZ_CA)
+        age_h = (_maintenant_local()
                  - datetime.fromisoformat(horodatage)).total_seconds() / 3600
     except Exception:
         age_h = 1e9
@@ -196,7 +210,7 @@ def _controles(jour, ecart):
     # Un fichier écrit avant la clôture ne peut pas la contenir. Voir
     # `derniere_cloture_ecoulee()` pour le détail des 18 et 21/09.
     apres_cloture, detail = horodatage_couvre_la_cloture(
-        horodatage, datetime.now(TZ_CA))
+        horodatage, _maintenant_local())
     ajouter("data.json écrit après la dernière clôture", apres_cloture, detail)
 
     asof = Counter((x.get("_meta") or {}).get("prix_asof") for x in titres.values())

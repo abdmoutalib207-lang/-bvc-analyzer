@@ -20,15 +20,31 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import sys
+
 import yaml
 
 RACINE = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(RACINE))
+from bvc_config import decalage_maroc  # noqa: E402
 WF = RACINE / ".github" / "workflows" / "update_bvc.yml"
 
-# Casablanca = UTC+1. Séance : 9h30–15h30, donc 08:30–14:30 UTC.
-# La fenêtre autorisée va de l'ouverture au filet du soir : 08:00–18:00 UTC.
-PREMIERE_HEURE_UTC = 8
-DERNIERE_HEURE_UTC = 17
+# ⚠️ EN HEURES LOCALES, PAS EN UTC.
+#
+# La première version de ce fichier fixait « 8h–17h UTC » en dur, en supposant
+# Casablanca à UTC+1. Le Maroc est passé à UTC+0 le 20/09/2026 et ces bornes
+# sont devenues fausses — les tests ont rougi alors que les crons venaient
+# d'être CORRIGÉS. Un test calé sur un décalage périmé accuse le correctif.
+#
+# La règle vraie porte sur l'heure LOCALE : le moteur travaille entre
+# l'ouverture (9h30) et le filet du soir (18h), jamais la nuit.
+PREMIERE_HEURE_LOCALE = 8
+DERNIERE_HEURE_LOCALE = 19
+
+
+def _offset():
+    from datetime import datetime, timezone
+    return decalage_maroc(datetime.now(timezone.utc).date().isoformat())
 
 
 def _crons():
@@ -56,10 +72,11 @@ def test_aucun_cron_ne_tourne_la_nuit():
     fautifs = []
     for cron in _crons():
         h = _heures(cron.split()[1])
+        o = _offset()
         hors = sorted(x for x in h
-                      if not PREMIERE_HEURE_UTC <= x <= DERNIERE_HEURE_UTC)
+                      if not PREMIERE_HEURE_LOCALE <= (x + o) % 24 <= DERNIERE_HEURE_LOCALE)
         if hors:
-            fautifs.append((cron, [f"{(x+1) % 24:02d}h Casa" for x in hors]))
+            fautifs.append((cron, [f"{(x+o) % 24:02d}h locales" for x in hors]))
     assert not fautifs, f"cron(s) hors fenêtre de séance : {fautifs}"
 
 
@@ -72,22 +89,30 @@ def test_la_redondance_couvre_toute_la_fenetre():
     """Le remède au retard de GitHub n'est pas d'avancer les heures — ça
     décalerait le problème — mais de multiplier les occasions dans la fenêtre
     utile. Encore faut-il qu'elles la couvrent."""
-    couvertes: set[int] = set()
-    for cron in _crons():
-        couvertes |= _heures(cron.split()[1])
-    attendues = set(range(PREMIERE_HEURE_UTC, DERNIERE_HEURE_UTC + 1))
+    o = _offset()
+    couvertes = {(x + o) % 24 for cron in _crons() for x in _heures(cron.split()[1])}
+    # La séance court de 9h30 à 15h30 locales ; le filet va jusqu'à 18h.
+    attendues = set(range(9, 19))
     assert attendues <= couvertes, (
         f"heures de séance sans aucun cron : "
-        f"{sorted((x+1) % 24 for x in attendues - couvertes)} Casa")
+        f"{sorted(attendues - couvertes)} locales")
 
 
 def test_les_quatre_passages_qui_portent_la_promesse_subsistent():
     """Ouverture, mi-séance, clôture, filet. Le run de 15h45 est celui qui
     fixe le cours définitif."""
-    crons = _crons()
-    for attendu in ("40 8 * * 1-5", "0 11 * * 1-5",
-                    "45 14 * * 1-5", "0 17 * * 1-5"):
-        assert attendu in crons, f"passage manquant : {attendu}"
+    o = _offset()
+    principaux = [c for c in _crons() if "," not in c.split()[0]]
+    locales = sorted(((int(c.split()[1]) + o) % 24, int(c.split()[0]))
+                     for c in principaux)
+    assert len(locales) >= 4, f"moins de quatre passages : {locales}"
+    # ouverture (après 9h30), mi-séance, APRÈS la clôture de 15h30, filet du soir
+    assert any((9, 30) < hm <= (10, 30) for hm in locales), f"ouverture absente : {locales}"
+    assert any((11, 0) <= hm <= (13, 0) for hm in locales), f"mi-séance absente : {locales}"
+    assert any((15, 30) < hm <= (16, 30) for hm in locales), (
+        f"AUCUN passage après la clôture de 15h30 — c'est celui qui fixe le "
+        f"cours définitif : {locales}")
+    assert any(hm >= (17, 30) for hm in locales), f"filet du soir absent : {locales}"
 
 
 def test_le_gate_reconnait_le_cron_de_rattrapage_par_sa_forme():
@@ -105,9 +130,12 @@ def test_le_gate_reconnait_le_cron_de_rattrapage_par_sa_forme():
 def test_chaque_cron_de_rattrapage_passe_par_la_porte():
     """Tout cron de redondance doit commencer par une minute que le gate
     reconnaît. Sinon il publierait sans filtre."""
-    principaux = {"40 8 * * 1-5", "0 11 * * 1-5", "45 14 * * 1-5", "0 17 * * 1-5"}
+    # ⚠️ Un cron principal se reconnaît à sa FORME — une minute unique — pas à
+    # une liste de chaînes littérales. La première version en épinglait quatre
+    # ; le recalage horaire du 23/09 les a toutes changées, et le test a rougi
+    # sur des crons parfaitement corrects.
     for cron in _crons():
-        if cron in principaux:
+        if "," not in cron.split()[0]:
             continue
         minute = cron.split()[0]
         assert minute.startswith(("25", "55")), (

@@ -39,15 +39,22 @@ sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(RACINE / "pipeline"))
 
 from verifier_seance import (derniere_cloture_ecoulee,  # noqa: E402
-                             horodatage_couvre_la_cloture, UTC_PLUS_1)
+                             horodatage_couvre_la_cloture)
+from bvc_config import decalage_maroc  # noqa: E402
 
-# ⚠️ DÉCALAGE FIXE, PAS `ZoneInfo`. Voir le test de non-régression en fin de
-# fichier : le runner GitHub ne résout pas `Africa/Casablanca` comme `+01:00`.
-CASA = UTC_PLUS_1
+# ⚠️ LE FUSEAU VIENT DU REGISTRE, PAS D'UNE CONSTANTE.
+#
+# Ce fichier a porté `CASA = UTC_PLUS_1`, et c'était faux : le Maroc est passé
+# à UTC+0 le dimanche 20/09/2026 à minuit. Les scénarios ci-dessous datent des
+# 18, 21 et 22/09 — donc AVANT le changement, à UTC+1 — et du 23/09, APRÈS,
+# à UTC+0. Une constante unique ne pouvait pas décrire les deux.
+def CASA_LE(jour):
+    return timezone(timedelta(hours=decalage_maroc(jour)))
 
 
 def _t(txt):
-    return datetime.fromisoformat(txt).replace(tzinfo=CASA)
+    """L'instant local marocain, dans le fuseau QUI VALAIT CE JOUR-LÀ."""
+    return datetime.fromisoformat(txt).replace(tzinfo=CASA_LE(txt[:10]))
 
 
 # ── Les deux pannes réelles ────────────────────────────────────────────────
@@ -148,7 +155,7 @@ def test_le_controle_est_branche_dans_la_liste():
 
 def test_le_verdict_refuse_le_fichier_du_21_septembre():
     ok, detail = horodatage_couvre_la_cloture(
-        "2026-09-21T11:44:32+01:00", _t("2026-09-21T22:07:00"))
+        "2026-09-21T11:44:32+00:00", _t("2026-09-21T22:07:00"))
     assert ok is False
     assert "ANTÉRIEUR" in detail
 
@@ -161,20 +168,20 @@ def test_le_verdict_refuse_le_fichier_du_18_septembre():
 
 def test_le_verdict_accepte_un_run_de_cloture():
     ok, detail = horodatage_couvre_la_cloture(
-        "2026-09-22T15:45:00+01:00", _t("2026-09-22T19:32:00"))
+        "2026-09-22T15:45:00+00:00", _t("2026-09-22T19:32:00"))
     assert ok is True
     assert "ANTÉRIEUR" not in detail
 
 
 def test_le_verdict_accepte_la_cloture_exacte():
     ok, _ = horodatage_couvre_la_cloture(
-        "2026-09-22T15:30:00+01:00", _t("2026-09-22T19:32:00"))
+        "2026-09-22T15:30:00+00:00", _t("2026-09-22T19:32:00"))
     assert ok is True
 
 
 def test_le_verdict_refuse_une_minute_avant():
     ok, _ = horodatage_couvre_la_cloture(
-        "2026-09-22T15:29:00+01:00", _t("2026-09-22T19:32:00"))
+        "2026-09-22T15:29:00+00:00", _t("2026-09-22T19:32:00"))
     assert ok is False
 
 
@@ -209,8 +216,8 @@ def test_le_verdict_ne_depend_pas_du_fuseau_de_la_machine(fuseau_du_contexte):
     """Le même instant, étiqueté dans n'importe quel fuseau, doit donner le
     même verdict. C'est l'instant qui compte, pas l'étiquette."""
     # Un run de clôture à 15h45 Casablanca, vu depuis 19h32 Casablanca.
-    ecrit = "2026-09-22T15:45:00+01:00"
-    maintenant = datetime.fromisoformat("2026-09-22T19:32:00+01:00")
+    ecrit = "2026-09-22T15:45:00+00:00"
+    maintenant = datetime.fromisoformat("2026-09-22T19:32:00+00:00")
     ok, _ = horodatage_couvre_la_cloture(
         ecrit, maintenant.astimezone(fuseau_du_contexte))
     assert ok is True, (
@@ -224,9 +231,9 @@ def test_le_verdict_ne_depend_pas_du_fuseau_de_la_machine(fuseau_du_contexte):
 def test_la_panne_du_21_reste_vue_quel_que_soit_le_fuseau(fuseau_du_contexte):
     """Contre-épreuve : rendre le contrôle insensible au fuseau ne doit pas le
     rendre insensible tout court."""
-    maintenant = datetime.fromisoformat("2026-09-21T22:07:00+01:00")
+    maintenant = datetime.fromisoformat("2026-09-21T22:07:00+00:00")
     ok, _ = horodatage_couvre_la_cloture(
-        "2026-09-21T11:44:32+01:00", maintenant.astimezone(fuseau_du_contexte))
+        "2026-09-21T11:44:32+00:00", maintenant.astimezone(fuseau_du_contexte))
     assert ok is False
 
 
