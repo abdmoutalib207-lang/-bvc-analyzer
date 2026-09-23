@@ -25,6 +25,15 @@ END_DATE       = datetime.now().strftime("%Y-%m-%d")
 # ISIN MAP (depuis bvc_config)
 # ─────────────────────────────────────────────
 sys.path.insert(0, str(REPO_ROOT))
+
+# ⚠️ Règle unique du volume — voir `pipeline/volume_titres.py`. Elle vit dans
+# un module parce qu'elle était violée à quatre endroits différents, chacun
+# écrit séparément et chacun de bonne foi.
+from pipeline.volume_titres import (  # noqa: E402
+    choisir_colonne as choisir_colonne_volume,
+    volume_inconnu,
+)
+
 try:
     from bvc_config import ISIN_MAP, TICKERS_ALL
 except ImportError:
@@ -88,16 +97,27 @@ def fetch_medias24(ticker: str, isin: str) -> pd.DataFrame:
             elif "high" in cl or "haut" in cl:   col_map[c] = "high"
             elif "low" in cl or "bas" in cl:     col_map[c] = "low"
             elif "open" in cl or "ouv" in cl:    col_map[c] = "open"
-            elif "vol" in cl:    col_map[c] = "volume"
+        # ⚠️ Le volume se choisit à part : `elif "vol" in cl` attrapait
+        # « Volume (MAD) », un montant, et laissait « Titres Échangés » de côté.
+        vol = choisir_colonne_volume(df.columns)
+        if vol is not None:
+            col_map[vol] = "volume"
         df = df.rename(columns=col_map)
         if "date" not in df.columns or "close" not in df.columns:
             return pd.DataFrame()
         df["date"] = pd.to_datetime(df["date"])
         df["close"] = pd.to_numeric(df["close"], errors="coerce")
-        for col in ["high", "low", "open", "volume"]:
+        # Une bougie sans extrêmes connus est plate : la clôture fait foi.
+        for col in ["high", "low", "open"]:
             if col not in df.columns:
                 df[col] = df["close"]
             df[col] = pd.to_numeric(df[col], errors="coerce")
+        # ⚠️ Le volume, lui, n'a pas de continuité à assurer : un cours n'est
+        # pas une approximation d'un nombre de titres.
+        if "volume" not in df.columns:
+            df["volume"] = volume_inconnu()
+        df["volume"] = pd.to_numeric(df["volume"], errors="coerce") \
+            .fillna(volume_inconnu())
         df = df.dropna(subset=["date", "close"]).sort_values("date")
         return df[["date", "close", "high", "low", "open", "volume"]]
     except Exception as e:
@@ -124,16 +144,20 @@ def fetch_bvcscrap(ticker: str) -> pd.DataFrame:
             elif "value" in cl or "close" in cl: col_map[c] = "close"
             elif "max" in cl or "high" in cl:  col_map[c] = "high"
             elif "min" in cl or "low" in cl:   col_map[c] = "low"
-            elif "vol" in cl:  col_map[c] = "volume"
+        vol = choisir_colonne_volume(df.columns)
+        if vol is not None:
+            col_map[vol] = "volume"
         df = df.rename(columns=col_map)
         if "close" not in df.columns:
             return pd.DataFrame()
         if "date" not in df.columns:
             df["date"] = pd.date_range(START_DATE, periods=len(df), freq="B")
         df["date"] = pd.to_datetime(df["date"])
-        for col in ["high", "low", "open", "volume"]:
+        for col in ["high", "low", "open"]:
             if col not in df.columns:
                 df[col] = df["close"]
+        if "volume" not in df.columns:
+            df["volume"] = volume_inconnu()
         return df[["date", "close", "high", "low", "open", "volume"]].dropna(subset=["close"])
     except Exception as e:
         print(f"    BVCscrap {ticker}: {e}")
@@ -164,9 +188,11 @@ def fetch_yfinance(ticker: str) -> pd.DataFrame:
         df = df.rename(columns=rename)
         if "close" not in df.columns and "close" not in df.columns:
             return pd.DataFrame()
-        for col in ["high", "low", "open", "volume"]:
+        for col in ["high", "low", "open"]:
             if col not in df.columns:
                 df[col] = df.get("close", 0)
+        if "volume" not in df.columns:
+            df["volume"] = volume_inconnu()
         df["date"] = pd.to_datetime(df.get("date", df.index))
         return df[["date", "close", "high", "low", "open", "volume"]].dropna(subset=["close"])
     except Exception as e:
@@ -192,8 +218,11 @@ _CB_COL_MAP = {
     "cours ajuste":      "_adj",       # coursAjuste — second fallback
     "plus haut":         "high",
     "plus bas":          "low",
-    "volume":            "volume",
-    "quantite echangee": "_qty",       # cumulTitresEchanges — fallback volume
+    # ⚠️ Le volume n'est PLUS dans cette table. Elle faisait de « Volume »
+    # (`volumeGlobal`, un montant en dirhams) le volume, et reléguait
+    # « Quantité échangée » (`cumulTitresEchanges`, le nombre de titres) en
+    # repli — jamais atteint, puisque la première est toujours présente.
+    # `choisir_colonne_volume()` tranche désormais, et dans l'autre sens.
 }
 
 def fetch_casabourse(ticker: str) -> pd.DataFrame:
@@ -203,6 +232,10 @@ def fetch_casabourse(ticker: str) -> pd.DataFrame:
         if df is None or df.empty:
             return pd.DataFrame()
         df = df.reset_index(drop=True)
+        # Les en-têtes d'origine, gardés AVANT le renommage : c'est là que
+        # « Quantité échangée » se distingue encore de « Volume ».
+        df_origine = df
+        df_entetes = list(df.columns)
         # Mapping avec normalisation unicode (suppression accents)
         col_map = {c: _CB_COL_MAP[_ascii(str(c))]
                    for c in df.columns if _ascii(str(c)) in _CB_COL_MAP}
@@ -215,20 +248,29 @@ def fetch_casabourse(ticker: str) -> pd.DataFrame:
                     break
         elif "_last" in df.columns:
             df["close"] = df["close"].fillna(df["_last"])
-        # Volume fallback
-        if "volume" not in df.columns and "_qty" in df.columns:
-            df = df.rename(columns={"_qty": "volume"})
+        # ⚠️ Le volume se choisit sur les en-têtes D'ORIGINE, avant qu'ils ne
+        # soient renommés : c'est là que « Quantité échangée » se distingue
+        # encore de « Volume ».
+        vol = choisir_colonne_volume(df_entetes)
+        if vol is not None:
+            df["volume"] = df_origine[vol]
         if "close" not in df.columns:
             return pd.DataFrame()
-        for col in ["high", "low", "open", "volume"]:
+        for col in ["high", "low", "open"]:
             if col not in df.columns:
                 df[col] = df["close"]
+        if "volume" not in df.columns:
+            df["volume"] = volume_inconnu()
         if "date" not in df.columns:
             df["date"] = pd.date_range(START_DATE, periods=len(df), freq="B")
         df["date"]  = pd.to_datetime(df["date"], errors="coerce")
         df["close"] = pd.to_numeric(df["close"], errors="coerce")
-        for col in ["high", "low", "open", "volume"]:
+        for col in ["high", "low", "open"]:
             df[col] = pd.to_numeric(df[col], errors="coerce").fillna(df["close"])
+        # ⚠️ Et surtout PAS `.fillna(df["close"])` ici : c'est cette ligne qui
+        # a mis le cours dans le volume de 3 019 séances.
+        df["volume"] = pd.to_numeric(df["volume"], errors="coerce") \
+            .fillna(volume_inconnu())
         return df[["date", "close", "high", "low", "open", "volume"]].dropna(subset=["close", "date"])
     except Exception as e:
         print(f"    casabourse {ticker}: {e}")

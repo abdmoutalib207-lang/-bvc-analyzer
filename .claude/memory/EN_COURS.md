@@ -18,6 +18,49 @@ historique** — cela recréerait une référence exposée.
 
 ---
 
+## État au 23/09/2026 — ce qui vient d'être fait, et ce qui reste
+
+> Objectif donné par Abd Moutalib : **un moteur stable, sans erreur dans le
+> passé, et qu'on n'y revienne plus.** Traité par priorité.
+
+### ✅ L'heure — le Maroc est passé à UTC+0 le 20/09 (PR #74, fusionnée)
+
+Le cron « 15h45 » tombait à **14h45 locales, 45 min AVANT la clôture** : il
+aurait figé la séance comme le 21/09. `DECALAGES_MAROC` dans `bvc_config.py`
+porte désormais chaque décret avec sa source, entrées Ramadan comprises —
+sans elles la même panne revient chaque année.
+
+⚠️ **J'avais inscrit l'erreur moi-même la veille** : deux tests échouaient en
+CI avec une heure d'écart, j'en ai conclu que le runner avait une base de
+fuseaux périmée et j'ai forcé UTC+1 en dur. Le runner était à jour, moi non.
+
+### ✅ Le volume n'était pas un volume (PR #75)
+
+Trois défauts, pas un — voir ERRORS.md famille 18 :
+13 636 volumes en dirhams · 3 019 volumes valant le COURS · **534 clôtures
+fausses** (18/06→06/08, R1) · 842 séances absentes.
+
+- **La cause est fermée** : `pipeline/volume_titres.py`, branché aux quatre
+  points d'appel, dont un que mon relevé manuel avait oublié et que le test a
+  trouvé.
+- **18 séries reprises** sur l'export de l'opérateur (lots 1 et 2).
+
+### ⏳ Ce qui reste, dans l'ordre
+
+1. **Lot 3/3 — les 9 dernières séries reçues** : AFI · AFM · AGM · BAL · ENK ·
+   INV · M2M · MOX · NEJ. Prêtes dans `/tmp`, à livrer **après fusion de
+   #75** : les porter maintenant ferait 27 séries et le garde-fou d'opération
+   de masse aurait raison de refuser.
+2. **41 exports à recevoir**, dont **16 MASI 1** — liste et codes de
+   téléchargement dans
+   `datasets/historiques_candidats/EXPORTS_27/RESTE_A_RECEVOIR.md`.
+   ⚠️ MNG (split), CMT (reprise après OPA, R11), CMGP et CFGB (corrections
+   reçues) demandent une décision avant import.
+3. **Le 30/07/2026 reste une bougie fantôme sur ~40 titres** non encore
+   importés — Fête du Trône. L'import la retire ; les autres l'ont toujours.
+4. **Le cron GitHub reste le premier risque** : ~80 % des créneaux sautés.
+   Non traité, et aucun correctif de code n'y peut quoi que ce soit.
+
 ## 🔔 EN ATTENTE DE FUSION — PR #63, le moteur (19/09/2026)
 
 - [ ] **`fix/bougie-rattrapage-seance-echue` — CI verte, non fusionnée.**

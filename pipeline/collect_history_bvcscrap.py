@@ -11,6 +11,11 @@ except ImportError as _e:
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from bvc_config import SPLITS
+# ⚠️ Règle unique du volume : un nombre de titres, jamais un montant ni un
+# cours. Elle vit dans un module parce qu'elle était violée à quatre endroits.
+from pipeline.volume_titres import (  # noqa: E402
+    choisir_colonne as choisir_colonne_volume,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -166,8 +171,11 @@ def load_xlsx(ticker: str) -> pd.DataFrame:
                 col_map[col] = "high"
             elif col in ("low", "bas", "min"):
                 col_map[col] = "low"
-            elif "vol" in col:
-                col_map[col] = "volume"
+        # ⚠️ `elif "vol" in col` retenait « volume (mad) », un montant, et
+        # ignorait « titres échangés ». Voir `volume_titres.py`.
+        _vol = choisir_colonne_volume(df.columns)
+        if _vol is not None:
+            col_map[_vol] = "volume"
         df = df.rename(columns=col_map)
         if "date" not in df.columns or "close" not in df.columns:
             return pd.DataFrame()
@@ -290,10 +298,11 @@ def fetch_bvcscrap_extension(name: str, from_date: pd.Timestamp) -> pd.DataFrame
                 col_map[col] = "high"
             elif any(k in cl for k in ["low", "bas", "min"]):
                 col_map[col] = "low"
-            elif any(k in cl for k in ["vol", "volume"]):
-                col_map[col] = "volume"
             elif any(k in cl for k in ["date", "index"]):
                 col_map[col] = "date"
+        _vol = choisir_colonne_volume(df.columns)
+        if _vol is not None:
+            col_map[_vol] = "volume"
         df = df.rename(columns=col_map)
         if "date" not in df.columns:
             df["date"] = pd.date_range(end=datetime.now(), periods=len(df), freq="B")

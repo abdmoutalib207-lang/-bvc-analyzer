@@ -1,6 +1,8 @@
 {
   "_statut": "INSTRUCTION — ces séances sont RETIRÉES de la série publiée. Ce n'est pas un signalement : datasets/historiques_candidats/ PROPOSE, ce dossier INSTRUIT.",
   "_pourquoi_retirer_et_non_corriger": "Aucune source ne donne la vraie valeur de ces séances. L'export de l'opérateur s'arrête au 2026-06-05, et les bulletins archivés ne couvrent que septembre. Remplacer par une valeur inventée serait pire que le trou : un trou se voit.",
+  "_supersede_par": "datasets/historiques_importes/ATL.json",
+  "_pourquoi_cette_instruction_est_eteinte": "Elle était motivée par une ABSENCE, en toutes lettres : « aucune source ne donne la vraie valeur de ces séances, l'export de l'opérateur s'arrête au 2026-06-05 ». L'export reçu le 23/09/2026 va jusqu'au 22/09 et cote ces sept séances. L'absence a cessé, l'instruction s'éteint.\n⚠️ Elle s'éteint, elle ne se contredit pas : les VALEURS retirées ne sont pas revenues. Nos clôtures valaient 66 à 69 DH là où l'opérateur en publie 129 à 133 — à peu près la MOITIÉ du cours réel, ce qui était bien le défaut constaté. Ce sont les dates qui reviennent, avec d'autres valeurs.\n⚠️ Et c'est cette condition que le test vérifie, pas la simple présence d'un document : `tests/test_identite_importee.py` compare chaque valeur retirée à celle qui occupe la date aujourd'hui. Un import qui aurait réécrit le faux à l'identique échouerait ici.",
   "ticker": "ATL",
   "instrument": "AtlantaSanad",
   "ecrit_par": "pipeline/collect_history_bvcscrap.py, commit 3efde240 du 2026-06-10 02:09 (« data: historical_data.json + candles 2026-06-10 »)",
