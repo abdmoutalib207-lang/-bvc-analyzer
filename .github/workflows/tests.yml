@@ -29,9 +29,37 @@ on:
       - 'pytest.ini'
       - '.github/workflows/tests.yml'
   pull_request:
+    # ⚠️ NE PAS FILTRER SUR LE CODE SEUL — constaté le 23/09/2026.
+    #
+    # Ce déclencheur ne listait que `**.py` et `tests/**`. Une pull request qui
+    # ne contient QUE des données — des chandelles réécrites, un document de
+    # réception — ne lançait donc aucun test.
+    #
+    # C'est exactement le cas où ils servent le plus. La moitié de la suite
+    # relit les DONNÉES PUBLIÉES, et le garde-fou d'opération de masse
+    # (`test_hors_series_corrigees…`) n'existe que pour refuser une livraison
+    # qui touche trop de séries d'un coup. Il ne s'armait pas sur une
+    # livraison de séries.
+    #
+    # Mesuré sur la PR du lot 3/3 : neuf séries réécrites, aucun `.py` touché,
+    # aucun pytest lancé. La livraison était saine — vérifiée en local — mais
+    # rien dans la chaîne ne l'établissait, et c'est ce « rien » qui est le
+    # défaut. Un garde-fou qui ne s'arme pas vaut son absence, à la fausse
+    # tranquillité près.
     paths:
       - '**.py'
       - 'tests/**'
+      - 'data.json'
+      - 'pipeline/candles/**'
+      - 'pipeline/historical_data.json'
+      - 'pipeline/masi_history.json'
+      - 'datasets/**'
+      - 'fondamentaux.json'
+      - 'financial_data.json'
+      - 'news.json'
+      - 'requirements*.txt'
+      - 'pytest.ini'
+      - '.github/workflows/tests.yml'
   workflow_dispatch:
 
 permissions:
