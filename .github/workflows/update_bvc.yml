@@ -10,75 +10,52 @@ name: BVC Data Update
 
 on:
   schedule:
-    # Crons explicites UTC (Casablanca = UTC+1).
+    # ⚠️ REFONTE DU 23/09/2026 — « LE MOTEUR TOURNE QUAND LA BVC EST FERMÉE
+    # ET MANQUE À L'OUVERTURE »
+    # ─────────────────────────────────────────────────────────────────────
+    # Constat de Noure, vérifié : entre 19h et 01h46 Casablanca, SEPT runs se
+    # sont déclenchés — la Bourse était fermée. Puis plus rien de 07h09 à
+    # 12h32, alors que la séance était ouverte depuis trois heures.
     #
-    # Quatre passages, et non plus vingt-sept. Le produit est J+1 : sa promesse
-    # est « dernière clôture fiable », pas le temps réel. Vingt-sept runs ne
-    # servaient aucune promesse tenue, et chaque run pousse un commit qui
-    # déclenche une reconstruction de GitHub Pages — quota d'environ dix par
-    # heure. Relevé sur huit jours : 112 commits par jour, pic à 135.
+    # Deux causes cumulées :
+    #   1. le cron de rattrapage était `25 * * * 1-5`, soit TOUTES LES HEURES,
+    #      NUIT COMPRISE. La porte de rattrapage écartait bien ces runs, mais
+    #      ils partaient quand même : du bruit, du quota, et zéro utilité ;
+    #   2. deux crons de « redondance du soir » à 20h et 22h Casablanca, posés
+    #      le 31/08 contre les retards de GitHub — mais placés là où rien ne
+    #      peut plus être collecté.
     #
-    # ⚠️ GitHub décale les tâches programmées de 30 à 50 minutes selon la
-    # charge (mesuré le 11/08). Les heures ci-dessous sont donc des bornes
-    # basses, ce qui est sans conséquence ici : aucune ne vise une minute
-    # précise, et celle qui compte est postérieure à la clôture.
+    # La redondance n'était donc pas absente : elle était AU MAUVAIS ENDROIT.
+    # Elle est ramenée là où elle sert — dans la fenêtre de cotation.
+    #
+    # ⚠️ Le remède au retard de GitHub n'est pas d'avancer les heures — ça ne
+    # ferait que décaler le problème — mais de MULTIPLIER LES OCCASIONS dans
+    # la fenêtre utile. La porte de rattrapage (`pipeline/porte_rattrapage.py`)
+    # filtre : un run qui n'a rien à rapporter s'arrête avant d'écrire, donc
+    # sans commit et sans consommer le quota de publication de Pages.
+    #
+    # Casablanca = UTC+1 toute l'année.
+
+    # ── Les quatre passages qui portent la promesse ──────────────────────
     - cron: '40 8 * * 1-5'    # ≈09h40 — dix minutes après l'ouverture, le
                               #          temps que les titres peu liquides
-                              #          impriment un premier cours. À 9h30
-                              #          pile, ils n'ont encore rien coté et
-                              #          le run les compte comme périmés.
+                              #          impriment un premier cours
     - cron:  '0 11 * * 1-5'   # ≈12h00 — mi-séance
     - cron: '45 14 * * 1-5'   # ≈15h45 — LE run qui compte : 15 min après la
                               #          clôture de 15h30, il fixe le cours
-                              #          définitif de la séance
-    - cron:  '0 17 * * 1-5'   # ≈18h00 — filet de sécurité, après que
-                              #          generate_candles (17h) soit passé
+    - cron:  '0 17 * * 1-5'   # ≈18h00 — filet, après generate_candles (17h)
 
-    # ── Redondance du soir, ajoutée le 31/08/2026 ────────────────────────
-    # ⚠️ Le décalage n'est plus de 30 à 50 minutes mais de 2 à 8 HEURES, et
-    # certains crons ne partent pas du tout. Mesuré : le cron de 17h00 du
-    # vendredi 28 s'est déclenché le samedi à 00h47 ; celui du lundi 31 à
-    # 08h40 n'est jamais parti — le terminal est resté sur la clôture de
-    # vendredi jusqu'à un déclenchement manuel à 11h35.
+    # ── La redondance, DANS la fenêtre de cotation ───────────────────────
     #
-    # La parade tient à une observation : pour un bulletin J+1, l'échéance
-    # est 8h00 du matin, pas 18h00. Un run qui aboutit à 1h du matin publie
-    # à temps. Trois créneaux du soir donnent donc trois chances d'atterrir
-    # avant l'ouverture, là où un seul est un point unique de défaillance.
+    # Toutes les trente minutes de 09h25 à 18h55 Casablanca. Chacune passe par
+    # la porte : si `data.json` porte déjà la séance en cours, le run s'arrête
+    # avant toute écriture. Ce qui reste, ce sont les occasions de rattraper un
+    # cron sauté — et il en faut plusieurs, puisqu'on ne sait pas lequel sautera.
     #
-    # Le coût est nul : un run qui ne modifie aucun fichier ne commite pas,
-    # donc le quota de reconstruction de Pages n'est pas entamé. Ce n'est
-    # PAS un retour aux vingt-sept crons — ceux-là visaient un temps réel
-    # que le produit ne promet pas ; ceux-ci protègent la seule promesse
-    # qu'il tient.
-    - cron:  '0 19 * * 1-5'   # ≈20h00 — deuxième chance
-    - cron:  '0 21 * * 1-5'   # ≈22h00 — troisième chance
-    #
-    # ⚠️ RATTRAPAGE HORAIRE — ajouté le 03/09/2026 après un troisième oubli.
-    # Ce jour-là aucun des crons ci-dessus n'a été déclenché : data.json est
-    # resté sur la veille pendant toute la matinée, deux heures après
-    # l'ouverture. `fetch_news` a tourné normalement le même matin.
-    #
-    # La différence est le NOMBRE D'OCCASIONS. fetch_news a un cron horaire :
-    # 24 chances par jour, en sauter une ne se voit pas. update_bvc en avait 6,
-    # donc 6 chances d'être oublié pour de bon.
-    #
-    # Ce cron-ci fire toutes les heures mais ne TRAVAILLE que si la journée
-    # manque réellement (voir la porte plus bas). Un run à vide coûte quelques
-    # secondes et ne commite rien — le quota de publication de Pages, ressource
-    # rare du projet, n'est pas touché.
-    - cron: '25 * * * 1-5'    # rattrapage — la porte décide s'il y a lieu
+    # ⚠️ RIEN AVANT 08h25 UTC NI APRÈS 17h55 UTC. Hors séance, il n'y a rien à
+    # collecter : un run nocturne ne peut que republier ce qu'on a déjà.
+    - cron: '25,55 8-17 * * 1-5'
 
-  # ⚠️ NE PAS réintroduire « BVC News Fetch » ici. Les deux workflows se
-  # déclenchaient mutuellement — BVC → news → BVC → news, un cycle toutes les
-  # 3 à 5 minutes pendant toute la séance. C'était la source réelle des
-  # 112 commits quotidiens, bien avant les crons. La boucle est rompue côté
-  # update_bvc ici, et côté fetch_news dans son propre fichier ; les deux
-  # coupures sont nécessaires, une seule laisserait le cycle repartir.
-  #
-  # Le pipeline v9 reste, et pour une raison précise : il écrit data.json sans
-  # émettre les blocs `_meta`. Un run d'update_bvc derrière lui les rétablit.
-  # Il est déclenché à la main, donc sans effet sur le volume.
   workflow_run:
     workflows: ["BVC Financial Data Pipeline v9"]
     types: [completed]
@@ -152,7 +129,17 @@ jobs:
           # elle est testable : quinze situations passent par la table de
           # `tests/test_porte_rattrapage.py`. Une décision de quarante lignes
           # de shell, personne ne l'éprouve.
-          if [ "$CRON" = "25 * * * 1-5" ] || [ "$TRIGGER" = "workflow_run" ]; then
+          # ⚠️ LE CRON DE RATTRAPAGE EST RECONNU PAR SA FORME, PAS PAR UNE
+          # CHAÎNE EXACTE. Le 23/09, il est passé de `25 * * * 1-5` à
+          # `25,55 8-17 * * 1-5` pour cesser de tourner la nuit. Une égalité
+          # stricte aurait silencieusement cessé de le reconnaître : les runs
+          # de rattrapage auraient alors contourné la porte et publié à chaque
+          # demi-heure, soit exactement ce que la porte existe pour empêcher.
+          case "$CRON" in
+            25*|55*) RATTRAPAGE=1 ;;
+            *)       RATTRAPAGE=0 ;;
+          esac
+          if [ "$RATTRAPAGE" = "1" ] || [ "$TRIGGER" = "workflow_run" ]; then
             SORTIE=$(python3 pipeline/porte_rattrapage.py)
             echo "$SORTIE"
             echo "$SORTIE" | grep -q "run=true" \
