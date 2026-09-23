@@ -495,6 +495,50 @@ SEANCES_ANNULEES: dict = {
 }
 
 
+SEANCES_SANS_COTATION: dict = {
+    "2026-07-30": {
+        "motif": "Fête du Trône — la Bourse de Casablanca n'a pas ouvert. "
+                 "Aucune séance n'a eu lieu ce jour-là.",
+        "source": "(7, 30) figure dans JOURS_FERIES_FIXES depuis l'origine du "
+                  "projet ; et les 27 exports « Cours » de l'opérateur reçus "
+                  "les 22-23/09/2026 omettent tous cette date, alors qu'ils "
+                  "listent les séances SANS ÉCHANGE. Deux pièces "
+                  "indépendantes, dont une émanant de l'opérateur lui-même.",
+        "constate": "34 titres portaient encore une bougie ce jour-là au "
+                    "23/09/2026, dont 15 MASI 1. Leurs valeurs ne suivent "
+                    "aucun motif unique : 3 des 15 valent la clôture de la "
+                    "VEILLE, 5 celle du LENDEMAIN, les 7 autres ne "
+                    "correspondent à aucune séance connue.",
+        "⚠️": "À ne pas confondre avec une séance ANNULÉE. Le 17/09 a "
+              "réellement été coté puis annulé par la Bourse ; le 30/07 n'a "
+              "jamais eu lieu. La conséquence sur les séries est la même — la "
+              "bougie n'a pas lieu d'être — mais la cause diffère, et c'est "
+              "elle qu'un registre doit consigner.",
+    },
+}
+
+
+def seance_sans_cotation(date_iso: str) -> bool:
+    """Vrai si la Bourse n'a pas ouvert ce jour-là.
+
+    ⚠️ DISTINCT DE `seance_annulee()`, ET CE N'EST PAS UNE NUANCE D'ÉCRITURE.
+    Une séance annulée A EU LIEU puis a été effacée par l'opérateur ; une
+    séance sans cotation n'a jamais existé. Les deux sortent des séries, mais
+    seule la première a pu servir de référence de variation à quelqu'un.
+
+    ⚠️ ET CE REGISTRE NE REMPLACE PAS `JOURS_FERIES_FIXES` : celui-là dit quels
+    jours du calendrier sont fériés, celui-ci quelles DATES précises n'ont pas
+    coté — y compris les fériés mobiles, que le calendrier lunaire rend
+    impossibles à déduire d'une règle.
+
+    Même prudence que `seance_annulee` sur les entrées nulles.
+    """
+    try:
+        return date_iso[:10] in SEANCES_SANS_COTATION
+    except (TypeError, IndexError):
+        return False
+
+
 def seance_annulee(date_iso: str) -> bool:
     """Vrai si cette séance a été annulée par l'opérateur après coup.
 

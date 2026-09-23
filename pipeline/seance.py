@@ -98,25 +98,39 @@ def purger_seance_fantome(candles_dir=None, dry_run=False):
 
 
 def purger_seances_annulees(candles_dir=None, dry_run=False):
-    """Retire des chandelles les séances que l'opérateur a annulées.
+    """Retire des chandelles les séances qui ne doivent pas y figurer.
 
     ⚠️ CETTE PURGE EST DIRIGÉE PAR UNE DÉCLARATION, PAS PAR UNE STATISTIQUE.
     `purger_seance_fantome` devine : elle reconnaît une source qui rediffuse la
-    veille. Ici il n'y a rien à deviner — les cours étaient authentiques, les
-    volumes réels, les heures d'échange échelonnées. C'est la Bourse qui a
-    retiré la séance après coup, et seul `SEANCES_ANNULEES` le sait.
+    veille. Ici il n'y a rien à deviner — seul un registre le sait.
+
+    ⚠️ DEUX REGISTRES, DEUX CAUSES, ET LA DIFFÉRENCE N'EST PAS COSMÉTIQUE :
+
+      `SEANCES_ANNULEES`       la séance A EU LIEU puis la Bourse l'a effacée.
+                               Le 17/09 a coté de 09h30 à 11h18 : cours
+                               authentiques, volumes réels, heures échelonnées.
+                               Quelqu'un a pu s'en servir comme référence de
+                               variation avant l'annonce.
+      `SEANCES_SANS_COTATION`  la séance N'A JAMAIS EXISTÉ. Le 30/07 est la
+                               Fête du Trône ; il n'y avait rien à annuler, et
+                               ce que nous portions était fabriqué.
+
+    ⚠️ AUCUNE STATISTIQUE N'AURAIT TROUVÉ LE SECOND. Le test de
+    `purger_seance_fantome` exige 95 % de clôtures identiques à la veille ; le
+    30/07 n'en compte que 8 sur 34. Sur les 15 MASI 1 concernés, 3 valent la
+    veille, 5 valent le LENDEMAIN, 7 ne correspondent à aucune séance connue.
+    Un fait qui ne laisse pas de motif ne se déduit pas : il se déclare.
 
     Renvoie (dates purgées, nombre de bougies retirées, tickers touchés).
     """
     import sys as _sys
     _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from bvc_config import SEANCES_ANNULEES
+    from bvc_config import SEANCES_ANNULEES, SEANCES_SANS_COTATION
 
     dossier = Path(candles_dir) if candles_dir else CANDLES_DIR
-    if not SEANCES_ANNULEES or not dossier.exists():
+    dates = set(SEANCES_ANNULEES) | set(SEANCES_SANS_COTATION)
+    if not dates or not dossier.exists():
         return [], 0, []
-
-    dates = set(SEANCES_ANNULEES)
     retirees, touches = 0, []
     for f in sorted(dossier.glob("*.json")):
         try:
