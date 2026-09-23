@@ -870,3 +870,101 @@ d'histoire à réécrire, pas de valeur inventée — il ne doit pas bloquer. S'
 protège quelque chose, c'est la donnée qu'il faut réparer, pas le contrôle.
 Les trois refus ci-dessus étaient corrects dans leur intention et faux dans
 leur portée.
+
+## Famille 18 — Le volume n'était pas un volume (23/09/2026)
+
+Recoupement des 27 exports « Cours » de l'opérateur avec nos chandelles.
+Je cherchais **un** défaut ; il y en avait **trois**, et le troisième ne
+portait pas sur le volume.
+
+| défaut | séances | portée |
+|---|---:|---|
+| volume en **dirhams** au lieu de titres | 13 636 | 27/27 titres |
+| volume valant le **cours**, les séances sans échange | 3 019 | 25 titres |
+| **clôtures fausses** | 534 | 27/27 titres |
+| séances **absentes** | 842 | 27/27 titres |
+
+### Les deux causes étaient dans le code, et aucune n'était une inattention
+
+**1. La mauvaise colonne, préférée à la bonne.** La source publie les deux —
+un MONTANT (« Volume », « Volume (MAD) », `volumeGlobal`) et un NOMBRE DE
+TITRES (« Titres Échangés », « Quantité échangée », `cumulTitresEchanges`).
+La table faisait du premier le volume et reléguait le second en repli :
+
+```python
+"volume":            "volume",
+"quantite echangee": "_qty",     # fallback volume
+```
+
+**Le repli n'était jamais atteint** : la colonne « Volume » est toujours là.
+Ailleurs, un `elif "vol" in colonne` produisait le même effet sans table —
+« Volume (MAD) » contient « vol », « Titres Échangés » non.
+
+**2. Le cours versé dans le volume.**
+
+```python
+for col in ["high", "low", "open", "volume"]:
+    if col not in df.columns:
+        df[col] = df["close"]
+```
+
+Juste pour les trois premiers : une bougie sans extrêmes connus est plate.
+Absurde pour le quatrième — un cours n'est pas une approximation d'un nombre
+de titres. CDM portait `v = 700` pour un titre qui cote 700,00, sur 131
+séances.
+
+⚠️ **Ce que ce défaut rendait invisible** : une séance SANS ÉCHANGE devenait
+une séance échangée, et son volume suivait mécaniquement son cours. Tout
+indicateur de liquidité bâti là-dessus mesurait le prix en croyant mesurer
+l'activité.
+
+### ⚠️ La cause n°1 était DÉJÀ ÉCRITE, et n'avait rien corrigé
+
+`datasets/historiques_importes/AKD.json`, champ `_colonne_de_volume`, la
+décrivait exactement — le 16/09, une semaine avant. Comprise sur un titre,
+jamais portée dans le code.
+
+**Un fait juste consigné dans un document ne corrige rien.** D'où le test qui
+vérifie par l'AST que chaque collecteur APPELLE la règle commune : une règle
+que personne n'appelle n'existe pas.
+
+### ⚠️ Mon relevé des points d'appel était incomplet, et c'est le test qui l'a vu
+
+J'en avais recensé trois à la main. Le test en a trouvé un quatrième — le
+chargeur yfinance, avec la même boucle. **Un contrôle écrit à la main aurait
+conclu « c'est fait ».**
+
+### Le troisième défaut : 534 clôtures fausses, et c'est R1
+
+Fenêtre nette, **18/06 → 06/08/2026**, les mêmes 32 dates sur presque tous les
+titres. Une partie vaut exactement la clôture de la VEILLE, et les 22, 23 et
+24 juin manquent aux 27. C'est le mécanisme de l'incident du 28/08 — une
+source qui recule — survenu **deux mois avant que `_cliquet_seance()`
+n'existe**.
+
+Un cours faux fausse le RSI, les moyennes et le MACD : le pilier technique
+vaut 25 % du score.
+
+**Il n'a été trouvé que parce qu'on a comparé la colonne d'à côté.** En
+cherchant un défaut de volume, on ne regarde pas les prix — sauf si l'outil
+les compare de lui-même.
+
+### Ce que les garde-fous ont refusé, et pourquoi ils avaient raison
+
+1. **`test_hors_series_corrigees…` a refusé l'import en bloc** : « 27 séries
+   sur 79 — opération de masse ». Son commentaire dit *quelle que soit la
+   qualité des instructions qui l'accompagnent*. Réponse : **découper en trois
+   lots**, pas desserrer le seuil.
+2. **`test_les_seances_retirees_le_sont_bien` a refusé ATL** : 7 séances
+   retirées revenaient. L'instruction de retrait disait pourtant elle-même
+   pourquoi elle s'éteignait — « l'export de l'opérateur s'arrête au
+   2026-06-05 ». Il va maintenant au 22/09. Le test prévoyait déjà le cas
+   (`_supersede_par`) et vérifie la bonne chose : **la date peut revenir, la
+   valeur fausse non**. Nos clôtures valaient 66–69 DH là où l'opérateur en
+   publie 129–133 — la moitié du cours réel.
+
+⚠️ **EQD perdait 33 séances à l'import.** Vérification avant d'écrire : les 43
+bougies retirées valaient `o=h=l=c=v=1219` répété du 10/12/2024 au 10/02/2025 —
+titre non coté, trou comblé par recopie, et le cours écrit dans le volume. Les
+retirer était la correction, pas la perte. **Une série qui rétrécit mérite
+toujours d'être regardée avant d'être acceptée.**
