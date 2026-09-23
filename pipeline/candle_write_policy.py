@@ -22,10 +22,9 @@ except ImportError:  # exécution directe depuis pipeline/
     from corrections_acceptees import appliquer
 
 try:
-    from bvc_config import SEANCES_ANNULEES, SEANCES_SANS_COTATION
+    from bvc_config import SEANCES_ANNULEES
 except ImportError:
     SEANCES_ANNULEES = {}
-    SEANCES_SANS_COTATION = {}
 
 
 def fin_historique_importe(ticker: str, dossier: Path | None = None) -> str | None:
@@ -58,18 +57,10 @@ def appliquer_corrections_avant_ecriture(
     existant. Cette séparation permet de tester la politique sans I/O.
     """
     annulees = set(SEANCES_ANNULEES)
-    # ⚠️ Deux registres, une même conséquence sur la série, et deux causes
-    # qu'il ne faut pas confondre : une séance ANNULÉE a été cotée puis effacée
-    # par la Bourse ; une séance SANS COTATION n'a jamais eu lieu. Elles
-    # sortent toutes deux des chandelles, et le rapport les distingue.
-    sans_cotation = set(SEANCES_SANS_COTATION)
-    a_retirer = annulees | sans_cotation
     retirees = [str(b.get("d") or "")[:10] for b in candles
                 if str(b.get("d") or "")[:10] in annulees]
-    jamais_ouvertes = [str(b.get("d") or "")[:10] for b in candles
-                       if str(b.get("d") or "")[:10] in sans_cotation]
     valides = [b for b in candles
-               if str(b.get("d") or "")[:10] not in a_retirer]
+               if str(b.get("d") or "")[:10] not in annulees]
 
     corrigees, rapport = appliquer(ticker, valides)
     rapport = dict(rapport or {})
@@ -79,5 +70,4 @@ def appliquer_corrections_avant_ecriture(
     rapport.setdefault("refus", [])
     rapport.setdefault("seances_absentes", [])
     rapport["seances_annulees_retirees"] = retirees
-    rapport["seances_sans_cotation_retirees"] = jamais_ouvertes
     return corrigees, rapport
