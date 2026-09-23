@@ -45,21 +45,48 @@ fausses** (18/06→06/08, R1) · 842 séances absentes.
   trouvé.
 - **18 séries reprises** sur l'export de l'opérateur (lots 1 et 2).
 
+### ✅ Aussi fait le 23/09
+
+- **Les 27 exports sont tous instruits** (#75, #76) : 39 titres sur 80 sourcés
+  sur l'opérateur, 0 sur les quatre défauts.
+- **Le run de clôture du 23/09 manquait** (#77) — réparé, recoupé au bulletin :
+  **0 écart sur 66**, verdict CONCORDANCE, 13 contrôles sur 13.
+- **La bougie fantôme du 30/07 a disparu des 34 titres** (#78, #79), registre
+  `SEANCES_SANS_COTATION` + 36 instructions + garde armée.
+- **Une PR de pures données ne lançait aucun test** (#76) — le garde-fou
+  d'opération de masse ne s'armait pas sur une livraison de séries.
+
 ### ⏳ Ce qui reste, dans l'ordre
 
-1. **Lot 3/3 — les 9 dernières séries reçues** : AFI · AFM · AGM · BAL · ENK ·
-   INV · M2M · MOX · NEJ. Prêtes dans `/tmp`, à livrer **après fusion de
-   #75** : les porter maintenant ferait 27 séries et le garde-fou d'opération
-   de masse aurait raison de refuser.
-2. **41 exports à recevoir**, dont **16 MASI 1** — liste et codes de
+1. **41 exports à recevoir**, dont **16 MASI 1** — liste et codes de
    téléchargement dans
    `datasets/historiques_candidats/EXPORTS_27/RESTE_A_RECEVOIR.md`.
-   ⚠️ MNG (split), CMT (reprise après OPA, R11), CMGP et CFGB (corrections
-   reçues) demandent une décision avant import.
-3. **Le 30/07/2026 reste une bougie fantôme sur ~40 titres** non encore
-   importés — Fête du Trône. L'import la retire ; les autres l'ont toujours.
-4. **Le cron GitHub reste le premier risque** : ~80 % des créneaux sautés.
-   Non traité, et aucun correctif de code n'y peut quoi que ce soit.
+   ⚠️ Quatre demandent une décision AVANT import : **MNG** (split 10:1 —
+   l'export est-il rétro-ajusté ?), **CMT** (reprise après OPA — R11 interdit
+   le rétro-ajustement), **CMGP** et **CFGB** (corrections reçues qu'un
+   `--complet` aveugle annulerait).
+   ⚠️ **HPS** porte la rupture du 06/10/2023 (ratio 0,103) ouverte depuis le
+   01/08 : l'export permettra de la constater sur pièce.
+2. ⚠️ **Le créneau de 15h45 est un point unique de défaillance — démontré le
+   23/09.** Il a sauté, et le terminal a publié des cours de 15h08 pendant une
+   heure. Personne ne l'aurait su avant le contrôle de 19h32, soit quatre
+   heures après. Aucun correctif de code n'y peut rien : il faut un
+   déclencheur externe appelant l'API GitHub. **Décision à prendre.**
+3. **655 bougies OHLC incohérentes dans le cache** — voir plus bas ; à
+   reprendre à la lumière des séries réimportées, une partie peut avoir
+   disparu.
+4. **Fondamentaux** : 51/80 sans P/B, saisie manuelle de juin.
+
+### ⚠️ Trois leçons de méthode du 23/09, à ne pas reperdre
+
+- **On branche une garde quand le terrain est nettoyé.** Branchée au premier
+  lot, elle purge tout au premier run et rend le découpage illusoire
+  (ERRORS famille 20).
+- **La suite locale ne lance pas `update_data.py`.** Certains défauts
+  n'apparaissent qu'à l'étape CI qui le lance pour de vrai.
+- **Un contrôle qui refuse dit souvent ce qu'il faut faire.** Deux fois ce
+  jour-là : « écrire l'instruction qui manquait » plutôt qu'élargir
+  l'exception, et découper la livraison plutôt que desserrer le seuil.
 
 ## 🔔 EN ATTENTE DE FUSION — PR #63, le moteur (19/09/2026)
 
