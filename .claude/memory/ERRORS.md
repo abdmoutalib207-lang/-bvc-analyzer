@@ -1028,3 +1028,73 @@ une livraison de séries. **Il ne s'armait pas sur une livraison de séries.**
 Les trois livraisons étaient saines — suite passée en local avant chacune —
 mais rien dans la chaîne ne l'établissait. **Un garde-fou qui ne s'arme pas vaut
 son absence, à la fausse tranquillité près.**
+
+## Famille 20 — Une garde branchée trop tôt nettoie tout (23/09/2026)
+
+34 titres portaient une bougie au 30/07/2026, Fête du Trône, jour où la Bourse
+n'a pas ouvert. Dont **15 MASI 1**.
+
+### Pourquoi aucun garde-fou ne pouvait les voir
+
+1. `purger_seance_fantome()` **ne regarde que la séance la plus récente** — par
+   conception documentée : « les séances plus anciennes ne sont pas touchées,
+   les corriger demanderait de rejouer tout l'historique » ;
+2. et même s'il l'avait regardée, **il n'aurait rien trouvé**. Son test exige
+   95 % de clôtures identiques à la veille ; il n'y en avait que **8 sur 34**.
+
+Sur les 15 MASI 1 : 3 valent la veille, **5 valent le LENDEMAIN**, 7 ne
+correspondent à aucune séance connue.
+
+> **Un test statistique juste ne voit pas un fait qui ne laisse pas de motif.**
+> Il faut alors le porter dans un registre — corollaire de R11.
+
+### ⚠️ L'erreur : brancher la garde dès le premier lot
+
+Le chantier touchait 34 séries : trop pour une seule livraison, le garde-fou
+d'opération de masse la refuse. J'ai découpé en deux lots de 17 — et branché
+`candle_write_policy` sur le nouveau registre **dès le premier**.
+
+La CI a rougi là où je ne l'attendais pas :
+
+```
+ValueError: Cache STR — préfixe modifié avant 2026-09-23 :
+            65 séances au lieu de 66
+```
+
+**STR n'était pas dans le lot A.** `update_data.py` applique la politique
+d'écriture à CHAQUE série qu'il écrit : branchée, elle retirait le 30/07 des
+34 titres dès le premier run, dont les 17 dont le cache n'était pas recalculé.
+
+Je livrais 17 séries en croyant en toucher 17 ; le moteur en aurait touché 34
+au run suivant — **exactement l'opération de masse que le découpage évite**.
+
+**On branche une garde quand le terrain est nettoyé, pas avant.**
+
+### ⚠️ Et la suite locale ne pouvait pas le voir
+
+Elle ne lance pas `update_data.py`, qui sort du réseau. Seule l'étape CI
+« Générer le fichier soumis aux contrôles » le fait. C'est précisément pour ce
+genre de cas qu'elle a été ajoutée le 11/09 — un défaut qui n'apparaît que
+lorsque le moteur écrit pour de vrai.
+
+### Ce que le contrôle a dicté, et qu'il ne fallait pas contourner
+
+`test_hors_series_corrigees…` a d'abord refusé le retrait : les caches
+bougeaient sur des titres qu'aucun dossier du dépôt n'autorisait. Son
+commentaire donne la seule issue acceptable :
+
+> « La réponse n'est pas d'élargir l'exception à la main — ce serait modifier
+>   le contrôle pour faire passer la livraison — mais d'écrire l'instruction
+>   qui manquait, avec sa provenance. »
+
+D'où 34 documents dans `datasets/seances_retirees/`, chacun portant **la bougie
+exacte retirée**. Une instruction qui porte la bougie s'arrête d'elle-même si
+le terrain a bougé ; une liste de dates s'appliquerait à n'importe quoi.
+
+### La leçon durable
+
+**Il n'y avait rien à corriger, il n'y avait qu'à retirer.** Corriger
+supposerait qu'une vraie valeur existe quelque part. Le marché était fermé :
+toute valeur portée à cette date est fabriquée, quelle qu'elle soit. C'est ce
+qui distingue ce cas des 534 clôtures fausses de la famille 18 — là, l'export
+de l'opérateur donnait la bonne.
