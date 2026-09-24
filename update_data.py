@@ -3758,6 +3758,48 @@ def run(dry_run=False, push=False, token=""):
     # ⚠️ Il ne bloque pas la publication. Un contrôle qui arrêterait le bulletin
     # du matin à la première anomalie nouvelle coûterait plus qu'il ne protège ;
     # c'est un test dédié qui décide ce qui empêche de publier.
+    # ⚠️ COMMENT NOS CHIFFRES SONT CALCULÉS — ajouté le 24/09/2026.
+    #
+    # Un recoupement avec une source extérieure a donné, sur la moyenne 20
+    # séances d'un titre, 414,49 contre 416,22. Ni l'un ni l'autre n'était
+    # faux : elle EXCLUT la séance du jour de sa moyenne, nous l'incluons.
+    # L'écart valait 1,73 DH et il a fallu le chercher.
+    #
+    #     nos 20 dernières clôtures        414,49
+    #     les 20 clôtures SANS le jour     416,21  ← la source disait 416,22
+    #
+    # Un centime. Deux conventions, toutes deux légitimes, et aucune écrite
+    # nulle part. Tant qu'elle ne l'est pas, chaque comparaison extérieure
+    # produit un écart inexplicable — et un écart inexplicable finit par être
+    # attribué à une erreur de données, ce qui fait chercher au mauvais
+    # endroit.
+    #
+    # Ce bloc ne change aucun calcul. Il dit lequel est fait.
+    output["_conventions"] = {
+        "moyennes_mobiles": (
+            "moyenne arithmétique des N DERNIÈRES clôtures, séance du jour "
+            "INCLUSE. Rendue absente tant que N séances ne sont pas "
+            "disponibles — jamais une moyenne sur ce qu'on a."),
+        "rsi": "RSI(14) de Wilder, amorçage par moyenne arithmétique.",
+        "macd": "MACD(12, 26, 9) sur moyennes exponentielles.",
+        "stochastique": "%K(14) et %D(3) sur les extrêmes de la fenêtre.",
+        "adx": "ADX(14) de Wilder — mesure la FORCE d'une tendance, pas son "
+               "sens. Sous 20, il n'y a pas de tendance à suivre.",
+        "seances_retenues": (
+            "les séances réellement cotées. Sont exclues : les jours où la "
+            "Bourse n'a pas ouvert (registre SEANCES_SANS_COTATION) et les "
+            "séances annulées par l'opérateur (SEANCES_ANNULEES). Une fenêtre "
+            "de 20 séances ne couvre donc pas 20 jours calendaires."),
+        "volume": (
+            "un NOMBRE DE TITRES, jamais un montant en dirhams. Les séries "
+            "recoupées à l'export de l'opérateur portent sa colonne « Titres "
+            "Échangés » ; voir datasets/historiques_importes/."),
+        "_pourquoi": (
+            "Publié pour qu'un recoupement extérieur compare ce qui est "
+            "comparable. Un écart de convention pris pour un écart de donnée "
+            "fait chercher au mauvais endroit."),
+    }
+
     # ⚠️ UN RATIO NE VEUT RIEN DIRE SEUL — ajouté le 24/09/2026.
     #
     # « Un P/B de 2,16 n'a pas le même sens dans l'immobilier que dans les
