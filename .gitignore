@@ -245,3 +245,10 @@ whatsapp_analysis/output/*.pkl
 fc-f8a7fcd7773043d0be78f1cdceb20cee
 .mcp.json
 bulletin_out/
+
+# ⚠️ Le dépôt PARAÎT vanilla et doit le rester : index.html est compilé par
+# Babel DANS LE NAVIGATEUR, sans étape de build. @babel/standalone ne sert
+# qu à vérifier la syntaxe JSX en local (skill run-tests) et n a rien à faire
+# dans le dépôt — commité par mégarde le 24/09/2026, retiré aussitôt.
+node_modules/
+package-lock.json

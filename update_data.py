@@ -130,6 +130,46 @@ except Exception as _e:
     _FOND_COMPUTED = {}
     logger.warning(f"fond_score: chargement fondamentaux.json échoué — scores statiques utilisés ({_e})")
 
+# ⚠️ LA DATE DES FONDAMENTAUX, PAR SOCIÉTÉ — ajoutée le 24/09/2026.
+#
+# `fondamentaux.json` porte un `date_maj` par titre depuis toujours ; il n'était
+# simplement jamais propagé. Le terminal affichait donc « données : 24/09 » sur
+# une note dont la moitié du poids vient de chiffres de MAI ET JUIN.
+#
+# Relevé au 24/09 : 3 sociétés au 12/05, 32 au 18/06, 15 au 22/06, 27 au 24/06.
+# La PLUS RÉCENTE a 92 jours. Et ce bloc pèse 47 à 52 % du score.
+#
+# Ce n'est pas un défaut de calcul — les chiffres sont ce qu'ils sont — mais un
+# défaut de déclaration : « un score qui agrège des données de fraîcheurs
+# différentes doit le dire ligne par ligne, sinon on croit lire un état du jour
+# alors qu'on lit un mélange ». La remarque vient d'une lecture extérieure du
+# terminal, transmise par Abd Moutalib le 24/09.
+_FOND_ASOF: dict = {}
+try:
+    with open(Path(__file__).parent / "fondamentaux.json", encoding="utf-8") as _f:
+        _FOND_ASOF = {k: (v or {}).get("date_maj")
+                      for k, v in (json.load(_f) or {}).items()
+                      if isinstance(v, dict) and v.get("date_maj")}
+    logger.info(f"fondamentaux: {len(_FOND_ASOF)} dates de mise à jour lues")
+except Exception as _e:
+    logger.warning(f"fondamentaux: dates de mise à jour illisibles ({_e})")
+
+
+def _age_jours(date_iso: str | None, reference=None) -> int | None:
+    """Âge d'une donnée en jours, ou None si la date est inconnue.
+
+    ⚠️ `None` signifie « on ne sait pas », et ne doit JAMAIS devenir 0 : un âge
+    de zéro affirmerait que la donnée est du jour, ce qui est exactement
+    l'affirmation que ce champ existe pour éviter.
+    """
+    if not date_iso:
+        return None
+    try:
+        d = datetime.strptime(str(date_iso)[:10], "%Y-%m-%d").date()
+    except (ValueError, TypeError):
+        return None
+    return (((reference or datetime.now(timezone.utc).date())) - d).days
+
 FOND_SCORES = {
     # Tickers actifs (19)
     "CMT":7.73,"SMI":7.73,"CASH":7.95,"MNG":4.32,"AKD":7.50,"SOT":7.50,
@@ -2521,6 +2561,18 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         "cap_source":   cap_source,
         "vol_median20": vol_median,
         "prix_asof":    prix_asof or None,
+        # ⚠️ LA FRAÎCHEUR DU BLOC QUI PÈSE LE PLUS — ajouté le 24/09/2026.
+        #
+        # `prix_asof` datait le cours depuis le 10/08 ; rien ne datait les
+        # FONDAMENTAUX, qui pèsent pourtant 47 à 52 % de la note. Le terminal
+        # affichait donc un horodatage du jour sur un score dont la moitié vient
+        # de chiffres de mai et juin — la plus récente de ces dates a 92 jours.
+        #
+        # Deux champs plutôt qu'un : la date répond à « de quand », l'âge répond
+        # à « est-ce vieux », et c'est la seconde question qu'un lecteur se pose
+        # sans savoir la calculer de tête.
+        "fond_asof":      _FOND_ASOF.get(ticker),
+        "fond_age_jours": _age_jours(_FOND_ASOF.get(ticker)),
         "stale":        stale,
         "confidence":   confiance,
         "n_candles":    n_bougies,
@@ -3691,6 +3743,90 @@ def run(dry_run=False, push=False, token=""):
         },
         "tickers": tickers_out,
     }
+
+    # ⚠️ LE FLUX SE CONTRÔLE LUI-MÊME — ajouté le 24/09/2026.
+    #
+    # « Un score qui ne se vérifie pas lui-même ne peut pas être calibré. » La
+    # remarque vient d'une lecture extérieure du terminal ; elle est juste, et
+    # elle était réparable en une passe.
+    #
+    # Ce relevé ne juge pas si un chiffre est VRAI — c'est le rôle du
+    # recoupement au bulletin, qui compare à l'extérieur. Il juge si les
+    # chiffres publiés peuvent COEXISTER : une série peut être entièrement
+    # fausse et parfaitement cohérente, l'inverse jamais.
+    #
+    # ⚠️ Il ne bloque pas la publication. Un contrôle qui arrêterait le bulletin
+    # du matin à la première anomalie nouvelle coûterait plus qu'il ne protège ;
+    # c'est un test dédié qui décide ce qui empêche de publier.
+    # ⚠️ UN RATIO NE VEUT RIEN DIRE SEUL — ajouté le 24/09/2026.
+    #
+    # « Un P/B de 2,16 n'a pas le même sens dans l'immobilier que dans les
+    # télécoms. » Une banque à 1,2 de price-to-book est chère, un éditeur de
+    # logiciels à 1,2 est bradé — et personne ne fait cette comparaison de tête
+    # sur quatre-vingts titres.
+    #
+    # ⚠️ Le rang N'ENTRE PAS dans le score (R8). C'est une lecture posée à côté
+    # du chiffre, pas dedans : l'y faire entrer déplacerait la note de tous les
+    # titres, ce qui exige un backtesting et un accord explicite.
+    try:
+        from pipeline.rang_sectoriel import rangs as _rangs, resume as _resume
+        _r = _rangs(tickers_out)
+        for _t in tickers_out:
+            _e = _r.get(_t.get("symbol"))
+            if _e:
+                _t["rang_secteur"] = _e
+        output["rang_sectoriel"] = _resume(_r, tickers_out)
+        logger.info(f"rang sectoriel : {len(_r)}/{len(tickers_out)} titres situés "
+                    f"dans leur secteur")
+    except Exception as _e:
+        logger.warning(f"rang sectoriel : indisponible ({_e})")
+
+    # ⚠️ QUATRE INDICATEURS CORRÉLÉS NE VALENT PAS QUATRE VOTES — 24/09/2026.
+    #
+    # La critique est juste en général : agréger des mesures corrélées
+    # surestime la confiance qu'on peut leur accorder. Mais « corrélés à 0,9 »
+    # est une hypothèse, et le relevé la nuance — au 24/09 :
+    #
+    #     stoch_k ~ stoch_d   +0,940     rsi ~ adx    +0,021
+    #     rsi     ~ stoch_k   +0,801     macd ~ adx   +0,182
+    #
+    # Le RSI et les deux stochastiques disent la même chose. L'ADX, lui, est
+    # INDÉPENDANT — il mesure la force d'une tendance, pas sa direction, et le
+    # compter comme redondant serait la faute symétrique de celle qu'on
+    # corrige. Six indicateurs publiés, quatre réellement distincts.
+    #
+    # ⚠️ Rien n'est retiré du calcul (R8) : ce bloc MESURE et publie. La
+    # décision de corriger la redondance dans le score demande un backtesting
+    # et un accord explicite — elle se prendra avec ce chiffre sous les yeux
+    # plutôt qu'avec une intuition.
+    try:
+        from pipeline.redondance import mesurer as _mesurer
+        output["redondance_technique"] = _mesurer(tickers_out)
+        _d = output["redondance_technique"]
+        if _d.get("mesurable"):
+            logger.info(f"redondance : {_d['indicateurs_declares']} indicateurs "
+                        f"publiés, {_d['indicateurs_distincts']} distincts")
+    except Exception as _e:
+        logger.warning(f"redondance : mesure indisponible ({_e})")
+
+    try:
+        from pipeline.coherence import controler_tous
+        rapport = controler_tous(tickers_out)
+        output["coherence"] = {k: v for k, v in rapport.items() if k != "detail"}
+        output["coherence"]["detail"] = rapport["detail"]
+        if rapport["erreurs"]:
+            logger.warning(
+                f"cohérence : {rapport['erreurs']} ERREUR(S) sur "
+                f"{rapport['titres_avec_anomalie']} titre(s) — {rapport['par_code']}")
+        elif rapport["titres_avec_anomalie"]:
+            logger.info(
+                f"cohérence : 0 erreur, {rapport['titres_avec_anomalie']} titre(s) "
+                f"avec avertissement — {rapport['par_code']}")
+        else:
+            logger.info("cohérence : aucun signalement")
+    except Exception as _e:
+        # Un contrôle qui tombe ne doit pas emporter la publication avec lui.
+        logger.warning(f"cohérence : contrôle indisponible ({_e})")
 
     elapsed = round(time.time() - ts_start, 1)
     logger.info(f"\n{'═'*60}")
