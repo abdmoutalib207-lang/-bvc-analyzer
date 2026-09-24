@@ -72,10 +72,13 @@ def _ecrire(p: Path, seances: dict, apports: list) -> None:
     # Préserver aussi le journal des retraits de séances annulées.
     charge = json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
     charge.update({
-        "_note": ("Une clôture par séance, en AJOUT SEULEMENT : une date déjà "
-                  "connue n'est jamais réécrite. Le YTD reste indisponible "
-                  "tant que la série ne couvre pas la dernière séance de "
-                  "l'année précédente."),
+        "_note": ("Une valeur par séance. Une séance PASSÉE n'est jamais "
+                  "réécrite ; la séance DU JOUR se rafraîchit jusqu'à ce que "
+                  "le dernier run de la journée fixe l'indice. ⚠️ La règle "
+                  "précédente gravait la PREMIÈRE valeur du jour : trois "
+                  "séances sur cinq en sont sorties fausses, jusqu'à 256 "
+                  "points d'écart. Le YTD reste indisponible tant que la série "
+                  "ne couvre pas la dernière séance de l'année précédente."),
         "_apports": apports,
         "seances": dict(sorted(seances.items())),
     })
@@ -85,16 +88,39 @@ def _ecrire(p: Path, seances: dict, apports: list) -> None:
 
 
 def enregistrer(valeur, asof: str, chemin: Path | None = None,
-                source: str = "pipeline") -> bool:
-    """Ajoute la clôture d'une séance. Ne réécrit jamais une date connue.
+                source: str = "pipeline", aujourd_hui: str | None = None) -> bool:
+    """Enregistre l'indice d'une séance. La séance DU JOUR se rafraîchit.
 
-    L'écriture est idempotente : quatre runs par jour ouvré déposent la même
-    date, et seul le premier compte. La valeur d'une séance déjà enregistrée
-    n'est PAS mise à jour — l'indice de 12h00 ne doit pas devenir la clôture.
-    Le run de 15h45, qui fixe le cours, est aussi celui qui fixe l'indice ;
-    pour le reste, `data.json` reste la source du jour.
+    ⚠️ LA RÈGLE PRÉCÉDENTE FIGEAIT LA PREMIÈRE VALEUR DU JOUR, ET C'ÉTAIT FAUX.
+    Elle disait : « seul le premier compte, l'indice de 12h00 ne doit pas
+    devenir la clôture. Le run de 15h45 fixe le cours et l'indice. »
 
-    Renvoie True si une nouvelle séance a été ajoutée.
+    Le raisonnement supposait que le run de 15h45 PART. Il ne part plus depuis
+    le 26/08/2026. Quand un run de milieu de séance arrive en premier, c'est
+    donc LUI qui grave l'indice — exactement l'inverse de l'intention.
+
+    Mesuré le 24/09 sur les cinq séances alimentées par le pipeline : **trois
+    étaient fausses**, et l'écart grandissait.
+
+        22/09   18 045,35  au lieu de  18 076,72     +31 points
+        23/09   18 119,95  au lieu de  18 040,73     −79
+        24/09   18 125,28  au lieu de  17 869,06    −256, soit 1,4 %
+
+    C'est le défaut corrigé pour les chandelles le 10/08 — « la bougie du jour
+    se figeait sur le premier run » — et jamais reporté ici.
+
+    ⚠️ LA RÈGLE JUSTE : une séance PASSÉE ne se réécrit jamais, la séance DU
+    JOUR se rafraîchit. Une valeur plus tardive est toujours meilleure tant que
+    la journée n'est pas finie ; le dernier run après la clôture fixe l'indice,
+    quel qu'il soit.
+
+    ⚠️ Le recul d'une source ne passe pas par ici : `data.json` est déjà
+    protégé par `_cliquet_seance()`, et c'est sa valeur qu'on enregistre.
+
+    `aujourd_hui` est injectable pour les tests — jamais renseigné en
+    production, où l'heure de Casablanca fait foi.
+
+    Renvoie True si la série a changé.
     """
     p = Path(chemin) if chemin else CHEMIN
     try:
@@ -106,8 +132,22 @@ def enregistrer(valeur, asof: str, chemin: Path | None = None,
     jour = str(asof)[:10]
 
     seances = _charger(p)
-    if jour in seances:
-        return False
+    if aujourd_hui is None:
+        from datetime import datetime, timedelta, timezone
+        import sys as _sys
+        _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+        from bvc_config import decalage_maroc
+        n = datetime.now(timezone.utc)
+        aujourd_hui = (n + timedelta(hours=decalage_maroc(n.date()))).strftime("%Y-%m-%d")
+
+    connu = seances.get(jour)
+    if connu is not None:
+        # Séance passée : gravée, on n'y touche plus.
+        if jour != aujourd_hui:
+            return False
+        # Séance du jour : la valeur la plus tardive l'emporte.
+        if abs(float(connu) - round(v, 4)) < 1e-9:
+            return False
     seances[jour] = round(v, 4)
 
     apports = _apports(p)
