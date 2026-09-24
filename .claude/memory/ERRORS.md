@@ -1098,3 +1098,82 @@ supposerait qu'une vraie valeur existe quelque part. Le marché était fermé :
 toute valeur portée à cette date est fabriquée, quelle qu'elle soit. C'est ce
 qui distingue ce cas des 534 clôtures fausses de la famille 18 — là, l'export
 de l'opérateur donnait la bonne.
+
+## Famille 21 — Une alarme qui rapporte le succès de sa propre inaction (24/09/2026)
+
+### Ce qu'Abd Moutalib a signalé, et qui a tout déclenché
+
+> « Le problème de run et le déclenchement depuis l'installation du BVC réveil
+> robot. Avant y avait pas de problème, il tournait toutes les 15 minutes, on a
+> même réduit pour le soulager. »
+
+Une remarque de terrain contre une analyse. **La vérification a donné raison à
+la remarque sur un point, et tort sur l'autre** — les deux comptent.
+
+### ⚠️ J'avais tort : ma mesure de la veille était tronquée
+
+Le 23/09 j'ai affirmé que « GitHub honore environ 4 runs par jour quelle que
+soit la densité de crons », et j'en ai tiré que multiplier les créneaux ne
+servirait à rien. **L'échantillon ne portait que sur les 60 derniers runs** —
+une seule page d'API — ce qui tronquait tous les jours anciens.
+
+Sur 600 runs, la réalité est inverse :
+
+| période | crons programmés | runs obtenus |
+|---|---:|---:|
+| 17-18/08 | 27 | **27-28** |
+| 19-26/08 | 4 | **exactement 4**, à ~25 min près |
+| depuis le 31/08 | 26 | 11-12 |
+
+**Le taux était de 100 %.** Un chiffre juste sur un échantillon faux reste un
+chiffre faux, et il portait une conclusion d'architecture.
+
+⚠️ Et les « 11-12 runs » de septembre étaient eux aussi trompeurs : le cron de
+rattrapage valait `25 * * * 1-5`, **toutes les heures, nuit comprise**, plus
+deux crons à 20h et 22h. Ces runs nocturnes gonflaient le compte sans servir la
+séance. Corrigé le 23/09, donc la série d'après n'a qu'un jour de recul.
+
+### La routine n'est pas la cause — la chronologie le dit
+
+| | |
+|---|---|
+| **26/08** | le `schedule` cesse de partir |
+| **28/08 18h48** | la routine « BVC — réveil des robots » est créée |
+
+Son propre texte le dit : *« depuis le 26/08/2026, le déclencheur `schedule` de
+GitHub Actions ne part plus sur ce dépôt »*. **Elle a été installée à cause de
+la panne, deux jours après.** Aucun changement de workflow n'a eu lieu le 26 ou
+le 27/08, et la charge du dépôt était PLUS élevée avant (64 runs/jour du 19 au
+26/08) qu'après (44/jour du 27/08 au 03/09).
+
+La cause du 26/08 reste **non établie**. Elle n'est pas interne au dépôt.
+
+### ⚠️ Mais la routine ne fonctionne pas, et n'a jamais fonctionné
+
+```
+last_run : SUCCEEDED,  24/09  08:45 → 08:47
+runs update_bvc ce jour-là à 10h21 : 0
+```
+
+Elle rapporte « succès » sans rien déclencher. La cause est dans sa fiche :
+`mcp_connections: []` — la session créée n'a **aucun outil GitHub**, alors que
+son texte lui demande d'appeler `actions_run_trigger`. C'était déjà constaté le
+31/08 et consigné dans `EN_COURS.md` ; le correctif proposé alors était faux
+lui aussi (il se terminait par un `git push` que la session ne peut pas faire).
+
+**Le pire n'est pas qu'elle échoue : c'est qu'elle annonce le contraire.** Elle
+envoie une notification push à chaque passage. Quatre fois par jour ouvré
+depuis le 28/08, une session s'ouvre, ne peut rien faire, et dit que tout va
+bien.
+
+### La leçon
+
+**Une alarme doit prouver son action, pas la déclarer.** C'est exactement ce
+que fait le Worker mis en place le 23/09 : il déclenche, puis cinq minutes plus
+tard **redemande à l'API si le run est parti**, et ouvre une issue sinon. La
+différence entre les deux tient en une phrase — l'un dit qu'il a appelé,
+l'autre vérifie qu'il a été entendu.
+
+⚠️ Et ce n'est pas réparable par un meilleur texte de routine : la session n'a
+ni outil GitHub, ni `gh`, ni jeton, et lui en donner un supposerait d'écrire un
+secret dans un prompt stocké et affiché.
