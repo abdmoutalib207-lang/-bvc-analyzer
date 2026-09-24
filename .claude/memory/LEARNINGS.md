@@ -499,3 +499,48 @@ la série » ampute les titres les plus anciens.
 Le nom de fichier porte le code de l'opérateur, pas le nôtre : `TGC` est TGCC,
 `NKL` est ENK, `SNA` est Stokvis. On résout par `IDB_TICKER_MAP` inversé sur
 la colonne `Ticker`, et un code inconnu se refuse au lieu de se deviner.
+
+## L'AMMC publie l'index des états financiers, et il est lisible (24/09/2026)
+
+`ammc.ma/fr/liste-etats-financiers-emetteurs` — accessible depuis le conteneur,
+HTTP 200, sans authentification. La chaîne est complète :
+
+    liste paginée (426 pages) → fiche par rapport → PDF direct
+
+### ⚠️ Ce qu'elle donne vraiment, et qui n'est pas ce qu'on espère
+
+Sur 442 entrées relevées (2023 → 2026), **cinq seulement portent l'exercice
+2026**. Au 24/09, la quasi-totalité des sociétés en est encore à son semestriel
+ou son annuel 2025.
+
+**La source officielle n'a donc rien de plus frais que nos fondamentaux saisis
+à la main.** Elle n'est pas la réponse au chantier des fondamentaux — elle est
+le **calendrier** qui dira quand aller les chercher.
+
+⚠️ Et la liste donne l'EXERCICE, pas la date de dépôt : la fiche ne porte
+aucune date de publication. Un « rapport annuel 2025 » paraît vers mars-avril
+2026, et nos fondamentaux de mai-juin l'intègrent donc déjà.
+
+### ⚠️ Les noms AMMC portent NOTRE ticker entre parenthèses
+
+« Alliances Développement Immobilier **(ADI)** », « Bank of Africa - Groupe BMCE
+**(BOA)** », « Compagnie Minière de Touissit **(CMT)** ». C'est une identité
+**déclarée par l'émetteur**, pas une ressemblance de noms — et elle a fait
+passer l'appariement de 59 à 65 sociétés sur 80.
+
+Deux garde-fous indispensables :
+  · le code doit figurer dans `TICKERS_ALL` — l'AMMC couvre aussi des émetteurs
+    obligataires (« Agence Nationale des Ports (ANP) ») ;
+  · il doit être ENTRE PARENTHÈSES EN FIN DE NOM, sinon « BCP Securities » se
+    ferait apparier.
+
+⚠️ Ce qu'aucun contrôle hors ligne ne peut garantir : que l'AMMC et nous
+employons un code dans le même sens. Un opérateur appelle déjà `SNA` ce que
+nous appelons `STK`.
+
+### Le filtre par année du site ne marche pas en GET
+
+Passer `field_annee_value_1=2026` rend la liste entière — le formulaire passe
+par un mécanisme Drupal qui n'accepte pas ses propres paramètres en URL. La
+liste étant triée par date décroissante, lire les premières pages est plus
+robuste qu'un paramètre que le site pourrait renommer.
