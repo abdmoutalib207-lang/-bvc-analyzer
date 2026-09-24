@@ -114,14 +114,44 @@ def test_le_trou_de_trois_seances_est_chiffre_a_l_echelle_du_marche(dossier):
     assert "ADI" in c["liste"] and "SMI" in c["liste"]
 
 
-def test_les_trois_seances_manquent_toujours_et_ne_sont_pas_fabriquees():
+MANQUANTES = {"2026-06-22", "2026-06-23", "2026-06-24"}
+
+
+def test_les_trois_seances_ne_sont_jamais_fabriquees():
     """⚠️ Une correction dit « cette bougie est fausse », pas « elle devrait
-    exister ». Tant que les exports des 63 titres manquent, le trou reste —
-    et il vaut mieux qu'une cotation inventée."""
+    exister ». Un trou vaut mieux qu'une cotation inventée.
+
+    ⚠️ MAIS L'INTERDICTION VISAIT LA FABRICATION, PAS LA PIÈCE.
+    Le texte d'origine disait : « TANT QUE LES EXPORTS MANQUENT, le trou
+    reste ». L'export « Cours » d'ADI est arrivé le 24/09 et cote ces trois
+    séances — ce ne sont plus des cotations inventées, ce sont celles de
+    l'opérateur du marché.
+
+    La règle ne change pas, sa condition d'application si : un titre qui porte
+    une réception dans `datasets/historiques_importes/` a été instruit sur
+    pièce. Les autres gardent leur trou, et c'est bien ainsi.
+
+    C'est la deuxième fois en deux jours qu'une instruction motivée par une
+    ABSENCE s'éteint quand l'absence cesse — la première était ATL, le 23/09.
+    """
+    receptions = RACINE / "datasets" / "historiques_importes"
     for t in ("ADI", "SMI"):
-        dates = {b["d"] for b in json.loads(
-            (RACINE / "pipeline" / "candles" / f"{t}.json").read_text(encoding="utf-8"))}
-        assert not (dates & {"2026-06-22", "2026-06-23", "2026-06-24"})
+        serie = json.loads((RACINE / "pipeline" / "candles" / f"{t}.json")
+                           .read_text(encoding="utf-8"))
+        presentes = {b["d"] for b in serie} & MANQUANTES
+        if not (receptions / f"{t}.json").exists():
+            assert not presentes, (
+                f"{t} n'a pas d'export réceptionné : ces séances ne peuvent "
+                f"venir que d'une fabrication — {sorted(presentes)}")
+            continue
+        # Instruit sur pièce : les séances peuvent revenir, mais elles doivent
+        # porter une VRAIE cotation, pas une bougie plate recopiée.
+        par_date = {b["d"]: b for b in serie}
+        for d in sorted(presentes):
+            b = par_date[d]
+            assert b["c"] > 0, f"{t} {d} : clôture nulle"
+            assert b["l"] <= min(b["o"], b["c"]) and b["h"] >= max(b["o"], b["c"]), (
+                f"{t} {d} : bougie incohérente")
 
 
 def test_l_unite_du_volume_est_mesuree_et_non_uniformisee(dossier):

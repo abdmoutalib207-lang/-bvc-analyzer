@@ -1,0 +1,37 @@
+{
+  "_statut": "INSTRUCTION — la série publiée de ce titre EST l'export de l'opérateur, date pour date, sur la période couverte.",
+  "_portee": "La bougie ENTIÈRE (o/h/l/c/v), et non le seul volume : le recoupement a trouvé des clôtures fausses, pas seulement des volumes. Hors de la période de l'export, rien n'est touché — ni nos séances antérieures, ni la séance du jour.",
+  "ticker": "ADI",
+  "code_operateur": "ADI",
+  "instrument": "ALLIANCES",
+  "source": "casablanca-bourse.com — export « Cours » 3 ans, fourni par Abd Moutalib les 22 et 23/09/2026",
+  "fichier_recu": "876fed5c-Cours_ADI___2023-09-25_2026-09-24.csv",
+  "sha256_fichier_recu": "7196ec57b6b13573564f029dffa1bef53c4e14e69c8af23a95df6bedf11cb59f",
+  "periode_source": [
+    "2023-09-25",
+    "2026-09-24"
+  ],
+  "seances": 810,
+  "_identite_verifiee": {
+    "code_dans_le_fichier": "ADI",
+    "instrument_dans_le_fichier": "ALLIANCES",
+    "nombre_d_actions_deduit": [
+      22078588
+    ],
+    "methode": "Capitalisation ÷ Dernier Cours sur les 40 dernières séances. Une valeur unique est un contrôle arithmétique indépendant du nom comme du code : deux sources peuvent citer le même code par erreur, un nombre d'actions qui se recoupe au titre près, non. Plusieurs valeurs signalent une augmentation de capital dans la période, pas une erreur d'identité."
+  },
+  "_ce_que_l_import_a_change": {
+    "seances_remplacees": 723,
+    "seances_ajoutees": 4,
+    "seances_fantomes_retirees": [],
+    "conservees_avant_l_export": 75,
+    "conservees_apres_l_export": 0,
+    "annulees_retirees": [
+      "2026-09-17"
+    ]
+  },
+  "_colonne_de_volume": "« Titres Échangés », JAMAIS « Volume (MAD) ». L'export porte les deux. La règle vit désormais dans `pipeline/volume_titres.py` et les collecteurs y passent — voir `tests/test_volume_titres.py`.",
+  "_seances_sans_echange": "Conservées, avec v = 0. Le marché était ouvert et le titre n'a pas traité : c'est une information, pas un trou. Auparavant elles portaient le COURS comme volume.",
+  "_cache": "`pipeline/historical_data.json` doit être recalculé pour ce titre : ses indicateurs décrivent l'ancienne série.",
+  "recu_le": "2026-09-24T18:09:45.839949+00:00"
+}
