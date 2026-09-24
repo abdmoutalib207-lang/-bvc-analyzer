@@ -1098,3 +1098,66 @@ supposerait qu'une vraie valeur existe quelque part. Le marché était fermé :
 toute valeur portée à cette date est fabriquée, quelle qu'elle soit. C'est ce
 qui distingue ce cas des 534 clôtures fausses de la famille 18 — là, l'export
 de l'opérateur donnait la bonne.
+
+## Famille 22 — Juger une critique sur un résumé (24/09/2026)
+
+Abd Moutalib a transmis une analyse critique du terminal faite par un outil
+extérieur. Je l'ai jugée **sur un résumé automatique**, et je me suis trompé
+deux fois — dans le même sens, celui qui flatte notre code.
+
+### ⚠️ Erreur 1 — elle avait vu ce que je lui reprochais de ne pas voir
+
+J'ai écrit « elle se trompe, c'est le mode simulation ». Le résumé avait coupé
+sa phrase :
+
+> « La cause est probablement le mode "SIMULATION, signal masqué" qui tourne en
+>   parallèle du score officiel, **mais rien dans la feuille ne permet de le
+>   vérifier**. »
+
+Elle avait fait le bon diagnostic ET dit honnêtement sa limite. Un résumé garde
+les conclusions et jette les réserves — or c'est dans les réserves que se voit
+la qualité d'un raisonnement.
+
+### ⚠️ Erreur 2 — la contradiction qu'elle signalait était réelle
+
+Après avoir lu le texte entier, j'ai vérifié : les 80 titres portaient
+**52/28/20** quand le badge annonçait **47/28/25**. Ce n'était pas le mode
+simulation — c'était le **WeightEngine qui module selon le contexte**, et
+l'écran qui ne le disait pas. Hors séance, c'est-à-dire quand le bulletin se
+lit le matin.
+
+**Deux fois de suite, j'ai défendu le code avant de l'avoir mesuré.**
+
+### Ce que la vérification a donné, une fois faite
+
+| reproche | verdict |
+|---|---|
+| pondération annoncée ≠ appliquée | **fondé**, et pas pour la raison que je croyais |
+| notes par pilier non montrées | **fondé** — elles étaient publiées, jamais affichées |
+| pas d'auto-vérification du score | **fondé** — 19 titres sur 80 portent une conviction directionnelle sous ADX 20 |
+| ratios non normalisés par secteur | **fondé** — ADI est le plus cher de son secteur en P/B, rang 4/4 |
+| quatre indicateurs redondants | **nuancé par la mesure** |
+| RSI affiché deux fois | **non reproduit** |
+
+⚠️ Sur la redondance, la mesure sur nos propres séries donne `rsi ~ adx` à
+**0,036** : l'ADX est INDÉPENDANT. Il mesure la force d'une tendance, pas sa
+direction. Le retirer aurait été la faute symétrique de celle qu'on corrigeait
+— et c'est exactement le genre d'erreur qu'on commet en appliquant une critique
+juste sans la mesurer.
+
+### La leçon
+
+**Une critique extérieure se lit en entier, ou pas du tout.** Un résumé rend
+les conclusions sans le raisonnement, et on finit par réfuter une thèse que
+personne n'a soutenue.
+
+Et le corollaire, plus désagréable : **quand une critique vise notre code, le
+premier réflexe est de le défendre**. Deux mesures auraient suffi à me
+détromper, et je ne les ai faites qu'à la troisième insistance.
+
+### ⚠️ Incident annexe — `node_modules` commité
+
+En vérifiant la compilation JSX j'ai installé `@babel/standalone`, et il est
+parti dans le commit : **137 701 insertions**. Le CLAUDE.md dit pourtant que
+le dépôt n'a « pas de package.json, pas de node_modules » et qu'il « PARAÎT
+vanilla ». Retiré, et `.gitignore` le bloque désormais.
