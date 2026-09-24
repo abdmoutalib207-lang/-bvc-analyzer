@@ -1597,6 +1597,29 @@ def fetch_masi_cdg():
         if re.match(r"\d{2}/\d{2}/\d{4}", brut):
             j, mo, a = brut[:10].split("/")
             asof = f"{a}-{mo}-{j}"
+        # ⚠️ TRENTE CHAMPS SERVIS, TROIS LUS — corrigé le 24/09/2026.
+        #
+        # Le CLAUDE.md le signalait depuis le 28/08 : « l'endpoint livre en
+        # prime la largeur de marché — hausses, baisses, inchangés, nombre de
+        # valeurs — NON EXPLOITÉE pour l'instant ». Elle partait à la poubelle
+        # à chaque run, quatre fois par jour ouvré.
+        #
+        # ⚠️ Et le YTD y est aussi. Le WeightEngine le déclare « non calculable
+        # aujourd'hui », ce qui neutralise deux régimes de pondération depuis
+        # l'origine du projet. `VariationAnneeP` le donne.
+        #
+        # La collecte n'entre dans AUCUN calcul : elle constitue l'historique
+        # sans lequel aucune mesure ne sera possible (R8).
+        try:
+            from pipeline.marche_history import enregistrer as _marche
+            if _marche(ligne, asof):
+                logger.info("état du marché enregistré pour la séance "
+                            f"{asof} — {ligne.get('NbrHausse')} hausses / "
+                            f"{ligne.get('NbrBaisse')} baisses")
+        except Exception as _e:
+            # Une collecte annexe ne doit jamais empêcher la publication.
+            logger.warning(f"état du marché non enregistré ({_e})")
+
         return {"value": float(ligne["Cours"]),
                 "chg": float(ligne.get("VariationP") or 0),
                 "asof": asof}
