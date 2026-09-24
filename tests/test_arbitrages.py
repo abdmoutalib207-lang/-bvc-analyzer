@@ -157,19 +157,43 @@ def test_l_ignorance_sur_les_autres_titres_est_declaree(mesures):
 
 
 def test_aucune_conversion_de_volume_n_a_ete_appliquee(mesures):
-    """⚠️ L'option A — convertir — est déconseillée dans le dossier. Ce test
-    vérifie qu'elle n'a pas été appliquée malgré tout : les séries gardent
-    l'unité que la mesure leur attribue."""
+    """⚠️ L'option A — CONVERTIR — reste interdite, et ce test la garde.
+
+    Le dossier la déconseille en une phrase qui dit tout : « réécrire ~670
+    séances sur la foi d'une convention DÉDUITE et jamais déclarée par le
+    fournisseur ». Appliquer un facteur à des volumes dont on suppose l'unité,
+    c'est inventer des chiffres et leur donner l'apparence d'une correction.
+
+    ⚠️ MAIS SUBSTITUER LA SÉRIE DE L'OPÉRATEUR N'EST PAS CONVERTIR, ET LE TEST
+    CONFONDAIT LES DEUX.
+    Le 24/09, l'export « Cours » d'ADI est arrivé. Sa colonne « Titres
+    Échangés » DÉCLARE l'unité au lieu de la laisser deviner. La série a donc
+    été remplacée, pas convertie — et le test a rougi sur une opération qu'il
+    n'avait pas à interdire.
+
+    La distinction se lit dans le dépôt, elle ne se décrète pas ici : un titre
+    dont `datasets/historiques_importes/` porte la réception a été instruit
+    SUR PIÈCE. Pour les autres, l'interdiction tient entière.
+    """
     assert "Je le déconseille" in \
         mesures["arbitrage_2_l_unite_du_champ_volume"]["_options"]["A_convertir"]
-    # ADI reste en montant MAD : ses volumes restent d'un autre ordre de
-    # grandeur que ses quantités réelles.
+
+    receptions = RACINE / "datasets" / "historiques_importes"
     serie = json.loads((RACINE / "pipeline" / "candles" / "ADI.json")
                        .read_text(encoding="utf-8"))
     recents = [b["v"] for b in serie[-60:] if b["v"]]
-    assert max(recents) > 100000, (
-        "les volumes d'ADI ont été convertis : l'arbitrage a été tranché sans "
-        "être posé")
+
+    if (receptions / "ADI.json").exists():
+        # Instruit sur pièce : les volumes DOIVENT désormais être des titres,
+        # donc d'un ordre de grandeur bien inférieur au montant en dirhams.
+        assert max(recents) < 100000, (
+            "ADI porte une réception d'historique, mais ses volumes gardent "
+            "l'ordre de grandeur d'un montant en dirhams — l'import n'a pas "
+            "pris")
+    else:
+        assert max(recents) > 100000, (
+            "les volumes d'ADI ont été convertis : l'arbitrage a été tranché "
+            "sans être posé, et sans export pour l'établir")
 
 
 def test_les_trois_options_restent_ouvertes(mesures):
