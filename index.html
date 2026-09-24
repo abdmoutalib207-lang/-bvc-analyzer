@@ -1149,7 +1149,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
         <div style={{display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
           <span style={{fontSize:22,fontWeight:700,letterSpacing:3,background:"linear-gradient(90deg,#00e5a0,#4db8ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>BVC ANALYZER</span>
-          <span style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — TECH 25% · FOND 47% · NLP 28%</span>
+          <span title="Pondération de RÉFÉRENCE. Le moteur la module selon le contexte du titre — hors séance le fondamental monte, un titre porté par le smart money voit son pilier comportemental renforcé. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 47 · NLP 28 · TECH 25 <span style={{color:"#8892a4"}}>· modulée par titre</span></span>
           {/* Score mode — composantes indépendantes */}
           <div style={{display:"flex",alignItems:"center",gap:4,background:"rgba(10,18,32,.8)",border:"1px solid #1a2540",borderRadius:5,padding:"3px 6px"}}>
             <span style={{fontSize:9,color:"#4a5570",letterSpacing:.5,marginRight:2}}>SCORE</span>
@@ -1518,7 +1518,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         </table>
       </div>
       <div style={{marginTop:12,padding:"10px 14px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
-        <span style={{color:"#00e5a0"}}>●</span> SCORE = Tech×25% + Fond×47% + NLP×28% (moteur v6.4) &nbsp;|&nbsp;
+        <span style={{color:"#00e5a0"}}>●</span> SCORE = base Tech×25% + Fond×47% + NLP×28%, <span style={{color:"#ffd740"}}>modulée par titre</span> — le poids appliqué est sur chaque fiche &nbsp;|&nbsp;
         <span style={{color:"#ffd740"}}>●</span> SM~ = score Smart Money <b>heuristique, NON calibré</b> — dérivé du score composite, ce n'est pas une probabilité mesurée &nbsp;|&nbsp;
         <span style={{color:"#b388ff"}}>●</span> Δ = différence SCORE vs BVC fondamental &nbsp;|&nbsp;
         <span style={{color:"#8892a4"}}>~stat</span> = indicateurs techniques estimés (RSI/MA calculés dès la prochaine mise à jour) &nbsp;|&nbsp;
@@ -1678,7 +1678,18 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
 
           {/* Fundamentaux */}
           <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Fondamentaux</div>
+            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Fondamentaux
+              {/* ⚠️ LA FRAÎCHEUR DU BLOC QUI PÈSE LE PLUS — ajouté le 24/09/2026.
+                  Le cours est daté depuis le 10/08 ; ces chiffres-là ne
+                  l'étaient nulle part, alors qu'ils pèsent 47 à 52 % de la
+                  note. Relevé au 24/09 : la date la plus RÉCENTE a 92 jours.
+                  Un terminal qui affiche l'heure du jour en tête de page doit
+                  dire, ici, que cette moitié-ci vient de juin. */}
+              {(()=>{const m=meta(r),a=m.fond_age_jours;
+                if(a==null) return <span style={{color:"#ff8f00",fontSize:9,marginLeft:8,textTransform:"none",letterSpacing:0}}>· date inconnue</span>;
+                const c=a>180?"#ff4f5a":a>90?"#ff8f00":a>30?"#ffd740":"#8892a4";
+                return <span title={`Dernière mise à jour des fondamentaux : ${m.fond_asof}`} style={{color:c,fontSize:9,marginLeft:8,textTransform:"none",letterSpacing:0}}>· {m.fond_asof} <b>({a} j)</b></span>;})()}
+            </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
               {[["PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"],["Alpha 12M",`${r.alpha>0?"+":""}${r.alpha}%`,r.alpha>=0?"#00e5a0":"#ff4f5a"]].map(([k,v,c])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
@@ -1872,7 +1883,14 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                   computeDisplayScore n'applique ni bonus ni malus. Écrire
                   « + bonus/malus » y serait faux, et la formule affichée ne
                   redonnerait pas le chiffre affiché à côté d'elle. */}
-              {pdsAff&&<><span style={{color:"#b388ff"}}>fond×{pdsAff.f}%</span><span style={{color:"#8892a4"}}> + </span><span style={{color:"#00e5a0"}}>nlp×{pdsAff.n}%</span><span style={{color:"#8892a4"}}> + </span><span style={{color:"#4db8ff"}}>tech×{pdsAff.t}%</span><span style={{color:"#8892a4"}}>{simu?" =":" + bonus/malus ="}</span></>}
+              {/* ⚠️ LA NOTE DE CHAQUE PILIER, ET PAS SEULEMENT SON POIDS.
+                  Jusqu'au 24/09 cette ligne affichait « fond×47% + nlp×28% +
+                  tech×25% = 5,83 » : on lisait la somme sans savoir ce que
+                  chaque brique y apportait. Impossible de dire si un 5,83 vient
+                  d'un bon dossier mal noté techniquement ou l'inverse.
+                  Les trois notes étaient DÉJÀ publiées dans data.json — elles
+                  n'étaient simplement pas montrées. */}
+              {pdsAff&&<><span style={{color:"#b388ff"}}>fond {fmt(r.score_fond,1)}×{pdsAff.f}%</span><span style={{color:"#8892a4"}}> + </span><span style={{color:"#00e5a0"}}>nlp {fmt(r.score_nlp,1)}×{pdsAff.n}%</span><span style={{color:"#8892a4"}}> + </span><span style={{color:"#4db8ff"}}>tech {fmt(r.score_tech,1)}×{pdsAff.t}%</span><span style={{color:"#8892a4"}}>{simu?" =":" + bonus/malus ="}</span></>}
               <span style={{color:scoreAffiche==null?"#8892a4":((dltAff||0)>=0?"#00e5a0":"#ff4f5a"),fontWeight:700}}> {fmt(scoreAffiche)}</span>
               <span style={{color:"#8892a4",fontSize:11}}> ({(dltAff||0)>=0?"+":""}{fmt(dltAff)} vs BVC {(r.bvc||0).toFixed(2)})</span>
             </div>

@@ -215,7 +215,12 @@ def test_les_quatre_affichages_utilisent_les_poids_de_la_vue():
     for attendu, ou in ((("<WBar f={pw.f} n={pw.n} t={pw.t}/>"), "barre du classement"),
                         (("F{pw.f}·N{pw.n}·T{pw.t}"), "libellé du classement"),
                         (("<WBar f={pdsAff.f} n={pdsAff.n} t={pdsAff.t}/>"), "barre de la fiche"),
-                        (("fond×{pdsAff.f}%"), "formule de la fiche")):
+                        # ⚠️ On vise le MOTIF qui porte la règle — le poids de
+                        # la vue — et non la chaîne entière. Le 24/09 la formule
+                        # s'est enrichie des NOTES de chaque pilier
+                        # (« fond 7,3×52% ») et ce test a rougi sur un
+                        # changement qui ne touchait en rien ce qu'il protège.
+                        (("×{pdsAff.f}%"), "formule de la fiche")):
         assert attendu in s, f"{ou} : ne suit pas la pondération choisie"
 
 
@@ -231,10 +236,47 @@ def test_la_formule_conclut_sur_la_note_affichee():
     """Elle se terminait sur `r.v53` en dur : la ligne « fond×60% + tech×40% »
     aboutissait donc à la note OFFICIELLE."""
     s = _src()
-    assert "fond×{pdsAff.f}%" in s
-    i = s.index("fond×{pdsAff.f}%")
+    assert "×{pdsAff.f}%" in s
+    i = s.index("×{pdsAff.f}%")
     fin = s[i:i+900]
     assert "{fmt(scoreAffiche)}" in fin, (
         "la formule de la fiche ne conclut pas sur la note qu'elle décrit")
     assert "(r.v53||0).toFixed(2)" not in fin, (
         "la formule conclut encore sur le v5.3 du moteur")
+
+
+def test_la_formule_montre_la_note_de_chaque_pilier():
+    """⚠️ AJOUTÉ LE 24/09/2026, sur une critique extérieure du terminal.
+
+        « Aujourd'hui on lit 5,83 sans savoir ce que chaque pilier y apporte.
+          Un score utilisable affiche "fondamental 6,4 / technique 3,1 / NLP
+          non retenu", pas seulement la somme. »
+
+    Elle était fondée : la ligne montrait les POIDS (« fond×47% ») sans les
+    NOTES. Impossible de dire si un 5,83 venait d'un bon dossier mal noté
+    techniquement ou de l'inverse — alors que les trois notes étaient DÉJÀ
+    publiées dans data.json, et simplement pas affichées.
+    """
+    s = _src()
+    for champ in ("r.score_fond", "r.score_nlp", "r.score_tech"):
+        assert champ in s, (
+            f"la fiche n'affiche pas {champ} — le lecteur voit la somme sans "
+            f"pouvoir la décomposer")
+
+
+def test_l_en_tete_ne_presente_plus_la_base_comme_appliquee():
+    """⚠️ La pondération annoncée était contredite par celle qui s'applique.
+
+    Le badge affichait « TECH 25% · FOND 47% · NLP 28% » — la formule de
+    RÉFÉRENCE — alors que le WeightEngine module selon le contexte : hors
+    séance, les 80 titres portent 52/28/20. Un lecteur comparait donc un
+    en-tête à une fiche et trouvait deux pondérations différentes, sans que
+    rien n'explique laquelle s'appliquait.
+
+    R8 n'est pas touchée : la base RESTE 47/28/25. C'est l'affichage qui
+    cessait de dire qu'elle est modulée.
+    """
+    s = _src()
+    assert "modulée par titre" in s, (
+        "l'en-tête présente la pondération de base comme si elle s'appliquait "
+        "telle quelle")
