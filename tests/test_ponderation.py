@@ -95,17 +95,63 @@ def _fichier(tmp_path):
     return tmp_path / "masi_history.json"
 
 
-def test_une_seance_deja_connue_n_est_pas_reecrite(tmp_path):
-    """L'indice de midi ne doit pas remplacer celui déjà enregistré.
+def test_une_seance_PASSEE_n_est_jamais_reecrite(tmp_path):
+    """Une séance close est gravée : plus rien ne la modifie.
 
-    Quatre runs par jour ouvré déposent la même date. Sans cette garde, la
-    dernière valeur écrite gagnerait — y compris celle d'un run de milieu de
-    séance. C'est exactement le défaut corrigé le 10/08 sur les bougies.
+    ⚠️ LE RAISONNEMENT DE CE TEST ÉTAIT INVERSÉ, ET LE DÉFAUT EST ARRIVÉ.
+    Il disait : « l'indice de midi ne doit pas remplacer celui déjà
+    enregistré ; sans cette garde, la dernière valeur écrite gagnerait — y
+    compris celle d'un run de milieu de séance ».
+
+    C'est le contraire. **La PREMIÈRE valeur du jour est celle du milieu de
+    séance** ; la dernière est la clôture. Figer la première grave donc
+    exactement ce qu'on croyait écarter.
+
+    Mesuré le 24/09/2026 sur les cinq séances alimentées par le pipeline :
+
+        22/09   18 045,35  au lieu de  18 076,72     +31 points
+        23/09   18 119,95  au lieu de  18 040,73     −79
+        24/09   18 125,28  au lieu de  17 869,06    −256, soit 1,4 %
+
+    La règle supposait que le run de 15h45 parte le premier. Il ne part plus
+    depuis le 26/08.
     """
     f = _fichier(tmp_path)
-    assert enregistrer(18710.31, "2026-09-03", f) is True
-    assert enregistrer(18999.99, "2026-09-03", f) is False
+    assert enregistrer(18710.31, "2026-09-03", f, aujourd_hui="2026-09-04") is True
+    assert enregistrer(18999.99, "2026-09-03", f, aujourd_hui="2026-09-04") is False
     assert json.loads(f.read_text())["seances"]["2026-09-03"] == 18710.31
+
+
+def test_la_seance_DU_JOUR_se_rafraichit(tmp_path):
+    """⚠️ LA CORRECTION. Tant que la journée n'est pas finie, une valeur plus
+    tardive est meilleure — c'est la règle appliquée aux bougies depuis le
+    10/08, et qui n'avait jamais été reportée ici."""
+    f = _fichier(tmp_path)
+    assert enregistrer(18125.28, "2026-09-24", f, aujourd_hui="2026-09-24") is True
+    assert enregistrer(17869.06, "2026-09-24", f, aujourd_hui="2026-09-24") is True
+    assert json.loads(f.read_text())["seances"]["2026-09-24"] == 17869.06
+
+
+def test_le_meme_run_rejoue_ne_change_rien(tmp_path):
+    """L'écriture reste idempotente : deux runs porteurs de la même valeur ne
+    produisent pas deux écritures, donc pas deux commits."""
+    f = _fichier(tmp_path)
+    assert enregistrer(17869.06, "2026-09-24", f, aujourd_hui="2026-09-24") is True
+    assert enregistrer(17869.06, "2026-09-24", f, aujourd_hui="2026-09-24") is False
+
+
+def test_les_trois_seances_faussees_sont_corrigees():
+    """⚠️ Le contrôle sur la LIVRAISON. Ces valeurs ont été publiées, elles
+    sont recoupées au bulletin CDG et à la capture de l'application de
+    l'opérateur ; si elles régressaient, le défaut serait revenu."""
+    import pathlib
+    h = json.loads((pathlib.Path(__file__).resolve().parent.parent
+                    / "pipeline" / "masi_history.json").read_text(encoding="utf-8"))
+    for jour, attendu in (("2026-09-22", 18076.72), ("2026-09-23", 18040.7282),
+                          ("2026-09-24", 17869.0571)):
+        assert abs(h["seances"].get(jour, 0) - attendu) < 0.01, (
+            f"{jour} : l'historique du MASI porte {h['seances'].get(jour)} "
+            f"au lieu de {attendu}")
 
 
 def test_valeurs_aberrantes_refusees(tmp_path):

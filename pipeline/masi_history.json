@@ -34,6 +34,18 @@
    "depuis": "2026-09-18",
    "jusqu_au": "2026-09-24",
    "n": 5
+  },
+  {
+   "source": "correction manuelle — valeurs intraday gravées par la règle « ajout seulement »",
+   "depuis": "2026-09-22",
+   "jusqu_au": "2026-09-24",
+   "n": 3,
+   "⚠️": "Ces trois séances portaient la valeur du PREMIER run de la journée, c'est-à-dire un indice de milieu de séance. Écarts constatés : +31,37 · -79,22 · -256,22 points. La règle « ajout seulement » supposait que le run de 15h45 parte le premier ; il ne part plus depuis le 26/08/2026.",
+   "sources": {
+    "2026-09-22": "dernière valeur publiée dans data.json ce jour-là",
+    "2026-09-23": "dernière valeur publiée ce jour-là, après le run de clôture recoupé au bulletin CDG (66/66 cours exacts) ; confirmée par la ligne de référence du graphique CDG du 24/09, qui part de 18 040",
+    "2026-09-24": "clôture recoupée : bulletin CDG du 24/09 (67/67 cours exacts) et capture de l'application CDG Capital Bourse fournie par Abd Moutalib — MASI 17 869,06, -0,95 %"
+   }
   }
  ],
  "seances": {
@@ -225,9 +237,9 @@
   "2026-09-16": 17983.9995,
   "2026-09-18": 17592.4556,
   "2026-09-21": 17983.0864,
-  "2026-09-22": 18045.3528,
-  "2026-09-23": 18119.9503,
-  "2026-09-24": 18125.2807
+  "2026-09-22": 18076.72,
+  "2026-09-23": 18040.7282,
+  "2026-09-24": 17869.0571
  },
  "_retraits": [
   {
