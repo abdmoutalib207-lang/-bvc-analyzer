@@ -1271,6 +1271,25 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
                     <span title={`Le MASI 20 affiché porte la séance du ${masi.masi20.asof}, alors que les cours publiés portent celle du ${masi.asof}.`}
                       style={{color:"#ff8f00",fontSize:10}}>⚠ {masi.masi20.asof.slice(8)}/{masi.masi20.asof.slice(5,7)}</span>}
                 </span>}
+              {/* ⚠️ LE VOLUME GLOBAL DE LA SÉANCE — ajouté le 25/09/2026.
+                  Il était collecté depuis le 24/09 et le bloc `masi` n'en
+                  portait aucun champ : le terminal affichait la variation de
+                  l'indice sans jamais dire sur combien d'échanges elle
+                  s'était faite. 181 M DH et 400 M DH ne décrivent pas la même
+                  séance, à variation identique.
+                  ⚠️ L'infobulle porte les trois grandeurs, parce qu'elles ne
+                  disent pas la même chose : 2 293 opérations pour 568 414
+                  titres n'est pas une séance de cinquante blocs. */}
+              {masi.volume_mad!=null&&
+                <span title={`Volume global de la séance. ${masi.titres_echanges!=null?`${masi.titres_echanges.toLocaleString("fr-FR")} titres échangés`:""}${masi.transactions!=null?` en ${masi.transactions.toLocaleString("fr-FR")} transactions, soit ${Math.round(masi.volume_mad/masi.transactions).toLocaleString("fr-FR")} DH par opération`:""}.`}
+                  style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
+                  <span style={{color:"#8892a4",fontSize:10}}>VOL</span>
+                  <span style={{color:"#c8d3e8",fontWeight:600}}>
+                    {masi.volume_mad>=1e9?`${fmt(masi.volume_mad/1e9,2).replace(".",",")} Md DH`
+                                        :`${fmt(masi.volume_mad/1e6,1).replace(".",",")} M DH`}</span>
+                  {masi.transactions!=null&&
+                    <span style={{color:"#5a6478",fontSize:10}}>· {masi.transactions.toLocaleString("fr-FR")} tr.</span>}
+                </span>}
               {masi.hausses!=null&&masi.baisses!=null&&
                 <span title={`${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges||0} inchangées sur ${masi.valeurs_traitees||"?"} valeurs traitées`}
                   style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
@@ -1438,7 +1457,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
   }),[filtered,sort,scoreMode]);
   const SORTS=[["az","A → Z"],["v53",customMode?"SCORE PERSO":("SCORE v5.3")],["bvc","BVC"],["delta","DELTA"],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
   const scoreColLabel=customMode?scoreModeLabel(scoreMode):"SCORE";
-  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","PE","DIV%","BVC",scoreColLabel,"Δ","NLP%","SM~","ALPHA","RSI","SIGNAL","POIDS"];
+  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","VOLUME","PE","DIV%","BVC",scoreColLabel,"Δ","NLP%","SM~","ALPHA","RSI","SIGNAL","POIDS"];
   if(isWatchlist&&rows.length===0) return(
     <div style={{textAlign:"center",padding:"60px 20px",color:"#8892a4"}}>
       <div style={{fontSize:52,marginBottom:16,color:"#2a3550"}}>★</div>
@@ -1562,6 +1581,27 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                     {r.live&&<span style={{fontSize:8,color:"#00e5a0",marginLeft:3,verticalAlign:"super"}}>●</span>}
                   </td>
                   <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</td>
+                  {/* ⚠️ LE VOLUME DE LA SÉANCE — ajouté le 25/09/2026, il manquait.
+                      Le classement montrait la variation sans jamais dire sur
+                      combien d'échanges elle s'était faite. Un titre à +3 %
+                      sur 40 titres échangés et un titre à +3 % sur 40 000 ne
+                      décrivent pas la même chose.
+                      ⚠️ DEUX UNITÉS, et l'une n'est pas l'autre : le nombre de
+                      TITRES en gros, le MONTANT en dirhams dessous quand la
+                      source le donne. Dix titres de CMT valent 39 230 DH, dix
+                      d'Addoha en valent 336. */}
+                  <td style={{padding:"8px 8px",fontSize:12,color:"#c8d3e8",whiteSpace:"nowrap"}}>
+                    {(()=>{const v=r.vol,dh=r.echange_dh;
+                      if(!v&&!dh) return <span style={{color:"#5a6478"}}>—</span>;
+                      const bas=(dh!=null?dh:v*(r.price||0))<100000;
+                      return <>
+                        <div style={{color:bas?"#ff8f00":"#c8d3e8",fontWeight:600}}
+                          title={bas?"Moins de 100 000 DH échangés : la confiance est plafonnée à 2 sur 5.":""}>
+                          {v?v.toLocaleString("fr-FR").replace(/\u202f|,/g," "):"—"}</div>
+                        {dh!=null&&<div style={{fontSize:9.5,color:"#5a6478"}}>
+                          {dh>=1e6?`${(dh/1e6).toFixed(1)} M DH`:dh>=1e3?`${(dh/1e3).toFixed(0)} k DH`:`${Math.round(dh)} DH`}</div>}
+                      </>;})()}
+                  </td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.pe>25?"#ff8f00":"#c8d3e8"}}>{r.pe?.toFixed(1)||"—"}</td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.div>4?"#00e5a0":"#c8d3e8"}}>{r.div?.toFixed(1)||"—"}%</td>
                   <td style={{padding:"8px 8px",fontSize:13,color:SC(r.bvc)}}>{fmt(r.bvc)}</td>
@@ -3185,7 +3225,11 @@ function App(){
              Le commentaire ci-dessus annonçait pourtant le risque : « une
              énumération de quarante champs cache ce qui lui manque ». Elle
              l'a caché une fois de plus. */
-          rang_secteur:t.rang_secteur, niveaux:t.niveaux
+          rang_secteur:t.rang_secteur, niveaux:t.niveaux,
+          /* ⚠️ Le montant RÉEL de la séance et les bornes de réservation,
+             collectés depuis le 25/09. `vol` était déjà là ; le montant,
+             non — le projet l'approchait par `volume × clôture`. */
+          echange_dh:t.echange_dh, seuil_bas:t.seuil_bas, seuil_haut:t.seuil_haut
         };});
         mergeLive(m);
         nLive=d.tickers.filter(t=>t.chg&&t.chg!==0).length;
