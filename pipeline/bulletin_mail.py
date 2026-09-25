@@ -24,7 +24,17 @@ from pathlib import Path
 
 RACINE = Path(__file__).parent.parent
 
-TZ_CA = timezone(timedelta(hours=1))          # Casablanca, toute l'année
+# ⚠️ LE MAROC N'EST PAS À UTC+1 TOUTE L'ANNÉE — corrigé le 25/09/2026.
+# Il est repassé à UTC+0 le 20/09/2026, et le registre `DECALAGES_MAROC` de
+# `bvc_config.py` fait foi sur ce point, jamais la base de fuseaux du système :
+# elle peut être plus ancienne que le dernier décret, ce qui s'est produit le
+# 23/09. Cette constante n'était utilisée nulle part — elle n'a donc rien
+# faussé — mais elle affirmait le contraire du registre à qui la lirait.
+def tz_casablanca(jour=None):
+    """Le fuseau de Casablanca À LA DATE DONNÉE, d'après le registre."""
+    from bvc_config import decalage_maroc
+    from datetime import date as _date
+    return timezone(timedelta(hours=decalage_maroc(jour or _date.today())))
 TERMINAL = "https://abdmoutalib207-lang.github.io/-bvc-analyzer/"
 
 # En deçà, la collecte a échoué : on le dit au lieu de publier un bulletin creux.
@@ -113,7 +123,92 @@ def analyser(data, titres):
         "insuffisants": [x for x in titres
                          if ((x.get("_meta") or {}).get("confidence") or 0) <= 1],
         "updated": data.get("updated"),
+        # ⚠️ La lecture de la séance. Son échec ne doit pas empêcher l'envoi :
+        # un bulletin sans lecture reste utile, un bulletin absent ne l'est pas.
+        "briefing": _briefing(data),
     }
+
+
+def _briefing_html(a):
+    """La lecture de la séance, mise en forme pour le courriel.
+
+    ⚠️ Les constats et les limites ne portent PAS la même couleur ni le même
+    poids : le lecteur doit voir d'un coup d'œil où finit ce qui est mesuré et
+    où commence ce qui ne l'est pas. Les confondre typographiquement, c'est
+    les confondre tout court.
+    """
+    from html import escape
+    txt = a.get("briefing") or ""
+    if not txt:
+        return ""
+    constats, limites = [], []
+    cible = constats
+    for ligne in txt.splitlines():
+        s = ligne.strip()
+        if not s or s == "LECTURE DE LA SÉANCE":
+            continue
+        if s.startswith("Ce que cette lecture ne dit pas"):
+            cible = limites
+            continue
+        cible.append(s.lstrip("·—- ").strip())
+    if not constats and not limites:
+        return ""
+    puces = "".join(
+        f'<li style="margin:0 0 5px">{escape(c)}</li>' for c in constats)
+    fin = "".join(
+        f'<li style="margin:0 0 3px">{escape(x)}</li>' for x in limites)
+    return f"""
+  <h2 style="font-size:15px;margin:0 0 4px">Lecture de la séance</h2>
+  <p style="font-size:12.5px;color:#6d7887;margin:0 0 8px">
+    Des constats chiffrés. Aucune cause n'y est avancée&nbsp;: ce bulletin
+    mesure des cours et des volumes.</p>
+  <ul style="font-size:13.5px;margin:0 0 10px;padding-left:18px">{puces}</ul>
+  {f'''<p style="font-size:12px;color:#6d7887;margin:0 0 4px">
+    Ce que cette lecture ne dit pas&nbsp;:</p>
+  <ul style="font-size:12px;color:#6d7887;margin:0 0 22px;padding-left:18px">{fin}</ul>'''
+     if fin else '<div style="margin-bottom:22px"></div>'}
+"""
+
+
+def largeur_ligne(a):
+    """La largeur de marché, en une ligne, pour le texte ET pour le HTML.
+
+    ⚠️ DEUX COMPTES DU MÊME FAIT — corrigé le 25/09/2026.
+
+    L'en-tête comptait les hausses SUR NOTRE UNIVERS (80 titres, dont 13
+    n'avaient pas coté ce jour-là) pendant que la lecture de la séance citait
+    celui de l'opérateur (68 valeurs traitées). Résultat, dans le même
+    courriel : « 14 hausses » quatre lignes au-dessus de « 16 valeurs en
+    hausse ». Deux chiffres pour une seule réalité, et rien pour les
+    départager — c'est le genre d'écart qui coûte la confiance bien au-delà
+    de ce qu'il vaut.
+
+    **La largeur de l'indice appartient à l'opérateur** : c'est lui qui
+    définit les valeurs traitées. Notre décompte n'en est qu'une
+    reconstitution, sur un univers voisin mais pas identique. On publie donc
+    le sien quand il est là, le nôtre seulement à défaut — en disant lequel.
+
+    ⚠️ Une seule fonction pour les deux rendus : corriger la ligne à deux
+    endroits, c'est garantir qu'un jour ils divergeront.
+    """
+    m = a.get("masi") or {}
+    if m.get("hausses") is not None and m.get("baisses") is not None:
+        return (f"{m['hausses']} hausses · {m['baisses']} baisses · "
+                f"{m.get('inchanges') or 0} inchangés "
+                f"(sur {m.get('valeurs_traitees') or '?'} valeurs traitées)")
+    inchanges = a["cotes"] - len(a["hausses"]) - len(a["baisses"])
+    return (f"{len(a['hausses'])} hausses · {len(a['baisses'])} baisses · "
+            f"{inchanges} inchangés — décompte sur nos {a['cotes']} titres "
+            f"cotés, l'indice n'ayant pas livré sa largeur")
+
+
+def _briefing(data):
+    """La lecture de la séance, ou une chaîne vide. Ne lève jamais."""
+    try:
+        from pipeline.briefing import composer, texte
+        return texte(composer(data))
+    except Exception:                                     # noqa: BLE001
+        return ""
 
 
 AVERTISSEMENT = (
@@ -133,8 +228,7 @@ def texte(a):
     add("")
     m = a["masi"]
     add(f"MASI   {_nb(m.get('value'), 2)}   {_pct(m.get('change_pct'))}")
-    add(f"       {len(a['hausses'])} hausses · {len(a['baisses'])} baisses · "
-        f"{a['cotes'] - len(a['hausses']) - len(a['baisses'])} inchangés")
+    add(f"       {largeur_ligne(a)}")
     add("")
     if a["hausses"]:
         add("PLUS FORTES HAUSSES")
@@ -148,6 +242,21 @@ def texte(a):
             add(f"   {x['symbol']:<6} {(x.get('name') or '')[:26]:<26} "
                 f"{_nb(x.get('price'))} DH   {_pct(x.get('chg'))}")
         add("")
+    # ⚠️ LA LECTURE DE LA SÉANCE — ajoutée le 25/09/2026.
+    #
+    # Le bulletin listait l'indice, les extrêmes et les signaux. Il ne disait
+    # pas CE QUE LA SÉANCE A ÉTÉ. Or la variation de l'indice, seule, se
+    # trompe régulièrement de sens : le MASI est pondéré par les
+    # capitalisations, et trois poids lourds suffisent à le porter pendant que
+    # la majorité des valeurs recule.
+    #
+    # ⚠️ Ce bloc CONSTATE, il n'explique jamais. Aucune cause n'y est posée :
+    # nous mesurons des cours et des volumes, pas des causes. Voir
+    # `pipeline/briefing.py`.
+    if a.get("briefing"):
+        add(a["briefing"])
+        add("")
+
     add(f"SIGNAUX D'ACHAT ({len(a['achats'])})")
     if a["achats"]:
         add("   Retenus seulement à partir d'une confiance de 3 sur 5.")
@@ -234,10 +343,7 @@ background:#ffffff;line-height:1.6">
          margin:2px 0">{_nb(m.get('value'), 2)}
       <span style="font-size:17px;color:{coul}">{_pct(m.get('change_pct'))}</span>
     </div>
-    <div style="font-size:13px;color:#414b58">
-      {len(a['hausses'])} hausses · {len(a['baisses'])} baisses ·
-      {a['cotes'] - len(a['hausses']) - len(a['baisses'])} inchangés
-    </div>
+    <div style="font-size:13px;color:#414b58">{largeur_ligne(a)}</div>
   </div>
 
   <h2 style="font-size:15px;margin:0 0 8px">Plus fortes hausses</h2>
@@ -255,6 +361,8 @@ background:#ffffff;line-height:1.6">
         <th {thr}>Var.</th></tr>
     {lignes(a['baisses'])}
   </table>
+
+  {_briefing_html(a)}
 
   <h2 style="font-size:15px;margin:0 0 4px">
     Signaux d'achat ({len(a['achats'])})</h2>

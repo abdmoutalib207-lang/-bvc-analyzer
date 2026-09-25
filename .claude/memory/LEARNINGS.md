@@ -544,3 +544,185 @@ Passer `field_annee_value_1=2026` rend la liste entière — le formulaire passe
 par un mécanisme Drupal qui n'accepte pas ses propres paramètres en URL. La
 liste étant triée par date décroissante, lire les premières pages est plus
 robuste qu'un paramètre que le site pourrait renommer.
+
+## Un test de mutation peut mentir — le cache bytecode de Python (25/09/2026)
+
+**Deux mutations sur huit ont paru « non attrapées » alors que les tests
+étaient justes.** Le défaut était dans le protocole de vérification, pas dans
+les tests — et il est de ceux qui font conclure exactement à l'envers.
+
+### Le mécanisme
+
+Python valide un `.pyc` sur **la taille du source et sa date de modification
+à la seconde**. Or les deux mutations avaient la même longueur que l'original :
+
+```
+SEUIL_LIMITE = 9.9   →   SEUIL_LIMITE = 8.5        même longueur
+MIN_SEANCES_LIMITE = 3 → MIN_SEANCES_LIMITE = 2    même longueur
+```
+
+Restauré par `cp` dans la même seconde, le fichier retrouve sa taille
+d'origine et une date que Python juge compatible avec le cache. **Le
+bytecode MUTÉ reste chargé.** Le test suivant s'exécute donc sur le code
+muté tout en lisant un source correct, et le résultat est incohérent dans
+les deux sens : une mutation paraît non détectée, puis la suite « propre »
+échoue sur un fichier qui est pourtant juste.
+
+### Ce qui l'a révélé
+
+La suite complète a continué d'échouer **après restauration vérifiée** —
+`grep` montrait `SEUIL_LIMITE = 9.9`, et le test échouait quand même. C'est
+cette contradiction qui a mis sur la piste : un source juste ne peut pas
+produire un comportement faux, donc ce n'était pas le source qui s'exécutait.
+
+### La parade
+
+**Purger `__pycache__` entre chaque mutation ET après la restauration :**
+
+```bash
+find . -name __pycache__ -type d -exec rm -rf {} + 2>/dev/null
+```
+
+⚠️ Les mutations les plus dangereuses de ce point de vue sont précisément les
+plus intéressantes : changer un **seuil** ne change presque jamais la
+longueur du fichier. Une mutation qui ajoute ou retire une ligne, elle,
+invalide le cache toute seule — c'est pourquoi six des huit ont fonctionné.
+
+### La règle
+
+**Une mutation qui n'est pas attrapée est une hypothèse, pas un constat.**
+Avant d'en conclure qu'un test est faible, refaire la mutation SEULE, cache
+purgé. C'est R12 appliqué à l'outil de vérification lui-même : le protocole
+de mesure se mesure aussi.
+
+## Chez ce fournisseur, un code d'indice inconnu ne lève pas d'erreur (25/09/2026)
+
+**Il renvoie une réponse valide dont tous les champs sont des chaînes vides.**
+Pas de `Valid=false`, pas de HTTP 4xx, pas d'exception. Un indice
+silencieusement creux, publiable et faux.
+
+### Le relevé
+
+Interrogation de `INDICE-SYNTHESE` avec `Indice_` :
+
+```
+MASI     → Libelle « MASI »       ✅
+MASI20   → ('', '', '')           ⚠️  la devinette que tout le monde écrirait
+MASI 20  → ('', '', '')           ⚠️
+MASI-20  → ('', '', '')           ⚠️
+MSI20    → Libelle « MASI 20 »    ✅  le vrai code
+MADEX    → ('', '', '')
+```
+
+⚠️ **Et le champ `ISIN` de la réponse MSI20 vaut « MASI20 ».** Deux graphies
+dans la même charge utile : celle qui sert de clé n'est pas celle qui s'affiche.
+
+### Comment l'identité a été établie
+
+**Pas par le code, par l'arithmétique** — la méthode déjà employée pour `MRL` :
+le `CoursVeille` de MSI20 vaut **1 294,1574**, exactement la clôture du MASI 20
+au 24/09 publiée par ailleurs. Deux sources qui citent le même code peuvent se
+tromper ensemble ; une identité qui se recoupe par le calcul, non.
+
+### La garde
+
+`_ligne_indice_cdg()` refuse une charge utile dont `Cours` est vide — **vide et
+non absent** : un test de présence de clé ne l'attraperait pas — et le
+journalise en nommant la cause probable (« le code est-il celui du
+fournisseur ? »).
+
+### La règle
+
+**Ne jamais déduire un code d'un libellé.** Interroger le fournisseur, lire
+l'identité qu'il retourne, et la confirmer par un recoupement chiffré. Le
+piège est le même que `IDB_TICKER_MAP`, où le `SNA` du bulletin est Stokvis et
+non Sonasid.
+
+---
+
+## Le champ « variation annuelle » du fournisseur décrit la VEILLE (25/09/2026)
+
+`VariationAnneeP` ne porte pas sur `Cours` mais sur `CoursVeille`. La charge
+utile le prouve seule :
+
+```
+CoursPremiereCotation + VariationAnneeV = CoursVeille   ← au dix-millième
+18846,3502           + (−977,2931)      = 17869,0571     (MASI)
+ 1485,6472           + (−191,4898)      =  1294,1574     (MASI 20)
+```
+
+**Conséquence, et elle a été publiée** : le terminal a affiché **−4,27 %** pour
+la séance du 24/09. C'est le YTD du **23/09**. Le vrai valait **−5,19 %**.
+Contre-épreuve : la base annuelle valant 18 846,3502, −4,27 % donne 18 042,45
+contre une clôture réelle du 23/09 à 18 040,73 — 0,01 % d'écart.
+
+### Pourquoi le test existant ne l'a pas vu
+
+Il vérifiait `ytd_pct == -4,27` sur une charge utile où **`Cours` ÉGALAIT
+`CoursVeille`**. Recopier le champ et le recalculer y donnent le même
+résultat : test vert sur code faux.
+
+⚠️ **Un test doit s'écrire sur le cas qui DISCRIMINE.** Ici, `Cours ≠
+CoursVeille`. Sur un cas dégénéré, deux implémentations opposées passent.
+
+### La parade
+
+**Ne pas recopier un champ dérivé quand on a de quoi le calculer.** L'ancrage
+(`CoursPremiereCotation`) et la clôture sont tous deux collectés : le quotient
+est exact et porte sur la séance publiée, par construction. Le champ brut est
+conservé sous `ytd_pct_source_veille` — pour CONSTATER l'écart, pas le supposer.
+
+## Deux bornes de cours coexistent à la BVC, et on les confond facilement (25/09/2026)
+
+Le fournisseur sert `SeuilBas` et `SeuilHaut` par instrument. **Ce ne sont PAS
+les ±10 % de la règle journalière.**
+
+Relevé sur les 81 instruments, en séance :
+
+```
+33 instruments  exactement ±3,00 %
+ 1 instrument   ±10 %
+47 instruments  ASYMÉTRIQUES
+```
+
+Les asymétriques ne sont pas des anomalies : la bande **glisse avec le cours**.
+
+```
+ADI   387,00 → [375,40 ; 398,60]   −3,00 % / +3,00 %   (n'a pas bougé)
+BOA   194,90 → [184,50 ; 195,90]   −5,34 % / +0,51 %   (a déjà glissé)
+```
+
+| mécanisme | ce qu'il borne | effet d'un franchissement |
+|---|---|---|
+| **réservation ±3 %** | un ÉCHANGE en séance | suspend la cotation |
+| **plafond ±10 %** (R10) | la VARIATION du jour | la séance ne peut aller plus loin |
+
+⚠️ **Publier la réservation comme borne du jour donnerait une fourchette trois
+fois trop étroite, présentée comme la règle.**
+
+⚠️ Le plafond de ±10 % est confirmé PAR LES DONNÉES et pas seulement par la
+règle : sur les 79 séries, les variations d'une séance à l'autre sont
+uniformes autour de dix occurrences jusqu'à 9,8 %, puis **52 à 9,9 % et 286 à
+10,0 %**. Le mur se voit dans la distribution.
+
+---
+
+## `Volumes` est le montant échangé, `QteEchangee` la quantité (25/09/2026)
+
+Le projet ne lisait que la seconde et approchait partout le montant par
+`volume × clôture`. Or chaque transaction se fait à SON prix.
+
+Écart mesuré contre deux briefings extérieurs, séance du 24/09 :
+
+```
+TGCC   26,15 M DH réels   contre 25,96 approchés   (−0,7 %)
+MSA    16,86 M DH réels   contre 16,77 approchés   (−0,5 %)
+```
+
+Toujours dans le même sens ce jour-là, parce que la clôture était le plus bas
+de la séance sur ces deux titres.
+
+⚠️ **`echange_median_dh` reste approché et doit le rester** : cette médiane
+porte sur vingt séances et le montant réel n'est disponible que pour la séance
+courante. Mélanger deux définitions dans une même série serait pire que
+l'approximation.

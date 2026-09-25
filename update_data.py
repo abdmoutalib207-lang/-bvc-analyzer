@@ -1361,6 +1361,42 @@ def fetch_all_cdg():
             "high":  _f(d.get("PlusHaut")),
             "low":   _f(d.get("PlusBas")),
             "vol":   int(_f(d.get("QteEchangee")) or 0),
+            # ⚠️ LE MONTANT RÉELLEMENT ÉCHANGÉ — collecté le 25/09/2026.
+            #
+            # Le fournisseur le sert sous `Volumes` depuis toujours et nous ne
+            # lisions que la QUANTITÉ. Partout où un montant était nécessaire,
+            # le projet l'approchait par `volume × clôture` — une
+            # approximation, parce que chaque transaction se fait à SON prix
+            # et non à la clôture.
+            #
+            # Écart mesuré sur la séance du 24/09, contre deux briefings
+            # extérieurs qui publient le vrai montant :
+            #     TGCC   26,15 M DH réels   contre 25,96 approchés   (−0,7 %)
+            #     MSA    16,86 M DH réels   contre 16,77 approchés   (−0,5 %)
+            # Toujours dans le même sens, parce que la clôture du 24/09 était
+            # le plus bas de la séance sur ces deux titres.
+            #
+            # ⚠️ Il ne remplace PAS `echange_median_dh` : cette médiane porte
+            # sur vingt séances et nous n'avons le montant réel que pour la
+            # séance courante. L'historique reste approché, et le dire vaut
+            # mieux que de mélanger deux définitions dans une même série.
+            "echange_dh": _f(d.get("Volumes")),
+            # ⚠️ LES SEUILS DU FOURNISSEUR NE SONT PAS LA LIMITE DE ±10 %.
+            #
+            # Relevé sur 81 instruments le 25/09 : 33 affichent exactement
+            # ±3,00 %, un seul ±10 %, les 47 autres sont ASYMÉTRIQUES. Ce sont
+            # les bornes de RÉSERVATION intraday, et elles GLISSENT avec le
+            # cours — d'où l'asymétrie sur un titre qui a déjà bougé.
+            #
+            #     ADI   387,00 → [375,40 ; 398,60]   −3,00 % / +3,00 %
+            #     BOA   194,90 → [184,50 ; 195,90]   −5,34 % / +0,51 %  (glissé)
+            #
+            # Les deux mécanismes coexistent : la réservation borne un ÉCHANGE
+            # en séance, le plafond de ±10 % borne la VARIATION du jour (R10).
+            # Confondre les deux ferait publier une borne trois fois trop
+            # étroite comme si c'était la règle journalière.
+            "seuil_bas":  _f(d.get("SeuilBas")),
+            "seuil_haut": _f(d.get("SeuilHaut")),
             "asof":  asof,
         }
     global _cdg_lignes
@@ -1553,6 +1589,56 @@ def _normaliser_libelle(s):
     return re.sub(r"[^A-Z0-9]", "", s.upper())
 
 
+def _ligne_indice_cdg(code: str):
+    """La charge utile `INDICE-SYNTHESE` d'un indice, ou None.
+
+    ⚠️ LE CODE N'EST PAS LE NOM — découvert le 25/09/2026 en interrogeant le
+    fournisseur, jamais en le devinant.
+
+        `MASI`   → Libelle « MASI »      ✅
+        `MASI20` → chaînes VIDES, Valid=true, aucune erreur     ⚠️
+        `MSI20`  → Libelle « MASI 20 »   ✅
+
+    Un code inconnu **n'échoue pas** : il renvoie une réponse valide dont tous
+    les champs sont des chaînes vides. Une devinette plausible produit donc un
+    indice silencieusement creux, pas une exception. C'est exactement le piège
+    déjà rencontré sur `IDB_TICKER_MAP`, où le `SNA` du bulletin est Stokvis.
+
+    ⚠️ Le champ `ISIN` de la réponse MASI 20 vaut « MASI20 » alors que le
+    paramètre qui l'atteint est « MSI20 ». Deux graphies dans la même charge
+    utile : raison de plus pour ne rien supposer.
+
+    L'identité retournée est confirmée par l'ARITHMÉTIQUE et non par le code :
+    le `CoursVeille` de MSI20 vaut 1 294,1574, exactement la clôture du MASI 20
+    au 24/09 publiée ailleurs.
+    """
+    corps = {"ACTIONS": [{
+        "ACTION": {"NAME": "INDICE-SYNTHESE", "TYPE": "SELECT",
+                   "VALUE": "INDICE-SYNTHESE"},
+        "PARAMS": [{"NAME": "Lang_", "TYPE": "S", "VALUE": "fr"},
+                   {"NAME": "Espace_", "TYPE": "I", "VALUE": "1"},
+                   {"NAME": "Indice_", "TYPE": "S", "VALUE": code}]}]}
+    r = requests.post(CDG_API, json=corps, timeout=30, headers={
+        **HEADERS,
+        "Content-Type": "application/json",
+        "Referer": "https://www.cdgcapitalbourse.ma/Bourse/market",
+        "Origin":  "https://www.cdgcapitalbourse.ma"})
+    if r.status_code != 200:
+        logger.warning(f"indice {code} CDG : HTTP {r.status_code}")
+        return None
+    bloc = r.json()[0]["INDICE-SYNTHESE"]
+    if not bloc.get("Valid"):
+        logger.warning(f"indice {code} CDG : réponse invalide")
+        return None
+    ligne = (bloc.get("Data") or [None])[0]
+    # ⚠️ `Cours` vide — et non absent — est la signature d'un code inconnu.
+    if not ligne or not ligne.get("Cours"):
+        logger.warning(f"indice {code} CDG : charge utile creuse — "
+                       f"le code est-il celui du fournisseur ?")
+        return None
+    return ligne
+
+
 def fetch_masi_cdg():
     """Indice MASI depuis CDG Capital Bourse. Renvoie None si indisponible.
 
@@ -1570,27 +1656,9 @@ def fetch_masi_cdg():
     clôture. On n'en retient que la DATE — la seule chose dont la chaîne a
     besoin pour arbitrer — sans rien conclure de l'heure.
     """
-    corps = {"ACTIONS": [{
-        "ACTION": {"NAME": "INDICE-SYNTHESE", "TYPE": "SELECT",
-                   "VALUE": "INDICE-SYNTHESE"},
-        "PARAMS": [{"NAME": "Lang_", "TYPE": "S", "VALUE": "fr"},
-                   {"NAME": "Espace_", "TYPE": "I", "VALUE": "1"},
-                   {"NAME": "Indice_", "TYPE": "S", "VALUE": "MASI"}]}]}
     try:
-        r = requests.post(CDG_API, json=corps, timeout=30, headers={
-            **HEADERS,
-            "Content-Type": "application/json",
-            "Referer": "https://www.cdgcapitalbourse.ma/Bourse/market",
-            "Origin":  "https://www.cdgcapitalbourse.ma"})
-        if r.status_code != 200:
-            logger.warning(f"MASI CDG : HTTP {r.status_code}")
-            return None
-        bloc = r.json()[0]["INDICE-SYNTHESE"]
-        if not bloc.get("Valid"):
-            logger.warning("MASI CDG : réponse invalide")
-            return None
-        ligne = (bloc.get("Data") or [None])[0]
-        if not ligne or not ligne.get("Cours"):
+        ligne = _ligne_indice_cdg("MASI")
+        if not ligne:
             return None
         # « 28/08/2026 08:03:00 » → « 2026-08-28 »
         brut = str(ligne.get("DateCotation") or "")
@@ -2084,8 +2152,76 @@ def get_weights(context: dict) -> dict:
     if context.get("ticker_coverage", 100) < 50:
         w["comportemental"] -= 0.10; w["fondamental"] += 0.07; w["technique"] += 0.03
 
+    w = _replier_comportemental(w)
+
     total = sum(w.values())
     return {k: round(v / total, 4) for k, v in w.items()}
+
+
+def _replier_comportemental(w: dict) -> dict:
+    """Reverse le poids du pilier comportemental sur les deux autres, au prorata.
+
+    ⚠️ POURQUOI CE PILIER EST RAMENÉ À ZÉRO — décision du 25/09/2026,
+    approuvée par Abd Moutalib, backtest à l'appui comme R8 l'exige.
+
+    Le pilier annonçait 28 % du score. Ce qu'il pesait réellement :
+
+      · son corpus s'arrête au **02/07/2026** ; `SENTIMENT` est une table
+        écrite en dur, donc une CONSTANTE par titre ;
+      · 48 titres sur 80 sont à la valeur exactement neutre (5,00) ;
+      · amplitude publiée 4,32 → 5,64, soit **0,37 point d'écart maximal sur
+        10** entre le titre le mieux et le moins bien noté, à 28 % de poids ;
+      · le sentiment d'actualités, sa seule entrée vivante, ne bouge que
+        **5 titres sur 80**.
+
+    ⚠️ CE QUE LE BACKTEST DIT, ET IL EST NEUTRE.
+    Sur les notes RÉELLEMENT PUBLIÉES (13 jours, 194 observations à
+    5 séances, confiance ≥ 2), la corrélation de la base au surcroît de
+    performance sur le MASI passe de **+0,0774 à +0,0752**, et l'écart de
+    performance entre décile haut et décile bas est **identique au centième :
+    +3,22 % dans les deux cas**.
+
+    **Cette modification n'améliore donc pas le score — elle le rend
+    sincère.** Annoncer 28 % pour un pilier qui déplace 0,37 point était le
+    reproche d'une lecture extérieure, et il était fondé.
+
+    ⚠️ Limite à énoncer AVANT le chiffre : 13 jours consécutifs, c'est un
+    seul régime de marché, et les observations se chevauchent lourdement.
+    L'échantillon suffit à établir que la redistribution **ne dégrade rien** ;
+    il ne suffirait pas à établir qu'elle améliore quoi que ce soit — et nous
+    n'affirmons pas qu'elle améliore.
+
+    ⚠️ POURQUOI REPLIER PLUTÔT QUE DÉMONTER LES MODULATEURS.
+    `hype_spike` et `smart_money_active` poussent le pilier comportemental ;
+    les retirer un par un multiplierait les points de rupture. Le repli les
+    neutralise d'office — ce qu'ils ajoutent à un pilier de poids nul
+    redescend au prorata là d'où il venait — tout en laissant intacte la
+    logique de régime qui, elle, discrimine encore fondamental et technique.
+
+    ⚠️ LE PILIER RESTE CALCULÉ ET PUBLIÉ. `score_nlp` continue de figurer
+    dans le flux, et `poids.n` y vaut désormais 0. Le supprimer effacerait la
+    trace de ce qu'il valait ; le garder à poids nul le rend vérifiable.
+
+    ⚠️ CE QUE CE REPLI NE TOUCHE PAS — et qu'il ne faut pas croire réglé.
+    Le sentiment entre encore par les BONUS (`sent["smart"]`, `sent["win"]`,
+    `sent["alpha"]`), qui sont un mécanisme distinct des pondérations. Relevé
+    du 25/09 : seul « Conv baissière +0,15 » se déclenche, sur 35 titres — et
+    `nlp_bull` n'y étant jamais vrai, il ne teste en fait que le score BVC.
+    Smart Money, Contrarian et Hype spike : zéro occurrence sur 80 titres.
+    Chantier suivant, hors du périmètre approuvé ici.
+    """
+    comp = w.get("comportemental", 0.0)
+    reste = w.get("technique", 0.0) + w.get("fondamental", 0.0)
+    if reste <= 0:
+        # ⚠️ Aucun pilier vivant : on ne fabrique pas une pondération.
+        # Le cas n'est pas atteignable avec les modulateurs actuels (le
+        # minimum arithmétique du reste vaut 0,44), mais un modulateur futur
+        # pourrait l'ouvrir, et une division par zéro est une panne muette.
+        return w
+    w["technique"] += comp * w["technique"] / reste
+    w["fondamental"] += comp * w["fondamental"] / reste
+    w["comportemental"] = 0.0
+    return w
 
 def _indicateurs_depuis_candles(df_candles):
     """Recalcule les indicateurs depuis les chandelles stockées.
@@ -2693,6 +2829,69 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         "n_candles":    n_bougies,
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
     }
+
+
+def fetch_masi20():
+    """Le MASI 20 — les vingt plus grosses capitalisations. Ou None.
+
+    ⚠️ POURQUOI UN SECOND INDICE CHANGE LA LECTURE.
+    Le MASI est pondéré par les capitalisations : quelques poids lourds
+    suffisent à le porter. Le MASI 20 ne contient QUE ces poids lourds.
+    Comparer les deux, c'est séparer ce que fait le haut de la cote de ce que
+    fait le marché.
+
+    Relevé au 25/09/2026, et l'écart est considérable :
+
+        MASI      −5,19 % depuis le 1er janvier
+        MASI 20  −12,89 % depuis le 1er janvier      ← 7,7 points d'écart
+
+    Les vingt premières valeurs font nettement moins bien que la cote entière
+    sur l'année. Aucune cause n'est avancée ici — c'est un constat.
+
+    ⚠️ Le code du fournisseur est `MSI20`, pas `MASI20` : voir
+    `_ligne_indice_cdg()`, où le piège est documenté.
+
+    ⚠️ Son échec n'empêche rien. Le MASI 20 est un complément de lecture ;
+    l'indice de référence reste le MASI, et le bulletin s'en passe.
+    """
+    try:
+        ligne = _ligne_indice_cdg("MSI20")
+        if not ligne:
+            return None
+        from pipeline.marche_history import extraire
+        e = extraire(ligne)
+        brut = str(ligne.get("DateCotation") or "")
+        asof = None
+        if re.match(r"\d{2}/\d{2}/\d{4}", brut):
+            j, mo, a = brut[:10].split("/")
+            asof = f"{a}-{mo}-{j}"
+        return {
+            "value": e.get("cours"),
+            "change_pct": e.get("variation_pct"),
+            # ⚠️ RECALCULÉ, jamais recopié — le champ de la source décrit la
+            # veille. Le détail dans `marche_history._ytd()`.
+            "ytd_pct": e.get("ytd_pct"),
+            "asof": asof,
+            "libelle": ligne.get("Libelle"),
+        }
+    except Exception as e:                                # noqa: BLE001
+        logger.warning(f"MASI 20 indisponible ({e})")
+        return None
+
+
+def _etat_marche():
+    """L'état du marché de la dernière séance, ou None.
+
+    ⚠️ Lecture seule et sans effet : si le fichier manque ou que la séance
+    enregistrée n'est pas celle du jour, on ne publie rien plutôt qu'un état
+    périmé. Un chiffre de largeur daté de la veille, affiché à côté d'un indice
+    du jour, se lirait comme celui du jour.
+    """
+    try:
+        from pipeline.marche_history import dernier
+        return dernier()
+    except Exception:
+        return None
 
 
 def _objectifs(ticker, price, fd) -> dict:
@@ -3856,7 +4055,36 @@ def run(dry_run=False, push=False, token=""):
             "change_pct": masi["chg"],
             "asof":       masi.get("asof"),
             "stale":      masi.get("stale", True),
+            # ⚠️ LA LARGEUR DE MARCHÉ — publiée le 25/09/2026.
+            #
+            # Un indice peut monter porté par trois grosses capitalisations
+            # pendant que le marché recule. La variation seule ne le dit pas.
+            # Au 24/09 : 16 hausses contre 42 baisses sur 68 valeurs — le MASI
+            # perdait 0,95 %, mais deux titres sur trois reculaient.
+            #
+            # Collectée depuis le 24/09 et restée invisible : elle était dans
+            # `marche_history.json`, que le terminal ne lit pas. Une donnée
+            # calculée qu'on n'affiche pas ne sert à personne.
+            **(lambda e: {} if not e else {
+                "largeur": e.get("largeur"),
+                "hausses": e.get("hausses"),
+                "baisses": e.get("baisses"),
+                "inchanges": e.get("inchanges"),
+                "valeurs_traitees": e.get("valeurs_traitees"),
+                # ⚠️ Le YTD que le WeightEngine croyait incalculable.
+                # RECALCULÉ depuis la clôture et l'ancrage du 31/12 : le champ
+                # tout fait de la source décrit la veille (cf. `_ytd()`).
+                "ytd_pct": e.get("ytd_pct"),
+            })(_etat_marche()),
         },
+        # ⚠️ LE MASI 20 — ajouté le 25/09/2026, à côté du MASI et non à sa
+        # place. Le MASI est pondéré par les capitalisations ; le MASI 20 ne
+        # contient QUE les vingt premières. Les comparer sépare ce que fait le
+        # haut de la cote de ce que fait le marché — au 25/09, −13,0 % contre
+        # −5,2 % sur l'année, près de huit points d'écart.
+        # `None` si la collecte échoue : c'est un complément, pas une
+        # dépendance, et le bulletin se publie sans lui.
+        "masi20": fetch_masi20(),
         "tickers": tickers_out,
     }
 
@@ -3939,6 +4167,42 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:
         logger.warning(f"rang sectoriel : indisponible ({_e})")
 
+    # ⚠️ LES NIVEAUX, EN DISTINGUANT LE FAIT DE LA CONVENTION — 25/09/2026.
+    #
+    # Un briefing extérieur écrit « SGTM : 620 = pivot ; 635-645 = pullback
+    # digéré ». Les chiffres sont peut-être justes ; rien ne dit d'où ils
+    # viennent. Le lecteur ne peut ni les reproduire ni les contester.
+    #
+    # Ici chaque niveau porte sa méthode, et deux familles sont SÉPARÉES :
+    #   · faits       — bornes réglementaires ±10 % (R10), extrêmes réellement
+    #                   atteints, moyennes réellement calculées ;
+    #   · conventions — points pivots, de l'arithmétique sur une séance.
+    #
+    # ⚠️ La borne réglementaire est le niveau le plus sûr de tous, et personne
+    # ne le publie comme tel : le cours de demain est borné PAR LA LOI, pas
+    # par une opinion.
+    #
+    # ⚠️ Aucun n'entre dans le score (R8), et aucun ne dit quoi faire.
+    try:
+        from pipeline.niveaux import composer as _niv
+        _n_ok = 0
+        for _t in tickers_out:
+            _sym = _t.get("symbol")
+            _b = None
+            try:
+                _f = Path(__file__).parent / "pipeline" / "candles" / f"{_sym}.json"
+                _s = json.loads(_f.read_text(encoding="utf-8"))
+                _b = _s[-1] if isinstance(_s, list) and _s else None
+            except Exception:                             # noqa: BLE001
+                _b = None
+            _v = _niv(_t, _b)
+            if _v:
+                _t["niveaux"] = _v
+                _n_ok += 1
+        logger.info(f"niveaux : {_n_ok}/{len(tickers_out)} titres")
+    except Exception as _e:                               # noqa: BLE001
+        logger.warning(f"niveaux : indisponibles ({_e})")
+
     # ⚠️ QUATRE INDICATEURS CORRÉLÉS NE VALENT PAS QUATRE VOTES — 24/09/2026.
     #
     # La critique est juste en général : agréger des mesures corrélées
@@ -3998,6 +4262,68 @@ def run(dry_run=False, push=False, token=""):
     # 6. Écriture data.json
     OUTPUT.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
     logger.info(f"✅ data.json écrit → {OUTPUT}")
+
+    # 6a'. Journal des scores publiés — ajouté le 25/09/2026.
+    #
+    # ⚠️ IL NE SERT À RIEN AUJOURD'HUI, ET C'EST VOULU. Il écrit ce qu'une
+    # mesure future réclamera. Le 25/09, la décision de geler le pilier NLP
+    # n'a pu s'appuyer que sur 13 jours et 194 observations, alors que 87
+    # jours de `v53` existaient : les notes par pilier n'étaient publiées
+    # que depuis le 12/09, et le backtest ne peut déterrer que ce qui avait
+    # été enterré. Le journal supprime cette dépendance à l'archéologie git.
+    #
+    # ⚠️ La séance retenue est celle des COURS, pas la date du run. Un run
+    # du matin porte la clôture de la veille ; l'étiqueter du jour ferait
+    # comparer un score à un rendement décalé d'une séance.
+    try:
+        from pipeline.score_history import enregistrer as _journal
+        _asof = [ (t.get("_meta") or {}).get("prix_asof") for t in tickers_out ]
+        _asof = [a for a in _asof if a]
+        if _asof:
+            _seance = max(set(_asof), key=_asof.count)   # la séance majoritaire
+            _j = _journal(_seance, tickers_out, _etat_marche())
+            logger.info(f"  📒 score_history.json — séance {_seance}, "
+                        f"{len(_j.get('seances') or {})} séance(s) au journal")
+        else:
+            logger.warning("  📒 journal des scores ignoré : aucune séance datée")
+    except Exception as _e:                               # noqa: BLE001
+        # ⚠️ Le journal est une commodité pour plus tard, jamais une
+        # dépendance du bulletin du matin. Son échec ne doit pas faire
+        # échouer un run de production.
+        logger.warning(f"  📒 journal des scores non écrit ({_e})")
+
+    # 6a''. Le briefing de la séance — ajouté le 25/09/2026.
+    #
+    # ⚠️ ÉCRIT LE SOIR POUR ÊTRE LU LE MATIN. Le produit est J+1 : le briefing
+    # porte la séance CLOSE. Le générer ici, au run qui fixe le cours, le rend
+    # disponible toute la nuit et à 8h — sans qu'aucune tâche n'ait à se
+    # déclencher le matin. C'est ce qui le rend indépendant du cron matinal,
+    # qui reste le premier risque du produit.
+    #
+    # ⚠️ Le terminal ne collecte rien : il lit ce fichier. Un bouton sur un
+    # site statique ne peut rien faire d'autre.
+    try:
+        from pipeline.briefing import composer as _brief, ecrire as _brief_ecrire
+        _b = _brief(output)
+        _brief_ecrire(_b)
+        _na = len((_b.get("actualites") or {}).get("titres") or [])
+        logger.info(f"  📰 briefing.json — {len(_b.get('constats') or [])} constat(s), "
+                    f"{_na} publication(s) retenue(s)")
+        # ⚠️ Le bilan de semaine est régénéré à CHAQUE run, pas seulement le
+        # vendredi. Deux raisons : il porte « la semaine jusqu'à la dernière
+        # séance close », donc il est juste tous les jours ; et le réserver au
+        # vendredi le rendrait dépendant d'un run qui peut être sauté — c'est
+        # précisément ce qui arrive au cron depuis le 26/08.
+        from pipeline.briefing_hebdo import composer as _hebdo, ecrire as _h_ecr
+        _bh = _hebdo(output)
+        _h_ecr(_bh)
+        logger.info(f"  🗓  briefing_hebdo.json — {_bh['semaine']['n']} séance(s), "
+                    f"{_bh.get('n_titres', 0)} titre(s) mesuré(s)")
+    except Exception as _e:                               # noqa: BLE001
+        # ⚠️ Un briefing manquant ne doit pas faire échouer la publication des
+        # cours. Le terminal DIT alors que le briefing manque, plutôt que
+        # d'afficher un panneau vide qui se lirait « rien à signaler ».
+        logger.warning(f"  📰 briefing non écrit ({_e})")
 
     # 6b. Snapshot post-clôture — sauvegarde les vrais cours de fermeture
     # Permet de recalculer la variation J+1 même si IDBourse retourne des prix stales

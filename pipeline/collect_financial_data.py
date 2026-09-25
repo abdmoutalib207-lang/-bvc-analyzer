@@ -177,7 +177,17 @@ def to_legacy_format(pipeline_out: dict) -> dict:
 
         fond_score = compute_fond_score(sym)  # fondamentaux.json → 5.0 si absent
         nlp_score  = round((sc.get("smart", 0) + 1) * 5, 2)
-        v53        = round(score_tech * 0.25 + fond_score * 0.47 + nlp_score * 0.28, 2)
+        # ⚠️ PONDÉRATION DU 25/09/2026 — le pilier NLP est ramené à zéro et son
+        # poids reversé au prorata sur les deux autres : 0,47/0,72 et 0,25/0,72.
+        # Justification complète et résultat du backtest dans
+        # `update_data.py::_replier_comportemental()`.
+        #
+        # ⚠️ Ce fichier porte la SECONDE formule de score du projet. Elle est
+        # écrite en dur ici alors que `update_data.py` la module par titre :
+        # les deux doivent bouger ensemble, sans quoi le terminal publierait
+        # deux notes différentes selon le pipeline qui a tourné en dernier.
+        # `nlp_score` reste calculé et publié — à poids nul, pas supprimé.
+        v53        = round(score_tech * 0.3472 + fond_score * 0.6528, 2)
 
         def sig(s):
             if s >= 7.5: return "ACHAT FORT ★★★"

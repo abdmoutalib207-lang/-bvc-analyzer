@@ -205,7 +205,50 @@ c'est la **date** qui arbitre ligne par ligne — jamais la préférence.
 **La méthode de travail d'Abd Moutalib est itérative par petits pas.** Il préfère 10 petites améliorations vérifiées à 1 grosse refonte risquée. Privilégier les PR petites et reviewables.
 </rule>
 <rule id="R8">
-**Le scoring v5.3 est sacré.** La formule exacte est `Tech×25% + Fond×47% + NLP×28% = 100%` (référence : `pipeline/collect_financial_data.py:180`). ⚠️ L'ancienne documentation indiquait NLP×36% — erreur de saisie : 47+36+25=108%, mathématiquement impossible. Toute modification de pondération doit être justifiée par backtesting et approuvée.
+**Le scoring v5.3 est sacré.** Toute modification de pondération doit être
+justifiée par backtesting **et** approuvée. La règle n'interdit pas de changer
+les poids — elle interdit de les changer sans mesure ni accord.
+
+**Pondération en vigueur depuis le 25/09/2026 :**
+`Fond×65,28% + Tech×34,72% + NLP×0% = 100%`, modulée par titre.
+Deux points d'application, qui doivent bouger **ensemble** :
+`update_data.py::_replier_comportemental()` et
+`pipeline/collect_financial_data.py:180`.
+
+⚠️ **Le pilier NLP est GELÉ, pas supprimé.** `score_nlp` reste calculé et
+publié, à poids nul. L'effacer supprimerait la trace de ce qu'il valait.
+
+**Ce qui a justifié le changement** — corpus arrêté au **02/07/2026**,
+`SENTIMENT` devenue une constante par titre, 48 titres sur 80 à la valeur
+neutre, **0,37 point d'amplitude sur 10** pour 28 % de poids annoncé, et le
+sentiment d'actualités ne bougeant que 5 titres sur 80.
+
+**Ce que le backtest a établi** — sur les notes RÉELLEMENT PUBLIÉES (13 jours,
+194 observations à 5 séances, confiance ≥ 2) : corrélation à l'alpha
+**+0,0774 → +0,0752**, écart de performance décile haut / décile bas
+**identique au centième : +3,22 % dans les deux cas**.
+**La redistribution n'améliore pas le score — elle le rend sincère.**
+⚠️ Limite énoncée avant le chiffre : 13 jours consécutifs = un seul régime,
+observations chevauchantes. Cela suffit à établir qu'on ne dégrade rien ;
+pas à affirmer qu'on améliore, et nous ne l'affirmons pas.
+
+**Effet mesuré sur la livraison du 25/09** : écart de note −0,49 à +0,79
+point, médiane 0,17 ; **6 signaux sur 80 changent de palier**, tous vers le
+haut (IAM, ATW, CIH, LHM, GAZ en SURVEILLER → ACHETER ; IBM ATTENDRE →
+SURVEILLER) — des dossiers à fondamentaux solides que le pilier neutre à 5,0
+diluait.
+
+⚠️ **Ce qui n'est PAS réglé et ne doit pas passer pour tel** : le sentiment
+entre encore par les **bonus**, mécanisme distinct des pondérations. Relevé du
+25/09 — seul « Conv baissière +0,15 » se déclenche, sur 35 titres, et
+`nlp_bull` n'y étant jamais vrai il ne teste en réalité que le score BVC ;
+Smart Money, Contrarian et Hype spike : **zéro occurrence sur 80 titres** ;
+`conv` vaut « DIVERGE » sur **80/80**, c'est une constante affichée comme une
+mesure. Chantier suivant.
+
+⚠️ **Historique** : la formule était `Tech×25% + Fond×47% + NLP×28%` du début
+jusqu'au 25/09/2026. Une documentation plus ancienne indiquait NLP×36% —
+erreur de saisie : 47+36+25=108%, mathématiquement impossible.
 </rule>
 <rule id="R9">
 **Quand IDBourse retourne chg=0% et vol=0**, c'est une donnée stale (cours de référence J-1 retourné comme prix actuel). Toujours vérifier et recalculer depuis les candles puis Médias24. Ne jamais afficher 0% sans vérification.
@@ -253,6 +296,49 @@ le registre pour qu'ils puissent le consulter**. Cas d'école complet :
 `docs/CAS_ECOLE_OPA_ET_REPRISE_DE_COTATION.md`.
 </rule>
 </rules>
+
+## ⚠️ R12 — Mesurer avant d'affirmer
+
+> Ajoutée le 25/09/2026, à la demande d'Abd Moutalib : « tu te trompes souvent,
+> et c'est un métier où on n'a pas droit à l'erreur ».
+
+**Aucun chiffre affirmé qui n'ait été mesuré dans la session.**
+Si la mesure est impossible, la réponse est « je ne sais pas » — jamais une
+estimation présentée comme un constat.
+
+**Un échantillon dont la taille n'a pas été vérifiée n'est pas une mesure.**
+
+### Le corollaire, qui coûte le plus cher
+
+**Quand une critique vise le code — la vôtre, celle d'un test, celle d'un outil
+extérieur — mesurer AVANT de répondre.** Un test qui échoue a une cause : tant
+qu'elle n'est pas établie, aucune correction n'est écrite.
+
+### Ce que cette règle aurait évité, en une seule session
+
+| ce qui a été affirmé | ce qui était vrai | comment l'erreur est venue |
+|---|---|---|
+| « le runner GitHub a une base de fuseaux périmée » | le Maroc était passé à UTC+0 | deux tests échouaient à 1 h d'écart, j'ai accusé l'outil |
+| « GitHub honore ~4 runs quelle que soit la densité » | 27 crons donnaient 27 runs | échantillon de 60 runs, jours anciens tronqués |
+| « cette critique se trompe, c'est le mode simulation » | elle l'avait vu et l'avait écrit | jugé sur un résumé qui avait coupé ses réserves |
+| « CMT est mal traité par le plafond de liquidité » | c'était `reprise_trop_recente`, et il a raison | deux corrections écrites pour rien |
+
+⚠️ **Les trois premières n'ont été trouvées que parce qu'Abd Moutalib a
+insisté.** Sur le cron, il a fallu trois échanges. Les tests, eux, ont attrapé
+les autres — un cache repris à l'envers, une garde branchée trop tôt, un point
+d'appel oublié, `node_modules` commité.
+
+**Le dispositif fonctionne ; c'est en amont de lui que le défaut se produit.**
+
+### La forme que prend cette règle dans le travail
+
+1. **Avant d'affirmer un chiffre** — le calculer, et dire sur quel échantillon.
+2. **Avant de corriger** — établir la cause, pas la supposer. Si une correction
+   ne change rien au symptôme, elle visait le mauvais endroit : la retirer.
+3. **Avant de contredire** — lire la source entière, pas un résumé. Un résumé
+   garde les conclusions et jette les réserves, et c'est dans les réserves que
+   se voit la qualité d'un raisonnement.
+4. **Un chantier à la fois**, fini avant le suivant.
 
 ## Méthode de Travail d'Abd Moutalib (À Respecter)
 

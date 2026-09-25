@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache"/>
   <meta http-equiv="Expires" content="0"/>
   <title>BVC Analyzer v6.4 — Bourse de Casablanca</title>
-  <meta name="description" content="Terminal d'analyse multi-facteurs BVC : Technique 25% · Fondamental 47% · NLP 28% — 77 titres · 896 907 messages WhatsApp · 24 777 signaux · 6 ans de données"/>
+  <meta name="description" content="Terminal d'analyse quantitative de la Bourse de Casablanca : 80 titres, dernière clôture vérifiée contre le bulletin de l'opérateur. Score composite Fondamental 65% · Technique 35%, modulé par titre."/>
   <meta name="theme-color" content="#080d1a"/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
@@ -490,7 +490,12 @@ async function fetchMASI(){
 // 28 titres sur 80 auraient changé de palier. C'est ce défaut que corrige ce
 // bloc, autant que l'ajout des vues.
 const PONDERATIONS=[
-  {nom:"OFFICIEL",f:47,n:28,t:25,officiel:true,aide:"Formule v5.3 publiée — Fond 47 · NLP 28 · Tech 25"},
+  // ⚠️ 25/09/2026 — le pilier NLP passe de 28 % à ZÉRO, son poids reversé au
+  // prorata (47/72 et 25/72 → 65 et 35). Le corpus s'arrête au 02/07 et le
+  // pilier ne déplaçait plus que 0,37 point sur 10. Backtest sur les notes
+  // publiées : écart haut/bas décile IDENTIQUE (+3,22 %). La redistribution
+  // ne change pas la performance, elle supprime une annonce fausse.
+  {nom:"OFFICIEL",f:65,n:0,t:35,officiel:true,aide:"Formule v5.3 publiée au 25/09/2026 — Fond 65 · Tech 35. Le pilier NLP est gelé (poids 0) : son corpus s'arrête au 02/07/2026."},
   {nom:"70/30",f:70,n:0,t:30,aide:"Fondamental dominant — horizon long"},
   {nom:"60/40",f:60,n:0,t:40,aide:"Fondamental dominant, technique renforcée"},
   {nom:"50/50",f:50,n:0,t:50,aide:"Équilibre"},
@@ -602,6 +607,11 @@ function calcSR(candles,price){
 
 // ── ATOMS ────────────────────────────────────────────────────────────────────
 const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":(+n).toFixed(d);
+  /* ⚠️ La virgule décimale. Le terminal écrit « 17 869,06 » dans son
+     en-tête ; un « 3530.70 » trois blocs plus bas se lit comme une
+     donnée venue d'ailleurs, et un chiffre qui dénote est le premier
+     dont le lecteur se méfie. Relevé sur capture, pas en lisant le code. */
+  const fr=(n,d=2)=>fmt(n,d).replace(".",",");
 /* Code affiché : celui de la BVC, pas notre clé interne. Le marché lit
    « SNA » comme Stokvis et « SID » comme Sonasid ; afficher nos symboles
    désoriente dès qu'on compare le terminal à une autre source. Nos clés
@@ -1143,13 +1153,18 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
     const t=setInterval(tick,1000);
     return()=>clearInterval(t);
   },[]);
-  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"}];
+  // ⚠️ L'onglet BRIEFING lit `briefing.json`, produit par le run du soir.
+  // Le terminal est un site STATIQUE : il ne collecte rien lui-même. Le
+  // briefing porte la séance close de la veille, il est donc écrit à 18h et
+  // disponible toute la nuit — sans dépendre d'un déclenchement matinal, qui
+  // est aujourd'hui le point faible du produit.
+  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"briefing",label:"BRIEFING"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"}];
   return(
     <div style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
         <div style={{display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
           <span style={{fontSize:22,fontWeight:700,letterSpacing:3,background:"linear-gradient(90deg,#00e5a0,#4db8ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>BVC ANALYZER</span>
-          <span title="Pondération de RÉFÉRENCE. Le moteur la module selon le contexte du titre — hors séance le fondamental monte, un titre porté par le smart money voit son pilier comportemental renforcé. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 47 · NLP 28 · TECH 25 <span style={{color:"#8892a4"}}>· modulée par titre</span></span>
+          <span title="Pondération de RÉFÉRENCE depuis le 25/09/2026. Le moteur la module selon le contexte du titre — hors séance le fondamental monte, des résultats publiés le renforcent encore. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche. Le pilier NLP est gelé à un poids de 0 : son corpus s'arrête au 02/07/2026 et il ne déplaçait plus que 0,37 point sur 10." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 65 · TECH 35 <span style={{color:"#8892a4"}}>· modulée par titre · NLP gelé</span></span>
           {/* Score mode — composantes indépendantes */}
           <div style={{display:"flex",alignItems:"center",gap:4,background:"rgba(10,18,32,.8)",border:"1px solid #1a2540",borderRadius:5,padding:"3px 6px"}}>
             <span style={{fontSize:9,color:"#4a5570",letterSpacing:.5,marginRight:2}}>SCORE</span>
@@ -1181,6 +1196,63 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
               <span style={{color:"#8892a4",letterSpacing:.5}}>MASI</span>
               <span style={{color:"#c8d3e8",fontWeight:700}}>{masi.value.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
               <span style={{color:(masi.chg||0)>0?"#00e5a0":(masi.chg||0)<0?"#ff4f5a":"#8892a4",fontWeight:600}}>{(masi.chg||0)>0?"▲":"▼"}{fmt(masi.chg!=null?Math.abs(masi.chg):null)}%</span>
+              {/* ⚠️ LA LARGEUR DE MARCHÉ — ajoutée le 25/09.
+                  Un indice peut monter porté par trois grosses capitalisations
+                  pendant que le marché recule ; la variation seule ne le dit
+                  pas. Le 24/09, le MASI perdait 0,95 % et DEUX TITRES SUR
+                  TROIS reculaient — 16 hausses contre 42 baisses. */}
+              {/* ⚠️ LE YTD — affiché le 25/09.
+                  Il était collecté depuis la veille et invisible. Le
+                  `WeightEngine` le déclarait même « non calculable », ce qui
+                  neutralisait deux régimes de pondération depuis l'origine du
+                  projet : l'ancrage du 31/12 est servi par la source.
+                  ⚠️ CORRIGÉ LE 25/09 — le champ tout fait `VariationAnneeP`
+                  décrit la VEILLE, pas la clôture publiée. Le terminal a
+                  affiché −4,27 % pour la séance du 24/09, qui est le YTD du
+                  23/09 ; le vrai vaut −5,19 %. Le moteur le RECALCULE
+                  désormais depuis la clôture et l'ancrage annuel.
+                  Un lecteur qui voit « −0,95 % » ne sait pas si l'année est
+                  bonne ou mauvaise ; « −5,19 % depuis janvier » le lui dit. */}
+              {masi.ytd_pct!=null&&
+                <span title="Variation de l'indice depuis la clôture du 31 décembre. Calculée par le moteur à partir de la clôture publiée et de l'ancrage annuel de l'opérateur — le champ tout fait de la source décrit la séance précédente."
+                  style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
+                  <span style={{color:"#8892a4",fontSize:10}}>YTD</span>
+                  <span style={{color:masi.ytd_pct>0?"#00e5a0":masi.ytd_pct<0?"#ff4f5a":"#8892a4",fontWeight:600}}>
+                    {masi.ytd_pct>0?"+":""}{fmt(masi.ytd_pct).replace(".",",")}%</span>
+                </span>}
+              {/* ⚠️ LE MASI 20, À CÔTÉ DU MASI ET NON À SA PLACE.
+                  Le MASI est pondéré par les capitalisations : quelques poids
+                  lourds suffisent à le porter. Le MASI 20 ne contient QUE ces
+                  poids lourds. L'écart entre les deux sépare ce que fait le
+                  haut de la cote de ce que fait le marché — au 25/09, −13,0 %
+                  contre −5,2 % sur l'année. */}
+              {masi.masi20&&masi.masi20.value!=null&&
+                <span title={`MASI 20 — les vingt plus grosses capitalisations. ${masi.masi20.ytd_pct!=null&&masi.ytd_pct!=null?`Écart de ${fmt(Math.abs(masi.masi20.ytd_pct-masi.ytd_pct),1)} point(s) avec le MASI sur l'année.`:""}`}
+                  style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
+                  <span style={{color:"#8892a4",fontSize:10}}>MASI&nbsp;20</span>
+                  <span style={{color:"#c8d3e8",fontWeight:600}}>{fmt(masi.masi20.value).replace(".",",")}</span>
+                  {masi.masi20.change_pct!=null&&
+                    <span style={{color:masi.masi20.change_pct>0?"#00e5a0":masi.masi20.change_pct<0?"#ff4f5a":"#8892a4"}}>
+                      {masi.masi20.change_pct>0?"▲":masi.masi20.change_pct<0?"▼":""}{fmt(Math.abs(masi.masi20.change_pct)).replace(".",",")}%</span>}
+                  {masi.masi20.ytd_pct!=null&&
+                    <span style={{color:"#5a6478",fontSize:10}}>· YTD {masi.masi20.ytd_pct>0?"+":""}{fmt(masi.masi20.ytd_pct).replace(".",",")}%</span>}
+                  {/* ⚠️ DEUX SÉANCES AFFICHÉES COMME UNE SEULE — le défaut du
+                      14/08 et du 28/08, et il s'est présenté dès le premier
+                      relevé : le fournisseur servait déjà le 25/09 pour le
+                      MASI 20 alors que les cours publiés portaient le 24/09.
+                      On n'aligne pas, on DIT la date. */}
+                  {masi.masi20.asof&&masi.asof&&masi.masi20.asof!==masi.asof&&
+                    <span title={`Le MASI 20 affiché porte la séance du ${masi.masi20.asof}, alors que les cours publiés portent celle du ${masi.asof}.`}
+                      style={{color:"#ff8f00",fontSize:10}}>⚠ {masi.masi20.asof.slice(8)}/{masi.masi20.asof.slice(5,7)}</span>}
+                </span>}
+              {masi.hausses!=null&&masi.baisses!=null&&
+                <span title={`${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges||0} inchangées sur ${masi.valeurs_traitees||"?"} valeurs traitées`}
+                  style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
+                  <span style={{color:"#00e5a0",fontWeight:600}}>{masi.hausses}↑</span>
+                  <span style={{color:"#8892a4"}}>/</span>
+                  <span style={{color:"#ff4f5a",fontWeight:600}}>{masi.baisses}↓</span>
+                  {masi.inchanges!=null&&<span style={{color:"#8892a4",fontSize:10}}>·{masi.inchanges}=</span>}
+                </span>}
               {masi.stale
                 ? <span title={`Indice de la séance du ${masi.asof||"?"} — la source ne l'a pas rafraîchi`}
                         style={{fontSize:9,fontWeight:700,color:"#ffd740",
@@ -1537,6 +1609,136 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
   );
 };
 
+// ── BRIEFING — la lecture de la séance close ─────────────────────────────────
+//
+// ⚠️ CE COMPOSANT NE COLLECTE RIEN, ET NE LE PEUT PAS. Le terminal est servi
+// par GitHub Pages : aucun serveur, aucune étape de build. Il lit
+// `briefing.json`, écrit par `pipeline/briefing.py` pendant le run du soir.
+// C'est la même limite qui a rendu les proxys CORS inutilisables le 25/08.
+//
+// ⚠️ LE BRIEFING CONSTATE, IL N'EXPLIQUE PAS. Aucune cause n'y figure : les
+// constats portent leur nombre, les actualités portent leur source et leur
+// lien. « Cosumar publie un résultat en baisse » est un fait sur une
+// publication ; « le marché a baissé à cause de Cosumar » n'en est pas un.
+const Briefing=()=>{
+  const [b,setB]=useState(null);
+  const [h,setH]=useState(null);
+  // ⚠️ « jour » ou « semaine ». Deux fichiers distincts, parce qu'un bilan de
+  // semaine ne remplace pas la lecture de la dernière séance : le premier dit
+  // où en est le marché, le second ce qui vient de se passer.
+  const [vue,setVue]=useState("jour");
+  const [etat,setEtat]=useState("chargement");
+  useEffect(()=>{
+    const t=Math.floor(Date.now()/3600000);
+    Promise.all([
+      fetch("briefing.json?t="+t).then(r=>r.ok?r.json():null).catch(()=>null),
+      fetch("briefing_hebdo.json?t="+t).then(r=>r.ok?r.json():null).catch(()=>null),
+    ]).then(([j,s])=>{setB(j);setH(s);setEtat(j?"ok":"absent");});
+  },[]);
+
+  if(etat==="chargement")return <div style={{color:"#8892a4",padding:20}}>Chargement du briefing…</div>;
+  // ⚠️ On DIT que le briefing manque plutôt que d'afficher un panneau vide.
+  // Un écran vide se lit comme « rien à signaler », ce qui est faux.
+  if(etat==="absent")return(
+    <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:20,color:"#8892a4"}}>
+      Le briefing de la dernière séance n'a pas été publié. Il est écrit par le
+      run du soir ; son absence signale que ce run n'a pas abouti.
+    </div>);
+
+  const semaine=vue==="semaine"&&h;
+  const src=semaine?h:b;
+  const a=src.actualites||{};
+  const liens=[...(a.titres||[]),...(a.autres||[])];
+  const ONG=[{id:"jour",label:"LA SÉANCE"},{id:"semaine",label:"LA SEMAINE"}];
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{display:"flex",gap:4}}>
+        {ONG.map(o=>{
+          const actif=vue===o.id, dispo=o.id==="jour"||!!h;
+          return <button key={o.id} onClick={()=>dispo&&setVue(o.id)}
+            title={dispo?"":"Le bilan de semaine n'a pas été publié par le dernier run."}
+            style={{background:actif?"rgba(0,229,160,.12)":"#0a1220",
+              border:`1px solid ${actif?"rgba(0,229,160,.4)":"#1a2540"}`,
+              color:!dispo?"#3a4358":actif?"#00e5a0":"#8892a4",
+              borderRadius:5,padding:"5px 14px",fontSize:11,letterSpacing:.8,
+              cursor:dispo?"pointer":"not-allowed"}}>{o.label}</button>;})}
+      </div>
+
+      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+        <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>
+          {semaine?"Bilan de la semaine":"Lecture de la séance"}</div>
+        <div style={{fontSize:13,color:"#4db8ff",marginBottom:12}}>
+          {semaine
+            ?`${h.semaine?.n||0} séance${(h.semaine?.n||0)>1?"s":""} cotée${(h.semaine?.n||0)>1?"s":""}${h.semaine?.seances?.length?` · ${h.semaine.seances[0]} → ${h.semaine.seances[h.semaine.seances.length-1]}`:""}`
+            :(b.seance||"—")}</div>
+        <ul style={{margin:0,paddingLeft:18,fontSize:13.5,lineHeight:1.65,color:"#c8d3e8"}}>
+          {(src.constats||[]).map((c,i)=><li key={i} style={{marginBottom:6}}>{c}</li>)}
+          {(src.constats||[]).length===0&&<li style={{color:"#8892a4"}}>Rien de mesurable à signaler.</li>}
+        </ul>
+        {(src.non_mesurable||[]).length>0&&
+          <div style={{marginTop:12,paddingTop:10,borderTop:"1px solid #1a2540"}}>
+            <div style={{fontSize:11,color:"#8892a4",marginBottom:4}}>Ce que cette lecture ne dit pas :</div>
+            <ul style={{margin:0,paddingLeft:18,fontSize:11.5,color:"#5a6478",lineHeight:1.6}}>
+              {(src.non_mesurable||[]).map((x,i)=><li key={i}>{x}.</li>)}
+            </ul>
+          </div>}
+      </div>
+
+      {/* ⚠️ Le palmarès n'existe que sur la semaine : sur une séance, il
+          doublonnerait les plus fortes hausses déjà présentes ailleurs. */}
+      {semaine&&(h.hausses||[]).length>0&&
+        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+          <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:10}}>Palmarès de la semaine</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+            {[["Hausses",h.hausses||[],"#00e5a0"],["Baisses",h.baisses||[],"#ff4f5a"]].map(([t,l,c])=>(
+              <div key={t}>
+                <div style={{fontSize:10,color:"#5a6478",marginBottom:6}}>{t}</div>
+                {l.map(x=>(
+                  <div key={x.symbol} style={{display:"flex",justifyContent:"space-between",fontSize:12.5,padding:"3px 0"}}>
+                    <span style={{color:"#c8d3e8"}}>{x.symbol}
+                      {/* ⚠️ R11 — une reprise après OPA change la RÉFÉRENCE.
+                          La performance est réelle mais ne se compare pas. */}
+                      {x.reprise_recente&&<span title="Reprise de cotation récente : la référence a été fixée par l'autorité de marché, cette performance ne se compare pas aux autres." style={{color:"#ffd740",marginLeft:5,fontSize:10}}>⚠ reprise</span>}
+                    </span>
+                    {/* ⚠️ DEUX CONVENTIONS DANS LE MÊME PANNEAU — corrigé le
+                        25/09. Le palmarès affichait « +6.9 % » à côté de
+                        « +46.33 % », et un point décimal alors que le constat
+                        juste au-dessus écrit « 1,57 % » avec une virgule. Un
+                        chiffre qui dénote est le premier dont on se méfie. */}
+                    <span style={{color:c,fontFamily:"monospace"}}>{x.perf_pct>0?"+":""}{fmt(x.perf_pct).replace(".",",")} %</span>
+                  </div>))}
+              </div>))}
+          </div>
+        </div>}
+
+      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+        <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>Publications retenues</div>
+        <div style={{fontSize:11,color:"#5a6478",marginBottom:12}}>
+          Sélection du collecteur — les publications susceptibles de déplacer un cours.
+          {a.fenetre&&<> Fenêtre du {a.fenetre.du} au {a.fenetre.au}.</>}
+          {" "}Titre et lien seulement : le texte appartient à sa source.
+        </div>
+        {liens.length===0
+          ?<div style={{color:"#8892a4",fontSize:13}}>Aucune publication retenue sur cette fenêtre.</div>
+          :liens.map((x,i)=>(
+            <a key={i} href={x.url} target="_blank" rel="noopener noreferrer"
+              style={{display:"block",padding:"8px 0 8px 10px",marginBottom:6,
+                borderBottom:i<liens.length-1?"1px solid #0a1220":"none",
+                borderLeft:`2px solid ${x.officielle?"#00e5a0":"#1a2540"}`,textDecoration:"none"}}>
+              <div style={{fontSize:13,color:"#c8d3e8",marginBottom:3}}>{x.titre}</div>
+              <div style={{fontSize:10.5,color:"#5a6478",display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
+                {(x.tickers||[]).map(t=><span key={t} style={{color:"#4db8ff",fontWeight:600}}>{t}</span>)}
+                <span>{x.source}</span><span>·</span><span>{x.date}</span>
+                {x.type&&<><span>·</span><span>{x.type}</span></>}
+                {/* ⚠️ Un communiqué déposé au régulateur et un article de presse
+                    n'engagent pas la même chose — la distinction doit se voir. */}
+                {x.officielle&&<span style={{color:"#00e5a0"}}>· source officielle</span>}
+              </div>
+            </a>))}
+      </div>
+    </div>);
+};
+
 // ── TICKER NEWS (inline dans Detail) ─────────────────────────────────────────
 const TickerNews=({sym})=>{
   const [articles,setArticles]=useState([]);
@@ -1689,6 +1891,73 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
 
           {/* Fundamentaux */}
           <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+            {/* ⚠️ LA LIQUIDITÉ, AFFICHÉE PARCE QU'ELLE PLAFONNE LA CONFIANCE.
+                Ajouté le 25/09. Le moteur rabaisse la confiance à 2 sous
+                100 000 DH échangés par séance — 27 titres sur 80 — sans que
+                rien ne le dise à l'écran. Un plafond qu'on ne peut pas
+                vérifier ne se discute pas.
+                ⚠️ En DIRHAMS et non en titres : dix titres de CMT valent
+                35 670 DH, dix d'Addoha en valent 370. */}
+            {(()=>{const dh=meta(r).echange_median_dh;
+              if(dh==null) return null;
+              const bas=dh<100000;
+              return <div style={{marginBottom:10,padding:"6px 8px",borderRadius:4,
+                  background:bas?"rgba(255,143,0,.08)":"#0a1220",
+                  border:`1px solid ${bas?"rgba(255,143,0,.3)":"#1a2540"}`}}>
+                <div style={{fontSize:8,color:"#8892a4",textTransform:"uppercase",marginBottom:2}}>Échangé par séance (médiane 20 j)</div>
+                <div style={{fontSize:13,fontWeight:700,color:bas?"#ff8f00":"#c8d3e8"}}>
+                  {dh>=1e6?`${(dh/1e6).toFixed(1)} M DH`:dh>=1e3?`${(dh/1e3).toFixed(0)} k DH`:`${dh} DH`}
+                  {bas&&<span style={{fontSize:10,fontWeight:400,marginLeft:6}}>· confiance plafonnée — un ordre courant déplacerait le cours</span>}
+                </div>
+              </div>;})()}
+
+            {/* ⚠️ LES NIVEAUX — ajouté le 25/09/2026, et le point n'est pas
+                d'en afficher : c'est de DIRE LESQUELS SONT DES FAITS.
+                Un briefing extérieur écrit « 620 = pivot ; 635-645 = pullback
+                digéré » sans dire d'où viennent ces nombres — le lecteur ne
+                peut ni les reproduire ni les contester.
+                ⚠️ La borne réglementaire est le niveau le plus sûr de tous, et
+                personne ne le publie comme tel : le cours de demain est borné
+                PAR LA LOI (R10), pas par une opinion.
+                ⚠️ Aucun n'entre dans le score (R8) et aucun ne dit quoi faire. */}
+            {(()=>{const nv=r.niveaux; if(!nv) return null;
+              const f=nv.faits||{}, cv=nv.conventions||{}, bs=f.bornes_seance;
+              const L=(lbl,val,extra,coul)=>(
+                <div key={lbl} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",fontSize:11.5,padding:"2px 0"}}>
+                  <span style={{color:"#8892a4"}}>{lbl}</span>
+                  <span><span style={{color:coul||"#c8d3e8",fontFamily:"monospace",fontWeight:600}}>{val}</span>
+                    {extra&&<span style={{color:"#5a6478",fontSize:10}}> {extra}</span>}</span>
+                </div>);
+              return <div style={{marginBottom:12}}>
+                <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>Niveaux</div>
+
+                <div style={{background:"#0a1220",border:"1px solid #1a2540",borderRadius:4,padding:"8px 10px",marginBottom:6}}>
+                  <div style={{fontSize:8.5,color:"#00e5a0",textTransform:"uppercase",letterSpacing:.6,marginBottom:5}}>
+                    Établis · ce que le marché a fait, ou ce que la règle interdit</div>
+                  {bs&&L("Prochaine séance, bornes ±10 %",`${fr(bs.plancher)} — ${fr(bs.plafond)}`,"règle BVC","#00e5a0")}
+                  {Object.entries(f.moyennes||{}).filter(([k])=>!k.startsWith("_")).map(([k,v])=>
+                    L(k.toUpperCase(),fr(v.niveau),`cours ${v.position} · ${v.distance_pct>0?"+":""}${fr(v.distance_pct,1)} %`))}
+                  {Object.entries(f.extremes||{}).filter(([k])=>!k.startsWith("_")).map(([k,v])=>
+                    L(k.replace(/_/g," "),fr(v.niveau),`${v.distance_pct>0?"+":""}${fr(v.distance_pct,1)} %`))}
+                </div>
+
+                {cv.pivots&&
+                  <div style={{background:"#0a1220",border:"1px dashed #2a3550",borderRadius:4,padding:"8px 10px"}}>
+                    <div style={{fontSize:8.5,color:"#ffd740",textTransform:"uppercase",letterSpacing:.6,marginBottom:2}}>
+                      Conventionnels · arithmétique sur une séance</div>
+                    <div style={{fontSize:9.5,color:"#5a6478",marginBottom:5}}>
+                      Largement employés, mais ils ne mesurent rien par eux-mêmes.</div>
+                    {L("R2 · R1",`${fr(cv.pivots.r2)} · ${fr(cv.pivots.r1)}`)}
+                    {L("Pivot",fr(cv.pivots.pivot),`séance du ${cv.pivots._seance||"—"}`,"#ffd740")}
+                    {L("S1 · S2",`${fr(cv.pivots.s1)} · ${fr(cv.pivots.s2)}`)}
+                  </div>}
+                {!cv.pivots&&
+                  <div style={{fontSize:10,color:"#5a6478",fontStyle:"italic"}}>
+                    Pivots non publiés : la dernière séance a une amplitude nulle —
+                    le titre a coté à un prix unique, ou n'a pas coté.
+                  </div>}
+              </div>;})()}
+
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Fondamentaux
               {/* ⚠️ LA FRAÎCHEUR DU BLOC QUI PÈSE LE PLUS — ajouté le 24/09/2026.
                   Le cours est daté depuis le 10/08 ; ces chiffres-là ne
@@ -1702,10 +1971,25 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                 return <span title={`Dernière mise à jour des fondamentaux : ${m.fond_asof}`} style={{color:c,fontSize:9,marginLeft:8,textTransform:"none",letterSpacing:0}}>· {m.fond_asof} <b>({a} j)</b></span>;})()}
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-              {[["PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"],["Alpha 12M",`${r.alpha>0?"+":""}${r.alpha}%`,r.alpha>=0?"#00e5a0":"#ff4f5a"]].map(([k,v,c])=>(
+              {[["PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"],["Alpha 12M",`${r.alpha>0?"+":""}${r.alpha}%`,r.alpha>=0?"#00e5a0":"#ff4f5a"]].map(([k,v,c,ratio])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
                   <div style={{fontSize:13,color:c,fontWeight:700}}>{v}</div>
+                  {/* ⚠️ LE RANG DANS SON SECTEUR — ajouté le 25/09.
+                      « Un P/B de 2,16 n'a pas le même sens dans l'immobilier
+                      que dans les télécoms. » Le chiffre nu laissait le
+                      lecteur faire une comparaison que personne ne fait de
+                      tête sur quatre-vingts titres.
+                      ⚠️ Rien n'est affiché sous quatre comparables : un
+                      « rang 1 sur 1 » n'informe de rien, et Télécom ne compte
+                      qu'un titre. */}
+                  {(()=>{const e=(r.rang_secteur||{})[ratio];
+                    if(!e) return null;
+                    const cher=(ratio==="div")?e.ecart_pct<0:e.ecart_pct>0;
+                    return <div title={`Médiane ${e.secteur} : ${e.mediane_secteur}`}
+                        style={{fontSize:9,marginTop:2,color:cher?"#ff8f00":"#00e5a0"}}>
+                      {e.rang}<span style={{color:"#8892a4"}}>/{e.pairs} · {e.ecart_pct>0?"+":""}{e.ecart_pct}% vs secteur</span>
+                    </div>;})()}
                 </div>
               ))}
             </div>
@@ -1901,10 +2185,30 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                   d'un bon dossier mal noté techniquement ou l'inverse.
                   Les trois notes étaient DÉJÀ publiées dans data.json — elles
                   n'étaient simplement pas montrées. */}
-              {pdsAff&&<><span style={{color:"#b388ff"}}>fond {fmt(r.score_fond,1)}×{pdsAff.f}%</span><span style={{color:"#8892a4"}}> + </span><span style={{color:"#00e5a0"}}>nlp {fmt(r.score_nlp,1)}×{pdsAff.n}%</span><span style={{color:"#8892a4"}}> + </span><span style={{color:"#4db8ff"}}>tech {fmt(r.score_tech,1)}×{pdsAff.t}%</span><span style={{color:"#8892a4"}}>{simu?" =":" + bonus/malus ="}</span></>}
+              {/* ⚠️ 25/09 — LE PILIER NLP À POIDS NUL NE S'ÉCRIT PLUS COMME UN
+                  TERME DE LA SOMME. « nlp 5,0×0 % » se lirait comme un
+                  calcul ; c'est un pilier GELÉ, et le dire est le but même de
+                  la redistribution. Sa note reste affichée, à part et en gris,
+                  parce que l'effacer supprimerait la trace de ce qu'il valait. */}
+              {pdsAff&&<><span style={{color:"#b388ff"}}>fond {fmt(r.score_fond,1)}×{pdsAff.f}%</span><span style={{color:"#8892a4"}}> + </span><span style={{color:"#4db8ff"}}>tech {fmt(r.score_tech,1)}×{pdsAff.t}%</span>
+                {pdsAff.n>0&&<><span style={{color:"#8892a4"}}> + </span><span style={{color:"#00e5a0"}}>nlp {fmt(r.score_nlp,1)}×{pdsAff.n}%</span></>}
+                <span style={{color:"#8892a4"}}>{simu?" =":" + bonus/malus ="}</span></>}
               <span style={{color:scoreAffiche==null?"#8892a4":((dltAff||0)>=0?"#00e5a0":"#ff4f5a"),fontWeight:700}}> {fmt(scoreAffiche)}</span>
               <span style={{color:"#8892a4",fontSize:11}}> ({(dltAff||0)>=0?"+":""}{fmt(dltAff)} vs BVC {(r.bvc||0).toFixed(2)})</span>
             </div>
+            {/* ⚠️ LE PILIER GELÉ, DIT PLUTÔT QUE CACHÉ — 25/09/2026.
+                Le corpus WhatsApp s'arrête au 02/07 : le pilier est devenu une
+                constante par titre, 48 titres sur 80 à la valeur neutre, et
+                0,37 point d'amplitude pour 28 % de poids annoncé. Son poids
+                est désormais nul ; sa note reste visible pour que le lecteur
+                puisse vérifier ce qu'elle valait, et pour qu'on se souvienne
+                de le rebrancher si le corpus repart. */}
+            {pdsAff&&pdsAff.n===0&&r.score_nlp!=null&&
+              <div style={{marginTop:6,fontSize:10.5,color:"#8892a4"}}
+                title="Pilier gelé le 25/09/2026 — corpus arrêté au 02/07/2026. Le poids de 28 % a été reversé au prorata sur le fondamental et la technique. Backtest sur les notes publiées : écart de performance haut/bas décile inchangé (+3,22 %).">
+                <span style={{color:"#5a6478"}}>●</span> pilier NLP <span style={{color:"#c8d3e8"}}>{fmt(r.score_nlp,1)}</span> — gelé, poids 0
+                <span style={{color:"#5a6478"}}> · corpus arrêté au 02/07/2026</span>
+              </div>}
             {(r.bonus||[]).length>0&&<div style={{marginTop:6,fontSize:11}}>
               {(r.bonus||[]).map((b,i)=><div key={i} style={{color:b.startsWith("-")?"#ff8f00":"#00e5a0"}}>{b.startsWith("-")?"▼":"▲"} {b.slice(1)}</div>)}
             </div>}
@@ -2818,7 +3122,22 @@ function App(){
           bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
           bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,
           conv:t.conv,setup:t.setup,
-          obv:t.obv,adx:t.adx,adx_pdi:t.adx_pdi,adx_mdi:t.adx_mdi
+          obv:t.obv,adx:t.adx,adx_pdi:t.adx_pdi,adx_mdi:t.adx_mdi,
+          /* ⚠️ DEUX CHAMPS CALCULÉS QUI N'ARRIVAIENT PAS JUSQU'ICI — 25/09.
+             `rang_secteur`, publié le 24/09, et `niveaux`, le 25/09 : les
+             deux composants d'affichage existaient, les données ne leur
+             parvenaient jamais. Le rang sectoriel est donc resté INVISIBLE
+             depuis sa livraison.
+
+             ⚠️ Le test qui devait l'empêcher cherchait la chaîne
+             « rang_secteur » DANS index.html. Elle y était — dans le
+             composant. Il ne vérifiait pas le CHEMIN DE DONNÉES, et c'est
+             le seul endroit où la rupture se produit.
+
+             Le commentaire ci-dessus annonçait pourtant le risque : « une
+             énumération de quarante champs cache ce qui lui manque ». Elle
+             l'a caché une fois de plus. */
+          rang_secteur:t.rang_secteur, niveaux:t.niveaux
         };});
         mergeLive(m);
         nLive=d.tickers.filter(t=>t.chg&&t.chg!==0).length;
@@ -2826,8 +3145,12 @@ function App(){
            sans cette traduction la variation s'affiche « —% » dès que l'appel
            direct à la Bourse de Casablanca échoue, ce qui est le cas courant
            depuis un navigateur (CORS). */
+        /* ⚠️ Le MASI 20 voyage DANS l'objet `masi` — ajouté le 25/09. Un état
+           et une prop de plus à travers tout l'arbre pour deux chiffres
+           affichés au même endroit ne se justifieraient pas. */
         if(d.masi) setMasi(m=>({...(m||{}),...d.masi,
                                 chg:d.masi.change_pct!=null?d.masi.change_pct:(m&&m.chg),
+                                masi20:d.masi20||(m&&m.masi20)||null,
                                 src:"IDBourse"}));
         const upd=d.updated?new Date(d.updated):null;
         const timeStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit",second:"2-digit"}):"";
@@ -2934,6 +3257,7 @@ function App(){
         {tab==="watchlist"&&<Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true} scoreMode={scoreMode}/>}
         {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={choisirTitre} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="weights"  &&<Weights/>}
+        {tab==="briefing" &&<Briefing/>}
         {tab==="smart"    &&<Smart/>}
         {tab==="nlp"      &&<NlpDash/>}
         {tab==="news"     &&<NewsFeed/>}

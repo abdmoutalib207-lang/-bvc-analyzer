@@ -68,11 +68,54 @@ def test_une_seule_vue_est_officielle():
     assert officielles == ["OFFICIEL"], f"officielles : {officielles}"
 
 
-def test_la_vue_officielle_est_la_formule_v53():
-    """R8 : la formule publiée reste Fond 47 · NLP 28 · Tech 25."""
+def test_la_vue_officielle_ne_diverge_pas_du_moteur():
+    """⚠️ CE TEST A CHANGÉ DE NATURE LE 25/09/2026, ET C'EST LE POINT.
+
+    Il écrivait `== (47, 28, 25)`. Un instantané : il rougissait le jour où la
+    formule changeait légitimement, et il restait vert le jour où l'écran se
+    mettait à annoncer autre chose que ce que le moteur calculait — c'est-à-dire
+    le seul défaut qui compte ici.
+
+    Il exprime désormais la RÈGLE : **l'écran annonce ce que le moteur
+    applique.** L'attendu n'est plus recopié, il est lu dans le moteur.
+
+    ⚠️ La tolérance d'un point est voulue : l'écran porte des entiers, le
+    moteur des fractions (65,28 et 34,72). Exiger l'égalité stricte ferait
+    échouer un arrondi correct.
+    """
+    from update_data import get_weights
+    w = get_weights({})            # pondération de base, hors contexte
     off = [v for v in _vues() if v[4]][0]
-    assert (off[1], off[2], off[3]) == (47, 28, 25), (
-        f"la vue officielle est {off[1]}/{off[2]}/{off[3]}, pas 47/28/25")
+    attendu = (round(w["fondamental"] * 100),
+               round(w["comportemental"] * 100),
+               round(w["technique"] * 100))
+    obtenu = (off[1], off[2], off[3])
+    assert all(abs(a - b) <= 1 for a, b in zip(attendu, obtenu)), (
+        f"l'écran annonce {obtenu[0]}/{obtenu[1]}/{obtenu[2]} alors que le "
+        f"moteur applique {attendu[0]}/{attendu[1]}/{attendu[2]} — les deux "
+        f"colonnes ne parleraient plus de la même formule")
+
+
+def test_le_pilier_nlp_est_gele_dans_la_vue_officielle():
+    """⚠️ Décision du 25/09/2026, approuvée, backtest à l'appui (R8).
+
+    Le corpus WhatsApp s'arrête au 02/07/2026. Le pilier était devenu une
+    constante par titre — 48 titres sur 80 à la valeur neutre, 0,37 point
+    d'amplitude sur 10 — pour 28 % de poids annoncé.
+
+    Mesure sur les notes RÉELLEMENT PUBLIÉES, 13 jours, 194 observations à
+    5 séances : l'écart de performance entre décile haut et décile bas vaut
+    **+3,22 % avec l'ancienne pondération comme avec la nouvelle**. La
+    redistribution ne change pas le classement ; elle supprime une annonce
+    fausse.
+
+    ⚠️ Ce test tombera le jour où le corpus repartira et où le pilier sera
+    rebranché — c'est voulu. Il force alors à repasser par un backtest.
+    """
+    off = [v for v in _vues() if v[4]][0]
+    assert off[2] == 0, (
+        f"la vue officielle donne encore {off[2]} % au pilier NLP alors que "
+        f"son corpus est arrêté depuis le 02/07/2026")
 
 
 def test_chaque_vue_totalise_cent():
