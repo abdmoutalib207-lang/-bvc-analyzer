@@ -1665,7 +1665,12 @@ const Briefing=()=>{
                           La performance est réelle mais ne se compare pas. */}
                       {x.reprise_recente&&<span title="Reprise de cotation récente : la référence a été fixée par l'autorité de marché, cette performance ne se compare pas aux autres." style={{color:"#ffd740",marginLeft:5,fontSize:10}}>⚠ reprise</span>}
                     </span>
-                    <span style={{color:c,fontFamily:"monospace"}}>{x.perf_pct>0?"+":""}{x.perf_pct} %</span>
+                    {/* ⚠️ DEUX CONVENTIONS DANS LE MÊME PANNEAU — corrigé le
+                        25/09. Le palmarès affichait « +6.9 % » à côté de
+                        « +46.33 % », et un point décimal alors que le constat
+                        juste au-dessus écrit « 1,57 % » avec une virgule. Un
+                        chiffre qui dénote est le premier dont on se méfie. */}
+                    <span style={{color:c,fontFamily:"monospace"}}>{x.perf_pct>0?"+":""}{fmt(x.perf_pct).replace(".",",")} %</span>
                   </div>))}
               </div>))}
           </div>
