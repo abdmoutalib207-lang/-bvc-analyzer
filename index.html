@@ -1200,9 +1200,14 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
                   Il était collecté depuis la veille et invisible. Le
                   `WeightEngine` le déclarait même « non calculable », ce qui
                   neutralisait deux régimes de pondération depuis l'origine du
-                  projet : la source le sert, `VariationAnneeP`.
+                  projet : l'ancrage du 31/12 est servi par la source.
+                  ⚠️ CORRIGÉ LE 25/09 — le champ tout fait `VariationAnneeP`
+                  décrit la VEILLE, pas la clôture publiée. Le terminal a
+                  affiché −4,27 % pour la séance du 24/09, qui est le YTD du
+                  23/09 ; le vrai vaut −5,19 %. Le moteur le RECALCULE
+                  désormais depuis la clôture et l'ancrage annuel.
                   Un lecteur qui voit « −0,95 % » ne sait pas si l'année est
-                  bonne ou mauvaise ; « −4,27 % depuis janvier » le lui dit. */}
+                  bonne ou mauvaise ; « −5,19 % depuis janvier » le lui dit. */}
               {masi.ytd_pct!=null&&
                 <span title="Variation de l'indice depuis la dernière séance de l'année précédente, servie par l'opérateur"
                   style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>

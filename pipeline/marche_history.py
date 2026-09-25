@@ -20,9 +20,17 @@ de l'indice, donc le YTD réel n'est pas calculable aujourd'hui ». Deux régime
 de pondération — marché baissier sous −5 %, marché haussier au-delà de +10 % —
 sont donc **morts depuis l'origine du projet**.
 
-La source les donne : `VariationAnneeP` vaut −4,27 % au 24/09/2026, et
-`CoursPremiereCotation` fournit même l'ancrage du 31/12/2025. Ce n'était pas
-incalculable, c'était non lu.
+La source fournit l'ancrage : `CoursPremiereCotation` donne la clôture du
+31/12/2025. Ce n'était pas incalculable, c'était non lu.
+
+⚠️ **MAIS LE CHAMP TOUT FAIT DE LA SOURCE EST DÉCALÉ D'UNE SÉANCE.**
+`VariationAnneeP` décrit `CoursVeille`, pas `Cours` — l'arithmétique de la
+charge utile le prouve seule : `CoursPremiereCotation + VariationAnneeV`
+redonne `CoursVeille` au dix-millième. Le recopier a fait publier −4,27 %
+pour la séance du 24/09, qui est le YTD du **23/09** ; le vrai vaut −5,19 %.
+Le module le **recalcule** donc depuis `cours` et l'ancrage (voir `_ytd()`),
+et conserve le champ brut sous `ytd_pct_source_veille` pour qu'on puisse
+constater l'écart au lieu de le supposer.
 
 ⚠️ CE MODULE NE TOUCHE À AUCUN SCORE
 Il collecte et il historise. Rien d'autre. Faire entrer la largeur de marché
@@ -73,7 +81,12 @@ CHAMPS = {
     "plus_bas_annee":   "PlusBasAnnee",
     # ⚠️ Le YTD servi par la source — celui que le WeightEngine croyait
     # incalculable, et qui neutralisait deux régimes de pondération.
-    "ytd_pct":          "VariationAnneeP",
+    # ⚠️ `ytd_pct` N'EST PLUS LU DANS LA SOURCE — il est RECALCULÉ par
+    # `_ytd()`. Le champ `VariationAnneeP` décrit `CoursVeille`, donc la
+    # séance PRÉCÉDENTE, et le recopier décalait le terminal d'une séance.
+    # On garde `VariationAnneeP` sous son nom propre pour pouvoir constater
+    # l'écart plutôt que de le supposer.
+    "ytd_pct_source_veille": "VariationAnneeP",
     "cloture_annee_precedente": "CoursPremiereCotation",
     "capitalisation":   "Capitalisation",
 }
@@ -103,8 +116,41 @@ def extraire(ligne: dict) -> dict:
     """
     if not isinstance(ligne, dict):
         return {}
-    return {nom: _nombre(ligne.get(src), nom in ENTIERS)
+    etat = {nom: _nombre(ligne.get(src), nom in ENTIERS)
             for nom, src in CHAMPS.items()}
+    etat["ytd_pct"] = _ytd(etat)
+    return etat
+
+
+def _ytd(etat: dict):
+    """La performance annuelle de la clôture QUE NOUS PUBLIONS.
+
+    ⚠️ LE CHAMP `VariationAnneeP` DE LA SOURCE DÉCRIT LA VEILLE, PAS LE JOUR.
+    Établi le 25/09/2026 par l'arithmétique de la charge utile elle-même :
+
+        CoursPremiereCotation + VariationAnneeV = CoursVeille   ← exactement
+        1485,6472           + (−191,4898)      = 1294,1574      (MASI 20)
+        18846,3502          + (−977,2931)      = 17869,0571     (MASI)
+
+    Ce n'est pas `Cours` qui entre dans le calcul, c'est `CoursVeille`.
+
+    **Conséquence, et elle était publiée.** Le terminal affichait −4,27 % pour
+    la séance du 24/09. C'est le YTD de la clôture du **23/09** : la base
+    annuelle valant 18 846,3502, −4,27 % donne 18 042,45 contre une clôture
+    réelle du 23/09 à 18 040,73 — 0,01 % d'écart. Le vrai YTD du 24/09 vaut
+    **−5,19 %**. Un décalage d'une séance, invisible et permanent.
+
+    ⚠️ La parade n'est pas de corriger le décalage, c'est de **ne plus recopier
+    un champ dérivé quand on a de quoi le calculer**. `CoursPremiereCotation`
+    donne l'ancrage au 31/12, `cours` donne la clôture : le quotient est exact
+    et porte sur la séance que nous publions, par construction.
+
+    Renvoie `None` si l'ancrage manque — jamais une valeur approchée.
+    """
+    cours, base = etat.get("cours"), etat.get("cloture_annee_precedente")
+    if not cours or not base:
+        return None
+    return round((cours / base - 1) * 100, 2)
 
 
 def largeur(etat: dict) -> dict:

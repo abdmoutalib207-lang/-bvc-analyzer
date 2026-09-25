@@ -28,6 +28,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(RACINE / "pipeline"))
@@ -88,14 +90,68 @@ def test_une_reponse_illisible_ne_fait_pas_tomber_la_collecte():
 
 # ── ⚠️ Le YTD que le moteur croyait incalculable ───────────────────────────
 
-def test_le_ytd_est_servi_par_la_source():
+def test_l_ancrage_annuel_est_servi_par_la_source():
     """Le WeightEngine porte : « le projet ne stocke aucun historique de
     l'indice, donc le YTD réel n'est pas calculable aujourd'hui ». Deux
     régimes de pondération en sont neutralisés depuis l'origine.
 
-    Il était servi, simplement pas lu."""
-    assert extraire(REPONSE)["ytd_pct"] == -4.27
+    L'ancrage était servi, simplement pas lu."""
     assert extraire(REPONSE)["cloture_annee_precedente"] == 18846.3502
+
+
+def test_le_ytd_porte_sur_la_cloture_publiee_et_non_sur_la_veille():
+    """⚠️ LE DÉFAUT QUE CE TEST EMPÊCHE DE REVENIR — publié du 24 au 25/09.
+
+    Le champ `VariationAnneeP` de la source ne décrit PAS le cours du jour :
+    il décrit `CoursVeille`. L'arithmétique de la charge utile le prouve
+    seule, sans source extérieure :
+
+        CoursPremiereCotation + VariationAnneeV = CoursVeille   ← exactement
+        18846,3502           + (−977,2931)      = 17869,0571
+
+    Le terminal a donc affiché **−4,27 %** pour la séance du 24/09, qui est le
+    YTD de la clôture du **23/09**. Le vrai valait −5,19 %. Un décalage d'une
+    séance, silencieux et permanent : le chiffre restait plausible.
+
+    ⚠️ CE TEST EXIGE `Cours` ≠ `CoursVeille`. Avec les deux égaux, recopier le
+    champ et le recalculer donnent le même résultat, et le test passerait sur
+    un code faux — c'est exactement ce qui a laissé le défaut s'installer.
+
+    Attendu calculé à la main : 17 894,37 / 18 846,3502 − 1 = −5,05 %.
+    La source, elle, annonce −5,19 % pour la même charge utile.
+    """
+    e = extraire({"Cours": 17894.37, "CoursVeille": 17869.0571,
+                  "VariationAnneeP": -5.19, "VariationAnneeV": -977.2931,
+                  "CoursPremiereCotation": 18846.3502})
+    assert e["ytd_pct"] == -5.05, "le YTD décrit la veille, pas la clôture publiée"
+    assert e["ytd_pct_source_veille"] == -5.19, (
+        "le champ brut de la source doit rester lisible pour qu'on puisse "
+        "CONSTATER l'écart au lieu de le supposer")
+
+
+def test_sans_ancrage_le_ytd_est_none_et_non_approche():
+    """⚠️ Un YTD approché serait pire qu'absent : il se lirait comme mesuré."""
+    assert extraire({"Cours": 17869.0571})["ytd_pct"] is None
+    assert extraire({"CoursPremiereCotation": 18846.3502})["ytd_pct"] is None
+
+
+def test_l_historique_stocke_porte_un_ytd_recalculable():
+    """⚠️ CONTRÔLE SUR LA LIVRAISON. L'entrée du 24/09 portait −4,27 % alors
+    que ses PROPRES champs donnaient −5,19 %. Les deux étaient dans le même
+    enregistrement, et rien ne les confrontait."""
+    import json
+    f = RACINE / "pipeline" / "marche_history.json"
+    if not f.exists():
+        pytest.skip("marche_history.json absent de ce clone")
+    for jour, v in (json.loads(f.read_text(encoding="utf-8")).get("seances") or {}).items():
+        c, b, y = (v.get("cours"), v.get("cloture_annee_precedente"),
+                   v.get("ytd_pct"))
+        if not c or not b or y is None:
+            continue
+        attendu = round((c / b - 1) * 100, 2)
+        assert abs(y - attendu) < 0.01, (
+            f"{jour} : ytd_pct={y} alors que ses propres champs donnent "
+            f"{attendu} — le champ recopié décrit la veille")
 
 
 # ── La largeur de marché ───────────────────────────────────────────────────
@@ -191,4 +247,8 @@ def test_les_champs_decoratifs_ne_sont_pas_stockes():
     e = extraire(REPONSE)
     for indesirable in ("Etat", "PTO", "DateJour"):
         assert indesirable not in e
-    assert set(e) == set(CHAMPS)
+    # ⚠️ `ytd_pct` est le seul champ CALCULÉ et non recopié — depuis le
+    # 25/09/2026, parce que celui de la source décrit la veille. Il est listé
+    # ici explicitement plutôt que toléré : tout autre ajout non déclaré doit
+    # continuer de faire rougir ce test.
+    assert set(e) == set(CHAMPS) | {"ytd_pct"}
