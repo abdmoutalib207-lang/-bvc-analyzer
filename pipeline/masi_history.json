@@ -1,5 +1,5 @@
 {
- "_note": "Une clôture par séance, en AJOUT SEULEMENT : une date déjà connue n'est jamais réécrite. Le YTD reste indisponible tant que la série ne couvre pas la dernière séance de l'année précédente.",
+ "_note": "Une valeur par séance. Une séance PASSÉE n'est jamais réécrite ; la séance DU JOUR se rafraîchit jusqu'à ce que le dernier run de la journée fixe l'indice. ⚠️ La règle précédente gravait la PREMIÈRE valeur du jour : trois séances sur cinq en sont sorties fausses, jusqu'à 256 points d'écart. Le YTD reste indisponible tant que la série ne couvre pas la dernière séance de l'année précédente.",
  "_apports": [
   {
    "source": "investing.com",
@@ -32,8 +32,8 @@
   {
    "source": "pipeline",
    "depuis": "2026-09-18",
-   "jusqu_au": "2026-09-24",
-   "n": 5
+   "jusqu_au": "2026-09-25",
+   "n": 6
   },
   {
    "source": "correction manuelle — valeurs intraday gravées par la règle « ajout seulement »",
@@ -239,7 +239,8 @@
   "2026-09-21": 17983.0864,
   "2026-09-22": 18076.72,
   "2026-09-23": 18040.7282,
-  "2026-09-24": 17869.0571
+  "2026-09-24": 17869.0571,
+  "2026-09-25": 17879.4151
  },
  "_retraits": [
   {
