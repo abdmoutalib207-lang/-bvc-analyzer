@@ -381,3 +381,51 @@ def test_la_largeur_retombe_sur_notre_decompte_et_le_dit():
     a = {"masi": {}, "hausses": [1, 2], "baisses": [1], "cotes": 5}
     ligne = bm.largeur_ligne(a)
     assert "2 hausses" in ligne and "nos 5 titres" in ligne
+
+
+# ── ⚠️ Le briefing et l'en-tête ne doivent pas se contredire ───────────────
+
+def test_le_ytd_du_briefing_est_celui_du_flux():
+    """⚠️ VU EN PRODUCTION LE 25/09/2026, et c'est le même défaut que celui
+    corrigé le matin même dans le bulletin : DEUX CHIFFRES POUR LE MÊME FAIT
+    SUR LE MÊME ÉCRAN.
+
+    L'en-tête affichait « YTD −5,19 % » pendant que le briefing, trois blocs
+    plus bas, écrivait « l'indice est à −4,27 % ». Cause : le briefing FIGE le
+    nombre dans sa phrase, et `briefing.json` avait été produit avant la
+    correction du YTD.
+
+    Le moteur les écrit dans le MÊME run, donc ils ne peuvent pas diverger en
+    production — la divergence venait d'une réparation manuelle de data.json
+    hors run. Ce contrôle la rattrape quand même : c'est précisément le genre
+    d'écart qui ne se voit qu'à l'écran, et un lecteur qui voit deux chiffres
+    n'en croit aucun.
+    """
+    fb = RACINE / "briefing.json"
+    fd = RACINE / "data.json"
+    if not fb.exists() or not fd.exists():
+        pytest.skip("flux absent de ce clone")
+    b = json.loads(fb.read_text(encoding="utf-8"))
+    ytd = (json.loads(fd.read_text(encoding="utf-8")).get("masi") or {}).get("ytd_pct")
+    if ytd is None:
+        pytest.skip("le flux ne publie pas de YTD")
+    phrases = [c for c in (b.get("constats") or []) if "janvier" in c]
+    assert phrases, "le briefing ne mentionne plus la performance annuelle"
+    attendu = f"{ytd:.2f}".replace(".", ",")
+    assert attendu in phrases[0], (
+        f"le briefing dit « {phrases[0]} » alors que le flux publie "
+        f"{ytd} % — deux chiffres pour le même fait")
+
+
+def test_la_seance_du_briefing_est_celle_du_flux():
+    """⚠️ Un briefing daté d'une autre séance que les cours affichés se lirait
+    comme la lecture du jour."""
+    fb, fd = RACINE / "briefing.json", RACINE / "data.json"
+    if not fb.exists() or not fd.exists():
+        pytest.skip("flux absent de ce clone")
+    b = json.loads(fb.read_text(encoding="utf-8"))
+    d = json.loads(fd.read_text(encoding="utf-8"))
+    asof = max((str((x.get("_meta") or {}).get("prix_asof") or "")
+                for x in (d.get("tickers") or [])), default="")
+    assert b.get("seance") == asof, (
+        f"le briefing porte la séance {b.get('seance')} et les cours {asof}")
