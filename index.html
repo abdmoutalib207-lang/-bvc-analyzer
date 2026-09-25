@@ -621,8 +621,34 @@ const tk=r=>r&&(r.code_bvc||r.symbol||r.ticker)||"";
 /* Bloc _meta : provenance du prix et confiance 0–5, émis par le pipeline.
    En son absence on suppose le pire — c'est la règle du CLAUDE.md : sans
    _meta, le frontend doit considérer la donnée comme périmée. */
+/* ⚠️ CETTE FONCTION ÉTAIT UNE LISTE BLANCHE, ET ELLE A TUÉ QUATRE
+   FONCTIONNALITÉS EN SILENCE — corrigé le 25/09/2026.
+
+   Elle ne renvoyait que sept champs normalisés. Tout le reste de `_meta`
+   était jeté. Or l'écran en lit cinq autres :
+
+     fond_age_jours          la puce de fraîcheur des fondamentaux
+     echange_median_dh       le bloc de liquidité
+     reprise_recente         la puce « reprise de cotation »
+     seances_depuis_reprise  idem
+     comptes_plus_recents    l'avertissement de comptes plus récents
+
+   Conséquence mesurée : la puce de fraîcheur affichait « date inconnue » sur
+   LES QUATRE-VINGTS TITRES depuis sa livraison du 24/09 — pas seulement sur
+   les quatre réellement sans date. Le bloc de liquidité n'a jamais été rendu
+   une seule fois. Personne ne l'a vu parce qu'un composant qui rend `null`
+   ne laisse aucune trace.
+
+   ⚠️ TROISIÈME FOIS AUJOURD'HUI QU'UNE LISTE NOMMÉE PERD CE QU'ON AJOUTE À
+   CÔTÉ D'ELLE : après l'énumération de la fusion (`rang_secteur` invisible)
+   et le `git add` du workflow (quatre fichiers jetés à chaque run).
+
+   `_meta` est désormais ÉTALÉ, et les alias normalisés sont posés APRÈS pour
+   l'emporter sur une collision (`stale` existe des deux côtés). Un test
+   vérifie que tout champ lu via `meta(...)` est effectivement livré. */
 const meta=r=>{const m=(r&&r._meta)||null;
-  return m?{stale:!!m.stale,conf:m.confidence??0,asof:m.prix_asof||null,src:m.source_prix||"inconnu",
+  return m?{...m,
+            stale:!!m.stale,conf:m.confidence??0,asof:m.prix_asof||null,src:m.source_prix||"inconnu",
             susp:!!m.suspendu,suspDepuis:m.suspendu_depuis||null,suspMotif:m.suspendu_motif||null}
           :{stale:true,conf:0,asof:null,src:"inconnu",susp:false,suspDepuis:null,suspMotif:null};};
 const jjmm=d=>{const p=String(d||"").slice(0,10).split("-");return p.length===3?`${p[2]}/${p[1]}`:"";};
@@ -1966,10 +1992,32 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                   Un terminal qui affiche l'heure du jour en tête de page doit
                   dire, ici, que cette moitié-ci vient de juin. */}
               {(()=>{const m=meta(r),a=m.fond_age_jours;
-                if(a==null) return <span style={{color:"#ff8f00",fontSize:9,marginLeft:8,textTransform:"none",letterSpacing:0}}>· date inconnue</span>;
+                if(a==null) return <span title="Ce titre est absent de fondamentaux.json : ses ratios viennent de la table figée, qui ne porte aucune date." style={{color:"#ff8f00",fontSize:9,marginLeft:8,textTransform:"none",letterSpacing:0}}>· date inconnue</span>;
                 const c=a>180?"#ff4f5a":a>90?"#ff8f00":a>30?"#ffd740":"#8892a4";
                 return <span title={`Dernière mise à jour des fondamentaux : ${m.fond_asof}`} style={{color:c,fontSize:9,marginLeft:8,textTransform:"none",letterSpacing:0}}>· {m.fond_asof} <b>({a} j)</b></span>;})()}
             </div>
+            {/* ⚠️ « 99 JOURS », OUI — MAIS PAR RAPPORT À QUOI ? Ajouté le
+                25/09. Un âge sans point de comparaison n'apprend rien. Dix-sept
+                sociétés ont déposé leurs comptes du premier semestre 2026
+                entre le 7 et le 24 septembre, et ces dépôts étaient déjà dans
+                notre collecte depuis des jours.
+                ⚠️ Le lien mène au dépôt OFFICIEL. Le moteur ne lit pas les
+                chiffres du rapport — il dit qu'ils existent et où. */}
+            {(()=>{const c=meta(r).comptes_plus_recents; if(!c) return null;
+              return <a href={c.url} target="_blank" rel="noopener noreferrer"
+                title={c._lecture||""}
+                style={{display:"block",margin:"0 0 10px",padding:"6px 8px",borderRadius:4,
+                  background:"rgba(255,143,0,.08)",border:"1px solid rgba(255,143,0,.3)",
+                  textDecoration:"none"}}>
+                <div style={{fontSize:10,color:"#ff8f00",fontWeight:600,marginBottom:2}}>
+                  ⚠ Comptes plus récents publiés le {c.date}
+                  {c.retard_jours!=null&&<span style={{fontWeight:400}}> — {c.retard_jours} jours après nos chiffres</span>}
+                </div>
+                <div style={{fontSize:10,color:"#8892a4",lineHeight:1.4}}>
+                  {c.titre}<br/>
+                  <span style={{color:"#5a6478"}}>{c.source} · le moteur signale le dépôt, il n'en lit pas les chiffres</span>
+                </div>
+              </a>;})()}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
               {[["PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"],["Alpha 12M",`${r.alpha>0?"+":""}${r.alpha}%`,r.alpha>=0?"#00e5a0":"#ff4f5a"]].map(([k,v,c,ratio])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>

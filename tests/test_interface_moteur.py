@@ -191,3 +191,73 @@ def test_l_ecart_au_secteur_porte_son_sens():
     bloc = ECRAN[i:i + 600]
     assert 'ratio==="div"' in bloc, (
         "le sens de lecture du dividende n'est pas distingué de celui du PER")
+
+
+# ── ⚠️ `meta()` ne doit plus être une liste blanche ────────────────────────
+
+def _champs_lus_via_meta() -> set:
+    """Les champs que l'écran lit à travers le helper `meta(...)`."""
+    import re
+    lus = set(re.findall(r"meta\([^)]*\)\.([a-zA-Z_]\w*)", ECRAN))
+    # la forme `const m=meta(r)` puis `m.champ` plus loin
+    lus |= set(re.findall(r"const m=meta\([^)]*\)[,;].{0,400}?m\.([a-zA-Z_]\w*)",
+                          ECRAN, re.S))
+    return lus
+
+
+def _champs_rendus_par_meta() -> set:
+    """Ce que `meta()` renvoie réellement."""
+    import re
+    i = ECRAN.find("const meta=r=>")
+    j = ECRAN.find(";", ECRAN.find("suspMotif:null}", i))
+    corps = ECRAN[i:j]
+    rendus = set(re.findall(r"(\w+):", corps))
+    # ⚠️ `{...m}` étale TOUT `_meta` : le helper cesse d'être une liste
+    # blanche, et c'est la seule forme qui survit à un ajout de champ.
+    if "{...m," in corps or "{ ...m," in corps:
+        rendus.add("*")
+    return rendus
+
+
+def test_meta_livre_tout_ce_que_l_ecran_lit():
+    """⚠️ QUATRE FONCTIONNALITÉS TUÉES EN SILENCE, découvertes le 25/09/2026.
+
+    `meta()` était une LISTE BLANCHE de sept champs normalisés. L'écran en
+    lisait cinq autres, tous jetés :
+
+        fond_age_jours          la puce de fraîcheur des fondamentaux
+        echange_median_dh       le bloc de liquidité
+        reprise_recente         la puce « reprise de cotation »
+        seances_depuis_reprise  idem
+        comptes_plus_recents    l'avertissement de comptes plus récents
+
+    Conséquence mesurée : la puce de fraîcheur affichait « date inconnue » sur
+    **les quatre-vingts titres** depuis sa livraison du 24/09 — pas seulement
+    sur les quatre réellement sans date. Le bloc de liquidité n'a jamais été
+    rendu une seule fois.
+
+    ⚠️ **Un composant qui rend `null` ne laisse aucune trace.** Ni erreur, ni
+    case vide : rien. C'est pourquoi personne ne l'a vu, et pourquoi seule
+    une capture d'écran l'a révélé.
+
+    ⚠️ Troisième liste nommée de la journée à perdre ce qu'on ajoute à côté
+    d'elle, après l'énumération de la fusion et le `git add` du workflow.
+    """
+    rendus = _champs_rendus_par_meta()
+    if "*" in rendus:
+        return                     # `{...m}` : tout passe, par construction
+    manquants = sorted(_champs_lus_via_meta() - rendus)
+    assert not manquants, (
+        f"`meta()` ne livre pas ces champs, les composants qui les lisent "
+        f"rendront `null` en silence : {manquants}")
+
+
+def test_meta_etale_le_bloc_plutot_que_de_l_enumerer():
+    """⚠️ La forme compte autant que le contenu. Réparer en AJOUTANT les cinq
+    champs à la liste blanche marcherait aujourd'hui et retomberait au
+    prochain ajout. L'étalement est la seule forme qui survit."""
+    i = ECRAN.find("const meta=r=>")
+    corps = ECRAN[i:i + 600]
+    assert "{...m," in corps or "{ ...m," in corps, (
+        "`meta()` est redevenue une liste blanche — elle perdra le prochain "
+        "champ ajouté à `_meta`")

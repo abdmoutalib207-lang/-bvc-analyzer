@@ -4199,6 +4199,43 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:
         logger.warning(f"rang sectoriel : indisponible ({_e})")
 
+    # ⚠️ « 99 JOURS », OUI — MAIS PAR RAPPORT À QUOI ? — 25/09/2026.
+    #
+    # Le terminal affichait l'âge des fondamentaux et s'arrêtait là. Un âge
+    # sans point de comparaison : quatre-vingt-dix-neuf jours, est-ce grave ?
+    # On ne peut pas le dire tant qu'on ignore si la société a publié
+    # entre-temps.
+    #
+    # Relevé du 25/09 : DIX-SEPT SOCIÉTÉS ont déposé leurs comptes du premier
+    # semestre 2026 entre le 7 et le 24 septembre, et ces dépôts étaient DÉJÀ
+    # dans notre collecte d'actualités depuis des jours.
+    #
+    # ⚠️ Ce bloc ne lit PAS les chiffres des rapports. Il dit QUE des comptes
+    # plus récents existent, QUAND ils ont été déposés et OÙ les lire. Les
+    # extraire est un chantier distinct : mal fait, il produirait des chiffres
+    # faux là où il n'y en avait aucun.
+    #
+    # ⚠️ N'entre dans aucun score (R8) : c'est un avertissement de fraîcheur.
+    try:
+        from pipeline.fondamentaux_frais import par_ticker as _frais, resume as _res_frais
+        _articles = []
+        try:
+            _articles = (json.loads(
+                (Path(__file__).parent / "news.json").read_text(encoding="utf-8"))
+                .get("articles") or [])
+        except Exception:                                 # noqa: BLE001
+            _articles = []
+        _r = _frais(tickers_out, _articles)
+        for _t in tickers_out:
+            _e = _r.get(_t.get("symbol"))
+            if _e:
+                _t.setdefault("_meta", {})["comptes_plus_recents"] = _e
+        output["fondamentaux_frais"] = _res_frais(_r, tickers_out)
+        logger.info(f"fraîcheur des fondamentaux : {len(_r)} société(s) ont "
+                    f"publié des comptes postérieurs à nos chiffres")
+    except Exception as _e:                               # noqa: BLE001
+        logger.warning(f"fraîcheur des fondamentaux : indisponible ({_e})")
+
     # ⚠️ LES NIVEAUX, EN DISTINGUANT LE FAIT DE LA CONVENTION — 25/09/2026.
     #
     # Un briefing extérieur écrit « SGTM : 620 = pivot ; 635-645 = pullback
