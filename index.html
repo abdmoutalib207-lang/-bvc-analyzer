@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache"/>
   <meta http-equiv="Expires" content="0"/>
   <title>BVC Analyzer v6.4 — Bourse de Casablanca</title>
-  <meta name="description" content="Terminal d'analyse multi-facteurs BVC : Technique 25% · Fondamental 47% · NLP 28% — 77 titres · 896 907 messages WhatsApp · 24 777 signaux · 6 ans de données"/>
+  <meta name="description" content="Terminal d'analyse quantitative de la Bourse de Casablanca : 80 titres, dernière clôture vérifiée contre le bulletin de l'opérateur. Score composite Fondamental 65% · Technique 35%, modulé par titre."/>
   <meta name="theme-color" content="#080d1a"/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
@@ -490,7 +490,12 @@ async function fetchMASI(){
 // 28 titres sur 80 auraient changé de palier. C'est ce défaut que corrige ce
 // bloc, autant que l'ajout des vues.
 const PONDERATIONS=[
-  {nom:"OFFICIEL",f:47,n:28,t:25,officiel:true,aide:"Formule v5.3 publiée — Fond 47 · NLP 28 · Tech 25"},
+  // ⚠️ 25/09/2026 — le pilier NLP passe de 28 % à ZÉRO, son poids reversé au
+  // prorata (47/72 et 25/72 → 65 et 35). Le corpus s'arrête au 02/07 et le
+  // pilier ne déplaçait plus que 0,37 point sur 10. Backtest sur les notes
+  // publiées : écart haut/bas décile IDENTIQUE (+3,22 %). La redistribution
+  // ne change pas la performance, elle supprime une annonce fausse.
+  {nom:"OFFICIEL",f:65,n:0,t:35,officiel:true,aide:"Formule v5.3 publiée au 25/09/2026 — Fond 65 · Tech 35. Le pilier NLP est gelé (poids 0) : son corpus s'arrête au 02/07/2026."},
   {nom:"70/30",f:70,n:0,t:30,aide:"Fondamental dominant — horizon long"},
   {nom:"60/40",f:60,n:0,t:40,aide:"Fondamental dominant, technique renforcée"},
   {nom:"50/50",f:50,n:0,t:50,aide:"Équilibre"},
@@ -1149,7 +1154,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
         <div style={{display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
           <span style={{fontSize:22,fontWeight:700,letterSpacing:3,background:"linear-gradient(90deg,#00e5a0,#4db8ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>BVC ANALYZER</span>
-          <span title="Pondération de RÉFÉRENCE. Le moteur la module selon le contexte du titre — hors séance le fondamental monte, un titre porté par le smart money voit son pilier comportemental renforcé. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 47 · NLP 28 · TECH 25 <span style={{color:"#8892a4"}}>· modulée par titre</span></span>
+          <span title="Pondération de RÉFÉRENCE depuis le 25/09/2026. Le moteur la module selon le contexte du titre — hors séance le fondamental monte, des résultats publiés le renforcent encore. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche. Le pilier NLP est gelé à un poids de 0 : son corpus s'arrête au 02/07/2026 et il ne déplaçait plus que 0,37 point sur 10." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 65 · TECH 35 <span style={{color:"#8892a4"}}>· modulée par titre · NLP gelé</span></span>
           {/* Score mode — composantes indépendantes */}
           <div style={{display:"flex",alignItems:"center",gap:4,background:"rgba(10,18,32,.8)",border:"1px solid #1a2540",borderRadius:5,padding:"3px 6px"}}>
             <span style={{fontSize:9,color:"#4a5570",letterSpacing:.5,marginRight:2}}>SCORE</span>
@@ -1962,10 +1967,30 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                   d'un bon dossier mal noté techniquement ou l'inverse.
                   Les trois notes étaient DÉJÀ publiées dans data.json — elles
                   n'étaient simplement pas montrées. */}
-              {pdsAff&&<><span style={{color:"#b388ff"}}>fond {fmt(r.score_fond,1)}×{pdsAff.f}%</span><span style={{color:"#8892a4"}}> + </span><span style={{color:"#00e5a0"}}>nlp {fmt(r.score_nlp,1)}×{pdsAff.n}%</span><span style={{color:"#8892a4"}}> + </span><span style={{color:"#4db8ff"}}>tech {fmt(r.score_tech,1)}×{pdsAff.t}%</span><span style={{color:"#8892a4"}}>{simu?" =":" + bonus/malus ="}</span></>}
+              {/* ⚠️ 25/09 — LE PILIER NLP À POIDS NUL NE S'ÉCRIT PLUS COMME UN
+                  TERME DE LA SOMME. « nlp 5,0×0 % » se lirait comme un
+                  calcul ; c'est un pilier GELÉ, et le dire est le but même de
+                  la redistribution. Sa note reste affichée, à part et en gris,
+                  parce que l'effacer supprimerait la trace de ce qu'il valait. */}
+              {pdsAff&&<><span style={{color:"#b388ff"}}>fond {fmt(r.score_fond,1)}×{pdsAff.f}%</span><span style={{color:"#8892a4"}}> + </span><span style={{color:"#4db8ff"}}>tech {fmt(r.score_tech,1)}×{pdsAff.t}%</span>
+                {pdsAff.n>0&&<><span style={{color:"#8892a4"}}> + </span><span style={{color:"#00e5a0"}}>nlp {fmt(r.score_nlp,1)}×{pdsAff.n}%</span></>}
+                <span style={{color:"#8892a4"}}>{simu?" =":" + bonus/malus ="}</span></>}
               <span style={{color:scoreAffiche==null?"#8892a4":((dltAff||0)>=0?"#00e5a0":"#ff4f5a"),fontWeight:700}}> {fmt(scoreAffiche)}</span>
               <span style={{color:"#8892a4",fontSize:11}}> ({(dltAff||0)>=0?"+":""}{fmt(dltAff)} vs BVC {(r.bvc||0).toFixed(2)})</span>
             </div>
+            {/* ⚠️ LE PILIER GELÉ, DIT PLUTÔT QUE CACHÉ — 25/09/2026.
+                Le corpus WhatsApp s'arrête au 02/07 : le pilier est devenu une
+                constante par titre, 48 titres sur 80 à la valeur neutre, et
+                0,37 point d'amplitude pour 28 % de poids annoncé. Son poids
+                est désormais nul ; sa note reste visible pour que le lecteur
+                puisse vérifier ce qu'elle valait, et pour qu'on se souvienne
+                de le rebrancher si le corpus repart. */}
+            {pdsAff&&pdsAff.n===0&&r.score_nlp!=null&&
+              <div style={{marginTop:6,fontSize:10.5,color:"#8892a4"}}
+                title="Pilier gelé le 25/09/2026 — corpus arrêté au 02/07/2026. Le poids de 28 % a été reversé au prorata sur le fondamental et la technique. Backtest sur les notes publiées : écart de performance haut/bas décile inchangé (+3,22 %).">
+                <span style={{color:"#5a6478"}}>●</span> pilier NLP <span style={{color:"#c8d3e8"}}>{fmt(r.score_nlp,1)}</span> — gelé, poids 0
+                <span style={{color:"#5a6478"}}> · corpus arrêté au 02/07/2026</span>
+              </div>}
             {(r.bonus||[]).length>0&&<div style={{marginTop:6,fontSize:11}}>
               {(r.bonus||[]).map((b,i)=><div key={i} style={{color:b.startsWith("-")?"#ff8f00":"#00e5a0"}}>{b.startsWith("-")?"▼":"▲"} {b.slice(1)}</div>)}
             </div>}

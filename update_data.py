@@ -2084,8 +2084,76 @@ def get_weights(context: dict) -> dict:
     if context.get("ticker_coverage", 100) < 50:
         w["comportemental"] -= 0.10; w["fondamental"] += 0.07; w["technique"] += 0.03
 
+    w = _replier_comportemental(w)
+
     total = sum(w.values())
     return {k: round(v / total, 4) for k, v in w.items()}
+
+
+def _replier_comportemental(w: dict) -> dict:
+    """Reverse le poids du pilier comportemental sur les deux autres, au prorata.
+
+    ⚠️ POURQUOI CE PILIER EST RAMENÉ À ZÉRO — décision du 25/09/2026,
+    approuvée par Abd Moutalib, backtest à l'appui comme R8 l'exige.
+
+    Le pilier annonçait 28 % du score. Ce qu'il pesait réellement :
+
+      · son corpus s'arrête au **02/07/2026** ; `SENTIMENT` est une table
+        écrite en dur, donc une CONSTANTE par titre ;
+      · 48 titres sur 80 sont à la valeur exactement neutre (5,00) ;
+      · amplitude publiée 4,32 → 5,64, soit **0,37 point d'écart maximal sur
+        10** entre le titre le mieux et le moins bien noté, à 28 % de poids ;
+      · le sentiment d'actualités, sa seule entrée vivante, ne bouge que
+        **5 titres sur 80**.
+
+    ⚠️ CE QUE LE BACKTEST DIT, ET IL EST NEUTRE.
+    Sur les notes RÉELLEMENT PUBLIÉES (13 jours, 194 observations à
+    5 séances, confiance ≥ 2), la corrélation de la base au surcroît de
+    performance sur le MASI passe de **+0,0774 à +0,0752**, et l'écart de
+    performance entre décile haut et décile bas est **identique au centième :
+    +3,22 % dans les deux cas**.
+
+    **Cette modification n'améliore donc pas le score — elle le rend
+    sincère.** Annoncer 28 % pour un pilier qui déplace 0,37 point était le
+    reproche d'une lecture extérieure, et il était fondé.
+
+    ⚠️ Limite à énoncer AVANT le chiffre : 13 jours consécutifs, c'est un
+    seul régime de marché, et les observations se chevauchent lourdement.
+    L'échantillon suffit à établir que la redistribution **ne dégrade rien** ;
+    il ne suffirait pas à établir qu'elle améliore quoi que ce soit — et nous
+    n'affirmons pas qu'elle améliore.
+
+    ⚠️ POURQUOI REPLIER PLUTÔT QUE DÉMONTER LES MODULATEURS.
+    `hype_spike` et `smart_money_active` poussent le pilier comportemental ;
+    les retirer un par un multiplierait les points de rupture. Le repli les
+    neutralise d'office — ce qu'ils ajoutent à un pilier de poids nul
+    redescend au prorata là d'où il venait — tout en laissant intacte la
+    logique de régime qui, elle, discrimine encore fondamental et technique.
+
+    ⚠️ LE PILIER RESTE CALCULÉ ET PUBLIÉ. `score_nlp` continue de figurer
+    dans le flux, et `poids.n` y vaut désormais 0. Le supprimer effacerait la
+    trace de ce qu'il valait ; le garder à poids nul le rend vérifiable.
+
+    ⚠️ CE QUE CE REPLI NE TOUCHE PAS — et qu'il ne faut pas croire réglé.
+    Le sentiment entre encore par les BONUS (`sent["smart"]`, `sent["win"]`,
+    `sent["alpha"]`), qui sont un mécanisme distinct des pondérations. Relevé
+    du 25/09 : seul « Conv baissière +0,15 » se déclenche, sur 35 titres — et
+    `nlp_bull` n'y étant jamais vrai, il ne teste en fait que le score BVC.
+    Smart Money, Contrarian et Hype spike : zéro occurrence sur 80 titres.
+    Chantier suivant, hors du périmètre approuvé ici.
+    """
+    comp = w.get("comportemental", 0.0)
+    reste = w.get("technique", 0.0) + w.get("fondamental", 0.0)
+    if reste <= 0:
+        # ⚠️ Aucun pilier vivant : on ne fabrique pas une pondération.
+        # Le cas n'est pas atteignable avec les modulateurs actuels (le
+        # minimum arithmétique du reste vaut 0,44), mais un modulateur futur
+        # pourrait l'ouvrir, et une division par zéro est une panne muette.
+        return w
+    w["technique"] += comp * w["technique"] / reste
+    w["fondamental"] += comp * w["fondamental"] / reste
+    w["comportemental"] = 0.0
+    return w
 
 def _indicateurs_depuis_candles(df_candles):
     """Recalcule les indicateurs depuis les chandelles stockées.
