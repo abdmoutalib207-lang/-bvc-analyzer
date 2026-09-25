@@ -63,6 +63,71 @@ mécanismes qui ne tombent pas ensemble valent mieux qu'un seul, meilleur.
 
 ---
 
+## ✅ TRANCHÉ LE 25/09/2026 — NLP ou AlphaBourse : la question était mal posée
+
+**La réponse d'Abd Moutalib : redistribuer les 28 %, historiser, et faire le
+briefing.** Les trois sont faits et poussés sur `fix/interface-moteur`.
+
+### ⚠️ L'erreur de catégorie qu'il fallait lever d'abord
+
+« Continuer avec le NLP ou switcher vers la logique d'AlphaBourse » suppose que
+les deux sont interchangeables. **Ils ne le sont pas :**
+
+  · le pilier NLP produit **une note PAR TITRE** — 80 valeurs par séance ;
+  · la largeur de marché et le briefing produisent **une valeur pour le
+    marché entier** — 1 par séance.
+
+Mettre la seconde à la place de la première ne classerait rien : elle ne dit
+pas que Cosumar est plus attractive que Managem, elle dit que la séance a été
+mauvaise pour tout le monde. Ce sont deux étages, pas deux options.
+
+### Ce que la mesure a établi
+
+Le pilier NLP était **inerte**, et c'est mesuré, pas supposé :
+
+    corpus arrêté au 02/07/2026 → SENTIMENT est une CONSTANTE par titre
+    48 titres sur 80 à la valeur exactement neutre (5,00)
+    amplitude 4,32 → 5,64, soit 0,37 POINT SUR 10 pour 28 % de poids
+    le sentiment d'actualités ne déplace que 5 titres sur 80
+
+    backtest, 13 jours, 194 observations à 5 séances :
+      corrélation à l'alpha    +0,0774  →  +0,0752
+      écart décile haut/bas     +3,22 %  →  +3,22 %   (identique)
+
+**La redistribution n'améliore pas le score, elle le rend sincère.** C'est la
+seule chose qu'on peut en dire, et c'est ce qui est écrit dans R8.
+
+### ⚠️ Ce qui N'EST PAS réglé — ne pas le croire fait
+
+1. **Les bonus NLP subsistent.** Relevé du 25/09 : seul « Conv baissière
+   +0,15 » se déclenche, sur 35 titres — et `nlp_bull` n'y étant jamais vrai,
+   il ne teste EN FAIT que le score BVC. Smart Money, Contrarian, Hype spike :
+   **zéro occurrence sur 80 titres**. Et `conv` vaut « DIVERGE » sur **80/80**,
+   une constante affichée comme une mesure. **Chantier suivant.**
+2. **La largeur de marché n'est PAS évaluable.** Une séance d'historique au
+   24/09. Le journal l'apparie désormais chaque jour ; la question « a-t-elle
+   une valeur prédictive ? » devient mesurable **vers fin octobre**, pas avant.
+   Ne pas la brancher dans le score d'ici là.
+
+### Ce que le journal des scores change
+
+`pipeline/score_history.py` — écrit chaque séance ce qu'une mesure future
+réclamera. **Il ne sert à rien aujourd'hui, c'est sa raison d'être.**
+
+⚠️ Le prix de son absence a été payé le jour même : la décision sur le pilier
+NLP n'a pu s'appuyer que sur **13 jours** là où 87 jours de `v53` existaient,
+parce que `score_fond` n'est publié que depuis le 12/09 et que le backtest ne
+peut déterrer que ce qui avait été enterré.
+
+### Effet visible sur la livraison
+
+**6 signaux sur 80 changent de palier**, tous vers le haut : IAM, ATW, CIH,
+LHM, GAZ (SURVEILLER → ACHETER) et IBM (ATTENDRE → SURVEILLER). Des dossiers à
+fondamentaux solides que le pilier neutre à 5,0 diluait. Écart de note −0,49 à
++0,79 point, médiane 0,17. Les notes restent dans [0, 10].
+
+---
+
 ## État au 23/09/2026 — ce qui vient d'être fait, et ce qui reste
 
 > Objectif donné par Abd Moutalib : **un moteur stable, sans erreur dans le
