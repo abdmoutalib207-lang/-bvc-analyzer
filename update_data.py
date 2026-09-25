@@ -4101,6 +4101,35 @@ def run(dry_run=False, push=False, token=""):
     OUTPUT.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
     logger.info(f"✅ data.json écrit → {OUTPUT}")
 
+    # 6a'. Journal des scores publiés — ajouté le 25/09/2026.
+    #
+    # ⚠️ IL NE SERT À RIEN AUJOURD'HUI, ET C'EST VOULU. Il écrit ce qu'une
+    # mesure future réclamera. Le 25/09, la décision de geler le pilier NLP
+    # n'a pu s'appuyer que sur 13 jours et 194 observations, alors que 87
+    # jours de `v53` existaient : les notes par pilier n'étaient publiées
+    # que depuis le 12/09, et le backtest ne peut déterrer que ce qui avait
+    # été enterré. Le journal supprime cette dépendance à l'archéologie git.
+    #
+    # ⚠️ La séance retenue est celle des COURS, pas la date du run. Un run
+    # du matin porte la clôture de la veille ; l'étiqueter du jour ferait
+    # comparer un score à un rendement décalé d'une séance.
+    try:
+        from pipeline.score_history import enregistrer as _journal
+        _asof = [ (t.get("_meta") or {}).get("prix_asof") for t in tickers_out ]
+        _asof = [a for a in _asof if a]
+        if _asof:
+            _seance = max(set(_asof), key=_asof.count)   # la séance majoritaire
+            _j = _journal(_seance, tickers_out, _etat_marche())
+            logger.info(f"  📒 score_history.json — séance {_seance}, "
+                        f"{len(_j.get('seances') or {})} séance(s) au journal")
+        else:
+            logger.warning("  📒 journal des scores ignoré : aucune séance datée")
+    except Exception as _e:                               # noqa: BLE001
+        # ⚠️ Le journal est une commodité pour plus tard, jamais une
+        # dépendance du bulletin du matin. Son échec ne doit pas faire
+        # échouer un run de production.
+        logger.warning(f"  📒 journal des scores non écrit ({_e})")
+
     # 6b. Snapshot post-clôture — sauvegarde les vrais cours de fermeture
     # Permet de recalculer la variation J+1 même si IDBourse retourne des prix stales
     try:
