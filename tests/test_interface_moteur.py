@@ -70,6 +70,26 @@ def test_la_largeur_de_marche_est_affichee():
 
 # ── Le flux porte bien ce que l'écran attend ───────────────────────────────
 
+def test_le_masi_annuel_est_affiche():
+    """⚠️ LE YTD ÉTAIT COLLECTÉ ET INVISIBLE — corrigé le 25/09.
+
+    Pire que l'invisibilité : le `WeightEngine` déclarait `masi_ytd` « non
+    calculable » et neutralisait deux régimes de pondération DEPUIS L'ORIGINE
+    DU PROJET, alors que la source le sert sous `VariationAnneeP`.
+
+    Un lecteur qui voit « −0,95 % » ne sait pas si le marché est en hausse ou
+    en baisse sur l'année — c'est pourtant ce qui décide du régime.
+    """
+    assert "masi.ytd_pct" in ECRAN, (
+        "la variation annuelle de l'indice est collectée mais pas affichée")
+
+
+def test_le_ytd_est_publie_dans_le_flux(flux):
+    m = flux.get("masi") or {}
+    assert m.get("ytd_pct") is not None, (
+        "l'en-tête afficherait du vide — `_etat_marche()` ne remonte pas le YTD")
+
+
 def test_le_flux_publie_la_largeur(flux):
     m = flux.get("masi") or {}
     assert m.get("hausses") is not None, "l'en-tête afficherait du vide"

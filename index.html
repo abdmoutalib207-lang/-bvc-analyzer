@@ -1186,6 +1186,20 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
                   pendant que le marché recule ; la variation seule ne le dit
                   pas. Le 24/09, le MASI perdait 0,95 % et DEUX TITRES SUR
                   TROIS reculaient — 16 hausses contre 42 baisses. */}
+              {/* ⚠️ LE YTD — affiché le 25/09.
+                  Il était collecté depuis la veille et invisible. Le
+                  `WeightEngine` le déclarait même « non calculable », ce qui
+                  neutralisait deux régimes de pondération depuis l'origine du
+                  projet : la source le sert, `VariationAnneeP`.
+                  Un lecteur qui voit « −0,95 % » ne sait pas si l'année est
+                  bonne ou mauvaise ; « −4,27 % depuis janvier » le lui dit. */}
+              {masi.ytd_pct!=null&&
+                <span title="Variation de l'indice depuis la dernière séance de l'année précédente, servie par l'opérateur"
+                  style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
+                  <span style={{color:"#8892a4",fontSize:10}}>YTD</span>
+                  <span style={{color:masi.ytd_pct>0?"#00e5a0":masi.ytd_pct<0?"#ff4f5a":"#8892a4",fontWeight:600}}>
+                    {masi.ytd_pct>0?"+":""}{fmt(masi.ytd_pct)}%</span>
+                </span>}
               {masi.hausses!=null&&masi.baisses!=null&&
                 <span title={`${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges||0} inchangées sur ${masi.valeurs_traitees||"?"} valeurs traitées`}
                   style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
