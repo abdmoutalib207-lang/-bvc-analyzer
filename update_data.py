@@ -4138,6 +4138,38 @@ def run(dry_run=False, push=False, token=""):
             "un NOMBRE DE TITRES, jamais un montant en dirhams. Les séries "
             "recoupées à l'export de l'opérateur portent sa colonne « Titres "
             "Échangés » ; voir datasets/historiques_importes/."),
+        # ⚠️ LA CONVENTION QUI FERA DIVERGER TOUT RECOUPEMENT EXTÉRIEUR.
+        #
+        # Précisée par Abd Moutalib le 25/09/2026, et vérifiée : l'opérateur
+        # ne publie la performance annuelle de l'indice QU'À LA SÉANCE
+        # SUIVANTE. Le champ `VariationAnneeP` servi le 25/09 vaut −5,19 %,
+        # qui est le rapport de la clôture du 24/09 à la base du 31/12.
+        #
+        # ⚠️ IL RECALCULE, IL N'ADDITIONNE PAS — l'écart tranche entre les
+        # deux méthodes :
+        #     somme des variations : −4,27 + (−0,95) = −5,22 %
+        #     rapport à la base    : 17869,0571 / 18846,3502 − 1 = −5,1856 %
+        #     effectivement servi  : −5,19 %          ← le rapport
+        #
+        # NOUS PUBLIONS LA PERFORMANCE DE LA CLÔTURE AFFICHÉE, pas celle de
+        # la veille : le terminal montre le MASI à 17 869,06 et doit montrer
+        # à côté le YTD de CE cours-là. Afficher −4,27 % en face de
+        # 17 869,06 accolerait un prix et la performance d'un autre prix.
+        #
+        # Les deux sont dans le flux : `masi.ytd_pct` est le nôtre,
+        # `ytd_pct_source_veille` celui de l'opérateur. Un recoupement qui
+        # trouve un écart d'une séance a donc de quoi le constater au lieu
+        # de le prendre pour une erreur.
+        "ytd_indice": (
+            "performance de l'indice depuis la clôture du 31 décembre, "
+            "calculée sur la CLÔTURE QUE NOUS AFFICHONS. ⚠️ L'opérateur, lui, "
+            "ne publie cette performance qu'à la séance SUIVANTE : son champ "
+            "décrit toujours la veille. Les deux figurent dans le flux — "
+            "`masi.ytd_pct` (le nôtre) et `ytd_pct_source_veille` (le sien) — "
+            "pour qu'un écart d'une séance se constate au lieu de passer pour "
+            "une erreur. Il recalcule depuis la base annuelle, il n'additionne "
+            "pas les variations : sur la séance du 24/09, la somme donnerait "
+            "−5,22 % contre −5,19 % réellement servis."),
         "_pourquoi": (
             "Publié pour qu'un recoupement extérieur compare ce qui est "
             "comparable. Un écart de convention pris pour un écart de donnée "

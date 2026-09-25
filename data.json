@@ -12829,6 +12829,7 @@
     "adx": "ADX(14) de Wilder — mesure la FORCE d'une tendance, pas son sens. Sous 20, il n'y a pas de tendance à suivre.",
     "seances_retenues": "les séances réellement cotées. Sont exclues : les jours où la Bourse n'a pas ouvert (registre SEANCES_SANS_COTATION) et les séances annulées par l'opérateur (SEANCES_ANNULEES). Une fenêtre de 20 séances ne couvre donc pas 20 jours calendaires.",
     "volume": "un NOMBRE DE TITRES, jamais un montant en dirhams. Les séries recoupées à l'export de l'opérateur portent sa colonne « Titres Échangés » ; voir datasets/historiques_importes/.",
+    "ytd_indice": "performance de l'indice depuis la clôture du 31 décembre, calculée sur la CLÔTURE QUE NOUS AFFICHONS. ⚠️ L'opérateur, lui, ne publie cette performance qu'à la séance SUIVANTE : son champ décrit toujours la veille. Les deux figurent dans le flux — `masi.ytd_pct` (le nôtre) et `ytd_pct_source_veille` (le sien) — pour qu'un écart d'une séance se constate au lieu de passer pour une erreur. Il recalcule depuis la base annuelle, il n'additionne pas les variations : sur la séance du 24/09, la somme donnerait −5,22 % contre −5,19 % réellement servis.",
     "_pourquoi": "Publié pour qu'un recoupement extérieur compare ce qui est comparable. Un écart de convention pris pour un écart de donnée fait chercher au mauvais endroit."
   },
   "rang_sectoriel": {

@@ -252,3 +252,42 @@ def test_les_champs_decoratifs_ne_sont_pas_stockes():
     # ici explicitement plutôt que toléré : tout autre ajout non déclaré doit
     # continuer de faire rougir ce test.
     assert set(e) == set(CHAMPS) | {"ytd_pct"}
+
+
+def test_le_ytd_se_recalcule_et_ne_s_additionne_pas():
+    """⚠️ LA MÉTHODE, ET ELLE TRANCHE À 0,03 POINT — précisée par Abd
+    Moutalib le 25/09/2026 : l'opérateur ne publie la performance annuelle
+    qu'à la séance SUIVANTE, en repartant de la base annuelle.
+
+    Mesure sur les deux séances enregistrées :
+
+        somme des variations : −4,27 + (−0,95) = −5,22 %
+        rapport à la base    : 17869,0571 / 18846,3502 − 1 = −5,1856 %
+        effectivement servi  : −5,19 %          ← le rapport
+
+    Additionner les variations dériverait lentement — l'erreur s'accumule à
+    chaque séance et ne se voit jamais d'un coup.
+
+    Attendu calculé à la main, jamais par la fonction testée.
+    """
+    e = extraire({"Cours": 17869.0571, "CoursPremiereCotation": 18846.3502})
+    assert e["ytd_pct"] == -5.19
+    # la somme donnerait −5,22 : le test échouerait si on l'implémentait
+    assert e["ytd_pct"] != -5.22
+
+
+def test_la_convention_du_ytd_est_publiee_dans_le_flux():
+    """⚠️ Un recoupement extérieur trouvera un écart d'UNE SÉANCE avec le
+    site de l'opérateur. Sans la convention écrite, cet écart se prend pour
+    une erreur et fait chercher au mauvais endroit — c'est exactement ce qui
+    était arrivé sur la moyenne mobile, pour 1,73 DH."""
+    import json as _json
+    f = RACINE / "data.json"
+    if not f.exists():
+        pytest.skip("data.json absent de ce clone")
+    c = (_json.loads(f.read_text(encoding="utf-8")).get("_conventions") or {})
+    assert "ytd_indice" in c, "la convention du YTD n'est pas publiée"
+    t = c["ytd_indice"].lower()
+    assert "suivante" in t and "additionne" in t, (
+        "la convention ne dit pas que l'opérateur décale d'une séance et "
+        "recalcule au lieu d'additionner")

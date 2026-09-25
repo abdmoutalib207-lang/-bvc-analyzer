@@ -642,6 +642,30 @@ non Sonasid.
 
 ## Le champ « variation annuelle » du fournisseur décrit la VEILLE (25/09/2026)
 
+> ⚠️ **Précision d'Abd Moutalib, le même jour** : ce n'est pas un défaut de la
+> source, **c'est sa règle**. L'indice ne publie sa performance annuelle qu'à
+> la séance SUIVANTE. Il faut donc s'y attendre et l'écrire, pas la corriger
+> en croyant réparer.
+>
+> ⚠️ **Mais il RECALCULE, il n'ADDITIONNE pas** — et l'écart tranche :
+>
+> ```
+> somme des variations : −4,27 + (−0,95)              = −5,22 %
+> rapport à la base    : 17869,0571 / 18846,3502 − 1  = −5,1856 %
+> effectivement servi  :                                −5,19 %   ← le rapport
+> ```
+>
+> Additionner dériverait lentement : l'erreur s'accumule à chaque séance et ne
+> se voit jamais d'un coup.
+>
+> **Ce que le terminal publie** : la performance de la CLÔTURE QU'IL AFFICHE.
+> Montrer 17 869,06 avec −4,27 % accolerait un prix et la performance d'un
+> autre prix. Les deux valeurs sont au flux — `masi.ytd_pct` (la nôtre) et
+> `ytd_pct_source_veille` (la sienne) — et la convention est publiée dans
+> `_conventions.ytd_indice`, pour qu'un recoupement extérieur constate l'écart
+> d'une séance au lieu de le prendre pour une erreur. Même parade que pour la
+> moyenne mobile, où 1,73 DH de convention avaient coûté une recherche.
+
 `VariationAnneeP` ne porte pas sur `Cours` mais sur `CoursVeille`. La charge
 utile le prouve seule :
 
