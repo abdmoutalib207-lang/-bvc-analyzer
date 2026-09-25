@@ -289,7 +289,36 @@ jobs:
           for attempt in 1 2 3; do
             git fetch origin main
             git reset origin/main
+            # ⚠️ TOUT CE QUE LE RUN ÉCRIT DOIT ÊTRE COMMITÉ — corrigé le
+            # 25/09/2026, et le défaut était silencieux depuis la veille.
+            #
+            # Cette liste ne contenait que `data.json`, `masi_history.json`,
+            # `historical_data.json` et les chandelles. Le moteur écrivait
+            # pourtant quatre fichiers de plus, jetés à chaque run :
+            #
+            #   briefing.json               la lecture de la séance
+            #   briefing_hebdo.json         le bilan de la semaine
+            #   pipeline/marche_history.json  l'état du marché par séance
+            #   pipeline/score_history.json   LE JOURNAL DES SCORES
+            #
+            # ⚠️ Le dernier est le plus grave : sa raison d'être est
+            # D'ACCUMULER. Écrit à chaque run puis perdu, il serait resté
+            # éternellement à une séance — et la prochaine décision de
+            # pondération se serait à nouveau appuyée sur treize jours
+            # d'archéologie git, exactement ce qu'il devait supprimer.
+            #
+            # ⚠️ NE PAS CONFONDRE `masi_history` ET `marche_history` : le
+            # premier est la série de l'indice, le second l'état du marché
+            # (largeur, volumes, YTD). Un seul des deux était commité.
+            #
+            # Même classe de défaut que l'énumération de champs du terminal :
+            # une liste nommée qui ne suit pas ce qu'on ajoute. Un test
+            # vérifie désormais qu'aucun fichier écrit n'est oublié ici.
             git add data.json pipeline/masi_history.json
+            for f in briefing.json briefing_hebdo.json \
+                     pipeline/marche_history.json pipeline/score_history.json; do
+              [ -f "$f" ] && git add "$f"
+            done
             if [ -f pipeline/historical_data.json ]; then
               git add pipeline/historical_data.json
             fi
