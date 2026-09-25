@@ -594,3 +594,80 @@ invalide le cache toute seule — c'est pourquoi six des huit ont fonctionné.
 Avant d'en conclure qu'un test est faible, refaire la mutation SEULE, cache
 purgé. C'est R12 appliqué à l'outil de vérification lui-même : le protocole
 de mesure se mesure aussi.
+
+## Chez ce fournisseur, un code d'indice inconnu ne lève pas d'erreur (25/09/2026)
+
+**Il renvoie une réponse valide dont tous les champs sont des chaînes vides.**
+Pas de `Valid=false`, pas de HTTP 4xx, pas d'exception. Un indice
+silencieusement creux, publiable et faux.
+
+### Le relevé
+
+Interrogation de `INDICE-SYNTHESE` avec `Indice_` :
+
+```
+MASI     → Libelle « MASI »       ✅
+MASI20   → ('', '', '')           ⚠️  la devinette que tout le monde écrirait
+MASI 20  → ('', '', '')           ⚠️
+MASI-20  → ('', '', '')           ⚠️
+MSI20    → Libelle « MASI 20 »    ✅  le vrai code
+MADEX    → ('', '', '')
+```
+
+⚠️ **Et le champ `ISIN` de la réponse MSI20 vaut « MASI20 ».** Deux graphies
+dans la même charge utile : celle qui sert de clé n'est pas celle qui s'affiche.
+
+### Comment l'identité a été établie
+
+**Pas par le code, par l'arithmétique** — la méthode déjà employée pour `MRL` :
+le `CoursVeille` de MSI20 vaut **1 294,1574**, exactement la clôture du MASI 20
+au 24/09 publiée par ailleurs. Deux sources qui citent le même code peuvent se
+tromper ensemble ; une identité qui se recoupe par le calcul, non.
+
+### La garde
+
+`_ligne_indice_cdg()` refuse une charge utile dont `Cours` est vide — **vide et
+non absent** : un test de présence de clé ne l'attraperait pas — et le
+journalise en nommant la cause probable (« le code est-il celui du
+fournisseur ? »).
+
+### La règle
+
+**Ne jamais déduire un code d'un libellé.** Interroger le fournisseur, lire
+l'identité qu'il retourne, et la confirmer par un recoupement chiffré. Le
+piège est le même que `IDB_TICKER_MAP`, où le `SNA` du bulletin est Stokvis et
+non Sonasid.
+
+---
+
+## Le champ « variation annuelle » du fournisseur décrit la VEILLE (25/09/2026)
+
+`VariationAnneeP` ne porte pas sur `Cours` mais sur `CoursVeille`. La charge
+utile le prouve seule :
+
+```
+CoursPremiereCotation + VariationAnneeV = CoursVeille   ← au dix-millième
+18846,3502           + (−977,2931)      = 17869,0571     (MASI)
+ 1485,6472           + (−191,4898)      =  1294,1574     (MASI 20)
+```
+
+**Conséquence, et elle a été publiée** : le terminal a affiché **−4,27 %** pour
+la séance du 24/09. C'est le YTD du **23/09**. Le vrai valait **−5,19 %**.
+Contre-épreuve : la base annuelle valant 18 846,3502, −4,27 % donne 18 042,45
+contre une clôture réelle du 23/09 à 18 040,73 — 0,01 % d'écart.
+
+### Pourquoi le test existant ne l'a pas vu
+
+Il vérifiait `ytd_pct == -4,27` sur une charge utile où **`Cours` ÉGALAIT
+`CoursVeille`**. Recopier le champ et le recalculer y donnent le même
+résultat : test vert sur code faux.
+
+⚠️ **Un test doit s'écrire sur le cas qui DISCRIMINE.** Ici, `Cours ≠
+CoursVeille`. Sur un cas dégénéré, deux implémentations opposées passent.
+
+### La parade
+
+**Ne pas recopier un champ dérivé quand on a de quoi le calculer.** L'ancrage
+(`CoursPremiereCotation`) et la clôture sont tous deux collectés : le quotient
+est exact et porte sur la séance publiée, par construction. Le champ brut est
+conservé sous `ytd_pct_source_veille` — pour CONSTATER l'écart, pas le supposer.

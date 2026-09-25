@@ -1553,6 +1553,56 @@ def _normaliser_libelle(s):
     return re.sub(r"[^A-Z0-9]", "", s.upper())
 
 
+def _ligne_indice_cdg(code: str):
+    """La charge utile `INDICE-SYNTHESE` d'un indice, ou None.
+
+    ⚠️ LE CODE N'EST PAS LE NOM — découvert le 25/09/2026 en interrogeant le
+    fournisseur, jamais en le devinant.
+
+        `MASI`   → Libelle « MASI »      ✅
+        `MASI20` → chaînes VIDES, Valid=true, aucune erreur     ⚠️
+        `MSI20`  → Libelle « MASI 20 »   ✅
+
+    Un code inconnu **n'échoue pas** : il renvoie une réponse valide dont tous
+    les champs sont des chaînes vides. Une devinette plausible produit donc un
+    indice silencieusement creux, pas une exception. C'est exactement le piège
+    déjà rencontré sur `IDB_TICKER_MAP`, où le `SNA` du bulletin est Stokvis.
+
+    ⚠️ Le champ `ISIN` de la réponse MASI 20 vaut « MASI20 » alors que le
+    paramètre qui l'atteint est « MSI20 ». Deux graphies dans la même charge
+    utile : raison de plus pour ne rien supposer.
+
+    L'identité retournée est confirmée par l'ARITHMÉTIQUE et non par le code :
+    le `CoursVeille` de MSI20 vaut 1 294,1574, exactement la clôture du MASI 20
+    au 24/09 publiée ailleurs.
+    """
+    corps = {"ACTIONS": [{
+        "ACTION": {"NAME": "INDICE-SYNTHESE", "TYPE": "SELECT",
+                   "VALUE": "INDICE-SYNTHESE"},
+        "PARAMS": [{"NAME": "Lang_", "TYPE": "S", "VALUE": "fr"},
+                   {"NAME": "Espace_", "TYPE": "I", "VALUE": "1"},
+                   {"NAME": "Indice_", "TYPE": "S", "VALUE": code}]}]}
+    r = requests.post(CDG_API, json=corps, timeout=30, headers={
+        **HEADERS,
+        "Content-Type": "application/json",
+        "Referer": "https://www.cdgcapitalbourse.ma/Bourse/market",
+        "Origin":  "https://www.cdgcapitalbourse.ma"})
+    if r.status_code != 200:
+        logger.warning(f"indice {code} CDG : HTTP {r.status_code}")
+        return None
+    bloc = r.json()[0]["INDICE-SYNTHESE"]
+    if not bloc.get("Valid"):
+        logger.warning(f"indice {code} CDG : réponse invalide")
+        return None
+    ligne = (bloc.get("Data") or [None])[0]
+    # ⚠️ `Cours` vide — et non absent — est la signature d'un code inconnu.
+    if not ligne or not ligne.get("Cours"):
+        logger.warning(f"indice {code} CDG : charge utile creuse — "
+                       f"le code est-il celui du fournisseur ?")
+        return None
+    return ligne
+
+
 def fetch_masi_cdg():
     """Indice MASI depuis CDG Capital Bourse. Renvoie None si indisponible.
 
@@ -1570,27 +1620,9 @@ def fetch_masi_cdg():
     clôture. On n'en retient que la DATE — la seule chose dont la chaîne a
     besoin pour arbitrer — sans rien conclure de l'heure.
     """
-    corps = {"ACTIONS": [{
-        "ACTION": {"NAME": "INDICE-SYNTHESE", "TYPE": "SELECT",
-                   "VALUE": "INDICE-SYNTHESE"},
-        "PARAMS": [{"NAME": "Lang_", "TYPE": "S", "VALUE": "fr"},
-                   {"NAME": "Espace_", "TYPE": "I", "VALUE": "1"},
-                   {"NAME": "Indice_", "TYPE": "S", "VALUE": "MASI"}]}]}
     try:
-        r = requests.post(CDG_API, json=corps, timeout=30, headers={
-            **HEADERS,
-            "Content-Type": "application/json",
-            "Referer": "https://www.cdgcapitalbourse.ma/Bourse/market",
-            "Origin":  "https://www.cdgcapitalbourse.ma"})
-        if r.status_code != 200:
-            logger.warning(f"MASI CDG : HTTP {r.status_code}")
-            return None
-        bloc = r.json()[0]["INDICE-SYNTHESE"]
-        if not bloc.get("Valid"):
-            logger.warning("MASI CDG : réponse invalide")
-            return None
-        ligne = (bloc.get("Data") or [None])[0]
-        if not ligne or not ligne.get("Cours"):
+        ligne = _ligne_indice_cdg("MASI")
+        if not ligne:
             return None
         # « 28/08/2026 08:03:00 » → « 2026-08-28 »
         brut = str(ligne.get("DateCotation") or "")
@@ -2761,6 +2793,54 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         "n_candles":    n_bougies,
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
     }
+
+
+def fetch_masi20():
+    """Le MASI 20 — les vingt plus grosses capitalisations. Ou None.
+
+    ⚠️ POURQUOI UN SECOND INDICE CHANGE LA LECTURE.
+    Le MASI est pondéré par les capitalisations : quelques poids lourds
+    suffisent à le porter. Le MASI 20 ne contient QUE ces poids lourds.
+    Comparer les deux, c'est séparer ce que fait le haut de la cote de ce que
+    fait le marché.
+
+    Relevé au 25/09/2026, et l'écart est considérable :
+
+        MASI      −5,19 % depuis le 1er janvier
+        MASI 20  −12,89 % depuis le 1er janvier      ← 7,7 points d'écart
+
+    Les vingt premières valeurs font nettement moins bien que la cote entière
+    sur l'année. Aucune cause n'est avancée ici — c'est un constat.
+
+    ⚠️ Le code du fournisseur est `MSI20`, pas `MASI20` : voir
+    `_ligne_indice_cdg()`, où le piège est documenté.
+
+    ⚠️ Son échec n'empêche rien. Le MASI 20 est un complément de lecture ;
+    l'indice de référence reste le MASI, et le bulletin s'en passe.
+    """
+    try:
+        ligne = _ligne_indice_cdg("MSI20")
+        if not ligne:
+            return None
+        from pipeline.marche_history import extraire
+        e = extraire(ligne)
+        brut = str(ligne.get("DateCotation") or "")
+        asof = None
+        if re.match(r"\d{2}/\d{2}/\d{4}", brut):
+            j, mo, a = brut[:10].split("/")
+            asof = f"{a}-{mo}-{j}"
+        return {
+            "value": e.get("cours"),
+            "change_pct": e.get("variation_pct"),
+            # ⚠️ RECALCULÉ, jamais recopié — le champ de la source décrit la
+            # veille. Le détail dans `marche_history._ytd()`.
+            "ytd_pct": e.get("ytd_pct"),
+            "asof": asof,
+            "libelle": ligne.get("Libelle"),
+        }
+    except Exception as e:                                # noqa: BLE001
+        logger.warning(f"MASI 20 indisponible ({e})")
+        return None
 
 
 def _etat_marche():
@@ -3956,9 +4036,19 @@ def run(dry_run=False, push=False, token=""):
                 "inchanges": e.get("inchanges"),
                 "valeurs_traitees": e.get("valeurs_traitees"),
                 # ⚠️ Le YTD que le WeightEngine croyait incalculable.
+                # RECALCULÉ depuis la clôture et l'ancrage du 31/12 : le champ
+                # tout fait de la source décrit la veille (cf. `_ytd()`).
                 "ytd_pct": e.get("ytd_pct"),
             })(_etat_marche()),
         },
+        # ⚠️ LE MASI 20 — ajouté le 25/09/2026, à côté du MASI et non à sa
+        # place. Le MASI est pondéré par les capitalisations ; le MASI 20 ne
+        # contient QUE les vingt premières. Les comparer sépare ce que fait le
+        # haut de la cote de ce que fait le marché — au 25/09, −13,0 % contre
+        # −5,2 % sur l'année, près de huit points d'écart.
+        # `None` si la collecte échoue : c'est un complément, pas une
+        # dépendance, et le bulletin se publie sans lui.
+        "masi20": fetch_masi20(),
         "tickers": tickers_out,
     }
 

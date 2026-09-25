@@ -1209,11 +1209,36 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
                   Un lecteur qui voit « −0,95 % » ne sait pas si l'année est
                   bonne ou mauvaise ; « −5,19 % depuis janvier » le lui dit. */}
               {masi.ytd_pct!=null&&
-                <span title="Variation de l'indice depuis la dernière séance de l'année précédente, servie par l'opérateur"
+                <span title="Variation de l'indice depuis la clôture du 31 décembre. Calculée par le moteur à partir de la clôture publiée et de l'ancrage annuel de l'opérateur — le champ tout fait de la source décrit la séance précédente."
                   style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
                   <span style={{color:"#8892a4",fontSize:10}}>YTD</span>
                   <span style={{color:masi.ytd_pct>0?"#00e5a0":masi.ytd_pct<0?"#ff4f5a":"#8892a4",fontWeight:600}}>
                     {masi.ytd_pct>0?"+":""}{fmt(masi.ytd_pct)}%</span>
+                </span>}
+              {/* ⚠️ LE MASI 20, À CÔTÉ DU MASI ET NON À SA PLACE.
+                  Le MASI est pondéré par les capitalisations : quelques poids
+                  lourds suffisent à le porter. Le MASI 20 ne contient QUE ces
+                  poids lourds. L'écart entre les deux sépare ce que fait le
+                  haut de la cote de ce que fait le marché — au 25/09, −13,0 %
+                  contre −5,2 % sur l'année. */}
+              {masi.masi20&&masi.masi20.value!=null&&
+                <span title={`MASI 20 — les vingt plus grosses capitalisations. ${masi.masi20.ytd_pct!=null&&masi.ytd_pct!=null?`Écart de ${fmt(Math.abs(masi.masi20.ytd_pct-masi.ytd_pct),1)} point(s) avec le MASI sur l'année.`:""}`}
+                  style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
+                  <span style={{color:"#8892a4",fontSize:10}}>MASI&nbsp;20</span>
+                  <span style={{color:"#c8d3e8",fontWeight:600}}>{fmt(masi.masi20.value)}</span>
+                  {masi.masi20.change_pct!=null&&
+                    <span style={{color:masi.masi20.change_pct>0?"#00e5a0":masi.masi20.change_pct<0?"#ff4f5a":"#8892a4"}}>
+                      {masi.masi20.change_pct>0?"▲":masi.masi20.change_pct<0?"▼":""}{fmt(Math.abs(masi.masi20.change_pct))}%</span>}
+                  {masi.masi20.ytd_pct!=null&&
+                    <span style={{color:"#5a6478",fontSize:10}}>· YTD {masi.masi20.ytd_pct>0?"+":""}{fmt(masi.masi20.ytd_pct)}%</span>}
+                  {/* ⚠️ DEUX SÉANCES AFFICHÉES COMME UNE SEULE — le défaut du
+                      14/08 et du 28/08, et il s'est présenté dès le premier
+                      relevé : le fournisseur servait déjà le 25/09 pour le
+                      MASI 20 alors que les cours publiés portaient le 24/09.
+                      On n'aligne pas, on DIT la date. */}
+                  {masi.masi20.asof&&masi.asof&&masi.masi20.asof!==masi.asof&&
+                    <span title={`Le MASI 20 affiché porte la séance du ${masi.masi20.asof}, alors que les cours publiés portent celle du ${masi.asof}.`}
+                      style={{color:"#ff8f00",fontSize:10}}>⚠ {masi.masi20.asof.slice(8)}/{masi.masi20.asof.slice(5,7)}</span>}
                 </span>}
               {masi.hausses!=null&&masi.baisses!=null&&
                 <span title={`${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges||0} inchangées sur ${masi.valeurs_traitees||"?"} valeurs traitées`}
@@ -3052,8 +3077,12 @@ function App(){
            sans cette traduction la variation s'affiche « —% » dès que l'appel
            direct à la Bourse de Casablanca échoue, ce qui est le cas courant
            depuis un navigateur (CORS). */
+        /* ⚠️ Le MASI 20 voyage DANS l'objet `masi` — ajouté le 25/09. Un état
+           et une prop de plus à travers tout l'arbre pour deux chiffres
+           affichés au même endroit ne se justifieraient pas. */
         if(d.masi) setMasi(m=>({...(m||{}),...d.masi,
                                 chg:d.masi.change_pct!=null?d.masi.change_pct:(m&&m.chg),
+                                masi20:d.masi20||(m&&m.masi20)||null,
                                 src:"IDBourse"}));
         const upd=d.updated?new Date(d.updated):null;
         const timeStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit",second:"2-digit"}):"";
