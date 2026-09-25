@@ -4147,6 +4147,16 @@ def run(dry_run=False, push=False, token=""):
         _na = len((_b.get("actualites") or {}).get("titres") or [])
         logger.info(f"  📰 briefing.json — {len(_b.get('constats') or [])} constat(s), "
                     f"{_na} publication(s) retenue(s)")
+        # ⚠️ Le bilan de semaine est régénéré à CHAQUE run, pas seulement le
+        # vendredi. Deux raisons : il porte « la semaine jusqu'à la dernière
+        # séance close », donc il est juste tous les jours ; et le réserver au
+        # vendredi le rendrait dépendant d'un run qui peut être sauté — c'est
+        # précisément ce qui arrive au cron depuis le 26/08.
+        from pipeline.briefing_hebdo import composer as _hebdo, ecrire as _h_ecr
+        _bh = _hebdo(output)
+        _h_ecr(_bh)
+        logger.info(f"  🗓  briefing_hebdo.json — {_bh['semaine']['n']} séance(s), "
+                    f"{_bh.get('n_titres', 0)} titre(s) mesuré(s)")
     except Exception as _e:                               # noqa: BLE001
         # ⚠️ Un briefing manquant ne doit pas faire échouer la publication des
         # cours. Le terminal DIT alors que le briefing manque, plutôt que

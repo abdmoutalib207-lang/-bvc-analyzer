@@ -544,3 +544,53 @@ Passer `field_annee_value_1=2026` rend la liste entière — le formulaire passe
 par un mécanisme Drupal qui n'accepte pas ses propres paramètres en URL. La
 liste étant triée par date décroissante, lire les premières pages est plus
 robuste qu'un paramètre que le site pourrait renommer.
+
+## Un test de mutation peut mentir — le cache bytecode de Python (25/09/2026)
+
+**Deux mutations sur huit ont paru « non attrapées » alors que les tests
+étaient justes.** Le défaut était dans le protocole de vérification, pas dans
+les tests — et il est de ceux qui font conclure exactement à l'envers.
+
+### Le mécanisme
+
+Python valide un `.pyc` sur **la taille du source et sa date de modification
+à la seconde**. Or les deux mutations avaient la même longueur que l'original :
+
+```
+SEUIL_LIMITE = 9.9   →   SEUIL_LIMITE = 8.5        même longueur
+MIN_SEANCES_LIMITE = 3 → MIN_SEANCES_LIMITE = 2    même longueur
+```
+
+Restauré par `cp` dans la même seconde, le fichier retrouve sa taille
+d'origine et une date que Python juge compatible avec le cache. **Le
+bytecode MUTÉ reste chargé.** Le test suivant s'exécute donc sur le code
+muté tout en lisant un source correct, et le résultat est incohérent dans
+les deux sens : une mutation paraît non détectée, puis la suite « propre »
+échoue sur un fichier qui est pourtant juste.
+
+### Ce qui l'a révélé
+
+La suite complète a continué d'échouer **après restauration vérifiée** —
+`grep` montrait `SEUIL_LIMITE = 9.9`, et le test échouait quand même. C'est
+cette contradiction qui a mis sur la piste : un source juste ne peut pas
+produire un comportement faux, donc ce n'était pas le source qui s'exécutait.
+
+### La parade
+
+**Purger `__pycache__` entre chaque mutation ET après la restauration :**
+
+```bash
+find . -name __pycache__ -type d -exec rm -rf {} + 2>/dev/null
+```
+
+⚠️ Les mutations les plus dangereuses de ce point de vue sont précisément les
+plus intéressantes : changer un **seuil** ne change presque jamais la
+longueur du fichier. Une mutation qui ajoute ou retire une ligne, elle,
+invalide le cache toute seule — c'est pourquoi six des huit ont fonctionné.
+
+### La règle
+
+**Une mutation qui n'est pas attrapée est une hypothèse, pas un constat.**
+Avant d'en conclure qu'un test est faible, refaire la mutation SEULE, cache
+purgé. C'est R12 appliqué à l'outil de vérification lui-même : le protocole
+de mesure se mesure aussi.

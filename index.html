@@ -1587,12 +1587,18 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
 // publication ; « le marché a baissé à cause de Cosumar » n'en est pas un.
 const Briefing=()=>{
   const [b,setB]=useState(null);
+  const [h,setH]=useState(null);
+  // ⚠️ « jour » ou « semaine ». Deux fichiers distincts, parce qu'un bilan de
+  // semaine ne remplace pas la lecture de la dernière séance : le premier dit
+  // où en est le marché, le second ce qui vient de se passer.
+  const [vue,setVue]=useState("jour");
   const [etat,setEtat]=useState("chargement");
   useEffect(()=>{
-    fetch("briefing.json?t="+Math.floor(Date.now()/3600000))
-      .then(r=>r.ok?r.json():null)
-      .then(d=>{setB(d);setEtat(d?"ok":"absent");})
-      .catch(()=>setEtat("absent"));
+    const t=Math.floor(Date.now()/3600000);
+    Promise.all([
+      fetch("briefing.json?t="+t).then(r=>r.ok?r.json():null).catch(()=>null),
+      fetch("briefing_hebdo.json?t="+t).then(r=>r.ok?r.json():null).catch(()=>null),
+    ]).then(([j,s])=>{setB(j);setH(s);setEtat(j?"ok":"absent");});
   },[]);
 
   if(etat==="chargement")return <div style={{color:"#8892a4",padding:20}}>Chargement du briefing…</div>;
@@ -1604,25 +1610,66 @@ const Briefing=()=>{
       run du soir ; son absence signale que ce run n'a pas abouti.
     </div>);
 
-  const a=b.actualites||{};
+  const semaine=vue==="semaine"&&h;
+  const src=semaine?h:b;
+  const a=src.actualites||{};
   const liens=[...(a.titres||[]),...(a.autres||[])];
+  const ONG=[{id:"jour",label:"LA SÉANCE"},{id:"semaine",label:"LA SEMAINE"}];
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{display:"flex",gap:4}}>
+        {ONG.map(o=>{
+          const actif=vue===o.id, dispo=o.id==="jour"||!!h;
+          return <button key={o.id} onClick={()=>dispo&&setVue(o.id)}
+            title={dispo?"":"Le bilan de semaine n'a pas été publié par le dernier run."}
+            style={{background:actif?"rgba(0,229,160,.12)":"#0a1220",
+              border:`1px solid ${actif?"rgba(0,229,160,.4)":"#1a2540"}`,
+              color:!dispo?"#3a4358":actif?"#00e5a0":"#8892a4",
+              borderRadius:5,padding:"5px 14px",fontSize:11,letterSpacing:.8,
+              cursor:dispo?"pointer":"not-allowed"}}>{o.label}</button>;})}
+      </div>
+
       <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
-        <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>Lecture de la séance</div>
-        <div style={{fontSize:13,color:"#4db8ff",marginBottom:12}}>{b.seance||"—"}</div>
+        <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>
+          {semaine?"Bilan de la semaine":"Lecture de la séance"}</div>
+        <div style={{fontSize:13,color:"#4db8ff",marginBottom:12}}>
+          {semaine
+            ?`${h.semaine?.n||0} séance${(h.semaine?.n||0)>1?"s":""} cotée${(h.semaine?.n||0)>1?"s":""}${h.semaine?.seances?.length?` · ${h.semaine.seances[0]} → ${h.semaine.seances[h.semaine.seances.length-1]}`:""}`
+            :(b.seance||"—")}</div>
         <ul style={{margin:0,paddingLeft:18,fontSize:13.5,lineHeight:1.65,color:"#c8d3e8"}}>
-          {(b.constats||[]).map((c,i)=><li key={i} style={{marginBottom:6}}>{c}</li>)}
-          {(b.constats||[]).length===0&&<li style={{color:"#8892a4"}}>Rien de mesurable à signaler.</li>}
+          {(src.constats||[]).map((c,i)=><li key={i} style={{marginBottom:6}}>{c}</li>)}
+          {(src.constats||[]).length===0&&<li style={{color:"#8892a4"}}>Rien de mesurable à signaler.</li>}
         </ul>
-        {(b.non_mesurable||[]).length>0&&
+        {(src.non_mesurable||[]).length>0&&
           <div style={{marginTop:12,paddingTop:10,borderTop:"1px solid #1a2540"}}>
             <div style={{fontSize:11,color:"#8892a4",marginBottom:4}}>Ce que cette lecture ne dit pas :</div>
             <ul style={{margin:0,paddingLeft:18,fontSize:11.5,color:"#5a6478",lineHeight:1.6}}>
-              {(b.non_mesurable||[]).map((x,i)=><li key={i}>{x}.</li>)}
+              {(src.non_mesurable||[]).map((x,i)=><li key={i}>{x}.</li>)}
             </ul>
           </div>}
       </div>
+
+      {/* ⚠️ Le palmarès n'existe que sur la semaine : sur une séance, il
+          doublonnerait les plus fortes hausses déjà présentes ailleurs. */}
+      {semaine&&(h.hausses||[]).length>0&&
+        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+          <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:10}}>Palmarès de la semaine</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+            {[["Hausses",h.hausses||[],"#00e5a0"],["Baisses",h.baisses||[],"#ff4f5a"]].map(([t,l,c])=>(
+              <div key={t}>
+                <div style={{fontSize:10,color:"#5a6478",marginBottom:6}}>{t}</div>
+                {l.map(x=>(
+                  <div key={x.symbol} style={{display:"flex",justifyContent:"space-between",fontSize:12.5,padding:"3px 0"}}>
+                    <span style={{color:"#c8d3e8"}}>{x.symbol}
+                      {/* ⚠️ R11 — une reprise après OPA change la RÉFÉRENCE.
+                          La performance est réelle mais ne se compare pas. */}
+                      {x.reprise_recente&&<span title="Reprise de cotation récente : la référence a été fixée par l'autorité de marché, cette performance ne se compare pas aux autres." style={{color:"#ffd740",marginLeft:5,fontSize:10}}>⚠ reprise</span>}
+                    </span>
+                    <span style={{color:c,fontFamily:"monospace"}}>{x.perf_pct>0?"+":""}{x.perf_pct} %</span>
+                  </div>))}
+              </div>))}
+          </div>
+        </div>}
 
       <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
         <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>Publications retenues</div>

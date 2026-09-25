@@ -84,6 +84,27 @@ MIN_SEANCES_52W = 200
 # reprend bien ce qui a été publié samedi et dimanche.
 FENETRE_NEWS_JOURS = 3
 
+# ⚠️ LE SEUIL DE LA LIMITE SE LIT DANS LES DONNÉES, IL N'EST PAS CHOISI.
+# Relevé sur les 79 séries de chandelles au 25/09/2026, variations d'une
+# séance à l'autre en valeur absolue :
+#
+#     8,5 % :   7      9,5 % :  12
+#     8,9 % :  13      9,8 % :  16
+#     9,1 % :  17      9,9 % :  52   ← le saut
+#     9,4 % :   9     10,0 % : 286   ← la limite réglementaire (R10)
+#
+# En dessous de 9,8 % les effectifs sont uniformes, autour de dix. À 9,9 % ils
+# triplent, à 10,0 % ils sont dix-huit fois plus nombreux. Couper à 9,9 %
+# sépare donc une séance ordinaire d'une séance BLOQUÉE PAR LA RÈGLE.
+#
+# L'arrondi au pas de cotation explique pourquoi la limite s'observe à 9,97
+# ou 9,99 % plutôt qu'à 10,00 % exactement.
+SEUIL_LIMITE = 9.9
+
+# En deçà, ce n'est pas une série : un titre touche la limite un jour sur
+# quinze environ, deux jours d'affilée arrive par hasard. Trois, non.
+MIN_SEANCES_LIMITE = 3
+
 
 def _fr(x, d=2):
     """Un nombre à la française : virgule décimale, espace pour les milliers.
@@ -93,6 +114,16 @@ def _fr(x, d=2):
     fait d'un chiffre qui dénote, c'est s'en méfier.
     """
     return f"{x:,.{d}f}".replace(",", " ").replace(".", ",")
+
+
+_RANGS = ("", "première", "deuxième", "troisième", "quatrième", "cinquième",
+          "sixième", "septième", "huitième", "neuvième", "dixième")
+
+
+def _rang(n):
+    """« cinquième » plutôt que « 5 ». Au-delà de dix, on repasse au chiffre —
+    « quinzième séance consécutive » est plus lourd que « 15e »."""
+    return _RANGS[n] if 0 < n < len(_RANGS) else f"{n}e"
 
 
 def _pluriel(n, singulier, pluriel=None):
@@ -243,6 +274,80 @@ def concentration(titres: list, seance: str) -> dict | None:
             "n_titres_actifs": len(montants)}
 
 
+def series_a_la_limite(series: dict, seance: str) -> list:
+    """Les titres bloqués par la limite de ±10 % plusieurs séances de suite.
+
+    ⚠️ LE FAIT QUE CE CONSTAT A RÉVÉLÉ. Minière Touissit a repris sa cotation
+    le 16/09/2026 à 2 438 DH après OPA, puis a touché le plafond SIX SÉANCES
+    CONSÉCUTIVES : 2 681, 2 949, 3 243, 3 567, 3 923. Chacune à +9,97 ou
+    +9,99 %, c'est-à-dire au maximum que la règle autorise.
+
+    Un titre au plafond n'a pas fini de monter : il a fini la séance. Le
+    marché n'a simplement pas eu le droit d'aller plus loin. C'est un fait
+    mesurable et il change la lecture d'une variation — « +9,98 % » et
+    « +9,98 % pour la sixième fois d'affilée » ne disent pas la même chose.
+
+    ⚠️ AUCUNE CAUSE N'EST AVANCÉE. Que la référence fixée à la reprise ait
+    été trop basse est une interprétation ; que le titre ait touché la limite
+    six fois est un décompte.
+
+    ⚠️ Le sens est exigé identique sur toute la série. Un titre au plafond
+    puis au plancher n'est pas dans une série : c'est de la volatilité, et
+    les additionner masquerait la différence.
+    """
+    out = []
+    for sym, serie in (series or {}).items():
+        s = [(d, c) for d, c in serie if d <= seance]
+        if len(s) < MIN_SEANCES_LIMITE + 1:
+            continue
+        n, sens = 0, None
+        for i in range(len(s) - 1, 0, -1):
+            avant, apres = s[i - 1][1], s[i][1]
+            if not avant:
+                break
+            v = (apres / avant - 1) * 100
+            # ⚠️ Au-delà de 10,5 %, ce n'est plus la limite : c'est une
+            # opération sur titres ou une donnée fausse (R10/R11). On arrête
+            # la série plutôt que de compter un décrochage comme un plafond.
+            if abs(v) < SEUIL_LIMITE or abs(v) > 10.5:
+                break
+            d = "hausse" if v > 0 else "baisse"
+            if sens is None:
+                sens = d
+            elif d != sens:
+                break
+            n += 1
+        if n >= MIN_SEANCES_LIMITE:
+            out.append({"symbol": sym, "seances": n, "sens": sens,
+                        "depuis": s[-n - 1][1], "cloture": s[-1][1]})
+    return sorted(out, key=lambda z: -z["seances"])
+
+
+def series_chandelles(dossier=None) -> dict:
+    """{ticker: [(date, clôture)]} — lecture seule, ne lève jamais."""
+    from pathlib import Path
+    import json as _json
+    d = Path(dossier) if dossier else (
+        Path(__file__).resolve().parent.parent / "pipeline" / "candles")
+    out = {}
+    try:
+        fichiers = sorted(d.glob("*.json"))
+    except OSError:
+        return {}
+    for f in fichiers:
+        try:
+            s = _json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, _json.JSONDecodeError, ValueError):
+            continue
+        if not isinstance(s, list):
+            continue
+        serie = [(str(b.get("d"))[:10], float(b["c"])) for b in s
+                 if b.get("c") and b.get("d") and float(b["c"]) > 0]
+        if serie:
+            out[f.stem] = sorted(serie)
+    return out
+
+
 def actualites(articles: list, seance: str, jours=FENETRE_NEWS_JOURS) -> dict:
     """Ce qui a été PUBLIÉ autour de la séance. Fonction pure.
 
@@ -331,7 +436,7 @@ def charger_articles(chemin=None) -> list:
         return []
 
 
-def composer(data: dict) -> dict:
+def composer(data: dict, series=None) -> dict:
     """Le briefing complet, sous forme de constats. Fonction pure.
 
     Chaque entrée de `constats` porte son nombre. Aucune n'affirme de cause.
@@ -352,6 +457,11 @@ def composer(data: dict) -> dict:
         "non_mesurable": [],
         # ⚠️ Ce qui a été PUBLIÉ, jamais ce que ça aurait causé.
         "actualites": actualites(charger_articles(), seance),
+        # ⚠️ Les titres bloqués par la limite réglementaire plusieurs séances
+        # de suite. Passé `series=` explicitement par les tests pour ne pas
+        # relire 79 fichiers à chaque appel.
+        "limites": series_a_la_limite(
+            series if series is not None else series_chandelles(), seance),
     }
 
     a = b["accord"]
@@ -397,6 +507,22 @@ def composer(data: dict) -> dict:
             f"Activité inhabituelle sur {v['symbol']} : {vol} titres échangés "
             f"contre une médiane de {med} sur vingt séances, soit "
             f"{_fr(v['facteur'], 1)}×.")
+
+    for x in b["limites"]:
+        # ⚠️ Un titre au plafond n'a pas fini de monter : il a fini la séance.
+        # « +9,98 % » et « +9,98 % pour la sixième fois d'affilée » ne disent
+        # pas la même chose, et seul le second le fait comprendre.
+        mot = "plafond" if x["sens"] == "hausse" else "plancher"
+        # ⚠️ « pour la 5 séances consécutive » — la première version écrivait
+        # cela. Un rang s'écrit en toutes lettres, et le compte des séances
+        # est celui des VARIATIONS, pas des clôtures : six clôtures font cinq
+        # variations, et se tromper d'une unité sur un chiffre affiché suffit
+        # à faire douter de tous les autres.
+        b["constats"].append(
+            f"{x['symbol']} touche le {mot} de variation pour la "
+            f"{_rang(x['seances'])} séance consécutive : de "
+            f"{_fr(x['depuis'])} à {_fr(x['cloture'])} DH. Le marché n'a pas "
+            f"eu le droit d'aller plus loin.")
 
     e = b["extremes"]
     if e["plus_hauts"]:
