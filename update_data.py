@@ -2695,6 +2695,21 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
     }
 
 
+def _etat_marche():
+    """L'état du marché de la dernière séance, ou None.
+
+    ⚠️ Lecture seule et sans effet : si le fichier manque ou que la séance
+    enregistrée n'est pas celle du jour, on ne publie rien plutôt qu'un état
+    périmé. Un chiffre de largeur daté de la veille, affiché à côté d'un indice
+    du jour, se lirait comme celui du jour.
+    """
+    try:
+        from pipeline.marche_history import dernier
+        return dernier()
+    except Exception:
+        return None
+
+
 def _objectifs(ticker, price, fd) -> dict:
     """Objectifs bear/base/bull, écartés s'ils ne sont plus à l'échelle du cours.
 
@@ -3856,6 +3871,25 @@ def run(dry_run=False, push=False, token=""):
             "change_pct": masi["chg"],
             "asof":       masi.get("asof"),
             "stale":      masi.get("stale", True),
+            # ⚠️ LA LARGEUR DE MARCHÉ — publiée le 25/09/2026.
+            #
+            # Un indice peut monter porté par trois grosses capitalisations
+            # pendant que le marché recule. La variation seule ne le dit pas.
+            # Au 24/09 : 16 hausses contre 42 baisses sur 68 valeurs — le MASI
+            # perdait 0,95 %, mais deux titres sur trois reculaient.
+            #
+            # Collectée depuis le 24/09 et restée invisible : elle était dans
+            # `marche_history.json`, que le terminal ne lit pas. Une donnée
+            # calculée qu'on n'affiche pas ne sert à personne.
+            **(lambda e: {} if not e else {
+                "largeur": e.get("largeur"),
+                "hausses": e.get("hausses"),
+                "baisses": e.get("baisses"),
+                "inchanges": e.get("inchanges"),
+                "valeurs_traitees": e.get("valeurs_traitees"),
+                # ⚠️ Le YTD que le WeightEngine croyait incalculable.
+                "ytd_pct": e.get("ytd_pct"),
+            })(_etat_marche()),
         },
         "tickers": tickers_out,
     }
