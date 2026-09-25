@@ -607,6 +607,11 @@ function calcSR(candles,price){
 
 // ── ATOMS ────────────────────────────────────────────────────────────────────
 const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":(+n).toFixed(d);
+  /* ⚠️ La virgule décimale. Le terminal écrit « 17 869,06 » dans son
+     en-tête ; un « 3530.70 » trois blocs plus bas se lit comme une
+     donnée venue d'ailleurs, et un chiffre qui dénote est le premier
+     dont le lecteur se méfie. Relevé sur capture, pas en lisant le code. */
+  const fr=(n,d=2)=>fmt(n,d).replace(".",",");
 /* Code affiché : celui de la BVC, pas notre clé interne. Le marché lit
    « SNA » comme Stokvis et « SID » comme Sonasid ; afficher nos symboles
    désoriente dès qu'on compare le terminal à une autre source. Nos clés
@@ -1213,7 +1218,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
                   style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
                   <span style={{color:"#8892a4",fontSize:10}}>YTD</span>
                   <span style={{color:masi.ytd_pct>0?"#00e5a0":masi.ytd_pct<0?"#ff4f5a":"#8892a4",fontWeight:600}}>
-                    {masi.ytd_pct>0?"+":""}{fmt(masi.ytd_pct)}%</span>
+                    {masi.ytd_pct>0?"+":""}{fmt(masi.ytd_pct).replace(".",",")}%</span>
                 </span>}
               {/* ⚠️ LE MASI 20, À CÔTÉ DU MASI ET NON À SA PLACE.
                   Le MASI est pondéré par les capitalisations : quelques poids
@@ -1225,12 +1230,12 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
                 <span title={`MASI 20 — les vingt plus grosses capitalisations. ${masi.masi20.ytd_pct!=null&&masi.ytd_pct!=null?`Écart de ${fmt(Math.abs(masi.masi20.ytd_pct-masi.ytd_pct),1)} point(s) avec le MASI sur l'année.`:""}`}
                   style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
                   <span style={{color:"#8892a4",fontSize:10}}>MASI&nbsp;20</span>
-                  <span style={{color:"#c8d3e8",fontWeight:600}}>{fmt(masi.masi20.value)}</span>
+                  <span style={{color:"#c8d3e8",fontWeight:600}}>{fmt(masi.masi20.value).replace(".",",")}</span>
                   {masi.masi20.change_pct!=null&&
                     <span style={{color:masi.masi20.change_pct>0?"#00e5a0":masi.masi20.change_pct<0?"#ff4f5a":"#8892a4"}}>
-                      {masi.masi20.change_pct>0?"▲":masi.masi20.change_pct<0?"▼":""}{fmt(Math.abs(masi.masi20.change_pct))}%</span>}
+                      {masi.masi20.change_pct>0?"▲":masi.masi20.change_pct<0?"▼":""}{fmt(Math.abs(masi.masi20.change_pct)).replace(".",",")}%</span>}
                   {masi.masi20.ytd_pct!=null&&
-                    <span style={{color:"#5a6478",fontSize:10}}>· YTD {masi.masi20.ytd_pct>0?"+":""}{fmt(masi.masi20.ytd_pct)}%</span>}
+                    <span style={{color:"#5a6478",fontSize:10}}>· YTD {masi.masi20.ytd_pct>0?"+":""}{fmt(masi.masi20.ytd_pct).replace(".",",")}%</span>}
                   {/* ⚠️ DEUX SÉANCES AFFICHÉES COMME UNE SEULE — le défaut du
                       14/08 et du 28/08, et il s'est présenté dès le premier
                       relevé : le fournisseur servait déjà le 25/09 pour le
@@ -1905,6 +1910,54 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                   {bas&&<span style={{fontSize:10,fontWeight:400,marginLeft:6}}>· confiance plafonnée — un ordre courant déplacerait le cours</span>}
                 </div>
               </div>;})()}
+
+            {/* ⚠️ LES NIVEAUX — ajouté le 25/09/2026, et le point n'est pas
+                d'en afficher : c'est de DIRE LESQUELS SONT DES FAITS.
+                Un briefing extérieur écrit « 620 = pivot ; 635-645 = pullback
+                digéré » sans dire d'où viennent ces nombres — le lecteur ne
+                peut ni les reproduire ni les contester.
+                ⚠️ La borne réglementaire est le niveau le plus sûr de tous, et
+                personne ne le publie comme tel : le cours de demain est borné
+                PAR LA LOI (R10), pas par une opinion.
+                ⚠️ Aucun n'entre dans le score (R8) et aucun ne dit quoi faire. */}
+            {(()=>{const nv=r.niveaux; if(!nv) return null;
+              const f=nv.faits||{}, cv=nv.conventions||{}, bs=f.bornes_seance;
+              const L=(lbl,val,extra,coul)=>(
+                <div key={lbl} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",fontSize:11.5,padding:"2px 0"}}>
+                  <span style={{color:"#8892a4"}}>{lbl}</span>
+                  <span><span style={{color:coul||"#c8d3e8",fontFamily:"monospace",fontWeight:600}}>{val}</span>
+                    {extra&&<span style={{color:"#5a6478",fontSize:10}}> {extra}</span>}</span>
+                </div>);
+              return <div style={{marginBottom:12}}>
+                <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>Niveaux</div>
+
+                <div style={{background:"#0a1220",border:"1px solid #1a2540",borderRadius:4,padding:"8px 10px",marginBottom:6}}>
+                  <div style={{fontSize:8.5,color:"#00e5a0",textTransform:"uppercase",letterSpacing:.6,marginBottom:5}}>
+                    Établis · ce que le marché a fait, ou ce que la règle interdit</div>
+                  {bs&&L("Prochaine séance, bornes ±10 %",`${fr(bs.plancher)} — ${fr(bs.plafond)}`,"règle BVC","#00e5a0")}
+                  {Object.entries(f.moyennes||{}).filter(([k])=>!k.startsWith("_")).map(([k,v])=>
+                    L(k.toUpperCase(),fr(v.niveau),`cours ${v.position} · ${v.distance_pct>0?"+":""}${fr(v.distance_pct,1)} %`))}
+                  {Object.entries(f.extremes||{}).filter(([k])=>!k.startsWith("_")).map(([k,v])=>
+                    L(k.replace(/_/g," "),fr(v.niveau),`${v.distance_pct>0?"+":""}${fr(v.distance_pct,1)} %`))}
+                </div>
+
+                {cv.pivots&&
+                  <div style={{background:"#0a1220",border:"1px dashed #2a3550",borderRadius:4,padding:"8px 10px"}}>
+                    <div style={{fontSize:8.5,color:"#ffd740",textTransform:"uppercase",letterSpacing:.6,marginBottom:2}}>
+                      Conventionnels · arithmétique sur une séance</div>
+                    <div style={{fontSize:9.5,color:"#5a6478",marginBottom:5}}>
+                      Largement employés, mais ils ne mesurent rien par eux-mêmes.</div>
+                    {L("R2 · R1",`${fr(cv.pivots.r2)} · ${fr(cv.pivots.r1)}`)}
+                    {L("Pivot",fr(cv.pivots.pivot),`séance du ${cv.pivots._seance||"—"}`,"#ffd740")}
+                    {L("S1 · S2",`${fr(cv.pivots.s1)} · ${fr(cv.pivots.s2)}`)}
+                  </div>}
+                {!cv.pivots&&
+                  <div style={{fontSize:10,color:"#5a6478",fontStyle:"italic"}}>
+                    Pivots non publiés : la dernière séance a une amplitude nulle —
+                    le titre a coté à un prix unique, ou n'a pas coté.
+                  </div>}
+              </div>;})()}
+
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Fondamentaux
               {/* ⚠️ LA FRAÎCHEUR DU BLOC QUI PÈSE LE PLUS — ajouté le 24/09/2026.
                   Le cours est daté depuis le 10/08 ; ces chiffres-là ne
@@ -3069,7 +3122,22 @@ function App(){
           bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
           bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,
           conv:t.conv,setup:t.setup,
-          obv:t.obv,adx:t.adx,adx_pdi:t.adx_pdi,adx_mdi:t.adx_mdi
+          obv:t.obv,adx:t.adx,adx_pdi:t.adx_pdi,adx_mdi:t.adx_mdi,
+          /* ⚠️ DEUX CHAMPS CALCULÉS QUI N'ARRIVAIENT PAS JUSQU'ICI — 25/09.
+             `rang_secteur`, publié le 24/09, et `niveaux`, le 25/09 : les
+             deux composants d'affichage existaient, les données ne leur
+             parvenaient jamais. Le rang sectoriel est donc resté INVISIBLE
+             depuis sa livraison.
+
+             ⚠️ Le test qui devait l'empêcher cherchait la chaîne
+             « rang_secteur » DANS index.html. Elle y était — dans le
+             composant. Il ne vérifiait pas le CHEMIN DE DONNÉES, et c'est
+             le seul endroit où la rupture se produit.
+
+             Le commentaire ci-dessus annonçait pourtant le risque : « une
+             énumération de quarante champs cache ce qui lui manque ». Elle
+             l'a caché une fois de plus. */
+          rang_secteur:t.rang_secteur, niveaux:t.niveaux
         };});
         mergeLive(m);
         nLive=d.tickers.filter(t=>t.chg&&t.chg!==0).length;

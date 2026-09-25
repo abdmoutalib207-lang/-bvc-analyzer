@@ -60,6 +60,54 @@ def test_le_terminal_lit_ce_que_le_moteur_publie(champ, pourquoi):
     assert champ in ECRAN, f"`{champ}` est calculé mais invisible — {pourquoi}"
 
 
+# ⚠️ Les champs publiés à la RACINE d'un ticker. Ceux qui vivent dans `_meta`
+# voyagent avec lui et n'ont pas besoin d'y figurer.
+CHAMPS_RACINE = [
+    ("rang_secteur", "le rang sectoriel, publié le 24/09"),
+    ("niveaux", "les niveaux et leurs bornes réglementaires, publiés le 25/09"),
+    ("score_fond", "la note fondamentale, sans quoi la décomposition est vide"),
+    ("poids", "les poids réellement appliqués"),
+]
+
+
+@pytest.mark.parametrize("champ,quoi", CHAMPS_RACINE)
+def test_le_champ_traverse_la_fusion_et_pas_seulement_le_fichier(champ, quoi):
+    """⚠️ LE DÉFAUT QUE LE TEST PRÉCÉDENT NE VOYAIT PAS — trouvé le 25/09/2026.
+
+    Le terminal ne passe pas `data.json` tel quel aux composants : il le
+    recopie champ par champ dans une **énumération nommée** d'une quarantaine
+    d'entrées. Un champ absent de cette liste n'atteint jamais l'écran, quand
+    bien même le composant qui l'affiche existe.
+
+    C'est arrivé à `rang_secteur` : livré le 24/09, affiché nulle part
+    pendant une journée entière. Le test qui devait l'empêcher cherchait la
+    chaîne « rang_secteur » DANS index.html — elle y était, dans le composant.
+    **Il ne vérifiait pas le chemin de données, et c'est le seul endroit où la
+    rupture se produit.**
+
+    Le commentaire du code annonçait le risque mot pour mot : « une
+    énumération de quarante champs cache ce qui lui manque ».
+    """
+    i = ECRAN.find("d.tickers.forEach(t=>{m[t.symbol]={")
+    assert i > 0, "l'énumération de fusion est introuvable — a-t-elle été renommée ?"
+    fin = ECRAN.find("};});", i)
+    fusion = ECRAN[i:fin]
+
+    # ⚠️ DEUX FORMES VALIDES, et l'oublier produit un faux positif — c'est
+    # arrivé à l'écriture de ce test. Un champ traverse soit en écriture
+    # directe (`champ:t.champ`), soit par la liste nommée `CHAMPS_SCORE`,
+    # que la fusion étale. Les notes par pilier passent par la seconde.
+    direct = f"{champ}:t.{champ}" in fusion
+    j = ECRAN.find("const CHAMPS_SCORE")
+    liste = ECRAN[j:ECRAN.find("]", j)] if j > 0 else ""
+    par_liste = f'"{champ}"' in liste and "CHAMPS_SCORE.map" in fusion
+
+    assert direct or par_liste, (
+        f"`{champ}` n'est recopié par la fusion ni en direct ni via "
+        f"CHAMPS_SCORE : {quoi} n'atteindra jamais l'écran, même si le "
+        f"composant qui l'affiche existe")
+
+
 def test_la_largeur_de_marche_est_affichee():
     """⚠️ Le 24/09, le MASI perdait 0,95 % et DEUX TITRES SUR TROIS
     reculaient — 16 hausses contre 42 baisses. La variation seule ne le dit

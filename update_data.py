@@ -4131,6 +4131,42 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:
         logger.warning(f"rang sectoriel : indisponible ({_e})")
 
+    # ⚠️ LES NIVEAUX, EN DISTINGUANT LE FAIT DE LA CONVENTION — 25/09/2026.
+    #
+    # Un briefing extérieur écrit « SGTM : 620 = pivot ; 635-645 = pullback
+    # digéré ». Les chiffres sont peut-être justes ; rien ne dit d'où ils
+    # viennent. Le lecteur ne peut ni les reproduire ni les contester.
+    #
+    # Ici chaque niveau porte sa méthode, et deux familles sont SÉPARÉES :
+    #   · faits       — bornes réglementaires ±10 % (R10), extrêmes réellement
+    #                   atteints, moyennes réellement calculées ;
+    #   · conventions — points pivots, de l'arithmétique sur une séance.
+    #
+    # ⚠️ La borne réglementaire est le niveau le plus sûr de tous, et personne
+    # ne le publie comme tel : le cours de demain est borné PAR LA LOI, pas
+    # par une opinion.
+    #
+    # ⚠️ Aucun n'entre dans le score (R8), et aucun ne dit quoi faire.
+    try:
+        from pipeline.niveaux import composer as _niv
+        _n_ok = 0
+        for _t in tickers_out:
+            _sym = _t.get("symbol")
+            _b = None
+            try:
+                _f = Path(__file__).parent / "pipeline" / "candles" / f"{_sym}.json"
+                _s = json.loads(_f.read_text(encoding="utf-8"))
+                _b = _s[-1] if isinstance(_s, list) and _s else None
+            except Exception:                             # noqa: BLE001
+                _b = None
+            _v = _niv(_t, _b)
+            if _v:
+                _t["niveaux"] = _v
+                _n_ok += 1
+        logger.info(f"niveaux : {_n_ok}/{len(tickers_out)} titres")
+    except Exception as _e:                               # noqa: BLE001
+        logger.warning(f"niveaux : indisponibles ({_e})")
+
     # ⚠️ QUATRE INDICATEURS CORRÉLÉS NE VALENT PAS QUATRE VOTES — 24/09/2026.
     #
     # La critique est juste en général : agréger des mesures corrélées
