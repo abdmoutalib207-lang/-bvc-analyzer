@@ -2879,6 +2879,42 @@ def fetch_masi20():
         return None
 
 
+# ── Sources qui servent le montant échangé et les seuils de réservation ────
+# ⚠️ Nommées, et non « toute source vivante » : IDBourse sert la
+# capitalisation mais pas la contrepartie en dirhams, et les chandelles n'ont
+# jamais eu ces champs. Élargir cette liste sans vérifier ce que la source
+# envoie vraiment ferait publier des `None` là où on croit avoir un montant.
+SOURCES_MONTANT = ("cdg", "bmce")
+
+
+def _echange_rapprochable(ligne, src_prix, prix_asof, lp_asof):
+    """(montant, seuil_bas, seuil_haut) — ou trois `None`. Fonction pure.
+
+    ⚠️ LA CONDITION EST LE CŒUR DU SUJET, PAS UN DÉTAIL.
+    Le montant ne vaut que pour LA ligne dont le prix a été retenu. La chaîne
+    de repli (R3) peut publier une chandelle, un historique ou la table figée
+    pendant que `live_prices` garde encore une ligne CDG d'une autre séance :
+    y accoler son montant reviendrait à afficher les échanges d'un jour à
+    côté du cours d'un autre.
+
+    Le rapprochement se fait donc sur DEUX choses, jamais sur la seule
+    présence du champ :
+
+        1. la SOURCE du prix publié est bien celle qui sert le montant ;
+        2. la SÉANCE du prix publié est celle de la ligne.
+
+    ⚠️ Rend `None` et non `0` quand la condition n'est pas remplie. Un montant
+    nul est une séance SANS ÉCHANGE — une information réelle et tout à fait
+    différente de « non rapprochable ».
+    """
+    if src_prix not in SOURCES_MONTANT:
+        return (None, None, None)
+    if not prix_asof or prix_asof != lp_asof:
+        return (None, None, None)
+    l = ligne or {}
+    return (l.get("echange_dh"), l.get("seuil_bas"), l.get("seuil_haut"))
+
+
 def _etat_marche():
     """L'état du marché de la dernière séance, ou None.
 
@@ -3509,6 +3545,26 @@ def run(dry_run=False, push=False, token=""):
 
         # Indicateurs techniques
         vol = lp.get("vol", 0)  # volume du jour depuis IDBourse
+
+        # ⚠️ LE MONTANT RÉELLEMENT ÉCHANGÉ, ET LA CONDITION QUI LE REND VALIDE.
+        #
+        # Le fournisseur sert `Volumes` — la contrepartie en dirhams de la
+        # séance — que le projet n'a jamais lue : il approchait partout par
+        # `volume × clôture`. Chaque transaction se faisant à SON prix,
+        # l'approximation dérive. Mesuré contre deux briefings extérieurs sur
+        # la séance du 24/09 : TGCC 26,15 M DH réels contre 25,96 approchés.
+        #
+        # ⚠️ IL N'EST RETENU QUE SI LE PRIX PUBLIÉ VIENT DE LA MÊME LIGNE.
+        # La chaîne de repli peut retenir une chandelle, un historique ou la
+        # table figée (R3) : y accoler le montant d'une ligne CDG écartée
+        # reviendrait à mélanger deux séances. Le rapprochement se fait sur la
+        # SOURCE et sur la DATE, jamais sur la seule présence du champ.
+        #
+        # Reste `None` quand la condition n'est pas remplie — « on ne sait
+        # pas » et non zéro : un montant nul est une séance sans échange, ce
+        # qui est une information tout à fait différente.
+        echange_dh, _seuil_bas, _seuil_haut = _echange_rapprochable(
+            lp, src_prix, prix_asof, lp_asof)
         macd_val = macd_sig = macd_hist = None
         bb_upper = bb_mid = bb_lower = None
         stoch_k = stoch_d = None
@@ -3916,6 +3972,15 @@ def run(dry_run=False, push=False, token=""):
             "price":  round(price, 2),
             "chg":    round(chg, 2),
             "vol":    int(vol) if vol else 0,
+            # ⚠️ Le montant RÉEL de la séance, en dirhams — voir la condition
+            # de validité plus haut. `None` signifie « pas rapprochable », pas
+            # « zéro échangé ».
+            "echange_dh": round(echange_dh, 2) if echange_dh else None,
+            # ⚠️ Bornes de RÉSERVATION intraday (±3 % glissants), à ne pas
+            # confondre avec le plafond journalier de ±10 % (R10) que publie
+            # `niveaux.bornes_seance`.
+            "seuil_bas":  _seuil_bas,
+            "seuil_haut": _seuil_haut,
             "open":   round(opn, 2),
             "close":  round(price, 2),
             "pe":     round(price / BPA_DATA[ticker]["bpa"], 1) if (ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0) else fd.get("pe"),
@@ -4071,6 +4136,24 @@ def run(dry_run=False, push=False, token=""):
                 "baisses": e.get("baisses"),
                 "inchanges": e.get("inchanges"),
                 "valeurs_traitees": e.get("valeurs_traitees"),
+                # ⚠️ LE VOLUME GLOBAL DE LA SÉANCE — publié le 25/09/2026.
+                #
+                # Il était collecté par `marche_history` depuis le 24/09 et le
+                # bloc `masi` n'en portait AUCUN champ. Le terminal affichait
+                # donc la variation de l'indice sans jamais dire sur combien
+                # d'échanges elle s'était faite — or 181 M DH et 400 M DH ne
+                # décrivent pas la même séance, à variation identique.
+                #
+                # Trois champs, parce qu'ils ne disent pas la même chose :
+                #   volume_mad      la contrepartie en DIRHAMS
+                #   titres_echanges le nombre de TITRES
+                #   transactions    le nombre d'OPÉRATIONS
+                # Le rapport des deux derniers donne la taille moyenne d'une
+                # transaction — une séance de 2 293 opérations pour 568 414
+                # titres n'est pas une séance de 50 blocs.
+                "volume_mad": e.get("volume_mad"),
+                "titres_echanges": e.get("titres_echanges"),
+                "transactions": e.get("transactions"),
                 # ⚠️ Le YTD que le WeightEngine croyait incalculable.
                 # RECALCULÉ depuis la clôture et l'ancrage du 31/12 : le champ
                 # tout fait de la source décrit la veille (cf. `_ytd()`).
