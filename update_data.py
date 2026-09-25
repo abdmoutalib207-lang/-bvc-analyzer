@@ -4130,6 +4130,29 @@ def run(dry_run=False, push=False, token=""):
         # échouer un run de production.
         logger.warning(f"  📒 journal des scores non écrit ({_e})")
 
+    # 6a''. Le briefing de la séance — ajouté le 25/09/2026.
+    #
+    # ⚠️ ÉCRIT LE SOIR POUR ÊTRE LU LE MATIN. Le produit est J+1 : le briefing
+    # porte la séance CLOSE. Le générer ici, au run qui fixe le cours, le rend
+    # disponible toute la nuit et à 8h — sans qu'aucune tâche n'ait à se
+    # déclencher le matin. C'est ce qui le rend indépendant du cron matinal,
+    # qui reste le premier risque du produit.
+    #
+    # ⚠️ Le terminal ne collecte rien : il lit ce fichier. Un bouton sur un
+    # site statique ne peut rien faire d'autre.
+    try:
+        from pipeline.briefing import composer as _brief, ecrire as _brief_ecrire
+        _b = _brief(output)
+        _brief_ecrire(_b)
+        _na = len((_b.get("actualites") or {}).get("titres") or [])
+        logger.info(f"  📰 briefing.json — {len(_b.get('constats') or [])} constat(s), "
+                    f"{_na} publication(s) retenue(s)")
+    except Exception as _e:                               # noqa: BLE001
+        # ⚠️ Un briefing manquant ne doit pas faire échouer la publication des
+        # cours. Le terminal DIT alors que le briefing manque, plutôt que
+        # d'afficher un panneau vide qui se lirait « rien à signaler ».
+        logger.warning(f"  📰 briefing non écrit ({_e})")
+
     # 6b. Snapshot post-clôture — sauvegarde les vrais cours de fermeture
     # Permet de recalculer la variation J+1 même si IDBourse retourne des prix stales
     try:

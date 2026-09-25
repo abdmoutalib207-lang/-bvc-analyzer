@@ -1148,7 +1148,12 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
     const t=setInterval(tick,1000);
     return()=>clearInterval(t);
   },[]);
-  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"}];
+  // ⚠️ L'onglet BRIEFING lit `briefing.json`, produit par le run du soir.
+  // Le terminal est un site STATIQUE : il ne collecte rien lui-même. Le
+  // briefing porte la séance close de la veille, il est donc écrit à 18h et
+  // disponible toute la nuit — sans dépendre d'un déclenchement matinal, qui
+  // est aujourd'hui le point faible du produit.
+  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"briefing",label:"BRIEFING"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"}];
   return(
     <div style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
@@ -1567,6 +1572,84 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       </div>
     </div>
   );
+};
+
+// ── BRIEFING — la lecture de la séance close ─────────────────────────────────
+//
+// ⚠️ CE COMPOSANT NE COLLECTE RIEN, ET NE LE PEUT PAS. Le terminal est servi
+// par GitHub Pages : aucun serveur, aucune étape de build. Il lit
+// `briefing.json`, écrit par `pipeline/briefing.py` pendant le run du soir.
+// C'est la même limite qui a rendu les proxys CORS inutilisables le 25/08.
+//
+// ⚠️ LE BRIEFING CONSTATE, IL N'EXPLIQUE PAS. Aucune cause n'y figure : les
+// constats portent leur nombre, les actualités portent leur source et leur
+// lien. « Cosumar publie un résultat en baisse » est un fait sur une
+// publication ; « le marché a baissé à cause de Cosumar » n'en est pas un.
+const Briefing=()=>{
+  const [b,setB]=useState(null);
+  const [etat,setEtat]=useState("chargement");
+  useEffect(()=>{
+    fetch("briefing.json?t="+Math.floor(Date.now()/3600000))
+      .then(r=>r.ok?r.json():null)
+      .then(d=>{setB(d);setEtat(d?"ok":"absent");})
+      .catch(()=>setEtat("absent"));
+  },[]);
+
+  if(etat==="chargement")return <div style={{color:"#8892a4",padding:20}}>Chargement du briefing…</div>;
+  // ⚠️ On DIT que le briefing manque plutôt que d'afficher un panneau vide.
+  // Un écran vide se lit comme « rien à signaler », ce qui est faux.
+  if(etat==="absent")return(
+    <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:20,color:"#8892a4"}}>
+      Le briefing de la dernière séance n'a pas été publié. Il est écrit par le
+      run du soir ; son absence signale que ce run n'a pas abouti.
+    </div>);
+
+  const a=b.actualites||{};
+  const liens=[...(a.titres||[]),...(a.autres||[])];
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+        <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>Lecture de la séance</div>
+        <div style={{fontSize:13,color:"#4db8ff",marginBottom:12}}>{b.seance||"—"}</div>
+        <ul style={{margin:0,paddingLeft:18,fontSize:13.5,lineHeight:1.65,color:"#c8d3e8"}}>
+          {(b.constats||[]).map((c,i)=><li key={i} style={{marginBottom:6}}>{c}</li>)}
+          {(b.constats||[]).length===0&&<li style={{color:"#8892a4"}}>Rien de mesurable à signaler.</li>}
+        </ul>
+        {(b.non_mesurable||[]).length>0&&
+          <div style={{marginTop:12,paddingTop:10,borderTop:"1px solid #1a2540"}}>
+            <div style={{fontSize:11,color:"#8892a4",marginBottom:4}}>Ce que cette lecture ne dit pas :</div>
+            <ul style={{margin:0,paddingLeft:18,fontSize:11.5,color:"#5a6478",lineHeight:1.6}}>
+              {(b.non_mesurable||[]).map((x,i)=><li key={i}>{x}.</li>)}
+            </ul>
+          </div>}
+      </div>
+
+      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+        <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>Publications retenues</div>
+        <div style={{fontSize:11,color:"#5a6478",marginBottom:12}}>
+          Sélection du collecteur — les publications susceptibles de déplacer un cours.
+          {a.fenetre&&<> Fenêtre du {a.fenetre.du} au {a.fenetre.au}.</>}
+          {" "}Titre et lien seulement : le texte appartient à sa source.
+        </div>
+        {liens.length===0
+          ?<div style={{color:"#8892a4",fontSize:13}}>Aucune publication retenue sur cette fenêtre.</div>
+          :liens.map((x,i)=>(
+            <a key={i} href={x.url} target="_blank" rel="noopener noreferrer"
+              style={{display:"block",padding:"8px 0 8px 10px",marginBottom:6,
+                borderBottom:i<liens.length-1?"1px solid #0a1220":"none",
+                borderLeft:`2px solid ${x.officielle?"#00e5a0":"#1a2540"}`,textDecoration:"none"}}>
+              <div style={{fontSize:13,color:"#c8d3e8",marginBottom:3}}>{x.titre}</div>
+              <div style={{fontSize:10.5,color:"#5a6478",display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
+                {(x.tickers||[]).map(t=><span key={t} style={{color:"#4db8ff",fontWeight:600}}>{t}</span>)}
+                <span>{x.source}</span><span>·</span><span>{x.date}</span>
+                {x.type&&<><span>·</span><span>{x.type}</span></>}
+                {/* ⚠️ Un communiqué déposé au régulateur et un article de presse
+                    n'engagent pas la même chose — la distinction doit se voir. */}
+                {x.officielle&&<span style={{color:"#00e5a0"}}>· source officielle</span>}
+              </div>
+            </a>))}
+      </div>
+    </div>);
 };
 
 // ── TICKER NEWS (inline dans Detail) ─────────────────────────────────────────
@@ -3020,6 +3103,7 @@ function App(){
         {tab==="watchlist"&&<Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true} scoreMode={scoreMode}/>}
         {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={choisirTitre} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="weights"  &&<Weights/>}
+        {tab==="briefing" &&<Briefing/>}
         {tab==="smart"    &&<Smart/>}
         {tab==="nlp"      &&<NlpDash/>}
         {tab==="news"     &&<NewsFeed/>}

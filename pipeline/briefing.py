@@ -64,6 +64,26 @@ CONFIANCE_MIN = 3
 # 200 séances valent environ dix mois de cotation.
 MIN_SEANCES_52W = 200
 
+# ⚠️ IL N'Y A PAS DE SEUIL D'IMPORTANCE ICI, ET C'EST DÉLIBÉRÉ.
+#
+# Une première version en portait un, fixé à 65 après mesure de la
+# distribution (médiane 37, quartile supérieur 61, maximum 87). Vérification
+# faite, `enrich_news.py:192` calcule déjà `material = score >= 65` : les deux
+# désignaient EXACTEMENT les mêmes 73 articles sur 300.
+#
+# C'était une seconde définition du mot « important », posée à côté de celle
+# du collecteur. Deux définitions qui concordent aujourd'hui divergeront le
+# jour où l'une des deux bougera, et personne ne saura laquelle fait foi.
+#
+# Le briefing lit donc `material` et ne le recalcule pas. Si le collecteur
+# change son seuil, le briefing suit — c'est le comportement voulu.
+# Un test vérifie que ce fichier ne réintroduit pas de seuil à lui.
+
+# Au-delà, l'article n'est plus une actualité de la séance : il décrit un état
+# antérieur. Deux jours couvrent le week-end, donc le lundi matin le briefing
+# reprend bien ce qui a été publié samedi et dimanche.
+FENETRE_NEWS_JOURS = 3
+
 
 def _fr(x, d=2):
     """Un nombre à la française : virgule décimale, espace pour les milliers.
@@ -223,6 +243,94 @@ def concentration(titres: list, seance: str) -> dict | None:
             "n_titres_actifs": len(montants)}
 
 
+def actualites(articles: list, seance: str, jours=FENETRE_NEWS_JOURS) -> dict:
+    """Ce qui a été PUBLIÉ autour de la séance. Fonction pure.
+
+    ⚠️ LA DISTINCTION QUI AUTORISE CE BLOC DANS UN MODULE QUI REFUSE LES CAUSES
+    « Cosumar publie un résultat net en baisse » est un fait **sur une
+    publication** : daté, attribué, et le lecteur peut ouvrir le lien.
+    « Le marché a baissé à cause de Cosumar » est une cause, et rien ici ne
+    l'établit.
+
+    Le briefing porte le premier et jamais le second. C'est ce qui le sépare
+    d'un récit : il dit ce qui a été publié, il ne dit pas ce que ça a produit.
+
+    ⚠️ ON NE REPUBLIE PAS LES ARTICLES. Titre, source, date et lien — rien de
+    plus. Le champ `rights` vaut « unknown » sur les 300 articles collectés :
+    tant que les conditions de reprise ne sont pas établies, citer le titre et
+    renvoyer à la source est la seule forme sûre. C'est aussi la plus utile :
+    le lecteur va lire l'original.
+
+    ⚠️ LA SÉLECTION EST CELLE DU COLLECTEUR, PAS LA NÔTRE. On retient les
+    articles qu'il a marqués `material`. Le relevé du 25/09 donne 73 articles
+    sur 300, tous rattachés à une société cotée — mais on n'en déduit pas que
+    ce sera toujours le cas : les articles sans ticker sont rangés à part
+    plutôt qu'écartés, et cette liste est vide aujourd'hui sans être morte.
+    """
+    from datetime import date, timedelta
+    try:
+        fin = date.fromisoformat(seance[:10])
+    except (TypeError, ValueError):
+        return {"titres": [], "autres": [], "fenetre": None}
+    debut = fin - timedelta(days=max(0, jours - 1))
+
+    retenus = []
+    for x in articles or []:
+        d = str(x.get("date") or "")[:10]
+        if not d:
+            continue
+        try:
+            j = date.fromisoformat(d)
+        except ValueError:
+            continue
+        if not (debut <= j <= fin):
+            continue
+        # ⚠️ Le drapeau du COLLECTEUR, jamais un seuil recalculé ici.
+        if not x.get("material"):
+            continue
+        retenus.append({
+            "titre": x.get("title"),
+            "source": x.get("publisher") or x.get("source"),
+            "url": x.get("url"),
+            "date": d,
+            "importance": int(_n(x.get("importance")) or 0),
+            "tickers": list(x.get("tickers") or []),
+            "type": x.get("event_type"),
+            # ⚠️ S1 = source officielle (AMMC, société, Bourse). S2 = presse.
+            # La distinction se voit à l'écran : un communiqué déposé au
+            # régulateur et un article de presse n'engagent pas la même chose.
+            "officielle": x.get("source_tier") == "S1",
+        })
+
+    retenus.sort(key=lambda z: (-z["importance"], z["date"]))
+    return {
+        "fenetre": {"du": debut.isoformat(), "au": fin.isoformat()},
+        "titres": [x for x in retenus if x["tickers"]],
+        # ⚠️ Vide au 25/09 — les 73 articles matériels portent tous un ticker.
+        # Conservée quand même : le collecteur peut marquer `material` un
+        # article qu'il n'a pas su rattacher, et le jeter en silence serait
+        # perdre précisément celui qu'on n'attendait pas.
+        "autres": [x for x in retenus if not x["tickers"]],
+    }
+
+
+def charger_articles(chemin=None) -> list:
+    """Les articles publiés, ou une liste vide. Ne lève jamais.
+
+    ⚠️ Un briefing sans actualités reste utile — la lecture de la séance ne
+    dépend pas d'elles. L'inverse n'est pas vrai : un briefing absent ne sert
+    personne. La collecte d'actualités ne doit donc jamais pouvoir l'empêcher.
+    """
+    from pathlib import Path
+    p = Path(chemin) if chemin else (
+        Path(__file__).resolve().parent.parent / "news.json")
+    try:
+        d = __import__("json").loads(p.read_text(encoding="utf-8"))
+        return d.get("articles") or [] if isinstance(d, dict) else []
+    except Exception:                                     # noqa: BLE001
+        return []
+
+
 def composer(data: dict) -> dict:
     """Le briefing complet, sous forme de constats. Fonction pure.
 
@@ -242,6 +350,8 @@ def composer(data: dict) -> dict:
         "ytd_pct": _n(masi.get("ytd_pct")),
         "constats": [],
         "non_mesurable": [],
+        # ⚠️ Ce qui a été PUBLIÉ, jamais ce que ça aurait causé.
+        "actualites": actualites(charger_articles(), seance),
     }
 
     a = b["accord"]
@@ -316,6 +426,35 @@ def composer(data: dict) -> dict:
         "cours et des volumes, il ne mesure pas de causes")
 
     return b
+
+
+def ecrire(b: dict, chemin=None) -> str:
+    """Publie le briefing dans un fichier que le terminal peut lire.
+
+    ⚠️ POURQUOI UN FICHIER, ET PAS UN BOUTON QUI COLLECTE.
+    Le terminal est un site statique servi par GitHub Pages : pas de serveur,
+    pas d'étape de build. Un bouton ne peut RIEN collecter — il ne sait que
+    lire un fichier déjà publié, comme `index.html` le fait déjà pour
+    `news.json`. C'est la même limite qui a rendu les proxys CORS inutilisables
+    le 25/08/2026.
+
+    **Le workflow collecte, le bouton affiche.**
+
+    ⚠️ POURQUOI LE BRIEFING DU MATIN SE GÉNÈRE LE SOIR.
+    Le produit est J+1 : le briefing porte sur la séance CLOSE de la veille.
+    Produit au run de 18h, il est disponible toute la nuit et à 8h sans
+    qu'aucune tâche n'ait à se déclencher le matin. Cela le rend indépendant
+    du cron matinal — qui est, au 25/09, le premier risque du produit et un
+    chantier encore ouvert. Promettre « à 8h » en s'appuyant sur un
+    déclencheur non fiable, c'était promettre ce qu'on ne tient pas.
+    """
+    import json
+    from pathlib import Path
+    p = Path(chemin) if chemin else (
+        Path(__file__).resolve().parent.parent / "briefing.json")
+    p.write_text(json.dumps(b, ensure_ascii=False, separators=(",", ":")),
+                 encoding="utf-8")
+    return str(p)
 
 
 def texte(b: dict) -> str:

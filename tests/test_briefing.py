@@ -214,6 +214,134 @@ def test_un_flux_vide_ne_fait_pas_lever():
     assert bf.texte(b)
 
 
+# ── ⚠️ Les actualités : des publications, jamais des causes ────────────────
+
+def _art(titre="T", date="2026-09-24", material=True, tickers=("CSR",),
+         importance=80, tier="S1", type_="resultats"):
+    return {"title": titre, "date": date, "material": material,
+            "tickers": list(tickers), "importance": importance,
+            "source_tier": tier, "event_type": type_,
+            "publisher": "AMMC", "url": "https://exemple.ma/a"}
+
+
+def test_le_briefing_ne_definit_pas_son_propre_seuil_de_materialite():
+    """⚠️ LE DÉFAUT QUE CE TEST EMPÊCHE DE REVENIR.
+
+    Une première version portait `IMPORTANCE_MIN = 65`, fixé après mesure de
+    la distribution. Vérification faite, `enrich_news.py:192` calcule déjà
+    `material = score >= 65` : les deux désignaient EXACTEMENT les mêmes
+    73 articles sur 300.
+
+    C'était une seconde définition du mot « important », posée à côté de celle
+    du collecteur. Deux définitions qui concordent aujourd'hui divergeront le
+    jour où l'une bougera, et personne ne saura laquelle fait foi.
+
+    Lu par l'AST : le fichier CITE le seuil dans ses commentaires pour
+    expliquer pourquoi il a disparu.
+    """
+    import ast
+    arbre = ast.parse((RACINE / "pipeline" / "briefing.py").read_text(encoding="utf-8"))
+    noms = {t.id for n in ast.walk(arbre) if isinstance(n, ast.Assign)
+            for t in n.targets if isinstance(t, ast.Name)}
+    assert "IMPORTANCE_MIN" not in noms, (
+        "le briefing redéfinit un seuil d'importance — c'est le travail du "
+        "collecteur, et deux définitions finiront par diverger")
+
+
+def test_la_selection_suit_le_drapeau_du_collecteur():
+    a = bf.actualites([_art("retenu", material=True),
+                       _art("écarté", material=False)], "2026-09-24")
+    assert [x["titre"] for x in a["titres"]] == ["retenu"]
+
+
+def test_la_fenetre_couvre_le_week_end():
+    """⚠️ Le lundi matin, le briefing doit reprendre ce qui a été publié
+    samedi et dimanche. Une fenêtre d'un jour les perdrait chaque semaine."""
+    a = bf.actualites([_art("vendredi", date="2026-09-22"),
+                       _art("samedi", date="2026-09-23"),
+                       _art("lundi", date="2026-09-24"),
+                       _art("trop vieux", date="2026-09-21")], "2026-09-24")
+    assert {x["titre"] for x in a["titres"]} == {"vendredi", "samedi", "lundi"}
+
+
+def test_un_article_posterieur_a_la_seance_est_ecarte():
+    """⚠️ Le briefing porte la séance CLOSE. Y verser une publication du
+    lendemain donnerait au lecteur une information que le marché n'avait pas
+    quand il a coté."""
+    a = bf.actualites([_art("demain", date="2026-09-25")], "2026-09-24")
+    assert a["titres"] == []
+
+
+def test_la_source_officielle_se_distingue_de_la_presse():
+    """⚠️ Un communiqué déposé au régulateur et un article de presse
+    n'engagent pas la même chose."""
+    a = bf.actualites([_art("officiel", tier="S1"),
+                       _art("presse", tier="S2")], "2026-09-24")
+    par = {x["titre"]: x["officielle"] for x in a["titres"]}
+    assert par == {"officiel": True, "presse": False}
+
+
+def test_le_texte_integral_n_est_jamais_repris():
+    """⚠️ `rights` vaut « unknown » sur les 300 articles collectés. Tant que
+    les conditions de reprise ne sont pas établies, citer le titre et renvoyer
+    à la source est la seule forme sûre — et la plus utile."""
+    a = bf.actualites([dict(_art(), summary="A" * 500,
+                            content="texte intégral de l'article")],
+                      "2026-09-24")
+    x = a["titres"][0]
+    assert "summary" not in x and "content" not in x
+    assert set(x) == {"titre", "source", "url", "date", "importance",
+                      "tickers", "type", "officielle"}
+
+
+def test_un_article_materiel_sans_ticker_n_est_pas_jete():
+    """⚠️ Vide au 25/09 — les 73 articles matériels portent tous un ticker.
+    Mais jeter en silence celui qu'on n'attendait pas serait perdre
+    précisément celui qui compte."""
+    a = bf.actualites([_art("orphelin", tickers=())], "2026-09-24")
+    assert [x["titre"] for x in a["autres"]] == ["orphelin"]
+
+
+def test_les_actualites_absentes_n_empechent_pas_le_briefing():
+    """⚠️ Un briefing sans actualités reste utile. L'inverse n'est pas vrai."""
+    assert bf.charger_articles("/inexistant/news.json") == []
+    b = bf.composer(_flux({"change_pct": -1.0, "hausses": 1, "baisses": 5,
+                           "inchanges": 0}))
+    assert b["constats"]
+
+
+# ── Le fichier que le terminal lit ─────────────────────────────────────────
+
+def test_le_briefing_s_ecrit_dans_un_fichier(tmp_path):
+    """⚠️ Le terminal est un site STATIQUE : il ne collecte rien. Le bouton
+    lit un fichier déjà publié — c'est la même limite qui a rendu les proxys
+    CORS inutilisables le 25/08/2026."""
+    chemin = tmp_path / "briefing.json"
+    bf.ecrire({"seance": "2026-09-24", "constats": ["un constat"]}, chemin)
+    assert json.loads(chemin.read_text(encoding="utf-8"))["seance"] == "2026-09-24"
+
+
+def test_le_moteur_ecrit_le_briefing():
+    """Un briefing qu'aucun run ne produit laisse le bouton vide à jamais."""
+    import ast
+    arbre = ast.parse((RACINE / "update_data.py").read_text(encoding="utf-8"))
+    assert any(isinstance(n, ast.ImportFrom)
+               and (n.module or "").endswith("briefing")
+               for n in ast.walk(arbre)), \
+        "le moteur ne génère pas briefing.json"
+
+
+def test_le_terminal_lit_le_briefing_et_dit_quand_il_manque():
+    """⚠️ Un panneau vide se lit « rien à signaler », ce qui est faux. Le
+    terminal doit DIRE que le briefing manque."""
+    ecran = (RACINE / "index.html").read_text(encoding="utf-8")
+    assert "briefing.json" in ecran, "le terminal ne lit pas le briefing"
+    assert '{id:"briefing"' in ecran, "l'onglet BRIEFING n'existe pas"
+    i = ecran.find('etat==="absent"')
+    assert i > 0 and "n'a pas été publié" in ecran[i:i + 400], (
+        "l'absence de briefing s'afficherait comme un panneau vide")
+
+
 # ── Le branchement dans le bulletin ────────────────────────────────────────
 
 def test_le_bulletin_porte_la_lecture_dans_SES_DEUX_rendus():
