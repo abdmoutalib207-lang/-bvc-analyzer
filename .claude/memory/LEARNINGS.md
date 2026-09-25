@@ -671,3 +671,58 @@ CoursVeille`. Sur un cas dégénéré, deux implémentations opposées passent.
 (`CoursPremiereCotation`) et la clôture sont tous deux collectés : le quotient
 est exact et porte sur la séance publiée, par construction. Le champ brut est
 conservé sous `ytd_pct_source_veille` — pour CONSTATER l'écart, pas le supposer.
+
+## Deux bornes de cours coexistent à la BVC, et on les confond facilement (25/09/2026)
+
+Le fournisseur sert `SeuilBas` et `SeuilHaut` par instrument. **Ce ne sont PAS
+les ±10 % de la règle journalière.**
+
+Relevé sur les 81 instruments, en séance :
+
+```
+33 instruments  exactement ±3,00 %
+ 1 instrument   ±10 %
+47 instruments  ASYMÉTRIQUES
+```
+
+Les asymétriques ne sont pas des anomalies : la bande **glisse avec le cours**.
+
+```
+ADI   387,00 → [375,40 ; 398,60]   −3,00 % / +3,00 %   (n'a pas bougé)
+BOA   194,90 → [184,50 ; 195,90]   −5,34 % / +0,51 %   (a déjà glissé)
+```
+
+| mécanisme | ce qu'il borne | effet d'un franchissement |
+|---|---|---|
+| **réservation ±3 %** | un ÉCHANGE en séance | suspend la cotation |
+| **plafond ±10 %** (R10) | la VARIATION du jour | la séance ne peut aller plus loin |
+
+⚠️ **Publier la réservation comme borne du jour donnerait une fourchette trois
+fois trop étroite, présentée comme la règle.**
+
+⚠️ Le plafond de ±10 % est confirmé PAR LES DONNÉES et pas seulement par la
+règle : sur les 79 séries, les variations d'une séance à l'autre sont
+uniformes autour de dix occurrences jusqu'à 9,8 %, puis **52 à 9,9 % et 286 à
+10,0 %**. Le mur se voit dans la distribution.
+
+---
+
+## `Volumes` est le montant échangé, `QteEchangee` la quantité (25/09/2026)
+
+Le projet ne lisait que la seconde et approchait partout le montant par
+`volume × clôture`. Or chaque transaction se fait à SON prix.
+
+Écart mesuré contre deux briefings extérieurs, séance du 24/09 :
+
+```
+TGCC   26,15 M DH réels   contre 25,96 approchés   (−0,7 %)
+MSA    16,86 M DH réels   contre 16,77 approchés   (−0,5 %)
+```
+
+Toujours dans le même sens ce jour-là, parce que la clôture était le plus bas
+de la séance sur ces deux titres.
+
+⚠️ **`echange_median_dh` reste approché et doit le rester** : cette médiane
+porte sur vingt séances et le montant réel n'est disponible que pour la séance
+courante. Mélanger deux définitions dans une même série serait pire que
+l'approximation.

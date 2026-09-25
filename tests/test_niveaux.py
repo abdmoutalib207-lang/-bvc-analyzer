@@ -205,3 +205,50 @@ def test_l_ecran_distingue_visuellement_les_deux_familles():
         "les deux familles ne sont pas distinguées à l'écran")
     assert "règle BVC" in bloc, (
         "la borne réglementaire s'affiche sans dire qu'elle vient de la règle")
+
+
+# ── ⚠️ Deux bornes coexistent, et elles ne disent pas la même chose ────────
+
+def test_la_borne_publiee_est_le_plafond_journalier_pas_la_reservation():
+    """⚠️ LA CONFUSION QUE CE TEST EMPÊCHE — elle a failli être commise.
+
+    Le fournisseur sert `SeuilBas`/`SeuilHaut`, qu'on pourrait prendre pour
+    la borne réglementaire. Relevé sur 81 instruments le 25/09/2026 :
+
+        33 affichent exactement ±3,00 %
+         1 affiche ±10 %
+        47 sont ASYMÉTRIQUES
+
+    Ce sont les bornes de RÉSERVATION intraday, qui glissent avec le cours.
+    Les publier comme borne du jour donnerait une fourchette trois fois trop
+    étroite présentée comme la règle.
+
+        réservation ±3 %   borne un ÉCHANGE ; la franchir suspend la cotation
+        plafond ±10 %      borne la VARIATION de la séance entière (R10)
+
+    Attendu à la main : 100 × 1,10 = 110, et non 103.
+    """
+    b = nv.bornes_reglementaires(100.0)
+    assert b["plafond"] == 110.0, "la borne publiée n'est pas le plafond du jour"
+    assert b["plancher"] == 90.0
+
+
+def test_la_methode_distingue_les_deux_mecanismes():
+    """⚠️ La distinction doit être lisible dans la SORTIE, pas seulement dans
+    le code : c'est le lecteur qui doit pouvoir la faire."""
+    assert "réservation" in nv.bornes_reglementaires.__doc__.lower()
+    assert "R10" in nv.bornes_reglementaires(100.0)["_methode"]
+
+
+def test_le_moteur_collecte_le_montant_reellement_echange():
+    """⚠️ Le fournisseur sert `Volumes` — le montant réel — et le projet ne
+    lisait que la QUANTITÉ, approchant partout par `volume × clôture`.
+
+    Écart mesuré contre deux briefings extérieurs sur la séance du 24/09 :
+    TGCC 26,15 M DH réels contre 25,96 approchés ; MSA 16,86 contre 16,77.
+    """
+    src = (RACINE / "update_data.py").read_text(encoding="utf-8")
+    assert '"echange_dh": _f(d.get("Volumes"))' in src, (
+        "le montant réellement échangé n'est pas collecté")
+    assert '"seuil_bas":  _f(d.get("SeuilBas"))' in src, (
+        "les bornes de réservation ne sont pas collectées")

@@ -1361,6 +1361,42 @@ def fetch_all_cdg():
             "high":  _f(d.get("PlusHaut")),
             "low":   _f(d.get("PlusBas")),
             "vol":   int(_f(d.get("QteEchangee")) or 0),
+            # ⚠️ LE MONTANT RÉELLEMENT ÉCHANGÉ — collecté le 25/09/2026.
+            #
+            # Le fournisseur le sert sous `Volumes` depuis toujours et nous ne
+            # lisions que la QUANTITÉ. Partout où un montant était nécessaire,
+            # le projet l'approchait par `volume × clôture` — une
+            # approximation, parce que chaque transaction se fait à SON prix
+            # et non à la clôture.
+            #
+            # Écart mesuré sur la séance du 24/09, contre deux briefings
+            # extérieurs qui publient le vrai montant :
+            #     TGCC   26,15 M DH réels   contre 25,96 approchés   (−0,7 %)
+            #     MSA    16,86 M DH réels   contre 16,77 approchés   (−0,5 %)
+            # Toujours dans le même sens, parce que la clôture du 24/09 était
+            # le plus bas de la séance sur ces deux titres.
+            #
+            # ⚠️ Il ne remplace PAS `echange_median_dh` : cette médiane porte
+            # sur vingt séances et nous n'avons le montant réel que pour la
+            # séance courante. L'historique reste approché, et le dire vaut
+            # mieux que de mélanger deux définitions dans une même série.
+            "echange_dh": _f(d.get("Volumes")),
+            # ⚠️ LES SEUILS DU FOURNISSEUR NE SONT PAS LA LIMITE DE ±10 %.
+            #
+            # Relevé sur 81 instruments le 25/09 : 33 affichent exactement
+            # ±3,00 %, un seul ±10 %, les 47 autres sont ASYMÉTRIQUES. Ce sont
+            # les bornes de RÉSERVATION intraday, et elles GLISSENT avec le
+            # cours — d'où l'asymétrie sur un titre qui a déjà bougé.
+            #
+            #     ADI   387,00 → [375,40 ; 398,60]   −3,00 % / +3,00 %
+            #     BOA   194,90 → [184,50 ; 195,90]   −5,34 % / +0,51 %  (glissé)
+            #
+            # Les deux mécanismes coexistent : la réservation borne un ÉCHANGE
+            # en séance, le plafond de ±10 % borne la VARIATION du jour (R10).
+            # Confondre les deux ferait publier une borne trois fois trop
+            # étroite comme si c'était la règle journalière.
+            "seuil_bas":  _f(d.get("SeuilBas")),
+            "seuil_haut": _f(d.get("SeuilHaut")),
             "asof":  asof,
         }
     global _cdg_lignes

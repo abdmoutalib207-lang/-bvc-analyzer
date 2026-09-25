@@ -65,6 +65,31 @@ def bornes_reglementaires(cloture) -> dict | None:
     la BVC refuse un cours au-delà de ±10 % de la référence (R10). Il borne le
     possible, il ne prédit rien.
 
+    ⚠️ CE N'EST PAS LA SEULE BORNE, ET LA NUANCE A FAILLI MANQUER.
+    Le fournisseur sert AUSSI `SeuilBas` et `SeuilHaut`, et ce ne sont pas
+    ceux-ci. Relevé sur 81 instruments le 25/09/2026 : 33 affichent exactement
+    ±3,00 %, un seul ±10 %, et 47 sont ASYMÉTRIQUES — parce que ce sont les
+    bornes de **réservation intraday**, qui GLISSENT avec le cours :
+
+        ADI   387,00 → [375,40 ; 398,60]   −3,00 % / +3,00 %
+        BOA   194,90 → [184,50 ; 195,90]   −5,34 % / +0,51 %   (déjà glissée)
+
+    Les deux mécanismes coexistent et ne disent pas la même chose :
+
+        réservation ±3 %   borne un ÉCHANGE en séance ; la franchir suspend
+                           la cotation, elle ne clôt pas la journée
+        plafond ±10 %      borne la VARIATION de la séance entière (R10)
+
+    Ce module publie le SECOND, qui est celui qui décrit la journée. Le
+    premier est collecté dans `data.json` sous `seuil_bas`/`seuil_haut` mais
+    n'est pas présenté ici comme une borne du jour : il vaut pour la séance en
+    cours et le produit est J+1.
+
+    ⚠️ Le plafond de ±10 % est confirmé par les données et non seulement par
+    la règle : sur les 79 séries, les variations d'une séance à l'autre sont
+    uniformes autour de dix occurrences jusqu'à 9,8 %, puis **52 à 9,9 % et
+    286 à 10,0 %**. Le mur est visible.
+
     ⚠️ Il se calcule sur la clôture publiée, qui sert de référence à la séance
     suivante. Le jour d'une reprise de cotation après OPA, l'autorité fixe une
     référence NEUVE et ce calcul ne s'applique pas — cas d'école documenté
