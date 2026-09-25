@@ -865,6 +865,7 @@ def neutraliser_si_isin_suspect(ticker, price, rsi, ma20, ma50, h90, l90):
         return rsi, ma20, ma50, h90, l90, False
     if not (ma20 > 3.0 * price or price > 3.0 * ma20):
         return rsi, ma20, ma50, h90, l90, False
+
     logger.warning(
         f"  {ticker}: ANOMALIE ISIN — MA20={ma20} vs prix={price} "
         f"(ratio {max(ma20, price) / min(ma20, price):.1f}x) — "
@@ -1597,6 +1598,29 @@ def fetch_masi_cdg():
         if re.match(r"\d{2}/\d{2}/\d{4}", brut):
             j, mo, a = brut[:10].split("/")
             asof = f"{a}-{mo}-{j}"
+        # ⚠️ TRENTE CHAMPS SERVIS, TROIS LUS — corrigé le 24/09/2026.
+        #
+        # Le CLAUDE.md le signalait depuis le 28/08 : « l'endpoint livre en
+        # prime la largeur de marché — hausses, baisses, inchangés, nombre de
+        # valeurs — NON EXPLOITÉE pour l'instant ». Elle partait à la poubelle
+        # à chaque run, quatre fois par jour ouvré.
+        #
+        # ⚠️ Et le YTD y est aussi. Le WeightEngine le déclare « non calculable
+        # aujourd'hui », ce qui neutralise deux régimes de pondération depuis
+        # l'origine du projet. `VariationAnneeP` le donne.
+        #
+        # La collecte n'entre dans AUCUN calcul : elle constitue l'historique
+        # sans lequel aucune mesure ne sera possible (R8).
+        try:
+            from pipeline.marche_history import enregistrer as _marche
+            if _marche(ligne, asof):
+                logger.info("état du marché enregistré pour la séance "
+                            f"{asof} — {ligne.get('NbrHausse')} hausses / "
+                            f"{ligne.get('NbrBaisse')} baisses")
+        except Exception as _e:
+            # Une collecte annexe ne doit jamais empêcher la publication.
+            logger.warning(f"état du marché non enregistré ({_e})")
+
         return {"value": float(ligne["Cours"]),
                 "chg": float(ligne.get("VariationP") or 0),
                 "asof": asof}
@@ -2140,17 +2164,63 @@ def _indicateurs_depuis_candles(df_candles):
 
 
 def _volume_median(df_candles, n=20):
-    """Volume médian des `n` dernières séances. None si indéterminable.
+    """Volume médian des `n` dernières séances, EN TITRES. None si indéterminable.
 
     La médiane, et non la moyenne : une seule séance animée sur un titre mort
     suffirait à faire remonter une moyenne, alors que la médiane reste à zéro.
-    C'est précisément ce qu'on cherche à voir.
+
+    ⚠️ Cette grandeur ne se compare PAS d'un titre à l'autre — voir
+    `_echange_median_dh()`, qui est ce sur quoi le plafond de liquidité
+    s'appuie désormais.
     """
     if df_candles is None:
         return None
     try:
         v = df_candles["v"].tail(n).dropna()
         return float(v.median()) if len(v) else None
+    except Exception:
+        return None
+
+
+def _echange_median_dh(df_candles, n=20):
+    """Montant médian échangé par séance, en dirhams. None si indéterminable.
+
+    ⚠️ POURQUOI EN DIRHAMS, ET PAS EN TITRES — corrigé le 24/09/2026.
+
+    Le plafond de liquidité comptait des TITRES. Or un titre n'est pas une
+    unité comparable :
+
+        10 titres de CMT à 3 567 DH  =  35 670 DH
+        10 titres d'ADH  à    37 DH  =     370 DH
+
+    Le même seuil traitait les deux identiquement. Mesuré sur la livraison du
+    24/09, le plafond ne frappait que 7 titres alors que **27 échangeaient
+    moins de 100 000 DH par séance** — et il en laissait passer deux à 5/5 :
+
+        SRM   6 224 DH par séance — et c'est un MASI 1
+        MIC  31 872 DH par séance
+
+    Une étude externe de la liquidité de la cote, conduite indépendamment,
+    compte 32 titres sous 100 kMAD d'ADTV. Le même ordre de grandeur, par une
+    autre voie.
+
+    ⚠️ Le produit se fait séance par séance AVANT la médiane, et non médiane du
+    volume × dernier cours : un titre dont le cours a doublé sur la fenêtre
+    verrait sinon son activité passée réévaluée au prix d'aujourd'hui.
+
+    ⚠️ C'est une approximation — le vrai montant échangé utilise le cours moyen
+    pondéré de chaque séance, que nous n'avons pas. La clôture en est le
+    meilleur substitut disponible, et l'écart reste sans effet à l'échelle
+    d'un seuil de liquidité.
+    """
+    if df_candles is None:
+        return None
+    try:
+        bloc = df_candles.tail(n)
+        v = bloc["v"].astype(float)
+        c = bloc["c"].astype(float)
+        montants = (v * c).dropna()
+        return float(montants.median()) if len(montants) else None
     except Exception:
         return None
 
@@ -2437,7 +2507,8 @@ def date_analyse() -> str:
 
 def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
                  isin_suspect=False, ratios_calcules=False,
-                 chg=None, vol=None, prix_diffuse=None, cap_source=None) -> dict:
+                 chg=None, vol=None, prix_diffuse=None, cap_source=None,
+                 seances_depuis_reprise=None) -> dict:
     """Provenance du prix et score de confiance 0–5.
 
     Le score suit la spécification du CLAUDE.md, un point par garantie :
@@ -2519,7 +2590,27 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
     # La médiane sur vingt séances, et non la moyenne : une seule séance animée
     # sur un titre mort suffirait à masquer le problème.
     vol_median = _volume_median(df_candles)
-    if vol_median is not None and vol_median < 10:
+    echange_dh = _echange_median_dh(df_candles)
+
+    # ⚠️ LE SEUIL EST EN DIRHAMS DEPUIS LE 24/09/2026, ET C'EST TOUT L'OBJET.
+    #
+    # Il comptait des TITRES : dix titres de CMT valent 35 670 DH, dix titres
+    # d'Addoha en valent 370, et le même seuil les traitait pareil. Il ne
+    # frappait que 7 titres quand 27 échangeaient moins de 100 000 DH par
+    # séance — dont SRM, un MASI 1, à 6 224 DH et pourtant 5/5 de confiance.
+    #
+    # 100 000 DH n'est pas un chiffre rond choisi pour sa forme : c'est le
+    # seuil qu'emploie une étude externe de la liquidité de la cote, et il
+    # sépare les titres sur lesquels un ordre de taille normale passe de ceux
+    # où il déplace le cours à lui seul.
+    #
+    # ⚠️ Le plafond à 2 est conservé, pas durci : un titre peu liquide n'a pas
+    # une donnée fausse, il a un signal inactionnable. La nuance est celle
+    # entre « je ne sais pas » et « vous ne pourrez pas ».
+    if echange_dh is not None and echange_dh < 100_000:
+        confiance = min(confiance, 2)
+    elif echange_dh is None and vol_median is not None and vol_median < 10:
+        # Repli quand le montant n'est pas calculable — mieux que rien.
         confiance = min(confiance, 2)
 
     # ⚠️ Suspension de cotation — ajouté le 09/09/2026 après CMT.
@@ -2560,7 +2651,31 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         # qu'on reproche à la table figée.
         "cap_source":   cap_source,
         "vol_median20": vol_median,
+        # ⚠️ La grandeur sur laquelle le plafond de liquidité s'appuie. Publiée
+        # parce qu'un seuil qu'on ne peut pas vérifier ne se discute pas.
+        "echange_median_dh": (None if echange_dh is None
+                              else round(echange_dh)),
         "prix_asof":    prix_asof or None,
+        # ⚠️ POURQUOI LE SIGNAL EST SUSPENDU — publié le 24/09/2026.
+        #
+        # Un titre qui vient de reprendre sa cotation sortait à « Données
+        # insuffisantes », et c'est un CONTRESENS : ses données ne manquent
+        # pas. CMT porte 687 bougies, des fondamentaux réels, 3 470 mentions
+        # et un cours du jour. Ce sont ses indicateurs TECHNIQUES qui sont
+        # sans objet — ils décrivent encore le régime de prix d'avant la
+        # suspension.
+        #
+        # Le frontend tient déjà ce raisonnement pour les titres SUSPENDUS :
+        # « les données ne manquent pas, le titre ne cote plus ». Il lui
+        # manquait le fait pour le tenir ici aussi.
+        #
+        # ⚠️ Rien n'est réhabilité. La confiance reste plafonnée et le signal
+        # suspendu : on corrige ce qui est DIT, pas ce qui est calculé. Le
+        # calcul vient d'un incident réel du 16/09, où le moteur a publié
+        # ACHETER ★★ à 5 sur 5 sur un cours qui paraissait survendu face à des
+        # moyennes deux fois trop hautes.
+        "reprise_recente": seances_depuis_reprise is not None,
+        "seances_depuis_reprise": seances_depuis_reprise,
         # ⚠️ LA FRAÎCHEUR DU BLOC QUI PÈSE LE PLUS — ajouté le 24/09/2026.
         #
         # `prix_asof` datait le cours depuis le 10/08 ; rien ne datait les
@@ -3582,7 +3697,8 @@ def run(dry_run=False, push=False, token=""):
                 ratios_calcules=bool(
                     ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0),
                 chg=chg, vol=vol, prix_diffuse=_prix_diffuse,
-                cap_source=_cap_source),
+                cap_source=_cap_source,
+                seances_depuis_reprise=_seances_depuis_reprise),
             # Code officiel BVC, pour l'affichage seulement. Nos symboles
             # internes sont la clé primaire d'ISIN_MAP, des chandelles et de
             # six ans de corpus WhatsApp : on ne les renomme pas. Mais un

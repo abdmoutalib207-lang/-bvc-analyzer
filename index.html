@@ -1502,6 +1502,15 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                        cote plus. */
                     : meta(r).susp
                     ? <Chip label="SUSPENDU" bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40"/>
+                    /* ⚠️ Même raisonnement, deuxième cas — ajouté le 24/09.
+                       Un titre qui vient de reprendre sa cotation sortait à
+                       « Données insuffisantes », alors que ses données sont
+                       complètes : ce sont ses indicateurs TECHNIQUES qui sont
+                       sans objet, parce qu'ils décrivent le régime de prix
+                       d'avant la suspension. Le signal reste suspendu — on
+                       corrige ce qui est dit, pas ce qui est calculé. */
+                    : meta(r).reprise_recente
+                    ? <Chip label="REPRISE DE COTATION" bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040"/>
                     : meta(r).conf<=1
                     ? <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550"/>
                     : <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd}/>}</td>
@@ -1664,7 +1673,9 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               : meta(r).susp
               ? <Chip label={`SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`} bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40" sz={12}/>
               : meta(r).conf<=1
-              ? <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550" sz={12}/>
+              ? (meta(r).reprise_recente
+                 ? <Chip label={`REPRISE — ${meta(r).seances_depuis_reprise} séance(s)`} bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040" sz={12}/>
+                 : <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550" sz={12}/>)
               : <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd} sz={12}/>}
             {/* Le motif, pour que la suspension ne soit pas une énigme : une
                 OPA n'est pas une sanction, et la nuance change tout pour le

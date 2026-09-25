@@ -168,12 +168,49 @@ def test_le_frontend_nomme_la_suspension():
     # faut regarder l'ordre DANS chacune des deux cellules de signal, seules
     # concernées — c'est ce qu'a montré la première version de ce test, qui
     # échouait sur du code pourtant correct.
+    #
+    # ⚠️ La fenêtre est passée de 400 à 1200 caractères le 24/09/2026. Un
+    # troisième cas s'est intercalé entre les deux — la REPRISE de cotation,
+    # qui relève du même raisonnement — et le commentaire qui l'explique a
+    # éloigné les deux motifs. La règle défendue n'a pas changé : la
+    # suspension doit être testée AVANT la confiance. C'est la distance qui
+    # était épinglée, pas l'ordre.
     cellules = [c for c in re.findall(
-        r"meta\(r\)\.susp\s*\n?\s*\?[\s\S]{0,400}?meta\(r\)\.conf<=1", s)]
+        r"meta\(r\)\.susp\s*\n?\s*\?[\s\S]{0,1200}?meta\(r\)\.conf<=1", s)]
     assert len(cellules) == 2, (
         f"{len(cellules)} cellule(s) où la suspension précède la confiance ; "
         "il en faut deux — le classement et la fiche. Ailleurs, un titre "
         "suspendu s'afficherait « Données insuffisantes »")
+
+
+def test_le_frontend_nomme_aussi_la_reprise_de_cotation():
+    """⚠️ MÊME CONTRESENS, DEUXIÈME CAS — constaté le 24/09/2026.
+
+    CMT sortait à « Données insuffisantes » six séances après sa reprise, alors
+    qu'il porte 687 bougies, des fondamentaux réels, 3 470 mentions et un cours
+    du jour. Ses données ne manquent pas : ce sont ses indicateurs TECHNIQUES
+    qui sont sans objet, parce qu'ils décrivent encore le régime de prix
+    d'avant la suspension.
+
+    ⚠️ Rien n'est réhabilité par ce test. La confiance reste plafonnée et le
+    signal suspendu — c'est le calcul du 16/09, né d'un incident réel où le
+    moteur avait publié ACHETER ★★ à 5 sur 5 sur un cours qui paraissait
+    survendu face à des moyennes deux fois trop hautes. On corrige ce qui est
+    DIT, pas ce qui est calculé.
+    """
+    s = (RACINE / "index.html").read_text(encoding="utf-8")
+    assert "meta(r).reprise_recente" in s, (
+        "le frontend ne lit pas le drapeau de reprise")
+    assert "REPRISE DE COTATION" in s, (
+        "le classement n'annonce pas la reprise")
+    assert "seances_depuis_reprise" in s, (
+        "la fiche ne dit pas depuis combien de séances")
+    # La reprise doit être testée AVANT la confiance, comme la suspension.
+    cellules = re.findall(
+        r"meta\(r\)\.reprise_recente[\s\S]{0,600}?meta\(r\)\.conf<=1", s)
+    assert cellules, (
+        "un titre en reprise récente s'afficherait « Données insuffisantes » : "
+        "le test de confiance passe avant celui de la reprise")
 
 
 # ── les données publiées ─────────────────────────────────────────────────
