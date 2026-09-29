@@ -751,42 +751,54 @@ porte sur vingt séances et le montant réel n'est disponible que pour la séanc
 courante. Mélanger deux définitions dans une même série serait pire que
 l'approximation.
 
-## Volume de l'indice : Central, Bloc, et ce que notre chiffre couvre (29/09/2026)
+## Volume de l'indice : notre chiffre ne compte PAS les blocs (29/09/2026)
 
-L'application CDG sépare deux onglets : **« Central »** — le carnet d'ordres —
-et **« Bloc »** — le marché de blocs, où passent les opérations de gré à gré
-(précision d'Abd Moutalib, 29/09).
+> ⚠️ **Cette note remplace une première version fausse, fusionnée le même
+> jour.** Elle concluait que notre volume comptait « Central + Bloc ». Abd
+> Moutalib l'a contestée — un bloc se chiffre en montants colossaux et
+> l'actualité en parle — et la mesure lui donne raison.
 
-### Ce qui est mesuré
+L'application CDG sépare **« Central »** (le carnet d'ordres) et **« Bloc »**
+(le marché de blocs, opérations de gré à gré).
 
-| séance | « Central » (capture) | somme du bulletin | notre `volume_mad` |
+### Ce qui réfute l'hypothèse « Central + Bloc »
+
+L'Économiste du 26/09 : **« Maroc Telecom : la cession de 6 % bouclée »**.
+Six pour cent de Maroc Telecom représentent des dizaines de millions de titres
+et des milliards de dirhams. Or la ligne IAM porte :
+
+```
+25/09   203 950 titres    19 351 309,65 DH
+28/09    20 828 titres     1 970 348,81 DH
+```
+
+**Aucune trace.** Ni dans notre volume, ni dans le bulletin, ni dans
+« Central ». Les vraies opérations de bloc ne passent pas dans les chiffres
+que nous collectons — et l'actualité est le seul endroit où elles se voient.
+
+⚠️ La date d'exécution de la cession n'est pas établie : l'article est du
+samedi 26/09 et ne se lit pas au-delà de son titre.
+
+### Ce qui reste inexpliqué
+
+| séance | « Central » (capture) | bulletin | notre `volume_mad` |
 |---|---|---|---|
-| 28/09 | 642 888 993,45 · 1 120 107 titres | 642 888 989,40 · 1 120 106 | **642 888 993,45 · 1 120 107** |
-| 25/09 | 477 539 830,98 · 1 396 493 titres | 477 819 727,58 · 1 397 121 | **477 819 735,78 · 1 397 123** |
+| 28/09 | 642 888 993,45 · 1 120 107 | 642 888 989,40 · 1 120 106 | **642 888 993,45 · 1 120 107** |
+| 25/09 | 477 539 830,98 · 1 396 493 | 477 819 727,58 · 1 397 121 | **477 819 735,78 · 1 397 123** |
 
-- Le **28/09**, notre chiffre égale « Central » au centime.
-- Le **25/09**, notre chiffre et le bulletin dépassent « Central » de
-  **628 titres pour 279 896,60 DH**, soit 445,70 DH le titre.
-- La largeur (hausses, baisses, inchangés, traitées) est identique partout.
+Le 25/09, bulletin et moteur dépassent « Central » de **628 titres pour
+279 896,60 DH**. Ce n'est pas un bloc — le montant est bien trop faible.
+Ce n'est pas non plus une ligne entière : **aucun sous-ensemble de lignes du
+bulletin ne donne exactement 628 titres et 279 896,60 DH** (recherche
+exhaustive jusqu'à quatre lignes). L'écart est une PARTIE d'une ou plusieurs
+lignes.
 
-### Ce qu'on en déduit — et ce qu'on n'en déduit PAS
+**Cause non établie.** Ne pas la deviner.
 
-La lecture la plus simple, cohérente avec les deux séances : **le volume de
-l'indice et le bulletin comptent Central + Bloc ; l'onglet « Central »
-exclut le Bloc.** Le 28/09 il n'y aurait simplement pas eu de bloc.
+### La leçon
 
-Indice qui va dans ce sens : aucun instrument du 25/09 n'a 445,70 DH dans sa
-fourchette de séance. Une opération de gré à gré se négocie hors du carnet,
-donc hors de ses extrêmes.
-
-⚠️ **NON ÉTABLI.** Le titre concerné n'a pas pu être désigné, et une seule
-séance porte l'écart. **L'onglet « Bloc » du 25/09 trancherait d'un coup
-d'œil** : s'il affiche 279 896,60 DH, la convention est acquise.
-
-### Pourquoi c'est écrit
-
-Tout recoupement avec l'onglet « Central » donnera un écart **les jours où il
-y a des blocs**, et aucun les autres. Sans cette note, l'écart se prendra pour
-une erreur du moteur. C'est la même famille que la moyenne mobile (1,73 DH de
-convention) et que le YTD (décalé d'une séance) : un écart de périmètre pris
-pour un écart de donnée fait chercher au mauvais endroit.
+J'ai proposé une explication — le bloc — parce qu'elle rendait les deux
+séances cohérentes, et je l'ai écrite dans la mémoire du projet avant de la
+confronter à la seule source qui pouvait la réfuter : l'actualité. Une
+hypothèse qui « colle » aux chiffres n'est pas vérifiée pour autant ; il faut
+chercher ce qui la contredirait. R12.
