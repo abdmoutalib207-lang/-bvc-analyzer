@@ -46,3 +46,17 @@ def test_le_fichier_servi_ne_charge_plus_babel():
     assert 'type="text/babel"' not in servi
     assert "@babel/standalone" not in servi
     assert "FICHIER GÉNÉRÉ" in servi
+
+
+def test_chaque_workflow_qui_lance_la_suite_installe_le_compilateur():
+    """⚠️ Le 29/09, le passage de 18h45 a produit des données saines et n'a
+    RIEN publié : sa garde lance la suite entière, et le compilateur n'était
+    installé que dans tests.yml. Même défaut que le 12/09 avec `yaml`.
+    Lu sur les lignes de commande, pas sur les commentaires."""
+    for wf in sorted((RACINE / ".github" / "workflows").glob("*.yml")):
+        lignes = [l.strip() for l in wf.read_text(encoding="utf-8").splitlines()
+                  if l.strip() and not l.strip().startswith("#")]
+        if not any("python -m pytest" in l for l in lignes):
+            continue
+        assert any("@babel/standalone@7.29.9" in l and "npm install" in l for l in lignes), (
+            f"{wf.name} lance la suite de tests sans installer le compilateur du terminal")

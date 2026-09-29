@@ -1161,3 +1161,24 @@ En vérifiant la compilation JSX j'ai installé `@babel/standalone`, et il est
 parti dans le commit : **137 701 insertions**. Le CLAUDE.md dit pourtant que
 le dépôt n'a « pas de package.json, pas de node_modules » et qu'il « PARAÎT
 vanilla ». Retiré, et `.gitignore` le bloque désormais.
+
+## Famille 23 — Une dépendance de test installée dans une CI et pas dans l'autre (29/09/2026)
+
+**Ce qui s'est passé.** Le 29/09 à 18h45, le passage déclenché par cron-job.org
+est parti à l'heure et a produit des données saines — 79 titres à la séance,
+13/13 contrôles de séance — et **n'a rien publié**. La garde d'`update_bvc.yml`
+lance la suite entière avant de commiter ; un test ajouté une heure plus tôt
+(`test_terminal_compile`) exige le compilateur du terminal sous Actions, et
+seul `tests.yml` l'installait.
+
+**C'est la deuxième fois.** Le 12/09, même mécanisme avec `yaml` — et le
+commentaire qui le raconte était **juste au-dessus** de la ligne à modifier.
+
+**Signal.** Un test qui passe en CI de pull request et échoue dans la garde de
+publication, avec un message d'outillage (`ModuleNotFoundError`, « la CI doit
+installer… ») et des contrôles de séance au vert.
+
+**Parade.** Tout test qui exige un outil sous Actions doit être accompagné d'un
+test qui vérifie que CHAQUE workflow lançant la suite l'installe
+(`test_chaque_workflow_qui_lance_la_suite_installe_le_compilateur`). Et avant
+d'ajouter une dépendance de test : `grep "python -m pytest" .github/workflows/`.
