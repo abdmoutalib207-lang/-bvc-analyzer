@@ -41,16 +41,16 @@
       .classement{min-width:0!important}
       .classement th:nth-child(1),.classement td:nth-child(1),
       .classement th:nth-child(3),.classement td:nth-child(3),
-      .classement th:nth-child(n+6):nth-child(-n+9),.classement td:nth-child(n+6):nth-child(-n+9),
-      .classement th:nth-child(n+11):nth-child(-n+15),.classement td:nth-child(n+11):nth-child(-n+15),
-      .classement th:nth-child(17),.classement td:nth-child(17){display:none}
+      .classement th:nth-child(n+6):nth-child(-n+8),.classement td:nth-child(n+6):nth-child(-n+8),
+      .classement th:nth-child(n+10):nth-child(-n+13),.classement td:nth-child(n+10):nth-child(-n+13),
+      .classement th:nth-child(15),.classement td:nth-child(15){display:none}
       .classement td,.classement th{padding:7px 3px!important}
       /* La pastille et le secteur prenaient la moitié de la largeur : sur
          téléphone, le code et un nom abrégé suffisent à reconnaître le titre. */
       .classement td:nth-child(2)>div>:first-child,.secteur-societe{display:none!important}
       .nom-societe{max-width:80px!important;font-size:11px!important}
-      .classement td:nth-child(16) *{font-size:9.5px!important;padding:3px 5px!important;letter-spacing:0!important;white-space:normal!important}
-      .classement td:nth-child(16){max-width:92px}
+      .classement td:nth-child(14) *{font-size:9.5px!important;padding:3px 5px!important;letter-spacing:0!important;white-space:normal!important}
+      .classement td:nth-child(14){max-width:92px}
       .classement td:nth-child(4),.classement td:nth-child(4) *{white-space:normal!important}
     }
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -5670,17 +5670,15 @@ const Ranking = ({
       if (sb == null) return -1;
       return sb - sa;
     }
-    if (sort === "bvc") return b.bvc - a.bvc;
-    if (sort === "delta") return b.delta - a.delta;
     if (sort === "nlp") return b.nlp - a.nlp;
     if (sort === "var") return b.chg - a.chg;
     if (sort === "alpha") return b.alpha - a.alpha;
     if (sort === "rsi") return (a.rsi || a.rsi14 || 50) - (b.rsi || b.rsi14 || 50);
     return 0;
   }), [filtered, sort, scoreMode]);
-  const SORTS = [["az", "A → Z"], ["v53", customMode ? "SCORE PERSO" : "SCORE v5.3"], ["bvc", "BVC"], ["delta", "DELTA"], ["nlp", "NLP"], ["var", "VAR%"], ["alpha", "ALPHA"], ["rsi", "RSI"]];
+  const SORTS = [["az", "A → Z"], ["v53", customMode ? "SCORE PERSO" : "SCORE v5.3"], ["nlp", "NLP"], ["var", "VAR%"], ["alpha", "ALPHA"], ["rsi", "RSI"]];
   const scoreColLabel = customMode ? scoreModeLabel(scoreMode) : "SCORE";
-  const HEADS = ["#", "TICKER", "OUVERT", "CLÔT.", "VAR%", "VOLUME", "PE", "DIV%", "BVC", scoreColLabel, "Δ", "NLP%", "SM~", "ALPHA", "RSI", "SIGNAL", "POIDS"];
+  const HEADS = ["#", "TICKER", "OUVERT", "CLÔT.", "VAR%", "VOLUME", "PE", "DIV%", scoreColLabel, "NLP%", "SM~", "ALPHA", "RSI", "SIGNAL", "POIDS"];
   if (isWatchlist && rows.length === 0) return React.createElement("div", {
     style: {
       textAlign: "center",
@@ -5794,8 +5792,8 @@ const Ranking = ({
     }
   }, "NLP \u2713")), React.createElement("button", {
     onClick: () => {
-      const cols = ["TICKER BVC", "CODE INTERNE", "NOM", "SECTEUR", "PRIX", "VAR%", "PE", "DIV%", "RSI", "SCORE", "PONDERATION", "SIGNAL", "ALPHA", "SM_HEUR_NON_CALIBRE", "BVC"];
-      const rows_csv = sorted.map(r => [tk(r), r.symbol, r.name || "", r.sector || "", r.price || "", r.chg || "", r.pe?.toFixed(1) || "", r.div?.toFixed(2) || "", r.rsi?.toFixed(1) || "", (sc => sc == null ? "indisponible" : sc.toFixed(2))(computeDisplayScore(r, scoreMode)), scoreModeLabel(scoreMode), customMode ? "" : r.sig || "", r.alpha || "", r.win || "", r.bvc?.toFixed(2) || ""]);
+      const cols = ["TICKER BVC", "CODE INTERNE", "NOM", "SECTEUR", "PRIX", "VAR%", "PE", "DIV%", "RSI", "SCORE", "PONDERATION", "SIGNAL", "ALPHA", "SM_HEUR_NON_CALIBRE", "VERSION_SCORE"];
+      const rows_csv = sorted.map(r => [tk(r), r.symbol, r.name || "", r.sector || "", r.price || "", r.chg || "", r.pe?.toFixed(1) || "", r.div?.toFixed(2) || "", r.rsi?.toFixed(1) || "", (sc => sc == null ? "indisponible" : sc.toFixed(2))(computeDisplayScore(r, scoreMode)), scoreModeLabel(scoreMode), customMode ? "" : r.sig || "", r.alpha || "", r.win || "", customMode ? "" : r.score_version || ""]);
       const csv = "﻿" + [cols, ...rows_csv].map(r => r.join(";")).join("\n");
       const blob = new Blob([csv], {
         type: "text/csv;charset=utf-8"
@@ -6136,12 +6134,6 @@ const Ranking = ({
       }
     }, r.div?.toFixed(1) || "—", "%"), React.createElement("td", {
       style: {
-        padding: "8px 8px",
-        fontSize: 13,
-        color: SC(r.bvc)
-      }
-    }, fmt(r.bvc)), React.createElement("td", {
-      style: {
         padding: "8px 8px"
       }
     }, React.createElement("div", {
@@ -6163,12 +6155,6 @@ const Ranking = ({
       v: displayScore,
       c: SC(displayScore),
       h: 4
-    })), React.createElement("td", {
-      style: {
-        padding: "8px 8px"
-      }
-    }, React.createElement(Delta, {
-      d: customMode ? r.bvc != null && displayScore != null ? +(displayScore - r.bvc).toFixed(2) : null : r.delta
     })), React.createElement("td", {
       style: {
         padding: "8px 8px",
@@ -6298,10 +6284,6 @@ const Ranking = ({
       color: "#ffd740"
     }
   }, "\u25CF"), " SM~ = score Smart Money ", React.createElement("b", null, "heuristique, NON calibr\xE9"), " \u2014 d\xE9riv\xE9 du score composite, ce n'est pas une probabilit\xE9 mesur\xE9e \xA0|\xA0", React.createElement("span", {
-    style: {
-      color: "#b388ff"
-    }
-  }, "\u25CF"), " \u0394 = diff\xE9rence SCORE vs BVC fondamental \xA0|\xA0", React.createElement("span", {
     style: {
       color: "#8892a4"
     }
@@ -6694,7 +6676,6 @@ const Detail = ({
   const scoreAffiche = computeDisplayScore(r, scoreMode);
   const manqueAff = composantesManquantes(r, scoreMode);
   const pdsAff = poidsAffiches(r, scoreMode);
-  const dltAff = simu ? r.bvc != null && scoreAffiche != null ? +(scoreAffiche - r.bvc).toFixed(2) : null : r.delta;
   const price = r.price || r.prix;
   const h90 = r.h90 || r.high90;
   const l90 = r.l90 || r.low90;
@@ -6908,22 +6889,13 @@ const Detail = ({
       fontSize: 10,
       color: "#8892a4"
     }
-  }, meta(r).suspMotif), React.createElement("div", {
+  }, meta(r).suspMotif), !simu && r.score_version && React.createElement("div", {
     style: {
       marginTop: 8,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 8
+      fontSize: 10,
+      color: "#5a6478"
     }
-  }, React.createElement(Delta, {
-    d: dltAff
-  }), React.createElement("span", {
-    style: {
-      fontSize: 11,
-      color: "#8892a4"
-    }
-  }, "vs BVC ", fmt(r.bvc)))), React.createElement("div", {
+  }, "formule ", r.score_version)), React.createElement("div", {
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -7702,15 +7674,10 @@ const Detail = ({
     }
   }, simu ? " =" : " + bonus/malus =")), React.createElement("span", {
     style: {
-      color: scoreAffiche == null ? "#8892a4" : (dltAff || 0) >= 0 ? "#00e5a0" : "#ff4f5a",
+      color: scoreAffiche == null ? "#8892a4" : SC(scoreAffiche),
       fontWeight: 700
     }
-  }, " ", fmt(scoreAffiche)), React.createElement("span", {
-    style: {
-      color: "#8892a4",
-      fontSize: 11
-    }
-  }, " (", (dltAff || 0) >= 0 ? "+" : "", fmt(dltAff), " vs BVC ", (r.bvc || 0).toFixed(2), ")")), pdsAff && pdsAff.n === 0 && r.score_nlp != null && React.createElement("div", {
+  }, " ", fmt(scoreAffiche))), pdsAff && pdsAff.n === 0 && r.score_nlp != null && React.createElement("div", {
     style: {
       marginTop: 6,
       fontSize: 10.5,
@@ -10119,15 +10086,13 @@ function App() {
             bb_lower: t.bb_lower,
             stoch_k: t.stoch_k,
             stoch_d: t.stoch_d,
-            bvc: t.bvc,
             v53: t.v53,
-            delta: t.delta,
             nlp: t.nlp,
+            score_version: t.score_version,
             ...Object.fromEntries(CHAMPS_SCORE.map(c => [c, t[c]])),
             alpha: t.alpha,
             win: t.win,
             sig: t.sig,
-            sigBvc: t.sigBvc,
             biais: t.biais,
             bonus: t.bonus,
             poids: t.poids,

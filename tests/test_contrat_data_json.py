@@ -23,7 +23,9 @@ CHAMPS_OBLIGATOIRES = {
     # cotation
     "price", "chg", "vol", "open", "close", "cap",
     # scores et signaux
-    "bvc", "v53", "sig", "sigBvc", "score_tech", "nlp", "delta", "poids",
+    # `bvc`, `sigBvc` et `delta` retirés le 29/09/2026 : note et signal
+    # figés du 03/06, plus lus par le terminal (test_score_canonique.py).
+    "v53", "sig", "score_tech", "nlp", "poids",
     # fondamentaux
     "pe", "pb", "div", "bpa", "upside",
     # technique
@@ -127,7 +129,7 @@ def test_signaux_dans_le_vocabulaire_connu(titres):
               "SUSPENDU", "Données insuffisantes"}
     vus = set()
     for t in titres.values():
-        for cle in ("sig", "sigBvc"):
+        for cle in ("sig",):
             v = (t.get(cle) or "").replace("★", "").strip()
             if v:
                 vus.add(v)

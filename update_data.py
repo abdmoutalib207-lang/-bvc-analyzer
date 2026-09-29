@@ -56,6 +56,7 @@ except NameError:
     OUTPUT = Path("data.json")  # Colab : dossier courant
 
 from bvc_config import decalage_maroc
+from bvc_config import SCORE_VERSION
 from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
                         COMPANY_NAMES, COMPANY_SECTORS, est_ferie_fixe,
                         est_suspendu, SPLITS, SUSPENSIONS,
@@ -94,28 +95,8 @@ TICKER_INFO = {
     for sym in TICKERS_ALL
 }
 
-# Signal communauté BVC (consensus indépendant du score v5.3)
-SIG_BVC = {
-    # Tickers actifs (19)
-    "CMT":"ACHETER","SMI":"ACHETER","CASH":"SURVEILLER","MNG":"ACHETER",
-    "AKD":"ACHETER","SOT":"ACHETER","SGTM":"SURVEILLER","MSA":"SURVEILLER",
-    "CFGB":"ATTENDRE","RIS":"ATTENDRE","ADI":"ATTENDRE","VCNE":"ATTENDRE",
-    "CMGP":"ATTENDRE","CSR":"ATTENDRE","TGCC":"ATTENDRE","ADH":"ATTENDRE",
-    "SRM":"ATTENDRE","SNA":"EVITER","RDS":"EVITER",
-    # Grandes capitalisations
-    "IAM":"ACHETER","ATW":"ACHETER","BCP":"ACHETER","BOA":"SURVEILLER",
-    "CIH":"SURVEILLER","CDM":"SURVEILLER","WAF":"SURVEILLER",
-    "LHM":"ACHETER","GAZ":"ACHETER","ATL":"ACHETER","HPS":"ACHETER",
-    "LBV":"SURVEILLER","LES":"SURVEILLER","TQA":"ACHETER","MRL":"ACHETER","TMA":"SURVEILLER",
-    # Moyennes capitalisations
-    "ARD":"ACHETER","SAF":"SURVEILLER","OUL":"SURVEILLER","CIM":"ACHETER",
-    "CTM":"SURVEILLER","ZLD":"ATTENDRE","ALU":"ATTENDRE","MGL":"ATTENDRE",
-    "DAR":"ATTENDRE","IMI":"ACHETER","DTT":"SURVEILLER",
-    # Petites capitalisations — défaut ATTENDRE
-    "DSW":"ATTENDRE","MOX":"ATTENDRE","STR":"ATTENDRE","TIM":"ATTENDRE",
-    "SNP":"ATTENDRE","SLM":"ATTENDRE","JET":"ATTENDRE","M2M":"SURVEILLER",
-    "INV":"ATTENDRE","S2M":"ATTENDRE","COL":"ATTENDRE",
-}
+# `SIG_BVC` — table de signaux saisie le 03/06 — archivée le 29/09/2026 :
+# archive/sig_bvc_2026-06-03.py. Voir « score canonique » dans compute_v53().
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SCORES FONDAMENTAUX
@@ -188,6 +169,10 @@ FOND_SCORES = {
     "AFM":6.36,"AGM":6.36,"FNB":5.91,"BAL":6.14,
 }
 
+# ⚠️ NOTE FIGÉE DU 03/06/2026, retirée de l'affichage le 29/09/2026.
+# Elle n'est plus publiée (`bvc`, `delta`). Elle garde UN usage, et il est
+# connu : la condition de la pénalité « Upside négatif » de compute_v53().
+# Le retirer changerait des notes (MSA −0,20 au 29/09) — décision R8, à part.
 BVC_SCORES_BASE = {
     # Tickers actifs (19)
     "CMT":7.16,"SMI":6.95,"CASH":6.73,"MNG":6.59,"AKD":6.20,"SOT":6.62,
@@ -3094,8 +3079,10 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
 
     return {
         "v53":       final,
-        "bvc":       round(bvc_score, 2),
-        "delta":     round(final - bvc_score, 2),
+        # ⚠️ SCORE CANONIQUE — 29/09/2026. `bvc` (la note figée du 03/06) et
+        # `delta` (l'écart à cette note) ne sont plus publiés : le terminal
+        # les affichait comme une « note BVC de référence », et ce n'était
+        # pas un calcul. Un seul verdict, versionné par SCORE_VERSION.
         # ⚠️ `nlp` porte désormais la valeur EFFECTIVEMENT utilisée par le
         # pilier — corpus + actualité — et non plus la seule table. Sans ça,
         # le terminal afficherait une entrée différente de celle qui a compté,
@@ -4075,9 +4062,10 @@ def run(dry_run=False, push=False, token=""):
             "adx_pdi":     pdi_val,
             "adx_mdi":     mdi_val,
             # Scores v5.3 (INVIOLABLE — ne pas modifier la logique)
-            "bvc":        v53["bvc"],
             "v53":        v53["v53"],
-            "delta":      v53["delta"],
+            # Quelle formule a produit la note — la même partout : écran,
+            # bulletin, export, score_history.
+            "score_version": SCORE_VERSION,
             "nlp":        v53["nlp"],
             # ⚠️ Les deux entrées du pilier, séparées et publiées. Sans elles,
             # `nlp` serait une valeur composite qu'on ne pourrait plus
@@ -4109,7 +4097,6 @@ def run(dry_run=False, push=False, token=""):
             "sig":    ("SUSPENDU" if _suspendu_maintenant(ticker)
                        else "Données insuffisantes" if _seances_depuis_reprise is not None
                        else v53["sig"]),
-            "sigBvc": SIG_BVC.get(ticker, "ATTENDRE"),
             "biais":  v53["biais"],
             "conv":   v53["conv"],
             "setup":  setup,
@@ -4132,7 +4119,7 @@ def run(dry_run=False, push=False, token=""):
         _sig_publie = ("SUSPENDU" if _suspendu_maintenant(ticker)
                        else "Données insuffisantes" if _seances_depuis_reprise is not None
                        else v53["sig"])
-        logger.info(f"  ✓ {ticker}: {price} DH | RSI {rsi} | Score v5.3: {bvc_score} → {v53['v53']} | {_sig_publie}")
+        logger.info(f"  ✓ {ticker}: {price} DH | RSI {rsi} | Score v5.3: {v53['v53']} | {_sig_publie}")
 
     # 5. Construction data.json
     output = {

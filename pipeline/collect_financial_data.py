@@ -217,8 +217,10 @@ def to_legacy_format(pipeline_out: dict) -> dict:
             "ma20":     t.get("ma20"),
             "ma50":     t.get("ma50"),
             "v53":      v53,
-            "bvc":      round(fond_score, 2),
-            "delta":    round(v53 - fond_score, 2), # manquait → plantait Delta component
+            # ⚠️ S'appelait `bvc` jusqu'au 29/09/2026 — le même nom que la note
+            # figée de update_data.py, pour un sens différent. `delta` (l'écart
+            # entre les deux) n'est plus affiché nulle part.
+            "score_fond": round(fond_score, 2),
             "nlp":      nlp_score,
             "sig":      sig(v53),
             "alpha":    sm.get("alpha_12m"),

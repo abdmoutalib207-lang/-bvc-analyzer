@@ -167,6 +167,15 @@ def enregistrer(seance: str, tickers: list, etat_marche: dict | None = None) -> 
     j.setdefault("seances", {})
 
     releve = {"tickers": lignes}
+    # ⚠️ SCORE CANONIQUE — 29/09/2026 : la formule qui a produit les notes du
+    # jour, lue dans le flux publié lui-même. Sans elle, un backtest mêlerait
+    # sans le savoir des notes issues de formules différentes. Plusieurs
+    # versions dans un même run seraient une anomalie : on les garde toutes
+    # plutôt que d'en choisir une.
+    versions = sorted({t.get("score_version") for t in tickers
+                       if isinstance(t, dict) and t.get("score_version")})
+    if versions:
+        releve["score_version"] = versions[0] if len(versions) == 1 else versions
     if etat_marche:
         # ⚠️ Apparié ICI, pas après coup : rapprocher deux fichiers plus tard
         # obligerait à SUPPOSER qu'ils parlent de la même séance.
