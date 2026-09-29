@@ -19,7 +19,11 @@ spec.loader.exec_module(bm)
 
 def _titre(sym, prix, chg, asof, conf=5, stale=False, sig="ATTENDRE", v53=5.0):
     return {"symbol": sym, "name": sym, "price": prix, "chg": chg,
-            "sigBvc": sig, "v53": v53,
+            # ⚠️ `sig` et non `sigBvc` depuis le 29/09 : le bulletin lit le
+            # signal du moteur. Laisser l'avis dans `sigBvc` rendrait vide le
+            # test de la confiance faible — il passerait pour une mauvaise
+            # raison, aucun titre n'étant plus jamais sélectionné.
+            "sig": sig, "v53": v53,
             "_meta": {"prix_asof": asof, "stale": stale, "confidence": conf}}
 
 
@@ -86,3 +90,51 @@ def test_le_sujet_porte_la_seance_pas_la_date_du_jour(tmp_path):
         assert "28 août 2026" in (tmp_path / "bulletin_out" / "sujet.txt").read_text(encoding="utf-8")
     finally:
         os.chdir(cwd)
+
+
+# ── ⚠️ Un seul avis : celui du moteur ─────────────────────────────────────
+
+def test_un_achat_etaye_EST_relaye():
+    """Le pendant du test de la confiance faible. Sans lui, un bulletin qui
+    ne sélectionne plus RIEN passerait tous les tests."""
+    titres = [_titre("OUI", 100, 1.0, "2026-09-02", conf=5, sig="ACHETER ★★", v53=7.0),
+              _titre("FORT", 100, 1.0, "2026-09-02", conf=4, sig="ACHAT FORT ★★★", v53=8.0)]
+    titres += [_titre(f"A{i}", 100, 1.0, "2026-09-02") for i in range(50)]
+    a = bm.analyser({"masi": {}}, titres)
+    assert [x["symbol"] for x in a["achats"]] == ["FORT", "OUI"]
+
+
+def test_la_table_de_juin_n_a_plus_aucun_effet():
+    """⚠️ LE DÉFAUT QUE CE TEST EMPÊCHE DE REVENIR — 29/09/2026.
+
+    Le bulletin choisissait ses « SIGNAUX D'ACHAT » dans `sigBvc`, qui n'est
+    pas calculé : c'est `SIG_BVC`, une table écrite à la main le 03/06/2026.
+    Sur la séance du 28/09 : 14 achats selon la table, 9 selon le moteur, 4 en
+    commun.
+
+    Recette demandée par l'audit indépendant du 26/09 : injecter une décision
+    différente dans l'ancien champ et vérifier que RIEN ne change.
+    """
+    base = [_titre(f"T{i}", 100, 1.0, "2026-09-02", conf=5,
+                   sig=("ACHETER ★★" if i % 3 == 0 else "ATTENDRE"), v53=5 + i / 10)
+            for i in range(60)]
+    avant = [x["symbol"] for x in bm.analyser({"masi": {}}, base)["achats"]]
+
+    import copy
+    trafique = copy.deepcopy(base)
+    for i, x in enumerate(trafique):
+        x["sigBvc"] = "ACHETER" if i % 3 else "EVITER"     # l'inverse exact
+    apres = [x["symbol"] for x in bm.analyser({"masi": {}}, trafique)["achats"]]
+    assert avant and avant == apres, (
+        "modifier `sigBvc` change les achats du bulletin — la table de juin "
+        "décide encore")
+
+
+def test_le_bulletin_ne_lit_plus_sigbvc():
+    """Lu par l'AST : le fichier CITE `sigBvc` dans ses commentaires pour
+    expliquer pourquoi il ne le lit plus."""
+    import ast
+    arbre = ast.parse((RACINE / "pipeline" / "bulletin_mail.py").read_text(encoding="utf-8"))
+    lus = {n.value for n in ast.walk(arbre)
+           if isinstance(n, ast.Constant) and isinstance(n.value, str)}
+    assert "sigBvc" not in lus, "le bulletin lit encore la table de juin"

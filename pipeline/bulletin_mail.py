@@ -101,8 +101,25 @@ def analyser(data, titres):
     # ⚠️ Un signal n'est retenu qu'à partir d'une confiance de 3. En dessous,
     # le terminal lui-même le grise : le relayer par courriel, où le lecteur ne
     # voit pas l'indicateur, serait le présenter comme plus sûr qu'il ne l'est.
+    #
+    # ⚠️ LE SIGNAL VIENT DU MOTEUR, PLUS D'UNE TABLE DE JUIN — corrigé le
+    # 29/09/2026 après trois audits externes.
+    #
+    # Ce tri lisait `sigBvc`. Ce champ n'est PAS calculé : c'est `SIG_BVC`,
+    # une table écrite à la main le 03/06/2026 et jamais mise à jour depuis
+    # (57 titres, 17 « ACHETER »). Le bulletin présentait donc chaque matin,
+    # sous le titre « SIGNAUX D'ACHAT », un avis figé depuis quatre mois.
+    #
+    # Mesuré sur la séance du 28/09 : la table donnait 14 achats, le moteur 9,
+    # et 4 seulement en commun. Dix titres recommandés par courriel n'étaient
+    # recommandés par rien d'autre ; cinq retenus par le moteur n'y figuraient
+    # pas.
+    #
+    # Le bulletin lit désormais `sig`, le signal que publie le moteur et
+    # qu'affiche le terminal. Un seul avis, sur tous les canaux. Un test
+    # vérifie que modifier `sigBvc` ne change plus rien au bulletin.
     achats = sorted((x for x in cotes
-                     if x.get("sigBvc") == "ACHETER"
+                     if str(x.get("sig") or "").startswith(("ACHETER", "ACHAT"))
                      and ((x.get("_meta") or {}).get("confidence") or 0) >= 3),
                     key=lambda z: -(z.get("v53") or 0))
 
