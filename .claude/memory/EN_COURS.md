@@ -51,9 +51,10 @@ reviendrait, silencieuse.
 
 Procédure complète : `declencheur/README.md`.
 
-  - [x] **nouveau jeton annoncé par Abd Moutalib le 29/09/2026, valable 90 jours
-        → expire vers le 28/12/2026** (date exacte à relire sur la page du jeton ;
-        rappel à poser vers le 28/11). ⚠️ La VALEUR ne transite jamais ici ni
+  - [x] **jeton créé par Abd Moutalib le 26/09/2026 à 22h, valable 90 jours
+        → expire le 25/12/2026.** Rappel à lui faire vers le **25/11/2026**.
+        (Une première version de cette ligne datait la création du 29/09 :
+        supposée, pas demandée — corrigée sur sa parole.) ⚠️ La VALEUR ne transite jamais ici ni
         dans la conversation : il la pose lui-même dans Cloudflare.
   - [ ] secret `GITHUB_TOKEN` posé dans Cloudflare (type *Secret*, pas *Text*)
   - [ ] cron `45 15 * * 1-5` — déclenche le run de clôture
