@@ -51,11 +51,19 @@ reviendrait, silencieuse.
 
 Procédure complète : `declencheur/README.md`.
 
-  - [ ] jeton créé le ………, **expire le ………**
+  - [x] **nouveau jeton annoncé par Abd Moutalib le 29/09/2026, valable 90 jours
+        → expire vers le 28/12/2026** (date exacte à relire sur la page du jeton ;
+        rappel à poser vers le 28/11). ⚠️ La VALEUR ne transite jamais ici ni
+        dans la conversation : il la pose lui-même dans Cloudflare.
   - [ ] secret `GITHUB_TOKEN` posé dans Cloudflare (type *Secret*, pas *Text*)
   - [ ] cron `45 15 * * 1-5` — déclenche le run de clôture
   - [ ] cron `50 15 * * 1-5` — vérifie qu'il est parti, alerte sinon
   - [ ] premier déclenchement vu dans l'onglet Actions
+
+⚠️ **29/09 : aucun run d'`update_bvc` ce matin** — ni le cron de 09h40, ni
+les rattrapages de :25/:55 (dernier run : 28/09 23h06 UTC). Lancé à la main
+à 10h37. Le déclencheur Cloudflare ne couvre que la CLÔTURE : le matin repose
+entièrement sur les crons GitHub.
 
 ⚠️ Les crons GitHub sont **gardés tels quels**, et ce n'est pas de la
 négligence : peu fiables, mais indépendants du jeton et de Cloudflare. Deux

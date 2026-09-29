@@ -3,12 +3,11 @@ import json
 from collections import Counter
 from datetime import datetime
 from urllib.request import Request, urlopen
-from zoneinfo import ZoneInfo
-from bvc_config import seance_annulee
+from bvc_config import heure_maroc, seance_annulee
 
 
 def lire_date_cdg(lignes, aujourd_hui=None):
-    aujourd_hui = aujourd_hui or datetime.now(ZoneInfo('Africa/Casablanca')).date().isoformat()
+    aujourd_hui = aujourd_hui or heure_maroc().date().isoformat()
     dates = Counter()
     for r in lignes:
         try:

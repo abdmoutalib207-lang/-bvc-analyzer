@@ -166,8 +166,10 @@ jobs:
             echo "run=true" >> $GITHUB_OUTPUT
             exit 0
           fi
-          NOW=$(TZ="Africa/Casablanca" date +%H%M)
-          DAY=$(TZ="Africa/Casablanca" date +%u)
+          # ⚠️ L'heure du REGISTRE `DECALAGES_MAROC`, pas `TZ=Africa/Casablanca` :
+          # la base de fuseaux du runner peut ignorer le dernier décret (23/09).
+          NOW=$(python3 -c "from bvc_config import heure_maroc; print(heure_maroc().strftime('%H%M'))")
+          DAY=$(python3 -c "from bvc_config import heure_maroc; print(heure_maroc().isoweekday())")
           if [ "$DAY" -le 5 ] && [ "$NOW" -ge 0915 ] && [ "$NOW" -lt 1540 ]; then
             echo "run=true"  >> $GITHUB_OUTPUT
             echo "✅ Session BVC ouverte (${NOW} Casablanca)"
@@ -329,7 +331,7 @@ jobs:
               echo "Aucun changement — skip commit"
               exit 0
             fi
-            HEURE=$(TZ="Africa/Casablanca" date +'%Y-%m-%d %H:%M')
+            HEURE=$(python3 -c "from bvc_config import heure_maroc; print(heure_maroc().strftime('%Y-%m-%d %H:%M'))")
             git commit -m "data: BVC update ${HEURE} (Casablanca)"
             git push origin HEAD:main && echo "✅ Pushé" && exit 0
             echo "⚠️ Push échoué (tentative $attempt/3), retry..."
