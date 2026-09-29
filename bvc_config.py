@@ -779,3 +779,13 @@ TICKERS_ALL: list = [
     # Ajouts du 10/08/2026 — T2S est l'introduction du 27/07/2026
     "T2S", "MDP", "DLM", "DIS",
 ]
+
+
+# ⚠️ SCORE CANONIQUE — 29/09/2026. La version de la formule qui produit la
+# note publiée (`v53`) et son signal (`sig`). Émise sur chaque titre de
+# data.json et sur chaque séance de pipeline/score_history.json, pour qu'une
+# note se relise toujours avec la formule qui l'a produite.
+# À CHANGER à toute modification de pondération, de bonus ou de palier (R8).
+#   v5.3-gel-nlp-2026-09-29 : Fond 65,28 / Tech 34,72 / NLP 0 (25/09), six
+#   bonus du corpus retirés et ACHAT FORT suspendu (29/09).
+SCORE_VERSION = "v5.3-gel-nlp-2026-09-29"

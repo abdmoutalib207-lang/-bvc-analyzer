@@ -60,7 +60,8 @@ CAS = [
     (5.0, 7.0, 6.0, 4, -20.0),
 ]
 
-CHAMPS_GELES = ("v53", "sig", "poids", "bonus", "delta", "warn", "conv")
+# `delta` retiré le 29/09/2026 : il n'est plus publié (score canonique).
+CHAMPS_GELES = ("v53", "sig", "poids", "bonus", "warn", "conv")
 
 
 def _calcul(monkeypatch, sentiment, apport_news, cas, contexte):

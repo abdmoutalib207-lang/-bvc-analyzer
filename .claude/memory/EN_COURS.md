@@ -18,6 +18,19 @@ historique** — cela recréerait une référence exposée.
 
 ---
 
+## 🔔 UNE DÉCISION R8 À PRENDRE — la note figée entre encore dans le calcul (29/09/2026)
+
+Le score canonique est en place : `bvc`, `delta` et `sigBvc` ne sont plus ni
+publiés ni affichés, `score_version` accompagne chaque note
+(`bvc_config.SCORE_VERSION`) et chaque séance de `score_history.json`.
+
+⚠️ **Il reste UN usage de la note figée du 03/06** (`BVC_SCORES_BASE`) : la
+pénalité « Upside négatif −0,20 » de `compute_v53()` ne joue que si cette note
+vaut ≥ 5,5. Mesuré le 29/09 : elle frappe MSA (upside −13 %) et épargne RIS
+(−20 %), CSR (−15 %), RDS (−38 %), notés sous 5,5 en juin. Une table de juin
+décide donc qui est pénalisé. La retirer change des notes : mesurer, puis
+demander l'accord d'Abd Moutalib (R8), et changer `SCORE_VERSION`.
+
 ## ⚠️ EN ATTENTE — le jeton du déclencheur externe
 
 **Date d'expiration à noter ici dès la création du jeton fine-grained**, avec

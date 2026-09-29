@@ -14,7 +14,9 @@ from pathlib import Path
 SRC = (Path(__file__).resolve().parent.parent / "terminal.src.html").read_text(encoding="utf-8")
 
 # Positions (1-indexées) que la règle mobile laisse visibles.
-GARDEES = {2: "TICKER", 4: "CLÔT.", 5: "VAR%", 10: "scoreColLabel", 16: "SIGNAL"}
+# ⚠️ Décalées le 29/09/2026 : les colonnes « BVC » et « Δ » (note figée du
+# 03/06) ont quitté le classement — voir test_score_canonique.py.
+GARDEES = {2: "TICKER", 4: "CLÔT.", 5: "VAR%", 9: "scoreColLabel", 14: "SIGNAL"}
 
 
 def _entetes() -> list[str]:
@@ -39,3 +41,16 @@ def test_les_regles_mobiles_existent():
                    "badge-version", "choix-score", "entete-droite",
                    "nom-societe", "secteur-societe"):
         assert f'className="{classe}"' in SRC, classe
+
+
+def test_le_telephone_masque_exactement_les_autres_colonnes():
+    """Retirer une colonne décale toutes les suivantes : sans ce test, le
+    téléphone montrerait le NLP à la place du signal sans que rien ne casse."""
+    css = SRC[SRC.index("Le classement garde"):]
+    bloc = css[:css.index("{display:none}")]
+    masquees = set()
+    for a, b in re.findall(r"td:nth-child\(n\+(\d+)\):nth-child\(-n\+(\d+)\)", bloc):
+        masquees |= set(range(int(a), int(b) + 1))
+    masquees |= {int(k) for k in re.findall(r"td:nth-child\((\d+)\)", bloc)}
+    toutes = set(range(1, len(_entetes()) + 1))
+    assert masquees == toutes - set(GARDEES), sorted(masquees ^ (toutes - set(GARDEES)))
