@@ -826,7 +826,7 @@ def neutraliser_si_isin_suspect(ticker, price, rsi, ma20, ma50, h90, l90):
     `_meta_ticker`, ce qui fait griser le signal — sans ce câblage, le titre
     gardait 5 sur 5 et affichait un ACHETER en couleur pleine.
     """
-    if not (price > 0 and ma20 > 0):
+    if not (price and price > 0 and ma20 and ma20 > 0):
         return rsi, ma20, ma50, h90, l90, False
     if not (ma20 > 3.0 * price or price > 3.0 * ma20):
         return rsi, ma20, ma50, h90, l90, False
@@ -835,8 +835,11 @@ def neutraliser_si_isin_suspect(ticker, price, rsi, ma20, ma50, h90, l90):
         f"  {ticker}: ANOMALIE ISIN — MA20={ma20} vs prix={price} "
         f"(ratio {max(ma20, price) / min(ma20, price):.1f}x) — "
         f"indicateurs resetés à neutres")
-    return (50.0, round(price, 2), round(price, 2),
-            round(price * 1.15, 2), round(price * 0.85, 2), True)
+    # ⚠️ « NEUTRALISER » = RETIRER, pas remplacer — 29/09/2026. Cette
+    # fonction rendait RSI 50, MA20 = MA50 = cours, extrêmes à ±15 % : des
+    # valeurs INVENTÉES, que calc_score_tech lisait comme des mesures (RSI
+    # « sain » +1, position « médiane » +0,4). Une donnée absente s'abstient.
+    return (None, None, None, None, None, True)
 
 
 def fusionner_cotations(live_prices, idb_asof, cdg=None, bmce=None, lignes_cdg=None):
@@ -3559,6 +3562,9 @@ def run(dry_run=False, push=False, token=""):
         stoch_k = stoch_d = None
         ma200 = h52w = l52w = None
         obv_val = None
+        # ⚠️ AUCUN INDICATEUR PAR DÉFAUT — 29/09/2026. Absents tant qu'aucun
+        # historique réel ne les a produits.
+        rsi = ma20 = ma50 = h90 = l90 = None
         adx_val = pdi_val = mdi_val = None
 
         # OBV + ADX depuis les candles OHLCV longues (pipeline/candles/)
@@ -3666,9 +3672,9 @@ def run(dry_run=False, push=False, token=""):
             if hd_t.get("rsi") is not None and hd_t.get("ma20") is not None:
                 rsi       = hd_t["rsi"]
                 ma20      = hd_t["ma20"]
-                ma50      = hd_t.get("ma50", ma20)
-                h90       = hd_t.get("h90",  price * 1.15 if price else 0)
-                l90       = hd_t.get("l90",  price * 0.85 if price else 0)
+                ma50      = hd_t.get("ma50")
+                h90       = hd_t.get("h90")
+                l90       = hd_t.get("l90")
                 macd_val  = hd_t.get("macd")
                 macd_sig  = hd_t.get("macd_signal")
                 macd_hist = hd_t.get("macd_hist")
@@ -3690,32 +3696,24 @@ def run(dry_run=False, push=False, token=""):
                             f"(BVCscrap, {hd_t.get('n_candles',0)} bougies)")
 
             if not _hist_loaded:
-                # Fallback B : indicateurs depuis data.json (cache préchargé)
+                # Fallback B : le data.json du run précédent — PRIX SEULEMENT.
+                #
+                # ⚠️ Il recopiait aussi RSI, moyennes, extrêmes, MACD… du run
+                # précédent, qui les avait lui-même recopiés : une valeur
+                # figée se reconduisait indéfiniment. Relevé le 29/09/2026 :
+                # Sanlam publiait une « MA20 » de 2 940 — un ancien cours — et
+                # un « plus-haut 90 j » de 3 381 = 2 940 × 1,15. Sa note
+                # technique valait 7,2 sur des mesures qui n'existaient pas.
+                # Sans historique, les indicateurs restent ABSENTS ; le prix
+                # garde son repli (R3), marqué `data_json_precedent`.
                 ex_t = _ex_all.get(ticker, {})
                 if ex_t:
-                    rsi  = ex_t.get("rsi", 50)
-                    ma20 = ex_t.get("ma20", price or 0)
-                    ma50 = ex_t.get("ma50", price or 0)
-                    h90  = ex_t.get("h90",  price * 1.15 if price else 0)
-                    l90  = ex_t.get("l90",  price * 0.85 if price else 0)
-                    macd_val  = ex_t.get("macd")
-                    macd_sig  = ex_t.get("macd_signal")
-                    macd_hist = ex_t.get("macd_hist")
-                    bb_upper  = ex_t.get("bb_upper")
-                    bb_mid    = ex_t.get("bb_mid")
-                    bb_lower  = ex_t.get("bb_lower")
-                    stoch_k   = ex_t.get("stoch_k")
-                    stoch_d   = ex_t.get("stoch_d")
                     if not price:
                         price = ex_t.get("price", 0)
                         if price:
                             src_prix, prix_asof = "data_json_precedent", ""
                     if not vol:
                         vol = ex_t.get("vol", 0)
-                else:
-                    rsi, ma20, ma50 = 50, price or 0, price or 0
-                    h90 = price * 1.15 if price else 0
-                    l90 = price * 0.85 if price else 0
 
         # Fallback 3 : financial_data.json (cache préchargé)
         if not price:
@@ -3724,11 +3722,13 @@ def run(dry_run=False, push=False, token=""):
             if fd_p:
                 price = fd_p
                 tech  = fd_t.get("technical", {})
-                if not ma20: ma20 = tech.get("ma20") or price
-                if not ma50: ma50 = tech.get("ma50") or price
-                if rsi == 50: rsi = tech.get("rsi_14") or 50
-                if not h90:  h90  = tech.get("high_90d") or round(price * 1.15, 2)
-                if not l90:  l90  = tech.get("low_90d")  or round(price * 0.85, 2)
+                # Indicateurs calculés par le pipeline v9 : repris s'ils
+                # existent, jamais remplacés par le cours ou par 50.
+                if ma20 is None: ma20 = tech.get("ma20")
+                if ma50 is None: ma50 = tech.get("ma50")
+                if rsi is None:  rsi  = tech.get("rsi_14")
+                if h90 is None:  h90  = tech.get("high_90d")
+                if l90 is None:  l90  = tech.get("low_90d")
                 src_prix, prix_asof = "financial", ""
                 logger.info(f"  {ticker}: prix depuis financial_data.json ({price} DH)")
 
@@ -3738,11 +3738,9 @@ def run(dry_run=False, push=False, token=""):
             sf_p = sf_t.get("price") or 0
             if sf_p:
                 price = sf_p
-                if not ma20: ma20 = sf_t.get("ma20") or price
-                if not ma50: ma50 = sf_t.get("ma50") or price
-                if rsi == 50: rsi = sf_t.get("rsi_14") or 50
-                if not h90:  h90  = sf_t.get("high_90d") or round(price * 1.15, 2)
-                if not l90:  l90  = sf_t.get("low_90d")  or round(price * 0.85, 2)
+                # ⚠️ La table statique ne fournit que le PRIX, dernier
+                # recours (R3). Ses RSI et moyennes sont des valeurs saisies,
+                # pas des mesures : ils ne sont plus lus (29/09/2026).
                 src_prix, prix_asof = "static", ""
                 logger.info(f"  {ticker}: prix depuis static_fallback.json ({price} DH) — données statiques")
 
@@ -3879,8 +3877,18 @@ def run(dry_run=False, push=False, token=""):
         sent = SENTIMENT.get(ticker, {})
 
         # Score enrichi v5.3
+        #
+        # ⚠️ L'UPSIDE LU PAR LA NOTE EST CELUI QUI EST PUBLIÉ — 30/09/2026.
+        # La pénalité lisait `fd["upside"]` BRUT, alors que `_objectifs()` le
+        # déclare périmé et le retire de l'affichage quand l'objectif n'est
+        # plus à l'échelle du cours. Tant que la condition passait par la
+        # note figée de juin, ça ne se voyait pas ; en la remplaçant par la
+        # note calculée (PR #114), SNA a été pénalisé de 0,20 sur un objectif
+        # de 540 DH pour un cours de 1 850 — que le terminal n'affiche même
+        # pas. Trouvé par une exécution à blanc, avant toute publication.
+        _obj = _objectifs(ticker, price, fd)
         v53 = compute_v53(ticker, score_tech, score_fond,
-                          fd.get("flags", 0), fd.get("upside") or 0, ctx)
+                          fd.get("flags", 0), _obj["upside"] or 0, ctx)
 
         # Setup technique (déduit du score et des MAs)
         # ⚠️ Trois des cinq cas lisent `ma50`, qui peut être absente depuis que
@@ -4093,7 +4101,7 @@ def run(dry_run=False, push=False, token=""):
             # Alerte variation extrême (≥ ±8% approche limite BVC ±10%)
             "chg_alert": abs(round(chg, 2)) >= 8.0,
             # Fondamentaux
-            **_objectifs(ticker, price, fd),
+            **_obj,
             "flags":  fd.get("flags", 0),
         })
 

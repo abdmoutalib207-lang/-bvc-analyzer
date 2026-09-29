@@ -22,6 +22,7 @@
     ::-webkit-scrollbar{width:5px;height:5px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px;}
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
+    .mobile-seul{display:none}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
     /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
        Trois défauts : l'en-tête COLLÉ en haut couvrait plus de la moitié de
@@ -37,7 +38,9 @@
       .onglets::-webkit-scrollbar{display:none}
       .onglets>*{flex:0 0 auto}
       .onglets button{padding:7px 12px!important}
-      /* Le classement garde : ticker, clôture, variation, score, signal. */
+      .mobile-seul{display:block!important}
+      /* Le classement garde : ticker, clôture (+ ouverture), variation
+         (+ volume), score, signal. */
       .classement{min-width:0!important}
       .classement th:nth-child(1),.classement td:nth-child(1),
       .classement th:nth-child(3),.classement td:nth-child(3),
@@ -4062,7 +4065,19 @@ function CompanyLogo({
 const RSIGauge = ({
   value
 }) => {
-  const v = Math.min(100, Math.max(0, value || 50));
+  if (value == null || !isFinite(value)) return React.createElement("div", {
+    style: {
+      textAlign: "center",
+      fontSize: 10,
+      color: "#8892a4",
+      padding: "18px 6px"
+    }
+  }, "RSI (14) indisponible", React.createElement("br", null), React.createElement("span", {
+    style: {
+      fontSize: 9
+    }
+  }, "moins de 15 s\xE9ances cot\xE9es"));
+  const v = Math.min(100, Math.max(0, value));
   const color = v > 70 ? "#ff4f5a" : v < 30 ? "#00e5a0" : "#ffd740";
   const label = v > 70 ? "SURACHETÉ" : v < 30 ? "SURVENDU" : "NEUTRE";
   const a = -Math.PI + Math.PI * (v / 100);
@@ -4810,7 +4825,7 @@ const StockChart = ({
       fontSize: 9,
       color: isLive ? "#00e5a0" : "#8892a4"
     }
-  }, isLive && "● ", "RSI:", (r.rsi || r.rsi14 || 50).toFixed(0), " \xB7 MA20:", r.ma20 ? px(r.ma20) : "—", " \xB7 MA50:", r.ma50 ? px(r.ma50) : "—", " \xB7 MA200:", r.ma200 ? px(r.ma200) : "—")), msg && React.createElement("div", {
+  }, isLive && "● ", "RSI:", (r.rsi ?? r.rsi14) != null ? (r.rsi ?? r.rsi14).toFixed(0) : "—", " \xB7 MA20:", r.ma20 ? px(r.ma20) : "—", " \xB7 MA50:", r.ma50 ? px(r.ma50) : "—", " \xB7 MA200:", r.ma200 ? px(r.ma200) : "—")), msg && React.createElement("div", {
     style: {
       height: 34,
       display: "flex",
@@ -5656,8 +5671,8 @@ const Ranking = ({
       r = r.filter(x => (x.symbol || x.ticker || "").includes(q) || tk(x).includes(q) || (x.name || "").toUpperCase().includes(q));
     }
     if (sigFilter) r = r.filter(x => (x.sig || "").startsWith(sigFilter));
-    if (rsiZone === "survendu") r = r.filter(x => (x.rsi || x.rsi14 || 50) < 30);
-    if (rsiZone === "surachete") r = r.filter(x => (x.rsi || x.rsi14 || 50) > 70);
+    if (rsiZone === "survendu") r = r.filter(x => (x.rsi ?? x.rsi14) != null && (x.rsi ?? x.rsi14) < 30);
+    if (rsiZone === "surachete") r = r.filter(x => (x.rsi ?? x.rsi14) != null && (x.rsi ?? x.rsi14) > 70);
     return r;
   }, [rows, sector, search, group, sigFilter, rsiZone]);
   const sorted = useMemo(() => [...filtered].sort((a, b) => {
@@ -5673,7 +5688,13 @@ const Ranking = ({
     if (sort === "nlp") return b.nlp - a.nlp;
     if (sort === "var") return b.chg - a.chg;
     if (sort === "alpha") return b.alpha - a.alpha;
-    if (sort === "rsi") return (a.rsi || a.rsi14 || 50) - (b.rsi || b.rsi14 || 50);
+    if (sort === "rsi") {
+      const ra = a.rsi ?? a.rsi14,
+        rb = b.rsi ?? b.rsi14;
+      if (ra == null) return rb == null ? 0 : 1;
+      if (rb == null) return -1;
+      return ra - rb;
+    }
     return 0;
   }), [filtered, sort, scoreMode]);
   const SORTS = [["az", "A → Z"], ["v53", customMode ? "SCORE PERSO" : "SCORE v5.3"], ["nlp", "NLP"], ["var", "VAR%"], ["alpha", "ALPHA"], ["rsi", "RSI"]];
@@ -5955,9 +5976,9 @@ const Ranking = ({
     const sym = r.symbol || r.ticker;
     const displayScore = computeDisplayScore(r, scoreMode);
     const manque = composantesManquantes(r, scoreMode);
-    const rsiVal = r.rsi || r.rsi14 || 50;
+    const rsiVal = r.rsi ?? r.rsi14 ?? null;
     const rsiColor = rsiVal > 70 ? "#ff4f5a" : rsiVal < 30 ? "#00e5a0" : "#ffd740";
-    const isStat = r.ma20 > 0 && r.ma50 > 0 && Math.abs(r.ma20 - r.ma50) < 0.01;
+    const isStat = rsiVal == null;
     return React.createElement("tr", {
       key: sym,
       onClick: () => {
@@ -6015,7 +6036,7 @@ const Ranking = ({
         cursor: "help"
       }
     }, "\u26A0\uFE0F"), isStat && React.createElement("span", {
-      title: "Indicateurs techniques estim\xE9s \u2014 donn\xE9es live en attente",
+      title: "Historique insuffisant : indicateurs techniques absents, la note technique s'abstient (5,0)",
       style: {
         fontSize: 9,
         color: "#8892a4",
@@ -6024,7 +6045,7 @@ const Ranking = ({
         padding: "1px 3px",
         cursor: "default"
       }
-    }, "~stat"), React.createElement("button", {
+    }, "~hist"), React.createElement("button", {
       onClick: e => {
         e.stopPropagation();
         toggleFav(sym);
@@ -6064,7 +6085,7 @@ const Ranking = ({
         fontSize: 12,
         color: "#8892a4"
       }
-    }, px(r.open || +((r.price || r.prix) / (1 + (r.chg || 0) / 100)).toFixed(0))), React.createElement("td", {
+    }, r.open ? px(r.open) : "—"), React.createElement("td", {
       style: {
         padding: "8px 8px",
         fontSize: 13,
@@ -6080,7 +6101,14 @@ const Ranking = ({
         marginLeft: 3,
         verticalAlign: "super"
       }
-    }, "\u25CF")), React.createElement("td", {
+    }, "\u25CF"), React.createElement("div", {
+      className: "mobile-seul",
+      style: {
+        fontSize: 9.5,
+        color: "#8892a4",
+        fontWeight: 400
+      }
+    }, "ouv. ", r.open ? px(r.open) : "—")), React.createElement("td", {
       style: {
         padding: "8px 8px",
         fontSize: 13,
@@ -6092,7 +6120,14 @@ const Ranking = ({
       style: {
         marginLeft: 3
       }
-    }, "\u26A1")), React.createElement("td", {
+    }, "\u26A1"), React.createElement("div", {
+      className: "mobile-seul",
+      style: {
+        fontSize: 9.5,
+        color: "#8892a4",
+        fontWeight: 400
+      }
+    }, "vol. ", r.vol != null ? r.vol >= 1e6 ? `${(r.vol / 1e6).toFixed(1)} M` : r.vol >= 1e4 ? `${Math.round(r.vol / 1e3)} k` : r.vol.toLocaleString("fr-FR").replace(/\u202f|,/g, " ") : "—")), React.createElement("td", {
       style: {
         padding: "8px 8px",
         fontSize: 12,
@@ -6196,7 +6231,7 @@ const Ranking = ({
         color: isStat ? "#8892a4" : rsiColor,
         fontWeight: 700
       }
-    }, isStat ? "~" : "", rsiVal), !isStat && React.createElement("div", {
+    }, isStat ? "—" : rsiVal), !isStat && React.createElement("div", {
       style: {
         width: 30,
         background: "#0a1220",
@@ -6287,7 +6322,7 @@ const Ranking = ({
     style: {
       color: "#8892a4"
     }
-  }, "~stat"), " = indicateurs techniques estim\xE9s (RSI/MA calcul\xE9s d\xE8s la prochaine mise \xE0 jour) \xA0|\xA0", React.createElement("span", {
+  }, "~hist"), " = moins de 15 s\xE9ances cot\xE9es : RSI et moyennes absents, jamais estim\xE9s \xA0|\xA0", React.createElement("span", {
     style: {
       color: "#ff4f5a"
     }
@@ -6684,7 +6719,7 @@ const Detail = ({
   const upside = objectifs ? ((r.bull - price) / price * 100).toFixed(1) : null;
   const pos = objectifs && r.bull !== r.bear ? Math.min(98, Math.max(2, (price - r.bear) / (r.bull - r.bear) * 100)) : 50;
   const sym = r.symbol || r.ticker;
-  const rsiVal = r.rsi || r.rsi14 || 50;
+  const rsiVal = r.rsi ?? r.rsi14 ?? null;
   const visRows = (detSearch.trim() ? rows.filter(d => {
     const q = detSearch.trim().toUpperCase();
     return (d.symbol || d.ticker || "").includes(q) || tk(d).includes(q) || (d.name || "").toUpperCase().includes(q);
@@ -7259,7 +7294,7 @@ const Detail = ({
       gridTemplateColumns: "1fr 1fr",
       gap: 6
     }
-  }, [["Haut 90j", px(h90), "#00e5a0"], ["H 52s", r.h52w ? px(r.h52w) : "—", "#00e5a0"], ["Bas 90j", px(l90), "#ff4f5a"], ["B 52s", r.l52w ? px(r.l52w) : "—", "#ff4f5a"]].map(([k, v, c]) => React.createElement("div", {
+  }, [["Haut 90j", h90 != null ? px(h90) : "—", "#00e5a0"], ["H 52s", r.h52w ? px(r.h52w) : "—", "#00e5a0"], ["Bas 90j", l90 != null ? px(l90) : "—", "#ff4f5a"], ["B 52s", r.l52w ? px(r.l52w) : "—", "#ff4f5a"]].map(([k, v, c]) => React.createElement("div", {
     key: k,
     style: {
       background: "#0a1220",
