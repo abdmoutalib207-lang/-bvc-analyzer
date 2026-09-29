@@ -2209,6 +2209,10 @@ def _replier_comportemental(w: dict) -> dict:
     `nlp_bull` n'y étant jamais vrai, il ne teste en fait que le score BVC.
     Smart Money, Contrarian et Hype spike : zéro occurrence sur 80 titres.
     Chantier suivant, hors du périmètre approuvé ici.
+
+    ✅ Traité le 29/09 : bonus, palier ACHAT FORT et modulateurs tirés du
+    corpus retirés — voir `compute_v53` et `tests/test_gel_nlp.py`. Seul le
+    score de CONFIANCE lit encore le corpus.
     """
     comp = w.get("comportemental", 0.0)
     reste = w.get("technique", 0.0) + w.get("fondamental", 0.0)
@@ -3019,36 +3023,33 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
     bonus = 0.0
     bonus_log = []
 
-    # Convergence BVC + NLP
+    # ⚠️ LE GEL DU PILIER NLP S'ÉTEND AUX BONUS — 29/09/2026.
+    #
+    # Le 25/09, le poids du pilier est passé à zéro ; le sentiment entrait
+    # pourtant encore dans la note par six bonus lisant `sent` : convergence,
+    # convergence baissière, divergence, Smart Money, Contrarian, alpha
+    # historique négatif. Un pilier « gelé » qui déplace la note n'est pas
+    # gelé. Tous sont retirés ; restent les deux bonus qui ne lisent que le
+    # fondamental (red flags, upside).
+    #
+    # Seul « Conv baissière +0,15 » se déclenchait, sur 35 titres au 28/09 —
+    # et `nlp_bull` n'étant jamais vrai, il récompensait en fait un score BVC
+    # INFÉRIEUR à 5,5. Les autres : zéro occurrence depuis le 10/08.
+    #
+    # Mesure sur les notes publiées (25 jours depuis le 10/08, 1 765
+    # observations à 5 séances, confiance ≥ 2) : corrélation à l'alpha
+    # −0,0555 avec, −0,0480 sans. On ne dégrade rien. ⚠️ Et la corrélation est
+    # NÉGATIVE dans les deux cas : la note ne se montre pas prédictive sur
+    # cette période — un seul régime, observations chevauchantes.
+    #
+    # ⚠️ Le garde-fou est un test d'INVARIANCE (tests/test_gel_nlp.py) : le
+    # sentiment le plus extrême ne doit changer ni la note ni le signal.
     bvc_bull = bvc_score >= 5.5
-    nlp_bull = sent["smart"] > 0.15
-    if bvc_bull and nlp_bull:
-        bonus += 0.30; bonus_log.append("+Conv BVC+NLP +0.30")
-    elif not bvc_bull and not nlp_bull:
-        bonus += 0.15; bonus_log.append("+Conv baissière +0.15")
-    if bvc_bull and sent["smart"] < -0.20:
-        bonus -= 0.50; bonus_log.append("-Divergence BVC/NLP -0.50")
-
-    # Smart Money actif
-    if context.get("smart_money_active") and sent["win"] >= 0.80:
-        bonus += 0.40; bonus_log.append(f"+Smart Money ({sent['win']*100:.0f}%) +0.40")
-
-    # Signal contrarian validé
-    if sent.get("contrarian") and bvc_score < 5.0:
-        bonus += 0.25; bonus_log.append("+Contrarian +0.25")
-
-    # Hype spike
-    if context.get("hype_spike") and sent["hype"] > 0.70:
-        bonus += 0.20; bonus_log.append("+Hype spike +0.20")
 
     # Red flags pénalité
     if red_flags >= 3:
         pen = -0.30 * (red_flags - 2)
         bonus += pen; bonus_log.append(f"-Red flags ({red_flags}) {pen:.2f}")
-
-    # Alpha historique négatif
-    if sent.get("alpha", 0) < -1:
-        bonus -= 0.60; bonus_log.append(f"-Alpha négatif ({sent['alpha']}%) -0.60")
 
     # Upside négatif avec signal positif
     if (upside or 0) < -10 and bvc_bull:
@@ -3057,9 +3058,14 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
     final = round(min(max(base + bonus, 0), 10), 2)
 
     # Signal enrichi
-    if final >= 7.5 and sent["win"] >= 0.80:
-        sig = "ACHAT FORT ★★★"
-    elif final >= 6.5:
+    #
+    # ⚠️ « ACHAT FORT » est SUSPENDU avec le pilier. Il exigeait une note
+    # ≥ 7,5 ET un taux de réussite smart money ≥ 80 % — lu dans le corpus
+    # arrêté au 02/07, et atteint par aucun titre depuis le 10/08. Le
+    # rebrancher sur la seule note créerait un palier qui n'a jamais été
+    # mesuré ; le laisser lire le corpus contredirait le gel. Aujourd'hui
+    # comme hier, une note ≥ 7,5 publie donc « ACHETER ».
+    if final >= 6.5:
         sig = "ACHETER ★★"
     elif final >= 5.5:
         sig = "SURVEILLER ★"
@@ -3070,12 +3076,16 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
     else:
         sig = "ÉVITER FORT"
 
-    # Alerte si alpha négatif
-    warn = sent.get("alpha", 0) < -1
-    warn_msg = (f"Alpha historique NÉGATIF ({sent['alpha']}%) · "
-                f"Win rate {sent['win']*100:.0f}% · Signal enrichi = ÉVITER") if warn else ""
+    # ⚠️ L'alerte « alpha historique négatif » lisait le corpus gelé, et
+    # annonçait « Signal enrichi = ÉVITER » : une conclusion que la note ne
+    # porte plus. Champs conservés pour le terminal, vides.
+    warn = False
+    warn_msg = ""
 
-    conv = "CONFIRME" if (bvc_bull and nlp_bull) else "DIVERGE"
+    # ⚠️ `conv` valait « DIVERGE » sur 80 titres sur 80 : une constante
+    # affichée comme une mesure. Sans pilier NLP, il n'y a rien à faire
+    # converger — `None`, que le terminal affiche comme tel.
+    conv = None
 
     return {
         "v53":       final,
@@ -3874,14 +3884,21 @@ def run(dry_run=False, push=False, token=""):
         score_fond = _FOND_COMPUTED.get(ticker) or FOND_SCORES.get(ticker, 5.0)
         bvc_score  = BVC_SCORES_BASE.get(ticker, 5.0)
 
-        # Contexte spécifique ticker
+        # Contexte de pondération.
+        #
+        # ⚠️ Plus aucune entrée tirée du corpus WhatsApp (gel du 29/09).
+        # `ticker_coverage`, `smart_money_active` et `hype_spike` lisaient
+        # `SENTIMENT` ; le repli au prorata annulait leur apport au pilier
+        # NLP, mais PAS la façon dont ils redécoupaient fondamental et
+        # technique — le corpus pouvait donc encore déplacer la note.
+        # Aucun ne se déclenchait au 28/09 (80/80 titres à 78/22). La
+        # pondération ne dépend désormais que du contexte de MARCHÉ : c'est
+        # ce que dit le badge « modulée par le contexte de marché ».
+        ctx = dict(mkt_ctx_base)
+        # ⚠️ `sent` ne sert plus qu'au score de CONFIANCE (`_meta_ticker`,
+        # critères « corpus » et « smart money »). Ils lisent encore le corpus
+        # gelé : c'est un changement d'échelle visible à l'écran, traité à part.
         sent = SENTIMENT.get(ticker, {})
-        ctx = {
-            **mkt_ctx_base,
-            "ticker_coverage":    sent.get("mentions", 100),
-            "smart_money_active": sent.get("win", 0) >= 0.80,
-            "hype_spike":         sent.get("hype", 0) > 0.75,
-        }
 
         # Score enrichi v5.3
         v53 = compute_v53(ticker, score_tech, score_fond, bvc_score,
