@@ -2645,6 +2645,11 @@ def date_analyse() -> str:
     return datetime.now().strftime("%Y-%m-%d")
 
 
+def _per(price, bpa):
+    """Cours ÷ BPA, arrondi au dixième. None si l'un manque — jamais 0."""
+    return round(price / bpa, 1) if (bpa and price and price > 0) else None
+
+
 def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
                  isin_suspect=False, ratios_calcules=False,
                  chg=None, vol=None, prix_diffuse=None, cap_source=None,
@@ -4000,8 +4005,20 @@ def run(dry_run=False, push=False, token=""):
             "seuil_haut": _seuil_haut,
             "open":   round(opn, 2),
             "close":  round(price, 2),
-            "pe":     round(price / BPA_DATA[ticker]["bpa"], 1) if (ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0) else fd.get("pe"),
+            # ⚠️ PER SUR DOUZE MOIS GLISSANTS quand les comptes semestriels ont
+            # été lus (29/09/2026, `pipeline/resultats_semestriels.py`), annuel
+            # sinon. Le semestre ne remplace pas l'exercice, il le décale : un
+            # PER annuel décrit une période qui, pour Managem, contenait un
+            # bénéfice dix fois plus faible que celui d'aujourd'hui. Le PER
+            # annuel reste publié à côté, et `pe_base` dit lequel est affiché.
+            "pe":     _per(price, (BPA_DATA.get(ticker) or {}).get("bpa_12m")
+                           or (BPA_DATA.get(ticker) or {}).get("bpa")) or fd.get("pe"),
+            "pe_annuel": _per(price, (BPA_DATA.get(ticker) or {}).get("bpa")),
+            "pe_base": ("12 mois au " + BPA_DATA[ticker]["fin_12m"]
+                        if (BPA_DATA.get(ticker) or {}).get("bpa_12m") else
+                        "exercice 2025" if (BPA_DATA.get(ticker) or {}).get("bpa") else None),
             "bpa":    BPA_DATA[ticker]["bpa"] if ticker in BPA_DATA else None,
+            "bpa_12m": (BPA_DATA.get(ticker) or {}).get("bpa_12m"),
             # ⚠️ Le price-to-book vient désormais des FAITS SOURCÉS quand ils
             # existent, et vaut None sinon — jamais la constante de FOND_DATA.
             # Sur Alliances, la table annonçait 0,80 quand les comptes 2025

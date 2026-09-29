@@ -129,6 +129,7 @@ jobs:
           recent = [(s, v.get('date_maj','')) for s,v in d.items()]
           recent.sort(key=lambda x: x[1], reverse=True)
           top5 = recent[:5]
-          print(f'- **Mises à jour récentes** : {', '.join(s for s,_ in top5)}')
+          noms = ', '.join(s for s,_ in top5)
+          print(f'- **Mises à jour récentes** : {noms}')
           " >> $GITHUB_STEP_SUMMARY
           fi

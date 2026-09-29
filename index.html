@@ -2075,10 +2075,15 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                 </div>
               </a>;})()}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-              {[["PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"],["Alpha 12M",`${r.alpha>0?"+":""}${r.alpha}%`,r.alpha>=0?"#00e5a0":"#ff4f5a"]].map(([k,v,c,ratio])=>(
+              {[[r.pe_base&&r.pe_base.startsWith("12")?"PER 12 mois":"PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"],["Alpha 12M",`${r.alpha>0?"+":""}${r.alpha}%`,r.alpha>=0?"#00e5a0":"#ff4f5a"]].map(([k,v,c,ratio])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
                   <div style={{fontSize:13,color:c,fontWeight:700}}>{v}</div>
+                  {/* ⚠️ 29/09 : le PER affiché porte sur douze mois glissants quand
+                      les comptes semestriels ont été lus. L'annuel reste visible :
+                      l'écart entre les deux EST l'information (Managem 63 → 30). */}
+                  {ratio==="pe"&&r.pe_base?.startsWith("12")&&r.pe_annuel!=null&&
+                    <div title={`PER sur ${r.pe_base} ; exercice 2025 seul : ${r.pe_annuel}`} style={{fontSize:9,color:"#5a6478",marginTop:1}}>exercice 2025 : {fmt(r.pe_annuel,1)}</div>}
                   {/* ⚠️ LE RANG DANS SON SECTEUR — ajouté le 25/09.
                       « Un P/B de 2,16 n'a pas le même sens dans l'immobilier
                       que dans les télécoms. » Le chiffre nu laissait le
@@ -3205,7 +3210,7 @@ function App(){
         d.tickers.forEach(t=>{m[t.symbol]={
           price:t.price,chg:t.chg,vol:t.vol||0,open:t.open,close:t.close,
           name:t.name,sector:t.sector,code_bvc:t.code_bvc,_meta:t._meta,
-          pe:t.pe,pb:t.pb,div:t.div,cap:t.cap,fwd:t.fwd,
+          pe:t.pe,pe_annuel:t.pe_annuel,pe_base:t.pe_base,pb:t.pb,div:t.div,cap:t.cap,fwd:t.fwd,
           h90:t.h90,l90:t.l90,ma200:t.ma200,h52w:t.h52w,l52w:t.l52w,
           rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,
           macd:t.macd,macd_signal:t.macd_signal,macd_hist:t.macd_hist,
