@@ -110,3 +110,10 @@ def test_cih_est_ecarte_faute_de_piece():
     """Le dépôt dit 35,6 M d'actions au 30/06, le marché en implique 39,2 M
     aujourd'hui. Sans pièce, R11 : on n'écrit rien."""
     assert "CIH" not in JEU["titres"] and "CIH" in JEU["_ecartes"]
+
+
+def test_cmgp_et_vicenne_sur_piece():
+    """Lot 3 : deux BPA de source secondaire, trop hauts d'environ 40 %."""
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    # 244 ÷ 17 000 900 = 14,35 ; 144,284126 ÷ 10 258 850 = 14,06
+    assert (bpa["CMGP"]["bpa"], bpa["VCNE"]["bpa"]) == (14.35, 14.06)
