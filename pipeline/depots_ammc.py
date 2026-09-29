@@ -60,7 +60,11 @@ ALIAS_AMMC = {
     "marsa maroc": "MSA",    # « Marsa Maroc » — notre « Sodep-Marsa Maroc »
 }
 
-_RESULTATS = re.compile(r"(?i)r[ée]sultats|rapport financier|\bRFS\b|profit warning|indicateurs")
+# ⚠️ « indicateurs » N'EN FAIT PAS PARTIE. Relevé le 29/09 sur RDS : « CP
+# relatif aux indicateurs du 2ème trimestre 2026 » donne un chiffre d'affaires
+# trimestriel, pas des comptes. Le compter comme un dépôt de résultats
+# signalerait « comptes plus récents publiés » là où il n'y en a aucun.
+_RESULTATS = re.compile(r"(?i)r[ée]sultats|rapport financier|\bRFS\b|profit warning")
 _AVERTISSEMENT = re.compile(r"(?i)profit warning|avertissement")
 
 

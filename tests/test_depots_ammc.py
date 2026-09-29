@@ -69,3 +69,9 @@ def test_le_detecteur_voit_ce_que_les_actualites_ont_manque():
     assert par_ticker(titres, []) == {}
     r = par_ticker(titres, [], {"CMGP": {"date": "2026-09-29", "titre": "t", "url": "u"}})
     assert r["CMGP"]["retard_jours"] == 103
+
+
+def test_des_indicateurs_trimestriels_ne_sont_pas_des_comptes():
+    """RDS, 29/09 : un chiffre d'affaires trimestriel, pas un résultat."""
+    e = [{"date": "2026-09-29", "titre": "RDS - CP relatif aux indicateurs du 2ème trimestre 2026", "url": "u"}]
+    assert depots_par_ticker(e) == {}
