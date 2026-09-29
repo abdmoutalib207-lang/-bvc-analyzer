@@ -81,7 +81,7 @@ def test_un_passage_hors_fenetre_n_ecrase_aucun_moment(tmp_path):
 
 
 def test_le_terminal_lit_les_deux_fichiers():
-    ecran = (RACINE / "index.html").read_text(encoding="utf-8")
+    ecran = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
     for f in ("briefing_mijournee.json", "briefing_cloture.json"):
         assert f'fetch("{f}' in ecran, f"le terminal ne lit pas {f}"
 

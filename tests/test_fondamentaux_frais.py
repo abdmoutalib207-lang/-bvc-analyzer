@@ -163,7 +163,7 @@ def test_l_avertissement_voyage_dans_meta():
     n'atteignait jamais l'écran — la fusion recopie une liste nommée. Placer
     l'avertissement dans `_meta`, qui traverse en bloc, l'évite par
     construction."""
-    ecran = (RACINE / "index.html").read_text(encoding="utf-8")
+    ecran = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
     assert "_meta:t._meta" in ecran, "le bloc _meta ne traverse plus la fusion"
     assert "comptes_plus_recents" in ecran, "l'écran n'affiche pas l'avertissement"
 
@@ -177,7 +177,7 @@ def test_l_ecran_dit_qu_il_ne_lit_pas_les_chiffres():
     # bien que le test rougissait sur du code juste. Quatrième fois de la
     # journée qu'un test lit de la prose : un fichier entier contient aussi
     # ses commentaires.
-    ecran = (RACINE / "index.html").read_text(encoding="utf-8")
+    ecran = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
     i = ecran.find("meta(r).comptes_plus_recents")
     assert i > 0, "le composant ne lit pas l'avertissement"
     bloc = ecran[i:i + 1600]

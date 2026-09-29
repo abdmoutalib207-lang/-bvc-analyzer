@@ -158,7 +158,7 @@ def test_la_confiance_tombe_a_zero():
 def test_le_frontend_nomme_la_suspension():
     """« Données insuffisantes » serait un contresens : les données ne
     manquent pas, le titre ne cote plus."""
-    s = (RACINE / "index.html").read_text(encoding="utf-8")
+    s = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
     assert "meta(r).susp" in s, "le frontend ne lit pas le drapeau"
     assert 'label="SUSPENDU"' in s, "le classement n'affiche pas l'état"
     assert "SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}" in s, (
@@ -198,7 +198,7 @@ def test_le_frontend_nomme_aussi_la_reprise_de_cotation():
     survendu face à des moyennes deux fois trop hautes. On corrige ce qui est
     DIT, pas ce qui est calculé.
     """
-    s = (RACINE / "index.html").read_text(encoding="utf-8")
+    s = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
     assert "meta(r).reprise_recente" in s, (
         "le frontend ne lit pas le drapeau de reprise")
     assert "REPRISE DE COTATION" in s, (

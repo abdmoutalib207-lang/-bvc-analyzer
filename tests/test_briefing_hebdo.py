@@ -142,7 +142,7 @@ def test_le_moteur_produit_le_bilan_et_le_terminal_le_lit():
     assert any(isinstance(n, ast.ImportFrom)
                and (n.module or "").endswith("briefing_hebdo")
                for n in ast.walk(arbre)), "le moteur ne génère pas le bilan"
-    ecran = (RACINE / "index.html").read_text(encoding="utf-8")
+    ecran = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
     assert "briefing_hebdo.json" in ecran, "le terminal ne lit pas le bilan"
 
 

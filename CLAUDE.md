@@ -24,7 +24,10 @@ La pondération est dynamique et contextuelle (WeightEngine), pas statique.
 > documentation plutôt que de les laisser vieillir.
 
 ```
-FRONTEND  → index.html      2 546 lignes — React 18 + JSX compilé au navigateur
+FRONTEND  → terminal.src.html — la SOURCE (React 18 + JSX) ; index.html est sa
+             COMPILATION (tools/compiler_terminal.js), ne jamais le modifier à la
+             main. Précompilé depuis le 29/09 : ouverture 4,9 s → 0,8 s sur
+             ordinateur, 14,8 s → 2,6 s sur téléphone (mesuré, copie locale).
              radar.html       564 lignes — console de veille (JS sans framework)
              audience.html    154 lignes — fréquentation, non liée, non indexée
              ⚠️ Aucune étape de build : Babel compile le JSX à la volée. Pas de

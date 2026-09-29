@@ -51,7 +51,7 @@ RACINE = Path(__file__).resolve().parent.parent
 
 
 def _front():
-    return (RACINE / "index.html").read_text(encoding="utf-8")
+    return (RACINE / "terminal.src.html").read_text(encoding="utf-8")
 
 
 # ── 1. Le moteur publie-t-il les composantes ? ───────────────────────────
