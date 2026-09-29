@@ -246,6 +246,19 @@ Smart Money, Contrarian et Hype spike : **zéro occurrence sur 80 titres** ;
 `conv` vaut « DIVERGE » sur **80/80**, c'est une constante affichée comme une
 mesure. Chantier suivant.
 
+**Gel étendu le 29/09/2026** (sous réserve d'accord, R8) : les six bonus
+lisant le corpus, la condition smart money du palier ACHAT FORT (suspendu) et
+les trois modulateurs de pondération tirés du corpus sont retirés. Effet sur
+la livraison du 28/09 : 35 titres −0,15 ; RIS et IBM passent de SURVEILLER à
+ATTENDRE ; aucun ACHETER ne bouge. Backtest sur les notes publiées (25 jours
+depuis le 10/08, 1 765 observations à 5 séances) : corrélation à l'alpha
+−0,0555 → −0,0480. ⚠️ **Négative dans les deux cas** : sur cette période, la
+note ne se montre pas prédictive — un seul régime, observations chevauchantes,
+et ce n'est pas la même mesure que celle du 25/09 (base seule, 13 jours).
+Garde-fou : `tests/test_gel_nlp.py`, par invariance. ⚠️ **Reste ouvert** : le
+score de CONFIANCE compte encore deux points tirés du corpus (mentions, smart
+money).
+
 ⚠️ **Historique** : la formule était `Tech×25% + Fond×47% + NLP×28%` du début
 jusqu'au 25/09/2026. Une documentation plus ancienne indiquait NLP×36% —
 erreur de saisie : 47+36+25=108%, mathématiquement impossible.

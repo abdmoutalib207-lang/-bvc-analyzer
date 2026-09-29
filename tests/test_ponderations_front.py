@@ -320,6 +320,14 @@ def test_l_en_tete_ne_presente_plus_la_base_comme_appliquee():
     cessait de dire qu'elle est modulée.
     """
     s = _src()
-    assert "modulée par titre" in s, (
+    # ⚠️ 29/09 : « modulée par titre » était lui-même inexact. Les seuls
+    # modulateurs propres à un titre lisaient le corpus WhatsApp et sont
+    # retirés avec le gel NLP ; il ne reste que le contexte de MARCHÉ, commun
+    # aux 80 titres (80/80 à 78/22 au 28/09). L'intention du test est
+    # inchangée — dire que la base est modulée — et le libellé doit dire par
+    # QUOI, sans promettre une modulation qui n'existe pas.
+    assert "modulée par le marché" in s, (
         "l'en-tête présente la pondération de base comme si elle s'appliquait "
         "telle quelle")
+    assert "modulée par titre" not in s, (
+        "l'écran annonce une modulation par titre : elle n'existe plus")

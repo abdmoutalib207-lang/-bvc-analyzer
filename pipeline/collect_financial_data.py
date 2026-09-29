@@ -189,8 +189,11 @@ def to_legacy_format(pipeline_out: dict) -> dict:
         # `nlp_score` reste calculé et publié — à poids nul, pas supprimé.
         v53        = round(score_tech * 0.3472 + fond_score * 0.6528, 2)
 
+        # ⚠️ « ACHAT FORT » SUSPENDU, comme dans `update_data.py::compute_v53`
+        # (gel NLP du 29/09). Ici il était servi dès 7,5 sans la condition
+        # smart money que le moteur principal exigeait : les deux pipelines ne
+        # publiaient déjà pas le même palier pour la même note.
         def sig(s):
-            if s >= 7.5: return "ACHAT FORT ★★★"
             if s >= 6.5: return "ACHETER ★★"
             if s >= 5.5: return "SURVEILLER ★"
             if s >= 4.5: return "ATTENDRE"
