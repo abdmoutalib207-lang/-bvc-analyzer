@@ -293,6 +293,13 @@ jobs:
           # dépendances, c'est se préparer à un rouge qu'on finira par
           # contourner. `tests.yml` installe requirements_dev.txt ; ici aussi.
           pip install --quiet -r requirements_dev.txt
+          # ⚠️ 29/09 : MÊME DÉFAUT QUE LE 12/09, REFAIT. test_terminal_compile
+          # recompile le terminal et exige le compilateur sous Actions ; seul
+          # tests.yml l'installait. Le passage de 18h45 a produit des données
+          # saines (13/13 contrôles) et n'a rien publié. Le compilateur est
+          # installé ici aussi, et test_terminal_compile vérifie désormais que
+          # CHAQUE workflow qui lance la suite l'installe.
+          npm install --no-save --no-package-lock @babel/standalone@7.29.9
           echo "Suite complète sur le data.json généré, AVANT publication."
           python -m pytest --tb=short -q
 
@@ -403,6 +410,7 @@ jobs:
           # dépendances, c'est se préparer à un rouge qu'on finira par
           # contourner. `tests.yml` installe requirements_dev.txt ; ici aussi.
           pip install --quiet -r requirements_dev.txt
+          npm install --no-save --no-package-lock @babel/standalone@7.29.9
           python -m pytest --tb=line -q || echo "::warning::La suite de tests signale un écart sur les données publiées."
 
       # ── 4b. Contrôle qualité ──────────────────────────────
