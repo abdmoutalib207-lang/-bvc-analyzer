@@ -795,6 +795,23 @@ lignes.
 
 **Cause non établie.** Ne pas la deviner.
 
+✅ **Établie le 29/09, par l'historique git de `data.json`** : la source
+elle-même a RÉVISÉ le total après la clôture.
+
+| écrit à (UTC) | `volume_mad` | titres |
+|---|---|---|
+| 25/09 16:59 | 477 539 830,98 | 1 396 493 — **= « Central » de la capture** |
+| 25/09 19:32 | 477 819 735,78 | 1 397 123 |
+| 25/09 21:23 | 477 819 735,78 | 1 397 123 |
+
+La capture a été prise avant la révision ; le bulletin, publié après, porte le
+chiffre révisé. Il ne s'agissait ni d'un bloc ni d'un défaut du moteur, mais
+d'un **chiffre de fin de séance provisoire** chez l'opérateur. Conséquence
+pratique : **ne comparer deux sources sur un total de séance qu'après le
+soir** — le run de 18h00 en est le premier témoin fiable. Résidu restant
+contre le bulletin : 8,20 DH et 2 titres le 25/09, 4,05 DH et 1 titre le 28/09
+— arrondis de ligne, non investigués.
+
 ### La leçon
 
 J'ai proposé une explication — le bloc — parce qu'elle rendait les deux
