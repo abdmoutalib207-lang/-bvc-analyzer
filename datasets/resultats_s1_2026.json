@@ -232,9 +232,78 @@
       "source_exercice_2025": "même document, p.15, bilan consolidé, colonne 31/12/2025 — yuna.ma sous-entend un BPA de 14,21 contre 14,06 ici",
       "actions": 10258850,
       "source_actions": "référentiel de l'opérateur du 16/09/2026 : capitalisation 3 349 514 525 DH ÷ 326,5 DH = 10 258 850 exactement, soit le capital de 512 942 500 DH au nominal de 50"
+    },
+    "BOA": {
+      "url": "https://www.ammc.ma/sites/default/files/BOA_S1_26.pdf",
+      "base": "résultat net part du groupe, consolidé (IFRS)",
+      "rnpg_s1_2026": 2481.492,
+      "rnpg_s1_2025": 2251.235,
+      "ca_s1_2026": 10489.53,
+      "ca_s1_2025": 10348.702,
+      "ca_libelle": "produit net bancaire consolidé",
+      "pages": "compte de résultat consolidé IFRS (RNPG et PNB, colonnes 30/06/2026 et 30/06/2025)",
+      "rnpg_exercice_2025": 3813.552,
+      "source_exercice_2025": "https://www.ammc.ma/sites/default/files/BOA_2025.pdf — compte de résultat consolidé, « Part du groupe 3 813 552 »",
+      "actions": 220281881,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation ÷ cours) ; fondamentaux.json portait 215 786 333, antérieur à l'augmentation de capital"
+    },
+    "BMC": {
+      "url": "https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf",
+      "base": "résultat net part du groupe, consolidé (IFRS)",
+      "rnpg_s1_2026": 352.528,
+      "rnpg_s1_2025": 222.773,
+      "ca_s1_2026": 2005.825,
+      "ca_s1_2025": 1988.808,
+      "ca_libelle": "produit net bancaire consolidé",
+      "pages": "compte de résultat consolidé IFRS ; RNPG +58 % pour un PNB +0,9 % : la hausse vient du COÛT DU RISQUE, 396,993 → 149,652 MDH, et non d'une cession (« gains ou pertes nets sur autres actifs » −7,3 contre −4,8 ; Arval reste en actifs destinés à être cédés). Un coût du risque bas peut ne pas durer : la croissance est réelle, sa répétition n'est pas établie",
+      "rnpg_exercice_2025": 434.829,
+      "source_exercice_2025": "https://www.ammc.ma/sites/default/files/BMCI_2025.pdf — « RÉSULTAT NET PART DU GROUPE 434 829 », recoupé par le bilan S1 2026 (colonne 31/12/2025)",
+      "actions": 13279286,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026, identique à fondamentaux.json"
+    },
+    "BCP": {
+      "url": "https://www.ammc.ma/sites/default/files/CP_BCP_S1_26.pdf",
+      "base": "résultat net part du groupe, consolidé (IFRS)",
+      "rnpg_s1_2026": 3218.874,
+      "rnpg_s1_2025": 2915.647,
+      "pages": "⚠️ S1 2026 DÉRIVÉ : le communiqué ne donne que « 3,2 milliards » et « +10,4 % » ; 2 915,647 × 1,104 = 3 218,874, cohérent avec 3,2 Md. Précision ±1,5 MDH (variation arrondie au dixième). S1 2025 exact : https://www.ammc.ma/sites/default/files/BCP_S1_25.pdf, « RÉSULTAT NET-PART DU GROUPE 2 915 647 ». PNB consolidé : le communiqué (deux colonnes entrelacées) donne « en recul de 3,2 % » pour le Groupe, sans montant ; le « −11,1 % à 8,7 milliards » est celui de la Banque au Maroc. Seule la variation est reprise.",
+      "rnpg_exercice_2025": 4503.361,
+      "source_exercice_2025": "https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf — compte de résultat consolidé",
+      "actions": 203312473,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026, identique à fondamentaux.json",
+      "croissance_ca_publiee": -3.2
+    },
+    "WAF": {
+      "url": "https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_S1_26.pdf",
+      "base": "résultat net part du groupe, consolidé (IFRS)",
+      "rnpg_s1_2026": 760.0,
+      "rnpg_s1_2025": 692.0,
+      "ca_s1_2026": 10031.0,
+      "ca_s1_2025": 7883.0,
+      "ca_libelle": "primes émises groupe",
+      "pages": "communiqués S1 2026 et S1 2025 (https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_S1_25.pdf) : 760 et 692 MDH, arrondis au million ; 692 × 1,098 = 759,8, cohérent",
+      "rnpg_exercice_2025": 1026.036,
+      "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_2025.pdf — « Résultat net consolidé - Part Du Groupe 1026036 »",
+      "actions": 3500000,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 ; l'ancienne note divisait par 4,18 M d'actions, nombre qui n'est pas celui de la société"
+    },
+    "ATL": {
+      "url": "https://www.ammc.ma/sites/default/files/CP_AtlantaSanad_S1_26.pdf",
+      "base": "résultat net SOCIAL de la compagnie (le consolidé S1 2025 et exercice 2025 n'est pas disponible en texte)",
+      "rnpg_s1_2026": 287.0,
+      "rnpg_s1_2025": 272.975,
+      "ca_s1_2026": 3977.0,
+      "ca_s1_2025": 3663.0,
+      "ca_libelle": "chiffre d'affaires",
+      "pages": "CP S1 2026 : résultat net 287 MDH (+5,3 %), CA 3 977 (+8,6 %) ; S1 2025 exact : https://www.ammc.ma/sites/default/files/AtlantaSanad_S1_25.pdf, « Résultat net de l'exercice 272 974 748,48 » ; CA S1 2025 3 663 au communiqué",
+      "rnpg_exercice_2025": 466.228,
+      "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Avis_AtlantaSanad_AGO_19_05_26.pdf — « bénéfice net comptable de 466.227.926,11 dirhams » (le rapport financier 2025 est une image sans texte)",
+      "actions": 60283595,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 ; recoupé par l'avis d'AGO : dividendes 355 673 210,50 DH ÷ 5,90 DH = 60 283 595 exactement"
     }
   },
   "_ecartes": {
-    "CIH": "Le dépôt donne 35 605 624 actions au 30/06/2026 (31 497 283 un an plus tôt), mais la capitalisation IDBourse et celle de yuna.ma impliquent ≈ 39,2 M aujourd'hui. Une opération sur le capital postérieure au 30/06 n'est pas établie : R11, on ne tranche pas sans pièce."
+    "CIH": "Le dépôt donne 35 605 624 actions au 30/06/2026 (31 497 283 un an plus tôt), mais la capitalisation IDBourse et celle de yuna.ma impliquent ≈ 39,2 M aujourd'hui. Une opération sur le capital postérieure au 30/06 n'est pas établie : R11, on ne tranche pas sans pièce.",
+    "SAF": "Fusion-absorption d'Allianz Maroc actée le 02/07/2026 : le communiqué S1 2026 précise que ses chiffres portent sur Sanlam Maroc « avant la fusion », alors que le nombre d'actions coté est déjà celui d'après (5 341 874 au référentiel du 16/09, contre 4 116 874). Diviser des bénéfices d'avant par des actions d'après sous-estimerait le BPA d'un quart. Pas de BPA douze mois tant que des comptes fusionnés ne sont pas publiés. ⚠️ Le BPA actuel (195,6) n'est pas non plus établi : 451,6 MDH ÷ 4 116 874 = 109,7."
   }
 }
