@@ -582,6 +582,76 @@ def composer(data: dict, series=None) -> dict:
     return b
 
 
+# ── Les trois moments de la journée — ajouté le 29/09/2026 ─────────────────
+#
+# Demandé par Abd Moutalib : une lecture de MI-JOURNÉE et une de CLÔTURE, à
+# côté de la dernière lecture. `briefing.json` est réécrit à chaque passage :
+# il ne peut pas servir de trace d'un moment. Chaque moment a donc son fichier,
+# écrit seulement quand le passage tombe dans sa fenêtre.
+#
+# ⚠️ Les heures sont celles des passages déclenchés par cron-job.org
+# (9h45 … 15h45, puis 18h45), lues sur l'horloge du REGISTRE `heure_maroc()`.
+
+# Mi-journée : le passage de 12h45 l'écrit, celui de 13h45 le remplace, et plus
+# rien ne le touche ensuite. Borne haute à 14h00 pour que la lecture de
+# mi-journée reste celle de la MI-journée, et non la dernière avant clôture.
+MI_JOURNEE = (1200, 1400)
+# Le run qui fixe le cours — même valeur que `porte_rattrapage`. Avant, la
+# séance du jour n'est pas close ; après, elle l'est.
+CLOTURE_FIXEE = 1545
+
+FICHIERS_MOMENT = {
+    "mi_journee": "briefing_mijournee.json",
+    "cloture": "briefing_cloture.json",
+}
+
+
+def moment(seance: str, aujourd_hui: str, hhmm: int) -> str | None:
+    """« cloture », « mi_journee » ou None. Fonction pure.
+
+    ⚠️ LA CLÔTURE SE RECONNAÎT À LA SÉANCE, PAS SEULEMENT À L'HEURE. Une
+    séance ANTÉRIEURE à aujourd'hui est close, quelle que soit l'heure : un
+    passage de 9h00, un samedi ou un jour férié relit la dernière séance close
+    et peut réécrire sa lecture de clôture — c'est ce qui la rattrape si les
+    passages de 15h45 et 18h45 ont tous deux sauté.
+    """
+    if not seance:
+        return None
+    if seance < aujourd_hui or hhmm >= CLOTURE_FIXEE:
+        return "cloture"
+    if seance == aujourd_hui and MI_JOURNEE[0] <= hhmm < MI_JOURNEE[1]:
+        return "mi_journee"
+    return None
+
+
+def dater(b: dict, aujourd_hui: str, hhmm: int) -> dict:
+    """Pose sur le briefing le moment et l'heure d'écriture.
+
+    ⚠️ UNE LECTURE EN SÉANCE EST PARTIELLE, ET ELLE LE DIT. À 13h45, les
+    volumes n'ont couru que quatre heures : les comparer à une médiane de
+    séances ENTIÈRES sous-estime l'activité, et la largeur peut encore
+    s'inverser. Le lecteur doit le lire dans le briefing, pas le deviner.
+    """
+    b["moment"] = moment(b.get("seance"), aujourd_hui, hhmm) or "en_seance"
+    b["ecrit_a"] = f"{aujourd_hui} {hhmm // 100:02d}:{hhmm % 100:02d}"
+    if b.get("seance") == aujourd_hui and hhmm < CLOTURE_FIXEE:
+        b.setdefault("non_mesurable", []).insert(
+            0, f"la séance entière — lecture prise à {hhmm // 100}h"
+               f"{hhmm % 100:02d}, avant la clôture de 15h30 : volumes, largeur "
+               f"et variations sont partiels")
+    return b
+
+
+def ecrire_moment(b: dict, racine=None) -> str | None:
+    """Recopie le briefing dans le fichier de son moment, s'il en a un."""
+    nom = FICHIERS_MOMENT.get(b.get("moment"))
+    if not nom:
+        return None
+    from pathlib import Path
+    dossier = Path(racine) if racine else Path(__file__).resolve().parent.parent
+    return ecrire(b, dossier / nom)
+
+
 def ecrire(b: dict, chemin=None) -> str:
     """Publie le briefing dans un fichier que le terminal peut lire.
 

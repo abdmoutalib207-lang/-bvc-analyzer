@@ -1690,6 +1690,11 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
 const Briefing=()=>{
   const [b,setB]=useState(null);
   const [h,setH]=useState(null);
+  // ⚠️ Mi-journée et clôture — ajoutés le 29/09/2026. Deux fichiers de plus,
+  // parce que `briefing.json` est réécrit à chaque passage et ne garde la
+  // trace d'aucun moment. Écrits par `pipeline/briefing.py::ecrire_moment`.
+  const [mj,setMj]=useState(null);
+  const [cl,setCl]=useState(null);
   // ⚠️ « jour » ou « semaine ». Deux fichiers distincts, parce qu'un bilan de
   // semaine ne remplace pas la lecture de la dernière séance : le premier dit
   // où en est le marché, le second ce qui vient de se passer.
@@ -1700,7 +1705,9 @@ const Briefing=()=>{
     Promise.all([
       fetch("briefing.json?t="+t).then(r=>r.ok?r.json():null).catch(()=>null),
       fetch("briefing_hebdo.json?t="+t).then(r=>r.ok?r.json():null).catch(()=>null),
-    ]).then(([j,s])=>{setB(j);setH(s);setEtat(j?"ok":"absent");});
+      fetch("briefing_mijournee.json?t="+t).then(r=>r.ok?r.json():null).catch(()=>null),
+      fetch("briefing_cloture.json?t="+t).then(r=>r.ok?r.json():null).catch(()=>null),
+    ]).then(([j,s,m,c])=>{setB(j);setH(s);setMj(m);setCl(c);setEtat(j?"ok":"absent");});
   },[]);
 
   if(etat==="chargement")return <div style={{color:"#8892a4",padding:20}}>Chargement du briefing…</div>;
@@ -1713,17 +1720,25 @@ const Briefing=()=>{
     </div>);
 
   const semaine=vue==="semaine"&&h;
-  const src=semaine?h:b;
+  const PAR_VUE={jour:b,mijournee:mj,cloture:cl};
+  const src=semaine?h:(PAR_VUE[vue]||b);
   const a=src.actualites||{};
   const liens=[...(a.titres||[]),...(a.autres||[])];
-  const ONG=[{id:"jour",label:"LA SÉANCE"},{id:"semaine",label:"LA SEMAINE"}];
+  // ⚠️ Un onglet dont le fichier n'est pas encore publié reste visible mais
+  // inactif, avec la raison — plutôt que de disparaître sans explication.
+  const ONG=[
+    {id:"jour",label:"DERNIÈRE LECTURE",dispo:true},
+    {id:"mijournee",label:"MI-JOURNÉE",dispo:!!mj,pourquoi:"Écrite par le passage de 12h45, puis de 13h45 — pas encore publiée."},
+    {id:"cloture",label:"CLÔTURE",dispo:!!cl,pourquoi:"Écrite par le passage de 15h45 — pas encore publiée."},
+    {id:"semaine",label:"LA SEMAINE",dispo:!!h,pourquoi:"Le bilan de semaine n'a pas été publié par le dernier run."}];
+  const LIB_MOMENT={mi_journee:"Lecture de mi-journée",cloture:"Lecture de clôture",en_seance:"Lecture en séance"};
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
       <div style={{display:"flex",gap:4}}>
         {ONG.map(o=>{
-          const actif=vue===o.id, dispo=o.id==="jour"||!!h;
+          const actif=vue===o.id, dispo=o.dispo;
           return <button key={o.id} onClick={()=>dispo&&setVue(o.id)}
-            title={dispo?"":"Le bilan de semaine n'a pas été publié par le dernier run."}
+            title={dispo?"":o.pourquoi}
             style={{background:actif?"rgba(0,229,160,.12)":"#0a1220",
               border:`1px solid ${actif?"rgba(0,229,160,.4)":"#1a2540"}`,
               color:!dispo?"#3a4358":actif?"#00e5a0":"#8892a4",
@@ -1733,11 +1748,11 @@ const Briefing=()=>{
 
       <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
         <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>
-          {semaine?"Bilan de la semaine":"Lecture de la séance"}</div>
+          {semaine?"Bilan de la semaine":(LIB_MOMENT[src.moment]||"Lecture de la séance")}</div>
         <div style={{fontSize:13,color:"#4db8ff",marginBottom:12}}>
           {semaine
             ?`${h.semaine?.n||0} séance${(h.semaine?.n||0)>1?"s":""} cotée${(h.semaine?.n||0)>1?"s":""}${h.semaine?.seances?.length?` · ${h.semaine.seances[0]} → ${h.semaine.seances[h.semaine.seances.length-1]}`:""}`
-            :(b.seance||"—")}</div>
+            :<>{src.seance||"—"}{src.ecrit_a&&<span style={{color:"#5a6478",fontSize:11,marginLeft:8}}>· écrite le {src.ecrit_a.slice(8,10)}/{src.ecrit_a.slice(5,7)} à {src.ecrit_a.slice(11)}</span>}</>}</div>
         <ul style={{margin:0,paddingLeft:18,fontSize:13.5,lineHeight:1.65,color:"#c8d3e8"}}>
           {(src.constats||[]).map((c,i)=><li key={i} style={{marginBottom:6}}>{c}</li>)}
           {(src.constats||[]).length===0&&<li style={{color:"#8892a4"}}>Rien de mesurable à signaler.</li>}
