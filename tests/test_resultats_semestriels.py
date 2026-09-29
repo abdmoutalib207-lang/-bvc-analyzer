@@ -82,3 +82,31 @@ def test_le_per_ne_vaut_jamais_zero():
     from update_data import _per
     assert _per(100, None) is None and _per(0, 5) is None
     assert _per(626, 25.36) == 24.7
+
+
+# ── Lot 2 — 29/09/2026 ─────────────────────────────────────────────────────
+
+def test_maroc_leasing_n_est_plus_marsa_maroc():
+    """La fiche MRL se disait « Alias MSA » et portait les 73 395 600 actions
+    de Marsa Maroc. Deux sociétés distinctes — MSA/MUT est la confusion que
+    CLAUDE.md interdit, MSA/MRL en était une autre."""
+    fond = json.loads((RACINE / "fondamentaux.json").read_text(encoding="utf-8"))
+    assert fond["MRL"]["nb_actions"] == 2776768
+    assert fond["MRL"]["nb_actions"] != fond["MSA"]["nb_actions"]
+    assert not (fond["MRL"].get("note") or "").startswith("Alias MSA")
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    # 107,295 MDH ÷ 2 776 768 = 38,64
+    assert bpa["MRL"]["bpa"] == 38.64
+
+
+def test_trois_bpa_secondaires_remplaces_par_le_depot():
+    # 85,457932 ÷ 1,885762 = 45,32 ; 307,19143 ÷ 87,6 = 3,51 ; 750,5 ÷ 3,4375 = 218,33
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    assert (bpa["DSW"]["bpa"], bpa["DHO"]["bpa"], bpa["GAZ"]["bpa"]) == (45.32, 3.51, 218.33)
+    assert (bpa["DSW"]["bpa_avant_2026_09_29"], bpa["GAZ"]["bpa_avant_2026_09_29"]) == (56.43, 266.9)
+
+
+def test_cih_est_ecarte_faute_de_piece():
+    """Le dépôt dit 35,6 M d'actions au 30/06, le marché en implique 39,2 M
+    aujourd'hui. Sans pièce, R11 : on n'écrit rien."""
+    assert "CIH" not in JEU["titres"] and "CIH" in JEU["_ecartes"]
