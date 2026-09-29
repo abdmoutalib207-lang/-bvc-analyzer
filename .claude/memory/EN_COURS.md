@@ -39,7 +39,33 @@ fait rien. Procédure complète : `docs/DECLENCHEUR_EXTERNE.md`.
 
 ---
 
-## ⚠️ EN ATTENTE — le jeton du déclencheur externe
+## ✅ EN PLACE LE 29/09/2026 — déclencheur externe via cron-job.org
+
+Installé par Abd Moutalib depuis son téléphone, après échec de la voie
+Cloudflare : l'éditeur de code du Worker **refuse le collage sur iPhone**.
+cron-job.org n'a que des champs de formulaire, et le collage y fonctionne.
+
+  - tâche **« BVC séance »** : `45 9-15,18 * * 1-5`, fuseau `Africa/Casablanca`
+    → 9h45, 10h45 … 15h45 (le run de clôture) et **18h45** (filet) ;
+  - `POST https://api.github.com/repos/abdmoutalib207-lang/-bvc-analyzer/actions/workflows/update_bvc.yml/dispatches`,
+    corps `{"ref":"main"}`, en-têtes `Accept`, `Content-Type`, `Authorization` ;
+  - **test de fonctionnement : 204**, run `workflow_dispatch` n° 3928 vu dans
+    Actions à 13h35 UTC ;
+  - la réponse GitHub donne l'expiration exacte : **2026-12-25 21:59:20 UTC**.
+
+⚠️ **Le jeton est un jeton CLASSIQUE à portée `repo`** (en-tête
+`X-OAuth-Scopes: repo`) : lecture et écriture sur tout le code. Au
+renouvellement, le remplacer par un jeton fine-grained limité à ce dépôt,
+permission Actions seule.
+
+⚠️ **Pas d'alerte automatique** tant que « Notify on failure » n'est pas
+coché dans cron-job.org — conseillé à Abd le 29/09, non vérifié.
+
+Un Worker Cloudflare `bvc-declencheur` existe, resté en « Hello World » : il
+ne fait rien, sans cron ni secret. Inoffensif ; à supprimer ou à finir depuis
+un ordinateur.
+
+### Ancienne consigne Cloudflare, conservée pour mémoire
 
 **Date d'expiration à noter ici dès la création du jeton**, avec un rappel un
 mois avant.
