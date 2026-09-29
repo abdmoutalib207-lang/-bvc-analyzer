@@ -168,28 +168,8 @@ FOND_SCORES = {
     "JET":5.91,"M2M":6.36,"INV":5.68,"S2M":5.91,"COL":6.14,
     "AFM":6.36,"AGM":6.36,"FNB":5.91,"BAL":6.14,
 }
-
-# ⚠️ NOTE FIGÉE DU 03/06/2026, retirée de l'affichage le 29/09/2026.
-# Elle n'est plus publiée (`bvc`, `delta`). Elle garde UN usage, et il est
-# connu : la condition de la pénalité « Upside négatif » de compute_v53().
-# Le retirer changerait des notes (MSA −0,20 au 29/09) — décision R8, à part.
-BVC_SCORES_BASE = {
-    # Tickers actifs (19)
-    "CMT":7.16,"SMI":6.95,"CASH":6.73,"MNG":6.59,"AKD":6.20,"SOT":6.62,
-    "SGTM":5.77,"MSA":6.28,"CFGB":5.44,"RIS":4.71,"ADI":5.00,"VCNE":4.93,
-    "CMGP":5.17,"CSR":4.58,"TGCC":5.22,"ADH":4.28,"SRM":4.88,"SNA":4.10,"RDS":3.76,
-    # Grandes capitalisations
-    "IAM":7.08,"ATW":7.25,"BCP":7.00,"BOA":6.58,"CIH":6.75,"CDM":6.75,
-    "WAF":6.92,"LHM":7.10,"GAZ":7.20,"ATL":6.90,"HPS":7.15,"LBV":6.70,
-    "LES":6.60,"TQA":7.05,"MRL":6.88,"TMA":6.65,
-    # Moyennes capitalisations
-    "ARD":6.45,"SAF":6.55,"OUL":6.30,"CIM":6.80,"CTM":6.20,"ZLD":5.40,
-    "ALU":6.10,"MGL":5.70,"DAR":5.20,"IMI":6.35,"DTT":6.15,
-    # Petites capitalisations
-    "DSW":5.90,"MOX":5.85,"STR":5.60,"TIM":5.45,"SNP":5.20,"SLM":6.10,
-    "JET":5.65,"M2M":6.10,"INV":5.40,"S2M":5.65,"COL":5.90,
-    "AFM":6.10,"AGM":6.05,"FNB":5.60,"BAL":5.85,
-}
+# `BVC_SCORES_BASE` — note saisie le 03/06 — archivée le 29/09/2026 :
+# archive/bvc_scores_base_2026-06-03.py.
 
 FOND_DATA = {
     # ── Grandes capitalisations (nouvelles) ──────────────────────────
@@ -2981,7 +2961,7 @@ def _apport_actualites(ticker: str) -> float:
     return contribution(mesures.get(ticker))
 
 
-def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, context) -> dict:
+def compute_v53(ticker, score_tech, score_fond, red_flags, upside, context) -> dict:
     """ScoreEngineV53.compute() — score enrichi avec bonus/malus."""
     sent = SENTIMENT.get(ticker, {
         "smart": 0, "hype": 0, "alpha": 0, "win": 0.5,
@@ -3034,7 +3014,14 @@ def compute_v53(ticker, score_tech, score_fond, bvc_score, red_flags, upside, co
     #
     # ⚠️ Le garde-fou est un test d'INVARIANCE (tests/test_gel_nlp.py) : le
     # sentiment le plus extrême ne doit changer ni la note ni le signal.
-    bvc_bull = bvc_score >= 5.5
+    # ⚠️ « SIGNAL POSITIF » = NOTRE NOTE, plus la table de juin — 29/09/2026.
+    # La condition lisait `BVC_SCORES_BASE`, une note saisie le 03/06 et jamais
+    # recalculée : c'est elle qui décidait qui subissait la pénalité ci-dessous.
+    # Mesuré sur 41 jours publiés (164 cas d'upside < −10 %) : 19 décisions
+    # différentes, toutes sur RIS, épargné par sa note de juin (4,71) alors que
+    # sa propre note dépassait 5,5 ; aucun changement de palier. Remplacée par
+    # la note calculée avant bonus, avec l'accord d'Abd Moutalib (R8).
+    bvc_bull = base >= 5.5
 
     # Red flags pénalité
     if red_flags >= 3:
@@ -3874,7 +3861,6 @@ def run(dry_run=False, push=False, token=""):
         score_tech = calc_score_tech(rsi, price, ma20, ma50, h90, l90)
         # Score fondamental : fondamentaux.json en priorité, table statique en fallback
         score_fond = _FOND_COMPUTED.get(ticker) or FOND_SCORES.get(ticker, 5.0)
-        bvc_score  = BVC_SCORES_BASE.get(ticker, 5.0)
 
         # Contexte de pondération.
         #
@@ -3893,7 +3879,7 @@ def run(dry_run=False, push=False, token=""):
         sent = SENTIMENT.get(ticker, {})
 
         # Score enrichi v5.3
-        v53 = compute_v53(ticker, score_tech, score_fond, bvc_score,
+        v53 = compute_v53(ticker, score_tech, score_fond,
                           fd.get("flags", 0), fd.get("upside") or 0, ctx)
 
         # Setup technique (déduit du score et des MAs)

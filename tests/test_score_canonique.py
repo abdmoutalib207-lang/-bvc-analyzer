@@ -85,14 +85,21 @@ def test_deux_versions_dans_un_run_sont_gardees_toutes(tmp_path, monkeypatch):
     assert sh.enregistrer("2026-09-29", ts)["seances"]["2026-09-29"]["score_version"] == ["x", "y"]
 
 
-def test_la_note_ne_change_pas():
-    """Retirer l'affichage ne touche pas au calcul : v53 et sig identiques.
+def test_la_penalite_upside_suit_la_note_calculee():
+    """« Upside négatif avec signal positif » : le signal positif est désormais
+    NOTRE note avant bonus, plus la table saisie le 03/06 (accord R8, 29/09).
 
-    ⚠️ La note figée garde UN usage connu dans le calcul — la condition de la
-    pénalité « Upside négatif » — dont le retrait est une décision R8 à part.
+    Attendus à la main, pondération 65,28 / 34,72 : 6×0,3472 + 7×0,6528 =
+    6,65 ≥ 5,5 → pénalisé ; 4×0,3472 + 5×0,6528 = 4,65 < 5,5 → épargné.
     """
     import update_data as u
     ctx = {"market_status": "CLOSED", "masi_ytd": 0.0}
-    r = u.compute_v53("ZZTEST", 6.0, 7.0, 6.0, 0, -20.0, dict(ctx))
-    assert "-Upside négatif -0.20" in r["bonus"]
-    assert "bvc" not in r and "delta" not in r
+    haut = u.compute_v53("ZZTEST", 6.0, 7.0, 0, -20.0, dict(ctx))
+    bas = u.compute_v53("ZZTEST", 4.0, 5.0, 0, -20.0, dict(ctx))
+    assert "-Upside négatif -0.20" in haut["bonus"]
+    assert "-Upside négatif -0.20" not in bas["bonus"]
+    assert "bvc" not in haut and "delta" not in haut
+
+
+def test_la_note_figee_n_est_plus_lue():
+    assert "BVC_SCORES_BASE" not in re.sub(r"#.*", "", MOTEUR)

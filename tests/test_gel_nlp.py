@@ -67,8 +67,10 @@ CHAMPS_GELES = ("v53", "sig", "poids", "bonus", "warn", "conv")
 def _calcul(monkeypatch, sentiment, apport_news, cas, contexte):
     monkeypatch.setitem(u.SENTIMENT, TICKER, dict(sentiment))
     monkeypatch.setattr(u, "_apport_actualites", lambda _t: apport_news)
-    st, sf, bvc, flags, upside = cas
-    return u.compute_v53(TICKER, st, sf, bvc, flags, upside, dict(contexte))
+    # ⚠️ La note figée (`_bvc`) n'est plus un argument depuis le 29/09/2026 ;
+    # la colonne reste dans CAS pour ne pas réécrire les cas mesurés.
+    st, sf, _bvc, flags, upside = cas
+    return u.compute_v53(TICKER, st, sf, flags, upside, dict(contexte))
 
 
 @pytest.mark.parametrize("cas", CAS)
