@@ -115,9 +115,17 @@ def retard(fond_asof, depot: dict | None) -> dict | None:
                          f"{ecart} jours d'écart")}
 
 
-def par_ticker(tickers: list, articles: list) -> dict:
-    """{ticker: retard} pour les seuls titres en retard. Fonction pure."""
+def par_ticker(tickers: list, articles: list, depots_ammc: dict | None = None) -> dict:
+    """{ticker: retard} pour les seuls titres en retard. Fonction pure.
+
+    ⚠️ `depots_ammc` — ajouté le 29/09/2026 : les dépôts lus directement sur
+    la liste du régulateur (`depots_ammc.py`). Les actualités étiquetées en
+    manquaient une douzaine. Des deux sources, la plus RÉCENTE l'emporte.
+    """
     depots = depots_officiels(articles)
+    for t, d in (depots_ammc or {}).items():
+        if t not in depots or (_jour(d.get("date")) or date.min) > (_jour(depots[t]["date"]) or date.min):
+            depots[t] = d
     out = {}
     for x in tickers or []:
         sym = (x or {}).get("symbol")

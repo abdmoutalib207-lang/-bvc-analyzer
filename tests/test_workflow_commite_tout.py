@@ -54,6 +54,7 @@ ECRITS_PAR_LE_MOTEUR = [
     ("briefing_mijournee.json", "la lecture de mi-journée, figée à 13h45"),
     ("briefing_cloture.json", "la lecture de clôture"),
     ("news.json", "les actualités, collectées par le moteur depuis le 29/09"),
+    ("pipeline/depots_ammc.json", "les dépôts de résultats lus sur la liste de l'AMMC"),
 ]
 
 
