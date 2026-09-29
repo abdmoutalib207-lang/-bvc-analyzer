@@ -18,7 +18,14 @@ historique** — cela recréerait une référence exposée.
 
 ---
 
-## 🔔 UNE DÉCISION R8 À PRENDRE — la note figée entre encore dans le calcul (29/09/2026)
+## ✅ TRANCHÉ LE 29/09/2026 (accord d'Abd Moutalib) — la note figée ne compte plus
+
+La condition de la pénalité lit désormais la note calculée avant bonus ;
+`BVC_SCORES_BASE` est archivée, `SCORE_VERSION` = v5.3-sans-note-figee-2026-09-29.
+Historique mesuré : 19 décisions différentes sur 164 (toutes RIS), 0 palier.
+Ce qui suit est le constat d'origine, gardé pour la trace.
+
+### (constat) la note figée entrait encore dans le calcul
 
 Le score canonique est en place : `bvc`, `delta` et `sigBvc` ne sont plus ni
 publiés ni affichés, `score_version` accompagne chaque note

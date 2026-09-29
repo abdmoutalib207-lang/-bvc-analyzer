@@ -788,4 +788,6 @@ TICKERS_ALL: list = [
 # À CHANGER à toute modification de pondération, de bonus ou de palier (R8).
 #   v5.3-gel-nlp-2026-09-29 : Fond 65,28 / Tech 34,72 / NLP 0 (25/09), six
 #   bonus du corpus retirés et ACHAT FORT suspendu (29/09).
-SCORE_VERSION = "v5.3-gel-nlp-2026-09-29"
+#   v5.3-sans-note-figee-2026-09-29 : la pénalité « Upside négatif » se
+#   déclenche sur la note calculée, plus sur la table saisie le 03/06.
+SCORE_VERSION = "v5.3-sans-note-figee-2026-09-29"
