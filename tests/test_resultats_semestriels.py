@@ -117,3 +117,32 @@ def test_cmgp_et_vicenne_sur_piece():
     bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
     # 244 ÷ 17 000 900 = 14,35 ; 144,284126 ÷ 10 258 850 = 14,06
     assert (bpa["CMGP"]["bpa"], bpa["VCNE"]["bpa"]) == (14.35, 14.06)
+
+
+def test_banques_et_assureurs_sur_piece():
+    """Lot 4. Attendus calculés à la main depuis les dépôts AMMC."""
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    # AtlantaSanad : 466,228 + 287 − 272,975 = 480,253 MDH ÷ 60 283 595 = 7,97.
+    # L'ancien 1,99 supposait un bénéfice annuel de 100 MDH, inférieur à un
+    # seul semestre (273 MDH) : impossible.
+    assert bpa["ATL"]["bpa_12m"] == 7.97 and bpa["ATL"]["bpa_avant_2026_09_29"] == 1.99
+    # Wafa Assurance : 1 026,036 ÷ 3 500 000 = 293,15 (l'ancien divisait par 4,18 M)
+    assert bpa["WAF"]["bpa"] == 293.15
+    # BOA : 3 813,552 ÷ 220 281 881 = 17,31
+    assert bpa["BOA"]["bpa"] == 17.31
+    # BCP : 4 503,361 + 3 218,874 − 2 915,647 = 4 806,588 ÷ 203 312 473 = 23,64
+    assert bpa["BCP"]["bpa_12m"] == 23.64
+    # BMCI : 434,829 + 352,528 − 222,773 = 564,584 ÷ 13 279 286 = 42,52
+    assert bpa["BMC"]["bpa_12m"] == 42.52
+
+
+def test_variation_publiee_sans_montant_reprise_telle_quelle():
+    """BCP ne publie que « PNB consolidé −3,2 % ». La croissance de l'exercice
+    (+5,4 %) ne doit pas rester en place comme si elle était celle du semestre."""
+    fond = json.loads((RACINE / "fondamentaux.json").read_text(encoding="utf-8"))
+    assert fond["BCP"]["croissance_ca"] == -3.2
+
+
+def test_sanlam_ecarte_pour_fusion():
+    """Bénéfices d'avant la fusion avec Allianz, actions d'après : pas de BPA."""
+    assert "SAF" not in JEU["titres"] and "Allianz" in JEU["_ecartes"]["SAF"]

@@ -54,7 +54,10 @@ def douze_mois(t: dict) -> dict | None:
         out["croissance_bpa"] = t["croissance_bpa_publiee"]
     elif t["rnpg_s1_2025"] > 0:
         out["croissance_bpa"] = round((t["rnpg_s1_2026"] / t["rnpg_s1_2025"] - 1) * 100, 1)
-    if t.get("ca_s1_2025"):
+    if t.get("croissance_ca_publiee") is not None:
+        # Variation publiée sans montant (BCP, S1 2026) : reprise telle quelle.
+        out["croissance_ca"] = t["croissance_ca_publiee"]
+    elif t.get("ca_s1_2025"):
         out["croissance_ca"] = round((t["ca_s1_2026"] / t["ca_s1_2025"] - 1) * 100, 1)
     return out
 
@@ -75,6 +78,11 @@ def appliquer(jeu: dict, bpa: dict, fond: dict) -> list[str]:
             journal.append(f"{s} : BPA 2025 {b['bpa']} → {exercice} "
                            f"({t['rnpg_exercice_2025']} MDH ÷ {t['actions']:,} actions)")
             b["bpa"] = exercice
+        elif b.get("bpa") is None:
+            # Titre sans BPA jusqu'ici (BMCI) : l'exercice publié le fournit.
+            b["bpa"] = exercice
+            b.setdefault("source", "resultats_officiels")
+            journal.append(f"{s} : BPA 2025 absent → {exercice}")
         b["rnpg_12m"] = m["rnpg_12m"]
         b["bpa_12m"] = m["bpa_12m"]
         b["fin_12m"] = jeu["fin_periode"]
