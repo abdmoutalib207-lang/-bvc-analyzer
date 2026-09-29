@@ -197,7 +197,7 @@ def test_tout_titre_publie_porte_au_moins_ses_bornes():
 def test_l_ecran_distingue_visuellement_les_deux_familles():
     """⚠️ La séparation dans les données ne sert à rien si l'écran les
     aligne dans la même liste."""
-    ecran = (RACINE / "index.html").read_text(encoding="utf-8")
+    ecran = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
     assert "r.niveaux" in ecran, "les niveaux sont calculés mais invisibles"
     i = ecran.find("r.niveaux")
     bloc = ecran[i:i + 3000]

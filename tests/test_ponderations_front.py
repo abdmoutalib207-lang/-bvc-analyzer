@@ -32,7 +32,7 @@ la skill `run-tests`.
 import re
 from pathlib import Path
 
-FRONT = Path(__file__).resolve().parent.parent / "index.html"
+FRONT = Path(__file__).resolve().parent.parent / "terminal.src.html"
 
 
 def _src():

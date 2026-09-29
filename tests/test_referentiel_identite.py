@@ -179,7 +179,7 @@ def test_le_frontend_ne_contredit_pas_le_referentiel():
     qui la rend d'autant plus dangereuse : on ne la lit jamais.
     """
     from bvc_config import COMPANY_NAMES, COMPANY_SECTORS
-    s = (RACINE / "index.html").read_text(encoding="utf-8")
+    s = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
     motif = re.compile(r'\{symbol:"([A-Z0-9]{2,5})"\s*,\s*name:"([^"]*)"\s*,\s*sector:"([^"]*)"')
     lignes = motif.findall(s)
     assert len(lignes) > 40, f"table figée introuvable ({len(lignes)} lignes)"

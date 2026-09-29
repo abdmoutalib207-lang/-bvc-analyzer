@@ -174,6 +174,6 @@ def test_le_pb_publie_reste_dans_une_plage_defendable():
 
 def test_le_frontend_supporte_un_pb_absent():
     """Nullifier 76 valeurs ne doit pas produire « null » à l'écran."""
-    s = (RACINE / "index.html").read_text(encoding="utf-8")
+    s = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
     assert 'r.pb?.toFixed(2)||"—"' in s, (
         "la fiche n'a pas de repli pour un price-to-book absent")

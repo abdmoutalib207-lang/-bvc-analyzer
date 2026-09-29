@@ -45,7 +45,7 @@ from pathlib import Path
 import pytest
 
 RACINE = Path(__file__).resolve().parent.parent
-FRONT = RACINE / "index.html"
+FRONT = RACINE / "terminal.src.html"
 CANDLES = RACINE / "pipeline" / "candles"
 
 

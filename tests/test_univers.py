@@ -33,7 +33,7 @@ from pathlib import Path
 from conftest import chemin_data_json  # noqa: E402
 
 RACINE = Path(__file__).resolve().parent.parent
-FRONT = RACINE / "index.html"
+FRONT = RACINE / "terminal.src.html"
 
 
 def _static_du_front():

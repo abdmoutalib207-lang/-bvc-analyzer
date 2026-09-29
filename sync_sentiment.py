@@ -134,8 +134,14 @@ def compute_meta(scores):
 
 
 def update_meta_in_index(meta: dict):
-    """Met à jour le bloc META dans index.html."""
-    idx = ROOT / "index.html"
+    """Met à jour le bloc META dans la SOURCE du terminal.
+
+    ⚠️ Depuis le 29/09/2026, index.html est la COMPILATION de
+    terminal.src.html : l'écrire directement serait effacé à la compilation
+    suivante. On écrit la source ; il reste à lancer
+    `node tools/compiler_terminal.js`.
+    """
+    idx = ROOT / "terminal.src.html"
     if not idx.exists():
         return
     content = idx.read_text(encoding="utf-8")
@@ -153,7 +159,8 @@ def update_meta_in_index(meta: dict):
         new_block, content, flags=re.DOTALL
     )
     idx.write_text(content, encoding="utf-8")
-    print(f"   index.html META mis à jour : {meta}")
+    print(f"   terminal.src.html META mis à jour : {meta} — "
+          "recompiler : node tools/compiler_terminal.js")
 
 
 def main():

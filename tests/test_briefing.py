@@ -334,7 +334,7 @@ def test_le_moteur_ecrit_le_briefing():
 def test_le_terminal_lit_le_briefing_et_dit_quand_il_manque():
     """⚠️ Un panneau vide se lit « rien à signaler », ce qui est faux. Le
     terminal doit DIRE que le briefing manque."""
-    ecran = (RACINE / "index.html").read_text(encoding="utf-8")
+    ecran = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
     assert "briefing.json" in ecran, "le terminal ne lit pas le briefing"
     assert '{id:"briefing"' in ecran, "l'onglet BRIEFING n'existe pas"
     i = ecran.find('etat==="absent"')

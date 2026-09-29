@@ -37,7 +37,7 @@ sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(RACINE / "pipeline"))
 
 SOURCE = (RACINE / "update_data.py").read_text(encoding="utf-8")
-ECRAN = (RACINE / "index.html").read_text(encoding="utf-8")
+ECRAN = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
 
 
 # ── ⚠️ Le code du fournisseur, jamais deviné ───────────────────────────────

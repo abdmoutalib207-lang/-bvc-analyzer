@@ -37,7 +37,7 @@ import pytest
 RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE))
 
-ECRAN = (RACINE / "index.html").read_text(encoding="utf-8")
+ECRAN = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
 
 
 @pytest.fixture(scope="module")

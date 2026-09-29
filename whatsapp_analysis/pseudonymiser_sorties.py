@@ -36,7 +36,10 @@ HTML_A_TRAITER = ("report.html",)
 # taux de réussite et des messages qui leur étaient attribués. C'est la page
 # publiée sur GitHub Pages : plus exposée encore que les fichiers de données,
 # parce qu'elle se lit sans savoir ce qu'est un dépôt.
-AUTRES_A_TRAITER = (RACINE / "index.html",)
+# ⚠️ Depuis le 29/09/2026, index.html est compilé depuis terminal.src.html :
+# les deux sont traités, la source pour que la correction survive à la
+# prochaine compilation.
+AUTRES_A_TRAITER = (RACINE / "terminal.src.html", RACINE / "index.html")
 
 COLONNES_AUTEUR = ("author", "auteur", "member", "source", "target", "from", "to")
 

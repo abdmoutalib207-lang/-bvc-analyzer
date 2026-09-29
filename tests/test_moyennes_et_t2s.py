@@ -227,7 +227,7 @@ def _jsx() -> str:
     prendre cinq fois.
     """
     import re
-    s = (RACINE / "index.html").read_text(encoding="utf-8")
+    s = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
     bloc = re.search(r'<script type="text/babel"[^>]*>(.*?)</script>', s, re.S).group(1)
     bloc = re.sub(r"\{/\*.*?\*/\}", "", bloc, flags=re.S)
     return re.sub(r"/\*.*?\*/", "", bloc, flags=re.S)
