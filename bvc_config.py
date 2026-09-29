@@ -1,6 +1,6 @@
 """Point de vérité unique pour les constantes BVC Analyzer."""
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 # ── Noms officiels des sociétés cotées BVC ──────────────────────────────────
 # Source de vérité : ces noms priment sur tout ce que retournent les scrapers.
@@ -470,6 +470,23 @@ def decalage_maroc(jour) -> int:
         else:
             break
     return offset
+
+
+def heure_maroc(instant: datetime | None = None) -> datetime:
+    """L'heure légale marocaine, selon le registre `DECALAGES_MAROC`.
+
+    `instant` : un datetime AVEC fuseau (maintenant si absent). Renvoie le même
+    instant exprimé à l'heure du Maroc.
+
+    ⚠️ C'EST LA SEULE HORLOGE DU PROJET. Relevé par l'audit indépendant du
+    26/09 : la porte de rattrapage lisait `ZoneInfo("Africa/Casablanca")`,
+    la garde shell du workflow `TZ=Africa/Casablanca date`, et le reste du
+    moteur ce registre. Les deux premières répondaient UTC+1, le registre
+    UTC+0 : la porte jugeait l'âge d'un fichier écrit à l'heure du registre
+    avec une montre qui avançait d'une heure.
+    """
+    n = (instant or datetime.now(timezone.utc)).astimezone(timezone.utc)
+    return n.astimezone(timezone(timedelta(hours=decalage_maroc(n.date()))))
 
 
 SEANCES_ANNULEES: dict = {

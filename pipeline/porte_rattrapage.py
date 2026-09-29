@@ -43,6 +43,14 @@ suivent en partie le calendrier lunaire et une telle liste ne serait pas tenue
 à jour — c'est le raisonnement retenu le 14/08 pour les séances fantômes, et il
 vaut ici. Le frein se déduit des données.
 
+⚠️ CE QUE LA PORTE NE GARANTIT PAS — relevé par l'audit du 26/09, et voulu.
+Entre 09h50 et 16h30, un fichier qui porte la séance du jour est « à jour »,
+qu'il ait été écrit à 09h55 ou à 15h00. La porte ne mesure donc pas l'ÂGE d'un
+cours en séance. C'est cohérent avec la promesse du produit — « dernière clôture
+fiable », jamais « temps réel » — et chaque run de plus consommerait le quota
+de publication de Pages. Un cours de milieu de séance affiché à 14h n'est pas
+une panne ; une clôture manquée l'est, et la porte la rattrape après 16h30.
+
     python pipeline/porte_rattrapage.py            # lit data.json et décide
     python pipeline/porte_rattrapage.py --pourquoi # explique sans décider
 """
@@ -54,10 +62,11 @@ import sys
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 RACINE = Path(__file__).resolve().parent.parent
-CASA = ZoneInfo("Africa/Casablanca")
+sys.path.insert(0, str(RACINE))
+
+from bvc_config import heure_maroc  # noqa: E402
 
 # Bornes des deux fenêtres, en HHMM Casablanca.
 #
@@ -161,12 +170,14 @@ def main() -> int:
         data = json.loads(chemin.read_text(encoding="utf-8"))
     except Exception:
         data = None
-    now = datetime.now(CASA)
+    # ⚠️ L'heure du REGISTRE, pas celle de la base de fuseaux du runner : le
+    # champ `updated` que l'on compare est écrit avec elle. Deux montres
+    # différentes décalaient les fenêtres d'une heure (audit du 26/09).
+    now = heure_maroc()
     maintenant = now.hour * 100 + now.minute
     aujourd_hui = now.strftime("%Y-%m-%d")
     source, nb = None, None
     if maintenant < OUVERTURE_FENETRE_MATIN or now.weekday() >= 5:
-        sys.path.insert(0, str(RACINE))
         from pipeline.seance_source import derniere_seance_source
         try:
             source = derniere_seance_source()
