@@ -4342,7 +4342,24 @@ def run(dry_run=False, push=False, token=""):
                 .get("articles") or [])
         except Exception:                                 # noqa: BLE001
             _articles = []
-        _r = _frais(tickers_out, _articles)
+        # ⚠️ 29/09/2026 : la liste des dépôts du régulateur, lue directement.
+        # Non bloquant : sans réseau, on garde ce que le cache a déjà vu.
+        _depots_ammc = {}
+        try:
+            from pipeline.depots_ammc import (charger as _ammc_charger,
+                                              depots_par_ticker as _ammc_par_ticker,
+                                              mettre_a_jour as _ammc_maj)
+            try:
+                _entrees = _ammc_maj()
+            except Exception as _ee:                      # noqa: BLE001
+                logger.warning(f"dépôts AMMC : liste injoignable ({_ee}) — cache seul")
+                _entrees = _ammc_charger()
+            _depots_ammc = _ammc_par_ticker(_entrees)
+            logger.info(f"dépôts AMMC : {len(_entrees)} entrées, "
+                        f"{len(_depots_ammc)} titres avec un dépôt de résultats")
+        except Exception as _ee:                          # noqa: BLE001
+            logger.warning(f"dépôts AMMC : indisponibles ({_ee})")
+        _r = _frais(tickers_out, _articles, _depots_ammc)
         for _t in tickers_out:
             _e = _r.get(_t.get("symbol"))
             if _e:
