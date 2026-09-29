@@ -64,7 +64,7 @@ def test_sans_matiere_la_variation_de_la_source_est_conservee(ud, candles, prix,
 
 # ── ISIN suspect : le garde-fou Sothema ────────────────────────────────────
 
-def test_moyenne_incoherente_avec_le_prix_neutralise_les_indicateurs(ud):
+def test_moyenne_incoherente_avec_le_prix_retire_les_indicateurs(ud):
     """Le cas d'école : Sothema cote ~360 DH, la MA20 en annonce 1 666.
 
     Une moyenne mobile qui s'écarte du prix d'un facteur 3 ne décrit pas le
@@ -74,9 +74,10 @@ def test_moyenne_incoherente_avec_le_prix_neutralise_les_indicateurs(ud):
     rsi, ma20, ma50, h90, l90, suspect = ud.neutraliser_si_isin_suspect(
         "SOT", 360.0, 79.6, 1666.0, 1700.0, 1800.0, 1500.0)
     assert suspect is True
-    assert rsi == 50.0
-    assert ma20 == 360.0 and ma50 == 360.0
-    assert h90 == 414.0 and l90 == 306.0
+    # ⚠️ Jusqu'au 29/09/2026 : RSI 50, MA = cours, extrêmes ±15 % — des
+    # valeurs inventées que la note technique lisait comme des mesures.
+    # Désormais retirées : la note technique s'abstient.
+    assert (rsi, ma20, ma50, h90, l90) == (None, None, None, None, None)
 
 
 def test_prix_aberrant_face_a_une_moyenne_saine_declenche_aussi(ud):
@@ -102,7 +103,7 @@ def test_ecart_normal_ne_declenche_pas(ud):
     assert rsi == 79.6 and ma20 == 96.74, "rien ne doit être touché"
 
 
-@pytest.mark.parametrize("prix,ma20", [(0.0, 100.0), (100.0, 0.0), (0.0, 0.0)])
+@pytest.mark.parametrize("prix,ma20", [(0.0, 100.0), (100.0, 0.0), (0.0, 0.0), (100.0, None)])
 def test_valeurs_absentes_ne_declenchent_rien(ud, prix, ma20):
     """Sans les deux termes, la comparaison n'a pas de sens."""
     _, _, _, _, _, suspect = ud.neutraliser_si_isin_suspect(

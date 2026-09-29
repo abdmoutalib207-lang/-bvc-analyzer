@@ -18,6 +18,24 @@ historique** — cela recréerait une référence exposée.
 
 ---
 
+## 🔔 UNE DÉCISION R8 À PRENDRE — les deux derniers malus lisent une table figée (30/09/2026)
+
+Les seuls bonus/malus encore actifs dans `compute_v53()` — « Red flags » et
+« Upside négatif » — lisent `FOND_DATA`, une table d'objectifs et de
+drapeaux ÉCRITE EN DUR : `upside` n'est jamais recalculé (MSA : −13, saisi),
+et 25 objectifs « base » sur 60 sont sous le cours du 29/09. `_objectifs()`
+écarte les plus absurdes (facteur 2) ; depuis le 30/09 la note lit l'upside
+PUBLIÉ, donc filtré — SNA n'est plus pénalisé sur un objectif de 540 DH pour
+un cours de 1 850. Mais le reste de la table est figé.
+Options : recalculer les objectifs depuis les fondamentaux (BPA 12 mois ×
+PER de référence), ou geler ces deux malus comme ceux du corpus. Mesurer,
+puis demander l'accord (R8), puis changer `SCORE_VERSION`.
+
+⚠️ Leçon (R12) : le contrôle historique de la PR #114 lisait l'upside PUBLIÉ,
+le moteur l'upside BRUT. La mesure et le code ne regardaient pas la même
+variable ; une exécution à blanc complète l'a montré. En faire une étape
+systématique avant toute PR qui change une note.
+
 ## ✅ TRANCHÉ LE 29/09/2026 (accord d'Abd Moutalib) — la note figée ne compte plus
 
 La condition de la pénalité lit désormais la note calculée avant bonus ;

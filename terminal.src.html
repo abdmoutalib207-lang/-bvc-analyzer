@@ -22,6 +22,7 @@
     ::-webkit-scrollbar{width:5px;height:5px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px;}
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
+    .mobile-seul{display:none}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
     /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
        Trois défauts : l'en-tête COLLÉ en haut couvrait plus de la moitié de
@@ -37,7 +38,9 @@
       .onglets::-webkit-scrollbar{display:none}
       .onglets>*{flex:0 0 auto}
       .onglets button{padding:7px 12px!important}
-      /* Le classement garde : ticker, clôture, variation, score, signal. */
+      .mobile-seul{display:block!important}
+      /* Le classement garde : ticker, clôture (+ ouverture), variation
+         (+ volume), score, signal. */
       .classement{min-width:0!important}
       .classement th:nth-child(1),.classement td:nth-child(1),
       .classement th:nth-child(3),.classement td:nth-child(3),
@@ -771,7 +774,13 @@ function CompanyLogo({sym,sector,size=32}){
 }
 
 const RSIGauge=({value})=>{
-  const v=Math.min(100,Math.max(0,value||50));
+  /* ⚠️ UN RSI ABSENT N'EST PAS UN RSI DE 50 — 29/09/2026. `value||50`
+     dessinait une jauge « NEUTRE » pour un titre sans historique, et
+     transformait au passage un vrai RSI de 0 en 50. */
+  if(value==null||!isFinite(value)) return(
+    <div style={{textAlign:"center",fontSize:10,color:"#8892a4",padding:"18px 6px"}}>
+      RSI (14) indisponible<br/><span style={{fontSize:9}}>moins de 15 séances cotées</span></div>);
+  const v=Math.min(100,Math.max(0,value));
   const color=v>70?"#ff4f5a":v<30?"#00e5a0":"#ffd740";
   const label=v>70?"SURACHETÉ":v<30?"SURVENDU":"NEUTRE";
   const a=-Math.PI+Math.PI*(v/100);
@@ -1133,7 +1142,7 @@ const StockChart=({r})=>{
               `r.rsi||…||50` reste : un RSI absent y devient 50, c'est-à-dire
               « neutre » alors que rien n'a été mesuré. Signalé, non corrigé
               ici — il touche l'affichage de tous les titres sans historique. */}
-          {isLive&&"● "}RSI:{(r.rsi||r.rsi14||50).toFixed(0)} · MA20:{r.ma20?px(r.ma20):"—"} · MA50:{r.ma50?px(r.ma50):"—"} · MA200:{r.ma200?px(r.ma200):"—"}
+          {isLive&&"● "}RSI:{(r.rsi??r.rsi14)!=null?(r.rsi??r.rsi14).toFixed(0):"—"} · MA20:{r.ma20?px(r.ma20):"—"} · MA50:{r.ma50?px(r.ma50):"—"} · MA200:{r.ma200?px(r.ma200):"—"}
         </span>
       </div>
       {msg&&(
@@ -1460,8 +1469,8 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       r=r.filter(x=>(x.symbol||x.ticker||"").includes(q)||tk(x).includes(q)||(x.name||"").toUpperCase().includes(q));
     }
     if(sigFilter) r=r.filter(x=>(x.sig||"").startsWith(sigFilter));
-    if(rsiZone==="survendu") r=r.filter(x=>(x.rsi||x.rsi14||50)<30);
-    if(rsiZone==="surachete") r=r.filter(x=>(x.rsi||x.rsi14||50)>70);
+    if(rsiZone==="survendu") r=r.filter(x=>(x.rsi??x.rsi14)!=null&&(x.rsi??x.rsi14)<30);
+    if(rsiZone==="surachete") r=r.filter(x=>(x.rsi??x.rsi14)!=null&&(x.rsi??x.rsi14)>70);
     return r;
   },[rows,sector,search,group,sigFilter,rsiZone]);
 
@@ -1480,7 +1489,13 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
     if(sort==="nlp") return b.nlp-a.nlp;
     if(sort==="var") return b.chg-a.chg;
     if(sort==="alpha") return b.alpha-a.alpha;
-    if(sort==="rsi") return (a.rsi||a.rsi14||50)-(b.rsi||b.rsi14||50);
+    if(sort==="rsi"){
+      /* Un RSI absent n'est ni bas ni haut : en fin de liste. */
+      const ra=a.rsi??a.rsi14,rb=b.rsi??b.rsi14;
+      if(ra==null) return rb==null?0:1;
+      if(rb==null) return -1;
+      return ra-rb;
+    }
     return 0;
   }),[filtered,sort,scoreMode]);
   const SORTS=[["az","A → Z"],["v53",customMode?"SCORE PERSO":("SCORE v5.3")],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
@@ -1576,10 +1591,12 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
               const s=SS(r.sig);const sym=r.symbol||r.ticker;
               const displayScore=computeDisplayScore(r,scoreMode);
               const manque=composantesManquantes(r,scoreMode);
-              const rsiVal=r.rsi||r.rsi14||50;
+              const rsiVal=r.rsi??r.rsi14??null;
               const rsiColor=rsiVal>70?"#ff4f5a":rsiVal<30?"#00e5a0":"#ffd740";
-              /* indicateurs tech estimés : MA20 = MA50 (données live non encore reçues) */
-              const isStat=r.ma20>0&&r.ma50>0&&Math.abs(r.ma20-r.ma50)<0.01;
+              /* ⚠️ Indicateurs absents : moins de 15 séances cotées. Le test
+                 « MA20 = MA50 » repérait les valeurs inventées par le moteur ;
+                 il n'en invente plus (29/09/2026), il les laisse vides. */
+              const isStat=rsiVal==null;
               return(
                 <tr key={sym} onClick={()=>{setSel(sym);setTab("detail");}}
                   style={{borderBottom:"1px solid #0d1829",cursor:"pointer",transition:"background .12s"}}
@@ -1593,7 +1610,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                         <div style={{display:"flex",alignItems:"center",gap:5}}>
                           <span style={{fontSize:16,color:"#fff",fontWeight:800,letterSpacing:.3}}>{tk(r)}</span>
                           {r.warn&&<span title={r.warnMsg} style={{fontSize:10,cursor:"help"}}>⚠️</span>}
-                          {isStat&&<span title="Indicateurs techniques estimés — données live en attente" style={{fontSize:9,color:"#8892a4",border:"1px solid #1a2540",borderRadius:2,padding:"1px 3px",cursor:"default"}}>~stat</span>}
+                          {isStat&&<span title="Historique insuffisant : indicateurs techniques absents, la note technique s'abstient (5,0)" style={{fontSize:9,color:"#8892a4",border:"1px solid #1a2540",borderRadius:2,padding:"1px 3px",cursor:"default"}}>~hist</span>}
                           <button onClick={e=>{e.stopPropagation();toggleFav(sym);}} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
                             style={{fontSize:14,color:fav.includes(sym)?"#ffd740":"#2a3550",border:"none",background:"none",cursor:"pointer",padding:"0 1px",lineHeight:1,transition:"color .15s"}}>
                             {fav.includes(sym)?"★":"☆"}
@@ -1604,12 +1621,18 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       </div>
                     </div>
                   </td>
-                  <td style={{padding:"8px 8px",fontSize:12,color:"#8892a4"}}>{px(r.open||+(( r.price||r.prix)/(1+(r.chg||0)/100)).toFixed(0))}</td>
+                  <td style={{padding:"8px 8px",fontSize:12,color:"#8892a4"}}>{/* ⚠️ Ouverture ABSENTE = « — ». Le repli `cours ÷ (1 + var.)` affichait la
+                      clôture de la VEILLE sous l'étiquette « ouvert » (30/09/2026). */}{r.open?px(r.open):"—"}</td>
                   <td style={{padding:"8px 8px",fontSize:13,color:"#c8d3e8",fontWeight:600}}>
                     {px(r.price||r.prix||r.close)}<Perime r={r}/>
                     {r.live&&<span style={{fontSize:8,color:"#00e5a0",marginLeft:3,verticalAlign:"super"}}>●</span>}
+                    {/* Téléphone seulement : les colonnes OUVERT et VOLUME y
+                        sont masquées faute de largeur, leurs valeurs passent
+                        sous la clôture et la variation (demande du 30/09). */}
+                    <div className="mobile-seul" style={{fontSize:9.5,color:"#8892a4",fontWeight:400}}>ouv. {r.open?px(r.open):"—"}</div>
                   </td>
-                  <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</td>
+                  <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}
+                    <div className="mobile-seul" style={{fontSize:9.5,color:"#8892a4",fontWeight:400}}>vol. {r.vol!=null?(r.vol>=1e6?`${(r.vol/1e6).toFixed(1)} M`:r.vol>=1e4?`${Math.round(r.vol/1e3)} k`:r.vol.toLocaleString("fr-FR").replace(/\u202f|,/g," ")):"—"}</div></td>
                   {/* ⚠️ LE VOLUME DE LA SÉANCE — ajouté le 25/09/2026, il manquait.
                       Le classement montrait la variation sans jamais dire sur
                       combien d'échanges elle s'était faite. Un titre à +3 %
@@ -1647,7 +1670,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   <td style={{padding:"8px 8px",fontSize:12,color:r.alpha>=0?"#00e5a0":"#ff4f5a",fontWeight:600}}>{r.alpha!=null?<>{r.alpha>0?"+":""}{r.alpha}%{r.alpha<0&&<span style={{fontSize:10}}>⚠️</span>}</>:"—"}</td>
                   <td style={{padding:"8px 8px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:5}}>
-                      <span style={{fontSize:12,color:isStat?"#8892a4":rsiColor,fontWeight:700}}>{isStat?"~":""}{rsiVal}</span>
+                      <span style={{fontSize:12,color:isStat?"#8892a4":rsiColor,fontWeight:700}}>{isStat?"—":rsiVal}</span>
                       {!isStat&&<div style={{width:30,background:"#0a1220",borderRadius:2,height:4}}>
                         <div style={{width:`${rsiVal}%`,height:"100%",background:rsiColor,borderRadius:2}}/>
                       </div>}
@@ -1694,7 +1717,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       <div style={{marginTop:12,padding:"10px 14px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
         <span style={{color:"#00e5a0"}}>●</span> SCORE = base Fond×65% + Tech×35% (NLP gelé à 0 depuis le 25/09), <span style={{color:"#ffd740"}}>modulée par le contexte de marché</span> — ouverture de la séance et tendance du MASI depuis janvier ; le poids appliqué est sur chaque fiche &nbsp;|&nbsp;
         <span style={{color:"#ffd740"}}>●</span> SM~ = score Smart Money <b>heuristique, NON calibré</b> — dérivé du score composite, ce n'est pas une probabilité mesurée &nbsp;|&nbsp;
-        <span style={{color:"#8892a4"}}>~stat</span> = indicateurs techniques estimés (RSI/MA calculés dès la prochaine mise à jour) &nbsp;|&nbsp;
+        <span style={{color:"#8892a4"}}>~hist</span> = moins de 15 séances cotées : RSI et moyennes absents, jamais estimés &nbsp;|&nbsp;
         <span style={{color:"#ff4f5a"}}>⚠️</span> Alpha/RSI rouge = prudence &nbsp;|&nbsp; PE = Price/Earnings · DIV = dividende &nbsp;|&nbsp; Clic → vue détaillée
       </div>
     </div>
@@ -1907,7 +1930,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
   const pos=objectifs&&r.bull!==r.bear
     ?Math.min(98,Math.max(2,(price-r.bear)/(r.bull-r.bear)*100)):50;
   const sym=r.symbol||r.ticker;
-  const rsiVal=r.rsi||r.rsi14||50;
+  const rsiVal=r.rsi??r.rsi14??null;
 
   /* Les pastilles du filtre suivaient l'ordre du CLASSEMENT — donc un ordre qui
      change à chaque run. On cherche un titre par son nom, pas par son rang :
@@ -2183,7 +2206,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                   ))}
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-                  {[["Haut 90j",px(h90),"#00e5a0"],["H 52s",r.h52w?px(r.h52w):"—","#00e5a0"],["Bas 90j",px(l90),"#ff4f5a"],["B 52s",r.l52w?px(r.l52w):"—","#ff4f5a"]].map(([k,v,c])=>(
+                  {[["Haut 90j",h90!=null?px(h90):"—","#00e5a0"],["H 52s",r.h52w?px(r.h52w):"—","#00e5a0"],["Bas 90j",l90!=null?px(l90):"—","#ff4f5a"],["B 52s",r.l52w?px(r.l52w):"—","#ff4f5a"]].map(([k,v,c])=>(
                     <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
                       <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>{k}</div>
                       <div style={{fontSize:12,color:c,fontWeight:700}}>{v}</div>

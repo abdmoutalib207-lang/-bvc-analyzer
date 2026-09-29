@@ -54,3 +54,12 @@ def test_le_telephone_masque_exactement_les_autres_colonnes():
     masquees |= {int(k) for k in re.findall(r"td:nth-child\((\d+)\)", bloc)}
     toutes = set(range(1, len(_entetes()) + 1))
     assert masquees == toutes - set(GARDEES), sorted(masquees ^ (toutes - set(GARDEES)))
+
+
+def test_ouverture_et_volume_restent_lisibles_sur_telephone():
+    """Demande du 30/09/2026 : les colonnes OUVERT et VOLUME sont masquées
+    sur téléphone, leurs valeurs passent sous la clôture et la variation."""
+    assert SRC.count('className="mobile-seul"') == 2
+    assert "ouv. {r.open?px(r.open)" in SRC and "vol. {r.vol!=null" in SRC
+    avant_media = SRC[:SRC.index("@media(max-width:640px)")]
+    assert ".mobile-seul{display:none}" in avant_media

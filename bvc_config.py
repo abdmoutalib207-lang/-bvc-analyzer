@@ -790,4 +790,8 @@ TICKERS_ALL: list = [
 #   bonus du corpus retirés et ACHAT FORT suspendu (29/09).
 #   v5.3-sans-note-figee-2026-09-29 : la pénalité « Upside négatif » se
 #   déclenche sur la note calculée, plus sur la table saisie le 03/06.
-SCORE_VERSION = "v5.3-sans-note-figee-2026-09-29"
+#   v5.3-sans-invention-2026-09-30 : plus aucun indicateur technique
+#   inventé (RSI 50, MA = cours, extrêmes ±15 %, recopie du run précédent) ;
+#   la pénalité « Upside négatif » lit l'upside PUBLIÉ, objectifs périmés
+#   retirés.
+SCORE_VERSION = "v5.3-sans-invention-2026-09-30"
