@@ -23,6 +23,36 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
+    /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
+       Trois défauts : l'en-tête COLLÉ en haut couvrait plus de la moitié de
+       l'écran et masquait le contenu au défilement ; le classement n'affichait
+       que ticker, ouverture et clôture — score et signal hors de l'écran ; le
+       badge de version et la barre MASI débordaient à droite.
+       Tout passe par ces classes : sur ordinateur, RIEN ne change. */
+    @media(max-width:640px){
+      .entete{position:static!important;padding:8px 12px!important}
+      .badge-version,.choix-score,.entete-droite{display:none!important}
+      .bandeau-masi{flex-wrap:wrap!important;row-gap:4px}
+      .onglets{flex-wrap:nowrap!important;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+      .onglets::-webkit-scrollbar{display:none}
+      .onglets>*{flex:0 0 auto}
+      .onglets button{padding:7px 12px!important}
+      /* Le classement garde : ticker, clôture, variation, score, signal. */
+      .classement{min-width:0!important}
+      .classement th:nth-child(1),.classement td:nth-child(1),
+      .classement th:nth-child(3),.classement td:nth-child(3),
+      .classement th:nth-child(n+6):nth-child(-n+9),.classement td:nth-child(n+6):nth-child(-n+9),
+      .classement th:nth-child(n+11):nth-child(-n+15),.classement td:nth-child(n+11):nth-child(-n+15),
+      .classement th:nth-child(17),.classement td:nth-child(17){display:none}
+      .classement td,.classement th{padding:7px 3px!important}
+      /* La pastille et le secteur prenaient la moitié de la largeur : sur
+         téléphone, le code et un nom abrégé suffisent à reconnaître le titre. */
+      .classement td:nth-child(2)>div>:first-child,.secteur-societe{display:none!important}
+      .nom-societe{max-width:80px!important;font-size:11px!important}
+      .classement td:nth-child(16) *{font-size:9.5px!important;padding:3px 5px!important;letter-spacing:0!important;white-space:normal!important}
+      .classement td:nth-child(16){max-width:92px}
+      .classement td:nth-child(4),.classement td:nth-child(4) *{white-space:normal!important}
+    }
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
     .ticker-inner{display:inline-flex;align-items:center;animation:ticker 55s linear infinite;}
     .ticker-inner:hover{animation-play-state:paused;}
@@ -1186,13 +1216,13 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
   // est aujourd'hui le point faible du produit.
   const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"briefing",label:"BRIEFING"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"}];
   return(
-    <div style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
+    <div className="entete" style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
         <div style={{display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
           <span style={{fontSize:22,fontWeight:700,letterSpacing:3,background:"linear-gradient(90deg,#00e5a0,#4db8ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>BVC ANALYZER</span>
-          <span title="Pondération de RÉFÉRENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCHÉ, le même pour tous les titres — hors séance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche. Le pilier NLP est gelé à un poids de 0 : son corpus s'arrête au 02/07/2026 et il ne déplaçait plus que 0,37 point sur 10." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 65 · TECH 35 <span style={{color:"#8892a4"}}>· modulée par le marché · NLP gelé</span></span>
+          <span className="badge-version" title="Pondération de RÉFÉRENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCHÉ, le même pour tous les titres — hors séance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche. Le pilier NLP est gelé à un poids de 0 : son corpus s'arrête au 02/07/2026 et il ne déplaçait plus que 0,37 point sur 10." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 65 · TECH 35 <span style={{color:"#8892a4"}}>· modulée par le marché · NLP gelé</span></span>
           {/* Score mode — composantes indépendantes */}
-          <div style={{display:"flex",alignItems:"center",gap:4,background:"rgba(10,18,32,.8)",border:"1px solid #1a2540",borderRadius:5,padding:"3px 6px"}}>
+          <div className="choix-score" style={{display:"flex",alignItems:"center",gap:4,background:"rgba(10,18,32,.8)",border:"1px solid #1a2540",borderRadius:5,padding:"3px 6px"}}>
             <span style={{fontSize:9,color:"#4a5570",letterSpacing:.5,marginRight:2}}>SCORE</span>
             {PONDERATIONS.map(p=>{
               const on=scoreMode.nom===p.nom, c=p.officiel?"#00e5a0":"#ffd740";
@@ -1218,7 +1248,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
               <span style={{color:"#c8d3e8",fontWeight:600}}>{ts||"—"}</span>
             </span>
             {mktStatus&&<span style={{background:`${mktStatus.color}18`,border:`1px solid ${mktStatus.color}40`,borderRadius:4,padding:"3px 10px",fontSize:11,color:mktStatus.color,fontWeight:700,letterSpacing:.5}}>BVC {mktStatus.label}</span>}
-            {masi&&<span style={{display:"flex",alignItems:"center",gap:6,background:"rgba(77,184,255,.08)",border:"1px solid rgba(77,184,255,.25)",borderRadius:4,padding:"3px 12px",fontSize:11}}>
+            {masi&&<span className="bandeau-masi" style={{display:"flex",alignItems:"center",gap:6,background:"rgba(77,184,255,.08)",border:"1px solid rgba(77,184,255,.25)",borderRadius:4,padding:"3px 12px",fontSize:11}}>
               <span style={{color:"#8892a4",letterSpacing:.5}}>MASI</span>
               <span style={{color:"#c8d3e8",fontWeight:700}}>{masi.value.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
               <span style={{color:(masi.chg||0)>0?"#00e5a0":(masi.chg||0)<0?"#ff4f5a":"#8892a4",fontWeight:600}}>{(masi.chg||0)>0?"▲":"▼"}{fmt(masi.chg!=null?Math.abs(masi.chg):null)}%</span>
@@ -1320,12 +1350,12 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
           {majMsg&&<span style={{fontSize:10,color:majMsg.neuf?"#00e5a0":"#8892a4",whiteSpace:"nowrap"}}>{majMsg.texte}</span>}
           {fetchErr&&<span style={{fontSize:10,color:"#ff4f5a",marginLeft:8}}>⚠️ Données live indisponibles — affichage statique</span>}
         </div>
-        <div style={{textAlign:"right",fontSize:11}}>
+        <div className="entete-droite" style={{textAlign:"right",fontSize:11}}>
           <div style={{color:"#8892a4"}}>BVC · {univers??STATIC.length} titres</div>
           <div style={{color:"#ffd740"}}>{META.msgs} msgs · {META.years} ans · {META.signals} signaux</div>
         </div>
       </div>
-      <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
+      <div className="onglets" style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
         {/* Retour à la vue précédente. Grisé quand il n'y a rien derrière —
             un bouton qui ne fait rien sans le dire use la confiance. */}
         <button onClick={onRetour} disabled={!peutRevenir}
@@ -1537,7 +1567,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         <span style={{color:"#4a5570",fontSize:10}}>— Le score composite officiel et les signaux restent inchangés</span>
       </div>}
       <div style={{overflowX:"auto"}}>
-        <table style={{width:"100%",borderCollapse:"collapse",minWidth:1220}}>
+        <table className="classement" style={{width:"100%",borderCollapse:"collapse",minWidth:1220}}>
           <thead>
             <tr style={{borderBottom:"2px solid #1a2540"}}>
               {HEADS.map(h=><th key={h} style={{padding:"8px 8px",fontSize:10,color:"#8892a4",textAlign:"left",letterSpacing:.4,whiteSpace:"nowrap",fontWeight:500}}>{h}</th>)}
@@ -1571,8 +1601,8 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                             {fav.includes(sym)?"★":"☆"}
                           </button>
                         </div>
-                        {r.name&&<div style={{fontSize:12,color:"#c8d3e8",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:160,marginTop:1}}>{r.name}</div>}
-                        <div style={{fontSize:10,color:"#6b7a99",marginTop:1}}>{r.sector}</div>
+                        {r.name&&<div className="nom-societe" style={{fontSize:12,color:"#c8d3e8",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:160,marginTop:1}}>{r.name}</div>}
+                        <div className="secteur-societe" style={{fontSize:10,color:"#6b7a99",marginTop:1}}>{r.sector}</div>
                       </div>
                     </div>
                   </td>

@@ -23,6 +23,36 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
+    /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
+       Trois défauts : l'en-tête COLLÉ en haut couvrait plus de la moitié de
+       l'écran et masquait le contenu au défilement ; le classement n'affichait
+       que ticker, ouverture et clôture — score et signal hors de l'écran ; le
+       badge de version et la barre MASI débordaient à droite.
+       Tout passe par ces classes : sur ordinateur, RIEN ne change. */
+    @media(max-width:640px){
+      .entete{position:static!important;padding:8px 12px!important}
+      .badge-version,.choix-score,.entete-droite{display:none!important}
+      .bandeau-masi{flex-wrap:wrap!important;row-gap:4px}
+      .onglets{flex-wrap:nowrap!important;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+      .onglets::-webkit-scrollbar{display:none}
+      .onglets>*{flex:0 0 auto}
+      .onglets button{padding:7px 12px!important}
+      /* Le classement garde : ticker, clôture, variation, score, signal. */
+      .classement{min-width:0!important}
+      .classement th:nth-child(1),.classement td:nth-child(1),
+      .classement th:nth-child(3),.classement td:nth-child(3),
+      .classement th:nth-child(n+6):nth-child(-n+9),.classement td:nth-child(n+6):nth-child(-n+9),
+      .classement th:nth-child(n+11):nth-child(-n+15),.classement td:nth-child(n+11):nth-child(-n+15),
+      .classement th:nth-child(17),.classement td:nth-child(17){display:none}
+      .classement td,.classement th{padding:7px 3px!important}
+      /* La pastille et le secteur prenaient la moitié de la largeur : sur
+         téléphone, le code et un nom abrégé suffisent à reconnaître le titre. */
+      .classement td:nth-child(2)>div>:first-child,.secteur-societe{display:none!important}
+      .nom-societe{max-width:80px!important;font-size:11px!important}
+      .classement td:nth-child(16) *{font-size:9.5px!important;padding:3px 5px!important;letter-spacing:0!important;white-space:normal!important}
+      .classement td:nth-child(16){max-width:92px}
+      .classement td:nth-child(4),.classement td:nth-child(4) *{white-space:normal!important}
+    }
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
     .ticker-inner{display:inline-flex;align-items:center;animation:ticker 55s linear infinite;}
     .ticker-inner:hover{animation-play-state:paused;}
@@ -5019,6 +5049,7 @@ const Header = ({
     label: "ACTUALITÉS"
   }];
   return React.createElement("div", {
+    className: "entete",
     style: {
       background: "linear-gradient(90deg,#0d1829,#0a1220)",
       borderBottom: "1px solid #1a2540",
@@ -5053,6 +5084,7 @@ const Header = ({
       WebkitTextFillColor: "transparent"
     }
   }, "BVC ANALYZER"), React.createElement("span", {
+    className: "badge-version",
     title: "Pond\xE9ration de R\xC9F\xC9RENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCH\xC9, le m\xEAme pour tous les titres \u2014 hors s\xE9ance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids R\xC9ELLEMENT appliqu\xE9 est affich\xE9 sur chaque fiche. Le pilier NLP est gel\xE9 \xE0 un poids de 0 : son corpus s'arr\xEAte au 02/07/2026 et il ne d\xE9pla\xE7ait plus que 0,37 point sur 10.",
     style: {
       background: "rgba(0,229,160,.1)",
@@ -5068,6 +5100,7 @@ const Header = ({
       color: "#8892a4"
     }
   }, "\xB7 modul\xE9e par le march\xE9 \xB7 NLP gel\xE9")), React.createElement("div", {
+    className: "choix-score",
     style: {
       display: "flex",
       alignItems: "center",
@@ -5169,6 +5202,7 @@ const Header = ({
       letterSpacing: .5
     }
   }, "BVC ", mktStatus.label), masi && React.createElement("span", {
+    className: "bandeau-masi",
     style: {
       display: "flex",
       alignItems: "center",
@@ -5358,6 +5392,7 @@ const Header = ({
       marginLeft: 8
     }
   }, "\u26A0\uFE0F Donn\xE9es live indisponibles \u2014 affichage statique")), React.createElement("div", {
+    className: "entete-droite",
     style: {
       textAlign: "right",
       fontSize: 11
@@ -5371,6 +5406,7 @@ const Header = ({
       color: "#ffd740"
     }
   }, META.msgs, " msgs \xB7 ", META.years, " ans \xB7 ", META.signals, " signaux"))), React.createElement("div", {
+    className: "onglets",
     style: {
       display: "flex",
       gap: 6,
@@ -5895,6 +5931,7 @@ const Ranking = ({
       overflowX: "auto"
     }
   }, React.createElement("table", {
+    className: "classement",
     style: {
       width: "100%",
       borderCollapse: "collapse",
@@ -6006,6 +6043,7 @@ const Ranking = ({
         transition: "color .15s"
       }
     }, fav.includes(sym) ? "★" : "☆")), r.name && React.createElement("div", {
+      className: "nom-societe",
       style: {
         fontSize: 12,
         color: "#c8d3e8",
@@ -6016,6 +6054,7 @@ const Ranking = ({
         marginTop: 1
       }
     }, r.name), React.createElement("div", {
+      className: "secteur-societe",
       style: {
         fontSize: 10,
         color: "#6b7a99",
