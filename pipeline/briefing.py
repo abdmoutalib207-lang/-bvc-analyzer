@@ -252,15 +252,40 @@ def concentration(titres: list, seance: str) -> dict | None:
 
     Une séance très concentrée n'est pas une séance de marché : c'est une
     poignée de transactions. Le dire change la lecture de tout le reste.
+
+    ⚠️ LE MONTANT RÉEL D'ABORD, L'APPROXIMATION SEULEMENT À DÉFAUT — corrigé
+    le 29/09/2026 après recoupement au bulletin officiel.
+
+    Ce calcul reposait entièrement sur `volume × clôture`, faute de mieux.
+    Depuis le 25/09 le moteur collecte `echange_dh`, la contrepartie réelle
+    servie par l'opérateur. Le briefing annonçait donc **636,8 M DH** de
+    séance là où l'opérateur en publie **642,9 M** — six millions d'écart,
+    parce que chaque transaction se fait à SON prix et non à la clôture.
+
+    ⚠️ Mélanger les deux est sans risque, et c'est vérifié : sur la séance du
+    28/09, les seize titres sans montant réel ont TOUS un volume nul. Leur
+    contribution est la même dans les deux méthodes — zéro. Un titre qui a
+    échangé sans que le montant soit rapprochable retombe sur l'approximation
+    plutôt que de disparaître du total.
+
+    ⚠️ Contrôle qui vaut preuve : la somme des montants réels par titre égale
+    **exactement** le volume global servi par l'indice — 642 888 993,45 DH au
+    28/09. Deux chemins indépendants, un seul chiffre.
     """
     montants = []
+    approches = 0
     for x in titres or []:
         if str((x.get("_meta") or {}).get("prix_asof") or "") != seance:
+            continue
+        reel = _n(x.get("echange_dh"))
+        if reel is not None and reel > 0:
+            montants.append((x.get("symbol"), reel))
             continue
         v, p = _n(x.get("vol")), _n(x.get("price"))
         if v is None or p is None or v <= 0:
             continue
         montants.append((x.get("symbol"), v * p))
+        approches += 1
     if len(montants) < 5:
         return None
     montants.sort(key=lambda z: -z[1])
@@ -271,7 +296,10 @@ def concentration(titres: list, seance: str) -> dict | None:
     return {"part_top5": round(sum(m for _, m in top5) / total, 4),
             "total_dh": round(total),
             "titres": [{"symbol": s, "montant_dh": round(m)} for s, m in top5],
-            "n_titres_actifs": len(montants)}
+            "n_titres_actifs": len(montants),
+            # ⚠️ Combien de lignes reposent encore sur `volume × clôture`.
+            # Zéro veut dire que le total est celui de l'opérateur, au centime.
+            "lignes_approchees": approches}
 
 
 def series_a_la_limite(series: dict, seance: str) -> list:

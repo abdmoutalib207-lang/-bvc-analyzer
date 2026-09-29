@@ -429,3 +429,62 @@ def test_la_seance_du_briefing_est_celle_du_flux():
                 for x in (d.get("tickers") or [])), default="")
     assert b.get("seance") == asof, (
         f"le briefing porte la séance {b.get('seance')} et les cours {asof}")
+
+
+# ── ⚠️ Le montant réel prime sur l'approximation ───────────────────────────
+
+def test_la_concentration_prefere_le_montant_reel():
+    """⚠️ CORRIGÉ LE 29/09/2026 après recoupement au bulletin officiel.
+
+    Le calcul reposait entièrement sur `volume × clôture`, faute de mieux.
+    Depuis le 25/09 le moteur collecte `echange_dh`, la contrepartie réelle.
+    Le briefing annonçait **636,8 M DH** de séance là où l'opérateur en
+    publie **642,9 M** — six millions d'écart, parce que chaque transaction
+    se fait à SON prix et non à la clôture.
+
+    Attendu à la main : un titre dont le montant réel est servi doit peser ce
+    montant-là, et non le produit.
+    """
+    t = [{"symbol": "A", "vol": 100, "price": 10.0, "echange_dh": 1500.0,
+          "_meta": {"prix_asof": "2026-09-28"}}] + [
+         {"symbol": f"B{i}", "vol": 10, "price": 1.0,
+          "_meta": {"prix_asof": "2026-09-28"}} for i in range(5)]
+    c = bf.concentration(t, "2026-09-28")
+    # A pèse 1 500 (réel) et non 1 000 (approché) ; les cinq autres 10 chacun
+    assert c["total_dh"] == 1550
+    assert c["titres"][0] == {"symbol": "A", "montant_dh": 1500}
+
+
+def test_l_approximation_reste_le_repli_et_est_comptee():
+    """⚠️ Un titre qui a échangé sans montant rapprochable doit RESTER dans le
+    total — le retirer creuserait un trou silencieux. Mais le nombre de lignes
+    approchées est publié : zéro veut dire que le total est celui de
+    l'opérateur, au centime."""
+    t = [{"symbol": "A", "vol": 100, "price": 10.0,
+          "_meta": {"prix_asof": "2026-09-28"}}] + [
+         {"symbol": f"B{i}", "vol": 10, "price": 1.0, "echange_dh": 10.0,
+          "_meta": {"prix_asof": "2026-09-28"}} for i in range(5)]
+    c = bf.concentration(t, "2026-09-28")
+    assert c["lignes_approchees"] == 1
+    assert c["total_dh"] == 1050          # 1 000 approché + 5 × 10 réels
+
+
+def test_le_total_du_briefing_egale_le_volume_de_l_operateur():
+    """⚠️ CONTRÔLE QUI VAUT PREUVE, sur la livraison. La somme de nos montants
+    par titre doit égaler le volume global servi par l'indice — deux chemins
+    indépendants, un seul chiffre. Un écart signalerait qu'un titre manque au
+    total, ou qu'un montant a été compté deux fois."""
+    fb, fd = RACINE / "briefing.json", RACINE / "data.json"
+    if not fb.exists() or not fd.exists():
+        pytest.skip("flux absent de ce clone")
+    b = json.loads(fb.read_text(encoding="utf-8"))
+    d = json.loads(fd.read_text(encoding="utf-8"))
+    c, vol = b.get("concentration"), (d.get("masi") or {}).get("volume_mad")
+    if not c or vol is None:
+        pytest.skip("concentration ou volume global absent")
+    if c.get("lignes_approchees"):
+        pytest.skip(f"{c['lignes_approchees']} ligne(s) encore approchée(s)")
+    ecart = abs(c["total_dh"] - vol)
+    assert ecart <= max(10.0, vol * 0.0005), (
+        f"le briefing totalise {c['total_dh']:,.0f} DH quand l'indice en "
+        f"publie {vol:,.0f} — écart de {ecart:,.0f}")
