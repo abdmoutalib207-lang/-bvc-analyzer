@@ -51,6 +51,9 @@ ECRITS_PAR_LE_MOTEUR = [
     ("pipeline/score_history.json", "le journal des scores, dont la raison d'être est d'accumuler"),
     ("briefing.json", "la lecture de la séance, lue par l'onglet BRIEFING"),
     ("briefing_hebdo.json", "le bilan de la semaine"),
+    ("briefing_mijournee.json", "la lecture de mi-journée, figée à 13h45"),
+    ("briefing_cloture.json", "la lecture de clôture"),
+    ("news.json", "les actualités, collectées par le moteur depuis le 29/09"),
 ]
 
 

@@ -4472,9 +4472,19 @@ def run(dry_run=False, push=False, token=""):
     # ⚠️ Le terminal ne collecte rien : il lit ce fichier. Un bouton sur un
     # site statique ne peut rien faire d'autre.
     try:
-        from pipeline.briefing import composer as _brief, ecrire as _brief_ecrire
-        _b = _brief(output)
+        from pipeline.briefing import (composer as _brief, ecrire as _brief_ecrire,
+                                       dater as _brief_dater,
+                                       ecrire_moment as _brief_moment)
+        from bvc_config import heure_maroc as _heure_maroc
+        _maintenant = _heure_maroc()
+        _b = _brief_dater(_brief(output), _maintenant.date().isoformat(),
+                          _maintenant.hour * 100 + _maintenant.minute)
         _brief_ecrire(_b)
+        # ⚠️ Mi-journée et clôture ont chacune leur fichier : `briefing.json`
+        # est réécrit à chaque passage et ne peut garder la trace d'un moment.
+        _bm = _brief_moment(_b)
+        if _bm:
+            logger.info(f"  📰 briefing de {_b['moment']} — {_bm}")
         _na = len((_b.get("actualites") or {}).get("titres") or [])
         logger.info(f"  📰 briefing.json — {len(_b.get('constats') or [])} constat(s), "
                     f"{_na} publication(s) retenue(s)")
