@@ -750,3 +750,43 @@ de la séance sur ces deux titres.
 porte sur vingt séances et le montant réel n'est disponible que pour la séance
 courante. Mélanger deux définitions dans une même série serait pire que
 l'approximation.
+
+## Volume de l'indice : Central, Bloc, et ce que notre chiffre couvre (29/09/2026)
+
+L'application CDG sépare deux onglets : **« Central »** — le carnet d'ordres —
+et **« Bloc »** — le marché de blocs, où passent les opérations de gré à gré
+(précision d'Abd Moutalib, 29/09).
+
+### Ce qui est mesuré
+
+| séance | « Central » (capture) | somme du bulletin | notre `volume_mad` |
+|---|---|---|---|
+| 28/09 | 642 888 993,45 · 1 120 107 titres | 642 888 989,40 · 1 120 106 | **642 888 993,45 · 1 120 107** |
+| 25/09 | 477 539 830,98 · 1 396 493 titres | 477 819 727,58 · 1 397 121 | **477 819 735,78 · 1 397 123** |
+
+- Le **28/09**, notre chiffre égale « Central » au centime.
+- Le **25/09**, notre chiffre et le bulletin dépassent « Central » de
+  **628 titres pour 279 896,60 DH**, soit 445,70 DH le titre.
+- La largeur (hausses, baisses, inchangés, traitées) est identique partout.
+
+### Ce qu'on en déduit — et ce qu'on n'en déduit PAS
+
+La lecture la plus simple, cohérente avec les deux séances : **le volume de
+l'indice et le bulletin comptent Central + Bloc ; l'onglet « Central »
+exclut le Bloc.** Le 28/09 il n'y aurait simplement pas eu de bloc.
+
+Indice qui va dans ce sens : aucun instrument du 25/09 n'a 445,70 DH dans sa
+fourchette de séance. Une opération de gré à gré se négocie hors du carnet,
+donc hors de ses extrêmes.
+
+⚠️ **NON ÉTABLI.** Le titre concerné n'a pas pu être désigné, et une seule
+séance porte l'écart. **L'onglet « Bloc » du 25/09 trancherait d'un coup
+d'œil** : s'il affiche 279 896,60 DH, la convention est acquise.
+
+### Pourquoi c'est écrit
+
+Tout recoupement avec l'onglet « Central » donnera un écart **les jours où il
+y a des blocs**, et aucun les autres. Sans cette note, l'écart se prendra pour
+une erreur du moteur. C'est la même famille que la moyenne mobile (1,73 DH de
+convention) et que le YTD (décalé d'une séance) : un écart de périmètre pris
+pour un écart de donnée fait chercher au mauvais endroit.
