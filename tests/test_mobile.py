@@ -77,4 +77,5 @@ def test_le_volume_s_affiche_en_dirhams_et_jamais_une_quantite_sous_l_etiquette_
 def test_la_variation_montre_sa_reference():
     """MNG le 29/09 : veille 1 580, ouverture 1 600, clôture 1 600, +1,27 %.
     Sans la veille à l'écran, la variation semblait fausse."""
-    assert "réf. {px(+((r.price||r.close)/(1+r.chg/100)).toFixed(2))}" in SRC
+    # ⚠️ Servie par la source : déduite du % arrondi, elle valait 1 579,93.
+    assert "réf. {px(r.reference)}" in SRC and "reference:t.reference" in SRC

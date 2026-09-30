@@ -6161,19 +6161,24 @@ const Ranking = ({
         color: VC(r.chg),
         fontWeight: 600
       }
-    }, r.chg > 0 ? "▲" : r.chg < 0 ? "▼" : "—", " ", Math.abs(r.chg || 0).toFixed(2), "%", r.chg_alert && React.createElement("span", {
+    }, React.createElement("span", {
+      style: {
+        whiteSpace: "nowrap"
+      }
+    }, r.chg > 0 ? "▲" : r.chg < 0 ? "▼" : "—", " ", Math.abs(r.chg || 0).toFixed(2), "%"), r.chg_alert && React.createElement("span", {
       title: "Variation \u2265 \xB18% \u2014 approche limite BVC",
       style: {
         marginLeft: 3
       }
-    }, "\u26A1"), r.chg != null && (r.price || r.close) && React.createElement("div", {
+    }, "\u26A1"), r.reference != null && React.createElement("div", {
       style: {
         fontSize: 9.5,
         color: "#8892a4",
-        fontWeight: 400
+        fontWeight: 400,
+        whiteSpace: "nowrap"
       },
-      title: "Cours de r\xE9f\xE9rence : cl\xF4ture de la s\xE9ance pr\xE9c\xE9dente, base de la variation"
-    }, "r\xE9f. ", px(+((r.price || r.close) / (1 + r.chg / 100)).toFixed(2))), React.createElement("div", {
+      title: "Cours de r\xE9f\xE9rence : cl\xF4ture de la s\xE9ance pr\xE9c\xE9dente, base de la variation (servi par CDG)"
+    }, "r\xE9f. ", px(r.reference)), React.createElement("div", {
       className: "mobile-seul",
       style: {
         fontSize: 9.5,
@@ -10182,6 +10187,7 @@ function App() {
             win: t.win,
             sig: t.sig,
             biais: t.biais,
+            reference: t.reference,
             bonus: t.bonus,
             poids: t.poids,
             warn: t.warn,

@@ -1414,6 +1414,8 @@ def fetch_all_cdg():
         out[sym] = {
             "price": round(prix, 2),
             "chg":   round(_f(d.get("Variation")) or 0, 2),
+            # La base de la variation : la clôture de la séance précédente.
+            "reference": _f(d.get("CoursDeReferance")),
             "open":  _f(d.get("Ouverture")),
             "high":  _f(d.get("PlusHaut")),
             "low":   _f(d.get("PlusBas")),
@@ -3744,6 +3746,14 @@ def run(dry_run=False, push=False, token=""):
         # qui est une information tout à fait différente.
         echange_dh, _seuil_bas, _seuil_haut = _echange_rapprochable(
             lp, src_prix, prix_asof, lp_asof)
+        # ⚠️ LE COURS DE RÉFÉRENCE — 30/09/2026. La variation se lit contre la
+        # clôture de la VEILLE ; sans elle à l'écran, MNG (veille 1 580,
+        # ouverture 1 600, clôture 1 600, +1,27 %) semblait faux. Servi par
+        # CDG, jamais déduit du pourcentage arrondi (qui donnerait 1 579,93).
+        # Même règle que le montant : même source, même séance.
+        _reference = (lp.get("reference")
+                      if src_prix == "cdg" and prix_asof and prix_asof == lp_asof
+                      else None)
         macd_val = macd_sig = macd_hist = None
         bb_upper = bb_mid = bb_lower = None
         stoch_k = stoch_d = None
@@ -4167,6 +4177,7 @@ def run(dry_run=False, push=False, token=""):
             # de validité plus haut. `None` signifie « pas rapprochable », pas
             # « zéro échangé ».
             "echange_dh": round(echange_dh, 2) if echange_dh else None,
+            "reference": round(_reference, 2) if _reference else None,
             # ⚠️ Bornes de RÉSERVATION intraday (±3 % glissants), à ne pas
             # confondre avec le plafond journalier de ±10 % (R10) que publie
             # `niveaux.bornes_seance`.

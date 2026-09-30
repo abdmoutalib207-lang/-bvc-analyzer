@@ -1641,16 +1641,16 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                         sous la clôture et la variation (demande du 30/09). */}
                     <div className="mobile-seul" style={{fontSize:9.5,color:"#8892a4",fontWeight:400}}>ouv. {r.open?px(r.open):"—"}</div>
                   </td>
-                  <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}
+                  <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}><span style={{whiteSpace:"nowrap"}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%</span>{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}
                     {/* ⚠️ LA RÉFÉRENCE DE LA VARIATION — 30/09/2026. Relevé d'Abd
                         Moutalib : « variation pas adéquate avec l'ouverture et la
                         clôture ». Elle l'était (66/66 contre CDG) : elle se lit contre
                         la clôture de la VEILLE, que l'écran ne montrait pas. MNG :
                         veille 1 580, ouverture 1 600, clôture 1 600, +1,27 %.
-                        Déduite exactement de la clôture et de la variation publiées. */}
-                    {r.chg!=null&&(r.price||r.close)&&<div style={{fontSize:9.5,color:"#8892a4",fontWeight:400}}
-                      title="Cours de référence : clôture de la séance précédente, base de la variation">
-                      réf. {px(+((r.price||r.close)/(1+r.chg/100)).toFixed(2))}</div>}
+                        Servie par CDG — jamais déduite du % arrondi (1 579,93 au lieu de 1 580). */}
+                    {r.reference!=null&&<div style={{fontSize:9.5,color:"#8892a4",fontWeight:400,whiteSpace:"nowrap"}}
+                      title="Cours de référence : clôture de la séance précédente, base de la variation (servi par CDG)">
+                      réf. {px(r.reference)}</div>}
                     <div className="mobile-seul" style={{fontSize:9.5,color:"#8892a4",fontWeight:400}}>{volumeCourt(r)}</div></td>
                   {/* ⚠️ LE VOLUME DE LA SÉANCE — ajouté le 25/09/2026, il manquait.
                       Le classement montrait la variation sans jamais dire sur
@@ -3293,7 +3293,7 @@ function App(){
              NOMMÉE pour qu'un oubli futur se voie — une énumération de
              quarante champs cache ce qui lui manque. */
           ...Object.fromEntries(CHAMPS_SCORE.map(c=>[c,t[c]])),
-          alpha:t.alpha,win:t.win,sig:t.sig,biais:t.biais,
+          alpha:t.alpha,win:t.win,sig:t.sig,biais:t.biais,reference:t.reference,
           bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
           bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,alertes:t.alertes,
           conv:t.conv,setup:t.setup,
