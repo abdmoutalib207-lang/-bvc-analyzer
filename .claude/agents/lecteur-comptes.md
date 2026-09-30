@@ -60,6 +60,33 @@ fusion** : la fusion est la décision d'Abd Moutalib.
   l'effacer, jamais s'y aligner.
 - Les noms AMMC ne sont pas les nôtres : `depots_ammc.ALIAS_AMMC`. MSA =
   Marsa Maroc, MUT = Mutandis.
+- (lot 11) L'ordre des colonnes change d'un émetteur à l'autre : Mutandis
+  « juin 2025 juin 2026 » (l'ANCIEN à gauche), Immorente « 2026.06 2025.06 ».
+  Lire l'en-tête de CHAQUE tableau, jamais supposer.
+- (lot 11) Immorente sépare les milliers par un POINT : « 22.847 » = 22 847
+  KMAD, pas 22,8 KMAD. Recouper avec le texte (« 22,9 MDH »).
+- (lot 11) Le document de la file d'attente n'est pas forcément celui qui
+  porte les chiffres : `Agma_S1_26.pdf` ne contient que les attestations, les
+  montants sont dans `CP_Agma_S1_26.pdf`. Ouvrir la liste de l'émetteur
+  (`field_emetteur_target_id_verf=<id>`) et lire les deux.
+- (lot 11) Une AGO « réunie extraordinairement » n'est pas une opération sur
+  le capital par défaut : celle d'Immorente (08/09/2026) distribue sur la
+  prime d'émission et CONFIRME 9 007 000 actions. Lire l'avis, puis trancher.
+- (lot 11) Pour un dépôt social, l'exercice 2025 se lit dans la colonne
+  « exercice précédent » du bilan passif (« Résultat net de l'exercice ») ;
+  le recouper au communiqué annuel et, si possible, par le report à nouveau.
+- (lot 11) Une croissance sur base positive MINUSCULE est arithmétiquement
+  valide mais absurde (SRM : 0,82 → −8,46 MDH, −1 136 %). Les paliers de la
+  note la plafonnent ; la signaler dans le rapport, ne pas la maquiller.
+- (lot 11) Sur yuna.ma, la date des ratios peut différer de celle du cours
+  affiché (Agma : ratios au 25/09, cours au 29/09). Prendre le cours de nos
+  chandelles à la date des ratios avant de calculer le BPA implicite.
+- (lot 11) Le texte d'un communiqué peut contredire son propre tableau (SRM :
+  CA S1 2025 « 151 214 414,33 » au texte, 151 241 414,33 au CPC). L'état
+  comptable prime ; la coquille se consigne.
+- (lot 11) Attestation « sous réserve » (STROC : continuité d'exploitation,
+  dettes non vérifiées, capitaux propres négatifs) : intégré avec la réserve
+  écrite dans `base` et `pages`, sans capitaux propres. À trancher en revue.
 
 ## Ce que tu ne fais jamais
 
