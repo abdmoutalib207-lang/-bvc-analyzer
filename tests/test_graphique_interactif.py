@@ -306,51 +306,33 @@ def test_le_bouton_de_retour_existe_et_se_desactive():
 
 # ── 6. Les red flags s'expliquent, et le chiffre cité reste vrai ─────────────
 
-def test_le_panneau_red_flags_dit_d_ou_vient_le_nombre():
-    """Une explication qui n'avoue pas l'origine du chiffre n'explique rien.
-
-    Le nombre vient d'une table écrite à la main dans le moteur. Le panneau
-    doit le dire, et dire aussi ce qu'il FAIT — la pénalité, elle, est
-    parfaitement définie.
-    """
-    comp = _bloc(_source(), "const RedFlags=({n})=>{")
-    assert "0,30" in comp, "la pénalité n'est pas chiffrée"
-    assert re.search(r"table.{0,40}(écrite|main)", comp), (
-        "le panneau ne dit pas que le nombre vient d'une table écrite à la main")
-    assert "R8" in comp, "le panneau ne dit pas pourquoi ça ne se corrige pas ici"
+def test_le_panneau_d_alertes_explique_chaque_alerte():
+    """30/09/2026 — le panneau affichait un nombre tiré d'une table écrite à
+    la main, et il avait l'honnêteté de le dire. Il affiche désormais les
+    alertes CALCULÉES : raison, chiffre, seuil, source et date — et rappelle
+    qu'elles n'entrent pas dans la note."""
+    comp = _bloc(_source(), "const RedFlags=({alertes})=>{")
+    for attendu in ("x.raison", "x.valeur", "x.seuil", "a.source", "a.date",
+                    "Non évaluable", "n'entrent pas dans la note"):
+        assert attendu in comp, attendu
 
 
-def test_les_chiffres_cites_par_le_panneau_decrivent_les_donnees_publiees():
-    """⚠️ Un texte qui cite des comptes vieillit. Celui-ci est confronté au
-    `data.json` publié : s'il devient faux, ce test le dit.
-
-    C'est la même famille que les tests qui relisent les données plutôt que le
-    code. Il passera au rouge le jour où la table des red flags bougera — et ce
-    jour-là, le texte devra bouger aussi.
-    """
-    comp = _bloc(_source(), "const RedFlags=({n})=>{")
+def test_les_alertes_publiees_sont_expliquees():
+    """Relit le data.json publié : chaque alerte doit porter sa raison, son
+    chiffre et son seuil. ⚠️ Seconde famille (CLAUDE.md) — avant le premier
+    run du moteur neuf, `alertes` est absent et le test s'abstient."""
     d = json.loads(chemin_data_json().read_text(encoding="utf-8"))
-    from collections import Counter
-    c = Counter(int(t.get("flags") or 0) for t in d["tickers"])
-    penalises = sorted(t["symbol"] for t in d["tickers"]
-                       if int(t.get("flags") or 0) >= 3)
-
-    cite = re.search(r"(\d+) à\s*\n?\s*zéro, (\d+) à un, (\d+) à deux, (\d+) à trois, (\d+) à quatre",
-                     comp.replace("\n", " ").replace("  ", " "))
-    assert cite, "le panneau ne cite plus la répartition"
-    attendu = [c.get(i, 0) for i in range(5)]
-    obtenu = [int(x) for x in cite.groups()]
-    assert obtenu == attendu, (
-        f"le panneau annonce {obtenu}, les données publiées disent {attendu}")
-
-    for t in penalises:
-        assert t in comp, f"{t} est pénalisé mais absent du panneau"
-    annonces = re.search(r"pénalisés\s*—\s*([A-Z, ]+)\.", comp.replace("\n", " "))
-    if annonces:
-        liste = sorted(x.strip() for x in annonces.group(1).split(",") if x.strip())
-        assert liste == penalises, (
-            f"le panneau annonce {liste}, les données disent {penalises}")
-
+    avec = [t for t in d["tickers"] if isinstance(t.get("alertes"), dict)]
+    if not avec:
+        pytest.skip("data.json antérieur au moteur qui calcule les alertes")
+    for t in avec:
+        a = t["alertes"]
+        if not a["evaluable"]:
+            assert a["liste"] == [] and t.get("flags") is None, t["symbol"]
+            continue
+        assert t.get("flags") == len(a["liste"]), t["symbol"]
+        for x in a["liste"]:
+            assert x.get("raison") and x.get("valeur") and x.get("seuil"), t["symbol"]
 
 # ── 7. Agrandir, et en sortir ────────────────────────────────────────────────
 

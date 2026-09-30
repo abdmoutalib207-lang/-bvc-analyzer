@@ -102,11 +102,14 @@ def test_achat_fort_est_suspendu(monkeypatch):
     assert r["sig"].startswith("ACHETER")
 
 
-def test_les_bonus_fondamentaux_restent_actifs(monkeypatch):
-    """Le gel ne doit pas emporter ce qui ne lit pas le corpus."""
+def test_plus_aucun_bonus_ni_malus_ne_reste(monkeypatch):
+    """⚠️ Ce test vérifiait l'INVERSE jusqu'au 30/09/2026 : que « Red flags »
+    et « Upside négatif » survivent au gel du corpus, puisqu'ils ne le
+    lisaient pas. Ils lisaient en revanche une table écrite en dur
+    (FOND_DATA) ; ils sont gelés à leur tour, avec accord (R8). Les alertes
+    sont désormais calculées et affichées à part (test_alertes.py)."""
     r = _calcul(monkeypatch, PANIQUE, 0.0, (5.0, 7.0, 6.0, 4, -20.0), CONTEXTES[0])
-    assert any(b.startswith("-Red flags") for b in r["bonus"])
-    assert any(b.startswith("-Upside négatif") for b in r["bonus"])
+    assert r["bonus"] == []
 
 
 def test_le_contexte_de_ponderation_ne_lit_plus_le_corpus():

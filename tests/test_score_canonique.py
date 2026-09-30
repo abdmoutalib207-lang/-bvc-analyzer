@@ -85,20 +85,16 @@ def test_deux_versions_dans_un_run_sont_gardees_toutes(tmp_path, monkeypatch):
     assert sh.enregistrer("2026-09-29", ts)["seances"]["2026-09-29"]["score_version"] == ["x", "y"]
 
 
-def test_la_penalite_upside_suit_la_note_calculee():
-    """« Upside négatif avec signal positif » : le signal positif est désormais
-    NOTRE note avant bonus, plus la table saisie le 03/06 (accord R8, 29/09).
-
-    Attendus à la main, pondération 65,28 / 34,72 : 6×0,3472 + 7×0,6528 =
-    6,65 ≥ 5,5 → pénalisé ; 4×0,3472 + 5×0,6528 = 4,65 < 5,5 → épargné.
-    """
+def test_les_malus_figes_ne_touchent_plus_la_note():
+    """Gel du 30/09/2026 (R8) : ni le nombre de « red flags » ni l'upside —
+    tous deux lus dans une table écrite en dur — ne déplacent la note."""
     import update_data as u
     ctx = {"market_status": "CLOSED", "masi_ytd": 0.0}
-    haut = u.compute_v53("ZZTEST", 6.0, 7.0, 0, -20.0, dict(ctx))
-    bas = u.compute_v53("ZZTEST", 4.0, 5.0, 0, -20.0, dict(ctx))
-    assert "-Upside négatif -0.20" in haut["bonus"]
-    assert "-Upside négatif -0.20" not in bas["bonus"]
-    assert "bvc" not in haut and "delta" not in haut
+    ref = u.compute_v53("ZZTEST", 6.0, 7.0, 0, 20.0, dict(ctx))
+    for flags, upside in ((4, -40.0), (3, -15.0), (0, -99.0)):
+        r = u.compute_v53("ZZTEST", 6.0, 7.0, flags, upside, dict(ctx))
+        assert (r["v53"], r["sig"], r["bonus"]) == (ref["v53"], ref["sig"], ref["bonus"])
+    assert "bvc" not in ref and "delta" not in ref
 
 
 def test_la_note_figee_n_est_plus_lue():
