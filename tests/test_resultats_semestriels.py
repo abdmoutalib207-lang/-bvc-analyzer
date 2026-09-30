@@ -225,3 +225,15 @@ def test_lot8_fnb_uni_inv_hal():
     assert bpa["INV"]["bpa_12m"] == -16.98 and bpa["INV"]["perte_documentee"]
     fond = json.loads((RACINE / "fondamentaux.json").read_text(encoding="utf-8"))
     assert fond["HAL"]["ratios_publies"]["roe_2025"]["valeur"] == 6.9
+
+
+def test_lot9_akdital_tgcc_lesieur():
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    # AKD part du groupe : 444 + 225 − (214,226312 − 20,096114) = 474,87
+    # ÷ 14 159 207 = 33,54 ; ROE 2025 = 444 ÷ 2 853,529 = 15,6 % (yuna : 15,6)
+    assert bpa["AKD"]["bpa_12m"] == 33.54
+    # TGCC : 952 ÷ 34 674 332 = 27,46 (actions confirmées par le rapport
+    # annuel : 34 674 300) — l'ancien 65 était faux
+    assert bpa["TGCC"]["bpa"] == 27.46 and bpa["TGCC"]["bpa_avant_2026_09_29"] == 65
+    # LES : 8 − 47 − 12 = −51 ÷ 27 631 510 = −1,85 — en perte
+    assert bpa["LES"]["bpa_12m"] == -1.85 and bpa["LES"]["perte_documentee"]
