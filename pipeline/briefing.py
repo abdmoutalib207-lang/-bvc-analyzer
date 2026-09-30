@@ -1127,6 +1127,49 @@ def ecrire_moment(b: dict, racine=None) -> str | None:
     return ecrire(b, dossier / nom)
 
 
+# ⚠️ L'ARCHIVE DES LECTURES — 30/09/2026, demande d'Abd Moutalib.
+# `briefing_mijournee.json` et `briefing_cloture.json` sont remplacés à chaque
+# séance : la lecture d'hier disparaissait, et avec elle toute possibilité de
+# relire ce que le briefing avait dit. Un fichier par séance, un index pour le
+# terminal (un site statique ne sait pas lister un dossier).
+ARCHIVE = "briefings"
+
+
+def archiver(b: dict, aujourd_hui: str, racine=None) -> str | None:
+    """Range la lecture dans `briefings/<séance>.json`, sous son moment.
+
+    ⚠️ UNE LECTURE ARCHIVÉE EST FIGÉE APRÈS SA SÉANCE. Le jour même, le
+    passage suivant la remplace (13h45 après 12h45, 18h45 après 15h45) : c'est
+    la même lecture, mieux informée. Le lendemain, elle ne bouge plus — sauf si
+    elle n'existait pas : c'est le rattrapage d'une clôture dont les deux
+    passages ont sauté (voir `moment`). Une archive qui se réécrirait après
+    coup ne permettrait plus de vérifier ce qui avait été dit.
+    """
+    import json
+    from pathlib import Path
+    m, s = b.get("moment"), str(b.get("seance") or "")[:10]
+    if m not in FICHIERS_MOMENT or not s:
+        return None
+    base = Path(racine) if racine else Path(__file__).resolve().parent.parent
+    dossier = base / ARCHIVE
+    dossier.mkdir(parents=True, exist_ok=True)
+    f = dossier / f"{s}.json"
+    try:
+        doc = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
+    except ValueError:
+        doc = {}
+    if doc.get(m) is not None and aujourd_hui != s:
+        return None
+    doc["seance"] = s
+    doc[m] = b
+    f.write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":")),
+                 encoding="utf-8")
+    seances = sorted((x.stem for x in dossier.glob("????-??-??.json")), reverse=True)
+    (dossier / "index.json").write_text(
+        json.dumps({"seances": seances}, ensure_ascii=False), encoding="utf-8")
+    return str(f)
+
+
 def ecrire(b: dict, chemin=None) -> str:
     """Publie le briefing dans un fichier que le terminal peut lire.
 

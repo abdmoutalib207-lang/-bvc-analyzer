@@ -6675,6 +6675,9 @@ const Briefing = () => {
   const [cl, setCl] = useState(null);
   const [vue, setVue] = useState("jour");
   const [etat, setEtat] = useState("chargement");
+  const [seances, setSeances] = useState([]);
+  const [choix, setChoix] = useState(null);
+  const [arch, setArch] = useState(null);
   useEffect(() => {
     const t = Math.floor(Date.now() / 3600000);
     Promise.all([fetch("briefing.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null), fetch("briefing_hebdo.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null), fetch("briefing_mijournee.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null), fetch("briefing_cloture.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null)]).then(([j, s, m, c]) => {
@@ -6684,7 +6687,22 @@ const Briefing = () => {
       setCl(c);
       setEtat(j ? "ok" : "absent");
     });
+    fetch("briefings/index.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null).then(x => setSeances(x && x.seances || []));
   }, []);
+  const choisir = d => {
+    if (!d) {
+      setChoix(null);
+      setArch(null);
+      setVue("jour");
+      return;
+    }
+    setChoix(d);
+    setArch(null);
+    fetch(`briefings/${d}.json?t=${Math.floor(Date.now() / 3600000)}`).then(r => r.ok ? r.json() : null).catch(() => null).then(x => {
+      setArch(x || {});
+      setVue(x && x.cloture ? "cloture" : "mijournee");
+    });
+  };
   if (etat === "chargement") return React.createElement("div", {
     style: {
       color: "#8892a4",
@@ -6700,34 +6718,55 @@ const Briefing = () => {
       color: "#8892a4"
     }
   }, "Le briefing de la derni\xE8re s\xE9ance n'a pas \xE9t\xE9 publi\xE9. Il est \xE9crit par le run du soir ; son absence signale que ce run n'a pas abouti.");
-  const semaine = vue === "semaine" && h;
+  const passe = !!choix;
+  const semaine = !passe && vue === "semaine" && h;
+  const mjV = passe ? arch && arch.mi_journee : mj,
+    clV = passe ? arch && arch.cloture : cl;
   const PAR_VUE = {
     jour: b,
-    mijournee: mj,
-    cloture: cl
+    mijournee: mjV,
+    cloture: clV
   };
-  const src = semaine ? h : PAR_VUE[vue] || b;
+  const src = semaine ? h : PAR_VUE[vue] || (passe ? clV || mjV : b);
+  if (passe && !src) return React.createElement("div", {
+    style: {
+      color: "#8892a4",
+      padding: 20
+    }
+  }, arch ? "Aucune lecture archivée pour cette séance." : "Chargement de l'archive…", React.createElement("button", {
+    onClick: () => choisir(null),
+    style: {
+      marginLeft: 10,
+      background: "none",
+      border: "1px solid #1a2540",
+      color: "#4db8ff",
+      borderRadius: 5,
+      padding: "3px 10px",
+      cursor: "pointer"
+    }
+  }, "Revenir au jour"));
   const a = src.actualites || {};
   const liens = [...(a.titres || []), ...(a.autres || [])];
   const ONG = [{
     id: "jour",
     label: "DERNIÈRE LECTURE",
-    dispo: true
+    dispo: !passe,
+    pourquoi: "Lecture du jour seulement — revenez au jour pour la voir."
   }, {
     id: "mijournee",
     label: "MI-JOURNÉE",
-    dispo: !!mj,
-    pourquoi: "Écrite par le passage de 12h45, puis de 13h45 — pas encore publiée."
+    dispo: !!mjV,
+    pourquoi: passe ? "Aucune lecture de mi-journée archivée pour cette séance." : "Écrite par le passage de 12h45, puis de 13h45 — pas encore publiée."
   }, {
     id: "cloture",
     label: "CLÔTURE",
-    dispo: !!cl,
-    pourquoi: "Écrite par le passage de 15h45 — pas encore publiée."
+    dispo: !!clV,
+    pourquoi: passe ? "Aucune lecture de clôture archivée pour cette séance." : "Écrite par le passage de 15h45 — pas encore publiée."
   }, {
     id: "semaine",
     label: "LA SEMAINE",
-    dispo: !!h,
-    pourquoi: "Le bilan de semaine n'a pas été publié par le dernier run."
+    dispo: !passe && !!h,
+    pourquoi: passe ? "Bilan de la semaine en cours seulement." : "Le bilan de semaine n'a pas été publié par le dernier run."
   }];
   const LIB_MOMENT = {
     mi_journee: "Lecture de mi-journée",
@@ -6743,9 +6782,28 @@ const Briefing = () => {
   }, React.createElement("div", {
     style: {
       display: "flex",
-      gap: 4
+      gap: 4,
+      flexWrap: "wrap",
+      alignItems: "center"
     }
-  }, ONG.map(o => {
+  }, seances.length > 0 && React.createElement("select", {
+    value: choix || "",
+    onChange: e => choisir(e.target.value || null),
+    title: "Relire la lecture d'une s\xE9ance pass\xE9e, telle qu'elle a \xE9t\xE9 publi\xE9e",
+    style: {
+      background: "#0a1220",
+      border: "1px solid #1a2540",
+      color: passe ? "#ffd740" : "#8892a4",
+      borderRadius: 5,
+      padding: "5px 8px",
+      fontSize: 11
+    }
+  }, React.createElement("option", {
+    value: ""
+  }, "Aujourd'hui"), seances.map(d => React.createElement("option", {
+    key: d,
+    value: d
+  }, d.slice(8, 10), "/", d.slice(5, 7), "/", d.slice(0, 4)))), ONG.map(o => {
     const actif = vue === o.id,
       dispo = o.dispo;
     return React.createElement("button", {

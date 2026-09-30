@@ -55,6 +55,8 @@ ECRITS_PAR_LE_MOTEUR = [
     ("briefing_cloture.json", "la lecture de clôture"),
     ("news.json", "les actualités, collectées par le moteur depuis le 29/09"),
     ("pipeline/depots_ammc.json", "les dépôts de résultats lus sur la liste de l'AMMC"),
+    ("briefings/", "l'archive des lectures, un fichier par séance — sa raison "
+     "d'être est d'accumuler"),
     ("pipeline/seance_marche.json",
      "trajectoire du MASI, secteurs et matières premières — la série "
      "intrajournalière ne vit qu'un jour, non commitée elle est perdue"),
