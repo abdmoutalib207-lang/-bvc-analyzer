@@ -842,7 +842,8 @@ def neutraliser_si_isin_suspect(ticker, price, rsi, ma20, ma50, h90, l90):
     return (None, None, None, None, None, True)
 
 
-def fusionner_cotations(live_prices, idb_asof, cdg=None, bmce=None, lignes_cdg=None):
+def fusionner_cotations(live_prices, idb_asof, cdg=None, bmce=None, lignes_cdg=None,
+                        derniere_bougie=None):
     """Fusionne les trois sources de cotation. Renvoie la séance de référence.
 
     ⚠️ `live_prices` est modifié SUR PLACE — il arrive rempli par IDBourse et
@@ -872,12 +873,15 @@ def fusionner_cotations(live_prices, idb_asof, cdg=None, bmce=None, lignes_cdg=N
     d'elle-même. C'est ce mécanisme, dans l'autre sens, qui a sauvé la séance
     du 27/08.
 
-    `cdg`, `bmce` et `lignes_cdg` ne sont explicites que pour les tests, qui ne
-    doivent jamais toucher le réseau. En production, les sources sont
-    interrogées ici.
+    `cdg`, `bmce`, `lignes_cdg` et `derniere_bougie` ne sont explicites que
+    pour les tests, qui ne doivent jamais toucher le réseau ni le disque. En
+    production, les sources sont interrogées ici.
     """
     if cdg is None:
         cdg = fetch_all_cdg()
+    if derniere_bougie is None:
+        derniere_bougie = _derniere_bougie_stockee
+    cdg_asof = ""
 
     if cdg:
         repris = complete = 0
@@ -919,12 +923,52 @@ def fusionner_cotations(live_prices, idb_asof, cdg=None, bmce=None, lignes_cdg=N
         if bmce is None:
             bmce = fetch_all_bmce(libelles)
         comble = double = refuse = 0
+        # ⚠️ BMCE REDIFFUSE LA DERNIÈRE TRANSACTION D'UN TITRE QUI N'A PAS
+        # COTÉ — 30/09/2026. Sa page ne porte pas de date, seulement l'heure du
+        # dernier échange : `_bmce_parser` date chaque ligne du jour du relevé.
+        # Un titre qui n'a pas échangé depuis vendredi y figure avec la
+        # transaction de vendredi, et nous l'écrivions comme séance du jour.
+        # Prouvé sur la séance du 29/09 par le bulletin CDG : les 12 bougies
+        # identiques à la veille (M2M 391/391/390/390 pour 51 titres, trois
+        # jours de suite) sont EXACTEMENT 12 des titres que le bulletin déclare
+        # non cotés — cours 0,00, quantité 0, heure « NaN ». Aucune autre.
+        # Relevé dans les chandelles : 4 répétitions le 22/09, puis 6, 10, 15,
+        # 15 et 12 le 29.
+        #
+        # Deux preuves, dans cet ordre :
+        #  1. CDG, À JOUR, déclare le titre non coté : `Cours` vide, seul le
+        #     cours de référence est rempli. C'est un fait de la source de
+        #     tête, pas une déduction.
+        #  2. À défaut (CDG en retard, le cas du 17/09), la ligne BMCE est
+        #     IDENTIQUE — ouverture, extrêmes, cours ET quantité — à notre
+        #     dernière bougie d'une séance antérieure. Une vraie séance ne
+        #     reproduit pas au titre près la quantité échangée de la précédente.
+        non_cotes_cdg = {
+            IDB_TICKER_INV.get(str(r.get("Symbol") or "").upper())
+            for r in source_lignes
+            if r.get("Cours") in ("", None) and r.get("Symbol")}
+        non_cotes_cdg.discard(None)
+        rediffusions, ecartes = [], set()
         for sym, v in bmce.items():
             actuel = live_prices.get(sym) or {}
             a_act = str(actuel.get("asof") or "")[:10]
 
             if v["asof"] < a_act:
                 continue                      # plus ancienne : jamais
+
+            if sym in non_cotes_cdg and cdg_asof and cdg_asof >= v["asof"]:
+                rediffusions.append(f"{sym} (non coté selon CDG)")
+                ecartes.add(sym)
+                continue
+            b = derniere_bougie(sym)
+            if (b and str(b.get("d") or "")[:10] < v["asof"]
+                    and (v.get("vol") or 0) > 0
+                    and all(v.get(k) is not None for k in ("open", "high", "low", "vol"))
+                    and (v["open"], v["high"], v["low"], v["price"], v["vol"])
+                    == (b.get("o"), b.get("h"), b.get("l"), b.get("c"), b.get("v"))):
+                rediffusions.append(f"{sym} (copie exacte du {b.get('d')})")
+                ecartes.add(sym)
+                continue
 
             # ⚠️ À SÉANCE ÉGALE, CDG GARDE LA MAIN, et c'est une question
             # d'IDENTITÉ, pas de préférence. CDG apparie par code officiel ;
@@ -968,6 +1012,38 @@ def fusionner_cotations(live_prices, idb_asof, cdg=None, bmce=None, lignes_cdg=N
         if comble or double or refuse:
             logger.info(f"BMCE : {comble} titres comblés, {double} rafraîchis "
                         f"sur une séance plus récente que CDG, {refuse} refusés")
+        if rediffusions:
+            logger.warning(f"BMCE : {len(rediffusions)} ligne(s) écartée(s), "
+                           f"rediffusion d'une séance antérieure — "
+                           f"{', '.join(rediffusions)}")
+
+        # La séance de référence n'avance qu'avec des lignes RETENUES : une
+        # rediffusion écartée ne doit pas porter la date du jour.
+        bmce = {k: v for k, v in bmce.items() if k not in ecartes}
+
+        # ⚠️ LA MÊME REDIFFUSION ARRIVE PAR IDBOURSE. Exécution à blanc du
+        # 30/09 à 00h12 : BMCE muette, mais IDBourse servait Sanlam daté du 29
+        # avec 6 titres échangés — la transaction du 28 — et `stale: false`.
+        # Quand CDG, À JOUR, dit « non coté », AUCUNE source ne peut dater ce
+        # titre de cette séance. La ligne n'est pas supprimée — elle porte la
+        # capitalisation, qu'IDBourse est seule à fournir — elle est REDATÉE :
+        # de la dernière séance réellement enregistrée si le cours y
+        # correspond, sinon laissée sans date (donc périmée).
+        if cdg_asof:
+            redatees = []
+            for sym in sorted(non_cotes_cdg):
+                v = live_prices.get(sym)
+                if not v or v.get("src") == "cdg" or str(v.get("asof") or "")[:10] < cdg_asof:
+                    continue
+                b = derniere_bougie(sym)
+                vraie = (str(b.get("d") or "")[:10]
+                         if b and b.get("c") == v.get("price")
+                         and str(b.get("d") or "")[:10] < cdg_asof else "")
+                live_prices[sym] = {**v, "asof": vraie, "rediffusion": True}
+                redatees.append(f"{sym} → {vraie or 'sans date'}")
+            if redatees:
+                logger.warning(f"{len(redatees)} ligne(s) non cotée(s) selon CDG le "
+                               f"{cdg_asof}, redatée(s) : {', '.join(redatees)}")
 
         # ⚠️ LA SÉANCE DE RÉFÉRENCE DOIT POUVOIR AVANCER AVEC BMCE.
         # Elle ne se calculait que sur IDBourse et CDG : même en servant des
@@ -981,6 +1057,17 @@ def fusionner_cotations(live_prices, idb_asof, cdg=None, bmce=None, lignes_cdg=N
             idb_asof = bmce_asof
 
     return idb_asof
+
+
+def _derniere_bougie_stockee(sym):
+    """La dernière chandelle enregistrée d'un titre, ou None. Ne lève jamais."""
+    try:
+        f = Path(__file__).parent / "pipeline" / "candles" / f"{sym}.json"
+        d = json.loads(f.read_text(encoding="utf-8"))
+        b = d if isinstance(d, list) else d.get("candles", [])
+        return b[-1] if b else None
+    except Exception:
+        return None
 
 
 def _ecarter_seances_annulees(live_prices, idb_asof):

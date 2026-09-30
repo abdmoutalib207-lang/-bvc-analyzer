@@ -208,3 +208,86 @@ def test_seance_de_reference_ne_recule_jamais(ud, cdg_asof, idb_asof, attendu):
     r = ud.fusionner_cotations(lp, idb_asof, cdg={"IAM": _ext(102.0, cdg_asof)},
                                bmce={}, lignes_cdg=[])
     assert r == attendu
+
+
+# ── BMCE rediffuse la dernière transaction d'un titre non coté (30/09/2026) ──
+#
+# Prouvé sur la séance du 29/09 par le bulletin CDG : les 12 bougies identiques
+# à la veille sont exactement 12 des titres déclarés non cotés. Valeurs de
+# M2M telles que servies : 391 / 391 / 390 / 390 pour 51 titres.
+
+def _bmce_m2m(asof):
+    return {"price": 390.0, "open": 391.0, "high": 391.0, "low": 390.0,
+            "vol": 51, "asof": asof}
+
+
+BOUGIE_M2M = {"d": HIER, "o": 391.0, "h": 391.0, "l": 390.0, "c": 390.0, "v": 51}
+
+
+def test_bmce_ecartee_quand_cdg_a_jour_dit_non_cote(ud):
+    lp = {"M2M": _idb(390.0, HIER)}
+    lignes = [{"Symbol": "M2M", "Libelle": "M2M Group", "Cours": "", "CoursDeReferance": 390}]
+    r = ud.fusionner_cotations(lp, HIER, cdg={"IAM": _ext(102.75, JOUR)},
+                               bmce={"M2M": _bmce_m2m(JOUR)}, lignes_cdg=lignes,
+                               derniere_bougie=lambda s: None)
+    assert lp["M2M"]["src"] == "idbourse" and lp["M2M"]["asof"] == HIER
+    assert r == JOUR, "la séance avance par CDG, pas par la rediffusion"
+
+
+def test_bmce_ecartee_quand_elle_copie_la_derniere_bougie(ud):
+    """CDG en retard (le cas du 17/09) : c'est la bougie qui tranche."""
+    lp = {"M2M": _idb(390.0, HIER)}
+    r = ud.fusionner_cotations(lp, HIER, cdg={"IAM": _ext(102.75, HIER)},
+                               bmce={"M2M": _bmce_m2m(JOUR)}, lignes_cdg=[],
+                               derniere_bougie=lambda s: BOUGIE_M2M)
+    assert lp["M2M"]["src"] == "idbourse"
+    assert r == HIER, "une rediffusion écartée ne fait pas avancer la séance"
+
+
+def test_une_vraie_seance_bmce_passe_toujours(ud):
+    """Contre-épreuve : même cours, mais une autre quantité échangée."""
+    lp = {"M2M": _idb(390.0, HIER)}
+    vraie = {**_bmce_m2m(JOUR), "vol": 12}
+    ud.fusionner_cotations(lp, HIER, cdg={"IAM": _ext(102.75, HIER)},
+                           bmce={"M2M": vraie}, lignes_cdg=[],
+                           derniere_bougie=lambda s: BOUGIE_M2M)
+    assert lp["M2M"]["src"] == "bmce" and lp["M2M"]["asof"] == JOUR
+
+
+def test_cdg_en_retard_ne_disqualifie_pas_bmce(ud):
+    """« Non coté » selon une CDG restée sur la veille ne dit rien du jour."""
+    lp = {"M2M": _idb(390.0, HIER)}
+    lignes = [{"Symbol": "M2M", "Cours": ""}]
+    ud.fusionner_cotations(lp, HIER, cdg={"IAM": _ext(102.75, HIER)},
+                           bmce={"M2M": {**_bmce_m2m(JOUR), "vol": 12}},
+                           lignes_cdg=lignes, derniere_bougie=lambda s: None)
+    assert lp["M2M"]["src"] == "bmce"
+
+
+def test_idbourse_redatee_quand_cdg_dit_non_cote(ud):
+    """Sanlam, nuit du 30/09 : IDBourse le datait du 29 avec la transaction
+    du 28. La ligne garde sa capitalisation, mais reprend sa vraie date."""
+    lp = {"SAF": {**_idb(2999.0, JOUR, cap=16020), "vol": 6}}
+    lignes = [{"Symbol": "SAH", "Cours": "", "CoursDeReferance": 2999}]
+    ud.fusionner_cotations(lp, JOUR, cdg={"IAM": _ext(94.03, JOUR)}, bmce={},
+                           lignes_cdg=lignes,
+                           derniere_bougie=lambda s: {"d": HIER, "c": 2999.0})
+    assert lp["SAF"]["asof"] == HIER and lp["SAF"]["cap"] == 16020
+    assert lp["SAF"]["rediffusion"] is True
+
+
+def test_redatation_sans_bougie_correspondante_laisse_sans_date(ud):
+    lp = {"SAF": _idb(3050.0, JOUR)}
+    lignes = [{"Symbol": "SAH", "Cours": ""}]
+    ud.fusionner_cotations(lp, JOUR, cdg={"IAM": _ext(94.03, JOUR)}, bmce={},
+                           lignes_cdg=lignes,
+                           derniere_bougie=lambda s: {"d": HIER, "c": 2999.0})
+    assert lp["SAF"]["asof"] == ""
+
+
+def test_un_titre_cote_selon_cdg_n_est_jamais_redate(ud):
+    lp = {"IAM": _idb(94.03, JOUR)}
+    ud.fusionner_cotations(lp, JOUR, cdg={"IAM": _ext(94.03, JOUR)}, bmce={},
+                           lignes_cdg=[{"Symbol": "IAM", "Cours": 94.03}],
+                           derniere_bougie=lambda s: {"d": HIER, "c": 94.03})
+    assert lp["IAM"]["asof"] == JOUR and "rediffusion" not in lp["IAM"]

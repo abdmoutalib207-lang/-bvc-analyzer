@@ -1182,3 +1182,35 @@ installer… ») et des contrôles de séance au vert.
 test qui vérifie que CHAQUE workflow lançant la suite l'installe
 (`test_chaque_workflow_qui_lance_la_suite_installe_le_compilateur`). Et avant
 d'ajouter une dépendance de test : `grep "python -m pytest" .github/workflows/`.
+
+## Famille 24 — Une source sans date rediffuse la dernière transaction (30/09/2026)
+
+**Symptôme.** Des bougies strictement identiques à la veille, volume compris :
+M2M 391/391/390/390 pour 51 titres les 25, 28 et 29/09 ; AFMA 2 titres à
+1 250 trois jours de suite. Dans les chandelles : 4 répétitions exactes le
+22/09, puis 6, 10, 15, 15 et 12 le 29.
+
+**Preuve.** Bulletin CDG « Indices du mercredi 30 septembre » (séance du 29,
+datée sur son contenu : 66/66 cours concordants) : les 12 bougies répétées du
+29 sont EXACTEMENT 12 des titres qu'il déclare non cotés (cours 0,00,
+quantité 0, heure « NaN »). Aucune autre.
+
+**Cause.** La page BMCE ne porte pas de date, seulement l'heure du dernier
+échange. `_bmce_parser` datait chaque ligne du jour du relevé ; un titre sans
+échange depuis vendredi y figure avec la transaction de vendredi. CDG, qui
+laisse `Cours` vide pour un titre non coté, ne l'avait pas dans sa sélection ;
+BMCE « comblait » le trou avec la veille.
+
+**Pourquoi rien ne l'a vu.** Le détecteur de séance fantôme juge à l'échelle
+du MARCHÉ (≥ 95 % de clôtures identiques) ; ici c'est une douzaine de titres
+peu liquides. R9 (`chg=0 ET vol=0`) non plus : le volume rediffusé n'est pas
+nul.
+
+**Correctif.** `fusionner_cotations` écarte une ligne BMCE (1) quand CDG, à
+jour, déclare le titre non coté, (2) à défaut, quand elle copie au titre près
+notre dernière bougie d'une séance antérieure. Les 12 bougies du 29/09
+retirées. ⚠️ Les répétitions du 22 au 28/09 portent la même signature mais
+n'ont pas de preuve extérieure : laissées en place, à vérifier sur bulletin.
+
+**Signal.** Une bougie dont (o, h, l, c, v) égale celle de la veille avec
+v > 0. Une vraie séance ne reproduit pas la quantité échangée au titre près.
