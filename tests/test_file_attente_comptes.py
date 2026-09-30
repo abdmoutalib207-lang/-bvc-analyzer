@@ -43,3 +43,10 @@ def test_rapport_lisible():
     texte = rapport(file_attente(DEPOTS, JEU, "2026-06-30"))
     assert "pas encore intégrés : 2" in texte
     assert "[Aaa - Résultats financiers du 1er semestre 2026](u1)" in texte
+
+
+def test_noms_ammc_de_rebab_et_t2s_resolus():
+    """30/09/2026 : leurs dépôts S1 échappaient à la file d'attente."""
+    from pipeline.depots_ammc import resoudre_emetteur
+    assert resoudre_emetteur("Rebab Company") == "REB"
+    assert resoudre_emetteur("T2S Group") == "T2S"

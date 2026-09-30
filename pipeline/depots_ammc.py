@@ -58,6 +58,12 @@ ALIAS_AMMC = {
     "eqdom": "EQD",          # « Eqdom » — notre « Crédit Eqdom »
     "labelvie": "LBV",       # « LabelVie » — notre « Label Vie »
     "marsa maroc": "MSA",    # « Marsa Maroc » — notre « Sodep-Marsa Maroc »
+    # Ajoutés le 30/09/2026 : leurs dépôts S1 (29-30/09) n'entraient pas dans
+    # la file d'attente. Noms tels que l'AMMC les écrit ; identités établies
+    # par les chiffres (Rebab : BPA 2025 5,97 = yuna ; T2S : capitalisation
+    # yuna ÷ 21 785 174 actions du référentiel de l'opérateur).
+    "rebab company": "REB",  # « Rebab Company »
+    "t2s": "T2S",            # « T2S Group » (le normaliseur retire « group »)
 }
 
 # ⚠️ « indicateurs » N'EN FAIT PAS PARTIE. Relevé le 29/09 sur RDS : « CP
