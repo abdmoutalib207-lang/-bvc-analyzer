@@ -199,3 +199,16 @@ def test_le_controle_refuse_toujours_un_bpa_negatif_sans_piece():
     assert "SNEP_2025.pdf" in bpa["SNP"]["perte_documentee"]
     assert all(v.get("perte_documentee") for v in bpa.values()
                if isinstance(v, dict) and (v.get("bpa") or 0) < 0)
+
+
+def test_lot7_communiques_lus_et_recoupes():
+    """Lot 7 — chiffres lus dans des communiqués (graphiques lus sur l'image
+    quand le texte ne les porte pas). Recoupés sur yuna.ma : OUL 56,72 et
+    MIC 41,37 identiques ; SBS 121,32 / 121,22 ; DTT 25,94 / 25,85."""
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    # OUL : 112,3 ÷ 1 980 000 = 56,72 ; MIC : 69,5 ÷ 1 680 000 = 41,37
+    assert (bpa["OUL"]["bpa"], bpa["MIC"]["bpa"]) == (56.72, 41.37)
+    # SBS : 343 + 79,9 − 87,3 = 335,6 ÷ 2 829 653 = 118,60
+    assert bpa["SBS"]["bpa_12m"] == 118.6
+    # DTT : 25,8 + 16,1 − 12,5 = 29,4 ÷ 998 110 = 29,46
+    assert bpa["DTT"]["bpa_12m"] == 29.46
