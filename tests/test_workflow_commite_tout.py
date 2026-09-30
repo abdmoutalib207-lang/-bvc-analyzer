@@ -55,6 +55,9 @@ ECRITS_PAR_LE_MOTEUR = [
     ("briefing_cloture.json", "la lecture de clôture"),
     ("news.json", "les actualités, collectées par le moteur depuis le 29/09"),
     ("pipeline/depots_ammc.json", "les dépôts de résultats lus sur la liste de l'AMMC"),
+    ("pipeline/seance_marche.json",
+     "trajectoire du MASI, secteurs et matières premières — la série "
+     "intrajournalière ne vit qu'un jour, non commitée elle est perdue"),
 ]
 
 
@@ -134,6 +137,7 @@ def test_le_moteur_ecrit_bien_ce_que_le_workflow_commite():
     for module, fichier in (("pipeline.briefing", "briefing.json"),
                             ("pipeline.briefing_hebdo", "briefing_hebdo.json"),
                             ("pipeline.score_history", "pipeline/score_history.json"),
+                            ("pipeline.seance_marche", "pipeline/seance_marche.json"),
                             ("pipeline.marche_history", "pipeline/marche_history.json")):
         assert module in modules, (
             f"le workflow commite {fichier} mais le moteur n'importe plus "

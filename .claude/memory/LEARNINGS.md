@@ -819,3 +819,48 @@ séances cohérentes, et je l'ai écrite dans la mémoire du projet avant de la
 confronter à la seule source qui pouvait la réfuter : l'actualité. Une
 hypothèse qui « colle » aux chiffres n'est pas vérifiée pour autant ; il faut
 chercher ce qui la contredirait. R12.
+
+## CDG : série intrajournalière, indices sectoriels, matières premières (30/09/2026)
+
+Relevé pour le briefing de clôture enrichi (`pipeline/seance_marche.py`).
+
+- **`INDICE-O-GRAPH-INTRA` (Indice_=MASI, Lang_=XX)** — paramètres lus dans
+  `main.c09bc1b4.js`. Mesuré le 30/09 à 13h15 : 772 points ; un point de
+  pré-ouverture à 08:03:00 qui recopie la clôture de la VEILLE, puis des
+  points à la seconde dès 09:30:05 (jusqu'à 59 par minute, plusieurs par
+  seconde, servis dans l'ordre). Max et min de la série = `PlusHaut` /
+  `PlusBas` de la synthèse, au dix-millième.
+  - ⚠️ **La série retarde** : à 13h15 son dernier point datait de 12:59:59
+    (17 815,09) quand la synthèse donnait 17 789,28. La clôture se lit dans
+    la synthèse, jamais dans la série. Huit relevés de 13h15 à 13h37 (toutes
+    les 3 min) : retard constant de 15 à 16 min, et chaque dernier point
+    redonne une valeur que la synthèse servait un quart d'heure plus tôt
+    (17 789,2776 : synthèse à 13h15, fin de série à 13h30). Le passage de
+    18h45 est donc celui qui voit la série complète ; celui de 15h45 peut
+    s'arrêter avant 15h30.
+  - ⚠️ **Elle ne vit qu'un jour** : le 30/09 à 08h46, un seul point, daté du
+    30, portant la clôture du 29. La trajectoire d'une séance se relève le
+    jour même (passages de 15h45 et 18h45) ou se perd.
+- **`CoursOuverture` de `INDICE-SYNTHESE` vaut `CoursVeille`** (29/09 et
+  30/09) : ce n'est pas une ouverture. La « première valeur calculée » est le
+  premier point de la série après 09:30.
+- **Indices sectoriels** : les codes s'obtiennent par la recherche du
+  fournisseur (`QUICK-SEARCH`, type « I ») — BANK, B&MC, IMMOB, SPI, ASSUR,
+  MINES, TCOM, AGRO, P&G, DISTR, L&SI, SDT, PHARM, I&BEI, CHIM, ELEC, SF&AF,
+  SP&H, TRANS, SANTE, L&H, BOISS, S&P. `SAC`, `AGR`, `EEE` y figurent mais
+  `INDICE-SYNTHESE` les renvoie creux. Recoupé au 29/09 sur les secteurs à une
+  valeur : TCOM = IAM (−0,29 %), S&P = MDP (−3,72 %), SDT = MSA (−0,12 %),
+  ELEC = TQA (0,00 %). `NbrValeur` y vaut 67 partout : c'est le marché, pas
+  le secteur. Les libellés sont tronqués à 50 caractères par la source.
+- **`COMMODITIES` / `METALS` de CDG : inutilisables** — aucune date ; le Brent
+  y valait 89,44 (+6,84 %) quand le contrat le plus proche cotait 96,39
+  (+0,24 %) chez TradingView.
+- **`INDICE-SESSIONS`** a répondu des séances d'août 2025 pour le MASI.
+- **TradingView, scanner `futures`** : HTTP 200 sans authentification avec un
+  User-Agent honnête. Colonne `update_time` = horodatage (epoch) ; `time` =
+  début de la barre journalière ; `update_mode` = `delayed_streaming_600`
+  (différé déclaré de 600 s). Le scanner `cfd` n'a pas renvoyé `TVC:UKOIL`
+  ni `TVC:USOIL`.
+- **`masi_history.json` a des trous** : ses 20 dernières clôtures couvraient
+  du 17/08 au 29/09, soit 27 séances cotées (dates des chandelles). Une
+  fenêtre « N séances » se compte en séances cotées, pas en lignes de la série.

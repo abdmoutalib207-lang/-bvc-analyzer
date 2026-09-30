@@ -191,6 +191,23 @@ def accord_indice_marche(masi: dict) -> dict | None:
             "accord": accord, **lg, "change_pct": round(chg, 2)}
 
 
+def reellement_cote(x: dict, seance: str) -> bool:
+    """Le titre a-t-il réellement coté dans la séance du briefing ?
+
+    ⚠️ LE DÉFAUT QUE CE FILTRE CORRIGE — briefing de clôture du 29/09/2026.
+    Il listait en « activité inhabituelle » DAR (20 titres contre une médiane
+    de 1), M2M et MGL, qui n'avaient PAS coté : BMCE rediffusait leur dernière
+    transaction en la datant du jour (famille 24 d'ERRORS.md). Leur
+    `prix_asof` valait bien la séance — c'est la source qui mentait sur la
+    date — mais le moteur les avait marqués `stale`.
+
+    La date seule ne suffit donc pas. Un titre n'est retenu que si son cours
+    est daté de la séance ET que le moteur ne le déclare pas périmé.
+    """
+    m = x.get("_meta") or {}
+    return str(m.get("prix_asof") or "") == seance and m.get("stale") is not True
+
+
 def volumes_inhabituels(titres: list, seance: str) -> list:
     """Les titres dont l'activité du jour sort de leur propre ordinaire.
 
@@ -200,11 +217,13 @@ def volumes_inhabituels(titres: list, seance: str) -> list:
 
     ⚠️ Un titre sans médiane connue est ÉCARTÉ, pas traité comme calme : on
     ne sait pas, et le dire coûte moins cher que de l'affirmer.
+
+    ⚠️ Seuls les titres RÉELLEMENT cotés — voir `reellement_cote`.
     """
     out = []
     for x in titres or []:
         m = x.get("_meta") or {}
-        if str(m.get("prix_asof") or "") != seance:
+        if not reellement_cote(x, seance):
             continue
         v, med = _n(x.get("vol")), _n(m.get("vol_median20"))
         if v is None or med is None or med <= 0:
@@ -227,7 +246,8 @@ def extremes_annuels(titres: list, seance: str) -> dict:
     hauts, bas = [], []
     for x in titres or []:
         m = x.get("_meta") or {}
-        if str(m.get("prix_asof") or "") != seance:
+        # ⚠️ Un cours rediffusé n'est pas un extrême atteint dans la séance.
+        if not reellement_cote(x, seance):
             continue
         if (_n(m.get("n_candles")) or 0) < MIN_SEANCES_52W:
             continue
@@ -464,10 +484,456 @@ def charger_articles(chemin=None) -> list:
         return []
 
 
-def composer(data: dict, series=None) -> dict:
+# ── Le briefing de clôture enrichi — ajouté le 30/09/2026 ──────────────────
+#
+# Un briefing rédigé par un autre assistant pour la séance du 29/09 donnait la
+# trajectoire de l'indice, la comparaison avec la veille, les publications du
+# jour, les secteurs, les matières premières et des « niveaux ». Ce qui suit
+# reprend CHACUN de ces points EN MESURÉ : source nommée, date portée, méthode
+# dite. Rien n'y est probabilisé ni conseillé, et aucune cause n'est avancée.
+
+# Profondeur des extrêmes récents. ⚠️ Le nombre est DIT dans chaque phrase
+# (« plus haut des 20 dernières séances ») : un niveau dont on tait la fenêtre
+# ne se vérifie pas.
+N_SEANCES_NIVEAUX = 20
+# Les titres dont on publie les niveaux : ceux qui concentrent l'activité.
+TOP_NIVEAUX = 5
+# Nombre de secteurs cités en tête et en queue dans la phrase de synthèse.
+N_SECTEURS_PHRASE = 3
+
+
+def _date_fr(iso: str) -> str:
+    """« 2026-09-29 » → « 29/09 »."""
+    return f"{iso[8:10]}/{iso[5:7]}" if iso and len(iso) >= 10 else str(iso)
+
+
+def _signe(x, d=2):
+    return ("+" if x > 0 else "") + _fr(x, d)
+
+
+def phrase_trajectoire(t: dict | None) -> str | None:
+    """La séance de l'indice en une phrase. Fonction pure.
+
+    ⚠️ CHAQUE MOT DÉCRIT UNE COMPARAISON DE NOMBRES, et rien d'autre :
+      · « gain d'ouverture conservé » veut dire ouverture > veille ET
+        clôture ≥ ouverture ;
+      · « partiellement rendu » : veille < clôture < ouverture ;
+      · « effacé » : clôture ≤ veille alors que l'ouverture était au-dessus.
+    Symétrique pour une ouverture en baisse. Aucune de ces phrases ne dit
+    POURQUOI : elles disent dans quel ordre les nombres se sont rangés.
+    """
+    if not t:
+        return None
+    v, o, h, b, c = (t["veille"], t["ouverture"], t["plus_haut"],
+                     t["plus_bas"], t["cloture"])
+    # ⚠️ « Première valeur calculée », pas « ouverture » tout court : le champ
+    # `CoursOuverture` de CDG vaut la veille, et la valeur retenue est le
+    # premier point de la série après 09:30 (voir `seance_marche.trajectoire`).
+    P = [f"MASI : première valeur calculée {_fr(o)} ({t['heure_ouverture']}), plus haut "
+         f"{_fr(h)}" + (f" ({t['heure_plus_haut']})" if t.get("heure_plus_haut") else "")
+         + f", plus bas {_fr(b)}"
+         + (f" ({t['heure_plus_bas']})" if t.get("heure_plus_bas") else "")
+         + f", clôture {_fr(c)} pour une veille à {_fr(v)}."]
+    # ⚠️ Mesuré le 30/09 à 13h15 : la série s'arrêtait à 12:59:59 alors que
+    # la synthèse était plus récente. Si elle ne rejoint pas la clôture, les
+    # heures des extrêmes ne couvrent que la partie de séance qu'elle porte.
+    if t.get("serie_rejoint_cloture") is False and t.get("serie_jusqu_a"):
+        P.append(f"(La série intrajournalière s'arrête à {t['serie_jusqu_a']} ; "
+                 f"clôture et extrêmes viennent de la synthèse CDG.)")
+    if o > v:
+        if c >= o:
+            P.append("Le gain d'ouverture a été conservé jusqu'à la clôture.")
+        elif c > v:
+            P.append("Le gain d'ouverture a été partiellement rendu : la "
+                     "clôture reste au-dessus de la veille mais sous "
+                     "l'ouverture.")
+        else:
+            P.append("Le gain d'ouverture a été effacé : la clôture est au "
+                     "niveau de la veille ou en dessous.")
+    elif o < v:
+        if c <= o:
+            P.append("La baisse d'ouverture s'est prolongée jusqu'à la clôture.")
+        elif c < v:
+            P.append("La baisse d'ouverture a été partiellement reprise : la "
+                     "clôture reste sous la veille mais au-dessus de "
+                     "l'ouverture.")
+        else:
+            P.append("La baisse d'ouverture a été effacée : la clôture est au "
+                     "niveau de la veille ou au-dessus.")
+    if b >= v:
+        P.append("L'indice n'est pas descendu sous la clôture de la veille de "
+                 "toute la séance.")
+    elif h <= v:
+        P.append("L'indice n'est pas remonté au-dessus de la clôture de la "
+                 "veille de toute la séance.")
+    if h > b:
+        pos = (c - b) / (h - b)
+        P.append(f"La clôture se situe à {pos*100:.0f} % de l'amplitude de "
+                 f"séance ({_fr(h - b)} points) en partant du plus bas.")
+    return " ".join(P)
+
+
+def comparaison_veille(historique: dict, seance: str) -> dict | None:
+    """La séance et celle qui la précède, lues dans `marche_history.json`.
+
+    ⚠️ La « veille » est la SÉANCE précédente enregistrée, pas le jour
+    calendaire précédent : le lundi se compare au vendredi.
+    """
+    jour = (historique or {}).get(seance)
+    if not jour:
+        return None
+    avant = sorted(k for k in historique if k < seance)
+    if not avant:
+        return None
+    d_veille = avant[-1]
+    veille = historique[d_veille]
+
+    def sel(e):
+        return {k: e.get(k) for k in ("cours", "variation_pct", "volume_mad",
+                                      "hausses", "baisses", "inchanges",
+                                      "valeurs_traitees", "transactions")}
+    j, p = sel(jour), sel(veille)
+    ecart = None
+    if _n(j["volume_mad"]) and _n(p["volume_mad"]):
+        ecart = round((j["volume_mad"] / p["volume_mad"] - 1) * 100, 1)
+    return {"seance": seance, "seance_veille": d_veille, "jour": j,
+            "veille": p, "ecart_volume_pct": ecart,
+            "source": "CDG Capital Bourse — INDICE-SYNTHESE, via "
+                      "pipeline/marche_history.json"}
+
+
+def phrase_veille(c: dict | None) -> str | None:
+    if not c:
+        return None
+    j, p = c["jour"], c["veille"]
+    P = [f"Par rapport à la séance du {_date_fr(c['seance_veille'])} :"]
+    if _n(j["variation_pct"]) is not None and _n(p["variation_pct"]) is not None:
+        P.append(f"indice à {_signe(j['variation_pct'])} % après "
+                 f"{_signe(p['variation_pct'])} %,")
+    if c["ecart_volume_pct"] is not None:
+        P.append(f"volume global {_fr(j['volume_mad']/1e6, 1)} M DH contre "
+                 f"{_fr(p['volume_mad']/1e6, 1)} M DH "
+                 f"({_signe(c['ecart_volume_pct'], 1)} %),")
+    if None not in (j["hausses"], j["baisses"], p["hausses"], p["baisses"]):
+        P.append(f"{j['hausses']} hausses et {j['baisses']} baisses contre "
+                 f"{p['hausses']} et {p['baisses']}.")
+    if len(P) == 1:
+        return None
+    s = " ".join(P)
+    return s[:-1] + "." if s.endswith(",") else s
+
+
+def depots_du_jour(entrees: list, seance: str, resoudre=None) -> dict:
+    """Les dépôts de résultats publiés à l'AMMC le jour de la séance.
+
+    ⚠️ LA DATE EST CELLE DE LA LISTE DU RÉGULATEUR, qui ne dit pas l'heure.
+    Un dépôt du 29/09 peut avoir été publié après la clôture : le briefing
+    dit « publié le 29/09 », jamais « avant » ou « pendant » la séance.
+
+    ⚠️ Le filtre « résultats » et la résolution des émetteurs sont ceux de
+    `depots_ammc.py`, pas une seconde définition : deux définitions
+    finiraient par diverger (même raison que pour `material`).
+    """
+    from pipeline.depots_ammc import _RESULTATS, emetteur
+    if resoudre is None:
+        from pipeline.depots_ammc import resoudre_emetteur as resoudre
+    cotes, autres = [], []
+    for e in entrees or []:
+        if e.get("date") != seance or not _RESULTATS.search(e.get("titre") or ""):
+            continue
+        nom = emetteur(e["titre"])
+        t = resoudre(nom)
+        x = {"emetteur": nom, "titre": e["titre"], "url": e.get("url"),
+             "date": e["date"], "ticker": t}
+        (cotes if t else autres).append(x)
+    cotes.sort(key=lambda z: z["ticker"])
+    return {"seance": seance, "titres": cotes, "autres_emetteurs": autres,
+            "source": "AMMC — liste des communiqués des émetteurs"}
+
+
+def _extremes_fenetre(bougies: list, seance: str, n: int):
+    """Plus haut et plus bas des `n` dernières bougies jusqu'à la séance."""
+    s = sorted((b for b in bougies or [] if str(b.get("d"))[:10] <= seance
+                and _n(b.get("h")) and _n(b.get("l"))), key=lambda b: b["d"])[-n:]
+    if not s:
+        return None
+    # ⚠️ Au plus haut ex æquo, la date la plus RÉCENTE est retenue ; au plus
+    # bas ex æquo, la plus récente aussi — c'est la dernière fois que le
+    # niveau a été touché, l'information la plus utile au lecteur.
+    h = max(reversed(s), key=lambda b: b["h"])
+    lo = min(reversed(s), key=lambda b: b["l"])
+    return {"n": len(s), "du": s[0]["d"][:10], "au": s[-1]["d"][:10],
+            "plus_haut": h["h"], "date_plus_haut": h["d"][:10],
+            "plus_bas": lo["l"], "date_plus_bas": lo["d"][:10]}
+
+
+def _plus_actifs(titres: list, seance: str, top: int) -> list:
+    """[(montant_dh, titre)] des titres réellement cotés, du plus échangé au
+    moins échangé. Montant réel d'abord, volume × clôture à défaut."""
+    actifs = []
+    for x in titres or []:
+        if not reellement_cote(x, seance):
+            continue
+        m = _n(x.get("echange_dh"))
+        if not m:
+            v, p = _n(x.get("vol")), _n(x.get("price"))
+            m = v * p if v and p else None
+        if m:
+            actifs.append((m, x))
+    actifs.sort(key=lambda z: -z[0])
+    return actifs[:top]
+
+
+def niveaux_titres(titres: list, seance: str, bougies: dict,
+                   n: int = N_SEANCES_NIVEAUX, top: int = TOP_NIVEAUX) -> list:
+    """Les extrêmes récents des titres qui concentrent l'activité.
+
+    ⚠️ CE NE SONT PAS DES « SUPPORTS ». Un plus bas des 20 dernières séances
+    est un fait vérifiable ; qu'il « tienne » demain est une opinion. Chaque
+    niveau porte sa fenêtre et sa date, et rien ne dit ce qu'il faut en faire.
+
+    ⚠️ Seuls les titres réellement cotés dans la séance, classés par montant
+    échangé réel (`echange_dh`), à défaut volume × clôture — même règle que
+    `concentration`.
+    """
+    out = []
+    for m, x in _plus_actifs(titres, seance, top):
+        sym = x.get("symbol")
+        serie = (bougies or {}).get(sym) or []
+        jour = next((b for b in serie if str(b.get("d"))[:10] == seance), None)
+        e = {"symbol": sym, "name": x.get("name"), "montant_dh": round(m),
+             "cloture": _n(x.get("price")),
+             "seance_haut": _n(jour.get("h")) if jour else None,
+             "seance_bas": _n(jour.get("l")) if jour else None,
+             "fenetre": _extremes_fenetre(serie, seance, n)}
+        out.append(e)
+    return out
+
+
+def niveaux_masi(historique: dict, clotures: dict, seance: str,
+                 n: int = N_SEANCES_NIVEAUX, seances_cotees=None) -> dict | None:
+    """Les extrêmes de l'indice : séance, n dernières CLÔTURES, année.
+
+    ⚠️ Sur n séances, ce sont des CLÔTURES (`masi_history.json` n'en garde
+    pas d'autres), et le libellé le dit : « plus haute clôture ». Les
+    extrêmes de séance et d'année sont ceux que CDG sert.
+    """
+    jour = (historique or {}).get(seance) or {}
+    # ⚠️ LA FENÊTRE EST DÉFINIE PAR LES SÉANCES COTÉES, PAS PAR LA SÉRIE DE
+    # L'INDICE — mesuré le 30/09 : les 20 dernières clôtures de
+    # `masi_history.json` couvraient du 17/08 au 29/09, soit 27 séances cotées.
+    # Appeler cela « les 20 dernières séances » aurait été faux. Quand les
+    # séances cotées sont connues (dates des chandelles des titres), la
+    # fenêtre est celle des n dernières d'entre elles, et l'on dit combien de
+    # clôtures de l'indice y sont réellement enregistrées.
+    fenetre = None
+    if seances_cotees:
+        fenetre = sorted(d for d in seances_cotees if d <= seance)[-n:]
+    if fenetre:
+        s = sorted((d, c) for d, c in (clotures or {}).items()
+                   if fenetre[0] <= d <= seance and _n(c))
+    else:
+        s = sorted((d, c) for d, c in (clotures or {}).items()
+                   if d <= seance and _n(c))[-n:]
+    if not jour and not s:
+        return None
+    out = {"seance": seance,
+           "seance_haut": _n(jour.get("plus_haut")),
+           "seance_bas": _n(jour.get("plus_bas")),
+           "annee_haut": _n(jour.get("plus_haut_annee")),
+           "annee_bas": _n(jour.get("plus_bas_annee")),
+           "clotures": None}
+    if s:
+        h = max(reversed(s), key=lambda z: z[1])
+        lo = min(reversed(s), key=lambda z: z[1])
+        out["clotures"] = {
+            # `n_seances` : la fenêtre en séances cotées ; `n` : les clôtures
+            # de l'indice réellement enregistrées dans cette fenêtre.
+            "n_seances": len(fenetre) if fenetre else None,
+            "n": len(s), "du": fenetre[0] if fenetre else s[0][0], "au": seance,
+            "plus_haute": h[1], "date_plus_haute": h[0],
+            "plus_basse": lo[1], "date_plus_basse": lo[0]}
+    return out
+
+
+def phrase_niveaux_masi(nv: dict | None) -> str | None:
+    """Les extrêmes de l'indice, chacun nommé par ce qu'il est."""
+    if not nv:
+        return None
+    P = []
+    if nv.get("seance_haut") and nv.get("seance_bas"):
+        P.append(f"plus haut de séance {_fr(nv['seance_haut'])}, plus bas "
+                 f"{_fr(nv['seance_bas'])}")
+    c = nv.get("clotures")
+    if c:
+        if c.get("n_seances"):
+            fen = (f"{c['n_seances']} dernières séances (du {_date_fr(c['du'])} "
+                   f"au {_date_fr(c['au'])})")
+            if c["n"] < c["n_seances"]:
+                # ⚠️ Dit dans la phrase : un extrême tiré d'une série
+                # trouée peut manquer le vrai extrême de la période.
+                fen += (f", sur les {c['n']} clôtures de l'indice enregistrées "
+                        f"dans cette fenêtre")
+        else:
+            fen = (f"{c['n']} dernières clôtures enregistrées (du "
+                   f"{_date_fr(c['du'])} au {_date_fr(c['au'])})")
+        P.append(f"sur les {fen}, plus haute clôture {_fr(c['plus_haute'])} "
+                 f"({_date_fr(c['date_plus_haute'])}), plus basse clôture "
+                 f"{_fr(c['plus_basse'])} ({_date_fr(c['date_plus_basse'])})")
+    if nv.get("annee_haut") and nv.get("annee_bas"):
+        P.append(f"sur l'année, plus haut {_fr(nv['annee_haut'])} et plus bas "
+                 f"{_fr(nv['annee_bas'])} (servis par CDG)")
+    return ("Niveaux mesurés du MASI : " + " ; ".join(P) + ".") if P else None
+
+
+def phrase_niveaux_titres(lst: list) -> str | None:
+    """Une ligne : les extrêmes récents des titres les plus échangés."""
+    morceaux, fen = [], None
+    for x in lst or []:
+        f = x.get("fenetre")
+        if not f:
+            continue
+        fen = fen or f
+        s = x["symbol"]
+        if x.get("seance_bas") and x.get("seance_haut"):
+            s += f" séance {_fr(x['seance_bas'])}–{_fr(x['seance_haut'])},"
+        s += (f" plus bas {_fr(f['plus_bas'])} ({_date_fr(f['date_plus_bas'])}),"
+              f" plus haut {_fr(f['plus_haut'])} ({_date_fr(f['date_plus_haut'])})")
+        morceaux.append(s)
+    if not morceaux:
+        return None
+    return (f"Titres les plus échangés — extrêmes des {fen['n']} dernières "
+            f"séances (du {_date_fr(fen['du'])} au {_date_fr(fen['au'])}) : "
+            + " ; ".join(morceaux) + ".")
+
+
+def phrase_secteurs(sect: list, k: int = N_SECTEURS_PHRASE) -> str | None:
+    if not sect or len(sect) < 2 * k:
+        return None
+
+    def f(x):
+        return f"{x['libelle'].capitalize()} {_signe(x['variation_pct'])} %"
+    hausse = sum(1 for x in sect if x["variation_pct"] > 0)
+    baisse = sum(1 for x in sect if x["variation_pct"] < 0)
+    return (f"Indices sectoriels ({len(sect)} servis par CDG) : {hausse} en "
+            f"hausse, {baisse} en baisse. En tête : "
+            f"{', '.join(f(x) for x in sect[:k])}. En queue : "
+            f"{', '.join(f(x) for x in sect[-k:][::-1])}.")
+
+
+def lire_bougies(symboles, dossier=None) -> dict:
+    """{ticker: bougies} pour les seuls titres demandés. Ne lève jamais."""
+    import json as _json
+    from pathlib import Path
+    d = Path(dossier) if dossier else (
+        Path(__file__).resolve().parent.parent / "pipeline" / "candles")
+    out = {}
+    for s in symboles or []:
+        try:
+            v = _json.loads((d / f"{s}.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(v, list):
+            out[s] = v
+    return out
+
+
+def charger_contexte(racine=None) -> dict:
+    """Les fichiers que lit l'enrichissement de clôture. Ne lève jamais.
+
+    ⚠️ Chacun peut manquer : le briefing dit alors ce qu'il ne sait pas, au
+    lieu de ne pas s'écrire.
+    """
+    import json as _json
+    from pathlib import Path
+    r = Path(racine) if racine else Path(__file__).resolve().parent.parent
+
+    def lire(chemin, cle):
+        try:
+            return _json.loads((r / chemin).read_text(encoding="utf-8")).get(cle) or {}
+        except (OSError, ValueError, AttributeError):
+            return {}
+    return {"marche": lire("pipeline/marche_history.json", "seances"),
+            "masi": lire("pipeline/masi_history.json", "seances"),
+            "depots": lire("pipeline/depots_ammc.json", "entrees") or [],
+            "seance_marche": lire("pipeline/seance_marche.json", "seances"),
+            "dossier_bougies": str(r / "pipeline" / "candles")}
+
+
+def enrichir(b: dict, titres: list, contexte: dict) -> dict:
+    """Ajoute au briefing les six blocs mesurés, et leurs phrases."""
+    seance = b.get("seance") or ""
+    ctx = contexte or {}
+    sm = (ctx.get("seance_marche") or {}).get(seance) or {}
+
+    b["trajectoire"] = sm.get("trajectoire")
+    b["veille"] = comparaison_veille(ctx.get("marche") or {}, seance)
+    try:
+        b["depots"] = depots_du_jour(ctx.get("depots") or [], seance,
+                                     ctx.get("resoudre"))
+    except Exception:                                     # noqa: BLE001
+        b["depots"] = None
+    b["secteurs"] = sm.get("secteurs") or []
+    b["matieres"] = sm.get("matieres") or []
+    bougies = ctx.get("bougies")
+    if bougies is None:
+        # ⚠️ On ne lit que les fichiers des titres retenus, pas les 79.
+        bougies = lire_bougies([x.get("symbol") for _, x in
+                                _plus_actifs(titres, seance, TOP_NIVEAUX)],
+                               ctx.get("dossier_bougies"))
+    # Les séances réellement cotées, lues dans les chandelles des titres
+    # retenus : c'est ce qui révèle les trous de la série de l'indice.
+    cotees = {str(x.get("d"))[:10] for serie in bougies.values()
+              for x in serie or []} or None
+    b["niveaux"] = {"titres": niveaux_titres(titres, seance, bougies),
+                    "masi": niveaux_masi(ctx.get("marche") or {},
+                                         ctx.get("masi") or {}, seance,
+                                         seances_cotees=cotees),
+                    "n_seances": N_SEANCES_NIVEAUX}
+
+    # ⚠️ La trajectoire et la comparaison à la veille passent EN TÊTE : elles
+    # disent ce que la séance a été, le reste la détaille.
+    tete = [p for p in (phrase_trajectoire(b["trajectoire"]),
+                        phrase_veille(b["veille"])) if p]
+    b["constats"][:0] = tete
+    for p in (phrase_niveaux_masi(b["niveaux"]["masi"]),
+              phrase_niveaux_titres(b["niveaux"]["titres"])):
+        if p:
+            b["constats"].append(p)
+    if not b["trajectoire"]:
+        b["non_mesurable"].append(
+            "la trajectoire de l'indice dans la séance — la série "
+            "intrajournalière de CDG n'a pas été relevée le jour de la séance, "
+            "ou ne portait pas la date de la séance")
+    d = b["depots"]
+    if d and d["titres"]:
+        n = len(d["titres"])
+        b["constats"].append(
+            f"{_pluriel(n, 'dépôt')} de résultats "
+            f"{'publié' if n == 1 else 'publiés'} à l'AMMC le "
+            f"{_date_fr(seance)} par {'une société cotée' if n == 1 else 'des sociétés cotées'} : "
+            f"{', '.join(x['ticker'] for x in d['titres'])} (liste du "
+            f"régulateur, sans heure de publication).")
+    ps = phrase_secteurs(b["secteurs"])
+    if ps:
+        b["constats"].append(ps)
+    else:
+        b["non_mesurable"].append(
+            "les indices sectoriels — non relevés auprès de CDG pour cette "
+            "séance")
+    if not b["matieres"]:
+        b["non_mesurable"].append(
+            "les matières premières — non relevées le jour de la séance")
+    return b
+
+
+def composer(data: dict, series=None, contexte=None) -> dict:
     """Le briefing complet, sous forme de constats. Fonction pure.
 
     Chaque entrée de `constats` porte son nombre. Aucune n'affirme de cause.
+
+    `contexte` — les historiques lus par `enrichir` ; lus sur disque par
+    `charger_contexte()` quand il est omis. Les tests le passent explicitement.
     """
     titres = data.get("tickers") or []
     masi = data.get("masi") or {}
@@ -571,6 +1037,15 @@ def composer(data: dict, series=None) -> dict:
     else:
         b["non_mesurable"].append(
             "la performance annuelle de l'indice — la source ne l'a pas servie")
+
+    # ⚠️ L'enrichissement de clôture ne doit jamais empêcher le briefing :
+    # un fichier illisible ou un champ inattendu le fait sauter, pas le reste.
+    try:
+        enrichir(b, titres, contexte if contexte is not None
+                 else charger_contexte())
+    except Exception as e:                                # noqa: BLE001
+        b["non_mesurable"].append(
+            f"la lecture détaillée de la séance — erreur à la composition ({e})")
 
     # ⚠️ CE QUE CE BRIEFING NE SAIT PAS, ÉNONCÉ DANS LE BRIEFING LUI-MÊME.
     # Une limite écrite dans la documentation n'est pas lue ; écrite dans le
@@ -688,6 +1163,19 @@ def texte(b: dict) -> str:
         L.append(f"   · {c}")
     if not (b.get("constats")):
         L.append("   · Rien de mesurable à signaler sur cette séance.")
+    # ⚠️ Les matières premières ne sont pas un constat SUR la séance : elles
+    # en sont le contexte, chacune avec l'heure de sa valeur. Aucun lien de
+    # cause n'est tiré entre elles et la cote.
+    mp = b.get("matieres") or []
+    if mp:
+        L.append("")
+        L.append("   Matières premières (TradingView, contrat le plus proche) :")
+        for x in mp:
+            v = x.get("variation_pct")
+            L.append(f"     {x['nom']} {_fr(x['valeur'], 2)} {x.get('devise') or ''}"
+                     + (f" ({_signe(v)} %)" if v is not None else "")
+                     + f" — valeur du {x['horodatage_utc'][8:10]}/"
+                       f"{x['horodatage_utc'][5:7]} à {x['horodatage_utc'][11:16]} UTC")
     nm = b.get("non_mesurable") or []
     if nm:
         L.append("")
