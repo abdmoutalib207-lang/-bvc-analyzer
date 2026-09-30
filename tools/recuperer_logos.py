@@ -61,6 +61,11 @@ COTE = 64          # pixels : affiché en 28 px, net sur écran haute densité
 MARGE = 6          # pixels de blanc autour du logo, dans la pastille
 
 # Logos écartés à la relecture visuelle du 30/09/2026 — avec la raison.
+# ⚠️ SITES QUI REFUSENT LES VISITES AUTOMATISÉES (30/09/2026) : IAM, ATW,
+# LBV (HTTP 403), CIH, BOA (connexion coupée). BCP et LBV répondent à un
+# robot déguisé en navigateur — on ne le fait pas : ce serait contourner un
+# filtrage que la société a posé délibérément. Ces titres gardent leur
+# monogramme, sauf logo fourni à la main et relu.
 # ⚠️ Le site déclaré par CDG est parfois celui du GROUPE, et l'en-tête montre
 # alors le logo d'une autre entité, ou celui d'un partenaire.
 REFUSES: dict[str, str] = {
@@ -72,6 +77,7 @@ REFUSES: dict[str, str] = {
     "SAF": "le logo capturé est une icône générique d'une banque d'images, pas celui de Sanlam",
     "DTT": "illisible en miniature : texte gris clair sur fond blanc",
     "RIS": "texture sombre de l'en-tête capturée à la place du logo, illisible",
+    "CMGP": "rectangle blanc vide capturé à la place du logo",
 }
 FOND_SOMBRE = (26, 37, 64)   # la couleur du terminal, pour les logos blancs
 
