@@ -26,6 +26,7 @@ méthode, date, empreinte. Un logo refusé à la relecture est inscrit dans
     python tools/recuperer_logos.py            # relève, miniaturise, registre
     python tools/recuperer_logos.py --echecs   # ne reprend que les titres sans logo
     python tools/recuperer_logos.py --planche  # planche contact pour relecture
+    python tools/recuperer_logos.py --refus    # applique REFUSES sans rien relever
 
 ⚠️ Le rendu des logos SVG passe par Playwright (requirements_outils.txt) :
 un outil lancé à la main, jamais par un workflow.
@@ -69,6 +70,7 @@ REFUSES: dict[str, str] = {
     "HAL": "le logo capturé montre les marques distribuées (Case, Valtra, FPT)",
     "MIC": "le logo capturé est Dell EMC, un partenaire",
     "SAF": "le logo capturé est une icône générique d'une banque d'images, pas celui de Sanlam",
+    "DTT": "illisible en miniature : texte gris clair sur fond blanc",
 }
 FOND_SOMBRE = (26, 37, 64)   # la couleur du terminal, pour les logos blancs
 
@@ -251,6 +253,14 @@ def relever(sym: str, site: str) -> dict:
     return {"site": site, "echec": "aucun logo repéré dans la page"}
 
 
+def appliquer_refus(reg: dict) -> None:
+    """Retire les logos refusés à la relecture, et dit pourquoi au registre."""
+    for sym, raison in REFUSES.items():
+        (DOSSIER / f"{sym}.png").unlink(missing_ok=True)
+        reg[sym] = {**reg.get(sym, {}), "refuse": raison}
+        reg[sym].pop("sha256", None)
+
+
 def planche(sortie: Path) -> None:
     """Planche contact : chaque miniature avec son ticker, pour relecture."""
     from PIL import ImageDraw
@@ -269,6 +279,11 @@ def planche(sortie: Path) -> None:
 def main() -> int:
     if "--planche" in sys.argv:
         planche(RACINE / "logos_planche.png")
+        return 0
+    if "--refus" in sys.argv:
+        reg = json.loads(REGISTRE.read_text(encoding="utf-8"))
+        appliquer_refus(reg)
+        REGISTRE.write_text(json.dumps(reg, ensure_ascii=False, indent=1), encoding="utf-8")
         return 0
     DOSSIER.mkdir(exist_ok=True)
     reg = {}
@@ -290,10 +305,7 @@ def main() -> int:
         except Exception as e:
             reg[sym] = {"site": site, "echec": f"site injoignable : {type(e).__name__}"}
         time.sleep(0.5)
-    for sym, raison in REFUSES.items():
-        (DOSSIER / f"{sym}.png").unlink(missing_ok=True)
-        reg[sym] = {**reg.get(sym, {}), "refuse": raison}
-        reg[sym].pop("sha256", None)
+    appliquer_refus(reg)
     REGISTRE.parent.mkdir(parents=True, exist_ok=True)
     REGISTRE.write_text(json.dumps(reg, ensure_ascii=False, indent=1), encoding="utf-8")
     ok = [s for s, v in reg.items() if v.get("sha256")]
