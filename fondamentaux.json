@@ -2252,9 +2252,9 @@
     "dps_2026": 65.0,
     "div_yield": 3.85,
     "source": "Calendrier BVC 2026",
-    "date_maj": "2026-06-22",
+    "date_maj": "2026-09-29",
     "per": null,
-    "croissance_ca": null,
+    "croissance_ca": 21.4,
     "dette_nette_ebitda": null,
     "roic": null,
     "marge_nette": null,
@@ -2276,7 +2276,45 @@
     "nb_actions": 14436004,
     "bloomberg": "CMA",
     "reuters": "CMA",
-    "secteur_libre": "Matériaux de construction"
+    "secteur_libre": "Matériaux de construction",
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 14436004,
+      "date_maj": "2026-06-22"
+    },
+    "croissance_bpa": -14.4,
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Cimar_S1_26.pdf",
+    "ratios_publies": {
+      "roe_2025": {
+        "valeur": 36.8,
+        "date": "2025-12-31",
+        "formule": "1377.432 ÷ 3739.311 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/CP_CIMAR_Avis%20de%20convocation.pdf — « un résultat net part du groupe de 1 377 432 KMAD » (ensemble consolidé : 1 401 699)",
+          "capitaux_propres": "bilan consolidé du dépôt S1 2026 (KMAD) — « Capitaux propres (Part du groupe) 3 304 025 3 739 311 »"
+        }
+      },
+      "roe_12m": {
+        "valeur": 39.1,
+        "date": "2026-06-30",
+        "formule": "(1377.432 + 514.218 − 600.998) ÷ 3304.025 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Cimar_S1_26.pdf",
+          "capitaux_propres": "bilan consolidé du dépôt S1 2026 (KMAD) — « Capitaux propres (Part du groupe) 3 304 025 3 739 311 »"
+        }
+      },
+      "marge_nette_s1_2026": {
+        "valeur": 19.3,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires opérationnel consolidé (S1 2025 déduit : 2 661 ÷ 1,214)",
+        "formule": "514.218 ÷ 2661.0 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Cimar_S1_26.pdf"
+        }
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "DTT": {
     "secteur": "Technologie",
