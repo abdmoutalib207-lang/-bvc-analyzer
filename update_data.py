@@ -2705,8 +2705,14 @@ def date_analyse() -> str:
 
 
 def _per(price, bpa):
-    """Cours ÷ BPA, arrondi au dixième. None si l'un manque — jamais 0."""
-    return round(price / bpa, 1) if (bpa and price and price > 0) else None
+    """Cours ÷ BPA, arrondi au dixième. None si l'un manque — jamais 0.
+
+    ⚠️ UNE SOCIÉTÉ EN PERTE N'A PAS DE PER — 30/09/2026. Un BPA négatif donnait
+    un PER négatif, qui se lirait comme « moins cher que zéro ». Relevé sur
+    SNEP : perte de 185 MDH en 2025, et un BPA saisi de +117,5 qui affichait
+    un PER de 2,6 — le titre le « moins cher » de la cote.
+    """
+    return round(price / bpa, 1) if (bpa and bpa > 0 and price and price > 0) else None
 
 
 def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,

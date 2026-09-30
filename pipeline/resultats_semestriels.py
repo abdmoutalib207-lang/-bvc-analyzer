@@ -83,6 +83,13 @@ def appliquer(jeu: dict, bpa: dict, fond: dict) -> list[str]:
             b["bpa"] = exercice
             b.setdefault("source", "resultats_officiels")
             journal.append(f"{s} : BPA 2025 absent → {exercice}")
+        # ⚠️ UNE PERTE SE DOCUMENTE — 30/09/2026. validate.py refuse un BPA
+        # négatif (garde du 13/06 contre les erreurs de saisie) ; une perte
+        # RÉELLE porte donc sa pièce, que le contrôle exige. Cas : SNEP.
+        if exercice < 0 or m["bpa_12m"] < 0:
+            b["perte_documentee"] = t.get("source_exercice_2025") or t["url"]
+        else:
+            b.pop("perte_documentee", None)
         b["rnpg_12m"] = m["rnpg_12m"]
         b["bpa_12m"] = m["bpa_12m"]
         b["fin_12m"] = jeu["fin_periode"]

@@ -55,7 +55,10 @@ def validate_bpa():
         div_val = v.get("div_dh") if "div_dh" in v else v.get("div")
         if bpa is None:
             no_bpa.append(ticker)
-        elif bpa < 0:
+        elif bpa < 0 and not v.get("perte_documentee"):
+            # ⚠️ Un BPA négatif reste une erreur critique (saisie inversée,
+            # signe perdu) SAUF s'il porte la pièce qui établit la perte —
+            # 30/09/2026, SNEP : perte de 185 MDH au dépôt AMMC de l'exercice.
             neg_bpa.append(f"{ticker}(bpa={bpa})")
         if div_val is not None and div_val < 0:
             neg_div.append(f"{ticker}(div={div_val})")

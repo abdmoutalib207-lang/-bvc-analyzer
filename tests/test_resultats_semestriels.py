@@ -169,3 +169,33 @@ def test_iam_croissance_hors_exceptionnel():
     fond = json.loads((RACINE / "fondamentaux.json").read_text(encoding="utf-8"))
     assert fond["IAM"]["croissance_bpa"] == 8.1
     assert "exceptionnelle" in JEU["titres"]["IAM"]["pages"]
+
+
+def test_une_societe_en_perte_n_a_pas_de_per():
+    """SNEP : perte de 185 MDH en 2025 ; l'ancien BPA de +117,5 affichait un
+    PER de 2,6. Un BPA négatif ne produit aucun PER, jamais un nombre."""
+    from update_data import _per
+    assert _per(300, -60.06) is None and _per(300, 0) is None
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    # −185,186 − 50,029 + 91,075 = −144,14 MDH ÷ 2 400 000 = −60,06
+    assert bpa["SNP"]["bpa_12m"] == -60.06 and bpa["SNP"]["bpa_avant_2026_09_29"] == 117.5
+
+
+def test_lot6_sur_piece():
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    # ARD : 534,413 ÷ 12 568 130 = 42,52 (yuna : 42,54)
+    # MOX : 15,447 ÷ 812 500 = 19,01 (consolidé ; le social est une autre base)
+    # SLM : 96,117 ÷ 3 124 119 = 30,77
+    assert (bpa["ARD"]["bpa"], bpa["MOX"]["bpa"], bpa["SLM"]["bpa"]) == (42.52, 19.01, 30.77)
+
+
+def test_le_controle_refuse_toujours_un_bpa_negatif_sans_piece():
+    """La garde du 13/06 reste bloquante ; seule une perte documentée passe."""
+    import importlib, sys as _s
+    _s.path.insert(0, str(RACINE / "pipeline"))
+    src = (RACINE / "pipeline" / "validate.py").read_text(encoding="utf-8")
+    assert 'bpa < 0 and not v.get("perte_documentee")' in src
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    assert "SNEP_2025.pdf" in bpa["SNP"]["perte_documentee"]
+    assert all(v.get("perte_documentee") for v in bpa.values()
+               if isinstance(v, dict) and (v.get("bpa") or 0) < 0)
