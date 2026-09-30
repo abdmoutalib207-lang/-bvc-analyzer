@@ -90,6 +90,31 @@ def _series(t, v):
     return out
 
 
+def _series_echangees(t, v):
+    """Les séries du RSI depuis le 30/09/2026 : séances RÉELLEMENT échangées.
+
+    ⚠️ Filtrage réécrit ICI, indépendamment de `pipeline.seance.clotures_echangees`
+    — l'attendu ne se produit pas avec la fonction qu'on vérifie. Écartées :
+    volume nul, et recopie exacte de la veille (o, h, l, c, v).
+    """
+    f = RACINE / "pipeline" / "candles" / f"{t}.json"
+    out = []
+    if f.exists():
+        b = [x for x in json.loads(f.read_text(encoding="utf-8")) if x.get("c")]
+        garde, prec = [], None
+        for x in b:
+            recopie = prec is not None and all(x.get(k) == prec.get(k) for k in "ohlcv")
+            if (x.get("v") or 0) > 0 and not recopie:
+                garde.append(x["c"])
+            prec = x
+        if not any((x.get("v") or 0) > 0 for x in b):
+            garde = [x["c"] for x in b]          # aucune information de volume
+        out.append(garde)
+        if len(garde) > 1:
+            out.append(garde[:-1])
+    return out
+
+
 def test_chaque_rsi_publie_est_reproductible(cache):
     """⚠️ LE CONTRÔLE DE FOND sur les 28 % techniques du score."""
     fautifs = []
@@ -97,7 +122,7 @@ def test_chaque_rsi_publie_est_reproductible(cache):
     for t, v in sorted(cache.items()):
         if t.startswith("_") or v.get("rsi") is None:
             continue
-        candidats = [rsi_wilder(c) for c in _series(t, v)]
+        candidats = [rsi_wilder(c) for c in _series_echangees(t, v)]
         candidats = [x for x in candidats if x is not None]
         if not candidats:
             continue

@@ -333,8 +333,12 @@ def test_le_recalcul_complet_est_reserve_aux_series_remplacees(tmp_path, monkeyp
     # Une série saine à 100, puis UNE bougie qui mêle deux bases de prix :
     # un plus-haut de 1 700 hérité de l'ancienne échelle, une clôture de 369
     # sur la nouvelle. C'est exactement la forme qu'avait SOT au 05/05.
+    # ⚠️ Quantité VARIABLE d'un jour à l'autre (30/09/2026) : 28 séances
+    # identiques au titre près sont, pour la règle des séances échangées,
+    # des recopies — le RSI deviendrait non calculable et l'outil refuserait
+    # l'entrée. La démonstration porte sur le plus-haut, pas sur le RSI.
     serie = [{"d": f"2026-01-{j:02d}", "o": 100.0, "h": 101.0, "l": 99.0,
-              "c": 100.0, "v": 10} for j in range(1, 29)]
+              "c": 100.0, "v": 10 + j} for j in range(1, 29)]
     serie.append({"d": "2026-02-02", "o": 1700.0, "h": 1700.0,
                   "l": 369.0, "c": 369.0, "v": 613})
     (candles / "SOT.json").write_text(json.dumps(serie), encoding="utf-8")

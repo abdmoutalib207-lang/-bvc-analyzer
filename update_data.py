@@ -20,6 +20,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from pipeline.candle_write_policy import appliquer_corrections_avant_ecriture
+from pipeline.seance import clotures_echangees
 
 # Auto-install deps si besoin (Colab)
 for pkg in ["requests", "numpy", "pandas"]:
@@ -2310,7 +2311,10 @@ def _indicateurs_depuis_candles(df_candles):
         lows = x["l"]
 
         out = {
-            "rsi": calc_rsi(closes),
+            # RSI sur les SÉANCES ÉCHANGÉES seulement (pipeline/seance.py).
+            "rsi": calc_rsi(clotures_echangees(
+                closes, x["v"] if "v" in x else None, highs, lows,
+                x["o"] if "o" in x else None)),
             "ma20": calc_ma(closes, 20),
             "ma50": calc_ma(closes, 50),
             "ma200": calc_ma(closes, 200),
@@ -2767,17 +2771,25 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
              # prouvé sur deux valeurs du MASI 1.
              or _est_rediffusion(chg, vol, df_candles, prix_asof))
 
-    n_bougies = 0
+    n_bougies = n_echangees = 0
     if df_candles is not None:
         try:
             n_bougies = len(df_candles)
-        except TypeError:
-            n_bougies = 0
+            # ⚠️ « RSI calculable » compte les SÉANCES ÉCHANGÉES (30/09/2026),
+            # comme le RSI lui-même : DAR a 70 bougies mais 8 échanges.
+            n_echangees = len(clotures_echangees(
+                df_candles["c"],
+                df_candles["v"] if "v" in df_candles else None,
+                df_candles["h"] if "h" in df_candles else None,
+                df_candles["l"] if "l" in df_candles else None,
+                df_candles["o"] if "o" in df_candles else None))
+        except (TypeError, KeyError):
+            n_bougies = n_echangees = 0
 
     confiance = sum((
         0 if stale else 1,
         1 if ticker in _FOND_COMPUTED else 0,
-        1 if n_bougies >= 14 else 0,
+        1 if n_echangees >= 15 else 0,
         1 if (sent.get("mentions") or 0) > 10 else 0,
         1 if sent.get("win") is not None else 0,
     ))
@@ -3789,7 +3801,11 @@ def run(dry_run=False, push=False, token=""):
             closes = df["close"]
             highs  = df["high"]
             lows   = df["low"]
-            rsi    = calc_rsi(closes)
+            # RSI sur les SÉANCES ÉCHANGÉES seulement (pipeline/seance.py).
+            # L'ouverture de cette série est reconstituée (clôture de la
+            # veille) : elle n'entre donc pas dans le test de recopie.
+            rsi    = calc_rsi(clotures_echangees(
+                closes, df["vol"] if "vol" in df else None, highs, lows))
             ma20   = calc_ma(closes, 20)
             ma50   = calc_ma(closes, 50)
             h90    = round(float(highs.max()), 2)

@@ -797,4 +797,6 @@ TICKERS_ALL: list = [
 #   v5.3-sans-malus-figes-2026-09-30 : « Red flags » et « Upside négatif »
 #   gelés (table FOND_DATA écrite en dur) ; les alertes sont calculées,
 #   expliquées et affichées, sans effet sur la note.
-SCORE_VERSION = "v5.3-sans-malus-figes-2026-09-30"
+#   v5.3-seances-echangees-2026-09-30 : le RSI ne compte que les séances
+#   réellement échangées (un jour sans transaction n'est pas une cotation).
+SCORE_VERSION = "v5.3-seances-echangees-2026-09-30"

@@ -277,13 +277,35 @@ def recalculer(complets: list[str], rsi_seul: list[str],
             absents.append(t)
             continue
         cl = pd.Series([b.get("c") for b in serie], dtype=object)
+        n_brut = len(cl)
+        # RSI sur les SÉANCES ÉCHANGÉES seulement — même règle que le moteur.
+        from pipeline.seance import clotures_echangees
+        cl = clotures_echangees(
+            cl, [b.get("v") for b in serie] if any("v" in b for b in serie) else None,
+            [b.get("h") for b in serie], [b.get("l") for b in serie],
+            [b.get("o") for b in serie])
         rsi = m.calc_rsi(cl)
+        entree = dict(cache.get(t) or {})
+        ancien = entree.get("rsi")
         if rsi is None:
+            # ⚠️ ASSEZ DE SÉANCES, PAS ASSEZ D'ÉCHANGES — 30/09/2026. DAR :
+            # 70 bougies, 8 séances échangées. L'ancien RSI (76,8) était
+            # calculé sur des jours sans transaction ; le garder serait
+            # afficher une mesure que la règle vient de déclarer fausse.
+            # « Non calculable » s'écrit ; les autres refus restent des refus.
+            if n_brut >= 15 and len(cl) < 15 and ancien is not None:
+                entree["rsi"] = None
+                nouveau[t] = entree
+                chg_rsi.append({"ticker": t, "rsi_avant": ancien, "rsi_apres": None,
+                                "motif": f"{len(cl)} séances échangées sur {n_brut} : moins de 15"})
+                continue
+            if ancien is None:
+                # Rien à calculer, rien à effacer : l'entrée dit déjà « absent ».
+                intouches.append(t)
+                continue
             refus.append({"ticker": t,
                           "motif": "la série ne permet pas de calculer un RSI"})
             continue
-        entree = dict(cache.get(t) or {})
-        ancien = entree.get("rsi")
         if ancien == rsi:
             intouches.append(t)
             continue
