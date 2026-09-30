@@ -135,11 +135,7 @@
  },
  "SAF": {
   "site": "https://www.sanlam.ma",
-  "page_lue": "https://www.sanlam.ma/fr/",
-  "fichier_source": "https://www.sanlam.ma/media/uploads/sinistre/logos/icons8-handmade-100_Qg7mWc0.png",
-  "methode": "img_logo",
-  "recupere_le": "2026-09-30",
-  "octets": 4526,
+  "echec": "site injoignable : ConnectionError",
   "refuse": "le logo capturé est une icône générique d'une banque d'images, pas celui de Sanlam"
  },
  "OUL": {
@@ -220,7 +216,12 @@
  },
  "CMGP": {
   "site": "https://cmgp-cas.com",
-  "echec": "aucun logo repéré dans la page"
+  "page_lue": "https://cmgp-cas.com/",
+  "fichier_source": null,
+  "methode": "rendu:[class*='logo' i] img",
+  "recupere_le": "2026-09-30",
+  "sha256": "963e48b255d24b16be3f2590cbd21cd2869eb750f5c8cd1a14c728119f5d3625",
+  "octets": 164
  },
  "VCNE": {
   "site": "https://www.vicenne.com",
@@ -233,11 +234,7 @@
  },
  "RIS": {
   "site": "https://www.risma.com",
-  "page_lue": "https://risma.com/",
-  "fichier_source": "https://risma.com/wp-content/uploads/2021/12/Carre_Actu_Logo3.jpg",
-  "methode": "img_logo",
-  "recupere_le": "2026-09-30",
-  "octets": 4493,
+  "echec": "aucun logo repéré dans la page",
   "refuse": "texture sombre de l'en-tête capturée à la place du logo, illisible"
  },
  "CSR": {
@@ -269,7 +266,12 @@
  },
  "RDS": {
   "site": "https://www.espacessaada.com",
-  "echec": "rendu impossible : TimeoutError"
+  "page_lue": "https://www.espacessaada.com/",
+  "fichier_source": "https://www.espacessaada.com/assets/images/logo.png",
+  "methode": "img_logo",
+  "recupere_le": "2026-09-30",
+  "sha256": "c85561ff071118a4a89493494f7e0a9f12ea03e5a507012dbec3ac2a249a5c06",
+  "octets": 2271
  },
  "ALU": {
   "site": "https://www.aluminiumdumaroc.com",
@@ -445,7 +447,7 @@
  },
  "CAR": {
   "site": "https://www.conserverie-cartier.com",
-  "echec": "site injoignable : ConnectionError"
+  "echec": "site injoignable : SSLError"
  },
  "AFI": {
   "site": "https://www.africindustries.com",
