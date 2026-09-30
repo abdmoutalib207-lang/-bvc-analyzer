@@ -48,9 +48,13 @@
       .classement th:nth-child(n+10):nth-child(-n+13),.classement td:nth-child(n+10):nth-child(-n+13),
       .classement th:nth-child(15),.classement td:nth-child(15){display:none}
       .classement td,.classement th{padding:7px 3px!important}
-      /* La pastille et le secteur prenaient la moitié de la largeur : sur
-         téléphone, le code et un nom abrégé suffisent à reconnaître le titre. */
-      .classement td:nth-child(2)>div>:first-child,.secteur-societe{display:none!important}
+      /* Le secteur prenait trop de largeur : sur téléphone, le code, un nom
+         abrégé et le logo en miniature suffisent à reconnaître le titre. */
+      .secteur-societe{display:none!important}
+      /* Le logo reste, en miniature (demande du 30/09) : 26 px suffisent à
+         reconnaître une société sans prendre la largeur d'une colonne. */
+      .classement .logo-pastille{width:26px!important;height:26px!important;font-size:8px!important}
+      .classement td:nth-child(2)>div{gap:7px!important}
       .nom-societe{max-width:80px!important;font-size:11px!important}
       .classement td:nth-child(14) *{font-size:9.5px!important;padding:3px 5px!important;letter-spacing:0!important;white-space:normal!important}
       .classement td:nth-child(14){max-width:92px}
@@ -3925,83 +3929,7 @@ const WBar = ({
   },
   title: `Tech ${t}%`
 }));
-const LOGO_MAP = {
-  IAM: "iam.ma",
-  ATW: "attijariwafabank.com",
-  BCP: "gbp.ma",
-  BOA: "bankofafrica.net",
-  CIH: "cih.co.ma",
-  CDM: "creditdumaroc.ma",
-  WAF: "wafaassurance.ma",
-  CFGB: "cfgbank.ma",
-  ATL: "atlantasanad.ma",
-  SAF: "salafin.ma",
-  SLM: "sanlammaroc.ma",
-  MGL: "maghrebail.ma",
-  EQD: "eqdom.ma",
-  MRL: "marocleasing.ma",
-  S2M: "s2m.ma",
-  IBM: "ib-maroc.com",
-  MNG: "managem.ma",
-  SMI: "smimiter.com",
-  CMT: "cmt.ma",
-  ZLD: "zellidja.ma",
-  GAZ: "afriquiagaz.ma",
-  TQA: "taqamorocco.ma",
-  TMA: "totalenergies.ma",
-  MOX: "maghreboxy.com",
-  LHM: "holcim.ma",
-  CIM: "cimentsdumaroc.ma",
-  TGCC: "tgcc.ma",
-  SGTM: "sgtm.ma",
-  STR: "stroc.ma",
-  ALU: "aluminium-maroc.ma",
-  SNP: "snep.ma",
-  SNA: "sonasid.ma",
-  STK: "stokvisna.com",
-  AFI: "africind.com",
-  LBV: "labelvie.ma",
-  LES: "lesieurchristal.ma",
-  CMGP: "cmgp.ma",
-  DSW: "disway.ma",
-  DTT: "distytechnologies.ma",
-  COL: "colorado.ma",
-  HAL: "auto-hall.ma",
-  NEJ: "autonnejma.com",
-  CSR: "cosumar.ma",
-  DAR: "daricouspate.ma",
-  FNB: "feniebrossette.ma",
-  ADH: "addoha.ma",
-  ADI: "alliances.ma",
-  ARD: "aradei.com",
-  RDS: "residences-dar-saada.com",
-  RIS: "risma.ma",
-  IMI: "immorente.ma",
-  BAL: "balima.ma",
-  HPS: "hps-worldwide.com",
-  AKD: "akdital.ma",
-  SOT: "sothema.ma",
-  MIC: "microdata.ma",
-  ENK: "ennakl.com.tn",
-  PPM: "promopharm.ma",
-  M2M: "m2mgroup.ma",
-  INV: "involys.ma",
-  MSA: "marsamaroc.ma",
-  CTM: "ctm.ma",
-  OUL: "oulmes.ma",
-  VCNE: "vivoenergy.ma",
-  CASH: "cashplus.ma",
-  MUT: "mutandis.ma",
-  SRM: "srm.ma",
-  DHO: "deltaholding.ma",
-  JET: "jetcontractors.ma",
-  AGM: "agma.ma",
-  AFM: "afma.ma",
-  BMC: "bmci.ma",
-  CAR: "cartier-saada.ma",
-  SBS: "sbm.ma",
-  REB: "rebabcompany.com"
-};
+const LOGOS = new Set([]);
 const SECTOR_COL = {
   "Banques": "#1565C0",
   "Finance": "#E65100",
@@ -4034,10 +3962,30 @@ function CompanyLogo({
   sector,
   size = 32
 }) {
+  const [echec, setEchec] = useState(false);
+  if (LOGOS.has(sym) && !echec) return React.createElement("img", {
+    className: "logo-pastille",
+    src: `logos/${sym}.png`,
+    alt: "",
+    width: size,
+    height: size,
+    loading: "lazy",
+    onError: () => setEchec(true),
+    style: {
+      width: size,
+      height: size,
+      borderRadius: "50%",
+      flexShrink: 0,
+      objectFit: "cover",
+      background: "#fff",
+      boxShadow: "0 1px 4px rgba(0,0,0,.45)"
+    }
+  });
   const bg = SECTOR_COL[sector] || "#1a2540";
   const fs = Math.max(8, Math.round(size * 0.30));
   const initials = sym.length <= 3 ? sym : sym.slice(0, 4);
   return React.createElement("div", {
+    className: "logo-pastille",
     style: {
       width: size,
       height: size,
@@ -6037,7 +5985,7 @@ const Ranking = ({
     }, React.createElement(CompanyLogo, {
       sym: tk(r),
       sector: r.sector,
-      size: 46
+      size: 34
     }), React.createElement("div", {
       style: {
         minWidth: 0

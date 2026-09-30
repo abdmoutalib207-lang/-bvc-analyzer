@@ -59,8 +59,18 @@ UA = {"User-Agent": "Mozilla/5.0 (BVC Analyzer; identification des sociétés co
 COTE = 64          # pixels : affiché en 28 px, net sur écran haute densité
 MARGE = 6          # pixels de blanc autour du logo, dans la pastille
 
-# Logos écartés à la relecture — renseigné à la main, avec la raison.
-REFUSES: dict[str, str] = {}
+# Logos écartés à la relecture visuelle du 30/09/2026 — avec la raison.
+# ⚠️ Le site déclaré par CDG est parfois celui du GROUPE, et l'en-tête montre
+# alors le logo d'une autre entité, ou celui d'un partenaire.
+REFUSES: dict[str, str] = {
+    "SMI": "site déclaré = celui du groupe Managem : le logo capturé est celui de Managem",
+    "SRM": "site déclaré = groupe Premium : le logo capturé est Hyundai Construction Equipment",
+    "DAR": "le logo capturé est celui du SIAM, un salon partenaire affiché sur le site",
+    "HAL": "le logo capturé montre les marques distribuées (Case, Valtra, FPT)",
+    "MIC": "le logo capturé est Dell EMC, un partenaire",
+    "SAF": "le logo capturé est une icône générique d'une banque d'images, pas celui de Sanlam",
+}
+FOND_SOMBRE = (26, 37, 64)   # la couleur du terminal, pour les logos blancs
 
 
 def site_officiel(sym: str) -> str | None:
@@ -119,14 +129,25 @@ def miniature(brut: bytes) -> Image.Image | None:
     if min(im.size) < 24:
         return None                       # trop petit pour être lisible
     im = im.convert("RGBA")
-    fond = Image.new("RGBA", im.size, (255, 255, 255, 255))
-    im = Image.alpha_composite(fond, im).convert("RGB")
-    # Rogner le blanc autour, pour que le logo occupe la pastille.
-    boite = ImageOps.invert(im.convert("L")).point(lambda p: 255 if p > 12 else 0).getbbox()
-    if boite:
+    # ⚠️ UN LOGO BLANC SUR FOND BLANC EST INVISIBLE. Beaucoup de sites dessinent
+    # leur logo en blanc pour un en-tête sombre : mesuré sur la luminance des
+    # seuls pixels opaques, il est alors posé sur le fond du terminal.
+    opaques = [px for px in im.getdata() if px[3] > 128]
+    clair = bool(opaques) and (sum(0.299 * r + 0.587 * g + 0.114 * b
+                                   for r, g, b, _ in opaques) / len(opaques)) > 200
+    teinte = FOND_SOMBRE if clair else (255, 255, 255)
+    # Rogner autour de la partie OPAQUE (ou non blanche, pour un fond plein).
+    boite = im.getchannel("A").point(lambda p: 255 if p > 20 else 0).getbbox()
+    if boite and boite != (0, 0, im.width, im.height):
         im = im.crop(boite)
+    fond = Image.new("RGBA", im.size, teinte + (255,))
+    im = Image.alpha_composite(fond, im).convert("RGB")
+    if not clair:
+        boite = ImageOps.invert(im.convert("L")).point(lambda p: 255 if p > 12 else 0).getbbox()
+        if boite:
+            im = im.crop(boite)
     im.thumbnail((COTE - 2 * MARGE, COTE - 2 * MARGE), Image.LANCZOS)
-    carre = Image.new("RGB", (COTE, COTE), (255, 255, 255))
+    carre = Image.new("RGB", (COTE, COTE), teinte)
     carre.paste(im, ((COTE - im.width) // 2, (COTE - im.height) // 2))
     return carre
 

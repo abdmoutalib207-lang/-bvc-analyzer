@@ -48,9 +48,13 @@
       .classement th:nth-child(n+10):nth-child(-n+13),.classement td:nth-child(n+10):nth-child(-n+13),
       .classement th:nth-child(15),.classement td:nth-child(15){display:none}
       .classement td,.classement th{padding:7px 3px!important}
-      /* La pastille et le secteur prenaient la moitié de la largeur : sur
-         téléphone, le code et un nom abrégé suffisent à reconnaître le titre. */
-      .classement td:nth-child(2)>div>:first-child,.secteur-societe{display:none!important}
+      /* Le secteur prenait trop de largeur : sur téléphone, le code, un nom
+         abrégé et le logo en miniature suffisent à reconnaître le titre. */
+      .secteur-societe{display:none!important}
+      /* Le logo reste, en miniature (demande du 30/09) : 26 px suffisent à
+         reconnaître une société sans prendre la largeur d'une colonne. */
+      .classement .logo-pastille{width:26px!important;height:26px!important;font-size:8px!important}
+      .classement td:nth-child(2)>div{gap:7px!important}
       .nom-societe{max-width:80px!important;font-size:11px!important}
       .classement td:nth-child(14) *{font-size:9.5px!important;padding:3px 5px!important;letter-spacing:0!important;white-space:normal!important}
       .classement td:nth-child(14){max-width:92px}
@@ -718,35 +722,14 @@ const WBar=({f,n,t})=>(
     <div style={{width:`${t}%`,background:"#4db8ff"}} title={`Tech ${t}%`}/>
   </div>
 );
-const LOGO_MAP={
-  /* Banques & Finance */
-  IAM:"iam.ma",ATW:"attijariwafabank.com",BCP:"gbp.ma",BOA:"bankofafrica.net",
-  CIH:"cih.co.ma",CDM:"creditdumaroc.ma",WAF:"wafaassurance.ma",CFGB:"cfgbank.ma",
-  ATL:"atlantasanad.ma",SAF:"salafin.ma",SLM:"sanlammaroc.ma",MGL:"maghrebail.ma",
-  EQD:"eqdom.ma",MRL:"marocleasing.ma",S2M:"s2m.ma",IBM:"ib-maroc.com",
-  /* Mines & Energie */
-  MNG:"managem.ma",SMI:"smimiter.com",CMT:"cmt.ma",ZLD:"zellidja.ma",
-  GAZ:"afriquiagaz.ma",TQA:"taqamorocco.ma",TMA:"totalenergies.ma",MOX:"maghreboxy.com",
-  /* Industrie & Construction */
-  LHM:"holcim.ma",CIM:"cimentsdumaroc.ma",TGCC:"tgcc.ma",SGTM:"sgtm.ma",
-  STR:"stroc.ma",ALU:"aluminium-maroc.ma",SNP:"snep.ma",SNA:"sonasid.ma",
-  STK:"stokvisna.com",AFI:"africind.com",
-  /* Distribution & Commerce */
-  LBV:"labelvie.ma",LES:"lesieurchristal.ma",CMGP:"cmgp.ma",DSW:"disway.ma",
-  DTT:"distytechnologies.ma",COL:"colorado.ma",HAL:"auto-hall.ma",NEJ:"autonnejma.com",
-  CSR:"cosumar.ma",DAR:"daricouspate.ma",FNB:"feniebrossette.ma",
-  /* Immobilier & Hôtellerie */
-  ADH:"addoha.ma",ADI:"alliances.ma",ARD:"aradei.com",RDS:"residences-dar-saada.com",
-  RIS:"risma.ma",IMI:"immorente.ma",BAL:"balima.ma",
-  /* Tech & Santé */
-  HPS:"hps-worldwide.com",AKD:"akdital.ma",SOT:"sothema.ma",MIC:"microdata.ma",
-  ENK:"ennakl.com.tn",PPM:"promopharm.ma",M2M:"m2mgroup.ma",INV:"involys.ma",
-  /* Divers */
-  MSA:"marsamaroc.ma",CTM:"ctm.ma",OUL:"oulmes.ma",VCNE:"vivoenergy.ma",
-  CASH:"cashplus.ma",MUT:"mutandis.ma",SRM:"srm.ma",DHO:"deltaholding.ma",
-  JET:"jetcontractors.ma",AGM:"agma.ma",AFM:"afma.ma",BMC:"bmci.ma",
-  CAR:"cartier-saada.ma",SBS:"sbm.ma",REB:"rebabcompany.com",
-};
+/* ⚠️ LES LOGOS VIENNENT DU SITE OFFICIEL DE CHAQUE SOCIÉTÉ — 30/09/2026.
+   Relevés par tools/recuperer_logos.py, miniaturisés (64 px), relus à l'œil
+   et consignés dans datasets/logos/registre.json (site, fichier, date,
+   empreinte). Un titre absent de cette liste garde son monogramme : pas de
+   site déclaré, site injoignable, ou logo refusé à la relecture (celui d'un
+   groupe ou d'un partenaire). Une table de domaines écrite de mémoire vivait
+   ici, inutilisée — et elle inversait Sanlam et Salafin. */
+const LOGOS=new Set([]);
 const SECTOR_COL={
   "Banques":"#1565C0","Finance":"#E65100","Assurances":"#6A1B9A",
   "Mines":"#4E342E","Santé":"#1B5E20","Télécommunications":"#01579B",
@@ -760,11 +743,18 @@ const SECTOR_COL={
   "FMCG":"#2E7D32","Grande distribution":"#0D47A1",
 };
 function CompanyLogo({sym,sector,size=32}){
+  const [echec,setEchec]=useState(false);
+  if(LOGOS.has(sym)&&!echec) return(
+    <img className="logo-pastille" src={`logos/${sym}.png`} alt="" width={size} height={size} loading="lazy"
+      onError={()=>setEchec(true)}
+      style={{width:size,height:size,borderRadius:"50%",flexShrink:0,objectFit:"cover",
+        background:"#fff",boxShadow:"0 1px 4px rgba(0,0,0,.45)"}}/>
+  );
   const bg=SECTOR_COL[sector]||"#1a2540";
   const fs=Math.max(8,Math.round(size*0.30));
   const initials=sym.length<=3?sym:sym.slice(0,4);
   return(
-    <div style={{width:size,height:size,borderRadius:"50%",flexShrink:0,
+    <div className="logo-pastille" style={{width:size,height:size,borderRadius:"50%",flexShrink:0,
       background:bg,display:"flex",alignItems:"center",justifyContent:"center",
       boxShadow:"0 2px 6px rgba(0,0,0,.5)"}}>
       <span style={{fontSize:fs,fontWeight:800,color:"#fff",fontFamily:"'Courier New',monospace",
@@ -1615,7 +1605,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   <td style={{padding:"8px 8px",fontSize:12,color:"#8892a4"}}>{i+1}</td>
                   <td style={{padding:"10px 8px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      <CompanyLogo sym={tk(r)} sector={r.sector} size={46}/>
+                      <CompanyLogo sym={tk(r)} sector={r.sector} size={34}/>
                       <div style={{minWidth:0}}>
                         <div style={{display:"flex",alignItems:"center",gap:5}}>
                           <span style={{fontSize:16,color:"#fff",fontWeight:800,letterSpacing:.3}}>{tk(r)}</span>
