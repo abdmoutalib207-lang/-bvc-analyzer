@@ -832,7 +832,12 @@ Relevé pour le briefing de clôture enrichi (`pipeline/seance_marche.py`).
   `PlusBas` de la synthèse, au dix-millième.
   - ⚠️ **La série retarde** : à 13h15 son dernier point datait de 12:59:59
     (17 815,09) quand la synthèse donnait 17 789,28. La clôture se lit dans
-    la synthèse, jamais dans la série.
+    la synthèse, jamais dans la série. Huit relevés de 13h15 à 13h37 (toutes
+    les 3 min) : retard constant de 15 à 16 min, et chaque dernier point
+    redonne une valeur que la synthèse servait un quart d'heure plus tôt
+    (17 789,2776 : synthèse à 13h15, fin de série à 13h30). Le passage de
+    18h45 est donc celui qui voit la série complète ; celui de 15h45 peut
+    s'arrêter avant 15h30.
   - ⚠️ **Elle ne vit qu'un jour** : le 30/09 à 08h46, un seul point, daté du
     30, portant la clôture du 29. La trajectoire d'une séance se relève le
     jour même (passages de 15h45 et 18h45) ou se perd.
