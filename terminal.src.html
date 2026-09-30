@@ -1778,9 +1778,13 @@ const SeanceDetail=({b})=>{
   const tete={...cel,fontSize:10,color:"#5a6478",textTransform:"uppercase",letterSpacing:.6};
   const VC2=x=>x>0?"#00e5a0":x<0?"#ff4f5a":"#8892a4";
   return <>
-    {t&&<Carte titre="Séance du MASI" source={`${t.source} · ${t.n_points} points de la série intrajournalière`}>
+    {/* ⚠️ « 1re valeur » et non « ouverture » : le champ CoursOuverture de
+        CDG vaut la veille ; la valeur montrée est le premier point de la
+        série après 09:30 (mesuré le 30/09). Si la série s'arrête avant la
+        clôture, la carte le dit. */}
+    {t&&<Carte titre="Séance du MASI" source={`${t.source} · ${t.n_points} points de la série intrajournalière${t.serie_rejoint_cloture===false?` · série arrêtée à ${t.serie_jusqu_a} ; clôture et extrêmes tirés de la synthèse`:""}`}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(110px,1fr))",gap:10}}>
-        {[["Veille",t.veille,null],["Ouverture",t.ouverture,t.heure_ouverture],
+        {[["Veille",t.veille,null],["1re valeur calculée",t.ouverture,t.heure_ouverture],
           ["Plus haut",t.plus_haut,t.heure_plus_haut],["Plus bas",t.plus_bas,t.heure_plus_bas],
           ["Clôture",t.cloture,null]].map(([l,x,h])=>(
           <div key={l}>

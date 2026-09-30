@@ -526,11 +526,20 @@ def phrase_trajectoire(t: dict | None) -> str | None:
         return None
     v, o, h, b, c = (t["veille"], t["ouverture"], t["plus_haut"],
                      t["plus_bas"], t["cloture"])
-    P = [f"MASI : ouverture {_fr(o)} ({t['heure_ouverture']}), plus haut "
+    # ⚠️ « Première valeur calculée », pas « ouverture » tout court : le champ
+    # `CoursOuverture` de CDG vaut la veille, et la valeur retenue est le
+    # premier point de la série après 09:30 (voir `seance_marche.trajectoire`).
+    P = [f"MASI : première valeur calculée {_fr(o)} ({t['heure_ouverture']}), plus haut "
          f"{_fr(h)}" + (f" ({t['heure_plus_haut']})" if t.get("heure_plus_haut") else "")
          + f", plus bas {_fr(b)}"
          + (f" ({t['heure_plus_bas']})" if t.get("heure_plus_bas") else "")
          + f", clôture {_fr(c)} pour une veille à {_fr(v)}."]
+    # ⚠️ Mesuré le 30/09 à 13h15 : la série s'arrêtait à 12:59:59 alors que
+    # la synthèse était plus récente. Si elle ne rejoint pas la clôture, les
+    # heures des extrêmes ne couvrent que la partie de séance qu'elle porte.
+    if t.get("serie_rejoint_cloture") is False and t.get("serie_jusqu_a"):
+        P.append(f"(La série intrajournalière s'arrête à {t['serie_jusqu_a']} ; "
+                 f"clôture et extrêmes viennent de la synthèse CDG.)")
     if o > v:
         if c >= o:
             P.append("Le gain d'ouverture a été conservé jusqu'à la clôture.")
@@ -895,7 +904,7 @@ def enrichir(b: dict, titres: list, contexte: dict) -> dict:
         b["non_mesurable"].append(
             "la trajectoire de l'indice dans la séance — la série "
             "intrajournalière de CDG n'a pas été relevée le jour de la séance, "
-            "ou ne rejoignait pas la clôture servie")
+            "ou ne portait pas la date de la séance")
     d = b["depots"]
     if d and d["titres"]:
         n = len(d["titres"])

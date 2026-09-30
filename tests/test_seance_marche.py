@@ -50,11 +50,22 @@ def test_la_trajectoire_se_lit_sur_la_serie_datee_de_la_seance():
     t = sm.trajectoire(_masi(), SERIE, SEANCE)
     # ⚠️ L'ouverture est le premier point à partir de 09:30, pas le point de
     # 08:03 qui recopie la veille.
-    assert t["ouverture"] == 17700.0 and t["heure_ouverture"] == "09:31"
-    assert t["plus_haut"] == 17825.7617 and t["heure_plus_haut"] == "10:15"
-    assert t["plus_bas"] == 17647.3055 and t["heure_plus_bas"] == "12:00"
+    assert t["ouverture"] == 17700.0 and t["heure_ouverture"] == "09:31:00"
+    assert t["plus_haut"] == 17825.7617 and t["heure_plus_haut"] == "10:15:00"
+    assert t["plus_bas"] == 17647.3055 and t["heure_plus_bas"] == "12:00:00"
     assert t["cloture"] == 17754.9077 and t["veille"] == 17648.8955
     assert t["n_points"] == 4
+    assert t["serie_jusqu_a"] == "15:30:00" and t["serie_rejoint_cloture"] is True
+
+
+def test_l_ordre_servi_est_garde_dans_une_meme_seconde():
+    """La série porte jusqu'à 59 points par minute, plusieurs par seconde
+    (relevé du 30/09 : trois points à 12:59:59). Le premier servi reste le
+    premier, quelle que soit sa valeur."""
+    serie = [_pt("09:30", 17700.0), _pt("09:30", 17690.0)]
+    serie = [dict(p, HoroDatage="29/09/2026 09:30:05") for p in serie]
+    t = sm.trajectoire(_masi(Cours=17690.0), serie, SEANCE)
+    assert t["ouverture"] == 17700.0
 
 
 def test_le_lendemain_matin_la_serie_ne_porte_plus_la_seance():
@@ -64,11 +75,15 @@ def test_le_lendemain_matin_la_serie_ne_porte_plus_la_seance():
     assert sm.trajectoire(_masi(), lendemain, SEANCE) is None
 
 
-def test_une_serie_qui_ne_rejoint_pas_la_cloture_est_refusee():
-    """Deux voies indépendantes, un seul chiffre — sinon la série n'est pas
-    celle de la séance publiée (relevé en séance, par exemple)."""
-    serie = SERIE[:-1] + [_pt("15:30", 17760.0)]
-    assert sm.trajectoire(_masi(), serie, SEANCE) is None
+def test_une_serie_en_retard_est_gardee_et_son_retard_dit():
+    """⚠️ Mesuré le 30/09 à 13h15 : la série s'arrêtait à 12:59:59 quand la
+    synthèse était plus récente. Elle n'est pas fausse, elle est en retard :
+    la clôture vient de la synthèse, et le relevé dit jusqu'où va la série."""
+    serie = SERIE[:3] + [_pt("12:59", 17760.0)]
+    t = sm.trajectoire(_masi(), serie, SEANCE)
+    assert t["cloture"] == 17754.9077
+    assert t["serie_jusqu_a"] == "12:59:00"
+    assert t["serie_rejoint_cloture"] is False
 
 
 def test_l_identite_et_la_date_de_la_synthese_sont_exigees():
@@ -86,7 +101,7 @@ def test_l_heure_d_un_extreme_absent_de_la_serie_n_est_pas_approchee():
     t = sm.trajectoire(_masi(), serie, SEANCE)
     assert t["plus_haut"] == 17825.7617
     assert t["heure_plus_haut"] is None
-    assert t["heure_plus_bas"] == "12:00"
+    assert t["heure_plus_bas"] == "12:00:00"
 
 
 # ── Les secteurs ───────────────────────────────────────────────────────────

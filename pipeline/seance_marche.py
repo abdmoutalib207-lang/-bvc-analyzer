@@ -123,8 +123,10 @@ def _date_cdg(brut) -> str | None:
 
 
 def _heure_cdg(brut) -> str | None:
-    m = re.match(r"\d{2}/\d{2}/\d{4} (\d{2}):(\d{2})", str(brut or ""))
-    return f"{m.group(1)}:{m.group(2)}" if m else None
+    """« 30/09/2026 09:30:05 » → « 09:30:05 ». La seconde compte : la série
+    en porte jusqu'à 59 par minute."""
+    m = re.match(r"\d{2}/\d{2}/\d{4} (\d{2}:\d{2}(?::\d{2})?)", str(brut or ""))
+    return m.group(1) if m else None
 
 
 def actions_cdg(secteurs=SECTEURS_CDG) -> list:
@@ -170,20 +172,33 @@ def lire_cdg(reponse, secteurs=SECTEURS_CDG) -> dict:
 def trajectoire(masi: dict | None, points: list, seance: str) -> dict | None:
     """La séance de l'indice : ouverture, extrêmes et clôture. Fonction pure.
 
-    ⚠️ QUATRE REFUS, chacun pour une raison mesurée :
-      · l'identité — `Symbol` doit valoir MASI et la synthèse être DATÉE de la
-        séance, comme dans `fetch_masi_cdg` ;
-      · la date des points — le lendemain matin, la série porte un point daté
-        du jour qui recopie la clôture de la veille (relevé le 30/09 à 08h46) ;
-      · la pré-ouverture — le point de 08:03 n'est pas une cotation ;
-      · la concordance — le dernier point de la série doit REDONNER le cours
-        de la synthèse. Deux voies indépendantes, un seul chiffre ; sinon la
-        série n'est pas celle de la séance publiée.
+    ⚠️ CE QUE LA SÉRIE EST — mesuré le 30/09/2026 à 13h15 (772 points) :
+      · un point de pré-ouverture à 08:03:00, qui recopie la clôture de la
+        VEILLE — ce n'est pas une cotation, il est écarté ;
+      · puis des points à la SECONDE à partir de 09:30:05, jusqu'à 59 par
+        minute, servis dans l'ordre chronologique ;
+      · ses extrêmes égalaient EXACTEMENT `PlusHaut` et `PlusBas` de la
+        synthèse (17 916,3365 et 17 752,2531) ;
+      · ⚠️ ELLE RETARDE : à 13h15, son dernier point datait de 12:59:59
+        (17 815,0897) alors que la synthèse donnait 17 789,2776. La série
+        n'est donc PAS la source de la clôture.
 
-    ⚠️ LES EXTRÊMES SONT CEUX DE LA SYNTHÈSE, PAS CEUX DE LA SÉRIE. La série
-    est échantillonnée : son maximum peut manquer le vrai plus haut. L'HEURE
-    d'un extrême n'est donc publiée que si la série atteint EXACTEMENT la
-    valeur officielle ; sinon elle est déclarée inconnue, jamais approchée.
+    ⚠️ L'« OUVERTURE » EST LA PREMIÈRE VALEUR CALCULÉE APRÈS 09:30. Le champ
+    `CoursOuverture` de la synthèse vaut la veille (17 754,9077 le 30/09,
+    17 648,8955 le 29/09 — égal à `CoursVeille` les deux jours) : il ne dit
+    rien de la séance. Le libellé affiché le précise.
+
+    ⚠️ REFUS :
+      · l'identité — `Symbol` = MASI et synthèse DATÉE de la séance, comme
+        dans `fetch_masi_cdg` ;
+      · la date des points — le lendemain matin, la série ne porte plus qu'un
+        point daté du jour qui recopie la clôture (relevé le 30/09 à 08h46).
+
+    ⚠️ LA CLÔTURE ET LES EXTRÊMES SONT CEUX DE LA SYNTHÈSE. L'heure d'un
+    extrême n'est publiée que si la série atteint EXACTEMENT la valeur
+    officielle ; sinon elle est déclarée inconnue, jamais approchée. Et
+    `serie_jusqu_a` dit jusqu'où la série allait : si elle s'arrête avant la
+    clôture, le briefing le dit.
     """
     if not masi or str(masi.get("Symbol") or "") != "MASI":
         return None
@@ -194,21 +209,18 @@ def trajectoire(masi: dict | None, points: list, seance: str) -> dict | None:
     if None in (cours, veille, haut, bas):
         return None
 
+    # ⚠️ L'ordre SERVI est conservé : plusieurs points partagent la même
+    # seconde, et un tri sur (heure, cours) les rangerait par valeur.
     serie = []
     for p in points or []:
         c = _n(p.get("Cours"))
         h = _heure_cdg(p.get("HoroDatage"))
         if c is None or h is None or _date_cdg(p.get("HoroDatage")) != seance:
             continue
-        if h < OUVERTURE_HHMM:
+        if h[:5] < OUVERTURE_HHMM:
             continue
         serie.append((h, c))
-    serie.sort()
     if not serie:
-        return None
-    # ⚠️ Tolérance d'un dix-millième de point : la synthèse et la série sont
-    # servies à quatre décimales par le même fournisseur.
-    if abs(serie[-1][1] - cours) > 1e-4:
         return None
 
     def heure_de(valeur):
@@ -217,16 +229,18 @@ def trajectoire(masi: dict | None, points: list, seance: str) -> dict | None:
                 return h
         return None
 
-    ouverture = serie[0]
     return {
         "seance": seance,
         "veille": round(veille, 4),
-        "ouverture": round(ouverture[1], 4),
-        "heure_ouverture": ouverture[0],
+        "ouverture": round(serie[0][1], 4),
+        "heure_ouverture": serie[0][0],
         "plus_haut": round(haut, 4), "heure_plus_haut": heure_de(haut),
         "plus_bas": round(bas, 4), "heure_plus_bas": heure_de(bas),
         "cloture": round(cours, 4),
-        "heure_dernier_point": serie[-1][0],
+        "serie_jusqu_a": serie[-1][0],
+        # Tolérance d'un dix-millième : les deux blocs sont servis à quatre
+        # décimales par le même fournisseur.
+        "serie_rejoint_cloture": abs(serie[-1][1] - cours) <= 1e-4,
         "n_points": len(serie),
         "source": "CDG Capital Bourse — INDICE-SYNTHESE et INDICE-O-GRAPH-INTRA (MASI)",
     }

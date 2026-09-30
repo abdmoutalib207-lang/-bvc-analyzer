@@ -40,7 +40,8 @@ def test_gain_d_ouverture_conserve():
     assert "pas descendu sous la clôture de la veille" in p
     # (102 − 100,5) / (103 − 100,5) = 1,5 / 2,5 = 60 %
     assert "à 60 % de l'amplitude de séance (2,50 points)" in p
-    assert "ouverture 101,00 (09:31)" in p and "plus haut 103,00 (10:15)" in p
+    assert "première valeur calculée 101,00 (09:31)" in p
+    assert "série intrajournalière s'arrête" not in p and "plus haut 103,00 (10:15)" in p
 
 
 def test_gain_d_ouverture_partiellement_rendu_puis_efface():
@@ -55,6 +56,14 @@ def test_baisse_d_ouverture_prolongee():
     p = bf.phrase_trajectoire(_traj(100, 99, 99.5, 97, 98))
     assert "La baisse d'ouverture s'est prolongée jusqu'à la clôture." in p
     assert "pas remonté au-dessus de la clôture de la veille" in p
+
+
+def test_une_serie_en_retard_est_signalee():
+    t = dict(_traj(100, 101, 103, 100.5, 102), serie_rejoint_cloture=False,
+             serie_jusqu_a="12:59:59")
+    p = bf.phrase_trajectoire(t)
+    assert ("(La série intrajournalière s'arrête à 12:59:59 ; clôture et "
+            "extrêmes viennent de la synthèse CDG.)") in p
 
 
 def test_une_heure_inconnue_n_est_pas_ecrite():
@@ -197,7 +206,7 @@ def test_le_briefing_complet_ne_conseille_ni_ne_probabilise():
                     "horodatage_utc": "2026-09-29T15:40:00Z"}]}},
            "bougies": {"AAA": [_b(SEANCE, 104, 100)]}}
     b = bf.composer(data, series={}, contexte=ctx)
-    assert b["constats"][0].startswith("MASI : ouverture 99,50 (09:31)")
+    assert b["constats"][0].startswith("MASI : première valeur calculée 99,50 (09:31)")
     assert b["constats"][1].startswith("Par rapport à la séance du 26/09")
     assert b["matieres"][0]["horodatage_utc"] == "2026-09-29T15:40:00Z"
     tout = " ".join(b["constats"]).lower()

@@ -6447,14 +6447,14 @@ const SeanceDetail = ({
   const VC2 = x => x > 0 ? "#00e5a0" : x < 0 ? "#ff4f5a" : "#8892a4";
   return React.createElement(React.Fragment, null, t && React.createElement(Carte, {
     titre: "S\xE9ance du MASI",
-    source: `${t.source} · ${t.n_points} points de la série intrajournalière`
+    source: `${t.source} · ${t.n_points} points de la série intrajournalière${t.serie_rejoint_cloture === false ? ` · série arrêtée à ${t.serie_jusqu_a} ; clôture et extrêmes tirés de la synthèse` : ""}`
   }, React.createElement("div", {
     style: {
       display: "grid",
       gridTemplateColumns: "repeat(auto-fit,minmax(110px,1fr))",
       gap: 10
     }
-  }, [["Veille", t.veille, null], ["Ouverture", t.ouverture, t.heure_ouverture], ["Plus haut", t.plus_haut, t.heure_plus_haut], ["Plus bas", t.plus_bas, t.heure_plus_bas], ["Clôture", t.cloture, null]].map(([l, x, h]) => React.createElement("div", {
+  }, [["Veille", t.veille, null], ["1re valeur calculée", t.ouverture, t.heure_ouverture], ["Plus haut", t.plus_haut, t.heure_plus_haut], ["Plus bas", t.plus_bas, t.heure_plus_bas], ["Clôture", t.cloture, null]].map(([l, x, h]) => React.createElement("div", {
     key: l
   }, React.createElement("div", {
     style: {
