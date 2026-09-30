@@ -1,0 +1,679 @@
+{
+ "_quoi": "Mesure de l'effet qu'AURAIT la substitution des ratios calculés sur comptes publiés (ratios_publies, exercice 2025) aux valeurs saisies à la main (roic, dette_nette_ebitda, cash_conversion de premier niveau) dans compute_fond_score. NON APPLIQUÉE : la note ne change pas sans accord d'Abd Moutalib (R8).",
+ "_methode": "fond_ancien = compute_fond_score(fondamentaux.json tel quel) ; fond_nouveau = même fonction, les seuls champs calculés remplacés (un ratio non calculé garde la saisie). v53_nouveau = v53 + (fond_nouveau − fond_ancien) × poids.f / 100, avec v53 et poids de data.json. Paliers : ACHETER ≥ 6,5, SURVEILLER ≥ 5,5, ATTENDRE ≥ 4,5, ÉVITER ≥ 3,5.",
+ "_reserves": [
+  "Le palier affiché par le terminal dépend aussi de la confiance et d'autres gardes : `palier_*` ne décrit que la position de v53 par rapport aux seuils.",
+  "La qualité (40 % du fond) se lit sur ROIC − WACC ; le WACC reste la saisie de juin, non recalculée.",
+  "Les ratios calculés portent sur l'exercice 2025 (comptes au 31/12/2025).",
+  "⚠️ AKD et TGCC : data.json (v53, score_fond) a été produit AVANT la fusion du lot 9, qui a modifié leurs fondamentaux ; score_fond publié ≠ fond_ancien recalculé. Le delta est juste, la base v53 est celle d'avant le lot 9.",
+  "DHO, DSW, SNP : aucun `roic` saisi — compute_fond_score utilise alors sa valeur par défaut (10). « saisi: null » le signale.",
+  "GAZ, MOX, ARD, OUL et les 17 financiers : aucun des trois ratios calculé, donc absents de la mesure."
+ ],
+ "_mesure_le": "2026-09-30",
+ "_data_json_du": "2026-09-30T12:46:24+0000",
+ "titres": {
+  "ADH": {
+   "ecarts": {
+    "roic": {
+     "calcule": 2.7,
+     "saisi": 8,
+     "ecart": -5.3
+    },
+    "cash_conversion": {
+     "calcule": -1.3,
+     "saisi": 40,
+     "ecart": -41.3
+    }
+   },
+   "fond_ancien": 6.15,
+   "fond_nouveau": 5.5,
+   "delta_fond": -0.65,
+   "score_fond_publie": 6.15,
+   "poids_f": 71,
+   "v53_ancien": 5.88,
+   "v53_nouveau": 5.42,
+   "delta_v53": -0.46,
+   "palier_ancien": "SURVEILLER",
+   "palier_nouveau": "ATTENDRE",
+   "change_de_palier": true,
+   "signal_publie": "SURVEILLER ★"
+  },
+  "ADI": {
+   "ecarts": {
+    "roic": {
+     "calcule": 9.4,
+     "saisi": 13,
+     "ecart": -3.6
+    },
+    "dette_nette_ebitda": {
+     "calcule": 2.26,
+     "saisi": 5.5,
+     "ecart": -3.24
+    },
+    "cash_conversion": {
+     "calcule": -5.7,
+     "saisi": 75,
+     "ecart": -80.7
+    }
+   },
+   "fond_ancien": 6.45,
+   "fond_nouveau": 5.8,
+   "delta_fond": -0.65,
+   "score_fond_publie": 6.45,
+   "poids_f": 71,
+   "v53_ancien": 6.09,
+   "v53_nouveau": 5.63,
+   "delta_v53": -0.46,
+   "palier_ancien": "SURVEILLER",
+   "palier_nouveau": "SURVEILLER",
+   "change_de_palier": false,
+   "signal_publie": "SURVEILLER ★"
+  },
+  "AKD": {
+   "ecarts": {
+    "roic": {
+     "calcule": 8.3,
+     "saisi": 12.5,
+     "ecart": -4.2
+    },
+    "cash_conversion": {
+     "calcule": 30.8,
+     "saisi": 85.0,
+     "ecart": -54.2
+    }
+   },
+   "fond_ancien": 6.4,
+   "fond_nouveau": 5.3,
+   "delta_fond": -1.1,
+   "score_fond_publie": 6.7,
+   "poids_f": 71,
+   "v53_ancien": 6.16,
+   "v53_nouveau": 5.38,
+   "delta_v53": -0.78,
+   "palier_ancien": "SURVEILLER",
+   "palier_nouveau": "ATTENDRE",
+   "change_de_palier": true,
+   "signal_publie": "SURVEILLER ★"
+  },
+  "CMGP": {
+   "ecarts": {
+    "roic": {
+     "calcule": 8.8,
+     "saisi": 14,
+     "ecart": -5.2
+    },
+    "dette_nette_ebitda": {
+     "calcule": 0.12,
+     "saisi": 1.0,
+     "ecart": -0.88
+    },
+    "cash_conversion": {
+     "calcule": 160.8,
+     "saisi": 65,
+     "ecart": 95.8
+    }
+   },
+   "fond_ancien": 7.0,
+   "fond_nouveau": 6.2,
+   "delta_fond": -0.8,
+   "score_fond_publie": 7.0,
+   "poids_f": 71,
+   "v53_ancien": 6.37,
+   "v53_nouveau": 5.8,
+   "delta_v53": -0.57,
+   "palier_ancien": "SURVEILLER",
+   "palier_nouveau": "SURVEILLER",
+   "change_de_palier": false,
+   "signal_publie": "SURVEILLER ★"
+  },
+  "CMT": {
+   "ecarts": {
+    "roic": {
+     "calcule": 23.1,
+     "saisi": 19,
+     "ecart": 4.1
+    },
+    "cash_conversion": {
+     "calcule": 123.8,
+     "saisi": 78,
+     "ecart": 45.8
+    }
+   },
+   "fond_ancien": 9.2,
+   "fond_nouveau": 9.85,
+   "delta_fond": 0.65,
+   "score_fond_publie": 9.2,
+   "poids_f": 71,
+   "v53_ancien": 8.0,
+   "v53_nouveau": 8.46,
+   "delta_v53": 0.46,
+   "palier_ancien": "ACHETER",
+   "palier_nouveau": "ACHETER",
+   "change_de_palier": false,
+   "signal_publie": "Données insuffisantes"
+  },
+  "CSR": {
+   "ecarts": {
+    "roic": {
+     "calcule": 12.5,
+     "saisi": 10,
+     "ecart": 2.5
+    },
+    "dette_nette_ebitda": {
+     "calcule": 0.17,
+     "saisi": 0.0,
+     "ecart": 0.17
+    },
+    "cash_conversion": {
+     "calcule": 220.4,
+     "saisi": 75,
+     "ecart": 145.4
+    }
+   },
+   "fond_ancien": 4.4,
+   "fond_nouveau": 4.85,
+   "delta_fond": 0.45,
+   "score_fond_publie": 4.4,
+   "poids_f": 71,
+   "v53_ancien": 4.63,
+   "v53_nouveau": 4.95,
+   "delta_v53": 0.32,
+   "palier_ancien": "ATTENDRE",
+   "palier_nouveau": "ATTENDRE",
+   "change_de_palier": false,
+   "signal_publie": "ATTENDRE"
+  },
+  "HPS": {
+   "ecarts": {
+    "roic": {
+     "calcule": 18.3,
+     "saisi": 14,
+     "ecart": 4.3
+    },
+    "dette_nette_ebitda": {
+     "calcule": 0.69,
+     "saisi": 0.68,
+     "ecart": 0.01
+    },
+    "cash_conversion": {
+     "calcule": 225.7,
+     "saisi": 88,
+     "ecart": 137.7
+    }
+   },
+   "fond_ancien": 7.45,
+   "fond_nouveau": 7.85,
+   "delta_fond": 0.4,
+   "score_fond_publie": 7.45,
+   "poids_f": 71,
+   "v53_ancien": 6.44,
+   "v53_nouveau": 6.72,
+   "delta_v53": 0.28,
+   "palier_ancien": "SURVEILLER",
+   "palier_nouveau": "ACHETER",
+   "change_de_palier": true,
+   "signal_publie": "SURVEILLER ★"
+  },
+  "IAM": {
+   "ecarts": {
+    "roic": {
+     "calcule": 20.2,
+     "saisi": 35,
+     "ecart": -14.8
+    },
+    "dette_nette_ebitda": {
+     "calcule": 0.95,
+     "saisi": 0.9,
+     "ecart": 0.05
+    },
+    "cash_conversion": {
+     "calcule": 233.5,
+     "saisi": 43.4,
+     "ecart": 190.1
+    }
+   },
+   "fond_ancien": 7.55,
+   "fond_nouveau": 7.2,
+   "delta_fond": -0.35,
+   "score_fond_publie": 7.55,
+   "poids_f": 71,
+   "v53_ancien": 6.88,
+   "v53_nouveau": 6.63,
+   "delta_v53": -0.25,
+   "palier_ancien": "ACHETER",
+   "palier_nouveau": "ACHETER",
+   "change_de_palier": false,
+   "signal_publie": "ACHETER ★★"
+  },
+  "LBV": {
+   "ecarts": {
+    "roic": {
+     "calcule": 7.1,
+     "saisi": 13,
+     "ecart": -5.9
+    },
+    "dette_nette_ebitda": {
+     "calcule": 2.96,
+     "saisi": 2.5,
+     "ecart": 0.46
+    },
+    "cash_conversion": {
+     "calcule": 44.4,
+     "saisi": 80,
+     "ecart": -35.6
+    }
+   },
+   "fond_ancien": 6.7,
+   "fond_nouveau": 5.7,
+   "delta_fond": -1.0,
+   "score_fond_publie": 6.7,
+   "poids_f": 71,
+   "v53_ancien": 6.7,
+   "v53_nouveau": 5.99,
+   "delta_v53": -0.71,
+   "palier_ancien": "ACHETER",
+   "palier_nouveau": "SURVEILLER",
+   "change_de_palier": true,
+   "signal_publie": "ACHETER ★★"
+  },
+  "LHM": {
+   "ecarts": {
+    "roic": {
+     "calcule": 14.4,
+     "saisi": 17,
+     "ecart": -2.6
+    },
+    "dette_nette_ebitda": {
+     "calcule": 0.83,
+     "saisi": 1.8,
+     "ecart": -0.97
+    },
+    "cash_conversion": {
+     "calcule": 130.1,
+     "saisi": 80,
+     "ecart": 50.1
+    }
+   },
+   "fond_ancien": 6.15,
+   "fond_nouveau": 5.95,
+   "delta_fond": -0.2,
+   "score_fond_publie": 6.15,
+   "poids_f": 71,
+   "v53_ancien": 5.48,
+   "v53_nouveau": 5.34,
+   "delta_v53": -0.14,
+   "palier_ancien": "ATTENDRE",
+   "palier_nouveau": "ATTENDRE",
+   "change_de_palier": false,
+   "signal_publie": "ATTENDRE"
+  },
+  "MNG": {
+   "ecarts": {
+    "roic": {
+     "calcule": 15.3,
+     "saisi": 20,
+     "ecart": -4.7
+    },
+    "dette_nette_ebitda": {
+     "calcule": 1.83,
+     "saisi": 2.1,
+     "ecart": -0.27
+    },
+    "cash_conversion": {
+     "calcule": 158.0,
+     "saisi": 45,
+     "ecart": 113.0
+    }
+   },
+   "fond_ancien": 8.45,
+   "fond_nouveau": 8.1,
+   "delta_fond": -0.35,
+   "score_fond_publie": 8.45,
+   "poids_f": 71,
+   "v53_ancien": 7.95,
+   "v53_nouveau": 7.7,
+   "delta_v53": -0.25,
+   "palier_ancien": "ACHETER",
+   "palier_nouveau": "ACHETER",
+   "change_de_palier": false,
+   "signal_publie": "ACHETER ★★"
+  },
+  "MSA": {
+   "ecarts": {
+    "roic": {
+     "calcule": 47.6,
+     "saisi": 17,
+     "ecart": 30.6
+    },
+    "dette_nette_ebitda": {
+     "calcule": -0.24,
+     "saisi": 0.3,
+     "ecart": -0.54
+    },
+    "cash_conversion": {
+     "calcule": 146.4,
+     "saisi": 167.0,
+     "ecart": -20.6
+    }
+   },
+   "fond_ancien": 7.25,
+   "fond_nouveau": 8.3,
+   "delta_fond": 1.05,
+   "score_fond_publie": 7.25,
+   "poids_f": 71,
+   "v53_ancien": 6.49,
+   "v53_nouveau": 7.24,
+   "delta_v53": 0.75,
+   "palier_ancien": "SURVEILLER",
+   "palier_nouveau": "ACHETER",
+   "change_de_palier": true,
+   "signal_publie": "SURVEILLER ★"
+  },
+  "RDS": {
+   "ecarts": {
+    "roic": {
+     "calcule": 0.1,
+     "saisi": 4,
+     "ecart": -3.9
+    }
+   },
+   "fond_ancien": 3.75,
+   "fond_nouveau": 3.75,
+   "delta_fond": 0.0,
+   "score_fond_publie": 3.75,
+   "poids_f": 71,
+   "v53_ancien": 4.05,
+   "v53_nouveau": 4.05,
+   "delta_v53": 0.0,
+   "palier_ancien": "ÉVITER",
+   "palier_nouveau": "ÉVITER",
+   "change_de_palier": false,
+   "signal_publie": "ÉVITER"
+  },
+  "RIS": {
+   "ecarts": {
+    "roic": {
+     "calcule": 9.4,
+     "saisi": 9,
+     "ecart": 0.4
+    },
+    "dette_nette_ebitda": {
+     "calcule": 3.12,
+     "saisi": 4.2,
+     "ecart": -1.08
+    },
+    "cash_conversion": {
+     "calcule": 193.2,
+     "saisi": 70,
+     "ecart": 123.2
+    }
+   },
+   "fond_ancien": 5.55,
+   "fond_nouveau": 5.75,
+   "delta_fond": 0.2,
+   "score_fond_publie": 5.55,
+   "poids_f": 71,
+   "v53_ancien": 5.34,
+   "v53_nouveau": 5.48,
+   "delta_v53": 0.14,
+   "palier_ancien": "ATTENDRE",
+   "palier_nouveau": "ATTENDRE",
+   "change_de_palier": false,
+   "signal_publie": "ATTENDRE"
+  },
+  "SGTM": {
+   "ecarts": {
+    "roic": {
+     "calcule": 38.6,
+     "saisi": 38,
+     "ecart": 0.6
+    },
+    "dette_nette_ebitda": {
+     "calcule": -0.03,
+     "saisi": 0.11,
+     "ecart": -0.14
+    },
+    "cash_conversion": {
+     "calcule": 120.3,
+     "saisi": 68,
+     "ecart": 52.3
+    }
+   },
+   "fond_ancien": 7.9,
+   "fond_nouveau": 8.0,
+   "delta_fond": 0.1,
+   "score_fond_publie": 7.9,
+   "poids_f": 71,
+   "v53_ancien": 7.01,
+   "v53_nouveau": 7.08,
+   "delta_v53": 0.07,
+   "palier_ancien": "ACHETER",
+   "palier_nouveau": "ACHETER",
+   "change_de_palier": false,
+   "signal_publie": "ACHETER ★★"
+  },
+  "SNA": {
+   "ecarts": {
+    "roic": {
+     "calcule": 18.2,
+     "saisi": 9.0,
+     "ecart": 9.2
+    },
+    "dette_nette_ebitda": {
+     "calcule": -0.65,
+     "saisi": 0.5,
+     "ecart": -1.15
+    },
+    "cash_conversion": {
+     "calcule": 71.7,
+     "saisi": 75.0,
+     "ecart": -3.3
+    }
+   },
+   "fond_ancien": 5.75,
+   "fond_nouveau": 7.35,
+   "delta_fond": 1.6,
+   "score_fond_publie": 5.75,
+   "poids_f": 71,
+   "v53_ancien": 5.48,
+   "v53_nouveau": 6.62,
+   "delta_v53": 1.14,
+   "palier_ancien": "ATTENDRE",
+   "palier_nouveau": "ACHETER",
+   "change_de_palier": true,
+   "signal_publie": "ATTENDRE"
+  },
+  "SOT": {
+   "ecarts": {
+    "roic": {
+     "calcule": 11.2,
+     "saisi": 12,
+     "ecart": -0.8
+    },
+    "dette_nette_ebitda": {
+     "calcule": 1.09,
+     "saisi": 1.5,
+     "ecart": -0.41
+    },
+    "cash_conversion": {
+     "calcule": 118.7,
+     "saisi": 80,
+     "ecart": 38.7
+    }
+   },
+   "fond_ancien": 6.55,
+   "fond_nouveau": 6.75,
+   "delta_fond": 0.2,
+   "score_fond_publie": 6.55,
+   "poids_f": 71,
+   "v53_ancien": 5.68,
+   "v53_nouveau": 5.82,
+   "delta_v53": 0.14,
+   "palier_ancien": "SURVEILLER",
+   "palier_nouveau": "SURVEILLER",
+   "change_de_palier": false,
+   "signal_publie": "SURVEILLER ★"
+  },
+  "TGCC": {
+   "ecarts": {
+    "roic": {
+     "calcule": 24.1,
+     "saisi": 22,
+     "ecart": 2.1
+    },
+    "dette_nette_ebitda": {
+     "calcule": 0.3,
+     "saisi": 1.9,
+     "ecart": -1.6
+    },
+    "cash_conversion": {
+     "calcule": 149.6,
+     "saisi": 72,
+     "ecart": 77.6
+    }
+   },
+   "fond_ancien": 7.8,
+   "fond_nouveau": 8.15,
+   "delta_fond": 0.35,
+   "score_fond_publie": 8.7,
+   "poids_f": 71,
+   "v53_ancien": 7.21,
+   "v53_nouveau": 7.46,
+   "delta_v53": 0.25,
+   "palier_ancien": "ACHETER",
+   "palier_nouveau": "ACHETER",
+   "change_de_palier": false,
+   "signal_publie": "ACHETER ★★"
+  },
+  "TQA": {
+   "ecarts": {
+    "roic": {
+     "calcule": 11.3,
+     "saisi": 11,
+     "ecart": 0.3
+    },
+    "dette_nette_ebitda": {
+     "calcule": 2.0,
+     "saisi": 3.2,
+     "ecart": -1.2
+    },
+    "cash_conversion": {
+     "calcule": 142.2,
+     "saisi": 75,
+     "ecart": 67.2
+    }
+   },
+   "fond_ancien": 5.85,
+   "fond_nouveau": 6.05,
+   "delta_fond": 0.2,
+   "score_fond_publie": 5.85,
+   "poids_f": 71,
+   "v53_ancien": 5.26,
+   "v53_nouveau": 5.4,
+   "delta_v53": 0.14,
+   "palier_ancien": "ATTENDRE",
+   "palier_nouveau": "ATTENDRE",
+   "change_de_palier": false,
+   "signal_publie": "ATTENDRE"
+  },
+  "VCNE": {
+   "ecarts": {
+    "cash_conversion": {
+     "calcule": 41.2,
+     "saisi": 70,
+     "ecart": -28.8
+    }
+   },
+   "fond_ancien": 6.25,
+   "fond_nouveau": 6.25,
+   "delta_fond": 0.0,
+   "score_fond_publie": 6.25,
+   "poids_f": 71,
+   "v53_ancien": 5.46,
+   "v53_nouveau": 5.46,
+   "delta_v53": 0.0,
+   "palier_ancien": "ATTENDRE",
+   "palier_nouveau": "ATTENDRE",
+   "change_de_palier": false,
+   "signal_publie": "ATTENDRE"
+  },
+  "DHO": {
+   "ecarts": {
+    "roic": {
+     "calcule": 14.4,
+     "saisi": null,
+     "ecart": null
+    },
+    "dette_nette_ebitda": {
+     "calcule": -0.61,
+     "saisi": null,
+     "ecart": null
+    },
+    "cash_conversion": {
+     "calcule": 178.1,
+     "saisi": null,
+     "ecart": null
+    }
+   },
+   "fond_ancien": 5.0,
+   "fond_nouveau": 5.65,
+   "delta_fond": 0.65,
+   "score_fond_publie": 5.0,
+   "poids_f": 71,
+   "v53_ancien": 4.66,
+   "v53_nouveau": 5.12,
+   "delta_v53": 0.46,
+   "palier_ancien": "ATTENDRE",
+   "palier_nouveau": "ATTENDRE",
+   "change_de_palier": false,
+   "signal_publie": "ATTENDRE"
+  },
+  "DSW": {
+   "ecarts": {
+    "roic": {
+     "calcule": 9.0,
+     "saisi": null,
+     "ecart": null
+    },
+    "cash_conversion": {
+     "calcule": 129.2,
+     "saisi": null,
+     "ecart": null
+    }
+   },
+   "fond_ancien": 6.05,
+   "fond_nouveau": 5.5,
+   "delta_fond": -0.55,
+   "score_fond_publie": 6.05,
+   "poids_f": 71,
+   "v53_ancien": 6.38,
+   "v53_nouveau": 5.99,
+   "delta_v53": -0.39,
+   "palier_ancien": "SURVEILLER",
+   "palier_nouveau": "SURVEILLER",
+   "change_de_palier": false,
+   "signal_publie": "SURVEILLER ★"
+  },
+  "SNP": {
+   "ecarts": {
+    "roic": {
+     "calcule": -10.3,
+     "saisi": null,
+     "ecart": null
+    }
+   },
+   "fond_ancien": 5.45,
+   "fond_nouveau": 4.25,
+   "delta_fond": -1.2,
+   "score_fond_publie": 5.45,
+   "poids_f": 71,
+   "v53_ancien": 4.98,
+   "v53_nouveau": 4.13,
+   "delta_v53": -0.85,
+   "palier_ancien": "ATTENDRE",
+   "palier_nouveau": "ÉVITER",
+   "change_de_palier": true,
+   "signal_publie": "ATTENDRE"
+  }
+ }
+}
