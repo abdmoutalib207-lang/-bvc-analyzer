@@ -6668,6 +6668,84 @@ const SeanceDetail = ({
     }
   }, "Autres \xE9metteurs le m\xEAme jour, sans action cot\xE9e rattach\xE9e : ", dep.autres_emetteurs.map(x => x.emetteur).join(", "), ".")));
 };
+const ASurveiller = ({
+  a
+}) => {
+  if (!a) return null;
+  const groupes = [["A PUBLIÉ", a.a_publie || []], ["A BOUGÉ", a.a_bouge || []]].filter(([, l]) => l.length);
+  if (!groupes.length) return null;
+  return React.createElement("div", {
+    style: {
+      background: "#0d1829",
+      border: "1px solid rgba(0,229,160,.35)",
+      borderRadius: 8,
+      padding: 16
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#00e5a0",
+      letterSpacing: 1,
+      textTransform: "uppercase",
+      marginBottom: 2
+    }
+  }, "\xC0 surveiller aujourd'hui"), React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#5a6478",
+      marginBottom: 10
+    }
+  }, "Chaque titre remplit au moins un crit\xE8re mesur\xE9 ; class\xE9s par nombre de crit\xE8res, puis par montant \xE9chang\xE9.", a.n_candidats > (a.a_publie || []).length + (a.a_bouge || []).length && React.createElement(React.Fragment, null, " ", a.n_candidats, " titres en remplissaient un.")), groupes.map(([titre, l]) => React.createElement("div", {
+    key: titre,
+    style: {
+      marginBottom: 8
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      letterSpacing: .8,
+      margin: "6px 0 4px"
+    }
+  }, titre), l.map(z => React.createElement("div", {
+    key: z.symbol,
+    style: {
+      display: "flex",
+      gap: 10,
+      alignItems: "baseline",
+      padding: "5px 0",
+      borderBottom: "1px solid #0a1220",
+      flexWrap: "wrap"
+    }
+  }, React.createElement("span", {
+    style: {
+      color: "#e6edf7",
+      fontWeight: 600,
+      minWidth: 44
+    }
+  }, z.symbol), React.createElement("span", {
+    style: {
+      fontFamily: "monospace",
+      minWidth: 62,
+      color: z.chg == null ? "#5a6478" : z.chg > 0 ? "#00e5a0" : z.chg < 0 ? "#ff4f5a" : "#8892a4"
+    }
+  }, z.chg == null ? "non coté" : `${z.chg > 0 ? "+" : ""}${fmt(z.chg).replace(".", ",")} %`), React.createElement("span", {
+    style: {
+      color: "#c8d3e8",
+      fontSize: 12.5,
+      flex: "1 1 200px"
+    }
+  }, z.criteres.map((c, i) => React.createElement("span", {
+    key: i
+  }, i > 0 && " · ", c.url ? React.createElement("a", {
+    href: c.url,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      color: "#4db8ff"
+    }
+  }, c.texte) : c.texte))))))));
+};
 const Briefing = () => {
   const [b, setB] = useState(null);
   const [h, setH] = useState(null);
@@ -6678,6 +6756,7 @@ const Briefing = () => {
   const [seances, setSeances] = useState([]);
   const [choix, setChoix] = useState(null);
   const [arch, setArch] = useState(null);
+  const [detail, setDetail] = useState(false);
   useEffect(() => {
     const t = Math.floor(Date.now() / 3600000);
     Promise.all([fetch("briefing.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null), fetch("briefing_hebdo.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null), fetch("briefing_mijournee.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null), fetch("briefing_cloture.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null)]).then(([j, s, m, c]) => {
@@ -6821,7 +6900,9 @@ const Briefing = () => {
         cursor: dispo ? "pointer" : "not-allowed"
       }
     }, o.label);
-  })), React.createElement("div", {
+  })), !semaine && React.createElement(ASurveiller, {
+    a: src.a_surveiller
+  }), React.createElement("div", {
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -6887,7 +6968,20 @@ const Briefing = () => {
     }
   }, (src.non_mesurable || []).map((x, i) => React.createElement("li", {
     key: i
-  }, x, "."))))), !semaine && React.createElement(SeanceDetail, {
+  }, x, "."))))), !semaine && React.createElement("button", {
+    onClick: () => setDetail(!detail),
+    style: {
+      alignSelf: "flex-start",
+      background: "#0a1220",
+      border: "1px solid #1a2540",
+      color: "#8892a4",
+      borderRadius: 5,
+      padding: "5px 14px",
+      fontSize: 11,
+      letterSpacing: .8,
+      cursor: "pointer"
+    }
+  }, detail ? "MASQUER LE DÉTAIL DE LA SÉANCE ▴" : "DÉTAIL DE LA SÉANCE ▾"), !semaine && detail && React.createElement(SeanceDetail, {
     b: src
   }), semaine && (h.hausses || []).length > 0 && React.createElement("div", {
     style: {

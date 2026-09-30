@@ -860,6 +860,95 @@ def charger_contexte(racine=None) -> dict:
             "dossier_bougies": str(r / "pipeline" / "candles")}
 
 
+# ⚠️ « À SURVEILLER AUJOURD'HUI » — 30/09/2026, demande d'Abd Moutalib.
+# Une liste courte, en tête, qui répond à la question du lecteur à 8h :
+# « qu'est-ce que je regarde aujourd'hui ? ».
+#
+# ⚠️ DES CRITÈRES, PAS DES POIDS. Une proposition extérieure classait les
+# titres par une note additionnant des points arbitraires (+15 pour une
+# actualité, ×2 par point de variation…). Mesurée sur la séance du 29/09 : les
+# huit premiers avaient tous une publication, HPS (−0,02 %) et DTT (0,00 %) en
+# tête, et AUCUNE des six plus fortes variations du jour n'y figurait. Ici, un
+# titre entre s'il remplit au moins un critère MESURÉ, et la ligne dit lequel.
+# Rang : nombre de critères remplis, puis montant échangé — rien à inventer.
+N_A_SURVEILLER = 8
+N_VARIATIONS = 3
+
+
+def a_surveiller(b: dict, titres: list, seance: str, n=N_A_SURVEILLER) -> dict:
+    """Les titres à regarder, chacun avec les critères qu'il remplit. Pure.
+
+    Deux familles, parce que le lecteur se pose deux questions :
+      · A BOUGÉ — volume hors de son ordinaire, extrême de douze mois, cours
+        au seuil réglementaire de ±10 %, parmi les plus fortes variations ;
+        seulement pour un titre RÉELLEMENT coté (`reellement_cote`) ;
+      · A PUBLIÉ — résultats déposés à l'AMMC le jour de la séance. Un titre
+        qui n'a pas coté y entre quand même : c'est précisément l'information
+        que le marché n'a pas encore intégrée.
+    """
+    par = {x.get("symbol"): x for x in titres or [] if x.get("symbol")}
+    crit: dict = {}
+
+    def ajouter(sym, code, texte, **extra):
+        crit.setdefault(sym, []).append({"code": code, "texte": texte, **extra})
+
+    for v in b.get("volumes") or []:
+        ajouter(v["symbol"], "volume",
+                f"volume {_fr(v['facteur'], 1)} fois sa médiane de 20 séances")
+    ex = b.get("extremes") or {}
+    for e in ex.get("plus_hauts") or []:
+        ajouter(e["symbol"], "extreme", "au plus haut de douze mois")
+    for e in ex.get("plus_bas") or []:
+        ajouter(e["symbol"], "extreme", "au plus bas de douze mois")
+    cotes = [x for x in par.values() if reellement_cote(x, seance)]
+    # ⚠️ LE SEUIL N'EST PAS ±10 % POUR TOUS. Relevé du 29/09 : OUL et REB
+    # sont bornés à ±6 % de leur référence, IAM à ±10 %. Écrire « 10 % » en
+    # dur a d'abord affiché OUL (+5,96 %) « au seuil de +10 % ». L'écart se
+    # calcule donc sur les seuils que CDG publie pour CE titre.
+    for x in cotes:
+        p, sh, sb = _n(x.get("price")), _n(x.get("seuil_haut")), _n(x.get("seuil_bas"))
+        c = _n(x.get("chg"))
+        ref = _n(x.get("reference")) or (p / (1 + c / 100) if p and c is not None else None)
+        if p is None or not ref:
+            continue
+        if sh is not None and p >= sh:
+            ajouter(x["symbol"], "seuil",
+                    f"au seuil haut de la séance ({_signe((sh / ref - 1) * 100, 0)} %)")
+        elif sb is not None and p <= sb:
+            ajouter(x["symbol"], "seuil",
+                    f"au seuil bas de la séance ({_signe((sb / ref - 1) * 100, 0)} %)")
+    avec_chg = [x for x in cotes if _n(x.get("chg"))]
+    for sens, lib in ((1, "hausses"), (-1, "baisses")):
+        rang = sorted((x for x in avec_chg if sens * _n(x["chg"]) > 0),
+                      key=lambda x: -sens * _n(x["chg"]))[:N_VARIATIONS]
+        for x in rang:
+            ajouter(x["symbol"], "variation",
+                    f"parmi les {N_VARIATIONS} plus fortes {lib} de la séance")
+    for d in ((b.get("depots") or {}).get("titres") or []):
+        ajouter(d["ticker"], "publication",
+                f"résultats déposés à l'AMMC le {_date_fr(seance)}", url=d.get("url"))
+
+    lignes = []
+    for sym, cs in crit.items():
+        x = par.get(sym) or {}
+        lignes.append({
+            "symbol": sym, "name": x.get("name"),
+            "chg": _n(x.get("chg")) if reellement_cote(x, seance) else None,
+            "echange_dh": _n(x.get("echange_dh")) if reellement_cote(x, seance) else None,
+            "cote": reellement_cote(x, seance),
+            "criteres": cs,
+        })
+    lignes.sort(key=lambda z: (-len(z["criteres"]), -(z["echange_dh"] or 0), z["symbol"]))
+    retenus = lignes[:n]
+    return {
+        "a_publie": [z for z in retenus if any(c["code"] == "publication" for c in z["criteres"])],
+        "a_bouge": [z for z in retenus if not any(c["code"] == "publication" for c in z["criteres"])],
+        "n_candidats": len(lignes),
+        "_regle": ("un titre entre s'il remplit au moins un critère mesuré ; "
+                   "rang : nombre de critères, puis montant échangé"),
+    }
+
+
 def enrichir(b: dict, titres: list, contexte: dict) -> dict:
     """Ajoute au briefing les six blocs mesurés, et leurs phrases."""
     seance = b.get("seance") or ""
@@ -924,6 +1013,7 @@ def enrichir(b: dict, titres: list, contexte: dict) -> dict:
     if not b["matieres"]:
         b["non_mesurable"].append(
             "les matières premières — non relevées le jour de la séance")
+    b["a_surveiller"] = a_surveiller(b, titres, seance)
     return b
 
 
