@@ -140,6 +140,21 @@ def test_les_champs_lus_par_la_note_ne_sont_pas_ecrits():
     assert est_financier({"secteur": "Banque"}) and not est_financier({"secteur": "Agroalimentaire"})
 
 
+def test_la_note_fondamentale_est_invariante_par_les_ratios_publies():
+    """Retirer ratios_publies ne change aucune note fondamentale (R8)."""
+    import copy
+    sys.path.insert(0, str(RACINE / "pipeline" / "smart_money"))
+    from fond_score import compute_fond_score
+    sans = copy.deepcopy(FOND)
+    for f in sans.values():
+        if isinstance(f, dict):
+            f.pop("ratios_publies", None)
+    for s, f in FOND.items():
+        if isinstance(f, dict):
+            assert set(f) - {"ratios_publies"}, f"{s} : fiche créée pour des ratios publiés"
+            assert compute_fond_score(s, FOND) == compute_fond_score(s, sans), s
+
+
 def test_chaque_fait_2025_est_source_et_chaque_controle_passe():
     n = 0
     for s, e in FAITS.items():

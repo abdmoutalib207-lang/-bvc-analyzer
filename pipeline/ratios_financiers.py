@@ -260,7 +260,14 @@ def main() -> int:
             nb += bool(rb)
         if not r:
             continue
-        fond.setdefault(sym, {})["ratios_publies"] = {**r, "calcule_le": DATE_MAJ}
+        # ⚠️ Ne JAMAIS créer d'entrée : compute_fond_score() rend 5,0 pour un
+        # titre absent et calcule avec ses valeurs par défaut dès qu'une entrée
+        # existe, même vide de fondamentaux. Créer une fiche pour y poser des
+        # ratios publiés changerait donc une note (R8).
+        if not isinstance(fond.get(sym), dict):
+            print(sym, "absent de fondamentaux.json : ratios non publiés (aucune fiche créée)")
+            continue
+        fond[sym]["ratios_publies"] = {**r, "calcule_le": DATE_MAJ}
         n += 1
         print(sym, {k: v.get("valeur", v.get("sans_objet")) for k, v in r.items()
                     if isinstance(v, dict) and k != "non_calcules_2025"})
