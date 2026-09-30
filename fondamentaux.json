@@ -2346,8 +2346,8 @@
     "secteur": "Immobilier",
     "per": 1138.77,
     "forward_per": 1634.59,
-    "croissance_ca": 100.4,
-    "croissance_bpa": null,
+    "croissance_ca": 28.8,
+    "croissance_bpa": 205.4,
     "dette_nette_ebitda": 33.0,
     "roic": 4,
     "wacc": 10,
@@ -2361,7 +2361,7 @@
     "catalyseur": "Programme relogement étatique; pipeline 12.5 Mds DH; retour au bénéfice après perte 2024",
     "risque": "Dépendance programmes publics; cycle immobilier; endettement élevé; normes IFRS 15",
     "source": "Casabourse.ma; Boursenews; Résultats 2025 RDS",
-    "date_maj": "2026-06-18",
+    "date_maj": "2026-09-29",
     "bpa_2025": 0.15,
     "dps_2025": 3.0,
     "cours_bv": 152.0,
@@ -2376,6 +2376,33 @@
     "bloomberg": "RDS",
     "reuters": "RDS",
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": 0.1,
+        "date": "2025-12-31",
+        "formule": "4.494 ÷ 3739.48 (MMAD)",
+        "sources": {
+          "resultat": "état de situation financière du dépôt S1 2026 (p.4), colonne « 31/12/2025 » : « Résultat de l'exercice 4.494 » ; tableau de variation des capitaux propres p.5 : « Résultat consolidé 2025 4.494 … 4.494 » (part du groupe) — recoupé sur yuna.ma (168,10 au 29/09 ÷ PER 988,82) : BPA 0,17 contre 0,17",
+          "capitaux_propres": "état de situation financière du dépôt S1 2026, p.4, colonnes « 30/06/2026 31/12/2025 » — « CAPITAUX PROPRES PART GROUPE 3.759.111 3.739.480 » (KMAD)"
+        }
+      },
+      "roe_12m": {
+        "valeur": 0.5,
+        "date": "2026-06-30",
+        "formule": "(4.494 + 19.747 − 6.465) ÷ 3759.111 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/RDS_S1_26.pdf",
+          "capitaux_propres": "état de situation financière du dépôt S1 2026, p.4, colonnes « 30/06/2026 31/12/2025 » — « CAPITAUX PROPRES PART GROUPE 3.759.111 3.739.480 » (KMAD)"
+        }
+      },
+      "marge_nette_s1_2026": {
+        "valeur": 9.5,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé (hors « autres produits de l'activité » : 247,4 contre 31,5)",
+        "formule": "19.747 ÷ 208.787 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/RDS_S1_26.pdf"
+        }
+      },
       "dette_nette": {
         "valeur": 1867.0,
         "date": "2025-12-31",
@@ -2408,7 +2435,14 @@
         "cash_conversion": "le rapport ne contient pas de tableau des flux de trésorerie consolidé."
       },
       "calcule_le": "2026-09-30"
-    }
+    },
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": 100.4,
+      "nb_actions": 26208850,
+      "date_maj": "2026-06-18"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/RDS_S1_26.pdf"
   },
   "RIS": {
     "secteur": "Tourisme",
@@ -3808,9 +3842,9 @@
     "dps_2026": 176.0,
     "div_yield": 3.64,
     "source": "Calendrier BVC 2026",
-    "date_maj": "2026-06-22",
+    "date_maj": "2026-09-29",
     "per": null,
-    "croissance_ca": null,
+    "croissance_ca": 8.8,
     "dette_nette_ebitda": null,
     "roic": null,
     "marge_nette": null,
@@ -3832,7 +3866,45 @@
     "nb_actions": 1023264,
     "bloomberg": null,
     "reuters": null,
-    "secteur_libre": "Distribution automobile"
+    "secteur_libre": "Distribution automobile",
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 1023264,
+      "date_maj": "2026-06-22"
+    },
+    "croissance_bpa": -22.2,
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Auto_Nejma_S1_26.pdf",
+    "ratios_publies": {
+      "roe_2025": {
+        "valeur": 22.2,
+        "date": "2025-12-31",
+        "formule": "324.182 ÷ 1459.008 (MMAD)",
+        "sources": {
+          "resultat": "compte de résultat consolidé du dépôt S1 2026 (p.3), colonne « 31/12/2025 » : « Résultat net part du Groupe 324 182 » (KMAD) ; = « Résultat net de l'exercice (Part du groupe) 324 182 » au passif — ⚠️ yuna.ma (5 621,00 au 21/09 ÷ PER 19,17) donne un BPA de 293,22, soit 300,0 MDH : c'est le résultat SOCIAL 2025 (300 005 997,98, bilan passif p.2), pas le consolidé. Écart de base consigné, non corrigé",
+          "capitaux_propres": "bilan consolidé du dépôt S1 2026, p.3, colonnes « 30/06/2026 30/06/2025 31/12/2025 » — « Capitaux propres de l'ensemble consolidé 1 390 747 1 281 792 1 459 008 » (KMAD), sans intérêts minoritaires"
+        }
+      },
+      "roe_12m": {
+        "valeur": 21.0,
+        "date": "2026-06-30",
+        "formule": "(324.182 + 114.401 − 146.966) ÷ 1390.747 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Auto_Nejma_S1_26.pdf",
+          "capitaux_propres": "bilan consolidé du dépôt S1 2026, p.3, colonnes « 30/06/2026 30/06/2025 31/12/2025 » — « Capitaux propres de l'ensemble consolidé 1 390 747 1 281 792 1 459 008 » (KMAD), sans intérêts minoritaires"
+        }
+      },
+      "marge_nette_s1_2026": {
+        "valeur": 5.7,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé",
+        "formule": "114.401 ÷ 1993.025 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Auto_Nejma_S1_26.pdf"
+        }
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "HAL": {
     "secteur": "Distribution",
@@ -4519,7 +4591,7 @@
     "per": null,
     "forward_per": null,
     "croissance_ca": null,
-    "croissance_bpa": null,
+    "croissance_bpa": 15.1,
     "dette_nette_ebitda": null,
     "roic": null,
     "wacc": null,
@@ -4531,7 +4603,7 @@
     "catalyseur": null,
     "risque": null,
     "source": "BOOKVALEUR CTS 2025 (données 29/08/2025)",
-    "date_maj": "2026-06-24",
+    "date_maj": "2026-09-29",
     "cours_bv": 299.0,
     "pe_24": 38.64,
     "pe_25c": 34.99,
@@ -4543,14 +4615,42 @@
     "nb_actions": 1744000,
     "bloomberg": "BAL",
     "reuters": "BAL",
-    "secteur_libre": null
+    "secteur_libre": null,
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 1744000,
+      "date_maj": "2026-06-24"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Balima_S1_26.pdf",
+    "ratios_publies": {
+      "roe_2025": {
+        "valeur": 10.3,
+        "date": "2025-12-31",
+        "formule": "13.649664 ÷ 132.950333 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Balima_2025.pdf — p.3 (image), CPC consolidé, colonnes « 31/12/2025 31/12/2024 » : « Résultat net (part du groupe) 13 649 664 14 280 669 », « Résultat par action 7,83 8,19 » ; https://www.ammc.ma/sites/default/files/CP_Balima_2025.pdf : « résultat net consolidé […] 13 650 KDH » (⚠️ ce communiqué porte des coquilles : colonne « Au 31/12/2015 », lignes courant/non courant interverties) — recoupé sur yuna.ma (199,00 au 29/09 ÷ PER 25,42) : BPA 7,83 contre 7,83",
+          "capitaux_propres": "bilan passif consolidé du dépôt S1 2026, p.3 (image), colonnes « 30-06-2026 31-12-2025 » — « Capitaux propres (part du groupe) 130 872 246 132 950 333 » (DH)"
+        }
+      },
+      "roe_12m": {
+        "valeur": 11.2,
+        "date": "2026-06-30",
+        "formule": "(13.649664 + 7.513913 − 6.529119) ÷ 130.872246 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Balima_S1_26.pdf",
+          "capitaux_propres": "bilan passif consolidé du dépôt S1 2026, p.3 (image), colonnes « 30-06-2026 31-12-2025 » — « Capitaux propres (part du groupe) 130 872 246 132 950 333 » (DH)"
+        }
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "ALU": {
     "secteur": "Matériaux",
     "per": null,
     "forward_per": null,
-    "croissance_ca": null,
-    "croissance_bpa": null,
+    "croissance_ca": -7.1,
+    "croissance_bpa": 31.0,
     "dette_nette_ebitda": null,
     "roic": null,
     "wacc": null,
@@ -4562,7 +4662,7 @@
     "catalyseur": null,
     "risque": null,
     "source": "BOOKVALEUR CTS 2025 (données 29/08/2025)",
-    "date_maj": "2026-06-24",
+    "date_maj": "2026-09-29",
     "cours_bv": 1876.0,
     "pe_24": 23.73,
     "pe_25c": 21.15,
@@ -4574,7 +4674,44 @@
     "nb_actions": 465954,
     "bloomberg": "ALM",
     "reuters": "ALM",
-    "secteur_libre": null
+    "secteur_libre": null,
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 465954,
+      "date_maj": "2026-06-24"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/ALM_S1_26.pdf",
+    "ratios_publies": {
+      "roe_2025": {
+        "valeur": 23.8,
+        "date": "2025-12-31",
+        "formule": "62.40607 ÷ 262.1426 (MMAD)",
+        "sources": {
+          "resultat": "bilan passif consolidé du dépôt S1 2026 (p.12), colonne « 31/12/2025 » : « Résultats consolidés 62 406,07 » (KMAD) — recoupé sur yuna.ma (1 922,00 au 30/09 ÷ PER 14,35) : BPA 133,94 contre 133,93 ; ROE yuna 23,8 % = 62,406 ÷ 262,143",
+          "capitaux_propres": "bilan passif consolidé du dépôt S1 2026, p.12, colonnes « 30/06/2026 31/12/2025 » — « Capitaux propres part du Groupe 251 905,60 262 142,60 » (KMAD)"
+        }
+      },
+      "roe_12m": {
+        "valeur": 28.6,
+        "date": "2026-06-30",
+        "formule": "(62.40607 + 41.02607 − 31.32102) ÷ 251.9056 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/ALM_S1_26.pdf",
+          "capitaux_propres": "bilan passif consolidé du dépôt S1 2026, p.12, colonnes « 30/06/2026 31/12/2025 » — « Capitaux propres part du Groupe 251 905,60 262 142,60 » (KMAD)"
+        }
+      },
+      "marge_nette_s1_2026": {
+        "valeur": 6.8,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé",
+        "formule": "41.02607 ÷ 603.70743 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/ALM_S1_26.pdf"
+        }
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "COL": {
     "secteur": "Matériaux",
@@ -4711,8 +4848,8 @@
     "secteur": "Agroalimentaire",
     "per": null,
     "forward_per": null,
-    "croissance_ca": null,
-    "croissance_bpa": null,
+    "croissance_ca": -0.4,
+    "croissance_bpa": 7.8,
     "dette_nette_ebitda": null,
     "roic": null,
     "wacc": null,
@@ -4724,7 +4861,7 @@
     "catalyseur": null,
     "risque": null,
     "source": "BOOKVALEUR CTS 2025 (données 29/08/2025)",
-    "date_maj": "2026-06-24",
+    "date_maj": "2026-09-29",
     "cours_bv": 4000.0,
     "pe_24": 25.21,
     "pe_25c": 20.74,
@@ -4736,7 +4873,44 @@
     "nb_actions": 298375,
     "bloomberg": "DARI",
     "reuters": "DARI",
-    "secteur_libre": null
+    "secteur_libre": null,
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 298375,
+      "date_maj": "2026-06-24"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Dari_Couspate_S1_26.pdf",
+    "ratios_publies": {
+      "roe_2025": {
+        "valeur": 14.3,
+        "date": "2025-12-31",
+        "formule": "52.395028 ÷ 366.807324 (MMAD)",
+        "sources": {
+          "resultat": "bilan passif consolidé du dépôt S1 2026 (p.3), colonne « 31/12/2025 » : « Résultat consolidé 52.395.027,81 » ; https://www.ammc.ma/sites/default/files/Dari_Couspate_2025.pdf, attestation annuelle : « un bénéfice net consolidé de 52.395.028 Dirhams », opinion sans réserve — ⚠️ écart avec yuna.ma (4 200,00 au 18/09 ÷ PER 26,47) : BPA 158,67, soit 47,3 MDH, contre 175,60 ici ; non expliqué, consigné",
+          "capitaux_propres": "bilan passif consolidé du dépôt S1 2026, p.3, colonnes « 30/06/2026 31/12/2025 » — « Dont : Capitaux propres part du groupe 346.433.075,91 366.807.324,08 »"
+        }
+      },
+      "roe_12m": {
+        "valeur": 15.7,
+        "date": "2026-06-30",
+        "formule": "(52.395028 + 27.936606 − 25.925728) ÷ 346.433076 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Dari_Couspate_S1_26.pdf",
+          "capitaux_propres": "bilan passif consolidé du dépôt S1 2026, p.3, colonnes « 30/06/2026 31/12/2025 » — « Dont : Capitaux propres part du groupe 346.433.075,91 366.807.324,08 »"
+        }
+      },
+      "marge_nette_s1_2026": {
+        "valeur": 7.4,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé",
+        "formule": "27.936606 ÷ 375.9705 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Dari_Couspate_S1_26.pdf"
+        }
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "UNI": {
     "secteur": "Agroalimentaire",
@@ -4873,8 +5047,8 @@
     "secteur": "Industrie",
     "per": null,
     "forward_per": null,
-    "croissance_ca": null,
-    "croissance_bpa": null,
+    "croissance_ca": 15.5,
+    "croissance_bpa": -25.9,
     "dette_nette_ebitda": null,
     "roic": null,
     "wacc": null,
@@ -4886,7 +5060,7 @@
     "catalyseur": null,
     "risque": null,
     "source": "BOOKVALEUR CTS 2025 (données 29/08/2025)",
-    "date_maj": "2026-06-24",
+    "date_maj": "2026-09-29",
     "cours_bv": 245.05,
     "pe_24": 21.27,
     "pe_25c": 15.18,
@@ -4898,7 +5072,44 @@
     "nb_actions": 572849,
     "bloomberg": "ZDJ",
     "reuters": "ZDJ",
-    "secteur_libre": null
+    "secteur_libre": null,
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 572849,
+      "date_maj": "2026-06-24"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Zellidja_S1_26.pdf",
+    "ratios_publies": {
+      "roe_2025": {
+        "valeur": 27.6,
+        "date": "2025-12-31",
+        "formule": "21.588 ÷ 78.229 (MMAD)",
+        "sources": {
+          "resultat": "bilan consolidé du dépôt S1 2026 (p.6), colonne « 31-déc.-25 » : « Résultat net part du groupe 21,588 » ; https://www.ammc.ma/sites/default/files/CP_Zellidja_2025.pdf : « Résultat net - Part du groupe 21 588 » (dont un résultat non courant consolidé de 12 924 KMAD : indemnité d'expropriation d'un terrain) — yuna.ma : ROE 27,6 % = 21,588 ÷ 78,229, concordant ; ⚠️ mais PER 24,13 au 25/09 (278,00) implique un BPA de 11,52, soit 6,6 MDH, contre 37,69 ici — non expliqué, consigné",
+          "capitaux_propres": "bilan consolidé du dépôt S1 2026, p.6, colonnes « 30-juin-26 31-déc.-25 » — « Capitaux propres, part du groupe 82,959 78,229 » (KMAD)"
+        }
+      },
+      "roe_12m": {
+        "valeur": 24.0,
+        "date": "2026-06-30",
+        "formule": "(21.588 + 4.731 − 6.387) ÷ 82.959 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Zellidja_S1_26.pdf",
+          "capitaux_propres": "bilan consolidé du dépôt S1 2026, p.6, colonnes « 30-juin-26 31-déc.-25 » — « Capitaux propres, part du groupe 82,959 78,229 » (KMAD)"
+        }
+      },
+      "marge_nette_s1_2026": {
+        "valeur": 1.1,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé",
+        "formule": "4.731 ÷ 432.259 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Zellidja_S1_26.pdf"
+        }
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "REB": {
     "secteur": "Industrie",
