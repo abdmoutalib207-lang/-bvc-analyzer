@@ -1,0 +1,24 @@
+{
+  "_statut": "INSTRUCTION — cette séance est RETIRÉE de la série publiée. Ce n'est pas un signalement : datasets/historiques_candidats/ PROPOSE, ce dossier INSTRUIT.",
+  "_pourquoi_retirer_et_non_corriger": "Il n'y a rien à corriger : le titre N'A PAS COTÉ ce jour-là. Toute bougie portée à cette date est fabriquée.",
+  "ticker": "PPM",
+  "instrument": "Promopharm SA",
+  "ecrit_par": "update_data.py, étape 6c — ligne BMCE Capital Bourse datée du jour du relevé",
+  "mecanisme": "La page BMCE ne porte pas de date, seulement l'heure du dernier échange. Un titre sans échange y figure avec sa dernière transaction, que nous écrivions comme séance du jour, volume compris.",
+  "preuve": "Bulletin CDG Capital Bourse « Indices du mercredi 30 septembre » — séance du 29/09, datée sur son contenu (66/66 cours concordants) : le titre y est déclaré NON COTÉ (cours 0,00, quantité 0, heure « NaN »). Les 12 bougies retirées sont exactement 12 des titres que le bulletin déclare non cotés, et aucune autre.",
+  "lignes": [
+    {
+      "d": "2026-09-29",
+      "retiree": {
+        "o": 1480.0,
+        "h": 1480.0,
+        "l": 1480.0,
+        "c": 1480.0,
+        "v": 19
+      },
+      "motif": "rediffusion BMCE de la dernière transaction (séance du 2026-09-28, bougie identique au titre près : 1480.0 DH, 19 titres) ; le titre n'a pas coté le 29/09",
+      "preuve": "Bulletin CDG Capital Bourse « Indices du mercredi 30 septembre » — séance du 29/09, datée sur son contenu (66/66 cours concordants) : le titre y est déclaré NON COTÉ (cours 0,00, quantité 0, heure « NaN »). Les 12 bougies retirées sont exactement 12 des titres que le bulletin déclare non cotés, et aucune autre.",
+      "retiree_dans": "PR #116 (commit 817462ff), le 30/09/2026 ; instruction écrite a posteriori le 30/09/2026 — voir ERRORS.md, famille 24 et famille 25"
+    }
+  ]
+}
