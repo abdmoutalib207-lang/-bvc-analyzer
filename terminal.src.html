@@ -2175,6 +2175,30 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
             </div>
           </div>
 
+          {/* ⚠️ RENTABILITÉ SUR COMPTES PUBLIÉS — 30/09/2026. Calculée par
+              pipeline/ratios_financiers.py à partir de deux termes sourcés
+              (dépôts AMMC) ; chaque valeur porte sa date, et sa formule et ses
+              sources au survol. Un terme manquant : « — », rien de supposé.
+              Recoupé avec yuna.ma : 11 titres sur 13 au dixième près. */}
+          {r.ratios_publies&&(
+          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,marginBottom:10}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:10,gap:8,flexWrap:"wrap"}}>
+              <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Rentabilité <span style={{color:"#00e5a0"}}>comptes publiés</span></div>
+              <div style={{fontSize:9,color:"#8892a4"}}>dépôts AMMC · calculé le {(r.ratios_publies.calcule_le||"").split("-").reverse().join("/")}</div>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:7}}>
+              {[["ROE 2025","roe_2025"],["ROE 12 mois","roe_12m"],["Marge nette S1 2026","marge_nette_s1_2026"]].map(([k,cle])=>{
+                const x=r.ratios_publies[cle];
+                const titre=x?`${x.formule}${x.denominateur?` — dénominateur : ${x.denominateur}`:""}\nComptes au ${x.date.split("-").reverse().join("/")}\n${Object.values(x.sources||{}).filter(Boolean).join("\n")}`:"Terme manquant dans les comptes relevés : non calculé";
+                return(
+                <div key={k} title={titre} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px",cursor:"help"}}>
+                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
+                  <div style={{fontSize:13,color:x?(x.valeur>=0?"#c8d3e8":"#ff4f5a"):"#5a6478",fontWeight:700}}>{x?`${fmt(x.valeur,1)}%`:"—"}</div>
+                  {x&&<div style={{fontSize:8,color:"#5a6478"}}>au {x.date.split("-").reverse().join("/")}</div>}
+                </div>);})}
+            </div>
+          </div>)}
+
           {/* Fondamentaux prévisionnels — IDBourse DATA+.
               Bloc distinct, jamais fondu dans celui du dessus : ces ratios
               portent sur le bénéfice ATTENDU, ceux du dessus sur le réalisé.
@@ -3299,7 +3323,7 @@ function App(){
           ...Object.fromEntries(CHAMPS_SCORE.map(c=>[c,t[c]])),
           alpha:t.alpha,win:t.win,sig:t.sig,biais:t.biais,reference:t.reference,
           bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
-          bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,alertes:t.alertes,
+          bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,alertes:t.alertes,ratios_publies:t.ratios_publies,
           conv:t.conv,setup:t.setup,
           obv:t.obv,adx:t.adx,adx_pdi:t.adx_pdi,adx_mdi:t.adx_mdi,
           /* ⚠️ DEUX CHAMPS CALCULÉS QUI N'ARRIVAIENT PAS JUSQU'ICI — 25/09.

@@ -121,6 +121,12 @@ def main() -> int:
     if "--montrer" not in sys.argv:
         pb.write_text(json.dumps(bpa, ensure_ascii=False, indent=2), encoding="utf-8")
         pf.write_text(json.dumps(fond, ensure_ascii=False, indent=2), encoding="utf-8")
+        # Les ratios de rentabilité suivent chaque lot (30/09/2026) : un BPA
+        # mis à jour sans son ROE laisserait deux dates sur la même fiche.
+        if str(RACINE) not in sys.path:
+            sys.path.insert(0, str(RACINE))
+        from pipeline.ratios_financiers import main as _ratios
+        _ratios()
     return 0
 
 

@@ -7238,7 +7238,77 @@ const Detail = ({
         color: "#8892a4"
       }
     }, "/", e.pairs, " \xB7 ", e.ecart_pct > 0 ? "+" : "", e.ecart_pct, "% vs secteur"));
-  })())))), r.fwd && React.createElement("div", {
+  })())))), r.ratios_publies && React.createElement("div", {
+    style: {
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      padding: 12,
+      marginBottom: 10
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "baseline",
+      marginBottom: 10,
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      letterSpacing: 1,
+      textTransform: "uppercase"
+    }
+  }, "Rentabilit\xE9 ", React.createElement("span", {
+    style: {
+      color: "#00e5a0"
+    }
+  }, "comptes publi\xE9s")), React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: "#8892a4"
+    }
+  }, "d\xE9p\xF4ts AMMC \xB7 calcul\xE9 le ", (r.ratios_publies.calcule_le || "").split("-").reverse().join("/"))), React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr 1fr",
+      gap: 7
+    }
+  }, [["ROE 2025", "roe_2025"], ["ROE 12 mois", "roe_12m"], ["Marge nette S1 2026", "marge_nette_s1_2026"]].map(([k, cle]) => {
+    const x = r.ratios_publies[cle];
+    const titre = x ? `${x.formule}${x.denominateur ? ` — dénominateur : ${x.denominateur}` : ""}\nComptes au ${x.date.split("-").reverse().join("/")}\n${Object.values(x.sources || {}).filter(Boolean).join("\n")}` : "Terme manquant dans les comptes relevés : non calculé";
+    return React.createElement("div", {
+      key: k,
+      title: titre,
+      style: {
+        background: "#0a1220",
+        borderRadius: 4,
+        padding: "6px 8px",
+        cursor: "help"
+      }
+    }, React.createElement("div", {
+      style: {
+        fontSize: 8,
+        color: "#8892a4",
+        marginBottom: 2,
+        textTransform: "uppercase"
+      }
+    }, k), React.createElement("div", {
+      style: {
+        fontSize: 13,
+        color: x ? x.valeur >= 0 ? "#c8d3e8" : "#ff4f5a" : "#5a6478",
+        fontWeight: 700
+      }
+    }, x ? `${fmt(x.valeur, 1)}%` : "—"), x && React.createElement("div", {
+      style: {
+        fontSize: 8,
+        color: "#5a6478"
+      }
+    }, "au ", x.date.split("-").reverse().join("/")));
+  }))), r.fwd && React.createElement("div", {
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -10202,6 +10272,7 @@ function App() {
             upside: t.upside,
             flags: t.flags,
             alertes: t.alertes,
+            ratios_publies: t.ratios_publies,
             conv: t.conv,
             setup: t.setup,
             obv: t.obv,
