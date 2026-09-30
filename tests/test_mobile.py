@@ -40,7 +40,7 @@ def test_les_regles_mobiles_existent():
     for classe in ("entete", "onglets", "classement", "bandeau-masi",
                    "badge-version", "choix-score", "entete-droite",
                    "nom-societe", "secteur-societe"):
-        assert f'className="{classe}"' in SRC, classe
+        assert re.search(rf'className="(?:[^"]* )?{classe}(?: [^"]*)?"', SRC), classe
 
 
 def test_le_telephone_masque_exactement_les_autres_colonnes():
@@ -60,6 +60,21 @@ def test_ouverture_et_volume_restent_lisibles_sur_telephone():
     """Demande du 30/09/2026 : les colonnes OUVERT et VOLUME sont masquées
     sur téléphone, leurs valeurs passent sous la clôture et la variation."""
     assert SRC.count('className="mobile-seul"') == 2
-    assert "ouv. {r.open?px(r.open)" in SRC and "vol. {r.vol!=null" in SRC
+    assert "ouv. {r.open?px(r.open)" in SRC and "{volumeCourt(r)}" in SRC
     avant_media = SRC[:SRC.index("@media(max-width:640px)")]
     assert ".mobile-seul{display:none}" in avant_media
+
+
+def test_le_volume_s_affiche_en_dirhams_et_jamais_une_quantite_sous_l_etiquette_dh():
+    """30/09/2026 : « au lieu d'afficher le volume en DH il affiche la
+    quantité échangée ». Le montant d'abord ; à défaut, des TITRES, dits tels."""
+    i = SRC.index("const volumeCourt=")
+    corps = SRC[i:i + 300]
+    assert corps.index("r.echange_dh!=null") < corps.index("r.vol")
+    assert "titres`" in corps
+
+
+def test_la_variation_montre_sa_reference():
+    """MNG le 29/09 : veille 1 580, ouverture 1 600, clôture 1 600, +1,27 %.
+    Sans la veille à l'écran, la variation semblait fausse."""
+    assert "réf. {px(+((r.price||r.close)/(1+r.chg/100)).toFixed(2))}" in SRC
