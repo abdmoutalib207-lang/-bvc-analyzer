@@ -212,3 +212,16 @@ def test_lot7_communiques_lus_et_recoupes():
     assert bpa["SBS"]["bpa_12m"] == 118.6
     # DTT : 25,8 + 16,1 − 12,5 = 29,4 ÷ 998 110 = 29,46
     assert bpa["DTT"]["bpa_12m"] == 29.46
+
+
+def test_lot8_fnb_uni_inv_hal():
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    # HAL : 99,832 + 64,8 − 47,3 = 117,332 ÷ 54 140 578 = 2,17 ; ROE 2025
+    # 99,832 ÷ 1 445,976 = 6,9 % (yuna : 6,9)
+    assert bpa["HAL"]["bpa_12m"] == 2.17
+    # UNI : 11 + 29 − (−40) = 80 ÷ 11 413 880 = 7,01
+    assert bpa["UNI"]["bpa_12m"] == 7.01
+    # INV : 0,1 − 3,8 − 2,8 = −6,5 ÷ 382 716 = −16,98 — perte documentée
+    assert bpa["INV"]["bpa_12m"] == -16.98 and bpa["INV"]["perte_documentee"]
+    fond = json.loads((RACINE / "fondamentaux.json").read_text(encoding="utf-8"))
+    assert fond["HAL"]["ratios_publies"]["roe_2025"]["valeur"] == 6.9
