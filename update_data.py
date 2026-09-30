@@ -4720,6 +4720,23 @@ def run(dry_run=False, push=False, token=""):
                                        ecrire_moment as _brief_moment)
         from bvc_config import heure_maroc as _heure_maroc
         _maintenant = _heure_maroc()
+        # ⚠️ Le relevé de la séance — trajectoire du MASI, indices sectoriels,
+        # matières premières — ajouté le 30/09/2026. La série intrajournalière
+        # de CDG ne vit qu'une journée : relevée ici, par les passages de
+        # 15h45 et 18h45, ou perdue. Non bloquant : le briefing dit ce qui
+        # manque au lieu de ne pas s'écrire.
+        try:
+            from pipeline.seance_marche import mettre_a_jour as _releve_seance
+            _seance_b = max((str((_x.get("_meta") or {}).get("prix_asof") or "")
+                             for _x in output.get("tickers") or []), default="")
+            if _seance_b:
+                _rs = _releve_seance(_seance_b, _maintenant.date().isoformat())
+                logger.info(f"  📈 séance {_seance_b} : trajectoire "
+                            f"{'relevée' if _rs.get('trajectoire') else 'absente'}, "
+                            f"{len(_rs.get('secteurs') or [])} secteur(s), "
+                            f"{len(_rs.get('matieres') or [])} matière(s) première(s)")
+        except Exception as _e:                           # noqa: BLE001
+            logger.warning(f"  📈 relevé de séance non écrit ({_e})")
         _b = _brief_dater(_brief(output), _maintenant.date().isoformat(),
                           _maintenant.hour * 100 + _maintenant.minute)
         _brief_ecrire(_b)
