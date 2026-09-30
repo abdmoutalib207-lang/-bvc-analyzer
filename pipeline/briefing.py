@@ -191,6 +191,23 @@ def accord_indice_marche(masi: dict) -> dict | None:
             "accord": accord, **lg, "change_pct": round(chg, 2)}
 
 
+def reellement_cote(x: dict, seance: str) -> bool:
+    """Le titre a-t-il réellement coté dans la séance du briefing ?
+
+    ⚠️ LE DÉFAUT QUE CE FILTRE CORRIGE — briefing de clôture du 29/09/2026.
+    Il listait en « activité inhabituelle » DAR (20 titres contre une médiane
+    de 1), M2M et MGL, qui n'avaient PAS coté : BMCE rediffusait leur dernière
+    transaction en la datant du jour (famille 24 d'ERRORS.md). Leur
+    `prix_asof` valait bien la séance — c'est la source qui mentait sur la
+    date — mais le moteur les avait marqués `stale`.
+
+    La date seule ne suffit donc pas. Un titre n'est retenu que si son cours
+    est daté de la séance ET que le moteur ne le déclare pas périmé.
+    """
+    m = x.get("_meta") or {}
+    return str(m.get("prix_asof") or "") == seance and m.get("stale") is not True
+
+
 def volumes_inhabituels(titres: list, seance: str) -> list:
     """Les titres dont l'activité du jour sort de leur propre ordinaire.
 
@@ -200,11 +217,13 @@ def volumes_inhabituels(titres: list, seance: str) -> list:
 
     ⚠️ Un titre sans médiane connue est ÉCARTÉ, pas traité comme calme : on
     ne sait pas, et le dire coûte moins cher que de l'affirmer.
+
+    ⚠️ Seuls les titres RÉELLEMENT cotés — voir `reellement_cote`.
     """
     out = []
     for x in titres or []:
         m = x.get("_meta") or {}
-        if str(m.get("prix_asof") or "") != seance:
+        if not reellement_cote(x, seance):
             continue
         v, med = _n(x.get("vol")), _n(m.get("vol_median20"))
         if v is None or med is None or med <= 0:
@@ -227,7 +246,8 @@ def extremes_annuels(titres: list, seance: str) -> dict:
     hauts, bas = [], []
     for x in titres or []:
         m = x.get("_meta") or {}
-        if str(m.get("prix_asof") or "") != seance:
+        # ⚠️ Un cours rediffusé n'est pas un extrême atteint dans la séance.
+        if not reellement_cote(x, seance):
             continue
         if (_n(m.get("n_candles")) or 0) < MIN_SEANCES_52W:
             continue
