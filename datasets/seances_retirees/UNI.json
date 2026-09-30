@@ -17,6 +17,19 @@
         "v": 0
       },
       "motif": "jour de fermeture — Fête du Trône ; la valeur portée égale la clôture de la veille (2026-07-29)"
+    },
+    {
+      "d": "2026-09-29",
+      "retiree": {
+        "o": 168.9,
+        "h": 168.9,
+        "l": 168.9,
+        "c": 168.9,
+        "v": 1
+      },
+      "motif": "rediffusion BMCE de la dernière transaction (séance du 2026-09-28, bougie identique au titre près : 168.9 DH, 1 titres) ; le titre n'a pas coté le 29/09",
+      "preuve": "Bulletin CDG Capital Bourse « Indices du mercredi 30 septembre » — séance du 29/09, datée sur son contenu (66/66 cours concordants) : le titre y est déclaré NON COTÉ (cours 0,00, quantité 0, heure « NaN »). Les 12 bougies retirées sont exactement 12 des titres que le bulletin déclare non cotés, et aucune autre.",
+      "retiree_dans": "PR #116 (commit 817462ff), le 30/09/2026 ; instruction écrite a posteriori le 30/09/2026 — voir ERRORS.md, famille 24 et famille 25"
     }
   ],
   "_registre": "bvc_config.SEANCES_SANS_COTATION['2026-07-30'] — le registre empêche la bougie de REVENIR à chaque run ; ce document établit ce qui a été retiré, avec la bougie exacte.",

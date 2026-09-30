@@ -1214,3 +1214,35 @@ n'ont pas de preuve extérieure : laissées en place, à vérifier sur bulletin.
 
 **Signal.** Une bougie dont (o, h, l, c, v) égale celle de la veille avec
 v > 0. Une vraie séance ne reproduit pas la quantité échangée au titre près.
+
+## Famille 25 — Retirer des bougies sans réaligner le cache (30/09/2026)
+
+**Symptôme.** Abd Moutalib : « le cron n'est pas parti à 15h45 et à 18h ». Faux
+diagnostic à éviter : les runs SONT partis (15h45 et 18h45 par cron-job.org,
+16h04 et 17h53 par `schedule`). Huit runs de suite ont ÉCHOUÉ, et la clôture
+du 30/09 n'a pas été publiée. Toujours lire la liste des runs avant d'accuser
+le déclencheur.
+
+**Cause.** Mon nettoyage de la PR #116 a retiré douze bougies fantômes du
+29/09 de `pipeline/candles/` sans toucher `pipeline/historical_data.json`, qui
+annonçait toujours `last_date = 2026-09-29`. Rien n'a bougé tant que ces titres
+ne cotaient pas. À 15h45, M2M a coté ; la synchronisation du cache a cherché le
+29/09 dans la série : `ValueError: Cache M2M: ancienne date 2026-09-29 absente`.
+La garde avait raison ; mon nettoyage était incomplet.
+
+**Deuxième faute, dans la même PR.** Le retrait s'est fait à la main, alors que
+le dépôt a un outil et un registre pour ça (`pipeline/seances_retirees.py`,
+`datasets/seances_retirees/`) : une instruction par séance, avec la bougie
+exacte. Sans elle, le contrôle de livraison ne pouvait pas autoriser le cache à
+suivre.
+
+**Correctif.** Instructions écrites a posteriori pour les douze titres ; cache
+réaligné, et chaque champ prouvé reproductible avant (aucune correction
+manuelle écrasée) ; `tests/test_cache_coherent.py` exige que toute
+`last_date` du cache existe dans les chandelles (il rougit sur l'état fautif) ;
+le contrôle de livraison admet un cache qui bouge SEUL uniquement si `main` est
+incohérent ET qu'une instruction existe, et exige alors le recalcul exact.
+
+**Signal.** Retirer ou réécrire une bougie → la même livraison doit porter
+l'instruction dans `datasets/` ET le cache réaligné. Un diff qui touche
+`pipeline/candles/` sans `historical_data.json` est suspect.

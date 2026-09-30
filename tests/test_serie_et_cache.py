@@ -480,6 +480,44 @@ def _series_modifiees_dans_cette_livraison() -> set:
     return reecrits
 
 
+def _caches_incoherents_sur_main() -> set:
+    """Titres dont le cache PUBLIÉ annonce une séance absente des chandelles PUBLIÉES.
+
+    ⚠️ LE CAS QUE CE CONTRÔLE NE PRÉVOYAIT PAS — 30/09/2026
+    Il suppose que série et cache bougent dans la même livraison. Le 30/09,
+    la PR #116 a retiré douze bougies fantômes du 29/09 des chandelles SANS
+    réaligner le cache : `origin/main` s'est retrouvé avec un cache annonçant
+    une séance que sa propre série n'a plus. Le moteur a refusé d'écrire dès
+    que M2M a coté (huit runs en échec, clôture du 30/09 non publiée).
+
+    La réparation fait bouger le cache SEUL. Elle n'est admise que si les deux
+    conditions tiennent : l'incohérence est CONSTATÉE sur `origin/main` (pas
+    supposée), ET le retrait est inscrit dans `datasets/seances_retirees/`.
+    Un cache cohérent sur `main` reste intégralement protégé. Une fois la
+    réparation fusionnée, cet ensemble redevient vide de lui-même.
+    """
+    import subprocess
+    try:
+        base = json.loads(subprocess.check_output(
+            ["git", "show", "origin/main:pipeline/historical_data.json"],
+            text=True, cwd=RACINE, stderr=subprocess.DEVNULL))
+    except subprocess.CalledProcessError:
+        return set()
+    incoherents = set()
+    for t, e in base.items():
+        if t.startswith("_") or not isinstance(e, dict) or not e.get("last_date"):
+            continue
+        try:
+            serie = json.loads(subprocess.check_output(
+                ["git", "show", f"origin/main:pipeline/candles/{t}.json"],
+                text=True, cwd=RACINE, stderr=subprocess.DEVNULL))
+        except subprocess.CalledProcessError:
+            continue
+        if e["last_date"] not in {b.get("d") for b in serie}:
+            incoherents.add(t)
+    return incoherents
+
+
 # Champs que l'ajout d'une séance FAIT LÉGITIMEMENT AVANCER : fenêtres
 # glissantes et indicateurs, qui dépendent de la dernière bougie par
 # construction. C'est le vocabulaire déjà employé par `recalculer_cache.py`
@@ -597,7 +635,8 @@ def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():
     # C'est un RESSERREMENT : l'exemption passe de vingt-cinq titres à ceux que
     # la livraison touche réellement.
     bouges = _series_modifiees_dans_cette_livraison()
-    exceptions = _titres_dont_la_serie_a_change() & bouges
+    exceptions = (_titres_dont_la_serie_a_change()
+                  & (bouges | _caches_incoherents_sur_main()))
 
     # ⚠️ Et le seuil porte désormais sur ce que la livraison FAIT, pas sur ce
     # que l'histoire contient. Toucher un tiers des séries d'un coup est une
@@ -620,3 +659,22 @@ def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():
     assert fautifs == {}, (
         f"champs hors rsi modifiés sur des titres dont la série n'a pas "
         f"changé : {fautifs}")
+
+    # ⚠️ UN CACHE RÉALIGNÉ SEUL DOIT ÊTRE LE RECALCUL EXACT DE SA SÉRIE.
+    # L'exception ci-dessus l'autorise à bouger ; elle ne l'autorise pas à
+    # prendre n'importe quelle valeur. Chaque champ est comparé au calcul du
+    # producteur sur les chandelles livrées, à la date du jour.
+    from recalculer_cache import _collecteur, _df, _serie, INDICATEURS_COMPLETS
+    realignes = (_caches_incoherents_sur_main() & exceptions) - bouges
+    if realignes:
+        m = _collecteur()
+        ecarts = {}
+        for t in sorted(realignes):
+            calc = m.compute_indicators(_df(_serie(t)))
+            e = livre.get(t, {})
+            diff = [k for k in INDICATEURS_COMPLETS
+                    if k != "candles" and e.get(k) != calc.get(k)]
+            if diff:
+                ecarts[t] = diff
+        assert ecarts == {}, (
+            f"cache réaligné qui n'est pas le recalcul de sa série : {ecarts}")
