@@ -248,3 +248,33 @@ def test_ciments_du_maroc_valeur_deposee_et_non_retraitee():
     assert bpa["CIM"]["bpa_12m"] == 89.41
     fond = json.loads((RACINE / "fondamentaux.json").read_text(encoding="utf-8"))
     assert fond["CIM"]["ratios_publies"]["roe_2025"]["valeur"] == 36.8
+
+
+def test_lot12_six_integres_trois_ecartes():
+    """Lot 12 (30/09/2026). Attendus calculés à la main depuis les dépôts."""
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    # ALU : 62,406 + 41,026 − 31,321 = 72,111 ÷ 465 954 = 154,76 ;
+    # exercice 62,406 ÷ 465 954 = 133,93 (yuna : 133,94) — l'ancien 146 gardé
+    assert bpa["ALU"]["bpa_12m"] == 154.76
+    assert bpa["ALU"]["bpa"] == 133.93 and bpa["ALU"]["bpa_avant_2026_09_29"] == 146.0
+    # BAL consolidé : 13,650 ÷ 1 744 000 = 7,83 (BPA publié 7,83) ;
+    # 13,650 + 7,514 − 6,529 = 14,634 ÷ 1 744 000 = 8,39
+    assert bpa["BAL"]["bpa"] == 7.83 and bpa["BAL"]["bpa_12m"] == 8.39
+    # DAR : 52,395 + 27,937 − 25,926 = 54,406 ÷ 298 375 = 182,34
+    assert bpa["DAR"]["bpa_12m"] == 182.34
+    # NEJ consolidé (pas le social de yuna) : 324,182 + 114,401 − 146,966
+    # = 291,617 ÷ 1 023 264 = 284,99
+    assert bpa["NEJ"]["bpa_12m"] == 284.99
+    # RDS : 4,494 ÷ 26 208 850 = 0,17 — l'ancien BPA « 5 » était faux d'un
+    # facteur 30 ; 4,494 + 19,747 − 6,465 = 17,776 → 0,68
+    assert bpa["RDS"]["bpa"] == 0.17 and bpa["RDS"]["bpa_avant_2026_09_29"] == 5
+    assert bpa["RDS"]["bpa_12m"] == 0.68
+    # ZLD : 21,588 ÷ 572 849 = 37,69 (titre sans BPA jusqu'ici)
+    assert bpa["ZLD"]["bpa"] == 37.69
+    # Écartés, motif consigné : deux états qui se contredisent (JET), une
+    # part du groupe jamais publiée (M2M), une réserve qui excède le
+    # bénéfice (STK).
+    for s in ("JET", "M2M", "STK"):
+        assert s not in JEU["titres"] and s in JEU["_ecartes"], s
+    assert "91 509 542,52" in JEU["_ecartes"]["JET"]
+    assert "réserve" in JEU["_ecartes"]["STK"]
