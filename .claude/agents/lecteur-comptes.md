@@ -87,6 +87,31 @@ fusion** : la fusion est la décision d'Abd Moutalib.
 - (lot 11) Attestation « sous réserve » (STROC : continuité d'exploitation,
   dettes non vérifiées, capitaux propres négatifs) : intégré avec la réserve
   écrite dans `base` et `pages`, sans capitaux propres. À trancher en revue.
+- (lot 12) L'unité ANNONCÉE d'un tableau peut être fausse : Aluminium du
+  Maroc titre « EN MMAD » des montants en KMAD, RDS aussi (« EN MDH » pour
+  « 19.747 » = 19 747 KMAD). L'attestation des CAC donne le montant en
+  dirhams ou en milliers : c'est elle qui fixe l'unité.
+- (lot 12) Troisième séparateur de milliers : Zellidja écrit « 4,731 » pour
+  4 731 KMAD (la VIRGULE). Recouper au communiqué (« 4 731 ») et au capital
+  (57 284 900 DH = « 57,285 »).
+- (lot 12) Un état de synthèse peut se contredire lui-même : le CPC
+  consolidé de Jet Contractors (S1 2026) met le total à la ligne des
+  minoritaires et une « part du groupe » (107,5) que le bilan dément
+  (91,5). Deux états qui divergent = écarté, on ne choisit pas.
+- (lot 12) Un communiqué qui ne publie que le résultat de l'ENSEMBLE et un
+  BPA (M2M) ne donne pas la part du groupe : la déduire du BPA est un
+  calcul, pas une lecture. Écarté, la valeur déduite consignée pour la revue.
+- (lot 12) Une réserve CHIFFRÉE qui excède le bénéfice (Stokvis 2025 :
+  42,7 MDH de provisions manquantes contre 26,5 de résultat) ne laisse pas
+  même le signe établi. Différent de STROC (réserve non chiffrée) : écarté.
+- (lot 12) yuna.ma n'a pas une base unique : consolidé pour Balima (BPA
+  7,83 = BPA publié), SOCIAL pour Auto Nejma (293 = 300 MDH social),
+  ENSEMBLE pour Jet (225 MDH). Identifier sa base avant de conclure à un
+  écart, et le ROE (souvent concordant) aide à la trouver.
+- (lot 12) Le dépôt S1 ne porte pas toujours l'exercice consolidé
+  (Balima, Stokvis) : les annuels se trouvent souvent à
+  `<Emetteur>_2025.pdf`, `CP_<Emetteur>_2025.pdf` ou
+  `<Emetteur>_RFA_2025.pdf` sous `/sites/default/files/`.
 
 ## Ce que tu ne fais jamais
 
