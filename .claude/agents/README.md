@@ -1,6 +1,6 @@
 # L'équipe BVC Analyzer — qui fait quoi, et dans quel ordre
 
-Six agents permanents. Chacun a un périmètre **exclusif** : deux agents ne
+Sept agents permanents. Chacun a un périmètre **exclusif** : deux agents ne
 décident jamais de la même chose. C'est ce qui évite les avis contradictoires
 et les corrections qui se marchent dessus.
 
@@ -12,6 +12,7 @@ et les corrections qui se marchent dessus.
 | `ingenieur-tests` | ce qui est vérifié automatiquement | les règles métier elles-mêmes |
 | `analyste-nlp` | le calcul du champ `nlp` | la pondération du score (R8) |
 | `quant-backtest` | la mesure de performance | la modification du scoring (R8) |
+| `lecteur-comptes` | le chiffre lu dans un dépôt AMMC, avec sa page | la note qui en découle (R8), la fusion |
 
 ## Les deux séquences qui structurent le travail
 
@@ -44,6 +45,33 @@ pas le pipeline ; le veilleur ne modifie pas le parseur.
 une erreur commise (avec sa cause et son signal), `LEARNINGS.md` pour un fait
 durable. Un incident non écrit sera refait — le projet en a la preuve : le piège
 `IDB_TICKER_MAP` était documenté et a quand même été retombé dedans.
+
+## Comment l'équipe apprend — 30/09/2026
+
+⚠️ **Un agent n'apprend rien tout seul.** Il repart de zéro à chaque session ;
+ce qui persiste est ce qui est ÉCRIT. « Auto-apprentissage » veut donc dire
+une boucle, et elle a trois sorties obligatoires :
+
+1. **Une erreur commise** → `.claude/memory/ERRORS.md` (cause + signal).
+2. **Une erreur qui peut revenir** → un **test** qui la rattrape. Une leçon
+   que seule la mémoire porte sera oubliée ; un test, non.
+3. **Un piège propre au métier d'un agent** → une ligne dans SA définition
+   (section « Pièges déjà rencontrés »). Une correction d'Abd Moutalib sur une
+   PR en est un, par définition.
+
+Et une chose que la boucle n'automatise pas : **fusionner et publier**. La
+détection, la lecture et la préparation s'automatisent ; la décision reste
+humaine (consigne permanente, et R8 pour tout ce qui touche la note).
+
+## Ce qui tourne sans personne
+
+| Quoi | Où | Quand |
+|---|---|---|
+| Collecte des cours et des dépôts AMMC | `update_bvc.yml` | 4 passages par jour ouvré |
+| Contrôle de la séance échue (12 contrôles) | `verifier_seance.yml` | 19h32, échec = courriel |
+| File des comptes déposés à lire | `verifier_seance.yml`, résumé du run | idem, jamais bloquant |
+| Tests + compilation du terminal | `tests.yml` | chaque push |
+| Déploiement | GitHub Pages | à chaque fusion sur `main` |
 
 ## Priorité actuelle (28/08/2026)
 
