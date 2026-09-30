@@ -169,3 +169,13 @@ def test_chaque_fait_2025_est_source_et_chaque_controle_passe():
             assert isinstance(x.get("page"), int) and x.get("unite_au_rapport"), (s, k)
             assert "«" in x.get("note", "") or x.get("composantes"), (s, k)
     assert n >= 200, n
+
+
+def test_roe_bancaires_sur_bilans_reboucles():
+    """Capitaux propres part du groupe des banques, chacun rebouclé par
+    l'arithmétique du bilan déposé. BOA 12,0 et BMCI 5,7 = yuna ; ATW,
+    CDM, BCP diffèrent de yuna (convention non identifiée, signalée)."""
+    # BOA : 3 813,552 ÷ 31 794,360 = 11,99 % ; BMCI : 434,829 ÷ 7 572,464 = 5,74 %
+    assert (_r("BOA", "roe_2025"), _r("BMC", "roe_2025")) == (12.0, 5.7)
+    # ATW : 10 644,852 ÷ 69 431,269 = 15,33 % ; BCP : 4 503,361 ÷ 36 974,989 = 12,18 %
+    assert (_r("ATW", "roe_2025"), _r("BCP", "roe_2025")) == (15.3, 12.2)
