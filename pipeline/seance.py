@@ -351,3 +351,43 @@ if __name__ == "__main__":
     else:
         date, n = purger_seance_fantome(dry_run=a.dry_run)
         print(f"{n} bougies retirées ({date})" if date else "aucune séance fantôme")
+
+
+def clotures_echangees(closes, volumes=None, highs=None, lows=None, opens=None):
+    """Les clôtures des seules séances RÉELLEMENT ÉCHANGÉES — 30/09/2026.
+
+    ⚠️ POURQUOI. Nos chandelles portent une bougie à CHAQUE séance, même sans
+    transaction : le cours de la veille y est répété. Un jour sans échange
+    n'est pas une cotation — c'est le principe déjà appliqué aux cours
+    rediffusés (R9, séances fantômes). Dans le RSI de Wilder il n'est pas
+    neutre non plus : il amortit l'historique, et le mouvement suivant pèse
+    davantage. Mesuré le 30/09 contre TradingView (qui ne compte que les
+    séances échangées), 77 titres à clôture identique : 6 titres peu
+    liquides s'écartaient de plus de 5 points (DAR 76,8 contre 55,1, sur 8
+    séances échangées sur 70) ; sur les seules séances échangées, aucun, et
+    68 sur 73 à moins d'un point. ⚠️ La raison est la définition, pas la
+    coïncidence avec TradingView.
+
+    Sont écartées : les séances à volume nul, et celles qui recopient la
+    précédente au titre près (ouverture, extrêmes, clôture ET quantité —
+    la signature des rediffusions, famille 24 d'ERRORS.md).
+
+    ⚠️ Une série SANS AUCUNE information de volume est rendue telle quelle :
+    on ne peut pas juger, et tout écarter supprimerait l'indicateur.
+    """
+    import pandas as pd
+    c = pd.Series(closes).reset_index(drop=True)
+    if volumes is None:
+        return c
+    v = pd.to_numeric(pd.Series(volumes).reset_index(drop=True), errors="coerce").fillna(0)
+    if not (v > 0).any():
+        return c
+    garder = v > 0
+    cols = [pd.Series(x).reset_index(drop=True) for x in (opens, highs, lows) if x is not None]
+    if cols:
+        identique = c.eq(c.shift(1)) & v.eq(v.shift(1))
+        for x in cols:
+            identique &= x.eq(x.shift(1))
+        garder &= ~identique.fillna(False)
+    return c[garder].reset_index(drop=True)
+

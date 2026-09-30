@@ -11,6 +11,7 @@ except ImportError as _e:
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from bvc_config import SPLITS
+from pipeline.seance import clotures_echangees  # noqa: E402
 # ⚠️ Règle unique du volume : un nombre de titres, jamais un montant ni un
 # cours. Elle vit dans un module parce qu'elle était violée à quatre endroits.
 from pipeline.volume_titres import (  # noqa: E402
@@ -530,7 +531,11 @@ def compute_indicators(df: pd.DataFrame, *, as_of=None) -> dict:
     h90  = round(float(df_90["high"].max()),  2) if not df_90.empty  else round(float(highs.max()), 2)
     l90  = round(float(df_90["low"].min()),   2) if not df_90.empty  else round(float(lows.min()),  2)
 
-    rsi           = calc_rsi(closes)
+    # RSI sur les SÉANCES ÉCHANGÉES seulement — même règle que le moteur
+    # (pipeline/seance.py, 30/09/2026).
+    rsi           = calc_rsi(clotures_echangees(
+        closes, df["volume"] if "volume" in df else None, highs, lows,
+        df["open"] if "open" in df else None))
     ma20          = calc_ma(closes, 20)
     ma50          = calc_ma(closes, 50)
     ma200         = calc_ma(closes, 200)
