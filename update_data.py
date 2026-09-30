@@ -126,11 +126,13 @@ except Exception as _e:
 # alors qu'on lit un mélange ». La remarque vient d'une lecture extérieure du
 # terminal, transmise par Abd Moutalib le 24/09.
 _FOND_ASOF: dict = {}
+_FOND_BRUT: dict = {}   # les fiches complètes — lues par detecter_alertes()
 try:
     with open(Path(__file__).parent / "fondamentaux.json", encoding="utf-8") as _f:
-        _FOND_ASOF = {k: (v or {}).get("date_maj")
-                      for k, v in (json.load(_f) or {}).items()
-                      if isinstance(v, dict) and v.get("date_maj")}
+        _FOND_BRUT = {k: v for k, v in (json.load(_f) or {}).items()
+                      if isinstance(v, dict)}
+        _FOND_ASOF = {k: v.get("date_maj") for k, v in _FOND_BRUT.items()
+                      if v.get("date_maj")}
     logger.info(f"fondamentaux: {len(_FOND_ASOF)} dates de mise à jour lues")
 except Exception as _e:
     logger.warning(f"fondamentaux: dates de mise à jour illisibles ({_e})")
@@ -2994,6 +2996,70 @@ def _etat_marche():
         return None
 
 
+# Les seuils du détecteur d'alertes — repris À L'IDENTIQUE du détecteur
+# d'origine (archive/bvc_analyzer_v51.py, RedFlagDetector). Ils ne sont pas
+# recalibrés ici : un seuil retouché sans mesure serait un nouveau modèle.
+SEUIL_DETTE_ELEVEE, SEUIL_DETTE_CRITIQUE = 3.0, 5.0     # × EBITDA
+SEUIL_MARGE_FAIBLE = 3.0                                 # % du chiffre d'affaires
+SEUIL_CASH_CONVERSION = 40.0                             # %
+SEUIL_RSI_SURCHAUFFE = 80.0
+
+
+def detecter_alertes(fiche: dict | None, rsi=None) -> dict:
+    """Les alertes d'un titre, CHACUNE EXPLIQUÉE. Fonction pure.
+
+    ⚠️ POURQUOI ELLE EXISTE — 30/09/2026. Le terminal affichait un nombre de
+    « red flags » tiré d'une table écrite à la main, sans aucune raison
+    enregistrée, et ce nombre pénalisait la note. Comparé au détecteur
+    d'origine appliqué à nos fondamentaux, il ne concordait pas (SRM : 4
+    dans la table, une seule alerte justifiable). On ne montre désormais que
+    ce qu'on peut expliquer : raison, chiffre mesuré, seuil, source, date.
+
+    ⚠️ INFORMATION, PAS PÉNALITÉ : ces alertes n'entrent pas dans la note.
+
+    ⚠️ « NON ÉVALUABLE » N'EST PAS « AUCUNE ALERTE ». Sans fondamentaux, on
+    ne sait pas — un zéro se lirait « aucun risque ».
+    """
+    f = fiche or {}
+    source, date = f.get("source"), f.get("date_maj")
+    if f.get("roic") is None and f.get("dette_nette_ebitda") is None:
+        return {"evaluable": False, "liste": [], "source": None, "date": None}
+
+    def _n(k):
+        v = f.get(k)
+        return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+    liste = []
+    dette, roic, wacc = _n("dette_nette_ebitda"), _n("roic"), _n("wacc")
+    marge, cash = _n("marge_nette"), _n("cash_conversion")
+    if dette is not None and dette > SEUIL_DETTE_CRITIQUE:
+        liste.append({"niveau": "critique", "theme": "Structure financière",
+                      "raison": "Dette nette très élevée", "valeur": f"{dette:g}× l'EBITDA",
+                      "seuil": f"alerte au-delà de {SEUIL_DETTE_CRITIQUE:g}×"})
+    elif dette is not None and dette > SEUIL_DETTE_ELEVEE:
+        liste.append({"niveau": "élevé", "theme": "Structure financière",
+                      "raison": "Dette nette élevée", "valeur": f"{dette:g}× l'EBITDA",
+                      "seuil": f"alerte au-delà de {SEUIL_DETTE_ELEVEE:g}×"})
+    if roic is not None and wacc is not None and roic < wacc:
+        liste.append({"niveau": "élevé", "theme": "Rentabilité",
+                      "raison": "La rentabilité du capital est inférieure à son coût",
+                      "valeur": f"ROIC {roic:g} %", "seuil": f"coût du capital (WACC) {wacc:g} %"})
+    if marge is not None and 0 < marge < SEUIL_MARGE_FAIBLE:
+        liste.append({"niveau": "moyen", "theme": "Rentabilité",
+                      "raison": "Marge nette faible", "valeur": f"{marge:g} %",
+                      "seuil": f"alerte sous {SEUIL_MARGE_FAIBLE:g} %"})
+    if cash is not None and cash < SEUIL_CASH_CONVERSION:
+        liste.append({"niveau": "moyen", "theme": "Trésorerie",
+                      "raison": "Le bénéfice se convertit mal en trésorerie",
+                      "valeur": f"{cash:g} %", "seuil": f"alerte sous {SEUIL_CASH_CONVERSION:g} %"})
+    if isinstance(rsi, (int, float)) and rsi > SEUIL_RSI_SURCHAUFFE:
+        liste.append({"niveau": "moyen", "theme": "Technique",
+                      "raison": "Surchauffe du cours", "valeur": f"RSI {rsi:g}",
+                      "seuil": f"alerte au-delà de {SEUIL_RSI_SURCHAUFFE:g}",
+                      "source": "calculé sur nos chandelles"})
+    return {"evaluable": True, "liste": liste, "source": source, "date": date}
+
+
 def _objectifs(ticker, price, fd) -> dict:
     """Objectifs bear/base/bull, écartés s'ils ne sont plus à l'échelle du cours.
 
@@ -3104,23 +3170,25 @@ def compute_v53(ticker, score_tech, score_fond, red_flags, upside, context) -> d
     #
     # ⚠️ Le garde-fou est un test d'INVARIANCE (tests/test_gel_nlp.py) : le
     # sentiment le plus extrême ne doit changer ni la note ni le signal.
-    # ⚠️ « SIGNAL POSITIF » = NOTRE NOTE, plus la table de juin — 29/09/2026.
-    # La condition lisait `BVC_SCORES_BASE`, une note saisie le 03/06 et jamais
-    # recalculée : c'est elle qui décidait qui subissait la pénalité ci-dessous.
-    # Mesuré sur 41 jours publiés (164 cas d'upside < −10 %) : 19 décisions
-    # différentes, toutes sur RIS, épargné par sa note de juin (4,71) alors que
-    # sa propre note dépassait 5,5 ; aucun changement de palier. Remplacée par
-    # la note calculée avant bonus, avec l'accord d'Abd Moutalib (R8).
-    bvc_bull = base >= 5.5
-
-    # Red flags pénalité
-    if red_flags >= 3:
-        pen = -0.30 * (red_flags - 2)
-        bonus += pen; bonus_log.append(f"-Red flags ({red_flags}) {pen:.2f}")
-
-    # Upside négatif avec signal positif
-    if (upside or 0) < -10 and bvc_bull:
-        bonus -= 0.20; bonus_log.append("-Upside négatif -0.20")
+    # ⚠️ LES DEUX DERNIERS MALUS SONT GELÉS — 30/09/2026 (accord d'Abd
+    # Moutalib, R8). « Red flags » et « Upside négatif » lisaient `FOND_DATA`,
+    # une table ÉCRITE EN DUR : un nombre d'alertes sans aucune raison
+    # enregistrée (SRM : 4, quand le détecteur d'origine n'en justifie qu'une)
+    # et un upside jamais recalculé (MSA : −13, saisi).
+    #
+    # Mesure sur les notes publiées (42 jours depuis le 10/08, 1 343
+    # observations à 5 séances, confiance ≥ 2, 90 pénalisées) : alpha moyen
+    # des observations pénalisées +0,87 %, contre +0,84 % pour l'ensemble — la
+    # pénalité ne désignait pas les titres qui allaient sous-performer.
+    # Corrélation de la note à l'alpha −0,0622 avec, −0,0616 sans. ⚠️ Négative
+    # dans les deux cas : un seul régime, observations chevauchantes.
+    #
+    # Les alertes ne disparaissent pas : `detecter_alertes()` les CALCULE
+    # désormais, chacune avec sa raison, son chiffre, son seuil, sa source et
+    # sa date, et le terminal les affiche au clic — comme information, sans
+    # effet sur la note. Les paramètres restent dans la signature pour ne pas
+    # réécrire les appelants ; ils ne sont plus lus.
+    del red_flags, upside
 
     final = round(min(max(base + bonus, 0), 10), 2)
 
@@ -3974,6 +4042,7 @@ def run(dry_run=False, push=False, token=""):
         # de 540 DH pour un cours de 1 850 — que le terminal n'affiche même
         # pas. Trouvé par une exécution à blanc, avant toute publication.
         _obj = _objectifs(ticker, price, fd)
+        _alertes = detecter_alertes(_FOND_BRUT.get(ticker), rsi)
         v53 = compute_v53(ticker, score_tech, score_fond,
                           fd.get("flags", 0), _obj["upside"] or 0, ctx)
 
@@ -4189,7 +4258,10 @@ def run(dry_run=False, push=False, token=""):
             "chg_alert": abs(round(chg, 2)) >= 8.0,
             # Fondamentaux
             **_obj,
-            "flags":  fd.get("flags", 0),
+            # ⚠️ `flags` compte désormais les alertes CALCULÉES et expliquées
+            # (`alertes`), plus la table figée ; None = non évaluable.
+            "alertes": _alertes,
+            "flags":  len(_alertes["liste"]) if _alertes["evaluable"] else None,
         })
 
         # Le signal JOURNALISÉ doit être celui qui sera PUBLIÉ. Il imprimait

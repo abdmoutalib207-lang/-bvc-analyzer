@@ -18,7 +18,20 @@ historique** — cela recréerait une référence exposée.
 
 ---
 
-## 🔔 UNE DÉCISION R8 À PRENDRE — les deux derniers malus lisent une table figée (30/09/2026)
+## ✅ TRANCHÉ LE 30/09/2026 (accord d'Abd Moutalib) — malus figés gelés, alertes expliquées
+
+« Red flags » et « Upside négatif » ne pèsent plus sur la note. Les alertes
+sont CALCULÉES (`detecter_alertes`, seuils du détecteur d'origine v5.1) et
+affichées au clic avec raison, chiffre, seuil, source et date ; 38 titres
+évaluables, 42 « non évaluables ». Plus aucun bonus/malus actif dans la
+note. `SCORE_VERSION` = v5.3-sans-malus-figes-2026-09-30.
+Effet (exécution à blanc) : MSA +0,20, ADH +0,30, SNA +0,30 (→ SURVEILLER),
+SRM +0,60, RDS +0,60 (→ ÉVITER). Historique : les 90 observations pénalisées
+avaient un alpha moyen de +0,87 % contre +0,84 % pour l'ensemble.
+Reste : les objectifs bear/base/bull et l'upside AFFICHÉS viennent encore
+de FOND_DATA — à recalculer ou retirer.
+
+### (constat d'origine)
 
 Les seuls bonus/malus encore actifs dans `compute_v53()` — « Red flags » et
 « Upside négatif » — lisent `FOND_DATA`, une table d'objectifs et de

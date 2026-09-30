@@ -4135,14 +4135,26 @@ const RSIGauge = ({
   }, "RSI (14)"));
 };
 const RedFlags = ({
-  n
+  alertes
 }) => {
   const [ouvert, setOuvert] = useState(false);
-  const c = n >= 3 ? "#ff4f5a" : n >= 1 ? "#ffd740" : "#00e5a0";
-  const penalite = n >= 3 ? -0.30 * (n - 2) : 0;
+  const a = alertes || {
+    evaluable: false,
+    liste: []
+  };
+  const L = a.liste || [];
+  const n = L.length;
+  const NIV = {
+    "critique": "#ff4f5a",
+    "élevé": "#ff8f00",
+    "moyen": "#ffd740"
+  };
+  const c = !a.evaluable ? "#8892a4" : L.some(x => x.niveau === "critique") ? "#ff4f5a" : n >= 2 ? "#ff8f00" : n === 1 ? "#ffd740" : "#00e5a0";
+  const libelle = !a.evaluable ? "non évaluable" : n === 0 ? "✅ aucune" : `⚠️ ${n}`;
+  const dateFr = d => d ? d.split("-").reverse().join("/") : "date inconnue";
   return React.createElement(React.Fragment, null, React.createElement("button", {
     onClick: () => setOuvert(v => !v),
-    title: "Cliquer pour savoir ce que compte ce nombre",
+    title: "Cliquer pour lire chaque alerte et sa source",
     style: {
       fontSize: 11,
       padding: "3px 8px",
@@ -4153,7 +4165,7 @@ const RedFlags = ({
       cursor: "pointer",
       fontFamily: "var(--font)"
     }
-  }, "Red flags : ", n === 0 ? "✅ 0" : "⚠️ " + n, " ", React.createElement("span", {
+  }, "Alertes : ", libelle, " ", React.createElement("span", {
     style: {
       color: "#4a5570"
     }
@@ -4165,46 +4177,60 @@ const RedFlags = ({
       borderRadius: 6,
       padding: "10px 12px",
       fontSize: 11,
-      lineHeight: 1.7,
+      lineHeight: 1.6,
       color: "#c8d3e8",
       marginTop: 4
     }
-  }, React.createElement("div", {
+  }, !a.evaluable ? React.createElement("div", null, React.createElement("b", {
     style: {
-      color: c,
-      fontWeight: 700,
-      marginBottom: 6
+      color: "#8892a4"
     }
-  }, "Ce que ce nombre fait, et ce qu'il ne dit pas"), React.createElement("div", {
-    style: {
-      marginBottom: 6
-    }
-  }, React.createElement("b", null, "Effet sur la note."), " Au-del\xE0 de deux, chaque unit\xE9 retire 0,30 point \xE0 la note v5.3. Ici :", " ", n < 3 ? React.createElement("span", {
+  }, "Non \xE9valuable."), " Aucun fondamental enregistr\xE9 pour ce titre (dette, rentabilit\xE9, tr\xE9sorerie) : on ne peut ni signaler un risque, ni affirmer qu'il n'y en a pas.") : n === 0 ? React.createElement("div", null, React.createElement("b", {
     style: {
       color: "#00e5a0"
     }
-  }, "aucune p\xE9nalit\xE9 (", n, " < 3).") : React.createElement("span", {
+  }, "Aucune alerte"), " sur les crit\xE8res suivis : dette nette / EBITDA, rentabilit\xE9 du capital face \xE0 son co\xFBt, marge nette, conversion en tr\xE9sorerie, surchauffe du RSI.") : React.createElement("div", null, L.map((x, k) => React.createElement("div", {
+    key: k,
     style: {
-      color: "#ff4f5a"
+      padding: "6px 0",
+      borderBottom: k < n - 1 ? "1px solid #1a2540" : "none"
     }
-  }, penalite.toFixed(2), " point (", n, " \u2212 2 = ", n - 2, " \xD7 \u22120,30).")), React.createElement("div", {
+  }, React.createElement("div", null, React.createElement("span", {
     style: {
-      marginBottom: 6
+      color: NIV[x.niveau] || "#ffd740",
+      fontWeight: 700
     }
-  }, React.createElement("b", null, "D'o\xF9 il vient."), " D'une table \xE9crite \xE0 la main dans le moteur, titre par titre. ", React.createElement("span", {
+  }, "\u25CF ", x.raison), React.createElement("span", {
     style: {
-      color: "#ff8f00"
-    }
-  }, "Il n'est calcul\xE9 \xE0 partir d'aucun compte, d'aucun cours, d'aucune source dat\xE9e"), " \u2014 et rien, dans le d\xE9p\xF4t, ne dit ce que chaque unit\xE9 compte."), React.createElement("div", {
-    style: {
-      marginBottom: 6
-    }
-  }, React.createElement("b", null, "Ce qu'on en sait de s\xFBr."), " Sur les 80 titres publi\xE9s : 65 \xE0 z\xE9ro, 7 \xE0 un, 4 \xE0 deux, 2 \xE0 trois, 2 \xE0 quatre. Quatre titres sont r\xE9ellement p\xE9nalis\xE9s \u2014 ADH, RDS, SNA, SRM."), React.createElement("div", {
-    style: {
-      color: "#8892a4",
+      color: "#5a6478",
       fontSize: 10
     }
-  }, "Le rendre mesurable suppose d'en d\xE9finir les crit\xE8res puis de rejouer le backtest, puisqu'il entre dans la note (r\xE8gle R8). C'est un chantier ouvert, pas un r\xE9glage d'affichage.")));
+  }, " \xB7 ", x.theme)), React.createElement("div", {
+    style: {
+      marginTop: 2
+    }
+  }, "Mesur\xE9 : ", React.createElement("b", null, x.valeur), " ", React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, "\u2014 ", x.seuil)), x.source && React.createElement("div", {
+    style: {
+      color: "#5a6478",
+      fontSize: 10
+    }
+  }, x.source)))), a.evaluable && React.createElement("div", {
+    style: {
+      color: "#5a6478",
+      fontSize: 10,
+      marginTop: 8
+    }
+  }, "Source des fondamentaux : ", a.source || "non précisée", " \xB7 saisis le ", dateFr(a.date), ". \u26A0\uFE0F Chiffres saisis \xE0 la main : \xE0 recouper avec le dernier rapport de la soci\xE9t\xE9."), React.createElement("div", {
+    style: {
+      color: "#8892a4",
+      fontSize: 10,
+      marginTop: 6
+    }
+  }, "Information seulement : ces alertes n'entrent pas dans la note v5.3 (gel du 30/09/2026).")));
 };
 const FibTable = ({
   high,
@@ -7674,7 +7700,7 @@ const Detail = ({
       border: "1px solid #1a2540"
     }
   }, lbl)), React.createElement(RedFlags, {
-    n: r.flags || 0
+    alertes: r.alertes
   })), pdsAff && React.createElement(WBar, {
     f: pdsAff.f,
     n: pdsAff.n,
@@ -10138,6 +10164,7 @@ function App() {
             bull: t.bull,
             upside: t.upside,
             flags: t.flags,
+            alertes: t.alertes,
             conv: t.conv,
             setup: t.setup,
             obv: t.obv,

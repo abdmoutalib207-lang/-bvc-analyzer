@@ -794,4 +794,7 @@ TICKERS_ALL: list = [
 #   inventé (RSI 50, MA = cours, extrêmes ±15 %, recopie du run précédent) ;
 #   la pénalité « Upside négatif » lit l'upside PUBLIÉ, objectifs périmés
 #   retirés.
-SCORE_VERSION = "v5.3-sans-invention-2026-09-30"
+#   v5.3-sans-malus-figes-2026-09-30 : « Red flags » et « Upside négatif »
+#   gelés (table FOND_DATA écrite en dur) ; les alertes sont calculées,
+#   expliquées et affichées, sans effet sur la note.
+SCORE_VERSION = "v5.3-sans-malus-figes-2026-09-30"

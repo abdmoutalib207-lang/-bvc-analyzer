@@ -821,42 +821,52 @@ const RSIGauge=({value})=>{
    constante signalée comme figée reste une constante ». Le corriger demanderait
    de définir les critères ET de rejouer le backtest, puisqu'il entre dans la
    note — R8. Ce n'est pas un travail d'affichage. */
-const RedFlags=({n})=>{
+const RedFlags=({alertes})=>{
+  /* ⚠️ ALERTES EXPLIQUÉES — 30/09/2026. Ce bouton affichait un nombre tiré
+     d'une table écrite à la main, sans raison enregistrée, et ce nombre
+     pénalisait la note. Désormais chaque alerte est CALCULÉE par le moteur
+     (detecter_alertes) et arrive avec sa raison, son chiffre, son seuil, sa
+     source et sa date. Elles informent ; elles ne pèsent plus sur la note.
+     « Non évaluable » n'est pas « zéro » : sans fondamentaux, on ne sait pas. */
   const [ouvert,setOuvert]=useState(false);
-  const c=n>=3?"#ff4f5a":n>=1?"#ffd740":"#00e5a0";
-  const penalite=n>=3?-0.30*(n-2):0;
+  const a=alertes||{evaluable:false,liste:[]};
+  const L=a.liste||[];
+  const n=L.length;
+  const NIV={"critique":"#ff4f5a","élevé":"#ff8f00","moyen":"#ffd740"};
+  const c=!a.evaluable?"#8892a4":L.some(x=>x.niveau==="critique")?"#ff4f5a":n>=2?"#ff8f00":n===1?"#ffd740":"#00e5a0";
+  const libelle=!a.evaluable?"non évaluable":n===0?"✅ aucune":`⚠️ ${n}`;
+  const dateFr=d=>d?d.split("-").reverse().join("/"):"date inconnue";
   return(
     <>
-      <button onClick={()=>setOuvert(v=>!v)} title="Cliquer pour savoir ce que compte ce nombre"
+      <button onClick={()=>setOuvert(v=>!v)} title="Cliquer pour lire chaque alerte et sa source"
         style={{fontSize:11,padding:"3px 8px",borderRadius:4,background:"#0a1220",color:c,border:`1px solid ${ouvert?c+"66":"#1a2540"}`,cursor:"pointer",fontFamily:"var(--font)"}}>
-        Red flags : {n===0?"✅ 0":"⚠️ "+n} <span style={{color:"#4a5570"}}>{ouvert?"▲":"▼"}</span>
+        Alertes : {libelle} <span style={{color:"#4a5570"}}>{ouvert?"▲":"▼"}</span>
       </button>
       {ouvert&&(
-        <div style={{flexBasis:"100%",background:"#0a1220",border:`1px solid ${c}33`,borderRadius:6,padding:"10px 12px",fontSize:11,lineHeight:1.7,color:"#c8d3e8",marginTop:4}}>
-          <div style={{color:c,fontWeight:700,marginBottom:6}}>Ce que ce nombre fait, et ce qu'il ne dit pas</div>
-          <div style={{marginBottom:6}}>
-            <b>Effet sur la note.</b> Au-delà de deux, chaque unité retire
-            0,30 point à la note v5.3. Ici :{" "}
-            {n<3
-              ? <span style={{color:"#00e5a0"}}>aucune pénalité ({n} &lt; 3).</span>
-              : <span style={{color:"#ff4f5a"}}>{penalite.toFixed(2)} point ({n} − 2 = {n-2} × −0,30).</span>}
-          </div>
-          <div style={{marginBottom:6}}>
-            <b>D'où il vient.</b> D'une table écrite à la main dans le moteur,
-            titre par titre. <span style={{color:"#ff8f00"}}>Il n'est calculé à partir
-            d'aucun compte, d'aucun cours, d'aucune source datée</span> — et rien,
-            dans le dépôt, ne dit ce que chaque unité compte.
-          </div>
-          <div style={{marginBottom:6}}>
-            <b>Ce qu'on en sait de sûr.</b> Sur les 80 titres publiés : 65 à
-            zéro, 7 à un, 4 à deux, 2 à trois, 2 à quatre. Quatre titres sont
-            réellement pénalisés — ADH, RDS, SNA, SRM.
-          </div>
-          <div style={{color:"#8892a4",fontSize:10}}>
-            Le rendre mesurable suppose d'en définir les critères puis de
-            rejouer le backtest, puisqu'il entre dans la note (règle R8). C'est
-            un chantier ouvert, pas un réglage d'affichage.
-          </div>
+        <div style={{flexBasis:"100%",background:"#0a1220",border:`1px solid ${c}33`,borderRadius:6,padding:"10px 12px",fontSize:11,lineHeight:1.6,color:"#c8d3e8",marginTop:4}}>
+          {!a.evaluable?(
+            <div><b style={{color:"#8892a4"}}>Non évaluable.</b> Aucun fondamental enregistré pour ce titre
+              (dette, rentabilité, trésorerie) : on ne peut ni signaler un risque, ni affirmer qu'il n'y en a pas.</div>
+          ):n===0?(
+            <div><b style={{color:"#00e5a0"}}>Aucune alerte</b> sur les critères suivis : dette nette / EBITDA,
+              rentabilité du capital face à son coût, marge nette, conversion en trésorerie, surchauffe du RSI.</div>
+          ):(
+            <div>
+              {L.map((x,k)=>(
+                <div key={k} style={{padding:"6px 0",borderBottom:k<n-1?"1px solid #1a2540":"none"}}>
+                  <div><span style={{color:NIV[x.niveau]||"#ffd740",fontWeight:700}}>● {x.raison}</span>
+                    <span style={{color:"#5a6478",fontSize:10}}> · {x.theme}</span></div>
+                  <div style={{marginTop:2}}>Mesuré : <b>{x.valeur}</b> <span style={{color:"#8892a4"}}>— {x.seuil}</span></div>
+                  {x.source&&<div style={{color:"#5a6478",fontSize:10}}>{x.source}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+          {a.evaluable&&<div style={{color:"#5a6478",fontSize:10,marginTop:8}}>
+            Source des fondamentaux : {a.source||"non précisée"} · saisis le {dateFr(a.date)}.
+            ⚠️ Chiffres saisis à la main : à recouper avec le dernier rapport de la société.</div>}
+          <div style={{color:"#8892a4",fontSize:10,marginTop:6}}>
+            Information seulement : ces alertes n'entrent pas dans la note v5.3 (gel du 30/09/2026).</div>
         </div>
       )}
     </>
@@ -2327,7 +2337,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               ))}
               {/* ⚠️ La pastille « Flags » affichait un nombre que rien
                   n'expliquait. Elle s'ouvre désormais. */}
-              <RedFlags n={r.flags||0}/>
+              <RedFlags alertes={r.alertes}/>
             </div>
             {pdsAff&&<WBar f={pdsAff.f} n={pdsAff.n} t={pdsAff.t}/>}
             <div style={{marginTop:10}}>
@@ -3276,7 +3286,7 @@ function App(){
           ...Object.fromEntries(CHAMPS_SCORE.map(c=>[c,t[c]])),
           alpha:t.alpha,win:t.win,sig:t.sig,biais:t.biais,
           bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
-          bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,
+          bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,alertes:t.alertes,
           conv:t.conv,setup:t.setup,
           obv:t.obv,adx:t.adx,adx_pdi:t.adx_pdi,adx_mdi:t.adx_mdi,
           /* ⚠️ DEUX CHAMPS CALCULÉS QUI N'ARRIVAIENT PAS JUSQU'ICI — 25/09.
