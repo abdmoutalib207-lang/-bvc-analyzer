@@ -146,3 +146,26 @@ def test_variation_publiee_sans_montant_reprise_telle_quelle():
 def test_sanlam_ecarte_pour_fusion():
     """Bénéfices d'avant la fusion avec Allianz, actions d'après : pas de BPA."""
     assert "SAF" not in JEU["titres"] and "Allianz" in JEU["_ecartes"]["SAF"]
+
+
+def test_lot5_grandes_valeurs_sur_piece():
+    """Lot 5. Attendus calculés à la main depuis les dépôts AMMC."""
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    # CDM : 863,551 + 531,692 − 445,147 = 950,096 ÷ 11 626 499 = 81,72
+    # (actions APRÈS l'augmentation de capital de 745 285 titres)
+    assert bpa["CDM"]["bpa_12m"] == 81.72
+    # IAM : 6 969 + 2 482 − 4 117 = 5 334 ÷ 879 095 340 = 6,07 — la recette
+    # exceptionnelle du S1 2025 sort avec le semestre soustrait.
+    assert bpa["IAM"]["bpa_12m"] == 6.07
+    # EQD : 98,561 ÷ 1 670 250 = 59,01 (l'ancien 123,33 était du double)
+    assert bpa["EQD"]["bpa"] == 59.01
+    # CASH : 242,296 ÷ 24 553 090 = 9,87
+    assert bpa["CASH"]["bpa"] == 9.87
+
+
+def test_iam_croissance_hors_exceptionnel():
+    """−39,7 % brut ; +8,1 % publié hors recette exceptionnelle. On retient
+    ce que l'émetteur publie, et le dataset le dit."""
+    fond = json.loads((RACINE / "fondamentaux.json").read_text(encoding="utf-8"))
+    assert fond["IAM"]["croissance_bpa"] == 8.1
+    assert "exceptionnelle" in JEU["titres"]["IAM"]["pages"]
