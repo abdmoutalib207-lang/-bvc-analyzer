@@ -4190,6 +4190,9 @@ def run(dry_run=False, push=False, token=""):
             # la pondération exigerait un backtest (R8). Ils enrichissent la
             # fiche, ils ne la notent pas.
             "fwd": DATAPLUS.get(ticker) or None,
+            # Rentabilité CALCULÉE sur comptes publiés (ratios_financiers.py),
+            # datée et sourcée. Distincte de `fwd` (DATA+, figé au 01/07).
+            "ratios_publies": (_FOND_BRUT.get(ticker) or {}).get("ratios_publies"),
             "name":   info.get("name", ticker),
             "sector": info.get("sector", ""),
             "price":  round(price, 2),
