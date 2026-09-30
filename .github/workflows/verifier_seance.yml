@@ -52,3 +52,10 @@ jobs:
       # bibliothèque standard. Rien à installer, rien à faire tomber en panne.
       - name: Contrôler la dernière séance échue
         run: python pipeline/verifier_seance.py
+
+      # File d'attente des comptes (30/09/2026) : dépôts AMMC pas encore
+      # intégrés, écrits dans le résumé du run. Toujours exécutée, jamais
+      # bloquante — une file non vide n'est pas une panne de séance.
+      - name: Comptes déposés à lire
+        if: always()
+        run: python pipeline/file_attente_comptes.py

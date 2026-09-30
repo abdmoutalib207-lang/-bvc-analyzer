@@ -491,6 +491,7 @@ clôture au 10/08 alors qu'IDBourse ne l'avait plus coté depuis le 05/08.
 | `ingenieur-tests` | ce qui est vérifié automatiquement (priorité n°1) |
 | `analyste-nlp` | le calcul du champ `nlp` — 28 % du score, aujourd'hui creux |
 | `quant-backtest` | mesurer et publier la performance historique |
+| `lecteur-comptes` | lire les dépôts AMMC et préparer leur intégration (PR, jamais de fusion) |
 
 **Séquence pour tout changement de code :**
 `relecteur-pipeline` → `ingenieur-tests` → `gardien-donnees` → commit.
