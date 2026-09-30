@@ -237,3 +237,14 @@ def test_lot9_akdital_tgcc_lesieur():
     assert bpa["TGCC"]["bpa"] == 27.46 and bpa["TGCC"]["bpa_avant_2026_09_29"] == 65
     # LES : 8 − 47 − 12 = −51 ÷ 27 631 510 = −1,85 — en perte
     assert bpa["LES"]["bpa_12m"] == -1.85 and bpa["LES"]["perte_documentee"]
+
+
+def test_ciments_du_maroc_valeur_deposee_et_non_retraitee():
+    """Le S1 2025 retenu est la valeur DÉPOSÉE (600 998), pas le comparatif
+    à périmètre retraité (671 845) du même dépôt. 1 377,432 + 514,218 −
+    600,998 = 1 290,652 ÷ 14 436 004 = 89,41 ; ROE 2025 = 1 377,432 ÷
+    3 739,311 = 36,8 % (yuna : 36,8)."""
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    assert bpa["CIM"]["bpa_12m"] == 89.41
+    fond = json.loads((RACINE / "fondamentaux.json").read_text(encoding="utf-8"))
+    assert fond["CIM"]["ratios_publies"]["roe_2025"]["valeur"] == 36.8
