@@ -1,0 +1,102 @@
+{
+  "_note": "Exercice 2025 rectifié sur le document publié, lot 13 (30/09/2026), pour les titres SANS dépôt S1 2026 exploitable. Chaque chiffre est RECOPIÉ du document avec sa page ; le BPA est calculé par pipeline/exercice_2025.py. Montants en millions de dirhams (MDH). Les titres qui ont un S1 2026 déposé (REB, T2S) sont dans resultats_s1_2026.json, pas ici.",
+  "_regle": "bpa = rnpg_exercice_2025 × 1e6 ÷ actions. Pas d'entrée S1 incomplète : douze_mois exige les quatre valeurs. Un titre dont le signe ou la base n'est pas établi est dans _ecartes, avec son motif.",
+  "titres": {
+    "TMA": {
+      "url": "https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf",
+      "exercice_clos": "2025-12-31",
+      "base": "résultat net part du Groupe, consolidé IFRS (aucun minoritaire : part du Groupe = ensemble)",
+      "pages": "p.6 « COMPTES CONSOLIDÉS AU 31 DÉCEMBRE 2025 (Référentiel IFRS) », en milliers de dirhams, colonnes « Décembre 2025 Décembre 2024 » : « Résultat net de l'ensemble consolidé 851.083 934.195 », « Part du Groupe 851.083 934.195 », « Résultat net par action (en Dirhams) 95 104 » ; social p.4 : « Résultat net de l'exercice 802.567.533,86 » (non retenu)",
+      "rnpg_exercice_2025": 851.083,
+      "source_exercice_2025": "p.6, 851.083 KMAD = 851,083 MDH (conversion ÷ 1 000). BPA publié 95 = 851,083 ÷ 8,96 M",
+      "actions": 8960000,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 12 974 080 000 ÷ cours 1 448 = 8 960 000) ; = capital 448 000 KMAD (p.6) ÷ nominal 50, inchangé sur 2024-2025",
+      "yuna": "29/09 : PER 14,74 ; clôture de nos chandelles au 29/09 = 1 400 → BPA implicite 94,98 contre 94,99 ; ROE 42,9 % = 851,083 ÷ 1 984,665 (capitaux propres part du Groupe, p.6) : concordant"
+    },
+    "CTM": {
+      "url": "https://www.ammc.ma/sites/default/files/CTM_2025_avis_AGO_23_06_26.pdf",
+      "exercice_clos": "2025-12-31",
+      "base": "résultat net part du Groupe, consolidé (les minoritaires sont en perte : ensemble 16 083 KDH, part du Groupe 56 204)",
+      "pages": "p.7 comptes consolidés en milliers de dirhams, colonnes « 2025 2024 » : « Résultat Net Part du Groupe 56 204 46 622 », « Nombre d'actions 1 225 978 1 225 978 », « Résultat par action en dirhams 45,84 38,03 » ; p.1 résolution : « bénéfice net part du Groupe de 56 204 KDh » ; communiqué CP_CTM_2025.pdf p.1 : « Résultat net part du Groupe 56,2 » MDH",
+      "rnpg_exercice_2025": 56.204,
+      "source_exercice_2025": "p.7, 56 204 KDH = 56,204 MDH. L'ancien BPA de la table (38,0) est le BPA 2024 (38,03, même page), jamais rafraîchi",
+      "actions": 1225978,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 1 064 148 904 ÷ 868 = 1 225 978) ; = « Nombre d'actions 1 225 978 » du dépôt p.7 ; capital 122 597 800 DH (p.2) ÷ 100",
+      "yuna": "29/09 : PER 18,54 ; clôture 850 → BPA implicite 45,85 contre 45,84 ; ROE 23,1 % = 56,204 ÷ 243,479 : concordant"
+    },
+    "ADI": {
+      "url": "https://www.ammc.ma/sites/default/files/ADI_2025.pdf",
+      "exercice_clos": "2025-12-31",
+      "base": "résultat net part du Groupe, consolidé (minoritaires en perte : ensemble 401,758)",
+      "pages": "p.2 en milliers de dirhams : « Résultat net de l'exercice (Part du Groupe) 407.601 301.915 », « Part du groupe 407.601 301.915 » ; même chiffre au RFA (ADI_RFA_2025.pdf p.21, déjà dans faits_financiers.json)",
+      "rnpg_exercice_2025": 407.601,
+      "source_exercice_2025": "p.2, 407.601 KMAD = 407,601 MDH. BPA inchangé (18,46) : confirmé, pas modifié",
+      "actions": 22078588,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 8 610 649 320 ÷ 390 = 22 078 588) ; = capital 2 207 858 800 DH (p.1) ÷ 100",
+      "yuna": "29/09 : PER 20,59 ; clôture 380 → BPA implicite 18,46 : identique ; ROE 10,2 % = 407,601 ÷ 3 993,181 : concordant"
+    },
+    "ADH": {
+      "url": "https://www.ammc.ma/sites/default/files/Addoha_2025.pdf",
+      "exercice_clos": "2025-12-31",
+      "base": "résultat net part du Groupe, consolidé (ensemble 516,07 ; minoritaires 62,35)",
+      "pages": "p.5 en dirhams, colonnes « 31.12.2025 31.12.2024 » : « Résultat net - Part du groupe 453.719.263 274.184.241 », « Résultat de base par action (En MAD) 1.13 0.68 »",
+      "rnpg_exercice_2025": 453.719263,
+      "source_exercice_2025": "p.5, 453 719 263 DH = 453,719263 MDH. BPA inchangé (1,13) : confirmé",
+      "actions": 402551254,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 13 674 666 098,38 ÷ 33,97 = 402 551 254) ; capital 4 025 512 540 DH (p.3) ÷ 10",
+      "yuna": "30/09 : PER 29,70 ; clôture 33,50 → BPA implicite 1,13 : identique ; ROE 4,8 % = 453,7 ÷ 9 481,7 : concordant"
+    },
+    "MGL": {
+      "url": "https://www.ammc.ma/sites/default/files/Maghrebail_2025_avis_AGO_13_05_26.pdf",
+      "exercice_clos": "2025-12-31",
+      "base": "résultat net SOCIAL — aucun état consolidé dans les dépôts lus (avis d'AGO, RFA, communiqué)",
+      "pages": "p.2 : « le bénéfice net de l'exercice 2025 s'établit à 148 198 774,61 dirhams » ; p.3 (KDH) : « Résultat net de l'exercice 148 199 135 634 » ; p.9 : « TOTAL CAPITAL 1 384 182 » et « Résultat net par action ou part sociale 107.07 97.99 92.33 » ; CP_Maghrebail_2025.pdf p.1 : « 148,199 millions de dirhams »",
+      "rnpg_exercice_2025": 148.198775,
+      "source_exercice_2025": "p.2, 148 198 774,61 DH = 148,198775 MDH. BPA publié 107,07 = 148,198775 ÷ 1,384182",
+      "actions": 1384182,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 1 277 599 986 ÷ 923 = 1 384 182) ; = « TOTAL CAPITAL 1 384 182 » du dépôt p.9 ; capital 138 418 200 DH (p.1)",
+      "yuna": "30/09 : PER 8,54 ; clôture 914 → BPA implicite 107,03 contre 107,07 ; ROE 12,1 % : concordant avec le social"
+    },
+    "S2M": {
+      "url": "https://www.ammc.ma/sites/default/files/S2M_2025.pdf",
+      "exercice_clos": "2025-12-31",
+      "base": "résultat net part du Groupe, consolidé (aucun minoritaire en 2025 : ensemble = part du Groupe)",
+      "pages": "p.6 compte de résultat consolidé en dirhams : « Résultat net de l'ensemble consolidé 32 558 354 28 464 006 », « Résultat net part du Groupe 32 558 354 29 413 844 » ; p.7 attestation : « un bénéfice net consolidé de 32 558 354 MAD » (fixe l'unité : DH) ; social p.2 : 34 141 644,20 (non retenu)",
+      "rnpg_exercice_2025": 32.558354,
+      "source_exercice_2025": "p.6, 32 558 354 DH = 32,558354 MDH (conversion ÷ 1 000 000). ⚠️ la colonne 2024 se contredit (part du Groupe 29 413 844 > ensemble 28 464 006, minoritaires « (949 838) ») : 2024 non utilisé",
+      "actions": 812070,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 414 155 700 ÷ 510 = 812 070) ; capital 40 603 500 DH (p.2 et p.5) ÷ 812 070 = 50,00 exactement. Le nominal n'est pas écrit dans le dépôt lu ; le BPA implicite de yuna le recoupe",
+      "yuna": "30/09 : PER 13,47 ; clôture 540 → BPA implicite 40,09 = 32,558354 ÷ 0,81207 : identique. Pas de ROE affiché"
+    },
+    "CAR": {
+      "url": "https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf",
+      "exercice_clos": "2026-03-31",
+      "base": "résultat net SOCIAL de l'exercice 2025/2026 clos le 31/03/2026 (exercice à cheval, pas l'année civile 2025) — aucun consolidé publié. ⚠️ Attestation des CAC AVEC RÉSERVE (p.16 : achats de matières premières auprès d'agriculteurs sans identification fiscale, non chiffrée) et observation p.17 : « des décisions s'imposent pour assurer la continuité d'exploitation ». La réserve n'est pas chiffrée et ne change pas le signe : les CAC eux-mêmes écrivent « une perte nette de 25 642 371,05 DHS ». À trancher en revue (même cas que STROC)",
+      "pages": "p.4 compte de produits et charges (suite), colonne « Totaux de l'exercice » : « RESULTAT NET (XI - XII) -25 642 371,05 » contre 5 736 516,56 ; p.2 passif : « Résultat net de l'exercice (2) -25 642 371,05 5 736 516,56 » ; p.15 attestation : « une perte nette de l'exercice d'un montant de Vingt Cinq millions six cent quarante-deux mille trois cent soixante et onze dirhams et cinq centimes (25 642 371,05 DHS) » ; communiqué CP_Cartier_Saada_2025_26.pdf p.1 : « un résultat net de -25,6 MDH, contre 5,7 MDH »",
+      "rnpg_exercice_2025": -25.642371,
+      "source_exercice_2025": "p.4 et p.15, -25 642 371,05 DH = -25,642371 MDH. PERTE DOCUMENTÉE par l'attestation des CAC (p.15) et le communiqué ; elle avait été annoncée par un profit warning (CP_Cartier_Saada_PW_2025_26.pdf, « résultat net ... en territoire négatif »)",
+      "actions": 5265000,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 106 879 500 ÷ 20,3 = 5 265 000) ; capital 52 650 000 DH (p.2) ÷ 5 265 000 = 10,00 exactement ; nominal non écrit dans le dépôt lu",
+      "yuna": "30/09 : PER 33,45 ; cours 18,73 → BPA implicite +0,56 contre −4,87 : ÉCART consigné, non corrigé. yuna n'a pas intégré l'exercice clos le 31/03/2026 déposé le 29/07 (P/B 0,64 ≈ capitaux propres de l'exercice précédent, 152,3 MDH)"
+    },
+    "PPM": {
+      "url": "https://www.ammc.ma/sites/default/files/Promopharm_2025.pdf",
+      "exercice_clos": "2025-12-31",
+      "base": "résultat net SOCIAL — aucun consolidé dans les dépôts lus. ⚠️ L'attestation des CAC n'est pas dans le dépôt de 4 pages lu",
+      "pages": "p.1 passif : « Résultat net de l'exercice (2) 59.914.634,13 55.159.969,69 » ; p.2 CPC : « Résultat net de l'exercice 59.914.634,13 55.159.969,69 » ; communiqué CP_Promopharm_2025.pdf p.1 (image lue) : « Résultat Net 59.915 55.160 » en 000' MAD, et dividende de 30 DH par action « représentant un montant global de 30 millions de dirhams » (= 1 000 000 actions)",
+      "rnpg_exercice_2025": 59.914634,
+      "source_exercice_2025": "p.1, 59 914 634,13 DH = 59,914634 MDH. ⚠️ Le CP du 25/09/2026 (CP_Promopharm_PW_S1_26.pdf) est un AVERTISSEMENT sur résultats, pas un compte : résultat net social S1 2026 « devrait s'établir à 6.7 millions de dirhams, contre 26.2 » (estimation, 'soumise à l'arrêté des comptes') — aucun S1 intégré, aucun douze mois",
+      "actions": 1000000,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 1 398 000 000 ÷ 1 398 = 1 000 000) ; capital 100 000 000 DH (p.1) ÷ 100 ; dividende 30 DH = 30 MDH (communiqué)",
+      "yuna": "18/09 : PER 28,19 ; clôture 1 480 → BPA implicite 52,50 contre 59,91 : ÉCART de −12,4 % consigné, non corrigé. Son P/B 2,50 (→ 592 MDH de fonds propres, social 590,84) et son ROE 10,1 % (= 59,9 ÷ 590,8) sont concordants avec 59,91 : seul son PER ne l'est pas, cause non établie"
+    }
+  },
+  "_ecartes": {
+    "ENK": "Ennakl Automobiles (société tunisienne cotée à Casablanca) publie en NORMES COMPTABLES TUNISIENNES et en MILLIERS DE DINARS (CP_Ennakl_2025.pdf p.1, image lue) : résultat net consolidé 59 642 mD, social 51 585 mD, pour 30 000 000 actions (capital 30 000 000 dinars). Le cours est en MAD : un BPA exigerait un taux de change qui n'est pas dans le dépôt, donc un calcul et non une lecture ; et « résultat net consolidé après impôts » n'est pas qualifié « part du Groupe ». Valeur indicative non retenue : 59,642 M TND ÷ 30 M = 1,99 TND par action. yuna.ma n'affiche ni PER ni ROE. Écarté.",
+    "MDP": "Med Paper : résultat net social 2025 de 6 713 105,50 DH (Med_Paper_2025.pdf p.2 et p.4 ; 4 783 823 actions = capital 47 838 230 ÷ 10), BPA 1,40 = yuna (17,36 × 1,40 = 24,30). MAIS l'attestation des CAC est AVEC RÉSERVE sur plusieurs points chiffrés (p.6-7, images lues) : charges de 4,3 MDH non reconnues par un ancien actionnaire (créance/dette de 2,9 MDH), pénalités CNSS de 2 318 KMAD capitalisées en immobilisations en non-valeurs, prélèvement bancaire de 2 MMAD porté en diminution de dette, plus un protocole fiscal non respecté aux pénalités non chiffrées. Les montants chiffrés (4,3 + 2,318 + 2,0 = 8,6 MDH) excèdent le bénéfice de 6,7 ; en outre le résultat courant est de −15,1 MDH et le bénéfice vient d'un résultat non courant de +22,1 MDH. Le signe n'est pas établi (même cas que Stokvis). Écarté ; MDP n'est pas une introduction récente : coté de longue date.",
+    "IBM": "IB Maroc : dernier dépôt de comptes à l'AMMC le 31/10/2023 (exercice 2022 et S1 2023, IB_Maroc_2022_S1_23.pdf) ; communiqué du 10/01/2023 sur la demande de placement en redressement judiciaire. Aucun compte 2023, 2024 ni 2025 déposé : rien à lire. yuna.ma n'affiche ni PER ni ROE.",
+    "DLM": "Delattre Levivier Maroc : dernier dépôt de comptes à l'AMMC le 29/04/2022 (exercice 2021, DLM_2021.pdf), dernière publication le 16/11/2022 ; dernier RFA au catalogue : 2020. Absent du relevé de l'opérateur du 16/09/2026 et de yuna.ma : pas d'exercice 2025 à lire. Pas une introduction récente : ancienne valeur sans publication.",
+    "DIS": "Diac Salaf : dernière publication à l'AMMC en 2013 ; aucun compte déposé depuis. Absent du relevé de l'opérateur du 16/09/2026 et de yuna.ma. Pas une introduction récente : ancienne valeur sans publication.",
+    "PPM_S1": "Avertissement sur résultats du 25/09/2026 (Promopharm) : ce n'est pas un compte (contrôle 7). Les comptes semestriels devaient être publiés le 30/09/2026 ; ils n'apparaissaient pas à la liste de l'AMMC lors de la lecture."
+  }
+}

@@ -112,6 +112,33 @@ fusion** : la fusion est la décision d'Abd Moutalib.
   (Balima, Stokvis) : les annuels se trouvent souvent à
   `<Emetteur>_2025.pdf`, `CP_<Emetteur>_2025.pdf` ou
   `<Emetteur>_RFA_2025.pdf` sous `/sites/default/files/`.
+- (lot 13) La détection AMMC MANQUE des dépôts : « Rebab Company », « T2S Group »
+  (S1 2026 déposés les 29-30/09), « Ennakl Automobiles » et « DLM (Delattre
+  Levivier Maroc) » ne passent aucune des trois voies de `resoudre_emetteur` ;
+  la file d'attente affichait 0 alors que REB et T2S avaient déposé. Lire aussi
+  les listes par émetteur (`field_emetteur_target_id_verf`) et signaler.
+- (lot 13) Dans le dépôt S1 de Rebab, la colonne « exercice précédent » du
+  bilan porte le 30/06/2025 (résultat 399 197,70 = S1 2025), PAS le 31/12/2025 :
+  l'exercice se lit dans le RFA (1 054 255,05) et se recoupe par le report à
+  nouveau (2 184 927,65 − 1 130 672,60). Corrige le piège « exercice précédent ».
+- (lot 13) Ne JAMAIS créer de fiche dans fondamentaux.json pour un titre qui
+  n'en a pas (T2S) : `compute_fond_score` la note avec ses valeurs par défaut (R8).
+  `appliquer` écrit alors le BPA seul.
+- (lot 13) Introduction en bourse en cours de période (T2S) : division du nominal
+  (100 → 50) puis augmentation de capital ; le BPA sur actions ACTUELLES (21,79 M)
+  diffère de celui sur les actions d'avant (20,22 M). Consigner les deux, trancher
+  en revue. Le document de référence d'une IPO (`<Emetteur>_IPO_DR_<n>_2026.pdf`,
+  page « documents-information ») porte l'exercice complet : pas de RFA au catalogue.
+- (lot 13) Une société étrangère cotée (Ennakl, Tunisie) publie en milliers de
+  dinars, normes tunisiennes : pas de BPA en MAD sans taux de change, donc écarté.
+- (lot 13) Exercice à cheval (Cartier Saada, clos le 31/03/2026) : ce n'est pas
+  « l'exercice 2025 » ; `exercice_clos` le dit. Un PER yuna peut ignorer l'exercice
+  récent (yuna +0,56 contre −4,87 publié).
+- (lot 13) Plusieurs réserves CHIFFRÉES dont la somme excède le bénéfice (Med Paper :
+  4,3 + 2,3 + 2,0 = 8,6 MDH contre 6,7) : écarté comme Stokvis, même si chacune
+  est plus petite que le bénéfice. Un résultat porté par le non courant s'y ajoute.
+- (lot 13) yuna : un PER peut ne pas concorder avec son propre ROE et son P/B
+  (Promopharm : PER → 52,5 ; ROE et P/B → 59,9). Consigner, ne pas choisir.
 
 ## Ce que tu ne fais jamais
 

@@ -95,8 +95,17 @@ def appliquer(jeu: dict, bpa: dict, fond: dict) -> list[str]:
         b["fin_12m"] = jeu["fin_periode"]
         b["source_12m"] = (f"exercice 2025 + S1 2026 − S1 2025 ; S1 : {t['url']} "
                            f"{t['pages']} ; base : {t['base']}")
-        f = fond.setdefault(s, {})
-        avant = {k: f.get(k) for k in ("croissance_bpa", "croissance_ca",
+        # ⚠️ Ne JAMAIS créer de fiche (lot 13, T2S Group) : compute_fond_score()
+        # rend 5,0 pour un titre absent de fondamentaux.json et calcule avec
+        # ses valeurs par défaut dès qu'une entrée existe, même vide. Créer la
+        # fiche pour y poser une croissance changerait donc une note (R8).
+        # Le BPA, lui, est déjà écrit dans bpa.json ci-dessus.
+        if not isinstance(fond.get(s), dict):
+            journal.append(f"{s} : 12 mois {m['rnpg_12m']} MDH, BPA {m['bpa_12m']} ; "
+                           "absent de fondamentaux.json, aucune fiche créée (R8)")
+            continue
+        f = fond[s]
+        avant ={k: f.get(k) for k in ("croissance_bpa", "croissance_ca",
                                         "nb_actions", "date_maj")}
         f.setdefault("avant_2026_09_29", avant)
         for k in ("croissance_bpa", "croissance_ca"):

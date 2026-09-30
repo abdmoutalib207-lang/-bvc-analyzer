@@ -130,7 +130,9 @@
     "div_ago": "26/06/26",
     "div_detachement": "21/07/26",
     "div_statut": "approuvé en assemblée ; deux sources secondaires concordantes, résolution AMMC non relue",
-    "div_statut_source": "concordance IDBourse × Attijari"
+    "div_statut_source": "concordance IDBourse × Attijari",
+    "source_exercice_2025": "https://www.ammc.ma/sites/default/files/ADI_2025.pdf ; p.2 en milliers de dirhams : « Résultat net de l'exercice (Part du Groupe) 407.601 301.915 », « Part du groupe 407.601 301.915 » ; même chiffre au RFA (ADI_RFA_2025.pdf p.21, déjà dans faits_financiers.json)",
+    "exercice_clos": "2025-12-31"
   },
   "RIS": {
     "bpa": 16.84,
@@ -320,7 +322,7 @@
     "marge_nette": 16.0
   },
   "TMA": {
-    "bpa": 108.21,
+    "bpa": 94.99,
     "source": "casablancabourse_derive",
     "div_dh": 156.57,
     "roe": 25.0,
@@ -331,7 +333,10 @@
     "div_detachement": "18/06/26",
     "div_statut": "approuvé en assemblée ; deux sources secondaires concordantes, résolution AMMC non relue",
     "div_statut_source": "concordance IDBourse × Attijari",
-    "note": "Dividende porté de 113.0 à 156.57 le 10/09/2026. ⚠️ 89,57 d'ordinaire + 67,00 d'exceptionnel = 156,57. Le calendrier IDBourse n'affiche que la tranche ordinaire ; Attijari détaille les deux. Convention retenue : le total distribué, comme pour Aradei, Cosumar, Salafin et SBM. Deux sources indépendantes concordent ; aucune résolution d'AG n'a été relue pour ce titre."
+    "note": "Dividende porté de 113.0 à 156.57 le 10/09/2026. ⚠️ 89,57 d'ordinaire + 67,00 d'exceptionnel = 156,57. Le calendrier IDBourse n'affiche que la tranche ordinaire ; Attijari détaille les deux. Convention retenue : le total distribué, comme pour Aradei, Cosumar, Salafin et SBM. Deux sources indépendantes concordent ; aucune résolution d'AG n'a été relue pour ce titre.",
+    "bpa_avant_2026_09_29": 108.21,
+    "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf ; p.6 « COMPTES CONSOLIDÉS AU 31 DÉCEMBRE 2025 (Référentiel IFRS) », en milliers de dirhams, colonnes « Décembre 2025 Décembre 2024 » : « Résultat net de l'ensemble consolidé 851.083 934.195 », « Part du Groupe 851.083 934.195 », « Résultat net par action (en Dirhams) 95 104 » ; social p.4 : « Résultat net de l'exercice 802.567.533,86 » (non retenu)",
+    "exercice_clos": "2025-12-31"
   },
   "ALU": {
     "bpa": 133.93,
@@ -454,7 +459,7 @@
     "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/Auto_Nejma_S1_26.pdf p.3, compte de résultat consolidé en KMAD, colonnes « 30/06/2026 30/06/2025 31/12/2025 » : « Résultat net part du Groupe 114 401 146 966 324 182 », « Chiffre d'affaires 1 993 025 1 831 982 4 210 641 » ; texte p.2 : « le résultat net consolidé a baissé de 22% en s'affichant à 114 401 KMAD ». Social p.2 : 110 391 918,23 contre 140 112 459,38. ⚠️ Le tableau des flux (p.3) met 2025 à GAUCHE (« 30/06/2025 30/06/2026 ») ; base : résultat net part du groupe, consolidé — aucun intérêt minoritaire"
   },
   "CTM": {
-    "bpa": 38.0,
+    "bpa": 45.84,
     "source": "resultats_officiels",
     "div_dh": 26.0,
     "roe": 10.0,
@@ -466,7 +471,10 @@
     "div_detachement": "17/09/2026",
     "div_paiement": "28/09/2026",
     "div_statut": "approuvé en assemblée ; paiement annoncé au 28/09/2026",
-    "div_statut_source": "calendrier annoncé par Attijari Global Research (Casablanca Closing du 08/09/2026)"
+    "div_statut_source": "calendrier annoncé par Attijari Global Research (Casablanca Closing du 08/09/2026)",
+    "bpa_avant_2026_09_29": 38.0,
+    "source_exercice_2025": "https://www.ammc.ma/sites/default/files/CTM_2025_avis_AGO_23_06_26.pdf ; p.7 comptes consolidés en milliers de dirhams, colonnes « 2025 2024 » : « Résultat Net Part du Groupe 56 204 46 622 », « Nombre d'actions 1 225 978 1 225 978 », « Résultat par action en dirhams 45,84 38,03 » ; p.1 résolution : « bénéfice net part du Groupe de 56 204 KDh » ; communiqué CP_CTM_2025.pdf p.1 : « Résultat net part du Groupe 56,2 » MDH",
+    "exercice_clos": "2025-12-31"
   },
   "HPS": {
     "bpa": 14.31,
@@ -566,7 +574,9 @@
     "div_dh": 0.5,
     "roe": 5.0,
     "marge_nette": 8.0,
-    "note": "CORRIGÉ le 09/09/2026. BPA publié par la société p.74 du RFA 2025 déposé à l'AMMC (« Résultat de base par action 1.13 », dilué identique). Le terminal portait 2,50, soit 2,21× trop haut — un RNPG implicite de 1 006 MMAD quand le rapport en donne 453,7 (p.73). PER 14,2 → 31,4. ⚠️ Le dividende de cet enregistrement n'a PAS été revérifié dans le rapport : seul le bénéfice par action l'a été."
+    "note": "CORRIGÉ le 09/09/2026. BPA publié par la société p.74 du RFA 2025 déposé à l'AMMC (« Résultat de base par action 1.13 », dilué identique). Le terminal portait 2,50, soit 2,21× trop haut — un RNPG implicite de 1 006 MMAD quand le rapport en donne 453,7 (p.73). PER 14,2 → 31,4. ⚠️ Le dividende de cet enregistrement n'a PAS été revérifié dans le rapport : seul le bénéfice par action l'a été.",
+    "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Addoha_2025.pdf ; p.5 en dirhams, colonnes « 31.12.2025 31.12.2024 » : « Résultat net - Part du groupe 453.719.263 274.184.241 », « Résultat de base par action (En MAD) 1.13 0.68 »",
+    "exercice_clos": "2025-12-31"
   },
   "RDS": {
     "bpa": 0.17,
@@ -829,11 +839,14 @@
     "marge_nette": 3.0
   },
   "S2M": {
-    "bpa": 35.79,
+    "bpa": 40.09,
     "source": "casablancabourse_derive",
     "div_dh": 0,
     "roe": 10.0,
-    "marge_nette": 8.0
+    "marge_nette": 8.0,
+    "bpa_avant_2026_09_29": 35.79,
+    "source_exercice_2025": "https://www.ammc.ma/sites/default/files/S2M_2025.pdf ; p.6 compte de résultat consolidé en dirhams : « Résultat net de l'ensemble consolidé 32 558 354 28 464 006 », « Résultat net part du Groupe 32 558 354 29 413 844 » ; p.7 attestation : « un bénéfice net consolidé de 32 558 354 MAD » (fixe l'unité : DH) ; social p.2 : 34 141 644,20 (non retenu)",
+    "exercice_clos": "2025-12-31"
   },
   "M2M": {
     "bpa": 26.39,
@@ -1092,5 +1105,40 @@
     "bpa_12m": 34.79,
     "fin_12m": "2026-06-30",
     "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/Zellidja_S1_26.pdf p.7, compte de résultat consolidé « En milliers de DH », colonnes « 30-juin-26 30-juin-25 » : « Résultat net - Part du groupe 4,731 6,387 », « Chiffre d'affaires 432,259 374,161 » (⚠️ la VIRGULE sépare les milliers) ; communiqué p.1 : « Résultat net - Part du groupe 4 731 6 387 » ; attestation p.8 : bénéfice net consolidé de KMAD 10.101 (ensemble). Social : 4 829 858,21 (p.5) ; base : résultat net part du groupe, consolidé — holding de Fenie Brossette, minoritaires importants (53 % du résultat au S1 2026)"
+  },
+  "MGL": {
+    "bpa": 107.07,
+    "source": "resultats_officiels",
+    "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Maghrebail_2025_avis_AGO_13_05_26.pdf ; p.2 : « le bénéfice net de l'exercice 2025 s'établit à 148 198 774,61 dirhams » ; p.3 (KDH) : « Résultat net de l'exercice 148 199 135 634 » ; p.9 : « TOTAL CAPITAL 1 384 182 » et « Résultat net par action ou part sociale 107.07 97.99 92.33 » ; CP_Maghrebail_2025.pdf p.1 : « 148,199 millions de dirhams »",
+    "exercice_clos": "2025-12-31"
+  },
+  "CAR": {
+    "bpa": -4.87,
+    "source": "resultats_officiels",
+    "perte_documentee": "p.4 et p.15, -25 642 371,05 DH = -25,642371 MDH. PERTE DOCUMENTÉE par l'attestation des CAC (p.15) et le communiqué ; elle avait été annoncée par un profit warning (CP_Cartier_Saada_PW_2025_26.pdf, « résultat net ... en territoire négatif »)",
+    "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf ; p.4 compte de produits et charges (suite), colonne « Totaux de l'exercice » : « RESULTAT NET (XI - XII) -25 642 371,05 » contre 5 736 516,56 ; p.2 passif : « Résultat net de l'exercice (2) -25 642 371,05 5 736 516,56 » ; p.15 attestation : « une perte nette de l'exercice d'un montant de Vingt Cinq millions six cent quarante-deux mille trois cent soixante et onze dirhams et cinq centimes (25 642 371,05 DHS) » ; communiqué CP_Cartier_Saada_2025_26.pdf p.1 : « un résultat net de -25,6 MDH, contre 5,7 MDH »",
+    "exercice_clos": "2026-03-31"
+  },
+  "PPM": {
+    "bpa": 59.91,
+    "source": "resultats_officiels",
+    "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Promopharm_2025.pdf ; p.1 passif : « Résultat net de l'exercice (2) 59.914.634,13 55.159.969,69 » ; p.2 CPC : « Résultat net de l'exercice 59.914.634,13 55.159.969,69 » ; communiqué CP_Promopharm_2025.pdf p.1 (image lue) : « Résultat Net 59.915 55.160 » en 000' MAD, et dividende de 30 DH par action « représentant un montant global de 30 millions de dirhams » (= 1 000 000 actions)",
+    "exercice_clos": "2025-12-31"
+  },
+  "REB": {
+    "bpa": 5.97,
+    "source": "resultats_officiels",
+    "rnpg_12m": 0.672,
+    "bpa_12m": 3.81,
+    "fin_12m": "2026-06-30",
+    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/Rebab_Company_S1_26.pdf p.1 communiqué : « Le résultat net de la société au terme du premier semestre 2026 s'est établi à 17 K MAD contre 399 K MAD à fin juin 2025 » ; p.5 compte de produits et charges en DH, colonnes « TOTAUX DE L'EXERCICE » et « EXERCICE PRÉCÉDENT » : « RESULTAT NET (XI-XII) 17 407,05 399 197,70 » ; p.3 passif : « Résultat net de l'exercice (2) 17 407,05 » ; conversion : 17 407,05 DH = 0,017407 MDH, 399 197,70 DH = 0,399198 MDH ; base : résultat net SOCIAL — Rebab Company est une holding sans chiffre d'affaires (produits d'exploitation de 15 000 DH) et le dépôt ne publie que des « Comptes sociaux » ; le résultat vient du non courant (reprise sur provisions de titres de participation : +135 338 DH de résultat non courant contre +600 704 DH un an plus tôt). Aucun consolidé n'existe dans les dépôts lus"
+  },
+  "T2S": {
+    "bpa": 9.39,
+    "source": "resultats_officiels",
+    "rnpg_12m": 186.576,
+    "bpa_12m": 8.56,
+    "fin_12m": "2026-06-30",
+    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/CP_T2S_group_S1_26.pdf p.1, tableau « En MDH S1 2026 S1 2025 Var. % » : « Résultat net part du Groupe 91 109 -17% », « Chiffre d'affaires consolidé 978 773 26% », « Résultat net part du Groupe ajusté 91 55* 65% » (* retraité de la cession Varian) ; texte : « Résultat net part du Groupe de 91 MDH, en progression de 65 % retraité de l'opération Varian » ; base : résultat net part du Groupe, consolidé (comptes arrêtés par le conseil du 28/09/2026). ⚠️ Dépôt = communiqué d'une page, montants ARRONDIS AU MDH, sans état de synthèse ni attestation des CAC (±0,5 MDH sur 186,6, soit ±0,3 %). Le S1 2025 (109) contient le produit exceptionnel de la cession de l'activité Varian à Siemens Healthineers (RNPG ajusté S1 2025 : 55, d'où le +65 % publié) ; le douze mois retire le S1 2025 en entier, donc cette plus-value n'y figure plus. ⚠️ Introduction en bourse en juillet 2026 : le BPA est calculé sur les 21 785 174 actions ACTUELLES (20 215 668 avant l'augmentation de capital de 1 569 506 titres) ; sur 20 215 668 il vaudrait 9,23 au lieu de 8,56 — à trancher en revue"
   }
 }
