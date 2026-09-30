@@ -4745,6 +4745,14 @@ def run(dry_run=False, push=False, token=""):
         _bm = _brief_moment(_b)
         if _bm:
             logger.info(f"  📰 briefing de {_b['moment']} — {_bm}")
+            # ⚠️ Et dans l'archive datée, figée après la séance (30/09/2026).
+            try:
+                from pipeline.briefing import archiver as _brief_archiver
+                _ba = _brief_archiver(_b, _maintenant.date().isoformat())
+                if _ba:
+                    logger.info(f"  🗄  archive — {_ba}")
+            except Exception as _e:                       # noqa: BLE001
+                logger.warning(f"  🗄  archive du briefing non écrite ({_e})")
         _na = len((_b.get("actualites") or {}).get("titres") or [])
         logger.info(f"  📰 briefing.json — {len(_b.get('constats') or [])} constat(s), "
                     f"{_na} publication(s) retenue(s)")

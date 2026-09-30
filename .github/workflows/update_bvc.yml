@@ -353,6 +353,10 @@ jobs:
             if [ -f pipeline/historical_data.json ]; then
               git add pipeline/historical_data.json
             fi
+            # L'archive des lectures, un fichier par séance (30/09/2026).
+            if [ -d briefings ]; then
+              git add briefings/
+            fi
             if [ -d pipeline/candles ] && [ "$(ls pipeline/candles/*.json 2>/dev/null | wc -l)" -gt 0 ]; then
               git add pipeline/candles/
             fi
