@@ -71,6 +71,7 @@ REFUSES: dict[str, str] = {
     "MIC": "le logo capturé est Dell EMC, un partenaire",
     "SAF": "le logo capturé est une icône générique d'une banque d'images, pas celui de Sanlam",
     "DTT": "illisible en miniature : texte gris clair sur fond blanc",
+    "RIS": "texture sombre de l'en-tête capturée à la place du logo, illisible",
 }
 FOND_SOMBRE = (26, 37, 64)   # la couleur du terminal, pour les logos blancs
 

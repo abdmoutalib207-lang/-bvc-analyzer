@@ -3932,7 +3932,7 @@ const WBar = ({
   },
   title: `Tech ${t}%`
 }));
-const LOGOS = new Set([]);
+const LOGOS = new Set(["ADH", "ADI", "AFI", "AFM", "AGM", "AKD", "ALU", "ATL", "BMC", "CDM", "CFGB", "CIM", "CMT", "COL", "CSR", "DHO", "ENK", "FNB", "HPS", "IMI", "INV", "JET", "LES", "LHM", "M2M", "MDP", "MNG", "MSA", "MUT", "NEJ", "SBS", "SLM", "SNA", "SNP", "STK", "STR", "T2S", "TGCC", "TQA", "UNI", "VCNE"]);
 const SECTOR_COL = {
   "Banques": "#1565C0",
   "Finance": "#E65100",
@@ -4182,13 +4182,15 @@ const montantCourt = dh => dh >= 1e9 ? `${(dh / 1e9).toFixed(2).replace(".", ","
 const volumeCourt = r => r.echange_dh != null ? montantCourt(r.echange_dh) : r.vol ? `${r.vol.toLocaleString("fr-FR").replace(/\u202f|,/g, " ")} titres` : "—";
 function CompanyLogo({
   sym,
+  logo,
   sector,
   size = 32
 }) {
+  const cle = logo || sym;
   const [echec, setEchec] = useState(false);
-  if (LOGOS.has(sym) && !echec) return React.createElement("img", {
+  if (LOGOS.has(cle) && !echec) return React.createElement("img", {
     className: "logo-pastille",
-    src: `logos/${sym}.png`,
+    src: `logos/${cle}.png`,
     alt: "",
     width: size,
     height: size,
@@ -6056,6 +6058,7 @@ const Ranking = ({
       }
     }, React.createElement(CompanyLogo, {
       sym: tk(r),
+      logo: r.symbol,
       sector: r.sector,
       size: 34
     }), React.createElement("div", {
@@ -6875,6 +6878,7 @@ const Detail = ({
     }
   }, React.createElement(CompanyLogo, {
     sym: tk(r),
+    logo: r.symbol,
     sector: r.sector,
     size: 56
   })), React.createElement("div", {

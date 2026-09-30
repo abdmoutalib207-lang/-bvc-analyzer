@@ -732,7 +732,7 @@ const WBar=({f,n,t})=>(
    site déclaré, site injoignable, ou logo refusé à la relecture (celui d'un
    groupe ou d'un partenaire). Une table de domaines écrite de mémoire vivait
    ici, inutilisée — et elle inversait Sanlam et Salafin. */
-const LOGOS=new Set([]);
+const LOGOS=new Set(["ADH","ADI","AFI","AFM","AGM","AKD","ALU","ATL","BMC","CDM","CFGB","CIM","CMT","COL","CSR","DHO","ENK","FNB","HPS","IMI","INV","JET","LES","LHM","M2M","MDP","MNG","MSA","MUT","NEJ","SBS","SLM","SNA","SNP","STK","STR","T2S","TGCC","TQA","UNI","VCNE"]);
 const SECTOR_COL={
   "Banques":"#1565C0","Finance":"#E65100","Assurances":"#6A1B9A",
   "Mines":"#4E342E","Santé":"#1B5E20","Télécommunications":"#01579B",
@@ -839,10 +839,14 @@ const montantCourt=dh=>dh>=1e9?`${(dh/1e9).toFixed(2).replace(".",",")} Md DH`:d
 const volumeCourt=r=>r.echange_dh!=null?montantCourt(r.echange_dh)
   :r.vol?`${r.vol.toLocaleString("fr-FR").replace(/\u202f|,/g," ")} titres`:"—";
 
-function CompanyLogo({sym,sector,size=32}){
+function CompanyLogo({sym,logo,sector,size=32}){
+  /* ⚠️ `sym` est le code AFFICHÉ (officiel : TGC, CFG, GTM) ; `logo` est NOTRE
+     symbole (TGCC, CFGB, SGTM), qui nomme les fichiers. Les confondre ferait
+     retomber silencieusement ces titres sur leur monogramme. */
+  const cle=logo||sym;
   const [echec,setEchec]=useState(false);
-  if(LOGOS.has(sym)&&!echec) return(
-    <img className="logo-pastille" src={`logos/${sym}.png`} alt="" width={size} height={size} loading="lazy"
+  if(LOGOS.has(cle)&&!echec) return(
+    <img className="logo-pastille" src={`logos/${cle}.png`} alt="" width={size} height={size} loading="lazy"
       onError={()=>setEchec(true)}
       style={{width:size,height:size,borderRadius:"50%",flexShrink:0,objectFit:"cover",
         background:"#fff",boxShadow:"0 1px 4px rgba(0,0,0,.45)"}}/>
@@ -1615,7 +1619,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   <td style={{padding:"8px 8px",fontSize:12,color:"#8892a4"}}>{i+1}</td>
                   <td style={{padding:"10px 8px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      <CompanyLogo sym={tk(r)} sector={r.sector} size={34}/>
+                      <CompanyLogo sym={tk(r)} logo={r.symbol} sector={r.sector} size={34}/>
                       <div style={{minWidth:0}}>
                         <div style={{display:"flex",alignItems:"center",gap:5}}>
                           <span style={{fontSize:16,color:"#fff",fontWeight:800,letterSpacing:.3}}>{tk(r)}</span>
@@ -1982,7 +1986,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
           {/* Score card */}
           <div style={{background:`linear-gradient(135deg,${s.bg},#0d1829)`,border:`1px solid ${s.bd}`,borderRadius:8,padding:16,textAlign:"center"}}>
             <div style={{display:"flex",justifyContent:"center",marginBottom:10}}>
-              <CompanyLogo sym={tk(r)} sector={r.sector} size={56}/>
+              <CompanyLogo sym={tk(r)} logo={r.symbol} sector={r.sector} size={56}/>
             </div>
             <div style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
               <span>{tk(r)} · {px(price)} DH<Perime r={r}/> <span style={{color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
