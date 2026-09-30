@@ -4,6 +4,23 @@
  "_regle": "AUCUNE valeur n'entre ici sans `page`. Un chiffre sans page redevient un chiffre de seconde main, et on aura seulement déplacé le problème.",
  "_unites": "Montants en MMAD (millions de dirhams) sauf mention contraire. Les ratios ne sont PAS stockés : ils se recalculent depuis ces faits et le cours du jour, sinon ils se figent — c'est exactement le défaut de `pb_fige` sur 80 titres sur 80. ⚠️ Les rapports, eux, publient indifféremment en MAD, en KMAD ou en MMAD, et l'ordre des colonnes n'est pas constant — Mutandis et Risma mettent l'exercice clos en SECOND. Chaque fait porte donc l'unité lue au rapport et le rang de la colonne retenue.",
  "_etat": "21 émetteurs sur 80 au 16/09/2026. Les fonds propres part du groupe — le dénominateur du P/BOOK — ont été relevés sur 17 rapports supplémentaires ce jour-là, page par page. Ce n'est pas la cote entière : 38 émetteurs n'ont pas encore de rapport annuel au catalogue, et 17 des 36 catalogués ne publient pas la ligne sous une forme lisible. Ces absences sont DITES, elles ne sont pas comblées.",
+ "_ratios_2025": {
+  "_releve_le": "2026-09-30",
+  "_quoi": "Faits relevés pour calculer, sans toucher à la note, dette nette, EBITDA, dette nette/EBITDA, ROIC et conversion en trésorerie (pipeline/ratios_financiers.py → ratios_publies).",
+  "cles": {
+   "dettes_financieres": "emprunts, dettes de financement, obligations, crédit de trésorerie ; composantes citées une à une",
+   "tresorerie_actif": "trésorerie et équivalents ; les titres de placement n'y entrent que si le tableau des flux de la société les compte dans sa trésorerie (sinon la note le dit)",
+   "excedent_brut_exploitation": "EBE/EBITDA PUBLIÉ par la société (retenu en priorité)",
+   "dotations_amortissements_exploitation": "dotations aux AMORTISSEMENTS seules, jamais un total mêlé de provisions",
+   "resultat_exploitation": "résultat d'exploitation / opérationnel après éléments non courants d'exploitation",
+   "resultat_avant_impot, impot_resultat": "charge d'impôt totale (exigible + différé), positive ; un produit est négatif",
+   "resultat_net_consolide, capitaux_propres_consolides": "ensemble consolidé, minoritaires compris",
+   "flux_tresorerie_exploitation": "flux net de trésorerie des activités opérationnelles",
+   "total_actif, total_passif": "servent au contrôle d'équilibre du bilan"
+  },
+  "_regle": "chaque fait porte page, citation exacte (vérifiée contre le texte extrait de la page), unité et colonne. Base consolidée uniquement, jamais mêlée au social. Les contrôles arithmétiques de chaque émetteur sont dans `_controles_ratios_2025` ; un fait douteux n'est pas écrit et le ratio correspondant est listé dans `non_calcules` avec sa raison.",
+  "_non_traites": "MOX (tableau des flux en image, 310 MMAD de titres de placement de nature non établie), et les émetteurs financiers (sans objet)."
+ },
  "ADI": {
   "societe": "Alliances Développement Immobilier",
   "exercice": 2025,
@@ -92,6 +109,143 @@
     "page": 35,
     "unite": "actions",
     "note": "capital 2 207 858 800 ÷ 100 de valeur nominale. L'audit externe retient le même nombre."
+   },
+   "total_actif": {
+    "valeur": 9933.557,
+    "valeur_au_rapport": 9933557,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 21,
+    "note": "« Total Actif 9.933.557 9.936.604 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 9933.557,
+    "valeur_au_rapport": 9933557,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 21,
+    "note": "« Total Passif 9.933.557 9.936.604 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 2114.079,
+    "valeur_au_rapport": 2114079,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 21,
+    "composantes": [
+     {
+      "page": 21,
+      "citation": "Dettes financières 5.2.14 1.980.718 1.681.143",
+      "valeur_au_rapport": 1980718
+     },
+     {
+      "page": 21,
+      "citation": "Trésorerie – passif 133.361 191.534",
+      "valeur_au_rapport": 133361
+     }
+    ],
+    "note": "dettes de financement (emprunts obligataires 1.774.188, crédit-bail 60.916, établissements de crédit 109.793, autres emprunts 35.822 — note 5.2.12, p.27) + trésorerie-passif. ⚠️ Le rapport publie un « ENDETTEMENT NET » de 1.303 MMAD (p.17) sans en donner la définition ; notre formule donne 1 361,5. Écart de 58,5 non expliqué : nous publions la formule, et le disons.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 752.59,
+    "valeur_au_rapport": 752590,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 21,
+    "composantes": [
+     {
+      "page": 21,
+      "citation": "Disponibilités 328.174 711.134",
+      "valeur_au_rapport": 328174
+     },
+     {
+      "page": 21,
+      "citation": "Titres et valeurs de placement 5.2.10 424.416 25.126",
+      "valeur_au_rapport": 424416
+     }
+    ],
+    "note": "disponibilités + titres et valeurs de placement. Recoupement : 328.174 + 424.416 − 133.361 = 619.229, contre « Trésorerie nette de clôture 619.372 » au tableau des flux (p.23) — 0,14 MMAD d'écart.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dotations_amortissements_exploitation": {
+    "valeur": 13.463,
+    "valeur_au_rapport": 13463,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 29,
+    "note": "« Dotations aux amortissements 13.463 12.035 » ; note 5.3.8 : dotations d'exploitation 28.465 = amortissements 13.463 + provisions 15.002.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_non_courant": {
+    "valeur": -22.153,
+    "valeur_au_rapport": -22153,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 22,
+    "note": "« Résultat non courant 5.3.9 -22.153 16.624 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 519.199,
+    "valeur_au_rapport": 519199,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 22,
+    "note": "« Résultat avant impôt 519.199 402.897 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 68.021,
+    "valeur_au_rapport": 68021,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 22,
+    "composantes": [
+     {
+      "page": 22,
+      "citation": "Impôts sur les sociétés 5.1.2.4 69.486 44.149",
+      "valeur_au_rapport": 69486
+     },
+     {
+      "page": 22,
+      "citation": "Impôts différés et 5.2.2 -1.465 2.107",
+      "valeur_au_rapport": 1465,
+      "signe": -1
+     }
+    ],
+    "note": "impôt exigible + impôt différé (produit de 1.465).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": -22.844,
+    "valeur_au_rapport": -22844,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 23,
+    "note": "« Flux nets de trésorerie générés par l'activité -22.844 789.177 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation_etats": {
+    "valeur": 586.16,
+    "valeur_au_rapport": 586160,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 22,
+    "note": "« Résultat d'exploitation 586.160 445.676 » ; au compte de produits et charges consolidé ; la clé `resultat_exploitation` existante (586,0, p.17) en est l'arrondi.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
   "_recoupement_arithmetique": "capital 2 207 858 800 ÷ VN 100 = 22 078 588 actions. La série 2022-2025 de la page 17 est cohérente ligne à ligne avec les évolutions annoncées.",
@@ -225,7 +379,36 @@
    }
   ],
   "_ce_que_les_trimestriels_ne_donnent_pas": "⚠️ Au Maroc, une communication trimestrielle publie le chiffre d'affaires, l'endettement net et l'activité commerciale — JAMAIS le résultat net ni les capitaux propres. Conséquence directe : le PER, le price-to-book et la marge nette ne peuvent être rafraîchis que DEUX FOIS PAR AN, au semestriel et à l'annuel. Ce n'est pas une excuse pour `pb_fige`, mais c'est la contrainte réelle : la fraîcheur maximale d'un PB est de six mois, et il faut donc l'afficher avec sa date d'arrêté plutôt que de le laisser passer pour courant.",
-  "_quatre_per_dans_une_seule_fiche": "⚠️ fondamentaux.json ADI porte per=15,0, pe_24=39,12, pe_25c=30,13 et forward_per=12,5. Quatre PER, aucun libellé ne dit lequel le terminal affiche. Le PER calculé du rapport au cours de 416 DH vaut 22,5."
+  "_quatre_per_dans_une_seule_fiche": "⚠️ fondamentaux.json ADI porte per=15,0, pe_24=39,12, pe_25c=30,13 et forward_per=12,5. Quatre PER, aucun libellé ne dit lequel le terminal affiche. Le PER calculé du rapport au cours de 416 DH vaut 22,5.",
+  "_controles_ratios_2025": {
+   "base": "consolidé (normes marocaines), 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "9933.557 / 9933.557"
+    },
+    {
+     "controle": "REX + RF + RNC = RAI",
+     "ok": true,
+     "detail": "519.007 vs resultat_avant_impot 519.199"
+    },
+    {
+     "controle": "RAI − impôt + reprises 5.659 − dotations écarts d'acquisition 55.080 = RN ensemble",
+     "ok": true,
+     "detail": "401.757 vs resultat_net_consolide 401.758"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "3993.181 vs 3993.181"
+    }
+   ],
+   "reserves": [
+    "Le résultat financier existant (−45,0, p.17) est l'arrondi de −44.808 (p.22) : le contrôle REX + RF + RNC = RAI tolère donc 0,3 MMAD."
+   ]
+  }
  },
  "CMT": {
   "societe": "Compagnie Minière de Touissit",
@@ -295,6 +478,95 @@
     "page": 79,
     "unite": "DH",
     "note": "AUCUN dividende au titre de 2025, ni de 2024. Le bénéfice est intégralement porté en report à nouveau (487,8 MMAD). Le terminal publiait 224,00 DH et un rendement de 5,15 %."
+   },
+   "total_actif": {
+    "valeur": 1921.575223,
+    "valeur_au_rapport": 1921575223,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 57,
+    "note": "« TOTAL ACTIF 1 921 575 223 1 766 450 112 »",
+    "base": "consolidé, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 1921.575223,
+    "valeur_au_rapport": 1921575223,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 57,
+    "note": "« TOTAL PASSIF 1 921 575 223 1 766 450 112 »",
+    "base": "consolidé, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 171.581683,
+    "valeur_au_rapport": 171581683,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 57,
+    "note": "« Dettes financières 171 581 683 337 854 921 » ; seule ligne de dettes financières du bilan consolidé. La trésorerie de clôture du tableau des flux (p.58, « Trésorerie : clôture 5 549 847 ») implique 23,2 MMAD de concours bancaires ; le bilan ne les isole pas — nous supposons qu'ils sont dans cette ligne, sans pouvoir le vérifier.",
+    "base": "consolidé, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 28.713549,
+    "valeur_au_rapport": 28713549,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 57,
+    "note": "« Disponibilités 28 713 549 32 358 332 »",
+    "base": "consolidé, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 316.163097,
+    "valeur_au_rapport": 316163097,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "composantes": [
+     {
+      "page": 58,
+      "citation": "Résultat d'exploitation après dotations aux amort. et dép. EA 387 847 981 (175 373 394)",
+      "valeur_au_rapport": 387847981
+     },
+     {
+      "page": 58,
+      "citation": "Charges et produits financiers (28 130 412) (54 870 259)",
+      "valeur_au_rapport": 28130412,
+      "signe": -1
+     },
+     {
+      "page": 58,
+      "citation": "Charges et produits exceptionnels (43 554 472) (175 373 394)",
+      "valeur_au_rapport": 43554472,
+      "signe": -1
+     }
+    ],
+    "note": "le compte de résultat consolidé ne publie pas de ligne « résultat avant impôt » : somme du résultat d'exploitation, du financier et de l'exceptionnel. Recoupé : 316 163 097 − 119 593 339 d'impôt = 196 569 758, « Résultat net des entreprises intégrées ».",
+    "base": "consolidé, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 119.593339,
+    "valeur_au_rapport": 119593339,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« Impôts sur les résultats (119 593 339) (79 267 190) »",
+    "base": "consolidé, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 243.311624,
+    "valeur_au_rapport": 243311624,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« Flux net de trésorerie généré par l'exploitation (I) 243 311 624 72 856 250 »",
+    "base": "consolidé, 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
   "_evenement": "⚠️ COTATION SUSPENDUE DEPUIS LE 17/07/2026. L'AMMC a demandé à la Bourse de suspendre les actions CMT après le dépôt, le 16/07/2026, d'un projet d'OFFRE PUBLIQUE D'ACHAT OBLIGATOIRE par AYRAD GROUP LIMITED, OSEAD Fund, OSEAD MAROC MINING et la CIMR agissant de concert, à la suite du franchissement du seuil de 40 % des droits de vote (pacte d'actionnaires entré en vigueur le 13/07/2026). Source : avis de dépôt AMMC DO/EM/07/2026 du 17/07/2026. Le titre ne cote plus : tout prix postérieur au 16/07 est une reconduction, et aucun signal ne devrait être émis sur un instrument qu'on ne peut pas acheter.",
@@ -320,6 +592,36 @@
     "terminal": 7313.0,
     "ecart": "JUSTE — et c'est ce qui rend le défaut instructif : la capitalisation était calculée avec les 1 681 233 actions réelles pendant que le BPA en utilisait 450 000. Deux nombres d'actions contradictoires dans le même enregistrement (ERRORS, famille 8)."
    }
+  },
+  "_controles_ratios_2025": {
+   "base": "consolidé, 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "1921.575223 / 1921.575223"
+    },
+    {
+     "controle": "RAI − impôt = RN des entreprises intégrées (196,569758)",
+     "ok": true,
+     "detail": "196.569758 vs  196.569758"
+    },
+    {
+     "controle": "CA + autres produits − achats − personnel − autres charges − impôts et taxes − dotations = REX existant",
+     "ok": true,
+     "detail": "387.84798 vs resultat_exploitation 387.848"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "901.142608 vs 901.142608"
+    }
+   ],
+   "reserves": [
+    "EBITDA NON calculé : la ligne « Résultat d'exploitation avant dotations aux amort. et dép. EA 387 847 981 » (p.58) porte le MÊME montant que le résultat après dotations — erreur de mise en page du rapport (le recalcul par les composantes donne 387,848 après dotations). Et la seule dotation publiée, « Dotations aux amortissements, dépréciations et provisions (38 412 256) », inclut des provisions : l'ajouter au résultat d'exploitation ne donnerait pas un EBITDA au sens demandé.",
+    "Titre suspendu du 17/07 au 16/09/2026 (OPA obligatoire) : les ratios décrivent l'exercice 2025, pas l'actionnariat actuel."
+   ]
   }
  },
  "MNG": {
@@ -375,6 +677,141 @@
    "capitalisation_31_12_2025": {
     "valeur": 75934.0,
     "page": 10
+   },
+   "total_actif": {
+    "valeur": 37705.9,
+    "valeur_au_rapport": 37705.9,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 86,
+    "note": "« TOTAL ACTIF 37 705,9 30 225,2 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 37705.9,
+    "valeur_au_rapport": 37705.9,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 86,
+    "note": "« TOTAL CAPITAUX PROPRES ET PASSIF 37 705,9 30 225,2 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 15323.5,
+    "valeur_au_rapport": 15323.5,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 86,
+    "composantes": [
+     {
+      "page": 86,
+      "citation": "Dont Dettes envers les établissements de crédit 6 751,2 5 324,7",
+      "valeur_au_rapport": 6751.2
+     },
+     {
+      "page": 86,
+      "citation": "Dont Dettes représentées par un titre 2 000,0 2 000,0",
+      "valeur_au_rapport": 2000.0
+     },
+     {
+      "page": 86,
+      "citation": "Dont Dettes liées aux contrats à droit d'usage 85,1 66,2",
+      "valeur_au_rapport": 85.1
+     },
+     {
+      "page": 86,
+      "citation": "Dont Dettes envers les établissements de crédit 6 487,2 5 008,6",
+      "valeur_au_rapport": 6487.2
+     }
+    ],
+    "note": "dettes financières non courantes HORS instruments dérivés de couverture (10 544,2 − 1 707,9 = 6 751,2 + 2 000,0 + 85,1) + dettes courantes envers les établissements de crédit (6 487,2, la totalité des dettes financières courantes, dérivés nuls). Les dérivés de couverture ne sont pas un emprunt. ⚠️ Le rapport publie un endettement net de 12 674 (p.68, clé `endettement_net`) ; notre formule donne 10 933,2. La société le définit p.68 : « (*) Endettement en intégrant le MtM et les contrats de location, ainsi que les comptes courants d'associés envers les sociétés non intégrées ». Avec les dérivés (MtM, 1 707,9) on obtient 12 641,1 ; les 33 restants seraient les comptes courants, non isolés au bilan. L'écart est donc de DÉFINITION, pas de chiffre.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 4390.3,
+    "valeur_au_rapport": 4390.3,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 86,
+    "note": "« Trésorerie et équivalent de trésorerie 20 4 390,3 2 589,1 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 3992.8,
+    "valeur_au_rapport": 3992.8,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 86,
+    "note": "« Résultat des activités opérationnelles 3 992,8 1 287,7 » ; après éléments non courants (−4,4) ; « Résultat d'exploitation courant 3 997,2 ».",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": -194.7,
+    "valeur_au_rapport": -194.7,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 86,
+    "note": "« Résultat financier 10 -194,7 -314,3 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 3798.0,
+    "valeur_au_rapport": 3798,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 86,
+    "note": "« Résultat avant impôts des entreprises intégrées 3 798,0 973,5 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 389.1,
+    "valeur_au_rapport": 389.1,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 86,
+    "composantes": [
+     {
+      "page": 86,
+      "citation": "Impôts sur les bénéfices 11 -456,0 -260,2",
+      "valeur_au_rapport": 456.0
+     },
+     {
+      "page": 86,
+      "citation": "Impôts différés 11 66,9 61,7",
+      "valeur_au_rapport": 66.9,
+      "signe": -1
+     }
+    ],
+    "note": "impôt exigible 456,0 − produit d'impôt différé 66,9.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 3470.4,
+    "valeur_au_rapport": 3470.4,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 86,
+    "note": "« Résultat de l'ensemble consolidé 3 470,4 787,5 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 5483.0,
+    "valeur_au_rapport": 5483,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 88,
+    "note": "« Flux de trésorerie liés aux activités opérationnelles 5 483 3 122 » ; publié en millions arrondis à l'unité.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
   "_action_sur_titres": "⚠️ SPLIT 10:1 LE 27/07/2026, postérieur à la publication du rapport (30/04). Le nombre d'actions est passé de 11 864 676 à 118 646 760, valeur nominale 100 → 10. Tout ratio par action calculé depuis ce rapport DOIT être divisé par 10. Le registre `SPLITS` de bvc_config.py le déclare déjà.",
@@ -400,6 +837,35 @@
     "terminal": 206327,
     "ecart": "0,8 % — la capitalisation, elle, est juste : elle se calcule sur le cours et le bon nombre d'actions"
    }
+  },
+  "_controles_ratios_2025": {
+   "base": "consolidé IFRS, 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "37705.9 / 37705.9"
+    },
+    {
+     "controle": "REX + RF = RAI (arrondis au dixième)",
+     "ok": true,
+     "detail": "3798.1 vs resultat_avant_impot 3798.0"
+    },
+    {
+     "controle": "RAI − impôt + MEE 61,4 = RN ensemble",
+     "ok": true,
+     "detail": "3470.3 vs resultat_net_consolide 3470.4"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "11478.3 vs 11478.3"
+    }
+   ],
+   "reserves": [
+    "EBITDA = EBE publié par la société (clé existante `excedent_brut_exploitation` 5 982, p.10). À titre de recoupement : résultat d'exploitation courant 3 997,2 + « Amortissements et provisions d'exploitation 8 -2 012,4 » = 6 009,6, mais cette ligne inclut des provisions."
+   ]
   }
  },
  "MSA": {
@@ -462,6 +928,150 @@
     "page": 136,
     "unite": "actions",
     "note": "« Nombre d'actions (milliers) 73 396 » p.131 ; capital 733 956 000 ÷ 10 de nominale = 73 395 600. La résolution d'AG le confirme par une troisième voie : 807 351 600 DH distribués ÷ 11 DH = 73 395 600."
+   },
+   "total_actif": {
+    "valeur": 9332.718,
+    "valeur_au_rapport": 9332718,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 121,
+    "note": "« Total actif 9.332.718 8.298.683 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 9332.718,
+    "valeur_au_rapport": 9332718,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 121,
+    "note": "« Total Passif 9.332.718 8.298.683 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 1367.295,
+    "valeur_au_rapport": 1367295,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 121,
+    "composantes": [
+     {
+      "page": 121,
+      "citation": "Dettes de financement 1.367.295 1.598.034",
+      "valeur_au_rapport": 1367295
+     },
+     {
+      "page": 121,
+      "citation": "Trésorerie-passif 0 0",
+      "valeur_au_rapport": 0
+     }
+    ],
+    "note": "dettes de financement ; trésorerie-passif nulle.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 2119.924,
+    "valeur_au_rapport": 2119924,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 121,
+    "composantes": [
+     {
+      "page": 121,
+      "citation": "Disponibilités 154.902 245.992",
+      "valeur_au_rapport": 154902
+     },
+     {
+      "page": 121,
+      "citation": "Titres et valeurs de placement 1.965.022 2.143.687",
+      "valeur_au_rapport": 1965022
+     }
+    ],
+    "note": "disponibilités + titres et valeurs de placement : le tableau des flux (p.123) arrête « Trésorerie nette clôture (y compris placements) 2.119.923 ». Dette nette 1 367 295 − 2 119 924 = −752 629, contre « Endettement net - 752 628 » publié en note 12 (p.129) : concordance au millier près.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 3192.0,
+    "valeur_au_rapport": 3192,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 95,
+    "note": "« 3 192 millions 3 millions 181 milliers » ; « Excédent Brut d'Exploitation … 3 192 millions de Dirhams +22% » (rapport de gestion, groupe). Recoupé : résultat d'exploitation 2 562 327 + dotations d'exploitation 661 787 − reprises 31 698 = 3 192 416 KMAD.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": 17.422,
+    "valeur_au_rapport": 17422,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 122,
+    "note": "« Résultat financier 17.422 -31.749 49.171 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_non_courant": {
+    "valeur": -45.516,
+    "valeur_au_rapport": -45516,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 122,
+    "note": "« Résultat non courant -45.516 -64.187 18.671 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 2562.327,
+    "valeur_au_rapport": 2562327,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 122,
+    "note": "« Résultat d'exploitation 2.562.327 2.087.731 474.596 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 2534.233,
+    "valeur_au_rapport": 2534233,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 122,
+    "note": "« Résultat avant impôt 2.534.233 1.991.796 542.437 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 724.125,
+    "valeur_au_rapport": 724125,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 122,
+    "note": "« Total IS 724.125 531.573 192.553 » ; « Impôts sur les sociétés 798.287 » + « Impôts différés -74.162 ».",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 1808.302,
+    "valeur_au_rapport": 1808302,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 122,
+    "note": "« Résultat consolidé 1.808.302 1.458.418 349.884 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 2648.149,
+    "valeur_au_rapport": 2648149,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 123,
+    "note": "« Flux nets de trésorerie générés par l'activité 2.648.149 2.013.818 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
   "_recoupement_arithmetique": "capital 733 956 000 ÷ VN 10 = 73 395 600 actions. Et 1 588 764 KMAD ÷ 21,65 = 73 384 018, le nombre moyen pondéré retenu pour le résultat par action. Les deux concordent.",
@@ -493,7 +1103,43 @@
     "ecart": "0,6 % ✓"
    }
   },
-  "_collision_identite": "⚠️ bpa.json[\"MSA\"] porte la note « Mutandis SCA — RN courant 140 MDH +10% FY2025 ». MSA est Sodep-Marsa Maroc ; MUT est Mutandis SCA. Le BPA de 13,64 est celui de Mutandis, pas de Marsa Maroc dont le rapport publie 21,65. L'anti-pattern est écrit noir sur blanc dans le CLAUDE.md — « MSA = Marsa Maroc, MUT = Mutandis SCA. Ne jamais les confondre » — et il s'est produit quand même. ⚠️ bpa.json[\"MUT\"] est VIDE : la donnée de Mutandis n'a pas été dupliquée, elle a été DÉPLACÉE."
+  "_collision_identite": "⚠️ bpa.json[\"MSA\"] porte la note « Mutandis SCA — RN courant 140 MDH +10% FY2025 ». MSA est Sodep-Marsa Maroc ; MUT est Mutandis SCA. Le BPA de 13,64 est celui de Mutandis, pas de Marsa Maroc dont le rapport publie 21,65. L'anti-pattern est écrit noir sur blanc dans le CLAUDE.md — « MSA = Marsa Maroc, MUT = Mutandis SCA. Ne jamais les confondre » — et il s'est produit quand même. ⚠️ bpa.json[\"MUT\"] est VIDE : la donnée de Mutandis n'a pas été dupliquée, elle a été DÉPLACÉE.",
+  "_controles_ratios_2025": {
+   "base": "consolidé (normes marocaines), 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "9332.718 / 9332.718"
+    },
+    {
+     "controle": "REX + RF + RNC = RAI",
+     "ok": true,
+     "detail": "2534.233 vs resultat_avant_impot 2534.233"
+    },
+    {
+     "controle": "RAI − IS − amort. écarts d'acquisition 1,805 = résultat consolidé",
+     "ok": true,
+     "detail": "1808.303 vs resultat_net_consolide 1808.302"
+    },
+    {
+     "controle": "REX + dotations 661,787 − reprises 31,698 ≈ EBE publié 3 192",
+     "ok": true,
+     "detail": "3192.416 vs excedent_brut_exploitation 3192.0"
+    },
+    {
+     "controle": "dette nette = endettement net publié (note 12)",
+     "ok": true,
+     "detail": "-752.629 vs endettement_net -752.628"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "4048.149 vs 4048.148"
+    }
+   ]
+  }
  },
  "ADH": {
   "societe": "Douja Promotion Groupe Addoha",
@@ -544,6 +1190,140 @@
     "colonne_exercice_clos": 1,
     "page": 53,
     "note": "« CAPITAUX PROPRES PART DU GROUPE 9.481.694.524 9.319.494.058 » ; en-tête « PASSIF MAD 31.12.2025 31.12.2024 ». Unité confirmée sur la page même : le Capital y vaut 4.025.512.540 MAD et le Résultat consolidé 453.719.263 MAD, soit exactement le résultat net part du groupe déjà relevé (453,719 MMAD)."
+   },
+   "total_actif": {
+    "valeur": 22798.273099,
+    "valeur_au_rapport": 22798273099,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 53,
+    "note": "« TOTAL ACTIF 22.798.273.099 20.988.088.138 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 22798.273099,
+    "valeur_au_rapport": 22798273099,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 53,
+    "note": "« TOTAL PASSIF 22.798.273.099 20.988.088.138 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 10410.564821,
+    "valeur_au_rapport": 10410564821,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 53,
+    "note": "« CAPITAUX PROPRES D'ENSEMBLE 10.410.564.821 10.201.900.882 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 4553.078791,
+    "valeur_au_rapport": 4553078791,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 53,
+    "composantes": [
+     {
+      "page": 53,
+      "citation": "DETTES FINANCIÈRES NON COURANTES : 3.425.372.680 3.212.529.959",
+      "valeur_au_rapport": 3425372680
+     },
+     {
+      "page": 53,
+      "citation": "DETTES FINANCIÈRES COURANTES : 1.127.706.111 1.111.855.598",
+      "valeur_au_rapport": 1127706111
+     }
+    ],
+    "note": "dettes financières non courantes + courantes (établissements de crédit et titres de créance). Recoupement : la trésorerie de clôture du tableau des flux (p.57, « Trésorerie de clôture - 960.077.869 ») = 167.628.242 − 1.127.706.111 au dirham près : les dettes financières courantes sont intégralement du crédit de trésorerie.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 167.628242,
+    "valeur_au_rapport": 167628242,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 53,
+    "note": "« Trésorerie et équivalent de trésorerie 167.628.242 205.090.609 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 448.53654,
+    "valeur_au_rapport": 448536540,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 54,
+    "note": "« RÉSULTAT DES ACTIVITÉS OPÉRATIONNELLES 448.536.540 454.640.138 » ; résultat opérationnel après éléments non courants (−27,8 MMAD) ; le « Résultat d'exploitation courant » vaut 476.353.422.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": 131.053565,
+    "valeur_au_rapport": 131053565,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 54,
+    "note": "« Résultat financier 131.053.565 14.052.147 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 579.590105,
+    "valeur_au_rapport": 579590105,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 54,
+    "note": "« Résultat avant impôts des entreprises intégrées 579.590.105 468.692.285 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 63.500589,
+    "valeur_au_rapport": 63500589,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 54,
+    "composantes": [
+     {
+      "page": 54,
+      "citation": "Impôts sur les bénéfices -24.567.691 -30.030.688",
+      "valeur_au_rapport": 24567691
+     },
+     {
+      "page": 54,
+      "citation": "Impôts différés -38.932.898 -135.030.233",
+      "valeur_au_rapport": 38932898
+     }
+    ],
+    "note": "charge d'impôt = impôt exigible + impôt différé, en valeur positive.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 516.071666,
+    "valeur_au_rapport": 516071666,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 54,
+    "note": "« RÉSULTAT DE L'ENSEMBLE CONSOLIDÉ 516.071.666 303.644.948 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": -6.571088,
+    "valeur_au_rapport": -6571088,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 57,
+    "note": "« Flux net de trésorerie généré par l'activité - 6.571.088 223.055.806 » ; négatif : 552,7 MMAD de marge brute d'autofinancement absorbés par 559,3 MMAD de hausse du BFR (stocks immobiliers).",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
   "_ecarts_mesures": {
@@ -558,6 +1338,35 @@
     "terminal": 14.2,
     "ecart": "le terminal présentait le titre moins cher qu'il n'est"
    }
+  },
+  "_controles_ratios_2025": {
+   "base": "consolidé IFRS, 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "22798.273099 / 22798.273099"
+    },
+    {
+     "controle": "REX + résultat financier = RAI",
+     "ok": true,
+     "detail": "579.590105 vs resultat_avant_impot 579.590105"
+    },
+    {
+     "controle": "RAI − impôt + MEE (−0,017851) = résultat de l'ensemble",
+     "ok": true,
+     "detail": "516.071665 vs resultat_net_consolide 516.071666"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "9481.694524 vs 9481.694524"
+    }
+   ],
+   "reserves": [
+    "EBITDA non calculable : le compte de résultat consolidé (p.54) publie « Amortissements et provisions d'exploitation 114.112.216 », un solde NET de dotations et de reprises de provisions, et le tableau des flux (p.57) « Amortissements et provisions 27.571.635 » ; aucune page consolidée n'isole les dotations aux amortissements. L'EBE de la p.28 (−148 MMAD) est celui des comptes SOCIAUX : non retenu, pour ne pas mélanger les bases."
+   ]
   }
  },
  "CSR": {
@@ -591,6 +1400,151 @@
     "colonne_exercice_clos": 1,
     "page": 131,
     "note": "« Capitaux propres - part du Groupe 5 633,8 5 878,5 -244,7 -4,2 » ; en-tête « (En Mdh) Évolution 2025 2024 ». La même page porte « Résultat net part du groupe 703,7 », identique au fait déjà relevé, ce qui confirme les millions."
+   },
+   "total_actif": {
+    "valeur": 11293.3,
+    "valeur_au_rapport": 11293.3,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 151,
+    "note": "« TOTAL ACTIF 11 293,3 12 589,2 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 11293.3,
+    "valeur_au_rapport": 11293.3,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 151,
+    "note": "« TOTAL CAPITAUX PROPRES ET PASSIF 11 293,3 12 589,2 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 5641.4,
+    "valeur_au_rapport": 5641.4,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 151,
+    "note": "« Capitaux propres de l'ensemble consolidé 5 641,4 5 885,6 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 1113.9,
+    "valeur_au_rapport": 1113.9,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 151,
+    "composantes": [
+     {
+      "page": 151,
+      "citation": "Dettes financières non courantes 23,4 79,0",
+      "valeur_au_rapport": 23.4
+     },
+     {
+      "page": 151,
+      "citation": "Dettes financières courantes 1 090,5 929,0",
+      "valeur_au_rapport": 1090.5
+     }
+    ],
+    "note": "dettes financières non courantes + courantes (ces dernières intégralement « Dettes envers les établissements de crédit 1 090,5 »). Recoupement : « Trésorerie et équivalents de trésorerie net à la clôture (258,4) » (p.151) = 832,0 − 1 090,4. ⚠️ fondamentaux.json écrit « trésorerie nette positive (cash 832 MDH) » et dette nette/EBITDA 0,0 : le bilan consolidé dit le contraire.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 832.0,
+    "valeur_au_rapport": 832,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 151,
+    "note": "« Trésorerie et équivalent de trésorerie 832,0 383,2 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 1668.0,
+    "valeur_au_rapport": 1668,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 131,
+    "note": "« EBE 1 668,0 1 757,6 -89,7 -5,1 » ; EBE consolidé IFRS publié par la société ; confirmé p.128 : « L'EBE consolidé IFRS en 2025 ressort à 1.668 Mdh ».",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 1145.4,
+    "valeur_au_rapport": 1145.4,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 131,
+    "note": "« Résultat des activités opérationnelles 1 145,4 1 332,6 -187,2 -14,0 » ; au compte de résultat consolidé (p.149) la même valeur figure sur une ligne mal libellée « Autres produits et charges d'exploitation non courants 1 145,4 » : c'est le résultat d'exploitation courant 1 297,8 moins les « Résultats sur instruments financiers (152,4) ».",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": -56.7,
+    "valeur_au_rapport": -56.7,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 149,
+    "note": "« Résultat financier (56,7) (8,8) »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 1088.7,
+    "valeur_au_rapport": 1088.7,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 149,
+    "note": "« Résultat avant impôt des entreprises intégrées 1 088,7 1 323,8 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 384.6,
+    "valeur_au_rapport": 384.6,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 149,
+    "composantes": [
+     {
+      "page": 149,
+      "citation": "Impôts exigibles (428,0) (515,5)",
+      "valeur_au_rapport": 428.0
+     },
+     {
+      "page": 149,
+      "citation": "Impôts différés 43,4 42,1",
+      "valeur_au_rapport": 43.4,
+      "signe": -1
+     }
+    ],
+    "note": "recoupé au tableau des flux : « Élimination de la charge (produit) d'impôts 384,6 ».",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 704.1,
+    "valeur_au_rapport": 704.1,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 149,
+    "note": "« Résultat de l'ensemble consolidé 704,1 850,3 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 1551.5,
+    "valeur_au_rapport": 1551.5,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 151,
+    "note": "« Flux net de trésorerie liés aux activités opérationnelles 1 551,5 2 000,9 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
   "_ecarts_mesures": {
@@ -605,6 +1559,37 @@
     "terminal": 17.6,
     "ecart": "le terminal présentait le titre moins cher qu'il n'est"
    }
+  },
+  "_controles_ratios_2025": {
+   "base": "consolidé IFRS, 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "11293.3 / 11293.3"
+    },
+    {
+     "controle": "REX courant 1 297,8 − instruments financiers 152,4 = REX",
+     "ok": true,
+     "detail": "1145.4 vs resultat_exploitation 1145.4"
+    },
+    {
+     "controle": "REX + RF = RAI",
+     "ok": true,
+     "detail": "1088.7 vs resultat_avant_impot 1088.7"
+    },
+    {
+     "controle": "RAI − impôt = RN ensemble",
+     "ok": true,
+     "detail": "704.1 vs resultat_net_consolide 704.1"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "5633.8 vs 5633.8"
+    }
+   ]
   }
  },
  "HPS": {
@@ -638,6 +1623,151 @@
     "colonne_exercice_clos": 1,
     "page": 58,
     "note": "« CAPITAUX PROPRES PART DU GROUPE 816 636 777 774 719 895 » ; en-tête « PASSIF 31/12/2025 31/12/2024 ». Unité tranchée par le Capital de la même page, 74 061 900 MAD = 7 406 190 titres de nominale 10. Part du groupe, total et capitaux propres coïncident : pas de minoritaires."
+   },
+   "total_actif": {
+    "valeur": 2135.253726,
+    "valeur_au_rapport": 2135253726,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« TOTAL DE L'ACTIF 2 135 253 726 2 217 112 839 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 2135.253726,
+    "valeur_au_rapport": 2135253726,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« TOTAL DU PASSIF 2 135 253 726 2 217 112 839 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 816.636777,
+    "valeur_au_rapport": 816636777,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« TOTAL CAPITAUX PROPRES 816 636 777 774 719 895 » ; pas d'intérêts minoritaires : ensemble = part du groupe.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 492.171904,
+    "valeur_au_rapport": 492171904,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "composantes": [
+     {
+      "page": 58,
+      "citation": "- Dettes financières à long terme 452 171 904 544 750 016",
+      "valeur_au_rapport": 452171904
+     },
+     {
+      "page": 58,
+      "citation": "- Trésorerie passif 40 000 000 40 371 048",
+      "valeur_au_rapport": 40000000
+     }
+    ],
+    "note": "dettes financières à long terme + trésorerie-passif.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 296.133526,
+    "valeur_au_rapport": 296133526,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« Disponibilités 296 133 526 244 594 136 » ; disponibilités seules : le tableau des flux (p.59) arrête « TRÉSORERIE À LA FIN DE L'EXERCICE 256 133 526 » = 296 133 526 − 40 000 000, hors valeurs mobilières de placement (6 450 510).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 219.702344,
+    "valeur_au_rapport": 219702344,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« RÉSULTAT D'EXPLOITATION 219 702 344 153 565 401 43,1% »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dotations_amortissements_exploitation": {
+    "valeur": 35.202,
+    "valeur_au_rapport": 35202,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 64,
+    "note": "« Dotations aux amortissements 35 202 30 996 13,6% » ; note 3.2.15 « Dotations d'exploitations » (en milliers de dirhams) : amortissements 35 202 + provisions 30 867 = 66 069, total repris au compte de résultat (« Dotations d'exploitation 66 069 050 »).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 286.0,
+    "valeur_au_rapport": 286,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 46,
+    "note": "« indicateurs de rentabilité, avec un EBITDA de 286 MMAD » ; EBITDA publié par la société (rapport de gestion) ; recoupé : résultat d'exploitation 219 702 344 + dotations d'exploitation 66 069 050 = 285 771 394.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 160.623057,
+    "valeur_au_rapport": 160623057,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "composantes": [
+     {
+      "page": 58,
+      "citation": "RÉSULTAT COURANT DES ENTREPRISES INTÉGRÉES 166 477 334 136 146 939 22,3%",
+      "valeur_au_rapport": 166477334
+     },
+     {
+      "page": 58,
+      "citation": "Charges et produits non courants - 5 854 277 - 12 524 502 -53,3%",
+      "valeur_au_rapport": 5854277,
+      "signe": -1
+     }
+    ],
+    "note": "le compte consolidé ne publie pas de ligne « résultat avant impôt » : résultat courant + non courant. Recoupé : 160 623 057 − 24 802 036 = 135 821 021, « RÉSULTAT NET DES ENTREPRISES INTÉGRÉES ».",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 24.802036,
+    "valeur_au_rapport": 24802036,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« Impôts sur les résultats - 24 802 036 - 44 329 913 -44,1% »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 105.77774,
+    "valeur_au_rapport": 105777740,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« RÉSULTAT NET DE L'ENSEMBLE CONSOLIDÉ 105 777 740 75 299 358 40,5% »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 238.698141,
+    "valeur_au_rapport": 238698141,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 59,
+    "note": "« FLUX NET DE TRÉSORERIE LIÉS À L'ACTIVITÉ 238 698 141 49 374 099 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
   "_ecarts_mesures": {
@@ -652,6 +1782,40 @@
     "terminal": 23.6,
     "ecart": "le terminal présentait le titre moins cher qu'il n'est"
    }
+  },
+  "_controles_ratios_2025": {
+   "base": "consolidé (normes marocaines), 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "2135.253726 / 2135.253726"
+    },
+    {
+     "controle": "REX + financier (−53 225 010) = résultat courant",
+     "ok": true,
+     "detail": "166.477334 vs  166.477334"
+    },
+    {
+     "controle": "RAI − impôt = RN des entreprises intégrées (135,821021)",
+     "ok": true,
+     "detail": "135.821021 vs  135.821021"
+    },
+    {
+     "controle": "RN intégrées + MEE 16,248780 − amort. écarts d'acquisition 46,292061 = RN ensemble",
+     "ok": true,
+     "detail": "105.77774 vs resultat_net_consolide 105.77774"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "816.636777 vs 816.636777"
+    }
+   ],
+   "reserves": [
+    "EBITDA retenu = celui PUBLIÉ par la société, « EBITDA de 286 MMAD » (p.46, rapport de gestion) : c'est le résultat d'exploitation plus TOUTES les dotations d'exploitation, provisions comprises (219,7 + 66,1 = 285,8). Avec les seules dotations aux amortissements (35,2, note 3.2.15), on obtiendrait 254,9 : dette nette / EBITDA 0,77 au lieu de 0,69."
+   ]
   }
  },
  "RIS": {
@@ -695,6 +1859,143 @@
     "colonne_exercice_clos": 2,
     "page": 36,
     "note": "« Capitaux Propres Part Groupe 1 581 198 1 687 900 ». ⚠️ En-tête « EN KMAD 31/12/2024 31/12/2025 » : la colonne de gauche est 2024. Le texte de la page tranche sans ambiguïté — « Les capitaux propres s'élèvent à 1 803 MDH vs 1 695 MDH au 31 décembre 2024 » — et la ligne de total, « Capitaux Propres 1 694 751 1 803 813 », le confirme dans le même ordre."
+   },
+   "total_actif": {
+    "valeur": 4617.604,
+    "valeur_au_rapport": 4617604,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 2,
+    "page": 35,
+    "note": "« Total actif 3 809 445 4 617 604 »",
+    "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 4617.604,
+    "valeur_au_rapport": 4617604,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 2,
+    "page": 36,
+    "note": "« Total Passif 3 809 445 4 617 604 »",
+    "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 1803.813,
+    "valeur_au_rapport": 1803813,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 2,
+    "page": 36,
+    "note": "« Capitaux Propres 1 694 751 1 803 813 »",
+    "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 2301.819,
+    "valeur_au_rapport": 2301819,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 2,
+    "page": 36,
+    "composantes": [
+     {
+      "page": 36,
+      "citation": "Autres dettes à long terme 1 391 741 1 487 944",
+      "valeur_au_rapport": 1487944
+     },
+     {
+      "page": 36,
+      "citation": "Dettes financières à court terme 253 434 646 965",
+      "valeur_au_rapport": 646965
+     },
+     {
+      "page": 36,
+      "citation": "Banques 51 516 166 910",
+      "valeur_au_rapport": 166910
+     }
+    ],
+    "note": "⚠️ exercice clos en SECONDE colonne (« EN KMAD 31/12/2024 31/12/2025 »). Dettes à long terme + dettes financières à court terme + banques. « Autres dettes à long terme » est le seul poste non courant hors provisions ; son caractère financier est confirmé par le « Gearing (Dette nette/Capitaux Propres) 64% 109% » publié p.36 : (2 301 819 − 333 375) ÷ 1 803 813 = 109,1 %.",
+    "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 333.375,
+    "valeur_au_rapport": 333375,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 2,
+    "page": 35,
+    "note": "« Trésorerie et équivalents de trésorerie 610 948 333 375 » ; recoupé : « + Trésorerie clôture 559 432 166 466 » (p.36) = 333 375 − 166 910 de banques.",
+    "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 631.286,
+    "valeur_au_rapport": 631286,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 2,
+    "page": 35,
+    "note": "« Excédent brut d'exploitation 461 221 631 286 » ; après loyers ; « L'Excédent Brut d'Exploitation (EBITDA) est de 631 MDH » (même page).",
+    "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 424.612,
+    "valeur_au_rapport": 424612,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 2,
+    "page": 35,
+    "note": "« Résultat d'exploitation 292 842 424 612 »",
+    "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": -95.72,
+    "valeur_au_rapport": -95720,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 2,
+    "page": 35,
+    "note": "« Résultat financier (78 031) (95 720) »",
+    "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 336.712,
+    "valeur_au_rapport": 336712,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 2,
+    "page": 35,
+    "note": "« Résultat opérationnel avant impôts 226 380 336 712 » ; RAI 328 892 + « Résultat de la gestion des autres actifs 7 820 » : c'est cette base que l'impôt (56 164) ramène au résultat net 280 549.",
+    "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 56.164,
+    "valeur_au_rapport": 56164,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 2,
+    "page": 35,
+    "note": "« Impôts (30 084) (56 164) »",
+    "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 280.549,
+    "valeur_au_rapport": 280549,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 2,
+    "page": 35,
+    "note": "« Résultat net de l'ensemble consolidé 196 296 280 549 »",
+    "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 542.042,
+    "valeur_au_rapport": 542042,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 2,
+    "page": 36,
+    "note": "« = FLUX DE TRÉSORERIE DES ACTIVITÉS OPERATIONNELLES [A] 435 034 542 042 »",
+    "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
   "_ecarts_mesures": {
@@ -709,6 +2010,40 @@
     "terminal": 13.9,
     "ecart": "Attijari donne 19,0"
    }
+  },
+  "_controles_ratios_2025": {
+   "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "4617.604 / 4617.604"
+    },
+    {
+     "controle": "REX + RF = RAI publié 328 892",
+     "ok": true,
+     "detail": "328.892 vs  328.892"
+    },
+    {
+     "controle": "RAI (après autres actifs) − impôt = RN ensemble",
+     "ok": true,
+     "detail": "280.548 vs resultat_net_consolide 280.549"
+    },
+    {
+     "controle": "EBE − amortissements et provisions 206 674 = REX",
+     "ok": true,
+     "detail": "424.612 vs resultat_exploitation 424.612"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "1687.9 vs 1687.9"
+    }
+   ],
+   "reserves": [
+    "Comptes consolidés « résumés » : le rapport ne publie pas l'état détaillé. Les postes du bilan restent ceux de la société."
+   ]
   }
  },
  "SNA": {
@@ -734,6 +2069,151 @@
     "page": 87,
     "unite": "actions",
     "note": "« Nombre d'actions retenu pour le calcul du résultat par action 3.900.000 ». Le marché en implique exactement 3 900 000."
+   },
+   "total_actif": {
+    "valeur": 5426.9,
+    "valeur_au_rapport": 5426.9,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 74,
+    "note": "« TOTAL ACTIF 5 426,9 5 305,8 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 5426.9,
+    "valeur_au_rapport": 5426.9,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 74,
+    "note": "« TOTAL CAPITAUX PROPRES ET PASSIF 5 426,9 5 305,8 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 1993.2,
+    "valeur_au_rapport": 1993.2,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 74,
+    "note": "« Capitaux propres de l'ensemble consolidé 1 993,2 1 879,3 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 99.3,
+    "valeur_au_rapport": 99.3,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 74,
+    "composantes": [
+     {
+      "page": 74,
+      "citation": "Dettes financières non courantes 23 94,2 100,0",
+      "valeur_au_rapport": 94.2
+     },
+     {
+      "page": 74,
+      "citation": "Dettes financières courantes 23 5,1",
+      "valeur_au_rapport": 5.1
+     }
+    ],
+    "note": "note 23 (p.91) : les dettes non courantes sont intégralement des « Dettes liées aux contrats à droit d'usage 94,2 » ; aucun emprunt bancaire. La valeur courante 5,1 appartient à 2025 (« TOTAL DETTES FINANCIÈRES COURANTES 5,1 - ») et recoupe la trésorerie de clôture du tableau des flux : 496,7 − 5,1 = 491,6.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 496.7,
+    "valeur_au_rapport": 496.7,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 74,
+    "note": "« Trésorerie et équivalent de trésorerie 19 496,7 723,4 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 610.0,
+    "valeur_au_rapport": 610,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 21,
+    "note": "« En consolidé, l'EBITDA atteint 610 MDH et progresse » ; EBITDA consolidé publié (rapport de gestion).",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 438.7,
+    "valeur_au_rapport": 438.7,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 75,
+    "note": "« Résultat des activités opérationnelles 438,7 205,4 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": -28.2,
+    "valeur_au_rapport": -28.2,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 75,
+    "note": "« Résultat financier 11 -28,2 3,1 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 410.5,
+    "valeur_au_rapport": 410.5,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 75,
+    "note": "« Résultat avant impôts des entreprises intégrées 410,5 208,5 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 138.0,
+    "valeur_au_rapport": 138,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 75,
+    "composantes": [
+     {
+      "page": 75,
+      "citation": "Impôts sur les bénéfices 12 -167,4 -78,5",
+      "valeur_au_rapport": 167.4
+     },
+     {
+      "page": 75,
+      "citation": "Impôts différés 12 29,4 11,7",
+      "valeur_au_rapport": 29.4,
+      "signe": -1
+     }
+    ],
+    "note": "recoupé : « Elim. de la charge (produit) d'impôt 138,0 » au tableau des flux.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 272.5,
+    "valeur_au_rapport": 272.5,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 75,
+    "note": "« Résultat net des entreprises intégrées 272,5 141,7 » ; = « Résultat net de l'ensemble consolidé 272,5 » en tête du tableau des flux.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 195.5,
+    "valeur_au_rapport": 195.5,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 75,
+    "note": "« Flux de trésorerie liés aux activités opérationnelles 195,5 264,4 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
   "_ecarts_mesures": {
@@ -748,6 +2228,32 @@
     "terminal": 13.0,
     "ecart": "le terminal présentait le titre moins cher qu'il n'est"
    }
+  },
+  "_controles_ratios_2025": {
+   "base": "consolidé IFRS, 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "5426.9 / 5426.9"
+    },
+    {
+     "controle": "REX + RF = RAI",
+     "ok": true,
+     "detail": "410.5 vs resultat_avant_impot 410.5"
+    },
+    {
+     "controle": "RAI − impôt = RN ensemble",
+     "ok": true,
+     "detail": "272.5 vs resultat_net_consolide 272.5"
+    },
+    {
+     "controle": "capital + primes + réserves + résultat = CP part du groupe",
+     "ok": true,
+     "detail": "1990.3 vs capitaux_propres_part_groupe_verif 1990.3"
+    }
+   ]
   }
  },
  "SOT": {
@@ -792,6 +2298,128 @@
     "colonne_exercice_clos": 1,
     "page": 52,
     "note": "« Capitaux propres, part du groupe 2 619 648 1 684 172 » ; en-tête « En KMAD Déc-25 Déc-24 ». Le texte de la page confirme : « capitaux propres consolidés de l'ordre de 2,65 milliards de dirhams dont -30 millions d'intérêts hors groupe » — 2 649 675 - 30 028 = 2 619 647. Et la somme des composantes tombe juste : 380 336 + 610 092 + 1 243 509 + 185 + 385 526 = 2 619 648."
+   },
+   "total_actif": {
+    "valeur": 4607.253,
+    "valeur_au_rapport": 4607253,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 63,
+    "note": "« TOTAL ACTIF 4 607 253 3 182 052 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 4607.253,
+    "valeur_au_rapport": 4607253,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 63,
+    "note": "« TOTAL PASSIF 4 607 253 3 182 052 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 2649.675,
+    "valeur_au_rapport": 2649675,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 63,
+    "note": "« TOTAL DES CAPITAUX PROPRES 2 649 675 1 707 312 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 976.72,
+    "valeur_au_rapport": 976720,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 63,
+    "composantes": [
+     {
+      "page": 63,
+      "citation": "Emprunts et dettes financières 395 411 156 057",
+      "valeur_au_rapport": 395411
+     },
+     {
+      "page": 63,
+      "citation": "Emprunts et concours bancaires (part à moins d'un an) 581 309 432 554",
+      "valeur_au_rapport": 581309
+     }
+    ],
+    "note": "emprunts non courants + emprunts et concours bancaires à moins d'un an. ⚠️ La société publie un « Endettement Net 833 » MMAD (p.81) ; notre formule donne 827,9 — 5,1 MMAD d'écart, définition non détaillée.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 148.85,
+    "valeur_au_rapport": 148850,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 63,
+    "note": "« Disponibilités 148 850 77 181 » ; pas de VMP au bilan. Le tableau des flux (p.64) arrête « Trésorerie de clôture 137 135 » : 11,7 MMAD de concours bancaires, compris dans la ligne à moins d'un an.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 763.0,
+    "valeur_au_rapport": 763,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 81,
+    "note": "« EBITDA 763 600 27,2% » ; EBITDA consolidé PUBLIÉ (« EN MMAD DÉC-25 DÉC-24 »), confirmé p.25 (colonne « Publié 2025 », le proforma 857 intègre Soludia sur douze mois et n'est PAS retenu).",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dotations_amortissements_exploitation": {
+    "valeur": 66.242,
+    "valeur_au_rapport": 66242,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 63,
+    "note": "« Dotation aux amortissements -66 242 -67 955 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 626.524,
+    "valeur_au_rapport": 626524,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 63,
+    "note": "« RÉSULTAT OPÉRATIONNEL 626 524 512 092 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 625.345,
+    "valeur_au_rapport": 625345,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 63,
+    "note": "« Résultat avant impôt 625 345 493 347 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 235.757,
+    "valeur_au_rapport": 235757,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 63,
+    "note": "« Impôts sur les bénéfices - 235 757 - 175 482 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 460.693,
+    "valeur_au_rapport": 460693,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 64,
+    "note": "« Flux de trésorerie liés aux activités opérationnelles 460 693 233 651 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
   "_ecarts_mesures": {
@@ -806,6 +2434,36 @@
     "terminal": 11.3,
     "ecart": "le terminal présentait le titre moins cher qu'il n'est"
    }
+  },
+  "_controles_ratios_2025": {
+   "base": "consolidé IFRS, 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "4607.253 / 4607.253"
+    },
+    {
+     "controle": "REX − coût endettement net 22,814 + autres financiers 21,635 = RAI",
+     "ok": true,
+     "detail": "625.345 vs resultat_avant_impot 625.345"
+    },
+    {
+     "controle": "RAI − impôt − QP MEE 1,359 = RN total (clé existante)",
+     "ok": true,
+     "detail": "388.229 vs resultat_net_consolide 388.229"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "2619.648 vs 2619.648"
+    }
+   ],
+   "reserves": [
+    "Le rapport écrit aussi « Résultat d'Exploitation 666 » (p.81) contre « RÉSULTAT OPÉRATIONNEL 626 524 » au compte consolidé (p.63) : nous retenons l'état financier.",
+    "EBITDA publié 763 contre résultat opérationnel + dotations aux amortissements = 692,8 : la définition de la société inclut d'autres éléments (provisions)."
+   ]
   }
  },
  "TQA": {
@@ -839,6 +2497,160 @@
     "colonne_exercice_clos": 1,
     "page": 104,
     "note": "« Capitaux propres Part du Groupe 6 773 6 665 1,62% » ; en-tête « En MMAD 2025 2024 Var. 25/24 ». Le texte de la page recoupe l'écart : « Hausse des capitaux propres consolidés part du groupe de MMAD 108 », et 6 773 - 6 665 = 108."
+   },
+   "total_actif": {
+    "valeur": 20299.976,
+    "valeur_au_rapport": 20299976,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 114,
+    "note": "« Total Actif 20 299 976 20 920 079 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 20299.976,
+    "valeur_au_rapport": 20299976,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 114,
+    "note": "« TOTAL PASSIF 20 299 976 20 920 079 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 7498.609,
+    "valeur_au_rapport": 7498609,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 114,
+    "note": "« CAPITAUX PROPRES CONSOLIDÉS 7 498 609 7 368 567 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 9679.219,
+    "valeur_au_rapport": 9679219,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 114,
+    "composantes": [
+     {
+      "page": 114,
+      "citation": "Dettes de financement 9 679 219 10 342 642",
+      "valeur_au_rapport": 9679219
+     },
+     {
+      "page": 114,
+      "citation": "Trésorerie passif - -",
+      "valeur_au_rapport": 0
+     }
+    ],
+    "note": "dettes de financement ; trésorerie-passif nulle (« - »).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 3269.21,
+    "valeur_au_rapport": 3269210,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 114,
+    "composantes": [
+     {
+      "page": 114,
+      "citation": "• Titres et valeurs de placement 3 227 026 3 517 860",
+      "valeur_au_rapport": 3227026
+     },
+     {
+      "page": 114,
+      "citation": "• Trésorerie actif 42 184 52 224",
+      "valeur_au_rapport": 42184
+     }
+    ],
+    "note": "titres et valeurs de placement + trésorerie-actif = « Trésorerie de clôture 3 269 210 » du tableau des flux (même page).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 3199.0,
+    "valeur_au_rapport": 3199,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 24,
+    "note": "« EBITDA 3 199 3 454 -255 -7,4% » ; EBITDA consolidé publié (rapport de gestion). Recoupé : résultat d'exploitation 2 442 711 + dotations 812 770 − reprises 61 066 = 3 194 415 KMAD (écart 0,1 %).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 2442.711,
+    "valeur_au_rapport": 2442711,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 114,
+    "note": "« Résultat d'exploitation 2 442 711 2 632 614 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": -371.286,
+    "valeur_au_rapport": -371286,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 114,
+    "note": "« Résultat financier (371 286) (404 313) »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_non_courant": {
+    "valeur": -86.771,
+    "valeur_au_rapport": -86771,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 114,
+    "note": "« Résultat non courant (86 771) (131 140) »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 1984.654,
+    "valeur_au_rapport": 1984654,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 114,
+    "note": "« Résultat avant impôts 1 984 654 2 097 161 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 709.819,
+    "valeur_au_rapport": 709819,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 114,
+    "note": "« Impôts sur les bénéfices 709 819 720 085 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 1274.835,
+    "valeur_au_rapport": 1274835,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 114,
+    "note": "« Résultat net consolidé 1 274 835 1 377 076 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 1812.793,
+    "valeur_au_rapport": 1812793,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 114,
+    "note": "« Flux net de trésorerie généré par l'activité 1 812 793 1 404 101 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
   "_ecarts_mesures": {
@@ -853,6 +2665,35 @@
     "terminal": 28.1,
     "ecart": "le terminal présentait le titre moins cher qu'il n'est"
    }
+  },
+  "_controles_ratios_2025": {
+   "base": "consolidé (normes marocaines), 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "20299.976 / 20299.976"
+    },
+    {
+     "controle": "REX + RF + RNC = RAI",
+     "ok": true,
+     "detail": "1984.654 vs resultat_avant_impot 1984.654"
+    },
+    {
+     "controle": "RAI − impôt = RN consolidé",
+     "ok": true,
+     "detail": "1274.835 vs resultat_net_consolide 1274.835"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "6772.744 vs 6773.0"
+    }
+   ],
+   "reserves": [
+    "La société publie « Dette nette / EBITDA 1,7x » (p.24) ; notre formule donne 6 410,0 ÷ 3 199 = 2,0. La définition de la dette nette de la société n'est pas donnée ; l'écart (≈ 970 MMAD de dette) n'est pas expliqué."
+   ]
   }
  },
  "_defauts_systemiques": {
@@ -934,9 +2775,170 @@
     "page": 78,
     "unite": "actions",
     "note": "capital 141 592 070 MAD ÷ nominale 10. Le marché en implique 14 158 952 (écart 0,002 %)."
+   },
+   "total_actif": {
+    "valeur": 9486.454588,
+    "valeur_au_rapport": 9486454588,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 78,
+    "note": "« TOTAL ACTIF 9 486 454 588 6 367 786 756 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 9486.454588,
+    "valeur_au_rapport": 9486454588,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 78,
+    "note": "« TOTAL DU PASSIF 9 486 454 588 6 367 786 756 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 2925.562585,
+    "valeur_au_rapport": 2925562585,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 78,
+    "note": "« Capitaux propres de l'ensemble consolidé 2 925 562 585 2 638 508 203 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 4476.992962,
+    "valeur_au_rapport": 4476992962,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 78,
+    "composantes": [
+     {
+      "page": 78,
+      "citation": "Dettes de financement 3 727 486 430 1 428 622 648",
+      "valeur_au_rapport": 3727486430
+     },
+     {
+      "page": 78,
+      "citation": "Trésorerie - passif 749 506 532 242 660 277",
+      "valeur_au_rapport": 749506532
+     }
+    ],
+    "note": "dettes de financement + trésorerie-passif. ⚠️ La ligne « Total du passif circulant 749 506 532 » de la p.78 reprend en réalité la trésorerie-passif (mise en page à deux colonnes) ; le bilan s'équilibre avec 2 925 562 585 + 3 734 318 347 + 2 077 067 124 + 749 506 532 = 9 486 454 588.",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 504.349961,
+    "valeur_au_rapport": 504349961,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 78,
+    "note": "« Trésorerie - Actif 504 349 961 575 808 633 » ; trésorerie-actif SEULE. Les « Titres et Valeurs de placement 601 775 808 » ne sont pas comptés : le tableau des flux (p.79) arrête la trésorerie de clôture à −245 156 571 = 504 349 961 − 749 506 532, hors TVP. Les inclure abaisserait la dette nette de 601,8 MMAD.",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 807.750348,
+    "valeur_au_rapport": 807750348,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 78,
+    "note": "« Résultat d'exploitation (III = I + II) 807 750 348 519 258 058 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": -100.381147,
+    "valeur_au_rapport": -100381147,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 78,
+    "note": "« Résultat financier VI -100 381 147 -57 610 704 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_non_courant": {
+    "valeur": 5.438279,
+    "valeur_au_rapport": 5438279,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 78,
+    "note": "« Résultat non courant X 5 438 279 27 426 983 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 712.80748,
+    "valeur_au_rapport": 712807480,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 78,
+    "note": "« Résultat avant impôts (XI = VII + X) 712 807 480 489 074 337 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 207.163156,
+    "valeur_au_rapport": 207163156,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 78,
+    "note": "« Impôt sur les bénéfices -207 163 156 -137 215 324 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 494.331591,
+    "valeur_au_rapport": 494331591,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 78,
+    "note": "« Résultat net de l'ensemble consolidé 494 331 591 347 553 992 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 152.180358,
+    "valeur_au_rapport": 152180358,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 79,
+    "note": "« Flux net généré par (affecté à) l'activité 152 180 358 169 352 948 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
-  "pages_document": 94
+  "pages_document": 94,
+  "_controles_ratios_2025": {
+   "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "9486.454588 / 9486.454588"
+    },
+    {
+     "controle": "REX + RF + RNC = RAI",
+     "ok": true,
+     "detail": "712.80748 vs resultat_avant_impot 712.80748"
+    },
+    {
+     "controle": "RAI − amort. écarts d'acquisition 11,312733 − impôt = RN ensemble (la quote-part SME −2 000 657 est celle de 2024 : sans elle l'égalité tombe au dirham)",
+     "ok": true,
+     "detail": "494.331591 vs resultat_net_consolide 494.331591"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "2853.529135 vs 2853.529135"
+    }
+   ],
+   "reserves": [
+    "EBITDA non calculable : « Dotations d'exploitation, nettes des reprises et TC -406 181 549 » (p.78) et « Élimination des amortissements et provisions 495 405 547 » (p.79) mêlent amortissements, provisions et reprises ; aucune page consolidée n'isole les dotations aux amortissements."
+   ]
+  }
  },
  "ARD": {
   "societe": "ARADEI CAPITAL",
@@ -1009,9 +3011,189 @@
     "page": 68,
     "unite": "actions",
     "note": "capital 1 700 090 000 MAD ÷ nominale 100. Le marché en implique 17 000 000 (écart 0,005 %)."
+   },
+   "total_actif": {
+    "valeur": 5703.881298,
+    "valeur_au_rapport": 5703881298,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 68,
+    "note": "« TOTAL ACTIF 5 703 881 298 3 812 044 716 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 5703.881298,
+    "valeur_au_rapport": 5703881298,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 68,
+    "note": "« TOTAL PASSIF 5 703 881 298 3 812 044 716 » ; le « TOTAL PASSIF » de CMGP inclut les capitaux propres (2 887 399 854 + 1 018 449 879 + 1 798 031 567 = 5 703 881 300, arrondis).",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 2887.399854,
+    "valeur_au_rapport": 2887399854,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 68,
+    "note": "« TOTAL CAPITAUX PROPRES N.33 2 887 399 854 2 634 396 857 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 1029.820216,
+    "valeur_au_rapport": 1029820216,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 68,
+    "composantes": [
+     {
+      "page": 68,
+      "citation": "Dettes financières non courantes N.34.1 918 245 131 296 006 574",
+      "valeur_au_rapport": 918245131
+     },
+     {
+      "page": 68,
+      "citation": "Dettes financières courantes N.34.2 97 141 056 128 099 392",
+      "valeur_au_rapport": 97141056
+     },
+     {
+      "page": 68,
+      "citation": "Concours bancaires N.31 14 434 029 129 768 082",
+      "valeur_au_rapport": 14434029
+     }
+    ],
+    "note": "dettes financières non courantes + courantes + concours bancaires.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 975.732912,
+    "valeur_au_rapport": 975732912,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 68,
+    "note": "« Trésorerie et équivalent de trésorerie N.31 975 732 912 399 663 415 » ; recoupé : « TRÉSORERIE DE CLÔTURE (A + B + C + D) 961 298 883 » (p.70) = 975 732 912 − 14 434 029.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 469.98402,
+    "valeur_au_rapport": 469984020,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 68,
+    "note": "« EBITDA 469 984 020 374 606 106 » ; ligne « EBITDA » de l'état du résultat consolidé, avant « Dotations d'exploitation N.11.1 - 102 845 813 ».",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 378.392166,
+    "valeur_au_rapport": 378392166,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 68,
+    "note": "« RÉSULTAT OPÉRATIONNEL 378 392 166 305 363 588 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": -10.083809,
+    "valeur_au_rapport": -10083809,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 68,
+    "note": "« RÉSULTAT FINANCIER N.14 - 10 083 809 - 32 712 548 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 368.308357,
+    "valeur_au_rapport": 368308357,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 68,
+    "note": "« RÉSULTAT CONSOLIDÉ AVANT IMPÔT 368 308 357 276 014 168 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 115.553414,
+    "valeur_au_rapport": 115553414,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 68,
+    "composantes": [
+     {
+      "page": 68,
+      "citation": "Impôts sur les bénéfices N.15 - 115 328 062 - 89 294 023",
+      "valeur_au_rapport": 115328062
+     },
+     {
+      "page": 68,
+      "citation": "Impôt différé N.15 - 225 352 - 4 187 735",
+      "valeur_au_rapport": 225352
+     }
+    ],
+    "note": "somme des composantes",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 252.754943,
+    "valeur_au_rapport": 252754943,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 68,
+    "note": "« RÉSULTAT NET DES ENTREPRISES INTÉGRÉES 252 754 943 182 532 410 » ; = « RÉSULTAT NET DE L'ENSEMBLE CONSOLIDÉ 252 754 943 ».",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 406.39,
+    "valeur_au_rapport": 406390000,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 70,
+    "note": "« FLUX NET DE TRÉSORERIE GÉNÉRÉ PAR L'ACTIVITÉ (A) 406 390 000 310 380 286 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
-  "pages_document": 91
+  "pages_document": 91,
+  "_controles_ratios_2025": {
+   "base": "consolidé IFRS, 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "5703.881298 / 5703.881298"
+    },
+    {
+     "controle": "REX + RF = RAI",
+     "ok": true,
+     "detail": "368.308357 vs resultat_avant_impot 368.308357"
+    },
+    {
+     "controle": "RAI − impôt = RN ensemble",
+     "ok": true,
+     "detail": "252.754943 vs resultat_net_consolide 252.754943"
+    },
+    {
+     "controle": "EBITDA − dotations nettes 79 612 526 − non courant 11 979 327 = REX",
+     "ok": true,
+     "detail": "378.392167 vs resultat_exploitation 378.392166"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "2788.340389 vs 2788.340389"
+    }
+   ]
+  }
  },
  "LES": {
   "societe": "LESIEUR CRISTAL",
@@ -1084,9 +3266,151 @@
     "page": 26,
     "unite": "actions",
     "note": "capital 1.310.443 KMAD ÷ nominale 50. Le marché en implique 26 209 302 (écart 0,002 %)."
+   },
+   "total_actif": {
+    "valeur": 7970.234,
+    "valeur_au_rapport": 7970234,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 24,
+    "note": "« TOTAL ACTIF 7.970.234 7.743.182 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 7970.234,
+    "valeur_au_rapport": 7970234,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 26,
+    "note": "« TOTAL PASSIF 7.970.234 7.743.182 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 3739.578,
+    "valeur_au_rapport": 3739578,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 26,
+    "note": "« CAPITAUX PROPRES 3.739.578 3.735.222 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 2116.222,
+    "valeur_au_rapport": 2116222,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 3,
+    "page": 26,
+    "note": "« Total Dettes Financières 616.489 1.499.734 2.116.222 2.013.150 » ; note « Dettes financières » : colonnes « A moins d'un an / A plus d'un an / Total 2025 / 2024 » — total 2025, troisième colonne. Établissements de crédit 1 445 990 + dettes diverses 312 583 + location 16 184 + concours bancaires 341 465. Recoupé au bilan : 1 499 261 + 474 + 275 024 + 341 465 = 2 116 224.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 249.215,
+    "valeur_au_rapport": 249215,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 24,
+    "note": "« Trésorerie et équivalence de trésorerie 249.215 356.260 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 32.714,
+    "valeur_au_rapport": 32714,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 22,
+    "note": "« RESULTAT D'EXPLOITATION 32.714 (47.343) »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": -14.184,
+    "valeur_au_rapport": -14184,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 22,
+    "note": "« Résultat financier (14.184) (21.136) »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 18.53,
+    "valeur_au_rapport": 18530,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 22,
+    "note": "« RESULTAT AVANT IMPOT DES ENTREPRISES INTERGREES 18.530 (68.479) »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 14.04,
+    "valeur_au_rapport": 14040,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 22,
+    "composantes": [
+     {
+      "page": 22,
+      "citation": "Impôts sur les sociétés (353) (5.398)",
+      "valeur_au_rapport": 353
+     },
+     {
+      "page": 22,
+      "citation": "Impôt différé (13.687) (5.821)",
+      "valeur_au_rapport": 13687
+     }
+    ],
+    "note": "impôt exigible 353 + différé 13 687 = 14 040, soit 75,8 % d'un résultat avant impôt de 18 530 : taux effectif réel, élevé parce que le résultat est faible.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 4.491,
+    "valeur_au_rapport": 4491,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 22,
+    "note": "« RESULTAT DE L'ENSEMBLE CONSOLIDE 4.491 (79.698) »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
-  "pages_document": 91
+  "pages_document": 91,
+  "_controles_ratios_2025": {
+   "base": "consolidé IFRS, 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "7970.234 / 7970.234"
+    },
+    {
+     "controle": "REX + RF = RAI",
+     "ok": true,
+     "detail": "18.53 vs resultat_avant_impot 18.53"
+    },
+    {
+     "controle": "RAI − impôt = RN ensemble",
+     "ok": true,
+     "detail": "4.49 vs resultat_net_consolide 4.491"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "3739.48 vs 3739.48"
+    }
+   ],
+   "non_calcules": {
+    "ebitda": "« Dotations nettes aux amort,et aux provisions (4.281) » mêle amortissements et provisions ; aucune ligne n'isole les amortissements d'exploitation consolidés.",
+    "cash_conversion": "le rapport ne contient pas de tableau des flux de trésorerie consolidé."
+   }
+  }
  },
  "SGTM": {
   "societe": "SGTM",
@@ -1109,9 +3433,194 @@
     "page": 87,
     "unite": "actions",
     "note": "capital 1 200 000 KMAD ÷ nominale 20. ⚠️ La nominale de 20 ne figure pas parmi les six usuelles ; c'est le marché qui tranche, et il donne exactement 60 000 000 titres — 1 200 000 000 ÷ 60 000 000 = 20 au dirham près. Le capital est passé de 300 000 à 1 200 000 KMAD sur l'exercice."
+   },
+   "total_actif": {
+    "valeur": 16660.408,
+    "valeur_au_rapport": 16660408,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 87,
+    "note": "« TOTAL ACTIF 16 660 408 12 447 590 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 16660.408,
+    "valeur_au_rapport": 16660408,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 87,
+    "note": "« TOTAL PASSIF 16 660 408 12 447 590 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 3550.399,
+    "valeur_au_rapport": 3550399,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 87,
+    "note": "« Capitaux propres de l'ensemble consolidé 3 550 399 2 617 864 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 2171.841,
+    "valeur_au_rapport": 2171841,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 87,
+    "composantes": [
+     {
+      "page": 87,
+      "citation": "Dettes de financement 6.3 1 119 645 1 125 409",
+      "valeur_au_rapport": 1119645
+     },
+     {
+      "page": 87,
+      "citation": "Trésorerie - passif 1 052 196 787 321",
+      "valeur_au_rapport": 1052196
+     }
+    ],
+    "note": "dettes de financement + trésorerie-passif.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 2256.346,
+    "valeur_au_rapport": 2256346,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 87,
+    "composantes": [
+     {
+      "page": 87,
+      "citation": "Trésorerie - actif 1 898 533 809 577",
+      "valeur_au_rapport": 1898533
+     },
+     {
+      "page": 87,
+      "citation": "Valeurs mobilières de placement 3.3.f 357 813 605 766",
+      "valeur_au_rapport": 357813
+     }
+    ],
+    "note": "trésorerie-actif + valeurs mobilières de placement : le tableau des flux (p.88) arrête « Trésorerie de clôture 1 204 150 » = 1 898 533 + 357 813 − 1 052 196.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 2489.0,
+    "valeur_au_rapport": 2489,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 36,
+    "note": "« 2 489 » ; graphique « EBITDA* » (* M MAD), valeur 2025 ; confirmé p.6 : « EBITDA … 2,5 Md MAD … +31,7% vs. 2024 » (2 489 ÷ 1 890 = +31,7 %). Recoupé : résultat d'exploitation 1 951 593 + « Dotations d'exploitation, nettes des reprises et transferts de charges (537 175) » = 2 488 768 KMAD.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 1951.593,
+    "valeur_au_rapport": 1951593,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 88,
+    "note": "« Résultat d'exploitation 1 951 593 1 411 168 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": -46.091,
+    "valeur_au_rapport": -46091,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 88,
+    "note": "« Résultat financier 6.6 (46 091) (75 338) »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_non_courant": {
+    "valeur": 50.492,
+    "valeur_au_rapport": 50492,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 88,
+    "note": "« Résultat non courant 6.7 50 492 (303 330) »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 1955.994,
+    "valeur_au_rapport": 1955994,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 88,
+    "note": "« Résultat avant impôt 1 955 994 1 032 501 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 614.052,
+    "valeur_au_rapport": 614052,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 88,
+    "note": "« Impôt sur le résultat 6.8 (614 052) (442 843) »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 1341.942,
+    "valeur_au_rapport": 1341942,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 88,
+    "note": "« Résultat net de l'ensemble consolidé 1 341 942 589 658 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 1614.497,
+    "valeur_au_rapport": 1614497,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 88,
+    "note": "« FLUX NET DE TRÉSORERIE GÉNÉRÉ PAR L'ACTIVITÉ 1 614 497 1 545 716 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
-  "pages_document": 101
+  "pages_document": 101,
+  "_controles_ratios_2025": {
+   "base": "consolidé (normes marocaines), 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "16660.408 / 16660.408"
+    },
+    {
+     "controle": "REX + RF + RNC = RAI",
+     "ok": true,
+     "detail": "1955.994 vs resultat_avant_impot 1955.994"
+    },
+    {
+     "controle": "RAI − impôt = RN ensemble",
+     "ok": true,
+     "detail": "1341.942 vs resultat_net_consolide 1341.942"
+    },
+    {
+     "controle": "REX + dotations nettes 537,175 ≈ EBITDA publié",
+     "ok": true,
+     "detail": "2488.768 vs excedent_brut_exploitation 2489.0"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "3550.399 vs 3550.399"
+    }
+   ]
+  }
  },
  "SNP": {
   "societe": "SNEP",
@@ -1134,9 +3643,176 @@
     "page": 50,
     "unite": "actions",
     "note": "capital 240 000 KMAD ÷ nominale 100. Le marché en implique 2 398 754 (écart 0,05 %)."
+   },
+   "total_actif": {
+    "valeur": 1710.393,
+    "valeur_au_rapport": 1710393,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 50,
+    "note": "« TOTAL DE L'ACTIF 1 710 393 1 865 537 -155 144 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 1710.393,
+    "valeur_au_rapport": 1710393,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 50,
+    "note": "« TOTAL DU PASSIF 1 710 393 1 865 537 -155 144 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 487.051,
+    "valeur_au_rapport": 487051,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 50,
+    "note": "« Total Capitaux propres 487 051 672 236 -185 185 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 816.3,
+    "valeur_au_rapport": 816300,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 50,
+    "composantes": [
+     {
+      "page": 50,
+      "citation": "Dettes financières à long terme 258 619 331 417 -72 798",
+      "valeur_au_rapport": 258619
+     },
+     {
+      "page": 50,
+      "citation": "Trésorerie passif 557 681 491 566 66 115",
+      "valeur_au_rapport": 557681
+     }
+    ],
+    "note": "dettes financières à long terme + trésorerie-passif. Recoupé : « Trésorerie à la fin de période -556 419 » (p.51) = 1 262 − 557 681.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 1.262,
+    "valeur_au_rapport": 1262,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 50,
+    "note": "« Disponibilités 1 262 1 202 60 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dotations_amortissements_exploitation": {
+    "valeur": 101.978,
+    "valeur_au_rapport": 101978,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 51,
+    "note": "« - Dotations aux amortissements 101 978 80 540 » ; tableau des flux consolidé ; les « Dotations d'exploitation - 104 934 » du compte de résultat comprennent en plus des provisions.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": -133.729,
+    "valeur_au_rapport": -133729,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 51,
+    "note": "« Résultat d'exploitation - 133 729 -26 755 - 106 974 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": -172.788,
+    "valeur_au_rapport": -172788,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 51,
+    "composantes": [
+     {
+      "page": 51,
+      "citation": "Résultat courant des entreprises intégrées - 170 726 -60 218 - 110 508",
+      "valeur_au_rapport": 170726,
+      "signe": -1
+     },
+     {
+      "page": 51,
+      "citation": "Charges et produits non courants -2 062 5 812 -7 874",
+      "valeur_au_rapport": 2062,
+      "signe": -1
+     }
+    ],
+    "note": "résultat courant + non courant (pas de ligne publiée).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": -3.594,
+    "valeur_au_rapport": -3594,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 51,
+    "note": "« Impôts sur les résultats 3 594 19 892 -16 298 » ; PRODUIT d'impôt de 3 594 (le compte de résultat l'ajoute : −172 788 + 3 594 = −169 194).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": -185.186,
+    "valeur_au_rapport": -185186,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 51,
+    "note": "« Résultat net de l'ensemble consolidé - 185 186 -43 811 - 141 375 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": -12.498,
+    "valeur_au_rapport": -12498,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 51,
+    "note": "« Flux net de trésorerie lié à l'activité -12 498 97 832 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
-  "pages_document": 68
+  "pages_document": 68,
+  "_controles_ratios_2025": {
+   "base": "consolidé (normes marocaines), 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "1710.393 / 1710.393"
+    },
+    {
+     "controle": "REX + financier (−36 997) = résultat courant",
+     "ok": true,
+     "detail": "-170.726 vs  -170.726"
+    },
+    {
+     "controle": "RAI − impôt = RN des entreprises intégrées (−169,194)",
+     "ok": true,
+     "detail": "-169.194 vs  -169.194"
+    },
+    {
+     "controle": "RN intégrées + MEE −6,464 − écarts d'acquisition 9,528 = RN ensemble",
+     "ok": true,
+     "detail": "-185.186 vs resultat_net_consolide -185.186"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "487.051 vs 487.051"
+    }
+   ]
+  }
  },
  "TGCC": {
   "societe": "TGCC SA",
@@ -1159,9 +3835,174 @@
     "page": 96,
     "unite": "actions",
     "note": "capital social 346 743 KMAD ÷ nominale 10. Le marché en implique 34 673 913 (écart 0,001 %)."
+   },
+   "total_actif": {
+    "valeur": 15670.237,
+    "valeur_au_rapport": 15670237,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 96,
+    "note": "« TOTAL ACTIF 15 670 237 8 653 740 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 15670.237,
+    "valeur_au_rapport": 15670237,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 96,
+    "note": "« TOTAL PASSIF 15 670 237 8 653 740 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 4883.671,
+    "valeur_au_rapport": 4883671,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 96,
+    "note": "« TOTAL CAPITAUX PROPRES 4 883 671 1 767 552 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 2708.541,
+    "valeur_au_rapport": 2708541,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 96,
+    "composantes": [
+     {
+      "page": 96,
+      "citation": "Dettes et emprunts 1 200 954 807 838",
+      "valeur_au_rapport": 1200954
+     },
+     {
+      "page": 96,
+      "citation": "TRÉSORERIE 1 507 587 607 927",
+      "valeur_au_rapport": 1507587
+     }
+    ],
+    "note": "« Dettes et emprunts » (hors provisions durables 2 154) + trésorerie-passif.",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 1925.788,
+    "valeur_au_rapport": 1925788,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 96,
+    "note": "« TRÉSORERIE 1 925 788 621 723 » ; trésorerie-actif SEULE. ⚠️ Les « Titres de placement 229 519 » sont classés par la société dans l'ACTIF D'EXPLOITATION, pas en trésorerie : non comptés (les inclure abaisserait la dette nette à 553,2). ⚠️ La « TRÉSORERIE À LA CLÔTURE DE L'EXERCICE 2 015 875 » du tableau des flux (p.98) ne se rapproche d'aucune combinaison des lignes du bilan : non utilisée.",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 2638.919,
+    "valeur_au_rapport": 2638919,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 96,
+    "note": "« RÉSULTAT OPERATIONNEL AVANT AMORTISSEMENT 2 638 919 1 192 794 » ; ligne du compte consolidé, avant « Dotation d'exploitation (hors écarts d'acquisition) 379 628 ».",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 2259.291,
+    "valeur_au_rapport": 2259291,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 96,
+    "note": "« RÉSULTAT OPERATIONNEL 2 259 291 913 484 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 2119.415,
+    "valeur_au_rapport": 2119415,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 96,
+    "note": "« RÉSULTAT AVANT IMPOT 2 119 415 753 492 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 835.79,
+    "valeur_au_rapport": 835790,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 96,
+    "composantes": [
+     {
+      "page": 96,
+      "citation": "Impôt sur les résultats -801 426 -210 298",
+      "valeur_au_rapport": 801426
+     },
+     {
+      "page": 96,
+      "citation": "Impôt différés -34 364 -12 499",
+      "valeur_au_rapport": 34364
+     }
+    ],
+    "note": "somme des composantes",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 1161.165,
+    "valeur_au_rapport": 1161165,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 96,
+    "note": "« Résultat Net 1 161 165 527 281 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 1737.231,
+    "valeur_au_rapport": 1737231,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 98,
+    "note": "« FLUX DE TRÉSORERIE NET PROVENANT DES ACTIVITÉS OPÉRATIONNELLES 1 737 231 764 063 »",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
-  "pages_document": 122
+  "pages_document": 122,
+  "_controles_ratios_2025": {
+   "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "15670.237 / 15670.237"
+    },
+    {
+     "controle": "REX + produits fin. 45 958 − charges fin. 152 583 + non courant −33 252 = RAI",
+     "ok": true,
+     "detail": "2119.414 vs resultat_avant_impot 2119.415"
+    },
+    {
+     "controle": "RAI − amort. écarts d'acquisition 122 460 − impôts = RN",
+     "ok": true,
+     "detail": "1161.165 vs resultat_net_consolide 1161.165"
+    },
+    {
+     "controle": "EBITDA − dotations 379 628 = REX",
+     "ok": true,
+     "detail": "2259.291 vs resultat_exploitation 2259.291"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "4544.126 vs 4544.126"
+    }
+   ]
+  }
  },
  "WAF": {
   "societe": "Wafa Assurance",
@@ -1309,9 +4150,163 @@
     "page": 18,
     "unite": "actions",
     "note": "capital 188 576 200,00 MAD ÷ nominale 100. Le marché en implique 1 885 135 (écart 0,03 %)."
+   },
+   "total_actif": {
+    "valeur": 1316.480302,
+    "valeur_au_rapport": 1316480301.52,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 18,
+    "note": "« TOTAL ACTIF 1 316 480 301,52 1 280 910 577,39 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 1316.480302,
+    "valeur_au_rapport": 1316480301.52,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 18,
+    "note": "« TOTAL PASSIF 1 316 480 301,52 1 280 910 577,39 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 685.851759,
+    "valeur_au_rapport": 685851758.64,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 18,
+    "note": "« CAPITAUX PROPRES DE L'ENSEMBLE 685 851 758,64 675 926 208,81 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 337.422075,
+    "valeur_au_rapport": 337422075.33,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 18,
+    "composantes": [
+     {
+      "page": 18,
+      "citation": "* Emprunts et dettes financières 61 523 985,94 69 280 305,20",
+      "valeur_au_rapport": 61523985.94
+     },
+     {
+      "page": 18,
+      "citation": "* Trésorerie-passif 275 898 089,39 244 319 862,01",
+      "valeur_au_rapport": 275898089.39
+     }
+    ],
+    "note": "emprunts et dettes financières + trésorerie-passif.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 100.078077,
+    "valeur_au_rapport": 100078076.7,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 18,
+    "note": "« * Disponibilités 100 078 076,70 58 106 908,50 » ; disponibilités seules : « Trésorerie de clôture -175 820 013 » (p.20) = 100 078 077 − 275 898 089, hors titres et valeurs de placement (28 763 386).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 107.526426,
+    "valeur_au_rapport": 107526425.61,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 19,
+    "note": "« Résultat d'exploitation 107 526 425,61 102 652 825,62 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 110.142313,
+    "valeur_au_rapport": 110142313.02,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 19,
+    "composantes": [
+     {
+      "page": 19,
+      "citation": "Résultat courant des entreprises intégrées 117 438 786,48 109 155 025,10",
+      "valeur_au_rapport": 117438786.48
+     },
+     {
+      "page": 19,
+      "citation": "Charges et produits non courant -7 296 473,46 -4 144 415,92",
+      "valeur_au_rapport": 7296473.46,
+      "signe": -1
+     }
+    ],
+    "note": "pas de ligne « résultat avant impôt » au compte consolidé : résultat courant + non courant.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 24.684381,
+    "valeur_au_rapport": 24684381.26,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 19,
+    "note": "« Impôts sur les bénéfices 24 684 381,26 26 163 069,00 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 85.457932,
+    "valeur_au_rapport": 85457931.76,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 19,
+    "note": "« Résultat net de l'ensemble consolidé 85 457 931,76 78 847 540,18 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 110.373237,
+    "valeur_au_rapport": 110373237,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 20,
+    "note": "« Flux net de trésorerie généré par l'activité (III= I+II) 110 373 237 101 341 377 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
    }
   },
-  "pages_document": 91
+  "pages_document": 91,
+  "_controles_ratios_2025": {
+   "base": "consolidé (normes marocaines), 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "1316.480302 / 1316.480302"
+    },
+    {
+     "controle": "REX + financier 9 912 360,87 = résultat courant",
+     "ok": true,
+     "detail": "117.438787 vs  117.43878648"
+    },
+    {
+     "controle": "RAI − impôt = RN ensemble",
+     "ok": true,
+     "detail": "85.457932 vs resultat_net_consolide 85.457932"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "685.851759 vs 685.85175864"
+    }
+   ],
+   "non_calcules": {
+    "ebitda": "« Dotations d'exploitation 33 097 468,61 » (p.19) n'isole pas les amortissements des provisions, et le tableau des flux ne donne qu'une « Dotation d'exploitation durable nette de reprise 13 804 592 ». L'EBE de la p.31 est SOCIAL. Aucun EBITDA consolidé publié."
+   }
+  }
  },
  "GAZ": {
   "societe": "AFRIQUIA GAZ",
@@ -1334,9 +4329,132 @@
     "page": 172,
     "unite": "actions",
     "note": "capital 343 750 KMAD ÷ nominale 100. Le marché en implique exactement 3 437 500."
+   },
+   "total_actif": {
+    "valeur": 9256.362,
+    "valeur_au_rapport": 9256362,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 172,
+    "note": "« Total actif 9 256 362 9 516 113 »",
+    "base": "consolidé IFRS, 31/12/2025 — états publiés dans le communiqué inclus au rapport (p.172)",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 9256.362,
+    "valeur_au_rapport": 9256362,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 172,
+    "note": "« Total passif 9 256 362 9 516 113 »",
+    "base": "consolidé IFRS, 31/12/2025 — états publiés dans le communiqué inclus au rapport (p.172)",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 3387.01,
+    "valeur_au_rapport": 3387010,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 172,
+    "note": "« Total capitaux propres 3 387 010 3 238 073 »",
+    "base": "consolidé IFRS, 31/12/2025 — états publiés dans le communiqué inclus au rapport (p.172)",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 1512.554,
+    "valeur_au_rapport": 1512554,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 172,
+    "composantes": [
+     {
+      "page": 172,
+      "citation": "Dettes de financement à plus d'un an 1 061 912 1 050 097",
+      "valeur_au_rapport": 1061912
+     },
+     {
+      "page": 172,
+      "citation": "Dettes de financement à moins d'un an 132 631 122 303",
+      "valeur_au_rapport": 132631
+     },
+     {
+      "page": 172,
+      "citation": "Trésorerie et équivalents 318 011 352 397",
+      "valeur_au_rapport": 318011
+     }
+    ],
+    "note": "dettes de financement à plus et moins d'un an + la ligne « Trésorerie et équivalents 318 011 », qui figure AU PASSIF courant (concours bancaires) : le total des passifs courants 4 100 437 = 3 287 459 + 132 631 + 8 537 + 353 799 + 318 011. ⚠️ « Autres passifs non courants 687 847 » (probablement les dettes locatives du « Droit d'utilisation de l'actif 890 718 ») n'est PAS compté : sa nature n'est pas lisible.",
+    "base": "consolidé IFRS, 31/12/2025 — états publiés dans le communiqué inclus au rapport (p.172)",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 1039.041,
+    "valeur_au_rapport": 1039041,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 172,
+    "note": "« Trésorerie actif 1 039 041 1 309 278 »",
+    "base": "consolidé IFRS, 31/12/2025 — états publiés dans le communiqué inclus au rapport (p.172)",
+    "releve_le": "2026-09-30"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 1576.721,
+    "valeur_au_rapport": 1576721,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 172,
+    "note": "« Résultat opérationnel avant dotations aux amortissements 1 576 721 1 593 737 » ; ligne du compte consolidé IFRS : résultat opérationnel AVANT dotations aux amortissements.",
+    "base": "consolidé IFRS, 31/12/2025 — états publiés dans le communiqué inclus au rapport (p.172)",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 1067.008,
+    "valeur_au_rapport": 1067008,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 172,
+    "note": "« Résultat avant impôt des sociétés intégrées 1 067 008 1 090 842 »",
+    "base": "consolidé IFRS, 31/12/2025 — états publiés dans le communiqué inclus au rapport (p.172)",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 750.5,
+    "valeur_au_rapport": 750500,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 172,
+    "note": "« Résultat net consolidé 750 500 747 392 »",
+    "base": "consolidé IFRS, 31/12/2025 — états publiés dans le communiqué inclus au rapport (p.172)",
+    "releve_le": "2026-09-30"
    }
   },
-  "pages_document": 174
+  "pages_document": 174,
+  "_controles_ratios_2025": {
+   "base": "consolidé IFRS, 31/12/2025 — états publiés dans le communiqué inclus au rapport (p.172)",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "9256.362 / 9256.362"
+    },
+    {
+     "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
+     "ok": true,
+     "detail": "3387.007 vs 3387.007"
+    }
+   ],
+   "reserves": [
+    "⚠️ 89 pages sur 174 du rapport sont des IMAGES sans texte (notamment p.69-97 et p.103-156) : les états consolidés complets ne sont pas lisibles. Seul le communiqué de la p.172 l'est, et son compte de résultat est illisible sur les lignes « Dotations aux amortissements », « Impôts » et « Quote-part des sociétés mises en équivalence » (caractères entrelacés). Non devinés.",
+    "Conséquence : ni impôt ni résultat d'exploitation après amortissements relevés au compte → ROIC NON calculé ; tableau des flux illisible → conversion en trésorerie NON calculée. Le « Résultat opérationnel consolidé 1 166,7 MDH » du communiqué p.173 n'est pas retenu seul : sans l'impôt il ne sert à rien.",
+    "Les « EBE 1 323 830 » (p.19) et « Endettement net - 598 332 » (p.21) sont SOCIAUX : non retenus, pour ne pas mélanger les bases."
+   ],
+   "non_calcules": {
+    "dette_nette": "doute sur le périmètre : l'actif porte un « Droit d'utilisation de l'actif 890 718 » dont la dette locative n'est pas identifiable (probablement dans « Autres passifs non courants 687 847 », notes illisibles). Écart possible de 688 MMAD sur 474 : on ne publie pas.",
+    "roic": "impôt illisible au compte de résultat (p.172).",
+    "cash_conversion": "tableau des flux illisible (pages image)."
+   }
+  }
  },
  "OUL": {
   "societe": "OULMES",
@@ -1412,5 +4530,977 @@
    }
   },
   "pages_document": 122
+ },
+ "DHO": {
+  "societe": "Delta Holding",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/DHO_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-30",
+  "pages_document": 115,
+  "faits": {
+   "total_actif": {
+    "valeur": 4471.799794,
+    "valeur_au_rapport": 4471799793.65,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 3,
+    "page": 10,
+    "note": "« TOTAL GENERAL I+II+III 6.381.065.848,38 1.909.266.054,73 4.471.799.793,65 4.483.067.581,02 » ; colonnes Brut / Amortissements / Net 2025 / Net 2024 : total NET 2025, troisième colonne.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 4471.799794,
+    "valeur_au_rapport": 4471799793.65,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 11,
+    "note": "« TOTAL GENERAL I + II + III 4.471.799.793,65 4.483.067.581,02 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 2753.144477,
+    "valeur_au_rapport": 2753144477.46,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 11,
+    "note": "« CAPITAUX PROPRES DE L'ENSEMBLE CONSOLIDE (A) 2.753.144.477,46 2.690.297.243,15 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 129.055744,
+    "valeur_au_rapport": 129055743.7,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 11,
+    "composantes": [
+     {
+      "page": 11,
+      "citation": "DETTES DE FINANCEMENT (C) 58.122.564,55 87.397.739,34",
+      "valeur_au_rapport": 58122564.55
+     },
+     {
+      "page": 11,
+      "citation": "TRESORERIE - PASSIF 70.933.179,15 76.592.071,77",
+      "valeur_au_rapport": 70933179.15
+     }
+    ],
+    "note": "dettes de financement + trésorerie-passif (banques, soldes créditeurs).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 470.170439,
+    "valeur_au_rapport": 470170438.55,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 10,
+    "note": "« TRESORERIE ACTIF 470.170.438,55 470.170.438,55 361.645.915,47 » ; trésorerie-actif seule : « Trésorerie de clôture 399.237.259,40 » (p.13) = 470 170 439 − 70 933 179, hors titres et valeurs de placement (125 104 584).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 453.894108,
+    "valeur_au_rapport": 453894108.33,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 12,
+    "note": "« III RESULTAT D'EXPLOITATION (I-II) 453.894.108,33 395.107.197,85 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dotations_amortissements_exploitation": {
+    "valeur": 104.78442,
+    "valeur_au_rapport": 104784.42,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 20,
+    "note": "« Amortissements 104.784,42 99.809,07 4.975,35 » ; note 12 « Dotations d'exploitation » (en milliers DH) : 163 534,34 = amortissements 104 784,42 + provisions 58 749,92.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": -6.729943,
+    "valeur_au_rapport": -6729942.7,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 12,
+    "note": "« VI RESULTAT FINANCIER (IV - V) -6.729.942,70 -3.127.190,28 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_non_courant": {
+    "valeur": -4.365249,
+    "valeur_au_rapport": -4365249.34,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 12,
+    "note": "« X RESULTAT NON COURANT (VIII - IX) -4.365.249,34 66.124.017,20 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 442.798916,
+    "valeur_au_rapport": 442798916.29,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 12,
+    "note": "« XI RESULTAT AVANT IMPÔTS (VII + X) 442.798.916,29 458.104.024,77 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 103.31047,
+    "valeur_au_rapport": 103310469.55,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 3,
+    "page": 12,
+    "note": "« XII IMPÔTS SUR LE RESULTAT 101.913.413,55 1.397.056,00 103.310.469,55 103.214.528,25 » ; colonnes « propres à l'exercice / exercices précédents / total 2025 / 2024 » : total 2025, troisième colonne.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 326.085554,
+    "valeur_au_rapport": 326085553.63,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 12,
+    "note": "« XIV RESULTAT NET DE L'ENSEMBLE CONSOLIDÉ 326.085.553,63 341.486.603,41 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 307.19143,
+    "valeur_au_rapport": 307191429.85,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 12,
+    "note": "« XVI RESULTAT NET REVENANT A LA SOCIETE MERE 307.191.429,85 295.382.791,69 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 580.834591,
+    "valeur_au_rapport": 580834591.31,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 13,
+    "note": "« I Flux net de trésorerie généré par l'activité 580.834.591,31 386.523.685,74 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   }
+  },
+  "_controles_ratios_2025": {
+   "base": "consolidé (normes marocaines), 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "4471.799794 / 4471.799794"
+    },
+    {
+     "controle": "REX + RF + RNC = RAI",
+     "ok": true,
+     "detail": "442.798916 vs resultat_avant_impot 442.798916"
+    },
+    {
+     "controle": "RAI − impôt − amort. écarts d'acquisition 13,402893 = RN ensemble",
+     "ok": true,
+     "detail": "326.085553 vs resultat_net_consolide 326.085554"
+    }
+   ]
+  }
+ },
+ "IAM": {
+  "societe": "Maroc Telecom",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Maroc_Telecom_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-30",
+  "pages_document": 90,
+  "faits": {
+   "total_actif": {
+    "valeur": 75811.0,
+    "valeur_au_rapport": 75811,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 3,
+    "page": 23,
+    "note": "« Total actif 65 543 70 374 75 811 » ; ⚠️ trois colonnes « 31-déc.-23 31-déc.-24 31-déc.-25 » : l'exercice clos est la TROISIÈME.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 75811.0,
+    "valeur_au_rapport": 75811,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 3,
+    "page": 23,
+    "note": "« Total passif 65 543 70 374 75 811 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 24785.0,
+    "valeur_au_rapport": 24785,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 3,
+    "page": 23,
+    "note": "« Capitaux propres 21 004 18 702 24 785 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 6968.0,
+    "valeur_au_rapport": 6968,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 3,
+    "page": 24,
+    "note": "« Part du groupe 5 283 1 801 6 968 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 19603.0,
+    "valeur_au_rapport": 19603,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 3,
+    "page": 23,
+    "composantes": [
+     {
+      "page": 23,
+      "citation": "Emprunts et autres passifs financiers à long terme 15 4 180 5 630 10 449",
+      "valeur_au_rapport": 10449
+     },
+     {
+      "page": 23,
+      "citation": "Emprunts et autres passifs financiers à court terme 15 13 228 18 812 9 154",
+      "valeur_au_rapport": 9154
+     }
+    ],
+    "note": "emprunts et autres passifs financiers à long et court terme (dettes locatives IFRS 16 comprises). La société publie une « Dette Nette » de 17 610 (p.9) — hors IFRS 16 et « y compris le cash bloqué pour emprunts bancaires » (renvoi (7), p.14) ; notre formule donne 17 637.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 1966.0,
+    "valeur_au_rapport": 1966,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 3,
+    "page": 23,
+    "note": "« Trésorerie et équivalents de trésorerie 12 1 013 1 979 1 966 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 18493.0,
+    "valeur_au_rapport": 18493,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 3,
+    "page": 10,
+    "note": "« A fin 2025, le résultat opérationnel avant amortissements (EBITDA) consolidé du Groupe Maroc Telecom s'établit à 18 493 » ; EBITDA consolidé publié ; même valeur au tableau p.9 (« EBITDA … 19 188 18 493 »).",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 13547.0,
+    "valeur_au_rapport": 13547,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 3,
+    "page": 24,
+    "note": "« Résultat opérationnel 11 605 6 062 13 547 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": -1013.0,
+    "valeur_au_rapport": -1013,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 3,
+    "page": 24,
+    "note": "« Résultat financier 24 -859 -1 111 -1 013 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 12533.0,
+    "valeur_au_rapport": 12533,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 3,
+    "page": 24,
+    "composantes": [
+     {
+      "page": 24,
+      "citation": "Résultat des activités ordinaires 10 859 6 062 13 546",
+      "valeur_au_rapport": 13546
+     },
+     {
+      "page": 24,
+      "citation": "Résultat financier 24 -859 -1 111 -1 013",
+      "valeur_au_rapport": 1013,
+      "signe": -1
+     }
+    ],
+    "note": "pas de ligne « résultat avant impôt » : résultat des activités ordinaires + résultat financier = 12 533 = résultat net 7 923 + charge d'impôt 4 610.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 4610.0,
+    "valeur_au_rapport": 4610,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 3,
+    "page": 24,
+    "note": "« Charges d'impôt 25 -3 838 -2 291 -4 610 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 7923.0,
+    "valeur_au_rapport": 7923,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 3,
+    "page": 24,
+    "note": "« Résultat net 6 161 2 660 7 923 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 18499.0,
+    "valeur_au_rapport": 18499,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 3,
+    "page": 25,
+    "note": "« Flux nets de trésorerie provenant des activités d'exploitation 12 13 045 11 598 18 499 (a) » ; APRÈS impôts payés (1 326) ; avant impôts : 19 825.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   }
+  },
+  "_controles_ratios_2025": {
+   "base": "consolidé IFRS, 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "75811.0 / 75811.0"
+    },
+    {
+     "controle": "RAI − impôt = RN",
+     "ok": true,
+     "detail": "7923.0 vs resultat_net_consolide 7923.0"
+    },
+    {
+     "controle": "capital + réserves + résultat = CP part du groupe",
+     "ok": true,
+     "detail": "20478 vs capitaux_propres_part_groupe_verif 20478.0"
+    }
+   ]
+  }
+ },
+ "LBV": {
+  "societe": "Label'Vie",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/LabelVie_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-30",
+  "pages_document": 91,
+  "faits": {
+   "total_actif": {
+    "valeur": 17504.590758,
+    "valeur_au_rapport": 17504590757.64,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 3,
+    "page": 53,
+    "note": "« TOTAL GÉNÉRAL ( I + II + III ) 20.834.183.822,02 3.329.593.064,38 17.504.590.757,64 15.458.511.089,42 » ; colonnes Brut / Amort. Prov. / Net / Net N-1 : total NET 2025. ⚠️ Le rapport de gestion (p.50) écrit « TOTAL BILAN PASSIF … 16.855 » : c'est le total NET des 650 MMAD de crédits de trésorerie (17 504,6 − 650,0).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 17504.590758,
+    "valeur_au_rapport": 17504590757.64,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 54,
+    "note": "« TOTAL GÉNÉRAL I + II + III 17.504.590.757,64 15.458.511.089,42 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 3774.471165,
+    "valeur_au_rapport": 3774471165.05,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 54,
+    "composantes": [
+     {
+      "page": 54,
+      "citation": "TOTAL DES CAPITAUX PROPRES (A) 3.670.153.999,90 3.409.746.949,01",
+      "valeur_au_rapport": 3670153999.9
+     },
+     {
+      "page": 54,
+      "citation": "INTÉRÊTS MINORITAIRES (B) 104.317.165,15 91.020.189,77",
+      "valeur_au_rapport": 104317165.15
+     }
+    ],
+    "note": "part du groupe + minoritaires = 3 774 471 165 (« SITUATION A LA CLÔTURE EXERCICE 2025 », p.56).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 7041.365262,
+    "valeur_au_rapport": 7041365262.29,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 54,
+    "composantes": [
+     {
+      "page": 54,
+      "citation": "DETTES DE FINANCEMENT (C) 6.391.365.262,29 5.723.611.615,42",
+      "valeur_au_rapport": 6391365262.29
+     },
+     {
+      "page": 54,
+      "citation": "TOTAL III 650.000.000,00 500.000.000,00",
+      "valeur_au_rapport": 650000000
+     }
+    ],
+    "note": "dettes de financement (emprunts obligataires 4 205 000 105 + autres 2 186 365 158) + trésorerie-passif (« Crédits de trésorerie 650.000.000,00 »).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 2435.800396,
+    "valeur_au_rapport": 2435800395.77,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 3,
+    "page": 53,
+    "composantes": [
+     {
+      "page": 53,
+      "citation": "TOTAL III 1.594.314.031,27 - 1.594.314.031,27 2.075.248.767,69",
+      "valeur_au_rapport": 1594314031.27
+     },
+     {
+      "page": 53,
+      "citation": "TITRES & VALEURS DE PLACEMENT (H) 841.486.364,50 0,00 841.486.364,50 175.516.749,50",
+      "valeur_au_rapport": 841486364.5
+     }
+    ],
+    "note": "trésorerie-actif + titres et valeurs de placement, comme la société : « ENDETTEMENT NET 3.973 4.605 » (p.52) = 6 391 − (944 de trésorerie nette + 841 de placements). Notre formule donne 4 605,6 : concordance.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 1557.0,
+    "valeur_au_rapport": 1557,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 45,
+    "note": "« EXCÉDENT BRUT D'EXPLOITATION 1 412 9,7% 1 557 9,5% +145 +10,3% » ; EBE consolidé publié au rapport de gestion (« L'EBITDA du Groupe atteint 1 557 MDH »), = résultat d'exploitation 839 + dotations d'exploitation 718. ⚠️ L'état des soldes de gestion (p.55) donne un EBE de 1 218,0 AVANT reprises et autres produits : autre définition.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 838.715917,
+    "valeur_au_rapport": 838715916.89,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 3,
+    "page": 54,
+    "note": "« RÉSULTATS D'EXPLOITATION III (I-II) 838.738.291,08 -22.374,19 838.715.916,89 803.599.896,06 » ; colonnes « Exercice (1) / Exercice Ant (2) / TOTAUX (1+2) / EXERCICE PRÉCÉDENT » : total, troisième colonne.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": 43.086766,
+    "valeur_au_rapport": 43086765.51,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 2,
+    "page": 54,
+    "note": "« RÉSULTAT FINANCIER VI (IV - V) 43.086.765,51 43.086.765,51 43.902.736,25 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_non_courant": {
+    "valeur": -50.315045,
+    "valeur_au_rapport": -50315044.99,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 54,
+    "note": "« RÉSULTAT NON COURANT ( VIII - IX ) -50.315.044,99 -28.372.257,98 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 831.487637,
+    "valeur_au_rapport": 831487637.41,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 54,
+    "note": "« RÉSULTAT AVANT IMPOT (VII+X) 831.487.637,41 819.130.374,34 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 237.829644,
+    "valeur_au_rapport": 237829644.28,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 54,
+    "note": "« IMPOTS SUR LES RÉSULTATS 237.829.644,28 260.016.729,18 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 593.657993,
+    "valeur_au_rapport": 593657993.13,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 54,
+    "note": "« RÉSULTAT NET ( XI - XII) 593.657.993,13 559.113.645,16 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 578.7906,
+    "valeur_au_rapport": 578790600.36,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 54,
+    "note": "« RÉSULTAT NET PART DU GROUPE 578.790.600,36 541.805.227,22 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 263.447553,
+    "valeur_au_rapport": 263447552.7,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 56,
+    "note": "« FLUX NET DE TRÉSORERIE GÉNÉRÉ PAR L'ACTIVITÉ 263.447.552,70 750.918.730,29 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   }
+  },
+  "_controles_ratios_2025": {
+   "base": "consolidé (normes marocaines), 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "17504.590758 / 17504.590758"
+    },
+    {
+     "controle": "REX + RF + RNC = RAI",
+     "ok": true,
+     "detail": "831.487638 vs resultat_avant_impot 831.487637"
+    },
+    {
+     "controle": "RAI − impôt = RN",
+     "ok": true,
+     "detail": "593.657993 vs resultat_net_consolide 593.657993"
+    },
+    {
+     "controle": "dette nette = endettement net publié 4 605 (p.52)",
+     "ok": true,
+     "detail": "4605.564866 vs  4605"
+    }
+   ]
+  }
+ },
+ "LHM": {
+  "societe": "Holcim Maroc (ex-LafargeHolcim Maroc)",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/LafargeHolcim_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-30",
+  "pages_document": 100,
+  "_trouve": "nom dérivé puis VÉRIFIÉ servi (type PDF) le 30/09 : « LafargeHolcim_Maroc_RFA_2025.pdf » renvoie 404, « LafargeHolcim_RFA_2025.pdf » est le rapport.",
+  "faits": {
+   "total_actif": {
+    "valeur": 19994.546,
+    "valeur_au_rapport": 19994546,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 73,
+    "note": "« TOTAL ACTIF 19 994 546 20 038 628 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 19994.546,
+    "valeur_au_rapport": 19994546,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 73,
+    "note": "« TOTAL CAPITAUX PROPRES ET PASSIF 19 994 546 20 038 628 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 12156.299,
+    "valeur_au_rapport": 12156299,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 73,
+    "note": "« Capitaux propres de l'ensemble consolidé 12 156 299 11 665 123 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 3687.903,
+    "valeur_au_rapport": 3687903,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 73,
+    "composantes": [
+     {
+      "page": 73,
+      "citation": "Dettes financières non courantes 3 510 859 4 335 073",
+      "valeur_au_rapport": 3510859
+     },
+     {
+      "page": 73,
+      "citation": "Dettes financières courantes 177 044 193 956",
+      "valeur_au_rapport": 177044
+     }
+    ],
+    "note": "établissements de crédit (3 480 776 + 164 172) et dettes locatives (30 083 + 12 872) ; aucun dérivé.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 118.1,
+    "valeur_au_rapport": 118100,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 73,
+    "note": "« Trésorerie et équivalent de trésorerie 118 100 163 075 » ; « Trésorerie et équivalents de trésorerie net à la clôture (46 072) » (p.74) = 118 100 − 164 172 de dettes bancaires courantes.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dotations_amortissements_exploitation": {
+    "valeur": 694.584,
+    "valeur_au_rapport": 694584,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 80,
+    "note": "« Total (1) 694 584 698 787 » ; note 8 : « Amortissements nets impactant le résultat d'exploitation courant » (incorporelles 4 998 + corporelles 675 333 + droits d'usage 14 253) ; les provisions (−6 405) sont exclues.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 3596.538,
+    "valeur_au_rapport": 3596538,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 74,
+    "note": "« Résultat d'exploitation 3 596 538 3 094 353 » ; après éléments non courants (−218 025) ; « Résultat d'exploitation courant 3 814 563 ».",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": -198.005,
+    "valeur_au_rapport": -198005,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 74,
+    "note": "« Résultat financier (198 005) (239 926) »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 3398.533,
+    "valeur_au_rapport": 3398533,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 74,
+    "note": "« Résultat avant impôt des entreprises intégrées 3 398 533 2 854 427 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 1259.949,
+    "valeur_au_rapport": 1259949,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 74,
+    "composantes": [
+     {
+      "page": 74,
+      "citation": "Impôts sur les bénéfices (1 277 260) (1 037 707)",
+      "valeur_au_rapport": 1277260
+     },
+     {
+      "page": 74,
+      "citation": "Impôts différés 17 311 (6 962)",
+      "valeur_au_rapport": 17311,
+      "signe": -1
+     }
+    ],
+    "note": "somme des composantes",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 2165.873,
+    "valeur_au_rapport": 2165873,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 74,
+    "note": "« Résultat de l'ensemble consolidé 2 165 873 1 825 688 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 2165.873,
+    "valeur_au_rapport": 2165873,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 74,
+    "note": "« Résultat net - Part du Groupe 2 165 873 1 825 688 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 2817.143,
+    "valeur_au_rapport": 2817143,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 74,
+    "note": "« Flux net de trésorerie liés aux activités opérationnelles 2 817 143 2 739 188 »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-09-30"
+   }
+  },
+  "_controles_ratios_2025": {
+   "base": "consolidé IFRS, 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "19994.546 / 19994.546"
+    },
+    {
+     "controle": "REX + RF = RAI",
+     "ok": true,
+     "detail": "3398.533 vs resultat_avant_impot 3398.533"
+    },
+    {
+     "controle": "RAI − impôt + MEE 27,289 = RN ensemble",
+     "ok": true,
+     "detail": "2165.873 vs resultat_net_consolide 2165.873"
+    }
+   ]
+  }
+ },
+ "VCNE": {
+  "societe": "Vicenne",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-09-30",
+  "pages_document": 66,
+  "faits": {
+   "total_actif": {
+    "valeur": 2007.158487,
+    "valeur_au_rapport": 2007158487,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 3,
+    "page": 57,
+    "note": "« TOTAL GENERAL I+II+III 2.152.450.127 145.291.640 2.007.158.487 1.316.055.406 » ; colonnes Brut / Amortissements / Net / Net N-1 : total NET 2025.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "total_passif": {
+    "valeur": 2007.158487,
+    "valeur_au_rapport": 2007158487,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 57,
+    "note": "« TOTAL GÉNÉRAL I+II+III 2.007.158.487 1.316.055.406 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 1249.588273,
+    "valeur_au_rapport": 1249588273,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 57,
+    "composantes": [
+     {
+      "page": 57,
+      "citation": "Total Des Capitaux Propres-[A] 1.244.927.997 450.391.407",
+      "valeur_au_rapport": 1244927997
+     },
+     {
+      "page": 57,
+      "citation": "Intérêts Minoritaires-[B] 4.660.276 4.899.582",
+      "valeur_au_rapport": 4660276
+     }
+    ],
+    "note": "part du groupe + intérêts minoritaires ; le bilan ne publie pas le total.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "dettes_financieres": {
+    "valeur": 221.251197,
+    "valeur_au_rapport": 221251197,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 57,
+    "composantes": [
+     {
+      "page": 57,
+      "citation": "Dettes De Financement-[C] 48.390.436 65.936.398",
+      "valeur_au_rapport": 48390436
+     },
+     {
+      "page": 57,
+      "citation": "Trésorerie - Passif 172.860.761 220.633.303",
+      "valeur_au_rapport": 172860761
+     }
+    ],
+    "note": "dettes de financement + trésorerie-passif (crédits de trésorerie 147 946 384 + banques 24 914 377).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "tresorerie_actif": {
+    "valeur": 66.278942,
+    "valeur_au_rapport": 66278942,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 3,
+    "page": 57,
+    "note": "« Trésorerie - actif 66.278.942 0 66.278.942 34.597.097 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "titres_valeurs_placement": {
+    "valeur": 523.688778,
+    "valeur_au_rapport": 523688778,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 3,
+    "page": 57,
+    "note": "« Titres Et Valeurs De Placement-[H] 523.688.778 0 523.688.778 0 » ; placés en 2025 (produit de l'introduction en bourse). Le tableau des flux les classe en INVESTISSEMENT (« Autres Flux Liés Aux Opérations D'investissement -523.688.778 », p.58) et non en trésorerie.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_exploitation": {
+    "valeur": 225.676182,
+    "valeur_au_rapport": 225676182,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« Résultat D'exploitation III (I-II) 225.676.182 162.133.061 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_financier": {
+    "valeur": -7.88102,
+    "valeur_au_rapport": -7881020,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« Résultat Financier VI (IV - V) -7.881.020 -12.600.231 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_non_courant": {
+    "valeur": -1.353044,
+    "valeur_au_rapport": -1353044,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« RÉSULTAT NON COURANT X (VIII - IX) -1.353.044 -485.068 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_avant_impot": {
+    "valeur": 216.442118,
+    "valeur_au_rapport": 216442118,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« RÉSULTAT AVANT IMPÔTS XI (VII + X) 216.442.118 149.047.762 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "impot_resultat": {
+    "valeur": 62.151027,
+    "valeur_au_rapport": 62151027,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« IMPÔTS SUR LES RÉSULTATS 62.151.027 47.735.253 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_consolide": {
+    "valeur": 144.20197,
+    "valeur_au_rapport": 144201970,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« RÉSULTAT NET CONSOLIDÉ 144.201.970 91.223.388 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 144.284126,
+    "valeur_au_rapport": 144284126,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« RÉSULTAT NET PART DU GROUPE 144.284.126 91.217.024 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 59.36812,
+    "valeur_au_rapport": 59368120,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 58,
+    "note": "« Flux De Trésorerie Liés Aux Activités Opérationnelles 59.368.120 -199.145.696 »",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-09-30"
+   }
+  },
+  "_controles_ratios_2025": {
+   "base": "consolidé (normes marocaines), 31/12/2025",
+   "releve_le": "2026-09-30",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "2007.158487 / 2007.158487"
+    },
+    {
+     "controle": "REX + RF + RNC = RAI",
+     "ok": true,
+     "detail": "216.442118 vs resultat_avant_impot 216.442118"
+    },
+    {
+     "controle": "RAI − impôt − DEA écarts d'acquisition 10,089121 = RN consolidé",
+     "ok": true,
+     "detail": "144.20197 vs resultat_net_consolide 144.20197"
+    }
+   ],
+   "non_calcules": {
+    "dette_nette": "doute sur la trésorerie : 523,7 MMAD de titres de placement (produit de l'IPO) que le tableau des flux classe en investissement. Sans eux, dette nette +155,0 ; avec eux, trésorerie nette de 368,7 — et la société écrit elle-même 311 (p.19, p.21) et 315 (p.15). Trois chiffres, aucune définition : on ne publie pas.",
+    "ebitda": "« Dotation D'exploitation 43.606.418 » (p.58) n'isole pas les amortissements ; l'EBITDA publié ne figure que sur des graphiques dont les valeurs ne sont pas attribuables avec certitude (p.15, p.21)."
+   }
+  }
  }
 }
