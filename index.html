@@ -6389,6 +6389,285 @@ const Ranking = ({
     }
   }, "\u26A0\uFE0F"), " Alpha/RSI rouge = prudence \xA0|\xA0 PE = Price/Earnings \xB7 DIV = dividende \xA0|\xA0 Clic \u2192 vue d\xE9taill\xE9e"));
 };
+const nfr = (x, d = 2) => x == null || !isFinite(x) ? "—" : (+x).toLocaleString("fr-FR", {
+  minimumFractionDigits: d,
+  maximumFractionDigits: d
+}).replace(/\u202f|\u00a0/g, " ");
+const jm = iso => iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : "—";
+const Carte = ({
+  titre,
+  source,
+  children
+}) => React.createElement("div", {
+  style: {
+    background: "#0d1829",
+    border: "1px solid #1a2540",
+    borderRadius: 8,
+    padding: 16
+  }
+}, React.createElement("div", {
+  style: {
+    fontSize: 10,
+    color: "#8892a4",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    marginBottom: 4
+  }
+}, titre), source && React.createElement("div", {
+  style: {
+    fontSize: 10.5,
+    color: "#5a6478",
+    marginBottom: 10
+  }
+}, source), children);
+const SeanceDetail = ({
+  b
+}) => {
+  const t = b.trajectoire,
+    v = b.veille,
+    sect = b.secteurs || [],
+    mp = b.matieres || [];
+  const nv = b.niveaux || {},
+    nt = nv.titres || [],
+    nm = nv.masi,
+    dep = b.depots;
+  const cel = {
+    padding: "4px 8px",
+    fontSize: 12.5,
+    color: "#c8d3e8",
+    whiteSpace: "nowrap"
+  };
+  const tete = {
+    ...cel,
+    fontSize: 10,
+    color: "#5a6478",
+    textTransform: "uppercase",
+    letterSpacing: .6
+  };
+  const VC2 = x => x > 0 ? "#00e5a0" : x < 0 ? "#ff4f5a" : "#8892a4";
+  return React.createElement(React.Fragment, null, t && React.createElement(Carte, {
+    titre: "S\xE9ance du MASI",
+    source: `${t.source} · ${t.n_points} points de la série intrajournalière`
+  }, React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(110px,1fr))",
+      gap: 10
+    }
+  }, [["Veille", t.veille, null], ["Ouverture", t.ouverture, t.heure_ouverture], ["Plus haut", t.plus_haut, t.heure_plus_haut], ["Plus bas", t.plus_bas, t.heure_plus_bas], ["Clôture", t.cloture, null]].map(([l, x, h]) => React.createElement("div", {
+    key: l
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#5a6478"
+    }
+  }, l), React.createElement("div", {
+    style: {
+      fontSize: 15,
+      color: "#c8d3e8",
+      fontWeight: 600,
+      fontFamily: "monospace"
+    }
+  }, nfr(x)), React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#5a6478"
+    }
+  }, h ? `à ${h}` : l === "Plus haut" || l === "Plus bas" ? "heure hors de la série" : "\u00a0"))))), v && React.createElement(Carte, {
+    titre: `Comparée à la séance du ${jm(v.seance_veille)}`,
+    source: v.source
+  }, React.createElement("div", {
+    style: {
+      overflowX: "auto"
+    }
+  }, React.createElement("table", {
+    style: {
+      borderCollapse: "collapse"
+    }
+  }, React.createElement("thead", null, React.createElement("tr", null, ["", "Indice", "Volume", "Hausses", "Baisses", "Inchangées"].map(x => React.createElement("th", {
+    key: x,
+    style: tete
+  }, x)))), React.createElement("tbody", null, [[jm(v.seance), v.jour], [jm(v.seance_veille), v.veille]].map(([d, e]) => React.createElement("tr", {
+    key: d
+  }, React.createElement("td", {
+    style: {
+      ...cel,
+      color: "#8892a4"
+    }
+  }, d), React.createElement("td", {
+    style: {
+      ...cel,
+      color: VC2(e.variation_pct)
+    }
+  }, e.variation_pct > 0 ? "+" : "", nfr(e.variation_pct), " %"), React.createElement("td", {
+    style: cel
+  }, e.volume_mad != null ? `${nfr(e.volume_mad / 1e6, 1)} M DH` : "—"), React.createElement("td", {
+    style: cel
+  }, e.hausses ?? "—"), React.createElement("td", {
+    style: cel
+  }, e.baisses ?? "—"), React.createElement("td", {
+    style: cel
+  }, e.inchanges ?? "—"))))))), sect.length > 0 && React.createElement(Carte, {
+    titre: "Indices sectoriels",
+    source: "CDG Capital Bourse \u2014 INDICE-SYNTHESE, identit\xE9 et date v\xE9rifi\xE9es pour chaque indice"
+  }, React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))",
+      gap: "2px 18px"
+    }
+  }, sect.map(x => React.createElement("div", {
+    key: x.code,
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      gap: 8,
+      fontSize: 12,
+      padding: "2px 0",
+      borderBottom: "1px solid #0a1220"
+    }
+  }, React.createElement("span", {
+    style: {
+      color: "#c8d3e8",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap"
+    },
+    title: x.libelle
+  }, x.libelle), React.createElement("span", {
+    style: {
+      color: VC2(x.variation_pct),
+      fontFamily: "monospace",
+      whiteSpace: "nowrap",
+      flexShrink: 0
+    }
+  }, x.variation_pct > 0 ? "+" : "", nfr(x.variation_pct), " %"))))), (nm || nt.length > 0) && React.createElement(Carte, {
+    titre: `Niveaux mesurés — ${nv.n_seances || 20} dernières séances`,
+    source: "Plus hauts et plus bas r\xE9ellement atteints. Ce ne sont ni des supports ni des objectifs : des faits dat\xE9s."
+  }, nm && nm.clotures && React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#8892a4",
+      marginBottom: 8
+    }
+  }, "MASI \u2014 s\xE9ance ", nfr(nm.seance_bas), " \u2013 ", nfr(nm.seance_haut), " \xB7 cl\xF4tures du ", jm(nm.clotures.du), " au ", jm(nm.clotures.au), " : plus basse ", nfr(nm.clotures.plus_basse), " (", jm(nm.clotures.date_plus_basse), "), plus haute ", nfr(nm.clotures.plus_haute), " (", jm(nm.clotures.date_plus_haute), ")", nm.clotures.n_seances && nm.clotures.n < nm.clotures.n_seances && React.createElement("span", {
+    style: {
+      color: "#ff8f00"
+    }
+  }, " \xB7 ", nm.clotures.n, " cl\xF4tures de l'indice enregistr\xE9es sur ", nm.clotures.n_seances, " s\xE9ances")), nt.length > 0 && React.createElement("div", {
+    style: {
+      overflowX: "auto"
+    }
+  }, React.createElement("table", {
+    style: {
+      borderCollapse: "collapse",
+      width: "100%"
+    }
+  }, React.createElement("thead", null, React.createElement("tr", null, ["Titre", "Échangé", "Séance", "Plus bas", "Plus haut"].map(x => React.createElement("th", {
+    key: x,
+    style: {
+      ...tete,
+      textAlign: "left"
+    }
+  }, x)))), React.createElement("tbody", null, nt.map(x => React.createElement("tr", {
+    key: x.symbol
+  }, React.createElement("td", {
+    style: {
+      ...cel,
+      color: "#4db8ff",
+      fontWeight: 600
+    }
+  }, x.symbol), React.createElement("td", {
+    style: cel
+  }, nfr(x.montant_dh / 1e6, 1), " M DH"), React.createElement("td", {
+    style: cel
+  }, x.seance_bas != null ? `${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}` : "—"), React.createElement("td", {
+    style: cel
+  }, x.fenetre ? React.createElement(React.Fragment, null, nfr(x.fenetre.plus_bas), " ", React.createElement("span", {
+    style: {
+      color: "#5a6478"
+    }
+  }, jm(x.fenetre.date_plus_bas))) : "—"), React.createElement("td", {
+    style: cel
+  }, x.fenetre ? React.createElement(React.Fragment, null, nfr(x.fenetre.plus_haut), " ", React.createElement("span", {
+    style: {
+      color: "#5a6478"
+    }
+  }, jm(x.fenetre.date_plus_haut))) : "—"))))))), mp.length > 0 && React.createElement(Carte, {
+    titre: "Mati\xE8res premi\xE8res",
+    source: "TradingView \u2014 contrat \xE0 terme le plus proche. Heure de la valeur d\xE9clar\xE9e par la source, en UTC."
+  }, mp.map(x => React.createElement("div", {
+    key: x.ticker,
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      gap: 10,
+      fontSize: 12.5,
+      padding: "4px 0",
+      borderBottom: "1px solid #0a1220",
+      flexWrap: "wrap"
+    }
+  }, React.createElement("span", {
+    style: {
+      color: "#c8d3e8"
+    }
+  }, x.nom, " ", React.createElement("span", {
+    style: {
+      color: "#5a6478",
+      fontSize: 10.5
+    }
+  }, x.ticker)), React.createElement("span", {
+    style: {
+      fontFamily: "monospace",
+      color: "#c8d3e8"
+    }
+  }, nfr(x.valeur), " ", x.devise, x.variation_pct != null && React.createElement("span", {
+    style: {
+      color: VC2(x.variation_pct),
+      marginLeft: 8
+    }
+  }, x.variation_pct > 0 ? "+" : "", nfr(x.variation_pct), " %"), React.createElement("span", {
+    style: {
+      color: "#5a6478",
+      fontSize: 10.5,
+      marginLeft: 8
+    },
+    title: `Mode déclaré par la source : ${x.mode_source || "—"}`
+  }, jm(x.horodatage_utc), " ", x.horodatage_utc?.slice(11, 16), " UTC"))))), dep && (dep.titres || []).length > 0 && React.createElement(Carte, {
+    titre: `Dépôts de résultats à l'AMMC — ${jm(dep.seance)}`,
+    source: "Liste des communiqu\xE9s des \xE9metteurs (AMMC). La liste ne donne pas l'heure : publi\xE9 ce jour-l\xE0, pas forc\xE9ment avant la cl\xF4ture."
+  }, dep.titres.map((x, i) => React.createElement("a", {
+    key: i,
+    href: x.url,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      display: "block",
+      padding: "6px 0 6px 10px",
+      borderLeft: "2px solid #00e5a0",
+      marginBottom: 4,
+      textDecoration: "none"
+    }
+  }, React.createElement("span", {
+    style: {
+      color: "#4db8ff",
+      fontWeight: 600,
+      fontSize: 12,
+      marginRight: 8
+    }
+  }, x.ticker), React.createElement("span", {
+    style: {
+      color: "#c8d3e8",
+      fontSize: 12.5
+    }
+  }, x.titre))), (dep.autres_emetteurs || []).length > 0 && React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: "#5a6478",
+      marginTop: 6
+    }
+  }, "Autres \xE9metteurs le m\xEAme jour, sans action cot\xE9e rattach\xE9e : ", dep.autres_emetteurs.map(x => x.emetteur).join(", "), ".")));
+};
 const Briefing = () => {
   const [b, setB] = useState(null);
   const [h, setH] = useState(null);
@@ -6550,7 +6829,9 @@ const Briefing = () => {
     }
   }, (src.non_mesurable || []).map((x, i) => React.createElement("li", {
     key: i
-  }, x, "."))))), semaine && (h.hausses || []).length > 0 && React.createElement("div", {
+  }, x, "."))))), !semaine && React.createElement(SeanceDetail, {
+    b: src
+  }), semaine && (h.hausses || []).length > 0 && React.createElement("div", {
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",

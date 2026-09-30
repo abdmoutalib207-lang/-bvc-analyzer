@@ -1758,6 +1758,106 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
 // constats portent leur nombre, les actualités portent leur source et leur
 // lien. « Cosumar publie un résultat en baisse » est un fait sur une
 // publication ; « le marché a baissé à cause de Cosumar » n'en est pas un.
+// ── La lecture détaillée de la séance (30/09/2026) ──────────────────────────
+// ⚠️ Tout ce qui s'affiche ici vient de `briefing*.json`, écrit par
+// `pipeline/briefing.py` à partir de `pipeline/seance_marche.json` (CDG,
+// TradingView), `marche_history.json` et `depots_ammc.json`. Le composant ne
+// calcule rien : il range. Aucune probabilité, aucun scénario, aucun avis.
+const nfr=(x,d=2)=>x==null||!isFinite(x)?"—":(+x).toLocaleString("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d}).replace(/\u202f|\u00a0/g," ");
+const jm=iso=>iso?`${iso.slice(8,10)}/${iso.slice(5,7)}`:"—";
+const Carte=({titre,source,children})=>(
+  <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+    <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>{titre}</div>
+    {source&&<div style={{fontSize:10.5,color:"#5a6478",marginBottom:10}}>{source}</div>}
+    {children}
+  </div>);
+const SeanceDetail=({b})=>{
+  const t=b.trajectoire, v=b.veille, sect=b.secteurs||[], mp=b.matieres||[];
+  const nv=b.niveaux||{}, nt=nv.titres||[], nm=nv.masi, dep=b.depots;
+  const cel={padding:"4px 8px",fontSize:12.5,color:"#c8d3e8",whiteSpace:"nowrap"};
+  const tete={...cel,fontSize:10,color:"#5a6478",textTransform:"uppercase",letterSpacing:.6};
+  const VC2=x=>x>0?"#00e5a0":x<0?"#ff4f5a":"#8892a4";
+  return <>
+    {t&&<Carte titre="Séance du MASI" source={`${t.source} · ${t.n_points} points de la série intrajournalière`}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(110px,1fr))",gap:10}}>
+        {[["Veille",t.veille,null],["Ouverture",t.ouverture,t.heure_ouverture],
+          ["Plus haut",t.plus_haut,t.heure_plus_haut],["Plus bas",t.plus_bas,t.heure_plus_bas],
+          ["Clôture",t.cloture,null]].map(([l,x,h])=>(
+          <div key={l}>
+            <div style={{fontSize:10,color:"#5a6478"}}>{l}</div>
+            <div style={{fontSize:15,color:"#c8d3e8",fontWeight:600,fontFamily:"monospace"}}>{nfr(x)}</div>
+            <div style={{fontSize:10,color:"#5a6478"}}>{h?`à ${h}`:l==="Plus haut"||l==="Plus bas"?"heure hors de la série":"\u00a0"}</div>
+          </div>))}
+      </div>
+    </Carte>}
+
+    {v&&<Carte titre={`Comparée à la séance du ${jm(v.seance_veille)}`} source={v.source}>
+      <div style={{overflowX:"auto"}}><table style={{borderCollapse:"collapse"}}><thead><tr>
+        {["","Indice","Volume","Hausses","Baisses","Inchangées"].map(x=><th key={x} style={tete}>{x}</th>)}
+      </tr></thead><tbody>
+        {[[jm(v.seance),v.jour],[jm(v.seance_veille),v.veille]].map(([d,e])=>(
+          <tr key={d}><td style={{...cel,color:"#8892a4"}}>{d}</td>
+            <td style={{...cel,color:VC2(e.variation_pct)}}>{e.variation_pct>0?"+":""}{nfr(e.variation_pct)} %</td>
+            <td style={cel}>{e.volume_mad!=null?`${nfr(e.volume_mad/1e6,1)} M DH`:"—"}</td>
+            <td style={cel}>{e.hausses??"—"}</td><td style={cel}>{e.baisses??"—"}</td><td style={cel}>{e.inchanges??"—"}</td></tr>))}
+      </tbody></table></div>
+    </Carte>}
+
+    {sect.length>0&&<Carte titre="Indices sectoriels" source="CDG Capital Bourse — INDICE-SYNTHESE, identité et date vérifiées pour chaque indice">
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))",gap:"2px 18px"}}>
+        {sect.map(x=>(
+          <div key={x.code} style={{display:"flex",justifyContent:"space-between",gap:8,fontSize:12,padding:"2px 0",borderBottom:"1px solid #0a1220"}}>
+            <span style={{color:"#c8d3e8",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}} title={x.libelle}>{x.libelle}</span>
+            <span style={{color:VC2(x.variation_pct),fontFamily:"monospace",whiteSpace:"nowrap",flexShrink:0}}>{x.variation_pct>0?"+":""}{nfr(x.variation_pct)} %</span>
+          </div>))}
+      </div>
+    </Carte>}
+
+    {(nm||nt.length>0)&&<Carte titre={`Niveaux mesurés — ${nv.n_seances||20} dernières séances`}
+        source="Plus hauts et plus bas réellement atteints. Ce ne sont ni des supports ni des objectifs : des faits datés.">
+      {nm&&nm.clotures&&<div style={{fontSize:12,color:"#8892a4",marginBottom:8}}>
+        MASI — séance {nfr(nm.seance_bas)} – {nfr(nm.seance_haut)} ·
+        clôtures du {jm(nm.clotures.du)} au {jm(nm.clotures.au)} : plus basse {nfr(nm.clotures.plus_basse)} ({jm(nm.clotures.date_plus_basse)}),
+        plus haute {nfr(nm.clotures.plus_haute)} ({jm(nm.clotures.date_plus_haute)})
+        {nm.clotures.n_seances&&nm.clotures.n<nm.clotures.n_seances&&<span style={{color:"#ff8f00"}}> · {nm.clotures.n} clôtures de l'indice enregistrées sur {nm.clotures.n_seances} séances</span>}
+      </div>}
+      {nt.length>0&&<div style={{overflowX:"auto"}}><table style={{borderCollapse:"collapse",width:"100%"}}><thead><tr>
+        {["Titre","Échangé","Séance","Plus bas","Plus haut"].map(x=><th key={x} style={{...tete,textAlign:"left"}}>{x}</th>)}
+      </tr></thead><tbody>
+        {nt.map(x=>(
+          <tr key={x.symbol}><td style={{...cel,color:"#4db8ff",fontWeight:600}}>{x.symbol}</td>
+            <td style={cel}>{nfr(x.montant_dh/1e6,1)} M DH</td>
+            <td style={cel}>{x.seance_bas!=null?`${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}`:"—"}</td>
+            <td style={cel}>{x.fenetre?<>{nfr(x.fenetre.plus_bas)} <span style={{color:"#5a6478"}}>{jm(x.fenetre.date_plus_bas)}</span></>:"—"}</td>
+            <td style={cel}>{x.fenetre?<>{nfr(x.fenetre.plus_haut)} <span style={{color:"#5a6478"}}>{jm(x.fenetre.date_plus_haut)}</span></>:"—"}</td></tr>))}
+      </tbody></table></div>}
+    </Carte>}
+
+    {mp.length>0&&<Carte titre="Matières premières" source="TradingView — contrat à terme le plus proche. Heure de la valeur déclarée par la source, en UTC.">
+      {mp.map(x=>(
+        <div key={x.ticker} style={{display:"flex",justifyContent:"space-between",gap:10,fontSize:12.5,padding:"4px 0",borderBottom:"1px solid #0a1220",flexWrap:"wrap"}}>
+          <span style={{color:"#c8d3e8"}}>{x.nom} <span style={{color:"#5a6478",fontSize:10.5}}>{x.ticker}</span></span>
+          <span style={{fontFamily:"monospace",color:"#c8d3e8"}}>{nfr(x.valeur)} {x.devise}
+            {x.variation_pct!=null&&<span style={{color:VC2(x.variation_pct),marginLeft:8}}>{x.variation_pct>0?"+":""}{nfr(x.variation_pct)} %</span>}
+            <span style={{color:"#5a6478",fontSize:10.5,marginLeft:8}}
+              title={`Mode déclaré par la source : ${x.mode_source||"—"}`}>{jm(x.horodatage_utc)} {x.horodatage_utc?.slice(11,16)} UTC</span></span>
+        </div>))}
+    </Carte>}
+
+    {dep&&(dep.titres||[]).length>0&&<Carte titre={`Dépôts de résultats à l'AMMC — ${jm(dep.seance)}`}
+        source="Liste des communiqués des émetteurs (AMMC). La liste ne donne pas l'heure : publié ce jour-là, pas forcément avant la clôture.">
+      {dep.titres.map((x,i)=>(
+        <a key={i} href={x.url} target="_blank" rel="noopener noreferrer"
+          style={{display:"block",padding:"6px 0 6px 10px",borderLeft:"2px solid #00e5a0",marginBottom:4,textDecoration:"none"}}>
+          <span style={{color:"#4db8ff",fontWeight:600,fontSize:12,marginRight:8}}>{x.ticker}</span>
+          <span style={{color:"#c8d3e8",fontSize:12.5}}>{x.titre}</span>
+        </a>))}
+      {(dep.autres_emetteurs||[]).length>0&&<div style={{fontSize:10.5,color:"#5a6478",marginTop:6}}>
+        Autres émetteurs le même jour, sans action cotée rattachée : {dep.autres_emetteurs.map(x=>x.emetteur).join(", ")}.</div>}
+    </Carte>}
+  </>;
+};
+
 const Briefing=()=>{
   const [b,setB]=useState(null);
   const [h,setH]=useState(null);
@@ -1836,6 +1936,13 @@ const Briefing=()=>{
             </ul>
           </div>}
       </div>
+
+      {/* ⚠️ LA LECTURE DÉTAILLÉE DE LA SÉANCE — ajoutée le 30/09/2026.
+          Trajectoire, secteurs, matières premières, niveaux, dépôts : chaque
+          bloc porte sa source et sa date, et n'apparaît que s'il a été
+          mesuré. Un bloc absent est déclaré dans « Ce que cette lecture ne
+          dit pas », jamais rempli par défaut. */}
+      {!semaine&&<SeanceDetail b={src}/>}
 
       {/* ⚠️ Le palmarès n'existe que sur la semaine : sur une séance, il
           doublonnerait les plus fortes hausses déjà présentes ailleurs. */}
