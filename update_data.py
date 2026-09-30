@@ -1414,6 +1414,8 @@ def fetch_all_cdg():
         out[sym] = {
             "price": round(prix, 2),
             "chg":   round(_f(d.get("Variation")) or 0, 2),
+            # La base de la variation : la clôture de la séance précédente.
+            "reference": _f(d.get("CoursDeReferance")),
             "open":  _f(d.get("Ouverture")),
             "high":  _f(d.get("PlusHaut")),
             "low":   _f(d.get("PlusBas")),
@@ -3060,6 +3062,38 @@ def detecter_alertes(fiche: dict | None, rsi=None) -> dict:
     return {"evaluable": True, "liste": liste, "source": source, "date": date}
 
 
+def masi_veille(asof, valeur, seances=None) -> dict:
+    """La clôture de la séance précédente et la variation en POINTS.
+
+    ⚠️ POURQUOI PAS DEPUIS LE POURCENTAGE — 30/09/2026. `change_pct` est
+    publié arrondi au centième : 0,60 % donne 105,89 points, quand la séance
+    du 29/09 en a fait 106,01 (bulletin CDG). La veille se lit dans
+    `masi_history.json`, recoupé 185/185 avec nos chandelles ; la variation
+    en points en découle exactement.
+
+    ⚠️ Rien n'est publié plutôt qu'un chiffre douteux : sans séance
+    antérieure connue, ou si l'écart dépasse la borne dérivée de R10 (±10 %,
+    une moyenne de titres plafonnés ne peut pas l'excéder).
+    """
+    if not asof or not isinstance(valeur, (int, float)):
+        return {}
+    if seances is None:
+        try:
+            seances = json.loads((Path(__file__).parent / "pipeline" / "masi_history.json")
+                                 .read_text(encoding="utf-8")).get("seances") or {}
+        except (OSError, ValueError):
+            return {}
+    avant = [d for d in seances if d < str(asof)[:10] and seances.get(d)]
+    if not avant:
+        return {}
+    d = max(avant)
+    v = float(seances[d])
+    if v <= 0 or abs(valeur / v - 1) > 0.10:
+        return {}
+    return {"veille": round(v, 4), "veille_asof": d,
+            "variation_points": round(valeur - v, 2)}
+
+
 def _objectifs(ticker, price, fd) -> dict:
     """Objectifs bear/base/bull, écartés s'ils ne sont plus à l'échelle du cours.
 
@@ -3712,6 +3746,14 @@ def run(dry_run=False, push=False, token=""):
         # qui est une information tout à fait différente.
         echange_dh, _seuil_bas, _seuil_haut = _echange_rapprochable(
             lp, src_prix, prix_asof, lp_asof)
+        # ⚠️ LE COURS DE RÉFÉRENCE — 30/09/2026. La variation se lit contre la
+        # clôture de la VEILLE ; sans elle à l'écran, MNG (veille 1 580,
+        # ouverture 1 600, clôture 1 600, +1,27 %) semblait faux. Servi par
+        # CDG, jamais déduit du pourcentage arrondi (qui donnerait 1 579,93).
+        # Même règle que le montant : même source, même séance.
+        _reference = (lp.get("reference")
+                      if src_prix == "cdg" and prix_asof and prix_asof == lp_asof
+                      else None)
         macd_val = macd_sig = macd_hist = None
         bb_upper = bb_mid = bb_lower = None
         stoch_k = stoch_d = None
@@ -4135,6 +4177,7 @@ def run(dry_run=False, push=False, token=""):
             # de validité plus haut. `None` signifie « pas rapprochable », pas
             # « zéro échangé ».
             "echange_dh": round(echange_dh, 2) if echange_dh else None,
+            "reference": round(_reference, 2) if _reference else None,
             # ⚠️ Bornes de RÉSERVATION intraday (±3 % glissants), à ne pas
             # confondre avec le plafond journalier de ±10 % (R10) que publie
             # `niveaux.bornes_seance`.
@@ -4294,6 +4337,7 @@ def run(dry_run=False, push=False, token=""):
             "change_pct": masi["chg"],
             "asof":       masi.get("asof"),
             "stale":      masi.get("stale", True),
+            **masi_veille(masi.get("asof"), masi.get("value")),
             # ⚠️ LA LARGEUR DE MARCHÉ — publiée le 25/09/2026.
             #
             # Un indice peut monter porté par trois grosses capitalisations

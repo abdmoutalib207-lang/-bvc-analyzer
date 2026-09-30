@@ -23,6 +23,7 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     .mobile-seul{display:none}
+    .carte-indices{flex-basis:100%;width:100%;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.2fr);gap:10px;margin-top:8px}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
     /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
        Trois défauts : l'en-tête COLLÉ en haut couvrait plus de la moitié de
@@ -39,6 +40,8 @@
       .onglets>*{flex:0 0 auto}
       .onglets button{padding:7px 12px!important}
       .mobile-seul{display:block!important}
+      .carte-indices{grid-template-columns:1fr 1fr!important;gap:8px!important}
+      .carte-indices>:first-child{grid-column:1/-1}
       /* Le classement garde : ticker, clôture (+ ouverture), variation
          (+ volume), score, signal. */
       .classement{min-width:0!important}
@@ -48,9 +51,13 @@
       .classement th:nth-child(n+10):nth-child(-n+13),.classement td:nth-child(n+10):nth-child(-n+13),
       .classement th:nth-child(15),.classement td:nth-child(15){display:none}
       .classement td,.classement th{padding:7px 3px!important}
-      /* La pastille et le secteur prenaient la moitié de la largeur : sur
-         téléphone, le code et un nom abrégé suffisent à reconnaître le titre. */
-      .classement td:nth-child(2)>div>:first-child,.secteur-societe{display:none!important}
+      /* Le secteur prenait trop de largeur : sur téléphone, le code, un nom
+         abrégé et le logo en miniature suffisent à reconnaître le titre. */
+      .secteur-societe{display:none!important}
+      /* Le logo reste, en miniature (demande du 30/09) : 26 px suffisent à
+         reconnaître une société sans prendre la largeur d'une colonne. */
+      .classement .logo-pastille{width:26px!important;height:26px!important;font-size:8px!important}
+      .classement td:nth-child(2)>div{gap:7px!important}
       .nom-societe{max-width:80px!important;font-size:11px!important}
       .classement td:nth-child(14) *{font-size:9.5px!important;padding:3px 5px!important;letter-spacing:0!important;white-space:normal!important}
       .classement td:nth-child(14){max-width:92px}
@@ -3925,83 +3932,7 @@ const WBar = ({
   },
   title: `Tech ${t}%`
 }));
-const LOGO_MAP = {
-  IAM: "iam.ma",
-  ATW: "attijariwafabank.com",
-  BCP: "gbp.ma",
-  BOA: "bankofafrica.net",
-  CIH: "cih.co.ma",
-  CDM: "creditdumaroc.ma",
-  WAF: "wafaassurance.ma",
-  CFGB: "cfgbank.ma",
-  ATL: "atlantasanad.ma",
-  SAF: "salafin.ma",
-  SLM: "sanlammaroc.ma",
-  MGL: "maghrebail.ma",
-  EQD: "eqdom.ma",
-  MRL: "marocleasing.ma",
-  S2M: "s2m.ma",
-  IBM: "ib-maroc.com",
-  MNG: "managem.ma",
-  SMI: "smimiter.com",
-  CMT: "cmt.ma",
-  ZLD: "zellidja.ma",
-  GAZ: "afriquiagaz.ma",
-  TQA: "taqamorocco.ma",
-  TMA: "totalenergies.ma",
-  MOX: "maghreboxy.com",
-  LHM: "holcim.ma",
-  CIM: "cimentsdumaroc.ma",
-  TGCC: "tgcc.ma",
-  SGTM: "sgtm.ma",
-  STR: "stroc.ma",
-  ALU: "aluminium-maroc.ma",
-  SNP: "snep.ma",
-  SNA: "sonasid.ma",
-  STK: "stokvisna.com",
-  AFI: "africind.com",
-  LBV: "labelvie.ma",
-  LES: "lesieurchristal.ma",
-  CMGP: "cmgp.ma",
-  DSW: "disway.ma",
-  DTT: "distytechnologies.ma",
-  COL: "colorado.ma",
-  HAL: "auto-hall.ma",
-  NEJ: "autonnejma.com",
-  CSR: "cosumar.ma",
-  DAR: "daricouspate.ma",
-  FNB: "feniebrossette.ma",
-  ADH: "addoha.ma",
-  ADI: "alliances.ma",
-  ARD: "aradei.com",
-  RDS: "residences-dar-saada.com",
-  RIS: "risma.ma",
-  IMI: "immorente.ma",
-  BAL: "balima.ma",
-  HPS: "hps-worldwide.com",
-  AKD: "akdital.ma",
-  SOT: "sothema.ma",
-  MIC: "microdata.ma",
-  ENK: "ennakl.com.tn",
-  PPM: "promopharm.ma",
-  M2M: "m2mgroup.ma",
-  INV: "involys.ma",
-  MSA: "marsamaroc.ma",
-  CTM: "ctm.ma",
-  OUL: "oulmes.ma",
-  VCNE: "vivoenergy.ma",
-  CASH: "cashplus.ma",
-  MUT: "mutandis.ma",
-  SRM: "srm.ma",
-  DHO: "deltaholding.ma",
-  JET: "jetcontractors.ma",
-  AGM: "agma.ma",
-  AFM: "afma.ma",
-  BMC: "bmci.ma",
-  CAR: "cartier-saada.ma",
-  SBS: "sbm.ma",
-  REB: "rebabcompany.com"
-};
+const LOGOS = new Set(["ADH", "ADI", "AFI", "AFM", "AGM", "AKD", "ALU", "ATL", "BMC", "CDM", "CFGB", "CIM", "CMT", "COL", "CSR", "DHO", "ENK", "FNB", "HPS", "IMI", "INV", "JET", "LES", "LHM", "M2M", "MDP", "MNG", "MSA", "MUT", "NEJ", "SBS", "SLM", "SNA", "SNP", "STK", "STR", "T2S", "TGCC", "TQA", "UNI", "VCNE"]);
 const SECTOR_COL = {
   "Banques": "#1565C0",
   "Finance": "#E65100",
@@ -4029,15 +3960,257 @@ const SECTOR_COL = {
   "FMCG": "#2E7D32",
   "Grande distribution": "#0D47A1"
 };
+const CarteIndices = ({
+  masi
+}) => {
+  const coul = v => v > 0 ? "#00e5a0" : v < 0 ? "#ff4f5a" : "#8892a4";
+  const fleche = v => v > 0 ? "▲" : v < 0 ? "▼" : "■";
+  const nb = (v, d = 2) => v == null ? "—" : (+v).toLocaleString("fr-FR", {
+    minimumFractionDigits: d,
+    maximumFractionDigits: d
+  });
+  const pct = v => v == null ? "—" : `${v > 0 ? "+" : ""}${nb(v)} %`;
+  const jj = d => d ? `${d.slice(8, 10)}/${d.slice(5, 7)}` : "";
+  const ch = masi.chg ?? masi.change_pct;
+  const carte = {
+    background: "linear-gradient(180deg,rgba(77,184,255,.07),rgba(77,184,255,.02))",
+    border: "1px solid rgba(77,184,255,.22)",
+    borderRadius: 8,
+    padding: "10px 14px",
+    minWidth: 0
+  };
+  const etiquette = {
+    fontSize: 10,
+    color: "#8892a4",
+    letterSpacing: 1.2,
+    textTransform: "uppercase"
+  };
+  const m20 = masi.masi20;
+  const tot = (masi.hausses || 0) + (masi.baisses || 0) + (masi.inchanges || 0);
+  return React.createElement("div", {
+    className: "bandeau-masi carte-indices"
+  }, React.createElement("div", {
+    style: carte
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8
+    }
+  }, React.createElement("span", {
+    style: {
+      ...etiquette,
+      color: "#4db8ff",
+      fontWeight: 700
+    }
+  }, "MASI"), masi.asof && React.createElement("span", {
+    style: {
+      fontSize: 10,
+      color: "#5a6478"
+    }
+  }, "s\xE9ance du ", jj(masi.asof)), masi.stale && React.createElement("span", {
+    title: `Indice de la séance du ${masi.asof || "?"} — la source ne l'a pas rafraîchi`,
+    style: {
+      fontSize: 9,
+      fontWeight: 700,
+      color: "#ffd740",
+      border: "1px solid rgba(255,215,64,.45)",
+      borderRadius: 3,
+      padding: "1px 4px"
+    }
+  }, "\u26A0 ", masi.asof ? jj(masi.asof) : "périmé")), React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "baseline",
+      gap: 12,
+      flexWrap: "wrap",
+      marginTop: 2
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 28,
+      fontWeight: 800,
+      color: "#fff",
+      letterSpacing: .5
+    }
+  }, nb(masi.value)), React.createElement("span", {
+    style: {
+      fontSize: 14,
+      fontWeight: 700,
+      color: coul(ch),
+      background: `${coul(ch)}18`,
+      border: `1px solid ${coul(ch)}40`,
+      borderRadius: 5,
+      padding: "2px 8px",
+      whiteSpace: "nowrap"
+    }
+  }, fleche(ch), " ", pct(ch), masi.variation_points != null && React.createElement("span", {
+    style: {
+      fontWeight: 500,
+      opacity: .85
+    }
+  }, " \xB7 ", masi.variation_points > 0 ? "+" : "", nb(masi.variation_points), " pts"))), React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 14,
+      flexWrap: "wrap",
+      marginTop: 4,
+      fontSize: 11,
+      color: "#8892a4"
+    }
+  }, masi.veille != null && React.createElement("span", {
+    title: `Clôture de la séance du ${jj(masi.veille_asof)}`
+  }, "veille ", nb(masi.veille)), masi.ytd_pct != null && React.createElement("span", {
+    title: "Variation de l'indice depuis la cl\xF4ture du 31 d\xE9cembre, recalcul\xE9e par le moteur depuis la cl\xF4ture publi\xE9e et l'ancrage annuel."
+  }, "depuis janvier ", React.createElement("b", {
+    style: {
+      color: coul(masi.ytd_pct)
+    }
+  }, pct(masi.ytd_pct))))), masi.masi20 && masi.masi20.value != null && React.createElement("div", {
+    style: carte,
+    title: `MASI 20 — les vingt plus grosses capitalisations.${m20.ytd_pct != null && masi.ytd_pct != null ? ` Écart de ${nb(Math.abs(m20.ytd_pct - masi.ytd_pct), 1)} point(s) avec le MASI sur l'année.` : ""}`
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8
+    }
+  }, React.createElement("span", {
+    style: {
+      ...etiquette,
+      fontWeight: 700
+    }
+  }, "MASI\xA020"), m20.asof && masi.asof && masi.masi20.asof !== masi.asof && React.createElement("span", {
+    title: `Le MASI 20 affiché porte la séance du ${m20.asof}, alors que les cours publiés portent celle du ${masi.asof}.`,
+    style: {
+      color: "#ff8f00",
+      fontSize: 10
+    }
+  }, "\u26A0 ", jj(m20.asof))), React.createElement("div", {
+    style: {
+      fontSize: 20,
+      fontWeight: 700,
+      color: "#e8eef8",
+      marginTop: 2
+    }
+  }, nb(m20.value)), React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10,
+      flexWrap: "wrap",
+      fontSize: 11,
+      marginTop: 2
+    }
+  }, m20.change_pct != null && React.createElement("span", {
+    style: {
+      color: coul(m20.change_pct),
+      fontWeight: 700
+    }
+  }, fleche(m20.change_pct), " ", pct(m20.change_pct)), m20.ytd_pct != null && React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, "depuis janvier ", React.createElement("b", {
+    style: {
+      color: coul(m20.ytd_pct)
+    }
+  }, pct(m20.ytd_pct))))), React.createElement("div", {
+    style: carte
+  }, React.createElement("div", {
+    style: etiquette
+  }, "La s\xE9ance"), masi.hausses != null && masi.baisses != null && tot > 0 && React.createElement(React.Fragment, null, React.createElement("div", {
+    title: `${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges || 0} inchangées sur ${masi.valeurs_traitees || tot} valeurs traitées`,
+    style: {
+      display: "flex",
+      height: 8,
+      borderRadius: 4,
+      overflow: "hidden",
+      marginTop: 6,
+      background: "#1a2540"
+    }
+  }, React.createElement("div", {
+    style: {
+      width: `${100 * masi.hausses / tot}%`,
+      background: "#00e5a0"
+    }
+  }), React.createElement("div", {
+    style: {
+      width: `${100 * (masi.inchanges || 0) / tot}%`,
+      background: "#5a6478"
+    }
+  }), React.createElement("div", {
+    style: {
+      width: `${100 * masi.baisses / tot}%`,
+      background: "#ff4f5a"
+    }
+  })), React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      fontSize: 11,
+      marginTop: 4
+    }
+  }, React.createElement("span", {
+    style: {
+      color: "#00e5a0",
+      fontWeight: 700
+    }
+  }, masi.hausses, " \u25B2"), React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, masi.inchanges ?? 0, " ="), React.createElement("span", {
+    style: {
+      color: "#ff4f5a",
+      fontWeight: 700
+    }
+  }, masi.baisses, " \u25BC"))), masi.volume_mad != null && React.createElement("div", {
+    style: {
+      marginTop: 6,
+      fontSize: 11,
+      color: "#8892a4"
+    },
+    title: `Volume global de la séance${masi.titres_echanges != null ? ` : ${masi.titres_echanges.toLocaleString("fr-FR")} titres échangés` : ""}${masi.transactions != null ? ` en ${masi.transactions.toLocaleString("fr-FR")} transactions` : ""}.`
+  }, React.createElement("b", {
+    style: {
+      color: "#e8eef8",
+      fontSize: 14
+    }
+  }, masi.volume_mad >= 1e9 ? `${nb(masi.volume_mad / 1e9)} Md DH` : `${nb(masi.volume_mad / 1e6, 1)} M DH`), masi.transactions != null && React.createElement("span", null, " \xB7 ", masi.transactions.toLocaleString("fr-FR"), " transactions"))));
+};
+const montantCourt = dh => dh >= 1e9 ? `${(dh / 1e9).toFixed(2).replace(".", ",")} Md DH` : dh >= 1e6 ? `${(dh / 1e6).toFixed(1).replace(".", ",")} M DH` : dh >= 1e3 ? `${Math.round(dh / 1e3)} k DH` : `${Math.round(dh)} DH`;
+const volumeCourt = r => r.echange_dh != null ? montantCourt(r.echange_dh) : r.vol ? `${r.vol.toLocaleString("fr-FR").replace(/\u202f|,/g, " ")} titres` : "—";
 function CompanyLogo({
   sym,
+  logo,
   sector,
   size = 32
 }) {
+  const cle = logo || sym;
+  const [echec, setEchec] = useState(false);
+  if (LOGOS.has(cle) && !echec) return React.createElement("img", {
+    className: "logo-pastille",
+    src: `logos/${cle}.png`,
+    alt: "",
+    width: size,
+    height: size,
+    loading: "lazy",
+    onError: () => setEchec(true),
+    style: {
+      width: size,
+      height: size,
+      borderRadius: "50%",
+      flexShrink: 0,
+      objectFit: "cover",
+      background: "#fff",
+      boxShadow: "0 1px 4px rgba(0,0,0,.45)"
+    }
+  });
   const bg = SECTOR_COL[sector] || "#1a2540";
   const fs = Math.max(8, Math.round(size * 0.30));
   const initials = sym.length <= 3 ? sym : sym.slice(0, 4);
   return React.createElement("div", {
+    className: "logo-pastille",
     style: {
       width: size,
       height: size,
@@ -5242,160 +5415,9 @@ const Header = ({
       fontWeight: 700,
       letterSpacing: .5
     }
-  }, "BVC ", mktStatus.label), masi && React.createElement("span", {
-    className: "bandeau-masi",
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 6,
-      background: "rgba(77,184,255,.08)",
-      border: "1px solid rgba(77,184,255,.25)",
-      borderRadius: 4,
-      padding: "3px 12px",
-      fontSize: 11
-    }
-  }, React.createElement("span", {
-    style: {
-      color: "#8892a4",
-      letterSpacing: .5
-    }
-  }, "MASI"), React.createElement("span", {
-    style: {
-      color: "#c8d3e8",
-      fontWeight: 700
-    }
-  }, masi.value.toLocaleString("fr-FR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })), React.createElement("span", {
-    style: {
-      color: (masi.chg || 0) > 0 ? "#00e5a0" : (masi.chg || 0) < 0 ? "#ff4f5a" : "#8892a4",
-      fontWeight: 600
-    }
-  }, (masi.chg || 0) > 0 ? "▲" : "▼", fmt(masi.chg != null ? Math.abs(masi.chg) : null), "%"), masi.ytd_pct != null && React.createElement("span", {
-    title: "Variation de l'indice depuis la cl\xF4ture du 31 d\xE9cembre. Calcul\xE9e par le moteur \xE0 partir de la cl\xF4ture publi\xE9e et de l'ancrage annuel de l'op\xE9rateur \u2014 le champ tout fait de la source d\xE9crit la s\xE9ance pr\xE9c\xE9dente.",
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 3,
-      paddingLeft: 8,
-      borderLeft: "1px solid rgba(77,184,255,.25)"
-    }
-  }, React.createElement("span", {
-    style: {
-      color: "#8892a4",
-      fontSize: 10
-    }
-  }, "YTD"), React.createElement("span", {
-    style: {
-      color: masi.ytd_pct > 0 ? "#00e5a0" : masi.ytd_pct < 0 ? "#ff4f5a" : "#8892a4",
-      fontWeight: 600
-    }
-  }, masi.ytd_pct > 0 ? "+" : "", fmt(masi.ytd_pct).replace(".", ","), "%")), masi.masi20 && masi.masi20.value != null && React.createElement("span", {
-    title: `MASI 20 — les vingt plus grosses capitalisations. ${masi.masi20.ytd_pct != null && masi.ytd_pct != null ? `Écart de ${fmt(Math.abs(masi.masi20.ytd_pct - masi.ytd_pct), 1)} point(s) avec le MASI sur l'année.` : ""}`,
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 3,
-      paddingLeft: 8,
-      borderLeft: "1px solid rgba(77,184,255,.25)"
-    }
-  }, React.createElement("span", {
-    style: {
-      color: "#8892a4",
-      fontSize: 10
-    }
-  }, "MASI\xA020"), React.createElement("span", {
-    style: {
-      color: "#c8d3e8",
-      fontWeight: 600
-    }
-  }, fmt(masi.masi20.value).replace(".", ",")), masi.masi20.change_pct != null && React.createElement("span", {
-    style: {
-      color: masi.masi20.change_pct > 0 ? "#00e5a0" : masi.masi20.change_pct < 0 ? "#ff4f5a" : "#8892a4"
-    }
-  }, masi.masi20.change_pct > 0 ? "▲" : masi.masi20.change_pct < 0 ? "▼" : "", fmt(Math.abs(masi.masi20.change_pct)).replace(".", ","), "%"), masi.masi20.ytd_pct != null && React.createElement("span", {
-    style: {
-      color: "#5a6478",
-      fontSize: 10
-    }
-  }, "\xB7 YTD ", masi.masi20.ytd_pct > 0 ? "+" : "", fmt(masi.masi20.ytd_pct).replace(".", ","), "%"), masi.masi20.asof && masi.asof && masi.masi20.asof !== masi.asof && React.createElement("span", {
-    title: `Le MASI 20 affiché porte la séance du ${masi.masi20.asof}, alors que les cours publiés portent celle du ${masi.asof}.`,
-    style: {
-      color: "#ff8f00",
-      fontSize: 10
-    }
-  }, "\u26A0 ", masi.masi20.asof.slice(8), "/", masi.masi20.asof.slice(5, 7))), masi.volume_mad != null && React.createElement("span", {
-    title: `Volume global de la séance. ${masi.titres_echanges != null ? `${masi.titres_echanges.toLocaleString("fr-FR")} titres échangés` : ""}${masi.transactions != null ? ` en ${masi.transactions.toLocaleString("fr-FR")} transactions, soit ${Math.round(masi.volume_mad / masi.transactions).toLocaleString("fr-FR")} DH par opération` : ""}.`,
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 3,
-      paddingLeft: 8,
-      borderLeft: "1px solid rgba(77,184,255,.25)"
-    }
-  }, React.createElement("span", {
-    style: {
-      color: "#8892a4",
-      fontSize: 10
-    }
-  }, "VOL"), React.createElement("span", {
-    style: {
-      color: "#c8d3e8",
-      fontWeight: 600
-    }
-  }, masi.volume_mad >= 1e9 ? `${fmt(masi.volume_mad / 1e9, 2).replace(".", ",")} Md DH` : `${fmt(masi.volume_mad / 1e6, 1).replace(".", ",")} M DH`), masi.transactions != null && React.createElement("span", {
-    style: {
-      color: "#5a6478",
-      fontSize: 10
-    }
-  }, "\xB7 ", masi.transactions.toLocaleString("fr-FR"), " tr.")), masi.hausses != null && masi.baisses != null && React.createElement("span", {
-    title: `${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges || 0} inchangées sur ${masi.valeurs_traitees || "?"} valeurs traitées`,
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 3,
-      paddingLeft: 8,
-      borderLeft: "1px solid rgba(77,184,255,.25)"
-    }
-  }, React.createElement("span", {
-    style: {
-      color: "#00e5a0",
-      fontWeight: 600
-    }
-  }, masi.hausses, "\u2191"), React.createElement("span", {
-    style: {
-      color: "#8892a4"
-    }
-  }, "/"), React.createElement("span", {
-    style: {
-      color: "#ff4f5a",
-      fontWeight: 600
-    }
-  }, masi.baisses, "\u2193"), masi.inchanges != null && React.createElement("span", {
-    style: {
-      color: "#8892a4",
-      fontSize: 10
-    }
-  }, "\xB7", masi.inchanges, "=")), masi.stale ? React.createElement("span", {
-    title: `Indice de la séance du ${masi.asof || "?"} — la source ne l'a pas rafraîchi`,
-    style: {
-      fontSize: 9,
-      fontWeight: 700,
-      color: "#ffd740",
-      border: "1px solid rgba(255,215,64,.45)",
-      borderRadius: 3,
-      padding: "1px 4px",
-      marginLeft: 2,
-      whiteSpace: "nowrap"
-    }
-  }, "\u26A0 ", masi.asof ? masi.asof.slice(8, 10) + "/" + masi.asof.slice(5, 7) : "périmé") : React.createElement("span", {
-    style: {
-      fontSize: 9,
-      color: "#4a5568",
-      marginLeft: 2
-    }
-  }, masi.src)))), React.createElement("div", {
+  }, "BVC ", mktStatus.label), masi && React.createElement(CarteIndices, {
+    masi: masi
+  }))), React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -6036,8 +6058,9 @@ const Ranking = ({
       }
     }, React.createElement(CompanyLogo, {
       sym: tk(r),
+      logo: r.symbol,
       sector: r.sector,
-      size: 46
+      size: 34
     }), React.createElement("div", {
       style: {
         minWidth: 0
@@ -6141,19 +6164,31 @@ const Ranking = ({
         color: VC(r.chg),
         fontWeight: 600
       }
-    }, r.chg > 0 ? "▲" : r.chg < 0 ? "▼" : "—", " ", Math.abs(r.chg || 0).toFixed(2), "%", r.chg_alert && React.createElement("span", {
+    }, React.createElement("span", {
+      style: {
+        whiteSpace: "nowrap"
+      }
+    }, r.chg > 0 ? "▲" : r.chg < 0 ? "▼" : "—", " ", Math.abs(r.chg || 0).toFixed(2), "%"), r.chg_alert && React.createElement("span", {
       title: "Variation \u2265 \xB18% \u2014 approche limite BVC",
       style: {
         marginLeft: 3
       }
-    }, "\u26A1"), React.createElement("div", {
+    }, "\u26A1"), r.reference != null && React.createElement("div", {
+      style: {
+        fontSize: 9.5,
+        color: "#8892a4",
+        fontWeight: 400,
+        whiteSpace: "nowrap"
+      },
+      title: "Cours de r\xE9f\xE9rence : cl\xF4ture de la s\xE9ance pr\xE9c\xE9dente, base de la variation (servi par CDG)"
+    }, "r\xE9f. ", px(r.reference)), React.createElement("div", {
       className: "mobile-seul",
       style: {
         fontSize: 9.5,
         color: "#8892a4",
         fontWeight: 400
       }
-    }, "vol. ", r.vol != null ? r.vol >= 1e6 ? `${(r.vol / 1e6).toFixed(1)} M` : r.vol >= 1e4 ? `${Math.round(r.vol / 1e3)} k` : r.vol.toLocaleString("fr-FR").replace(/\u202f|,/g, " ") : "—")), React.createElement("td", {
+    }, volumeCourt(r))), React.createElement("td", {
       style: {
         padding: "8px 8px",
         fontSize: 12,
@@ -6175,12 +6210,12 @@ const Ranking = ({
           fontWeight: 600
         },
         title: bas ? "Moins de 100 000 DH échangés : la confiance est plafonnée à 2 sur 5." : ""
-      }, v ? v.toLocaleString("fr-FR").replace(/\u202f|,/g, " ") : "—"), dh != null && React.createElement("div", {
+      }, dh != null ? montantCourt(dh) : v ? `${v.toLocaleString("fr-FR").replace(/\u202f|,/g, " ")} titres` : "—"), dh != null && v ? React.createElement("div", {
         style: {
           fontSize: 9.5,
           color: "#5a6478"
         }
-      }, dh >= 1e6 ? `${(dh / 1e6).toFixed(1)} M DH` : dh >= 1e3 ? `${(dh / 1e3).toFixed(0)} k DH` : `${Math.round(dh)} DH`));
+      }, v.toLocaleString("fr-FR").replace(/\u202f|,/g, " "), " titres") : null);
     })()), React.createElement("td", {
       style: {
         padding: "8px 8px",
@@ -6843,6 +6878,7 @@ const Detail = ({
     }
   }, React.createElement(CompanyLogo, {
     sym: tk(r),
+    logo: r.symbol,
     sector: r.sector,
     size: 56
   })), React.createElement("div", {
@@ -10155,6 +10191,7 @@ function App() {
             win: t.win,
             sig: t.sig,
             biais: t.biais,
+            reference: t.reference,
             bonus: t.bonus,
             poids: t.poids,
             warn: t.warn,
@@ -10184,8 +10221,7 @@ function App() {
           ...(m || {}),
           ...d.masi,
           chg: d.masi.change_pct != null ? d.masi.change_pct : m && m.chg,
-          masi20: d.masi20 || m && m.masi20 || null,
-          src: "IDBourse"
+          masi20: d.masi20 || m && m.masi20 || null
         }));
         const upd = d.updated ? new Date(d.updated) : null;
         const timeStr = upd ? upd.toLocaleString("fr-FR", {

@@ -165,13 +165,18 @@ def test_le_classement_porte_une_colonne_volume():
 
 
 def test_la_cellule_affiche_les_deux_unites():
-    """⚠️ Le nombre de titres en premier, le montant dessous QUAND la source
-    le donne. Publier l'un sans l'autre laisserait comparer des quantités
-    entre titres de prix très différents."""
+    """⚠️ Les deux unités, parce que comparer des QUANTITÉS entre titres de
+    prix très différents n'a pas de sens.
+
+    Ordre inversé le 30/09/2026 à la demande d'Abd Moutalib : le MONTANT en
+    dirhams d'abord, le nombre de titres dessous. À défaut de montant, des
+    titres étiquetés comme tels — jamais une quantité sous l'étiquette DH."""
     i = ECRAN.find('{(()=>{const v=r.vol,dh=r.echange_dh;')
     assert i > 0, "la cellule de volume ne lit pas les deux champs"
     bloc = ECRAN[i:i + 1200]
-    assert "M DH" in bloc and "k DH" in bloc, (
+    assert "montantCourt(dh)" in bloc and "titres" in bloc
+    j = ECRAN.find("const montantCourt=")
+    assert "M DH" in ECRAN[j:j + 300] and "k DH" in ECRAN[j:j + 300], (
         "le montant n'est pas mis en forme selon son ordre de grandeur")
 
 

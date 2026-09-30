@@ -156,3 +156,21 @@ def test_l_ecart_avec_le_masi_est_calculable():
     if not m20 or m20.get("ytd_pct") is None or masi.get("ytd_pct") is None:
         pytest.skip("les deux YTD ne sont pas disponibles sur ce run")
     assert isinstance(m20["ytd_pct"] - masi["ytd_pct"], float)
+
+
+# ── La variation en points, depuis la veille et non depuis le % arrondi ─────
+
+def test_variation_en_points_depuis_la_veille(ud):
+    """Séance du 29/09/2026, bulletin CDG : +106,01 points. Depuis le
+    pourcentage publié arrondi (0,60 %), on aurait écrit 105,89."""
+    r = ud.masi_veille("2026-09-29", 17754.9077,
+                       {"2026-09-25": 17818.0946, "2026-09-28": 17648.8955,
+                        "2026-09-29": 17754.9077})
+    assert r == {"veille": 17648.8955, "veille_asof": "2026-09-28",
+                 "variation_points": 106.01}
+
+
+def test_pas_de_veille_pas_de_chiffre(ud):
+    assert ud.masi_veille("2026-09-29", 17754.9, {"2026-09-29": 17754.9}) == {}
+    # Écart hors de la borne dérivée de R10 : on ne publie rien.
+    assert ud.masi_veille("2026-09-29", 20000.0, {"2026-09-28": 17648.9}) == {}

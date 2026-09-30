@@ -23,6 +23,7 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     .mobile-seul{display:none}
+    .carte-indices{flex-basis:100%;width:100%;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.2fr);gap:10px;margin-top:8px}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
     /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
        Trois défauts : l'en-tête COLLÉ en haut couvrait plus de la moitié de
@@ -39,6 +40,8 @@
       .onglets>*{flex:0 0 auto}
       .onglets button{padding:7px 12px!important}
       .mobile-seul{display:block!important}
+      .carte-indices{grid-template-columns:1fr 1fr!important;gap:8px!important}
+      .carte-indices>:first-child{grid-column:1/-1}
       /* Le classement garde : ticker, clôture (+ ouverture), variation
          (+ volume), score, signal. */
       .classement{min-width:0!important}
@@ -48,9 +51,13 @@
       .classement th:nth-child(n+10):nth-child(-n+13),.classement td:nth-child(n+10):nth-child(-n+13),
       .classement th:nth-child(15),.classement td:nth-child(15){display:none}
       .classement td,.classement th{padding:7px 3px!important}
-      /* La pastille et le secteur prenaient la moitié de la largeur : sur
-         téléphone, le code et un nom abrégé suffisent à reconnaître le titre. */
-      .classement td:nth-child(2)>div>:first-child,.secteur-societe{display:none!important}
+      /* Le secteur prenait trop de largeur : sur téléphone, le code, un nom
+         abrégé et le logo en miniature suffisent à reconnaître le titre. */
+      .secteur-societe{display:none!important}
+      /* Le logo reste, en miniature (demande du 30/09) : 26 px suffisent à
+         reconnaître une société sans prendre la largeur d'une colonne. */
+      .classement .logo-pastille{width:26px!important;height:26px!important;font-size:8px!important}
+      .classement td:nth-child(2)>div{gap:7px!important}
       .nom-societe{max-width:80px!important;font-size:11px!important}
       .classement td:nth-child(14) *{font-size:9.5px!important;padding:3px 5px!important;letter-spacing:0!important;white-space:normal!important}
       .classement td:nth-child(14){max-width:92px}
@@ -718,35 +725,14 @@ const WBar=({f,n,t})=>(
     <div style={{width:`${t}%`,background:"#4db8ff"}} title={`Tech ${t}%`}/>
   </div>
 );
-const LOGO_MAP={
-  /* Banques & Finance */
-  IAM:"iam.ma",ATW:"attijariwafabank.com",BCP:"gbp.ma",BOA:"bankofafrica.net",
-  CIH:"cih.co.ma",CDM:"creditdumaroc.ma",WAF:"wafaassurance.ma",CFGB:"cfgbank.ma",
-  ATL:"atlantasanad.ma",SAF:"salafin.ma",SLM:"sanlammaroc.ma",MGL:"maghrebail.ma",
-  EQD:"eqdom.ma",MRL:"marocleasing.ma",S2M:"s2m.ma",IBM:"ib-maroc.com",
-  /* Mines & Energie */
-  MNG:"managem.ma",SMI:"smimiter.com",CMT:"cmt.ma",ZLD:"zellidja.ma",
-  GAZ:"afriquiagaz.ma",TQA:"taqamorocco.ma",TMA:"totalenergies.ma",MOX:"maghreboxy.com",
-  /* Industrie & Construction */
-  LHM:"holcim.ma",CIM:"cimentsdumaroc.ma",TGCC:"tgcc.ma",SGTM:"sgtm.ma",
-  STR:"stroc.ma",ALU:"aluminium-maroc.ma",SNP:"snep.ma",SNA:"sonasid.ma",
-  STK:"stokvisna.com",AFI:"africind.com",
-  /* Distribution & Commerce */
-  LBV:"labelvie.ma",LES:"lesieurchristal.ma",CMGP:"cmgp.ma",DSW:"disway.ma",
-  DTT:"distytechnologies.ma",COL:"colorado.ma",HAL:"auto-hall.ma",NEJ:"autonnejma.com",
-  CSR:"cosumar.ma",DAR:"daricouspate.ma",FNB:"feniebrossette.ma",
-  /* Immobilier & Hôtellerie */
-  ADH:"addoha.ma",ADI:"alliances.ma",ARD:"aradei.com",RDS:"residences-dar-saada.com",
-  RIS:"risma.ma",IMI:"immorente.ma",BAL:"balima.ma",
-  /* Tech & Santé */
-  HPS:"hps-worldwide.com",AKD:"akdital.ma",SOT:"sothema.ma",MIC:"microdata.ma",
-  ENK:"ennakl.com.tn",PPM:"promopharm.ma",M2M:"m2mgroup.ma",INV:"involys.ma",
-  /* Divers */
-  MSA:"marsamaroc.ma",CTM:"ctm.ma",OUL:"oulmes.ma",VCNE:"vivoenergy.ma",
-  CASH:"cashplus.ma",MUT:"mutandis.ma",SRM:"srm.ma",DHO:"deltaholding.ma",
-  JET:"jetcontractors.ma",AGM:"agma.ma",AFM:"afma.ma",BMC:"bmci.ma",
-  CAR:"cartier-saada.ma",SBS:"sbm.ma",REB:"rebabcompany.com",
-};
+/* ⚠️ LES LOGOS VIENNENT DU SITE OFFICIEL DE CHAQUE SOCIÉTÉ — 30/09/2026.
+   Relevés par tools/recuperer_logos.py, miniaturisés (64 px), relus à l'œil
+   et consignés dans datasets/logos/registre.json (site, fichier, date,
+   empreinte). Un titre absent de cette liste garde son monogramme : pas de
+   site déclaré, site injoignable, ou logo refusé à la relecture (celui d'un
+   groupe ou d'un partenaire). Une table de domaines écrite de mémoire vivait
+   ici, inutilisée — et elle inversait Sanlam et Salafin. */
+const LOGOS=new Set(["ADH","ADI","AFI","AFM","AGM","AKD","ALU","ATL","BMC","CDM","CFGB","CIM","CMT","COL","CSR","DHO","ENK","FNB","HPS","IMI","INV","JET","LES","LHM","M2M","MDP","MNG","MSA","MUT","NEJ","SBS","SLM","SNA","SNP","STK","STR","T2S","TGCC","TQA","UNI","VCNE"]);
 const SECTOR_COL={
   "Banques":"#1565C0","Finance":"#E65100","Assurances":"#6A1B9A",
   "Mines":"#4E342E","Santé":"#1B5E20","Télécommunications":"#01579B",
@@ -759,12 +745,117 @@ const SECTOR_COL={
   "Matériaux":"#3E2723","Services":"#006064","Transport":"#1A237E",
   "FMCG":"#2E7D32","Grande distribution":"#0D47A1",
 };
-function CompanyLogo({sym,sector,size=32}){
+/* ⚠️ LA CARTE DES INDICES — refaite le 30/09/2026 à la demande d'Abd
+   Moutalib : « pas bien calibré, très moche et très petit alors que c'est
+   l'indice ». L'indice, le YTD, le MASI 20, la largeur et le volume
+   tenaient dans une pastille en 11 px. Tous les garde-fous de l'ancien
+   bandeau sont conservés : date d'un indice périmé, MASI 20 d'une autre
+   séance, montant accompagné du nombre de transactions.
+   La variation en POINTS vient de la veille publiée par le moteur
+   (`variation_points`) — pas du pourcentage arrondi, qui donnerait 105,89
+   au lieu de 106,01 le 29/09. */
+const CarteIndices=({masi})=>{
+  const coul=v=>v>0?"#00e5a0":v<0?"#ff4f5a":"#8892a4";
+  const fleche=v=>v>0?"▲":v<0?"▼":"■";
+  const nb=(v,d=2)=>v==null?"—":(+v).toLocaleString("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d});
+  const pct=v=>v==null?"—":`${v>0?"+":""}${nb(v)} %`;
+  const jj=d=>d?`${d.slice(8,10)}/${d.slice(5,7)}`:"";
+  const ch=masi.chg??masi.change_pct;
+  const carte={background:"linear-gradient(180deg,rgba(77,184,255,.07),rgba(77,184,255,.02))",
+    border:"1px solid rgba(77,184,255,.22)",borderRadius:8,padding:"10px 14px",minWidth:0};
+  const etiquette={fontSize:10,color:"#8892a4",letterSpacing:1.2,textTransform:"uppercase"};
+  const m20=masi.masi20;
+  const tot=(masi.hausses||0)+(masi.baisses||0)+(masi.inchanges||0);
+  return(
+    <div className="bandeau-masi carte-indices">
+      <div style={carte}>
+        <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <span style={{...etiquette,color:"#4db8ff",fontWeight:700}}>MASI</span>
+          {masi.asof&&<span style={{fontSize:10,color:"#5a6478"}}>séance du {jj(masi.asof)}</span>}
+          {masi.stale&&<span title={`Indice de la séance du ${masi.asof||"?"} — la source ne l'a pas rafraîchi`}
+            style={{fontSize:9,fontWeight:700,color:"#ffd740",border:"1px solid rgba(255,215,64,.45)",borderRadius:3,padding:"1px 4px"}}>
+            ⚠ {masi.asof?jj(masi.asof):"périmé"}</span>}
+        </div>
+        <div style={{display:"flex",alignItems:"baseline",gap:12,flexWrap:"wrap",marginTop:2}}>
+          <span style={{fontSize:28,fontWeight:800,color:"#fff",letterSpacing:.5}}>{nb(masi.value)}</span>
+          <span style={{fontSize:14,fontWeight:700,color:coul(ch),background:`${coul(ch)}18`,
+            border:`1px solid ${coul(ch)}40`,borderRadius:5,padding:"2px 8px",whiteSpace:"nowrap"}}>
+            {fleche(ch)} {pct(ch)}{masi.variation_points!=null&&<span style={{fontWeight:500,opacity:.85}}> · {masi.variation_points>0?"+":""}{nb(masi.variation_points)} pts</span>}
+          </span>
+        </div>
+        <div style={{display:"flex",gap:14,flexWrap:"wrap",marginTop:4,fontSize:11,color:"#8892a4"}}>
+          {masi.veille!=null&&<span title={`Clôture de la séance du ${jj(masi.veille_asof)}`}>veille {nb(masi.veille)}</span>}
+          {masi.ytd_pct!=null&&
+            <span title="Variation de l'indice depuis la clôture du 31 décembre, recalculée par le moteur depuis la clôture publiée et l'ancrage annuel.">
+              depuis janvier <b style={{color:coul(masi.ytd_pct)}}>{pct(masi.ytd_pct)}</b></span>}
+        </div>
+      </div>
+      {masi.masi20&&masi.masi20.value!=null&&
+        <div style={carte} title={`MASI 20 — les vingt plus grosses capitalisations.${m20.ytd_pct!=null&&masi.ytd_pct!=null?` Écart de ${nb(Math.abs(m20.ytd_pct-masi.ytd_pct),1)} point(s) avec le MASI sur l'année.`:""}`}>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <span style={{...etiquette,fontWeight:700}}>MASI&nbsp;20</span>
+            {/* Deux séances ne s'affichent jamais comme une seule : on DIT la date. */}
+            {m20.asof&&masi.asof&&masi.masi20.asof!==masi.asof&&
+              <span title={`Le MASI 20 affiché porte la séance du ${m20.asof}, alors que les cours publiés portent celle du ${masi.asof}.`}
+                style={{color:"#ff8f00",fontSize:10}}>⚠ {jj(m20.asof)}</span>}
+          </div>
+          <div style={{fontSize:20,fontWeight:700,color:"#e8eef8",marginTop:2}}>{nb(m20.value)}</div>
+          <div style={{display:"flex",gap:10,flexWrap:"wrap",fontSize:11,marginTop:2}}>
+            {m20.change_pct!=null&&<span style={{color:coul(m20.change_pct),fontWeight:700}}>{fleche(m20.change_pct)} {pct(m20.change_pct)}</span>}
+            {m20.ytd_pct!=null&&<span style={{color:"#8892a4"}}>depuis janvier <b style={{color:coul(m20.ytd_pct)}}>{pct(m20.ytd_pct)}</b></span>}
+          </div>
+        </div>}
+      <div style={carte}>
+        <div style={etiquette}>La séance</div>
+        {masi.hausses!=null&&masi.baisses!=null&&tot>0&&<>
+          <div title={`${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges||0} inchangées sur ${masi.valeurs_traitees||tot} valeurs traitées`}
+            style={{display:"flex",height:8,borderRadius:4,overflow:"hidden",marginTop:6,background:"#1a2540"}}>
+            <div style={{width:`${100*masi.hausses/tot}%`,background:"#00e5a0"}}/>
+            <div style={{width:`${100*(masi.inchanges||0)/tot}%`,background:"#5a6478"}}/>
+            <div style={{width:`${100*masi.baisses/tot}%`,background:"#ff4f5a"}}/>
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginTop:4}}>
+            <span style={{color:"#00e5a0",fontWeight:700}}>{masi.hausses} ▲</span>
+            <span style={{color:"#8892a4"}}>{masi.inchanges??0} =</span>
+            <span style={{color:"#ff4f5a",fontWeight:700}}>{masi.baisses} ▼</span>
+          </div>
+        </>}
+        {masi.volume_mad!=null&&
+          <div style={{marginTop:6,fontSize:11,color:"#8892a4"}}
+            title={`Volume global de la séance${masi.titres_echanges!=null?` : ${masi.titres_echanges.toLocaleString("fr-FR")} titres échangés`:""}${masi.transactions!=null?` en ${masi.transactions.toLocaleString("fr-FR")} transactions`:""}.`}>
+            <b style={{color:"#e8eef8",fontSize:14}}>{masi.volume_mad>=1e9?`${nb(masi.volume_mad/1e9)} Md DH`:`${nb(masi.volume_mad/1e6,1)} M DH`}</b>
+            {masi.transactions!=null&&<span> · {masi.transactions.toLocaleString("fr-FR")} transactions</span>}
+          </div>}
+      </div>
+    </div>
+  );
+};
+
+/* Le volume de la séance, en DIRHAMS d'abord — 30/09/2026 : « au lieu
+   d'afficher le volume en DH il affiche la quantité échangée ». Le montant
+   est celui servi par la source (`echange_dh`) ; à défaut, le nombre de
+   TITRES, étiqueté comme tel — jamais une quantité sous l'étiquette DH. */
+const montantCourt=dh=>dh>=1e9?`${(dh/1e9).toFixed(2).replace(".",",")} Md DH`:dh>=1e6?`${(dh/1e6).toFixed(1).replace(".",",")} M DH`:dh>=1e3?`${Math.round(dh/1e3)} k DH`:`${Math.round(dh)} DH`;
+const volumeCourt=r=>r.echange_dh!=null?montantCourt(r.echange_dh)
+  :r.vol?`${r.vol.toLocaleString("fr-FR").replace(/\u202f|,/g," ")} titres`:"—";
+
+function CompanyLogo({sym,logo,sector,size=32}){
+  /* ⚠️ `sym` est le code AFFICHÉ (officiel : TGC, CFG, GTM) ; `logo` est NOTRE
+     symbole (TGCC, CFGB, SGTM), qui nomme les fichiers. Les confondre ferait
+     retomber silencieusement ces titres sur leur monogramme. */
+  const cle=logo||sym;
+  const [echec,setEchec]=useState(false);
+  if(LOGOS.has(cle)&&!echec) return(
+    <img className="logo-pastille" src={`logos/${cle}.png`} alt="" width={size} height={size} loading="lazy"
+      onError={()=>setEchec(true)}
+      style={{width:size,height:size,borderRadius:"50%",flexShrink:0,objectFit:"cover",
+        background:"#fff",boxShadow:"0 1px 4px rgba(0,0,0,.45)"}}/>
+  );
   const bg=SECTOR_COL[sector]||"#1a2540";
   const fs=Math.max(8,Math.round(size*0.30));
   const initials=sym.length<=3?sym:sym.slice(0,4);
   return(
-    <div style={{width:size,height:size,borderRadius:"50%",flexShrink:0,
+    <div className="logo-pastille" style={{width:size,height:size,borderRadius:"50%",flexShrink:0,
       background:bg,display:"flex",alignItems:"center",justifyContent:"center",
       boxShadow:"0 2px 6px rgba(0,0,0,.5)"}}>
       <span style={{fontSize:fs,fontWeight:800,color:"#fff",fontFamily:"'Courier New',monospace",
@@ -1267,94 +1358,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
               <span style={{color:"#c8d3e8",fontWeight:600}}>{ts||"—"}</span>
             </span>
             {mktStatus&&<span style={{background:`${mktStatus.color}18`,border:`1px solid ${mktStatus.color}40`,borderRadius:4,padding:"3px 10px",fontSize:11,color:mktStatus.color,fontWeight:700,letterSpacing:.5}}>BVC {mktStatus.label}</span>}
-            {masi&&<span className="bandeau-masi" style={{display:"flex",alignItems:"center",gap:6,background:"rgba(77,184,255,.08)",border:"1px solid rgba(77,184,255,.25)",borderRadius:4,padding:"3px 12px",fontSize:11}}>
-              <span style={{color:"#8892a4",letterSpacing:.5}}>MASI</span>
-              <span style={{color:"#c8d3e8",fontWeight:700}}>{masi.value.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
-              <span style={{color:(masi.chg||0)>0?"#00e5a0":(masi.chg||0)<0?"#ff4f5a":"#8892a4",fontWeight:600}}>{(masi.chg||0)>0?"▲":"▼"}{fmt(masi.chg!=null?Math.abs(masi.chg):null)}%</span>
-              {/* ⚠️ LA LARGEUR DE MARCHÉ — ajoutée le 25/09.
-                  Un indice peut monter porté par trois grosses capitalisations
-                  pendant que le marché recule ; la variation seule ne le dit
-                  pas. Le 24/09, le MASI perdait 0,95 % et DEUX TITRES SUR
-                  TROIS reculaient — 16 hausses contre 42 baisses. */}
-              {/* ⚠️ LE YTD — affiché le 25/09.
-                  Il était collecté depuis la veille et invisible. Le
-                  `WeightEngine` le déclarait même « non calculable », ce qui
-                  neutralisait deux régimes de pondération depuis l'origine du
-                  projet : l'ancrage du 31/12 est servi par la source.
-                  ⚠️ CORRIGÉ LE 25/09 — le champ tout fait `VariationAnneeP`
-                  décrit la VEILLE, pas la clôture publiée. Le terminal a
-                  affiché −4,27 % pour la séance du 24/09, qui est le YTD du
-                  23/09 ; le vrai vaut −5,19 %. Le moteur le RECALCULE
-                  désormais depuis la clôture et l'ancrage annuel.
-                  Un lecteur qui voit « −0,95 % » ne sait pas si l'année est
-                  bonne ou mauvaise ; « −5,19 % depuis janvier » le lui dit. */}
-              {masi.ytd_pct!=null&&
-                <span title="Variation de l'indice depuis la clôture du 31 décembre. Calculée par le moteur à partir de la clôture publiée et de l'ancrage annuel de l'opérateur — le champ tout fait de la source décrit la séance précédente."
-                  style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
-                  <span style={{color:"#8892a4",fontSize:10}}>YTD</span>
-                  <span style={{color:masi.ytd_pct>0?"#00e5a0":masi.ytd_pct<0?"#ff4f5a":"#8892a4",fontWeight:600}}>
-                    {masi.ytd_pct>0?"+":""}{fmt(masi.ytd_pct).replace(".",",")}%</span>
-                </span>}
-              {/* ⚠️ LE MASI 20, À CÔTÉ DU MASI ET NON À SA PLACE.
-                  Le MASI est pondéré par les capitalisations : quelques poids
-                  lourds suffisent à le porter. Le MASI 20 ne contient QUE ces
-                  poids lourds. L'écart entre les deux sépare ce que fait le
-                  haut de la cote de ce que fait le marché — au 25/09, −13,0 %
-                  contre −5,2 % sur l'année. */}
-              {masi.masi20&&masi.masi20.value!=null&&
-                <span title={`MASI 20 — les vingt plus grosses capitalisations. ${masi.masi20.ytd_pct!=null&&masi.ytd_pct!=null?`Écart de ${fmt(Math.abs(masi.masi20.ytd_pct-masi.ytd_pct),1)} point(s) avec le MASI sur l'année.`:""}`}
-                  style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
-                  <span style={{color:"#8892a4",fontSize:10}}>MASI&nbsp;20</span>
-                  <span style={{color:"#c8d3e8",fontWeight:600}}>{fmt(masi.masi20.value).replace(".",",")}</span>
-                  {masi.masi20.change_pct!=null&&
-                    <span style={{color:masi.masi20.change_pct>0?"#00e5a0":masi.masi20.change_pct<0?"#ff4f5a":"#8892a4"}}>
-                      {masi.masi20.change_pct>0?"▲":masi.masi20.change_pct<0?"▼":""}{fmt(Math.abs(masi.masi20.change_pct)).replace(".",",")}%</span>}
-                  {masi.masi20.ytd_pct!=null&&
-                    <span style={{color:"#5a6478",fontSize:10}}>· YTD {masi.masi20.ytd_pct>0?"+":""}{fmt(masi.masi20.ytd_pct).replace(".",",")}%</span>}
-                  {/* ⚠️ DEUX SÉANCES AFFICHÉES COMME UNE SEULE — le défaut du
-                      14/08 et du 28/08, et il s'est présenté dès le premier
-                      relevé : le fournisseur servait déjà le 25/09 pour le
-                      MASI 20 alors que les cours publiés portaient le 24/09.
-                      On n'aligne pas, on DIT la date. */}
-                  {masi.masi20.asof&&masi.asof&&masi.masi20.asof!==masi.asof&&
-                    <span title={`Le MASI 20 affiché porte la séance du ${masi.masi20.asof}, alors que les cours publiés portent celle du ${masi.asof}.`}
-                      style={{color:"#ff8f00",fontSize:10}}>⚠ {masi.masi20.asof.slice(8)}/{masi.masi20.asof.slice(5,7)}</span>}
-                </span>}
-              {/* ⚠️ LE VOLUME GLOBAL DE LA SÉANCE — ajouté le 25/09/2026.
-                  Il était collecté depuis le 24/09 et le bloc `masi` n'en
-                  portait aucun champ : le terminal affichait la variation de
-                  l'indice sans jamais dire sur combien d'échanges elle
-                  s'était faite. 181 M DH et 400 M DH ne décrivent pas la même
-                  séance, à variation identique.
-                  ⚠️ L'infobulle porte les trois grandeurs, parce qu'elles ne
-                  disent pas la même chose : 2 293 opérations pour 568 414
-                  titres n'est pas une séance de cinquante blocs. */}
-              {masi.volume_mad!=null&&
-                <span title={`Volume global de la séance. ${masi.titres_echanges!=null?`${masi.titres_echanges.toLocaleString("fr-FR")} titres échangés`:""}${masi.transactions!=null?` en ${masi.transactions.toLocaleString("fr-FR")} transactions, soit ${Math.round(masi.volume_mad/masi.transactions).toLocaleString("fr-FR")} DH par opération`:""}.`}
-                  style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
-                  <span style={{color:"#8892a4",fontSize:10}}>VOL</span>
-                  <span style={{color:"#c8d3e8",fontWeight:600}}>
-                    {masi.volume_mad>=1e9?`${fmt(masi.volume_mad/1e9,2).replace(".",",")} Md DH`
-                                        :`${fmt(masi.volume_mad/1e6,1).replace(".",",")} M DH`}</span>
-                  {masi.transactions!=null&&
-                    <span style={{color:"#5a6478",fontSize:10}}>· {masi.transactions.toLocaleString("fr-FR")} tr.</span>}
-                </span>}
-              {masi.hausses!=null&&masi.baisses!=null&&
-                <span title={`${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges||0} inchangées sur ${masi.valeurs_traitees||"?"} valeurs traitées`}
-                  style={{display:"flex",alignItems:"center",gap:3,paddingLeft:8,borderLeft:"1px solid rgba(77,184,255,.25)"}}>
-                  <span style={{color:"#00e5a0",fontWeight:600}}>{masi.hausses}↑</span>
-                  <span style={{color:"#8892a4"}}>/</span>
-                  <span style={{color:"#ff4f5a",fontWeight:600}}>{masi.baisses}↓</span>
-                  {masi.inchanges!=null&&<span style={{color:"#8892a4",fontSize:10}}>·{masi.inchanges}=</span>}
-                </span>}
-              {masi.stale
-                ? <span title={`Indice de la séance du ${masi.asof||"?"} — la source ne l'a pas rafraîchi`}
-                        style={{fontSize:9,fontWeight:700,color:"#ffd740",
-                                border:"1px solid rgba(255,215,64,.45)",borderRadius:3,
-                                padding:"1px 4px",marginLeft:2,whiteSpace:"nowrap"}}>
-                    ⚠ {masi.asof?masi.asof.slice(8,10)+"/"+masi.asof.slice(5,7):"périmé"}</span>
-                : <span style={{fontSize:9,color:"#4a5568",marginLeft:2}}>{masi.src}</span>}
-            </span>}
+            {masi&&<CarteIndices masi={masi}/>}
           </div>
         </div>
         <div style={{display:"flex",gap:8,alignItems:"center"}}>
@@ -1615,7 +1619,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   <td style={{padding:"8px 8px",fontSize:12,color:"#8892a4"}}>{i+1}</td>
                   <td style={{padding:"10px 8px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      <CompanyLogo sym={tk(r)} sector={r.sector} size={46}/>
+                      <CompanyLogo sym={tk(r)} logo={r.symbol} sector={r.sector} size={34}/>
                       <div style={{minWidth:0}}>
                         <div style={{display:"flex",alignItems:"center",gap:5}}>
                           <span style={{fontSize:16,color:"#fff",fontWeight:800,letterSpacing:.3}}>{tk(r)}</span>
@@ -1641,8 +1645,17 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                         sous la clôture et la variation (demande du 30/09). */}
                     <div className="mobile-seul" style={{fontSize:9.5,color:"#8892a4",fontWeight:400}}>ouv. {r.open?px(r.open):"—"}</div>
                   </td>
-                  <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}
-                    <div className="mobile-seul" style={{fontSize:9.5,color:"#8892a4",fontWeight:400}}>vol. {r.vol!=null?(r.vol>=1e6?`${(r.vol/1e6).toFixed(1)} M`:r.vol>=1e4?`${Math.round(r.vol/1e3)} k`:r.vol.toLocaleString("fr-FR").replace(/\u202f|,/g," ")):"—"}</div></td>
+                  <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}><span style={{whiteSpace:"nowrap"}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%</span>{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}
+                    {/* ⚠️ LA RÉFÉRENCE DE LA VARIATION — 30/09/2026. Relevé d'Abd
+                        Moutalib : « variation pas adéquate avec l'ouverture et la
+                        clôture ». Elle l'était (66/66 contre CDG) : elle se lit contre
+                        la clôture de la VEILLE, que l'écran ne montrait pas. MNG :
+                        veille 1 580, ouverture 1 600, clôture 1 600, +1,27 %.
+                        Servie par CDG — jamais déduite du % arrondi (1 579,93 au lieu de 1 580). */}
+                    {r.reference!=null&&<div style={{fontSize:9.5,color:"#8892a4",fontWeight:400,whiteSpace:"nowrap"}}
+                      title="Cours de référence : clôture de la séance précédente, base de la variation (servi par CDG)">
+                      réf. {px(r.reference)}</div>}
+                    <div className="mobile-seul" style={{fontSize:9.5,color:"#8892a4",fontWeight:400}}>{volumeCourt(r)}</div></td>
                   {/* ⚠️ LE VOLUME DE LA SÉANCE — ajouté le 25/09/2026, il manquait.
                       Le classement montrait la variation sans jamais dire sur
                       combien d'échanges elle s'était faite. Un titre à +3 %
@@ -1659,9 +1672,9 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       return <>
                         <div style={{color:bas?"#ff8f00":"#c8d3e8",fontWeight:600}}
                           title={bas?"Moins de 100 000 DH échangés : la confiance est plafonnée à 2 sur 5.":""}>
-                          {v?v.toLocaleString("fr-FR").replace(/\u202f|,/g," "):"—"}</div>
-                        {dh!=null&&<div style={{fontSize:9.5,color:"#5a6478"}}>
-                          {dh>=1e6?`${(dh/1e6).toFixed(1)} M DH`:dh>=1e3?`${(dh/1e3).toFixed(0)} k DH`:`${Math.round(dh)} DH`}</div>}
+                          {dh!=null?montantCourt(dh):v?`${v.toLocaleString("fr-FR").replace(/\u202f|,/g," ")} titres`:"—"}</div>
+                        {dh!=null&&v?<div style={{fontSize:9.5,color:"#5a6478"}}>
+                          {v.toLocaleString("fr-FR").replace(/\u202f|,/g," ")} titres</div>:null}
                       </>;})()}
                   </td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.pe>25?"#ff8f00":"#c8d3e8"}}>{r.pe?.toFixed(1)||"—"}</td>
@@ -1973,7 +1986,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
           {/* Score card */}
           <div style={{background:`linear-gradient(135deg,${s.bg},#0d1829)`,border:`1px solid ${s.bd}`,borderRadius:8,padding:16,textAlign:"center"}}>
             <div style={{display:"flex",justifyContent:"center",marginBottom:10}}>
-              <CompanyLogo sym={tk(r)} sector={r.sector} size={56}/>
+              <CompanyLogo sym={tk(r)} logo={r.symbol} sector={r.sector} size={56}/>
             </div>
             <div style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
               <span>{tk(r)} · {px(price)} DH<Perime r={r}/> <span style={{color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
@@ -3284,7 +3297,7 @@ function App(){
              NOMMÉE pour qu'un oubli futur se voie — une énumération de
              quarante champs cache ce qui lui manque. */
           ...Object.fromEntries(CHAMPS_SCORE.map(c=>[c,t[c]])),
-          alpha:t.alpha,win:t.win,sig:t.sig,biais:t.biais,
+          alpha:t.alpha,win:t.win,sig:t.sig,biais:t.biais,reference:t.reference,
           bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
           bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,alertes:t.alertes,
           conv:t.conv,setup:t.setup,
@@ -3321,7 +3334,7 @@ function App(){
         if(d.masi) setMasi(m=>({...(m||{}),...d.masi,
                                 chg:d.masi.change_pct!=null?d.masi.change_pct:(m&&m.chg),
                                 masi20:d.masi20||(m&&m.masi20)||null,
-                                src:"IDBourse"}));
+                                }));
         const upd=d.updated?new Date(d.updated):null;
         const timeStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit",second:"2-digit"}):"";
         const dateStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",year:"numeric"}):"";
