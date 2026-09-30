@@ -1862,6 +1862,39 @@ const SeanceDetail=({b})=>{
   </>;
 };
 
+// ⚠️ « À SURVEILLER AUJOURD'HUI » — 30/09/2026. En tête du briefing, une
+// ligne par titre : les critères qu'il remplit, le chiffre, le lien. Aucune
+// note : le lecteur voit POURQUOI le titre est là (pipeline/briefing.py::
+// a_surveiller). Absent des lectures antérieures au 30/09 : rien n'est affiché.
+const ASurveiller=({a})=>{
+  if(!a)return null;
+  const groupes=[["A PUBLIÉ",a.a_publie||[]],["A BOUGÉ",a.a_bouge||[]]].filter(([,l])=>l.length);
+  if(!groupes.length)return null;
+  return(
+    <div style={{background:"#0d1829",border:"1px solid rgba(0,229,160,.35)",borderRadius:8,padding:16}}>
+      <div style={{fontSize:10,color:"#00e5a0",letterSpacing:1,textTransform:"uppercase",marginBottom:2}}>À surveiller aujourd'hui</div>
+      <div style={{fontSize:11,color:"#5a6478",marginBottom:10}}>
+        Chaque titre remplit au moins un critère mesuré ; classés par nombre de critères, puis par montant échangé.
+        {a.n_candidats>(a.a_publie||[]).length+(a.a_bouge||[]).length&&<> {a.n_candidats} titres en remplissaient un.</>}
+      </div>
+      {groupes.map(([titre,l])=>(
+        <div key={titre} style={{marginBottom:8}}>
+          <div style={{fontSize:10,color:"#8892a4",letterSpacing:.8,margin:"6px 0 4px"}}>{titre}</div>
+          {l.map(z=>(
+            <div key={z.symbol} style={{display:"flex",gap:10,alignItems:"baseline",padding:"5px 0",borderBottom:"1px solid #0a1220",flexWrap:"wrap"}}>
+              <span style={{color:"#e6edf7",fontWeight:600,minWidth:44}}>{z.symbol}</span>
+              <span style={{fontFamily:"monospace",minWidth:62,color:z.chg==null?"#5a6478":z.chg>0?"#00e5a0":z.chg<0?"#ff4f5a":"#8892a4"}}>
+                {z.chg==null?"non coté":`${z.chg>0?"+":""}${fmt(z.chg).replace(".",",")} %`}</span>
+              <span style={{color:"#c8d3e8",fontSize:12.5,flex:"1 1 200px"}}>
+                {z.criteres.map((c,i)=><span key={i}>{i>0&&" · "}{c.url
+                  ?<a href={c.url} target="_blank" rel="noopener noreferrer" style={{color:"#4db8ff"}}>{c.texte}</a>
+                  :c.texte}</span>)}
+              </span>
+            </div>))}
+        </div>))}
+    </div>);
+};
+
 const Briefing=()=>{
   const [b,setB]=useState(null);
   const [h,setH]=useState(null);
@@ -1881,6 +1914,7 @@ const Briefing=()=>{
   const [seances,setSeances]=useState([]);
   const [choix,setChoix]=useState(null);
   const [arch,setArch]=useState(null);
+  const [detail,setDetail]=useState(false);
   useEffect(()=>{
     const t=Math.floor(Date.now()/3600000);
     Promise.all([
@@ -1952,6 +1986,8 @@ const Briefing=()=>{
               cursor:dispo?"pointer":"not-allowed"}}>{o.label}</button>;})}
       </div>
 
+      {!semaine&&<ASurveiller a={src.a_surveiller}/>}
+
       <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
         <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>
           {semaine?"Bilan de la semaine":(LIB_MOMENT[src.moment]||"Lecture de la séance")}</div>
@@ -1977,7 +2013,12 @@ const Briefing=()=>{
           bloc porte sa source et sa date, et n'apparaît que s'il a été
           mesuré. Un bloc absent est déclaré dans « Ce que cette lecture ne
           dit pas », jamais rempli par défaut. */}
-      {!semaine&&<SeanceDetail b={src}/>}
+      {/* Replié par défaut : la liste courte d'abord, le détail à la demande. */}
+      {!semaine&&<button onClick={()=>setDetail(!detail)}
+        style={{alignSelf:"flex-start",background:"#0a1220",border:"1px solid #1a2540",color:"#8892a4",
+          borderRadius:5,padding:"5px 14px",fontSize:11,letterSpacing:.8,cursor:"pointer"}}>
+        {detail?"MASQUER LE DÉTAIL DE LA SÉANCE ▴":"DÉTAIL DE LA SÉANCE ▾"}</button>}
+      {!semaine&&detail&&<SeanceDetail b={src}/>}
 
       {/* ⚠️ Le palmarès n'existe que sur la semaine : sur une séance, il
           doublonnerait les plus fortes hausses déjà présentes ailleurs. */}
