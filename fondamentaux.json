@@ -1642,8 +1642,8 @@
     "secteur": "Immobilier",
     "per": 19.93,
     "forward_per": 12.18,
-    "croissance_ca": null,
-    "croissance_bpa": null,
+    "croissance_ca": 2.4,
+    "croissance_bpa": 5.5,
     "dette_nette_ebitda": 0.06,
     "roic": 6,
     "wacc": 9.5,
@@ -1657,7 +1657,7 @@
     "catalyseur": "Rendement immobilier récurrent; acquisition actifs professionnels; expansion OPCI",
     "risque": "Risque locataire; vacance; taux d'intérêt; liquidité OPCI",
     "source": "Casabourse.ma; Rapports annuels Immorente Invest",
-    "date_maj": "2026-06-18",
+    "date_maj": "2026-09-29",
     "bpa_2025": 4.61,
     "bpa_2026": 4.61,
     "dps_2026": 5.5,
@@ -1672,7 +1672,44 @@
     "nb_actions": 9007000,
     "bloomberg": "IMO",
     "reuters": "IMO",
-    "secteur_libre": "OPCI / Foncière industrielle"
+    "secteur_libre": "OPCI / Foncière industrielle",
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 9007000,
+      "date_maj": "2026-06-18"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Immorente_Invest_S1_26.pdf",
+    "ratios_publies": {
+      "roe_2025": {
+        "valeur": 5.0,
+        "date": "2025-12-31",
+        "formule": "41.486 ÷ 822.32 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Immorente_Invest_2025_avis_AGO_01_04_26.pdf — p.3, comptes consolidés IFRS au 31/12/2025 (KMAD), colonnes « 2025.12 2024.12 » : « Résultat de l'exercice 41.486 47.112 », « Intérêts minoritaires 0 0 » ; identique au bilan du dépôt S1 2026. ⚠️ yuna.ma (90,97 ÷ PER 18,95 au 30/09) sous-entend un BPA de 4,80 contre 4,61 ici (4 %) — écart consigné, non corrigé",
+          "capitaux_propres": "bilan consolidé du dépôt S1 2026, p.3, colonnes « 2026.06 2025.12 » — « Total des capitaux propres 813.643 822.320 » (KMAD, minoritaires nuls : RFA 2025 p.3 « Total Capitaux propres, part du groupe 822.320 »)"
+        }
+      },
+      "roe_12m": {
+        "valeur": 5.2,
+        "date": "2026-06-30",
+        "formule": "(41.486 + 22.847 − 21.659) ÷ 813.643 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Immorente_Invest_S1_26.pdf",
+          "capitaux_propres": "bilan consolidé du dépôt S1 2026, p.3, colonnes « 2026.06 2025.12 » — « Total des capitaux propres 813.643 822.320 » (KMAD, minoritaires nuls : RFA 2025 p.3 « Total Capitaux propres, part du groupe 822.320 »)"
+        }
+      },
+      "marge_nette_s1_2026": {
+        "valeur": 54.1,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé IFRS",
+        "formule": "22.847 ÷ 42.239 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Immorente_Invest_S1_26.pdf"
+        }
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "LBV": {
     "secteur": "Distribution",
@@ -2944,8 +2981,8 @@
     "secteur": "Industrie",
     "per": 11,
     "forward_per": 9,
-    "croissance_ca": 20,
-    "croissance_bpa": 0,
+    "croissance_ca": -19.1,
+    "croissance_bpa": -1135.9,
     "dette_nette_ebitda": 2.5,
     "roic": 8,
     "wacc": 10,
@@ -2959,7 +2996,7 @@
     "catalyseur": "Redressement en cours, BTP dynamisé par grands chantiers",
     "risque": "Marges très faibles, pas de dividende",
     "source": "L'Economiste / Boursenews",
-    "date_maj": "2026-05-12",
+    "date_maj": "2026-09-29",
     "cours_bv": 538.8,
     "pe_24": null,
     "pe_25c": null,
@@ -2971,7 +3008,26 @@
     "nb_actions": 320000,
     "bloomberg": "SRM",
     "reuters": "SRM",
-    "secteur_libre": "Distribution BTP & Manutention"
+    "secteur_libre": "Distribution BTP & Manutention",
+    "avant_2026_09_29": {
+      "croissance_bpa": 0,
+      "croissance_ca": 20,
+      "nb_actions": 320000,
+      "date_maj": "2026-05-12"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/SRM_S1_26.pdf",
+    "ratios_publies": {
+      "marge_nette_s1_2026": {
+        "valeur": -6.9,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires",
+        "formule": "-8.463061 ÷ 122.329284 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/SRM_S1_26.pdf"
+        }
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "TGCC": {
     "secteur": "Construction",
@@ -3379,8 +3435,8 @@
     "secteur": "Agroalimentaire",
     "per": 62.75,
     "forward_per": 52.79,
-    "croissance_ca": 7.4,
-    "croissance_bpa": 10.0,
+    "croissance_ca": 6.7,
+    "croissance_bpa": -107.6,
     "dette_nette_ebitda": 0.38,
     "roic": 12,
     "wacc": 10,
@@ -3395,10 +3451,48 @@
     "catalyseur": "Usine Dakhla (hydrolysats) en année pleine 2026; normalisation Ain Ifrane; acquisitions annoncées",
     "risque": "Accident industriel récurrent; volatilité prix sardines; concurrence détergents",
     "source": "Casabourse.ma; Rapport annuel 2025 Mutandis; Attijari Research",
-    "date_maj": "2026-06-18",
+    "date_maj": "2026-09-29",
     "bpa_2026": 16.32,
     "dps_2026": 10.5,
-    "secteur_libre": "FMCG - Conserves, détergents, boissons"
+    "secteur_libre": "FMCG - Conserves, détergents, boissons",
+    "avant_2026_09_29": {
+      "croissance_bpa": 10.0,
+      "croissance_ca": 7.4,
+      "nb_actions": null,
+      "date_maj": "2026-06-18"
+    },
+    "nb_actions": 9246737,
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Mutandis_RFS_S1_26.pdf",
+    "ratios_publies": {
+      "roe_2025": {
+        "valeur": 8.1,
+        "date": "2025-12-31",
+        "formule": "126.161 ÷ 1551.387 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Mutandis_2025.pdf — p.12, compte de résultat consolidé, colonnes « 2024 2025 » : « Part du groupe 159 408 126 161 » (KMAD) ; identique au bilan du dépôt S1 2026 p.13, « Résultat de l'exercice 126 161 » au 31.12.2025",
+          "capitaux_propres": "bilan consolidé du dépôt S1 2026, p.13, colonnes « 31.12.2025 30.06.2026 » — « Total Capitaux propres, part du groupe 1 551 387 1 446 822 » (KMAD)"
+        }
+      },
+      "roe_12m": {
+        "valeur": 3.7,
+        "date": "2026-06-30",
+        "formule": "(126.161 + -5.152 − 67.902) ÷ 1446.822 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Mutandis_RFS_S1_26.pdf",
+          "capitaux_propres": "bilan consolidé du dépôt S1 2026, p.13, colonnes « 31.12.2025 30.06.2026 » — « Total Capitaux propres, part du groupe 1 551 387 1 446 822 » (KMAD)"
+        }
+      },
+      "marge_nette_s1_2026": {
+        "valeur": -0.5,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé",
+        "formule": "-5.152 ÷ 961.736 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Mutandis_RFS_S1_26.pdf"
+        }
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "JET": {
     "secteur": "Construction",
@@ -3438,9 +3532,9 @@
     "dps_2026": 20.0,
     "div_yield": 5.56,
     "source": "Calendrier BVC 2026",
-    "date_maj": "2026-06-22",
+    "date_maj": "2026-09-29",
     "per": null,
-    "croissance_ca": null,
+    "croissance_ca": 5.5,
     "dette_nette_ebitda": null,
     "roic": null,
     "marge_nette": null,
@@ -3462,7 +3556,27 @@
     "nb_actions": 291500,
     "bloomberg": "AFI",
     "reuters": "AFI",
-    "secteur_libre": "Matériaux & Industrie"
+    "secteur_libre": "Matériaux & Industrie",
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 291500,
+      "date_maj": "2026-06-22"
+    },
+    "croissance_bpa": 24.6,
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Afric_Industries_S1_26.pdf",
+    "ratios_publies": {
+      "marge_nette_s1_2026": {
+        "valeur": 17.6,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires",
+        "formule": "3.952247 ÷ 22.489807 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Afric_Industries_S1_26.pdf"
+        }
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "TMA": {
     "secteur": "Énergie",
@@ -4273,8 +4387,8 @@
     "secteur": "Assurance",
     "per": null,
     "forward_per": null,
-    "croissance_ca": null,
-    "croissance_bpa": null,
+    "croissance_ca": 4.9,
+    "croissance_bpa": 1.6,
     "dette_nette_ebitda": null,
     "roic": null,
     "wacc": null,
@@ -4286,7 +4400,7 @@
     "catalyseur": null,
     "risque": null,
     "source": "BOOKVALEUR CTS 2025 (données 29/08/2025)",
-    "date_maj": "2026-06-24",
+    "date_maj": "2026-09-29",
     "cours_bv": 6890.0,
     "pe_24": 20.0,
     "pe_25c": 20.28,
@@ -4300,6 +4414,15 @@
     "reuters": "AGMA",
     "secteur_libre": null,
     "ratios_publies": {
+      "marge_nette_s1_2026": {
+        "valeur": 38.8,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé",
+        "formule": "39.1 ÷ 100.8 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/CP_Agma_S1_26.pdf"
+        }
+      },
       "ratios_bilan_2025": {
         "sans_objet": "sans objet : établissement financier",
         "secteur": "Assurance",
@@ -4312,7 +4435,14 @@
         ]
       },
       "calcule_le": "2026-09-30"
-    }
+    },
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 200000,
+      "date_maj": "2026-06-24"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/CP_Agma_S1_26.pdf"
   },
   "AFM": {
     "secteur": "Assurance",
@@ -4450,8 +4580,8 @@
     "secteur": "Matériaux",
     "per": null,
     "forward_per": null,
-    "croissance_ca": null,
-    "croissance_bpa": null,
+    "croissance_ca": 9.0,
+    "croissance_bpa": 5.1,
     "dette_nette_ebitda": null,
     "roic": null,
     "wacc": null,
@@ -4463,7 +4593,7 @@
     "catalyseur": null,
     "risque": null,
     "source": "BOOKVALEUR CTS 2025 (données 29/08/2025)",
-    "date_maj": "2026-06-24",
+    "date_maj": "2026-09-29",
     "cours_bv": 89.0,
     "pe_24": 31.64,
     "pe_25c": 30.66,
@@ -4475,7 +4605,26 @@
     "nb_actions": 16117611,
     "bloomberg": "COL",
     "reuters": "COL",
-    "secteur_libre": null
+    "secteur_libre": null,
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 16117611,
+      "date_maj": "2026-06-24"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Colorado_S1_26.pdf",
+    "ratios_publies": {
+      "marge_nette_s1_2026": {
+        "valeur": 9.1,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires",
+        "formule": "28.773307 ÷ 314.988642 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Colorado_S1_26.pdf"
+        }
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "FNB": {
     "secteur": "Distribution",
@@ -4674,8 +4823,8 @@
     "secteur": "Industrie",
     "per": null,
     "forward_per": null,
-    "croissance_ca": null,
-    "croissance_bpa": null,
+    "croissance_ca": -73.5,
+    "croissance_bpa": -91.1,
     "dette_nette_ebitda": null,
     "roic": null,
     "wacc": null,
@@ -4687,7 +4836,7 @@
     "catalyseur": null,
     "risque": null,
     "source": "BOOKVALEUR CTS 2025 (données 29/08/2025)",
-    "date_maj": "2026-06-24",
+    "date_maj": "2026-09-29",
     "cours_bv": 229.8,
     "pe_24": null,
     "pe_25c": null,
@@ -4699,7 +4848,26 @@
     "nb_actions": 1248515,
     "bloomberg": "STR",
     "reuters": "STR",
-    "secteur_libre": null
+    "secteur_libre": null,
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 1248515,
+      "date_maj": "2026-06-24"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf",
+    "ratios_publies": {
+      "marge_nette_s1_2026": {
+        "valeur": 3.7,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires",
+        "formule": "1.378668 ÷ 37.734699 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf"
+        }
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "ZLD": {
     "secteur": "Industrie",
