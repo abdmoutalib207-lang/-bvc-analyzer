@@ -128,6 +128,25 @@
         align-items:center;justify-content:center;background:#00e5a0;color:#080d1a;border:none;
         box-shadow:0 6px 20px rgba(0,229,160,.35),0 2px 6px rgba(0,0,0,.5);font-size:22px;}
     }
+    /* Accueil en rangées et animation d'ouverture (01/10/2026), demande
+       d'Abd Moutalib : « une ouverture comme Netflix ». */
+    .rangee{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 14px;
+      scrollbar-width:thin;scrollbar-color:#1a2540 transparent;-webkit-overflow-scrolling:touch;}
+    .tuile{flex:0 0 168px;scroll-snap-align:start;background:#0d1829;border:1px solid #1a2540;border-radius:10px;
+      padding:12px;cursor:pointer;text-align:left;font-family:var(--font);color:#c8d3e8;
+      transition:transform var(--t-court) var(--ease),border-color var(--t-court) var(--ease),box-shadow var(--t-court) var(--ease);}
+    .tuile:hover{transform:translateY(-3px) scale(1.03);border-color:rgba(77,184,255,.45);
+      box-shadow:0 10px 24px rgba(0,0,0,.45)!important;filter:none!important;}
+    .intro{position:fixed;inset:0;z-index:1000;background:#080d1a;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:14px;cursor:pointer;animation:intro-sortie 260ms ease-in 900ms both;}
+    .intro-logo{font-size:clamp(28px,8vw,56px);font-weight:700;letter-spacing:.35em;
+      background:linear-gradient(90deg,#00e5a0,#4db8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      animation:intro-logo 700ms cubic-bezier(.2,.7,.2,1) both;}
+    .intro-trait{height:2px;width:0;background:linear-gradient(90deg,#00e5a0,#4db8ff);
+      animation:intro-trait 600ms 200ms cubic-bezier(.2,.7,.2,1) both;}
+    @keyframes intro-logo{from{opacity:0;transform:scale(.92);letter-spacing:.6em;}to{opacity:1;transform:none;}}
+    @keyframes intro-trait{to{width:min(320px,60vw);}}
+    @keyframes intro-sortie{to{opacity:0;visibility:hidden;}}
   </style>
 </head>
 <body>
@@ -1402,6 +1421,8 @@ const TickerTape=({rows})=>{
 // regroupées par rubrique, avec une ligne d'explication. La barre d'onglets
 // reste en place : le menu s'ajoute, il ne remplace rien.
 const RUBRIQUES=[
+  {titre:"Accueil",vues:[
+    {id:"accueil",icone:"⌂",aide:"La séance en un coup d'œil, en rangées"}]},
   {titre:"Marché",vues:[
     {id:"ranking",icone:"▤",aide:"Les 80 titres, leur note et leur signal"},
     {id:"heatmap",icone:"▦",aide:"La séance d'un coup d'œil, par secteur"},
@@ -1418,6 +1439,14 @@ const RUBRIQUES=[
 ];
 const Menu=({tab,setTab,TABS})=>{
   const [ouvert,setOuvert]=useState(false);
+  // Le bouton rond n'apparaît qu'une fois l'en-tête sorti de l'écran : en haut
+  // de page, le bouton MENU est déjà visible, le doubler masquerait le contenu.
+  const [loin,setLoin]=useState(false);
+  useEffect(()=>{
+    const h=()=>setLoin((window.scrollY||0)>320);
+    h(); window.addEventListener("scroll",h,{passive:true});
+    return()=>window.removeEventListener("scroll",h);
+  },[]);
   const lib=Object.fromEntries(TABS.map(t=>[t.id,t]));
   useEffect(()=>{
     if(!ouvert)return;
@@ -1435,7 +1464,7 @@ const Menu=({tab,setTab,TABS})=>{
       <span style={{fontSize:16,lineHeight:1}}>☰</span> MENU
       {courant&&<span style={{color:"#8892a4",fontWeight:400}}>· {courant.replace("★ ","")}</span>}
     </button>
-    <button className="menu-flottant" onClick={()=>setOuvert(true)} aria-label="Ouvrir le menu">☰</button>
+    {loin&&<button className="menu-flottant" onClick={()=>setOuvert(true)} aria-label="Ouvrir le menu">☰</button>}
     {ouvert&&<>
       <div className="menu-voile" onClick={()=>setOuvert(false)}/>
       <nav className="menu-panneau" aria-label="Menu principal">
@@ -1462,6 +1491,115 @@ const Menu=({tab,setTab,TABS})=>{
   </>);
 };
 
+// ⚠️ L'ANIMATION D'OUVERTURE — 01/10/2026. Une seconde, une fois par
+// visite, passable d'un toucher ; absente si le système demande moins de
+// mouvement. Elle ne retarde rien : les données se chargent dessous.
+const Intro=()=>{
+  const [vu,setVu]=useState(()=>{
+    try{
+      if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)return true;
+      return sessionStorage.getItem("bvc_intro")==="1";
+    }catch(e){return true;}
+  });
+  useEffect(()=>{
+    if(vu)return;
+    try{sessionStorage.setItem("bvc_intro","1");}catch(e){}
+    const t=setTimeout(()=>setVu(true),1200);
+    return()=>clearTimeout(t);
+  },[vu]);
+  if(vu)return null;
+  return(
+    <div className="intro" onClick={()=>setVu(true)} role="presentation">
+      <div className="intro-logo">BVC ANALYZER</div>
+      <div className="intro-trait"/>
+    </div>);
+};
+
+// ⚠️ L'ACCUEIL EN RANGÉES — 01/10/2026. Rien de nouveau n'y est calculé :
+// chaque rangée reprend une liste que le terminal publie déjà (la rubrique
+// « À surveiller » du briefing, les variations et les notes de data.json, les
+// favoris). Un titre dont le cours est périmé n'entre pas dans les rangées de
+// variation : on ne met pas en vitrine une séance qui n'a pas eu lieu.
+const Tuile=({r,ligne,onClick})=>{
+  const chg=r?.chg;
+  const c=chg>0?"#00e5a0":chg<0?"#ff4f5a":"#8892a4";
+  return(
+    <button className="tuile" onClick={onClick}>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+        <CompanyLogo sym={tk(r)} logo={r.symbol} sector={r.sector} size={30}/>
+        <div style={{minWidth:0}}>
+          <div style={{fontWeight:700,color:"#e6edf7",fontSize:13}}>{tk(r)}</div>
+          <div style={{fontSize:10,color:"#8892a4",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:100}}>{r.name}</div>
+        </div>
+      </div>
+      <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",gap:6}}>
+        <span style={{fontSize:14,color:"#e6edf7"}}>{r.price!=null?fmt(r.price):"—"}</span>
+        <span style={{fontSize:12,fontWeight:700,color:c}}>{chg==null?"—":`${chg>0?"+":""}${fmt(chg)} %`}</span>
+      </div>
+      {ligne&&<div style={{fontSize:10.5,color:"#8892a4",marginTop:8,lineHeight:1.4,height:30,overflow:"hidden"}}>{ligne}</div>}
+    </button>);
+};
+const Rangee=({titre,sous,vers,setTab,items})=>{
+  if(!items.length)return null;
+  return(
+    <section style={{marginBottom:18}}>
+      <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",gap:10,padding:"0 2px"}}>
+        <div>
+          <span style={{fontSize:14,fontWeight:700,color:"#e6edf7",letterSpacing:.6}}>{titre}</span>
+          {sous&&<span style={{fontSize:11,color:"#5a6478",marginLeft:10}}>{sous}</span>}
+        </div>
+        {vers&&<button onClick={()=>setTab(vers)} style={{background:"none",border:"none",color:"#4db8ff",fontSize:12,cursor:"pointer",fontFamily:"var(--font)"}}>Tout voir ›</button>}
+      </div>
+      <div className="rangee">{items}</div>
+    </section>);
+};
+const Accueil=({rows,fav,ouvrir,setTab})=>{
+  const [b,setB]=useState(undefined);
+  useEffect(()=>{
+    // La lecture la plus récente ; à séance égale, celle de clôture, qui porte
+    // la lecture rédigée.
+    const t=Math.floor(Date.now()/3600000);
+    const lire=f=>fetch(f+"?t="+t).then(r=>r.ok?r.json():null).catch(()=>null);
+    Promise.all([lire("briefing.json"),lire("briefing_cloture.json")]).then(([j,c])=>{
+      setB(c&&(!j||(c.seance||"")>=(j.seance||""))?c:j);
+    });
+  },[]);
+  const par=Object.fromEntries(rows.map(r=>[r.symbol,r]));
+  const frais=rows.filter(r=>!meta(r).stale&&r.chg!=null);
+  const hausses=[...frais].filter(r=>r.chg>0).sort((a,b)=>b.chg-a.chg).slice(0,10);
+  const baisses=[...frais].filter(r=>r.chg<0).sort((a,b)=>a.chg-b.chg).slice(0,10);
+  const notes=[...rows].filter(r=>meta(r).conf>=2&&r.v53!=null).sort((a,b)=>b.v53-a.v53).slice(0,10);
+  const a=(b&&b.a_surveiller)||{};
+  const surv=[...(a.a_publie||[]),...(a.a_bouge||[])].filter(z=>par[z.symbol]);
+  const favs=rows.filter(r=>fav.includes(r.symbol||r.ticker));
+  const red=b&&b.redaction&&b.redaction.texte;
+  const premier=red?red.split(/\n\s*\n/).map(x=>x.replace(/^#+\s*/,"").trim()).filter(x=>x&&!/^l'essentiel$/i.test(x))[0]:null;
+  const t=(r,ligne)=><Tuile key={r.symbol} r={r} ligne={ligne} onClick={()=>ouvrir(r.symbol)}/>;
+  return(
+    <div>
+      <div className="carte" style={{background:"linear-gradient(135deg,rgba(0,229,160,.10),rgba(77,184,255,.06) 60%,#0d1829)",
+        border:"1px solid rgba(0,229,160,.25)",borderRadius:12,padding:"20px 20px 18px",marginBottom:20}}>
+        <div style={{fontSize:10,color:"#00e5a0",letterSpacing:1.4,textTransform:"uppercase",marginBottom:6}}>
+          Lecture de la séance{b&&b.seance?` · ${b.seance.slice(8,10)}/${b.seance.slice(5,7)}`:""}</div>
+        {b===undefined
+          ?<div className="sq" style={{height:60,border:"none"}}/>
+          :<div style={{fontSize:14,lineHeight:1.7,color:"#c8d3e8",maxWidth:900}}>
+            {premier?gras(premier):((b&&b.constats||[])[0]||"Le briefing de la dernière séance n'est pas encore publié.")}</div>}
+        <button onClick={()=>setTab("briefing")} style={{marginTop:14,background:"#00e5a0",color:"#080d1a",border:"none",
+          borderRadius:6,padding:"9px 18px",fontWeight:700,fontSize:12,letterSpacing:1,cursor:"pointer",fontFamily:"var(--font)"}}>
+          LIRE LE BRIEFING ›</button>
+      </div>
+      {b===undefined&&<Squelette blocs={[1,1]} titre="Chargement de l'accueil"/>}
+      <Rangee titre="À surveiller aujourd'hui" sous="critères mesurés" vers="briefing" setTab={setTab}
+        items={surv.map(z=>t(par[z.symbol],(z.criteres||[]).map(c=>c.texte).join(" · ")))}/>
+      <Rangee titre="Plus fortes hausses" sous="séance du jour" vers="ranking" setTab={setTab} items={hausses.map(r=>t(r))}/>
+      <Rangee titre="Plus fortes baisses" sous="séance du jour" vers="ranking" setTab={setTab} items={baisses.map(r=>t(r))}/>
+      <Rangee titre="Les mieux notés" sous="note v5.3, confiance ≥ 2" vers="ranking" setTab={setTab}
+        items={notes.map(r=>t(r,`Note ${fmt(r.v53)} · ${r.sig||""}`))}/>
+      <Rangee titre="Mes favoris" vers="watchlist" setTab={setTab} items={favs.map(r=>t(r))}/>
+    </div>);
+};
+
 const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode,masi,majMsg,univers,peutRevenir,onRetour})=>{
   const [pulse,setPulse]=useState(false);
   const [clock,setClock]=useState("");
@@ -1477,7 +1615,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
   // briefing porte la séance close de la veille, il est donc écrit à 18h et
   // disponible toute la nuit — sans dépendre d'un déclenchement matinal, qui
   // est aujourd'hui le point faible du produit.
-  const TABS=[{id:"ranking",label:"CLASSEMENT"},{id:"briefing",label:"BRIEFING"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"}];
+  const TABS=[{id:"accueil",label:"ACCUEIL"},{id:"ranking",label:"CLASSEMENT"},{id:"briefing",label:"BRIEFING"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"}];
   return(
     <div className="entete" style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
@@ -3604,7 +3742,7 @@ const MentionLegale=()=>(
 );
 
 function App(){
-  const [tab,setTab]=useState(()=>localStorage.getItem("bvc_tab")||"ranking");
+  const [tab,setTab]=useState(()=>localStorage.getItem("bvc_tab")||"accueil");
   const [sort,setSort]=useState("v53");
   const [scoreMode,setScoreMode]=useState(PONDERATIONS[0]);
   useEffect(()=>{setSort("v53");},[scoreMode]);
@@ -3830,9 +3968,11 @@ function App(){
 
   return(
     <div style={{minHeight:"100vh"}}>
+      <Intro/>
       <TickerTape rows={rows}/>
       <Header univers={rows.length} tab={tab} setTab={changeTab} peutRevenir={peutRevenir} onRetour={revenir} ts={ts} src={src} onRefresh={()=>loadData(true)} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode} masi={masi} majMsg={majMsg}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
+        {tab==="accueil"  &&<Accueil rows={rows} fav={fav} ouvrir={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab}/>}
         {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={choisirTitre} setTab={changeTab} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab}/>}
         {tab==="watchlist"&&<Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true} scoreMode={scoreMode}/>}
