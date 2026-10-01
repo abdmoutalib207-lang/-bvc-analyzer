@@ -100,6 +100,16 @@
       animation:reflet 1.2s ease-in-out infinite;}
     @keyframes reflet{to{transform:translateX(100%);}}
     @media (prefers-reduced-motion:reduce){.sq::after{display:none;}}
+    /* Mobile (01/10/2026). Mesuré à 390 px : les 107 boutons faisaient moins
+       de 32 px de haut, le plus petit 14. Les agrandir tous aurait cassé la
+       mise en page ; on agrandit plutôt leur ZONE TACTILE, invisible, à
+       ≥ 44 px, et on donne une hauteur minimale modérée sur écran tactile. */
+    @media (pointer:coarse){
+      button,select{min-height:32px;touch-action:manipulation;}
+      button{position:relative;}
+      button::after{content:"";position:absolute;inset:-6px -2px;}
+      input{font-size:16px!important;}
+    }
   </style>
 </head>
 <body>
@@ -1135,7 +1145,9 @@ const StockChart=({r})=>{
     const W=refMain.current.offsetWidth||600;
     // En plein écran on redonne au cours la place que la fiche ne peut pas lui
     // laisser. Les trois panneaux gardent leurs proportions.
-    const dispo=plein?Math.max(360,(window.innerHeight||800)-300):220;
+    // Sur téléphone, le cours gagne de la hauteur : 192 px ne permettaient
+    // pas de viser une bougie au doigt (01/10/2026).
+    const dispo=plein?Math.max(360,(window.innerHeight||800)-300):((window.innerWidth||1000)<640?280:220);
     const H={main:dispo,vol:plein?90:65,macd:plein?120:80};
     const baseOpts={
       layout:{background:{color:"#0d1829"},textColor:"#8892a4"},
