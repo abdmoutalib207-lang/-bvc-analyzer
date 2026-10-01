@@ -2932,7 +2932,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
           {/* Scénarios */}
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Scénarios Prix (fondamentaux)</div>
-            {!objectifs&&<div style={{fontSize:11,color:"#ff8f00",marginBottom:10}}>Objectifs indisponibles — cible périmée écartée</div>}
+            {!objectifs&&<div style={{fontSize:11,color:"#ff8f00",marginBottom:10}}>Objectifs indisponibles — {r.objectifs_motif||"cible périmée écartée"}</div>}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
               {[["BEAR",r.bear,"#ff4f5a",ecart(r.bear)],["BASE",r.base,"#ffd740",ecart(r.base)],["BULL",r.bull,"#00e5a0",upside==null?"—":`+${upside}%`]].map(([lbl,val,c,pct])=>(
                 <div key={lbl} style={{background:"#0a1220",borderRadius:6,padding:"10px 8px",border:`1px solid ${c}20`,textAlign:"center"}}>
