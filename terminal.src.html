@@ -1491,39 +1491,40 @@ const Menu=({tab,setTab,TABS})=>{
   </>);
 };
 
-// ⚠️ LE SON D'OUVERTURE — 01/10/2026. Synthétisé par le navigateur (Web
-// Audio) : aucun fichier, aucun droit d'auteur. ⚠️ Les navigateurs bloquent
-// le son tant que l'utilisateur n'a pas touché le site (Safari, donc tout
-// iPhone, et Chrome) : si c'est le cas, l'ouverture reste silencieuse, sans
-// erreur. Un « ta-dum » grave : deux frappes, puis une nappe qui s'éteint.
+// ⚠️ LE SON D'OUVERTURE — 01/10/2026. Une goutte d'eau, synthétisée par le
+// navigateur (Web Audio) : aucun fichier, aucun droit d'auteur. Demande
+// d'Abd Moutalib : « un son d'une goutte d'eau bien prononcé ».
+// Une goutte, c'est une note pure dont la hauteur MONTE très vite (la bulle
+// qui se referme), suivie d'un petit rebond plus aigu et d'un écho bref.
+// ⚠️ Les navigateurs bloquent le son tant que l'utilisateur n'a pas touché
+// le site (Safari, donc tout iPhone, et Chrome) : l'ouverture reste alors
+// silencieuse, sans erreur.
 function jouerSonOuverture(){
   try{
     const AC=window.AudioContext||window.webkitAudioContext;
     if(!AC)return;
     const ctx=new AC();
     const go=()=>{
-      const t0=ctx.currentTime+0.05, sortie=ctx.createGain();
-      sortie.gain.value=0.28; sortie.connect(ctx.destination);
-      const frappe=(t,f,duree)=>{
-        [f,f*2].forEach((fr,i)=>{
-          const o=ctx.createOscillator(), g=ctx.createGain();
-          o.type=i?"triangle":"sine"; o.frequency.setValueAtTime(fr*1.06,t);
-          o.frequency.exponentialRampToValueAtTime(fr,t+0.12);
-          g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(i?0.35:0.9,t+0.015);
-          g.gain.exponentialRampToValueAtTime(0.0001,t+duree);
-          o.connect(g); g.connect(sortie); o.start(t); o.stop(t+duree+0.05);
-        });
+      const t0=ctx.currentTime+0.12, sortie=ctx.createGain();
+      sortie.gain.value=0.55; sortie.connect(ctx.destination);
+      // Écho court : une copie retardée et atténuée, comme dans une pièce.
+      const retard=ctx.createDelay(); retard.delayTime.value=0.11;
+      const retour=ctx.createGain(); retour.gain.value=0.28;
+      retard.connect(retour); retour.connect(retard); retour.connect(sortie);
+      const plic=(t,f0,f1,vol,duree)=>{
+        const o=ctx.createOscillator(), g=ctx.createGain();
+        o.type="sine";
+        o.frequency.setValueAtTime(f0,t);
+        o.frequency.exponentialRampToValueAtTime(f1,t+duree*0.35);
+        g.gain.setValueAtTime(0.0001,t);
+        g.gain.exponentialRampToValueAtTime(vol,t+0.006);
+        g.gain.exponentialRampToValueAtTime(0.0001,t+duree);
+        o.connect(g); g.connect(sortie); g.connect(retard);
+        o.start(t); o.stop(t+duree+0.02);
       };
-      frappe(t0,73.4,0.45);           // ta
-      frappe(t0+0.42,55,1.3);         // dum
-      const nappe=ctx.createOscillator(), gn=ctx.createGain(), filtre=ctx.createBiquadFilter();
-      nappe.type="sawtooth"; nappe.frequency.value=110; filtre.type="lowpass";
-      filtre.frequency.setValueAtTime(200,t0+0.45); filtre.frequency.exponentialRampToValueAtTime(1400,t0+1.2);
-      gn.gain.setValueAtTime(0.0001,t0+0.45); gn.gain.exponentialRampToValueAtTime(0.12,t0+1.0);
-      gn.gain.exponentialRampToValueAtTime(0.0001,t0+1.9);
-      nappe.connect(filtre); filtre.connect(gn); gn.connect(sortie);
-      nappe.start(t0+0.45); nappe.stop(t0+2.0);
-      setTimeout(()=>{try{ctx.close();}catch(e){}},2600);
+      plic(t0,       520,1650,0.9,0.22);   // la goutte
+      plic(t0+0.16,  900,2300,0.35,0.14);  // le rebond
+      setTimeout(()=>{try{ctx.close();}catch(e){}},2200);
     };
     if(ctx.state==="suspended")ctx.resume().then(()=>{if(ctx.state==="running")go();}).catch(()=>{});
     else go();
