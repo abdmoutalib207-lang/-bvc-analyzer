@@ -110,6 +110,24 @@
       button::after{content:"";position:absolute;inset:-6px -2px;}
       input{font-size:16px!important;}
     }
+    /* Menu principal (01/10/2026), demande d'Abd Moutalib : « les boutons se
+       cachent, il faut toujours les chercher ». Un bouton bien visible, un
+       panneau latéral qui regroupe toutes les vues par rubrique. */
+    .menu-voile{position:fixed;inset:0;background:rgba(4,8,16,.6);z-index:300;animation:voile var(--t-moyen) var(--ease) both;}
+    @keyframes voile{from{opacity:0;}to{opacity:1;}}
+    .menu-panneau{position:fixed;top:0;left:0;bottom:0;width:min(320px,86vw);background:#0b1424;border-right:1px solid #1a2540;
+      z-index:301;overflow-y:auto;box-shadow:12px 0 32px rgba(0,0,0,.45);animation:glisse var(--t-moyen) var(--ease) both;padding:18px 0 24px;}
+    @keyframes glisse{from{transform:translateX(-100%);}to{transform:none;}}
+    .menu-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:transparent;border:none;
+      border-left:3px solid transparent;color:#c8d3e8;padding:12px 20px;font-family:var(--font);cursor:pointer;}
+    .menu-item:hover{background:rgba(77,184,255,.07);box-shadow:none!important;}
+    .menu-item.actif{border-left-color:#00e5a0;background:rgba(0,229,160,.08);color:#00e5a0;}
+    .menu-flottant{display:none;}
+    @media (max-width:640px){
+      .menu-flottant{display:flex;position:fixed;left:14px;bottom:18px;z-index:250;width:56px;height:56px;border-radius:50%;
+        align-items:center;justify-content:center;background:#00e5a0;color:#080d1a;border:none;
+        box-shadow:0 6px 20px rgba(0,229,160,.35),0 2px 6px rgba(0,0,0,.5);font-size:22px;}
+    }
   </style>
 </head>
 <body>
@@ -1380,6 +1398,70 @@ const TickerTape=({rows})=>{
 };
 
 // ── HEADER ────────────────────────────────────────────────────────────────────
+// ⚠️ LE MENU PRINCIPAL — 01/10/2026. Les mêmes vues que la barre d'onglets,
+// regroupées par rubrique, avec une ligne d'explication. La barre d'onglets
+// reste en place : le menu s'ajoute, il ne remplace rien.
+const RUBRIQUES=[
+  {titre:"Marché",vues:[
+    {id:"ranking",icone:"▤",aide:"Les 80 titres, leur note et leur signal"},
+    {id:"heatmap",icone:"▦",aide:"La séance d'un coup d'œil, par secteur"},
+    {id:"watchlist",icone:"★",aide:"Vos titres suivis"}]},
+  {titre:"Lecture du jour",vues:[
+    {id:"briefing",icone:"✎",aide:"Mi-journée, clôture, semaine — et l'archive"},
+    {id:"news",icone:"☰",aide:"Publications et actualités retenues"}]},
+  {titre:"Analyse d'un titre",vues:[
+    {id:"detail",icone:"◩",aide:"Graphique, niveaux, fondamentaux, alertes"},
+    {id:"weights",icone:"⚖",aide:"Ce qui compose la note, pilier par pilier"}]},
+  {titre:"Données avancées",vues:[
+    {id:"smart",icone:"◎",aide:"Smart money — corpus gelé au 02/07/2026"},
+    {id:"nlp",icone:"◌",aide:"Corpus NLP — gelé, poids nul dans la note"}]},
+];
+const Menu=({tab,setTab,TABS})=>{
+  const [ouvert,setOuvert]=useState(false);
+  const lib=Object.fromEntries(TABS.map(t=>[t.id,t]));
+  useEffect(()=>{
+    if(!ouvert)return;
+    const h=e=>{if(e.key==="Escape")setOuvert(false);};
+    window.addEventListener("keydown",h);
+    const avant=document.body.style.overflow; document.body.style.overflow="hidden";
+    return()=>{window.removeEventListener("keydown",h);document.body.style.overflow=avant;};
+  },[ouvert]);
+  const choisir=id=>{setTab(id);setOuvert(false);window.scrollTo({top:0,behavior:"smooth"});};
+  const courant=(lib[tab]||{}).label||"";
+  return(<>
+    <button onClick={()=>setOuvert(true)} aria-label="Ouvrir le menu" aria-expanded={ouvert}
+      style={{display:"flex",alignItems:"center",gap:8,background:"rgba(0,229,160,.12)",border:"1px solid rgba(0,229,160,.5)",
+        color:"#00e5a0",borderRadius:6,padding:"6px 12px",fontSize:12,letterSpacing:1,fontWeight:700,cursor:"pointer",fontFamily:"var(--font)"}}>
+      <span style={{fontSize:16,lineHeight:1}}>☰</span> MENU
+      {courant&&<span style={{color:"#8892a4",fontWeight:400}}>· {courant.replace("★ ","")}</span>}
+    </button>
+    <button className="menu-flottant" onClick={()=>setOuvert(true)} aria-label="Ouvrir le menu">☰</button>
+    {ouvert&&<>
+      <div className="menu-voile" onClick={()=>setOuvert(false)}/>
+      <nav className="menu-panneau" aria-label="Menu principal">
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 20px 14px"}}>
+          <span style={{fontSize:18,fontWeight:700,letterSpacing:3,background:"linear-gradient(90deg,#00e5a0,#4db8ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>BVC ANALYZER</span>
+          <button onClick={()=>setOuvert(false)} aria-label="Fermer le menu"
+            style={{background:"transparent",border:"1px solid #1a2540",color:"#8892a4",borderRadius:6,width:34,height:34,fontSize:16,cursor:"pointer"}}>✕</button>
+        </div>
+        {RUBRIQUES.map(r=>(
+          <div key={r.titre} style={{marginTop:10}}>
+            <div style={{fontSize:10,color:"#5a6478",letterSpacing:1.2,textTransform:"uppercase",padding:"6px 20px"}}>{r.titre}</div>
+            {r.vues.filter(v=>lib[v.id]).map(v=>(
+              <button key={v.id} className={"menu-item"+(tab===v.id?" actif":"")} onClick={()=>choisir(v.id)}>
+                <span style={{width:22,textAlign:"center",fontSize:15,color:tab===v.id?"#00e5a0":"#4db8ff"}}>{v.icone}</span>
+                <span style={{display:"flex",flexDirection:"column",gap:2}}>
+                  <span style={{fontSize:13,letterSpacing:.8,fontWeight:600}}>{lib[v.id].label.replace("★ ","")}
+                    {lib[v.id].badge&&<span style={{marginLeft:8,background:"#ffd740",color:"#080d1a",borderRadius:8,padding:"0 6px",fontSize:10}}>{lib[v.id].badge}</span>}</span>
+                  <span style={{fontSize:11,color:"#8892a4",letterSpacing:0,fontWeight:400}}>{v.aide}</span>
+                </span>
+              </button>))}
+          </div>))}
+      </nav>
+    </>}
+  </>);
+};
+
 const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode,masi,majMsg,univers,peutRevenir,onRetour})=>{
   const [pulse,setPulse]=useState(false);
   const [clock,setClock]=useState("");
@@ -1400,6 +1482,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
     <div className="entete" style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
         <div style={{display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
+          <Menu tab={tab} setTab={setTab} TABS={TABS}/>
           <span style={{fontSize:22,fontWeight:700,letterSpacing:3,background:"linear-gradient(90deg,#00e5a0,#4db8ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>BVC ANALYZER</span>
           <span className="badge-version" title="Pondération de RÉFÉRENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCHÉ, le même pour tous les titres — hors séance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche. Le pilier NLP est gelé à un poids de 0 : son corpus s'arrête au 02/07/2026 et il ne déplaçait plus que 0,37 point sur 10." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 65 · TECH 35 <span style={{color:"#8892a4"}}>· modulée par le marché · NLP gelé</span></span>
           {/* Score mode — composantes indépendantes */}
