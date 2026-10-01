@@ -864,3 +864,22 @@ Relevé pour le briefing de clôture enrichi (`pipeline/seance_marche.py`).
 - **`masi_history.json` a des trous** : ses 20 dernières clôtures couvraient
   du 17/08 au 29/09, soit 27 séances cotées (dates des chandelles). Une
   fenêtre « N séances » se compte en séances cotées, pas en lignes de la série.
+
+## CDG sert de faux montants échangés la nuit (01/10/2026)
+
+- **Constat** : à 02h36 (CI d'une PR, qui relance le moteur en direct), CDG
+  servait pour 11 titres un `echange_dh` du 30/09 PLUS BAS que celui de la
+  clôture (TMA 1,18 MDH au lieu de 2,54 ; ATW 14,60 au lieu de 15,04 ; RDS
+  2,64 au lieu de 2,81…), alors que le volume global du MASI restait à
+  171 655 796,84 DH. Écart des sommes : −2 019 180 DH, au dirham près.
+- **Juge de paix** : le bulletin CDG « Indices du jeudi 1 octobre 2026 »
+  (séance du 30/09, datée sur son contenu) donne 64/64 cours ET 64/64
+  montants identiques à ce que nous avions publié à 18h45, pour un total de
+  171 655 796,84 DH. Les valeurs de nuit sont FAUSSES, celles du soir justes.
+- **Cause** : non établie. Hypothèse non vérifiée : transactions de blocs
+  retirées après la séance.
+- **Portée** : le moteur ne tourne pas la nuit (09h40, 12h00, 15h45, 18h45).
+  Seuls le CI des PR et un passage lancé à la main la nuit peuvent tomber
+  dessus. `test_le_total_du_briefing_egale_le_volume_de_l_operateur` le
+  détecte : un rouge de nuit sur ce test n'incrimine pas la PR, il se
+  relance en séance.
