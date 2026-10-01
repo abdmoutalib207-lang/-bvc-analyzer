@@ -138,12 +138,12 @@
     .tuile:hover{transform:translateY(-3px) scale(1.03);border-color:rgba(77,184,255,.45);
       box-shadow:0 10px 24px rgba(0,0,0,.45)!important;filter:none!important;}
     .intro{position:fixed;inset:0;z-index:1000;background:#080d1a;display:flex;flex-direction:column;
-      align-items:center;justify-content:center;gap:14px;cursor:pointer;animation:intro-sortie 260ms ease-in 900ms both;}
+      align-items:center;justify-content:center;gap:14px;cursor:pointer;animation:intro-sortie 300ms ease-in 1700ms both;}
     .intro-logo{font-size:clamp(28px,8vw,56px);font-weight:700;letter-spacing:.35em;
       background:linear-gradient(90deg,#00e5a0,#4db8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
-      animation:intro-logo 700ms cubic-bezier(.2,.7,.2,1) both;}
+      animation:intro-logo 1000ms cubic-bezier(.2,.7,.2,1) both;}
     .intro-trait{height:2px;width:0;background:linear-gradient(90deg,#00e5a0,#4db8ff);
-      animation:intro-trait 600ms 200ms cubic-bezier(.2,.7,.2,1) both;}
+      animation:intro-trait 900ms 350ms cubic-bezier(.2,.7,.2,1) both;}
     @keyframes intro-logo{from{opacity:0;transform:scale(.92);letter-spacing:.6em;}to{opacity:1;transform:none;}}
     @keyframes intro-trait{to{width:min(320px,60vw);}}
     @keyframes intro-sortie{to{opacity:0;visibility:hidden;}}
@@ -1491,7 +1491,46 @@ const Menu=({tab,setTab,TABS})=>{
   </>);
 };
 
-// ⚠️ L'ANIMATION D'OUVERTURE — 01/10/2026. Une seconde, une fois par
+// ⚠️ LE SON D'OUVERTURE — 01/10/2026. Synthétisé par le navigateur (Web
+// Audio) : aucun fichier, aucun droit d'auteur. ⚠️ Les navigateurs bloquent
+// le son tant que l'utilisateur n'a pas touché le site (Safari, donc tout
+// iPhone, et Chrome) : si c'est le cas, l'ouverture reste silencieuse, sans
+// erreur. Un « ta-dum » grave : deux frappes, puis une nappe qui s'éteint.
+function jouerSonOuverture(){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return;
+    const ctx=new AC();
+    const go=()=>{
+      const t0=ctx.currentTime+0.05, sortie=ctx.createGain();
+      sortie.gain.value=0.28; sortie.connect(ctx.destination);
+      const frappe=(t,f,duree)=>{
+        [f,f*2].forEach((fr,i)=>{
+          const o=ctx.createOscillator(), g=ctx.createGain();
+          o.type=i?"triangle":"sine"; o.frequency.setValueAtTime(fr*1.06,t);
+          o.frequency.exponentialRampToValueAtTime(fr,t+0.12);
+          g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(i?0.35:0.9,t+0.015);
+          g.gain.exponentialRampToValueAtTime(0.0001,t+duree);
+          o.connect(g); g.connect(sortie); o.start(t); o.stop(t+duree+0.05);
+        });
+      };
+      frappe(t0,73.4,0.45);           // ta
+      frappe(t0+0.42,55,1.3);         // dum
+      const nappe=ctx.createOscillator(), gn=ctx.createGain(), filtre=ctx.createBiquadFilter();
+      nappe.type="sawtooth"; nappe.frequency.value=110; filtre.type="lowpass";
+      filtre.frequency.setValueAtTime(200,t0+0.45); filtre.frequency.exponentialRampToValueAtTime(1400,t0+1.2);
+      gn.gain.setValueAtTime(0.0001,t0+0.45); gn.gain.exponentialRampToValueAtTime(0.12,t0+1.0);
+      gn.gain.exponentialRampToValueAtTime(0.0001,t0+1.9);
+      nappe.connect(filtre); filtre.connect(gn); gn.connect(sortie);
+      nappe.start(t0+0.45); nappe.stop(t0+2.0);
+      setTimeout(()=>{try{ctx.close();}catch(e){}},2600);
+    };
+    if(ctx.state==="suspended")ctx.resume().then(()=>{if(ctx.state==="running")go();}).catch(()=>{});
+    else go();
+  }catch(e){}
+}
+
+// ⚠️ L'ANIMATION D'OUVERTURE — 01/10/2026. Deux secondes, une fois par
 // visite, passable d'un toucher ; absente si le système demande moins de
 // mouvement. Elle ne retarde rien : les données se chargent dessous.
 const Intro=()=>{
@@ -1504,7 +1543,8 @@ const Intro=()=>{
   useEffect(()=>{
     if(vu)return;
     try{sessionStorage.setItem("bvc_intro","1");}catch(e){}
-    const t=setTimeout(()=>setVu(true),1200);
+    jouerSonOuverture();
+    const t=setTimeout(()=>setVu(true),2000);
     return()=>clearTimeout(t);
   },[vu]);
   if(vu)return null;
