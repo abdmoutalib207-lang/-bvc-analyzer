@@ -1524,8 +1524,8 @@ function jouerSonOuverture(ctx){
         o.connect(g); g.connect(sortie);
         o.start(t); o.stop(t+duree+0.02);
       };
-      plic(t0,       260,820,0.95,0.30);   // la goutte (une octave plus grave)
-      plic(t0+0.20,  450,1150,0.38,0.18);  // le rebond
+      plic(t0,       260,820,0.95,0.45);   // la goutte (grave, ralentie)
+      plic(t0+0.30,  450,1150,0.38,0.27);  // le rebond
       setTimeout(()=>{try{ctx.close();}catch(e){}},2200);
     };
     if(ctx.state==="suspended")ctx.resume().then(()=>{if(ctx.state==="running")go();}).catch(()=>{});
