@@ -27,8 +27,9 @@ def test_bpa_a_la_main():
     assert bpa_exercice(T["CTM"]) == 45.84
     # 407,601 ÷ 22,078588 M = 18,461
     assert bpa_exercice(T["ADI"]) == 18.46
-    # 453,719263 ÷ 402,551254 M = 1,127 ; publié 1.13
-    assert bpa_exercice(T["ADH"]) == 1.13
+    # 453,719263 ÷ 402,551254 M = 1,127 ; publié 1.13 — fiche passée au jeu
+    # S1 le 01/10, conservée sous _passes_au_s1
+    assert bpa_exercice(JEU["_passes_au_s1"]["ADH"]) == 1.13
     # 148,198775 ÷ 1,384182 M = 107,07 ; publié 107.07 (p.9)
     assert bpa_exercice(T["MGL"]) == 107.07
     # 32,558354 ÷ 0,81207 M = 40,09
@@ -83,6 +84,11 @@ def test_chaque_chiffre_porte_sa_page_et_sa_source():
 
 def test_aucun_titre_n_est_a_la_fois_ici_et_dans_le_jeu_s1():
     assert not set(T) & set(S1["titres"])
+
+
+def test_un_titre_passe_au_s1_y_est_bien():
+    for s in JEU.get("_passes_au_s1") or {}:
+        assert s in S1["titres"] and s not in T, s
 
 
 def test_les_ecartes_portent_un_motif():

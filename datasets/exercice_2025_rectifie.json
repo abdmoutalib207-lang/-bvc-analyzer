@@ -1,5 +1,5 @@
 {
-  "_note": "Exercice 2025 rectifié sur le document publié, lot 13 (30/09/2026), pour les titres SANS dépôt S1 2026 exploitable. Chaque chiffre est RECOPIÉ du document avec sa page ; le BPA est calculé par pipeline/exercice_2025.py. Montants en millions de dirhams (MDH). Les titres qui ont un S1 2026 déposé (REB, T2S) sont dans resultats_s1_2026.json, pas ici.",
+  "_note": "Exercice 2025 rectifié sur le document publié, lot 13 (30/09/2026), pour les titres SANS dépôt S1 2026 exploitable. Chaque chiffre est RECOPIÉ du document avec sa page ; le BPA est calculé par pipeline/exercice_2025.py. Montants en millions de dirhams (MDH). Les titres qui ont un S1 2026 déposé (REB, T2S, puis ADH le 01/10 — voir _passes_au_s1) sont dans resultats_s1_2026.json, pas ici.",
   "_regle": "bpa = rnpg_exercice_2025 × 1e6 ÷ actions. Pas d'entrée S1 incomplète : douze_mois exige les quatre valeurs. Un titre dont le signe ou la base n'est pas établi est dans _ecartes, avec son motif.",
   "titres": {
     "TMA": {
@@ -34,17 +34,6 @@
       "actions": 22078588,
       "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 8 610 649 320 ÷ 390 = 22 078 588) ; = capital 2 207 858 800 DH (p.1) ÷ 100",
       "yuna": "29/09 : PER 20,59 ; clôture 380 → BPA implicite 18,46 : identique ; ROE 10,2 % = 407,601 ÷ 3 993,181 : concordant"
-    },
-    "ADH": {
-      "url": "https://www.ammc.ma/sites/default/files/Addoha_2025.pdf",
-      "exercice_clos": "2025-12-31",
-      "base": "résultat net part du Groupe, consolidé (ensemble 516,07 ; minoritaires 62,35)",
-      "pages": "p.5 en dirhams, colonnes « 31.12.2025 31.12.2024 » : « Résultat net - Part du groupe 453.719.263 274.184.241 », « Résultat de base par action (En MAD) 1.13 0.68 »",
-      "rnpg_exercice_2025": 453.719263,
-      "source_exercice_2025": "p.5, 453 719 263 DH = 453,719263 MDH. BPA inchangé (1,13) : confirmé",
-      "actions": 402551254,
-      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 13 674 666 098,38 ÷ 33,97 = 402 551 254) ; capital 4 025 512 540 DH (p.3) ÷ 10",
-      "yuna": "30/09 : PER 29,70 ; clôture 33,50 → BPA implicite 1,13 : identique ; ROE 4,8 % = 453,7 ÷ 9 481,7 : concordant"
     },
     "MGL": {
       "url": "https://www.ammc.ma/sites/default/files/Maghrebail_2025_avis_AGO_13_05_26.pdf",
@@ -89,6 +78,21 @@
       "actions": 1000000,
       "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 1 398 000 000 ÷ 1 398 = 1 000 000) ; capital 100 000 000 DH (p.1) ÷ 100 ; dividende 30 DH = 30 MDH (communiqué)",
       "yuna": "18/09 : PER 28,19 ; clôture 1 480 → BPA implicite 52,50 contre 59,91 : ÉCART de −12,4 % consigné, non corrigé. Son P/B 2,50 (→ 592 MDH de fonds propres, social 590,84) et son ROE 10,1 % (= 59,9 ÷ 590,8) sont concordants avec 59,91 : seul son PER ne l'est pas, cause non établie"
+    }
+  },
+  "_passes_au_s1": {
+    "ADH": {
+      "url": "https://www.ammc.ma/sites/default/files/Addoha_2025.pdf",
+      "exercice_clos": "2025-12-31",
+      "base": "résultat net part du Groupe, consolidé (ensemble 516,07 ; minoritaires 62,35)",
+      "pages": "p.5 en dirhams, colonnes « 31.12.2025 31.12.2024 » : « Résultat net - Part du groupe 453.719.263 274.184.241 », « Résultat de base par action (En MAD) 1.13 0.68 »",
+      "rnpg_exercice_2025": 453.719263,
+      "source_exercice_2025": "p.5, 453 719 263 DH = 453,719263 MDH. BPA inchangé (1,13) : confirmé",
+      "actions": 402551254,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 13 674 666 098,38 ÷ 33,97 = 402 551 254) ; capital 4 025 512 540 DH (p.3) ÷ 10",
+      "yuna": "30/09 : PER 29,70 ; clôture 33,50 → BPA implicite 1,13 : identique ; ROE 4,8 % = 453,7 ÷ 9 481,7 : concordant",
+      "_passe_le": "2026-10-01",
+      "_motif": "S1 2026 déposé le 30/09 (Addoha_S1_26.pdf), intégré à datasets/resultats_s1_2026.json avec le même exercice 2025 (453,719, recoupé dans le dépôt S1). Fiche conservée ici, plus appliquée par pipeline/exercice_2025.py."
     }
   },
   "_ecartes": {
