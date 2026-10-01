@@ -4108,7 +4108,16 @@ def run(dry_run=False, push=False, token=""):
         # Score technique
         score_tech = calc_score_tech(rsi, price, ma20, ma50, h90, l90)
         # Score fondamental : fondamentaux.json en priorité, table statique en fallback
-        score_fond = _FOND_COMPUTED.get(ticker) or FOND_SCORES.get(ticker, 5.0)
+        #
+        # ⚠️ La valorisation lit le PER sur douze mois PUBLIÉ (cours du jour ÷
+        # BPA 12 mois des comptes), pas le `forward_per` saisi — décision du
+        # 01/10/2026 (R8), voir `compute_fond_score`. Il dépend du cours, d'où
+        # le calcul ici plutôt qu'au chargement.
+        _per_12m = _per(price, (BPA_DATA.get(ticker) or {}).get("bpa_12m"))
+        if ticker in _FOND_COMPUTED and _per_12m:
+            score_fond = _cfs(ticker, per_publie=_per_12m)
+        else:
+            score_fond = _FOND_COMPUTED.get(ticker) or FOND_SCORES.get(ticker, 5.0)
 
         # Contexte de pondération.
         #
@@ -4247,8 +4256,17 @@ def run(dry_run=False, push=False, token=""):
             # PER annuel décrit une période qui, pour Managem, contenait un
             # bénéfice dix fois plus faible que celui d'aujourd'hui. Le PER
             # annuel reste publié à côté, et `pe_base` dit lequel est affiché.
-            "pe":     _per(price, (BPA_DATA.get(ticker) or {}).get("bpa_12m")
-                           or (BPA_DATA.get(ticker) or {}).get("bpa")) or fd.get("pe"),
+            #
+            # ⚠️ UNE PERTE SUR DOUZE MOIS N'A PAS DE PER — 01/10/2026. Le BPA
+            # 12 mois négatif rendait None, et `or fd.get("pe")` allait chercher
+            # le PER de la table figée : LES affichait « PER 12 mois 16,5 »
+            # avec un BPA de −1,85 (idem STR, SNP, INV). La table ne sert plus
+            # que faute de tout BPA lu dans les comptes.
+            "pe":     (_per(price, (BPA_DATA.get(ticker) or {}).get("bpa_12m"))
+                       if (BPA_DATA.get(ticker) or {}).get("bpa_12m") is not None else
+                       _per(price, (BPA_DATA.get(ticker) or {}).get("bpa"))
+                       if (BPA_DATA.get(ticker) or {}).get("bpa") is not None else
+                       fd.get("pe")),
             "pe_annuel": _per(price, (BPA_DATA.get(ticker) or {}).get("bpa")),
             "pe_base": ("12 mois au " + BPA_DATA[ticker]["fin_12m"]
                         if (BPA_DATA.get(ticker) or {}).get("bpa_12m") else
