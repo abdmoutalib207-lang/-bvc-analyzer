@@ -803,4 +803,6 @@ TICKERS_ALL: list = [
 #   conversion de trésorerie lus dans les ratios calculés sur comptes
 #   publiés quand ils existent, à la place de la saisie de juin (MSA tenu à
 #   l'écart jusqu'au recoupement de son ROIC).
-SCORE_VERSION = "v5.3-ratios-publies-2026-10-01"
+#   v5.3-per-publie-2026-10-01 : la valorisation lit le PER sur douze mois
+#   des comptes publiés (cours ÷ BPA 12 mois) au lieu du `forward_per` saisi.
+SCORE_VERSION = "v5.3-per-publie-2026-10-01"

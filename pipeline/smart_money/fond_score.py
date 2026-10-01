@@ -89,10 +89,13 @@ def ratio_effectif(f: dict | None, sym: str, cle: str) -> dict | None:
     return None
 
 
-def compute_fond_score(sym: str, fondamentaux: dict = None) -> float:
+def compute_fond_score(sym: str, fondamentaux: dict = None,
+                       per_publie: float | None = None) -> float:
     """
     Retourne le score fondamental [0-10].
     fondamentaux: dict optionnel — si None, chargé depuis fondamentaux.json.
+    per_publie: PER sur douze mois glissants calculé sur les comptes publiés
+        (cours du jour ÷ BPA 12 mois). Prime sur `forward_per` quand il existe.
     Retourne 5.0 si le ticker est absent du fichier.
     """
     data = fondamentaux if fondamentaux is not None else _load()
@@ -128,7 +131,20 @@ def compute_fond_score(sym: str, fondamentaux: dict = None) -> float:
     else:               g = 1.5
 
     # VALORISATION (20%) — Forward PER vs marché BVC (médiane ≈ 17-20x)
-    fper = float(f.get("forward_per") or 15)
+    # ⚠️ LE PER PUBLIÉ PRIME SUR LE « FORWARD » SAISI — 01/10/2026, décision
+    # d'Abd Moutalib (R8), après mesure. `forward_per` est une saisie de mai,
+    # sans méthode : 12,5 pour ADI quand ses comptes donnent 19,4 et DATA+
+    # 18,6 ; 1 634,59 pour RDS. Audit externe de la fiche ADI du 01/10. Sur
+    # 37 titres, 16 s'écartaient de plus de 30 % de l'estimation DATA+.
+    # Mesure au 01/10 (notes de 14h56) : 63 titres sur 76 ont un PER sur
+    # douze mois publié ; 38 notes bougent, 9 paliers changent. Trois options
+    # mesurées (PER publié, DATA+ 2026e, valorisation neutralisée) ; celle-ci
+    # retenue parce qu'elle ne lit que des faits sourcés.
+    # ⚠️ C'est un PER RÉALISÉ, pas prévisionnel : la grille de seuils
+    # (8 / 12 / 17 / 25 / 35 / 50) n'a pas été recalibrée. Un titre en perte
+    # n'a pas de PER (`_per` rend None) et garde la saisie.
+    fper = (float(per_publie) if isinstance(per_publie, (int, float)) and per_publie > 0
+            else float(f.get("forward_per") or 15))
     if   fper <= 0:  v = 5.0   # aberrant → neutre
     elif fper <= 8:  v = 9.5   # très décoté
     elif fper <= 12: v = 8.5   # décoté
