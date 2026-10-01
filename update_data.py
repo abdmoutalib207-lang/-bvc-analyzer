@@ -3153,13 +3153,22 @@ def _objectifs(ticker, price, fd) -> dict:
     Règle LOI N°3 : origine incertaine → nullifier, ne pas inventer. On ne
     les rééchelonne pas — le ratio de split ne suffirait pas à valider une
     cible dont on ignore la date et la méthode.
+
+    ⚠️ RETIRÉS EN TOTALITÉ — 01/10/2026. L'audit externe de la fiche ADI l'a
+    montré sur un cas : 374 / 479 / 599 DH, et 599 est l'objectif publié par
+    BMCE Capital Bourse le 03/06/2026 avec une recommandation d'achat —
+    recopié sans date, sans auteur, sans méthode, et affiché comme un
+    scénario du 1er octobre. Le constat « il faut recalculer, pas filtrer »
+    était écrit ici depuis le 30/09 ; le filtre est remplacé par le retrait.
+    Les champs restent publiés (contrat de data.json), à null, avec le
+    motif dans `objectifs_motif`. Effet sur la note : nul — l'upside n'y est
+    plus lu depuis le 30/09 (`compute_v53`, `del red_flags, upside`).
+    Les valeurs restent dans FOND_DATA, intactes, pour mémoire.
     """
-    base = fd.get("base")
-    if price and isinstance(base, (int, float)) and base > 0 and not (0.5 < base / price < 2):
-        logger.warning(f"  {ticker}: objectifs périmés (base={base} vs cours={price}) — nullifiés")
-        return {"bear": None, "base": None, "bull": None, "upside": None}
-    return {"bear": fd.get("bear"), "base": fd.get("base"),
-            "bull": fd.get("bull"), "upside": fd.get("upside")}
+    return {"bear": None, "base": None, "bull": None, "upside": None,
+            "objectifs_motif": "retirés le 01/10/2026 : table saisie à la main, "
+                               "sans date, sans auteur ni méthode — une cible "
+                               "n'est affichée que recalculée et sourcée"}
 
 
 # Relevé du sentiment d'actualité, chargé UNE fois par run.
