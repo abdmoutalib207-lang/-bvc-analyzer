@@ -51,9 +51,13 @@ on:
     # décalages possibles, et compense la dérive sans intervention.
 
     # ── Les quatre passages qui portent la promesse ──────────────────────
-    - cron: '40 9 * * 1-5'    # ≈09h40 — dix minutes après l'ouverture, le
-                              #          temps que les titres peu liquides
-                              #          impriment un premier cours
+    - cron:  '0 10 * * 1-5'   # ≈10h00 — ⚠️ décalé de 09h40 le 01/10/2026 :
+                              #          avant ~09h55, CDG sert le MASI du jour
+                              #          sans volume ni largeur, et des titres
+                              #          encore datés de la veille ; les
+                              #          contrôles refusaient de publier
+                              #          (30/09 et 01/10). cron-job.org passe
+                              #          à 09h55, ceci est son filet.
     - cron:  '0 12 * * 1-5'   # ≈12h00 — mi-séance
     - cron: '45 15 * * 1-5'   # ≈15h45 — LE run qui compte : 15 min après la
                               #          clôture de 15h30, il fixe le cours
