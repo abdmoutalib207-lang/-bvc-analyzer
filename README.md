@@ -14,18 +14,49 @@ dont chaque chiffre porte sa source et sa date.
 
 ## Ce que le terminal fait
 
-Trois familles d'information sont combinées en une note composite :
+Deux piliers sont combinés en une note composite ; un troisième est gelé :
 
 | Pilier | Poids de référence | Ce qu'il mesure |
 |---|---:|---|
-| **Fondamental** | 47 % | bénéfice, dividende, valorisation, endettement |
-| **Technique** | 25 % | RSI(14), moyennes 20/50/200, MACD, Bollinger, ADX |
-| **Comportemental** | 28 % | sentiment tiré d'un corpus d'investisseurs |
+| **Fondamental** | 65 % | rentabilité du capital, croissance, valorisation, bilan |
+| **Technique** | 35 % | RSI(14), moyennes 20/50/200, position dans la fourchette 90 jours |
+| **Comportemental** | **0 % — gelé** | sentiment tiré d'un corpus d'investisseurs arrêté au 02/07/2026 |
 
-La pondération de référence est **modulée par titre** selon le contexte —
-hors séance le fondamental pèse davantage, un titre porté par des opérateurs
-performants voit son pilier comportemental renforcé. Le poids réellement
+La pondération de référence est **modulée par le contexte de marché**, le
+même pour tous les titres — hors séance le fondamental pèse davantage, un MASI
+en forte baisse depuis janvier le renforce encore. Le poids réellement
 appliqué est affiché sur chaque fiche, avec la note de chaque pilier.
+
+Le pilier comportemental reste calculé et affiché pour la trace, mais il ne
+pèse plus rien : son corpus est figé, il ne déplaçait que 0,37 point sur 10,
+et son retrait n'a dégradé aucune mesure sur les notes publiées.
+
+### Des fondamentaux lus dans les comptes publiés
+
+Depuis le 01/10/2026, la note fondamentale lit d'abord ce qui est **calculé sur
+les comptes déposés à l'AMMC**, chaque chiffre avec sa page :
+
+- **ROIC, dette nette / EBITDA, conversion de trésorerie** — calculés sur les
+  comptes 2025 (66 sociétés) ; les alertes affichées lisent la même valeur ;
+- **PER** — cours du jour ÷ bénéfice par action sur douze mois glissants
+  (exercice 2025 + semestre 2026 − semestre 2025), pour 64 sociétés ;
+- **croissance** — celle des comptes semestriels, quand ils ont été lus.
+
+La saisie manuelle de juin n'est plus lue que faute de chiffre publié, et elle
+est datée à l'écran. Les dépôts semestriels sont repérés automatiquement sur la
+liste de l'AMMC et mis en file d'attente de lecture.
+
+Les objectifs de cours bear / base / bull ont été **retirés le 01/10/2026** :
+ils venaient d'une table sans date, sans auteur ni méthode. Un objectif ne
+reviendra que recalculé et sourcé.
+
+### Un briefing par séance
+
+Chaque séance produit un briefing de clôture — indice, largeur de marché,
+concentration des échanges, titres à surveiller avec leurs critères, dépôts
+AMMC du jour — archivé dans `briefings/` et relisible dans le terminal. La
+lecture rédigée passe un contrôle : **chaque nombre écrit doit exister dans les
+faits publiés par le moteur**, sinon le texte est refusé.
 
 ### Promesse de fraîcheur
 
@@ -44,7 +75,7 @@ publié par CDG Capital Bourse. Le recoupement se fait par une commande :
 
 ```bash
 python3 pipeline/parse_cdg_bulletin.py <bulletin.pdf> --verifier 2026-09-24
-# → 67 comparés · 0 écart · VERDICT CONCORDANCE
+# séance du 01/10/2026 → 69 comparés · 0 écart · VERDICT CONCORDANCE
 ```
 
 ### Chaque chiffre dit d'où il vient
@@ -78,33 +109,41 @@ recoupement extérieur produit un écart qui passe pour une erreur de données.
 
 ---
 
-## État du projet — 24 septembre 2026
+## État du projet — 1er octobre 2026
 
 ### Ce qui est établi
 
 | | |
 |---|---|
 | Titres suivis | **80** |
-| Séances en base | **42 578** |
-| Historiques certifiés contre l'export de l'opérateur | **40 / 80** |
-| Tests automatisés | **1 191** |
-| Contrôles quotidiens sur la séance échue | **13** |
+| Séances en base | **42 933** |
+| Historiques reçus de l'export de l'opérateur | **40 / 80** |
+| Sociétés avec ratios calculés sur comptes publiés | **66 / 77** |
+| Sociétés avec bénéfice sur douze mois glissants | **64** |
+| Tests automatisés | **1 654** |
+| Contrôles quotidiens sur la séance échue | **15** |
 
 ### ⚠️ Ce qui ne l'est pas
 
 Ces limites sont connues, mesurées, et ouvertes. Les taire rendrait le reste
 suspect.
 
-- **Aucun backtest n'existe.** La performance historique des signaux n'est pas
-  démontrée. Six ans de données le permettraient ; ce n'est pas fait. **Tant
-  que ce chiffre n'existe pas, la note est une mesure sans référence.**
-- **Le pilier comportemental pèse 28 % et distingue peu** : écart-type de
-  0,035 contre ~1,1 pour les deux autres, et 47 titres sur 80 à valeur nulle.
-- **Les fondamentaux sont saisis à la main** : 94 jours d'âge médian, et 51
-  titres sur 80 sans price-to-book.
-- **Le déclenchement automatique est défaillant.** Le planificateur de GitHub
-  Actions ne part plus de façon fiable depuis le 26/08/2026 ; un déclencheur
-  externe est en place dans `declencheur/` mais attend sa mise en service.
+- **La note ne se montre pas prédictive.** Mesurée sur les notes réellement
+  publiées depuis le 10/08 (observations à 5 séances), sa corrélation à la
+  sur-performance est **négative**, autour de −0,05 à −0,06 selon la version.
+  Un seul régime de marché, observations chevauchantes : c'est un constat,
+  pas une conclusion. **Aucun rendement n'est promis.**
+- **Les changements de note du 01/10 n'ont pas de backtest** : les ratios
+  calculés sur comptes publiés n'existent que depuis le 29/09. Ils rendent la
+  note fidèle aux comptes ; ils ne prouvent pas qu'elle prédit mieux.
+- **La grille de notation est la même pour tous les secteurs.** Une banque ne
+  se lit pas comme un promoteur ou une société de BTP ; une note sectorielle
+  existe en mode fantôme (calculée, non appliquée), à mesurer avant usage.
+- **Une partie des fondamentaux reste saisie à la main** (WACC, et tout chiffre
+  sans équivalent publié), et son âge est affiché sur chaque fiche.
+- **Le déclenchement repose sur un service externe.** Le planificateur de
+  GitHub Actions saute des passages ; cron-job.org déclenche les passages
+  depuis le 29/09/2026, avec les crons GitHub en filet.
 - **La conformité n'est pas tranchée** : agrément AMMC pour une offre
   commerciale, et gouvernance des données personnelles du corpus.
 
@@ -113,7 +152,9 @@ suspect.
 ## Architecture
 
 ```
-index.html                     terminal (React 18, compilé au navigateur)
+terminal.src.html              terminal — la SOURCE (React 18 + JSX)
+index.html                     sa compilation (tools/compiler_terminal.js) —
+                               ne jamais la modifier à la main
 update_data.py                 moteur — propriétaire unique de data.json
 bvc_config.py                  référentiel : ISIN, tickers, registres de faits
 
@@ -124,22 +165,33 @@ pipeline/
   coherence.py                 contrôles de cohérence du flux
   rang_sectoriel.py            situe un ratio dans son secteur
   redondance.py                mesure la corrélation entre indicateurs
-  verifier_seance.py           13 contrôles quotidiens
+  verifier_seance.py           15 contrôles quotidiens
+  smart_money/fond_score.py    note fondamentale ; ratio_effectif(), lecture
+                               unique des ratios pour la note et les alertes
+  ratios_financiers.py         ratios calculés sur les comptes publiés
+  resultats_semestriels.py     bénéfice sur douze mois glissants
+  depots_ammc.py               liste des dépôts de l'AMMC
+  file_attente_comptes.py      comptes déposés, pas encore lus
+  briefing.py · redaction.py   briefing de séance et contrôle de ses chiffres
   candles/                     chandelles OHLCV par titre
 
 datasets/
   historiques_importes/        réceptions, avec source et empreinte SHA-256
   seances_retirees/            séances retirées, avec la bougie exacte
   pieces_ammc/                 avis du régulateur
+  resultats_s1_2026.json       comptes semestriels lus, chaque chiffre avec sa page
+  exercice_2025_rectifie.json  exercices 2025 rectifiés sur le document publié
+
+briefings/                     un briefing archivé par séance
 
 declencheur/                   déclencheur externe (Cloudflare Worker)
-tests/                         1 191 tests
+tests/                         1 654 tests
 ```
 
-⚠️ **Le dépôt paraît vanilla, il ne l'est pas.** `index.html` contient du JSX
-compilé par Babel dans le navigateur : il n'y a pas d'étape de build, et une
-faute de syntaxe casse le site entier sans qu'aucun test Python ne la voie.
-La vérification passe par la compilation du JSX (voir `.claude/skills/run-tests`).
+⚠️ **Le dépôt paraît vanilla, il ne l'est pas.** Le terminal est écrit en JSX
+dans `terminal.src.html` et précompilé dans `index.html` par
+`node tools/compiler_terminal.js`. Une faute de syntaxe casse le site entier ;
+un test vérifie que `index.html` est exactement la compilation de la source.
 
 ---
 
@@ -169,7 +221,7 @@ La chaîne de repli est arbitrée **par la date**, jamais par la préférence :
 # la séance publiée est-elle conforme au bulletin officiel ?
 python3 pipeline/parse_cdg_bulletin.py <bulletin.pdf> --verifier AAAA-MM-JJ
 
-# les 13 contrôles quotidiens sur la dernière séance échue
+# les 15 contrôles quotidiens sur la dernière séance échue
 python3 pipeline/verifier_seance.py
 
 # le flux se contredit-il lui-même ?
