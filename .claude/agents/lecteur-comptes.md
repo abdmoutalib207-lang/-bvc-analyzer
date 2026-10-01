@@ -139,6 +139,58 @@ fusion** : la fusion est la décision d'Abd Moutalib.
   est plus petite que le bénéfice. Un résultat porté par le non courant s'y ajoute.
 - (lot 13) yuna : un PER peut ne pas concorder avec son propre ROE et son P/B
   (Promopharm : PER → 52,5 ; ROE et P/B → 59,9). Consigner, ne pas choisir.
+- (lot 14, ratios de bilan) Un « illisible » n'est pas forcément illisible : GAZ
+  avait été refusé pour « impôt illisible » et « pages image » alors que le
+  rendu (`page.to_image(resolution=100)`) rend le tableau lisible en un coup
+  d'oeil, et que `tesseract -l fra` (installé) localise les notes sur 85 pages
+  image. Rendre, lire, puis recouper chaque total par l'arithmétique (REX + RF =
+  RAI, RAI + MEE − impôt = RN, MBA − BFR = flux) avant d'écrire ; les pages image
+  sont déclarées dans la spec (`image_pages`) et la note dit « lu sur image ».
+- (lot 14) Une dette « douteuse » se tranche dans la note de dette : GAZ, note 14
+  (p.134) « dont dettes de location 601 158 » — la dette locative était déjà
+  dans les dettes de financement ; les « autres passifs non courants » étaient
+  des consignations (note 15), pas de la dette.
+- (lot 14) Les colonnes ne vont pas dans le même sens au sein d'un MÊME rapport :
+  Mutandis bilan et CPC « 2024 | 2025 » (clos à droite), tableau des flux
+  « 2025 | 2024 » (clos à gauche). Se vérifie par la trésorerie de clôture
+  (25 126 se reconstruit avec les comptes 2025 : 200 480 + 59 248 − 222 429 −
+  12 173).
+- (lot 14) Un agrégat de bilan « dettes financières courantes » peut contenir des
+  dérivés de couverture (Lesieur : 634 de 811) : lire les lignes dessous, ne
+  retenir que crédits et location financement (473, pas 1 109).
+- (lot 14) Une « dette nette » écrite par la société n'est pas la dette nette du
+  bilan : Mutandis 828 (périmètre non dit) contre 989 par le bilan et la note de
+  dette ; SMI −539,8 parce que son compte courant d'associés sur Managem (563,7)
+  y est retranché. Consigner les deux (`endettement_net` + `_ecarts_mesures` avec
+  rapport / terminal / ecart), publier celle du bilan.
+- (lot 14) Pas de ligne « résultat avant impôt » au CPC consolidé (Oulmès) :
+  somme de deux lignes publiées (courant + non courant), validée par l'identité
+  RAI − impôt exigible + impôt différé = RN au millier près, et dite DÉRIVÉE.
+  L'impôt total est exigible moins le produit différé (63,768 = 76,138 − 12,370).
+- (lot 14) Un EBITDA publié n'a pas forcément la définition standard : celui de
+  CTM (162,4) réintègre aussi « impôts et taxes » (REX 6,7 + dotations 145,1 +
+  10,5). Retenu parce que publié, écart consigné ; Oulmès publie un EBITDA
+  consolidé (605,5) ET un EBITDA social (545,1) à deux pages d'écart.
+- (lot 14) Comptes SOCIAUX seuls (SMI filiale de Managem, SRM) : les ratios se
+  calculent en social, `base` le dit, et la conversion en trésorerie est absente —
+  un bilan marocain social n'a pas de tableau des flux de trésorerie (seulement
+  un tableau de financement).
+- (lot 14) Résultat net minuscule publié en millions arrondis (Lesieur : 5 MMAD) :
+  flux ÷ résultat = 3 640 %, sans signification et bougé de ±10 % par le seul
+  arrondi. Refusé, motif consigné. À l'inverse CTM (flux −101,5 pour un résultat
+  de 16,1 : −631 %) est exact et publié, la créance sur le ministère de
+  l'Intérieur l'explique.
+- (lot 14) Un texte de rapport peut contredire son tableau : Immorente « total
+  actif 1 294,7 MDH » contre 1.294.062 KMAD, Mutandis « capitaux propres
+  consolidés 1 533 Mdh » contre 1 553 781. Le tableau prime, la coquille se consigne.
+- (lot 14) Le `rnpg_exercice_2025` de SMI dans resultats_s1_2026.json (509,98, « NON
+  RECOUPÉ : BPA 310 × 1 645 090 ») ne se recolle PAS au RFA 2025 : résultat net
+  social 397,108594 MMAD (BPA 241,4). À corriger au prochain lot sur SMI ; ce lot
+  n'y a pas touché.
+- (lot 14) Sigles proches : CMT (Minière Touissit) et CTM (transport) — lister
+  les titres par `fondamentaux.json`, jamais de mémoire.
+- (lot 14) `faits_financiers.json` se réécrit en `indent=1`, sans saut de ligne final,
+  `ensure_ascii=False` : tout autre format fait un diff de milliers de lignes.
 
 ## Ce que tu ne fais jamais
 
