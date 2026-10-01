@@ -66,6 +66,30 @@
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
     .ticker-inner{display:inline-flex;align-items:center;animation:ticker 55s linear infinite;}
     .ticker-inner:hover{animation-play-state:paused;}
+
+    /* ⚠️ COUCHE VISUELLE — 01/10/2026, demande d'Abd Moutalib : « même BVC
+       Analyzer, plus fluide, plus propre, plus premium ». Ni couleur ni
+       structure changées : seulement des transitions (150–250 ms), des états
+       de survol et de clic, et une légère profondeur. Les styles posés sur les
+       éléments gardent la main sur les couleurs ; cette couche n'ajoute que
+       ce qu'ils ne fixent pas (ombre, filtre, transformation). */
+    :root{--t-court:160ms;--t-moyen:220ms;--ease:cubic-bezier(.2,.7,.2,1);}
+    button,select,a{transition:color var(--t-court) var(--ease),background-color var(--t-court) var(--ease),
+      border-color var(--t-court) var(--ease),box-shadow var(--t-court) var(--ease),
+      transform var(--t-court) var(--ease),filter var(--t-court) var(--ease);}
+    button:not(:disabled):not([style*="not-allowed"]):hover,select:hover{filter:brightness(1.18);box-shadow:0 0 0 1px rgba(200,211,232,.10),0 2px 8px rgba(0,0,0,.25);}
+    button:not(:disabled):not([style*="not-allowed"]):active{transform:scale(.97);filter:brightness(1.05);}
+    button[style*="not-allowed"]{opacity:.75;}
+    button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--green);outline-offset:2px;}
+    button{-webkit-tap-highlight-color:transparent;}
+    .carte{box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 6px 18px rgba(0,0,0,.28);
+      animation:apparition var(--t-moyen) var(--ease) both;}
+    @keyframes apparition{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+    html{scroll-behavior:smooth;}
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;
+        transition-duration:1ms!important;scroll-behavior:auto!important;}
+    }
   </style>
 </head>
 <body>
@@ -6399,6 +6423,7 @@ const Carte = ({
   source,
   children
 }) => React.createElement("div", {
+  className: "carte",
   style: {
     background: "#0d1829",
     border: "1px solid #1a2540",
@@ -6680,6 +6705,7 @@ const Lecture = ({
   if (!r || !r.texte) return null;
   const blocs = r.texte.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean);
   return React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -6855,6 +6881,7 @@ const Briefing = () => {
     }
   }, "Chargement du briefing\u2026");
   if (etat === "absent") return React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -6971,6 +6998,7 @@ const Briefing = () => {
   }), !semaine && React.createElement(ASurveiller, {
     a: src.a_surveiller
   }), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -7052,6 +7080,7 @@ const Briefing = () => {
   }, detail ? "MASQUER LE DÉTAIL DE LA SÉANCE ▴" : "DÉTAIL DE LA SÉANCE ▾"), !semaine && detail && React.createElement(SeanceDetail, {
     b: src
   }), semaine && (h.hausses || []).length > 0 && React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -7105,6 +7134,7 @@ const Briefing = () => {
       fontFamily: "monospace"
     }
   }, x.perf_pct > 0 ? "+" : "", fmt(x.perf_pct).replace(".", ","), " %"))))))), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -7197,6 +7227,7 @@ const TickerNews = ({
   };
   if (!ok || articles.length === 0) return null;
   return React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -7494,6 +7525,7 @@ const Detail = ({
       color: "#5a6478"
     }
   }, "formule ", r.score_version)), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -7740,6 +7772,7 @@ const Detail = ({
       }
     }, "/", e.pairs, " \xB7 ", e.ecart_pct > 0 ? "+" : "", e.ecart_pct, "% vs secteur"));
   })())))), r.ratios_publies && React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -7810,6 +7843,7 @@ const Detail = ({
       }
     }, "au ", x.date.split("-").reverse().join("/")));
   }))), r.fwd && React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -7875,6 +7909,7 @@ const Detail = ({
       lineHeight: 1.5
     }
   }, "Estimations d'analystes, non retenues dans le score. Un tiret signale une valeur \xE9cart\xE9e comme invraisemblable.")), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -8078,6 +8113,7 @@ const Detail = ({
   }, r.adx > 40 ? "tendance forte" : r.adx > 25 ? "tendance" : r.adx > 20 ? "émergente" : "range", r.adx_pdi > r.adx_mdi ? " ▲" : " ▼")))), React.createElement(RSIGauge, {
     value: rsiVal
   }))), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -8125,6 +8161,7 @@ const Detail = ({
       gap: 10
     }
   }, React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -8176,6 +8213,7 @@ const Detail = ({
       color: "#00e5a0"
     }
   }, "\u25CF"), " IDBourse / M\xE9dias24")), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -8187,6 +8225,7 @@ const Detail = ({
     low: l90,
     price: price
   })), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -8280,6 +8319,7 @@ const Detail = ({
       fontWeight: 600
     }
   }, "\u25B2 ", px(price), " DH"), React.createElement("span", null, "Bull ", px(r.bull)))), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -8416,6 +8456,7 @@ const Weights = () => {
       lineHeight: 1.7
     }
   }, desc)))), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -8510,6 +8551,7 @@ const Smart = () => {
       gap: 12
     }
   }, React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -8608,6 +8650,7 @@ const Smart = () => {
       gap: 10
     }
   }, React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -8659,6 +8702,7 @@ const Smart = () => {
       fontWeight: 700
     }
   }, "Rdt ", rdt)))), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -9372,6 +9416,7 @@ const NlpDash = () => {
       color: "#8892a4"
     }
   }, "Analyse 14 phases \xB7 sept 2020 \u2192 juin 2026")), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -9392,6 +9437,7 @@ const NlpDash = () => {
       gap: 12
     }
   }, React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -9410,6 +9456,7 @@ const NlpDash = () => {
       letterSpacing: 1
     }
   }, "Fear & Greed BVC"), "Indicateur retir\xE9 \u2014 il affichait une valeur fig\xE9e, non recalcul\xE9e."), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -9473,6 +9520,7 @@ const NlpDash = () => {
       }
     }, cnt.toLocaleString()));
   })), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -9538,6 +9586,7 @@ const NlpDash = () => {
       color: "#ffd740"
     }
   }, "Arabizi"), " = 9.3% \u2014 lexique financier sp\xE9cialis\xE9 inclus"))), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -9625,6 +9674,7 @@ const NlpDash = () => {
       gap: 12
     }
   }, React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -9713,6 +9763,7 @@ const NlpDash = () => {
       color: "#ffd740"
     }
   }, "Timeliness"), " = proportion de signaux \xE9mis avant le mouvement de prix \xB7 Phase 5 pipeline NLP")), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -9905,6 +9956,7 @@ const NlpDash = () => {
       fontWeight: 600
     }
   }, r.mentions.toLocaleString()))))))), React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
