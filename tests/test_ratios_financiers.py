@@ -102,9 +102,10 @@ def test_les_financieres_sont_sans_objet_et_rien_n_est_calcule():
 
 
 def test_un_doute_declare_empeche_le_calcul():
-    # GAZ : dette locative non identifiable → pas de dette nette ; VCNE :
-    # titres de placement de nature non tranchée → idem.
-    for s in ("GAZ", "VCNE"):
+    # VCNE : titres de placement de nature non tranchée → pas de dette nette.
+    # (GAZ l'était aussi, pour une dette locative non identifiable : levée le
+    # 01/10 en lisant la note 14 sur image, voir test_gaz_...)
+    for s in ("VCNE",):
         rp = FOND[s]["ratios_publies"]
         assert "dette_nette" not in rp and "roic" not in rp, s
         assert rp["non_calcules_2025"]["dette_nette"].startswith("doute"), s
@@ -179,3 +180,75 @@ def test_roe_bancaires_sur_bilans_reboucles():
     assert (_r("BOA", "roe_2025"), _r("BMC", "roe_2025")) == (12.0, 5.7)
     # ATW : 10 644,852 ÷ 69 431,269 = 15,33 % ; BCP : 4 503,361 ÷ 36 974,989 = 12,18 %
     assert (_r("ATW", "roe_2025"), _r("BCP", "roe_2025")) == (15.3, 12.2)
+
+
+# ── Lot « ratios de bilan 2 » (01/10/2026) : titres sans ratio jusque-là ──
+# Attendus calculés à la main depuis les états déposés (pages dans
+# pipeline/faits_financiers.json), pas relus dans la sortie du module.
+
+def test_oulmes_quatre_ratios_a_la_main():
+    # dette = 1 657,237 + 657,269 = 2 314,506 ; dette nette = 2 314,506 − 134,320 = 2 180,186
+    assert _r("OUL", "dette_nette") == 2180.2
+    # EBITDA consolidé publié 605,5 (recoupé : 285,335 + 320,124 = 605,459) ; 2 180,186 ÷ 605,5 = 3,60
+    assert _r("OUL", "ebitda") == 605.5 and _r("OUL", "dette_nette_ebitda") == 3.6
+    # RAI dérivé 185,308 − 5,386 = 179,922 ; impôt 76,138 − 12,370 = 63,768 ; t = 35,44 %
+    # 285,335 × 0,6456 ÷ (809,5 + 2 180,186) = 6,16 %
+    assert _r("OUL", "roic") == 6.2
+    # 183,629 ÷ 116,155 = 158,1 %
+    assert _r("OUL", "cash_conversion") == 158.1
+    # la valeur saisie en juin (0,57) est incompatible avec ce bilan et n'a pas été touchée
+    assert FOND["OUL"]["dette_nette_ebitda"] == 0.57
+
+
+def test_imiter_base_sociale_dite_et_conversion_absente_avec_son_motif():
+    rp = FOND["SMI"]["ratios_publies"]
+    # 34,684488 + 0,196120 − 10,957381 = 23,923227 ; ÷ EBE 864,051358 = 0,0277
+    assert rp["dette_nette"]["valeur"] == 23.9 and rp["dette_nette_ebitda"]["valeur"] == 0.03
+    # t = 191,056147 ÷ 588,164741 = 32,48 % ; 615,038858 × 0,67516 ÷ (1 660,223158 + 23,923227) = 24,66 %
+    assert rp["roic"]["valeur"] == 24.7
+    assert "SOCIAL" in rp["roic"]["base"]
+    # pas de tableau des flux de trésorerie dans des comptes sociaux marocains
+    assert "cash_conversion" not in rp and "tableau des flux" in rp["non_calcules_2025"]["cash_conversion"]
+
+
+def test_un_resultat_net_minuscule_n_est_pas_converti():
+    # Lesieur : résultat net de l'ensemble 5 MMAD, arrondi au million → pas de ratio
+    rp = FOND["LES"]["ratios_publies"]
+    assert "cash_conversion" not in rp and "arrondi" in rp["non_calcules_2025"]["cash_conversion"]
+    # dette retenue 1 + 296 + 176 = 473 (et non les 1 109 du bilan, qui contiennent 634 de dérivés)
+    assert rp["dette_nette"]["valeur"] == 4.0          # 473 − 469
+
+
+def test_mutandis_ecart_avec_la_dette_nette_publiee_est_consigne():
+    # 931,815 + 94,706 + 222,429 − (200,480 + 59,248) = 989,222
+    assert _r("MUT", "dette_nette") == 989.2
+    e = FAITS["MUT"]
+    assert e["faits"]["endettement_net"]["valeur"] == 828.0     # chiffre de la société, non utilisé
+    assert e["_ecarts_mesures"]["dette_nette"]["rapport"] == 828.0 and "161" in e["_ecarts_mesures"]["dette_nette"]["ecart"]
+
+
+def test_lot_2_chaque_fait_porte_page_unite_et_citation_et_les_controles_passent():
+    nouveaux = ("ARD", "CTM", "GAZ", "IMI", "LES", "MUT", "OUL", "SMI", "SRM")
+    for s in nouveaux:
+        e = FAITS[s]
+        assert e["_controles_ratios_2025"]["controles"], s
+        for c in e["_controles_ratios_2025"]["controles"]:
+            assert c["ok"], (s, c)
+        for k, x in e["faits"].items():
+            if x.get("releve_le") != "2026-10-01":
+                continue
+            assert isinstance(x.get("page"), int) and x.get("unite_au_rapport"), (s, k)
+            assert "«" in x.get("note", "") or x.get("composantes"), (s, k)
+
+
+def test_gaz_doute_leve_par_la_note_14_lue_sur_image():
+    # Note 14 (p.133-134, image) : dettes de financement 1 061,912 + 132,631 = 1 194,543
+    # DONT 601,158 de dettes de location ; + banques créditrices 318,011 = 1 512,554 ;
+    # − trésorerie 1 039,041 = 473,513 (la société écrit « trésorerie nette 473 513 »)
+    assert _r("GAZ", "dette_nette") == 473.5
+    # EBITDA publié 1 576,721 = REX 1 166,687 + dotations 410,034 ; 473,513 ÷ 1 576,721 = 0,300
+    assert _r("GAZ", "dette_nette_ebitda") == 0.3
+    # t = 394,403 ÷ 1 067,008 = 36,96 % ; 1 166,687 × 0,6304 ÷ (3 387,010 + 473,513) = 19,05 %
+    assert _r("GAZ", "roic") == 19.1
+    # 804,904 ÷ 750,500 = 107,2 %
+    assert _r("GAZ", "cash_conversion") == 107.2
