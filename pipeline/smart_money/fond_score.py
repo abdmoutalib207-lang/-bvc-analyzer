@@ -35,6 +35,37 @@ def reload():
     return _load()
 
 
+# ⚠️ LES RATIOS CALCULÉS SUR COMPTES PUBLIÉS PRIMENT — 01/10/2026, décision
+# d'Abd Moutalib (R8), après mesure. Au 01/10 : 79 ratios calculés sur 31
+# titres hors MSA (ROIC, dette nette / EBITDA, conversion de trésorerie) ; la
+# note fondamentale bouge sur 28, et 10 titres changent de palier sur les
+# notes publiées le jour même (9 vers le bas, SNA vers le haut). Principe posé par lui : « rectifier les anciens calculs faux grâce
+# aux publications, et continuer la chronologie avec les nouvelles ». Dès
+# qu'un ratio est calculé dans `ratios_publies` (pipeline/ratios_financiers.py,
+# chaque fait avec sa page), la note le lit à la place de la valeur saisie ;
+# les prochains ratios calculés s'appliqueront donc d'eux-mêmes.
+# La valeur saisie reste dans le fichier, intacte : elle n'est plus lue que
+# faute de ratio calculé.
+# ⚠️ Pas de backtest possible : les ratios calculés n'existent que depuis le
+# 29/09/2026. Le remplacement rend la note plus honnête, il ne prouve pas
+# qu'elle prédit mieux.
+RATIOS_EN_VERIFICATION = {
+    # Un titre ici garde ses valeurs saisies, avec le motif, jusqu'au recoupement.
+    "MSA": "ROIC calculé de 47,6 % contre 17 saisi — capital investi d'un "
+           "concessionnaire portuaire à recouper avant bascule (01/10/2026)",
+}
+
+
+def _publie(f: dict, sym: str, cle: str):
+    """Le ratio calculé sur comptes publiés, ou None. Seule une valeur
+    numérique compte : « sans objet » n'est pas une mesure."""
+    if sym in RATIOS_EN_VERIFICATION:
+        return None
+    x = (f.get("ratios_publies") or {}).get(cle)
+    v = x.get("valeur") if isinstance(x, dict) else None
+    return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+
 def compute_fond_score(sym: str, fondamentaux: dict = None) -> float:
     """
     Retourne le score fondamental [0-10].
@@ -47,7 +78,8 @@ def compute_fond_score(sym: str, fondamentaux: dict = None) -> float:
         return 5.0
 
     # QUALITÉ (40%) — spread ROIC-WACC : capacité à créer de la valeur
-    roic   = float(f.get("roic") or 10)
+    _r     = _publie(f, sym, "roic")
+    roic   = _r if _r is not None else float(f.get("roic") or 10)
     wacc   = float(f.get("wacc") or 10)
     spread = roic - wacc
     if   spread >= 15: q = 9.5
@@ -118,12 +150,16 @@ def compute_fond_score(sym: str, fondamentaux: dict = None) -> float:
     # et aucun titre au secteur « Finance » n'a de dette nette nulle. Aucune
     # note ne bouge (R8).
     _SANS_OBJET = ("Banque", "Assurance", "Finance")
-    _dne = f.get("dette_nette_ebitda")
+    _dne = _publie(f, sym, "dette_nette_ebitda")
+    if _dne is None:
+        _dne = f.get("dette_nette_ebitda")
     _sect = f.get("secteur") or ""
     if _dne == 0 and any(_sect.startswith(s) for s in _SANS_OBJET):
         _dne = None                      # sans objet : on ne conclut rien
     dne = float(_dne) if _dne is not None else 1.0
-    _cc = f.get("cash_conversion")
+    _cc = _publie(f, sym, "cash_conversion")
+    if _cc is None:
+        _cc = f.get("cash_conversion")
     cc  = float(_cc) if _cc is not None else 70
     if   dne < 0:   bs = 9.0   # trésorerie nette positive
     elif dne < 0.5: bs = 8.5
