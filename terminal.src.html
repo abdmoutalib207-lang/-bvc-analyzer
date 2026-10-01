@@ -66,6 +66,30 @@
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
     .ticker-inner{display:inline-flex;align-items:center;animation:ticker 55s linear infinite;}
     .ticker-inner:hover{animation-play-state:paused;}
+
+    /* ⚠️ COUCHE VISUELLE — 01/10/2026, demande d'Abd Moutalib : « même BVC
+       Analyzer, plus fluide, plus propre, plus premium ». Ni couleur ni
+       structure changées : seulement des transitions (150–250 ms), des états
+       de survol et de clic, et une légère profondeur. Les styles posés sur les
+       éléments gardent la main sur les couleurs ; cette couche n'ajoute que
+       ce qu'ils ne fixent pas (ombre, filtre, transformation). */
+    :root{--t-court:160ms;--t-moyen:220ms;--ease:cubic-bezier(.2,.7,.2,1);}
+    button,select,a{transition:color var(--t-court) var(--ease),background-color var(--t-court) var(--ease),
+      border-color var(--t-court) var(--ease),box-shadow var(--t-court) var(--ease),
+      transform var(--t-court) var(--ease),filter var(--t-court) var(--ease);}
+    button:not(:disabled):not([style*="not-allowed"]):hover,select:hover{filter:brightness(1.18);box-shadow:0 0 0 1px rgba(200,211,232,.10),0 2px 8px rgba(0,0,0,.25);}
+    button:not(:disabled):not([style*="not-allowed"]):active{transform:scale(.97);filter:brightness(1.05);}
+    button[style*="not-allowed"]{opacity:.75;}
+    button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--green);outline-offset:2px;}
+    button{-webkit-tap-highlight-color:transparent;}
+    .carte{box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 6px 18px rgba(0,0,0,.28);
+      animation:apparition var(--t-moyen) var(--ease) both;}
+    @keyframes apparition{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+    html{scroll-behavior:smooth;}
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;
+        transition-duration:1ms!important;scroll-behavior:auto!important;}
+    }
   </style>
 </head>
 <body>
@@ -1766,7 +1790,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
 const nfr=(x,d=2)=>x==null||!isFinite(x)?"—":(+x).toLocaleString("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d}).replace(/\u202f|\u00a0/g," ");
 const jm=iso=>iso?`${iso.slice(8,10)}/${iso.slice(5,7)}`:"—";
 const Carte=({titre,source,children})=>(
-  <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+  <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
     <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>{titre}</div>
     {source&&<div style={{fontSize:10.5,color:"#5a6478",marginBottom:10}}>{source}</div>}
     {children}
@@ -1876,7 +1900,7 @@ const Lecture=({r})=>{
   if(!r||!r.texte)return null;
   const blocs=r.texte.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
   return(
-    <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+    <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
       <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:2}}>Lecture de la séance</div>
       <div style={{fontSize:11,color:"#5a6478",marginBottom:10}}>
         {r.auteur==="claude"
@@ -1963,7 +1987,7 @@ const Briefing=()=>{
   // ⚠️ On DIT que le briefing manque plutôt que d'afficher un panneau vide.
   // Un écran vide se lit comme « rien à signaler », ce qui est faux.
   if(etat==="absent")return(
-    <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:20,color:"#8892a4"}}>
+    <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:20,color:"#8892a4"}}>
       Le briefing de la dernière séance n'a pas été publié. Il est écrit par le
       run du soir ; son absence signale que ce run n'a pas abouti.
     </div>);
@@ -2014,7 +2038,7 @@ const Briefing=()=>{
       {!semaine&&<Lecture r={src.redaction}/>}
       {!semaine&&<ASurveiller a={src.a_surveiller}/>}
 
-      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+      <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
         <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>
           {semaine?"Bilan de la semaine":(LIB_MOMENT[src.moment]||"Lecture de la séance")}</div>
         <div style={{fontSize:13,color:"#4db8ff",marginBottom:12}}>
@@ -2049,7 +2073,7 @@ const Briefing=()=>{
       {/* ⚠️ Le palmarès n'existe que sur la semaine : sur une séance, il
           doublonnerait les plus fortes hausses déjà présentes ailleurs. */}
       {semaine&&(h.hausses||[]).length>0&&
-        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
           <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:10}}>Palmarès de la semaine</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
             {[["Hausses",h.hausses||[],"#00e5a0"],["Baisses",h.baisses||[],"#ff4f5a"]].map(([t,l,c])=>(
@@ -2073,7 +2097,7 @@ const Briefing=()=>{
           </div>
         </div>}
 
-      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+      <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
         <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>Publications retenues</div>
         <div style={{fontSize:11,color:"#5a6478",marginBottom:12}}>
           Sélection du collecteur — les publications susceptibles de déplacer un cours.
@@ -2115,7 +2139,7 @@ const TickerNews=({sym})=>{
   const fmtD=iso=>{try{return new Date(iso).toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}catch{return "";}};
   if(!ok||articles.length===0)return null;
   return(
-    <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+    <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
       <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Actualités — {sym}</div>
       {articles.map(a=>(
         <a key={a.id} href={a.url} target="_blank" rel="noopener noreferrer"
@@ -2252,7 +2276,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
           </div>
 
           {/* Fundamentaux */}
-          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+          <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             {/* ⚠️ LA LIQUIDITÉ, AFFICHÉE PARCE QU'ELLE PLAFONNE LA CONFIANCE.
                 Ajouté le 25/09. Le moteur rabaisse la confiance à 2 sous
                 100 000 DH échangés par séance — 27 titres sur 80 — sans que
@@ -2390,7 +2414,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               sources au survol. Un terme manquant : « — », rien de supposé.
               Recoupé avec yuna.ma : 11 titres sur 13 au dixième près. */}
           {r.ratios_publies&&(
-          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,marginBottom:10}}>
+          <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,marginBottom:10}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:10,gap:8,flexWrap:"wrap"}}>
               <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Rentabilité <span style={{color:"#00e5a0"}}>comptes publiés</span></div>
               <div style={{fontSize:9,color:"#8892a4"}}>dépôts AMMC · calculé le {(r.ratios_publies.calcule_le||"").split("-").reverse().join("/")}</div>
@@ -2415,7 +2439,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               disent que le bénéfice est prévu en baisse. Le libellé et la date
               d'export sont affichés pour que la distinction se lise. */}
           {r.fwd&&(
-          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+          <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:10,gap:8,flexWrap:"wrap"}}>
               <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Prévisionnel <span style={{color:"#4db8ff"}}>IDBourse DATA+</span></div>
               {/* Date d'export en entier, année comprise : l'export est
@@ -2443,7 +2467,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
           </div>)}
 
           {/* RSI + NLP */}
-          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+          <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
                 <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Indicateurs Techniques</div>
@@ -2520,7 +2544,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
           </div>
 
           {/* NLP */}
-          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+          <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>NLP — {META.tickers} tickers ({META.years} ans)</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
               {[["Biais groupe",r.biais,NC(r.nlp)],["Smart Sentiment",`${r.nlp>0?"+":""}${(r.nlp*100).toFixed(0)}%`,NC(r.nlp)],["Score SM~ (non calibré)",r.win!=null?`${r.win}`:"—",r.win>=80?"#00e5a0":"#ffd740"],["Convergence",r.conv==="CONFIRME"?"✅ OK":r.conv==null?"— pilier gelé":"⚠️ Div.",r.conv==="CONFIRME"?"#00e5a0":r.conv==null?"#8892a4":"#ffd740"]].map(([k,v,c])=>(
@@ -2536,7 +2560,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
         {/* RIGHT */}
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {/* Chart */}
-          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+          <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             {/* ⚠️ Le titre annonçait « MA20 · MA50 · Fibonacci » alors que les moyennes
                  sont désormais optionnelles et que Fibonacci ne se traçait nulle part
                  sur ce graphique. Un titre qui promet ce que la vue ne montre pas
@@ -2549,12 +2573,12 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
           </div>
 
           {/* Fibonacci */}
-          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+          <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <FibTable high={h90} low={l90} price={price}/>
           </div>
 
           {/* Scénarios */}
-          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+          <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Scénarios Prix (fondamentaux)</div>
             {!objectifs&&<div style={{fontSize:11,color:"#ff8f00",marginBottom:10}}>Objectifs indisponibles — cible périmée écartée</div>}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
@@ -2576,7 +2600,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
           </div>
 
           {/* Setup + formule */}
-          <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,fontFamily:"var(--font)",fontSize:12,lineHeight:1.9}}>
+          <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,fontFamily:"var(--font)",fontSize:12,lineHeight:1.9}}>
             <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
               {[[`Setup: ${r.setup||"—"}`,"#ffd740"],[pdsAff?`Fond:${pdsAff.f}% NLP:${pdsAff.n}% Tech:${pdsAff.t}%`:"Poids: —",simu?"#ffd740":"#8892a4"]].map(([lbl,c])=>(
                 <span key={lbl} style={{fontSize:11,padding:"3px 8px",borderRadius:4,background:"#0a1220",color:c,border:"1px solid #1a2540"}}>{lbl}</span>
@@ -2646,7 +2670,7 @@ const Weights=()=>{
           </div>
         ))}
       </div>
-      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+      <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
         <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:10}}>AJUSTEMENTS DYNAMIQUES PAR CONTEXTE</div>
         <div style={{overflowX:"auto"}}>
           <table style={{width:"100%",borderCollapse:"collapse"}}>
@@ -2689,7 +2713,7 @@ const Smart=()=>{
   const CT=[["MNG","0%","100% du temps cours monte après signal vente"],["RDS","0%","0% réussite vendeur (contrarian parfait)"],["SMI","19%","81% cours monte après signal vente"],["TGCC","39%","Seul titre validant une confirmation vente"]];
   return(
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+      <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
         <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:4}}>MEMBRES SMART MONEY — POIDS V3</div>
         <div style={{fontSize:11,color:"#8892a4",marginBottom:10}}>SNR = Signal/Noise Ratio · 1994 signaux backtestés 2020-2026</div>
         <div style={{display:"grid",gridTemplateColumns:"auto auto auto 1fr auto auto auto",gap:"4px 8px",fontSize:9,color:"#8892a4",marginBottom:5,paddingBottom:5,borderBottom:"1px solid #1a2540",alignItems:"center"}}>
@@ -2708,7 +2732,7 @@ const Smart=()=>{
         ))}
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:10}}>
-        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
           <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:10}}>PERFORMANCE HISTORIQUE</div>
           {BT.length===0 ? (
             <div style={{fontSize:12,color:"#ffd740",lineHeight:1.8}}>
@@ -2731,7 +2755,7 @@ const Smart=()=>{
             </div>
           ))}
         </div>
-        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
           <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:10}}>CONTRARIANS V3 — VENTE = ACHAT</div>
           {CT.map(([t,acc,note])=>(
             <div key={t} style={{padding:"7px 0",borderBottom:"1px solid #0d1829"}}>
@@ -2912,7 +2936,7 @@ const NlpDash=()=>{
           analyse quantitative. Il reviendra adossé à un historique réel du
           MASI — data.json n'en garde aujourd'hui que la valeur du jour.
           Le code retiré reste dans l'historique git. */}
-      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 16px",fontSize:11,color:"#6b7689",lineHeight:1.6}}>
+      <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 16px",fontSize:11,color:"#6b7689",lineHeight:1.6}}>
         <strong style={{color:"#8892a4"}}>Fear &amp; Greed BVC × MASI</strong> — indicateur retiré.
         La série publiée jusqu'ici ne reproduisait pas la trajectoire réelle de l'indice.
         Il reviendra une fois adossé à un historique vérifiable.
@@ -2926,13 +2950,13 @@ const NlpDash=()=>{
             légère »), immobile depuis la mise en ligne, affichée comme une
             mesure du sentiment de marché. Retirer la courbe en laissant le
             cadran n'aurait corrigé que la moitié du mensonge. */}
-        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,fontSize:11,color:"#6b7689",lineHeight:1.6}}>
+        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,fontSize:11,color:"#6b7689",lineHeight:1.6}}>
           <div style={{fontSize:11,color:"#8892a4",marginBottom:6,textTransform:"uppercase",letterSpacing:1}}>Fear &amp; Greed BVC</div>
           Indicateur retiré — il affichait une valeur figée, non recalculée.
         </div>
 
         {/* Distribution signaux */}
-        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
           <div style={{fontSize:11,color:"#8892a4",marginBottom:10,textTransform:"uppercase",letterSpacing:1}}>Distribution des Signaux NLP</div>
           <div style={{fontSize:11,color:"#ffd740",marginBottom:8}}>Ratio SELL/BUY = <strong>2.8×</strong> — groupe majoritairement prudent (signal contrarian)</div>
           {NLP_SIGS.map(([lbl,cnt,c])=>{
@@ -2950,7 +2974,7 @@ const NlpDash=()=>{
         </div>
 
         {/* Langues */}
-        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
           <div style={{fontSize:11,color:"#8892a4",marginBottom:10,textTransform:"uppercase",letterSpacing:1}}>Langues détectées</div>
           {NLP_LANGS.map(([lbl,cnt,pct,c])=>(
             <div key={lbl} style={{marginBottom:8}}>
@@ -2970,7 +2994,7 @@ const NlpDash=()=>{
       </div>
 
       {/* ── TOP 7 ACHAT ── */}
-      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+      <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
         <div style={{fontSize:11,color:"#8892a4",marginBottom:10,textTransform:"uppercase",letterSpacing:1}}>TOP 7 — Signal ACHAT ★★★★ (corpus complet 6 ans)</div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:8}}>
           {top7.map((r,i)=>(
@@ -2996,7 +3020,7 @@ const NlpDash=()=>{
       <div style={{display:"grid",gridTemplateColumns:"320px 1fr",gap:12}}>
 
         {/* Smart Money */}
-        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
           <div style={{fontSize:11,color:"#8892a4",marginBottom:4,textTransform:"uppercase",letterSpacing:1}}>Smart Money identifiés</div>
           <div style={{fontSize:10,color:"#4db8ff",marginBottom:10}}>14 membres sur 2013 · score = timeliness</div>
           {NLP_SM.map((m,i)=>(
@@ -3016,7 +3040,7 @@ const NlpDash=()=>{
         </div>
 
         {/* Classement complet */}
-        <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,overflow:"auto"}}>
+        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,overflow:"auto"}}>
           <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:10}}>
             <div style={{fontSize:11,color:"#8892a4",textTransform:"uppercase",letterSpacing:1}}>Classement final Phase 13 — {NLP_RANKS.length} valeurs</div>
             <div style={{marginLeft:"auto",display:"flex",gap:6}}>
@@ -3077,7 +3101,7 @@ const NlpDash=()=>{
       </div>
 
       {/* ── TOP SIGNAUX ACHAT Jan-Jun 2026 ── */}
-      <div style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+      <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexWrap:"wrap",gap:8}}>
           <div>
             <div style={{fontSize:12,fontWeight:700,color:"#00e5a0",textTransform:"uppercase",letterSpacing:1.5}}>
