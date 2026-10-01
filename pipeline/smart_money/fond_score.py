@@ -66,6 +66,29 @@ def _publie(f: dict, sym: str, cle: str):
     return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
 
 
+def ratio_effectif(f: dict | None, sym: str, cle: str) -> dict | None:
+    """LA valeur d'un ratio que tout le moteur doit lire — note, alertes,
+    écran. {"valeur", "origine", "date"} ou None. Fonction pure.
+
+    ⚠️ POURQUOI UNE SEULE PORTE — 01/10/2026. Le jour où la note est passée
+    aux ratios calculés, les alertes sont restées sur la saisie : ADI
+    affichait « dette critique 5,5× l'EBITDA » pendant que sa note lisait
+    2,26× (audit externe du 01/10). Deux lectures d'un même ratio finissent
+    toujours par diverger ; il n'y en a plus qu'une.
+    """
+    f = f or {}
+    v = _publie(f, sym, cle)
+    if v is not None:
+        x = f["ratios_publies"][cle]
+        return {"valeur": v, "origine": "comptes publiés", "date": x.get("date"),
+                "formule": x.get("formule")}
+    s = f.get(cle)
+    if isinstance(s, (int, float)) and not isinstance(s, bool):
+        return {"valeur": float(s), "origine": "saisie", "date": f.get("date_maj"),
+                "source": f.get("source")}
+    return None
+
+
 def compute_fond_score(sym: str, fondamentaux: dict = None) -> float:
     """
     Retourne le score fondamental [0-10].
@@ -78,8 +101,9 @@ def compute_fond_score(sym: str, fondamentaux: dict = None) -> float:
         return 5.0
 
     # QUALITÉ (40%) — spread ROIC-WACC : capacité à créer de la valeur
-    _r     = _publie(f, sym, "roic")
-    roic   = _r if _r is not None else float(f.get("roic") or 10)
+    _r     = ratio_effectif(f, sym, "roic") or {}
+    # ⚠️ Une saisie à 0 retombe sur 10 (`or 10`), comportement antérieur gardé.
+    roic   = _r["valeur"] if _r.get("origine") == "comptes publiés" else float(f.get("roic") or 10)
     wacc   = float(f.get("wacc") or 10)
     spread = roic - wacc
     if   spread >= 15: q = 9.5
@@ -150,16 +174,12 @@ def compute_fond_score(sym: str, fondamentaux: dict = None) -> float:
     # et aucun titre au secteur « Finance » n'a de dette nette nulle. Aucune
     # note ne bouge (R8).
     _SANS_OBJET = ("Banque", "Assurance", "Finance")
-    _dne = _publie(f, sym, "dette_nette_ebitda")
-    if _dne is None:
-        _dne = f.get("dette_nette_ebitda")
+    _dne = (ratio_effectif(f, sym, "dette_nette_ebitda") or {}).get("valeur")
     _sect = f.get("secteur") or ""
     if _dne == 0 and any(_sect.startswith(s) for s in _SANS_OBJET):
         _dne = None                      # sans objet : on ne conclut rien
     dne = float(_dne) if _dne is not None else 1.0
-    _cc = _publie(f, sym, "cash_conversion")
-    if _cc is None:
-        _cc = f.get("cash_conversion")
+    _cc = (ratio_effectif(f, sym, "cash_conversion") or {}).get("valeur")
     cc  = float(_cc) if _cc is not None else 70
     if   dne < 0:   bs = 9.0   # trésorerie nette positive
     elif dne < 0.5: bs = 8.5

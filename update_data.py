@@ -3025,7 +3025,7 @@ SEUIL_CASH_CONVERSION = 40.0                             # %
 SEUIL_RSI_SURCHAUFFE = 80.0
 
 
-def detecter_alertes(fiche: dict | None, rsi=None) -> dict:
+def detecter_alertes(fiche: dict | None, rsi=None, sym: str = "") -> dict:
     """Les alertes d'un titre, CHACUNE EXPLIQUÉE. Fonction pure.
 
     ⚠️ POURQUOI ELLE EXISTE — 30/09/2026. Le terminal affichait un nombre de
@@ -3039,31 +3039,52 @@ def detecter_alertes(fiche: dict | None, rsi=None) -> dict:
 
     ⚠️ « NON ÉVALUABLE » N'EST PAS « AUCUNE ALERTE ». Sans fondamentaux, on
     ne sait pas — un zéro se lirait « aucun risque ».
+
+    ⚠️ MÊME VALEUR QUE LA NOTE — 01/10/2026. ROIC, dette nette / EBITDA et
+    conversion de trésorerie passent par `ratio_effectif()`, la porte unique
+    que lit aussi `compute_fond_score()`. Avant, la note lisait les comptes
+    publiés et l'alerte la saisie : « dette critique 5,5× » pour ADI dont la
+    note lisait 2,26× (audit externe du 01/10), et LES 7,59× contre 0,01×.
+    Chaque alerte dit d'où vient son chiffre (`source`, `date`).
     """
+    from pipeline.smart_money.fond_score import ratio_effectif
     f = fiche or {}
     source, date = f.get("source"), f.get("date_maj")
-    if f.get("roic") is None and f.get("dette_nette_ebitda") is None:
+    eff = {k: ratio_effectif(f, sym, k) for k in ("roic", "dette_nette_ebitda", "cash_conversion")}
+    if eff["roic"] is None and eff["dette_nette_ebitda"] is None:
         return {"evaluable": False, "liste": [], "source": None, "date": None}
 
     def _n(k):
         v = f.get(k)
         return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
 
+    def _e(k):
+        return eff[k]["valeur"] if eff[k] else None
+
+    def _prov(k):
+        e = eff[k]
+        if e["origine"] == "comptes publiés":
+            return {"source": "calculé sur les comptes publiés", "date": e.get("date")}
+        return {"source": e.get("source") or source, "date": e.get("date") or date}
+
     liste = []
-    dette, roic, wacc = _n("dette_nette_ebitda"), _n("roic"), _n("wacc")
-    marge, cash = _n("marge_nette"), _n("cash_conversion")
+    dette, roic, wacc = _e("dette_nette_ebitda"), _e("roic"), _n("wacc")
+    marge, cash = _n("marge_nette"), _e("cash_conversion")
     if dette is not None and dette > SEUIL_DETTE_CRITIQUE:
         liste.append({"niveau": "critique", "theme": "Structure financière",
                       "raison": "Dette nette très élevée", "valeur": f"{dette:g}× l'EBITDA",
-                      "seuil": f"alerte au-delà de {SEUIL_DETTE_CRITIQUE:g}×"})
+                      "seuil": f"alerte au-delà de {SEUIL_DETTE_CRITIQUE:g}×",
+                      **_prov("dette_nette_ebitda")})
     elif dette is not None and dette > SEUIL_DETTE_ELEVEE:
         liste.append({"niveau": "élevé", "theme": "Structure financière",
                       "raison": "Dette nette élevée", "valeur": f"{dette:g}× l'EBITDA",
-                      "seuil": f"alerte au-delà de {SEUIL_DETTE_ELEVEE:g}×"})
+                      "seuil": f"alerte au-delà de {SEUIL_DETTE_ELEVEE:g}×",
+                      **_prov("dette_nette_ebitda")})
     if roic is not None and wacc is not None and roic < wacc:
         liste.append({"niveau": "élevé", "theme": "Rentabilité",
                       "raison": "La rentabilité du capital est inférieure à son coût",
-                      "valeur": f"ROIC {roic:g} %", "seuil": f"coût du capital (WACC) {wacc:g} %"})
+                      "valeur": f"ROIC {roic:g} %", "seuil": f"coût du capital (WACC) {wacc:g} %",
+                      **_prov("roic")})
     if marge is not None and 0 < marge < SEUIL_MARGE_FAIBLE:
         liste.append({"niveau": "moyen", "theme": "Rentabilité",
                       "raison": "Marge nette faible", "valeur": f"{marge:g} %",
@@ -3071,7 +3092,8 @@ def detecter_alertes(fiche: dict | None, rsi=None) -> dict:
     if cash is not None and cash < SEUIL_CASH_CONVERSION:
         liste.append({"niveau": "moyen", "theme": "Trésorerie",
                       "raison": "Le bénéfice se convertit mal en trésorerie",
-                      "valeur": f"{cash:g} %", "seuil": f"alerte sous {SEUIL_CASH_CONVERSION:g} %"})
+                      "valeur": f"{cash:g} %", "seuil": f"alerte sous {SEUIL_CASH_CONVERSION:g} %",
+                      **_prov("cash_conversion")})
     if isinstance(rsi, (int, float)) and rsi > SEUIL_RSI_SURCHAUFFE:
         liste.append({"niveau": "moyen", "theme": "Technique",
                       "raison": "Surchauffe du cours", "valeur": f"RSI {rsi:g}",
@@ -4106,7 +4128,7 @@ def run(dry_run=False, push=False, token=""):
         # de 540 DH pour un cours de 1 850 — que le terminal n'affiche même
         # pas. Trouvé par une exécution à blanc, avant toute publication.
         _obj = _objectifs(ticker, price, fd)
-        _alertes = detecter_alertes(_FOND_BRUT.get(ticker), rsi)
+        _alertes = detecter_alertes(_FOND_BRUT.get(ticker), rsi, ticker)
         v53 = compute_v53(ticker, score_tech, score_fond,
                           fd.get("flags", 0), _obj["upside"] or 0, ctx)
 
