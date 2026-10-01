@@ -857,6 +857,7 @@ def charger_contexte(racine=None) -> dict:
             "masi": lire("pipeline/masi_history.json", "seances"),
             "depots": lire("pipeline/depots_ammc.json", "entrees") or [],
             "seance_marche": lire("pipeline/seance_marche.json", "seances"),
+            "resultats_s1": lire("datasets/resultats_s1_2026.json", "titres"),
             "dossier_bougies": str(r / "pipeline" / "candles")}
 
 
@@ -875,7 +876,24 @@ N_A_SURVEILLER = 8
 N_VARIATIONS = 3
 
 
-def a_surveiller(b: dict, titres: list, seance: str, n=N_A_SURVEILLER) -> dict:
+def _chiffres_publies(r: dict | None) -> dict | None:
+    """Les chiffres lus dans le dépôt (datasets/resultats_s1_2026.json), et
+    leurs variations — calculées ici pour que la rédaction n'ait jamais à les
+    calculer elle-même (01/10/2026)."""
+    if not r:
+        return None
+    out = {k: r.get(k) for k in ("rnpg_s1_2026", "rnpg_s1_2025", "ca_s1_2026",
+                                  "ca_s1_2025", "ca_libelle", "url")}
+    for nom, a, b in (("var_ca_pct", "ca_s1_2026", "ca_s1_2025"),
+                      ("var_rnpg_pct", "rnpg_s1_2026", "rnpg_s1_2025")):
+        x, y = _n(r.get(a)), _n(r.get(b))
+        # ⚠️ Une variation rapportée à une base nulle ou négative n'a pas de sens.
+        out[nom] = round((x / y - 1) * 100, 1) if x is not None and y and y > 0 else None
+    return out
+
+
+def a_surveiller(b: dict, titres: list, seance: str, n=N_A_SURVEILLER,
+                 resultats: dict | None = None) -> dict:
     """Les titres à regarder, chacun avec les critères qu'il remplit. Pure.
 
     Deux familles, parce que le lecteur se pose deux questions :
@@ -931,7 +949,13 @@ def a_surveiller(b: dict, titres: list, seance: str, n=N_A_SURVEILLER) -> dict:
     lignes = []
     for sym, cs in crit.items():
         x = par.get(sym) or {}
+        m = x.get("_meta") or {}
+        v, med = _n(x.get("vol")), _n(m.get("vol_median20"))
         lignes.append({
+            "volume_rapport": (round(v / med, 2) if reellement_cote(x, seance)
+                               and v is not None and med else None),
+            "chiffres": (_chiffres_publies((resultats or {}).get(sym))
+                         if any(c["code"] == "publication" for c in cs) else None),
             "symbol": sym, "name": x.get("name"),
             "chg": _n(x.get("chg")) if reellement_cote(x, seance) else None,
             "echange_dh": _n(x.get("echange_dh")) if reellement_cote(x, seance) else None,
@@ -1013,7 +1037,8 @@ def enrichir(b: dict, titres: list, contexte: dict) -> dict:
     if not b["matieres"]:
         b["non_mesurable"].append(
             "les matières premières — non relevées le jour de la séance")
-    b["a_surveiller"] = a_surveiller(b, titres, seance)
+    b["a_surveiller"] = a_surveiller(b, titres, seance,
+                                     resultats=ctx.get("resultats_s1"))
     return b
 
 
