@@ -50,7 +50,7 @@ def test_la_note_fondamentale_ne_lit_que_les_trois_ratios_approuves():
     qu'aucune mesure ni accord ne les y fait entrer."""
     import re
     src = (RACINE / "pipeline" / "smart_money" / "fond_score.py").read_text(encoding="utf-8")
-    lus = set(re.findall(r'_publie\(f, sym, "(\w+)"\)', src))
+    lus = set(re.findall(r'ratio_effectif\(f, sym, "(\w+)"\)', src))
     assert lus == {"roic", "dette_nette_ebitda", "cash_conversion"}
     assert '"roe' not in src
 

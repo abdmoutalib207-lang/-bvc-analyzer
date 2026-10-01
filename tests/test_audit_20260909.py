@@ -77,7 +77,8 @@ def test_le_bilan_ne_penalise_pas_une_societe_sans_dette():
     s = (RACINE / "pipeline" / "smart_money" / "fond_score.py").read_text(encoding="utf-8")
     assert 'f.get("dette_nette_ebitda") or 1.0' not in s, (
         "une société sans dette nette hérite encore d'un ratio de 1,0")
-    assert "_dne = f.get(\"dette_nette_ebitda\")" in s
+    # Depuis le 01/10 la valeur passe par la porte unique `ratio_effectif`.
+    assert '_dne = (ratio_effectif(f, sym, "dette_nette_ebitda") or {}).get("valeur")' in s
     assert "float(_dne) if _dne is not None else 1.0" in s
 
 

@@ -51,3 +51,43 @@ def test_le_terminal_n_affiche_plus_le_nombre_fige():
     assert "<RedFlags alertes={r.alertes}/>" in SRC
     assert "RedFlags n=" not in SRC
     assert "non évaluable" in SRC
+
+
+def test_l_alerte_lit_le_ratio_des_comptes_publies(ud):
+    """Audit externe du 01/10 : ADI affichait « dette critique 5,5× » (saisie)
+    pendant que sa note lisait 2,26× (comptes 2025). Attendus à la main :
+    2,26 < 3 → aucune alerte de dette ; ROIC 9,4 < WACC 10 → alerte."""
+    fiche = {"dette_nette_ebitda": 5.5, "roic": 13, "wacc": 10, "cash_conversion": 80,
+             "source": "IDBourse — vérifié 16/05/2026", "date_maj": "2026-09-29",
+             "ratios_publies": {
+                 "dette_nette_ebitda": {"valeur": 2.26, "date": "2025-12-31"},
+                 "roic": {"valeur": 9.4, "date": "2025-12-31"}}}
+    a = ud.detecter_alertes(fiche, sym="ADI")
+    assert [x["raison"] for x in a["liste"]] == [
+        "La rentabilité du capital est inférieure à son coût"]
+    assert a["liste"][0]["valeur"] == "ROIC 9.4 %"
+    assert a["liste"][0]["source"] == "calculé sur les comptes publiés"
+    assert a["liste"][0]["date"] == "2025-12-31"
+
+
+def test_msa_garde_sa_saisie_dans_l_alerte_comme_dans_la_note(ud):
+    fiche = {"dette_nette_ebitda": 1.0, "roic": 8, "wacc": 10,
+             "ratios_publies": {"roic": {"valeur": 47.6, "date": "2025-12-31"}}}
+    a = ud.detecter_alertes(fiche, sym="MSA")
+    assert a["liste"][0]["valeur"] == "ROIC 8 %"
+
+
+def test_alertes_et_note_lisent_la_meme_valeur_sur_toute_la_cote(ud):
+    """Invariant : pour chaque titre, le chiffre de dette affiché dans une
+    alerte est celui que lit la note — jamais un autre."""
+    import json
+    from pipeline.smart_money.fond_score import ratio_effectif
+    racine = Path(__file__).resolve().parent.parent
+    fond = json.loads((racine / "fondamentaux.json").read_text(encoding="utf-8"))
+    for s, f in fond.items():
+        if not isinstance(f, dict):
+            continue
+        for x in ud.detecter_alertes(f, sym=s)["liste"]:
+            if x["theme"] == "Structure financière":
+                v = ratio_effectif(f, s, "dette_nette_ebitda")["valeur"]
+                assert x["valeur"] == f"{v:g}× l'EBITDA", s
