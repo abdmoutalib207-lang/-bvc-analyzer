@@ -26,7 +26,7 @@ def test_bpa_a_la_main():
     # 56,204 ÷ 1,225978 M = 45,845 ; publié 45,84 (p.7)
     assert bpa_exercice(T["CTM"]) == 45.84
     # 407,601 ÷ 22,078588 M = 18,461
-    assert bpa_exercice(T["ADI"]) == 18.46
+    assert bpa_exercice(JEU["_passes_au_s1"]["ADI"]) == 18.46
     # 453,719263 ÷ 402,551254 M = 1,127 ; publié 1.13 — fiche passée au jeu
     # S1 le 01/10, conservée sous _passes_au_s1
     assert bpa_exercice(JEU["_passes_au_s1"]["ADH"]) == 1.13
@@ -61,7 +61,7 @@ def test_un_ancien_bpa_deja_conserve_n_est_pas_reecrit():
 
 def test_un_bpa_confirme_ne_cree_pas_d_ancien():
     bpa = {"ADI": {"bpa": 18.46}}
-    appliquer({"titres": {"ADI": T["ADI"]}}, bpa)
+    appliquer({"titres": {"ADI": JEU["_passes_au_s1"]["ADI"]}}, bpa)
     assert "bpa_avant_2026_09_29" not in bpa["ADI"]
 
 

@@ -1,5 +1,5 @@
 {
-  "_note": "Exercice 2025 rectifié sur le document publié, lot 13 (30/09/2026), pour les titres SANS dépôt S1 2026 exploitable. Chaque chiffre est RECOPIÉ du document avec sa page ; le BPA est calculé par pipeline/exercice_2025.py. Montants en millions de dirhams (MDH). Les titres qui ont un S1 2026 déposé (REB, T2S, puis ADH le 01/10 — voir _passes_au_s1) sont dans resultats_s1_2026.json, pas ici.",
+  "_note": "Exercice 2025 rectifié sur le document publié, lot 13 (30/09/2026), pour les titres SANS dépôt S1 2026 exploitable. Chaque chiffre est RECOPIÉ du document avec sa page ; le BPA est calculé par pipeline/exercice_2025.py. Montants en millions de dirhams (MDH). Les titres qui ont un S1 2026 déposé (REB, T2S, puis ADH et ADI le 01/10 — voir _passes_au_s1) sont dans resultats_s1_2026.json, pas ici.",
   "_regle": "bpa = rnpg_exercice_2025 × 1e6 ÷ actions. Pas d'entrée S1 incomplète : douze_mois exige les quatre valeurs. Un titre dont le signe ou la base n'est pas établi est dans _ecartes, avec son motif.",
   "titres": {
     "TMA": {
@@ -23,17 +23,6 @@
       "actions": 1225978,
       "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 1 064 148 904 ÷ 868 = 1 225 978) ; = « Nombre d'actions 1 225 978 » du dépôt p.7 ; capital 122 597 800 DH (p.2) ÷ 100",
       "yuna": "29/09 : PER 18,54 ; clôture 850 → BPA implicite 45,85 contre 45,84 ; ROE 23,1 % = 56,204 ÷ 243,479 : concordant"
-    },
-    "ADI": {
-      "url": "https://www.ammc.ma/sites/default/files/ADI_2025.pdf",
-      "exercice_clos": "2025-12-31",
-      "base": "résultat net part du Groupe, consolidé (minoritaires en perte : ensemble 401,758)",
-      "pages": "p.2 en milliers de dirhams : « Résultat net de l'exercice (Part du Groupe) 407.601 301.915 », « Part du groupe 407.601 301.915 » ; même chiffre au RFA (ADI_RFA_2025.pdf p.21, déjà dans faits_financiers.json)",
-      "rnpg_exercice_2025": 407.601,
-      "source_exercice_2025": "p.2, 407.601 KMAD = 407,601 MDH. BPA inchangé (18,46) : confirmé, pas modifié",
-      "actions": 22078588,
-      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 8 610 649 320 ÷ 390 = 22 078 588) ; = capital 2 207 858 800 DH (p.1) ÷ 100",
-      "yuna": "29/09 : PER 20,59 ; clôture 380 → BPA implicite 18,46 : identique ; ROE 10,2 % = 407,601 ÷ 3 993,181 : concordant"
     },
     "MGL": {
       "url": "https://www.ammc.ma/sites/default/files/Maghrebail_2025_avis_AGO_13_05_26.pdf",
@@ -93,6 +82,19 @@
       "yuna": "30/09 : PER 29,70 ; clôture 33,50 → BPA implicite 1,13 : identique ; ROE 4,8 % = 453,7 ÷ 9 481,7 : concordant",
       "_passe_le": "2026-10-01",
       "_motif": "S1 2026 déposé le 30/09 (Addoha_S1_26.pdf), intégré à datasets/resultats_s1_2026.json avec le même exercice 2025 (453,719, recoupé dans le dépôt S1). Fiche conservée ici, plus appliquée par pipeline/exercice_2025.py."
+    },
+    "ADI": {
+      "url": "https://www.ammc.ma/sites/default/files/ADI_2025.pdf",
+      "exercice_clos": "2025-12-31",
+      "base": "résultat net part du Groupe, consolidé (minoritaires en perte : ensemble 401,758)",
+      "pages": "p.2 en milliers de dirhams : « Résultat net de l'exercice (Part du Groupe) 407.601 301.915 », « Part du groupe 407.601 301.915 » ; même chiffre au RFA (ADI_RFA_2025.pdf p.21, déjà dans faits_financiers.json)",
+      "rnpg_exercice_2025": 407.601,
+      "source_exercice_2025": "p.2, 407.601 KMAD = 407,601 MDH. BPA inchangé (18,46) : confirmé, pas modifié",
+      "actions": 22078588,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 8 610 649 320 ÷ 390 = 22 078 588) ; = capital 2 207 858 800 DH (p.1) ÷ 100",
+      "yuna": "29/09 : PER 20,59 ; clôture 380 → BPA implicite 18,46 : identique ; ROE 10,2 % = 407,601 ÷ 3 993,181 : concordant",
+      "_passe_le": "2026-10-01",
+      "_motif": "S1 2026 déposé le 30/09 (ADI_S1_26.pdf), intégré à datasets/resultats_s1_2026.json avec le même exercice 2025 (407,601, recoupé dans le dépôt S1). Fiche conservée ici, plus appliquée par pipeline/exercice_2025.py."
     }
   },
   "_ecartes": {
