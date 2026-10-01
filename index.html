@@ -110,6 +110,43 @@
       button::after{content:"";position:absolute;inset:-6px -2px;}
       input{font-size:16px!important;}
     }
+    /* Menu principal (01/10/2026), demande d'Abd Moutalib : « les boutons se
+       cachent, il faut toujours les chercher ». Un bouton bien visible, un
+       panneau latéral qui regroupe toutes les vues par rubrique. */
+    .menu-voile{position:fixed;inset:0;background:rgba(4,8,16,.6);z-index:300;animation:voile var(--t-moyen) var(--ease) both;}
+    @keyframes voile{from{opacity:0;}to{opacity:1;}}
+    .menu-panneau{position:fixed;top:0;left:0;bottom:0;width:min(320px,86vw);background:#0b1424;border-right:1px solid #1a2540;
+      z-index:301;overflow-y:auto;box-shadow:12px 0 32px rgba(0,0,0,.45);animation:glisse var(--t-moyen) var(--ease) both;padding:18px 0 24px;}
+    @keyframes glisse{from{transform:translateX(-100%);}to{transform:none;}}
+    .menu-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:transparent;border:none;
+      border-left:3px solid transparent;color:#c8d3e8;padding:12px 20px;font-family:var(--font);cursor:pointer;}
+    .menu-item:hover{background:rgba(77,184,255,.07);box-shadow:none!important;}
+    .menu-item.actif{border-left-color:#00e5a0;background:rgba(0,229,160,.08);color:#00e5a0;}
+    .menu-flottant{display:none;}
+    @media (max-width:640px){
+      .menu-flottant{display:flex;position:fixed;left:14px;bottom:18px;z-index:250;width:56px;height:56px;border-radius:50%;
+        align-items:center;justify-content:center;background:#00e5a0;color:#080d1a;border:none;
+        box-shadow:0 6px 20px rgba(0,229,160,.35),0 2px 6px rgba(0,0,0,.5);font-size:22px;}
+    }
+    /* Accueil en rangées et animation d'ouverture (01/10/2026), demande
+       d'Abd Moutalib : « une ouverture comme Netflix ». */
+    .rangee{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 14px;
+      scrollbar-width:thin;scrollbar-color:#1a2540 transparent;-webkit-overflow-scrolling:touch;}
+    .tuile{flex:0 0 168px;scroll-snap-align:start;background:#0d1829;border:1px solid #1a2540;border-radius:10px;
+      padding:12px;cursor:pointer;text-align:left;font-family:var(--font);color:#c8d3e8;
+      transition:transform var(--t-court) var(--ease),border-color var(--t-court) var(--ease),box-shadow var(--t-court) var(--ease);}
+    .tuile:hover{transform:translateY(-3px) scale(1.03);border-color:rgba(77,184,255,.45);
+      box-shadow:0 10px 24px rgba(0,0,0,.45)!important;filter:none!important;}
+    .intro{position:fixed;inset:0;z-index:1000;background:#080d1a;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:14px;cursor:pointer;animation:intro-sortie 260ms ease-in 900ms both;}
+    .intro-logo{font-size:clamp(28px,8vw,56px);font-weight:700;letter-spacing:.35em;
+      background:linear-gradient(90deg,#00e5a0,#4db8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      animation:intro-logo 700ms cubic-bezier(.2,.7,.2,1) both;}
+    .intro-trait{height:2px;width:0;background:linear-gradient(90deg,#00e5a0,#4db8ff);
+      animation:intro-trait 600ms 200ms cubic-bezier(.2,.7,.2,1) both;}
+    @keyframes intro-logo{from{opacity:0;transform:scale(.92);letter-spacing:.6em;}to{opacity:1;transform:none;}}
+    @keyframes intro-trait{to{width:min(320px,60vw);}}
+    @keyframes intro-sortie{to{opacity:0;visibility:hidden;}}
   </style>
 </head>
 <body>
@@ -5296,6 +5333,476 @@ const TickerTape = ({
     title: "Variation \u2265 \xB18% \u2014 approche limite BVC"
   }, "\u26A1"))))));
 };
+const RUBRIQUES = [{
+  titre: "Accueil",
+  vues: [{
+    id: "accueil",
+    icone: "⌂",
+    aide: "La séance en un coup d'œil, en rangées"
+  }]
+}, {
+  titre: "Marché",
+  vues: [{
+    id: "ranking",
+    icone: "▤",
+    aide: "Les 80 titres, leur note et leur signal"
+  }, {
+    id: "heatmap",
+    icone: "▦",
+    aide: "La séance d'un coup d'œil, par secteur"
+  }, {
+    id: "watchlist",
+    icone: "★",
+    aide: "Vos titres suivis"
+  }]
+}, {
+  titre: "Lecture du jour",
+  vues: [{
+    id: "briefing",
+    icone: "✎",
+    aide: "Mi-journée, clôture, semaine — et l'archive"
+  }, {
+    id: "news",
+    icone: "☰",
+    aide: "Publications et actualités retenues"
+  }]
+}, {
+  titre: "Analyse d'un titre",
+  vues: [{
+    id: "detail",
+    icone: "◩",
+    aide: "Graphique, niveaux, fondamentaux, alertes"
+  }, {
+    id: "weights",
+    icone: "⚖",
+    aide: "Ce qui compose la note, pilier par pilier"
+  }]
+}, {
+  titre: "Données avancées",
+  vues: [{
+    id: "smart",
+    icone: "◎",
+    aide: "Smart money — corpus gelé au 02/07/2026"
+  }, {
+    id: "nlp",
+    icone: "◌",
+    aide: "Corpus NLP — gelé, poids nul dans la note"
+  }]
+}];
+const Menu = ({
+  tab,
+  setTab,
+  TABS
+}) => {
+  const [ouvert, setOuvert] = useState(false);
+  const [loin, setLoin] = useState(false);
+  useEffect(() => {
+    const h = () => setLoin((window.scrollY || 0) > 320);
+    h();
+    window.addEventListener("scroll", h, {
+      passive: true
+    });
+    return () => window.removeEventListener("scroll", h);
+  }, []);
+  const lib = Object.fromEntries(TABS.map(t => [t.id, t]));
+  useEffect(() => {
+    if (!ouvert) return;
+    const h = e => {
+      if (e.key === "Escape") setOuvert(false);
+    };
+    window.addEventListener("keydown", h);
+    const avant = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", h);
+      document.body.style.overflow = avant;
+    };
+  }, [ouvert]);
+  const choisir = id => {
+    setTab(id);
+    setOuvert(false);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  const courant = (lib[tab] || {}).label || "";
+  return React.createElement(React.Fragment, null, React.createElement("button", {
+    onClick: () => setOuvert(true),
+    "aria-label": "Ouvrir le menu",
+    "aria-expanded": ouvert,
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      background: "rgba(0,229,160,.12)",
+      border: "1px solid rgba(0,229,160,.5)",
+      color: "#00e5a0",
+      borderRadius: 6,
+      padding: "6px 12px",
+      fontSize: 12,
+      letterSpacing: 1,
+      fontWeight: 700,
+      cursor: "pointer",
+      fontFamily: "var(--font)"
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 16,
+      lineHeight: 1
+    }
+  }, "\u2630"), " MENU", courant && React.createElement("span", {
+    style: {
+      color: "#8892a4",
+      fontWeight: 400
+    }
+  }, "\xB7 ", courant.replace("★ ", ""))), loin && React.createElement("button", {
+    className: "menu-flottant",
+    onClick: () => setOuvert(true),
+    "aria-label": "Ouvrir le menu"
+  }, "\u2630"), ouvert && React.createElement(React.Fragment, null, React.createElement("div", {
+    className: "menu-voile",
+    onClick: () => setOuvert(false)
+  }), React.createElement("nav", {
+    className: "menu-panneau",
+    "aria-label": "Menu principal"
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "0 20px 14px"
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 18,
+      fontWeight: 700,
+      letterSpacing: 3,
+      background: "linear-gradient(90deg,#00e5a0,#4db8ff)",
+      WebkitBackgroundClip: "text",
+      WebkitTextFillColor: "transparent"
+    }
+  }, "BVC ANALYZER"), React.createElement("button", {
+    onClick: () => setOuvert(false),
+    "aria-label": "Fermer le menu",
+    style: {
+      background: "transparent",
+      border: "1px solid #1a2540",
+      color: "#8892a4",
+      borderRadius: 6,
+      width: 34,
+      height: 34,
+      fontSize: 16,
+      cursor: "pointer"
+    }
+  }, "\u2715")), RUBRIQUES.map(r => React.createElement("div", {
+    key: r.titre,
+    style: {
+      marginTop: 10
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#5a6478",
+      letterSpacing: 1.2,
+      textTransform: "uppercase",
+      padding: "6px 20px"
+    }
+  }, r.titre), r.vues.filter(v => lib[v.id]).map(v => React.createElement("button", {
+    key: v.id,
+    className: "menu-item" + (tab === v.id ? " actif" : ""),
+    onClick: () => choisir(v.id)
+  }, React.createElement("span", {
+    style: {
+      width: 22,
+      textAlign: "center",
+      fontSize: 15,
+      color: tab === v.id ? "#00e5a0" : "#4db8ff"
+    }
+  }, v.icone), React.createElement("span", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 2
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 13,
+      letterSpacing: .8,
+      fontWeight: 600
+    }
+  }, lib[v.id].label.replace("★ ", ""), lib[v.id].badge && React.createElement("span", {
+    style: {
+      marginLeft: 8,
+      background: "#ffd740",
+      color: "#080d1a",
+      borderRadius: 8,
+      padding: "0 6px",
+      fontSize: 10
+    }
+  }, lib[v.id].badge)), React.createElement("span", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      letterSpacing: 0,
+      fontWeight: 400
+    }
+  }, v.aide)))))))));
+};
+const Intro = () => {
+  const [vu, setVu] = useState(() => {
+    try {
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return true;
+      return sessionStorage.getItem("bvc_intro") === "1";
+    } catch (e) {
+      return true;
+    }
+  });
+  useEffect(() => {
+    if (vu) return;
+    try {
+      sessionStorage.setItem("bvc_intro", "1");
+    } catch (e) {}
+    const t = setTimeout(() => setVu(true), 1200);
+    return () => clearTimeout(t);
+  }, [vu]);
+  if (vu) return null;
+  return React.createElement("div", {
+    className: "intro",
+    onClick: () => setVu(true),
+    role: "presentation"
+  }, React.createElement("div", {
+    className: "intro-logo"
+  }, "BVC ANALYZER"), React.createElement("div", {
+    className: "intro-trait"
+  }));
+};
+const Tuile = ({
+  r,
+  ligne,
+  onClick
+}) => {
+  const chg = r?.chg;
+  const c = chg > 0 ? "#00e5a0" : chg < 0 ? "#ff4f5a" : "#8892a4";
+  return React.createElement("button", {
+    className: "tuile",
+    onClick: onClick
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      marginBottom: 10
+    }
+  }, React.createElement(CompanyLogo, {
+    sym: tk(r),
+    logo: r.symbol,
+    sector: r.sector,
+    size: 30
+  }), React.createElement("div", {
+    style: {
+      minWidth: 0
+    }
+  }, React.createElement("div", {
+    style: {
+      fontWeight: 700,
+      color: "#e6edf7",
+      fontSize: 13
+    }
+  }, tk(r)), React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      maxWidth: 100
+    }
+  }, r.name))), React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "baseline",
+      justifyContent: "space-between",
+      gap: 6
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 14,
+      color: "#e6edf7"
+    }
+  }, r.price != null ? fmt(r.price) : "—"), React.createElement("span", {
+    style: {
+      fontSize: 12,
+      fontWeight: 700,
+      color: c
+    }
+  }, chg == null ? "—" : `${chg > 0 ? "+" : ""}${fmt(chg)} %`)), ligne && React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: "#8892a4",
+      marginTop: 8,
+      lineHeight: 1.4,
+      height: 30,
+      overflow: "hidden"
+    }
+  }, ligne));
+};
+const Rangee = ({
+  titre,
+  sous,
+  vers,
+  setTab,
+  items
+}) => {
+  if (!items.length) return null;
+  return React.createElement("section", {
+    style: {
+      marginBottom: 18
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "baseline",
+      justifyContent: "space-between",
+      gap: 10,
+      padding: "0 2px"
+    }
+  }, React.createElement("div", null, React.createElement("span", {
+    style: {
+      fontSize: 14,
+      fontWeight: 700,
+      color: "#e6edf7",
+      letterSpacing: .6
+    }
+  }, titre), sous && React.createElement("span", {
+    style: {
+      fontSize: 11,
+      color: "#5a6478",
+      marginLeft: 10
+    }
+  }, sous)), vers && React.createElement("button", {
+    onClick: () => setTab(vers),
+    style: {
+      background: "none",
+      border: "none",
+      color: "#4db8ff",
+      fontSize: 12,
+      cursor: "pointer",
+      fontFamily: "var(--font)"
+    }
+  }, "Tout voir \u203A")), React.createElement("div", {
+    className: "rangee"
+  }, items));
+};
+const Accueil = ({
+  rows,
+  fav,
+  ouvrir,
+  setTab
+}) => {
+  const [b, setB] = useState(undefined);
+  useEffect(() => {
+    const t = Math.floor(Date.now() / 3600000);
+    const lire = f => fetch(f + "?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null);
+    Promise.all([lire("briefing.json"), lire("briefing_cloture.json")]).then(([j, c]) => {
+      setB(c && (!j || (c.seance || "") >= (j.seance || "")) ? c : j);
+    });
+  }, []);
+  const par = Object.fromEntries(rows.map(r => [r.symbol, r]));
+  const frais = rows.filter(r => !meta(r).stale && r.chg != null);
+  const hausses = [...frais].filter(r => r.chg > 0).sort((a, b) => b.chg - a.chg).slice(0, 10);
+  const baisses = [...frais].filter(r => r.chg < 0).sort((a, b) => a.chg - b.chg).slice(0, 10);
+  const notes = [...rows].filter(r => meta(r).conf >= 2 && r.v53 != null).sort((a, b) => b.v53 - a.v53).slice(0, 10);
+  const a = b && b.a_surveiller || {};
+  const surv = [...(a.a_publie || []), ...(a.a_bouge || [])].filter(z => par[z.symbol]);
+  const favs = rows.filter(r => fav.includes(r.symbol || r.ticker));
+  const red = b && b.redaction && b.redaction.texte;
+  const premier = red ? red.split(/\n\s*\n/).map(x => x.replace(/^#+\s*/, "").trim()).filter(x => x && !/^l'essentiel$/i.test(x))[0] : null;
+  const t = (r, ligne) => React.createElement(Tuile, {
+    key: r.symbol,
+    r: r,
+    ligne: ligne,
+    onClick: () => ouvrir(r.symbol)
+  });
+  return React.createElement("div", null, React.createElement("div", {
+    className: "carte",
+    style: {
+      background: "linear-gradient(135deg,rgba(0,229,160,.10),rgba(77,184,255,.06) 60%,#0d1829)",
+      border: "1px solid rgba(0,229,160,.25)",
+      borderRadius: 12,
+      padding: "20px 20px 18px",
+      marginBottom: 20
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#00e5a0",
+      letterSpacing: 1.4,
+      textTransform: "uppercase",
+      marginBottom: 6
+    }
+  }, "Lecture de la s\xE9ance", b && b.seance ? ` · ${b.seance.slice(8, 10)}/${b.seance.slice(5, 7)}` : ""), b === undefined ? React.createElement("div", {
+    className: "sq",
+    style: {
+      height: 60,
+      border: "none"
+    }
+  }) : React.createElement("div", {
+    style: {
+      fontSize: 14,
+      lineHeight: 1.7,
+      color: "#c8d3e8",
+      maxWidth: 900
+    }
+  }, premier ? gras(premier) : (b && b.constats || [])[0] || "Le briefing de la dernière séance n'est pas encore publié."), React.createElement("button", {
+    onClick: () => setTab("briefing"),
+    style: {
+      marginTop: 14,
+      background: "#00e5a0",
+      color: "#080d1a",
+      border: "none",
+      borderRadius: 6,
+      padding: "9px 18px",
+      fontWeight: 700,
+      fontSize: 12,
+      letterSpacing: 1,
+      cursor: "pointer",
+      fontFamily: "var(--font)"
+    }
+  }, "LIRE LE BRIEFING \u203A")), b === undefined && React.createElement(Squelette, {
+    blocs: [1, 1],
+    titre: "Chargement de l'accueil"
+  }), React.createElement(Rangee, {
+    titre: "\xC0 surveiller aujourd'hui",
+    sous: "crit\xE8res mesur\xE9s",
+    vers: "briefing",
+    setTab: setTab,
+    items: surv.map(z => t(par[z.symbol], (z.criteres || []).map(c => c.texte).join(" · ")))
+  }), React.createElement(Rangee, {
+    titre: "Plus fortes hausses",
+    sous: "s\xE9ance du jour",
+    vers: "ranking",
+    setTab: setTab,
+    items: hausses.map(r => t(r))
+  }), React.createElement(Rangee, {
+    titre: "Plus fortes baisses",
+    sous: "s\xE9ance du jour",
+    vers: "ranking",
+    setTab: setTab,
+    items: baisses.map(r => t(r))
+  }), React.createElement(Rangee, {
+    titre: "Les mieux not\xE9s",
+    sous: "note v5.3, confiance \u2265 2",
+    vers: "ranking",
+    setTab: setTab,
+    items: notes.map(r => t(r, `Note ${fmt(r.v53)} · ${r.sig || ""}`))
+  }), React.createElement(Rangee, {
+    titre: "Mes favoris",
+    vers: "watchlist",
+    setTab: setTab,
+    items: favs.map(r => t(r))
+  }));
+};
 const Header = ({
   tab,
   setTab,
@@ -5332,6 +5839,9 @@ const Header = ({
     return () => clearInterval(t);
   }, []);
   const TABS = [{
+    id: "accueil",
+    label: "ACCUEIL"
+  }, {
     id: "ranking",
     label: "CLASSEMENT"
   }, {
@@ -5386,7 +5896,11 @@ const Header = ({
       gap: 14,
       flexWrap: "wrap"
     }
-  }, React.createElement("span", {
+  }, React.createElement(Menu, {
+    tab: tab,
+    setTab: setTab,
+    TABS: TABS
+  }), React.createElement("span", {
     style: {
       fontSize: 22,
       fontWeight: 700,
@@ -10796,7 +11310,7 @@ const MentionLegale = () => React.createElement("footer", {
   }
 }, "Les performances pass\xE9es ne pr\xE9jugent pas des performances futures. Toute d\xE9cision d'investissement rel\xE8ve de votre seule responsabilit\xE9 et devrait \xEAtre pr\xE9c\xE9d\xE9e de l'avis d'un professionnel habilit\xE9.")));
 function App() {
-  const [tab, setTab] = useState(() => localStorage.getItem("bvc_tab") || "ranking");
+  const [tab, setTab] = useState(() => localStorage.getItem("bvc_tab") || "accueil");
   const [sort, setSort] = useState("v53");
   const [scoreMode, setScoreMode] = useState(PONDERATIONS[0]);
   useEffect(() => {
@@ -11058,7 +11572,7 @@ function App() {
     style: {
       minHeight: "100vh"
     }
-  }, React.createElement(TickerTape, {
+  }, React.createElement(Intro, null), React.createElement(TickerTape, {
     rows: rows
   }), React.createElement(Header, {
     univers: rows.length,
@@ -11083,7 +11597,15 @@ function App() {
       maxWidth: 1600,
       margin: "0 auto"
     }
-  }, tab === "ranking" && React.createElement(Ranking, {
+  }, tab === "accueil" && React.createElement(Accueil, {
+    rows: rows,
+    fav: fav,
+    ouvrir: sym => {
+      choisirTitre(sym);
+      changeTab("detail");
+    },
+    setTab: changeTab
+  }), tab === "ranking" && React.createElement(Ranking, {
     rows: rows,
     sort: sort,
     setSort: setSort,
