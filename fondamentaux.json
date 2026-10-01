@@ -113,8 +113,8 @@
     "secteur": "Immobilier",
     "per": 15.0,
     "forward_per": 12.5,
-    "croissance_ca": 25.7,
-    "croissance_bpa": 20.0,
+    "croissance_ca": 6.4,
+    "croissance_bpa": 9.2,
     "dette_nette_ebitda": 5.5,
     "roic": 13,
     "wacc": 10,
@@ -128,7 +128,7 @@
     "catalyseur": "Aide logement 2024-2028, Coupe du Monde 2030, désendettement fort gearing 31%",
     "risque": "YTD -19.4%, cours sous pression malgré redressement fondamental",
     "source": "IDBourse — vérifié 16/05/2026",
-    "date_maj": "2026-06-18",
+    "date_maj": "2026-09-29",
     "marge_ebitda": 25.8,
     "bpa_2025": 18.2,
     "dps_2025": 4.0,
@@ -149,6 +149,33 @@
     "bloomberg": "ADI",
     "reuters": "ADI",
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": 10.2,
+        "date": "2025-12-31",
+        "formule": "407.601 ÷ 3993.181 (MMAD)",
+        "sources": {
+          "resultat": "datasets/exercice_2025_rectifie.json (dépôt annuel 2025, p.2 : « Part du groupe 407.601 ») — recoupé dans ce dépôt S1, p.3, bilan passif colonne « 31-déc-25 » : « Résultat net de l'exercice (part du Groupe) 407.601 »",
+          "capitaux_propres": "bilan passif consolidé, p.3, colonnes « 30-juin-26 31-déc-25 » — « CAPITAUX PROPRES DU GROUPE 4.134.123 3.993.181 » (KMAD) ; le 31/12 concorde avec le ROE 2025 déjà publié (407,601 ÷ 3 993,181)"
+        }
+      },
+      "roe_12m": {
+        "valeur": 10.3,
+        "date": "2026-06-30",
+        "formule": "(407.601 + 229.599 − 210.272) ÷ 4134.123 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/ADI_S1_26.pdf",
+          "capitaux_propres": "bilan passif consolidé, p.3, colonnes « 30-juin-26 31-déc-25 » — « CAPITAUX PROPRES DU GROUPE 4.134.123 3.993.181 » (KMAD) ; le 31/12 concorde avec le ROE 2025 déjà publié (407,601 ÷ 3 993,181)"
+        }
+      },
+      "marge_nette_s1_2026": {
+        "valeur": 16.2,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé. ⚠️ Le résultat d'exploitation (409,7 contre 320,5) porte des REPRISES d'exploitation de 210,3 (contre 2,9 au S1 2025), compensées en partie par des charges non courantes de 113,7 (contre 24,3)",
+        "formule": "229.599 ÷ 1418.702 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/ADI_S1_26.pdf"
+        }
+      },
       "dette_nette": {
         "valeur": 1361.5,
         "date": "2025-12-31",
@@ -208,7 +235,14 @@
         "unite": "%"
       },
       "calcule_le": "2026-09-30"
-    }
+    },
+    "avant_2026_09_29": {
+      "croissance_bpa": 20.0,
+      "croissance_ca": 25.7,
+      "nb_actions": 22078588,
+      "date_maj": "2026-06-18"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/ADI_S1_26.pdf"
   },
   "AKD": {
     "secteur": "Santé",
