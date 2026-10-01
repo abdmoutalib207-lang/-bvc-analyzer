@@ -90,10 +90,20 @@
       *,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;
         transition-duration:1ms!important;scroll-behavior:auto!important;}
     }
+    /* Squelettes de chargement (01/10/2026) : la forme de ce qui arrive, au
+       lieu d'un texte « Chargement… » qui fait sauter la page à l'arrivée.
+       Reflet animé par transform seulement (GPU). */
+    .sq{background:#0d1829;border:1px solid #1a2540;border-radius:8px;position:relative;overflow:hidden;}
+    .sq-l{height:10px;border-radius:4px;background:#13203a;margin:10px 0;}
+    .sq::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+      background:linear-gradient(90deg,transparent,rgba(200,211,232,.06),transparent);
+      animation:reflet 1.2s ease-in-out infinite;}
+    @keyframes reflet{to{transform:translateX(100%);}}
+    @media (prefers-reduced-motion:reduce){.sq::after{display:none;}}
   </style>
 </head>
 <body>
-<div id="root"><div id="loading-msg" style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#080d1a;font-family:'IBM Plex Mono',monospace"><div style="color:#00e5a0;font-size:18px;font-weight:700;letter-spacing:3px">BVC ANALYZER</div><div style="color:#8892a4;font-size:12px">Chargement en cours…</div><div id="cdn-err" style="display:none;color:#ff4f5a;font-size:11px;max-width:400px;text-align:center">Erreur de chargement des scripts (CDN). Vérifiez votre connexion et rechargez la page.</div></div></div>
+<div id="root"><div id="loading-msg" style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#080d1a;font-family:'IBM Plex Mono',monospace"><div style="color:#00e5a0;font-size:18px;font-weight:700;letter-spacing:3px">BVC ANALYZER</div><div style="color:#8892a4;font-size:12px">Chargement en cours…</div><div class="sq" style="width:min(520px,86vw);height:120px;margin-top:8px"></div><div class="sq" style="width:min(520px,86vw);height:56px"></div><div id="cdn-err" style="display:none;color:#ff4f5a;font-size:11px;max-width:400px;text-align:center">Erreur de chargement des scripts (CDN). Vérifiez votre connexion et rechargez la page.</div></div></div>
 <script>setTimeout(function(){var e=document.getElementById('loading-msg');if(e&&e.parentNode.children.length===1){var c=document.getElementById('cdn-err');if(c)c.style.display='block';}},8000);</script>
 <script>const {
   useState,
@@ -6699,6 +6709,38 @@ const gras = t => t.split(/(\*\*[^*]+\*\*)/g).map((x, i) => x.startsWith("**") &
     color: "#e6edf7"
   }
 }, x.slice(2, -2)) : x);
+const Squelette = ({
+  blocs = [3],
+  titre = "Chargement"
+}) => React.createElement("div", {
+  "aria-busy": "true",
+  "aria-label": titre,
+  style: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 14
+  }
+}, blocs.map((n, i) => React.createElement("div", {
+  key: i,
+  className: "sq",
+  style: {
+    padding: 16
+  }
+}, React.createElement("div", {
+  className: "sq-l",
+  style: {
+    width: "28%",
+    height: 8
+  }
+}), Array.from({
+  length: n
+}).map((_, j) => React.createElement("div", {
+  key: j,
+  className: "sq-l",
+  style: {
+    width: `${92 - j * 17 % 35}%`
+  }
+})))));
 const Lecture = ({
   r
 }) => {
@@ -6874,12 +6916,10 @@ const Briefing = () => {
       setVue(x && x.cloture ? "cloture" : "mijournee");
     });
   };
-  if (etat === "chargement") return React.createElement("div", {
-    style: {
-      color: "#8892a4",
-      padding: 20
-    }
-  }, "Chargement du briefing\u2026");
+  if (etat === "chargement") return React.createElement(Squelette, {
+    blocs: [4, 3, 5],
+    titre: "Chargement du briefing"
+  });
   if (etat === "absent") return React.createElement("div", {
     className: "carte",
     style: {
@@ -6905,7 +6945,10 @@ const Briefing = () => {
       color: "#8892a4",
       padding: 20
     }
-  }, arch ? "Aucune lecture archivée pour cette séance." : "Chargement de l'archive…", React.createElement("button", {
+  }, arch ? "Aucune lecture archivée pour cette séance." : React.createElement(Squelette, {
+    blocs: [4, 3],
+    titre: "Chargement de l'archive"
+  }), React.createElement("button", {
     onClick: () => choisir(null),
     style: {
       marginLeft: 10,
@@ -10334,14 +10377,10 @@ const NewsFeed = () => {
     setScope(s);
     setTicker("ALL");
   };
-  if (loading) return React.createElement("div", {
-    style: {
-      textAlign: "center",
-      padding: "80px 20px",
-      color: "#8892a4",
-      fontSize: 13
-    }
-  }, "Chargement des actualit\xE9s\u2026");
+  if (loading) return React.createElement(Squelette, {
+    blocs: [2, 2, 2, 2],
+    titre: "Chargement des actualit\xE9s"
+  });
   if (allNews.length === 0) return React.createElement("div", {
     style: {
       textAlign: "center",
