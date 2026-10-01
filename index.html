@@ -6668,6 +6668,72 @@ const SeanceDetail = ({
     }
   }, "Autres \xE9metteurs le m\xEAme jour, sans action cot\xE9e rattach\xE9e : ", dep.autres_emetteurs.map(x => x.emetteur).join(", "), ".")));
 };
+const gras = t => t.split(/(\*\*[^*]+\*\*)/g).map((x, i) => x.startsWith("**") && x.endsWith("**") ? React.createElement("strong", {
+  key: i,
+  style: {
+    color: "#e6edf7"
+  }
+}, x.slice(2, -2)) : x);
+const Lecture = ({
+  r
+}) => {
+  if (!r || !r.texte) return null;
+  const blocs = r.texte.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean);
+  return React.createElement("div", {
+    style: {
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      padding: 16
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      letterSpacing: 1,
+      textTransform: "uppercase",
+      marginBottom: 2
+    }
+  }, "Lecture de la s\xE9ance"), React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#5a6478",
+      marginBottom: 10
+    }
+  }, r.auteur === "claude" ? "Rédigée par Claude à partir des faits publiés ci-dessous — chaque chiffre a été contrôlé." : "Générée automatiquement à partir des faits publiés ci-dessous."), blocs.map((b, i) => {
+    if (b.startsWith("#")) return React.createElement("div", {
+      key: i,
+      style: {
+        fontSize: 12,
+        color: "#4db8ff",
+        letterSpacing: .6,
+        margin: "10px 0 4px",
+        textTransform: "uppercase"
+      }
+    }, b.replace(/^#+\s*/, ""));
+    if (/^[-•] /m.test(b)) return React.createElement("ul", {
+      key: i,
+      style: {
+        margin: "0 0 8px",
+        paddingLeft: 18,
+        fontSize: 13.5,
+        lineHeight: 1.65,
+        color: "#c8d3e8"
+      }
+    }, b.split(/\n/).map((l, j) => React.createElement("li", {
+      key: j
+    }, gras(l.replace(/^[-•]\s*/, "")))));
+    return React.createElement("p", {
+      key: i,
+      style: {
+        margin: "0 0 10px",
+        fontSize: 13.5,
+        lineHeight: 1.7,
+        color: "#c8d3e8"
+      }
+    }, gras(b));
+  }));
+};
 const ASurveiller = ({
   a
 }) => {
@@ -6900,7 +6966,9 @@ const Briefing = () => {
         cursor: dispo ? "pointer" : "not-allowed"
       }
     }, o.label);
-  })), !semaine && React.createElement(ASurveiller, {
+  })), !semaine && React.createElement(Lecture, {
+    r: src.redaction
+  }), !semaine && React.createElement(ASurveiller, {
     a: src.a_surveiller
   }), React.createElement("div", {
     style: {

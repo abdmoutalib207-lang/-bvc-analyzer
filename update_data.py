@@ -4739,6 +4739,19 @@ def run(dry_run=False, push=False, token=""):
             logger.warning(f"  📈 relevé de séance non écrit ({_e})")
         _b = _brief_dater(_brief(output), _maintenant.date().isoformat(),
                           _maintenant.hour * 100 + _maintenant.minute)
+        # ⚠️ La lecture rédigée (01/10/2026) : version sèche par défaut ; une
+        # rédaction de la routine Claude, pour la même séance et le même
+        # moment, est gardée tant qu'elle passe le contrôle des chiffres.
+        try:
+            from pipeline.redaction import rediger as _rediger
+            from pipeline.briefing import FICHIERS_MOMENT as _FM
+            _anc = None
+            _fm = _FM.get(_b.get("moment"))
+            if _fm and (Path(__file__).parent / _fm).exists():
+                _anc = json.loads((Path(__file__).parent / _fm).read_text(encoding="utf-8"))
+            _rediger(_b, _anc)
+        except Exception as _e:                           # noqa: BLE001
+            logger.warning(f"  ✍  lecture rédigée non écrite ({_e})")
         _brief_ecrire(_b)
         # ⚠️ Mi-journée et clôture ont chacune leur fichier : `briefing.json`
         # est réécrit à chaque passage et ne peut garder la trace d'un moment.
