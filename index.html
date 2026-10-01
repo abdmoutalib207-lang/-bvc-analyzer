@@ -138,12 +138,12 @@
     .tuile:hover{transform:translateY(-3px) scale(1.03);border-color:rgba(77,184,255,.45);
       box-shadow:0 10px 24px rgba(0,0,0,.45)!important;filter:none!important;}
     .intro{position:fixed;inset:0;z-index:1000;background:#080d1a;display:flex;flex-direction:column;
-      align-items:center;justify-content:center;gap:14px;cursor:pointer;animation:intro-sortie 260ms ease-in 900ms both;}
+      align-items:center;justify-content:center;gap:14px;cursor:pointer;animation:intro-sortie 300ms ease-in 1700ms both;}
     .intro-logo{font-size:clamp(28px,8vw,56px);font-weight:700;letter-spacing:.35em;
       background:linear-gradient(90deg,#00e5a0,#4db8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
-      animation:intro-logo 700ms cubic-bezier(.2,.7,.2,1) both;}
+      animation:intro-logo 1000ms cubic-bezier(.2,.7,.2,1) both;}
     .intro-trait{height:2px;width:0;background:linear-gradient(90deg,#00e5a0,#4db8ff);
-      animation:intro-trait 600ms 200ms cubic-bezier(.2,.7,.2,1) both;}
+      animation:intro-trait 900ms 350ms cubic-bezier(.2,.7,.2,1) both;}
     @keyframes intro-logo{from{opacity:0;transform:scale(.92);letter-spacing:.6em;}to{opacity:1;transform:none;}}
     @keyframes intro-trait{to{width:min(320px,60vw);}}
     @keyframes intro-sortie{to{opacity:0;visibility:hidden;}}
@@ -5549,6 +5549,51 @@ const Menu = ({
     }
   }, v.aide)))))))));
 };
+function jouerSonOuverture() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    const ctx = new AC();
+    const go = () => {
+      const t0 = ctx.currentTime + 0.12,
+        sortie = ctx.createGain();
+      sortie.gain.value = 0.55;
+      sortie.connect(ctx.destination);
+      const retard = ctx.createDelay();
+      retard.delayTime.value = 0.11;
+      const retour = ctx.createGain();
+      retour.gain.value = 0.28;
+      retard.connect(retour);
+      retour.connect(retard);
+      retour.connect(sortie);
+      const plic = (t, f0, f1, vol, duree) => {
+        const o = ctx.createOscillator(),
+          g = ctx.createGain();
+        o.type = "sine";
+        o.frequency.setValueAtTime(f0, t);
+        o.frequency.exponentialRampToValueAtTime(f1, t + duree * 0.35);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(vol, t + 0.006);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + duree);
+        o.connect(g);
+        g.connect(sortie);
+        g.connect(retard);
+        o.start(t);
+        o.stop(t + duree + 0.02);
+      };
+      plic(t0, 260, 820, 0.95, 0.30);
+      plic(t0 + 0.20, 450, 1150, 0.38, 0.18);
+      setTimeout(() => {
+        try {
+          ctx.close();
+        } catch (e) {}
+      }, 2200);
+    };
+    if (ctx.state === "suspended") ctx.resume().then(() => {
+      if (ctx.state === "running") go();
+    }).catch(() => {});else go();
+  } catch (e) {}
+}
 const Intro = () => {
   const [vu, setVu] = useState(() => {
     try {
@@ -5563,7 +5608,8 @@ const Intro = () => {
     try {
       sessionStorage.setItem("bvc_intro", "1");
     } catch (e) {}
-    const t = setTimeout(() => setVu(true), 1200);
+    jouerSonOuverture();
+    const t = setTimeout(() => setVu(true), 2000);
     return () => clearTimeout(t);
   }, [vu]);
   if (vu) return null;
