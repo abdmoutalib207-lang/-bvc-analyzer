@@ -1500,7 +1500,7 @@ const Menu=({tab,setTab,TABS})=>{
 // navigateur (Web Audio) : aucun fichier, aucun droit d'auteur. Demande
 // d'Abd Moutalib : « un son d'une goutte d'eau bien prononcé ».
 // Une goutte, c'est une note pure dont la hauteur MONTE très vite (la bulle
-// qui se referme), suivie d'un petit rebond plus aigu et d'un écho bref.
+// qui se referme), suivie d'un petit rebond plus aigu. Sans écho (01/10).
 // ⚠️ Les navigateurs bloquent le son tant que l'utilisateur n'a pas touché
 // le site (Safari, donc tout iPhone, et Chrome) : l'ouverture reste alors
 // silencieuse, sans erreur.
@@ -1513,10 +1513,6 @@ function jouerSonOuverture(ctx){
     const go=()=>{
       const t0=ctx.currentTime+0.12, sortie=ctx.createGain();
       sortie.gain.value=0.55; sortie.connect(ctx.destination);
-      // Écho court : une copie retardée et atténuée, comme dans une pièce.
-      const retard=ctx.createDelay(); retard.delayTime.value=0.11;
-      const retour=ctx.createGain(); retour.gain.value=0.28;
-      retard.connect(retour); retour.connect(retard); retour.connect(sortie);
       const plic=(t,f0,f1,vol,duree)=>{
         const o=ctx.createOscillator(), g=ctx.createGain();
         o.type="sine";
@@ -1525,7 +1521,7 @@ function jouerSonOuverture(ctx){
         g.gain.setValueAtTime(0.0001,t);
         g.gain.exponentialRampToValueAtTime(vol,t+0.006);
         g.gain.exponentialRampToValueAtTime(0.0001,t+duree);
-        o.connect(g); g.connect(sortie); g.connect(retard);
+        o.connect(g); g.connect(sortie);
         o.start(t); o.stop(t+duree+0.02);
       };
       plic(t0,       260,820,0.95,0.30);   // la goutte (une octave plus grave)

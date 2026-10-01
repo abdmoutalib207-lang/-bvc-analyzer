@@ -5570,13 +5570,6 @@ function jouerSonOuverture(ctx) {
         sortie = ctx.createGain();
       sortie.gain.value = 0.55;
       sortie.connect(ctx.destination);
-      const retard = ctx.createDelay();
-      retard.delayTime.value = 0.11;
-      const retour = ctx.createGain();
-      retour.gain.value = 0.28;
-      retard.connect(retour);
-      retour.connect(retard);
-      retour.connect(sortie);
       const plic = (t, f0, f1, vol, duree) => {
         const o = ctx.createOscillator(),
           g = ctx.createGain();
@@ -5588,7 +5581,6 @@ function jouerSonOuverture(ctx) {
         g.gain.exponentialRampToValueAtTime(0.0001, t + duree);
         o.connect(g);
         g.connect(sortie);
-        g.connect(retard);
         o.start(t);
         o.stop(t + duree + 0.02);
       };
