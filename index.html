@@ -5571,7 +5571,7 @@ function jouerSonOuverture(ctx) {
       sortie.gain.value = 0.55;
       sortie.connect(ctx.destination);
       const retard = ctx.createDelay();
-      retard.delayTime.value = 0.11;
+      retard.delayTime.value = 0.16;
       const retour = ctx.createGain();
       retour.gain.value = 0.28;
       retard.connect(retour);
@@ -5592,8 +5592,8 @@ function jouerSonOuverture(ctx) {
         o.start(t);
         o.stop(t + duree + 0.02);
       };
-      plic(t0, 260, 820, 0.95, 0.30);
-      plic(t0 + 0.20, 450, 1150, 0.38, 0.18);
+      plic(t0, 260, 820, 0.95, 0.45);
+      plic(t0 + 0.30, 450, 1150, 0.38, 0.27);
       setTimeout(() => {
         try {
           ctx.close();
