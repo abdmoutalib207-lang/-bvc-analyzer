@@ -3,8 +3,8 @@
     "secteur": "Immobilier",
     "per": 12.5,
     "forward_per": 10.0,
-    "croissance_ca": 64,
-    "croissance_bpa": 25.0,
+    "croissance_ca": 8.6,
+    "croissance_bpa": 13.5,
     "dette_nette_ebitda": 4.8,
     "roic": 8,
     "wacc": 10,
@@ -18,7 +18,7 @@
     "catalyseur": "Programme aide logement 2024-2028, RNPG +64% S1 2025",
     "risque": "Endettement 3.5x EBITDA",
     "source": "Zonebourse / Boursenews",
-    "date_maj": "2026-06-18",
+    "date_maj": "2026-09-29",
     "cours_bv": 38.5,
     "pe_24": null,
     "pe_25c": null,
@@ -31,6 +31,33 @@
     "bloomberg": "ADH",
     "reuters": "ADH",
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": 4.8,
+        "date": "2025-12-31",
+        "formule": "453.719 ÷ 9481.695 (MMAD)",
+        "sources": {
+          "resultat": "datasets/exercice_2025_rectifie.json (dépôt annuel 2025, p.5 : « Résultat net - Part du groupe 453.719.263 ») — recoupé dans ce dépôt S1, p.3, état de situation financière colonne « 31.12.2025 » : « Résultats consolidés 453.719.263 »",
+          "capitaux_propres": "état de situation financière, p.3, colonnes « 30.06.2026 31.12.2025 » — « Capitaux propres part du groupe 9.794.902.177 9.481.694.524 » (MAD) ; le 31/12 concorde avec le rapport annuel 2025 (9 481 694 524)"
+        }
+      },
+      "roe_12m": {
+        "valeur": 5.0,
+        "date": "2026-06-30",
+        "formule": "(453.719 + 298.569 − 263.168) ÷ 9794.902 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Addoha_S1_26.pdf",
+          "capitaux_propres": "état de situation financière, p.3, colonnes « 30.06.2026 31.12.2025 » — « Capitaux propres part du groupe 9.794.902.177 9.481.694.524 » (MAD) ; le 31/12 concorde avec le rapport annuel 2025 (9 481 694 524)"
+        }
+      },
+      "marge_nette_s1_2026": {
+        "valeur": 21.2,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé (hors « autres produits de l'activité » : 804,0 contre 238,2). ⚠️ Le résultat d'exploitation courant (301,8 contre 168,3) porte une REPRISE nette de provisions de 131,6 (contre une dotation de 21,4 au S1 2025) : la progression n'est pas toute opérationnelle",
+        "formule": "298.569 ÷ 1408.393 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Addoha_S1_26.pdf"
+        }
+      },
       "dette_nette": {
         "valeur": 4385.5,
         "date": "2025-12-31",
@@ -73,7 +100,14 @@
         "dette_nette_ebitda": "dette nette ou EBITDA non calculé"
       },
       "calcule_le": "2026-09-30"
-    }
+    },
+    "avant_2026_09_29": {
+      "croissance_bpa": 25.0,
+      "croissance_ca": 64,
+      "nb_actions": 402551254,
+      "date_maj": "2026-06-18"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Addoha_S1_26.pdf"
   },
   "ADI": {
     "secteur": "Immobilier",

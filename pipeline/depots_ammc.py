@@ -64,6 +64,10 @@ ALIAS_AMMC = {
     # yuna ÷ 21 785 174 actions du référentiel de l'opérateur).
     "rebab company": "REB",  # « Rebab Company »
     "t2s": "T2S",            # « T2S Group » (le normaliseur retire « group »)
+    # Ajouté le 01/10/2026 : « Addoha - Résultats financiers du 1er semestre
+    # 2026 » (30/09) n'entrait pas dans la file d'attente. Notre référentiel
+    # dit « Douja Prom Addoha » ; même émetteur, ISIN MA0000011512.
+    "addoha": "ADH",
 }
 
 # ⚠️ « indicateurs » N'EN FAIT PAS PARTIE. Relevé le 29/09 sur RDS : « CP

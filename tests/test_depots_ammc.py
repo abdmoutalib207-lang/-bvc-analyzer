@@ -39,12 +39,14 @@ def test_une_entree_de_la_liste():
     ("Marsa Maroc", "MSA"),       # alias relevé sur la liste
     ("LabelVie", "LBV"),
     ("Eqdom", "EQD"),
+    ("Addoha", "ADH"),            # S1 du 30/09 manqué faute d'alias (01/10)
 ])
 def test_rattachement(nom, ticker):
     assert resoudre_emetteur(nom) == ticker
 
 
-@pytest.mark.parametrize("nom", ["OCP", "ADM", "TMPA", "Saham Bank", "Crédit Agricole du Maroc"])
+@pytest.mark.parametrize("nom", ["OCP", "ADM", "TMPA", "Saham Bank", "Crédit Agricole du Maroc",
+                                 "Wafasalaf", "Holding Al Omrane", "ONCF"])
 def test_un_emetteur_d_obligations_n_est_pas_un_titre(nom):
     assert resoudre_emetteur(nom) is None
 
