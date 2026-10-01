@@ -43,10 +43,16 @@ def test_chaque_ratio_porte_sa_date_et_ses_sources():
             assert x["date"] and x["formule"] and any(x["sources"].values()), (s, k)
 
 
-def test_la_note_fondamentale_ne_lit_pas_ces_ratios():
-    """Aucune note ne change avec ce calcul (R8)."""
+def test_la_note_fondamentale_ne_lit_que_les_trois_ratios_approuves():
+    """Jusqu'au 01/10/2026 la note ne lisait aucun de ces ratios. Abd Moutalib
+    a approuvé (R8) qu'elle lise ROIC, dette nette / EBITDA et conversion de
+    trésorerie calculés ; le ROE et les autres restent hors de la note tant
+    qu'aucune mesure ni accord ne les y fait entrer."""
+    import re
     src = (RACINE / "pipeline" / "smart_money" / "fond_score.py").read_text(encoding="utf-8")
-    assert "ratios_publies" not in src and '"roe"' not in src
+    lus = set(re.findall(r'_publie\(f, sym, "(\w+)"\)', src))
+    assert lus == {"roic", "dette_nette_ebitda", "cash_conversion"}
+    assert '"roe' not in src
 
 
 # ── Ratios de bilan 2025 — dette nette, EBITDA, ROIC, conversion ─────────
@@ -141,8 +147,10 @@ def test_les_champs_lus_par_la_note_ne_sont_pas_ecrits():
     assert est_financier({"secteur": "Banque"}) and not est_financier({"secteur": "Agroalimentaire"})
 
 
-def test_la_note_fondamentale_est_invariante_par_les_ratios_publies():
-    """Retirer ratios_publies ne change aucune note fondamentale (R8)."""
+def test_seuls_les_trois_ratios_approuves_font_bouger_la_note():
+    """Retirer ratios_publies ne change la note QUE d'un titre portant un
+    ROIC, une dette nette / EBITDA ou une conversion calculés — et jamais de
+    MSA, tenu à l'écart (décision du 01/10/2026, R8)."""
     import copy
     sys.path.insert(0, str(RACINE / "pipeline" / "smart_money"))
     from fond_score import compute_fond_score
@@ -153,7 +161,12 @@ def test_la_note_fondamentale_est_invariante_par_les_ratios_publies():
     for s, f in FOND.items():
         if isinstance(f, dict):
             assert set(f) - {"ratios_publies"}, f"{s} : fiche créée pour des ratios publiés"
-            assert compute_fond_score(s, FOND) == compute_fond_score(s, sans), s
+            rp = f.get("ratios_publies") or {}
+            lu = s != "MSA" and any(
+                isinstance(rp.get(k), dict) and isinstance(rp[k].get("valeur"), (int, float))
+                for k in ("roic", "dette_nette_ebitda", "cash_conversion"))
+            if not lu:
+                assert compute_fond_score(s, FOND) == compute_fond_score(s, sans), s
 
 
 def test_chaque_fait_2025_est_source_et_chaque_controle_passe():

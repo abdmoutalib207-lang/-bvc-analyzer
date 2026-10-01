@@ -799,4 +799,8 @@ TICKERS_ALL: list = [
 #   expliquées et affichées, sans effet sur la note.
 #   v5.3-seances-echangees-2026-09-30 : le RSI ne compte que les séances
 #   réellement échangées (un jour sans transaction n'est pas une cotation).
-SCORE_VERSION = "v5.3-seances-echangees-2026-09-30"
+#   v5.3-ratios-publies-2026-10-01 : ROIC, dette nette / EBITDA et
+#   conversion de trésorerie lus dans les ratios calculés sur comptes
+#   publiés quand ils existent, à la place de la saisie de juin (MSA tenu à
+#   l'écart jusqu'au recoupement de son ROIC).
+SCORE_VERSION = "v5.3-ratios-publies-2026-10-01"
