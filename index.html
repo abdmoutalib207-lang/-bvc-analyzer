@@ -147,6 +147,11 @@
     @keyframes intro-logo{from{opacity:0;transform:scale(.92);letter-spacing:.6em;}to{opacity:1;transform:none;}}
     @keyframes intro-trait{to{width:min(320px,60vw);}}
     @keyframes intro-sortie{to{opacity:0;visibility:hidden;}}
+    .intro.attente{animation:none;}
+    .intro.sortie{animation:intro-sortie 300ms ease-in 700ms both;}
+    .intro-toucher{margin-top:18px;font-size:12px;letter-spacing:.35em;color:#8892a4;
+      animation:intro-pouls 1.6s ease-in-out 1.2s infinite both;}
+    @keyframes intro-pouls{0%,100%{opacity:.35;}50%{opacity:1;}}
   </style>
 </head>
 <body>
@@ -5549,11 +5554,17 @@ const Menu = ({
     }
   }, v.aide)))))))));
 };
-function jouerSonOuverture() {
+function contexteAudio() {
   try {
     const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return;
-    const ctx = new AC();
+    return AC ? new AC() : null;
+  } catch (e) {
+    return null;
+  }
+}
+function jouerSonOuverture(ctx) {
+  try {
+    if (!ctx) return;
     const go = () => {
       const t0 = ctx.currentTime + 0.12,
         sortie = ctx.createGain();
@@ -5603,25 +5614,55 @@ const Intro = () => {
       return true;
     }
   });
+  const ctx = useRef(null);
+  const [phase, setPhase] = useState("auto");
   useEffect(() => {
     if (vu) return;
     try {
       sessionStorage.setItem("bvc_intro", "1");
     } catch (e) {}
-    jouerSonOuverture();
-    const t = setTimeout(() => setVu(true), 2000);
-    return () => clearTimeout(t);
+    ctx.current = contexteAudio();
+    if (ctx.current && ctx.current.state === "running") {
+      jouerSonOuverture(ctx.current);
+      const t = setTimeout(() => setVu(true), 2000);
+      return () => clearTimeout(t);
+    }
+    setPhase(ctx.current ? "attente" : "auto");
+    if (!ctx.current) {
+      const t = setTimeout(() => setVu(true), 2000);
+      return () => clearTimeout(t);
+    }
   }, [vu]);
+  const entrer = () => {
+    if (phase !== "attente") {
+      setVu(true);
+      return;
+    }
+    jouerSonOuverture(ctx.current);
+    setPhase("sortie");
+    setTimeout(() => setVu(true), 1000);
+  };
+  useEffect(() => {
+    if (vu || phase !== "attente") return;
+    const h = e => {
+      if (e.key === "Enter" || e.key === " ") entrer();
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  });
   if (vu) return null;
   return React.createElement("div", {
-    className: "intro",
-    onClick: () => setVu(true),
-    role: "presentation"
+    className: "intro" + (phase === "attente" ? " attente" : phase === "sortie" ? " sortie" : ""),
+    onClick: entrer,
+    role: "button",
+    "aria-label": "Entrer dans BVC Analyzer"
   }, React.createElement("div", {
     className: "intro-logo"
   }, "BVC ANALYZER"), React.createElement("div", {
     className: "intro-trait"
-  }));
+  }), phase !== "auto" && React.createElement("div", {
+    className: "intro-toucher"
+  }, phase === "attente" ? "TOUCHER POUR ENTRER" : "\u00a0"));
 };
 const Tuile = ({
   r,

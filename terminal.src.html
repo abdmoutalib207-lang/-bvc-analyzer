@@ -147,6 +147,11 @@
     @keyframes intro-logo{from{opacity:0;transform:scale(.92);letter-spacing:.6em;}to{opacity:1;transform:none;}}
     @keyframes intro-trait{to{width:min(320px,60vw);}}
     @keyframes intro-sortie{to{opacity:0;visibility:hidden;}}
+    .intro.attente{animation:none;}
+    .intro.sortie{animation:intro-sortie 300ms ease-in 700ms both;}
+    .intro-toucher{margin-top:18px;font-size:12px;letter-spacing:.35em;color:#8892a4;
+      animation:intro-pouls 1.6s ease-in-out 1.2s infinite both;}
+    @keyframes intro-pouls{0%,100%{opacity:.35;}50%{opacity:1;}}
   </style>
 </head>
 <body>
@@ -1499,11 +1504,12 @@ const Menu=({tab,setTab,TABS})=>{
 // ⚠️ Les navigateurs bloquent le son tant que l'utilisateur n'a pas touché
 // le site (Safari, donc tout iPhone, et Chrome) : l'ouverture reste alors
 // silencieuse, sans erreur.
-function jouerSonOuverture(){
+function contexteAudio(){
+  try{const AC=window.AudioContext||window.webkitAudioContext;return AC?new AC():null;}catch(e){return null;}
+}
+function jouerSonOuverture(ctx){
   try{
-    const AC=window.AudioContext||window.webkitAudioContext;
-    if(!AC)return;
-    const ctx=new AC();
+    if(!ctx)return;
     const go=()=>{
       const t0=ctx.currentTime+0.12, sortie=ctx.createGain();
       sortie.gain.value=0.55; sortie.connect(ctx.destination);
@@ -1541,18 +1547,44 @@ const Intro=()=>{
       return sessionStorage.getItem("bvc_intro")==="1";
     }catch(e){return true;}
   });
+  // ⚠️ « TOUCHER POUR ENTRER » — 01/10/2026. Abd Moutalib : « toujours pas
+  // de son ». Normal : l'iPhone n'autorise aucun son avant un toucher. Si le
+  // navigateur permet déjà le son, l'ouverture joue seule ; sinon elle
+  // attend un toucher, qui débloque le son — comme le choix d'un profil chez
+  // Netflix. Le toucher lance la goutte, puis le terminal s'ouvre.
+  const ctx=useRef(null);
+  const [phase,setPhase]=useState("auto");
   useEffect(()=>{
     if(vu)return;
     try{sessionStorage.setItem("bvc_intro","1");}catch(e){}
-    jouerSonOuverture();
-    const t=setTimeout(()=>setVu(true),2000);
-    return()=>clearTimeout(t);
+    ctx.current=contexteAudio();
+    if(ctx.current&&ctx.current.state==="running"){
+      jouerSonOuverture(ctx.current);
+      const t=setTimeout(()=>setVu(true),2000);
+      return()=>clearTimeout(t);
+    }
+    setPhase(ctx.current?"attente":"auto");
+    if(!ctx.current){const t=setTimeout(()=>setVu(true),2000);return()=>clearTimeout(t);}
   },[vu]);
+  const entrer=()=>{
+    if(phase!=="attente"){setVu(true);return;}
+    jouerSonOuverture(ctx.current);
+    setPhase("sortie");
+    setTimeout(()=>setVu(true),1000);
+  };
+  useEffect(()=>{
+    if(vu||phase!=="attente")return;
+    const h=e=>{if(e.key==="Enter"||e.key===" ")entrer();};
+    window.addEventListener("keydown",h);
+    return()=>window.removeEventListener("keydown",h);
+  });
   if(vu)return null;
   return(
-    <div className="intro" onClick={()=>setVu(true)} role="presentation">
+    <div className={"intro"+(phase==="attente"?" attente":phase==="sortie"?" sortie":"")} onClick={entrer} role="button"
+      aria-label="Entrer dans BVC Analyzer">
       <div className="intro-logo">BVC ANALYZER</div>
       <div className="intro-trait"/>
+      {phase!=="auto"&&<div className="intro-toucher">{phase==="attente"?"TOUCHER POUR ENTRER":"\u00a0"}</div>}
     </div>);
 };
 
