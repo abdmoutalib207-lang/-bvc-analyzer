@@ -233,6 +233,30 @@ fusion** : la fusion est la décision d'Abd Moutalib.
   autre worktree : la création échoue ; pousser par
   `HEAD:refs/heads/fond/lot3b-faits-2025`.
 
+- (lot 3b-bis) `nombre_actions_au_rapport` est LU par `update_data.py` (P/B, contrôle de
+  capitalisation) : ne l'écrire que si le dépôt donne le nombre de titres (STR : non,
+  capital seul, nominal absent -> clé `nombre_actions_referentiel`). Et le test P/B exige
+  ce nombre, avec sa page, pour tout émetteur portant `capitaux_propres_part_groupe` :
+  pour un social négatif sans consolidé, ne pas écrire de part du groupe.
+- (lot 3b-bis) Un capitaux propres NÉGATIF s'écrit en parenthèses dans la citation
+  (`(340 892 435,83)`, convention Stokvis) sinon `test_fonds_propres` lit le montant
+  positif ; dire que le rapport imprime « -340892435,83 ».
+- (lot 3b-bis) Mise en page décalée (Involys : libellés des lignes de détail non alignés
+  sur les montants) : ne lire que les totaux et fixer chaque ligne par l'arithmétique
+  (valeur ajoutée - impôts - personnel = EBE) ; les rapports « pivotés » (ETIC) se
+  redressent par `.rotate(-90)`.
+- (lot 3b-bis) `pdfplumber` met 80 s à rendre une page d'un PDF scanné de 30 Mo (Fenie
+  Brossette) : `pypdfium2` (`render(scale=...)`) la rend en secondes. Une planche-contact
+  (pages à 0,45) trouve la page voulue avant tout OCR.
+- (lot 3b-bis) Une holding (Zellidja) et sa filiale (Fenie Brossette) publient des
+  consolidés quasi identiques (CA 756,514, amortissements+provisions 22 897) : ne pas les
+  additionner ; le « EBITDA 41,6 » du rapport de la holding est celui de la filiale.
+- (lot 3b-bis) Titres de placement hors trésorerie (Colorado : 130 MMAD de FCP obligataires,
+  22 % de l'actif) : le tableau de financement les exclut (2,2), le rapport de gestion les
+  inclut (132,5) ; dette nette et ROIC alternatifs en réserve.
+- (lot 3b-bis) Un yuna en retard d'un exercice : Zellidja, BPA 11,52 = résultat SOCIAL 2024
+  (6,599) ÷ 572 849.
+
 ## Ce que tu ne fais jamais
 
 - Toucher `ISIN_MAP` (R2), les poids ou la grille de note (R8).
