@@ -6200,7 +6200,60 @@
     "nb_actions": 5265000,
     "bloomberg": "CRS",
     "reuters": "CRS",
-    "secteur_libre": null
+    "secteur_libre": null,
+    "ratios_publies": {
+      "dette_nette": {
+        "valeur": 213.7,
+        "date": "2025-12-31",
+        "formule": "215.824396 − 2.170436 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport général des CAC) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf, p. 2",
+          "tresorerie": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport général des CAC) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf, p. 1"
+        },
+        "base": "SOCIAL (normes marocaines), exercice du 01/04/2025 au 31/03/2026 (clos le 31/03/2026, PAS le 31/12/2025) — Cartier Saada ne publie que des comptes sociaux ; OPINION AVEC RÉSERVE des CAC (achats auprès d'agriculteurs sans identification fiscale, non chiffrée)",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 9.4,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 9.423052 (MMAD)",
+        "sources": {
+          "ebitda": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport général des CAC) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf, p. 6"
+        },
+        "base": "SOCIAL (normes marocaines), exercice du 01/04/2025 au 31/03/2026 (clos le 31/03/2026, PAS le 31/12/2025) — Cartier Saada ne publie que des comptes sociaux ; OPINION AVEC RÉSERVE des CAC (achats auprès d'agriculteurs sans identification fiscale, non chiffrée)",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 22.67,
+        "date": "2025-12-31",
+        "formule": "213.654 ÷ 9.423052",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "SOCIAL (normes marocaines), exercice du 01/04/2025 au 31/03/2026 (clos le 31/03/2026, PAS le 31/12/2025) — Cartier Saada ne publie que des comptes sociaux ; OPINION AVEC RÉSERVE des CAC (achats auprès d'agriculteurs sans identification fiscale, non chiffrée)"
+      },
+      "roic": {
+        "valeur": -3.6,
+        "date": "2025-12-31",
+        "formule": "-13.821354 × (1 − t) ÷ (167.108095 + 213.654) ; t = 0 (résultat avant impôt -24.945407 ≤ 0 : pas d'impôt sur une perte)",
+        "sources": {
+          "resultat_exploitation": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport général des CAC) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf, p. 3",
+          "impot": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport général des CAC) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf, p. 4",
+          "resultat_avant_impot": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport général des CAC) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf, p. 4",
+          "capitaux_propres": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport général des CAC) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf, p. 2",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "SOCIAL (normes marocaines), exercice du 01/04/2025 au 31/03/2026 (clos le 31/03/2026, PAS le 31/12/2025) — Cartier Saada ne publie que des comptes sociaux ; OPINION AVEC RÉSERVE des CAC (achats auprès d'agriculteurs sans identification fiscale, non chiffrée)",
+        "unite": "%",
+        "taux_impot_effectif": 0.0
+      },
+      "non_calcules_2025": {
+        "cash_conversion": "résultat net négatif (−25,6 MMAD) et comptes sociaux sans tableau des flux de trésorerie"
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "STR": {
     "secteur": "Industrie",
