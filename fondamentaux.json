@@ -6407,7 +6407,60 @@
     "nb_actions": 2582555,
     "bloomberg": "MDP",
     "reuters": "PAP",
-    "secteur_libre": null
+    "secteur_libre": null,
+    "ratios_publies": {
+      "dette_nette": {
+        "valeur": 51.8,
+        "date": "2025-12-31",
+        "formule": "189.965478 − 138.189221 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf, p. 10",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf, p. 9"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — le dépôt ne publie que des « comptes sociaux » (p.9) ; titres de participation 8 003 175 MAD intégralement dépréciés (valeur nette 0), aucun consolidé",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 120.4,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 120.423769 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf, p. 12"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — le dépôt ne publie que des « comptes sociaux » (p.9) ; titres de participation 8 003 175 MAD intégralement dépréciés (valeur nette 0), aucun consolidé",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 0.43,
+        "date": "2025-12-31",
+        "formule": "51.776 ÷ 120.423769",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — le dépôt ne publie que des « comptes sociaux » (p.9) ; titres de participation 8 003 175 MAD intégralement dépréciés (valeur nette 0), aucun consolidé"
+      },
+      "roic": {
+        "valeur": 8.6,
+        "date": "2025-12-31",
+        "formule": "90.790739 × (1 − t) ÷ (590.840386 + 51.776) ; t = 38.461011 ÷ 98.375645 = 39.1 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf, p. 11",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf, p. 11",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf, p. 11",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf, p. 10",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — le dépôt ne publie que des « comptes sociaux » (p.9) ; titres de participation 8 003 175 MAD intégralement dépréciés (valeur nette 0), aucun consolidé",
+        "unite": "%",
+        "taux_impot_effectif": 39.1
+      },
+      "non_calcules_2025": {
+        "cash_conversion": "comptes SOCIAUX seuls : pas de tableau des flux de trésorerie (seulement un tableau de financement, p.13, et la CAF de l'état des soldes de gestion : 92,895 MMAD, p.12) ; flux net d'exploitation non publié. Le tableau de financement ne donne pas de flux d'exploitation : le calcul serait une reconstruction (CAF − variation du BFR), pas une lecture."
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "SNP": {
     "secteur": "Matériaux",
