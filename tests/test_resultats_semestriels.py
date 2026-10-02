@@ -122,15 +122,17 @@ def test_cmgp_et_vicenne_sur_piece():
 def test_banques_et_assureurs_sur_piece():
     """Lot 4. Attendus calculés à la main depuis les dépôts AMMC."""
     bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
-    # AtlantaSanad : 466,228 + 287 − 272,975 = 480,253 MDH ÷ 60 283 595 = 7,97.
+    # AtlantaSanad, CONSOLIDÉ depuis le 02/10 (verificateur-finance) :
+    # 467,639 + 288,218 − 276,054 = 479,803 MDH ÷ 60 283 595 = 7,959 → 7,96.
     # L'ancien 1,99 supposait un bénéfice annuel de 100 MDH, inférieur à un
     # seul semestre (273 MDH) : impossible.
-    assert bpa["ATL"]["bpa_12m"] == 7.97 and bpa["ATL"]["bpa_avant_2026_09_29"] == 1.99
+    assert bpa["ATL"]["bpa_12m"] == 7.96 and bpa["ATL"]["bpa_avant_2026_09_29"] == 1.99
     # Wafa Assurance : 1 026,036 ÷ 3 500 000 = 293,15 (l'ancien divisait par 4,18 M)
     assert bpa["WAF"]["bpa"] == 293.15
     # BOA : 3 813,552 ÷ 220 281 881 = 17,31
     assert bpa["BOA"]["bpa"] == 17.31
-    # BCP : 4 503,361 + 3 218,874 − 2 915,647 = 4 806,588 ÷ 203 312 473 = 23,64
+    # BCP, résultat S1 IMPRIMÉ depuis le 02/10 : 4 503,361 + 3 218,498 −
+    # 2 915,647 = 4 806,212 ÷ 203 312 473 = 23,64
     assert bpa["BCP"]["bpa_12m"] == 23.64
     # BMCI : 434,829 + 352,528 − 222,773 = 564,584 ÷ 13 279 286 = 42,52
     assert bpa["BMC"]["bpa_12m"] == 42.52
