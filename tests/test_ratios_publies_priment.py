@@ -78,3 +78,20 @@ def test_le_fichier_publie_pour_un_cas_reel():
         if isinstance(rp.get(k), dict) and rp[k].get("valeur") is not None:
             saisi[k] = rp[k]["valeur"]
     assert F.compute_fond_score("OUL", fond) == F.compute_fond_score("OUL", {"OUL": saisi})
+
+
+def test_une_tresorerie_nette_sans_ebitda_vaut_le_meilleur_bilan():
+    # Dette nette publiée −593 (SBS), pas d'EBITDA : bilan 9,0 (trésorerie
+    # nette), et non 7,0 (dette fictive de 1,0×). Conversion 90 → +0,5 = 9,5.
+    # Écart de note : (9,5 − 7,5) × 0,10 = 0,20.
+    base = dict(roic=30, cash_conversion=90)
+    avec = {"X": _fiche(**base, ratios_publies={"dette_nette": {"valeur": -593.0}})}
+    sans = {"X": _fiche(**base)}
+    assert round(F.compute_fond_score("X", avec) - F.compute_fond_score("X", sans), 2) == 0.2
+
+
+def test_une_dette_nette_positive_sans_ebitda_ne_change_rien():
+    base = dict(roic=30, cash_conversion=90)
+    avec = {"X": _fiche(**base, ratios_publies={"dette_nette": {"valeur": 120.0}})}
+    sans = {"X": _fiche(**base)}
+    assert F.compute_fond_score("X", avec) == F.compute_fond_score("X", sans)

@@ -253,6 +253,15 @@ def compute_fond_score(sym: str, fondamentaux: dict = None,
     _sect = f.get("secteur") or ""
     if _dne == 0 and any(_sect.startswith(s) for s in _SANS_OBJET):
         _dne = None                      # sans objet : on ne conclut rien
+    # ⚠️ TRÉSORERIE NETTE SANS EBITDA — 02/10/2026. Une société dont la
+    # dette nette calculée sur ses comptes est NÉGATIVE (plus de trésorerie
+    # que de dettes) a le meilleur bilan possible, quel que soit son EBITDA.
+    # Faute d'EBITDA publié, le ratio manquait et la note retombait sur une
+    # dette fictive de 1,0× l'EBITDA (DAR, SBS ; M2M et S2M au lot 3b).
+    if _dne is None and not est_financiere(f):
+        _dn = _publie(f, sym, "dette_nette")
+        if _dn is not None and _dn < 0:
+            _dne = -1.0
     dne = float(_dne) if _dne is not None else 1.0
     _cc = (ratio_effectif(f, sym, "cash_conversion") or {}).get("valeur")
     cc  = float(_cc) if _cc is not None else 70
