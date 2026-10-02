@@ -6585,7 +6585,41 @@
     "nb_actions": 812070,
     "bloomberg": "S2M",
     "reuters": "S2M",
-    "secteur_libre": null
+    "secteur_libre": null,
+    "ratios_publies": {
+      "dette_nette": {
+        "valeur": -56.6,
+        "date": "2025-12-31",
+        "formule": "8.151347 − 64.705636 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/S2M_RFA_2025.pdf, p. 25",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/S2M_RFA_2025.pdf, p. 25"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "MMAD"
+      },
+      "roic": {
+        "valeur": 53.1,
+        "date": "2025-12-31",
+        "formule": "53.863016 × (1 − t) ÷ (135.589205 + -56.554) ; t = 9.227736 ÷ 41.78609 = 22.1 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/S2M_RFA_2025.pdf, p. 25",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/S2M_RFA_2025.pdf, p. 25",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/S2M_RFA_2025.pdf, p. 25",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/S2M_RFA_2025.pdf, p. 25",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "%",
+        "taux_impot_effectif": 22.1
+      },
+      "non_calcules_2025": {
+        "ebitda": "EBITDA consolidé publié (p.6, « EBITDA 68 151 68 151 16,5% » en KMAD) NON RETENU : la colonne 2024 répète 2025 (faute de frappe : +16,5 % impliquerait 58 497) et le chiffre ne se reconstruit pas depuis les états consolidés (REX 53 863 + dotations d'exploitation nettes 10 958 = 64 821 ; écart 3 330). Il n'existe pas d'état des soldes de gestion consolidé ; l'EBE de 62,6 MMAD (p.7) est SOCIAL. Les « dotations d'exploitation, net » mêlent amortissements et reprises : pas d'EBITDA calculé.",
+        "dette_nette_ebitda": "dette nette ou EBITDA non calculé",
+        "cash_conversion": "pas de tableau des flux de trésorerie consolidé dans le dépôt : l'attestation des CAC (p.12) le cite, mais le rapport (§5.2, p.25-28) ne publie que le bilan, le CPC et des états annexes ; seuls des états sociaux (tableau de financement, CAF 39,6 MMAD, p.19) figurent. Flux d'exploitation non publié, ratio non calculé."
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "MRL": {
     "secteur": "Finance",
