@@ -19,7 +19,7 @@
    "total_actif, total_passif": "servent au contrôle d'équilibre du bilan"
   },
   "_regle": "chaque fait porte page, citation exacte (vérifiée contre le texte extrait de la page), unité et colonne. Base consolidée uniquement, jamais mêlée au social. Les contrôles arithmétiques de chaque émetteur sont dans `_controles_ratios_2025` ; un fait douteux n'est pas écrit et le ratio correspondant est listé dans `non_calcules` avec sa raison.",
-  "_non_traites": "MOX (tableau des flux en image, 310 MMAD de titres de placement de nature non établie), et les émetteurs financiers (sans objet)."
+  "_non_traites": "les émetteurs financiers (sans objet). MOX traité au lot 3b (02/10/2026) : tableau des flux lu sur image, 310 MMAD de titres de placement de nature non établie comptés en trésorerie comme le fait la société et signalés en réserve."
  },
  "ADI": {
   "societe": "Alliances Développement Immobilier",
@@ -9119,6 +9119,339 @@
     "La dette (310 MMAD de crédit de trésorerie, contre 140 en 2024) finance un BFR en hausse (créances clients 421 contre 264) : dette nette 117,7 MMAD pour un EBE de 110,2.",
     "L'ancien BPA de la table était faux (piège connu MIC) ; résultat net 69,548 ÷ 1 680 000 = 41,40 DH, à confronter lors du lot résultats."
    ]
+  }
+ },
+ "MOX": {
+  "societe": "MAGHREB OXYGENE",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025",
+  "url": "https://www.ammc.ma/sites/default/files/MOX_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-10-02",
+  "faits": {
+   "total_actif": {
+    "valeur": 970.207,
+    "valeur_au_rapport": 970207,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 33,
+    "note": "« TOTAL ACTIF 970 207 545 117 » ; en-tête « ACTIF (en milliers de dirhams) Note 31/12/2025 31/12/2024 » (état de la situation financière consolidée). Pages = rang dans le fichier PDF (p.33 du fichier = page imprimée 31).",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "total_passif": {
+    "valeur": 970.207,
+    "valeur_au_rapport": 970207,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 33,
+    "note": "« TOTAL PASSIF 970 207 545 117 » ; colonne 31/12/2025.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 319.225,
+    "valeur_au_rapport": 319225,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 33,
+    "note": "« Capitaux propres 319 225 307 028 » ; capital 81 250 + prime d'émission 40 990 + réserves consolidées 181 538 + résultat 15 447 = 319 225 ; « Intérêts minoritaires - - » : aucun minoritaire, donc ensemble = part du groupe. Recoupe le communiqué (p.169) : « Fonds propres consolidés … 319,2 ».",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 319.225,
+    "valeur_au_rapport": 319225,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 33,
+    "note": "« Capitaux propres 319 225 307 028 » (état de la situation financière consolidée, p.33) ; « Intérêts minoritaires - - » : aucun minoritaire, la part du groupe égale donc l'ensemble consolidé.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "dettes_financieres": {
+    "valeur": 476.213,
+    "valeur_au_rapport": 476213,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 145,
+    "composantes": [
+     {
+      "page": 33,
+      "citation": "Emprunts et autres passifs financiers à long terme 447 268 106 869",
+      "valeur_au_rapport": 447268
+     },
+     {
+      "page": 33,
+      "citation": "Emprunts et autres passifs financiers à court terme 28 945 15 407",
+      "valeur_au_rapport": 28945
+     }
+    ],
+    "note": "Emprunts et autres passifs financiers à long terme 447 268 + à court terme 28 945 = 476 213 KMAD ; la note 18 (p.145) ventile : « Emprunts et autres passifs financiers à + d'un an 447 268 », « Emprunts et autres passifs financiers à mois d'un an 6 282 » (sic), « Concours bancaires courants 22 663 », « EMPRUNTS ET DETTES FINANCIERES 476 213 122 277 ». Comprend l'emprunt obligataire de 450 MDH émis en 2025 (440 595 au coût amorti), 173 de crédit-bail et 12 487 de dettes de location IFRS 16. [note 18 lue sur le rendu]",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "tresorerie_actif": {
+    "valeur": 327.59,
+    "valeur_au_rapport": 327590,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 33,
+    "composantes": [
+     {
+      "page": 33,
+      "citation": "Titres de placement 310 299 -",
+      "valeur_au_rapport": 310299
+     },
+     {
+      "page": 33,
+      "citation": "Trésorerie et équivalents de trésorerie 17 291 17 452",
+      "valeur_au_rapport": 17291
+     }
+    ],
+    "note": "Trésorerie et équivalents 17 291 + titres de placement 310 299 = 327 590 KMAD. ⚠️ Les 310 299 sont des TITRES DE PLACEMENT dont aucune note ne donne la nature (la politique comptable p.119 cite « disponibilités, Sicav et autres fonds » ; le social les évalue « au montant nominal ») : financés par l'emprunt obligataire de 450 MDH. La société les COMPTE dans sa trésorerie : tableau des flux « Trésorerie à la fin de l'exercice 304 927 » = 17 291 + 310 299 − 22 663 (p.112) et note 18 « TRÉSORERIE NETTE (148 623) » = 17 291 + 310 299 − 476 213 (p.145). Dette nette retenue = 476 213 − 327 590 = 148 623 KMAD (concorde à la note 18).",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 37.371,
+    "valeur_au_rapport": 37371,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 32,
+    "note": "Sous-total PUBLIÉ du compte de résultat consolidé (« Résultat opérationnel avant amortissements »), non lu sur un graphique : il se reconstruit exactement, résultat opérationnel 12 518 + dotations aux amortissements 24 853 = 37 371, et par les lignes : 330 365 + 323 − 185 617 − 46 611 − 61 089 = 37 371. Colonnes 31/12/2025 puis 31/12/2024. [lu sur le rendu de la page, colonne « Note » omise]",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "dotations_amortissements_exploitation": {
+    "valeur": 24.853,
+    "valeur_au_rapport": 24853,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 32,
+    "note": "« Dotations aux amortissements (24 853) (25 907) » (inclut l'amortissement du droit d'utilisation IFRS 16). [lu sur le rendu de la page, colonne « Note » omise]",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "resultat_exploitation": {
+    "valeur": 12.518,
+    "valeur_au_rapport": 12518,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 32,
+    "note": "« Résultat opérationnel 12 518 8 071 » ; communiqué p.169 : « résultat opérationnel consolidé … 12,5 MDH, contre 8,1 ». ⚠️ Hors quote-part des sociétés mises en équivalence (12 158), qui n'entre pas dans le résultat opérationnel.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "resultat_financier": {
+    "valeur": -6.685,
+    "valeur_au_rapport": -6685,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 32,
+    "note": "« Coût de l'endettement financier net (6 685) (4 423) » : produits de trésorerie 14 995 − coût de l'endettement brut 21 680 ; « Autres produits et charges financières - ». [lu sur le rendu de la page, colonne « Note » omise]",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "resultat_avant_impot": {
+    "valeur": 5.833,
+    "valeur_au_rapport": 5833,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 32,
+    "note": "« Résultat avant impôt des sociétés intégrées 5 833 3 648 » = 12 518 − 6 685. ⚠️ HORS quote-part des sociétés mises en équivalence (12 158, publiée nette d'impôt) : c'est la base de l'impôt de 2 544 (taux effectif 43,6 %). Avec les sociétés mises en équivalence : 17 991.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "quote_part_mee": {
+    "valeur": 12.158,
+    "valeur_au_rapport": 12158,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 32,
+    "note": "« Quote part dans le résultat net des sociétés mises en équivalence 12 158 11 598 » (Proactis 25 %, Tafraouti 24 %, Sodegim 50 % ; p.168). 79 % du résultat net consolidé. [lu sur le rendu de la page, colonne « Note » omise]",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "impot_resultat": {
+    "valeur": 2.544,
+    "valeur_au_rapport": 2544,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 32,
+    "note": "« Impôts sur les résultats (2 544) (2 818) » (charge, entre parenthèses au rapport ; rapportée ici positive). [lu sur le rendu de la page, colonne « Note » omise]",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "resultat_net_consolide": {
+    "valeur": 15.447,
+    "valeur_au_rapport": 15447,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 32,
+    "note": "« Résultat net consolidé 15 447 12 428 » = 5 833 + 12 158 − 2 544 ; communiqué p.169 : « 15,4 MDH ». [lu sur le rendu de la page, colonne « Note » omise]",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 15.447,
+    "valeur_au_rapport": 15447,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 32,
+    "note": "« dont part du groupe 15 447 12 428 » ; « dont part minoritaires - - ». Identique à l'ensemble (aucun minoritaire). « Résultat net par action (en dirhams) 19,0 15,3 ».",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 43.629,
+    "valeur_au_rapport": 43629,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 112,
+    "note": "« Flux liés à l'exploitation 43 629 8 454 » (colonnes 31-déc-25 puis 31-déc-24), tableau des flux de trésorerie consolidé [lu sur rendu : page image]. Part du « Résultat net consolidé 15 447 » donc APRÈS coût de l'endettement : marge brute d'autofinancement 21 169 (15 447 + charges sans effet 10 119 + produits sans effet 2 511 − résultats MEE nets de dividendes 6 908) + variation des actifs et passifs d'exploitation 22 460 (stocks −14 047, autres actifs −29 568, passifs d'exploitation +66 075).",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "tresorerie_cloture_tableau_flux": {
+    "valeur": 304.927,
+    "valeur_au_rapport": 304927,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 112,
+    "note": "« Trésorerie à la fin de l'exercice 304 927 7 322 » [lu sur rendu] = 17 291 + 310 299 − 22 663 : le tableau des flux compte les titres de placement dans la trésorerie. Contrôle uniquement.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 812500,
+    "valeur_au_rapport": 812500,
+    "unite_au_rapport": "actions",
+    "page": 8,
+    "note": "« Capital social MAD 81 250 000 divisé en 812 500 actions de MAD 100 chacune au 31.12.2019 » ; capital 81 250 KMAD au bilan consolidé 2025 et 2024 (inchangé). Le référentiel de l'opérateur implique 812 500 (capitalisation 308 750 000 ÷ cours 380) : accord exact. BPA consolidé 15 447 ÷ 812,5 = 19,01 DH = « Résultat net par action 19,0 » publié ; social 8 493 ÷ 812,5 = 10,45 = « Bénéfice par action 10,45 » (p.169).",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-02"
+   }
+  },
+  "pages_document": 171,
+  "_controles_ratios_2025": {
+   "base": "consolidé IFRS, 31/12/2025",
+   "releve_le": "2026-10-02",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "970.207 vs 970.207"
+    },
+    {
+     "controle": "actifs non courants 361 739 + actifs courants 608 467 = total actif (1 KMAD d'arrondi)",
+     "ok": true,
+     "detail": "970.206 vs 970.207"
+    },
+    {
+     "controle": "capitaux propres + passifs non courants + passifs courants = total passif",
+     "ok": true,
+     "detail": "970.207"
+    },
+    {
+     "controle": "capital 81 250 + prime 40 990 + réserves 181 538 + résultat 15 447 = capitaux propres",
+     "ok": true,
+     "detail": "319.225"
+    },
+    {
+     "controle": "passifs non courants : 447 268 + 1 975 + 23 651 = 472 894",
+     "ok": true,
+     "detail": "472.894"
+    },
+    {
+     "controle": "passifs courants : 77 984 + 71 146 + 13 + 28 945 = 178 088",
+     "ok": true,
+     "detail": "178.088"
+    },
+    {
+     "controle": "actifs courants : 62 118 + 193 845 + 23 150 + 1 764 + 310 299 + 17 291 = 608 467",
+     "ok": true,
+     "detail": "608.467"
+    },
+    {
+     "controle": "actifs non courants : somme des lignes = 361 740 contre 361 739 publié (1 KMAD d'arrondi)",
+     "ok": true,
+     "detail": "361.740 vs 361.739"
+    },
+    {
+     "controle": "EBITDA publié 37 371 = 330 365 + 323 − 185 617 − 46 611 − 61 089",
+     "ok": true,
+     "detail": "37.371"
+    },
+    {
+     "controle": "EBITDA publié 37 371 = résultat opérationnel 12 518 + amortissements 24 853",
+     "ok": true,
+     "detail": "37.371"
+    },
+    {
+     "controle": "REX 12 518 + coût de l'endettement net −6 685 = RAI des sociétés intégrées 5 833",
+     "ok": true,
+     "detail": "5.833"
+    },
+    {
+     "controle": "produits de trésorerie 14 995 − coût de l'endettement brut 21 680 = −6 685",
+     "ok": true,
+     "detail": "-6.685"
+    },
+    {
+     "controle": "RAI 5 833 + MEE 12 158 − impôt 2 544 = RN consolidé 15 447",
+     "ok": true,
+     "detail": "15.447"
+    },
+    {
+     "controle": "marge brute d'autofinancement : 15 447 + 10 119 + 2 511 − 6 908 = 21 169 ; + 22 460 = flux d'exploitation 43 629",
+     "ok": true,
+     "detail": "43.629"
+    },
+    {
+     "controle": "variation des actifs et passifs d'exploitation : −14 047 − 29 568 + 66 075 = 22 460",
+     "ok": true,
+     "detail": "22.460"
+    },
+    {
+     "controle": "flux : exploitation 43 629 + investissement −77 616 + financement 331 592 = 297 605 ; 7 322 + 297 605 = 304 927",
+     "ok": true,
+     "detail": "304.927"
+    },
+    {
+     "controle": "flux de financement : −3 250 − 106 092 + 440 100 + 834 = 331 592",
+     "ok": true,
+     "detail": "331.592"
+    },
+    {
+     "controle": "trésorerie du tableau des flux 304 927 = disponibilités 17 291 + titres de placement 310 299 − concours bancaires 22 663",
+     "ok": true,
+     "detail": "304.927"
+    },
+    {
+     "controle": "dettes financières 447 268 + 6 282 + 22 663 = 476 213 = long terme 447 268 + court terme 28 945",
+     "ok": true,
+     "detail": "476.213"
+    },
+    {
+     "controle": "dette nette (476 213 − 327 590 = 148 623) = « TRÉSORERIE NETTE (148 623) » de la note 18",
+     "ok": true,
+     "detail": "148.623"
+    },
+    {
+     "controle": "BPA : 15 447 ÷ 812,5 = 19,01 DH, « Résultat net par action 19,0 » publié",
+     "ok": true,
+     "detail": "19.01"
+    }
+   ],
+   "reserves_verifiees": {
+    "titres_de_placement": "310,3 MMAD de titres de placement (32 % du total actif, 95 % de la trésorerie brute), nature non précisée (aucune note), acquis avec le produit de l'emprunt obligataire de 450 MDH émis en 2025 ; comptés en trésorerie par la société (tableau des flux, note 18). Sans eux la dette nette serait de 458,9 MMAD (dette nette/EBITDA 12,3 au lieu de 4,0) et les capitaux employés de 778,1 au lieu de 467,8. La liquidité n'est pas établie par le dépôt : à trancher en revue.",
+    "mise_en_equivalence": "79 % du résultat net consolidé (12,2 sur 15,4 MMAD) vient de sociétés mises en équivalence (Sodegim 50 %, Tafraouti 24 %, Proactis 25 %) : le ROIC (résultat opérationnel hors MEE) ne rapporte pas ce résultat aux capitaux employés, qui contiennent pourtant 86,4 MMAD de titres mis en équivalence. Le ROIC (≈1,5 %) est donc un plancher.",
+    "impot": "taux effectif 43,6 % = 2,544 ÷ 5,833 (résultat avant impôt des sociétés intégrées, hors MEE publiée nette d'impôt) ; sans rapprochement d'impôt dans les états lus.",
+    "cash_conversion": "flux d'exploitation 43,6 ÷ résultat net 15,4 = 282 % : flux APRÈS coût de l'endettement (départ du résultat net), arithmétiquement exact, mais gonflé par un résultat net faible et par +66,1 MMAD de passifs d'exploitation (hausse des dettes, y compris vraisemblablement des intérêts courus de l'emprunt obligataire, non détaillée dans les états lus).",
+    "social_et_consolide": "le dépôt contient comptes sociaux (résultat net 8,493 MMAD, BPA 10,45) et consolidés (15,447 MMAD, BPA 19,0) : tous les faits ci-dessus sont consolidés ; une source qui publie 10,45 est en social.",
+    "ecart_texte": "le rapport de gestion (p.13-15) parle du social : chiffre d'affaires 332,4 MDH (social) contre 330,4 (consolidé, p.32)."
+   }
   }
  }
 }
