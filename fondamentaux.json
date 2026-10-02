@@ -5766,6 +5766,15 @@
     },
     "source_s1_2026": "https://www.ammc.ma/sites/default/files/Colorado_S1_26.pdf",
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": 18.2,
+        "date": "2025-12-31",
+        "formule": "65.479342 ÷ 359.119876 (MMAD)",
+        "sources": {
+          "resultat": "bilan passif du dépôt S1 2026 (p.2, image), colonne « exercice précédent » : « Résultat net de l'exercice 65 479 341,98 » ; recoupé par https://www.ammc.ma/sites/default/files/CP_Colorado_2025.pdf : « un résultat net bénéficiaire de 65,5 MDH » — et sur yuna.ma le 30/09 (80,00 ÷ PER 19,70) : BPA 4,06 contre 4,06",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Colorado_RFA_2025.pdf, p. 12"
+        }
+      },
       "marge_nette_s1_2026": {
         "valeur": 9.1,
         "date": "2026-06-30",
@@ -5774,6 +5783,56 @@
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/Colorado_S1_26.pdf"
         }
+      },
+      "dette_nette": {
+        "valeur": 11.0,
+        "date": "2025-12-31",
+        "formule": "17.497612 − 6.513887 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Colorado_RFA_2025.pdf, p. 12",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Colorado_RFA_2025.pdf, p. 11"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Colorado ne publie pas de comptes consolidés (aucun titre de participation au bilan 2025)",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 117.6,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 117.616351 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Colorado_RFA_2025.pdf, p. 15"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Colorado ne publie pas de comptes consolidés (aucun titre de participation au bilan 2025)",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 0.09,
+        "date": "2025-12-31",
+        "formule": "10.984 ÷ 117.616351",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Colorado ne publie pas de comptes consolidés (aucun titre de participation au bilan 2025)"
+      },
+      "roic": {
+        "valeur": 23.1,
+        "date": "2025-12-31",
+        "formule": "112.057975 × (1 − t) ÷ (359.119876 + 10.984) ; t = 20.373949 ÷ 85.853291 = 23.7 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Colorado_RFA_2025.pdf, p. 13",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Colorado_RFA_2025.pdf, p. 14",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Colorado_RFA_2025.pdf, p. 14",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Colorado_RFA_2025.pdf, p. 12",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Colorado ne publie pas de comptes consolidés (aucun titre de participation au bilan 2025)",
+        "unite": "%",
+        "taux_impot_effectif": 23.7
+      },
+      "non_calcules_2025": {
+        "cash_conversion": "comptes SOCIAUX seuls : pas de tableau des flux de trésorerie (seulement un tableau de financement, p.16, et la CAF de l'état des soldes de gestion : 79,653 MMAD, p.15) ; flux net d'exploitation non publié. Le tableau de financement ne donne pas de flux d'exploitation : le calcul serait une reconstruction (CAF − variation du BFR), pas une lecture."
       },
       "calcule_le": "2026-09-30"
     }
