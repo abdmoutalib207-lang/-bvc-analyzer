@@ -4284,6 +4284,15 @@
     "croissance_bpa": 24.6,
     "source_s1_2026": "https://www.ammc.ma/sites/default/files/Afric_Industries_S1_26.pdf",
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": 15.3,
+        "date": "2025-12-31",
+        "formule": "7.530116 ÷ 49.153559 (MMAD)",
+        "sources": {
+          "resultat": "bilan passif du dépôt S1 2026 (p.4, image), colonne « exercice précédent » : « Résultat net de l'exercice 7 530 115,56 » ; recoupé par https://www.ammc.ma/sites/default/files/CP_Afric_Industries_2025.pdf : « Le Résultat Net s'élève à 7 530 kdh » — et sur yuna.ma le 30/09 (328,05 ÷ PER 12,70) : BPA 25,83 contre 25,83",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 18"
+        }
+      },
       "marge_nette_s1_2026": {
         "valeur": 17.6,
         "date": "2026-06-30",
@@ -4292,6 +4301,56 @@
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/Afric_Industries_S1_26.pdf"
         }
+      },
+      "dette_nette": {
+        "valeur": -8.2,
+        "date": "2025-12-31",
+        "formule": "0.0 − 8.175538 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 18",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 17"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Afric Industries ne publie que des comptes sociaux (aucun consolidé au dépôt ; titres de participation 21,6 MMAD : La Roseraie de l'Atlas, Balcony Residences)",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 11.5,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 11.549493 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 21"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Afric Industries ne publie que des comptes sociaux (aucun consolidé au dépôt ; titres de participation 21,6 MMAD : La Roseraie de l'Atlas, Balcony Residences)",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": -0.71,
+        "date": "2025-12-31",
+        "formule": "-8.176 ÷ 11.549493",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Afric Industries ne publie que des comptes sociaux (aucun consolidé au dépôt ; titres de participation 21,6 MMAD : La Roseraie de l'Atlas, Balcony Residences)"
+      },
+      "roic": {
+        "valeur": 20.7,
+        "date": "2025-12-31",
+        "formule": "11.150507 × (1 − t) ÷ (49.153559 + -8.176) ; t = 2.377595 ÷ 9.907711 = 24.0 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 19",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 20",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 20",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 18",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Afric Industries ne publie que des comptes sociaux (aucun consolidé au dépôt ; titres de participation 21,6 MMAD : La Roseraie de l'Atlas, Balcony Residences)",
+        "unite": "%",
+        "taux_impot_effectif": 24.0
+      },
+      "non_calcules_2025": {
+        "cash_conversion": "comptes sociaux : pas de tableau des flux de trésorerie, flux d'exploitation non relevé"
       },
       "calcule_le": "2026-09-30"
     }
