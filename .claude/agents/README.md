@@ -13,6 +13,7 @@ et les corrections qui se marchent dessus.
 | `analyste-nlp` | le calcul du champ `nlp` | la pondération du score (R8) |
 | `quant-backtest` | la mesure de performance | la modification du scoring (R8) |
 | `lecteur-comptes` | le chiffre lu dans un dépôt AMMC, avec sa page | la note qui en découle (R8), la fusion |
+| `verificateur-finance` | le verdict sur un chiffre ou un ratio : relevé, calcul, définition adaptée au métier | la correction elle-même, la note |
 
 ## Les deux séquences qui structurent le travail
 

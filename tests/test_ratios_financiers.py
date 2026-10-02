@@ -52,7 +52,10 @@ def test_la_note_fondamentale_ne_lit_que_les_trois_ratios_approuves():
     src = (RACINE / "pipeline" / "smart_money" / "fond_score.py").read_text(encoding="utf-8")
     lus = set(re.findall(r'ratio_effectif\(f, sym, "(\w+)"\)', src))
     assert lus == {"roic", "dette_nette_ebitda", "cash_conversion"}
-    assert '"roe' not in src
+    # 02/10/2026 (lot 1) : le ROE publié entre dans la note des SEULES
+    # financières, par `roe_effectif`, et nulle part ailleurs.
+    assert src.count('"roe_12m"') == 1 and src.count('"roe_2025"') == 1
+    assert "if est_financiere(f):\n        _roe = roe_effectif(f, sym)" in src
 
 
 # ── Ratios de bilan 2025 — dette nette, EBITDA, ROIC, conversion ─────────
@@ -162,9 +165,11 @@ def test_seuls_les_trois_ratios_approuves_font_bouger_la_note():
         if isinstance(f, dict):
             assert set(f) - {"ratios_publies"}, f"{s} : fiche créée pour des ratios publiés"
             rp = f.get("ratios_publies") or {}
+            fin = str(f.get("secteur") or "").startswith(("Banque", "Assurance", "Finance"))
+            cles = ("roe_12m", "roe_2025") if fin else ("roic", "dette_nette_ebitda", "cash_conversion")
             lu = s != "MSA" and any(
                 isinstance(rp.get(k), dict) and isinstance(rp[k].get("valeur"), (int, float))
-                for k in ("roic", "dette_nette_ebitda", "cash_conversion"))
+                for k in cles)
             if not lu:
                 assert compute_fond_score(s, FOND) == compute_fond_score(s, sans), s
 
