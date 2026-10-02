@@ -4755,6 +4755,37 @@
           "comptes": "https://www.ammc.ma/sites/default/files/Auto_Nejma_S1_26.pdf"
         }
       },
+      "dette_nette": {
+        "valeur": 544.4,
+        "date": "2025-12-31",
+        "formule": "636.535 − 92.131 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf, p. 104",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf, p. 104"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "MMAD"
+      },
+      "roic": {
+        "valeur": 16.7,
+        "date": "2025-12-31",
+        "formule": "533.038 × (1 − t) ÷ (1459.008 + 544.404) ; t = 191.293 ÷ 513.628 = 37.2 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf, p. 105",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf, p. 105",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf, p. 105",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf, p. 104",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "%",
+        "taux_impot_effectif": 37.2
+      },
+      "non_calcules_2025": {
+        "ebitda": "aucun EBE/EBITDA consolidé publié (l'état des soldes de gestion p.83 est SOCIAL : EBE 572,627 MMAD) et les « dotations d'exploitation » consolidées (106,831) mêlent amortissements et provisions. Seule ligne d'amortissements consolidée : « Dotations aux amortissements nettes des reprises 37.618 » du tableau des flux (p.106), net de reprises et inférieur aux dotations du social (55,215, p.83) : pas assez sûr pour publier. Indicatif non publié : 533,038 + 37,618 = 570,656 MMAD (dette nette/EBITDA ≈ 0,95 sans les placements, 0,32 avec).",
+        "dette_nette_ebitda": "dette nette ou EBITDA non calculé",
+        "cash_conversion": "le flux d'exploitation publié (−3,839 MMAD) contient l'ACHAT de titres de placement : la « variation du BFR » du tableau (−363,886) = variation des postes d'exploitation par les bilans (−97,829) + hausse des titres de placement (−266,060), car la trésorerie du tableau (92,130) exclut ces titres. Le ratio publié (−1,2 %) serait faux ; sans cet effet le flux serait d'environ +262,2 MMAD (80,9 % du résultat net), reconstruction non publiée. Non calculé."
+      },
       "calcule_le": "2026-09-30"
     }
   },
