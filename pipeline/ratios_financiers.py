@@ -163,10 +163,28 @@ def calculer_bilan(entree: dict | None) -> tuple[dict, dict]:
     if "dette_nette" in refus:
         non["dette_nette"] = refus["dette_nette"]
     elif _v(f, "dettes_financieres") is not None and _v(f, "tresorerie_actif") is not None:
-        dn = round(_v(f, "dettes_financieres") - _v(f, "tresorerie_actif"), 3)
-        out["dette_nette"] = base(round(dn, 1), f"{_v(f, 'dettes_financieres')} − {_v(f, 'tresorerie_actif')} ({mm})", {
-            "dettes_financieres": _src(entree, f, "dettes_financieres"),
-            "tresorerie": _src(entree, f, "tresorerie_actif")}, unite=mm)
+        # ⚠️ RÈGLE DES TITRES DE PLACEMENT — 02/10/2026 (verificateur-finance,
+        # lot 3b). Trésorerie = disponibilités + titres de placement de
+        # l'actif circulant, quelle que soit la présentation du tableau des
+        # flux ; exclusion seulement sur PIÈCE (nantissement, restriction,
+        # fonds de tiers), déclarée dans `_controles_ratios_2025.placements_exclus`.
+        # Avant, douze émetteurs les comptaient et quatre non (VCNE, DAR,
+        # NEJ, COL) : MOX et NEJ, qui avaient toutes deux placé le produit
+        # d'un emprunt obligataire, étaient traitées à l'opposé.
+        # La dette nette « stricte » (disponibilités seules) reste publiée.
+        tres = _v(f, "tresorerie_actif")
+        pl_k = next((k for k in ("titres_valeurs_placement", "titres_de_placement") if _v(f, k) is not None), None)
+        pl = _v(f, pl_k) if pl_k and not ctrl.get("placements_exclus") else None
+        dn_stricte = round(_v(f, "dettes_financieres") - tres, 3)
+        dn = round(dn_stricte - (pl or 0), 3)
+        formule = (f"{_v(f, 'dettes_financieres')} − ({tres} + {pl} de titres de placement) ({mm})" if pl
+                   else f"{_v(f, 'dettes_financieres')} − {tres} ({mm})")
+        src = {"dettes_financieres": _src(entree, f, "dettes_financieres"),
+               "tresorerie": _src(entree, f, "tresorerie_actif")}
+        if pl:
+            src["titres_de_placement"] = _src(entree, f, pl_k)
+        out["dette_nette"] = base(round(dn, 1), formule, src, unite=mm,
+                                  **({"dette_nette_stricte": round(dn_stricte, 1)} if pl else {}))
     else:
         non["dette_nette"] = "dettes financières ou trésorerie non relevées"
 
@@ -191,7 +209,11 @@ def calculer_bilan(entree: dict | None) -> tuple[dict, dict]:
         non["ebitda"] = "ni EBE publié, ni dotations aux amortissements isolées"
 
     # dette nette / EBITDA
-    if dn is not None and eb is not None:
+    if "dette_nette_ebitda" in refus:
+        # Numérateur non établi (ex. STR : arriérés fiscaux et sociaux hors
+        # dette financière, dettes « en cours de vérification ») — 02/10/2026.
+        non["dette_nette_ebitda"] = refus["dette_nette_ebitda"]
+    elif dn is not None and eb is not None:
         if eb > 0:
             out["dette_nette_ebitda"] = base(round(dn / eb, 2), f"{round(dn, 3)} ÷ {eb}", {
                 "dette_nette": "ratios_publies.dette_nette", "ebitda": "ratios_publies.ebitda"})
@@ -214,10 +236,18 @@ def calculer_bilan(entree: dict | None) -> tuple[dict, dict]:
             t = 0.0
             lib_t = f"t = 0 (résultat avant impôt {rai} ≤ 0 : pas d'impôt sur une perte)"
         ce = cp + dn
+        ta = _v(f, "total_actif")
         if not 0 <= t < 1:
             non["roic"] = f"taux effectif hors de [0, 100 %[ ({round(t * 100, 1)} %)"
         elif ce <= 0:
             non["roic"] = f"capitaux employés ≤ 0 ({round(ce, 1)})"
+        # ⚠️ Capitaux employés inférieurs à 10 % du total actif : le ratio
+        # rapporte un résultat à une base résiduelle et n'a plus de sens (DAR :
+        # 1,1 MMAD pour 683 d'actif). Seuil CHOISI, pas mesuré — 02/10/2026,
+        # proposé par verificateur-finance, retenu par défaut.
+        elif ta and ce < 0.10 * ta:
+            non["roic"] = (f"capitaux employés {round(ce, 1)} < 10 % du total actif ({ta}) : "
+                           "base résiduelle, ratio sans signification")
         else:
             out["roic"] = base(round(rex * (1 - t) / ce * 100, 1),
                                f"{rex} × (1 − t) ÷ ({cp} + {round(dn, 3)}) ; {lib_t}", {

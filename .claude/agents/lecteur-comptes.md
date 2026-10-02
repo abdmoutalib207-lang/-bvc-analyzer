@@ -189,8 +189,73 @@ fusion** : la fusion est la décision d'Abd Moutalib.
   n'y a pas touché.
 - (lot 14) Sigles proches : CMT (Minière Touissit) et CTM (transport) — lister
   les titres par `fondamentaux.json`, jamais de mémoire.
-- (lot 14) `faits_financiers.json` se réécrit en `indent=1`, sans saut de ligne final,
-  `ensure_ascii=False` : tout autre format fait un diff de milliers de lignes.
+- (lot 14) `faits_financiers.json` se réécrit en `indent=1`, `ensure_ascii=False` :
+  tout autre format fait un diff de milliers de lignes. ⚠️ Mesuré le 02/10/2026 : le
+  fichier se TERMINE par un saut de ligne (`json.dumps(d, ensure_ascii=False,
+  indent=1) + "\n"` le reproduit octet pour octet) ; l'ancienne ligne disait
+  l'inverse.
+- (lot 3b) Un flux d'exploitation peut contenir un ACHAT de titres de placement :
+  Auto Nejma (« flux … -3 839 ») a une trésorerie de tableau qui exclut les
+  placements (92,1), donc leur hausse (+266,1) passe dans la « variation du BFR »
+  (-363,9 = -97,8 par les bilans -266,1). Reconstituer la variation du BFR depuis
+  les deux bilans avant de calculer une conversion ; sinon `non_calcules`.
+- (lot 3b) Deux définitions de la trésorerie dans un même rapport (NEJ : tableau
+  des flux 92, note « trésorerie et équivalents » 455). Règle du fichier : les
+  placements n'entrent que si le TABLEAU DES FLUX les compte ; consigner l'autre
+  dette nette et le ROIC alternatif dans `reserves_verifiees`.
+- (lot 3b) Un EBITDA publié peut être inutilisable : S2M écrit « 68 151 68 151
+  16,5 % » (colonne 2024 dupliquée) et il ne se reconstruit pas (REX + dotations
+  nettes = 64 821). Des dotations « nettes » ou « nettes des reprises » ne sont
+  pas des amortissements isolés. Pas de ligne, pas d'EBITDA, indicatif en réserve.
+- (lot 3b) Le fichier déposé n'est pas toujours un rapport financier annuel :
+  `M2M_Group_2025.pdf` = 6 pages de comptes + attestations, les noms `_RFA_2025`
+  et `_0` donnent 404. Le dire dans `document` et `reserves_verifiees`. À
+  l'inverse, ce dépôt PUBLIE la part du groupe 2025 (le communiqué du S1, non).
+- (lot 3b) Un rapport de gestion mêle social et consolidé (S2M : « REX 56,5 » est
+  le social, 53,9 le consolidé ; MOX : CA 332,4 social, 330,4 consolidé ; NEJ :
+  yuna = social). Lire chaque chiffre dans l'état dont l'en-tête dit « consolidé ».
+- (lot 3b) Les notes peuvent se contredire avec le bilan : CIM note 7 (total
+  3 756 311 contre 3 739 311) et note 9 (emprunts 0 contre 2 368 677). Le bilan
+  qui s'équilibre prime, confirmé par au moins deux autres états ; la coquille
+  se consigne.
+- (lot 3b) La résolution d'AGO du rapport annuel donne le résultat en DIRHAMS
+  exacts (NEJ : 324 181 862,89) quand les états sont en KMAD arrondis : prendre
+  l'exact, citer l'arrondi.
+- (lot 3b) `test_chaque_fait_2025_est_source_et_chaque_controle_passe` exige
+  `ok: true` partout : un écart non expliqué (NEJ : 29 KMAD au tableau des flux)
+  va dans `reserves_verifiees`, jamais dans `controles` avec une tolérance
+  élargie. Une somme de lignes à 1-2 KMAD de l'état publié est un arrondi, dit.
+- (lot 3b) Le texte extrait d'un PDF de comptes à couche superposée (CIM p.61,
+  MOX p.168) ou à chiffres espacés (S2M, MOX) est brouillé : rendre la page
+  (`pg.crop(...).to_image(resolution=...)`) et lire. Les rapports « double page »
+  (CIM, S2M) : une page du fichier = deux pages imprimées, recadrer.
+- (lot 3b) La branche `fond/lot3b-faits-2025` peut exister localement, tenue par un
+  autre worktree : la création échoue ; pousser par
+  `HEAD:refs/heads/fond/lot3b-faits-2025`.
+
+- (lot 3b-bis) `nombre_actions_au_rapport` est LU par `update_data.py` (P/B, contrôle de
+  capitalisation) : ne l'écrire que si le dépôt donne le nombre de titres (STR : non,
+  capital seul, nominal absent -> clé `nombre_actions_referentiel`). Et le test P/B exige
+  ce nombre, avec sa page, pour tout émetteur portant `capitaux_propres_part_groupe` :
+  pour un social négatif sans consolidé, ne pas écrire de part du groupe.
+- (lot 3b-bis) Un capitaux propres NÉGATIF s'écrit en parenthèses dans la citation
+  (`(340 892 435,83)`, convention Stokvis) sinon `test_fonds_propres` lit le montant
+  positif ; dire que le rapport imprime « -340892435,83 ».
+- (lot 3b-bis) Mise en page décalée (Involys : libellés des lignes de détail non alignés
+  sur les montants) : ne lire que les totaux et fixer chaque ligne par l'arithmétique
+  (valeur ajoutée - impôts - personnel = EBE) ; les rapports « pivotés » (ETIC) se
+  redressent par `.rotate(-90)`.
+- (lot 3b-bis) `pdfplumber` met 80 s à rendre une page d'un PDF scanné de 30 Mo (Fenie
+  Brossette) : `pypdfium2` (`render(scale=...)`) la rend en secondes. Une planche-contact
+  (pages à 0,45) trouve la page voulue avant tout OCR.
+- (lot 3b-bis) Une holding (Zellidja) et sa filiale (Fenie Brossette) publient des
+  consolidés quasi identiques (CA 756,514, amortissements+provisions 22 897) : ne pas les
+  additionner ; le « EBITDA 41,6 » du rapport de la holding est celui de la filiale.
+- (lot 3b-bis) Titres de placement hors trésorerie (Colorado : 130 MMAD de FCP obligataires,
+  22 % de l'actif) : le tableau de financement les exclut (2,2), le rapport de gestion les
+  inclut (132,5) ; dette nette et ROIC alternatifs en réserve.
+- (lot 3b-bis) Un yuna en retard d'un exercice : Zellidja, BPA 11,52 = résultat SOCIAL 2024
+  (6,599) ÷ 572 849.
 
 ## Ce que tu ne fais jamais
 
