@@ -6486,6 +6486,15 @@
     },
     "source_s1_2026": "https://www.ammc.ma/sites/default/files/CP_Involys_S1_26.pdf",
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": 0.1,
+        "date": "2025-12-31",
+        "formule": "0.1 ÷ 90.369128 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/CP_Involys_2025.pdf — « un résultat net de 0,1 millions de dirhams »",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Involys_RFA_2025.pdf, p. 33"
+        }
+      },
       "marge_nette_s1_2026": {
         "valeur": -26.4,
         "date": "2026-06-30",
@@ -6494,6 +6503,56 @@
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/CP_Involys_S1_26.pdf"
         }
+      },
+      "dette_nette": {
+        "valeur": 16.5,
+        "date": "2025-12-31",
+        "formule": "16.754274 − 0.249751 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Involys_RFA_2025.pdf, p. 33",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Involys_RFA_2025.pdf, p. 32"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Involys ne consolide pas ses comptes (CAC p.28 : filiales étrangères sans activité, états indisponibles)",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 13.7,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 13.708308 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Involys_RFA_2025.pdf, p. 36"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Involys ne consolide pas ses comptes (CAC p.28 : filiales étrangères sans activité, états indisponibles)",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 1.2,
+        "date": "2025-12-31",
+        "formule": "16.505 ÷ 13.708308",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Involys ne consolide pas ses comptes (CAC p.28 : filiales étrangères sans activité, états indisponibles)"
+      },
+      "roic": {
+        "valeur": 0.1,
+        "date": "2025-12-31",
+        "formule": "0.315065 × (1 − t) ÷ (90.369128 + 16.505) ; t = 0.157108 ÷ 0.273287 = 57.5 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Involys_RFA_2025.pdf, p. 34",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Involys_RFA_2025.pdf, p. 35",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Involys_RFA_2025.pdf, p. 35",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Involys_RFA_2025.pdf, p. 33",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Involys ne consolide pas ses comptes (CAC p.28 : filiales étrangères sans activité, états indisponibles)",
+        "unite": "%",
+        "taux_impot_effectif": 57.5
+      },
+      "non_calcules_2025": {
+        "cash_conversion": "comptes SOCIAUX seuls : pas de tableau des flux de trésorerie (seulement un tableau de financement, p.37, et la CAF de l'état des soldes de gestion : 11,252 MMAD, p.36) ; flux net d'exploitation non publié. Résultat net de 0,116 MMAD de toute façon trop petit pour un ratio."
       },
       "calcule_le": "2026-09-30"
     }
