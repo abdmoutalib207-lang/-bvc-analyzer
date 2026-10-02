@@ -7527,14 +7527,19 @@
     }
    ],
    "non_calcules": {
-    "ebitda": "ni EBE/EBITDA publié, ni dotations aux amortissements isolées : « Dotations d'exploitation, nettes des reprises et TC 65.398.754 » (p.34) mêle amortissements, provisions et reprises ; le tableau des flux donne « Amortissement et provisions et reprises 22.236.661,40 », lui aussi mêlé, et très différent."
+    "ebitda": "ni EBE/EBITDA publié, ni dotations aux amortissements isolées : « Dotations d'exploitation, nettes des reprises et TC 65.398.754 » (p.34) mêle amortissements, provisions et reprises ; le tableau des flux donne « Amortissement et provisions et reprises 22.236.661,40 », lui aussi mêlé, et très différent.",
+    "roic": "capitaux employés 323,5 MMAD faits à 99,7 % de titres de placement (322,4) dont le revenu est hors du résultat d'exploitation ; traités en trésorerie, ils ramènent les capitaux employés à 1,1 MMAD : aucune lecture interprétable (Dari_Couspate_RFA_2025 p.33) (verificateur-finance, 02/10/2026)",
+    "cash_conversion": "la variation du BFR du tableau des flux inclut l'achat de titres de placement (+46,35 MMAD) : flux d'exploitation net d'un placement ; 139,7 % publié, 228,1 % hors titres — non comparable (p.33, p.35) (verificateur-finance, 02/10/2026)"
    },
    "reserves": [
     "TITRES DE PLACEMENT : 322,4 MMAD (47 % de l'actif) non comptés dans la trésorerie du tableau des flux, donc exclus de la trésorerie ici : dette nette −43,3 MMAD. En les comptant, la trésorerie nette serait de 365,7 MMAD et le ROIC changerait d'ordre de grandeur (capitaux employés 323,5 contre 1,1 MMAD). La nature de ces titres n'est pas documentée (aucune note déposée) : à trancher en revue, d'où la double lecture ci-contre.",
     "Périmètre : la filiale marocaine ARDI MILLS (capital 1 MMAD) n'est pas consolidée (activité non démarrée) ; l'exclusion est jugée non significative et expliquée dans le rapport des commissaires aux comptes (p.40).",
     "Lecture sur pages image : tous les totaux ont été recoupés (neuf identités). Le résultat d'exploitation se lit 73.425.332 alors que produits − charges des lignes arrondies donnent 73.425.333 : arrondi.",
     "Séparateurs : points = milliers dans les états consolidés ; le tableau des flux écrit en plus les centimes après une VIRGULE (73.170.181,71)."
-   ]
+   ],
+   "reserves_verifiees": {
+    "dette_nette": "hors 322,4 MMAD de titres de placement (la règle du projet les exclut de la trésorerie) ; trésorerie nette élargie 365,7 MMAD (verificateur-finance, 02/10/2026)"
+   }
   }
  },
  "DTT": {
@@ -7768,7 +7773,10 @@
     "Piège de lecture : la ligne « DETTES DE FINANCEMENT (c) 2 138 400,48 » du bilan passif appartient à l'exercice PRÉCÉDENT (la cellule 2025 est vide) ; confirmé par le total I et le tableau de financement.",
     "Impôt 3,738 sur un résultat avant impôt de 29,616 : taux effectif 12,6 %, nettement sous le taux normal, non expliqué dans le dépôt ; il alimente le ROIC.",
     "Ancien BPA de la table fondamentaux : faux (piège rappelé au lot 11) ; résultat net 25,878 ÷ 998 110 actions = 25,93 DH à titre de repère, à confronter à yuna lors du lot résultats."
-   ]
+   ],
+   "reserves_verifiees": {
+    "roic": "taux d'impôt effectif 12,6 % (11,4 % de la base fiscale, p.27), non normatif et de cause non établie par le dépôt ; à 22,75-25 % le ROIC serait de 9,9 à 10,2 % (verificateur-finance, 02/10/2026)"
+   }
   }
  },
  "JET": {
@@ -7968,16 +7976,18 @@
     "releve_le": "2026-10-02"
    },
    "excedent_brut_exploitation": {
-    "valeur": 538.0,
-    "valeur_au_rapport": 538,
-    "unite_au_rapport": "MMAD",
+    "valeur": 462.864,
+    "valeur_au_rapport": 462863636.46,
+    "unite_au_rapport": "MAD",
     "colonne_exercice_clos": 1,
-    "page": 1,
-    "document": "Communiqué de presse — résultats annuels 2025",
-    "url": "https://www.ammc.ma/sites/default/files/CP_Jet_Contractors_2025.pdf",
-    "note": "« EBITDA 538 352 174 » (histogramme du communiqué, titre « CONSOLIDÉS (EN MDH) », axe 2023 2024 2025) et phrase « amélioration significative de l'Ebitda et du résultat net avec une augmentation respective de 53% et 69% » : 538 ÷ 352 = +52,8 %, ce qui attribue 538 à 2025 (352 à 2024, 174 à 2023). ⚠️ Valeur ARRONDIE au million, lue sur un graphique et NON recoupée par le rapport annuel (aucune ligne EBE dans les états consolidés déposés). La définition de la société ne se reconstruit pas : résultat d'exploitation 435,275 + « Dotations d'exploitation 125,746 » (mêlées de provisions, p.2) = 561,021, soit 23,0 de plus. Retenue parce que publiée et attribuable (comme CTM), écart consigné.",
-    "base": "consolidé (normes marocaines), 31/12/2025",
-    "releve_le": "2026-10-02"
+    "page": 2,
+    "document": "Jet_Contractors_2025.pdf — compte de produits et charges consolidé",
+    "url": "https://www.ammc.ma/sites/default/files/Jet_Contractors_2025.pdf",
+    "note": "EBE (définition de l'état des soldes de gestion) RECALCULÉ depuis le CPC p.2, colonne exercice 2025 : (112 644 418,24 − 95 035 521,50) + (3 536 129 109,24 + 137 251 016,35 + 88 792 467,20) − (2 679 810 965,23 + 289 823 902,05) − 19 157 442,64 − 328 125 543,15 = 462 863 636,46 MAD. Contrôle : 462,864 + 5,168 − 0,608 + 93,597 − 125,746 = 435,275 = résultat d'exploitation publié. Même définition que DTT et MIC. verificateur-finance, 02/10/2026",
+    "remplace": {
+     "valeur": 538.0,
+     "motif": "« EBITDA 538 » lu sur l'histogramme du communiqué, non reconstructible sous aucune définition (EBE 462,9 ; REX + dotations 561,0)"
+    }
    },
    "nombre_actions_au_rapport": {
     "valeur": 3029522,
@@ -8298,7 +8308,14 @@
     "Conversion en trésorerie : le flux d'exploitation (442,6) est avant coût de l'endettement (159,9 réintégré) ; 442,6 ÷ 99,8 = 443 % est arithmétiquement exacte mais gonflée par ce choix de présentation et par la base minuscule du résultat.",
     "Taux d'impôt effectif 48,4 % (93,6 ÷ 193,5) : impôt différé et exigible sans rapprochement dans le dépôt.",
     "R11 : nombre d'actions du référentiel (54 140 578) ≠ rapport (50 294 528) à cause de l'augmentation de capital du 02/09/2026 ; BPA 2025 à calculer sur 50 294 528."
-   ]
+   ],
+   "non_calcules": {
+    "cash_conversion": "flux d'exploitation présenté AVANT coût de l'endettement (159,9 MMAD réintégrés), contrairement aux tableaux des autres sociétés : 443,3 % non comparable ; 283,2 % après intérêts reste gonflé par un résultat net faible (Auto_Hall_RFA_2025_0 p.59) (verificateur-finance, 02/10/2026)"
+   },
+   "reserves_verifiees": {
+    "dette_nette": "endettement tel que la société le définit (autres passifs non courants + autres passifs financiers CT, p.58), mais le groupe consolide un fonds de titrisation (FT Auto Mobility) : une partie peut financer des créances de crédit-auto — hypothèse non établie faute de notes (verificateur-finance, 02/10/2026)",
+    "actions": "ratios par action 2025 sur 50 294 528 actions (p.42) ; 54 140 578 depuis l'augmentation de capital de septembre 2026 (communiqué AMMC du 04/09/2026) pour la capitalisation au cours du jour seulement (verificateur-finance, 02/10/2026)"
+   }
   }
  },
  "SBS": {

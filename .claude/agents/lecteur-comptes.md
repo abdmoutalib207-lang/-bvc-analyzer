@@ -204,3 +204,12 @@ fusion** : la fusion est la décision d'Abd Moutalib.
 ci-dessus** et, s'il a coûté une erreur, une entrée dans
 `.claude/memory/ERRORS.md`. Une correction d'Abd Moutalib sur ta PR est un
 piège nouveau. C'est la seule mémoire que tu aies d'une session à l'autre.
+
+## Piège relevé le 02/10/2026 — le suffixe `_0` des fichiers AMMC
+
+`SBM_RFA_2025.pdf` répond 404 alors que `SBM_RFA_2025_0.pdf` est le vrai
+rapport ; `Auto_Hall_RFA_2025.pdf` ne contient qu'une page de communiqué,
+`Auto_Hall_RFA_2025_0.pdf` est le rapport complet. Quand un rapport attendu
+manque ou paraît incomplet, essayer la variante `_0` avant de conclure
+« non déposé ». Vérifier aussi le nombre de pages : un rapport annuel en a
+des dizaines.

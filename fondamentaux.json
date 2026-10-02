@@ -4203,20 +4203,20 @@
         "unite": "MMAD"
       },
       "ebitda": {
-        "valeur": 538.0,
+        "valeur": 462.9,
         "date": "2025-12-31",
-        "formule": "EBE/EBITDA publié par la société : 538.0 (MMAD)",
+        "formule": "EBE/EBITDA publié par la société : 462.864 (MMAD)",
         "sources": {
-          "ebitda": "Communication financière — comptes consolidés annuels 2025 (extrait de 3 pages) — https://www.ammc.ma/sites/default/files/Jet_Contractors_2025.pdf, p. 1"
+          "ebitda": "Communication financière — comptes consolidés annuels 2025 (extrait de 3 pages) — https://www.ammc.ma/sites/default/files/Jet_Contractors_2025.pdf, p. 2"
         },
         "base": "consolidé (normes marocaines), 31/12/2025",
         "unite": "MMAD",
         "origine": "publié"
       },
       "dette_nette_ebitda": {
-        "valeur": 2.49,
+        "valeur": 2.9,
         "date": "2025-12-31",
-        "formule": "1341.28 ÷ 538.0",
+        "formule": "1341.28 ÷ 462.864",
         "sources": {
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
@@ -4439,11 +4439,11 @@
     "source_s1_2026": "https://www.ammc.ma/sites/default/files/CP_Disty_Technologies_S1_26.pdf",
     "ratios_publies": {
       "roe_2025": {
-        "valeur": 13.9,
+        "valeur": 14.0,
         "date": "2025-12-31",
-        "formule": "25.8 ÷ 185.034939 (MMAD)",
+        "formule": "25.878 ÷ 185.034939 (MMAD)",
         "sources": {
-          "resultat": "https://www.ammc.ma/sites/default/files/CP_Disty_Technologies_2025.pdf — tableau « Principaux indicateurs en M MAD », résultat net 2025 : 25,8 ; texte : « Le résultat net atteint 25,8 MMAD »",
+          "resultat": "https://www.ammc.ma/sites/default/files/Disty_technologies_RFA_2025.pdf p.25 : « XIII RÉSULTAT NET ( XI - XII ) 25 878 107,91 » — rectifié le 02/10/2026 par verificateur-finance (avant : 25,8 arrondi du communiqué)",
           "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disty_technologies_RFA_2025.pdf, p. 24"
         }
       },
@@ -4754,16 +4754,8 @@
         "unite": "%",
         "taux_impot_effectif": 48.4
       },
-      "cash_conversion": {
-        "valeur": 443.3,
-        "date": "2025-12-31",
-        "formule": "442.585 ÷ 99.832377 (MMAD)",
-        "sources": {
-          "flux": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Hall_RFA_2025_0.pdf, p. 59",
-          "resultat_net": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Hall_RFA_2025_0.pdf, p. 58"
-        },
-        "base": "consolidé IFRS, 31/12/2025",
-        "unite": "%"
+      "non_calcules_2025": {
+        "cash_conversion": "flux d'exploitation présenté AVANT coût de l'endettement (159,9 MMAD réintégrés), contrairement aux tableaux des autres sociétés : 443,3 % non comparable ; 283,2 % après intérêts reste gonflé par un résultat net faible (Auto_Hall_RFA_2025_0 p.59) (verificateur-finance, 02/10/2026)"
       },
       "calcule_le": "2026-09-30"
     }
@@ -5803,35 +5795,11 @@
         "base": "consolidé (normes marocaines), 31/12/2025 — filiale marocaine ARDI MILLS (capital 1 MMAD, sans activité) non consolidée",
         "unite": "MMAD"
       },
-      "roic": {
-        "valeur": 16.4,
-        "date": "2025-12-31",
-        "formule": "73.425332 × (1 − t) ÷ (366.807324 + -43.314) ; t = 20.175584 ÷ 72.570612 = 27.8 %",
-        "sources": {
-          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf, p. 34",
-          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf, p. 34",
-          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf, p. 34",
-          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf, p. 33",
-          "dette_nette": "ratios_publies.dette_nette"
-        },
-        "base": "consolidé (normes marocaines), 31/12/2025 — filiale marocaine ARDI MILLS (capital 1 MMAD, sans activité) non consolidée",
-        "unite": "%",
-        "taux_impot_effectif": 27.8
-      },
-      "cash_conversion": {
-        "valeur": 139.7,
-        "date": "2025-12-31",
-        "formule": "73.170182 ÷ 52.395028 (MMAD)",
-        "sources": {
-          "flux": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf, p. 35",
-          "resultat_net": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf, p. 34"
-        },
-        "base": "consolidé (normes marocaines), 31/12/2025 — filiale marocaine ARDI MILLS (capital 1 MMAD, sans activité) non consolidée",
-        "unite": "%"
-      },
       "non_calcules_2025": {
         "ebitda": "ni EBE/EBITDA publié, ni dotations aux amortissements isolées : « Dotations d'exploitation, nettes des reprises et TC 65.398.754 » (p.34) mêle amortissements, provisions et reprises ; le tableau des flux donne « Amortissement et provisions et reprises 22.236.661,40 », lui aussi mêlé, et très différent.",
-        "dette_nette_ebitda": "dette nette ou EBITDA non calculé"
+        "dette_nette_ebitda": "dette nette ou EBITDA non calculé",
+        "roic": "capitaux employés 323,5 MMAD faits à 99,7 % de titres de placement (322,4) dont le revenu est hors du résultat d'exploitation ; traités en trésorerie, ils ramènent les capitaux employés à 1,1 MMAD : aucune lecture interprétable (Dari_Couspate_RFA_2025 p.33) (verificateur-finance, 02/10/2026)",
+        "cash_conversion": "la variation du BFR du tableau des flux inclut l'achat de titres de placement (+46,35 MMAD) : flux d'exploitation net d'un placement ; 139,7 % publié, 228,1 % hors titres — non comparable (p.33, p.35) (verificateur-finance, 02/10/2026)"
       },
       "calcule_le": "2026-09-30"
     }
