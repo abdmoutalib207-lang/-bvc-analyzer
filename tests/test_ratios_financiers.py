@@ -272,3 +272,20 @@ def test_gaz_doute_leve_par_la_note_14_lue_sur_image():
     assert _r("GAZ", "roic") == 19.1
     # 804,904 ÷ 750,500 = 107,2 %
     assert _r("GAZ", "cash_conversion") == 107.2
+
+
+# ── Règle des titres de placement — 02/10/2026 (verificateur-finance) ─────
+# Trésorerie = disponibilités + titres de placement ; dette nette « stricte »
+# publiée à côté. Attendus calculés à la main depuis les faits relevés.
+
+def test_les_titres_de_placement_comptent_dans_la_tresorerie():
+    rp = FOND["NEJ"]["ratios_publies"]["dette_nette"]
+    # 636,535 − 92,131 = 544,404 (stricte) ; − 363,226 de placements = 181,178
+    assert rp["valeur"] == 181.2 and rp["dette_nette_stricte"] == 544.4
+    assert FOND["COL"]["ratios_publies"]["dette_nette"]["valeur"] == -119.4
+
+
+def test_capitaux_employes_residuels_pas_de_roic():
+    # DAR : 366,807 + (−365,7) ≈ 1,1 MMAD pour 683,177 d'actif : < 10 %
+    assert "roic" not in FOND["DAR"]["ratios_publies"]
+    assert "roic" in FOND["DAR"]["ratios_publies"]["non_calcules_2025"]

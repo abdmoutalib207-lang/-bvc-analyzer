@@ -4966,7 +4966,9 @@
     "note_7": "Tableau de variation des capitaux propres (p.63) : total « 3 756 311 » ≠ bilan 3 739 311 (écart 17 000 sur la colonne réserves : 767 063 au tableau, 784 063 par le calcul des flux). Le bilan, qui s'équilibre et que reprennent les comptes proforma, prime ; coquille de la société.",
     "note_9": "État des dettes (p.63) : emprunts 0 et colonnes qui ne se rattachent pas au bilan ; ignoré, voir dettes_financieres.",
     "ebitda": "EBITDA 2 248,7 = REX 2 031,8 + amortissements 216,9 : le REX contient 134,5 MMAD d'« autres produits d'exploitation » (dont reprises de provisions) non retraités.",
-    "actions": "14 436 000 (capital ÷ nominal, fait existant), 14 436 004 (CPC consolidé), 14 436 250 (référentiel de l'opérateur) : écarts de quelques titres, aucune opération sur le capital en 2025 (capital inchangé 1 443 600 KMAD en 2024 et 2025)."
+    "actions": "14 436 000 (capital ÷ nominal, fait existant), 14 436 004 (CPC consolidé), 14 436 250 (référentiel de l'opérateur) : écarts de quelques titres, aucune opération sur le capital en 2025 (capital inchangé 1 443 600 KMAD en 2024 et 2025).",
+    "capitaux_propres": "note 7 (p.63) : il manque un mouvement de −17 001 KMAD dans la colonne réserves (821 848 + 914 161 − 866 160 − 85 785 = 784 064 contre 767 063 publié) ; le bilan, recoupé par quatre états, prime (verificateur-finance, 02/10/2026)",
+    "roic": "le résultat d'exploitation 2025 ne contient que six mois d'Asment, rapportés à des capitaux employés de fin d'année : 29,2 % ; 37,8 % sur capitaux employés moyens ; les comptes proforma (p.62) ne donnent pas l'année pleine (verificateur-finance, 02/10/2026)"
    }
   }
  },
@@ -9451,6 +9453,10 @@
     "cash_conversion": "flux d'exploitation 43,6 ÷ résultat net 15,4 = 282 % : flux APRÈS coût de l'endettement (départ du résultat net), arithmétiquement exact, mais gonflé par un résultat net faible et par +66,1 MMAD de passifs d'exploitation (hausse des dettes, y compris vraisemblablement des intérêts courus de l'emprunt obligataire, non détaillée dans les états lus).",
     "social_et_consolide": "le dépôt contient comptes sociaux (résultat net 8,493 MMAD, BPA 10,45) et consolidés (15,447 MMAD, BPA 19,0) : tous les faits ci-dessus sont consolidés ; une source qui publie 10,45 est en social.",
     "ecart_texte": "le rapport de gestion (p.13-15) parle du social : chiffre d'affaires 332,4 MDH (social) contre 330,4 (consolidé, p.32)."
+   },
+   "non_calcules": {
+    "roic": "86,4 MMAD de titres mis en équivalence sont dans les capitaux employés alors que leur résultat (12,158) n'est pas dans le résultat d'exploitation : 1,5 % publié, 1,85 % hors mises en équivalence (« ROIC des sociétés intégrées »), le montant des titres n'étant pas encore relevé comme fait (MOX_RFA_2025 p.32-33) (verificateur-finance, 02/10/2026)",
+    "cash_conversion": "79 % du résultat net vient de sociétés mises en équivalence, non encaissé (5,25 MMAD de dividendes reçus) : 282 % publié, 511 % sur base corrigée — illisible (p.112) (verificateur-finance, 02/10/2026)"
    }
   }
  },
@@ -9781,7 +9787,8 @@
    ],
    "non_calcules": {
     "ebitda": "aucun EBE/EBITDA consolidé publié ; le CPC consolidé ne donne qu'un total « Dotations d'exploitation 9 491 203 » qui MÊLE amortissements et provisions (le dépôt de 6 pages n'en donne pas la ventilation). Pas de ventilation, pas d'EBITDA. Pour mémoire, la société calcule elle-même dans son tableau des flux « Résultat d'exploitation 18 555 575,43 » = résultat d'exploitation 9 064 372,84 + dotation d'exploitation 9 491 202,59 (libellé erroné) : borne haute de l'EBITDA, provisions comprises.",
-    "dette_nette_ebitda": "sans EBITDA ; la société est de toute façon en trésorerie nette (dette nette −176,5 MMAD)."
+    "dette_nette_ebitda": "sans EBITDA ; la société est de toute façon en trésorerie nette (dette nette −176,5 MMAD).",
+    "cash_conversion": "ligne « Autres » (6,36 MMAD) non expliquée, et variation du BFR égale au dirham près à la variation par les bilans moins la hausse des provisions, alors que les dotations sont déjà réintégrées : double comptage possible (M2M_Group_2025 p.4-5) (verificateur-finance, 02/10/2026)"
    },
    "reserves_verifiees": {
     "rapport": "⚠️ Le document déposé à l'AMMC sous M2M_Group_2025.pdf n'est PAS le rapport financier annuel : c'est une publication de 6 pages « Résultats Financiers 2025 » (comptes sociaux p.1-3, consolidés p.4-5, attestations des CAC), qui renvoie au site de la société pour le rapport financier (« www.m2mgroup.com »). M2M_group_RFA_2025(_0), M2M_RFA_2025(_0) et M2M_Group_RFA_2025(_0) répondent 404 ; le catalogue AMMC ne porte aucun RFA de M2M. Sans notes (pas d'ETIC), les ventilations d'amortissements, de trésorerie et de dettes manquent.",
@@ -9791,7 +9798,8 @@
     "cash_conversion": "flux d'exploitation 23,976 ÷ résultat net consolidé 6,545 = 366 % : exact, après intérêts et impôt, mais gonflé par un résultat net faible et par une ligne « Autres » de 6,363 MMAD non expliquée dans le dépôt.",
     "variation_capitaux_propres": "capitaux propres part du groupe : +7,674 MMAD d'« Autres variations » en 2025 (+6,143 pour les minoritaires), sans explication dans le dépôt ; la hausse de 20,4 MMAD des capitaux propres consolidés est donc due pour deux tiers à autre chose que le résultat (6,5).",
     "unite": "montants en dirhams entiers (pas en milliers) : ne pas confondre avec les KMAD de l'attestation des CAC.",
-    "actions": "nombre d'actions (647 777) calculé, non lu : le dépôt ne le dit pas (voir nombre_actions_au_rapport)."
+    "actions": "nombre d'actions (647 777) calculé, non lu : le dépôt ne le dit pas (voir nombre_actions_au_rapport).",
+    "dette_nette": "144,1 MMAD de VMP (81 % de la trésorerie), nature non précisée par le dépôt ; si une part était des fonds de tiers, la trésorerie serait surestimée — ROIC 9,7 % avec, 2,7 % sans (verificateur-finance, 02/10/2026)"
    }
   }
  },
@@ -10047,7 +10055,7 @@
     }
    ],
    "non_calcules": {
-    "ebitda": "EBITDA consolidé publié (p.6, « EBITDA 68 151 68 151 16,5% » en KMAD) NON RETENU : la colonne 2024 répète 2025 (faute de frappe : +16,5 % impliquerait 58 497) et le chiffre ne se reconstruit pas depuis les états consolidés (REX 53 863 + dotations d'exploitation nettes 10 958 = 64 821 ; écart 3 330). Il n'existe pas d'état des soldes de gestion consolidé ; l'EBE de 62,6 MMAD (p.7) est SOCIAL. Les « dotations d'exploitation, net » mêlent amortissements et reprises : pas d'EBITDA calculé.",
+    "ebitda": "EBITDA consolidé publié (68 151 KMAD, p.6) NON RETENU : il ne se reconstruit pas depuis les états consolidés (REX 53 863 + dotations nettes 10 958 = 64 821 ; écart 3 330) ; la colonne 2024 qui répète 2025 n'est qu'un indice secondaire (correction du motif, verificateur-finance, 02/10/2026). — Motif initial : EBITDA consolidé publié (p.6, « EBITDA 68 151 68 151 16,5% » en KMAD) NON RETENU : la colonne 2024 répète 2025 (faute de frappe : +16,5 % impliquerait 58 497) et le chiffre ne se reconstruit pas depuis les états consolidés (REX 53 863 + dotations d'exploitation nettes 10 958 = 64 821 ; écart 3 330). Il n'existe pas d'état des soldes de gestion consolidé ; l'EBE de 62,6 MMAD (p.7) est SOCIAL. Les « dotations d'exploitation, net » mêlent amortissements et reprises : pas d'EBITDA calculé.",
     "dette_nette_ebitda": "sans EBITDA ; la société est de toute façon en trésorerie nette (dette nette −56,6 MMAD).",
     "cash_conversion": "pas de tableau des flux de trésorerie consolidé dans le dépôt : l'attestation des CAC (p.12) le cite, mais le rapport (§5.2, p.25-28) ne publie que le bilan, le CPC et des états annexes ; seuls des états sociaux (tableau de financement, CAF 39,6 MMAD, p.19) figurent. Flux d'exploitation non publié, ratio non calculé."
    },

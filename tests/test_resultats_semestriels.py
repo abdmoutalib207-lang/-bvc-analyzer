@@ -224,8 +224,9 @@ def test_lot8_fnb_uni_inv_hal():
     assert bpa["HAL"]["bpa_12m"] == 2.17
     # UNI : 11 + 29 − (−40) = 80 ÷ 11 413 880 = 7,01
     assert bpa["UNI"]["bpa_12m"] == 7.01
-    # INV : 0,1 − 3,8 − 2,8 = −6,5 ÷ 382 716 = −16,98 — perte documentée
-    assert bpa["INV"]["bpa_12m"] == -16.98 and bpa["INV"]["perte_documentee"]
+    # INV : exercice 2025 lu au rapport (0,116, p.35) depuis le 02/10, au lieu
+    # de l'arrondi 0,1 : 0,116 − 3,8 − 2,8 = −6,484 ÷ 382 716 = −16,94
+    assert bpa["INV"]["bpa_12m"] == -16.94 and bpa["INV"]["perte_documentee"]
     fond = json.loads((RACINE / "fondamentaux.json").read_text(encoding="utf-8"))
     assert fond["HAL"]["ratios_publies"]["roe_2025"]["valeur"] == 6.9
 

@@ -4659,31 +4659,9 @@
         },
         "base": "consolidé IFRS, 31/12/2025"
       },
-      "roic": {
-        "valeur": 1.5,
-        "date": "2025-12-31",
-        "formule": "12.518 × (1 − t) ÷ (319.225 + 148.623) ; t = 2.544 ÷ 5.833 = 43.6 %",
-        "sources": {
-          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/MOX_RFA_2025.pdf, p. 32",
-          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/MOX_RFA_2025.pdf, p. 32",
-          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/MOX_RFA_2025.pdf, p. 32",
-          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/MOX_RFA_2025.pdf, p. 33",
-          "dette_nette": "ratios_publies.dette_nette"
-        },
-        "base": "consolidé IFRS, 31/12/2025",
-        "unite": "%",
-        "taux_impot_effectif": 43.6
-      },
-      "cash_conversion": {
-        "valeur": 282.4,
-        "date": "2025-12-31",
-        "formule": "43.629 ÷ 15.447 (MMAD)",
-        "sources": {
-          "flux": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/MOX_RFA_2025.pdf, p. 112",
-          "resultat_net": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/MOX_RFA_2025.pdf, p. 32"
-        },
-        "base": "consolidé IFRS, 31/12/2025",
-        "unite": "%"
+      "non_calcules_2025": {
+        "roic": "86,4 MMAD de titres mis en équivalence sont dans les capitaux employés alors que leur résultat (12,158) n'est pas dans le résultat d'exploitation : 1,5 % publié, 1,85 % hors mises en équivalence (« ROIC des sociétés intégrées »), le montant des titres n'étant pas encore relevé comme fait (MOX_RFA_2025 p.32-33) (verificateur-finance, 02/10/2026)",
+        "cash_conversion": "79 % du résultat net vient de sociétés mises en équivalence, non encaissé (5,25 MMAD de dividendes reçus) : 282 % publié, 511 % sur base corrigée — illisible (p.112) (verificateur-finance, 02/10/2026)"
       },
       "calcule_le": "2026-09-30"
     }
@@ -4756,20 +4734,22 @@
         }
       },
       "dette_nette": {
-        "valeur": 544.4,
+        "valeur": 181.2,
         "date": "2025-12-31",
-        "formule": "636.535 − 92.131 (MMAD)",
+        "formule": "636.535 − (92.131 + 363.226 de titres de placement) (MMAD)",
         "sources": {
           "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf, p. 104",
-          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf, p. 104"
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf, p. 104",
+          "titres_de_placement": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf, p. 104"
         },
         "base": "consolidé (normes marocaines), 31/12/2025",
-        "unite": "MMAD"
+        "unite": "MMAD",
+        "dette_nette_stricte": 544.4
       },
       "roic": {
-        "valeur": 16.7,
+        "valeur": 20.4,
         "date": "2025-12-31",
-        "formule": "533.038 × (1 − t) ÷ (1459.008 + 544.404) ; t = 191.293 ÷ 513.628 = 37.2 %",
+        "formule": "533.038 × (1 − t) ÷ (1459.008 + 181.178) ; t = 191.293 ÷ 513.628 = 37.2 %",
         "sources": {
           "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf, p. 105",
           "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf, p. 105",
@@ -5785,15 +5765,17 @@
         }
       },
       "dette_nette": {
-        "valeur": 11.0,
+        "valeur": -119.4,
         "date": "2025-12-31",
-        "formule": "17.497612 − 6.513887 (MMAD)",
+        "formule": "17.497612 − (6.513887 + 130.33998 de titres de placement) (MMAD)",
         "sources": {
           "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Colorado_RFA_2025.pdf, p. 12",
-          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Colorado_RFA_2025.pdf, p. 11"
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Colorado_RFA_2025.pdf, p. 11",
+          "titres_de_placement": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Colorado_RFA_2025.pdf, p. 11"
         },
         "base": "SOCIAL (normes marocaines), 31/12/2025 — Colorado ne publie pas de comptes consolidés (aucun titre de participation au bilan 2025)",
-        "unite": "MMAD"
+        "unite": "MMAD",
+        "dette_nette_stricte": 11.0
       },
       "ebitda": {
         "valeur": 117.6,
@@ -5807,9 +5789,9 @@
         "origine": "publié"
       },
       "dette_nette_ebitda": {
-        "valeur": 0.09,
+        "valeur": -1.01,
         "date": "2025-12-31",
-        "formule": "10.984 ÷ 117.616351",
+        "formule": "-119.356 ÷ 117.616351",
         "sources": {
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
@@ -5817,9 +5799,9 @@
         "base": "SOCIAL (normes marocaines), 31/12/2025 — Colorado ne publie pas de comptes consolidés (aucun titre de participation au bilan 2025)"
       },
       "roic": {
-        "valeur": 23.1,
+        "valeur": 35.6,
         "date": "2025-12-31",
-        "formule": "112.057975 × (1 − t) ÷ (359.119876 + 10.984) ; t = 20.373949 ÷ 85.853291 = 23.7 %",
+        "formule": "112.057975 × (1 − t) ÷ (359.119876 + -119.356) ; t = 20.373949 ÷ 85.853291 = 23.7 %",
         "sources": {
           "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Colorado_RFA_2025.pdf, p. 13",
           "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Colorado_RFA_2025.pdf, p. 14",
@@ -5878,9 +5860,9 @@
       "roe_2025": {
         "valeur": 9.1,
         "date": "2025-12-31",
-        "formule": "14.9 ÷ 163.336 (MMAD)",
+        "formule": "14.856 ÷ 163.336 (MMAD)",
         "sources": {
-          "resultat": "https://www.ammc.ma/sites/default/files/CP_Fenie_Brossette_2025.pdf (image, lue) — « le résultat net part du Groupe ressort à 14,9 M MAD, impacté principalement par la dotation financière au niveau d'une filiale africaine » (social : 17,9)",
+          "resultat": "https://www.ammc.ma/sites/default/files/Fenie_Brossette_RFA_2025.pdf p.48 : « « Résultat net part du Groupe 14 856 16 603 » ; « Intérêts minoritaires - - ». [lu sur le rendu de la page : le texte ex » — rectifié le 02/10/2026 (lot 3b) : montant du rapport annuel au lieu de l'arrondi du communiqué",
           "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Fenie_Brossette_RFA_2025.pdf, p. 104"
         }
       },
@@ -6052,15 +6034,17 @@
         }
       },
       "dette_nette": {
-        "valeur": -43.3,
+        "valeur": -365.7,
         "date": "2025-12-31",
-        "formule": "0.0 − 43.313576 (MMAD)",
+        "formule": "0.0 − (43.313576 + 322.389226 de titres de placement) (MMAD)",
         "sources": {
           "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf, p. 33",
-          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf, p. 33"
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf, p. 33",
+          "titres_de_placement": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf, p. 33"
         },
         "base": "consolidé (normes marocaines), 31/12/2025 — filiale marocaine ARDI MILLS (capital 1 MMAD, sans activité) non consolidée",
-        "unite": "MMAD"
+        "unite": "MMAD",
+        "dette_nette_stricte": -43.3
       },
       "non_calcules_2025": {
         "ebitda": "ni EBE/EBITDA publié, ni dotations aux amortissements isolées : « Dotations d'exploitation, nettes des reprises et TC 65.398.754 » (p.34) mêle amortissements, provisions et reprises ; le tableau des flux donne « Amortissement et provisions et reprises 22.236.661,40 », lui aussi mêlé, et très différent.",
@@ -6616,9 +6600,9 @@
       "roe_2025": {
         "valeur": 0.1,
         "date": "2025-12-31",
-        "formule": "0.1 ÷ 90.369128 (MMAD)",
+        "formule": "0.116 ÷ 90.369128 (MMAD)",
         "sources": {
-          "resultat": "https://www.ammc.ma/sites/default/files/CP_Involys_2025.pdf — « un résultat net de 0,1 millions de dirhams »",
+          "resultat": "https://www.ammc.ma/sites/default/files/Involys_RFA_2025.pdf p.35 : « Même valeur : pas de consolidé, résultat social en tenant lieu. [lu sur le rendu de la page : le tableau est une image] » — rectifié le 02/10/2026 (lot 3b) : montant du rapport annuel au lieu de l'arrondi du communiqué",
           "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Involys_RFA_2025.pdf, p. 33"
         }
       },
@@ -6741,20 +6725,10 @@
         "unite": "%",
         "taux_impot_effectif": 40.1
       },
-      "cash_conversion": {
-        "valeur": 366.3,
-        "date": "2025-12-31",
-        "formule": "23.976146 ÷ 6.545127 (MMAD)",
-        "sources": {
-          "flux": "Résultats Financiers 2025 (comptes sociaux et consolidés, 6 pages — pas de rapport financier annuel au catalogue AMMC) — https://www.ammc.ma/sites/default/files/M2M_Group_2025.pdf, p. 5",
-          "resultat_net": "Résultats Financiers 2025 (comptes sociaux et consolidés, 6 pages — pas de rapport financier annuel au catalogue AMMC) — https://www.ammc.ma/sites/default/files/M2M_Group_2025.pdf, p. 4"
-        },
-        "base": "consolidé (normes marocaines), 31/12/2025",
-        "unite": "%"
-      },
       "non_calcules_2025": {
         "ebitda": "aucun EBE/EBITDA consolidé publié ; le CPC consolidé ne donne qu'un total « Dotations d'exploitation 9 491 203 » qui MÊLE amortissements et provisions (le dépôt de 6 pages n'en donne pas la ventilation). Pas de ventilation, pas d'EBITDA. Pour mémoire, la société calcule elle-même dans son tableau des flux « Résultat d'exploitation 18 555 575,43 » = résultat d'exploitation 9 064 372,84 + dotation d'exploitation 9 491 202,59 (libellé erroné) : borne haute de l'EBITDA, provisions comprises.",
-        "dette_nette_ebitda": "dette nette ou EBITDA non calculé"
+        "dette_nette_ebitda": "dette nette ou EBITDA non calculé",
+        "cash_conversion": "ligne « Autres » (6,36 MMAD) non expliquée, et variation du BFR égale au dirham près à la variation par les bilans moins la hausse des provisions, alors que les dotations sont déjà réintégrées : double comptage possible (M2M_Group_2025 p.4-5) (verificateur-finance, 02/10/2026)"
       },
       "calcule_le": "2026-09-30"
     }
@@ -6926,7 +6900,7 @@
         "taux_impot_effectif": 22.1
       },
       "non_calcules_2025": {
-        "ebitda": "EBITDA consolidé publié (p.6, « EBITDA 68 151 68 151 16,5% » en KMAD) NON RETENU : la colonne 2024 répète 2025 (faute de frappe : +16,5 % impliquerait 58 497) et le chiffre ne se reconstruit pas depuis les états consolidés (REX 53 863 + dotations d'exploitation nettes 10 958 = 64 821 ; écart 3 330). Il n'existe pas d'état des soldes de gestion consolidé ; l'EBE de 62,6 MMAD (p.7) est SOCIAL. Les « dotations d'exploitation, net » mêlent amortissements et reprises : pas d'EBITDA calculé.",
+        "ebitda": "EBITDA consolidé publié (68 151 KMAD, p.6) NON RETENU : il ne se reconstruit pas depuis les états consolidés (REX 53 863 + dotations nettes 10 958 = 64 821 ; écart 3 330) ; la colonne 2024 qui répète 2025 n'est qu'un indice secondaire (correction du motif, verificateur-finance, 02/10/2026). — Motif initial : EBITDA consolidé publié (p.6, « EBITDA 68 151 68 151 16,5% » en KMAD) NON RETENU : la colonne 2024 répète 2025 (faute de frappe : +16,5 % impliquerait 58 497) et le chiffre ne se reconstruit pas depuis les états consolidés (REX 53 863 + dotations d'exploitation nettes 10 958 = 64 821 ; écart 3 330). Il n'existe pas d'état des soldes de gestion consolidé ; l'EBE de 62,6 MMAD (p.7) est SOCIAL. Les « dotations d'exploitation, net » mêlent amortissements et reprises : pas d'EBITDA calculé.",
         "dette_nette_ebitda": "dette nette ou EBITDA non calculé",
         "cash_conversion": "pas de tableau des flux de trésorerie consolidé dans le dépôt : l'attestation des CAC (p.12) le cite, mais le rapport (§5.2, p.25-28) ne publie que le bilan, le CPC et des états annexes ; seuls des états sociaux (tableau de financement, CAF 39,6 MMAD, p.19) figurent. Flux d'exploitation non publié, ratio non calculé."
       },
