@@ -2521,6 +2521,31 @@ def _pb_sourcé(ticker: str, price: float):
         return None
 
 
+def _charger_actions_operateur() -> dict:
+    """{ticker: nombre d'actions} déduit par l'opérateur. Fonction de lecture.
+
+    ⚠️ 02/10/2026. Le nombre d'actions tiré de la capitalisation de
+    casablanca-bourse.com (valeur unique sur 40 séances,
+    `datasets/historiques_importes/<T>.json`) est le plus récent, vient de
+    l'opérateur lui-même et est déjà à jour des splits. Sans lui, LHM passait
+    avec une capitalisation servie surévaluée de 9,4 % (25,6 M d'actions
+    implicites contre 23 431 240 chez l'opérateur).
+    """
+    out = {}
+    for p in (Path(__file__).parent / "datasets" / "historiques_importes").glob("*.json"):
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        ded = (d.get("_identite_verifiee") or {}).get("nombre_d_actions_deduit") or []
+        if ded and isinstance(ded[-1], (int, float)) and ded[-1] > 0:
+            out[d.get("ticker") or p.stem] = float(ded[-1])
+    return out
+
+
+ACTIONS_OPERATEUR = _charger_actions_operateur()
+
+
 def _actions_sourcees(ticker: str):
     """Le nombre d'actions du rapport, ajusté des splits postérieurs. None sinon.
 
@@ -2533,6 +2558,9 @@ def _actions_sourcees(ticker: str):
     Le registre SPLITS fait foi, comme pour les chandelles — c'est le même fait
     extérieur, et il ne doit pas être redéclaré ici.
     """
+    # ⚠️ L'OPÉRATEUR D'ABORD — 02/10/2026. Voir `ACTIONS_OPERATEUR`.
+    if ticker in ACTIONS_OPERATEUR:
+        return ACTIONS_OPERATEUR[ticker]
     e = FAITS_DATA.get(ticker)
     if not isinstance(e, dict):
         return None
@@ -2559,6 +2587,13 @@ def _actions_sourcees(ticker: str):
 # Dix pour cent laisse donc trois fois la marge des écarts réels, et écarte
 # sans hésitation le facteur deux qui a bloqué la publication.
 ECART_CAP_TOLERE = 0.10
+# ⚠️ 2 % QUAND LE NOMBRE D'ACTIONS VIENT DE L'OPÉRATEUR — 02/10/2026.
+# Remesuré sur 62 titres vérifiables : avec le nombre de l'opérateur, tous
+# les écarts légitimes tiennent sous 0,3 % (arrondi en MDHS). Les 10 % y
+# laissaient passer la capitalisation de LHM, surévaluée de 9,4 %. Les 10 %
+# restent pour un nombre tiré d'un rapport annuel, qui peut dater d'avant une
+# augmentation de capital (HAL : +7,7 % avant inscription de la sienne).
+ECART_CAP_TOLERE_OPERATEUR = 0.02
 
 
 # Les provenances où le cours est celui de la séance en cours. Partout
@@ -2617,7 +2652,7 @@ def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None):
         return calculee, "calculee_faute_de_source"
 
     ecart = abs(calculee / cap_servie - 1)
-    if ecart <= ECART_CAP_TOLERE:
+    if ecart <= (ECART_CAP_TOLERE_OPERATEUR if ticker in ACTIONS_OPERATEUR else ECART_CAP_TOLERE):
         return cap_servie, "servie"
 
     logger.warning(
