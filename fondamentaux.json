@@ -6542,7 +6542,29 @@
       "nb_actions": 176456,
       "date_maj": "2026-06-24"
     },
-    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Rebab_Company_S1_26.pdf"
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Rebab_Company_S1_26.pdf",
+    "ratios_publies": {
+      "dette_nette": {
+        "valeur": -22.5,
+        "date": "2025-12-31",
+        "formule": "0.0 − (0.341931 + 22.175431 de titres de placement) (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier 2025 — https://www.ammc.ma/sites/default/files/Rebab_company_RFA_2025.pdf, p. 22",
+          "tresorerie": "Rapport Financier 2025 — https://www.ammc.ma/sites/default/files/Rebab_company_RFA_2025.pdf, p. 21",
+          "titres_de_placement": "Rapport Financier 2025 — https://www.ammc.ma/sites/default/files/Rebab_company_RFA_2025.pdf, p. 21"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Rebab Company est une holding qui ne publie que des comptes sociaux (titres de participation 17,1 MMAD brut, dont Zellidja ; aucun consolidé au dépôt)",
+        "unite": "MMAD",
+        "dette_nette_stricte": -0.3
+      },
+      "non_calcules_2025": {
+        "ebitda": "holding sans activité d'exploitation (produits d'exploitation : 30 KMAD de jetons de présence, pas d'EBE publié, aucune dotation) : EBITDA −0,38 MMAD sans signification",
+        "dette_nette_ebitda": "EBITDA non défini pour une holding ; société sans dette financière (trésorerie nette de 22,5 MMAD)",
+        "roic": "holding : résultat d'exploitation (−0,38) sans rapport avec le capital employé (portefeuille de titres et de SICAV) ; le résultat vient du financier et du non courant",
+        "cash_conversion": "comptes sociaux : pas de tableau des flux de trésorerie, flux d'exploitation non relevé"
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "PPM": {
     "secteur": "Santé",
