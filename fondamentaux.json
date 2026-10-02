@@ -6159,6 +6159,15 @@
     },
     "source_s1_2026": "https://www.ammc.ma/sites/default/files/CP_Unimer_S1_26.pdf",
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": 1.2,
+        "date": "2025-12-31",
+        "formule": "11.0 ÷ 919.333 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/CP_Unimer_2025.pdf — « Résultat Net Consolidé -28 11 » (2024 / 2025)",
+          "capitaux_propres": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 33"
+        }
+      },
       "marge_nette_s1_2026": {
         "valeur": 6.5,
         "date": "2026-06-30",
@@ -6167,6 +6176,44 @@
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/CP_Unimer_S1_26.pdf"
         }
+      },
+      "dette_nette": {
+        "valeur": 758.0,
+        "date": "2025-12-31",
+        "formule": "971.515 − (213.4 + 0.134 de titres de placement) (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 33",
+          "tresorerie": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 33",
+          "titres_de_placement": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 33"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 304 714 KMAD)",
+        "unite": "MMAD",
+        "dette_nette_stricte": 758.1
+      },
+      "ebitda": {
+        "valeur": 44.5,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 44.473 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 34"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 304 714 KMAD)",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 17.04,
+        "date": "2025-12-31",
+        "formule": "757.981 ÷ 44.473",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 304 714 KMAD)"
+      },
+      "non_calcules_2025": {
+        "roic": "résultat d'exploitation négatif (−18,0 MMAD) et résultat consolidé porté par les mises en équivalence (+102,1 MMAD) : rendement du capital employé sans signification",
+        "cash_conversion": "résultat net de l'ensemble (11,1) positif uniquement grâce aux mises en équivalence non encaissées (+102,1) et aux minoritaires : flux 87,8 ÷ 11,1 = 794 %, ratio sans signification"
       },
       "calcule_le": "2026-09-30"
     }
