@@ -4837,6 +4837,13 @@ def run(dry_run=False, push=False, token=""):
                             f"{len(_rs.get('matieres') or [])} matière(s) première(s)")
         except Exception as _e:                           # noqa: BLE001
             logger.warning(f"  📈 relevé de séance non écrit ({_e})")
+        # Marchés mondiaux (02/10/2026) — contexte affiché, hors note.
+        try:
+            from pipeline.marches_mondiaux import mettre_a_jour as _monde
+            _mm = _monde()
+            logger.info(f"  🌍 marchés mondiaux : {sum(len(g['lignes']) for g in _mm['groupes'])} valeur(s)")
+        except Exception as _e:                           # noqa: BLE001
+            logger.warning(f"  🌍 marchés mondiaux non relevés ({_e})")
         _b = _brief_dater(_brief(output), _maintenant.date().isoformat(),
                           _maintenant.hour * 100 + _maintenant.minute)
         # ⚠️ La lecture rédigée (01/10/2026) : version sèche par défaut ; une
