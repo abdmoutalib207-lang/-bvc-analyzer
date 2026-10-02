@@ -4260,13 +4260,14 @@ def run(dry_run=False, push=False, token=""):
             # ⚠️ UNE PERTE SUR DOUZE MOIS N'A PAS DE PER — 01/10/2026. Le BPA
             # 12 mois négatif rendait None, et `or fd.get("pe")` allait chercher
             # le PER de la table figée : LES affichait « PER 12 mois 16,5 »
-            # avec un BPA de −1,85 (idem STR, SNP, INV). La table ne sert plus
-            # que faute de tout BPA lu dans les comptes.
+            # avec un BPA de −1,85 (idem STR, SNP, INV). Depuis le 02/10/2026,
+            # la table ne sert plus du tout : sans BPA lu dans les comptes, pas
+            # de PER — un PER figé ne suit pas le cours.
             "pe":     (_per(price, (BPA_DATA.get(ticker) or {}).get("bpa_12m"))
                        if (BPA_DATA.get(ticker) or {}).get("bpa_12m") is not None else
                        _per(price, (BPA_DATA.get(ticker) or {}).get("bpa"))
                        if (BPA_DATA.get(ticker) or {}).get("bpa") is not None else
-                       fd.get("pe")),
+                       None),
             "pe_annuel": _per(price, (BPA_DATA.get(ticker) or {}).get("bpa")),
             "pe_base": ("12 mois au " + BPA_DATA[ticker]["fin_12m"]
                         if (BPA_DATA.get(ticker) or {}).get("bpa_12m") else
@@ -4291,11 +4292,18 @@ def run(dry_run=False, push=False, token=""):
             # C'est la famille 9 d'ERRORS retournée : non plus combler une
             # absence, mais PRENDRE UNE VALEUR RÉELLE POUR UNE ABSENCE. Le
             # remède est le même — tester la présence, jamais la valeur.
+            #
+            # ⚠️ PLUS DE RENDEMENT FIGÉ — 02/10/2026, demande d'Abd Moutalib :
+            # « les ratios de valorisation doivent être calculés sur le cours
+            # actuel et suivre chaque changement du cours ». Sept titres (CIM,
+            # ZLD, MGL, STR, SLM, INV, FNB) retombaient sur le rendement écrit
+            # en dur dans FOND_DATA, qui ne bouge jamais avec le cours. Sans
+            # dividende par action connu, le rendement est ABSENT, pas figé.
             "div":    (round(BPA_DATA[ticker]["div_dh"] / price * 100, 2)
                        if (ticker in BPA_DATA
                            and BPA_DATA[ticker].get("div_dh") is not None
                            and price > 0)
-                       else fd.get("div")),
+                       else None),
             "div_dh": BPA_DATA[ticker].get("div_dh") if ticker in BPA_DATA else None,
             # Capitalisation : celle d'IDBourse, calculée sur le cours du jour,
             # prime sur FOND_DATA — table codée en dur qui n'a suivi ni les
