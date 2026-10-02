@@ -66,3 +66,22 @@ def test_une_societe_industrielle_n_est_pas_touchee():
 def test_l_alerte_d_une_banque_ne_parle_plus_de_roic(ud):
     a = ud.detecter_alertes(dict(BASE, roic=5), sym="X")
     assert not any("ROIC" in x["valeur"] for x in a["liste"])
+
+
+def test_le_roe_d_un_courtier_n_est_pas_lu():
+    f = {"AFM": dict(BASE, secteur="Assurance", ratios_publies={"roe_2025": {"valeur": 103.2}})}
+    assert F.roe_effectif(f["AFM"], "AFM") is None
+    assert F.compute_fond_score("AFM", f) == 5.25   # rentabilité non évaluée
+
+
+def test_les_roe_verifies_priment_sur_le_calcul_automatique():
+    import json
+    racine = Path(__file__).resolve().parent.parent
+    v = json.loads((racine / "datasets" / "roe_verifies_2026-10-02.json").read_text(encoding="utf-8"))
+    fond = json.loads((racine / "fondamentaux.json").read_text(encoding="utf-8"))
+    for s, cles in v["titres"].items():
+        for k, e in cles.items():
+            assert fond[s]["ratios_publies"][k]["valeur"] == e["valeur"], (s, k)
+            assert e["sources"]["resultat"] and e["sources"]["capitaux_propres"]
+    # CIH, à la main : 1 089,362 ÷ 9 817,628 = 11,096 % → 11,1
+    assert v["titres"]["CIH"]["roe_2025"]["valeur"] == 11.1

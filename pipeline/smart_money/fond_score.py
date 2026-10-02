@@ -83,6 +83,17 @@ COUT_FONDS_PROPRES_REF = 10.0
 _SANS_OBJET_FINANCIERES = ("roic", "dette_nette_ebitda", "cash_conversion")
 
 
+# Le ROE n'a pas de sens pour un COURTIER qui distribue tout son résultat :
+# AFMA affiche 103 % parce que ses capitaux propres hors résultat de l'année
+# sont négatifs (−2,3 MDH, rachats de minoritaires imputés) — vérifié le
+# 02/10/2026 par l'agent verificateur-finance. Arithmétiquement vrai, il ne
+# mesure rien de comparable. Rentabilité non évaluée pour ces titres.
+ROE_SANS_OBJET = {
+    "AFM": "courtier en assurance — capitaux propres hors résultat négatifs, ROE 103 % sans signification",
+    "AGM": "intermédiaire en assurance — distribue l'essentiel de son résultat, ROE social 46 % sans signification",
+}
+
+
 def est_financiere(f: dict | None) -> bool:
     return str((f or {}).get("secteur") or "").startswith(FINANCIERS)
 
@@ -90,6 +101,8 @@ def est_financiere(f: dict | None) -> bool:
 def roe_effectif(f: dict | None, sym: str) -> dict | None:
     """ROE calculé sur comptes publiés : douze mois glissants s'il existe,
     sinon l'exercice 2025. Jamais une saisie. Pure."""
+    if sym in ROE_SANS_OBJET:
+        return None
     for cle in ("roe_12m", "roe_2025"):
         v = _publie(f or {}, sym, cle)
         if v is not None:
