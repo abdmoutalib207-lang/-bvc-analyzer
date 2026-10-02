@@ -91,3 +91,35 @@ def test_appliquer_ecrit_et_archive(tmp_path):
     assert b["redaction"]["auteur"] == "claude"
     a = json.loads((tmp_path / "briefings" / "2026-09-30.json").read_text())
     assert a["cloture"]["redaction"]["texte"] == "RDS a terminé à +1,73 %."
+
+
+# ── Lisibilité — 02/10/2026 ───────────────────────────────────────────────
+
+def test_un_nombre_ecrit_deux_fois_est_refuse():
+    l = R.lisibilite("Le MASI clôture à 17 733,06. Clôture : 17733,06.")
+    assert not l["ok"] and l["repetes"] == ["17733,06"]
+
+
+def test_trop_de_nombres_est_refuse():
+    texte = " ".join(f"{i} %" for i in range(1, 14))  # 13 nombres distincts
+    l = R.lisibilite(texte)
+    assert l["n_nombres"] == 13 and not l["ok"]
+    assert R.lisibilite(" ".join(f"{i} %" for i in range(1, 13)))["ok"]
+
+
+def test_appliquer_refuse_un_texte_illisible_sans_rien_ecrire(tmp_path):
+    (tmp_path / "briefing_cloture.json").write_text(json.dumps(FAITS), encoding="utf-8")
+    c = R.appliquer("RDS a terminé à +1,73 %, oui, +1,73 %.", "claude", tmp_path)
+    assert not c["ok"] and c["lisibilite"]["repetes"]
+    assert "redaction" not in json.loads((tmp_path / "briefing_cloture.json").read_text())
+
+
+def test_la_version_seche_dit_en_mots_ce_que_les_chiffres_montrent():
+    b = dict(FAITS, accord={"ratio": -0.61},
+             trajectoire={"veille": 100, "ouverture": 101, "plus_haut": 102,
+                          "plus_bas": 98, "cloture": 98})
+    texte = R.redaction_seche(b)
+    assert "La grande majorité des valeurs a reculé." in texte
+    assert "au plus bas de la séance, après avoir effacé son gain d'ouverture" in texte
+    assert "RDS a publié ses comptes : résultat semestriel en hausse, et le titre termine en hausse." in texte
+    assert R.lisibilite(texte)["ok"]

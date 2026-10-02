@@ -7467,6 +7467,54 @@ const Lecture = ({
     }, gras(b));
   }));
 };
+const ChiffresCles = ({
+  b
+}) => {
+  const t = b.trajectoire,
+    v = b.veille && b.veille.jour,
+    vv = b.veille;
+  if (!t && !v) return null;
+  const VCc = x => x > 0 ? "#00e5a0" : x < 0 ? "#ff4f5a" : "#8892a4";
+  const sg = x => x == null ? "—" : `${x > 0 ? "+" : ""}${nfr(x)} %`;
+  const items = [["MASI", nfr(t ? t.cloture : v.cours), v && v.variation_pct != null ? sg(v.variation_pct) : null, v && VCc(v.variation_pct)], ["Échangé", v && v.volume_mad != null ? `${nfr(v.volume_mad / 1e6, 1)} M DH` : "—", vv && vv.ecart_volume_pct != null ? `${sg(vv.ecart_volume_pct)} vs veille` : null, "#8892a4"], ["Hausses · baisses", v ? `${v.hausses ?? "—"} · ${v.baisses ?? "—"}` : "—", v && v.valeurs_traitees ? `${v.inchanges ?? 0} inchangées sur ${v.valeurs_traitees}` : null, "#8892a4"], ["Plus haut · bas", t ? nfr(t.plus_haut) : "—", t ? `plus bas ${nfr(t.plus_bas)}` : null, "#8892a4"], ["Depuis janvier", sg(b.ytd_pct), null, null, VCc(b.ytd_pct)]];
+  return React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(min(140px,45%),1fr))",
+      gap: 10
+    }
+  }, items.map(([l, val, sous, cs, cv]) => React.createElement("div", {
+    key: l,
+    className: "carte",
+    style: {
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      padding: "10px 12px"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      letterSpacing: .8,
+      textTransform: "uppercase"
+    }
+  }, l), React.createElement("div", {
+    style: {
+      fontSize: 18,
+      fontWeight: 700,
+      fontFamily: "monospace",
+      color: cv || "#e6edf7",
+      margin: "3px 0 1px",
+      whiteSpace: "nowrap"
+    }
+  }, val), sous && React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: cs || "#8892a4"
+    }
+  }, sous))));
+};
 const ASurveiller = ({
   a
 }) => {
@@ -7506,44 +7554,90 @@ const ASurveiller = ({
       letterSpacing: .8,
       margin: "6px 0 4px"
     }
-  }, titre), l.map(z => React.createElement("div", {
+  }, titre), React.createElement("div", {
+    style: {
+      overflowX: "auto"
+    }
+  }, React.createElement("table", {
+    style: {
+      borderCollapse: "collapse",
+      width: "100%"
+    }
+  }, React.createElement("thead", null, React.createElement("tr", null, ["Titre", "Variation", "Volume", "Pourquoi"].map(x => React.createElement("th", {
+    key: x,
+    style: {
+      textAlign: "left",
+      fontSize: 10,
+      color: "#5a6478",
+      fontWeight: 400,
+      letterSpacing: .6,
+      textTransform: "uppercase",
+      padding: "3px 8px 3px 0"
+    }
+  }, x)))), React.createElement("tbody", null, l.map(z => React.createElement("tr", {
     key: z.symbol,
     style: {
-      display: "flex",
-      gap: 10,
-      alignItems: "baseline",
-      padding: "5px 0",
-      borderBottom: "1px solid #0a1220",
-      flexWrap: "wrap"
+      borderTop: "1px solid #0a1220"
     }
-  }, React.createElement("span", {
+  }, React.createElement("td", {
     style: {
+      padding: "6px 8px 6px 0",
       color: "#e6edf7",
       fontWeight: 600,
-      minWidth: 44
+      whiteSpace: "nowrap"
     }
-  }, z.symbol), React.createElement("span", {
+  }, z.symbol), React.createElement("td", {
     style: {
+      padding: "6px 8px 6px 0",
       fontFamily: "monospace",
-      minWidth: 62,
+      whiteSpace: "nowrap",
       color: z.chg == null ? "#5a6478" : z.chg > 0 ? "#00e5a0" : z.chg < 0 ? "#ff4f5a" : "#8892a4"
     }
-  }, z.chg == null ? "non coté" : `${z.chg > 0 ? "+" : ""}${fmt(z.chg).replace(".", ",")} %`), React.createElement("span", {
+  }, z.chg == null ? "non coté" : `${z.chg > 0 ? "+" : ""}${fmt(z.chg).replace(".", ",")} %`), React.createElement("td", {
     style: {
+      padding: "6px 8px 6px 0",
+      fontFamily: "monospace",
+      whiteSpace: "nowrap",
+      color: z.volume_rapport >= 3 ? "#ffd740" : "#8892a4"
+    },
+    title: "Titres \xE9chang\xE9s rapport\xE9s \xE0 la m\xE9diane des 20 derni\xE8res s\xE9ances"
+  }, z.volume_rapport != null ? `×${nfr(z.volume_rapport, 1)}` : "—"), React.createElement("td", {
+    style: {
+      padding: "6px 0",
+      display: "flex",
+      gap: 4,
+      flexWrap: "wrap"
+    }
+  }, z.criteres.filter(c => c.code !== "volume").map((c, i) => {
+    const st = {
+      fontSize: 11,
+      padding: "1px 7px",
+      borderRadius: 10,
+      background: "#0a1220",
+      border: "1px solid #1a2540",
       color: "#c8d3e8",
-      fontSize: 12.5,
-      flex: "1 1 200px"
-    }
-  }, z.criteres.map((c, i) => React.createElement("span", {
-    key: i
-  }, i > 0 && " · ", c.url ? React.createElement("a", {
-    href: c.url,
-    target: "_blank",
-    rel: "noopener noreferrer",
+      textDecoration: "none",
+      whiteSpace: "nowrap"
+    };
+    return c.url ? React.createElement("a", {
+      key: i,
+      href: c.url,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: {
+        ...st,
+        color: "#4db8ff"
+      }
+    }, c.texte) : React.createElement("span", {
+      key: i,
+      style: st
+    }, c.texte);
+  }), z.criteres.every(c => c.code === "volume") && React.createElement("span", {
     style: {
-      color: "#4db8ff"
+      fontSize: 11,
+      color: "#5a6478"
     }
-  }, c.texte) : c.texte))))))));
+  }, "volume inhabituel"))))))))));
 };
 const Briefing = () => {
   const [b, setB] = useState(null);
@@ -7653,59 +7747,7 @@ const Briefing = () => {
     cloture: "Lecture de clôture",
     en_seance: "Lecture en séance"
   };
-  return React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 14
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 4,
-      flexWrap: "wrap",
-      alignItems: "center"
-    }
-  }, seances.length > 0 && React.createElement("select", {
-    value: choix || "",
-    onChange: e => choisir(e.target.value || null),
-    title: "Relire la lecture d'une s\xE9ance pass\xE9e, telle qu'elle a \xE9t\xE9 publi\xE9e",
-    style: {
-      background: "#0a1220",
-      border: "1px solid #1a2540",
-      color: passe ? "#ffd740" : "#8892a4",
-      borderRadius: 5,
-      padding: "5px 8px",
-      fontSize: 11
-    }
-  }, React.createElement("option", {
-    value: ""
-  }, "Aujourd'hui"), seances.map(d => React.createElement("option", {
-    key: d,
-    value: d
-  }, d.slice(8, 10), "/", d.slice(5, 7), "/", d.slice(0, 4)))), ONG.map(o => {
-    const actif = vue === o.id,
-      dispo = o.dispo;
-    return React.createElement("button", {
-      key: o.id,
-      onClick: () => dispo && setVue(o.id),
-      title: dispo ? "" : o.pourquoi,
-      style: {
-        background: actif ? "rgba(0,229,160,.12)" : "#0a1220",
-        border: `1px solid ${actif ? "rgba(0,229,160,.4)" : "#1a2540"}`,
-        color: !dispo ? "#3a4358" : actif ? "#00e5a0" : "#8892a4",
-        borderRadius: 5,
-        padding: "5px 14px",
-        fontSize: 11,
-        letterSpacing: .8,
-        cursor: dispo ? "pointer" : "not-allowed"
-      }
-    }, o.label);
-  })), !semaine && React.createElement(Lecture, {
-    r: src.redaction
-  }), !semaine && React.createElement(ASurveiller, {
-    a: src.a_surveiller
-  }), React.createElement("div", {
+  const blocConstats = React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
@@ -7721,7 +7763,7 @@ const Briefing = () => {
       textTransform: "uppercase",
       marginBottom: 4
     }
-  }, semaine ? "Bilan de la semaine" : LIB_MOMENT[src.moment] || "Lecture de la séance"), React.createElement("div", {
+  }, semaine ? "Bilan de la semaine" : `Tous les constats mesurés — ${(LIB_MOMENT[src.moment] || "lecture de la séance").toLowerCase()}`), React.createElement("div", {
     style: {
       fontSize: 13,
       color: "#4db8ff",
@@ -7772,7 +7814,62 @@ const Briefing = () => {
     }
   }, (src.non_mesurable || []).map((x, i) => React.createElement("li", {
     key: i
-  }, x, "."))))), !semaine && React.createElement("button", {
+  }, x, ".")))));
+  return React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 14
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 4,
+      flexWrap: "wrap",
+      alignItems: "center"
+    }
+  }, seances.length > 0 && React.createElement("select", {
+    value: choix || "",
+    onChange: e => choisir(e.target.value || null),
+    title: "Relire la lecture d'une s\xE9ance pass\xE9e, telle qu'elle a \xE9t\xE9 publi\xE9e",
+    style: {
+      background: "#0a1220",
+      border: "1px solid #1a2540",
+      color: passe ? "#ffd740" : "#8892a4",
+      borderRadius: 5,
+      padding: "5px 8px",
+      fontSize: 11
+    }
+  }, React.createElement("option", {
+    value: ""
+  }, "Aujourd'hui"), seances.map(d => React.createElement("option", {
+    key: d,
+    value: d
+  }, d.slice(8, 10), "/", d.slice(5, 7), "/", d.slice(0, 4)))), ONG.map(o => {
+    const actif = vue === o.id,
+      dispo = o.dispo;
+    return React.createElement("button", {
+      key: o.id,
+      onClick: () => dispo && setVue(o.id),
+      title: dispo ? "" : o.pourquoi,
+      style: {
+        background: actif ? "rgba(0,229,160,.12)" : "#0a1220",
+        border: `1px solid ${actif ? "rgba(0,229,160,.4)" : "#1a2540"}`,
+        color: !dispo ? "#3a4358" : actif ? "#00e5a0" : "#8892a4",
+        borderRadius: 5,
+        padding: "5px 14px",
+        fontSize: 11,
+        letterSpacing: .8,
+        cursor: dispo ? "pointer" : "not-allowed"
+      }
+    }, o.label);
+  })), !semaine && (passe || vue === "mijournee") && React.createElement(ChiffresCles, {
+    b: src
+  }), !semaine && React.createElement(Lecture, {
+    r: src.redaction
+  }), !semaine && React.createElement(ASurveiller, {
+    a: src.a_surveiller
+  }), semaine && blocConstats, !semaine && React.createElement("button", {
     onClick: () => setDetail(!detail),
     style: {
       alignSelf: "flex-start",
@@ -7785,7 +7882,7 @@ const Briefing = () => {
       letterSpacing: .8,
       cursor: "pointer"
     }
-  }, detail ? "MASQUER LE DÉTAIL DE LA SÉANCE ▴" : "DÉTAIL DE LA SÉANCE ▾"), !semaine && detail && React.createElement(SeanceDetail, {
+  }, detail ? "MASQUER LE DÉTAIL DE LA SÉANCE ▴" : "DÉTAIL DE LA SÉANCE ▾"), !semaine && detail && blocConstats, !semaine && detail && React.createElement(SeanceDetail, {
     b: src
   }), semaine && (h.hausses || []).length > 0 && React.createElement("div", {
     className: "carte",
