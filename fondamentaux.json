@@ -4395,6 +4395,57 @@
           "comptes": "https://www.ammc.ma/sites/default/files/Cimar_S1_26.pdf"
         }
       },
+      "dette_nette": {
+        "valeur": 894.3,
+        "date": "2025-12-31",
+        "formule": "2583.709 − 1689.443 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Cimar_RFA_2025.pdf, p. 60",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Cimar_RFA_2025.pdf, p. 60"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 2248.7,
+        "date": "2025-12-31",
+        "formule": "2031.78 + 216.918 (MMAD) — résultat d'exploitation + dotations aux amortissements",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Cimar_RFA_2025.pdf, p. 60",
+          "amortissements": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Cimar_RFA_2025.pdf, p. 64"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "MMAD",
+        "origine": "calculé"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 0.4,
+        "date": "2025-12-31",
+        "formule": "894.266 ÷ 2248.698",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025"
+      },
+      "roic": {
+        "valeur": 29.2,
+        "date": "2025-12-31",
+        "formule": "2031.78 × (1 − t) ÷ (4071.888 + 894.266) ; t = 568.457 ÷ 1981.246 = 28.7 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Cimar_RFA_2025.pdf, p. 60",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Cimar_RFA_2025.pdf, p. 60",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Cimar_RFA_2025.pdf, p. 60",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Cimar_RFA_2025.pdf, p. 60",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "%",
+        "taux_impot_effectif": 28.7
+      },
+      "non_calcules_2025": {
+        "cash_conversion": "flux d'exploitation 1 865,4 MMAD ÷ résultat 1 401,7 = 133 % : la variation du BFR (+124,5) est la différence brute de deux bilans sans retraitement du périmètre (Asment de Témara, Grabemaro, Asment du Centre entrés en 2025 pour 2,3 milliards, « incidence des variations de périmètre » = 0) ; la part organique n'est pas établie. Non calculé."
+      },
       "calcule_le": "2026-09-30"
     }
   },

@@ -4645,9 +4645,330 @@
     "page": 60,
     "unite": "actions",
     "note": "capital 1 443 600 KMAD ÷ nominale 100. Le marché en implique 14 436 250 (écart 0,002 %)."
+   },
+   "total_actif": {
+    "valeur": 8892.168,
+    "valeur_au_rapport": 8892168,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "note": "« TOTAL ACTIF 8 892 168 5 069 686 » ; en-tête « BILAN ACTIF CONSOLIDÉ … En milliers de dirhams », colonnes « Au 31 décembre 2025 » puis « Au 31 décembre 2024 ». Pages = rang dans le fichier PDF (doubles pages imprimées : p.60 du fichier = pages 117-118).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "total_passif": {
+    "valeur": 8892.168,
+    "valeur_au_rapport": 8892168,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "note": "« Total du passif 8 892 168 5 069 686 » ; colonne 31/12/2025.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_consolides": {
+    "valeur": 4071.888,
+    "valeur_au_rapport": 4071888,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "composantes": [
+     {
+      "page": 60,
+      "citation": "Capitaux propres ( Part du groupe ) 3 739 311 3 329 472",
+      "valeur_au_rapport": 3739311
+     },
+     {
+      "page": 60,
+      "citation": "Intérêts minoritaires 332 577 43 187",
+      "valeur_au_rapport": 332577
+     }
+    ],
+    "note": "DÉRIVÉ : somme de deux lignes publiées, capitaux propres part du groupe 3 739 311 + intérêts minoritaires 332 577 = 4 071 888 KMAD (ensemble consolidé, minoritaires compris). Recoupé par la ligne « Capitaux propres de l'ensemble consolidé 4 071 888 3 533 582 » des comptes proforma (p.61, texte extrait brouillé par la superposition, lue sur le rendu) : le bilan 2025 y est identique.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "interets_minoritaires": {
+    "valeur": 332.577,
+    "valeur_au_rapport": 332577,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "note": "« Intérêts minoritaires 332 577 43 187 » ; colonne 31/12/2025. Hausse due à l'entrée d'Asment de Témara (63 %) au périmètre.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "dettes_financieres": {
+    "valeur": 2583.709,
+    "valeur_au_rapport": 2583709,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "composantes": [
+     {
+      "page": 60,
+      "citation": "Emprunts et dettes financières 2 368 677 0",
+      "valeur_au_rapport": 2368677
+     },
+     {
+      "page": 60,
+      "citation": "Trésorerie - Passif 215 032 186 553",
+      "valeur_au_rapport": 215032
+     }
+    ],
+    "note": "Emprunts et dettes financières 2 368 677 + trésorerie-passif (concours bancaires) 215 032 = 2 583 709 KMAD. Les 2 368 677 sont nés en 2025 (0 en 2024) : le bilan social de Ciments du Maroc les porte en « Autres dettes de financement 2 368 676 504,00 » (passif social, p.46) et « AUGMENTATION DES DETTES DE FINANCEMENT (D) … 2 368 676 504,00 » (tableau de financement social, p.48). ⚠️ La note 9 « État des dettes » (p.63) affiche 0 pour les emprunts et des colonnes qui ne se rattachent pas au bilan (fournisseurs 1 258 591 / 779 897 contre 1 019 391 / 779 100 au bilan) : elle n'est pas à jour, le bilan consolidé prime (quatre états concordent : bilan, flux de financement 2 368 677, bilan social, comptes proforma).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "tresorerie_actif": {
+    "valeur": 1689.443,
+    "valeur_au_rapport": 1689443,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "composantes": [
+     {
+      "page": 60,
+      "citation": "Disponibilités 384 936 93 633",
+      "valeur_au_rapport": 384936
+     },
+     {
+      "page": 60,
+      "citation": "Valeurs mobilières de placement 1 304 507 766 075",
+      "valeur_au_rapport": 1304507
+     }
+    ],
+    "note": "Disponibilités 384 936 + valeurs mobilières de placement 1 304 507 = 1 689 443 KMAD. Les VMP (note 6, p.63 : « SICAV 1 304 507 766 075 ») sont COMPTÉES par la société dans sa trésorerie : « Trésorerie de clôture 1 474 412 » (p.61) = 384 936 + 1 304 507 − 215 032 (1 KMAD d'arrondi) ; ouverture 673 156 = 93 633 + 766 075 − 186 553. Dette nette = 2 583 709 − 1 689 443 = 894 266 KMAD = emprunts 2 368 677 − trésorerie de clôture du tableau des flux 1 474 412 (894 265).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "dotations_amortissements_exploitation": {
+    "valeur": 216.918,
+    "valeur_au_rapport": 216918,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 64,
+    "note": "Note 13 « Dotations d'exploitation » (en milliers de dirham) : « Dotations aux amortissements 216 918 212 788 », « Dotations aux provisions pour risques et charges 89 044 », « Dotations aux provisions pour dépréciations 9 039 » ; total 315 000 = ligne « Dotations d'exploitation - 315 000 » du CPC (p.60). Seules les dotations aux AMORTISSEMENTS (216 918) sont retenues, jamais le total mêlé de provisions. Colonnes 2025 puis 2024.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "resultat_exploitation": {
+    "valeur": 2031.78,
+    "valeur_au_rapport": 2031780,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "note": "« Résultat d'exploitation 2 031 780 1 557 451 » ; recoupé à la note 17 (p.65) : « Résultat d'exploitation … 1 664 464 367 316 0 2 031 780 » (ciment + matériaux). Les « impôts et taxes » (107 503) et les dotations (315 000) sont DANS les charges d'exploitation.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "resultat_financier": {
+    "valeur": 19.611,
+    "valeur_au_rapport": 19611,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "note": "« Charges et produits financiers 19 611 29 756 » ; note 14 (p.64) : produits 128 999 − charges 109 388 = 19 611.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "resultat_non_courant": {
+    "valeur": -70.145,
+    "valeur_au_rapport": -70145,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "note": "« Charges et produits non courants - 70 145 - 138 433 » ; note 15 (p.64) « Résultat non courant -70 145 ».",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "resultat_avant_impot": {
+    "valeur": 1981.246,
+    "valeur_au_rapport": 1981246,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "composantes": [
+     {
+      "page": 60,
+      "citation": "Résultat courant 2 051 391 1 587 207",
+      "valeur_au_rapport": 2051391
+     },
+     {
+      "page": 60,
+      "citation": "Charges et produits non courants - 70 145 - 138 433",
+      "valeur_au_rapport": -70145
+     }
+    ],
+    "note": "⚠️ DÉRIVÉ : le CPC consolidé n'a pas de ligne « résultat avant impôt ». Somme de deux lignes publiées, résultat courant 2 051 391 + non courant −70 145 = 1 981 246 KMAD, validée par l'identité 1 981 246 − 568 457 = 1 412 789 = « Résultat net des entreprises intégrées 1 412 789 ».",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "impot_resultat": {
+    "valeur": 568.457,
+    "valeur_au_rapport": 568457,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "note": "« Impôts sur les résultats - 568 457 - 502 730 » (charge, écrite en négatif au rapport ; rapportée ici positive). Note 12 (p.64) : « Impôts exigibles - 575 388 », « Impôts différés 6 931 » (produit) : 575 388 − 6 931 = 568 457. Taux effectif 28,7 %.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "resultat_net_consolide": {
+    "valeur": 1401.699,
+    "valeur_au_rapport": 1401699,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "note": "« Résultat net de l'ensemble consolidé 1 401 699 934 954 » (après dotations aux amortissements des écarts d'acquisition −11 090 : 1 412 789 − 11 090 = 1 401 699) ; ensemble consolidé, minoritaires compris.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "resultat_net_part_groupe": {
+    "valeur": 1377.432,
+    "valeur_au_rapport": 1377432,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "note": "« Résultat net part Groupe 1 377 432 914 161 » ; 1 401 699 − minoritaires 24 267 = 1 377 432 ; recoupé au bilan (« Résultat net par du groupe 1 377 432 ») et au tableau de variation des capitaux propres (note 7, p.63). Sous le résultat de l'ensemble : les minoritaires sont bénéficiaires (24 267).",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "flux_tresorerie_exploitation": {
+    "valeur": 1865.39,
+    "valeur_au_rapport": 1865390,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 61,
+    "note": "« Flux net de trésorerie généré par l'activité 1 865 390 1 264 786 » (colonnes 2025 puis 2024) [lu sur rendu de la page : le texte extrait est brouillé par des comptes proforma superposés]. Part du résultat net des sociétés intégrées (APRÈS intérêts et impôt) : 1 401 699 + dotations nettes 332 240 + impôts différés 6 931 = capacité d'autofinancement 1 740 869 ; + variation du BFR 124 521 = 1 865 390. ⚠️ La variation du BFR est la simple différence de deux bilans (stocks, créances et dettes d'exploitation : 124 455 par le calcul) alors que « Incidence des variations de périmètre » vaut 0 : l'entrée d'Asment de Témara, Grabemaro et Asment du Centre en 2025 n'est pas retraitée.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "tresorerie_cloture_tableau_flux": {
+    "valeur": 1474.412,
+    "valeur_au_rapport": 1474412,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 61,
+    "note": "« Trésorerie de clôture 1 474 412 673 156 » (2025 puis 2024) [lu sur rendu] ; sert de contrôle de la dette nette, ne rentre dans aucun ratio.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
+   },
+   "nombre_actions_cpc_consolide": {
+    "valeur": 14436004,
+    "valeur_au_rapport": 14436004,
+    "unite_au_rapport": "actions",
+    "colonne_exercice_clos": 1,
+    "page": 60,
+    "note": "« Nombre d'actions 14 436 004 14 436 004 » au bas du CPC consolidé ; « Résultat net consolidé par action en dirhams 95 63 ». ⚠️ Écart de 4 titres avec le fait existant (14 436 000 = capital 1 443 600 KMAD ÷ 100) : sans incidence (0,00003 %) ; le BPA 1 377 432 ÷ 14 436 = 95,42 recoupe les « 95 » publiés. Le référentiel de l'opérateur en implique 14 436 250.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-02"
    }
   },
-  "pages_document": 80
+  "pages_document": 80,
+  "_controles_ratios_2025": {
+   "base": "consolidé (normes marocaines), 31/12/2025",
+   "releve_le": "2026-10-02",
+   "controles": [
+    {
+     "controle": "total actif = total passif",
+     "ok": true,
+     "detail": "8892.168 vs 8892.168"
+    },
+    {
+     "controle": "capitaux propres PG + minoritaires + provisions + dettes = total passif (3 739 311 + 332 577 + 360 810 + 4 459 470)",
+     "ok": true,
+     "detail": "8892.168"
+    },
+    {
+     "controle": "emprunts 2 368 677 + fournisseurs 1 019 391 + autres dettes 856 370 + trésorerie-passif 215 032 = dettes 4 459 470",
+     "ok": true,
+     "detail": "4459.470"
+    },
+    {
+     "controle": "capital 1 443 600 + primes 149 863 + réserves 767 063 + résultat 1 377 432 + autres 1 353 = capitaux propres PG",
+     "ok": true,
+     "detail": "3739.311"
+    },
+    {
+     "controle": "actif immobilisé 5 139 111 + actif circulant 3 753 057 = total actif",
+     "ok": true,
+     "detail": "8892.168"
+    },
+    {
+     "controle": "REX + résultat financier = résultat courant publié (2 051 391)",
+     "ok": true,
+     "detail": "2051.391"
+    },
+    {
+     "controle": "résultat courant + non courant = RAI dérivé ; RAI − impôt = RN des entreprises intégrées publié (1 412 789)",
+     "ok": true,
+     "detail": "1412.789"
+    },
+    {
+     "controle": "RN intégrées − dotation écarts d'acquisition 11,090 = RN ensemble",
+     "ok": true,
+     "detail": "1401.699"
+    },
+    {
+     "controle": "RN ensemble − minoritaires 24,267 = RNPG",
+     "ok": true,
+     "detail": "1377.432"
+    },
+    {
+     "controle": "impôt exigible 575 388 − impôt différé 6 931 = impôt total (note 12, p.64)",
+     "ok": true,
+     "detail": "568.457"
+    },
+    {
+     "controle": "note 13 : amortissements 216 918 + provisions risques 89 044 + dépréciations 9 039 = dotations CPC 315 000 (1 KMAD d'arrondi)",
+     "ok": true,
+     "detail": "315.001 vs 315.000"
+    },
+    {
+     "controle": "capacité d'autofinancement : 1 401 699 + 332 240 + 6 931 = 1 740 869 publié (1 KMAD d'arrondi) ; + BFR 124 521 = flux 1 865 390",
+     "ok": true,
+     "detail": "1865.390"
+    },
+    {
+     "controle": "variation de trésorerie 801 256 = flux exploitation 1 865 390 + investissement −2 549 676 + financement 1 485 542 ; clôture 673 156 + 801 256 = 1 474 412",
+     "ok": true,
+     "detail": "1474.412"
+    },
+    {
+     "controle": "trésorerie de clôture du tableau des flux = disponibilités + VMP − trésorerie-passif (1 KMAD d'arrondi)",
+     "ok": true,
+     "detail": "1474.411 vs 1474.412"
+    },
+    {
+     "controle": "dette nette bilan (2 583 709 − 1 689 443) = emprunts 2 368 677 − trésorerie de clôture 1 474 412 (1 KMAD d'arrondi)",
+     "ok": true,
+     "detail": "894.266 vs 894.265"
+    },
+    {
+     "controle": "capitaux propres de l'ensemble 3 739 311 + 332 577 = 4 071 888 (ligne proforma p.61)",
+     "ok": true,
+     "detail": "4071.888"
+    },
+    {
+     "controle": "BPA : 1 377 432 ÷ 14 436,004 = 95,42 DH, « Résultat net consolidé par action 95 »",
+     "ok": true,
+     "detail": "95.42"
+    }
+   ],
+   "non_calcules": {
+    "cash_conversion": "flux d'exploitation 1 865,4 MMAD ÷ résultat 1 401,7 = 133 % : la variation du BFR (+124,5) est la différence brute de deux bilans sans retraitement du périmètre (Asment de Témara, Grabemaro, Asment du Centre entrés en 2025 pour 2,3 milliards, « incidence des variations de périmètre » = 0) ; la part organique n'est pas établie. Non calculé.",
+    "ebitda_publie": "aucun EBITDA/EBE consolidé publié ; l'EBE de l'état des soldes de gestion (1 736,1 MMAD, p.48) est SOCIAL, donc non comparable au résultat d'exploitation consolidé. EBITDA calculé = REX + dotations aux amortissements (note 13)."
+   },
+   "reserves_verifiees": {
+    "tresorerie": "1 304,5 MMAD de SICAV (77 % de la trésorerie brute) comptées en trésorerie comme le fait le tableau des flux de la société ; sans elles la dette nette serait de 2 198,8 MMAD au lieu de 894,3. Les capitaux employés du ROIC (4 071,9 + 894,3 = 4 966,2) en dépendent.",
+    "perimetre": "Asment de Témara (62,62 %, depuis le 30/06/2025), Grabemaro et Asment du Centre entrent au périmètre : goodwill 2 017,6 contre 169,7 MMAD, emprunts 2 368,7 contre 0. Le résultat d'exploitation 2025 ne contient que six mois d'Asment ; le ROIC rapporte donc un résultat de demi-année à des capitaux employés de fin d'année (biais à la baisse). Les comptes proforma publiés (p.61-62) ne sont pas utilisés.",
+    "note_7": "Tableau de variation des capitaux propres (p.63) : total « 3 756 311 » ≠ bilan 3 739 311 (écart 17 000 sur la colonne réserves : 767 063 au tableau, 784 063 par le calcul des flux). Le bilan, qui s'équilibre et que reprennent les comptes proforma, prime ; coquille de la société.",
+    "note_9": "État des dettes (p.63) : emprunts 0 et colonnes qui ne se rattachent pas au bilan ; ignoré, voir dettes_financieres.",
+    "ebitda": "EBITDA 2 248,7 = REX 2 031,8 + amortissements 216,9 : le REX contient 134,5 MMAD d'« autres produits d'exploitation » (dont reprises de provisions) non retraités.",
+    "actions": "14 436 000 (capital ÷ nominal, fait existant), 14 436 004 (CPC consolidé), 14 436 250 (référentiel de l'opérateur) : écarts de quelques titres, aucune opération sur le capital en 2025 (capital inchangé 1 443 600 KMAD en 2024 et 2025)."
+   }
+  }
  },
  "CTM": {
   "societe": "CTM",
