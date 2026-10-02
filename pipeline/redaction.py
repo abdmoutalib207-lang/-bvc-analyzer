@@ -106,6 +106,28 @@ def controler(texte: str, faits: dict) -> dict:
             "n_nombres": len(nombres(texte))}
 
 
+# ⚠️ LISIBILITÉ — 02/10/2026. Abd Moutalib : « trop de répétition, trop de
+# chiffres en texte, pas confortable à la vue ». Mesuré sur la lecture du
+# 01/10 : 40 nombres, plusieurs écrits deux fois, et tous déjà affichés par
+# l'en-tête et le tableau. Un texte rédigé est désormais refusé au-delà de
+# MAX_NOMBRES, ou s'il écrit deux fois le même nombre. Les chiffres vivent
+# dans l'en-tête, le tableau et le détail ; le texte dit ce qu'ils montrent.
+MAX_NOMBRES = 12
+
+
+def lisibilite(texte: str, max_nombres: int = MAX_NOMBRES) -> dict:
+    """Le texte reste-t-il lisible ? Pure. Un nombre répété est compté sur sa
+    valeur (« 17 579,17 » et « 17579,17 » sont le même)."""
+    vals = [(brut, round(v, d)) for brut, v, d in nombres(texte)]
+    vus, repetes = set(), []
+    for brut, v in vals:
+        if v in vus and brut not in repetes:
+            repetes.append(brut)
+        vus.add(v)
+    ok = len(vals) <= max_nombres and not repetes
+    return {"ok": ok, "n_nombres": len(vals), "max": max_nombres, "repetes": repetes}
+
+
 # ── La version sèche : rédigée sans modèle, à partir des seuls faits ─────────
 
 def _fr(x, d=2):
@@ -118,41 +140,70 @@ def _signe(x, d=2):
 
 
 def redaction_seche(b: dict) -> str:
-    """Une lecture en paragraphes, construite phrase par phrase. Pure.
+    """Une lecture courte, construite sans modèle à partir des faits. Pure.
 
-    Moins littéraire qu'un analyste, mais exacte par construction : elle ne
-    reprend que des constats déjà mesurés et les chiffres lus dans les dépôts.
+    ⚠️ PRESQUE SANS CHIFFRES — 02/10/2026. La première version recopiait les
+    constats bout à bout : 42 nombres en un bloc, que l'en-tête du terminal et
+    le tableau « À surveiller » affichent déjà. Abd Moutalib : « trop de
+    répétition, trop de chiffres en texte ». Les chiffres restent à leur
+    place (en-tête, tableau, détail) ; ce texte dit ce qu'ils montrent, en
+    mots, et renvoie au tableau.
     """
     paras = []
-    tete = [c for c in (b.get("constats") or [])[:2]]
-    if tete:
-        paras.append("L'essentiel. " + " ".join(tete))
+    acc = b.get("accord") or {}
+    t = b.get("trajectoire") or {}
+    phr = []
+    r = acc.get("ratio")
+    if isinstance(r, (int, float)):
+        phr.append("La grande majorité des valeurs a reculé." if r <= -0.4 else
+                   "La grande majorité des valeurs a progressé." if r >= 0.4 else
+                   "Hausses et baisses se sont à peu près équilibrées.")
+    c, bas, haut = t.get("cloture"), t.get("plus_bas"), t.get("plus_haut")
+    ouv, veille = t.get("ouverture"), t.get("veille")
+    if all(isinstance(x, (int, float)) for x in (c, bas, haut)) and haut > bas:
+        pos = (c - bas) / (haut - bas)
+        traj = ("L'indice termine au plus bas de la séance" if pos <= 0.05 else
+                "L'indice termine au plus haut de la séance" if pos >= 0.95 else
+                "L'indice termine dans le bas de sa fourchette du jour" if pos < 0.34 else
+                "L'indice termine dans le haut de sa fourchette du jour" if pos > 0.66 else
+                "L'indice termine au milieu de sa fourchette du jour")
+        if isinstance(ouv, (int, float)) and isinstance(veille, (int, float)):
+            if ouv > veille and c <= veille:
+                traj += ", après avoir effacé son gain d'ouverture"
+            elif ouv < veille and c >= veille:
+                traj += ", après avoir effacé sa baisse d'ouverture"
+        phr.append(traj + ".")
+    sect = [x for x in (b.get("secteurs") or []) if isinstance(x.get("variation_pct"), (int, float))]
+    if sect:
+        n_b = sum(1 for x in sect if x["variation_pct"] < 0)
+        n_h = sum(1 for x in sect if x["variation_pct"] > 0)
+        phr.append(f"Côté secteurs, {n_b} indices reculent et {n_h} progressent sur {len(sect)}.")
+    if phr:
+        paras.append("L'essentiel. " + " ".join(phr))
+
     a = b.get("a_surveiller") or {}
     lignes = []
     for z in a.get("a_publie") or []:
         ch = z.get("chiffres") or {}
-        morceaux = [f"{z['symbol']} a déposé ses résultats semestriels"]
-        if ch.get("ca_s1_2026") is not None and ch.get("var_ca_pct") is not None:
-            morceaux.append(f"chiffre d'affaires {_fr(ch['ca_s1_2026'], 1)} MDH "
-                            f"({_signe(ch['var_ca_pct'], 1)} %)")
-        if ch.get("rnpg_s1_2026") is not None and ch.get("rnpg_s1_2025") is not None:
-            morceaux.append(f"résultat part du groupe {_fr(ch['rnpg_s1_2026'], 1)} MDH "
-                            f"contre {_fr(ch['rnpg_s1_2025'], 1)}")
-        if z.get("chg") is not None:
-            r = f"le cours a terminé à {_signe(z['chg'], 2)} %"
-            if z.get("volume_rapport") is not None:
-                r += f", volume {_fr(z['volume_rapport'], 1)} fois sa médiane de 20 séances"
-            morceaux.append(r)
-        else:
-            morceaux.append("le titre n'a pas coté")
-        lignes.append(" ; ".join(morceaux) + ".")
-    for z in a.get("a_bouge") or []:
-        if z.get("chg") is None:
-            continue
-        lignes.append(f"{z['symbol']} ({_signe(z['chg'], 2)} %) : "
-                      + ", ".join(c["texte"] for c in z["criteres"]) + ".")
+        r26, r25 = ch.get("rnpg_s1_2026"), ch.get("rnpg_s1_2025")
+        res = ""
+        if isinstance(r26, (int, float)) and isinstance(r25, (int, float)):
+            res = (" : résultat semestriel en hausse" if r26 > r25 else
+                   " : résultat semestriel en baisse" if r26 < r25 else
+                   " : résultat semestriel stable")
+        chg = z.get("chg")
+        reac = ("le titre n'a pas coté" if chg is None else
+                "le titre termine en hausse" if chg > 0 else
+                "le titre termine en baisse" if chg < 0 else "le titre termine inchangé")
+        lignes.append(f"{z['symbol']} a publié ses comptes{res}, et {reac}.")
     if lignes:
-        paras.append("Valeurs à retenir. " + " ".join(lignes))
+        paras.append("Publications. " + " ".join(lignes))
+    bouge = [z["symbol"] for z in a.get("a_bouge") or [] if z.get("chg") is not None]
+    if bouge:
+        paras.append("À surveiller. " + ", ".join(bouge)
+                     + " remplissent au moins un critère mesuré — volume inhabituel, "
+                       "extrême de douze mois ou variation parmi les plus fortes. "
+                       "Le détail est dans le tableau ci-dessous.")
     return "\n\n".join(paras)
 
 
@@ -179,6 +230,9 @@ def appliquer(texte: str, auteur: str, racine=None) -> dict:
     p = r / "briefing_cloture.json"
     b = json.loads(p.read_text(encoding="utf-8"))
     c = controler(texte, b)
+    c["lisibilite"] = lisibilite(texte)
+    if not c["lisibilite"]["ok"]:
+        c["ok"] = False
     if not c["ok"]:
         return c
     b["redaction"] = {"texte": texte.strip(), "auteur": auteur, "controle": c}
@@ -216,6 +270,8 @@ def main() -> int:
     else:
         b = json.loads((RACINE / "briefing_cloture.json").read_text(encoding="utf-8"))
         c = controler(texte, b)
+        c["lisibilite"] = lisibilite(texte)
+        c["ok"] = c["ok"] and c["lisibilite"]["ok"]
     print(json.dumps(c, ensure_ascii=False, indent=1))
     return 0 if c["ok"] else 1
 

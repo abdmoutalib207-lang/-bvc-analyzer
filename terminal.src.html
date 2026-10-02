@@ -2267,6 +2267,36 @@ const Lecture=({r})=>{
     </div>);
 };
 
+// ⚠️ LES CHIFFRES-CLÉS — 02/10/2026. Abd Moutalib : « trop de répétition,
+// trop de chiffres en texte ». Mesuré sur la clôture du 01/10 : 128 nombres
+// en 386 mots de constats, la clôture du MASI écrite quatre fois. Chaque
+// chiffre de la séance s'affiche désormais UNE fois, ici ; le texte ne garde
+// que la lecture. Le volume est celui de la synthèse CDG (`veille.jour`),
+// recoupé au bulletin du 01/10 (152,47 M DH), pas la somme de nos lignes.
+const ChiffresCles=({b})=>{
+  const t=b.trajectoire, v=b.veille&&b.veille.jour, vv=b.veille;
+  if(!t&&!v)return null;
+  const VCc=x=>x>0?"#00e5a0":x<0?"#ff4f5a":"#8892a4";
+  const sg=x=>x==null?"—":`${x>0?"+":""}${nfr(x)} %`;
+  const items=[
+    ["MASI",nfr(t?t.cloture:v.cours),v&&v.variation_pct!=null?sg(v.variation_pct):null,v&&VCc(v.variation_pct)],
+    ["Échangé",v&&v.volume_mad!=null?`${nfr(v.volume_mad/1e6,1)} M DH`:"—",
+      vv&&vv.ecart_volume_pct!=null?`${sg(vv.ecart_volume_pct)} vs veille`:null,"#8892a4"],
+    ["Hausses · baisses",v?`${v.hausses??"—"} · ${v.baisses??"—"}`:"—",
+      v&&v.valeurs_traitees?`${v.inchanges??0} inchangées sur ${v.valeurs_traitees}`:null,"#8892a4"],
+    ["Plus haut · bas",t?nfr(t.plus_haut):"—",t?`plus bas ${nfr(t.plus_bas)}`:null,"#8892a4"],
+    ["Depuis janvier",sg(b.ytd_pct),null,null,VCc(b.ytd_pct)]];
+  return(
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(140px,45%),1fr))",gap:10}}>
+      {items.map(([l,val,sous,cs,cv])=>(
+        <div key={l} className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"10px 12px"}}>
+          <div style={{fontSize:10,color:"#8892a4",letterSpacing:.8,textTransform:"uppercase"}}>{l}</div>
+          <div style={{fontSize:18,fontWeight:700,fontFamily:"monospace",color:cv||"#e6edf7",margin:"3px 0 1px",whiteSpace:"nowrap"}}>{val}</div>
+          {sous&&<div style={{fontSize:11,color:cs||"#8892a4"}}>{sous}</div>}
+        </div>))}
+    </div>);
+};
+
 const ASurveiller=({a})=>{
   if(!a)return null;
   const groupes=[["A PUBLIÉ",a.a_publie||[]],["A BOUGÉ",a.a_bouge||[]]].filter(([,l])=>l.length);
@@ -2281,17 +2311,28 @@ const ASurveiller=({a})=>{
       {groupes.map(([titre,l])=>(
         <div key={titre} style={{marginBottom:8}}>
           <div style={{fontSize:10,color:"#8892a4",letterSpacing:.8,margin:"6px 0 4px"}}>{titre}</div>
-          {l.map(z=>(
-            <div key={z.symbol} style={{display:"flex",gap:10,alignItems:"baseline",padding:"5px 0",borderBottom:"1px solid #0a1220",flexWrap:"wrap"}}>
-              <span style={{color:"#e6edf7",fontWeight:600,minWidth:44}}>{z.symbol}</span>
-              <span style={{fontFamily:"monospace",minWidth:62,color:z.chg==null?"#5a6478":z.chg>0?"#00e5a0":z.chg<0?"#ff4f5a":"#8892a4"}}>
-                {z.chg==null?"non coté":`${z.chg>0?"+":""}${fmt(z.chg).replace(".",",")} %`}</span>
-              <span style={{color:"#c8d3e8",fontSize:12.5,flex:"1 1 200px"}}>
-                {z.criteres.map((c,i)=><span key={i}>{i>0&&" · "}{c.url
-                  ?<a href={c.url} target="_blank" rel="noopener noreferrer" style={{color:"#4db8ff"}}>{c.texte}</a>
-                  :c.texte}</span>)}
-              </span>
-            </div>))}
+          {/* ⚠️ En tableau depuis le 02/10 : le chiffre dans sa colonne, le
+              critère en étiquette courte. Le volume relatif n'est plus répété
+              dans le texte du critère. */}
+          <div style={{overflowX:"auto"}}><table style={{borderCollapse:"collapse",width:"100%"}}>
+            <thead><tr>{["Titre","Variation","Volume","Pourquoi"].map(x=>
+              <th key={x} style={{textAlign:"left",fontSize:10,color:"#5a6478",fontWeight:400,letterSpacing:.6,textTransform:"uppercase",padding:"3px 8px 3px 0"}}>{x}</th>)}</tr></thead>
+            <tbody>{l.map(z=>(
+              <tr key={z.symbol} style={{borderTop:"1px solid #0a1220"}}>
+                <td style={{padding:"6px 8px 6px 0",color:"#e6edf7",fontWeight:600,whiteSpace:"nowrap"}}>{z.symbol}</td>
+                <td style={{padding:"6px 8px 6px 0",fontFamily:"monospace",whiteSpace:"nowrap",color:z.chg==null?"#5a6478":z.chg>0?"#00e5a0":z.chg<0?"#ff4f5a":"#8892a4"}}>
+                  {z.chg==null?"non coté":`${z.chg>0?"+":""}${fmt(z.chg).replace(".",",")} %`}</td>
+                <td style={{padding:"6px 8px 6px 0",fontFamily:"monospace",whiteSpace:"nowrap",color:z.volume_rapport>=3?"#ffd740":"#8892a4"}}
+                  title="Titres échangés rapportés à la médiane des 20 dernières séances">
+                  {z.volume_rapport!=null?`×${nfr(z.volume_rapport,1)}`:"—"}</td>
+                <td style={{padding:"6px 0",display:"flex",gap:4,flexWrap:"wrap"}}>
+                  {z.criteres.filter(c=>c.code!=="volume").map((c,i)=>{
+                    const st={fontSize:11,padding:"1px 7px",borderRadius:10,background:"#0a1220",border:"1px solid #1a2540",color:"#c8d3e8",textDecoration:"none",whiteSpace:"nowrap"};
+                    return c.url?<a key={i} href={c.url} target="_blank" rel="noopener noreferrer" style={{...st,color:"#4db8ff"}}>{c.texte}</a>
+                      :<span key={i} style={st}>{c.texte}</span>;})}
+                  {z.criteres.every(c=>c.code==="volume")&&<span style={{fontSize:11,color:"#5a6478"}}>volume inhabituel</span>}
+                </td>
+              </tr>))}</tbody></table></div>
         </div>))}
     </div>);
 };
@@ -2364,6 +2405,25 @@ const Briefing=()=>{
     {id:"cloture",label:"CLÔTURE",dispo:!!clV,pourquoi:passe?"Aucune lecture de clôture archivée pour cette séance.":"Écrite par le passage de 15h45 — pas encore publiée."},
     {id:"semaine",label:"LA SEMAINE",dispo:!passe&&!!h,pourquoi:passe?"Bilan de la semaine en cours seulement.":"Le bilan de semaine n'a pas été publié par le dernier run."}];
   const LIB_MOMENT={mi_journee:"Lecture de mi-journée",cloture:"Lecture de clôture",en_seance:"Lecture en séance"};
+  const blocConstats=<div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+        <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>
+          {semaine?"Bilan de la semaine":`Tous les constats mesurés — ${(LIB_MOMENT[src.moment]||"lecture de la séance").toLowerCase()}`}</div>
+        <div style={{fontSize:13,color:"#4db8ff",marginBottom:12}}>
+          {semaine
+            ?`${h.semaine?.n||0} séance${(h.semaine?.n||0)>1?"s":""} cotée${(h.semaine?.n||0)>1?"s":""}${h.semaine?.seances?.length?` · ${h.semaine.seances[0]} → ${h.semaine.seances[h.semaine.seances.length-1]}`:""}`
+            :<>{src.seance||"—"}{src.ecrit_a&&<span style={{color:"#5a6478",fontSize:11,marginLeft:8}}>· écrite le {src.ecrit_a.slice(8,10)}/{src.ecrit_a.slice(5,7)} à {src.ecrit_a.slice(11)}</span>}</>}</div>
+        <ul style={{margin:0,paddingLeft:18,fontSize:13.5,lineHeight:1.65,color:"#c8d3e8"}}>
+          {(src.constats||[]).map((c,i)=><li key={i} style={{marginBottom:6}}>{c}</li>)}
+          {(src.constats||[]).length===0&&<li style={{color:"#8892a4"}}>Rien de mesurable à signaler.</li>}
+        </ul>
+        {(src.non_mesurable||[]).length>0&&
+          <div style={{marginTop:12,paddingTop:10,borderTop:"1px solid #1a2540"}}>
+            <div style={{fontSize:11,color:"#8892a4",marginBottom:4}}>Ce que cette lecture ne dit pas :</div>
+            <ul style={{margin:0,paddingLeft:18,fontSize:11.5,color:"#5a6478",lineHeight:1.6}}>
+              {(src.non_mesurable||[]).map((x,i)=><li key={i}>{x}.</li>)}
+            </ul>
+          </div>}
+      </div>;
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
       <div style={{display:"flex",gap:4,flexWrap:"wrap",alignItems:"center"}}>
@@ -2387,28 +2447,17 @@ const Briefing=()=>{
               cursor:dispo?"pointer":"not-allowed"}}>{o.label}</button>;})}
       </div>
 
+      {/* ⚠️ L'en-tête du terminal affiche déjà les chiffres de la dernière
+          clôture : la bande ne s'affiche que là où ils diffèrent — séance
+          relue dans l'archive, ou lecture de mi-journée. */}
+      {!semaine&&(passe||vue==="mijournee")&&<ChiffresCles b={src}/>}
       {!semaine&&<Lecture r={src.redaction}/>}
       {!semaine&&<ASurveiller a={src.a_surveiller}/>}
 
-      <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
-        <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>
-          {semaine?"Bilan de la semaine":(LIB_MOMENT[src.moment]||"Lecture de la séance")}</div>
-        <div style={{fontSize:13,color:"#4db8ff",marginBottom:12}}>
-          {semaine
-            ?`${h.semaine?.n||0} séance${(h.semaine?.n||0)>1?"s":""} cotée${(h.semaine?.n||0)>1?"s":""}${h.semaine?.seances?.length?` · ${h.semaine.seances[0]} → ${h.semaine.seances[h.semaine.seances.length-1]}`:""}`
-            :<>{src.seance||"—"}{src.ecrit_a&&<span style={{color:"#5a6478",fontSize:11,marginLeft:8}}>· écrite le {src.ecrit_a.slice(8,10)}/{src.ecrit_a.slice(5,7)} à {src.ecrit_a.slice(11)}</span>}</>}</div>
-        <ul style={{margin:0,paddingLeft:18,fontSize:13.5,lineHeight:1.65,color:"#c8d3e8"}}>
-          {(src.constats||[]).map((c,i)=><li key={i} style={{marginBottom:6}}>{c}</li>)}
-          {(src.constats||[]).length===0&&<li style={{color:"#8892a4"}}>Rien de mesurable à signaler.</li>}
-        </ul>
-        {(src.non_mesurable||[]).length>0&&
-          <div style={{marginTop:12,paddingTop:10,borderTop:"1px solid #1a2540"}}>
-            <div style={{fontSize:11,color:"#8892a4",marginBottom:4}}>Ce que cette lecture ne dit pas :</div>
-            <ul style={{margin:0,paddingLeft:18,fontSize:11.5,color:"#5a6478",lineHeight:1.6}}>
-              {(src.non_mesurable||[]).map((x,i)=><li key={i}>{x}.</li>)}
-            </ul>
-          </div>}
-      </div>
+      {/* ⚠️ Les constats répètent les chiffres-clés : sur une séance, ils
+          passent dans le détail replié (02/10/2026). La semaine, sans
+          chiffres-clés, les garde en vue. */}
+      {semaine&&blocConstats}
 
       {/* ⚠️ LA LECTURE DÉTAILLÉE DE LA SÉANCE — ajoutée le 30/09/2026.
           Trajectoire, secteurs, matières premières, niveaux, dépôts : chaque
@@ -2420,6 +2469,7 @@ const Briefing=()=>{
         style={{alignSelf:"flex-start",background:"#0a1220",border:"1px solid #1a2540",color:"#8892a4",
           borderRadius:5,padding:"5px 14px",fontSize:11,letterSpacing:.8,cursor:"pointer"}}>
         {detail?"MASQUER LE DÉTAIL DE LA SÉANCE ▴":"DÉTAIL DE LA SÉANCE ▾"}</button>}
+      {!semaine&&detail&&blocConstats}
       {!semaine&&detail&&<SeanceDetail b={src}/>}
 
       {/* ⚠️ Le palmarès n'existe que sur la semaine : sur une séance, il

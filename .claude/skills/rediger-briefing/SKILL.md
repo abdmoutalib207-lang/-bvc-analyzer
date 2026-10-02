@@ -31,16 +31,29 @@ bon, les chiffres faux. Ici, la plume est libre et les chiffres ne le sont pas.
    dépôt mais absent des faits ne s'écrit pas : le contrôle le refusera.
    Écrire « la dette nette augmente nettement, selon le communiqué » plutôt
    que le montant.
-4. Rédiger dans `/tmp/redaction.md`, en français, 250 à 450 mots :
-   - **L'essentiel** — l'indice, la veille, le volume ; ce que la séance a été.
-   - **Valeurs à retenir** — celles d'`a_surveiller`, publications d'abord :
-     ce qui a été publié (chiffres des faits), puis la réaction du cours
-     (`chg`, `volume_rapport`).
-   - **Ce qui a changé aujourd'hui** — deux ou trois phrases de synthèse.
-   - **Ce que cette lecture ne dit pas** — reprendre `non_mesurable` utile.
+4. Rédiger dans `/tmp/redaction.md`, en français, **150 à 280 mots** :
+   - **L'essentiel** — ce que la séance a été, en mots : large ou étroite,
+     trajectoire de l'indice, secteurs qui se distinguent.
+   - **Valeurs à retenir** — les publications d'abord : ce que les comptes
+     disent (sens du résultat, du chiffre d'affaires) et comment le cours a
+     réagi. Trois à cinq titres, pas la liste entière.
+   - **Ce que cette lecture ne dit pas** — une phrase, tirée de
+     `non_mesurable`.
+
+   ⚠️ **LES CHIFFRES SONT DÉJÀ À L'ÉCRAN** (règle du 02/10/2026, demande
+   d'Abd Moutalib : « trop de répétition, trop de chiffres en texte »).
+   L'en-tête du terminal affiche l'indice, sa variation, le volume, les
+   hausses et baisses, le depuis-janvier ; le tableau « À surveiller »
+   affiche la variation et le volume relatif de chaque titre. **Ne pas les
+   réécrire.** Le texte dit ce qu'ils MONTRENT. Au plus **12 nombres**, et
+   **aucun nombre écrit deux fois** : le contrôle le refuse
+   (`lisibilite()`). Un chiffre n'entre que s'il apporte ce que l'écran ne
+   montre pas — typiquement un chiffre de publication (résultat, chiffre
+   d'affaires).
 5. Contrôler : `python pipeline/redaction.py --controler /tmp/redaction.md`.
    Chaque nombre refusé se corrige en reprenant la valeur des faits, ou se
-   retire. Recommencer jusqu'à `"ok": true`.
+   retire ; un texte trop chiffré ou qui répète un nombre se raccourcit.
+   Recommencer jusqu'à `"ok": true`.
 6. Appliquer : `python pipeline/redaction.py --appliquer /tmp/redaction.md
    --auteur claude`, puis commiter `briefing_cloture.json` et
    `briefings/<séance>.json` seulement, et pousser sur `main`.
