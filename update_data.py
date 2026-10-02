@@ -3103,7 +3103,9 @@ def detecter_alertes(fiche: dict | None, rsi=None, sym: str = "") -> dict:
         return {"source": e.get("source") or source, "date": e.get("date") or date}
 
     liste = []
-    dette, roic, wacc = _e("dette_nette_ebitda"), _e("roic"), _n("wacc")
+    # WACC : la référence unique de la note (lot 4, 02/10/2026), plus la saisie.
+    from pipeline.smart_money.fond_score import WACC_REF
+    dette, roic, wacc = _e("dette_nette_ebitda"), _e("roic"), WACC_REF
     marge, cash = _n("marge_nette"), _e("cash_conversion")
     if dette is not None and dette > SEUIL_DETTE_CRITIQUE:
         liste.append({"niveau": "critique", "theme": "Structure financière",
@@ -4148,11 +4150,17 @@ def run(dry_run=False, push=False, token=""):
         # BPA 12 mois des comptes), pas le `forward_per` saisi — décision du
         # 01/10/2026 (R8), voir `compute_fond_score`. Il dépend du cours, d'où
         # le calcul ici plutôt qu'au chargement.
-        _per_12m = _per(price, (BPA_DATA.get(ticker) or {}).get("bpa_12m"))
-        if ticker in _FOND_COMPUTED and _per_12m:
-            score_fond = _cfs(ticker, per_publie=_per_12m)
+        #
+        # ⚠️ Lot 4 (02/10/2026) : PER sur douze mois, sinon PER de l'exercice
+        # (les deux tirés des comptes) ; croissance lue seulement si elle vient
+        # des comptes semestriels (BPA 12 mois établi). Aucune saisie.
+        _b = BPA_DATA.get(ticker) or {}
+        _per_12m = _per(price, _b.get("bpa_12m")) if _b.get("bpa_12m") is not None else _per(price, _b.get("bpa"))
+        if ticker in _FOND_COMPUTED:
+            score_fond = _cfs(ticker, per_publie=_per_12m,
+                              croissance_sourcee=_b.get("bpa_12m") is not None)
         else:
-            score_fond = _FOND_COMPUTED.get(ticker) or FOND_SCORES.get(ticker, 5.0)
+            score_fond = FOND_SCORES.get(ticker, 5.0)
 
         # Contexte de pondération.
         #

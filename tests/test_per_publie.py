@@ -41,8 +41,8 @@ def test_un_per_publie_aberrant_est_lu_tel_quel():
 
 def test_le_moteur_passe_le_per_douze_mois():
     src = (Path(__file__).resolve().parent.parent / "update_data.py").read_text(encoding="utf-8")
-    assert 'score_fond = _cfs(ticker, per_publie=_per_12m)' in src
-    assert '_per_12m = _per(price, (BPA_DATA.get(ticker) or {}).get("bpa_12m"))' in src
+    assert "score_fond = _cfs(ticker, per_publie=_per_12m,\n                              croissance_sourcee=" in src
+    assert '_per_12m = _per(price, _b.get("bpa_12m")) if _b.get("bpa_12m") is not None else _per(price, _b.get("bpa"))' in src
 
 
 def test_une_perte_n_affiche_pas_le_per_de_la_table():
