@@ -137,8 +137,23 @@ def ratio_effectif(f: dict | None, sym: str, cle: str) -> dict | None:
     return None
 
 
+# ⚠️ LOT 4 DES RECTIFICATIONS — 02/10/2026, demande d'Abd Moutalib : plus
+# aucune saisie manuelle lue par la note.
+# - WACC : 29 valeurs saisies entre 9 et 11 %, sans méthode. Remplacées par
+#   UNE référence déclarée pour toutes les sociétés — la même que le coût des
+#   fonds propres des financières. Hypothèse, pas une mesure.
+# - Momentum, rerating, cycle : jugements saisis à la main (76, 29 et 3
+#   titres), sans source ; ils ne modifient plus la note. Les champs restent
+#   dans le fichier pour la trace.
+# - Croissance et PER : lus seulement quand ils viennent des comptes publiés
+#   (`croissance_sourcee`, `per_publie`) ; sinon « non évalué » (5,0), et
+#   plus jamais un défaut inventé (PER 15 → « juste valeur » 7,0).
+WACC_REF = 10.0
+
+
 def compute_fond_score(sym: str, fondamentaux: dict = None,
-                       per_publie: float | None = None) -> float:
+                       per_publie: float | None = None,
+                       croissance_sourcee: bool | None = None) -> float:
     """
     Retourne le score fondamental [0-10].
     fondamentaux: dict optionnel — si None, chargé depuis fondamentaux.json.
@@ -155,7 +170,7 @@ def compute_fond_score(sym: str, fondamentaux: dict = None,
     _r     = ratio_effectif(f, sym, "roic") or {}
     # ⚠️ Une saisie à 0 retombe sur 10 (`or 10`), comportement antérieur gardé.
     roic   = _r["valeur"] if _r.get("origine") == "comptes publiés" else float(f.get("roic") or 10)
-    wacc   = float(f.get("wacc") or 10)
+    wacc   = WACC_REF
     spread = roic - wacc
     if   spread >= 15: q = 9.5
     elif spread >= 10: q = 8.5
@@ -180,7 +195,8 @@ def compute_fond_score(sym: str, fondamentaux: dict = None,
     cbpa   = float(f.get("croissance_bpa") or 0)
     cca    = float(f.get("croissance_ca")  or 0)
     growth = cbpa * 0.6 + cca * 0.4
-    if   growth >= 100: g = 10.0
+    if croissance_sourcee is False: g = 5.0   # saisie non sourcée : non évaluée
+    elif growth >= 100: g = 10.0
     elif growth >= 50:  g = 9.0
     elif growth >= 25:  g = 7.5
     elif growth >= 10:  g = 6.5
@@ -202,9 +218,13 @@ def compute_fond_score(sym: str, fondamentaux: dict = None,
     # ⚠️ C'est un PER RÉALISÉ, pas prévisionnel : la grille de seuils
     # (8 / 12 / 17 / 25 / 35 / 50) n'a pas été recalibrée. Un titre en perte
     # n'a pas de PER (`_per` rend None) et garde la saisie.
-    fper = (float(per_publie) if isinstance(per_publie, (int, float)) and per_publie > 0
-            else float(f.get("forward_per") or 15))
-    if   fper <= 0:  v = 5.0   # aberrant → neutre
+    if croissance_sourcee is not None and not (isinstance(per_publie, (int, float)) and per_publie > 0):
+        fper = None                     # appel du moteur sans PER publié : non évalué
+    else:
+        fper = (float(per_publie) if isinstance(per_publie, (int, float)) and per_publie > 0
+                else float(f.get("forward_per") or 15))
+    if   fper is None: v = 5.0  # non évalué (aucun PER tiré des comptes)
+    elif fper <= 0:  v = 5.0   # aberrant → neutre
     elif fper <= 8:  v = 9.5   # très décoté
     elif fper <= 12: v = 8.5   # décoté
     elif fper <= 17: v = 7.0   # juste valeur
@@ -283,7 +303,11 @@ def compute_fond_score(sym: str, fondamentaux: dict = None,
     # Score composite
     fond = q * 0.40 + g * 0.30 + v * 0.20 + bs * 0.10
 
-    # Modificateurs
+    # Modificateurs — saisies sans source, NEUTRALISÉS le 02/10/2026 pour
+    # l'appel du moteur (`croissance_sourcee` renseigné). Conservés pour les
+    # autres appelants historiques, qui ne passent pas ce paramètre.
+    if croissance_sourcee is not None:
+        return round(min(max(fond, 0.0), 10.0), 2)
     mom = str(f.get("momentum_fondamental") or "").lower()
     if "très positif" in mom or "tres positif" in mom:
         fond += 0.5
