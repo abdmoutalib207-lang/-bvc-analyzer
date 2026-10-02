@@ -6401,7 +6401,51 @@
     "nb_actions": 647777,
     "bloomberg": "M2M",
     "reuters": "M2M",
-    "secteur_libre": null
+    "secteur_libre": null,
+    "ratios_publies": {
+      "dette_nette": {
+        "valeur": -176.5,
+        "date": "2025-12-31",
+        "formule": "0.497758 − 177.005762 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Résultats Financiers 2025 (comptes sociaux et consolidés, 6 pages — pas de rapport financier annuel au catalogue AMMC) — https://www.ammc.ma/sites/default/files/M2M_Group_2025.pdf, p. 4",
+          "tresorerie": "Résultats Financiers 2025 (comptes sociaux et consolidés, 6 pages — pas de rapport financier annuel au catalogue AMMC) — https://www.ammc.ma/sites/default/files/M2M_Group_2025.pdf, p. 4"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "MMAD"
+      },
+      "roic": {
+        "valeur": 9.7,
+        "date": "2025-12-31",
+        "formule": "9.064373 × (1 − t) ÷ (232.359361 + -176.508) ; t = 4.381394 ÷ 10.92652 = 40.1 %",
+        "sources": {
+          "resultat_exploitation": "Résultats Financiers 2025 (comptes sociaux et consolidés, 6 pages — pas de rapport financier annuel au catalogue AMMC) — https://www.ammc.ma/sites/default/files/M2M_Group_2025.pdf, p. 4",
+          "impot": "Résultats Financiers 2025 (comptes sociaux et consolidés, 6 pages — pas de rapport financier annuel au catalogue AMMC) — https://www.ammc.ma/sites/default/files/M2M_Group_2025.pdf, p. 4",
+          "resultat_avant_impot": "Résultats Financiers 2025 (comptes sociaux et consolidés, 6 pages — pas de rapport financier annuel au catalogue AMMC) — https://www.ammc.ma/sites/default/files/M2M_Group_2025.pdf, p. 4",
+          "capitaux_propres": "Résultats Financiers 2025 (comptes sociaux et consolidés, 6 pages — pas de rapport financier annuel au catalogue AMMC) — https://www.ammc.ma/sites/default/files/M2M_Group_2025.pdf, p. 4",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "%",
+        "taux_impot_effectif": 40.1
+      },
+      "cash_conversion": {
+        "valeur": 366.3,
+        "date": "2025-12-31",
+        "formule": "23.976146 ÷ 6.545127 (MMAD)",
+        "sources": {
+          "flux": "Résultats Financiers 2025 (comptes sociaux et consolidés, 6 pages — pas de rapport financier annuel au catalogue AMMC) — https://www.ammc.ma/sites/default/files/M2M_Group_2025.pdf, p. 5",
+          "resultat_net": "Résultats Financiers 2025 (comptes sociaux et consolidés, 6 pages — pas de rapport financier annuel au catalogue AMMC) — https://www.ammc.ma/sites/default/files/M2M_Group_2025.pdf, p. 4"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "%"
+      },
+      "non_calcules_2025": {
+        "ebitda": "aucun EBE/EBITDA consolidé publié ; le CPC consolidé ne donne qu'un total « Dotations d'exploitation 9 491 203 » qui MÊLE amortissements et provisions (le dépôt de 6 pages n'en donne pas la ventilation). Pas de ventilation, pas d'EBITDA. Pour mémoire, la société calcule elle-même dans son tableau des flux « Résultat d'exploitation 18 555 575,43 » = résultat d'exploitation 9 064 372,84 + dotation d'exploitation 9 491 202,59 (libellé erroné) : borne haute de l'EBITDA, provisions comprises.",
+        "dette_nette_ebitda": "dette nette ou EBITDA non calculé"
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "MIC": {
     "secteur": "Technologie",
