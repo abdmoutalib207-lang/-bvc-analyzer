@@ -189,8 +189,49 @@ fusion** : la fusion est la décision d'Abd Moutalib.
   n'y a pas touché.
 - (lot 14) Sigles proches : CMT (Minière Touissit) et CTM (transport) — lister
   les titres par `fondamentaux.json`, jamais de mémoire.
-- (lot 14) `faits_financiers.json` se réécrit en `indent=1`, sans saut de ligne final,
-  `ensure_ascii=False` : tout autre format fait un diff de milliers de lignes.
+- (lot 14) `faits_financiers.json` se réécrit en `indent=1`, `ensure_ascii=False` :
+  tout autre format fait un diff de milliers de lignes. ⚠️ Mesuré le 02/10/2026 : le
+  fichier se TERMINE par un saut de ligne (`json.dumps(d, ensure_ascii=False,
+  indent=1) + "\n"` le reproduit octet pour octet) ; l'ancienne ligne disait
+  l'inverse.
+- (lot 3b) Un flux d'exploitation peut contenir un ACHAT de titres de placement :
+  Auto Nejma (« flux … -3 839 ») a une trésorerie de tableau qui exclut les
+  placements (92,1), donc leur hausse (+266,1) passe dans la « variation du BFR »
+  (-363,9 = -97,8 par les bilans -266,1). Reconstituer la variation du BFR depuis
+  les deux bilans avant de calculer une conversion ; sinon `non_calcules`.
+- (lot 3b) Deux définitions de la trésorerie dans un même rapport (NEJ : tableau
+  des flux 92, note « trésorerie et équivalents » 455). Règle du fichier : les
+  placements n'entrent que si le TABLEAU DES FLUX les compte ; consigner l'autre
+  dette nette et le ROIC alternatif dans `reserves_verifiees`.
+- (lot 3b) Un EBITDA publié peut être inutilisable : S2M écrit « 68 151 68 151
+  16,5 % » (colonne 2024 dupliquée) et il ne se reconstruit pas (REX + dotations
+  nettes = 64 821). Des dotations « nettes » ou « nettes des reprises » ne sont
+  pas des amortissements isolés. Pas de ligne, pas d'EBITDA, indicatif en réserve.
+- (lot 3b) Le fichier déposé n'est pas toujours un rapport financier annuel :
+  `M2M_Group_2025.pdf` = 6 pages de comptes + attestations, les noms `_RFA_2025`
+  et `_0` donnent 404. Le dire dans `document` et `reserves_verifiees`. À
+  l'inverse, ce dépôt PUBLIE la part du groupe 2025 (le communiqué du S1, non).
+- (lot 3b) Un rapport de gestion mêle social et consolidé (S2M : « REX 56,5 » est
+  le social, 53,9 le consolidé ; MOX : CA 332,4 social, 330,4 consolidé ; NEJ :
+  yuna = social). Lire chaque chiffre dans l'état dont l'en-tête dit « consolidé ».
+- (lot 3b) Les notes peuvent se contredire avec le bilan : CIM note 7 (total
+  3 756 311 contre 3 739 311) et note 9 (emprunts 0 contre 2 368 677). Le bilan
+  qui s'équilibre prime, confirmé par au moins deux autres états ; la coquille
+  se consigne.
+- (lot 3b) La résolution d'AGO du rapport annuel donne le résultat en DIRHAMS
+  exacts (NEJ : 324 181 862,89) quand les états sont en KMAD arrondis : prendre
+  l'exact, citer l'arrondi.
+- (lot 3b) `test_chaque_fait_2025_est_source_et_chaque_controle_passe` exige
+  `ok: true` partout : un écart non expliqué (NEJ : 29 KMAD au tableau des flux)
+  va dans `reserves_verifiees`, jamais dans `controles` avec une tolérance
+  élargie. Une somme de lignes à 1-2 KMAD de l'état publié est un arrondi, dit.
+- (lot 3b) Le texte extrait d'un PDF de comptes à couche superposée (CIM p.61,
+  MOX p.168) ou à chiffres espacés (S2M, MOX) est brouillé : rendre la page
+  (`pg.crop(...).to_image(resolution=...)`) et lire. Les rapports « double page »
+  (CIM, S2M) : une page du fichier = deux pages imprimées, recadrer.
+- (lot 3b) La branche `fond/lot3b-faits-2025` peut exister localement, tenue par un
+  autre worktree : la création échoue ; pousser par
+  `HEAD:refs/heads/fond/lot3b-faits-2025`.
 
 ## Ce que tu ne fais jamais
 
