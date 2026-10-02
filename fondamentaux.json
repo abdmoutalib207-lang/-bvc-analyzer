@@ -6072,6 +6072,42 @@
           "comptes": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf"
         }
       },
+      "dette_nette": {
+        "valeur": 220.6,
+        "date": "2025-12-31",
+        "formule": "224.09007 − 3.51151 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Stroc_RFA_2025.pdf, p. 15",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Stroc_RFA_2025.pdf, p. 14"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — STROC ne consolide pas ses comptes malgré ses participations (CAC p.27, « Autres points »)",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 23.5,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 23.510127 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Stroc_RFA_2025.pdf, p. 18"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — STROC ne consolide pas ses comptes malgré ses participations (CAC p.27, « Autres points »)",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 9.38,
+        "date": "2025-12-31",
+        "formule": "220.579 ÷ 23.510127",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — STROC ne consolide pas ses comptes malgré ses participations (CAC p.27, « Autres points »)"
+      },
+      "non_calcules_2025": {
+        "roic": "SANS SIGNIFICATION : capitaux propres NÉGATIFS (−340,892 MMAD) ; capitaux employés = −340,892 + dette nette 220,579 = −120,313 MMAD, négatifs. Société en redressement judiciaire (plan de continuation du 22/12/2022), opinion des CAC avec réserve. Un rendement sur capitaux employés négatifs n'a pas d'interprétation.",
+        "cash_conversion": "comptes SOCIAUX seuls : pas de tableau des flux de trésorerie (seulement un tableau de financement, p.19 : CAF 8,948 MMAD, variation de trésorerie +4,368) ; flux net d'exploitation non publié. Résultat net de 0,476 MMAD de toute façon trop petit pour un ratio."
+      },
       "calcule_le": "2026-09-30"
     }
   },
