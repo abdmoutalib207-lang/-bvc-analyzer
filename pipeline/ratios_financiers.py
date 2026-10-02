@@ -151,11 +151,21 @@ def calculer_bilan(entree: dict | None) -> tuple[dict, dict]:
     refus = dict(ctrl.get("non_calcules") or {})
     if not ctrl:
         return {}, {}
+    # ⚠️ GARDE-FOU DE DEVISE — 02/10/2026 (verificateur-finance). Des comptes
+    # tenus dans une autre monnaie (ENK : dinars tunisiens) ne se lisent
+    # jamais comme des MMAD. Aucun ratio n'est calculé, faute de conversion
+    # sourcée ; le refus ne dépend plus d'une saisie dans `non_calcules`.
+    dev = entree.get("devise")
+    if dev and dev != "MAD":
+        for k in ("dette_nette", "ebitda", "dette_nette_ebitda", "roic", "cash_conversion"):
+            refus.setdefault(k, f"comptes tenus en {dev} : aucune conversion en MAD sourcée")
     out, non = {}, {}
     mm = "MMAD"
 
     def base(val, formule, sources, **extra):
-        return {"valeur": val, "date": DATE_EXERCICE, "formule": formule,
+        # ⚠️ Date d'arrêté de L'ÉMETTEUR quand il ne clôt pas au 31/12 (CAR :
+        # 31/03/2026) — relevé par verificateur-finance le 02/10/2026.
+        return {"valeur": val, "date": entree.get("exercice_clos") or DATE_EXERCICE, "formule": formule,
                 "sources": sources, "base": ctrl.get("base"), **extra}
 
     # dette nette

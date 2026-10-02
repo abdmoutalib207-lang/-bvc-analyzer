@@ -222,8 +222,10 @@ def test_lot8_fnb_uni_inv_hal():
     # HAL : 99,832 + 64,8 − 47,3 = 117,332 ÷ 54 140 578 = 2,17 ; ROE 2025
     # 99,832 ÷ 1 445,976 = 6,9 % (yuna : 6,9)
     assert bpa["HAL"]["bpa_12m"] == 2.17
-    # UNI : 11 + 29 − (−40) = 80 ÷ 11 413 880 = 7,01
-    assert bpa["UNI"]["bpa_12m"] == 7.01
+    # UNI, PART DU GROUPE depuis le 02/10 (verificateur-finance ; les anciens
+    # 11 / 29 / −40 étaient l'ensemble consolidé, et donnaient 7,01) :
+    # −31,940 + (−10,489) − (−64,251) = 21,822 ÷ 11 413 880 = 1,91
+    assert bpa["UNI"]["bpa_12m"] == 1.91
     # INV : exercice 2025 lu au rapport (0,116, p.35) depuis le 02/10, au lieu
     # de l'arrondi 0,1 : 0,116 − 3,8 − 2,8 = −6,484 ÷ 382 716 = −16,94
     assert bpa["INV"]["bpa_12m"] == -16.94 and bpa["INV"]["perte_documentee"]
