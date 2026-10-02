@@ -351,7 +351,8 @@ jobs:
             for f in briefing.json briefing_hebdo.json \
                      briefing_mijournee.json briefing_cloture.json news.json \
                      pipeline/depots_ammc.json pipeline/seance_marche.json \
-                     pipeline/marche_history.json pipeline/score_history.json; do
+                     pipeline/marche_history.json pipeline/score_history.json \
+                     marches_mondiaux.json; do
               [ -f "$f" ] && git add "$f"
             done
             if [ -f pipeline/historical_data.json ]; then

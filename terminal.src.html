@@ -1431,7 +1431,8 @@ const RUBRIQUES=[
   {titre:"Marché",vues:[
     {id:"ranking",icone:"▤",aide:"Les 80 titres, leur note et leur signal"},
     {id:"heatmap",icone:"▦",aide:"La séance d'un coup d'œil, par secteur"},
-    {id:"watchlist",icone:"★",aide:"Vos titres suivis"}]},
+    {id:"watchlist",icone:"★",aide:"Vos titres suivis"},
+    {id:"monde",icone:"◍",aide:"Indices mondiaux, devises, matières premières"}]},
   {titre:"Lecture du jour",vues:[
     {id:"briefing",icone:"✎",aide:"Mi-journée, clôture, semaine — et l'archive"},
     {id:"news",icone:"☰",aide:"Publications et actualités retenues"}]},
@@ -1688,7 +1689,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
   // briefing porte la séance close de la veille, il est donc écrit à 18h et
   // disponible toute la nuit — sans dépendre d'un déclenchement matinal, qui
   // est aujourd'hui le point faible du produit.
-  const TABS=[{id:"accueil",label:"ACCUEIL"},{id:"ranking",label:"CLASSEMENT"},{id:"briefing",label:"BRIEFING"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"}];
+  const TABS=[{id:"accueil",label:"ACCUEIL"},{id:"ranking",label:"CLASSEMENT"},{id:"briefing",label:"BRIEFING"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"},{id:"monde",label:"MARCHÉS MONDIAUX"}];
   return(
     <div className="entete" style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
@@ -2524,6 +2525,42 @@ const Briefing=()=>{
               </div>
             </a>))}
       </div>
+    </div>);
+};
+
+// ── MARCHÉS MONDIAUX (02/10/2026) ───────────────────────────────────────────
+// Indices, risque et devises, matières premières — `marches_mondiaux.json`,
+// relevé par le moteur à chaque passage (pipeline/marches_mondiaux.py). Chaque
+// valeur garde l'heure que la source déclare : un différé se voit. Contexte
+// seulement : rien de ceci n'entre dans la note.
+const MarchesMondiaux=()=>{
+  const [d,setD]=useState(null);const [etat,setEtat]=useState("chargement");
+  useEffect(()=>{fetch("marches_mondiaux.json?t="+Math.floor(Date.now()/600000))
+    .then(r=>r.ok?r.json():null).catch(()=>null).then(x=>{setD(x);setEtat(x?"ok":"absent");});},[]);
+  if(etat==="chargement")return <Squelette blocs={[4,4,4]} titre="Chargement des marchés mondiaux"/>;
+  if(etat==="absent")return <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:20,color:"#8892a4"}}>Les marchés mondiaux n'ont pas encore été relevés par le moteur.</div>;
+  const VC=x=>x>0?"#00e5a0":x<0?"#ff4f5a":"#8892a4";
+  const unite=l=>l.devise==="MAD"?" MAD":l.devise==="USD"&&l.nom!=="VIX"&&l.nom!=="Indice dollar"?(l.nom.startsWith("Charbon")?" USD/t":" USD"):"";
+  const heure=iso=>iso?`${iso.slice(8,10)}/${iso.slice(5,7)} ${iso.slice(11,16)} UTC`:"—";
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(300px,100%),1fr))",gap:12}}>
+        {(d.groupes||[]).map(g=>(
+          <div key={g.titre} className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
+            <div style={{fontSize:12,color:"#e6edf7",fontWeight:600,marginBottom:10}}>{g.titre}</div>
+            {g.lignes.length===0&&<div style={{fontSize:12,color:"#5a6478"}}>Non servi par la source à ce passage.</div>}
+            {g.lignes.map(l=>(
+              <div key={l.ticker} title={`${l.description_source} — ${heure(l.horodatage_utc)} — ${l.mode_source}`}
+                style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",gap:10,padding:"8px 0",borderBottom:"1px solid #0a1220"}}>
+                <span style={{color:"#c8d3e8",fontSize:13.5}}>{l.nom}</span>
+                <span style={{fontFamily:"monospace",whiteSpace:"nowrap"}}>
+                  <span style={{color:"#e6edf7",fontSize:13.5}}>{nfr(l.valeur,l.valeur>=1000?1:2)}{unite(l)}</span>
+                  <span style={{color:VC(l.variation_pct),fontSize:12,marginLeft:10}}>{l.variation_pct==null?"—":`${l.variation_pct>0?"+":""}${nfr(l.variation_pct)} %`}</span>
+                </span>
+              </div>))}
+          </div>))}
+      </div>
+      <div style={{fontSize:10.5,color:"#5a6478"}}>Source : TradingView (scanner public), relevé le {heure(d.releve_utc)}. Les valeurs peuvent être différées de 10 à 15 minutes, comme la source le déclare (survol d'une ligne pour son heure exacte). Contexte seulement : n'entre pas dans la note.</div>
     </div>);
 };
 
@@ -4102,6 +4139,7 @@ function App(){
         {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={choisirTitre} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="weights"  &&<Weights/>}
         {tab==="briefing" &&<Briefing/>}
+        {tab==="monde" &&<MarchesMondiaux/>}
         {tab==="smart"    &&<Smart/>}
         {tab==="nlp"      &&<NlpDash/>}
         {tab==="news"     &&<NewsFeed/>}

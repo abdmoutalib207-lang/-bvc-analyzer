@@ -5359,6 +5359,10 @@ const RUBRIQUES = [{
     id: "watchlist",
     icone: "★",
     aide: "Vos titres suivis"
+  }, {
+    id: "monde",
+    icone: "◍",
+    aide: "Indices mondiaux, devises, matières premières"
   }]
 }, {
   titre: "Lecture du jour",
@@ -5956,6 +5960,9 @@ const Header = ({
   }, {
     id: "news",
     label: "ACTUALITÉS"
+  }, {
+    id: "monde",
+    label: "MARCHÉS MONDIAUX"
   }];
   return React.createElement("div", {
     className: "entete",
@@ -8004,6 +8011,104 @@ const Briefing = () => {
       color: "#00e5a0"
     }
   }, "\xB7 source officielle"))))));
+};
+const MarchesMondiaux = () => {
+  const [d, setD] = useState(null);
+  const [etat, setEtat] = useState("chargement");
+  useEffect(() => {
+    fetch("marches_mondiaux.json?t=" + Math.floor(Date.now() / 600000)).then(r => r.ok ? r.json() : null).catch(() => null).then(x => {
+      setD(x);
+      setEtat(x ? "ok" : "absent");
+    });
+  }, []);
+  if (etat === "chargement") return React.createElement(Squelette, {
+    blocs: [4, 4, 4],
+    titre: "Chargement des march\xE9s mondiaux"
+  });
+  if (etat === "absent") return React.createElement("div", {
+    className: "carte",
+    style: {
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      padding: 20,
+      color: "#8892a4"
+    }
+  }, "Les march\xE9s mondiaux n'ont pas encore \xE9t\xE9 relev\xE9s par le moteur.");
+  const VC = x => x > 0 ? "#00e5a0" : x < 0 ? "#ff4f5a" : "#8892a4";
+  const unite = l => l.devise === "MAD" ? " MAD" : l.devise === "USD" && l.nom !== "VIX" && l.nom !== "Indice dollar" ? l.nom.startsWith("Charbon") ? " USD/t" : " USD" : "";
+  const heure = iso => iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)} ${iso.slice(11, 16)} UTC` : "—";
+  return React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 12
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(min(300px,100%),1fr))",
+      gap: 12
+    }
+  }, (d.groupes || []).map(g => React.createElement("div", {
+    key: g.titre,
+    className: "carte",
+    style: {
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      padding: 16
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#e6edf7",
+      fontWeight: 600,
+      marginBottom: 10
+    }
+  }, g.titre), g.lignes.length === 0 && React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#5a6478"
+    }
+  }, "Non servi par la source \xE0 ce passage."), g.lignes.map(l => React.createElement("div", {
+    key: l.ticker,
+    title: `${l.description_source} — ${heure(l.horodatage_utc)} — ${l.mode_source}`,
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "baseline",
+      gap: 10,
+      padding: "8px 0",
+      borderBottom: "1px solid #0a1220"
+    }
+  }, React.createElement("span", {
+    style: {
+      color: "#c8d3e8",
+      fontSize: 13.5
+    }
+  }, l.nom), React.createElement("span", {
+    style: {
+      fontFamily: "monospace",
+      whiteSpace: "nowrap"
+    }
+  }, React.createElement("span", {
+    style: {
+      color: "#e6edf7",
+      fontSize: 13.5
+    }
+  }, nfr(l.valeur, l.valeur >= 1000 ? 1 : 2), unite(l)), React.createElement("span", {
+    style: {
+      color: VC(l.variation_pct),
+      fontSize: 12,
+      marginLeft: 10
+    }
+  }, l.variation_pct == null ? "—" : `${l.variation_pct > 0 ? "+" : ""}${nfr(l.variation_pct)} %`))))))), React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: "#5a6478"
+    }
+  }, "Source : TradingView (scanner public), relev\xE9 le ", heure(d.releve_utc), ". Les valeurs peuvent \xEAtre diff\xE9r\xE9es de 10 \xE0 15 minutes, comme la source le d\xE9clare (survol d'une ligne pour son heure exacte). Contexte seulement : n'entre pas dans la note."));
 };
 const TickerNews = ({
   sym
@@ -11825,7 +11930,7 @@ function App() {
     fav: fav,
     toggleFav: toggleFav,
     scoreMode: scoreMode
-  }), tab === "weights" && React.createElement(Weights, null), tab === "briefing" && React.createElement(Briefing, null), tab === "smart" && React.createElement(Smart, null), tab === "nlp" && React.createElement(NlpDash, null), tab === "news" && React.createElement(NewsFeed, null), React.createElement(MentionLegale, null)));
+  }), tab === "weights" && React.createElement(Weights, null), tab === "briefing" && React.createElement(Briefing, null), tab === "monde" && React.createElement(MarchesMondiaux, null), tab === "smart" && React.createElement(Smart, null), tab === "nlp" && React.createElement(NlpDash, null), tab === "news" && React.createElement(NewsFeed, null), React.createElement(MentionLegale, null)));
 }
 class ErrorBoundary extends React.Component {
   constructor(p) {
