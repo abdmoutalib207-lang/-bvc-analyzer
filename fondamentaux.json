@@ -4284,6 +4284,15 @@
     "croissance_bpa": 24.6,
     "source_s1_2026": "https://www.ammc.ma/sites/default/files/Afric_Industries_S1_26.pdf",
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": 15.3,
+        "date": "2025-12-31",
+        "formule": "7.530116 ÷ 49.153559 (MMAD)",
+        "sources": {
+          "resultat": "bilan passif du dépôt S1 2026 (p.4, image), colonne « exercice précédent » : « Résultat net de l'exercice 7 530 115,56 » ; recoupé par https://www.ammc.ma/sites/default/files/CP_Afric_Industries_2025.pdf : « Le Résultat Net s'élève à 7 530 kdh » — et sur yuna.ma le 30/09 (328,05 ÷ PER 12,70) : BPA 25,83 contre 25,83",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 18"
+        }
+      },
       "marge_nette_s1_2026": {
         "valeur": 17.6,
         "date": "2026-06-30",
@@ -4292,6 +4301,56 @@
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/Afric_Industries_S1_26.pdf"
         }
+      },
+      "dette_nette": {
+        "valeur": -8.2,
+        "date": "2025-12-31",
+        "formule": "0.0 − 8.175538 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 18",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 17"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Afric Industries ne publie que des comptes sociaux (aucun consolidé au dépôt ; titres de participation 21,6 MMAD : La Roseraie de l'Atlas, Balcony Residences)",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 11.5,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 11.549493 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 21"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Afric Industries ne publie que des comptes sociaux (aucun consolidé au dépôt ; titres de participation 21,6 MMAD : La Roseraie de l'Atlas, Balcony Residences)",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": -0.71,
+        "date": "2025-12-31",
+        "formule": "-8.176 ÷ 11.549493",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Afric Industries ne publie que des comptes sociaux (aucun consolidé au dépôt ; titres de participation 21,6 MMAD : La Roseraie de l'Atlas, Balcony Residences)"
+      },
+      "roic": {
+        "valeur": 20.7,
+        "date": "2025-12-31",
+        "formule": "11.150507 × (1 − t) ÷ (49.153559 + -8.176) ; t = 2.377595 ÷ 9.907711 = 24.0 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 19",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 20",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 20",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AFI_RFA_2025.pdf, p. 18",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Afric Industries ne publie que des comptes sociaux (aucun consolidé au dépôt ; titres de participation 21,6 MMAD : La Roseraie de l'Atlas, Balcony Residences)",
+        "unite": "%",
+        "taux_impot_effectif": 24.0
+      },
+      "non_calcules_2025": {
+        "cash_conversion": "comptes sociaux : pas de tableau des flux de trésorerie, flux d'exploitation non relevé"
       },
       "calcule_le": "2026-09-30"
     }
@@ -5630,6 +5689,13 @@
           "capitaux_propres": "bilan passif consolidé du dépôt S1 2026, p.3 (image), colonnes « 30-06-2026 31-12-2025 » — « Capitaux propres (part du groupe) 130 872 246 132 950 333 » (DH)"
         }
       },
+      "non_calcules_2025": {
+        "dette_nette": "« Emprunts et dettes financières » 30 488 521 non ventilés : cautionnements des locataires + fraction d'un emprunt (ETIC p.47). Le même agrégat vaut 6 777 760 au consolidé 2024 mais 29 260 760 en « autres dettes de financement » du social 2024 : périmètre instable d'un exercice à l'autre, la dette financière réelle n'est pas établie",
+        "ebitda": "ni EBE/EBITDA publié au consolidé, ni dotations aux amortissements isolées (« Dotations d'exploitation » 4 770 384 mêle amortissements et provisions)",
+        "dette_nette_ebitda": "dette nette non établie et EBITDA non publié",
+        "roic": "dépend de la dette nette, non établie (dettes financières mêlant cautionnements des locataires et emprunt)",
+        "cash_conversion": "aucun tableau des flux de trésorerie consolidé au dépôt (les CAC en citent un, absent des pages 43-48)"
+      },
       "calcule_le": "2026-09-30"
     }
   },
@@ -5966,7 +6032,29 @@
     "nb_actions": 17695150,
     "bloomberg": "SNA",
     "reuters": "SNA",
-    "secteur_libre": null
+    "secteur_libre": null,
+    "ratios_publies": {
+      "dette_nette": {
+        "valeur": 191.7,
+        "date": "2025-12-31",
+        "formule": "238.55 − (44.619 + 2.221 de titres de placement) (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Stokvis_RFA_2025.pdf, p. 30",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Stokvis_RFA_2025.pdf, p. 30",
+          "titres_de_placement": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Stokvis_RFA_2025.pdf, p. 30"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025, en KMAD ; capitaux propres NÉGATIFS ; OPINION AVEC RÉSERVE CHIFFRÉE des CAC (42,7 MAD millions d'insuffisance de provisions dans les filiales)",
+        "unite": "MMAD",
+        "dette_nette_stricte": 193.9
+      },
+      "non_calcules_2025": {
+        "ebitda": "ni EBE/EBITDA publié, ni dotations aux amortissements isolées (« Dotations d'exploitation » 6,4 mêle provisions)",
+        "dette_nette_ebitda": "EBITDA non publié ; capitaux propres négatifs",
+        "roic": "capitaux propres négatifs (−96,5 MMAD) et réserve chiffrée des CAC (42,7) supérieure au résultat (26,5) : rendement du capital employé non défini",
+        "cash_conversion": "pas de tableau des flux consolidé au dépôt ; réserve chiffrée des CAC (42,7 MMAD) supérieure au résultat net (26,5) : le signe du résultat n'est pas établi"
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "DAR": {
     "secteur": "Agroalimentaire",
@@ -6093,14 +6181,61 @@
     },
     "source_s1_2026": "https://www.ammc.ma/sites/default/files/CP_Unimer_S1_26.pdf",
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": -3.5,
+        "date": "2025-12-31",
+        "formule": "-31.94 ÷ 919.333 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf p.33 : « Résultat net part du Groupe (31 940) »",
+          "capitaux_propres": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 33"
+        }
+      },
       "marge_nette_s1_2026": {
-        "valeur": 6.5,
+        "valeur": -2.4,
         "date": "2026-06-30",
         "denominateur": "chiffre d'affaires consolidé",
-        "formule": "29.0 ÷ 444.0 (MMAD)",
+        "formule": "-10.489 ÷ 444.0 (MMAD)",
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/CP_Unimer_S1_26.pdf"
         }
+      },
+      "dette_nette": {
+        "valeur": 758.0,
+        "date": "2025-12-31",
+        "formule": "971.515 − (213.4 + 0.134 de titres de placement) (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 33",
+          "tresorerie": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 33",
+          "titres_de_placement": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 33"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 304 714 KMAD)",
+        "unite": "MMAD",
+        "dette_nette_stricte": 758.1
+      },
+      "ebitda": {
+        "valeur": 44.5,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 44.473 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 34"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 304 714 KMAD)",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 17.04,
+        "date": "2025-12-31",
+        "formule": "757.981 ÷ 44.473",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 304 714 KMAD)"
+      },
+      "non_calcules_2025": {
+        "roic": "résultat d'exploitation négatif (−18,0 MMAD) et résultat consolidé porté par les mises en équivalence (+102,1 MMAD) : rendement du capital employé sans signification",
+        "cash_conversion": "résultat net de l'ensemble (11,1) positif uniquement grâce aux mises en équivalence non encaissées (+102,1) et aux minoritaires : flux 87,8 ÷ 11,1 = 794 %, ratio sans signification"
       },
       "calcule_le": "2026-09-30"
     }
@@ -6134,7 +6269,60 @@
     "nb_actions": 5265000,
     "bloomberg": "CRS",
     "reuters": "CRS",
-    "secteur_libre": null
+    "secteur_libre": null,
+    "ratios_publies": {
+      "dette_nette": {
+        "valeur": 213.7,
+        "date": "2026-03-31",
+        "formule": "215.824396 − 2.170436 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport général des CAC) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf, p. 2",
+          "tresorerie": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport général des CAC) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf, p. 1"
+        },
+        "base": "SOCIAL (normes marocaines), exercice du 01/04/2025 au 31/03/2026 (clos le 31/03/2026, PAS le 31/12/2025) — Cartier Saada ne publie que des comptes sociaux ; OPINION AVEC RÉSERVE des CAC (achats auprès d'agriculteurs sans identification fiscale, non chiffrée)",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 9.4,
+        "date": "2026-03-31",
+        "formule": "EBE/EBITDA publié par la société : 9.423052 (MMAD)",
+        "sources": {
+          "ebitda": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport général des CAC) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf, p. 6"
+        },
+        "base": "SOCIAL (normes marocaines), exercice du 01/04/2025 au 31/03/2026 (clos le 31/03/2026, PAS le 31/12/2025) — Cartier Saada ne publie que des comptes sociaux ; OPINION AVEC RÉSERVE des CAC (achats auprès d'agriculteurs sans identification fiscale, non chiffrée)",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 22.67,
+        "date": "2026-03-31",
+        "formule": "213.654 ÷ 9.423052",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "SOCIAL (normes marocaines), exercice du 01/04/2025 au 31/03/2026 (clos le 31/03/2026, PAS le 31/12/2025) — Cartier Saada ne publie que des comptes sociaux ; OPINION AVEC RÉSERVE des CAC (achats auprès d'agriculteurs sans identification fiscale, non chiffrée)"
+      },
+      "roic": {
+        "valeur": -3.6,
+        "date": "2026-03-31",
+        "formule": "-13.821354 × (1 − t) ÷ (167.108095 + 213.654) ; t = 0 (résultat avant impôt -24.945407 ≤ 0 : pas d'impôt sur une perte)",
+        "sources": {
+          "resultat_exploitation": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport général des CAC) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf, p. 3",
+          "impot": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport général des CAC) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf, p. 4",
+          "resultat_avant_impot": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport général des CAC) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf, p. 4",
+          "capitaux_propres": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport général des CAC) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf, p. 2",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "SOCIAL (normes marocaines), exercice du 01/04/2025 au 31/03/2026 (clos le 31/03/2026, PAS le 31/12/2025) — Cartier Saada ne publie que des comptes sociaux ; OPINION AVEC RÉSERVE des CAC (achats auprès d'agriculteurs sans identification fiscale, non chiffrée)",
+        "unite": "%",
+        "taux_impot_effectif": 0.0
+      },
+      "non_calcules_2025": {
+        "cash_conversion": "résultat net négatif (−25,6 MMAD) et comptes sociaux sans tableau des flux de trésorerie"
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "STR": {
     "secteur": "Industrie",
@@ -6376,7 +6564,29 @@
       "nb_actions": 176456,
       "date_maj": "2026-06-24"
     },
-    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Rebab_Company_S1_26.pdf"
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Rebab_Company_S1_26.pdf",
+    "ratios_publies": {
+      "dette_nette": {
+        "valeur": -22.5,
+        "date": "2025-12-31",
+        "formule": "0.0 − (0.341931 + 22.175431 de titres de placement) (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier 2025 — https://www.ammc.ma/sites/default/files/Rebab_company_RFA_2025.pdf, p. 22",
+          "tresorerie": "Rapport Financier 2025 — https://www.ammc.ma/sites/default/files/Rebab_company_RFA_2025.pdf, p. 21",
+          "titres_de_placement": "Rapport Financier 2025 — https://www.ammc.ma/sites/default/files/Rebab_company_RFA_2025.pdf, p. 21"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Rebab Company est une holding qui ne publie que des comptes sociaux (titres de participation 17,1 MMAD brut, dont Zellidja ; aucun consolidé au dépôt)",
+        "unite": "MMAD",
+        "dette_nette_stricte": -0.3
+      },
+      "non_calcules_2025": {
+        "ebitda": "holding sans activité d'exploitation (produits d'exploitation : 30 KMAD de jetons de présence, pas d'EBE publié, aucune dotation) : EBITDA −0,38 MMAD sans signification",
+        "dette_nette_ebitda": "EBITDA non défini pour une holding ; société sans dette financière (trésorerie nette de 22,5 MMAD)",
+        "roic": "holding : résultat d'exploitation (−0,38) sans rapport avec le capital employé (portefeuille de titres et de SICAV) ; le résultat vient du financier et du non courant",
+        "cash_conversion": "comptes sociaux : pas de tableau des flux de trésorerie, flux d'exploitation non relevé"
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "PPM": {
     "secteur": "Santé",
@@ -6407,7 +6617,60 @@
     "nb_actions": 2582555,
     "bloomberg": "MDP",
     "reuters": "PAP",
-    "secteur_libre": null
+    "secteur_libre": null,
+    "ratios_publies": {
+      "dette_nette": {
+        "valeur": 51.8,
+        "date": "2025-12-31",
+        "formule": "189.965478 − 138.189221 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf, p. 10",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf, p. 9"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — le dépôt ne publie que des « comptes sociaux » (p.9) ; titres de participation 8 003 175 MAD intégralement dépréciés (valeur nette 0), aucun consolidé",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 120.4,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 120.423769 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf, p. 12"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — le dépôt ne publie que des « comptes sociaux » (p.9) ; titres de participation 8 003 175 MAD intégralement dépréciés (valeur nette 0), aucun consolidé",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 0.43,
+        "date": "2025-12-31",
+        "formule": "51.776 ÷ 120.423769",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — le dépôt ne publie que des « comptes sociaux » (p.9) ; titres de participation 8 003 175 MAD intégralement dépréciés (valeur nette 0), aucun consolidé"
+      },
+      "roic": {
+        "valeur": 8.6,
+        "date": "2025-12-31",
+        "formule": "90.790739 × (1 − t) ÷ (590.840386 + 51.776) ; t = 38.461011 ÷ 98.375645 = 39.1 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf, p. 11",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf, p. 11",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf, p. 11",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Promopharm_RFA_2025.pdf, p. 10",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — le dépôt ne publie que des « comptes sociaux » (p.9) ; titres de participation 8 003 175 MAD intégralement dépréciés (valeur nette 0), aucun consolidé",
+        "unite": "%",
+        "taux_impot_effectif": 39.1
+      },
+      "non_calcules_2025": {
+        "cash_conversion": "comptes SOCIAUX seuls : pas de tableau des flux de trésorerie (seulement un tableau de financement, p.13, et la CAF de l'état des soldes de gestion : 92,895 MMAD, p.12) ; flux net d'exploitation non publié. Le tableau de financement ne donne pas de flux d'exploitation : le calcul serait une reconstruction (CAF − variation du BFR), pas une lecture."
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "SNP": {
     "secteur": "Matériaux",
@@ -7100,6 +7363,16 @@
     "source": "BOOKVALEUR CTS 2025 (non couvert)",
     "date_maj": "2026-06-24",
     "nb_actions": null,
-    "secteur_libre": "Services"
+    "secteur_libre": "Services",
+    "ratios_publies": {
+      "non_calcules_2025": {
+        "dette_nette": "devise TND, aucune conversion",
+        "ebitda": "devise TND, aucune conversion",
+        "dette_nette_ebitda": "devise TND, aucune conversion",
+        "roic": "devise TND, aucune conversion",
+        "cash_conversion": "devise TND, aucune conversion"
+      },
+      "calcule_le": "2026-09-30"
+    }
   }
 }
