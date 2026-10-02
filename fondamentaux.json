@@ -537,6 +537,18 @@
           "comptes": "https://www.ammc.ma/sites/default/files/CP_AtlantaSanad_S1_26.pdf"
         }
       },
+      "roe_12m": {
+        "valeur": 19.7,
+        "date": "2026-06-30",
+        "formule": "479.803 ÷ 2430.582 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Atlanta_S1_26.pdf p.1 : « Résultat net 288 219 276 055 / Dont : Part du Groupe 288 218 276 054 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Atlanta_S1_26.pdf p.1 : « Dont : Capitaux propres part du groupe 2 430 582 2 481 937 »"
+        },
+        "base": "consolidé, part du groupe",
+        "note": "Le consolidé S1 2025 EST disponible (colonne 30-juin-2025, p.1) : datasets/resultats_s1_2026.json bascule à tort sur le social pour ATL.",
+        "verifie": "verificateur-finance, 02/10/2026"
+      },
       "ratios_bilan_2025": {
         "sans_objet": "sans objet : établissement financier",
         "secteur": "Assurance",
@@ -684,6 +696,18 @@
           "capitaux_propres": "https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf — bilan IFRS au 31/12/2025 (KMAD) : capitaux propres 57 956 029 (= 31 203 153 + 22 474 915 − 1 343 124 + 5 621 085) − minoritaires (20 246 892 − 383 576 + 1 117 724) = 36 974 989. Pas de bilan au 30/06/2026 (communiqué seul). ⚠️ yuna.ma sous-entend ≈ 41,3 Md (P/B 1,23) : convention différente, non identifiée"
         }
       },
+      "roe_12m": {
+        "valeur": 12.6,
+        "date": "2026-06-30",
+        "formule": "4806.212 ÷ 38050.661 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf p.11 : « RÉSULTAT NET-PART DU GROUPE 3 218 498 2 915 647 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf p.11 : « Capital et réserves liées 32 197 298 + Réserves PG 4 450 206 + Gains/pertes PG -1 815 341 + Résultat PG 3 218 498 »"
+        },
+        "base": "consolidé IFRS, part du groupe — bilan hors FSG",
+        "note": "Avec FSG (tableau de variation p.12 : 42 533 918) : 11,30 %. ⚠️ fondamentaux.json dit « Pas de bilan au 30/06/2026 (communiqué seul) » : FAUX, BCP_S1_26.pdf contient bilan, compte de résultat et tableau de variation (p.11-12). Et datasets/resultats_s1_2026.json porte un RNPG S1 2026 DÉRIVÉ de 3 218,874 MDH alors que le document imprime 3 218 498 KMAD.",
+        "verifie": "verificateur-finance, 02/10/2026"
+      },
       "ratios_bilan_2025": {
         "sans_objet": "sans objet : établissement financier",
         "secteur": "Banque",
@@ -819,6 +843,30 @@
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/Cash_Plus_S1_26.pdf"
         }
+      },
+      "roe_2025": {
+        "valeur": 30.7,
+        "date": "2025-12-31",
+        "formule": "242.296 ÷ 790.351 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Cash_Plus_RFA_2025.pdf p.66 : « RÉSULTAT NET – PART DU GROUPE 242 296 196 468 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Cash_Plus_RFA_2025.pdf p.68 : « AU 31 DÉCEMBRE 2025 245 531 380 000 5 425 -83 613 1 134 242 296 790 351 -8 370 -1 013 781 393 »"
+        },
+        "base": "consolidé IFRS, part du groupe",
+        "note": "Le S1 2026 (p.3) ouvre 2026 à 790 776 (écart 425 KMAD, reclassement non expliqué) : 30,64 %. CP de fin d'année gonflés par l'introduction en bourse de 2025 (capital 54 250 → 245 531) : ROE sur CP moyens plus élevé.",
+        "verifie": "verificateur-finance, 02/10/2026"
+      },
+      "roe_12m": {
+        "valeur": 37.8,
+        "date": "2026-06-30",
+        "formule": "265.871 ÷ 702.914 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Cash_Plus_S1_26.pdf p.2 : « RÉSULTAT NET – PART DU GROUPE 151 031 127 456 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Cash_Plus_S1_26.pdf p.3 : « AU 30 JUIN 2026 245 531 397 998 (92 780) 1 134 151 031 702 914 (9 382) (93) (9 475) 693 439 »"
+        },
+        "base": "consolidé IFRS, part du groupe",
+        "note": "La ligne de bilan « dont Part groupe 151 031 242 296 » porte le 30/06/2026 et le 31/12/2025 ; le S1 2025 (127 456) se lit au compte de résultat.",
+        "verifie": "verificateur-finance, 02/10/2026"
       },
       "ratios_bilan_2025": {
         "sans_objet": "sans objet : établissement financier",
@@ -975,6 +1023,18 @@
           "comptes": "https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf"
         }
       },
+      "roe_12m": {
+        "valeur": 18.3,
+        "date": "2026-06-30",
+        "formule": "389.260 ÷ 2129.537 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf p.5 : « Résultat net part du groupe 199.562 180.747 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf p.6 : « Capitaux propres au 30 juin 2026 700.159 661.001 - 897.648 -129.271 2.129.537 16.268 2.145.805 »"
+        },
+        "base": "consolidé IFRS, part du groupe",
+        "note": "Bilan p.5 recoupé : 1.361.160 + 698.086 − 129.271 + 199.562 = 2.129.537. Les minoritaires « 10.525 » (réserves) et « 16.268 » (total) ne se contredisent pas : 10.525 + 5.743 de résultat = 16.268.",
+        "verifie": "verificateur-finance, 02/10/2026"
+      },
       "ratios_bilan_2025": {
         "sans_objet": "sans objet : établissement financier",
         "secteur": "Banque",
@@ -1024,6 +1084,30 @@
     "bloomberg": "CIH",
     "reuters": "CIH",
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": 11.1,
+        "date": "2025-12-31",
+        "formule": "1089.362 ÷ 9817.628 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf p.25 : « RESULTAT NET PART DU GROUPE 1 089 362 875 878 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf p.26 : « Capitaux propres au : 2025.décembre 3 560 562 - - 5 978 457 278 609 9 817 628 964 731 10 782 358 »"
+        },
+        "base": "consolidé IFRS, part du groupe",
+        "note": "Le S1 2026 (p.11) retraite les CP du 31/12/2025 à 9 768 468 (« changements de méthodes comptables, corrections d'erreurs » −49 160) : ROE 11,15 % sur cette base. Les instruments AT1 (2,49 Md) sont en dettes subordonnées, pas dans les CP.",
+        "verifie": "verificateur-finance, 02/10/2026"
+      },
+      "roe_12m": {
+        "valeur": 11.1,
+        "date": "2026-06-30",
+        "formule": "1090.912 ÷ 9874.048 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf p.10 : « RESULTAT NET PART DU GROUPE 616 987 615 437 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf p.11 : « Capitaux propres corrigés : 2026.Juin 3 560 562 - - 6 058 591 254 895 9 874 048 995 605 10 869 653 »"
+        },
+        "base": "consolidé IFRS, part du groupe",
+        "note": "Bilan p.10 recoupé : 3 560 562 + 5 441 604 + 254 895 + 616 987 = 9 874 048.",
+        "verifie": "verificateur-finance, 02/10/2026"
+      },
       "ratios_bilan_2025": {
         "sans_objet": "sans objet : établissement financier",
         "secteur": "Banque",
@@ -3928,6 +4012,18 @@
           "comptes": "https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_S1_26.pdf"
         }
       },
+      "roe_12m": {
+        "valeur": 7.5,
+        "date": "2026-06-30",
+        "formule": "1094.036 ÷ 14692.000 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_S1_26.pdf p.1 : « Le résultat net part du groupe (RNPG) en normes IFRS s’élève à 760 MDH … RNPG 692 760 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_S1_26.pdf p.1 : « Les fonds propres consolidés - part du groupe - sous le référenciel IFRS s’élèvent à 14 692 MDH au 30 juin 2026 »"
+        },
+        "base": "consolidé IFRS 17, MDH arrondis du communiqué",
+        "note": "Les états S1 2026 (Wafa_Assurance_S1_26.pdf) sont des images que l'OCR ne lit pas : montants du communiqué, arrondis au MDH (incertitude ±0,02 point).",
+        "verifie": "verificateur-finance, 02/10/2026"
+      },
       "ratios_bilan_2025": {
         "sans_objet": "sans objet : établissement financier",
         "secteur": "Assurance",
@@ -4680,6 +4776,30 @@
           "comptes": "https://www.ammc.ma/sites/default/files/Salafin_S1_26.pdf"
         }
       },
+      "roe_2025": {
+        "valeur": 11.0,
+        "date": "2025-12-31",
+        "formule": "96.117 ÷ 870.833 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Salafin_S1_26.pdf p.2 : « Résultat net de l'exercice (+/-) 50 073 96 117 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Salafin_S1_26.pdf p.2 : « Capital 312 412 312 412 ; Réserves et primes liées au capital 464 698 462 304 ; Report à nouveau 0 0 ; Résultat net 50 073 96 117 »"
+        },
+        "base": "SOCIAL (aucun consolidé publié)",
+        "note": "CP hors provisions réglementées (17 673) ; avec elles (« capitaux propres et assimilés 888 506 », p.5) : 10,82 %. Recoupé Salafin_RFA_2025 p.68-70 (96 117).",
+        "verifie": "verificateur-finance, 02/10/2026"
+      },
+      "roe_12m": {
+        "valeur": 12.0,
+        "date": "2026-06-30",
+        "formule": "99.463 ÷ 827.183 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Salafin_S1_26.pdf p.2 : « RESULTAT NET DE L'EXERCICE 50 073 46 727 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Salafin_S1_26.pdf p.2 : « 312 412 + 464 698 + 0 + 50 073 »"
+        },
+        "base": "SOCIAL",
+        "note": "",
+        "verifie": "verificateur-finance, 02/10/2026"
+      },
       "ratios_bilan_2025": {
         "sans_objet": "sans objet : établissement financier",
         "secteur": "Finance",
@@ -4931,6 +5051,30 @@
           "comptes": "https://www.ammc.ma/sites/default/files/Eqdom_S1_26.pdf"
         }
       },
+      "roe_2025": {
+        "valeur": 6.6,
+        "date": "2025-12-31",
+        "formule": "98.561 ÷ 1485.722 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Eqdom_S1_26.pdf p.9 : « 15.Résultat net de l'exercice (+/-) 51 081 99 261 / . Part du groupe 50 710 98 561 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Eqdom_RFA_2025.pdf p.63 : « CAPITAUX PROPRES CLÔTURE AU 31 DÉCEMBRE 2025 167 025 83 325 1 235 372 1 485 722 717 1 486 439 »"
+        },
+        "base": "consolidé (normes marocaines), part du groupe",
+        "note": "Social : 95 498 ÷ 1 464 723 = 6,52 %. RNPG 2024 consolidé : −5 320 (Eqdom_RFA_2025 p.58) — historique heurté.",
+        "verifie": "verificateur-finance, 02/10/2026"
+      },
+      "roe_12m": {
+        "valeur": 6.0,
+        "date": "2026-06-30",
+        "formule": "86.355 ÷ 1440.795 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Eqdom_S1_26.pdf p.9 : « 33. Part du groupe 50 710 62 916 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Eqdom_S1_26.pdf p.9 : « 11.Primes 83 325 + 12.Capital 167 025 + Réserves PG 1 139 735 + Résultat PG 50 710 »"
+        },
+        "base": "consolidé, part du groupe",
+        "note": "",
+        "verifie": "verificateur-finance, 02/10/2026"
+      },
       "ratios_bilan_2025": {
         "sans_objet": "sans objet : établissement financier",
         "secteur": "Finance",
@@ -4976,6 +5120,30 @@
     "reuters": "MAB",
     "secteur_libre": null,
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": 12.1,
+        "date": "2025-12-31",
+        "formule": "148.199 ÷ 1228.220 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf p.5 : « Résultat net de l'exercice (+/-) 148 199 - 148 199 8 2 516 8 2 516 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf p.5 : « Total 1 228 220 - 1 48 199 1 57 354 1 237 375 (colonne Encours 31/12/2025) »"
+        },
+        "base": "SOCIAL (aucun consolidé dans les dépôts lus)",
+        "note": "Recoupé Maghrebail_RFA_2025 p.44-47 (148 199). Extraction texte éclatée (« 8 2 516 ») : montants confirmés sur rendu image p.2.",
+        "verifie": "verificateur-finance, 02/10/2026"
+      },
+      "roe_12m": {
+        "valeur": 12.9,
+        "date": "2026-06-30",
+        "formule": "159.218 ÷ 1237.375 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf p.2 : « IX.RESULTAT NET DE L'EXERCICE 82 516 71 497 (lu sur rendu image) »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf p.5 : « … Encours 30/06/2026 1 237 375 »"
+        },
+        "base": "SOCIAL",
+        "note": "",
+        "verifie": "verificateur-finance, 02/10/2026"
+      },
       "ratios_bilan_2025": {
         "sans_objet": "sans objet : établissement financier",
         "secteur": "Finance",
@@ -5090,13 +5258,16 @@
     "source_s1_2026": "https://www.ammc.ma/sites/default/files/AFMA_S1_26.pdf",
     "ratios_publies": {
       "roe_2025": {
-        "valeur": 103.7,
+        "valeur": 103.2,
         "date": "2025-12-31",
-        "formule": "73.0 ÷ 70.369986 (MMAD)",
+        "formule": "72.656 ÷ 70.370 (MMAD)",
         "sources": {
-          "resultat": "https://www.ammc.ma/sites/default/files/AFMA_2025_0.pdf — « Le résultat net part du groupe atteint 73 MDH »",
-          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Afma_RFA_2025.pdf, p. 56"
-        }
+          "resultat": "https://www.ammc.ma/sites/default/files/Afma_RFA_2025.pdf p.57 : « Résultat net — Part du Groupe 72 655 851 72 353 635 (en MAD) »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Afma_RFA_2025.pdf p.56 : « Capitaux propres part du groupe 70 369 986 68 518 855 (en MAD) »"
+        },
+        "base": "consolidé IFRS, part du groupe",
+        "note": "Valeur actuelle 103,7 = 73,0 ÷ 70,37 : le numérateur est l'arrondi d'un communiqué (« 73 MDH »), pas le RNPG imprimé 72 655 851 → 103,2 %. Pas d'erreur de PÉRIMÈTRE (les deux termes sont consolidés part du groupe). Mais le ratio est dégénéré : hors résultat de l'année, les CP PG sont NÉGATIFS (70 369 986 − 72 655 851 = −2,3 MDH), réserves consolidées −12,3 MDH, parce qu'AFMA distribue tout (60 MDH en 2025, 62 proposés) et impute sur les CP les rachats de minoritaires (−10,7 MDH « intégration nouvelles filiales », p.59). Courtier sans bilan de risque : ROE > 100 % est arithmétiquement vrai et économiquement vide. Social : 64,43 ÷ 83,42 = 77,2 %.",
+        "verifie": "verificateur-finance, 02/10/2026"
       },
       "marge_nette_s1_2026": {
         "valeur": 29.7,
@@ -6061,6 +6232,30 @@
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf"
         }
+      },
+      "roe_2025": {
+        "valeur": 8.7,
+        "date": "2025-12-31",
+        "formule": "107.295 ÷ 1227.913 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf p.1 : « 16. Résultat net de l'exercice (+/-) 55 397 107 295 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf p.1 : « 11.Réserves et primes 423 774 423 774 ; 12.Capital 277 677 277 677 ; 14.Report à nouveau 487 588 419 167 ; 16.Résultat 55 397 107 295 »"
+        },
+        "base": "SOCIAL (le dépôt ne contient pas de consolidé)",
+        "note": "Recoupé MLE_RFA_2025 p.14 « Résultat Net 107 295 105 304 ».",
+        "verifie": "verificateur-finance, 02/10/2026"
+      },
+      "roe_12m": {
+        "valeur": 8.8,
+        "date": "2026-06-30",
+        "formule": "109.973 ÷ 1244.436 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf p.1 : « IX.RESULTAT NET DE L'EXERCICE 55 397 52 719 »",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf p.1 : « 423 774 + 277 677 + 487 588 + 55 397 »"
+        },
+        "base": "SOCIAL",
+        "note": "",
+        "verifie": "verificateur-finance, 02/10/2026"
       },
       "ratios_bilan_2025": {
         "sans_objet": "sans objet : établissement financier",

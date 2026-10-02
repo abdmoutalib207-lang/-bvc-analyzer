@@ -492,6 +492,7 @@ clôture au 10/08 alors qu'IDBourse ne l'avait plus coté depuis le 05/08.
 | `analyste-nlp` | le calcul du champ `nlp` — 28 % du score, aujourd'hui creux |
 | `quant-backtest` | mesurer et publier la performance historique |
 | `lecteur-comptes` | lire les dépôts AMMC et préparer leur intégration (PR, jamais de fusion) |
+| `verificateur-finance` | contre-vérifier chaque chiffre et ratio fondamental — relevé, calcul, pertinence pour le métier (recruté le 02/10/2026) |
 
 **Séquence pour tout changement de code :**
 `relecteur-pipeline` → `ingenieur-tests` → `gardien-donnees` → commit.

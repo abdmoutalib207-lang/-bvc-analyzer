@@ -66,6 +66,52 @@ def _publie(f: dict, sym: str, cle: str):
     return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
 
 
+# ⚠️ LES SOCIÉTÉS FINANCIÈRES N'ONT NI ROIC, NI DETTE NETTE / EBITDA, NI
+# CONVERSION DE TRÉSORERIE — 02/10/2026, lot 1 des rectifications demandées
+# par Abd Moutalib (« des chiffres et des calculs corrects »). Pour une
+# banque, la dette EST l'activité ; un EBITDA n'existe pas. Mesuré le 02/10 :
+# le ROIC saisi à la main était encore lu dans la note de neuf financières
+# (ATW 22,8 %, BOA 19,5 %, CASH 18 %…), alors que le calcul sur comptes les
+# déclare « sans objet ». Ces trois ratios rendent désormais None pour elles,
+# dans la note comme dans les alertes.
+FINANCIERS = ("Banque", "Assurance", "Finance")
+# Coût des fonds propres de RÉFÉRENCE, le même pour toutes les financières,
+# auquel le ROE est comparé. ⚠️ HYPOTHÈSE DÉCLARÉE, pas une mesure : c'est la
+# valeur que la grille utilisait déjà par défaut (WACC 10). Elle sera
+# remplacée par la méthode unique du lot « WACC », ou retirée.
+COUT_FONDS_PROPRES_REF = 10.0
+_SANS_OBJET_FINANCIERES = ("roic", "dette_nette_ebitda", "cash_conversion")
+
+
+# Le ROE n'a pas de sens pour un COURTIER qui distribue tout son résultat :
+# AFMA affiche 103 % parce que ses capitaux propres hors résultat de l'année
+# sont négatifs (−2,3 MDH, rachats de minoritaires imputés) — vérifié le
+# 02/10/2026 par l'agent verificateur-finance. Arithmétiquement vrai, il ne
+# mesure rien de comparable. Rentabilité non évaluée pour ces titres.
+ROE_SANS_OBJET = {
+    "AFM": "courtier en assurance — capitaux propres hors résultat négatifs, ROE 103 % sans signification",
+    "AGM": "intermédiaire en assurance — distribue l'essentiel de son résultat, ROE social 46 % sans signification",
+}
+
+
+def est_financiere(f: dict | None) -> bool:
+    return str((f or {}).get("secteur") or "").startswith(FINANCIERS)
+
+
+def roe_effectif(f: dict | None, sym: str) -> dict | None:
+    """ROE calculé sur comptes publiés : douze mois glissants s'il existe,
+    sinon l'exercice 2025. Jamais une saisie. Pure."""
+    if sym in ROE_SANS_OBJET:
+        return None
+    for cle in ("roe_12m", "roe_2025"):
+        v = _publie(f or {}, sym, cle)
+        if v is not None:
+            x = f["ratios_publies"][cle]
+            return {"valeur": v, "origine": "comptes publiés", "cle": cle,
+                    "date": x.get("date"), "formule": x.get("formule")}
+    return None
+
+
 def ratio_effectif(f: dict | None, sym: str, cle: str) -> dict | None:
     """LA valeur d'un ratio que tout le moteur doit lire — note, alertes,
     écran. {"valeur", "origine", "date"} ou None. Fonction pure.
@@ -77,6 +123,8 @@ def ratio_effectif(f: dict | None, sym: str, cle: str) -> dict | None:
     toujours par diverger ; il n'y en a plus qu'une.
     """
     f = f or {}
+    if cle in _SANS_OBJET_FINANCIERES and est_financiere(f):
+        return None
     v = _publie(f, sym, cle)
     if v is not None:
         x = f["ratios_publies"][cle]
@@ -116,6 +164,17 @@ def compute_fond_score(sym: str, fondamentaux: dict = None,
     elif spread >= 0:  q = 5.0
     elif spread >= -3: q = 3.5
     else:              q = 2.0
+    # Financières : le ROE publié, comparé au coût des fonds propres de
+    # référence, sur la même grille. Sans ROE publié : non évalué (5,0) —
+    # jamais la saisie.
+    if est_financiere(f):
+        _roe = roe_effectif(f, sym)
+        if _roe is None:
+            q = 5.0
+        else:
+            sp = _roe["valeur"] - COUT_FONDS_PROPRES_REF
+            q = (9.5 if sp >= 15 else 8.5 if sp >= 10 else 7.0 if sp >= 5 else
+                 6.0 if sp >= 2 else 5.0 if sp >= 0 else 3.5 if sp >= -3 else 2.0)
 
     # CROISSANCE (30%) — BPA 60% + CA 40%
     cbpa   = float(f.get("croissance_bpa") or 0)
@@ -206,6 +265,11 @@ def compute_fond_score(sym: str, fondamentaux: dict = None,
     else:           bs = 1.5
     if cc >= 85:    bs = min(10.0, bs + 0.5)
     elif cc < 40:   bs = max(0.0,  bs - 0.5)
+    # Financières : bilan NON ÉVALUÉ (5,0) tant que le coût du risque et le
+    # coefficient d'exploitation recalculés sur comptes ne sont pas intégrés
+    # — plutôt qu'une dette 1,0× et une conversion 70 % inventées par défaut.
+    if est_financiere(f):
+        bs = 5.0
 
     # Score composite
     fond = q * 0.40 + g * 0.30 + v * 0.20 + bs * 0.10

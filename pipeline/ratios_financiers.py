@@ -45,6 +45,11 @@ sys.path.insert(0, str(RACINE))
 S1 = RACINE / "datasets" / "resultats_s1_2026.json"
 FAITS = RACINE / "pipeline" / "faits_financiers.json"
 FOND = RACINE / "fondamentaux.json"
+# ⚠️ Valeurs VÉRIFIÉES à la main par l'agent verificateur-finance (02/10/2026),
+# chacune avec numérateur, dénominateur, page et citation. Elles PRIMENT sur
+# le calcul automatique : sans ce fichier, `main()` réécrit `ratios_publies`
+# en entier et les effacerait au prochain lot.
+VERIFIES = RACINE / "datasets" / "roe_verifies_2026-10-02.json"
 DATE_MAJ = "2026-09-30"
 
 
@@ -245,8 +250,11 @@ def main() -> int:
     n = nb = nf = 0
     tickers = list(s1) + [s for s in faits if not s.startswith("_") and s not in s1]
     tickers += [s for s, v in fond.items() if isinstance(v, dict) and est_financier(v) and s not in tickers]
+    verifies = (json.loads(VERIFIES.read_text(encoding="utf-8")).get("titres") or {}) if VERIFIES.exists() else {}
     for sym in tickers:
         r = calculer(s1.get(sym) or {}, faits.get(sym))
+        for k, v in (verifies.get(sym) or {}).items():
+            r[k] = {**v, "verifie": "verificateur-finance, 02/10/2026"}
         fiche = fond.get(sym) if isinstance(fond.get(sym), dict) else None
         if fiche is not None and est_financier(fiche):
             r["ratios_bilan_2025"] = {"sans_objet": SANS_OBJET_FINANCIER, "secteur": fiche.get("secteur"),

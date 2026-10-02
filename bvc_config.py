@@ -805,4 +805,7 @@ TICKERS_ALL: list = [
 #   l'écart jusqu'au recoupement de son ROIC).
 #   v5.3-per-publie-2026-10-01 : la valorisation lit le PER sur douze mois
 #   des comptes publiés (cours ÷ BPA 12 mois) au lieu du `forward_per` saisi.
-SCORE_VERSION = "v5.3-per-publie-2026-10-01"
+#   v5.3-financieres-roe-2026-10-02 : banques, assurances et sociétés de
+#   financement notées sur le ROE publié (vérifié à la main), plus jamais sur
+#   un ROIC, une dette / EBITDA ou une conversion saisis.
+SCORE_VERSION = "v5.3-financieres-roe-2026-10-02"
