@@ -166,7 +166,9 @@ def test_seuls_les_trois_ratios_approuves_font_bouger_la_note():
             assert set(f) - {"ratios_publies"}, f"{s} : fiche créée pour des ratios publiés"
             rp = f.get("ratios_publies") or {}
             fin = str(f.get("secteur") or "").startswith(("Banque", "Assurance", "Finance"))
-            cles = ("roe_12m", "roe_2025") if fin else ("roic", "dette_nette_ebitda", "cash_conversion")
+            # « dette_nette » depuis le 02/10 : lue quand elle est négative et
+            # qu'aucun ratio dette / EBITDA n'existe (trésorerie nette).
+            cles = ("roe_12m", "roe_2025") if fin else ("roic", "dette_nette_ebitda", "cash_conversion", "dette_nette")
             lu = s != "MSA" and any(
                 isinstance(rp.get(k), dict) and isinstance(rp[k].get("valeur"), (int, float))
                 for k in cles)
