@@ -9,7 +9,7 @@
   "_quoi": "Faits relevés pour calculer, sans toucher à la note, dette nette, EBITDA, dette nette/EBITDA, ROIC et conversion en trésorerie (pipeline/ratios_financiers.py → ratios_publies).",
   "cles": {
    "dettes_financieres": "emprunts, dettes de financement, obligations, crédit de trésorerie ; composantes citées une à une",
-   "tresorerie_actif": "trésorerie et équivalents ; les titres de placement n'y entrent que si le tableau des flux de la société les compte dans sa trésorerie (sinon la note le dit)",
+   "tresorerie_actif": "disponibilités ; les titres de placement de l'actif circulant (clés `titres_valeurs_placement` / `titres_de_placement`, ou composante de cette valeur) comptent dans la trésorerie de la dette nette depuis le 02/10/2026, sauf exclusion sur pièce (`placements_exclus`) ; la dette nette stricte est publiée à côté",
    "excedent_brut_exploitation": "EBE/EBITDA PUBLIÉ par la société (retenu en priorité)",
    "dotations_amortissements_exploitation": "dotations aux AMORTISSEMENTS seules, jamais un total mêlé de provisions",
    "resultat_exploitation": "résultat d'exploitation / opérationnel après éléments non courants d'exploitation",
@@ -10737,7 +10737,9 @@
     "yuna": "yuna.ma : PER 24,13 au 25/09 (cours 278) → BPA implicite 11,52 DH (6,6 MMAD) contre 37,69 ici. Écart expliqué : 6,599 MMAD est le résultat net SOCIAL de 2024 (« Résultat net 23 775 6 599 », p.6) ÷ 572 849 = 11,52 — yuna n'a pas intégré l'exercice 2025 (23,775 social ; 21,588 part du groupe). Consigné, non corrigé.",
     "social_et_consolide": "résultat net social 2025 : 23,775 MMAD (p.3, p.6), part du groupe 21,588, ensemble 27,819 : trois chiffres différents dans le même rapport. Tous les faits ci-dessus sont lus dans les états consolidés (p.8-9).",
     "dotations": "la ligne « Dotations aux amortissements des immobilisations 9 599 » est celle du tableau des flux : le CPC consolidé ne détaille pas les 22,897 MMAD d'« Amortissements et provisions d'exploitation ». Recoupée avec le consolidé de Fenie Brossette (RFA Fenie p.48 : amortissements 9,479, « Amortissements et provisions » 22,897 identique) : écart de 0,120 MMAD sur les amortissements, non documenté ; ce recoupement sort du dépôt Zellidja.",
-    "ebitda": "aucun EBE/EBITDA consolidé publié : le « EBITDA à fin 2025 … 41,6 Mdh » (p.7) est celui de la FILIALE Fenie Brossette, pas du groupe. EBITDA CALCULÉ = résultat opérationnel 28,868 + dotations aux amortissements 9,599 = 38,467 MMAD (les provisions d'exploitation, 13,3, sont exclues : définition du fichier). Le chiffre d'affaires consolidé (756,514) est celui de Fenie Brossette."
+    "ebitda": "aucun EBE/EBITDA consolidé publié : le « EBITDA à fin 2025 … 41,6 Mdh » (p.7) est celui de la FILIALE Fenie Brossette, pas du groupe. EBITDA CALCULÉ = résultat opérationnel 28,868 + dotations aux amortissements 9,599 = 38,467 MMAD (les provisions d'exploitation, 13,3, sont exclues : définition du fichier). Le chiffre d'affaires consolidé (756,514) est celui de Fenie Brossette.",
+    "roic": "taux d'impôt effectif de 18,2 % abaissé par le non courant de la holding ; au taux de Fenie Brossette (29,3 %) le ROIC serait de 10,8 % (p.8 ; Fenie p.48) (verificateur-finance, 02/10/2026)",
+    "roe_2025": "le ROE 2025 (27,6 %) contient l'indemnité d'expropriation de 14 MMAD, non récurrente ; le BPA implicite de yuna.ma (11,52) est le résultat SOCIAL 2024 (6 599 KMAD ÷ 572 849, p.6), pas l'exercice 2025 (verificateur-finance, 02/10/2026)"
    }
   }
  },
@@ -11030,7 +11032,8 @@
    "non_calcules": {
     "roic": "SANS SIGNIFICATION : capitaux propres NÉGATIFS (−340,892 MMAD) ; capitaux employés = −340,892 + dette nette 220,579 = −120,313 MMAD, négatifs. Société en redressement judiciaire (plan de continuation du 22/12/2022), opinion des CAC avec réserve. Un rendement sur capitaux employés négatifs n'a pas d'interprétation.",
     "roe": "SANS SIGNIFICATION : rapporter un bénéfice de 0,476 MMAD à des capitaux propres négatifs de −340,892 MMAD donnerait −0,14 %, un nombre sans interprétation (les capitaux propres ne sont pas une mise de fonds) ; le module ne publie pas de ROE quand le dénominateur est ≤ 0.",
-    "cash_conversion": "comptes SOCIAUX seuls : pas de tableau des flux de trésorerie (seulement un tableau de financement, p.19 : CAF 8,948 MMAD, variation de trésorerie +4,368) ; flux net d'exploitation non publié. Résultat net de 0,476 MMAD de toute façon trop petit pour un ratio."
+    "cash_conversion": "comptes SOCIAUX seuls : pas de tableau des flux de trésorerie (seulement un tableau de financement, p.19 : CAF 8,948 MMAD, variation de trésorerie +4,368) ; flux net d'exploitation non publié. Résultat net de 0,476 MMAD de toute façon trop petit pour un ratio.",
+    "dette_nette_ebitda": "société en redressement judiciaire : 174,6 MMAD dus à l'État (100 % du chiffre d'affaires) et 67,7 MMAD aux organismes sociaux (98 % de la masse salariale) sont des arriérés hors dette financière, et les CAC écrivent que certaines dettes sont « toujours en cours de vérification » (p.15, p.25, p.27). Dette nette financière 220,6 MMAD (9,4× l'EBE) ; élargie à ces arriérés 462,9 MMAD (19,7×). Ratio non publié : son numérateur n'est pas établi (verificateur-finance, 02/10/2026)"
    },
    "reserves_verifiees": {
     "base_sociale": "STROC publie des comptes SOCIAUX seuls. Les CAC le notent (p.27, « Autres points ») : « La société ne procède pas à la consolidation de ses comptes conformément aux dispositions légales et règlementaires en vigueur » alors qu'elle détient sept participations (p.45 : Handassa 100 %, MTC 90 %, GTC, GETC 65 %, Pro Eng 80 %, Maringis 70 %, Stroc Libya 40 %). Handassa (19,7 MMAD) et la plupart des titres sont provisionnés à 100 % au social ; créances sur Handassa 61,4 MMAD (rapport spécial p.33). Tous les faits ci-dessus sont sociaux ; les clés « consolidé » sont conservées pour le module de ratios (même usage que SRM, SMI) ; AUCUN fait « part du groupe » n'est écrit : pas de consolidé, et le test du P/B exige un nombre d'actions lu au rapport pour tout émetteur portant des fonds propres part du groupe.",
@@ -11341,7 +11344,8 @@
     "lecture_du_bilan": "la mise en page du bilan actif et de l'état des soldes de gestion décale les libellés des lignes de détail par rapport aux montants (les lignes de totaux, elles, sont nettes) ; seuls les totaux, recoupés par l'arithmétique, sont retenus. Les ratios n'utilisent aucun détail.",
     "resultat_minuscule": "bénéfice de 0,116 MMAD (marge nette 0,3 % du chiffre d'affaires), impôt de 157 KMAD sur 273 KMAD de résultat avant impôt (57,5 %). Marge, ROE (0,13 %) et ROIC (0,1 %) n'ont pas de portée ; le S1 2026 est une perte de 3,8 MMAD (fiche S1 existante), si bien que le douze mois est négatif.",
     "ratios": "dette nette 16,5 MMAD (dettes de financement 5,7 + concours 11,0 − trésorerie 0,25) ; dette nette/EBITDA 1,2 ; ROIC calculé mais non significatif (résultat d'exploitation de 0,3 MMAD).",
-    "texte_et_tableau": "communiqué p.24 : « le total produits a baissé … 49 millions » = 48,907 (état p.35), « charges d'exploitation 46,4 » = 46,400, « résultat d'exploitation 0,3 », « résultat net 0,1 » : tous concordants avec les états."
+    "texte_et_tableau": "communiqué p.24 : « le total produits a baissé … 49 millions » = 48,907 (état p.35), « charges d'exploitation 46,4 » = 46,400, « résultat d'exploitation 0,3 », « résultat net 0,1 » : tous concordants avec les états.",
+    "ebitda": "EBE 13,708 MMAD dont 8,170 de production immobilisée (R&D capitalisée, 59,6 %, p.34) : hors capitalisation, dette nette / EBITDA 2,98× au lieu de 1,20×. Les dotations d'exploitation (11,360 sur 14,949, 76 %) sont des amortissements et provisions durables ; au plus 3,59 MMAD de provisions sur actif circulant (CAF p.36) (verificateur-finance, 02/10/2026)"
    }
   }
  },
@@ -11421,7 +11425,7 @@
     "unite_au_rapport": "MAD",
     "colonne_exercice_clos": 1,
     "page": 11,
-    "note": "« Trésorerie-Actif 6 513 886,79 11 760 980,49 » = chèques et valeurs à encaisser 851 243,07 + banques 5 650 538,11 + caisse 12 105,61. ⚠️ NE COMPTE PAS les « Titres valeurs de placement 130 339 980,29 103 929 437,66 » (22 % du total de l'actif ; « placements FCP obligataires », rapport de gestion p.51) : le tableau de financement de la société ne les compte pas dans sa trésorerie (« TRESORERIE NETTE (ACTIF -PASSIF) 2 168 902,17 » = 6 513 886,79 − 4 344 984,62, p.16), règle du fichier. Voir `titres_de_placement`.",
+    "note": "« Trésorerie-Actif 6 513 886,79 » = chèques et valeurs à encaisser + banques + caisse. Depuis la règle du 02/10/2026 (titres de placement comptés en trésorerie), les « Titres valeurs de placement 130 339 980,29 » (FCP obligataires) S'AJOUTENT à ce montant dans le calcul de la dette nette : dette nette −119,356 MMAD, stricte 10,984 ; ROIC 35,6 %. (verificateur-finance, 02/10/2026)",
     "base": "SOCIAL (normes marocaines), 31/12/2025 — Colorado ne publie pas de comptes consolidés (aucun titre de participation au bilan 2025)",
     "releve_le": "2026-10-02"
    },
@@ -11431,7 +11435,7 @@
     "unite_au_rapport": "MAD",
     "colonne_exercice_clos": 1,
     "page": 11,
-    "note": "« Titres valeurs de placement→[H] 130 339 980,29 130 339 980,29 103 929 437,66 » (brut = net, aucune provision) : NON compté dans tresorerie_actif ; inscrit pour mémoire et pour le calcul alternatif. Rapport de gestion p.51 : trésorerie nette « 132,5 » MDH, « composée des soldes bancaires et de placements FCP obligataires » (2 168 902,17 + 130 339 980,29 = 132 508 882,46).",
+    "note": "« Titres valeurs de placement 130 339 980,29 » (brut = net). Comptés en trésorerie par la règle du 02/10/2026 ; rapport de gestion p.51 : trésorerie nette « 132,5 » MDH, « soldes bancaires et placements ». (verificateur-finance, 02/10/2026)",
     "base": "SOCIAL (normes marocaines), 31/12/2025 — Colorado ne publie pas de comptes consolidés (aucun titre de participation au bilan 2025)",
     "releve_le": "2026-10-02"
    },
@@ -11690,7 +11694,8 @@
     "qualite_du_resultat": "le résultat d'exploitation (112,1) bénéficie de 19,5 MMAD de reprises d'exploitation dont 12 MDH de provisions sur créances devenues sans objet (p.48), après des pertes sur créances irrécouvrables de 12,4 MDH classées en NON COURANT (p.49) : l'effet net sur le résultat avant impôt est neutre, mais le résultat d'exploitation et l'EBE (qui exclut les reprises) ne portent pas la même lecture. Résultat non courant de −15,8 MMAD deux années de suite : récurrent. « Autres charges financières » de 12,2 MMAD (89 % des charges financières) non détaillées au dépôt.",
     "creances_clients": "créances clients nettes 143,5 MMAD (brutes 182,2, provisions 38,7) soit 84 jours de chiffre d'affaires ; BFR de 70,3 jours (rapport de gestion p.51).",
     "flux": "comptes sociaux : pas de tableau des flux de trésorerie (tableau de financement p.16 : CAF 79,653, variation de trésorerie −9,592 MMAD en prenant la trésorerie nette hors placements). Conversion en trésorerie non calculée.",
-    "yuna_et_s1": "la fiche S1 existante recoupe le BPA 2025 à yuna.ma (4,06 = 4,06) : concordant avec 65,479 ÷ 16,118 ici."
+    "yuna_et_s1": "la fiche S1 existante recoupe le BPA 2025 à yuna.ma (4,06 = 4,06) : concordant avec 65,479 ÷ 16,118 ici.",
+    "roic": "12 MMAD de reprises de provisions sur créances dans le résultat d'exploitation et 12,4 MMAD de pertes sur créances classées en non courant (p.48-49, p.14) : avec le non courant, ROIC 30,6 % au lieu de 35,6 % ; 12,2 MMAD de charges financières non détaillées (p.30) (verificateur-finance, 02/10/2026)"
    }
   }
  },
@@ -12011,9 +12016,10 @@
     "ecart_tresorerie": "le tableau des flux consolidé clôt à −59 296 contre −59 326 au bilan (1 771 − 61 097), et à l'ouverture −65 207 contre −65 179 : écart de 30 puis 28 KMAD, non expliqué (négligeable : 0,05 % de la trésorerie-passif). Consigné, aucun fait corrigé pour le faire coïncider.",
     "tresorerie_passif": "61,097 MMAD de concours bancaires (crédit spot, p.39) contre 1,771 de trésorerie : la dette nette (59,357 MMAD) est quasi toute à court terme, pas dans les « dettes financières » (31 KMAD). Avec 280,0 MMAD de dettes fournisseurs et 259,5 de stocks, la structure est celle d'un distributeur financé par ses fournisseurs et ses banques.",
     "provisions": "provisions pour risques et charges de 37,318 MMAD (dont 31,623 de provisions « durables » à l'ETIC p.104, le reste en passif circulant ; 31,358 en 2024), hors des dettes financières. Observation des CAC (p.97) : condamnation en Côte d'Ivoire à 28 MMAD, arrêt exécutoire depuis 2021, procédures d'exequatur rejetées au Maroc, « l'affaire est toujours en cours » ; le risque est couvert par provision à 100 % (constatée en 2019). Opinion SANS réserve (Fidaroc Grant Thornton, HDID & Associés, 28/04/2026).",
-    "ebitda": "aucun EBE/EBITDA consolidé publié au dépôt Fenie (l'EBE du rapport de gestion, 50,140 MMAD, p.38, est SOCIAL et avant provisions). EBITDA CALCULÉ = résultat d'exploitation 32,031 + dotations aux amortissements 9,479 = 41,510 MMAD. Le rapport financier de Zellidja annonce « EBITDA 41,6 Mdh » pour sa filiale (p.7 de Zellidja_RFA_2025) : écart de 0,09, explicable par les 9 553 d'amortissements sociaux (32,031 + 9,553 = 41,584) ; ce chiffre n'est pas celui retenu.",
+    "ebitda": "le « EBITDA 41,6 » cité dans le rapport de Zellidja a une origine non établie : résultat d'exploitation social 32 235 (p.39) + 9 553 = 41 788 ; consolidé 41 510 (p.48) ; aucun ne redonne la progression citée (verificateur-finance, 02/10/2026)",
     "social_et_consolide": "résultat net social 17,900 MMAD, consolidé 14,856 (p.40) : la différence vient de la dotation financière sur la filiale mauritanienne. Tous les faits ci-dessus sont lus dans les états consolidés (p.47-48, ETIC p.103-107).",
-    "croissance_et_bfr": "chiffre d'affaires +8,4 % (756,5 contre 698,2), stocks +18,5 % (259,5 contre 219,1) : la conversion en trésorerie (122 %) bénéficie de l'élimination de la plus-value de cession et des provisions non décaissées ; le BFR consomme encore 11,7 MMAD."
+    "croissance_et_bfr": "chiffre d'affaires +8,4 % (756,5 contre 698,2), stocks +18,5 % (259,5 contre 219,1) : la conversion en trésorerie (122 %) bénéficie de l'élimination de la plus-value de cession et des provisions non décaissées ; le BFR consomme encore 11,7 MMAD.",
+    "dette_nette": "litige ivoirien de 28 MMAD, exécutoire et provisionné à 100 %, hors dette ; exequatur rejeté au Maroc (CAC p.97) ; dette nette ajustée 87,4 MMAD (2,10×) (verificateur-finance, 02/10/2026)"
    }
   }
  }

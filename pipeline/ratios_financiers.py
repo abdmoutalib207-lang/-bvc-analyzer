@@ -209,7 +209,11 @@ def calculer_bilan(entree: dict | None) -> tuple[dict, dict]:
         non["ebitda"] = "ni EBE publié, ni dotations aux amortissements isolées"
 
     # dette nette / EBITDA
-    if dn is not None and eb is not None:
+    if "dette_nette_ebitda" in refus:
+        # Numérateur non établi (ex. STR : arriérés fiscaux et sociaux hors
+        # dette financière, dettes « en cours de vérification ») — 02/10/2026.
+        non["dette_nette_ebitda"] = refus["dette_nette_ebitda"]
+    elif dn is not None and eb is not None:
         if eb > 0:
             out["dette_nette_ebitda"] = base(round(dn / eb, 2), f"{round(dn, 3)} ÷ {eb}", {
                 "dette_nette": "ratios_publies.dette_nette", "ebitda": "ratios_publies.ebitda"})
