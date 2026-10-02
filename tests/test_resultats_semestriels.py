@@ -212,8 +212,9 @@ def test_lot7_communiques_lus_et_recoupes():
     assert (bpa["OUL"]["bpa"], bpa["MIC"]["bpa"]) == (56.72, 41.37)
     # SBS : 343 + 79,9 − 87,3 = 335,6 ÷ 2 829 653 = 118,60
     assert bpa["SBS"]["bpa_12m"] == 118.6
-    # DTT : 25,8 + 16,1 − 12,5 = 29,4 ÷ 998 110 = 29,46
-    assert bpa["DTT"]["bpa_12m"] == 29.46
+    # DTT : exercice 2025 lu au RFA p.25 depuis le 02/10 (verificateur-finance) :
+    # 25,878 + 16,1 − 12,5 = 29,478 ÷ 998 110 = 29,53
+    assert bpa["DTT"]["bpa_12m"] == 29.53
 
 
 def test_lot8_fnb_uni_inv_hal():

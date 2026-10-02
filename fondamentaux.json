@@ -4189,7 +4189,60 @@
     "nb_actions": 3029522,
     "bloomberg": null,
     "reuters": null,
-    "secteur_libre": "Construction & Travaux publics"
+    "secteur_libre": "Construction & Travaux publics",
+    "ratios_publies": {
+      "dette_nette": {
+        "valeur": 1341.3,
+        "date": "2025-12-31",
+        "formule": "1908.365778 − 567.085387 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Communication financière — comptes consolidés annuels 2025 (extrait de 3 pages) — https://www.ammc.ma/sites/default/files/Jet_Contractors_2025.pdf, p. 2",
+          "tresorerie": "Communication financière — comptes consolidés annuels 2025 (extrait de 3 pages) — https://www.ammc.ma/sites/default/files/Jet_Contractors_2025.pdf, p. 2"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 462.9,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 462.864 (MMAD)",
+        "sources": {
+          "ebitda": "Communication financière — comptes consolidés annuels 2025 (extrait de 3 pages) — https://www.ammc.ma/sites/default/files/Jet_Contractors_2025.pdf, p. 2"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 2.9,
+        "date": "2025-12-31",
+        "formule": "1341.28 ÷ 462.864",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025"
+      },
+      "roic": {
+        "valeur": 10.2,
+        "date": "2025-12-31",
+        "formule": "435.275252 × (1 − t) ÷ (1355.341436 + 1341.28) ; t = 135.749573 ÷ 369.929241 = 36.7 %",
+        "sources": {
+          "resultat_exploitation": "Communication financière — comptes consolidés annuels 2025 (extrait de 3 pages) — https://www.ammc.ma/sites/default/files/Jet_Contractors_2025.pdf, p. 2",
+          "impot": "Communication financière — comptes consolidés annuels 2025 (extrait de 3 pages) — https://www.ammc.ma/sites/default/files/Jet_Contractors_2025.pdf, p. 2",
+          "resultat_avant_impot": "Communication financière — comptes consolidés annuels 2025 (extrait de 3 pages) — https://www.ammc.ma/sites/default/files/Jet_Contractors_2025.pdf, p. 2",
+          "capitaux_propres": "Communication financière — comptes consolidés annuels 2025 (extrait de 3 pages) — https://www.ammc.ma/sites/default/files/Jet_Contractors_2025.pdf, p. 2",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "%",
+        "taux_impot_effectif": 36.7
+      },
+      "non_calcules_2025": {
+        "cash_conversion": "le dépôt ne contient aucun tableau des flux de trésorerie consolidé (3 pages : comptes sociaux, comptes consolidés, rapport des commissaires aux comptes)."
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "AFI": {
     "secteur": "Industrie",
@@ -4385,6 +4438,15 @@
     "croissance_bpa": 28.8,
     "source_s1_2026": "https://www.ammc.ma/sites/default/files/CP_Disty_Technologies_S1_26.pdf",
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": 14.0,
+        "date": "2025-12-31",
+        "formule": "25.878 ÷ 185.034939 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Disty_technologies_RFA_2025.pdf p.25 : « XIII RÉSULTAT NET ( XI - XII ) 25 878 107,91 » — rectifié le 02/10/2026 par verificateur-finance (avant : 25,8 arrondi du communiqué)",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disty_technologies_RFA_2025.pdf, p. 24"
+        }
+      },
       "marge_nette_s1_2026": {
         "valeur": 4.8,
         "date": "2026-06-30",
@@ -4393,6 +4455,56 @@
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/CP_Disty_Technologies_S1_26.pdf"
         }
+      },
+      "dette_nette": {
+        "valeur": 86.4,
+        "date": "2025-12-31",
+        "formule": "127.469859 − 41.060614 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disty_technologies_RFA_2025.pdf, p. 24",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disty_technologies_RFA_2025.pdf, p. 24"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — aucun état consolidé : la filiale SLA Technologies (100 %) n'a pas encore démarré (p.23)",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 38.1,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 38.091086 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disty_technologies_RFA_2025.pdf, p. 26"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — aucun état consolidé : la filiale SLA Technologies (100 %) n'a pas encore démarré (p.23)",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 2.27,
+        "date": "2025-12-31",
+        "formule": "86.409 ÷ 38.091086",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — aucun état consolidé : la filiale SLA Technologies (100 %) n'a pas encore démarré (p.23)"
+      },
+      "roic": {
+        "valeur": 11.6,
+        "date": "2025-12-31",
+        "formule": "35.929037 × (1 − t) ÷ (185.034939 + 86.409) ; t = 3.737785 ÷ 29.615893 = 12.6 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disty_technologies_RFA_2025.pdf, p. 25",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disty_technologies_RFA_2025.pdf, p. 25",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disty_technologies_RFA_2025.pdf, p. 25",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disty_technologies_RFA_2025.pdf, p. 24",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — aucun état consolidé : la filiale SLA Technologies (100 %) n'a pas encore démarré (p.23)",
+        "unite": "%",
+        "taux_impot_effectif": 12.6
+      },
+      "non_calcules_2025": {
+        "cash_conversion": "comptes SOCIAUX seuls : un bilan marocain social n'a pas de tableau des flux de trésorerie (seulement un tableau de financement p.26 : CAF 27,169, variation de trésorerie 6,860) ; le flux net d'exploitation n'est pas publié."
       },
       "calcule_le": "2026-09-30"
     }
@@ -4594,6 +4706,56 @@
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/CP_Auto_Hall_S1_26.pdf"
         }
+      },
+      "dette_nette": {
+        "valeur": 3122.4,
+        "date": "2025-12-31",
+        "formule": "3520.227584 − 397.798873 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Hall_RFA_2025_0.pdf, p. 58",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Hall_RFA_2025_0.pdf, p. 58"
+        },
+        "base": "consolidé IFRS, 31/12/2025",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 541.1,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 541.067 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Hall_RFA_2025_0.pdf, p. 42"
+        },
+        "base": "consolidé IFRS, 31/12/2025",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 5.77,
+        "date": "2025-12-31",
+        "formule": "3122.429 ÷ 541.067",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "consolidé IFRS, 31/12/2025"
+      },
+      "roic": {
+        "valeur": 3.4,
+        "date": "2025-12-31",
+        "formule": "301.944179 × (1 − t) ÷ (1445.975818 + 3122.429) ; t = 93.642332 ÷ 193.474709 = 48.4 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Hall_RFA_2025_0.pdf, p. 58",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Hall_RFA_2025_0.pdf, p. 58",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Hall_RFA_2025_0.pdf, p. 58",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Hall_RFA_2025_0.pdf, p. 58",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "consolidé IFRS, 31/12/2025",
+        "unite": "%",
+        "taux_impot_effectif": 48.4
+      },
+      "non_calcules_2025": {
+        "cash_conversion": "flux d'exploitation présenté AVANT coût de l'endettement (159,9 MMAD réintégrés), contrairement aux tableaux des autres sociétés : 443,3 % non comparable ; 283,2 % après intérêts reste gonflé par un résultat net faible (Auto_Hall_RFA_2025_0 p.59) (verificateur-finance, 02/10/2026)"
       },
       "calcule_le": "2026-09-30"
     }
@@ -5416,6 +5578,13 @@
           "comptes": "https://www.ammc.ma/sites/default/files/ALM_S1_26.pdf"
         }
       },
+      "non_calcules_2025": {
+        "dette_nette": "le passif à long terme consolidé (114,4 MMAD) n'est pas décomposé : dettes de financement, provisions durables et écarts de conversion passif y sont mêlés, et le texte ne chiffre la dette de financement que pour le SOCIAL (110,39 MMAD, p.34). Rapporter 114,4 + trésorerie passif 458,1 à la trésorerie serait deviner la composition. Lignes relevées à part (passif_long_terme, tresorerie_passif, disponibilites).",
+        "ebitda": "ni EBE/EBITDA consolidé publié (l'état des soldes de gestion p.29 est SOCIAL), ni dotations aux amortissements isolées : « Dotations d'exploitation 34 487,10 » (p.37) mêle amortissements et provisions.",
+        "dette_nette_ebitda": "dette nette ou EBITDA non calculé",
+        "roic": "un terme manque (résultat d'exploitation, résultat avant impôt, impôt, capitaux propres consolidés ou dette nette)",
+        "cash_conversion": "le rapport ne contient aucun tableau des flux de trésorerie consolidé (sommaire p.3 : le tableau de financement p.30 est social)."
+      },
       "calcule_le": "2026-09-30"
     }
   },
@@ -5614,6 +5783,23 @@
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/Dari_Couspate_S1_26.pdf"
         }
+      },
+      "dette_nette": {
+        "valeur": -43.3,
+        "date": "2025-12-31",
+        "formule": "0.0 − 43.313576 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf, p. 33",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf, p. 33"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025 — filiale marocaine ARDI MILLS (capital 1 MMAD, sans activité) non consolidée",
+        "unite": "MMAD"
+      },
+      "non_calcules_2025": {
+        "ebitda": "ni EBE/EBITDA publié, ni dotations aux amortissements isolées : « Dotations d'exploitation, nettes des reprises et TC 65.398.754 » (p.34) mêle amortissements, provisions et reprises ; le tableau des flux donne « Amortissement et provisions et reprises 22.236.661,40 », lui aussi mêlé, et très différent.",
+        "dette_nette_ebitda": "dette nette ou EBITDA non calculé",
+        "roic": "capitaux employés 323,5 MMAD faits à 99,7 % de titres de placement (322,4) dont le revenu est hors du résultat d'exploitation ; traités en trésorerie, ils ramènent les capitaux employés à 1,1 MMAD : aucune lecture interprétable (Dari_Couspate_RFA_2025 p.33) (verificateur-finance, 02/10/2026)",
+        "cash_conversion": "la variation du BFR du tableau des flux inclut l'achat de titres de placement (+46,35 MMAD) : flux d'exploitation net d'un placement ; 139,7 % publié, 228,1 % hors titres — non comparable (p.33, p.35) (verificateur-finance, 02/10/2026)"
       },
       "calcule_le": "2026-09-30"
     }
@@ -6146,6 +6332,15 @@
     },
     "source_s1_2026": "https://www.ammc.ma/sites/default/files/CP_Microdata_S1_26.pdf",
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": 35.6,
+        "date": "2025-12-31",
+        "formule": "69.5 ÷ 195.438452 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/CP_Microdata_2025.pdf — « le résultat net affiche une progression de +2,5 %, s'établissant à 69,5 millions de dirhams » (social)",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Microdata_RFA_2025.pdf, p. 21"
+        }
+      },
       "marge_nette_s1_2026": {
         "valeur": 7.0,
         "date": "2026-06-30",
@@ -6154,6 +6349,56 @@
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/CP_Microdata_S1_26.pdf"
         }
+      },
+      "dette_nette": {
+        "valeur": 117.7,
+        "date": "2025-12-31",
+        "formule": "310.0 − 192.344942 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Microdata_RFA_2025.pdf, p. 21",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Microdata_RFA_2025.pdf, p. 20"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Microdata ne consolide pas sa filiale DGSM (p.16 : « pas encore été consolidée … non significatifs »)",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 110.2,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 110.22108 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Microdata_RFA_2025.pdf, p. 48"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Microdata ne consolide pas sa filiale DGSM (p.16 : « pas encore été consolidée … non significatifs »)",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 1.07,
+        "date": "2025-12-31",
+        "formule": "117.655 ÷ 110.22108",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Microdata ne consolide pas sa filiale DGSM (p.16 : « pas encore été consolidée … non significatifs »)"
+      },
+      "roic": {
+        "valeur": 25.9,
+        "date": "2025-12-31",
+        "formule": "106.794835 × (1 − t) ÷ (195.438452 + 117.655) ; t = 21.923922 ÷ 91.471713 = 24.0 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Microdata_RFA_2025.pdf, p. 23",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Microdata_RFA_2025.pdf, p. 24",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Microdata_RFA_2025.pdf, p. 24",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Microdata_RFA_2025.pdf, p. 21",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Microdata ne consolide pas sa filiale DGSM (p.16 : « pas encore été consolidée … non significatifs »)",
+        "unite": "%",
+        "taux_impot_effectif": 24.0
+      },
+      "non_calcules_2025": {
+        "cash_conversion": "comptes SOCIAUX seuls : pas de tableau des flux de trésorerie (seulement CAF 70,270 et autofinancement dans l'état des soldes de gestion, p.48) ; flux net d'exploitation non publié."
       },
       "calcule_le": "2026-09-30"
     }
@@ -6327,6 +6572,47 @@
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/CP_SBM_S1_26.pdf"
         }
+      },
+      "dette_nette": {
+        "valeur": -593.0,
+        "date": "2025-12-31",
+        "formule": "86.013 − 679.025 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/SBM_RFA_2025_0.pdf, p. 59",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/SBM_RFA_2025_0.pdf, p. 59"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "MMAD"
+      },
+      "roic": {
+        "valeur": 33.6,
+        "date": "2025-12-31",
+        "formule": "523.745 × (1 − t) ÷ (1597.04 + -593.012) ; t = 192.941 ÷ 541.917 = 35.6 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/SBM_RFA_2025_0.pdf, p. 59",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/SBM_RFA_2025_0.pdf, p. 59",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/SBM_RFA_2025_0.pdf, p. 59",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/SBM_RFA_2025_0.pdf, p. 59",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "%",
+        "taux_impot_effectif": 35.6
+      },
+      "cash_conversion": {
+        "valeur": 88.3,
+        "date": "2025-12-31",
+        "formule": "299.584 ÷ 339.114 (MMAD)",
+        "sources": {
+          "flux": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/SBM_RFA_2025_0.pdf, p. 60",
+          "resultat_net": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/SBM_RFA_2025_0.pdf, p. 59"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "%"
+      },
+      "non_calcules_2025": {
+        "ebitda": "ni EBE/EBITDA publié (le mot n'apparaît nulle part dans le rapport), ni dotations aux amortissements isolées : « Dotations d'exploitation 123 446 » (p.59) mêle amortissements et provisions, et le tableau des flux en donne une autre (112 168, p.60).",
+        "dette_nette_ebitda": "dette nette ou EBITDA non calculé"
       },
       "calcule_le": "2026-09-30"
     }
