@@ -137,7 +137,20 @@ def test_aucun_titre_ne_porte_les_cours_d_un_autre():
                     # doublement : c'est le rapport des niveaux qui compte, pas
                     # le sens.
                     ecart = max(dedans / ref, ref / dedans) - 1 if dedans else 99
-                    if ref and ecart > 0.5:
+                    # ⚠️ ET LE SAUT, QUE LA RÈGLE EXIGE ET QUE LE CODE OUBLIAIT.
+                    # La docstring dit « saut hors plafond ET atterrissage » ;
+                    # seul l'atterrissage était vérifié. S2M a été accusé le
+                    # 03/10/2026 : 180 DH les 02-04/01/2024 comme BOA, contre
+                    # une médiane de 430 — mais S2M est MONTÉ de 180 à 430 en
+                    # trois ans, et l'export de l'opérateur le cote bien à 180
+                    # (capitalisation ÷ cours = 812 070 actions, son nombre). Il
+                    # était arrivé à 180 sans saut, comme AFI à 350. ATL y
+                    # était tombé de 132 à 68,99 ; MRL monté de 370 à 851.
+                    def saut(a, b):
+                        return bool(a and b) and max(a / b, b / a) - 1 > 0.10
+                    entree = i > 0 and saut(s_[i - 1]["c"], s_[i]["c"])
+                    sortie = j_ < n and saut(s_[j_ - 1]["c"], s_[j_]["c"])
+                    if ref and ecart > 0.5 and (entree or sortie):
                         fautifs.append(
                             f"{t} {s_[i]['d']} → {s_[j_ - 1]['d']} : "
                             f"{longueur} séances à {dedans:.0f} DH aux cours de "
