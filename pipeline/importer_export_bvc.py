@@ -62,7 +62,7 @@ RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(RACINE / "pipeline"))
 
-from bvc_config import decalage_maroc  # noqa: E402
+from bvc_config import adjust_splits, decalage_maroc  # noqa: E402
 from candle_write_policy import appliquer_corrections_avant_ecriture  # noqa: E402
 from diagnostiquer_export_bvc import (  # noqa: E402
     lire_export, nombre, nos_chandelles, resoudre,
@@ -186,6 +186,13 @@ def preparer(chemin: Path) -> dict:
     for jour in sorted(officiel):
         b = bougie_depuis_export(jour, officiel[jour])
         (officielles if b else incotables).append(b or jour)
+
+    # ⚠️ L'OPÉRATEUR PUBLIE LES COURS BRUTS : MNG à 12 500 le 24/07/2026,
+    # 1 364 le 27/07, jour du split 1:10. Nos chandelles sont ajustées. Un
+    # export est une série fraîchement téléchargée — exactement le cas pour
+    # lequel `adjust_splits()` existe : registre SPLITS, avant fusion, jamais
+    # sur l'existant. Les volumes ne sont pas touchés.
+    officielles = adjust_splits(ticker, officielles)
 
     anciennes = nos_chandelles(ticker)
     f = fusionner(anciennes, officielles)
