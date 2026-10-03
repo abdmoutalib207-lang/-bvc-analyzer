@@ -1633,11 +1633,19 @@
         "h": 6398.0,
         "l": 6256.0,
         "c": 6398.0,
-        "v": 402676
+        "v": 64
       },
       "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
       "niveau_de_preuve": "etabli_par_la_mesure",
-      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur",
+      "remplace_avant_2026_10_03": {
+        "o": 6282.0,
+        "h": 6398.0,
+        "l": 6256.0,
+        "c": 6398.0,
+        "v": 402676
+      },
+      "rectification_2026_10_03": "l'état remplacé est désormais la ligne BRUTE de l'export opérateur du 03/10/2026 : mêmes cours pré-split, volume en NOMBRE DE TITRES et non plus en dirhams. Sans cette mise à jour, la correction était refusée et les cours non ajustés (×10) revenaient dans la série"
     },
     {
       "d": "2023-10-05",
@@ -1653,11 +1661,19 @@
         "h": 6700.0,
         "l": 6500.0,
         "c": 6675.0,
-        "v": 5547041
+        "v": 830
       },
       "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
       "niveau_de_preuve": "etabli_par_la_mesure",
-      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur",
+      "remplace_avant_2026_10_03": {
+        "o": 6700.0,
+        "h": 6700.0,
+        "l": 6500.0,
+        "c": 6675.0,
+        "v": 5547041
+      },
+      "rectification_2026_10_03": "l'état remplacé est désormais la ligne BRUTE de l'export opérateur du 03/10/2026 : mêmes cours pré-split, volume en NOMBRE DE TITRES et non plus en dirhams. Sans cette mise à jour, la correction était refusée et les cours non ajustés (×10) revenaient dans la série"
     },
     {
       "d": "2023-10-06",
@@ -1673,11 +1689,19 @@
         "h": 6650.0,
         "l": 6400.0,
         "c": 6400.0,
-        "v": 5974585
+        "v": 924
       },
       "motif": "cours antérieurs au fractionnement du 09/10/2023, jamais ajustés : le graphique montrait une chute de 90 % qui n'a pas eu lieu",
       "niveau_de_preuve": "etabli_par_la_mesure",
-      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur"
+      "_preuve": "les deux séances qui encadrent la date d'effet donnent 740 619 puis 7 406 190 titres (capitalisation ÷ cours) — exactement ×10 ; valeurs reprises de : export de l'opérateur",
+      "remplace_avant_2026_10_03": {
+        "o": 6650.0,
+        "h": 6650.0,
+        "l": 6400.0,
+        "c": 6400.0,
+        "v": 5974585
+      },
+      "rectification_2026_10_03": "l'état remplacé est désormais la ligne BRUTE de l'export opérateur du 03/10/2026 : mêmes cours pré-split, volume en NOMBRE DE TITRES et non plus en dirhams. Sans cette mise à jour, la correction était refusée et les cours non ajustés (×10) revenaient dans la série"
     },
     {
       "d": "2026-06-30",
@@ -1686,14 +1710,14 @@
         "h": 639.0,
         "l": 620.0,
         "c": 639.0,
-        "v": 1878780
+        "v": 2969
       },
       "remplace": {
-        "o": 620.0,
-        "h": 639.0,
-        "l": 620.0,
-        "c": 639.0,
-        "v": 2969
+        "o": 610.2,
+        "h": 620.4,
+        "l": 610.2,
+        "c": 620.4,
+        "v": 0
       },
       "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
       "niveau_de_preuve": "etabli_par_la_mesure",
@@ -1705,7 +1729,22 @@
         "c": 620.4,
         "v": 0
       },
-      "_note": "⚠️ Deux états successifs : le volume nul d'origine, puis le nombre de titres que j'ai écrit le 15/09 avant de constater qu'il rompait la convention du titre. `_remplace_initial` garde le premier."
+      "_note": "⚠️ Deux états successifs : le volume nul d'origine, puis le nombre de titres que j'ai écrit le 15/09 avant de constater qu'il rompait la convention du titre. `_remplace_initial` garde le premier.",
+      "corrige_avant_2026_10_03": {
+        "o": 620.0,
+        "h": 639.0,
+        "l": 620.0,
+        "c": 639.0,
+        "v": 1878780
+      },
+      "rectification_2026_10_03": "le volume corrigé portait le MONTANT en dirhams (convention de notre ancienne série HPS) ; l'export de l'opérateur du 03/10/2026 remplace la série par des NOMBRES DE TITRES (« Titres Échangés ») — rétabli pour rester cohérent avec elle — et `remplace` ramené à `_remplace_initial` (la bougie rediffusée à volume nul) : le volume corrigé égalant désormais l'état du 15/09, l'ancien `remplace` ne décrivait plus aucune correction",
+      "remplace_avant_2026_10_03": {
+        "o": 620.0,
+        "h": 639.0,
+        "l": 620.0,
+        "c": 639.0,
+        "v": 2969
+      }
     },
     {
       "d": "2026-07-20",
@@ -1714,14 +1753,14 @@
         "h": 614.0,
         "l": 593.0,
         "c": 593.0,
-        "v": 346122
+        "v": 582
       },
       "remplace": {
-        "o": 599.0,
-        "h": 614.0,
-        "l": 593.0,
-        "c": 593.0,
-        "v": 582
+        "o": 600.0,
+        "h": 602.1,
+        "l": 600.0,
+        "c": 602.1,
+        "v": 0
       },
       "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
       "niveau_de_preuve": "etabli_par_la_mesure",
@@ -1733,7 +1772,22 @@
         "c": 602.1,
         "v": 0
       },
-      "_note": "⚠️ Deux états successifs : le volume nul d'origine, puis le nombre de titres que j'ai écrit le 15/09 avant de constater qu'il rompait la convention du titre. `_remplace_initial` garde le premier."
+      "_note": "⚠️ Deux états successifs : le volume nul d'origine, puis le nombre de titres que j'ai écrit le 15/09 avant de constater qu'il rompait la convention du titre. `_remplace_initial` garde le premier.",
+      "corrige_avant_2026_10_03": {
+        "o": 599.0,
+        "h": 614.0,
+        "l": 593.0,
+        "c": 593.0,
+        "v": 346122
+      },
+      "rectification_2026_10_03": "le volume corrigé portait le MONTANT en dirhams (convention de notre ancienne série HPS) ; l'export de l'opérateur du 03/10/2026 remplace la série par des NOMBRES DE TITRES (« Titres Échangés ») — rétabli pour rester cohérent avec elle — et `remplace` ramené à `_remplace_initial` (la bougie rediffusée à volume nul) : le volume corrigé égalant désormais l'état du 15/09, l'ancien `remplace` ne décrivait plus aucune correction",
+      "remplace_avant_2026_10_03": {
+        "o": 599.0,
+        "h": 614.0,
+        "l": 593.0,
+        "c": 593.0,
+        "v": 582
+      }
     },
     {
       "d": "2026-07-31",
@@ -1742,14 +1796,14 @@
         "h": 608.0,
         "l": 590.0,
         "c": 594.0,
-        "v": 606856
+        "v": 1023
       },
       "remplace": {
         "o": 608.0,
         "h": 608.0,
         "l": 590.0,
-        "c": 594.0,
-        "v": 1023
+        "c": 590.0,
+        "v": 0
       },
       "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
       "niveau_de_preuve": "etabli_par_la_mesure",
@@ -1761,7 +1815,22 @@
         "c": 590.0,
         "v": 0
       },
-      "_note": "⚠️ Deux états successifs : le volume nul d'origine, puis le nombre de titres que j'ai écrit le 15/09 avant de constater qu'il rompait la convention du titre. `_remplace_initial` garde le premier."
+      "_note": "⚠️ Deux états successifs : le volume nul d'origine, puis le nombre de titres que j'ai écrit le 15/09 avant de constater qu'il rompait la convention du titre. `_remplace_initial` garde le premier.",
+      "corrige_avant_2026_10_03": {
+        "o": 608.0,
+        "h": 608.0,
+        "l": 590.0,
+        "c": 594.0,
+        "v": 606856
+      },
+      "rectification_2026_10_03": "le volume corrigé portait le MONTANT en dirhams (convention de notre ancienne série HPS) ; l'export de l'opérateur du 03/10/2026 remplace la série par des NOMBRES DE TITRES (« Titres Échangés ») — rétabli pour rester cohérent avec elle — et `remplace` ramené à `_remplace_initial` (la bougie rediffusée à volume nul) : le volume corrigé égalant désormais l'état du 15/09, l'ancien `remplace` ne décrivait plus aucune correction",
+      "remplace_avant_2026_10_03": {
+        "o": 608.0,
+        "h": 608.0,
+        "l": 590.0,
+        "c": 594.0,
+        "v": 1023
+      }
     },
     {
       "d": "2026-08-04",
@@ -1770,14 +1839,14 @@
         "h": 604.0,
         "l": 598.0,
         "c": 604.0,
-        "v": 59978
+        "v": 100
       },
       "remplace": {
-        "o": 600.0,
-        "h": 604.0,
-        "l": 598.0,
+        "o": 608.0,
+        "h": 608.0,
+        "l": 590.0,
         "c": 604.0,
-        "v": 100
+        "v": 0
       },
       "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
       "niveau_de_preuve": "etabli_par_la_mesure",
@@ -1789,7 +1858,22 @@
         "c": 604.0,
         "v": 0
       },
-      "_note": "⚠️ Deux états successifs : le volume nul d'origine, puis le nombre de titres que j'ai écrit le 15/09 avant de constater qu'il rompait la convention du titre. `_remplace_initial` garde le premier."
+      "_note": "⚠️ Deux états successifs : le volume nul d'origine, puis le nombre de titres que j'ai écrit le 15/09 avant de constater qu'il rompait la convention du titre. `_remplace_initial` garde le premier.",
+      "corrige_avant_2026_10_03": {
+        "o": 600.0,
+        "h": 604.0,
+        "l": 598.0,
+        "c": 604.0,
+        "v": 59978
+      },
+      "rectification_2026_10_03": "le volume corrigé portait le MONTANT en dirhams (convention de notre ancienne série HPS) ; l'export de l'opérateur du 03/10/2026 remplace la série par des NOMBRES DE TITRES (« Titres Échangés ») — rétabli pour rester cohérent avec elle — et `remplace` ramené à `_remplace_initial` (la bougie rediffusée à volume nul) : le volume corrigé égalant désormais l'état du 15/09, l'ancien `remplace` ne décrivait plus aucune correction",
+      "remplace_avant_2026_10_03": {
+        "o": 600.0,
+        "h": 604.0,
+        "l": 598.0,
+        "c": 604.0,
+        "v": 100
+      }
     },
     {
       "d": "2026-08-05",
@@ -1798,14 +1882,14 @@
         "h": 610.0,
         "l": 600.0,
         "c": 610.0,
-        "v": 307173
+        "v": 505
       },
       "remplace": {
-        "o": 604.0,
+        "o": 610.0,
         "h": 610.0,
-        "l": 600.0,
+        "l": 610.0,
         "c": 610.0,
-        "v": 505
+        "v": 0
       },
       "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
       "niveau_de_preuve": "etabli_par_la_mesure",
@@ -1817,7 +1901,22 @@
         "c": 610.0,
         "v": 0
       },
-      "_note": "⚠️ Deux états successifs : le volume nul d'origine, puis le nombre de titres que j'ai écrit le 15/09 avant de constater qu'il rompait la convention du titre. `_remplace_initial` garde le premier."
+      "_note": "⚠️ Deux états successifs : le volume nul d'origine, puis le nombre de titres que j'ai écrit le 15/09 avant de constater qu'il rompait la convention du titre. `_remplace_initial` garde le premier.",
+      "corrige_avant_2026_10_03": {
+        "o": 604.0,
+        "h": 610.0,
+        "l": 600.0,
+        "c": 610.0,
+        "v": 307173
+      },
+      "rectification_2026_10_03": "le volume corrigé portait le MONTANT en dirhams (convention de notre ancienne série HPS) ; l'export de l'opérateur du 03/10/2026 remplace la série par des NOMBRES DE TITRES (« Titres Échangés ») — rétabli pour rester cohérent avec elle — et `remplace` ramené à `_remplace_initial` (la bougie rediffusée à volume nul) : le volume corrigé égalant désormais l'état du 15/09, l'ancien `remplace` ne décrivait plus aucune correction",
+      "remplace_avant_2026_10_03": {
+        "o": 604.0,
+        "h": 610.0,
+        "l": 600.0,
+        "c": 610.0,
+        "v": 505
+      }
     },
     {
       "d": "2026-08-06",
@@ -1826,14 +1925,14 @@
         "h": 610.0,
         "l": 601.0,
         "c": 610.0,
-        "v": 1394984
+        "v": 2288
       },
       "remplace": {
-        "o": 608.0,
+        "o": 610.0,
         "h": 610.0,
-        "l": 601.0,
+        "l": 610.0,
         "c": 610.0,
-        "v": 2288
+        "v": 0
       },
       "motif": "le cours était rediffusé : volume nul chez nous, échanges réels chez l'opérateur",
       "niveau_de_preuve": "etabli_par_la_mesure",
@@ -1845,8 +1944,24 @@
         "c": 610.0,
         "v": 0
       },
-      "_note": "⚠️ Deux états successifs : le volume nul d'origine, puis le nombre de titres que j'ai écrit le 15/09 avant de constater qu'il rompait la convention du titre. `_remplace_initial` garde le premier."
+      "_note": "⚠️ Deux états successifs : le volume nul d'origine, puis le nombre de titres que j'ai écrit le 15/09 avant de constater qu'il rompait la convention du titre. `_remplace_initial` garde le premier.",
+      "corrige_avant_2026_10_03": {
+        "o": 608.0,
+        "h": 610.0,
+        "l": 601.0,
+        "c": 610.0,
+        "v": 1394984
+      },
+      "rectification_2026_10_03": "le volume corrigé portait le MONTANT en dirhams (convention de notre ancienne série HPS) ; l'export de l'opérateur du 03/10/2026 remplace la série par des NOMBRES DE TITRES (« Titres Échangés ») — rétabli pour rester cohérent avec elle — et `remplace` ramené à `_remplace_initial` (la bougie rediffusée à volume nul) : le volume corrigé égalant désormais l'état du 15/09, l'ancien `remplace` ne décrivait plus aucune correction",
+      "remplace_avant_2026_10_03": {
+        "o": 608.0,
+        "h": 610.0,
+        "l": 601.0,
+        "c": 610.0,
+        "v": 2288
+      }
     }
   ],
-  "_unite_du_champ_v": "MONTANT EN DIRHAMS — convention MESURÉE de HPS (672 séances sur 730). ⚠️ CORRIGÉ APRÈS COUP : j'avais d'abord écrit le NOMBRE DE TITRES sur les six séances rediffusées, ce qui les rendait incohérentes avec les 788 autres. Suivre la convention du titre n'est pas approuver cette convention — l'unification entre titres reste un arbitrage ouvert."
+  "_unite_du_champ_v": "NOMBRE DE TITRES depuis l'import de l'export opérateur du 03/10/2026 (04/10/2023 → 02/10/2026). ⚠️ Les séances ANTÉRIEURES au 04/10/2023, hors de l'export, gardent le montant en dirhams de notre ancienne série : unité mixte avant cette date, non convertible sans la quantité réelle. L'unification entre titres reste un arbitrage ouvert.",
+  "_unite_du_champ_v_avant_2026_10_03": "MONTANT EN DIRHAMS — convention MESURÉE de HPS (672 séances sur 730). ⚠️ CORRIGÉ APRÈS COUP : j'avais d'abord écrit le NOMBRE DE TITRES sur les six séances rediffusées, ce qui les rendait incohérentes avec les 788 autres. Suivre la convention du titre n'est pas approuver cette convention — l'unification entre titres reste un arbitrage ouvert."
 }
