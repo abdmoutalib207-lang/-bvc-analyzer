@@ -86,6 +86,7 @@ def _obs_titre(t: str) -> list[dict]:
     dates = df["date"].dt.strftime("%Y-%m-%d").tolist()
     closes = df["close"].tolist()
     vols = df["volume"].fillna(0).tolist()
+    opens, highs, lows = df["open"].tolist(), df["high"].tolist(), df["low"].tolist()
     obs = []
     for i in range(MIN_HISTO, len(df)):
         d = dates[i]
@@ -94,7 +95,14 @@ def _obs_titre(t: str) -> list[dict]:
         ind = compute_indicators(df.iloc[: i + 1], as_of=d)
         s = calc_score_tech(ind.get("rsi"), closes[i], ind.get("ma20"),
                             ind.get("ma50"), ind.get("h90"), ind.get("l90"))
-        o = {"t": t, "d": d, "score": s}
+        # Mode et liquidité, établis À LA DATE avec les 20 dernières séances
+        # échangées — jamais la liste du 02/10/2026 appliquée à reculons.
+        ech = [k for k in range(max(0, i - 60), i + 1) if vols[k] and vols[k] > 0][-20:]
+        plates = sum(1 for k in ech if opens[k] == highs[k] == lows[k] == closes[k])
+        montants = sorted(closes[k] * vols[k] for k in ech)
+        o = {"t": t, "d": d, "score": s,
+             "fixing": plates * 2 > len(ech),
+             "montant_median": montants[len(montants) // 2] if montants else 0.0}
         for h in HORIZONS:
             j = i + h
             if j >= len(df) or dates[j] not in masi or d not in masi:
@@ -191,6 +199,20 @@ def main() -> int:
         "periode": [min(o["d"] for o in obs), max(o["d"] for o in obs)] if obs else None,
         "mesures": mesurer(obs),
     }
+    # ⚠️ SEGMENTS — la réserve de l'étape 0 : sur un titre peu liquide, la
+    # clôture oscille entre les rares échanges et fabrique un faux reflux.
+    tri = sorted(o["montant_median"] for o in obs)
+    s1, s2 = tri[len(tri) // 3], tri[2 * len(tri) // 3]
+    res["seuils_liquidite_dh"] = [round(s1), round(s2)]
+    res["segments"] = {
+        "continu": mesurer([o for o in obs if not o["fixing"]]),
+        "fixing": mesurer([o for o in obs if o["fixing"]]),
+        "liquidite_basse": mesurer([o for o in obs if o["montant_median"] < s1]),
+        "liquidite_moyenne": mesurer([o for o in obs if s1 <= o["montant_median"] < s2]),
+        "liquidite_haute": mesurer([o for o in obs if o["montant_median"] >= s2]),
+    }
+    res["effectifs_segments"] = {
+        "continu": sum(not o["fixing"] for o in obs), "fixing": sum(o["fixing"] for o in obs)}
     texte = json.dumps(res, ensure_ascii=False, indent=1)
     if a.sortie:
         Path(a.sortie).write_text(texte + "\n", encoding="utf-8")
