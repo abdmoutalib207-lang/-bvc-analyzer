@@ -128,16 +128,16 @@ def test_quatre_titres_sont_cotes_sans_que_nous_ayons_le_moindre_historique(cota
         t for t, v in chez_nous.items()
         if v["cours"] and not (RACINE / "pipeline" / "candles" / f"{t}.json").exists())
     assert sans_histoire == []
-    # SLM ne commence qu'au bulletin prouvé du 18/09.
     # ⚠️ MDP A QUITTÉ CETTE LIGNE LE 03/10/2026 : l'export 3 ans de
     # l'opérateur, fourni par Abd Moutalib, lui donne 736 séances depuis le
     # 04/10/2023 (datasets/historiques_importes/MDP.json).
     import json
     mdp = json.loads((RACINE/'pipeline'/'candles'/'MDP.json').read_text())
     assert mdp[0]['d'] == '2023-10-04'
-    for ticker in ('SLM',):
-        serie = json.loads((RACINE/'pipeline'/'candles'/f'{ticker}.json').read_text())
-        assert serie[0]['d'] == '2026-09-18'
+    # ⚠️ SLM AUSSI, LE MÊME JOUR : 736 séances depuis le 04/10/2023
+    # (datasets/historiques_importes/SLM.json).
+    slm = json.loads((RACINE/'pipeline'/'candles'/'SLM.json').read_text())
+    assert slm[0]['d'] == '2023-10-04'
     # T2S est désormais servi avec son historique : c'est ce que ce bulletin
     # avait permis d'établir, et ce qui a été fait le soir même.
     assert (RACINE / "pipeline" / "candles" / "T2S.json").exists()
