@@ -66,6 +66,7 @@ import pandas as pd
 
 RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE))
+sys.path.insert(0, str(RACINE / "pipeline"))
 
 from bvc_config import COMPANY_SECTORS  # noqa: E402
 
@@ -122,6 +123,11 @@ def _titre(t: str) -> pd.DataFrame | None:
     ma20, ma50, ma200 = c.rolling(20).mean(), c.rolling(50).mean(), c.rolling(200).mean()
     f = pd.DataFrame({"date": df["date"], "t": t})
     f["traite"] = v > 0
+    f["close"] = c
+    # Sortie de la zone de surachat du RSI 14 (passage sous 70), étape 3
+    from technical.figures import _rsi
+    rsi = pd.Series(_rsi(c.to_numpy(dtype=float)), index=df.index)
+    f["sortie_surachat"] = (rsi.shift(1) > 70) & (rsi <= 70)
     f["rev5"] = c / c.shift(5) - 1
     f["pullback"] = (c > ma200) & (ma50 > ma200) & (c / ma20 - 1 <= -0.03)
     f["cassure90"] = (c > h.shift(1).rolling(90).max()) & (v > 1.5 * v.shift(1).rolling(50).median())
