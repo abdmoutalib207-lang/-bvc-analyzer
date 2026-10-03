@@ -852,12 +852,20 @@ const CarteIndices=({masi})=>{
   const etiquette={fontSize:10,color:"#8892a4",letterSpacing:1.2,textTransform:"uppercase"};
   const m20=masi.masi20;
   const tot=(masi.hausses||0)+(masi.baisses||0)+(masi.inchanges||0);
+  // Graphique du MASI (03/10/2026) : sur demande, pour ne pas alourdir
+  // l'en-tête de chaque page. Le choix est mémorisé.
+  const [graphe,setGraphe]=useState(()=>{try{return localStorage.getItem("bvc_masi_graphe")==="1";}catch{return false;}});
+  useEffect(()=>{try{localStorage.setItem("bvc_masi_graphe",graphe?"1":"0");}catch{}},[graphe]);
   return(
     <div className="bandeau-masi carte-indices">
       <div style={carte}>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <span style={{...etiquette,color:"#4db8ff",fontWeight:700}}>MASI</span>
           {masi.asof&&<span style={{fontSize:10,color:"#5a6478"}}>séance du {jj(masi.asof)}</span>}
+          <button onClick={()=>setGraphe(v=>!v)} title="Graphique du MASI"
+            style={{marginLeft:"auto",fontSize:10,padding:"2px 8px",minHeight:0,borderRadius:3,cursor:"pointer",fontFamily:"var(--font)",
+              background:graphe?"rgba(77,184,255,.15)":"transparent",border:`1px solid ${graphe?"rgba(77,184,255,.4)":"#1a2540"}`,color:graphe?"#4db8ff":"#8892a4"}}>
+            📈 {graphe?"Masquer":"Graphique"}</button>
           {masi.stale&&<span title={`Indice de la séance du ${masi.asof||"?"} — la source ne l'a pas rafraîchi`}
             style={{fontSize:9,fontWeight:700,color:"#ffd740",border:"1px solid rgba(255,215,64,.45)",borderRadius:3,padding:"1px 4px"}}>
             ⚠ {masi.asof?jj(masi.asof):"périmé"}</span>}
@@ -913,6 +921,7 @@ const CarteIndices=({masi})=>{
             {masi.transactions!=null&&<span> · {masi.transactions.toLocaleString("fr-FR")} transactions</span>}
           </div>}
       </div>
+      {graphe&&<div style={{...carte,gridColumn:"1/-1",padding:"8px 10px"}}><GraphiqueMASI/></div>}
     </div>
   );
 };
@@ -1087,9 +1096,125 @@ const FibTable=({high,low,price})=>{
 };
 
 // ── STOCK CHART — Chandeliers + Volume + MACD ─────────────────────────────────
+/* ── GRAPHIQUES FAÇON TRADINGVIEW — 03/10/2026, demande de Noure ──────────
+   Sur la capture fournie : légende permanente O/H/B/C avec la variation de la
+   séance, volume SOUS les bougies dans le même cadre, viseur pointillé avec
+   ses étiquettes de prix et de date, et une MARGE À DROITE — la dernière
+   bougie ne colle plus à l'échelle des prix.
+   ⚠️ LE PLEIN ÉCRAN NE S'OUVRAIT PLUS. Mesuré au navigateur (390 × 844) : le
+   cadre « plein écran » faisait 360 × 87 px, enfermé dans sa carte. L'animation
+   d'apparition des cartes (#140) leur laisse une transformation CSS, et un
+   élément `position:fixed` se cale alors sur ce parent, pas sur l'écran. Le
+   plein écran est désormais rendu directement dans <body> (portail React). */
+const TV_MARGE_DROITE=8;
+const fmtPrixFR=p=>p==null||!isFinite(p)?"—":(+p).toLocaleString("fr-FR",{minimumFractionDigits:Math.abs(p)>=1000?0:2,maximumFractionDigits:2});
+const fmtVolFR=v=>v==null||!isFinite(v)?"—":v>=1e6?`${(v/1e6).toLocaleString("fr-FR",{maximumFractionDigits:2})} M`:v>=1e3?`${(v/1e3).toLocaleString("fr-FR",{maximumFractionDigits:2})} K`:`${Math.round(v)}`;
+const dateFR=t=>typeof t==="string"?`${t.slice(8,10)}/${t.slice(5,7)}/${t.slice(0,4)}`:"";
+const optionsTV=(LW,w,h)=>({
+  width:w,height:h,
+  layout:{background:{color:"#0d1829"},textColor:"#8892a4",fontSize:11},
+  grid:{vertLines:{color:"#1a254080"},horzLines:{color:"#1a254080"}},
+  crosshair:{mode:LW.CrosshairMode.Normal,
+    vertLine:{color:"#8892a4",width:1,style:LW.LineStyle.LargeDashed,labelBackgroundColor:"#2a3550"},
+    horzLine:{color:"#8892a4",width:1,style:LW.LineStyle.LargeDashed,labelBackgroundColor:"#2a3550"}},
+  rightPriceScale:{borderColor:"#1a2540"},
+  timeScale:{borderColor:"#1a2540",rightOffset:TV_MARGE_DROITE,fixLeftEdge:true,timeVisible:false},
+  localization:{locale:"fr-FR",priceFormatter:fmtPrixFR},
+  kineticScroll:{touch:true,mouse:false},
+  handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:false},
+  handleScale:{axisPressedMouseMove:{time:true,price:true},mouseWheel:true,pinch:true},
+});
+// Vue de départ : toutes les séances chargées, plus la marge à droite.
+// `fitContent()` l'aurait supprimée.
+const vueEntiere=(ch,n,depuis=0)=>ch.timeScale().setVisibleLogicalRange({from:Math.max(0,depuis)-0.5,to:n-0.5+TV_MARGE_DROITE});
+const PleinEcran=({titre,fermer,children})=>{
+  useEffect(()=>{
+    const h=e=>{if(e.key==="Escape")fermer();};
+    window.addEventListener("keydown",h);
+    const avant=document.body.style.overflow;document.body.style.overflow="hidden";
+    return()=>{window.removeEventListener("keydown",h);document.body.style.overflow=avant;};
+  },[]);
+  return ReactDOM.createPortal(
+    <div style={{position:"fixed",inset:0,zIndex:6000,background:"#060b16",padding:"10px 10px 14px",overflow:"auto"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,gap:8}}>
+        <span style={{fontSize:14,fontWeight:700,color:"#c8d3e8",letterSpacing:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{titre}</span>
+        <button onClick={fermer} style={{fontSize:11,padding:"4px 12px",borderRadius:4,border:"1px solid #1a2540",background:"#0d1829",color:"#8892a4",cursor:"pointer",fontFamily:"var(--font)",flex:"0 0 auto"}}>✕ Fermer</button>
+      </div>
+      {children}
+    </div>,document.body);
+};
+
+/* ── GRAPHIQUE DU MASI — 03/10/2026 ──
+   Des CLÔTURES quotidiennes seulement (`pipeline/masi_history.json`) : pas
+   d'ouverture, pas d'extrêmes, pas de volume. On trace donc une aire, comme
+   TradingView le fait pour un indice — dessiner des bougies inventerait trois
+   prix sur quatre. L'étendue réelle de la série est écrite sous le graphique. */
+const GraphiqueMASI=()=>{
+  const ref=useRef(null),refLeg=useRef(null),chart=useRef(null);
+  const [serie,setSerie]=useState(null);
+  const [fenetre,setFenetre]=useState("3M");
+  const [plein,setPlein]=useState(false);
+  const N={"1M":22,"3M":66,"6M":130,"TOUT":Infinity};
+  useEffect(()=>{
+    let vivant=true;
+    fetch("pipeline/masi_history.json",{cache:"no-cache"}).then(x=>x.json())
+      .then(j=>{if(vivant)setSerie(Object.entries(j.seances||{}).filter(([,v])=>v>0).sort(([a],[b])=>a<b?-1:1).map(([d,v])=>({time:d,value:+v})));})
+      .catch(()=>{if(vivant)setSerie([]);});
+    return()=>{vivant=false;};
+  },[]);
+  useEffect(()=>{
+    if(chart.current){chart.current.remove();chart.current=null;}
+    if(!ref.current||!serie||serie.length<2)return;
+    ref.current.innerHTML="";
+    const LW=window.LightweightCharts;
+    const h=plein?Math.max(360,(window.innerHeight||800)-170):((window.innerWidth||1000)<640?300:280);
+    const ch=LW.createChart(ref.current,{...optionsTV(LW,ref.current.offsetWidth||600,h),rightPriceScale:{borderColor:"#1a2540",scaleMargins:{top:0.22,bottom:0.08}}});
+    chart.current=ch;
+    const s=ch.addAreaSeries({lineColor:"#4db8ff",topColor:"rgba(77,184,255,.28)",bottomColor:"rgba(77,184,255,.02)",lineWidth:2,priceLineVisible:true,priceLineStyle:LW.LineStyle.Dotted,lastValueVisible:true});
+    s.setData(serie);
+    const n=serie.length;
+    const legende=i=>{
+      if(!refLeg.current)return;
+      const k=Math.max(0,Math.min(n-1,i));
+      const d=serie[k],p=k>0?serie[k-1].value:null;
+      const dv=p!=null?d.value-p:null,dp=p?dv/p*100:null;
+      const c=dv==null?"#8892a4":dv>=0?"#00e5a0":"#ff4f5a";
+      refLeg.current.innerHTML=`<div><b style="color:#fff;font-size:13px">MASI</b> <span style="color:#8892a4">· J · ${dateFR(d.time)}</span></div>`+
+        `<div><span style="color:#fff;font-weight:700">${fmtPrixFR(d.value)}</span>`+
+        (dv!=null?` <span style="color:${c}">${dv>=0?"+":""}${fmtPrixFR(dv)} (${dp>=0?"+":""}${dp.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})} %)</span>`:"")+`</div>`;
+    };
+    legende(n-1);
+    ch.subscribeCrosshairMove(prm=>legende(prm&&prm.logical!=null&&prm.point?Math.round(prm.logical):n-1));
+    vueEntiere(ch,n,n-Math.min(n,N[fenetre]));
+    const retour=()=>vueEntiere(ch,n,n-Math.min(n,N[fenetre]));
+    const el=ref.current;el.addEventListener("dblclick",retour);
+    const ro=new ResizeObserver(([e])=>{const w=Math.floor(e.contentRect.width);if(w>50)ch.applyOptions({width:w});});
+    ro.observe(el);
+    return()=>{ro.disconnect();el.removeEventListener("dblclick",retour);if(chart.current){chart.current.remove();chart.current=null;}};
+  },[serie,fenetre,plein]);
+  const b=(on)=>({background:on?"rgba(77,184,255,.15)":"transparent",border:on?"1px solid rgba(77,184,255,.4)":"1px solid #1a2540",color:on?"#4db8ff":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"var(--font)"});
+  const n=serie?serie.length:0;
+  const corps=(
+    <div>
+      <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap",marginBottom:6}}>
+        {Object.keys(N).map(k=><button key={k} onClick={()=>setFenetre(k)} style={b(fenetre===k)}>{k}</button>)}
+        <button onClick={()=>chart.current&&vueEntiere(chart.current,n,n-Math.min(n,N[fenetre]))} title="Revenir à la vue de départ (ou double-clic)" style={b(false)}>⟳</button>
+        <button onClick={()=>setPlein(v=>!v)} style={b(plein)}>{plein?"⤡ RÉDUIRE":"⤢ AGRANDIR"}</button>
+      </div>
+      <div style={{position:"relative"}}>
+        <div ref={ref}/>
+        <div ref={refLeg} style={{position:"absolute",top:6,left:8,zIndex:3,pointerEvents:"none",fontSize:12,lineHeight:1.45,textShadow:"0 0 4px #0d1829"}}/>
+      </div>
+      {serie&&serie.length<2&&<div style={{fontSize:11,color:"#8892a4",padding:8}}>Historique du MASI indisponible.</div>}
+      {n>1&&<div style={{fontSize:9,color:"#4a5570",marginTop:4}}>Clôtures quotidiennes · {n} séances depuis le {dateFR(serie[0].time)} · pincer ou molette : zoom · glisser : déplacer · double-clic : vue de départ</div>}
+    </div>
+  );
+  return plein?<PleinEcran titre="MASI — clôtures quotidiennes" fermer={()=>setPlein(false)}>{corps}</PleinEcran>:corps;
+};
+
 const StockChart=({r})=>{
-  const refMain=useRef(null),refVol=useRef(null),refMacd=useRef(null),refTooltip=useRef(null);
-  const chartMain=useRef(null),chartVol=useRef(null),chartMacd=useRef(null);
+  const refMain=useRef(null),refMacd=useRef(null),refTooltip=useRef(null);
+  const chartMain=useRef(null),chartMacd=useRef(null);
   const syncing=useRef(false);
   // ⚠️ Les séries d'indicateurs sont créées UNE fois avec le graphique, puis
   // montrées ou cachées (01/10/2026). Avant, cocher BB ou MM50 détruisait et
@@ -1157,21 +1282,13 @@ const StockChart=({r})=>{
     return()=>{alive=false;};
   },[sym,period,r.live,r.price,r.vol]);
 
-  // Échap referme le plein écran — un plein écran dont on ne sort pas est un piège.
   useEffect(()=>{
-    if(!plein)return;
-    const h=e=>{if(e.key==="Escape")setPlein(false);};
-    window.addEventListener("keydown",h);
-    return()=>window.removeEventListener("keydown",h);
-  },[plein]);
-
-  useEffect(()=>{
-    [chartMain,chartVol,chartMacd].forEach(ref=>{if(ref.current){ref.current.remove();ref.current=null;}});
-    if(!refMain.current||!refVol.current||!refMacd.current)return;
+    [chartMain,chartMacd].forEach(ref=>{if(ref.current){ref.current.remove();ref.current=null;}});
+    if(!refMain.current||!refMacd.current)return;
     // ⚠️ VIDER les conteneurs à chaque passage, y compris quand on ne dessine
     // rien : c'est l'oubli qui laissait le message d'indisponibilité collé
     // au-dessus du graphique.
-    refMain.current.innerHTML="";refVol.current.innerHTML="";refMacd.current.innerHTML="";
+    refMain.current.innerHTML="";refMacd.current.innerHTML="";
     if(etat!=="ok"||!liveCandles||liveCandles.length<5)return;
 
     const candles=liveCandles;
@@ -1183,28 +1300,22 @@ const StockChart=({r})=>{
     const ichiData=calcIchimoku(candles);
 
     const lwData=candles.map(c=>({time:toDate(c.x),open:c.y[0],high:c.y[1],low:c.y[2],close:c.y[3]}));
+    const n=lwData.length;
     const LW=window.LightweightCharts;
     const W=refMain.current.offsetWidth||600;
-    // En plein écran on redonne au cours la place que la fiche ne peut pas lui
-    // laisser. Les trois panneaux gardent leurs proportions.
-    // Sur téléphone, le cours gagne de la hauteur : 192 px ne permettaient
-    // pas de viser une bougie au doigt (01/10/2026).
-    const dispo=plein?Math.max(360,(window.innerHeight||800)-300):((window.innerWidth||1000)<640?280:220);
-    const H={main:dispo,vol:plein?90:65,macd:plein?120:80};
-    const baseOpts={
-      layout:{background:{color:"#0d1829"},textColor:"#8892a4"},
-      grid:{vertLines:{color:"#1a2540"},horzLines:{color:"#1a2540"}},
-      crosshair:{mode:LW.CrosshairMode.Normal,vertLine:{color:"#4db8ff55",labelBackgroundColor:"#1a2540"},horzLine:{color:"#4db8ff55",labelBackgroundColor:"#1a2540"}},
-      kineticScroll:{touch:true,mouse:false},
-      timeScale:{timeVisible:false,borderColor:"#1a2540",fixRightEdge:true},
-      handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:false},
-      handleScale:{axisPressedMouseMove:{time:true,price:true},mouseWheel:true,pinch:true}
-    };
+    // Le volume est désormais DANS le cadre du cours (en bas, 20 % de la
+    // hauteur), comme sur TradingView : le cadre principal reprend la hauteur
+    // de l'ancien panneau de volume.
+    const tel=(window.innerWidth||1000)<640;
+    const H={main:plein?Math.max(380,(window.innerHeight||800)-230):(tel?340:300),macd:plein?110:80};
 
-    // ── Graphique principal : chandeliers + moyennes choisies ──
-    const main=LW.createChart(refMain.current,{...baseOpts,width:W,height:H.main,rightPriceScale:{borderColor:"#1a2540"}});
+    // ── Graphique principal : chandeliers + volume + moyennes choisies ──
+    const main=LW.createChart(refMain.current,{...optionsTV(LW,W,H.main),rightPriceScale:{borderColor:"#1a2540",scaleMargins:{top:0.2,bottom:0.22}}});
     chartMain.current=main;
-    const cs=main.addCandlestickSeries({upColor:"#00e5a0",downColor:"#ff4f5a",borderUpColor:"#00e5a0",borderDownColor:"#ff4f5a",wickUpColor:"#00e5a0",wickDownColor:"#ff4f5a"});
+    const vol=main.addHistogramSeries({priceScaleId:"vol",priceFormat:{type:"custom",formatter:fmtVolFR,minMove:1},priceLineVisible:false,lastValueVisible:false});
+    main.priceScale("vol").applyOptions({scaleMargins:{top:0.82,bottom:0},visible:false});
+    vol.setData(candles.map(c=>({time:toDate(c.x),value:c.vol||0,color:c.y[3]>=c.y[0]?"#00e5a066":"#ff4f5a66"})));
+    const cs=main.addCandlestickSeries({upColor:"#00e5a0",downColor:"#ff4f5a",borderUpColor:"#00e5a0",borderDownColor:"#ff4f5a",wickUpColor:"#00e5a0",wickDownColor:"#ff4f5a",priceLineVisible:true,priceLineStyle:LW.LineStyle.Dotted,lastValueVisible:true});
     cs.setData(lwData);
     const COULEUR_MA={20:"#4db8ff",50:"#b388ff",200:"#ff9800"};
     const ligne=(opts,f)=>{const x=main.addLineSeries({priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false,visible:false,...opts});x.setData(mapS(f));return x;};
@@ -1216,26 +1327,33 @@ const StockChart=({r})=>{
                 ligne({color:"#66b0ff",lineWidth:1.5,lineStyle:LW.LineStyle.Dashed},i=>ichiData.kijun[i])];
     series.current={cs,ma,bb,ichi,lignes:[],candles,curPrice,LW};
 
-    main.subscribeCrosshairMove(param=>{
+    /* Légende PERMANENTE, comme TradingView : dernière séance par défaut,
+       séance visée dès que le doigt ou la souris passe sur le graphique.
+       ⚠️ L'index vient de `logical`, pas de `time` : avec des dates écrites
+       en texte, `time` peut revenir sous une autre forme selon la version de
+       la bibliothèque — l'ancienne info-bulle affichait parfois l'objet brut.
+       La variation se calcule sur la clôture PRÉCÉDENTE, pas sur l'ouverture. */
+    const legende=i=>{
       if(!refTooltip.current)return;
-      const bar=param.seriesData?.get(cs);
-      if(!bar||!param.time){refTooltip.current.style.display="none";return;}
-      const{open:o,high:h,low:l,close:c}=bar;
-      const col=c>=o?"#00e5a0":"#ff4f5a";
-      refTooltip.current.style.display="block";
-      refTooltip.current.innerHTML=`<b style="color:#fff">${tk(r)}</b>&nbsp;<span style="color:#8892a4">${param.time}</span>&nbsp;<span style="color:#8892a4">O</span>&nbsp;<span style="color:#c8d3e8">${o}</span>&nbsp;<span style="color:#8892a4">H</span>&nbsp;<span style="color:${col}">${h}</span>&nbsp;<span style="color:#8892a4">L</span>&nbsp;<span style="color:#ff4f5a">${l}</span>&nbsp;<span style="color:#8892a4">C</span>&nbsp;<span style="color:${col};font-weight:700">${c}</span>`;
-    });
-
-    // ── Volume ──────────────────────────────────────────────
-    const volChart=LW.createChart(refVol.current,{...baseOpts,width:W,height:H.vol,rightPriceScale:{visible:false}});
-    chartVol.current=volChart;
-    volChart.__s=volChart.addHistogramSeries({priceLineVisible:false,lastValueVisible:false});
-    volChart.__s.setData(
-      candles.map(c=>({time:toDate(c.x),value:c.vol||0,color:c.y[3]>=c.y[0]?"#00e5a045":"#ff4f5a45"}))
-    );
+      const k=Math.max(0,Math.min(n-1,i));
+      const d=lwData[k],p=k>0?lwData[k-1].close:null;
+      const col=d.close>=d.open?"#00e5a0":"#ff4f5a";
+      const dv=p!=null?d.close-p:null,dp=p?dv/p*100:null;
+      const cv=dv==null?"#8892a4":dv>=0?"#00e5a0":"#ff4f5a";
+      const v=candles[k].vol||0;
+      const lab=t=>`<span style="color:#c8d3e8">${t}</span>`;
+      const val=x=>`<span style="color:${col}">${fmtPrixFR(x)}</span>`;
+      refTooltip.current.innerHTML=
+        `<div><b style="color:#fff;font-size:13px">${tk(r)}</b> <span style="color:#8892a4">${r.name?"· "+r.name:""} · J · ${dateFR(d.time)}${candles[k].live?" · en séance":""}</span></div>`+
+        `<div>${lab("O")} ${val(d.open)}&nbsp; ${lab("H")} ${val(d.high)}&nbsp; ${lab("B")} ${val(d.low)}&nbsp; ${lab("C")} ${val(d.close)}`+
+        (dv!=null?`&nbsp; <span style="color:${cv}">${dv>=0?"+":""}${fmtPrixFR(dv)} (${dp>=0?"+":""}${dp.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})} %)</span>`:"")+`</div>`+
+        `<div>${lab("Vol")} <span style="color:${col}">${fmtVolFR(v)}</span></div>`;
+    };
+    legende(n-1);
+    main.subscribeCrosshairMove(prm=>legende(prm&&prm.point&&prm.logical!=null?Math.round(prm.logical):n-1));
 
     // ── MACD ────────────────────────────────────────────────
-    const macdChart=LW.createChart(refMacd.current,{...baseOpts,width:W,height:H.macd,timeScale:{...baseOpts.timeScale,timeVisible:true},rightPriceScale:{borderColor:"#1a2540"}});
+    const macdChart=LW.createChart(refMacd.current,{...optionsTV(LW,W,H.macd),timeScale:{borderColor:"#1a2540",rightOffset:TV_MARGE_DROITE,fixLeftEdge:true,timeVisible:false,visible:false}});
     chartMacd.current=macdChart;
     macdChart.__s=macdChart.addLineSeries({color:"#4db8ff",lineWidth:1.5,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
     macdChart.__s.setData(mapS(i=>macdData.macd[i]));
@@ -1245,16 +1363,11 @@ const StockChart=({r})=>{
     );
     macdChart.addLineSeries({color:"#8892a440",lineWidth:1,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(()=>0));
 
-    // ── Synchronisation des axes temporels ──────────────────
-    const all=[main,volChart,macdChart];
-    // Viseur synchronisé (01/10/2026) : la ligne verticale suit le doigt ou
-    // la souris sur les trois panneaux à la fois.
-    const volS=volChart.__s, macdS=macdChart.__s;
+    // ── Synchronisation des axes temporels et du viseur ─────
+    const all=[main,macdChart];
+    const macdS=macdChart.__s;
     main.subscribeCrosshairMove(param=>{
-      [[volChart,volS],[macdChart,macdS]].forEach(([ch,se])=>{
-        if(!se)return;
-        try{param.time?ch.setCrosshairPosition(0,param.time,se):ch.clearCrosshairPosition();}catch(e){}
-      });
+      try{param.time?macdChart.setCrosshairPosition(0,param.time,macdS):macdChart.clearCrosshairPosition();}catch(e){}
     });
     all.forEach(src=>{
       src.timeScale().subscribeVisibleLogicalRangeChange(range=>{
@@ -1264,12 +1377,10 @@ const StockChart=({r})=>{
         syncing.current=false;
       });
     });
-    main.timeScale().fitContent();
+    vueEntiere(main,n);
 
-    // Double-clic = revenir à la vue entière. Molette et glisser fonctionnent
-    // déjà (vérifié au navigateur le 16/09) ; ce qui manquait, c'était le
-    // chemin du retour — une fois zoomé, il fallait changer de période.
-    const retour=()=>all.forEach(c=>c.timeScale().fitContent());
+    // Double-clic = revenir à la vue de départ (toutes les séances + la marge).
+    const retour=()=>vueEntiere(main,n);
     refMain.current.addEventListener("dblclick",retour);
 
     // ── Responsive resize ───────────────────────────────────
@@ -1285,7 +1396,7 @@ const StockChart=({r})=>{
       ro.disconnect();
       if(conteneur)conteneur.removeEventListener("dblclick",retour);
       series.current=null;
-      [chartMain,chartVol,chartMacd].forEach(ref=>{if(ref.current){ref.current.remove();ref.current=null;}});
+      [chartMain,chartMacd].forEach(ref=>{if(ref.current){ref.current.remove();ref.current=null;}});
     };
   },[sym,period,liveCandles,etat,plein]);
 
@@ -1317,7 +1428,7 @@ const StockChart=({r})=>{
   },[sym,period,liveCandles,etat,plein,showBB,showIchi,showSR,showFib,mas]);
 
   const changePeriod=(p)=>{setPeriod(p);localStorage.setItem("bvc_period",p);};
-  const reinitialiser=()=>[chartMain,chartVol,chartMacd].forEach(ref=>ref.current&&ref.current.timeScale().fitContent());
+  const reinitialiser=()=>{if(chartMain.current&&liveCandles)vueEntiere(chartMain.current,liveCandles.length);};
 
   const Btn=({on,c,titre,onClick,children})=>(
     <button onClick={onClick} title={titre} style={{background:on?`${c}26`:"transparent",border:`1px solid ${on?c+"66":"#1a2540"}`,color:on?c:"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"var(--font)"}}>{children}</button>
@@ -1367,26 +1478,16 @@ const StockChart=({r})=>{
       )}
       <div style={{position:"relative"}}>
         <div ref={refMain}/>
-        <div ref={refTooltip} style={{display:"none",position:"absolute",top:4,left:4,background:"rgba(13,24,41,.92)",border:"1px solid #1a2540",borderRadius:4,padding:"4px 8px",fontSize:10,fontFamily:"var(--font)",pointerEvents:"none",zIndex:10,whiteSpace:"nowrap"}}/>
+        <div ref={refTooltip} style={{position:"absolute",top:6,left:8,right:70,pointerEvents:"none",zIndex:3,fontSize:12,lineHeight:1.45,textShadow:"0 0 4px #0d1829",overflow:"hidden"}}/>
       </div>
-      <div style={{fontSize:8,color:"#8892a4",letterSpacing:1,marginTop:2}}>VOLUME</div>
-      <div ref={refVol}/>
       <div style={{fontSize:8,color:"#8892a4",letterSpacing:1,marginTop:2}}>MACD (12,26,9) · <span style={{color:"#4db8ff"}}>MACD</span> · <span style={{color:"#ffd740"}}>Signal</span></div>
       <div ref={refMacd}/>
-      {etat==="ok"&&<div style={{fontSize:9,color:"#4a5570",marginTop:4}}>Molette : zoom · Glisser : déplacer · Double-clic : vue entière</div>}
+      {etat==="ok"&&<div style={{fontSize:9,color:"#4a5570",marginTop:4}}>Pincer ou molette : zoom · Glisser : déplacer · Double-clic : vue de départ</div>}
     </div>
   );
 
   if(!plein)return corps;
-  return(
-    <div style={{position:"fixed",inset:0,zIndex:6000,background:"#060b16",padding:14,overflow:"auto"}}>
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
-        <span style={{fontSize:14,fontWeight:700,color:"#c8d3e8",letterSpacing:1}}>{tk(r)} — {r.name||""}</span>
-        <button onClick={()=>setPlein(false)} style={{fontSize:11,padding:"4px 12px",borderRadius:4,border:"1px solid #1a2540",background:"#0d1829",color:"#8892a4",cursor:"pointer",fontFamily:"var(--font)"}}>✕ Fermer (Échap)</button>
-      </div>
-      {corps}
-    </div>
-  );
+  return <PleinEcran titre={`${tk(r)} — ${r.name||""}`} fermer={()=>setPlein(false)}>{corps}</PleinEcran>;
 };
 
 // ── TICKER TAPE ───────────────────────────────────────────────────────────────
