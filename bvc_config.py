@@ -638,6 +638,22 @@ SPLITS: dict = {
 # ⚠️ Une suspension a une FIN, et elle n'est pas connue d'avance. Laisser
 # `reprise` à None signifie « toujours suspendu ». À relire à chaque avis AMMC.
 SUSPENSIONS: dict = {
+    # Diac Salaf — société de financement EN LIQUIDATION JUDICIAIRE.
+    # ⚠️ Inscrit le 03/10/2026. Abd Moutalib : « sous liquidation judiciaire
+    # depuis 2013 » — le jugement n'a pas encore été lu, la date de 2013 reste
+    # donc une déclaration. Ce qui est ÉTABLI sur pièce : l'export « Cours » de
+    # l'opérateur (casablanca-bourse.com, 03/10/2023 → 02/10/2026, sha256
+    # 5f5c0167…, datasets/historiques_importes/DIS.json) ne compte AUCUNE
+    # transaction en trois ans ; sa seule ligne cotée est la séance annulée du
+    # 17/09/2026, à 0 titre. Le terminal publiait pourtant 26,25 DH, une note
+    # de 5,0 et le signal ATTENDRE : un titre qui ne cote pas n'a ni signal ni
+    # note. La suspension court depuis la première date de la pièce.
+    "DIS": [{
+        "depuis": "2023-10-03",
+        "motif": "liquidation judiciaire (depuis 2013 selon Abd Moutalib, jugement non lu) — aucune transaction",
+        "source": "casablanca-bourse.com, export « Cours » 03/10/2023 → 02/10/2026 : 0 titre échangé, 0 transaction",
+        "url": "datasets/historiques_importes/DIS.json",
+    }],
     # Compagnie Minière de Touissit — MASI 1.
     # OPA obligatoire d'AYRAD GROUP LIMITED, OSEAD Fund, OSEAD MAROC MINING et
     # la CIMR agissant de concert, déposée le 16/07/2026 après le franchissement
