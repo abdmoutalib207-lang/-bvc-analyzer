@@ -140,7 +140,11 @@ def test_l_export_frais_confirme_que_ciments_est_assainie():
             and not (0.67 < f(ops[d]["Dernier Cours"]) / serie[d]["c"] < 1.5)]
     assert gros == [], f"écarts d'ordre de grandeur persistants : {gros[:5]}"
     cmt = {b["d"]: b["c"] for b in _serie("CMT")}
-    coincident = [d for d in serie if d in cmt and serie[d]["c"] == cmt[d]]
+    # ⚠️ Une égalité CONFIRMÉE par l'export de l'opérateur de CIM n'est pas une
+    # contamination : le 16/04/2025, CIM a réellement clôturé à 1 888 DH, comme
+    # CMT ce jour-là (export CMA reçu le 03/10/2026).
+    coincident = [d for d in serie if d in cmt and serie[d]["c"] == cmt[d]
+                  and not (d in ops and f(ops[d]["Dernier Cours"]) == serie[d]["c"])]
     assert coincident == [], f"CIM porte encore des clôtures de CMT : {coincident[:5]}"
 
 

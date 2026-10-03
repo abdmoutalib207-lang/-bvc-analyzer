@@ -104,7 +104,10 @@ def test_le_plus_haut_annuel_de_ciments_redevient_plausible():
     Ciments du Maroc — un titre à 1 600 DH."""
     cache = json.loads((RACINE / "pipeline" / "historical_data.json")
                        .read_text(encoding="utf-8"))
-    assert cache["CIM"]["h52w"] == 1750.0
+    # 2 050,00 : plus-haut des 52 semaines selon l'export de l'opérateur (CMA,
+    # séance du 05/11/2025), série importée le 03/10/2026 ; 1 750 décrivait
+    # l'ancienne série, incomplète.
+    assert cache["CIM"]["h52w"] == 2050.0
     assert cache["CIM"]["h52w"] < 2500, "un plus-haut au-delà de 2 500 serait encore CMT"
 
 
