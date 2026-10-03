@@ -1,7 +1,7 @@
 {
  "_quoi": "Dividendes détachés — calendrier financier de la Bourse de Casablanca (casablanca-bourse.com/emetteurs/calendrier-financier), relevé le 03/10/2026 et fourni par Abd Moutalib.",
  "_usage": "Mesurer le RENDEMENT TOTAL (cours + dividendes réinvestis à la date de DÉTACHEMENT) dans le calibrage technique. Le montant ajusté ramène un dividende détaché avant un split (registre SPLITS) à la base des chandelles, elles-mêmes ajustées.",
- "_couverture": "2025 et 2026 pour tous les émetteurs ; 2024 pour Immorente seulement (captures). ⚠️ 2024 et fin 2023 manquent pour les autres titres.",
+ "_couverture": "2024, 2025 et 2026 pour tous les émetteurs. ⚠️ Fin 2023 (octobre-décembre) manque.",
  "_identite": "Noms de l'opérateur rattachés à nos codes par COMPANY_NAMES, et par la table `noms_coupes` ci-dessous pour les noms coupés sur plusieurs lignes du PDF. Doublon IAM du 01/09/2025 (coupure de page) retiré.",
  "sources": [
   {
@@ -11,6 +11,11 @@
   {
    "fichier": "Calendrier_financier__Bourse_de_Casablanca.pdf (2026)",
    "sha256": "e154a744d860c8fff4b842de65ebe51b8b8f089b5f05e27f19338724c44efeb3"
+  },
+  {
+   "fichier": "Calendrier_financier__Bourse_de_Casablanca.pdf (2024)",
+   "sha256": "6d26a84e63bc0d9d6a6631d31695c3c44f76aa24fbf8667c21efe8e5c20ebc89",
+   "note": "Montant de Sothema du 21/06/2024 (17,00) décalé d'une ligne dans le PDF, rattaché par position entre SMI (80,00) et Disway (35,00)."
   }
  ],
  "dividendes": {
@@ -24,6 +29,13 @@
    }
   ],
   "ADI": [
+   {
+    "detachement": "2024-07-11",
+    "paiement": "2024-07-22",
+    "type": "Ordinaire",
+    "montant": 3.0,
+    "montant_ajuste_split": 3.0
+   },
    {
     "detachement": "2025-07-10",
     "paiement": "2025-07-21",
@@ -41,6 +53,13 @@
   ],
   "AFI": [
    {
+    "detachement": "2024-07-16",
+    "paiement": "2024-07-25",
+    "type": "Ordinaire",
+    "montant": 20.0,
+    "montant_ajuste_split": 20.0
+   },
+   {
     "detachement": "2025-06-10",
     "paiement": "2025-06-19",
     "type": "Ordinaire",
@@ -56,6 +75,13 @@
    }
   ],
   "AFM": [
+   {
+    "detachement": "2024-09-03",
+    "paiement": "2024-09-12",
+    "type": "Ordinaire",
+    "montant": 55.0,
+    "montant_ajuste_split": 55.0
+   },
    {
     "detachement": "2025-09-08",
     "paiement": "2025-09-17",
@@ -73,6 +99,13 @@
   ],
   "AGM": [
    {
+    "detachement": "2024-07-16",
+    "paiement": "2024-07-25",
+    "type": "Ordinaire",
+    "montant": 275.0,
+    "montant_ajuste_split": 275.0
+   },
+   {
     "detachement": "2025-07-15",
     "paiement": "2025-07-24",
     "type": "Ordinaire",
@@ -88,6 +121,13 @@
    }
   ],
   "AKD": [
+   {
+    "detachement": "2024-07-31",
+    "paiement": "2024-08-09",
+    "type": "Ordinaire",
+    "montant": 6.0,
+    "montant_ajuste_split": 6.0
+   },
    {
     "detachement": "2025-07-24",
     "paiement": "2025-08-05",
@@ -105,6 +145,13 @@
   ],
   "ALU": [
    {
+    "detachement": "2024-08-01",
+    "paiement": "2024-08-09",
+    "type": "Ordinaire",
+    "montant": 90.0,
+    "montant_ajuste_split": 90.0
+   },
+   {
     "detachement": "2025-07-11",
     "paiement": "2025-07-22",
     "type": "Ordinaire",
@@ -120,6 +167,20 @@
    }
   ],
   "ARD": [
+   {
+    "detachement": "2024-07-18",
+    "paiement": "2024-07-29",
+    "type": "Ordinaire",
+    "montant": 5.88,
+    "montant_ajuste_split": 5.88
+   },
+   {
+    "detachement": "2024-07-18",
+    "paiement": "2024-07-29",
+    "type": "Exceptionnel",
+    "montant": 14.59,
+    "montant_ajuste_split": 14.59
+   },
    {
     "detachement": "2025-06-11",
     "paiement": "2025-06-20",
@@ -151,6 +212,13 @@
   ],
   "ATL": [
    {
+    "detachement": "2024-06-20",
+    "paiement": "2024-06-28",
+    "type": "Ordinaire",
+    "montant": 5.7,
+    "montant_ajuste_split": 5.7
+   },
+   {
     "detachement": "2025-06-10",
     "paiement": "2025-06-19",
     "type": "Ordinaire",
@@ -166,6 +234,13 @@
    }
   ],
   "ATW": [
+   {
+    "detachement": "2024-07-10",
+    "paiement": "2024-07-19",
+    "type": "Ordinaire",
+    "montant": 16.5,
+    "montant_ajuste_split": 16.5
+   },
    {
     "detachement": "2025-05-27",
     "paiement": "2025-06-05",
@@ -183,6 +258,13 @@
   ],
   "BAL": [
    {
+    "detachement": "2024-07-16",
+    "paiement": "2024-07-25",
+    "type": "Ordinaire",
+    "montant": 5.5,
+    "montant_ajuste_split": 5.5
+   },
+   {
     "detachement": "2025-07-18",
     "paiement": "2025-07-29",
     "type": "Ordinaire",
@@ -198,6 +280,13 @@
    }
   ],
   "BCP": [
+   {
+    "detachement": "2024-07-19",
+    "paiement": "2024-07-31",
+    "type": "Ordinaire",
+    "montant": 10.0,
+    "montant_ajuste_split": 10.0
+   },
    {
     "detachement": "2025-07-15",
     "paiement": "2025-07-24",
@@ -215,6 +304,13 @@
   ],
   "BMC": [
    {
+    "detachement": "2024-07-17",
+    "paiement": "2024-07-26",
+    "type": "Ordinaire",
+    "montant": 18.0,
+    "montant_ajuste_split": 18.0
+   },
+   {
     "detachement": "2025-06-16",
     "paiement": "2025-06-25",
     "type": "Ordinaire",
@@ -230,6 +326,13 @@
    }
   ],
   "BOA": [
+   {
+    "detachement": "2024-07-17",
+    "paiement": "2024-07-26",
+    "type": "Ordinaire",
+    "montant": 4.0,
+    "montant_ajuste_split": 4.0
+   },
    {
     "detachement": "2025-07-10",
     "paiement": "2025-07-21",
@@ -256,6 +359,13 @@
   ],
   "CDM": [
    {
+    "detachement": "2024-07-09",
+    "paiement": "2024-07-18",
+    "type": "Ordinaire",
+    "montant": 34.2,
+    "montant_ajuste_split": 34.2
+   },
+   {
     "detachement": "2025-07-01",
     "paiement": "2025-07-10",
     "type": "Ordinaire",
@@ -271,6 +381,13 @@
    }
   ],
   "CFGB": [
+   {
+    "detachement": "2024-06-11",
+    "paiement": "2024-06-24",
+    "type": "Ordinaire",
+    "montant": 3.3,
+    "montant_ajuste_split": 3.3
+   },
    {
     "detachement": "2025-06-13",
     "paiement": "2025-06-24",
@@ -288,6 +405,13 @@
   ],
   "CIH": [
    {
+    "detachement": "2024-07-09",
+    "paiement": "2024-07-18",
+    "type": "Ordinaire",
+    "montant": 14.0,
+    "montant_ajuste_split": 14.0
+   },
+   {
     "detachement": "2025-06-30",
     "paiement": "2025-07-09",
     "type": "Ordinaire",
@@ -303,6 +427,20 @@
    }
   ],
   "CIM": [
+   {
+    "detachement": "2024-07-02",
+    "paiement": "2024-07-15",
+    "type": "Ordinaire",
+    "montant": 60.0,
+    "montant_ajuste_split": 60.0
+   },
+   {
+    "detachement": "2024-07-02",
+    "paiement": "2024-07-15",
+    "type": "Exceptionnel",
+    "montant": 10.0,
+    "montant_ajuste_split": 10.0
+   },
    {
     "detachement": "2025-07-18",
     "paiement": "2025-07-29",
@@ -336,6 +474,13 @@
   ],
   "COL": [
    {
+    "detachement": "2024-06-06",
+    "paiement": "2024-06-20",
+    "type": "Ordinaire",
+    "montant": 2.25,
+    "montant_ajuste_split": 2.25
+   },
+   {
     "detachement": "2025-06-12",
     "paiement": "2025-06-23",
     "type": "Ordinaire",
@@ -351,6 +496,20 @@
    }
   ],
   "CSR": [
+   {
+    "detachement": "2024-07-11",
+    "paiement": "2024-07-22",
+    "type": "Ordinaire",
+    "montant": 7.0,
+    "montant_ajuste_split": 7.0
+   },
+   {
+    "detachement": "2024-07-11",
+    "paiement": "2024-07-22",
+    "type": "Exceptionnel",
+    "montant": 3.0,
+    "montant_ajuste_split": 3.0
+   },
    {
     "detachement": "2025-07-21",
     "paiement": "2025-07-31",
@@ -375,6 +534,13 @@
   ],
   "CTM": [
    {
+    "detachement": "2024-09-10",
+    "paiement": "2024-09-23",
+    "type": "Ordinaire",
+    "montant": 15.0,
+    "montant_ajuste_split": 15.0
+   },
+   {
     "detachement": "2025-09-18",
     "paiement": "2025-09-29",
     "type": "Ordinaire",
@@ -390,6 +556,13 @@
    }
   ],
   "DAR": [
+   {
+    "detachement": "2024-07-18",
+    "paiement": "2024-07-29",
+    "type": "Ordinaire",
+    "montant": 120.0,
+    "montant_ajuste_split": 120.0
+   },
    {
     "detachement": "2025-07-18",
     "paiement": "2025-07-29",
@@ -407,6 +580,13 @@
   ],
   "DHO": [
    {
+    "detachement": "2024-07-10",
+    "paiement": "2024-07-19",
+    "type": "Ordinaire",
+    "montant": 1.5,
+    "montant_ajuste_split": 1.5
+   },
+   {
     "detachement": "2025-07-10",
     "paiement": "2025-07-21",
     "type": "Ordinaire",
@@ -422,6 +602,13 @@
    }
   ],
   "DSW": [
+   {
+    "detachement": "2024-06-25",
+    "paiement": "2024-07-04",
+    "type": "Ordinaire",
+    "montant": 35.0,
+    "montant_ajuste_split": 35.0
+   },
    {
     "detachement": "2025-06-30",
     "paiement": "2025-07-09",
@@ -439,6 +626,13 @@
   ],
   "DTT": [
    {
+    "detachement": "2024-07-09",
+    "paiement": "2024-07-18",
+    "type": "Ordinaire",
+    "montant": 15.0,
+    "montant_ajuste_split": 15.0
+   },
+   {
     "detachement": "2025-07-09",
     "paiement": "2025-07-18",
     "type": "Ordinaire",
@@ -454,6 +648,13 @@
    }
   ],
   "ENK": [
+   {
+    "detachement": "2024-07-10",
+    "paiement": "2024-07-19",
+    "type": "Ordinaire",
+    "montant": 1.99,
+    "montant_ajuste_split": 1.99
+   },
    {
     "detachement": "2025-05-27",
     "paiement": "2025-06-05",
@@ -471,6 +672,13 @@
   ],
   "EQD": [
    {
+    "detachement": "2024-06-20",
+    "paiement": "2024-07-01",
+    "type": "Ordinaire",
+    "montant": 55.0,
+    "montant_ajuste_split": 55.0
+   },
+   {
     "detachement": "2026-07-23",
     "paiement": "2026-08-04",
     "type": "Ordinaire",
@@ -479,6 +687,13 @@
    }
   ],
   "GAZ": [
+   {
+    "detachement": "2024-04-02",
+    "paiement": "2024-04-16",
+    "type": "Ordinaire",
+    "montant": 140.0,
+    "montant_ajuste_split": 140.0
+   },
    {
     "detachement": "2025-03-25",
     "paiement": "2025-04-08",
@@ -496,6 +711,13 @@
   ],
   "HAL": [
    {
+    "detachement": "2024-06-20",
+    "paiement": "2024-07-01",
+    "type": "Ordinaire",
+    "montant": 2.0,
+    "montant_ajuste_split": 2.0
+   },
+   {
     "detachement": "2025-06-10",
     "paiement": "2025-06-18",
     "type": "Ordinaire",
@@ -512,6 +734,13 @@
   ],
   "HPS": [
    {
+    "detachement": "2024-07-17",
+    "paiement": "2024-07-26",
+    "type": "Ordinaire",
+    "montant": 6.8,
+    "montant_ajuste_split": 6.8
+   },
+   {
     "detachement": "2025-07-16",
     "paiement": "2025-07-25",
     "type": "Ordinaire",
@@ -527,6 +756,13 @@
    }
   ],
   "IAM": [
+   {
+    "detachement": "2024-09-03",
+    "paiement": "2024-09-12",
+    "type": "Ordinaire",
+    "montant": 4.2,
+    "montant_ajuste_split": 4.2
+   },
    {
     "detachement": "2025-09-01",
     "paiement": "2025-09-12",
@@ -548,7 +784,6 @@
     "paiement": "2024-04-30",
     "type": "Ordinaire",
     "montant": 1.0,
-    "source": "capture du calendrier 2024 de casablanca-bourse.com, fournie le 03/10/2026",
     "montant_ajuste_split": 1.0
    },
    {
@@ -556,7 +791,6 @@
     "paiement": "2024-06-24",
     "type": "Ordinaire",
     "montant": 2.2,
-    "source": "capture du calendrier 2024 de casablanca-bourse.com, fournie le 03/10/2026",
     "montant_ajuste_split": 2.2
    },
    {
@@ -564,7 +798,6 @@
     "paiement": "2024-09-30",
     "type": "Ordinaire",
     "montant": 1.0,
-    "source": "capture du calendrier 2024 de casablanca-bourse.com, fournie le 03/10/2026",
     "montant_ajuste_split": 1.0
    },
    {
@@ -572,7 +805,6 @@
     "paiement": "2024-12-20",
     "type": "Ordinaire",
     "montant": 1.0,
-    "source": "capture du calendrier 2024 de casablanca-bourse.com, fournie le 03/10/2026",
     "montant_ajuste_split": 1.0
    },
    {
@@ -634,6 +866,13 @@
   ],
   "JET": [
    {
+    "detachement": "2024-07-09",
+    "paiement": "2024-07-18",
+    "type": "Ordinaire",
+    "montant": 7.0,
+    "montant_ajuste_split": 7.0
+   },
+   {
     "detachement": "2025-07-18",
     "paiement": "2025-07-29",
     "type": "Ordinaire",
@@ -649,6 +888,13 @@
    }
   ],
   "LBV": [
+   {
+    "detachement": "2024-06-20",
+    "paiement": "2024-07-01",
+    "type": "Ordinaire",
+    "montant": 96.75,
+    "montant_ajuste_split": 96.75
+   },
    {
     "detachement": "2025-07-21",
     "paiement": "2025-07-31",
@@ -666,6 +912,13 @@
   ],
   "LES": [
    {
+    "detachement": "2024-06-26",
+    "paiement": "2024-07-05",
+    "type": "Ordinaire",
+    "montant": 2.0,
+    "montant_ajuste_split": 2.0
+   },
+   {
     "detachement": "2025-06-30",
     "paiement": "2025-07-09",
     "type": "Ordinaire",
@@ -674,6 +927,13 @@
    }
   ],
   "LHM": [
+   {
+    "detachement": "2024-06-06",
+    "paiement": "2024-06-20",
+    "type": "Ordinaire",
+    "montant": 66.0,
+    "montant_ajuste_split": 66.0
+   },
    {
     "detachement": "2025-06-13",
     "paiement": "2025-06-24",
@@ -691,6 +951,13 @@
   ],
   "MGL": [
    {
+    "detachement": "2024-08-06",
+    "paiement": "2024-08-15",
+    "type": "Ordinaire",
+    "montant": 50.0,
+    "montant_ajuste_split": 50.0
+   },
+   {
     "detachement": "2025-08-27",
     "paiement": "2025-09-08",
     "type": "Ordinaire",
@@ -706,6 +973,13 @@
    }
   ],
   "MIC": [
+   {
+    "detachement": "2024-07-15",
+    "paiement": "2024-07-24",
+    "type": "Ordinaire",
+    "montant": 34.0,
+    "montant_ajuste_split": 34.0
+   },
    {
     "detachement": "2025-07-18",
     "paiement": "2025-07-29",
@@ -723,6 +997,13 @@
   ],
   "MNG": [
    {
+    "detachement": "2024-06-20",
+    "paiement": "2024-07-01",
+    "type": "Ordinaire",
+    "montant": 30.0,
+    "montant_ajuste_split": 3.0
+   },
+   {
     "detachement": "2025-06-30",
     "paiement": "2025-07-08",
     "type": "Ordinaire",
@@ -738,6 +1019,13 @@
    }
   ],
   "MOX": [
+   {
+    "detachement": "2024-04-03",
+    "paiement": "2024-04-16",
+    "type": "Ordinaire",
+    "montant": 4.0,
+    "montant_ajuste_split": 4.0
+   },
    {
     "detachement": "2025-03-25",
     "paiement": "2025-04-08",
@@ -755,6 +1043,13 @@
   ],
   "MRL": [
    {
+    "detachement": "2024-09-18",
+    "paiement": "2024-09-27",
+    "type": "Ordinaire",
+    "montant": 14.0,
+    "montant_ajuste_split": 14.0
+   },
+   {
     "detachement": "2025-09-17",
     "paiement": "2025-09-26",
     "type": "Ordinaire",
@@ -770,6 +1065,13 @@
    }
   ],
   "MSA": [
+   {
+    "detachement": "2024-07-24",
+    "paiement": "2024-08-07",
+    "type": "Ordinaire",
+    "montant": 8.5,
+    "montant_ajuste_split": 8.5
+   },
    {
     "detachement": "2025-07-17",
     "paiement": "2025-07-28",
@@ -787,6 +1089,13 @@
   ],
   "MUT": [
    {
+    "detachement": "2024-06-27",
+    "paiement": "2024-07-10",
+    "type": "Ordinaire",
+    "montant": 10.5,
+    "montant_ajuste_split": 10.5
+   },
+   {
     "detachement": "2025-06-30",
     "paiement": "2025-07-09",
     "type": "Ordinaire",
@@ -803,6 +1112,13 @@
   ],
   "NEJ": [
    {
+    "detachement": "2024-05-23",
+    "paiement": "2024-06-03",
+    "type": "Ordinaire",
+    "montant": 94.0,
+    "montant_ajuste_split": 94.0
+   },
+   {
     "detachement": "2025-05-22",
     "paiement": "2025-06-02",
     "type": "Ordinaire",
@@ -818,6 +1134,13 @@
    }
   ],
   "OUL": [
+   {
+    "detachement": "2024-06-26",
+    "paiement": "2024-07-05",
+    "type": "Ordinaire",
+    "montant": 22.0,
+    "montant_ajuste_split": 22.0
+   },
    {
     "detachement": "2025-06-18",
     "paiement": "2025-06-30",
@@ -844,6 +1167,13 @@
   ],
   "RIS": [
    {
+    "detachement": "2024-07-18",
+    "paiement": "2024-07-29",
+    "type": "Ordinaire",
+    "montant": 6.0,
+    "montant_ajuste_split": 6.0
+   },
+   {
     "detachement": "2025-07-23",
     "paiement": "2025-08-04",
     "type": "Ordinaire",
@@ -860,6 +1190,13 @@
   ],
   "SAF": [
    {
+    "detachement": "2024-08-22",
+    "paiement": "2024-08-30",
+    "type": "Ordinaire",
+    "montant": 77.0,
+    "montant_ajuste_split": 77.0
+   },
+   {
     "detachement": "2025-08-25",
     "paiement": "2025-09-03",
     "type": "Ordinaire",
@@ -875,6 +1212,13 @@
    }
   ],
   "SBS": [
+   {
+    "detachement": "2024-06-06",
+    "paiement": "2024-06-20",
+    "type": "Ordinaire",
+    "montant": 160.0,
+    "montant_ajuste_split": 160.0
+   },
    {
     "detachement": "2025-06-10",
     "paiement": "2025-06-19",
@@ -908,6 +1252,20 @@
   ],
   "SLM": [
    {
+    "detachement": "2024-05-27",
+    "paiement": "2024-06-05",
+    "type": "Ordinaire",
+    "montant": 14.25,
+    "montant_ajuste_split": 14.25
+   },
+   {
+    "detachement": "2024-05-27",
+    "paiement": "2024-06-05",
+    "type": "Exceptionnel",
+    "montant": 14.25,
+    "montant_ajuste_split": 14.25
+   },
+   {
     "detachement": "2025-06-06",
     "paiement": "2025-06-17",
     "type": "Ordinaire",
@@ -931,6 +1289,13 @@
   ],
   "SMI": [
    {
+    "detachement": "2024-06-20",
+    "paiement": "2024-07-01",
+    "type": "Ordinaire",
+    "montant": 80.0,
+    "montant_ajuste_split": 80.0
+   },
+   {
     "detachement": "2025-06-30",
     "paiement": "2025-07-08",
     "type": "Ordinaire",
@@ -946,6 +1311,13 @@
    }
   ],
   "SNA": [
+   {
+    "detachement": "2024-07-12",
+    "paiement": "2024-07-23",
+    "type": "Ordinaire",
+    "montant": 21.0,
+    "montant_ajuste_split": 21.0
+   },
    {
     "detachement": "2025-07-21",
     "paiement": "2025-07-31",
@@ -963,6 +1335,13 @@
   ],
   "SOT": [
    {
+    "detachement": "2024-06-21",
+    "paiement": "2024-07-02",
+    "type": "Ordinaire",
+    "montant": 17.0,
+    "montant_ajuste_split": 3.4
+   },
+   {
     "detachement": "2025-06-20",
     "paiement": "2025-07-02",
     "type": "Ordinaire",
@@ -979,6 +1358,13 @@
   ],
   "TGCC": [
    {
+    "detachement": "2024-07-12",
+    "paiement": "2024-07-23",
+    "type": "Ordinaire",
+    "montant": 7.5,
+    "montant_ajuste_split": 7.5
+   },
+   {
     "detachement": "2025-08-04",
     "paiement": "2025-08-13",
     "type": "Ordinaire",
@@ -994,6 +1380,13 @@
    }
   ],
   "TMA": [
+   {
+    "detachement": "2024-06-19",
+    "paiement": "2024-06-27",
+    "type": "Ordinaire",
+    "montant": 56.0,
+    "montant_ajuste_split": 56.0
+   },
    {
     "detachement": "2025-06-19",
     "paiement": "2025-06-30",
@@ -1017,6 +1410,13 @@
    }
   ],
   "TQA": [
+   {
+    "detachement": "2024-06-20",
+    "paiement": "2024-06-28",
+    "type": "Ordinaire",
+    "montant": 35.0,
+    "montant_ajuste_split": 35.0
+   },
    {
     "detachement": "2025-09-16",
     "paiement": "2025-09-25",
@@ -1043,6 +1443,13 @@
   ],
   "WAF": [
    {
+    "detachement": "2024-06-11",
+    "paiement": "2024-06-26",
+    "type": "Ordinaire",
+    "montant": 140.0,
+    "montant_ajuste_split": 140.0
+   },
+   {
     "detachement": "2025-06-17",
     "paiement": "2025-06-26",
     "type": "Ordinaire",
@@ -1055,6 +1462,15 @@
     "type": "Ordinaire",
     "montant": 150.0,
     "montant_ajuste_split": 150.0
+   }
+  ],
+  "UNI": [
+   {
+    "detachement": "2024-09-09",
+    "paiement": "2024-09-20",
+    "type": "Ordinaire",
+    "montant": 1.0,
+    "montant_ajuste_split": 1.0
    }
   ]
  },
@@ -1074,7 +1490,9 @@
   "SOCIETE DE PROMOTION PHARMACEUTIQUE": "PPM",
   "SOCIETE DE THERAPEUTIQUE MAROCAINE": "SOT",
   "SOCIETE NATIONALE DE SIDERURGIE SA": "SNA",
-  "SOCIETE METALLURGIQUE D'IMITER": "SMI"
+  "SOCIETE METALLURGIQUE D'IMITER": "SMI",
+  "SOCIETE DES BOISSONS DU MAROC": "SBS",
+  "UNIMER": "UNI"
  },
  "_avenir": "Le calendrier contient des détachements ANNONCÉS (ex. IMI 21/12/2026) : un dividende n'est compté qu'à partir de sa date de détachement."
 }
