@@ -654,6 +654,19 @@ SUSPENSIONS: dict = {
         "source": "casablanca-bourse.com, export « Cours » 03/10/2023 → 02/10/2026 : 0 titre échangé, 0 transaction",
         "url": "datasets/historiques_importes/DIS.json",
     }],
+    # Delattre Levivier Maroc — EN LIQUIDATION.
+    # ⚠️ Inscrit le 03/10/2026. Abd Moutalib : « suspendu depuis le 09/01/2023,
+    # liquidation » — date déclarée, pièce juridique non lue. Ce qui est ÉTABLI
+    # sur pièce : l'export « Cours » de l'opérateur (04/10/2023 → 02/10/2026,
+    # sha256 ecba3872…, datasets/historiques_importes/DLM.json) ne compte AUCUNE
+    # transaction en trois ans. Même traitement que DIS : la suspension court
+    # depuis la première date de la pièce, pas depuis la date déclarée.
+    "DLM": [{
+        "depuis": "2023-10-04",
+        "motif": "liquidation (suspendu depuis le 09/01/2023 selon Abd Moutalib, pièce non lue) — aucune transaction",
+        "source": "casablanca-bourse.com, export « Cours » 04/10/2023 → 02/10/2026 : 0 titre échangé, 0 transaction",
+        "url": "datasets/historiques_importes/DLM.json",
+    }],
     # Compagnie Minière de Touissit — MASI 1.
     # OPA obligatoire d'AYRAD GROUP LIMITED, OSEAD Fund, OSEAD MAROC MINING et
     # la CIMR agissant de concert, déposée le 16/07/2026 après le franchissement

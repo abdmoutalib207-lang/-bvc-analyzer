@@ -42,10 +42,33 @@ def test_les_quatre_calculs_du_rsi_appliquent_la_regle():
     assert "1 if n_echangees >= 15 else 0" in moteur
 
 
-def test_dar_n_a_plus_de_rsi_fabrique():
-    """70 bougies, 8 séances échangées : RSI non calculable (il valait 76,8)."""
+def _rsi_wilder_echangees(ticker):
+    """Wilder sur les seules séances échangées, écrit à part du moteur."""
+    b = json.loads((RACINE / "pipeline" / "candles" / f"{ticker}.json").read_text(encoding="utf-8"))
+    ech = list(clotures_echangees([x["c"] for x in b], [x.get("v") for x in b],
+                                  [x.get("h") for x in b], [x.get("l") for x in b],
+                                  [x.get("o") for x in b]))
+    if len(ech) < 15:
+        return None
+    d = [ech[i] - ech[i - 1] for i in range(1, len(ech))]
+    g = [max(x, 0) for x in d]; p = [max(-x, 0) for x in d]
+    ag, ap = sum(g[:14]) / 14, sum(p[:14]) / 14
+    for i in range(14, len(d)):
+        ag = (ag * 13 + g[i]) / 14; ap = (ap * 13 + p[i]) / 14
+    return 100 - 100 / (1 + ag / ap)
+
+
+def test_dar_n_a_pas_de_rsi_fabrique():
+    """DAR valait 76,8 sur 70 bougies dont 8 échangées : RSI fabriqué.
+    Depuis l'export de l'opérateur (03/10/2026) : 736 bougies, 104 échangées —
+    le RSI redevient calculable, mais sur les seules séances échangées."""
     h = json.loads((RACINE / "pipeline" / "historical_data.json").read_text(encoding="utf-8"))
-    assert (h.get("DAR") or {}).get("rsi") is None
+    attendu = _rsi_wilder_echangees("DAR")
+    rsi = (h.get("DAR") or {}).get("rsi")
+    if attendu is None:
+        assert rsi is None
+    else:
+        assert rsi is not None and abs(rsi - attendu) < 0.1
 
 
 def test_rsi_de_bal_sur_ses_seances_echangees():
