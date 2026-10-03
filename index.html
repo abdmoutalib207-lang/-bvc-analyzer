@@ -4073,6 +4073,18 @@ const CarteIndices = ({
   };
   const m20 = masi.masi20;
   const tot = (masi.hausses || 0) + (masi.baisses || 0) + (masi.inchanges || 0);
+  const [graphe, setGraphe] = useState(() => {
+    try {
+      return localStorage.getItem("bvc_masi_graphe") === "1";
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem("bvc_masi_graphe", graphe ? "1" : "0");
+    } catch {}
+  }, [graphe]);
   return React.createElement("div", {
     className: "bandeau-masi carte-indices"
   }, React.createElement("div", {
@@ -4094,7 +4106,22 @@ const CarteIndices = ({
       fontSize: 10,
       color: "#5a6478"
     }
-  }, "s\xE9ance du ", jj(masi.asof)), masi.stale && React.createElement("span", {
+  }, "s\xE9ance du ", jj(masi.asof)), React.createElement("button", {
+    onClick: () => setGraphe(v => !v),
+    title: "Graphique du MASI",
+    style: {
+      marginLeft: "auto",
+      fontSize: 10,
+      padding: "2px 8px",
+      minHeight: 0,
+      borderRadius: 3,
+      cursor: "pointer",
+      fontFamily: "var(--font)",
+      background: graphe ? "rgba(77,184,255,.15)" : "transparent",
+      border: `1px solid ${graphe ? "rgba(77,184,255,.4)" : "#1a2540"}`,
+      color: graphe ? "#4db8ff" : "#8892a4"
+    }
+  }, "\uD83D\uDCC8 ", graphe ? "Masquer" : "Graphique"), masi.stale && React.createElement("span", {
     title: `Indice de la séance du ${masi.asof || "?"} — la source ne l'a pas rafraîchi`,
     style: {
       fontSize: 9,
@@ -4262,7 +4289,13 @@ const CarteIndices = ({
       color: "#e8eef8",
       fontSize: 14
     }
-  }, masi.volume_mad >= 1e9 ? `${nb(masi.volume_mad / 1e9)} Md DH` : `${nb(masi.volume_mad / 1e6, 1)} M DH`), masi.transactions != null && React.createElement("span", null, " \xB7 ", masi.transactions.toLocaleString("fr-FR"), " transactions"))));
+  }, masi.volume_mad >= 1e9 ? `${nb(masi.volume_mad / 1e9)} Md DH` : `${nb(masi.volume_mad / 1e6, 1)} M DH`), masi.transactions != null && React.createElement("span", null, " \xB7 ", masi.transactions.toLocaleString("fr-FR"), " transactions"))), graphe && React.createElement("div", {
+    style: {
+      ...carte,
+      gridColumn: "1/-1",
+      padding: "8px 10px"
+    }
+  }, React.createElement(GraphiqueMASI, null)));
 };
 const montantCourt = dh => dh >= 1e9 ? `${(dh / 1e9).toFixed(2).replace(".", ",")} Md DH` : dh >= 1e6 ? `${(dh / 1e6).toFixed(1).replace(".", ",")} M DH` : dh >= 1e3 ? `${Math.round(dh / 1e3)} k DH` : `${Math.round(dh)} DH`;
 const volumeCourt = r => r.echange_dh != null ? montantCourt(r.echange_dh) : r.vol ? `${r.vol.toLocaleString("fr-FR").replace(/\u202f|,/g, " ")} titres` : "—";
@@ -4581,15 +4614,314 @@ const FibTable = ({
     }, "\u25C0"));
   }));
 };
+const TV_MARGE_DROITE = 8;
+const fmtPrixFR = p => p == null || !isFinite(p) ? "—" : (+p).toLocaleString("fr-FR", {
+  minimumFractionDigits: Math.abs(p) >= 1000 ? 0 : 2,
+  maximumFractionDigits: 2
+});
+const fmtVolFR = v => v == null || !isFinite(v) ? "—" : v >= 1e6 ? `${(v / 1e6).toLocaleString("fr-FR", {
+  maximumFractionDigits: 2
+})} M` : v >= 1e3 ? `${(v / 1e3).toLocaleString("fr-FR", {
+  maximumFractionDigits: 2
+})} K` : `${Math.round(v)}`;
+const dateFR = t => typeof t === "string" ? `${t.slice(8, 10)}/${t.slice(5, 7)}/${t.slice(0, 4)}` : "";
+const optionsTV = (LW, w, h) => ({
+  width: w,
+  height: h,
+  layout: {
+    background: {
+      color: "#0d1829"
+    },
+    textColor: "#8892a4",
+    fontSize: 11
+  },
+  grid: {
+    vertLines: {
+      color: "#1a254080"
+    },
+    horzLines: {
+      color: "#1a254080"
+    }
+  },
+  crosshair: {
+    mode: LW.CrosshairMode.Normal,
+    vertLine: {
+      color: "#8892a4",
+      width: 1,
+      style: LW.LineStyle.LargeDashed,
+      labelBackgroundColor: "#2a3550"
+    },
+    horzLine: {
+      color: "#8892a4",
+      width: 1,
+      style: LW.LineStyle.LargeDashed,
+      labelBackgroundColor: "#2a3550"
+    }
+  },
+  rightPriceScale: {
+    borderColor: "#1a2540"
+  },
+  timeScale: {
+    borderColor: "#1a2540",
+    rightOffset: TV_MARGE_DROITE,
+    fixLeftEdge: true,
+    timeVisible: false
+  },
+  localization: {
+    locale: "fr-FR",
+    priceFormatter: fmtPrixFR
+  },
+  kineticScroll: {
+    touch: true,
+    mouse: false
+  },
+  handleScroll: {
+    mouseWheel: true,
+    pressedMouseMove: true,
+    horzTouchDrag: true,
+    vertTouchDrag: false
+  },
+  handleScale: {
+    axisPressedMouseMove: {
+      time: true,
+      price: true
+    },
+    mouseWheel: true,
+    pinch: true
+  }
+});
+const vueEntiere = (ch, n, depuis = 0) => ch.timeScale().setVisibleLogicalRange({
+  from: Math.max(0, depuis) - 0.5,
+  to: n - 0.5 + TV_MARGE_DROITE
+});
+const PleinEcran = ({
+  titre,
+  fermer,
+  children
+}) => {
+  useEffect(() => {
+    const h = e => {
+      if (e.key === "Escape") fermer();
+    };
+    window.addEventListener("keydown", h);
+    const avant = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", h);
+      document.body.style.overflow = avant;
+    };
+  }, []);
+  return ReactDOM.createPortal(React.createElement("div", {
+    style: {
+      position: "fixed",
+      inset: 0,
+      zIndex: 6000,
+      background: "#060b16",
+      padding: "10px 10px 14px",
+      overflow: "auto"
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 8,
+      gap: 8
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 14,
+      fontWeight: 700,
+      color: "#c8d3e8",
+      letterSpacing: 1,
+      minWidth: 0,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap"
+    }
+  }, titre), React.createElement("button", {
+    onClick: fermer,
+    style: {
+      fontSize: 11,
+      padding: "4px 12px",
+      borderRadius: 4,
+      border: "1px solid #1a2540",
+      background: "#0d1829",
+      color: "#8892a4",
+      cursor: "pointer",
+      fontFamily: "var(--font)",
+      flex: "0 0 auto"
+    }
+  }, "\u2715 Fermer")), children), document.body);
+};
+const GraphiqueMASI = () => {
+  const ref = useRef(null),
+    refLeg = useRef(null),
+    chart = useRef(null);
+  const [serie, setSerie] = useState(null);
+  const [fenetre, setFenetre] = useState("3M");
+  const [plein, setPlein] = useState(false);
+  const N = {
+    "1M": 22,
+    "3M": 66,
+    "6M": 130,
+    "TOUT": Infinity
+  };
+  useEffect(() => {
+    let vivant = true;
+    fetch("pipeline/masi_history.json", {
+      cache: "no-cache"
+    }).then(x => x.json()).then(j => {
+      if (vivant) setSerie(Object.entries(j.seances || {}).filter(([, v]) => v > 0).sort(([a], [b]) => a < b ? -1 : 1).map(([d, v]) => ({
+        time: d,
+        value: +v
+      })));
+    }).catch(() => {
+      if (vivant) setSerie([]);
+    });
+    return () => {
+      vivant = false;
+    };
+  }, []);
+  useEffect(() => {
+    if (chart.current) {
+      chart.current.remove();
+      chart.current = null;
+    }
+    if (!ref.current || !serie || serie.length < 2) return;
+    ref.current.innerHTML = "";
+    const LW = window.LightweightCharts;
+    const h = plein ? Math.max(360, (window.innerHeight || 800) - 170) : (window.innerWidth || 1000) < 640 ? 300 : 280;
+    const ch = LW.createChart(ref.current, {
+      ...optionsTV(LW, ref.current.offsetWidth || 600, h),
+      rightPriceScale: {
+        borderColor: "#1a2540",
+        scaleMargins: {
+          top: 0.22,
+          bottom: 0.08
+        }
+      }
+    });
+    chart.current = ch;
+    const s = ch.addAreaSeries({
+      lineColor: "#4db8ff",
+      topColor: "rgba(77,184,255,.28)",
+      bottomColor: "rgba(77,184,255,.02)",
+      lineWidth: 2,
+      priceLineVisible: true,
+      priceLineStyle: LW.LineStyle.Dotted,
+      lastValueVisible: true
+    });
+    s.setData(serie);
+    const n = serie.length;
+    const legende = i => {
+      if (!refLeg.current) return;
+      const k = Math.max(0, Math.min(n - 1, i));
+      const d = serie[k],
+        p = k > 0 ? serie[k - 1].value : null;
+      const dv = p != null ? d.value - p : null,
+        dp = p ? dv / p * 100 : null;
+      const c = dv == null ? "#8892a4" : dv >= 0 ? "#00e5a0" : "#ff4f5a";
+      refLeg.current.innerHTML = `<div><b style="color:#fff;font-size:13px">MASI</b> <span style="color:#8892a4">· J · ${dateFR(d.time)}</span></div>` + `<div><span style="color:#fff;font-weight:700">${fmtPrixFR(d.value)}</span>` + (dv != null ? ` <span style="color:${c}">${dv >= 0 ? "+" : ""}${fmtPrixFR(dv)} (${dp >= 0 ? "+" : ""}${dp.toLocaleString("fr-FR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })} %)</span>` : "") + `</div>`;
+    };
+    legende(n - 1);
+    ch.subscribeCrosshairMove(prm => legende(prm && prm.logical != null && prm.point ? Math.round(prm.logical) : n - 1));
+    vueEntiere(ch, n, n - Math.min(n, N[fenetre]));
+    const retour = () => vueEntiere(ch, n, n - Math.min(n, N[fenetre]));
+    const el = ref.current;
+    el.addEventListener("dblclick", retour);
+    const ro = new ResizeObserver(([e]) => {
+      const w = Math.floor(e.contentRect.width);
+      if (w > 50) ch.applyOptions({
+        width: w
+      });
+    });
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      el.removeEventListener("dblclick", retour);
+      if (chart.current) {
+        chart.current.remove();
+        chart.current = null;
+      }
+    };
+  }, [serie, fenetre, plein]);
+  const b = on => ({
+    background: on ? "rgba(77,184,255,.15)" : "transparent",
+    border: on ? "1px solid rgba(77,184,255,.4)" : "1px solid #1a2540",
+    color: on ? "#4db8ff" : "#8892a4",
+    padding: "2px 8px",
+    borderRadius: 3,
+    fontSize: 10,
+    cursor: "pointer",
+    fontFamily: "var(--font)"
+  });
+  const n = serie ? serie.length : 0;
+  const corps = React.createElement("div", null, React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 6,
+      alignItems: "center",
+      flexWrap: "wrap",
+      marginBottom: 6
+    }
+  }, Object.keys(N).map(k => React.createElement("button", {
+    key: k,
+    onClick: () => setFenetre(k),
+    style: b(fenetre === k)
+  }, k)), React.createElement("button", {
+    onClick: () => chart.current && vueEntiere(chart.current, n, n - Math.min(n, N[fenetre])),
+    title: "Revenir \xE0 la vue de d\xE9part (ou double-clic)",
+    style: b(false)
+  }, "\u27F3"), React.createElement("button", {
+    onClick: () => setPlein(v => !v),
+    style: b(plein)
+  }, plein ? "⤡ RÉDUIRE" : "⤢ AGRANDIR")), React.createElement("div", {
+    style: {
+      position: "relative"
+    }
+  }, React.createElement("div", {
+    ref: ref
+  }), React.createElement("div", {
+    ref: refLeg,
+    style: {
+      position: "absolute",
+      top: 6,
+      left: 8,
+      zIndex: 3,
+      pointerEvents: "none",
+      fontSize: 12,
+      lineHeight: 1.45,
+      textShadow: "0 0 4px #0d1829"
+    }
+  })), serie && serie.length < 2 && React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      padding: 8
+    }
+  }, "Historique du MASI indisponible."), n > 1 && React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: "#4a5570",
+      marginTop: 4
+    }
+  }, "Cl\xF4tures quotidiennes \xB7 ", n, " s\xE9ances depuis le ", dateFR(serie[0].time), " \xB7 pincer ou molette : zoom \xB7 glisser : d\xE9placer \xB7 double-clic : vue de d\xE9part"));
+  return plein ? React.createElement(PleinEcran, {
+    titre: "MASI \u2014 cl\xF4tures quotidiennes",
+    fermer: () => setPlein(false)
+  }, corps) : corps;
+};
 const StockChart = ({
   r
 }) => {
   const refMain = useRef(null),
-    refVol = useRef(null),
     refMacd = useRef(null),
     refTooltip = useRef(null);
   const chartMain = useRef(null),
-    chartVol = useRef(null),
     chartMacd = useRef(null);
   const syncing = useRef(false);
   const series = useRef(null);
@@ -4695,23 +5027,14 @@ const StockChart = ({
     };
   }, [sym, period, r.live, r.price, r.vol]);
   useEffect(() => {
-    if (!plein) return;
-    const h = e => {
-      if (e.key === "Escape") setPlein(false);
-    };
-    window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
-  }, [plein]);
-  useEffect(() => {
-    [chartMain, chartVol, chartMacd].forEach(ref => {
+    [chartMain, chartMacd].forEach(ref => {
       if (ref.current) {
         ref.current.remove();
         ref.current = null;
       }
     });
-    if (!refMain.current || !refVol.current || !refMacd.current) return;
+    if (!refMain.current || !refMacd.current) return;
     refMain.current.innerHTML = "";
-    refVol.current.innerHTML = "";
     refMacd.current.innerHTML = "";
     if (etat !== "ok" || !liveCandles || liveCandles.length < 5) return;
     const candles = liveCandles;
@@ -4732,80 +5055,57 @@ const StockChart = ({
       low: c.y[2],
       close: c.y[3]
     }));
+    const n = lwData.length;
     const LW = window.LightweightCharts;
     const W = refMain.current.offsetWidth || 600;
-    const dispo = plein ? Math.max(360, (window.innerHeight || 800) - 300) : (window.innerWidth || 1000) < 640 ? 280 : 220;
+    const tel = (window.innerWidth || 1000) < 640;
     const H = {
-      main: dispo,
-      vol: plein ? 90 : 65,
-      macd: plein ? 120 : 80
-    };
-    const baseOpts = {
-      layout: {
-        background: {
-          color: "#0d1829"
-        },
-        textColor: "#8892a4"
-      },
-      grid: {
-        vertLines: {
-          color: "#1a2540"
-        },
-        horzLines: {
-          color: "#1a2540"
-        }
-      },
-      crosshair: {
-        mode: LW.CrosshairMode.Normal,
-        vertLine: {
-          color: "#4db8ff55",
-          labelBackgroundColor: "#1a2540"
-        },
-        horzLine: {
-          color: "#4db8ff55",
-          labelBackgroundColor: "#1a2540"
-        }
-      },
-      kineticScroll: {
-        touch: true,
-        mouse: false
-      },
-      timeScale: {
-        timeVisible: false,
-        borderColor: "#1a2540",
-        fixRightEdge: true
-      },
-      handleScroll: {
-        mouseWheel: true,
-        pressedMouseMove: true,
-        horzTouchDrag: true,
-        vertTouchDrag: false
-      },
-      handleScale: {
-        axisPressedMouseMove: {
-          time: true,
-          price: true
-        },
-        mouseWheel: true,
-        pinch: true
-      }
+      main: plein ? Math.max(380, (window.innerHeight || 800) - 230) : tel ? 340 : 300,
+      macd: plein ? 110 : 80
     };
     const main = LW.createChart(refMain.current, {
-      ...baseOpts,
-      width: W,
-      height: H.main,
+      ...optionsTV(LW, W, H.main),
       rightPriceScale: {
-        borderColor: "#1a2540"
+        borderColor: "#1a2540",
+        scaleMargins: {
+          top: 0.2,
+          bottom: 0.22
+        }
       }
     });
     chartMain.current = main;
+    const vol = main.addHistogramSeries({
+      priceScaleId: "vol",
+      priceFormat: {
+        type: "custom",
+        formatter: fmtVolFR,
+        minMove: 1
+      },
+      priceLineVisible: false,
+      lastValueVisible: false
+    });
+    main.priceScale("vol").applyOptions({
+      scaleMargins: {
+        top: 0.82,
+        bottom: 0
+      },
+      visible: false
+    });
+    vol.setData(candles.map(c => ({
+      time: toDate(c.x),
+      value: c.vol || 0,
+      color: c.y[3] >= c.y[0] ? "#00e5a066" : "#ff4f5a66"
+    })));
     const cs = main.addCandlestickSeries({
       upColor: "#00e5a0",
       downColor: "#ff4f5a",
       borderUpColor: "#00e5a0",
       borderDownColor: "#ff4f5a",
       wickUpColor: "#00e5a0",
-      wickDownColor: "#ff4f5a"
+      wickDownColor: "#ff4f5a",
+      priceLineVisible: true,
+      priceLineStyle: LW.LineStyle.Dotted,
+      lastValueVisible: true
     });
     cs.setData(lwData);
     const COULEUR_MA = {
@@ -4859,51 +5159,33 @@ const StockChart = ({
       curPrice,
       LW
     };
-    main.subscribeCrosshairMove(param => {
+    const legende = i => {
       if (!refTooltip.current) return;
-      const bar = param.seriesData?.get(cs);
-      if (!bar || !param.time) {
-        refTooltip.current.style.display = "none";
-        return;
-      }
-      const {
-        open: o,
-        high: h,
-        low: l,
-        close: c
-      } = bar;
-      const col = c >= o ? "#00e5a0" : "#ff4f5a";
-      refTooltip.current.style.display = "block";
-      refTooltip.current.innerHTML = `<b style="color:#fff">${tk(r)}</b>&nbsp;<span style="color:#8892a4">${param.time}</span>&nbsp;<span style="color:#8892a4">O</span>&nbsp;<span style="color:#c8d3e8">${o}</span>&nbsp;<span style="color:#8892a4">H</span>&nbsp;<span style="color:${col}">${h}</span>&nbsp;<span style="color:#8892a4">L</span>&nbsp;<span style="color:#ff4f5a">${l}</span>&nbsp;<span style="color:#8892a4">C</span>&nbsp;<span style="color:${col};font-weight:700">${c}</span>`;
-    });
-    const volChart = LW.createChart(refVol.current, {
-      ...baseOpts,
-      width: W,
-      height: H.vol,
-      rightPriceScale: {
-        visible: false
-      }
-    });
-    chartVol.current = volChart;
-    volChart.__s = volChart.addHistogramSeries({
-      priceLineVisible: false,
-      lastValueVisible: false
-    });
-    volChart.__s.setData(candles.map(c => ({
-      time: toDate(c.x),
-      value: c.vol || 0,
-      color: c.y[3] >= c.y[0] ? "#00e5a045" : "#ff4f5a45"
-    })));
+      const k = Math.max(0, Math.min(n - 1, i));
+      const d = lwData[k],
+        p = k > 0 ? lwData[k - 1].close : null;
+      const col = d.close >= d.open ? "#00e5a0" : "#ff4f5a";
+      const dv = p != null ? d.close - p : null,
+        dp = p ? dv / p * 100 : null;
+      const cv = dv == null ? "#8892a4" : dv >= 0 ? "#00e5a0" : "#ff4f5a";
+      const v = candles[k].vol || 0;
+      const lab = t => `<span style="color:#c8d3e8">${t}</span>`;
+      const val = x => `<span style="color:${col}">${fmtPrixFR(x)}</span>`;
+      refTooltip.current.innerHTML = `<div><b style="color:#fff;font-size:13px">${tk(r)}</b> <span style="color:#8892a4">${r.name ? "· " + r.name : ""} · J · ${dateFR(d.time)}${candles[k].live ? " · en séance" : ""}</span></div>` + `<div>${lab("O")} ${val(d.open)}&nbsp; ${lab("H")} ${val(d.high)}&nbsp; ${lab("B")} ${val(d.low)}&nbsp; ${lab("C")} ${val(d.close)}` + (dv != null ? `&nbsp; <span style="color:${cv}">${dv >= 0 ? "+" : ""}${fmtPrixFR(dv)} (${dp >= 0 ? "+" : ""}${dp.toLocaleString("fr-FR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })} %)</span>` : "") + `</div>` + `<div>${lab("Vol")} <span style="color:${col}">${fmtVolFR(v)}</span></div>`;
+    };
+    legende(n - 1);
+    main.subscribeCrosshairMove(prm => legende(prm && prm.point && prm.logical != null ? Math.round(prm.logical) : n - 1));
     const macdChart = LW.createChart(refMacd.current, {
-      ...baseOpts,
-      width: W,
-      height: H.macd,
+      ...optionsTV(LW, W, H.macd),
       timeScale: {
-        ...baseOpts.timeScale,
-        timeVisible: true
-      },
-      rightPriceScale: {
-        borderColor: "#1a2540"
+        borderColor: "#1a2540",
+        rightOffset: TV_MARGE_DROITE,
+        fixLeftEdge: true,
+        timeVisible: false,
+        visible: false
       }
     });
     chartMacd.current = macdChart;
@@ -4938,16 +5220,12 @@ const StockChart = ({
       lastValueVisible: false,
       crosshairMarkerVisible: false
     }).setData(mapS(() => 0));
-    const all = [main, volChart, macdChart];
-    const volS = volChart.__s,
-      macdS = macdChart.__s;
+    const all = [main, macdChart];
+    const macdS = macdChart.__s;
     main.subscribeCrosshairMove(param => {
-      [[volChart, volS], [macdChart, macdS]].forEach(([ch, se]) => {
-        if (!se) return;
-        try {
-          param.time ? ch.setCrosshairPosition(0, param.time, se) : ch.clearCrosshairPosition();
-        } catch (e) {}
-      });
+      try {
+        param.time ? macdChart.setCrosshairPosition(0, param.time, macdS) : macdChart.clearCrosshairPosition();
+      } catch (e) {}
     });
     all.forEach(src => {
       src.timeScale().subscribeVisibleLogicalRangeChange(range => {
@@ -4957,8 +5235,8 @@ const StockChart = ({
         syncing.current = false;
       });
     });
-    main.timeScale().fitContent();
-    const retour = () => all.forEach(c => c.timeScale().fitContent());
+    vueEntiere(main, n);
+    const retour = () => vueEntiere(main, n);
     refMain.current.addEventListener("dblclick", retour);
     const ro = new ResizeObserver(([e]) => {
       const w = Math.floor(e.contentRect.width);
@@ -4973,7 +5251,7 @@ const StockChart = ({
       ro.disconnect();
       if (conteneur) conteneur.removeEventListener("dblclick", retour);
       series.current = null;
-      [chartMain, chartVol, chartMacd].forEach(ref => {
+      [chartMain, chartMacd].forEach(ref => {
         if (ref.current) {
           ref.current.remove();
           ref.current = null;
@@ -5045,7 +5323,9 @@ const StockChart = ({
     setPeriod(p);
     localStorage.setItem("bvc_period", p);
   };
-  const reinitialiser = () => [chartMain, chartVol, chartMacd].forEach(ref => ref.current && ref.current.timeScale().fitContent());
+  const reinitialiser = () => {
+    if (chartMain.current && liveCandles) vueEntiere(chartMain.current, liveCandles.length);
+  };
   const Btn = ({
     on,
     c,
@@ -5200,30 +5480,18 @@ const StockChart = ({
   }), React.createElement("div", {
     ref: refTooltip,
     style: {
-      display: "none",
       position: "absolute",
-      top: 4,
-      left: 4,
-      background: "rgba(13,24,41,.92)",
-      border: "1px solid #1a2540",
-      borderRadius: 4,
-      padding: "4px 8px",
-      fontSize: 10,
-      fontFamily: "var(--font)",
+      top: 6,
+      left: 8,
+      right: 70,
       pointerEvents: "none",
-      zIndex: 10,
-      whiteSpace: "nowrap"
+      zIndex: 3,
+      fontSize: 12,
+      lineHeight: 1.45,
+      textShadow: "0 0 4px #0d1829",
+      overflow: "hidden"
     }
   })), React.createElement("div", {
-    style: {
-      fontSize: 8,
-      color: "#8892a4",
-      letterSpacing: 1,
-      marginTop: 2
-    }
-  }, "VOLUME"), React.createElement("div", {
-    ref: refVol
-  }), React.createElement("div", {
     style: {
       fontSize: 8,
       color: "#8892a4",
@@ -5246,44 +5514,12 @@ const StockChart = ({
       color: "#4a5570",
       marginTop: 4
     }
-  }, "Molette : zoom \xB7 Glisser : d\xE9placer \xB7 Double-clic : vue enti\xE8re"));
+  }, "Pincer ou molette : zoom \xB7 Glisser : d\xE9placer \xB7 Double-clic : vue de d\xE9part"));
   if (!plein) return corps;
-  return React.createElement("div", {
-    style: {
-      position: "fixed",
-      inset: 0,
-      zIndex: 6000,
-      background: "#060b16",
-      padding: 14,
-      overflow: "auto"
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      marginBottom: 8
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 14,
-      fontWeight: 700,
-      color: "#c8d3e8",
-      letterSpacing: 1
-    }
-  }, tk(r), " \u2014 ", r.name || ""), React.createElement("button", {
-    onClick: () => setPlein(false),
-    style: {
-      fontSize: 11,
-      padding: "4px 12px",
-      borderRadius: 4,
-      border: "1px solid #1a2540",
-      background: "#0d1829",
-      color: "#8892a4",
-      cursor: "pointer",
-      fontFamily: "var(--font)"
-    }
-  }, "\u2715 Fermer (\xC9chap)")), corps);
+  return React.createElement(PleinEcran, {
+    titre: `${tk(r)} — ${r.name || ""}`,
+    fermer: () => setPlein(false)
+  }, corps);
 };
 const TickerTape = ({
   rows

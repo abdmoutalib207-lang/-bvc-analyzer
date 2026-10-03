@@ -338,12 +338,43 @@ def test_les_alertes_publiees_sont_expliquees():
 
 def test_le_plein_ecran_existe_et_se_referme():
     """Un plein écran dont on ne sort pas est un piège, pas une fonction."""
-    chart = _bloc(_source(), "const StockChart=({r})=>{")
+    src = _source()
+    chart = _bloc(src, "const StockChart=({r})=>{")
+    plein = _bloc(src, "const PleinEcran=(")
     assert "AGRANDIR" in chart, "pas de bouton d'agrandissement"
-    assert 'e.key==="Escape"' in chart, "Échap ne referme pas le plein écran"
-    assert "Fermer" in chart, "aucun bouton de fermeture visible"
+    assert "<PleinEcran" in chart, "le graphique n'utilise pas le plein écran commun"
+    assert 'e.key==="Escape"' in plein, "Échap ne referme pas le plein écran"
+    assert "Fermer" in plein, "aucun bouton de fermeture visible"
     assert re.search(r"plein\?Math\.max\(", chart), (
         "la hauteur du graphique ne profite pas du plein écran")
+
+
+def test_le_plein_ecran_sort_de_sa_carte():
+    """⚠️ 03/10/2026 : mesuré à 360 × 87 px sur un écran de 390 × 844. La
+    carte qui contient le graphique garde une transformation CSS (animation
+    d'apparition), et un `position:fixed` se cale alors sur elle. Rendu dans
+    <body>, il ne dépend plus d'aucun parent."""
+    plein = _bloc(_source(), "const PleinEcran=(")
+    assert "createPortal" in plein and "document.body" in plein
+
+
+def test_la_derniere_bougie_ne_colle_pas_a_l_echelle_des_prix():
+    """Demande de Noure, capture TradingView à l'appui : une marge à droite.
+    `fitContent()` la supprimerait — la vue de départ passe par `vueEntiere`."""
+    src = _source()
+    chart = _bloc(src, "const StockChart=({r})=>{")
+    assert re.search(r"const TV_MARGE_DROITE=([1-9]\d*);", src)
+    assert "rightOffset:TV_MARGE_DROITE" in src
+    assert "fitContent" not in chart
+    assert "vueEntiere(" in chart
+
+
+def test_le_masi_a_son_graphique():
+    src = _source()
+    g = _bloc(src, "const GraphiqueMASI=()=>{")
+    assert "pipeline/masi_history.json" in g
+    assert "addAreaSeries" in g, "des clôtures seules ne font pas des bougies"
+    assert "<GraphiqueMASI/>" in _bloc(src, "const CarteIndices=(")
 
 
 def test_le_zoom_se_reinitialise():
@@ -351,5 +382,5 @@ def test_le_zoom_se_reinitialise():
     chart = _bloc(_source(), "const StockChart=({r})=>{")
     assert "dblclick" in chart, "le double-clic ne ramène pas à la vue entière"
     assert "reinitialiser" in chart, "pas de bouton de réinitialisation"
-    assert "Molette : zoom" in chart, (
+    assert "molette : zoom" in chart, (
         "rien n'indique à l'écran que le graphique se manipule")
