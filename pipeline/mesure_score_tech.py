@@ -78,35 +78,40 @@ def _masi() -> dict:
     return {d: float(v) for d, v in m["seances"].items()}
 
 
-def observations() -> list[dict]:
+def _obs_titre(t: str) -> list[dict]:
     masi = _masi()
+    df = _serie(t)
+    if df is None:
+        return []
+    dates = df["date"].dt.strftime("%Y-%m-%d").tolist()
+    closes = df["close"].tolist()
+    vols = df["volume"].fillna(0).tolist()
     obs = []
-    for f in sorted((RACINE / "pipeline" / "candles").glob("*.json")):
-        t = f.stem
-        df = _serie(t)
-        if df is None:
+    for i in range(MIN_HISTO, len(df)):
+        d = dates[i]
+        if d < DEBUT or not vols[i] or vols[i] <= 0:
             continue
-        dates = df["date"].dt.strftime("%Y-%m-%d").tolist()
-        closes = df["close"].tolist()
-        vols = df["volume"].fillna(0).tolist()
-        for i in range(MIN_HISTO, len(df)):
-            d = dates[i]
-            if d < DEBUT or not vols[i] or vols[i] <= 0:
+        ind = compute_indicators(df.iloc[: i + 1], as_of=d)
+        s = calc_score_tech(ind.get("rsi"), closes[i], ind.get("ma20"),
+                            ind.get("ma50"), ind.get("h90"), ind.get("l90"))
+        o = {"t": t, "d": d, "score": s}
+        for h in HORIZONS:
+            j = i + h
+            if j >= len(df) or dates[j] not in masi or d not in masi:
                 continue
-            ind = compute_indicators(df.iloc[: i + 1], as_of=d)
-            s = calc_score_tech(ind.get("rsi"), closes[i], ind.get("ma20"),
-                                ind.get("ma50"), ind.get("h90"), ind.get("l90"))
-            o = {"t": t, "d": d, "score": s}
-            for h in HORIZONS:
-                j = i + h
-                if j >= len(df) or dates[j] not in masi or d not in masi:
-                    continue
-                r = closes[j] / closes[i] - 1
-                rm = masi[dates[j]] / masi[d] - 1
-                o[f"r{h}"] = r
-                o[f"a{h}"] = r - rm
-            obs.append(o)
+            r = closes[j] / closes[i] - 1
+            o[f"r{h}"] = r
+            o[f"a{h}"] = r - (masi[dates[j]] / masi[d] - 1)
+        obs.append(o)
     return obs
+
+
+def observations() -> list[dict]:
+    """Un titre par processus : le rejeu jour par jour coûte ~14 ms par séance."""
+    from multiprocessing import Pool
+    titres = [f.stem for f in sorted((RACINE / "pipeline" / "candles").glob("*.json"))]
+    with Pool() as pool:
+        return [o for lot in pool.map(_obs_titre, titres) for o in lot]
 
 
 def _spearman(x: list, y: list) -> float | None:
