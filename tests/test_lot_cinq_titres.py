@@ -150,19 +150,20 @@ def test_l_export_frais_confirme_que_ciments_est_assainie():
 
 # ── Ce qui reste ouvert ───────────────────────────────────────────────────
 
-def test_les_series_plus_courtes_que_les_exports_sont_un_constat_pas_un_lot():
-    """⚠️ Stroc : 62 séances chez nous contre 734 dans l'export. Ces séances
-    manquantes ne sont PAS ajoutées — cette couche corrige des bougies fausses
-    et refuse d'en fabriquer. Le constat est figé ici pour qu'il ne se perde
-    pas."""
+def test_les_series_ne_sont_plus_plus_courtes_que_les_exports():
+    """⚠️ Stroc : 62 séances chez nous contre 734 dans l'export. Cette couche
+    refusait — à raison — de fabriquer les séances manquantes, et le constat
+    était figé ici. Il est CLOS le 03/10/2026 : l'export 3 ans de l'opérateur
+    a été importé par la voie prévue pour cela
+    (`datasets/historiques_importes/`), pas par cette couche de corrections.
+    Le test se retourne plutôt que de disparaître."""
     manques = {}
     for t in NOUVEAUX:
         n, e = len(_serie(t)), len(_export(t))
         if e > n:
             manques[t] = e - n
-    assert manques, "si plus rien ne manque, ce test n'a plus d'objet"
-    assert manques.get("STR", 0) > 600
-    for t, m in manques.items():
+    assert manques == {}, f"séances de l'export absentes de la série : {manques}"
+    for t in NOUVEAUX:
         assert not (CORR / f"{t}.json").exists() or all(
             l["d"] in {b["d"] for b in _serie(t)} for l in _doc(t)["lignes"]), (
             f"{t} : une correction porte sur une séance absente de la série")
