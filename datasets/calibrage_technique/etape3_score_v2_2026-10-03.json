@@ -1,0 +1,95 @@
+{
+ "_quoi": "Étape 3 — nouveau pilier technique contre l'ancien",
+ "_methode": "Étape 3 du calibrage technique : un NOUVEAU pilier technique, bâti avec les\nseuls ingrédients qui ont tenu, comparé à l'actuel. Mesure seule — rien n'est\nbranché sur la note publiée.\n\n⚠️ LA RECETTE EST ÉCRITE ICI AVANT LE TEST (03/10/2026)\nBase 5. Le marché est « en tendance » selon la règle de l'étape 2 (MASI >\nMA200 et plus de 50 % des titres liquides au-dessus de leur MA200).\n  En tendance :\n    + 2,0   cassure du plus haut 90 jours avec volume dans les 20 dernières séances\n    + 1,5   sortie de la zone de surachat du RSI (70) dans les 20 dernières séances\n    + 1,0   pullback en cours (tendance haussière, cours ≥ 3 % sous la MA20)\n  Hors tendance :\n    − 1,0   pullback en cours (il a perdu hors tendance)\n    ± 1,5   momentum : 3 × (rang du momentum 120 séances dans la cote − 0,5)\nBornée à [0, 10]. Les points reprennent l'ordre de grandeur des alphas\nmesurés sur 2023-24 SEULEMENT ; aucun n'est ajusté après coup.\n\n⚠️ L'HONNÊTETÉ SUR LE « HORS ÉCHANTILLON »\nLes poids viennent de 2023-24. Mais le CHOIX des ingrédients a été fait en\nvoyant aussi 2025-26 (étapes 1 et 2) : la période 2025-26 n'est donc pas un\ntest vierge. Le seul test vraiment neuf sera l'avenir — d'où un suivi « en\nombre » avant toute publication.\n\nMesure : titres liquides (deux tiers supérieurs), corrélation de rang jour par\njour avec l'alpha en rendement total à 20, 60 et 120 séances ; alpha et part\nde cas gagnants du quintile haut et du quintile bas ; ancien pilier mesuré à\nl'identique sur les mêmes observations.",
+ "mesures": {
+  "2023-10_2024-12": {
+   "observations": 10522,
+   "repartition_score": {
+    "4.0": 331,
+    "5.0": 7017,
+    "6.0": 1377,
+    "7.0": 476,
+    "8.0": 1250,
+    "10.0": 71
+   },
+   "h20": {
+    "ic_v2": {
+     "ic": 0.1443,
+     "jours": 308,
+     "part_positive": 0.782
+    },
+    "alpha_quintile_haut": 0.045,
+    "part_gagnante_haut": 0.614,
+    "alpha_quintile_bas": -0.0011,
+    "part_gagnante_bas": 0.433
+   },
+   "h60": {
+    "ic_v2": {
+     "ic": 0.2026,
+     "jours": 308,
+     "part_positive": 0.906
+    },
+    "alpha_quintile_haut": 0.1369,
+    "part_gagnante_haut": 0.623,
+    "alpha_quintile_bas": -0.0147,
+    "part_gagnante_bas": 0.42
+   },
+   "h120": {
+    "ic_v2": {
+     "ic": 0.232,
+     "jours": 308,
+     "part_positive": 0.88
+    },
+    "alpha_quintile_haut": 0.2437,
+    "part_gagnante_haut": 0.622,
+    "alpha_quintile_bas": -0.0303,
+    "part_gagnante_bas": 0.348
+   }
+  },
+  "2025-01_2026-10": {
+   "observations": 19788,
+   "repartition_score": {
+    "3.0": 11,
+    "4.0": 2977,
+    "5.0": 9645,
+    "6.0": 3738,
+    "7.0": 810,
+    "8.0": 2384,
+    "10.0": 223
+   },
+   "h20": {
+    "ic_v2": {
+     "ic": 0.0566,
+     "jours": 401,
+     "part_positive": 0.623
+    },
+    "alpha_quintile_haut": 0.0224,
+    "part_gagnante_haut": 0.494,
+    "alpha_quintile_bas": -0.0099,
+    "part_gagnante_bas": 0.36
+   },
+   "h60": {
+    "ic_v2": {
+     "ic": 0.0451,
+     "jours": 361,
+     "part_positive": 0.64
+    },
+    "alpha_quintile_haut": 0.0375,
+    "part_gagnante_haut": 0.473,
+    "alpha_quintile_bas": -0.0168,
+    "part_gagnante_bas": 0.348
+   },
+   "h120": {
+    "ic_v2": {
+     "ic": 0.0024,
+     "jours": 301,
+     "part_positive": 0.488
+    },
+    "alpha_quintile_haut": 0.0539,
+    "part_gagnante_haut": 0.419,
+    "alpha_quintile_bas": -0.0046,
+    "part_gagnante_bas": 0.359
+   }
+  }
+ }
+}
