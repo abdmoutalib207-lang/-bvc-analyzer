@@ -1154,7 +1154,7 @@ const GraphiqueMASI=()=>{
   const [serie,setSerie]=useState(null);
   const [fenetre,setFenetre]=useState("3M");
   const [plein,setPlein]=useState(false);
-  const N={"1M":22,"3M":66,"6M":130,"TOUT":Infinity};
+  const N={"1M":22,"3M":66,"6M":130,"1A":250,"3A":750,"TOUT":Infinity};
   useEffect(()=>{
     let vivant=true;
     fetch("pipeline/masi_history.json",{cache:"no-cache"}).then(x=>x.json())
