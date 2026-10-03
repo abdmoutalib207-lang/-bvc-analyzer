@@ -139,6 +139,10 @@ def test_sans_refus_l_import_ecrit_normalement(gc, tmp_path, monkeypatch):
     monkeypatch.setattr(gc, "_xlsx_to_candles", lambda p: neuf)
     monkeypatch.setattr(gc, "adjust_splits", lambda t, c, date_key="d": c)
     monkeypatch.setattr(gc, "_reimposer", lambda t, c: (c, []))
+    # ⚠️ Le bac est temporaire, la période importée ne l'était pas : depuis
+    # l'import de l'export SOT du 03/10/2026 (jusqu'au 02/10), la vraie
+    # garde écartait à bon droit la séance fictive du 16/09.
+    monkeypatch.setattr(gc, "fin_historique_importe", lambda t: None)
 
     gc.generate_from_xlsx()
     ecrit = json.loads(cible.read_text())
