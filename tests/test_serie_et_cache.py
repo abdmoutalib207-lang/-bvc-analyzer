@@ -450,6 +450,16 @@ def _series_modifiees_dans_cette_livraison() -> set:
 
         fin = base[-1]["d"] if base else ""
         commun = [b for b in livre if b["d"] <= fin]
+        # ⚠️ COMPLÉTER UN HISTORIQUE VERS LE PASSÉ, C'EST LE RÉÉCRIRE.
+        # Le 03/10/2026, MDP est passé de 11 à 736 séances par l'export de
+        # l'opérateur : aucune des 11 n'avait changé, et ce contrôle concluait
+        # « série intacte » — interdisant alors à son cache de bouger. Une
+        # séance insérée avant la dernière date publiée change la série autant
+        # qu'une séance modifiée.
+        connues = {b["d"] for b in base}
+        if any(b["d"] not in connues for b in commun):
+            reecrits.add(t)
+            continue
         if base != commun:
             # ⚠️ COMPLÉTER UNE SÉANCE FIGÉE EN VOL N'EST PAS RÉÉCRIRE L'HISTOIRE.
             #
