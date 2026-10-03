@@ -1,0 +1,1444 @@
+{
+ "_quoi": "Étape 2 — régime de marché",
+ "_methode": "Étape 2 du calibrage technique : le RÉGIME DE MARCHÉ explique-t-il que les\nsignaux de tendance aient marché en 2023-24 et plus en 2025-26 ?\n\n⚠️ RÈGLE FIXÉE AVANT LA MESURE (03/10/2026)\n« Marché en tendance » au jour t, avec les seules données connues à t :\n    MASI > sa moyenne des 200 dernières séances\n    ET plus de 50 % des titres liquides au-dessus de leur propre MA200.\nVariante mesurée à part, sans être choisie après coup : MASI > MA200 seul.\n« Titres liquides » : les deux tiers supérieurs du montant médian échangé\n(seuil de l'étape 1), établi à la date.\n\nIngrédients rejoués, tels que définis à l'étape 1 et 1 bis, SANS retouche :\nmomentum 120 séances, momentum de secteur, force dans le secteur, écart à la\nMA200 (corrélation de rang jour par jour) ; pullback, cassure 90 jours,\ndouble creux, rebond Fibonacci, sortie de surachat du RSI (événements).\nMesure : alpha en rendement total contre le MASI, à 20, 60 et 120 séances,\npour chaque période ET chaque régime.\n\n⚠️ CE QUI COMPTERAIT COMME UNE RÉPONSE\nUn ingrédient « dépend du régime » s'il est nettement positif quand le\nrégime est allumé et nul ou négatif quand il est éteint — DANS LES DEUX\nPÉRIODES. Un résultat qui ne tient que dans l'une ne répond pas.\n\n⚠️ LIMITES\n1. Le MASI ne passe que quelques fois au-dessus et au-dessous de sa MA200 en\n   trois ans : ce sont peu d'épisodes indépendants, même avec beaucoup de\n   jours. La preuve sera faible, et elle est publiée comme telle.\n2. Observations chevauchantes (signalé, non corrigé).",
+ "jours_en_tendance": {
+  "2023-10_2024-12": {
+   "regle_principale": 0.614,
+   "masi_sur_ma200_seul": 0.961,
+   "jours": 308
+  },
+  "2025-01_2026-10": {
+   "regle_principale": 0.582,
+   "masi_sur_ma200_seul": 0.691,
+   "jours": 421
+  }
+ },
+ "mesures": {
+  "tendance": {
+   "2023-10_2024-12|allume": {
+    "observations": 6694,
+    "mom120": {
+     "h20": {
+      "ic": 0.1569,
+      "jours": 189,
+      "part_positive": 0.757
+     },
+     "h60": {
+      "ic": 0.2356,
+      "jours": 189,
+      "part_positive": 0.963
+     },
+     "h120": {
+      "ic": 0.3571,
+      "jours": 189,
+      "part_positive": 1.0
+     }
+    },
+    "mom_secteur": {
+     "h20": {
+      "ic": 0.032,
+      "jours": 189,
+      "part_positive": 0.593
+     },
+     "h60": {
+      "ic": 0.0787,
+      "jours": 189,
+      "part_positive": 0.683
+     },
+     "h120": {
+      "ic": 0.0903,
+      "jours": 189,
+      "part_positive": 0.677
+     }
+    },
+    "rel_secteur": {
+     "h20": {
+      "ic": 0.0781,
+      "jours": 189,
+      "part_positive": 0.63
+     },
+     "h60": {
+      "ic": 0.1164,
+      "jours": 189,
+      "part_positive": 0.788
+     },
+     "h120": {
+      "ic": 0.2112,
+      "jours": 189,
+      "part_positive": 0.958
+     }
+    },
+    "dist_ma200": {
+     "h20": {
+      "ic": 0.2069,
+      "jours": 189,
+      "part_positive": 0.794
+     },
+     "h60": {
+      "ic": 0.3649,
+      "jours": 189,
+      "part_positive": 0.984
+     },
+     "h120": {
+      "ic": 0.4919,
+      "jours": 189,
+      "part_positive": 1.0
+     }
+    },
+    "pullback": {
+     "h20": {
+      "n": 62,
+      "alpha_moyen": 0.0313,
+      "part_alpha_positif": 0.597,
+      "t": 3.09,
+      "rendement_net_frais": 0.0342
+     },
+     "h60": {
+      "n": 62,
+      "alpha_moyen": 0.0651,
+      "part_alpha_positif": 0.597,
+      "t": 2.85,
+      "rendement_net_frais": 0.1289
+     },
+     "h120": {
+      "n": 62,
+      "alpha_moyen": 0.176,
+      "part_alpha_positif": 0.565,
+      "t": 3.38,
+      "rendement_net_frais": 0.3442
+     }
+    },
+    "cassure90": {
+     "h20": {
+      "n": 77,
+      "alpha_moyen": 0.045,
+      "part_alpha_positif": 0.61,
+      "t": 2.59,
+      "rendement_net_frais": 0.0423
+     },
+     "h60": {
+      "n": 77,
+      "alpha_moyen": 0.0901,
+      "part_alpha_positif": 0.571,
+      "t": 3.18,
+      "rendement_net_frais": 0.1306
+     },
+     "h120": {
+      "n": 77,
+      "alpha_moyen": 0.1859,
+      "part_alpha_positif": 0.532,
+      "t": 3.22,
+      "rendement_net_frais": 0.3233
+     }
+    },
+    "double_creux": {
+     "h20": {
+      "n": 10,
+      "alpha_moyen": 0.0451,
+      "part_alpha_positif": 0.7,
+      "t": 1.65,
+      "rendement_net_frais": 0.0445
+     },
+     "h60": {
+      "n": 10,
+      "alpha_moyen": 0.0352,
+      "part_alpha_positif": 0.5,
+      "t": 0.63,
+      "rendement_net_frais": 0.0827
+     },
+     "h120": {
+      "n": 10,
+      "alpha_moyen": 0.2109,
+      "part_alpha_positif": 0.7,
+      "t": 1.55,
+      "rendement_net_frais": 0.3479
+     }
+    },
+    "fibo_rebond_382_618": {
+     "h20": {
+      "n": 23,
+      "alpha_moyen": 0.0144,
+      "part_alpha_positif": 0.565,
+      "t": 0.89,
+      "rendement_net_frais": 0.0168
+     },
+     "h60": {
+      "n": 23,
+      "alpha_moyen": 0.0271,
+      "part_alpha_positif": 0.435,
+      "t": 0.77,
+      "rendement_net_frais": 0.0776
+     },
+     "h120": {
+      "n": 23,
+      "alpha_moyen": 0.072,
+      "part_alpha_positif": 0.565,
+      "t": 0.97,
+      "rendement_net_frais": 0.1929
+     }
+    },
+    "rsi_sortie_surachat": {
+     "h20": {
+      "n": 75,
+      "alpha_moyen": 0.0351,
+      "part_alpha_positif": 0.613,
+      "t": 2.76,
+      "rendement_net_frais": 0.0286
+     },
+     "h60": {
+      "n": 75,
+      "alpha_moyen": 0.0901,
+      "part_alpha_positif": 0.587,
+      "t": 3.57,
+      "rendement_net_frais": 0.1358
+     },
+     "h120": {
+      "n": 75,
+      "alpha_moyen": 0.188,
+      "part_alpha_positif": 0.6,
+      "t": 3.63,
+      "rendement_net_frais": 0.3273
+     }
+    }
+   },
+   "2023-10_2024-12|eteint": {
+    "observations": 3828,
+    "mom120": {
+     "h20": {
+      "ic": 0.3834,
+      "jours": 79,
+      "part_positive": 0.937
+     },
+     "h60": {
+      "ic": 0.4811,
+      "jours": 79,
+      "part_positive": 1.0
+     },
+     "h120": {
+      "ic": 0.5333,
+      "jours": 79,
+      "part_positive": 1.0
+     }
+    },
+    "mom_secteur": {
+     "h20": {
+      "ic": 0.2586,
+      "jours": 79,
+      "part_positive": 0.924
+     },
+     "h60": {
+      "ic": 0.3732,
+      "jours": 79,
+      "part_positive": 1.0
+     },
+     "h120": {
+      "ic": 0.3013,
+      "jours": 79,
+      "part_positive": 1.0
+     }
+    },
+    "rel_secteur": {
+     "h20": {
+      "ic": 0.0227,
+      "jours": 79,
+      "part_positive": 0.481
+     },
+     "h60": {
+      "ic": 0.0934,
+      "jours": 79,
+      "part_positive": 0.747
+     },
+     "h120": {
+      "ic": 0.11,
+      "jours": 79,
+      "part_positive": 0.861
+     }
+    },
+    "dist_ma200": {
+     "h20": {
+      "jours": 0
+     },
+     "h60": {
+      "jours": 0
+     },
+     "h120": {
+      "jours": 0
+     }
+    },
+    "pullback": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    },
+    "cassure90": {
+     "h20": {
+      "n": 30,
+      "alpha_moyen": 0.0555,
+      "part_alpha_positif": 0.6,
+      "t": 2.75,
+      "rendement_net_frais": 0.0542
+     },
+     "h60": {
+      "n": 30,
+      "alpha_moyen": 0.198,
+      "part_alpha_positif": 0.433,
+      "t": 2.27,
+      "rendement_net_frais": 0.2275
+     },
+     "h120": {
+      "n": 30,
+      "alpha_moyen": 0.2715,
+      "part_alpha_positif": 0.733,
+      "t": 3.38,
+      "rendement_net_frais": 0.3342
+     }
+    },
+    "double_creux": {
+     "h20": {
+      "n": 5,
+      "alpha_moyen": 0.0408,
+      "part_alpha_positif": 0.6,
+      "t": 0.69,
+      "rendement_net_frais": 0.0478
+     },
+     "h60": {
+      "n": 5,
+      "alpha_moyen": 0.0506,
+      "part_alpha_positif": 0.2,
+      "t": 0.48,
+      "rendement_net_frais": 0.093
+     },
+     "h120": {
+      "n": 5,
+      "alpha_moyen": 0.2106,
+      "part_alpha_positif": 0.8,
+      "t": 1.22,
+      "rendement_net_frais": 0.2792
+     }
+    },
+    "fibo_rebond_382_618": {
+     "h20": {
+      "n": 4,
+      "alpha_moyen": 0.1016,
+      "part_alpha_positif": 0.75,
+      "t": 2.12,
+      "rendement_net_frais": 0.0751
+     },
+     "h60": {
+      "n": 4,
+      "alpha_moyen": 0.6937,
+      "part_alpha_positif": 1.0,
+      "t": 1.26,
+      "rendement_net_frais": 0.6965
+     },
+     "h120": {
+      "n": 4,
+      "alpha_moyen": 0.8476,
+      "part_alpha_positif": 1.0,
+      "t": 2.69,
+      "rendement_net_frais": 0.8915
+     }
+    },
+    "rsi_sortie_surachat": {
+     "h20": {
+      "n": 49,
+      "alpha_moyen": 0.0201,
+      "part_alpha_positif": 0.551,
+      "t": 1.86,
+      "rendement_net_frais": 0.0094
+     },
+     "h60": {
+      "n": 49,
+      "alpha_moyen": 0.1555,
+      "part_alpha_positif": 0.571,
+      "t": 2.68,
+      "rendement_net_frais": 0.1768
+     },
+     "h120": {
+      "n": 49,
+      "alpha_moyen": 0.2872,
+      "part_alpha_positif": 0.694,
+      "t": 3.94,
+      "rendement_net_frais": 0.3465
+     }
+    }
+   },
+   "2025-01_2026-10|allume": {
+    "observations": 11580,
+    "mom120": {
+     "h20": {
+      "ic": 0.0274,
+      "jours": 245,
+      "part_positive": 0.539
+     },
+     "h60": {
+      "ic": 0.0068,
+      "jours": 245,
+      "part_positive": 0.494
+     },
+     "h120": {
+      "ic": -0.0182,
+      "jours": 245,
+      "part_positive": 0.42
+     }
+    },
+    "mom_secteur": {
+     "h20": {
+      "ic": 0.0121,
+      "jours": 245,
+      "part_positive": 0.539
+     },
+     "h60": {
+      "ic": 0.0065,
+      "jours": 245,
+      "part_positive": 0.563
+     },
+     "h120": {
+      "ic": 0.0051,
+      "jours": 245,
+      "part_positive": 0.527
+     }
+    },
+    "rel_secteur": {
+     "h20": {
+      "ic": 0.0167,
+      "jours": 245,
+      "part_positive": 0.531
+     },
+     "h60": {
+      "ic": -0.0123,
+      "jours": 245,
+      "part_positive": 0.445
+     },
+     "h120": {
+      "ic": -0.0373,
+      "jours": 245,
+      "part_positive": 0.408
+     }
+    },
+    "dist_ma200": {
+     "h20": {
+      "ic": 0.0124,
+      "jours": 245,
+      "part_positive": 0.547
+     },
+     "h60": {
+      "ic": -0.0138,
+      "jours": 245,
+      "part_positive": 0.461
+     },
+     "h120": {
+      "ic": -0.0308,
+      "jours": 245,
+      "part_positive": 0.388
+     }
+    },
+    "pullback": {
+     "h20": {
+      "n": 200,
+      "alpha_moyen": 0.0107,
+      "part_alpha_positif": 0.49,
+      "t": 1.52,
+      "rendement_net_frais": 0.0099
+     },
+     "h60": {
+      "n": 200,
+      "alpha_moyen": 0.028,
+      "part_alpha_positif": 0.44,
+      "t": 1.82,
+      "rendement_net_frais": 0.0438
+     },
+     "h120": {
+      "n": 199,
+      "alpha_moyen": 0.0369,
+      "part_alpha_positif": 0.387,
+      "t": 1.78,
+      "rendement_net_frais": 0.0418
+     }
+    },
+    "cassure90": {
+     "h20": {
+      "n": 136,
+      "alpha_moyen": 0.0429,
+      "part_alpha_positif": 0.5,
+      "t": 2.53,
+      "rendement_net_frais": 0.0371
+     },
+     "h60": {
+      "n": 136,
+      "alpha_moyen": 0.0719,
+      "part_alpha_positif": 0.529,
+      "t": 3.03,
+      "rendement_net_frais": 0.0791
+     },
+     "h120": {
+      "n": 136,
+      "alpha_moyen": 0.1055,
+      "part_alpha_positif": 0.485,
+      "t": 3.03,
+      "rendement_net_frais": 0.1495
+     }
+    },
+    "double_creux": {
+     "h20": {
+      "n": 33,
+      "alpha_moyen": 0.051,
+      "part_alpha_positif": 0.485,
+      "t": 1.92,
+      "rendement_net_frais": 0.0441
+     },
+     "h60": {
+      "n": 33,
+      "alpha_moyen": 0.1229,
+      "part_alpha_positif": 0.576,
+      "t": 2.1,
+      "rendement_net_frais": 0.1123
+     },
+     "h120": {
+      "n": 33,
+      "alpha_moyen": 0.1393,
+      "part_alpha_positif": 0.424,
+      "t": 1.43,
+      "rendement_net_frais": 0.1444
+     }
+    },
+    "fibo_rebond_382_618": {
+     "h20": {
+      "n": 46,
+      "alpha_moyen": 0.0587,
+      "part_alpha_positif": 0.435,
+      "t": 1.12,
+      "rendement_net_frais": 0.0536
+     },
+     "h60": {
+      "n": 46,
+      "alpha_moyen": 0.0656,
+      "part_alpha_positif": 0.37,
+      "t": 1.13,
+      "rendement_net_frais": 0.0741
+     },
+     "h120": {
+      "n": 46,
+      "alpha_moyen": 0.0647,
+      "part_alpha_positif": 0.435,
+      "t": 0.91,
+      "rendement_net_frais": 0.083
+     }
+    },
+    "rsi_sortie_surachat": {
+     "h20": {
+      "n": 137,
+      "alpha_moyen": 0.0208,
+      "part_alpha_positif": 0.518,
+      "t": 2.21,
+      "rendement_net_frais": 0.0151
+     },
+     "h60": {
+      "n": 137,
+      "alpha_moyen": 0.0559,
+      "part_alpha_positif": 0.496,
+      "t": 2.55,
+      "rendement_net_frais": 0.0621
+     },
+     "h120": {
+      "n": 137,
+      "alpha_moyen": 0.0818,
+      "part_alpha_positif": 0.518,
+      "t": 2.64,
+      "rendement_net_frais": 0.1185
+     }
+    }
+   },
+   "2025-01_2026-10|eteint": {
+    "observations": 7923,
+    "mom120": {
+     "h20": {
+      "ic": 0.0938,
+      "jours": 156,
+      "part_positive": 0.673
+     },
+     "h60": {
+      "ic": 0.1169,
+      "jours": 116,
+      "part_positive": 0.819
+     },
+     "h120": {
+      "ic": 0.0272,
+      "jours": 56,
+      "part_positive": 0.643
+     }
+    },
+    "mom_secteur": {
+     "h20": {
+      "ic": 0.0112,
+      "jours": 156,
+      "part_positive": 0.545
+     },
+     "h60": {
+      "ic": 0.0269,
+      "jours": 116,
+      "part_positive": 0.569
+     },
+     "h120": {
+      "ic": 0.0279,
+      "jours": 56,
+      "part_positive": 0.571
+     }
+    },
+    "rel_secteur": {
+     "h20": {
+      "ic": 0.014,
+      "jours": 156,
+      "part_positive": 0.622
+     },
+     "h60": {
+      "ic": 0.0095,
+      "jours": 116,
+      "part_positive": 0.466
+     },
+     "h120": {
+      "ic": -0.0262,
+      "jours": 56,
+      "part_positive": 0.464
+     }
+    },
+    "dist_ma200": {
+     "h20": {
+      "ic": 0.0484,
+      "jours": 156,
+      "part_positive": 0.59
+     },
+     "h60": {
+      "ic": 0.0822,
+      "jours": 116,
+      "part_positive": 0.828
+     },
+     "h120": {
+      "ic": 0.012,
+      "jours": 56,
+      "part_positive": 0.625
+     }
+    },
+    "pullback": {
+     "h20": {
+      "n": 68,
+      "alpha_moyen": 0.008,
+      "part_alpha_positif": 0.5,
+      "t": 0.66,
+      "rendement_net_frais": 0.0029
+     },
+     "h60": {
+      "n": 58,
+      "alpha_moyen": -0.0384,
+      "part_alpha_positif": 0.241,
+      "t": -1.55,
+      "rendement_net_frais": -0.0513
+     },
+     "h120": {
+      "n": 51,
+      "alpha_moyen": -0.048,
+      "part_alpha_positif": 0.235,
+      "t": -1.1,
+      "rendement_net_frais": -0.0658
+     }
+    },
+    "cassure90": {
+     "h20": {
+      "n": 21,
+      "alpha_moyen": 0.0203,
+      "part_alpha_positif": 0.381,
+      "t": 0.5,
+      "rendement_net_frais": -0.0205
+     },
+     "h60": {
+      "n": 14,
+      "alpha_moyen": 0.1272,
+      "part_alpha_positif": 0.643,
+      "t": 1.52,
+      "rendement_net_frais": 0.0956
+     },
+     "h120": {
+      "n": 6,
+      "alpha_moyen": 0.3649,
+      "part_alpha_positif": 0.667,
+      "t": 2.28,
+      "rendement_net_frais": 0.3252
+     }
+    },
+    "double_creux": {
+     "h20": {
+      "n": 11,
+      "alpha_moyen": 0.0115,
+      "part_alpha_positif": 0.545,
+      "t": 0.34,
+      "rendement_net_frais": -0.0297
+     },
+     "h60": {
+      "n": 8,
+      "alpha_moyen": -0.0042,
+      "part_alpha_positif": 0.625,
+      "t": -0.12,
+      "rendement_net_frais": -0.0597
+     },
+     "h120": {
+      "n": 1,
+      "alpha_moyen": -0.1543,
+      "part_alpha_positif": 0.0,
+      "t": null,
+      "rendement_net_frais": -0.0976
+     }
+    },
+    "fibo_rebond_382_618": {
+     "h20": {
+      "n": 17,
+      "alpha_moyen": -0.0228,
+      "part_alpha_positif": 0.471,
+      "t": -0.49,
+      "rendement_net_frais": -0.0557
+     },
+     "h60": {
+      "n": 14,
+      "alpha_moyen": 0.0753,
+      "part_alpha_positif": 0.429,
+      "t": 0.73,
+      "rendement_net_frais": 0.0515
+     },
+     "h120": {
+      "n": 3,
+      "alpha_moyen": 0.3786,
+      "part_alpha_positif": 0.667,
+      "t": 0.94,
+      "rendement_net_frais": 0.3463
+     }
+    },
+    "rsi_sortie_surachat": {
+     "h20": {
+      "n": 27,
+      "alpha_moyen": 0.0101,
+      "part_alpha_positif": 0.519,
+      "t": 0.46,
+      "rendement_net_frais": -0.0299
+     },
+     "h60": {
+      "n": 19,
+      "alpha_moyen": 0.03,
+      "part_alpha_positif": 0.579,
+      "t": 0.53,
+      "rendement_net_frais": -0.013
+     },
+     "h120": {
+      "n": 5,
+      "alpha_moyen": 0.0404,
+      "part_alpha_positif": 0.2,
+      "t": 0.28,
+      "rendement_net_frais": -0.0173
+     }
+    }
+   }
+  },
+  "masi_sur_ma200": {
+   "2023-10_2024-12|allume": {
+    "observations": 10133,
+    "mom120": {
+     "h20": {
+      "ic": 0.2236,
+      "jours": 268,
+      "part_positive": 0.81
+     },
+     "h60": {
+      "ic": 0.308,
+      "jours": 268,
+      "part_positive": 0.974
+     },
+     "h120": {
+      "ic": 0.4091,
+      "jours": 268,
+      "part_positive": 1.0
+     }
+    },
+    "mom_secteur": {
+     "h20": {
+      "ic": 0.0988,
+      "jours": 268,
+      "part_positive": 0.69
+     },
+     "h60": {
+      "ic": 0.1655,
+      "jours": 268,
+      "part_positive": 0.776
+     },
+     "h120": {
+      "ic": 0.1525,
+      "jours": 268,
+      "part_positive": 0.772
+     }
+    },
+    "rel_secteur": {
+     "h20": {
+      "ic": 0.0618,
+      "jours": 268,
+      "part_positive": 0.586
+     },
+     "h60": {
+      "ic": 0.1096,
+      "jours": 268,
+      "part_positive": 0.776
+     },
+     "h120": {
+      "ic": 0.1814,
+      "jours": 268,
+      "part_positive": 0.929
+     }
+    },
+    "dist_ma200": {
+     "h20": {
+      "ic": 0.2069,
+      "jours": 189,
+      "part_positive": 0.794
+     },
+     "h60": {
+      "ic": 0.3649,
+      "jours": 189,
+      "part_positive": 0.984
+     },
+     "h120": {
+      "ic": 0.4919,
+      "jours": 189,
+      "part_positive": 1.0
+     }
+    },
+    "pullback": {
+     "h20": {
+      "n": 62,
+      "alpha_moyen": 0.0313,
+      "part_alpha_positif": 0.597,
+      "t": 3.09,
+      "rendement_net_frais": 0.0342
+     },
+     "h60": {
+      "n": 62,
+      "alpha_moyen": 0.0651,
+      "part_alpha_positif": 0.597,
+      "t": 2.85,
+      "rendement_net_frais": 0.1289
+     },
+     "h120": {
+      "n": 62,
+      "alpha_moyen": 0.176,
+      "part_alpha_positif": 0.565,
+      "t": 3.38,
+      "rendement_net_frais": 0.3442
+     }
+    },
+    "cassure90": {
+     "h20": {
+      "n": 105,
+      "alpha_moyen": 0.044,
+      "part_alpha_positif": 0.581,
+      "t": 3.14,
+      "rendement_net_frais": 0.0419
+     },
+     "h60": {
+      "n": 105,
+      "alpha_moyen": 0.1128,
+      "part_alpha_positif": 0.505,
+      "t": 3.47,
+      "rendement_net_frais": 0.1511
+     },
+     "h120": {
+      "n": 105,
+      "alpha_moyen": 0.2009,
+      "part_alpha_positif": 0.581,
+      "t": 4.18,
+      "rendement_net_frais": 0.318
+     }
+    },
+    "double_creux": {
+     "h20": {
+      "n": 15,
+      "alpha_moyen": 0.0437,
+      "part_alpha_positif": 0.667,
+      "t": 1.7,
+      "rendement_net_frais": 0.0456
+     },
+     "h60": {
+      "n": 15,
+      "alpha_moyen": 0.0403,
+      "part_alpha_positif": 0.4,
+      "t": 0.82,
+      "rendement_net_frais": 0.0862
+     },
+     "h120": {
+      "n": 15,
+      "alpha_moyen": 0.2108,
+      "part_alpha_positif": 0.733,
+      "t": 2.03,
+      "rendement_net_frais": 0.325
+     }
+    },
+    "fibo_rebond_382_618": {
+     "h20": {
+      "n": 25,
+      "alpha_moyen": 0.0278,
+      "part_alpha_positif": 0.6,
+      "t": 1.58,
+      "rendement_net_frais": 0.0295
+     },
+     "h60": {
+      "n": 25,
+      "alpha_moyen": 0.1291,
+      "part_alpha_positif": 0.48,
+      "t": 1.32,
+      "rendement_net_frais": 0.1778
+     },
+     "h120": {
+      "n": 25,
+      "alpha_moyen": 0.1575,
+      "part_alpha_positif": 0.6,
+      "t": 1.61,
+      "rendement_net_frais": 0.2727
+     }
+    },
+    "rsi_sortie_surachat": {
+     "h20": {
+      "n": 117,
+      "alpha_moyen": 0.0305,
+      "part_alpha_positif": 0.59,
+      "t": 3.29,
+      "rendement_net_frais": 0.024
+     },
+     "h60": {
+      "n": 117,
+      "alpha_moyen": 0.1216,
+      "part_alpha_positif": 0.59,
+      "t": 4.19,
+      "rendement_net_frais": 0.1605
+     },
+     "h120": {
+      "n": 117,
+      "alpha_moyen": 0.2292,
+      "part_alpha_positif": 0.641,
+      "t": 5.12,
+      "rendement_net_frais": 0.3402
+     }
+    }
+   },
+   "2023-10_2024-12|eteint": {
+    "observations": 389,
+    "mom120": {
+     "h20": {
+      "jours": 0
+     },
+     "h60": {
+      "jours": 0
+     },
+     "h120": {
+      "jours": 0
+     }
+    },
+    "mom_secteur": {
+     "h20": {
+      "jours": 0
+     },
+     "h60": {
+      "jours": 0
+     },
+     "h120": {
+      "jours": 0
+     }
+    },
+    "rel_secteur": {
+     "h20": {
+      "jours": 0
+     },
+     "h60": {
+      "jours": 0
+     },
+     "h120": {
+      "jours": 0
+     }
+    },
+    "dist_ma200": {
+     "h20": {
+      "jours": 0
+     },
+     "h60": {
+      "jours": 0
+     },
+     "h120": {
+      "jours": 0
+     }
+    },
+    "pullback": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    },
+    "cassure90": {
+     "h20": {
+      "n": 1,
+      "alpha_moyen": 0.1199,
+      "part_alpha_positif": 1.0,
+      "t": null,
+      "rendement_net_frais": 0.0741
+     },
+     "h60": {
+      "n": 1,
+      "alpha_moyen": 0.2003,
+      "part_alpha_positif": 1.0,
+      "t": null,
+      "rendement_net_frais": 0.1679
+     },
+     "h120": {
+      "n": 1,
+      "alpha_moyen": 0.4633,
+      "part_alpha_positif": 1.0,
+      "t": null,
+      "rendement_net_frais": 0.4992
+     }
+    },
+    "double_creux": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    },
+    "fibo_rebond_382_618": {
+     "h20": {
+      "n": 2,
+      "alpha_moyen": 0.0213,
+      "part_alpha_positif": 0.5,
+      "t": 0.83,
+      "rendement_net_frais": -0.0251
+     },
+     "h60": {
+      "n": 2,
+      "alpha_moyen": 0.0853,
+      "part_alpha_positif": 1.0,
+      "t": 2.0,
+      "rendement_net_frais": 0.0628
+     },
+     "h120": {
+      "n": 2,
+      "alpha_moyen": 0.5555,
+      "part_alpha_positif": 1.0,
+      "t": 5.3,
+      "rendement_net_frais": 0.5932
+     }
+    },
+    "rsi_sortie_surachat": {
+     "h20": {
+      "n": 7,
+      "alpha_moyen": 0.007,
+      "part_alpha_positif": 0.571,
+      "t": 0.45,
+      "rendement_net_frais": -0.0284
+     },
+     "h60": {
+      "n": 7,
+      "alpha_moyen": 0.0203,
+      "part_alpha_positif": 0.429,
+      "t": 0.51,
+      "rendement_net_frais": 0.0108
+     },
+     "h120": {
+      "n": 7,
+      "alpha_moyen": 0.1941,
+      "part_alpha_positif": 0.571,
+      "t": 1.7,
+      "rendement_net_frais": 0.2459
+     }
+    }
+   },
+   "2025-01_2026-10|allume": {
+    "observations": 13610,
+    "mom120": {
+     "h20": {
+      "ic": 0.0484,
+      "jours": 286,
+      "part_positive": 0.58
+     },
+     "h60": {
+      "ic": 0.0149,
+      "jours": 274,
+      "part_positive": 0.522
+     },
+     "h120": {
+      "ic": -0.0202,
+      "jours": 257,
+      "part_positive": 0.412
+     }
+    },
+    "mom_secteur": {
+     "h20": {
+      "ic": -0.0022,
+      "jours": 286,
+      "part_positive": 0.514
+     },
+     "h60": {
+      "ic": 0.0004,
+      "jours": 274,
+      "part_positive": 0.54
+     },
+     "h120": {
+      "ic": -0.0002,
+      "jours": 257,
+      "part_positive": 0.502
+     }
+    },
+    "rel_secteur": {
+     "h20": {
+      "ic": 0.0313,
+      "jours": 286,
+      "part_positive": 0.58
+     },
+     "h60": {
+      "ic": -0.0044,
+      "jours": 274,
+      "part_positive": 0.445
+     },
+     "h120": {
+      "ic": -0.0357,
+      "jours": 257,
+      "part_positive": 0.416
+     }
+    },
+    "dist_ma200": {
+     "h20": {
+      "ic": 0.0231,
+      "jours": 286,
+      "part_positive": 0.563
+     },
+     "h60": {
+      "ic": -0.0132,
+      "jours": 274,
+      "part_positive": 0.474
+     },
+     "h120": {
+      "ic": -0.0323,
+      "jours": 257,
+      "part_positive": 0.389
+     }
+    },
+    "pullback": {
+     "h20": {
+      "n": 213,
+      "alpha_moyen": 0.0081,
+      "part_alpha_positif": 0.488,
+      "t": 1.19,
+      "rendement_net_frais": 0.0061
+     },
+     "h60": {
+      "n": 212,
+      "alpha_moyen": 0.0245,
+      "part_alpha_positif": 0.443,
+      "t": 1.67,
+      "rendement_net_frais": 0.038
+     },
+     "h120": {
+      "n": 208,
+      "alpha_moyen": 0.0321,
+      "part_alpha_positif": 0.375,
+      "t": 1.61,
+      "rendement_net_frais": 0.0345
+     }
+    },
+    "cassure90": {
+     "h20": {
+      "n": 145,
+      "alpha_moyen": 0.0365,
+      "part_alpha_positif": 0.483,
+      "t": 2.24,
+      "rendement_net_frais": 0.0274
+     },
+     "h60": {
+      "n": 140,
+      "alpha_moyen": 0.0677,
+      "part_alpha_positif": 0.536,
+      "t": 2.9,
+      "rendement_net_frais": 0.0732
+     },
+     "h120": {
+      "n": 136,
+      "alpha_moyen": 0.1055,
+      "part_alpha_positif": 0.485,
+      "t": 3.03,
+      "rendement_net_frais": 0.1495
+     }
+    },
+    "double_creux": {
+     "h20": {
+      "n": 39,
+      "alpha_moyen": 0.0404,
+      "part_alpha_positif": 0.487,
+      "t": 1.76,
+      "rendement_net_frais": 0.0243
+     },
+     "h60": {
+      "n": 36,
+      "alpha_moyen": 0.1083,
+      "part_alpha_positif": 0.556,
+      "t": 2.0,
+      "rendement_net_frais": 0.0919
+     },
+     "h120": {
+      "n": 33,
+      "alpha_moyen": 0.1393,
+      "part_alpha_positif": 0.424,
+      "t": 1.43,
+      "rendement_net_frais": 0.1444
+     }
+    },
+    "fibo_rebond_382_618": {
+     "h20": {
+      "n": 56,
+      "alpha_moyen": 0.0535,
+      "part_alpha_positif": 0.464,
+      "t": 1.21,
+      "rendement_net_frais": 0.0413
+     },
+     "h60": {
+      "n": 56,
+      "alpha_moyen": 0.0661,
+      "part_alpha_positif": 0.375,
+      "t": 1.27,
+      "rendement_net_frais": 0.0657
+     },
+     "h120": {
+      "n": 48,
+      "alpha_moyen": 0.0651,
+      "part_alpha_positif": 0.438,
+      "t": 0.94,
+      "rendement_net_frais": 0.0809
+     }
+    },
+    "rsi_sortie_surachat": {
+     "h20": {
+      "n": 150,
+      "alpha_moyen": 0.0181,
+      "part_alpha_positif": 0.507,
+      "t": 2.09,
+      "rendement_net_frais": 0.008
+     },
+     "h60": {
+      "n": 145,
+      "alpha_moyen": 0.0558,
+      "part_alpha_positif": 0.497,
+      "t": 2.63,
+      "rendement_net_frais": 0.0586
+     },
+     "h120": {
+      "n": 139,
+      "alpha_moyen": 0.0842,
+      "part_alpha_positif": 0.518,
+      "t": 2.73,
+      "rendement_net_frais": 0.1192
+     }
+    }
+   },
+   "2025-01_2026-10|eteint": {
+    "observations": 5893,
+    "mom120": {
+     "h20": {
+      "ic": 0.0652,
+      "jours": 115,
+      "part_positive": 0.617
+     },
+     "h60": {
+      "ic": 0.1281,
+      "jours": 87,
+      "part_positive": 0.839
+     },
+     "h120": {
+      "ic": 0.0517,
+      "jours": 44,
+      "part_positive": 0.75
+     }
+    },
+    "mom_secteur": {
+     "h20": {
+      "ic": 0.0464,
+      "jours": 115,
+      "part_positive": 0.609
+     },
+     "h60": {
+      "ic": 0.0528,
+      "jours": 87,
+      "part_positive": 0.644
+     },
+     "h120": {
+      "ic": 0.0649,
+      "jours": 44,
+      "part_positive": 0.727
+     }
+    },
+    "rel_secteur": {
+     "h20": {
+      "ic": -0.0232,
+      "jours": 115,
+      "part_positive": 0.53
+     },
+     "h60": {
+      "ic": -0.0081,
+      "jours": 87,
+      "part_positive": 0.471
+     },
+     "h120": {
+      "ic": -0.0326,
+      "jours": 44,
+      "part_positive": 0.432
+     }
+    },
+    "dist_ma200": {
+     "h20": {
+      "ic": 0.0349,
+      "jours": 115,
+      "part_positive": 0.565
+     },
+     "h60": {
+      "ic": 0.1122,
+      "jours": 87,
+      "part_positive": 0.908
+     },
+     "h120": {
+      "ic": 0.0323,
+      "jours": 44,
+      "part_positive": 0.682
+     }
+    },
+    "pullback": {
+     "h20": {
+      "n": 62,
+      "alpha_moyen": 0.007,
+      "part_alpha_positif": 0.5,
+      "t": 0.53,
+      "rendement_net_frais": 0.007
+     },
+     "h60": {
+      "n": 53,
+      "alpha_moyen": -0.0381,
+      "part_alpha_positif": 0.189,
+      "t": -1.44,
+      "rendement_net_frais": -0.0415
+     },
+     "h120": {
+      "n": 47,
+      "alpha_moyen": -0.0409,
+      "part_alpha_positif": 0.277,
+      "t": -0.87,
+      "rendement_net_frais": -0.0529
+     }
+    },
+    "cassure90": {
+     "h20": {
+      "n": 13,
+      "alpha_moyen": 0.0092,
+      "part_alpha_positif": 0.462,
+      "t": 0.19,
+      "rendement_net_frais": -0.0215
+     },
+     "h60": {
+      "n": 11,
+      "alpha_moyen": 0.0416,
+      "part_alpha_positif": 0.545,
+      "t": 0.52,
+      "rendement_net_frais": 0.0159
+     },
+     "h120": {
+      "n": 4,
+      "alpha_moyen": 0.1819,
+      "part_alpha_positif": 0.5,
+      "t": 1.07,
+      "rendement_net_frais": 0.1538
+     }
+    },
+    "double_creux": {
+     "h20": {
+      "n": 5,
+      "alpha_moyen": 0.0467,
+      "part_alpha_positif": 0.6,
+      "t": 0.65,
+      "rendement_net_frais": 0.036
+     },
+     "h60": {
+      "n": 5,
+      "alpha_moyen": 0.0243,
+      "part_alpha_positif": 0.8,
+      "t": 0.53,
+      "rendement_net_frais": -0.016
+     },
+     "h120": {
+      "n": 1,
+      "alpha_moyen": -0.1543,
+      "part_alpha_positif": 0.0,
+      "t": null,
+      "rendement_net_frais": -0.0976
+     }
+    },
+    "fibo_rebond_382_618": {
+     "h20": {
+      "n": 7,
+      "alpha_moyen": -0.0982,
+      "part_alpha_positif": 0.286,
+      "t": -1.51,
+      "rendement_net_frais": -0.1132
+     },
+     "h60": {
+      "n": 4,
+      "alpha_moyen": 0.0923,
+      "part_alpha_positif": 0.5,
+      "t": 0.45,
+      "rendement_net_frais": 0.1125
+     },
+     "h120": {
+      "n": 1,
+      "alpha_moyen": 0.986,
+      "part_alpha_positif": 1.0,
+      "t": null,
+      "rendement_net_frais": 0.9737
+     }
+    },
+    "rsi_sortie_surachat": {
+     "h20": {
+      "n": 14,
+      "alpha_moyen": 0.0294,
+      "part_alpha_positif": 0.643,
+      "t": 0.7,
+      "rendement_net_frais": 0.0047
+     },
+     "h60": {
+      "n": 11,
+      "alpha_moyen": 0.012,
+      "part_alpha_positif": 0.636,
+      "t": 0.16,
+      "rendement_net_frais": -0.0206
+     },
+     "h120": {
+      "n": 3,
+      "alpha_moyen": -0.0977,
+      "part_alpha_positif": 0.0,
+      "t": -1.9,
+      "rendement_net_frais": -0.1386
+     }
+    }
+   }
+  }
+ }
+}
