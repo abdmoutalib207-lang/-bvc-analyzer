@@ -637,6 +637,33 @@ SPLITS: dict = {
 #
 # ⚠️ Une suspension a une FIN, et elle n'est pas connue d'avance. Laisser
 # `reprise` à None signifie « toujours suspendu ». À relire à chaque avis AMMC.
+COTATION_AU_FIXING: dict = {
+    # ⚠️ Inscrit le 03/10/2026, sur pièce. Les titres peu liquides ne cotent
+    # pas en continu (09h30-15h30) mais au FIXING de 14h30 : un seul prix par
+    # séance, donc ouverture = plus haut = plus bas = clôture. Les figures qui
+    # lisent les mèches (marteau, avalement, doji) et l'amplitude des séances
+    # (ATR) n'y ont pas de sens.
+    #
+    # ⚠️ LE MODE CHANGE DANS LE TEMPS : la Bourse reclasse selon la liquidité.
+    # Mesuré dans nos chandelles (part des séances plates, O=H=B=C) :
+    #   SRM  continu jusqu'en juillet 2026, fixing depuis août (18/18)
+    #   EQD  fixing depuis février 2026 environ
+    #   AFM  fixing depuis février 2026 environ
+    #   SLM  fixing d'août 2025 à juin 2026, REVENU en continu en juillet 2026
+    # Cette liste n'établit donc le mode que pour la séance qu'elle date. Pour
+    # l'historique, c'est la bougie elle-même qui dit si elle porte des
+    # extrêmes réels — jamais cette liste appliquée à reculons.
+    "seance": "2026-10-02",
+    "source": ("CDG Capital Bourse, « Indices du samedi 3 octobre 2026 » "
+               "(séance du vendredi 02/10, transactions horodatées 14:30-14:32), "
+               "sha256 5ae9c28a…, fourni par Abd Moutalib"),
+    # Nos tickers. Codes officiels du bulletin : AFM AGM BAL DIS DLM DRI EQD
+    # MAB MLE NEJ OUL PRO REB SAM SRM UMR. SAM (Samir) est hors univers.
+    "tickers": ["AFM", "AGM", "BAL", "DIS", "DLM", "DAR", "EQD", "MGL",
+                "MRL", "NEJ", "OUL", "PPM", "REB", "SRM", "UNI"],
+}
+
+
 SUSPENSIONS: dict = {
     # Diac Salaf — société de financement EN LIQUIDATION JUDICIAIRE.
     # ⚠️ Inscrit le 03/10/2026. Abd Moutalib : « sous liquidation judiciaire
