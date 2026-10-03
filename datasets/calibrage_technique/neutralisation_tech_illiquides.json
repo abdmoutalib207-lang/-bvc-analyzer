@@ -1,0 +1,340 @@
+{
+ "_quoi": "Neutralisation du pilier technique sur les titres peu liquides et au fixing — mesure avant décision",
+ "_methode": "Mesure, AVANT décision : que donnerait la neutralisation du pilier\ntechnique sur les titres peu liquides et au fixing ?\n\n⚠️ CE QUI EST PROPOSÉ (soumis à l'accord d'Abd Moutalib, R8)\nSur un titre peu liquide ou coté au fixing, le pilier technique actuel\nannonce l'INVERSE de la suite (étape 0 : corrélation −0,18 à −0,30 à 5\nséances). La proposition est de lui donner un poids nul sur ces titres : sa\npart revient au fondamental. La note devient\n    v53' = v53 + (score_fond − score_tech) × poids_t\nce qui conserve tout le reste de la formule (bonus compris, nuls depuis le\n30/09).\n\n⚠️ RÈGLE FIXÉE AVANT LA MESURE\n« Peu liquide » : montant médian échangé sur les 20 dernières séances\néchangées < 125 947 DH — le seuil du tiers le moins liquide mesuré à\nl'étape 0. « Au fixing » : la majorité de ces 20 séances sont plates\n(O = H = B = C). Les deux sont établis À LA DATE, depuis les chandelles.\n\nDeux mesures :\n1. Effet sur la livraison actuelle (`data.json`) : écarts de note et\n   changements de palier.\n2. Effet sur les notes RÉELLEMENT PUBLIÉES depuis le 12/08 (premier jour où\n   `poids` est publié), confiance ≥ 2 : corrélation de rang jour par jour\n   entre la note et l'alpha futur en rendement total (5 et 20 séances), avec\n   et sans neutralisation. ⚠️ Un seul régime de marché, observations\n   chevauchantes : cela peut établir qu'on ne dégrade rien, pas davantage.",
+ "seuil_dh": 125947,
+ "effet_actuel": {
+  "date": "2026-10-02",
+  "titres_neutralises": 31,
+  "ecart_min": -0.94,
+  "ecart_max": 0.5,
+  "ecart_median": -0.15,
+  "paliers_changes": [
+   {
+    "t": "OUL",
+    "avant": "ÉVITER",
+    "apres": "ÉVITER FORT",
+    "v53": 3.59,
+    "v53_neutralise": 2.65
+   },
+   {
+    "t": "ZLD",
+    "avant": "ATTENDRE",
+    "apres": "SURVEILLER ★",
+    "v53": 5.42,
+    "v53_neutralise": 5.85
+   },
+   {
+    "t": "DAR",
+    "avant": "SURVEILLER ★",
+    "apres": "ATTENDRE",
+    "v53": 5.56,
+    "v53_neutralise": 5.35
+   },
+   {
+    "t": "MOX",
+    "avant": "ATTENDRE",
+    "apres": "ÉVITER",
+    "v53": 4.97,
+    "v53_neutralise": 4.25
+   },
+   {
+    "t": "M2M",
+    "avant": "SURVEILLER ★",
+    "apres": "ATTENDRE",
+    "v53": 5.53,
+    "v53_neutralise": 5.2
+   },
+   {
+    "t": "AGM",
+    "avant": "SURVEILLER ★",
+    "apres": "ATTENDRE",
+    "v53": 5.51,
+    "v53_neutralise": 4.95
+   },
+   {
+    "t": "EQD",
+    "avant": "ÉVITER",
+    "apres": "ÉVITER FORT",
+    "v53": 3.84,
+    "v53_neutralise": 3.0
+   },
+   {
+    "t": "REB",
+    "avant": "ATTENDRE",
+    "apres": "ÉVITER",
+    "v53": 4.62,
+    "v53_neutralise": 4.46
+   }
+  ],
+  "detail": [
+   {
+    "t": "OUL",
+    "v53": 3.59,
+    "v53_neutralise": 2.65,
+    "ecart": -0.94,
+    "montant_median_dh": 2331,
+    "poids_tech": 22
+   },
+   {
+    "t": "EQD",
+    "v53": 3.84,
+    "v53_neutralise": 3.0,
+    "ecart": -0.84,
+    "montant_median_dh": 237202,
+    "poids_tech": 22
+   },
+   {
+    "t": "MOX",
+    "v53": 4.97,
+    "v53_neutralise": 4.25,
+    "ecart": -0.72,
+    "montant_median_dh": 1898,
+    "poids_tech": 22
+   },
+   {
+    "t": "AGM",
+    "v53": 5.51,
+    "v53_neutralise": 4.95,
+    "ecart": -0.56,
+    "montant_median_dh": 7186,
+    "poids_tech": 22
+   },
+   {
+    "t": "SRM",
+    "v53": 2.69,
+    "v53_neutralise": 2.15,
+    "ecart": -0.54,
+    "montant_median_dh": 5340,
+    "poids_tech": 22
+   },
+   {
+    "t": "PPM",
+    "v53": 5.3,
+    "v53_neutralise": 4.85,
+    "ecart": -0.45,
+    "montant_median_dh": 28120,
+    "poids_tech": 22
+   },
+   {
+    "t": "SAF",
+    "v53": 5.38,
+    "v53_neutralise": 5.01,
+    "ecart": -0.37,
+    "montant_median_dh": 39467,
+    "poids_tech": 22
+   },
+   {
+    "t": "M2M",
+    "v53": 5.53,
+    "v53_neutralise": 5.2,
+    "ecart": -0.33,
+    "montant_median_dh": 5213,
+    "poids_tech": 22
+   },
+   {
+    "t": "ALU",
+    "v53": 6.37,
+    "v53_neutralise": 6.05,
+    "ecart": -0.32,
+    "montant_median_dh": 28972,
+    "poids_tech": 22
+   },
+   {
+    "t": "AFM",
+    "v53": 6.15,
+    "v53_neutralise": 5.85,
+    "ecart": -0.3,
+    "montant_median_dh": 12450,
+    "poids_tech": 22
+   },
+   {
+    "t": "MGL",
+    "v53": 6.34,
+    "v53_neutralise": 6.1,
+    "ecart": -0.24,
+    "montant_median_dh": 4575,
+    "poids_tech": 22
+   },
+   {
+    "t": "MRL",
+    "v53": 5.48,
+    "v53_neutralise": 5.25,
+    "ecart": -0.23,
+    "montant_median_dh": 1497,
+    "poids_tech": 22
+   },
+   {
+    "t": "DAR",
+    "v53": 5.56,
+    "v53_neutralise": 5.35,
+    "ecart": -0.21,
+    "montant_median_dh": 22752,
+    "poids_tech": 22
+   },
+   {
+    "t": "INV",
+    "v53": 3.14,
+    "v53_neutralise": 2.95,
+    "ecart": -0.19,
+    "montant_median_dh": 22152,
+    "poids_tech": 22
+   },
+   {
+    "t": "REB",
+    "v53": 4.62,
+    "v53_neutralise": 4.46,
+    "ecart": -0.16,
+    "montant_median_dh": 930,
+    "poids_tech": 22
+   },
+   {
+    "t": "UNI",
+    "v53": 4.25,
+    "v53_neutralise": 4.1,
+    "ecart": -0.15,
+    "montant_median_dh": 2634,
+    "poids_tech": 22
+   },
+   {
+    "t": "LES",
+    "v53": 3.15,
+    "v53_neutralise": 3.05,
+    "ecart": -0.1,
+    "montant_median_dh": 14185,
+    "poids_tech": 22
+   },
+   {
+    "t": "STR",
+    "v53": 4.18,
+    "v53_neutralise": 4.15,
+    "ecart": -0.03,
+    "montant_median_dh": 104706,
+    "poids_tech": 22
+   },
+   {
+    "t": "CTM",
+    "v53": 3.9,
+    "v53_neutralise": 3.9,
+    "ecart": 0.0,
+    "montant_median_dh": 35730,
+    "poids_tech": 22
+   },
+   {
+    "t": "NEJ",
+    "v53": 6.06,
+    "v53_neutralise": 6.1,
+    "ecart": 0.04,
+    "montant_median_dh": 5621,
+    "poids_tech": 22
+   },
+   {
+    "t": "MDP",
+    "v53": 4.96,
+    "v53_neutralise": 5.0,
+    "ecart": 0.04,
+    "montant_median_dh": 6613,
+    "poids_tech": 22
+   },
+   {
+    "t": "MIC",
+    "v53": 8.09,
+    "v53_neutralise": 8.14,
+    "ecart": 0.05,
+    "montant_median_dh": 35394,
+    "poids_tech": 22
+   },
+   {
+    "t": "BAL",
+    "v53": 5.37,
+    "v53_neutralise": 5.45,
+    "ecart": 0.08,
+    "montant_median_dh": 754,
+    "poids_tech": 22
+   },
+   {
+    "t": "SLM",
+    "v53": 5.78,
+    "v53_neutralise": 5.95,
+    "ecart": 0.17,
+    "montant_median_dh": 58540,
+    "poids_tech": 22
+   },
+   {
+    "t": "AFI",
+    "v53": 7.67,
+    "v53_neutralise": 7.95,
+    "ecart": 0.28,
+    "montant_median_dh": 33921,
+    "poids_tech": 22
+   },
+   {
+    "t": "GAZ",
+    "v53": 6.15,
+    "v53_neutralise": 6.45,
+    "ecart": 0.3,
+    "montant_median_dh": 96343,
+    "poids_tech": 22
+   },
+   {
+    "t": "ENK",
+    "v53": 4.89,
+    "v53_neutralise": 5.2,
+    "ecart": 0.31,
+    "montant_median_dh": 67004,
+    "poids_tech": 22
+   },
+   {
+    "t": "IBM",
+    "v53": 4.89,
+    "v53_neutralise": 5.2,
+    "ecart": 0.31,
+    "montant_median_dh": 2882,
+    "poids_tech": 22
+   },
+   {
+    "t": "ZLD",
+    "v53": 5.42,
+    "v53_neutralise": 5.85,
+    "ecart": 0.43,
+    "montant_median_dh": 6173,
+    "poids_tech": 22
+   },
+   {
+    "t": "SBS",
+    "v53": 6.62,
+    "v53_neutralise": 7.05,
+    "ecart": 0.43,
+    "montant_median_dh": 22142,
+    "poids_tech": 22
+   },
+   {
+    "t": "COL",
+    "v53": 6.95,
+    "v53_neutralise": 7.45,
+    "ecart": 0.5,
+    "montant_median_dh": 48673,
+    "poids_tech": 22
+   }
+  ]
+ },
+ "effet_historique": {
+  "h5": {
+   "jours": 10,
+   "jours_ecartes_sans_score_fond": 24,
+   "premier_jour": "2026-08-12",
+   "observations": 723,
+   "dont_neutralisees": 274,
+   "ic_publie": -0.1791,
+   "ic_neutralise": -0.1641
+  },
+  "h20": {
+   "jours": 0,
+   "jours_ecartes_sans_score_fond": 24,
+   "premier_jour": "2026-08-12",
+   "observations": 0,
+   "dont_neutralisees": 0,
+   "ic_publie": null,
+   "ic_neutralise": null
+  }
+ }
+}
