@@ -1,0 +1,398 @@
+{
+ "_quoi": "Étape 0 du calibrage technique — pouvoir prédictif du score technique ACTUEL, rejoué au jour le jour",
+ "_methode": "Étape 0 du calibrage technique : le score technique ACTUEL annonce-t-il\nquelque chose ? Mesure, sans promesse, et sans rien changer à ce qui est publié.\n\n⚠️ POURQUOI ON PEUT REJOUER LE TECHNIQUE, ET PAS LE RESTE\n`backtest.py` refuse à juste titre de recalculer la note du passé : les\nfondamentaux sont datés d'aujourd'hui, les rejouer en 2024 donnerait au modèle\nla connaissance du futur. Le score technique, lui, ne dépend QUE des cours.\nChaque jour on ne lui donne que les séances connues ce jour-là\n(`compute_indicators(..., as_of=jour)` sur la série tronquée) : aucune\ninformation postérieure n'entre dans le calcul.\n\n⚠️ CE QUI EST MESURÉ\n- Le score est celui de la PRODUCTION (`update_data.calc_score_tech`), avec les\n  indicateurs de la production (`collect_history_bvcscrap.compute_indicators`).\n  Aucune copie de la formule ici : une copie dériverait.\n- Rendement futur à h séances (séances de la série du titre), comparé au MASI\n  sur les mêmes dates (`masi_history.json`, 916 séances depuis le 02/01/2023).\n- Frais : un aller-retour en formule « Trading » Attijari Intermédiation coûte\n  0,9 % HT par ordre (courtage 0,6 + règlement-livraison 0,2 + Bourse 0,1),\n  soit 1,8 % HT ; avec la TVA, ~2,0 % (TVA 10 %) ou ~2,2 % (TVA 20 %) — le taux\n  n'est pas dans la grille fournie. Les résultats nets sont donnés aux deux.\n- Seules comptent les dates où le titre a ÉCHANGÉ (volume > 0) : on ne peut pas\n  acheter un cours qui n'a pas traité.",
+ "frais_aller_retour": {
+  "HT": 0.018,
+  "TTC_TVA10": 0.0198,
+  "TTC_TVA20": 0.0216
+ },
+ "titres": 79,
+ "observations": 45370,
+ "periode": [
+  "2023-10-04",
+  "2026-10-02"
+ ],
+ "mesures": {
+  "2023-10_2024-12": {
+   "observations": 17097,
+   "5_seances": {
+    "ic_moyen": -0.1048,
+    "ic_jours": 308,
+    "ic_part_positive": 0.247,
+    "ic_non_chevauchant": -0.1188,
+    "ic_non_chevauchant_dates": 62,
+    "alpha_quintile_haut": {
+     "n": 2919,
+     "moyenne": 0.00221,
+     "t_naif": 2.53,
+     "part_positive": 0.45
+    },
+    "alpha_quintile_bas": {
+     "n": 3318,
+     "moyenne": 0.00977,
+     "t_naif": 9.24,
+     "part_positive": 0.527
+    },
+    "ecart_haut_moins_bas": -0.00756,
+    "rendement_brut_quintile_haut": {
+     "n": 2919,
+     "moyenne": 0.00575,
+     "t_naif": 6.3,
+     "part_positive": 0.454
+    },
+    "net_de_frais_quintile_haut": {
+     "HT": -0.01225,
+     "TTC_TVA10": -0.01405,
+     "TTC_TVA20": -0.01585
+    }
+   },
+   "10_seances": {
+    "ic_moyen": -0.0841,
+    "ic_jours": 308,
+    "ic_part_positive": 0.302,
+    "ic_non_chevauchant": -0.0676,
+    "ic_non_chevauchant_dates": 31,
+    "alpha_quintile_haut": {
+     "n": 2919,
+     "moyenne": 0.00563,
+     "t_naif": 4.38,
+     "part_positive": 0.453
+    },
+    "alpha_quintile_bas": {
+     "n": 3318,
+     "moyenne": 0.0146,
+     "t_naif": 8.27,
+     "part_positive": 0.506
+    },
+    "ecart_haut_moins_bas": -0.00896,
+    "rendement_brut_quintile_haut": {
+     "n": 2919,
+     "moyenne": 0.01302,
+     "t_naif": 9.61,
+     "part_positive": 0.471
+    },
+    "net_de_frais_quintile_haut": {
+     "HT": -0.00498,
+     "TTC_TVA10": -0.00678,
+     "TTC_TVA20": -0.00858
+    }
+   },
+   "20_seances": {
+    "ic_moyen": -0.0695,
+    "ic_jours": 308,
+    "ic_part_positive": 0.344,
+    "ic_non_chevauchant": -0.0497,
+    "ic_non_chevauchant_dates": 16,
+    "alpha_quintile_haut": {
+     "n": 2919,
+     "moyenne": 0.01339,
+     "t_naif": 6.46,
+     "part_positive": 0.444
+    },
+    "alpha_quintile_bas": {
+     "n": 3318,
+     "moyenne": 0.02174,
+     "t_naif": 8.36,
+     "part_positive": 0.468
+    },
+    "ecart_haut_moins_bas": -0.00835,
+    "rendement_brut_quintile_haut": {
+     "n": 2919,
+     "moyenne": 0.02904,
+     "t_naif": 13.33,
+     "part_positive": 0.497
+    },
+    "net_de_frais_quintile_haut": {
+     "HT": 0.01104,
+     "TTC_TVA10": 0.00924,
+     "TTC_TVA20": 0.00744
+    }
+   },
+   "60_seances": {
+    "ic_moyen": -0.0124,
+    "ic_jours": 308,
+    "ic_part_positive": 0.468,
+    "ic_non_chevauchant": -0.0792,
+    "ic_non_chevauchant_dates": 6,
+    "alpha_quintile_haut": {
+     "n": 2919,
+     "moyenne": 0.04972,
+     "t_naif": 9.71,
+     "part_positive": 0.433
+    },
+    "alpha_quintile_bas": {
+     "n": 3318,
+     "moyenne": 0.0305,
+     "t_naif": 6.64,
+     "part_positive": 0.434
+    },
+    "ecart_haut_moins_bas": 0.01921,
+    "rendement_brut_quintile_haut": {
+     "n": 2919,
+     "moyenne": 0.10992,
+     "t_naif": 21.05,
+     "part_positive": 0.639
+    },
+    "net_de_frais_quintile_haut": {
+     "HT": 0.09192,
+     "TTC_TVA10": 0.09012,
+     "TTC_TVA20": 0.08832
+    }
+   }
+  },
+  "2025-01_2026": {
+   "observations": 28273,
+   "5_seances": {
+    "ic_moyen": -0.0961,
+    "ic_jours": 411,
+    "ic_part_positive": 0.246,
+    "ic_non_chevauchant": -0.0996,
+    "ic_non_chevauchant_dates": 83,
+    "alpha_quintile_haut": {
+     "n": 4197,
+     "moyenne": 0.00214,
+     "t_naif": 2.6,
+     "part_positive": 0.451
+    },
+    "alpha_quintile_bas": {
+     "n": 5852,
+     "moyenne": 0.00455,
+     "t_naif": 8.1,
+     "part_positive": 0.518
+    },
+    "ecart_haut_moins_bas": -0.00241,
+    "rendement_brut_quintile_haut": {
+     "n": 4197,
+     "moyenne": 0.00267,
+     "t_naif": 3.02,
+     "part_positive": 0.425
+    },
+    "net_de_frais_quintile_haut": {
+     "HT": -0.01533,
+     "TTC_TVA10": -0.01713,
+     "TTC_TVA20": -0.01893
+    }
+   },
+   "10_seances": {
+    "ic_moyen": -0.0926,
+    "ic_jours": 404,
+    "ic_part_positive": 0.255,
+    "ic_non_chevauchant": -0.1114,
+    "ic_non_chevauchant_dates": 41,
+    "alpha_quintile_haut": {
+     "n": 4140,
+     "moyenne": 0.00571,
+     "t_naif": 4.39,
+     "part_positive": 0.429
+    },
+    "alpha_quintile_bas": {
+     "n": 5734,
+     "moyenne": 0.0033,
+     "t_naif": 4.66,
+     "part_positive": 0.484
+    },
+    "ecart_haut_moins_bas": 0.00241,
+    "rendement_brut_quintile_haut": {
+     "n": 4140,
+     "moyenne": 0.00825,
+     "t_naif": 5.96,
+     "part_positive": 0.435
+    },
+    "net_de_frais_quintile_haut": {
+     "HT": -0.00975,
+     "TTC_TVA10": -0.01155,
+     "TTC_TVA20": -0.01335
+    }
+   },
+   "20_seances": {
+    "ic_moyen": -0.0663,
+    "ic_jours": 401,
+    "ic_part_positive": 0.317,
+    "ic_non_chevauchant": -0.0869,
+    "ic_non_chevauchant_dates": 21,
+    "alpha_quintile_haut": {
+     "n": 4205,
+     "moyenne": 0.01472,
+     "t_naif": 6.4,
+     "part_positive": 0.437
+    },
+    "alpha_quintile_bas": {
+     "n": 5638,
+     "moyenne": -0.00087,
+     "t_naif": -0.84,
+     "part_positive": 0.441
+    },
+    "ecart_haut_moins_bas": 0.0156,
+    "rendement_brut_quintile_haut": {
+     "n": 4205,
+     "moyenne": 0.01923,
+     "t_naif": 7.98,
+     "part_positive": 0.438
+    },
+    "net_de_frais_quintile_haut": {
+     "HT": 0.00123,
+     "TTC_TVA10": -0.00057,
+     "TTC_TVA20": -0.00237
+    }
+   },
+   "60_seances": {
+    "ic_moyen": -0.0336,
+    "ic_jours": 361,
+    "ic_part_positive": 0.413,
+    "ic_non_chevauchant": -0.0461,
+    "ic_non_chevauchant_dates": 7,
+    "alpha_quintile_haut": {
+     "n": 3879,
+     "moyenne": 0.05561,
+     "t_naif": 10.51,
+     "part_positive": 0.436
+    },
+    "alpha_quintile_bas": {
+     "n": 4701,
+     "moyenne": -0.00825,
+     "t_naif": -3.77,
+     "part_positive": 0.376
+    },
+    "ecart_haut_moins_bas": 0.06386,
+    "rendement_brut_quintile_haut": {
+     "n": 3879,
+     "moyenne": 0.07515,
+     "t_naif": 13.62,
+     "part_positive": 0.46
+    },
+    "net_de_frais_quintile_haut": {
+     "HT": 0.05715,
+     "TTC_TVA10": 0.05535,
+     "TTC_TVA20": 0.05355
+    }
+   }
+  },
+  "tout": {
+   "observations": 45370,
+   "5_seances": {
+    "ic_moyen": -0.0998,
+    "ic_jours": 719,
+    "ic_part_positive": 0.246,
+    "ic_non_chevauchant": -0.1053,
+    "ic_non_chevauchant_dates": 144,
+    "alpha_quintile_haut": {
+     "n": 7116,
+     "moyenne": 0.00217,
+     "t_naif": 3.59,
+     "part_positive": 0.45
+    },
+    "alpha_quintile_bas": {
+     "n": 8568,
+     "moyenne": 0.00502,
+     "t_naif": 10.85,
+     "part_positive": 0.521
+    },
+    "ecart_haut_moins_bas": -0.00285,
+    "rendement_brut_quintile_haut": {
+     "n": 7116,
+     "moyenne": 0.00393,
+     "t_naif": 6.14,
+     "part_positive": 0.437
+    },
+    "net_de_frais_quintile_haut": {
+     "HT": -0.01407,
+     "TTC_TVA10": -0.01587,
+     "TTC_TVA20": -0.01767
+    }
+   },
+   "10_seances": {
+    "ic_moyen": -0.0889,
+    "ic_jours": 712,
+    "ic_part_positive": 0.275,
+    "ic_non_chevauchant": -0.096,
+    "ic_non_chevauchant_dates": 72,
+    "alpha_quintile_haut": {
+     "n": 7059,
+     "moyenne": 0.00568,
+     "t_naif": 6.11,
+     "part_positive": 0.439
+    },
+    "alpha_quintile_bas": {
+     "n": 8450,
+     "moyenne": 0.00471,
+     "t_naif": 7.54,
+     "part_positive": 0.489
+    },
+    "ecart_haut_moins_bas": 0.00096,
+    "rendement_brut_quintile_haut": {
+     "n": 7059,
+     "moyenne": 0.01022,
+     "t_naif": 10.36,
+     "part_positive": 0.45
+    },
+    "net_de_frais_quintile_haut": {
+     "HT": -0.00778,
+     "TTC_TVA10": -0.00958,
+     "TTC_TVA20": -0.01138
+    }
+   },
+   "20_seances": {
+    "ic_moyen": -0.0677,
+    "ic_jours": 709,
+    "ic_part_positive": 0.329,
+    "ic_non_chevauchant": -0.0544,
+    "ic_non_chevauchant_dates": 36,
+    "alpha_quintile_haut": {
+     "n": 7124,
+     "moyenne": 0.01418,
+     "t_naif": 8.86,
+     "part_positive": 0.44
+    },
+    "alpha_quintile_bas": {
+     "n": 8354,
+     "moyenne": 0.00276,
+     "t_naif": 3.03,
+     "part_positive": 0.444
+    },
+    "ecart_haut_moins_bas": 0.01142,
+    "rendement_brut_quintile_haut": {
+     "n": 7124,
+     "moyenne": 0.02325,
+     "t_naif": 13.84,
+     "part_positive": 0.462
+    },
+    "net_de_frais_quintile_haut": {
+     "HT": 0.00525,
+     "TTC_TVA10": 0.00345,
+     "TTC_TVA20": 0.00165
+    }
+   },
+   "60_seances": {
+    "ic_moyen": -0.0238,
+    "ic_jours": 669,
+    "ic_part_positive": 0.438,
+    "ic_non_chevauchant": -0.0921,
+    "ic_non_chevauchant_dates": 12,
+    "alpha_quintile_haut": {
+     "n": 6798,
+     "moyenne": 0.05308,
+     "t_naif": 14.21,
+     "part_positive": 0.435
+    },
+    "alpha_quintile_bas": {
+     "n": 8472,
+     "moyenne": 0.01419,
+     "t_naif": 6.0,
+     "part_positive": 0.407
+    },
+    "ecart_haut_moins_bas": 0.03889,
+    "rendement_brut_quintile_haut": {
+     "n": 6798,
+     "moyenne": 0.09008,
+     "t_naif": 23.27,
+     "part_positive": 0.537
+    },
+    "net_de_frais_quintile_haut": {
+     "HT": 0.07208,
+     "TTC_TVA10": 0.07028,
+     "TTC_TVA20": 0.06848
+    }
+   }
+  }
+ }
+}
