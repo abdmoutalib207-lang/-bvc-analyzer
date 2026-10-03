@@ -4532,6 +4532,32 @@ def run(dry_run=False, push=False, token=""):
         "tickers": tickers_out,
     }
 
+    # ⚠️ NOUVEAU PILIER TECHNIQUE EN MODE OMBRE — 03/10/2026.
+    # Calculé et publié À CÔTÉ de l'ancien, il n'entre PAS dans la note : on
+    # l'observe sur des séances que personne n'a encore vues avant de proposer
+    # de remplacer l'ancien (R8). Recette et mesure :
+    # `pipeline/technical/score_v2.py`, `pipeline/calibrage_score_v2.py`.
+    # Un échec ici ne doit jamais emporter la publication.
+    try:
+        from technical.score_v2 import scores_cote as _v2_cote
+        _masi_h = json.loads((Path(__file__).parent / "pipeline" / "masi_history.json")
+                             .read_text(encoding="utf-8")).get("seances", {})
+        _liq = {x["symbol"] for x in tickers_out if not x.get("technique_neutralise")}
+        _v2 = _v2_cote({x["symbol"]: _candles_cache.get(x["symbol"]) for x in tickers_out},
+                       _masi_h, _liq)
+        output["regime_technique"] = {**_v2["regime"],
+                                      "_statut": "mode ombre — n'entre pas dans la note"}
+        for x in tickers_out:
+            _s = _v2["titres"].get(x["symbol"])
+            x["score_tech_v2"] = None if _s is None else {
+                k: _s[k] for k in ("score", "cassure_recente", "surachat_recent",
+                                   "pullback", "rang_mom120", "date")}
+        logger.info(f"  🌑 pilier technique v2 (ombre) : régime "
+                    f"{'en tendance' if _v2['regime']['tendance'] else 'hors tendance'}, "
+                    f"{sum(1 for x in tickers_out if x.get('score_tech_v2'))} titres notés")
+    except Exception as _e:
+        logger.warning(f"  🌑 pilier technique v2 (ombre) non calculé ({_e})")
+
     # ⚠️ LE FLUX SE CONTRÔLE LUI-MÊME — ajouté le 24/09/2026.
     #
     # « Un score qui ne se vérifie pas lui-même ne peut pas être calibré. » La
