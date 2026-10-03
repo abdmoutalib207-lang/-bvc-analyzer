@@ -43,8 +43,11 @@ moyen après un aller-retour à 2 % de frais.
    l'horizon 250 séances s'arrête en octobre 2025. Le long terme est donc
    mesuré sur peu de fenêtres indépendantes — la preuve y est plus faible.
 2. Observations chevauchantes (signalé, non corrigé).
-3. Cours seuls, sans dividendes : les titres à fort rendement (IMI, banques)
-   sont désavantagés dans la mesure.
+3. RENDEMENT TOTAL depuis le 03/10/2026 : cours + dividendes réinvestis à la
+   date de DÉTACHEMENT (`datasets/dividendes_bvc.json`, calendrier de
+   l'opérateur). Couverture : 2025-2026 pour tous, 2024 pour Immorente
+   seulement — ailleurs, 2024 et fin 2023 restent en cours seuls. Les
+   INGRÉDIENTS restent calculés sur le cours : c'est lui que lit le chartiste.
 4. Les secteurs sont ceux de `bvc_config.COMPANY_SECTORS`, figés aujourd'hui.
 
 Usage : python3 pipeline/calibrage_signaux.py [--sortie FICHIER.json]
@@ -81,6 +84,17 @@ def _masi() -> pd.Series:
     return s
 
 
+_DIV = None
+
+
+def _dividendes() -> dict:
+    global _DIV
+    if _DIV is None:
+        f = RACINE / "datasets" / "dividendes_bvc.json"
+        _DIV = json.loads(f.read_text(encoding="utf-8")).get("dividendes", {}) if f.exists() else {}
+    return _DIV
+
+
 def _titre(t: str) -> pd.DataFrame | None:
     try:
         b = json.loads((RACINE / "pipeline" / "candles" / f"{t}.json").read_text(encoding="utf-8"))
@@ -95,6 +109,14 @@ def _titre(t: str) -> pd.DataFrame | None:
     df["volume"] = df["volume"].fillna(0)
     masi = _masi().reindex(df["date"]).values
     c, h, v = df["close"], df["high"], df["volume"]
+    # Indice de rendement total : le dividende détaché s'ajoute au cours du
+    # jour de détachement (ou de la première séance qui suit).
+    div = pd.Series(0.0, index=df.index)
+    for e in _dividendes().get(t, []):
+        k = df.index[df["date"] >= pd.Timestamp(e["detachement"])]
+        if len(k):
+            div[k[0]] += e["montant_ajuste_split"]
+    tr = ((c + div) / c.shift(1)).fillna(1.0).cumprod()
     ret = c.pct_change()
     rm = pd.Series(masi).pct_change()
     ma20, ma50, ma200 = c.rolling(20).mean(), c.rolling(50).mean(), c.rolling(200).mean()
@@ -113,7 +135,7 @@ def _titre(t: str) -> pd.DataFrame | None:
     ech = (c * v).where(v > 0)
     f["montant_median"] = ech.rolling(60, min_periods=10).median()
     for hz in HORIZONS:
-        r = c.shift(-hz) / c - 1
+        r = tr.shift(-hz) / tr - 1
         rmf = pd.Series(masi).shift(-hz) / pd.Series(masi) - 1
         f[f"a{hz}"] = r - rmf.values
         f[f"r{hz}"] = r
