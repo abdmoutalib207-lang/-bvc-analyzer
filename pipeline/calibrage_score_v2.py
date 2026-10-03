@@ -45,22 +45,11 @@ sys.path.insert(0, str(RACINE))
 
 from calibrage_regime import regimes  # noqa: E402
 from calibrage_signaux import _ic, panel  # noqa: E402
+from technical.score_v2 import score_v2  # noqa: E402  — définition unique
 
 COUPURE = "2025-01-01"
 HORIZONS = (20, 60, 120)
 RECENT = 20
-
-
-def score_v2(tendance: bool, cassure_recente: bool, surachat_recent: bool,
-             pullback: bool, rang_mom: float | None) -> float:
-    s = 5.0
-    if tendance:
-        s += 2.0 * cassure_recente + 1.5 * surachat_recent + 1.0 * pullback
-    else:
-        s -= 1.0 * pullback
-        if rang_mom is not None and not np.isnan(rang_mom):
-            s += 3.0 * (rang_mom - 0.5)
-    return round(min(max(s, 0.0), 10.0), 2)
 
 
 def main() -> int:
