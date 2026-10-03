@@ -21,6 +21,7 @@ from pathlib import Path
 
 from pipeline.candle_write_policy import appliquer_corrections_avant_ecriture
 from pipeline.seance import clotures_echangees
+from pipeline.technique_fiable import technique_non_fiable
 
 # Auto-install deps si besoin (Colab)
 for pkg in ["requests", "numpy", "pandas"]:
@@ -2214,6 +2215,14 @@ def get_weights(context: dict) -> dict:
 
     w = _replier_comportemental(w)
 
+    # ⚠️ PILIER TECHNIQUE NEUTRALISÉ SUR LES TITRES PEU LIQUIDES ET AU FIXING —
+    # 03/10/2026, accord d'Abd Moutalib (R8). Rejoué sur trois ans, il y
+    # annonce l'INVERSE de la suite (étape 0 du calibrage). Sa part revient au
+    # fondamental ; règle et mesure : `pipeline/technique_fiable.py`.
+    if context.get("tech_non_fiable"):
+        w["fondamental"] += w["technique"]
+        w["technique"] = 0.0
+
     total = sum(w.values())
     return {k: round(v / total, 4) for k, v in w.items()}
 
@@ -4173,6 +4182,11 @@ def run(dry_run=False, push=False, token=""):
         # pondération ne dépend désormais que du contexte de MARCHÉ : c'est
         # ce que dit le badge « modulée par le contexte de marché ».
         ctx = dict(mkt_ctx_base)
+        # Pilier technique illisible (peu liquide, fixing) : voir get_weights.
+        # ⚠️ Un titre SUSPENDU n'a pas de motif à publier : « aucune
+        # chandelle » se lirait comme un défaut de données (relecture du 03/10).
+        _tech_nf = None if _suspendu_maintenant(ticker) else technique_non_fiable(_candles_cache.get(ticker))
+        ctx["tech_non_fiable"] = bool(_tech_nf)
         # ⚠️ `sent` ne sert plus qu'au score de CONFIANCE (`_meta_ticker`,
         # critères « corpus » et « smart money »). Ils lisent encore le corpus
         # gelé : c'est un changement d'échelle visible à l'écran, traité à part.
@@ -4200,7 +4214,9 @@ def run(dry_run=False, push=False, token=""):
         # pas de moyenne 50. Un setup se DÉDUIT des moyennes : sans elles, il
         # n'y a rien à déduire, et « NEUTRE » dit exactement cela.
         v53_final = v53["v53"]
-        if ma20 is None or ma50 is None:
+        # Pilier technique neutralisé (peu liquide, fixing) : aucune étiquette
+        # technique — elle se lirait comme une mesure que l'on vient d'écarter.
+        if _tech_nf or ma20 is None or ma50 is None:
             setup = "NEUTRE"
         elif v53_final >= 7.0 and price > ma20 > ma50:
             setup = "MOMENTUM CONFIRME"
@@ -4394,6 +4410,8 @@ def run(dry_run=False, push=False, token=""):
             "score_tech": v53.get("score_tech", 5.0),
             "score_fond": v53.get("score_fond", 5.0),
             "score_nlp":  v53.get("score_nlp", 5.0),
+            # Pourquoi le technique pèse zéro sur ce titre, s'il pèse zéro.
+            "technique_neutralise": _tech_nf,
             "alpha":  v53["alpha"],
             "win":    v53["win"],
             # ⚠️ Un titre suspendu ne reçoit PAS de recommandation.
