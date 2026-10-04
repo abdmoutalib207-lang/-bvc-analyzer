@@ -1067,41 +1067,10 @@ const RedFlags=({alertes})=>{
   );
 };
 
-const FibTable=({high,low,price})=>{
-  /* ⚠️ UNE PLAGE ABSENTE N'EST PAS UNE PLAGE NULLE. Un titre qui vient de
-     reprendre sa cotation après une suspension n'a pas de haut ni de bas sur
-     90 jours comparables à son nouveau cours : le moteur rend `null`, et
-     `calcFib(null, null)` produirait sept lignes à « NaN » que l'œil lirait
-     comme des niveaux. On le dit plutôt que de le calculer. */
-  if(high==null||low==null||!(high>low))return(
-    <div>
-      <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>Retracements Fibonacci</div>
-      <div style={{fontSize:11,color:"#8892a4"}}>Plage 90 jours indisponible — pas assez de séances depuis la reprise de cotation.</div>
-    </div>
-  );
-  const fibs=calcFib(high,low);
-  return(
-    <div>
-      <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>Retracements Fibonacci</div>
-      <div style={{fontSize:9,color:"#8892a4",marginBottom:4}}>Plage 90j: {px(low)} → {px(high)}</div>
-      {fibs.map(([r,val])=>{
-        const pctFromPrice=((val-price)/price*100).toFixed(1);
-        const isNear=Math.abs(val-price)/price<0.03;
-        return(
-          <div key={r} style={{display:"flex",alignItems:"center",gap:8,padding:"4px 0",borderBottom:"1px solid #0d1829",background:isNear?"rgba(255,215,64,.06)":"transparent"}}>
-            <span style={{fontSize:10,color:"#ffd740",minWidth:36,fontWeight:isNear?700:400}}>{r===0?"0.0":r===1?"1.0":r}</span>
-            <div style={{flex:1,background:"#0a1220",borderRadius:2,height:3}}>
-              <div style={{width:`${Math.max(0,(val-low)/(high-low)*100)}%`,height:"100%",background:isNear?"#ffd740":"#ffd74040"}}/>
-            </div>
-            <span style={{fontSize:11,color:isNear?"#ffd740":"#c8d3e8",minWidth:60,textAlign:"right",fontWeight:isNear?700:400}}>{px(val)}</span>
-            <span style={{fontSize:10,color:pctFromPrice>0?"#00e5a0":"#ff4f5a",minWidth:44,textAlign:"right"}}>{pctFromPrice>0?"+":""}{pctFromPrice}%</span>
-            {isNear&&<span style={{fontSize:9,color:"#ffd740"}}>◀</span>}
-          </div>
-        );
-      })}
-    </div>
-  );
-};
+/* Le tableau « Retracements Fibonacci · plage 90 jours » de la fiche a été
+   retiré le 04/10/2026 à la demande de Noure : il retraçait une autre plage
+   que le graphique et le contredisait. Le Fibonacci se lit désormais sur le
+   graphique seul (bouton FIB, ancrage au clic). */
 
 // ── STOCK CHART — Chandeliers + Volume + MACD ─────────────────────────────────
 /* ── GRAPHIQUES FAÇON TRADINGVIEW — 03/10/2026, demande de Noure ──────────
@@ -3210,11 +3179,6 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
 
           {/* Signaux techniques en essai (calibrage du 03/10/2026) */}
           <SignauxTechniques r={r}/>
-
-          {/* Fibonacci */}
-          <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-            <FibTable high={h90} low={l90} price={price}/>
-          </div>
 
           {/* Scénarios */}
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
