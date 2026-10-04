@@ -45,6 +45,7 @@ sys.path.insert(0, str(RACINE / "pipeline"))
 
 from calibrage_signaux import _dividendes, _masi  # noqa: E402
 from technical.figures import figures, indicateurs  # noqa: E402
+from technical.lignes import gaps, lignes  # noqa: E402
 
 DEBUT, COUPURE = "2023-10-04", "2025-01-01"
 HORIZONS = (20, 60, 120)
@@ -73,9 +74,19 @@ def _evenements(t: str) -> list[dict]:
     montant = (c * df["v"]).where(df["v"] > 0).rolling(60, min_periods=10).median().values
     ech = df.index[df["v"] > 0].to_numpy()
     ce = c.values[ech]
+    oe, he, le = (df[k].astype(float).values[ech] for k in ("o", "h", "l"))
+    brut = [(int(ech[j]), nom, sens) for j, nom, sens in
+            figures(ce) + indicateurs(ce) + lignes(ce) + gaps(oe, he, le, ce)]
+    # Hebdomadaire (03/10/2026) : la même recette sur des bougies de semaine,
+    # pivots 10 %, expiration 12 semaines. Le signal est daté de la DERNIÈRE
+    # séance échangée de la semaine de cassure — jamais plus tôt.
+    sem = df.loc[ech].assign(s=df.loc[ech, "date"].dt.to_period("W-FRI"))
+    der = sem.groupby("s").apply(lambda g: g.index.max()).to_numpy()
+    cw = sem.groupby("s")["c"].last().astype(float).to_numpy()
+    for j, nom, sens in figures(cw, 0.10, 12) + lignes(cw, 0.10, 12):
+        brut.append((int(der[j]), "hebdo_" + nom, sens))
     out, dernier = [], {}
-    for j, nom, sens in sorted(figures(ce) + indicateurs(ce)):
-        i = int(ech[j])
+    for i, nom, sens in sorted(brut):
         d = df["date"][i]
         if str(d.date()) < DEBUT:
             continue

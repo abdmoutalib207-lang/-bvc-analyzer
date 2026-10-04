@@ -72,9 +72,11 @@ def _cassure(c, depuis, expire, haut=None, bas=None, invalide_sous=None,
     return None
 
 
-def figures(c: np.ndarray) -> list[tuple]:
-    """Figures chartistes sur une série de clôtures (séances échangées)."""
-    P = pivots(c)
+def figures(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE) -> list[tuple]:
+    """Figures chartistes sur une série de clôtures (séances échangées).
+    `s` et `expire` permettent de rejouer la MÊME recette en hebdomadaire
+    (pivots 10 %, expiration 12 semaines — fixés le 03/10/2026)."""
+    P = pivots(c, s)
     sig = []
     for k in range(len(P)):
         conf = P[k][3]
@@ -83,11 +85,11 @@ def figures(c: np.ndarray) -> list[tuple]:
             (i1, p1, t1, _), (iy, py, ty, _), (i2, p2, t2, _) = P[k - 2], P[k - 1], P[k]
             if 15 <= i2 - i1 <= 120 and abs(p2 / p1 - 1) <= 0.03:
                 if t1 == "L" and py >= max(p1, p2) * 1.08:
-                    j = _cassure(c, conf, i2 + EXPIRE, haut=py, invalide_sous=min(p1, p2) * 0.97)
+                    j = _cassure(c, conf, i2 + expire, haut=py, invalide_sous=min(p1, p2) * 0.97)
                     if j is not None:
                         sig.append((j, "double_creux", +1))
                 if t1 == "H" and py <= min(p1, p2) * 0.92:
-                    j = _cassure(c, conf, i2 + EXPIRE, bas=py, invalide_sur=max(p1, p2) * 1.03)
+                    j = _cassure(c, conf, i2 + expire, bas=py, invalide_sur=max(p1, p2) * 1.03)
                     if j is not None:
                         sig.append((j, "double_sommet", -1))
         # ── Épaule-tête-épaule (ETE) et ETE inversée : S1 N1 T N2 S2 ─────
@@ -97,11 +99,11 @@ def figures(c: np.ndarray) -> list[tuple]:
                 cou = (lambda i, n1=n1, pn1=pn1, n2=n2, pn2=pn2:
                        pn1 + (pn2 - pn1) * (i - n1) / (n2 - n1))
                 if ta == "L" and ph <= min(pa, pb) * 0.97:
-                    j = _cassure(c, conf, b + EXPIRE, haut=1, invalide_sous=ph, niveau=cou)
+                    j = _cassure(c, conf, b + expire, haut=1, invalide_sous=ph, niveau=cou)
                     if j is not None:
                         sig.append((j, "ete_inversee", +1))
                 if ta == "H" and ph >= max(pa, pb) * 1.03:
-                    j = _cassure(c, conf, b + EXPIRE, bas=1, invalide_sur=ph, niveau=cou)
+                    j = _cassure(c, conf, b + expire, bas=1, invalide_sur=ph, niveau=cou)
                     if j is not None:
                         sig.append((j, "ete", -1))
         # ── Tasse avec anse : A (H), B (L), C (H) puis anse et cassure ────
@@ -124,7 +126,7 @@ def figures(c: np.ndarray) -> list[tuple]:
             if len(hauts) == 2 and len(bas_) == 2 and q[-1][0] - q[0][0] >= 20:
                 h1, h2 = hauts[0][1], hauts[1][1]
                 l1, l2 = bas_[0][1], bas_[1][1]
-                fin = q[-1][0] + EXPIRE
+                fin = q[-1][0] + expire
                 if abs(h2 / h1 - 1) <= 0.02 and l2 >= l1 * 1.03:
                     j = _cassure(c, conf, fin, haut=max(h1, h2), invalide_sous=l2)
                     if j is not None:
