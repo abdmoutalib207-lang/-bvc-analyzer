@@ -658,9 +658,17 @@ function calcMA(closes,p){
   return closes.map((_,i)=>i<p?null:+(closes.slice(i-p,i).reduce((a,b)=>a+b,0)/p).toFixed(2));
 }
 
-function calcFib(high,low){
-  const d=high-low;
-  return [0,0.236,0.382,0.5,0.618,0.786,1.0].map(r=>[r,+(low+d*r).toFixed(2)]);
+/* ⚠️ CONVENTION TRADINGVIEW (corrigée le 04/10/2026, relevée par Noure sur
+   une capture de VCN). Le niveau 0 est le point 0, le niveau 1 le point 1,
+   et chaque niveau vaut p0 + (p1 − p0) × r. Par défaut p0 = plus haut et
+   p1 = plus bas : 0,618 se lit alors « 61,8 % de la hausse reperdus ».
+   L'ancienne formule comptait depuis le bas : nos 0,382 et 0,618 (comme
+   0,236 et 0,786) étaient inversés, seul 0,5 tombait juste. Au-delà de 1,
+   ce sont les EXTENSIONS : des objectifs au-delà du point 1. */
+const FIB_RETRACEMENTS=[0,0.236,0.382,0.5,0.618,0.786,1];
+const FIB_EXTENSIONS=[1.272,1.414,1.618];
+function calcFib(p0,p1,ratios=FIB_RETRACEMENTS){
+  return ratios.map(r=>[r,+(p0+(p1-p0)*r).toFixed(2)]);
 }
 
 function calcEMA(arr,p){
@@ -1289,6 +1297,14 @@ const StockChart=({r})=>{
   const [showIchi,setShowIchi]=useState(false);
   const [showSR,setShowSR]=useState(true);
   const [showFib,setShowFib]=useState(false);
+  /* Fibonacci ancré au clic : premier clic = point 1, second = point 0,
+     chaque clic aimanté sur le plus haut ou le plus bas de la bougie visée.
+     Le gestionnaire de clic vit avec le graphique ; il lit l'état par `fibRef`
+     pour ne pas avoir à recréer le graphique à chaque clic. */
+  const [fibAncres,setFibAncres]=useState(null);   // {p0, p1} ou null
+  const [fibAttente,setFibAttente]=useState(null); // point 1 posé, point 0 attendu
+  const fibRef=useRef({on:false,premier:null});
+  useEffect(()=>{fibRef.current.on=showFib;if(!showFib){fibRef.current.premier=null;setFibAttente(null);}},[showFib]);
   /* ⚠️ LES MOYENNES NE SONT PLUS TRACÉES PAR DÉFAUT. Elles l'étaient toutes
      les deux, en permanence, et brouillaient les chandelles — c'est la demande
      de Noure. Le choix est mémorisé : on ne le refait pas à chaque fiche. */
@@ -1299,6 +1315,7 @@ const StockChart=({r})=>{
   });
   const [plein,setPlein]=useState(false);
   const sym=r.symbol||r.ticker;
+  useEffect(()=>{fibRef.current.premier=null;setFibAttente(null);setFibAncres(null);},[sym]);
   const rangeMap={"5J":"5d","1M":"1mo","3M":"3mo","6M":"6mo","1A":"1y","3A":"3y","TOUT":"max"};
   const toDate=ts=>{const d=new Date(ts);return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;};
   const mapS=(fn)=>liveCandles.map((c,i)=>{const v=fn(i);return v!=null?{time:toDate(c.x),value:v}:null;}).filter(Boolean);
@@ -1403,6 +1420,18 @@ const StockChart=({r})=>{
     };
     legende(n-1);
     main.subscribeCrosshairMove(prm=>legende(prm&&prm.point&&prm.logical!=null?Math.round(prm.logical):n-1));
+    main.subscribeClick(prm=>{
+      const f=fibRef.current;
+      if(!f.on||!prm||!prm.point||prm.logical==null)return;
+      const k=Math.round(prm.logical);
+      if(k<0||k>=n)return;
+      const y=cs.coordinateToPrice(prm.point.y);
+      if(y==null)return;
+      const d=lwData[k];
+      const p=Math.abs(y-d.high)<=Math.abs(y-d.low)?d.high:d.low;
+      if(f.premier==null){f.premier=p;setFibAttente(p);}
+      else{const p1=f.premier;f.premier=null;setFibAttente(null);if(p1!==p)setFibAncres({p0:p,p1});}
+    });
 
     // ── MACD ────────────────────────────────────────────────
     const macdChart=LW.createChart(refMacd.current,{...optionsTV(LW,W,H.macd),timeScale:{borderColor:"#1a2540",rightOffset:TV_MARGE_DROITE,fixLeftEdge:true,timeVisible:false,visible:false}});
@@ -1470,14 +1499,20 @@ const StockChart=({r})=>{
     if(showFib){
       const hh=candles.reduce((m,c)=>Math.max(m,c.y[1]),-Infinity);
       const ll=candles.reduce((m,c)=>Math.min(m,c.y[2]), Infinity);
-      if(isFinite(hh)&&isFinite(ll)&&hh>ll){
-        calcFib(hh,ll).forEach(([ratio,val])=>x.lignes.push(cs.createPriceLine({price:val,color:"#ffd74070",lineWidth:1,lineStyle:LW.LineStyle.Dotted,axisLabelVisible:true,title:`Fib ${ratio===0?"0.0":ratio===1?"1.0":ratio}`})));
+      // Ancrage choisi au clic (point 1 puis point 0, comme TradingView),
+      // sinon les extrêmes de la fenêtre affichée.
+      const a=fibAncres||(isFinite(hh)&&isFinite(ll)&&hh>ll?{p0:hh,p1:ll}:null);
+      if(a){
+        const trace=(ratios,color)=>calcFib(a.p0,a.p1,ratios).forEach(([ratio,val])=>x.lignes.push(cs.createPriceLine({price:val,color,lineWidth:1,lineStyle:LW.LineStyle.Dotted,axisLabelVisible:true,title:`Fib ${ratio===0?"0.0":ratio===1?"1.0":ratio}`})));
+        trace(FIB_RETRACEMENTS,"#ffd74070");
+        trace(FIB_EXTENSIONS,"#b388ff70");
       }
+      if(fibAttente!=null)x.lignes.push(cs.createPriceLine({price:fibAttente,color:"#ffd740",lineWidth:1,lineStyle:LW.LineStyle.Solid,axisLabelVisible:true,title:"Fib 1 — cliquez le point 0"}));
     }
     const srData=showSR?calcSR(candles,curPrice):{sup:[],res:[]};
     srData.sup.forEach(v=>x.lignes.push(cs.createPriceLine({price:v,color:"#00e5a060",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`S ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`})));
     srData.res.forEach(v=>x.lignes.push(cs.createPriceLine({price:v,color:"#ff4f5a60",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`R ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`})));
-  },[sym,period,liveCandles,etat,plein,showBB,showIchi,showSR,showFib,mas]);
+  },[sym,period,liveCandles,etat,plein,showBB,showIchi,showSR,showFib,fibAncres,fibAttente,mas]);
 
   const changePeriod=(p)=>{setPeriod(p);localStorage.setItem("bvc_period",p);};
   const reinitialiser=()=>{if(chartMain.current&&liveCandles)vueEntiere(chartMain.current,liveCandles.length);};
@@ -1510,7 +1545,7 @@ const StockChart=({r})=>{
         <Btn on={showBB} c="#ffd740" titre="Bandes de Bollinger (20, 2σ)" onClick={()=>setShowBB(v=>!v)}>BB</Btn>
         <Btn on={showIchi} c="#ff6f40" titre="Ichimoku (Tenkan 9 / Kijun 26)" onClick={()=>setShowIchi(v=>!v)}>ICHI</Btn>
         <Btn on={showSR} c="#00e5a0" titre="Support / Résistance (sommets et creux)" onClick={()=>setShowSR(v=>!v)}>S/R</Btn>
-        <Btn on={showFib} c="#ffd740" titre="Retracements de Fibonacci, calculés sur la FENÊTRE AFFICHÉE (le tableau de la fiche, lui, retrace 90 jours)" onClick={()=>setShowFib(v=>!v)}>FIB</Btn>
+        <Btn on={showFib} c="#ffd740" titre="Fibonacci façon TradingView : extrêmes de la fenêtre affichée, ou deux clics sur le graphique (point 1 puis point 0). Extensions 1,272 · 1,414 · 1,618 en violet." onClick={()=>setShowFib(v=>!v)}>FIB</Btn>
         <span style={{color:"#1a2540",margin:"0 2px"}}>|</span>
         <Btn on={false} c="#8892a4" titre="Revenir à la vue entière (ou double-clic sur le graphique)" onClick={reinitialiser}>⟳</Btn>
         <Btn on={plein} c="#4db8ff" titre={plein?"Réduire (Échap)":"Agrandir le graphique"} onClick={()=>setPlein(v=>!v)}>{plein?"⤡ RÉDUIRE":"⤢ AGRANDIR"}</Btn>
@@ -1522,6 +1557,15 @@ const StockChart=({r})=>{
           {isLive&&"● "}RSI:{(r.rsi??r.rsi14)!=null?(r.rsi??r.rsi14).toFixed(0):"—"} · MA20:{r.ma20?px(r.ma20):"—"} · MA50:{r.ma50?px(r.ma50):"—"} · MA200:{r.ma200?px(r.ma200):"—"}
         </span>
       </div>
+      {showFib&&(
+        <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",fontSize:10,color:"#8892a4",marginBottom:6}}>
+          <span style={{color:"#ffd740"}}>FIB</span>
+          <span>{fibAttente!=null?`point 1 à ${px(fibAttente)} — cliquez le point 0`
+            :fibAncres?`ancré ${px(fibAncres.p0)} (0) → ${px(fibAncres.p1)} (1)`
+            :"extrêmes de la fenêtre · cliquez deux points (1 puis 0) pour ancrer sur un mouvement"}</span>
+          {(fibAncres||fibAttente!=null)&&<button onClick={()=>{fibRef.current.premier=null;setFibAttente(null);setFibAncres(null);}} style={{fontSize:10,padding:"1px 6px",borderRadius:3,border:"1px solid #1a2540",background:"transparent",color:"#8892a4",cursor:"pointer",fontFamily:"var(--font)"}}>✕ effacer</button>}
+        </div>
+      )}
       {msg&&(
         <div style={{height:34,display:"flex",alignItems:"center",gap:8,padding:"0 10px",background:"#0a1220",border:"1px solid #1a2540",borderRadius:4,fontSize:11,color:msg[1],marginBottom:6}}>
           <span>{etat==="chargement"?"⏳":"⚠️"}</span><span>{msg[0]}</span>
