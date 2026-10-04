@@ -5468,8 +5468,8 @@
     "secteur": "Finance",
     "per": null,
     "forward_per": null,
-    "croissance_ca": null,
-    "croissance_bpa": null,
+    "croissance_ca": 9.9,
+    "croissance_bpa": 15.4,
     "dette_nette_ebitda": null,
     "roic": null,
     "wacc": null,
@@ -5481,7 +5481,7 @@
     "catalyseur": null,
     "risque": null,
     "source": "BOOKVALEUR CTS 2025 (données 29/08/2025)",
-    "date_maj": "2026-06-24",
+    "date_maj": "2026-09-29",
     "cours_bv": 900.0,
     "pe_24": 9.18,
     "pe_25c": 8.81,
@@ -5495,6 +5495,15 @@
     "reuters": "MAB",
     "secteur_libre": null,
     "ratios_publies": {
+      "marge_nette_s1_2026": {
+        "valeur": 3.5,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires hors taxes du communiqué (MDH arrondis ; crédit-bail, pas de ligne équivalente au CPC)",
+        "formule": "82.516 ÷ 2345.0 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf"
+        }
+      },
       "roe_2025": {
         "valeur": 12.1,
         "date": "2025-12-31",
@@ -5531,7 +5540,14 @@
         ]
       },
       "calcule_le": "2026-09-30"
-    }
+    },
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 1384182,
+      "date_maj": "2026-06-24"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf"
   },
   "AGM": {
     "secteur": "Assurance",
