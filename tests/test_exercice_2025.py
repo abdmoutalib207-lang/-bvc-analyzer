@@ -18,36 +18,37 @@ from pipeline.exercice_2025 import appliquer, bpa_exercice  # noqa: E402
 JEU = json.loads((RACINE / "datasets" / "exercice_2025_rectifie.json").read_text(encoding="utf-8"))
 S1 = json.loads((RACINE / "datasets" / "resultats_s1_2026.json").read_text(encoding="utf-8"))
 T = JEU["titres"]
+TA = {**JEU["_passes_au_s1"], **T}  # une fiche passée au S1 garde son exercice
 
 
 def test_bpa_a_la_main():
     # 851,083 ÷ 8,96 M = 94,987 ; publié « 95 » (p.6)
-    assert bpa_exercice(T["TMA"]) == 94.99
+    assert bpa_exercice(TA["TMA"]) == 94.99
     # 56,204 ÷ 1,225978 M = 45,845 ; publié 45,84 (p.7)
-    assert bpa_exercice(T["CTM"]) == 45.84
+    assert bpa_exercice(TA["CTM"]) == 45.84
     # 407,601 ÷ 22,078588 M = 18,461
     assert bpa_exercice(JEU["_passes_au_s1"]["ADI"]) == 18.46
     # 453,719263 ÷ 402,551254 M = 1,127 ; publié 1.13 — fiche passée au jeu
     # S1 le 01/10, conservée sous _passes_au_s1
     assert bpa_exercice(JEU["_passes_au_s1"]["ADH"]) == 1.13
     # 148,198775 ÷ 1,384182 M = 107,07 ; publié 107.07 (p.9)
-    assert bpa_exercice(T["MGL"]) == 107.07
+    assert bpa_exercice(TA["MGL"]) == 107.07
     # 32,558354 ÷ 0,81207 M = 40,09
-    assert bpa_exercice(T["S2M"]) == 40.09
+    assert bpa_exercice(TA["S2M"]) == 40.09
     # −25,642371 ÷ 5,265 M = −4,87
-    assert bpa_exercice(T["CAR"]) == -4.87
+    assert bpa_exercice(TA["CAR"]) == -4.87
     # 59,914634 ÷ 1 M
-    assert bpa_exercice(T["PPM"]) == 59.91
+    assert bpa_exercice(TA["PPM"]) == 59.91
 
 
 def test_valeur_manquante_ne_se_comble_pas():
-    assert bpa_exercice(dict(T["TMA"], actions=None)) is None
-    assert bpa_exercice(dict(T["TMA"], rnpg_exercice_2025=None)) is None
+    assert bpa_exercice(dict(TA["TMA"], actions=None)) is None
+    assert bpa_exercice(dict(TA["TMA"], rnpg_exercice_2025=None)) is None
 
 
 def test_l_ancien_bpa_est_conserve_et_rien_d_autre_n_est_touche():
     bpa = {"TMA": {"bpa": 108.21, "div_dh": 156.57, "roe": 25.0}}
-    appliquer({"titres": {"TMA": T["TMA"]}}, bpa)
+    appliquer({"titres": {"TMA": TA["TMA"]}}, bpa)
     assert bpa["TMA"]["bpa"] == 94.99
     assert bpa["TMA"]["bpa_avant_2026_09_29"] == 108.21
     assert bpa["TMA"]["div_dh"] == 156.57 and bpa["TMA"]["roe"] == 25.0
@@ -55,7 +56,7 @@ def test_l_ancien_bpa_est_conserve_et_rien_d_autre_n_est_touche():
 
 def test_un_ancien_bpa_deja_conserve_n_est_pas_reecrit():
     bpa = {"CTM": {"bpa": 30.0, "bpa_avant_2026_09_29": 38.0}}
-    appliquer({"titres": {"CTM": T["CTM"]}}, bpa)
+    appliquer({"titres": {"CTM": TA["CTM"]}}, bpa)
     assert bpa["CTM"]["bpa_avant_2026_09_29"] == 38.0
 
 
@@ -67,11 +68,11 @@ def test_un_bpa_confirme_ne_cree_pas_d_ancien():
 
 def test_une_perte_porte_sa_piece():
     bpa = {}
-    appliquer({"titres": {"CAR": T["CAR"]}}, bpa)
+    appliquer({"titres": {"CAR": TA["CAR"]}}, bpa)
     assert bpa["CAR"]["bpa"] == -4.87
     assert "25 642 371,05" in bpa["CAR"]["perte_documentee"]
     bpa2 = {"PPM": {"perte_documentee": "x"}}
-    appliquer({"titres": {"PPM": T["PPM"]}}, bpa2)
+    appliquer({"titres": {"PPM": TA["PPM"]}}, bpa2)
     assert "perte_documentee" not in bpa2["PPM"]
 
 
@@ -99,7 +100,7 @@ def test_les_ecartes_portent_un_motif():
 
 def test_un_avertissement_sur_resultats_n_est_pas_un_compte():
     assert "PPM_S1" in JEU["_ecartes"]
-    assert "rnpg_s1_2026" not in T["PPM"]
+    assert "rnpg_s1_2026" not in TA["PPM"]
 
 
 def test_fichier_publie():

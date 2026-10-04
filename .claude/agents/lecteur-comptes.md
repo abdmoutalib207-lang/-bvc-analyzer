@@ -139,6 +139,9 @@ fusion** : la fusion est la décision d'Abd Moutalib.
   est plus petite que le bénéfice. Un résultat porté par le non courant s'y ajoute.
 - (lot 13) yuna : un PER peut ne pas concorder avec son propre ROE et son P/B
   (Promopharm : PER → 52,5 ; ROE et P/B → 59,9). Consigner, ne pas choisir.
+- (lot 5 S1) Une fiche `exercice_2025_rectifie.json` passée au S1 (`_passes_au_s1`) sort de `titres` : les tests lisent alors `TA` (passés + restants), pas `T`. Toujours bouger la fiche avec l'entrée S1.
+- (lot 5 S1) Même réserve CHIFFRÉE d'un semestre à l'autre (Med Paper : 8,6 MDH contre 0,95 de bénéfice S1) : le motif de l'écart de l'exercice vaut pour le S1, écarté.
+- (lot 5 S1) Maghrebail : le communiqué attribue +9,64 % à un produit net que le CPC chiffre +11,4 % (239 772 contre 215 181) ; CA lu au communiqué en MDH arrondis, écart consigné. S2M : l'attestation du dépôt ne couvre que le SOCIAL, le consolidé n'en a pas ; CTM : l'attestation consolidée attire l'attention sur la note AML, sans réserve.
 - (lot 14, ratios de bilan) Un « illisible » n'est pas forcément illisible : GAZ
   avait été refusé pour « impôt illisible » et « pages image » alors que le
   rendu (`page.to_image(resolution=100)`) rend le tableau lisible en un coup
