@@ -5039,7 +5039,11 @@ const SignauxTechniques = ({
       fontSize: 12,
       color: "#8892a4"
     }
-  }, "Technique non lisible sur ce titre (", neu.motif, ") : avec si peu d'\xE9changes, le graphique mesure surtout le bruit de la cotation. La note repose sur les fondamentaux.") : !v2 ? React.createElement("div", {
+  }, "Technique non lisible sur ce titre (", neu.motif, ") : avec si peu d'\xE9changes, le graphique mesure surtout le bruit de la cotation. La note repose sur les fondamentaux.", r.verdict_plafonne && React.createElement("b", {
+    style: {
+      color: "#ffd740"
+    }
+  }, " Verdict plafonn\xE9 \xE0 SURVEILLER : la note fondamentale est bonne, mais le titre s'\xE9change trop peu pour y entrer et en sortir sans difficult\xE9.")) : !v2 ? React.createElement("div", {
     style: {
       fontSize: 12,
       color: "#8892a4"
@@ -12152,7 +12156,8 @@ function App() {
             seuil_bas: t.seuil_bas,
             seuil_haut: t.seuil_haut,
             score_tech_v2: t.score_tech_v2,
-            technique_neutralise: t.technique_neutralise
+            technique_neutralise: t.technique_neutralise,
+            verdict_plafonne: t.verdict_plafonne
           };
         });
         REGIME_TECH = d.regime_technique || null;

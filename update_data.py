@@ -4432,7 +4432,17 @@ def run(dry_run=False, push=False, token=""):
             # qu'une absence de signal.
             "sig":    ("SUSPENDU" if _suspendu_maintenant(ticker)
                        else "Données insuffisantes" if _seances_depuis_reprise is not None
+                       # ⚠️ PLAFOND DE LIQUIDITÉ DU VERDICT — 04/10/2026, accord
+                       # d'Abd Moutalib. Sur un titre peu liquide ou au fixing,
+                       # une bonne note fondamentale ne dit pas qu'on peut y
+                       # entrer ou en sortir : « ACHETER » y devient
+                       # « SURVEILLER ★ ». La note chiffrée ne change pas.
+                       else "SURVEILLER ★" if (_tech_nf and str(v53["sig"]).startswith("ACHETER"))
                        else v53["sig"]),
+            "verdict_plafonne": (f"ACHETER plafonné : {_tech_nf['motif']}"
+                                 if _tech_nf and str(v53["sig"]).startswith("ACHETER")
+                                 and not _suspendu_maintenant(ticker)
+                                 and _seances_depuis_reprise is None else None),
             "biais":  v53["biais"],
             "conv":   v53["conv"],
             "setup":  setup,

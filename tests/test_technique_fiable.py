@@ -75,3 +75,11 @@ def test_sans_drapeau_rien_ne_change():
     import update_data
     w = update_data.get_weights({"market_status": "CLOSED"})
     assert w["technique"] > 0
+
+
+def test_le_verdict_d_un_titre_peu_liquide_est_plafonne():
+    """04/10/2026 : « ACHETER » plafonné à « SURVEILLER ★ » sur un titre au
+    technique neutralisé (peu liquide, fixing). La note chiffrée reste."""
+    code = (RACINE / "update_data.py").read_text(encoding="utf-8")
+    assert 'else "SURVEILLER ★" if (_tech_nf and str(v53["sig"]).startswith("ACHETER"))' in code
+    assert '"verdict_plafonne"' in code
