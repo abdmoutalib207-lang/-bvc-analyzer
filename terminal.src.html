@@ -1212,6 +1212,58 @@ const GraphiqueMASI=()=>{
   return plein?<PleinEcran titre="MASI — clôtures quotidiennes" fermer={()=>setPlein(false)}>{corps}</PleinEcran>:corps;
 };
 
+/* ── SIGNAUX TECHNIQUES EN ESSAI — 04/10/2026 ──────────────────────────────
+   Le nouveau pilier technique tourne en MODE OMBRE : publié à côté de
+   l'ancien, il n'entre pas dans la note tant qu'il n'a pas fait ses preuves
+   sur des séances neuves. Chaque signal porte ce qu'il a donné sur la BVC —
+   des fréquences MESURÉES, jamais des promesses.
+   Source : datasets/calibrage_technique/etape2_regime_2026-10-03.json, titres
+   liquides, 2025-26, écart au MASI à 60 séances en rendement total. */
+let REGIME_TECH=null;
+const STATS_SIGNAUX={
+  cassure:{lib:"Cassure du plus haut 90 jours avec volume",cond:"en tendance",n:136,alpha:7.2,gagnants:53},
+  surachat:{lib:"Sortie de surachat du RSI (la force continue)",cond:"en tendance",n:137,alpha:5.6,gagnants:50},
+  pullback_on:{lib:"Pullback (repli en tendance haussière)",cond:"en tendance",n:200,alpha:2.8,gagnants:44},
+  pullback_off:{lib:"Pullback (repli en tendance haussière)",cond:"hors tendance",n:58,alpha:-3.8,gagnants:24},
+};
+const SignauxTechniques=({r})=>{
+  const v2=r.score_tech_v2, neu=r.technique_neutralise, reg=REGIME_TECH;
+  const coul=v=>v>0?"#00e5a0":v<0?"#ff4f5a":"#8892a4";
+  const ligne=(k,actif)=>{const x=STATS_SIGNAUX[k];return(
+    <div key={k} style={{display:"flex",gap:8,alignItems:"baseline",padding:"5px 0",borderTop:"1px solid #1a2540",opacity:actif?1:.55,flexWrap:"wrap"}}>
+      <span style={{color:actif?"#ffd740":"#5a6478",fontWeight:700,minWidth:14}}>{actif?"●":"○"}</span>
+      <span style={{flex:"1 1 200px",color:actif?"#e8eef8":"#8892a4"}}>{x.lib} <span style={{color:"#5a6478"}}>· {x.cond}</span></span>
+      <span style={{fontSize:11,color:"#8892a4",whiteSpace:"nowrap"}}><b style={{color:coul(x.alpha)}}>{x.alpha>0?"+":""}{x.alpha.toLocaleString("fr-FR")} %</b> · {x.gagnants} % gagnants · {x.n} cas</span>
+    </div>);};
+  return(
+    <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+      <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",marginBottom:8}}>
+        <span style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Signaux techniques</span>
+        <span style={{fontSize:9,color:"#ffd740",border:"1px solid rgba(255,215,64,.4)",borderRadius:3,padding:"1px 6px"}}>EN ESSAI · n'entre pas dans la note</span>
+        {reg&&<span title={`MASI ${reg.masi_sur_ma200?"au-dessus":"au-dessous"} de sa moyenne 200 séances · ${reg.part_titres_liquides_sur_ma200!=null?Math.round(reg.part_titres_liquides_sur_ma200*100)+" % des titres liquides au-dessus de la leur":"largeur inconnue"}`}
+          style={{marginLeft:"auto",fontSize:11,fontWeight:700,color:reg.tendance?"#00e5a0":"#ff8f00"}}>
+          Marché {reg.tendance?"EN TENDANCE":"HORS TENDANCE"}</span>}
+      </div>
+      {neu?(
+        <div style={{fontSize:12,color:"#8892a4"}}>Technique non lisible sur ce titre ({neu.motif}) : avec si peu d'échanges, le graphique mesure surtout le bruit de la cotation. La note repose sur les fondamentaux.</div>
+      ):!v2?(
+        <div style={{fontSize:12,color:"#8892a4"}}>Pas assez d'historique pour lire les signaux.</div>
+      ):(<>
+        <div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap",marginBottom:6}}>
+          <span style={{fontSize:12,color:"#8892a4"}}>Nouvelle note technique (essai)</span>
+          <b style={{fontSize:20,color:"#e8eef8"}}>{v2.score.toLocaleString("fr-FR")}</b><span style={{color:"#5a6478"}}>/10</span>
+          {r.score_tech!=null&&<span style={{fontSize:11,color:"#5a6478"}}>actuelle : {(+r.score_tech).toLocaleString("fr-FR")}</span>}
+          {v2.rang_mom120!=null&&<span style={{fontSize:11,color:"#8892a4",marginLeft:"auto"}}>force sur 6 mois : mieux que {Math.round(v2.rang_mom120*100)} % de la cote</span>}
+        </div>
+        {ligne("cassure",!!v2.cassure_recente)}
+        {ligne("surachat",!!v2.surachat_recent)}
+        {ligne(reg&&!reg.tendance?"pullback_off":"pullback_on",!!v2.pullback)}
+        <div style={{fontSize:9,color:"#4a5570",marginTop:6}}>● signal présent dans les 20 dernières séances · chiffres mesurés sur la BVC (2025-26, titres liquides) : écart moyen au MASI 60 séances après le signal, dividendes compris. Une fréquence passée, pas une promesse.</div>
+      </>)}
+    </div>
+  );
+};
+
 const StockChart=({r})=>{
   const refMain=useRef(null),refMacd=useRef(null),refTooltip=useRef(null);
   const chartMain=useRef(null),chartMacd=useRef(null);
@@ -3112,6 +3164,9 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
             </div>
           </div>
 
+          {/* Signaux techniques en essai (calibrage du 03/10/2026) */}
+          <SignauxTechniques r={r}/>
+
           {/* Fibonacci */}
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <FibTable high={h90} low={l90} price={price}/>
@@ -4117,8 +4172,12 @@ function App(){
           /* ⚠️ Le montant RÉEL de la séance et les bornes de réservation,
              collectés depuis le 25/09. `vol` était déjà là ; le montant,
              non — le projet l'approchait par `volume × clôture`. */
-          echange_dh:t.echange_dh, seuil_bas:t.seuil_bas, seuil_haut:t.seuil_haut
+          echange_dh:t.echange_dh, seuil_bas:t.seuil_bas, seuil_haut:t.seuil_haut,
+          /* Calibrage technique, 03/10/2026 : nouveau pilier EN ESSAI (mode
+             ombre) et motif de neutralisation de l'ancien. */
+          score_tech_v2:t.score_tech_v2, technique_neutralise:t.technique_neutralise
         };});
+        REGIME_TECH=d.regime_technique||null;
         mergeLive(m);
         nLive=d.tickers.filter(t=>t.chg&&t.chg!==0).length;
         /* data.json nomme la variation `change_pct`, l'en-tête lit `chg` :
