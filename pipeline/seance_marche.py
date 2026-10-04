@@ -222,6 +222,13 @@ def trajectoire(masi: dict | None, points: list, seance: str) -> dict | None:
         serie.append((h, c))
     if not serie:
         return None
+    # ⚠️ L'ORDRE SERVI N'EST PAS TOUJOURS CHRONOLOGIQUE — relevé le 02/10/2026 :
+    # le premier point servi datait de 10:22:22 et le dernier de 09:37:13. Le
+    # briefing publiait donc une « ouverture » à 10h22 et une série « arrêtée »
+    # à 9h37. Tri STABLE sur l'heure seule : entre points de la même seconde,
+    # l'ordre servi est conservé (un tri sur (heure, cours) les rangerait par
+    # valeur, ce que la règle ci-dessus interdit).
+    serie = sorted(serie, key=lambda x: x[0])
 
     def heure_de(valeur):
         for h, c in serie:
