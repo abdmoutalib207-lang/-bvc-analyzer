@@ -204,6 +204,30 @@ def test_fibonacci_se_trace_sur_le_graphique():
         "Fibonacci ne se calcule pas sur les extrêmes des chandelles affichées")
 
 
+def test_fibonacci_suit_la_convention_tradingview():
+    """Relevé par Noure le 04/10/2026 sur une capture TradingView de VCN.
+
+    Les attendus sont ceux LUS SUR LA CAPTURE (ancrage 547,8 → 363,9), pas
+    recalculés : 0,5 = 455,85 ; 0,618 = 434,15 ; 0,786 = 403,25 ; extensions
+    1,272 = 313,90 ; 1,414 = 287,80 ; 1,618 = 250,25. L'ancienne formule
+    comptait depuis le bas et aurait donné 0,618 = 477,55.
+    """
+    src = _source()
+    fn = _bloc(src, "function calcFib(")
+    consts = "\n".join(_instruction(src, c) for c in
+                       ("const FIB_RETRACEMENTS=", "const FIB_EXTENSIONS="))
+    out = _node(f"{consts}\n{fn}\nconsole.log(JSON.stringify(["
+                "calcFib(547.8,363.9),calcFib(547.8,363.9,FIB_EXTENSIONS)]));")
+    ret, ext = (dict((str(r), v) for r, v in lot) for lot in out)
+    assert ret["0"] == 547.8 and ret["1"] == 363.9
+    # TradingView affiche les niveaux arrondis au pas de cotation (0,05)
+    lu = {"0.5": 455.85, "0.618": 434.15, "0.786": 403.25}
+    for r, v in lu.items():
+        assert ret[r] == pytest.approx(v, abs=0.05), (r, ret[r], v)
+    for r, v in {"1.272": 313.90, "1.414": 287.80, "1.618": 250.25}.items():
+        assert ext[r] == pytest.approx(v, abs=0.05), (r, ext[r], v)
+
+
 def test_le_titre_du_graphique_ne_promet_plus_ce_qu_il_ne_montre_pas():
     s = _source()
     assert "Graphique Chandeliers · MA20 · MA50 · Fibonacci" not in s, (
