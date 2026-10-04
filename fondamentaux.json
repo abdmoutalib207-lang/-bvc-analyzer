@@ -6626,8 +6626,8 @@
     "secteur": "Santé",
     "per": null,
     "forward_per": null,
-    "croissance_ca": null,
-    "croissance_bpa": null,
+    "croissance_ca": 9.2,
+    "croissance_bpa": -74.1,
     "dette_nette_ebitda": null,
     "roic": null,
     "wacc": null,
@@ -6639,7 +6639,7 @@
     "catalyseur": null,
     "risque": null,
     "source": "BOOKVALEUR CTS 2025 (données 29/08/2025)",
-    "date_maj": "2026-06-24",
+    "date_maj": "2026-09-29",
     "cours_bv": 33.29,
     "pe_24": 10.77,
     "pe_25c": 14.03,
@@ -6648,11 +6648,20 @@
     "secteur_pe": null,
     "secteur_dy": 0.19,
     "flottant": 0.01,
-    "nb_actions": 2582555,
+    "nb_actions": 1000000,
     "bloomberg": "MDP",
     "reuters": "PAP",
     "secteur_libre": null,
     "ratios_publies": {
+      "marge_nette_s1_2026": {
+        "valeur": 1.3,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires social",
+        "formule": "6.798808 ÷ 507.062237 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Promopharm_S1_26.pdf"
+        }
+      },
       "dette_nette": {
         "valeur": 51.8,
         "date": "2025-12-31",
@@ -6704,7 +6713,14 @@
         "cash_conversion": "comptes SOCIAUX seuls : pas de tableau des flux de trésorerie (seulement un tableau de financement, p.13, et la CAF de l'état des soldes de gestion : 92,895 MMAD, p.12) ; flux net d'exploitation non publié. Le tableau de financement ne donne pas de flux d'exploitation : le calcul serait une reconstruction (CAF − variation du BFR), pas une lecture."
       },
       "calcule_le": "2026-09-30"
-    }
+    },
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 2582555,
+      "date_maj": "2026-06-24"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Promopharm_S1_26.pdf"
   },
   "SNP": {
     "secteur": "Matériaux",

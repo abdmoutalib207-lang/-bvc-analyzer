@@ -45,17 +45,6 @@
       "actions": 5265000,
       "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 106 879 500 ÷ 20,3 = 5 265 000) ; capital 52 650 000 DH (p.2) ÷ 5 265 000 = 10,00 exactement ; nominal non écrit dans le dépôt lu",
       "yuna": "30/09 : PER 33,45 ; cours 18,73 → BPA implicite +0,56 contre −4,87 : ÉCART consigné, non corrigé. yuna n'a pas intégré l'exercice clos le 31/03/2026 déposé le 29/07 (P/B 0,64 ≈ capitaux propres de l'exercice précédent, 152,3 MDH)"
-    },
-    "PPM": {
-      "url": "https://www.ammc.ma/sites/default/files/Promopharm_2025.pdf",
-      "exercice_clos": "2025-12-31",
-      "base": "résultat net SOCIAL — aucun consolidé dans les dépôts lus. ⚠️ L'attestation des CAC n'est pas dans le dépôt de 4 pages lu",
-      "pages": "p.1 passif : « Résultat net de l'exercice (2) 59.914.634,13 55.159.969,69 » ; p.2 CPC : « Résultat net de l'exercice 59.914.634,13 55.159.969,69 » ; communiqué CP_Promopharm_2025.pdf p.1 (image lue) : « Résultat Net 59.915 55.160 » en 000' MAD, et dividende de 30 DH par action « représentant un montant global de 30 millions de dirhams » (= 1 000 000 actions)",
-      "rnpg_exercice_2025": 59.914634,
-      "source_exercice_2025": "p.1, 59 914 634,13 DH = 59,914634 MDH. ⚠️ Le CP du 25/09/2026 (CP_Promopharm_PW_S1_26.pdf) est un AVERTISSEMENT sur résultats, pas un compte : résultat net social S1 2026 « devrait s'établir à 6.7 millions de dirhams, contre 26.2 » (estimation, 'soumise à l'arrêté des comptes') — aucun S1 intégré, aucun douze mois",
-      "actions": 1000000,
-      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 1 398 000 000 ÷ 1 398 = 1 000 000) ; capital 100 000 000 DH (p.1) ÷ 100 ; dividende 30 DH = 30 MDH (communiqué)",
-      "yuna": "18/09 : PER 28,19 ; clôture 1 480 → BPA implicite 52,50 contre 59,91 : ÉCART de −12,4 % consigné, non corrigé. Son P/B 2,50 (→ 592 MDH de fonds propres, social 590,84) et son ROE 10,1 % (= 59,9 ÷ 590,8) sont concordants avec 59,91 : seul son PER ne l'est pas, cause non établie"
     }
   },
   "_passes_au_s1": {
@@ -97,6 +86,19 @@
       "yuna": "29/09 : PER 18,54 ; clôture 850 → BPA implicite 45,85 contre 45,84 ; ROE 23,1 % = 56,204 ÷ 243,479 : concordant",
       "_passe_le": "2026-10-04",
       "_motif": "S1 2026 déposé le 30/09 (CTM_S1_26.pdf), intégré à datasets/resultats_s1_2026.json avec le même exercice 2025 (56,204, recoupé dans le dépôt S1 p.4 et au RFA p.66). Fiche conservée ici, plus appliquée par pipeline/exercice_2025.py."
+    },
+    "PPM": {
+      "url": "https://www.ammc.ma/sites/default/files/Promopharm_2025.pdf",
+      "exercice_clos": "2025-12-31",
+      "base": "résultat net SOCIAL — aucun consolidé dans les dépôts lus. ⚠️ L'attestation des CAC n'est pas dans le dépôt de 4 pages lu",
+      "pages": "p.1 passif : « Résultat net de l'exercice (2) 59.914.634,13 55.159.969,69 » ; p.2 CPC : « Résultat net de l'exercice 59.914.634,13 55.159.969,69 » ; communiqué CP_Promopharm_2025.pdf p.1 (image lue) : « Résultat Net 59.915 55.160 » en 000' MAD, et dividende de 30 DH par action « représentant un montant global de 30 millions de dirhams » (= 1 000 000 actions)",
+      "rnpg_exercice_2025": 59.914634,
+      "source_exercice_2025": "p.1, 59 914 634,13 DH = 59,914634 MDH. ⚠️ Le CP du 25/09/2026 (CP_Promopharm_PW_S1_26.pdf) est un AVERTISSEMENT sur résultats, pas un compte : résultat net social S1 2026 « devrait s'établir à 6.7 millions de dirhams, contre 26.2 » (estimation, 'soumise à l'arrêté des comptes') — aucun S1 intégré, aucun douze mois",
+      "actions": 1000000,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 1 398 000 000 ÷ 1 398 = 1 000 000) ; capital 100 000 000 DH (p.1) ÷ 100 ; dividende 30 DH = 30 MDH (communiqué)",
+      "yuna": "18/09 : PER 28,19 ; clôture 1 480 → BPA implicite 52,50 contre 59,91 : ÉCART de −12,4 % consigné, non corrigé. Son P/B 2,50 (→ 592 MDH de fonds propres, social 590,84) et son ROE 10,1 % (= 59,9 ÷ 590,8) sont concordants avec 59,91 : seul son PER ne l'est pas, cause non établie",
+      "_passe_le": "2026-10-04",
+      "_motif": "S1 2026 déposé le 30/09 (Promopharm_S1_26.pdf, comptes arrêtés le 29/09), intégré à datasets/resultats_s1_2026.json avec le même exercice 2025 (59,914634, recoupé dans le bilan S1). Fiche conservée ici, plus appliquée ; l'avertissement du 25/09 reste dans _ecartes (PPM_S1)."
     }
   },
   "_ecartes": {
