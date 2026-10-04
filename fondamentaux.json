@@ -7166,8 +7166,8 @@
     "secteur": "Technologie",
     "per": null,
     "forward_per": null,
-    "croissance_ca": null,
-    "croissance_bpa": null,
+    "croissance_ca": 21.7,
+    "croissance_bpa": 15.0,
     "dette_nette_ebitda": null,
     "roic": null,
     "wacc": null,
@@ -7179,7 +7179,7 @@
     "catalyseur": null,
     "risque": null,
     "source": "BOOKVALEUR CTS 2025 (données 29/08/2025)",
-    "date_maj": "2026-06-24",
+    "date_maj": "2026-09-29",
     "cours_bv": 765.0,
     "pe_24": 18.32,
     "pe_25c": 14.59,
@@ -7193,6 +7193,33 @@
     "reuters": "S2M",
     "secteur_libre": null,
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": 24.0,
+        "date": "2025-12-31",
+        "formule": "32.558354 ÷ 135.589205 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/S2M_2025.pdf — p.6, « Résultat net part du Groupe 32 558 354 » DH ; identique au bilan consolidé du dépôt S1 p.1-2, colonne 31-déc.-25 : « Résultat consolidé 32 558 354 ». Rebouclage yuna.ma du 30/09 (lot 13) : BPA implicite 40,09 identique (yuna.ma injoignable le 04/10, HTTP 429)",
+          "capitaux_propres": "bilan consolidé du dépôt S1 2026, p.1-2, colonnes « 30-juin-26 31-déc.-25 » : « Dont : Capitaux propres part du groupe 148 309 452 135 589 205 » (DH) ; la hausse de réserves (61,3 → 93,9 MDH) = 61,3 + résultat 2025 32,6 mis en réserves"
+        }
+      },
+      "roe_12m": {
+        "valeur": 23.1,
+        "date": "2026-06-30",
+        "formule": "(32.558354 + 12.711697 − 11.049645) ÷ 148.309452 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/S2M_S1_26.pdf",
+          "capitaux_propres": "bilan consolidé du dépôt S1 2026, p.1-2, colonnes « 30-juin-26 31-déc.-25 » : « Dont : Capitaux propres part du groupe 148 309 452 135 589 205 » (DH) ; la hausse de réserves (61,3 → 93,9 MDH) = 61,3 + résultat 2025 32,6 mis en réserves"
+        }
+      },
+      "marge_nette_s1_2026": {
+        "valeur": 7.0,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé",
+        "formule": "12.711697 ÷ 181.466089 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/S2M_S1_26.pdf"
+        }
+      },
       "dette_nette": {
         "valeur": -56.6,
         "date": "2025-12-31",
@@ -7225,7 +7252,14 @@
         "cash_conversion": "pas de tableau des flux de trésorerie consolidé dans le dépôt : l'attestation des CAC (p.12) le cite, mais le rapport (§5.2, p.25-28) ne publie que le bilan, le CPC et des états annexes ; seuls des états sociaux (tableau de financement, CAF 39,6 MMAD, p.19) figurent. Flux d'exploitation non publié, ratio non calculé."
       },
       "calcule_le": "2026-09-30"
-    }
+    },
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 812070,
+      "date_maj": "2026-06-24"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/S2M_S1_26.pdf"
   },
   "MRL": {
     "secteur": "Finance",

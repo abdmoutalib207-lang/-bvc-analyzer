@@ -13,17 +13,6 @@
       "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 12 974 080 000 ÷ cours 1 448 = 8 960 000) ; = capital 448 000 KMAD (p.6) ÷ nominal 50, inchangé sur 2024-2025",
       "yuna": "29/09 : PER 14,74 ; clôture de nos chandelles au 29/09 = 1 400 → BPA implicite 94,98 contre 94,99 ; ROE 42,9 % = 851,083 ÷ 1 984,665 (capitaux propres part du Groupe, p.6) : concordant"
     },
-    "S2M": {
-      "url": "https://www.ammc.ma/sites/default/files/S2M_2025.pdf",
-      "exercice_clos": "2025-12-31",
-      "base": "résultat net part du Groupe, consolidé (aucun minoritaire en 2025 : ensemble = part du Groupe)",
-      "pages": "p.6 compte de résultat consolidé en dirhams : « Résultat net de l'ensemble consolidé 32 558 354 28 464 006 », « Résultat net part du Groupe 32 558 354 29 413 844 » ; p.7 attestation : « un bénéfice net consolidé de 32 558 354 MAD » (fixe l'unité : DH) ; social p.2 : 34 141 644,20 (non retenu)",
-      "rnpg_exercice_2025": 32.558354,
-      "source_exercice_2025": "p.6, 32 558 354 DH = 32,558354 MDH (conversion ÷ 1 000 000). ⚠️ la colonne 2024 se contredit (part du Groupe 29 413 844 > ensemble 28 464 006, minoritaires « (949 838) ») : 2024 non utilisé",
-      "actions": 812070,
-      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 414 155 700 ÷ 510 = 812 070) ; capital 40 603 500 DH (p.2 et p.5) ÷ 812 070 = 50,00 exactement. Le nominal n'est pas écrit dans le dépôt lu ; le BPA implicite de yuna le recoupe",
-      "yuna": "30/09 : PER 13,47 ; clôture 540 → BPA implicite 40,09 = 32,558354 ÷ 0,81207 : identique. Pas de ROE affiché"
-    },
     "CAR": {
       "url": "https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf",
       "exercice_clos": "2026-03-31",
@@ -101,6 +90,19 @@
       "yuna": "30/09 : PER 8,54 ; clôture 914 → BPA implicite 107,03 contre 107,07 ; ROE 12,1 % : concordant avec le social",
       "_passe_le": "2026-10-04",
       "_motif": "S1 2026 déposé le 30/09 (Maghrebail_S1_26.pdf), intégré à datasets/resultats_s1_2026.json avec le même exercice 2025 (148,198775, recoupé dans le dépôt S1 p.2 et p.5). Fiche conservée ici, plus appliquée par pipeline/exercice_2025.py."
+    },
+    "S2M": {
+      "url": "https://www.ammc.ma/sites/default/files/S2M_2025.pdf",
+      "exercice_clos": "2025-12-31",
+      "base": "résultat net part du Groupe, consolidé (aucun minoritaire en 2025 : ensemble = part du Groupe)",
+      "pages": "p.6 compte de résultat consolidé en dirhams : « Résultat net de l'ensemble consolidé 32 558 354 28 464 006 », « Résultat net part du Groupe 32 558 354 29 413 844 » ; p.7 attestation : « un bénéfice net consolidé de 32 558 354 MAD » (fixe l'unité : DH) ; social p.2 : 34 141 644,20 (non retenu)",
+      "rnpg_exercice_2025": 32.558354,
+      "source_exercice_2025": "p.6, 32 558 354 DH = 32,558354 MDH (conversion ÷ 1 000 000). ⚠️ la colonne 2024 se contredit (part du Groupe 29 413 844 > ensemble 28 464 006, minoritaires « (949 838) ») : 2024 non utilisé",
+      "actions": 812070,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 414 155 700 ÷ 510 = 812 070) ; capital 40 603 500 DH (p.2 et p.5) ÷ 812 070 = 50,00 exactement. Le nominal n'est pas écrit dans le dépôt lu ; le BPA implicite de yuna le recoupe",
+      "yuna": "30/09 : PER 13,47 ; clôture 540 → BPA implicite 40,09 = 32,558354 ÷ 0,81207 : identique. Pas de ROE affiché",
+      "_passe_le": "2026-10-04",
+      "_motif": "S1 2026 déposé le 30/09 (S2M_S1_26.pdf), intégré à datasets/resultats_s1_2026.json avec le même exercice 2025 (32,558354, recoupé dans le bilan consolidé S1). Fiche conservée ici, plus appliquée par pipeline/exercice_2025.py."
     }
   },
   "_ecartes": {
