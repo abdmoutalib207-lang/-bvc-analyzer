@@ -68,6 +68,16 @@ def test_l_ordre_servi_est_garde_dans_une_meme_seconde():
     assert t["ouverture"] == 17700.0
 
 
+def test_une_serie_servie_dans_le_desordre_est_remise_dans_l_ordre():
+    """02/10/2026 : CDG a servi un point de 10:22:22 en premier et un point de
+    09:37:13 en dernier. Le briefing publiait une ouverture à 10h22 et une
+    série « arrêtée » à 9h37."""
+    serie = [SERIE[2], SERIE[4], SERIE[1], SERIE[3]]      # 10:15, 15:30, 09:31, 12:00
+    t = sm.trajectoire(_masi(), serie, SEANCE)
+    assert t["heure_ouverture"] == "09:31:00" and t["ouverture"] == 17700.0
+    assert t["serie_jusqu_a"] == "15:30:00" and t["serie_rejoint_cloture"] is True
+
+
 def test_le_lendemain_matin_la_serie_ne_porte_plus_la_seance():
     """Relevé le 30/09 à 08h46 : un seul point, daté du 30, portant la clôture
     du 29. Il ne décrit pas la séance du 29 : refusé."""
