@@ -38,9 +38,17 @@ def test_une_perte_donne_un_roe_negatif_pas_une_absence():
 def test_chaque_ratio_porte_sa_date_et_ses_sources():
     for s, f in FOND.items():
         for k, x in ((f or {}).get("ratios_publies") or {}).items():
-            if k in ("calcule_le", "non_calcules_2025", "ratios_bilan_2025"):
+            if k in ("calcule_le", "non_calcules_2025", "ratios_bilan_2025", "reserve_cac"):
                 continue
             assert x["date"] and x["formule"] and any(x["sources"].values()), (s, k)
+
+
+def test_la_reserve_des_commissaires_de_m2m_voyage_avec_ses_ratios():
+    """05/10/2026 : M2M n'est publiable qu'avec sa réserve affichée (contrôle
+    fiscal en cours, non chiffré — attestation p.28). Ce n'est pas un ratio :
+    un texte et sa source, que la fiche montre."""
+    r = FOND["M2M"]["ratios_publies"]["reserve_cac"]
+    assert "vérification fiscale" in r["texte"] and "p.28" in r["source"]
 
 
 def test_la_note_fondamentale_ne_lit_que_les_trois_ratios_approuves():

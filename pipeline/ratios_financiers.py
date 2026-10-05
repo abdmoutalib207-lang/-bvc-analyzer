@@ -94,6 +94,12 @@ def calculer(t: dict, faits: dict | None) -> dict:
             "denominateur": t.get("ca_libelle") or "chiffre d'affaires",
             "formule": f"{t['rnpg_s1_2026']} ÷ {ca} (MMAD)",
             "sources": {"comptes": t.get("url")}}
+    # Réserve des commissaires aux comptes sur les comptes intégrés : elle
+    # voyage AVEC les ratios, pour s'afficher sur la fiche et non dormir dans
+    # le JSON (verificateur-finance, M2M, 05/10/2026).
+    if t.get("reserve_cac"):
+        out["reserve_cac"] = {"texte": t["reserve_cac"],
+                              "source": t.get("source_reserve_cac") or t.get("url")}
     return out
 
 

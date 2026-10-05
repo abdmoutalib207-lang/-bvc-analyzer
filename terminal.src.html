@@ -3035,6 +3035,10 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                   {x&&<div style={{fontSize:8,color:"#5a6478"}}>au {x.date.split("-").reverse().join("/")}</div>}
                 </div>);})}
             </div>
+            {r.ratios_publies.reserve_cac&&(
+              <div title={r.ratios_publies.reserve_cac.source} style={{marginTop:7,padding:"6px 8px",borderRadius:4,background:"rgba(255,143,0,.08)",border:"1px solid rgba(255,143,0,.3)",fontSize:10,color:"#ffb74d",lineHeight:1.4,cursor:"help"}}>
+                <b>⚠ Réserve des commissaires aux comptes</b> — {r.ratios_publies.reserve_cac.texte}
+              </div>)}
           </div>)}
 
           {/* Fondamentaux prévisionnels — IDBourse DATA+.

@@ -106,10 +106,41 @@ def test_trois_bpa_secondaires_remplaces_par_le_depot():
     assert (bpa["DSW"]["bpa_avant_2026_09_29"], bpa["GAZ"]["bpa_avant_2026_09_29"]) == (56.43, 266.9)
 
 
-def test_cih_est_ecarte_faute_de_piece():
-    """Le dépôt dit 35,6 M d'actions au 30/06, le marché en implique 39,2 M
-    aujourd'hui. Sans pièce, R11 : on n'écrit rien."""
-    assert "CIH" not in JEU["titres"] and "CIH" in JEU["_ecartes"]
+def test_cih_integre_sur_la_piece_de_l_augmentation_de_capital():
+    """05/10/2026 : le désaccord 35,6 M / 38,6 M d'actions était l'augmentation
+    de capital du 28/07/2026, constatée sur pièce (R11) par deux communiqués
+    de l'AMMC : 35 605 624 + 3 035 714 = 38 641 338."""
+    c = JEU["titres"]["CIH"]
+    assert "CIH" not in JEU["_ecartes"]
+    assert c["actions"] == 38641338 and c["actions_avant_operation"] == 35605624
+    assert c["actions_avant_operation"] + 2142857 + 892857 == c["actions"]
+    m = douze_mois(c)
+    # 1 089,362 + 616,987 − 615,437 = 1 090,912 ; ÷ 38 641 338 = 28,23
+    assert m["rnpg_12m"] == 1090.912 and m["bpa_12m"] == 28.23
+
+
+def test_jet_part_du_groupe_tranchee_par_le_rfs():
+    j = JEU["titres"]["JET"]
+    assert "JET" not in JEU["_ecartes"]
+    assert (j["rnpg_s1_2026"], j["rnpg_s1_2025"]) == (91.509543, 126.044809)
+    assert round((j["rnpg_s1_2026"] / j["rnpg_s1_2025"] - 1) * 100, 2) == -27.4
+    assert "107 525 818,90" in j["pages"] and "p.15" in j["pages"]
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    # 222 347 771,39 ÷ 3 029 522 = 73,39 (l'ancien 104,21 reste à côté)
+    assert bpa["JET"]["bpa"] == 73.39 and bpa["JET"]["bpa_avant_2026_09_29"] == 104.21
+
+
+def test_m2m_part_du_groupe_lue_au_rfs():
+    m = JEU["titres"]["M2M"]
+    assert "M2M" not in JEU["_ecartes"]
+    # 6 893 559 ÷ 647 777 = 10,64 et −454 167 ÷ 647 777 = −0,70 (BPA publiés)
+    assert round(m["rnpg_s1_2026"] * 1e6 / m["actions"], 2) == 10.64
+    assert round(m["rnpg_s1_2025"] * 1e6 / m["actions"], 2) == -0.70
+    assert douze_mois(m)["bpa_12m"] == 19.53
+
+
+def test_ennakl_ecarte_en_dinars():
+    assert "ENK" not in JEU["titres"] and "dinars" in JEU["_ecartes"]["ENK"].lower()
 
 
 def test_cmgp_et_vicenne_sur_piece():
@@ -277,10 +308,7 @@ def test_lot12_six_integres_trois_ecartes():
     assert bpa["RDS"]["bpa_12m"] == 0.68
     # ZLD : 21,588 ÷ 572 849 = 37,69 (titre sans BPA jusqu'ici)
     assert bpa["ZLD"]["bpa"] == 37.69
-    # Écartés, motif consigné : deux états qui se contredisent (JET), une
-    # part du groupe jamais publiée (M2M), une réserve qui excède le
-    # bénéfice (STK).
-    for s in ("JET", "M2M", "STK"):
-        assert s not in JEU["titres"] and s in JEU["_ecartes"], s
-    assert "91 509 542,52" in JEU["_ecartes"]["JET"]
+    # Écarté, motif consigné : une réserve qui excède le bénéfice (STK).
+    # JET et M2M ont été intégrés le 05/10/2026 sur le rapport semestriel complet.
+    assert "STK" not in JEU["titres"] and "STK" in JEU["_ecartes"]
     assert "réserve" in JEU["_ecartes"]["STK"]
