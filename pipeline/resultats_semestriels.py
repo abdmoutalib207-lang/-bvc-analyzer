@@ -78,6 +78,13 @@ def appliquer(jeu: dict, bpa: dict, fond: dict) -> list[str]:
             journal.append(f"{s} : BPA 2025 {b['bpa']} → {exercice} "
                            f"({t['rnpg_exercice_2025']} MDH ÷ {t['actions']:,} actions)")
             b["bpa"] = exercice
+        elif t.get("affiner_bpa") and b.get("bpa") is not None and b["bpa"] != exercice:
+            # Écart ≤ 0,05 : même BPA, mais calculé sur un résultat ARRONDI
+            # (communiqué) avant d'être lu à l'état (05/10/2026). L'entrée le
+            # demande par `affiner_bpa` ; sans ce drapeau, la tolérance de 0,05
+            # protège les BPA publiés (HPS 14,31, test_bpa_verifies).
+            journal.append(f"{s} : BPA 2025 {b['bpa']} → {exercice} (affiné sur l'état déposé)")
+            b["bpa"] = exercice
         elif b.get("bpa") is None:
             # Titre sans BPA jusqu'ici (BMCI) : l'exercice publié le fournit.
             b["bpa"] = exercice
@@ -90,6 +97,11 @@ def appliquer(jeu: dict, bpa: dict, fond: dict) -> list[str]:
             b["perte_documentee"] = t.get("source_exercice_2025") or t["url"]
         else:
             b.pop("perte_documentee", None)
+        # Le BPA vient désormais d'un état déposé : l'étiquette « tiers » serait
+        # un mensonge (05/10/2026). L'ancienne est gardée à côté, jamais effacée.
+        if b.get("source") == "casablancabourse_derive":
+            b.setdefault("source_avant_2026_10_05", b["source"])
+            b["source"] = "resultats_officiels"
         b["rnpg_12m"] = m["rnpg_12m"]
         b["bpa_12m"] = m["bpa_12m"]
         b["fin_12m"] = jeu["fin_periode"]
