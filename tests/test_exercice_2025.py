@@ -113,8 +113,8 @@ def test_fichier_publie():
     assert bpa["PPM"]["bpa"] == 59.91
     # REB : 1,054255 + 0,017407 − 0,399198 = 0,672 MDH ; ÷ 176 456 = 3,81
     assert bpa["REB"]["bpa"] == 5.97 and bpa["REB"]["bpa_12m"] == 3.81
-    # T2S : 204,576 + 91 − 109 = 186,576 MDH ; ÷ 21 785 174 = 8,56
-    assert bpa["T2S"]["bpa"] == 9.39 and bpa["T2S"]["bpa_12m"] == 8.56
+    # T2S : 204,576 + 91,307 − 108,864 = 187,019 MDH (états de synthèse du 05/10) ; ÷ 21 785 174 = 8,58
+    assert bpa["T2S"]["bpa"] == 9.39 and bpa["T2S"]["bpa_12m"] == 8.58
 
 
 def test_lot_bpa_sources_primaires_05_10():
@@ -125,9 +125,9 @@ def test_lot_bpa_sources_primaires_05_10():
     # M2M : « Résultat consolidé 5 305 374 » classé sous « Capitaux propres (Part
     # du groupe) » (M2M_Group_2025.pdf p.4) ÷ 647 777 = 8,190 ; publié « 8,19 ».
     # L'ancien 26,39 ne correspondait à aucun état (2024 = 22,62).
-    assert bpa_exercice(T["M2M"]) == 8.19
+    assert bpa_exercice(TA["M2M"]) == 8.19
     # Contrôle arithmétique de la pièce : ensemble 6 545 127 − minoritaires 1 239 753
-    assert 6545127 - 1239753 == 5305374 == round(T["M2M"]["rnpg_exercice_2025"] * 1e6)
+    assert 6545127 - 1239753 == 5305374 == round(TA["M2M"]["rnpg_exercice_2025"] * 1e6)
     # AFM : 72 655 851 ÷ 1 000 000 = 72,66 (publié 72,66), pas « 73 MDH »
     assert bpa_exercice(S1["titres"]["AFM"]) == 72.66
     # AKD : 443 680 156 ÷ 14 159 207 = 31,335 ; MIC : 69 547 790,96 ÷ 1 680 000 = 41,40
@@ -159,4 +159,4 @@ def test_t2s_ne_cree_pas_de_fiche_fondamentaux():
     bpa, fond = {}, {}
     app_s1({"fin_periode": "2026-06-30", "titres": {"T2S": S1["titres"]["T2S"]}}, bpa, fond)
     assert "T2S" not in fond
-    assert bpa["T2S"]["bpa_12m"] == 8.56
+    assert bpa["T2S"]["bpa_12m"] == 8.58

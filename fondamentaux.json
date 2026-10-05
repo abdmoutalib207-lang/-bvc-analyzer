@@ -1053,8 +1053,8 @@
     "secteur": "Banque",
     "per": 11.3,
     "forward_per": 11.3,
-    "croissance_ca": 14.4,
-    "croissance_bpa": 24.4,
+    "croissance_ca": 2.8,
+    "croissance_bpa": -11.3,
     "dette_nette_ebitda": 0.0,
     "roic": 12.5,
     "wacc": 10,
@@ -1071,7 +1071,7 @@
     "catalyseur": "RNPG 1 089 MDH +24.4%, 1ère fois > 1 Mds DH, PNB +14.4% à 5 423 MDH, cours cible AGR 492 DH (+38%)",
     "risque": "Augmentation de capital dilutive, intégration CIH Assurance, coût du risque croissant",
     "source": "Attijari Global Research — Mai 2026 / FY2025",
-    "date_maj": "2026-06-18",
+    "date_maj": "2026-09-29",
     "cours_bv": 430.0,
     "pe_24": 15.46,
     "pe_25c": 13.84,
@@ -1080,10 +1080,19 @@
     "secteur_pe": 17.36,
     "secteur_dy": 3.33,
     "flottant": 1.37,
-    "nb_actions": 31497283,
+    "nb_actions": 38641338,
     "bloomberg": "CIH",
     "reuters": "CIH",
     "ratios_publies": {
+      "marge_nette_s1_2026": {
+        "valeur": 21.8,
+        "date": "2026-06-30",
+        "denominateur": "produit net bancaire consolidé",
+        "formule": "616.987 ÷ 2825.752 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf"
+        }
+      },
       "roe_2025": {
         "valeur": 11.1,
         "date": "2025-12-31",
@@ -1120,7 +1129,14 @@
         ]
       },
       "calcule_le": "2026-09-30"
-    }
+    },
+    "avant_2026_09_29": {
+      "croissance_bpa": 24.4,
+      "croissance_ca": 14.4,
+      "nb_actions": 31497283,
+      "date_maj": "2026-06-18"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf"
   },
   "CMGP": {
     "secteur": "Industrie",
@@ -4199,9 +4215,9 @@
     "dps_2026": 20.0,
     "div_yield": 0.9,
     "source": "Calendrier BVC 2026",
-    "date_maj": "2026-06-22",
+    "date_maj": "2026-09-29",
     "per": null,
-    "croissance_ca": null,
+    "croissance_ca": 21.4,
     "dette_nette_ebitda": null,
     "roic": null,
     "marge_nette": null,
@@ -4225,6 +4241,15 @@
     "reuters": null,
     "secteur_libre": "Construction & Travaux publics",
     "ratios_publies": {
+      "marge_nette_s1_2026": {
+        "valeur": 5.2,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé",
+        "formule": "91.509543 ÷ 1772.530327 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Jet_Contractors_RFS_S1_26.pdf"
+        }
+      },
       "dette_nette": {
         "valeur": 1341.3,
         "date": "2025-12-31",
@@ -4276,7 +4301,15 @@
         "cash_conversion": "le dépôt ne contient aucun tableau des flux de trésorerie consolidé (3 pages : comptes sociaux, comptes consolidés, rapport des commissaires aux comptes)."
       },
       "calcule_le": "2026-09-30"
-    }
+    },
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 3029522,
+      "date_maj": "2026-06-22"
+    },
+    "croissance_bpa": -27.4,
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Jet_Contractors_RFS_S1_26.pdf"
   },
   "AFI": {
     "secteur": "Industrie",
@@ -6992,7 +7025,7 @@
     "secteur": "Technologie",
     "per": null,
     "forward_per": null,
-    "croissance_ca": null,
+    "croissance_ca": 36.5,
     "croissance_bpa": null,
     "dette_nette_ebitda": null,
     "roic": null,
@@ -7005,7 +7038,7 @@
     "catalyseur": null,
     "risque": null,
     "source": "BOOKVALEUR CTS 2025 (données 29/08/2025)",
-    "date_maj": "2026-06-24",
+    "date_maj": "2026-09-29",
     "cours_bv": 538.5,
     "pe_24": 23.81,
     "pe_25c": null,
@@ -7019,6 +7052,28 @@
     "reuters": "M2M",
     "secteur_libre": null,
     "ratios_publies": {
+      "roe_2025": {
+        "valeur": 3.4,
+        "date": "2025-12-31",
+        "formule": "5.305374 ÷ 157.811867 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/M2M_Group_2025.pdf p.4 : CPC consolidé « Résultat net (Part du groupe) 5 305 374 14 651 275 », « Résultat par action 8,19 22,62 » (opinion des CAC 2025 sans réserve, p.5) ; même chiffre au RFS S1 p.23, bilan colonne 31/12/2025 « Résultat consolidé 5 305 374 ». 5 305 374 DH = 5,305374 MDH ; ensemble 6 545 127 − minoritaires 1 239 753",
+          "capitaux_propres": "Résultats Financiers 2025 (comptes sociaux et consolidés, 6 pages — pas de rapport financier annuel au catalogue AMMC) — https://www.ammc.ma/sites/default/files/M2M_Group_2025.pdf, p. 4"
+        }
+      },
+      "marge_nette_s1_2026": {
+        "valeur": 8.3,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé",
+        "formule": "6.893559 ÷ 82.914072 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/M2M_group_RFS_S1_26.pdf"
+        }
+      },
+      "reserve_cac": {
+        "texte": "Examen limité « sous réserve » : avis de vérification fiscale reçu le 09/02/2026 (IS et TVA 2021-2024, IR 2022-2024), contrôle en cours — les commissaires ne peuvent pas se prononcer sur son incidence. Observation : incertitude sur la continuité d'exploitation d'ASSIAQA CARD (filiale à 75,85 %, concession avec son client unique terminée le 31/12/2019). Montant non chiffré.",
+        "source": "https://www.ammc.ma/sites/default/files/M2M_group_RFS_S1_26.pdf p.28 (attestation des commissaires aux comptes, 30/09/2026)"
+      },
       "dette_nette": {
         "valeur": -176.5,
         "date": "2025-12-31",
@@ -7051,7 +7106,14 @@
         "cash_conversion": "ligne « Autres » (6,36 MMAD) non expliquée, et variation du BFR égale au dirham près à la variation par les bilans moins la hausse des provisions, alors que les dotations sont déjà réintégrées : double comptage possible (M2M_Group_2025 p.4-5) (verificateur-finance, 02/10/2026)"
       },
       "calcule_le": "2026-09-30"
-    }
+    },
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 647777,
+      "date_maj": "2026-06-24"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/M2M_group_RFS_S1_26.pdf"
   },
   "MIC": {
     "secteur": "Technologie",

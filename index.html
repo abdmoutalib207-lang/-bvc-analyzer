@@ -4525,96 +4525,6 @@ const RedFlags = ({
     }
   }, "Information seulement : ces alertes n'entrent pas dans la note v5.3 (gel du 30/09/2026).")));
 };
-const FibTable = ({
-  high,
-  low,
-  price
-}) => {
-  if (high == null || low == null || !(high > low)) return React.createElement("div", null, React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: "#8892a4",
-      letterSpacing: 1,
-      marginBottom: 8,
-      textTransform: "uppercase"
-    }
-  }, "Retracements Fibonacci"), React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#8892a4"
-    }
-  }, "Plage 90 jours indisponible \u2014 pas assez de s\xE9ances depuis la reprise de cotation."));
-  const fibs = calcFib(high, low);
-  return React.createElement("div", null, React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: "#8892a4",
-      letterSpacing: 1,
-      marginBottom: 8,
-      textTransform: "uppercase"
-    }
-  }, "Retracements Fibonacci"), React.createElement("div", {
-    style: {
-      fontSize: 9,
-      color: "#8892a4",
-      marginBottom: 4
-    }
-  }, "Plage 90j: ", px(low), " \u2192 ", px(high)), fibs.map(([r, val]) => {
-    const pctFromPrice = ((val - price) / price * 100).toFixed(1);
-    const isNear = Math.abs(val - price) / price < 0.03;
-    return React.createElement("div", {
-      key: r,
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "4px 0",
-        borderBottom: "1px solid #0d1829",
-        background: isNear ? "rgba(255,215,64,.06)" : "transparent"
-      }
-    }, React.createElement("span", {
-      style: {
-        fontSize: 10,
-        color: "#ffd740",
-        minWidth: 36,
-        fontWeight: isNear ? 700 : 400
-      }
-    }, r === 0 ? "0.0" : r === 1 ? "1.0" : r), React.createElement("div", {
-      style: {
-        flex: 1,
-        background: "#0a1220",
-        borderRadius: 2,
-        height: 3
-      }
-    }, React.createElement("div", {
-      style: {
-        width: `${Math.max(0, (val - low) / (high - low) * 100)}%`,
-        height: "100%",
-        background: isNear ? "#ffd740" : "#ffd74040"
-      }
-    })), React.createElement("span", {
-      style: {
-        fontSize: 11,
-        color: isNear ? "#ffd740" : "#c8d3e8",
-        minWidth: 60,
-        textAlign: "right",
-        fontWeight: isNear ? 700 : 400
-      }
-    }, px(val)), React.createElement("span", {
-      style: {
-        fontSize: 10,
-        color: pctFromPrice > 0 ? "#00e5a0" : "#ff4f5a",
-        minWidth: 44,
-        textAlign: "right"
-      }
-    }, pctFromPrice > 0 ? "+" : "", pctFromPrice, "%"), isNear && React.createElement("span", {
-      style: {
-        fontSize: 9,
-        color: "#ffd740"
-      }
-    }, "\u25C0"));
-  }));
-};
 const TV_MARGE_DROITE = 8;
 const fmtPrixFR = p => p == null || !isFinite(p) ? "—" : (+p).toLocaleString("fr-FR", {
   minimumFractionDigits: Math.abs(p) >= 1000 ? 0 : 2,
@@ -9247,7 +9157,20 @@ const Detail = ({
         color: "#5a6478"
       }
     }, "au ", x.date.split("-").reverse().join("/")));
-  }))), r.fwd && React.createElement("div", {
+  })), r.ratios_publies.reserve_cac && React.createElement("div", {
+    title: r.ratios_publies.reserve_cac.source,
+    style: {
+      marginTop: 7,
+      padding: "6px 8px",
+      borderRadius: 4,
+      background: "rgba(255,143,0,.08)",
+      border: "1px solid rgba(255,143,0,.3)",
+      fontSize: 10,
+      color: "#ffb74d",
+      lineHeight: 1.4,
+      cursor: "help"
+    }
+  }, React.createElement("b", null, "\u26A0 R\xE9serve des commissaires aux comptes"), " \u2014 ", r.ratios_publies.reserve_cac.texte)), r.fwd && React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
@@ -9620,18 +9543,6 @@ const Detail = ({
   }, "\u25CF"), " IDBourse / M\xE9dias24")), React.createElement(SignauxTechniques, {
     r: r
   }), React.createElement("div", {
-    className: "carte",
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 8,
-      padding: 12
-    }
-  }, React.createElement(FibTable, {
-    high: h90,
-    low: l90,
-    price: price
-  })), React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
