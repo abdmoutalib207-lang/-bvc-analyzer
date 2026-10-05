@@ -117,6 +117,42 @@ def test_fichier_publie():
     assert bpa["T2S"]["bpa"] == 9.39 and bpa["T2S"]["bpa_12m"] == 8.56
 
 
+def test_lot_bpa_sources_primaires_05_10():
+    """Les 31 BPA `casablancabourse_derive` relus à l'état déposé (05/10/2026).
+
+    Attendus écrits à la main depuis les pièces, pas recalculés par la fonction testée.
+    """
+    # M2M : « Résultat consolidé 5 305 374 » classé sous « Capitaux propres (Part
+    # du groupe) » (M2M_Group_2025.pdf p.4) ÷ 647 777 = 8,190 ; publié « 8,19 ».
+    # L'ancien 26,39 ne correspondait à aucun état (2024 = 22,62).
+    assert bpa_exercice(T["M2M"]) == 8.19
+    # Contrôle arithmétique de la pièce : ensemble 6 545 127 − minoritaires 1 239 753
+    assert 6545127 - 1239753 == 5305374 == round(T["M2M"]["rnpg_exercice_2025"] * 1e6)
+    # AFM : 72 655 851 ÷ 1 000 000 = 72,66 (publié 72,66), pas « 73 MDH »
+    assert bpa_exercice(S1["titres"]["AFM"]) == 72.66
+    # AKD : 443 680 156 ÷ 14 159 207 = 31,335 ; MIC : 69 547 790,96 ÷ 1 680 000 = 41,40
+    assert bpa_exercice(S1["titres"]["AKD"]) == 31.34
+    assert bpa_exercice(S1["titres"]["MIC"]) == 41.4
+
+
+def test_bpa_json_publie_apres_relecture_a_l_etat():
+    bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
+    assert bpa["M2M"]["bpa"] == 8.19 and bpa["M2M"]["bpa_avant_2026_09_29"] == 26.39
+    assert (bpa["AFM"]["bpa"], bpa["AKD"]["bpa"], bpa["MIC"]["bpa"]) == (72.66, 31.34, 41.4)
+    # L'étiquette « tiers » ne reste que sur ce qui n'a PAS été relu à l'état.
+    for s in ("AFI AFM AGM AKD ALU BAL CASH COL DAR DHO DSW DTT EQD M2M MIC MOX "
+              "NEJ SNP TMA VCNE S2M").split():
+        assert bpa[s]["source"] == "resultats_officiels", s
+        assert bpa[s]["source_avant_2026_10_05"] == "casablancabourse_derive", s
+
+
+def test_etiquette_tiers_remplacee_sans_effacer():
+    bpa = {"TMA": {"bpa": 94.99, "source": "casablancabourse_derive"}}
+    appliquer({"titres": {"TMA": TA["TMA"]}}, bpa)
+    assert bpa["TMA"]["source"] == "resultats_officiels"
+    assert bpa["TMA"]["source_avant_2026_10_05"] == "casablancabourse_derive"
+
+
 def test_t2s_ne_cree_pas_de_fiche_fondamentaux():
     """R8 : une fiche, même vide, change la note (compute_fond_score)."""
     from pipeline.resultats_semestriels import appliquer as app_s1

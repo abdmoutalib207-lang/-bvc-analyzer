@@ -69,6 +69,11 @@ def appliquer(jeu: dict, bpa: dict) -> list[str]:
             b["perte_documentee"] = t["source_exercice_2025"]
         else:
             b.pop("perte_documentee", None)
+        # Le BPA vient désormais d'un état déposé : l'étiquette « tiers » serait
+        # un mensonge (05/10/2026). L'ancienne est gardée à côté, jamais effacée.
+        if b.get("source") == "casablancabourse_derive":
+            b.setdefault("source_avant_2026_10_05", b["source"])
+            b["source"] = "resultats_officiels"
         b["source_exercice_2025"] = f"{t['url']} ; {t['pages']}"
         b["exercice_clos"] = t.get("exercice_clos", "2025-12-31")
     return journal

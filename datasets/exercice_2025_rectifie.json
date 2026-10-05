@@ -23,6 +23,17 @@
       "actions": 5265000,
       "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 106 879 500 ÷ 20,3 = 5 265 000) ; capital 52 650 000 DH (p.2) ÷ 5 265 000 = 10,00 exactement ; nominal non écrit dans le dépôt lu",
       "yuna": "30/09 : PER 33,45 ; cours 18,73 → BPA implicite +0,56 contre −4,87 : ÉCART consigné, non corrigé. yuna n'a pas intégré l'exercice clos le 31/03/2026 déposé le 29/07 (P/B 0,64 ≈ capitaux propres de l'exercice précédent, 152,3 MDH)"
+    },
+    "M2M": {
+      "url": "https://www.ammc.ma/sites/default/files/M2M_Group_2025.pdf",
+      "exercice_clos": "2025-12-31",
+      "base": "résultat consolidé part du groupe (normes marocaines) : « Résultat consolidé » classé sous « Capitaux propres (Part du groupe) » ; minoritaires dans les résultats 1 239 753 DH ; ensemble consolidé 6 545 127 DH. Le dépôt S1 2026 ne publie pas la part du groupe (écarté dans resultats_s1_2026.json) : ce titre n'a donc pas de S1 exploitable",
+      "pages": "p.4 « COMPTES CONSOLIDES 2025 », bilan consolidé passif, colonnes « 31/12/2025 31/12/2024 » : « Capitaux propres (Part du groupe) 157 811 867 144 832 311 », « Capital 64 777 700 64 777 700 », « Résultat consolidé 5 305 374 14 651 275 », « Intérêt minoritaires dans les résultats 1 239 753 5 678 535 » ; communiqué CP_M2M_group_2025.pdf p.1 : « Résultats nets consolidés 6 545 127 20 329 810 », « Résultat par action 8,19 22,62 »",
+      "rnpg_exercice_2025": 5.305374,
+      "source_exercice_2025": "p.4, 5 305 374 DH = 5,305374 MDH (LU, pas déduit d'un BPA). Contrôle arithmétique : ensemble 6 545 127 − minoritaires 1 239 753 = 5 305 374. BPA publié au communiqué 8,19 = 5,305374 ÷ 0,647777 M",
+      "actions": 647777,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 261 442 797,2 ÷ cours 403,6 = 647 777) ; = capital 64 777 700 DH (p.1 et p.4 du dépôt) ÷ nominal 100",
+      "yuna": "yuna.ma injoignable le 05/10 (HTTP 429), aucun rebouclage yuna possible ; le rebouclage extérieur est le BPA que M2M publie lui-même (CP_M2M_group_2025.pdf p.1 : 8,19, soit 5,31 MDH, identique). L'ancien BPA 26,39 (casablancabourse_derive) ne correspond à aucun état : 2024 = 22,62, 2025 = 8,19"
     }
   },
   "_passes_au_s1": {

@@ -208,8 +208,12 @@ def test_lot7_communiques_lus_et_recoupes():
     quand le texte ne les porte pas). Recoupés sur yuna.ma : OUL 56,72 et
     MIC 41,37 identiques ; SBS 121,32 / 121,22 ; DTT 25,94 / 25,85."""
     bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
-    # OUL : 112,3 ÷ 1 980 000 = 56,72 ; MIC : 69,5 ÷ 1 680 000 = 41,37
-    assert (bpa["OUL"]["bpa"], bpa["MIC"]["bpa"]) == (56.72, 41.37)
+    # OUL : 112,3 ÷ 1 980 000 = 56,72 ; MIC : 69,547791 ÷ 1 680 000 = 41,40.
+    # Depuis le 05/10 le résultat est lu à l'état (Microdata_2025.pdf p.1,
+    # « XVI RESULTAT NET 69 547 790,96 ») et non plus au « 69,5 millions » du
+    # communiqué (arrondi) qui donnait 41,37 ; yuna.ma n'a pas bougé (41,37 =
+    # son propre arrondi), l'écart est de 0,07 %.
+    assert (bpa["OUL"]["bpa"], bpa["MIC"]["bpa"]) == (56.72, 41.4)
     # SBS : 343 + 79,9 − 87,3 = 335,6 ÷ 2 829 653 = 118,60
     assert bpa["SBS"]["bpa_12m"] == 118.6
     # DTT : exercice 2025 lu au RFA p.25 depuis le 02/10 (verificateur-finance) :
@@ -235,9 +239,12 @@ def test_lot8_fnb_uni_inv_hal():
 
 def test_lot9_akdital_tgcc_lesieur():
     bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
-    # AKD part du groupe : 444 + 225 − (214,226312 − 20,096114) = 474,87
-    # ÷ 14 159 207 = 33,54 ; ROE 2025 = 444 ÷ 2 853,529 = 15,6 % (yuna : 15,6)
-    assert bpa["AKD"]["bpa_12m"] == 33.54
+    # AKD part du groupe : 443,680156 + 225 − (214,226312 − 20,096114) =
+    # 474,549958 ÷ 14 159 207 = 33,52. Depuis le 05/10 l'exercice est lu à
+    # l'état (Akdital_RFA_2025.pdf p.78, « Résultat net part groupe
+    # 443 680 156 ») et non plus au « 444 M MAD » arrondi du communiqué, qui
+    # donnait 474,87 et 33,54 ; ROE 2025 = 443,680 ÷ 2 853,529 = 15,5 %.
+    assert bpa["AKD"]["bpa_12m"] == 33.52 and bpa["AKD"]["bpa"] == 31.34
     # TGCC : 952 ÷ 34 674 332 = 27,46 (actions confirmées par le rapport
     # annuel : 34 674 300) — l'ancien 65 était faux
     assert bpa["TGCC"]["bpa"] == 27.46 and bpa["TGCC"]["bpa_avant_2026_09_29"] == 65

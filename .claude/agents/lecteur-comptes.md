@@ -259,6 +259,22 @@ fusion** : la fusion est la décision d'Abd Moutalib.
   inclut (132,5) ; dette nette et ROIC alternatifs en réserve.
 - (lot 3b-bis) Un yuna en retard d'un exercice : Zellidja, BPA 11,52 = résultat SOCIAL 2024
   (6,599) ÷ 572 849.
+- (05/10) `bpa.json` : l'étiquette `source: casablancabourse_derive` survivait sur 21 BPA
+  DÉJÀ relus aux dépôts (les outils ne la changeaient pas) : avant de croire un BPA « tiers »,
+  comparer `bpa` à `rnpg_exercice_2025 ÷ actions` des deux jeux. Seul M2M (26,39 → 8,19) l'était
+  vraiment. Les outils posent désormais `resultats_officiels` et gardent l'ancienne
+  étiquette dans `source_avant_2026_10_05`.
+- (05/10) Dix clés de `bpa.json` ne sont PAS des titres : BCI=BMC, CMA=CIM, FBR=FNB, MAB=MGL,
+  MLE=MRL, NKL=ENK, PRO=PPM, SBM=SBS, SLF=SLM, SNEP=SNP (codes IDBourse / alias). Orphelines,
+  jamais lues (`update_data.py` clé = notre ticker), et fausses (écarts −24 % à +148 % avec le
+  vrai titre) : ne pas les « corriger », lire le vrai ticker (liste : `IDB_TICKER_MAP`).
+- (05/10) Un « résultat net part du groupe » de communiqué en MDH arrondis (AFM 73, AKD 444,
+  MIC 69,5) cache l'état : AFM 72 655 851 (RFA p.57), AKD 443 680 156 (RFA p.78), MIC
+  69 547 790,96 (p.1). Chercher la ligne en dirhams ; la tolérance de 0,05 de
+  `resultats_semestriels.appliquer` ne réaligne un BPA que si l'entrée porte `affiner_bpa`.
+- (05/10) Un dépôt de comptes consolidés peut classer le résultat sous « Capitaux propres (Part
+  du groupe) » sans ligne « RNPG » au CPC (M2M p.4 : « Résultat consolidé 5 305 374 ») : c'est
+  une LECTURE, recoupée par ensemble − minoritaires (6 545 127 − 1 239 753).
 
 ## Ce que tu ne fais jamais
 
