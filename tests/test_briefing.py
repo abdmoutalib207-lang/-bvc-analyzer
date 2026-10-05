@@ -484,6 +484,16 @@ def test_le_total_du_briefing_egale_le_volume_de_l_operateur():
         pytest.skip("concentration ou volume global absent")
     if c.get("lignes_approchees"):
         pytest.skip(f"{c['lignes_approchees']} ligne(s) encore approchée(s)")
+    # ⚠️ DEUX CHIFFRES DE LA MÊME SÉANCE, sinon la comparaison ne prouve rien.
+    # Le 05/10 à 12h55, la source de l'indice a servi un instant la séance du
+    # 02/10 (MASI « périmé ») : ce test a comparé le volume du 02/10 au total
+    # du 05/10, conclu à un titre manquant, et bloqué une publication saine.
+    # La fraîcheur de l'indice est le contrôle « MASI daté de la dernière
+    # séance » de pipeline/verifier_seance.py, bloquant au passage du soir.
+    masi_asof = str((d.get("masi") or {}).get("asof") or "")[:10]
+    if masi_asof != str(b.get("seance") or "")[:10]:
+        pytest.skip(f"indice du {masi_asof or '?'}, briefing du {b.get('seance')} "
+                    "— séances différentes, voir verifier_seance")
     ecart = abs(c["total_dh"] - vol)
     assert ecart <= max(10.0, vol * 0.0005), (
         f"le briefing totalise {c['total_dh']:,.0f} DH quand l'indice en "
