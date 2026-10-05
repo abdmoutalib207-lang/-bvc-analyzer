@@ -9247,7 +9247,20 @@ const Detail = ({
         color: "#5a6478"
       }
     }, "au ", x.date.split("-").reverse().join("/")));
-  }))), r.fwd && React.createElement("div", {
+  })), r.ratios_publies.reserve_cac && React.createElement("div", {
+    title: r.ratios_publies.reserve_cac.source,
+    style: {
+      marginTop: 7,
+      padding: "6px 8px",
+      borderRadius: 4,
+      background: "rgba(255,143,0,.08)",
+      border: "1px solid rgba(255,143,0,.3)",
+      fontSize: 10,
+      color: "#ffb74d",
+      lineHeight: 1.4,
+      cursor: "help"
+    }
+  }, React.createElement("b", null, "\u26A0 R\xE9serve des commissaires aux comptes"), " \u2014 ", r.ratios_publies.reserve_cac.texte)), r.fwd && React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
