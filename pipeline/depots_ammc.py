@@ -68,6 +68,12 @@ ALIAS_AMMC = {
     # 2026 » (30/09) n'entrait pas dans la file d'attente. Notre référentiel
     # dit « Douja Prom Addoha » ; même émetteur, ISIN MA0000011512.
     "addoha": "ADH",
+    # Ajoutés le 05/10/2026 : « Ennakl Automobiles - Résultats financiers du
+    # 1er semestre 2026 » (02/10) ne passait aucune des trois voies — notre
+    # nom est « Ennakl » — et la file d'attente affichait 0. Même défaut pour
+    # « DLM (Delattre Levivier Maroc) » (le normaliseur garde la parenthèse).
+    "ennakl automobiles": "ENK",
+    "dlm delattre levivier maroc": "DLM",
 }
 
 # ⚠️ « indicateurs » N'EN FAIT PAS PARTIE. Relevé le 29/09 sur RDS : « CP
