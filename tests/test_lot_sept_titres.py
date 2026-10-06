@@ -107,7 +107,9 @@ def test_le_plus_haut_annuel_de_ciments_redevient_plausible():
     # 2 050,00 : plus-haut des 52 semaines selon l'export de l'opérateur (CMA,
     # séance du 05/11/2025), série importée le 03/10/2026 ; 1 750 décrivait
     # l'ancienne série, incomplète.
-    assert cache["CIM"]["h52w"] == 2050.0
+    # ≤ et non == : la fenêtre de 52 semaines glisse, et le sommet du 05/11/2025
+    # en sortira début novembre 2026 (même piège que Stokvis le 06/10/2026).
+    assert cache["CIM"]["h52w"] <= 2050.0
     assert cache["CIM"]["h52w"] < 2500, "un plus-haut au-delà de 2 500 serait encore CMT"
 
 
@@ -120,8 +122,14 @@ def test_stokvis_ne_porte_plus_la_valeur_de_la_table_statique():
     assert [b["d"] for b in serie if b["c"] == 490.0] == []
     cache = json.loads((RACINE / "pipeline" / "historical_data.json")
                        .read_text(encoding="utf-8"))
-    assert cache["STK"]["h52w"] == 138.0, (
-        "l'historique complet doit voir le sommet réel du 07/10/2025")
+    # ⚠️ Ce test exigeait h52w == 138,0, le sommet du 07/10/2025. La fenêtre de
+    # 52 semaines glisse : depuis le soir du 06/10/2026 ce sommet en est sorti
+    # et le plus-haut légitime vaut 137,0. Le test a échoué ce soir-là sur des
+    # données saines (contrôle de séance 13/13). Ce qu'il protège ne dépend pas
+    # du calendrier : aucune valeur au-dessus du vrai sommet de l'année (138,0,
+    # attendu écrit à la main) ne doit réapparaître — 490 de la table statique
+    # en premier.
+    assert cache["STK"]["h52w"] <= 138.0, "plus-haut annuel au-dessus du sommet réel"
     assert cache["STK"]["h52w"] < 200, "490 revient par le plus-haut annuel"
     sommet = next(b for b in serie if b["d"] == "2025-10-07")
     assert sommet["h"] == 138.0 and sommet["c"] == 135.0
