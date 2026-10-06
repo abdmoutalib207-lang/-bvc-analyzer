@@ -61,7 +61,7 @@ from bvc_config import decalage_maroc
 from bvc_config import SCORE_VERSION
 from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
                         COMPANY_NAMES, COMPANY_SECTORS, est_ferie_fixe,
-                        est_suspendu, SPLITS, SUSPENSIONS,
+                        est_suspendu, SPLITS, SUSPENSIONS, sans_comptes,
                         SEANCES_ANNULEES, seance_annulee)
 
 TICKERS = TICKERS_ALL
@@ -2767,18 +2767,34 @@ def _per(price, bpa):
     return round(price / bpa, 1) if (bpa and bpa > 0 and price and price > 0) else None
 
 
+def _comptes_deposes(entree_bpa: dict | None) -> bool:
+    """Le BPA vient-il d'un dépôt AMMC ? (bpa.json, champ `source`)
+
+    Vrai pour `resultats_officiels` et les sources qui citent un rapport
+    déposé ; faux sans entrée, sans source (STK, MDP : comptes sous réserve),
+    ou pour `casablancabourse_derive` (site tiers)."""
+    # Liste d'INCLUSION (relecteur-pipeline, 06/10) : une future source tierce
+    # ne doit pas compter comme un dépôt par défaut.
+    src = str((entree_bpa or {}).get("source") or "")
+    officielle = (src == "resultats_officiels" or src.startswith("RFA ")
+                  or "AMMC" in src or src.startswith("Comptes consolidés"))
+    return officielle and (entree_bpa or {}).get("bpa") is not None
+
+
 def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
                  isin_suspect=False, ratios_calcules=False,
                  chg=None, vol=None, prix_diffuse=None, cap_source=None,
-                 seances_depuis_reprise=None) -> dict:
+                 seances_depuis_reprise=None, comptes_deposes=False) -> dict:
     """Provenance du prix et score de confiance 0–5.
 
     Le score suit la spécification du CLAUDE.md, un point par garantie :
       1. prix de la dernière séance cotée (ni périmé, ni statique)
       2. fondamentaux réels — présents dans fondamentaux.json, pas la table figée
       3. RSI calculable — au moins 14 chandelles réelles
-      4. corpus NLP significatif — plus de 10 mentions
-      5. smart money disponible — win rate renseigné
+      4. comptes déposés — BPA lu dans un dépôt AMMC (depuis le 06/10/2026 ;
+         était « corpus NLP significatif », gelé)
+      5. liquidité — ≥ 100 000 DH échangés par séance (depuis le 06/10/2026 ;
+         était « smart money disponible », gelé)
 
     Un score ≤ 1 signifie que la note repose sur des données de repli : le
     frontend grise alors le signal plutôt que d'afficher un ACHETER trompeur.
@@ -2834,14 +2850,26 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         except (TypeError, KeyError):
             n_bougies = n_echangees = 0
 
+    # ⚠️ LES DEUX POINTS DU CORPUS SONT REMPLACÉS — 06/10/2026.
+    #
+    # « plus de 10 mentions » et « win renseigné » lisaient un corpus WhatsApp
+    # arrêté au 02/07/2026 et gelé dans la note depuis le 29/09 (R8) : deux
+    # points figés, sans rapport avec la qualité des données du jour. 32
+    # titres sur 80 plafonnaient à 2/5 (orange) sans pouvoir en sortir.
+    # Ils deviennent deux garanties MESURÉES chaque jour :
+    #   4. comptes déposés — BPA lu dans un dépôt AMMC (bpa.json, source
+    #      officielle), ni table figée ni site tiers ;
+    #   5. liquidité — au moins 100 000 DH échangés par séance (médiane 20).
     confiance = sum((
         0 if stale else 1,
         1 if ticker in _FOND_COMPUTED else 0,
         1 if n_echangees >= 15 else 0,
-        1 if (sent.get("mentions") or 0) > 10 else 0,
-        1 if sent.get("win") is not None else 0,
+        1 if comptes_deposes else 0,
+        1 if (_echange_median_dh(df_candles) or 0) >= 100_000 else 0,
     ))
     if isin_suspect:
+        confiance = min(confiance, 1)
+    if sans_comptes(ticker):
         confiance = min(confiance, 1)
 
     # ⚠️ Plafond de liquidité, ajouté le 01/09/2026.
@@ -2901,6 +2929,8 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
 
     return {
         "suspendu":       bool(suspension),
+        # Société qui cote sans publier de comptes (registre SANS_COMPTES).
+        "comptes_absents": sans_comptes(ticker),
         # Le cours que la source continue de diffuser, conservé pour que
         # l'écart avec la dernière cotation réelle reste vérifiable.
         "prix_diffuse_source": prix_diffuse,
@@ -3721,20 +3751,22 @@ def run(dry_run=False, push=False, token=""):
         _p = Path(__file__).parent / "financial_data.json"
         if _p.exists():
             _fd_all = json.loads(_p.read_text(encoding="utf-8")).get("data", {})
-    except Exception:
-        pass
+    except Exception as _e:
+        logger.warning(f"financial_data.json illisible ({_e}) — repli « financial » indisponible")
     try:
         _p = Path(__file__).parent / "pipeline" / "static_fallback.json"
         if _p.exists():
             _sf_all = json.loads(_p.read_text(encoding="utf-8"))
-    except Exception:
-        pass
+    except Exception as _e:
+        logger.warning(f"static_fallback.json illisible ({_e}) — repli « static » indisponible")
     try:
         if OUTPUT.exists():
             _ex_raw = json.loads(OUTPUT.read_text(encoding="utf-8"))
             _ex_all = {t["symbol"]: t for t in _ex_raw.get("tickers", []) if "symbol" in t}
-    except Exception:
-        pass
+    except Exception as _e:
+        # ⚠️ Sans le data.json précédent, le repli « data_json_precedent » et
+        # la détection de nouvelle séance tombent en silence.
+        logger.warning(f"data.json précédent illisible ({_e}) — repli et nouvelle séance non évaluables")
 
     # Déterminer si on est sur une nouvelle session (date changée depuis dernier data.json)
     _tz_ca = _tz_maroc()
@@ -4280,7 +4312,8 @@ def run(dry_run=False, push=False, token=""):
                     ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0),
                 chg=chg, vol=vol, prix_diffuse=_prix_diffuse,
                 cap_source=_cap_source,
-                seances_depuis_reprise=_seances_depuis_reprise),
+                seances_depuis_reprise=_seances_depuis_reprise,
+                comptes_deposes=_comptes_deposes(BPA_DATA.get(ticker))),
             # Code officiel BVC, pour l'affichage seulement. Nos symboles
             # internes sont la clé primaire d'ISIN_MAP, des chandelles et de
             # six ans de corpus WhatsApp : on ne les renomme pas. Mais un
@@ -4436,7 +4469,7 @@ def run(dry_run=False, push=False, token=""):
             # d'achat sorti d'indicateurs qui décrivent un autre prix est pire
             # qu'une absence de signal.
             "sig":    ("SUSPENDU" if _suspendu_maintenant(ticker)
-                       else "Données insuffisantes" if _seances_depuis_reprise is not None
+                       else "Données insuffisantes" if (_seances_depuis_reprise is not None or sans_comptes(ticker))
                        # ⚠️ PLAFOND DE LIQUIDITÉ DU VERDICT — 04/10/2026, accord
                        # d'Abd Moutalib. Sur un titre peu liquide ou au fixing,
                        # une bonne note fondamentale ne dit pas qu'on peut y
@@ -4447,6 +4480,7 @@ def run(dry_run=False, push=False, token=""):
             "verdict_plafonne": (f"ACHETER plafonné : {_tech_nf['motif']}"
                                  if _tech_nf and str(v53["sig"]).startswith("ACHETER")
                                  and not _suspendu_maintenant(ticker)
+                                 and not sans_comptes(ticker)
                                  and _seances_depuis_reprise is None else None),
             "biais":  v53["biais"],
             "conv":   v53["conv"],
@@ -4471,7 +4505,7 @@ def run(dry_run=False, push=False, token=""):
         # Un journal qui contredit le fichier qu'il décrit est pire qu'un
         # journal muet — c'est là qu'on va vérifier quand on doute.
         _sig_publie = ("SUSPENDU" if _suspendu_maintenant(ticker)
-                       else "Données insuffisantes" if _seances_depuis_reprise is not None
+                       else "Données insuffisantes" if (_seances_depuis_reprise is not None or sans_comptes(ticker))
                        else v53["sig"])
         logger.info(f"  ✓ {ticker}: {price} DH | RSI {rsi} | Score v5.3: {v53['v53']} | {_sig_publie}")
 

@@ -3907,7 +3907,7 @@ const Confiance = ({
   } = meta(r);
   const col = conf <= 1 ? "#ff4f5a" : conf <= 2 ? "#ff8f00" : conf <= 3 ? "#ffd740" : "#00e5a0";
   return React.createElement("span", {
-    title: `Confiance ${conf}/5 — prix du jour, fondamentaux réels, historique suffisant, corpus NLP, smart money`,
+    title: `Confiance ${conf}/5 — prix du jour, fondamentaux réels, historique suffisant, comptes déposés à l\u2019AMMC, liquidité ≥ 100 000 DH/séance`,
     style: {
       fontSize: sz,
       letterSpacing: 1,
@@ -8998,7 +8998,20 @@ const Detail = ({
         letterSpacing: 0
       }
     }, "\xB7 ", m.fond_asof, " ", React.createElement("b", null, "(", a, " j)"));
-  })()), (() => {
+  })()), (r._meta || {}).comptes_absents && React.createElement("div", {
+    title: r._meta.comptes_absents.source,
+    style: {
+      margin: "0 0 10px",
+      padding: "6px 8px",
+      borderRadius: 4,
+      background: "rgba(255,79,90,.08)",
+      border: "1px solid rgba(255,79,90,.35)",
+      fontSize: 10,
+      color: "#ff8a80",
+      lineHeight: 1.4,
+      cursor: "help"
+    }
+  }, React.createElement("b", null, "\u26A0 Aucun compte r\xE9cent"), " \u2014 dernier d\xE9p\xF4t le ", r._meta.comptes_absents.dernier_depot.split("-").reverse().join("/"), " : ", r._meta.comptes_absents.motif, ". La note est affich\xE9e pour m\xE9moire, sans conclusion."), (() => {
     const c = meta(r).comptes_plus_recents;
     if (!c) return null;
     return React.createElement("a", {

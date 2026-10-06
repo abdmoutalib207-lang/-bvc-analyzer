@@ -22,7 +22,7 @@ const { chromium } = require('playwright');
 const args = process.argv.slice(2);
 const iS = args.indexOf('--sortie');
 const SORTIE = iS >= 0 ? args[iS + 1] : null;
-const TITRES = args.filter((a, i) => !a.startsWith('--') && i !== iS + 1);
+const TITRES = args.filter((a, i) => !a.startsWith('--') && !(iS >= 0 && i === iS + 1));
 if (!TITRES.length) TITRES.push('IAM');
 const URL = process.env.QA_URL || 'http://localhost:8818/index.html';
 const NM = path.resolve('node_modules');

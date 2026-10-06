@@ -883,3 +883,13 @@ Relevé pour le briefing de clôture enrichi (`pipeline/seance_marche.py`).
   dessus. `test_le_total_du_briefing_egale_le_volume_de_l_operateur` le
   détecte : un rouge de nuit sur ce test n'incrimine pas la PR, il se
   relance en séance.
+
+## Confiance : rupture de série le 06/10/2026
+
+- Les points 4 et 5 de la confiance (corpus NLP, smart money) sont remplacés
+  par « comptes déposés à l'AMMC » et « liquidité ≥ 100 000 DH/séance ».
+  Toute analyse filtrée sur `confidence` avant/après cette date compare deux
+  grilles : le dire, ou ne rejouer qu'une seule grille.
+- Effet mesuré le jour même : 5/5 passe de 29 à 44 titres, aucune note v5.3
+  ne bouge, un seul signal change (IBM → « Données insuffisantes »,
+  registre `SANS_COMPTES`).

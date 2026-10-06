@@ -258,9 +258,9 @@ depuis le 10/08, 1 765 observations à 5 séances) : corrélation à l'alpha
 −0,0555 → −0,0480. ⚠️ **Négative dans les deux cas** : sur cette période, la
 note ne se montre pas prédictive — un seul régime, observations chevauchantes,
 et ce n'est pas la même mesure que celle du 25/09 (base seule, 13 jours).
-Garde-fou : `tests/test_gel_nlp.py`, par invariance. ⚠️ **Reste ouvert** : le
-score de CONFIANCE compte encore deux points tirés du corpus (mentions, smart
-money).
+Garde-fou : `tests/test_gel_nlp.py`, par invariance. Le score de CONFIANCE ne
+compte plus de point tiré du corpus depuis le 06/10/2026 (voir « Score de
+confiance »).
 
 ⚠️ **Historique** : la formule était `Tech×25% + Fond×47% + NLP×28%` du début
 jusqu'au 25/09/2026. Une documentation plus ancienne indiquait NLP×36% —
@@ -409,9 +409,21 @@ d'appel oublié, `node_modules` commité.
 Chaque ticker expose un entier `confidence` (0–5), un point par garantie :
 - +1 prix de la dernière séance cotée — ni périmé, ni statique
 - +1 fondamentaux réels — présents dans `fondamentaux.json`, pas la table figée
-- +1 RSI calculable — au moins 14 chandelles réelles
-- +1 corpus NLP significatif — plus de 10 mentions
-- +1 smart money disponible — `win` renseigné
+- +1 RSI calculable — au moins 15 séances échangées
+- +1 comptes déposés — BPA lu dans un dépôt AMMC (source officielle dans `bpa.json`)
+- +1 liquidité — au moins 100 000 DH échangés par séance (médiane 20)
+
+⚠️ **Grille changée le 06/10/2026** : les points 4 et 5 lisaient le corpus
+WhatsApp gelé (« plus de 10 mentions », « `win` renseigné ») et bloquaient 32
+titres à 2/5. **Rupture de série** : toute mesure filtrée sur la confiance
+(backtest `confiance_min`, `bulletin_mail`, `mesure_neutralisation_tech`)
+mélange deux grilles de part et d'autre de cette date. Mesure de l'effet, main
+contre branche le même jour : `{0:2, 1:1, 2:32, 3:16, 5:29}` →
+`{0:2, 1:2, 2:30, 4:2, 5:44}` ; aucune note changée, un signal (IBM).
+
+Une société qui cote sans publier de comptes est inscrite dans
+`bvc_config.SANS_COMPTES` (IBM : rien depuis 2023, redressement judiciaire) :
+confiance ≤ 1, signal « Données insuffisantes », `_meta.comptes_absents`.
 
 **Règle d'affichage** : si `confidence ≤ 1`, le signal est remplacé par
 « Données insuffisantes », en gris, dans le classement ET sur la fiche. Le
