@@ -1761,7 +1761,7 @@
     "secteur": "Technologie",
     "per": 45.1,
     "forward_per": 36.0,
-    "croissance_ca": 13.1,
+    "croissance_ca": 14.0,
     "croissance_bpa": 173.7,
     "dette_nette_ebitda": 0.68,
     "roic": 14,
@@ -1819,10 +1819,10 @@
         }
       },
       "marge_nette_s1_2026": {
-        "valeur": 4.6,
+        "valeur": 5.0,
         "date": "2026-06-30",
-        "denominateur": "chiffre d'affaires",
-        "formule": "34.811645 ÷ 760.619614 (MMAD)",
+        "denominateur": "chiffre d'affaires consolidé (ligne « Chiffres d'affaires », hors variation de stocks et autres produits ; les produits d'exploitation sont 760,620 et 672,499)",
+        "formule": "34.811645 ÷ 702.156494 (MMAD)",
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/HPS_S1_26.pdf"
         }
@@ -3494,11 +3494,11 @@
     "source_s1_2026": "https://www.ammc.ma/sites/default/files/CP_Sothema_S1_26.pdf",
     "ratios_publies": {
       "roe_2025": {
-        "valeur": 14.8,
+        "valeur": 14.7,
         "date": "2025-12-31",
-        "formule": "388.458 ÷ 2619.648 (MMAD)",
+        "formule": "385.526 ÷ 2619.648 (MMAD)",
         "sources": {
-          "resultat": "⚠ NON LU dans un rapport : BPA 10,14 du RFA 2025 (bpa.json) × 38 309 500 actions — le PER de yuna.ma (33,53 à 340 DH) redonne 10,14",
+          "resultat": "https://www.ammc.ma/sites/default/files/Sothema_RFA_2025.pdf, p.53 du fichier (pages imprimées 104-105), compte de résultat consolidé en KMAD : « Part du groupe 385 526 315 288 » = 385,526 MDH ; même chiffre au tableau de variation des capitaux propres (p.65, « Résultat de l'exercice 385 526 ») et au texte (« La part du groupe s'élève à 385,5 MMAD »). Corrige 388,458 (audit verificateur-finance 06/10/2026 ; ni 388,229 = résultat TOTAL avec minoritaires, ni lu dans un état). BPA = 385,526 ÷ 38 309 500 = 10,06. ÉCART CONSIGNÉ, non corrigé pour coïncider : yuna.ma (PER 33,53 à 340 DH) implique 10,14.",
           "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Sothema_RFA_2025.pdf, p. 52"
         }
       },

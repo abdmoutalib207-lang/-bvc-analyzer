@@ -53,7 +53,9 @@ VERIFIES = {
     "HPS": 14.31,
     "RIS": 16.84,
     "SNA": 69.69,
-    "SOT": 10.14,
+    # 06/10/2026 : 385,526 MDH (RFA 2025 p.53, « Part du groupe 385 526 ») ÷ 38 309 500
+    # = 10,06. L'ancien 10,14 venait de 388,458, lu dans aucun état.
+    "SOT": 10.06,
     "TQA": 41.58,
 }
 
