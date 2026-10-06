@@ -746,6 +746,31 @@ SUSPENSIONS: dict = {
 }
 
 
+# ⚠️ SOCIÉTÉS COTÉES SANS COMPTES DÉPOSÉS — registre créé le 06/10/2026.
+#
+# Un titre qui cote encore mais ne publie plus de comptes n'a pas de pilier
+# fondamental : la table figée qui le remplaçait affichait une note (IBM : 5,2,
+# ATTENDRE) sur des chiffres de 2022, sans rien dire. Comme une suspension, le
+# fait se CONSTATE sur pièce (R11) : dernier dépôt lu au catalogue de l'AMMC.
+# Effet : confiance plafonnée à 1, signal « Données insuffisantes », motif
+# affiché sur la fiche. La note chiffrée reste visible, en gris.
+SANS_COMPTES: dict = {
+    "IBM": {
+        "dernier_depot": "2023-10-31",
+        "motif": "aucun compte déposé depuis l'exercice 2022 et le S1 2023 ; "
+                 "demande de placement en redressement judiciaire (communiqué du 10/01/2023)",
+        "source": "AMMC — IB_Maroc_2022_S1_23.pdf (31/10/2023) et "
+                  "CP_IB_Maroc_redressement_judiciaire.pdf ; aucun dépôt 2023, 2024 ni 2025 "
+                  "(datasets/exercice_2025_rectifie.json, _ecartes)",
+    },
+}
+
+
+def sans_comptes(ticker: str) -> dict | None:
+    """Le constat d'absence de comptes, ou None."""
+    return SANS_COMPTES.get(ticker)
+
+
 def est_suspendu(ticker: str, date_iso: str | None = None) -> dict | None:
     """Renvoie la suspension en vigueur à `date_iso`, ou None.
 

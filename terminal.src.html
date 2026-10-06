@@ -796,7 +796,7 @@ const Perime=({r})=>{const m=meta(r);if(!m.stale)return null;
 /* Indicateur de confiance ●●●○○ — jamais masqué (spécification CLAUDE.md). */
 const Confiance=({r,sz=11})=>{const {conf}=meta(r);
   const col=conf<=1?"#ff4f5a":conf<=2?"#ff8f00":conf<=3?"#ffd740":"#00e5a0";
-  return <span title={`Confiance ${conf}/5 — prix du jour, fondamentaux réels, historique suffisant, corpus NLP, smart money`}
+  return <span title={`Confiance ${conf}/5 — prix du jour, fondamentaux réels, historique suffisant, comptes déposés à l\u2019AMMC, liquidité ≥ 100 000 DH/séance`}
     style={{fontSize:sz,letterSpacing:1,color:col,userSelect:"none"}}>
     {"●".repeat(conf)}<span style={{color:"#2a3550"}}>{"○".repeat(5-conf)}</span></span>;};
 const Bar=({v,max=10,c,h=6})=>(
@@ -2968,6 +2968,13 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                 notre collecte depuis des jours.
                 ⚠️ Le lien mène au dépôt OFFICIEL. Le moteur ne lit pas les
                 chiffres du rapport — il dit qu'ils existent et où. */}
+            {/* Société qui cote sans publier de comptes (registre SANS_COMPTES,
+                06/10/2026) : la note n'a pas de pilier fondamental réel. */}
+            {(r._meta||{}).comptes_absents&&(
+              <div title={r._meta.comptes_absents.source}
+                style={{margin:"0 0 10px",padding:"6px 8px",borderRadius:4,background:"rgba(255,79,90,.08)",border:"1px solid rgba(255,79,90,.35)",fontSize:10,color:"#ff8a80",lineHeight:1.4,cursor:"help"}}>
+                <b>⚠ Aucun compte récent</b> — dernier dépôt le {r._meta.comptes_absents.dernier_depot.split("-").reverse().join("/")} : {r._meta.comptes_absents.motif}. La note est affichée pour mémoire, sans conclusion.
+              </div>)}
             {(()=>{const c=meta(r).comptes_plus_recents; if(!c) return null;
               return <a href={c.url} target="_blank" rel="noopener noreferrer"
                 title={c._lecture||""}

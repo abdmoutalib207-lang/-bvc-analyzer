@@ -1,0 +1,83 @@
+{
+  "_note": "Entrées retirées de bpa.json le 06/10/2026 : codes IDBourse ou alias (BCI=BMC, CMA=CIM, FBR=FNB, MAB=MGL, MLE=MRL, NKL=ENK, PRO=PPM, SBM=SBS, SLF=SLM, SNEP=SNP, TGC=TGCC), jamais lus par update_data.py qui lit par NOTRE ticker. Elles divergeaient du vrai titre de −24 % à +148 % (FBR 25,67 contre FNB 10,35) et pouvaient tromper un lecteur du fichier. Archivées, non supprimées.",
+  "entrees": {
+    "BCI": {
+      "bpa": 41.86,
+      "source": "casablancabourse_derive",
+      "div_dh": 18.0,
+      "roe": 10.0,
+      "marge_nette": 16.0
+    },
+    "CMA": {
+      "bpa": 82.75,
+      "source": "casablancabourse_derive",
+      "div_dh": 60.0,
+      "roe": 18.0,
+      "marge_nette": 16.0
+    },
+    "FBR": {
+      "bpa": 25.67,
+      "source": "casablancabourse_derive",
+      "div_dh": 0,
+      "roe": 8.0,
+      "marge_nette": 3.0
+    },
+    "MAB": {
+      "bpa": 81.35,
+      "source": "casablancabourse_derive",
+      "div_dh": 53.0,
+      "roe": 12.0,
+      "marge_nette": 18.0
+    },
+    "MLE": {
+      "bpa": 33.64,
+      "source": "casablancabourse_derive",
+      "div_dh": 14.0,
+      "roe": 11.0,
+      "marge_nette": 16.0
+    },
+    "NKL": {
+      "bpa": 4.47,
+      "source": "casablancabourse_derive",
+      "div_dh": 2.38,
+      "roe": 16.0,
+      "marge_nette": 5.0
+    },
+    "PRO": {
+      "bpa": 74.94,
+      "source": "casablancabourse_derive",
+      "div_dh": 0,
+      "roe": 12.0,
+      "marge_nette": 8.0
+    },
+    "SBM": {
+      "bpa": 136.25,
+      "source": "casablancabourse_derive",
+      "div_dh": 100.0,
+      "roe": 17.0,
+      "marge_nette": 9.0
+    },
+    "SLF": {
+      "bpa": 40.66,
+      "source": "casablancabourse_derive",
+      "div_dh": 29.5,
+      "roe": 14.0,
+      "marge_nette": 20.0
+    },
+    "SNEP": {
+      "bpa": 30.42,
+      "source": "casablancabourse_derive",
+      "div_dh": 0,
+      "roe": 8.0,
+      "marge_nette": 4.0
+    },
+    "TGC": {
+      "bpa": 65,
+      "source": "resultats_officiels",
+      "div_dh": 15.0,
+      "roe": 22.0,
+      "marge_nette": 8.0,
+      "note": "TGCC — carnet commandes 35 Mds DH, RNPG +60%"
+    }
+  }
+}
