@@ -79,9 +79,15 @@ CONTINUS = ("rev5", "dist_ma200", "mom120", "mom250", "dist_h52",
 EVENEMENTS = ("pullback", "cassure90")
 
 
+# Troncature des données à une date (AAAA-MM-JJ), pour rejouer une mesure telle
+# qu'elle était à cette date. None = aucune troncature : comportement d'origine.
+FIN: str | None = None
+
+
 def _masi() -> pd.Series:
     m = json.loads((RACINE / "pipeline" / "masi_history.json").read_text(encoding="utf-8"))
-    s = pd.Series({pd.Timestamp(d): float(v) for d, v in m["seances"].items()}).sort_index()
+    s = pd.Series({pd.Timestamp(d): float(v) for d, v in m["seances"].items()
+                   if FIN is None or d <= FIN}).sort_index()
     return s
 
 
@@ -101,6 +107,8 @@ def _titre(t: str) -> pd.DataFrame | None:
         b = json.loads((RACINE / "pipeline" / "candles" / f"{t}.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
+    if FIN is not None:
+        b = [x for x in b if x["d"] <= FIN]
     if len(b) < 60:
         return None
     df = pd.DataFrame(b).rename(columns={"d": "date", "o": "open", "h": "high",

@@ -1,0 +1,178 @@
+{
+ "_quoi": "Fréquences observées des signaux techniques — source unique du terminal",
+ "_avertissement": "Fréquences passées, pas des promesses. Observations chevauchantes (un même mouvement compte plusieurs fois) : les intervalles et les p sont optimistes. Un seul régime de marché sur la période. Alpha brut de frais ; rendement_net_frais_moyen_pct retranche 2 % d'aller-retour.",
+ "_ne_pas_editer": "Produit par pipeline/frequences.py ; tests/test_frequences.py le recalcule.",
+ "_r8": "Ces signaux n'entrent pas dans la note (mode ombre) : aucune note ne dépend de ce fichier.",
+ "fin_calibrage": "2026-10-02",
+ "frequences": {
+  "cassure": {
+   "libelle": "Cassure du plus haut 90 jours avec volume",
+   "condition": "en tendance",
+   "signal": "cassure90",
+   "definition_signal": "clôture au-dessus du plus haut des 90 séances précédentes ET volume > 1,5 × médiane des 50 séances précédentes",
+   "regle_tendance": "MASI > sa moyenne 200 séances ET plus de 50 % des titres liquides au-dessus de leur MA200",
+   "horizon_seances": 60,
+   "periode_mesure": {
+    "debut": "2025-01-01",
+    "fin_donnees": "2026-10-02"
+   },
+   "univers": "titres liquides (deux tiers supérieurs du montant médian échangé)",
+   "mesure": "alpha = rendement total du titre moins rendement du MASI, à 60 séances",
+   "frais_inclus": false,
+   "n": 136,
+   "gagnants_k": 72,
+   "pct_gagnants": 52.9,
+   "ic95_gagnants": [
+    44.6,
+    61.1
+   ],
+   "alpha_moyen_pct": 7.19,
+   "alpha_median_pct": 0.77,
+   "rendement_net_frais_moyen_pct": 7.91,
+   "source": {
+    "fichier": "datasets/calibrage_technique/etape2_regime_2026-10-03.json",
+    "commit": "ca92e7ac"
+   }
+  },
+  "surachat": {
+   "libelle": "Sortie de surachat du RSI (la force continue)",
+   "condition": "en tendance",
+   "signal": "rsi_sortie_surachat",
+   "definition_signal": "le RSI 14 repasse sous 70 après avoir été au-dessus la séance précédente",
+   "regle_tendance": "MASI > sa moyenne 200 séances ET plus de 50 % des titres liquides au-dessus de leur MA200",
+   "horizon_seances": 60,
+   "periode_mesure": {
+    "debut": "2025-01-01",
+    "fin_donnees": "2026-10-02"
+   },
+   "univers": "titres liquides (deux tiers supérieurs du montant médian échangé)",
+   "mesure": "alpha = rendement total du titre moins rendement du MASI, à 60 séances",
+   "frais_inclus": false,
+   "n": 137,
+   "gagnants_k": 68,
+   "pct_gagnants": 49.6,
+   "ic95_gagnants": [
+    41.4,
+    57.9
+   ],
+   "alpha_moyen_pct": 5.59,
+   "alpha_median_pct": -0.02,
+   "rendement_net_frais_moyen_pct": 6.21,
+   "source": {
+    "fichier": "datasets/calibrage_technique/etape2_regime_2026-10-03.json",
+    "commit": "ca92e7ac"
+   }
+  },
+  "pullback_on": {
+   "libelle": "Pullback (repli en tendance haussière)",
+   "condition": "en tendance",
+   "signal": "pullback",
+   "definition_signal": "cours > MA200, MA50 > MA200 et cours au moins 3 % sous la MA20",
+   "regle_tendance": "MASI > sa moyenne 200 séances ET plus de 50 % des titres liquides au-dessus de leur MA200",
+   "horizon_seances": 60,
+   "periode_mesure": {
+    "debut": "2025-01-01",
+    "fin_donnees": "2026-10-02"
+   },
+   "univers": "titres liquides (deux tiers supérieurs du montant médian échangé)",
+   "mesure": "alpha = rendement total du titre moins rendement du MASI, à 60 séances",
+   "frais_inclus": false,
+   "n": 200,
+   "gagnants_k": 88,
+   "pct_gagnants": 44.0,
+   "ic95_gagnants": [
+    37.3,
+    50.9
+   ],
+   "alpha_moyen_pct": 2.8,
+   "alpha_median_pct": -1.46,
+   "rendement_net_frais_moyen_pct": 4.38,
+   "source": {
+    "fichier": "datasets/calibrage_technique/etape2_regime_2026-10-03.json",
+    "commit": "ca92e7ac"
+   }
+  },
+  "pullback_off": {
+   "libelle": "Pullback (repli en tendance haussière)",
+   "condition": "hors tendance",
+   "signal": "pullback",
+   "definition_signal": "cours > MA200, MA50 > MA200 et cours au moins 3 % sous la MA20",
+   "regle_tendance": "MASI > sa moyenne 200 séances ET plus de 50 % des titres liquides au-dessus de leur MA200",
+   "horizon_seances": 60,
+   "periode_mesure": {
+    "debut": "2025-01-01",
+    "fin_donnees": "2026-10-02"
+   },
+   "univers": "titres liquides (deux tiers supérieurs du montant médian échangé)",
+   "mesure": "alpha = rendement total du titre moins rendement du MASI, à 60 séances",
+   "frais_inclus": false,
+   "n": 58,
+   "gagnants_k": 14,
+   "pct_gagnants": 24.1,
+   "ic95_gagnants": [
+    15.0,
+    36.5
+   ],
+   "alpha_moyen_pct": -3.84,
+   "alpha_median_pct": -6.54,
+   "rendement_net_frais_moyen_pct": -5.13,
+   "source": {
+    "fichier": "datasets/calibrage_technique/etape2_regime_2026-10-03.json",
+    "commit": "ca92e7ac"
+   }
+  }
+ },
+ "utilite": [
+  {
+   "signal": "cassure90",
+   "en_tendance": {
+    "n": 136,
+    "gagnants_k": 72,
+    "pct_gagnants": 52.9
+   },
+   "hors_tendance": {
+    "n": 14,
+    "gagnants_k": 9,
+    "pct_gagnants": 64.3
+   },
+   "ecart_points": -11.3,
+   "z": -0.81,
+   "p": 0.417,
+   "verdict": "effectif trop faible pour conclure (un groupe < 30 cas)"
+  },
+  {
+   "signal": "rsi_sortie_surachat",
+   "en_tendance": {
+    "n": 137,
+    "gagnants_k": 68,
+    "pct_gagnants": 49.6
+   },
+   "hors_tendance": {
+    "n": 19,
+    "gagnants_k": 11,
+    "pct_gagnants": 57.9
+   },
+   "ecart_points": -8.3,
+   "z": -0.67,
+   "p": 0.5,
+   "verdict": "effectif trop faible pour conclure (un groupe < 30 cas)"
+  },
+  {
+   "signal": "pullback",
+   "en_tendance": {
+    "n": 200,
+    "gagnants_k": 88,
+    "pct_gagnants": 44.0
+   },
+   "hors_tendance": {
+    "n": 58,
+    "gagnants_k": 14,
+    "pct_gagnants": 24.1
+   },
+   "ecart_points": 19.9,
+   "z": 2.72,
+   "p": 0.00645,
+   "verdict": "distingue les deux situations (p < 0,05, indépendance supposée)"
+  }
+ ]
+}

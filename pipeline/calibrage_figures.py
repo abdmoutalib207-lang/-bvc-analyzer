@@ -57,6 +57,8 @@ def _evenements(t: str) -> list[dict]:
         b = json.loads((RACINE / "pipeline" / "candles" / f"{t}.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return []
+    if FIN is not None:
+        b = [x for x in b if x["d"] <= FIN]
     if len(b) < 80:
         return []
     df = pd.DataFrame(b)
