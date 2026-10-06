@@ -2493,6 +2493,19 @@ def _est_rediffusion(chg, vol, df_candles, seance=None):
 FAITS_DATA: dict = {}
 
 
+def _cp_s1_pour_pb(ticker: str):
+    """Fonds propres part du groupe au 30/06/2026 (MMAD) si l'entrée S1 du titre
+    demande le P/B dessus (`pb_sur_cp_s1`), sinon None."""
+    try:
+        jeu = json.loads((Path(__file__).parent / "datasets"
+                          / "resultats_s1_2026.json").read_text(encoding="utf-8"))
+        t = (jeu.get("titres") or {}).get(ticker) or {}
+        v = t.get("capitaux_propres_pg_30_06_2026")
+        return float(v) if t.get("pb_sur_cp_s1") and v else None
+    except (OSError, ValueError, TypeError):
+        return None
+
+
 def _pb_sourcé(ticker: str, price: float):
     """Price-to-book calculé depuis des faits SOURCÉS, ou None.
 
@@ -2527,6 +2540,15 @@ def _pb_sourcé(ticker: str, price: float):
         return None
     try:
         fp = float(cp["valeur"]) * 1e6          # les faits sont en MMAD
+        # ⚠️ 06/10/2026 (audit verificateur-finance, TQA) : un dépôt S1 2026
+        # donne des fonds propres plus RÉCENTS (30/06/2026, après dividende)
+        # que ceux du 31/12/2025. Sur Taqa : 6 338,7 contre 6 772,7 MMAD, soit
+        # un P/B de 4,6 % trop bas. L'entrée S1 le demande par
+        # `pb_sur_cp_s1` ; sans ce drapeau rien ne change pour les autres
+        # titres (leur généralisation est une décision, pas un correctif).
+        _cp_s1 = _cp_s1_pour_pb(ticker)
+        if _cp_s1:
+            fp = _cp_s1 * 1e6                   # MMAD aussi
         if fp <= 0:
             return None
         return round(price * n / fp, 2)
