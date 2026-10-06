@@ -1,0 +1,424 @@
+{
+ "_quoi": "Backtest reproductible des notes PUBLIÉES — mesure, pas promesse",
+ "_methode": "Backtest reproductible : UNE commande, un artefact daté, aucun réseau.\n\n    python3 pipeline/backtest_reproductible.py            # notes de score_history.json\n    python3 pipeline/backtest_reproductible.py --source git   # + archéologie de data.json\n\nSortie : `datasets/backtest/backtest_AAAA-MM-JJ.json` et `.md`, où la date est\ncelle de la DERNIÈRE SÉANCE des entrées (jamais l'horloge) : deux exécutions\nsur les mêmes entrées donnent le même fichier, à l'octet près. Le fichier\nJSON porte le sha256 de chaque entrée lue et le commit git.\n\n⚠️ CE QUI EST MESURÉ : LES NOTES PUBLIÉES, PAS REJOUÉES\nLe journal `score_history.json` (ou, avec --source git, le dernier commit de\nchaque jour sur `data.json`) dit ce que le terminal AFFICHAIT. Rien n'est\nrecalculé : les fondamentaux sont figés à leur valeur actuelle, les rejouer\nsur le passé donnerait au modèle la connaissance du futur.\n\n⚠️ RÈGLES ÉCRITES AVANT LES RÉSULTATS (pré-enregistrées, jamais retouchées)\n  - Rendement : TOTAL (cours + dividende à la date de détachement,\n    `datasets/dividendes_bvc.json`), de la clôture du jour de publication à la\n    clôture h séances plus tard, h = 5 et 20, séances du calendrier du MASI.\n  - Alpha = rendement total du titre − variation du MASI sur les mêmes dates.\n  - Frais : 2 % aller-retour, déduits du rendement de tout titre « acheté ».\n  - Sont écartés, et COMPTÉS : confiance < 2 ou signal « Données\n    insuffisantes » ; cours de la note d'une autre séance que celle de la\n    publication (`prix_asof`) ; clôture absente à l'entrée ou à la sortie ;\n    fenêtre contenant une rupture de série > ±50 % (opération non déclarée).\n  - Corrélation de rang : Spearman note → alpha, JOUR PAR JOUR, puis moyenne\n    des jours (IC). Écart décile haut − bas : par jour (décile = n // 10\n    titres, classés par note puis symbole), puis moyenne.\n  - « Bon sens » : ACHETER → alpha net de frais > 0 ; ÉVITER (et ÉVITER FORT)\n    → alpha < 0 ; SURVEILLER et ATTENDRE n'annoncent pas de sens : seule la\n    part d'alpha > 0 est publiée.\n  - Deux grilles de confiance, JAMAIS dans un même chiffre : « v1 » avant le\n    06/10/2026, « v2 » à partir du 06/10/2026 (date de la publication).\n  - t : trois valeurs sur la série des moyennes JOURNALIÈRES — naïf,\n    Newey-West (Bartlett, retard h−1) et sous-échantillon non chevauchant\n    (une date sur h). RETENU : Newey-West. Aucune conclusion sous 20 jours\n    distincts OU sous 10 dates non chevauchantes : le texte dit alors\n    « insuffisant », quel que soit le t (Newey-West sur une vingtaine de jours\n    sous-estime l'incertitude ; la deuxième condition empêche d'y croire seul).\n\n⚠️ LIMITES, AVANT LES RÉSULTATS\n  1. Un seul régime de marché, quelques semaines : `score_history.json`\n     commence le 24/09/2026. --source git remonte au 10/08 (début de `_meta`).\n  2. Observations CHEVAUCHANTES : à 20 séances, deux jours voisins partagent\n     19 séances. D'où Newey-West et le sous-échantillon ; ni l'un ni l'autre ne\n     rend fiable un t calculé sur peu de jours.\n  3. Le MASI est un indice de COURS ; les titres sont en rendement TOTAL. Le\n     biais favorise les titres, il n'est pas chiffré ici.\n  4. Plusieurs versions du score (`score_version`) et deux pondérations\n     (25/09, 29/09) traversent l'échantillon : non séparées, listées dans\n     `entrees.versions_score`.\n  5. Entrée à la clôture du jour de publication, comme `backtest.py` : un\n     lecteur agit le lendemain à un cours inconnu. Léger optimisme.\n  6. Aucune fourchette, aucun impact de marché ; la liquidité n'est que\n     décrite (montant médian échangé des titres ACHETER).\n  7. Dividendes : 2025-2026 pour tous, 2024 pour Immorente seulement.\n  8. La date de bascule de la grille de confiance (06/10/2026) vient de la\n     demande du chantier ; elle n'est écrite nulle part dans le dépôt.",
+ "limites_ecrites_avant_les_resultats": [
+  "Un seul régime de marché, quelques semaines d'historique de notes.",
+  "Observations chevauchantes : t naïf surestimé, Newey-West retenu.",
+  "MASI en cours seuls contre titres en rendement total : biais favorable aux titres, non chiffré.",
+  "Plusieurs versions du score et deux pondérations dans l'échantillon, non séparées.",
+  "Entrée à la clôture du jour de publication ; aucune fourchette ni impact de marché.",
+  "Grille de confiance : v1 avant le 06/10/2026, v2 ensuite, jamais mélangées.",
+  "Aucune conclusion sous 20 jours distincts ni sous 10 dates non chevauchantes."
+ ],
+ "parametres": {
+  "horizons_seances": [
+   5,
+   20
+  ],
+  "frais_aller_retour": 0.02,
+  "confiance_min": 2,
+  "debut_grille_v2": "2026-10-06",
+  "min_jours_pour_conclure": 20,
+  "min_dates_non_chevauchantes": 10,
+  "rupture_serie": 0.5
+ },
+ "entrees": {
+  "source_des_notes": "score_history",
+  "commit_git": "29a0bf0d7fb6d74891d52b0ded0912e45f45bd7a",
+  "sha256": {
+   "score_history": "e884314bd401150cd1d3ee3a81921764f0e905539215ce9624310eba7a091074",
+   "masi": "e7392d09451b757f2c343c3ba0ebdeed6230bf2e59dd6d6bbac33acd392762e2",
+   "dividendes": "b171ac5ee23aee0146eb31b225ef2312bb6b8d208f9f6fdc2ae597144ca5e845",
+   "candles": {
+    "ADH.json": "f99738e577af9167c1e1d0791f8f517f4870996776aa003dc82c4aebaf0bc9da",
+    "ADI.json": "540a5f0980cbea5a82cf917c8ffc0ecfd3455f7e2e87ca4e7fbb4ff149d84bfe",
+    "AFI.json": "3af33898001f1ad743fbb175eedc3569087bbccc55275ff9bf011fb222ed4449",
+    "AFM.json": "d11c20bdb9c108e4b89a53c54c2cce325718322cfded929c3f2c0b22c6a0d659",
+    "AGM.json": "22588659d5873e1a038ab685cf443c3b7ae5368cb91bec488e72b7268474164b",
+    "AKD.json": "e58b2bee58f578b526aba749cf4947d791bf3dfb5ec961cd0528cddc9878624f",
+    "ALU.json": "631544c2ac1ba76cdaa9c8aacce13dcc66c3e99d011adb5599b1ed54eae8ce56",
+    "ARD.json": "bd7689a83eaabcc8f49f54dd387edf08971debaf0986f68425a038be5e745672",
+    "ATL.json": "f06c1bb82e76913a7a04cf934254b4e88b1364af4015ae7d2f4ec721a3187aec",
+    "ATW.json": "980fbf05c847e7323beddb31aafb2ad05c419e878677cc14b8aa3764acaea307",
+    "BAL.json": "348fbad15c4c10603fbbd5e132c476d338deaea76d310089752e2886ab4c8266",
+    "BCP.json": "d59d133d72d14fa9ee5ee88c818f75c2a3fafc892b3a3ec77802c6b9cd072318",
+    "BMC.json": "05eb6c956f43868f06b4bdf5711d126b7d719795778561bf0440f3536ba89efe",
+    "BOA.json": "ea231823cc53f8c7911991ce05d8377666c7e981ea6306f605613deccd924cae",
+    "CAR.json": "0a860051de93d5858e521ab769e0895d3f2f81289f0faedddd1f39d9fe26d52b",
+    "CASH.json": "d4366fc1d27466ea71255ca030574d6f4276ea4fb1375a07c1258fe4e4896a30",
+    "CDM.json": "5911259eef084917d42859f9003cc4a7c87e3cc24430638e6bb1b9b3bc03a5f9",
+    "CFGB.json": "dd7fa22919ec31ceb583b489faadfbac12b393ad5f5f606f982b29b25e6ed7cf",
+    "CIH.json": "d6d10e1a959347a3a8e947efa1b4cf19fd8dbae04f15befbc8b30ffefdc88b91",
+    "CIM.json": "dfe2b013311d5028ed81da9e359ec1012dc59a072ef19620fd9cc93d78a34bc1",
+    "CMGP.json": "29b20d98c5eb44782c118a717acf6fe667f8bacdff226f0fc6cd989a998bdcfa",
+    "CMT.json": "8d7e96ba378580ff2c68769f0b5b1cf1c9275e843c705b8062e4001753b31639",
+    "COL.json": "e529f31e9626c8790db83dfa9dee820d9d0513a25b4c8103a22672326ac6924f",
+    "CSR.json": "b9ca9989cf23c0cb4173fc107247c56d97ed2e100f1d6f586020ffa12d957ffb",
+    "CTM.json": "133135ba1098bf02e016cec4c6f626edb5ae4d8bb81a42c7a31c959f9f04eca6",
+    "DAR.json": "8e230f74e23482f023741969ddf993ce7b8151488f350d677ba13bc250930118",
+    "DHO.json": "07a838dccc36b9599ac736912234f5e6bef8d8ea32345a85e028a3ea214b9836",
+    "DIS.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "DLM.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "DSW.json": "ed6607debad0ec62ce026bdc7a29eb1f6277af7b0fdb516ca9825f98797028aa",
+    "DTT.json": "0d20a71b9769fe384d80a0b85e1041ddfc30b96c412125151dd0f52165f59887",
+    "ENK.json": "857e57b9e90fa0693a3cdb36a3a66ee541cc2ffc333902b1e63fd2efd756e27c",
+    "EQD.json": "73081267797fac1240fe28c4d7231eb09ca92527de6b79ff7d5df7f34f6c061b",
+    "FNB.json": "ec6e9298919065244523b6ac35c053de7a1b96fdc873eef82518b424583fa027",
+    "GAZ.json": "4ce1f5ac52246bb88393def3408b8d74d57a24a3a0ee98e5e80e77144652ebe8",
+    "HAL.json": "f4168f3236dc73e4e5b0831b0c427ceba19a6f0b5ea47bb91b82b4502f1f0537",
+    "HPS.json": "201e1f8e0df8483ad5afb3f4cbedb5bae99ab991047a11836b240d37d588291d",
+    "IAM.json": "7ddc6686b04b85f6f0d8436e5862c7d3751e7624e5173a46d9f160775ce5d15d",
+    "IBM.json": "cc08bef2c82bf25487f6e177c6efa190c63c83c539ab9c98a12869c78d19bcc0",
+    "IMI.json": "dea738a2ba1cdb56c74d834588c13a989281883d3b0bb264a0b9c52fec3c12d4",
+    "INV.json": "71341e20d5869085e6ffda3eac6873257a9de7130a76219cdf782b319084cd65",
+    "JET.json": "da9c2e2b7984ecbd93572845017dfe543016f3809451730aeede82281b720785",
+    "LBV.json": "b305a3949488df71044d0c79b2ab611447a773e1aa2e9721b288bf2a170a4035",
+    "LES.json": "122a24d3ab18e8aa52bb78ccc368380aee855aaf2db9f03087114cf9772f6233",
+    "LHM.json": "d753244ddcb47f51cb33f0337e64ea774288ff2cefec6948572ee16f1be2d8eb",
+    "M2M.json": "0afd25fe849d7950cd6f2417971ed75bb1d68d729400a32ed60bc86bc4d5e0fb",
+    "MDP.json": "5a9fcc686b164fbce4003df604b3d55a30c45856c5d638c5c9f53bc07ff0d456",
+    "MGL.json": "d26f6a2985d3399e042515d041d21fbbe636602aa106dc2f6d7ea83e09556bc4",
+    "MIC.json": "c8082d31c7647af1c0c321f5512522ae3ac2f40db3b1967341c36cef12178280",
+    "MNG.json": "c34d88b5b55efccfb9d17a55683c50d68590930907747cbee9206c9b5ad98a3b",
+    "MOX.json": "ffa2d38442d5092a0cf927a2e3c759d377c387e53b6b1ac7805a1c992abdc110",
+    "MRL.json": "41244b44b31116c68c7b2fc8f8d612fee981b0835f410f665222a03bf8d02335",
+    "MSA.json": "39a524853317453df6aa5ec2360d209463d308dbf6fdda7bc1711d5a2e948615",
+    "MUT.json": "8fb41b1fc5fea607e8e10d48d3cb6c6f6e5cb2455d0409d46f04ddc6e9b00563",
+    "NEJ.json": "35419256d992c35f70b8095483d4120b51e343792369b4710e2113a876137a2c",
+    "OUL.json": "67c66655ae8d377cb3b976156e75d9bb27aa51fef3f947524f9189bbe2f4fa91",
+    "PPM.json": "c29f3cab71389361839874c1721af3a65529632d6b09cdc42170cb1d0748ec7b",
+    "RDS.json": "f1c77c9eedf6d3d92af0e45134ed4d8ef0c19317410d86288c1907d7a98195ef",
+    "REB.json": "c0c650fcf113e00ae072826312b4d2669dc8d64b51273ba0cf6fa49b68f423ec",
+    "RIS.json": "af56633217e82288647935a990404afc7fbaac76e42f3899be7f70cbc07af7e3",
+    "S2M.json": "847d58406335cb26e56da5f29fabdd23b99b9331e07c5d46548b16637fa2b001",
+    "SAF.json": "a26d191db791a10877dfe87cd4d1ac368a4c97cf4a3f1142e8c350cd4888d612",
+    "SBS.json": "d80711707572285554e03f5bab57041b22827c7604ad3fc4edbce4bfd317d1b4",
+    "SGTM.json": "7ea684985b96e54913ff55d512269293487882115f24cbcb1f8b017390020c5b",
+    "SLM.json": "0e458f971b6decf8a2fb41315e012dec9d8f3ef367addcd4a6d886196d12b949",
+    "SMI.json": "e7814dc6fa74943ae408cc707fff59b14504a6a646b3185bad96efa45ed19d3e",
+    "SNA.json": "e47cbcee68bf1f9efb673879a2932d507ef0b7745741bef3a0a315487b015081",
+    "SNP.json": "7d4be35ccc694beebd7ba8287372023a17aefe5d53d54166c1baeb26cc08a76d",
+    "SOT.json": "2801ccf11dcd1161daba47290095535431cb55d60e40271224c3b217315515c4",
+    "SRM.json": "5fc6f8ebaf6267f87d450501f9416ba63ecd9420279084b23149decbc032c0b6",
+    "STK.json": "cab439c8ea3fafaa4675baba44d2f72fa8848954bdd77bc51c337c4f9e825c5a",
+    "STR.json": "db0010db3a40d386e4bf6411ad3a48483b5ab5d2992eb128513cb0b98464d59f",
+    "T2S.json": "3a0abec03e554d6e6d475b92c8614dbad0916dd3ee06eab91a0d24e6eda52b94",
+    "TGC.json": "817891c2682ca1d1df4ba071a49084ee8bd2eab833026437fe9db08e9aa22cbf",
+    "TGCC.json": "c2d0ecf2d38ba92348402c8c54baa13afc998a1dfcfc0450f449284af92b59bf",
+    "TMA.json": "d7e372e5c8c06a2a97063c0ce63895d8c2f40fbca776263357d908e4838a0a40",
+    "TQA.json": "993d7cc4422c6d9e67d38fd6d11cb8d4822029b980716eb72328fef6a2c71a9f",
+    "UNI.json": "bf48e6333f6e6aab6881be7fda980e9fa4cf5e0b8dfaf5189c98088ba245a083",
+    "VCNE.json": "cbaa7e5da99dc569dfb0d41d814e8888bcad7482c08e4c9d07c3057268ea73cc",
+    "WAF.json": "6f63200bf6eb6235e9a53b9fc33e9a100892e29c0c2dc3ba12a92c06f62d4057",
+    "ZLD.json": "db438cbe0b641b492cf59df32ad90153169be3ca72065831ce3402617b4430d1"
+   },
+   "code": {
+    "pipeline/backtest_reproductible.py": "d14085d1554ff18c1be464e0f0d2b77258c0b3c7bda73f242b7dff86cb9ba96c",
+    "pipeline/calibrage_signaux.py": "a05053a70a618f25cf7dde9a3255342a138cf306ac3867ba4d582520604014cf"
+   }
+  },
+  "premiere_seance": "2026-09-24",
+  "derniere_seance": "2026-10-06",
+  "seances_publiees": 9,
+  "notes_lues": 720,
+  "versions_score": {
+   "2026-09-24": null,
+   "2026-09-25": null,
+   "2026-09-28": null,
+   "2026-09-29": null,
+   "2026-09-30": "v5.3-seances-echangees-2026-09-30",
+   "2026-10-01": "v5.3-per-publie-2026-10-01",
+   "2026-10-02": "v5.3-sans-saisie-2026-10-02",
+   "2026-10-05": "v5.3-sans-saisie-2026-10-02",
+   "2026-10-06": "v5.3-sans-saisie-2026-10-02"
+  }
+ },
+ "observations_ecartees": {
+  "confiance_insuffisante": 35,
+  "signal_sans_palier": 0,
+  "cours_d_une_autre_seance": 49,
+  "titre_sans_chandelles": 0,
+  "cloture_absente": 37,
+  "fenetre_sans_masi": 0,
+  "rupture_de_serie": 0,
+  "horizon_non_atteint": {
+   "h5": 332,
+   "h20": 627
+  }
+ },
+ "resultats": {
+  "grille_v1": {
+   "notes_retenues": 560,
+   "jours_de_publication": 8,
+   "h5": {
+    "observations": 267,
+    "jours": 4,
+    "titres": 72,
+    "correlation_rang_note_alpha": {
+     "n_jours": 4,
+     "moyenne": -0.055258,
+     "t_naif": -1.375,
+     "t_newey_west": -2.116,
+     "t_non_chevauchant": null,
+     "n_dates_non_chevauchantes": 1,
+     "t_retenu": "newey_west",
+     "conclusion_autorisee": false,
+     "lecture": "insuffisant : 4 jours (min 20), 1 dates non chevauchantes (min 10)"
+    },
+    "ecart_decile_haut_moins_bas_alpha": {
+     "n_jours": 4,
+     "moyenne": 0.004448,
+     "t_naif": 0.653,
+     "t_newey_west": 1.153,
+     "t_non_chevauchant": null,
+     "n_dates_non_chevauchantes": 1,
+     "t_retenu": "newey_west",
+     "conclusion_autorisee": false,
+     "lecture": "insuffisant : 4 jours (min 20), 1 dates non chevauchantes (min 10)"
+    },
+    "par_palier": {
+     "ACHETER": {
+      "observations": 42,
+      "jours": 4,
+      "titres": 15,
+      "alpha_moyen_brut": 0.000543,
+      "alpha_moyen_net_frais": -0.019457,
+      "rendement_total_net_frais_moyen": -0.052045,
+      "bon_sens": 0.1667,
+      "montant_median_echange_dh": 3680265.0,
+      "alpha_journalier": {
+       "n_jours": 4,
+       "moyenne": 0.000214,
+       "t_naif": 0.079,
+       "t_newey_west": 0.198,
+       "t_non_chevauchant": null,
+       "n_dates_non_chevauchantes": 1,
+       "t_retenu": "newey_west",
+       "conclusion_autorisee": false,
+       "lecture": "insuffisant : 4 jours (min 20), 1 dates non chevauchantes (min 10)"
+      }
+     },
+     "SURVEILLER": {
+      "observations": 105,
+      "jours": 4,
+      "titres": 37,
+      "alpha_moyen_brut": -0.005758,
+      "alpha_moyen_net_frais": -0.025758,
+      "rendement_total_net_frais_moyen": -0.055058,
+      "bon_sens": null,
+      "part_alpha_positif": 0.4381,
+      "alpha_journalier": {
+       "n_jours": 4,
+       "moyenne": -0.00585,
+       "t_naif": -3.445,
+       "t_newey_west": -8.349,
+       "t_non_chevauchant": null,
+       "n_dates_non_chevauchantes": 1,
+       "t_retenu": "newey_west",
+       "conclusion_autorisee": false,
+       "lecture": "insuffisant : 4 jours (min 20), 1 dates non chevauchantes (min 10)"
+      }
+     },
+     "ATTENDRE": {
+      "observations": 111,
+      "jours": 4,
+      "titres": 38,
+      "alpha_moyen_brut": 0.00261,
+      "alpha_moyen_net_frais": -0.01739,
+      "rendement_total_net_frais_moyen": -0.04669,
+      "bon_sens": null,
+      "part_alpha_positif": 0.5495,
+      "alpha_journalier": {
+       "n_jours": 4,
+       "moyenne": 0.002459,
+       "t_naif": 2.13,
+       "t_newey_west": 6.144,
+       "t_non_chevauchant": null,
+       "n_dates_non_chevauchantes": 1,
+       "t_retenu": "newey_west",
+       "conclusion_autorisee": false,
+       "lecture": "insuffisant : 4 jours (min 20), 1 dates non chevauchantes (min 10)"
+      }
+     },
+     "ÉVITER": {
+      "observations": 9,
+      "jours": 4,
+      "titres": 3,
+      "alpha_moyen_brut": -0.019528,
+      "alpha_moyen_net_frais": -0.039528,
+      "rendement_total_net_frais_moyen": -0.071901,
+      "bon_sens": 0.8889,
+      "alpha_journalier": {
+       "n_jours": 4,
+       "moyenne": -0.022501,
+       "t_naif": -2.521,
+       "t_newey_west": -4.264,
+       "t_non_chevauchant": null,
+       "n_dates_non_chevauchantes": 1,
+       "t_retenu": "newey_west",
+       "conclusion_autorisee": false,
+       "lecture": "insuffisant : 4 jours (min 20), 1 dates non chevauchantes (min 10)"
+      }
+     }
+    }
+   },
+   "h20": {
+    "observations": 0,
+    "jours": 0,
+    "titres": 0,
+    "correlation_rang_note_alpha": {
+     "n_jours": 0,
+     "moyenne": null,
+     "t_naif": null,
+     "t_newey_west": null,
+     "t_non_chevauchant": null,
+     "n_dates_non_chevauchantes": 0,
+     "t_retenu": "newey_west",
+     "conclusion_autorisee": false,
+     "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+    },
+    "ecart_decile_haut_moins_bas_alpha": {
+     "n_jours": 0,
+     "moyenne": null,
+     "t_naif": null,
+     "t_newey_west": null,
+     "t_non_chevauchant": null,
+     "n_dates_non_chevauchantes": 0,
+     "t_retenu": "newey_west",
+     "conclusion_autorisee": false,
+     "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+    },
+    "par_palier": {
+     "ACHETER": {
+      "observations": 0,
+      "jours": 0,
+      "titres": 0
+     },
+     "SURVEILLER": {
+      "observations": 0,
+      "jours": 0,
+      "titres": 0
+     },
+     "ATTENDRE": {
+      "observations": 0,
+      "jours": 0,
+      "titres": 0
+     },
+     "ÉVITER": {
+      "observations": 0,
+      "jours": 0,
+      "titres": 0
+     }
+    }
+   }
+  },
+  "grille_v2": {
+   "notes_retenues": 67,
+   "jours_de_publication": 1,
+   "h5": {
+    "observations": 0,
+    "jours": 0,
+    "titres": 0,
+    "correlation_rang_note_alpha": {
+     "n_jours": 0,
+     "moyenne": null,
+     "t_naif": null,
+     "t_newey_west": null,
+     "t_non_chevauchant": null,
+     "n_dates_non_chevauchantes": 0,
+     "t_retenu": "newey_west",
+     "conclusion_autorisee": false,
+     "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+    },
+    "ecart_decile_haut_moins_bas_alpha": {
+     "n_jours": 0,
+     "moyenne": null,
+     "t_naif": null,
+     "t_newey_west": null,
+     "t_non_chevauchant": null,
+     "n_dates_non_chevauchantes": 0,
+     "t_retenu": "newey_west",
+     "conclusion_autorisee": false,
+     "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+    },
+    "par_palier": {
+     "ACHETER": {
+      "observations": 0,
+      "jours": 0,
+      "titres": 0
+     },
+     "SURVEILLER": {
+      "observations": 0,
+      "jours": 0,
+      "titres": 0
+     },
+     "ATTENDRE": {
+      "observations": 0,
+      "jours": 0,
+      "titres": 0
+     },
+     "ÉVITER": {
+      "observations": 0,
+      "jours": 0,
+      "titres": 0
+     }
+    }
+   },
+   "h20": {
+    "observations": 0,
+    "jours": 0,
+    "titres": 0,
+    "correlation_rang_note_alpha": {
+     "n_jours": 0,
+     "moyenne": null,
+     "t_naif": null,
+     "t_newey_west": null,
+     "t_non_chevauchant": null,
+     "n_dates_non_chevauchantes": 0,
+     "t_retenu": "newey_west",
+     "conclusion_autorisee": false,
+     "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+    },
+    "ecart_decile_haut_moins_bas_alpha": {
+     "n_jours": 0,
+     "moyenne": null,
+     "t_naif": null,
+     "t_newey_west": null,
+     "t_non_chevauchant": null,
+     "n_dates_non_chevauchantes": 0,
+     "t_retenu": "newey_west",
+     "conclusion_autorisee": false,
+     "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+    },
+    "par_palier": {
+     "ACHETER": {
+      "observations": 0,
+      "jours": 0,
+      "titres": 0
+     },
+     "SURVEILLER": {
+      "observations": 0,
+      "jours": 0,
+      "titres": 0
+     },
+     "ATTENDRE": {
+      "observations": 0,
+      "jours": 0,
+      "titres": 0
+     },
+     "ÉVITER": {
+      "observations": 0,
+      "jours": 0,
+      "titres": 0
+     }
+    }
+   }
+  }
+ },
+ "verdict": [
+  "grille_v1 h5 : insuffisant (4 jours, 1 dates non chevauchantes, 267 observations) — on ne conclut pas ; IC moyen observé -0.055258, sans valeur probante.",
+  "grille_v1 h20 : insuffisant (0 jours, 0 dates non chevauchantes, 0 observations) — on ne conclut pas.",
+  "grille_v2 h5 : insuffisant (0 jours, 0 dates non chevauchantes, 0 observations) — on ne conclut pas.",
+  "grille_v2 h20 : insuffisant (0 jours, 0 dates non chevauchantes, 0 observations) — on ne conclut pas."
+ ]
+}
