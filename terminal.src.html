@@ -1039,10 +1039,11 @@ const RedFlags=({alertes})=>{
       {ouvert&&(
         <div style={{flexBasis:"100%",background:"#0a1220",border:`1px solid ${c}33`,borderRadius:6,padding:"10px 12px",fontSize:11,lineHeight:1.6,color:"#c8d3e8",marginTop:4}}>
           {!a.evaluable?(
-            <div><b style={{color:"#8892a4"}}>Non évaluable.</b> Aucun fondamental enregistré pour ce titre
-              (dette, rentabilité, trésorerie) : on ne peut ni signaler un risque, ni affirmer qu'il n'y en a pas.</div>
+            <div><b style={{color:"#8892a4"}}>Non évaluable.</b> Aucun ratio de dette ni de rentabilité du capital
+              calculé sur les comptes publiés de ce titre : on ne peut ni signaler un risque, ni affirmer qu'il n'y en a pas.
+              Les chiffres saisis à la main ne sont pas utilisés.</div>
           ):n===0?(
-            <div><b style={{color:"#00e5a0"}}>Aucune alerte</b> sur les critères suivis : dette nette / EBITDA,
+            <div><b style={{color:"#00e5a0"}}>Aucune alerte</b> sur les critères évalués parmi : dette nette / EBITDA,
               rentabilité du capital face à son coût, marge nette, conversion en trésorerie, surchauffe du RSI.</div>
           ):(
             <div>
@@ -1056,9 +1057,13 @@ const RedFlags=({alertes})=>{
               ))}
             </div>
           )}
-          {a.evaluable&&<div style={{color:"#5a6478",fontSize:10,marginTop:8}}>
-            Source des fondamentaux : {a.source||"non précisée"} · saisis le {dateFr(a.date)}.
-            ⚠️ Chiffres saisis à la main : à recouper avec le dernier rapport de la société.</div>}
+          {/* ⚠️ 06/10/2026 — plus aucune alerte sur un ratio saisi à la main :
+              seuls les ratios calculés sur comptes AMMC sont lus. Ce qui n'a
+              pas de ratio calculé est DIT non évalué, jamais compté comme sain. */}
+          {a.evaluable&&(a.non_evalues||[]).length>0&&<div style={{color:"#8892a4",fontSize:10,marginTop:8}}>
+            Non évalué, faute de ratio calculé sur les comptes : {a.non_evalues.join(", ")}.</div>}
+          {a.evaluable&&<div style={{color:"#5a6478",fontSize:10,marginTop:6}}>
+            Source : {a.source||"non précisée"}{a.date?` · calculés le ${dateFr(a.date)}`:""}.</div>}
           <div style={{color:"#8892a4",fontSize:10,marginTop:6}}>
             Information seulement : ces alertes n'entrent pas dans la note v5.3 (gel du 30/09/2026).</div>
         </div>
@@ -2997,13 +3002,16 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                 </div>
               </a>;})()}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-              {[[r.pe_base&&r.pe_base.startsWith("12")?"PER 12 mois":"PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"],["Alpha 12M",`${r.alpha>0?"+":""}${r.alpha}%`,r.alpha>=0?"#00e5a0":"#ff4f5a"]].map(([k,v,c,ratio])=>(
+              {[[r.pe_base&&r.pe_base.startsWith("12")?"PER 12 mois":"PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"],["Alpha 12M",r.alpha!=null?`${r.alpha>0?"+":""}${r.alpha}%`:"—",r.alpha>=0?"#00e5a0":"#ff4f5a","alpha"]].map(([k,v,c,ratio])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
                   <div style={{fontSize:13,color:c,fontWeight:700}}>{v}</div>
                   {/* ⚠️ 29/09 : le PER affiché porte sur douze mois glissants quand
                       les comptes semestriels ont été lus. L'annuel reste visible :
                       l'écart entre les deux EST l'information (Managem 63 → 30). */}
+                  {/* ⚠️ 06/10/2026 — l'alpha vient de la table SENTIMENT, figée sur le
+                      corpus du 02/07 et jamais recalculée : dit non vérifié. */}
+                  {ratio==="alpha"&&<div title="Table du corpus WhatsApp figée au 02/07/2026, jamais recalculée ni recoupée" style={{fontSize:9,color:"#ff8f00",marginTop:1}}>corpus figé 02/07 · non vérifié</div>}
                   {ratio==="pe"&&r.pe_base?.startsWith("12")&&r.pe_annuel!=null&&
                     <div title={`PER sur ${r.pe_base} ; exercice 2025 seul : ${r.pe_annuel}`} style={{fontSize:9,color:"#5a6478",marginTop:1}}>exercice 2025 : {fmt(r.pe_annuel,1)}</div>}
                   {/* ⚠️ LE RANG DANS SON SECTEUR — ajouté le 25/09.
@@ -3063,19 +3071,26 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
           {r.fwd&&(
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:10,gap:8,flexWrap:"wrap"}}>
-              <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Prévisionnel <span style={{color:"#4db8ff"}}>IDBourse DATA+</span></div>
+              <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Prévisionnel <span style={{color:"#4db8ff"}}>IDBourse DATA+</span> <span style={{color:"#ff8f00"}}>non vérifié</span></div>
               {/* Date d'export en entier, année comprise : l'export est
                   rafraîchi à la main et vieillit. « 01/07 » seul ne dit pas
                   qu'il a sept semaines, « 01/07/2026 » le laisse voir. */}
-              <div style={{fontSize:9,color:"#8892a4"}}>estimations · export du {r.fwd.asof?r.fwd.asof.split("-").reverse().join("/"):"—"}</div>
+              <div style={{fontSize:9,color:"#ff8f00"}}>export IDBourse DATA+ du {r.fwd.asof?r.fwd.asof.split("-").reverse().join("/"):"—"}, non vérifié</div>
             </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-              {[["PER 2026e",fmt(r.fwd.per_26e,1),r.fwd.per_26e>25?"#ff8f00":"#c8d3e8"],
+            {/* ⚠️ DOUBLON CONTRADICTOIRE RETIRÉ — 06/10/2026 (audit
+                verificateur-finance). WAF montrait deux ROE 2025 : 6,9 calculé
+                sur les comptes, 11,2 DATA+. Quand le ROE 2025 est calculé sur
+                comptes publiés, seul celui-là s'affiche (bloc du dessus). */}
+            {(()=>{const roeCalc=r.ratios_publies&&r.ratios_publies.roe_2025&&r.ratios_publies.roe_2025.valeur!=null;
+              const cases=[["PER 2026e",fmt(r.fwd.per_26e,1),r.fwd.per_26e>25?"#ff8f00":"#c8d3e8"],
                 ["PER 2027e",fmt(r.fwd.per_27e,1),r.fwd.per_27e>25?"#ff8f00":"#c8d3e8"],
                 ["Rendement 2026e",r.fwd.dy_26e!=null?`${fmt(r.fwd.dy_26e,1)}%`:"—",r.fwd.dy_26e>4?"#00e5a0":"#c8d3e8"],
                 ["Rendement 2027e",r.fwd.dy_27e!=null?`${fmt(r.fwd.dy_27e,1)}%`:"—",r.fwd.dy_27e>4?"#00e5a0":"#c8d3e8"],
-                ["ROE 2025",r.fwd.roe_25!=null?`${fmt(r.fwd.roe_25,1)}%`:"—",r.fwd.roe_25>=0?"#c8d3e8":"#ff4f5a"],
-                ["Marge nette 2025",r.fwd.marge_nette_25!=null?`${fmt(r.fwd.marge_nette_25,1)}%`:"—",r.fwd.marge_nette_25>=0?"#c8d3e8":"#ff4f5a"]].map(([k,v,c])=>(
+                ...(roeCalc?[]:[["ROE 2025",r.fwd.roe_25!=null?`${fmt(r.fwd.roe_25,1)}%`:"—",r.fwd.roe_25>=0?"#c8d3e8":"#ff4f5a"]]),
+                ["Marge nette 2025",r.fwd.marge_nette_25!=null?`${fmt(r.fwd.marge_nette_25,1)}%`:"—",r.fwd.marge_nette_25>=0?"#c8d3e8":"#ff4f5a"]];
+              return(<>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
+              {cases.map(([k,v,c])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
                   <div style={{fontSize:13,color:c,fontWeight:700}}>{v}</div>
@@ -3083,9 +3098,10 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               ))}
             </div>
             <div style={{fontSize:9,color:"#8892a4",marginTop:9,lineHeight:1.5}}>
-              Estimations d'analystes, non retenues dans le score. Un tiret signale
-              une valeur écartée comme invraisemblable.
-            </div>
+              Chiffres repris tels quels de l'export, non recoupés avec les comptes, non retenus
+              dans le score. Un tiret signale une valeur écartée comme invraisemblable.
+              {roeCalc&&" ROE 2025 de l'export masqué : celui calculé sur les comptes publiés fait foi."}
+            </div></>);})()}
           </div>)}
 
           {/* RSI + NLP */}
@@ -3282,7 +3298,7 @@ const Weights=()=>{
   return(
     <div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:14}}>
-        {[["Fondamental","47%","#b388ff","Marché semi-efficient. Alpha long terme 6-12M. Données fondamentaux.json validées."],["NLP Comportemental","28%","#00e5a0","896 907 messages · 6 ans. ⚠️ Performance historique non republiée : aucun backtest reproductible à ce jour."],["Technique","25%","#4db8ff","Timing d'entrée. RSI, MA20/50, Fibonacci. Marché peu liquide — BVC 492 séances."]].map(([lbl,pct,c,desc])=>(
+        {[["Fondamental","47%","#b388ff","Marché semi-efficient. Alpha long terme 6-12M. ⚠️ Seuls les ratios calculés sur comptes AMMC sont vérifiés ; le reste de fondamentaux.json est saisi à la main."],["NLP Comportemental","28%","#00e5a0","896 907 messages · 6 ans. ⚠️ Performance historique non republiée : aucun backtest reproductible à ce jour."],["Technique","25%","#4db8ff","Timing d'entrée. RSI, MA20/50, Fibonacci. Marché peu liquide — BVC 492 séances."]].map(([lbl,pct,c,desc])=>(
           <div key={lbl} style={{background:"#0d1829",borderRadius:8,padding:16,border:`1px solid ${c}20`}}>
             <div style={{fontSize:44,fontWeight:700,color:c,marginBottom:4}}>{pct}</div>
             <div style={{fontSize:15,color:"#fff",marginBottom:6,fontWeight:600}}>{lbl}</div>

@@ -3124,32 +3124,53 @@ def detecter_alertes(fiche: dict | None, rsi=None, sym: str = "") -> dict:
     publiés et l'alerte la saisie : « dette critique 5,5× » pour ADI dont la
     note lisait 2,26× (audit externe du 01/10), et LES 7,59× contre 0,01×.
     Chaque alerte dit d'où vient son chiffre (`source`, `date`).
-    """
-    from pipeline.smart_money.fond_score import ratio_effectif
-    f = fiche or {}
-    source, date = f.get("source"), f.get("date_maj")
-    eff = {k: ratio_effectif(f, sym, k) for k in ("roic", "dette_nette_ebitda", "cash_conversion")}
-    if eff["roic"] is None and eff["dette_nette_ebitda"] is None:
-        return {"evaluable": False, "liste": [], "source": None, "date": None}
 
-    def _n(k):
-        v = f.get(k)
-        return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+    ⚠️ PLUS AUCUNE SAISIE — 06/10/2026, audit `verificateur-finance` avant le
+    test utilisateur fermé. `ratio_effectif()` retombe sur la valeur saisie
+    à la main (Zonebourse / Boursenews) quand le ratio n'est pas calculé, et
+    la marge nette était TOUJOURS la saisie. ADH affichait ainsi « Dette
+    nette élevée 4,8× l'EBITDA » alors que son dépôt AMMC rend l'EBITDA non
+    calculable. Désormais : SEULS les ratios de `ratios_publies` (calculés
+    sur comptes AMMC, via la même porte que la note). Un ratio absent n'est
+    pas évalué — il est listé dans `non_evalues`, jamais deviné.
+    La marge est celle du S1 2026 calculée sur comptes (`marge_nette_s1_2026`).
+    ⚠️ La NOTE n'est pas touchée : `compute_fond_score()` lit encore la
+    saisie à défaut (R8) — ce module ne concerne que l'affichage.
+    """
+    from pipeline.smart_money.fond_score import ratio_effectif, _publie
+    f = fiche or {}
+
+    def _pub(k):
+        e = ratio_effectif(f, sym, k)
+        return e if e and e.get("origine") == "comptes publiés" else None
+
+    eff = {k: _pub(k) for k in ("roic", "dette_nette_ebitda", "cash_conversion")}
+    marge_v = _publie(f, sym, "marge_nette_s1_2026")
+    marge_x = (f.get("ratios_publies") or {}).get("marge_nette_s1_2026") if marge_v is not None else None
+    if eff["roic"] is None and eff["dette_nette_ebitda"] is None:
+        return {"evaluable": False, "liste": [], "source": None, "date": None,
+                "non_evalues": []}
+    source = "ratios calculés sur les comptes publiés (dépôts AMMC)"
+    date = (f.get("ratios_publies") or {}).get("calcule_le")
 
     def _e(k):
         return eff[k]["valeur"] if eff[k] else None
 
     def _prov(k):
-        e = eff[k]
-        if e["origine"] == "comptes publiés":
-            return {"source": "calculé sur les comptes publiés", "date": e.get("date")}
-        return {"source": e.get("source") or source, "date": e.get("date") or date}
+        return {"source": "calculé sur les comptes publiés", "date": eff[k].get("date")}
+
+    non_evalues = [lib for k, lib in (("dette_nette_ebitda", "dette nette / EBITDA"),
+                                      ("roic", "rentabilité du capital (ROIC)"),
+                                      ("cash_conversion", "conversion en trésorerie"))
+                   if eff[k] is None]
+    if marge_v is None:
+        non_evalues.append("marge nette")
 
     liste = []
     # WACC : la référence unique de la note (lot 4, 02/10/2026), plus la saisie.
     from pipeline.smart_money.fond_score import WACC_REF
     dette, roic, wacc = _e("dette_nette_ebitda"), _e("roic"), WACC_REF
-    marge, cash = _n("marge_nette"), _e("cash_conversion")
+    marge, cash = marge_v, _e("cash_conversion")
     if dette is not None and dette > SEUIL_DETTE_CRITIQUE:
         liste.append({"niveau": "critique", "theme": "Structure financière",
                       "raison": "Dette nette très élevée", "valeur": f"{dette:g}× l'EBITDA",
@@ -3167,8 +3188,10 @@ def detecter_alertes(fiche: dict | None, rsi=None, sym: str = "") -> dict:
                       **_prov("roic")})
     if marge is not None and 0 < marge < SEUIL_MARGE_FAIBLE:
         liste.append({"niveau": "moyen", "theme": "Rentabilité",
-                      "raison": "Marge nette faible", "valeur": f"{marge:g} %",
-                      "seuil": f"alerte sous {SEUIL_MARGE_FAIBLE:g} %"})
+                      "raison": "Marge nette faible", "valeur": f"{marge:g} % (S1 2026)",
+                      "seuil": f"alerte sous {SEUIL_MARGE_FAIBLE:g} %",
+                      "source": "calculé sur les comptes publiés",
+                      "date": (marge_x or {}).get("date")})
     if cash is not None and cash < SEUIL_CASH_CONVERSION:
         liste.append({"niveau": "moyen", "theme": "Trésorerie",
                       "raison": "Le bénéfice se convertit mal en trésorerie",
@@ -3179,7 +3202,8 @@ def detecter_alertes(fiche: dict | None, rsi=None, sym: str = "") -> dict:
                       "raison": "Surchauffe du cours", "valeur": f"RSI {rsi:g}",
                       "seuil": f"alerte au-delà de {SEUIL_RSI_SURCHAUFFE:g}",
                       "source": "calculé sur nos chandelles"})
-    return {"evaluable": True, "liste": liste, "source": source, "date": date}
+    return {"evaluable": True, "liste": liste, "source": source, "date": date,
+            "non_evalues": non_evalues}
 
 
 def masi_veille(asof, valeur, seances=None) -> dict:
