@@ -1246,3 +1246,34 @@ incohérent ET qu'une instruction existe, et exige alors le recalcul exact.
 **Signal.** Retirer ou réécrire une bougie → la même livraison doit porter
 l'instruction dans `datasets/` ET le cache réaligné. Un diff qui touche
 `pipeline/candles/` sans `historical_data.json` est suspect.
+
+## Famille 26 — Une source qui finalise sa séance tard, et un essai à blanc qui écrit (05/10/2026)
+
+**Symptôme.** Séance du 05/10 : 68 cours sur 68 conformes au bulletin CDG,
+mais neuf volumes trop bas (HPS 5 851 titres contre 7 818), soit 125,3 M DH
+contre 126,46 M au bulletin (−0,9 %).
+
+**Cause.** CDG (`MARKET-RESUME`) a servi jusqu'à 16h55 au moins des quantités
+arrêtées AVANT les derniers échanges du fixing de clôture (15h40-15h41), puis
+les bonnes à 17h15. Le cours, lui, était juste dès 15h45 : seul le volume
+manquait. Le run de 17h55 n'ayant pas eu lieu, la bougie n'a été corrigée que
+par un run manuel à 18h12. Après minuit, elle ne l'aurait plus été : une séance
+échue n'est jamais réécrite.
+
+**Signal.** `masi.volume_mad` ≠ total du bulletin CDG alors que les cours
+concordent ; `QteEchangee` qui bouge encore après 16h.
+
+**Erreur annexe.** L'essai à blanc lancé pour le vérifier
+(`run(dry_run=True)`) a modifié `pipeline/marche_history.json` : la collecte
+de l'état du marché ignorait le mode. Corrigé par `ECRITURE_AUTORISEE`
+(`tests/test_essai_a_blanc.py`). **Un essai à blanc qui écrit n'en est pas un.**
+
+**Pièges de lecture des comptes, même journée (lecteur-comptes) :**
+- le suffixe `_RFS_S1_26` donne le rapport semestriel COMPLET, absent de la
+  liste des communiqués de l'AMMC (JET, M2M) ; il tranche ce que le
+  communiqué laisse contradictoire ;
+- un communiqué S1 peut être remplacé par ses états de synthèse sous le même
+  nom (T2S) ;
+- un BPA étiqueté « site tiers » peut être faux de 40 % (JET : 104,21 publié,
+  73,39 sur pièce) — l'étiquette `casablancabourse_derive` ne doit plus
+  exister dans `bpa.json` pour un titre réel.

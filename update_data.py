@@ -84,6 +84,10 @@ _CODES_OFFICIELS_BVC = {re.sub(r"[^A-Z0-9]", "", str(idb).upper()): nous
 # fetch_all_idb() ; sert à n'écrire une bougie que pour une séance réellement
 # cotée. Vide tant que la source n'a pas répondu.
 IDB_ASOF = ""
+# Faux pendant un essai à blanc (`run(dry_run=True)`) : aucune collecte annexe
+# ne doit écrire sur disque. Le 05/10/2026, un essai à blanc a modifié
+# pipeline/marche_history.json — la collecte du MASI ignorait le mode.
+ECRITURE_AUTORISEE = True
 
 # ─────────────────────────────────────────────────────────────────────────────
 # MÉTADONNÉES TICKERS (nom complet + secteur)
@@ -1742,7 +1746,7 @@ def fetch_masi_cdg():
         # sans lequel aucune mesure ne sera possible (R8).
         try:
             from pipeline.marche_history import enregistrer as _marche
-            if _marche(ligne, asof):
+            if ECRITURE_AUTORISEE and _marche(ligne, asof):
                 logger.info("état du marché enregistré pour la séance "
                             f"{asof} — {ligne.get('NbrHausse')} hausses / "
                             f"{ligne.get('NbrBaisse')} baisses")
@@ -3488,7 +3492,8 @@ def _ecrire_candles_sous_garde(sym: str, existing: list, cfp: Path) -> bool:
 def run(dry_run=False, push=False, token=""):
     # IDB_ASOF est réécrit ici quand CDG Capital Bourse fournit une séance
     # plus fraîche qu'IDBourse.
-    global IDB_ASOF
+    global IDB_ASOF, ECRITURE_AUTORISEE
+    ECRITURE_AUTORISEE = not dry_run
     ts_start = time.time()
     logger.info("═" * 60)
     logger.info("BVC ANALYZER — update_data.py v6.3")
