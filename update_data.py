@@ -4727,7 +4727,14 @@ def run(dry_run=False, push=False, token=""):
                         f"{len(_depots_ammc)} titres avec un dépôt de résultats")
         except Exception as _ee:                          # noqa: BLE001
             logger.warning(f"dépôts AMMC : indisponibles ({_ee})")
-        _r = _frais(tickers_out, _articles, _depots_ammc)
+        _integres = {}
+        try:
+            _integres = {k: v.get("url") for k, v in json.loads(
+                (Path(__file__).parent / "datasets" / "resultats_s1_2026.json")
+                .read_text(encoding="utf-8")).get("titres", {}).items()}
+        except Exception as _ee:                          # noqa: BLE001
+            logger.warning(f"dépôts intégrés illisibles ({_ee})")
+        _r = _frais(tickers_out, _articles, _depots_ammc, _integres)
         for _t in tickers_out:
             _e = _r.get(_t.get("symbol"))
             if _e:

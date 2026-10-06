@@ -115,12 +115,20 @@ def retard(fond_asof, depot: dict | None) -> dict | None:
                          f"{ecart} jours d'écart")}
 
 
-def par_ticker(tickers: list, articles: list, depots_ammc: dict | None = None) -> dict:
+def par_ticker(tickers: list, articles: list, depots_ammc: dict | None = None,
+               integres: dict | None = None) -> dict:
     """{ticker: retard} pour les seuls titres en retard. Fonction pure.
 
     ⚠️ `depots_ammc` — ajouté le 29/09/2026 : les dépôts lus directement sur
     la liste du régulateur (`depots_ammc.py`). Les actualités étiquetées en
     manquaient une douzaine. Des deux sources, la plus RÉCENTE l'emporte.
+
+    ⚠️ `integres` — {ticker: url du dépôt intégré}, ajouté le 06/10/2026. T2S,
+    sans fiche dans fondamentaux.json (R8), restait signalé « en retard » alors
+    que son dépôt S1 était intégré dans datasets/resultats_s1_2026.json : sans
+    date propre, tout dépôt passait pour un retard. Un dépôt DÉJÀ INTÉGRÉ ne
+    signale rien. Un dépôt lu puis écarté reste signalé : il existe, et nos
+    chiffres n'en tiennent pas compte.
     """
     depots = depots_officiels(articles)
     for t, d in (depots_ammc or {}).items():
@@ -131,7 +139,10 @@ def par_ticker(tickers: list, articles: list, depots_ammc: dict | None = None) -
         sym = (x or {}).get("symbol")
         if not sym:
             continue
-        r = retard(((x.get("_meta") or {}).get("fond_asof")), depots.get(sym))
+        dep = depots.get(sym)
+        if dep and dep.get("url") and (integres or {}).get(sym) == dep.get("url"):
+            continue
+        r = retard(((x.get("_meta") or {}).get("fond_asof")), dep)
         if r:
             out[sym] = r
     return out

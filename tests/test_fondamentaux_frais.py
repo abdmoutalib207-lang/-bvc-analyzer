@@ -183,3 +183,26 @@ def test_l_ecran_dit_qu_il_ne_lit_pas_les_chiffres():
     bloc = ecran[i:i + 1600]
     assert "n'en lit pas les chiffres" in bloc, (
         "l'écran laisse croire que les nouveaux comptes sont intégrés")
+
+
+def test_un_depot_deja_integre_ne_signale_rien_meme_sans_date():
+    """06/10/2026 : T2S, sans fiche dans fondamentaux.json, restait « en
+    retard » alors que son dépôt S1 était intégré. Un dépôt intégré (même URL)
+    se tait ; un dépôt lu puis ÉCARTÉ (MDP) reste signalé."""
+    url_t2s = "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+    url_mdp = "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf"
+    tickers = [{"symbol": "T2S", "_meta": {}}, {"symbol": "MDP", "_meta": {}}]
+    depots = {"T2S": {"date": "2026-09-30", "url": url_t2s},
+              "MDP": {"date": "2026-09-30", "url": url_mdp}}
+    r = ff.par_ticker(tickers, [], depots, {"T2S": url_t2s})
+    assert "T2S" not in r and "MDP" in r
+    # Sans la liste des intégrés, le comportement d'avant est inchangé
+    assert set(ff.par_ticker(tickers, [], depots)) == {"T2S", "MDP"}
+
+
+def test_un_depot_plus_recent_que_celui_integre_reste_signale():
+    tickers = [{"symbol": "T2S", "_meta": {}}]
+    depots = {"T2S": {"date": "2026-12-15", "url": "https://www.ammc.ma/x/T2S_2026.pdf"}}
+    r = ff.par_ticker(tickers, [], depots,
+                      {"T2S": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"})
+    assert "T2S" in r
