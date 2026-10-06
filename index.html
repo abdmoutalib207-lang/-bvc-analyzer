@@ -4478,11 +4478,11 @@ const RedFlags = ({
     style: {
       color: "#8892a4"
     }
-  }, "Non \xE9valuable."), " Aucun fondamental enregistr\xE9 pour ce titre (dette, rentabilit\xE9, tr\xE9sorerie) : on ne peut ni signaler un risque, ni affirmer qu'il n'y en a pas.") : n === 0 ? React.createElement("div", null, React.createElement("b", {
+  }, "Non \xE9valuable."), " Aucun ratio de dette ni de rentabilit\xE9 du capital calcul\xE9 sur les comptes publi\xE9s de ce titre : on ne peut ni signaler un risque, ni affirmer qu'il n'y en a pas. Les chiffres saisis \xE0 la main ne sont pas utilis\xE9s.") : n === 0 ? React.createElement("div", null, React.createElement("b", {
     style: {
       color: "#00e5a0"
     }
-  }, "Aucune alerte"), " sur les crit\xE8res suivis : dette nette / EBITDA, rentabilit\xE9 du capital face \xE0 son co\xFBt, marge nette, conversion en tr\xE9sorerie, surchauffe du RSI.") : React.createElement("div", null, L.map((x, k) => React.createElement("div", {
+  }, "Aucune alerte"), " sur les crit\xE8res \xE9valu\xE9s parmi : dette nette / EBITDA, rentabilit\xE9 du capital face \xE0 son co\xFBt, marge nette, conversion en tr\xE9sorerie, surchauffe du RSI.") : React.createElement("div", null, L.map((x, k) => React.createElement("div", {
     key: k,
     style: {
       padding: "6px 0",
@@ -4511,13 +4511,19 @@ const RedFlags = ({
       color: "#5a6478",
       fontSize: 10
     }
-  }, x.source)))), a.evaluable && React.createElement("div", {
+  }, x.source)))), a.evaluable && (a.non_evalues || []).length > 0 && React.createElement("div", {
     style: {
-      color: "#5a6478",
+      color: "#8892a4",
       fontSize: 10,
       marginTop: 8
     }
-  }, "Source des fondamentaux : ", a.source || "non précisée", " \xB7 saisis le ", dateFr(a.date), ". \u26A0\uFE0F Chiffres saisis \xE0 la main : \xE0 recouper avec le dernier rapport de la soci\xE9t\xE9."), React.createElement("div", {
+  }, "Non \xE9valu\xE9, faute de ratio calcul\xE9 sur les comptes : ", a.non_evalues.join(", "), "."), a.evaluable && React.createElement("div", {
+    style: {
+      color: "#5a6478",
+      fontSize: 10,
+      marginTop: 6
+    }
+  }, "Source : ", a.source || "non précisée", a.date ? ` · calculés le ${dateFr(a.date)}` : "", "."), React.createElement("div", {
     style: {
       color: "#8892a4",
       fontSize: 10,
@@ -9040,7 +9046,7 @@ const Detail = ({
       gridTemplateColumns: "1fr 1fr",
       gap: 7
     }
-  }, [[r.pe_base && r.pe_base.startsWith("12") ? "PER 12 mois" : "PE Ratio", r.pe?.toFixed(1) || "—", r.pe > 25 ? "#ff8f00" : "#c8d3e8", "pe"], ["P/Book", r.pb?.toFixed(2) || "—", "#c8d3e8", "pb"], ["Dividende", r.div ? `${r.div.toFixed(1)}%` : "—", r.div > 4 ? "#00e5a0" : "#c8d3e8", "div"], ["Cap. Boursière", r.cap ? fmtM(r.cap) : "—", "#4db8ff"], ["Upside Base", ecart(r.base), r.base != null && (r.base - price) / price > 0 ? "#00e5a0" : "#ff4f5a"], ["Alpha 12M", `${r.alpha > 0 ? "+" : ""}${r.alpha}%`, r.alpha >= 0 ? "#00e5a0" : "#ff4f5a"]].map(([k, v, c, ratio]) => React.createElement("div", {
+  }, [[r.pe_base && r.pe_base.startsWith("12") ? "PER 12 mois" : "PE Ratio", r.pe?.toFixed(1) || "—", r.pe > 25 ? "#ff8f00" : "#c8d3e8", "pe"], ["P/Book", r.pb?.toFixed(2) || "—", "#c8d3e8", "pb"], ["Dividende", r.div ? `${r.div.toFixed(1)}%` : "—", r.div > 4 ? "#00e5a0" : "#c8d3e8", "div"], ["Cap. Boursière", r.cap ? fmtM(r.cap) : "—", "#4db8ff"], ["Upside Base", ecart(r.base), r.base != null && (r.base - price) / price > 0 ? "#00e5a0" : "#ff4f5a"], ["Alpha 12M", r.alpha != null ? `${r.alpha > 0 ? "+" : ""}${r.alpha}%` : "—", r.alpha >= 0 ? "#00e5a0" : "#ff4f5a", "alpha"]].map(([k, v, c, ratio]) => React.createElement("div", {
     key: k,
     style: {
       background: "#0a1220",
@@ -9060,7 +9066,14 @@ const Detail = ({
       color: c,
       fontWeight: 700
     }
-  }, v), ratio === "pe" && r.pe_base?.startsWith("12") && r.pe_annuel != null && React.createElement("div", {
+  }, v), ratio === "alpha" && React.createElement("div", {
+    title: "Table du corpus WhatsApp fig\xE9e au 02/07/2026, jamais recalcul\xE9e ni recoup\xE9e",
+    style: {
+      fontSize: 9,
+      color: "#ff8f00",
+      marginTop: 1
+    }
+  }, "corpus fig\xE9 02/07 \xB7 non v\xE9rifi\xE9"), ratio === "pe" && r.pe_base?.startsWith("12") && r.pe_annuel != null && React.createElement("div", {
     title: `PER sur ${r.pe_base} ; exercice 2025 seul : ${r.pe_annuel}`,
     style: {
       fontSize: 9,
@@ -9195,45 +9208,53 @@ const Detail = ({
     style: {
       color: "#4db8ff"
     }
-  }, "IDBourse DATA+")), React.createElement("div", {
+  }, "IDBourse DATA+"), " ", React.createElement("span", {
+    style: {
+      color: "#ff8f00"
+    }
+  }, "non v\xE9rifi\xE9")), React.createElement("div", {
     style: {
       fontSize: 9,
-      color: "#8892a4"
+      color: "#ff8f00"
     }
-  }, "estimations \xB7 export du ", r.fwd.asof ? r.fwd.asof.split("-").reverse().join("/") : "—")), React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: 7
-    }
-  }, [["PER 2026e", fmt(r.fwd.per_26e, 1), r.fwd.per_26e > 25 ? "#ff8f00" : "#c8d3e8"], ["PER 2027e", fmt(r.fwd.per_27e, 1), r.fwd.per_27e > 25 ? "#ff8f00" : "#c8d3e8"], ["Rendement 2026e", r.fwd.dy_26e != null ? `${fmt(r.fwd.dy_26e, 1)}%` : "—", r.fwd.dy_26e > 4 ? "#00e5a0" : "#c8d3e8"], ["Rendement 2027e", r.fwd.dy_27e != null ? `${fmt(r.fwd.dy_27e, 1)}%` : "—", r.fwd.dy_27e > 4 ? "#00e5a0" : "#c8d3e8"], ["ROE 2025", r.fwd.roe_25 != null ? `${fmt(r.fwd.roe_25, 1)}%` : "—", r.fwd.roe_25 >= 0 ? "#c8d3e8" : "#ff4f5a"], ["Marge nette 2025", r.fwd.marge_nette_25 != null ? `${fmt(r.fwd.marge_nette_25, 1)}%` : "—", r.fwd.marge_nette_25 >= 0 ? "#c8d3e8" : "#ff4f5a"]].map(([k, v, c]) => React.createElement("div", {
-    key: k,
-    style: {
-      background: "#0a1220",
-      borderRadius: 4,
-      padding: "6px 8px"
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 8,
-      color: "#8892a4",
-      marginBottom: 2,
-      textTransform: "uppercase"
-    }
-  }, k), React.createElement("div", {
-    style: {
-      fontSize: 13,
-      color: c,
-      fontWeight: 700
-    }
-  }, v)))), React.createElement("div", {
-    style: {
-      fontSize: 9,
-      color: "#8892a4",
-      marginTop: 9,
-      lineHeight: 1.5
-    }
-  }, "Estimations d'analystes, non retenues dans le score. Un tiret signale une valeur \xE9cart\xE9e comme invraisemblable.")), React.createElement("div", {
+  }, "export IDBourse DATA+ du ", r.fwd.asof ? r.fwd.asof.split("-").reverse().join("/") : "—", ", non v\xE9rifi\xE9")), (() => {
+    const roeCalc = r.ratios_publies && r.ratios_publies.roe_2025 && r.ratios_publies.roe_2025.valeur != null;
+    const cases = [["PER 2026e", fmt(r.fwd.per_26e, 1), r.fwd.per_26e > 25 ? "#ff8f00" : "#c8d3e8"], ["PER 2027e", fmt(r.fwd.per_27e, 1), r.fwd.per_27e > 25 ? "#ff8f00" : "#c8d3e8"], ["Rendement 2026e", r.fwd.dy_26e != null ? `${fmt(r.fwd.dy_26e, 1)}%` : "—", r.fwd.dy_26e > 4 ? "#00e5a0" : "#c8d3e8"], ["Rendement 2027e", r.fwd.dy_27e != null ? `${fmt(r.fwd.dy_27e, 1)}%` : "—", r.fwd.dy_27e > 4 ? "#00e5a0" : "#c8d3e8"], ...(roeCalc ? [] : [["ROE 2025", r.fwd.roe_25 != null ? `${fmt(r.fwd.roe_25, 1)}%` : "—", r.fwd.roe_25 >= 0 ? "#c8d3e8" : "#ff4f5a"]]), ["Marge nette 2025", r.fwd.marge_nette_25 != null ? `${fmt(r.fwd.marge_nette_25, 1)}%` : "—", r.fwd.marge_nette_25 >= 0 ? "#c8d3e8" : "#ff4f5a"]];
+    return React.createElement(React.Fragment, null, React.createElement("div", {
+      style: {
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        gap: 7
+      }
+    }, cases.map(([k, v, c]) => React.createElement("div", {
+      key: k,
+      style: {
+        background: "#0a1220",
+        borderRadius: 4,
+        padding: "6px 8px"
+      }
+    }, React.createElement("div", {
+      style: {
+        fontSize: 8,
+        color: "#8892a4",
+        marginBottom: 2,
+        textTransform: "uppercase"
+      }
+    }, k), React.createElement("div", {
+      style: {
+        fontSize: 13,
+        color: c,
+        fontWeight: 700
+      }
+    }, v)))), React.createElement("div", {
+      style: {
+        fontSize: 9,
+        color: "#8892a4",
+        marginTop: 9,
+        lineHeight: 1.5
+      }
+    }, "Chiffres repris tels quels de l'export, non recoup\xE9s avec les comptes, non retenus dans le score. Un tiret signale une valeur \xE9cart\xE9e comme invraisemblable.", roeCalc && " ROE 2025 de l'export masqué : celui calculé sur les comptes publiés fait foi."));
+  })()), React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
@@ -9742,7 +9763,7 @@ const Weights = () => {
       gap: 12,
       marginBottom: 14
     }
-  }, [["Fondamental", "47%", "#b388ff", "Marché semi-efficient. Alpha long terme 6-12M. Données fondamentaux.json validées."], ["NLP Comportemental", "28%", "#00e5a0", "896 907 messages · 6 ans. ⚠️ Performance historique non republiée : aucun backtest reproductible à ce jour."], ["Technique", "25%", "#4db8ff", "Timing d'entrée. RSI, MA20/50, Fibonacci. Marché peu liquide — BVC 492 séances."]].map(([lbl, pct, c, desc]) => React.createElement("div", {
+  }, [["Fondamental", "47%", "#b388ff", "Marché semi-efficient. Alpha long terme 6-12M. ⚠️ Seuls les ratios calculés sur comptes AMMC sont vérifiés ; le reste de fondamentaux.json est saisi à la main."], ["NLP Comportemental", "28%", "#00e5a0", "896 907 messages · 6 ans. ⚠️ Performance historique non republiée : aucun backtest reproductible à ce jour."], ["Technique", "25%", "#4db8ff", "Timing d'entrée. RSI, MA20/50, Fibonacci. Marché peu liquide — BVC 492 séances."]].map(([lbl, pct, c, desc]) => React.createElement("div", {
     key: lbl,
     style: {
       background: "#0d1829",
