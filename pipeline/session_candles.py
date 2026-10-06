@@ -28,19 +28,37 @@ def preparer(live_prices, seance, aujourd_hui, dossier, tickers):
         p = Path(dossier) / f'{sym}.json'
         serie = json.loads(p.read_text(encoding='utf-8')) if p.exists() else []
         derniere = serie[-1] if serie else None
-        if derniere and (derniere['d'] > seance or
-                         (seance < aujourd_hui and derniere['d'] == seance)):
+        if derniere and derniere['d'] > seance:
+            continue
+        # ⚠️ UNE SÉANCE ÉCHUE NE SE RÉÉCRIT PAS — sauf pour COMPLÉTER son
+        # volume. Le 05/10/2026, CDG a servi jusqu'à 16h55 au moins des
+        # quantités arrêtées avant les derniers échanges du fixing (HPS 5 851
+        # titres au lieu de 7 818), puis les bonnes à 17h15. Sans run entre
+        # les deux et minuit, la bougie restait fausse à jamais. On accepte
+        # donc, le lendemain, la MÊME séance si sa clôture est identique et
+        # son volume plus grand : rien d'autre ne peut passer par là.
+        # Seul le VOLUME change (ouverture et extrêmes stockés conservés), et
+        # seulement depuis CDG : BMCE pourrait compter autrement.
+        completer = (derniere and seance < aujourd_hui and derniere['d'] == seance)
+        if completer and not (q.get('src') == 'cdg' and c == derniere['c']
+                              and v > derniere.get('v', 0)):
             continue
         rafraichir = derniere and derniere['d'] == seance
         if rafraichir and derniere.get('v', 0) > v:
             continue
         bougie = dict(d=seance, o=o, h=h, l=l, c=c, v=int(v))
-        if rafraichir:
+        if completer:
+            bougie = {**derniere, 'v': int(v)}
+        elif rafraichir:
             bougie['h'] = max(h, derniere['h'])
             bougie['l'] = min(l, derniere['l'])
         candidate = [b for b in serie if b['d'] != seance] + [bougie]
         candidate, rapport = appliquer_corrections_avant_ecriture(sym, candidate)
         if rapport.get('refus'):
+            if completer:
+                # Une correction réceptionnée fixe cette séance : la
+                # complétion s'efface devant elle, sans bloquer la publication.
+                continue
             raise ValueError(f'{sym}: cotation refusée par la politique commune')
         if candidate != serie:
             sorties[sym] = candidate
