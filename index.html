@@ -4829,45 +4829,30 @@ const GraphiqueMASI = () => {
   }, corps) : corps;
 };
 let REGIME_TECH = null;
-const STATS_SIGNAUX = {
-  cassure: {
-    lib: "Cassure du plus haut 90 jours avec volume",
-    cond: "en tendance",
-    n: 136,
-    alpha: 7.2,
-    gagnants: 53
-  },
-  surachat: {
-    lib: "Sortie de surachat du RSI (la force continue)",
-    cond: "en tendance",
-    n: 137,
-    alpha: 5.6,
-    gagnants: 50
-  },
-  pullback_on: {
-    lib: "Pullback (repli en tendance haussière)",
-    cond: "en tendance",
-    n: 200,
-    alpha: 2.8,
-    gagnants: 44
-  },
-  pullback_off: {
-    lib: "Pullback (repli en tendance haussière)",
-    cond: "hors tendance",
-    n: 58,
-    alpha: -3.8,
-    gagnants: 24
-  }
-};
+let FREQ_PUB = null,
+  FREQ_PUB_P = null;
+const chargerFrequences = () => FREQ_PUB_P || (FREQ_PUB_P = fetch("datasets/frequences_publiees.json?t=" + Math.floor(Date.now() / 3600000)).then(x => x.ok ? x.json() : null).then(j => {
+  FREQ_PUB = j;
+  return j;
+}).catch(() => null));
+const periodeFreq = p => p ? `${p.debut.slice(0, 7)} → ${p.fin_donnees.slice(0, 7)}` : "";
 const SignauxTechniques = ({
   r
 }) => {
+  const [freq, setFreq] = useState(FREQ_PUB);
+  useEffect(() => {
+    if (!freq) chargerFrequences().then(j => j && setFreq(j));
+  }, []);
+  const STATS_SIGNAUX = freq && freq.frequences || {};
   const v2 = r.score_tech_v2,
     neu = r.technique_neutralise,
     reg = REGIME_TECH;
   const coul = v => v > 0 ? "#00e5a0" : v < 0 ? "#ff4f5a" : "#8892a4";
   const ligne = (k, actif) => {
     const x = STATS_SIGNAUX[k];
+    if (!x) return null;
+    const al = x.alpha_moyen_pct,
+      ic = x.ic95_gagnants || [];
     return React.createElement("div", {
       key: k,
       style: {
@@ -4890,21 +4875,20 @@ const SignauxTechniques = ({
         flex: "1 1 200px",
         color: actif ? "#e8eef8" : "#8892a4"
       }
-    }, x.lib, " ", React.createElement("span", {
+    }, x.libelle, " ", React.createElement("span", {
       style: {
         color: "#5a6478"
       }
-    }, "\xB7 ", x.cond)), React.createElement("span", {
+    }, "\xB7 ", x.condition)), React.createElement("span", {
       style: {
         fontSize: 11,
-        color: "#8892a4",
-        whiteSpace: "nowrap"
+        color: "#8892a4"
       }
     }, React.createElement("b", {
       style: {
-        color: coul(x.alpha)
+        color: coul(al)
       }
-    }, x.alpha > 0 ? "+" : "", x.alpha.toLocaleString("fr-FR"), " %"), " \xB7 ", x.gagnants, " % gagnants \xB7 ", x.n, " cas"));
+    }, al > 0 ? "+" : "", al.toLocaleString("fr-FR"), " %"), " d'\xE9cart moyen \xB7 ", x.pct_gagnants.toLocaleString("fr-FR"), " % gagnants (IC ", ic[0].toLocaleString("fr-FR"), "\u2013", ic[1].toLocaleString("fr-FR"), ") \xB7 ", x.n, " cas \xB7 ", periodeFreq(x.periode_mesure)));
   };
   return React.createElement("div", {
     className: "carte",
@@ -4998,7 +4982,7 @@ const SignauxTechniques = ({
       color: "#4a5570",
       marginTop: 6
     }
-  }, "\u25CF signal pr\xE9sent dans les 20 derni\xE8res s\xE9ances \xB7 chiffres mesur\xE9s sur la BVC (2025-26, titres liquides) : \xE9cart moyen au MASI 60 s\xE9ances apr\xE8s le signal, dividendes compris. Une fr\xE9quence pass\xE9e, pas une promesse.")));
+  }, "\u25CF signal pr\xE9sent dans les 20 derni\xE8res s\xE9ances \xB7 chiffres mesur\xE9s sur la BVC (titres liquides) : \xE9cart au MASI 60 s\xE9ances apr\xE8s le signal, dividendes compris, frais non inclus ; % gagnants = part des cas o\xF9 l'\xE9cart est positif, IC = intervalle de Wilson \xE0 95 %. Observations chevauchantes : l'incertitude r\xE9elle est plus large. Une fr\xE9quence pass\xE9e, pas une promesse.")));
 };
 const StockChart = ({
   r

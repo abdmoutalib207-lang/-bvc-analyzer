@@ -1194,23 +1194,29 @@ const GraphiqueMASI=()=>{
    l'ancien, il n'entre pas dans la note tant qu'il n'a pas fait ses preuves
    sur des séances neuves. Chaque signal porte ce qu'il a donné sur la BVC —
    des fréquences MESURÉES, jamais des promesses.
-   Source : datasets/calibrage_technique/etape2_regime_2026-10-03.json, titres
-   liquides, 2025-26, écart au MASI à 60 séances en rendement total. */
+   Source UNIQUE : datasets/frequences_publiees.json, produit par
+   pipeline/frequences.py et recalculé par tests/test_frequences.py. Plus aucun
+   chiffre en dur ici (06/10/2026) : effectif, période, IC de Wilson 95 % du
+   % gagnants viennent du fichier. Titres liquides, écart au MASI à 60 séances
+   en rendement total, frais non inclus. */
 let REGIME_TECH=null;
-const STATS_SIGNAUX={
-  cassure:{lib:"Cassure du plus haut 90 jours avec volume",cond:"en tendance",n:136,alpha:7.2,gagnants:53},
-  surachat:{lib:"Sortie de surachat du RSI (la force continue)",cond:"en tendance",n:137,alpha:5.6,gagnants:50},
-  pullback_on:{lib:"Pullback (repli en tendance haussière)",cond:"en tendance",n:200,alpha:2.8,gagnants:44},
-  pullback_off:{lib:"Pullback (repli en tendance haussière)",cond:"hors tendance",n:58,alpha:-3.8,gagnants:24},
-};
+let FREQ_PUB=null, FREQ_PUB_P=null;
+const chargerFrequences=()=>FREQ_PUB_P||(FREQ_PUB_P=fetch("datasets/frequences_publiees.json?t="+Math.floor(Date.now()/3600000))
+  .then(x=>x.ok?x.json():null).then(j=>{FREQ_PUB=j;return j;}).catch(()=>null));
+const periodeFreq=p=>p?`${p.debut.slice(0,7)} → ${p.fin_donnees.slice(0,7)}`:"";
 const SignauxTechniques=({r})=>{
+  const [freq,setFreq]=useState(FREQ_PUB);
+  useEffect(()=>{if(!freq)chargerFrequences().then(j=>j&&setFreq(j));},[]);
+  const STATS_SIGNAUX=(freq&&freq.frequences)||{};
   const v2=r.score_tech_v2, neu=r.technique_neutralise, reg=REGIME_TECH;
   const coul=v=>v>0?"#00e5a0":v<0?"#ff4f5a":"#8892a4";
-  const ligne=(k,actif)=>{const x=STATS_SIGNAUX[k];return(
+  const ligne=(k,actif)=>{const x=STATS_SIGNAUX[k];if(!x)return null;
+    const al=x.alpha_moyen_pct, ic=x.ic95_gagnants||[];
+    return(
     <div key={k} style={{display:"flex",gap:8,alignItems:"baseline",padding:"5px 0",borderTop:"1px solid #1a2540",opacity:actif?1:.55,flexWrap:"wrap"}}>
       <span style={{color:actif?"#ffd740":"#5a6478",fontWeight:700,minWidth:14}}>{actif?"●":"○"}</span>
-      <span style={{flex:"1 1 200px",color:actif?"#e8eef8":"#8892a4"}}>{x.lib} <span style={{color:"#5a6478"}}>· {x.cond}</span></span>
-      <span style={{fontSize:11,color:"#8892a4",whiteSpace:"nowrap"}}><b style={{color:coul(x.alpha)}}>{x.alpha>0?"+":""}{x.alpha.toLocaleString("fr-FR")} %</b> · {x.gagnants} % gagnants · {x.n} cas</span>
+      <span style={{flex:"1 1 200px",color:actif?"#e8eef8":"#8892a4"}}>{x.libelle} <span style={{color:"#5a6478"}}>· {x.condition}</span></span>
+      <span style={{fontSize:11,color:"#8892a4"}}><b style={{color:coul(al)}}>{al>0?"+":""}{al.toLocaleString("fr-FR")} %</b> d'écart moyen · {x.pct_gagnants.toLocaleString("fr-FR")} % gagnants (IC {ic[0].toLocaleString("fr-FR")}–{ic[1].toLocaleString("fr-FR")}) · {x.n} cas · {periodeFreq(x.periode_mesure)}</span>
     </div>);};
   return(
     <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
@@ -1235,7 +1241,7 @@ const SignauxTechniques=({r})=>{
         {ligne("cassure",!!v2.cassure_recente)}
         {ligne("surachat",!!v2.surachat_recent)}
         {ligne(reg&&!reg.tendance?"pullback_off":"pullback_on",!!v2.pullback)}
-        <div style={{fontSize:9,color:"#4a5570",marginTop:6}}>● signal présent dans les 20 dernières séances · chiffres mesurés sur la BVC (2025-26, titres liquides) : écart moyen au MASI 60 séances après le signal, dividendes compris. Une fréquence passée, pas une promesse.</div>
+        <div style={{fontSize:9,color:"#4a5570",marginTop:6}}>● signal présent dans les 20 dernières séances · chiffres mesurés sur la BVC (titres liquides) : écart au MASI 60 séances après le signal, dividendes compris, frais non inclus ; % gagnants = part des cas où l'écart est positif, IC = intervalle de Wilson à 95 %. Observations chevauchantes : l'incertitude réelle est plus large. Une fréquence passée, pas une promesse.</div>
       </>)}
     </div>
   );

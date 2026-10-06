@@ -1,0 +1,150 @@
+{
+ "_quoi": "Suivi hors échantillon des fréquences publiées",
+ "_avertissement": "Effectif hors échantillon faible ou nul : en dessous de 30 cas le fichier ne conclut rien (R12). Observations chevauchantes.",
+ "fin_calibrage": "2026-10-02",
+ "derniere_seance_donnees": "2026-10-06",
+ "horizon_seances": 60,
+ "frequences": {
+  "cassure": {
+   "libelle": "Cassure du plus haut 90 jours avec volume",
+   "condition": "en tendance",
+   "annonce": {
+    "n": 136,
+    "pct_gagnants": 52.9,
+    "ic95": [
+     44.6,
+     61.1
+    ]
+   },
+   "hors_echantillon": {
+    "resultats_tombes_apres_fin_calibrage": {
+     "n": 0
+    },
+    "signaux_apres_fin_calibrage_total": 0,
+    "signaux_apres_fin_calibrage_mures": 0,
+    "signaux_en_attente_d_horizon": 0
+   },
+   "conclusion": "aucun cas hors échantillon : rien à comparer",
+   "dans_ic": null
+  },
+  "surachat": {
+   "libelle": "Sortie de surachat du RSI (la force continue)",
+   "condition": "en tendance",
+   "annonce": {
+    "n": 137,
+    "pct_gagnants": 49.6,
+    "ic95": [
+     41.4,
+     57.9
+    ]
+   },
+   "hors_echantillon": {
+    "resultats_tombes_apres_fin_calibrage": {
+     "n": 0
+    },
+    "signaux_apres_fin_calibrage_total": 0,
+    "signaux_apres_fin_calibrage_mures": 0,
+    "signaux_en_attente_d_horizon": 0
+   },
+   "conclusion": "aucun cas hors échantillon : rien à comparer",
+   "dans_ic": null
+  },
+  "pullback_on": {
+   "libelle": "Pullback (repli en tendance haussière)",
+   "condition": "en tendance",
+   "annonce": {
+    "n": 200,
+    "pct_gagnants": 44.0,
+    "ic95": [
+     37.3,
+     50.9
+    ]
+   },
+   "hors_echantillon": {
+    "resultats_tombes_apres_fin_calibrage": {
+     "n": 0
+    },
+    "signaux_apres_fin_calibrage_total": 0,
+    "signaux_apres_fin_calibrage_mures": 0,
+    "signaux_en_attente_d_horizon": 0
+   },
+   "conclusion": "aucun cas hors échantillon : rien à comparer",
+   "dans_ic": null
+  },
+  "pullback_off": {
+   "libelle": "Pullback (repli en tendance haussière)",
+   "condition": "hors tendance",
+   "annonce": {
+    "n": 58,
+    "pct_gagnants": 24.1,
+    "ic95": [
+     15.0,
+     36.5
+    ]
+   },
+   "hors_echantillon": {
+    "resultats_tombes_apres_fin_calibrage": {
+     "n": 0
+    },
+    "signaux_apres_fin_calibrage_total": 0,
+    "signaux_apres_fin_calibrage_mures": 0,
+    "signaux_en_attente_d_horizon": 17
+   },
+   "conclusion": "aucun cas hors échantillon : rien à comparer",
+   "dans_ic": null
+  }
+ },
+ "utilite_dans_l_echantillon": [
+  {
+   "signal": "cassure90",
+   "en_tendance": {
+    "n": 136,
+    "gagnants_k": 72,
+    "pct_gagnants": 52.9
+   },
+   "hors_tendance": {
+    "n": 14,
+    "gagnants_k": 9,
+    "pct_gagnants": 64.3
+   },
+   "ecart_points": -11.3,
+   "z": -0.81,
+   "p": 0.417,
+   "verdict": "effectif trop faible pour conclure (un groupe < 30 cas)"
+  },
+  {
+   "signal": "rsi_sortie_surachat",
+   "en_tendance": {
+    "n": 137,
+    "gagnants_k": 68,
+    "pct_gagnants": 49.6
+   },
+   "hors_tendance": {
+    "n": 19,
+    "gagnants_k": 11,
+    "pct_gagnants": 57.9
+   },
+   "ecart_points": -8.3,
+   "z": -0.67,
+   "p": 0.5,
+   "verdict": "effectif trop faible pour conclure (un groupe < 30 cas)"
+  },
+  {
+   "signal": "pullback",
+   "en_tendance": {
+    "n": 200,
+    "gagnants_k": 88,
+    "pct_gagnants": 44.0
+   },
+   "hors_tendance": {
+    "n": 58,
+    "gagnants_k": 14,
+    "pct_gagnants": 24.1
+   },
+   "ecart_points": 19.9,
+   "z": 2.72,
+   "p": 0.00645,
+   "verdict": "distingue les deux situations (p < 0,05, indépendance supposée)"
+  }
+ ]
+}
