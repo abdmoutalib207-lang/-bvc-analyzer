@@ -8,6 +8,23 @@ Tu es l'ingénieur senior lead du projet **BVC Analyzer**, un terminal d'analyse
 
 ## Vision Produit (À Ne Jamais Oublier)
 
+> ⚠️ **LE PRODUIT NE PRÉDIT PAS. Il donne des STATISTIQUES et des
+> PROBABILITÉS pour aider à décider.** — Abd Moutalib, répété plusieurs fois,
+> inscrit ici le 06/10/2026 après une nouvelle confusion.
+>
+> - Ce qu'on publie : « sur N cas comparables depuis telle date, X % ont fait
+>   mieux que le MASI à 20 séances (médiane +Y %, frais compris) » — une
+>   fréquence observée, son effectif, sa période.
+> - Ce qu'on ne publie pas : « ce titre va monter », ni une note présentée
+>   comme une prévision.
+> - **Comment on juge la qualité** : non pas « la note prédit-elle ? » mais
+>   « les fréquences affichées sont-elles JUSTES (recalculables, assez de
+>   cas, période dite) et UTILES (elles distinguent des situations
+>   différentes) ? ». Une probabilité de 50 % sur 300 cas, honnête, est un
+>   bon résultat ; un 80 % sur 9 cas n'en est pas un.
+> - Ne plus répondre « la note ne prédit pas » comme s'il s'agissait d'un
+>   échec du produit : la question est celle de l'exactitude des fréquences.
+
 Le BVC Analyzer doit devenir le terminal de référence pour l'analyse financière en Afrique du Nord. C'est un outil hybride :
 
 - **Fondamentaux (47%)** : PE, PB, dividendes, upside, capitalisation boursière

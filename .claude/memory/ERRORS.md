@@ -1277,3 +1277,15 @@ de l'état du marché ignorait le mode. Corrigé par `ECRITURE_AUTORISEE`
 - un BPA étiqueté « site tiers » peut être faux de 40 % (JET : 104,21 publié,
   73,39 sur pièce) — l'étiquette `casablancabourse_derive` ne doit plus
   exister dans `bpa.json` pour un titre réel.
+
+## Famille 27 — Juger le produit sur la « prédiction » (06/10/2026, récidive)
+
+**Erreur.** Après le backtest reproductible, j'ai présenté la corrélation
+note → alpha (−0,11) comme LE critère de qualité de l'« outil de décision ».
+Abd Moutalib l'avait déjà corrigé plusieurs fois : le produit ne prédit pas,
+il donne des **statistiques et des probabilités** pour aider à décider.
+
+**Règle.** Juger un affichage sur l'exactitude de ses fréquences (effectif,
+période, recalcul possible) et sur leur pouvoir de distinguer des situations,
+jamais sur une promesse de prévision. Inscrit en tête de la Vision Produit du
+CLAUDE.md.
