@@ -235,6 +235,10 @@ python3 -m pytest
 
 ## Licence et avertissement
 
+**Tous droits réservés** (voir `LICENSE`) : le code et les contenus
+originaux peuvent être consultés, pas réutilisés sans autorisation écrite.
+Les versions antérieures au 07/10/2026 étaient sous licence MIT.
+
 Les données proviennent de sources publiques et sont republiées à des fins
 d'analyse. **Les conditions d'utilisation des fournisseurs n'ont pas fait
 l'objet d'un accord écrit** ; c'est un chantier ouvert avant tout usage
