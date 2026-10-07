@@ -101,6 +101,12 @@ SITUATIONS = [
     ("capitalisation doublée : refusée aussi",
      1_681_233, 4350.0, 14600, None, True, 7313, "calculee_apres_refus"),
 
+    ("petite capitalisation (22 MDHS, comme IBM) : l'arrondi n'empêche pas d'expliquer",
+     100_000, 225.0, 22, 220.0, True, 22, "calculee_recoupee"),
+
+    ("témoin non déclaré du jour : par défaut il ne recoupe rien",
+     1_681_233, 4350.0, 7100, 4223.2, None, 7100, "servie"),
+
     ("baisse de 10 % (ZLD le 07/10) : le retard s'explique, pas de refus",
      1_681_233, 3915.0, 7313, 4350.0, True, 6582, "calculee_recoupee"),
 ]
@@ -111,8 +117,10 @@ SITUATIONS = [
 def test_la_capitalisation_est_arbitree(moteur, nom, actions, prix, servie, veille,
                                         du_jour, attendue, provenance):
     moteur.FAITS_DATA = _faits(actions)
-    cap, src = moteur._capitalisation("CMT", prix, servie, None,
-                                      cloture_veille=veille, temoin_du_jour=du_jour)
+    kw = {"cloture_veille": veille}
+    if du_jour is not None:
+        kw["temoin_du_jour"] = du_jour
+    cap, src = moteur._capitalisation("CMT", prix, servie, None, **kw)
     assert (cap, src) == (attendue, provenance), f"{nom} → {cap} ({src})"
 
 
@@ -261,7 +269,7 @@ def test_chaque_capitalisation_recoupee_l_est_vraiment():
         veille = avant[-1] if avant else None
         # Arrondis : cap en MDHS entiers des deux côtés, d'où une marge
         # relative de 1/cap ajoutée aux tolérances du moteur.
-        marge = 1.0 / min(cap, servie)
+        marge = 0.5 / servie + 0.5 / cap
         if not (abs(implicite / prix - 1) <= 0.003 + marge
                 or (veille and abs(implicite / veille - 1) <= 0.005 + marge)):
             fautes.append(f"{t} : servie {servie} → cours implicite {implicite:.2f}, "

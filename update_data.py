@@ -2630,8 +2630,9 @@ ECART_CAP_TOLERE = 0.10
 # augmentation de capital (HAL : +7,7 % avant inscription de la sienne).
 ECART_CAP_TOLERE_OPERATEUR = 0.02
 # Un cours implicite (capitalisation servie ÷ actions) « explique » l'écart
-# s'il retombe sur le cours du jour ou la clôture de la veille. 0,3 % couvre
-# l'arrondi en MDHS d'une petite capitalisation ; 0,5 % pour la veille,
+# s'il retombe sur le cours du jour ou la clôture de la veille, à 0,3 % ou
+# 0,5 % près — PLUS l'arrondi de la valeur servie en MDHS entiers (0,5/cap),
+# ajouté au point d'usage. Pour la veille,
 # mesuré le 07/10 : les 48 cas expliqués tombent tous dessous, les 4
 # inexpliqués à plus de 2 %.
 TOL_COURS_IMPLICITE_JOUR = 0.003
@@ -2644,7 +2645,7 @@ SOURCES_PRIX_VIVANTES = {"idbourse", "cdg", "bmce", "medias24"}
 
 
 def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None,
-                    cloture_veille=None, temoin_du_jour=True):
+                    cloture_veille=None, temoin_du_jour=False):
     """(capitalisation retenue, provenance) — en refusant l'invraisemblable.
 
     ⚠️ CE CONTRÔLE EXISTE À CAUSE D'UNE PUBLICATION ANNULÉE. Le 16/09 à 16h22
@@ -2715,10 +2716,16 @@ def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None,
     # ⚠️ Le témoin doit être la source DU JOUR. Reprise du data.json de la
     # veille, la valeur servie vaut souvent déjà cours × actions : la
     # « recouper » serait se recouper soi-même (relecteur-pipeline, 07/10).
+    # La valeur servie est un ENTIER de MDHS : son arrondi pèse 0,5 / cap en
+    # relatif — 2,3 % pour IBM (22 MDHS). Sans cette part, une petite
+    # capitalisation exacte ne pouvait jamais être « expliquée » (relecteur-
+    # pipeline, 07/10). Le test qui refait ce recoupement compte la même.
     implicite = cap_servie * 1e6 / n
+    arrondi = 0.5 / cap_servie
     explique = temoin_du_jour and (
-        abs(implicite / price - 1) <= TOL_COURS_IMPLICITE_JOUR
-        or (cloture_veille and abs(implicite / cloture_veille - 1) <= TOL_COURS_IMPLICITE_VEILLE))
+        abs(implicite / price - 1) <= TOL_COURS_IMPLICITE_JOUR + arrondi
+        or (cloture_veille and abs(implicite / cloture_veille - 1)
+            <= TOL_COURS_IMPLICITE_VEILLE + arrondi))
     if explique:
         return calculee, "calculee_recoupee"
 
