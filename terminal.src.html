@@ -70,7 +70,18 @@
          la note colorée est à côté. La mention « titre peu échangé » reste,
          en petit et sur deux lignes : elle explique une couleur sous la note. */
       .classement .pastille-texte{display:none}
-      .classement .pastille-plafond{white-space:normal;font-size:9px;line-height:1.2;max-width:58px}
+      .classement .pastille-plafond{white-space:normal;line-height:1.2}
+      /* 07/10/2026 : la colonne débordait de 33 px à 390 px (bord droit à
+         409). Le remplissage 3px 5px s'appliquait à TOUT le contenu, rond
+         compris : 92 px pour une colonne qui en a 60. Le rond passe au-dessus
+         de sa mention, les étiquettes se coupent aux mots. */
+      .classement th:nth-child(14),.classement td:nth-child(14){width:64px;max-width:64px}
+      .classement td:nth-child(14) .pastille{flex-direction:column;align-items:flex-start;gap:3px}
+      .classement td:nth-child(14) .rond{padding:0!important}
+      .classement td:nth-child(14) .chip{padding:2px 4px!important;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+      /* La ligne « CMT ~hist ☆ » tenait la colonne TICKER à 124 px : elle
+         peut désormais se replier. */
+      .classement .ligne-ticker{flex-wrap:wrap;row-gap:2px}
       /* Le secteur prenait trop de largeur : sur téléphone, le code, un nom
          abrégé et le logo en miniature suffisent à reconnaître le titre. */
       .secteur-societe{display:none!important}
@@ -79,8 +90,7 @@
       .classement .logo-pastille{width:26px!important;height:26px!important;font-size:8px!important}
       .classement td:nth-child(2)>div{gap:7px!important}
       .nom-societe{max-width:80px!important;font-size:11px!important}
-      .classement td:nth-child(14) *{font-size:9.5px!important;padding:3px 5px!important;letter-spacing:0!important;white-space:normal!important}
-      .classement td:nth-child(14){max-width:92px}
+      .classement td:nth-child(14) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}
       .classement td:nth-child(4),.classement td:nth-child(4) *{white-space:normal!important}
     }
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -857,7 +867,7 @@ const Bar=({v,max=10,c,h=6})=>(
   </div>
 );
 const Chip=({label,bg,fg,bd,sz=11})=>(
-  <span style={{display:"inline-block",whiteSpace:"nowrap",background:bg,color:fg,border:`1px solid ${bd}`,borderRadius:4,padding:"2px 8px",fontSize:sz,fontWeight:600,fontFamily:"var(--font)"}}>{label}</span>
+  <span className="chip" style={{display:"inline-block",whiteSpace:"nowrap",background:bg,color:fg,border:`1px solid ${bd}`,borderRadius:4,padding:"2px 8px",fontSize:sz,fontWeight:600,fontFamily:"var(--font)"}}>{label}</span>
 );
 /* La pastille qui remplace le mot d'action : un rond de la couleur du palier
    et la plage de note qu'il couvre. Sur un titre plafonné, le texte neutre
@@ -868,8 +878,8 @@ const PastilleNote=({r,sz=11})=>{const p=couleurNote(r);
   return <span title={p.plafonne
       ?`Note ${fmt(r.v53)} : couleur plafonnée au vert-jaune — titre peu échangé${motif?` (${motif})`:""}. La note est inchangée.`
       :`Note ${fmt(r.v53)} : palier ${p.nom}, ${p.plage}`}
-    style={{display:"inline-flex",alignItems:"center",gap:6,whiteSpace:"nowrap",fontSize:sz,color:p.c,fontWeight:600}}>
-    <span aria-hidden="true" style={{display:"inline-block",width:sz,height:sz,borderRadius:"50%",background:p.c,boxShadow:`0 0 6px ${p.c}60`,flex:"0 0 auto"}}/>
+    className="pastille" style={{display:"inline-flex",alignItems:"center",gap:6,whiteSpace:"nowrap",fontSize:sz,color:p.c,fontWeight:600}}>
+    <span aria-hidden="true" className="rond" style={{display:"inline-block",width:sz,height:sz,borderRadius:"50%",background:p.c,boxShadow:`0 0 6px ${p.c}60`,flex:"0 0 auto"}}/>
     <span className={p.plafonne?"pastille-plafond":"pastille-texte"}>{p.plafonne?"titre peu échangé":p.plage}</span></span>;};
 const Delta=({d})=>{
   if(d==null||isNaN(d))return<span style={{fontSize:10,padding:"1px 5px",borderRadius:3,background:"#8892a415",color:"#8892a4",border:"1px solid #8892a428",fontWeight:700}}>—</span>;
@@ -2268,7 +2278,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                     <div style={{display:"flex",alignItems:"center",gap:10}}>
                       <CompanyLogo sym={tk(r)} logo={r.symbol} sector={r.sector} size={34}/>
                       <div style={{minWidth:0}}>
-                        <div style={{display:"flex",alignItems:"center",gap:5}}>
+                        <div className="ligne-ticker" style={{display:"flex",alignItems:"center",gap:5}}>
                           <span style={{fontSize:16,color:"#fff",fontWeight:800,letterSpacing:.3}}>{tk(r)}</span>
                           {r.warn&&<span title={r.warnMsg} style={{fontSize:10,cursor:"help"}}>⚠️</span>}
                           {isStat&&<span title="Historique insuffisant : indicateurs techniques absents, la note technique s'abstient (5,0)" style={{fontSize:9,color:"#8892a4",border:"1px solid #1a2540",borderRadius:2,padding:"1px 3px",cursor:"default"}}>~hist</span>}

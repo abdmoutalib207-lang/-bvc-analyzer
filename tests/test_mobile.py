@@ -93,3 +93,12 @@ def test_la_carte_des_indices_reserve_sa_place_au_chargement():
     à son arrivée (CLS 0,82 mesuré à 1440 px). Le gabarit garde la place."""
     assert "masi?<CarteIndices masi={masi}/>:<CarteIndices masi={GABARIT_MASI} gabarit/>" in SRC
     assert "[data-gabarit] .carte-ind *" in SRC
+
+
+def test_la_colonne_couleur_tient_dans_l_ecran_du_telephone():
+    """07/10/2026 : à 390 px la colonne COULEUR finissait à 409 px. Le
+    remplissage posé sur TOUT son contenu (rond compris) la portait à 92 px."""
+    css = SRC[SRC.index("VERSION TÉLÉPHONE"):SRC.index("</style>")]
+    assert "td:nth-child(14) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}" in css
+    assert "padding:3px 5px!important" not in css
+    assert ".classement .ligne-ticker{flex-wrap:wrap" in css and 'className="ligne-ticker"' in SRC

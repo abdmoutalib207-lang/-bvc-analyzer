@@ -70,7 +70,18 @@
          la note colorée est à côté. La mention « titre peu échangé » reste,
          en petit et sur deux lignes : elle explique une couleur sous la note. */
       .classement .pastille-texte{display:none}
-      .classement .pastille-plafond{white-space:normal;font-size:9px;line-height:1.2;max-width:58px}
+      .classement .pastille-plafond{white-space:normal;line-height:1.2}
+      /* 07/10/2026 : la colonne débordait de 33 px à 390 px (bord droit à
+         409). Le remplissage 3px 5px s'appliquait à TOUT le contenu, rond
+         compris : 92 px pour une colonne qui en a 60. Le rond passe au-dessus
+         de sa mention, les étiquettes se coupent aux mots. */
+      .classement th:nth-child(14),.classement td:nth-child(14){width:64px;max-width:64px}
+      .classement td:nth-child(14) .pastille{flex-direction:column;align-items:flex-start;gap:3px}
+      .classement td:nth-child(14) .rond{padding:0!important}
+      .classement td:nth-child(14) .chip{padding:2px 4px!important;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+      /* La ligne « CMT ~hist ☆ » tenait la colonne TICKER à 124 px : elle
+         peut désormais se replier. */
+      .classement .ligne-ticker{flex-wrap:wrap;row-gap:2px}
       /* Le secteur prenait trop de largeur : sur téléphone, le code, un nom
          abrégé et le logo en miniature suffisent à reconnaître le titre. */
       .secteur-societe{display:none!important}
@@ -79,8 +90,7 @@
       .classement .logo-pastille{width:26px!important;height:26px!important;font-size:8px!important}
       .classement td:nth-child(2)>div{gap:7px!important}
       .nom-societe{max-width:80px!important;font-size:11px!important}
-      .classement td:nth-child(14) *{font-size:9.5px!important;padding:3px 5px!important;letter-spacing:0!important;white-space:normal!important}
-      .classement td:nth-child(14){max-width:92px}
+      .classement td:nth-child(14) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}
       .classement td:nth-child(4),.classement td:nth-child(4) *{white-space:normal!important}
     }
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -3841,6 +3851,7 @@ const Chip = ({
   bd,
   sz = 11
 }) => React.createElement("span", {
+  className: "chip",
   style: {
     display: "inline-block",
     whiteSpace: "nowrap",
@@ -3868,6 +3879,7 @@ const PastilleNote = ({
   const motif = r.technique_neutralise && r.technique_neutralise.motif;
   return React.createElement("span", {
     title: p.plafonne ? `Note ${fmt(r.v53)} : couleur plafonnée au vert-jaune — titre peu échangé${motif ? ` (${motif})` : ""}. La note est inchangée.` : `Note ${fmt(r.v53)} : palier ${p.nom}, ${p.plage}`,
+    className: "pastille",
     style: {
       display: "inline-flex",
       alignItems: "center",
@@ -3879,6 +3891,7 @@ const PastilleNote = ({
     }
   }, React.createElement("span", {
     "aria-hidden": "true",
+    className: "rond",
     style: {
       display: "inline-block",
       width: sz,
@@ -7244,6 +7257,7 @@ const Ranking = ({
         minWidth: 0
       }
     }, React.createElement("div", {
+      className: "ligne-ticker",
       style: {
         display: "flex",
         alignItems: "center",
