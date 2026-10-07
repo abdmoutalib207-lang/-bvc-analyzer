@@ -147,3 +147,14 @@ def test_plancher_de_police_sur_telephone():
             '[style*="font-size: 9.5px"]{font-size:10px!important}') in css
     tailles = {float(x) for x in re.findall(r"fontSize:(\d+(?:\.\d+)?)[,}]", SRC)}
     assert not {t for t in tailles if t < 10} - {8, 8.5, 9, 9.5}, "nouvelle taille < 10 px non couverte"
+
+
+def test_recherche_et_noms_de_societes():
+    """07/10/2026 : « Rechercher ticker ou nom… » coupé à 390 px ; 34 noms sur
+    80 tronqués sur une ligne. ⚠️ tools/qa_navigateur.js cible le champ par
+    son aria-label : le changer impose de changer le contrôle."""
+    assert 'placeholder="Ticker ou société" aria-label="Rechercher un titre"' in SRC
+    qa = (Path(__file__).resolve().parent.parent / "tools" / "qa_navigateur.js").read_text(encoding="utf-8")
+    assert 'input[aria-label="Rechercher un titre"]' in qa
+    i = SRC.index('className="nom-societe"')
+    assert "WebkitLineClamp:2" in SRC[i:i + 300] and 'whiteSpace:"nowrap"' not in SRC[i:i + 300]

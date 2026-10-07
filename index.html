@@ -6984,7 +6984,8 @@ const Ranking = ({
   }, React.createElement("input", {
     value: search,
     onChange: e => setSearch(e.target.value),
-    placeholder: "Rechercher ticker ou nom\u2026",
+    placeholder: "Ticker ou soci\xE9t\xE9",
+    "aria-label": "Rechercher un titre",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -7332,12 +7333,17 @@ const Ranking = ({
       }
     }, fav.includes(sym) ? "★" : "☆")), r.name && React.createElement("div", {
       className: "nom-societe",
+      title: r.name,
       style: {
         fontSize: 12,
         color: "#c8d3e8",
         overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
+        display: "-webkit-box",
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: "vertical",
+        whiteSpace: "normal",
+        overflowWrap: "break-word",
+        lineHeight: 1.25,
         maxWidth: 160,
         marginTop: 1
       }

@@ -2206,7 +2206,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       <div style={{display:"flex",gap:8,marginBottom:10,alignItems:"center",flexWrap:"wrap"}}>
         <input
           value={search} onChange={e=>setSearch(e.target.value)}
-          placeholder="Rechercher ticker ou nom…"
+          placeholder="Ticker ou société" aria-label="Rechercher un titre"
           style={{background:"#0d1829",border:"1px solid #1a2540",color:"#c8d3e8",borderRadius:4,padding:"5px 10px",fontSize:12,fontFamily:"var(--font)",width:220,outline:"none"}}
         />
         <select value={sector} onChange={e=>setSector(e.target.value)}
@@ -2307,7 +2307,10 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                             {fav.includes(sym)?"★":"☆"}
                           </button>
                         </div>
-                        {r.name&&<div className="nom-societe" style={{fontSize:12,color:"#c8d3e8",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:160,marginTop:1}}>{r.name}</div>}
+                        {/* Deux lignes plutôt qu'un nom coupé (07/10/2026 : 34 noms sur 80
+                            tronqués à 390 px) ; au-delà, points de suspension
+                            et nom complet au survol. */}
+                        {r.name&&<div className="nom-societe" title={r.name} style={{fontSize:12,color:"#c8d3e8",overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",whiteSpace:"normal",overflowWrap:"break-word",lineHeight:1.25,maxWidth:160,marginTop:1}}>{r.name}</div>}
                         <div className="secteur-societe" style={{fontSize:10,color:"#6b7a99",marginTop:1}}>{r.sector}</div>
                       </div>
                     </div>
