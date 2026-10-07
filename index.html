@@ -12371,7 +12371,13 @@ const MentionLegale = () => React.createElement("footer", {
   }
 }, "Les performances pass\xE9es ne pr\xE9jugent pas des performances futures. Toute d\xE9cision d'investissement rel\xE8ve de votre seule responsabilit\xE9 et devrait \xEAtre pr\xE9c\xE9d\xE9e de l'avis d'un professionnel habilit\xE9.")));
 function App() {
-  const [tab, setTab] = useState(() => lsLire("bvc_tab", "accueil"));
+  const [tab, setTab] = useState(() => {
+    try {
+      const m = /onglet=([a-z]+)/.exec(location.hash || "");
+      if (m) return m[1];
+    } catch (e) {}
+    return "accueil";
+  });
   const [sort, setSort] = useState("v53");
   const [scoreMode, setScoreMode] = useState(PONDERATIONS[0]);
   useEffect(() => {
@@ -12619,7 +12625,6 @@ function App() {
   const changeTab = t => {
     if (t !== tab) empiler(tab, sel);
     setTab(t);
-    lsEcrire("bvc_tab", t);
   };
   const choisirTitre = sl => {
     if (sl !== sel) empiler(tab, sel);
@@ -12630,7 +12635,6 @@ function App() {
     if (!v) return;
     setPeutRevenir(pile.current.length > 0);
     setTab(v.tab);
-    lsEcrire("bvc_tab", v.tab);
     setSel(v.sel);
   };
   return React.createElement("div", {

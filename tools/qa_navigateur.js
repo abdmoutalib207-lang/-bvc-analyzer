@@ -24,7 +24,9 @@ const iS = args.indexOf('--sortie');
 const SORTIE = iS >= 0 ? args[iS + 1] : null;
 const TITRES = args.filter((a, i) => !a.startsWith('--') && !(iS >= 0 && i === iS + 1));
 if (!TITRES.length) TITRES.push('IAM');
-const URL = process.env.QA_URL || 'http://localhost:8818/index.html';
+// L'ouverture se fait toujours sur l'Accueil (07/10/2026) : le classement
+// se demande par l'adresse.
+const URL = (process.env.QA_URL || 'http://localhost:8818/index.html') + '#onglet=ranking';
 const NM = path.resolve('node_modules');
 const LIBS = {
   'react@18/umd/react.production.min.js': 'react/umd/react.production.min.js',
@@ -40,7 +42,6 @@ const ECRANS = [['telephone', 390, 844], ['tablette', 768, 1024], ['bureau', 144
   const constats = [];
   for (const [nom, w, h] of ECRANS) {
     const ctx = await nav.newContext({ viewport: { width: w, height: h }, hasTouch: w < 500, isMobile: w < 500 });
-    await ctx.addInitScript(() => { try { localStorage.setItem('bvc_tab', 'ranking'); } catch (e) {} });
     const p = await ctx.newPage();
     const erreurs = [];
     p.on('pageerror', e => erreurs.push(e.message));
@@ -52,7 +53,7 @@ const ECRANS = [['telephone', 390, 844], ['tablette', 768, 1024], ['bureau', 144
                : r.fulfill({ status: 204, body: '' });
     });
     const ouvrir = async () => {
-      await p.goto(URL);
+      await p.goto(URL.replace('#', '?t=' + Date.now() + '#'));  // nouvelle adresse : vrai rechargement
       await p.waitForTimeout(2500);
       if (await p.locator('.intro').count()) { await p.locator('.intro').click(); await p.waitForTimeout(1200); }
     };

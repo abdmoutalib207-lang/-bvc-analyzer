@@ -4341,7 +4341,14 @@ const MentionLegale=()=>(
 );
 
 function App(){
-  const [tab,setTab]=useState(()=>lsLire("bvc_tab","accueil"));
+  /* ⚠️ 07/10/2026 — « à chaque fois que je lance le lien, il s'ouvre sur
+     CMT ». Le dernier onglet était mémorisé (bvc_tab) : quitté sur une
+     fiche, le terminal rouvrait la fiche, et le titre par défaut est CMT.
+     L'ouverture se fait désormais TOUJOURS sur l'Accueil ; seul un lien
+     explicite (#onglet=ranking) choisit un autre onglet. */
+  const [tab,setTab]=useState(()=>{
+    try{const m=/onglet=([a-z]+)/.exec(location.hash||"");if(m)return m[1];}catch(e){}
+    return "accueil";});
   const [sort,setSort]=useState("v53");
   const [scoreMode,setScoreMode]=useState(PONDERATIONS[0]);
   useEffect(()=>{setSort("v53");},[scoreMode]);
@@ -4559,13 +4566,13 @@ function App(){
     if(pile.current.length>60)pile.current.shift();
     setPeutRevenir(true);
   };
-  const changeTab=(t)=>{if(t!==tab)empiler(tab,sel);setTab(t);lsEcrire("bvc_tab",t);};
+  const changeTab=(t)=>{if(t!==tab)empiler(tab,sel);setTab(t);};
   const choisirTitre=(sl)=>{if(sl!==sel)empiler(tab,sel);setSel(sl);};
   const revenir=()=>{
     const v=pile.current.pop();
     if(!v)return;
     setPeutRevenir(pile.current.length>0);
-    setTab(v.tab);lsEcrire("bvc_tab",v.tab);
+    setTab(v.tab);
     setSel(v.sel);
   };
 
