@@ -1166,6 +1166,17 @@ def composer(data: dict, series=None, contexte=None) -> dict:
     try:
         enrichir(b, titres, contexte if contexte is not None
                  else charger_contexte())
+        # ⚠️ 07/10/2026 : quand le moteur a corrigé un volume d'indice en
+        # retard (`volume_mad_indice_cdg`), la comparaison avec la veille —
+        # lue dans l'historique, qui garde la valeur brute de l'indice —
+        # doit porter le volume publié, sinon le texte contredit le bandeau.
+        v = b.get("veille")
+        if (masi.get("volume_mad_indice_cdg") is not None and v
+                and v.get("seance") == str(masi.get("asof") or "")[:10]):
+            v["jour"]["volume_mad"] = masi.get("volume_mad")
+            pv = _n((v.get("veille") or {}).get("volume_mad"))
+            if pv:
+                v["ecart_volume_pct"] = round((masi["volume_mad"] / pv - 1) * 100, 1)
     except Exception as e:                                # noqa: BLE001
         b["non_mesurable"].append(
             f"la lecture détaillée de la séance — erreur à la composition ({e})")
