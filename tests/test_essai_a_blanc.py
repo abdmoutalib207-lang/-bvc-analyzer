@@ -36,3 +36,32 @@ def test_la_collecte_du_marche_ecrit_en_run_normal(monkeypatch):
     monkeypatch.setattr(update_data, "ECRITURE_AUTORISEE", True)
     update_data.fetch_masi_cdg()
     assert appels == ["2026-10-05"]
+
+
+# ── Dépôts AMMC — 07/10/2026 ────────────────────────────────────────────────
+# Un essai à blanc a réécrit pipeline/depots_ammc.json : `mettre_a_jour()`
+# écrit son cache, et le run l'appelait quel que soit le mode.
+
+def _ammc_sans_reseau(monkeypatch):
+    import pipeline.depots_ammc as da
+    ecritures = []
+    monkeypatch.setattr(da, "collecter", lambda **k: [{"date": "2026-10-07", "titre": "X", "url": "u"}])
+    monkeypatch.setattr(da, "charger", lambda: [])
+    monkeypatch.setattr(da.CACHE.__class__, "write_text",
+                        lambda self, *a, **k: ecritures.append(str(self)))
+    return ecritures
+
+
+def test_les_depots_ammc_ne_s_ecrivent_pas_pendant_un_essai_a_blanc(monkeypatch):
+    ecritures = _ammc_sans_reseau(monkeypatch)
+    monkeypatch.setattr(update_data, "ECRITURE_AUTORISEE", False)
+    entrees = update_data._entrees_depots_ammc()
+    assert [e["url"] for e in entrees] == ["u"], "à blanc, la liste doit être la même"
+    assert ecritures == [], f"écriture pendant un essai à blanc : {ecritures}"
+
+
+def test_les_depots_ammc_s_ecrivent_en_run_normal(monkeypatch):
+    ecritures = _ammc_sans_reseau(monkeypatch)
+    monkeypatch.setattr(update_data, "ECRITURE_AUTORISEE", True)
+    update_data._entrees_depots_ammc()
+    assert any(w.endswith("depots_ammc.json") for w in ecritures)

@@ -3663,6 +3663,25 @@ def _ecrire_candles_sous_garde(sym: str, existing: list, cfp: Path) -> bool:
 # PIPELINE PRINCIPAL
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _entrees_depots_ammc() -> list:
+    """La liste des dépôts AMMC du run, sans écrire pendant un essai à blanc.
+
+    ⚠️ 07/10/2026 : un essai à blanc a réécrit pipeline/depots_ammc.json —
+    `mettre_a_jour()` fusionne PUIS écrit son cache, et le run l'appelait
+    quel que soit le mode. Même défaut que marche_history.json le 05/10 :
+    une collecte annexe qui ignore ECRITURE_AUTORISEE. À blanc, on calcule
+    la même liste et on n'écrit rien.
+    """
+    from pipeline import depots_ammc as _ammc
+    try:
+        if ECRITURE_AUTORISEE:
+            return _ammc.mettre_a_jour()
+        return _ammc.fusionner(_ammc.charger(), _ammc.collecter())
+    except Exception as _ee:                              # noqa: BLE001
+        logger.warning(f"dépôts AMMC : liste injoignable ({_ee}) — cache seul")
+        return _ammc.charger()
+
+
 def run(dry_run=False, push=False, token=""):
     # IDB_ASOF est réécrit ici quand CDG Capital Bourse fournit une séance
     # plus fraîche qu'IDBourse.
@@ -4896,14 +4915,8 @@ def run(dry_run=False, push=False, token=""):
         # Non bloquant : sans réseau, on garde ce que le cache a déjà vu.
         _depots_ammc = {}
         try:
-            from pipeline.depots_ammc import (charger as _ammc_charger,
-                                              depots_par_ticker as _ammc_par_ticker,
-                                              mettre_a_jour as _ammc_maj)
-            try:
-                _entrees = _ammc_maj()
-            except Exception as _ee:                      # noqa: BLE001
-                logger.warning(f"dépôts AMMC : liste injoignable ({_ee}) — cache seul")
-                _entrees = _ammc_charger()
+            from pipeline.depots_ammc import depots_par_ticker as _ammc_par_ticker
+            _entrees = _entrees_depots_ammc()
             _depots_ammc = _ammc_par_ticker(_entrees)
             logger.info(f"dépôts AMMC : {len(_entrees)} entrées, "
                         f"{len(_depots_ammc)} titres avec un dépôt de résultats")

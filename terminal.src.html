@@ -827,6 +827,13 @@ function calcSR(candles,price){
 }
 
 // ── ATOMS ────────────────────────────────────────────────────────────────────
+// ⚠️ Stockage local REFUSÉ (navigation privée stricte, cookies bloqués) :
+// l'accès à localStorage lève une exception. Non gardé, il tombait dans
+// l'initialisation de l'état → « Erreur de rendu » sur tout le terminal, et
+// le clic sur ☆ cassait l'écran de même. Le stockage n'est qu'un confort
+// (onglet, période, favoris retenus) : refusé, on oublie, on ne casse rien.
+const lsLire=(k,def=null)=>{try{const v=localStorage.getItem(k);return v==null?def:v;}catch(e){return def;}};
+const lsEcrire=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
 const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":(+n).toFixed(d);
   /* ⚠️ La virgule décimale. Le terminal écrit « 17 869,06 » dans son
      en-tête ; un « 3530.70 » trois blocs plus bas se lit comme une
@@ -1398,7 +1405,7 @@ const StockChart=({r})=>{
   // montrées ou cachées (01/10/2026). Avant, cocher BB ou MM50 détruisait et
   // recréait les trois graphiques : flash, et perte du zoom en cours.
   const series=useRef(null);
-  const [period,setPeriod]=useState(()=>localStorage.getItem("bvc_period")||"3M");
+  const [period,setPeriod]=useState(()=>lsLire("bvc_period","3M"));
   const [liveCandles,setLiveCandles]=useState(null);
   const [isLive,setIsLive]=useState(false);
   /* ⚠️ ÉTAT EXPLICITE DU GRAPHIQUE. Auparavant, l'absence de chandelles
@@ -1632,7 +1639,7 @@ const StockChart=({r})=>{
     srData.res.forEach(v=>x.lignes.push(cs.createPriceLine({price:v,color:"#ff4f5a60",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`R ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`})));
   },[sym,period,liveCandles,etat,plein,showBB,showIchi,showSR,showFib,fibAncres,fibAttente,mas]);
 
-  const changePeriod=(p)=>{setPeriod(p);localStorage.setItem("bvc_period",p);};
+  const changePeriod=(p)=>{setPeriod(p);lsEcrire("bvc_period",p);};
   const reinitialiser=()=>{if(chartMain.current&&liveCandles)vueEntiere(chartMain.current,liveCandles.length);};
 
   const Btn=({on,c,titre,onClick,children})=>(
@@ -4318,14 +4325,14 @@ const MentionLegale=()=>(
 );
 
 function App(){
-  const [tab,setTab]=useState(()=>localStorage.getItem("bvc_tab")||"accueil");
+  const [tab,setTab]=useState(()=>lsLire("bvc_tab","accueil"));
   const [sort,setSort]=useState("v53");
   const [scoreMode,setScoreMode]=useState(PONDERATIONS[0]);
   useEffect(()=>{setSort("v53");},[scoreMode]);
   const [sel,setSel]=useState("CMT");
   const [rows,setRows]=useState(STATIC);
   const [fav,setFav]=useState(()=>{try{return JSON.parse(localStorage.getItem("bvc_fav")||"[]");}catch{return [];}});
-  const toggleFav=useCallback(sym=>{setFav(prev=>{const next=prev.includes(sym)?prev.filter(x=>x!==sym):[...prev,sym];localStorage.setItem("bvc_fav",JSON.stringify(next));return next;});},[]);
+  const toggleFav=useCallback(sym=>{setFav(prev=>{const next=prev.includes(sym)?prev.filter(x=>x!==sym):[...prev,sym];lsEcrire("bvc_fav",JSON.stringify(next));return next;});},[]);
   const [ts,setTs]=useState(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}));
   const [src,setSrc]=useState("connexion…");
   const [loading,setLoading]=useState(false);
@@ -4536,13 +4543,13 @@ function App(){
     if(pile.current.length>60)pile.current.shift();
     setPeutRevenir(true);
   };
-  const changeTab=(t)=>{if(t!==tab)empiler(tab,sel);setTab(t);localStorage.setItem("bvc_tab",t);};
+  const changeTab=(t)=>{if(t!==tab)empiler(tab,sel);setTab(t);lsEcrire("bvc_tab",t);};
   const choisirTitre=(sl)=>{if(sl!==sel)empiler(tab,sel);setSel(sl);};
   const revenir=()=>{
     const v=pile.current.pop();
     if(!v)return;
     setPeutRevenir(pile.current.length>0);
-    setTab(v.tab);localStorage.setItem("bvc_tab",v.tab);
+    setTab(v.tab);lsEcrire("bvc_tab",v.tab);
     setSel(v.sel);
   };
 
