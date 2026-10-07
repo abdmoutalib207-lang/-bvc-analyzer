@@ -16,7 +16,9 @@ SRC = (Path(__file__).resolve().parent.parent / "terminal.src.html").read_text(e
 # Positions (1-indexées) que la règle mobile laisse visibles.
 # ⚠️ Décalées le 29/09/2026 : les colonnes « BVC » et « Δ » (note figée du
 # 03/06) ont quitté le classement — voir test_score_canonique.py.
-GARDEES = {2: "TICKER", 4: "CLÔT.", 5: "VAR%", 9: "scoreColLabel", 14: "SIGNAL"}
+# « SIGNAL » devient « COULEUR » le 07/10/2026 : plus de mot d'action, la
+# pastille de couleur de la note (test_couleurs_sans_recommandation.py).
+GARDEES = {2: "TICKER", 4: "CLÔT.", 5: "VAR%", 9: "scoreColLabel", 14: "COULEUR"}
 
 
 def _entetes() -> list[str]:
