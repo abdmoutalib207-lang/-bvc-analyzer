@@ -168,3 +168,20 @@ def test_l_ouverture_dure_800_ms_et_une_fois_par_appareil():
     assert 'try{localStorage.setItem("bvc_intro","1");}catch(e){}' in corps
     assert re.findall(r"setTimeout\(\(\)=>setVu\(true\),(\d+)\)", corps) == ["800", "800", "500"]
     assert "animation:intro-sortie 200ms ease-in 600ms both;" in SRC
+
+
+def test_la_ligne_du_telephone_porte_le_volume_et_ne_defile_plus():
+    """07/10/2026 — « je vois pas Masi journalier ni le volume global ».
+
+    Sous 640 px, les trois cartes laissent place à `indices-ligne`. Elle
+    DÉFILAIT : à 390 px la variation du MASI 20, les hausses/baisses et le
+    bouton 📈 sortaient de l'écran, et le volume de la séance n'y figurait
+    pas. Mesuré au navigateur après correctif : tout visible à 360 et 390 px.
+    """
+    src = (Path(__file__).resolve().parent.parent / "terminal.src.html").read_text(encoding="utf-8")
+    css = src[src.index(".indices-ligne{"):].split("}", 1)[0]
+    assert "flex-wrap:wrap" in css, "la ligne des indices doit passer à la ligne, pas défiler"
+    debut = src.index('<div className="indices-ligne">')
+    ligne = src[debut:src.index('<div className="carte-ind"', debut)]
+    assert "{volume}" in ligne, "le volume de la séance a disparu de la ligne du téléphone"
+    assert "setGraphe" in ligne, "le bouton du graphique du MASI a disparu de la ligne du téléphone"
