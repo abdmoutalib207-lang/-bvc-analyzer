@@ -168,3 +168,15 @@ def test_l_ouverture_dure_800_ms_et_une_fois_par_appareil():
     assert 'try{localStorage.setItem("bvc_intro","1");}catch(e){}' in corps
     assert re.findall(r"setTimeout\(\(\)=>setVu\(true\),(\d+)\)", corps) == ["800", "800", "500"]
     assert "animation:intro-sortie 200ms ease-in 600ms both;" in SRC
+
+
+def test_chaque_cotation_des_marches_mondiaux_renvoie_a_sa_source():
+    """07/10/2026 — « sur matière première je veux pouvoir cliquer sur la
+    source pour vérifier ». Le lien est construit depuis le ticker de la
+    source (« COMEX:GC1! » → /symbols/COMEX-GC1!/), sous chaque ligne de
+    l'onglet Marchés mondiaux et de la carte Matières premières du briefing.
+    Vérifié au navigateur : 12 liens dans l'onglet, 5 dans le briefing.
+    """
+    src = (Path(__file__).resolve().parent.parent / "terminal.src.html").read_text(encoding="utf-8")
+    assert "https://www.tradingview.com/symbols/${t.replace(\":\",\"-\")}/" in src
+    assert src.count("<SourceCotation l=") >= 2, "un des deux affichages a perdu son lien source"

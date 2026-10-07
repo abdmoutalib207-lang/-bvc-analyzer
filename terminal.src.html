@@ -2459,6 +2459,21 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
 // calcule rien : il range. Aucune probabilité, aucun scénario, aucun avis.
 const nfr=(x,d=2)=>x==null||!isFinite(x)?"—":(+x).toLocaleString("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d}).replace(/\u202f|\u00a0/g," ");
 const jm=iso=>iso?`${iso.slice(8,10)}/${iso.slice(5,7)}`:"—";
+// ⚠️ 07/10/2026 — « je veux pouvoir cliquer sur la source pour vérifier ».
+// Chaque cotation des marchés mondiaux renvoie à la page du contrat chez la
+// source : le ticker « COMEX:GC1! » devient /symbols/COMEX-GC1!/. Le
+// différé est celui que la source DÉCLARE (« delayed_streaming_600 » →
+// 10 min), pas une estimation.
+const lienSource=t=>t&&t.includes(":")?`https://www.tradingview.com/symbols/${t.replace(":","-")}/`:null;
+const differeDeclare=m=>{const x=/^delayed\w*?_(\d+)$/.exec(m||"");return x?`différé ${Math.round(+x[1]/60)} min`:m==="streaming"?"sans différé déclaré":null;};
+const SourceCotation=({l})=>{
+  const u=lienSource(l.ticker), d=differeDeclare(l.mode_source), h=l.horodatage_utc;
+  return <span style={{fontSize:10.5,color:"#5a6478"}}>
+    {h&&<>obs. {h.slice(8,10)}/{h.slice(5,7)} {h.slice(11,16)} UTC</>}{d&&<> · {d}</>}
+    {u&&<> · <a href={u} target="_blank" rel="noopener noreferrer" style={{color:"#4db8ff",textDecoration:"none"}}
+      title={`Vérifier ${l.nom||l.ticker} chez la source`}>Source ↗</a></>}
+  </span>;
+};
 const Carte=({titre,source,children})=>(
   <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
     <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>{titre}</div>
@@ -2537,8 +2552,8 @@ const SeanceDetail=({b})=>{
           <span style={{color:"#c8d3e8"}}>{x.nom} <span style={{color:"#5a6478",fontSize:10.5}}>{x.ticker}</span></span>
           <span style={{fontFamily:"monospace",color:"#c8d3e8"}}>{nfr(x.valeur)} {x.devise}
             {x.variation_pct!=null&&<span style={{color:VC2(x.variation_pct),marginLeft:8}}>{x.variation_pct>0?"+":""}{nfr(x.variation_pct)} %</span>}
-            <span style={{color:"#5a6478",fontSize:10.5,marginLeft:8}}
-              title={`Mode déclaré par la source : ${x.mode_source||"—"}`}>{jm(x.horodatage_utc)} {x.horodatage_utc?.slice(11,16)} UTC</span></span>
+          </span>
+          <span style={{flexBasis:"100%",textAlign:"right"}}><SourceCotation l={x}/></span>
         </div>))}
     </Carte>}
 
@@ -2879,16 +2894,17 @@ const MarchesMondiaux=()=>{
             {g.lignes.length===0&&<div style={{fontSize:12,color:"#5a6478"}}>Non servi par la source à ce passage.</div>}
             {g.lignes.map(l=>(
               <div key={l.ticker} title={`${l.description_source} — ${heure(l.horodatage_utc)} — ${l.mode_source}`}
-                style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",gap:10,padding:"8px 0",borderBottom:"1px solid #0a1220"}}>
+                style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",gap:"2px 10px",padding:"8px 0",borderBottom:"1px solid #0a1220",flexWrap:"wrap"}}>
                 <span style={{color:"#c8d3e8",fontSize:13.5}}>{l.nom}</span>
                 <span style={{fontFamily:"monospace",whiteSpace:"nowrap"}}>
                   <span style={{color:"#e6edf7",fontSize:13.5}}>{nfr(l.valeur,l.valeur>=1000?1:2)}{unite(l)}</span>
                   <span style={{color:VC(l.variation_pct),fontSize:12,marginLeft:10}}>{l.variation_pct==null?"—":`${l.variation_pct>0?"+":""}${nfr(l.variation_pct)} %`}</span>
                 </span>
+                <span style={{flexBasis:"100%",textAlign:"right"}}><SourceCotation l={l}/></span>
               </div>))}
           </div>))}
       </div>
-      <div style={{fontSize:10.5,color:"#5a6478"}}>Source : TradingView (scanner public), relevé le {heure(d.releve_utc)}. Les valeurs peuvent être différées de 10 à 15 minutes, comme la source le déclare (survol d'une ligne pour son heure exacte). Contexte seulement : n'entre pas dans la note.</div>
+      <div style={{fontSize:10.5,color:"#5a6478"}}>Source : TradingView (scanner public), relevé le {heure(d.releve_utc)}. Sous chaque valeur : l'heure de l'observation, le différé que la source déclare, et un lien pour la vérifier chez elle. Contexte seulement : n'entre pas dans la note.</div>
     </div>);
 };
 
