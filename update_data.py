@@ -2686,9 +2686,19 @@ def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None):
     if not cap_servie:
         return calculee, "calculee_faute_de_source"
 
+    # ⚠️ 07/10/2026 — DEUX CHIFFRES DU MÊME INSTANT. La capitalisation servie
+    # retarde d'une séance : mesuré le 07/10 à 12h55, sur 31 titres où elle
+    # différait de cours × actions, 31 valaient EXACTEMENT le cours de la
+    # VEILLE × actions (à 0,3 % près), aucun ne trahissait un nombre d'actions
+    # différent. On publiait donc un cours d'aujourd'hui à côté d'une
+    # capitalisation d'hier (TQA : 1 680 DH et 37 506 MDHS, soit 1 590 DH), et
+    # le contrôle de publication comparait deux instants : les 10h55 et 11h55
+    # du 07/10 n'ont rien publié. Quand les deux termes sont sourcés, la
+    # capitalisation est leur produit ; la valeur servie n'est plus que le
+    # témoin qui la recoupe. Aucune note ne la lit (compute_v53, fond_score).
     ecart = abs(calculee / cap_servie - 1)
     if ecart <= (ECART_CAP_TOLERE_OPERATEUR if ticker in ACTIONS_OPERATEUR else ECART_CAP_TOLERE):
-        return cap_servie, "servie"
+        return calculee, "calculee_recoupee"
 
     logger.warning(
         f"{ticker} : capitalisation servie {cap_servie} MDHS refusée — "
@@ -3006,7 +3016,9 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         # désormais soit calculé depuis un dépôt AMMC, soit absent.
         "pb_source":    ("faits_ammc" if _pb_sourcé(ticker, 1.0) is not None
                          else "non_disponible"),
-        # D'où vient la capitalisation publiée : « servie » par la source,
+        # D'où vient la capitalisation publiée : « servie » par la source
+        # (actions non sourcées, ou cours périmé), « calculee_recoupee » —
+        # prix × actions sourcées, la source concordant dans la tolérance —,
         # « calculee_apres_refus » quand elle contredisait prix × actions
         # sourcées de plus de 10 %, « calculee_faute_de_source » quand la
         # source n'en donnait aucune. Sans cette ligne, un refus serait

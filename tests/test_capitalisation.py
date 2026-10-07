@@ -76,11 +76,14 @@ SITUATIONS = [
     ("LE 16/09 : capitalisation servie de moitié",
      1_681_233, 4350.0, 3727, 7313, "calculee_apres_refus"),
 
-    ("capitalisation servie cohérente : on la garde",
-     1_681_233, 4350.0, 7313, 7313, "servie"),
+    # ⚠️ 07/10/2026 : dans la tolérance, on publie prix × actions — deux
+    # termes du même instant — et la valeur servie n'est plus que le témoin.
+    # Elle retarde d'une séance : 31 titres sur 31 mesurés ce jour-là.
+    ("capitalisation servie cohérente : recoupée",
+     1_681_233, 4350.0, 7313, 7313, "calculee_recoupee"),
 
-    ("écart de 3 % : dans la marge des écarts réels",
-     1_681_233, 4350.0, 7100, 7100, "servie"),
+    ("écart de 3 % (cours de la veille) : on publie celle du cours du jour",
+     1_681_233, 4350.0, 7100, 7313, "calculee_recoupee"),
 
     ("capitalisation absente mais actions sourcées",
      1_681_233, 4350.0, None, 7313, "calculee_faute_de_source"),
@@ -128,9 +131,10 @@ def test_un_refus_ne_neutralise_que_le_titre_concerne(moteur):
 def test_le_seuil_laisse_passer_les_ecarts_reels(moteur):
     """3,2 % est le pire écart légitime mesuré ; le seuil est à 10 %.
 
-    Un seuil trop serré ferait refuser des capitalisations justes, et le moteur
-    publierait alors SA valeur à la place de celle du marché — l'inverse de ce
-    qu'on cherche.
+    Un seuil trop serré ferait REFUSER — et journaliser comme une anomalie de
+    la source — l'écart ordinaire d'une séance de retard. Depuis le 07/10 la
+    valeur publiée est prix × actions dans les deux cas ; ce qui distingue
+    l'écart ordinaire du refus, c'est l'étiquette et l'avertissement.
     """
     assert moteur.ECART_CAP_TOLERE >= 0.05, "seuil trop serré : des écarts réels seraient refusés"
     assert moteur.ECART_CAP_TOLERE <= 0.25, "seuil trop lâche : un facteur deux passerait"
@@ -138,7 +142,7 @@ def test_le_seuil_laisse_passer_les_ecarts_reels(moteur):
     for ecart in (0.0, 0.032, 0.09):
         servie = round(100 * 1_000_000 / 1e6 / (1 + ecart))
         _, src = moteur._capitalisation("CMT", 100.0, servie)
-        assert src == "servie", f"un écart de {ecart:.1%} a été refusé"
+        assert src == "calculee_recoupee", f"un écart de {ecart:.1%} a été refusé"
 
 
 # ── Ce que le fichier publié doit montrer ────────────────────────────────────
