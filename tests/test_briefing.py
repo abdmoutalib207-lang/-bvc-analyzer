@@ -479,14 +479,7 @@ def test_le_total_du_briefing_egale_le_volume_de_l_operateur():
         pytest.skip("flux absent de ce clone")
     b = json.loads(fb.read_text(encoding="utf-8"))
     d = json.loads(fd.read_text(encoding="utf-8"))
-    # ⚠️ Les deux chiffres doivent venir du MÊME run. Le volume lu par le run
-    # qui a produit ce briefing y est consigné (`volume_indice_lu`) ; un
-    # briefing antérieur au 07/10/2026 ne le porte pas et se saute. Comparer
-    # au data.json régénéré par la CI la nuit opposait deux runs : CDG servait
-    # alors 346,4 M DH pour une séance que le bulletin chiffre à 349,55 M.
-    if "volume_indice_lu" not in b:
-        pytest.skip("briefing sans volume_indice_lu (antérieur au 07/10/2026)")
-    c, vol = b.get("concentration"), b.get("volume_indice_lu")
+    c, vol = b.get("concentration"), (d.get("masi") or {}).get("volume_mad")
     if not c or vol is None:
         pytest.skip("concentration ou volume global absent")
     if c.get("lignes_approchees"):

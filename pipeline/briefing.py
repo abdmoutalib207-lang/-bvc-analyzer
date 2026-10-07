@@ -1059,11 +1059,6 @@ def composer(data: dict, series=None, contexte=None) -> dict:
         "seance": seance,
         "accord": accord_indice_marche(masi),
         "concentration": concentration(titres, seance),
-        # Le volume de l'indice LU PAR CE MÊME RUN : le contrôle « total du
-        # briefing = volume de l'opérateur » ne vaut que sur deux chiffres
-        # produits ensemble. En CI, data.json est régénéré la nuit et le
-        # briefing versionné ne l'est pas : on comparait deux runs (07/10/2026).
-        "volume_indice_lu": masi.get("volume_mad"),
         "volumes": volumes_inhabituels(titres, seance),
         "extremes": extremes_annuels(titres, seance),
         "ytd_pct": _n(masi.get("ytd_pct")),
