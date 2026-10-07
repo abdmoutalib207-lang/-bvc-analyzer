@@ -7665,6 +7665,33 @@ const nfr = (x, d = 2) => x == null || !isFinite(x) ? "—" : (+x).toLocaleStrin
   maximumFractionDigits: d
 }).replace(/\u202f|\u00a0/g, " ");
 const jm = iso => iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : "—";
+const lienSource = t => t && t.includes(":") ? `https://www.tradingview.com/symbols/${t.replace(":", "-")}/` : null;
+const differeDeclare = m => {
+  const x = /^delayed\w*?_(\d+)$/.exec(m || "");
+  return x ? `différé ${Math.round(+x[1] / 60)} min` : m === "streaming" ? "sans différé déclaré" : null;
+};
+const SourceCotation = ({
+  l
+}) => {
+  const u = lienSource(l.ticker),
+    d = differeDeclare(l.mode_source),
+    h = l.horodatage_utc;
+  return React.createElement("span", {
+    style: {
+      fontSize: 10.5,
+      color: "#5a6478"
+    }
+  }, h && React.createElement(React.Fragment, null, "obs. ", h.slice(8, 10), "/", h.slice(5, 7), " ", h.slice(11, 16), " UTC"), d && React.createElement(React.Fragment, null, " \xB7 ", d), u && React.createElement(React.Fragment, null, " \xB7 ", React.createElement("a", {
+    href: u,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      color: "#4db8ff",
+      textDecoration: "none"
+    },
+    title: `Vérifier ${l.nom || l.ticker} chez la source`
+  }, "Source \u2197")));
+};
 const Carte = ({
   titre,
   source,
@@ -7898,14 +7925,14 @@ const SeanceDetail = ({
       color: VC2(x.variation_pct),
       marginLeft: 8
     }
-  }, x.variation_pct > 0 ? "+" : "", nfr(x.variation_pct), " %"), React.createElement("span", {
+  }, x.variation_pct > 0 ? "+" : "", nfr(x.variation_pct), " %")), React.createElement("span", {
     style: {
-      color: "#5a6478",
-      fontSize: 10.5,
-      marginLeft: 8
-    },
-    title: `Mode déclaré par la source : ${x.mode_source || "—"}`
-  }, jm(x.horodatage_utc), " ", x.horodatage_utc?.slice(11, 16), " UTC"))))), dep && (dep.titres || []).length > 0 && React.createElement(Carte, {
+      flexBasis: "100%",
+      textAlign: "right"
+    }
+  }, React.createElement(SourceCotation, {
+    l: x
+  }))))), dep && (dep.titres || []).length > 0 && React.createElement(Carte, {
     titre: `Dépôts de résultats à l'AMMC — ${jm(dep.seance)}`,
     source: "Liste des communiqu\xE9s des \xE9metteurs (AMMC). La liste ne donne pas l'heure : publi\xE9 ce jour-l\xE0, pas forc\xE9ment avant la cl\xF4ture."
   }, dep.titres.map((x, i) => React.createElement("a", {
@@ -8643,9 +8670,10 @@ const MarchesMondiaux = () => {
       display: "flex",
       justifyContent: "space-between",
       alignItems: "baseline",
-      gap: 10,
+      gap: "2px 10px",
       padding: "8px 0",
-      borderBottom: "1px solid #0a1220"
+      borderBottom: "1px solid #0a1220",
+      flexWrap: "wrap"
     }
   }, React.createElement("span", {
     style: {
@@ -8668,12 +8696,19 @@ const MarchesMondiaux = () => {
       fontSize: 12,
       marginLeft: 10
     }
-  }, l.variation_pct == null ? "—" : `${l.variation_pct > 0 ? "+" : ""}${nfr(l.variation_pct)} %`))))))), React.createElement("div", {
+  }, l.variation_pct == null ? "—" : `${l.variation_pct > 0 ? "+" : ""}${nfr(l.variation_pct)} %`)), React.createElement("span", {
+    style: {
+      flexBasis: "100%",
+      textAlign: "right"
+    }
+  }, React.createElement(SourceCotation, {
+    l: l
+  }))))))), React.createElement("div", {
     style: {
       fontSize: 10.5,
       color: "#5a6478"
     }
-  }, "Source : TradingView (scanner public), relev\xE9 le ", heure(d.releve_utc), ". Les valeurs peuvent \xEAtre diff\xE9r\xE9es de 10 \xE0 15 minutes, comme la source le d\xE9clare (survol d'une ligne pour son heure exacte). Contexte seulement : n'entre pas dans la note."));
+  }, "Source : TradingView (scanner public), relev\xE9 le ", heure(d.releve_utc), ". Sous chaque valeur : l'heure de l'observation, le diff\xE9r\xE9 que la source d\xE9clare, et un lien pour la v\xE9rifier chez elle. Contexte seulement : n'entre pas dans la note."));
 };
 const TickerNews = ({
   sym
