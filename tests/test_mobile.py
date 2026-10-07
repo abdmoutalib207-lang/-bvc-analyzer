@@ -35,11 +35,16 @@ def test_les_colonnes_gardees_sur_telephone_sont_les_bonnes():
 
 def test_les_regles_mobiles_existent():
     css = SRC[SRC.index("VERSION TÉLÉPHONE"):SRC.index("</style>")]
-    for regle in (".entete{position:static", ".onglets{flex-wrap:nowrap",
-                  ".classement{min-width:0", ".bandeau-masi{flex-wrap:wrap"):
+    # 07/10/2026 : la rangée d'onglets disparaît sous 640 px (le MENU donne
+    # toutes les vues) ; seul RETOUR reste, et seulement s'il sert.
+    for regle in (".entete{position:static", ".onglets .onglet{display:none",
+                  ".onglets.sans-retour{display:none", ".carte-indices>.carte-ind{display:none",
+                  ".indices-ligne{display:flex", ".classement{min-width:0",
+                  ".bandeau-masi{flex-wrap:wrap"):
         assert regle in css, regle
+    assert 'className={"onglets"+(peutRevenir?"":" sans-retour")}' in SRC
     # Les classes utilisées par le CSS sont bien posées dans le JSX.
-    for classe in ("entete", "onglets", "classement", "bandeau-masi",
+    for classe in ("entete", "onglet", "carte-ind", "indices-ligne", "classement", "bandeau-masi",
                    "badge-version", "choix-score", "entete-droite",
                    "nom-societe", "secteur-societe"):
         assert re.search(rf'className="(?:[^"]* )?{classe}(?: [^"]*)?"', SRC), classe

@@ -23,6 +23,10 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     .mobile-seul{display:none}
+    .indices-ligne{display:none;align-items:center;gap:7px;height:36px;padding:0 10px;font-size:12px;white-space:nowrap;
+      overflow-x:auto;scrollbar-width:none;border:1px solid rgba(77,184,255,.22);border-radius:8px;
+      background:linear-gradient(180deg,rgba(77,184,255,.07),rgba(77,184,255,.02));font-variant-numeric:tabular-nums}
+    .indices-ligne::-webkit-scrollbar{display:none}
     .carte-indices{flex-basis:100%;width:100%;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.2fr);gap:10px;margin-top:8px}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
     /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
@@ -35,13 +39,17 @@
       .entete{position:static!important;padding:8px 12px!important}
       .badge-version,.choix-score,.entete-droite{display:none!important}
       .bandeau-masi{flex-wrap:wrap!important;row-gap:4px}
-      .onglets{flex-wrap:nowrap!important;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
-      .onglets::-webkit-scrollbar{display:none}
-      .onglets>*{flex:0 0 auto}
+      /* En-tête téléphone (07/10/2026) : 552 px sur 844, la 1re ligne du
+         classement sous la ligne de flottaison. Le MENU donne déjà toutes
+         les vues : la rangée d'onglets disparaît, seul RETOUR reste quand
+         il y a une vue où revenir. Les indices tiennent sur une ligne. */
+      .onglets .onglet{display:none!important}
+      .onglets.sans-retour{display:none!important}
       .onglets button{padding:7px 12px!important}
       .mobile-seul{display:block!important}
-      .carte-indices{grid-template-columns:1fr 1fr!important;gap:8px!important}
-      .carte-indices>:first-child{grid-column:1/-1}
+      .carte-indices{grid-template-columns:1fr!important;gap:6px!important;margin-top:4px!important}
+      .carte-indices>.carte-ind{display:none!important}
+      .indices-ligne{display:flex!important}
       /* Le classement garde : ticker, clôture (+ ouverture), variation
          (+ volume), score, couleur de la note. */
       .classement{min-width:0!important}
@@ -913,9 +921,31 @@ const CarteIndices=({masi})=>{
   // l'en-tête de chaque page. Le choix est mémorisé.
   const [graphe,setGraphe]=useState(()=>{try{return localStorage.getItem("bvc_masi_graphe")==="1";}catch{return false;}});
   useEffect(()=>{try{localStorage.setItem("bvc_masi_graphe",graphe?"1":"0");}catch{}},[graphe]);
+  // Téléphone (07/10/2026) : les trois cartes prenaient 282 px sur 844 ;
+  // sous 640 px elles laissent place à cette ligne, défilante si besoin.
+  // Les avertissements de date (⚠) y restent : un état incertain se voit.
+  const varia=v=>v==null?null:<b style={{color:coul(v),whiteSpace:"nowrap"}}>{fleche(v)} {pct(v)}</b>;
   return(
     <div className="bandeau-masi carte-indices">
-      <div style={carte}>
+      <div className="indices-ligne">
+        <span style={{color:"#4db8ff",fontWeight:700,letterSpacing:1}}>MASI</span>
+        <b style={{color:"#fff",fontSize:15}}>{nb(masi.value)}</b>{varia(ch)}
+        {masi.stale&&<span style={{fontSize:10,fontWeight:700,color:"#ffd740"}}>⚠ {masi.asof?jj(masi.asof):"périmé"}</span>}
+        {m20&&m20.value!=null&&<>
+          <span style={{color:"#1a2540"}}>|</span>
+          <span style={{color:"#8892a4",letterSpacing:1}}>MASI&nbsp;20</span>
+          <b style={{color:"#e8eef8"}}>{nb(m20.value)}</b>{varia(m20.change_pct)}
+          {m20.asof&&masi.asof&&m20.asof!==masi.asof&&<span style={{fontSize:10,color:"#ff8f00"}}>⚠ {jj(m20.asof)}</span>}</>}
+        {masi.hausses!=null&&masi.baisses!=null&&tot>0&&<>
+          <span style={{color:"#1a2540"}}>|</span>
+          <span style={{color:"#00e5a0",fontWeight:700}}>{masi.hausses}▲</span>
+          <span style={{color:"#8892a4"}}>{masi.inchanges??0}=</span>
+          <span style={{color:"#ff4f5a",fontWeight:700}}>{masi.baisses}▼</span></>}
+        <button onClick={()=>setGraphe(v=>!v)} title="Graphique du MASI" aria-label="Graphique du MASI"
+          style={{marginLeft:"auto",fontSize:11,padding:"0 8px",borderRadius:3,fontFamily:"var(--font)",flex:"0 0 auto",
+            background:graphe?"rgba(77,184,255,.15)":"transparent",border:`1px solid ${graphe?"rgba(77,184,255,.4)":"#1a2540"}`,color:graphe?"#4db8ff":"#8892a4"}}>📈</button>
+      </div>
+      <div className="carte-ind" style={carte}>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <span style={{...etiquette,color:"#4db8ff",fontWeight:700}}>MASI</span>
           {masi.asof&&<span style={{fontSize:10,color:"#5a6478"}}>séance du {jj(masi.asof)}</span>}
@@ -942,7 +972,7 @@ const CarteIndices=({masi})=>{
         </div>
       </div>
       {masi.masi20&&masi.masi20.value!=null&&
-        <div style={carte} title={`MASI 20 — les vingt plus grosses capitalisations.${m20.ytd_pct!=null&&masi.ytd_pct!=null?` Écart de ${nb(Math.abs(m20.ytd_pct-masi.ytd_pct),1)} point(s) avec le MASI sur l'année.`:""}`}>
+        <div className="carte-ind" style={carte} title={`MASI 20 — les vingt plus grosses capitalisations.${m20.ytd_pct!=null&&masi.ytd_pct!=null?` Écart de ${nb(Math.abs(m20.ytd_pct-masi.ytd_pct),1)} point(s) avec le MASI sur l'année.`:""}`}>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
             <span style={{...etiquette,fontWeight:700}}>MASI&nbsp;20</span>
             {/* Deux séances ne s'affichent jamais comme une seule : on DIT la date. */}
@@ -956,7 +986,7 @@ const CarteIndices=({masi})=>{
             {m20.ytd_pct!=null&&<span style={{color:"#8892a4"}}>depuis janvier <b style={{color:coul(m20.ytd_pct)}}>{pct(m20.ytd_pct)}</b></span>}
           </div>
         </div>}
-      <div style={carte}>
+      <div className="carte-ind" style={carte}>
         <div style={etiquette}>La séance</div>
         {masi.hausses!=null&&masi.baisses!=null&&tot>0&&<>
           <div title={`${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges||0} inchangées sur ${masi.valeurs_traitees||tot} valeurs traitées`}
@@ -1975,7 +2005,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
           <div style={{color:"#ffd740"}}>{META.msgs} msgs · {META.years} ans · {META.signals} signaux</div>
         </div>
       </div>
-      <div className="onglets" style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
+      <div className={"onglets"+(peutRevenir?"":" sans-retour")} style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
         {/* Retour à la vue précédente. Grisé quand il n'y a rien derrière —
             un bouton qui ne fait rien sans le dire use la confiance. */}
         <button onClick={onRetour} disabled={!peutRevenir}
@@ -1983,9 +2013,9 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
           style={{background:peutRevenir?"rgba(77,184,255,.12)":"transparent",border:`1px solid ${peutRevenir?"rgba(77,184,255,.4)":"#141d30"}`,color:peutRevenir?"#4db8ff":"#2a3550",padding:"5px 12px",borderRadius:4,fontSize:12,letterSpacing:1,cursor:peutRevenir?"pointer":"default",fontFamily:"var(--font)",transition:"all .15s"}}>
           ◀ RETOUR
         </button>
-        <span style={{color:"#1a2540"}}>|</span>
+        <span className="onglet" style={{color:"#1a2540"}}>|</span>
         {TABS.map(t=>(
-          <button key={t.id} onClick={()=>setTab(t.id)} style={{background:tab===t.id?"rgba(0,229,160,.15)":"transparent",border:tab===t.id?"1px solid rgba(0,229,160,.5)":"1px solid #1a2540",color:tab===t.id?"#00e5a0":"#8892a4",padding:"5px 16px",borderRadius:4,fontSize:12,letterSpacing:1,fontWeight:tab===t.id?600:400,transition:"all .15s",position:"relative"}}>
+          <button key={t.id} className="onglet" onClick={()=>setTab(t.id)} style={{background:tab===t.id?"rgba(0,229,160,.15)":"transparent",border:tab===t.id?"1px solid rgba(0,229,160,.5)":"1px solid #1a2540",color:tab===t.id?"#00e5a0":"#8892a4",padding:"5px 16px",borderRadius:4,fontSize:12,letterSpacing:1,fontWeight:tab===t.id?600:400,transition:"all .15s",position:"relative"}}>
             {t.label}
             {t.badge&&<span style={{position:"absolute",top:-7,right:-7,background:"#ffd740",color:"#080d1a",borderRadius:"50%",width:16,height:16,fontSize:9,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center"}}>{t.badge}</span>}
           </button>

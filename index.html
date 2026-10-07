@@ -23,6 +23,10 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     .mobile-seul{display:none}
+    .indices-ligne{display:none;align-items:center;gap:7px;height:36px;padding:0 10px;font-size:12px;white-space:nowrap;
+      overflow-x:auto;scrollbar-width:none;border:1px solid rgba(77,184,255,.22);border-radius:8px;
+      background:linear-gradient(180deg,rgba(77,184,255,.07),rgba(77,184,255,.02));font-variant-numeric:tabular-nums}
+    .indices-ligne::-webkit-scrollbar{display:none}
     .carte-indices{flex-basis:100%;width:100%;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.2fr);gap:10px;margin-top:8px}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
     /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
@@ -35,13 +39,17 @@
       .entete{position:static!important;padding:8px 12px!important}
       .badge-version,.choix-score,.entete-droite{display:none!important}
       .bandeau-masi{flex-wrap:wrap!important;row-gap:4px}
-      .onglets{flex-wrap:nowrap!important;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
-      .onglets::-webkit-scrollbar{display:none}
-      .onglets>*{flex:0 0 auto}
+      /* En-tête téléphone (07/10/2026) : 552 px sur 844, la 1re ligne du
+         classement sous la ligne de flottaison. Le MENU donne déjà toutes
+         les vues : la rangée d'onglets disparaît, seul RETOUR reste quand
+         il y a une vue où revenir. Les indices tiennent sur une ligne. */
+      .onglets .onglet{display:none!important}
+      .onglets.sans-retour{display:none!important}
       .onglets button{padding:7px 12px!important}
       .mobile-seul{display:block!important}
-      .carte-indices{grid-template-columns:1fr 1fr!important;gap:8px!important}
-      .carte-indices>:first-child{grid-column:1/-1}
+      .carte-indices{grid-template-columns:1fr!important;gap:6px!important;margin-top:4px!important}
+      .carte-indices>.carte-ind{display:none!important}
+      .indices-ligne{display:flex!important}
       /* Le classement garde : ticker, clôture (+ ouverture), variation
          (+ volume), score, couleur de la note. */
       .classement{min-width:0!important}
@@ -4002,9 +4010,86 @@ const CarteIndices = ({
       localStorage.setItem("bvc_masi_graphe", graphe ? "1" : "0");
     } catch {}
   }, [graphe]);
+  const varia = v => v == null ? null : React.createElement("b", {
+    style: {
+      color: coul(v),
+      whiteSpace: "nowrap"
+    }
+  }, fleche(v), " ", pct(v));
   return React.createElement("div", {
     className: "bandeau-masi carte-indices"
   }, React.createElement("div", {
+    className: "indices-ligne"
+  }, React.createElement("span", {
+    style: {
+      color: "#4db8ff",
+      fontWeight: 700,
+      letterSpacing: 1
+    }
+  }, "MASI"), React.createElement("b", {
+    style: {
+      color: "#fff",
+      fontSize: 15
+    }
+  }, nb(masi.value)), varia(ch), masi.stale && React.createElement("span", {
+    style: {
+      fontSize: 10,
+      fontWeight: 700,
+      color: "#ffd740"
+    }
+  }, "\u26A0 ", masi.asof ? jj(masi.asof) : "périmé"), m20 && m20.value != null && React.createElement(React.Fragment, null, React.createElement("span", {
+    style: {
+      color: "#1a2540"
+    }
+  }, "|"), React.createElement("span", {
+    style: {
+      color: "#8892a4",
+      letterSpacing: 1
+    }
+  }, "MASI\xA020"), React.createElement("b", {
+    style: {
+      color: "#e8eef8"
+    }
+  }, nb(m20.value)), varia(m20.change_pct), m20.asof && masi.asof && m20.asof !== masi.asof && React.createElement("span", {
+    style: {
+      fontSize: 10,
+      color: "#ff8f00"
+    }
+  }, "\u26A0 ", jj(m20.asof))), masi.hausses != null && masi.baisses != null && tot > 0 && React.createElement(React.Fragment, null, React.createElement("span", {
+    style: {
+      color: "#1a2540"
+    }
+  }, "|"), React.createElement("span", {
+    style: {
+      color: "#00e5a0",
+      fontWeight: 700
+    }
+  }, masi.hausses, "\u25B2"), React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, masi.inchanges ?? 0, "="), React.createElement("span", {
+    style: {
+      color: "#ff4f5a",
+      fontWeight: 700
+    }
+  }, masi.baisses, "\u25BC")), React.createElement("button", {
+    onClick: () => setGraphe(v => !v),
+    title: "Graphique du MASI",
+    "aria-label": "Graphique du MASI",
+    style: {
+      marginLeft: "auto",
+      fontSize: 11,
+      padding: "0 8px",
+      borderRadius: 3,
+      fontFamily: "var(--font)",
+      flex: "0 0 auto",
+      background: graphe ? "rgba(77,184,255,.15)" : "transparent",
+      border: `1px solid ${graphe ? "rgba(77,184,255,.4)" : "#1a2540"}`,
+      color: graphe ? "#4db8ff" : "#8892a4"
+    }
+  }, "\uD83D\uDCC8")), React.createElement("div", {
+    className: "carte-ind",
     style: carte
   }, React.createElement("div", {
     style: {
@@ -4097,6 +4182,7 @@ const CarteIndices = ({
       color: coul(masi.ytd_pct)
     }
   }, pct(masi.ytd_pct))))), masi.masi20 && masi.masi20.value != null && React.createElement("div", {
+    className: "carte-ind",
     style: carte,
     title: `MASI 20 — les vingt plus grosses capitalisations.${m20.ytd_pct != null && masi.ytd_pct != null ? ` Écart de ${nb(Math.abs(m20.ytd_pct - masi.ytd_pct), 1)} point(s) avec le MASI sur l'année.` : ""}`
   }, React.createElement("div", {
@@ -4145,6 +4231,7 @@ const CarteIndices = ({
       color: coul(m20.ytd_pct)
     }
   }, pct(m20.ytd_pct))))), React.createElement("div", {
+    className: "carte-ind",
     style: carte
   }, React.createElement("div", {
     style: etiquette
@@ -6510,7 +6597,7 @@ const Header = ({
       color: "#ffd740"
     }
   }, META.msgs, " msgs \xB7 ", META.years, " ans \xB7 ", META.signals, " signaux"))), React.createElement("div", {
-    className: "onglets",
+    className: "onglets" + (peutRevenir ? "" : " sans-retour"),
     style: {
       display: "flex",
       gap: 6,
@@ -6534,11 +6621,13 @@ const Header = ({
       transition: "all .15s"
     }
   }, "\u25C0 RETOUR"), React.createElement("span", {
+    className: "onglet",
     style: {
       color: "#1a2540"
     }
   }, "|"), TABS.map(t => React.createElement("button", {
     key: t.id,
+    className: "onglet",
     onClick: () => setTab(t.id),
     style: {
       background: tab === t.id ? "rgba(0,229,160,.15)" : "transparent",
