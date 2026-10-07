@@ -43,7 +43,7 @@
       .carte-indices{grid-template-columns:1fr 1fr!important;gap:8px!important}
       .carte-indices>:first-child{grid-column:1/-1}
       /* Le classement garde : ticker, clôture (+ ouverture), variation
-         (+ volume), score, signal. */
+         (+ volume), score, couleur de la note. */
       .classement{min-width:0!important}
       .classement th:nth-child(1),.classement td:nth-child(1),
       .classement th:nth-child(3),.classement td:nth-child(3),
@@ -51,6 +51,11 @@
       .classement th:nth-child(n+10):nth-child(-n+13),.classement td:nth-child(n+10):nth-child(-n+13),
       .classement th:nth-child(15),.classement td:nth-child(15){display:none}
       .classement td,.classement th{padding:7px 3px!important}
+      /* Colonne COULEUR (07/10/2026) : sur téléphone, la pastille seule —
+         la note colorée est à côté. La mention « titre peu échangé » reste,
+         en petit et sur deux lignes : elle explique une couleur sous la note. */
+      .classement .pastille-texte{display:none}
+      .classement .pastille-plafond{white-space:normal;font-size:9px;line-height:1.2;max-width:58px}
       /* Le secteur prenait trop de largeur : sur téléphone, le code, un nom
          abrégé et le logo en miniature suffisent à reconnaître le titre. */
       .secteur-societe{display:none!important}
@@ -161,86 +166,89 @@
 const {useState,useEffect,useMemo,useCallback,useRef} = React;
 
 // ── STATIC FALLBACK DATA (76 tickers) ─────────────────────────────────────────
+// ⚠️ 07/10/2026 : champs `sig` et `sigBvc` retirés de cette table. Le terminal
+// n'affiche plus de mot d'action ; ces libellés figés de juin n'étaient plus
+// lus nulle part (la couleur se lit sur la note). Valeurs dans l'historique git.
 const STATIC = [
-  {symbol:"CMT", name:"Minière Touissit"       ,sector:"Mines",        price:4350,  chg:0,vol:150000, cap:10980, pe:22.7,pb:2.0,div:0.50,h90:5162.63, l90:1720.88, rsi:58,ma20:4270.78, ma50:3938.76, bvc:7.16,v53:7.99,delta:0.83,nlp:0.51,alpha:8.3,  win:92, flags:0,upside:13.9,bear:3911.08, base:4954.04,  bull:6192.56,  setup:"MOMENTUM CONFIRME", biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30","+Smart Money (92%) +0.40"], warn:false},
-  {symbol:"SMI", name:"Société Métallurgique d'Imiter"        ,            sector:"Mines",        price:6350,  chg:5.03,vol:500000, cap:17100, pe:24.8,pb:1.4,div:1.04,h90:10641.64,l90:4143.96, rsi:65,  ma20:8046.93, ma50:7010.64, bvc:6.95,v53:7.66,delta:0.71,nlp:0.46,alpha:30.7, win:100,flags:0,upside:14.3,bear:5692.48, base:7259.97,  bull:9074.96, setup:"MOMENTUM CONFIRME", biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30","+Smart Money (100%) +0.40"],warn:false},
-  {symbol:"CASH", name:"Cash Plus SA", sector:"Finance",      price:253,   chg:1.65, vol:789012, cap:6870, pe:13.8,pb:1.8,div:3.2,h90:274.42,  l90:229.75,  rsi:50.5,ma20:253.36,  ma50:258.32,  bvc:6.73,v53:7.56,delta:0.83,nlp:0.38,alpha:7.0,  win:80, flags:0,upside:12, bear:222.46,  base:285.36,   bull:357.4,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ACHAT FORT ★★★",sigBvc:"SURVEILLER", bonus:["+Conv BVC+NLP +0.30","+Smart Money (80%) +0.40"], warn:false},
-  {symbol:"MNG", name:"Managem", sector:"Mines",        price:1440, chg:9.92,vol:3200000,cap:156495,pe:64.0,pb:3.1,div:0.27,h90:1814.06,l90:710.49,rsi:66,   ma20:1449.51,   ma50:1235.68,    bvc:6.59,v53:6.67,delta:0.08,nlp:0.50,alpha:55.3, win:93, flags:2,upside:13.4,bear:1248.17,base:1632.22, bull:2112.28, setup:"MOMENTUM CONFIRME",  biais:"ACHAT FORT", poids:{f:39,n:43,t:18},sig:"ACHETER ★★",     sigBvc:"ACHETER",    bonus:["+Conv +0.30","+Smart +0.40","+Hype +0.20"],        warn:false},
-  {symbol:"AKD", name:"Akdital", sector:"Santé",        price:1133,   chg:-1.48,  vol:345678, cap:15500, pe:28.4,pb:4.2,div:0.8,h90:1264.86,  l90:952.31,  rsi:42.1,ma20:1173.34,  ma50:1162.91,  bvc:6.20,v53:6.71,delta:0.51,nlp:0.25,alpha:15.2, win:78, flags:0,upside:18, bear:522.54,  base:644.64,   bull:732.54,   setup:"MOMENTUM CONFIRME",  biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ACHETER ★★",     sigBvc:"ACHETER",    bonus:["+Alpha fort +15.2% +0.30","+Conv BVC+NLP +0.20"],  warn:false},
-  {symbol:"SOT", name:"Sothema", sector:"Santé",        price:369.9,   chg:-0.03,  vol:85000,  cap:14000, pe:19.5,pb:2.5,div:2.8,h90:425.38,  l90:314.41,  rsi:50,ma20:347.4,  ma50:332.72,  bvc:6.62,v53:6.64,delta:0.02,nlp:0.29,alpha:5.0,  win:75, flags:0,upside:12, bear:290.64,  base:371.85,   bull:464.82,   setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
-  {symbol:"SGTM", name:"SGTM SA", sector:"Construction", price:675,   chg:0.75,  vol:234567, cap:5490, pe:16.2,pb:1.9,div:3.1,h90:824.56,  l90:631.36,  rsi:38,ma20:698.21,  ma50:696.1,  bvc:5.77,v53:6.63,delta:0.86,nlp:0.18,alpha:6.0,  win:78, flags:0,upside:27, bear:669.27,  base:857.84,   bull:1072.3,  setup:"CONTRARIEN",         biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"SURVEILLER", bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
-  {symbol:"MSA", name:"Sodep-Marsa Maroc", sector:"Transport",         price:860,   chg:0.23,  vol:89012,  cap:60380, pe:14.7,pb:1.8,div:4.2,h90:984.45,  l90:736.08,  rsi:45.7,ma20:878.76,  ma50:869.55,  bvc:6.28,v53:6.28,delta:0.00,nlp:0.22,alpha:18.5, win:100,flags:0,upside:-13,bear:585,  base:749.61,   bull:937.27,   setup:"CONTRARIEN",         biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"SURVEILLER ★",   sigBvc:"SURVEILLER", bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
-  {symbol:"CFGB", name:"CFG Bank", sector:"Banque",      price:193,   chg:0,  vol:456789, cap:3120, pe:11.8,pb:1.4,div:2.5,h90:230.37,  l90:185.39,  rsi:38.5,ma20:195.61,  ma50:197.38,  bvc:5.44,v53:6.24,delta:0.80,nlp:0.12,alpha:4.0,  win:72, flags:1,upside:17, bear:176.91,  base:226.11,   bull:282.88,   setup:"FAIBLESSE",          biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"ATTENDRE",   bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
-  {symbol:"RIS", name:"Risma", sector:"Tourisme",         price:320,   chg:1.23, vol:78901,  cap:4790,  pe:10.2,pb:0.9,div:3.8,h90:378.75,  l90:277.01,  rsi:50.1,ma20:319.86,  ma50:318.45,  bvc:4.71,v53:5.64,delta:0.93,nlp:0.08,alpha:11.4, win:100,flags:2,upside:-20,bear:198.68,  base:255.04,   bull:319.04,   setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"SURVEILLER ★",   sigBvc:"ATTENDRE",   bonus:["+Smart Money (100%) +0.40"],                        warn:false},
-  {symbol:"ADI", name:"Alliances"     ,           sector:"Immobilier",         price:376.9,   chg:2.88,  vol:123456, cap:5460, pe:22,  pb:0.8,div:1.2,h90:521.67,  l90:355.79,  rsi:36.4,ma20:405.95,  ma50:413.29,  bvc:5.00,v53:5.95,delta:0.95,nlp:-0.05,alpha:8.5, win:69, flags:0,upside:17, bear:359.64,  base:460.61,   bull:576,   setup:"CONTRARIEN",         biais:"DÉBATTU",    poids:{f:52,n:28,t:20},sig:"SURVEILLER ★",   sigBvc:"ATTENDRE",   bonus:["+Conv baissière +0.15"],                              warn:false},
-  {symbol:"VCNE", name:"Vicenne"    ,              sector:"Santé", price:345,   chg:0,  vol:234567, cap:3120, pe:12.4,pb:1.6,div:5.1,h90:433.58,  l90:336.7,  rsi:26.8,ma20:376.48,  ma50:386.76,  bvc:4.93,v53:5.61,delta:0.68,nlp:0.05,alpha:3.0,  win:70, flags:1,upside:9,  bear:308.63,  base:396.29,   bull:495.12,   setup:"FAIBLESSE",          biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"ATTENDRE",   bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
-  {symbol:"CMGP", name:"CMGP Group", sector:"Industrie", price:324,   chg:1.73, vol:56789,  cap:2680,  pe:13.1,pb:1.3,div:2.9,h90:361.47,  l90:298.8,  rsi:44,ma20:330.76,  ma50:333.55,  bvc:5.17,v53:5.49,delta:0.32,nlp:0.05,alpha:3.0,  win:70, flags:1,upside:-3, bear:247.03,  base:316.96,   bull:395.98,   setup:"FAIBLESSE",          biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],                                                   warn:false},
-  {symbol:"CSR", name:"Cosumar", sector:"Agroalimentaire",    price:187,   chg:0.54,  vol:89012,  cap:19970,  pe:8.9, pb:0.7,div:1.5,h90:216.28,  l90:154.48,  rsi:45,ma20:188.33,  ma50:193.48,  bvc:4.58,v53:5.05,delta:0.47,nlp:0.02,alpha:2.0,  win:60, flags:2,upside:-15,bear:124.33,  base:160.29,   bull:200.36,   setup:"FAIBLESSE",          biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],                                                   warn:false},
-  {symbol:"TGCC", name:"TGCC SA", sector:"Construction", price:740,   chg:-0.15,  vol:567890, cap:7670, pe:17.9,pb:2.0,div:2.2,h90:878.48,  l90:666.36,  rsi:39.8,ma20:765.75,  ma50:763.59,  bvc:5.22,v53:4.85,delta:-0.37,nlp:0.09,alpha:-2.3,win:39, flags:0,upside:27, bear:728.45,  base:933.76,   bull:1166.7,  setup:"CONTRARIEN",         biais:"DÉBATTU",    poids:{f:47,n:28,t:25},sig:"ÉVITER",         sigBvc:"ATTENDRE",   bonus:["-Alpha négatif -0.60","+Contrarian +0.20"],         warn:true, warnMsg:"Alpha historique NÉGATIF (-2.3%) · Win rate vendeurs 61% · Signal ACHAT communauté = contrarian indicator V3"},
-  {symbol:"ADH", name:"Douja Prom Addoha"     ,   sector:"Immobilier", price:37,  chg:2.75,  vol:2345678,cap:2950, pe:7.2, pb:0.6,div:0.0,h90:42.81,   l90:28.47,   rsi:48.6,ma20:37.2, ma50:37.52, bvc:4.28,v53:4.41,delta:0.13,nlp:-0.08,alpha:12.9,win:86, flags:3,upside:0,  bear:29.04, base:37.34,  bull:46.68,    setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ÉVITER",         sigBvc:"ATTENDRE",   bonus:["-Red flags -0.30"],                                 warn:false},
-  {symbol:"SRM", name:"Société de Réalisations Mécaniques", sector:"Industrie",    price:445,   chg:0, vol:67890,  cap:1330,  pe:11.5,pb:1.1,div:0.5,h90:511.44,  l90:378.84,  rsi:36.1,ma20:456.76,  ma50:463.65,  bvc:4.88,v53:3.94,delta:-0.94,nlp:-0.12,alpha:2.0, win:55, flags:4,upside:8,  bear:385.48,  base:494.39,   bull:617.52,   setup:"FAIBLESSE",          biais:"NÉGATIF",    poids:{f:47,n:28,t:25},sig:"ÉVITER FORT",     sigBvc:"ATTENDRE",   bonus:["-Red flags -0.60"],                                 warn:false},
-  {symbol:"SNA", name:"Sonasid", sector:"Matériaux",    price:1988,   chg:-0.1, vol:45678,  cap:1100, pe:8.2, pb:0.7,div:1.0,h90:2286.07,  l90:1689.93,  rsi:50,ma20:1988,  ma50:1988,  bvc:4.10,v53:3.84,delta:-0.26,nlp:-0.15,alpha:-2.2,win:35, flags:3,upside:-11,bear:12697.55,  base:13851.87,   bull:15647.48,   setup:"FAIBLESSE",          biais:"NÉGATIF",    poids:{f:47,n:28,t:25},sig:"ÉVITER FORT",     sigBvc:"EVITER",     bonus:["-Alpha négatif -0.60","-Red flags -0.30"],          warn:true, warnMsg:"Alpha historique NÉGATIF (-2.2%) · Win rate 35% · Signal ÉVITER confirmé par backtesting V3"},
-  {symbol:"RDS", name:"Résidences Dar Saada", sector:"Immobilier",    price:170, chg:0,  vol:34567,  cap:3740,  pe:6.1, pb:0.5,div:0.0,h90:185.17,  l90:131.01,  rsi:51.7,ma20:172.92,  ma50:162.44,  bvc:3.76,v53:3.41,delta:-0.35,nlp:-0.31,alpha:11.4,win:100,flags:4,upside:-38,bear:82.45,   base:104.85,   bull:131.31,   setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:44,n:35,t:21},sig:"ÉVITER FORT",     sigBvc:"EVITER",     bonus:["-Divergence BVC/NLP -0.50","-Red flags -0.60"],     warn:false},
+  {symbol:"CMT", name:"Minière Touissit"       ,sector:"Mines",        price:4350,  chg:0,vol:150000, cap:10980, pe:22.7,pb:2.0,div:0.50,h90:5162.63, l90:1720.88, rsi:58,ma20:4270.78, ma50:3938.76, bvc:7.16,v53:7.99,delta:0.83,nlp:0.51,alpha:8.3,  win:92, flags:0,upside:13.9,bear:3911.08, base:4954.04,  bull:6192.56,  setup:"MOMENTUM CONFIRME", biais:"ACHAT",      poids:{f:44,n:35,t:21},    bonus:["+Conv BVC+NLP +0.30","+Smart Money (92%) +0.40"], warn:false},
+  {symbol:"SMI", name:"Société Métallurgique d'Imiter"        ,            sector:"Mines",        price:6350,  chg:5.03,vol:500000, cap:17100, pe:24.8,pb:1.4,div:1.04,h90:10641.64,l90:4143.96, rsi:65,  ma20:8046.93, ma50:7010.64, bvc:6.95,v53:7.66,delta:0.71,nlp:0.46,alpha:30.7, win:100,flags:0,upside:14.3,bear:5692.48, base:7259.97,  bull:9074.96, setup:"MOMENTUM CONFIRME", biais:"ACHAT",      poids:{f:44,n:35,t:21},    bonus:["+Conv BVC+NLP +0.30","+Smart Money (100%) +0.40"],warn:false},
+  {symbol:"CASH", name:"Cash Plus SA", sector:"Finance",      price:253,   chg:1.65, vol:789012, cap:6870, pe:13.8,pb:1.8,div:3.2,h90:274.42,  l90:229.75,  rsi:50.5,ma20:253.36,  ma50:258.32,  bvc:6.73,v53:7.56,delta:0.83,nlp:0.38,alpha:7.0,  win:80, flags:0,upside:12, bear:222.46,  base:285.36,   bull:357.4,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:44,n:35,t:21}, bonus:["+Conv BVC+NLP +0.30","+Smart Money (80%) +0.40"], warn:false},
+  {symbol:"MNG", name:"Managem", sector:"Mines",        price:1440, chg:9.92,vol:3200000,cap:156495,pe:64.0,pb:3.1,div:0.27,h90:1814.06,l90:710.49,rsi:66,   ma20:1449.51,   ma50:1235.68,    bvc:6.59,v53:6.67,delta:0.08,nlp:0.50,alpha:55.3, win:93, flags:2,upside:13.4,bear:1248.17,base:1632.22, bull:2112.28, setup:"MOMENTUM CONFIRME",  biais:"ACHAT FORT", poids:{f:39,n:43,t:18},    bonus:["+Conv +0.30","+Smart +0.40","+Hype +0.20"],        warn:false},
+  {symbol:"AKD", name:"Akdital", sector:"Santé",        price:1133,   chg:-1.48,  vol:345678, cap:15500, pe:28.4,pb:4.2,div:0.8,h90:1264.86,  l90:952.31,  rsi:42.1,ma20:1173.34,  ma50:1162.91,  bvc:6.20,v53:6.71,delta:0.51,nlp:0.25,alpha:15.2, win:78, flags:0,upside:18, bear:522.54,  base:644.64,   bull:732.54,   setup:"MOMENTUM CONFIRME",  biais:"ACHAT",      poids:{f:44,n:35,t:21},    bonus:["+Alpha fort +15.2% +0.30","+Conv BVC+NLP +0.20"],  warn:false},
+  {symbol:"SOT", name:"Sothema", sector:"Santé",        price:369.9,   chg:-0.03,  vol:85000,  cap:14000, pe:19.5,pb:2.5,div:2.8,h90:425.38,  l90:314.41,  rsi:50,ma20:347.4,  ma50:332.72,  bvc:6.62,v53:6.64,delta:0.02,nlp:0.29,alpha:5.0,  win:75, flags:0,upside:12, bear:290.64,  base:371.85,   bull:464.82,   setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:47,n:28,t:25},    bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
+  {symbol:"SGTM", name:"SGTM SA", sector:"Construction", price:675,   chg:0.75,  vol:234567, cap:5490, pe:16.2,pb:1.9,div:3.1,h90:824.56,  l90:631.36,  rsi:38,ma20:698.21,  ma50:696.1,  bvc:5.77,v53:6.63,delta:0.86,nlp:0.18,alpha:6.0,  win:78, flags:0,upside:27, bear:669.27,  base:857.84,   bull:1072.3,  setup:"CONTRARIEN",         biais:"ACHAT",      poids:{f:47,n:28,t:25}, bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
+  {symbol:"MSA", name:"Sodep-Marsa Maroc", sector:"Transport",         price:860,   chg:0.23,  vol:89012,  cap:60380, pe:14.7,pb:1.8,div:4.2,h90:984.45,  l90:736.08,  rsi:45.7,ma20:878.76,  ma50:869.55,  bvc:6.28,v53:6.28,delta:0.00,nlp:0.22,alpha:18.5, win:100,flags:0,upside:-13,bear:585,  base:749.61,   bull:937.27,   setup:"CONTRARIEN",         biais:"ACHAT",      poids:{f:44,n:35,t:21}, bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
+  {symbol:"CFGB", name:"CFG Bank", sector:"Banque",      price:193,   chg:0,  vol:456789, cap:3120, pe:11.8,pb:1.4,div:2.5,h90:230.37,  l90:185.39,  rsi:38.5,ma20:195.61,  ma50:197.38,  bvc:5.44,v53:6.24,delta:0.80,nlp:0.12,alpha:4.0,  win:72, flags:1,upside:17, bear:176.91,  base:226.11,   bull:282.88,   setup:"FAIBLESSE",          biais:"ACHAT",      poids:{f:47,n:28,t:25},   bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
+  {symbol:"RIS", name:"Risma", sector:"Tourisme",         price:320,   chg:1.23, vol:78901,  cap:4790,  pe:10.2,pb:0.9,div:3.8,h90:378.75,  l90:277.01,  rsi:50.1,ma20:319.86,  ma50:318.45,  bvc:4.71,v53:5.64,delta:0.93,nlp:0.08,alpha:11.4, win:100,flags:2,upside:-20,bear:198.68,  base:255.04,   bull:319.04,   setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:44,n:35,t:21},   bonus:["+Smart Money (100%) +0.40"],                        warn:false},
+  {symbol:"ADI", name:"Alliances"     ,           sector:"Immobilier",         price:376.9,   chg:2.88,  vol:123456, cap:5460, pe:22,  pb:0.8,div:1.2,h90:521.67,  l90:355.79,  rsi:36.4,ma20:405.95,  ma50:413.29,  bvc:5.00,v53:5.95,delta:0.95,nlp:-0.05,alpha:8.5, win:69, flags:0,upside:17, bear:359.64,  base:460.61,   bull:576,   setup:"CONTRARIEN",         biais:"DÉBATTU",    poids:{f:52,n:28,t:20},   bonus:["+Conv baissière +0.15"],                              warn:false},
+  {symbol:"VCNE", name:"Vicenne"    ,              sector:"Santé", price:345,   chg:0,  vol:234567, cap:3120, pe:12.4,pb:1.6,div:5.1,h90:433.58,  l90:336.7,  rsi:26.8,ma20:376.48,  ma50:386.76,  bvc:4.93,v53:5.61,delta:0.68,nlp:0.05,alpha:3.0,  win:70, flags:1,upside:9,  bear:308.63,  base:396.29,   bull:495.12,   setup:"FAIBLESSE",          biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:["+Conv BVC+NLP +0.30"],                              warn:false},
+  {symbol:"CMGP", name:"CMGP Group", sector:"Industrie", price:324,   chg:1.73, vol:56789,  cap:2680,  pe:13.1,pb:1.3,div:2.9,h90:361.47,  l90:298.8,  rsi:44,ma20:330.76,  ma50:333.55,  bvc:5.17,v53:5.49,delta:0.32,nlp:0.05,alpha:3.0,  win:70, flags:1,upside:-3, bear:247.03,  base:316.96,   bull:395.98,   setup:"FAIBLESSE",          biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],                                                   warn:false},
+  {symbol:"CSR", name:"Cosumar", sector:"Agroalimentaire",    price:187,   chg:0.54,  vol:89012,  cap:19970,  pe:8.9, pb:0.7,div:1.5,h90:216.28,  l90:154.48,  rsi:45,ma20:188.33,  ma50:193.48,  bvc:4.58,v53:5.05,delta:0.47,nlp:0.02,alpha:2.0,  win:60, flags:2,upside:-15,bear:124.33,  base:160.29,   bull:200.36,   setup:"FAIBLESSE",          biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],                                                   warn:false},
+  {symbol:"TGCC", name:"TGCC SA", sector:"Construction", price:740,   chg:-0.15,  vol:567890, cap:7670, pe:17.9,pb:2.0,div:2.2,h90:878.48,  l90:666.36,  rsi:39.8,ma20:765.75,  ma50:763.59,  bvc:5.22,v53:4.85,delta:-0.37,nlp:0.09,alpha:-2.3,win:39, flags:0,upside:27, bear:728.45,  base:933.76,   bull:1166.7,  setup:"CONTRARIEN",         biais:"DÉBATTU",    poids:{f:47,n:28,t:25},   bonus:["-Alpha négatif -0.60","+Contrarian +0.20"],         warn:true, warnMsg:"Alpha historique NÉGATIF (-2.3%) · Win rate vendeurs 61% · Signal ACHAT communauté = contrarian indicator V3"},
+  {symbol:"ADH", name:"Douja Prom Addoha"     ,   sector:"Immobilier", price:37,  chg:2.75,  vol:2345678,cap:2950, pe:7.2, pb:0.6,div:0.0,h90:42.81,   l90:28.47,   rsi:48.6,ma20:37.2, ma50:37.52, bvc:4.28,v53:4.41,delta:0.13,nlp:-0.08,alpha:12.9,win:86, flags:3,upside:0,  bear:29.04, base:37.34,  bull:46.68,    setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:44,n:35,t:21},   bonus:["-Red flags -0.30"],                                 warn:false},
+  {symbol:"SRM", name:"Société de Réalisations Mécaniques", sector:"Industrie",    price:445,   chg:0, vol:67890,  cap:1330,  pe:11.5,pb:1.1,div:0.5,h90:511.44,  l90:378.84,  rsi:36.1,ma20:456.76,  ma50:463.65,  bvc:4.88,v53:3.94,delta:-0.94,nlp:-0.12,alpha:2.0, win:55, flags:4,upside:8,  bear:385.48,  base:494.39,   bull:617.52,   setup:"FAIBLESSE",          biais:"NÉGATIF",    poids:{f:47,n:28,t:25},   bonus:["-Red flags -0.60"],                                 warn:false},
+  {symbol:"SNA", name:"Sonasid", sector:"Matériaux",    price:1988,   chg:-0.1, vol:45678,  cap:1100, pe:8.2, pb:0.7,div:1.0,h90:2286.07,  l90:1689.93,  rsi:50,ma20:1988,  ma50:1988,  bvc:4.10,v53:3.84,delta:-0.26,nlp:-0.15,alpha:-2.2,win:35, flags:3,upside:-11,bear:12697.55,  base:13851.87,   bull:15647.48,   setup:"FAIBLESSE",          biais:"NÉGATIF",    poids:{f:47,n:28,t:25},     bonus:["-Alpha négatif -0.60","-Red flags -0.30"],          warn:true, warnMsg:"Alpha historique NÉGATIF (-2.2%) · Win rate 35%"},
+  {symbol:"RDS", name:"Résidences Dar Saada", sector:"Immobilier",    price:170, chg:0,  vol:34567,  cap:3740,  pe:6.1, pb:0.5,div:0.0,h90:185.17,  l90:131.01,  rsi:51.7,ma20:172.92,  ma50:162.44,  bvc:3.76,v53:3.41,delta:-0.35,nlp:-0.31,alpha:11.4,win:100,flags:4,upside:-38,bear:82.45,   base:104.85,   bull:131.31,   setup:"PULLBACK HAUSSIER", biais:"ACHAT",      poids:{f:44,n:35,t:21},     bonus:["-Divergence BVC/NLP -0.50","-Red flags -0.60"],     warn:false},
   // ── Grandes capitalisations ─────────────────────────────────────────────────
-  {symbol:"IAM", name:"Maroc Telecom", sector:"Télécom",      price:94.81,   chg:0.97,  vol:450000, cap:121000,pe:18.5,pb:6.2,div:5.5,h90:112.17,  l90:92.75,  rsi:40.6,ma20:96.37,  ma50:97.48,  bvc:7.08,v53:7.45,delta:0.37,nlp:0.10,alpha:8.0,  win:80, flags:1,upside:5,  bear:123.67,  base:149.43,   bull:180.35,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"ATW", name:"Attijariwafa Bank", sector:"Banque",      price:685,   chg:0.13,  vol:180000, cap:115000,pe:13.5,pb:1.8,div:3.5,h90:763.35,  l90:670.83,  rsi:42.6,ma20:693.14,  ma50:697.21,  bvc:7.25,v53:7.60,delta:0.35,nlp:0.12,alpha:10.0, win:82, flags:0,upside:8,  bear:421.85,  base:532.33,   bull:662.91,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30","+Smart Money (82%) +0.40"],warn:false},
-  {symbol:"BCP", name:"Banque Populaire"                      ,  sector:"Banque",      price:248, chg:-0.26,  vol:120000, cap:42000, pe:11.5,pb:1.3,div:3.2,h90:289.25,  l90:234.25,  rsi:53.3,ma20:244.51,  ma50:248.04,  bvc:7.00,v53:7.35,delta:0.35,nlp:0.10,alpha:7.0,  win:79, flags:0,upside:7,  bear:208.79,  base:264.8,   bull:331.01,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"BOA", name:"Bank of Africa", sector:"Banque",      price:186.5, chg:-0.8,  vol:95000,  cap:15000, pe:12.0,pb:1.3,div:3.5,h90:206.2,  l90:176.56,  rsi:45.5,ma20:188.83,  ma50:191.28,  bvc:6.58,v53:6.85,delta:0.27,nlp:0.05,alpha:5.0,  win:74, flags:0,upside:7,  bear:157.97,  base:199.79,   bull:250.89,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"SURVEILLER", bonus:[],warn:false},
-  {symbol:"CIH", name:"CIH Bank"                          ,sector:"Banque",      price:341.2,   chg:-0.12,  vol:75000,  cap:8000,  pe:12.5,pb:1.5,div:4.2,h90:398.23,  l90:331.45,  rsi:43.9,ma20:348.69,  ma50:353.56,  bvc:6.75,v53:7.05,delta:0.30,nlp:0.08,alpha:6.0,  win:76, flags:0,upside:6,  bear:268.09,  base:341.2,   bull:428.94,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"SURVEILLER", bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"CDM", name:"Crédit du Maroc", sector:"Banque",      price:975,   chg:-2.21,  vol:45000,  cap:5000,  pe:11.0,pb:1.2,div:4.5,h90:1072.5,  l90:877.5,  rsi:53,ma20:975,  ma50:975,  bvc:6.75,v53:7.05,delta:0.30,nlp:0.08,alpha:5.0,  win:76, flags:0,upside:6,  bear:817.74,  base:1037.9,   bull:1297.38,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"SURVEILLER", bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"WAF", name:"Wafa Assurance", sector:"Assurance",   price:5350,  chg:0,  vol:12000,  cap:6500,  pe:14.5,pb:2.2,div:4.8,h90:5885, l90:4815, rsi:54,ma20:5350,  ma50:5350,  bvc:6.92,v53:7.15,delta:0.23,nlp:0.08,alpha:6.0,  win:77, flags:0,upside:5,  bear:4458.34, base:5604.77,  bull:7005.95,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"SURVEILLER", bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"LHM", name:"Holcim Maroc SA"    ,         sector:"Matériaux",    price:1742,  chg:-1.41,  vol:18000,  cap:16000, pe:14.5,pb:2.5,div:4.2,h90:1916.2, l90:1567.8, rsi:55,ma20:1742,  ma50:1742,  bvc:7.10,v53:7.40,delta:0.30,nlp:0.10,alpha:7.0,  win:80, flags:0,upside:8,  bear:1471.02, base:1838.78,  bull:2303.31,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"GAZ", name:"Afriquia Gaz", sector:"Énergie",      price:3641,  chg:-0.03,  vol:8500,   cap:7000,  pe:16.5,pb:3.1,div:4.8,h90:4005.1, l90:3276.9, rsi:56,ma20:3641,  ma50:3641,  bvc:7.20,v53:7.50,delta:0.30,nlp:0.12,alpha:8.0,  win:81, flags:0,upside:6,  bear:3058.44, base:3849.06,  bull:4811.33,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"ATL", name:"AtlantaSanad", sector:"Assurance", price:124.1,    chg:0.49,  vol:220000, cap:3500,  pe:13.8,pb:2.0,div:4.5,h90:138.94,   l90:116.72,   rsi:51.4,ma20:123.15,    ma50:124.98,    bvc:6.90,v53:7.20,delta:0.30,nlp:0.10,alpha:6.0,  win:79, flags:0,upside:7,  bear:61.44,   base:77.5,    bull:97.35,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"HPS", name:"HPS"                    ,      sector:"Technologie",         price:604,  chg:1.51,  vol:9500,   cap:3800,  pe:24.5,pb:4.0,div:2.2,h90:694.6, l90:513.4, rsi:50,ma20:604,  ma50:604,  bvc:7.15,v53:7.45,delta:0.30,nlp:0.12,alpha:9.0,  win:80, flags:0,upside:2,  bear:3102.05, base:4002.65,  bull:5003.32,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"LBV", name:"Label Vie", sector:"Distribution", price:3720,  chg:0,  vol:6500,   cap:4500,  pe:18.0,pb:2.1,div:2.8,h90:4092, l90:3348, rsi:53,ma20:3720,  ma50:3720,  bvc:6.70,v53:6.95,delta:0.25,nlp:0.08,alpha:5.0,  win:76, flags:0,upside:4,  bear:3063.53, base:3865.88,  bull:4832.35,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"SURVEILLER", bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"LES", name:"Lesieur Cristal", sector:"Agroalimentaire",         price:317.05,   chg:-0.61,  vol:55000,  cap:3700,  pe:16.5,pb:2.6,div:4.8,h90:384.99,  l90:264.33,  rsi:40.6,ma20:329.94,   ma50:348.74,   bvc:6.60,v53:6.90,delta:0.30,nlp:0.08,alpha:5.0,  win:75, flags:0,upside:6,  bear:134.07,  base:167.58,   bull:208.34,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"SURVEILLER", bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"TQA", name:"Taqa Morocco", sector:"Énergie",      price:1789,  chg:2.23,  vol:22000,  cap:41280,  pe:18.5,pb:3.8,div:6.5,h90:1967.9, l90:1610.1,  rsi:55,ma20:1789,  ma50:1789,  bvc:7.05,v53:7.35,delta:0.30,nlp:0.10,alpha:7.0,  win:79, flags:0,upside:5,  bear:1463.73,  base:1870.32,  bull:2341.96,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHAT FORT ★★★",sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"MRL", name:"Maroc Leasing", sector:"Finance",     price:365,   chg:0,  vol:65000,  cap:7500,  pe:16.8,pb:3.5,div:4.5,h90:402.28,  l90:329.28,  rsi:54,ma20:365,   ma50:365,   bvc:6.88,v53:7.18,delta:0.30,nlp:0.10,alpha:7.0,  win:79, flags:0,upside:6,  bear:302.87,  base:388.3,   bull:489.25,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"TMA", name:"TotalEnergies Marketing Maroc", sector:"Énergie",      price:1505,  chg:-1.89,  vol:15000,  cap:13664,  pe:15.5,pb:3.0,div:5.0,h90:1655.5, l90:1354.5, rsi:53,ma20:1505,  ma50:1505,  bvc:6.65,v53:6.90,delta:0.25,nlp:0.08,alpha:5.0,  win:75, flags:0,upside:6,  bear:1247, base:1591,  bull:1986.6,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"SURVEILLER", bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"IAM", name:"Maroc Telecom", sector:"Télécom",      price:94.81,   chg:0.97,  vol:450000, cap:121000,pe:18.5,pb:6.2,div:5.5,h90:112.17,  l90:92.75,  rsi:40.6,ma20:96.37,  ma50:97.48,  bvc:7.08,v53:7.45,delta:0.37,nlp:0.10,alpha:8.0,  win:80, flags:1,upside:5,  bear:123.67,  base:149.43,   bull:180.35,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},    bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"ATW", name:"Attijariwafa Bank", sector:"Banque",      price:685,   chg:0.13,  vol:180000, cap:115000,pe:13.5,pb:1.8,div:3.5,h90:763.35,  l90:670.83,  rsi:42.6,ma20:693.14,  ma50:697.21,  bvc:7.25,v53:7.60,delta:0.35,nlp:0.12,alpha:10.0, win:82, flags:0,upside:8,  bear:421.85,  base:532.33,   bull:662.91,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},    bonus:["+Conv BVC+NLP +0.30","+Smart Money (82%) +0.40"],warn:false},
+  {symbol:"BCP", name:"Banque Populaire"                      ,  sector:"Banque",      price:248, chg:-0.26,  vol:120000, cap:42000, pe:11.5,pb:1.3,div:3.2,h90:289.25,  l90:234.25,  rsi:53.3,ma20:244.51,  ma50:248.04,  bvc:7.00,v53:7.35,delta:0.35,nlp:0.10,alpha:7.0,  win:79, flags:0,upside:7,  bear:208.79,  base:264.8,   bull:331.01,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},    bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"BOA", name:"Bank of Africa", sector:"Banque",      price:186.5, chg:-0.8,  vol:95000,  cap:15000, pe:12.0,pb:1.3,div:3.5,h90:206.2,  l90:176.56,  rsi:45.5,ma20:188.83,  ma50:191.28,  bvc:6.58,v53:6.85,delta:0.27,nlp:0.05,alpha:5.0,  win:74, flags:0,upside:7,  bear:157.97,  base:199.79,   bull:250.89,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25}, bonus:[],warn:false},
+  {symbol:"CIH", name:"CIH Bank"                          ,sector:"Banque",      price:341.2,   chg:-0.12,  vol:75000,  cap:8000,  pe:12.5,pb:1.5,div:4.2,h90:398.23,  l90:331.45,  rsi:43.9,ma20:348.69,  ma50:353.56,  bvc:6.75,v53:7.05,delta:0.30,nlp:0.08,alpha:6.0,  win:76, flags:0,upside:6,  bear:268.09,  base:341.2,   bull:428.94,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25}, bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"CDM", name:"Crédit du Maroc", sector:"Banque",      price:975,   chg:-2.21,  vol:45000,  cap:5000,  pe:11.0,pb:1.2,div:4.5,h90:1072.5,  l90:877.5,  rsi:53,ma20:975,  ma50:975,  bvc:6.75,v53:7.05,delta:0.30,nlp:0.08,alpha:5.0,  win:76, flags:0,upside:6,  bear:817.74,  base:1037.9,   bull:1297.38,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25}, bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"WAF", name:"Wafa Assurance", sector:"Assurance",   price:5350,  chg:0,  vol:12000,  cap:6500,  pe:14.5,pb:2.2,div:4.8,h90:5885, l90:4815, rsi:54,ma20:5350,  ma50:5350,  bvc:6.92,v53:7.15,delta:0.23,nlp:0.08,alpha:6.0,  win:77, flags:0,upside:5,  bear:4458.34, base:5604.77,  bull:7005.95,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25}, bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"LHM", name:"Holcim Maroc SA"    ,         sector:"Matériaux",    price:1742,  chg:-1.41,  vol:18000,  cap:16000, pe:14.5,pb:2.5,div:4.2,h90:1916.2, l90:1567.8, rsi:55,ma20:1742,  ma50:1742,  bvc:7.10,v53:7.40,delta:0.30,nlp:0.10,alpha:7.0,  win:80, flags:0,upside:8,  bear:1471.02, base:1838.78,  bull:2303.31,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},    bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"GAZ", name:"Afriquia Gaz", sector:"Énergie",      price:3641,  chg:-0.03,  vol:8500,   cap:7000,  pe:16.5,pb:3.1,div:4.8,h90:4005.1, l90:3276.9, rsi:56,ma20:3641,  ma50:3641,  bvc:7.20,v53:7.50,delta:0.30,nlp:0.12,alpha:8.0,  win:81, flags:0,upside:6,  bear:3058.44, base:3849.06,  bull:4811.33,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},    bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"ATL", name:"AtlantaSanad", sector:"Assurance", price:124.1,    chg:0.49,  vol:220000, cap:3500,  pe:13.8,pb:2.0,div:4.5,h90:138.94,   l90:116.72,   rsi:51.4,ma20:123.15,    ma50:124.98,    bvc:6.90,v53:7.20,delta:0.30,nlp:0.10,alpha:6.0,  win:79, flags:0,upside:7,  bear:61.44,   base:77.5,    bull:97.35,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},    bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"HPS", name:"HPS"                    ,      sector:"Technologie",         price:604,  chg:1.51,  vol:9500,   cap:3800,  pe:24.5,pb:4.0,div:2.2,h90:694.6, l90:513.4, rsi:50,ma20:604,  ma50:604,  bvc:7.15,v53:7.45,delta:0.30,nlp:0.12,alpha:9.0,  win:80, flags:0,upside:2,  bear:3102.05, base:4002.65,  bull:5003.32,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},    bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"LBV", name:"Label Vie", sector:"Distribution", price:3720,  chg:0,  vol:6500,   cap:4500,  pe:18.0,pb:2.1,div:2.8,h90:4092, l90:3348, rsi:53,ma20:3720,  ma50:3720,  bvc:6.70,v53:6.95,delta:0.25,nlp:0.08,alpha:5.0,  win:76, flags:0,upside:4,  bear:3063.53, base:3865.88,  bull:4832.35,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25}, bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"LES", name:"Lesieur Cristal", sector:"Agroalimentaire",         price:317.05,   chg:-0.61,  vol:55000,  cap:3700,  pe:16.5,pb:2.6,div:4.8,h90:384.99,  l90:264.33,  rsi:40.6,ma20:329.94,   ma50:348.74,   bvc:6.60,v53:6.90,delta:0.30,nlp:0.08,alpha:5.0,  win:75, flags:0,upside:6,  bear:134.07,  base:167.58,   bull:208.34,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25}, bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"TQA", name:"Taqa Morocco", sector:"Énergie",      price:1789,  chg:2.23,  vol:22000,  cap:41280,  pe:18.5,pb:3.8,div:6.5,h90:1967.9, l90:1610.1,  rsi:55,ma20:1789,  ma50:1789,  bvc:7.05,v53:7.35,delta:0.30,nlp:0.10,alpha:7.0,  win:79, flags:0,upside:5,  bear:1463.73,  base:1870.32,  bull:2341.96,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},    bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"MRL", name:"Maroc Leasing", sector:"Finance",     price:365,   chg:0,  vol:65000,  cap:7500,  pe:16.8,pb:3.5,div:4.5,h90:402.28,  l90:329.28,  rsi:54,ma20:365,   ma50:365,   bvc:6.88,v53:7.18,delta:0.30,nlp:0.10,alpha:7.0,  win:79, flags:0,upside:6,  bear:302.87,  base:388.3,   bull:489.25,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},    bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"TMA", name:"TotalEnergies Marketing Maroc", sector:"Énergie",      price:1505,  chg:-1.89,  vol:15000,  cap:13664,  pe:15.5,pb:3.0,div:5.0,h90:1655.5, l90:1354.5, rsi:53,ma20:1505,  ma50:1505,  bvc:6.65,v53:6.90,delta:0.25,nlp:0.08,alpha:5.0,  win:75, flags:0,upside:6,  bear:1247, base:1591,  bull:1986.6,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25}, bonus:["+Conv BVC+NLP +0.30"],warn:false},
   // ── Moyennes capitalisations ─────────────────────────────────────────────────
-  {symbol:"ARD", name:"Aradei Capital", sector:"Immobilier",         price:434,   chg:0.23,  vol:32000,  cap:3200,  pe:20.0,pb:1.5,div:5.5,h90:460.37,  l90:401.32,  rsi:49.1,ma20:441,   ma50:430.22,   bvc:6.45,v53:6.75,delta:0.30,nlp:0.08,alpha:5.0,  win:75, flags:0,upside:6,  bear:365.29,  base:465.37,   bull:580.47,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"SAF", name:"Sanlam Maroc"   ,             sector:"Assurance",   price:2900,  chg:1.75,  vol:14000,  cap:12309,  pe:13.5,pb:1.8,div:4.0,h90:3190, l90:2610, rsi:52,ma20:2900,  ma50:2900,  bvc:6.55,v53:6.80,delta:0.25,nlp:0.07,alpha:5.0,  win:74, flags:0,upside:6,  bear:2416.67, base:3069.17,  bull:3842.5,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"SURVEILLER", bonus:[],warn:false},
-  {symbol:"OUL", name:"Oulmès", sector:"Agroalimentaire",         price:1170,  chg:1.47,  vol:18000,  cap:2500,  pe:15.0,pb:2.2,div:3.0,h90:1287, l90:1053, rsi:52,ma20:1170,  ma50:1170,  bvc:6.30,v53:6.55,delta:0.25,nlp:0.07,alpha:4.0,  win:73, flags:0,upside:6,  bear:975, base:1237.83,  bull:1547.28,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"SURVEILLER", bonus:[],warn:false},
-  {symbol:"CIM", name:"Ciments du Maroc", sector:"Matériaux",    price:1674,  chg:0.84,  vol:12000,  cap:4000,  pe:13.5,pb:2.0,div:3.8,h90:1841.4, l90:1506.6, rsi:54,ma20:1674,  ma50:1674,  bvc:6.80,v53:7.10,delta:0.30,nlp:0.09,alpha:6.0,  win:78, flags:0,upside:6,  bear:1385.38, base:1777.91,  bull:2222.38,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"ACHETER ★★",     sigBvc:"ACHETER",    bonus:["+Conv BVC+NLP +0.30"],warn:false},
-  {symbol:"CTM", name:"CTM", sector:"Transport",    price:855,  chg:-2.68,  vol:8500,   cap:1900,  pe:16.0,pb:2.5,div:3.5,h90:940.5, l90:769.5, rsi:52,ma20:855,  ma50:855,  bvc:6.20,v53:6.45,delta:0.25,nlp:0.07,alpha:4.0,  win:73, flags:0,upside:6,  bear:715.09, base:906.82,  bull:1134.82,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"SURVEILLER", bonus:[],warn:false},
-  {symbol:"ZLD", name:"Zellidja", sector:"Industrie",        price:323,   chg:9.88,  vol:25000,  cap:115,  pe:12.0,pb:0.9,div:3.5,h90:355.3,  l90:290.7,  rsi:50,ma20:323,   ma50:323,   bvc:5.40,v53:5.65,delta:0.25,nlp:0.05,alpha:3.0,  win:70, flags:1,upside:6,  bear:269.17,  base:342.23,   bull:430.67,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"ALU", name:"Aluminium du Maroc", sector:"Matériaux",    price:1780,  chg:0.57,  vol:11000,  cap:650,   pe:13.0,pb:1.8,div:4.5,h90:1958, l90:1602,  rsi:51,ma20:1780,  ma50:1780,  bvc:6.10,v53:6.35,delta:0.25,nlp:0.06,alpha:4.0,  win:72, flags:0,upside:6,  bear:1491.81,  base:1881.72,  bull:2356.38,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"MGL", name:"Maghrebail"   ,               sector:"Finance",    price:910,   chg:0,  vol:35000,  cap:1500,  pe:11.0,pb:1.2,div:3.0,h90:1001,  l90:819,  rsi:50,ma20:910,   ma50:910,   bvc:5.70,v53:5.95,delta:0.25,nlp:0.04,alpha:3.0,  win:70, flags:1,upside:6,  bear:762.13,  base:966.88,   bull:1208.59,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"DAR", name:"Dari Couspate", sector:"Agroalimentaire",         price:4060,   chg:0,  vol:78000,  cap:2800,  pe:9.0, pb:0.8,div:2.0,h90:4485.33,  l90:3673.33,   rsi:49,ma20:4060,   ma50:4060,   bvc:5.20,v53:5.45,delta:0.25,nlp:0.04,alpha:3.0,  win:69, flags:2,upside:7,  bear:3402.67,   base:4330.66,   bull:5413.34,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"IMI", name:"Immorente Invest", sector:"Immobilier",         price:91,   chg:0.26,  vol:42000,  cap:1800,  pe:19.0,pb:1.4,div:5.5,h90:100.1,  l90:81.9,  rsi:52,ma20:91,   ma50:91,   bvc:6.35,v53:6.60,delta:0.25,nlp:0.07,alpha:4.0,  win:73, flags:0,upside:6,  bear:75.64,  base:96.68,   bull:121.14,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"ACHETER",    bonus:[],warn:false},
-  {symbol:"DTT", name:"Disty Technologies", sector:"Technologie",         price:340,   chg:0.59,  vol:28000,  cap:2200,  pe:20.0,pb:3.0,div:2.5,h90:374,  l90:306,  rsi:53,ma20:340,   ma50:340,   bvc:6.15,v53:6.40,delta:0.25,nlp:0.07,alpha:4.0,  win:72, flags:0,upside:6,  bear:283.33,  base:358.89,   bull:449.55,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"SURVEILLER", bonus:[],warn:false},
+  {symbol:"ARD", name:"Aradei Capital", sector:"Immobilier",         price:434,   chg:0.23,  vol:32000,  cap:3200,  pe:20.0,pb:1.5,div:5.5,h90:460.37,  l90:401.32,  rsi:49.1,ma20:441,   ma50:430.22,   bvc:6.45,v53:6.75,delta:0.30,nlp:0.08,alpha:5.0,  win:75, flags:0,upside:6,  bear:365.29,  base:465.37,   bull:580.47,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},    bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"SAF", name:"Sanlam Maroc"   ,             sector:"Assurance",   price:2900,  chg:1.75,  vol:14000,  cap:12309,  pe:13.5,pb:1.8,div:4.0,h90:3190, l90:2610, rsi:52,ma20:2900,  ma50:2900,  bvc:6.55,v53:6.80,delta:0.25,nlp:0.07,alpha:5.0,  win:74, flags:0,upside:6,  bear:2416.67, base:3069.17,  bull:3842.5,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25}, bonus:[],warn:false},
+  {symbol:"OUL", name:"Oulmès", sector:"Agroalimentaire",         price:1170,  chg:1.47,  vol:18000,  cap:2500,  pe:15.0,pb:2.2,div:3.0,h90:1287, l90:1053, rsi:52,ma20:1170,  ma50:1170,  bvc:6.30,v53:6.55,delta:0.25,nlp:0.07,alpha:4.0,  win:73, flags:0,upside:6,  bear:975, base:1237.83,  bull:1547.28,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25}, bonus:[],warn:false},
+  {symbol:"CIM", name:"Ciments du Maroc", sector:"Matériaux",    price:1674,  chg:0.84,  vol:12000,  cap:4000,  pe:13.5,pb:2.0,div:3.8,h90:1841.4, l90:1506.6, rsi:54,ma20:1674,  ma50:1674,  bvc:6.80,v53:7.10,delta:0.30,nlp:0.09,alpha:6.0,  win:78, flags:0,upside:6,  bear:1385.38, base:1777.91,  bull:2222.38,  setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},    bonus:["+Conv BVC+NLP +0.30"],warn:false},
+  {symbol:"CTM", name:"CTM", sector:"Transport",    price:855,  chg:-2.68,  vol:8500,   cap:1900,  pe:16.0,pb:2.5,div:3.5,h90:940.5, l90:769.5, rsi:52,ma20:855,  ma50:855,  bvc:6.20,v53:6.45,delta:0.25,nlp:0.07,alpha:4.0,  win:73, flags:0,upside:6,  bear:715.09, base:906.82,  bull:1134.82,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25}, bonus:[],warn:false},
+  {symbol:"ZLD", name:"Zellidja", sector:"Industrie",        price:323,   chg:9.88,  vol:25000,  cap:115,  pe:12.0,pb:0.9,div:3.5,h90:355.3,  l90:290.7,  rsi:50,ma20:323,   ma50:323,   bvc:5.40,v53:5.65,delta:0.25,nlp:0.05,alpha:3.0,  win:70, flags:1,upside:6,  bear:269.17,  base:342.23,   bull:430.67,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"ALU", name:"Aluminium du Maroc", sector:"Matériaux",    price:1780,  chg:0.57,  vol:11000,  cap:650,   pe:13.0,pb:1.8,div:4.5,h90:1958, l90:1602,  rsi:51,ma20:1780,  ma50:1780,  bvc:6.10,v53:6.35,delta:0.25,nlp:0.06,alpha:4.0,  win:72, flags:0,upside:6,  bear:1491.81,  base:1881.72,  bull:2356.38,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"MGL", name:"Maghrebail"   ,               sector:"Finance",    price:910,   chg:0,  vol:35000,  cap:1500,  pe:11.0,pb:1.2,div:3.0,h90:1001,  l90:819,  rsi:50,ma20:910,   ma50:910,   bvc:5.70,v53:5.95,delta:0.25,nlp:0.04,alpha:3.0,  win:70, flags:1,upside:6,  bear:762.13,  base:966.88,   bull:1208.59,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"DAR", name:"Dari Couspate", sector:"Agroalimentaire",         price:4060,   chg:0,  vol:78000,  cap:2800,  pe:9.0, pb:0.8,div:2.0,h90:4485.33,  l90:3673.33,   rsi:49,ma20:4060,   ma50:4060,   bvc:5.20,v53:5.45,delta:0.25,nlp:0.04,alpha:3.0,  win:69, flags:2,upside:7,  bear:3402.67,   base:4330.66,   bull:5413.34,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"IMI", name:"Immorente Invest", sector:"Immobilier",         price:91,   chg:0.26,  vol:42000,  cap:1800,  pe:19.0,pb:1.4,div:5.5,h90:100.1,  l90:81.9,  rsi:52,ma20:91,   ma50:91,   bvc:6.35,v53:6.60,delta:0.25,nlp:0.07,alpha:4.0,  win:73, flags:0,upside:6,  bear:75.64,  base:96.68,   bull:121.14,   setup:"NEUTRE",            biais:"ACHAT",      poids:{f:47,n:28,t:25},    bonus:[],warn:false},
+  {symbol:"DTT", name:"Disty Technologies", sector:"Technologie",         price:340,   chg:0.59,  vol:28000,  cap:2200,  pe:20.0,pb:3.0,div:2.5,h90:374,  l90:306,  rsi:53,ma20:340,   ma50:340,   bvc:6.15,v53:6.40,delta:0.25,nlp:0.07,alpha:4.0,  win:72, flags:0,upside:6,  bear:283.33,  base:358.89,   bull:449.55,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25}, bonus:[],warn:false},
   // ── Petites capitalisations ──────────────────────────────────────────────────
-  {symbol:"DSW", name:"Disway", sector:"Technologie",         price:770,   chg:-0.65,  vol:22000,  cap:800,   pe:14.0,pb:2.0,div:3.5,h90:847,  l90:693,  rsi:51,ma20:770,   ma50:770,   bvc:5.90,v53:6.10,delta:0.20,nlp:0.05,alpha:3.0,  win:70, flags:0,upside:5,  bear:641.66,  base:815.83,   bull:1017.5,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"MOX", name:"Maghreb Oxygène", sector:"Matériaux",    price:401,   chg:8.22,  vol:18000,  cap:750,   pe:12.5,pb:1.6,div:4.0,h90:441.1,  l90:360.9,  rsi:51,ma20:401,   ma50:401,   bvc:5.85,v53:6.05,delta:0.20,nlp:0.04,alpha:3.0,  win:70, flags:0,upside:5,  bear:334.17,  base:423.27,   bull:529.09,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"STR", name:"Stroc Industrie", sector:"Industrie",    price:190,   chg:0.08,  vol:15000,  cap:600,   pe:11.0,pb:1.4,div:3.5,h90:246.83,  l90:153.19,  rsi:39.1,ma20:211.51,   ma50:194.76,   bvc:5.60,v53:5.80,delta:0.20,nlp:0.04,alpha:2.0,  win:68, flags:0,upside:5,  bear:217.4,  base:278.07,   bull:347.84,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"SNP", name:"SNEP", sector:"Matériaux",    price:316,  chg:0.64,  vol:9000,   cap:780,  pe:10.5,pb:1.2,div:3.5,h90:420.48, l90:314.3,  rsi:37.4,ma20:322.49,  ma50:331.76,  bvc:5.20,v53:5.40,delta:0.20,nlp:0.03,alpha:2.0,  win:66, flags:1,upside:5,  bear:756.02,  base:959.89,  bull:1201.99,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"SLM", name:"Salafin", sector:"Finance",      price:440,   chg:0,  vol:16000,  cap:1200,  pe:12.0,pb:1.8,div:5.0,h90:484.41,  l90:396.41,  rsi:52,ma20:440,   ma50:440,   bvc:6.10,v53:6.30,delta:0.20,nlp:0.06,alpha:3.0,  win:71, flags:0,upside:5,  bear:365.98,  base:464.67,   bull:580.64,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"JET", name:"Jet Contractors", sector:"Construction", price:2084,   chg:0.92,  vol:20000,  cap:6211,   pe:13.5,pb:1.5,div:3.0,h90:2292.4,  l90:1875.6,  rsi:51,ma20:2084,   ma50:2084,   bvc:5.65,v53:5.85,delta:0.20,nlp:0.04,alpha:2.0,  win:68, flags:0,upside:6,  bear:1731.33,  base:2217.59,   bull:2773.33,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"M2M", name:"M2M Group", sector:"Technologie",         price:392.75,   chg:-0.32,  vol:25000,  cap:1500,  pe:18.0,pb:2.5,div:2.0,h90:463.44,  l90:387.11,  rsi:39.7,ma20:407.53,   ma50:420.06,   bvc:6.10,v53:6.30,delta:0.20,nlp:0.06,alpha:4.0,  win:71, flags:0,upside:6,  bear:248.41,  base:317.15,   bull:396.68,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"SURVEILLER ★",   sigBvc:"SURVEILLER", bonus:[],warn:false},
-  {symbol:"INV", name:"Involys", sector:"Technologie",         price:129.9,   chg:2.28,  vol:8000,   cap:300,   pe:14.0,pb:1.8,div:3.0,h90:172.81,  l90:120.39,  rsi:44.3,ma20:133.71,   ma50:133.61,   bvc:5.40,v53:5.55,delta:0.15,nlp:0.03,alpha:2.0,  win:66, flags:0,upside:5,  bear:91.48,  base:117.1,   bull:146.37,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"S2M", name:"S2M", sector:"Technologie",         price:459,   chg:-0.22,  vol:9500,   cap:450,   pe:15.0,pb:2.0,div:2.5,h90:504.9,  l90:413.1,  rsi:50,ma20:459,   ma50:459,   bvc:5.65,v53:5.80,delta:0.15,nlp:0.04,alpha:2.0,  win:67, flags:0,upside:5,  bear:382.5,  base:487.05,   bull:609.45,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"COL", name:"Colorado", sector:"Matériaux",    price:77.5,    chg:-2.38,  vol:28000,  cap:1000,  pe:14.5,pb:2.0,div:4.0,h90:90.99,   l90:74.59,   rsi:44.7,ma20:78.31,    ma50:78.84,    bvc:5.90,v53:6.10,delta:0.20,nlp:0.05,alpha:3.0,  win:70, flags:0,upside:6,  bear:71.69,   base:90.09,    bull:112.38,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"AFM", name:"AFMA", sector:"Assurance",   price:1260,   chg:-1.41,  vol:7500,   cap:600,   pe:13.0,pb:1.7,div:4.5,h90:1386,  l90:1134,  rsi:51,ma20:1260,   ma50:1260,   bvc:6.10,v53:6.30,delta:0.20,nlp:0.05,alpha:3.0,  win:70, flags:0,upside:5,  bear:1051.45,  base:1336.04,   bull:1670.59,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"AGM", name:"Agma"            ,            sector:"Assurance",   price:6700,  chg:0,  vol:3500,   cap:500,   pe:12.5,pb:1.5,div:4.0,h90:7370, l90:6030, rsi:51,ma20:6700,  ma50:6700,  bvc:6.05,v53:6.25,delta:0.20,nlp:0.05,alpha:3.0,  win:70, flags:0,upside:5,  bear:5583.33, base:7109.44,  bull:8886.8,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"FNB", name:"Fénie Brossette", sector:"Distribution",      price:295,   chg:-1.34,  vol:6000,   cap:800,   pe:11.0,pb:1.3,div:3.5,h90:324.5,  l90:265.5,  rsi:50,ma20:295,   ma50:295,   bvc:5.60,v53:5.75,delta:0.15,nlp:0.03,alpha:2.0,  win:67, flags:0,upside:5,  bear:245.72,  base:313.44,   bull:391.88,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"BAL", name:"Balima", sector:"Immobilier",   price:191.3,   chg:0.05,  vol:4500,   cap:600,   pe:12.0,pb:1.5,div:4.5,h90:209.92,  l90:169.29,  rsi:51,ma20:193,   ma50:190.45,   bvc:5.85,v53:6.05,delta:0.20,nlp:0.04,alpha:2.0,  win:69, flags:0,upside:5,  bear:160.83,  base:203.15,   bull:253.94,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"NEJ", name:"Auto Nejma", sector:"Distribution", price:5400,  chg:0,  vol:4000,   cap:4947,   pe:null,pb:null,div:null,h90:5940,l90:4860, rsi:50,ma20:5400,  ma50:5400,  bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:4536, base:5680.8,  bull:6760.8,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"HAL", name:"Auto Hall", sector:"Distribution",         price:66.9,  chg:-0.13,  vol:3500,   cap:350,   pe:null,pb:null,div:null,h90:73.59,l90:60.21, rsi:50,ma20:66.9,  ma50:66.9,  bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:55.75, base:70.25,  bull:83.63,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"BMC", name:"BMCI"               ,         sector:"Banque",         price:604,  chg:0.03,  vol:5000,   cap:1200,  pe:null,pb:null,div:null,h90:664.4,l90:543.6, rsi:51,ma20:604,  ma50:604,  bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:502.07, base:634.2,  bull:755,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"CAR", name:"Cartier Saada", sector:"Agroalimentaire",         price:23.5,   chg:-0.76,  vol:8000,   cap:500,   pe:null,pb:null,div:null,h90:25.85, l90:21.15,  rsi:50,ma20:23.5,   ma50:23.5,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:19.46,  base:24.67,   bull:29.37,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"AFI", name:"Afric Industries SA", sector:"Industrie",         price:331.9,   chg:0.03,  vol:6000,   cap:300,   pe:null,pb:null,div:null,h90:336.62, l90:308.57,  rsi:56.4,ma20:327.72,   ma50:324.97,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:108.47,  base:137.45,   bull:163.63,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"MIC", name:"Microdata", sector:"Technologie",         price:730,   chg:-2.18,  vol:7500,   cap:350,   pe:null,pb:null,div:null,h90:770.97, l90:629.44,  rsi:55.3,ma20:712,   ma50:712.03,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:216.02,  base:273.75,   bull:325.9,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"MUT", name:"Mutandis SCA", sector:"Agroalimentaire",         price:233.75,   chg:-0.11,  vol:9000,   cap:600,   pe:null,pb:null,div:null,h90:269.22, l90:228.67,  rsi:40.8,ma20:240.24,   ma50:240.93,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:574.21,  base:726.66,   bull:863.86,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"ENK", name:"Ennakl", sector:"Automobile",     price:49.44,   chg:0.39,  vol:5000,   cap:300,   pe:null,pb:null,div:null,h90:54.38, l90:44.5,  rsi:50,ma20:49.44,   ma50:49.44,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:41.07,  base:51.96,   bull:61.85,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"EQD", name:"Crédit Eqdom", sector:"Finance",      price:1570,   chg:0,  vol:4500,   cap:400,   pe:null,pb:null,div:null,h90:1727, l90:1413,  rsi:50,ma20:1570,   ma50:1570,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:1299.31,  base:1648.5,   bull:1962.5,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"DHO", name:"Delta Holding", sector:"Holding",      price:54.1,   chg:-0.46,  vol:4000,   cap:280,   pe:null,pb:null,div:null,h90:67.16, l90:49.44,  rsi:45.4,ma20:55.59,   ma50:55.54,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:193.08,  base:245.32,   bull:291.95,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"PPM", name:"Promopharm SA"   ,            sector:"Santé",    price:1339,   chg:0,  vol:6000,   cap:350,   pe:null,pb:null,div:null,h90:1472.9, l90:1205.1,  rsi:50,ma20:1339,   ma50:1339,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:1111.01,  base:1407.76,   bull:1675.56,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"REB", name:"Rebab"        ,               sector:"Industrie",         price:102.2,   chg:5.96,  vol:5000,   cap:280,   pe:null,pb:null,div:null,h90:112.42, l90:91.98,  rsi:50,ma20:102.2,   ma50:102.2,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:84.6,  base:107.31,   bull:127.75,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"SBS", name:"Société des Boissons du Maroc", sector:"Agroalimentaire",         price:2103,  chg:0,  vol:4500,   cap:350,   pe:null,pb:null,div:null,h90:2313.3,l90:1892.7,  rsi:50,ma20:2103,  ma50:2103,  bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:1745.49,  base:2208.15,  bull:2628.75,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"STK", name:"Stokvis Nord Afrique", sector:"Distribution",    price:66.71,   chg:-0.15,  vol:5500,   cap:1313,   pe:null,pb:null,div:null,h90:73.38, l90:60.04,  rsi:50,ma20:66.71,   ma50:66.71,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:55.41,  base:70.12,   bull:83.46,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"UNI", name:"Unimer", sector:"Agroalimentaire",         price:175.5,   chg:5.09,  vol:7000,   cap:350,   pe:null,pb:null,div:null,h90:193.05, l90:157.95,  rsi:50,ma20:175.5,   ma50:175.5,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:145.74,  base:184.65,   bull:219.75,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
-  {symbol:"IBM", name:"IB Maroc.com", sector:"Technologie",         price:60.6,   chg:0.17,  vol:6000,   cap:280,   pe:null,pb:null,div:null,h90:66.83, l90:54.71,  rsi:50,ma20:60.6,   ma50:60.6,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:50.21,  base:63.72,   bull:75.84,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},sig:"ATTENDRE",       sigBvc:"ATTENDRE",   bonus:[],warn:false},
+  {symbol:"DSW", name:"Disway", sector:"Technologie",         price:770,   chg:-0.65,  vol:22000,  cap:800,   pe:14.0,pb:2.0,div:3.5,h90:847,  l90:693,  rsi:51,ma20:770,   ma50:770,   bvc:5.90,v53:6.10,delta:0.20,nlp:0.05,alpha:3.0,  win:70, flags:0,upside:5,  bear:641.66,  base:815.83,   bull:1017.5,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"MOX", name:"Maghreb Oxygène", sector:"Matériaux",    price:401,   chg:8.22,  vol:18000,  cap:750,   pe:12.5,pb:1.6,div:4.0,h90:441.1,  l90:360.9,  rsi:51,ma20:401,   ma50:401,   bvc:5.85,v53:6.05,delta:0.20,nlp:0.04,alpha:3.0,  win:70, flags:0,upside:5,  bear:334.17,  base:423.27,   bull:529.09,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"STR", name:"Stroc Industrie", sector:"Industrie",    price:190,   chg:0.08,  vol:15000,  cap:600,   pe:11.0,pb:1.4,div:3.5,h90:246.83,  l90:153.19,  rsi:39.1,ma20:211.51,   ma50:194.76,   bvc:5.60,v53:5.80,delta:0.20,nlp:0.04,alpha:2.0,  win:68, flags:0,upside:5,  bear:217.4,  base:278.07,   bull:347.84,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"SNP", name:"SNEP", sector:"Matériaux",    price:316,  chg:0.64,  vol:9000,   cap:780,  pe:10.5,pb:1.2,div:3.5,h90:420.48, l90:314.3,  rsi:37.4,ma20:322.49,  ma50:331.76,  bvc:5.20,v53:5.40,delta:0.20,nlp:0.03,alpha:2.0,  win:66, flags:1,upside:5,  bear:756.02,  base:959.89,  bull:1201.99,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"SLM", name:"Salafin", sector:"Finance",      price:440,   chg:0,  vol:16000,  cap:1200,  pe:12.0,pb:1.8,div:5.0,h90:484.41,  l90:396.41,  rsi:52,ma20:440,   ma50:440,   bvc:6.10,v53:6.30,delta:0.20,nlp:0.06,alpha:3.0,  win:71, flags:0,upside:5,  bear:365.98,  base:464.67,   bull:580.64,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"JET", name:"Jet Contractors", sector:"Construction", price:2084,   chg:0.92,  vol:20000,  cap:6211,   pe:13.5,pb:1.5,div:3.0,h90:2292.4,  l90:1875.6,  rsi:51,ma20:2084,   ma50:2084,   bvc:5.65,v53:5.85,delta:0.20,nlp:0.04,alpha:2.0,  win:68, flags:0,upside:6,  bear:1731.33,  base:2217.59,   bull:2773.33,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"M2M", name:"M2M Group", sector:"Technologie",         price:392.75,   chg:-0.32,  vol:25000,  cap:1500,  pe:18.0,pb:2.5,div:2.0,h90:463.44,  l90:387.11,  rsi:39.7,ma20:407.53,   ma50:420.06,   bvc:6.10,v53:6.30,delta:0.20,nlp:0.06,alpha:4.0,  win:71, flags:0,upside:6,  bear:248.41,  base:317.15,   bull:396.68,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25}, bonus:[],warn:false},
+  {symbol:"INV", name:"Involys", sector:"Technologie",         price:129.9,   chg:2.28,  vol:8000,   cap:300,   pe:14.0,pb:1.8,div:3.0,h90:172.81,  l90:120.39,  rsi:44.3,ma20:133.71,   ma50:133.61,   bvc:5.40,v53:5.55,delta:0.15,nlp:0.03,alpha:2.0,  win:66, flags:0,upside:5,  bear:91.48,  base:117.1,   bull:146.37,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"S2M", name:"S2M", sector:"Technologie",         price:459,   chg:-0.22,  vol:9500,   cap:450,   pe:15.0,pb:2.0,div:2.5,h90:504.9,  l90:413.1,  rsi:50,ma20:459,   ma50:459,   bvc:5.65,v53:5.80,delta:0.15,nlp:0.04,alpha:2.0,  win:67, flags:0,upside:5,  bear:382.5,  base:487.05,   bull:609.45,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"COL", name:"Colorado", sector:"Matériaux",    price:77.5,    chg:-2.38,  vol:28000,  cap:1000,  pe:14.5,pb:2.0,div:4.0,h90:90.99,   l90:74.59,   rsi:44.7,ma20:78.31,    ma50:78.84,    bvc:5.90,v53:6.10,delta:0.20,nlp:0.05,alpha:3.0,  win:70, flags:0,upside:6,  bear:71.69,   base:90.09,    bull:112.38,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"AFM", name:"AFMA", sector:"Assurance",   price:1260,   chg:-1.41,  vol:7500,   cap:600,   pe:13.0,pb:1.7,div:4.5,h90:1386,  l90:1134,  rsi:51,ma20:1260,   ma50:1260,   bvc:6.10,v53:6.30,delta:0.20,nlp:0.05,alpha:3.0,  win:70, flags:0,upside:5,  bear:1051.45,  base:1336.04,   bull:1670.59,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"AGM", name:"Agma"            ,            sector:"Assurance",   price:6700,  chg:0,  vol:3500,   cap:500,   pe:12.5,pb:1.5,div:4.0,h90:7370, l90:6030, rsi:51,ma20:6700,  ma50:6700,  bvc:6.05,v53:6.25,delta:0.20,nlp:0.05,alpha:3.0,  win:70, flags:0,upside:5,  bear:5583.33, base:7109.44,  bull:8886.8,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"FNB", name:"Fénie Brossette", sector:"Distribution",      price:295,   chg:-1.34,  vol:6000,   cap:800,   pe:11.0,pb:1.3,div:3.5,h90:324.5,  l90:265.5,  rsi:50,ma20:295,   ma50:295,   bvc:5.60,v53:5.75,delta:0.15,nlp:0.03,alpha:2.0,  win:67, flags:0,upside:5,  bear:245.72,  base:313.44,   bull:391.88,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"BAL", name:"Balima", sector:"Immobilier",   price:191.3,   chg:0.05,  vol:4500,   cap:600,   pe:12.0,pb:1.5,div:4.5,h90:209.92,  l90:169.29,  rsi:51,ma20:193,   ma50:190.45,   bvc:5.85,v53:6.05,delta:0.20,nlp:0.04,alpha:2.0,  win:69, flags:0,upside:5,  bear:160.83,  base:203.15,   bull:253.94,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"NEJ", name:"Auto Nejma", sector:"Distribution", price:5400,  chg:0,  vol:4000,   cap:4947,   pe:null,pb:null,div:null,h90:5940,l90:4860, rsi:50,ma20:5400,  ma50:5400,  bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:4536, base:5680.8,  bull:6760.8,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"HAL", name:"Auto Hall", sector:"Distribution",         price:66.9,  chg:-0.13,  vol:3500,   cap:350,   pe:null,pb:null,div:null,h90:73.59,l90:60.21, rsi:50,ma20:66.9,  ma50:66.9,  bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:55.75, base:70.25,  bull:83.63,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"BMC", name:"BMCI"               ,         sector:"Banque",         price:604,  chg:0.03,  vol:5000,   cap:1200,  pe:null,pb:null,div:null,h90:664.4,l90:543.6, rsi:51,ma20:604,  ma50:604,  bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:502.07, base:634.2,  bull:755,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"CAR", name:"Cartier Saada", sector:"Agroalimentaire",         price:23.5,   chg:-0.76,  vol:8000,   cap:500,   pe:null,pb:null,div:null,h90:25.85, l90:21.15,  rsi:50,ma20:23.5,   ma50:23.5,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:19.46,  base:24.67,   bull:29.37,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"AFI", name:"Afric Industries SA", sector:"Industrie",         price:331.9,   chg:0.03,  vol:6000,   cap:300,   pe:null,pb:null,div:null,h90:336.62, l90:308.57,  rsi:56.4,ma20:327.72,   ma50:324.97,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:108.47,  base:137.45,   bull:163.63,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"MIC", name:"Microdata", sector:"Technologie",         price:730,   chg:-2.18,  vol:7500,   cap:350,   pe:null,pb:null,div:null,h90:770.97, l90:629.44,  rsi:55.3,ma20:712,   ma50:712.03,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:216.02,  base:273.75,   bull:325.9,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"MUT", name:"Mutandis SCA", sector:"Agroalimentaire",         price:233.75,   chg:-0.11,  vol:9000,   cap:600,   pe:null,pb:null,div:null,h90:269.22, l90:228.67,  rsi:40.8,ma20:240.24,   ma50:240.93,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:574.21,  base:726.66,   bull:863.86,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"ENK", name:"Ennakl", sector:"Automobile",     price:49.44,   chg:0.39,  vol:5000,   cap:300,   pe:null,pb:null,div:null,h90:54.38, l90:44.5,  rsi:50,ma20:49.44,   ma50:49.44,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:41.07,  base:51.96,   bull:61.85,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"EQD", name:"Crédit Eqdom", sector:"Finance",      price:1570,   chg:0,  vol:4500,   cap:400,   pe:null,pb:null,div:null,h90:1727, l90:1413,  rsi:50,ma20:1570,   ma50:1570,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:1299.31,  base:1648.5,   bull:1962.5,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"DHO", name:"Delta Holding", sector:"Holding",      price:54.1,   chg:-0.46,  vol:4000,   cap:280,   pe:null,pb:null,div:null,h90:67.16, l90:49.44,  rsi:45.4,ma20:55.59,   ma50:55.54,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:193.08,  base:245.32,   bull:291.95,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"PPM", name:"Promopharm SA"   ,            sector:"Santé",    price:1339,   chg:0,  vol:6000,   cap:350,   pe:null,pb:null,div:null,h90:1472.9, l90:1205.1,  rsi:50,ma20:1339,   ma50:1339,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:1111.01,  base:1407.76,   bull:1675.56,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"REB", name:"Rebab"        ,               sector:"Industrie",         price:102.2,   chg:5.96,  vol:5000,   cap:280,   pe:null,pb:null,div:null,h90:112.42, l90:91.98,  rsi:50,ma20:102.2,   ma50:102.2,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:84.6,  base:107.31,   bull:127.75,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"SBS", name:"Société des Boissons du Maroc", sector:"Agroalimentaire",         price:2103,  chg:0,  vol:4500,   cap:350,   pe:null,pb:null,div:null,h90:2313.3,l90:1892.7,  rsi:50,ma20:2103,  ma50:2103,  bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:1745.49,  base:2208.15,  bull:2628.75,  setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"STK", name:"Stokvis Nord Afrique", sector:"Distribution",    price:66.71,   chg:-0.15,  vol:5500,   cap:1313,   pe:null,pb:null,div:null,h90:73.38, l90:60.04,  rsi:50,ma20:66.71,   ma50:66.71,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:55.41,  base:70.12,   bull:83.46,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"UNI", name:"Unimer", sector:"Agroalimentaire",         price:175.5,   chg:5.09,  vol:7000,   cap:350,   pe:null,pb:null,div:null,h90:193.05, l90:157.95,  rsi:50,ma20:175.5,   ma50:175.5,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:145.74,  base:184.65,   bull:219.75,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
+  {symbol:"IBM", name:"IB Maroc.com", sector:"Technologie",         price:60.6,   chg:0.17,  vol:6000,   cap:280,   pe:null,pb:null,div:null,h90:66.83, l90:54.71,  rsi:50,ma20:60.6,   ma50:60.6,   bvc:5.0, v53:5.0, delta:0,   nlp:0,   alpha:0,   win:65, flags:0,upside:5,  bear:50.21,  base:63.72,   bull:75.84,   setup:"NEUTRE",            biais:"NEUTRE",     poids:{f:47,n:28,t:25},   bonus:[],warn:false},
 ];
 
 const MEMBERS=[
@@ -608,7 +616,7 @@ async function fetchMASI(){
 // exploration ; un signal est une recommandation. Si l'on peut faire glisser
 // les poids jusqu'à ce que le classement dise ce qu'on pensait, la note cesse
 // d'être un jugement et devient le miroir d'une opinion. Le classement reste
-// consultable — c'est le mot ACHETER qui s'efface.
+// consultable — c'est la couleur de la note qui s'efface.
 //
 // ⚠️ Avant le 08/09/2026, ce réglage recalculait la NOTE mais laissait la
 // colonne SIGNAL telle que le moteur l'avait produite. Les deux colonnes,
@@ -629,14 +637,43 @@ const PONDERATIONS=[
   {nom:"30/70",f:30,n:0,t:70,aide:"Technique dominante — horizon court"},
 ];
 
-const SS=s=>{const u=(s||"").toUpperCase();
-  if(u.includes("ACHAT FORT")||u.includes("★★★")) return{bg:"rgba(0,229,160,.18)",fg:"#00ffb3",bd:"rgba(0,229,160,.5)"};
-  if(u.includes("★★")||u==="ACHETER")              return{bg:"rgba(0,229,160,.10)",fg:"#00e5a0",bd:"rgba(0,229,160,.35)"};
-  if(u.includes("SURVEILLER")||u.includes("★"))    return{bg:"rgba(255,215,64,.10)",fg:"#ffd740",bd:"rgba(255,215,64,.35)"};
-  if(u.includes("ÉVITER FORT")||u.includes("EVITER FORT")) return{bg:"rgba(255,79,90,.18)",fg:"#ff4f5a",bd:"rgba(255,79,90,.5)"};
-  if(u.includes("ÉVITER")||u.includes("EVITER"))   return{bg:"rgba(255,143,0,.10)",fg:"#ff8f00",bd:"rgba(255,143,0,.35)"};
-  return{bg:"rgba(136,146,164,.08)",fg:"#8892a4",bd:"rgba(136,146,164,.25)"};
-};
+// ── COULEUR DE LA NOTE — 07/10/2026 ─────────────────────────────────────────
+// Demande d'Abd Moutalib : « au lieu d'afficher une recommandation sur le
+// score, se contenter de couleurs ». Le produit ne prédit pas et ne
+// recommande pas (CLAUDE.md, Vision produit) : une couleur SITUE une note,
+// elle ne dit pas quoi faire. Aucun mot d'action n'est écrit à l'écran —
+// `tests/test_couleurs_sans_recommandation.py` le vérifie sur index.html.
+//
+// ⚠️ RIEN NE CHANGE DE FOND. Les seuils sont ceux de `compute_v53`
+// (update_data.py) : 6,5 · 5,5 · 4,5 · 3,5. Le moteur calcule et publie
+// toujours `sig` (traçabilité, R8) ; le terminal ne l'affiche plus et n'en a
+// plus besoin : la couleur se lit sur la note v53 PUBLIÉE, le plafond
+// d'illiquidité sur `verdict_plafonne`. Le même test vérifie, titre par titre
+// sur data.json, que les deux lectures donnent le même palier.
+const PALIERS=[
+  {min:6.5,      c:"#00e5a0",nom:"vert",      plage:"≥ 6,5"},
+  {min:5.5,      c:"#b5e655",nom:"vert-jaune",plage:"5,5 à 6,5"},
+  {min:4.5,      c:"#ffd740",nom:"jaune",     plage:"4,5 à 5,5"},
+  {min:3.5,      c:"#ff8f00",nom:"orange",    plage:"3,5 à 4,5"},
+  {min:-Infinity,c:"#ff4f5a",nom:"rouge",     plage:"sous 3,5"},
+];
+const palierDe=v=>v==null||!isFinite(v)?null:PALIERS.findIndex(p=>v>=p.min);
+// Couleur PUBLIÉE d'un titre : le palier de sa note v53, ramené au vert-jaune
+// quand le moteur a plafonné le verdict d'un titre peu échangé (04/10/2026).
+// La note chiffrée, elle, ne bouge pas.
+const couleurNote=r=>{const i=palierDe(r&&r.v53);if(i==null)return null;
+  const plafonne=!!r.verdict_plafonne&&i===0, k=plafonne?1:i;
+  return{...PALIERS[k],i:k,plafonne};};
+const teinte=c=>({bg:`${c}1a`,fg:c,bd:`${c}59`});
+const NEUTRE={bg:"rgba(136,146,164,.08)",fg:"#8892a4",bd:"rgba(136,146,164,.25)"};
+// Couleur du chiffre de la note. Grise quand la confiance est ≤ 1 (la note ne
+// doit pas se lire comme une conclusion), neutre en simulation (la couleur
+// n'existe que pour la pondération officielle).
+const couleurChiffre=(r,simu)=>simu?"#c8d3e8":meta(r).conf<=1?"#8892a4":((couleurNote(r)||{}).c||"#8892a4");
+// Libellé de l'export CSV : l'état, ou la couleur et sa plage.
+const palierTexte=r=>{const m=meta(r);if(m.susp)return"suspendu";if(m.reprise_recente)return"reprise de cotation";
+  if(m.conf<=1)return"données insuffisantes";const p=couleurNote(r);if(!p)return"";
+  return p.plafonne?`${p.nom} (plafonné : titre peu échangé)`:`${p.nom} (${p.plage})`;};
 const VC=v=>v>0?"#00e5a0":v<0?"#ff4f5a":"#8892a4";
 const SC=v=>v>=7.5?"#00ffb3":v>=6.5?"#00e5a0":v>=5.5?"#ffd740":v>=4?"#ff8f00":"#ff4f5a";
 const NC=v=>v>0.15?"#00e5a0":v>-0.15?"#ffd740":"#ff4f5a";
@@ -807,6 +844,18 @@ const Bar=({v,max=10,c,h=6})=>(
 const Chip=({label,bg,fg,bd,sz=11})=>(
   <span style={{display:"inline-block",whiteSpace:"nowrap",background:bg,color:fg,border:`1px solid ${bd}`,borderRadius:4,padding:"2px 8px",fontSize:sz,fontWeight:600,fontFamily:"var(--font)"}}>{label}</span>
 );
+/* La pastille qui remplace le mot d'action : un rond de la couleur du palier
+   et la plage de note qu'il couvre. Sur un titre plafonné, le texte neutre
+   « titre peu échangé » dit pourquoi la couleur est en dessous de la note. */
+const PastilleNote=({r,sz=11})=>{const p=couleurNote(r);
+  if(!p)return <span style={{fontSize:sz,color:"#4a5570"}}>—</span>;
+  const motif=r.technique_neutralise&&r.technique_neutralise.motif;
+  return <span title={p.plafonne
+      ?`Note ${fmt(r.v53)} : couleur plafonnée au vert-jaune — titre peu échangé${motif?` (${motif})`:""}. La note est inchangée.`
+      :`Note ${fmt(r.v53)} : palier ${p.nom}, ${p.plage}`}
+    style={{display:"inline-flex",alignItems:"center",gap:6,whiteSpace:"nowrap",fontSize:sz,color:p.c,fontWeight:600}}>
+    <span aria-hidden="true" style={{display:"inline-block",width:sz,height:sz,borderRadius:"50%",background:p.c,boxShadow:`0 0 6px ${p.c}60`,flex:"0 0 auto"}}/>
+    <span className={p.plafonne?"pastille-plafond":"pastille-texte"}>{p.plafonne?"titre peu échangé":p.plage}</span></span>;};
 const Delta=({d})=>{
   if(d==null||isNaN(d))return<span style={{fontSize:10,padding:"1px 5px",borderRadius:3,background:"#8892a415",color:"#8892a4",border:"1px solid #8892a428",fontWeight:700}}>—</span>;
   const c=d>0?"#00e5a0":d<0?"#ff4f5a":"#8892a4";
@@ -1233,7 +1282,7 @@ const SignauxTechniques=({r})=>{
           Marché {reg.tendance?"EN TENDANCE":"HORS TENDANCE"}</span>}
       </div>
       {neu?(
-        <div style={{fontSize:12,color:"#8892a4"}}>Technique non lisible sur ce titre ({neu.motif}) : avec si peu d'échanges, le graphique mesure surtout le bruit de la cotation. La note repose sur les fondamentaux.{r.verdict_plafonne&&<b style={{color:"#ffd740"}}> Verdict plafonné à SURVEILLER : la note fondamentale est bonne, mais le titre s'échange trop peu pour y entrer et en sortir sans difficulté.</b>}</div>
+        <div style={{fontSize:12,color:"#8892a4"}}>Technique non lisible sur ce titre ({neu.motif}) : avec si peu d'échanges, le graphique mesure surtout le bruit de la cotation. La note repose sur les fondamentaux.{r.verdict_plafonne&&<b style={{color:PALIERS[1].c}}> Couleur plafonnée au vert-jaune — titre peu échangé : la note fondamentale est bonne et reste affichée telle quelle, mais un titre qui s'échange si peu se négocie difficilement sans faire bouger son cours.</b>}</div>
       ):!v2?(
         <div style={{fontSize:12,color:"#8892a4"}}>Pas assez d'historique pour lire les signaux.</div>
       ):(<>
@@ -1605,9 +1654,9 @@ const TickerTape=({rows})=>{
 const RUBRIQUES=[
   {titre:"Accueil",vues:[
     {id:"accueil",icone:"⌂",aide:"La séance en un coup d'œil, en rangées"},
-    {id:"guide",icone:"?",aide:"Note, signal, confiance, fréquences — et ce que l'outil ne fait pas"}]},
+    {id:"guide",icone:"?",aide:"Note, couleur, confiance, fréquences — et ce que l'outil ne fait pas"}]},
   {titre:"Marché",vues:[
-    {id:"ranking",icone:"▤",aide:"Les 80 titres, leur note et leur signal"},
+    {id:"ranking",icone:"▤",aide:"Les 80 titres, leur note et sa couleur"},
     {id:"heatmap",icone:"▦",aide:"La séance d'un coup d'œil, par secteur"},
     {id:"watchlist",icone:"★",aide:"Vos titres suivis"},
     {id:"monde",icone:"◍",aide:"Indices mondiaux, devises, matières premières"}]},
@@ -1842,12 +1891,12 @@ const Accueil=({rows,fav,ouvrir,setTab})=>{
           LIRE LE BRIEFING ›</button>
       </div>
       {b===undefined&&<Squelette blocs={[1,1]} titre="Chargement de l'accueil"/>}
-      <Rangee titre="À surveiller aujourd'hui" sous="critères mesurés" vers="briefing" setTab={setTab}
+      <Rangee titre="Critères remplis aujourd'hui" sous="critères mesurés" vers="briefing" setTab={setTab}
         items={surv.map(z=>t(par[z.symbol],(z.criteres||[]).map(c=>c.texte).join(" · ")))}/>
       <Rangee titre="Plus fortes hausses" sous="séance du jour" vers="ranking" setTab={setTab} items={hausses.map(r=>t(r))}/>
       <Rangee titre="Plus fortes baisses" sous="séance du jour" vers="ranking" setTab={setTab} items={baisses.map(r=>t(r))}/>
       <Rangee titre="Les mieux notés" sous="note v5.3, confiance ≥ 2" vers="ranking" setTab={setTab}
-        items={notes.map(r=>t(r,`Note ${fmt(r.v53)} · ${r.sig||""}`))}/>
+        items={notes.map(r=>t(r,`Note ${fmt(r.v53)}`))}/>
       <Rangee titre="Mes favoris" vers="watchlist" setTab={setTab} items={favs.map(r=>t(r))}/>
     </div>);
 };
@@ -1893,7 +1942,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
             })}
             {!scoreMode.officiel&&(
               <span style={{fontSize:9,color:"#ffd740",marginLeft:4,letterSpacing:.5}}>
-                SIMULATION — signal masqué
+                SIMULATION — couleur masquée
               </span>
             )}
           </div>
@@ -2016,7 +2065,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
   const [search,setSearch]=useState("");
   const [sector,setSector]=useState("ALL");
   const [group,setGroup]=useState("ALL"); // ALL = 77 titres / MASI1 = 19 tickers NLP
-  const [sigFilter,setSigFilter]=useState(null);
+  const [palierFiltre,setPalierFiltre]=useState(null);
   const [rsiZone,setRsiZone]=useState(null);
   const customMode=!!(scoreMode&&!scoreMode.officiel);
   const NLP_TICKERS=new Set(["CMT","SMI","CASH","MNG","AKD","SOT","SGTM","MSA","CFGB","RIS","ADI","VCNE","CMGP","CSR","TGCC","ADH","SRM","SNA","RDS"]);
@@ -2030,11 +2079,13 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       const q=search.trim().toUpperCase();
       r=r.filter(x=>(x.symbol||x.ticker||"").includes(q)||tk(x).includes(q)||(x.name||"").toUpperCase().includes(q));
     }
-    if(sigFilter) r=r.filter(x=>(x.sig||"").startsWith(sigFilter));
+    /* Filtre par palier de NOTE (07/10/2026) : il remplace le filtre par
+       signal. Il porte sur la note affichée, celle de la vue choisie. */
+    if(palierFiltre!=null) r=r.filter(x=>palierDe(computeDisplayScore(x,scoreMode))===palierFiltre);
     if(rsiZone==="survendu") r=r.filter(x=>(x.rsi??x.rsi14)!=null&&(x.rsi??x.rsi14)<30);
     if(rsiZone==="surachete") r=r.filter(x=>(x.rsi??x.rsi14)!=null&&(x.rsi??x.rsi14)>70);
     return r;
-  },[rows,sector,search,group,sigFilter,rsiZone]);
+  },[rows,sector,search,group,palierFiltre,rsiZone,scoreMode]);
 
   const sorted=useMemo(()=>[...filtered].sort((a,b)=>{
     if(sort==="az")  return (a.name||a.symbol||"").localeCompare(b.name||b.symbol||"","fr");
@@ -2062,7 +2113,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
   }),[filtered,sort,scoreMode]);
   const SORTS=[["az","A → Z"],["v53",customMode?"SCORE PERSO":("SCORE v5.3")],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
   const scoreColLabel=customMode?scoreModeLabel(scoreMode):"SCORE";
-  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","VOLUME","PE","DIV%",scoreColLabel,"NLP%","SM~","ALPHA","RSI","SIGNAL","POIDS"];
+  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","VOLUME","PE","DIV%",scoreColLabel,"NLP%","SM~","ALPHA","RSI","COULEUR","POIDS"];
   if(isWatchlist&&rows.length===0) return(
     <div style={{textAlign:"center",padding:"60px 20px",color:"#8892a4"}}>
       <div style={{fontSize:52,marginBottom:16,color:"#2a3550"}}>★</div>
@@ -2089,13 +2140,13 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
             <button key={g} onClick={()=>setGroup(g)} style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:3,border:"none",cursor:"pointer",background:group===g?`${c}18`:"transparent",color:group===g?c:"#8892a4",transition:"all .2s"}}>{lbl}</button>
           ))}
         </div>
-        {(search||sector!=="ALL"||sigFilter||rsiZone)&&<button onClick={()=>{setSearch("");setSector("ALL");setSigFilter(null);setRsiZone(null);}} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"3px 8px",background:"transparent"}}>✕ Réinitialiser</button>}
+        {(search||sector!=="ALL"||palierFiltre!=null||rsiZone)&&<button onClick={()=>{setSearch("");setSector("ALL");setPalierFiltre(null);setRsiZone(null);}} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"3px 8px",background:"transparent"}}>✕ Réinitialiser</button>}
         <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{sorted.length}/{group==="MASI1"?19:rows.length} titres{group==="MASI1"&&<span style={{color:"#00e5a0",marginLeft:4}}>NLP ✓</span>}</span>
         <button onClick={()=>{
           // ⚠️ La pondération part avec le fichier : un CSV survit à l'écran
           // qui l'a produit, et une note sans sa formule est ininterprétable.
-          const cols=["TICKER BVC","CODE INTERNE","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE","PONDERATION","SIGNAL","ALPHA","SM_HEUR_NON_CALIBRE","VERSION_SCORE"];
-          const rows_csv=sorted.map(r=>[tk(r),r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",r.pe?.toFixed(1)||"",r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",(sc=>sc==null?"indisponible":sc.toFixed(2))(computeDisplayScore(r,scoreMode)),scoreModeLabel(scoreMode),customMode?"":(r.sig||""),r.alpha||"",r.win||"",customMode?"":(r.score_version||"")]);
+          const cols=["TICKER BVC","CODE INTERNE","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE","PONDERATION","COULEUR_NOTE","ALPHA","SM_HEUR_NON_CALIBRE","VERSION_SCORE"];
+          const rows_csv=sorted.map(r=>[tk(r),r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",r.pe?.toFixed(1)||"",r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",(sc=>sc==null?"indisponible":sc.toFixed(2))(computeDisplayScore(r,scoreMode)),scoreModeLabel(scoreMode),customMode?"":palierTexte(r),r.alpha||"",r.win||"",customMode?"":(r.score_version||"")]);
           const csv="﻿"+[cols,...rows_csv].map(r=>r.join(";")).join("\n");
           const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
           const url=URL.createObjectURL(blob);
@@ -2110,16 +2161,14 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
           ↓ CSV
         </button>
       </div>
-      {/* ── Screener : filtres signal + RSI ──────────────────── */}
+      {/* ── Screener : filtres par palier de note + RSI ──────── */}
       <div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:10,alignItems:"center"}}>
-        <span style={{fontSize:10,color:"#8892a4",letterSpacing:.5,marginRight:2}}>SIGNAL</span>
-        {/* « ACHAT FORT » retiré le 29/09 : palier suspendu avec le gel NLP, le filtre ne renverrait jamais rien. */}
-        {[["ACHETER","#4db8ff"],["SURVEILLER","#ffd740"],["ATTENDRE","#ff8f00"],["ÉVITER","#ff4f5a"]].map(([s,c])=>(
-          <button key={s} onClick={()=>setSigFilter(sigFilter===s?null:s)}
-            style={{fontSize:10,padding:"3px 10px",borderRadius:12,border:`1px solid ${sigFilter===s?c:c+"35"}`,color:sigFilter===s?"#080d1a":c,background:sigFilter===s?c:"transparent",cursor:"pointer",fontFamily:"var(--font)",transition:"all .15s",fontWeight:sigFilter===s?700:400}}>
-            {s}
-          </button>
-        ))}
+        <span style={{fontSize:10,color:"#8892a4",letterSpacing:.5,marginRight:2}}>NOTE</span>
+        {PALIERS.map((p,k)=>{const on=palierFiltre===k;return(
+          <button key={k} onClick={()=>setPalierFiltre(on?null:k)} title={`Notes ${p.plage} (${p.nom})`}
+            style={{fontSize:10,padding:"3px 10px",borderRadius:12,border:`1px solid ${on?p.c:p.c+"35"}`,color:on?"#080d1a":p.c,background:on?p.c:"transparent",cursor:"pointer",fontFamily:"var(--font)",transition:"all .15s",fontWeight:on?700:400,display:"inline-flex",alignItems:"center",gap:5}}>
+            <span aria-hidden="true" style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:on?"#080d1a":p.c}}/>{p.plage}
+          </button>);})}
         <span style={{marginLeft:8,fontSize:10,color:"#8892a4",letterSpacing:.5}}>RSI</span>
         {[["survendu","<30 survendu","#00e5a0"],["surachete",">70 suracheté","#ff4f5a"]].map(([z,lbl,c])=>(
           <button key={z} onClick={()=>setRsiZone(rsiZone===z?null:z)}
@@ -2139,7 +2188,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         <span style={{color:"#ffd740",fontWeight:700}}>✱ MODE PERSONNALISÉ</span>
         <span style={{color:"#8892a4"}}>Score affiché :</span>
         <span style={{color:"#ffd740"}}>{scoreModeLabel(scoreMode)}</span>
-        <span style={{color:"#4a5570",fontSize:10}}>— Le score composite officiel et les signaux restent inchangés</span>
+        <span style={{color:"#4a5570",fontSize:10}}>— Le score composite officiel reste inchangé ; les couleurs, propres à la note officielle, sont masquées</span>
       </div>}
       <div style={{overflowX:"auto"}}>
         <table className="classement" style={{width:"100%",borderCollapse:"collapse",minWidth:1220}}>
@@ -2150,7 +2199,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
           </thead>
           <tbody>
             {sorted.map((r,i)=>{
-              const s=SS(r.sig);const sym=r.symbol||r.ticker;
+              const sym=r.symbol||r.ticker;
               const displayScore=computeDisplayScore(r,scoreMode);
               const manque=composantesManquantes(r,scoreMode);
               const rsiVal=r.rsi??r.rsi14??null;
@@ -2229,12 +2278,12 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   <td style={{padding:"8px 8px",fontSize:12,color:r.div>4?"#00e5a0":"#c8d3e8"}}>{r.div?.toFixed(1)||"—"}%</td>
                   <td style={{padding:"8px 8px"}}>
                     <div title={manque.length?`Score indisponible — composante absente : ${manque.join(", ")}`:undefined}
-                      style={{fontSize:15,color:displayScore==null?"#8892a4":(meta(r).conf<=1?"#8892a4":SC(displayScore)),fontWeight:700,marginBottom:2}}>
+                      style={{fontSize:15,color:displayScore==null?"#8892a4":couleurChiffre(r,customMode),fontWeight:700,marginBottom:2}}>
                       {fmt(displayScore)}{customMode&&displayScore!=null&&<span style={{fontSize:8,color:"#ffd740",marginLeft:3,verticalAlign:"super"}}>✱</span>}
                     </div>
                     {/* ⚠️ Pas de barre sur une note absente : une barre de
                         longueur nulle se lit comme un score de zéro. */}
-                    {displayScore!=null&&<Bar v={displayScore} c={SC(displayScore)} h={4}/>}
+                    {displayScore!=null&&<Bar v={displayScore} c={couleurChiffre(r,customMode)} h={4}/>}
                   </td>
                   <td style={{padding:"8px 8px",fontSize:13,color:NC(r.nlp),fontWeight:600}}>{r.nlp>0?"+":""}{(r.nlp*100).toFixed(0)}%</td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.win>=80?"#00e5a0":r.win>=70?"#ffd740":"#ff8f00",fontWeight:600}}>{r.win!=null?`${r.win}`:"—"}</td>
@@ -2247,13 +2296,14 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       </div>}
                     </div>
                   </td>
-                  {/* ⚠️ Hors pondération officielle, le SIGNAL disparaît. Le
-                      moteur l'a calculé avec 47/28/25 ; l'afficher à côté
-                      d'une note recalculée autrement mettrait deux formules
-                      côte à côte sans le dire. Une note s'explore, un signal
-                      se recommande. */}
+                  {/* ⚠️ Hors pondération officielle, la COULEUR disparaît. Elle
+                      est celle de la note publiée par le moteur ; l'afficher à
+                      côté d'une note recalculée autrement mettrait deux
+                      formules côte à côte sans le dire.
+                      07/10/2026 : plus aucun mot d'action dans cette colonne,
+                      seulement la couleur du palier de note (PastilleNote). */}
                   <td style={{padding:"8px 8px"}}>{customMode
-                    ? <span title="Le signal n'existe que pour la pondération officielle"
+                    ? <span title="La couleur n'existe que pour la pondération officielle"
                         style={{fontSize:11,color:"#4a5570",letterSpacing:1}}>—</span>
                     /* Un titre suspendu passe AVANT le test de confiance : sa
                        confiance est nulle, mais « Données insuffisantes » serait
@@ -2272,7 +2322,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                     ? <Chip label="REPRISE DE COTATION" bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040"/>
                     : meta(r).conf<=1
                     ? <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550"/>
-                    : <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd}/>}</td>
+                    : <PastilleNote r={r}/>}</td>
                   <td style={{padding:"8px 8px",minWidth:85}}>
                     {(()=>{const pw=poidsAffiches(r,scoreMode);return pw&&<>
                       <WBar f={pw.f} n={pw.n} t={pw.t}/>
@@ -2486,7 +2536,7 @@ const ASurveiller=({a})=>{
   if(!groupes.length)return null;
   return(
     <div style={{background:"#0d1829",border:"1px solid rgba(0,229,160,.35)",borderRadius:8,padding:16}}>
-      <div style={{fontSize:10,color:"#00e5a0",letterSpacing:1,textTransform:"uppercase",marginBottom:2}}>À surveiller aujourd'hui</div>
+      <div style={{fontSize:10,color:"#00e5a0",letterSpacing:1,textTransform:"uppercase",marginBottom:2}}>Critères remplis aujourd'hui</div>
       <div style={{fontSize:11,color:"#5a6478",marginBottom:10}}>
         Chaque titre remplit au moins un critère mesuré ; classés par nombre de critères, puis par montant échangé.
         {a.n_candidats>(a.a_publie||[]).length+(a.a_bouge||[]).length&&<> {a.n_candidats} titres en remplissaient un.</>}
@@ -2781,12 +2831,15 @@ const TickerNews=({sym})=>{
 const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
   const [detSearch,setDetSearch]=useState("");
   const r=rows.find(x=>(x.symbol||x.ticker)===sel)||rows[0];
-  const s=SS(r.sig);
   // ⚠️ La fiche doit suivre la pondération choisie, exactement comme le
   // classement. Sans cela elle affiche le v5.3 du moteur quelle que soit la
   // vue, et donne pour le même titre un score qui contredit le tableau.
   // Oublié le 08/09 ; signalé par Abd Moutalib : « le score ne bouge pas ».
   const simu=!!(scoreMode&&!scoreMode.officiel);
+  // Teinte de la carte : couleur du palier de note, neutre en simulation ou
+  // à confiance ≤ 1. Plus aucun mot d'action (07/10/2026).
+  const cn=couleurNote(r);
+  const s=simu||!cn||meta(r).conf<=1?NEUTRE:teinte(cn.c);
   const scoreAffiche=computeDisplayScore(r,scoreMode);
   const manqueAff=composantesManquantes(r,scoreMode);
   // La répartition qui a réellement produit `scoreAffiche`.
@@ -2828,7 +2881,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
         {detSearch&&<button onClick={()=>setDetSearch("")} style={{fontSize:10,color:"#8892a4",border:"none",background:"transparent"}}>✕</button>}
       </div>
       <div style={{display:"flex",gap:4,marginBottom:14,flexWrap:"wrap",maxHeight:96,overflowY:"auto",padding:"4px 0"}}>
-        {visRows.map(d=>{const sym2=d.symbol||d.ticker;const ds=SS(d.sig);const a=sel===sym2;return(
+        {visRows.map(d=>{const sym2=d.symbol||d.ticker;const cd=couleurNote(d);const ds=simu||!cd||meta(d).conf<=1?NEUTRE:teinte(cd.c);const a=sel===sym2;return(
           <button key={sym2} onClick={()=>setSel(sym2)} style={{background:a?ds.bg:"transparent",border:a?`1px solid ${ds.bd}`:"1px solid #1a2540",color:a?ds.fg:"#8892a4",padding:"2px 7px",borderRadius:3,fontSize:10,fontWeight:a?700:400,transition:"all .15s"}}>{tk(d)}</button>
         );})}
       </div>
@@ -2852,8 +2905,8 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
             {/* Le score reste affiché même à faible confiance — mais en gris,
                 pour qu'il ne se lise pas comme une conclusion (CLAUDE.md). */}
             <div style={{fontSize:52,fontWeight:700,
-                 color:meta(r).conf<=1?"#8892a4":s.fg,
-                 textShadow:meta(r).conf<=1?"none":`0 0 30px ${s.fg}40`,
+                 color:couleurChiffre(r,simu),
+                 textShadow:meta(r).conf<=1||simu?"none":`0 0 30px ${s.fg}40`,
                  lineHeight:1}}>{fmt(scoreAffiche)}</div>
             <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 6px"}}>
               Score composite / 10{simu&&<span style={{color:"#ffd740"}}> · {scoreModeLabel(scoreMode)}</span>}
@@ -2871,23 +2924,23 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               </div>
             )}
             <div style={{marginBottom:10}}><Confiance r={r} sz={13}/></div>
-            {/* Un signal calculé sur des données de repli induit en erreur :
-                à confiance ≤ 1 on l'annonce comme tel plutôt que d'afficher
-                un ACHETER que rien ne soutient (règle CLAUDE.md). */}
+            {/* Une couleur calculée sur des données de repli induit en
+                erreur : à confiance ≤ 1 on l'annonce comme tel plutôt que de
+                colorer une note que rien ne soutient (règle CLAUDE.md). */}
             {/* ⚠️ Même règle qu'au classement : le signal n'existe que pour
                 la pondération officielle. Oublié ici le 08/09 — la fiche
                 affichait le v5.3 du moteur quelle que soit la vue choisie,
                 donc un score qui contredisait le classement pour le même
                 titre. Signalé par Abd Moutalib : « le score ne bouge pas ». */}
             {simu
-              ? <Chip label="SIMULATION — signal masqué" bg="rgba(255,215,64,.10)" fg="#ffd740" bd="#ffd74040" sz={12}/>
+              ? <Chip label="SIMULATION — couleur masquée" bg="rgba(255,215,64,.10)" fg="#ffd740" bd="#ffd74040" sz={12}/>
               : meta(r).susp
               ? <Chip label={`SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`} bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40" sz={12}/>
               : meta(r).conf<=1
               ? (meta(r).reprise_recente
                  ? <Chip label={`REPRISE — ${meta(r).seances_depuis_reprise} séance(s)`} bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040" sz={12}/>
                  : <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550" sz={12}/>)
-              : <Chip label={r.sig} bg={s.bg} fg={s.fg} bd={s.bd} sz={12}/>}
+              : <PastilleNote r={r} sz={12}/>}
             {/* Le motif, pour que la suspension ne soit pas une énigme : une
                 OPA n'est pas une sanction, et la nuance change tout pour le
                 lecteur. */}
@@ -3271,7 +3324,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               {pdsAff&&<><span style={{color:"#b388ff"}}>fond {fmt(r.score_fond,1)}×{pdsAff.f}%</span><span style={{color:"#8892a4"}}> + </span><span style={{color:"#4db8ff"}}>tech {fmt(r.score_tech,1)}×{pdsAff.t}%</span>
                 {pdsAff.n>0&&<><span style={{color:"#8892a4"}}> + </span><span style={{color:"#00e5a0"}}>nlp {fmt(r.score_nlp,1)}×{pdsAff.n}%</span></>}
                 <span style={{color:"#8892a4"}}>{simu?" =":" + bonus/malus ="}</span></>}
-              <span style={{color:scoreAffiche==null?"#8892a4":SC(scoreAffiche),fontWeight:700}}> {fmt(scoreAffiche)}</span>
+              <span style={{color:scoreAffiche==null?"#8892a4":couleurChiffre(r,simu),fontWeight:700}}> {fmt(scoreAffiche)}</span>
             </div>
             {/* ⚠️ LE PILIER GELÉ, DIT PLUTÔT QUE CACHÉ — 25/09/2026.
                 Le corpus WhatsApp s'arrête au 02/07 : le pilier est devenu une
@@ -3310,7 +3363,7 @@ const POIDS_CTX=[
   ["Hors séance (fermé, pré-ouverture)","72,22 %","27,78 %","actif","#4db8ff","Le fondamental gagne 5 points avant repli. C'est le cas des runs du soir."],
   ["MASI < −5 % depuis janvier","71,43 %","28,57 %","actif","#ff8f00","Mode défensif. Cumulé au hors-séance : 77,92 % / 22,08 %."],
   ["MASI > +10 % depuis janvier","61,11 %","38,89 %","actif","#ffd740","Le technique gagne 3 points avant repli."],
-  ["Titre peu liquide ou au fixing","100 %","0 %","actif","#b388ff","Depuis le 03/10 : le technique y annonçait l'inverse de la suite. Tout va au fondamental, et ACHETER y devient SURVEILLER ★."],
+  ["Titre peu liquide ou au fixing","100 %","0 %","actif","#b388ff","Depuis le 03/10 : le technique y annonçait l'inverse de la suite. Tout va au fondamental, et une note ≥ 6,5 y garde la couleur vert-jaune (« titre peu échangé »)."],
   ["Publication de résultats","76 %","24 %","inactif","#5a6478","Prévu dans le moteur, jamais branché : aucun calendrier de publications."],
   ["Hype spike (>2σ NLP)","—","—","retiré le 29/09","#5a6478","Lisait le corpus WhatsApp gelé."],
   ["Smart Money Tier 1","—","—","retiré le 29/09","#5a6478","Lisait le corpus WhatsApp gelé."],
@@ -3374,7 +3427,7 @@ const Guide=({setTab})=>{
         <b>L'outil ne prédit pas. Ce n'est pas un conseil en investissement. Données J+1 : la dernière clôture, pas de temps réel.</b> Il montre des notes et des fréquences passées.
       </div>
       <L titre="Note /10">Moyenne de deux piliers sur 10 : <T>fondamental</T> (rentabilité, croissance, valorisation, bilan — ≈ 2/3) et <T>technique</T> (tendance, RSI — ≈ 1/3, 0 sur un titre peu liquide). Sentiment WhatsApp gelé, poids nul. <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des poids</a></L>
-      <L titre="Signal"><T c="#00e5a0">ACHETER ★★</T> dès 6,5 · <T c="#ffd740">SURVEILLER ★</T> dès 5,5 · <T>ATTENDRE</T> dès 4,5 · <T c="#ff4f5a">ÉVITER</T> dessous (FORT sous 3,5). SURVEILLER ★ remplace ACHETER sur un titre trop peu échangé. <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1.</L>
+      <L titre="Couleur de la note">La note est colorée selon son palier, sans mot d'action : <T c="#00e5a0">● vert</T> dès 6,5 · <T c="#b5e655">● vert-jaune</T> dès 5,5 · <T c="#ffd740">● jaune</T> dès 4,5 · <T c="#ff8f00">● orange</T> dès 3,5 · <T c="#ff4f5a">● rouge</T> dessous. La couleur situe la note ; elle ne dit pas quoi faire. Titre trop peu échangé : une note dès 6,5 reste en vert-jaune, avec la mention « titre peu échangé ». <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, note grise. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
       <L titre="Confiance ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>
       <L titre="« X % gagnants (IC) · n cas » — fiche, Signaux techniques">Sur n cas passés à la BVC où le même signal est apparu, X % ont battu le MASI 60 séances après ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fréquence passée, pas une promesse.</L>
       <L titre="« non vérifié » · ⚠ jj/mm"><T c="#ff8f00">non vérifié</T> : source non recoupée, prudence. <T c="#ffd740">⚠ 05/08</T> près d'un cours : il date de ce jour-là, pas de la dernière séance.</L>
@@ -4112,8 +4165,8 @@ function poidsAffiches(r, p) {
 // ── APP ───────────────────────────────────────────────────────────────────────
 // Mention légale — permanente, non masquable, présente sur tous les onglets.
 //
-// Le terminal publie des signaux ACHETER / SURVEILLER / ÉVITER sur des valeurs
-// cotées. Sans agrément AMMC, cela doit être présenté comme une analyse
+// Le terminal publie des notes colorées par palier sur des valeurs cotées
+// (plus aucun mot d'action depuis le 07/10/2026). Sans agrément AMMC, cela doit être présenté comme une analyse
 // quantitative et non comme un conseil en investissement. L'absence de cette
 // mention était le risque le plus sérieux du projet, et le moins coûteux à
 // écarter.
