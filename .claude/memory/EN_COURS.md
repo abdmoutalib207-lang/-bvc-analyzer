@@ -12,6 +12,39 @@ historique** — cela recréerait une référence exposée.
 
 # En cours — à lire au démarrage de chaque session
 
+## ▶ ÉTAT AU 07/10/2026, 10h50 — LIRE EN PREMIER
+
+**Fait du 04 au 07/10** (PR #189 → #212, toutes fusionnées, aucune ouverte) :
+- Comptes : CIH, JET, M2M, T2S intégrés ; BPA 2025 de JET rectifié (104,21 → 73,39) ;
+  SOT, HPS, TQA corrigés sur pièce ; plus aucun BPA de source tierce ; IBM inscrit
+  dans `bvc_config.SANS_COMPTES` (aucun compte depuis 2023).
+- Confiance : les 2 points du corpus gelé remplacés par « comptes déposés » et
+  « liquidité » (rupture de série au 06/10).
+- Affichage : plus aucun mot d'action (couleurs selon la note), guide « Comment
+  lire l'écran », onglet POIDS à jour, chiffres non vérifiés étiquetés, Fibonacci
+  façon TradingView, 10 corrections design (agent `designer-vitrine`).
+- Moteur : volume global = somme des fiches quand l'indice CDG retarde (#212) ;
+  complétion du volume de la veille ; essai à blanc sans écriture.
+- Statistiques : fréquences techniques avec IC de Wilson (source unique
+  `datasets/frequences_publiees.json`), backtest reproductible en une commande.
+- **Vision Produit** (CLAUDE.md, en tête) : pas de prédiction, des fréquences
+  observées. Ne plus juger la note sur sa « prédictivité ».
+
+**Reste ouvert, par ordre :**
+1. Canal de retour des testeurs : attend le choix d'Abd (WhatsApp, formulaire ou email).
+2. Design, lot 2 : CLS résiduel ~0,10, tableau +17 px à 360 px, `localStorage` refusé
+   → « Erreur de rendu » (défaut antérieur).
+3. Statistiques FONDAMENTALES (« titres à PER bas… : X % gagnants, n cas ») : exigent
+   l'historique des bénéfices 2022-2025 avec dates de dépôt (lecteur-comptes,
+   20 plus grosses capitalisations = 82,8 % du marché), puis le PER de la place
+   point par point, recoupé avec l'AMMC (RSF 2025 : 21,7x fin 2024, 20x fin 2025,
+   moyenne 5 ans 22,13x).
+4. Décisions R8 en attente : `compute_fond_score` lit encore la saisie manuelle
+   (ROIC, croissance) faute de ratio calculé ; P/B sur fonds propres du 30/06
+   pour les 30 autres titres (fait pour TQA seulement).
+5. cron-job.org lance un run par heure (« :55 ») : consomme le quota Pages ; réglage
+   sur le compte d'Abd.
+
 > Mis à jour le **31/08/2026, 20h00 Casablanca** (lundi soir, après clôture).
 > Ce fichier est court par construction. Ce qui est terminé en sort et va dans
 > le journal du CLAUDE.md ; ce qui est appris va dans LEARNINGS.md.
