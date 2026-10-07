@@ -27,7 +27,11 @@
        1,59 — invisible. Teinte --dim, et une boîte de 32 px au moins dont les
        marges négatives rendent l'encombrement : la ligne ne grandit pas. */
     .etoile{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;margin:-9px -10px}
-    .indices-ligne{display:none;align-items:center;gap:7px;height:36px;padding:0 10px;font-size:12px;white-space:nowrap;
+    /* ⚠️ 07/10/2026 : la ligne DÉFILAIT. À 390 px, la variation du MASI 20,
+       les hausses/baisses et le bouton 📈 sortaient de l'écran, et le volume
+       de la séance n'y figurait pas du tout (« je vois pas le volume
+       global »). Elle passe à la ligne : tout est visible sans glisser. */
+    .indices-ligne{display:none;align-items:center;gap:3px 7px;min-height:36px;padding:5px 10px;font-size:12px;flex-wrap:wrap;
       overflow-x:auto;scrollbar-width:none;border:1px solid rgba(77,184,255,.22);border-radius:8px;
       background:linear-gradient(180deg,rgba(77,184,255,.07),rgba(77,184,255,.02));font-variant-numeric:tabular-nums}
     .indices-ligne::-webkit-scrollbar{display:none}
@@ -4076,6 +4080,7 @@ const CarteIndices = ({
       whiteSpace: "nowrap"
     }
   }, fleche(v), " ", pct(v));
+  const volume = masi.volume_mad == null ? null : masi.volume_mad >= 1e9 ? `${nb(masi.volume_mad / 1e9)} Md DH` : `${nb(masi.volume_mad / 1e6, 1)} M DH`;
   return React.createElement("div", {
     className: "bandeau-masi carte-indices",
     "data-gabarit": gabarit || undefined,
@@ -4083,6 +4088,13 @@ const CarteIndices = ({
     "aria-busy": gabarit || undefined
   }, React.createElement("div", {
     className: "indices-ligne"
+  }, React.createElement("span", {
+    style: {
+      whiteSpace: "nowrap",
+      display: "inline-flex",
+      gap: 7,
+      alignItems: "baseline"
+    }
   }, React.createElement("span", {
     style: {
       color: "#4db8ff",
@@ -4094,7 +4106,7 @@ const CarteIndices = ({
       color: "#fff",
       fontSize: 15
     }
-  }, nb(masi.value)), varia(ch), masi.stale && React.createElement("span", {
+  }, nb(masi.value)), varia(ch)), masi.stale && React.createElement("span", {
     style: {
       fontSize: 10,
       fontWeight: 700,
@@ -4106,6 +4118,13 @@ const CarteIndices = ({
     }
   }, "|"), React.createElement("span", {
     style: {
+      whiteSpace: "nowrap",
+      display: "inline-flex",
+      gap: 7,
+      alignItems: "baseline"
+    }
+  }, React.createElement("span", {
+    style: {
       color: "#8892a4",
       letterSpacing: 1
     }
@@ -4113,7 +4132,7 @@ const CarteIndices = ({
     style: {
       color: "#e8eef8"
     }
-  }, nb(m20.value)), varia(m20.change_pct), m20.asof && masi.asof && m20.asof !== masi.asof && React.createElement("span", {
+  }, nb(m20.value)), varia(m20.change_pct)), m20.asof && masi.asof && m20.asof !== masi.asof && React.createElement("span", {
     style: {
       fontSize: 10,
       color: "#ff8f00"
@@ -4136,7 +4155,21 @@ const CarteIndices = ({
       color: "#ff4f5a",
       fontWeight: 700
     }
-  }, masi.baisses, "\u25BC")), React.createElement("button", {
+  }, masi.baisses, "\u25BC")), volume && React.createElement(React.Fragment, null, React.createElement("span", {
+    style: {
+      color: "#1a2540"
+    }
+  }, "|"), React.createElement("span", {
+    style: {
+      color: "#8892a4",
+      whiteSpace: "nowrap"
+    },
+    title: "Volume global de la s\xE9ance"
+  }, "vol. ", React.createElement("b", {
+    style: {
+      color: "#e8eef8"
+    }
+  }, volume))), React.createElement("button", {
     onClick: () => setGraphe(v => !v),
     title: "Graphique du MASI",
     "aria-label": "Graphique du MASI",
@@ -4356,7 +4389,7 @@ const CarteIndices = ({
       color: "#e8eef8",
       fontSize: 14
     }
-  }, masi.volume_mad >= 1e9 ? `${nb(masi.volume_mad / 1e9)} Md DH` : `${nb(masi.volume_mad / 1e6, 1)} M DH`), masi.transactions != null && React.createElement("span", null, " \xB7 ", masi.transactions.toLocaleString("fr-FR"), " transactions"))), graphe && !gabarit && React.createElement("div", {
+  }, volume), masi.transactions != null && React.createElement("span", null, " \xB7 ", masi.transactions.toLocaleString("fr-FR"), " transactions"))), graphe && !gabarit && React.createElement("div", {
     style: {
       ...carte,
       gridColumn: "1/-1",
