@@ -293,6 +293,11 @@ def test_le_pb_publie_se_recoupe_avec_la_capitalisation(publie, faits):
     ⚠️ Ce contrôle ne dit RIEN de l'unité des fonds propres — les deux chemins
     la partagent. C'est le test de conversion qui s'en charge.
 
+    ⚠️ 07/10/2026 (bis) : pour un titre publié « calculee_recoupee », la
+    capitalisation EST prix × actions, et ce contrôle devient une identité.
+    Le nombre d'actions de ces titres est recoupé ailleurs, à 0,5 %, sur la
+    valeur brute de la source : test_chaque_capitalisation_recoupee_l_est_vraiment.
+
     ⚠️ 07/10/2026 : les deux chemins doivent lire les MÊMES fonds propres.
     Depuis le 06/10, le moteur prend ceux du 30/06/2026 pour les titres dont
     l'entrée S1 porte `pb_sur_cp_s1` (TQA : 6 338,7 contre 6 773 au 31/12).
@@ -312,7 +317,16 @@ def test_le_pb_publie_se_recoupe_avec_la_capitalisation(publie, faits):
         if pb is None or not cap or t not in cp:
             continue
         temoin = cap / cp[t]                    # capitalisation et fonds propres, en MMAD
-        if abs(temoin / pb - 1) > 0.10:
+        # ⚠️ MÊME BASE QUE LE GARDE-FOU D'ENTRÉE (`_capitalisation`) :
+        # |calculée ÷ servie − 1|. L'écart se lisait à l'envers, servie ÷
+        # calculée : une baisse de 9,5 % sur un titre dont la capitalisation
+        # retarde d'une séance passait l'entrée (9,5 %) et bloquait ici
+        # (10,5 %) — la publication des 80 titres pour un seul.
+        # Le P/B est publié arrondi au centième : la tolérance compte ce
+        # demi-centième, sans quoi un écart accepté à l'entrée (9,95 %)
+        # ressort ici à 10,03 %. Balayage du 07/10 par le vrai garde-fou,
+        # −10 % à +10 % au pas de 0,01 % : 62 refus sans cette marge, 0 avec.
+        if abs(pb / temoin - 1) > 0.10 + 0.005 / temoin:
             ecarts.append(f"{t} : moteur {pb:.2f}, capitalisation ÷ fonds "
                           f"propres {temoin:.2f}")
     assert not ecarts, "P/BOOK non recoupé par la capitalisation :\n  " + \
@@ -331,6 +345,11 @@ def test_le_nombre_d_actions_du_rapport_colle_au_marche(publie, faits):
 
     C'est le recoupement qui avait tranché l'ISIN de Maroc Leasing : deux
     sources peuvent se tromper ensemble, un calcul qui boucle non.
+
+    ⚠️ 07/10/2026 : pour un titre « calculee_recoupee », la capitalisation
+    publiée est prix × ce nombre — ce test y devient une identité. Le
+    recoupement réel de ces titres, à 0,5 %, est dans
+    test_chaque_capitalisation_recoupee_l_est_vraiment.
 
     ⚠️ Ce contrôle ne dit rien de l'unité des fonds propres — il ne les touche
     pas. C'est `test_la_conversion_se_refait_sans_rouvrir_le_pdf` qui s'en
