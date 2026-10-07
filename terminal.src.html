@@ -139,6 +139,13 @@
       button{position:relative;}
       button::after{content:"";position:absolute;inset:-6px -2px;}
       input{font-size:16px!important;}
+      /* Boutons du graphique (07/10/2026) : 26 à 36 px de large, zone de
+         30 px pour ⟳. Largeur minimale 38 + 3 px de chaque côté = 44 ; les
+         rangées s'écartent de 12 px pour que les zones (6 px au-dessus et
+         au-dessous) ne se chevauchent pas. */
+      .btn-graphe{min-width:38px;}
+      .btn-graphe::after{inset:-6px -3px!important;}
+      .barre-graphe{row-gap:12px!important;}
     }
     /* Menu principal (01/10/2026), demande d'Abd Moutalib : « les boutons se
        cachent, il faut toujours les chercher ». Un bouton bien visible, un
@@ -1285,10 +1292,10 @@ const GraphiqueMASI=()=>{
   const n=serie?serie.length:0;
   const corps=(
     <div>
-      <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap",marginBottom:6}}>
-        {Object.keys(N).map(k=><button key={k} onClick={()=>setFenetre(k)} style={b(fenetre===k)}>{k}</button>)}
-        <button onClick={()=>chart.current&&vueEntiere(chart.current,n,n-Math.min(n,N[fenetre]))} title="Revenir à la vue de départ (ou double-clic)" style={b(false)}>⟳</button>
-        <button onClick={()=>setPlein(v=>!v)} style={b(plein)}>{plein?"⤡ RÉDUIRE":"⤢ AGRANDIR"}</button>
+      <div className="barre-graphe" style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap",marginBottom:6}}>
+        {Object.keys(N).map(k=><button key={k} className="btn-graphe" onClick={()=>setFenetre(k)} style={b(fenetre===k)}>{k}</button>)}
+        <button className="btn-graphe" onClick={()=>chart.current&&vueEntiere(chart.current,n,n-Math.min(n,N[fenetre]))} title="Revenir à la vue de départ (ou double-clic)" style={b(false)}>⟳</button>
+        <button className="btn-graphe" onClick={()=>setPlein(v=>!v)} style={b(plein)}>{plein?"⤡ RÉDUIRE":"⤢ AGRANDIR"}</button>
       </div>
       <div style={{position:"relative"}}>
         <div ref={ref}/>
@@ -1605,7 +1612,7 @@ const StockChart=({r})=>{
   const reinitialiser=()=>{if(chartMain.current&&liveCandles)vueEntiere(chartMain.current,liveCandles.length);};
 
   const Btn=({on,c,titre,onClick,children})=>(
-    <button onClick={onClick} title={titre} style={{background:on?`${c}26`:"transparent",border:`1px solid ${on?c+"66":"#1a2540"}`,color:on?c:"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"var(--font)"}}>{children}</button>
+    <button className="btn-graphe" onClick={onClick} title={titre} style={{background:on?`${c}26`:"transparent",border:`1px solid ${on?c+"66":"#1a2540"}`,color:on?c:"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"var(--font)"}}>{children}</button>
   );
 
   /* Ce que l'on montre quand il n'y a pas de graphique. Trois phrases
@@ -1619,10 +1626,10 @@ const StockChart=({r})=>{
 
   const corps=(
     <div>
-      <div style={{display:"flex",gap:6,marginBottom:6,alignItems:"center",flexWrap:"wrap"}}>
+      <div className="barre-graphe" style={{display:"flex",gap:6,marginBottom:6,alignItems:"center",flexWrap:"wrap"}}>
         <span style={{fontSize:10,color:"#8892a4"}}>PÉRIODE</span>
         {["5J","1M","3M","6M","1A","3A","TOUT"].map(p=>(
-          <button key={p} onClick={()=>changePeriod(p)} style={{background:period===p?"rgba(77,184,255,.15)":"transparent",border:period===p?"1px solid rgba(77,184,255,.4)":"1px solid #1a2540",color:period===p?"#4db8ff":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"var(--font)"}}>{p}</button>
+          <button key={p} className="btn-graphe" onClick={()=>changePeriod(p)} style={{background:period===p?"rgba(77,184,255,.15)":"transparent",border:period===p?"1px solid rgba(77,184,255,.4)":"1px solid #1a2540",color:period===p?"#4db8ff":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"var(--font)"}}>{p}</button>
         ))}
         <span style={{color:"#1a2540",margin:"0 2px"}}>|</span>
         <Btn on={mas[20]} c="#4db8ff" titre="Moyenne mobile 20 séances" onClick={()=>basculeMa(20)}>MA20</Btn>

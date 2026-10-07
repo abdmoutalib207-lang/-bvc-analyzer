@@ -102,3 +102,14 @@ def test_la_colonne_couleur_tient_dans_l_ecran_du_telephone():
     assert "td:nth-child(14) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}" in css
     assert "padding:3px 5px!important" not in css
     assert ".classement .ligne-ticker{flex-wrap:wrap" in css and 'className="ligne-ticker"' in SRC
+
+
+def test_les_boutons_du_graphique_ont_une_zone_tactile_de_44_px():
+    """07/10/2026 : sous pointer:coarse, ⟳ n'offrait que 30 px de large et les
+    zones de deux rangées se chevauchaient (15 paires mesurées à 390 px)."""
+    i = SRC.index("@media (pointer:coarse)")
+    bloc = SRC[i:SRC.index("\n    }", i)]
+    assert ".btn-graphe{min-width:38px;}" in bloc
+    assert ".btn-graphe::after{inset:-6px -3px!important;}" in bloc
+    assert ".barre-graphe{row-gap:12px!important;}" in bloc
+    assert SRC.count('className="btn-graphe"') >= 5 and SRC.count('className="barre-graphe"') == 2
