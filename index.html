@@ -23,6 +23,21 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     .mobile-seul{display:none}
+    /* L'étoile des favoris (07/10/2026) : #2a3550 sur le fond, contraste
+       1,59 — invisible. Teinte --dim, et une boîte de 32 px au moins dont les
+       marges négatives rendent l'encombrement : la ligne ne grandit pas. */
+    .etoile{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;margin:-9px -10px}
+    .indices-ligne{display:none;align-items:center;gap:7px;height:36px;padding:0 10px;font-size:12px;white-space:nowrap;
+      overflow-x:auto;scrollbar-width:none;border:1px solid rgba(77,184,255,.22);border-radius:8px;
+      background:linear-gradient(180deg,rgba(77,184,255,.07),rgba(77,184,255,.02));font-variant-numeric:tabular-nums}
+    .indices-ligne::-webkit-scrollbar{display:none}
+    /* Gabarit de la carte des indices : les cadres restent, leur contenu est
+       masqué, un reflet dit que ça charge. */
+    [data-gabarit] .carte-ind *,[data-gabarit] .indices-ligne *{visibility:hidden}
+    [data-gabarit] .carte-ind,[data-gabarit] .indices-ligne{position:relative;overflow:hidden}
+    [data-gabarit] .carte-ind::after,[data-gabarit] .indices-ligne::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+      background:linear-gradient(90deg,transparent,rgba(200,211,232,.06),transparent);animation:reflet 1.2s ease-in-out infinite;}
+    @media (prefers-reduced-motion:reduce){[data-gabarit] .carte-ind::after,[data-gabarit] .indices-ligne::after{display:none;}}
     .carte-indices{flex-basis:100%;width:100%;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.2fr);gap:10px;margin-top:8px}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
     /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
@@ -35,13 +50,24 @@
       .entete{position:static!important;padding:8px 12px!important}
       .badge-version,.choix-score,.entete-droite{display:none!important}
       .bandeau-masi{flex-wrap:wrap!important;row-gap:4px}
-      .onglets{flex-wrap:nowrap!important;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
-      .onglets::-webkit-scrollbar{display:none}
-      .onglets>*{flex:0 0 auto}
+      /* En-tête téléphone (07/10/2026) : 552 px sur 844, la 1re ligne du
+         classement sous la ligne de flottaison. Le MENU donne déjà toutes
+         les vues : la rangée d'onglets disparaît, seul RETOUR reste quand
+         il y a une vue où revenir. Les indices tiennent sur une ligne. */
+      .onglets .onglet{display:none!important}
+      .onglets.sans-retour{display:none!important}
       .onglets button{padding:7px 12px!important}
       .mobile-seul{display:block!important}
-      .carte-indices{grid-template-columns:1fr 1fr!important;gap:8px!important}
-      .carte-indices>:first-child{grid-column:1/-1}
+      .carte-indices{grid-template-columns:1fr!important;gap:6px!important;margin-top:4px!important}
+      .carte-indices>.carte-ind{display:none!important}
+      .indices-ligne{display:flex!important}
+      /* La fiche (07/10/2026) : les 80 boutons de titres prenaient l'écran
+         avant la fiche elle-même ; on choisit un titre depuis le classement. */
+      .selecteur-titres{display:none!important}
+      /* Plancher de police (07/10/2026) : 413 textes sous 10 px dans le
+         classement à 390 px, le plus petit à 8. Les tailles sont posées en
+         ligne ; on relève ici toutes celles de 8 à 9,5 px. */
+      [style*="font-size: 8px"],[style*="font-size: 8.5px"],[style*="font-size: 9px"],[style*="font-size: 9.5px"]{font-size:10px!important}
       /* Le classement garde : ticker, clôture (+ ouverture), variation
          (+ volume), score, couleur de la note. */
       .classement{min-width:0!important}
@@ -55,7 +81,19 @@
          la note colorée est à côté. La mention « titre peu échangé » reste,
          en petit et sur deux lignes : elle explique une couleur sous la note. */
       .classement .pastille-texte{display:none}
-      .classement .pastille-plafond{white-space:normal;font-size:9px;line-height:1.2;max-width:58px}
+      .classement .pastille-plafond{white-space:normal;line-height:1.2}
+      /* 07/10/2026 : la colonne débordait de 33 px à 390 px (bord droit à
+         409). Le remplissage 3px 5px s'appliquait à TOUT le contenu, rond
+         compris : 92 px pour une colonne qui en a 60. Le rond passe au-dessus
+         de sa mention, les étiquettes se coupent aux mots. */
+      .classement th:nth-child(14),.classement td:nth-child(14){width:64px;max-width:64px}
+      .classement td:nth-child(14) .pastille{flex-direction:column;align-items:flex-start;gap:3px}
+      .classement td:nth-child(14) .rond{padding:0!important}
+      .classement td:nth-child(14){padding-left:1px!important;padding-right:1px!important}
+      .classement td:nth-child(14) .chip{padding:2px 3px!important;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+      /* La ligne « CMT ~hist ☆ » tenait la colonne TICKER à 124 px : elle
+         peut désormais se replier. */
+      .classement .ligne-ticker{flex-wrap:wrap;row-gap:2px}
       /* Le secteur prenait trop de largeur : sur téléphone, le code, un nom
          abrégé et le logo en miniature suffisent à reconnaître le titre. */
       .secteur-societe{display:none!important}
@@ -64,8 +102,7 @@
       .classement .logo-pastille{width:26px!important;height:26px!important;font-size:8px!important}
       .classement td:nth-child(2)>div{gap:7px!important}
       .nom-societe{max-width:80px!important;font-size:11px!important}
-      .classement td:nth-child(14) *{font-size:9.5px!important;padding:3px 5px!important;letter-spacing:0!important;white-space:normal!important}
-      .classement td:nth-child(14){max-width:92px}
+      .classement td:nth-child(14) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}
       .classement td:nth-child(4),.classement td:nth-child(4) *{white-space:normal!important}
     }
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -114,6 +151,13 @@
       button{position:relative;}
       button::after{content:"";position:absolute;inset:-6px -2px;}
       input{font-size:16px!important;}
+      /* Boutons du graphique (07/10/2026) : 26 à 36 px de large, zone de
+         30 px pour ⟳. Largeur minimale 38 + 3 px de chaque côté = 44 ; les
+         rangées s'écartent de 12 px pour que les zones (6 px au-dessus et
+         au-dessous) ne se chevauchent pas. */
+      .btn-graphe{min-width:38px;}
+      .btn-graphe::after{inset:-6px -3px!important;}
+      .barre-graphe{row-gap:12px!important;}
     }
     /* Menu principal (01/10/2026), demande d'Abd Moutalib : « les boutons se
        cachent, il faut toujours les chercher ». Un bouton bien visible, un
@@ -143,17 +187,19 @@
     .tuile:hover{transform:translateY(-3px) scale(1.03);border-color:rgba(77,184,255,.45);
       box-shadow:0 10px 24px rgba(0,0,0,.45)!important;filter:none!important;}
     .intro{position:fixed;inset:0;z-index:1000;background:#080d1a;display:flex;flex-direction:column;
-      align-items:center;justify-content:center;gap:14px;cursor:pointer;animation:intro-sortie 300ms ease-in 1700ms both;}
+      align-items:center;justify-content:center;gap:14px;cursor:pointer;animation:intro-sortie 200ms ease-in 600ms both;}
+    /* 07/10/2026 : ouverture ramenée de 2 s à 800 ms (logo 500, trait 150+450,
+       sortie 600+200), et jouée une fois par appareil, plus une par onglet. */
     .intro-logo{font-size:clamp(28px,8vw,56px);font-weight:700;letter-spacing:.35em;
       background:linear-gradient(90deg,#00e5a0,#4db8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
-      animation:intro-logo 1000ms cubic-bezier(.2,.7,.2,1) both;}
+      animation:intro-logo 500ms cubic-bezier(.2,.7,.2,1) both;}
     .intro-trait{height:2px;width:0;background:linear-gradient(90deg,#00e5a0,#4db8ff);
-      animation:intro-trait 900ms 350ms cubic-bezier(.2,.7,.2,1) both;}
+      animation:intro-trait 450ms 150ms cubic-bezier(.2,.7,.2,1) both;}
     @keyframes intro-logo{from{opacity:0;transform:scale(.92);letter-spacing:.6em;}to{opacity:1;transform:none;}}
     @keyframes intro-trait{to{width:min(320px,60vw);}}
     @keyframes intro-sortie{to{opacity:0;visibility:hidden;}}
     .intro.attente{animation:none;}
-    .intro.sortie{animation:intro-sortie 300ms ease-in 700ms both;}
+    .intro.sortie{animation:intro-sortie 200ms ease-in 300ms both;}
     .intro-toucher{margin-top:18px;font-size:12px;letter-spacing:.35em;color:#8892a4;
       animation:intro-pouls 1.6s ease-in-out 1.2s infinite both;}
     @keyframes intro-pouls{0%,100%{opacity:.35;}50%{opacity:1;}}
@@ -3826,6 +3872,7 @@ const Chip = ({
   bd,
   sz = 11
 }) => React.createElement("span", {
+  className: "chip",
   style: {
     display: "inline-block",
     whiteSpace: "nowrap",
@@ -3847,12 +3894,13 @@ const PastilleNote = ({
   if (!p) return React.createElement("span", {
     style: {
       fontSize: sz,
-      color: "#4a5570"
+      color: "#8892a4"
     }
   }, "\u2014");
   const motif = r.technique_neutralise && r.technique_neutralise.motif;
   return React.createElement("span", {
     title: p.plafonne ? `Note ${fmt(r.v53)} : couleur plafonnée au vert-jaune — titre peu échangé${motif ? ` (${motif})` : ""}. La note est inchangée.` : `Note ${fmt(r.v53)} : palier ${p.nom}, ${p.plage}`,
+    className: "pastille",
     style: {
       display: "inline-flex",
       alignItems: "center",
@@ -3864,6 +3912,7 @@ const PastilleNote = ({
     }
   }, React.createElement("span", {
     "aria-hidden": "true",
+    className: "rond",
     style: {
       display: "inline-block",
       width: sz,
@@ -3963,8 +4012,27 @@ const SECTOR_COL = {
   "FMCG": "#2E7D32",
   "Grande distribution": "#0D47A1"
 };
+const GABARIT_MASI = {
+  value: 88888.88,
+  chg: -8.88,
+  variation_points: -888.88,
+  veille: 88888.88,
+  ytd_pct: -88.88,
+  asof: "0000-00-00",
+  masi20: {
+    value: 8888.88,
+    change_pct: -8.88,
+    ytd_pct: -88.88
+  },
+  hausses: 88,
+  baisses: 88,
+  inchanges: 8,
+  volume_mad: 888.8e6,
+  transactions: 8888
+};
 const CarteIndices = ({
-  masi
+  masi,
+  gabarit = false
 }) => {
   const coul = v => v > 0 ? "#00e5a0" : v < 0 ? "#ff4f5a" : "#8892a4";
   const fleche = v => v > 0 ? "▲" : v < 0 ? "▼" : "■";
@@ -4002,9 +4070,89 @@ const CarteIndices = ({
       localStorage.setItem("bvc_masi_graphe", graphe ? "1" : "0");
     } catch {}
   }, [graphe]);
+  const varia = v => v == null ? null : React.createElement("b", {
+    style: {
+      color: coul(v),
+      whiteSpace: "nowrap"
+    }
+  }, fleche(v), " ", pct(v));
   return React.createElement("div", {
-    className: "bandeau-masi carte-indices"
+    className: "bandeau-masi carte-indices",
+    "data-gabarit": gabarit || undefined,
+    "aria-hidden": gabarit || undefined,
+    "aria-busy": gabarit || undefined
   }, React.createElement("div", {
+    className: "indices-ligne"
+  }, React.createElement("span", {
+    style: {
+      color: "#4db8ff",
+      fontWeight: 700,
+      letterSpacing: 1
+    }
+  }, "MASI"), React.createElement("b", {
+    style: {
+      color: "#fff",
+      fontSize: 15
+    }
+  }, nb(masi.value)), varia(ch), masi.stale && React.createElement("span", {
+    style: {
+      fontSize: 10,
+      fontWeight: 700,
+      color: "#ffd740"
+    }
+  }, "\u26A0 ", masi.asof ? jj(masi.asof) : "périmé"), m20 && m20.value != null && React.createElement(React.Fragment, null, React.createElement("span", {
+    style: {
+      color: "#1a2540"
+    }
+  }, "|"), React.createElement("span", {
+    style: {
+      color: "#8892a4",
+      letterSpacing: 1
+    }
+  }, "MASI\xA020"), React.createElement("b", {
+    style: {
+      color: "#e8eef8"
+    }
+  }, nb(m20.value)), varia(m20.change_pct), m20.asof && masi.asof && m20.asof !== masi.asof && React.createElement("span", {
+    style: {
+      fontSize: 10,
+      color: "#ff8f00"
+    }
+  }, "\u26A0 ", jj(m20.asof))), masi.hausses != null && masi.baisses != null && tot > 0 && React.createElement(React.Fragment, null, React.createElement("span", {
+    style: {
+      color: "#1a2540"
+    }
+  }, "|"), React.createElement("span", {
+    style: {
+      color: "#00e5a0",
+      fontWeight: 700
+    }
+  }, masi.hausses, "\u25B2"), React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, masi.inchanges ?? 0, "="), React.createElement("span", {
+    style: {
+      color: "#ff4f5a",
+      fontWeight: 700
+    }
+  }, masi.baisses, "\u25BC")), React.createElement("button", {
+    onClick: () => setGraphe(v => !v),
+    title: "Graphique du MASI",
+    "aria-label": "Graphique du MASI",
+    style: {
+      marginLeft: "auto",
+      fontSize: 11,
+      padding: "0 8px",
+      borderRadius: 3,
+      fontFamily: "var(--font)",
+      flex: "0 0 auto",
+      background: graphe ? "rgba(77,184,255,.15)" : "transparent",
+      border: `1px solid ${graphe ? "rgba(77,184,255,.4)" : "#1a2540"}`,
+      color: graphe ? "#4db8ff" : "#8892a4"
+    }
+  }, "\uD83D\uDCC8")), React.createElement("div", {
+    className: "carte-ind",
     style: carte
   }, React.createElement("div", {
     style: {
@@ -4097,6 +4245,7 @@ const CarteIndices = ({
       color: coul(masi.ytd_pct)
     }
   }, pct(masi.ytd_pct))))), masi.masi20 && masi.masi20.value != null && React.createElement("div", {
+    className: "carte-ind",
     style: carte,
     title: `MASI 20 — les vingt plus grosses capitalisations.${m20.ytd_pct != null && masi.ytd_pct != null ? ` Écart de ${nb(Math.abs(m20.ytd_pct - masi.ytd_pct), 1)} point(s) avec le MASI sur l'année.` : ""}`
   }, React.createElement("div", {
@@ -4145,6 +4294,7 @@ const CarteIndices = ({
       color: coul(m20.ytd_pct)
     }
   }, pct(m20.ytd_pct))))), React.createElement("div", {
+    className: "carte-ind",
     style: carte
   }, React.createElement("div", {
     style: etiquette
@@ -4206,7 +4356,7 @@ const CarteIndices = ({
       color: "#e8eef8",
       fontSize: 14
     }
-  }, masi.volume_mad >= 1e9 ? `${nb(masi.volume_mad / 1e9)} Md DH` : `${nb(masi.volume_mad / 1e6, 1)} M DH`), masi.transactions != null && React.createElement("span", null, " \xB7 ", masi.transactions.toLocaleString("fr-FR"), " transactions"))), graphe && React.createElement("div", {
+  }, masi.volume_mad >= 1e9 ? `${nb(masi.volume_mad / 1e9)} Md DH` : `${nb(masi.volume_mad / 1e6, 1)} M DH`), masi.transactions != null && React.createElement("span", null, " \xB7 ", masi.transactions.toLocaleString("fr-FR"), " transactions"))), graphe && !gabarit && React.createElement("div", {
     style: {
       ...carte,
       gridColumn: "1/-1",
@@ -4696,6 +4846,7 @@ const GraphiqueMASI = () => {
   });
   const n = serie ? serie.length : 0;
   const corps = React.createElement("div", null, React.createElement("div", {
+    className: "barre-graphe",
     style: {
       display: "flex",
       gap: 6,
@@ -4705,13 +4856,16 @@ const GraphiqueMASI = () => {
     }
   }, Object.keys(N).map(k => React.createElement("button", {
     key: k,
+    className: "btn-graphe",
     onClick: () => setFenetre(k),
     style: b(fenetre === k)
   }, k)), React.createElement("button", {
+    className: "btn-graphe",
     onClick: () => chart.current && vueEntiere(chart.current, n, n - Math.min(n, N[fenetre])),
     title: "Revenir \xE0 la vue de d\xE9part (ou double-clic)",
     style: b(false)
   }, "\u27F3"), React.createElement("button", {
+    className: "btn-graphe",
     onClick: () => setPlein(v => !v),
     style: b(plein)
   }, plein ? "⤡ RÉDUIRE" : "⤢ AGRANDIR")), React.createElement("div", {
@@ -4741,7 +4895,7 @@ const GraphiqueMASI = () => {
   }, "Historique du MASI indisponible."), n > 1 && React.createElement("div", {
     style: {
       fontSize: 9,
-      color: "#4a5570",
+      color: "#8892a4",
       marginTop: 4
     }
   }, "Cl\xF4tures quotidiennes \xB7 ", n, " s\xE9ances depuis le ", dateFR(serie[0].time), " \xB7 pincer ou molette : zoom \xB7 glisser : d\xE9placer \xB7 double-clic : vue de d\xE9part"));
@@ -4901,7 +5055,7 @@ const SignauxTechniques = ({
   }, "force sur 6 mois : mieux que ", Math.round(v2.rang_mom120 * 100), " % de la cote")), ligne("cassure", !!v2.cassure_recente), ligne("surachat", !!v2.surachat_recent), ligne(reg && !reg.tendance ? "pullback_off" : "pullback_on", !!v2.pullback), React.createElement("div", {
     style: {
       fontSize: 9,
-      color: "#4a5570",
+      color: "#8892a4",
       marginTop: 6
     }
   }, "\u25CF signal pr\xE9sent dans les 20 derni\xE8res s\xE9ances \xB7 chiffres mesur\xE9s sur la BVC (titres liquides) : \xE9cart au MASI 60 s\xE9ances apr\xE8s le signal, dividendes compris, frais non inclus ; % gagnants = part des cas o\xF9 l'\xE9cart est positif, IC = intervalle de Wilson \xE0 95 %. Observations chevauchantes : l'incertitude r\xE9elle est plus large. Une fr\xE9quence pass\xE9e, pas une promesse.")));
@@ -5378,6 +5532,7 @@ const StockChart = ({
     onClick,
     children
   }) => React.createElement("button", {
+    className: "btn-graphe",
     onClick: onClick,
     title: titre,
     style: {
@@ -5398,6 +5553,7 @@ const StockChart = ({
   };
   const msg = etat !== "ok" ? MESSAGES[etat] : null;
   const corps = React.createElement("div", null, React.createElement("div", {
+    className: "barre-graphe",
     style: {
       display: "flex",
       gap: 6,
@@ -5412,6 +5568,7 @@ const StockChart = ({
     }
   }, "P\xC9RIODE"), ["5J", "1M", "3M", "6M", "1A", "3A", "TOUT"].map(p => React.createElement("button", {
     key: p,
+    className: "btn-graphe",
     onClick: () => changePeriod(p),
     style: {
       background: period === p ? "rgba(77,184,255,.15)" : "transparent",
@@ -5586,7 +5743,7 @@ const StockChart = ({
   }), etat === "ok" && React.createElement("div", {
     style: {
       fontSize: 9,
-      color: "#4a5570",
+      color: "#8892a4",
       marginTop: 4
     }
   }, "Pincer ou molette : zoom \xB7 Glisser : d\xE9placer \xB7 Double-clic : vue de d\xE9part"));
@@ -5928,7 +6085,7 @@ const Intro = () => {
   const [vu, setVu] = useState(() => {
     try {
       if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return true;
-      return sessionStorage.getItem("bvc_intro") === "1";
+      return localStorage.getItem("bvc_intro") === "1";
     } catch (e) {
       return true;
     }
@@ -5938,17 +6095,17 @@ const Intro = () => {
   useEffect(() => {
     if (vu) return;
     try {
-      sessionStorage.setItem("bvc_intro", "1");
+      localStorage.setItem("bvc_intro", "1");
     } catch (e) {}
     ctx.current = contexteAudio();
     if (ctx.current && ctx.current.state === "running") {
       jouerSonOuverture(ctx.current);
-      const t = setTimeout(() => setVu(true), 2000);
+      const t = setTimeout(() => setVu(true), 800);
       return () => clearTimeout(t);
     }
     setPhase(ctx.current ? "attente" : "auto");
     if (!ctx.current) {
-      const t = setTimeout(() => setVu(true), 2000);
+      const t = setTimeout(() => setVu(true), 800);
       return () => clearTimeout(t);
     }
   }, [vu]);
@@ -5959,7 +6116,7 @@ const Intro = () => {
     }
     jouerSonOuverture(ctx.current);
     setPhase("sortie");
-    setTimeout(() => setVu(true), 1000);
+    setTimeout(() => setVu(true), 500);
   };
   useEffect(() => {
     if (vu || phase !== "attente") return;
@@ -6368,7 +6525,7 @@ const Header = ({
   }, React.createElement("span", {
     style: {
       fontSize: 9,
-      color: "#4a5570",
+      color: "#8892a4",
       letterSpacing: .5,
       marginRight: 2
     }
@@ -6384,7 +6541,7 @@ const Header = ({
         padding: "2px 9px",
         borderRadius: 3,
         border: `1px solid ${on ? c : c + "30"}`,
-        color: on ? c : "#4a5570",
+        color: on ? c : "#8892a4",
         background: on ? `${c}18` : "transparent",
         cursor: "pointer",
         fontFamily: "var(--font)",
@@ -6443,7 +6600,8 @@ const Header = ({
   }, "donn\xE9es :"), React.createElement("span", {
     style: {
       color: "#c8d3e8",
-      fontWeight: 600
+      fontWeight: 600,
+      minWidth: "19ch"
     }
   }, ts || "—")), mktStatus && React.createElement("span", {
     style: {
@@ -6456,8 +6614,11 @@ const Header = ({
       fontWeight: 700,
       letterSpacing: .5
     }
-  }, "BVC ", mktStatus.label), masi && React.createElement(CarteIndices, {
+  }, "BVC ", mktStatus.label), masi ? React.createElement(CarteIndices, {
     masi: masi
+  }) : React.createElement(CarteIndices, {
+    masi: GABARIT_MASI,
+    gabarit: true
   }))), React.createElement("div", {
     style: {
       display: "flex",
@@ -6510,7 +6671,7 @@ const Header = ({
       color: "#ffd740"
     }
   }, META.msgs, " msgs \xB7 ", META.years, " ans \xB7 ", META.signals, " signaux"))), React.createElement("div", {
-    className: "onglets",
+    className: "onglets" + (peutRevenir ? "" : " sans-retour"),
     style: {
       display: "flex",
       gap: 6,
@@ -6524,7 +6685,7 @@ const Header = ({
     style: {
       background: peutRevenir ? "rgba(77,184,255,.12)" : "transparent",
       border: `1px solid ${peutRevenir ? "rgba(77,184,255,.4)" : "#141d30"}`,
-      color: peutRevenir ? "#4db8ff" : "#2a3550",
+      color: peutRevenir ? "#4db8ff" : "#8892a4",
       padding: "5px 12px",
       borderRadius: 4,
       fontSize: 12,
@@ -6534,11 +6695,13 @@ const Header = ({
       transition: "all .15s"
     }
   }, "\u25C0 RETOUR"), React.createElement("span", {
+    className: "onglet",
     style: {
       color: "#1a2540"
     }
   }, "|"), TABS.map(t => React.createElement("button", {
     key: t.id,
+    className: "onglet",
     onClick: () => setTab(t.id),
     style: {
       background: tab === t.id ? "rgba(0,229,160,.15)" : "transparent",
@@ -6671,7 +6834,7 @@ const Heatmap = ({
   }, sec.avgChg > 0 ? "▲" : "▼", " ", Math.abs(sec.avgChg).toFixed(2), "% moy."), React.createElement("span", {
     style: {
       fontSize: 9,
-      color: "#2a3550"
+      color: "#8892a4"
     }
   }, sec.rows.length, "\xD7")), React.createElement("div", {
     style: {
@@ -6726,7 +6889,7 @@ const Heatmap = ({
     style: {
       marginTop: 12,
       fontSize: 10,
-      color: "#4a5570",
+      color: "#8892a4",
       borderTop: "1px solid #0d1829",
       paddingTop: 8
     }
@@ -6823,7 +6986,8 @@ const Ranking = ({
   }, React.createElement("input", {
     value: search,
     onChange: e => setSearch(e.target.value),
-    placeholder: "Rechercher ticker ou nom\u2026",
+    placeholder: "Ticker ou soci\xE9t\xE9",
+    "aria-label": "Rechercher un titre",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -7047,7 +7211,7 @@ const Ranking = ({
     }
   }, scoreModeLabel(scoreMode)), React.createElement("span", {
     style: {
-      color: "#4a5570",
+      color: "#8892a4",
       fontSize: 10
     }
   }, "\u2014 Le score composite officiel reste inchang\xE9 ; les couleurs, propres \xE0 la note officielle, sont masqu\xE9es")), React.createElement("div", {
@@ -7122,6 +7286,7 @@ const Ranking = ({
         minWidth: 0
       }
     }, React.createElement("div", {
+      className: "ligne-ticker",
       style: {
         display: "flex",
         alignItems: "center",
@@ -7156,9 +7321,11 @@ const Ranking = ({
         toggleFav(sym);
       },
       title: fav.includes(sym) ? "Retirer des favoris" : "Ajouter aux favoris",
+      className: "etoile",
+      "aria-pressed": fav.includes(sym),
       style: {
         fontSize: 14,
-        color: fav.includes(sym) ? "#ffd740" : "#2a3550",
+        color: fav.includes(sym) ? "#ffd740" : "#8892a4",
         border: "none",
         background: "none",
         cursor: "pointer",
@@ -7168,12 +7335,17 @@ const Ranking = ({
       }
     }, fav.includes(sym) ? "★" : "☆")), r.name && React.createElement("div", {
       className: "nom-societe",
+      title: r.name,
       style: {
         fontSize: 12,
         color: "#c8d3e8",
         overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
+        display: "-webkit-box",
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: "vertical",
+        whiteSpace: "normal",
+        overflowWrap: "break-word",
+        lineHeight: 1.25,
         maxWidth: 160,
         marginTop: 1
       }
@@ -7370,7 +7542,7 @@ const Ranking = ({
       title: "La couleur n'existe que pour la pond\xE9ration officielle",
       style: {
         fontSize: 11,
-        color: "#4a5570",
+        color: "#8892a4",
         letterSpacing: 1
       }
     }, "\u2014") : meta(r).susp ? React.createElement(Chip, {
@@ -8541,7 +8713,7 @@ const TickerNews = ({
   }, a.source), React.createElement("span", {
     style: {
       fontSize: 9,
-      color: "#2a3550",
+      color: "#8892a4",
       marginLeft: "auto"
     }
   }, fmtD(a.date))))));
@@ -8575,7 +8747,18 @@ const Detail = ({
     const q = detSearch.trim().toUpperCase();
     return (d.symbol || d.ticker || "").includes(q) || tk(d).includes(q) || (d.name || "").toUpperCase().includes(q);
   }) : [...rows]).sort((a, b) => tk(a).localeCompare(tk(b)));
-  return React.createElement("div", null, React.createElement("div", {
+  const refFiche = useRef(null);
+  useEffect(() => {
+    try {
+      if (refFiche.current && window.matchMedia && window.matchMedia("(max-width:640px)").matches) refFiche.current.scrollIntoView({
+        block: "start"
+      });
+    } catch (e) {}
+  }, [sel]);
+  return React.createElement("div", {
+    ref: refFiche
+  }, React.createElement("div", {
+    className: "selecteur-titres",
     style: {
       display: "flex",
       gap: 8,
@@ -8607,6 +8790,7 @@ const Detail = ({
       background: "transparent"
     }
   }, "\u2715")), React.createElement("div", {
+    className: "selecteur-titres",
     style: {
       display: "flex",
       gap: 4,
@@ -8698,9 +8882,11 @@ const Detail = ({
   }, "\u26A1"))), React.createElement("button", {
     onClick: () => toggleFav(sym),
     title: fav.includes(sym) ? "Retirer des favoris" : "Ajouter aux favoris",
+    className: "etoile",
+    "aria-pressed": fav.includes(sym),
     style: {
       fontSize: 18,
-      color: fav.includes(sym) ? "#ffd740" : "#2a3550",
+      color: fav.includes(sym) ? "#ffd740" : "#8892a4",
       border: "none",
       background: "none",
       cursor: "pointer",
@@ -9843,7 +10029,7 @@ const Weights = () => {
   })))), React.createElement("div", {
     style: {
       fontSize: 10,
-      color: "#4a5570",
+      color: "#8892a4",
       marginTop: 8
     }
   }, "NLP \xE0 0 % dans toutes les situations. Pourcentages tels que rendus par le moteur.")));

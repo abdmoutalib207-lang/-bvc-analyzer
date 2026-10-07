@@ -23,6 +23,21 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     .mobile-seul{display:none}
+    /* L'étoile des favoris (07/10/2026) : #2a3550 sur le fond, contraste
+       1,59 — invisible. Teinte --dim, et une boîte de 32 px au moins dont les
+       marges négatives rendent l'encombrement : la ligne ne grandit pas. */
+    .etoile{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;margin:-9px -10px}
+    .indices-ligne{display:none;align-items:center;gap:7px;height:36px;padding:0 10px;font-size:12px;white-space:nowrap;
+      overflow-x:auto;scrollbar-width:none;border:1px solid rgba(77,184,255,.22);border-radius:8px;
+      background:linear-gradient(180deg,rgba(77,184,255,.07),rgba(77,184,255,.02));font-variant-numeric:tabular-nums}
+    .indices-ligne::-webkit-scrollbar{display:none}
+    /* Gabarit de la carte des indices : les cadres restent, leur contenu est
+       masqué, un reflet dit que ça charge. */
+    [data-gabarit] .carte-ind *,[data-gabarit] .indices-ligne *{visibility:hidden}
+    [data-gabarit] .carte-ind,[data-gabarit] .indices-ligne{position:relative;overflow:hidden}
+    [data-gabarit] .carte-ind::after,[data-gabarit] .indices-ligne::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+      background:linear-gradient(90deg,transparent,rgba(200,211,232,.06),transparent);animation:reflet 1.2s ease-in-out infinite;}
+    @media (prefers-reduced-motion:reduce){[data-gabarit] .carte-ind::after,[data-gabarit] .indices-ligne::after{display:none;}}
     .carte-indices{flex-basis:100%;width:100%;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.2fr);gap:10px;margin-top:8px}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
     /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
@@ -35,13 +50,24 @@
       .entete{position:static!important;padding:8px 12px!important}
       .badge-version,.choix-score,.entete-droite{display:none!important}
       .bandeau-masi{flex-wrap:wrap!important;row-gap:4px}
-      .onglets{flex-wrap:nowrap!important;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
-      .onglets::-webkit-scrollbar{display:none}
-      .onglets>*{flex:0 0 auto}
+      /* En-tête téléphone (07/10/2026) : 552 px sur 844, la 1re ligne du
+         classement sous la ligne de flottaison. Le MENU donne déjà toutes
+         les vues : la rangée d'onglets disparaît, seul RETOUR reste quand
+         il y a une vue où revenir. Les indices tiennent sur une ligne. */
+      .onglets .onglet{display:none!important}
+      .onglets.sans-retour{display:none!important}
       .onglets button{padding:7px 12px!important}
       .mobile-seul{display:block!important}
-      .carte-indices{grid-template-columns:1fr 1fr!important;gap:8px!important}
-      .carte-indices>:first-child{grid-column:1/-1}
+      .carte-indices{grid-template-columns:1fr!important;gap:6px!important;margin-top:4px!important}
+      .carte-indices>.carte-ind{display:none!important}
+      .indices-ligne{display:flex!important}
+      /* La fiche (07/10/2026) : les 80 boutons de titres prenaient l'écran
+         avant la fiche elle-même ; on choisit un titre depuis le classement. */
+      .selecteur-titres{display:none!important}
+      /* Plancher de police (07/10/2026) : 413 textes sous 10 px dans le
+         classement à 390 px, le plus petit à 8. Les tailles sont posées en
+         ligne ; on relève ici toutes celles de 8 à 9,5 px. */
+      [style*="font-size: 8px"],[style*="font-size: 8.5px"],[style*="font-size: 9px"],[style*="font-size: 9.5px"]{font-size:10px!important}
       /* Le classement garde : ticker, clôture (+ ouverture), variation
          (+ volume), score, couleur de la note. */
       .classement{min-width:0!important}
@@ -55,7 +81,19 @@
          la note colorée est à côté. La mention « titre peu échangé » reste,
          en petit et sur deux lignes : elle explique une couleur sous la note. */
       .classement .pastille-texte{display:none}
-      .classement .pastille-plafond{white-space:normal;font-size:9px;line-height:1.2;max-width:58px}
+      .classement .pastille-plafond{white-space:normal;line-height:1.2}
+      /* 07/10/2026 : la colonne débordait de 33 px à 390 px (bord droit à
+         409). Le remplissage 3px 5px s'appliquait à TOUT le contenu, rond
+         compris : 92 px pour une colonne qui en a 60. Le rond passe au-dessus
+         de sa mention, les étiquettes se coupent aux mots. */
+      .classement th:nth-child(14),.classement td:nth-child(14){width:64px;max-width:64px}
+      .classement td:nth-child(14) .pastille{flex-direction:column;align-items:flex-start;gap:3px}
+      .classement td:nth-child(14) .rond{padding:0!important}
+      .classement td:nth-child(14){padding-left:1px!important;padding-right:1px!important}
+      .classement td:nth-child(14) .chip{padding:2px 3px!important;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+      /* La ligne « CMT ~hist ☆ » tenait la colonne TICKER à 124 px : elle
+         peut désormais se replier. */
+      .classement .ligne-ticker{flex-wrap:wrap;row-gap:2px}
       /* Le secteur prenait trop de largeur : sur téléphone, le code, un nom
          abrégé et le logo en miniature suffisent à reconnaître le titre. */
       .secteur-societe{display:none!important}
@@ -64,8 +102,7 @@
       .classement .logo-pastille{width:26px!important;height:26px!important;font-size:8px!important}
       .classement td:nth-child(2)>div{gap:7px!important}
       .nom-societe{max-width:80px!important;font-size:11px!important}
-      .classement td:nth-child(14) *{font-size:9.5px!important;padding:3px 5px!important;letter-spacing:0!important;white-space:normal!important}
-      .classement td:nth-child(14){max-width:92px}
+      .classement td:nth-child(14) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}
       .classement td:nth-child(4),.classement td:nth-child(4) *{white-space:normal!important}
     }
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -114,6 +151,13 @@
       button{position:relative;}
       button::after{content:"";position:absolute;inset:-6px -2px;}
       input{font-size:16px!important;}
+      /* Boutons du graphique (07/10/2026) : 26 à 36 px de large, zone de
+         30 px pour ⟳. Largeur minimale 38 + 3 px de chaque côté = 44 ; les
+         rangées s'écartent de 12 px pour que les zones (6 px au-dessus et
+         au-dessous) ne se chevauchent pas. */
+      .btn-graphe{min-width:38px;}
+      .btn-graphe::after{inset:-6px -3px!important;}
+      .barre-graphe{row-gap:12px!important;}
     }
     /* Menu principal (01/10/2026), demande d'Abd Moutalib : « les boutons se
        cachent, il faut toujours les chercher ». Un bouton bien visible, un
@@ -143,17 +187,19 @@
     .tuile:hover{transform:translateY(-3px) scale(1.03);border-color:rgba(77,184,255,.45);
       box-shadow:0 10px 24px rgba(0,0,0,.45)!important;filter:none!important;}
     .intro{position:fixed;inset:0;z-index:1000;background:#080d1a;display:flex;flex-direction:column;
-      align-items:center;justify-content:center;gap:14px;cursor:pointer;animation:intro-sortie 300ms ease-in 1700ms both;}
+      align-items:center;justify-content:center;gap:14px;cursor:pointer;animation:intro-sortie 200ms ease-in 600ms both;}
+    /* 07/10/2026 : ouverture ramenée de 2 s à 800 ms (logo 500, trait 150+450,
+       sortie 600+200), et jouée une fois par appareil, plus une par onglet. */
     .intro-logo{font-size:clamp(28px,8vw,56px);font-weight:700;letter-spacing:.35em;
       background:linear-gradient(90deg,#00e5a0,#4db8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
-      animation:intro-logo 1000ms cubic-bezier(.2,.7,.2,1) both;}
+      animation:intro-logo 500ms cubic-bezier(.2,.7,.2,1) both;}
     .intro-trait{height:2px;width:0;background:linear-gradient(90deg,#00e5a0,#4db8ff);
-      animation:intro-trait 900ms 350ms cubic-bezier(.2,.7,.2,1) both;}
+      animation:intro-trait 450ms 150ms cubic-bezier(.2,.7,.2,1) both;}
     @keyframes intro-logo{from{opacity:0;transform:scale(.92);letter-spacing:.6em;}to{opacity:1;transform:none;}}
     @keyframes intro-trait{to{width:min(320px,60vw);}}
     @keyframes intro-sortie{to{opacity:0;visibility:hidden;}}
     .intro.attente{animation:none;}
-    .intro.sortie{animation:intro-sortie 300ms ease-in 700ms both;}
+    .intro.sortie{animation:intro-sortie 200ms ease-in 300ms both;}
     .intro-toucher{margin-top:18px;font-size:12px;letter-spacing:.35em;color:#8892a4;
       animation:intro-pouls 1.6s ease-in-out 1.2s infinite both;}
     @keyframes intro-pouls{0%,100%{opacity:.35;}50%{opacity:1;}}
@@ -842,19 +888,19 @@ const Bar=({v,max=10,c,h=6})=>(
   </div>
 );
 const Chip=({label,bg,fg,bd,sz=11})=>(
-  <span style={{display:"inline-block",whiteSpace:"nowrap",background:bg,color:fg,border:`1px solid ${bd}`,borderRadius:4,padding:"2px 8px",fontSize:sz,fontWeight:600,fontFamily:"var(--font)"}}>{label}</span>
+  <span className="chip" style={{display:"inline-block",whiteSpace:"nowrap",background:bg,color:fg,border:`1px solid ${bd}`,borderRadius:4,padding:"2px 8px",fontSize:sz,fontWeight:600,fontFamily:"var(--font)"}}>{label}</span>
 );
 /* La pastille qui remplace le mot d'action : un rond de la couleur du palier
    et la plage de note qu'il couvre. Sur un titre plafonné, le texte neutre
    « titre peu échangé » dit pourquoi la couleur est en dessous de la note. */
 const PastilleNote=({r,sz=11})=>{const p=couleurNote(r);
-  if(!p)return <span style={{fontSize:sz,color:"#4a5570"}}>—</span>;
+  if(!p)return <span style={{fontSize:sz,color:"#8892a4"}}>—</span>;
   const motif=r.technique_neutralise&&r.technique_neutralise.motif;
   return <span title={p.plafonne
       ?`Note ${fmt(r.v53)} : couleur plafonnée au vert-jaune — titre peu échangé${motif?` (${motif})`:""}. La note est inchangée.`
       :`Note ${fmt(r.v53)} : palier ${p.nom}, ${p.plage}`}
-    style={{display:"inline-flex",alignItems:"center",gap:6,whiteSpace:"nowrap",fontSize:sz,color:p.c,fontWeight:600}}>
-    <span aria-hidden="true" style={{display:"inline-block",width:sz,height:sz,borderRadius:"50%",background:p.c,boxShadow:`0 0 6px ${p.c}60`,flex:"0 0 auto"}}/>
+    className="pastille" style={{display:"inline-flex",alignItems:"center",gap:6,whiteSpace:"nowrap",fontSize:sz,color:p.c,fontWeight:600}}>
+    <span aria-hidden="true" className="rond" style={{display:"inline-block",width:sz,height:sz,borderRadius:"50%",background:p.c,boxShadow:`0 0 6px ${p.c}60`,flex:"0 0 auto"}}/>
     <span className={p.plafonne?"pastille-plafond":"pastille-texte"}>{p.plafonne?"titre peu échangé":p.plage}</span></span>;};
 const Delta=({d})=>{
   if(d==null||isNaN(d))return<span style={{fontSize:10,padding:"1px 5px",borderRadius:3,background:"#8892a415",color:"#8892a4",border:"1px solid #8892a428",fontWeight:700}}>—</span>;
@@ -897,7 +943,17 @@ const SECTOR_COL={
    La variation en POINTS vient de la veille publiée par le moteur
    (`variation_points`) — pas du pourcentage arrondi, qui donnerait 105,89
    au lieu de 106,01 le 29/09. */
-const CarteIndices=({masi})=>{
+/* ⚠️ LE GABARIT — 07/10/2026. Tant que `masi` est vide, la carte n'était
+   pas rendue ; à son arrivée l'en-tête grandissait d'un coup et tout le
+   classement descendait (CLS mesuré 0,82 à 1440 px, 0,84 à 768). On rend
+   donc la MÊME carte, texte masqué, sur ce gabarit : des 8 et des 0 de la
+   longueur des vrais chiffres (police à chasse fixe), pour que les retours à
+   la ligne — et donc la hauteur — soient les mêmes à toute largeur.
+   Ce ne sont PAS des données : rien de ce gabarit ne s'affiche. */
+const GABARIT_MASI={value:88888.88,chg:-8.88,variation_points:-888.88,veille:88888.88,ytd_pct:-88.88,
+  asof:"0000-00-00",masi20:{value:8888.88,change_pct:-8.88,ytd_pct:-88.88},
+  hausses:88,baisses:88,inchanges:8,volume_mad:888.8e6,transactions:8888};
+const CarteIndices=({masi,gabarit=false})=>{
   const coul=v=>v>0?"#00e5a0":v<0?"#ff4f5a":"#8892a4";
   const fleche=v=>v>0?"▲":v<0?"▼":"■";
   const nb=(v,d=2)=>v==null?"—":(+v).toLocaleString("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -913,9 +969,32 @@ const CarteIndices=({masi})=>{
   // l'en-tête de chaque page. Le choix est mémorisé.
   const [graphe,setGraphe]=useState(()=>{try{return localStorage.getItem("bvc_masi_graphe")==="1";}catch{return false;}});
   useEffect(()=>{try{localStorage.setItem("bvc_masi_graphe",graphe?"1":"0");}catch{}},[graphe]);
+  // Téléphone (07/10/2026) : les trois cartes prenaient 282 px sur 844 ;
+  // sous 640 px elles laissent place à cette ligne, défilante si besoin.
+  // Les avertissements de date (⚠) y restent : un état incertain se voit.
+  const varia=v=>v==null?null:<b style={{color:coul(v),whiteSpace:"nowrap"}}>{fleche(v)} {pct(v)}</b>;
   return(
-    <div className="bandeau-masi carte-indices">
-      <div style={carte}>
+    <div className="bandeau-masi carte-indices" data-gabarit={gabarit||undefined} aria-hidden={gabarit||undefined}
+      aria-busy={gabarit||undefined}>
+      <div className="indices-ligne">
+        <span style={{color:"#4db8ff",fontWeight:700,letterSpacing:1}}>MASI</span>
+        <b style={{color:"#fff",fontSize:15}}>{nb(masi.value)}</b>{varia(ch)}
+        {masi.stale&&<span style={{fontSize:10,fontWeight:700,color:"#ffd740"}}>⚠ {masi.asof?jj(masi.asof):"périmé"}</span>}
+        {m20&&m20.value!=null&&<>
+          <span style={{color:"#1a2540"}}>|</span>
+          <span style={{color:"#8892a4",letterSpacing:1}}>MASI&nbsp;20</span>
+          <b style={{color:"#e8eef8"}}>{nb(m20.value)}</b>{varia(m20.change_pct)}
+          {m20.asof&&masi.asof&&m20.asof!==masi.asof&&<span style={{fontSize:10,color:"#ff8f00"}}>⚠ {jj(m20.asof)}</span>}</>}
+        {masi.hausses!=null&&masi.baisses!=null&&tot>0&&<>
+          <span style={{color:"#1a2540"}}>|</span>
+          <span style={{color:"#00e5a0",fontWeight:700}}>{masi.hausses}▲</span>
+          <span style={{color:"#8892a4"}}>{masi.inchanges??0}=</span>
+          <span style={{color:"#ff4f5a",fontWeight:700}}>{masi.baisses}▼</span></>}
+        <button onClick={()=>setGraphe(v=>!v)} title="Graphique du MASI" aria-label="Graphique du MASI"
+          style={{marginLeft:"auto",fontSize:11,padding:"0 8px",borderRadius:3,fontFamily:"var(--font)",flex:"0 0 auto",
+            background:graphe?"rgba(77,184,255,.15)":"transparent",border:`1px solid ${graphe?"rgba(77,184,255,.4)":"#1a2540"}`,color:graphe?"#4db8ff":"#8892a4"}}>📈</button>
+      </div>
+      <div className="carte-ind" style={carte}>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <span style={{...etiquette,color:"#4db8ff",fontWeight:700}}>MASI</span>
           {masi.asof&&<span style={{fontSize:10,color:"#5a6478"}}>séance du {jj(masi.asof)}</span>}
@@ -942,7 +1021,7 @@ const CarteIndices=({masi})=>{
         </div>
       </div>
       {masi.masi20&&masi.masi20.value!=null&&
-        <div style={carte} title={`MASI 20 — les vingt plus grosses capitalisations.${m20.ytd_pct!=null&&masi.ytd_pct!=null?` Écart de ${nb(Math.abs(m20.ytd_pct-masi.ytd_pct),1)} point(s) avec le MASI sur l'année.`:""}`}>
+        <div className="carte-ind" style={carte} title={`MASI 20 — les vingt plus grosses capitalisations.${m20.ytd_pct!=null&&masi.ytd_pct!=null?` Écart de ${nb(Math.abs(m20.ytd_pct-masi.ytd_pct),1)} point(s) avec le MASI sur l'année.`:""}`}>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
             <span style={{...etiquette,fontWeight:700}}>MASI&nbsp;20</span>
             {/* Deux séances ne s'affichent jamais comme une seule : on DIT la date. */}
@@ -956,7 +1035,7 @@ const CarteIndices=({masi})=>{
             {m20.ytd_pct!=null&&<span style={{color:"#8892a4"}}>depuis janvier <b style={{color:coul(m20.ytd_pct)}}>{pct(m20.ytd_pct)}</b></span>}
           </div>
         </div>}
-      <div style={carte}>
+      <div className="carte-ind" style={carte}>
         <div style={etiquette}>La séance</div>
         {masi.hausses!=null&&masi.baisses!=null&&tot>0&&<>
           <div title={`${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges||0} inchangées sur ${masi.valeurs_traitees||tot} valeurs traitées`}
@@ -978,7 +1057,7 @@ const CarteIndices=({masi})=>{
             {masi.transactions!=null&&<span> · {masi.transactions.toLocaleString("fr-FR")} transactions</span>}
           </div>}
       </div>
-      {graphe&&<div style={{...carte,gridColumn:"1/-1",padding:"8px 10px"}}><GraphiqueMASI/></div>}
+      {graphe&&!gabarit&&<div style={{...carte,gridColumn:"1/-1",padding:"8px 10px"}}><GraphiqueMASI/></div>}
     </div>
   );
 };
@@ -1227,17 +1306,17 @@ const GraphiqueMASI=()=>{
   const n=serie?serie.length:0;
   const corps=(
     <div>
-      <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap",marginBottom:6}}>
-        {Object.keys(N).map(k=><button key={k} onClick={()=>setFenetre(k)} style={b(fenetre===k)}>{k}</button>)}
-        <button onClick={()=>chart.current&&vueEntiere(chart.current,n,n-Math.min(n,N[fenetre]))} title="Revenir à la vue de départ (ou double-clic)" style={b(false)}>⟳</button>
-        <button onClick={()=>setPlein(v=>!v)} style={b(plein)}>{plein?"⤡ RÉDUIRE":"⤢ AGRANDIR"}</button>
+      <div className="barre-graphe" style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap",marginBottom:6}}>
+        {Object.keys(N).map(k=><button key={k} className="btn-graphe" onClick={()=>setFenetre(k)} style={b(fenetre===k)}>{k}</button>)}
+        <button className="btn-graphe" onClick={()=>chart.current&&vueEntiere(chart.current,n,n-Math.min(n,N[fenetre]))} title="Revenir à la vue de départ (ou double-clic)" style={b(false)}>⟳</button>
+        <button className="btn-graphe" onClick={()=>setPlein(v=>!v)} style={b(plein)}>{plein?"⤡ RÉDUIRE":"⤢ AGRANDIR"}</button>
       </div>
       <div style={{position:"relative"}}>
         <div ref={ref}/>
         <div ref={refLeg} style={{position:"absolute",top:6,left:8,zIndex:3,pointerEvents:"none",fontSize:12,lineHeight:1.45,textShadow:"0 0 4px #0d1829"}}/>
       </div>
       {serie&&serie.length<2&&<div style={{fontSize:11,color:"#8892a4",padding:8}}>Historique du MASI indisponible.</div>}
-      {n>1&&<div style={{fontSize:9,color:"#4a5570",marginTop:4}}>Clôtures quotidiennes · {n} séances depuis le {dateFR(serie[0].time)} · pincer ou molette : zoom · glisser : déplacer · double-clic : vue de départ</div>}
+      {n>1&&<div style={{fontSize:9,color:"#8892a4",marginTop:4}}>Clôtures quotidiennes · {n} séances depuis le {dateFR(serie[0].time)} · pincer ou molette : zoom · glisser : déplacer · double-clic : vue de départ</div>}
     </div>
   );
   return plein?<PleinEcran titre="MASI — clôtures quotidiennes" fermer={()=>setPlein(false)}>{corps}</PleinEcran>:corps;
@@ -1295,7 +1374,7 @@ const SignauxTechniques=({r})=>{
         {ligne("cassure",!!v2.cassure_recente)}
         {ligne("surachat",!!v2.surachat_recent)}
         {ligne(reg&&!reg.tendance?"pullback_off":"pullback_on",!!v2.pullback)}
-        <div style={{fontSize:9,color:"#4a5570",marginTop:6}}>● signal présent dans les 20 dernières séances · chiffres mesurés sur la BVC (titres liquides) : écart au MASI 60 séances après le signal, dividendes compris, frais non inclus ; % gagnants = part des cas où l'écart est positif, IC = intervalle de Wilson à 95 %. Observations chevauchantes : l'incertitude réelle est plus large. Une fréquence passée, pas une promesse.</div>
+        <div style={{fontSize:9,color:"#8892a4",marginTop:6}}>● signal présent dans les 20 dernières séances · chiffres mesurés sur la BVC (titres liquides) : écart au MASI 60 séances après le signal, dividendes compris, frais non inclus ; % gagnants = part des cas où l'écart est positif, IC = intervalle de Wilson à 95 %. Observations chevauchantes : l'incertitude réelle est plus large. Une fréquence passée, pas une promesse.</div>
       </>)}
     </div>
   );
@@ -1547,7 +1626,7 @@ const StockChart=({r})=>{
   const reinitialiser=()=>{if(chartMain.current&&liveCandles)vueEntiere(chartMain.current,liveCandles.length);};
 
   const Btn=({on,c,titre,onClick,children})=>(
-    <button onClick={onClick} title={titre} style={{background:on?`${c}26`:"transparent",border:`1px solid ${on?c+"66":"#1a2540"}`,color:on?c:"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"var(--font)"}}>{children}</button>
+    <button className="btn-graphe" onClick={onClick} title={titre} style={{background:on?`${c}26`:"transparent",border:`1px solid ${on?c+"66":"#1a2540"}`,color:on?c:"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"var(--font)"}}>{children}</button>
   );
 
   /* Ce que l'on montre quand il n'y a pas de graphique. Trois phrases
@@ -1561,10 +1640,10 @@ const StockChart=({r})=>{
 
   const corps=(
     <div>
-      <div style={{display:"flex",gap:6,marginBottom:6,alignItems:"center",flexWrap:"wrap"}}>
+      <div className="barre-graphe" style={{display:"flex",gap:6,marginBottom:6,alignItems:"center",flexWrap:"wrap"}}>
         <span style={{fontSize:10,color:"#8892a4"}}>PÉRIODE</span>
         {["5J","1M","3M","6M","1A","3A","TOUT"].map(p=>(
-          <button key={p} onClick={()=>changePeriod(p)} style={{background:period===p?"rgba(77,184,255,.15)":"transparent",border:period===p?"1px solid rgba(77,184,255,.4)":"1px solid #1a2540",color:period===p?"#4db8ff":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"var(--font)"}}>{p}</button>
+          <button key={p} className="btn-graphe" onClick={()=>changePeriod(p)} style={{background:period===p?"rgba(77,184,255,.15)":"transparent",border:period===p?"1px solid rgba(77,184,255,.4)":"1px solid #1a2540",color:period===p?"#4db8ff":"#8892a4",padding:"2px 8px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"var(--font)"}}>{p}</button>
         ))}
         <span style={{color:"#1a2540",margin:"0 2px"}}>|</span>
         <Btn on={mas[20]} c="#4db8ff" titre="Moyenne mobile 20 séances" onClick={()=>basculeMa(20)}>MA20</Btn>
@@ -1607,7 +1686,7 @@ const StockChart=({r})=>{
       </div>
       <div style={{fontSize:8,color:"#8892a4",letterSpacing:1,marginTop:2}}>MACD (12,26,9) · <span style={{color:"#4db8ff"}}>MACD</span> · <span style={{color:"#ffd740"}}>Signal</span></div>
       <div ref={refMacd}/>
-      {etat==="ok"&&<div style={{fontSize:9,color:"#4a5570",marginTop:4}}>Pincer ou molette : zoom · Glisser : déplacer · Double-clic : vue de départ</div>}
+      {etat==="ok"&&<div style={{fontSize:9,color:"#8892a4",marginTop:4}}>Pincer ou molette : zoom · Glisser : déplacer · Double-clic : vue de départ</div>}
     </div>
   );
 
@@ -1765,14 +1844,18 @@ function jouerSonOuverture(ctx){
   }catch(e){}
 }
 
-// ⚠️ L'ANIMATION D'OUVERTURE — 01/10/2026. Deux secondes, une fois par
-// visite, passable d'un toucher ; absente si le système demande moins de
+// ⚠️ L'ANIMATION D'OUVERTURE — 01/10/2026. 800 ms depuis le 07/10 (deux
+// secondes avant), une fois par appareil (par onglet avant), passable d'un
+// toucher ; absente si le système demande moins de
 // mouvement. Elle ne retarde rien : les données se chargent dessous.
 const Intro=()=>{
   const [vu,setVu]=useState(()=>{
     try{
       if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)return true;
-      return sessionStorage.getItem("bvc_intro")==="1";
+      // Une fois par APPAREIL (localStorage) : la revoir à chaque onglet
+      // retardait la lecture sans rien apprendre. Stockage refusé → pas
+      // d'ouverture plutôt qu'une ouverture à chaque visite.
+      return localStorage.getItem("bvc_intro")==="1";
     }catch(e){return true;}
   });
   // ⚠️ « TOUCHER POUR ENTRER » — 01/10/2026. Abd Moutalib : « toujours pas
@@ -1784,21 +1867,21 @@ const Intro=()=>{
   const [phase,setPhase]=useState("auto");
   useEffect(()=>{
     if(vu)return;
-    try{sessionStorage.setItem("bvc_intro","1");}catch(e){}
+    try{localStorage.setItem("bvc_intro","1");}catch(e){}
     ctx.current=contexteAudio();
     if(ctx.current&&ctx.current.state==="running"){
       jouerSonOuverture(ctx.current);
-      const t=setTimeout(()=>setVu(true),2000);
+      const t=setTimeout(()=>setVu(true),800);
       return()=>clearTimeout(t);
     }
     setPhase(ctx.current?"attente":"auto");
-    if(!ctx.current){const t=setTimeout(()=>setVu(true),2000);return()=>clearTimeout(t);}
+    if(!ctx.current){const t=setTimeout(()=>setVu(true),800);return()=>clearTimeout(t);}
   },[vu]);
   const entrer=()=>{
     if(phase!=="attente"){setVu(true);return;}
     jouerSonOuverture(ctx.current);
     setPhase("sortie");
-    setTimeout(()=>setVu(true),1000);
+    setTimeout(()=>setVu(true),500);
   };
   useEffect(()=>{
     if(vu||phase!=="attente")return;
@@ -1930,12 +2013,12 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
           <span className="badge-version" title="Pondération de RÉFÉRENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCHÉ, le même pour tous les titres — hors séance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche. Le pilier NLP est gelé à un poids de 0 : son corpus s'arrête au 02/07/2026 et il ne déplaçait plus que 0,37 point sur 10." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 65 · TECH 35 <span style={{color:"#8892a4"}}>· modulée par le marché · NLP gelé</span></span>
           {/* Score mode — composantes indépendantes */}
           <div className="choix-score" style={{display:"flex",alignItems:"center",gap:4,background:"rgba(10,18,32,.8)",border:"1px solid #1a2540",borderRadius:5,padding:"3px 6px"}}>
-            <span style={{fontSize:9,color:"#4a5570",letterSpacing:.5,marginRight:2}}>SCORE</span>
+            <span style={{fontSize:9,color:"#8892a4",letterSpacing:.5,marginRight:2}}>SCORE</span>
             {PONDERATIONS.map(p=>{
               const on=scoreMode.nom===p.nom, c=p.officiel?"#00e5a0":"#ffd740";
               return(
                 <button key={p.nom} onClick={()=>setScoreMode(p)} title={p.aide}
-                  style={{fontSize:10,padding:"2px 9px",borderRadius:3,border:`1px solid ${on?c:c+"30"}`,color:on?c:"#4a5570",background:on?`${c}18`:"transparent",cursor:"pointer",fontFamily:"var(--font)",fontWeight:on?700:400,transition:"all .15s"}}>
+                  style={{fontSize:10,padding:"2px 9px",borderRadius:3,border:`1px solid ${on?c:c+"30"}`,color:on?c:"#8892a4",background:on?`${c}18`:"transparent",cursor:"pointer",fontFamily:"var(--font)",fontWeight:on?700:400,transition:"all .15s"}}>
                   {p.nom}
                 </button>
               );
@@ -1952,10 +2035,12 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
             <span style={{fontSize:11,color:"#8892a4",display:"flex",alignItems:"center",gap:5}}>
               <span style={{display:"inline-block",width:7,height:7,borderRadius:"50%",background:pulse?"#00e5a0":"transparent",border:"1px solid #00e5a0",transition:"background .4s"}}/>
               <span style={{letterSpacing:.3}}>données :</span>
-              <span style={{color:"#c8d3e8",fontWeight:600}}>{ts||"—"}</span>
+              {/* Largeur réservée (« 06/10/2026 19:56:21 ») : l'horodatage arrive
+                  après le premier rendu et poussait la suite de la ligne. */}
+              <span style={{color:"#c8d3e8",fontWeight:600,minWidth:"19ch"}}>{ts||"—"}</span>
             </span>
             {mktStatus&&<span style={{background:`${mktStatus.color}18`,border:`1px solid ${mktStatus.color}40`,borderRadius:4,padding:"3px 10px",fontSize:11,color:mktStatus.color,fontWeight:700,letterSpacing:.5}}>BVC {mktStatus.label}</span>}
-            {masi&&<CarteIndices masi={masi}/>}
+            {masi?<CarteIndices masi={masi}/>:<CarteIndices masi={GABARIT_MASI} gabarit/>}
           </div>
         </div>
         <div style={{display:"flex",gap:8,alignItems:"center"}}>
@@ -1975,17 +2060,17 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
           <div style={{color:"#ffd740"}}>{META.msgs} msgs · {META.years} ans · {META.signals} signaux</div>
         </div>
       </div>
-      <div className="onglets" style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
+      <div className={"onglets"+(peutRevenir?"":" sans-retour")} style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
         {/* Retour à la vue précédente. Grisé quand il n'y a rien derrière —
             un bouton qui ne fait rien sans le dire use la confiance. */}
         <button onClick={onRetour} disabled={!peutRevenir}
           title={peutRevenir?"Revenir à la vue précédente":"Aucune vue précédente"}
-          style={{background:peutRevenir?"rgba(77,184,255,.12)":"transparent",border:`1px solid ${peutRevenir?"rgba(77,184,255,.4)":"#141d30"}`,color:peutRevenir?"#4db8ff":"#2a3550",padding:"5px 12px",borderRadius:4,fontSize:12,letterSpacing:1,cursor:peutRevenir?"pointer":"default",fontFamily:"var(--font)",transition:"all .15s"}}>
+          style={{background:peutRevenir?"rgba(77,184,255,.12)":"transparent",border:`1px solid ${peutRevenir?"rgba(77,184,255,.4)":"#141d30"}`,color:peutRevenir?"#4db8ff":"#8892a4",padding:"5px 12px",borderRadius:4,fontSize:12,letterSpacing:1,cursor:peutRevenir?"pointer":"default",fontFamily:"var(--font)",transition:"all .15s"}}>
           ◀ RETOUR
         </button>
-        <span style={{color:"#1a2540"}}>|</span>
+        <span className="onglet" style={{color:"#1a2540"}}>|</span>
         {TABS.map(t=>(
-          <button key={t.id} onClick={()=>setTab(t.id)} style={{background:tab===t.id?"rgba(0,229,160,.15)":"transparent",border:tab===t.id?"1px solid rgba(0,229,160,.5)":"1px solid #1a2540",color:tab===t.id?"#00e5a0":"#8892a4",padding:"5px 16px",borderRadius:4,fontSize:12,letterSpacing:1,fontWeight:tab===t.id?600:400,transition:"all .15s",position:"relative"}}>
+          <button key={t.id} className="onglet" onClick={()=>setTab(t.id)} style={{background:tab===t.id?"rgba(0,229,160,.15)":"transparent",border:tab===t.id?"1px solid rgba(0,229,160,.5)":"1px solid #1a2540",color:tab===t.id?"#00e5a0":"#8892a4",padding:"5px 16px",borderRadius:4,fontSize:12,letterSpacing:1,fontWeight:tab===t.id?600:400,transition:"all .15s",position:"relative"}}>
             {t.label}
             {t.badge&&<span style={{position:"absolute",top:-7,right:-7,background:"#ffd740",color:"#080d1a",borderRadius:"50%",width:16,height:16,fontSize:9,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center"}}>{t.badge}</span>}
           </button>
@@ -2029,7 +2114,7 @@ const Heatmap=({rows,setSel,setTab})=>{
             {sec.avgChg!==0&&<span style={{fontSize:9,color:sec.avgChg>0?"#00e5a0":"#ff4f5a"}}>
               {sec.avgChg>0?"▲":"▼"} {Math.abs(sec.avgChg).toFixed(2)}% moy.
             </span>}
-            <span style={{fontSize:9,color:"#2a3550"}}>{sec.rows.length}×</span>
+            <span style={{fontSize:9,color:"#8892a4"}}>{sec.rows.length}×</span>
           </div>
           <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
             {sec.rows.map(r=>{
@@ -2054,7 +2139,7 @@ const Heatmap=({rows,setSel,setTab})=>{
           </div>
         </div>
       ))}
-      <div style={{marginTop:12,fontSize:10,color:"#4a5570",borderTop:"1px solid #0d1829",paddingTop:8}}>
+      <div style={{marginTop:12,fontSize:10,color:"#8892a4",borderTop:"1px solid #0d1829",paddingTop:8}}>
         Clic sur une cellule → vue détaillée · Trié par capitalisation · Couleur = variation journalière
       </div>
     </div>
@@ -2127,7 +2212,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       <div style={{display:"flex",gap:8,marginBottom:10,alignItems:"center",flexWrap:"wrap"}}>
         <input
           value={search} onChange={e=>setSearch(e.target.value)}
-          placeholder="Rechercher ticker ou nom…"
+          placeholder="Ticker ou société" aria-label="Rechercher un titre"
           style={{background:"#0d1829",border:"1px solid #1a2540",color:"#c8d3e8",borderRadius:4,padding:"5px 10px",fontSize:12,fontFamily:"var(--font)",width:220,outline:"none"}}
         />
         <select value={sector} onChange={e=>setSector(e.target.value)}
@@ -2188,7 +2273,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         <span style={{color:"#ffd740",fontWeight:700}}>✱ MODE PERSONNALISÉ</span>
         <span style={{color:"#8892a4"}}>Score affiché :</span>
         <span style={{color:"#ffd740"}}>{scoreModeLabel(scoreMode)}</span>
-        <span style={{color:"#4a5570",fontSize:10}}>— Le score composite officiel reste inchangé ; les couleurs, propres à la note officielle, sont masquées</span>
+        <span style={{color:"#8892a4",fontSize:10}}>— Le score composite officiel reste inchangé ; les couleurs, propres à la note officielle, sont masquées</span>
       </div>}
       <div style={{overflowX:"auto"}}>
         <table className="classement" style={{width:"100%",borderCollapse:"collapse",minWidth:1220}}>
@@ -2218,16 +2303,20 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                     <div style={{display:"flex",alignItems:"center",gap:10}}>
                       <CompanyLogo sym={tk(r)} logo={r.symbol} sector={r.sector} size={34}/>
                       <div style={{minWidth:0}}>
-                        <div style={{display:"flex",alignItems:"center",gap:5}}>
+                        <div className="ligne-ticker" style={{display:"flex",alignItems:"center",gap:5}}>
                           <span style={{fontSize:16,color:"#fff",fontWeight:800,letterSpacing:.3}}>{tk(r)}</span>
                           {r.warn&&<span title={r.warnMsg} style={{fontSize:10,cursor:"help"}}>⚠️</span>}
                           {isStat&&<span title="Historique insuffisant : indicateurs techniques absents, la note technique s'abstient (5,0)" style={{fontSize:9,color:"#8892a4",border:"1px solid #1a2540",borderRadius:2,padding:"1px 3px",cursor:"default"}}>~hist</span>}
                           <button onClick={e=>{e.stopPropagation();toggleFav(sym);}} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
-                            style={{fontSize:14,color:fav.includes(sym)?"#ffd740":"#2a3550",border:"none",background:"none",cursor:"pointer",padding:"0 1px",lineHeight:1,transition:"color .15s"}}>
+                            className="etoile" aria-pressed={fav.includes(sym)}
+                            style={{fontSize:14,color:fav.includes(sym)?"#ffd740":"#8892a4",border:"none",background:"none",cursor:"pointer",padding:"0 1px",lineHeight:1,transition:"color .15s"}}>
                             {fav.includes(sym)?"★":"☆"}
                           </button>
                         </div>
-                        {r.name&&<div className="nom-societe" style={{fontSize:12,color:"#c8d3e8",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:160,marginTop:1}}>{r.name}</div>}
+                        {/* Deux lignes plutôt qu'un nom coupé (07/10/2026 : 34 noms sur 80
+                            tronqués à 390 px) ; au-delà, points de suspension
+                            et nom complet au survol. */}
+                        {r.name&&<div className="nom-societe" title={r.name} style={{fontSize:12,color:"#c8d3e8",overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",whiteSpace:"normal",overflowWrap:"break-word",lineHeight:1.25,maxWidth:160,marginTop:1}}>{r.name}</div>}
                         <div className="secteur-societe" style={{fontSize:10,color:"#6b7a99",marginTop:1}}>{r.sector}</div>
                       </div>
                     </div>
@@ -2304,7 +2393,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       seulement la couleur du palier de note (PastilleNote). */}
                   <td style={{padding:"8px 8px"}}>{customMode
                     ? <span title="La couleur n'existe que pour la pondération officielle"
-                        style={{fontSize:11,color:"#4a5570",letterSpacing:1}}>—</span>
+                        style={{fontSize:11,color:"#8892a4",letterSpacing:1}}>—</span>
                     /* Un titre suspendu passe AVANT le test de confiance : sa
                        confiance est nulle, mais « Données insuffisantes » serait
                        un contresens. Les données ne manquent pas — le titre ne
@@ -2819,7 +2908,7 @@ const TickerNews=({sym})=>{
           <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
             <span style={{fontSize:9,color:SC(a.sentiment),fontWeight:700}}>{a.sentiment||"NEUTRE"}</span>
             <span style={{fontSize:9,color:"#8892a4"}}>{a.source}</span>
-            <span style={{fontSize:9,color:"#2a3550",marginLeft:"auto"}}>{fmtD(a.date)}</span>
+            <span style={{fontSize:9,color:"#8892a4",marginLeft:"auto"}}>{fmtD(a.date)}</span>
           </div>
         </a>
       ))}
@@ -2872,15 +2961,26 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
     ? rows.filter(d=>{const q=detSearch.trim().toUpperCase();return (d.symbol||d.ticker||"").includes(q)||tk(d).includes(q)||(d.name||"").toUpperCase().includes(q);})
     : [...rows]).sort((a,b)=>tk(a).localeCompare(tk(b)));
 
+  /* Téléphone (07/10/2026) : la fiche s'ouvrait là où était le classement,
+     son haut hors de l'écran (y = −192 mesuré à 390 px). On l'amène en haut
+     à l'ouverture et à chaque changement de titre. */
+  const refFiche=useRef(null);
+  useEffect(()=>{
+    try{
+      if(refFiche.current&&window.matchMedia&&window.matchMedia("(max-width:640px)").matches)
+        refFiche.current.scrollIntoView({block:"start"});
+    }catch(e){}
+  },[sel]);
+
   return(
-    <div>
-      <div style={{display:"flex",gap:8,marginBottom:8,alignItems:"center",flexWrap:"wrap"}}>
+    <div ref={refFiche}>
+      <div className="selecteur-titres" style={{display:"flex",gap:8,marginBottom:8,alignItems:"center",flexWrap:"wrap"}}>
         <input value={detSearch} onChange={e=>setDetSearch(e.target.value)}
           placeholder="Filtrer ticker…"
           style={{background:"#0d1829",border:"1px solid #1a2540",color:"#c8d3e8",borderRadius:4,padding:"4px 8px",fontSize:11,fontFamily:"var(--font)",width:160,outline:"none"}}/>
         {detSearch&&<button onClick={()=>setDetSearch("")} style={{fontSize:10,color:"#8892a4",border:"none",background:"transparent"}}>✕</button>}
       </div>
-      <div style={{display:"flex",gap:4,marginBottom:14,flexWrap:"wrap",maxHeight:96,overflowY:"auto",padding:"4px 0"}}>
+      <div className="selecteur-titres" style={{display:"flex",gap:4,marginBottom:14,flexWrap:"wrap",maxHeight:96,overflowY:"auto",padding:"4px 0"}}>
         {visRows.map(d=>{const sym2=d.symbol||d.ticker;const cd=couleurNote(d);const ds=simu||!cd||meta(d).conf<=1?NEUTRE:teinte(cd.c);const a=sel===sym2;return(
           <button key={sym2} onClick={()=>setSel(sym2)} style={{background:a?ds.bg:"transparent",border:a?`1px solid ${ds.bd}`:"1px solid #1a2540",color:a?ds.fg:"#8892a4",padding:"2px 7px",borderRadius:3,fontSize:10,fontWeight:a?700:400,transition:"all .15s"}}>{tk(d)}</button>
         );})}
@@ -2898,7 +2998,8 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
             <div style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
               <span>{tk(r)} · {px(price)} DH<Perime r={r}/> <span style={{color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
               <button onClick={()=>toggleFav(sym)} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
-                style={{fontSize:18,color:fav.includes(sym)?"#ffd740":"#2a3550",border:"none",background:"none",cursor:"pointer",padding:"0 2px",lineHeight:1,transition:"color .2s"}}>
+                className="etoile" aria-pressed={fav.includes(sym)}
+                style={{fontSize:18,color:fav.includes(sym)?"#ffd740":"#8892a4",border:"none",background:"none",cursor:"pointer",padding:"0 2px",lineHeight:1,transition:"color .2s"}}>
                 {fav.includes(sym)?"★":"☆"}
               </button>
             </div>
@@ -3397,7 +3498,7 @@ const Weights=()=>{
               </tr>);})}</tbody>
           </table>
         </div>
-        <div style={{fontSize:10,color:"#4a5570",marginTop:8}}>NLP à 0 % dans toutes les situations. Pourcentages tels que rendus par le moteur.</div>
+        <div style={{fontSize:10,color:"#8892a4",marginTop:8}}>NLP à 0 % dans toutes les situations. Pourcentages tels que rendus par le moteur.</div>
       </div>
     </div>
   );

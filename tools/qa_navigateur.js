@@ -65,7 +65,7 @@ const ECRANS = [['telephone', 390, 844], ['tablette', 768, 1024], ['bureau', 144
     if (deborde > 2) constats.push(`${nom} : défilement horizontal de ${deborde} px`);
     for (const t of TITRES) {
       try {
-        await p.fill('input[placeholder*="Rechercher"]', t);
+        await p.fill('input[aria-label="Rechercher un titre"], input[placeholder*="Rechercher"]', t);
         await p.waitForTimeout(400);
         await p.locator('.classement tr').nth(1).click();
         await p.waitForTimeout(2000);
