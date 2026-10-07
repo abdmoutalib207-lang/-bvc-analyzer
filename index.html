@@ -7681,16 +7681,26 @@ const SourceCotation = ({
       fontSize: 10.5,
       color: "#5a6478"
     }
-  }, h && React.createElement(React.Fragment, null, "obs. ", h.slice(8, 10), "/", h.slice(5, 7), " ", h.slice(11, 16), " UTC"), d && React.createElement(React.Fragment, null, " \xB7 ", d), u && React.createElement(React.Fragment, null, " \xB7 ", React.createElement("a", {
+  }, h && React.createElement(React.Fragment, null, "obs. ", h.slice(8, 10), "/", h.slice(5, 7), " ", h.slice(11, 16), " UTC"), d && React.createElement(React.Fragment, null, " \xB7 ", d), u && React.createElement("a", {
     href: u,
     target: "_blank",
     rel: "noopener noreferrer",
     style: {
+      display: "inline-flex",
+      alignItems: "center",
+      minHeight: 44,
+      padding: "0 12px",
+      marginLeft: 8,
+      borderRadius: 6,
+      border: "1px solid rgba(77,184,255,.4)",
+      background: "rgba(77,184,255,.08)",
       color: "#4db8ff",
+      fontSize: 12,
+      fontWeight: 600,
       textDecoration: "none"
     },
     title: `Vérifier ${l.nom || l.ticker} chez la source`
-  }, "Source \u2197")));
+  }, "V\xE9rifier la source \u2197"));
 };
 const Carte = ({
   titre,

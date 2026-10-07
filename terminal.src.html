@@ -2480,8 +2480,12 @@ const SourceCotation=({l})=>{
   const u=lienSource(l.ticker), d=differeDeclare(l.mode_source), h=l.horodatage_utc;
   return <span style={{fontSize:10.5,color:"#5a6478"}}>
     {h&&<>obs. {h.slice(8,10)}/{h.slice(5,7)} {h.slice(11,16)} UTC</>}{d&&<> · {d}</>}
-    {u&&<> · <a href={u} target="_blank" rel="noopener noreferrer" style={{color:"#4db8ff",textDecoration:"none"}}
-      title={`Vérifier ${l.nom||l.ticker} chez la source`}>Source ↗</a></>}
+    {/* Zone de toucher : 50×14 px au départ, trop petite pour un doigt
+        (« je ne peux toujours pas cliquer sur source », 07/10). 44 px de haut. */}
+    {u&&<a href={u} target="_blank" rel="noopener noreferrer"
+      style={{display:"inline-flex",alignItems:"center",minHeight:44,padding:"0 12px",marginLeft:8,borderRadius:6,
+        border:"1px solid rgba(77,184,255,.4)",background:"rgba(77,184,255,.08)",color:"#4db8ff",fontSize:12,fontWeight:600,textDecoration:"none"}}
+      title={`Vérifier ${l.nom||l.ticker} chez la source`}>Vérifier la source ↗</a>}
   </span>;
 };
 const Carte=({titre,source,children})=>(
