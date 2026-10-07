@@ -5739,6 +5739,10 @@ const RUBRIQUES = [{
     id: "accueil",
     icone: "⌂",
     aide: "La séance en un coup d'œil, en rangées"
+  }, {
+    id: "guide",
+    icone: "?",
+    aide: "Note, signal, confiance, fréquences — et ce que l'outil ne fait pas"
   }]
 }, {
   titre: "Marché",
@@ -6358,6 +6362,9 @@ const Header = ({
   }, {
     id: "monde",
     label: "MARCHÉS MONDIAUX"
+  }, {
+    id: "guide",
+    label: "? COMMENT LIRE"
   }];
   return React.createElement("div", {
     className: "entete",
@@ -6389,7 +6396,24 @@ const Header = ({
     tab: tab,
     setTab: setTab,
     TABS: TABS
-  }), React.createElement("span", {
+  }), React.createElement("button", {
+    onClick: () => setTab("guide"),
+    "aria-label": "Comment lire l'\xE9cran",
+    title: "Comment lire l'\xE9cran",
+    style: {
+      background: tab === "guide" ? "rgba(77,184,255,.25)" : "rgba(77,184,255,.10)",
+      border: "1px solid rgba(77,184,255,.5)",
+      color: "#4db8ff",
+      borderRadius: "50%",
+      width: 32,
+      height: 32,
+      fontSize: 15,
+      fontWeight: 700,
+      cursor: "pointer",
+      fontFamily: "var(--font)",
+      flex: "0 0 auto"
+    }
+  }, "?"), React.createElement("span", {
     style: {
       fontSize: 22,
       fontWeight: 700,
@@ -9754,16 +9778,16 @@ const Detail = ({
     sym: sym
   }))));
 };
+const POIDS_CTX = [["Séance ouverte — base", "65,28 %", "34,72 %", "actif", "#00e5a0", "Référence depuis le 25/09/2026 : 47 et 25 repliés sur 72 une fois le NLP à zéro."], ["Hors séance (fermé, pré-ouverture)", "72,22 %", "27,78 %", "actif", "#4db8ff", "Le fondamental gagne 5 points avant repli. C'est le cas des runs du soir."], ["MASI < −5 % depuis janvier", "71,43 %", "28,57 %", "actif", "#ff8f00", "Mode défensif. Cumulé au hors-séance : 77,92 % / 22,08 %."], ["MASI > +10 % depuis janvier", "61,11 %", "38,89 %", "actif", "#ffd740", "Le technique gagne 3 points avant repli."], ["Titre peu liquide ou au fixing", "100 %", "0 %", "actif", "#b388ff", "Depuis le 03/10 : le technique y annonçait l'inverse de la suite. Tout va au fondamental, et ACHETER y devient SURVEILLER ★."], ["Publication de résultats", "76 %", "24 %", "inactif", "#5a6478", "Prévu dans le moteur, jamais branché : aucun calendrier de publications."], ["Hype spike (>2σ NLP)", "—", "—", "retiré le 29/09", "#5a6478", "Lisait le corpus WhatsApp gelé."], ["Smart Money Tier 1", "—", "—", "retiré le 29/09", "#5a6478", "Lisait le corpus WhatsApp gelé."], ["Titre peu suivi (NLP)", "—", "—", "retiré le 29/09", "#5a6478", "Lisait le corpus WhatsApp gelé."]];
 const Weights = () => {
-  const CTX = [["Marché ouvert (base)", "47%", "28%", "25%", "#00e5a0", "Pondération standard"], ["Marché fermé / férié", "52%", "28%", "20%", "#4db8ff", "Fondamentaux dominent"], ["Publication résultats", "57%", "25%", "18%", "#b388ff", "Fondamentaux mis à jour"], ["Hype spike (>2σ NLP)", "42%", "36%", "22%", "#ffd740", "Comportemental précoce"], ["Smart Money Tier 1", "44%", "35%", "21%", "#00e5a0", "Membres à fort signal/bruit"], ["Bear market MASI<-5%", "55%", "28%", "17%", "#ff8f00", "Mode défensif"], ["Titre peu suivi", "54%", "18%", "28%", "#ff4f5a", "NLP peu fiable"]];
   return React.createElement("div", null, React.createElement("div", {
     style: {
       display: "grid",
-      gridTemplateColumns: "repeat(3,1fr)",
+      gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))",
       gap: 12,
       marginBottom: 14
     }
-  }, [["Fondamental", "47%", "#b388ff", "Marché semi-efficient. Alpha long terme 6-12M. ⚠️ Seuls les ratios calculés sur comptes AMMC sont vérifiés ; le reste de fondamentaux.json est saisi à la main."], ["NLP Comportemental", "28%", "#00e5a0", "896 907 messages · 6 ans. ⚠️ Performance historique non republiée : aucun backtest reproductible à ce jour."], ["Technique", "25%", "#4db8ff", "Timing d'entrée. RSI, MA20/50, Fibonacci. Marché peu liquide — BVC 492 séances."]].map(([lbl, pct, c, desc]) => React.createElement("div", {
+  }, [["Fondamental", "65,28 %", "#b388ff", "Qualité (rentabilité), croissance, valorisation, bilan. ⚠️ Seuls les ratios calculés sur comptes AMMC sont vérifiés ; le reste de fondamentaux.json est saisi à la main."], ["Technique", "34,72 %", "#4db8ff", "Tendance du cours (moyennes 20 et 50 séances), RSI, position dans le range 90 séances. Neutralisé (0 %) sur les titres peu liquides ou au fixing."], ["NLP Comportemental", "0 %", "#5a6478", "GELÉ depuis le 25/09/2026 : corpus arrêté au 02/07, il ne déplaçait plus que 0,37 point sur 10. Toujours calculé et publié, à poids nul."]].map(([lbl, pct, c, desc]) => React.createElement("div", {
     key: lbl,
     style: {
       background: "#0d1829",
@@ -9773,7 +9797,7 @@ const Weights = () => {
     }
   }, React.createElement("div", {
     style: {
-      fontSize: 44,
+      fontSize: 40,
       fontWeight: 700,
       color: c,
       marginBottom: 4
@@ -9804,9 +9828,16 @@ const Weights = () => {
       fontSize: 13,
       color: "#c8d3e8",
       fontWeight: 600,
-      marginBottom: 10
+      marginBottom: 4
     }
-  }, "AJUSTEMENTS DYNAMIQUES PAR CONTEXTE"), React.createElement("div", {
+  }, "MODULATION DE LA POND\xC9RATION"), React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      marginBottom: 10,
+      lineHeight: 1.6
+    }
+  }, "La base est modul\xE9e par le contexte de march\xE9, puis titre par titre (liquidit\xE9). Le poids r\xE9ellement appliqu\xE9 figure sur chaque fiche et dans la colonne POIDS du classement. Plus aucun modulateur ne lit le corpus WhatsApp."), React.createElement("div", {
     style: {
       overflowX: "auto"
     }
@@ -9819,7 +9850,7 @@ const Weights = () => {
     style: {
       borderBottom: "1px solid #1a2540"
     }
-  }, ["Situation", "Fond", "NLP", "Tech", "Justification"].map(h => React.createElement("th", {
+  }, ["Situation", "Fond", "Tech", "Statut", "Justification"].map(h => React.createElement("th", {
     key: h,
     style: {
       padding: "7px 10px",
@@ -9828,54 +9859,169 @@ const Weights = () => {
       textAlign: "left",
       fontWeight: 500
     }
-  }, h)))), React.createElement("tbody", null, CTX.map(([sit, f, n, t, c, just], i) => React.createElement("tr", {
-    key: i,
+  }, h)))), React.createElement("tbody", null, POIDS_CTX.map(([sit, f, t, st, c, just], i) => {
+    const mort = st !== "actif";
+    return React.createElement("tr", {
+      key: i,
+      style: {
+        borderBottom: "1px solid #0d1829",
+        opacity: mort ? .6 : 1
+      }
+    }, React.createElement("td", {
+      style: {
+        padding: "8px 10px",
+        fontSize: 13,
+        color: "#c8d3e8",
+        textDecoration: st.startsWith("retiré") ? "line-through" : "none"
+      }
+    }, React.createElement("span", {
+      style: {
+        display: "inline-block",
+        width: 7,
+        height: 7,
+        borderRadius: "50%",
+        background: c,
+        marginRight: 7
+      }
+    }), sit), React.createElement("td", {
+      style: {
+        padding: "8px 10px",
+        fontSize: 14,
+        color: "#b388ff",
+        fontWeight: 700,
+        whiteSpace: "nowrap"
+      }
+    }, f), React.createElement("td", {
+      style: {
+        padding: "8px 10px",
+        fontSize: 14,
+        color: "#4db8ff",
+        fontWeight: 700,
+        whiteSpace: "nowrap"
+      }
+    }, t), React.createElement("td", {
+      style: {
+        padding: "8px 10px",
+        fontSize: 11,
+        color: mort ? "#ff8f00" : "#00e5a0",
+        whiteSpace: "nowrap"
+      }
+    }, st), React.createElement("td", {
+      style: {
+        padding: "8px 10px",
+        fontSize: 12,
+        color: "#8892a4"
+      }
+    }, just));
+  })))), React.createElement("div", {
     style: {
-      borderBottom: "1px solid #0d1829"
+      fontSize: 10,
+      color: "#4a5570",
+      marginTop: 8
     }
-  }, React.createElement("td", {
+  }, "NLP \xE0 0 % dans toutes les situations. Pourcentages tels que rendus par le moteur.")));
+};
+const Guide = ({
+  setTab
+}) => {
+  const ref = useRef(null);
+  useEffect(() => {
+    try {
+      ref.current && ref.current.scrollIntoView({
+        block: "start"
+      });
+    } catch (e) {}
+  }, []);
+  const T = ({
+    c,
+    children
+  }) => React.createElement("b", {
     style: {
-      padding: "8px 10px",
-      fontSize: 13,
-      color: "#c8d3e8"
+      color: c || "#e8eef8"
     }
-  }, React.createElement("span", {
+  }, children);
+  const L = ({
+    titre,
+    children
+  }) => React.createElement("div", {
     style: {
-      display: "inline-block",
-      width: 7,
-      height: 7,
-      borderRadius: "50%",
-      background: c,
-      marginRight: 7
+      padding: "5px 0",
+      borderTop: "1px solid #1a2540"
     }
-  }), sit), React.createElement("td", {
+  }, React.createElement("div", {
     style: {
-      padding: "8px 10px",
-      fontSize: 14,
-      color: "#b388ff",
-      fontWeight: 700
-    }
-  }, f), React.createElement("td", {
-    style: {
-      padding: "8px 10px",
-      fontSize: 14,
-      color: "#00e5a0",
-      fontWeight: 700
-    }
-  }, n), React.createElement("td", {
-    style: {
-      padding: "8px 10px",
-      fontSize: 14,
-      color: "#4db8ff",
-      fontWeight: 700
-    }
-  }, t), React.createElement("td", {
-    style: {
-      padding: "8px 10px",
       fontSize: 12,
-      color: "#8892a4"
+      color: "#4db8ff",
+      fontWeight: 700,
+      marginBottom: 1
     }
-  }, just))))))));
+  }, titre), React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#c8d3e8",
+      lineHeight: 1.45
+    }
+  }, children));
+  return React.createElement("div", {
+    ref: ref,
+    className: "carte guide",
+    style: {
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      padding: "10px 12px",
+      maxWidth: 720,
+      margin: "0 auto",
+      scrollMarginTop: 8
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 15,
+      fontWeight: 700,
+      color: "#e8eef8",
+      marginBottom: 5
+    }
+  }, "Comment lire l'\xE9cran"), React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#ffd740",
+      lineHeight: 1.45,
+      background: "rgba(255,215,64,.07)",
+      border: "1px solid rgba(255,215,64,.3)",
+      borderRadius: 6,
+      padding: "6px 9px",
+      marginBottom: 3
+    }
+  }, React.createElement("b", null, "L'outil ne pr\xE9dit pas. Ce n'est pas un conseil en investissement. Donn\xE9es J+1 : la derni\xE8re cl\xF4ture, pas de temps r\xE9el."), " Il montre des notes et des fr\xE9quences pass\xE9es."), React.createElement(L, {
+    titre: "Note /10"
+  }, "Moyenne de deux piliers sur 10 : ", React.createElement(T, null, "fondamental"), " (rentabilit\xE9, croissance, valorisation, bilan \u2014 \u2248 2/3) et ", React.createElement(T, null, "technique"), " (tendance, RSI \u2014 \u2248 1/3, 0 sur un titre peu liquide). Sentiment WhatsApp gel\xE9, poids nul. ", React.createElement("a", {
+    onClick: () => setTab && setTab("weights"),
+    style: {
+      color: "#4db8ff",
+      cursor: "pointer",
+      textDecoration: "underline"
+    }
+  }, "D\xE9tail des poids")), React.createElement(L, {
+    titre: "Signal"
+  }, React.createElement(T, {
+    c: "#00e5a0"
+  }, "ACHETER \u2605\u2605"), " d\xE8s 6,5 \xB7 ", React.createElement(T, {
+    c: "#ffd740"
+  }, "SURVEILLER \u2605"), " d\xE8s 5,5 \xB7 ", React.createElement(T, null, "ATTENDRE"), " d\xE8s 4,5 \xB7 ", React.createElement(T, {
+    c: "#ff4f5a"
+  }, "\xC9VITER"), " dessous (FORT sous 3,5). SURVEILLER \u2605 remplace ACHETER sur un titre trop peu \xE9chang\xE9. ", React.createElement(T, {
+    c: "#8892a4"
+  }, "Donn\xE9es insuffisantes"), " : confiance 0 ou 1."), React.createElement(L, {
+    titre: "Confiance \u25CF\u25CF\u25CF\u25CB\u25CB"
+  }, "Un point par garantie : prix de la derni\xE8re s\xE9ance \xB7 fondamentaux r\xE9els \xB7 historique \u2265 15 s\xE9ances \xE9chang\xE9es \xB7 comptes d\xE9pos\xE9s \xE0 l'AMMC \xB7 liquidit\xE9 \u2265 100 000 DH par s\xE9ance. Titre peu liquide : 2/5 au plus."), React.createElement(L, {
+    titre: "\xAB X % gagnants (IC) \xB7 n cas \xBB \u2014 fiche, Signaux techniques"
+  }, "Sur n cas pass\xE9s \xE0 la BVC o\xF9 le m\xEAme signal est apparu, X % ont battu le MASI 60 s\xE9ances apr\xE8s ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fr\xE9quence pass\xE9e, pas une promesse."), React.createElement(L, {
+    titre: "\xAB non v\xE9rifi\xE9 \xBB \xB7 \u26A0 jj/mm"
+  }, React.createElement(T, {
+    c: "#ff8f00"
+  }, "non v\xE9rifi\xE9"), " : source non recoup\xE9e, prudence. ", React.createElement(T, {
+    c: "#ffd740"
+  }, "\u26A0 05/08"), " pr\xE8s d'un cours : il date de ce jour-l\xE0, pas de la derni\xE8re s\xE9ance."));
 };
 const Smart = () => {
   const BT = [];
@@ -12360,7 +12506,9 @@ function App() {
     fav: fav,
     toggleFav: toggleFav,
     scoreMode: scoreMode
-  }), tab === "weights" && React.createElement(Weights, null), tab === "briefing" && React.createElement(Briefing, null), tab === "monde" && React.createElement(MarchesMondiaux, null), tab === "smart" && React.createElement(Smart, null), tab === "nlp" && React.createElement(NlpDash, null), tab === "news" && React.createElement(NewsFeed, null), React.createElement(MentionLegale, null)));
+  }), tab === "weights" && React.createElement(Weights, null), tab === "guide" && React.createElement(Guide, {
+    setTab: changeTab
+  }), tab === "briefing" && React.createElement(Briefing, null), tab === "monde" && React.createElement(MarchesMondiaux, null), tab === "smart" && React.createElement(Smart, null), tab === "nlp" && React.createElement(NlpDash, null), tab === "news" && React.createElement(NewsFeed, null), React.createElement(MentionLegale, null)));
 }
 class ErrorBoundary extends React.Component {
   constructor(p) {

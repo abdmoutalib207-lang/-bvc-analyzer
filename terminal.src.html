@@ -1604,7 +1604,8 @@ const TickerTape=({rows})=>{
 // reste en place : le menu s'ajoute, il ne remplace rien.
 const RUBRIQUES=[
   {titre:"Accueil",vues:[
-    {id:"accueil",icone:"⌂",aide:"La séance en un coup d'œil, en rangées"}]},
+    {id:"accueil",icone:"⌂",aide:"La séance en un coup d'œil, en rangées"},
+    {id:"guide",icone:"?",aide:"Note, signal, confiance, fréquences — et ce que l'outil ne fait pas"}]},
   {titre:"Marché",vues:[
     {id:"ranking",icone:"▤",aide:"Les 80 titres, leur note et leur signal"},
     {id:"heatmap",icone:"▦",aide:"La séance d'un coup d'œil, par secteur"},
@@ -1866,12 +1867,16 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
   // briefing porte la séance close de la veille, il est donc écrit à 18h et
   // disponible toute la nuit — sans dépendre d'un déclenchement matinal, qui
   // est aujourd'hui le point faible du produit.
-  const TABS=[{id:"accueil",label:"ACCUEIL"},{id:"ranking",label:"CLASSEMENT"},{id:"briefing",label:"BRIEFING"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"},{id:"monde",label:"MARCHÉS MONDIAUX"}];
+  const TABS=[{id:"accueil",label:"ACCUEIL"},{id:"ranking",label:"CLASSEMENT"},{id:"briefing",label:"BRIEFING"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"},{id:"monde",label:"MARCHÉS MONDIAUX"},{id:"guide",label:"? COMMENT LIRE"}];
   return(
     <div className="entete" style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
         <div style={{display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
           <Menu tab={tab} setTab={setTab} TABS={TABS}/>
+          {/* « ? » : visible sur téléphone aussi, où le badge et les onglets
+              du haut sont masqués ou hors écran. */}
+          <button onClick={()=>setTab("guide")} aria-label="Comment lire l'écran" title="Comment lire l'écran"
+            style={{background:tab==="guide"?"rgba(77,184,255,.25)":"rgba(77,184,255,.10)",border:"1px solid rgba(77,184,255,.5)",color:"#4db8ff",borderRadius:"50%",width:32,height:32,fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"var(--font)",flex:"0 0 auto"}}>?</button>
           <span style={{fontSize:22,fontWeight:700,letterSpacing:3,background:"linear-gradient(90deg,#00e5a0,#4db8ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>BVC ANALYZER</span>
           <span className="badge-version" title="Pondération de RÉFÉRENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCHÉ, le même pour tous les titres — hors séance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche. Le pilier NLP est gelé à un poids de 0 : son corpus s'arrête au 02/07/2026 et il ne déplaçait plus que 0,37 point sur 10." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 65 · TECH 35 <span style={{color:"#8892a4"}}>· modulée par le marché · NLP gelé</span></span>
           {/* Score mode — composantes indépendantes */}
@@ -3293,36 +3298,86 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
 };
 
 // ── WEIGHTS ───────────────────────────────────────────────────────────────────
+/* ⚠️ 07/10/2026 — CET ONGLET AFFICHAIT ENCORE 47 / 28 / 25, la formule
+   d'avant le 25/09, et un tableau de contextes dont trois (Hype spike, Smart
+   Money, Titre peu suivi) sont retirés depuis le 29/09. Les chiffres
+   ci-dessous sont CEUX QUE REND `update_data.get_weights()` pour chaque
+   contexte : `tests/test_guide_et_poids.py` appelle la fonction et les
+   compare. Si le moteur change, le test casse avant l'écran. */
+const POIDS_CTX=[
+  // [situation, fond, tech, statut, couleur, justification]
+  ["Séance ouverte — base","65,28 %","34,72 %","actif","#00e5a0","Référence depuis le 25/09/2026 : 47 et 25 repliés sur 72 une fois le NLP à zéro."],
+  ["Hors séance (fermé, pré-ouverture)","72,22 %","27,78 %","actif","#4db8ff","Le fondamental gagne 5 points avant repli. C'est le cas des runs du soir."],
+  ["MASI < −5 % depuis janvier","71,43 %","28,57 %","actif","#ff8f00","Mode défensif. Cumulé au hors-séance : 77,92 % / 22,08 %."],
+  ["MASI > +10 % depuis janvier","61,11 %","38,89 %","actif","#ffd740","Le technique gagne 3 points avant repli."],
+  ["Titre peu liquide ou au fixing","100 %","0 %","actif","#b388ff","Depuis le 03/10 : le technique y annonçait l'inverse de la suite. Tout va au fondamental, et ACHETER y devient SURVEILLER ★."],
+  ["Publication de résultats","76 %","24 %","inactif","#5a6478","Prévu dans le moteur, jamais branché : aucun calendrier de publications."],
+  ["Hype spike (>2σ NLP)","—","—","retiré le 29/09","#5a6478","Lisait le corpus WhatsApp gelé."],
+  ["Smart Money Tier 1","—","—","retiré le 29/09","#5a6478","Lisait le corpus WhatsApp gelé."],
+  ["Titre peu suivi (NLP)","—","—","retiré le 29/09","#5a6478","Lisait le corpus WhatsApp gelé."],
+];
 const Weights=()=>{
-  const CTX=[["Marché ouvert (base)","47%","28%","25%","#00e5a0","Pondération standard"],["Marché fermé / férié","52%","28%","20%","#4db8ff","Fondamentaux dominent"],["Publication résultats","57%","25%","18%","#b388ff","Fondamentaux mis à jour"],["Hype spike (>2σ NLP)","42%","36%","22%","#ffd740","Comportemental précoce"],["Smart Money Tier 1","44%","35%","21%","#00e5a0","Membres à fort signal/bruit"],["Bear market MASI<-5%","55%","28%","17%","#ff8f00","Mode défensif"],["Titre peu suivi","54%","18%","28%","#ff4f5a","NLP peu fiable"]];
   return(
     <div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:14}}>
-        {[["Fondamental","47%","#b388ff","Marché semi-efficient. Alpha long terme 6-12M. ⚠️ Seuls les ratios calculés sur comptes AMMC sont vérifiés ; le reste de fondamentaux.json est saisi à la main."],["NLP Comportemental","28%","#00e5a0","896 907 messages · 6 ans. ⚠️ Performance historique non republiée : aucun backtest reproductible à ce jour."],["Technique","25%","#4db8ff","Timing d'entrée. RSI, MA20/50, Fibonacci. Marché peu liquide — BVC 492 séances."]].map(([lbl,pct,c,desc])=>(
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:12,marginBottom:14}}>
+        {[["Fondamental","65,28 %","#b388ff","Qualité (rentabilité), croissance, valorisation, bilan. ⚠️ Seuls les ratios calculés sur comptes AMMC sont vérifiés ; le reste de fondamentaux.json est saisi à la main."],["Technique","34,72 %","#4db8ff","Tendance du cours (moyennes 20 et 50 séances), RSI, position dans le range 90 séances. Neutralisé (0 %) sur les titres peu liquides ou au fixing."],["NLP Comportemental","0 %","#5a6478","GELÉ depuis le 25/09/2026 : corpus arrêté au 02/07, il ne déplaçait plus que 0,37 point sur 10. Toujours calculé et publié, à poids nul."]].map(([lbl,pct,c,desc])=>(
           <div key={lbl} style={{background:"#0d1829",borderRadius:8,padding:16,border:`1px solid ${c}20`}}>
-            <div style={{fontSize:44,fontWeight:700,color:c,marginBottom:4}}>{pct}</div>
+            <div style={{fontSize:40,fontWeight:700,color:c,marginBottom:4}}>{pct}</div>
             <div style={{fontSize:15,color:"#fff",marginBottom:6,fontWeight:600}}>{lbl}</div>
             <div style={{fontSize:12,color:"#8892a4",lineHeight:1.7}}>{desc}</div>
           </div>
         ))}
       </div>
       <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-        <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:10}}>AJUSTEMENTS DYNAMIQUES PAR CONTEXTE</div>
+        <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:4}}>MODULATION DE LA PONDÉRATION</div>
+        <div style={{fontSize:11,color:"#8892a4",marginBottom:10,lineHeight:1.6}}>La base est modulée par le contexte de marché, puis titre par titre (liquidité). Le poids réellement appliqué figure sur chaque fiche et dans la colonne POIDS du classement. Plus aucun modulateur ne lit le corpus WhatsApp.</div>
         <div style={{overflowX:"auto"}}>
           <table style={{width:"100%",borderCollapse:"collapse"}}>
-            <thead><tr style={{borderBottom:"1px solid #1a2540"}}>{["Situation","Fond","NLP","Tech","Justification"].map(h=><th key={h} style={{padding:"7px 10px",fontSize:10,color:"#8892a4",textAlign:"left",fontWeight:500}}>{h}</th>)}</tr></thead>
-            <tbody>{CTX.map(([sit,f,n,t,c,just],i)=>(
-              <tr key={i} style={{borderBottom:"1px solid #0d1829"}}>
-                <td style={{padding:"8px 10px",fontSize:13,color:"#c8d3e8"}}><span style={{display:"inline-block",width:7,height:7,borderRadius:"50%",background:c,marginRight:7}}/>{sit}</td>
-                <td style={{padding:"8px 10px",fontSize:14,color:"#b388ff",fontWeight:700}}>{f}</td>
-                <td style={{padding:"8px 10px",fontSize:14,color:"#00e5a0",fontWeight:700}}>{n}</td>
-                <td style={{padding:"8px 10px",fontSize:14,color:"#4db8ff",fontWeight:700}}>{t}</td>
+            <thead><tr style={{borderBottom:"1px solid #1a2540"}}>{["Situation","Fond","Tech","Statut","Justification"].map(h=><th key={h} style={{padding:"7px 10px",fontSize:10,color:"#8892a4",textAlign:"left",fontWeight:500}}>{h}</th>)}</tr></thead>
+            <tbody>{POIDS_CTX.map(([sit,f,t,st,c,just],i)=>{const mort=st!=="actif";return(
+              <tr key={i} style={{borderBottom:"1px solid #0d1829",opacity:mort?.6:1}}>
+                <td style={{padding:"8px 10px",fontSize:13,color:"#c8d3e8",textDecoration:st.startsWith("retiré")?"line-through":"none"}}><span style={{display:"inline-block",width:7,height:7,borderRadius:"50%",background:c,marginRight:7}}/>{sit}</td>
+                <td style={{padding:"8px 10px",fontSize:14,color:"#b388ff",fontWeight:700,whiteSpace:"nowrap"}}>{f}</td>
+                <td style={{padding:"8px 10px",fontSize:14,color:"#4db8ff",fontWeight:700,whiteSpace:"nowrap"}}>{t}</td>
+                <td style={{padding:"8px 10px",fontSize:11,color:mort?"#ff8f00":"#00e5a0",whiteSpace:"nowrap"}}>{st}</td>
                 <td style={{padding:"8px 10px",fontSize:12,color:"#8892a4"}}>{just}</td>
-              </tr>
-            ))}</tbody>
+              </tr>);})}</tbody>
           </table>
         </div>
+        <div style={{fontSize:10,color:"#4a5570",marginTop:8}}>NLP à 0 % dans toutes les situations. Pourcentages tels que rendus par le moteur.</div>
       </div>
+    </div>
+  );
+};
+
+// ── COMMENT LIRE L'ÉCRAN ──────────────────────────────────────────────────────
+/* 07/10/2026 — pour un testeur non expert, tenue sur un écran de téléphone.
+   Chaque phrase a été vérifiée contre le code (R12) : seuils de signal dans
+   `compute_v53`, critères de confiance dans `_meta_ticker`, plafond de
+   liquidité dans la construction du ticker, fréquences dans
+   `SignauxTechniques`. Aucun chiffre de marché en dur : ils vieilliraient. */
+const Guide=({setTab})=>{
+  // Sur téléphone l'en-tête n'est pas collant et occupe ~600 px : sans ce
+  // défilement, le guide s'ouvrirait sous la ligne de flottaison.
+  const ref=useRef(null);
+  useEffect(()=>{try{ref.current&&ref.current.scrollIntoView({block:"start"});}catch(e){}},[]);
+  const T=({c,children})=><b style={{color:c||"#e8eef8"}}>{children}</b>;
+  const L=({titre,children})=>(
+    <div style={{padding:"5px 0",borderTop:"1px solid #1a2540"}}>
+      <div style={{fontSize:12,color:"#4db8ff",fontWeight:700,marginBottom:1}}>{titre}</div>
+      <div style={{fontSize:12,color:"#c8d3e8",lineHeight:1.45}}>{children}</div>
+    </div>);
+  return(
+    <div ref={ref} className="carte guide" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"10px 12px",maxWidth:720,margin:"0 auto",scrollMarginTop:8}}>
+      <div style={{fontSize:15,fontWeight:700,color:"#e8eef8",marginBottom:5}}>Comment lire l'écran</div>
+      <div style={{fontSize:12,color:"#ffd740",lineHeight:1.45,background:"rgba(255,215,64,.07)",border:"1px solid rgba(255,215,64,.3)",borderRadius:6,padding:"6px 9px",marginBottom:3}}>
+        <b>L'outil ne prédit pas. Ce n'est pas un conseil en investissement. Données J+1 : la dernière clôture, pas de temps réel.</b> Il montre des notes et des fréquences passées.
+      </div>
+      <L titre="Note /10">Moyenne de deux piliers sur 10 : <T>fondamental</T> (rentabilité, croissance, valorisation, bilan — ≈ 2/3) et <T>technique</T> (tendance, RSI — ≈ 1/3, 0 sur un titre peu liquide). Sentiment WhatsApp gelé, poids nul. <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des poids</a></L>
+      <L titre="Signal"><T c="#00e5a0">ACHETER ★★</T> dès 6,5 · <T c="#ffd740">SURVEILLER ★</T> dès 5,5 · <T>ATTENDRE</T> dès 4,5 · <T c="#ff4f5a">ÉVITER</T> dessous (FORT sous 3,5). SURVEILLER ★ remplace ACHETER sur un titre trop peu échangé. <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1.</L>
+      <L titre="Confiance ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>
+      <L titre="« X % gagnants (IC) · n cas » — fiche, Signaux techniques">Sur n cas passés à la BVC où le même signal est apparu, X % ont battu le MASI 60 séances après ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fréquence passée, pas une promesse.</L>
+      <L titre="« non vérifié » · ⚠ jj/mm"><T c="#ff8f00">non vérifié</T> : source non recoupée, prudence. <T c="#ffd740">⚠ 05/08</T> près d'un cours : il date de ce jour-là, pas de la dernière séance.</L>
     </div>
   );
 };
@@ -4339,6 +4394,7 @@ function App(){
         {tab==="watchlist"&&<Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true} scoreMode={scoreMode}/>}
         {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={choisirTitre} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="weights"  &&<Weights/>}
+        {tab==="guide"    &&<Guide setTab={changeTab}/>}
         {tab==="briefing" &&<Briefing/>}
         {tab==="monde" &&<MarchesMondiaux/>}
         {tab==="smart"    &&<Smart/>}
