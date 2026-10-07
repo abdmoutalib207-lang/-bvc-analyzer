@@ -200,7 +200,7 @@ def redaction_seche(b: dict) -> str:
         paras.append("Publications. " + " ".join(lignes))
     bouge = [z["symbol"] for z in a.get("a_bouge") or [] if z.get("chg") is not None]
     if bouge:
-        paras.append("À surveiller. " + ", ".join(bouge)
+        paras.append("Critères remplis. " + ", ".join(bouge)
                      + " remplissent au moins un critère mesuré — volume inhabituel, "
                        "extrême de douze mois ou variation parmi les plus fortes. "
                        "Le détail est dans le tableau ci-dessous.")

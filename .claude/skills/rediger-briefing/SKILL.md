@@ -43,7 +43,7 @@ bon, les chiffres faux. Ici, la plume est libre et les chiffres ne le sont pas.
    ⚠️ **LES CHIFFRES SONT DÉJÀ À L'ÉCRAN** (règle du 02/10/2026, demande
    d'Abd Moutalib : « trop de répétition, trop de chiffres en texte »).
    L'en-tête du terminal affiche l'indice, sa variation, le volume, les
-   hausses et baisses, le depuis-janvier ; le tableau « À surveiller »
+   hausses et baisses, le depuis-janvier ; le tableau « Critères remplis »
    affiche la variation et le volume relatif de chaque titre. **Ne pas les
    réécrire.** Le texte dit ce qu'ils MONTRENT. Au plus **12 nombres**, et
    **aucun nombre écrit deux fois** : le contrôle le refuse
