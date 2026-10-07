@@ -137,3 +137,13 @@ def test_la_fiche_sur_telephone_commence_par_la_fiche():
     assert SRC.count('className="selecteur-titres"') == 2
     assert ".selecteur-titres{display:none!important}" in SRC[SRC.index("VERSION TÉLÉPHONE"):SRC.index("</style>")]
     assert 'refFiche.current.scrollIntoView({block:"start"})' in SRC
+
+
+def test_plancher_de_police_sur_telephone():
+    """07/10/2026 : 413 textes sous 10 px dans le classement à 390 px, le plus
+    petit à 8. Toute taille en ligne de 8 à 9,5 px passe à 10 sous 640 px."""
+    css = SRC[SRC.index("VERSION TÉLÉPHONE"):SRC.index("</style>")]
+    assert ('[style*="font-size: 8px"],[style*="font-size: 8.5px"],[style*="font-size: 9px"],'
+            '[style*="font-size: 9.5px"]{font-size:10px!important}') in css
+    tailles = {float(x) for x in re.findall(r"fontSize:(\d+(?:\.\d+)?)[,}]", SRC)}
+    assert not {t for t in tailles if t < 10} - {8, 8.5, 9, 9.5}, "nouvelle taille < 10 px non couverte"
