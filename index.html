@@ -187,17 +187,19 @@
     .tuile:hover{transform:translateY(-3px) scale(1.03);border-color:rgba(77,184,255,.45);
       box-shadow:0 10px 24px rgba(0,0,0,.45)!important;filter:none!important;}
     .intro{position:fixed;inset:0;z-index:1000;background:#080d1a;display:flex;flex-direction:column;
-      align-items:center;justify-content:center;gap:14px;cursor:pointer;animation:intro-sortie 300ms ease-in 1700ms both;}
+      align-items:center;justify-content:center;gap:14px;cursor:pointer;animation:intro-sortie 200ms ease-in 600ms both;}
+    /* 07/10/2026 : ouverture ramenée de 2 s à 800 ms (logo 500, trait 150+450,
+       sortie 600+200), et jouée une fois par appareil, plus une par onglet. */
     .intro-logo{font-size:clamp(28px,8vw,56px);font-weight:700;letter-spacing:.35em;
       background:linear-gradient(90deg,#00e5a0,#4db8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
-      animation:intro-logo 1000ms cubic-bezier(.2,.7,.2,1) both;}
+      animation:intro-logo 500ms cubic-bezier(.2,.7,.2,1) both;}
     .intro-trait{height:2px;width:0;background:linear-gradient(90deg,#00e5a0,#4db8ff);
-      animation:intro-trait 900ms 350ms cubic-bezier(.2,.7,.2,1) both;}
+      animation:intro-trait 450ms 150ms cubic-bezier(.2,.7,.2,1) both;}
     @keyframes intro-logo{from{opacity:0;transform:scale(.92);letter-spacing:.6em;}to{opacity:1;transform:none;}}
     @keyframes intro-trait{to{width:min(320px,60vw);}}
     @keyframes intro-sortie{to{opacity:0;visibility:hidden;}}
     .intro.attente{animation:none;}
-    .intro.sortie{animation:intro-sortie 300ms ease-in 700ms both;}
+    .intro.sortie{animation:intro-sortie 200ms ease-in 300ms both;}
     .intro-toucher{margin-top:18px;font-size:12px;letter-spacing:.35em;color:#8892a4;
       animation:intro-pouls 1.6s ease-in-out 1.2s infinite both;}
     @keyframes intro-pouls{0%,100%{opacity:.35;}50%{opacity:1;}}
@@ -6083,7 +6085,7 @@ const Intro = () => {
   const [vu, setVu] = useState(() => {
     try {
       if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return true;
-      return sessionStorage.getItem("bvc_intro") === "1";
+      return localStorage.getItem("bvc_intro") === "1";
     } catch (e) {
       return true;
     }
@@ -6093,17 +6095,17 @@ const Intro = () => {
   useEffect(() => {
     if (vu) return;
     try {
-      sessionStorage.setItem("bvc_intro", "1");
+      localStorage.setItem("bvc_intro", "1");
     } catch (e) {}
     ctx.current = contexteAudio();
     if (ctx.current && ctx.current.state === "running") {
       jouerSonOuverture(ctx.current);
-      const t = setTimeout(() => setVu(true), 2000);
+      const t = setTimeout(() => setVu(true), 800);
       return () => clearTimeout(t);
     }
     setPhase(ctx.current ? "attente" : "auto");
     if (!ctx.current) {
-      const t = setTimeout(() => setVu(true), 2000);
+      const t = setTimeout(() => setVu(true), 800);
       return () => clearTimeout(t);
     }
   }, [vu]);
@@ -6114,7 +6116,7 @@ const Intro = () => {
     }
     jouerSonOuverture(ctx.current);
     setPhase("sortie");
-    setTimeout(() => setVu(true), 1000);
+    setTimeout(() => setVu(true), 500);
   };
   useEffect(() => {
     if (vu || phase !== "attente") return;

@@ -158,3 +158,13 @@ def test_recherche_et_noms_de_societes():
     assert 'input[aria-label="Rechercher un titre"]' in qa
     i = SRC.index('className="nom-societe"')
     assert "WebkitLineClamp:2" in SRC[i:i + 300] and 'whiteSpace:"nowrap"' not in SRC[i:i + 300]
+
+
+def test_l_ouverture_dure_800_ms_et_une_fois_par_appareil():
+    """07/10/2026 : 1 863 ms mesurés sans son, rejouée à chaque onglet."""
+    i = SRC.index("const Intro=")
+    corps = SRC[i:SRC.index("const Tuile=")]
+    assert 'localStorage.getItem("bvc_intro")' in corps and "sessionStorage" not in corps
+    assert 'try{localStorage.setItem("bvc_intro","1");}catch(e){}' in corps
+    assert re.findall(r"setTimeout\(\(\)=>setVu\(true\),(\d+)\)", corps) == ["800", "800", "500"]
+    assert "animation:intro-sortie 200ms ease-in 600ms both;" in SRC
