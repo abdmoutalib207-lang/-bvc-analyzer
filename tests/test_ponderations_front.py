@@ -158,8 +158,9 @@ def test_l_export_csv_emporte_la_ponderation():
     ininterprétable, et le signal ne doit pas s'y glisser en simulation."""
     s = _src()
     assert '"PONDERATION"' in s, "la colonne PONDERATION manque dans l'export"
-    assert 'customMode?"":(r.sig||"")' in s, (
-        "l'export laisse passer le signal en mode simulation")
+    # 07/10/2026 : la colonne SIGNAL devient COULEUR_NOTE (aucun mot d'action).
+    assert 'customMode?"":palierTexte(r)' in s, (
+        "l'export laisse passer la couleur en mode simulation")
     assert "scoreModeLabel(scoreMode).replace" in s, (
         "le nom du fichier ne porte pas la pondération")
 
@@ -201,7 +202,7 @@ def test_le_signal_disparait_aussi_sur_la_fiche():
     """Même règle qu'au classement. Un signal qui survit sur la fiche pendant
     qu'il disparaît du tableau serait pire que pas de règle du tout."""
     s = _src()
-    assert 'label="SIMULATION — signal masqué"' in s, (
+    assert 'label="SIMULATION — couleur masquée"' in s, (
         "la fiche affiche encore le signal du moteur en mode simulation")
 
 
