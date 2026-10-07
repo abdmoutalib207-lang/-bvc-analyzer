@@ -551,7 +551,15 @@ def phrase_trajectoire(t: dict | None) -> str | None:
             P.append("Le gain d'ouverture a été effacé : la clôture est au "
                      "niveau de la veille ou en dessous.")
     elif o < v:
-        if c <= o:
+        if c <= o and c > b:
+            # ⚠️ 06/10/2026, relevé par la rédaction du briefing : « prolongée
+            # jusqu'à la clôture » se lisait comme une baisse continue alors que
+            # l'indice avait rebondi depuis son plus bas. La position de la
+            # clôture dans l'amplitude est donnée par la phrase suivante.
+            P.append("La baisse d'ouverture s'est creusée en séance, puis a été "
+                     "en partie reprise : la clôture reste sous l'ouverture, "
+                     "au-dessus du plus bas.")
+        elif c <= o:
             P.append("La baisse d'ouverture s'est prolongée jusqu'à la clôture.")
         elif c < v:
             P.append("La baisse d'ouverture a été partiellement reprise : la "

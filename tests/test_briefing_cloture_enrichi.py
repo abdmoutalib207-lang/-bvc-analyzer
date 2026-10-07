@@ -53,9 +53,18 @@ def test_gain_d_ouverture_partiellement_rendu_puis_efface():
 
 
 def test_baisse_d_ouverture_prolongee():
-    p = bf.phrase_trajectoire(_traj(100, 99, 99.5, 97, 98))
+    # Clôture AU plus bas : la baisse s'est bien prolongée jusqu'au bout.
+    p = bf.phrase_trajectoire(_traj(100, 99, 99.5, 97, 97))
     assert "La baisse d'ouverture s'est prolongée jusqu'à la clôture." in p
     assert "pas remonté au-dessus de la clôture de la veille" in p
+
+
+def test_baisse_d_ouverture_creusee_puis_reprise():
+    """06/10/2026 : plus bas à 97, clôture à 98 sous l'ouverture à 99. Dire
+    « prolongée jusqu'à la clôture » cachait le rebond depuis le plus bas."""
+    p = bf.phrase_trajectoire(_traj(100, 99, 99.5, 97, 98))
+    assert "prolongée jusqu'à la clôture" not in p
+    assert "creusée en séance, puis a été en partie reprise" in p
 
 
 def test_une_serie_en_retard_est_signalee():
