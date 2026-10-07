@@ -61,6 +61,9 @@
       .carte-indices{grid-template-columns:1fr!important;gap:6px!important;margin-top:4px!important}
       .carte-indices>.carte-ind{display:none!important}
       .indices-ligne{display:flex!important}
+      /* La fiche (07/10/2026) : les 80 boutons de titres prenaient l'écran
+         avant la fiche elle-même ; on choisit un titre depuis le classement. */
+      .selecteur-titres{display:none!important}
       /* Le classement garde : ticker, clôture (+ ouverture), variation
          (+ volume), score, couleur de la note. */
       .classement{min-width:0!important}
@@ -8731,7 +8734,18 @@ const Detail = ({
     const q = detSearch.trim().toUpperCase();
     return (d.symbol || d.ticker || "").includes(q) || tk(d).includes(q) || (d.name || "").toUpperCase().includes(q);
   }) : [...rows]).sort((a, b) => tk(a).localeCompare(tk(b)));
-  return React.createElement("div", null, React.createElement("div", {
+  const refFiche = useRef(null);
+  useEffect(() => {
+    try {
+      if (refFiche.current && window.matchMedia && window.matchMedia("(max-width:640px)").matches) refFiche.current.scrollIntoView({
+        block: "start"
+      });
+    } catch (e) {}
+  }, [sel]);
+  return React.createElement("div", {
+    ref: refFiche
+  }, React.createElement("div", {
+    className: "selecteur-titres",
     style: {
       display: "flex",
       gap: 8,
@@ -8763,6 +8777,7 @@ const Detail = ({
       background: "transparent"
     }
   }, "\u2715")), React.createElement("div", {
+    className: "selecteur-titres",
     style: {
       display: "flex",
       gap: 4,

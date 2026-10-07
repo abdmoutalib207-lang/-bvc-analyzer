@@ -129,3 +129,11 @@ def test_les_teintes_sombres_ne_servent_plus_qu_au_decor():
     textes = re.findall(r'color:[^,}]*"#(?:4a5570|2a3550)"[^>]*>([^<]*)<', SRC)
     assert sorted(t.strip() for t in textes) == sorted(
         ['{"○".repeat(5-conf)}', '{ouvert?"▲":"▼"}', "◆", "★", "FIL VIDE"]), textes
+
+
+def test_la_fiche_sur_telephone_commence_par_la_fiche():
+    """07/10/2026 : 80 boutons de titres avant la fiche, et la fiche ouverte
+    hors de l'écran (y = −192 à 390 px)."""
+    assert SRC.count('className="selecteur-titres"') == 2
+    assert ".selecteur-titres{display:none!important}" in SRC[SRC.index("VERSION TÉLÉPHONE"):SRC.index("</style>")]
+    assert 'refFiche.current.scrollIntoView({block:"start"})' in SRC

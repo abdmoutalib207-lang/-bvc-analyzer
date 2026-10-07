@@ -61,6 +61,9 @@
       .carte-indices{grid-template-columns:1fr!important;gap:6px!important;margin-top:4px!important}
       .carte-indices>.carte-ind{display:none!important}
       .indices-ligne{display:flex!important}
+      /* La fiche (07/10/2026) : les 80 boutons de titres prenaient l'écran
+         avant la fiche elle-même ; on choisit un titre depuis le classement. */
+      .selecteur-titres{display:none!important}
       /* Le classement garde : ticker, clôture (+ ouverture), variation
          (+ volume), score, couleur de la note. */
       .classement{min-width:0!important}
@@ -2944,15 +2947,26 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
     ? rows.filter(d=>{const q=detSearch.trim().toUpperCase();return (d.symbol||d.ticker||"").includes(q)||tk(d).includes(q)||(d.name||"").toUpperCase().includes(q);})
     : [...rows]).sort((a,b)=>tk(a).localeCompare(tk(b)));
 
+  /* Téléphone (07/10/2026) : la fiche s'ouvrait là où était le classement,
+     son haut hors de l'écran (y = −192 mesuré à 390 px). On l'amène en haut
+     à l'ouverture et à chaque changement de titre. */
+  const refFiche=useRef(null);
+  useEffect(()=>{
+    try{
+      if(refFiche.current&&window.matchMedia&&window.matchMedia("(max-width:640px)").matches)
+        refFiche.current.scrollIntoView({block:"start"});
+    }catch(e){}
+  },[sel]);
+
   return(
-    <div>
-      <div style={{display:"flex",gap:8,marginBottom:8,alignItems:"center",flexWrap:"wrap"}}>
+    <div ref={refFiche}>
+      <div className="selecteur-titres" style={{display:"flex",gap:8,marginBottom:8,alignItems:"center",flexWrap:"wrap"}}>
         <input value={detSearch} onChange={e=>setDetSearch(e.target.value)}
           placeholder="Filtrer ticker…"
           style={{background:"#0d1829",border:"1px solid #1a2540",color:"#c8d3e8",borderRadius:4,padding:"4px 8px",fontSize:11,fontFamily:"var(--font)",width:160,outline:"none"}}/>
         {detSearch&&<button onClick={()=>setDetSearch("")} style={{fontSize:10,color:"#8892a4",border:"none",background:"transparent"}}>✕</button>}
       </div>
-      <div style={{display:"flex",gap:4,marginBottom:14,flexWrap:"wrap",maxHeight:96,overflowY:"auto",padding:"4px 0"}}>
+      <div className="selecteur-titres" style={{display:"flex",gap:4,marginBottom:14,flexWrap:"wrap",maxHeight:96,overflowY:"auto",padding:"4px 0"}}>
         {visRows.map(d=>{const sym2=d.symbol||d.ticker;const cd=couleurNote(d);const ds=simu||!cd||meta(d).conf<=1?NEUTRE:teinte(cd.c);const a=sel===sym2;return(
           <button key={sym2} onClick={()=>setSel(sym2)} style={{background:a?ds.bg:"transparent",border:a?`1px solid ${ds.bd}`:"1px solid #1a2540",color:a?ds.fg:"#8892a4",padding:"2px 7px",borderRadius:3,fontSize:10,fontWeight:a?700:400,transition:"all .15s"}}>{tk(d)}</button>
         );})}
