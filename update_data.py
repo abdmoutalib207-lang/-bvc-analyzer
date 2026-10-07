@@ -2789,6 +2789,47 @@ def _per(price, bpa):
     return round(price / bpa, 1) if (bpa and bpa > 0 and price and price > 0) else None
 
 
+def volume_indice_coherent(masi: dict, tickers: list) -> dict | None:
+    """Le volume global publié, recoupé avec la somme des fiches. Pure.
+
+    ⚠️ 06/10/2026 : le bandeau global annonçait 346 377 516,02 DH quand la
+    somme des 68 fiches de la séance — et le bulletin CDG — donnaient
+    349 551 480,02. Les deux viennent de CDG, mais pas du même relevé :
+    INDICE-SYNTHESE retardait sur MARKET-RESUME, puis s'est aligné. Ce n'était
+    ni des blocs ni des annulations.
+
+    Règle : on ne compare que les fiches DE LA SÉANCE de l'indice, et
+    seulement si toutes celles qui ont échangé portent leur montant réel
+    (`echange_dh`) — sans cela la somme serait incomplète. Si la somme
+    dépasse le volume de l'indice de plus de 0,05 % (et de moins de 5 %),
+    l'indice est en retard :
+    on publie la somme, et l'on garde la valeur de l'indice à côté. Si la
+    somme est INFÉRIEURE, on ne remplace rien (des fiches peuvent manquer) et
+    l'écart est seulement signalé.
+    """
+    seance = str(masi.get("asof") or "")[:10]
+    vol = masi.get("volume_mad")
+    if not seance or vol is None:
+        return None
+    lignes = [t for t in tickers or []
+              if str((t.get("_meta") or {}).get("prix_asof") or "") == seance
+              and (t.get("vol") or 0) > 0]
+    if not lignes or any(not t.get("echange_dh") for t in lignes):
+        return {"volume_source": "indice_cdg", "volume_titres_couverture": "incomplete"}
+    somme = round(sum(float(t["echange_dh"]) for t in lignes), 2)
+    ecart = somme - float(vol)
+    if abs(ecart) <= max(10.0, abs(float(vol)) * 0.0005):
+        return {"volume_source": "indice_cdg", "volume_titres_dh": somme}
+    if ecart > 0 and ecart <= abs(float(vol)) * 0.05:
+        return {"volume_mad": somme, "volume_mad_indice_cdg": vol,
+                "volume_source": "somme_des_titres (indice CDG en retard)",
+                "volume_titres_dh": somme}
+    # Somme inférieure (fiches manquantes ?) ou supérieure de plus de 5 %
+    # (fiche comptée deux fois ?) : on signale, on ne remplace pas.
+    return {"volume_source": "indice_cdg (écart avec la somme des titres : non remplacé)",
+            "volume_titres_dh": somme}
+
+
 def _comptes_deposes(entree_bpa: dict | None) -> bool:
     """Le BPA vient-il d'un dépôt AMMC ? (bpa.json, champ `source`)
 
@@ -4907,6 +4948,18 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:
         # Un contrôle qui tombe ne doit pas emporter la publication avec lui.
         logger.warning(f"cohérence : contrôle indisponible ({_e})")
+
+    # Volume global : l'indice CDG peut retarder sur les fiches (06/10/2026).
+    try:
+        _vc = volume_indice_coherent(output.get("masi") or {}, tickers_out)
+        if _vc:
+            output["masi"].update(_vc)
+            if _vc.get("volume_source") != "indice_cdg":
+                logger.warning(f"volume global : {_vc['volume_source']} — "
+                               f"indice {_vc.get('volume_mad_indice_cdg')} DH, "
+                               f"titres {_vc['volume_mad']} DH")
+    except Exception as _e:                               # noqa: BLE001
+        logger.warning(f"volume global : contrôle indisponible ({_e})")
 
     elapsed = round(time.time() - ts_start, 1)
     logger.info(f"\n{'═'*60}")
