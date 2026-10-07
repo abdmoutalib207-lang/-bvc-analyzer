@@ -27,6 +27,13 @@
       overflow-x:auto;scrollbar-width:none;border:1px solid rgba(77,184,255,.22);border-radius:8px;
       background:linear-gradient(180deg,rgba(77,184,255,.07),rgba(77,184,255,.02));font-variant-numeric:tabular-nums}
     .indices-ligne::-webkit-scrollbar{display:none}
+    /* Gabarit de la carte des indices : les cadres restent, leur contenu est
+       masqué, un reflet dit que ça charge. */
+    [data-gabarit] .carte-ind *,[data-gabarit] .indices-ligne *{visibility:hidden}
+    [data-gabarit] .carte-ind,[data-gabarit] .indices-ligne{position:relative;overflow:hidden}
+    [data-gabarit] .carte-ind::after,[data-gabarit] .indices-ligne::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+      background:linear-gradient(90deg,transparent,rgba(200,211,232,.06),transparent);animation:reflet 1.2s ease-in-out infinite;}
+    @media (prefers-reduced-motion:reduce){[data-gabarit] .carte-ind::after,[data-gabarit] .indices-ligne::after{display:none;}}
     .carte-indices{flex-basis:100%;width:100%;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.2fr);gap:10px;margin-top:8px}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
     /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
@@ -905,7 +912,17 @@ const SECTOR_COL={
    La variation en POINTS vient de la veille publiée par le moteur
    (`variation_points`) — pas du pourcentage arrondi, qui donnerait 105,89
    au lieu de 106,01 le 29/09. */
-const CarteIndices=({masi})=>{
+/* ⚠️ LE GABARIT — 07/10/2026. Tant que `masi` est vide, la carte n'était
+   pas rendue ; à son arrivée l'en-tête grandissait d'un coup et tout le
+   classement descendait (CLS mesuré 0,82 à 1440 px, 0,84 à 768). On rend
+   donc la MÊME carte, texte masqué, sur ce gabarit : des 8 et des 0 de la
+   longueur des vrais chiffres (police à chasse fixe), pour que les retours à
+   la ligne — et donc la hauteur — soient les mêmes à toute largeur.
+   Ce ne sont PAS des données : rien de ce gabarit ne s'affiche. */
+const GABARIT_MASI={value:88888.88,chg:-8.88,variation_points:-888.88,veille:88888.88,ytd_pct:-88.88,
+  asof:"0000-00-00",masi20:{value:8888.88,change_pct:-8.88,ytd_pct:-88.88},
+  hausses:88,baisses:88,inchanges:8,volume_mad:888.8e6,transactions:8888};
+const CarteIndices=({masi,gabarit=false})=>{
   const coul=v=>v>0?"#00e5a0":v<0?"#ff4f5a":"#8892a4";
   const fleche=v=>v>0?"▲":v<0?"▼":"■";
   const nb=(v,d=2)=>v==null?"—":(+v).toLocaleString("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -926,7 +943,8 @@ const CarteIndices=({masi})=>{
   // Les avertissements de date (⚠) y restent : un état incertain se voit.
   const varia=v=>v==null?null:<b style={{color:coul(v),whiteSpace:"nowrap"}}>{fleche(v)} {pct(v)}</b>;
   return(
-    <div className="bandeau-masi carte-indices">
+    <div className="bandeau-masi carte-indices" data-gabarit={gabarit||undefined} aria-hidden={gabarit||undefined}
+      aria-busy={gabarit||undefined}>
       <div className="indices-ligne">
         <span style={{color:"#4db8ff",fontWeight:700,letterSpacing:1}}>MASI</span>
         <b style={{color:"#fff",fontSize:15}}>{nb(masi.value)}</b>{varia(ch)}
@@ -1008,7 +1026,7 @@ const CarteIndices=({masi})=>{
             {masi.transactions!=null&&<span> · {masi.transactions.toLocaleString("fr-FR")} transactions</span>}
           </div>}
       </div>
-      {graphe&&<div style={{...carte,gridColumn:"1/-1",padding:"8px 10px"}}><GraphiqueMASI/></div>}
+      {graphe&&!gabarit&&<div style={{...carte,gridColumn:"1/-1",padding:"8px 10px"}}><GraphiqueMASI/></div>}
     </div>
   );
 };
@@ -1982,10 +2000,12 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
             <span style={{fontSize:11,color:"#8892a4",display:"flex",alignItems:"center",gap:5}}>
               <span style={{display:"inline-block",width:7,height:7,borderRadius:"50%",background:pulse?"#00e5a0":"transparent",border:"1px solid #00e5a0",transition:"background .4s"}}/>
               <span style={{letterSpacing:.3}}>données :</span>
-              <span style={{color:"#c8d3e8",fontWeight:600}}>{ts||"—"}</span>
+              {/* Largeur réservée (« 06/10/2026 19:56:21 ») : l'horodatage arrive
+                  après le premier rendu et poussait la suite de la ligne. */}
+              <span style={{color:"#c8d3e8",fontWeight:600,minWidth:"19ch"}}>{ts||"—"}</span>
             </span>
             {mktStatus&&<span style={{background:`${mktStatus.color}18`,border:`1px solid ${mktStatus.color}40`,borderRadius:4,padding:"3px 10px",fontSize:11,color:mktStatus.color,fontWeight:700,letterSpacing:.5}}>BVC {mktStatus.label}</span>}
-            {masi&&<CarteIndices masi={masi}/>}
+            {masi?<CarteIndices masi={masi}/>:<CarteIndices masi={GABARIT_MASI} gabarit/>}
           </div>
         </div>
         <div style={{display:"flex",gap:8,alignItems:"center"}}>

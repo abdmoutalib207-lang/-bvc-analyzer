@@ -27,6 +27,13 @@
       overflow-x:auto;scrollbar-width:none;border:1px solid rgba(77,184,255,.22);border-radius:8px;
       background:linear-gradient(180deg,rgba(77,184,255,.07),rgba(77,184,255,.02));font-variant-numeric:tabular-nums}
     .indices-ligne::-webkit-scrollbar{display:none}
+    /* Gabarit de la carte des indices : les cadres restent, leur contenu est
+       masqué, un reflet dit que ça charge. */
+    [data-gabarit] .carte-ind *,[data-gabarit] .indices-ligne *{visibility:hidden}
+    [data-gabarit] .carte-ind,[data-gabarit] .indices-ligne{position:relative;overflow:hidden}
+    [data-gabarit] .carte-ind::after,[data-gabarit] .indices-ligne::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+      background:linear-gradient(90deg,transparent,rgba(200,211,232,.06),transparent);animation:reflet 1.2s ease-in-out infinite;}
+    @media (prefers-reduced-motion:reduce){[data-gabarit] .carte-ind::after,[data-gabarit] .indices-ligne::after{display:none;}}
     .carte-indices{flex-basis:100%;width:100%;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.2fr);gap:10px;margin-top:8px}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
     /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
@@ -3971,8 +3978,27 @@ const SECTOR_COL = {
   "FMCG": "#2E7D32",
   "Grande distribution": "#0D47A1"
 };
+const GABARIT_MASI = {
+  value: 88888.88,
+  chg: -8.88,
+  variation_points: -888.88,
+  veille: 88888.88,
+  ytd_pct: -88.88,
+  asof: "0000-00-00",
+  masi20: {
+    value: 8888.88,
+    change_pct: -8.88,
+    ytd_pct: -88.88
+  },
+  hausses: 88,
+  baisses: 88,
+  inchanges: 8,
+  volume_mad: 888.8e6,
+  transactions: 8888
+};
 const CarteIndices = ({
-  masi
+  masi,
+  gabarit = false
 }) => {
   const coul = v => v > 0 ? "#00e5a0" : v < 0 ? "#ff4f5a" : "#8892a4";
   const fleche = v => v > 0 ? "▲" : v < 0 ? "▼" : "■";
@@ -4017,7 +4043,10 @@ const CarteIndices = ({
     }
   }, fleche(v), " ", pct(v));
   return React.createElement("div", {
-    className: "bandeau-masi carte-indices"
+    className: "bandeau-masi carte-indices",
+    "data-gabarit": gabarit || undefined,
+    "aria-hidden": gabarit || undefined,
+    "aria-busy": gabarit || undefined
   }, React.createElement("div", {
     className: "indices-ligne"
   }, React.createElement("span", {
@@ -4293,7 +4322,7 @@ const CarteIndices = ({
       color: "#e8eef8",
       fontSize: 14
     }
-  }, masi.volume_mad >= 1e9 ? `${nb(masi.volume_mad / 1e9)} Md DH` : `${nb(masi.volume_mad / 1e6, 1)} M DH`), masi.transactions != null && React.createElement("span", null, " \xB7 ", masi.transactions.toLocaleString("fr-FR"), " transactions"))), graphe && React.createElement("div", {
+  }, masi.volume_mad >= 1e9 ? `${nb(masi.volume_mad / 1e9)} Md DH` : `${nb(masi.volume_mad / 1e6, 1)} M DH`), masi.transactions != null && React.createElement("span", null, " \xB7 ", masi.transactions.toLocaleString("fr-FR"), " transactions"))), graphe && !gabarit && React.createElement("div", {
     style: {
       ...carte,
       gridColumn: "1/-1",
@@ -6530,7 +6559,8 @@ const Header = ({
   }, "donn\xE9es :"), React.createElement("span", {
     style: {
       color: "#c8d3e8",
-      fontWeight: 600
+      fontWeight: 600,
+      minWidth: "19ch"
     }
   }, ts || "—")), mktStatus && React.createElement("span", {
     style: {
@@ -6543,8 +6573,11 @@ const Header = ({
       fontWeight: 700,
       letterSpacing: .5
     }
-  }, "BVC ", mktStatus.label), masi && React.createElement(CarteIndices, {
+  }, "BVC ", mktStatus.label), masi ? React.createElement(CarteIndices, {
     masi: masi
+  }) : React.createElement(CarteIndices, {
+    masi: GABARIT_MASI,
+    gabarit: true
   }))), React.createElement("div", {
     style: {
       display: "flex",
