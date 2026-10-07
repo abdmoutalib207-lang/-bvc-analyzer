@@ -274,7 +274,7 @@ def texte(a):
         add(a["briefing"])
         add("")
 
-    add(f"SIGNAUX D'ACHAT ({len(a['achats'])})")
+    add(f"NOTES VERTES, 6,5 ET PLUS ({len(a['achats'])})")
     if a["achats"]:
         add("   Retenus seulement à partir d'une confiance de 3 sur 5.")
         for x in a["achats"][:10]:
@@ -282,14 +282,14 @@ def texte(a):
             add(f"   {x['symbol']:<6} {(x.get('name') or '')[:26]:<26} "
                 f"note {_nb(x.get('v53'), 2)}/10   confiance {c}/5")
     else:
-        add("   Aucun signal d'achat suffisamment étayé sur cette séance.")
+        add("   Aucune note verte avec une confiance suffisante sur cette séance.")
     add("")
     add("CE QUE CE BULLETIN NE SAIT PAS")
     add(f"   {a['non_cotes']} valeur(s) n'ont pas coté : leur prix est celui "
         f"de la dernière séance où elles l'ont fait.")
     if a["insuffisants"]:
         add(f"   {len(a['insuffisants'])} valeur(s) sans données suffisantes, "
-            f"aucun signal émis : "
+            f"aucune couleur affichée : "
             f"{', '.join(x['symbol'] for x in a['insuffisants'])}.")
     add("")
     add(f"Terminal complet : {TERMINAL}")
@@ -330,12 +330,12 @@ def html(a):
         f'color:#6d7887">{(x.get("_meta") or {}).get("confidence")}/5</td></tr>'
         for x in a["achats"][:10]) or (
         '<tr><td colspan="4" style="padding:12px 10px;color:#6d7887">'
-        'Aucun signal d\'achat suffisamment étayé sur cette séance.</td></tr>')
+        'Aucune note verte avec une confiance suffisante sur cette séance.</td></tr>')
 
     ins = ""
     if a["insuffisants"]:
         ins = (f"<li>{len(a['insuffisants'])} valeur(s) sans données "
-               f"suffisantes, aucun signal émis : "
+               f"suffisantes, aucune couleur affichée : "
                f"{', '.join(x['symbol'] for x in a['insuffisants'])}.</li>")
 
     th = ('style="padding:8px 10px;text-align:left;font-size:11px;'
@@ -382,7 +382,7 @@ background:#ffffff;line-height:1.6">
   {_briefing_html(a)}
 
   <h2 style="font-size:15px;margin:0 0 4px">
-    Signaux d'achat ({len(a['achats'])})</h2>
+    Notes vertes, 6,5 et plus ({len(a['achats'])})</h2>
   <p style="font-size:12.5px;color:#6d7887;margin:0 0 8px">
     Retenus seulement à partir d'une confiance de 3 sur 5.</p>
   <table style="width:100%;border-collapse:collapse;font-size:14px;
