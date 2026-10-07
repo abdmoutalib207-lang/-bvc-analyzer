@@ -2629,6 +2629,13 @@ ECART_CAP_TOLERE = 0.10
 # restent pour un nombre tiré d'un rapport annuel, qui peut dater d'avant une
 # augmentation de capital (HAL : +7,7 % avant inscription de la sienne).
 ECART_CAP_TOLERE_OPERATEUR = 0.02
+# Un cours implicite (capitalisation servie ÷ actions) « explique » l'écart
+# s'il retombe sur le cours du jour ou la clôture de la veille. 0,3 % couvre
+# l'arrondi en MDHS d'une petite capitalisation ; 0,5 % pour la veille,
+# mesuré le 07/10 : les 48 cas expliqués tombent tous dessous, les 4
+# inexpliqués à plus de 2 %.
+TOL_COURS_IMPLICITE_JOUR = 0.003
+TOL_COURS_IMPLICITE_VEILLE = 0.005
 
 
 # Les provenances où le cours est celui de la séance en cours. Partout
@@ -2636,7 +2643,8 @@ ECART_CAP_TOLERE_OPERATEUR = 0.02
 SOURCES_PRIX_VIVANTES = {"idbourse", "cdg", "bmce", "medias24"}
 
 
-def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None):
+def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None,
+                    cloture_veille=None, temoin_du_jour=True):
     """(capitalisation retenue, provenance) — en refusant l'invraisemblable.
 
     ⚠️ CE CONTRÔLE EXISTE À CAUSE D'UNE PUBLICATION ANNULÉE. Le 16/09 à 16h22
@@ -2686,24 +2694,48 @@ def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None):
     if not cap_servie:
         return calculee, "calculee_faute_de_source"
 
-    # ⚠️ 07/10/2026 — DEUX CHIFFRES DU MÊME INSTANT. La capitalisation servie
-    # retarde d'une séance : mesuré le 07/10 à 12h55, sur 31 titres où elle
-    # différait de cours × actions, 31 valaient EXACTEMENT le cours de la
-    # VEILLE × actions (à 0,3 % près), aucun ne trahissait un nombre d'actions
-    # différent. On publiait donc un cours d'aujourd'hui à côté d'une
-    # capitalisation d'hier (TQA : 1 680 DH et 37 506 MDHS, soit 1 590 DH), et
-    # le contrôle de publication comparait deux instants : les 10h55 et 11h55
-    # du 07/10 n'ont rien publié. Quand les deux termes sont sourcés, la
-    # capitalisation est leur produit ; la valeur servie n'est plus que le
-    # témoin qui la recoupe. Aucune note ne la lit (compute_v53, fond_score).
+    # ⚠️ 07/10/2026 — DEUX CHIFFRES DU MÊME INSTANT, À CONDITION DE SAVOIR
+    # POURQUOI ILS DIFFÈRENT. La capitalisation servie retarde d'une séance :
+    # mesuré le 07/10, sur 61 titres à actions sourcées, 48 valaient
+    # exactement le cours de la VEILLE × actions (à 0,5 %), 9 celui du jour,
+    # et 4 rien du tout (LHM, STR, INV, IBM). On publiait un cours du jour à
+    # côté d'une capitalisation d'hier (TQA : 1 680 DH et 37 506 MDHS, soit
+    # 1 590 DH), et le contrôle de publication comparait deux instants : les
+    # runs de 10h55 et 11h55 du 07/10 n'ont rien publié. Et 24 des 28 refus
+    # quotidiens n'étaient que ce retard : une alarme toujours allumée.
+    #
+    # Le critère n'est donc plus un seuil mais une EXPLICATION. Si la valeur
+    # servie est le cours du jour ou de la veille × actions sourcées, elle
+    # confirme le nombre d'actions à 0,5 % près, et l'on publie le cours du
+    # jour × actions — deux termes du même instant. Sinon l'écart est
+    # inexpliqué, et c'est précisément le cas d'un nombre d'actions périmé
+    # (HAL avant inscription de son augmentation de capital : +7,7 %) : la
+    # valeur servie, celle du marché, reste la plus sûre sous le seuil.
+    #
+    # ⚠️ Le témoin doit être la source DU JOUR. Reprise du data.json de la
+    # veille, la valeur servie vaut souvent déjà cours × actions : la
+    # « recouper » serait se recouper soi-même (relecteur-pipeline, 07/10).
+    implicite = cap_servie * 1e6 / n
+    explique = temoin_du_jour and (
+        abs(implicite / price - 1) <= TOL_COURS_IMPLICITE_JOUR
+        or (cloture_veille and abs(implicite / cloture_veille - 1) <= TOL_COURS_IMPLICITE_VEILLE))
+    if explique:
+        return calculee, "calculee_recoupee"
+
     ecart = abs(calculee / cap_servie - 1)
     if ecart <= (ECART_CAP_TOLERE_OPERATEUR if ticker in ACTIONS_OPERATEUR else ECART_CAP_TOLERE):
-        return calculee, "calculee_recoupee"
+        if temoin_du_jour:
+            logger.warning(
+                f"{ticker} : capitalisation servie {cap_servie} MDHS gardée, écart "
+                f"inexpliqué — cours implicite {implicite:.2f} pour {price} ce jour"
+                + (f" et {cloture_veille} la veille" if cloture_veille else "")
+                + " : nombre d'actions sourcé à vérifier")
+        return cap_servie, "servie"
 
     logger.warning(
         f"{ticker} : capitalisation servie {cap_servie} MDHS refusée — "
         f"prix {price} × {n:,.0f} actions sourcées = {calculee} MDHS "
-        f"(écart {ecart:.0%})".replace(",", " "))
+        f"(écart {ecart:.0%}, inexpliqué par le cours du jour ou de la veille)".replace(",", " "))
     return calculee, "calculee_apres_refus"
 
 
@@ -2857,6 +2889,7 @@ def _comptes_deposes(entree_bpa: dict | None) -> bool:
 def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
                  isin_suspect=False, ratios_calcules=False,
                  chg=None, vol=None, prix_diffuse=None, cap_source=None,
+                 cap_servie=None,
                  seances_depuis_reprise=None, comptes_deposes=False) -> dict:
     """Provenance du prix et score de confiance 0–5.
 
@@ -3017,14 +3050,19 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         "pb_source":    ("faits_ammc" if _pb_sourcé(ticker, 1.0) is not None
                          else "non_disponible"),
         # D'où vient la capitalisation publiée : « servie » par la source
-        # (actions non sourcées, ou cours périmé), « calculee_recoupee » —
-        # prix × actions sourcées, la source concordant dans la tolérance —,
+        # (actions non sourcées, cours périmé, ou écart inexpliqué sous le
+        # seuil), « calculee_recoupee » — prix du jour × actions sourcées, la
+        # valeur servie s'expliquant par le cours du jour ou de la veille —,
         # « calculee_apres_refus » quand elle contredisait prix × actions
-        # sourcées de plus de 10 %, « calculee_faute_de_source » quand la
+        # au-delà du seuil sans explication, « calculee_faute_de_source » quand la
         # source n'en donnait aucune. Sans cette ligne, un refus serait
         # silencieux — et un chiffre remplacé sans le dire est exactement ce
         # qu'on reproche à la table figée.
         "cap_source":   cap_source,
+        # ⚠️ 07/10/2026 : le TÉMOIN brut, tel que la source l'a servi. Quand
+        # la capitalisation publiée est prix × actions, elle ne peut plus
+        # recouper le nombre d'actions — c'est ce champ qui le peut encore.
+        "cap_servie":   cap_servie,
         "vol_median20": vol_median,
         # ⚠️ La grandeur sur laquelle le plafond de liquidité s'appuie. Publiée
         # parce qu'un seuil qu'on ne peut pas vérifier ne se discute pas.
@@ -4384,9 +4422,12 @@ def run(dry_run=False, push=False, token=""):
         # `_ex_all` porte le data.json précédent. Une capitalisation publiée
         # hier est datée, vérifiée, et cohérente avec le cours d'hier.
         _cap_precedente = (_ex_all.get(ticker) or {}).get("cap")
+        _cap_servie = lp.get("cap") or _cap_precedente or fd.get("cap")
         _cap_retenue, _cap_source = _capitalisation(
-            ticker, price, lp.get("cap") or _cap_precedente or fd.get("cap"),
-            src_prix)
+            ticker, price, _cap_servie, src_prix,
+            cloture_veille=_cloture_precedente(_candles_cache.get(ticker),
+                                               prix_asof or IDB_ASOF),
+            temoin_du_jour=bool(lp.get("cap")))
         # ⚠️ ET LE CHAMP DIT D'OÙ ELLE VIENT. « servie » pour une valeur reprise
         # du fichier de la veille serait un mensonge par raccourci : elle a été
         # servie, mais hier. Un chiffre repris sans le dire est exactement ce
@@ -4411,6 +4452,7 @@ def run(dry_run=False, push=False, token=""):
                     ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0),
                 chg=chg, vol=vol, prix_diffuse=_prix_diffuse,
                 cap_source=_cap_source,
+                cap_servie=lp.get("cap"),
                 seances_depuis_reprise=_seances_depuis_reprise,
                 comptes_deposes=_comptes_deposes(BPA_DATA.get(ticker))),
             # Code officiel BVC, pour l'affichage seulement. Nos symboles

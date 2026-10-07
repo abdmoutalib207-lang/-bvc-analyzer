@@ -71,34 +71,48 @@ def _faits(n_actions, exercice=2025):
                                                             "page": 57}}}}
 
 
-# (nom, actions sourcées, prix, cap servie, cap attendue, provenance attendue)
+# (nom, actions sourcées, prix, cap servie, clôture de la veille, témoin du
+#  jour, cap attendue, provenance attendue)
+#
+# ⚠️ 07/10/2026 : le critère est l'EXPLICATION de l'écart, pas un seuil. Une
+# valeur servie qui retombe sur le cours du jour ou de la veille × actions
+# confirme le nombre d'actions : on publie le cours du jour × actions. Un
+# écart inexpliqué sous le seuil garde la valeur servie (nombre d'actions
+# peut-être périmé) ; au-delà, refus comme avant.
 SITUATIONS = [
     ("LE 16/09 : capitalisation servie de moitié",
-     1_681_233, 4350.0, 3727, 7313, "calculee_apres_refus"),
+     1_681_233, 4350.0, 3727, None, True, 7313, "calculee_apres_refus"),
 
-    # ⚠️ 07/10/2026 : dans la tolérance, on publie prix × actions — deux
-    # termes du même instant — et la valeur servie n'est plus que le témoin.
-    # Elle retarde d'une séance : 31 titres sur 31 mesurés ce jour-là.
-    ("capitalisation servie cohérente : recoupée",
-     1_681_233, 4350.0, 7313, 7313, "calculee_recoupee"),
+    ("capitalisation servie au cours du jour : recoupée",
+     1_681_233, 4350.0, 7313, None, True, 7313, "calculee_recoupee"),
 
-    ("écart de 3 % (cours de la veille) : on publie celle du cours du jour",
-     1_681_233, 4350.0, 7100, 7313, "calculee_recoupee"),
+    ("servie au cours de la VEILLE (4 223,2) : on publie celle du jour",
+     1_681_233, 4350.0, 7100, 4223.2, True, 7313, "calculee_recoupee"),
+
+    ("écart de 3 % que rien n'explique : la valeur servie est gardée",
+     1_681_233, 4350.0, 7100, 4350.0, True, 7100, "servie"),
+
+    ("témoin repris de la veille : il ne recoupe rien, gardé tel quel",
+     1_681_233, 4350.0, 7100, 4223.2, False, 7100, "servie"),
 
     ("capitalisation absente mais actions sourcées",
-     1_681_233, 4350.0, None, 7313, "calculee_faute_de_source"),
+     1_681_233, 4350.0, None, None, True, 7313, "calculee_faute_de_source"),
 
     ("capitalisation doublée : refusée aussi",
-     1_681_233, 4350.0, 14600, 7313, "calculee_apres_refus"),
+     1_681_233, 4350.0, 14600, None, True, 7313, "calculee_apres_refus"),
+
+    ("baisse de 10 % (ZLD le 07/10) : le retard s'explique, pas de refus",
+     1_681_233, 3915.0, 7313, 4350.0, True, 6582, "calculee_recoupee"),
 ]
 
 
-@pytest.mark.parametrize("nom,actions,prix,servie,attendue,provenance",
+@pytest.mark.parametrize("nom,actions,prix,servie,veille,du_jour,attendue,provenance",
                          SITUATIONS, ids=[s[0] for s in SITUATIONS])
-def test_la_capitalisation_est_arbitree(moteur, nom, actions, prix, servie,
-                                        attendue, provenance):
+def test_la_capitalisation_est_arbitree(moteur, nom, actions, prix, servie, veille,
+                                        du_jour, attendue, provenance):
     moteur.FAITS_DATA = _faits(actions)
-    cap, src = moteur._capitalisation("CMT", prix, servie)
+    cap, src = moteur._capitalisation("CMT", prix, servie, None,
+                                      cloture_veille=veille, temoin_du_jour=du_jour)
     assert (cap, src) == (attendue, provenance), f"{nom} → {cap} ({src})"
 
 
@@ -131,18 +145,17 @@ def test_un_refus_ne_neutralise_que_le_titre_concerne(moteur):
 def test_le_seuil_laisse_passer_les_ecarts_reels(moteur):
     """3,2 % est le pire écart légitime mesuré ; le seuil est à 10 %.
 
-    Un seuil trop serré ferait REFUSER — et journaliser comme une anomalie de
-    la source — l'écart ordinaire d'une séance de retard. Depuis le 07/10 la
-    valeur publiée est prix × actions dans les deux cas ; ce qui distingue
-    l'écart ordinaire du refus, c'est l'étiquette et l'avertissement.
+    Un seuil trop serré ferait refuser un écart que rien n'explique mais qui
+    peut être juste — un nombre d'actions pas encore mis à jour — et le
+    moteur publierait alors SA valeur à la place de celle du marché.
     """
     assert moteur.ECART_CAP_TOLERE >= 0.05, "seuil trop serré : des écarts réels seraient refusés"
     assert moteur.ECART_CAP_TOLERE <= 0.25, "seuil trop lâche : un facteur deux passerait"
     moteur.FAITS_DATA = _faits(1_000_000)
-    for ecart in (0.0, 0.032, 0.09):
+    for ecart in (0.032, 0.09):
         servie = round(100 * 1_000_000 / 1e6 / (1 + ecart))
         _, src = moteur._capitalisation("CMT", 100.0, servie)
-        assert src == "calculee_recoupee", f"un écart de {ecart:.1%} a été refusé"
+        assert src == "servie", f"un écart de {ecart:.1%} a été refusé"
 
 
 # ── Ce que le fichier publié doit montrer ────────────────────────────────────
@@ -214,3 +227,43 @@ def test_aucune_capitalisation_publiee_ne_contredit_les_actions_sourcees():
     assert controles >= 15, (
         f"seuls {controles} titres contrôlés — le référentiel a-t-il rétréci ?")
     assert not ecarts, ("le refus en amont n'a pas eu lieu :\n  " + "\n  ".join(ecarts))
+
+
+def test_chaque_capitalisation_recoupee_l_est_vraiment():
+    """⚠️ 07/10/2026 — LE TÉMOIN QUI RESTE INDÉPENDANT.
+
+    Quand la capitalisation publiée vaut prix × actions, les contrôles qui
+    recoupent le nombre d'actions PAR la capitalisation (P/B, nombre
+    d'actions du rapport, balayage_rfa) recalculent ce nombre à partir de
+    lui-même (relecteur-pipeline, 07/10). Le recoupement réel est fait par le
+    moteur, à 0,5 % ; ce test le refait ici, à partir de la valeur BRUTE de
+    la source (`_meta.cap_servie`) et des chandelles, sans le code du moteur.
+    """
+    sys.path.insert(0, str(RACINE))
+    d = json.loads(chemin_data_json().read_text(encoding="utf-8"))
+    recoupees = [t for t in d["tickers"]
+                 if (t.get("_meta") or {}).get("cap_source") == "calculee_recoupee"]
+    if not recoupees:
+        pytest.skip("data.json antérieur au recoupement par le cours (07/10)")
+    fautes = []
+    for x in recoupees:
+        t, prix, cap, m = x["symbol"], x["price"], x["cap"], x["_meta"]
+        servie = m.get("cap_servie")
+        if not servie:
+            fautes.append(f"{t} : recoupée sans témoin publié")
+            continue
+        n = cap * 1e6 / prix                       # actions implicites publiées
+        implicite = servie * 1e6 / n               # cours que la source a utilisé
+        serie = json.loads((RACINE / "pipeline" / "candles" / f"{t}.json")
+                           .read_text(encoding="utf-8"))
+        serie = serie.get("candles", serie) if isinstance(serie, dict) else serie
+        avant = [b["c"] for b in serie if b["d"] < (m.get("prix_asof") or "9999")]
+        veille = avant[-1] if avant else None
+        # Arrondis : cap en MDHS entiers des deux côtés, d'où une marge
+        # relative de 1/cap ajoutée aux tolérances du moteur.
+        marge = 1.0 / min(cap, servie)
+        if not (abs(implicite / prix - 1) <= 0.003 + marge
+                or (veille and abs(implicite / veille - 1) <= 0.005 + marge)):
+            fautes.append(f"{t} : servie {servie} → cours implicite {implicite:.2f}, "
+                          f"ni le cours du jour {prix} ni la veille {veille}")
+    assert not fautes, "recoupement annoncé mais non vérifié :\n  " + "\n  ".join(fautes)

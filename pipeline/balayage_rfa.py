@@ -483,8 +483,12 @@ def main() -> int:
         try:
             faits = extraire(_pages(dest))
             x = prix.get(tic) or {}
-            am = (x.get("cap") * 1e6 / x["price"]
-                  if x.get("cap") and x.get("price") else None)
+            # ⚠️ 07/10/2026 : la valeur BRUTE de la source. Quand le nombre
+            # d'actions est déjà sourcé, `cap` publiée vaut prix × ce nombre :
+            # l'arbitre se recouperait lui-même (relecteur-pipeline).
+            cap_marche = (x.get("_meta") or {}).get("cap_servie") or x.get("cap")
+            am = (cap_marche * 1e6 / x["price"]
+                  if cap_marche and x.get("price") else None)
             faits = deduire_actions(faits, am)
         except Exception as e:
             echecs.append((tic, f"lecture : {e}"))
