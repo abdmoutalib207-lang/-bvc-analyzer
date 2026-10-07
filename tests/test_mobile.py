@@ -113,3 +113,10 @@ def test_les_boutons_du_graphique_ont_une_zone_tactile_de_44_px():
     assert ".btn-graphe::after{inset:-6px -3px!important;}" in bloc
     assert ".barre-graphe{row-gap:12px!important;}" in bloc
     assert SRC.count('className="btn-graphe"') >= 5 and SRC.count('className="barre-graphe"') == 2
+
+
+def test_l_etoile_des_favoris_se_voit_et_se_touche():
+    """07/10/2026 : ☆ en #2a3550 sur le fond — contraste 1,59, 10×14 px."""
+    assert SRC.count('className="etoile"') == 2
+    assert '"#ffd740":"#2a3550"' not in SRC
+    assert ".etoile{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px" in SRC

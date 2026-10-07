@@ -23,6 +23,10 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     .mobile-seul{display:none}
+    /* L'étoile des favoris (07/10/2026) : #2a3550 sur le fond, contraste
+       1,59 — invisible. Teinte --dim, et une boîte de 32 px au moins dont les
+       marges négatives rendent l'encombrement : la ligne ne grandit pas. */
+    .etoile{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;margin:-9px -10px}
     .indices-ligne{display:none;align-items:center;gap:7px;height:36px;padding:0 10px;font-size:12px;white-space:nowrap;
       overflow-x:auto;scrollbar-width:none;border:1px solid rgba(77,184,255,.22);border-radius:8px;
       background:linear-gradient(180deg,rgba(77,184,255,.07),rgba(77,184,255,.02));font-variant-numeric:tabular-nums}
@@ -2290,7 +2294,8 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                           {r.warn&&<span title={r.warnMsg} style={{fontSize:10,cursor:"help"}}>⚠️</span>}
                           {isStat&&<span title="Historique insuffisant : indicateurs techniques absents, la note technique s'abstient (5,0)" style={{fontSize:9,color:"#8892a4",border:"1px solid #1a2540",borderRadius:2,padding:"1px 3px",cursor:"default"}}>~hist</span>}
                           <button onClick={e=>{e.stopPropagation();toggleFav(sym);}} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
-                            style={{fontSize:14,color:fav.includes(sym)?"#ffd740":"#2a3550",border:"none",background:"none",cursor:"pointer",padding:"0 1px",lineHeight:1,transition:"color .15s"}}>
+                            className="etoile" aria-pressed={fav.includes(sym)}
+                            style={{fontSize:14,color:fav.includes(sym)?"#ffd740":"#8892a4",border:"none",background:"none",cursor:"pointer",padding:"0 1px",lineHeight:1,transition:"color .15s"}}>
                             {fav.includes(sym)?"★":"☆"}
                           </button>
                         </div>
@@ -2965,7 +2970,8 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
             <div style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
               <span>{tk(r)} · {px(price)} DH<Perime r={r}/> <span style={{color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
               <button onClick={()=>toggleFav(sym)} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
-                style={{fontSize:18,color:fav.includes(sym)?"#ffd740":"#2a3550",border:"none",background:"none",cursor:"pointer",padding:"0 2px",lineHeight:1,transition:"color .2s"}}>
+                className="etoile" aria-pressed={fav.includes(sym)}
+                style={{fontSize:18,color:fav.includes(sym)?"#ffd740":"#8892a4",border:"none",background:"none",cursor:"pointer",padding:"0 2px",lineHeight:1,transition:"color .2s"}}>
                 {fav.includes(sym)?"★":"☆"}
               </button>
             </div>

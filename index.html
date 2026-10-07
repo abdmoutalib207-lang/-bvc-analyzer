@@ -23,6 +23,10 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     .mobile-seul{display:none}
+    /* L'étoile des favoris (07/10/2026) : #2a3550 sur le fond, contraste
+       1,59 — invisible. Teinte --dim, et une boîte de 32 px au moins dont les
+       marges négatives rendent l'encombrement : la ligne ne grandit pas. */
+    .etoile{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;margin:-9px -10px}
     .indices-ligne{display:none;align-items:center;gap:7px;height:36px;padding:0 10px;font-size:12px;white-space:nowrap;
       overflow-x:auto;scrollbar-width:none;border:1px solid rgba(77,184,255,.22);border-radius:8px;
       background:linear-gradient(180deg,rgba(77,184,255,.07),rgba(77,184,255,.02));font-variant-numeric:tabular-nums}
@@ -7306,9 +7310,11 @@ const Ranking = ({
         toggleFav(sym);
       },
       title: fav.includes(sym) ? "Retirer des favoris" : "Ajouter aux favoris",
+      className: "etoile",
+      "aria-pressed": fav.includes(sym),
       style: {
         fontSize: 14,
-        color: fav.includes(sym) ? "#ffd740" : "#2a3550",
+        color: fav.includes(sym) ? "#ffd740" : "#8892a4",
         border: "none",
         background: "none",
         cursor: "pointer",
@@ -8848,9 +8854,11 @@ const Detail = ({
   }, "\u26A1"))), React.createElement("button", {
     onClick: () => toggleFav(sym),
     title: fav.includes(sym) ? "Retirer des favoris" : "Ajouter aux favoris",
+    className: "etoile",
+    "aria-pressed": fav.includes(sym),
     style: {
       fontSize: 18,
-      color: fav.includes(sym) ? "#ffd740" : "#2a3550",
+      color: fav.includes(sym) ? "#ffd740" : "#8892a4",
       border: "none",
       background: "none",
       cursor: "pointer",
