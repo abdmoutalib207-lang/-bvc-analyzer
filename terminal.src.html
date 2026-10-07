@@ -27,7 +27,11 @@
        1,59 — invisible. Teinte --dim, et une boîte de 32 px au moins dont les
        marges négatives rendent l'encombrement : la ligne ne grandit pas. */
     .etoile{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;margin:-9px -10px}
-    .indices-ligne{display:none;align-items:center;gap:7px;height:36px;padding:0 10px;font-size:12px;white-space:nowrap;
+    /* ⚠️ 07/10/2026 : la ligne DÉFILAIT. À 390 px, la variation du MASI 20,
+       les hausses/baisses et le bouton 📈 sortaient de l'écran, et le volume
+       de la séance n'y figurait pas du tout (« je vois pas le volume
+       global »). Elle passe à la ligne : tout est visible sans glisser. */
+    .indices-ligne{display:none;align-items:center;gap:3px 7px;min-height:36px;padding:5px 10px;font-size:12px;flex-wrap:wrap;
       overflow-x:auto;scrollbar-width:none;border:1px solid rgba(77,184,255,.22);border-radius:8px;
       background:linear-gradient(180deg,rgba(77,184,255,.07),rgba(77,184,255,.02));font-variant-numeric:tabular-nums}
     .indices-ligne::-webkit-scrollbar{display:none}
@@ -980,23 +984,29 @@ const CarteIndices=({masi,gabarit=false})=>{
   // sous 640 px elles laissent place à cette ligne, défilante si besoin.
   // Les avertissements de date (⚠) y restent : un état incertain se voit.
   const varia=v=>v==null?null:<b style={{color:coul(v),whiteSpace:"nowrap"}}>{fleche(v)} {pct(v)}</b>;
+  const volume=masi.volume_mad==null?null:masi.volume_mad>=1e9?`${nb(masi.volume_mad/1e9)} Md DH`:`${nb(masi.volume_mad/1e6,1)} M DH`;
   return(
     <div className="bandeau-masi carte-indices" data-gabarit={gabarit||undefined} aria-hidden={gabarit||undefined}
       aria-busy={gabarit||undefined}>
       <div className="indices-ligne">
-        <span style={{color:"#4db8ff",fontWeight:700,letterSpacing:1}}>MASI</span>
-        <b style={{color:"#fff",fontSize:15}}>{nb(masi.value)}</b>{varia(ch)}
+        <span style={{whiteSpace:"nowrap",display:"inline-flex",gap:7,alignItems:"baseline"}}>
+          <span style={{color:"#4db8ff",fontWeight:700,letterSpacing:1}}>MASI</span>
+          <b style={{color:"#fff",fontSize:15}}>{nb(masi.value)}</b>{varia(ch)}</span>
         {masi.stale&&<span style={{fontSize:10,fontWeight:700,color:"#ffd740"}}>⚠ {masi.asof?jj(masi.asof):"périmé"}</span>}
         {m20&&m20.value!=null&&<>
           <span style={{color:"#1a2540"}}>|</span>
-          <span style={{color:"#8892a4",letterSpacing:1}}>MASI&nbsp;20</span>
-          <b style={{color:"#e8eef8"}}>{nb(m20.value)}</b>{varia(m20.change_pct)}
+          <span style={{whiteSpace:"nowrap",display:"inline-flex",gap:7,alignItems:"baseline"}}>
+            <span style={{color:"#8892a4",letterSpacing:1}}>MASI&nbsp;20</span>
+            <b style={{color:"#e8eef8"}}>{nb(m20.value)}</b>{varia(m20.change_pct)}</span>
           {m20.asof&&masi.asof&&m20.asof!==masi.asof&&<span style={{fontSize:10,color:"#ff8f00"}}>⚠ {jj(m20.asof)}</span>}</>}
         {masi.hausses!=null&&masi.baisses!=null&&tot>0&&<>
           <span style={{color:"#1a2540"}}>|</span>
           <span style={{color:"#00e5a0",fontWeight:700}}>{masi.hausses}▲</span>
           <span style={{color:"#8892a4"}}>{masi.inchanges??0}=</span>
           <span style={{color:"#ff4f5a",fontWeight:700}}>{masi.baisses}▼</span></>}
+        {volume&&<>
+          <span style={{color:"#1a2540"}}>|</span>
+          <span style={{color:"#8892a4",whiteSpace:"nowrap"}} title="Volume global de la séance">vol. <b style={{color:"#e8eef8"}}>{volume}</b></span></>}
         <button onClick={()=>setGraphe(v=>!v)} title="Graphique du MASI" aria-label="Graphique du MASI"
           style={{marginLeft:"auto",fontSize:11,padding:"0 8px",borderRadius:3,fontFamily:"var(--font)",flex:"0 0 auto",
             background:graphe?"rgba(77,184,255,.15)":"transparent",border:`1px solid ${graphe?"rgba(77,184,255,.4)":"#1a2540"}`,color:graphe?"#4db8ff":"#8892a4"}}>📈</button>
@@ -1060,7 +1070,7 @@ const CarteIndices=({masi,gabarit=false})=>{
         {masi.volume_mad!=null&&
           <div style={{marginTop:6,fontSize:11,color:"#8892a4"}}
             title={`Volume global de la séance${masi.titres_echanges!=null?` : ${masi.titres_echanges.toLocaleString("fr-FR")} titres échangés`:""}${masi.transactions!=null?` en ${masi.transactions.toLocaleString("fr-FR")} transactions`:""}.`}>
-            <b style={{color:"#e8eef8",fontSize:14}}>{masi.volume_mad>=1e9?`${nb(masi.volume_mad/1e9)} Md DH`:`${nb(masi.volume_mad/1e6,1)} M DH`}</b>
+            <b style={{color:"#e8eef8",fontSize:14}}>{volume}</b>
             {masi.transactions!=null&&<span> · {masi.transactions.toLocaleString("fr-FR")} transactions</span>}
           </div>}
       </div>
