@@ -3884,7 +3884,7 @@ const PastilleNote = ({
   if (!p) return React.createElement("span", {
     style: {
       fontSize: sz,
-      color: "#4a5570"
+      color: "#8892a4"
     }
   }, "\u2014");
   const motif = r.technique_neutralise && r.technique_neutralise.motif;
@@ -4885,7 +4885,7 @@ const GraphiqueMASI = () => {
   }, "Historique du MASI indisponible."), n > 1 && React.createElement("div", {
     style: {
       fontSize: 9,
-      color: "#4a5570",
+      color: "#8892a4",
       marginTop: 4
     }
   }, "Cl\xF4tures quotidiennes \xB7 ", n, " s\xE9ances depuis le ", dateFR(serie[0].time), " \xB7 pincer ou molette : zoom \xB7 glisser : d\xE9placer \xB7 double-clic : vue de d\xE9part"));
@@ -5045,7 +5045,7 @@ const SignauxTechniques = ({
   }, "force sur 6 mois : mieux que ", Math.round(v2.rang_mom120 * 100), " % de la cote")), ligne("cassure", !!v2.cassure_recente), ligne("surachat", !!v2.surachat_recent), ligne(reg && !reg.tendance ? "pullback_off" : "pullback_on", !!v2.pullback), React.createElement("div", {
     style: {
       fontSize: 9,
-      color: "#4a5570",
+      color: "#8892a4",
       marginTop: 6
     }
   }, "\u25CF signal pr\xE9sent dans les 20 derni\xE8res s\xE9ances \xB7 chiffres mesur\xE9s sur la BVC (titres liquides) : \xE9cart au MASI 60 s\xE9ances apr\xE8s le signal, dividendes compris, frais non inclus ; % gagnants = part des cas o\xF9 l'\xE9cart est positif, IC = intervalle de Wilson \xE0 95 %. Observations chevauchantes : l'incertitude r\xE9elle est plus large. Une fr\xE9quence pass\xE9e, pas une promesse.")));
@@ -5733,7 +5733,7 @@ const StockChart = ({
   }), etat === "ok" && React.createElement("div", {
     style: {
       fontSize: 9,
-      color: "#4a5570",
+      color: "#8892a4",
       marginTop: 4
     }
   }, "Pincer ou molette : zoom \xB7 Glisser : d\xE9placer \xB7 Double-clic : vue de d\xE9part"));
@@ -6515,7 +6515,7 @@ const Header = ({
   }, React.createElement("span", {
     style: {
       fontSize: 9,
-      color: "#4a5570",
+      color: "#8892a4",
       letterSpacing: .5,
       marginRight: 2
     }
@@ -6531,7 +6531,7 @@ const Header = ({
         padding: "2px 9px",
         borderRadius: 3,
         border: `1px solid ${on ? c : c + "30"}`,
-        color: on ? c : "#4a5570",
+        color: on ? c : "#8892a4",
         background: on ? `${c}18` : "transparent",
         cursor: "pointer",
         fontFamily: "var(--font)",
@@ -6675,7 +6675,7 @@ const Header = ({
     style: {
       background: peutRevenir ? "rgba(77,184,255,.12)" : "transparent",
       border: `1px solid ${peutRevenir ? "rgba(77,184,255,.4)" : "#141d30"}`,
-      color: peutRevenir ? "#4db8ff" : "#2a3550",
+      color: peutRevenir ? "#4db8ff" : "#8892a4",
       padding: "5px 12px",
       borderRadius: 4,
       fontSize: 12,
@@ -6824,7 +6824,7 @@ const Heatmap = ({
   }, sec.avgChg > 0 ? "▲" : "▼", " ", Math.abs(sec.avgChg).toFixed(2), "% moy."), React.createElement("span", {
     style: {
       fontSize: 9,
-      color: "#2a3550"
+      color: "#8892a4"
     }
   }, sec.rows.length, "\xD7")), React.createElement("div", {
     style: {
@@ -6879,7 +6879,7 @@ const Heatmap = ({
     style: {
       marginTop: 12,
       fontSize: 10,
-      color: "#4a5570",
+      color: "#8892a4",
       borderTop: "1px solid #0d1829",
       paddingTop: 8
     }
@@ -7200,7 +7200,7 @@ const Ranking = ({
     }
   }, scoreModeLabel(scoreMode)), React.createElement("span", {
     style: {
-      color: "#4a5570",
+      color: "#8892a4",
       fontSize: 10
     }
   }, "\u2014 Le score composite officiel reste inchang\xE9 ; les couleurs, propres \xE0 la note officielle, sont masqu\xE9es")), React.createElement("div", {
@@ -7526,7 +7526,7 @@ const Ranking = ({
       title: "La couleur n'existe que pour la pond\xE9ration officielle",
       style: {
         fontSize: 11,
-        color: "#4a5570",
+        color: "#8892a4",
         letterSpacing: 1
       }
     }, "\u2014") : meta(r).susp ? React.createElement(Chip, {
@@ -8697,7 +8697,7 @@ const TickerNews = ({
   }, a.source), React.createElement("span", {
     style: {
       fontSize: 9,
-      color: "#2a3550",
+      color: "#8892a4",
       marginLeft: "auto"
     }
   }, fmtD(a.date))))));
@@ -10001,7 +10001,7 @@ const Weights = () => {
   })))), React.createElement("div", {
     style: {
       fontSize: 10,
-      color: "#4a5570",
+      color: "#8892a4",
       marginTop: 8
     }
   }, "NLP \xE0 0 % dans toutes les situations. Pourcentages tels que rendus par le moteur.")));

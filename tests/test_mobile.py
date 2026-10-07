@@ -120,3 +120,12 @@ def test_l_etoile_des_favoris_se_voit_et_se_touche():
     assert SRC.count('className="etoile"') == 2
     assert '"#ffd740":"#2a3550"' not in SRC
     assert ".etoile{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px" in SRC
+
+
+def test_les_teintes_sombres_ne_servent_plus_qu_au_decor():
+    """07/10/2026 : #4a5570 et #2a3550 (contraste ~1,6 à 2,5) portaient des
+    textes à lire — légende des signaux, « SCORE », RETOUR. Ils restent pour
+    le décor : ○ de la confiance, ◆ du bandeau, ▲▼, états vides, bordures."""
+    textes = re.findall(r'color:[^,}]*"#(?:4a5570|2a3550)"[^>]*>([^<]*)<', SRC)
+    assert sorted(t.strip() for t in textes) == sorted(
+        ['{"○".repeat(5-conf)}', '{ouvert?"▲":"▼"}', "◆", "★", "FIL VIDE"]), textes

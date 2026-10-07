@@ -884,7 +884,7 @@ const Chip=({label,bg,fg,bd,sz=11})=>(
    et la plage de note qu'il couvre. Sur un titre plafonné, le texte neutre
    « titre peu échangé » dit pourquoi la couleur est en dessous de la note. */
 const PastilleNote=({r,sz=11})=>{const p=couleurNote(r);
-  if(!p)return <span style={{fontSize:sz,color:"#4a5570"}}>—</span>;
+  if(!p)return <span style={{fontSize:sz,color:"#8892a4"}}>—</span>;
   const motif=r.technique_neutralise&&r.technique_neutralise.motif;
   return <span title={p.plafonne
       ?`Note ${fmt(r.v53)} : couleur plafonnée au vert-jaune — titre peu échangé${motif?` (${motif})`:""}. La note est inchangée.`
@@ -1306,7 +1306,7 @@ const GraphiqueMASI=()=>{
         <div ref={refLeg} style={{position:"absolute",top:6,left:8,zIndex:3,pointerEvents:"none",fontSize:12,lineHeight:1.45,textShadow:"0 0 4px #0d1829"}}/>
       </div>
       {serie&&serie.length<2&&<div style={{fontSize:11,color:"#8892a4",padding:8}}>Historique du MASI indisponible.</div>}
-      {n>1&&<div style={{fontSize:9,color:"#4a5570",marginTop:4}}>Clôtures quotidiennes · {n} séances depuis le {dateFR(serie[0].time)} · pincer ou molette : zoom · glisser : déplacer · double-clic : vue de départ</div>}
+      {n>1&&<div style={{fontSize:9,color:"#8892a4",marginTop:4}}>Clôtures quotidiennes · {n} séances depuis le {dateFR(serie[0].time)} · pincer ou molette : zoom · glisser : déplacer · double-clic : vue de départ</div>}
     </div>
   );
   return plein?<PleinEcran titre="MASI — clôtures quotidiennes" fermer={()=>setPlein(false)}>{corps}</PleinEcran>:corps;
@@ -1364,7 +1364,7 @@ const SignauxTechniques=({r})=>{
         {ligne("cassure",!!v2.cassure_recente)}
         {ligne("surachat",!!v2.surachat_recent)}
         {ligne(reg&&!reg.tendance?"pullback_off":"pullback_on",!!v2.pullback)}
-        <div style={{fontSize:9,color:"#4a5570",marginTop:6}}>● signal présent dans les 20 dernières séances · chiffres mesurés sur la BVC (titres liquides) : écart au MASI 60 séances après le signal, dividendes compris, frais non inclus ; % gagnants = part des cas où l'écart est positif, IC = intervalle de Wilson à 95 %. Observations chevauchantes : l'incertitude réelle est plus large. Une fréquence passée, pas une promesse.</div>
+        <div style={{fontSize:9,color:"#8892a4",marginTop:6}}>● signal présent dans les 20 dernières séances · chiffres mesurés sur la BVC (titres liquides) : écart au MASI 60 séances après le signal, dividendes compris, frais non inclus ; % gagnants = part des cas où l'écart est positif, IC = intervalle de Wilson à 95 %. Observations chevauchantes : l'incertitude réelle est plus large. Une fréquence passée, pas une promesse.</div>
       </>)}
     </div>
   );
@@ -1676,7 +1676,7 @@ const StockChart=({r})=>{
       </div>
       <div style={{fontSize:8,color:"#8892a4",letterSpacing:1,marginTop:2}}>MACD (12,26,9) · <span style={{color:"#4db8ff"}}>MACD</span> · <span style={{color:"#ffd740"}}>Signal</span></div>
       <div ref={refMacd}/>
-      {etat==="ok"&&<div style={{fontSize:9,color:"#4a5570",marginTop:4}}>Pincer ou molette : zoom · Glisser : déplacer · Double-clic : vue de départ</div>}
+      {etat==="ok"&&<div style={{fontSize:9,color:"#8892a4",marginTop:4}}>Pincer ou molette : zoom · Glisser : déplacer · Double-clic : vue de départ</div>}
     </div>
   );
 
@@ -1999,12 +1999,12 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
           <span className="badge-version" title="Pondération de RÉFÉRENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCHÉ, le même pour tous les titres — hors séance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche. Le pilier NLP est gelé à un poids de 0 : son corpus s'arrête au 02/07/2026 et il ne déplaçait plus que 0,37 point sur 10." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 65 · TECH 35 <span style={{color:"#8892a4"}}>· modulée par le marché · NLP gelé</span></span>
           {/* Score mode — composantes indépendantes */}
           <div className="choix-score" style={{display:"flex",alignItems:"center",gap:4,background:"rgba(10,18,32,.8)",border:"1px solid #1a2540",borderRadius:5,padding:"3px 6px"}}>
-            <span style={{fontSize:9,color:"#4a5570",letterSpacing:.5,marginRight:2}}>SCORE</span>
+            <span style={{fontSize:9,color:"#8892a4",letterSpacing:.5,marginRight:2}}>SCORE</span>
             {PONDERATIONS.map(p=>{
               const on=scoreMode.nom===p.nom, c=p.officiel?"#00e5a0":"#ffd740";
               return(
                 <button key={p.nom} onClick={()=>setScoreMode(p)} title={p.aide}
-                  style={{fontSize:10,padding:"2px 9px",borderRadius:3,border:`1px solid ${on?c:c+"30"}`,color:on?c:"#4a5570",background:on?`${c}18`:"transparent",cursor:"pointer",fontFamily:"var(--font)",fontWeight:on?700:400,transition:"all .15s"}}>
+                  style={{fontSize:10,padding:"2px 9px",borderRadius:3,border:`1px solid ${on?c:c+"30"}`,color:on?c:"#8892a4",background:on?`${c}18`:"transparent",cursor:"pointer",fontFamily:"var(--font)",fontWeight:on?700:400,transition:"all .15s"}}>
                   {p.nom}
                 </button>
               );
@@ -2051,7 +2051,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
             un bouton qui ne fait rien sans le dire use la confiance. */}
         <button onClick={onRetour} disabled={!peutRevenir}
           title={peutRevenir?"Revenir à la vue précédente":"Aucune vue précédente"}
-          style={{background:peutRevenir?"rgba(77,184,255,.12)":"transparent",border:`1px solid ${peutRevenir?"rgba(77,184,255,.4)":"#141d30"}`,color:peutRevenir?"#4db8ff":"#2a3550",padding:"5px 12px",borderRadius:4,fontSize:12,letterSpacing:1,cursor:peutRevenir?"pointer":"default",fontFamily:"var(--font)",transition:"all .15s"}}>
+          style={{background:peutRevenir?"rgba(77,184,255,.12)":"transparent",border:`1px solid ${peutRevenir?"rgba(77,184,255,.4)":"#141d30"}`,color:peutRevenir?"#4db8ff":"#8892a4",padding:"5px 12px",borderRadius:4,fontSize:12,letterSpacing:1,cursor:peutRevenir?"pointer":"default",fontFamily:"var(--font)",transition:"all .15s"}}>
           ◀ RETOUR
         </button>
         <span className="onglet" style={{color:"#1a2540"}}>|</span>
@@ -2100,7 +2100,7 @@ const Heatmap=({rows,setSel,setTab})=>{
             {sec.avgChg!==0&&<span style={{fontSize:9,color:sec.avgChg>0?"#00e5a0":"#ff4f5a"}}>
               {sec.avgChg>0?"▲":"▼"} {Math.abs(sec.avgChg).toFixed(2)}% moy.
             </span>}
-            <span style={{fontSize:9,color:"#2a3550"}}>{sec.rows.length}×</span>
+            <span style={{fontSize:9,color:"#8892a4"}}>{sec.rows.length}×</span>
           </div>
           <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
             {sec.rows.map(r=>{
@@ -2125,7 +2125,7 @@ const Heatmap=({rows,setSel,setTab})=>{
           </div>
         </div>
       ))}
-      <div style={{marginTop:12,fontSize:10,color:"#4a5570",borderTop:"1px solid #0d1829",paddingTop:8}}>
+      <div style={{marginTop:12,fontSize:10,color:"#8892a4",borderTop:"1px solid #0d1829",paddingTop:8}}>
         Clic sur une cellule → vue détaillée · Trié par capitalisation · Couleur = variation journalière
       </div>
     </div>
@@ -2259,7 +2259,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         <span style={{color:"#ffd740",fontWeight:700}}>✱ MODE PERSONNALISÉ</span>
         <span style={{color:"#8892a4"}}>Score affiché :</span>
         <span style={{color:"#ffd740"}}>{scoreModeLabel(scoreMode)}</span>
-        <span style={{color:"#4a5570",fontSize:10}}>— Le score composite officiel reste inchangé ; les couleurs, propres à la note officielle, sont masquées</span>
+        <span style={{color:"#8892a4",fontSize:10}}>— Le score composite officiel reste inchangé ; les couleurs, propres à la note officielle, sont masquées</span>
       </div>}
       <div style={{overflowX:"auto"}}>
         <table className="classement" style={{width:"100%",borderCollapse:"collapse",minWidth:1220}}>
@@ -2376,7 +2376,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       seulement la couleur du palier de note (PastilleNote). */}
                   <td style={{padding:"8px 8px"}}>{customMode
                     ? <span title="La couleur n'existe que pour la pondération officielle"
-                        style={{fontSize:11,color:"#4a5570",letterSpacing:1}}>—</span>
+                        style={{fontSize:11,color:"#8892a4",letterSpacing:1}}>—</span>
                     /* Un titre suspendu passe AVANT le test de confiance : sa
                        confiance est nulle, mais « Données insuffisantes » serait
                        un contresens. Les données ne manquent pas — le titre ne
@@ -2891,7 +2891,7 @@ const TickerNews=({sym})=>{
           <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
             <span style={{fontSize:9,color:SC(a.sentiment),fontWeight:700}}>{a.sentiment||"NEUTRE"}</span>
             <span style={{fontSize:9,color:"#8892a4"}}>{a.source}</span>
-            <span style={{fontSize:9,color:"#2a3550",marginLeft:"auto"}}>{fmtD(a.date)}</span>
+            <span style={{fontSize:9,color:"#8892a4",marginLeft:"auto"}}>{fmtD(a.date)}</span>
           </div>
         </a>
       ))}
@@ -3470,7 +3470,7 @@ const Weights=()=>{
               </tr>);})}</tbody>
           </table>
         </div>
-        <div style={{fontSize:10,color:"#4a5570",marginTop:8}}>NLP à 0 % dans toutes les situations. Pourcentages tels que rendus par le moteur.</div>
+        <div style={{fontSize:10,color:"#8892a4",marginTop:8}}>NLP à 0 % dans toutes les situations. Pourcentages tels que rendus par le moteur.</div>
       </div>
     </div>
   );
