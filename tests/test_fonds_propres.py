@@ -292,14 +292,26 @@ def test_le_pb_publie_se_recoupe_avec_la_capitalisation(publie, faits):
 
     ⚠️ Ce contrôle ne dit RIEN de l'unité des fonds propres — les deux chemins
     la partagent. C'est le test de conversion qui s'en charge.
+
+    ⚠️ 07/10/2026 : les deux chemins doivent lire les MÊMES fonds propres.
+    Depuis le 06/10, le moteur prend ceux du 30/06/2026 pour les titres dont
+    l'entrée S1 porte `pb_sur_cp_s1` (TQA : 6 338,7 contre 6 773 au 31/12).
+    Le témoin gardait le 31/12 : 6,8 % d'écart structurel sur un seuil de
+    10 %. Le run de 10h55 a été bloqué dès que le cours a monté en séance
+    (P/B 6,29, témoin 5,54) — données saines, 13/13 contrôles de séance.
     """
-    cp = _avec_fonds_propres(faits)
+    cp = {t: f["valeur"] for t, f in _avec_fonds_propres(faits).items()}
+    s1 = (json.loads((RACINE / "datasets" / "resultats_s1_2026.json")
+                     .read_text(encoding="utf-8")).get("titres") or {})
+    for t, e in s1.items():
+        if e.get("pb_sur_cp_s1") and e.get("capitaux_propres_pg_30_06_2026"):
+            cp[t] = float(e["capitaux_propres_pg_30_06_2026"])
     ecarts = []
     for x in publie["tickers"]:
         t, pb, cap = x["symbol"], x.get("pb"), x.get("cap")
         if pb is None or not cap or t not in cp:
             continue
-        temoin = cap / cp[t]["valeur"]          # capitalisation et fonds propres, en MMAD
+        temoin = cap / cp[t]                    # capitalisation et fonds propres, en MMAD
         if abs(temoin / pb - 1) > 0.10:
             ecarts.append(f"{t} : moteur {pb:.2f}, capitalisation ÷ fonds "
                           f"propres {temoin:.2f}")
