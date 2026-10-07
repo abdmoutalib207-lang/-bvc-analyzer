@@ -3774,6 +3774,19 @@ function calcSR(candles, price) {
     res
   };
 }
+const lsLire = (k, def = null) => {
+  try {
+    const v = localStorage.getItem(k);
+    return v == null ? def : v;
+  } catch (e) {
+    return def;
+  }
+};
+const lsEcrire = (k, v) => {
+  try {
+    localStorage.setItem(k, v);
+  } catch (e) {}
+};
 const fmt = (n, d = 2) => n == null || !isFinite(n) ? "—" : (+n).toFixed(d);
 const fr = (n, d = 2) => fmt(n, d).replace(".", ",");
 const tk = r => r && (r.code_bvc || r.symbol || r.ticker) || "";
@@ -5070,7 +5083,7 @@ const StockChart = ({
     chartMacd = useRef(null);
   const syncing = useRef(false);
   const series = useRef(null);
-  const [period, setPeriod] = useState(() => localStorage.getItem("bvc_period") || "3M");
+  const [period, setPeriod] = useState(() => lsLire("bvc_period", "3M"));
   const [liveCandles, setLiveCandles] = useState(null);
   const [isLive, setIsLive] = useState(false);
   const [etat, setEtat] = useState("chargement");
@@ -5520,7 +5533,7 @@ const StockChart = ({
   }, [sym, period, liveCandles, etat, plein, showBB, showIchi, showSR, showFib, fibAncres, fibAttente, mas]);
   const changePeriod = p => {
     setPeriod(p);
-    localStorage.setItem("bvc_period", p);
+    lsEcrire("bvc_period", p);
   };
   const reinitialiser = () => {
     if (chartMain.current && liveCandles) vueEntiere(chartMain.current, liveCandles.length);
@@ -12290,7 +12303,7 @@ const MentionLegale = () => React.createElement("footer", {
   }
 }, "Les performances pass\xE9es ne pr\xE9jugent pas des performances futures. Toute d\xE9cision d'investissement rel\xE8ve de votre seule responsabilit\xE9 et devrait \xEAtre pr\xE9c\xE9d\xE9e de l'avis d'un professionnel habilit\xE9.")));
 function App() {
-  const [tab, setTab] = useState(() => localStorage.getItem("bvc_tab") || "accueil");
+  const [tab, setTab] = useState(() => lsLire("bvc_tab", "accueil"));
   const [sort, setSort] = useState("v53");
   const [scoreMode, setScoreMode] = useState(PONDERATIONS[0]);
   useEffect(() => {
@@ -12308,7 +12321,7 @@ function App() {
   const toggleFav = useCallback(sym => {
     setFav(prev => {
       const next = prev.includes(sym) ? prev.filter(x => x !== sym) : [...prev, sym];
-      localStorage.setItem("bvc_fav", JSON.stringify(next));
+      lsEcrire("bvc_fav", JSON.stringify(next));
       return next;
     });
   }, []);
@@ -12538,7 +12551,7 @@ function App() {
   const changeTab = t => {
     if (t !== tab) empiler(tab, sel);
     setTab(t);
-    localStorage.setItem("bvc_tab", t);
+    lsEcrire("bvc_tab", t);
   };
   const choisirTitre = sl => {
     if (sl !== sel) empiler(tab, sel);
@@ -12549,7 +12562,7 @@ function App() {
     if (!v) return;
     setPeutRevenir(pile.current.length > 0);
     setTab(v.tab);
-    localStorage.setItem("bvc_tab", v.tab);
+    lsEcrire("bvc_tab", v.tab);
     setSel(v.sel);
   };
   return React.createElement("div", {

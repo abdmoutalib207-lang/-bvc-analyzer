@@ -32,8 +32,9 @@ historique** — cela recréerait une référence exposée.
 
 **Reste ouvert, par ordre :**
 1. Canal de retour des testeurs : attend le choix d'Abd (WhatsApp, formulaire ou email).
-2. Design, lot 2 : CLS résiduel ~0,10, tableau +17 px à 360 px, `localStorage` refusé
-   → « Erreur de rendu » (défaut antérieur).
+2. Design, lot 2 : CLS résiduel ~0,10, tableau +17 px à 360 px.
+   (`localStorage` refusé → « Erreur de rendu » : corrigé le 07/10,
+   `lsLire`/`lsEcrire`, garde-fou `tests/test_stockage_refuse.py`.)
 3. Statistiques FONDAMENTALES (« titres à PER bas… : X % gagnants, n cas ») : exigent
    l'historique des bénéfices 2022-2025 avec dates de dépôt (lecteur-comptes,
    20 plus grosses capitalisations = 82,8 % du marché), puis le PER de la place
