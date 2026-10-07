@@ -195,3 +195,16 @@ def test_la_ligne_du_telephone_porte_le_volume_et_ne_defile_plus():
     ligne = src[debut:src.index('<div className="carte-ind"', debut)]
     assert "{volume}" in ligne, "le volume de la séance a disparu de la ligne du téléphone"
     assert "setGraphe" in ligne, "le bouton du graphique du MASI a disparu de la ligne du téléphone"
+
+
+def test_le_terminal_s_ouvre_toujours_sur_l_accueil():
+    """07/10/2026 — « à chaque fois que je lance le lien, il s'ouvre sur CMT ».
+    Le dernier onglet était mémorisé : quitté sur une fiche, le terminal
+    rouvrait la fiche (titre par défaut CMT). Vérifié au navigateur avec
+    bvc_tab=detail en mémoire : ouverture sur ACCUEIL ; #onglet=ranking →
+    CLASSEMENT."""
+    src = (Path(__file__).resolve().parent.parent / "terminal.src.html").read_text(encoding="utf-8")
+    debut = src.index("const [tab,setTab]=useState(")
+    init = src[debut:src.index(";", src.index("return \"accueil\"", debut)) + 1]
+    assert "bvc_tab" not in init and "localStorage" not in init, "l'onglet d'ouverture relit la mémoire"
+    assert 'return "accueil"' in init
