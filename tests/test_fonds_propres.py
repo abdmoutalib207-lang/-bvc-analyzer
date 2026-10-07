@@ -312,7 +312,16 @@ def test_le_pb_publie_se_recoupe_avec_la_capitalisation(publie, faits):
         if pb is None or not cap or t not in cp:
             continue
         temoin = cap / cp[t]                    # capitalisation et fonds propres, en MMAD
-        if abs(temoin / pb - 1) > 0.10:
+        # ⚠️ MÊME BASE QUE LE GARDE-FOU D'ENTRÉE (`_capitalisation`) :
+        # |calculée ÷ servie − 1|. L'écart se lisait à l'envers, servie ÷
+        # calculée : une baisse de 9,5 % sur un titre dont la capitalisation
+        # retarde d'une séance passait l'entrée (9,5 %) et bloquait ici
+        # (10,5 %) — la publication des 80 titres pour un seul.
+        # Le P/B est publié arrondi au centième : la tolérance compte ce
+        # demi-centième, sans quoi un écart accepté à l'entrée (9,95 %)
+        # ressort ici à 10,03 %. Balayage du 07/10 par le vrai garde-fou,
+        # −10 % à +10 % au pas de 0,01 % : 62 refus sans cette marge, 0 avec.
+        if abs(pb / temoin - 1) > 0.10 + 0.005 / temoin:
             ecarts.append(f"{t} : moteur {pb:.2f}, capitalisation ÷ fonds "
                           f"propres {temoin:.2f}")
     assert not ecarts, "P/BOOK non recoupé par la capitalisation :\n  " + \
