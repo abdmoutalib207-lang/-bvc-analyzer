@@ -293,6 +293,11 @@ def test_le_pb_publie_se_recoupe_avec_la_capitalisation(publie, faits):
     ⚠️ Ce contrôle ne dit RIEN de l'unité des fonds propres — les deux chemins
     la partagent. C'est le test de conversion qui s'en charge.
 
+    ⚠️ 07/10/2026 (bis) : pour un titre publié « calculee_recoupee », la
+    capitalisation EST prix × actions, et ce contrôle devient une identité.
+    Le nombre d'actions de ces titres est recoupé ailleurs, à 0,5 %, sur la
+    valeur brute de la source : test_chaque_capitalisation_recoupee_l_est_vraiment.
+
     ⚠️ 07/10/2026 : les deux chemins doivent lire les MÊMES fonds propres.
     Depuis le 06/10, le moteur prend ceux du 30/06/2026 pour les titres dont
     l'entrée S1 porte `pb_sur_cp_s1` (TQA : 6 338,7 contre 6 773 au 31/12).
@@ -340,6 +345,11 @@ def test_le_nombre_d_actions_du_rapport_colle_au_marche(publie, faits):
 
     C'est le recoupement qui avait tranché l'ISIN de Maroc Leasing : deux
     sources peuvent se tromper ensemble, un calcul qui boucle non.
+
+    ⚠️ 07/10/2026 : pour un titre « calculee_recoupee », la capitalisation
+    publiée est prix × ce nombre — ce test y devient une identité. Le
+    recoupement réel de ces titres, à 0,5 %, est dans
+    test_chaque_capitalisation_recoupee_l_est_vraiment.
 
     ⚠️ Ce contrôle ne dit rien de l'unité des fonds propres — il ne les touche
     pas. C'est `test_la_conversion_se_refait_sans_rouvrir_le_pdf` qui s'en
