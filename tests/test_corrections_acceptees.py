@@ -88,7 +88,20 @@ def test_le_plus_bas_52_semaines_n_est_plus_un_cours_de_mutandis():
     de Marsa Maroc. Le cache doit désormais porter le vrai."""
     cache = json.loads((RACINE / "pipeline" / "historical_data.json")
                        .read_text(encoding="utf-8"))["MSA"]
-    assert cache["l52w"] == 702.1
+    # ⚠️ 08/10/2026 : exigeait l52w == 702,1, le plancher connu ce jour-là.
+    # Un nouveau plus-bas réel aurait bloqué la publication (cas Sothema du
+    # 08/10). Ce que le test protège : le plancher est un vrai plus-bas de
+    # la série de Marsa Maroc, jamais un cours de Mutandis (225).
+    from datetime import date, timedelta
+    bougies = json.loads((RACINE / "pipeline" / "candles" / "MSA.json").read_text(encoding="utf-8"))
+    bougies = bougies.get("candles", bougies) if isinstance(bougies, dict) else bougies
+    dernier = date.fromisoformat(bougies[-1]["d"])
+    def fenetre(semaines):
+        debut = (dernier - timedelta(weeks=semaines)).isoformat()
+        return [b["l"] for b in bougies if b["d"] >= debut and b.get("l")]
+    assert cache["l52w"] > 500, "plancher au niveau d'un cours de Mutandis"
+    assert cache["l52w"] in fenetre(53)
+    assert min(fenetre(51)) >= cache["l52w"]
 
     # ⚠️ NE PAS COMPARER À LA LONGUEUR D'AUJOURD'HUI. Le fichier de chandelles
     # et le cache ne sont pas écrits par le même programme : `update_data.py`
