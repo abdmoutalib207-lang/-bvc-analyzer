@@ -32,6 +32,7 @@ prix antérieurs sont donc ramenés à la base d'aujourd'hui, en divisant par 5.
 from __future__ import annotations
 
 import json
+from datetime import date, timedelta
 import sys
 from pathlib import Path
 
@@ -115,9 +116,30 @@ def test_la_moyenne_200_jours_n_est_plus_a_la_moitie_du_cours(cache, serie):
     assert abs(cache["ma200"] / serie[-1]["c"] - 1) < 0.35
 
 
-def test_le_plus_bas_52_semaines_n_est_plus_65_99(cache):
-    assert cache["l52w"] == 304.0
-    assert cache["l52w"] > 250, "un plancher annuel sous 250 DH serait un reliquat"
+def test_le_plus_bas_52_semaines_n_est_plus_65_99(cache, serie):
+    """⚠️ 08/10/2026 : ce test exigeait l52w == 304,0, le plancher connu au
+    07/10. Le 08/10, Sothema a clôturé à 291,0 (−7,35 %, CDG, 5 202 titres) :
+    un nouveau plus-bas RÉEL. Le test a bloqué le run de 15h55, qui
+    corrigeait une clôture publiée à mi-séance — sur données saines, 13/13
+    contrôles de séance. Même défaut que le test Stokvis le 06/10 : un
+    attendu daté écrit en dur.
+
+    Ce qu'il protège ne dépend pas du calendrier : le plancher est un vrai
+    plus-bas de la série sur l'année, et aucun reliquat d'avant la division
+    (65,99) ne revient.
+    """
+    l52w = cache["l52w"]
+    assert l52w > 250, "un plancher annuel sous 250 DH serait un reliquat"
+    bougies = serie.get("candles", serie) if isinstance(serie, dict) else serie
+    dernier = date.fromisoformat(bougies[-1]["d"])
+    def fenetre(semaines):
+        debut = (dernier - timedelta(weeks=semaines)).isoformat()
+        return [b["l"] for b in bougies if b["d"] >= debut and b.get("l")]
+    # Bornes larges d'une semaine de part et d'autre : le moteur date sa
+    # fenêtre du jour d'analyse, le test de la dernière bougie.
+    assert l52w in fenetre(53), f"{l52w} n'est le plus-bas d'aucune séance de l'année"
+    assert min(fenetre(51)) >= l52w, (
+        f"une séance récente est descendue sous le plancher publié {l52w}")
 
 
 # ── Les séances sans échange ───────────────────────────────────────────────
