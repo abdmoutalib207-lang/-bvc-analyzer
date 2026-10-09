@@ -511,6 +511,21 @@ def _signe(x, d=2):
     return ("+" if x > 0 else "") + _fr(x, d)
 
 
+def _liste_titres(titres, n=10):
+    """Les symboles, tous jusqu'à `n`, puis « et k autres ».
+
+    ⚠️ 08/10/2026, relevé par la rédaction : « 8 valeurs au plus bas de
+    douze mois » n'en nommait que 6 — la liste était coupée à 6 sans le dire.
+    Un compte et une liste qui ne concordent pas : le lecteur cherche les
+    deux manquantes.
+    """
+    noms = [x["symbol"] for x in titres]
+    if len(noms) <= n:
+        return ", ".join(noms)
+    reste = len(noms) - n
+    return ", ".join(noms[:n]) + f" et {reste} autre{'s' if reste > 1 else ''}"
+
+
 def phrase_trajectoire(t: dict | None) -> str | None:
     """La séance de l'indice en une phrase. Fonction pure.
 
@@ -541,7 +556,16 @@ def phrase_trajectoire(t: dict | None) -> str | None:
         P.append(f"(La série intrajournalière s'arrête à {t['serie_jusqu_a']} ; "
                  f"clôture et extrêmes viennent de la synthèse CDG.)")
     if o > v:
-        if c >= o:
+        if c >= o and c < h:
+            # ⚠️ 08/10/2026, relevé par la rédaction (séance du 07/10) : plus
+            # haut 17 236 à 09:34, clôture 16 991 au-dessus de l'ouverture
+            # 16 907. « Conservé jusqu'à la clôture » cachait que l'indice
+            # avait rendu l'essentiel de son avance — le cas symétrique de
+            # la baisse corrigée le 06/10, oublié alors.
+            P.append("Le gain d'ouverture s'est accru en séance, puis a été "
+                     "en partie rendu : la clôture reste au-dessus de "
+                     "l'ouverture, sous le plus haut.")
+        elif c >= o:
             P.append("Le gain d'ouverture a été conservé jusqu'à la clôture.")
         elif c > v:
             P.append("Le gain d'ouverture a été partiellement rendu : la "
@@ -1145,13 +1169,11 @@ def composer(data: dict, series=None, contexte=None) -> dict:
     if e["plus_hauts"]:
         b["constats"].append(
             f"{_pluriel(len(e['plus_hauts']), 'valeur')} au plus haut de "
-            f"douze mois : "
-            f"{', '.join(x['symbol'] for x in e['plus_hauts'][:6])}.")
+            f"douze mois : {_liste_titres(e['plus_hauts'])}.")
     if e["plus_bas"]:
         b["constats"].append(
             f"{_pluriel(len(e['plus_bas']), 'valeur')} au plus bas de "
-            f"douze mois : "
-            f"{', '.join(x['symbol'] for x in e['plus_bas'][:6])}.")
+            f"douze mois : {_liste_titres(e['plus_bas'])}.")
 
     if b["ytd_pct"] is not None:
         b["constats"].append(

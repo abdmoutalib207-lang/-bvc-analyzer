@@ -35,8 +35,10 @@ def _traj(veille, ouv, haut, bas, clo, hh="10:15", hb="12:00"):
 # ── La trajectoire ─────────────────────────────────────────────────────────
 
 def test_gain_d_ouverture_conserve():
-    p = bf.phrase_trajectoire(_traj(100, 101, 103, 100.5, 102))
+    # Clôture AU plus haut : le gain a bien été conservé jusqu'au bout.
+    p = bf.phrase_trajectoire(_traj(100, 101, 103, 100.5, 103))
     assert "Le gain d'ouverture a été conservé jusqu'à la clôture." in p
+    p = bf.phrase_trajectoire(_traj(100, 101, 103, 100.5, 102))
     assert "pas descendu sous la clôture de la veille" in p
     # (102 − 100,5) / (103 − 100,5) = 1,5 / 2,5 = 60 %
     assert "à 60 % de l'amplitude de séance (2,50 points)" in p
@@ -50,6 +52,22 @@ def test_gain_d_ouverture_partiellement_rendu_puis_efface():
     assert "pas descendu sous" not in p          # le plus bas 99 < veille 100
     p = bf.phrase_trajectoire(_traj(100, 101, 101.5, 99, 99.5))
     assert "Le gain d'ouverture a été effacé" in p
+
+
+def test_gain_d_ouverture_accru_puis_rendu():
+    """07/10/2026 : plus haut 17 236 à 09:34, clôture 16 991 au-dessus de
+    l'ouverture 16 907. « Conservé jusqu'à la clôture » cachait le repli."""
+    p = bf.phrase_trajectoire(_traj(16892.55, 16907.04, 17236.33, 16892.55, 16990.77))
+    assert "conservé jusqu'à la clôture" not in p
+    assert "s'est accru en séance, puis a été en partie rendu" in p
+
+
+def test_un_compte_d_extremes_nomme_tous_ses_titres():
+    """08/10/2026 : « 8 valeurs au plus bas de douze mois » n'en nommait que 6."""
+    huit = [{"symbol": s} for s in "A B C D E F CASH JET".split()]
+    assert bf._liste_titres(huit) == "A, B, C, D, E, F, CASH, JET"
+    douze = [{"symbol": f"T{i}"} for i in range(12)]
+    assert bf._liste_titres(douze).endswith("T9 et 2 autres")
 
 
 def test_baisse_d_ouverture_prolongee():
