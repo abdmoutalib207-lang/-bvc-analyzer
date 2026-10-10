@@ -763,6 +763,24 @@ SANS_COMPTES: dict = {
                   "CP_IB_Maroc_redressement_judiciaire.pdf ; aucun dépôt 2023, 2024 ni 2025 "
                   "(datasets/exercice_2025_rectifie.json, _ecartes)",
     },
+    # ⚠️ Inscrits le 10/10/2026 avec l'accord d'Abd Moutalib. Déjà dans
+    # SUSPENSIONS (aucune transaction en trois ans). RADIATION NON ÉTABLIE :
+    # aucune décision AMMC ni avis de la Bourse trouvés le 10/10 — d'où ce
+    # registre et non VALEURS_RADIEES. À déplacer sur pièce de radiation.
+    "DIS": {
+        "dernier_depot": "2012-09-26",
+        "motif": "agrément retiré par Bank Al-Maghrib le 28/02/2013, liquidation ; "
+                 "dernier état : situation au 30/06/2012 (capitaux propres −160,3 MDH)",
+        "source": "AMMC — Diac_S1_2012.pdf (attestation du 26/09/2012) et "
+                  "CP_CDVM_Diac_Salaf_20130304.pdf ; aucun acte postérieur au catalogue",
+    },
+    "DLM": {
+        "dernier_depot": "2022-04-29",
+        "motif": "demande de mise en liquidation déposée le 04/11/2022 ; "
+                 "derniers comptes : exercice 2021",
+        "source": "AMMC — DLM_2021.pdf (29/04/2022), CP_DLM_post_CA_10_11_22.pdf ; "
+                  "aucun dépôt postérieur au catalogue",
+    },
 }
 
 
