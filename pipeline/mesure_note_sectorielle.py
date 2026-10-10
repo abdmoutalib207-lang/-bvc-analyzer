@@ -4,20 +4,24 @@
     python3 pipeline/mesure_note_sectorielle.py
 
 Sortie : `datasets/backtest/note_sectorielle_AAAA-MM-JJ.json` (date de la
-dernière séance du journal, jamais l'horloge). Aucun réseau.
+dernière séance du journal, jamais l'horloge). Aucun réseau. Deux exécutions
+sur les mêmes entrées donnent le même fichier à l'octet près.
 
 ⚠️ CE QUE CETTE MESURE EST, ET CE QU'ELLE N'EST PAS — écrit AVANT les chiffres
   1. La NOUVELLE note n'a jamais été publiée : elle est REJOUÉE. Pour chaque
      séance du journal `score_history.json`, on la recalcule avec les cours de
-     cette séance (PER et P/B relatifs, médianes de famille du jour) mais avec
+     cette séance (PER et P/B relatifs, médianes de pairs du jour) mais avec
      les fondamentaux d'AUJOURD'HUI (comptes S1 2026 déposés en septembre).
-     C'est de la CONNAISSANCE DU FUTUR pour les séances antérieures à leur
-     dépôt : la mesure ne prouve rien sur la capacité de prévoir. Elle compare
-     seulement deux grilles, qui souffrent du même biais.
   2. L'ANCIENNE note est celle qui a été réellement publiée chaque jour
-     (`score_fond`), fondamentaux de l'époque compris : les deux séries ne
-     portent donc pas les mêmes données, ce qui avantage la nouvelle. À lire
-     avec la fenêtre « depuis 29/09 », où les fondamentaux calculés existent.
+     (`score_fond`), avec les fondamentaux DE L'ÉPOQUE.
+  ⇒ LA COMPARAISON EST BIAISÉE EN FAVEUR DE LA NOUVELLE NOTE, ET C'EST TRANCHÉ :
+     seule la nouvelle connaît des comptes déposés après la séance qu'elle
+     note (connaissance du futur). Les deux séries ne portent pas les mêmes
+     données ; elles ne « souffrent » pas du même biais, l'une en a un que
+     l'autre n'a pas. Un écart favorable à la nouvelle note est donc suspect à
+     l'avance et ne peut pas être lu comme une amélioration ; un écart
+     défavorable serait en revanche informatif. La fenêtre « depuis 29/09 »
+     réduit le biais (les fondamentaux calculés existent) sans l'annuler.
   3. Douze séances (24/09 → 09/10) : UN régime, observations chevauchantes. Le
      backtest du projet exige 20 jours distincts et 10 dates non chevauchantes
      avant toute conclusion ; l'horizon de 20 séances n'est atteint par aucune
@@ -95,10 +99,14 @@ def construire(racine: Path = RACINE) -> dict:
            "entrees": {"premiere_seance": premiere, "derniere_seance": derniere,
                        "lignes_du_journal": len(lignes), "couples_avec_les_deux_notes": len(communs),
                        "fenetre_fondamentaux_calcules_depuis": DEPUIS,
+                       # Pas de commit git ici : il changerait à chaque commit et
+                       # ruinerait la reproductibilité à l'octet. Les empreintes
+                       # des entrées identifient la mesure.
                        "sha256": {"score_history": br._sha(racine / "pipeline" / "score_history.json"),
                                   "fondamentaux": br._sha(racine / "fondamentaux.json"),
-                                  "bpa": br._sha(racine / "bpa.json")},
-                       "commit_git": (br._git("rev-parse", "HEAD") or "").strip() or None},
+                                  "bpa": br._sha(racine / "bpa.json"),
+                                  "faits_financiers": br._sha(racine / "pipeline" / "faits_financiers.json"),
+                                  "resultats_s1_2026": br._sha(racine / "datasets" / "resultats_s1_2026.json")}},
            "resultats": {}}
     for nom, depuis in (("toutes_les_seances", None), ("depuis_29_09", DEPUIS)):
         bloc = {}
