@@ -1263,6 +1263,90 @@ def _cliquet_seance(live_prices, idb_asof, plancher=None):
     return plancher
 
 
+def _publie_precedent():
+    """Le data.json publié par le run précédent, ou {} s'il est illisible."""
+    try:
+        return json.loads(OUTPUT.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+# Champs repris de la ligne déjà publiée quand la source sert un instantané
+# plus ancien de la même séance. Les extrêmes du jour ne sont pas repris :
+# l'étape 6c ne fait que les étendre, un instantané ancien ne les réduit pas.
+_CHAMPS_LIGNE_PUBLIEE = ("price", "chg", "vol", "echange_dh", "open", "reference")
+
+
+def _cliquet_volume(live_prices, precedent=None):
+    """Dans une même séance, le volume cumulé d'un titre ne recule pas.
+
+    ⚠️ 09/10/2026 : le volume global a ALTERNÉ d'un run à l'autre entre
+    122,65 et 129,04 M DH après la clôture. Le bulletin CDG donne 129,04 :
+    66 lignes, 485 709 titres. Les runs à 122,65 recevaient de CDG un
+    instantané figé avant les derniers échanges (15h40–15h41) — Managem à
+    4 387 titres au lieu de 8 633, Cosumar 16 151 au lieu de 19 151 — et le
+    publiaient par-dessus le bon. Le 08/10, la même cause avait fait publier
+    Sothema à 310 (299 titres) au lieu de 291 (5 202 titres).
+
+    Un volume cumulé ne baisse pas en cours de séance : une ligne de la MÊME
+    séance qui annonce MOINS de titres échangés que la ligne déjà publiée est
+    plus ancienne qu'elle. On garde alors la ligne publiée. Une séance
+    nouvelle, ou un volume égal ou supérieur, passe sans changement.
+
+    ⚠️ Limite connue : une annulation de transaction par l'opérateur ferait
+    légitimement baisser un volume ; le cliquet garderait le plus haut. Ce
+    cas n'a jamais été observé ; l'instantané ancien l'a été deux fois en
+    deux jours.
+    """
+    if precedent is None:
+        precedent = _publie_precedent()
+    publies = {t.get("symbol"): t for t in (precedent.get("tickers") or [])}
+    gardes = []
+    for sym, v in live_prices.items():
+        p = publies.get(sym)
+        if not p:
+            continue
+        seance = str(v.get("asof") or "")[:10]
+        if not seance or str((p.get("_meta") or {}).get("prix_asof") or "") != seance:
+            continue
+        if (p.get("vol") or 0) > (v.get("vol") or 0):
+            for k in _CHAMPS_LIGNE_PUBLIEE:
+                if p.get(k) is not None:
+                    v[k] = p[k]
+            gardes.append(sym)
+    if gardes:
+        logger.warning(
+            f"Cliquet de volume : {len(gardes)} ligne(s) de la source plus "
+            f"anciennes que celles déjà publiées pour la même séance — "
+            f"lignes publiées conservées : {', '.join(sorted(gardes))}")
+    return gardes
+
+
+def _cliquet_volume_global(masi, precedent=None):
+    """Même règle pour le volume global : il ne recule pas dans une séance.
+
+    Sans elle, les fiches gardées par `_cliquet_volume` (129,04 M DH le
+    09/10) côtoieraient un volume d'indice ancien (122,65) : l'écart (5,2 %)
+    dépasse ce que `volume_indice_coherent` remplace, et le bandeau
+    resterait sur le chiffre faux.
+    """
+    if precedent is None:
+        precedent = _publie_precedent()
+    p = precedent.get("masi") or {}
+    seance = str(masi.get("asof") or "")[:10]
+    if not seance or str(p.get("asof") or "")[:10] != seance:
+        return False
+    if (p.get("volume_mad") or 0) <= (masi.get("volume_mad") or 0):
+        return False
+    for k in ("volume_mad", "titres_echanges", "transactions"):
+        if p.get(k) is not None:
+            masi[k] = p[k]
+    logger.warning(f"Cliquet de volume : volume global de la source "
+                   f"plus ancien que celui publié pour la séance du {seance} "
+                   f"— volume publié conservé ({p.get('volume_mad')} DH)")
+    return True
+
+
 def _recaler_seance_fantome(live_prices):
     """Ramène IDB_ASOF à la séance réelle quand la source date un jour fermé.
 
@@ -3809,6 +3893,8 @@ def run(dry_run=False, push=False, token=""):
     # `candles`, qui tiennent la vraie clôture. Rien n'est inventé : on refuse
     # seulement de remplacer du connu par du plus ancien (R1).
     IDB_ASOF = _cliquet_seance(live_prices, IDB_ASOF)
+    # ⚠️ 09/10/2026 — même séance, instantané plus ancien : voir `_cliquet_volume`.
+    _cliquet_volume(live_prices)
 
     # Circuit breaker : ne pas écraser data.json avec des zéros si toutes les sources sont down
     idb_ok = len(live_prices) > 0
@@ -5025,6 +5111,7 @@ def run(dry_run=False, push=False, token=""):
 
     # Volume global : l'indice CDG peut retarder sur les fiches (06/10/2026).
     try:
+        _cliquet_volume_global(output.get("masi") or {})
         _vc = volume_indice_coherent(output.get("masi") or {}, tickers_out)
         if _vc:
             output["masi"].update(_vc)
