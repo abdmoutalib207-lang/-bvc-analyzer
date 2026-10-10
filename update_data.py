@@ -4856,6 +4856,13 @@ def run(dry_run=False, push=False, token=""):
                          "ne peut pas être calculée, rien n'est publié")
     appliquer_note_sectorielle(tickers_out, passe1, fondamentaux=_FOND_BRUT, bpa=BPA_DATA,
                                faits=FAITS_DATA, s1=_s1)
+    # Plancher de publication : une abstention sur tout l'univers est une panne
+    # de sources (fichiers absents ou vides), pas une série de titres sans note.
+    from pipeline.smart_money.fond_score_sectoriel import problemes_plancher
+    _pannes = problemes_plancher(tickers_out)
+    if _pannes:
+        raise SystemExit("note fondamentale incalculable, rien n'est publié : "
+                         + " ; ".join(_pannes))
 
     # 5. Construction data.json
     output = {

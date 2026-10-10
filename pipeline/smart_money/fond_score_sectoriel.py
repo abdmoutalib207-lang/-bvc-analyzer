@@ -466,6 +466,43 @@ def charger_sources(racine: Path = RACINE) -> dict:
             "faits": lire("pipeline/faits_financiers.json")}
 
 
+# ───────────────────────────── plancher de publication ─────────────────────────────
+
+PLANCHER_NOTES = 60       # sur 80 titres ; mesuré le 10/10/2026 : 71
+
+
+def nb_notes(titres) -> int:
+    """Nombre de fiches portant une note fondamentale ET un v53."""
+    return sum(1 for t in titres if t.get("score_fond") is not None and t.get("v53") is not None)
+
+
+def masi1_sans_note(titres) -> list[str]:
+    """Les titres du MASI 1 (TICKERS_ACTIFS) absents ou sans v53."""
+    from bvc_config import TICKERS_ACTIFS
+    avec = {t.get("symbol") for t in titres if t.get("v53") is not None}
+    return [s for s in TICKERS_ACTIFS if s not in avec]
+
+
+def problemes_plancher(titres) -> list[str]:
+    """Pourquoi la publication doit être refusée, ou [].
+
+    ⚠️ Relecture du 10/10/2026 : si fondamentaux.json, bpa.json ou
+    faits_financiers.json étaient absents ou vides, la grille s'abstiendrait
+    sur les 80 titres et le moteur publierait 80 notes `None` avec un contrôle
+    vert. Une abstention est honnête titre par titre ; sur tout l'univers, c'est
+    une panne.
+    """
+    titres = list(titres)
+    out = []
+    n = nb_notes(titres)
+    if n < PLANCHER_NOTES:
+        out.append(f"{n} titres notés sur {len(titres)} (plancher {PLANCHER_NOTES})")
+    manquants = masi1_sans_note(titres)
+    if manquants:
+        out.append(f"titres du MASI 1 sans v53 : {', '.join(manquants)}")
+    return out
+
+
 def noter_depuis_fichiers(prix_surcharge: dict | None = None, racine: Path = RACINE) -> dict:
     """Note les 80 titres à partir des fichiers publiés : cours et P/B du
     `data.json`, éventuellement surchargés par `prix_surcharge` (le second

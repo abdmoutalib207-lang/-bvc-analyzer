@@ -231,6 +231,16 @@ def _controles(jour, ecart):
             if x.get("v53") is not None and not 0 <= x["v53"] <= 10]
     ajouter("score v5.3 dans [0, 10]", not hors, hors or "conforme")
 
+    # Note fondamentale par famille (10/10/2026) : un titre sans note est admis,
+    # un univers sans notes est une panne de sources (fichiers vides).
+    from pipeline.smart_money.fond_score_sectoriel import PLANCHER_NOTES, masi1_sans_note, nb_notes
+    fiches = [dict(x, symbol=x.get("symbol") or t) for t, x in titres.items()]
+    n_notes = nb_notes(fiches)
+    ajouter(f"au moins {PLANCHER_NOTES} titres avec une note fondamentale",
+            n_notes >= PLANCHER_NOTES, f"{n_notes} titres notés sur {len(titres)}")
+    sans_v53 = masi1_sans_note(fiches)
+    ajouter("les 19 titres MASI 1 ont un v53", not sans_v53, sans_v53 or "19/19")
+
     # Règle R10 : la BVC plafonne la variation à ±10 % par séance, sur le
     # COURS D'UNE SOCIÉTÉ. Le contrôle porte bien sur les titres un à un —
     # l'indice, lui, n'est pas soumis à ce plafond (précision du 05/09/2026).

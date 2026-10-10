@@ -146,3 +146,90 @@ def test_un_titre_sans_note_a_une_confiance_au_plus_1_meme_hors_fondamentaux_jso
     out[0]["_meta"]["confidence"] = 4
     update_data.appliquer_note_sectorielle(out, {"T2S": _passe1("T2S")}, fondamentaux={}, bpa={}, faits={}, s1={})
     assert out[0]["sig"] == "Données insuffisantes" and out[0]["_meta"]["confidence"] <= 1
+
+
+# ── 15. plancher de publication — relecture du 10/10/2026 ───────────────────
+# Si fondamentaux.json / bpa.json / faits_financiers.json sont absents ou vides,
+# la grille s'abstient sur les 80 titres : 80 notes None avec un contrôle vert.
+
+def _univers(notes_par_titre):
+    return [{"symbol": s, "score_fond": n, "v53": n} for s, n in notes_par_titre.items()]
+
+
+def test_le_plancher_accepte_l_univers_mesure_le_10_10():
+    from pipeline.smart_money import fond_score_sectoriel as fs
+    notes = {s: 5.0 for s in bvc_config.TICKERS_ALL}
+    for s in list(notes)[:9]:
+        notes[s] = None                     # 71 notés sur 80 : la mesure du jour
+    for s in bvc_config.TICKERS_ACTIFS:
+        notes[s] = 5.0
+    assert fs.problemes_plancher(_univers(notes)) == []
+
+
+def test_le_plancher_refuse_un_univers_sans_notes():
+    from pipeline.smart_money import fond_score_sectoriel as fs
+    p = fs.problemes_plancher(_univers({s: None for s in bvc_config.TICKERS_ALL}))
+    assert any("plancher" in x for x in p) and any("MASI 1" in x for x in p)
+
+
+def test_le_plancher_refuse_59_notes_et_accepte_60():
+    from pipeline.smart_money import fond_score_sectoriel as fs
+    notes = {s: None for s in bvc_config.TICKERS_ALL}
+    for s in bvc_config.TICKERS_ACTIFS:
+        notes[s] = 5.0
+    autres = [s for s in bvc_config.TICKERS_ALL if s not in bvc_config.TICKERS_ACTIFS]
+    for s in autres[:59 - len(bvc_config.TICKERS_ACTIFS)]:
+        notes[s] = 5.0
+    assert fs.nb_notes(_univers(notes)) == 59 and fs.problemes_plancher(_univers(notes))
+    notes[autres[59 - len(bvc_config.TICKERS_ACTIFS)]] = 5.0
+    assert fs.nb_notes(_univers(notes)) == 60 and fs.problemes_plancher(_univers(notes)) == []
+
+
+def test_le_plancher_refuse_un_titre_du_masi_1_sans_v53():
+    from pipeline.smart_money import fond_score_sectoriel as fs
+    notes = {s: 5.0 for s in bvc_config.TICKERS_ALL}
+    notes["MNG"] = None
+    p = fs.problemes_plancher(_univers(notes))
+    assert p == ["titres du MASI 1 sans v53 : MNG"], "71 notés, mais un MASI 1 sans note"
+
+
+def test_sources_vides_donnent_un_refus_de_publier(monkeypatch):
+    # De bout en bout : fichiers vides → 80 abstentions → le plancher refuse.
+    import update_data
+    monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: False)
+    out = [_fiche_sortie(s) for s in bvc_config.TICKERS_ALL]
+    update_data.appliquer_note_sectorielle(
+        out, {s: _passe1(s) for s in bvc_config.TICKERS_ALL}, fondamentaux={}, bpa={}, faits={}, s1={})
+    from pipeline.smart_money import fond_score_sectoriel as fs
+    assert fs.nb_notes(out) == 0 and fs.problemes_plancher(out)
+
+
+def test_le_moteur_appelle_le_plancher_avant_d_ecrire():
+    src = (Path(bvc_config.__file__).parent / "update_data.py").read_text(encoding="utf-8")
+    i = src.index("problemes_plancher(tickers_out)")
+    assert "raise SystemExit" in src[i:i + 400]
+    assert i < src.index("# 5. Construction data.json"), "le plancher doit précéder la construction du fichier"
+
+
+def test_le_controle_de_seance_echoue_sur_un_univers_sans_notes(tmp_path, monkeypatch):
+    import json
+    sys.path.insert(0, str(Path(bvc_config.__file__).parent / "pipeline"))
+    import verifier_seance as vs
+
+    def ecrire(notes):
+        fiches = [{"symbol": s, "price": 10.0, "v53": n, "score_fond": n, "chg": 0.0,
+                   "_meta": {"prix_asof": "2026-10-09", "source_prix": "cdg"}}
+                  for s, n in notes.items()]
+        (tmp_path / "data.json").write_text(json.dumps({"updated": "2026-10-09T18:00:00+0000", "tickers": fiches}))
+
+    monkeypatch.setattr(vs, "RACINE", tmp_path)
+
+    def resultat(intitule_debut):
+        return [(i, ok) for i, ok, _ in vs._controles("2026-10-09", 0) if i.startswith(intitule_debut)]
+
+    ecrire({s: None for s in bvc_config.TICKERS_ALL})
+    assert resultat("au moins 60 titres") == [("au moins 60 titres avec une note fondamentale", False)]
+    assert resultat("les 19 titres MASI 1 ont un v53")[0][1] is False
+    ecrire({s: 5.0 for s in bvc_config.TICKERS_ALL})
+    assert resultat("au moins 60 titres")[0][1] is True
+    assert resultat("les 19 titres MASI 1 ont un v53")[0][1] is True
