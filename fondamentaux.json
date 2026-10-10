@@ -4428,9 +4428,9 @@
     "dps_2026": 89.57,
     "div_yield": 5.96,
     "source": "Calendrier BVC 2026",
-    "date_maj": "2026-06-22",
+    "date_maj": "2026-09-29",
     "per": null,
-    "croissance_ca": null,
+    "croissance_ca": 14.4,
     "dette_nette_ebitda": null,
     "roic": null,
     "marge_nette": null,
@@ -4452,7 +4452,45 @@
     "nb_actions": 8960000,
     "bloomberg": "TMA",
     "reuters": "TMA",
-    "secteur_libre": "Distribution pétrolière"
+    "secteur_libre": "Distribution pétrolière",
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 8960000,
+      "date_maj": "2026-06-22"
+    },
+    "croissance_bpa": -12.1,
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf",
+    "ratios_publies": {
+      "roe_2025": {
+        "valeur": 42.9,
+        "date": "2025-12-31",
+        "formule": "851.083 ÷ 1984.665 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf p.6, « COMPTES CONSOLIDÉS AU 31 DÉCEMBRE 2025 (Référentiel IFRS) », en milliers de dirhams, colonnes « Décembre 2025 Décembre 2024 » : « Résultat net de l'ensemble consolidé 851.083 934.195 », « Part du Groupe 851.083 934.195 », « Résultat net par action (en Dirhams) 95 104 » (déjà la source de bpa.json). Recoupé par le dépôt S1 p.4, bilan consolidé colonne « Décembre 2025 » : capitaux propres part du groupe 1.984.665 = 1.984.665 au rapport de l'AGO. Rebouclage extérieur de l'exercice : yuna.ma au 29/09 (relevé consigné dans la fiche passée de datasets/exercice_2025_rectifie.json) PER 14,74 ; clôture de nos chandelles 1 400 → BPA implicite 94,98 contre 94,99 ; ROE 42,9 % = 851,083 ÷ 1 984,665 : concordant. Les douze mois glissants (BPA 90,60) n'ont pas de pendant sur yuna.ma, inaccessible le 10/10/2026 (HTTP 429, défi Vercel) : rebouclage sur le BPA publié par l'émetteur : 851,083 ÷ 8,96 M = 94,99 (publié 95), S1 2025 324,273 ÷ 8,96 M = 36,19 (publié 36), S1 2026 284,955 ÷ 8,96 M = 31,80 (publié 32).",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf — état de la situation financière consolidé IFRS p.4 (KMAD), colonnes « Juin 2026 Décembre 2025 » : « TOTAL DES CAPITAUX PROPRES – PART DU GROUPE 1.468.318 1.984.665 », « INTÉRÊTS NE CONFÉRANT PAS LE CONTRÔLE » vide ; recoupé par l'attestation p.4 (« capitaux propres consolidés totalisant 1 468 318 KMAD »)."
+        }
+      },
+      "roe_12m": {
+        "valeur": 55.3,
+        "date": "2026-06-30",
+        "formule": "(851.083 + 284.955 − 324.273) ÷ 1468.318 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf — état de la situation financière consolidé IFRS p.4 (KMAD), colonnes « Juin 2026 Décembre 2025 » : « TOTAL DES CAPITAUX PROPRES – PART DU GROUPE 1.468.318 1.984.665 », « INTÉRÊTS NE CONFÉRANT PAS LE CONTRÔLE » vide ; recoupé par l'attestation p.4 (« capitaux propres consolidés totalisant 1 468 318 KMAD »)."
+        }
+      },
+      "marge_nette_s1_2026": {
+        "valeur": 3.3,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé",
+        "formule": "284.955 ÷ 8627.94 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf"
+        }
+      },
+      "calcule_le": "2026-09-30"
+    }
   },
   "CIM": {
     "secteur": "Matériaux",

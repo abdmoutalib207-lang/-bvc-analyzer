@@ -275,6 +275,25 @@ fusion** : la fusion est la décision d'Abd Moutalib.
 - (05/10) Un dépôt de comptes consolidés peut classer le résultat sous « Capitaux propres (Part
   du groupe) » sans ligne « RNPG » au CPC (M2M p.4 : « Résultat consolidé 5 305 374 ») : c'est
   une LECTURE, recoupée par ensemble − minoritaires (6 545 127 − 1 239 753).
+- (10/10) Le texte extrait d'une attestation peut renverser son sens : TMA p.4 sort « ne donnent
+  pas une image fidèle » alors que la page rendue dit « nous n'avons pas relevé de faits qui nous
+  laissent penser que [...] ne donnent pas une image fidèle » (forme négative standard, sans
+  réserve). Rendre la page de l'attestation avant de conclure à une réserve, dans les deux sens.
+- (10/10) Fiche d'exercice → S1 : intégrer un titre qui figure dans `exercice_2025_rectifie.json`
+  (TMA) fait rougir `test_aucun_titre_n_est_a_la_fois_ici_et_dans_le_jeu_s1` ; déplacer la fiche
+  sous `_passes_au_s1` (avec `_passe_le`, `_motif`) dans la même livraison, et y reprendre son
+  rebouclage yuna (le fichier S1 n'a pas de champ `yuna`, le consigner dans `source_exercice_2025`).
+- (10/10) Un dépôt d'assureur peut porter DEUX bases que le communiqué ne montre pas : Sanlam
+  Maroc S1 2026 p.4, consolidé IFRS 17 (RNPG −88,6 MDH contre +1 177,2 ; exercice 2025 676,5) et
+  social p.2 (172,2 contre 451,6 pour 2025). Lire les deux et dire laquelle on retient avant tout
+  BPA ; l'écart de signe seul suffit à écarter tant que la fusion (R11) n'est pas digérée.
+- (10/10) « Ne dépose plus » se prouve par l'ÉMETTEUR, pas par la file : liste
+  `/fr/espace-emetteurs/liste-des-emetteurs/<id>` (onglets Communiqués et États financiers),
+  jamais par l'absence dans `depots_ammc.json`. Diac Salaf : retrait d'agrément de Bank Al-Maghrib
+  le 28/02/2013 (CP CDVM du 04/03/2013 p.1) ; Delattre Levivier : liquidation demandée le 04/11/2022.
+- (10/10) yuna.ma répond HTTP 429 (défi Vercel, `x-vercel-mitigated: challenge`) depuis le
+  conteneur : rebouclage impossible, à écrire tel quel ; reprendre alors le relevé yuna déjà
+  consigné dans la fiche `exercice_2025_rectifie.json` du titre, daté, plutôt que d'inventer.
 
 ## Ce que tu ne fais jamais
 

@@ -2,17 +2,6 @@
   "_note": "Exercice 2025 rectifié sur le document publié, lot 13 (30/09/2026), pour les titres SANS dépôt S1 2026 exploitable. Chaque chiffre est RECOPIÉ du document avec sa page ; le BPA est calculé par pipeline/exercice_2025.py. Montants en millions de dirhams (MDH). Les titres qui ont un S1 2026 déposé (REB, T2S, puis ADH et ADI le 01/10 — voir _passes_au_s1) sont dans resultats_s1_2026.json, pas ici.",
   "_regle": "bpa = rnpg_exercice_2025 × 1e6 ÷ actions. Pas d'entrée S1 incomplète : douze_mois exige les quatre valeurs. Un titre dont le signe ou la base n'est pas établi est dans _ecartes, avec son motif.",
   "titres": {
-    "TMA": {
-      "url": "https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf",
-      "exercice_clos": "2025-12-31",
-      "base": "résultat net part du Groupe, consolidé IFRS (aucun minoritaire : part du Groupe = ensemble)",
-      "pages": "p.6 « COMPTES CONSOLIDÉS AU 31 DÉCEMBRE 2025 (Référentiel IFRS) », en milliers de dirhams, colonnes « Décembre 2025 Décembre 2024 » : « Résultat net de l'ensemble consolidé 851.083 934.195 », « Part du Groupe 851.083 934.195 », « Résultat net par action (en Dirhams) 95 104 » ; social p.4 : « Résultat net de l'exercice 802.567.533,86 » (non retenu)",
-      "rnpg_exercice_2025": 851.083,
-      "source_exercice_2025": "p.6, 851.083 KMAD = 851,083 MDH (conversion ÷ 1 000). BPA publié 95 = 851,083 ÷ 8,96 M",
-      "actions": 8960000,
-      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 12 974 080 000 ÷ cours 1 448 = 8 960 000) ; = capital 448 000 KMAD (p.6) ÷ nominal 50, inchangé sur 2024-2025",
-      "yuna": "29/09 : PER 14,74 ; clôture de nos chandelles au 29/09 = 1 400 → BPA implicite 94,98 contre 94,99 ; ROE 42,9 % = 851,083 ÷ 1 984,665 (capitaux propres part du Groupe, p.6) : concordant"
-    },
     "CAR": {
       "url": "https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf",
       "exercice_clos": "2026-03-31",
@@ -114,14 +103,27 @@
       "actions": 647777,
       "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 261 442 797,2 ÷ cours 403,6 = 647 777) ; = capital 64 777 700 DH (p.1 et p.4 du dépôt) ÷ nominal 100",
       "yuna": "yuna.ma injoignable le 05/10 (HTTP 429), aucun rebouclage yuna possible ; le rebouclage extérieur est le BPA que M2M publie lui-même (CP_M2M_group_2025.pdf p.1 : 8,19, soit 5,31 MDH, identique). L'ancien BPA 26,39 (casablancabourse_derive) ne correspond à aucun état : 2024 = 22,62, 2025 = 8,19"
+    },
+    "TMA": {
+      "url": "https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf",
+      "exercice_clos": "2025-12-31",
+      "base": "résultat net part du Groupe, consolidé IFRS (aucun minoritaire : part du Groupe = ensemble)",
+      "pages": "p.6 « COMPTES CONSOLIDÉS AU 31 DÉCEMBRE 2025 (Référentiel IFRS) », en milliers de dirhams, colonnes « Décembre 2025 Décembre 2024 » : « Résultat net de l'ensemble consolidé 851.083 934.195 », « Part du Groupe 851.083 934.195 », « Résultat net par action (en Dirhams) 95 104 » ; social p.4 : « Résultat net de l'exercice 802.567.533,86 » (non retenu)",
+      "rnpg_exercice_2025": 851.083,
+      "source_exercice_2025": "p.6, 851.083 KMAD = 851,083 MDH (conversion ÷ 1 000). BPA publié 95 = 851,083 ÷ 8,96 M",
+      "actions": 8960000,
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 12 974 080 000 ÷ cours 1 448 = 8 960 000) ; = capital 448 000 KMAD (p.6) ÷ nominal 50, inchangé sur 2024-2025",
+      "yuna": "29/09 : PER 14,74 ; clôture de nos chandelles au 29/09 = 1 400 → BPA implicite 94,98 contre 94,99 ; ROE 42,9 % = 851,083 ÷ 1 984,665 (capitaux propres part du Groupe, p.6) : concordant",
+      "_passe_le": "2026-10-10",
+      "_motif": "S1 2026 déposé le 30/09 (Total_Maroc_S1_26.pdf), intégré à datasets/resultats_s1_2026.json avec le même exercice 2025 (851,083, recoupé dans le dépôt S1 p.4 : capitaux propres part du groupe au 31/12/2025 1.984.665 = ceux du rapport de l'AGO). Fiche conservée ici, plus appliquée par pipeline/exercice_2025.py."
     }
   },
   "_ecartes": {
     "ENK": "Ennakl Automobiles (société tunisienne cotée à Casablanca) publie en NORMES COMPTABLES TUNISIENNES et en MILLIERS DE DINARS (CP_Ennakl_2025.pdf p.1, image lue) : résultat net consolidé 59 642 mD, social 51 585 mD, pour 30 000 000 actions (capital 30 000 000 dinars). Le cours est en MAD : un BPA exigerait un taux de change qui n'est pas dans le dépôt, donc un calcul et non une lecture ; et « résultat net consolidé après impôts » n'est pas qualifié « part du Groupe ». Valeur indicative non retenue : 59,642 M TND ÷ 30 M = 1,99 TND par action. yuna.ma n'affiche ni PER ni ROE. Écarté.",
     "MDP": "Med Paper : résultat net social 2025 de 6 713 105,50 DH (Med_Paper_2025.pdf p.2 et p.4 ; 4 783 823 actions = capital 47 838 230 ÷ 10), BPA 1,40 = yuna (17,36 × 1,40 = 24,30). MAIS l'attestation des CAC est AVEC RÉSERVE sur plusieurs points chiffrés (p.6-7, images lues) : charges de 4,3 MDH non reconnues par un ancien actionnaire (créance/dette de 2,9 MDH), pénalités CNSS de 2 318 KMAD capitalisées en immobilisations en non-valeurs, prélèvement bancaire de 2 MMAD porté en diminution de dette, plus un protocole fiscal non respecté aux pénalités non chiffrées. Les montants chiffrés (4,3 + 2,318 + 2,0 = 8,6 MDH) excèdent le bénéfice de 6,7 ; en outre le résultat courant est de −15,1 MDH et le bénéfice vient d'un résultat non courant de +22,1 MDH. Le signe n'est pas établi (même cas que Stokvis). Écarté ; MDP n'est pas une introduction récente : coté de longue date.",
     "IBM": "IB Maroc : dernier dépôt de comptes à l'AMMC le 31/10/2023 (exercice 2022 et S1 2023, IB_Maroc_2022_S1_23.pdf) ; communiqué du 10/01/2023 sur la demande de placement en redressement judiciaire. Aucun compte 2023, 2024 ni 2025 déposé : rien à lire. yuna.ma n'affiche ni PER ni ROE.",
-    "DLM": "Delattre Levivier Maroc : dernier dépôt de comptes à l'AMMC le 29/04/2022 (exercice 2021, DLM_2021.pdf), dernière publication le 16/11/2022 ; dernier RFA au catalogue : 2020. Absent du relevé de l'opérateur du 16/09/2026 et de yuna.ma : pas d'exercice 2025 à lire. Pas une introduction récente : ancienne valeur sans publication.",
-    "DIS": "Diac Salaf : dernière publication à l'AMMC en 2013 ; aucun compte déposé depuis. Absent du relevé de l'opérateur du 16/09/2026 et de yuna.ma. Pas une introduction récente : ancienne valeur sans publication.",
+    "DLM": "Delattre Levivier Maroc : dernier dépôt de comptes à l'AMMC le 29/04/2022 (exercice 2021, DLM_2021.pdf), dernière publication le 16/11/2022 ; dernier RFA au catalogue : 2020. Absent du relevé de l'opérateur du 16/09/2026 et de yuna.ma : pas d'exercice 2025 à lire. Pas une introduction récente : ancienne valeur sans publication. — 10/10/2026 (liste de l'émetteur AMMC n°2771 relue) : dernier acte, le CP du 16/11/2022 (CP_DLMrealisation_augmentation_capital.pdf p.1 : augmentation de capital de 500 000 actions par compensation de créances, 1 250 000 → 1 750 000 titres, capital 37,5 → 52,5 MDH) ; celui du 14/11/2022 (CP_DLM_post_CA_10_11_22.pdf p.1) rapporte la demande de mise en liquidation déposée le 04/11/2022 au Tribunal de commerce de Casablanca (audience le 21/11). Derniers comptes : résultats annuels 2021 (DLM_2021.pdf, comptes sociaux, 29/04/2022) ; dernier état au catalogue des états financiers : RFS juin 2021 (DLM_RFS_S1_2021.pdf) ; dernier acte financier : indicateurs T2 2022 (31/08/2022, pas un compte). Aucun S1 2022 ni exercice 2022-2025. Opération sur le capital postérieure aux derniers comptes (R11) : même un BPA 2021 serait sur un nombre d'actions périmé. Déjà inscrite dans bvc_config.SUSPENSIONS.",
+    "DIS": "Diac Salaf : dernière publication à l'AMMC en 2013 ; aucun compte déposé depuis. Absent du relevé de l'opérateur du 16/09/2026 et de yuna.ma. Pas une introduction récente : ancienne valeur sans publication. — 10/10/2026 (liste de l'émetteur AMMC n°2769 relue) : la preuve est un retrait d'agrément, pas un silence. CP du CDVM du 04/03/2013 (CP_CDVM_Diac_Salaf_20130304.pdf p.1) : « En date du 28 février 2013, Bank Al-Maghrib a décidé le retrait d'agrément à la société de financement Diac Salaf. Par conséquent, la liquidation de la société se fera [...] », le CDVM demandant la radiation des titres de la cote. Dernier état financier au catalogue de l'AMMC : « Rapports sociaux 1er semestre 2012 » (Diac_S1_2012.pdf, 1 page image rendue : situation provisoire au 30/06/2012, attestation du 26/09/2012 : capitaux propres « MAD -160 281 801,53 », perte nette ≈ 6,72 MDH, perte du capital social en totalité) ; aucun communiqué après le 04/03/2013. Déjà inscrite dans bvc_config.SUSPENSIONS (liquidation judiciaire, aucune transaction en trois ans).",
     "PPM_S1": "Avertissement sur résultats du 25/09/2026 (Promopharm) : ce n'est pas un compte (contrôle 7). Les comptes semestriels devaient être publiés le 30/09/2026 ; ils n'apparaissaient pas à la liste de l'AMMC lors de la lecture."
   }
 }
