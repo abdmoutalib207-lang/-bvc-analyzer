@@ -244,6 +244,13 @@ def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict |
         v = px * actions / 1e6 + dette_nette + minoritaires
         ve = {"valeur": round(v / ebitda, 2),
               "mesure": f"VE {v:.0f} ÷ EBITDA {ebitda:g} MMAD (2025)"}
+        # ⚠️ Anomalie signalée, pas corrigée : un EBITDA 2025 inférieur au
+        # résultat net 12 mois dit que l'EBITDA est plus ancien que le bénéfice
+        # (Managem : 5 982 contre 6 400) — le VE/EBITDA est alors surestimé.
+        rn12 = _num(bpa.get("rnpg_12m"))
+        if rn12 is not None and ebitda < rn12:
+            ve["anomalie"] = (f"EBITDA 2025 {ebitda:g} < RNPG 12 mois {rn12:g} (MMAD) : "
+                              "EBITDA plus ancien que le résultat, VE/EBITDA surestimé")
 
     s1_ok = bool(fiche.get("source_s1_2026"))
     return {
@@ -394,8 +401,10 @@ def noter(e: dict, medianes: dict) -> dict:
         if ref is None:
             abst["valorisation"] = "aucune médiane VE/EBITDA"
         else:
-            poser("valorisation", f"VE/EBITDA {e['ve_ebitda']['valeur']:.1f} ({e['ve_ebitda']['mesure']}) ÷ {lib} = {ref:.1f}",
-                  note_relatif(e["ve_ebitda"]["valeur"] / ref))
+            ve = e["ve_ebitda"]
+            poser("valorisation", f"VE/EBITDA {ve['valeur']:.1f} ({ve['mesure']}) ÷ {lib} = {ref:.1f}"
+                                  + (f" — ⚠️ {ve['anomalie']}" if ve.get("anomalie") else ""),
+                  note_relatif(ve["valeur"] / ref))
     else:
         r = par_per()
         if r is None:                            # résultat 12 mois ≤ 0

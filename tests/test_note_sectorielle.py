@@ -434,6 +434,21 @@ def test_mines_ve_ebitda_quand_la_donnee_existe_sinon_per():
     assert "PER" in r2["composantes"]["valorisation"]["mesure"]
 
 
+def test_ve_ebitda_signale_un_ebitda_plus_ancien_que_le_resultat():
+    # Managem : EBITDA 2025 5 982 < RNPG 12 mois 6 400. Signalé dans la mesure,
+    # note inchangée (décision d'Abd en attente sur VE/EBITDA contre PER).
+    fiche = _fiche(roic=15.0, dette_nette=0.0, ebitda=5982.0)
+    e = _entree("MNG", fiche, {"bpa_12m": 50.0, "rnpg_12m": 6400.0}, {"actions": 1_000_000},
+                faits=_faits(500.0, 500.0), prix=1000.0)
+    assert "RNPG 12 mois 6400" in e["ve_ebitda"]["anomalie"]
+    r = fs.noter(e, _med(ve={"marche": [10.0] * 3}, per={"marche": [10.0] * 3}))
+    c = r["composantes"]["valorisation"]
+    assert "EBITDA 2025 5982 < RNPG 12 mois 6400" in c["mesure"]
+    sain = _entree("SMI", _fiche(roic=15.0, dette_nette=0.0, ebitda=7000.0), {"bpa_12m": 50.0, "rnpg_12m": 6400.0},
+                   {"actions": 1_000_000}, faits=_faits(500.0, 500.0), prix=1000.0)
+    assert "anomalie" not in sain["ve_ebitda"]
+
+
 def test_ve_ajoute_les_minoritaires():
     fiche = _fiche(dette_nette=0.0, ebitda=100.0)
     e = _entree("MNG", fiche, s1={"actions": 1_000_000}, faits=_faits(500.0, 600.0), prix=1000.0)
