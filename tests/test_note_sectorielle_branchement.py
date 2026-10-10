@@ -125,10 +125,24 @@ def test_le_second_pipeline_note_par_famille(monkeypatch):
     assert par["BBB"]["sig"].startswith("SURVEILLER") or par["BBB"]["sig"].startswith("ACHETER")
 
 
-def test_la_confiance_perd_le_point_fondamentaux_sans_note(monkeypatch):
+def test_la_confiance_est_plafonnee_a_1_sans_note_fondamentale(monkeypatch):
     import update_data
     monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: False)
     monkeypatch.setitem(update_data._FOND_COMPUTED, "ALU", 5.0)
     avec = update_data._meta_ticker("ALU", "cdg", "2026-10-09", {}, None, False, note_fond_ok=True)
     sans = update_data._meta_ticker("ALU", "cdg", "2026-10-09", {}, None, False, note_fond_ok=False)
-    assert avec["confidence"] - sans["confidence"] == 1
+    assert avec["confidence"] - sans["confidence"] >= 1
+    assert sans["confidence"] <= 1
+
+
+def test_un_titre_sans_note_a_une_confiance_au_plus_1_meme_hors_fondamentaux_json(monkeypatch):
+    # T2S (confiance 4 à côté de « Données insuffisantes ») n'était pas dans
+    # fondamentaux.json : la correction ne doit pas dépendre de _FOND_COMPUTED.
+    import update_data
+    monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: False)
+    monkeypatch.setattr(update_data, "sans_comptes", lambda t: None)
+    assert "T2S" not in update_data._FOND_COMPUTED
+    out = [_fiche_sortie("T2S")]
+    out[0]["_meta"]["confidence"] = 4
+    update_data.appliquer_note_sectorielle(out, {"T2S": _passe1("T2S")}, fondamentaux={}, bpa={}, faits={}, s1={})
+    assert out[0]["sig"] == "Données insuffisantes" and out[0]["_meta"]["confidence"] <= 1

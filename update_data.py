@@ -3058,6 +3058,12 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         confiance = min(confiance, 1)
     if sans_comptes(ticker):
         confiance = min(confiance, 1)
+    # ⚠️ Sans note fondamentale (10/10/2026), la confiance est plafonnée à 1,
+    # comme pour une société sans comptes : le signal devient « Données
+    # insuffisantes » et la règle d'affichage grise la note. T2S gardait 4 et
+    # STK 3 à côté de ce libellé (relecture du 10/10).
+    if not note_fond_ok:
+        confiance = min(confiance, 1)
 
     # ⚠️ Plafond de liquidité, ajouté le 01/09/2026.
     #
@@ -3831,8 +3837,8 @@ def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux:
             e["sig"], e["verdict_plafonne"] = _signal_publie(
                 sym, None, p1["tech_nf"], p1["depuis_reprise"], sans_note=True)
             e["setup"] = "NEUTRE"
-            if sym in _FOND_COMPUTED:      # le point « fondamentaux réels » tombe
-                e["_meta"] = _meta_ticker(*p1["meta_args"], **p1["meta_kw"], note_fond_ok=False)
+            # Le point « fondamentaux réels » tombe et la confiance est plafonnée à 1.
+            e["_meta"] = _meta_ticker(*p1["meta_args"], **p1["meta_kw"], note_fond_ok=False)
         else:
             v = compute_v53(sym, p1["score_tech"], note, 0, 0, p1["ctx"])
             e["score_fond"], e["v53"] = v["score_fond"], v["v53"]
