@@ -1271,10 +1271,12 @@ def _publie_precedent():
         return {}
 
 
-# Champs repris de la ligne déjà publiée quand la source sert un instantané
-# plus ancien de la même séance. Les extrêmes du jour ne sont pas repris :
-# l'étape 6c ne fait que les étendre, un instantané ancien ne les réduit pas.
-_CHAMPS_LIGNE_PUBLIEE = ("price", "chg", "vol", "echange_dh", "open", "reference")
+# Champs repris de la ligne déjà publiée quand la source sert un relevé
+# plus ancien de la même séance — la ligne ENTIÈRE, pour ne pas publier un
+# hybride de deux relevés (relecteur-pipeline, 10/10/2026). `None` quand la
+# ligne publiée ne porte pas le champ : un reste du relevé ancien serait faux.
+_CHAMPS_LIGNE_PUBLIEE = ("price", "chg", "vol", "echange_dh", "reference",
+                         "seuil_bas", "seuil_haut")
 
 
 def _cliquet_volume(live_prices, precedent=None):
@@ -1283,20 +1285,23 @@ def _cliquet_volume(live_prices, precedent=None):
     ⚠️ 09/10/2026 : le volume global a ALTERNÉ d'un run à l'autre entre
     122,65 et 129,04 M DH après la clôture. Le bulletin CDG donne 129,04 :
     66 lignes, 485 709 titres. Les runs à 122,65 recevaient de CDG un
-    instantané figé avant les derniers échanges (15h40–15h41) — Managem à
+    relevé figé avant les derniers échanges (15h40–15h41) — Managem à
     4 387 titres au lieu de 8 633, Cosumar 16 151 au lieu de 19 151 — et le
     publiaient par-dessus le bon. Le 08/10, la même cause avait fait publier
     Sothema à 310 (299 titres) au lieu de 291 (5 202 titres).
 
-    Un volume cumulé ne baisse pas en cours de séance : une ligne de la MÊME
-    séance qui annonce MOINS de titres échangés que la ligne déjà publiée est
-    plus ancienne qu'elle. On garde alors la ligne publiée. Une séance
-    nouvelle, ou un volume égal ou supérieur, passe sans changement.
+    Une ligne de la MÊME séance et de la MÊME source qui annonce MOINS de
+    titres échangés que la ligne déjà publiée est plus ancienne qu'elle : on
+    reprend la ligne publiée entière. Les extrêmes du jour (non publiés) sont
+    vidés : la chandelle n'est alors pas réécrite (`session_candles` exige
+    O, H, L, C), elle garde celle du relevé complet. La ligne porte
+    `cliquet_volume`, reporté dans `_meta`.
 
-    ⚠️ Limite connue : une annulation de transaction par l'opérateur ferait
-    légitimement baisser un volume ; le cliquet garderait le plus haut. Ce
-    cas n'a jamais été observé ; l'instantané ancien l'a été deux fois en
-    deux jours.
+    Sources différentes : pas de comparaison — BMCE peut compter autrement.
+
+    ⚠️ Limite connue : une annulation de transaction ferait légitimement
+    baisser un volume ; le cliquet garderait le plus haut pour la séance.
+    Jamais observée ; le relevé ancien l'a été deux jours de suite.
     """
     if precedent is None:
         precedent = _publie_precedent()
@@ -1306,13 +1311,17 @@ def _cliquet_volume(live_prices, precedent=None):
         p = publies.get(sym)
         if not p:
             continue
+        meta = p.get("_meta") or {}
         seance = str(v.get("asof") or "")[:10]
-        if not seance or str((p.get("_meta") or {}).get("prix_asof") or "") != seance:
+        if not seance or str(meta.get("prix_asof") or "") != seance:
+            continue
+        if not v.get("src") or meta.get("source_prix") != v.get("src"):
             continue
         if (p.get("vol") or 0) > (v.get("vol") or 0):
             for k in _CHAMPS_LIGNE_PUBLIEE:
-                if p.get(k) is not None:
-                    v[k] = p[k]
+                v[k] = p.get(k)
+            v["high"] = v["low"] = None
+            v["cliquet_volume"] = True
             gardes.append(sym)
     if gardes:
         logger.warning(
@@ -1320,31 +1329,6 @@ def _cliquet_volume(live_prices, precedent=None):
             f"anciennes que celles déjà publiées pour la même séance — "
             f"lignes publiées conservées : {', '.join(sorted(gardes))}")
     return gardes
-
-
-def _cliquet_volume_global(masi, precedent=None):
-    """Même règle pour le volume global : il ne recule pas dans une séance.
-
-    Sans elle, les fiches gardées par `_cliquet_volume` (129,04 M DH le
-    09/10) côtoieraient un volume d'indice ancien (122,65) : l'écart (5,2 %)
-    dépasse ce que `volume_indice_coherent` remplace, et le bandeau
-    resterait sur le chiffre faux.
-    """
-    if precedent is None:
-        precedent = _publie_precedent()
-    p = precedent.get("masi") or {}
-    seance = str(masi.get("asof") or "")[:10]
-    if not seance or str(p.get("asof") or "")[:10] != seance:
-        return False
-    if (p.get("volume_mad") or 0) <= (masi.get("volume_mad") or 0):
-        return False
-    for k in ("volume_mad", "titres_echanges", "transactions"):
-        if p.get(k) is not None:
-            masi[k] = p[k]
-    logger.warning(f"Cliquet de volume : volume global de la source "
-                   f"plus ancien que celui publié pour la séance du {seance} "
-                   f"— volume publié conservé ({p.get('volume_mad')} DH)")
-    return True
 
 
 def _recaler_seance_fantome(live_prices):
@@ -2980,7 +2964,7 @@ def _comptes_deposes(entree_bpa: dict | None) -> bool:
 def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
                  isin_suspect=False, ratios_calcules=False,
                  chg=None, vol=None, prix_diffuse=None, cap_source=None,
-                 cap_servie=None,
+                 cap_servie=None, cliquet_volume=False,
                  seances_depuis_reprise=None, comptes_deposes=False) -> dict:
     """Provenance du prix et score de confiance 0–5.
 
@@ -3154,6 +3138,9 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         # la capitalisation publiée est prix × actions, elle ne peut plus
         # recouper le nombre d'actions — c'est ce champ qui le peut encore.
         "cap_servie":   cap_servie,
+        # ⚠️ 10/10/2026 : vrai quand la source a servi un relevé plus ancien
+        # de la même séance et que la ligne publiée a été conservée.
+        "cliquet_volume": bool(cliquet_volume),
         "vol_median20": vol_median,
         # ⚠️ La grandeur sur laquelle le plafond de liquidité s'appuie. Publiée
         # parce qu'un seuil qu'on ne peut pas vérifier ne se discute pas.
@@ -4565,6 +4552,7 @@ def run(dry_run=False, push=False, token=""):
                 chg=chg, vol=vol, prix_diffuse=_prix_diffuse,
                 cap_source=_cap_source,
                 cap_servie=lp.get("cap"),
+                cliquet_volume=lp.get("cliquet_volume", False),
                 seances_depuis_reprise=_seances_depuis_reprise,
                 comptes_deposes=_comptes_deposes(BPA_DATA.get(ticker))),
             # Code officiel BVC, pour l'affichage seulement. Nos symboles
@@ -5111,7 +5099,6 @@ def run(dry_run=False, push=False, token=""):
 
     # Volume global : l'indice CDG peut retarder sur les fiches (06/10/2026).
     try:
-        _cliquet_volume_global(output.get("masi") or {})
         _vc = volume_indice_coherent(output.get("masi") or {}, tickers_out)
         if _vc:
             output["masi"].update(_vc)
