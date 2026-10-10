@@ -1,5 +1,5 @@
 {
- "_quoi": "Essai à blanc (update_data.run(dry_run=True)) du 10/10/2026 : origin/main contre la note fondamentale par famille. Mêmes cours, même séance (09/10), mêmes poids de piliers ; seule la note fondamentale change. Trace de la mesure ; ne se recalcule pas hors réseau.",
+ "_quoi": "Essai à blanc (update_data.run(dry_run=True)) du 10/10/2026 : origin/main contre la note fondamentale par famille, référence relative LEAVE-ONE-OUT (titre noté exclu), confiance plafonnée à 1 sans note. Mêmes cours, même séance (09/10), mêmes poids de piliers ; seule la note fondamentale change. Trace de la mesure ; ne se recalcule pas hors réseau.",
  "main": "354126cfd35575eed4bf74cdf4a736e9d906df24",
  "seance_cours": "2026-10-09",
  "score_version_branche": "v5.3-fond-sectoriel-2026-10-10",
@@ -7,18 +7,18 @@
   "ADH": {
    "famille": "promoteur",
    "score_fond_main": 4.05,
-   "score_fond_branche": 5.0,
+   "score_fond_branche": 4.4,
    "v53_main": 4.11,
-   "v53_branche": 4.85,
+   "v53_branche": 4.38,
    "signal_main": "ÉVITER",
-   "signal_branche": "ATTENDRE",
+   "signal_branche": "ÉVITER",
    "confiance_main": 5,
    "confiance_branche": 5,
    "poids_disponible": 100,
    "composantes": {
     "rentabilite": 2.0,
     "croissance": 6.5,
-    "valorisation": 7.0,
+    "valorisation": 4.0,
     "bilan": 8.5
    },
    "abstentions": []
@@ -26,9 +26,9 @@
   "ADI": {
    "famille": "promoteur",
    "score_fond_main": 4.95,
-   "score_fond_branche": 6.2,
+   "score_fond_branche": 5.9,
    "v53_main": 4.87,
-   "v53_branche": 5.85,
+   "v53_branche": 5.61,
    "signal_main": "ATTENDRE",
    "signal_branche": "SURVEILLER ★",
    "confiance_main": 5,
@@ -37,7 +37,7 @@
    "composantes": {
     "rentabilite": 5.0,
     "croissance": 5.5,
-    "valorisation": 8.5,
+    "valorisation": 7.0,
     "bilan": 8.5
    },
    "abstentions": []
@@ -144,21 +144,22 @@
   "ARD": {
    "famille": "fonciere",
    "score_fond_main": 3.7,
-   "score_fond_branche": 5.75,
+   "score_fond_branche": 5.44,
    "v53_main": 4.03,
-   "v53_branche": 5.63,
+   "v53_branche": 5.39,
    "signal_main": "ÉVITER",
-   "signal_branche": "SURVEILLER ★",
+   "signal_branche": "ATTENDRE",
    "confiance_main": 5,
    "confiance_branche": 5,
-   "poids_disponible": 100,
+   "poids_disponible": 80,
    "composantes": {
     "rentabilite": 3.5,
     "croissance": 7.5,
-    "valorisation": 7.0,
     "bilan": 7.0
    },
-   "abstentions": []
+   "abstentions": [
+    "valorisation"
+   ]
   },
   "ATL": {
    "famille": "assurance",
@@ -203,20 +204,20 @@
   "BAL": {
    "famille": "fonciere",
    "score_fond_main": 5.45,
-   "score_fond_branche": 4.17,
+   "score_fond_branche": null,
    "v53_main": 5.45,
-   "v53_branche": 4.17,
+   "v53_branche": null,
    "signal_main": "ATTENDRE",
-   "signal_branche": "ÉVITER",
+   "signal_branche": "Données insuffisantes",
    "confiance_main": 2,
-   "confiance_branche": 2,
-   "poids_disponible": 60,
+   "confiance_branche": 1,
+   "poids_disponible": 40,
    "composantes": {
-    "rentabilite": 5.0,
-    "valorisation": 2.5
+    "rentabilite": 5.0
    },
    "abstentions": [
     "croissance",
+    "valorisation",
     "bilan"
    ]
   },
@@ -421,9 +422,9 @@
   "CMT": {
    "famille": "mines",
    "score_fond_main": 8.25,
-   "score_fond_branche": 8.67,
+   "score_fond_branche": 8.0,
    "v53_main": 7.53,
-   "v53_branche": 7.86,
+   "v53_branche": 7.34,
    "signal_main": "Données insuffisantes",
    "signal_branche": "Données insuffisantes",
    "confiance_main": 1,
@@ -432,7 +433,7 @@
    "composantes": {
     "rentabilite": 8.5,
     "croissance": 10.0,
-    "valorisation": 7.0
+    "valorisation": 4.0
    },
    "abstentions": [
     "bilan"
@@ -619,7 +620,7 @@
    "signal_main": "ATTENDRE",
    "signal_branche": "Données insuffisantes",
    "confiance_main": 2,
-   "confiance_branche": 2,
+   "confiance_branche": 1,
    "poids_disponible": 0,
    "composantes": {},
    "abstentions": [
@@ -766,21 +767,22 @@
   "IMI": {
    "famille": "fonciere",
    "score_fond_main": 4.1,
-   "score_fond_branche": 4.4,
+   "score_fond_branche": 3.75,
    "v53_main": 3.97,
-   "v53_branche": 4.2,
+   "v53_branche": 3.69,
    "signal_main": "ÉVITER",
    "signal_branche": "ÉVITER",
    "confiance_main": 5,
    "confiance_branche": 5,
-   "poids_disponible": 100,
+   "poids_disponible": 80,
    "composantes": {
     "rentabilite": 2.0,
     "croissance": 4.5,
-    "valorisation": 7.0,
     "bilan": 8.5
    },
-   "abstentions": []
+   "abstentions": [
+    "valorisation"
+   ]
   },
   "INV": {
    "famille": "autre",
@@ -804,18 +806,18 @@
   "JET": {
    "famille": "btp",
    "score_fond_main": 4.4,
-   "score_fond_branche": 4.7,
+   "score_fond_branche": 4.1,
    "v53_main": 4.44,
-   "v53_branche": 4.68,
+   "v53_branche": 4.21,
    "signal_main": "ÉVITER",
-   "signal_branche": "ATTENDRE",
+   "signal_branche": "ÉVITER",
    "confiance_main": 5,
    "confiance_branche": 5,
    "poids_disponible": 100,
    "composantes": {
     "rentabilite": 5.0,
     "croissance": 3.0,
-    "valorisation": 7.0,
+    "valorisation": 4.0,
     "bilan": 4.0
    },
    "abstentions": []
@@ -905,7 +907,7 @@
    "signal_main": "ATTENDRE",
    "signal_branche": "Données insuffisantes",
    "confiance_main": 2,
-   "confiance_branche": 2,
+   "confiance_branche": 1,
    "poids_disponible": 0,
    "composantes": {},
    "abstentions": [
@@ -918,9 +920,9 @@
   "MGL": {
    "famille": "financement",
    "score_fond_main": 6.75,
-   "score_fond_branche": 6.72,
+   "score_fond_branche": 6.94,
    "v53_main": 6.75,
-   "v53_branche": 6.72,
+   "v53_branche": 6.94,
    "signal_main": "SURVEILLER ★",
    "signal_branche": "SURVEILLER ★",
    "confiance_main": 2,
@@ -929,7 +931,7 @@
    "composantes": {
     "rentabilite": 6.0,
     "croissance": 6.5,
-    "valorisation": 8.5
+    "valorisation": 9.5
    },
    "abstentions": [
     "bilan"
@@ -995,9 +997,9 @@
   "MRL": {
    "famille": "financement",
    "score_fond_main": 5.25,
-   "score_fond_branche": 4.94,
+   "score_fond_branche": 5.28,
    "v53_main": 5.25,
-   "v53_branche": 4.94,
+   "v53_branche": 5.28,
    "signal_main": "ATTENDRE",
    "signal_branche": "ATTENDRE",
    "confiance_main": 2,
@@ -1006,7 +1008,7 @@
    "composantes": {
     "rentabilite": 3.5,
     "croissance": 5.5,
-    "valorisation": 7.0
+    "valorisation": 8.5
    },
    "abstentions": [
     "bilan"
@@ -1137,7 +1139,7 @@
    "signal_main": "ÉVITER",
    "signal_branche": "Données insuffisantes",
    "confiance_main": 2,
-   "confiance_branche": 2,
+   "confiance_branche": 1,
    "poids_disponible": 40,
    "composantes": {
     "croissance": 1.5,
@@ -1195,7 +1197,7 @@
    "signal_main": "ATTENDRE",
    "signal_branche": "Données insuffisantes",
    "confiance_main": 2,
-   "confiance_branche": 2,
+   "confiance_branche": 1,
    "poids_disponible": 0,
    "composantes": {},
    "abstentions": [
@@ -1227,9 +1229,9 @@
   "SGTM": {
    "famille": "btp",
    "score_fond_main": 6.9,
-   "score_fond_branche": 7.2,
+   "score_fond_branche": 6.9,
    "v53_main": 6.15,
-   "v53_branche": 6.38,
+   "v53_branche": 6.15,
    "signal_main": "SURVEILLER ★",
    "signal_branche": "SURVEILLER ★",
    "confiance_main": 5,
@@ -1238,7 +1240,7 @@
    "composantes": {
     "rentabilite": 9.5,
     "croissance": 4.5,
-    "valorisation": 5.5,
+    "valorisation": 4.0,
     "bilan": 9.5
    },
    "abstentions": []
@@ -1246,18 +1248,18 @@
   "SLM": {
    "famille": "financement",
    "score_fond_main": 5.95,
-   "score_fond_branche": 5.72,
+   "score_fond_branche": 5.39,
    "v53_main": 5.95,
-   "v53_branche": 5.72,
+   "v53_branche": 5.39,
    "signal_main": "SURVEILLER ★",
-   "signal_branche": "SURVEILLER ★",
+   "signal_branche": "ATTENDRE",
    "confiance_main": 2,
    "confiance_branche": 2,
    "poids_disponible": 90,
    "composantes": {
     "rentabilite": 6.0,
     "croissance": 5.5,
-    "valorisation": 5.5
+    "valorisation": 4.0
    },
    "abstentions": [
     "bilan"
@@ -1368,7 +1370,7 @@
    "signal_main": "ATTENDRE",
    "signal_branche": "Données insuffisantes",
    "confiance_main": 4,
-   "confiance_branche": 3,
+   "confiance_branche": 1,
    "poids_disponible": 0,
    "composantes": {},
    "abstentions": [
@@ -1407,10 +1409,10 @@
    "signal_main": "ATTENDRE",
    "signal_branche": "Données insuffisantes",
    "confiance_main": 4,
-   "confiance_branche": 4,
+   "confiance_branche": 1,
    "poids_disponible": 20,
    "composantes": {
-    "valorisation": 5.5
+    "valorisation": 4.0
    },
    "abstentions": [
     "rentabilite",
@@ -1421,9 +1423,9 @@
   "TGCC": {
    "famille": "btp",
    "score_fond_main": 6.75,
-   "score_fond_branche": 7.05,
+   "score_fond_branche": 6.45,
    "v53_main": 6.03,
-   "v53_branche": 6.27,
+   "v53_branche": 5.8,
    "signal_main": "SURVEILLER ★",
    "signal_branche": "SURVEILLER ★",
    "confiance_main": 5,
@@ -1432,7 +1434,7 @@
    "composantes": {
     "rentabilite": 8.5,
     "croissance": 4.5,
-    "valorisation": 7.0,
+    "valorisation": 4.0,
     "bilan": 9.0
    },
    "abstentions": []
@@ -1498,9 +1500,9 @@
   "VCNE": {
    "famille": "autre",
    "score_fond_main": 6.1,
-   "score_fond_branche": 6.39,
+   "score_fond_branche": 6.06,
    "v53_main": 5.7,
-   "v53_branche": 5.93,
+   "v53_branche": 5.67,
    "signal_main": "SURVEILLER ★",
    "signal_branche": "SURVEILLER ★",
    "confiance_main": 5,
@@ -1509,7 +1511,7 @@
    "composantes": {
     "rentabilite": 6.0,
     "croissance": 6.5,
-    "valorisation": 7.0
+    "valorisation": 5.5
    },
    "abstentions": [
     "bilan"
