@@ -955,4 +955,9 @@ TICKERS_ALL: list = [
 #   de référence unique (10 %), modificateurs momentum / rerating / cycle
 #   retirés (33 titres bonifiés de +0,25 à +1,0, aucun pénalisé), croissance
 #   et PER seulement tirés des comptes, sinon non évalués.
-SCORE_VERSION = "v5.3-sans-saisie-2026-10-02"
+#   v5.3-fond-sectoriel-2026-10-10 : la note fondamentale suit la FAMILLE du
+#   titre (banque, assurance, foncière, promoteur, mines…, voir FAMILLES_NOTE),
+#   valorisations relatives à la médiane de la famille ; un critère sans donnée
+#   s'abstient ; moins de la moitié du poids : « Données insuffisantes ». Les
+#   poids des piliers (65,28 / 34,72 / 0) ne changent pas.
+SCORE_VERSION = "v5.3-fond-sectoriel-2026-10-10"
