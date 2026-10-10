@@ -160,7 +160,7 @@ def _nombre_d_actions_releve(f):
         return lu
     ref = f.get("nombre_actions_referentiel")
     if (isinstance(ref, dict) and ref.get("origine") == "operateur"
-            and "non publié au dépôt" in (ref.get("motif") or "")
+            and ref.get("motif") == "non publié au dépôt"
             and isinstance(ref.get("valeur"), (int, float)) and ref["valeur"] > 0):
         return ref
     return None
