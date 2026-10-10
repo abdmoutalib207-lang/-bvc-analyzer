@@ -12,3 +12,10 @@ pytest>=8.0
 # le test s'abstenait en CI — et c'est en CI qu'il doit parler : il vérifie que
 # le workflow juge bien le fichier qu'il prétend juger.
 PyYAML>=6.0
+
+# Import du second pipeline par tests/test_note_sectorielle_branchement.py :
+# `collect_financial_data` charge `pipeline/scrapers/market.py`, qui importe
+# bs4. Déclaré dans pipeline/requirements_pipeline.txt, mais la CI et la garde
+# d'update_bvc n'installent que ce fichier — sans cette ligne, le test tombait
+# en CI le 10/10/2026 (ModuleNotFoundError: bs4) et passait en local.
+beautifulsoup4>=4.12.0
