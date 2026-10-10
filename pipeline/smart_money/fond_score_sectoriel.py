@@ -178,11 +178,17 @@ def _roe(sym, fiche, bpa, s1) -> dict | None:
     return {"valeur": base["valeur"], "base": f"fonds propres de clôture {cloture}"}
 
 
-def _publie(fiche, sym, cle) -> float | None:
-    """Un ratio par LA porte (`ratio_effectif`), mais seulement s'il vient des
-    comptes publiés : la porte retombe sur la saisie, cette grille ne la lit pas."""
+def _publie_complet(fiche, sym, cle) -> dict | None:
+    """Un ratio par LA porte (`ratio_effectif`), avec sa date, mais seulement
+    s'il vient des comptes publiés : la porte retombe sur la saisie, cette
+    grille ne la lit pas. Aucun accès direct à `ratios_publies` ailleurs."""
     r = ratio_effectif(fiche, sym, cle)
-    return r["valeur"] if r and r.get("origine") == "comptes publiés" else None
+    return r if r and r.get("origine") == "comptes publiés" else None
+
+
+def _publie(fiche, sym, cle) -> float | None:
+    r = _publie_complet(fiche, sym, cle)
+    return r["valeur"] if r else None
 
 
 def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict | None,
@@ -191,7 +197,6 @@ def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict |
     """Tout ce que la note lit pour UN titre, rassemblé et daté. Pure."""
     fiche, bpa, s1 = fiche or {}, bpa or {}, s1 or {}
     fam = famille_note(sym)
-    rp = fiche.get("ratios_publies") or {}
 
     # Fonds propres négatifs : consolidés, part du groupe, ou S1.
     fp_vals = [_fait(faits, "capitaux_propres_part_groupe"), _fait(faits, "capitaux_propres_consolides"),
@@ -210,7 +215,7 @@ def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict |
     px = _num(prix) if prix and prix > 0 else None
 
     # Dette nette, EBITDA, fonds propres à la MÊME date (31/12/2025).
-    dn = rp.get("dette_nette") if isinstance(rp.get("dette_nette"), dict) else None
+    dn = _publie_complet(fiche, sym, "dette_nette")
     dette_nette = _num(dn.get("valeur")) if dn else None
     fp_cons = _fait(faits, "capitaux_propres_consolides")
     fp_pg = _fait(faits, "capitaux_propres_part_groupe")
@@ -222,7 +227,7 @@ def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict |
 
     # VE / EBITDA : capitalisation du jour + dette nette + minoritaires, ÷ EBITDA 2025.
     ve = None
-    eb = rp.get("ebitda") if isinstance(rp.get("ebitda"), dict) else None
+    eb = _publie_complet(fiche, sym, "ebitda")
     ebitda = _num(eb.get("valeur")) if eb else None
     actions = _num(s1.get("actions")) or _num(fiche.get("nb_actions"))
     if px and actions and ebitda and ebitda > 0 and dette_nette is not None and (dn or {}).get("date") == "2025-12-31":
@@ -242,7 +247,7 @@ def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict |
         "roic": _publie(fiche, sym, "roic"),
         "dne": _publie(fiche, sym, "dette_nette_ebitda"),
         "cc": _publie(fiche, sym, "cash_conversion"),
-        "dette_nette": _publie(fiche, sym, "dette_nette"),
+        "dette_nette": dette_nette,
         "gearing": gearing,
         "croissance_bpa": _num(fiche.get("croissance_bpa")) if s1_ok else None,
         "croissance_ca": _num(fiche.get("croissance_ca")) if s1_ok else None,

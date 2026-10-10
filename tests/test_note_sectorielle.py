@@ -166,6 +166,27 @@ def test_aucune_saisie_n_est_lue():
     assert e["roic"] is None and e["dne"] is None and e["cc"] is None
 
 
+def test_dette_nette_et_ebitda_passent_par_la_porte_unique():
+    # Relecture du 10/10/2026 : `construire_entree` lisait encore `ratios_publies`
+    # en direct pour la dette nette et l'EBITDA. MSA (en vérification) les aurait
+    # fait entrer dans son bilan et dans un VE/EBITDA.
+    fiche = _fiche("Transport", dette_nette=500.0, ebitda=300.0)
+    fiche["ratios_publies"]["dette_nette"]["date"] = "2025-12-31"
+    kw = dict(s1={"actions": 1_000_000}, faits=_faits(1000.0, 1000.0), prix=100.0)
+    msa = _entree("MSA", fiche, **kw)
+    assert msa["gearing"] is None and msa["ve_ebitda"] is None and msa["dette_nette"] is None
+    autre = _entree("ALU", fiche, **kw)
+    assert autre["gearing"] is not None and autre["ve_ebitda"] is not None
+
+
+def test_aucun_acces_direct_a_ratios_publies_dans_le_code():
+    import ast
+    arbre = ast.parse(Path(fs.__file__).read_text(encoding="utf-8"))
+    directs = [n.lineno for n in ast.walk(arbre)
+               if isinstance(n, ast.Constant) and n.value == "ratios_publies"]
+    assert not directs, f"lecture directe de ratios_publies (ligne {directs}) : passer par la porte unique"
+
+
 # ── 4. exclusions ────────────────────────────────────────────────────────
 
 def test_sans_comptes_n_a_pas_de_note_et_sort_des_medianes():
