@@ -893,3 +893,18 @@ Relevé pour le briefing de clôture enrichi (`pipeline/seance_marche.py`).
 - Effet mesuré le jour même : 5/5 passe de 29 à 44 titres, aucune note v5.3
   ne bouge, un seul signal change (IBM → « Données insuffisantes »,
   registre `SANS_COMPTES`).
+
+## Fonds propres, lot 1 (10/10/2026) : pièges de relevé
+
+- `test_fonds_propres._degrouper_citation` prenait un montant en dirhams AVEC
+  centimes ≥ 1 milliard (« 2.618.746.244,31 », 12 chiffres) pour deux colonnes
+  recollées : borne désormais sur la partie entière.
+- Un « nombre d'actions non publié par le dépôt » peut l'être : REB p.47 (état
+  C1, « Total 176456 »), SMI p.55, SRM p.18. Chercher l'état de répartition du
+  capital avant de conclure ; CAR, PPM, STR n'en ont pas.
+- Vicenne : nombre de titres jamais écrit, déduit de 86 584 694 (dividendes
+  p.39) ÷ 8,44/action (p.13) = 10 258 850, égal à l'opérateur.
+- SBS : la note 2.1 « Capitaux propres consolidés - part groupe » (p.62) donne
+  la part du groupe en MMAD ; JET : part du groupe = somme des lignes du groupe,
+  non imprimée (dérivé, dit en note).
+- Ennakl : comptes en TND, pas de P/B en MAD sans taux de change sourcé.

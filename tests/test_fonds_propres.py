@@ -140,7 +140,11 @@ def _degrouper_citation(jeton):
     Un nombre IMPAIR de groupes ne se découpe pas ainsi : on rend None plutôt
     que de choisir. Une lecture ambiguë se dit, elle ne se devine pas.
     """
-    if len(re.sub(r"\D", "", jeton)) <= 11:
+    # ⚠️ 10/10/2026 : la borne porte sur la PARTIE ENTIÈRE. Un montant en
+    # dirhams AVEC CENTIMES — « 2.618.746.244,31 », Delta Holding — compte
+    # 12 chiffres bien qu'il n'en ait que 10 avant la virgule ; il était alors
+    # pris pour deux colonnes recollées et coupé en « 2.618 » et « 746.244,31 ».
+    if len(re.sub(r"\D", "", jeton.split(",")[0])) <= 11:
         return [jeton]
     groupes = re.split(r"[\s\u00a0.]", jeton)
     if len(groupes) < 2 or len(groupes) % 2:
