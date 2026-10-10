@@ -10,6 +10,16 @@ Composantes [0-10]:
   Bilan         10%  Dette/EBITDA + cash conversion
 
 Modificateurs: momentum, rerating, cycle_commodities
+
+⚠️ CETTE GRILLE N'EST PLUS CELLE DE LA NOTE PUBLIÉE (10/10/2026, décision
+d'Abd Moutalib). `score_fond` suit désormais la grille de la FAMILLE du titre :
+voir `fond_score_sectoriel.py`. Ce module reste la source de TROIS choses :
+la porte unique des ratios (`ratio_effectif`, `roe_effectif`, garde-fous
+`ROE_SANS_OBJET` et `RATIOS_EN_VERIFICATION`), les références WACC_REF et
+COUT_FONDS_PROPRES_REF, et les paliers que la grille par famille reprend
+(épinglés par tests/test_note_sectorielle.py). `compute_fond_score` ne sert
+plus qu'à la note provisoire de la boucle d'`update_data.py`, remplacée au
+second passage.
 """
 import json
 from pathlib import Path

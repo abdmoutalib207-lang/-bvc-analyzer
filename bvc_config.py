@@ -789,6 +789,50 @@ def sans_comptes(ticker: str) -> dict | None:
     return SANS_COMPTES.get(ticker)
 
 
+# ⚠️ FAMILLES DE LA NOTE FONDAMENTALE — 10/10/2026, décision d'Abd Moutalib :
+# la note suit « les règles de l'art du marché marocain, selon la spécificité
+# de chaque secteur ». Spécification de l'agent verificateur-finance.
+#
+# Par LISTE EXPLICITE de tickers, jamais par préfixe de `COMPANY_SECTORS` :
+# ce dernier range ensemble des métiers qui ne se notent pas pareil (« Finance »
+# réunit crédit-bail, paiement et crédit à la consommation ; « Assurance »
+# réunit assureurs et courtiers ; « Immobilier » réunit foncières et
+# promoteurs). Un titre absent de ces listes relève de la famille « autre »
+# (industrie, distribution, services) — la grille d'origine.
+#
+# Cas à relire, laissés tels que la spécification les range :
+#   · AFM, AGM — « Assurance » au référentiel, mais COURTIERS : pas de ROE
+#     exploitable (`ROE_SANS_OBJET`), notés comme des sociétés de services.
+#   · REB — « Industrie » au référentiel, traité en HOLDING (Rebab Company).
+#   · DHO — « Holding » au référentiel (Delta Holding), laissé dans « autre ».
+#   · ZLD — « Industrie » au référentiel ; groupe diversifié (Zellidja), laissé
+#     dans « autre » faute de pièce tranchant son métier.
+#   · DIS — « Finance », en liquidation : famille « financement », exclu des
+#     médianes et de la note par `SANS_COMPTES`.
+FAMILLES_NOTE: dict = {
+    "banque":     ("ATW", "BCP", "BMC", "BOA", "CDM", "CFGB", "CIH"),
+    "assurance":  ("ATL", "WAF", "SAF"),
+    "financement": ("EQD", "MGL", "MRL", "SLM", "DIS"),
+    "paiement":   ("CASH",),
+    "holding":    ("REB",),
+    "fonciere":   ("ARD", "IMI", "BAL"),
+    "promoteur":  ("ADH", "ADI", "RDS"),
+    "btp":        ("JET", "SGTM", "TGCC"),
+    "mines":      ("CMT", "MNG", "SMI"),
+    "telecom":    ("IAM",),
+    "utility":    ("TQA",),
+}
+FAMILLE_NOTE_PAR_DEFAUT: str = "autre"
+
+
+def famille_note(ticker: str) -> str:
+    """La famille de notation fondamentale d'un titre (liste explicite)."""
+    for fam, titres in FAMILLES_NOTE.items():
+        if ticker in titres:
+            return fam
+    return FAMILLE_NOTE_PAR_DEFAUT
+
+
 def est_suspendu(ticker: str, date_iso: str | None = None) -> dict | None:
     """Renvoie la suspension en vigueur à `date_iso`, ou None.
 
