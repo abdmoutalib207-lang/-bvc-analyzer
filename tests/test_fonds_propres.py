@@ -443,9 +443,9 @@ def test_le_releve_progresse_et_ne_recule_pas(faits):
                    if any(k in faits[t]["faits"] for k in
                           ("nombre_actions_existant", "nombre_actions_au_rapport",
                            "nombre_actions_retenu_pour_le_bpa"))]
-    assert len(calculables) >= 30, (
+    assert len(calculables) >= 55, (
         f"{len(calculables)} émetteurs seulement ont de quoi calculer un "
-        "P/BOOK — le relevé du 16/09 en avait porté 30 sur 80, dont 29 qui donnent un ratio (Stokvis a des fonds propres négatifs). Une baisse "
+        "P/BOOK — le relevé du 16/09 en avait porté 30 sur 80 (29 avec un ratio, Stokvis a des fonds propres négatifs) ; 55 au 10/10/2026 avec les huit établissements financiers. Une baisse "
         "signale un fait perdu, pas un progrès.")
 
     # ⚠️ CE PLANCHER SE REMONTE À CHAQUE LOT, sinon il cesse de mordre : à 21

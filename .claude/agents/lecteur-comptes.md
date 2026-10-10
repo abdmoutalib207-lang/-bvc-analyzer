@@ -275,6 +275,29 @@ fusion** : la fusion est la décision d'Abd Moutalib.
 - (05/10) Un dépôt de comptes consolidés peut classer le résultat sous « Capitaux propres (Part
   du groupe) » sans ligne « RNPG » au CPC (M2M p.4 : « Résultat consolidé 5 305 374 ») : c'est
   une LECTURE, recoupée par ensemble − minoritaires (6 545 127 − 1 239 753).
+- (10/10, P/B des financières) Le bilan IFRS d'une banque n'imprime souvent PAS de total « part
+  du groupe » (ATW, BCP, BOA) : le total se lit au TABLEAU DE VARIATION (colonne « capitaux
+  propres part du groupe »), ou se somme (capital et réserves liées + réserves PG + gains et
+  pertes PG + résultat PG), puis se recoupe par total − minoritaires. BCP : le tableau (41 452 033)
+  inclut 4 477 044 de fonds spéciaux de garantie que le bilan classe hors capitaux propres
+  (36 974 989) ; convention du dépôt : le bilan, l'autre chiffre consigné.
+- (10/10) Une opération sur le capital POSTÉRIEURE à la clôture interdit le P/B tant que son produit
+  n'est pas dans un bilan : CDM (+745 285 actions) et CIH (+3 035 714, 28/07/2026) ont un livre du
+  31/12/2025 et un nombre d'actions de l'opérateur d'après ; `_actions_sourcees` lit l'opérateur
+  EN PREMIER, donc écrire le fait avec le nombre « au rapport » ne corrigerait rien. Lus, consignés
+  dans `fonds_propres_reperes_mais_non_retenus`, non écrits en fait. Sanlam : même motif (fusion).
+- (10/10) Le RFA d'un courtier (Agma) ne publie que le SOCIAL (page IMAGE) ; son consolidé 2025 n'est
+  qu'au communiqué (CA, REX, RNPG, pas de livre) : P/B écarté, pas de mélange de bases.
+- (10/10) `test_fonds_propres._nombres_cites` découpe MAL les lignes de tableau où des colonnes se
+  recollent (« 888 506 886 676 884 317 » → 2 nombres faux ; « -38.875 107.295 » → 1) et compte
+  l'année d'une date (« 31.12.2025 », « 2025 ») comme un nombre : citer le MORCEAU de ligne qui
+  s'analyse (« 31 794 360 8 632 078 40 426 438 ») et mettre la ligne entière en seconde citation,
+  vérifier avec `_nombres_cites` AVANT de lancer la suite. Un montant calculé (somme) reçoit un rang
+  au-delà des nombres cités, dit dans la note.
+- (10/10) Noms de fichiers : Sanlam = `Sanlam_RFA_2025.pdf` (ni `Sanlam_Maroc_RFA_2025`, 404),
+  BOA = `BOA_RFA_2025_0.pdf`, BMCI = `BMCI_RFA_2025.pdf` (357 p.), Maroc Leasing = `MLE_RFA_2025.pdf`,
+  BCP : pas de RFA au catalogue, `BCP_2025_0.pdf` (comptes consolidés IFRS, 42 p.). yuna.ma répond
+  429 depuis ce poste : pas de rebouclage extérieur possible ce jour-là, à dire.
 - (10/10) Le texte extrait d'une attestation peut renverser son sens : TMA p.4 sort « ne donnent
   pas une image fidèle » alors que la page rendue dit « nous n'avons pas relevé de faits qui nous
   laissent penser que [...] ne donnent pas une image fidèle » (forme négative standard, sans
