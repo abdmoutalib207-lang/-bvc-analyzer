@@ -217,6 +217,14 @@ def enregistrer(ligne: dict, asof: str, chemin: Path | None = None,
             return False
         if connu == etat:
             return False
+        # ⚠️ 09/10/2026 : CDG a servi, d'un run à l'autre, deux relevés de la
+        # même séance close — 122,65 puis 129,04 M DH, puis de nouveau 122,65
+        # (bulletin : 129,04). Un volume cumulé ne recule pas dans une
+        # séance : un état qui en annonce moins est plus ancien que celui
+        # déjà enregistré, on garde ce dernier EN ENTIER (largeur comprise,
+        # pour ne pas mélanger deux relevés).
+        if (connu.get("volume_mad") or 0) > (etat.get("volume_mad") or 0):
+            return False
     seances[jour] = etat
 
     charge = {}
