@@ -931,6 +931,39 @@ const WBar=({f,n,t})=>(
     <div style={{width:`${t}%`,background:"#4db8ff"}} title={`Tech ${t}%`}/>
   </div>
 );
+/* ⚠️ COUVERTURE DE LA NOTE FONDAMENTALE — 10/10/2026. La note suit la grille de
+   la FAMILLE du titre (banque, foncière, mines…) ; un critère sans donnée
+   s'abstient et son poids passe aux autres. La fiche dit donc de quelle famille
+   il s'agit et quelle part de la grille repose sur des données — sous 50 %, pas
+   de note. Le détail s'ouvre : chaque critère, sa mesure, ce qui s'est abstenu. */
+const FAMILLES_NOTE_LIB={banque:"banque",assurance:"assurance",financement:"financement et crédit-bail",
+  paiement:"paiement",holding:"holding",fonciere:"foncière",promoteur:"promoteur immobilier",btp:"BTP",
+  mines:"mines",telecom:"télécom",utility:"services collectifs",autre:"industrie, distribution, services"};
+const CRITERES_NOTE_LIB={rentabilite:"Rentabilité",croissance:"Croissance",valorisation:"Valorisation",bilan:"Bilan"};
+const NoteFond=({nf})=>{
+  if(!nf) return null;
+  const comp=nf.composantes||{}, abst=nf.abstentions||{};
+  const pds=nf.poids_disponible??0;
+  const fam=FAMILLES_NOTE_LIB[nf.famille]||nf.famille;
+  const sansNote=nf.note==null;
+  return (
+    <details style={{marginTop:6,fontSize:10.5,color:"#8892a4"}}>
+      <summary style={{cursor:"pointer"}}>
+        Note fondamentale par famille : <span style={{color:"#c8d3e8"}}>{fam}</span>
+        {" · "}couverture de la grille <span style={{color:sansNote?"#ff8a65":"#c8d3e8"}}>{pds} %</span>
+        {sansNote&&<span style={{color:"#ff8a65"}}> — moins de la moitié : note non calculée</span>}
+      </summary>
+      <div style={{marginTop:4,lineHeight:1.5}}>
+        {Object.entries(comp).map(([k,v])=>(
+          <div key={k}><span style={{color:"#c8d3e8"}}>{CRITERES_NOTE_LIB[k]||k}</span> ({v.poids} %) : {fmt(v.note,1)} — {v.mesure}</div>
+        ))}
+        {Object.entries(abst).map(([k,raison])=>(
+          <div key={k} style={{color:"#5a6478"}}>{CRITERES_NOTE_LIB[k]||k} : abstention — {raison}</div>
+        ))}
+      </div>
+    </details>
+  );
+};
 /* ⚠️ LES LOGOS VIENNENT DU SITE OFFICIEL DE CHAQUE SOCIÉTÉ — 30/09/2026.
    Relevés par tools/recuperer_logos.py, miniaturisés (64 px), relus à l'œil
    et consignés dans datasets/logos/registre.json (site, fichier, date,
@@ -3444,6 +3477,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               <RedFlags alertes={r.alertes}/>
             </div>
             {pdsAff&&<WBar f={pdsAff.f} n={pdsAff.n} t={pdsAff.t}/>}
+            <NoteFond nf={r.note_fond}/>
             <div style={{marginTop:10}}>
               {/* ⚠️ En simulation la note est une moyenne pondérée PURE :
                   computeDisplayScore n'applique ni bonus ni malus. Écrire
@@ -4465,6 +4499,11 @@ function App(){
              énumération de quarante champs cache ce qui lui manque ». Elle
              l'a caché une fois de plus. */
           rang_secteur:t.rang_secteur, niveaux:t.niveaux,
+          /* ⚠️ La note fondamentale PAR FAMILLE (10/10/2026) : famille, poids
+             de la grille réellement disponible, composantes et abstentions.
+             Sans elle, `score_fond` s'afficherait sans rien dire de ce qui
+             l'a produit. */
+          note_fond:t.note_fond,
           /* ⚠️ Le montant RÉEL de la séance et les bornes de réservation,
              collectés depuis le 25/09. `vol` était déjà là ; le montant,
              non — le projet l'approchait par `volume × clôture`. */
