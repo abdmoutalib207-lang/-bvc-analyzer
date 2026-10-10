@@ -98,13 +98,15 @@ def test_un_titre_note_recoit_la_note_de_sa_famille_et_son_v53(monkeypatch):
     update_data.appliquer_note_sectorielle(out, {"ALU": _passe1("ALU")}, fondamentaux=fond,
                                            bpa={"ALU": {"bpa_12m": 10.0}}, faits={}, s1={})
     e = out[0]
-    # Seul titre de l'univers : médiane du marché = son propre PER → ratio 1,0 → 7,0.
-    # rentabilité 9,5 (×40) ; croissance 9,0 (×30) ; valorisation 7,0 (×20) ; bilan 9,0 (×10)
-    # (380 + 270 + 140 + 90) ÷ 100 = 8,8
-    assert e["score_fond"] == 8.8 and e["note_fond"]["famille"] == "autre"
-    # v53 = 5,0 × t + 8,8 × f aux poids du contexte, jamais d'autres poids.
+    # Seul titre de l'univers : aucun pair, aucun marché hors lui → la valorisation
+    # s'abstient (elle ne se compare plus à elle-même). Reste, sur 80 points :
+    # rentabilité 9,5 (×40) ; croissance 9,0 (×30) ; bilan 9,0 (×10)
+    # (380 + 270 + 90) ÷ 80 = 9,25
+    assert e["score_fond"] == 9.25 and e["note_fond"]["famille"] == "autre"
+    assert e["note_fond"]["poids_disponible"] == 80 and "valorisation" in e["note_fond"]["abstentions"]
+    # v53 = 5,0 × t + 9,25 × f aux poids du contexte, jamais d'autres poids.
     p = update_data.get_weights({"market_status": "CLOSED"})
-    assert e["v53"] == round(min(max(5.0 * p["technique"] + 8.8 * p["fondamental"], 0), 10), 2)
+    assert e["v53"] == round(min(max(5.0 * p["technique"] + 9.25 * p["fondamental"], 0), 10), 2)
     assert e["sig"].startswith("ACHETER")
 
 

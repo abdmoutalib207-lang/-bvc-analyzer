@@ -50,10 +50,19 @@ LES PRINCIPES
 3. Un critère sans donnée S'ABSTIENT ; les poids se répartissent entre les
    critères présents. Moins de la MOITIÉ du poids disponible : pas de note
    (« Données insuffisantes »), jamais une note par défaut.
-4. Valorisation RELATIVE : le ratio du titre rapporté à la médiane de sa
-   FAMILLE (au moins 3 titres, sinon médiane du marché). Les sociétés sans
-   comptes (`SANS_COMPTES`), à fonds propres négatifs ou suspendues sont
-   écartées des médianes.
+4. Valorisation RELATIVE : le ratio du titre rapporté à la médiane de ses
+   PAIRS — les autres titres de sa famille, LE TITRE NOTÉ EXCLU (leave-one-out) :
+   un titre médian qui se comparerait à lui-même obtiendrait 7,0 par
+   construction (relecture du 10/10/2026 : CMT 22,7/22,7, ARD 1,00/1,00). Au
+   moins 3 pairs ; sinon médiane du marché hors le titre, et la `mesure` le
+   dit. Les sociétés sans comptes (`SANS_COMPTES`), à fonds propres négatifs ou
+   suspendues sont écartées des médianes.
+   ⚠️ LIMITE : faute de 3 pairs, sont notés CONTRE LE MARCHÉ — assurance
+   (ATL, WAF : un seul pair avec PER), télécom, utility, paiement, promoteurs,
+   BTP et mines (2 pairs au plus). Une assurance comparée au PER médian de la
+   cote ne mesure pas un écart de valorisation de pair, seulement un écart à un
+   marché d'autres métiers ; le P/B des foncières et du holding, lui, s'abstient
+   plutôt que de se comparer au marché (un P/B se lit par métier).
 5. Aucun modificateur d'opinion (momentum, rerating, cycle) : non mesurés.
 
 LES PALIERS — aucun n'est inventé ici
@@ -90,7 +99,7 @@ from pipeline.smart_money.fond_score import (  # noqa: E402
 # epsilon près », et le seuil d'abstention se joue précisément à 50.
 POIDS = {"rentabilite": 40, "croissance": 30, "valorisation": 20, "bilan": 10}
 SEUIL_POIDS = 50          # moins de la moitié du poids disponible : pas de note
-MIN_TITRES_FAMILLE = 3    # médiane de famille : au moins 3 titres
+MIN_PAIRS = 3             # médiane de référence : au moins 3 pairs (titre noté exclu)
 
 FINANCIERES = ("banque", "assurance", "financement", "paiement")
 MOTIF_SANS_COMPTES = "société sans comptes déposés (SANS_COMPTES)"
@@ -258,10 +267,12 @@ def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict |
 # ───────────────────────────── médianes ─────────────────────────────
 
 def calculer_medianes(entrees: list[dict]) -> dict:
-    """Médianes de référence par famille et pour le marché, pour chaque ratio.
+    """Les valeurs de référence par famille et pour le marché, pour chaque ratio.
 
-    {ratio: {"famille": {fam: (médiane, n)}, "marche": (médiane, n)}}.
-    Écartés : `hors_mediane` (sans comptes, fonds propres négatifs, suspendu).
+    {ratio: {"famille": {fam: [(titre, valeur), ...]}, "marche": [(titre, valeur), ...]}}.
+    On garde les valeurs ET les titres : la médiane se calcule ensuite SANS le
+    titre noté (`_reference`). Écartés : `hors_mediane` (sans comptes, fonds
+    propres négatifs, suspendu).
     """
     def valeur(e, k):
         if k == "per":
@@ -277,22 +288,27 @@ def calculer_medianes(entrees: list[dict]) -> dict:
             v = valeur(e, k)
             if e["hors_mediane"] or v is None or v <= 0:
                 continue
-            par_fam.setdefault(e["famille"], []).append(v)
-            tous.append(v)
-        out[k] = {"famille": {f: (statistics.median(v), len(v)) for f, v in par_fam.items()},
-                  "marche": (statistics.median(tous), len(tous)) if tous else (None, 0)}
+            par_fam.setdefault(e["famille"], []).append((e["sym"], v))
+            tous.append((e["sym"], v))
+        out[k] = {"famille": par_fam, "marche": tous}
     return out
 
 
-def _reference(medianes: dict, k: str, fam: str, repli_marche: bool = True):
-    """(médiane, libellé) : la famille si ≥ 3 titres, sinon le marché, sinon rien."""
-    m, n = medianes[k]["famille"].get(fam, (None, 0))
-    if m and n >= MIN_TITRES_FAMILLE:
-        return m, f"médiane de la famille « {fam} » ({n} titres)"
+def _reference(medianes: dict, k: str, fam: str, sym: str, repli_marche: bool = True):
+    """(médiane, libellé) des PAIRS du titre `sym`, lui-même exclu.
+
+    Les autres titres de la famille s'ils sont au moins `MIN_PAIRS` ; sinon le
+    marché hors le titre ; sinon rien (`repli_marche=False`, ou aucune donnée).
+    """
+    pairs = [v for t, v in medianes[k]["famille"].get(fam, []) if t != sym]
+    if len(pairs) >= MIN_PAIRS:
+        return statistics.median(pairs), f"médiane des {len(pairs)} autres titres de la famille « {fam} »"
     if repli_marche:
-        m, n = medianes[k]["marche"]
-        if m:
-            return m, f"médiane du marché ({n} titres ; famille « {fam} » : moins de {MIN_TITRES_FAMILLE})"
+        autres = [v for t, v in medianes[k]["marche"] if t != sym]
+        if autres:
+            return statistics.median(autres), (
+                f"médiane du marché hors {sym} ({len(autres)} titres ; famille « {fam} » : "
+                f"{len(pairs)} pair(s), moins de {MIN_PAIRS})")
     return None, None
 
 
@@ -351,20 +367,20 @@ def noter(e: dict, medianes: dict) -> dict:
             return "bpa_12m absent"
         if e["bpa_12m"] <= 0:
             return None                         # perte : traitée par l'appelant
-        ref, lib = _reference(medianes, "per", fam)
+        ref, lib = _reference(medianes, "per", fam, e["sym"])
         if ref is None:
             return "aucune médiane de référence"
-        poser("valorisation", f"PER 12 m {e['per']:.1f} ÷ {lib} {ref:.1f}",
+        poser("valorisation", f"PER 12 m {e['per']:.1f} ÷ {lib} = {ref:.1f}",
               note_relatif(e["per"] / ref), pb_affiche=e["pb"])
         return "ok"
 
     def par_pb(raison_perte=False):
         if e["pb"] is None:
             return "P/B non calculable sur faits sourcés"
-        ref, lib = _reference(medianes, "pb", fam, repli_marche=False)
+        ref, lib = _reference(medianes, "pb", fam, e["sym"], repli_marche=False)
         if ref is None:
-            return f"P/B : moins de {MIN_TITRES_FAMILLE} titres dans la famille « {fam} »"
-        poser("valorisation", f"P/B {e['pb']:.2f} ÷ {lib} {ref:.2f}"
+            return f"P/B : moins de {MIN_PAIRS} pairs dans la famille « {fam} » (le titre exclu), pas de repli sur le marché"
+        poser("valorisation", f"P/B {e['pb']:.2f} ÷ {lib} = {ref:.2f}"
                               + (" (résultat 12 mois ≤ 0 : P/B à la place du PER)" if raison_perte else ""),
               note_relatif(e["pb"] / ref))
         return "ok"
@@ -374,11 +390,11 @@ def noter(e: dict, medianes: dict) -> dict:
         if r != "ok":
             abst["valorisation"] = r
     elif fam == "mines" and e["ve_ebitda"] is not None:
-        ref, lib = _reference(medianes, "ve_ebitda", fam)
+        ref, lib = _reference(medianes, "ve_ebitda", fam, e["sym"])
         if ref is None:
             abst["valorisation"] = "aucune médiane VE/EBITDA"
         else:
-            poser("valorisation", f"VE/EBITDA {e['ve_ebitda']['valeur']:.1f} ({e['ve_ebitda']['mesure']}) ÷ {lib} {ref:.1f}",
+            poser("valorisation", f"VE/EBITDA {e['ve_ebitda']['valeur']:.1f} ({e['ve_ebitda']['mesure']}) ÷ {lib} = {ref:.1f}",
                   note_relatif(e["ve_ebitda"]["valeur"] / ref))
     else:
         r = par_per()

@@ -37,12 +37,13 @@ def _entree(sym, fiche=None, bpa=None, s1=None, faits=None, prix=None, pb=None, 
 
 
 def _med(per=None, pb=None, ve=None):
-    """Médianes factices : {ratio: {"famille": {...}, "marche": (m, n)}}."""
+    """Valeurs de référence factices, au format de `calculer_medianes` :
+    chaque ratio est {"marche": [valeurs], "famille": {famille: [valeurs]}}."""
     def bloc(x):
-        if x is None:
-            return {"famille": {}, "marche": (None, 0)}
-        return {"famille": {k: v for k, v in x.get("famille", {}).items()},
-                "marche": x.get("marche", (None, 0))}
+        x = x or {}
+        return {"famille": {f: [(f"_{f}{i}", v) for i, v in enumerate(vs)]
+                            for f, vs in x.get("famille", {}).items()},
+                "marche": [(f"_m{i}", v) for i, v in enumerate(x.get("marche", []))]}
     return {"per": bloc(per), "pb": bloc(pb), "ve_ebitda": bloc(ve)}
 
 
@@ -144,7 +145,7 @@ def test_afm_roe_sans_objet_n_est_plus_contourne():
                 {"bpa_12m": 78.0, "rnpg_12m": 78.0}, {"capitaux_propres_pg_31_12_2025": 70.0,
                                                       "capitaux_propres_pg_30_06_2026": 75.0})
     assert e["roe"] is None
-    r = fs.noter(e, _med(per={"marche": (15.0, 30)}))
+    r = fs.noter(e, _med(per={"marche": [15.0] * 3}))
     assert "rentabilite" not in r["composantes"]
     assert "rentabilite" in r["abstentions"]
 
@@ -191,7 +192,7 @@ def test_aucun_acces_direct_a_ratios_publies_dans_le_code():
 
 def test_sans_comptes_n_a_pas_de_note_et_sort_des_medianes():
     e = _entree("IBM", _fiche(roic=20.0), {"bpa_12m": 5.0}, prix=100.0, sans_comptes=True)
-    r = fs.noter(e, _med(per={"marche": (15.0, 30)}))
+    r = fs.noter(e, _med(per={"marche": [15.0] * 3}))
     assert r["note"] is None and r["composantes"] == {}
     assert e["hors_mediane"]
 
@@ -204,12 +205,12 @@ def test_fonds_propres_negatifs_sortent_des_medianes_mais_sont_notes():
     assert e["hors_mediane"] == "fonds propres négatifs" and e["sans_note"] is None
     sains = [_entree(s, _fiche(), {"bpa_12m": 10.0}, prix=p) for s, p in (("AFI", 100.0), ("ALU", 200.0), ("CIM", 300.0))]
     med = fs.calculer_medianes(sains + [_entree("STK", _fiche(), {"bpa_12m": 1.0}, faits=faits, prix=1000.0)])
-    assert med["per"]["marche"] == (20.0, 3), "le PER de STK (1000) fausserait la médiane"
+    assert sorted(v for _, v in med["per"]["marche"]) == [10.0, 20.0, 30.0], "le PER de STK (1000) fausserait la médiane"
 
 
 def test_titre_suspendu_sort_des_medianes():
     e = _entree("CMT", _fiche(), {"bpa_12m": 10.0}, prix=50.0, suspendu=True)
-    assert fs.calculer_medianes([e])["per"]["marche"] == (None, 0)
+    assert fs.calculer_medianes([e])["per"]["marche"] == []
 
 
 # ── 5. abstention ────────────────────────────────────────────────────────
@@ -223,7 +224,7 @@ def test_sans_donnee_pas_de_note():
 def test_moins_de_la_moitie_du_poids_s_abstient():
     # Valorisation seule = 20 % : insuffisant, même si le PER est excellent.
     e = _entree("ALU", {}, {"bpa_12m": 10.0}, prix=100.0)
-    r = fs.noter(e, _med(per={"marche": (10.0, 30)}))
+    r = fs.noter(e, _med(per={"marche": [10.0] * 3}))
     assert set(r["composantes"]) == {"valorisation"} and r["poids_disponible"] == 20
     assert r["note"] is None and "Données" not in r["motif"] and "20" in r["motif"]
 
@@ -232,7 +233,7 @@ def test_la_moitie_exacte_du_poids_suffit():
     # croissance 30 + valorisation 20 = 50 : « moins de la moitié » est faux.
     e = _entree("ALU", _fiche(croissance_bpa=50.0, croissance_ca=50.0) | {"croissance_bpa": 50.0, "croissance_ca": 50.0},
                 {"bpa_12m": 10.0}, prix=100.0)
-    r = fs.noter(e, _med(per={"marche": (10.0, 30)}))
+    r = fs.noter(e, _med(per={"marche": [10.0] * 3}))
     assert r["poids_disponible"] == 50
     # croissance 50 → 9,0 ; PER 10 ÷ 10 = 1,0 → 7,0 ; (30×9 + 20×7) ÷ 50 = 8,2
     assert r["note"] == 8.2
@@ -241,7 +242,7 @@ def test_la_moitie_exacte_du_poids_suffit():
 def test_poids_repartis_sur_les_criteres_presents():
     # ROIC 20 → écart 10 → 8,5 ; PER 10 ÷ 10 = 1,0 → 7,0 ; (40×8,5 + 20×7,0) ÷ 60 = 8,0
     e = _entree("ALU", _fiche(roic=20.0), {"bpa_12m": 10.0}, prix=100.0)
-    r = fs.noter(e, _med(per={"marche": (10.0, 30)}))
+    r = fs.noter(e, _med(per={"marche": [10.0] * 3}))
     assert r["composantes"]["rentabilite"]["note"] == 8.5
     assert r["composantes"]["valorisation"]["note"] == 7.0
     assert r["note"] == 8.0
@@ -258,17 +259,37 @@ def test_croissance_seulement_si_depot_s1():
 
 # ── 6. médianes ──────────────────────────────────────────────────────────
 
-def test_mediane_de_famille_exige_trois_titres_sinon_marche():
+def test_la_reference_exclut_le_titre_note_leave_one_out():
+    # Relecture du 10/10/2026 : un titre médian se comparait à lui-même (CMT
+    # 22,7/22,7, ARD 1,00/1,00) et obtenait 7,0 par construction.
+    famille = [_entree(s, _fiche("Banque"), {"bpa_12m": 1.0}, prix=p)
+               for s, p in (("ATW", 10.0), ("BCP", 12.0), ("BOA", 14.0), ("CDM", 16.0))]
+    med = fs.calculer_medianes(famille)
+    # Médiane des 4 : 13,0. Sans ATW : 12, 14, 16 → 14,0 ; sans BOA : 10, 12, 16 → 12,0.
+    assert fs._reference(med, "per", "banque", "ATW")[0] == 14.0
+    assert fs._reference(med, "per", "banque", "BOA")[0] == 12.0
+    # Le titre noté n'a PAS besoin d'être dans la liste : rien n'est exclu.
+    assert fs._reference(med, "per", "banque", "CIH")[0] == 13.0
+    # Le titre du milieu n'obtient plus 7,0 par construction.
+    r = fs.noter(famille[1], med)["composantes"]["valorisation"]
+    assert "autres titres de la famille" in r["mesure"] and "= 14.0" in r["mesure"]
+    assert r["note"] == fs.note_relatif(12.0 / 14.0)                  # 0,857 → 7,0 ; recalculé, pas postulé
+    assert fs.noter(famille[0], med)["composantes"]["valorisation"]["note"] == fs.note_relatif(10.0 / 14.0)  # 8,5
+
+
+def test_moins_de_trois_pairs_la_reference_est_le_marche_hors_le_titre_et_la_mesure_le_dit():
     banques = [_entree(s, _fiche("Banque"), {"bpa_12m": 1.0}, prix=p)
                for s, p in (("ATW", 10.0), ("BCP", 20.0), ("BOA", 30.0))]
     autres = [_entree(s, _fiche(), {"bpa_12m": 1.0}, prix=p)
               for s, p in (("AFI", 40.0), ("ALU", 50.0))]
     med = fs.calculer_medianes(banques + autres)
-    assert med["per"]["marche"] == (30.0, 5)            # 10, 20, 30, 40, 50
-    assert med["per"]["famille"]["banque"] == (20.0, 3)
-    assert fs._reference(med, "per", "banque")[0] == 20.0
-    assert fs._reference(med, "per", "autre")[0] == 30.0   # 2 titres seulement : marché
-    assert fs._reference(med, "pb", "banque", repli_marche=False)[0] is None
+    # ATW : 2 pairs seulement (BCP, BOA) → marché hors ATW : 20, 30, 40, 50 → 35,0
+    ref, lib = fs._reference(med, "per", "banque", "ATW")
+    assert ref == 35.0 and "marché hors ATW" in lib and "2 pair(s), moins de 3" in lib
+    mesure = fs.noter(banques[0], med)["composantes"]["valorisation"]["mesure"]
+    assert "marché hors ATW" in mesure
+    # Un P/B ne se compare pas au marché : pas de repli, abstention.
+    assert fs._reference(med, "pb", "banque", "ATW", repli_marche=False) == (None, None)
 
 
 # ── 7. banques, assurances, financement, paiement ───────────────────────
@@ -295,7 +316,7 @@ def test_banque_roe_sur_fonds_propres_de_cloture_quand_un_point_manque():
 def test_banque_ni_bilan_ni_roic_ni_dette():
     fiche = _fiche("Banque", roic=30.0, dette_nette_ebitda=-1.0, cash_conversion=50.0, roe_12m=15.0)
     e = _entree("ATW", fiche, {"bpa_12m": 5.0}, prix=60.0)
-    r = fs.noter(e, _med(per={"marche": (12.0, 30)}))
+    r = fs.noter(e, _med(per={"marche": [12.0] * 3}))
     assert r["composantes"]["rentabilite"]["mesure"].startswith("ROE 15")
     assert "bilan" not in r["composantes"] and "bilan" in r["abstentions"]
 
@@ -334,16 +355,23 @@ def _faits(pg, cons=None):
     return {"faits": f}
 
 
-def test_fonciere_valorisation_par_pb_relatif_ou_abstention():
-    trois = [_entree(s, _fiche(), {"bpa_12m": 1.0}, prix=10.0, pb=p)
-             for s, p in (("ARD", 0.8), ("IMI", 1.0), ("BAL", 1.2))]
-    med = fs.calculer_medianes(trois)
+def test_fonciere_valorisation_par_pb_relatif_aux_pairs_ou_abstention():
+    quatre = [_entree(s, _fiche(), {"bpa_12m": 1.0}, prix=10.0, pb=p)
+              for s, p in (("ARD", 0.8), ("IMI", 1.0), ("BAL", 1.2), ("REB", 1.0))]
+    med = fs.calculer_medianes(quatre)
     e = _entree("ARD", _fiche(), {"bpa_12m": 1.0}, prix=10.0, pb=0.5)
-    # P/B 0,5 ÷ médiane 1,0 = 0,5 → 9,5
+    # Famille « fonciere » du test réduite à 4 titres : 3 pairs, ARD exclu → médiane 1,0.
+    for t in quatre:
+        t["famille"] = "fonciere"
+    med = fs.calculer_medianes(quatre)
+    # ARD (0,8) hors liste de référence : pairs IMI 1,0 · BAL 1,2 · REB 1,0 → 1,0 ;
+    # 0,5 ÷ 1,0 = 0,5 → 9,5
     assert fs.noter(e, med)["composantes"]["valorisation"]["note"] == 9.5
-    # Famille de moins de 3 titres avec P/B : abstention (pas de repli marché).
-    deux = fs.calculer_medianes(trois[:2])
-    assert "valorisation" not in fs.noter(e, deux)["composantes"]
+    # Trois titres seulement dans la famille (cas réel : ARD, IMI, BAL) : 2 pairs
+    # pour chacun → abstention, jamais un repli sur le marché.
+    trois = fs.calculer_medianes(quatre[:3])
+    r = fs.noter(e, trois)
+    assert "valorisation" not in r["composantes"] and "pairs" in r["abstentions"]["valorisation"]
 
 
 def test_fonciere_dette_ebitda_exclue_croissance_du_bpa_exclue_bilan_en_fonds_propres():
@@ -378,7 +406,7 @@ def test_promoteur_roe_pas_roic_et_bilan_en_fonds_propres():
     fiche = _fiche(roic=30.0, roe_12m=5.0, dette_nette_ebitda=9.0, cash_conversion=-5.0)
     fiche["ratios_publies"]["dette_nette"] = {"valeur": 4385.5, "date": "2025-12-31"}
     e = _entree("ADH", fiche, {"bpa_12m": 1.2}, faits=_faits(9481.7, 10410.6), prix=30.0, pb=1.27)
-    r = fs.noter(e, _med(per={"marche": (24.0, 30)}))
+    r = fs.noter(e, _med(per={"marche": [24.0] * 3}))
     assert r["composantes"]["rentabilite"]["mesure"].startswith("ROE 5")
     assert r["composantes"]["rentabilite"]["note"] == 2.0       # écart −5 → 2,0
     # 4 385,5 ÷ 10 410,6 = 0,42 → 8,5 ; la conversion négative (stock) ne pénalise pas.
@@ -396,13 +424,13 @@ def test_mines_ve_ebitda_quand_la_donnee_existe_sinon_per():
     avec = _entree("SMI", fiche, {"bpa_12m": 10.0}, s1, faits=_faits(2000.0, 2000.0), prix=100.0)
     # VE = 100 × 10 M ÷ 1e6 (= 1 000) + dette 1 000 + minoritaires 0 = 2 000 ; ÷ 500 = 4,0
     assert avec["ve_ebitda"]["valeur"] == 4.0
-    r = fs.noter(avec, _med(ve={"marche": (8.0, 30)}, per={"marche": (10.0, 30)}))
+    r = fs.noter(avec, _med(ve={"marche": [8.0] * 3}, per={"marche": [10.0] * 3}))
     assert "VE/EBITDA" in r["composantes"]["valorisation"]["mesure"]
     assert r["composantes"]["valorisation"]["note"] == 9.5      # 4 ÷ 8 = 0,5
     # Sans EBITDA : PER relatif.
     sans = _entree("SMI", _fiche(roic=20.0), {"bpa_12m": 10.0}, s1, prix=100.0)
     assert sans["ve_ebitda"] is None
-    r2 = fs.noter(sans, _med(per={"marche": (10.0, 30)}))
+    r2 = fs.noter(sans, _med(per={"marche": [10.0] * 3}))
     assert "PER" in r2["composantes"]["valorisation"]["mesure"]
 
 
@@ -418,7 +446,7 @@ def test_ve_ajoute_les_minoritaires():
 def test_industrie_roic_per_relatif_dette_ebitda_conversion():
     fiche = _fiche(roic=25.0, dette_nette_ebitda=0.3, cash_conversion=150.0)
     e = _entree("IAM", fiche, {"bpa_12m": 10.0}, prix=100.0)
-    r = fs.noter(e, _med(per={"marche": (10.0, 30)}))
+    r = fs.noter(e, _med(per={"marche": [10.0] * 3}))
     assert r["composantes"]["rentabilite"]["note"] == 9.5       # écart 15
     assert r["composantes"]["bilan"]["note"] == 9.0             # 8,5 + 0,5 (conversion ≥ 85)
     assert r["composantes"]["valorisation"]["note"] == 7.0      # 1,0
@@ -432,7 +460,7 @@ def test_tresorerie_nette_sans_ebitda_vaut_le_meilleur_bilan():
 
 def test_perte_hors_banque_note_basse_sans_per():
     e = _entree("ALU", _fiche(), {"bpa_12m": -3.0}, prix=100.0)
-    assert fs.noter(e, _med(per={"marche": (17.0, 30)}))["composantes"]["valorisation"] == {
+    assert fs.noter(e, _med(per={"marche": [17.0] * 3}))["composantes"]["valorisation"] == {
         "mesure": "perte sur 12 mois", "note": 1.5, "poids": 20}
 
 
@@ -449,5 +477,5 @@ def test_le_dividende_ne_change_pas_la_note():
     def note(div):
         f = dict(base) | {"div_yield": div, "dps_2025": div, "dps_2026": div, "dy_24": div}
         b = {"bpa_12m": 5.0, "div_dh": div, "dividende_exceptionnel": div * 10}
-        return fs.noter(_entree("ATW", f, b, prix=60.0), _med(per={"marche": (12.0, 30)}))["note"]
+        return fs.noter(_entree("ATW", f, b, prix=60.0), _med(per={"marche": [12.0] * 3}))["note"]
     assert note(0.0) == note(25.0) == note(900.0)
