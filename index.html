@@ -44,6 +44,12 @@
     @media (prefers-reduced-motion:reduce){[data-gabarit] .carte-ind::after,[data-gabarit] .indices-ligne::after{display:none;}}
     .carte-indices{flex-basis:100%;width:100%;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.2fr);gap:10px;margin-top:8px}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
+    /* ⚠️ TÉLÉPHONE EN PAYSAGE — 10/10/2026, signalé par Abd Moutalib. Couché,
+       le téléphone dépasse 640 px de large et reçoit l'en-tête COLLÉ de
+       l'ordinateur. Mesuré à 844×390 : en-tête de 474 px pour 390 visibles,
+       100 % de l'écran couvert, rien ne défile dessous. C'est la HAUTEUR qui
+       décide : sous 600 px, l'en-tête défile avec la page. */
+    @media(max-height:600px){.entete{position:static!important}}
     /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
        Trois défauts : l'en-tête COLLÉ en haut couvrait plus de la moitié de
        l'écran et masquait le contenu au défilement ; le classement n'affichait
