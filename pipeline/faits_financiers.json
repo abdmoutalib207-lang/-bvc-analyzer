@@ -12674,7 +12674,21 @@
     "page": 10,
     "note": "⚠️ NOMBRE D'ACTIONS NON PUBLIÉ PAR LE DÉPÔT : ni le rapport financier (27 p.) ni l'attestation des CAC ne donnent le nombre de titres ni la valeur nominale. Référentiel de l'opérateur (16/09/2026) : capitalisation 1 398 000 000 ÷ cours 1 398 = 1 000 000 actions ; 100 000 000 (capital, p.10) ÷ 1 000 000 = 100,0000 DH, un nominal entier cohérent avec le référentiel mais NON LU au rapport. RECOUPÉ par le projet de résolutions de l'AGO du 19/06/2026 (https://www.ammc.ma/sites/default/files/Avis_Promopharm_AGO_19_06_26.pdf, p.1, 7e résolution) : « Distribution de Dividendes brut (30 DHS par action) 30.000.000,00 dirhams » = 1 000 000 actions, et « société anonyme au capital de 100.000.000,00 dirhams ». ⚠️ fondamentaux.json porte nb_actions = 2 582 555 pour PPM : désaccord avec le référentiel ET avec l'avis (non corrigé ici, à trancher en revue). Clé volontairement distincte de `nombre_actions_au_rapport` (lue par update_data.py pour le P/B et le contrôle de capitalisation). BPA social = 59 914 634,13 ÷ 1 000 000 = 59,91 DH.",
     "base": "SOCIAL (normes marocaines), 31/12/2025 — le dépôt ne publie que des « comptes sociaux » (p.9) ; titres de participation 8 003 175 MAD intégralement dépréciés (valeur nette 0), aucun consolidé",
-    "releve_le": "2026-10-02"
+    "releve_le": "2026-10-02",
+    "origine": "operateur",
+    "motif": "non publié au dépôt",
+    "source_operateur": "datasets/referentiel/cote_casablanca_2026-09-16.csv (capitalisation ÷ cours)",
+    "accord": "Abd Moutalib, 10/10/2026"
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 590.840386,
+    "valeur_au_rapport": 590840385.99,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 10,
+    "note": "« Total des capitaux propres (A) 590.840.385,99 530.925.751,86 » (bilan passif, colonnes « EXERCICE 31/12/2025 » puis « EXERCICE PRECEDENT 31/12/2024 », vérifié sur le rendu de la page : le tableau est une image). COMPTES SOCIAUX : le dépôt ne publie aucun consolidé (`base: sociale`). Hors « Capitaux propres assimilés (B) 18.108.518,66 » (subvention d'investissement). Attestation des CAC (p.5) : « 608 948 905 MAD dont un bénéfice net de 59 914 634 MAD » = 590 840 386 + 18 108 519.",
+    "base": "sociale",
+    "releve_le": "2026-10-10"
    }
   },
   "pages_document": 27,
@@ -13612,7 +13626,22 @@
     "page": 2,
     "note": "⚠️ NOMBRE D'ACTIONS NON PUBLIÉ PAR LE DÉPÔT : ni nombre de titres ni valeur nominale dans les 19 pages (capital seul : « Capital social ou personnel (1) 52 650 000,00 », p.2). Référentiel de l'opérateur (16/09/2026) : capitalisation 106 879 500 ÷ cours 20,3 = 5 265 000 actions ; 52 650 000 ÷ 5 265 000 = 10,00 DH, nominal entier cohérent mais NON LU au rapport. L'AGE du 27/07/2026 autorise une augmentation de capital jusqu'à 80 MMAD (neuvième résolution, avis AMMC) : autorisation, pas réalisation ; le référentiel du 16/09 donne encore 5 265 000. À rouvrir à l'exécution.",
     "base": "SOCIAL (normes marocaines), exercice du 01/04/2025 au 31/03/2026 (clos le 31/03/2026, PAS le 31/12/2025) — Cartier Saada ne publie que des comptes sociaux ; OPINION AVEC RÉSERVE des CAC (achats auprès d'agriculteurs sans identification fiscale, non chiffrée)",
-    "releve_le": "2026-10-02"
+    "releve_le": "2026-10-02",
+    "origine": "operateur",
+    "motif": "non publié au dépôt",
+    "source_operateur": "datasets/referentiel/cote_casablanca_2026-09-16.csv (capitalisation ÷ cours)",
+    "accord": "Abd Moutalib, 10/10/2026"
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 167.108095,
+    "valeur_au_rapport": 167108094.68,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 2,
+    "note": "« TOTAL DES CAPITAUX PROPRES ( a ) 167 108 094,68 152 299 965,73 » (bilan passif, colonnes Exercice puis Exercice précédent, vérifié sur le rendu de la page ; couche texte, montants en dirhams). COMPTES SOCIAUX : Cartier Saada ne publie aucun consolidé, ces capitaux propres tiennent lieu de part du groupe (`base: sociale`). Exercice du 01/04/2025 au 31/03/2026, PAS le 31/12/2025. Hors « CAPITAUX PROPRES ASSIMILES ( b ) 2 073 652,88 » (subventions). ⚠️ Contiennent « Ecarts de réévaluation 115 122 500,00 » (réévaluation libre de trois terrains, observation n°3 des CAC, p.17) : sans elle 52,0 MMAD. ⚠️ OPINION AVEC RÉSERVE des CAC (p.15-16) : achats de la quasi-totalité des matières premières auprès d'agriculteurs qui ne justifient pas leur identification fiscale, non chiffrée. Les stocks d'olives n'en sont PAS l'objet : ils figurent à l'observation n°1 (p.16), qui explique la perte de 25 642 371,05 DHS par « la comptabilisation d'une provision pour dépréciation des stocks d'olives issus de récoltes antérieures » ; observation n°2 (p.17) : « des décisions s'imposent pour assurer la continuité d'exploitation ».",
+    "base": "sociale",
+    "exercice_clos": "2026-03-31",
+    "releve_le": "2026-10-10"
    }
   },
   "pages_document": 19,

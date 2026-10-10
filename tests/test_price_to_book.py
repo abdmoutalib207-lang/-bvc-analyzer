@@ -134,14 +134,63 @@ def test_les_deux_termes_sont_sources_avec_leur_page(faits):
     for ticker in avec:
         f = faits[ticker]["faits"]
         cp = f["capitaux_propres_part_groupe"]
-        na = (f.get("nombre_actions_existant")
-              or f.get("nombre_actions_au_rapport")
-              or f.get("nombre_actions_retenu_pour_le_bpa"))
+        na = _nombre_d_actions_releve(f)
         assert isinstance(cp.get("page"), int), (
             f"{ticker} : capitaux propres sans page — le PB serait invérifiable")
         assert na and isinstance(na.get("page"), int), (
             f"{ticker} : fonds propres relevés mais pas le nombre d'actions — "
             "le P/BOOK reste incalculable, et l'à-peu-près n'est pas une option")
+
+
+def _nombre_d_actions_releve(f):
+    """Le nombre d'actions d'un émetteur : lu au dépôt, ou DÉCLARÉ de l'opérateur.
+
+    ⚠️ 10/10/2026, accord d'Abd Moutalib (CAR, PPM). Quand le dépôt AMMC
+    n'imprime ni nombre de titres ni nominal, le nombre du référentiel de
+    l'opérateur (capitalisation ÷ cours) est accepté — à une condition
+    ÉTROITE : la clé `nombre_actions_referentiel` doit porter, dans l'entrée
+    elle-même, `origine: "operateur"` ET le motif « non publié au dépôt ».
+    Jamais par défaut : une entrée qui ne le déclare pas, et qui n'a pas de
+    nombre lu au dépôt, reste en échec.
+    """
+    lu = (f.get("nombre_actions_existant")
+          or f.get("nombre_actions_au_rapport")
+          or f.get("nombre_actions_retenu_pour_le_bpa"))
+    if lu:
+        return lu
+    ref = f.get("nombre_actions_referentiel")
+    if (isinstance(ref, dict) and ref.get("origine") == "operateur"
+            and "non publié au dépôt" in (ref.get("motif") or "")
+            and isinstance(ref.get("valeur"), (int, float)) and ref["valeur"] > 0):
+        return ref
+    return None
+
+
+def test_un_nombre_d_actions_de_l_operateur_n_est_accepte_que_declare():
+    """Contrôle négatif : sans nombre lu NI déclaration explicite, l'entrée échoue."""
+    base = {"valeur": 1000, "page": 3}
+    assert _nombre_d_actions_releve({"nombre_actions_referentiel": dict(base)}) is None
+    assert _nombre_d_actions_releve({"nombre_actions_referentiel": dict(
+        base, origine="operateur")}) is None          # motif manquant
+    assert _nombre_d_actions_releve({"nombre_actions_referentiel": dict(
+        base, motif="non publié au dépôt")}) is None  # origine manquante
+    assert _nombre_d_actions_releve({}) is None
+    assert _nombre_d_actions_releve({"nombre_actions_referentiel": dict(
+        base, origine="operateur", motif="non publié au dépôt")}) is not None
+    # un nombre lu au dépôt reste prioritaire et suffit
+    assert _nombre_d_actions_releve({"nombre_actions_au_rapport": base}) is base
+
+
+def test_les_nombres_d_actions_de_l_operateur_declares_sont_les_seuls(faits):
+    """Tout `nombre_actions_referentiel` qui tient lieu de dénominateur du P/B
+    est déclaré ; ceux d'un titre sans fonds propres (STR) restent hors champ."""
+    for t in _emetteurs_avec_fonds_propres(faits):
+        f = faits[t]["faits"]
+        if "nombre_actions_referentiel" in f and not (
+                f.get("nombre_actions_au_rapport") or f.get("nombre_actions_existant")
+                or f.get("nombre_actions_retenu_pour_le_bpa")):
+            assert _nombre_d_actions_releve(f), (
+                f"{t} : nombre de l'opérateur non déclaré (origine + motif)")
 
 
 def test_tout_pb_publie_remonte_a_un_fait_source(faits):
