@@ -18,12 +18,18 @@ absolu. Une baisse RÉELLE, même de 60 %, est continue : chaque séance reste �
 moins de 10 % de la précédente. Elle ne produit aucune rupture, donc ne
 déclenche rien, où qu'elle porte le cours.
 
-⚠️ CE QUE CE MODULE NE FAIT PAS
-Il ne juge pas une valorisation et ne dit pas qu'un cours est « bon ». Il ne
-voit pas non plus une série ENTIÈRE à la mauvaise échelle, sans aucune rupture :
-ce cas se lit contre une source extérieure (bulletin, export de l'opérateur),
-pas contre elle-même. Il ne s'applique pas à une référence remise à neuf par
-l'autorité (R10, seconde précision : CMT après OPA) : une telle rupture est
+⚠️ CE QUE CES CONTRÔLES PROUVENT, ET CE QU'ILS NE PROUVENT PAS
+Ils détectent (1) les contaminations HISTORIQUES réinjectées — Sothema ÷23,
+Mutandis dans Marsa Maroc, Stokvis dans Sonasid, Minière Touissit dans Ciments
+du Maroc, le 490 de la table statique — et (2) les ruptures dont le facteur
+dépasse facteur/2, ainsi que les bougies qui mêlent deux échelles. Ils ne
+détectent PAS toute erreur d'échelle possible : une série qui passerait
+brutalement de 100 à 200 (facteur 2, sous le seuil d'un facteur de 28) n'est
+pas rejetée — voir `test_limite_un_saut_de_100_a_200_n_est_pas_rejete`. Ils ne
+jugent pas une valorisation, et ne voient pas une série ENTIÈRE à la mauvaise
+échelle, sans rupture : ce cas se lit contre une source extérieure (bulletin,
+export de l'opérateur). Ils ne s'appliquent pas à une référence remise à neuf
+par l'autorité (R10, seconde précision : CMT après OPA) : une telle rupture est
 LÉGITIME et se déclare dans le registre `SUSPENSIONS` — n'appliquer ces
 contrôles qu'à des titres qui n'en portent pas.
 """
@@ -293,30 +299,99 @@ def diviser(bougies: list, debut: int, fin: int, facteur: float) -> list:
 # ── Ratios de valorisation : l'échelle se lit contre les AUTRES titres ─────
 
 # Un P/B réel de la place s'étage de 0,16 à 6 fois la médiane (relevé du
-# 11/10/2026, 46 titres) ; une erreur d'unité (MMAD pris pour des dirhams, deux
-# colonnes recollées) est un facteur 1 000. La bande ×20 laisse trois fois la
-# marge aux vrais extrêmes et attrape le facteur mille de très loin.
+# 11/10/2026, 46 titres). Mais des fonds propres positifs très faibles peuvent
+# légitimement produire un P/B de 30 quand la médiane vaut 1 : être hors bande
+# est donc un motif de VÉRIFICATION, pas une preuve d'erreur d'unité.
 BANDE_COUPE_TRANSVERSALE = 20.0
+TOLERANCE_TEMOIN = 0.10          # même base que le garde-fou d'entrée du P/B
 
 
-def ratios_hors_echelle(valeurs: dict, bande: float = BANDE_COUPE_TRANSVERSALE) -> list:
-    """Titres dont le ratio est nul, négatif, ou hors de [médiane/bande,
-    médiane×bande] de la place.
+def _s_explique_par_une_puissance_de_mille(v: float, mediane: float, bande: float) -> bool:
+    """Multiplier ou diviser `v` par 1 000, 1 000 000… le ramène DANS la bande :
+    la signature d'une erreur d'unité (MMAD lus comme des dirhams, deux
+    colonnes recollées). Un ratio hors bande qu'aucune puissance de 1 000
+    ne ramène n'a pas cette signature."""
+    return any(mediane / bande <= v * 1000.0 ** n <= mediane * bande
+               for n in (-3, -2, -1, 1, 2, 3))
 
-    ⚠️ Contrairement à `0 < pb < 50`, la bande suit le marché : si toute la
-    place valorise deux fois plus cher, la médiane suit et rien ne rougit. Seul
-    un titre ISOLÉ de son univers par un facteur 20 est signalé. Limite
-    assumée : une erreur d'unité qui toucherait la place entière à la fois
-    passerait — elle se lit contre les rapports déposés, pas contre elle-même.
+
+def classer_ratios(valeurs: dict, temoins: dict | None = None,
+                   bande: float = BANDE_COUPE_TRANSVERSALE) -> tuple:
+    """(rejets, a_verifier) pour un ratio de valorisation par titre.
+
+    - REJET certain : ratio négatif ou nul.
+    - Hors de [médiane/bande, médiane×bande] de la place : à VÉRIFIER. Rejeté
+      seulement si un SECOND indice concorde :
+        · une puissance de 1 000 le ramène dans la bande (erreur d'unité), ou
+        · un témoin indépendant (`temoins[t]`, par exemple capitalisation ÷
+          fonds propres) contredit le ratio de plus de 10 %.
+      Sans second indice, c'est un avertissement : un P/B de 30 sur fonds
+      propres minces est légitime.
+
+    La bande suit le marché (la médiane suit). Limite assumée : une erreur
+    d'unité qui toucherait la place entière à la fois passerait.
     """
+    temoins = temoins or {}
+    rejets = [f"{t} : {v}" for t, v in sorted(valeurs.items())
+              if v is not None and v <= 0]
     positifs = [v for v in valeurs.values() if v is not None and v > 0]
-    fautifs = [f"{t} : {v}" for t, v in sorted(valeurs.items())
-               if v is not None and v <= 0]
     if len(positifs) < 5:
-        return fautifs
+        return rejets, []
     mediane = statistics.median(positifs)
-    fautifs += [f"{t} : {v} (médiane de la place {mediane:.2f})"
-                for t, v in sorted(valeurs.items())
-                if v is not None and v > 0
-                and not (mediane / bande <= v <= mediane * bande)]
-    return fautifs
+    a_verifier = []
+    for t, v in sorted(valeurs.items()):
+        if v is None or v <= 0 or mediane / bande <= v <= mediane * bande:
+            continue
+        temoin = temoins.get(t)
+        motifs = []
+        if _s_explique_par_une_puissance_de_mille(v, mediane, bande):
+            motifs.append("un facteur 1 000 le ramène dans la bande (erreur d'unité)")
+        if temoin and abs(v / temoin - 1) > TOLERANCE_TEMOIN + 0.005 / temoin:
+            motifs.append(f"témoin indépendant {temoin:.2f} contredit")
+        ligne = f"{t} : {v} (médiane de la place {mediane:.2f})"
+        if motifs:
+            rejets.append(ligne + " — " + " ; ".join(motifs))
+        else:
+            a_verifier.append(ligne)
+    return rejets, a_verifier
+
+
+def ratios_hors_echelle(valeurs: dict, temoins: dict | None = None,
+                        bande: float = BANDE_COUPE_TRANSVERSALE) -> list:
+    """Les REJETS de `classer_ratios`. Les titres seulement « à vérifier »
+    émettent un avertissement (UserWarning, voulu : R5 — il explique quoi
+    vérifier), sans faire échouer."""
+    import warnings
+    rejets, a_verifier = classer_ratios(valeurs, temoins, bande)
+    for ligne in a_verifier:
+        warnings.warn(f"ratio hors bande, à vérifier (pas une erreur prouvée) : {ligne}",
+                      UserWarning, stacklevel=2)
+    return rejets
+
+
+# ── Volumes : un saut d'ÉCHELLE de la série, pas un niveau ─────────────────
+
+def defauts_volume(bougies: list, recent: int = 60, avant: int = 240,
+                   limite: float | None = None) -> list:
+    """Le volume des `recent` dernières séances change-t-il d'ÉCHELLE par
+    rapport aux `avant` séances qui précèdent ?
+
+    L'écart entre la convention « titres » et la convention « montant en
+    dirhams » est le COURS (~400 DH pour ADI) : un montant pris pour des titres
+    multiplie la médiane par ce cours. La limite par défaut est donc le quart du
+    cours médian récent. Une hausse (ou une baisse) DURABLE et réelle des
+    échanges — facteur 5, 10, 30 — passe. Limite assumée : un facteur inférieur
+    à la limite n'est pas vu.
+    """
+    vols = [b["v"] for b in bougies if b.get("v")]
+    if len(vols) < recent + 30:
+        return []
+    cours = statistics.median(b["c"] for b in bougies[-recent:] if b.get("c"))
+    limite = limite or max(cours / 4, 5.0)
+    med_recent = statistics.median(vols[-recent:])
+    med_avant = statistics.median(vols[-(recent + avant):-recent])
+    rapport = med_recent / med_avant
+    if rapport > limite or rapport < 1 / limite:
+        return [f"médiane des {recent} derniers volumes / médiane des {avant} "
+                f"précédents = {rapport:.3g} (limite ×{limite:.0f}) : saut d'échelle"]
+    return []

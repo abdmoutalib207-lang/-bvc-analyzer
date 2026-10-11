@@ -18,6 +18,11 @@ toutes les mutations se font sur des copies en mémoire.
 
 Les contre-épreuves appellent les MÊMES fonctions que les tests réécrits : si
 l'une s'émousse, l'autre le dit.
+
+⚠️ PORTÉE : ces épreuves prouvent la détection des contaminations HISTORIQUES
+réinjectées et des ruptures dont le facteur dépasse facteur/2 — pas de toutes
+les erreurs d'échelle possibles. `test_limite_un_saut_de_100_a_200_n_est_pas_rejete`
+documente un contre-exemple.
 """
 
 from __future__ import annotations
@@ -201,16 +206,76 @@ def test_le_facteur_vient_des_registres():
     assert E.facteur_d_echelle("SNA") == 28.0            # Stokvis / Sonasid
 
 
-# ── Le volume d'ADI : médiane, non maximum ─────────────────────────────────
+# ── La limite, écrite plutôt que tue ───────────────────────────────────────
 
-def test_adi_un_montant_en_dirhams_est_attrape_et_un_pic_reel_passe():
-    """`max(volumes) < 100 000` rougissait sur un vrai pic (78 887 au 09/10,
-    marge de 21 %). La médiane distingue encore un montant en dirhams (~370 fois
-    la quantité) d'un pic ponctuel."""
-    recents = [b["v"] for b in E.charger_bougies("ADI")[-60:] if b["v"]]
-    assert statistics.median(recents) < 100000
-    montants = [v * 370 for v in recents]                       # convention en dirhams
-    assert statistics.median(montants) > 100000                 # négatif : attrapé
-    avec_pic = recents[:-1] + [max(recents) * 5]                # positif : pic réel
-    assert statistics.median(avec_pic) < 100000
-    assert max(avec_pic) > 100000                               # l'ancien test aurait échoué
+def test_limite_un_saut_de_100_a_200_n_est_pas_rejete():
+    """⚠️ CONTRE-EXEMPLE DOCUMENTÉ. Une série qui passe brutalement de 100 à 200
+    (rupture de facteur 2) n'est PAS rejetée par `hors_echelle(..., 28)` : le
+    facteur 2 est sous le seuil facteur/2 = 14. Ces contrôles attrapent un
+    reliquat dont le facteur est grand devant le seuil, pas toute erreur
+    d'échelle. Si ce test échoue un jour, c'est que le contrôle a gagné en
+    sensibilité : mettre le test à jour et le dire, pas le supprimer."""
+    from datetime import date, timedelta
+    d, serie = date(2026, 1, 5), []
+    for i in range(200):
+        while d.weekday() >= 5:
+            d += timedelta(days=1)
+        c = 100.0 if i < 100 else 200.0
+        serie.append({"d": d.isoformat(), "o": c, "h": c, "l": c, "c": c, "v": 1})
+        d += timedelta(days=1)
+    assert any(E.est_rupture(a, b) for a, b in zip(serie, serie[1:])), "la rupture existe"
+    assert E.hors_echelle(serie, 28.0) == []           # ... et pourtant non rejetée
+    assert E.hors_echelle(serie, 3.0) != []            # un facteur déclaré plus petit la voit
+
+
+# ── Volumes : saut d'échelle, pas niveau (ADI) ─────────────────────────────
+
+def _volumes_synthetiques(n=320, v0=20_000, cours=400.0):
+    """Série déterministe : volumes autour de v0 (±30 %), cours constant."""
+    from datetime import date, timedelta
+    d, out = date(2025, 1, 6), []
+    for i in range(n):
+        while d.weekday() >= 5:
+            d += timedelta(days=1)
+        v = int(v0 * (0.7 + 0.6 * ((i * 37) % 11) / 10))
+        out.append({"d": d.isoformat(), "o": cours, "h": cours, "l": cours, "c": cours, "v": v})
+        d += timedelta(days=1)
+    return out
+
+
+def test_volume_negatif_un_montant_en_dirhams_est_attrape():
+    """Le défaut d'origine d'ADI : un montant en dirhams pris pour des titres,
+    soit les volumes multipliés par le cours."""
+    assert E.defauts_volume(_volumes_synthetiques()) == []
+    sale = _volumes_synthetiques()
+    for b in sale[-60:]:
+        b["v"] = int(b["v"] * b["c"])
+    assert E.defauts_volume(sale), "un montant en dirhams passerait"
+    inverse = _volumes_synthetiques()
+    for b in inverse[-60:]:
+        b["v"] = max(1, int(b["v"] / b["c"]))
+    assert E.defauts_volume(inverse), "des titres pris pour un montant (÷cours) passeraient"
+
+
+@pytest.mark.parametrize("coef", [3, 10, 30])
+def test_volume_positif_une_hausse_durable_et_reelle_des_echanges_passe(coef):
+    """Les échanges s'envolent pour de bon (×3, ×10, ×30 sur 60 séances) : ni
+    un pic, ni un changement d'unité. Avec un seuil fixe à 100 000, ×10 aurait
+    bloqué la publication."""
+    haute = _volumes_synthetiques()
+    for b in haute[-60:]:
+        b["v"] = b["v"] * coef
+    assert E.defauts_volume(haute) == []
+    if coef >= 10:
+        # au-dessus de l'ancien seuil fixe de 100 000 : il aurait bloqué
+        assert statistics.median(b["v"] for b in haute[-60:]) > 100_000
+
+
+def test_volume_positif_un_pic_isole_passe():
+    pic = _volumes_synthetiques()
+    pic[-3]["v"] *= 500
+    assert E.defauts_volume(pic) == []
+
+
+def test_volume_reel_d_adi_est_sans_saut_d_echelle():
+    assert E.defauts_volume(E.charger_bougies("ADI")) == []

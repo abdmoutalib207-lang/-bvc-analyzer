@@ -210,9 +210,12 @@ def test_tout_pb_publie_remonte_a_un_fait_source(faits):
 
 
 def test_le_pb_publie_reste_dans_une_plage_defendable():
-    """Un price-to-book négatif n'a pas de sens ici, et un titre à un facteur 20
-    de la médiane de la place signale une erreur d'unité plutôt qu'une
-    valorisation.
+    """Un price-to-book négatif n'a pas de sens ici. Un titre à un facteur 20
+    de la médiane de la place est un titre À VÉRIFIER, rejeté seulement si un
+    second indice concorde (facteur proche d'une puissance de 1 000 : erreur
+    d'unité) ; sinon avertissement — des fonds propres minces donnent
+    légitimement un P/B de 30. Le recoupement avec capitalisation ÷ fonds
+    propres est dans `test_le_pb_publie_se_recoupe_avec_la_capitalisation`.
 
     ⚠️ 11/10/2026 : l'ancien `0 < pb < 50` était un seuil absolu — un vrai P/B
     de 55 sur une société à fonds propres minces aurait bloqué la publication.
@@ -242,6 +245,22 @@ def test_controle_negatif_une_erreur_d_unite_est_toujours_attrapee():
         copie = dict(pb)
         copie[t] = faux
         assert any(x.startswith(t) for x in _echelle.ratios_hors_echelle(copie)), faux
+
+
+def test_controle_positif_un_pb_de_30_sur_fonds_propres_faibles_passe():
+    """Médiane 1, un titre à 30 (hors bande ×20, facteur 30 : pas une erreur
+    d'unité) : avertissement, pas d'échec. Un P/B normal ×1 000 échoue, et le
+    même 30 contredit par un témoin indépendant aussi."""
+    place = {f"T{i}": 1.0 + 0.05 * i for i in range(10)}
+    place["FAIBLE"] = 30.0
+    with pytest.warns(UserWarning, match="à vérifier"):
+        assert _echelle.ratios_hors_echelle(place) == []
+    rejets, a_verifier = _echelle.classer_ratios(place)
+    assert rejets == [] and len(a_verifier) == 1
+    assert _echelle.ratios_hors_echelle({**place, "FAIBLE": 1.2 * 1000})
+    assert _echelle.ratios_hors_echelle({**place, "FAIBLE": 1.2 / 1000})
+    assert _echelle.ratios_hors_echelle(place, temoins={"FAIBLE": 3.0})
+    assert _echelle.ratios_hors_echelle(place, temoins={"FAIBLE": 30.5}) == []
 
 
 def test_controle_positif_une_chute_reelle_de_30_pour_cent_passe():

@@ -16,12 +16,13 @@ restent ouvertes, et qu'aucune n'a été appliquée en douce.
 from __future__ import annotations
 
 import json
-import statistics
 from pathlib import Path
 
 import pytest
 
 RACINE = Path(__file__).resolve().parent.parent
+
+import _echelle  # noqa: E402  (contrôles relatifs)
 DOSSIER = RACINE / "datasets" / "historiques_candidats" / "ARBITRAGES" / "mesures.json"
 
 
@@ -211,23 +212,24 @@ def test_aucune_conversion_de_volume_n_a_ete_appliquee(mesures):
     receptions = RACINE / "datasets" / "historiques_importes"
     serie = json.loads((RACINE / "pipeline" / "candles" / "ADI.json")
                        .read_text(encoding="utf-8"))
-    recents = [b["v"] for b in serie[-60:] if b["v"]]
-
+    # ⚠️ 11/10/2026 : plus AUCUN seuil fixe de volume. `max < 100 000` puis
+    # `médiane < 100 000` dataient le niveau des échanges d'ADI : une hausse
+    # durable et réelle du volume aurait bloqué la publication. Le défaut
+    # surveillé est un changement d'ÉCHELLE (titres <-> montant en dirhams, soit
+    # un facteur égal au cours, ~400) entre les 60 dernières séances et les 240
+    # précédentes ; voir `_echelle.defauts_volume` et ses contre-épreuves.
+    # Limite assumée : une série ENTIÈREMENT convertie, sans saut, n'est pas
+    # distinguée d'une série d'origine — c'est l'objet de la réception sur
+    # pièce, pas d'un test sur la série seule.
     if (receptions / "ADI.json").exists():
-        # Instruit sur pièce : les volumes DOIVENT désormais être des titres,
-        # donc d'un ordre de grandeur bien inférieur au montant en dirhams.
-        # ⚠️ 11/10/2026 : médiane, non maximum. Le maximum des 60 dernières
-        # séances (78 887 au 09/10, pour un seuil à 100 000) aurait rougi sur un
-        # vrai pic d'échanges. Un montant en dirhams est ~370 fois la quantité
-        # sur ce titre : il déplace la MÉDIANE d'un ordre de grandeur, un pic non.
-        assert statistics.median(recents) < 100000, (
-            "ADI porte une réception d'historique, mais ses volumes gardent "
-            "l'ordre de grandeur d'un montant en dirhams — l'import n'a pas "
-            "pris")
+        assert _echelle.defauts_volume(serie) == [], (
+            "ADI porte une réception d'historique, mais l'échelle de ses "
+            "volumes saute — l'import n'a pas pris, ou un montant en dirhams "
+            "s'est glissé dans la série")
     else:
-        assert statistics.median(recents) > 100000, (
-            "les volumes d'ADI ont été convertis : l'arbitrage a été tranché "
-            "sans être posé, et sans export pour l'établir")
+        assert _echelle.defauts_volume(serie) == [], (
+            "les volumes d'ADI changent d'échelle sans export pour l'établir : "
+            "l'arbitrage a été tranché sans être posé")
 
 
 def test_les_trois_options_restent_ouvertes(mesures):

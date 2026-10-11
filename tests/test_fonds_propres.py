@@ -40,6 +40,7 @@ La lecture, elle, se refait à la page indiquée.
 
 import json
 import re
+import statistics
 from pathlib import Path
 
 import pytest
@@ -413,9 +414,15 @@ def test_les_fonds_propres_ont_un_ordre_de_grandeur_defendable(publie, faits):
     # bande RELATIVE que le P/B publié (×20 autour de la médiane de la place,
     # voir `_echelle.ratios_hors_echelle`). Un titre dont la capitalisation
     # tombe à 0,15 fois ses fonds propres après une vraie baisse n'est plus
-    # « indéfendable » ; un facteur mille, lui, l'est toujours. Contrôles
-    # négatif et positif : les deux tests qui suivent.
-    aberrants = _echelle.ratios_hors_echelle(_cap_sur_fonds_propres(publie, faits))
+    # « indéfendable » ; un facteur mille, lui, l'est toujours.
+    #
+    # Hors bande ne suffit PAS à rejeter (fonds propres minces : un ratio de 30
+    # pour une médiane de 3 peut être réel) : second indice exigé — facteur
+    # proche d'une puissance de 1 000, ou P/B publié qui contredit le rapport
+    # de plus de 10 %. Sinon, avertissement. Contrôles : tests qui suivent.
+    pb_publies = {x["symbol"]: x.get("pb") for x in publie["tickers"]}
+    aberrants = _echelle.ratios_hors_echelle(
+        _cap_sur_fonds_propres(publie, faits), temoins=pb_publies)
     assert not aberrants, ("ordre de grandeur indéfendable — erreur d'unité ou "
                            "colonnes recollées :\n  " + "\n  ".join(aberrants))
 
@@ -443,6 +450,20 @@ def test_controle_negatif_colonnes_recollees_toujours_attrapees(publie, faits):
         "la bande relative n'attrape plus un facteur 1 000")
     ratios = _cap_sur_fonds_propres(publie, faits, fp_modifies={t: fp / 1000})
     assert any(x.startswith(t) for x in _echelle.ratios_hors_echelle(ratios))
+
+
+def test_controle_positif_un_ratio_isole_sans_second_indice_n_est_qu_un_avertissement(publie, faits):
+    """Fonds propres minces : un ratio 30 fois la médiane, avec un P/B publié
+    qui le confirme, passe (avertissement). Le même ratio contredit par le P/B
+    publié est rejeté."""
+    base = _cap_sur_fonds_propres(publie, faits)
+    med = statistics.median(base.values())
+    t = next(iter(base))
+    seul = dict(base)
+    seul[t] = med * 30                       # hors bande ×20, facteur 30 : pas une puissance de 1 000
+    with pytest.warns(UserWarning, match="à vérifier"):
+        assert _echelle.ratios_hors_echelle(seul, temoins={t: med * 30}) == []
+    assert any(x.startswith(t) for x in _echelle.ratios_hors_echelle(seul, temoins={t: med}))
 
 
 def test_controle_positif_une_chute_reelle_de_30_pour_cent_passe(publie, faits):
