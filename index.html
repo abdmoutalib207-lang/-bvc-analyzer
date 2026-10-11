@@ -3415,6 +3415,7 @@ async function fetchChart(sym, range) {
       });
     }
   }
+  if (!LIVE_ACTIF) return [];
   return fetchMed24History(sym, days != null ? days : 1825);
 }
 function getMarketStatus() {

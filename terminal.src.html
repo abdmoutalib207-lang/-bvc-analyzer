@@ -572,6 +572,10 @@ async function fetchChart(sym,range){
   }
 
   // 4. Secours total : Médias24 (close uniquement)
+  // ⚠️ Coupé avec la surcouche live (11/10/2026, revue de la PR #234) : une
+  // autre source, d'une autre date, ouverture reconstituée sur la clôture
+  // précédente. Sans historique local, le graphique reste vide plutôt que faux.
+  if(!LIVE_ACTIF)return [];
   return fetchMed24History(sym,days!=null?days:1825);
 }
 
