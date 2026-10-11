@@ -960,4 +960,14 @@ TICKERS_ALL: list = [
 #   valorisations relatives à la médiane de la famille ; un critère sans donnée
 #   s'abstient ; moins de la moitié du poids : « Données insuffisantes ». Les
 #   poids des piliers (65,28 / 34,72 / 0) ne changent pas.
-SCORE_VERSION = "v5.3-fond-sectoriel-2026-10-10"
+# ⚠️ MODE COMPARAISON (11/10/2026). Abd Moutalib a validé le principe d'une note
+# par métier (10/10) mais exige des corrections avant toute bascule : tant que
+# cet interrupteur est FAUX, `score_fond`, `v53`, le signal, la confiance et le
+# plancher de publication restent ceux de la grille ACTUELLE ; la note par
+# famille est calculée et publiée À CÔTÉ (`note_fond_metier`). Le passer à vrai
+# est une décision, pas un correctif : il change les deux points d'application
+# (update_data.appliquer_note_sectorielle et pipeline/collect_financial_data.py)
+# et la version du score.
+NOTE_METIER_PUBLIEE: bool = False
+SCORE_VERSION = ("v5.3-fond-sectoriel-2026-10-10" if NOTE_METIER_PUBLIEE
+                 else "v5.3-sans-saisie-2026-10-02")

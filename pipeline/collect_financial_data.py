@@ -27,6 +27,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from pipeline.scrapers.constants      import TICKERS, IPO_RECENT
 from pipeline.scrapers.market         import fetch_market_data
 from pipeline.scrapers.fundamentals   import fetch_fundamentals
+from bvc_config import NOTE_METIER_PUBLIEE
+from pipeline.smart_money.fond_score  import compute_fond_score, reload as fond_reload
 from pipeline.smart_money.fond_score_sectoriel import noter_depuis_fichiers
 from pipeline.technical.indicators  import compute_technical
 from pipeline.smart_money.alpha     import get_smart_money
@@ -148,15 +150,24 @@ def collect_ticker(sym: str, fallback: dict, dry_run: bool = False) -> tuple[str
 
 # ── Conversion format legacy (data.json pour index.html) ─────────────────────
 
+def _detail_metier(r: dict | None) -> dict | None:
+    if not r:
+        return None
+    return {"famille": r["famille"], "note": r["note"], "poids_disponible": r["poids_disponible"],
+            "motif": r["motif"], "criteres": r["criteres"], "dependance_cote": r.get("dependance_cote")}
+
+
 def to_legacy_format(pipeline_out: dict) -> dict:
     """Convertit le format v9 → format data.json consommé par index.html."""
     from pipeline.smart_money.alpha import SENTIMENT_CORPUS
 
-    # ⚠️ NOTE FONDAMENTALE PAR FAMILLE — 10/10/2026, second point d'application
-    # (avec `update_data.appliquer_note_sectorielle`) : les deux doivent bouger
-    # ensemble. Les valorisations étant RELATIVES, la note a besoin des cours de
-    # tout l'univers : ce pipeline ne couvre que ses propres titres, le reste
-    # vient du data.json publié (voir `noter_depuis_fichiers`).
+    # ⚠️ NOTE FONDAMENTALE PAR FAMILLE — second point d'application (avec
+    # `update_data.appliquer_note_sectorielle`) : les deux bougent ENSEMBLE, selon
+    # `bvc_config.NOTE_METIER_PUBLIEE`. En mode comparaison (11/10/2026, faux),
+    # la note publiée reste celle de la grille actuelle et la note par famille
+    # est seulement jointe (`note_fond_metier`). Les valorisations étant RELATIVES,
+    # elle a besoin des cours de tout l'univers : ce pipeline ne couvre que ses
+    # propres titres, le reste vient du data.json publié.
     notes = noter_depuis_fichiers({s: (d.get("market") or {}).get("price")
                                    for s, d in pipeline_out.get("data", {}).items()})
 
@@ -183,9 +194,12 @@ def to_legacy_format(pipeline_out: dict) -> dict:
         elif price < ma50:     score_tech -= 1.2
         score_tech = round(min(max(score_tech, 0), 10), 2)
 
-        # None = « Données insuffisantes » : moins de la moitié du poids de la
-        # grille de la famille est calculable. Jamais une note par défaut.
-        fond_score = (notes.get(sym) or {}).get("note")
+        if NOTE_METIER_PUBLIEE:
+            # None = « Données insuffisantes » : moins de la moitié du poids de la
+            # grille de la famille est calculable. Jamais une note par défaut.
+            fond_score = (notes.get(sym) or {}).get("note")
+        else:
+            fond_score = compute_fond_score(sym)  # fondamentaux.json → 5.0 si absent
         nlp_score  = round((sc.get("smart", 0) + 1) * 5, 2)
         # ⚠️ PONDÉRATION DU 25/09/2026 — le pilier NLP est ramené à zéro et son
         # poids reversé au prorata sur les deux autres : 0,47/0,72 et 0,25/0,72.
@@ -233,6 +247,8 @@ def to_legacy_format(pipeline_out: dict) -> dict:
             # figée de update_data.py, pour un sens différent. `delta` (l'écart
             # entre les deux) n'est plus affiché nulle part.
             "score_fond": round(fond_score, 2) if fond_score is not None else None,
+            # Comparaison, non retenue dans la note tant que NOTE_METIER_PUBLIEE est faux.
+            "note_fond_metier": _detail_metier(notes.get(sym)),
             "nlp":      nlp_score,
             "sig":      sig(v53),
             "alpha":    sm.get("alpha_12m"),

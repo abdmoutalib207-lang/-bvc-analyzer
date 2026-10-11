@@ -3797,26 +3797,38 @@ def _setup_technique(v53_final, price, ma20, ma50, tech_nf):
     return "NEUTRE"
 
 
+def _detail_note_metier(r: dict) -> dict:
+    """Ce qui est PUBLIÉ de la note par famille : critère par critère, avec son
+    état, sa valeur, sa pièce, sa période, sa base, son poids EFFECTIF et sa
+    référence de comparaison (famille ou cote entière)."""
+    return {"famille": r["famille"], "note": r["note"], "poids_disponible": r["poids_disponible"],
+            "motif": r["motif"], "criteres": r["criteres"], "dependance_cote": r.get("dependance_cote")}
+
+
 def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux: dict,
-                               bpa: dict, faits: dict, s1: dict) -> dict:
-    """Remplace la note fondamentale de chaque fiche par celle de sa FAMILLE.
+                               bpa: dict, faits: dict, s1: dict, publier: bool | None = None,
+                               nb_notes_precedent: int | None = None) -> dict:
+    """Calcule la note fondamentale de chaque fiche PAR FAMILLE et la publie.
 
-    ⚠️ DEUX PASSES, ET C'EST VOULU — 10/10/2026. Les valorisations sont
-    RELATIVES (médiane de la famille) : il faut les cours des 80 titres avant
-    de noter le premier, or chaque cours se résout dans la boucle, ticker par
-    ticker, par une chaîne de repli de 300 lignes. La boucle produit donc une
-    note provisoire (grille d'origine) ; ce passage, qui voit tous les cours
-    PUBLIÉS et tous les P/B publiés, la remplace avant toute écriture.
+    ⚠️ MODE COMPARAISON (11/10/2026, Abd Moutalib) : tant que `publier` est faux
+    (`bvc_config.NOTE_METIER_PUBLIEE`), la note par famille est calculée et
+    publiée À CÔTÉ (`note_fond_metier`) ; `score_fond`, `v53`, `sig`, `setup`, la
+    confiance et le plancher de publication restent ceux de la grille ACTUELLE,
+    calculés dans la boucle. Rien de publié ne change.
 
-    Ce que le passage recalcule, et rien d'autre : `score_fond`, `v53`, `sig`,
-    `verdict_plafonne`, `setup`, `note_fond` (le détail, publié pour que le
-    calcul soit vérifiable) et, si la note est incalculable, la confiance.
-    Les POIDS des piliers ne sont pas touchés (R8).
+    ⚠️ DEUX PASSES, ET C'EST VOULU. Les valorisations sont RELATIVES (médiane des
+    pairs) : il faut les cours des 80 titres avant de noter le premier, or chaque
+    cours se résout dans la boucle, ticker par ticker. Ce passage voit tous les
+    cours et tous les P/B publiés.
 
-    Un titre sans note (moins de la moitié du poids disponible) : `score_fond`
-    et `v53` valent None, le signal est « Données insuffisantes ».
+    Si `publier` est vrai, il remplace en plus `score_fond`, `v53`, `sig`,
+    `verdict_plafonne`, `setup` et la confiance (plafonnée à 1 sans note), et
+    applique le plancher de publication — qui ne bloque QUE sur une panne des
+    sources. Les POIDS des piliers ne sont jamais touchés (R8).
     """
-    from pipeline.smart_money.fond_score_sectoriel import noter_univers
+    from bvc_config import NOTE_METIER_PUBLIEE
+    from pipeline.smart_money.fond_score_sectoriel import noter_univers, problemes_sources
+    publier = NOTE_METIER_PUBLIEE if publier is None else publier
     res = noter_univers(
         [e["symbol"] for e in tickers_out],
         {e["symbol"]: e.get("price") for e in tickers_out},
@@ -3824,29 +3836,33 @@ def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux:
         fondamentaux, bpa, s1, faits,
         sans_comptes={e["symbol"] for e in tickers_out if sans_comptes(e["symbol"])},
         suspendus={e["symbol"] for e in tickers_out if (e.get("_meta") or {}).get("suspendu")})
+    if publier:
+        pannes = problemes_sources({"fondamentaux": fondamentaux, "bpa": bpa, "faits": faits, "s1": s1},
+                                   sum(1 for r in res.values() if r["note"] is not None), nb_notes_precedent)
+        if pannes:
+            raise SystemExit("note par famille : sources en panne, rien n'est publié : " + " ; ".join(pannes))
     for e in tickers_out:
         sym = e["symbol"]
         r, p1 = res[sym], passe1[sym]
         note = r["note"]
-        e["note_fond"] = {"famille": r["famille"], "note": note,
-                          "poids_disponible": r["poids_disponible"],
-                          "composantes": r["composantes"], "abstentions": r["abstentions"],
-                          "motif": r["motif"]}
-        if note is None:
-            e["score_fond"], e["v53"] = None, None
-            e["sig"], e["verdict_plafonne"] = _signal_publie(
-                sym, None, p1["tech_nf"], p1["depuis_reprise"], sans_note=True)
-            e["setup"] = "NEUTRE"
-            # Le point « fondamentaux réels » tombe et la confiance est plafonnée à 1.
-            e["_meta"] = _meta_ticker(*p1["meta_args"], **p1["meta_kw"], note_fond_ok=False)
-        else:
-            v = compute_v53(sym, p1["score_tech"], note, 0, 0, p1["ctx"])
-            e["score_fond"], e["v53"] = v["score_fond"], v["v53"]
-            e["sig"], e["verdict_plafonne"] = _signal_publie(
-                sym, v["sig"], p1["tech_nf"], p1["depuis_reprise"])
-            e["setup"] = _setup_technique(v["v53"], p1["price"], p1["ma20"], p1["ma50"], p1["tech_nf"])
+        e["note_fond_metier"] = _detail_note_metier(r)
+        if publier:
+            if note is None:
+                e["score_fond"], e["v53"] = None, None
+                e["sig"], e["verdict_plafonne"] = _signal_publie(
+                    sym, None, p1["tech_nf"], p1["depuis_reprise"], sans_note=True)
+                e["setup"] = "NEUTRE"
+                # Le point « fondamentaux réels » tombe et la confiance est plafonnée à 1.
+                e["_meta"] = _meta_ticker(*p1["meta_args"], **p1["meta_kw"], note_fond_ok=False)
+            else:
+                v = compute_v53(sym, p1["score_tech"], note, 0, 0, p1["ctx"])
+                e["score_fond"], e["v53"] = v["score_fond"], v["v53"]
+                e["sig"], e["verdict_plafonne"] = _signal_publie(
+                    sym, v["sig"], p1["tech_nf"], p1["depuis_reprise"])
+                e["setup"] = _setup_technique(v["v53"], p1["price"], p1["ma20"], p1["ma50"], p1["tech_nf"])
         logger.info(f"  ✓ {sym}: {e['price']} DH | RSI {e.get('rsi')} | Score v5.3: "
-                    f"{e['v53']} (fond {e['score_fond']}, {r['famille']}) | {e['sig']}")
+                    f"{e['v53']} (fond {e['score_fond']}) | {e['sig']} | note par famille "
+                    f"({r['famille']}) : {note}")
     return res
 
 
@@ -4534,12 +4550,12 @@ def run(dry_run=False, push=False, token=""):
         # ⚠️ Lot 4 (02/10/2026) : PER sur douze mois, sinon PER de l'exercice
         # (les deux tirés des comptes) ; croissance lue seulement si elle vient
         # des comptes semestriels (BPA 12 mois établi). Aucune saisie.
-        # ⚠️ NOTE PROVISOIRE — 10/10/2026. La note publiée est celle de la FAMILLE
-        # du titre (`fond_score_sectoriel`), calculée après la boucle par
-        # `appliquer_note_sectorielle`, quand les cours des 80 titres sont connus
-        # (les valorisations sont relatives à la médiane de la famille). Ce qui
-        # est calculé ici sert seulement de point de départ : tout ce qui en
-        # dépend (v53, signal, setup) est refait au second passage.
+        # ⚠️ Note de la grille ACTUELLE — publiée tant que la note par famille
+        # est en mode comparaison (`bvc_config.NOTE_METIER_PUBLIEE` faux, 11/10).
+        # La note par famille (`fond_score_sectoriel`) est calculée après la
+        # boucle par `appliquer_note_sectorielle`, quand les cours des 80
+        # titres sont connus (valorisations relatives aux pairs) ; si elle
+        # devient la note publiée, ce passage refait v53, signal et setup.
         _b = BPA_DATA.get(ticker) or {}
         _per_12m = _per(price, _b.get("bpa_12m")) if _b.get("bpa_12m") is not None else _per(price, _b.get("bpa"))
         if ticker in _FOND_COMPUTED:
@@ -4844,25 +4860,30 @@ def run(dry_run=False, push=False, token=""):
         # (le journal « ✓ » est écrit par `appliquer_note_sectorielle`, une fois
         # la note de la famille connue : ici le score n'est que provisoire.)
 
-    # 4b. Note fondamentale PAR FAMILLE — remplace la note provisoire de la boucle.
+    # 4b. Note fondamentale PAR FAMILLE — MODE COMPARAISON (11/10/2026).
     #
-    # ⚠️ 10/10/2026, décision d'Abd Moutalib (R8 assoupli sur le CONTENU de la
-    # note fondamentale ; les poids des piliers ne bougent pas).
+    # Calculée et publiée à côté (`note_fond_metier`) ; la note, le signal et la
+    # confiance publiés restent ceux de la grille actuelle tant que
+    # `bvc_config.NOTE_METIER_PUBLIEE` est faux. Décision d'Abd Moutalib du
+    # 10/10/2026 (R8 assoupli sur le CONTENU, pas sur les poids), corrections
+    # exigées le 11/10 avant toute bascule.
     try:
         _s1 = json.loads((Path(__file__).parent / "datasets"
                           / "resultats_s1_2026.json").read_text(encoding="utf-8")).get("titres", {})
     except (OSError, ValueError) as _e:
-        raise SystemExit(f"resultats_s1_2026.json illisible ({_e}) : la note fondamentale "
-                         "ne peut pas être calculée, rien n'est publié")
-    appliquer_note_sectorielle(tickers_out, passe1, fondamentaux=_FOND_BRUT, bpa=BPA_DATA,
-                               faits=FAITS_DATA, s1=_s1)
-    # Plancher de publication : une abstention sur tout l'univers est une panne
-    # de sources (fichiers absents ou vides), pas une série de titres sans note.
-    from pipeline.smart_money.fond_score_sectoriel import problemes_plancher
-    _pannes = problemes_plancher(tickers_out)
-    if _pannes:
-        raise SystemExit("note fondamentale incalculable, rien n'est publié : "
-                         + " ; ".join(_pannes))
+        # La comparaison est un ajout : sa panne ne doit pas empêcher la
+        # publication de la note actuelle. En mode publié, elle bloque.
+        from bvc_config import NOTE_METIER_PUBLIEE as _publiee
+        if _publiee:
+            raise SystemExit(f"resultats_s1_2026.json illisible ({_e}) : la note par famille "
+                             "ne peut pas être calculée, rien n'est publié")
+        logger.warning(f"resultats_s1_2026.json illisible ({_e}) : comparaison par famille indisponible")
+        _s1 = None
+    if _s1 is not None:
+        _nb_prec = sum(1 for _t in (_ex_all or {}).values()
+                       if ((_t or {}).get("note_fond_metier") or {}).get("note") is not None)
+        appliquer_note_sectorielle(tickers_out, passe1, fondamentaux=_FOND_BRUT, bpa=BPA_DATA,
+                                   faits=FAITS_DATA, s1=_s1, nb_notes_precedent=_nb_prec or None)
 
     # 5. Construction data.json
     output = {

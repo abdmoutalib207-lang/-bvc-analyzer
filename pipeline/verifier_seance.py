@@ -231,15 +231,27 @@ def _controles(jour, ecart):
             if x.get("v53") is not None and not 0 <= x["v53"] <= 10]
     ajouter("score v5.3 dans [0, 10]", not hors, hors or "conforme")
 
-    # Note fondamentale par famille (10/10/2026) : un titre sans note est admis,
-    # un univers sans notes est une panne de sources (fichiers vides).
-    from pipeline.smart_money.fond_score_sectoriel import PLANCHER_NOTES, masi1_sans_note, nb_notes
-    fiches = [dict(x, symbol=x.get("symbol") or t) for t, x in titres.items()]
-    n_notes = nb_notes(fiches)
-    ajouter(f"au moins {PLANCHER_NOTES} titres avec une note fondamentale",
-            n_notes >= PLANCHER_NOTES, f"{n_notes} titres notés sur {len(titres)}")
-    sans_v53 = masi1_sans_note(fiches)
-    ajouter("les 19 titres MASI 1 ont un v53", not sans_v53, sans_v53 or "19/19")
+    # Note fondamentale par famille (11/10/2026, mode comparaison). Deux lignes,
+    # de nature DIFFÉRENTE :
+    #  · BLOQUANT : les fichiers dont la note dépend (fondamentaux, BPA, faits
+    #    financiers, résultats S1) existent et ne sont pas effondrés — une panne
+    #    des SOURCES. Jamais l'abstention d'un titre : elle est légitime.
+    #  · AVERTISSEMENT (jamais un échec) : les titres du MASI 1 sans note par
+    #    famille, avec le motif publié.
+    from pipeline.smart_money.fond_score_sectoriel import (
+        charger_sources, masi1_sans_note, problemes_sources)
+    try:
+        pannes = problemes_sources(charger_sources(RACINE))
+        ajouter("fichiers de fondamentaux présents et non effondrés", not pannes, pannes or "conformes")
+    except Exception as e:                                    # noqa: BLE001
+        ajouter("fichiers de fondamentaux présents et non effondrés", False, f"illisibles : {e}")
+    if any("note_fond_metier" in x for x in titres.values()):
+        sans_note = masi1_sans_note([dict(x, symbol=x.get("symbol") or t) for t, x in titres.items()])
+        ajouter("avertissement : titres du MASI 1 sans note par famille (non bloquant)", True,
+                "; ".join(f"{t} ({m})" for t, m in sans_note) or "tous notés")
+    else:
+        ajouter("avertissement : titres du MASI 1 sans note par famille (non bloquant)", True,
+                "sans objet : data.json sans note par famille")
 
     # Règle R10 : la BVC plafonne la variation à ±10 % par séance, sur le
     # COURS D'UNE SOCIÉTÉ. Le contrôle porte bien sur les titres un à un —
