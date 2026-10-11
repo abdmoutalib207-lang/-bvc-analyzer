@@ -161,8 +161,15 @@ def to_legacy_format(pipeline_out: dict) -> dict:
     # est seulement jointe (`note_fond_metier`). Les valorisations étant RELATIVES,
     # elle a besoin des cours de tout l'univers : ce pipeline ne couvre que ses
     # propres titres, le reste vient du data.json publié.
-    notes = noter_depuis_fichiers({s: (d.get("market") or {}).get("price")
-                                   for s, d in pipeline_out.get("data", {}).items()})
+    try:
+        notes = noter_depuis_fichiers({s: (d.get("market") or {}).get("price")
+                                       for s, d in pipeline_out.get("data", {}).items()})
+    except Exception as exc:                                   # noqa: BLE001 — isolation voulue
+        if NOTE_METIER_PUBLIEE:
+            raise                                              # la note publiée en dépend
+        # Comparaison : sa panne ne doit pas interrompre la publication (12/10/2026).
+        logging.warning(f"note par famille (comparaison) indisponible : {type(exc).__name__}: {exc}")
+        notes = {}
 
     tickers = []
     for sym, d in pipeline_out.get("data", {}).items():
@@ -241,7 +248,7 @@ def to_legacy_format(pipeline_out: dict) -> dict:
             # entre les deux) n'est plus affiché nulle part.
             "score_fond": round(fond_score, 2) if fond_score is not None else None,
             # Comparaison, non retenue dans la note tant que NOTE_METIER_PUBLIEE est faux.
-            "note_fond_metier": detail_publie(notes.get(sym)),
+            "note_fond_metier": (detail_publie(notes.get(sym)) if notes else {"indisponible": True}),
             "nlp":      nlp_score,
             "sig":      sig(v53),
             "alpha":    sm.get("alpha_12m"),

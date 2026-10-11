@@ -87,6 +87,27 @@ LES RÈGLES (chacune a son test)
    suspendus.
 8. Un critère absent ou suspendu S'ABSTIENT : ses poids passent aux autres ;
    moins de la MOITIÉ du poids disponible : pas de note.
+9. GRANDEUR CONTESTÉE ⇒ TOUT CRITÈRE QUI LA CONSOMME EST SUSPENDU (12/10/2026).
+   Quand le recoupement d'une grandeur source échoue — dette nette des ratios
+   publiés contre endettement net des faits financiers, écart > 2 % — tous les
+   critères qui s'en nourrissent sont suspendus, avec le motif : ROIC et dette
+   nette / EBITDA (leurs pièces citent la dette nette), VE/EBITDA, dette nette /
+   fonds propres. Aucun ne reste noté sur la valeur contestée. Mesuré : ADI, MNG,
+   MUT. L'écart n'est PAS expliqué sur pièce (périmètre bancaire ou total, dettes
+   de location, trésorerie) : on ne choisit pas une grandeur « cohérente » sans
+   la pièce qui la fonde. Le ROE ne remplace jamais un ROIC contesté.
+10. REMPLACEMENT D'UNE VALORISATION SUSPENDUE : règle PAR FAMILLE, jamais au cas
+   par cas (`REMPLACEMENT_PAR_PER`). Le PER relatif remplace la valorisation
+   suspendue d'une famille seulement si (a) le PER est déclaré pertinent pour
+   cette famille (aujourd'hui : mines), (b) le BPA 12 mois est VÉRIFIÉ (dépôt
+   AMMC cité) avec sa période explicite, (c) des comparables sont identifiés
+   (pairs, ou cote entière étiquetée). Sinon : aucune substitution. Le
+   remplacement est un état « remplacement », étiqueté.
+11. NOTE PARTIELLE : une note où un critère ESSENTIEL (rentabilité ou
+   valorisation) est absent ou suspendu est marquée `partielle`, avec la liste
+   des critères manquants. Garde-fou (`limiter_signal_partiel`) : elle ne peut
+   pas produire un signal plus favorable que celui de la grille actuelle du seul
+   fait de la disparition de ce critère.
 
 LES PALIERS — aucun n'est inventé
   [G] ceux de `fond_score.py` : rentabilité (écart à 10 %), croissance, dette /
@@ -121,6 +142,15 @@ MIN_PAIRS = 3             # médiane de référence : au moins 3 pairs (titre no
 ECART_DETTE_MAX = 0.02    # dette nette recoupée avec l'endettement net : 2 %
 
 FINANCIERES = ("banque", "assurance", "financement", "paiement")
+
+# Règle 10 : familles dont la valorisation suspendue peut être remplacée par le
+# PER relatif, et pourquoi le PER y est déclaré pertinent. Une famille absente
+# de cette table n'a AUCUN remplacement (foncières et holding : le résultat
+# intègre la juste valeur des immeubles, le PER n'y est pas pertinent).
+REMPLACEMENT_PAR_PER = {
+    "mines": "résultat d'exploitation courant : le PER relatif est lu à défaut de VE/EBITDA admissible",
+}
+ESSENTIELS = ("rentabilite", "valorisation")
 MOTIF_SANS_COMPTES = "société sans comptes déposés (SANS_COMPTES)"
 
 # Les états d'un critère. Trois comptent dans la note ; deux la laissent.
@@ -221,6 +251,34 @@ def _src_ratio(r: dict, cle: str) -> dict:
             "formule": r.get("formule")}
 
 
+def _dette_nette_contestee(dn: dict | None, faits: dict) -> str | None:
+    """Le motif pour lequel la dette nette des ratios publiés est CONTESTÉE
+    (recoupement échoué avec l'endettement net des faits financiers, > 2 %), ou
+    None. Règle 9 : tout critère qui la consomme est alors suspendu."""
+    en = _fait(faits, "endettement_net")
+    if dn is None or en is None or en == 0:
+        return None
+    dette = _num(dn.get("valeur"))
+    if dette is None or abs(dette - en) / abs(en) <= ECART_DETTE_MAX:
+        return None
+    return (f"grandeur contestée : dette nette {dette:g} (ratios publiés) contredite par l'endettement net "
+            f"{en:g} (faits financiers), écart {abs(dette - en) / abs(en):.1%} (> {ECART_DETTE_MAX:.0%}), "
+            "non expliqué sur pièce ; tout critère qui la consomme est suspendu")
+
+
+def _consomme_dette_nette(ratio: dict | None) -> bool:
+    """Le ratio cite-t-il la dette nette parmi ses pièces (ROIC, dette/EBITDA) ?"""
+    src = (ratio or {}).get("sources")
+    return isinstance(src, dict) and "dette_nette" in src
+
+
+def _bpa_verifie(bpa: dict) -> bool:
+    """BPA 12 mois vérifié : il existe, sa période est explicite et sa pièce cite
+    un dépôt AMMC (règle 10 b)."""
+    return bool(bpa.get("bpa_12m") is not None and bpa.get("fin_12m")
+                and "ammc" in str(bpa.get("source_12m") or "").lower())
+
+
 def _roe(sym, fiche, bpa, s1) -> dict | None:
     """ROE de l'EXERCICE 2025 — la convention unique (règle 5).
 
@@ -284,11 +342,9 @@ def _ve_ebitda(sym, fiche, bpa, s1, faits, px) -> dict:
     mino = round(cons - pg, 6) + 0.0          # + 0.0 : jamais « -0 »
     if mino < -1e-6:
         return {"etat": SUSPENDU, "motif": f"minoritaires négatifs ({mino:g}) : fonds propres incohérents"}
-    en = _fait(faits, "endettement_net")
-    if en is not None and en != 0 and abs(dette - en) / abs(en) > ECART_DETTE_MAX:
-        return {"etat": SUSPENDU, "motif": (f"dette nette {dette:g} (ratios publiés) contredite par l'endettement "
-                                            f"net {en:g} (faits financiers) : écart {abs(dette - en) / abs(en):.1%}, "
-                                            f"plus de {ECART_DETTE_MAX:.0%}")}
+    contestee = _dette_nette_contestee(dn, faits)
+    if contestee:
+        return {"etat": SUSPENDU, "motif": contestee}
     a_s1, a_fiche = _num(s1.get("actions")), _num((fiche or {}).get("nb_actions"))
     if not a_s1 or not a_fiche:
         return {"etat": ABSENT, "motif": "nombre d'actions non recoupé entre deux sources"}
@@ -353,6 +409,8 @@ def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict |
         "cc": _publie_complet(fiche, sym, "cash_conversion"),
         "dette_nette": dette_nette,
         "dette_nette_ref": dn,
+        "dette_nette_contestee": _dette_nette_contestee(dn, faits),
+        "bpa_verifie": _bpa_verifie(bpa),
         "gearing": gearing,
         "croissance_bpa": _num(fiche.get("croissance_bpa")) if s1_ok else None,
         "croissance_ca": _num(fiche.get("croissance_ca")) if s1_ok else None,
@@ -450,6 +508,11 @@ def noter(e: dict, medianes: dict, autoriser_cote: bool = True, _mesurer: bool =
                   base=roe.get("base") if roe else None)
         else:
             _poser_roe(poser, roe, "rentabilite")
+    elif roic is not None and e["dette_nette_contestee"] and _consomme_dette_nette(roic):
+        # Règle 9 : le ROIC consomme la dette nette contestée ; le ROE ne le remplace pas.
+        poser("rentabilite", SUSPENDU, valeur=roic["valeur"],
+              mesure=f"ROIC {roic['valeur']:g} % — affiché, non noté", motif="ROIC suspendu — " + e["dette_nette_contestee"],
+              source=_src_ratio(roic, "roic"), periode=roic.get("date"))
     elif roic is not None:
         zero = roic["valeur"] == 0
         poser("rentabilite", ZERO if zero else PRESENT, valeur=roic["valeur"],
@@ -490,7 +553,8 @@ def noter(e: dict, medianes: dict, autoriser_cote: bool = True, _mesurer: bool =
             poser("bilan", SUSPENDU, valeur=gr["valeur"], mesure=gr["mesure"] + f" = {gr['valeur']:g} — affiché, non noté",
                   source=gr["source"], periode="31/12/2025",
                   motif="aucun barème sourcé pour dette nette / fonds propres : transposer celui de dette "
-                        "nette / EBITDA n'est pas justifié")
+                        "nette / EBITDA n'est pas justifié"
+                        + (" ; de plus, " + e["dette_nette_contestee"] if e["dette_nette_contestee"] else ""))
     else:
         _bilan_industriel(e, poser)
 
@@ -565,9 +629,10 @@ def _valoriser(e, fam, med, cote, poser):
                       note=note_relatif(ve["valeur"] / ref), reference=_ref_dict(det, lib),
                       source=ve["source"], periode=ve["periode"], minoritaires_etat=ve["minoritaires_etat"])
         else:
-            # Règle 4 : jamais de repli vers le PER décidé au cas par cas.
-            poser("valorisation", ve["etat"], motif="VE/EBITDA suspendu : " + ve["motif"]
-                  if ve["etat"] == SUSPENDU else "VE/EBITDA absent : " + ve["motif"])
+            # Règle 4 : jamais de repli décidé au cas par cas. Règle 10 : le PER
+            # remplace la valorisation suspendue seulement par règle de FAMILLE.
+            motif_ve = ("VE/EBITDA suspendu : " if ve["etat"] == SUSPENDU else "VE/EBITDA absent : ") + ve["motif"]
+            _remplacer_par_per(e, fam, med, cote, poser, ve["etat"], motif_ve)
     else:
         r = par_per()
         if r is None:                            # résultat 12 mois ≤ 0
@@ -580,9 +645,40 @@ def _valoriser(e, fam, med, cote, poser):
                       note=1.5, source=e["bpa_source"], periode=e["bpa_source"]["periode"])
 
 
+def _remplacer_par_per(e, fam, med, cote, poser, etat_initial, motif_initial):
+    """Règle 10 : remplacement de la valorisation suspendue par le PER relatif,
+    défini PAR FAMILLE (`REMPLACEMENT_PAR_PER`), jamais pour un seul titre."""
+    refus = None
+    if fam not in REMPLACEMENT_PAR_PER:
+        refus = f"PER non déclaré pertinent en remplacement pour la famille « {fam} »"
+    elif not e["bpa_verifie"]:
+        refus = "BPA 12 mois non vérifié (dépôt AMMC cité et période explicite requis)"
+    elif e["bpa_12m"] is None or e["prix"] is None or e["bpa_12m"] <= 0:
+        refus = "PER non défini (BPA 12 mois absent, nul ou négatif)"
+    else:
+        ref, lib, det = _reference(med, "per", fam, e["sym"], repli_marche=cote)
+        if ref is None:
+            refus = "aucun comparable identifié (moins de 3 pairs, cote entière indisponible)"
+    if refus:
+        poser("valorisation", etat_initial, motif=motif_initial + " ; aucun remplacement : " + refus)
+        return
+    poser("valorisation", REMPLACEMENT, valeur=e["per"],
+          mesure=(f"PER 12 m {e['per']:.1f} ÷ {lib} = {ref:.1f} — REMPLACEMENT du VE/EBITDA "
+                  f"({motif_initial}) ; règle de famille « {fam} » : {REMPLACEMENT_PAR_PER[fam]}"),
+          note=note_relatif(e["per"] / ref), reference=_ref_dict(det, lib), source=e["bpa_source"],
+          periode=e["bpa_source"]["periode"], pb_comptable_affiche=e["pb"],
+          base="PER 12 mois ; BPA vérifié (dépôt AMMC), période explicite")
+
+
 def _bilan_industriel(e, poser):
     dne, cc = e["dne"], e["cc"]
-    if dne is not None and not (dne["valeur"] == 0 and e["financiere"]):
+    if e["dette_nette_contestee"] and ((dne is not None and _consomme_dette_nette(dne))
+                                       or (dne is None and e["dette_nette"] is not None)):
+        # Règle 9 : dette nette / EBITDA (ou la catégorie trésorerie nette) consomme la dette nette contestée.
+        poser("bilan", SUSPENDU, valeur=dne["valeur"] if dne else None,
+              mesure=(f"dette nette / EBITDA {dne['valeur']:g} — affiché, non noté" if dne else None),
+              motif="dette nette / EBITDA suspendu — " + e["dette_nette_contestee"])
+    elif dne is not None and not (dne["valeur"] == 0 and e["financiere"]):
         v = dne["valeur"]
         poser("bilan", ZERO if v == 0 else PRESENT, valeur=v,
               mesure=f"dette nette / EBITDA {v:g}" + (f" · conversion {cc['valeur']:g} %" if cc else ""),
@@ -614,6 +710,10 @@ def _conclure(e, fam, crit, medianes, autoriser_cote, mesurer) -> dict:
            "abstentions": {k: (c["motif"] or c["etat"]) for k, c in crit.items() if k not in comptes},
            "motif": (e["sans_note"] if e["sans_note"] else
                      None if note is not None else f"poids disponible {dispo} % < {SEUIL_POIDS} %")}
+    # Règle 11 : note PARTIELLE si un critère essentiel manque (absent ou suspendu).
+    manquants = [k for k in ESSENTIELS if crit[k]["etat"] in (ABSENT, SUSPENDU)]
+    out["criteres_essentiels_manquants"] = manquants
+    out["partielle"] = bool(manquants and note is not None)
     if mesurer and autoriser_cote:
         dep = [k for k, c in crit.items() if (c.get("reference") or {}).get("type") == "cote_entiere"]
         sans = noter(e, medianes, autoriser_cote=False, _mesurer=False)
@@ -645,7 +745,9 @@ def detail_publie(r: dict | None) -> dict | None:
     crit = {k: {**{c: v for c, v in c_.items() if c != "source"}, "source": _source_compacte(c_.get("source"))}
             for k, c_ in r["criteres"].items()}
     return {"famille": r["famille"], "note": r["note"], "poids_disponible": r["poids_disponible"],
-            "motif": r["motif"], "criteres": crit, "dependance_cote": r.get("dependance_cote")}
+            "motif": r["motif"], "partielle": r["partielle"],
+            "criteres_essentiels_manquants": r["criteres_essentiels_manquants"],
+            "criteres": crit, "dependance_cote": r.get("dependance_cote")}
 
 
 def noter_univers(titres, prix: dict, pb: dict, fondamentaux: dict, bpa: dict,
@@ -670,26 +772,56 @@ def charger_sources(racine: Path = RACINE) -> dict:
 # ───────────────────── plancher : panne des SOURCES seulement ─────────────────────
 
 MIN_SOURCES = {"fondamentaux": 60, "bpa": 60, "faits": 50, "s1": 50}   # mesuré le 11/10 : 77, 76, 71, 72
-EFFONDREMENT = 0.7        # moins de 70 % des notes du run précédent : effondrement
+EFFONDREMENT = 0.7        # moins de 70 % des notes du run précédent : ALERTE (pas un blocage)
 
 
-def problemes_sources(sources: dict, nb_notes: int | None = None, nb_notes_precedent: int | None = None) -> list[str]:
+def problemes_sources(sources: dict) -> list[str]:
     """Pourquoi la publication de la note par famille doit être REFUSÉE, ou [].
 
-    ⚠️ 11/10/2026 (Abd Moutalib) : on ne bloque QUE sur une panne des sources —
-    fichiers de fondamentaux absents, vides, ou effondrés par rapport au run
-    précédent — jamais sur l'abstention légitime d'un titre, MASI 1 compris. Un
-    MASI 1 sans note est un AVERTISSEMENT expliqué (verifier_seance), pas un
-    blocage.
+    ⚠️ 11-12/10/2026 (Abd Moutalib) : on ne bloque QUE sur des fichiers sources
+    absents ou vides. Ni l'abstention légitime d'un titre (MASI 1 compris), ni une
+    chute du nombre de notes — qu'une correction méthodologique peut provoquer —
+    ne bloquent : la chute est une ALERTE (`alertes_notes`).
     """
     out = []
     for nom, mini in MIN_SOURCES.items():
         n = len(sources.get(nom) or {})
         if n < mini:
             out.append(f"source « {nom} » absente ou vide : {n} entrées (minimum {mini})")
-    if nb_notes is not None and nb_notes_precedent and nb_notes < EFFONDREMENT * nb_notes_precedent:
-        out.append(f"notes effondrées : {nb_notes} contre {nb_notes_precedent} au run précédent")
     return out
+
+
+def alertes_notes(nb_notes: int | None, nb_notes_precedent: int | None) -> list[str]:
+    """Avertissements non bloquants : les notes tombent sous 70 % du run précédent."""
+    if nb_notes is not None and nb_notes_precedent and nb_notes < EFFONDREMENT * nb_notes_precedent:
+        return [f"ALERTE : {nb_notes} notes contre {nb_notes_precedent} au run précédent "
+                f"(moins de {EFFONDREMENT:.0%}) — vérifier qu'il s'agit d'un changement de méthode, pas d'une panne"]
+    return []
+
+
+_RANG_SIGNAL = ("ÉVITER FORT", "ÉVITER", "ATTENDRE", "SURVEILLER", "ACHETER")
+
+
+def _rang_signal(signal) -> int | None:
+    sig = (signal or "").strip()
+    for p in ("ÉVITER FORT", "ÉVITER", "ATTENDRE", "SURVEILLER", "ACHETER"):
+        if sig.startswith(p):
+            return _RANG_SIGNAL.index(p)
+    return None            # « Données insuffisantes », « SUSPENDU » : hors échelle
+
+
+def limiter_signal_partiel(signal_actuel, signal_simule, partielle: bool):
+    """Règle 11 : une note PARTIELLE ne peut pas produire un signal plus
+    favorable que celui de la grille actuelle. Rend le signal à publier.
+
+    Hors échelle (« Données insuffisantes », « SUSPENDU »), rien n'est limité.
+    """
+    if not partielle:
+        return signal_simule
+    a, b = _rang_signal(signal_actuel), _rang_signal(signal_simule)
+    if a is None or b is None:
+        return signal_simule
+    return signal_actuel if b > a else signal_simule
 
 
 def masi1_sans_note(titres) -> list[tuple[str, str]]:

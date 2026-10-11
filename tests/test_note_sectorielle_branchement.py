@@ -127,7 +127,8 @@ def test_mode_comparaison_ne_bloque_jamais_la_publication(monkeypatch):
 def test_le_second_pipeline_garde_la_note_actuelle_en_comparaison(monkeypatch):
     from pipeline import collect_financial_data as c
     monkeypatch.setattr(c, "noter_depuis_fichiers", lambda surcharge=None: {
-        "ALU": {"famille": "autre", "note": 9.0, "poids_disponible": 100, "motif": None, "criteres": {}}})
+        "ALU": {"famille": "autre", "note": 9.0, "poids_disponible": 100, "motif": None, "criteres": {},
+                "partielle": False, "criteres_essentiels_manquants": []}})
     monkeypatch.setattr(c, "NOTE_METIER_PUBLIEE", False)
     monkeypatch.setattr(c, "compute_fond_score", lambda sym: 4.0)
     sortie = {"timestamp": "2026-10-11T00:00:00Z", "data": {"ALU": {
@@ -182,8 +183,10 @@ def test_publie_un_titre_note_recoit_la_note_de_sa_famille_et_son_v53(monkeypatc
 def test_publie_le_second_pipeline_note_par_famille(monkeypatch):
     from pipeline import collect_financial_data as c
     monkeypatch.setattr(c, "noter_depuis_fichiers", lambda surcharge=None: {
-        "AAA": {"famille": "autre", "note": None, "poids_disponible": 0, "motif": "x", "criteres": {}},
-        "BBB": {"famille": "autre", "note": 6.0, "poids_disponible": 100, "motif": None, "criteres": {}}})
+        "AAA": {"famille": "autre", "note": None, "poids_disponible": 0, "motif": "x", "criteres": {},
+                "partielle": False, "criteres_essentiels_manquants": []},
+        "BBB": {"famille": "autre", "note": 6.0, "poids_disponible": 100, "motif": None, "criteres": {},
+                "partielle": False, "criteres_essentiels_manquants": []}})
     monkeypatch.setattr(c, "NOTE_METIER_PUBLIEE", True)
     sortie = {"timestamp": "2026-10-10T00:00:00Z", "data": {
         s: {"market": {"price": 100.0}, "technical": {"rsi_14": 50}, "fundamentals": {},
@@ -231,7 +234,7 @@ def _sources(n=77):
 
 def test_le_plancher_accepte_les_sources_mesurees_le_11_10():
     from pipeline.smart_money import fond_score_sectoriel as fs
-    assert fs.problemes_sources(_sources(77), 70, 70) == []
+    assert fs.problemes_sources(_sources(77)) == []
 
 
 def test_le_plancher_refuse_des_sources_vides_ou_absentes():
@@ -244,11 +247,23 @@ def test_le_plancher_refuse_des_sources_vides_ou_absentes():
     assert [x for x in fs.problemes_sources(un)] == ["source « bpa » absente ou vide : 0 entrées (minimum 60)"]
 
 
-def test_le_plancher_refuse_un_effondrement_par_rapport_au_run_precedent():
+def test_un_effondrement_des_notes_est_une_alerte_pas_un_blocage(caplog, monkeypatch):
+    # 12/10/2026 : une correction méthodologique peut faire chuter le nombre de
+    # notes ; seuls des fichiers sources absents ou vides bloquent.
+    import logging
+    import update_data
     from pipeline.smart_money import fond_score_sectoriel as fs
-    assert fs.problemes_sources(_sources(), 40, 70) == ["notes effondrées : 40 contre 70 au run précédent"]
-    assert fs.problemes_sources(_sources(), 50, 70) == []          # 71 % : pas un effondrement
-    assert fs.problemes_sources(_sources(), 0, None) == []         # premier run : pas de référence
+    assert "ALERTE" in fs.alertes_notes(40, 70)[0]
+    assert fs.alertes_notes(50, 70) == [] and fs.alertes_notes(0, None) == [] and fs.alertes_notes(None, 70) == []
+    assert fs.problemes_sources(_sources()) == [], "des sources saines ne bloquent jamais"
+    monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: False)
+    sources = {f"T{i}": {} for i in range(80)}
+    out = [_fiche_sortie("ALU")]
+    with caplog.at_level(logging.WARNING):
+        update_data.appliquer_note_sectorielle(out, {"ALU": _passe1("ALU")}, fondamentaux=sources, bpa=sources,
+                                               faits=sources, s1=sources, publier=True, nb_notes_precedent=70)
+    assert out[0]["note_fond_metier"] is not None                 # publié, pas bloqué
+    assert any("ALERTE" in r.message for r in caplog.records)
 
 
 def test_l_abstention_d_un_titre_ne_bloque_jamais_meme_au_masi_1(monkeypatch):
@@ -273,11 +288,6 @@ def test_le_mode_publie_refuse_de_publier_sur_sources_vides(monkeypatch):
         update_data.appliquer_note_sectorielle(out, {"ALU": _passe1("ALU")}, fondamentaux={}, bpa={},
                                                faits={}, s1={}, publier=True)
     assert "sources en panne" in str(exc.value)
-    with pytest.raises(SystemExit):
-        update_data.appliquer_note_sectorielle(out, {"ALU": _passe1("ALU")}, fondamentaux={f"T{i}": {} for i in range(80)},
-                                               bpa={f"T{i}": {} for i in range(80)}, faits={f"T{i}": {} for i in range(80)},
-                                               s1={f"T{i}": {} for i in range(80)}, publier=True,
-                                               nb_notes_precedent=70)
 
 
 def test_le_controle_de_seance_bloque_sur_panne_de_sources_et_avertit_pour_le_masi_1(tmp_path, monkeypatch):
@@ -328,3 +338,97 @@ def test_la_note_publiee_a_cote_est_compacte_et_complete():
     assert {"etat", "valeur", "periode", "base", "poids_nominal", "poids_effectif", "reference"} <= set(c)
     assert len(str(d)) < 4000, "chaque titre alourdirait data.json de plus de 4 Ko"
     assert fs.detail_publie(None) is None
+
+
+# ── 17. isolation : la comparaison ne peut jamais interrompre le run ────────
+# 12/10/2026 (Abd Moutalib) : TOUT le calcul est enveloppé, pas seulement la
+# lecture du S1.
+
+def _champs_publies(e):
+    return {c: e[c] for c in ("score_fond", "v53", "sig", "setup", "verdict_plafonne", "_meta")}
+
+
+def test_une_exception_dans_la_comparaison_ne_change_aucun_champ_publie(monkeypatch, caplog):
+    import copy
+    import logging
+    import update_data
+    from pipeline.smart_money import fond_score_sectoriel as fs
+
+    def boum(*a, **k):
+        raise RuntimeError("panne injectée dans la comparaison")
+
+    monkeypatch.setattr(fs, "noter_univers", boum)
+    out = [_fiche_sortie(s) for s in ("ALU", "MNG")]
+    avant = [copy.deepcopy(_champs_publies(e)) for e in out]
+    with caplog.at_level(logging.WARNING):
+        update_data.note_metier_du_run(out, {s: _passe1(s) for s in ("ALU", "MNG")},
+                                       fondamentaux={}, bpa={}, faits={})
+    assert [_champs_publies(e) for e in out] == avant
+    for e in out:
+        assert e["note_fond_metier"]["indisponible"] is True and "panne injectée" in e["note_fond_metier"]["motif"]
+    assert any("indisponible" in r.message for r in caplog.records), "l'erreur doit être journalisée"
+
+
+def test_une_lecture_de_s1_impossible_est_isolee_aussi(tmp_path):
+    import update_data
+    out = [_fiche_sortie("ALU")]
+    update_data.note_metier_du_run(out, {"ALU": _passe1("ALU")}, fondamentaux={}, bpa={}, faits={}, racine=tmp_path)
+    assert out[0]["note_fond_metier"]["indisponible"] is True and out[0]["v53"] == 9.99
+
+
+def test_en_mode_publie_une_erreur_reste_bloquante(monkeypatch):
+    import update_data
+    from pipeline.smart_money import fond_score_sectoriel as fs
+    monkeypatch.setattr(bvc_config, "NOTE_METIER_PUBLIEE", True)
+    monkeypatch.setattr(fs, "noter_univers", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("x")))
+    with pytest.raises(RuntimeError):
+        update_data.note_metier_du_run([_fiche_sortie("ALU")], {"ALU": _passe1("ALU")}, fondamentaux={}, bpa={}, faits={})
+
+
+def test_le_run_appelle_la_comparaison_isolee_avant_d_ecrire_data_json():
+    src = (Path(bvc_config.__file__).parent / "update_data.py").read_text(encoding="utf-8")
+    run = src[src.index("def run(dry_run=False"):]
+    assert "note_metier_du_run(tickers_out" in run and "appliquer_note_sectorielle(" not in run, (
+        "le run ne doit appeler la note par famille QUE par le wrapper isolé")
+    assert run.index("note_metier_du_run(tickers_out") < run.index("OUTPUT.write_text"), "avant l'écriture"
+    corps = src[src.index("def note_metier_du_run"):src.index("def run(dry_run=False")]
+    assert "except Exception" in corps and "indisponible" in corps
+
+
+def test_le_second_pipeline_isole_aussi_la_comparaison(monkeypatch):
+    from pipeline import collect_financial_data as c
+
+    def boum(surcharge=None):
+        raise RuntimeError("panne")
+
+    monkeypatch.setattr(c, "noter_depuis_fichiers", boum)
+    monkeypatch.setattr(c, "NOTE_METIER_PUBLIEE", False)
+    monkeypatch.setattr(c, "compute_fond_score", lambda sym: 4.0)
+    sortie = {"timestamp": "2026-10-12T00:00:00Z", "data": {"ALU": {
+        "market": {"price": 100.0}, "technical": {"rsi_14": 50}, "fundamentals": {},
+        "smart_money": {}, "flags": {"stale": False, "partial_data": False}}}}
+    t = c.to_legacy_format(sortie)["tickers"][0]
+    assert t["score_fond"] == 4.0 and t["note_fond_metier"] == {"indisponible": True}
+
+
+# ── 18. note partielle : jamais un signal plus favorable ─────────────────────
+
+def test_une_note_partielle_ne_donne_pas_un_signal_plus_favorable_que_la_grille_actuelle(monkeypatch):
+    import update_data
+    monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: False)
+    monkeypatch.setattr(update_data, "sans_comptes", lambda t: None)
+    sources = {f"T{i}": {} for i in range(80)}
+    # ALU : rentabilité ABSENTE (aucun ROIC ni ROE), croissance 50/50 et PER très bas
+    # → note 9,2 sur 50 % du poids, donc PARTIELLE.
+    fond = {"ALU": _fiche() | {"croissance_bpa": 50.0, "croissance_ca": 50.0}}
+    pairs = ("AFI", "CIM", "COL")                                    # PER 20 : la médiane des pairs d'ALU
+    out = [_fiche_sortie("ALU")] + [_fiche_sortie(s, price=200.0) for s in pairs]
+    out[0]["sig"] = "ATTENDRE"                                      # signal de la grille actuelle
+    update_data.appliquer_note_sectorielle(
+        out, {s: _passe1(s, 100.0 if s == "ALU" else 200.0) for s in ("ALU",) + pairs},
+        fondamentaux=sources | fond, bpa=sources | {s: {"bpa_12m": 10.0} for s in ("ALU",) + pairs},
+        faits=sources, s1=sources, publier=True)
+    nf = out[0]["note_fond_metier"]
+    assert nf["criteres_essentiels_manquants"] == ["rentabilite"]
+    assert nf["note"] is not None and out[0]["v53"] >= 6.5, "la note seule donnerait ACHETER"
+    assert out[0]["sig"] == "ATTENDRE", "garde-fou : une note partielle n'améliore pas le signal"

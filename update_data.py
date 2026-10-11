@@ -3827,7 +3827,8 @@ def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux:
     sources. Les POIDS des piliers ne sont jamais touchés (R8).
     """
     from bvc_config import NOTE_METIER_PUBLIEE
-    from pipeline.smart_money.fond_score_sectoriel import detail_publie, noter_univers, problemes_sources
+    from pipeline.smart_money.fond_score_sectoriel import (
+        alertes_notes, detail_publie, limiter_signal_partiel, noter_univers, problemes_sources)
     publier = NOTE_METIER_PUBLIEE if publier is None else publier
     res = noter_univers(
         [e["symbol"] for e in tickers_out],
@@ -3837,16 +3838,22 @@ def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux:
         sans_comptes={e["symbol"] for e in tickers_out if sans_comptes(e["symbol"])},
         suspendus={e["symbol"] for e in tickers_out if (e.get("_meta") or {}).get("suspendu")})
     if publier:
-        pannes = problemes_sources({"fondamentaux": fondamentaux, "bpa": bpa, "faits": faits, "s1": s1},
-                                   sum(1 for r in res.values() if r["note"] is not None), nb_notes_precedent)
+        # Ne bloque QUE sur des fichiers sources absents ou vides. Une chute du
+        # nombre de notes est une ALERTE : une correction de méthode peut la causer.
+        pannes = problemes_sources({"fondamentaux": fondamentaux, "bpa": bpa, "faits": faits, "s1": s1})
         if pannes:
             raise SystemExit("note par famille : sources en panne, rien n'est publié : " + " ; ".join(pannes))
+        for _a in alertes_notes(sum(1 for r in res.values() if r["note"] is not None), nb_notes_precedent):
+            logger.warning(_a)
+    # Atomique : tous les détails sont construits AVANT d'écrire quoi que ce soit.
+    details = {e["symbol"]: detail_publie(res[e["symbol"]]) for e in tickers_out}
     for e in tickers_out:
         sym = e["symbol"]
         r, p1 = res[sym], passe1[sym]
         note = r["note"]
-        e["note_fond_metier"] = detail_publie(r)
+        e["note_fond_metier"] = details[sym]
         if publier:
+            sig_actuel = e["sig"]               # signal de la grille actuelle, calculé dans la boucle
             if note is None:
                 e["score_fond"], e["v53"] = None, None
                 e["sig"], e["verdict_plafonne"] = _signal_publie(
@@ -3859,11 +3866,45 @@ def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux:
                 e["score_fond"], e["v53"] = v["score_fond"], v["v53"]
                 e["sig"], e["verdict_plafonne"] = _signal_publie(
                     sym, v["sig"], p1["tech_nf"], p1["depuis_reprise"])
+                # Règle 11 : une note PARTIELLE ne peut pas être plus favorable que la grille actuelle.
+                e["sig"] = limiter_signal_partiel(sig_actuel, e["sig"], r["partielle"])
                 e["setup"] = _setup_technique(v["v53"], p1["price"], p1["ma20"], p1["ma50"], p1["tech_nf"])
         logger.info(f"  ✓ {sym}: {e['price']} DH | RSI {e.get('rsi')} | Score v5.3: "
                     f"{e['v53']} (fond {e['score_fond']}) | {e['sig']} | note par famille "
                     f"({r['famille']}) : {note}")
     return res
+
+
+def note_metier_du_run(tickers_out: list, passe1: dict, *, fondamentaux: dict, bpa: dict, faits: dict,
+                       ex_all: dict | None = None, racine: Path | None = None) -> None:
+    """Calcule la note par famille du run, ISOLÉE en mode comparaison.
+
+    ⚠️ 12/10/2026 (Abd Moutalib) : en mode comparaison, TOUT le calcul — lecture
+    du S1, compte des notes du run précédent, notation, détail publié — est
+    enveloppé. Une erreur devient un avertissement journalisé, `note_fond_metier`
+    est marquée indisponible et la grille ACTUELLE se publie normalement : un
+    ajout de comparaison ne doit jamais interrompre le run. En mode publié, une
+    erreur reste bloquante (la note publiée en dépend)."""
+    from bvc_config import NOTE_METIER_PUBLIEE
+
+    def calcul():
+        s1 = json.loads(((racine or Path(__file__).parent) / "datasets"
+                         / "resultats_s1_2026.json").read_text(encoding="utf-8")).get("titres", {})
+        nb_prec = sum(1 for t in (ex_all or {}).values()
+                      if ((t or {}).get("note_fond_metier") or {}).get("note") is not None)
+        appliquer_note_sectorielle(tickers_out, passe1, fondamentaux=fondamentaux, bpa=bpa, faits=faits,
+                                   s1=s1, nb_notes_precedent=nb_prec or None)
+
+    if NOTE_METIER_PUBLIEE:
+        calcul()
+        return
+    try:
+        calcul()
+    except Exception as exc:                                   # noqa: BLE001 — isolation voulue
+        logger.warning(f"note par famille (comparaison) indisponible : {type(exc).__name__}: {exc} "
+                       "— la grille actuelle est publiée normalement")
+        for t in tickers_out:
+            t["note_fond_metier"] = {"indisponible": True, "motif": f"{type(exc).__name__}: {exc}"}
 
 
 def run(dry_run=False, push=False, token=""):
@@ -4867,23 +4908,8 @@ def run(dry_run=False, push=False, token=""):
     # `bvc_config.NOTE_METIER_PUBLIEE` est faux. Décision d'Abd Moutalib du
     # 10/10/2026 (R8 assoupli sur le CONTENU, pas sur les poids), corrections
     # exigées le 11/10 avant toute bascule.
-    try:
-        _s1 = json.loads((Path(__file__).parent / "datasets"
-                          / "resultats_s1_2026.json").read_text(encoding="utf-8")).get("titres", {})
-    except (OSError, ValueError) as _e:
-        # La comparaison est un ajout : sa panne ne doit pas empêcher la
-        # publication de la note actuelle. En mode publié, elle bloque.
-        from bvc_config import NOTE_METIER_PUBLIEE as _publiee
-        if _publiee:
-            raise SystemExit(f"resultats_s1_2026.json illisible ({_e}) : la note par famille "
-                             "ne peut pas être calculée, rien n'est publié")
-        logger.warning(f"resultats_s1_2026.json illisible ({_e}) : comparaison par famille indisponible")
-        _s1 = None
-    if _s1 is not None:
-        _nb_prec = sum(1 for _t in (_ex_all or {}).values()
-                       if ((_t or {}).get("note_fond_metier") or {}).get("note") is not None)
-        appliquer_note_sectorielle(tickers_out, passe1, fondamentaux=_FOND_BRUT, bpa=BPA_DATA,
-                                   faits=FAITS_DATA, s1=_s1, nb_notes_precedent=_nb_prec or None)
+    note_metier_du_run(tickers_out, passe1, fondamentaux=_FOND_BRUT, bpa=BPA_DATA, faits=FAITS_DATA,
+                       ex_all=_ex_all)
 
     # 5. Construction data.json
     output = {

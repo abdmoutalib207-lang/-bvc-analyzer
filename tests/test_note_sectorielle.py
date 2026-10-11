@@ -657,3 +657,166 @@ def test_le_dividende_ne_change_pas_la_note():
         b = {"bpa_12m": 5.0, "div_dh": div, "dividende_exceptionnel": div * 10}
         return fs.noter(_entree("ATW", f, b, prix=60.0), _med(per={"marche": [12.0] * 3}))["note"]
     assert note(0.0) == note(25.0) == note(900.0)
+
+
+# ── 13. grandeur contestée ⇒ tout critère qui la consomme est suspendu ──────
+
+def _fiche_dn(dn=1000.0, roic=15.0, dne=2.0, ebitda=500.0, roe_2025=None, secteur="Mines"):
+    """Une fiche dont ROIC et dette/EBITDA CITENT la dette nette dans leurs pièces."""
+    rp = {"dette_nette": {"valeur": dn, "date": "2025-12-31"},
+          "ebitda": {"valeur": ebitda, "date": "2025-12-31"},
+          "roic": {"valeur": roic, "date": "2025-12-31", "sources": {"dette_nette": "ratios_publies.dette_nette"}},
+          "dette_nette_ebitda": {"valeur": dne, "date": "2025-12-31",
+                                 "sources": {"dette_nette": "ratios_publies.dette_nette", "ebitda": "ratios_publies.ebitda"}}}
+    if roe_2025 is not None:
+        rp["roe_2025"] = {"valeur": roe_2025, "date": "2025-12-31"}
+    return {"secteur": secteur, "source_s1_2026": "x", "nb_actions": 10_000_000, "ratios_publies": rp,
+            "croissance_bpa": 10.0, "croissance_ca": 10.0}
+
+
+def _entree_dn(sym, endettement, **kw):
+    return _entree(sym, _fiche_dn(**kw), {"bpa_12m": 10.0}, {"actions": 10_000_000},
+                   _faits(2000.0, 2000.0, endettement_net=endettement), 100.0, None)
+
+
+def test_dette_nette_contestee_suspend_roic_dette_ebitda_et_ve():
+    e = _entree_dn("SMI", 1500.0, roe_2025=20.0)                    # 1 000 contre 1 500 : 33 %
+    assert "grandeur contestée" in e["dette_nette_contestee"]
+    r = fs.noter(e, _med(per={"marche": [10.0] * 3}))
+    for nom in ("rentabilite", "bilan", "valorisation"):
+        c = r["criteres"][nom]
+        assert c["etat"] == fs.SUSPENDU and c["note"] is None and c["poids_effectif"] == 0, nom
+    assert "grandeur contestée" in r["criteres"]["rentabilite"]["motif"]
+    assert r["criteres"]["rentabilite"]["valeur"] == 15.0 and "affiché, non noté" in r["criteres"]["rentabilite"]["mesure"]
+    assert "grandeur contestée" in r["criteres"]["bilan"]["motif"] and r["criteres"]["bilan"]["valeur"] == 2.0
+    # Le ROE ne remplace JAMAIS un ROIC contesté (même s'il existe).
+    assert r["criteres"]["rentabilite"]["etat"] == fs.SUSPENDU
+
+
+def test_dette_nette_recoupee_ne_suspend_rien():
+    e = _entree_dn("SMI", 1010.0)                                   # 1 % : dans la tolérance
+    assert e["dette_nette_contestee"] is None
+    r = fs.noter(e, _med(per={"marche": [10.0] * 3}))
+    assert r["criteres"]["rentabilite"]["etat"] == fs.PRESENT and r["criteres"]["bilan"]["etat"] == fs.PRESENT
+
+
+def test_dette_nette_contestee_s_applique_a_toutes_les_familles_qui_la_consomment():
+    # Famille « autre » : ROIC et dette/EBITDA ; promoteur : le bilan DN/FP.
+    r = fs.noter(_entree_dn("ALU", 1500.0), _med(per={"marche": [10.0] * 3}))
+    assert r["criteres"]["rentabilite"]["etat"] == fs.SUSPENDU and r["criteres"]["bilan"]["etat"] == fs.SUSPENDU
+    prom = _entree_dn("ADI", 1500.0, roe_2025=10.0)
+    p = fs.noter(prom, _med(per={"marche": [10.0] * 3}))
+    assert p["criteres"]["rentabilite"]["etat"] == fs.PRESENT, "le ROE d'un promoteur ne consomme pas la dette"
+    assert "grandeur contestée" in p["criteres"]["bilan"]["motif"]
+
+
+def test_ratio_qui_ne_cite_pas_la_dette_nette_n_est_pas_suspendu():
+    fiche = _fiche_dn()
+    fiche["ratios_publies"]["roic"].pop("sources")
+    e = _entree("SMI", fiche, {"bpa_12m": 10.0}, {"actions": 10_000_000},
+                _faits(2000.0, 2000.0, endettement_net=1500.0), 100.0, None)
+    assert fs.noter(e, _med())["criteres"]["rentabilite"]["etat"] == fs.PRESENT
+
+
+def test_aucun_critere_ne_reste_note_sur_une_grandeur_contestee_dans_les_donnees_reelles():
+    # Invariant sur les 80 titres réels : si la dette nette est contestée, ni le
+    # ROIC ni la dette/EBITDA qui la citent ne sont notés.
+    res = fs.noter_depuis_fichiers()
+    contestes = [s for s, r in res.items() if r["entree"]["dette_nette_contestee"]]
+    assert contestes, "le recoupement dette nette / endettement net doit échouer pour au moins un titre"
+    for s in contestes:
+        r = res[s]
+        e = r["entree"]
+        if e["roic"] and fs._consomme_dette_nette(e["roic"]) and r["famille"] not in (
+                "banque", "assurance", "financement", "paiement", "fonciere", "holding", "promoteur"):
+            assert r["criteres"]["rentabilite"]["etat"] == fs.SUSPENDU, s
+        if r["famille"] not in ("banque", "assurance", "financement", "paiement"):
+            assert r["criteres"]["bilan"]["etat"] == fs.SUSPENDU, s
+
+
+# ── 14. remplacement de la valorisation : règle de FAMILLE ────────────────
+
+BPA_VERIFIE = {"bpa_12m": 10.0, "fin_12m": "2026-06-30", "source_12m": "S1 : https://www.ammc.ma/x.pdf p.1"}
+
+
+def _mine(sym, endettement=None, ebitda=500.0, bpa=None):
+    fiche = _fiche_dn(ebitda=ebitda) if ebitda else _fiche(roic=15.0)
+    return _entree(sym, fiche, bpa if bpa is not None else BPA_VERIFIE, {"actions": 10_000_000},
+                   _faits(2000.0, 2000.0, **({"endettement_net": endettement} if endettement else {})),
+                   100.0, None)
+
+
+def test_le_per_remplace_la_valorisation_suspendue_par_regle_de_famille():
+    med = _med(per={"marche": [20.0] * 3}, ve={"marche": [8.0] * 3})
+    for sym, endett in (("MNG", 1500.0), ("CMT", None)):             # VE contesté ; VE sans EBITDA
+        e = _mine(sym, endettement=endett, ebitda=500.0 if sym == "MNG" else None)
+        v = fs.noter(e, med)["criteres"]["valorisation"]
+        assert v["etat"] == fs.REMPLACEMENT, sym
+        assert "REMPLACEMENT du VE/EBITDA" in v["mesure"] and "règle de famille « mines »" in v["mesure"]
+        assert v["reference"]["type"] == "cote_entiere" and "BPA vérifié" in v["base"]
+        assert v["note"] == fs.note_relatif(10.0 / 20.0)            # PER 10 ÷ 20 = 0,5
+    # Une famille hors de la table n'a AUCUN remplacement.
+    pose = {}
+    fs._remplacer_par_per(_mine("IAM"), "telecom", med, True, lambda nom, etat, **kw: pose.update(etat=etat, **kw),
+                          fs.SUSPENDU, "VE suspendu")
+    assert pose["etat"] == fs.SUSPENDU and "non déclaré pertinent" in pose["motif"]
+
+
+def test_le_remplacement_exige_un_bpa_verifie_par_un_depot_et_une_periode():
+    med = _med(per={"marche": [20.0] * 3})
+    for bpa in ({"bpa_12m": 10.0, "fin_12m": "2026-06-30", "source_12m": "casabourse.app"},       # pas un dépôt
+                {"bpa_12m": 10.0, "source_12m": "https://www.ammc.ma/x.pdf"},                    # période absente
+                {"bpa_12m": 10.0, "fin_12m": "2026-06-30"}):                                       # pièce absente
+        e = _mine("CMT", ebitda=None, bpa=bpa)
+        v = fs.noter(e, med)["criteres"]["valorisation"]
+        assert v["etat"] == fs.ABSENT and "aucun remplacement : BPA 12 mois non vérifié" in v["motif"]
+
+
+def test_le_remplacement_exige_des_comparables_et_un_per_defini():
+    e = _mine("CMT", ebitda=None)
+    sans = fs.noter(e, _med())["criteres"]["valorisation"]
+    assert sans["etat"] == fs.ABSENT and "aucun comparable identifié" in sans["motif"]
+    perte = _mine("CMT", ebitda=None, bpa=BPA_VERIFIE | {"bpa_12m": -3.0})
+    assert "PER non défini" in fs.noter(perte, _med(per={"marche": [20.0] * 3}))["criteres"]["valorisation"]["motif"]
+
+
+def test_le_remplacement_ne_concerne_ni_les_foncieres_ni_les_autres_familles():
+    assert set(fs.REMPLACEMENT_PAR_PER) == {"mines"}
+    # Foncière : P/B seul ; jamais de PER (le résultat intègre la juste valeur).
+    e = _entree("ARD", _fiche(roe_2025=9.0), BPA_VERIFIE, prix=10.0, pb=1.0)
+    v = fs.noter(e, fs.calculer_medianes([e]))["criteres"]["valorisation"]
+    assert v["etat"] == fs.ABSENT and "PER" not in (v["mesure"] or "")
+
+
+# ── 15. note partielle ─────────────────────────────────────────────────────
+
+def test_une_note_sans_critere_essentiel_est_marquee_partielle():
+    # Rentabilité suspendue (AFM : ROE sans objet) mais note calculée : PARTIELLE.
+    e = _entree("AFM", _fiche("Assurance", roe_2025=103.0) | {"croissance_bpa": 10.0, "croissance_ca": 10.0},
+                {"bpa_12m": 10.0}, prix=100.0)
+    r = fs.noter(e, _med(per={"marche": [10.0] * 3}))
+    assert r["note"] is not None and r["partielle"] is True
+    assert r["criteres_essentiels_manquants"] == ["rentabilite"]
+    # Complète : aucune marque.
+    plein = _entree("ALU", _fiche(roic=20.0) | {"croissance_bpa": 10.0, "croissance_ca": 10.0},
+                    {"bpa_12m": 10.0}, prix=100.0)
+    rp = fs.noter(plein, _med(per={"marche": [10.0] * 3}))
+    assert rp["partielle"] is False and rp["criteres_essentiels_manquants"] == []
+    # Sans note : la liste des manquants reste, « partielle » est faux (il n'y a pas de note).
+    vide = fs.noter(_entree("ALU", {}, {}), _med())
+    assert vide["note"] is None and vide["partielle"] is False
+    assert vide["criteres_essentiels_manquants"] == ["rentabilite", "valorisation"]
+
+
+@pytest.mark.parametrize("actuel,simule,partielle,attendu", [
+    ("ATTENDRE", "ACHETER ★★", True, "ATTENDRE"),            # plus favorable : refusé
+    ("SURVEILLER ★", "ACHETER", True, "SURVEILLER ★"),
+    ("ÉVITER", "ATTENDRE", True, "ÉVITER"),
+    ("ATTENDRE", "ACHETER ★★", False, "ACHETER ★★"),         # note complète : libre
+    ("SURVEILLER ★", "ÉVITER", True, "ÉVITER"),               # moins favorable : admis
+    ("ATTENDRE", "ATTENDRE", True, "ATTENDRE"),
+    ("Données insuffisantes", "ACHETER", True, "ACHETER"),    # hors échelle : non limité
+    ("SUSPENDU", "SURVEILLER ★", True, "SURVEILLER ★"),
+])
+def test_limiter_signal_partiel(actuel, simule, partielle, attendu):
+    assert fs.limiter_signal_partiel(actuel, simule, partielle) == attendu
