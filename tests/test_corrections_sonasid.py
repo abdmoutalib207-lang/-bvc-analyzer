@@ -96,21 +96,31 @@ def test_les_valeurs_corrigees_sont_celles_de_l_operateur(recu, serie):
         assert {k: serie[l["d"]][k] for k in ("o", "h", "l", "c", "v")} == l["corrige"]
 
 
+def _planchers_attendus(ordonnee, ancre):
+    """Plus-bas 52 semaines et 90 jours des séances JUSQU'À `ancre` (la date du
+    cache). ⚠️ 11/10/2026 : l'ancre était `pd.Timestamp.now()`, l'horloge de la
+    machine d'essai — un attendu daté : un lundi, avant la régénération du
+    cache, un plus-bas sorti de la fenêtre entre-temps faisait échouer un test
+    de la garde bloquante sur des données saines."""
+    import pandas as pd
+    df = pd.DataFrame(ordonnee)
+    dates = pd.to_datetime(df["d"], errors="coerce")
+    ancre = pd.Timestamp(ancre)
+    df, dates = df[dates <= ancre], dates[dates <= ancre]
+    d52 = df[dates >= ancre - pd.Timedelta(weeks=52)]
+    d90 = df[dates >= ancre - pd.Timedelta(days=90)]
+    return (float((d52 if not d52.empty else df)["l"].min()),
+            float((d90 if not d90.empty else df)["l"].min()))
+
+
 def test_le_plus_bas_52_semaines_n_est_plus_un_cours_de_stokvis():
     """67,08 DH était le plus-bas de Stokvis du 11/09, servi comme plancher
     annuel de Sonasid — un titre à 1 900 DH."""
     cache = json.loads((RACINE / "pipeline" / "historical_data.json")
                        .read_text(encoding="utf-8"))["SNA"]
-    import pandas as pd
     ordonnee = json.loads((RACINE / "pipeline" / "candles" / "SNA.json")
                           .read_text(encoding="utf-8"))
-    df = pd.DataFrame(ordonnee)
-    dates = pd.to_datetime(df["d"], errors="coerce")
-    maintenant = pd.Timestamp.now()
-    d52 = df[dates >= maintenant - pd.Timedelta(weeks=52)]
-    d90 = df[dates >= maintenant - pd.Timedelta(days=90)]
-    attendu_l52 = float((d52 if not d52.empty else df)["l"].min())
-    attendu_l90 = float((d90 if not d90.empty else df)["l"].min())
+    attendu_l52, attendu_l90 = _planchers_attendus(ordonnee, cache["last_date"])
 
     assert cache["l52w"] == attendu_l52
     assert cache["l90"] == attendu_l90
@@ -183,3 +193,39 @@ def test_le_30_juillet_disparait_avec_l_import_operateur(serie):
     assert c["_statut"].startswith("SUPERSÉDÉ")
     assert "2026-07-30" not in serie, (
         "une bougie du jour de la Fête du Trône a survécu à l'import complet")
+
+
+# ── Contrôles du recalcul daté (11/10/2026) ────────────────────────────────
+
+def test_controle_negatif_le_recalcul_attrape_un_plancher_de_stokvis():
+    ordonnee = json.loads((RACINE / "pipeline" / "candles" / "SNA.json")
+                          .read_text(encoding="utf-8"))
+    cache = json.loads((RACINE / "pipeline" / "historical_data.json")
+                       .read_text(encoding="utf-8"))["SNA"]
+    l52, l90 = _planchers_attendus(ordonnee, cache["last_date"])
+    assert (cache["l52w"], cache["l90"]) == (l52, l90)
+    assert l52 != 67.08, "le plancher de Stokvis ne passerait pas"
+    # série polluée : un plancher de Stokvis dans la fenêtre change l'attendu,
+    # donc un cache resté à la vraie valeur serait vu comme faux.
+    sale = [dict(b) for b in ordonnee]
+    sale[-5].update({"o": 67.08, "l": 67.08})
+    assert _planchers_attendus(sale, cache["last_date"])[0] == 67.08 != cache["l52w"]
+
+
+def test_controle_positif_l_attendu_ne_depend_pas_de_l_horloge_de_la_machine(monkeypatch):
+    """Même résultat quelle que soit la date d'aujourd'hui (machine simulée six
+    mois plus tard), et une vraie chute continue (sous 1 000) ne fait pas
+    échouer le recalcul daté."""
+    import pandas as pd
+    import _echelle
+    ordonnee = json.loads((RACINE / "pipeline" / "candles" / "SNA.json")
+                          .read_text(encoding="utf-8"))
+    cache = json.loads((RACINE / "pipeline" / "historical_data.json")
+                       .read_text(encoding="utf-8"))["SNA"]
+    monkeypatch.setattr(pd.Timestamp, "now",
+                        classmethod(lambda cls, *a, **k: pd.Timestamp("2027-04-12")))
+    assert _planchers_attendus(ordonnee, cache["last_date"]) == (cache["l52w"], cache["l90"])
+    chute = _echelle.prolonger(ordonnee, round(ordonnee[-1]["c"] * 0.45, 2))
+    c2 = _echelle.cache_recalcule(chute)
+    l52, _ = _planchers_attendus(chute, c2["last_date"])
+    assert l52 == c2["l52w"] < 1000
