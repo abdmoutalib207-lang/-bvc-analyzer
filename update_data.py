@@ -2671,6 +2671,14 @@ def _actions_sourcees(ticker: str):
     na = (faits.get("nombre_actions_existant")
           or faits.get("nombre_actions_au_rapport")
           or faits.get("nombre_actions_retenu_pour_le_bpa"))
+    # ⚠️ 10/10/2026, accord d'Abd Moutalib : quand le dépôt n'imprime pas le
+    # nombre d'actions (CAR, PPM), celui de l'opérateur est accepté — mais
+    # seulement DÉCLARÉ comme tel dans l'entrée (origine + motif), jamais par
+    # défaut. Garde-fou : tests/test_price_to_book.py.
+    ref = faits.get("nombre_actions_referentiel") or {}
+    if (not na and ref.get("origine") == "operateur"
+            and ref.get("motif") == "non publié au dépôt"):
+        na = ref
     if not na:
         return None
     try:
