@@ -624,6 +624,30 @@ def _conclure(e, fam, crit, medianes, autoriser_cote, mesurer) -> dict:
     return out
 
 
+def _source_compacte(src: dict | None) -> dict | None:
+    """La source d'un critère réduite à l'essentiel pour data.json : le fichier et
+    la première URL de la pièce (texte complet dans le livrable de comparaison)."""
+    import re
+    if not src:
+        return None
+    m = re.search(r"https?://\S+", str(src.get("piece") or ""))
+    return {"fichier": src.get("fichier"), "piece": m.group(0).rstrip(" ;,.)") if m else None}
+
+
+def detail_publie(r: dict | None) -> dict | None:
+    """Ce que data.json publie de la note par famille, par titre : critère par
+    critère, état, valeur, période, base, poids nominal et EFFECTIF, référence
+    de comparaison (famille ou cote entière), dépendance à la cote entière.
+    Les pièces sont réduites à leur URL ; le détail complet est dans
+    `datasets/comparaison_note_metier_*.json`."""
+    if not r:
+        return None
+    crit = {k: {**{c: v for c, v in c_.items() if c != "source"}, "source": _source_compacte(c_.get("source"))}
+            for k, c_ in r["criteres"].items()}
+    return {"famille": r["famille"], "note": r["note"], "poids_disponible": r["poids_disponible"],
+            "motif": r["motif"], "criteres": crit, "dependance_cote": r.get("dependance_cote")}
+
+
 def noter_univers(titres, prix: dict, pb: dict, fondamentaux: dict, bpa: dict,
                   s1: dict, faits: dict, sans_comptes=(), suspendus=()) -> dict:
     """{sym: résultat de `noter`} pour tous les `titres`. Pure."""

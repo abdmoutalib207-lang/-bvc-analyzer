@@ -309,3 +309,22 @@ def test_le_controle_de_seance_bloque_sur_panne_de_sources_et_avertit_pour_le_ma
     assert resultat("fichiers de fondamentaux")[0] is False
     ecrire(False)
     assert resultat("avertissement")[0] is True and "sans objet" in resultat("avertissement")[1]
+
+
+# ── 16. ce que data.json publie ─────────────────────────────────────────
+
+def test_la_note_publiee_a_cote_est_compacte_et_complete():
+    from pipeline.smart_money import fond_score_sectoriel as fs
+    e = fs.construire_entree("ALU", _fiche(roic=20.0) | {"croissance_bpa": 5.0, "croissance_ca": 5.0},
+                             {"bpa_12m": 10.0}, None, None, 100.0, None)
+    e["ratios_publies_sources"] = None
+    r = fs.noter(e, {"per": {"famille": {}, "marche": [("_a", 10.0), ("_b", 10.0), ("_c", 10.0)]},
+                     "pb": {"famille": {}, "marche": []}, "ve_ebitda": {"famille": {}, "marche": []}})
+    r["criteres"]["rentabilite"]["source"] = {"fichier": "fondamentaux.json", "piece":
+        "résultat : https://www.ammc.ma/x.pdf p.4 ; capitaux propres : très long texte " * 20, "formule": "a ÷ b"}
+    d = fs.detail_publie(r)
+    c = d["criteres"]["rentabilite"]
+    assert c["source"] == {"fichier": "fondamentaux.json", "piece": "https://www.ammc.ma/x.pdf"}
+    assert {"etat", "valeur", "periode", "base", "poids_nominal", "poids_effectif", "reference"} <= set(c)
+    assert len(str(d)) < 4000, "chaque titre alourdirait data.json de plus de 4 Ko"
+    assert fs.detail_publie(None) is None

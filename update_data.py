@@ -3797,14 +3797,6 @@ def _setup_technique(v53_final, price, ma20, ma50, tech_nf):
     return "NEUTRE"
 
 
-def _detail_note_metier(r: dict) -> dict:
-    """Ce qui est PUBLIÉ de la note par famille : critère par critère, avec son
-    état, sa valeur, sa pièce, sa période, sa base, son poids EFFECTIF et sa
-    référence de comparaison (famille ou cote entière)."""
-    return {"famille": r["famille"], "note": r["note"], "poids_disponible": r["poids_disponible"],
-            "motif": r["motif"], "criteres": r["criteres"], "dependance_cote": r.get("dependance_cote")}
-
-
 def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux: dict,
                                bpa: dict, faits: dict, s1: dict, publier: bool | None = None,
                                nb_notes_precedent: int | None = None) -> dict:
@@ -3827,7 +3819,7 @@ def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux:
     sources. Les POIDS des piliers ne sont jamais touchés (R8).
     """
     from bvc_config import NOTE_METIER_PUBLIEE
-    from pipeline.smart_money.fond_score_sectoriel import noter_univers, problemes_sources
+    from pipeline.smart_money.fond_score_sectoriel import detail_publie, noter_univers, problemes_sources
     publier = NOTE_METIER_PUBLIEE if publier is None else publier
     res = noter_univers(
         [e["symbol"] for e in tickers_out],
@@ -3845,7 +3837,7 @@ def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux:
         sym = e["symbol"]
         r, p1 = res[sym], passe1[sym]
         note = r["note"]
-        e["note_fond_metier"] = _detail_note_metier(r)
+        e["note_fond_metier"] = detail_publie(r)
         if publier:
             if note is None:
                 e["score_fond"], e["v53"] = None, None

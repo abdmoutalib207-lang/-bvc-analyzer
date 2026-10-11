@@ -29,7 +29,7 @@ from pipeline.scrapers.market         import fetch_market_data
 from pipeline.scrapers.fundamentals   import fetch_fundamentals
 from bvc_config import NOTE_METIER_PUBLIEE
 from pipeline.smart_money.fond_score  import compute_fond_score, reload as fond_reload
-from pipeline.smart_money.fond_score_sectoriel import noter_depuis_fichiers
+from pipeline.smart_money.fond_score_sectoriel import detail_publie, noter_depuis_fichiers
 from pipeline.technical.indicators  import compute_technical
 from pipeline.smart_money.alpha     import get_smart_money
 from pipeline.utils.validation      import validate_ticker_data
@@ -150,13 +150,6 @@ def collect_ticker(sym: str, fallback: dict, dry_run: bool = False) -> tuple[str
 
 # ── Conversion format legacy (data.json pour index.html) ─────────────────────
 
-def _detail_metier(r: dict | None) -> dict | None:
-    if not r:
-        return None
-    return {"famille": r["famille"], "note": r["note"], "poids_disponible": r["poids_disponible"],
-            "motif": r["motif"], "criteres": r["criteres"], "dependance_cote": r.get("dependance_cote")}
-
-
 def to_legacy_format(pipeline_out: dict) -> dict:
     """Convertit le format v9 → format data.json consommé par index.html."""
     from pipeline.smart_money.alpha import SENTIMENT_CORPUS
@@ -248,7 +241,7 @@ def to_legacy_format(pipeline_out: dict) -> dict:
             # entre les deux) n'est plus affiché nulle part.
             "score_fond": round(fond_score, 2) if fond_score is not None else None,
             # Comparaison, non retenue dans la note tant que NOTE_METIER_PUBLIEE est faux.
-            "note_fond_metier": _detail_metier(notes.get(sym)),
+            "note_fond_metier": detail_publie(notes.get(sym)),
             "nlp":      nlp_score,
             "sig":      sig(v53),
             "alpha":    sm.get("alpha_12m"),
