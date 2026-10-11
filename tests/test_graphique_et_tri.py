@@ -123,12 +123,17 @@ def _lancer_fetchchart(n_bougies: int, periodes: list[str]):
         globalThis.fetch = async () => ({ok: true, json: async () => serie});
         globalThis.fetchMed24Raw = async () => null;
         globalThis.fetchMed24History = async () => [];
+        // ⚠️ 11/10/2026 : surcouche live coupée dans la source (`LIVE_ACTIF`).
+        // On reproduit la valeur publiée, lue dans la source elle-même.
+        globalThis.LIVE_ACTIF = %s;
         (async () => {
           const out = {};
           for (const p of %s) out[p] = (await fetchChart("XXX", p)).length;
           console.log(JSON.stringify(out));
         })();
-    """) % (code, n_bougies, json.dumps(periodes))
+    """) % (code, n_bougies,
+            "true" if "const LIVE_ACTIF = true;" in _source() else "false",
+            json.dumps(periodes))
     return _node(script)
 
 
@@ -255,3 +260,24 @@ def test_le_tri_survit_a_la_recherche():
         f"ordre obtenu {r['vus']}, attendu {sorted(desordre)}"
     )
     assert attendu  # l'attendu n'est pas vide par construction
+
+
+def test_sans_historique_local_aucun_secours_exterieur_n_est_appele():
+    """Revue de la PR #234 (11/10/2026) : sans historique local, fetchChart
+    appelait encore Médias24 — autre source, autre date — malgré la coupure du
+    live. Le graphique doit rester vide, et aucun secours ne doit partir."""
+    code = _bloc(_source(), "async function fetchChart(")
+    script = textwrap.dedent("""
+        %s
+        globalThis.LIVE_ACTIF = %s;
+        globalThis.fetch = async () => ({ok: false, json: async () => []});
+        let appels = 0;
+        globalThis.fetchMed24Raw = async () => { appels++; return null; };
+        globalThis.fetchMed24History = async () => { appels++; return [{x: 1, y: [1, 1, 1, 1]}]; };
+        (async () => {
+          const r = await fetchChart("XXX", "1y");
+          console.log(JSON.stringify({n: r.length, appels}));
+        })();
+    """) % (code, "true" if "const LIVE_ACTIF = true;" in _source() else "false")
+    vu = _node(script)
+    assert vu == {"n": 0, "appels": 0}, vu
