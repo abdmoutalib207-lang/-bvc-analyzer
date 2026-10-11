@@ -2965,7 +2965,8 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
                  isin_suspect=False, ratios_calcules=False,
                  chg=None, vol=None, prix_diffuse=None, cap_source=None,
                  cap_servie=None, cliquet_volume=False,
-                 seances_depuis_reprise=None, comptes_deposes=False) -> dict:
+                 seances_depuis_reprise=None, comptes_deposes=False,
+                 note_fond_ok=True) -> dict:
     """Provenance du prix et score de confiance 0–5.
 
     Le score suit la spécification du CLAUDE.md, un point par garantie :
@@ -3043,7 +3044,12 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
     #   5. liquidité — au moins 100 000 DH échangés par séance (médiane 20).
     confiance = sum((
         0 if stale else 1,
-        1 if ticker in _FOND_COMPUTED else 0,
+        # ⚠️ 10/10/2026 : « fondamentaux réels » exige désormais une NOTE
+        # fondamentale calculable (`note_fond_ok`). Un titre dont la grille de
+        # sa famille manque de la moitié de ses critères n'a pas de fondamentaux
+        # exploitables, qu'il figure ou non dans fondamentaux.json. Rupture de
+        # série de la confiance, comme celle du 06/10.
+        1 if (ticker in _FOND_COMPUTED and note_fond_ok) else 0,
         1 if n_echangees >= 15 else 0,
         1 if comptes_deposes else 0,
         1 if (_echange_median_dh(df_candles) or 0) >= 100_000 else 0,
@@ -3051,6 +3057,12 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
     if isin_suspect:
         confiance = min(confiance, 1)
     if sans_comptes(ticker):
+        confiance = min(confiance, 1)
+    # ⚠️ Sans note fondamentale (10/10/2026), la confiance est plafonnée à 1,
+    # comme pour une société sans comptes : le signal devient « Données
+    # insuffisantes » et la règle d'affichage grise la note. T2S gardait 4 et
+    # STK 3 à côté de ce libellé (relecture du 10/10).
+    if not note_fond_ok:
         confiance = min(confiance, 1)
 
     # ⚠️ Plafond de liquidité, ajouté le 01/09/2026.
@@ -3753,6 +3765,99 @@ def _entrees_depots_ammc() -> list:
         return _ammc.charger()
 
 
+def _signal_publie(ticker, sig_v53, tech_nf, depuis_reprise, sans_note=False):
+    """(signal publié, verdict_plafonne) : la SEULE règle de substitution.
+
+    Ordre : suspension, puis « Données insuffisantes » (reprise récente, société
+    sans comptes, ou note fondamentale incalculable), puis plafond de liquidité
+    du verdict (04/10/2026). Un titre sans note fondamentale ne reçoit JAMAIS un
+    verdict ACHETER ou ÉVITER : il n'a pas de pilier fondamental à juger.
+    """
+    if _suspendu_maintenant(ticker):
+        return "SUSPENDU", None
+    if depuis_reprise is not None or sans_comptes(ticker) or sans_note:
+        return "Données insuffisantes", None
+    if tech_nf and str(sig_v53).startswith("ACHETER"):
+        return "SURVEILLER ★", f"ACHETER plafonné : {tech_nf['motif']}"
+    return sig_v53, None
+
+
+def _setup_technique(v53_final, price, ma20, ma50, tech_nf):
+    """Étiquette technique déduite des moyennes et de la note. Pure."""
+    if tech_nf or ma20 is None or ma50 is None or v53_final is None:
+        return "NEUTRE"
+    if v53_final >= 7.0 and price > ma20 > ma50:
+        return "MOMENTUM CONFIRME"
+    if v53_final >= 5.5 and price < ma20 and price >= ma50:
+        return "PULLBACK HAUSSIER"
+    if v53_final >= 5.0 and price < ma50:
+        return "CONTRARIEN"
+    if v53_final < 4.5:
+        return "FAIBLESSE"
+    return "NEUTRE"
+
+
+def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux: dict,
+                               bpa: dict, faits: dict, s1: dict, publier: bool | None = None,
+                               nb_notes_precedent: int | None = None) -> dict:
+    """Calcule la note fondamentale de chaque fiche PAR FAMILLE et la publie.
+
+    ⚠️ MODE COMPARAISON (11/10/2026, Abd Moutalib) : tant que `publier` est faux
+    (`bvc_config.NOTE_METIER_PUBLIEE`), la note par famille est calculée et
+    publiée À CÔTÉ (`note_fond_metier`) ; `score_fond`, `v53`, `sig`, `setup`, la
+    confiance et le plancher de publication restent ceux de la grille ACTUELLE,
+    calculés dans la boucle. Rien de publié ne change.
+
+    ⚠️ DEUX PASSES, ET C'EST VOULU. Les valorisations sont RELATIVES (médiane des
+    pairs) : il faut les cours des 80 titres avant de noter le premier, or chaque
+    cours se résout dans la boucle, ticker par ticker. Ce passage voit tous les
+    cours et tous les P/B publiés.
+
+    Si `publier` est vrai, il remplace en plus `score_fond`, `v53`, `sig`,
+    `verdict_plafonne`, `setup` et la confiance (plafonnée à 1 sans note), et
+    applique le plancher de publication — qui ne bloque QUE sur une panne des
+    sources. Les POIDS des piliers ne sont jamais touchés (R8).
+    """
+    from bvc_config import NOTE_METIER_PUBLIEE
+    from pipeline.smart_money.fond_score_sectoriel import detail_publie, noter_univers, problemes_sources
+    publier = NOTE_METIER_PUBLIEE if publier is None else publier
+    res = noter_univers(
+        [e["symbol"] for e in tickers_out],
+        {e["symbol"]: e.get("price") for e in tickers_out},
+        {e["symbol"]: e.get("pb") for e in tickers_out},
+        fondamentaux, bpa, s1, faits,
+        sans_comptes={e["symbol"] for e in tickers_out if sans_comptes(e["symbol"])},
+        suspendus={e["symbol"] for e in tickers_out if (e.get("_meta") or {}).get("suspendu")})
+    if publier:
+        pannes = problemes_sources({"fondamentaux": fondamentaux, "bpa": bpa, "faits": faits, "s1": s1},
+                                   sum(1 for r in res.values() if r["note"] is not None), nb_notes_precedent)
+        if pannes:
+            raise SystemExit("note par famille : sources en panne, rien n'est publié : " + " ; ".join(pannes))
+    for e in tickers_out:
+        sym = e["symbol"]
+        r, p1 = res[sym], passe1[sym]
+        note = r["note"]
+        e["note_fond_metier"] = detail_publie(r)
+        if publier:
+            if note is None:
+                e["score_fond"], e["v53"] = None, None
+                e["sig"], e["verdict_plafonne"] = _signal_publie(
+                    sym, None, p1["tech_nf"], p1["depuis_reprise"], sans_note=True)
+                e["setup"] = "NEUTRE"
+                # Le point « fondamentaux réels » tombe et la confiance est plafonnée à 1.
+                e["_meta"] = _meta_ticker(*p1["meta_args"], **p1["meta_kw"], note_fond_ok=False)
+            else:
+                v = compute_v53(sym, p1["score_tech"], note, 0, 0, p1["ctx"])
+                e["score_fond"], e["v53"] = v["score_fond"], v["v53"]
+                e["sig"], e["verdict_plafonne"] = _signal_publie(
+                    sym, v["sig"], p1["tech_nf"], p1["depuis_reprise"])
+                e["setup"] = _setup_technique(v["v53"], p1["price"], p1["ma20"], p1["ma50"], p1["tech_nf"])
+        logger.info(f"  ✓ {sym}: {e['price']} DH | RSI {e.get('rsi')} | Score v5.3: "
+                    f"{e['v53']} (fond {e['score_fond']}) | {e['sig']} | note par famille "
+                    f"({r['famille']}) : {note}")
+    return res
+
+
 def run(dry_run=False, push=False, token=""):
     # IDB_ASOF est réécrit ici quand CDG Capital Bourse fournit une séance
     # plus fraîche qu'IDBourse.
@@ -4020,6 +4125,7 @@ def run(dry_run=False, push=False, token=""):
 
     # 4. Traitement par ticker
     tickers_out = []
+    passe1 = {}          # ce que `appliquer_note_sectorielle` relit, par titre
     for ticker in TICKERS:
         fd = FOND_DATA.get(ticker, {})
         lp = live_prices.get(ticker, {})
@@ -4436,6 +4542,12 @@ def run(dry_run=False, push=False, token=""):
         # ⚠️ Lot 4 (02/10/2026) : PER sur douze mois, sinon PER de l'exercice
         # (les deux tirés des comptes) ; croissance lue seulement si elle vient
         # des comptes semestriels (BPA 12 mois établi). Aucune saisie.
+        # ⚠️ Note de la grille ACTUELLE — publiée tant que la note par famille
+        # est en mode comparaison (`bvc_config.NOTE_METIER_PUBLIEE` faux, 11/10).
+        # La note par famille (`fond_score_sectoriel`) est calculée après la
+        # boucle par `appliquer_note_sectorielle`, quand les cours des 80
+        # titres sont connus (valorisations relatives aux pairs) ; si elle
+        # devient la note publiée, ce passage refait v53, signal et setup.
         _b = BPA_DATA.get(ticker) or {}
         _per_12m = _per(price, _b.get("bpa_12m")) if _b.get("bpa_12m") is not None else _per(price, _b.get("bpa"))
         if ticker in _FOND_COMPUTED:
@@ -4489,18 +4601,7 @@ def run(dry_run=False, push=False, token=""):
         v53_final = v53["v53"]
         # Pilier technique neutralisé (peu liquide, fixing) : aucune étiquette
         # technique — elle se lirait comme une mesure que l'on vient d'écarter.
-        if _tech_nf or ma20 is None or ma50 is None:
-            setup = "NEUTRE"
-        elif v53_final >= 7.0 and price > ma20 > ma50:
-            setup = "MOMENTUM CONFIRME"
-        elif v53_final >= 5.5 and price < ma20 and price >= ma50:
-            setup = "PULLBACK HAUSSIER"
-        elif v53_final >= 5.0 and price < ma50:
-            setup = "CONTRARIEN"
-        elif v53_final < 4.5:
-            setup = "FAIBLESSE"
-        else:
-            setup = "NEUTRE"
+        setup = _setup_technique(v53_final, price, ma20, ma50, _tech_nf)
 
         info = TICKER_INFO.get(ticker, {})
         # La capitalisation est confrontée à prix × actions sourcées AVANT
@@ -4533,6 +4634,25 @@ def run(dry_run=False, push=False, token=""):
         # qu'on reproche à la table figée.
         if _cap_source == "servie" and not lp.get("cap") and _cap_precedente:
             _cap_source = "publiee_la_veille"
+        # Arguments de `_meta_ticker`, gardés pour la rappeler au second passage
+        # (`appliquer_note_sectorielle`) si la note fondamentale est incalculable.
+        _meta_args = (ticker, src_prix, prix_asof, sent,
+                      _candles_cache.get(ticker), isin_suspect)
+        _meta_kw = dict(
+            ratios_calcules=bool(
+                ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0),
+            chg=chg, vol=vol, prix_diffuse=_prix_diffuse,
+            cap_source=_cap_source,
+            cap_servie=lp.get("cap"),
+            cliquet_volume=lp.get("cliquet_volume", False),
+            seances_depuis_reprise=_seances_depuis_reprise,
+            comptes_deposes=_comptes_deposes(BPA_DATA.get(ticker)))
+        _sig_pub, _verdict_plafonne = _signal_publie(
+            ticker, v53["sig"], _tech_nf, _seances_depuis_reprise)
+        passe1[ticker] = {"score_tech": score_tech, "ctx": ctx, "tech_nf": _tech_nf,
+                          "depuis_reprise": _seances_depuis_reprise, "price": price,
+                          "ma20": ma20, "ma50": ma50,
+                          "meta_args": _meta_args, "meta_kw": _meta_kw}
         tickers_out.append({
             "symbol": ticker,
             # ── Bloc _meta (spécification CLAUDE.md) ─────────────────────────
@@ -4544,17 +4664,7 @@ def run(dry_run=False, push=False, token=""):
             # C'est la même condition que celle qui gouverne les champs `pe` et
             # `div` juste en dessous — elle est écrite ici pour que la
             # provenance annoncée ne puisse pas diverger de la valeur publiée.
-            "_meta": _meta_ticker(
-                ticker, src_prix, prix_asof, sent,
-                _candles_cache.get(ticker), isin_suspect,
-                ratios_calcules=bool(
-                    ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0),
-                chg=chg, vol=vol, prix_diffuse=_prix_diffuse,
-                cap_source=_cap_source,
-                cap_servie=lp.get("cap"),
-                cliquet_volume=lp.get("cliquet_volume", False),
-                seances_depuis_reprise=_seances_depuis_reprise,
-                comptes_deposes=_comptes_deposes(BPA_DATA.get(ticker))),
+            "_meta": _meta_ticker(*_meta_args, **_meta_kw),
             # Code officiel BVC, pour l'affichage seulement. Nos symboles
             # internes sont la clé primaire d'ISIN_MAP, des chandelles et de
             # six ans de corpus WhatsApp : on ne les renomme pas. Mais un
@@ -4709,20 +4819,14 @@ def run(dry_run=False, push=False, token=""):
             # le régime d'avant le faisaient paraître survendu. Un signal
             # d'achat sorti d'indicateurs qui décrivent un autre prix est pire
             # qu'une absence de signal.
-            "sig":    ("SUSPENDU" if _suspendu_maintenant(ticker)
-                       else "Données insuffisantes" if (_seances_depuis_reprise is not None or sans_comptes(ticker))
-                       # ⚠️ PLAFOND DE LIQUIDITÉ DU VERDICT — 04/10/2026, accord
-                       # d'Abd Moutalib. Sur un titre peu liquide ou au fixing,
-                       # une bonne note fondamentale ne dit pas qu'on peut y
-                       # entrer ou en sortir : « ACHETER » y devient
-                       # « SURVEILLER ★ ». La note chiffrée ne change pas.
-                       else "SURVEILLER ★" if (_tech_nf and str(v53["sig"]).startswith("ACHETER"))
-                       else v53["sig"]),
-            "verdict_plafonne": (f"ACHETER plafonné : {_tech_nf['motif']}"
-                                 if _tech_nf and str(v53["sig"]).startswith("ACHETER")
-                                 and not _suspendu_maintenant(ticker)
-                                 and not sans_comptes(ticker)
-                                 and _seances_depuis_reprise is None else None),
+            "sig":    _sig_pub,
+            # Règle unique : `_signal_publie` (suspension ; « Données
+            # insuffisantes » ; plafond de liquidité du verdict).
+            # ⚠️ PLAFOND DE LIQUIDITÉ DU VERDICT — 04/10/2026, accord
+            # d'Abd Moutalib. Sur un titre peu liquide ou au fixing, une bonne
+            # note fondamentale ne dit pas qu'on peut y entrer ou en sortir :
+            # « ACHETER » y devient « SURVEILLER ★ ». La note chiffrée ne change pas.
+            "verdict_plafonne": _verdict_plafonne,
             "biais":  v53["biais"],
             "conv":   v53["conv"],
             "setup":  setup,
@@ -4745,10 +4849,33 @@ def run(dry_run=False, push=False, token=""):
         # « ACHETER ★★ » sur CMT pendant que le fichier écrivait « SUSPENDU ».
         # Un journal qui contredit le fichier qu'il décrit est pire qu'un
         # journal muet — c'est là qu'on va vérifier quand on doute.
-        _sig_publie = ("SUSPENDU" if _suspendu_maintenant(ticker)
-                       else "Données insuffisantes" if (_seances_depuis_reprise is not None or sans_comptes(ticker))
-                       else v53["sig"])
-        logger.info(f"  ✓ {ticker}: {price} DH | RSI {rsi} | Score v5.3: {v53['v53']} | {_sig_publie}")
+        # (le journal « ✓ » est écrit par `appliquer_note_sectorielle`, une fois
+        # la note de la famille connue : ici le score n'est que provisoire.)
+
+    # 4b. Note fondamentale PAR FAMILLE — MODE COMPARAISON (11/10/2026).
+    #
+    # Calculée et publiée à côté (`note_fond_metier`) ; la note, le signal et la
+    # confiance publiés restent ceux de la grille actuelle tant que
+    # `bvc_config.NOTE_METIER_PUBLIEE` est faux. Décision d'Abd Moutalib du
+    # 10/10/2026 (R8 assoupli sur le CONTENU, pas sur les poids), corrections
+    # exigées le 11/10 avant toute bascule.
+    try:
+        _s1 = json.loads((Path(__file__).parent / "datasets"
+                          / "resultats_s1_2026.json").read_text(encoding="utf-8")).get("titres", {})
+    except (OSError, ValueError) as _e:
+        # La comparaison est un ajout : sa panne ne doit pas empêcher la
+        # publication de la note actuelle. En mode publié, elle bloque.
+        from bvc_config import NOTE_METIER_PUBLIEE as _publiee
+        if _publiee:
+            raise SystemExit(f"resultats_s1_2026.json illisible ({_e}) : la note par famille "
+                             "ne peut pas être calculée, rien n'est publié")
+        logger.warning(f"resultats_s1_2026.json illisible ({_e}) : comparaison par famille indisponible")
+        _s1 = None
+    if _s1 is not None:
+        _nb_prec = sum(1 for _t in (_ex_all or {}).values()
+                       if ((_t or {}).get("note_fond_metier") or {}).get("note") is not None)
+        appliquer_note_sectorielle(tickers_out, passe1, fondamentaux=_FOND_BRUT, bpa=BPA_DATA,
+                                   faits=FAITS_DATA, s1=_s1, nb_notes_precedent=_nb_prec or None)
 
     # 5. Construction data.json
     output = {

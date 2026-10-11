@@ -27,7 +27,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from pipeline.scrapers.constants      import TICKERS, IPO_RECENT
 from pipeline.scrapers.market         import fetch_market_data
 from pipeline.scrapers.fundamentals   import fetch_fundamentals
+from bvc_config import NOTE_METIER_PUBLIEE
 from pipeline.smart_money.fond_score  import compute_fond_score, reload as fond_reload
+from pipeline.smart_money.fond_score_sectoriel import detail_publie, noter_depuis_fichiers
 from pipeline.technical.indicators  import compute_technical
 from pipeline.smart_money.alpha     import get_smart_money
 from pipeline.utils.validation      import validate_ticker_data
@@ -152,6 +154,16 @@ def to_legacy_format(pipeline_out: dict) -> dict:
     """Convertit le format v9 → format data.json consommé par index.html."""
     from pipeline.smart_money.alpha import SENTIMENT_CORPUS
 
+    # ⚠️ NOTE FONDAMENTALE PAR FAMILLE — second point d'application (avec
+    # `update_data.appliquer_note_sectorielle`) : les deux bougent ENSEMBLE, selon
+    # `bvc_config.NOTE_METIER_PUBLIEE`. En mode comparaison (11/10/2026, faux),
+    # la note publiée reste celle de la grille actuelle et la note par famille
+    # est seulement jointe (`note_fond_metier`). Les valorisations étant RELATIVES,
+    # elle a besoin des cours de tout l'univers : ce pipeline ne couvre que ses
+    # propres titres, le reste vient du data.json publié.
+    notes = noter_depuis_fichiers({s: (d.get("market") or {}).get("price")
+                                   for s, d in pipeline_out.get("data", {}).items()})
+
     tickers = []
     for sym, d in pipeline_out.get("data", {}).items():
         m  = d.get("market", {})
@@ -175,7 +187,12 @@ def to_legacy_format(pipeline_out: dict) -> dict:
         elif price < ma50:     score_tech -= 1.2
         score_tech = round(min(max(score_tech, 0), 10), 2)
 
-        fond_score = compute_fond_score(sym)  # fondamentaux.json → 5.0 si absent
+        if NOTE_METIER_PUBLIEE:
+            # None = « Données insuffisantes » : moins de la moitié du poids de la
+            # grille de la famille est calculable. Jamais une note par défaut.
+            fond_score = (notes.get(sym) or {}).get("note")
+        else:
+            fond_score = compute_fond_score(sym)  # fondamentaux.json → 5.0 si absent
         nlp_score  = round((sc.get("smart", 0) + 1) * 5, 2)
         # ⚠️ PONDÉRATION DU 25/09/2026 — le pilier NLP est ramené à zéro et son
         # poids reversé au prorata sur les deux autres : 0,47/0,72 et 0,25/0,72.
@@ -187,13 +204,15 @@ def to_legacy_format(pipeline_out: dict) -> dict:
         # les deux doivent bouger ensemble, sans quoi le terminal publierait
         # deux notes différentes selon le pipeline qui a tourné en dernier.
         # `nlp_score` reste calculé et publié — à poids nul, pas supprimé.
-        v53        = round(score_tech * 0.3472 + fond_score * 0.6528, 2)
+        v53        = (round(score_tech * 0.3472 + fond_score * 0.6528, 2)
+                      if fond_score is not None else None)
 
         # ⚠️ « ACHAT FORT » SUSPENDU, comme dans `update_data.py::compute_v53`
         # (gel NLP du 29/09). Ici il était servi dès 7,5 sans la condition
         # smart money que le moteur principal exigeait : les deux pipelines ne
         # publiaient déjà pas le même palier pour la même note.
         def sig(s):
+            if s is None: return "Données insuffisantes"
             if s >= 6.5: return "ACHETER ★★"
             if s >= 5.5: return "SURVEILLER ★"
             if s >= 4.5: return "ATTENDRE"
@@ -220,7 +239,9 @@ def to_legacy_format(pipeline_out: dict) -> dict:
             # ⚠️ S'appelait `bvc` jusqu'au 29/09/2026 — le même nom que la note
             # figée de update_data.py, pour un sens différent. `delta` (l'écart
             # entre les deux) n'est plus affiché nulle part.
-            "score_fond": round(fond_score, 2),
+            "score_fond": round(fond_score, 2) if fond_score is not None else None,
+            # Comparaison, non retenue dans la note tant que NOTE_METIER_PUBLIEE est faux.
+            "note_fond_metier": detail_publie(notes.get(sym)),
             "nlp":      nlp_score,
             "sig":      sig(v53),
             "alpha":    sm.get("alpha_12m"),
