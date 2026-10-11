@@ -123,12 +123,17 @@ def _lancer_fetchchart(n_bougies: int, periodes: list[str]):
         globalThis.fetch = async () => ({ok: true, json: async () => serie});
         globalThis.fetchMed24Raw = async () => null;
         globalThis.fetchMed24History = async () => [];
+        // ⚠️ 11/10/2026 : surcouche live coupée dans la source (`LIVE_ACTIF`).
+        // On reproduit la valeur publiée, lue dans la source elle-même.
+        globalThis.LIVE_ACTIF = %s;
         (async () => {
           const out = {};
           for (const p of %s) out[p] = (await fetchChart("XXX", p)).length;
           console.log(JSON.stringify(out));
         })();
-    """) % (code, n_bougies, json.dumps(periodes))
+    """) % (code, n_bougies,
+            "true" if "const LIVE_ACTIF = true;" in _source() else "false",
+            json.dumps(periodes))
     return _node(script)
 
 
