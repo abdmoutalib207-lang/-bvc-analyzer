@@ -4027,15 +4027,22 @@ const CRITERES_NOTE_LIB = {
   valorisation: "Valorisation",
   bilan: "Bilan"
 };
+const ETATS_NOTE_LIB = {
+  present: "présent",
+  absent: "absent",
+  zero_confirme: "zéro confirmé",
+  remplacement: "remplacement",
+  suspendu: "suspendu"
+};
 const NoteFond = ({
   nf
 }) => {
   if (!nf) return null;
-  const comp = nf.composantes || {},
-    abst = nf.abstentions || {};
+  const crit = nf.criteres || {};
   const pds = nf.poids_disponible ?? 0;
   const fam = FAMILLES_NOTE_LIB[nf.famille] || nf.famille;
   const sansNote = nf.note == null;
+  const dep = nf.dependance_cote;
   return React.createElement("details", {
     style: {
       marginTop: 6,
@@ -4046,7 +4053,11 @@ const NoteFond = ({
     style: {
       cursor: "pointer"
     }
-  }, "Note fondamentale par famille : ", React.createElement("span", {
+  }, "Comparaison par m\xE9tier, ", React.createElement("b", null, "non retenue dans la note"), " : ", React.createElement("span", {
+    style: {
+      color: "#c8d3e8"
+    }
+  }, sansNote ? "non calculée" : fmt(nf.note, 1)), " · ", "famille ", React.createElement("span", {
     style: {
       color: "#c8d3e8"
     }
@@ -4058,23 +4069,29 @@ const NoteFond = ({
     style: {
       color: "#ff8a65"
     }
-  }, " \u2014 moins de la moiti\xE9 : note non calcul\xE9e")), React.createElement("div", {
+  }, " \u2014 moins de la moiti\xE9")), React.createElement("div", {
     style: {
       marginTop: 4,
       lineHeight: 1.5
     }
-  }, Object.entries(comp).map(([k, v]) => React.createElement("div", {
-    key: k
+  }, Object.entries(crit).map(([k, c]) => React.createElement("div", {
+    key: k,
+    style: {
+      color: ["present", "zero_confirme", "remplacement"].includes(c.etat) ? "#8892a4" : "#5a6478"
+    }
   }, React.createElement("span", {
     style: {
       color: "#c8d3e8"
     }
-  }, CRITERES_NOTE_LIB[k] || k), " (", v.poids, " %) : ", fmt(v.note, 1), " \u2014 ", v.mesure)), Object.entries(abst).map(([k, raison]) => React.createElement("div", {
-    key: k,
+  }, CRITERES_NOTE_LIB[k] || k), " ", "[", ETATS_NOTE_LIB[c.etat] || c.etat, "] \xB7 poids ", c.poids_nominal, " % \u2192 effectif ", c.poids_effectif, " %", c.note != null && React.createElement(React.Fragment, null, " \xB7 note ", fmt(c.note, 1)), " — ", c.mesure || c.motif, c.reference && c.reference.type === "cote_entiere" && React.createElement("span", {
     style: {
-      color: "#5a6478"
+      color: "#ffb74d"
     }
-  }, CRITERES_NOTE_LIB[k] || k, " : abstention \u2014 ", raison))));
+  }, " \u26A0 comparaison \xE0 la cote enti\xE8re, non sectorielle"))), dep && dep.criteres && dep.criteres.length > 0 && React.createElement("div", {
+    style: {
+      color: "#ffb74d"
+    }
+  }, "D\xE9pend de la cote enti\xE8re (", dep.criteres.join(", "), ") :", dep.ecart_points != null ? ` ${dep.ecart_points > 0 ? "+" : ""}${dep.ecart_points} point(s) de note` : " la note n'existerait pas sans elle", ".")));
 };
 const LOGOS = new Set(["ADH", "ADI", "AFI", "AFM", "AGM", "AKD", "ALU", "ATL", "BMC", "CDM", "CFGB", "CIM", "CMT", "COL", "CSR", "DHO", "ENK", "FNB", "HPS", "IMI", "INV", "JET", "LES", "LHM", "M2M", "MDP", "MNG", "MSA", "MUT", "NEJ", "RDS", "SBS", "SLM", "SNA", "SNP", "STK", "STR", "T2S", "TGCC", "TQA", "UNI", "VCNE"]);
 const SECTOR_COL = {
@@ -9982,7 +9999,7 @@ const Detail = ({
     n: pdsAff.n,
     t: pdsAff.t
   }), React.createElement(NoteFond, {
-    nf: r.note_fond
+    nf: r.note_fond_metier
   }), React.createElement("div", {
     style: {
       marginTop: 10
@@ -12595,7 +12612,7 @@ function App() {
             adx_mdi: t.adx_mdi,
             rang_secteur: t.rang_secteur,
             niveaux: t.niveaux,
-            note_fond: t.note_fond,
+            note_fond_metier: t.note_fond_metier,
             echange_dh: t.echange_dh,
             seuil_bas: t.seuil_bas,
             seuil_haut: t.seuil_haut,

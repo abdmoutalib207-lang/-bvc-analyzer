@@ -67,7 +67,7 @@ CHAMPS_RACINE = [
     ("niveaux", "les niveaux et leurs bornes réglementaires, publiés le 25/09"),
     ("score_fond", "la note fondamentale, sans quoi la décomposition est vide"),
     ("poids", "les poids réellement appliqués"),
-    ("note_fond", "la famille et la couverture de la note fondamentale, publiées le 10/10"),
+    ("note_fond_metier", "la note par famille, publiée à côté de la note actuelle (comparaison, 11/10)"),
 ]
 
 
@@ -109,17 +109,21 @@ def test_le_champ_traverse_la_fusion_et_pas_seulement_le_fichier(champ, quoi):
         f"composant qui l'affiche existe")
 
 
-def test_la_fiche_affiche_la_famille_et_la_couverture_de_la_note():
-    """10/10/2026 : la note fondamentale suit la famille du titre et peut
-    s'abstenir. La fiche doit dire de quelle famille il s'agit et quelle part de
-    la grille repose sur des données — sinon un `score_fond` s'affiche sans rien
-    dire de ce qui l'a produit."""
-    assert "<NoteFond nf={r.note_fond}/>" in ECRAN, "le composant n'est pas posé sur la fiche"
+def test_la_fiche_affiche_la_comparaison_par_metier_comme_non_retenue():
+    """11/10/2026 : la note par famille est publiée à côté, en comparaison. La
+    fiche doit dire qu'elle n'est PAS retenue dans la note, de quelle famille il
+    s'agit, la couverture de la grille, et pour chaque critère son état, son
+    poids effectif et sa référence (cote entière étiquetée non sectorielle)."""
+    assert "<NoteFond nf={r.note_fond_metier}/>" in ECRAN, "le composant n'est pas posé sur la fiche"
     i = ECRAN.index("const NoteFond=")
     corps = ECRAN[i:ECRAN.index("\n};", i)]
-    for attendu in ("nf.famille", "nf.poids_disponible", "nf.composantes", "nf.abstentions", "nf.note==null"):
+    for attendu in ("nf.famille", "nf.poids_disponible", "nf.criteres", "c.etat", "c.poids_effectif",
+                    "c.reference", "nf.note==null", "dependance_cote"):
         assert attendu in corps, f"NoteFond ne lit pas {attendu}"
-    assert "couverture de la grille" in corps
+    for texte in ("non retenue dans la note", "couverture de la grille", "non sectorielle"):
+        assert texte in corps, f"« {texte} » n'est pas affiché"
+    for etat in ("present", "absent", "zero_confirme", "remplacement", "suspendu"):
+        assert etat in ECRAN[ECRAN.index("const ETATS_NOTE_LIB"):i], f"état « {etat} » non libellé"
 
 
 def test_la_largeur_de_marche_est_affichee():
