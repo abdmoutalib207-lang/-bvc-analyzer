@@ -16,6 +16,7 @@ restent ouvertes, et qu'aucune n'a été appliquée en douce.
 from __future__ import annotations
 
 import json
+import statistics
 from pathlib import Path
 
 import pytest
@@ -88,43 +89,72 @@ def test_la_ma200_n_entre_dans_aucun_score(mesures):
         assert "ma200" not in noms, f"{nom} lit ma200"
 
 
+def _verifier_pire_ecart(c, cache_t):
+    """Les contrôles portés par UN titre du dossier (testables sans le dossier)."""
+    m = cache_t["ma200"]
+    assert m == c["ma200_affichee"], (
+        f"{c['ticker']} : le dossier cite une MA200 de {c['ma200_affichee']}, "
+        f"le cache en porte {m}")
+
+    # ⚠️ L'ÉCART SE RECALCULE DEPUIS LA MESURE, PAS DEPUIS LE COURS DU JOUR.
+    # La mesure porte le cours qu'elle a utilisé ; le cours, lui, bouge
+    # chaque séance. Ce test recalculait avec le prix servi aujourd'hui et
+    # tombait donc dès le lendemain — mesuré le 16/09 : 25,7 contre 28,6
+    # annoncés sur CAR, simplement parce que le titre était passé de 20,00
+    # à 20,46. Et comme ce fichier est dans la garde bloquante
+    # d'`update_bvc`, il n'échouait pas tout seul : il EMPÊCHAIT LA
+    # PUBLICATION de la séance.
+    assert round((c["ma200_affichee"] / c["cours"] - 1) * 100, 1) == c["ecart_pct"], (
+        f"{c['ticker']} : la mesure ne tient pas debout toute seule")
+
+    # Et le problème doit être ENCORE LÀ aujourd'hui, sinon le dossier
+    # décrit un passé. Le problème, c'est une MA200 publiée sur une série
+    # de moins de 200 séances — un fait de structure, pas un écart de prix.
+    #
+    # ⚠️ 11/10/2026 : ce test exigeait `|ma200 / cours − 1| > 10 %` en
+    # direct. C'est un seuil sur le niveau du marché : un cours qui se
+    # rapproche de sa moyenne (une simple remontée du titre) faisait
+    # échouer le test, donc bloquait la publication, sans qu'aucune donnée
+    # ne soit fausse. L'écart de la MESURE reste contrôlé plus haut et
+    # plus bas (recalcul à partir du cours que la mesure cite, écart > 20 %
+    # à la date du relevé) ; ici on ne regarde que si le défaut existe.
+    assert (cache_t.get("n_candles") or 0) < 200, (
+        f"{c['ticker']} : la série compte désormais 200 séances ou plus — "
+        "régénérer le dossier avec `python pipeline/mesurer_arbitrages.py "
+        "--ecrire` plutôt que de laisser un constat périmé")
+    assert m is not None
+    assert abs(c["ecart_pct"]) > 20
+
+
 def test_les_ecarts_annonces_sont_recalculables(mesures):
     """Les pires écarts cités — jusqu'à +56 % — doivent se retrouver au centime
     près depuis le cache et le fichier servi."""
     cache = json.loads((RACINE / "pipeline" / "historical_data.json")
                        .read_text(encoding="utf-8"))
-    srv = {t["symbol"]: t for t in json.loads(
-        (RACINE / "data.json").read_text(encoding="utf-8"))["tickers"]}
     pires = mesures["arbitrage_1_la_moyenne_200_jours"]["_les_pires_ecarts"]
     if not pires:
         assert mesures["arbitrage_1_la_moyenne_200_jours"].get("_resolu") is True
         return
     for c in pires:
-        m = cache[c["ticker"]]["ma200"]
-        assert m == c["ma200_affichee"], (
-            f"{c['ticker']} : le dossier cite une MA200 de {c['ma200_affichee']}, "
-            f"le cache en porte {m}")
+        _verifier_pire_ecart(c, cache[c["ticker"]])
 
-        # ⚠️ L'ÉCART SE RECALCULE DEPUIS LA MESURE, PAS DEPUIS LE COURS DU JOUR.
-        # La mesure porte le cours qu'elle a utilisé ; le cours, lui, bouge
-        # chaque séance. Ce test recalculait avec le prix servi aujourd'hui et
-        # tombait donc dès le lendemain — mesuré le 16/09 : 25,7 contre 28,6
-        # annoncés sur CAR, simplement parce que le titre était passé de 20,00
-        # à 20,46. Et comme ce fichier est dans la garde bloquante
-        # d'`update_bvc`, il n'échouait pas tout seul : il EMPÊCHAIT LA
-        # PUBLICATION de la séance.
-        assert round((c["ma200_affichee"] / c["cours"] - 1) * 100, 1) == c["ecart_pct"], (
-            f"{c['ticker']} : la mesure ne tient pas debout toute seule")
 
-        # Et le problème doit être ENCORE LÀ aujourd'hui, sinon le dossier
-        # décrit un passé. Le seuil est plus bas que celui du relevé : un cours
-        # qui se rapproche de sa moyenne réduit l'écart sans rien régler.
-        aujourd_hui = round((m / srv[c["ticker"]]["price"] - 1) * 100, 1)
-        assert abs(aujourd_hui) > 10, (
-            f"{c['ticker']} : l'écart n'est plus que de {aujourd_hui} % — "
-            "régénérer le dossier avec `python pipeline/mesurer_arbitrages.py "
-            "--ecrire` plutôt que de laisser un constat périmé")
-        assert abs(c["ecart_pct"]) > 20
+def test_controle_negatif_et_positif_du_constat_de_ma200_courte():
+    """⚠️ Le dossier est aujourd'hui RÉSOLU (aucun pire écart) : la boucle
+    ci-dessus ne s'exécute pas. Ce test fait vivre la logique sur un cas fabriqué.
+
+    - positif : le contrôle ne reçoit plus le cours du jour — il ne PEUT donc
+      plus rougir parce que le titre a rejoint sa MA200 (avant : `|écart| >
+      10 %` exigé en direct). Tant que la série compte moins de 200 séances,
+      le constat tient ;
+    - négatif : la série atteint 250 séances, la MA200 est devenue vraie → le
+      dossier décrit un passé, le test doit échouer.
+    """
+    c = {"ticker": "XXX", "ma200_affichee": 100.0, "cours": 70.0, "ecart_pct": 42.9}
+    assert round((100.0 / 70.0 - 1) * 100, 1) == c["ecart_pct"]
+    _verifier_pire_ecart(c, {"ma200": 100.0, "n_candles": 150})   # passe, quel que soit le cours
+    with pytest.raises(AssertionError, match="200 séances ou plus"):
+        _verifier_pire_ecart(c, {"ma200": 100.0, "n_candles": 250})
 
 
 # ── Arbitrage 2 : l'unité du volume ───────────────────────────────────────
@@ -186,12 +216,16 @@ def test_aucune_conversion_de_volume_n_a_ete_appliquee(mesures):
     if (receptions / "ADI.json").exists():
         # Instruit sur pièce : les volumes DOIVENT désormais être des titres,
         # donc d'un ordre de grandeur bien inférieur au montant en dirhams.
-        assert max(recents) < 100000, (
+        # ⚠️ 11/10/2026 : médiane, non maximum. Le maximum des 60 dernières
+        # séances (78 887 au 09/10, pour un seuil à 100 000) aurait rougi sur un
+        # vrai pic d'échanges. Un montant en dirhams est ~370 fois la quantité
+        # sur ce titre : il déplace la MÉDIANE d'un ordre de grandeur, un pic non.
+        assert statistics.median(recents) < 100000, (
             "ADI porte une réception d'historique, mais ses volumes gardent "
             "l'ordre de grandeur d'un montant en dirhams — l'import n'a pas "
             "pris")
     else:
-        assert max(recents) > 100000, (
+        assert statistics.median(recents) > 100000, (
             "les volumes d'ADI ont été convertis : l'arbitrage a été tranché "
             "sans être posé, et sans export pour l'établir")
 

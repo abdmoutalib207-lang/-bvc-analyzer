@@ -40,6 +40,8 @@ import pytest
 RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE / "pipeline"))
 
+import _echelle  # noqa: E402  (contrôles relatifs, voir ce module)
+
 RECU = RACINE / "datasets" / "corrections_acceptees" / "SNA.json"
 CANDIDAT = RACINE / "datasets" / "historiques_candidats" / "SNA_ecarts" / "ecarts.json"
 DATES = ("2026-06-18", "2026-06-25", "2026-06-26",
@@ -66,9 +68,19 @@ def test_le_lot_porte_six_seances_et_l_identite_sonasid(recu):
 
 def test_plus_aucune_bougie_de_sonasid_ne_descend_au_niveau_de_stokvis(serie):
     """⚠️ Le contrôle qui mord. Sonasid cote autour de 1 900 DH ; Stokvis
-    autour de 67. Une bougie de Sonasid sous 200 DH est une bougie mixte."""
-    basses = {d: b for d, b in serie.items() if b["l"] < 200 or b["o"] < 200}
-    assert basses == {}, f"bougies au niveau de Stokvis : {sorted(basses)}"
+    autour de 67. Une bougie de Sonasid au niveau de Stokvis est une bougie
+    mixte.
+
+    ⚠️ 11/10/2026 : ce test exigeait `l >= 200 et o >= 200`, un niveau de
+    marché daté — il aurait rougi si Sonasid cotait un jour sous 200 DH.
+    Le défaut se reconnaît sans niveau : l'amplitude d'une bougie mixte (ouverture
+    et plus-bas de Stokvis, clôture de Sonasid) vaut ~28, quand R10 en interdit
+    plus de ~1,22 (+10 % / −10 % autour de la référence) ; et une séance d'un autre titre coupe la série par une
+    rupture. Facteur mesuré : Stokvis 67 DH / Sonasid 1 900 DH.
+    """
+    basses = _echelle.hors_echelle(_echelle.charger_bougies("SNA"),
+                                   _echelle.facteur_d_echelle("SNA"))
+    assert basses == [], f"bougies au niveau de Stokvis : {basses}"
 
 
 def test_chaque_bougie_corrigee_respecte_la_limite_de_variation(serie):
@@ -102,8 +114,16 @@ def test_le_plus_bas_52_semaines_n_est_plus_un_cours_de_stokvis():
 
     assert cache["l52w"] == attendu_l52
     assert cache["l90"] == attendu_l90
-    assert cache["l52w"] > 1000 and cache["l90"] > 1000, (
-        "un plancher sous 1 000 DH serait encore une contamination Stokvis")
+    # ⚠️ 11/10/2026 : `l52w > 1000 and l90 > 1000` est retiré. Ce plancher
+    # rougissait sur une vraie baisse de Sonasid sous 1 000 DH (elle cote 1 650
+    # au plus-bas de l'année). Le défaut — le 67,08 de Stokvis — est une valeur
+    # que NULLE séance du tronçon continu de Sonasid n'atteint.
+    bougies = _echelle.charger_bougies("SNA")
+    facteur = _echelle.facteur_d_echelle("SNA")
+    assert _echelle.defauts_extreme("l52w", cache, bougies, facteur) == []
+    assert not _echelle.valeur_hors_echelle(cache["l90"], bougies, facteur), (
+        "un plancher à 90 jours d'une autre échelle serait encore une "
+        "contamination Stokvis")
 
 
 def test_la_correction_resiste_a_une_recontamination(recu, serie):

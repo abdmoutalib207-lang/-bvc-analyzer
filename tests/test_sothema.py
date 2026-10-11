@@ -41,6 +41,8 @@ import pytest
 RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE / "pipeline"))
 
+import _echelle  # noqa: E402  (contrôles relatifs, voir ce module)
+
 RECU = RACINE / "datasets" / "corrections_acceptees" / "SOT.json"
 EFFET = "2026-05-05"
 
@@ -65,17 +67,34 @@ def cache():
 # ── L'échelle ──────────────────────────────────────────────────────────────
 
 def test_plus_aucune_bougie_a_l_echelle_de_l_ancien_ajustement(serie):
-    """⚠️ LE CONTRÔLE QUI MORD. Sothema n'a jamais valu 40 DH. Une bougie sous
-    150 DH sur cette série est un reliquat du double ajustement."""
-    basses = [b["d"] for b in serie if b["l"] < 150]
+    """⚠️ LE CONTRÔLE QUI MORD. Sothema n'a jamais valu 40 DH. Une bougie à
+    l'échelle du double ajustement est un reliquat.
+
+    ⚠️ 11/10/2026 : ce test exigeait `l < 150`, un niveau de marché daté. Il est
+    RELATIF : une bougie est un reliquat si elle est coupée du cours publié par
+    une rupture que R10 rend impossible, ET d'un facteur supérieur à la moitié
+    de celui de l'opération (×5, registre SPLITS). Un vrai plus-bas, même sous
+    150 DH, est atteint de proche en proche et n'en est pas un. Preuves
+    négative et positive : `test_controles_echelle.py`.
+    """
+    facteur = _echelle.facteur_d_echelle("SOT")
+    assert facteur == 5.0, "le facteur doit venir du registre SPLITS (×5)"
+    basses = _echelle.hors_echelle(serie, facteur)
     assert basses == [], f"bougies encore à l'ancienne échelle : {basses[:8]}"
 
 
-def test_la_serie_reste_dans_une_fourchette_plausible(serie):
-    """Entre mai 2024 et aujourd'hui, l'opérateur va de ~880 à ~1 950 DH bruts,
-    soit 176 à 390 une fois ramenés à la base actuelle."""
-    assert 150 < min(b["l"] for b in serie) < 250
-    assert 350 < max(b["h"] for b in serie) < 450
+def test_la_marche_du_regroupement_est_absorbee(serie):
+    """Au lieu d'une fourchette de prix (`150 < min(l) < 250`, `350 < max(h) <
+    450`), qui datait le marché : la séance d'effet du registre SPLITS ne doit
+    montrer aucune marche de ×5 — la série est ramenée à la base du jour."""
+    import bvc_config
+    par_date = {b["d"]: i for i, b in enumerate(serie)}
+    for sp in bvc_config.SPLITS["SOT"]:
+        i = par_date[sp["date"]]
+        veille, jour = serie[i - 1], serie[i]
+        assert not _echelle.est_rupture(veille, jour), (
+            f"marche au regroupement du {sp['date']} : {veille['c']} -> "
+            f"{jour['c']} (ratio {sp['ratio']} attendu absorbé)")
 
 
 def test_aucune_marche_de_regroupement_ne_subsiste(serie):
@@ -111,9 +130,14 @@ def test_les_deux_bases_sont_declarees(recu):
 # ── Les indicateurs servis ─────────────────────────────────────────────────
 
 def test_la_moyenne_200_jours_n_est_plus_a_la_moitie_du_cours(cache, serie):
-    """164,94 pour un titre à 365 : les deux tiers de la fenêtre étaient faux."""
-    assert cache["ma200"] > 300
-    assert abs(cache["ma200"] / serie[-1]["c"] - 1) < 0.35
+    """164,94 pour un titre à 365 : les deux tiers de la fenêtre étaient faux.
+
+    ⚠️ 11/10/2026 : `ma200 > 300` est remplacé par le RECALCUL — la moyenne des
+    200 dernières clôtures de la série, à 1 % près. Un reliquat dans la
+    fenêtre ferait dériver l'un ou l'autre ; un marché qui baisse, non. Le
+    contrôle « ma200 à moins de 35 % du cours » est retiré pour la même raison :
+    après une vraie chute de 45 %, la moyenne reste légitimement très au-dessus."""
+    assert _echelle.defauts_moyenne(cache, serie) == []
 
 
 def test_le_plus_bas_52_semaines_n_est_plus_65_99(cache, serie):
@@ -127,19 +151,17 @@ def test_le_plus_bas_52_semaines_n_est_plus_65_99(cache, serie):
     Ce qu'il protège ne dépend pas du calendrier : le plancher est un vrai
     plus-bas de la série sur l'année, et aucun reliquat d'avant la division
     (65,99) ne revient.
+
+    ⚠️ 11/10/2026 : le dernier seuil absolu (`l52w > 250`) est retiré. Il aurait
+    rougi au premier plus-bas sous 250 DH, c'est-à-dire sur une vraie baisse.
+    Le plancher doit être (1) le plus-bas d'une séance de la fenêtre, (2) sans
+    séance plus basse, et (3) soit proche du cours publié, soit atteint par une
+    séance du tronçon CONTINU qui porte ce cours — jamais une valeur héritée
+    d'une autre échelle.
     """
-    l52w = cache["l52w"]
-    assert l52w > 250, "un plancher annuel sous 250 DH serait un reliquat"
-    bougies = serie.get("candles", serie) if isinstance(serie, dict) else serie
-    dernier = date.fromisoformat(bougies[-1]["d"])
-    def fenetre(semaines):
-        debut = (dernier - timedelta(weeks=semaines)).isoformat()
-        return [b["l"] for b in bougies if b["d"] >= debut and b.get("l")]
-    # Bornes larges d'une semaine de part et d'autre : le moteur date sa
-    # fenêtre du jour d'analyse, le test de la dernière bougie.
-    assert l52w in fenetre(53), f"{l52w} n'est le plus-bas d'aucune séance de l'année"
-    assert min(fenetre(51)) >= l52w, (
-        f"une séance récente est descendue sous le plancher publié {l52w}")
+    facteur = _echelle.facteur_d_echelle("SOT")
+    defauts = _echelle.defauts_extreme("l52w", cache, serie, facteur)
+    assert defauts == [], defauts
 
 
 # ── Les séances sans échange ───────────────────────────────────────────────

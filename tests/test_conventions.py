@@ -84,7 +84,11 @@ def test_la_convention_de_volume_est_celle_qui_est_appliquee(flux):
     serie = json.loads((RACINE / "pipeline" / "candles" / "ADI.json")
                        .read_text(encoding="utf-8"))
     volumes = [b["v"] for b in serie[-60:] if b.get("v")]
-    assert volumes and max(volumes) < 100000, (
+    # ⚠️ 11/10/2026 : médiane, non maximum (voir test_arbitrages) : un vrai pic
+    # d'échanges ne doit pas bloquer la publication ; un montant en dirhams
+    # déplace la médiane de deux ordres de grandeur.
+    import statistics
+    assert volumes and statistics.median(volumes) < 100000, (
         "ADI est réceptionné mais ses volumes gardent l'ordre de grandeur "
         "d'un montant en dirhams")
 

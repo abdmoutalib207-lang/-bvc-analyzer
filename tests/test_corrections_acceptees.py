@@ -34,6 +34,8 @@ import pytest
 RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE / "pipeline"))
 
+import _echelle  # noqa: E402  (contrôles relatifs, voir ce module)
+
 DOSSIER = RACINE / "datasets" / "corrections_acceptees"
 DATES = ("2026-05-13", "2026-06-16")
 
@@ -92,16 +94,20 @@ def test_le_plus_bas_52_semaines_n_est_plus_un_cours_de_mutandis():
     # Un nouveau plus-bas réel aurait bloqué la publication (cas Sothema du
     # 08/10). Ce que le test protège : le plancher est un vrai plus-bas de
     # la série de Marsa Maroc, jamais un cours de Mutandis (225).
-    from datetime import date, timedelta
-    bougies = json.loads((RACINE / "pipeline" / "candles" / "MSA.json").read_text(encoding="utf-8"))
-    bougies = bougies.get("candles", bougies) if isinstance(bougies, dict) else bougies
-    dernier = date.fromisoformat(bougies[-1]["d"])
-    def fenetre(semaines):
-        debut = (dernier - timedelta(weeks=semaines)).isoformat()
-        return [b["l"] for b in bougies if b["d"] >= debut and b.get("l")]
-    assert cache["l52w"] > 500, "plancher au niveau d'un cours de Mutandis"
-    assert cache["l52w"] in fenetre(53)
-    assert min(fenetre(51)) >= cache["l52w"]
+    #
+    # ⚠️ 11/10/2026 : le dernier seuil absolu (`l52w > 500`) est retiré. Il
+    # rougissait sur une VRAIE baisse de Marsa Maroc sous 500 DH, alors que le
+    # défaut d'origine se reconnaît sans niveau : un cours emprunté à Mutandis
+    # (facteur ~3,5, mesuré dans le lot réceptionné) coupe la série par une
+    # rupture que R10 interdit, et le plancher qu'il fournit n'est atteint par
+    # aucune séance du tronçon continu qui porte le cours publié. Preuves
+    # négative (Mutandis réinjecté) et positive (chute réelle de 30 et 55 %) :
+    # tests/test_controles_echelle.py.
+    bougies = _echelle.charger_bougies("MSA")
+    facteur = _echelle.facteur_d_echelle("MSA")
+    assert 3 < facteur < 4, "le facteur Mutandis doit venir du lot réceptionné"
+    assert _echelle.defauts_extreme("l52w", cache, bougies, facteur) == []
+    assert _echelle.hors_echelle(bougies, facteur) == []
 
     # ⚠️ NE PAS COMPARER À LA LONGUEUR D'AUJOURD'HUI. Le fichier de chandelles
     # et le cache ne sont pas écrits par le même programme : `update_data.py`

@@ -42,6 +42,8 @@ import pytest
 
 RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE / "pipeline"))
+
+import _echelle  # noqa: E402  (contrôles relatifs, voir ce module)
 CORR = RACINE / "datasets" / "corrections_acceptees"
 LOT = ("ADH", "CIM", "CSR", "HAL", "MNG", "MUT", "STK")
 
@@ -102,15 +104,22 @@ def test_ciments_du_maroc_ne_porte_plus_les_cours_de_touissit():
 def test_le_plus_haut_annuel_de_ciments_redevient_plausible():
     """5 940,00 était le plus-haut de Minière Touissit, servi comme celui de
     Ciments du Maroc — un titre à 1 600 DH."""
-    cache = json.loads((RACINE / "pipeline" / "historical_data.json")
-                       .read_text(encoding="utf-8"))
     # 2 050,00 : plus-haut des 52 semaines selon l'export de l'opérateur (CMA,
-    # séance du 05/11/2025), série importée le 03/10/2026 ; 1 750 décrivait
-    # l'ancienne série, incomplète.
-    # ≤ et non == : la fenêtre de 52 semaines glisse, et le sommet du 05/11/2025
-    # en sortira début novembre 2026 (même piège que Stokvis le 06/10/2026).
-    assert cache["CIM"]["h52w"] <= 2050.0
-    assert cache["CIM"]["h52w"] < 2500, "un plus-haut au-delà de 2 500 serait encore CMT"
+    # séance du 05/11/2025), série importée le 03/10/2026. La fenêtre de 52
+    # semaines glisse : ce sommet sortira début novembre 2026 (même piège que
+    # Stokvis le 06/10/2026), et le plus-haut légitime pourra aussi MONTER.
+    #
+    # ⚠️ 11/10/2026 : `h52w <= 2050` et `h52w < 2500` sont retirés. Le premier
+    # est un attendu daté ; le second aurait rougi sur une vraie hausse de
+    # Ciments du Maroc au-delà de 2 500. Le défaut d'origine (5 940, le sommet
+    # de CMT, facteur ~3,7) se reconnaît sans niveau : aucune séance du tronçon
+    # continu de CIM ne l'atteint, et la série ne porte aucune bougie coupée du
+    # cours publié.
+    bougies = _echelle.charger_bougies("CIM")
+    facteur = _echelle.facteur_d_echelle("CIM")
+    cache = _echelle.charger_cache("CIM")
+    assert _echelle.defauts_extreme("h52w", cache, bougies, facteur) == []
+    assert _echelle.hors_echelle(bougies, facteur) == []
 
 
 # ── Stokvis ────────────────────────────────────────────────────────────────
@@ -119,18 +128,25 @@ def test_stokvis_ne_porte_plus_la_valeur_de_la_table_statique():
     """490,00 DH vient de `static_fallback.json`, signalée fausse le
     01/08/2026. Trois séances la portaient comme une cotation."""
     serie = _serie("STK")
-    assert [b["d"] for b in serie if b["c"] == 490.0] == []
-    cache = json.loads((RACINE / "pipeline" / "historical_data.json")
-                       .read_text(encoding="utf-8"))
+    # Borné aux séances d'avant le constat du 01/08/2026 : une vraie clôture à
+    # 490,00 plus tard ne doit pas faire échouer le test (11/10/2026).
+    assert [b["d"] for b in serie if b["c"] == 490.0 and b["d"] <= "2026-08-01"] == []
     # ⚠️ Ce test exigeait h52w == 138,0, le sommet du 07/10/2025. La fenêtre de
     # 52 semaines glisse : depuis le soir du 06/10/2026 ce sommet en est sorti
     # et le plus-haut légitime vaut 137,0. Le test a échoué ce soir-là sur des
-    # données saines (contrôle de séance 13/13). Ce qu'il protège ne dépend pas
-    # du calendrier : aucune valeur au-dessus du vrai sommet de l'année (138,0,
-    # attendu écrit à la main) ne doit réapparaître — 490 de la table statique
-    # en premier.
-    assert cache["STK"]["h52w"] <= 138.0, "plus-haut annuel au-dessus du sommet réel"
-    assert cache["STK"]["h52w"] < 200, "490 revient par le plus-haut annuel"
+    # données saines (contrôle de séance 13/13).
+    #
+    # ⚠️ 11/10/2026 : les bornes `h52w <= 138` et `h52w < 200` sont retirées à
+    # leur tour — elles auraient bloqué une vraie hausse de Stokvis. Ce qui
+    # reste ne dépend d'aucun niveau : h52w est le plus-haut d'une séance de la
+    # fenêtre, sans séance plus haute, atteint par le tronçon continu du cours
+    # publié ; et aucune bougie n'est coupée de ce cours (le 490 de la table
+    # statique, facteur ~7, y serait une rupture).
+    bougies = _echelle.charger_bougies("STK")
+    facteur = _echelle.facteur_d_echelle("STK")
+    cache = _echelle.charger_cache("STK")
+    assert _echelle.defauts_extreme("h52w", cache, bougies, facteur) == []
+    assert _echelle.hors_echelle(bougies, facteur) == []
     sommet = next(b for b in serie if b["d"] == "2025-10-07")
     assert sommet["h"] == 138.0 and sommet["c"] == 135.0
 
