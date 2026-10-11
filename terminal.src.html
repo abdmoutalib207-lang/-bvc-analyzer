@@ -334,6 +334,16 @@ const META = {
   tickers: 64,          // tickers avec activité NLP
 };
 
+// ⚠️ SURCOUCHE « LIVE » COUPÉE — 11/10/2026.
+// Le navigateur lisait les codes IDBourse sans la table de traduction du
+// moteur (IDB_TICKER_MAP) : `/instruments/SNA` — Stokvis à la Bourse — tombait
+// sur NOTRE SNA, Sonasid. Reproduit sur une vraie réponse IDBourse : en séance,
+// Sonasid affichait 49 DH « live ● » avec son propre PER, sa note et ses bornes
+// 1 485–1 815. La surcouche mélangeait aussi deux instants (cours en direct,
+// ratios et note de la clôture). Le produit promet la dernière clôture
+// fiable ; la phase intraday (CLAUDE.md, Phase 4) n'est pas ouverte. Le code
+// reste en place : il ne repartira qu'avec une table générée par le moteur.
+const LIVE_ACTIF = false;
 // ── SOURCES DONNÉES BVC (IDBourse + Médias24) ────────────────────────────────
 const PROXY_LIST = [
   "https://corsproxy.io/?",
@@ -345,7 +355,7 @@ const MED_BASE = "https://medias24.com/content/api";
 const CONFIG = {
   ISIN_MAP:{
     // Tickers actifs (19)
-    CMT:"MA0000011793", SMI:"MA0000010068", CASH:"MA0000012767", MNG:"MA0000011058",
+    CMT:"MA0000011793", SMI:"MA0000010068", CASH:"MA0000012767", MNG:"MA0000012866",
     AKD:"MA0000012585", SOT:"MA0000012833", SGTM:"MA0000012783", MSA:"MA0000012312",
     CFGB:"MA0000012627", RIS:"MA0000011462", ADI:"MA0000011819", VCNE:"MA0000012759",
     CMGP:"MA0000012718", CSR:"MA0000012247", TGCC:"MA0000012528", ADH:"MA0000011512",
@@ -353,21 +363,21 @@ const CONFIG = {
     // Grandes capitalisations
     IAM:"MA0000011488", ATW:"MA0000012445", BCP:"MA0000011884", BOA:"MA0000012437",
     CIH:"MA0000011454", CDM:"MA0000010381", WAF:"MA0000010928", LHM:"MA0000012320",
-    GAZ:"MA0000010951", ATL:"MA0000011710", HPS:"MA0000011611", LBV:"MA0000011801",
+    GAZ:"MA0000010951", ATL:"MA0000011710", HPS:"MA0000012619", LBV:"MA0000011801",
     LES:"MA0000012031", TQA:"MA0000012205", MRL:"MA0000010035", TMA:"MA0000012262",
     // Moyennes capitalisations
-    ARD:"MA0000012460", SAF:"MA0000011744", OUL:"MA0000010415", CIM:"MA0000010506",
+    ARD:"MA0000012460", SAF:"MA0000012007", OUL:"MA0000010415", CIM:"MA0000010506",
     CTM:"MA0000010340", ZLD:"MA0000010571", ALU:"MA0000010936", MGL:"MA0000011215",
     DAR:"MA0000011421", IMI:"MA0000012387", DTT:"MA0000012536",
     // Petites capitalisations
     DSW:"MA0000011637", MOX:"MA0000010985", STR:"MA0000012056", TIM:"MA0000011686",
-    SNP:"MA0000011728", SLM:"MA0000012007", JET:"MA0000012080", M2M:"MA0000011678",
+    SNP:"MA0000011728", SLM:"MA0000011744", JET:"MA0000012080", M2M:"MA0000011678",
     INV:"MA0000011579", S2M:"MA0000012106", COL:"MA0000011934", AFM:"MA0000012296",
     AGM:"MA0000010944", FNB:"MA0000011587", BAL:"MA0000011991", NEJ:"MA0000011009",
     HAL:"MA0000010969", BMC:"MA0000010811", CAR:"MA0000011868", AFI:"MA0000012114",
     MIC:"MA0000012163", MUT:"MA0000012395", ENK:"MA0000011942", EQD:"MA0000010357",
     DHO:"MA0000011850", PPM:"MA0000011660", REB:"MA0000010993", SBS:"MA0000010365",
-    STK:"MA0000011843", UNI:"MA0000012023", IBM:"MA0000011132",
+    STK:"MA0000012700", UNI:"MA0000012023", IBM:"MA0000011132",
   },
   IDB_NAME_MAP:{MTO:"CMT", ALLI:"ADI", TGC:"TGCC", GTM:"SGTM"},
 };
@@ -519,7 +529,7 @@ async function fetchChart(sym,range){
 
   // 2. Si les candles locales ne couvrent pas aujourd'hui → enrichir avec Médias24 (15 jours)
   const lastLocal=local.length>0?local[local.length-1].d:"";
-  if(local.length>=5&&lastLocal<todayStr){
+  if(LIVE_ACTIF&&local.length>=5&&lastLocal<todayStr){
     try{
       /* Enrichissement borné à 4 s. Médias24 passe par des proxies CORS
          publics : quand ils ne répondent pas, l'appel a été mesuré à 38 s.
@@ -562,6 +572,10 @@ async function fetchChart(sym,range){
   }
 
   // 4. Secours total : Médias24 (close uniquement)
+  // ⚠️ Coupé avec la surcouche live (11/10/2026, revue de la PR #234) : une
+  // autre source, d'une autre date, ouverture reconstituée sur la clôture
+  // précédente. Sans historique local, le graphique reste vide plutôt que faux.
+  if(!LIVE_ACTIF)return [];
   return fetchMed24History(sym,days!=null?days:1825);
 }
 
@@ -4429,7 +4443,7 @@ function App(){
 
   // MASI index — refresh toutes les 2 min
   useEffect(()=>{
-    const load=()=>fetchMASI().then(m=>{if(m)setMasi(m);});
+    const load=()=>{if(!LIVE_ACTIF)return; fetchMASI().then(m=>{if(m)setMasi(m);});};
     load();
     const t=setInterval(load,120000);
     return()=>clearInterval(t);
@@ -4531,7 +4545,7 @@ function App(){
         };});
         REGIME_TECH=d.regime_technique||null;
         mergeLive(m);
-        nLive=d.tickers.filter(t=>t.chg&&t.chg!==0).length;
+        nLive=d.tickers.filter(t=>t.price>0).length;  // titres couverts (audit 11/10 : comptait les variations non nulles)
         /* data.json nomme la variation `change_pct`, l'en-tête lit `chg` :
            sans cette traduction la variation s'affiche « —% » dès que l'appel
            direct à la Bourse de Casablanca échoue, ce qui est le cas courant
@@ -4561,7 +4575,7 @@ function App(){
 
     // Étape 2 : overlay live — SEULEMENT pendant la session ouverte
     // Hors session (CLÔTURE/FERMÉ) : data.json est la source officielle, pas d'appels CORS
-    if(mktNow.isOpen){
+    if(LIVE_ACTIF&&mktNow.isOpen){
       try{
         const liveMap=await fetchQuotes();
         if(liveMap&&Object.keys(liveMap).length>0){
@@ -4580,7 +4594,6 @@ function App(){
     if(pipelineLoaded){
       const ageMin=nLive>0?0:Infinity;
       const label=mktNow.label==="CLÔTURE"?`Clôture · ${nLive} titres`
-                 :mktNow.isOpen?`Pipeline · ${nLive} live`
                  :`Pipeline · ${nLive} titres`;
       setSrc(label);
       setFetchErr(false);
