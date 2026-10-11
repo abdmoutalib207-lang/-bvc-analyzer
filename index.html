@@ -4038,6 +4038,13 @@ const NoteFond = ({
   nf
 }) => {
   if (!nf) return null;
+  if (nf.indisponible) return React.createElement("div", {
+    style: {
+      marginTop: 6,
+      fontSize: 10.5,
+      color: "#5a6478"
+    }
+  }, "Comparaison par m\xE9tier indisponible sur cette mise \xE0 jour \u2014 la note publi\xE9e n'en d\xE9pend pas.");
   const crit = nf.criteres || {};
   const pds = nf.poids_disponible ?? 0;
   const fam = FAMILLES_NOTE_LIB[nf.famille] || nf.famille;
@@ -4069,7 +4076,11 @@ const NoteFond = ({
     style: {
       color: "#ff8a65"
     }
-  }, " \u2014 moins de la moiti\xE9")), React.createElement("div", {
+  }, " \u2014 moins de la moiti\xE9"), nf.partielle && React.createElement("span", {
+    style: {
+      color: "#ffb74d"
+    }
+  }, " \xB7 note PARTIELLE (crit\xE8re essentiel manquant : ", (nf.criteres_essentiels_manquants || []).map(k => CRITERES_NOTE_LIB[k] || k).join(", "), ")")), React.createElement("div", {
     style: {
       marginTop: 4,
       lineHeight: 1.5

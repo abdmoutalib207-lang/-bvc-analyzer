@@ -948,6 +948,9 @@ const ETATS_NOTE_LIB={present:"présent",absent:"absent",zero_confirme:"zéro co
   remplacement:"remplacement",suspendu:"suspendu"};
 const NoteFond=({nf})=>{
   if(!nf) return null;
+  /* Comparaison indisponible (erreur de calcul isolée côté moteur, 12/10/2026) :
+     la note publiée n'est pas affectée, on le dit plutôt que de se taire. */
+  if(nf.indisponible) return <div style={{marginTop:6,fontSize:10.5,color:"#5a6478"}}>Comparaison par métier indisponible sur cette mise à jour — la note publiée n'en dépend pas.</div>;
   const crit=nf.criteres||{};
   const pds=nf.poids_disponible??0;
   const fam=FAMILLES_NOTE_LIB[nf.famille]||nf.famille;
@@ -960,6 +963,7 @@ const NoteFond=({nf})=>{
         {" · "}famille <span style={{color:"#c8d3e8"}}>{fam}</span>
         {" · "}couverture de la grille <span style={{color:sansNote?"#ff8a65":"#c8d3e8"}}>{pds} %</span>
         {sansNote&&<span style={{color:"#ff8a65"}}> — moins de la moitié</span>}
+        {nf.partielle&&<span style={{color:"#ffb74d"}}> · note PARTIELLE (critère essentiel manquant : {(nf.criteres_essentiels_manquants||[]).map(k=>CRITERES_NOTE_LIB[k]||k).join(", ")})</span>}
       </summary>
       <div style={{marginTop:4,lineHeight:1.5}}>
         {Object.entries(crit).map(([k,c])=>(

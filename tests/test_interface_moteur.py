@@ -118,9 +118,10 @@ def test_la_fiche_affiche_la_comparaison_par_metier_comme_non_retenue():
     i = ECRAN.index("const NoteFond=")
     corps = ECRAN[i:ECRAN.index("\n};", i)]
     for attendu in ("nf.famille", "nf.poids_disponible", "nf.criteres", "c.etat", "c.poids_effectif",
-                    "c.reference", "nf.note==null", "dependance_cote"):
+                    "c.reference", "nf.note==null", "dependance_cote", "nf.partielle", "nf.indisponible"):
         assert attendu in corps, f"NoteFond ne lit pas {attendu}"
-    for texte in ("non retenue dans la note", "couverture de la grille", "non sectorielle"):
+    for texte in ("non retenue dans la note", "couverture de la grille", "non sectorielle", "PARTIELLE",
+                  "indisponible"):
         assert texte in corps, f"« {texte} » n'est pas affiché"
     for etat in ("present", "absent", "zero_confirme", "remplacement", "suspendu"):
         assert etat in ECRAN[ECRAN.index("const ETATS_NOTE_LIB"):i], f"état « {etat} » non libellé"
