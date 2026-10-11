@@ -2264,6 +2264,16 @@
      "detail": "1990.3 vs capitaux_propres_part_groupe_verif 1990.3"
     }
    ]
+  },
+  "_non_publie": {
+   "actions_autodetenues": {
+    "etat": "non publié",
+    "page": 86,
+    "note": "Note 13 Résultat par action (p.86, lu sur le rendu) : les lignes « • d'actions ordinaires émises », « • d'actions détenues dans le cadre de plans d'options d'achat » et « • d'actions d'auto-détention » sont laissées VIDES. Une ligne vide n'est pas un zéro : aucune phrase du rapport ne dit que Sonasid ne détient pas d'actions propres. Aucune valeur écrite (ni 0, ni autre) ; le nombre retenu pour le BPA (3.900.000, égal au capital) n'est PAS une preuve d'absence d'autodétention.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-11",
+    "motif_retrait": "revue d'Abd Moutalib, PR #232 : un zéro déduit d'une ligne vide et d'un rapprochement indirect n'est pas confirmé (fait retiré le 11/10/2026)"
+   }
   }
  },
  "SOT": {
@@ -6115,28 +6125,42 @@
  },
  "TMA": {
   "societe": "TotalEnergies Marketing Maroc",
-  "exercice": 2024,
-  "document": "Rapport Financier Annuel 2024",
-  "url": "https://www.ammc.ma/sites/default/files/Total_RFA_2024.pdf",
+  "exercice": 2025,
+  "document": "Avis d'AGO du 03/06/2026 (comptes consolidés IFRS au 31/12/2025, publiés par l'émetteur) — pas de rapport financier annuel 2025 au catalogue AMMC",
+  "url": "https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf",
   "depose_aupres_de": "AMMC",
-  "releve_le": "2026-09-16",
+  "releve_le": "2026-10-10",
   "faits": {
    "capitaux_propres_part_groupe": {
-    "valeur": 2745.769,
-    "valeur_au_rapport": 2745769,
+    "valeur": 1984.665,
+    "valeur_au_rapport": 1984665,
     "unite_au_rapport": "KMAD",
     "colonne_exercice_clos": 1,
-    "page": 21,
-    "note": "« Total des capitaux propres - part du Groupe 2 745 769 2 315 933 » ; en-tête « PASSIF 31/12/2024 31/12/2023 ». ⚠️ EXERCICE 2024 : l'AMMC ne sert pas de rapport 2025 pour cet émetteur. Capital 448 000 KMAD = 8 960 000 titres de nominale 50, ce que le marché confirme à 8 960 135 — le nombre d'actions n'a donc pas bougé depuis la clôture."
+    "page": 6,
+    "note": "« Total des capitaux propres – part du Groupe 1.984.665 2.745.769 » ; en-tête « PASSIF Décembre 2025 Décembre 2024 » (en milliers de dirhams), comptes consolidés IFRS au 31/12/2025, avis d'AGO du 03/06/2026, p.6. Recoupé par Total_Maroc_S1_26.pdf p.4, colonne « Décembre 2025 » (seconde) : « TOTAL DES CAPITAUX PROPRES – PART DU GROUPE 1.468.318 1.984.665 ». Intérêts ne conférant pas le contrôle : néant (part du groupe = ensemble). ⚠️ Remplace 2 745,769 MMAD (RFA 2024 p.21, exercice 2024, colonne « 31/12/2024 »), qui donnait un P/B trop bas ; l'ancien relevé est conservé dans `valeur_avant_2026_10_10`.",
+    "valeur_avant_2026_10_10": {
+     "valeur": 2745.769,
+     "exercice": 2024,
+     "document": "RFA 2024",
+     "page": 21
+    },
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-10"
    },
    "nombre_actions_au_rapport": {
     "valeur": 8960000,
-    "page": 21,
+    "page": 6,
     "unite": "actions",
-    "note": "capital 448 000 KMAD ÷ nominale 50. Le marché en implique 8 960 135 (écart 0,002 %)."
+    "note": "« Capital 448.000 » (KMAD, avis d'AGO du 03/06/2026, p.6) ÷ nominale 50 = 8 960 000 titres ; le marché en implique 8 960 135 (écart 0,002 %) ; résultat net par action 95 (851 083 KMAD ÷ 8 960 000 = 94,99). Page 21 du RFA 2024 auparavant."
    }
   },
-  "pages_document": 122
+  "pages_document": 8,
+  "_exercice_avant_2026_10_10": {
+   "exercice": 2024,
+   "document": "Rapport Financier Annuel 2024",
+   "url": "https://www.ammc.ma/sites/default/files/Total_RFA_2024.pdf",
+   "raison": "le relevé du 16/09 avait pris le seul rapport annuel du catalogue (2024) ; les comptes 2025 sont publiés dans l'avis d'AGO du 03/06/2026, recoupés par le dépôt S1 2026"
+  }
  },
  "DHO": {
   "societe": "Delta Holding",
@@ -6949,7 +6973,29 @@
     "valeur": 23431240,
     "page": 81,
     "unite": "actions",
-    "note": "« Nombre moyen pondéré : d'actions ordinaires émises 23 431 240 23 431 240 » (note résultat par action, p.81) ; 111 651 actions d'autodétention, soit 23 319 589 retenues pour le BPA. Capital 702 937 KMAD ÷ 30 DH de nominal = 23 431 233 (arrondi KMAD). Accord avec le référentiel de l'opérateur (23 431 240)."
+    "note": "« Nombre moyen pondéré : d'actions ordinaires émises 23 431 240 23 431 240 » (note résultat par action, p.81) ; Le nombre retenu pour le BPA (23 319 589, moyen pondéré) est consigné à part (nombre_moyen_pondere_bpa) ; il ne remplace pas le nombre d'actions émises. Capital 702 937 KMAD ÷ 30 DH de nominal = 23 431 233 (arrondi KMAD). Accord avec le référentiel de l'opérateur (23 431 240)."
+   },
+   "actions_autodetenues": {
+    "valeur": 111651,
+    "valeur_au_rapport": 111651,
+    "unite_au_rapport": "actions",
+    "page": 71,
+    "note": "« C1 : ÉTAT DE RÉPARTITION DU CAPITAL SOCIAL AU 31 DÉCEMBRE 2025 — Montant du capital 702 937 200,00 Dirhams … LAFARGE HOLCIM MAROC … 111 651 111 651 30 3 349 530 » (colonnes « exercice précédent » puis « exercice actuel » ; valeur nominale 30 ; montant libéré 3 349 530 DH = 111 651 × 30 ; page double, p.140 imprimée ; lu sur le rendu). LafargeHolcim Maroc figure parmi ses propres actionnaires : c'est un nombre de titres DÉTENUS à la clôture, pas une moyenne. Le tableau se reboucle : 15 156 172 (Lafarge Maroc) + 111 651 + 8 163 417 (divers) = 23 431 240 titres. Recoupement : état de variation des capitaux propres consolidés p.74, colonne « Actions d'autocontrôle » −9 637 KMAD au 31 décembre 2025 (≈ 86,3 DH par titre, non vérifié au cours).",
+    "base": "nombre de titres du capital social au 31/12/2025 (état C1 des comptes sociaux ; l'autocontrôle consolidé est à −9 637 KMAD, p.74)",
+    "releve_le": "2026-10-11",
+    "lecture": "explicite (nombre)",
+    "motif_changement": "revue d'Abd Moutalib, PR #232 : la page 81 (note 12) donne le même 111 651 mais sous « Nombre moyen pondéré » ; la clôture se lit à la page 71 (état C1). Le nombre moyen pondéré est consigné à part (nombre_moyen_pondere_bpa)."
+   },
+   "nombre_moyen_pondere_bpa": {
+    "valeur": 23319589,
+    "valeur_au_rapport": 23319589,
+    "page": 81,
+    "emises": 23431240,
+    "auto_detention": 111651,
+    "retenu_pour_le_bpa": 23319589,
+    "unite_au_rapport": "actions",
+    "note": "« Nombre moyen pondéré : - d'actions ordinaires émises 23 431 240 - d'actions détenues dans le cadre de plans d'options d'achat - d'actions d'auto détention 111 651 — Nombre d'actions retenu pour le calcul du résultat de base par action 23 319 589 » (note 12 Résultat par action, mêmes montants 2025 et 2024). Ce sont des nombres MOYENS PONDÉRÉS servant au BPA, pas un nombre détenu à la clôture ; 23 431 240 − 111 651 = 23 319 589. Ne sert à aucun P/B.",
+    "releve_le": "2026-10-11"
    }
   },
   "_controles_ratios_2025": {
@@ -12674,7 +12720,21 @@
     "page": 10,
     "note": "⚠️ NOMBRE D'ACTIONS NON PUBLIÉ PAR LE DÉPÔT : ni le rapport financier (27 p.) ni l'attestation des CAC ne donnent le nombre de titres ni la valeur nominale. Référentiel de l'opérateur (16/09/2026) : capitalisation 1 398 000 000 ÷ cours 1 398 = 1 000 000 actions ; 100 000 000 (capital, p.10) ÷ 1 000 000 = 100,0000 DH, un nominal entier cohérent avec le référentiel mais NON LU au rapport. RECOUPÉ par le projet de résolutions de l'AGO du 19/06/2026 (https://www.ammc.ma/sites/default/files/Avis_Promopharm_AGO_19_06_26.pdf, p.1, 7e résolution) : « Distribution de Dividendes brut (30 DHS par action) 30.000.000,00 dirhams » = 1 000 000 actions, et « société anonyme au capital de 100.000.000,00 dirhams ». ⚠️ fondamentaux.json porte nb_actions = 2 582 555 pour PPM : désaccord avec le référentiel ET avec l'avis (non corrigé ici, à trancher en revue). Clé volontairement distincte de `nombre_actions_au_rapport` (lue par update_data.py pour le P/B et le contrôle de capitalisation). BPA social = 59 914 634,13 ÷ 1 000 000 = 59,91 DH.",
     "base": "SOCIAL (normes marocaines), 31/12/2025 — le dépôt ne publie que des « comptes sociaux » (p.9) ; titres de participation 8 003 175 MAD intégralement dépréciés (valeur nette 0), aucun consolidé",
-    "releve_le": "2026-10-02"
+    "releve_le": "2026-10-02",
+    "origine": "operateur",
+    "motif": "non publié au dépôt",
+    "source_operateur": "datasets/referentiel/cote_casablanca_2026-09-16.csv (capitalisation ÷ cours)",
+    "accord": "Abd Moutalib, 10/10/2026"
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 590.840386,
+    "valeur_au_rapport": 590840385.99,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 10,
+    "note": "« Total des capitaux propres (A) 590.840.385,99 530.925.751,86 » (bilan passif, colonnes « EXERCICE 31/12/2025 » puis « EXERCICE PRECEDENT 31/12/2024 », vérifié sur le rendu de la page : le tableau est une image). COMPTES SOCIAUX : le dépôt ne publie aucun consolidé (`base: sociale`). Hors « Capitaux propres assimilés (B) 18.108.518,66 » (subvention d'investissement). Attestation des CAC (p.5) : « 608 948 905 MAD dont un bénéfice net de 59 914 634 MAD » = 590 840 386 + 18 108 519.",
+    "base": "sociale",
+    "releve_le": "2026-10-10"
    }
   },
   "pages_document": 27,
@@ -13612,7 +13672,22 @@
     "page": 2,
     "note": "⚠️ NOMBRE D'ACTIONS NON PUBLIÉ PAR LE DÉPÔT : ni nombre de titres ni valeur nominale dans les 19 pages (capital seul : « Capital social ou personnel (1) 52 650 000,00 », p.2). Référentiel de l'opérateur (16/09/2026) : capitalisation 106 879 500 ÷ cours 20,3 = 5 265 000 actions ; 52 650 000 ÷ 5 265 000 = 10,00 DH, nominal entier cohérent mais NON LU au rapport. L'AGE du 27/07/2026 autorise une augmentation de capital jusqu'à 80 MMAD (neuvième résolution, avis AMMC) : autorisation, pas réalisation ; le référentiel du 16/09 donne encore 5 265 000. À rouvrir à l'exécution.",
     "base": "SOCIAL (normes marocaines), exercice du 01/04/2025 au 31/03/2026 (clos le 31/03/2026, PAS le 31/12/2025) — Cartier Saada ne publie que des comptes sociaux ; OPINION AVEC RÉSERVE des CAC (achats auprès d'agriculteurs sans identification fiscale, non chiffrée)",
-    "releve_le": "2026-10-02"
+    "releve_le": "2026-10-02",
+    "origine": "operateur",
+    "motif": "non publié au dépôt",
+    "source_operateur": "datasets/referentiel/cote_casablanca_2026-09-16.csv (capitalisation ÷ cours)",
+    "accord": "Abd Moutalib, 10/10/2026"
+   },
+   "capitaux_propres_part_groupe": {
+    "valeur": 167.108095,
+    "valeur_au_rapport": 167108094.68,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 2,
+    "note": "« TOTAL DES CAPITAUX PROPRES ( a ) 167 108 094,68 152 299 965,73 » (bilan passif, colonnes Exercice puis Exercice précédent, vérifié sur le rendu de la page ; couche texte, montants en dirhams). COMPTES SOCIAUX : Cartier Saada ne publie aucun consolidé, ces capitaux propres tiennent lieu de part du groupe (`base: sociale`). Exercice du 01/04/2025 au 31/03/2026, PAS le 31/12/2025. Hors « CAPITAUX PROPRES ASSIMILES ( b ) 2 073 652,88 » (subventions). ⚠️ Contiennent « Ecarts de réévaluation 115 122 500,00 » (réévaluation libre de trois terrains, observation n°3 des CAC, p.17) : sans elle 52,0 MMAD. ⚠️ OPINION AVEC RÉSERVE des CAC (p.15-16) : achats de la quasi-totalité des matières premières auprès d'agriculteurs qui ne justifient pas leur identification fiscale, non chiffrée. Les stocks d'olives n'en sont PAS l'objet : ils figurent à l'observation n°1 (p.16), qui explique la perte de 25 642 371,05 DHS par « la comptabilisation d'une provision pour dépréciation des stocks d'olives issus de récoltes antérieures » ; observation n°2 (p.17) : « des décisions s'imposent pour assurer la continuité d'exploitation ».",
+    "base": "sociale",
+    "exercice_clos": "2026-03-31",
+    "releve_le": "2026-10-10"
    }
   },
   "pages_document": 19,
@@ -14965,6 +15040,17 @@
     "page": 110,
     "unite": "actions",
     "note": "« Le capital est constitué de 215 140 839 actions ordinaires de 10 dirhams de » nominal ; capital 2 151 408 390 DH ; répartition p.133 « TOTAL 215 140 839 215 140 839 100% ». Identique au référentiel de l'opérateur."
+   },
+   "actions_autodetenues": {
+    "valeur": 13602015,
+    "valeur_au_rapport": 13602015,
+    "unite_au_rapport": "actions",
+    "page": 110,
+    "note": "« 7. 3. 2 Actions Attijariwafa bank détenues par le Groupe : Au 31 décembre 2025, le groupe Attijariwafa bank détient 13 602 015 actions Attijariwafa bank représentant un montant global de 2 600 millions de dirhams qui vient en déduction des capitaux propres consolidés. » Détenues par une filiale consolidée : le tableau de l'actionnariat (p.133) porte « WAFA ASSURANCE … 13 602 015 13 602 015 6,3 % » (nombre de titres, nombre de droits de vote). Soit 6,3 % des 215 140 839 titres : le P/B se calcule sur 215 140 839 − 13 602 015 = 201 538 824 actions en circulation (IAS 32). Recoupement (rendu p.97) : tableau de variation des capitaux propres, colonne « Actions propres » −2 600 212 KMAD au 31 décembre 2025, soit les « 2 600 millions de dirhams » de la note. Le nombre est celui du 31/12/2025 (« Au 31 décembre 2025, le groupe … détient »), pas une moyenne.",
+    "base": "consolidé IFRS, part du groupe, 31/12/2025",
+    "releve_le": "2026-10-11",
+    "nature": "titres détenus par une filiale consolidée (Wafa Assurance)",
+    "lecture": "explicite (nombre)"
    }
   }
  },
@@ -15076,6 +15162,16 @@
     "page": 100,
     "unite": "actions",
     "note": "« social de DH 2 202 818 810, composé de 220 281 881 actions » (p.100) ; repris p.135 (« 220 281 881 215 786 333 » : l'augmentation de capital de 2025 a porté le nombre de 215 786 333 à 220 281 881, avant la clôture). Identique au référentiel de l'opérateur."
+   },
+   "actions_autodetenues": {
+    "valeur": 0,
+    "valeur_au_rapport": 0,
+    "unite_au_rapport": "actions",
+    "page": 124,
+    "note": "« Au 31 Décembre 2025, le Groupe ne détient pas d'actions propres. » (note sur les actions propres, « le terme actions propres désigne les actions de la société mère BANK OF AFRICA SA et de ses filiales consolidées ») ; tableau des flux p.121 : « Opérations sur actions propres 0 0 ».",
+    "base": "consolidé IFRS, part du groupe, 31/12/2025",
+    "releve_le": "2026-10-10",
+    "lecture": "explicite (zéro)"
    }
   }
  },
