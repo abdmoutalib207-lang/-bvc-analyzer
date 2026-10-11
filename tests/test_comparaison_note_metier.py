@@ -83,3 +83,24 @@ def test_deterministe():
     a = json.dumps(cm.construire(), ensure_ascii=False, sort_keys=True)
     b = json.dumps(cm.construire(), ensure_ascii=False, sort_keys=True)
     assert a == b
+
+
+def test_une_note_partielle_n_ameliore_jamais_le_palier_simule(comparaison):
+    rang = ("ÉVITER FORT", "ÉVITER", "ATTENDRE", "SURVEILLER", "ACHETER")
+    for s, x in comparaison["titres"].items():
+        if not x["partielle"]:
+            assert x["signal_limite_par_note_partielle"] is False, s
+            continue
+        assert x["criteres_essentiels_manquants"], s
+        a, b = x["palier_actuel"], x["palier_simule"]
+        if a in rang and b in rang:
+            assert rang.index(b) <= rang.index(a), f"{s} : note partielle, palier {a} → {b}"
+
+
+def test_la_synthese_compte_les_notes_partielles_et_les_suspensions_par_motif(comparaison):
+    sy, t = comparaison["synthese"], comparaison["titres"]
+    assert sy["notes_partielles"]["nombre"] == sum(1 for x in t.values() if x["partielle"])
+    n_susp = sum(1 for x in t.values() for c in x["criteres"].values() if c["etat"] == "suspendu")
+    assert sum(sy["suspensions_par_motif"].values()) == n_susp
+    n_abs = sum(1 for x in t.values() for c in x["criteres"].values() if c["etat"] == "absent")
+    assert sum(sy["absences_par_motif"].values()) == n_abs

@@ -1,8 +1,15 @@
 {
  "_quoi": "Comparaison note actuelle / note par métier — mode comparaison, NON retenue dans la note",
  "_methode": "Comparaison : note fondamentale ACTUELLE contre note PAR MÉTIER, 80 titres.\n\n    python3 pipeline/comparaison_note_metier.py [--nom comparaison_note_metier_AAAA-MM-JJ.json]\n\nLecture seule, aucun réseau. Les cours, P/B et notes actuelles viennent de\n`data.json` ; les comptes de `fondamentaux.json`, `bpa.json`,\n`pipeline/faits_financiers.json` et `datasets/resultats_s1_2026.json`. Deux\nexécutions sur les mêmes fichiers donnent le même résultat à l'octet près.\n\n⚠️ MODE COMPARAISON (11/10/2026) : la note par métier n'est PAS retenue dans la\nnote publiée. Ce fichier existe pour que chaque critère de chaque titre se\nvérifie : famille, note actuelle, note par métier, et pour chaque critère sa\nvaleur, sa source (fichier + pièce), sa période, sa base, son ÉTAT (présent,\nabsent, zéro confirmé, remplacement, suspendu), son poids nominal et EFFECTIF\naprès abstentions, et sa référence de comparaison (famille ou cote entière).\n\n⚠️ LA v53 « SIMULÉE » est approchée : v53 publiée + (note métier − note actuelle)\n× poids fondamental publié (entier, en %). L'erreur d'arrondi du poids est de\nl'ordre de 0,005 × l'écart de note ; elle ne suffit à changer un palier que\npour un titre à moins de ~0,01 d'une frontière.",
- "date_donnees": "2026-10-09",
+ "date_donnees": "2026-10-11",
  "source_cours": "data.json",
+ "empreintes_sha256": {
+  "data.json": "6e2edeb4f06fa20427b48a40b12aa37f00f910b9b9e1af729f3cba6da15a3750",
+  "fondamentaux.json": "a1820170ede529367fec540ac111bb06a89210c4173bc862c9876b89c443b02d",
+  "bpa.json": "8a9aa6658d8a71edbd11fb713eace775eacda2857f02132e8dea61f8d286f418",
+  "pipeline/faits_financiers.json": "76c68d0f4a4a0ec24eb34ed7eb081f414bfb223ed909a58df400fd9cb09d46d4",
+  "datasets/resultats_s1_2026.json": "efc65df476f86f945fe9cec6a8811d1da4dd4762bb0bdca24b8a49df1ce0babf"
+ },
  "synthese": {
   "titres": 80,
   "notes_metier": 68,
@@ -10,20 +17,20 @@
   "distribution_note_actuelle": {
    "n": 80,
    "moyenne": 5.41,
-   "mediane": 5.4,
-   "ecart_type": 1.45,
+   "mediane": 5.35,
+   "ecart_type": 1.46,
    "min": 1.95,
    "max": 8.35,
-   "valeurs_distinctes": 54
+   "valeurs_distinctes": 53
   },
   "distribution_note_metier": {
    "n": 68,
-   "moyenne": 5.42,
+   "moyenne": 5.39,
    "mediane": 5.63,
-   "ecart_type": 1.83,
+   "ecart_type": 1.8,
    "min": 1.5,
-   "max": 9.14,
-   "valeurs_distinctes": 56
+   "max": 8.55,
+   "valeurs_distinctes": 55
   },
   "par_famille": {
    "assurance": {
@@ -107,9 +114,9 @@
   "etats_par_critere": {
    "rentabilite": {
     "absent": 7,
-    "present": 58,
+    "present": 56,
     "remplacement": 6,
-    "suspendu": 9
+    "suspendu": 11
    },
    "croissance": {
     "absent": 7,
@@ -117,27 +124,28 @@
     "suspendu": 3
    },
    "valorisation": {
-    "absent": 10,
+    "absent": 9,
     "present": 66,
-    "suspendu": 4
+    "remplacement": 2,
+    "suspendu": 3
    },
    "bilan": {
     "absent": 17,
-    "present": 35,
+    "present": 33,
     "remplacement": 4,
-    "suspendu": 24
+    "suspendu": 26
    }
   },
   "base_du_roe": {
-   "ROIC (comptes publiés) — pas de ROE": 41,
+   "ROIC (comptes publiés) — pas de ROE": 39,
    "exercice 2025 sur CLÔTURE 31/12/2025": 23,
    "pas de ROE (absent)": 7,
-   "pas de ROE (suspendu)": 9
+   "pas de ROE (suspendu)": 11
   },
   "ve_ebitda_etats": {
    "absent : dette nette ou EBITDA absents": 41,
-   "absent : minoritaires inconnus": 2,
-   "present": 21,
+   "absent : minoritaires inconnus": 1,
+   "present": 22,
    "suspendu : EBITDA non positif": 1,
    "suspendu : bilan plus récent": 10,
    "suspendu : contredite par l'endettement net": 3,
@@ -146,19 +154,21 @@
   },
   "reference_de_comparaison_par_critere": {
    "valorisation": {
-    "cote_entiere": 12,
+    "cote_entiere": 14,
     "famille": 50
    }
   },
   "dependance_a_la_cote_entiere": {
-   "titres_concernes": 12,
+   "titres_concernes": 14,
    "liste": [
     "ADH",
     "ADI",
     "ATL",
     "CASH",
+    "CMT",
     "IAM",
     "JET",
+    "MNG",
     "RDS",
     "SGTM",
     "SMI",
@@ -166,13 +176,69 @@
     "TQA",
     "WAF"
    ],
-   "points_de_note_en_jeu_somme_absolue": 5.01,
-   "ecart_moyen_points": -0.21,
-   "ecart_max_points": 0.72,
-   "notes_qui_n_existeraient_pas_sans_la_cote": []
+   "points_de_note_en_jeu_somme_absolue": 6.15,
+   "ecart_moyen_points": -0.28,
+   "ecart_max_points": 1.14,
+   "notes_qui_n_existeraient_pas_sans_la_cote": [
+    "MNG"
+   ]
+  },
+  "notes_partielles": {
+   "nombre": 7,
+   "liste": {
+    "MNG": [
+     "rentabilite"
+    ],
+    "MSA": [
+     "rentabilite"
+    ],
+    "STR": [
+     "rentabilite"
+    ],
+    "AFM": [
+     "rentabilite"
+    ],
+    "AGM": [
+     "rentabilite"
+    ],
+    "CAR": [
+     "valorisation"
+    ],
+    "MUT": [
+     "rentabilite"
+    ]
+   },
+   "signaux_limites_par_le_garde_fou": [
+    "AGM",
+    "MNG"
+   ]
+  },
+  "suspensions_par_motif": {
+   "sans objet (établissement financier)": 15,
+   "société sans comptes déposés": 12,
+   "dette nette / fonds propres : aucun barème sourcé": 5,
+   "grandeur contestée (dette nette contredite par l'endettement net)": 5,
+   "ROE suspendu : juste valeur des immeubles (foncières)": 3,
+   "ROE sans objet (courtier)": 2,
+   "ratios en vérification (MSA)": 1
+  },
+  "absences_par_motif": {
+   "dette nette / EBITDA non calculable": 16,
+   "croissance non issue des dépôts S1 2026": 7,
+   "BPA 12 mois ou cours absent": 5,
+   "ni ROIC ni ROE calculables": 5,
+   "P/B comptable : moins de 3 pairs (actif net réévalué non disponible)": 4,
+   "aucun ROE calculé": 2,
+   "dette nette / fonds propres non calculable à la même date": 1
+  },
+  "criteres_en_remplacement": {
+   "rentabilite": 6,
+   "croissance": 0,
+   "valorisation": 2,
+   "bilan": 4
   },
   "changements_de_palier_simules": {
-   "nombre": 25,
+   "nombre": 23,
    "detail": {
     "WAF": {
      "de": "ATTENDRE",
@@ -183,14 +249,8 @@
     "TMA": {
      "de": "ATTENDRE",
      "a": "SURVEILLER",
-     "v53": 5.14,
+     "v53": 4.67,
      "v53_simulee": 6.32
-    },
-    "MNG": {
-     "de": "SURVEILLER",
-     "a": "ACHETER",
-     "v53": 6.47,
-     "v53_simulee": 7.09
     },
     "ARD": {
      "de": "ÉVITER",
@@ -276,12 +336,6 @@
      "v53": 5.35,
      "v53_simulee": 5.65
     },
-    "AGM": {
-     "de": "ATTENDRE",
-     "a": "SURVEILLER",
-     "v53": 4.95,
-     "v53_simulee": 5.5
-    },
     "BAL": {
      "de": "ATTENDRE",
      "a": "Données insuffisantes",
@@ -347,6 +401,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [
      "valorisation"
@@ -412,7 +469,7 @@
       "pairs_famille": 0,
       "libelle": "médiane de la COTE ENTIÈRE hors IAM (67 titres) — comparaison NON sectorielle : famille « telecom » : 0 pair(s), moins de 3"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 3.86
     },
     "bilan": {
      "etat": "present",
@@ -446,6 +503,9 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.83,
@@ -509,7 +569,7 @@
       "pairs_famille": 6,
       "libelle": "médiane des 6 autres titres de la famille « banque »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 2.08
     },
     "bilan": {
      "etat": "suspendu",
@@ -539,6 +599,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.72,
@@ -602,7 +665,7 @@
       "pairs_famille": 6,
       "libelle": "médiane des 6 autres titres de la famille « banque »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 1.35
     },
     "bilan": {
      "etat": "suspendu",
@@ -632,6 +695,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 6.06,
@@ -695,7 +761,7 @@
       "pairs_famille": 6,
       "libelle": "médiane des 6 autres titres de la famille « banque »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 1.25
     },
     "bilan": {
      "etat": "suspendu",
@@ -725,6 +791,9 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 4.78,
@@ -818,6 +887,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.94,
@@ -911,6 +983,9 @@
    "palier_simule": "ÉVITER",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [
      "valorisation"
@@ -1006,6 +1081,9 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.45,
@@ -1069,7 +1147,7 @@
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 2.94
     },
     "bilan": {
      "etat": "present",
@@ -1103,6 +1181,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 6.45,
@@ -1200,6 +1281,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [
      "valorisation"
@@ -1295,6 +1379,9 @@
    "palier_simule": "ACHETER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 7.65,
@@ -1392,6 +1479,9 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.45,
@@ -1455,7 +1545,7 @@
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 2.98
     },
     "bilan": {
      "etat": "present",
@@ -1489,6 +1579,9 @@
    "palier_simule": "ÉVITER FORT",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 2.4,
@@ -1579,6 +1672,9 @@
    "palier_simule": "ÉVITER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [
      "valorisation"
@@ -1678,6 +1774,9 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.28,
@@ -1741,7 +1840,7 @@
       "pairs_famille": 3,
       "libelle": "médiane des 3 autres titres de la famille « financement »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 0.85
     },
     "bilan": {
      "etat": "suspendu",
@@ -1761,16 +1860,19 @@
   "TMA": {
    "famille": "autre",
    "secteur_referentiel": "Énergie",
-   "note_actuelle": 5.6,
+   "note_actuelle": 5.0,
    "note_metier": 7.11,
-   "ecart": 1.51,
-   "v53_actuelle": 5.14,
+   "ecart": 2.11,
+   "v53_actuelle": 4.67,
    "v53_simulee": 6.32,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
    "palier_simule": "SURVEILLER",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 7.11,
@@ -1834,7 +1936,7 @@
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 4.39
+     "pb_comptable_affiche": 6.08
     },
     "bilan": {
      "etat": "absent",
@@ -1855,26 +1957,31 @@
    "famille": "mines",
    "secteur_referentiel": "Mines",
    "note_actuelle": 8.25,
-   "note_metier": 9.14,
-   "ecart": 0.89,
+   "note_metier": 8.0,
+   "ecart": -0.25,
    "v53_actuelle": 7.53,
-   "v53_simulee": 8.22,
+   "v53_simulee": 7.33,
    "signal_actuel": "Données insuffisantes",
    "palier_actuel": "Données insuffisantes",
    "palier_simule": "Données insuffisantes",
-   "poids_disponible": 70,
+   "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
-    "criteres": [],
+    "criteres": [
+     "valorisation"
+    ],
     "note_sans_cote": 9.14,
-    "ecart_points": 0.0,
+    "ecart_points": -1.14,
     "note_inexistante_sans_cote": false
    },
    "criteres": {
     "rentabilite": {
      "etat": "present",
      "poids_nominal": 40,
-     "poids_effectif": 57.14,
+     "poids_effectif": 44.44,
      "valeur": 23.1,
      "mesure": "ROIC 23.1 % (comptes publiés)",
      "note": 8.5,
@@ -1891,7 +1998,7 @@
     "croissance": {
      "etat": "present",
      "poids_nominal": 30,
-     "poids_effectif": 42.86,
+     "poids_effectif": 33.33,
      "valeur": 119.88,
      "mesure": "BPA 150.4 % · CA 74.1 %",
      "note": 10.0,
@@ -1906,17 +2013,28 @@
      "reference": null
     },
     "valorisation": {
-     "etat": "absent",
+     "etat": "remplacement",
      "poids_nominal": 20,
-     "poids_effectif": 0.0,
-     "valeur": null,
-     "mesure": null,
-     "note": null,
-     "motif": "VE/EBITDA absent : dette nette ou EBITDA absents des comptes publiés",
-     "source": null,
-     "periode": null,
-     "base": null,
-     "reference": null
+     "poids_effectif": 22.22,
+     "valeur": 22.74,
+     "mesure": "PER 12 m 22.7 ÷ médiane de la COTE ENTIÈRE hors CMT (67 titres) — comparaison NON sectorielle : famille « mines » : 2 pair(s), moins de 3 = 18.0 — REMPLACEMENT du VE/EBITDA (VE/EBITDA absent : dette nette ou EBITDA absents des comptes publiés) ; règle de famille « mines » : résultat d'exploitation courant : le PER relatif est lu à défaut de VE/EBITDA admissible",
+     "note": 4.0,
+     "motif": null,
+     "source": {
+      "fichier": "bpa.json › bpa_12m",
+      "piece": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/CMT_S1_26.pdf p.3 (compte de résultat consolidé) ; base : résultat net part du groupe, consolidé",
+      "periode": "12 mois au 2026-06-30"
+     },
+     "periode": "12 mois au 2026-06-30",
+     "base": "PER 12 mois ; BPA vérifié (dépôt AMMC), période explicite",
+     "reference": {
+      "type": "cote_entiere",
+      "n": 67,
+      "mediane": 17.96,
+      "pairs_famille": 2,
+      "libelle": "médiane de la COTE ENTIÈRE hors CMT (67 titres) — comparaison NON sectorielle : famille « mines » : 2 pair(s), moins de 3"
+     },
+     "pb_comptable_affiche": 7.79
     },
     "bilan": {
      "etat": "absent",
@@ -1937,43 +2055,50 @@
    "famille": "mines",
    "secteur_referentiel": "Mines",
    "note_actuelle": 7.2,
-   "note_metier": 8.0,
-   "ecart": 0.8,
+   "note_metier": 7.6,
+   "ecart": 0.4,
    "v53_actuelle": 6.47,
-   "v53_simulee": 7.09,
+   "v53_simulee": 6.78,
    "signal_actuel": "SURVEILLER ★",
    "palier_actuel": "SURVEILLER",
-   "palier_simule": "ACHETER",
-   "poids_disponible": 80,
+   "palier_simule": "SURVEILLER",
+   "poids_disponible": 50,
    "motif_sans_note": null,
+   "partielle": true,
+   "criteres_essentiels_manquants": [
+    "rentabilite"
+   ],
+   "signal_limite_par_note_partielle": true,
    "dependance_cote": {
-    "criteres": [],
-    "note_sans_cote": 8.0,
-    "ecart_points": 0.0,
-    "note_inexistante_sans_cote": false
+    "criteres": [
+     "valorisation"
+    ],
+    "note_sans_cote": null,
+    "ecart_points": null,
+    "note_inexistante_sans_cote": true
    },
    "criteres": {
     "rentabilite": {
-     "etat": "present",
+     "etat": "suspendu",
      "poids_nominal": 40,
-     "poids_effectif": 50.0,
+     "poids_effectif": 0.0,
      "valeur": 15.3,
-     "mesure": "ROIC 15.3 % (comptes publiés)",
-     "note": 7.0,
-     "motif": null,
+     "mesure": "ROIC 15.3 % — affiché, non noté",
+     "note": null,
+     "motif": "ROIC suspendu — grandeur contestée : dette nette 10933.2 (ratios publiés) contredite par l'endettement net 12674 (faits financiers), écart 13.7% (> 2%), non expliqué sur pièce ; tout critère qui la consomme est suspendu",
      "source": {
       "fichier": "fondamentaux.json › ratios publiés › roic",
       "piece": "resultat_exploitation : Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Managem_RFA_2025.pdf, p. 86 ; impot : Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Managem_RFA_2025.pdf, p. 86 ; resultat_avant_impot : Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Managem_RFA_2025.pdf, p. 86 ; capitaux_propres : Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Managem_RFA_2025.pdf, p. 86 ; dette_nette : ratios_publies.dette_nette",
       "formule": "3992.8 × (1 − t) ÷ (12529.6 + 10933.2) ; t = 389.1 ÷ 3798.0 = 10.2 %"
      },
      "periode": "2025-12-31",
-     "base": "consolidé IFRS, 31/12/2025",
+     "base": null,
      "reference": null
     },
     "croissance": {
      "etat": "present",
      "poids_nominal": 30,
-     "poids_effectif": 37.5,
+     "poids_effectif": 60.0,
      "valeur": 602.92,
      "mesure": "BPA 894.2 % · CA 166.0 %",
      "note": 10.0,
@@ -1988,32 +2113,39 @@
      "reference": null
     },
     "valorisation": {
-     "etat": "suspendu",
+     "etat": "remplacement",
      "poids_nominal": 20,
-     "poids_effectif": 0.0,
-     "valeur": null,
-     "mesure": null,
-     "note": null,
-     "motif": "VE/EBITDA suspendu : dette nette 10933.2 (ratios publiés) contredite par l'endettement net 12674 (faits financiers) : écart 13.7%, plus de 2%",
-     "source": null,
-     "periode": null,
-     "base": null,
-     "reference": null
-    },
-    "bilan": {
-     "etat": "present",
-     "poids_nominal": 10,
-     "poids_effectif": 12.5,
-     "valeur": 1.83,
-     "mesure": "dette nette / EBITDA 1.83 · conversion 158 %",
-     "note": 6.0,
+     "poids_effectif": 40.0,
+     "valeur": 27.42,
+     "mesure": "PER 12 m 27.4 ÷ médiane de la COTE ENTIÈRE hors MNG (67 titres) — comparaison NON sectorielle : famille « mines » : 2 pair(s), moins de 3 = 18.0 — REMPLACEMENT du VE/EBITDA (VE/EBITDA suspendu : grandeur contestée : dette nette 10933.2 (ratios publiés) contredite par l'endettement net 12674 (faits financiers), écart 13.7% (> 2%), non expliqué sur pièce ; tout critère qui la consomme est suspendu) ; règle de famille « mines » : résultat d'exploitation courant : le PER relatif est lu à défaut de VE/EBITDA admissible",
+     "note": 4.0,
      "motif": null,
      "source": {
-      "fichier": "fondamentaux.json › ratios publiés › dette_nette_ebitda",
-      "piece": "dette_nette : ratios_publies.dette_nette ; ebitda : ratios_publies.ebitda",
-      "formule": "10933.2 ÷ 5982.0"
+      "fichier": "bpa.json › bpa_12m",
+      "piece": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/CP_Managem_S1_26.pdf p.1 ; base : résultat net part du groupe, consolidé",
+      "periode": "12 mois au 2026-06-30"
      },
-     "periode": "2025-12-31",
+     "periode": "12 mois au 2026-06-30",
+     "base": "PER 12 mois ; BPA vérifié (dépôt AMMC), période explicite",
+     "reference": {
+      "type": "cote_entiere",
+      "n": 67,
+      "mediane": 17.96,
+      "pairs_famille": 2,
+      "libelle": "médiane de la COTE ENTIÈRE hors MNG (67 titres) — comparaison NON sectorielle : famille « mines » : 2 pair(s), moins de 3"
+     },
+     "pb_comptable_affiche": 15.29
+    },
+    "bilan": {
+     "etat": "suspendu",
+     "poids_nominal": 10,
+     "poids_effectif": 0.0,
+     "valeur": 1.83,
+     "mesure": "dette nette / EBITDA 1.83 — affiché, non noté",
+     "note": null,
+     "motif": "dette nette / EBITDA suspendu — grandeur contestée : dette nette 10933.2 (ratios publiés) contredite par l'endettement net 12674 (faits financiers), écart 13.7% (> 2%), non expliqué sur pièce ; tout critère qui la consomme est suspendu",
+     "source": null,
+     "periode": null,
      "base": null,
      "reference": null
     }
@@ -2032,6 +2164,9 @@
    "palier_simule": "ACHETER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [
      "valorisation"
@@ -2080,7 +2215,7 @@
      "poids_nominal": 20,
      "poids_effectif": 20.0,
      "valeur": 11.22,
-     "mesure": "VE/EBITDA 11.2 (VE 9697 = capitalisation 9673 + dette nette 23.9 + minoritaires 0 ; EBITDA 864.1 (MMAD, 31/12/2025)) ÷ médiane de la COTE ENTIÈRE hors SMI (20 titres) — comparaison NON sectorielle : famille « mines » : 0 pair(s), moins de 3 = 9.9",
+     "mesure": "VE/EBITDA 11.2 (VE 9697 = capitalisation 9673 + dette nette 23.9 + minoritaires 0 ; EBITDA 864.1 (MMAD, 31/12/2025)) ÷ médiane de la COTE ENTIÈRE hors SMI (21 titres) — comparaison NON sectorielle : famille « mines » : 0 pair(s), moins de 3 = 9.9",
      "note": 5.5,
      "motif": null,
      "source": {
@@ -2097,10 +2232,10 @@
      "base": null,
      "reference": {
       "type": "cote_entiere",
-      "n": 20,
-      "mediane": 9.88,
+      "n": 21,
+      "mediane": 9.9,
       "pairs_famille": 0,
-      "libelle": "médiane de la COTE ENTIÈRE hors SMI (20 titres) — comparaison NON sectorielle : famille « mines » : 0 pair(s), moins de 3"
+      "libelle": "médiane de la COTE ENTIÈRE hors SMI (21 titres) — comparaison NON sectorielle : famille « mines » : 0 pair(s), moins de 3"
      },
      "minoritaires_etat": "zero_confirme"
     },
@@ -2136,6 +2271,9 @@
    "palier_simule": "ÉVITER",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 4.28,
@@ -2229,6 +2367,12 @@
    "palier_simule": "Données insuffisantes",
    "poids_disponible": 30,
    "motif_sans_note": "poids disponible 30 % < 50 %",
+   "partielle": false,
+   "criteres_essentiels_manquants": [
+    "rentabilite",
+    "valorisation"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": null,
@@ -2311,6 +2455,12 @@
    "palier_simule": "Données insuffisantes",
    "poids_disponible": 0,
    "motif_sans_note": "poids disponible 0 % < 50 %",
+   "partielle": false,
+   "criteres_essentiels_manquants": [
+    "rentabilite",
+    "valorisation"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": null,
@@ -2385,6 +2535,9 @@
    "palier_simule": "ÉVITER FORT",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 2.35,
@@ -2482,6 +2635,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 6.95,
@@ -2579,6 +2735,9 @@
    "palier_simule": "ÉVITER FORT",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 2.25,
@@ -2676,6 +2835,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.85,
@@ -2773,6 +2935,9 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.5,
@@ -2870,6 +3035,11 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 50,
    "motif_sans_note": null,
+   "partielle": true,
+   "criteres_essentiels_manquants": [
+    "rentabilite"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 4.9,
@@ -2959,6 +3129,9 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [
      "valorisation"
@@ -3033,7 +3206,7 @@
      "valeur": 0.33,
      "mesure": "dette nette 1361.5 ÷ fonds propres consolidés 4084.92 MMAD (31/12/2025) = 0.33 — affiché, non noté",
      "note": null,
-     "motif": "aucun barème sourcé pour dette nette / fonds propres : transposer celui de dette nette / EBITDA n'est pas justifié",
+     "motif": "aucun barème sourcé pour dette nette / fonds propres : transposer celui de dette nette / EBITDA n'est pas justifié ; de plus, grandeur contestée : dette nette 1361.5 (ratios publiés) contredite par l'endettement net 1303 (faits financiers), écart 4.5% (> 2%), non expliqué sur pièce ; tout critère qui la consomme est suspendu",
      "source": {
       "fichier": "fondamentaux.json › ratios publiés › dette_nette",
       "piece": "dettes_financieres : Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/ADI_RFA_2025.pdf, p. 21 ; tresorerie : Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/ADI_RFA_2025.pdf, p. 21",
@@ -3058,6 +3231,9 @@
    "palier_simule": "ÉVITER",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [
      "valorisation"
@@ -3157,6 +3333,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [
      "valorisation"
@@ -3256,6 +3435,9 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.83,
@@ -3349,6 +3531,9 @@
    "palier_simule": "ACHETER",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [
      "valorisation"
@@ -3414,7 +3599,7 @@
       "pairs_famille": 0,
       "libelle": "médiane de la COTE ENTIÈRE hors CASH (67 titres) — comparaison NON sectorielle : famille « paiement » : 0 pair(s), moins de 3"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 6.52
     },
     "bilan": {
      "etat": "suspendu",
@@ -3444,6 +3629,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [
      "valorisation"
@@ -3543,6 +3731,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.95,
@@ -3640,6 +3831,9 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.61,
@@ -3703,7 +3897,7 @@
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 2.34
     },
     "bilan": {
      "etat": "absent",
@@ -3733,6 +3927,9 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.2,
@@ -3830,6 +4027,9 @@
    "palier_simule": "ÉVITER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 4.55,
@@ -3927,6 +4127,9 @@
    "palier_simule": "ACHETER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 7.05,
@@ -3990,7 +4193,7 @@
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 3.23
     },
     "bilan": {
      "etat": "present",
@@ -4024,6 +4227,9 @@
    "palier_simule": "ÉVITER FORT",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 2.15,
@@ -4087,7 +4293,7 @@
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 0.83
     },
     "bilan": {
      "etat": "present",
@@ -4121,6 +4327,9 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [
      "valorisation"
@@ -4220,6 +4429,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 7.83,
@@ -4313,6 +4525,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 6.94,
@@ -4406,6 +4621,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.75,
@@ -4503,6 +4721,12 @@
    "palier_simule": "Données insuffisantes",
    "poids_disponible": 30,
    "motif_sans_note": "poids disponible 30 % < 50 %",
+   "partielle": false,
+   "criteres_essentiels_manquants": [
+    "rentabilite",
+    "valorisation"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": null,
@@ -4544,10 +4768,10 @@
      "etat": "absent",
      "poids_nominal": 20,
      "poids_effectif": 0.0,
-     "valeur": null,
-     "mesure": null,
+     "valeur": 0.99,
+     "mesure": "P/B comptable 0.99 — affiché, non noté",
      "note": null,
-     "motif": "P/B comptable non calculable sur faits sourcés (actif net réévalué non disponible)",
+     "motif": "P/B comptable : moins de 3 pairs dans la famille « fonciere » (titre exclu), pas de repli sur la cote ; actif net réévalué non disponible",
      "source": null,
      "periode": null,
      "base": null,
@@ -4585,6 +4809,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 6.5,
@@ -4682,6 +4909,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.61,
@@ -4775,6 +5005,9 @@
    "palier_simule": "ÉVITER FORT",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 3.05,
@@ -4872,6 +5105,11 @@
    "palier_simule": "ÉVITER FORT",
    "poids_disponible": 50,
    "motif_sans_note": null,
+   "partielle": true,
+   "criteres_essentiels_manquants": [
+    "rentabilite"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 1.5,
@@ -4954,6 +5192,9 @@
    "palier_simule": "ÉVITER FORT",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 3.06,
@@ -5040,6 +5281,9 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 4.94,
@@ -5103,7 +5347,7 @@
       "pairs_famille": 3,
       "libelle": "médiane des 3 autres titres de la famille « financement »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 1.51
     },
     "bilan": {
      "etat": "suspendu",
@@ -5133,6 +5377,9 @@
    "palier_simule": "ÉVITER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [
      "valorisation"
@@ -5198,7 +5445,7 @@
       "pairs_famille": 2,
       "libelle": "médiane de la COTE ENTIÈRE hors JET (67 titres) — comparaison NON sectorielle : famille « btp » : 2 pair(s), moins de 3"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 3.45
     },
     "bilan": {
      "etat": "present",
@@ -5232,6 +5479,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.65,
@@ -5329,6 +5579,9 @@
    "palier_simule": "ÉVITER FORT",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 2.25,
@@ -5419,6 +5672,9 @@
    "palier_simule": "ACHETER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 8.55,
@@ -5516,6 +5772,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 7.75,
@@ -5613,6 +5872,11 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 50,
    "motif_sans_note": null,
+   "partielle": true,
+   "criteres_essentiels_manquants": [
+    "rentabilite"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 6.7,
@@ -5699,9 +5963,14 @@
    "v53_simulee": 5.5,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
-   "palier_simule": "SURVEILLER",
+   "palier_simule": "ATTENDRE",
    "poids_disponible": 50,
    "motif_sans_note": null,
+   "partielle": true,
+   "criteres_essentiels_manquants": [
+    "rentabilite"
+   ],
+   "signal_limite_par_note_partielle": true,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.5,
@@ -5791,6 +6060,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 6.1,
@@ -5888,6 +6160,12 @@
    "palier_simule": "Données insuffisantes",
    "poids_disponible": 0,
    "motif_sans_note": "poids disponible 0 % < 50 %",
+   "partielle": false,
+   "criteres_essentiels_manquants": [
+    "rentabilite",
+    "valorisation"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": null,
@@ -5962,6 +6240,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 6.0,
@@ -6055,6 +6336,9 @@
    "palier_simule": "ÉVITER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 4.0,
@@ -6152,6 +6436,9 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 4.61,
@@ -6215,7 +6502,7 @@
       "pairs_famille": 6,
       "libelle": "médiane des 6 autres titres de la famille « banque »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 0.95
     },
     "bilan": {
      "etat": "suspendu",
@@ -6245,6 +6532,11 @@
    "palier_simule": "ÉVITER FORT",
    "poids_disponible": 50,
    "motif_sans_note": null,
+   "partielle": true,
+   "criteres_essentiels_manquants": [
+    "valorisation"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 1.9,
@@ -6327,6 +6619,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 7.95,
@@ -6424,6 +6719,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 8.15,
@@ -6512,43 +6810,48 @@
    "famille": "autre",
    "secteur_referentiel": "Agroalimentaire",
    "note_actuelle": 2.2,
-   "note_metier": 2.2,
-   "ecart": 0.0,
+   "note_metier": 1.9,
+   "ecart": -0.3,
    "v53_actuelle": 2.77,
-   "v53_simulee": 2.77,
+   "v53_simulee": 2.54,
    "signal_actuel": "ÉVITER FORT",
    "palier_actuel": "ÉVITER FORT",
    "palier_simule": "ÉVITER FORT",
-   "poids_disponible": 100,
+   "poids_disponible": 50,
    "motif_sans_note": null,
+   "partielle": true,
+   "criteres_essentiels_manquants": [
+    "rentabilite"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
-    "note_sans_cote": 2.2,
+    "note_sans_cote": 1.9,
     "ecart_points": 0.0,
     "note_inexistante_sans_cote": false
    },
    "criteres": {
     "rentabilite": {
-     "etat": "present",
+     "etat": "suspendu",
      "poids_nominal": 40,
-     "poids_effectif": 40.0,
+     "poids_effectif": 0.0,
      "valeur": 5.0,
-     "mesure": "ROIC 5 % (comptes publiés)",
-     "note": 2.0,
-     "motif": null,
+     "mesure": "ROIC 5 % — affiché, non noté",
+     "note": null,
+     "motif": "ROIC suspendu — grandeur contestée : dette nette 989.2 (ratios publiés) contredite par l'endettement net 828 (faits financiers), écart 19.5% (> 2%), non expliqué sur pièce ; tout critère qui la consomme est suspendu",
      "source": {
       "fichier": "fondamentaux.json › ratios publiés › roic",
       "piece": "resultat_exploitation : Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Mutandis_RFA_2025.pdf, p. 54 ; impot : Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Mutandis_RFA_2025.pdf, p. 54 ; resultat_avant_impot : Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Mutandis_RFA_2025.pdf, p. 54 ; capitaux_propres : Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Mutandis_RFA_2025.pdf, p. 54 ; dette_nette : ratios_publies.dette_nette",
       "formule": "181.834 × (1 − t) ÷ (1553.781 + 989.222) ; t = 53.249 ÷ 180.023 = 29.6 %"
      },
      "periode": "2025-12-31",
-     "base": "consolidé IFRS, 31/12/2025",
+     "base": null,
      "reference": null
     },
     "croissance": {
      "etat": "present",
      "poids_nominal": 30,
-     "poids_effectif": 30.0,
+     "poids_effectif": 60.0,
      "valeur": -61.88,
      "mesure": "BPA -107.6 % · CA 6.7 %",
      "note": 1.5,
@@ -6565,7 +6868,7 @@
     "valorisation": {
      "etat": "present",
      "poids_nominal": 20,
-     "poids_effectif": 20.0,
+     "poids_effectif": 40.0,
      "valeur": 37.46,
      "mesure": "PER 12 m 37.5 ÷ médiane des 38 autres titres de la famille « autre » = 18.5",
      "note": 2.5,
@@ -6587,19 +6890,15 @@
      "pb_comptable_affiche": 1.28
     },
     "bilan": {
-     "etat": "present",
+     "etat": "suspendu",
      "poids_nominal": 10,
-     "poids_effectif": 10.0,
+     "poids_effectif": 0.0,
      "valeur": 3.14,
-     "mesure": "dette nette / EBITDA 3.14 · conversion 207.2 %",
-     "note": 4.5,
-     "motif": null,
-     "source": {
-      "fichier": "fondamentaux.json › ratios publiés › dette_nette_ebitda",
-      "piece": "dette_nette : ratios_publies.dette_nette ; ebitda : ratios_publies.ebitda",
-      "formule": "989.222 ÷ 315.384"
-     },
-     "periode": "2025-12-31",
+     "mesure": "dette nette / EBITDA 3.14 — affiché, non noté",
+     "note": null,
+     "motif": "dette nette / EBITDA suspendu — grandeur contestée : dette nette 989.2 (ratios publiés) contredite par l'endettement net 828 (faits financiers), écart 19.5% (> 2%), non expliqué sur pièce ; tout critère qui la consomme est suspendu",
+     "source": null,
+     "periode": null,
      "base": null,
      "reference": null
     }
@@ -6618,6 +6917,12 @@
    "palier_simule": "Données insuffisantes",
    "poids_disponible": 0,
    "motif_sans_note": "poids disponible 0 % < 50 %",
+   "partielle": false,
+   "criteres_essentiels_manquants": [
+    "rentabilite",
+    "valorisation"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": null,
@@ -6692,6 +6997,9 @@
    "palier_simule": "ÉVITER FORT",
    "poids_disponible": 90,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 2.44,
@@ -6755,7 +7063,7 @@
       "pairs_famille": 3,
       "libelle": "médiane des 3 autres titres de la famille « financement »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 1.69
     },
     "bilan": {
      "etat": "suspendu",
@@ -6785,6 +7093,9 @@
    "palier_simule": "ATTENDRE",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 5.95,
@@ -6848,7 +7159,7 @@
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 1.58
     },
     "bilan": {
      "etat": "present",
@@ -6882,6 +7193,9 @@
    "palier_simule": "ÉVITER FORT",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 3.2,
@@ -6945,7 +7259,7 @@
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 2.5
     },
     "bilan": {
      "etat": "present",
@@ -6979,6 +7293,12 @@
    "palier_simule": "Données insuffisantes",
    "poids_disponible": 30,
    "motif_sans_note": "poids disponible 30 % < 50 %",
+   "partielle": false,
+   "criteres_essentiels_manquants": [
+    "rentabilite",
+    "valorisation"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": null,
@@ -7020,10 +7340,10 @@
      "etat": "absent",
      "poids_nominal": 20,
      "poids_effectif": 0.0,
-     "valeur": null,
-     "mesure": null,
+     "valeur": 0.67,
+     "mesure": "P/B comptable 0.67 — affiché, non noté",
      "note": null,
-     "motif": "P/B comptable non calculable sur faits sourcés (actif net réévalué non disponible)",
+     "motif": "P/B comptable : moins de 3 pairs dans la famille « holding » (titre exclu), pas de repli sur la cote ; actif net réévalué non disponible",
      "source": null,
      "periode": null,
      "base": null,
@@ -7061,6 +7381,9 @@
    "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 7.05,
@@ -7124,7 +7447,7 @@
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": null
+     "pb_comptable_affiche": 3.55
     },
     "bilan": {
      "etat": "remplacement",
@@ -7158,6 +7481,12 @@
    "palier_simule": "Données insuffisantes",
    "poids_disponible": 0,
    "motif_sans_note": "poids disponible 0 % < 50 %",
+   "partielle": false,
+   "criteres_essentiels_manquants": [
+    "rentabilite",
+    "valorisation"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": null,
@@ -7232,6 +7561,9 @@
    "palier_simule": "ÉVITER FORT",
    "poids_disponible": 100,
    "motif_sans_note": null,
+   "partielle": false,
+   "criteres_essentiels_manquants": [],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": 3.4,
@@ -7329,6 +7661,12 @@
    "palier_simule": "Données insuffisantes",
    "poids_disponible": 0,
    "motif_sans_note": "société sans comptes déposés (SANS_COMPTES)",
+   "partielle": false,
+   "criteres_essentiels_manquants": [
+    "rentabilite",
+    "valorisation"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": null,
@@ -7403,6 +7741,11 @@
    "palier_simule": "Données insuffisantes",
    "poids_disponible": 20,
    "motif_sans_note": "poids disponible 20 % < 50 %",
+   "partielle": false,
+   "criteres_essentiels_manquants": [
+    "rentabilite"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": null,
@@ -7488,6 +7831,12 @@
    "palier_simule": "Données insuffisantes",
    "poids_disponible": 0,
    "motif_sans_note": "poids disponible 0 % < 50 %",
+   "partielle": false,
+   "criteres_essentiels_manquants": [
+    "rentabilite",
+    "valorisation"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": null,
@@ -7562,6 +7911,12 @@
    "palier_simule": "SUSPENDU",
    "poids_disponible": 0,
    "motif_sans_note": "société sans comptes déposés (SANS_COMPTES)",
+   "partielle": false,
+   "criteres_essentiels_manquants": [
+    "rentabilite",
+    "valorisation"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": null,
@@ -7636,6 +7991,12 @@
    "palier_simule": "SUSPENDU",
    "poids_disponible": 0,
    "motif_sans_note": "société sans comptes déposés (SANS_COMPTES)",
+   "partielle": false,
+   "criteres_essentiels_manquants": [
+    "rentabilite",
+    "valorisation"
+   ],
+   "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
     "note_sans_cote": null,
