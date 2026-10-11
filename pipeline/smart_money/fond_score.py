@@ -138,8 +138,11 @@ def ratio_effectif(f: dict | None, sym: str, cle: str) -> dict | None:
     v = _publie(f, sym, cle)
     if v is not None:
         x = f["ratios_publies"][cle]
+        # `sources` et `base` : la PIÈCE du calcul, lue par la note par famille
+        # pour dire d'où vient chaque chiffre (ajout du 11/10/2026, sans effet
+        # sur la valeur).
         return {"valeur": v, "origine": "comptes publiés", "date": x.get("date"),
-                "formule": x.get("formule")}
+                "formule": x.get("formule"), "sources": x.get("sources"), "base": x.get("base")}
     s = f.get(cle)
     if isinstance(s, (int, float)) and not isinstance(s, bool):
         return {"valeur": float(s), "origine": "saisie", "date": f.get("date_maj"),

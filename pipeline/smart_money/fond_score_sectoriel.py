@@ -1,83 +1,100 @@
 #!/usr/bin/env python3
-"""Note fondamentale PAR FAMILLE DE MÉTIER — la note PUBLIÉE depuis le 10/10/2026.
+"""Note fondamentale PAR FAMILLE DE MÉTIER — MODE COMPARAISON (11/10/2026).
 
-⚠️ DÉCISION D'ABD MOUTALIB, 10/10/2026 : la note fondamentale suit « les règles
-de l'art du marché marocain, selon la spécificité de chaque secteur », et il a
-assoupli R8 pour cela. Ce module REMPLACE la grille unique de `fond_score.py`
-dans la note publiée (`score_fond`). ⚠️ LES POIDS DES PILIERS NE CHANGENT PAS
-(Fond 65,28 % / Tech 34,72 % / NLP 0) : c'est le CONTENU du pilier fondamental
-qui change, pas sa part dans la note composite. Spécification : agent
-`verificateur-finance`. Historique : ce module a d'abord été un calcul FANTÔME
-(30/09/2026, `datasets/note_sectorielle_2026-09-30.json`), jamais publié.
+⚠️ ÉTAT : CALCULÉE ET PUBLIÉE À CÔTÉ (`note_fond_metier` dans data.json), PAS
+RETENUE DANS LA NOTE. `score_fond`, `v53`, le signal, la confiance et le
+plancher de publication restent sur la grille ACTUELLE (`fond_score.py`) tant
+que les corrections demandées par Abd Moutalib le 11/10/2026 ne sont pas
+validées. L'interrupteur est `bvc_config.NOTE_METIER_PUBLIEE` (faux).
+
+DÉCISION D'ABD MOUTALIB, 10/10/2026 : la note fondamentale doit suivre « les
+règles de l'art du marché marocain, selon la spécificité de chaque secteur », et
+R8 est assoupli pour cela. ⚠️ LES POIDS DES PILIERS NE CHANGENT PAS (Fond
+65,28 % / Tech 34,72 % / NLP 0) : seul le CONTENU de la note fondamentale
+change. Spécification : agent `verificateur-finance`.
 
 ⚠️ CE QUE CE MODULE NE FAIT PAS (Vision Produit) : il ne prédit rien. La note
-décrit la situation d'un titre au regard des comptes publiés et de ses pairs ;
-elle n'annonce pas un cours.
-
-POURQUOI UNE GRILLE PAR FAMILLE
-`fond_score.py` applique la même grille aux 80 sociétés : ROIC − WACC, PER face
-à un repère fixe, dette / EBITDA. Rien de cela n'a le même sens pour une
-banque (la dette est l'activité), une foncière (la dette finance le patrimoine,
-la valeur est l'actif net) ou un promoteur (le stock se finance par la dette).
+décrit la situation d'un titre au regard des comptes publiés ; elle n'annonce
+pas un cours.
 
 LES FAMILLES (`bvc_config.FAMILLES_NOTE`, listes explicites de tickers)
   banque · assurance · financement · paiement
-      rentabilité = ROE part du groupe 12 mois sur fonds propres MOYENS ;
-      valorisation = PER 12 mois relatif ; P/B à la place du PER seulement si
-      le résultat 12 mois est ≤ 0 ; ni bilan ni dette / EBITDA.
-  fonciere · holding
-      valorisation = P/B relatif à la famille (≥ 3 titres, sinon abstention) ;
-      bilan = dette nette / fonds propres ; croissance du BPA exclue pour les
-      foncières (la juste valeur des immeubles la fausse) : CA seulement.
+      rentabilité = ROE ; valorisation = PER 12 mois relatif ; P/B comptable à
+      la place du PER seulement si le résultat 12 mois est ≤ 0 ; pas de bilan.
+  fonciere
+      rentabilité SUSPENDUE : le ROE d'une foncière intègre les mêmes effets de
+      juste valeur des immeubles qui ont fait exclure la croissance de son BPA ;
+      croissance = CA seulement ; valorisation par P/B COMPTABLE (voir 3) ;
+      bilan : dette nette / fonds propres AFFICHÉ, non noté (voir 1).
+  holding
+      rentabilité = ROE ; croissance ; P/B COMPTABLE ; bilan comme les foncières.
   promoteur
-      rentabilité = ROE (pas ROIC) ; bilan = dette nette / fonds propres ;
-      valorisation = PER relatif, P/B affiché.
+      rentabilité = ROE (pas ROIC) ; valorisation = PER relatif, P/B comptable
+      affiché ; bilan : dette nette / fonds propres AFFICHÉ, non noté.
   mines
-      valorisation = VE / EBITDA relatif si la donnée existe, sinon PER relatif.
+      valorisation = VE/EBITDA, UNIQUEMENT quand les conditions de cohérence
+      sont remplies (voir 4) ; sinon SUSPENDUE, sans repli vers le PER.
   btp · telecom · utility · autre
       la grille d'origine : ROIC, PER relatif, dette / EBITDA, conversion.
 
 LE DIVIDENDE n'entre dans AUCUN critère de cette grille. S'il y entrait un
-jour, seul le dividende ORDINAIRE compterait (jamais un exceptionnel).
+jour, seul le dividende ORDINAIRE compterait.
 
-LES PRINCIPES
-1. Seules des données CALCULÉES sur comptes publiés, datées. Aucune saisie.
-2. UNE SEULE PORTE pour les ratios : `fond_score.ratio_effectif` /
-   `roe_effectif`, qui appliquent `ROE_SANS_OBJET` (AFM, AGM) et
-   `RATIOS_EN_VERIFICATION` (MSA). Le 10/10/2026, la version fantôme lisait
-   `ratios_publies` en direct et contournait les deux : AFM publiait un ROE de
-   103,7 %, MSA un ROIC de 47,6 %.
-3. Un critère sans donnée S'ABSTIENT ; les poids se répartissent entre les
-   critères présents. Moins de la MOITIÉ du poids disponible : pas de note
-   (« Données insuffisantes »), jamais une note par défaut.
-4. Valorisation RELATIVE : le ratio du titre rapporté à la médiane de ses
-   PAIRS — les autres titres de sa famille, LE TITRE NOTÉ EXCLU (leave-one-out) :
-   un titre médian qui se comparerait à lui-même obtiendrait 7,0 par
-   construction (relecture du 10/10/2026 : CMT 22,7/22,7, ARD 1,00/1,00). Au
-   moins 3 pairs ; sinon médiane du marché hors le titre, et la `mesure` le
-   dit. Les sociétés sans comptes (`SANS_COMPTES`), à fonds propres négatifs ou
-   suspendues sont écartées des médianes.
-   ⚠️ LIMITE : faute de 3 pairs, sont notés CONTRE LE MARCHÉ — assurance
-   (ATL, WAF : un seul pair avec PER), télécom, utility, paiement, promoteurs,
-   BTP et mines (2 pairs au plus). Une assurance comparée au PER médian de la
-   cote ne mesure pas un écart de valorisation de pair, seulement un écart à un
-   marché d'autres métiers ; le P/B des foncières et du holding, lui, s'abstient
-   plutôt que de se comparer au marché (un P/B se lit par métier).
-5. Aucun modificateur d'opinion (momentum, rerating, cycle) : non mesurés.
+LES RÈGLES (chacune a son test)
+1. DETTE NETTE / FONDS PROPRES : aucun barème sourcé n'existe. Transposer celui
+   de dette nette / EBITDA (100 % des fonds propres → 7/10) n'est pas justifié :
+   le critère est SUSPENDU dans la note, sa valeur reste affichée, étiquetée.
+2. FONCIÈRES ET HOLDING — LIMITE ANNONCÉE. La médiane de référence exige 3
+   PAIRS (titre noté exclu). Avec 3 foncières, chacune n'a que 2 pairs : le P/B
+   ne peut JAMAIS contribuer à leur note. REB est seul dans « holding » : idem.
+   Avec ROE suspendu, bilan suspendu et P/B inutilisable, il ne reste aux
+   foncières que la croissance du CA (30 % du poids) : PAS DE NOTE, et c'est le
+   résultat attendu, pas un défaut. « P/B COMPTABLE » = cours × actions ÷
+   capitaux propres part du groupe. L'ACTIF NET RÉÉVALUÉ (ANR) n'est PAS
+   disponible : on ne dit jamais « P/ANR ».
+3. TROIS ÉTATS DISTINCTS PARTOUT : ABSENT (la donnée manque : aucune valeur),
+   ZÉRO CONFIRMÉ (la pièce dit zéro) et REMPLACEMENT (un indicateur voisin,
+   étiqueté). Absent n'est jamais zéro : des minoritaires inconnus ne valent pas
+   0 ; une trésorerie nette sans EBITDA ne devient pas « dette/EBITDA = −1 » :
+   on constate la CATÉGORIE « trésorerie nette », jamais un multiple.
+4. VE/EBITDA n'entre dans la note QUE si dette nette, minoritaires, EBITDA et
+   capitalisation sont sur une période et un périmètre cohérents ET vérifiés :
+   (a) dette nette, EBITDA et fonds propres (consolidés et part du groupe) datés
+   du MÊME exercice ; (b) minoritaires connus (les deux fonds propres existent) ;
+   (c) dette nette recoupée avec l'endettement net des faits financiers (écart
+   ≤ 2 %) ; (d) nombre d'actions identique dans les deux sources ; (e) aucun
+   bilan plus récent (30/06/2026) disponible pour ce titre. Sinon : SUSPENDU,
+   avec le motif. Aucun repli décidé au cas par cas. Managem : dette nette
+   10 933,2 (ratios) contre endettement net 12 674,0 (faits) — non rapprochable
+   sur les données disponibles, donc suspendu. (Le seul constat « EBITDA 2025 <
+   RNPG 12 mois » ne prouve rien — périodes, périmètres, exceptionnels — et
+   n'est plus avancé.)
+5. ROE : UNE SEULE CONVENTION, celle de l'EXERCICE 2025 = RNPG 2025 ÷ fonds
+   propres. ÷ moyenne(31/12/2024, 31/12/2025) quand les deux sont structurés ;
+   sinon ÷ clôture 31/12/2025, ÉTIQUETÉ par titre. À défaut de ROE d'exercice, le
+   ROE 12 mois à fin juin 2026 est un REMPLACEMENT étiqueté. Jamais de mélange
+   silencieux. Mesuré au 11/10/2026 : les fonds propres 31/12/2024 ne sont pas
+   structurés (cités en texte libre pour 35 titres) : tous les titres sont sur
+   la clôture.
+6. COMPARAISON À LA COTE ENTIÈRE ≠ SECTORIELLE : faute de 3 pairs, la référence
+   est la médiane de toute la cote (hors le titre) ; c'est ÉTIQUETÉ « non
+   sectorielle », l'influence est MESURÉE (`dependance_marche` : critères
+   concernés, note sans eux, écart) et les POIDS EFFECTIVEMENT UTILISÉS après
+   abstentions sont publiés critère par critère.
+7. Valorisation RELATIVE : médiane des PAIRS, le titre noté exclu (un titre
+   médian qui se comparerait à lui-même obtiendrait 7,0 par construction) ; au
+   moins 3 pairs. Écartés des médianes : sans comptes, fonds propres négatifs,
+   suspendus.
+8. Un critère absent ou suspendu S'ABSTIENT : ses poids passent aux autres ;
+   moins de la MOITIÉ du poids disponible : pas de note.
 
-LES PALIERS — aucun n'est inventé ici
-  [G] ceux de la grille existante de `fond_score.py` : rentabilité (écart à
-      10 %), croissance, dette / EBITDA + conversion. Épinglés par
-      `tests/test_note_sectorielle.py` contre `compute_fond_score`.
-  [R] ceux de `note_per_relatif`, repris du calcul fantôme du 30/09 : nouveaux,
-      DÉCLARÉS ET NON CALIBRÉS (aucun historique de fondamentaux avant le
-      29/09/2026 pour les calibrer).
-  Trois usages SANS palier sourcé, déclarés comme tels :
-      · P/B relatif et VE/EBITDA relatif : paliers [R] du ratio relatif ;
-      · dette nette / fonds propres : paliers [G] de dette / EBITDA,
-        transposés tels quels ;
-      · perte sur 12 mois (hors banques) : 1,5, la note la plus basse de la
-        grille de valorisation.
+LES PALIERS — aucun n'est inventé
+  [G] ceux de `fond_score.py` : rentabilité (écart à 10 %), croissance, dette /
+      EBITDA + conversion (épinglés par tests/test_note_sectorielle.py).
+  [R] ceux de `note_per_relatif` (calcul fantôme du 30/09) : NON CALIBRÉS.
+  Deux usages sans palier sourcé, déclarés : P/B comptable relatif et VE/EBITDA
+  relatif (paliers [R]) ; une perte sur 12 mois hors banques vaut 1,5, la note la
+  plus basse de la grille de valorisation.
 """
 
 from __future__ import annotations
@@ -92,17 +109,27 @@ sys.path.insert(0, str(RACINE))
 
 from bvc_config import famille_note  # noqa: E402
 from pipeline.smart_money.fond_score import (  # noqa: E402
-    COUT_FONDS_PROPRES_REF, WACC_REF, ratio_effectif, roe_effectif,
+    COUT_FONDS_PROPRES_REF, RATIOS_EN_VERIFICATION, ROE_SANS_OBJET, WACC_REF,
+    ratio_effectif, roe_effectif,
 )
 
-# Poids en points entiers : une somme de flottants (0,3 + 0,2) vaut 0,5 « à un
-# epsilon près », et le seuil d'abstention se joue précisément à 50.
+# Poids en points entiers : 0,3 + 0,2 ne vaut pas exactement 0,5, et le seuil
+# d'abstention se joue précisément à 50.
 POIDS = {"rentabilite": 40, "croissance": 30, "valorisation": 20, "bilan": 10}
 SEUIL_POIDS = 50          # moins de la moitié du poids disponible : pas de note
 MIN_PAIRS = 3             # médiane de référence : au moins 3 pairs (titre noté exclu)
+ECART_DETTE_MAX = 0.02    # dette nette recoupée avec l'endettement net : 2 %
 
 FINANCIERES = ("banque", "assurance", "financement", "paiement")
 MOTIF_SANS_COMPTES = "société sans comptes déposés (SANS_COMPTES)"
+
+# Les états d'un critère. Trois comptent dans la note ; deux la laissent.
+PRESENT, ZERO, REMPLACEMENT = "present", "zero_confirme", "remplacement"
+ABSENT, SUSPENDU = "absent", "suspendu"
+ETATS_NOTES = (PRESENT, ZERO, REMPLACEMENT)
+
+LIBELLE_PB = "P/B comptable (cours × actions ÷ capitaux propres part du groupe ; actif net réévalué non disponible)"
+LIBELLE_MARCHE = "cote entière — comparaison NON sectorielle"
 
 
 # ───────────────────────────── paliers ─────────────────────────────
@@ -169,28 +196,17 @@ def _fait(faits: dict, cle: str):
     return _num(x.get("valeur")) if isinstance(x, dict) else None
 
 
-def _roe(sym, fiche, bpa, s1) -> dict | None:
-    """ROE part du groupe sur 12 mois. Passe par `roe_effectif` (AFM/AGM sans
-    objet, MSA en vérification). Fonds propres MOYENS (31/12/2025 et
-    30/06/2026) quand les deux existent, sinon de CLÔTURE — dans les deux cas
-    la base est dite."""
-    base = roe_effectif(fiche, sym)
-    if base is None:
-        return None
-    rn = _num((bpa or {}).get("rnpg_12m"))
-    c0 = _num((s1 or {}).get("capitaux_propres_pg_31_12_2025"))
-    c1 = _num((s1 or {}).get("capitaux_propres_pg_30_06_2026"))
-    if base["cle"] == "roe_12m" and rn is not None and c0 and c1 and c0 > 0 and c1 > 0:
-        return {"valeur": round(rn / ((c0 + c1) / 2) * 100, 2),
-                "base": "fonds propres moyens, moyenne 2 points (31/12/2025 et 30/06/2026)"}
-    cloture = "30/06/2026" if base["cle"] == "roe_12m" else "31/12/2025 (exercice 2025)"
-    return {"valeur": base["valeur"], "base": f"fonds propres de clôture {cloture}"}
+def _piece(sources) -> str | None:
+    if isinstance(sources, dict):
+        return " ; ".join(f"{k} : {v}" for k, v in sources.items())
+    return sources if isinstance(sources, str) else None
 
 
 def _publie_complet(fiche, sym, cle) -> dict | None:
-    """Un ratio par LA porte (`ratio_effectif`), avec sa date, mais seulement
-    s'il vient des comptes publiés : la porte retombe sur la saisie, cette
-    grille ne la lit pas. Aucun accès direct à `ratios_publies` ailleurs."""
+    """Un ratio par LA porte (`ratio_effectif`), avec sa date et sa pièce, mais
+    seulement s'il vient des comptes publiés : la porte retombe sur la saisie,
+    cette grille ne la lit pas. Aucun accès direct à la table des ratios
+    ailleurs dans ce module."""
     r = ratio_effectif(fiche, sym, cle)
     return r if r and r.get("origine") == "comptes publiés" else None
 
@@ -200,22 +216,110 @@ def _publie(fiche, sym, cle) -> float | None:
     return r["valeur"] if r else None
 
 
+def _src_ratio(r: dict, cle: str) -> dict:
+    return {"fichier": f"fondamentaux.json › ratios publiés › {cle}", "piece": _piece(r.get("sources")),
+            "formule": r.get("formule")}
+
+
+def _roe(sym, fiche, bpa, s1) -> dict | None:
+    """ROE de l'EXERCICE 2025 — la convention unique (règle 5).
+
+    Passe par `roe_effectif` (AFM/AGM sans objet, MSA en vérification). Fonds
+    propres MOYENS (31/12/2024 et 31/12/2025) si les deux sont structurés ;
+    sinon CLÔTURE 31/12/2025, étiqueté. À défaut de ROE d'exercice, le ROE 12
+    mois à fin juin 2026 est un REMPLACEMENT étiqueté. Rend
+    {"etat", "valeur", "base", "periode", "source"} ou {"etat": SUSPENDU|ABSENT,
+    "motif"}.
+    """
+    if sym in ROE_SANS_OBJET:
+        return {"etat": SUSPENDU, "motif": f"ROE sans objet : {ROE_SANS_OBJET[sym]}"}
+    if sym in RATIOS_EN_VERIFICATION:
+        return {"etat": SUSPENDU, "motif": f"ratios en vérification : {RATIOS_EN_VERIFICATION[sym]}"}
+    if roe_effectif(fiche, sym) is None:
+        return {"etat": ABSENT, "motif": "aucun ROE calculé sur comptes publiés"}
+    r25 = _publie_complet(fiche, sym, "roe_2025")
+    if r25 is not None:
+        rn = _num((s1 or {}).get("rnpg_exercice_2025"))
+        c0 = _num((s1 or {}).get("capitaux_propres_pg_31_12_2024"))
+        c1 = _num((s1 or {}).get("capitaux_propres_pg_31_12_2025"))
+        if rn is not None and c0 and c1 and c0 > 0 and c1 > 0:
+            return {"etat": PRESENT, "valeur": round(rn / ((c0 + c1) / 2) * 100, 2),
+                    "base": "RNPG 2025 ÷ fonds propres MOYENS (31/12/2024 et 31/12/2025)",
+                    "periode": "exercice 2025", "source": {"fichier": "datasets/resultats_s1_2026.json",
+                                                           "piece": (s1 or {}).get("source_capitaux_propres")}}
+        return {"etat": PRESENT, "valeur": r25["valeur"],
+                "base": "RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025 (moyenne indisponible : "
+                        "fonds propres 31/12/2024 non structurés)",
+                "periode": "exercice 2025", "source": _src_ratio(r25, "roe_2025")}
+    r12 = _publie_complet(fiche, sym, "roe_12m")
+    if r12 is not None:
+        return {"etat": REMPLACEMENT, "valeur": r12["valeur"],
+                "base": "REMPLACEMENT : ROE 12 mois à fin juin 2026 ÷ fonds propres de clôture 30/06/2026 "
+                        "(ROE d'exercice 2025 indisponible)",
+                "periode": "12 mois au 30/06/2026", "source": _src_ratio(r12, "roe_12m")}
+    return {"etat": ABSENT, "motif": "aucun ROE calculé sur comptes publiés"}
+
+
+def _ve_ebitda(sym, fiche, bpa, s1, faits, px) -> dict:
+    """VE/EBITDA, ou le motif pour lequel il n'entre pas (règle 4). Pure."""
+    s1, faits = s1 or {}, faits or {}
+    dn = _publie_complet(fiche, sym, "dette_nette")
+    eb = _publie_complet(fiche, sym, "ebitda")
+    if dn is None or eb is None:
+        return {"etat": ABSENT, "motif": "dette nette ou EBITDA absents des comptes publiés"}
+    ebitda, dette = _num(eb.get("valeur")), _num(dn.get("valeur"))
+    if not ebitda or ebitda <= 0:
+        return {"etat": SUSPENDU, "motif": f"EBITDA non positif ({ebitda})"}
+    if not px:
+        return {"etat": ABSENT, "motif": "cours absent : pas de capitalisation"}
+    exercice = faits.get("exercice")
+    date_ex = f"{exercice}-12-31" if exercice else None
+    if not (dn.get("date") == eb.get("date") == date_ex):
+        return {"etat": SUSPENDU, "motif": (f"périodes différentes : dette nette {dn.get('date')}, EBITDA "
+                                            f"{eb.get('date')}, fonds propres {date_ex}")}
+    cons, pg = _fait(faits, "capitaux_propres_consolides"), _fait(faits, "capitaux_propres_part_groupe")
+    if cons is None or pg is None:
+        return {"etat": ABSENT, "motif": "minoritaires inconnus (fonds propres consolidés ou part du groupe "
+                                         "absents) : absent n'est pas zéro"}
+    mino = round(cons - pg, 6) + 0.0          # + 0.0 : jamais « -0 »
+    if mino < -1e-6:
+        return {"etat": SUSPENDU, "motif": f"minoritaires négatifs ({mino:g}) : fonds propres incohérents"}
+    en = _fait(faits, "endettement_net")
+    if en is not None and en != 0 and abs(dette - en) / abs(en) > ECART_DETTE_MAX:
+        return {"etat": SUSPENDU, "motif": (f"dette nette {dette:g} (ratios publiés) contredite par l'endettement "
+                                            f"net {en:g} (faits financiers) : écart {abs(dette - en) / abs(en):.1%}, "
+                                            f"plus de {ECART_DETTE_MAX:.0%}")}
+    a_s1, a_fiche = _num(s1.get("actions")), _num((fiche or {}).get("nb_actions"))
+    if not a_s1 or not a_fiche:
+        return {"etat": ABSENT, "motif": "nombre d'actions non recoupé entre deux sources"}
+    if a_s1 != a_fiche:
+        return {"etat": SUSPENDU, "motif": f"nombre d'actions discordant : {a_s1:g} contre {a_fiche:g}"}
+    if _num(s1.get("capitaux_propres_pg_30_06_2026")) is not None:
+        return {"etat": SUSPENDU, "motif": ("un bilan plus récent (30/06/2026) existe pour ce titre ; dette nette "
+                                            "et EBITDA datent du 31/12/2025")}
+    cap = px * a_s1 / 1e6
+    ve = cap + dette + mino
+    return {"etat": PRESENT, "minoritaires_etat": ZERO if mino == 0 else PRESENT,
+            "valeur": round(ve / ebitda, 2),
+            "mesure": (f"VE {ve:.0f} = capitalisation {cap:.0f} + dette nette {dette:g} + minoritaires {mino:g} ; "
+                       f"EBITDA {ebitda:g} (MMAD, 31/12/2025)"),
+            "periode": "exercice 2025 (bilan au 31/12/2025, cours du jour)", "minoritaires": mino,
+            "source": _src_ratio(eb, "ebitda") | {"dette_nette": _src_ratio(dn, "dette_nette")}}
+
+
 def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict | None,
                       faits: dict | None, prix: float | None, pb: float | None, *,
                       sans_comptes: bool = False, suspendu: bool = False) -> dict:
-    """Tout ce que la note lit pour UN titre, rassemblé et daté. Pure."""
-    fiche, bpa, s1 = fiche or {}, bpa or {}, s1 or {}
+    """Tout ce que la note lit pour UN titre, rassemblé, daté et sourcé. Pure."""
+    fiche, bpa, s1, faits = fiche or {}, bpa or {}, s1 or {}, faits or {}
     fam = famille_note(sym)
 
-    # Fonds propres négatifs : consolidés, part du groupe, ou S1.
     fp_vals = [_fait(faits, "capitaux_propres_part_groupe"), _fait(faits, "capitaux_propres_consolides"),
                _num(s1.get("capitaux_propres_pg_31_12_2025")), _num(s1.get("capitaux_propres_pg_30_06_2026"))]
     fp_negatifs = any(v is not None and v <= 0 for v in fp_vals)
 
-    # Deux niveaux. SANS COMPTES : pas de note du tout (rien de publié à noter).
-    # Fonds propres négatifs ou titre suspendu : le titre est noté sur ce qu'il
-    # a, mais ses ratios sont écartés des MÉDIANES (un PER ou un P/B de société
-    # aux fonds propres négatifs ne mesure pas une valorisation de pair).
+    # Deux niveaux. SANS COMPTES : pas de note du tout. Fonds propres négatifs ou
+    # titre suspendu : noté sur ce qu'il a, mais écarté des MÉDIANES.
     sans_note = MOTIF_SANS_COMPTES if sans_comptes else None
     hors_mediane = (sans_note or ("fonds propres négatifs" if fp_negatifs else
                                   "titre suspendu : cours non coté" if suspendu else None))
@@ -223,50 +327,37 @@ def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict |
     b12 = _num(bpa.get("bpa_12m"))
     px = _num(prix) if prix and prix > 0 else None
 
-    # Dette nette, EBITDA, fonds propres à la MÊME date (31/12/2025).
+    # Dette nette / fonds propres, à la MÊME date (AFFICHÉ, jamais noté : règle 1).
     dn = _publie_complet(fiche, sym, "dette_nette")
     dette_nette = _num(dn.get("valeur")) if dn else None
-    fp_cons = _fait(faits, "capitaux_propres_consolides")
-    fp_pg = _fait(faits, "capitaux_propres_part_groupe")
+    fp_cons, fp_pg = _fait(faits, "capitaux_propres_consolides"), _fait(faits, "capitaux_propres_part_groupe")
     fp_dette, fp_base = (fp_cons, "consolidés") if fp_cons else (fp_pg, "part du groupe")
     gearing = None
     if dette_nette is not None and fp_dette and fp_dette > 0 and (dn or {}).get("date") == "2025-12-31":
         gearing = {"valeur": round(dette_nette / fp_dette, 2),
-                   "mesure": f"dette nette {dette_nette:g} ÷ fonds propres {fp_base} {fp_dette:g} MMAD (31/12/2025)"}
-
-    # VE / EBITDA : capitalisation du jour + dette nette + minoritaires, ÷ EBITDA 2025.
-    ve = None
-    eb = _publie_complet(fiche, sym, "ebitda")
-    ebitda = _num(eb.get("valeur")) if eb else None
-    actions = _num(s1.get("actions")) or _num(fiche.get("nb_actions"))
-    if px and actions and ebitda and ebitda > 0 and dette_nette is not None and (dn or {}).get("date") == "2025-12-31":
-        minoritaires = (fp_cons - fp_pg) if (fp_cons is not None and fp_pg is not None) else 0.0
-        v = px * actions / 1e6 + dette_nette + minoritaires
-        ve = {"valeur": round(v / ebitda, 2),
-              "mesure": f"VE {v:.0f} ÷ EBITDA {ebitda:g} MMAD (2025)"}
-        # ⚠️ Anomalie signalée, pas corrigée : un EBITDA 2025 inférieur au
-        # résultat net 12 mois dit que l'EBITDA est plus ancien que le bénéfice
-        # (Managem : 5 982 contre 6 400) — le VE/EBITDA est alors surestimé.
-        rn12 = _num(bpa.get("rnpg_12m"))
-        if rn12 is not None and ebitda < rn12:
-            ve["anomalie"] = (f"EBITDA 2025 {ebitda:g} < RNPG 12 mois {rn12:g} (MMAD) : "
-                              "EBITDA plus ancien que le résultat, VE/EBITDA surestimé")
+                   "mesure": f"dette nette {dette_nette:g} ÷ fonds propres {fp_base} {fp_dette:g} MMAD (31/12/2025)",
+                   "source": _src_ratio(dn, "dette_nette")}
 
     s1_ok = bool(fiche.get("source_s1_2026"))
     return {
         "sym": sym, "famille": fam, "sans_note": sans_note, "hors_mediane": hors_mediane, "prix": px,
         "bpa_12m": b12,
+        "bpa_source": {"fichier": "bpa.json › bpa_12m", "piece": bpa.get("source_12m"),
+                       "periode": f"12 mois au {bpa.get('fin_12m')}" if bpa.get("fin_12m") else None},
         "per": round(px / b12, 2) if px and b12 and b12 > 0 else None,
         "pb": _num(pb) if pb and pb > 0 else None,
-        "ve_ebitda": ve,
+        "ve": _ve_ebitda(sym, fiche, bpa, s1, faits, px),
         "roe": _roe(sym, fiche, bpa, s1),
-        "roic": _publie(fiche, sym, "roic"),
-        "dne": _publie(fiche, sym, "dette_nette_ebitda"),
-        "cc": _publie(fiche, sym, "cash_conversion"),
+        "roic": _publie_complet(fiche, sym, "roic"),
+        "dne": _publie_complet(fiche, sym, "dette_nette_ebitda"),
+        "cc": _publie_complet(fiche, sym, "cash_conversion"),
         "dette_nette": dette_nette,
+        "dette_nette_ref": dn,
         "gearing": gearing,
         "croissance_bpa": _num(fiche.get("croissance_bpa")) if s1_ok else None,
         "croissance_ca": _num(fiche.get("croissance_ca")) if s1_ok else None,
+        "croissance_source": {"fichier": "fondamentaux.json › croissance_bpa, croissance_ca",
+                              "piece": fiche.get("source_s1_2026"), "periode": "S1 2026 contre S1 2025"},
         "financiere": str(fiche.get("secteur") or "").startswith(("Banque", "Assurance", "Finance")),
     }
 
@@ -274,19 +365,19 @@ def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict |
 # ───────────────────────────── médianes ─────────────────────────────
 
 def calculer_medianes(entrees: list[dict]) -> dict:
-    """Les valeurs de référence par famille et pour le marché, pour chaque ratio.
+    """Les valeurs de référence par famille et pour la cote, pour chaque ratio.
 
     {ratio: {"famille": {fam: [(titre, valeur), ...]}, "marche": [(titre, valeur), ...]}}.
     On garde les valeurs ET les titres : la médiane se calcule ensuite SANS le
-    titre noté (`_reference`). Écartés : `hors_mediane` (sans comptes, fonds
-    propres négatifs, suspendu).
+    titre noté (`_reference`). Écartés : `hors_mediane`. Le VE/EBITDA n'entre
+    que s'il a passé les conditions de cohérence (état présent ou zéro).
     """
     def valeur(e, k):
         if k == "per":
             return e["per"]
         if k == "pb":
             return e["pb"]
-        return (e["ve_ebitda"] or {}).get("valeur")
+        return e["ve"].get("valeur") if e["ve"]["etat"] in ETATS_NOTES else None
 
     out = {}
     for k in ("per", "pb", "ve_ebitda"):
@@ -302,154 +393,240 @@ def calculer_medianes(entrees: list[dict]) -> dict:
 
 
 def _reference(medianes: dict, k: str, fam: str, sym: str, repli_marche: bool = True):
-    """(médiane, libellé) des PAIRS du titre `sym`, lui-même exclu.
+    """(médiane, libellé, détail) des PAIRS du titre `sym`, lui-même exclu.
 
-    Les autres titres de la famille s'ils sont au moins `MIN_PAIRS` ; sinon le
-    marché hors le titre ; sinon rien (`repli_marche=False`, ou aucune donnée).
+    Les autres titres de la famille s'ils sont au moins `MIN_PAIRS` ; sinon la
+    COTE ENTIÈRE hors le titre (étiquetée non sectorielle) ; sinon rien.
+    `détail` = {"type": "famille"|"cote_entiere", "n", "mediane", "pairs_famille"}.
     """
     pairs = [v for t, v in medianes[k]["famille"].get(fam, []) if t != sym]
     if len(pairs) >= MIN_PAIRS:
-        return statistics.median(pairs), f"médiane des {len(pairs)} autres titres de la famille « {fam} »"
+        m = statistics.median(pairs)
+        return m, f"médiane des {len(pairs)} autres titres de la famille « {fam} »", {
+            "type": "famille", "n": len(pairs), "mediane": round(m, 3), "pairs_famille": len(pairs)}
     if repli_marche:
         autres = [v for t, v in medianes[k]["marche"] if t != sym]
         if autres:
-            return statistics.median(autres), (
-                f"médiane du marché hors {sym} ({len(autres)} titres ; famille « {fam} » : "
-                f"{len(pairs)} pair(s), moins de {MIN_PAIRS})")
-    return None, None
+            m = statistics.median(autres)
+            return m, (f"médiane de la COTE ENTIÈRE hors {sym} ({len(autres)} titres) — comparaison NON "
+                       f"sectorielle : famille « {fam} » : {len(pairs)} pair(s), moins de {MIN_PAIRS}"), {
+                "type": "cote_entiere", "n": len(autres), "mediane": round(m, 3), "pairs_famille": len(pairs)}
+    return None, None, None
 
 
 # ───────────────────────────── la note ─────────────────────────────
 
-def noter(e: dict, medianes: dict) -> dict:
-    """Note d'un titre : {"note", "poids_disponible", "composantes", "abstentions", ...}.
+def noter(e: dict, medianes: dict, autoriser_cote: bool = True, _mesurer: bool = True) -> dict:
+    """Note d'un titre : critères détaillés, note, poids disponible, dépendance à la cote.
 
-    `note` est None sous la moitié du poids. Pure : tout vient de `e` et des
-    médianes.
+    `autoriser_cote=False` interdit toute comparaison à la cote entière : sert à
+    MESURER combien de points de note en dépendent (règle 6). Pure.
     """
     fam = e["famille"]
-    comp, abst = {}, {}
+    crit: dict[str, dict] = {}
 
-    def poser(critere, mesure, note, **plus):
-        comp[critere] = {"mesure": mesure, "note": note, "poids": POIDS[critere], **plus}
+    def poser(nom, etat, **kw):
+        crit[nom] = {"etat": etat, "poids_nominal": POIDS[nom], "poids_effectif": 0.0,
+                     "valeur": kw.pop("valeur", None), "mesure": kw.pop("mesure", None),
+                     "note": kw.pop("note", None), "motif": kw.pop("motif", None),
+                     "source": kw.pop("source", None), "periode": kw.pop("periode", None),
+                     "base": kw.pop("base", None), "reference": kw.pop("reference", None), **kw}
 
     if e["sans_note"]:
-        return {"famille": fam, "note": None, "poids_disponible": 0, "composantes": {},
-                "abstentions": {c: e["sans_note"] for c in POIDS}, "motif": e["sans_note"]}
+        for nom in POIDS:
+            poser(nom, SUSPENDU, motif=e["sans_note"])
+        return _conclure(e, fam, crit, medianes, autoriser_cote, _mesurer)
 
     # ── Rentabilité ────────────────────────────────────────────────────────
     sur_roe = fam in FINANCIERES or fam in ("fonciere", "holding", "promoteur")
     roe, roic = e["roe"], e["roic"]
-    if sur_roe or (roic is None and roe is not None):
-        if roe is not None:
-            poser("rentabilite", f"ROE {roe['valeur']:g} % sur {roe['base']}",
-                  note_ecart_rentabilite(roe["valeur"], COUT_FONDS_PROPRES_REF))
+    if sur_roe:
+        if fam == "fonciere":
+            poser("rentabilite", SUSPENDU,
+                  motif="ROE suspendu pour les foncières : il intègre les effets de juste valeur des immeubles, "
+                        "comme le BPA exclu de la croissance",
+                  valeur=roe.get("valeur") if roe else None,
+                  mesure=f"ROE {roe['valeur']:g} % — affiché, non noté" if roe and roe.get("valeur") is not None else None,
+                  base=roe.get("base") if roe else None)
         else:
-            abst["rentabilite"] = "ROE non calculable sur comptes publiés (ou sans objet)"
+            _poser_roe(poser, roe, "rentabilite")
     elif roic is not None:
-        poser("rentabilite", f"ROIC {roic:g} % (comptes publiés)",
-              note_ecart_rentabilite(roic, WACC_REF))
+        zero = roic["valeur"] == 0
+        poser("rentabilite", ZERO if zero else PRESENT, valeur=roic["valeur"],
+              mesure=f"ROIC {roic['valeur']:g} % (comptes publiés)", periode=roic.get("date"),
+              base=roic.get("base"), source=_src_ratio(roic, "roic"),
+              note=note_ecart_rentabilite(roic["valeur"], WACC_REF))
+    elif roe is not None and roe["etat"] in ETATS_NOTES:
+        _poser_roe(poser, roe, "rentabilite", remplacement_roic=True)
+    elif roe is not None and roe["etat"] == SUSPENDU:
+        poser("rentabilite", SUSPENDU, motif=roe["motif"])
     else:
-        abst["rentabilite"] = "ni ROIC ni ROE calculables sur comptes publiés"
-    if "rentabilite" in comp and not sur_roe and roic is None:
-        comp["rentabilite"]["mesure"] += " — ROIC non calculable, ROE à défaut"
+        poser("rentabilite", ABSENT, motif="ni ROIC ni ROE calculables sur comptes publiés")
 
     # ── Croissance ─────────────────────────────────────────────────────────
     cb = None if fam == "fonciere" else e["croissance_bpa"]
     cc_ = e["croissance_ca"]
-    if cb is not None and cc_ is not None:
-        g = cb * 0.6 + cc_ * 0.4
-    else:
-        g = cb if cb is not None else cc_
+    g = (cb * 0.6 + cc_ * 0.4) if (cb is not None and cc_ is not None) else (cb if cb is not None else cc_)
     if g is not None:
-        poser("croissance", f"BPA {cb if cb is not None else '—'} % · CA {cc_ if cc_ is not None else '—'} %"
-                            + (" (BPA exclu : juste valeur)" if fam == "fonciere" else ""),
-              note_croissance(g))
+        poser("croissance", PRESENT,
+              valeur=round(g, 2),
+              mesure=f"BPA {cb if cb is not None else '—'} % · CA {cc_ if cc_ is not None else '—'} %"
+                     + (" (BPA exclu : juste valeur des immeubles)" if fam == "fonciere" else ""),
+              note=note_croissance(g), source=e["croissance_source"], periode="S1 2026 contre S1 2025")
     else:
-        abst["croissance"] = "croissance non issue des dépôts S1 2026"
+        poser("croissance", ABSENT, motif="croissance non issue des dépôts S1 2026")
 
     # ── Valorisation ───────────────────────────────────────────────────────
+    _valoriser(e, fam, medianes, autoriser_cote, poser)
+
+    # ── Bilan ──────────────────────────────────────────────────────────────
+    if fam in FINANCIERES:
+        poser("bilan", SUSPENDU, motif="sans objet : la dette est l'activité d'un établissement financier")
+    elif fam in ("fonciere", "holding", "promoteur"):
+        gr = e["gearing"]
+        if gr is None:
+            poser("bilan", ABSENT, motif="dette nette / fonds propres non calculable à la même date")
+        else:
+            poser("bilan", SUSPENDU, valeur=gr["valeur"], mesure=gr["mesure"] + f" = {gr['valeur']:g} — affiché, non noté",
+                  source=gr["source"], periode="31/12/2025",
+                  motif="aucun barème sourcé pour dette nette / fonds propres : transposer celui de dette "
+                        "nette / EBITDA n'est pas justifié")
+    else:
+        _bilan_industriel(e, poser)
+
+    return _conclure(e, fam, crit, medianes, autoriser_cote, _mesurer)
+
+
+def _poser_roe(poser, roe, nom, remplacement_roic=False):
+    if roe is None or roe["etat"] in (ABSENT, SUSPENDU):
+        poser(nom, roe["etat"] if roe else ABSENT, motif=(roe or {}).get("motif", "ROE non calculable"))
+        return
+    etat = roe["etat"]
+    base = roe["base"] + (" — ROE à défaut de ROIC (REMPLACEMENT)" if remplacement_roic else "")
+    if remplacement_roic and etat == PRESENT:
+        etat = REMPLACEMENT
+    poser(nom, ZERO if roe["valeur"] == 0 and etat == PRESENT else etat, valeur=roe["valeur"],
+          mesure=f"ROE {roe['valeur']:g} % — {base}", periode=roe["periode"], base=base,
+          source=roe["source"], note=note_ecart_rentabilite(roe["valeur"], COUT_FONDS_PROPRES_REF))
+
+
+def _ref_dict(det, lib):
+    return None if det is None else {**det, "libelle": lib}
+
+
+def _valoriser(e, fam, med, cote, poser):
     def par_per():
         if e["bpa_12m"] is None or e["prix"] is None:
-            return "bpa_12m absent"
+            poser("valorisation", ABSENT, motif="BPA 12 mois ou cours absent")
+            return False
         if e["bpa_12m"] <= 0:
-            return None                         # perte : traitée par l'appelant
-        ref, lib = _reference(medianes, "per", fam, e["sym"])
+            return None
+        ref, lib, det = _reference(med, "per", fam, e["sym"], repli_marche=cote)
         if ref is None:
-            return "aucune médiane de référence"
-        poser("valorisation", f"PER 12 m {e['per']:.1f} ÷ {lib} = {ref:.1f}",
-              note_relatif(e["per"] / ref), pb_affiche=e["pb"])
-        return "ok"
+            poser("valorisation", ABSENT, motif="aucune médiane de référence (moins de 3 pairs"
+                                                + ("" if cote else ", cote entière interdite") + ")")
+            return False
+        poser("valorisation", PRESENT, valeur=e["per"],
+              mesure=f"PER 12 m {e['per']:.1f} ÷ {lib} = {ref:.1f}", note=note_relatif(e["per"] / ref),
+              reference=_ref_dict(det, lib), source=e["bpa_source"], periode=e["bpa_source"]["periode"],
+              pb_comptable_affiche=e["pb"])
+        return True
 
-    def par_pb(raison_perte=False):
+    def par_pb(perte=False):
         if e["pb"] is None:
-            return "P/B non calculable sur faits sourcés"
-        ref, lib = _reference(medianes, "pb", fam, e["sym"], repli_marche=False)
+            poser("valorisation", ABSENT, motif="P/B comptable non calculable sur faits sourcés "
+                                                "(actif net réévalué non disponible)")
+            return
+        ref, lib, det = _reference(med, "pb", fam, e["sym"], repli_marche=False)
         if ref is None:
-            return f"P/B : moins de {MIN_PAIRS} pairs dans la famille « {fam} » (le titre exclu), pas de repli sur le marché"
-        poser("valorisation", f"P/B {e['pb']:.2f} ÷ {lib} = {ref:.2f}"
-                              + (" (résultat 12 mois ≤ 0 : P/B à la place du PER)" if raison_perte else ""),
-              note_relatif(e["pb"] / ref))
-        return "ok"
+            poser("valorisation", ABSENT, valeur=e["pb"],
+                  motif=(f"P/B comptable : moins de {MIN_PAIRS} pairs dans la famille « {fam} » (titre exclu), "
+                         "pas de repli sur la cote ; actif net réévalué non disponible"),
+                  mesure=f"P/B comptable {e['pb']:.2f} — affiché, non noté")
+            return
+        poser("valorisation", REMPLACEMENT if perte else PRESENT, valeur=e["pb"],
+              mesure=f"P/B comptable {e['pb']:.2f} ÷ {lib} = {ref:.2f}"
+                     + (" (résultat 12 mois ≤ 0 : P/B comptable à la place du PER)" if perte else ""),
+              note=note_relatif(e["pb"] / ref), reference=_ref_dict(det, lib),
+              source={"fichier": "faits_financiers.json (capitaux propres part du groupe) × cours",
+                      "piece": "P/B comptable"}, periode="31/12/2025")
 
     if fam in ("fonciere", "holding"):
-        r = par_pb()
-        if r != "ok":
-            abst["valorisation"] = r
-    elif fam == "mines" and e["ve_ebitda"] is not None:
-        ref, lib = _reference(medianes, "ve_ebitda", fam, e["sym"])
-        if ref is None:
-            abst["valorisation"] = "aucune médiane VE/EBITDA"
+        par_pb()
+    elif fam == "mines":
+        ve = e["ve"]
+        if ve["etat"] in ETATS_NOTES:
+            ref, lib, det = _reference(med, "ve_ebitda", fam, e["sym"], repli_marche=cote)
+            if ref is None:
+                poser("valorisation", ABSENT, motif="aucune médiane VE/EBITDA de référence")
+            else:
+                poser("valorisation", ve["etat"], valeur=ve["valeur"],
+                      mesure=f"VE/EBITDA {ve['valeur']:.1f} ({ve['mesure']}) ÷ {lib} = {ref:.1f}",
+                      note=note_relatif(ve["valeur"] / ref), reference=_ref_dict(det, lib),
+                      source=ve["source"], periode=ve["periode"], minoritaires_etat=ve["minoritaires_etat"])
         else:
-            ve = e["ve_ebitda"]
-            poser("valorisation", f"VE/EBITDA {ve['valeur']:.1f} ({ve['mesure']}) ÷ {lib} = {ref:.1f}"
-                                  + (f" — ⚠️ {ve['anomalie']}" if ve.get("anomalie") else ""),
-                  note_relatif(ve["valeur"] / ref))
+            # Règle 4 : jamais de repli vers le PER décidé au cas par cas.
+            poser("valorisation", ve["etat"], motif="VE/EBITDA suspendu : " + ve["motif"]
+                  if ve["etat"] == SUSPENDU else "VE/EBITDA absent : " + ve["motif"])
     else:
         r = par_per()
         if r is None:                            # résultat 12 mois ≤ 0
             if fam in FINANCIERES:
-                r = par_pb(raison_perte=True)
+                par_pb(perte=True)
             else:
-                poser("valorisation", "perte sur 12 mois", 1.5)
-                r = "ok"
-        if r != "ok":
-            abst["valorisation"] = r
+                nul = e["bpa_12m"] == 0
+                poser("valorisation", ZERO if nul else PRESENT, valeur=e["bpa_12m"],
+                      mesure="résultat 12 mois nul (confirmé)" if nul else "perte sur 12 mois",
+                      note=1.5, source=e["bpa_source"], periode=e["bpa_source"]["periode"])
 
-    # ── Bilan ──────────────────────────────────────────────────────────────
-    if fam in FINANCIERES:
-        abst["bilan"] = "sans objet : la dette est l'activité d'un établissement financier"
-    elif fam in ("fonciere", "holding", "promoteur"):
-        if e["gearing"] is not None:
-            poser("bilan", e["gearing"]["mesure"] + f" = {e['gearing']['valeur']:g}",
-                  note_dette(e["gearing"]["valeur"]))
-        else:
-            abst["bilan"] = "dette nette / fonds propres non calculable à la même date"
+
+def _bilan_industriel(e, poser):
+    dne, cc = e["dne"], e["cc"]
+    if dne is not None and not (dne["valeur"] == 0 and e["financiere"]):
+        v = dne["valeur"]
+        poser("bilan", ZERO if v == 0 else PRESENT, valeur=v,
+              mesure=f"dette nette / EBITDA {v:g}" + (f" · conversion {cc['valeur']:g} %" if cc else ""),
+              note=note_bilan_industriel(v, cc["valeur"] if cc else None),
+              source=_src_ratio(dne, "dette_nette_ebitda"), periode=dne.get("date"))
+    elif e["dette_nette"] is not None and e["dette_nette"] < 0 and not e["financiere"]:
+        # Règle 3 : on constate la CATÉGORIE « trésorerie nette », jamais un
+        # multiple (l'EBITDA est inconnu). Le palier [G] « dette nette < 0 »
+        # s'applique à la catégorie.
+        poser("bilan", REMPLACEMENT, valeur=None,
+              mesure=f"trésorerie nette (dette nette {e['dette_nette']:g} MMAD) — EBITDA inconnu, aucun multiple",
+              note=note_bilan_industriel(-1.0, cc["valeur"] if cc else None),
+              source=_src_ratio(e["dette_nette_ref"], "dette_nette"), periode=e["dette_nette_ref"].get("date"),
+              base="catégorie « trésorerie nette » : remplacement du multiple dette nette / EBITDA")
     else:
-        dne = e["dne"]
-        if dne == 0 and e["financiere"]:
-            dne = None
-        if dne is None and not e["financiere"] and e["dette_nette"] is not None and e["dette_nette"] < 0:
-            dne = -1.0                                   # trésorerie nette, EBITDA inconnu
-        if dne is not None:
-            poser("bilan", f"dette nette / EBITDA {dne:g}", note_bilan_industriel(dne, e["cc"]))
-        else:
-            abst["bilan"] = "dette nette / EBITDA non calculable (ou sans objet)"
+        poser("bilan", ABSENT, motif="dette nette / EBITDA non calculable (ou sans objet)")
 
-    dispo = sum(c["poids"] for c in comp.values())
-    note = round(sum(c["poids"] * c["note"] for c in comp.values()) / dispo, 2) if dispo >= SEUIL_POIDS else None
-    return {"famille": fam, "note": note, "poids_disponible": dispo,
-            "composantes": comp, "abstentions": abst,
-            "motif": None if note is not None else f"poids disponible {dispo} % < {SEUIL_POIDS} %"}
+
+def _conclure(e, fam, crit, medianes, autoriser_cote, mesurer) -> dict:
+    comptes = {k: c for k, c in crit.items() if c["etat"] in ETATS_NOTES and c["note"] is not None}
+    dispo = sum(c["poids_nominal"] for c in comptes.values())
+    for k, c in crit.items():
+        c["poids_effectif"] = round(100.0 * c["poids_nominal"] / dispo, 2) if k in comptes and dispo else 0.0
+    note = (round(sum(c["poids_nominal"] * c["note"] for c in comptes.values()) / dispo, 2)
+            if dispo >= SEUIL_POIDS else None)
+    out = {"famille": fam, "note": note, "poids_disponible": dispo, "criteres": crit,
+           "composantes": {k: {"mesure": c["mesure"], "note": c["note"], "poids": c["poids_nominal"]}
+                           for k, c in comptes.items()},
+           "abstentions": {k: (c["motif"] or c["etat"]) for k, c in crit.items() if k not in comptes},
+           "motif": (e["sans_note"] if e["sans_note"] else
+                     None if note is not None else f"poids disponible {dispo} % < {SEUIL_POIDS} %")}
+    if mesurer and autoriser_cote:
+        dep = [k for k, c in crit.items() if (c.get("reference") or {}).get("type") == "cote_entiere"]
+        sans = noter(e, medianes, autoriser_cote=False, _mesurer=False)
+        out["dependance_cote"] = {
+            "criteres": dep, "note_sans_cote": sans["note"],
+            "ecart_points": (round(note - sans["note"], 2) if note is not None and sans["note"] is not None else None),
+            "note_inexistante_sans_cote": bool(dep and note is not None and sans["note"] is None)}
+    return out
 
 
 def noter_univers(titres, prix: dict, pb: dict, fondamentaux: dict, bpa: dict,
                   s1: dict, faits: dict, sans_comptes=(), suspendus=()) -> dict:
-    """{sym: résultat de `noter`} pour tous les `titres`. Pure.
-
-    `prix` et `pb` sont ceux que le lecteur voit ; `s1` est le dict `titres` de
-    datasets/resultats_s1_2026.json ; `faits` celui de pipeline/faits_financiers.json.
-    """
+    """{sym: résultat de `noter`} pour tous les `titres`. Pure."""
     entrees = [construire_entree(
         s, fondamentaux.get(s), bpa.get(s), s1.get(s), faits.get(s), prix.get(s), pb.get(s),
         sans_comptes=s in sans_comptes, suspendu=s in suspendus) for s in titres]
@@ -466,48 +643,46 @@ def charger_sources(racine: Path = RACINE) -> dict:
             "faits": lire("pipeline/faits_financiers.json")}
 
 
-# ───────────────────────────── plancher de publication ─────────────────────────────
+# ───────────────────── plancher : panne des SOURCES seulement ─────────────────────
 
-PLANCHER_NOTES = 60       # sur 80 titres ; mesuré le 10/10/2026 : 71
-
-
-def nb_notes(titres) -> int:
-    """Nombre de fiches portant une note fondamentale ET un v53."""
-    return sum(1 for t in titres if t.get("score_fond") is not None and t.get("v53") is not None)
+MIN_SOURCES = {"fondamentaux": 60, "bpa": 60, "faits": 50, "s1": 50}   # mesuré le 11/10 : 77, 76, 71, 72
+EFFONDREMENT = 0.7        # moins de 70 % des notes du run précédent : effondrement
 
 
-def masi1_sans_note(titres) -> list[str]:
-    """Les titres du MASI 1 (TICKERS_ACTIFS) absents ou sans v53."""
-    from bvc_config import TICKERS_ACTIFS
-    avec = {t.get("symbol") for t in titres if t.get("v53") is not None}
-    return [s for s in TICKERS_ACTIFS if s not in avec]
+def problemes_sources(sources: dict, nb_notes: int | None = None, nb_notes_precedent: int | None = None) -> list[str]:
+    """Pourquoi la publication de la note par famille doit être REFUSÉE, ou [].
 
-
-def problemes_plancher(titres) -> list[str]:
-    """Pourquoi la publication doit être refusée, ou [].
-
-    ⚠️ Relecture du 10/10/2026 : si fondamentaux.json, bpa.json ou
-    faits_financiers.json étaient absents ou vides, la grille s'abstiendrait
-    sur les 80 titres et le moteur publierait 80 notes `None` avec un contrôle
-    vert. Une abstention est honnête titre par titre ; sur tout l'univers, c'est
-    une panne.
+    ⚠️ 11/10/2026 (Abd Moutalib) : on ne bloque QUE sur une panne des sources —
+    fichiers de fondamentaux absents, vides, ou effondrés par rapport au run
+    précédent — jamais sur l'abstention légitime d'un titre, MASI 1 compris. Un
+    MASI 1 sans note est un AVERTISSEMENT expliqué (verifier_seance), pas un
+    blocage.
     """
-    titres = list(titres)
     out = []
-    n = nb_notes(titres)
-    if n < PLANCHER_NOTES:
-        out.append(f"{n} titres notés sur {len(titres)} (plancher {PLANCHER_NOTES})")
-    manquants = masi1_sans_note(titres)
-    if manquants:
-        out.append(f"titres du MASI 1 sans v53 : {', '.join(manquants)}")
+    for nom, mini in MIN_SOURCES.items():
+        n = len(sources.get(nom) or {})
+        if n < mini:
+            out.append(f"source « {nom} » absente ou vide : {n} entrées (minimum {mini})")
+    if nb_notes is not None and nb_notes_precedent and nb_notes < EFFONDREMENT * nb_notes_precedent:
+        out.append(f"notes effondrées : {nb_notes} contre {nb_notes_precedent} au run précédent")
+    return out
+
+
+def masi1_sans_note(titres) -> list[tuple[str, str]]:
+    """Les titres du MASI 1 sans note par famille, avec le motif publié. Avertissement."""
+    from bvc_config import TICKERS_ACTIFS
+    par = {t.get("symbol"): t for t in titres}
+    out = []
+    for s in TICKERS_ACTIFS:
+        nf = (par.get(s) or {}).get("note_fond_metier")
+        if nf is not None and nf.get("note") is None:
+            out.append((s, nf.get("motif") or "non précisé"))
     return out
 
 
 def noter_depuis_fichiers(prix_surcharge: dict | None = None, racine: Path = RACINE) -> dict:
     """Note les 80 titres à partir des fichiers publiés : cours et P/B du
-    `data.json`, éventuellement surchargés par `prix_surcharge` (le second
-    pipeline, qui ne connaît que ses propres titres, complète ainsi l'univers
-    dont les médianes ont besoin). Lecture seule."""
+    `data.json`, éventuellement surchargés par `prix_surcharge`. Lecture seule."""
     from bvc_config import SANS_COMPTES, TICKERS_ALL, est_suspendu
     src = charger_sources(racine)
     data = json.loads((racine / "data.json").read_text(encoding="utf-8"))
