@@ -2224,16 +2224,6 @@
     "note": "« Capitaux propres attribuables aux actionnaires ordinaires 20 1 990,3 1 876,6 » (ÉTATS DE LA SITUATION FINANCIÈRE - PASSIF, « En millions de dirhams », colonnes 31/12/2025 puis 31/12/2024 ; le 20 est un renvoi de note). Capital 390,0 + primes 1,6 + réserves 1 326,9 + résultat net part du groupe 271,8 = 1 990,3 ; l'ensemble consolidé (minoritaires inclus) vaut 1 993,2.",
     "base": "consolidé IFRS, 31/12/2025",
     "releve_le": "2026-10-10"
-   },
-   "actions_autodetenues": {
-    "valeur": 0,
-    "valeur_au_rapport": 0,
-    "unite_au_rapport": "actions",
-    "page": 86,
-    "note": "Note 13 Résultat par action : lignes « • d'actions ordinaires émises », « • d'actions détenues dans le cadre de plans d'options d'achat » et « • d'actions d'auto-détention » laissées VIDES ; « NOMBRE D'ACTIONS RETENU POUR LE CALCUL DU RÉSULTAT DE BASE PAR ACTION 3.900.000 3.900.000 » (31-déc-25, 31-déc-24), égal au capital (3 900 000 titres) ; lu sur le rendu de la page. ⚠️ Zéro tiré d'une ligne vide et de l'égalité retenu = capital, pas d'une phrase : à confirmer en revue.",
-    "base": "consolidé IFRS, 31/12/2025",
-    "releve_le": "2026-10-10",
-    "lecture": "ligne vide + nombre retenu = capital"
    }
   },
   "_ecarts_mesures": {
@@ -2274,6 +2264,16 @@
      "detail": "1990.3 vs capitaux_propres_part_groupe_verif 1990.3"
     }
    ]
+  },
+  "_non_publie": {
+   "actions_autodetenues": {
+    "etat": "non publié",
+    "page": 86,
+    "note": "Note 13 Résultat par action (p.86, lu sur le rendu) : les lignes « • d'actions ordinaires émises », « • d'actions détenues dans le cadre de plans d'options d'achat » et « • d'actions d'auto-détention » sont laissées VIDES. Une ligne vide n'est pas un zéro : aucune phrase du rapport ne dit que Sonasid ne détient pas d'actions propres. Aucune valeur écrite (ni 0, ni autre) ; le nombre retenu pour le BPA (3.900.000, égal au capital) n'est PAS une preuve d'absence d'autodétention.",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-11",
+    "motif_retrait": "revue d'Abd Moutalib, PR #232 : un zéro déduit d'une ligne vide et d'un rapprochement indirect n'est pas confirmé (fait retiré le 11/10/2026)"
+   }
   }
  },
  "SOT": {
@@ -6973,17 +6973,29 @@
     "valeur": 23431240,
     "page": 81,
     "unite": "actions",
-    "note": "« Nombre moyen pondéré : d'actions ordinaires émises 23 431 240 23 431 240 » (note résultat par action, p.81) ; 111 651 actions d'autodétention, soit 23 319 589 retenues pour le BPA. Capital 702 937 KMAD ÷ 30 DH de nominal = 23 431 233 (arrondi KMAD). Accord avec le référentiel de l'opérateur (23 431 240)."
+    "note": "« Nombre moyen pondéré : d'actions ordinaires émises 23 431 240 23 431 240 » (note résultat par action, p.81) ; Le nombre retenu pour le BPA (23 319 589, moyen pondéré) est consigné à part (nombre_moyen_pondere_bpa) ; il ne remplace pas le nombre d'actions émises. Capital 702 937 KMAD ÷ 30 DH de nominal = 23 431 233 (arrondi KMAD). Accord avec le référentiel de l'opérateur (23 431 240)."
    },
    "actions_autodetenues": {
     "valeur": 111651,
     "valeur_au_rapport": 111651,
     "unite_au_rapport": "actions",
+    "page": 71,
+    "note": "« C1 : ÉTAT DE RÉPARTITION DU CAPITAL SOCIAL AU 31 DÉCEMBRE 2025 — Montant du capital 702 937 200,00 Dirhams … LAFARGE HOLCIM MAROC … 111 651 111 651 30 3 349 530 » (colonnes « exercice précédent » puis « exercice actuel » ; valeur nominale 30 ; montant libéré 3 349 530 DH = 111 651 × 30 ; page double, p.140 imprimée ; lu sur le rendu). LafargeHolcim Maroc figure parmi ses propres actionnaires : c'est un nombre de titres DÉTENUS à la clôture, pas une moyenne. Le tableau se reboucle : 15 156 172 (Lafarge Maroc) + 111 651 + 8 163 417 (divers) = 23 431 240 titres. Recoupement : état de variation des capitaux propres consolidés p.74, colonne « Actions d'autocontrôle » −9 637 KMAD au 31 décembre 2025 (≈ 86,3 DH par titre, non vérifié au cours).",
+    "base": "nombre de titres du capital social au 31/12/2025 (état C1 des comptes sociaux ; l'autocontrôle consolidé est à −9 637 KMAD, p.74)",
+    "releve_le": "2026-10-11",
+    "lecture": "explicite (nombre)",
+    "motif_changement": "revue d'Abd Moutalib, PR #232 : la page 81 (note 12) donne le même 111 651 mais sous « Nombre moyen pondéré » ; la clôture se lit à la page 71 (état C1). Le nombre moyen pondéré est consigné à part (nombre_moyen_pondere_bpa)."
+   },
+   "nombre_moyen_pondere_bpa": {
+    "valeur": 23319589,
+    "valeur_au_rapport": 23319589,
     "page": 81,
-    "note": "« Nombre moyen pondéré : - d'actions ordinaires émises 23 431 240 - d'actions détenues dans le cadre de plans d'options d'achat - d'actions d'auto détention 111 651 — Nombre d'actions retenu pour le calcul du résultat de base par action 23 319 589 » (note 12 Résultat par action, mêmes montants en 2025 et 2024 ; lu sur le rendu de la page, double page : p.161 imprimée). 23 431 240 − 111 651 = 23 319 589.",
-    "base": "consolidé IFRS, 31/12/2025",
-    "releve_le": "2026-10-10",
-    "lecture": "explicite (nombre)"
+    "emises": 23431240,
+    "auto_detention": 111651,
+    "retenu_pour_le_bpa": 23319589,
+    "unite_au_rapport": "actions",
+    "note": "« Nombre moyen pondéré : - d'actions ordinaires émises 23 431 240 - d'actions détenues dans le cadre de plans d'options d'achat - d'actions d'auto détention 111 651 — Nombre d'actions retenu pour le calcul du résultat de base par action 23 319 589 » (note 12 Résultat par action, mêmes montants 2025 et 2024). Ce sont des nombres MOYENS PONDÉRÉS servant au BPA, pas un nombre détenu à la clôture ; 23 431 240 − 111 651 = 23 319 589. Ne sert à aucun P/B.",
+    "releve_le": "2026-10-11"
    }
   },
   "_controles_ratios_2025": {
@@ -15034,9 +15046,9 @@
     "valeur_au_rapport": 13602015,
     "unite_au_rapport": "actions",
     "page": 110,
-    "note": "« 7. 3. 2 Actions Attijariwafa bank détenues par le Groupe : Au 31 décembre 2025, le groupe Attijariwafa bank détient 13 602 015 actions Attijariwafa bank représentant un montant global de 2 600 millions de dirhams qui vient en déduction des capitaux propres consolidés. » Détenues par une filiale consolidée : le tableau de l'actionnariat (p.133) porte « WAFA ASSURANCE … 13 602 015 13 602 015 6,3 % » (nombre de titres, nombre de droits de vote). Soit 6,3 % des 215 140 839 titres : le P/B se calcule sur 215 140 839 − 13 602 015 = 201 538 824 actions en circulation (IAS 32).",
+    "note": "« 7. 3. 2 Actions Attijariwafa bank détenues par le Groupe : Au 31 décembre 2025, le groupe Attijariwafa bank détient 13 602 015 actions Attijariwafa bank représentant un montant global de 2 600 millions de dirhams qui vient en déduction des capitaux propres consolidés. » Détenues par une filiale consolidée : le tableau de l'actionnariat (p.133) porte « WAFA ASSURANCE … 13 602 015 13 602 015 6,3 % » (nombre de titres, nombre de droits de vote). Soit 6,3 % des 215 140 839 titres : le P/B se calcule sur 215 140 839 − 13 602 015 = 201 538 824 actions en circulation (IAS 32). Recoupement (rendu p.97) : tableau de variation des capitaux propres, colonne « Actions propres » −2 600 212 KMAD au 31 décembre 2025, soit les « 2 600 millions de dirhams » de la note. Le nombre est celui du 31/12/2025 (« Au 31 décembre 2025, le groupe … détient »), pas une moyenne.",
     "base": "consolidé IFRS, part du groupe, 31/12/2025",
-    "releve_le": "2026-10-10",
+    "releve_le": "2026-10-11",
     "nature": "titres détenus par une filiale consolidée (Wafa Assurance)",
     "lecture": "explicite (nombre)"
    }
