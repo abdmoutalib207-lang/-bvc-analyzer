@@ -4,7 +4,7 @@
  "date_donnees": "2026-10-13",
  "source_cours": "data.json",
  "empreintes_sha256": {
-  "data.json": "f52ee0eb4316dfab2479b013bef7590ef90e85b9263ba5660f39beb3344a2d17",
+  "data.json": "90db85ae1fef850e86836d198fa5d5161a49e111d665312b0d0a25c942f399f0",
   "fondamentaux.json": "a1820170ede529367fec540ac111bb06a89210c4173bc862c9876b89c443b02d",
   "bpa.json": "8a9aa6658d8a71edbd11fb713eace775eacda2857f02132e8dea61f8d286f418",
   "pipeline/faits_financiers.json": "920f450e65127c6d1147d5a872528e6d6c3a4a3cdba7e2b2c66bdd05c5238b55",
@@ -16,20 +16,20 @@
   "sans_note_metier": 12,
   "distribution_note_actuelle": {
    "n": 80,
-   "moyenne": 5.39,
+   "moyenne": 5.38,
    "mediane": 5.35,
-   "ecart_type": 1.46,
+   "ecart_type": 1.45,
    "min": 1.95,
    "max": 8.35,
-   "valeurs_distinctes": 54
+   "valeurs_distinctes": 55
   },
   "distribution_note_metier": {
    "n": 68,
    "moyenne": 5.41,
    "mediane": 5.63,
-   "ecart_type": 1.79,
+   "ecart_type": 1.8,
    "min": 1.5,
-   "max": 8.35,
+   "max": 8.45,
    "valeurs_distinctes": 55
   },
   "par_famille": {
@@ -178,8 +178,8 @@
     "TQA",
     "WAF"
    ],
-   "points_de_note_en_jeu_somme_absolue": 6.43,
-   "ecart_moyen_points": -0.31,
+   "points_de_note_en_jeu_somme_absolue": 6.63,
+   "ecart_moyen_points": -0.29,
    "ecart_max_points": 1.1,
    "notes_qui_n_existeraient_pas_sans_la_cote": []
   },
@@ -234,30 +234,42 @@
    "bilan": 4
   },
   "changements_de_palier_simules": {
-   "nombre": 23,
+   "nombre": 26,
    "detail": {
-    "CIH": {
-     "de": "ATTENDRE",
-     "a": "ÉVITER",
-     "v53": 4.64,
-     "v53_simulee": 4.41
+    "IAM": {
+     "de": "SURVEILLER",
+     "a": "ACHETER",
+     "v53": 6.45,
+     "v53_simulee": 6.68
+    },
+    "BOA": {
+     "de": "SURVEILLER",
+     "a": "ATTENDRE",
+     "v53": 5.64,
+     "v53_simulee": 5.49
+    },
+    "CDM": {
+     "de": "SURVEILLER",
+     "a": "ATTENDRE",
+     "v53": 5.56,
+     "v53_simulee": 5.4
     },
     "TMA": {
      "de": "ATTENDRE",
-     "a": "SURVEILLER",
-     "v53": 4.94,
-     "v53_simulee": 6.44
+     "a": "ACHETER",
+     "v53": 4.96,
+     "v53_simulee": 6.61
     },
-    "MNG": {
-     "de": "ACHETER",
-     "a": "SURVEILLER",
-     "v53": 6.63,
-     "v53_simulee": 6.42
+    "AKD": {
+     "de": "ATTENDRE",
+     "a": "ÉVITER",
+     "v53": 4.65,
+     "v53_simulee": 4.48
     },
     "ARD": {
      "de": "ÉVITER",
      "a": "Données insuffisantes",
-     "v53": 4.01,
+     "v53": 3.94,
      "v53_simulee": null
     },
     "SAF": {
@@ -269,20 +281,26 @@
     "MSA": {
      "de": "SURVEILLER",
      "a": "ATTENDRE",
-     "v53": 5.84,
-     "v53_simulee": 4.74
+     "v53": 6.04,
+     "v53_simulee": 4.83
     },
     "ADI": {
      "de": "ÉVITER",
      "a": "ATTENDRE",
-     "v53": 4.32,
-     "v53_simulee": 5.0
+     "v53": 4.4,
+     "v53_simulee": 5.15
+    },
+    "VCNE": {
+     "de": "SURVEILLER",
+     "a": "ATTENDRE",
+     "v53": 5.61,
+     "v53_simulee": 5.23
     },
     "RDS": {
      "de": "ÉVITER",
      "a": "ATTENDRE",
-     "v53": 4.37,
-     "v53_simulee": 4.78
+     "v53": 4.42,
+     "v53_simulee": 4.87
     },
     "DAR": {
      "de": "ATTENDRE",
@@ -293,7 +311,7 @@
     "IMI": {
      "de": "ÉVITER",
      "a": "Données insuffisantes",
-     "v53": 4.3,
+     "v53": 4.34,
      "v53_simulee": null
     },
     "MOX": {
@@ -307,6 +325,12 @@
      "a": "ÉVITER FORT",
      "v53": 4.15,
      "v53_simulee": 1.5
+    },
+    "SNP": {
+     "de": "ÉVITER",
+     "a": "ÉVITER FORT",
+     "v53": 4.06,
+     "v53_simulee": 3.44
     },
     "SLM": {
      "de": "SURVEILLER",
@@ -326,17 +350,11 @@
      "v53": 5.45,
      "v53_simulee": null
     },
-    "BMC": {
-     "de": "ATTENDRE",
-     "a": "ÉVITER",
-     "v53": 5.05,
-     "v53_simulee": 4.38
-    },
     "CAR": {
      "de": "ÉVITER",
      "a": "ÉVITER FORT",
-     "v53": 4.41,
-     "v53_simulee": 3.31
+     "v53": 4.28,
+     "v53_simulee": 3.07
     },
     "ENK": {
      "de": "ATTENDRE",
@@ -353,7 +371,7 @@
     "STK": {
      "de": "ATTENDRE",
      "a": "Données insuffisantes",
-     "v53": 4.94,
+     "v53": 5.0,
      "v53_simulee": null
     },
     "UNI": {
@@ -365,7 +383,7 @@
     "T2S": {
      "de": "ATTENDRE",
      "a": "Données insuffisantes",
-     "v53": 4.57,
+     "v53": 4.96,
      "v53_simulee": null
     },
     "MDP": {
@@ -391,8 +409,8 @@
    "ecart_absolu_max": 0.67,
    "changements_de_palier_simule": {
     "WAF": {
-     "de": "ATTENDRE",
-     "a": "SURVEILLER"
+     "de": "ÉVITER",
+     "a": "ATTENDRE"
     }
    },
    "detail": {
@@ -429,8 +447,8 @@
      "note_metier_avant": 6.06,
      "note_metier_apres": 6.06,
      "ecart_note_metier": 0.0,
-     "palier_simule_avant": "SURVEILLER",
-     "palier_simule_apres": "SURVEILLER"
+     "palier_simule_avant": "ATTENDRE",
+     "palier_simule_apres": "ATTENDRE"
     },
     "WAF": {
      "convention": "moyenne",
@@ -441,8 +459,8 @@
      "note_metier_avant": 4.61,
      "note_metier_apres": 5.28,
      "ecart_note_metier": 0.67,
-     "palier_simule_avant": "ATTENDRE",
-     "palier_simule_apres": "SURVEILLER"
+     "palier_simule_avant": "ÉVITER",
+     "palier_simule_apres": "ATTENDRE"
     },
     "ATL": {
      "convention": "moyenne",
@@ -597,8 +615,8 @@
      "note_metier_avant": 4.61,
      "note_metier_apres": 4.61,
      "ecart_note_metier": 0.0,
-     "palier_simule_avant": "ÉVITER",
-     "palier_simule_apres": "ÉVITER"
+     "palier_simule_avant": "ATTENDRE",
+     "palier_simule_apres": "ATTENDRE"
     },
     "EQD": {
      "convention": "moyenne",
@@ -638,12 +656,12 @@
    "famille": "telecom",
    "secteur_referentiel": "Télécom",
    "note_actuelle": 7.2,
-   "note_metier": 7.2,
-   "ecart": 0.0,
-   "v53_actuelle": 6.51,
-   "v53_simulee": 6.51,
-   "signal_actuel": "ACHETER ★★",
-   "palier_actuel": "ACHETER",
+   "note_metier": 7.5,
+   "ecart": 0.3,
+   "v53_actuelle": 6.45,
+   "v53_simulee": 6.68,
+   "signal_actuel": "SURVEILLER ★",
+   "palier_actuel": "SURVEILLER",
    "palier_simule": "ACHETER",
    "poids_disponible": 100,
    "motif_sans_note": null,
@@ -655,7 +673,7 @@
      "valorisation"
     ],
     "note_sans_cote": 7.25,
-    "ecart_points": -0.05,
+    "ecart_points": 0.25,
     "note_inexistante_sans_cote": false
    },
    "criteres": {
@@ -697,9 +715,9 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 15.14,
-     "mesure": "PER 12 m 15.1 ÷ médiane de la COTE ENTIÈRE hors IAM (67 titres) — comparaison NON sectorielle : famille « telecom » : 0 pair(s), moins de 3 = 18.8",
-     "note": 7.0,
+     "valeur": 14.91,
+     "mesure": "PER 12 m 14.9 ÷ médiane de la COTE ENTIÈRE hors IAM (67 titres) — comparaison NON sectorielle : famille « telecom » : 0 pair(s), moins de 3 = 18.8",
+     "note": 8.5,
      "motif": null,
      "source": {
       "fichier": "bpa.json › bpa_12m",
@@ -715,7 +733,7 @@
       "pairs_famille": 0,
       "libelle": "médiane de la COTE ENTIÈRE hors IAM (67 titres) — comparaison NON sectorielle : famille « telecom » : 0 pair(s), moins de 3"
      },
-     "pb_comptable_affiche": 3.94
+     "pb_comptable_affiche": 3.89
     },
     "bilan": {
      "etat": "present",
@@ -742,8 +760,8 @@
    "note_actuelle": 6.05,
    "note_metier": 5.83,
    "ecart": -0.22,
-   "v53_actuelle": 5.32,
-   "v53_simulee": 5.16,
+   "v53_actuelle": 5.49,
+   "v53_simulee": 5.32,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
    "palier_simule": "ATTENDRE",
@@ -801,8 +819,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 13.45,
-     "mesure": "PER 12 m 13.4 ÷ médiane des 6 autres titres de la famille « banque » = 11.2",
+     "valeur": 13.4,
+     "mesure": "PER 12 m 13.4 ÷ médiane des 6 autres titres de la famille « banque » = 11.0",
      "note": 5.5,
      "motif": null,
      "source": {
@@ -815,7 +833,7 @@
      "reference": {
       "type": "famille",
       "n": 6,
-      "mediane": 11.185,
+      "mediane": 10.97,
       "pairs_famille": 6,
       "libelle": "médiane des 6 autres titres de la famille « banque »"
      },
@@ -842,8 +860,8 @@
    "note_actuelle": 5.95,
    "note_metier": 5.72,
    "ecart": -0.23,
-   "v53_actuelle": 6.31,
-   "v53_simulee": 6.15,
+   "v53_actuelle": 5.78,
+   "v53_simulee": 5.6,
    "signal_actuel": "SURVEILLER ★",
    "palier_actuel": "SURVEILLER",
    "palier_simule": "SURVEILLER",
@@ -901,8 +919,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 10.44,
-     "mesure": "PER 12 m 10.4 ÷ médiane des 6 autres titres de la famille « banque » = 12.1",
+     "valeur": 10.32,
+     "mesure": "PER 12 m 10.3 ÷ médiane des 6 autres titres de la famille « banque » = 12.2",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -915,11 +933,11 @@
      "reference": {
       "type": "famille",
       "n": 6,
-      "mediane": 12.1,
+      "mediane": 12.245,
       "pairs_famille": 6,
       "libelle": "médiane des 6 autres titres de la famille « banque »"
      },
-     "pb_comptable_affiche": 1.36
+     "pb_comptable_affiche": 1.34
     },
     "bilan": {
      "etat": "suspendu",
@@ -942,11 +960,11 @@
    "note_actuelle": 6.25,
    "note_metier": 6.06,
    "ecart": -0.19,
-   "v53_actuelle": 5.95,
-   "v53_simulee": 5.82,
+   "v53_actuelle": 5.64,
+   "v53_simulee": 5.49,
    "signal_actuel": "SURVEILLER ★",
    "palier_actuel": "SURVEILLER",
-   "palier_simule": "SURVEILLER",
+   "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
    "partielle": false,
@@ -1001,8 +1019,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 10.02,
-     "mesure": "PER 12 m 10.0 ÷ médiane des 6 autres titres de la famille « banque » = 12.1",
+     "valeur": 9.91,
+     "mesure": "PER 12 m 9.9 ÷ médiane des 6 autres titres de la famille « banque » = 12.2",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -1015,11 +1033,11 @@
      "reference": {
       "type": "famille",
       "n": 6,
-      "mediane": 12.1,
+      "mediane": 12.245,
       "pairs_famille": 6,
       "libelle": "médiane des 6 autres titres de la famille « banque »"
      },
-     "pb_comptable_affiche": 1.27
+     "pb_comptable_affiche": 1.26
     },
     "bilan": {
      "etat": "suspendu",
@@ -1042,11 +1060,11 @@
    "note_actuelle": 5.1,
    "note_metier": 4.78,
    "ecart": -0.32,
-   "v53_actuelle": 4.64,
-   "v53_simulee": 4.41,
+   "v53_actuelle": 4.99,
+   "v53_simulee": 4.74,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
-   "palier_simule": "ÉVITER",
+   "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
    "partielle": false,
@@ -1099,8 +1117,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 10.89,
-     "mesure": "PER 12 m 10.9 ÷ médiane des 6 autres titres de la famille « banque » = 12.1",
+     "valeur": 10.66,
+     "mesure": "PER 12 m 10.7 ÷ médiane des 6 autres titres de la famille « banque » = 12.2",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -1113,7 +1131,7 @@
      "reference": {
       "type": "famille",
       "n": 6,
-      "mediane": 12.1,
+      "mediane": 12.245,
       "pairs_famille": 6,
       "libelle": "médiane des 6 autres titres de la famille « banque »"
      },
@@ -1140,11 +1158,11 @@
    "note_actuelle": 6.15,
    "note_metier": 5.94,
    "ecart": -0.21,
-   "v53_actuelle": 5.88,
-   "v53_simulee": 5.73,
+   "v53_actuelle": 5.56,
+   "v53_simulee": 5.4,
    "signal_actuel": "SURVEILLER ★",
    "palier_actuel": "SURVEILLER",
-   "palier_simule": "SURVEILLER",
+   "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
    "partielle": false,
@@ -1197,8 +1215,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 11.48,
-     "mesure": "PER 12 m 11.5 ÷ médiane des 6 autres titres de la famille « banque » = 11.8",
+     "valeur": 11.28,
+     "mesure": "PER 12 m 11.3 ÷ médiane des 6 autres titres de la famille « banque » = 11.9",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -1211,7 +1229,7 @@
      "reference": {
       "type": "famille",
       "n": 6,
-      "mediane": 11.805,
+      "mediane": 11.935,
       "pairs_famille": 6,
       "libelle": "médiane des 6 autres titres de la famille « banque »"
      },
@@ -1238,11 +1256,11 @@
    "note_actuelle": 5.25,
    "note_metier": 5.28,
    "ecart": 0.03,
-   "v53_actuelle": 5.69,
-   "v53_simulee": 5.71,
-   "signal_actuel": "SURVEILLER ★",
-   "palier_actuel": "SURVEILLER",
-   "palier_simule": "SURVEILLER",
+   "v53_actuelle": 4.93,
+   "v53_simulee": 4.95,
+   "signal_actuel": "ATTENDRE",
+   "palier_actuel": "ATTENDRE",
+   "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
    "partielle": false,
@@ -1299,8 +1317,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 15.96,
-     "mesure": "PER 12 m 16.0 ÷ médiane de la COTE ENTIÈRE hors WAF (67 titres) — comparaison NON sectorielle : famille « assurance » : 1 pair(s), moins de 3 = 18.8",
+     "valeur": 15.36,
+     "mesure": "PER 12 m 15.4 ÷ médiane de la COTE ENTIÈRE hors WAF (67 titres) — comparaison NON sectorielle : famille « assurance » : 1 pair(s), moins de 3 = 18.8",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -1317,7 +1335,7 @@
       "pairs_famille": 1,
       "libelle": "médiane de la COTE ENTIÈRE hors WAF (67 titres) — comparaison NON sectorielle : famille « assurance » : 1 pair(s), moins de 3"
      },
-     "pb_comptable_affiche": 1.17
+     "pb_comptable_affiche": 1.12
     },
     "bilan": {
      "etat": "suspendu",
@@ -1341,7 +1359,7 @@
    "note_metier": 5.45,
    "ecart": 0.3,
    "v53_actuelle": 5.16,
-   "v53_simulee": 5.37,
+   "v53_simulee": 5.39,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
    "palier_simule": "ATTENDRE",
@@ -1395,8 +1413,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 18.1,
-     "mesure": "PER 12 m 18.1 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "valeur": 17.95,
+     "mesure": "PER 12 m 17.9 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -1409,11 +1427,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 3.11
+     "pb_comptable_affiche": 3.09
     },
     "bilan": {
      "etat": "present",
@@ -1440,8 +1458,8 @@
    "note_actuelle": 6.45,
    "note_metier": 6.45,
    "ecart": 0.0,
-   "v53_actuelle": 6.66,
-   "v53_simulee": 6.66,
+   "v53_actuelle": 6.62,
+   "v53_simulee": 6.62,
    "signal_actuel": "ACHETER ★★",
    "palier_actuel": "ACHETER",
    "palier_simule": "ACHETER",
@@ -1496,7 +1514,7 @@
      "poids_nominal": 20,
      "poids_effectif": 20.0,
      "valeur": 16.63,
-     "mesure": "PER 12 m 16.6 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "mesure": "PER 12 m 16.6 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -1509,7 +1527,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -1540,8 +1558,8 @@
    "note_actuelle": 6.35,
    "note_metier": 6.5,
    "ecart": 0.15,
-   "v53_actuelle": 6.59,
-   "v53_simulee": 6.7,
+   "v53_actuelle": 6.54,
+   "v53_simulee": 6.66,
    "signal_actuel": "ACHETER ★★",
    "palier_actuel": "ACHETER",
    "palier_simule": "ACHETER",
@@ -1601,7 +1619,7 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 15.33,
+     "valeur": 15.31,
      "mesure": "PER 12 m 15.3 ÷ médiane de la COTE ENTIÈRE hors ATL (67 titres) — comparaison NON sectorielle : famille « assurance » : 1 pair(s), moins de 3 = 18.8",
      "note": 7.0,
      "motif": null,
@@ -1642,8 +1660,8 @@
    "note_actuelle": 7.65,
    "note_metier": 7.65,
    "ecart": 0.0,
-   "v53_actuelle": 6.78,
-   "v53_simulee": 6.78,
+   "v53_actuelle": 6.98,
+   "v53_simulee": 6.98,
    "signal_actuel": "ACHETER ★★",
    "palier_actuel": "ACHETER",
    "palier_simule": "ACHETER",
@@ -1697,8 +1715,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 21.02,
-     "mesure": "PER 12 m 21.0 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "valeur": 20.7,
+     "mesure": "PER 12 m 20.7 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 5.5,
      "motif": null,
      "source": {
@@ -1711,11 +1729,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 4.83
+     "pb_comptable_affiche": 4.76
     },
     "bilan": {
      "etat": "present",
@@ -1742,8 +1760,8 @@
    "note_actuelle": 5.45,
    "note_metier": 5.45,
    "ecart": 0.0,
-   "v53_actuelle": 5.38,
-   "v53_simulee": 5.38,
+   "v53_actuelle": 5.39,
+   "v53_simulee": 5.39,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
    "palier_simule": "ATTENDRE",
@@ -1797,8 +1815,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 16.39,
-     "mesure": "PER 12 m 16.4 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "valeur": 16.4,
+     "mesure": "PER 12 m 16.4 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -1811,11 +1829,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 3.03
+     "pb_comptable_affiche": 3.04
     },
     "bilan": {
      "etat": "present",
@@ -1935,8 +1953,8 @@
    "note_actuelle": 4.45,
    "note_metier": 4.45,
    "ecart": 0.0,
-   "v53_actuelle": 4.18,
-   "v53_simulee": 4.18,
+   "v53_actuelle": 4.24,
+   "v53_simulee": 4.24,
    "signal_actuel": "ÉVITER",
    "palier_actuel": "ÉVITER",
    "palier_simule": "ÉVITER",
@@ -1992,8 +2010,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 37.8,
-     "mesure": "PER 12 m 37.8 ÷ médiane de la COTE ENTIÈRE hors TQA (67 titres) — comparaison NON sectorielle : famille « utility » : 0 pair(s), moins de 3 = 18.6",
+     "valeur": 37.51,
+     "mesure": "PER 12 m 37.5 ÷ médiane de la COTE ENTIÈRE hors TQA (67 titres) — comparaison NON sectorielle : famille « utility » : 0 pair(s), moins de 3 = 18.6",
      "note": 2.5,
      "motif": null,
      "source": {
@@ -2010,7 +2028,7 @@
       "pairs_famille": 0,
       "libelle": "médiane de la COTE ENTIÈRE hors TQA (67 titres) — comparaison NON sectorielle : famille « utility » : 0 pair(s), moins de 3"
      },
-     "pb_comptable_affiche": 6.0
+     "pb_comptable_affiche": 5.95
     },
     "bilan": {
      "etat": "present",
@@ -2096,8 +2114,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 9.47,
-     "mesure": "PER 12 m 9.5 ÷ médiane des 3 autres titres de la famille « financement » = 13.1",
+     "valeur": 9.44,
+     "mesure": "PER 12 m 9.4 ÷ médiane des 3 autres titres de la famille « financement » = 13.2",
      "note": 8.5,
      "motif": null,
      "source": {
@@ -2110,7 +2128,7 @@
      "reference": {
       "type": "famille",
       "n": 3,
-      "mediane": 13.13,
+      "mediane": 13.16,
       "pairs_famille": 3,
       "libelle": "médiane des 3 autres titres de la famille « financement »"
      },
@@ -2137,11 +2155,11 @@
    "note_actuelle": 5.0,
    "note_metier": 7.11,
    "ecart": 2.11,
-   "v53_actuelle": 4.94,
-   "v53_simulee": 6.44,
+   "v53_actuelle": 4.96,
+   "v53_simulee": 6.61,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
-   "palier_simule": "SURVEILLER",
+   "palier_simule": "ACHETER",
    "poids_disponible": 90,
    "motif_sans_note": null,
    "partielle": false,
@@ -2194,8 +2212,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 14.9,
-     "mesure": "PER 12 m 14.9 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "valeur": 15.09,
+     "mesure": "PER 12 m 15.1 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 8.5,
      "motif": null,
      "source": {
@@ -2208,11 +2226,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 6.09
+     "pb_comptable_affiche": 6.17
     },
     "bilan": {
      "etat": "absent",
@@ -2235,8 +2253,8 @@
    "note_actuelle": 8.25,
    "note_metier": 8.33,
    "ecart": 0.08,
-   "v53_actuelle": 7.32,
-   "v53_simulee": 7.38,
+   "v53_actuelle": 7.53,
+   "v53_simulee": 7.59,
    "signal_actuel": "Données insuffisantes",
    "palier_actuel": "Données insuffisantes",
    "palier_simule": "Données insuffisantes",
@@ -2292,8 +2310,8 @@
      "etat": "remplacement",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 22.43,
-     "mesure": "PER 12 m 22.4 ÷ médiane de la COTE ENTIÈRE hors CMT (67 titres) — comparaison NON sectorielle : famille « mines » : 2 pair(s), moins de 3 = 18.6 — REMPLACEMENT du VE/EBITDA (VE/EBITDA absent : dette nette ou EBITDA absents des comptes publiés) ; règle de famille « mines » : résultat d'exploitation courant : le PER relatif est lu à défaut de VE/EBITDA admissible",
+     "valeur": 22.32,
+     "mesure": "PER 12 m 22.3 ÷ médiane de la COTE ENTIÈRE hors CMT (67 titres) — comparaison NON sectorielle : famille « mines » : 2 pair(s), moins de 3 = 18.6 — REMPLACEMENT du VE/EBITDA (VE/EBITDA absent : dette nette ou EBITDA absents des comptes publiés) ; règle de famille « mines » : résultat d'exploitation courant : le PER relatif est lu à défaut de VE/EBITDA admissible",
      "note": 5.5,
      "motif": null,
      "source": {
@@ -2310,7 +2328,7 @@
       "pairs_famille": 2,
       "libelle": "médiane de la COTE ENTIÈRE hors CMT (67 titres) — comparaison NON sectorielle : famille « mines » : 2 pair(s), moins de 3"
      },
-     "pb_comptable_affiche": 7.69
+     "pb_comptable_affiche": 7.65
     },
     "bilan": {
      "etat": "absent",
@@ -2333,11 +2351,11 @@
    "note_actuelle": 7.2,
    "note_metier": 6.9,
    "ecart": -0.3,
-   "v53_actuelle": 6.63,
-   "v53_simulee": 6.42,
+   "v53_actuelle": 6.76,
+   "v53_simulee": 6.53,
    "signal_actuel": "ACHETER ★★",
    "palier_actuel": "ACHETER",
-   "palier_simule": "SURVEILLER",
+   "palier_simule": "ACHETER",
    "poids_disponible": 100,
    "motif_sans_note": null,
    "partielle": false,
@@ -2391,7 +2409,7 @@
      "poids_nominal": 20,
      "poids_effectif": 20.0,
      "valeur": 32.75,
-     "mesure": "VE/EBITDA 32.8 (VE 195887 = capitalisation 183902 + dette nette 10933.2 + minoritaires 1051.3 ; EBITDA 5982 (MMAD, 31/12/2025)) ÷ médiane de la COTE ENTIÈRE hors MNG (22 titres) — comparaison NON sectorielle : famille « mines » : 1 pair(s), moins de 3 = 10.5",
+     "mesure": "VE/EBITDA 32.8 (VE 195887 = capitalisation 183902 + dette nette 10933.2 + minoritaires 1051.3 ; EBITDA 5982 (MMAD, 31/12/2025)) ÷ médiane de la COTE ENTIÈRE hors MNG (22 titres) — comparaison NON sectorielle : famille « mines » : 1 pair(s), moins de 3 = 10.6",
      "note": 2.5,
      "motif": null,
      "source": {
@@ -2409,7 +2427,7 @@
      "reference": {
       "type": "cote_entiere",
       "n": 22,
-      "mediane": 10.525,
+      "mediane": 10.6,
       "pairs_famille": 1,
       "libelle": "médiane de la COTE ENTIÈRE hors MNG (22 titres) — comparaison NON sectorielle : famille « mines » : 1 pair(s), moins de 3"
      },
@@ -2440,8 +2458,8 @@
    "note_actuelle": 8.35,
    "note_metier": 8.05,
    "ecart": -0.3,
-   "v53_actuelle": 6.96,
-   "v53_simulee": 6.75,
+   "v53_actuelle": 7.28,
+   "v53_simulee": 7.05,
    "signal_actuel": "ACHETER ★★",
    "palier_actuel": "ACHETER",
    "palier_simule": "ACHETER",
@@ -2497,8 +2515,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 11.11,
-     "mesure": "VE/EBITDA 11.1 (VE 9598 = capitalisation 9574 + dette nette 23.9 + minoritaires 0 ; EBITDA 864.1 (MMAD, 31/12/2025)) ÷ médiane de la COTE ENTIÈRE hors SMI (22 titres) — comparaison NON sectorielle : famille « mines » : 1 pair(s), moins de 3 = 10.5",
+     "valeur": 11.15,
+     "mesure": "VE/EBITDA 11.2 (VE 9631 = capitalisation 9607 + dette nette 23.9 + minoritaires 0 ; EBITDA 864.1 (MMAD, 31/12/2025)) ÷ médiane de la COTE ENTIÈRE hors SMI (22 titres) — comparaison NON sectorielle : famille « mines » : 1 pair(s), moins de 3 = 10.6",
      "note": 5.5,
      "motif": null,
      "source": {
@@ -2516,7 +2534,7 @@
      "reference": {
       "type": "cote_entiere",
       "n": 22,
-      "mediane": 10.525,
+      "mediane": 10.6,
       "pairs_famille": 1,
       "libelle": "médiane de la COTE ENTIÈRE hors SMI (22 titres) — comparaison NON sectorielle : famille « mines » : 1 pair(s), moins de 3"
      },
@@ -2547,11 +2565,11 @@
    "note_actuelle": 4.5,
    "note_metier": 4.28,
    "ecart": -0.22,
-   "v53_actuelle": 4.7,
-   "v53_simulee": 4.54,
+   "v53_actuelle": 4.65,
+   "v53_simulee": 4.48,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
-   "palier_simule": "ATTENDRE",
+   "palier_simule": "ÉVITER",
    "poids_disponible": 90,
    "motif_sans_note": null,
    "partielle": false,
@@ -2602,8 +2620,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 31.92,
-     "mesure": "PER 12 m 31.9 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "valeur": 31.89,
+     "mesure": "PER 12 m 31.9 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 2.5,
      "motif": null,
      "source": {
@@ -2616,11 +2634,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 5.31
+     "pb_comptable_affiche": 5.3
     },
     "bilan": {
      "etat": "absent",
@@ -2643,7 +2661,7 @@
    "note_actuelle": 3.7,
    "note_metier": null,
    "ecart": null,
-   "v53_actuelle": 4.01,
+   "v53_actuelle": 3.94,
    "v53_simulee": null,
    "signal_actuel": "ÉVITER",
    "palier_actuel": "ÉVITER",
@@ -2866,8 +2884,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 23.31,
-     "mesure": "PER 12 m 23.3 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "valeur": 23.33,
+     "mesure": "PER 12 m 23.3 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 5.5,
      "motif": null,
      "source": {
@@ -2880,7 +2898,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -2911,8 +2929,8 @@
    "note_actuelle": 6.95,
    "note_metier": 6.95,
    "ecart": 0.0,
-   "v53_actuelle": 5.96,
-   "v53_simulee": 5.96,
+   "v53_actuelle": 6.19,
+   "v53_simulee": 6.19,
    "signal_actuel": "SURVEILLER ★",
    "palier_actuel": "SURVEILLER",
    "palier_simule": "SURVEILLER",
@@ -2966,8 +2984,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 16.22,
-     "mesure": "PER 12 m 16.2 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "valeur": 16.08,
+     "mesure": "PER 12 m 16.1 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -2980,11 +2998,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 5.6
+     "pb_comptable_affiche": 5.55
     },
     "bilan": {
      "etat": "present",
@@ -3066,8 +3084,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 32.04,
-     "mesure": "PER 12 m 32.0 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "valeur": 31.85,
+     "mesure": "PER 12 m 31.9 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 2.5,
      "motif": null,
      "source": {
@@ -3080,11 +3098,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 4.05
+     "pb_comptable_affiche": 4.03
     },
     "bilan": {
      "etat": "present",
@@ -3167,7 +3185,7 @@
      "poids_nominal": 20,
      "poids_effectif": 20.0,
      "valeur": 7.47,
-     "mesure": "PER 12 m 7.5 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "mesure": "PER 12 m 7.5 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 9.5,
      "motif": null,
      "source": {
@@ -3180,7 +3198,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -3211,8 +3229,8 @@
    "note_actuelle": 5.5,
    "note_metier": 5.5,
    "ecart": 0.0,
-   "v53_actuelle": 5.41,
-   "v53_simulee": 5.41,
+   "v53_actuelle": 5.06,
+   "v53_simulee": 5.06,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
    "palier_simule": "ATTENDRE",
@@ -3266,8 +3284,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 30.07,
-     "mesure": "PER 12 m 30.1 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "valeur": 29.22,
+     "mesure": "PER 12 m 29.2 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 4.0,
      "motif": null,
      "source": {
@@ -3280,11 +3298,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 4.67
+     "pb_comptable_affiche": 4.53
     },
     "bilan": {
      "etat": "present",
@@ -3311,8 +3329,8 @@
    "note_actuelle": 6.45,
    "note_metier": 4.9,
    "ecart": -1.55,
-   "v53_actuelle": 5.84,
-   "v53_simulee": 4.74,
+   "v53_actuelle": 6.04,
+   "v53_simulee": 4.83,
    "signal_actuel": "SURVEILLER ★",
    "palier_actuel": "SURVEILLER",
    "palier_simule": "ATTENDRE",
@@ -3364,8 +3382,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 40.0,
-     "valeur": 33.1,
-     "mesure": "PER 12 m 33.1 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "valeur": 32.67,
+     "mesure": "PER 12 m 32.7 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 2.5,
      "motif": null,
      "source": {
@@ -3378,11 +3396,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 13.78
+     "pb_comptable_affiche": 13.6
     },
     "bilan": {
      "etat": "absent",
@@ -3405,8 +3423,8 @@
    "note_actuelle": 4.65,
    "note_metier": 5.61,
    "ecart": 0.96,
-   "v53_actuelle": 4.32,
-   "v53_simulee": 5.0,
+   "v53_actuelle": 4.4,
+   "v53_simulee": 5.15,
    "signal_actuel": "ÉVITER",
    "palier_actuel": "ÉVITER",
    "palier_simule": "ATTENDRE",
@@ -3466,7 +3484,7 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 17.43,
+     "valeur": 17.35,
      "mesure": "PER 12 m 17.4 ÷ médiane de la COTE ENTIÈRE hors ADI (67 titres) — comparaison NON sectorielle : famille « promoteur » : 2 pair(s), moins de 3 = 18.8",
      "note": 7.0,
      "motif": null,
@@ -3511,8 +3529,8 @@
    "note_actuelle": 3.75,
    "note_metier": 3.94,
    "ecart": 0.19,
-   "v53_actuelle": 4.74,
-   "v53_simulee": 4.87,
+   "v53_actuelle": 4.51,
+   "v53_simulee": 4.66,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
    "palier_simule": "ATTENDRE",
@@ -3572,8 +3590,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 27.1,
-     "mesure": "PER 12 m 27.1 ÷ médiane de la COTE ENTIÈRE hors ADH (67 titres) — comparaison NON sectorielle : famille « promoteur » : 2 pair(s), moins de 3 = 18.6",
+     "valeur": 27.7,
+     "mesure": "PER 12 m 27.7 ÷ médiane de la COTE ENTIÈRE hors ADH (67 titres) — comparaison NON sectorielle : famille « promoteur » : 2 pair(s), moins de 3 = 18.6",
      "note": 4.0,
      "motif": null,
      "source": {
@@ -3590,7 +3608,7 @@
       "pairs_famille": 2,
       "libelle": "médiane de la COTE ENTIÈRE hors ADH (67 titres) — comparaison NON sectorielle : famille « promoteur » : 2 pair(s), moins de 3"
      },
-     "pb_comptable_affiche": 1.4
+     "pb_comptable_affiche": 1.44
     },
     "bilan": {
      "etat": "suspendu",
@@ -3617,8 +3635,8 @@
    "note_actuelle": 6.75,
    "note_metier": 6.75,
    "ecart": 0.0,
-   "v53_actuelle": 5.82,
-   "v53_simulee": 5.82,
+   "v53_actuelle": 6.03,
+   "v53_simulee": 6.03,
    "signal_actuel": "SURVEILLER ★",
    "palier_actuel": "SURVEILLER",
    "palier_simule": "SURVEILLER",
@@ -3719,8 +3737,8 @@
    "note_actuelle": 6.05,
    "note_metier": 5.83,
    "ecart": -0.22,
-   "v53_actuelle": 5.81,
-   "v53_simulee": 5.65,
+   "v53_actuelle": 5.77,
+   "v53_simulee": 5.6,
    "signal_actuel": "SURVEILLER ★",
    "palier_actuel": "SURVEILLER",
    "palier_simule": "SURVEILLER",
@@ -3778,8 +3796,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 17.63,
-     "mesure": "PER 12 m 17.6 ÷ médiane des 6 autres titres de la famille « banque » = 11.2",
+     "valeur": 17.36,
+     "mesure": "PER 12 m 17.4 ÷ médiane des 6 autres titres de la famille « banque » = 11.0",
      "note": 4.0,
      "motif": null,
      "source": {
@@ -3792,11 +3810,11 @@
      "reference": {
       "type": "famille",
       "n": 6,
-      "mediane": 11.185,
+      "mediane": 10.97,
       "pairs_famille": 6,
       "libelle": "médiane des 6 autres titres de la famille « banque »"
      },
-     "pb_comptable_affiche": 3.32
+     "pb_comptable_affiche": 3.27
     },
     "bilan": {
      "etat": "suspendu",
@@ -3819,8 +3837,8 @@
    "note_actuelle": 7.35,
    "note_metier": 7.61,
    "ecart": 0.26,
-   "v53_actuelle": 6.62,
-   "v53_simulee": 6.8,
+   "v53_actuelle": 6.79,
+   "v53_simulee": 6.99,
    "signal_actuel": "ACHETER ★★",
    "palier_actuel": "ACHETER",
    "palier_simule": "ACHETER",
@@ -3919,8 +3937,8 @@
    "note_actuelle": 6.9,
    "note_metier": 6.9,
    "ecart": 0.0,
-   "v53_actuelle": 6.3,
-   "v53_simulee": 6.3,
+   "v53_actuelle": 6.15,
+   "v53_simulee": 6.15,
    "signal_actuel": "SURVEILLER ★",
    "palier_actuel": "SURVEILLER",
    "palier_simule": "SURVEILLER",
@@ -3976,8 +3994,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 25.73,
-     "mesure": "PER 12 m 25.7 ÷ médiane de la COTE ENTIÈRE hors SGTM (67 titres) — comparaison NON sectorielle : famille « btp » : 2 pair(s), moins de 3 = 18.6",
+     "valeur": 25.23,
+     "mesure": "PER 12 m 25.2 ÷ médiane de la COTE ENTIÈRE hors SGTM (67 titres) — comparaison NON sectorielle : famille « btp » : 2 pair(s), moins de 3 = 18.6",
      "note": 4.0,
      "motif": null,
      "source": {
@@ -3994,7 +4012,7 @@
       "pairs_famille": 2,
       "libelle": "médiane de la COTE ENTIÈRE hors SGTM (67 titres) — comparaison NON sectorielle : famille « btp » : 2 pair(s), moins de 3"
      },
-     "pb_comptable_affiche": 10.12
+     "pb_comptable_affiche": 9.92
     },
     "bilan": {
      "etat": "present",
@@ -4021,11 +4039,11 @@
    "note_actuelle": 5.95,
    "note_metier": 5.95,
    "ecart": 0.0,
-   "v53_actuelle": 5.25,
-   "v53_simulee": 5.25,
-   "signal_actuel": "ATTENDRE",
-   "palier_actuel": "ATTENDRE",
-   "palier_simule": "ATTENDRE",
+   "v53_actuelle": 5.65,
+   "v53_simulee": 5.65,
+   "signal_actuel": "SURVEILLER ★",
+   "palier_actuel": "SURVEILLER",
+   "palier_simule": "SURVEILLER",
    "poids_disponible": 100,
    "motif_sans_note": null,
    "partielle": false,
@@ -4076,8 +4094,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 16.33,
-     "mesure": "PER 12 m 16.3 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "valeur": 16.03,
+     "mesure": "PER 12 m 16.0 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -4090,11 +4108,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 1.62
+     "pb_comptable_affiche": 1.59
     },
     "bilan": {
      "etat": "present",
@@ -4121,10 +4139,10 @@
    "note_actuelle": 6.1,
    "note_metier": 5.61,
    "ecart": -0.49,
-   "v53_actuelle": 5.47,
-   "v53_simulee": 5.12,
-   "signal_actuel": "ATTENDRE",
-   "palier_actuel": "ATTENDRE",
+   "v53_actuelle": 5.61,
+   "v53_simulee": 5.23,
+   "signal_actuel": "SURVEILLER ★",
+   "palier_actuel": "SURVEILLER",
    "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
@@ -4178,8 +4196,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 19.73,
-     "mesure": "PER 12 m 19.7 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "valeur": 19.74,
+     "mesure": "PER 12 m 19.7 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 5.5,
      "motif": null,
      "source": {
@@ -4192,7 +4210,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -4219,8 +4237,8 @@
    "note_actuelle": 5.2,
    "note_metier": 5.2,
    "ecart": 0.0,
-   "v53_actuelle": 4.71,
-   "v53_simulee": 4.71,
+   "v53_actuelle": 5.2,
+   "v53_simulee": 5.2,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
    "palier_simule": "ATTENDRE",
@@ -4274,8 +4292,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 16.25,
-     "mesure": "PER 12 m 16.2 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "valeur": 16.47,
+     "mesure": "PER 12 m 16.5 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -4288,11 +4306,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 2.85
+     "pb_comptable_affiche": 2.88
     },
     "bilan": {
      "etat": "present",
@@ -4319,8 +4337,8 @@
    "note_actuelle": 4.55,
    "note_metier": 4.55,
    "ecart": 0.0,
-   "v53_actuelle": 4.62,
-   "v53_simulee": 4.62,
+   "v53_actuelle": 4.61,
+   "v53_simulee": 4.61,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
    "palier_simule": "ATTENDRE",
@@ -4374,8 +4392,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 25.58,
-     "mesure": "PER 12 m 25.6 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "valeur": 25.36,
+     "mesure": "PER 12 m 25.4 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 4.0,
      "motif": null,
      "source": {
@@ -4388,11 +4406,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 2.95
+     "pb_comptable_affiche": 2.93
     },
     "bilan": {
      "etat": "present",
@@ -4417,10 +4435,10 @@
    "famille": "autre",
    "secteur_referentiel": "Matériaux",
    "note_actuelle": 7.05,
-   "note_metier": 7.35,
-   "ecart": 0.3,
-   "v53_actuelle": 6.04,
-   "v53_simulee": 6.25,
+   "note_metier": 7.05,
+   "ecart": 0.0,
+   "v53_actuelle": 6.27,
+   "v53_simulee": 6.27,
    "signal_actuel": "SURVEILLER ★",
    "palier_actuel": "SURVEILLER",
    "palier_simule": "SURVEILLER",
@@ -4431,7 +4449,7 @@
    "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
-    "note_sans_cote": 7.35,
+    "note_sans_cote": 7.05,
     "ecart_points": 0.0,
     "note_inexistante_sans_cote": false
    },
@@ -4474,9 +4492,9 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 19.17,
-     "mesure": "PER 12 m 19.2 ÷ médiane des 38 autres titres de la famille « autre » = 19.3",
-     "note": 7.0,
+     "valeur": 19.34,
+     "mesure": "PER 12 m 19.3 ÷ médiane des 38 autres titres de la famille « autre » = 19.3",
+     "note": 5.5,
      "motif": null,
      "source": {
       "fichier": "bpa.json › bpa_12m",
@@ -4492,7 +4510,7 @@
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 3.29
+     "pb_comptable_affiche": 3.32
     },
     "bilan": {
      "etat": "present",
@@ -4575,7 +4593,7 @@
      "poids_nominal": 20,
      "poids_effectif": 20.0,
      "valeur": 51.55,
-     "mesure": "PER 12 m 51.5 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "mesure": "PER 12 m 51.5 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 2.5,
      "motif": null,
      "source": {
@@ -4588,7 +4606,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -4619,8 +4637,8 @@
    "note_actuelle": 4.2,
    "note_metier": 4.78,
    "ecart": 0.58,
-   "v53_actuelle": 4.37,
-   "v53_simulee": 4.78,
+   "v53_actuelle": 4.42,
+   "v53_simulee": 4.87,
    "signal_actuel": "ÉVITER",
    "palier_actuel": "ÉVITER",
    "palier_simule": "ATTENDRE",
@@ -4680,8 +4698,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 235.29,
-     "mesure": "PER 12 m 235.3 ÷ médiane de la COTE ENTIÈRE hors RDS (67 titres) — comparaison NON sectorielle : famille « promoteur » : 2 pair(s), moins de 3 = 18.6",
+     "valeur": 237.94,
+     "mesure": "PER 12 m 237.9 ÷ médiane de la COTE ENTIÈRE hors RDS (67 titres) — comparaison NON sectorielle : famille « promoteur » : 2 pair(s), moins de 3 = 18.6",
      "note": 2.5,
      "motif": null,
      "source": {
@@ -4698,7 +4716,7 @@
       "pairs_famille": 2,
       "libelle": "médiane de la COTE ENTIÈRE hors RDS (67 titres) — comparaison NON sectorielle : famille « promoteur » : 2 pair(s), moins de 3"
      },
-     "pb_comptable_affiche": 1.12
+     "pb_comptable_affiche": 1.13
     },
     "bilan": {
      "etat": "suspendu",
@@ -4784,8 +4802,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 12.84,
-     "mesure": "PER 12 m 12.8 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "valeur": 12.72,
+     "mesure": "PER 12 m 12.7 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 8.5,
      "motif": null,
      "source": {
@@ -4798,11 +4816,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 3.53
+     "pb_comptable_affiche": 3.5
     },
     "bilan": {
      "etat": "absent",
@@ -4882,8 +4900,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 7.82,
-     "mesure": "PER 12 m 7.8 ÷ médiane des 3 autres titres de la famille « financement » = 13.1",
+     "valeur": 7.76,
+     "mesure": "PER 12 m 7.8 ÷ médiane des 3 autres titres de la famille « financement » = 13.2",
      "note": 9.5,
      "motif": null,
      "source": {
@@ -4896,7 +4914,7 @@
      "reference": {
       "type": "famille",
       "n": 3,
-      "mediane": 13.13,
+      "mediane": 13.16,
       "pairs_famille": 3,
       "libelle": "médiane des 3 autres titres de la famille « financement »"
      },
@@ -4983,7 +5001,7 @@
      "poids_nominal": 20,
      "poids_effectif": 20.0,
      "valeur": 22.92,
-     "mesure": "PER 12 m 22.9 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "mesure": "PER 12 m 22.9 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 5.5,
      "motif": null,
      "source": {
@@ -4996,7 +5014,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -5027,7 +5045,7 @@
    "note_actuelle": 4.1,
    "note_metier": null,
    "ecart": null,
-   "v53_actuelle": 4.3,
+   "v53_actuelle": 4.34,
    "v53_simulee": null,
    "signal_actuel": "ÉVITER",
    "palier_actuel": "ÉVITER",
@@ -5170,8 +5188,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 12.12,
-     "mesure": "PER 12 m 12.1 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "valeur": 12.06,
+     "mesure": "PER 12 m 12.1 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 8.5,
      "motif": null,
      "source": {
@@ -5184,11 +5202,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 1.93
+     "pb_comptable_affiche": 1.92
     },
     "bilan": {
      "etat": "present",
@@ -5270,8 +5288,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 14.89,
-     "mesure": "PER 12 m 14.9 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "valeur": 14.39,
+     "mesure": "PER 12 m 14.4 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 8.5,
      "motif": null,
      "source": {
@@ -5284,11 +5302,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 2.08
+     "pb_comptable_affiche": 2.01
     },
     "bilan": {
      "etat": "absent",
@@ -5371,7 +5389,7 @@
      "poids_nominal": 20,
      "poids_effectif": 20.0,
      "valeur": 20.79,
-     "mesure": "PER 12 m 20.8 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "mesure": "PER 12 m 20.8 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 5.5,
      "motif": null,
      "source": {
@@ -5384,7 +5402,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -5502,11 +5520,11 @@
    "note_actuelle": 3.85,
    "note_metier": 3.06,
    "ecart": -0.79,
-   "v53_actuelle": 4.12,
-   "v53_simulee": 3.56,
+   "v53_actuelle": 4.06,
+   "v53_simulee": 3.44,
    "signal_actuel": "ÉVITER",
    "palier_actuel": "ÉVITER",
-   "palier_simule": "ÉVITER",
+   "palier_simule": "ÉVITER FORT",
    "poids_disponible": 90,
    "motif_sans_note": null,
    "partielle": false,
@@ -5650,8 +5668,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 13.13,
-     "mesure": "PER 12 m 13.1 ÷ médiane des 3 autres titres de la famille « financement » = 9.5",
+     "valeur": 13.16,
+     "mesure": "PER 12 m 13.2 ÷ médiane des 3 autres titres de la famille « financement » = 9.4",
      "note": 4.0,
      "motif": null,
      "source": {
@@ -5664,7 +5682,7 @@
      "reference": {
       "type": "famille",
       "n": 3,
-      "mediane": 9.47,
+      "mediane": 9.44,
       "pairs_famille": 3,
       "libelle": "médiane des 3 autres titres de la famille « financement »"
      },
@@ -5691,8 +5709,8 @@
    "note_actuelle": 4.4,
    "note_metier": 4.1,
    "ecart": -0.3,
-   "v53_actuelle": 4.46,
-   "v53_simulee": 4.25,
+   "v53_actuelle": 4.44,
+   "v53_simulee": 4.21,
    "signal_actuel": "ÉVITER",
    "palier_actuel": "ÉVITER",
    "palier_simule": "ÉVITER",
@@ -5748,8 +5766,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 24.67,
-     "mesure": "PER 12 m 24.7 ÷ médiane de la COTE ENTIÈRE hors JET (67 titres) — comparaison NON sectorielle : famille « btp » : 2 pair(s), moins de 3 = 18.6",
+     "valeur": 24.23,
+     "mesure": "PER 12 m 24.2 ÷ médiane de la COTE ENTIÈRE hors JET (67 titres) — comparaison NON sectorielle : famille « btp » : 2 pair(s), moins de 3 = 18.6",
      "note": 4.0,
      "motif": null,
      "source": {
@@ -5766,7 +5784,7 @@
       "pairs_famille": 2,
       "libelle": "médiane de la COTE ENTIÈRE hors JET (67 titres) — comparaison NON sectorielle : famille « btp » : 2 pair(s), moins de 3"
      },
-     "pb_comptable_affiche": 3.52
+     "pb_comptable_affiche": 3.45
     },
     "bilan": {
      "etat": "present",
@@ -5848,8 +5866,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 20.02,
-     "mesure": "PER 12 m 20.0 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "valeur": 20.48,
+     "mesure": "PER 12 m 20.5 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 5.5,
      "motif": null,
      "source": {
@@ -5862,11 +5880,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 1.6
+     "pb_comptable_affiche": 1.64
     },
     "bilan": {
      "etat": "remplacement",
@@ -5986,8 +6004,8 @@
    "note_actuelle": 8.35,
    "note_metier": 8.35,
    "ecart": 0.0,
-   "v53_actuelle": 7.45,
-   "v53_simulee": 7.45,
+   "v53_actuelle": 7.65,
+   "v53_simulee": 7.65,
    "signal_actuel": "ACHETER ★★",
    "palier_actuel": "ACHETER",
    "palier_simule": "ACHETER",
@@ -6042,7 +6060,7 @@
      "poids_nominal": 20,
      "poids_effectif": 20.0,
      "valeur": 11.93,
-     "mesure": "PER 12 m 11.9 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "mesure": "PER 12 m 11.9 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 8.5,
      "motif": null,
      "source": {
@@ -6055,7 +6073,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -6142,7 +6160,7 @@
      "poids_nominal": 20,
      "poids_effectif": 20.0,
      "valeur": 18.55,
-     "mesure": "PER 12 m 18.6 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "mesure": "PER 12 m 18.6 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -6155,7 +6173,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -6240,7 +6258,7 @@
      "poids_nominal": 20,
      "poids_effectif": 40.0,
      "valeur": 15.83,
-     "mesure": "PER 12 m 15.8 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "mesure": "PER 12 m 15.8 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -6253,7 +6271,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -6334,7 +6352,7 @@
      "poids_nominal": 20,
      "poids_effectif": 40.0,
      "valeur": 18.82,
-     "mesure": "PER 12 m 18.8 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "mesure": "PER 12 m 18.8 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -6347,7 +6365,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -6371,11 +6389,11 @@
   "FNB": {
    "famille": "autre",
    "secteur_referentiel": "Distribution",
-   "note_actuelle": 6.1,
-   "note_metier": 6.1,
+   "note_actuelle": 5.8,
+   "note_metier": 5.8,
    "ecart": 0.0,
-   "v53_actuelle": 6.1,
-   "v53_simulee": 6.1,
+   "v53_actuelle": 5.8,
+   "v53_simulee": 5.8,
    "signal_actuel": "SURVEILLER ★",
    "palier_actuel": "SURVEILLER",
    "palier_simule": "SURVEILLER",
@@ -6386,7 +6404,7 @@
    "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
-    "note_sans_cote": 6.1,
+    "note_sans_cote": 5.8,
     "ecart_points": 0.0,
     "note_inexistante_sans_cote": false
    },
@@ -6429,9 +6447,9 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 23.57,
-     "mesure": "PER 12 m 23.6 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
-     "note": 5.5,
+     "valeur": 25.09,
+     "mesure": "PER 12 m 25.1 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
+     "note": 4.0,
      "motif": null,
      "source": {
       "fichier": "bpa.json › bpa_12m",
@@ -6443,11 +6461,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 2.79
+     "pb_comptable_affiche": 2.97
     },
     "bilan": {
      "etat": "present",
@@ -6610,7 +6628,7 @@
      "poids_nominal": 20,
      "poids_effectif": 22.22,
      "valeur": 19.72,
-     "mesure": "PER 12 m 19.7 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "mesure": "PER 12 m 19.7 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 5.5,
      "motif": null,
      "source": {
@@ -6623,7 +6641,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -6650,8 +6668,8 @@
    "note_actuelle": 4.0,
    "note_metier": 4.0,
    "ecart": 0.0,
-   "v53_actuelle": 3.86,
-   "v53_simulee": 3.86,
+   "v53_actuelle": 4.18,
+   "v53_simulee": 4.18,
    "signal_actuel": "ÉVITER",
    "palier_actuel": "ÉVITER",
    "palier_simule": "ÉVITER",
@@ -6705,8 +6723,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 27.88,
-     "mesure": "PER 12 m 27.9 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "valeur": 28.11,
+     "mesure": "PER 12 m 28.1 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 4.0,
      "motif": null,
      "source": {
@@ -6719,11 +6737,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 2.27
+     "pb_comptable_affiche": 2.28
     },
     "bilan": {
      "etat": "present",
@@ -6750,11 +6768,11 @@
    "note_actuelle": 5.55,
    "note_metier": 4.61,
    "ecart": -0.94,
-   "v53_actuelle": 5.05,
-   "v53_simulee": 4.38,
+   "v53_actuelle": 5.47,
+   "v53_simulee": 4.74,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
-   "palier_simule": "ÉVITER",
+   "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
    "partielle": false,
@@ -6809,8 +6827,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 22.22,
-     "valeur": 12.72,
-     "mesure": "PER 12 m 12.7 ÷ médiane des 6 autres titres de la famille « banque » = 11.2",
+     "valeur": 13.21,
+     "mesure": "PER 12 m 13.2 ÷ médiane des 6 autres titres de la famille « banque » = 11.0",
      "note": 5.5,
      "motif": null,
      "source": {
@@ -6823,11 +6841,11 @@
      "reference": {
       "type": "famille",
       "n": 6,
-      "mediane": 11.185,
+      "mediane": 10.97,
       "pairs_famille": 6,
       "libelle": "médiane des 6 autres titres de la famille « banque »"
      },
-     "pb_comptable_affiche": 0.95
+     "pb_comptable_affiche": 0.99
     },
     "bilan": {
      "etat": "suspendu",
@@ -6850,8 +6868,8 @@
    "note_actuelle": 3.45,
    "note_metier": 1.9,
    "ecart": -1.55,
-   "v53_actuelle": 4.41,
-   "v53_simulee": 3.31,
+   "v53_actuelle": 4.28,
+   "v53_simulee": 3.07,
    "signal_actuel": "ÉVITER",
    "palier_actuel": "ÉVITER",
    "palier_simule": "ÉVITER FORT",
@@ -6992,8 +7010,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 11.52,
-     "mesure": "PER 12 m 11.5 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "valeur": 11.4,
+     "mesure": "PER 12 m 11.4 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 9.5,
      "motif": null,
      "source": {
@@ -7006,11 +7024,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 1.95
+     "pb_comptable_affiche": 1.93
     },
     "bilan": {
      "etat": "present",
@@ -7035,10 +7053,10 @@
    "famille": "autre",
    "secteur_referentiel": "Technologie",
    "note_actuelle": 8.15,
-   "note_metier": 8.15,
-   "ecart": 0.0,
+   "note_metier": 8.45,
+   "ecart": 0.3,
    "v53_actuelle": 8.15,
-   "v53_simulee": 8.15,
+   "v53_simulee": 8.45,
    "signal_actuel": "SURVEILLER ★",
    "palier_actuel": "SURVEILLER",
    "palier_simule": "SURVEILLER",
@@ -7049,7 +7067,7 @@
    "signal_limite_par_note_partielle": false,
    "dependance_cote": {
     "criteres": [],
-    "note_sans_cote": 8.15,
+    "note_sans_cote": 8.45,
     "ecart_points": 0.0,
     "note_inexistante_sans_cote": false
    },
@@ -7093,8 +7111,8 @@
      "poids_nominal": 20,
      "poids_effectif": 20.0,
      "valeur": 15.59,
-     "mesure": "PER 12 m 15.6 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
-     "note": 7.0,
+     "mesure": "PER 12 m 15.6 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
+     "note": 8.5,
      "motif": null,
      "source": {
       "fichier": "bpa.json › bpa_12m",
@@ -7106,7 +7124,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -7137,8 +7155,8 @@
    "note_actuelle": 2.2,
    "note_metier": 1.9,
    "ecart": -0.3,
-   "v53_actuelle": 3.06,
-   "v53_simulee": 2.85,
+   "v53_actuelle": 3.3,
+   "v53_simulee": 3.07,
    "signal_actuel": "ÉVITER FORT",
    "palier_actuel": "ÉVITER FORT",
    "palier_simule": "ÉVITER FORT",
@@ -7194,8 +7212,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 40.0,
-     "valeur": 38.83,
-     "mesure": "PER 12 m 38.8 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "valeur": 39.02,
+     "mesure": "PER 12 m 39.0 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 2.5,
      "motif": null,
      "source": {
@@ -7208,7 +7226,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -7375,7 +7393,7 @@
      "poids_nominal": 20,
      "poids_effectif": 22.22,
      "valeur": 29.01,
-     "mesure": "PER 12 m 29.0 ÷ médiane des 3 autres titres de la famille « financement » = 9.5",
+     "mesure": "PER 12 m 29.0 ÷ médiane des 3 autres titres de la famille « financement » = 9.4",
      "note": 2.5,
      "motif": null,
      "source": {
@@ -7388,7 +7406,7 @@
      "reference": {
       "type": "famille",
       "n": 3,
-      "mediane": 9.47,
+      "mediane": 9.44,
       "pairs_famille": 3,
       "libelle": "médiane des 3 autres titres de la famille « financement »"
      },
@@ -7415,11 +7433,11 @@
    "note_actuelle": 5.65,
    "note_metier": 5.95,
    "ecart": 0.3,
-   "v53_actuelle": 6.09,
-   "v53_simulee": 6.3,
-   "signal_actuel": "SURVEILLER ★",
-   "palier_actuel": "SURVEILLER",
-   "palier_simule": "SURVEILLER",
+   "v53_actuelle": 5.24,
+   "v53_simulee": 5.47,
+   "signal_actuel": "ATTENDRE",
+   "palier_actuel": "ATTENDRE",
+   "palier_simule": "ATTENDRE",
    "poids_disponible": 100,
    "motif_sans_note": null,
    "partielle": false,
@@ -7470,8 +7488,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 20.0,
-     "valeur": 14.24,
-     "mesure": "PER 12 m 14.2 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "valeur": 13.39,
+     "mesure": "PER 12 m 13.4 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 8.5,
      "motif": null,
      "source": {
@@ -7484,11 +7502,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 1.67
+     "pb_comptable_affiche": 1.57
     },
     "bilan": {
      "etat": "present",
@@ -7571,7 +7589,7 @@
      "poids_nominal": 20,
      "poids_effectif": 20.0,
      "valeur": 36.58,
-     "mesure": "PER 12 m 36.6 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "mesure": "PER 12 m 36.6 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 2.5,
      "motif": null,
      "source": {
@@ -7584,7 +7602,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -7669,8 +7687,8 @@
      "etat": "absent",
      "poids_nominal": 20,
      "poids_effectif": 0.0,
-     "valeur": 0.71,
-     "mesure": "P/B comptable 0.71 — affiché, non noté",
+     "valeur": 0.67,
+     "mesure": "P/B comptable 0.67 — affiché, non noté",
      "note": null,
      "motif": "P/B comptable : moins de 3 pairs dans la famille « holding » (titre exclu), pas de repli sur la cote ; actif net réévalué non disponible",
      "source": null,
@@ -7759,7 +7777,7 @@
      "poids_nominal": 20,
      "poids_effectif": 20.0,
      "valeur": 17.59,
-     "mesure": "PER 12 m 17.6 ÷ médiane des 38 autres titres de la famille « autre » = 19.4",
+     "mesure": "PER 12 m 17.6 ÷ médiane des 38 autres titres de la famille « autre » = 19.5",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -7772,7 +7790,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 19.445,
+      "mediane": 19.53,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -7803,7 +7821,7 @@
    "note_actuelle": 5.2,
    "note_metier": null,
    "ecart": null,
-   "v53_actuelle": 4.94,
+   "v53_actuelle": 5.0,
    "v53_simulee": null,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
@@ -7943,7 +7961,7 @@
      "poids_nominal": 20,
      "poids_effectif": 20.0,
      "valeur": 88.48,
-     "mesure": "PER 12 m 88.5 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "mesure": "PER 12 m 88.5 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 2.5,
      "motif": null,
      "source": {
@@ -7956,7 +7974,7 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
@@ -8067,7 +8085,7 @@
    "note_actuelle": 5.0,
    "note_metier": null,
    "ecart": null,
-   "v53_actuelle": 4.57,
+   "v53_actuelle": 4.96,
    "v53_simulee": null,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
@@ -8116,8 +8134,8 @@
      "etat": "present",
      "poids_nominal": 20,
      "poids_effectif": 100.0,
-     "valeur": 24.07,
-     "mesure": "PER 12 m 24.1 ÷ médiane des 38 autres titres de la famille « autre » = 19.0",
+     "valeur": 24.36,
+     "mesure": "PER 12 m 24.4 ÷ médiane des 38 autres titres de la famille « autre » = 19.1",
      "note": 4.0,
      "motif": null,
      "source": {
@@ -8130,11 +8148,11 @@
      "reference": {
       "type": "famille",
       "n": 38,
-      "mediane": 18.995,
+      "mediane": 19.08,
       "pairs_famille": 38,
       "libelle": "médiane des 38 autres titres de la famille « autre »"
      },
-     "pb_comptable_affiche": 3.19
+     "pb_comptable_affiche": 3.23
     },
     "bilan": {
      "etat": "absent",
