@@ -72,12 +72,18 @@ LES RÈGLES (chacune a son test)
    RNPG 12 mois » ne prouve rien — périodes, périmètres, exceptionnels — et
    n'est plus avancé.)
 5. ROE : UNE SEULE CONVENTION, celle de l'EXERCICE 2025 = RNPG 2025 ÷ fonds
-   propres. ÷ moyenne(31/12/2024, 31/12/2025) quand les deux sont structurés ;
-   sinon ÷ clôture 31/12/2025, ÉTIQUETÉ par titre. À défaut de ROE d'exercice, le
-   ROE 12 mois à fin juin 2026 est un REMPLACEMENT étiqueté. Jamais de mélange
-   silencieux. Mesuré au 11/10/2026 : les fonds propres 31/12/2024 ne sont pas
-   structurés (cités en texte libre pour 35 titres) : tous les titres sont sur
-   la clôture.
+   propres part du groupe. ÷ MOYENNE(31/12/2024, 31/12/2025) quand les deux sont
+   relevés sur pièce (`capitaux_propres_part_groupe_2024`, 13/10/2026), sur la
+   MÊME base (même page du même état, pas de bases contradictoires, RNPG ÷ fonds
+   propres 2025 qui reproduit le ROE publié à 0,15 point près) ET sans opération
+   sur le capital dans l'exercice (`bvc_config.OPERATIONS_SUR_CAPITAL` : TGCC,
+   VCNE, SOT, CASH, SGTM) ni variation des fonds propres > 30 % non établie sur
+   pièce. Sinon ÷ clôture 31/12/2025, ÉTIQUETÉ avec la raison. La moyenne simple
+   sous-estimerait les fonds propres réellement employés après une augmentation de
+   capital ; la PONDÉRER par la date n'est pas fait (dates sourcées pour VCNE
+   seulement, profil intra-exercice non sourcé) : clôture étiquetée. À défaut de
+   ROE d'exercice, le ROE 12 mois à fin juin 2026 est un REMPLACEMENT étiqueté.
+   Jamais de mélange silencieux.
 6. COMPARAISON À LA COTE ENTIÈRE ≠ SECTORIELLE : faute de 3 pairs, la référence
    est la médiane de toute la cote (hors le titre) ; c'est ÉTIQUETÉ « non
    sectorielle », l'influence est MESURÉE (`dependance_marche` : critères
@@ -310,15 +316,53 @@ def _bpa_verifie(bpa: dict) -> bool:
                 and "ammc" in str(bpa.get("source_12m") or "").lower())
 
 
-def _roe(sym, fiche, bpa, s1) -> dict | None:
+SEUIL_VARIATION_FP = 0.30   # variation des fonds propres sur l'exercice au-delà de laquelle la moyenne est écartée
+
+
+def _motif_moyenne_ecartee(sym, r25, rn, cp24f, cp25f, faits, exercice) -> str | None:
+    """Pourquoi la moyenne des fonds propres NE s'applique pas (donnée présente
+    mais moyenne trompeuse), ou None si elle s'applique. Pure."""
+    cp24, cp25 = cp24f["valeur"], cp25f["valeur"]
+    if cp24 <= 0 or cp25 <= 0:
+        return f"fonds propres négatifs ou nuls ({cp24:g} ; {cp25:g})"
+    # Même base : les deux montants doivent venir du MÊME état financier (même
+    # page de la même pièce) et ne pas déclarer des bases contradictoires.
+    if cp24f.get("page") != cp25f.get("page"):
+        return (f"base 2024 non confirmée identique : pages différentes (2025 p.{cp25f.get('page')}, "
+                f"2024 p.{cp24f.get('page')})")
+    b25 = str(cp25f.get("base") or "").lower()
+    b_roe = str(r25.get("base") or "").lower()
+    if b25 and b_roe and (("social" in b25) != ("social" in b_roe)):
+        return f"bases différentes : fonds propres « {cp25f.get('base')} », ROE « {r25.get('base')} »"
+    # Le numérateur doit reproduire le ROE publié sur les fonds propres 2025 : sinon
+    # le résultat et les fonds propres ne sont pas sur la même base.
+    if abs(rn / cp25 * 100 - r25["valeur"]) > 0.15:
+        return (f"RNPG {rn:g} ÷ fonds propres {cp25:g} = {rn / cp25 * 100:.2f} % ne reproduit pas le ROE "
+                f"publié {r25['valeur']:g} %")
+    from bvc_config import OPERATIONS_SUR_CAPITAL
+    op = OPERATIONS_SUR_CAPITAL.get(sym)
+    if op and op.get("exercice") == exercice:
+        return "opération sur le capital dans l'exercice : " + op["nature"]
+    ratio = cp25 / cp24
+    if round(max(ratio, 1 / ratio) - 1, 6) > SEUIL_VARIATION_FP:   # symétrique : ×1,32 comme ×0,72
+        return (f"fonds propres ×{ratio:.2f} sur l'exercice (> {SEUIL_VARIATION_FP:.0%}), cause non établie "
+                "sur pièce (opération sur le capital, distribution ou résultat)")
+    return None
+
+
+def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True) -> dict | None:
     """ROE de l'EXERCICE 2025 — la convention unique (règle 5).
 
-    Passe par `roe_effectif` (AFM/AGM sans objet, MSA en vérification). Fonds
-    propres MOYENS (31/12/2024 et 31/12/2025) si les deux sont structurés ;
-    sinon CLÔTURE 31/12/2025, étiqueté. À défaut de ROE d'exercice, le ROE 12
-    mois à fin juin 2026 est un REMPLACEMENT étiqueté. Rend
-    {"etat", "valeur", "base", "periode", "source"} ou {"etat": SUSPENDU|ABSENT,
-    "motif"}.
+    Passe par `roe_effectif` (AFM/AGM sans objet, MSA en vérification).
+    ROE = RNPG 2025 ÷ MOYENNE(fonds propres part du groupe 31/12/2024,
+    31/12/2025) quand les deux sont relevés sur pièce, sur la MÊME base et sans
+    opération sur le capital dans l'exercice (`_motif_moyenne_ecartee`) ; sinon
+    ÷ CLÔTURE 31/12/2025, ÉTIQUETÉ avec la raison (`convention` :
+    moyenne | cloture_moyenne_ecartee | cloture_moyenne_indisponible). À défaut de
+    ROE d'exercice, le ROE 12 mois à fin juin 2026 est un REMPLACEMENT étiqueté.
+    `moyenne=False` force la clôture (mesure de l'effet de la convention).
+    Rend {"etat", "valeur", "base", "periode", "source", "convention"} ou
+    {"etat": SUSPENDU|ABSENT, "motif"}.
     """
     if sym in ROE_SANS_OBJET:
         return {"etat": SUSPENDU, "motif": f"ROE sans objet : {ROE_SANS_OBJET[sym]}"}
@@ -328,21 +372,39 @@ def _roe(sym, fiche, bpa, s1) -> dict | None:
         return {"etat": ABSENT, "motif": "aucun ROE calculé sur comptes publiés"}
     r25 = _publie_complet(fiche, sym, "roe_2025")
     if r25 is not None:
+        faits = faits or {}
         rn = _num((s1 or {}).get("rnpg_exercice_2025"))
-        c0 = _num((s1 or {}).get("capitaux_propres_pg_31_12_2024"))
-        c1 = _num((s1 or {}).get("capitaux_propres_pg_31_12_2025"))
-        if rn is not None and c0 and c1 and c0 > 0 and c1 > 0:
-            return {"etat": PRESENT, "valeur": round(rn / ((c0 + c1) / 2) * 100, 2),
-                    "base": "RNPG 2025 ÷ fonds propres MOYENS (31/12/2024 et 31/12/2025)",
-                    "periode": "exercice 2025", "source": {"fichier": "datasets/resultats_s1_2026.json",
-                                                           "piece": (s1 or {}).get("source_capitaux_propres")}}
-        return {"etat": PRESENT, "valeur": r25["valeur"],
-                "base": "RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025 (moyenne indisponible : "
-                        "fonds propres 31/12/2024 non structurés)",
-                "periode": "exercice 2025", "source": _src_ratio(r25, "roe_2025")}
+        cp24f = ((faits.get("faits") or {}).get("capitaux_propres_part_groupe_2024") or None)
+        cp25f = ((faits.get("faits") or {}).get("capitaux_propres_part_groupe") or None)
+        cp24f = cp24f if isinstance(cp24f, dict) and _num(cp24f.get("valeur")) is not None else None
+        cp25f = cp25f if isinstance(cp25f, dict) and _num(cp25f.get("valeur")) is not None else None
+        src = _src_ratio(r25, "roe_2025")
+        base_cloture = "RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025"
+        if not moyenne:
+            motif, genre = "moyenne non demandée", "cloture_moyenne_indisponible"
+        elif cp24f is None or cp25f is None or rn is None:
+            manque = ("fonds propres 31/12/2024 non relevés" if cp24f is None else
+                      "fonds propres 31/12/2025 non relevés" if cp25f is None else "RNPG 2025 non relevé")
+            motif, genre = manque, "cloture_moyenne_indisponible"
+        else:
+            motif = _motif_moyenne_ecartee(sym, r25, rn, cp24f, cp25f, faits, faits.get("exercice"))
+            genre = "cloture_moyenne_ecartee" if motif else "moyenne"
+        if genre == "moyenne":
+            cp24, cp25 = cp24f["valeur"], cp25f["valeur"]
+            return {"etat": PRESENT, "valeur": round(rn / ((cp24 + cp25) / 2) * 100, 2), "convention": genre,
+                    "base": (f"RNPG 2025 {rn:g} ÷ MOYENNE des fonds propres part du groupe (31/12/2024 {cp24:g} ; "
+                             f"31/12/2025 {cp25:g}), même état financier"),
+                    "periode": "exercice 2025",
+                    "source": src | {"fonds_propres_2024": f"faits_financiers.json › capitaux_propres_part_groupe_2024 "
+                                                           f"(p.{cp24f.get('page')})",
+                                     "rnpg_2025": "datasets/resultats_s1_2026.json › rnpg_exercice_2025"}}
+        etiquette = "moyenne écartée" if genre == "cloture_moyenne_ecartee" else "moyenne indisponible"
+        return {"etat": PRESENT, "valeur": r25["valeur"], "convention": genre,
+                "base": f"{base_cloture} ({etiquette} : {motif})", "periode": "exercice 2025", "source": src,
+                "moyenne_ecartee": motif}
     r12 = _publie_complet(fiche, sym, "roe_12m")
     if r12 is not None:
-        return {"etat": REMPLACEMENT, "valeur": r12["valeur"],
+        return {"etat": REMPLACEMENT, "valeur": r12["valeur"], "convention": "remplacement_12m",
                 "base": "REMPLACEMENT : ROE 12 mois à fin juin 2026 ÷ fonds propres de clôture 30/06/2026 "
                         "(ROE d'exercice 2025 indisponible)",
                 "periode": "12 mois au 30/06/2026", "source": _src_ratio(r12, "roe_12m")}
@@ -396,8 +458,12 @@ def _ve_ebitda(sym, fiche, bpa, s1, faits, px) -> dict:
 
 def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict | None,
                       faits: dict | None, prix: float | None, pb: float | None, *,
-                      sans_comptes: bool = False, suspendu: bool = False) -> dict:
-    """Tout ce que la note lit pour UN titre, rassemblé, daté et sourcé. Pure."""
+                      sans_comptes: bool = False, suspendu: bool = False,
+                      roe_moyenne: bool = True) -> dict:
+    """Tout ce que la note lit pour UN titre, rassemblé, daté et sourcé. Pure.
+
+    `roe_moyenne=False` force le ROE sur la clôture (mesure de l'effet de la
+    convention des fonds propres moyens)."""
     fiche, bpa, s1, faits = fiche or {}, bpa or {}, s1 or {}, faits or {}
     fam = famille_note(sym)
 
@@ -434,7 +500,7 @@ def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict |
         "per": round(px / b12, 2) if px and b12 and b12 > 0 else None,
         "pb": _num(pb) if pb and pb > 0 else None,
         "ve": _ve_ebitda(sym, fiche, bpa, s1, faits, px),
-        "roe": _roe(sym, fiche, bpa, s1),
+        "roe": _roe(sym, fiche, bpa, s1, faits, roe_moyenne),
         "roic": _publie_complet(fiche, sym, "roic"),
         "dne": _publie_complet(fiche, sym, "dette_nette_ebitda"),
         "cc": _publie_complet(fiche, sym, "cash_conversion"),
@@ -602,7 +668,8 @@ def _poser_roe(poser, roe, nom, remplacement_roic=False):
         etat = REMPLACEMENT
     poser(nom, ZERO if roe["valeur"] == 0 and etat == PRESENT else etat, valeur=roe["valeur"],
           mesure=f"ROE {roe['valeur']:g} % — {base}", periode=roe["periode"], base=base,
-          source=roe["source"], note=note_ecart_rentabilite(roe["valeur"], COUT_FONDS_PROPRES_REF))
+          source=roe["source"], note=note_ecart_rentabilite(roe["valeur"], COUT_FONDS_PROPRES_REF),
+          convention=roe.get("convention"), moyenne_ecartee=roe.get("moyenne_ecartee"))
 
 
 def _ref_dict(det, lib):
@@ -782,11 +849,11 @@ def detail_publie(r: dict | None) -> dict | None:
 
 
 def noter_univers(titres, prix: dict, pb: dict, fondamentaux: dict, bpa: dict,
-                  s1: dict, faits: dict, sans_comptes=(), suspendus=()) -> dict:
+                  s1: dict, faits: dict, sans_comptes=(), suspendus=(), roe_moyenne: bool = True) -> dict:
     """{sym: résultat de `noter`} pour tous les `titres`. Pure."""
     entrees = [construire_entree(
         s, fondamentaux.get(s), bpa.get(s), s1.get(s), faits.get(s), prix.get(s), pb.get(s),
-        sans_comptes=s in sans_comptes, suspendu=s in suspendus) for s in titres]
+        sans_comptes=s in sans_comptes, suspendu=s in suspendus, roe_moyenne=roe_moyenne) for s in titres]
     med = calculer_medianes(entrees)
     return {e["sym"]: noter(e, med) | {"entree": e} for e in entrees}
 
@@ -867,7 +934,8 @@ def masi1_sans_note(titres) -> list[tuple[str, str]]:
     return out
 
 
-def noter_depuis_fichiers(prix_surcharge: dict | None = None, racine: Path = RACINE) -> dict:
+def noter_depuis_fichiers(prix_surcharge: dict | None = None, racine: Path = RACINE,
+                          roe_moyenne: bool = True) -> dict:
     """Note les 80 titres à partir des fichiers publiés : cours et P/B du
     `data.json`, éventuellement surchargés par `prix_surcharge`. Lecture seule."""
     from bvc_config import SANS_COMPTES, TICKERS_ALL, est_suspendu
@@ -880,7 +948,7 @@ def noter_depuis_fichiers(prix_surcharge: dict | None = None, racine: Path = RAC
         TICKERS_ALL, prix, {s: t.get("pb") for s, t in T.items()},
         src["fondamentaux"], src["bpa"], src["s1"], src["faits"],
         sans_comptes=set(SANS_COMPTES),
-        suspendus={s for s in TICKERS_ALL if est_suspendu(s)})
+        suspendus={s for s in TICKERS_ALL if est_suspendu(s)}, roe_moyenne=roe_moyenne)
 
 
 def main() -> int:

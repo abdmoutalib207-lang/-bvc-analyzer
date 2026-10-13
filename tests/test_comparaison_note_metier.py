@@ -104,3 +104,17 @@ def test_la_synthese_compte_les_notes_partielles_et_les_suspensions_par_motif(co
     assert sum(sy["suspensions_par_motif"].values()) == n_susp
     n_abs = sum(1 for x in t.values() for c in x["criteres"].values() if c["etat"] == "absent")
     assert sum(sy["absences_par_motif"].values()) == n_abs
+
+
+def test_l_effet_de_la_convention_des_fonds_propres_moyens_est_mesure(comparaison):
+    e = comparaison["synthese"]["effet_convention_fonds_propres_moyens"]
+    t = comparaison["titres"]
+    assert (e["titres_sur_moyenne"] + e["titres_sur_cloture_moyenne_ecartee"]
+            + e["titres_sur_cloture_moyenne_indisponible"] + e["titres_en_remplacement_12_mois"]
+            + e["titres_sans_roe_d_exercice"]) == 80
+    for s in ("TGCC", "VCNE", "SOT", "CASH", "SGTM"):
+        assert e["moyenne_ecartee_par_motif"]["opération sur le capital (registre)"] >= 5
+        roe = t[s]["criteres"]["rentabilite"]
+        assert roe.get("convention") != "moyenne", s
+    for s, x in e["detail"].items():
+        assert x["roe_cloture"] is not None or x["roe_moyenne"] is not None

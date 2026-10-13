@@ -822,6 +822,45 @@ FAMILLES_NOTE: dict = {
     "telecom":    ("IAM",),
     "utility":    ("TQA",),
 }
+# ⚠️ OPÉRATIONS SUR LE CAPITAL DE L'EXERCICE 2025 — registre créé le 13/10/2026.
+#
+# R11 : une opération sur titres se CONSTATE sur pièce, elle ne se déduit pas
+# d'une série. Une augmentation de capital ou une introduction en bourse dans
+# l'exercice change le niveau des fonds propres sans rapport avec la
+# rentabilité : la MOYENNE simple (31/12/2024, 31/12/2025) sous-estime alors les
+# fonds propres réellement employés et surestime le ROE. La note par famille
+# (`fond_score_sectoriel._roe`) écarte la moyenne et lit la clôture, étiquetée.
+# Pondérer par la date n'est pas fait : seules deux dates sont sourcées (VCNE ;
+# le visa de SOT, qui n'est pas la date de l'opération), et le profil des fonds
+# propres dans l'exercice (résultat, dividendes) ne l'est pour aucun titre.
+# Pièces : pipeline/faits_financiers.json (notes des faits fonds propres 2024 et
+# nombre d'actions) et les rapports cités. Un titre absent d'ici peut encore voir
+# sa moyenne écartée par la garde de variation (> 30 %), sans cause établie.
+OPERATIONS_SUR_CAPITAL: dict = {
+    "TGCC": {"exercice": 2025, "date": None, "montant_mmad": 2199.99945,
+             "nature": "augmentation de capital réservée au public (introduction en bourse)",
+             "source": "TGCC RFA 2025 p.64 et p.72 (« L'augmentation de capital social réservée au public pour "
+                       "un montant de 2 199 999 450 dirhams ») ; faits_financiers.json › TGCC"},
+    "VCNE": {"exercice": 2025, "date": "2025-07-15", "montant_mmad": 719.979984,
+             "nature": "augmentation de capital de l'introduction en bourse",
+             "source": "Vicenne RFA 2025 p.58, tableau de variation des capitaux propres (719 979 984 MAD, "
+                       "boucle exactement à 1 244 927 997) ; faits_financiers.json › VCNE"},
+    "SOT": {"exercice": 2025, "date": None, "montant_mmad": 630.428,
+            "nature": "augmentation de capital par apport en nature (capital +20,336 ; prime +610,092 MMAD) et "
+                      "entrée de Soludia Maghreb",
+            "source": "Sothema RFA 2025 p.43 (visa AMMC du 09/12/2025 : date du visa, pas de l'opération) et "
+                      "p.65 ; faits_financiers.json › SOT"},
+    "CASH": {"exercice": 2025, "date": None, "montant_mmad": None,
+             "nature": "introduction en bourse : division du titre puis augmentation de capital (capital "
+                       "54 250 → 245 531 KMAD), toutes deux avant la clôture",
+             "source": "Cash Plus RFA 2025 (capital au 31/12/2025 : 24 553 090 actions) ; faits_financiers.json › CASH"},
+    "SGTM": {"exercice": 2025, "date": None, "montant_mmad": None,
+             "nature": "capital passé de 300 000 à 1 200 000 KMAD sur l'exercice (nature de l'opération non "
+                       "précisée dans la pièce lue)",
+             "source": "SGTM RFA 2025 p.87 ; faits_financiers.json › SGTM"},
+}
+
+
 FAMILLE_NOTE_PAR_DEFAUT: str = "autre"
 
 

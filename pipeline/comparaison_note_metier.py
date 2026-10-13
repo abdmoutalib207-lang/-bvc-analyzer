@@ -107,8 +107,71 @@ def _stats(x: list[float]) -> dict:
             "valeurs_distinctes": len(set(x))}
 
 
+def _palier_simule(t: dict, note, partielle: bool) -> tuple:
+    """(v53 simulée, palier simulé, limité par le garde-fou) pour un titre `t` du
+    data.json et une note par métier `note`. Pure."""
+    actuelle, v53 = t.get("score_fond"), t.get("v53")
+    wf = ((t.get("poids") or {}).get("f") or 0) / 100
+    simulee = (round(min(max(v53 + (note - actuelle) * wf, 0), 10), 2)
+               if None not in (note, v53, actuelle) else None)
+    actuel = palier_publie(t.get("sig"))
+    if actuel in ("Données insuffisantes", "SUSPENDU"):
+        simule = actuel
+    else:
+        simule = palier(simulee)
+        if simule == "ACHETER" and t.get("technique_neutralise"):
+            simule = "SURVEILLER"
+    avant_garde = simule
+    simule = fs.limiter_signal_partiel(actuel, simule, partielle)
+    return simulee, simule, simule != avant_garde
+
+
+def _effet_convention_roe(res: dict, res_cloture: dict, T: dict) -> dict:
+    """Effet de la convention « fonds propres moyens » sur la note par métier :
+    chaque titre dont le ROE d'exercice passe de la clôture à la moyenne."""
+    par_titre, comptes = {}, collections.Counter()
+    for s, r in res.items():
+        roe = r["entree"]["roe"]
+        comptes[roe.get("convention") or ("roe_" + roe["etat"])] += 1
+        r0 = res_cloture[s]
+        n1, n0 = r["note"], r0["note"]
+        c1, c0 = r["criteres"]["rentabilite"], r0["criteres"]["rentabilite"]
+        if roe.get("convention") != "moyenne" and c1.get("note") == c0.get("note") and n1 == n0:
+            continue
+        if c1.get("valeur") == c0.get("valeur") and n1 == n0:
+            continue
+        _, p1, _ = _palier_simule(T.get(s, {}), n1, r["partielle"])
+        _, p0, _ = _palier_simule(T.get(s, {}), n0, r0["partielle"])
+        par_titre[s] = {"convention": roe.get("convention"),
+                        "roe_cloture": c0.get("valeur"), "roe_moyenne": c1.get("valeur"),
+                        "note_rentabilite_avant": c0.get("note"), "note_rentabilite_apres": c1.get("note"),
+                        "note_metier_avant": n0, "note_metier_apres": n1,
+                        "ecart_note_metier": round(n1 - n0, 2) if None not in (n0, n1) else None,
+                        "palier_simule_avant": p0, "palier_simule_apres": p1}
+    ecarts = [x["ecart_note_metier"] for x in par_titre.values() if x["ecart_note_metier"] is not None]
+    return {
+        "titres_sur_moyenne": comptes.get("moyenne", 0),
+        "titres_sur_cloture_moyenne_ecartee": comptes.get("cloture_moyenne_ecartee", 0),
+        "titres_sur_cloture_moyenne_indisponible": comptes.get("cloture_moyenne_indisponible", 0),
+        "titres_en_remplacement_12_mois": comptes.get("remplacement_12m", 0),
+        "titres_sans_roe_d_exercice": sum(v for k, v in comptes.items() if k.startswith("roe_")),
+        "moyenne_ecartee_par_motif": dict(collections.Counter(
+            ("opération sur le capital (registre)" if "opération sur le capital" in r["entree"]["roe"]["moyenne_ecartee"]
+             else "variation des fonds propres > 30 % non établie" if "cause non établie" in r["entree"]["roe"]["moyenne_ecartee"]
+             else "base non confirmée identique" if "base" in r["entree"]["roe"]["moyenne_ecartee"]
+             else r["entree"]["roe"]["moyenne_ecartee"][:60])
+            for r in res.values() if r["entree"]["roe"].get("convention") == "cloture_moyenne_ecartee")),
+        "notes_metier_modifiees": len([x for x in par_titre.values() if x["ecart_note_metier"]]),
+        "ecart_moyen_note_metier": round(statistics.mean(ecarts), 3) if ecarts else None,
+        "ecart_absolu_max": max((abs(e) for e in ecarts), default=None),
+        "changements_de_palier_simule": {s: {"de": x["palier_simule_avant"], "a": x["palier_simule_apres"]}
+                                         for s, x in par_titre.items() if x["palier_simule_avant"] != x["palier_simule_apres"]},
+        "detail": par_titre}
+
+
 def construire(racine: Path = RACINE) -> dict:
     res = fs.noter_depuis_fichiers(racine=racine)
+    res_cloture = fs.noter_depuis_fichiers(racine=racine, roe_moyenne=False)
     data = json.loads((racine / "data.json").read_text(encoding="utf-8"))
     T = {t["symbol"]: t for t in data["tickers"]}
     titres, bases_roe, motifs_ve = {}, collections.Counter(), collections.Counter()
@@ -117,41 +180,26 @@ def construire(racine: Path = RACINE) -> dict:
     for s, r in res.items():
         t = T.get(s, {})
         actuelle, v53 = t.get("score_fond"), t.get("v53")
-        wf = ((t.get("poids") or {}).get("f") or 0) / 100
         note = r["note"]
-        simulee = (round(min(max(v53 + (note - actuelle) * wf, 0), 10), 2)
-                   if None not in (note, v53, actuelle) else None)
+        simulee, simule, limite = _palier_simule(t, note, r["partielle"])
+        actuel = palier_publie(t.get("sig"))
         crit = r["criteres"]
         for k, c in crit.items():
             etats[k][c["etat"]] += 1
             if c.get("reference"):
                 refs[k][c["reference"]["type"]] += 1
         roe = crit["rentabilite"]
-        if roe["etat"] in (fs.PRESENT, fs.ZERO, fs.REMPLACEMENT) and (roe.get("base") or "").startswith("RNPG"):
-            bases_roe["exercice 2025 sur fonds propres MOYENS"
-                      if "MOYENS" in roe["base"] else "exercice 2025 sur CLÔTURE 31/12/2025"] += 1
-        elif roe["etat"] == fs.REMPLACEMENT and "ROE 12 mois" in (roe.get("base") or ""):
-            bases_roe["REMPLACEMENT : 12 mois à fin juin 2026 sur clôture 30/06/2026"] += 1
+        conv = roe.get("convention")
+        if roe["etat"] in (fs.PRESENT, fs.ZERO, fs.REMPLACEMENT) and conv:
+            bases_roe[{"moyenne": "ROE d'exercice 2025 sur fonds propres MOYENS (31/12/2024 et 31/12/2025)",
+                       "cloture_moyenne_ecartee": "ROE d'exercice 2025 sur CLÔTURE — moyenne ÉCARTÉE (étiqueté)",
+                       "cloture_moyenne_indisponible": "ROE d'exercice 2025 sur CLÔTURE — moyenne indisponible (étiqueté)",
+                       "remplacement_12m": "REMPLACEMENT : ROE 12 mois à fin juin 2026"}[conv]] += 1
         elif roe["etat"] in (fs.PRESENT, fs.ZERO, fs.REMPLACEMENT):
             bases_roe["ROIC (comptes publiés) — pas de ROE"] += 1
         else:
             bases_roe[f"pas de ROE ({roe['etat']})"] += 1
         motifs_ve[_categorie_ve(r["entree"]["ve"])] += 1
-        # Signal simulé : « Données insuffisantes » (reprise, sans comptes) et
-        # SUSPENDU ne dépendent pas de la note ; le plafond de liquidité du
-        # verdict (technique neutralisé) transforme ACHETER en SURVEILLER.
-        actuel = palier_publie(t.get("sig"))
-        limite = False
-        if actuel in ("Données insuffisantes", "SUSPENDU"):
-            simule = actuel
-        else:
-            simule = palier(simulee)
-            if simule == "ACHETER" and t.get("technique_neutralise"):
-                simule = "SURVEILLER"
-        # Règle 11 : une note PARTIELLE ne peut pas être plus favorable que la grille actuelle.
-        avant_garde = simule
-        simule = fs.limiter_signal_partiel(actuel, simule, r["partielle"])
-        limite = simule != avant_garde
         titres[s] = {
             "famille": r["famille"], "secteur_referentiel": t.get("sector"),
             "note_actuelle": actuelle, "note_metier": note, "ecart": (round(note - actuelle, 2)
@@ -209,6 +257,7 @@ def construire(racine: Path = RACINE) -> dict:
         "criteres_en_remplacement": {k: sum(1 for x in titres.values() if x["criteres"][k]["etat"] == fs.REMPLACEMENT)
                                      for k in fs.POIDS},
         "changements_de_palier_simules": {"nombre": len(changements), "detail": changements},
+        "effet_convention_fonds_propres_moyens": _effet_convention_roe(res, res_cloture, T),
         "masi_1_sans_note_metier": {s: titres[s]["motif_sans_note"] for s in TICKERS_ACTIFS
                                     if s in titres and titres[s]["note_metier"] is None},
         "lecture": [
