@@ -90,7 +90,7 @@ def test_une_serie_en_retard_est_signalee():
              serie_jusqu_a="12:59:59")
     p = bf.phrase_trajectoire(t)
     assert ("(La série intrajournalière s'arrête à 12:59:59 ; clôture et "
-            "extrêmes viennent de la synthèse CDG.)") in p
+            "extrêmes viennent de la synthèse de séance.)") in p
 
 
 def test_une_heure_inconnue_n_est_pas_ecrite():
@@ -208,7 +208,7 @@ def test_phrase_secteurs_tete_et_queue():
         ("ASSURANCES", -0.51))]
     sect.sort(key=lambda x: -x["variation_pct"])
     p = bf.phrase_secteurs(sect, k=2)
-    assert p == ("Indices sectoriels (7 servis par CDG) : 3 en hausse, 3 en "
+    assert p == ("Indices sectoriels (7 servis) : 3 en hausse, 3 en "
                  "baisse. En tête : Boissons +4,98 %, Societe de financement "
                  "+1,79 %. En queue : Sylviculture et papier -3,72 %, "
                  "Chimie -2,70 %.")
