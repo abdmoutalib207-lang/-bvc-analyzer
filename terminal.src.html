@@ -213,6 +213,46 @@
     .intro-toucher{margin-top:18px;font-size:12px;letter-spacing:.35em;color:#8892a4;
       animation:intro-pouls 1.6s ease-in-out 1.2s infinite both;}
     @keyframes intro-pouls{0%,100%{opacity:.35;}50%{opacity:1;}}
+    /* TABLEAU DE BORD DE LA SÉANCE — 13/10/2026, demande d'Abd Moutalib
+       (« dans le style d'un tableau de bord Power BI »), sans dépendance :
+       grille de 12 colonnes sur ordinateur, 2 sur tablette, 1 sur téléphone.
+       `min-width:0` sur chaque case : sans lui, un tableau ou un libellé long
+       élargit la colonne et fait défiler la page entière à 390 px. */
+    .tdb{display:grid;gap:12px;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-flow:row dense;}
+    .tdb>*{grid-column:span 12;min-width:0;}
+    .tdb-kpi{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(150px,46%),1fr));}
+    .tdb-kpi>*{min-width:0;}
+    @media(min-width:641px){.tdb .c4,.tdb .c6{grid-column:span 6;}}
+    @media(min-width:1100px){.tdb .c4{grid-column:span 4;}.tdb .c8{grid-column:span 8;}}
+    .tdb-pan{background:#0d1829;border:1px solid #1a2540;border-radius:8px;padding:14px;}
+    .tdb-tete{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:2px;}
+    .tdb-titre{font-size:10.5px;color:#c8d3e8;letter-spacing:1px;text-transform:uppercase;text-wrap:balance;}
+    .tdb-src{font-size:10.5px;color:#8892a4;line-height:1.5;margin-bottom:10px;text-wrap:pretty;}
+    .tdb-num{font-family:var(--font);font-variant-numeric:tabular-nums;white-space:nowrap;}
+    .tdb-ligne{display:grid;align-items:center;gap:8px;width:100%;background:transparent;border:none;border-radius:4px;
+      padding:4px 6px;font-family:var(--font);color:#c8d3e8;text-align:left;cursor:pointer;min-height:30px;
+      transition:background-color var(--t-court) var(--ease),opacity var(--t-court) var(--ease);}
+    .tdb-ligne:hover{background:rgba(77,184,255,.07);box-shadow:none!important;filter:none!important;}
+    .tdb-ligne[aria-pressed="true"]{background:rgba(200,211,232,.10);box-shadow:inset 2px 0 0 #e6edf7!important;}
+    .tdb-tuile{position:absolute;overflow:hidden;border:1px solid #080d1a;border-radius:3px;padding:6px 7px;text-align:left;
+      font-family:var(--font);color:#e6edf7;cursor:pointer;text-shadow:0 1px 2px rgba(0,0,0,.6);
+      transition:opacity var(--t-court) var(--ease),box-shadow var(--t-court) var(--ease);}
+    .tdb-tuile:hover{filter:brightness(1.25)!important;box-shadow:none!important;}
+    .tdb-tuile[aria-pressed="true"]{box-shadow:inset 0 0 0 2px #e6edf7!important;}
+    .tdb-tuile{box-sizing:border-box;}
+    /* Sur téléphone, le filtre se pose loin de la puce d'en-tête : une copie
+       flottante reste visible en bas à droite (le menu occupe la gauche). */
+    .tdb-puce-flottante{display:none;}
+    @media(max-width:640px){.tdb-puce-flottante{display:inline-flex;position:fixed;right:14px;bottom:26px;z-index:240;
+      max-width:calc(100vw - 100px);min-height:40px;box-shadow:0 6px 18px rgba(0,0,0,.5);background:#0f2236;}}
+    @media (pointer:coarse){.tdb-tuile{min-height:0!important;}.tdb-tuile::after{display:none;}}
+    /* Le tableau des niveaux ne tient qu'au-delà de 1 100 px : en dessous, son
+       panneau fait une demi-largeur de tablette ou tout un téléphone, moins de
+       400 px — mesuré à 768 px, la dernière colonne sortait du cadre. */
+    @media(max-width:1099px){.tdb-large{display:none!important;}}
+    @media(min-width:1100px){.tdb-etroit{display:none!important;}}
+    .tdb-puce{display:inline-flex;align-items:center;gap:8px;background:rgba(77,184,255,.12);border:1px solid rgba(77,184,255,.45);
+      color:#e6edf7;border-radius:14px;padding:4px 12px;font-size:11.5px;font-family:var(--font);cursor:pointer;}
   </style>
 </head>
 <body>
@@ -2555,101 +2595,421 @@ const SourceCotation=({l})=>{
       title={`Vérifier ${l.nom||l.ticker} chez la source`}>Source ↗</a></>}
   </span>;
 };
-const Carte=({titre,source,children})=>(
-  <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
-    <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>{titre}</div>
-    {source&&<div style={{fontSize:10.5,color:"#5a6478",marginBottom:10}}>{source}</div>}
+// ── TABLEAU DE BORD DE LA SÉANCE — 13/10/2026 ───────────────────────────────
+// Demande d'Abd Moutalib : le détail de la séance « dans le style d'un tableau
+// de bord Power BI », sans Power BI ni aucune dépendance nouvelle — React,
+// CSS et des <div>. Cartes de chiffres en tête, visuels reliés par un FILTRE
+// CROISÉ (un secteur ou une tranche de variation filtre les visuels par titre).
+//
+// ⚠️ D'OÙ VIENT CHAQUE CHIFFRE. Les cartes et la fourchette du MASI lisent le
+// briefing (`b.veille`, `b.trajectoire`), donc la synthèse CDG. Les visuels PAR
+// TITRE lisent `data.json` — le briefing ne publie pas la liste complète — et
+// ne s'affichent que si les deux décrivent le MÊME relevé : cours datés de la
+// séance ET somme des montants par titre égale au volume CDG (à 0,5 % près).
+// Mesuré le 13/10 à 11h56 : 56 titres, 113 895 434,97 DH des deux côtés.
+// Sinon (lecture de mi-journée relue le soir, archive), ils sont retirés et
+// déclarés dans « Ce que cette lecture ne dit pas ». Jamais de mélange de deux
+// moments sous une seule date.
+//
+// ⚠️ CE QUE LE COMPOSANT CALCULE, ET RIEN D'AUTRE : des comptes, des sommes de
+// montants publiés, et la MÉDIANE des variations des titres d'un secteur —
+// chacune nommée comme telle à l'écran. Aucune note, aucun palier, aucun avis.
+const VARC=x=>x==null||!isFinite(x)?"#8892a4":x>0?"#00e5a0":x<0?"#ff4f5a":"#8892a4";
+const sgp=(x,d=2)=>x==null||!isFinite(x)?"—":`${x>0?"+":""}${nfr(x,d)} %`;
+const mediane=a=>{const s=[...a].sort((x,y)=>x-y),n=s.length;return n?(n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2):null;};
+const entier=x=>x==null||!isFinite(x)?"—":Math.round(x).toLocaleString("fr-FR").replace(/\u202f|\u00a0|,/g," ");
+const jma=iso=>iso?`${iso.slice(8,10)}/${iso.slice(5,7)}/${iso.slice(0,4)}`:"—";
+
+// Les titres du relevé : cours daté de la séance, non suspendu, variation
+// publiée — retenus ensemble seulement si leurs montants recoupent le volume.
+const titresDuReleve=(b,rows)=>{
+  const j=b&&b.veille&&b.veille.jour;
+  if(!b||!b.seance||!j||!j.volume_mad||!rows)return {ok:false,l:[]};
+  const l=rows.filter(r=>{const m=meta(r);return m.asof===b.seance&&!m.susp&&r.chg!=null&&isFinite(r.chg);});
+  const somme=l.reduce((s,r)=>s+(r.echange_dh||0),0);
+  const ecart=Math.abs(somme-j.volume_mad)/j.volume_mad;
+  return {ok:l.length>0&&ecart<=0.005,l,somme,ecart};
+};
+// Le nombre de titres échangés n'est publié que dans `data.json` (bloc masi) :
+// affiché seulement s'il porte la même séance ET le même nombre de transactions.
+const titresEchanges=(b,masi)=>{
+  const j=b&&b.veille&&b.veille.jour;
+  return j&&masi&&masi.titres_echanges!=null&&masi.asof===b.seance&&masi.transactions!=null
+    &&masi.transactions===j.transactions?masi.titres_echanges:null;
+};
+
+// Tranches de variation : bornes à 1 point, l'inchangé à part. Ouvertes vers
+// zéro pour que « 0,00 % » ne tombe jamais dans une tranche de hausse.
+const TRANCHES=[
+  {id:"p4",lab:"+4 % et plus",t:x=>x>=4},
+  {id:"p3",lab:"+3 à +4 %",t:x=>x>=3&&x<4},{id:"p2",lab:"+2 à +3 %",t:x=>x>=2&&x<3},
+  {id:"p1",lab:"+1 à +2 %",t:x=>x>=1&&x<2},{id:"p0",lab:"0 à +1 %",t:x=>x>0&&x<1},
+  {id:"z",lab:"inchangé",t:x=>x===0},
+  {id:"m0",lab:"0 à −1 %",t:x=>x<0&&x>-1},{id:"m1",lab:"−1 à −2 %",t:x=>x<=-1&&x>-2},
+  {id:"m2",lab:"−2 à −3 %",t:x=>x<=-2&&x>-3},{id:"m3",lab:"−3 à −4 %",t:x=>x<=-3&&x>-4},
+  {id:"m4",lab:"−4 % et moins",t:x=>x<=-4}];
+const couleurTranche=id=>id==="z"?"#8892a4":id[0]==="p"?"#00e5a0":"#ff4f5a";
+
+// Teinte d'une tuile : opacité plafonnée à .42 pour que le texte clair garde un
+// contraste ≥ 4,5:1 sur la teinte la plus vive (mesuré : ~5:1).
+const teinteTuile=m=>{if(m==null)return "rgba(136,146,164,.16)";
+  const a=(.12+.30*Math.min(Math.abs(m)/4,1)).toFixed(3);
+  return m>0?`rgba(0,229,160,${a})`:m<0?`rgba(255,79,90,${a})`:"rgba(136,146,164,.20)";};
+
+// Treemap « squarified » (Bruls, Huizing, van Wijk 2000) : rangées gardant les
+// tuiles les plus carrées possible. Entrée triée par valeur décroissante.
+const squarify=(items,X,Y,W,H)=>{
+  const tot=items.reduce((s,i)=>s+i.v,0);if(!tot||W<=0||H<=0)return [];
+  const k=W*H/tot;let rest=items.map(i=>({...i,a:i.v*k})),x=X,y=Y,w=W,h=H;const out=[];
+  const pire=(row,len)=>{const s=row.reduce((t,i)=>t+i.a,0),mx=Math.max(...row.map(i=>i.a)),mn=Math.min(...row.map(i=>i.a));
+    return Math.max(len*len*mx/(s*s),(s*s)/(len*len*mn));};
+  while(rest.length){
+    const len=Math.min(w,h);let row=[rest[0]],i=1;
+    while(i<rest.length&&pire([...row,rest[i]],len)<=pire(row,len)){row.push(rest[i]);i++;}
+    const s=row.reduce((t,r)=>t+r.a,0);
+    if(w>=h){const cw=s/h;let cy=y;row.forEach(r=>{const rh=r.a/cw;out.push({...r,x,y:cy,w:cw,h:rh});cy+=rh;});x+=cw;w-=cw;}
+    else{const rh=s/w;let cx=x;row.forEach(r=>{const cw=r.a/rh;out.push({...r,x:cx,y,w:cw,h:rh});cx+=cw;});y+=rh;h-=rh;}
+    rest=rest.slice(i);
+  }
+  return out;
+};
+const useLargeur=()=>{
+  const ref=useRef(null);const [w,setW]=useState(0);
+  useEffect(()=>{const el=ref.current;if(!el||typeof ResizeObserver==="undefined")return;
+    const ro=new ResizeObserver(([e])=>setW(Math.floor(e.contentRect.width)));ro.observe(el);return()=>ro.disconnect();},[]);
+  return [ref,w];
+};
+
+const Panneau=({titre,source,cls="",droite,children})=>(
+  <section className={`tdb-pan ${cls}`}>
+    <div className="tdb-tete"><h3 className="tdb-titre" style={{margin:0,fontWeight:600}}>{titre}</h3>{droite}</div>
+    {source&&<div className="tdb-src">{source}</div>}
     {children}
+  </section>);
+
+const Kpi=({l,val,cv,sous,src,enfant})=>(
+  <div className="tdb-pan" style={{padding:"10px 12px",display:"flex",flexDirection:"column",gap:2}}>
+    <div style={{fontSize:10,color:"#8892a4",letterSpacing:.8,textTransform:"uppercase"}}>{l}</div>
+    <div className="tdb-num" style={{fontSize:19,fontWeight:700,color:cv||"#e6edf7"}}>{val}</div>
+    {sous&&<div style={{fontSize:11,color:"#c8d3e8",lineHeight:1.4}}>{sous}</div>}
+    {enfant}
+    <div style={{fontSize:9.5,color:"#8892a4",marginTop:"auto",paddingTop:4,lineHeight:1.4,textWrap:"pretty"}}>{src}</div>
   </div>);
-const SeanceDetail=({b})=>{
-  const t=b.trajectoire, v=b.veille, sect=b.secteurs||[], mp=b.matieres||[];
-  const nv=b.niveaux||{}, nt=nv.titres||[], nm=nv.masi, dep=b.depots;
-  const cel={padding:"4px 8px",fontSize:12.5,color:"#c8d3e8",whiteSpace:"nowrap"};
-  const tete={...cel,fontSize:10,color:"#5a6478",textTransform:"uppercase",letterSpacing:.6};
-  const VC2=x=>x>0?"#00e5a0":x<0?"#ff4f5a":"#8892a4";
-  return <>
-    {/* ⚠️ « 1re valeur » et non « ouverture » : le champ CoursOuverture de
-        CDG vaut la veille ; la valeur montrée est le premier point de la
-        série après 09:30 (mesuré le 30/09). Si la série s'arrête avant la
-        clôture, la carte le dit. */}
-    {t&&<Carte titre="Séance du MASI" source={`${t.source} · ${t.n_points} points de la série intrajournalière${t.serie_rejoint_cloture===false?` · série arrêtée à ${t.serie_jusqu_a} ; clôture et extrêmes tirés de la synthèse`:""}`}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(110px,1fr))",gap:10}}>
-        {[["Veille",t.veille,null],["1re valeur calculée",t.ouverture,t.heure_ouverture],
-          ["Plus haut",t.plus_haut,t.heure_plus_haut],["Plus bas",t.plus_bas,t.heure_plus_bas],
-          ["Clôture",t.cloture,null]].map(([l,x,h])=>(
-          <div key={l}>
-            <div style={{fontSize:10,color:"#5a6478"}}>{l}</div>
-            <div style={{fontSize:15,color:"#c8d3e8",fontWeight:600,fontFamily:"monospace"}}>{nfr(x)}</div>
-            <div style={{fontSize:10,color:"#5a6478"}}>{h?`à ${h}`:l==="Plus haut"||l==="Plus bas"?"heure hors de la série":"\u00a0"}</div>
-          </div>))}
-      </div>
-    </Carte>}
 
-    {v&&<Carte titre={`Comparée à la séance du ${jm(v.seance_veille)}`} source={v.source}>
-      <div style={{overflowX:"auto"}}><table style={{borderCollapse:"collapse"}}><thead><tr>
-        {["","Indice","Volume","Hausses","Baisses","Inchangées"].map(x=><th key={x} style={tete}>{x}</th>)}
-      </tr></thead><tbody>
-        {[[jm(v.seance),v.jour],[jm(v.seance_veille),v.veille]].map(([d,e])=>(
-          <tr key={d}><td style={{...cel,color:"#8892a4"}}>{d}</td>
-            <td style={{...cel,color:VC2(e.variation_pct)}}>{e.variation_pct>0?"+":""}{nfr(e.variation_pct)} %</td>
-            <td style={cel}>{e.volume_mad!=null?`${nfr(e.volume_mad/1e6,1)} M DH`:"—"}</td>
-            <td style={cel}>{e.hausses??"—"}</td><td style={cel}>{e.baisses??"—"}</td><td style={cel}>{e.inchanges??"—"}</td></tr>))}
-      </tbody></table></div>
-    </Carte>}
-
-    {sect.length>0&&<Carte titre="Indices sectoriels" source="CDG Capital Bourse — INDICE-SYNTHESE, identité et date vérifiées pour chaque indice">
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))",gap:"2px 18px"}}>
-        {sect.map(x=>(
-          <div key={x.code} style={{display:"flex",justifyContent:"space-between",gap:8,fontSize:12,padding:"2px 0",borderBottom:"1px solid #0a1220"}}>
-            <span style={{color:"#c8d3e8",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}} title={x.libelle}>{x.libelle}</span>
-            <span style={{color:VC2(x.variation_pct),fontFamily:"monospace",whiteSpace:"nowrap",flexShrink:0}}>{x.variation_pct>0?"+":""}{nfr(x.variation_pct)} %</span>
-          </div>))}
-      </div>
-    </Carte>}
-
-    {(nm||nt.length>0)&&<Carte titre={`Niveaux mesurés — ${nv.n_seances||20} dernières séances`}
-        source="Plus hauts et plus bas réellement atteints. Ce ne sont ni des supports ni des objectifs : des faits datés.">
-      {nm&&nm.clotures&&<div style={{fontSize:12,color:"#8892a4",marginBottom:8}}>
-        MASI — séance {nfr(nm.seance_bas)} – {nfr(nm.seance_haut)} ·
-        clôtures du {jm(nm.clotures.du)} au {jm(nm.clotures.au)} : plus basse {nfr(nm.clotures.plus_basse)} ({jm(nm.clotures.date_plus_basse)}),
-        plus haute {nfr(nm.clotures.plus_haute)} ({jm(nm.clotures.date_plus_haute)})
-        {nm.clotures.n_seances&&nm.clotures.n<nm.clotures.n_seances&&<span style={{color:"#ff8f00"}}> · {nm.clotures.n} clôtures de l'indice enregistrées sur {nm.clotures.n_seances} séances</span>}
-      </div>}
-      {nt.length>0&&<div style={{overflowX:"auto"}}><table style={{borderCollapse:"collapse",width:"100%"}}><thead><tr>
-        {["Titre","Échangé","Séance","Plus bas","Plus haut"].map(x=><th key={x} style={{...tete,textAlign:"left"}}>{x}</th>)}
-      </tr></thead><tbody>
-        {nt.map(x=>(
-          <tr key={x.symbol}><td style={{...cel,color:"#4db8ff",fontWeight:600}}>{x.symbol}</td>
-            <td style={cel}>{nfr(x.montant_dh/1e6,1)} M DH</td>
-            <td style={cel}>{x.seance_bas!=null?`${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}`:"—"}</td>
-            <td style={cel}>{x.fenetre?<>{nfr(x.fenetre.plus_bas)} <span style={{color:"#5a6478"}}>{jm(x.fenetre.date_plus_bas)}</span></>:"—"}</td>
-            <td style={cel}>{x.fenetre?<>{nfr(x.fenetre.plus_haut)} <span style={{color:"#5a6478"}}>{jm(x.fenetre.date_plus_haut)}</span></>:"—"}</td></tr>))}
-      </tbody></table></div>}
-    </Carte>}
-
-    {mp.length>0&&<Carte titre="Matières premières" source="TradingView — contrat à terme le plus proche. Heure de la valeur déclarée par la source, en UTC.">
-      {mp.map(x=>(
-        <div key={x.ticker} style={{display:"flex",justifyContent:"space-between",gap:10,fontSize:12.5,padding:"4px 0",borderBottom:"1px solid #0a1220",flexWrap:"wrap"}}>
-          <span style={{color:"#c8d3e8"}}>{x.nom} <span style={{color:"#5a6478",fontSize:10.5}}>{x.ticker}</span></span>
-          <span style={{fontFamily:"monospace",color:"#c8d3e8"}}>{nfr(x.valeur)} {x.devise}
-            {x.variation_pct!=null&&<span style={{color:VC2(x.variation_pct),marginLeft:8}}>{x.variation_pct>0?"+":""}{nfr(x.variation_pct)} %</span>}
+// Les secteurs, en surface = montant échangé. En dessous de 480 px la surface
+// ne laisse plus lire les petits secteurs : la même mesure passe en barres.
+const VueSecteurs=({secteurs,total,filtre,basculer})=>{
+  const [ref,W]=useLargeur();
+  const H=W>=900?340:300;
+  const actif=filtre&&filtre.type==="secteur"?filtre.v:null;
+  const desc=s=>`${s.nom} : ${montantCourt(s.v)}, ${nfr(s.v/total*100,1)} % du montant, médiane ${sgp(s.med)}, ${s.n} titre${s.n>1?"s":""} (${s.h} en hausse, ${s.bs} en baisse)`;
+  const tuiles=W>=480?squarify(secteurs.filter(s=>s.v>0),0,0,W,H):[];
+  return <div ref={ref}>
+    {W>=480?<div style={{position:"relative",height:H}}>
+      {tuiles.map(s=>{const grand=s.w>=96&&s.h>=50,moyen=s.w>=46&&s.h>=22;
+        return <button key={s.nom} data-secteur={s.nom} className="tdb-tuile" aria-pressed={actif===s.nom}
+          aria-label={desc(s)} title={desc(s)} onClick={()=>basculer({type:"secteur",v:s.nom,lab:s.nom})}
+          style={{left:s.x,top:s.y,width:s.w,height:s.h,background:teinteTuile(s.med),padding:moyen?undefined:0,
+            borderLeft:`3px solid ${VARC(s.med)}`,opacity:actif&&actif!==s.nom?.38:1}}>
+          {moyen&&<div style={{fontSize:grand?11.5:10,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.nom}</div>}
+          {grand&&<div className="tdb-num" style={{fontSize:11,marginTop:2}}>{montantCourt(s.v)} · {nfr(s.v/total*100,0)} %</div>}
+          {grand&&<div className="tdb-num" style={{fontSize:11,color:"#e6edf7"}}>méd. {sgp(s.med)} · {s.n} t.</div>}
+        </button>;})}
+    </div>
+    :<div style={{display:"flex",flexDirection:"column",gap:2}}>
+      {secteurs.map(s=>(
+        <button key={s.nom} data-secteur={s.nom} className="tdb-ligne" aria-pressed={actif===s.nom}
+          aria-label={desc(s)} onClick={()=>basculer({type:"secteur",v:s.nom,lab:s.nom})}
+          style={{gridTemplateColumns:"minmax(0,1fr) auto",opacity:actif&&actif!==s.nom?.45:1}}>
+          <span style={{minWidth:0}}>
+            <span style={{display:"flex",justifyContent:"space-between",gap:6,fontSize:12}}>
+              <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.nom} <span style={{color:"#8892a4",fontSize:10.5}}>{s.n} t.</span></span>
+              <span className="tdb-num" style={{color:"#c8d3e8"}}>{montantCourt(s.v)}</span></span>
+            <span style={{display:"block",height:5,background:"#0a1220",borderRadius:3,marginTop:3}}>
+              <span style={{display:"block",height:"100%",width:`${Math.max(s.v/secteurs[0].v*100,1.5)}%`,background:"#4db8ff",borderRadius:3}}/></span>
           </span>
-          <span style={{flexBasis:"100%",textAlign:"right"}}><SourceCotation l={x}/></span>
-        </div>))}
-    </Carte>}
+          <span className="tdb-num" style={{fontSize:11.5,color:VARC(s.med),minWidth:62,textAlign:"right"}}>{sgp(s.med)}</span>
+        </button>))}
+    </div>}
+    <div style={{fontSize:10.5,color:"#8892a4",marginTop:8,lineHeight:1.5}}>
+      {W>=480?"Surface : montant échangé. Couleur : médiane des variations des titres du secteur (vert hausse, rouge baisse, intensité jusqu'à ±4 %).":"Barre : montant échangé. Chiffre de droite : médiane des variations des titres du secteur."}
+    </div>
+  </div>;
+};
 
-    {dep&&(dep.titres||[]).length>0&&<Carte titre={`Dépôts de résultats à l'AMMC — ${jm(dep.seance)}`}
-        source="Liste des communiqués des émetteurs (AMMC). La liste ne donne pas l'heure : publié ce jour-là, pas forcément avant la clôture.">
-      {dep.titres.map((x,i)=>(
-        <a key={i} href={x.url} target="_blank" rel="noopener noreferrer"
-          style={{display:"block",padding:"6px 0 6px 10px",borderLeft:"2px solid #00e5a0",marginBottom:4,textDecoration:"none"}}>
-          <span style={{color:"#4db8ff",fontWeight:600,fontSize:12,marginRight:8}}>{x.ticker}</span>
-          <span style={{color:"#c8d3e8",fontSize:12.5}}>{x.titre}</span>
-        </a>))}
-      {(dep.autres_emetteurs||[]).length>0&&<div style={{fontSize:10.5,color:"#5a6478",marginTop:6}}>
-        Autres émetteurs le même jour, sans action cotée rattachée : {dep.autres_emetteurs.map(x=>x.emetteur).join(", ")}.</div>}
-    </Carte>}
-  </>;
+// Repères de la séance du MASI sur une échelle. Ce n'est PAS la courbe : le
+// briefing ne publie que les repères, pas la série point par point.
+const FourchetteMasi=({t})=>{
+  const pts=[t.veille,t.ouverture,t.plus_haut,t.plus_bas,t.cloture].filter(x=>x!=null&&isFinite(x));
+  if(pts.length<2)return null;
+  const lo=Math.min(...pts),hi=Math.max(...pts),m=(hi-lo)*.08||1,a=lo-m,z=hi+m;
+  const p=x=>`${((x-a)/(z-a)*100).toFixed(2)}%`;
+  const cc=VARC(t.cloture!=null&&t.veille!=null?t.cloture-t.veille:null);
+  const reperes=[["Veille",t.veille,null,"tiret"],["1re valeur calculée",t.ouverture,t.heure_ouverture,"rond"],
+    ["Plus haut",t.plus_haut,t.heure_plus_haut,null],["Plus bas",t.plus_bas,t.heure_plus_bas,null],["Clôture",t.cloture,null,"losange"]];
+  const Marque=({k,c})=>k==="tiret"?<span style={{display:"inline-block",width:0,height:12,borderLeft:"2px dashed #c8d3e8"}}/>
+    :k==="rond"?<span style={{display:"inline-block",width:9,height:9,borderRadius:"50%",border:"2px solid #4db8ff",background:"#0d1829"}}/>
+    :k==="losange"?<span style={{display:"inline-block",width:9,height:9,background:c,transform:"rotate(45deg)"}}/>:null;
+  return <div>
+    <div role="img" aria-label={`MASI : plus bas ${nfr(t.plus_bas)}, plus haut ${nfr(t.plus_haut)}, veille ${nfr(t.veille)}, clôture ${nfr(t.cloture)}`}
+      style={{position:"relative",height:34,margin:"6px 6px 4px"}}>
+      <div style={{position:"absolute",left:0,right:0,top:16,height:2,background:"#1a2540"}}/>
+      {t.plus_bas!=null&&t.plus_haut!=null&&<div style={{position:"absolute",left:p(t.plus_bas),width:`calc(${p(t.plus_haut)} - ${p(t.plus_bas)})`,top:11,height:12,background:`${cc}33`,border:`1px solid ${cc}88`,borderRadius:3}}/>}
+      {t.veille!=null&&<div style={{position:"absolute",left:p(t.veille),top:3,height:28,borderLeft:"2px dashed #c8d3e8"}}/>}
+      {t.ouverture!=null&&<div style={{position:"absolute",left:p(t.ouverture),top:12,width:10,height:10,marginLeft:-5,borderRadius:"50%",border:"2px solid #4db8ff",background:"#0d1829"}}/>}
+      {t.cloture!=null&&<div style={{position:"absolute",left:p(t.cloture),top:12,width:10,height:10,marginLeft:-5,background:cc,transform:"rotate(45deg)"}}/>}
+    </div>
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(118px,1fr))",gap:"8px 12px",marginTop:8}}>
+      {reperes.map(([l,x,h,k])=>(
+        <div key={l}>
+          <div style={{fontSize:10,color:"#8892a4",display:"flex",alignItems:"center",gap:6}}><Marque k={k} c={cc}/>{l}</div>
+          <div className="tdb-num" style={{fontSize:14,color:"#e6edf7",fontWeight:600}}>{nfr(x)}</div>
+          <div style={{fontSize:10,color:"#8892a4"}}>{h?`à ${h}`:l==="Plus haut"||l==="Plus bas"?"heure hors de la série":"\u00a0"}</div>
+        </div>))}
+    </div>
+  </div>;
+};
+
+// ⚠️ LES ABSENCES — un visuel qui n'a pas de donnée ne s'affiche pas, et il
+// est DIT ici. Lu par le bloc « Ce que cette lecture ne dit pas ».
+const absencesTableau=(b,rows,masi)=>{
+  if(!b)return [];
+  const a=["la capitalisation boursière globale du marché — aucune de nos sources ne la publie pour la séance"];
+  const t=b.trajectoire;
+  if(!t)a.push("la trajectoire du MASI — non relevée pour cette séance");
+  else a.push(`la courbe intrajournalière du MASI — le briefing n'en publie que les repères (${t.n_points??"?"} points relevés), pas la série`);
+  if(!(b.veille&&b.veille.jour))a.push("les chiffres du marché entier (volume, largeur, transactions) — synthèse CDG absente de cette lecture");
+  else if(titresEchanges(b,masi)==null)a.push("le nombre de titres échangés — publié seulement avec le relevé courant de data.json, qui n'est pas celui de cette lecture");
+  if(!titresDuReleve(b,rows).ok)a.push("les secteurs, la répartition des variations et les plus fortes hausses, baisses et montants par titre — les cours par titre publiés (data.json) ne sont pas ceux de ce relevé");
+  if(!(b.secteurs||[]).length)a.push("les indices sectoriels CDG — non servis pour cette séance");
+  if(!(b.matieres||[]).length)a.push("les matières premières — non relevées");
+  if(!(b.depots&&(b.depots.titres||[]).length))a.push("des dépôts de résultats à l'AMMC rattachés à une action cotée — aucun relevé ce jour-là");
+  return a;
+};
+
+const SeanceDetail=({b,rows,masi,ouvrir})=>{
+  const t=b.trajectoire, v=b.veille, j=v&&v.jour, vv=v&&v.veille, sect=b.secteurs||[], mp=b.matieres||[];
+  const nv=b.niveaux||{}, nt=nv.titres||[], nm=nv.masi, dep=b.depots;
+  const [filtre,setFiltre]=useState(null);
+  const basculer=f=>setFiltre(x=>x&&x.type===f.type&&x.v===f.v?null:f);
+  useEffect(()=>{if(!filtre)return;
+    const k=e=>{if(e.key==="Escape")setFiltre(null);};
+    window.addEventListener("keydown",k);return()=>window.removeEventListener("keydown",k);},[filtre]);
+  const rel=useMemo(()=>titresDuReleve(b,rows),[b,rows]);
+  const tous=rel.ok?rel.l:[];
+  const tranche=filtre&&filtre.type==="tranche"?TRANCHES.find(x=>x.id===filtre.v):null;
+  const choisis=tous.filter(r=>!filtre||(filtre.type==="secteur"?r.sector===filtre.v:tranche.t(r.chg)));
+  const secteurs=useMemo(()=>{
+    const g={};tous.forEach(r=>{const k=r.sector||"Non classé";(g[k]=g[k]||[]).push(r);});
+    return Object.entries(g).map(([nom,l])=>({nom,n:l.length,v:l.reduce((s,r)=>s+(r.echange_dh||0),0),
+      med:mediane(l.map(r=>r.chg)),h:l.filter(r=>r.chg>0).length,bs:l.filter(r=>r.chg<0).length}))
+      .sort((x,y)=>y.v-x.v);},[tous]);
+  // Sous un filtre de tranche, les secteurs se recalculent sur les titres de la
+  // tranche (filtrage) ; sous un filtre de secteur, ils restent entiers et le
+  // secteur choisi est mis en évidence (sélection).
+  const secteursVus=useMemo(()=>{
+    if(!tranche)return secteurs;
+    const g={};choisis.forEach(r=>{const k=r.sector||"Non classé";(g[k]=g[k]||[]).push(r);});
+    return Object.entries(g).map(([nom,l])=>({nom,n:l.length,v:l.reduce((s,r)=>s+(r.echange_dh||0),0),
+      med:mediane(l.map(r=>r.chg)),h:l.filter(r=>r.chg>0).length,bs:l.filter(r=>r.chg<0).length})).sort((x,y)=>y.v-x.v);
+  },[tranche,choisis,secteurs]);
+  const totalVu=secteursVus.reduce((s,x)=>s+x.v,0)||1;
+  const sourceReleve=rel.ok?`data.json — ${tous.length} titres cotés le ${jm(b.seance)} ; somme de leurs montants ${montantCourt(rel.somme)}, égale au volume CDG (écart ${nfr(rel.ecart*100,2)} %)`:null;
+  // La lecture peut être écrite le lendemain (clôture du 12/10 écrite le 13 à
+  // 00:28) : la date d'écriture est donc complète, jamais l'heure seule.
+  const ecrite=b.ecrit_a?`écrite le ${jm(b.ecrit_a.slice(0,10))} à ${b.ecrit_a.slice(11)}`:null;
+  const dateLecture=`${jma(b.seance)}${ecrite?` · ${ecrite}`:""}`;
+  const srcCdg=`CDG synthèse · séance du ${jm(b.seance)}`;
+  const te=titresEchanges(b,masi);
+  const larg=j&&(j.hausses!=null||j.baisses!=null)?j:null;
+  const nLarg=larg?(larg.hausses||0)+(larg.baisses||0)+(larg.inchanges||0):0;
+  const top=(f,k)=>[...choisis].filter(f).sort(k).slice(0,5);
+  const TOPS=[["Plus fortes hausses",top(r=>r.chg>0,(x,y)=>y.chg-x.chg)],
+              ["Plus fortes baisses",top(r=>r.chg<0,(x,y)=>x.chg-y.chg)],
+              ["Plus gros montants",top(r=>(r.echange_dh||0)>0,(x,y)=>y.echange_dh-x.echange_dh)]];
+  const histo=TRANCHES.map(x=>({...x,n:tous.filter(r=>x.t(r.chg)).length,
+    nf:filtre&&filtre.type==="secteur"?tous.filter(r=>r.sector===filtre.v&&x.t(r.chg)).length:null}));
+  const hMax=Math.max(1,...histo.map(x=>x.n));
+  const ntVus=filtre&&rel.ok?nt.filter(x=>choisis.some(r=>r.symbol===x.symbol)):nt;
+  const sMax=Math.max(.01,...sect.map(x=>Math.abs(x.variation_pct||0)));
+  const sectNuls=sect.length>0&&sect.every(x=>!x.variation_pct);
+  const cel={padding:"5px 8px 5px 0",fontSize:12,color:"#c8d3e8",whiteSpace:"nowrap"};
+  const tete={...cel,fontSize:10,color:"#8892a4",textTransform:"uppercase",letterSpacing:.6,fontWeight:400,textAlign:"left"};
+  const ligneTitre=(r,mesure)=>(
+    <button key={r.symbol} className="tdb-ligne" onClick={()=>ouvrir&&ouvrir(r.symbol)}
+      title={`${r.name||r.symbol} — ouvrir la fiche`} style={{gridTemplateColumns:"minmax(0,1fr) auto"}}>
+      <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontSize:12}}>
+        <b style={{color:"#4db8ff"}}>{r.symbol}</b> <span style={{color:"#8892a4",fontSize:10.5}}>{r.name}</span>
+        {meta(r).reprise_recente&&<span title="Reprise de cotation récente : la référence a été fixée par l'autorité de marché, cette variation ne se compare pas aux autres." style={{color:"#ffd740",marginLeft:5,fontSize:10}}>⚠ reprise</span>}
+      </span>
+      <span className="tdb-num" style={{fontSize:12,textAlign:"right"}}>
+        {mesure==="montant"?<>{montantCourt(r.echange_dh)} <span style={{color:VARC(r.chg),fontSize:11}}>{sgp(r.chg)}</span></>
+          :<><span style={{color:VARC(r.chg)}}>{sgp(r.chg)}</span> <span style={{color:"#8892a4",fontSize:10.5}}>{r.echange_dh!=null?montantCourt(r.echange_dh):"—"}</span></>}
+      </span>
+    </button>);
+
+  return <div data-zone="detail-seance" style={{display:"flex",flexDirection:"column",gap:12}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+      <div>
+        <div style={{fontSize:12,color:"#e6edf7",letterSpacing:1,textTransform:"uppercase",fontWeight:600}}>Tableau de bord de la séance du {jma(b.seance)}</div>
+        <div style={{fontSize:10.5,color:"#8892a4"}}>Chaque visuel porte sa source et sa date. Les cartes décrivent le marché entier, jamais filtrées.</div>
+      </div>
+      {filtre?<button className="tdb-puce" onClick={()=>setFiltre(null)} aria-label={`Retirer le filtre ${filtre.lab}`}>
+          filtre actif : <b>{filtre.lab}</b> <span aria-hidden="true">✕</span></button>
+        :rel.ok&&<span style={{fontSize:10.5,color:"#8892a4"}}>Un secteur ou une tranche filtre les visuels par titre.</span>}
+    </div>
+    {filtre&&<button className="tdb-puce tdb-puce-flottante" onClick={()=>setFiltre(null)} aria-label={`Retirer le filtre ${filtre.lab}`}>
+      <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>filtre : <b>{filtre.lab}</b></span> <span aria-hidden="true">✕</span></button>}
+
+    {j&&<div className="tdb-kpi">
+      <Kpi l="MASI" val={nfr(j.cours)} cv="#e6edf7" src={srcCdg}
+        sous={<><span style={{color:VARC(j.variation_pct),fontWeight:600}}>{sgp(j.variation_pct)}</span>
+          {vv&&vv.cours!=null&&<span style={{color:"#8892a4"}}> · veille {nfr(vv.cours)}</span>}</>}/>
+      <Kpi l="Volume global" val={j.volume_mad!=null?`${nfr(j.volume_mad/1e6,1)} M DH`:"—"} src={srcCdg}
+        sous={v.ecart_volume_pct!=null?<><span style={{color:"#c8d3e8"}}>{sgp(v.ecart_volume_pct,1)}</span><span style={{color:"#8892a4"}}> vs {jm(v.seance_veille)}{vv&&vv.volume_mad!=null?` (${nfr(vv.volume_mad/1e6,1)} M)`:""}</span></>:null}/>
+      {te!=null&&<Kpi l="Titres échangés" val={entier(te)} src={`data.json · séance du ${jm(b.seance)}, même relevé (${entier(j.transactions)} transactions)`}
+        sous={<span style={{color:"#8892a4"}}>nombre d'actions, toutes valeurs</span>}/>}
+      {j.transactions!=null&&<Kpi l="Transactions" val={entier(j.transactions)} src={srcCdg}
+        sous={vv&&vv.transactions!=null?<span style={{color:"#8892a4"}}>{entier(vv.transactions)} le {jm(v.seance_veille)}</span>:null}/>}
+      {larg&&<Kpi l="Largeur" src={srcCdg}
+        val={<><span style={{color:"#00e5a0"}}>{larg.hausses??"—"}</span><span style={{color:"#8892a4",fontSize:14}}> / </span><span style={{color:"#ff4f5a"}}>{larg.baisses??"—"}</span><span style={{color:"#8892a4",fontSize:14}}> / {larg.inchanges??"—"}</span></>}
+        sous={<span style={{color:"#8892a4"}}>hausses / baisses / inchangées{larg.valeurs_traitees?` sur ${larg.valeurs_traitees}`:""}</span>}
+        enfant={nLarg>0&&<div aria-hidden="true" style={{display:"flex",height:5,borderRadius:3,overflow:"hidden",marginTop:3,background:"#0a1220"}}>
+          <span style={{width:`${(larg.hausses||0)/nLarg*100}%`,background:"#00e5a0"}}/>
+          <span style={{width:`${(larg.inchanges||0)/nLarg*100}%`,background:"#5a6478"}}/>
+          <span style={{width:`${(larg.baisses||0)/nLarg*100}%`,background:"#ff4f5a"}}/></div>}/>}
+      {b.ytd_pct!=null&&<Kpi l="Depuis janvier" val={sgp(b.ytd_pct)} cv={VARC(b.ytd_pct)} src={`Briefing · séance du ${jm(b.seance)}`}
+        sous={<span style={{color:"#8892a4"}}>variation de l'indice</span>}/>}
+    </div>}
+
+    <div className="tdb">
+      {rel.ok&&secteurs.length>0&&<Panneau cls="c8" titre={tranche?`Secteurs — titres « ${tranche.lab} »`:"Secteurs — montants échangés"}
+          source={`${sourceReleve}. Secteurs du référentiel des titres.`}>
+        {secteursVus.length?<VueSecteurs secteurs={secteursVus} total={totalVu} filtre={filtre} basculer={basculer}/>
+          :<div style={{fontSize:12,color:"#8892a4"}}>Aucun titre dans cette tranche.</div>}
+      </Panneau>}
+
+      {/* ⚠️ « 1re valeur » et non « ouverture » : le champ CoursOuverture de
+          CDG vaut la veille ; la valeur montrée est le premier point de la
+          série après 09:30 (mesuré le 30/09). Si la série s'arrête avant la
+          clôture, le panneau le dit. */}
+      {t&&<Panneau cls="c4" titre="Séance du MASI — repères"
+          source={`${t.source} · ${jma(t.seance||b.seance)} · ${t.n_points} points de la série intrajournalière${t.serie_rejoint_cloture===false?` · série arrêtée à ${t.serie_jusqu_a} ; clôture et extrêmes tirés de la synthèse`:""}. Repères seulement, pas la courbe.`}>
+        <FourchetteMasi t={t}/>
+      </Panneau>}
+
+      {rel.ok&&<Panneau cls="c6" titre={`Titres de la séance${filtre?` — ${filtre.lab}`:""}`} source={`${sourceReleve}. Toucher un titre ouvre sa fiche.`}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(210px,100%),1fr))",gap:"10px 14px"}}>
+          {TOPS.map(([l,liste],i)=>(
+            <div key={l} style={{minWidth:0}}>
+              <div style={{fontSize:10,color:"#8892a4",letterSpacing:.6,textTransform:"uppercase",margin:"0 0 3px 6px"}}>{l}</div>
+              {liste.length?liste.map(r=>ligneTitre(r,i===2?"montant":"variation"))
+                :<div style={{fontSize:11.5,color:"#8892a4",padding:"4px 6px"}}>aucun titre</div>}
+            </div>))}
+        </div>
+      </Panneau>}
+
+      {rel.ok&&<Panneau cls="c6" titre="Répartition des variations" source={`${sourceReleve}. Une barre = nombre de titres dans la tranche.`}>
+        <div style={{display:"flex",flexDirection:"column",gap:1}}>
+          {histo.map(x=>{const on=filtre&&filtre.type==="tranche"&&filtre.v===x.id, c=couleurTranche(x.id);
+            return <button key={x.id} className="tdb-ligne" aria-pressed={!!on} disabled={!x.n}
+              aria-label={`${x.lab} : ${x.n} titre${x.n>1?"s":""}${x.nf!=null?`, dont ${x.nf} du secteur ${filtre.v}`:""}`}
+              onClick={()=>basculer({type:"tranche",v:x.id,lab:`variation ${x.lab}`})}
+              style={{gridTemplateColumns:"92px minmax(0,1fr) 54px",minHeight:26,cursor:x.n?"pointer":"default",
+                opacity:filtre&&filtre.type==="tranche"&&!on?.45:1}}>
+              <span style={{fontSize:11,color:"#c8d3e8",whiteSpace:"nowrap"}}>{x.lab}</span>
+              <span style={{position:"relative",height:12,background:"#0a1220",borderRadius:2}}>
+                <span style={{position:"absolute",left:0,top:0,bottom:0,width:`${x.n/hMax*100}%`,background:c,opacity:x.nf!=null?.25:.85,borderRadius:2}}/>
+                {x.nf!=null&&<span style={{position:"absolute",left:0,top:0,bottom:0,width:`${x.nf/hMax*100}%`,background:c,borderRadius:2}}/>}
+              </span>
+              <span className="tdb-num" style={{fontSize:11.5,textAlign:"right",color:x.n?"#e6edf7":"#5a6478"}}>
+                {x.nf!=null?<>{x.nf}<span style={{color:"#8892a4"}}>/{x.n}</span></>:x.n}</span>
+            </button>;})}
+        </div>
+        {filtre&&filtre.type==="secteur"&&<div style={{fontSize:10.5,color:"#8892a4",marginTop:6}}>Barre pleine : titres « {filtre.v} » ; barre pâle : tous les titres.</div>}
+      </Panneau>}
+
+      {/* Sans les visuels par titre, le panneau prend la place laissée à côté
+          des repères du MASI (8 colonnes sur 12) plutôt que de laisser un trou. */}
+      {sect.length>0&&<Panneau cls={rel.ok?"c6":"c8"} titre="Indices sectoriels CDG"
+          source={`CDG Capital Bourse — INDICE-SYNTHESE, identité et date vérifiées pour chaque indice · ${dateLecture}. Classification CDG (${sect.length} indices), distincte de celle des titres : non reliée au filtre.`}>
+        {/* ⚠️ Tous à 0,00 % : 23 barres vides ne montreraient rien. Le fait
+            est dit, la liste reste accessible repliée. */}
+        {sectNuls&&<div style={{fontSize:11.5,color:"#ffd740",marginBottom:6}}>Les {sect.length} indices sont publiés à 0,00 % pour ce relevé (cours égal à la veille dans la source).</div>}
+        {sectNuls?<details><summary style={{fontSize:11,color:"#4db8ff",cursor:"pointer",padding:"4px 0"}}>Voir les {sect.length} indices</summary>
+          <div style={{fontSize:11,color:"#c8d3e8",lineHeight:1.7,marginTop:4}}>{sect.map(x=>x.libelle).join(" · ")}</div></details>
+        :<div style={{display:"flex",flexDirection:"column"}}>
+          {[...sect].sort((x,y)=>(y.variation_pct||0)-(x.variation_pct||0)).map(x=>{const vp=x.variation_pct||0,w=Math.abs(vp)/sMax*50;
+            return <div key={x.code} style={{display:"grid",gridTemplateColumns:"minmax(0,1.3fr) minmax(70px,1fr) 64px",gap:8,alignItems:"center",padding:"2px 0",borderBottom:"1px solid #0a1220"}}>
+              <span title={x.libelle} style={{fontSize:11,color:"#c8d3e8",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{x.libelle}</span>
+              <span aria-hidden="true" style={{position:"relative",height:10}}>
+                <span style={{position:"absolute",left:"50%",top:-2,bottom:-2,borderLeft:"1px solid #2a3550"}}/>
+                <span style={{position:"absolute",top:1,bottom:1,background:VARC(vp),opacity:.85,borderRadius:2,
+                  left:vp<0?`${50-w}%`:"50%",width:`${w}%`}}/>
+              </span>
+              <span className="tdb-num" style={{fontSize:11.5,color:VARC(x.variation_pct),textAlign:"right"}}>{sgp(x.variation_pct)}</span>
+            </div>;})}
+        </div>}
+      </Panneau>}
+
+      {(nm||nt.length>0)&&<Panneau cls="c6" titre={`Niveaux mesurés — ${nv.n_seances||20} dernières séances${filtre&&rel.ok?` — ${filtre.lab}`:""}`}
+          source="Plus hauts et plus bas réellement atteints. Ce ne sont ni des supports ni des objectifs : des faits datés.">
+        {nm&&nm.clotures&&<div style={{fontSize:12,color:"#c8d3e8",marginBottom:8,lineHeight:1.6}}>
+          MASI — séance {nfr(nm.seance_bas)} – {nfr(nm.seance_haut)} ·
+          clôtures du {jm(nm.clotures.du)} au {jm(nm.clotures.au)} : plus basse {nfr(nm.clotures.plus_basse)} ({jm(nm.clotures.date_plus_basse)}),
+          plus haute {nfr(nm.clotures.plus_haute)} ({jm(nm.clotures.date_plus_haute)})
+          {nm.clotures.n_seances&&nm.clotures.n<nm.clotures.n_seances&&<span style={{color:"#ff8f00"}}> · {nm.clotures.n} clôtures de l'indice enregistrées sur {nm.clotures.n_seances} séances</span>}
+        </div>}
+        {/* Téléphone et tablette : cinq colonnes ne tiennent pas en moins de
+            400 px (la dernière sortait du cadre) ; chaque titre passe sur deux
+            lignes. */}
+        {ntVus.length>0&&<div className="tdb-etroit" style={{display:"flex",flexDirection:"column"}}>
+          {ntVus.map(x=>(
+            <div key={x.symbol} style={{padding:"6px 0",borderTop:"1px solid #0a1220",fontSize:12,color:"#c8d3e8",lineHeight:1.55}}>
+              <div style={{display:"flex",justifyContent:"space-between",gap:8}}>
+                <span><b style={{color:"#4db8ff"}}>{x.symbol}</b> <span className="tdb-num">{nfr(x.montant_dh/1e6,1)} M DH</span></span>
+                <span className="tdb-num" title="Fourchette de la séance">{x.seance_bas!=null?`${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}`:"—"}</span></div>
+              {x.fenetre&&<div className="tdb-num" style={{fontSize:11,color:"#8892a4",whiteSpace:"normal"}}>
+                {nv.n_seances||20} séances : bas <span style={{color:"#c8d3e8"}}>{nfr(x.fenetre.plus_bas)}</span> ({jm(x.fenetre.date_plus_bas)}) · haut <span style={{color:"#c8d3e8"}}>{nfr(x.fenetre.plus_haut)}</span> ({jm(x.fenetre.date_plus_haut)})</div>}
+            </div>))}
+        </div>}
+        {ntVus.length>0?<div className="tdb-large" style={{overflowX:"auto"}}><table style={{borderCollapse:"collapse",width:"100%"}}><thead><tr>
+          {["Titre","Échangé","Séance","Plus bas","Plus haut"].map(x=><th key={x} style={tete}>{x}</th>)}
+        </tr></thead><tbody>
+          {ntVus.map(x=>(
+            <tr key={x.symbol} style={{borderTop:"1px solid #0a1220"}}><td style={{...cel,color:"#4db8ff",fontWeight:600}}>{x.symbol}</td>
+              <td style={cel} className="tdb-num">{nfr(x.montant_dh/1e6,1)} M DH</td>
+              <td style={cel} className="tdb-num">{x.seance_bas!=null?`${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}`:"—"}</td>
+              <td style={cel} className="tdb-num">{x.fenetre?<>{nfr(x.fenetre.plus_bas)} <span style={{color:"#8892a4"}}>{jm(x.fenetre.date_plus_bas)}</span></>:"—"}</td>
+              <td style={cel} className="tdb-num">{x.fenetre?<>{nfr(x.fenetre.plus_haut)} <span style={{color:"#8892a4"}}>{jm(x.fenetre.date_plus_haut)}</span></>:"—"}</td></tr>))}
+        </tbody></table></div>
+        :nt.length>0&&<div style={{fontSize:11.5,color:"#8892a4"}}>Aucun des {nt.length} titres les plus échangés ne relève du filtre.</div>}
+      </Panneau>}
+
+      {mp.length>0&&<Panneau cls="c6" titre="Matières premières" source="TradingView — contrat à terme le plus proche. Heure de la valeur déclarée par la source, en UTC.">
+        {mp.map(x=>(
+          <div key={x.ticker} style={{display:"flex",justifyContent:"space-between",gap:10,fontSize:12.5,padding:"4px 0",borderBottom:"1px solid #0a1220",flexWrap:"wrap"}}>
+            <span style={{color:"#c8d3e8"}}>{x.nom} <span style={{color:"#8892a4",fontSize:10.5}}>{x.ticker}</span></span>
+            <span className="tdb-num" style={{color:"#c8d3e8"}}>{nfr(x.valeur)} {x.devise}
+              {x.variation_pct!=null&&<span style={{color:VARC(x.variation_pct),marginLeft:8}}>{sgp(x.variation_pct)}</span>}
+            </span>
+            <span style={{flexBasis:"100%",textAlign:"right"}}><SourceCotation l={x}/></span>
+          </div>))}
+      </Panneau>}
+
+      {dep&&(dep.titres||[]).length>0&&<Panneau cls="c6" titre={`Dépôts de résultats à l'AMMC — ${jm(dep.seance)}`}
+          source="Liste des communiqués des émetteurs (AMMC). La liste ne donne pas l'heure : publié ce jour-là, pas forcément avant la clôture.">
+        {dep.titres.map((x,i)=>(
+          <a key={i} href={x.url} target="_blank" rel="noopener noreferrer"
+            style={{display:"block",padding:"6px 0 6px 10px",borderLeft:"2px solid #4db8ff",marginBottom:4,textDecoration:"none"}}>
+            <span style={{color:"#4db8ff",fontWeight:600,fontSize:12,marginRight:8}}>{x.ticker}</span>
+            <span style={{color:"#c8d3e8",fontSize:12.5}}>{x.titre}</span>
+          </a>))}
+        {(dep.autres_emetteurs||[]).length>0&&<div style={{fontSize:10.5,color:"#8892a4",marginTop:6}}>
+          Autres émetteurs le même jour, sans action cotée rattachée : {dep.autres_emetteurs.map(x=>x.emetteur).join(", ")}.</div>}
+      </Panneau>}
+    </div>
+  </div>;
 };
 
 // ⚠️ « À SURVEILLER AUJOURD'HUI » — 30/09/2026. En tête du briefing, une
@@ -2762,7 +3122,7 @@ const ASurveiller=({a})=>{
     </div>);
 };
 
-const Briefing=()=>{
+const Briefing=({rows,masi,ouvrir})=>{
   const [b,setB]=useState(null);
   const [h,setH]=useState(null);
   // ⚠️ Mi-journée et clôture — ajoutés le 29/09/2026. Deux fichiers de plus,
@@ -2830,6 +3190,7 @@ const Briefing=()=>{
     {id:"cloture",label:"CLÔTURE",dispo:!!clV,pourquoi:passe?"Aucune lecture de clôture archivée pour cette séance.":"Écrite par le passage de 15h45 — pas encore publiée."},
     {id:"semaine",label:"LA SEMAINE",dispo:!passe&&!!h,pourquoi:passe?"Bilan de la semaine en cours seulement.":"Le bilan de semaine n'a pas été publié par le dernier run."}];
   const LIB_MOMENT={mi_journee:"Lecture de mi-journée",cloture:"Lecture de clôture",en_seance:"Lecture en séance"};
+  const nonDit=[...(src.non_mesurable||[]),...(semaine?[]:absencesTableau(src,rows,masi))];
   const blocConstats=<div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
         <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>
           {semaine?"Bilan de la semaine":`Tous les constats mesurés — ${(LIB_MOMENT[src.moment]||"lecture de la séance").toLowerCase()}`}</div>
@@ -2841,11 +3202,13 @@ const Briefing=()=>{
           {(src.constats||[]).map((c,i)=><li key={i} style={{marginBottom:6}}>{c}</li>)}
           {(src.constats||[]).length===0&&<li style={{color:"#8892a4"}}>Rien de mesurable à signaler.</li>}
         </ul>
-        {(src.non_mesurable||[]).length>0&&
+        {/* ⚠️ Les absences du tableau de bord s'ajoutent à celles du
+            moteur (13/10/2026) : un visuel retiré faute de donnée est DIT. */}
+        {nonDit.length>0&&
           <div style={{marginTop:12,paddingTop:10,borderTop:"1px solid #1a2540"}}>
-            <div style={{fontSize:11,color:"#8892a4",marginBottom:4}}>Ce que cette lecture ne dit pas :</div>
-            <ul style={{margin:0,paddingLeft:18,fontSize:11.5,color:"#5a6478",lineHeight:1.6}}>
-              {(src.non_mesurable||[]).map((x,i)=><li key={i}>{x}.</li>)}
+            <div style={{fontSize:11,color:"#c8d3e8",marginBottom:4}}>Ce que cette lecture ne dit pas :</div>
+            <ul style={{margin:0,paddingLeft:18,fontSize:11.5,color:"#8892a4",lineHeight:1.6}}>
+              {nonDit.map((x,i)=><li key={i}>{x}.</li>)}
             </ul>
           </div>}
       </div>;
@@ -2894,8 +3257,9 @@ const Briefing=()=>{
         style={{alignSelf:"flex-start",background:"#0a1220",border:"1px solid #1a2540",color:"#8892a4",
           borderRadius:5,padding:"5px 14px",fontSize:11,letterSpacing:.8,cursor:"pointer"}}>
         {detail?"MASQUER LE DÉTAIL DE LA SÉANCE ▴":"DÉTAIL DE LA SÉANCE ▾"}</button>}
+      {/* Tableau de bord d'abord, constats et absences ensuite (13/10/2026). */}
+      {!semaine&&detail&&<SeanceDetail key={`${src.seance}-${src.moment}`} b={src} rows={rows} masi={masi} ouvrir={ouvrir}/>}
       {!semaine&&detail&&blocConstats}
-      {!semaine&&detail&&<SeanceDetail b={src}/>}
 
       {/* ⚠️ Le palmarès n'existe que sur la semaine : sur une séance, il
           doublonnerait les plus fortes hausses déjà présentes ailleurs. */}
@@ -4664,7 +5028,7 @@ function App(){
         {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={choisirTitre} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="weights"  &&<Weights/>}
         {tab==="guide"    &&<Guide setTab={changeTab}/>}
-        {tab==="briefing" &&<Briefing/>}
+        {tab==="briefing" &&<Briefing rows={rows} masi={masi} ouvrir={sym=>{choisirTitre(sym);changeTab("detail");}}/>}
         {tab==="monde" &&<MarchesMondiaux/>}
         {tab==="smart"    &&<Smart/>}
         {tab==="nlp"      &&<NlpDash/>}
