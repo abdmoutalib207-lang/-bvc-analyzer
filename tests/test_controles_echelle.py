@@ -149,10 +149,14 @@ def test_positif_une_chute_reelle_ne_fait_jamais_echouer(t, nom, _, pct):
     échouer le test ; elle ne produit aucune rupture, donc aucun défaut."""
     bougies = E.charger_bougies(t)
     assert _verifier_sain(t, bougies) is not None
-    chute = E.prolonger(bougies, round(bougies[-1]["c"] * pct, 2))
+    # ⚠️ 13/10/2026 : la cible est arrondie au centime, la borne doit l'être
+    # aussi. STK clôturant à 48,99 donnait 22,05 contre 22,0477 attendus —
+    # un écart d'arrondi, pas un défaut, qui bloquait la garde de publication.
+    cible = round(bougies[-1]["c"] * pct, 2)
+    chute = E.prolonger(bougies, cible)
     assert len(chute) > len(bougies)
     cache = _verifier_sain(t, chute)
-    assert cache["l52w"] <= bougies[-1]["c"] * pct * 1.0001
+    assert cache["l52w"] <= cible + 1e-9
 
 
 def test_positif_les_anciens_seuils_absolus_auraient_echoue_sur_cette_chute():

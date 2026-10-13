@@ -168,7 +168,18 @@ def test_le_cache_t2s_n_annonce_aucune_moyenne_longue(serie, ud):
                            .read_text(encoding="utf-8"))
     cache = cache_all.get("T2S") or ud._indicateurs_depuis_candles(pd.DataFrame(serie))
     assert cache["n_candles"] == len(serie)
-    assert cache["ma50"] is None and cache["ma200"] is None
+    # ⚠️ 13/10/2026 : ce test exigeait ma50 = None « pour T2S » — vrai tant
+    # que le titre (coté depuis le 27/07) avait moins de 50 séances. La 50e
+    # (13/10) a rendu la moyenne calculable et le test a bloqué le run de
+    # 10h55. Ce qu'il protège ne dépend pas du calendrier : une moyenne n'est
+    # publiée que si la série la permet, et elle est alors la vraie moyenne.
+    for cle, n in (("ma50", 50), ("ma200", 200)):
+        if len(serie) < n:
+            assert cache[cle] is None, f"{cle} inventée sur {len(serie)} séances"
+        else:
+            attendu = round(sum(b["c"] for b in serie[-n:]) / n, 2)
+            assert abs(round(cache[cle] * 100) - round(attendu * 100)) <= 1, (
+                f"{cle} du cache {cache[cle]} contre {attendu} recalculé")
     attendu_ma20 = round(sum(b["c"] for b in serie[-20:]) / 20, 2)
     # ⚠️ UN CENTIME DE TOLÉRANCE, ET LA RAISON EST ARITHMÉTIQUE.
     #
