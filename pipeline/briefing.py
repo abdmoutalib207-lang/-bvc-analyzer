@@ -554,7 +554,7 @@ def phrase_trajectoire(t: dict | None) -> str | None:
     # heures des extrêmes ne couvrent que la partie de séance qu'elle porte.
     if t.get("serie_rejoint_cloture") is False and t.get("serie_jusqu_a"):
         P.append(f"(La série intrajournalière s'arrête à {t['serie_jusqu_a']} ; "
-                 f"clôture et extrêmes viennent de la synthèse CDG.)")
+                 f"clôture et extrêmes viennent de la synthèse de séance.)")
     if o > v:
         if c >= o and c < h:
             # ⚠️ 08/10/2026, relevé par la rédaction (séance du 07/10) : plus
@@ -605,6 +605,14 @@ def phrase_trajectoire(t: dict | None) -> str | None:
     return " ".join(P)
 
 
+# ⚠️ 13/10/2026, demande d'Abd Moutalib : le nom de la société de bourse qui
+# sert la synthèse de séance n'apparaît plus dans ce qui est PUBLIÉ. La
+# provenance exacte reste tracée dans les fichiers internes
+# (`pipeline/seance_marche.json`, `pipeline/marche_history.json`) et dans le
+# code ; le lecteur voit la nature de la source, pas son nom.
+SOURCE_SEANCE = "synthèse de séance d'une société de bourse agréée"
+
+
 def comparaison_veille(historique: dict, seance: str) -> dict | None:
     """La séance et celle qui la précède, lues dans `marche_history.json`.
 
@@ -630,8 +638,7 @@ def comparaison_veille(historique: dict, seance: str) -> dict | None:
         ecart = round((j["volume_mad"] / p["volume_mad"] - 1) * 100, 1)
     return {"seance": seance, "seance_veille": d_veille, "jour": j,
             "veille": p, "ecart_volume_pct": ecart,
-            "source": "CDG Capital Bourse — INDICE-SYNTHESE, via "
-                      "pipeline/marche_history.json"}
+            "source": SOURCE_SEANCE[0].upper() + SOURCE_SEANCE[1:]}
 
 
 def phrase_veille(c: dict | None) -> str | None:
@@ -814,7 +821,7 @@ def phrase_niveaux_masi(nv: dict | None) -> str | None:
                  f"{_fr(c['plus_basse'])} ({_date_fr(c['date_plus_basse'])})")
     if nv.get("annee_haut") and nv.get("annee_bas"):
         P.append(f"sur l'année, plus haut {_fr(nv['annee_haut'])} et plus bas "
-                 f"{_fr(nv['annee_bas'])} (servis par CDG)")
+                 f"{_fr(nv['annee_bas'])} (synthèse de séance)")
     return ("Niveaux mesurés du MASI : " + " ; ".join(P) + ".") if P else None
 
 
@@ -847,7 +854,7 @@ def phrase_secteurs(sect: list, k: int = N_SECTEURS_PHRASE) -> str | None:
         return f"{x['libelle'].capitalize()} {_signe(x['variation_pct'])} %"
     hausse = sum(1 for x in sect if x["variation_pct"] > 0)
     baisse = sum(1 for x in sect if x["variation_pct"] < 0)
-    return (f"Indices sectoriels ({len(sect)} servis par CDG) : {hausse} en "
+    return (f"Indices sectoriels ({len(sect)} servis) : {hausse} en "
             f"hausse, {baisse} en baisse. En tête : "
             f"{', '.join(f(x) for x in sect[:k])}. En queue : "
             f"{', '.join(f(x) for x in sect[-k:][::-1])}.")
@@ -1012,6 +1019,10 @@ def enrichir(b: dict, titres: list, contexte: dict) -> dict:
     sm = (ctx.get("seance_marche") or {}).get(seance) or {}
 
     b["trajectoire"] = sm.get("trajectoire")
+    if b["trajectoire"]:
+        b["trajectoire"] = {**b["trajectoire"],
+                            "source": SOURCE_SEANCE[0].upper() + SOURCE_SEANCE[1:]
+                            + " — indices et série intrajournalière du MASI"}
     b["veille"] = comparaison_veille(ctx.get("marche") or {}, seance)
     try:
         b["depots"] = depots_du_jour(ctx.get("depots") or [], seance,
@@ -1048,7 +1059,7 @@ def enrichir(b: dict, titres: list, contexte: dict) -> dict:
     if not b["trajectoire"]:
         b["non_mesurable"].append(
             "la trajectoire de l'indice dans la séance — la série "
-            "intrajournalière de CDG n'a pas été relevée le jour de la séance, "
+            "intrajournalière n'a pas été relevée le jour de la séance, "
             "ou ne portait pas la date de la séance")
     d = b["depots"]
     if d and d["titres"]:
@@ -1064,8 +1075,7 @@ def enrichir(b: dict, titres: list, contexte: dict) -> dict:
         b["constats"].append(ps)
     else:
         b["non_mesurable"].append(
-            "les indices sectoriels — non relevés auprès de CDG pour cette "
-            "séance")
+            "les indices sectoriels — non relevés pour cette séance")
     if not b["matieres"]:
         b["non_mesurable"].append(
             "les matières premières — non relevées le jour de la séance")

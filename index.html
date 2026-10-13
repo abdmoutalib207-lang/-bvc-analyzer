@@ -10,6 +10,13 @@
   <title>BVC Analyzer v6.4 — Bourse de Casablanca</title>
   <meta name="description" content="Terminal d'analyse quantitative de la Bourse de Casablanca : 80 titres, dernière clôture vérifiée contre le bulletin de l'opérateur. Score composite Fondamental 65% · Technique 35%, modulé par titre."/>
   <meta name="theme-color" content="#080d1a"/>
+  <!-- Emblème de la marque (13/10/2026) : taureau en costume, tiré du logo
+       d'Abd Moutalib (assets/marque/logo-original.png), recoloré au dégradé
+       du terminal. Favicon d'onglet et icône d'écran d'accueil du téléphone. -->
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/marque/favicon-32.png"/>
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/marque/favicon-64.png"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/marque/icone-192.png"/>
+  <link rel="apple-touch-icon" href="assets/marque/apple-touch-icon.png"/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
@@ -200,8 +207,29 @@
       align-items:center;justify-content:center;gap:14px;cursor:pointer;animation:intro-sortie 200ms ease-in 600ms both;}
     /* 07/10/2026 : ouverture ramenée de 2 s à 800 ms (logo 500, trait 150+450,
        sortie 600+200), et jouée une fois par appareil, plus une par onglet. */
-    .intro-logo{font-size:clamp(28px,8vw,56px);font-weight:700;letter-spacing:.35em;
-      background:linear-gradient(90deg,#00e5a0,#4db8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    .intro-logo{font-size:clamp(28px,8vw,56px);font-weight:700;letter-spacing:.35em;}
+    /* ⚠️ MÉTAL ET ÉCLAT — 13/10/2026, demande d'Abd Moutalib : « couleurs
+       métalliques avec un coup d'éclat ». Le relief chromé est dans l'image
+       (assets/marque) ; l'éclat est un reflet qui balaie l'emblème, découpé
+       à sa silhouette par un masque, et le texte par un second fond. Toutes
+       les 6 s, 0,9 s de passage ; aucun mouvement si l'appareil le refuse. */
+    .metal-texte{background-image:linear-gradient(105deg,transparent 45%,rgba(255,255,255,.95) 50%,transparent 55%),
+        linear-gradient(180deg,#f0fffa 0%,#7ff5d2 30%,#00b98a 48%,#0a4a46 52%,#7fd8ff 58%,#e8f6ff 70%,#4db8ff 100%);
+      background-size:250% 100%,100% 100%;background-repeat:no-repeat;background-position:160% 0,0 0;
+      -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+      animation:eclat-texte 6s ease-in-out 1.2s infinite;}
+    @keyframes eclat-texte{0%,85%{background-position:160% 0,0 0;}100%{background-position:-60% 0,0 0;}}
+    .eclat{position:relative;display:inline-block;line-height:0;}
+    .eclat::after{content:"";position:absolute;inset:0;pointer-events:none;
+      background:linear-gradient(105deg,transparent 45%,rgba(255,255,255,.85) 50%,transparent 55%);
+      background-size:300% 100%;background-repeat:no-repeat;background-position:160% 0;
+      -webkit-mask:url(assets/marque/taureau-128.png) center/contain no-repeat;mask:url(assets/marque/taureau-128.png) center/contain no-repeat;
+      mix-blend-mode:screen;animation:eclat 6s ease-in-out 1s infinite;}
+    .eclat.grand::after{-webkit-mask-image:url(assets/marque/taureau-512.png);mask-image:url(assets/marque/taureau-512.png);animation-delay:.4s;}
+    @keyframes eclat{0%,85%{background-position:160% 0;}100%{background-position:-60% 0;}}
+    .intro-logo.metal-texte{animation:intro-logo 500ms cubic-bezier(.2,.7,.2,1) both,eclat-texte 6s ease-in-out .5s infinite;}
+    @media (prefers-reduced-motion: reduce){.eclat::after,.metal-texte{animation:none;}}
+    .intro-embleme{width:clamp(84px,22vw,140px);height:auto;filter:drop-shadow(0 0 18px rgba(0,229,160,.3));
       animation:intro-logo 500ms cubic-bezier(.2,.7,.2,1) both;}
     .intro-trait{height:2px;width:0;background:linear-gradient(90deg,#00e5a0,#4db8ff);
       animation:intro-trait 450ms 150ms cubic-bezier(.2,.7,.2,1) both;}
@@ -213,10 +241,50 @@
     .intro-toucher{margin-top:18px;font-size:12px;letter-spacing:.35em;color:#8892a4;
       animation:intro-pouls 1.6s ease-in-out 1.2s infinite both;}
     @keyframes intro-pouls{0%,100%{opacity:.35;}50%{opacity:1;}}
+    /* TABLEAU DE BORD DE LA SÉANCE — 13/10/2026, demande d'Abd Moutalib
+       (« dans le style d'un tableau de bord Power BI »), sans dépendance :
+       grille de 12 colonnes sur ordinateur, 2 sur tablette, 1 sur téléphone.
+       `min-width:0` sur chaque case : sans lui, un tableau ou un libellé long
+       élargit la colonne et fait défiler la page entière à 390 px. */
+    .tdb{display:grid;gap:12px;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-flow:row dense;}
+    .tdb>*{grid-column:span 12;min-width:0;}
+    .tdb-kpi{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(150px,46%),1fr));}
+    .tdb-kpi>*{min-width:0;}
+    @media(min-width:641px){.tdb .c4,.tdb .c6{grid-column:span 6;}}
+    @media(min-width:1100px){.tdb .c4{grid-column:span 4;}.tdb .c8{grid-column:span 8;}}
+    .tdb-pan{background:#0d1829;border:1px solid #1a2540;border-radius:8px;padding:14px;}
+    .tdb-tete{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:2px;}
+    .tdb-titre{font-size:10.5px;color:#c8d3e8;letter-spacing:1px;text-transform:uppercase;text-wrap:balance;}
+    .tdb-src{font-size:10.5px;color:#8892a4;line-height:1.5;margin-bottom:10px;text-wrap:pretty;}
+    .tdb-num{font-family:var(--font);font-variant-numeric:tabular-nums;white-space:nowrap;}
+    .tdb-ligne{display:grid;align-items:center;gap:8px;width:100%;background:transparent;border:none;border-radius:4px;
+      padding:4px 6px;font-family:var(--font);color:#c8d3e8;text-align:left;cursor:pointer;min-height:30px;
+      transition:background-color var(--t-court) var(--ease),opacity var(--t-court) var(--ease);}
+    .tdb-ligne:hover{background:rgba(77,184,255,.07);box-shadow:none!important;filter:none!important;}
+    .tdb-ligne[aria-pressed="true"]{background:rgba(200,211,232,.10);box-shadow:inset 2px 0 0 #e6edf7!important;}
+    .tdb-tuile{position:absolute;overflow:hidden;border:1px solid #080d1a;border-radius:3px;padding:6px 7px;text-align:left;
+      font-family:var(--font);color:#e6edf7;cursor:pointer;text-shadow:0 1px 2px rgba(0,0,0,.6);
+      transition:opacity var(--t-court) var(--ease),box-shadow var(--t-court) var(--ease);}
+    .tdb-tuile:hover{filter:brightness(1.25)!important;box-shadow:none!important;}
+    .tdb-tuile[aria-pressed="true"]{box-shadow:inset 0 0 0 2px #e6edf7!important;}
+    .tdb-tuile{box-sizing:border-box;}
+    /* Sur téléphone, le filtre se pose loin de la puce d'en-tête : une copie
+       flottante reste visible en bas à droite (le menu occupe la gauche). */
+    .tdb-puce-flottante{display:none;}
+    @media(max-width:640px){.tdb-puce-flottante{display:inline-flex;position:fixed;right:14px;bottom:26px;z-index:240;
+      max-width:calc(100vw - 100px);min-height:40px;box-shadow:0 6px 18px rgba(0,0,0,.5);background:#0f2236;}}
+    @media (pointer:coarse){.tdb-tuile{min-height:0!important;}.tdb-tuile::after{display:none;}}
+    /* Le tableau des niveaux ne tient qu'au-delà de 1 100 px : en dessous, son
+       panneau fait une demi-largeur de tablette ou tout un téléphone, moins de
+       400 px — mesuré à 768 px, la dernière colonne sortait du cadre. */
+    @media(max-width:1099px){.tdb-large{display:none!important;}}
+    @media(min-width:1100px){.tdb-etroit{display:none!important;}}
+    .tdb-puce{display:inline-flex;align-items:center;gap:8px;background:rgba(77,184,255,.12);border:1px solid rgba(77,184,255,.45);
+      color:#e6edf7;border-radius:14px;padding:4px 12px;font-size:11.5px;font-family:var(--font);cursor:pointer;}
   </style>
 </head>
 <body>
-<div id="root"><div id="loading-msg" style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#080d1a;font-family:'IBM Plex Mono',monospace"><div style="color:#00e5a0;font-size:18px;font-weight:700;letter-spacing:3px">BVC ANALYZER</div><div style="color:#8892a4;font-size:12px">Chargement en cours…</div><div class="sq" style="width:min(520px,86vw);height:120px;margin-top:8px"></div><div class="sq" style="width:min(520px,86vw);height:56px"></div><div id="cdn-err" style="display:none;color:#ff4f5a;font-size:11px;max-width:400px;text-align:center">Erreur de chargement des scripts (CDN). Vérifiez votre connexion et rechargez la page.</div></div></div>
+<div id="root"><div id="loading-msg" style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#080d1a;font-family:'IBM Plex Mono',monospace"><img src="assets/marque/taureau-128.png" alt="" width="64" height="64" style="display:block"/><div style="color:#00e5a0;font-size:18px;font-weight:700;letter-spacing:3px">BVC ANALYZER</div><div style="color:#8892a4;font-size:12px">Chargement en cours…</div><div class="sq" style="width:min(520px,86vw);height:120px;margin-top:8px"></div><div class="sq" style="width:min(520px,86vw);height:56px"></div><div id="cdn-err" style="display:none;color:#ff4f5a;font-size:11px;max-width:400px;text-align:center">Erreur de chargement des scripts (CDN). Vérifiez votre connexion et rechargez la page.</div></div></div>
 <script>setTimeout(function(){var e=document.getElementById('loading-msg');if(e&&e.parentNode.children.length===1){var c=document.getElementById('cdn-err');if(c)c.style.display='block';}},8000);</script>
 <script>const {
   useState,
@@ -3833,7 +3901,7 @@ const Perime = ({
   const m = meta(r);
   if (!m.stale) return null;
   return React.createElement("span", {
-    title: `Cours du ${m.asof ? jjmm(m.asof) : "dernier run"} · source ${m.src}`,
+    title: `Cours du ${m.asof ? jjmm(m.asof) : "dernier run"} · source ${m.src === "cdg" ? "société de bourse agréée" : m.src}`,
     style: {
       marginLeft: 5,
       fontSize: 9,
@@ -6021,6 +6089,49 @@ const RUBRIQUES = [{
     aide: "Corpus NLP — gelé, poids nul dans la note"
   }]
 }];
+const Marque = ({
+  taille = 36
+}) => React.createElement("span", {
+  className: "marque",
+  style: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 9,
+    flex: "0 0 auto"
+  }
+}, React.createElement("span", {
+  className: "eclat"
+}, React.createElement("img", {
+  src: "assets/marque/taureau-128.png",
+  alt: "",
+  width: taille,
+  height: taille,
+  style: {
+    display: "block",
+    filter: "drop-shadow(0 0 6px rgba(0,229,160,.25))"
+  }
+})), React.createElement("span", {
+  style: {
+    display: "inline-flex",
+    flexDirection: "column",
+    lineHeight: 1
+  }
+}, React.createElement("span", {
+  className: "metal-texte",
+  style: {
+    fontSize: Math.round(taille * .56),
+    fontWeight: 700,
+    letterSpacing: 3
+  }
+}, "BVC"), React.createElement("span", {
+  style: {
+    fontSize: Math.max(8, Math.round(taille * .25)),
+    fontWeight: 600,
+    letterSpacing: ".32em",
+    color: "#aeb8c8",
+    marginTop: 3
+  }
+}, "ANALYZER")));
 const Menu = ({
   tab,
   setTab,
@@ -6105,16 +6216,9 @@ const Menu = ({
       justifyContent: "space-between",
       padding: "0 20px 14px"
     }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 18,
-      fontWeight: 700,
-      letterSpacing: 3,
-      background: "linear-gradient(90deg,#00e5a0,#4db8ff)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent"
-    }
-  }, "BVC ANALYZER"), React.createElement("button", {
+  }, React.createElement(Marque, {
+    taille: 32
+  }), React.createElement("button", {
     onClick: () => setOuvert(false),
     "aria-label": "Fermer le menu",
     style: {
@@ -6283,8 +6387,16 @@ const Intro = () => {
     onClick: entrer,
     role: "button",
     "aria-label": "Entrer dans BVC Analyzer"
-  }, React.createElement("div", {
-    className: "intro-logo"
+  }, React.createElement("span", {
+    className: "eclat grand"
+  }, React.createElement("img", {
+    className: "intro-embleme",
+    src: "assets/marque/taureau-512.png",
+    alt: "",
+    width: "120",
+    height: "120"
+  })), React.createElement("div", {
+    className: "intro-logo metal-texte"
   }, "BVC ANALYZER"), React.createElement("div", {
     className: "intro-trait"
   }), phase !== "auto" && React.createElement("div", {
@@ -6616,7 +6728,7 @@ const Header = ({
       gap: 14,
       flexWrap: "wrap"
     }
-  }, React.createElement(Menu, {
+  }, React.createElement(Marque, null), React.createElement(Menu, {
     tab: tab,
     setTab: setTab,
     TABS: TABS
@@ -6638,15 +6750,6 @@ const Header = ({
       flex: "0 0 auto"
     }
   }, "?"), React.createElement("span", {
-    style: {
-      fontSize: 22,
-      fontWeight: 700,
-      letterSpacing: 3,
-      background: "linear-gradient(90deg,#00e5a0,#4db8ff)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent"
-    }
-  }, "BVC ANALYZER"), React.createElement("span", {
     className: "badge-version",
     title: "Pond\xE9ration de R\xC9F\xC9RENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCH\xC9, le m\xEAme pour tous les titres \u2014 hors s\xE9ance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids R\xC9ELLEMENT appliqu\xE9 est affich\xE9 sur chaque fiche. Le pilier NLP est gel\xE9 \xE0 un poids de 0 : son corpus s'arr\xEAte au 02/07/2026 et il ne d\xE9pla\xE7ait plus que 0,37 point sur 10.",
     style: {
@@ -7559,7 +7662,7 @@ const Ranking = ({
         fontWeight: 400,
         whiteSpace: "nowrap"
       },
-      title: "Cours de r\xE9f\xE9rence : cl\xF4ture de la s\xE9ance pr\xE9c\xE9dente, base de la variation (servi par CDG)"
+      title: "Cours de r\xE9f\xE9rence : cl\xF4ture de la s\xE9ance pr\xE9c\xE9dente, base de la variation (servi par la synth\xE8se de s\xE9ance)"
     }, "r\xE9f. ", px(r.reference)), React.createElement("div", {
       className: "mobile-seul",
       style: {
@@ -7797,168 +7900,1112 @@ const SourceCotation = ({
     title: `Vérifier ${l.nom || l.ticker} chez la source`
   }, "Source \u2197")));
 };
-const Carte = ({
+const VARC = x => x == null || !isFinite(x) ? "#8892a4" : x > 0 ? "#00e5a0" : x < 0 ? "#ff4f5a" : "#8892a4";
+const sgp = (x, d = 2) => x == null || !isFinite(x) ? "—" : `${x > 0 ? "+" : ""}${nfr(x, d)} %`;
+const mediane = a => {
+  const s = [...a].sort((x, y) => x - y),
+    n = s.length;
+  return n ? n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2 : null;
+};
+const entier = x => x == null || !isFinite(x) ? "—" : Math.round(x).toLocaleString("fr-FR").replace(/\u202f|\u00a0|,/g, " ");
+const jma = iso => iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}` : "—";
+const titresDuReleve = (b, rows) => {
+  const j = b && b.veille && b.veille.jour;
+  if (!b || !b.seance || !j || !j.volume_mad || !rows) return {
+    ok: false,
+    l: []
+  };
+  const l = rows.filter(r => {
+    const m = meta(r);
+    return m.asof === b.seance && !m.susp && r.chg != null && isFinite(r.chg);
+  });
+  const somme = l.reduce((s, r) => s + (r.echange_dh || 0), 0);
+  const ecart = Math.abs(somme - j.volume_mad) / j.volume_mad;
+  return {
+    ok: l.length > 0 && ecart <= 0.005,
+    l,
+    somme,
+    ecart
+  };
+};
+const titresEchanges = (b, masi) => {
+  const j = b && b.veille && b.veille.jour;
+  return j && masi && masi.titres_echanges != null && masi.asof === b.seance && masi.transactions != null && masi.transactions === j.transactions ? masi.titres_echanges : null;
+};
+const TRANCHES = [{
+  id: "p4",
+  lab: "+4 % et plus",
+  t: x => x >= 4
+}, {
+  id: "p3",
+  lab: "+3 à +4 %",
+  t: x => x >= 3 && x < 4
+}, {
+  id: "p2",
+  lab: "+2 à +3 %",
+  t: x => x >= 2 && x < 3
+}, {
+  id: "p1",
+  lab: "+1 à +2 %",
+  t: x => x >= 1 && x < 2
+}, {
+  id: "p0",
+  lab: "0 à +1 %",
+  t: x => x > 0 && x < 1
+}, {
+  id: "z",
+  lab: "inchangé",
+  t: x => x === 0
+}, {
+  id: "m0",
+  lab: "0 à −1 %",
+  t: x => x < 0 && x > -1
+}, {
+  id: "m1",
+  lab: "−1 à −2 %",
+  t: x => x <= -1 && x > -2
+}, {
+  id: "m2",
+  lab: "−2 à −3 %",
+  t: x => x <= -2 && x > -3
+}, {
+  id: "m3",
+  lab: "−3 à −4 %",
+  t: x => x <= -3 && x > -4
+}, {
+  id: "m4",
+  lab: "−4 % et moins",
+  t: x => x <= -4
+}];
+const couleurTranche = id => id === "z" ? "#8892a4" : id[0] === "p" ? "#00e5a0" : "#ff4f5a";
+const teinteTuile = m => {
+  if (m == null) return "rgba(136,146,164,.16)";
+  const a = (.12 + .30 * Math.min(Math.abs(m) / 4, 1)).toFixed(3);
+  return m > 0 ? `rgba(0,229,160,${a})` : m < 0 ? `rgba(255,79,90,${a})` : "rgba(136,146,164,.20)";
+};
+const squarify = (items, X, Y, W, H) => {
+  const tot = items.reduce((s, i) => s + i.v, 0);
+  if (!tot || W <= 0 || H <= 0) return [];
+  const k = W * H / tot;
+  let rest = items.map(i => ({
+      ...i,
+      a: i.v * k
+    })),
+    x = X,
+    y = Y,
+    w = W,
+    h = H;
+  const out = [];
+  const pire = (row, len) => {
+    const s = row.reduce((t, i) => t + i.a, 0),
+      mx = Math.max(...row.map(i => i.a)),
+      mn = Math.min(...row.map(i => i.a));
+    return Math.max(len * len * mx / (s * s), s * s / (len * len * mn));
+  };
+  while (rest.length) {
+    const len = Math.min(w, h);
+    let row = [rest[0]],
+      i = 1;
+    while (i < rest.length && pire([...row, rest[i]], len) <= pire(row, len)) {
+      row.push(rest[i]);
+      i++;
+    }
+    const s = row.reduce((t, r) => t + r.a, 0);
+    if (w >= h) {
+      const cw = s / h;
+      let cy = y;
+      row.forEach(r => {
+        const rh = r.a / cw;
+        out.push({
+          ...r,
+          x,
+          y: cy,
+          w: cw,
+          h: rh
+        });
+        cy += rh;
+      });
+      x += cw;
+      w -= cw;
+    } else {
+      const rh = s / w;
+      let cx = x;
+      row.forEach(r => {
+        const cw = r.a / rh;
+        out.push({
+          ...r,
+          x: cx,
+          y,
+          w: cw,
+          h: rh
+        });
+        cx += cw;
+      });
+      y += rh;
+      h -= rh;
+    }
+    rest = rest.slice(i);
+  }
+  return out;
+};
+const useLargeur = () => {
+  const ref = useRef(null);
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([e]) => setW(Math.floor(e.contentRect.width)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, w];
+};
+const Panneau = ({
   titre,
   source,
+  cls = "",
+  droite,
   children
-}) => React.createElement("div", {
-  className: "carte",
+}) => React.createElement("section", {
+  className: `tdb-pan ${cls}`
+}, React.createElement("div", {
+  className: "tdb-tete"
+}, React.createElement("h3", {
+  className: "tdb-titre",
   style: {
-    background: "#0d1829",
-    border: "1px solid #1a2540",
-    borderRadius: 8,
-    padding: 16
+    margin: 0,
+    fontWeight: 600
+  }
+}, titre), droite), source && React.createElement("div", {
+  className: "tdb-src"
+}, source), children);
+const Kpi = ({
+  l,
+  val,
+  cv,
+  sous,
+  src,
+  enfant
+}) => React.createElement("div", {
+  className: "tdb-pan",
+  style: {
+    padding: "10px 12px",
+    display: "flex",
+    flexDirection: "column",
+    gap: 2
   }
 }, React.createElement("div", {
   style: {
     fontSize: 10,
     color: "#8892a4",
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    marginBottom: 4
+    letterSpacing: .8,
+    textTransform: "uppercase"
   }
-}, titre), source && React.createElement("div", {
+}, l), React.createElement("div", {
+  className: "tdb-num",
   style: {
-    fontSize: 10.5,
-    color: "#5a6478",
-    marginBottom: 10
+    fontSize: 19,
+    fontWeight: 700,
+    color: cv || "#e6edf7"
   }
-}, source), children);
+}, val), sous && React.createElement("div", {
+  style: {
+    fontSize: 11,
+    color: "#c8d3e8",
+    lineHeight: 1.4
+  }
+}, sous), enfant, React.createElement("div", {
+  style: {
+    fontSize: 9.5,
+    color: "#8892a4",
+    marginTop: "auto",
+    paddingTop: 4,
+    lineHeight: 1.4,
+    textWrap: "pretty"
+  }
+}, src));
+const VueSecteurs = ({
+  secteurs,
+  total,
+  filtre,
+  basculer
+}) => {
+  const [ref, W] = useLargeur();
+  const H = W >= 900 ? 340 : 300;
+  const actif = filtre && filtre.type === "secteur" ? filtre.v : null;
+  const desc = s => `${s.nom} : ${montantCourt(s.v)}, ${nfr(s.v / total * 100, 1)} % du montant, médiane ${sgp(s.med)}, ${s.n} titre${s.n > 1 ? "s" : ""} (${s.h} en hausse, ${s.bs} en baisse)`;
+  const tuiles = W >= 480 ? squarify(secteurs.filter(s => s.v > 0), 0, 0, W, H) : [];
+  return React.createElement("div", {
+    ref: ref
+  }, W >= 480 ? React.createElement("div", {
+    style: {
+      position: "relative",
+      height: H
+    }
+  }, tuiles.map(s => {
+    const grand = s.w >= 96 && s.h >= 50,
+      moyen = s.w >= 46 && s.h >= 22;
+    return React.createElement("button", {
+      key: s.nom,
+      "data-secteur": s.nom,
+      className: "tdb-tuile",
+      "aria-pressed": actif === s.nom,
+      "aria-label": desc(s),
+      title: desc(s),
+      onClick: () => basculer({
+        type: "secteur",
+        v: s.nom,
+        lab: s.nom
+      }),
+      style: {
+        left: s.x,
+        top: s.y,
+        width: s.w,
+        height: s.h,
+        background: teinteTuile(s.med),
+        padding: moyen ? undefined : 0,
+        borderLeft: `3px solid ${VARC(s.med)}`,
+        opacity: actif && actif !== s.nom ? .38 : 1
+      }
+    }, moyen && React.createElement("div", {
+      style: {
+        fontSize: grand ? 11.5 : 10,
+        fontWeight: 600,
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap"
+      }
+    }, s.nom), grand && React.createElement("div", {
+      className: "tdb-num",
+      style: {
+        fontSize: 11,
+        marginTop: 2
+      }
+    }, montantCourt(s.v), " \xB7 ", nfr(s.v / total * 100, 0), " %"), grand && React.createElement("div", {
+      className: "tdb-num",
+      style: {
+        fontSize: 11,
+        color: "#e6edf7"
+      }
+    }, "m\xE9d. ", sgp(s.med), " \xB7 ", s.n, " t."));
+  })) : React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 2
+    }
+  }, secteurs.map(s => React.createElement("button", {
+    key: s.nom,
+    "data-secteur": s.nom,
+    className: "tdb-ligne",
+    "aria-pressed": actif === s.nom,
+    "aria-label": desc(s),
+    onClick: () => basculer({
+      type: "secteur",
+      v: s.nom,
+      lab: s.nom
+    }),
+    style: {
+      gridTemplateColumns: "minmax(0,1fr) auto",
+      opacity: actif && actif !== s.nom ? .45 : 1
+    }
+  }, React.createElement("span", {
+    style: {
+      minWidth: 0
+    }
+  }, React.createElement("span", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      gap: 6,
+      fontSize: 12
+    }
+  }, React.createElement("span", {
+    style: {
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap"
+    }
+  }, s.nom, " ", React.createElement("span", {
+    style: {
+      color: "#8892a4",
+      fontSize: 10.5
+    }
+  }, s.n, " t.")), React.createElement("span", {
+    className: "tdb-num",
+    style: {
+      color: "#c8d3e8"
+    }
+  }, montantCourt(s.v))), React.createElement("span", {
+    style: {
+      display: "block",
+      height: 5,
+      background: "#0a1220",
+      borderRadius: 3,
+      marginTop: 3
+    }
+  }, React.createElement("span", {
+    style: {
+      display: "block",
+      height: "100%",
+      width: `${Math.max(s.v / secteurs[0].v * 100, 1.5)}%`,
+      background: "#4db8ff",
+      borderRadius: 3
+    }
+  }))), React.createElement("span", {
+    className: "tdb-num",
+    style: {
+      fontSize: 11.5,
+      color: VARC(s.med),
+      minWidth: 62,
+      textAlign: "right"
+    }
+  }, sgp(s.med))))), React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: "#8892a4",
+      marginTop: 8,
+      lineHeight: 1.5
+    }
+  }, W >= 480 ? "Surface : montant échangé. Couleur : médiane des variations des titres du secteur (vert hausse, rouge baisse, intensité jusqu'à ±4 %)." : "Barre : montant échangé. Chiffre de droite : médiane des variations des titres du secteur."));
+};
+const FourchetteMasi = ({
+  t
+}) => {
+  const pts = [t.veille, t.ouverture, t.plus_haut, t.plus_bas, t.cloture].filter(x => x != null && isFinite(x));
+  if (pts.length < 2) return null;
+  const lo = Math.min(...pts),
+    hi = Math.max(...pts),
+    m = (hi - lo) * .08 || 1,
+    a = lo - m,
+    z = hi + m;
+  const p = x => `${((x - a) / (z - a) * 100).toFixed(2)}%`;
+  const cc = VARC(t.cloture != null && t.veille != null ? t.cloture - t.veille : null);
+  const reperes = [["Veille", t.veille, null, "tiret"], ["1re valeur calculée", t.ouverture, t.heure_ouverture, "rond"], ["Plus haut", t.plus_haut, t.heure_plus_haut, null], ["Plus bas", t.plus_bas, t.heure_plus_bas, null], ["Clôture", t.cloture, null, "losange"]];
+  const Marque = ({
+    k,
+    c
+  }) => k === "tiret" ? React.createElement("span", {
+    style: {
+      display: "inline-block",
+      width: 0,
+      height: 12,
+      borderLeft: "2px dashed #c8d3e8"
+    }
+  }) : k === "rond" ? React.createElement("span", {
+    style: {
+      display: "inline-block",
+      width: 9,
+      height: 9,
+      borderRadius: "50%",
+      border: "2px solid #4db8ff",
+      background: "#0d1829"
+    }
+  }) : k === "losange" ? React.createElement("span", {
+    style: {
+      display: "inline-block",
+      width: 9,
+      height: 9,
+      background: c,
+      transform: "rotate(45deg)"
+    }
+  }) : null;
+  return React.createElement("div", null, React.createElement("div", {
+    role: "img",
+    "aria-label": `MASI : plus bas ${nfr(t.plus_bas)}, plus haut ${nfr(t.plus_haut)}, veille ${nfr(t.veille)}, clôture ${nfr(t.cloture)}`,
+    style: {
+      position: "relative",
+      height: 34,
+      margin: "6px 6px 4px"
+    }
+  }, React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      top: 16,
+      height: 2,
+      background: "#1a2540"
+    }
+  }), t.plus_bas != null && t.plus_haut != null && React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: p(t.plus_bas),
+      width: `calc(${p(t.plus_haut)} - ${p(t.plus_bas)})`,
+      top: 11,
+      height: 12,
+      background: `${cc}33`,
+      border: `1px solid ${cc}88`,
+      borderRadius: 3
+    }
+  }), t.veille != null && React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: p(t.veille),
+      top: 3,
+      height: 28,
+      borderLeft: "2px dashed #c8d3e8"
+    }
+  }), t.ouverture != null && React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: p(t.ouverture),
+      top: 12,
+      width: 10,
+      height: 10,
+      marginLeft: -5,
+      borderRadius: "50%",
+      border: "2px solid #4db8ff",
+      background: "#0d1829"
+    }
+  }), t.cloture != null && React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: p(t.cloture),
+      top: 12,
+      width: 10,
+      height: 10,
+      marginLeft: -5,
+      background: cc,
+      transform: "rotate(45deg)"
+    }
+  })), React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(118px,1fr))",
+      gap: "8px 12px",
+      marginTop: 8
+    }
+  }, reperes.map(([l, x, h, k]) => React.createElement("div", {
+    key: l
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      display: "flex",
+      alignItems: "center",
+      gap: 6
+    }
+  }, React.createElement(Marque, {
+    k: k,
+    c: cc
+  }), l), React.createElement("div", {
+    className: "tdb-num",
+    style: {
+      fontSize: 14,
+      color: "#e6edf7",
+      fontWeight: 600
+    }
+  }, nfr(x)), React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4"
+    }
+  }, h ? `à ${h}` : l === "Plus haut" || l === "Plus bas" ? "heure hors de la série" : "\u00a0")))));
+};
+const absencesTableau = (b, rows, masi) => {
+  if (!b) return [];
+  const a = ["la capitalisation boursière globale du marché — aucune de nos sources ne la publie pour la séance"];
+  const t = b.trajectoire;
+  if (!t) a.push("la trajectoire du MASI — non relevée pour cette séance");else a.push(`la courbe intrajournalière du MASI — le briefing n'en publie que les repères (${t.n_points ?? "?"} points relevés), pas la série`);
+  if (!(b.veille && b.veille.jour)) a.push("les chiffres du marché entier (volume, largeur, transactions) — synthèse de séance absente de cette lecture");else if (titresEchanges(b, masi) == null) a.push("le nombre de titres échangés — publié seulement avec le relevé courant de data.json, qui n'est pas celui de cette lecture");
+  if (!titresDuReleve(b, rows).ok) a.push("les secteurs, la répartition des variations et les plus fortes hausses, baisses et montants par titre — les cours par titre publiés (data.json) ne sont pas ceux de ce relevé");
+  if (!(b.secteurs || []).length) a.push("les indices sectoriels — non servis pour cette séance");
+  if (!(b.matieres || []).length) a.push("les matières premières — non relevées");
+  if (!(b.depots && (b.depots.titres || []).length)) a.push("des dépôts de résultats à l'AMMC rattachés à une action cotée — aucun relevé ce jour-là");
+  return a;
+};
+const FORMULES_COURTIER = [["CDG Capital Bourse — INDICE-SYNTHESE et INDICE-O-GRAPH-INTRA (MASI)", "Synthèse de séance d'une société de bourse agréée — indices et série intrajournalière du MASI"], ["CDG Capital Bourse — INDICE-SYNTHESE, via pipeline/marche_history.json", "Synthèse de séance d'une société de bourse agréée"], [" servis par CDG)", " servis)"], ["(servis par CDG)", "(synthèse de séance)"], ["la synthèse CDG", "la synthèse de séance"], ["synthèse CDG", "synthèse de séance"], ["intrajournalière de CDG ", "intrajournalière "], ["non relevés auprès de CDG pour cette", "non relevés pour cette"]];
+const sansNomCourtier = o => typeof o === "string" ? FORMULES_COURTIER.reduce((t, [a, b]) => t.split(a).join(b), o) : Array.isArray(o) ? o.map(sansNomCourtier) : o && typeof o === "object" ? Object.fromEntries(Object.entries(o).map(([k, v]) => [k, sansNomCourtier(v)])) : o;
 const SeanceDetail = ({
-  b
+  b,
+  rows,
+  masi,
+  ouvrir
 }) => {
   const t = b.trajectoire,
     v = b.veille,
+    j = v && v.jour,
+    vv = v && v.veille,
     sect = b.secteurs || [],
     mp = b.matieres || [];
   const nv = b.niveaux || {},
     nt = nv.titres || [],
     nm = nv.masi,
     dep = b.depots;
+  const [filtre, setFiltre] = useState(null);
+  const basculer = f => setFiltre(x => x && x.type === f.type && x.v === f.v ? null : f);
+  useEffect(() => {
+    if (!filtre) return;
+    const k = e => {
+      if (e.key === "Escape") setFiltre(null);
+    };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [filtre]);
+  const rel = useMemo(() => titresDuReleve(b, rows), [b, rows]);
+  const tous = rel.ok ? rel.l : [];
+  const tranche = filtre && filtre.type === "tranche" ? TRANCHES.find(x => x.id === filtre.v) : null;
+  const choisis = tous.filter(r => !filtre || (filtre.type === "secteur" ? r.sector === filtre.v : tranche.t(r.chg)));
+  const secteurs = useMemo(() => {
+    const g = {};
+    tous.forEach(r => {
+      const k = r.sector || "Non classé";
+      (g[k] = g[k] || []).push(r);
+    });
+    return Object.entries(g).map(([nom, l]) => ({
+      nom,
+      n: l.length,
+      v: l.reduce((s, r) => s + (r.echange_dh || 0), 0),
+      med: mediane(l.map(r => r.chg)),
+      h: l.filter(r => r.chg > 0).length,
+      bs: l.filter(r => r.chg < 0).length
+    })).sort((x, y) => y.v - x.v);
+  }, [tous]);
+  const secteursVus = useMemo(() => {
+    if (!tranche) return secteurs;
+    const g = {};
+    choisis.forEach(r => {
+      const k = r.sector || "Non classé";
+      (g[k] = g[k] || []).push(r);
+    });
+    return Object.entries(g).map(([nom, l]) => ({
+      nom,
+      n: l.length,
+      v: l.reduce((s, r) => s + (r.echange_dh || 0), 0),
+      med: mediane(l.map(r => r.chg)),
+      h: l.filter(r => r.chg > 0).length,
+      bs: l.filter(r => r.chg < 0).length
+    })).sort((x, y) => y.v - x.v);
+  }, [tranche, choisis, secteurs]);
+  const totalVu = secteursVus.reduce((s, x) => s + x.v, 0) || 1;
+  const sourceReleve = rel.ok ? `data.json — ${tous.length} titres cotés le ${jm(b.seance)} ; somme de leurs montants ${montantCourt(rel.somme)}, égale au volume de la synthèse de séance (écart ${nfr(rel.ecart * 100, 2)} %)` : null;
+  const ecrite = b.ecrit_a ? `écrite le ${jm(b.ecrit_a.slice(0, 10))} à ${b.ecrit_a.slice(11)}` : null;
+  const dateLecture = `${jma(b.seance)}${ecrite ? ` · ${ecrite}` : ""}`;
+  const srcCdg = `Synthèse de séance · ${jm(b.seance)}`;
+  const te = titresEchanges(b, masi);
+  const larg = j && (j.hausses != null || j.baisses != null) ? j : null;
+  const nLarg = larg ? (larg.hausses || 0) + (larg.baisses || 0) + (larg.inchanges || 0) : 0;
+  const top = (f, k) => [...choisis].filter(f).sort(k).slice(0, 5);
+  const TOPS = [["Plus fortes hausses", top(r => r.chg > 0, (x, y) => y.chg - x.chg)], ["Plus fortes baisses", top(r => r.chg < 0, (x, y) => x.chg - y.chg)], ["Plus gros montants", top(r => (r.echange_dh || 0) > 0, (x, y) => y.echange_dh - x.echange_dh)]];
+  const histo = TRANCHES.map(x => ({
+    ...x,
+    n: tous.filter(r => x.t(r.chg)).length,
+    nf: filtre && filtre.type === "secteur" ? tous.filter(r => r.sector === filtre.v && x.t(r.chg)).length : null
+  }));
+  const hMax = Math.max(1, ...histo.map(x => x.n));
+  const ntVus = filtre && rel.ok ? nt.filter(x => choisis.some(r => r.symbol === x.symbol)) : nt;
+  const sMax = Math.max(.01, ...sect.map(x => Math.abs(x.variation_pct || 0)));
+  const sectNuls = sect.length > 0 && sect.every(x => !x.variation_pct);
   const cel = {
-    padding: "4px 8px",
-    fontSize: 12.5,
+    padding: "5px 8px 5px 0",
+    fontSize: 12,
     color: "#c8d3e8",
     whiteSpace: "nowrap"
   };
   const tete = {
     ...cel,
     fontSize: 10,
-    color: "#5a6478",
+    color: "#8892a4",
     textTransform: "uppercase",
-    letterSpacing: .6
+    letterSpacing: .6,
+    fontWeight: 400,
+    textAlign: "left"
   };
-  const VC2 = x => x > 0 ? "#00e5a0" : x < 0 ? "#ff4f5a" : "#8892a4";
-  return React.createElement(React.Fragment, null, t && React.createElement(Carte, {
-    titre: "S\xE9ance du MASI",
-    source: `${t.source} · ${t.n_points} points de la série intrajournalière${t.serie_rejoint_cloture === false ? ` · série arrêtée à ${t.serie_jusqu_a} ; clôture et extrêmes tirés de la synthèse` : ""}`
-  }, React.createElement("div", {
+  const ligneTitre = (r, mesure) => React.createElement("button", {
+    key: r.symbol,
+    className: "tdb-ligne",
+    onClick: () => ouvrir && ouvrir(r.symbol),
+    title: `${r.name || r.symbol} — ouvrir la fiche`,
     style: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit,minmax(110px,1fr))",
-      gap: 10
-    }
-  }, [["Veille", t.veille, null], ["1re valeur calculée", t.ouverture, t.heure_ouverture], ["Plus haut", t.plus_haut, t.heure_plus_haut], ["Plus bas", t.plus_bas, t.heure_plus_bas], ["Clôture", t.cloture, null]].map(([l, x, h]) => React.createElement("div", {
-    key: l
-  }, React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: "#5a6478"
-    }
-  }, l), React.createElement("div", {
-    style: {
-      fontSize: 15,
-      color: "#c8d3e8",
-      fontWeight: 600,
-      fontFamily: "monospace"
-    }
-  }, nfr(x)), React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: "#5a6478"
-    }
-  }, h ? `à ${h}` : l === "Plus haut" || l === "Plus bas" ? "heure hors de la série" : "\u00a0"))))), v && React.createElement(Carte, {
-    titre: `Comparée à la séance du ${jm(v.seance_veille)}`,
-    source: v.source
-  }, React.createElement("div", {
-    style: {
-      overflowX: "auto"
-    }
-  }, React.createElement("table", {
-    style: {
-      borderCollapse: "collapse"
-    }
-  }, React.createElement("thead", null, React.createElement("tr", null, ["", "Indice", "Volume", "Hausses", "Baisses", "Inchangées"].map(x => React.createElement("th", {
-    key: x,
-    style: tete
-  }, x)))), React.createElement("tbody", null, [[jm(v.seance), v.jour], [jm(v.seance_veille), v.veille]].map(([d, e]) => React.createElement("tr", {
-    key: d
-  }, React.createElement("td", {
-    style: {
-      ...cel,
-      color: "#8892a4"
-    }
-  }, d), React.createElement("td", {
-    style: {
-      ...cel,
-      color: VC2(e.variation_pct)
-    }
-  }, e.variation_pct > 0 ? "+" : "", nfr(e.variation_pct), " %"), React.createElement("td", {
-    style: cel
-  }, e.volume_mad != null ? `${nfr(e.volume_mad / 1e6, 1)} M DH` : "—"), React.createElement("td", {
-    style: cel
-  }, e.hausses ?? "—"), React.createElement("td", {
-    style: cel
-  }, e.baisses ?? "—"), React.createElement("td", {
-    style: cel
-  }, e.inchanges ?? "—"))))))), sect.length > 0 && React.createElement(Carte, {
-    titre: "Indices sectoriels",
-    source: "CDG Capital Bourse \u2014 INDICE-SYNTHESE, identit\xE9 et date v\xE9rifi\xE9es pour chaque indice"
-  }, React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))",
-      gap: "2px 18px"
-    }
-  }, sect.map(x => React.createElement("div", {
-    key: x.code,
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      gap: 8,
-      fontSize: 12,
-      padding: "2px 0",
-      borderBottom: "1px solid #0a1220"
+      gridTemplateColumns: "minmax(0,1fr) auto"
     }
   }, React.createElement("span", {
     style: {
-      color: "#c8d3e8",
+      minWidth: 0,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      fontSize: 12
+    }
+  }, React.createElement("b", {
+    style: {
+      color: "#4db8ff"
+    }
+  }, r.symbol), " ", React.createElement("span", {
+    style: {
+      color: "#8892a4",
+      fontSize: 10.5
+    }
+  }, r.name), meta(r).reprise_recente && React.createElement("span", {
+    title: "Reprise de cotation r\xE9cente : la r\xE9f\xE9rence a \xE9t\xE9 fix\xE9e par l'autorit\xE9 de march\xE9, cette variation ne se compare pas aux autres.",
+    style: {
+      color: "#ffd740",
+      marginLeft: 5,
+      fontSize: 10
+    }
+  }, "\u26A0 reprise")), React.createElement("span", {
+    className: "tdb-num",
+    style: {
+      fontSize: 12,
+      textAlign: "right"
+    }
+  }, mesure === "montant" ? React.createElement(React.Fragment, null, montantCourt(r.echange_dh), " ", React.createElement("span", {
+    style: {
+      color: VARC(r.chg),
+      fontSize: 11
+    }
+  }, sgp(r.chg))) : React.createElement(React.Fragment, null, React.createElement("span", {
+    style: {
+      color: VARC(r.chg)
+    }
+  }, sgp(r.chg)), " ", React.createElement("span", {
+    style: {
+      color: "#8892a4",
+      fontSize: 10.5
+    }
+  }, r.echange_dh != null ? montantCourt(r.echange_dh) : "—"))));
+  return React.createElement("div", {
+    "data-zone": "detail-seance",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 12
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: 10,
+      flexWrap: "wrap"
+    }
+  }, React.createElement("div", null, React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#e6edf7",
+      letterSpacing: 1,
+      textTransform: "uppercase",
+      fontWeight: 600
+    }
+  }, "Tableau de bord de la s\xE9ance du ", jma(b.seance)), React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: "#8892a4"
+    }
+  }, "Chaque visuel porte sa source et sa date. Les cartes d\xE9crivent le march\xE9 entier, jamais filtr\xE9es.")), filtre ? React.createElement("button", {
+    className: "tdb-puce",
+    onClick: () => setFiltre(null),
+    "aria-label": `Retirer le filtre ${filtre.lab}`
+  }, "filtre actif : ", React.createElement("b", null, filtre.lab), " ", React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\u2715")) : rel.ok && React.createElement("span", {
+    style: {
+      fontSize: 10.5,
+      color: "#8892a4"
+    }
+  }, "Un secteur ou une tranche filtre les visuels par titre.")), filtre && React.createElement("button", {
+    className: "tdb-puce tdb-puce-flottante",
+    onClick: () => setFiltre(null),
+    "aria-label": `Retirer le filtre ${filtre.lab}`
+  }, React.createElement("span", {
+    style: {
       overflow: "hidden",
       textOverflow: "ellipsis",
       whiteSpace: "nowrap"
-    },
-    title: x.libelle
-  }, x.libelle), React.createElement("span", {
-    style: {
-      color: VC2(x.variation_pct),
-      fontFamily: "monospace",
-      whiteSpace: "nowrap",
-      flexShrink: 0
     }
-  }, x.variation_pct > 0 ? "+" : "", nfr(x.variation_pct), " %"))))), (nm || nt.length > 0) && React.createElement(Carte, {
-    titre: `Niveaux mesurés — ${nv.n_seances || 20} dernières séances`,
+  }, "filtre : ", React.createElement("b", null, filtre.lab)), " ", React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\u2715")), j && React.createElement("div", {
+    className: "tdb-kpi"
+  }, React.createElement(Kpi, {
+    l: "MASI",
+    val: nfr(j.cours),
+    cv: "#e6edf7",
+    src: srcCdg,
+    sous: React.createElement(React.Fragment, null, React.createElement("span", {
+      style: {
+        color: VARC(j.variation_pct),
+        fontWeight: 600
+      }
+    }, sgp(j.variation_pct)), vv && vv.cours != null && React.createElement("span", {
+      style: {
+        color: "#8892a4"
+      }
+    }, " \xB7 veille ", nfr(vv.cours)))
+  }), React.createElement(Kpi, {
+    l: "Volume global",
+    val: j.volume_mad != null ? `${nfr(j.volume_mad / 1e6, 1)} M DH` : "—",
+    src: srcCdg,
+    sous: v.ecart_volume_pct != null ? React.createElement(React.Fragment, null, React.createElement("span", {
+      style: {
+        color: "#c8d3e8"
+      }
+    }, sgp(v.ecart_volume_pct, 1)), React.createElement("span", {
+      style: {
+        color: "#8892a4"
+      }
+    }, " vs ", jm(v.seance_veille), vv && vv.volume_mad != null ? ` (${nfr(vv.volume_mad / 1e6, 1)} M)` : "")) : null
+  }), te != null && React.createElement(Kpi, {
+    l: "Titres \xE9chang\xE9s",
+    val: entier(te),
+    src: `data.json · séance du ${jm(b.seance)}, même relevé (${entier(j.transactions)} transactions)`,
+    sous: React.createElement("span", {
+      style: {
+        color: "#8892a4"
+      }
+    }, "nombre d'actions, toutes valeurs")
+  }), j.transactions != null && React.createElement(Kpi, {
+    l: "Transactions",
+    val: entier(j.transactions),
+    src: srcCdg,
+    sous: vv && vv.transactions != null ? React.createElement("span", {
+      style: {
+        color: "#8892a4"
+      }
+    }, entier(vv.transactions), " le ", jm(v.seance_veille)) : null
+  }), larg && React.createElement(Kpi, {
+    l: "Largeur",
+    src: srcCdg,
+    val: React.createElement(React.Fragment, null, React.createElement("span", {
+      style: {
+        color: "#00e5a0"
+      }
+    }, larg.hausses ?? "—"), React.createElement("span", {
+      style: {
+        color: "#8892a4",
+        fontSize: 14
+      }
+    }, " / "), React.createElement("span", {
+      style: {
+        color: "#ff4f5a"
+      }
+    }, larg.baisses ?? "—"), React.createElement("span", {
+      style: {
+        color: "#8892a4",
+        fontSize: 14
+      }
+    }, " / ", larg.inchanges ?? "—")),
+    sous: React.createElement("span", {
+      style: {
+        color: "#8892a4"
+      }
+    }, "hausses / baisses / inchang\xE9es", larg.valeurs_traitees ? ` sur ${larg.valeurs_traitees}` : ""),
+    enfant: nLarg > 0 && React.createElement("div", {
+      "aria-hidden": "true",
+      style: {
+        display: "flex",
+        height: 5,
+        borderRadius: 3,
+        overflow: "hidden",
+        marginTop: 3,
+        background: "#0a1220"
+      }
+    }, React.createElement("span", {
+      style: {
+        width: `${(larg.hausses || 0) / nLarg * 100}%`,
+        background: "#00e5a0"
+      }
+    }), React.createElement("span", {
+      style: {
+        width: `${(larg.inchanges || 0) / nLarg * 100}%`,
+        background: "#5a6478"
+      }
+    }), React.createElement("span", {
+      style: {
+        width: `${(larg.baisses || 0) / nLarg * 100}%`,
+        background: "#ff4f5a"
+      }
+    }))
+  }), b.ytd_pct != null && React.createElement(Kpi, {
+    l: "Depuis janvier",
+    val: sgp(b.ytd_pct),
+    cv: VARC(b.ytd_pct),
+    src: `Briefing · séance du ${jm(b.seance)}`,
+    sous: React.createElement("span", {
+      style: {
+        color: "#8892a4"
+      }
+    }, "variation de l'indice")
+  })), React.createElement("div", {
+    className: "tdb"
+  }, rel.ok && secteurs.length > 0 && React.createElement(Panneau, {
+    cls: "c8",
+    titre: tranche ? `Secteurs — titres « ${tranche.lab} »` : "Secteurs — montants échangés",
+    source: `${sourceReleve}. Secteurs du référentiel des titres.`
+  }, secteursVus.length ? React.createElement(VueSecteurs, {
+    secteurs: secteursVus,
+    total: totalVu,
+    filtre: filtre,
+    basculer: basculer
+  }) : React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#8892a4"
+    }
+  }, "Aucun titre dans cette tranche.")), t && React.createElement(Panneau, {
+    cls: "c4",
+    titre: "S\xE9ance du MASI \u2014 rep\xE8res",
+    source: `${t.source} · ${jma(t.seance || b.seance)} · ${t.n_points} points de la série intrajournalière${t.serie_rejoint_cloture === false ? ` · série arrêtée à ${t.serie_jusqu_a} ; clôture et extrêmes tirés de la synthèse` : ""}. Repères seulement, pas la courbe.`
+  }, React.createElement(FourchetteMasi, {
+    t: t
+  })), rel.ok && React.createElement(Panneau, {
+    cls: "c6",
+    titre: `Titres de la séance${filtre ? ` — ${filtre.lab}` : ""}`,
+    source: `${sourceReleve}. Toucher un titre ouvre sa fiche.`
+  }, React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(min(210px,100%),1fr))",
+      gap: "10px 14px"
+    }
+  }, TOPS.map(([l, liste], i) => React.createElement("div", {
+    key: l,
+    style: {
+      minWidth: 0
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      letterSpacing: .6,
+      textTransform: "uppercase",
+      margin: "0 0 3px 6px"
+    }
+  }, l), liste.length ? liste.map(r => ligneTitre(r, i === 2 ? "montant" : "variation")) : React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: "#8892a4",
+      padding: "4px 6px"
+    }
+  }, "aucun titre"))))), rel.ok && React.createElement(Panneau, {
+    cls: "c6",
+    titre: "R\xE9partition des variations",
+    source: `${sourceReleve}. Une barre = nombre de titres dans la tranche.`
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 1
+    }
+  }, histo.map(x => {
+    const on = filtre && filtre.type === "tranche" && filtre.v === x.id,
+      c = couleurTranche(x.id);
+    return React.createElement("button", {
+      key: x.id,
+      className: "tdb-ligne",
+      "aria-pressed": !!on,
+      disabled: !x.n,
+      "aria-label": `${x.lab} : ${x.n} titre${x.n > 1 ? "s" : ""}${x.nf != null ? `, dont ${x.nf} du secteur ${filtre.v}` : ""}`,
+      onClick: () => basculer({
+        type: "tranche",
+        v: x.id,
+        lab: `variation ${x.lab}`
+      }),
+      style: {
+        gridTemplateColumns: "92px minmax(0,1fr) 54px",
+        minHeight: 26,
+        cursor: x.n ? "pointer" : "default",
+        opacity: filtre && filtre.type === "tranche" && !on ? .45 : 1
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 11,
+        color: "#c8d3e8",
+        whiteSpace: "nowrap"
+      }
+    }, x.lab), React.createElement("span", {
+      style: {
+        position: "relative",
+        height: 12,
+        background: "#0a1220",
+        borderRadius: 2
+      }
+    }, React.createElement("span", {
+      style: {
+        position: "absolute",
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: `${x.n / hMax * 100}%`,
+        background: c,
+        opacity: x.nf != null ? .25 : .85,
+        borderRadius: 2
+      }
+    }), x.nf != null && React.createElement("span", {
+      style: {
+        position: "absolute",
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: `${x.nf / hMax * 100}%`,
+        background: c,
+        borderRadius: 2
+      }
+    })), React.createElement("span", {
+      className: "tdb-num",
+      style: {
+        fontSize: 11.5,
+        textAlign: "right",
+        color: x.n ? "#e6edf7" : "#5a6478"
+      }
+    }, x.nf != null ? React.createElement(React.Fragment, null, x.nf, React.createElement("span", {
+      style: {
+        color: "#8892a4"
+      }
+    }, "/", x.n)) : x.n));
+  })), filtre && filtre.type === "secteur" && React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: "#8892a4",
+      marginTop: 6
+    }
+  }, "Barre pleine : titres \xAB ", filtre.v, " \xBB ; barre p\xE2le : tous les titres.")), sect.length > 0 && React.createElement(Panneau, {
+    cls: rel.ok ? "c6" : "c8",
+    titre: "Indices sectoriels",
+    source: `Synthèse de séance — identité et date vérifiées pour chaque indice · ${dateLecture}. Classification propre aux indices (${sect.length} indices), distincte de celle des titres : non reliée au filtre.`
+  }, sectNuls && React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: "#ffd740",
+      marginBottom: 6
+    }
+  }, "Les ", sect.length, " indices sont publi\xE9s \xE0 0,00 % pour ce relev\xE9 (cours \xE9gal \xE0 la veille dans la source)."), sectNuls ? React.createElement("details", null, React.createElement("summary", {
+    style: {
+      fontSize: 11,
+      color: "#4db8ff",
+      cursor: "pointer",
+      padding: "4px 0"
+    }
+  }, "Voir les ", sect.length, " indices"), React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#c8d3e8",
+      lineHeight: 1.7,
+      marginTop: 4
+    }
+  }, sect.map(x => x.libelle).join(" · "))) : React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column"
+    }
+  }, [...sect].sort((x, y) => (y.variation_pct || 0) - (x.variation_pct || 0)).map(x => {
+    const vp = x.variation_pct || 0,
+      w = Math.abs(vp) / sMax * 50;
+    return React.createElement("div", {
+      key: x.code,
+      style: {
+        display: "grid",
+        gridTemplateColumns: "minmax(0,1.3fr) minmax(70px,1fr) 64px",
+        gap: 8,
+        alignItems: "center",
+        padding: "2px 0",
+        borderBottom: "1px solid #0a1220"
+      }
+    }, React.createElement("span", {
+      title: x.libelle,
+      style: {
+        fontSize: 11,
+        color: "#c8d3e8",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap"
+      }
+    }, x.libelle), React.createElement("span", {
+      "aria-hidden": "true",
+      style: {
+        position: "relative",
+        height: 10
+      }
+    }, React.createElement("span", {
+      style: {
+        position: "absolute",
+        left: "50%",
+        top: -2,
+        bottom: -2,
+        borderLeft: "1px solid #2a3550"
+      }
+    }), React.createElement("span", {
+      style: {
+        position: "absolute",
+        top: 1,
+        bottom: 1,
+        background: VARC(vp),
+        opacity: .85,
+        borderRadius: 2,
+        left: vp < 0 ? `${50 - w}%` : "50%",
+        width: `${w}%`
+      }
+    })), React.createElement("span", {
+      className: "tdb-num",
+      style: {
+        fontSize: 11.5,
+        color: VARC(x.variation_pct),
+        textAlign: "right"
+      }
+    }, sgp(x.variation_pct)));
+  }))), (nm || nt.length > 0) && React.createElement(Panneau, {
+    cls: "c6",
+    titre: `Niveaux mesurés — ${nv.n_seances || 20} dernières séances${filtre && rel.ok ? ` — ${filtre.lab}` : ""}`,
     source: "Plus hauts et plus bas r\xE9ellement atteints. Ce ne sont ni des supports ni des objectifs : des faits dat\xE9s."
   }, nm && nm.clotures && React.createElement("div", {
     style: {
       fontSize: 12,
-      color: "#8892a4",
-      marginBottom: 8
+      color: "#c8d3e8",
+      marginBottom: 8,
+      lineHeight: 1.6
     }
   }, "MASI \u2014 s\xE9ance ", nfr(nm.seance_bas), " \u2013 ", nfr(nm.seance_haut), " \xB7 cl\xF4tures du ", jm(nm.clotures.du), " au ", jm(nm.clotures.au), " : plus basse ", nfr(nm.clotures.plus_basse), " (", jm(nm.clotures.date_plus_basse), "), plus haute ", nfr(nm.clotures.plus_haute), " (", jm(nm.clotures.date_plus_haute), ")", nm.clotures.n_seances && nm.clotures.n < nm.clotures.n_seances && React.createElement("span", {
     style: {
       color: "#ff8f00"
     }
-  }, " \xB7 ", nm.clotures.n, " cl\xF4tures de l'indice enregistr\xE9es sur ", nm.clotures.n_seances, " s\xE9ances")), nt.length > 0 && React.createElement("div", {
+  }, " \xB7 ", nm.clotures.n, " cl\xF4tures de l'indice enregistr\xE9es sur ", nm.clotures.n_seances, " s\xE9ances")), ntVus.length > 0 && React.createElement("div", {
+    className: "tdb-etroit",
+    style: {
+      display: "flex",
+      flexDirection: "column"
+    }
+  }, ntVus.map(x => React.createElement("div", {
+    key: x.symbol,
+    style: {
+      padding: "6px 0",
+      borderTop: "1px solid #0a1220",
+      fontSize: 12,
+      color: "#c8d3e8",
+      lineHeight: 1.55
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      gap: 8
+    }
+  }, React.createElement("span", null, React.createElement("b", {
+    style: {
+      color: "#4db8ff"
+    }
+  }, x.symbol), " ", React.createElement("span", {
+    className: "tdb-num"
+  }, nfr(x.montant_dh / 1e6, 1), " M DH")), React.createElement("span", {
+    className: "tdb-num",
+    title: "Fourchette de la s\xE9ance"
+  }, x.seance_bas != null ? `${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}` : "—")), x.fenetre && React.createElement("div", {
+    className: "tdb-num",
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      whiteSpace: "normal"
+    }
+  }, nv.n_seances || 20, " s\xE9ances : bas ", React.createElement("span", {
+    style: {
+      color: "#c8d3e8"
+    }
+  }, nfr(x.fenetre.plus_bas)), " (", jm(x.fenetre.date_plus_bas), ") \xB7 haut ", React.createElement("span", {
+    style: {
+      color: "#c8d3e8"
+    }
+  }, nfr(x.fenetre.plus_haut)), " (", jm(x.fenetre.date_plus_haut), ")")))), ntVus.length > 0 ? React.createElement("div", {
+    className: "tdb-large",
     style: {
       overflowX: "auto"
     }
@@ -7969,12 +9016,12 @@ const SeanceDetail = ({
     }
   }, React.createElement("thead", null, React.createElement("tr", null, ["Titre", "Échangé", "Séance", "Plus bas", "Plus haut"].map(x => React.createElement("th", {
     key: x,
+    style: tete
+  }, x)))), React.createElement("tbody", null, ntVus.map(x => React.createElement("tr", {
+    key: x.symbol,
     style: {
-      ...tete,
-      textAlign: "left"
+      borderTop: "1px solid #0a1220"
     }
-  }, x)))), React.createElement("tbody", null, nt.map(x => React.createElement("tr", {
-    key: x.symbol
   }, React.createElement("td", {
     style: {
       ...cel,
@@ -7982,22 +9029,32 @@ const SeanceDetail = ({
       fontWeight: 600
     }
   }, x.symbol), React.createElement("td", {
-    style: cel
+    style: cel,
+    className: "tdb-num"
   }, nfr(x.montant_dh / 1e6, 1), " M DH"), React.createElement("td", {
-    style: cel
+    style: cel,
+    className: "tdb-num"
   }, x.seance_bas != null ? `${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}` : "—"), React.createElement("td", {
-    style: cel
+    style: cel,
+    className: "tdb-num"
   }, x.fenetre ? React.createElement(React.Fragment, null, nfr(x.fenetre.plus_bas), " ", React.createElement("span", {
     style: {
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, jm(x.fenetre.date_plus_bas))) : "—"), React.createElement("td", {
-    style: cel
+    style: cel,
+    className: "tdb-num"
   }, x.fenetre ? React.createElement(React.Fragment, null, nfr(x.fenetre.plus_haut), " ", React.createElement("span", {
     style: {
-      color: "#5a6478"
+      color: "#8892a4"
     }
-  }, jm(x.fenetre.date_plus_haut))) : "—"))))))), mp.length > 0 && React.createElement(Carte, {
+  }, jm(x.fenetre.date_plus_haut))) : "—")))))) : nt.length > 0 && React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: "#8892a4"
+    }
+  }, "Aucun des ", nt.length, " titres les plus \xE9chang\xE9s ne rel\xE8ve du filtre.")), mp.length > 0 && React.createElement(Panneau, {
+    cls: "c6",
     titre: "Mati\xE8res premi\xE8res",
     source: "TradingView \u2014 contrat \xE0 terme le plus proche. Heure de la valeur d\xE9clar\xE9e par la source, en UTC."
   }, mp.map(x => React.createElement("div", {
@@ -8017,27 +9074,28 @@ const SeanceDetail = ({
     }
   }, x.nom, " ", React.createElement("span", {
     style: {
-      color: "#5a6478",
+      color: "#8892a4",
       fontSize: 10.5
     }
   }, x.ticker)), React.createElement("span", {
+    className: "tdb-num",
     style: {
-      fontFamily: "monospace",
       color: "#c8d3e8"
     }
   }, nfr(x.valeur), " ", x.devise, x.variation_pct != null && React.createElement("span", {
     style: {
-      color: VC2(x.variation_pct),
+      color: VARC(x.variation_pct),
       marginLeft: 8
     }
-  }, x.variation_pct > 0 ? "+" : "", nfr(x.variation_pct), " %")), React.createElement("span", {
+  }, sgp(x.variation_pct))), React.createElement("span", {
     style: {
       flexBasis: "100%",
       textAlign: "right"
     }
   }, React.createElement(SourceCotation, {
     l: x
-  }))))), dep && (dep.titres || []).length > 0 && React.createElement(Carte, {
+  }))))), dep && (dep.titres || []).length > 0 && React.createElement(Panneau, {
+    cls: "c6",
     titre: `Dépôts de résultats à l'AMMC — ${jm(dep.seance)}`,
     source: "Liste des communiqu\xE9s des \xE9metteurs (AMMC). La liste ne donne pas l'heure : publi\xE9 ce jour-l\xE0, pas forc\xE9ment avant la cl\xF4ture."
   }, dep.titres.map((x, i) => React.createElement("a", {
@@ -8048,7 +9106,7 @@ const SeanceDetail = ({
     style: {
       display: "block",
       padding: "6px 0 6px 10px",
-      borderLeft: "2px solid #00e5a0",
+      borderLeft: "2px solid #4db8ff",
       marginBottom: 4,
       textDecoration: "none"
     }
@@ -8067,10 +9125,10 @@ const SeanceDetail = ({
   }, x.titre))), (dep.autres_emetteurs || []).length > 0 && React.createElement("div", {
     style: {
       fontSize: 10.5,
-      color: "#5a6478",
+      color: "#8892a4",
       marginTop: 6
     }
-  }, "Autres \xE9metteurs le m\xEAme jour, sans action cot\xE9e rattach\xE9e : ", dep.autres_emetteurs.map(x => x.emetteur).join(", "), ".")));
+  }, "Autres \xE9metteurs le m\xEAme jour, sans action cot\xE9e rattach\xE9e : ", dep.autres_emetteurs.map(x => x.emetteur).join(", "), "."))));
 };
 const gras = t => t.split(/(\*\*[^*]+\*\*)/g).map((x, i) => x.startsWith("**") && x.endsWith("**") ? React.createElement("strong", {
   key: i,
@@ -8343,7 +9401,11 @@ const ASurveiller = ({
     }
   }, "volume inhabituel"))))))))));
 };
-const Briefing = () => {
+const Briefing = ({
+  rows,
+  masi,
+  ouvrir
+}) => {
   const [b, setB] = useState(null);
   const [h, setH] = useState(null);
   const [mj, setMj] = useState(null);
@@ -8356,7 +9418,8 @@ const Briefing = () => {
   const [detail, setDetail] = useState(false);
   useEffect(() => {
     const t = Math.floor(Date.now() / 3600000);
-    Promise.all([fetch("briefing.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null), fetch("briefing_hebdo.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null), fetch("briefing_mijournee.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null), fetch("briefing_cloture.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null)]).then(([j, s, m, c]) => {
+    const sn = r => r.ok ? r.json().then(sansNomCourtier) : null;
+    Promise.all([fetch("briefing.json?t=" + t).then(sn).catch(() => null), fetch("briefing_hebdo.json?t=" + t).then(sn).catch(() => null), fetch("briefing_mijournee.json?t=" + t).then(sn).catch(() => null), fetch("briefing_cloture.json?t=" + t).then(sn).catch(() => null)]).then(([j, s, m, c]) => {
       setB(j);
       setH(s);
       setMj(m);
@@ -8374,7 +9437,7 @@ const Briefing = () => {
     }
     setChoix(d);
     setArch(null);
-    fetch(`briefings/${d}.json?t=${Math.floor(Date.now() / 3600000)}`).then(r => r.ok ? r.json() : null).catch(() => null).then(x => {
+    fetch(`briefings/${d}.json?t=${Math.floor(Date.now() / 3600000)}`).then(r => r.ok ? r.json().then(sansNomCourtier) : null).catch(() => null).then(x => {
       setArch(x || {});
       setVue(x && x.cloture ? "cloture" : "mijournee");
     });
@@ -8451,6 +9514,7 @@ const Briefing = () => {
     cloture: "Lecture de clôture",
     en_seance: "Lecture en séance"
   };
+  const nonDit = [...(src.non_mesurable || []), ...(semaine ? [] : absencesTableau(src, rows, masi))];
   const blocConstats = React.createElement("div", {
     className: "carte",
     style: {
@@ -8496,7 +9560,7 @@ const Briefing = () => {
     style: {
       color: "#8892a4"
     }
-  }, "Rien de mesurable \xE0 signaler.")), (src.non_mesurable || []).length > 0 && React.createElement("div", {
+  }, "Rien de mesurable \xE0 signaler.")), nonDit.length > 0 && React.createElement("div", {
     style: {
       marginTop: 12,
       paddingTop: 10,
@@ -8505,7 +9569,7 @@ const Briefing = () => {
   }, React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#8892a4",
+      color: "#c8d3e8",
       marginBottom: 4
     }
   }, "Ce que cette lecture ne dit pas :"), React.createElement("ul", {
@@ -8513,10 +9577,10 @@ const Briefing = () => {
       margin: 0,
       paddingLeft: 18,
       fontSize: 11.5,
-      color: "#5a6478",
+      color: "#8892a4",
       lineHeight: 1.6
     }
-  }, (src.non_mesurable || []).map((x, i) => React.createElement("li", {
+  }, nonDit.map((x, i) => React.createElement("li", {
     key: i
   }, x, ".")))));
   return React.createElement("div", {
@@ -8574,21 +9638,60 @@ const Briefing = () => {
   }), !semaine && React.createElement(ASurveiller, {
     a: src.a_surveiller
   }), semaine && blocConstats, !semaine && React.createElement("button", {
+    className: "bouton-detail",
     onClick: () => setDetail(!detail),
+    "aria-expanded": detail,
     style: {
-      alignSelf: "flex-start",
-      background: "#0a1220",
-      border: "1px solid #1a2540",
-      color: "#8892a4",
-      borderRadius: 5,
-      padding: "5px 14px",
-      fontSize: 11,
-      letterSpacing: .8,
-      cursor: "pointer"
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 12,
+      width: "100%",
+      minHeight: 46,
+      background: detail ? "rgba(77,184,255,.08)" : "linear-gradient(90deg,rgba(0,229,160,.14),rgba(77,184,255,.14))",
+      border: "1px solid rgba(77,184,255,.55)",
+      color: "#e6edf7",
+      borderRadius: 8,
+      padding: "10px 16px",
+      fontSize: 13,
+      fontWeight: 700,
+      letterSpacing: 1,
+      cursor: "pointer",
+      fontFamily: "var(--font)",
+      textAlign: "left"
     }
-  }, detail ? "MASQUER LE DÉTAIL DE LA SÉANCE ▴" : "DÉTAIL DE LA SÉANCE ▾"), !semaine && detail && blocConstats, !semaine && detail && React.createElement(SeanceDetail, {
-    b: src
-  }), semaine && (h.hausses || []).length > 0 && React.createElement("div", {
+  }, React.createElement("span", null, detail ? "MASQUER LE DÉTAIL DE LA SÉANCE" : "VOIR LE DÉTAIL DE LA SÉANCE", React.createElement("span", {
+    style: {
+      display: "block",
+      fontSize: 10,
+      fontWeight: 400,
+      letterSpacing: .3,
+      color: "#8892a4",
+      marginTop: 3
+    }
+  }, detail ? "revenir à la lecture courte" : "tableau de bord : MASI, secteurs, volumes, hausses et baisses")), React.createElement("span", {
+    "aria-hidden": "true",
+    style: {
+      flex: "0 0 auto",
+      width: 28,
+      height: 28,
+      borderRadius: "50%",
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "rgba(77,184,255,.18)",
+      color: "#4db8ff",
+      fontSize: 14,
+      transition: "transform .2s",
+      transform: detail ? "rotate(180deg)" : "none"
+    }
+  }, "\u25BE")), !semaine && detail && React.createElement(SeanceDetail, {
+    key: `${src.seance}-${src.moment}`,
+    b: src,
+    rows: rows,
+    masi: masi,
+    ouvrir: ouvrir
+  }), !semaine && detail && blocConstats, semaine && (h.hausses || []).length > 0 && React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
@@ -12823,7 +13926,14 @@ function App() {
     scoreMode: scoreMode
   }), tab === "weights" && React.createElement(Weights, null), tab === "guide" && React.createElement(Guide, {
     setTab: changeTab
-  }), tab === "briefing" && React.createElement(Briefing, null), tab === "monde" && React.createElement(MarchesMondiaux, null), tab === "smart" && React.createElement(Smart, null), tab === "nlp" && React.createElement(NlpDash, null), tab === "news" && React.createElement(NewsFeed, null), React.createElement(MentionLegale, null)));
+  }), tab === "briefing" && React.createElement(Briefing, {
+    rows: rows,
+    masi: masi,
+    ouvrir: sym => {
+      choisirTitre(sym);
+      changeTab("detail");
+    }
+  }), tab === "monde" && React.createElement(MarchesMondiaux, null), tab === "smart" && React.createElement(Smart, null), tab === "nlp" && React.createElement(NlpDash, null), tab === "news" && React.createElement(NewsFeed, null), React.createElement(MentionLegale, null)));
 }
 class ErrorBoundary extends React.Component {
   constructor(p) {
