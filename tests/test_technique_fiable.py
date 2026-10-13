@@ -77,9 +77,24 @@ def test_sans_drapeau_rien_ne_change():
     assert w["technique"] > 0
 
 
-def test_le_verdict_d_un_titre_peu_liquide_est_plafonne():
+def test_le_verdict_d_un_titre_peu_liquide_est_plafonne(monkeypatch):
     """04/10/2026 : « ACHETER » plafonné à « SURVEILLER ★ » sur un titre au
-    technique neutralisé (peu liquide, fixing). La note chiffrée reste."""
-    code = (RACINE / "update_data.py").read_text(encoding="utf-8")
-    assert 'else "SURVEILLER ★" if (_tech_nf and str(v53["sig"]).startswith("ACHETER"))' in code
-    assert '"verdict_plafonne"' in code
+    technique neutralisé (peu liquide, fixing). La note chiffrée reste.
+    Depuis le 10/10/2026 la règle vit dans `_signal_publie` : prouvée ici par
+    son comportement plutôt que par le texte du code."""
+    import update_data
+    monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: False)
+    monkeypatch.setattr(update_data, "sans_comptes", lambda t: None)
+    nf = {"motif": "titre au fixing"}
+    assert update_data._signal_publie("ZZZ", "ACHETER ★★", nf, None) == (
+        "SURVEILLER ★", "ACHETER plafonné : titre au fixing")
+    # Seul ACHETER est plafonné : les autres paliers passent tels quels.
+    for sig in ("SURVEILLER ★", "ATTENDRE", "ÉVITER", "ÉVITER FORT"):
+        assert update_data._signal_publie("ZZZ", sig, nf, None) == (sig, None)
+    # Sans neutralisation du technique, ACHETER reste ACHETER.
+    assert update_data._signal_publie("ZZZ", "ACHETER ★★", None, None) == ("ACHETER ★★", None)
+    # « Données insuffisantes » prime, et aucun verdict plafonné n'est annoncé.
+    assert update_data._signal_publie("ZZZ", "ACHETER ★★", nf, 3) == ("Données insuffisantes", None)
+    assert update_data._signal_publie("ZZZ", "ACHETER ★★", nf, None, sans_note=True) == (
+        "Données insuffisantes", None)
+    assert '"verdict_plafonne"' in (RACINE / "update_data.py").read_text(encoding="utf-8")

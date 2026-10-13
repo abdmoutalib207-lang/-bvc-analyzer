@@ -231,6 +231,28 @@ def _controles(jour, ecart):
             if x.get("v53") is not None and not 0 <= x["v53"] <= 10]
     ajouter("score v5.3 dans [0, 10]", not hors, hors or "conforme")
 
+    # Note fondamentale par famille (11/10/2026, mode comparaison). Deux lignes,
+    # de nature DIFFÉRENTE :
+    #  · BLOQUANT : les fichiers dont la note dépend (fondamentaux, BPA, faits
+    #    financiers, résultats S1) existent et ne sont pas effondrés — une panne
+    #    des SOURCES. Jamais l'abstention d'un titre : elle est légitime.
+    #  · AVERTISSEMENT (jamais un échec) : les titres du MASI 1 sans note par
+    #    famille, avec le motif publié.
+    from pipeline.smart_money.fond_score_sectoriel import (
+        charger_sources, masi1_sans_note, problemes_sources)
+    try:
+        pannes = problemes_sources(charger_sources(RACINE))
+        ajouter("fichiers de fondamentaux présents et non effondrés", not pannes, pannes or "conformes")
+    except Exception as e:                                    # noqa: BLE001
+        ajouter("fichiers de fondamentaux présents et non effondrés", False, f"illisibles : {e}")
+    if any("note_fond_metier" in x for x in titres.values()):
+        sans_note = masi1_sans_note([dict(x, symbol=x.get("symbol") or t) for t, x in titres.items()])
+        ajouter("avertissement : titres du MASI 1 sans note par famille (non bloquant)", True,
+                "; ".join(f"{t} ({m})" for t, m in sans_note) or "tous notés")
+    else:
+        ajouter("avertissement : titres du MASI 1 sans note par famille (non bloquant)", True,
+                "sans objet : data.json sans note par famille")
+
     # Règle R10 : la BVC plafonne la variation à ±10 % par séance, sur le
     # COURS D'UNE SOCIÉTÉ. Le contrôle porte bien sur les titres un à un —
     # l'indice, lui, n'est pas soumis à ce plafond (précision du 05/09/2026).

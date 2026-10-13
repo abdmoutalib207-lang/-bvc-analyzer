@@ -10,6 +10,16 @@ Composantes [0-10]:
   Bilan         10%  Dette/EBITDA + cash conversion
 
 Modificateurs: momentum, rerating, cycle_commodities
+
+⚠️ CETTE GRILLE N'EST PLUS CELLE DE LA NOTE PUBLIÉE (10/10/2026, décision
+d'Abd Moutalib). `score_fond` suit désormais la grille de la FAMILLE du titre :
+voir `fond_score_sectoriel.py`. Ce module reste la source de TROIS choses :
+la porte unique des ratios (`ratio_effectif`, `roe_effectif`, garde-fous
+`ROE_SANS_OBJET` et `RATIOS_EN_VERIFICATION`), les références WACC_REF et
+COUT_FONDS_PROPRES_REF, et les paliers que la grille par famille reprend
+(épinglés par tests/test_note_sectorielle.py). `compute_fond_score` ne sert
+plus qu'à la note provisoire de la boucle d'`update_data.py`, remplacée au
+second passage.
 """
 import json
 from pathlib import Path
@@ -128,8 +138,11 @@ def ratio_effectif(f: dict | None, sym: str, cle: str) -> dict | None:
     v = _publie(f, sym, cle)
     if v is not None:
         x = f["ratios_publies"][cle]
+        # `sources` et `base` : la PIÈCE du calcul, lue par la note par famille
+        # pour dire d'où vient chaque chiffre (ajout du 11/10/2026, sans effet
+        # sur la valeur).
         return {"valeur": v, "origine": "comptes publiés", "date": x.get("date"),
-                "formule": x.get("formule")}
+                "formule": x.get("formule"), "sources": x.get("sources"), "base": x.get("base")}
     s = f.get(cle)
     if isinstance(s, (int, float)) and not isinstance(s, bool):
         return {"valeur": float(s), "origine": "saisie", "date": f.get("date_maj"),

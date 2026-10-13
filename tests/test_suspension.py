@@ -131,10 +131,22 @@ def test_le_meta_porte_la_suspension():
         "la distinguer d'une simple donnée périmée")
 
 
-def test_le_signal_devient_suspendu():
-    assert re.search(r'"sig":\s*\("SUSPENDU" if _suspendu_maintenant\(', _moteur()), (
-        "LE test qui compte : sans lui, le moteur recommande d'acheter un "
-        "titre qu'on ne peut pas acheter")
+def test_le_signal_devient_suspendu(monkeypatch):
+    """LE test qui compte : sans lui, le moteur recommande d'acheter un titre
+    qu'on ne peut pas acheter. Depuis le 10/10/2026 la règle vit dans
+    `_signal_publie` (une seule fois, pour la boucle ET le second passage) :
+    on la prouve par son comportement, et on vérifie qu'elle est bien celle
+    que la fiche publie."""
+    import update_data
+    monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: True)
+    for sig in ("ACHETER ★★", "ÉVITER FORT", None):
+        assert update_data._signal_publie("CMT", sig, None, None) == ("SUSPENDU", None)
+        assert update_data._signal_publie("CMT", sig, None, None, sans_note=True)[0] == "SUSPENDU"
+    src = _moteur()
+    assert re.search(r'"sig":\s*_sig_pub,', src), "la fiche ne publie pas le signal de la règle unique"
+    assert "_sig_pub, _verdict_plafonne = _signal_publie(" in src
+    assert 'e["sig"], e["verdict_plafonne"] = _signal_publie(' in src, (
+        "le second passage (note par famille) doit refaire passer le signal par la même règle")
 
 
 def test_l_ecriture_de_chandelle_est_refusee(tmp_path):
@@ -266,21 +278,21 @@ def test_le_journal_annonce_le_signal_reellement_publie():
     écrivait « SUSPENDU » : le journal imprimait `v53['sig']`, calculé avant
     la substitution. Un journal qui contredit le fichier qu'il décrit est pire
     qu'un journal muet — c'est là qu'on va vérifier quand on doute."""
+    import inspect
+    import update_data
     s = _moteur()
-    # ⚠️ CE TEST FIGEAIT LA LIGNE DE CALCUL, AU CARACTÈRE PRÈS. Le 16/09, un
-    # troisième cas s'y est ajouté — « Données insuffisantes » après une reprise
-    # de cotation — et le test est passé au rouge sans qu'aucune règle ne soit
-    # violée. Ce qui doit tenir est le LIEN : le journal imprime la variable que
-    # le fichier publie, et cette variable connaît les mêmes cas que lui.
-    assert "_sig_publie = (" in s or "_sig_publie = " in s, "la variable a disparu"
-    assert "{_sig_publie}\")" in s, "la ligne de journal n'utilise pas le signal publié"
-
-    import re as _re
-    calcul = _re.search(r"_sig_publie = \(?(.*?)\n\n", s, _re.S).group(1)
-    publie = _re.search(r'"sig":\s+\((.*?)\),\n', s, _re.S).group(1)
-    for cas in ("SUSPENDU", "Données insuffisantes", 'v53["sig"]'):
-        assert cas in calcul, f"le journal ignore le cas « {cas} »"
-        assert cas in publie, f"le fichier ignore le cas « {cas} »"
+    # ⚠️ Ce test figeait la ligne de calcul au caractère près (16/09), puis la
+    # variable `_sig_publie` (10/10/2026) : depuis la note par famille, le
+    # signal définitif n'est connu qu'au second passage, qui écrit le journal.
+    # Ce qui doit tenir est le LIEN : la ligne de journal imprime le champ
+    # `sig` de la fiche telle qu'elle sera écrite, et ce champ vient de la
+    # règle unique, qui connaît les mêmes cas.
+    corps = inspect.getsource(update_data.appliquer_note_sectorielle)
+    assert "{e['sig']}" in corps, "la ligne de journal n'utilise pas le signal publié"
+    assert "{v53['sig']}" not in s, "le journal imprimerait un signal d'avant substitution"
+    regle = inspect.getsource(update_data._signal_publie)
+    for cas in ("SUSPENDU", "Données insuffisantes", "SURVEILLER"):
+        assert cas in regle, f"la règle unique ignore le cas « {cas} »"
 
 
 def test_le_dry_run_n_ecrit_rien():

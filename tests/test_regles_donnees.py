@@ -68,8 +68,23 @@ def test_r8_score_dans_l_intervalle(titres):
     assert not hors, f"scores v5.3 hors [0, 10] : {hors}"
 
 
-def test_r8_aucun_score_manquant(titres):
-    assert not [s for s, x in titres.items() if x.get("v53") is None]
+def test_r8_aucun_score_manquant_sans_explication(titres):
+    """Depuis le 10/10/2026 (note fondamentale par famille), un titre dont la
+    grille manque de la moitié de son poids n'a PAS de note : `score_fond` et
+    `v53` valent None. Ce n'est admis que s'il est ANNONCÉ — signal « Données
+    insuffisantes » (ou « SUSPENDU »), motif publié dans `note_fond` — et jamais
+    l'inverse : une note fondamentale présente impose un v53."""
+    manquants = {s: x for s, x in titres.items() if x.get("v53") is None}
+    muets = [s for s, x in manquants.items()
+             if x.get("sig") not in ("Données insuffisantes", "SUSPENDU")
+             or x.get("score_fond") is not None
+             or not (x.get("note_fond") or {}).get("motif")]
+    assert not muets, f"v53 absent sans explication publiée : {muets}"
+    assert not [s for s, x in titres.items()
+                if x.get("score_fond") is not None and x.get("v53") is None]
+    ambigus = [s for s, x in titres.items()
+               if x.get("v53") is not None and x.get("score_fond") is None]
+    assert not ambigus, f"v53 publié sans note fondamentale : {ambigus}"
 
 
 # ── Le bloc `_meta` : sans lui, le frontend ne peut pas dire ce qu'il sait ──

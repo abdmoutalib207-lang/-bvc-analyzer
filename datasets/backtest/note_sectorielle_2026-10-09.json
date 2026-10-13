@@ -1,0 +1,552 @@
+{
+ "_quoi": "Ancienne note fondamentale (publiée) contre note par famille (REJOUÉE) — mesure descriptive",
+ "_methode": "Ancienne note fondamentale contre note PAR FAMILLE, sur l'historique publié.\n\n    python3 pipeline/mesure_note_sectorielle.py\n\nSortie : `datasets/backtest/note_sectorielle_AAAA-MM-JJ.json` (date de la\ndernière séance du journal, jamais l'horloge). Aucun réseau. Deux exécutions\nsur les mêmes entrées donnent le même fichier à l'octet près.\n\n⚠️ CE QUE CETTE MESURE EST, ET CE QU'ELLE N'EST PAS — écrit AVANT les chiffres\n  1. La NOUVELLE note n'a jamais été publiée : elle est REJOUÉE. Pour chaque\n     séance du journal `score_history.json`, on la recalcule avec les cours de\n     cette séance (PER et P/B relatifs, médianes de pairs du jour) mais avec\n     les fondamentaux d'AUJOURD'HUI (comptes S1 2026 déposés en septembre).\n  2. L'ANCIENNE note est celle qui a été réellement publiée chaque jour\n     (`score_fond`), avec les fondamentaux DE L'ÉPOQUE.\n  ⇒ LA COMPARAISON EST BIAISÉE EN FAVEUR DE LA NOUVELLE NOTE, ET C'EST TRANCHÉ :\n     seule la nouvelle connaît des comptes déposés après la séance qu'elle\n     note (connaissance du futur). Les deux séries ne portent pas les mêmes\n     données ; elles ne « souffrent » pas du même biais, l'une en a un que\n     l'autre n'a pas. Un écart favorable à la nouvelle note est donc suspect à\n     l'avance et ne peut pas être lu comme une amélioration ; un écart\n     défavorable serait en revanche informatif. La fenêtre « depuis 29/09 »\n     réduit le biais (les fondamentaux calculés existent) sans l'annuler.\n  3. Douze séances (24/09 → 09/10) : UN régime, observations chevauchantes. Le\n     backtest du projet exige 20 jours distincts et 10 dates non chevauchantes\n     avant toute conclusion ; l'horizon de 20 séances n'est atteint par aucune\n     date. Les nombres produits sont DESCRIPTIFS, sans valeur probante.\n  4. Mêmes règles que `backtest_reproductible.py` (réutilisé, pas dupliqué) :\n     rendement total, alpha contre le MASI, confiance ≥ 2, deux grilles de\n     confiance jamais mélangées. Seuls les couples (séance, titre) ayant UNE\n     note dans chaque grille sont comparés.\n\nCe que la Vision Produit demande n'est pas « la note prédit-elle ? » mais « les\nfréquences affichées sont-elles justes et utiles ? » : cette mesure ne la\nremplace pas, elle dit seulement si la nouvelle grille classe les titres\nautrement que l'ancienne sur les séances disponibles.",
+ "entrees": {
+  "premiere_seance": "2026-09-24",
+  "derniere_seance": "2026-10-09",
+  "lignes_du_journal": 960,
+  "couples_avec_les_deux_notes": 831,
+  "fenetre_fondamentaux_calcules_depuis": "2026-09-29",
+  "sha256": {
+   "score_history": "f7e60a62fd12ea8e77a6ffe5e7b0ea25f9789c915b84160530fa4d347246b936",
+   "fondamentaux": "a1820170ede529367fec540ac111bb06a89210c4173bc862c9876b89c443b02d",
+   "bpa": "8a9aa6658d8a71edbd11fb713eace775eacda2857f02132e8dea61f8d286f418",
+   "faits_financiers": "b54cabcc30932eef261d2aa9bd693e05c66512acff0676f85965bef16ff509a0",
+   "resultats_s1_2026": "efc65df476f86f945fe9cec6a8811d1da4dd4762bb0bdca24b8a49df1ce0babf"
+  }
+ },
+ "resultats": {
+  "toutes_les_seances": {
+   "ancienne_publiee": {
+    "observations_ecartees": {
+     "confiance_insuffisante": 13,
+     "signal_sans_palier": 0,
+     "cours_d_une_autre_seance": 70,
+     "titre_sans_chandelles": 0,
+     "cloture_absente": 47,
+     "fenetre_sans_masi": 0,
+     "rupture_de_serie": 0,
+     "horizon_non_atteint": {
+      "h5": 294,
+      "h20": 739
+     }
+    },
+    "notes_retenues": 739,
+    "grilles": {
+     "v1": {
+      "notes_retenues": 505,
+      "h5": {
+       "observations": 407,
+       "jours": 7,
+       "titres": 65,
+       "correlation_rang_note_alpha": {
+        "n_jours": 7,
+        "moyenne": -0.132833,
+        "t_naif": -3.79,
+        "t_newey_west": -7.121,
+        "t_non_chevauchant": -5.815,
+        "n_dates_non_chevauchantes": 2,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 7 jours (min 20), 2 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 7,
+        "moyenne": -0.00631,
+        "t_naif": -1.001,
+        "t_newey_west": -0.889,
+        "t_non_chevauchant": -0.62,
+        "n_dates_non_chevauchantes": 2,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 7 jours (min 20), 2 dates non chevauchantes (min 10)"
+       }
+      },
+      "h20": {
+       "observations": 0,
+       "jours": 0,
+       "titres": 0,
+       "correlation_rang_note_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       }
+      }
+     },
+     "v2": {
+      "notes_retenues": 234,
+      "h5": {
+       "observations": 0,
+       "jours": 0,
+       "titres": 0,
+       "correlation_rang_note_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       }
+      },
+      "h20": {
+       "observations": 0,
+       "jours": 0,
+       "titres": 0,
+       "correlation_rang_note_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       }
+      }
+     }
+    }
+   },
+   "par_famille_rejouee": {
+    "observations_ecartees": {
+     "confiance_insuffisante": 13,
+     "signal_sans_palier": 0,
+     "cours_d_une_autre_seance": 70,
+     "titre_sans_chandelles": 0,
+     "cloture_absente": 47,
+     "fenetre_sans_masi": 0,
+     "rupture_de_serie": 0,
+     "horizon_non_atteint": {
+      "h5": 294,
+      "h20": 739
+     }
+    },
+    "notes_retenues": 739,
+    "grilles": {
+     "v1": {
+      "notes_retenues": 505,
+      "h5": {
+       "observations": 407,
+       "jours": 7,
+       "titres": 65,
+       "correlation_rang_note_alpha": {
+        "n_jours": 7,
+        "moyenne": -0.010291,
+        "t_naif": -0.224,
+        "t_newey_west": -0.202,
+        "t_non_chevauchant": -0.413,
+        "n_dates_non_chevauchantes": 2,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 7 jours (min 20), 2 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 7,
+        "moyenne": -0.002955,
+        "t_naif": -0.304,
+        "t_newey_west": -0.323,
+        "t_non_chevauchant": -0.359,
+        "n_dates_non_chevauchantes": 2,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 7 jours (min 20), 2 dates non chevauchantes (min 10)"
+       }
+      },
+      "h20": {
+       "observations": 0,
+       "jours": 0,
+       "titres": 0,
+       "correlation_rang_note_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       }
+      }
+     },
+     "v2": {
+      "notes_retenues": 234,
+      "h5": {
+       "observations": 0,
+       "jours": 0,
+       "titres": 0,
+       "correlation_rang_note_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       }
+      },
+      "h20": {
+       "observations": 0,
+       "jours": 0,
+       "titres": 0,
+       "correlation_rang_note_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       }
+      }
+     }
+    }
+   }
+  },
+  "depuis_29_09": {
+   "ancienne_publiee": {
+    "observations_ecartees": {
+     "confiance_insuffisante": 10,
+     "signal_sans_palier": 0,
+     "cours_d_une_autre_seance": 70,
+     "titre_sans_chandelles": 0,
+     "cloture_absente": 25,
+     "fenetre_sans_masi": 0,
+     "rupture_de_serie": 0,
+     "horizon_non_atteint": {
+      "h5": 294,
+      "h20": 533
+     }
+    },
+    "notes_retenues": 533,
+    "grilles": {
+     "v1": {
+      "notes_retenues": 299,
+      "h5": {
+       "observations": 222,
+       "jours": 4,
+       "titres": 62,
+       "correlation_rang_note_alpha": {
+        "n_jours": 4,
+        "moyenne": -0.151121,
+        "t_naif": -2.924,
+        "t_newey_west": -7.245,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 1,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 4 jours (min 20), 1 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 4,
+        "moyenne": -0.014592,
+        "t_naif": -1.583,
+        "t_newey_west": -2.353,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 1,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 4 jours (min 20), 1 dates non chevauchantes (min 10)"
+       }
+      },
+      "h20": {
+       "observations": 0,
+       "jours": 0,
+       "titres": 0,
+       "correlation_rang_note_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       }
+      }
+     },
+     "v2": {
+      "notes_retenues": 234,
+      "h5": {
+       "observations": 0,
+       "jours": 0,
+       "titres": 0,
+       "correlation_rang_note_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       }
+      },
+      "h20": {
+       "observations": 0,
+       "jours": 0,
+       "titres": 0,
+       "correlation_rang_note_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       }
+      }
+     }
+    }
+   },
+   "par_famille_rejouee": {
+    "observations_ecartees": {
+     "confiance_insuffisante": 10,
+     "signal_sans_palier": 0,
+     "cours_d_une_autre_seance": 70,
+     "titre_sans_chandelles": 0,
+     "cloture_absente": 25,
+     "fenetre_sans_masi": 0,
+     "rupture_de_serie": 0,
+     "horizon_non_atteint": {
+      "h5": 294,
+      "h20": 533
+     }
+    },
+    "notes_retenues": 533,
+    "grilles": {
+     "v1": {
+      "notes_retenues": 299,
+      "h5": {
+       "observations": 222,
+       "jours": 4,
+       "titres": 62,
+       "correlation_rang_note_alpha": {
+        "n_jours": 4,
+        "moyenne": -0.090028,
+        "t_naif": -1.843,
+        "t_newey_west": -4.427,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 1,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 4 jours (min 20), 1 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 4,
+        "moyenne": -0.017867,
+        "t_naif": -1.429,
+        "t_newey_west": -3.672,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 1,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 4 jours (min 20), 1 dates non chevauchantes (min 10)"
+       }
+      },
+      "h20": {
+       "observations": 0,
+       "jours": 0,
+       "titres": 0,
+       "correlation_rang_note_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       }
+      }
+     },
+     "v2": {
+      "notes_retenues": 234,
+      "h5": {
+       "observations": 0,
+       "jours": 0,
+       "titres": 0,
+       "correlation_rang_note_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       }
+      },
+      "h20": {
+       "observations": 0,
+       "jours": 0,
+       "titres": 0,
+       "correlation_rang_note_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       },
+       "ecart_decile_haut_moins_bas_alpha": {
+        "n_jours": 0,
+        "moyenne": null,
+        "t_naif": null,
+        "t_newey_west": null,
+        "t_non_chevauchant": null,
+        "n_dates_non_chevauchantes": 0,
+        "t_retenu": "newey_west",
+        "conclusion_autorisee": false,
+        "lecture": "insuffisant : 0 jours (min 20), 0 dates non chevauchantes (min 10)"
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

@@ -789,6 +789,50 @@ def sans_comptes(ticker: str) -> dict | None:
     return SANS_COMPTES.get(ticker)
 
 
+# ⚠️ FAMILLES DE LA NOTE FONDAMENTALE — 10/10/2026, décision d'Abd Moutalib :
+# la note suit « les règles de l'art du marché marocain, selon la spécificité
+# de chaque secteur ». Spécification de l'agent verificateur-finance.
+#
+# Par LISTE EXPLICITE de tickers, jamais par préfixe de `COMPANY_SECTORS` :
+# ce dernier range ensemble des métiers qui ne se notent pas pareil (« Finance »
+# réunit crédit-bail, paiement et crédit à la consommation ; « Assurance »
+# réunit assureurs et courtiers ; « Immobilier » réunit foncières et
+# promoteurs). Un titre absent de ces listes relève de la famille « autre »
+# (industrie, distribution, services) — la grille d'origine.
+#
+# Cas à relire, laissés tels que la spécification les range :
+#   · AFM, AGM — « Assurance » au référentiel, mais COURTIERS : pas de ROE
+#     exploitable (`ROE_SANS_OBJET`), notés comme des sociétés de services.
+#   · REB — « Industrie » au référentiel, traité en HOLDING (Rebab Company).
+#   · DHO — « Holding » au référentiel (Delta Holding), laissé dans « autre ».
+#   · ZLD — « Industrie » au référentiel ; groupe diversifié (Zellidja), laissé
+#     dans « autre » faute de pièce tranchant son métier.
+#   · DIS — « Finance », en liquidation : famille « financement », exclu des
+#     médianes et de la note par `SANS_COMPTES`.
+FAMILLES_NOTE: dict = {
+    "banque":     ("ATW", "BCP", "BMC", "BOA", "CDM", "CFGB", "CIH"),
+    "assurance":  ("ATL", "WAF", "SAF"),
+    "financement": ("EQD", "MGL", "MRL", "SLM", "DIS"),
+    "paiement":   ("CASH",),
+    "holding":    ("REB",),
+    "fonciere":   ("ARD", "IMI", "BAL"),
+    "promoteur":  ("ADH", "ADI", "RDS"),
+    "btp":        ("JET", "SGTM", "TGCC"),
+    "mines":      ("CMT", "MNG", "SMI"),
+    "telecom":    ("IAM",),
+    "utility":    ("TQA",),
+}
+FAMILLE_NOTE_PAR_DEFAUT: str = "autre"
+
+
+def famille_note(ticker: str) -> str:
+    """La famille de notation fondamentale d'un titre (liste explicite)."""
+    for fam, titres in FAMILLES_NOTE.items():
+        if ticker in titres:
+            return fam
+    return FAMILLE_NOTE_PAR_DEFAUT
+
+
 def est_suspendu(ticker: str, date_iso: str | None = None) -> dict | None:
     """Renvoie la suspension en vigueur à `date_iso`, ou None.
 
@@ -911,4 +955,19 @@ TICKERS_ALL: list = [
 #   de référence unique (10 %), modificateurs momentum / rerating / cycle
 #   retirés (33 titres bonifiés de +0,25 à +1,0, aucun pénalisé), croissance
 #   et PER seulement tirés des comptes, sinon non évalués.
-SCORE_VERSION = "v5.3-sans-saisie-2026-10-02"
+#   v5.3-fond-sectoriel-2026-10-10 : la note fondamentale suit la FAMILLE du
+#   titre (banque, assurance, foncière, promoteur, mines…, voir FAMILLES_NOTE),
+#   valorisations relatives à la médiane de la famille ; un critère sans donnée
+#   s'abstient ; moins de la moitié du poids : « Données insuffisantes ». Les
+#   poids des piliers (65,28 / 34,72 / 0) ne changent pas.
+# ⚠️ MODE COMPARAISON (11/10/2026). Abd Moutalib a validé le principe d'une note
+# par métier (10/10) mais exige des corrections avant toute bascule : tant que
+# cet interrupteur est FAUX, `score_fond`, `v53`, le signal, la confiance et le
+# plancher de publication restent ceux de la grille ACTUELLE ; la note par
+# famille est calculée et publiée À CÔTÉ (`note_fond_metier`). Le passer à vrai
+# est une décision, pas un correctif : il change les deux points d'application
+# (update_data.appliquer_note_sectorielle et pipeline/collect_financial_data.py)
+# et la version du score.
+NOTE_METIER_PUBLIEE: bool = False
+SCORE_VERSION = ("v5.3-fond-sectoriel-2026-10-10" if NOTE_METIER_PUBLIEE
+                 else "v5.3-sans-saisie-2026-10-02")
