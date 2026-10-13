@@ -125,7 +125,8 @@
       "Au 31/12/2024, notre formule redonne le chiffre publié : (1 681,143 + 191,534) − (711,134 + 25,126) = 1 136,417 contre « 1.136 » (p.17). La définition de la société est donc, en 2024, la nôtre ; l'écart naît en 2025.",
       "Dettes locatives : le crédit-bail (60,916, note 5.2.12, p.27) est dans nos dettes de financement ; l'exclure donne 1 300,6, pas 1 303 (et ne se justifie pas : 2024 l'incluait).",
       "Recherche exhaustive : aucune combinaison des lignes du bilan consolidé (emprunts obligataires 1 774,188, crédit-bail 60,916, établissements de crédit 109,793, autres emprunts 35,822, trésorerie-passif 133,361, comptes courants d'associés 32,988 au passif et 103,44 à l'actif, disponibilités 328,174, titres de placement 424,416) ne redonne 1 303 à ±1 MMAD.",
-      "Le rapport donne par ailleurs un « Gearing » de 24 % (p.151) qui ne se recolle pas non plus à 1 303 ÷ 4 084,918 (31,9 %)."
+      "Le rapport donne par ailleurs un « Gearing » de 24 % (p.151) qui ne se recolle pas non plus à 1 303 ÷ 4 084,918 (31,9 %).",
+      "Contradiction interne p.150 : le communiqué écrit « 1,303 milliard MAD au 31 décembre 2025, contre 1,713 milliard MAD un an plus tôt » (baisse de 24 %) alors que 1.713 est le chiffre de 2023 à la p.17 (2.128 | 1.713 | 1.136 | 1.303 pour 2022 | 2023 | 2024 | 2025) : le comparatif 2024 est 1 136, et le « −24 % » de la p.150 compare 2025 à 2023."
      ],
      "cause": "NON ÉTABLIE — écart consigné, grandeur laissée CONTESTÉE (le module suspend ROIC, dette nette/EBITDA, VE/EBITDA et dette nette/fonds propres).",
      "releve_le": "2026-10-13"
@@ -741,7 +742,7 @@
      "dette_nette_base_formule": "dettes_financieres 15 323,5 − tresorerie_actif 4 390,3 (p.86), instruments dérivés de couverture EXCLUS",
      "elements": [
       {
-       "libelle": "instruments dérivés de couverture (MtM), passif non courant",
+       "libelle": "dérivés de couverture nets (passif − actif) : passif 1 707,9, actif 0,0 au 31/12/2025 (p.86)",
        "valeur": 1707.9,
        "page": 86,
        "citation": "Dont Instruments dérivés de couverture 26 1 707,9 560,7"
@@ -759,8 +760,8 @@
       "page": 68,
       "citation": "(*) Endettement en intégrant le MtM et les contrats de location, ainsi que les comptes courants d’associés envers les sociétés non intégrées globalement dans le périmètre de consolidation"
      },
-     "cause": "PÉRIMÈTRE, pas de chiffre : la société ajoute à la dette financière les dérivés de couverture (perte latente sur couvertures de métaux, note 26 : MtM −1 679,1 MMAD, p.106) et les comptes courants d'associés ; notre définition les exclut. 10 933,2 + 1 707,9 + 33,0 = 12 674,1 contre 12 674 (tableau) / 12 674,4 (texte) de la p.68 : 0,3 MMAD de résidu, arrondi. Dettes locatives IFRS 16 : la société les intègre, nous aussi (dette non courante 85,1, p.86 ; la part courante n'est pas isolée, les dettes financières courantes étant « intégralement envers les établissements de crédit » 6 487,2). Date : 31/12/2025 des deux côtés. Base : consolidé IFRS des deux côtés.",
-     "limites": "(1) Le rapprochement tient pour 2025 seulement : au 31/12/2024 la même arithmétique ne boucle pas (dettes financières 12 979,9 − trésorerie 2 589,1 = 10 390,8 contre 10 271,8 publiés ; CCA 2024 = 554) — 2024 n'est pas utilisé. (2) Le graphique p.68 ventile l'endettement sur une base de gestion (emprunts MLT 11 652 + découvert 1 793 + CCA 33 − « impacts IFRS (locations/MtM) » 804 = 12 674) qui ne se recolle pas ligne à ligne au bilan : consigné, non utilisé. (3) Les 33 de CCA ne sont isolés qu'au graphique, pas au bilan.",
+     "cause": "PÉRIMÈTRE, pas de chiffre : la société ajoute à la dette financière les dérivés de couverture (perte latente sur couvertures de métaux, note 26 : MtM −1 679,1 MMAD, p.106) et les comptes courants d'associés ; notre définition les exclut. 10 933,2 + 1 707,9 (dérivés nets) + 33,0 = 12 674,1 contre 12 674 (tableau) / 12 674,4 (texte) de la p.68 : 0,3 MMAD de résidu, arrondi. Dettes locatives IFRS 16 : la société les intègre, nous aussi (dette non courante 85,1, p.86 ; la part courante n'est pas isolée, les dettes financières courantes étant « intégralement envers les établissements de crédit » 6 487,2). Date : 31/12/2025 des deux côtés. Base : consolidé IFRS des deux côtés.",
+     "limites": "(1) Le rapprochement tient AUSSI pour 2024 (relevé verificateur-finance 13/10/2026) : les comptes courants 2024 valent −26 (RFA 2024 p.64, imprimé 126) et non 554 ; avec les dérivés NETS (passif 580,4 − actif 92,6 = 487,8) : dettes financières 12 979,9 − dérivés 580,4 − trésorerie 2 589,1 = 9 810,4 ; 9 810,4 + 487,8 − 26 = 10 272,2 contre 10 271,8 publiés (0,4). (2) Le graphique p.68 se recolle au bilan : 1 793 = impacts IFRS (location 85,1 + dérivés 1 707,9) et −804 = dette court terme nette de trésorerie ; 11 652 − 804 = 10 848 = 6 751,2 + 2 000,0 + 6 487,2 − 4 390,3 (10 848,1) ; 10 848,1 + 85,1 de location = 10 933,2 (notre dette nette) ; + 1 707,9 + 33 de comptes courants = 12 674. (3) Les 33 de comptes courants d'associés ne sont isolés qu'au graphique, pas au bilan.",
      "releve_le": "2026-10-13"
     }
    },
@@ -2617,7 +2618,7 @@
     "unite_au_rapport": "KMAD",
     "colonne_exercice_precedent": 2,
     "page": 52,
-    "note": "« Capitaux propres, part du groupe 2 619 648 1 684 172 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD. ⚠️ Fonds propres ×1.56 entre 2024 et 2025 : opération sur capital, distribution ou résultat à établir par la revue — NON établi ici ; une moyenne 2024/2025 en dépend.",
+    "note": "« Capitaux propres, part du groupe 2 619 648 1 684 172 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD. ⚠️ Fonds propres ×1,56 en 2025 — cause sur pièce : augmentation de capital par apport en nature (capital +20 336, prime +610 092 KMAD ; visa AMMC du 09/12/2025, p.43) et entrée de Soludia Maghreb (105 148), tableau de variation p.65, qui boucle exactement à 2 619 648 ; une moyenne 2024/2025 mêle deux bases de capital très différentes.",
     "releve_le": "2026-10-13",
     "mode_de_lecture": "colonne lue"
    }
@@ -2664,6 +2665,19 @@
     "Le rapport écrit aussi « Résultat d'Exploitation 666 » (p.81) contre « RÉSULTAT OPÉRATIONNEL 626 524 » au compte consolidé (p.63) : nous retenons l'état financier.",
     "EBITDA publié 763 contre résultat opérationnel + dotations aux amortissements = 692,8 : la définition de la société inclut d'autres éléments (provisions)."
    ]
+  },
+  "_r11_nombre_actions": {
+   "constat": "DÉSACCORD NON TRANCHÉ (R11) sur le nombre d'actions après le regroupement 5:1 du 05/05/2026 (registre SPLITS, bvc_config.py).",
+   "sources": {
+    "rfa_2025": "capital 380 336 400 MAD (31/12/2025) = 7 606 728 actions × nominal 50 (RFA p.53, p.63, p.69 : « Nombre d'actions 7 606 728 7 200 000 ») ; ×5 = 38 033 640 actions de nominal 10",
+    "cp_post_age_25_03_2026": "CP_Sothema_post_AGE_25_03.pdf : « portant ainsi le nombre total d'actions à 38 309 500 actions d'une valeur nominale unitaire de dix (10) dirhams » ET « 380 336 400,00 MAD, divisé en 38 309 500 actions de 10,00 MAD » : le CP se contredit (380 336 400 ÷ 10 = 38 033 640 ; 38 309 500 × 10 = 383 095 000)",
+    "operateur": "datasets/corrections_acceptees/SOT.json : 13 025 230 000 ÷ 1 700 = 7 661 900 titres au 04/05, 14 097 896 000 ÷ 368 = 38 309 500 au 05/05 (ratio ×5 exact) ; référentiel opérateur et bvc_config.SPLITS : 38 309 500"
+   },
+   "ecart": "275 860 actions (0,73 %) ; 55 172 avant regroupement ; capital correspondant 2 758 600 MAD",
+   "ratio_5_1": "confirmé : 7 661 900 × 5 = 38 309 500 (opérateur) ; 7 606 728 × 5 = 38 033 640 (rapport)",
+   "effet": "BPA 2025 = 385,526 ÷ 38 309 500 = 10,06 (retenu dans bpa.json et resultats_s1_2026.json) ; ÷ 38 033 640 = 10,14, soit exactement le BPA implicite de yuna.ma (10,14).",
+   "non_etabli": "aucune pièce lue ne documente une émission de 55 172 actions (pré-regroupement) entre le 31/12/2025 et le 04/05/2026. Rien n'est forcé : nombre d'actions retenu inchangé (opérateur), à trancher en revue sur l'avis AMMC ou le capital post-regroupement.",
+   "releve_le": "2026-10-13"
   }
  },
  "TQA": {
@@ -7661,7 +7675,7 @@
     "unite_au_rapport": "MAD",
     "colonne_exercice_precedent": 2,
     "page": 57,
-    "note": "« Total Des Capitaux Propres-[A] 1.244.927.997 450.391.407 » ; Comptes consolidés, Bilan Passif, colonnes « EXERCICE | EXERCICE PRÉCÉDENT » ; les « Intérêts Minoritaires-[B] » (4.899.582 en 2024) sont une ligne à part, comme en 2025. ⚠️ Fonds propres ×2.76 entre 2024 et 2025 : opération sur capital, distribution ou résultat à établir par la revue — NON établi ici ; une moyenne 2024/2025 en dépend.",
+    "note": "« Total Des Capitaux Propres-[A] 1.244.927.997 450.391.407 » ; Comptes consolidés, Bilan Passif, colonnes « EXERCICE | EXERCICE PRÉCÉDENT » ; les « Intérêts Minoritaires-[B] » (4.899.582 en 2024) sont une ligne à part, comme en 2025. ⚠️ Fonds propres ×2,76 en 2025 — cause sur pièce : augmentation de capital de l'introduction en bourse du 15/07/2025 (719 979 984 MAD), tableau de variation p.58, qui boucle exactement à 1 244 927 997 ; une moyenne 2024/2025 mêle donc deux bases de capital très différentes.",
     "releve_le": "2026-10-13",
     "mode_de_lecture": "colonne lue"
    }
