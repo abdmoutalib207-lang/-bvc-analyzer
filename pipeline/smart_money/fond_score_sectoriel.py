@@ -65,8 +65,10 @@ LES RÈGLES (chacune a son test)
    ≤ 2 %) ; (d) nombre d'actions identique dans les deux sources ; (e) aucun
    bilan plus récent (30/06/2026) disponible pour ce titre. Sinon : SUSPENDU,
    avec le motif. Aucun repli décidé au cas par cas. Managem : dette nette
-   10 933,2 (ratios) contre endettement net 12 674,0 (faits) — non rapprochable
-   sur les données disponibles, donc suspendu. (Le seul constat « EBITDA 2025 <
+   10 933,2 (ratios) contre endettement net 12 674,0 (faits) — RAPPROCHÉ le
+   13/10/2026 sur pièce (+ dérivés de couverture 1 707,9 + comptes courants
+   d'associés 33,0 = 12 674,1, périmètre déclaré p.68) : plus contesté. ADI et
+   Mutandis restent non rapprochables, donc suspendus. (Le seul constat « EBITDA 2025 <
    RNPG 12 mois » ne prouve rien — périodes, périmètres, exceptionnels — et
    n'est plus avancé.)
 5. ROE : UNE SEULE CONVENTION, celle de l'EXERCICE 2025 = RNPG 2025 ÷ fonds
@@ -92,10 +94,12 @@ LES RÈGLES (chacune a son test)
    publiés contre endettement net des faits financiers, écart > 2 % — tous les
    critères qui s'en nourrissent sont suspendus, avec le motif : ROIC et dette
    nette / EBITDA (leurs pièces citent la dette nette), VE/EBITDA, dette nette /
-   fonds propres. Aucun ne reste noté sur la valeur contestée. Mesuré : ADI, MNG,
-   MUT. L'écart n'est PAS expliqué sur pièce (périmètre bancaire ou total, dettes
-   de location, trésorerie) : on ne choisit pas une grandeur « cohérente » sans
-   la pièce qui la fonde. Le ROE ne remplace jamais un ROIC contesté.
+   fonds propres. Aucun ne reste noté sur la valeur contestée. Mesuré le 12/10 :
+   ADI, MNG, MUT. Le 13/10, MNG est EXPLIQUÉ sur pièce (`endettement_net.
+   rapprochement` : éléments cités, somme recalculée ici) et sort de la liste ;
+   ADI (écart 58,5, recherche exhaustive vaine) et MUT (écart 161,2) restent
+   contestés : on ne choisit pas une grandeur « cohérente » sans la pièce qui
+   la fonde. Le ROE ne remplace jamais un ROIC contesté.
 10. REMPLACEMENT D'UNE VALORISATION SUSPENDUE : règle PAR FAMILLE, jamais au cas
    par cas (`REMPLACEMENT_PAR_PER`). Le PER relatif remplace la valorisation
    suspendue d'une famille seulement si (a) le PER est déclaré pertinent pour
@@ -261,9 +265,36 @@ def _dette_nette_contestee(dn: dict | None, faits: dict) -> str | None:
     dette = _num(dn.get("valeur"))
     if dette is None or abs(dette - en) / abs(en) <= ECART_DETTE_MAX:
         return None
+    if _rapprochement_etabli(dette, en, faits):
+        return None
     return (f"grandeur contestée : dette nette {dette:g} (ratios publiés) contredite par l'endettement net "
             f"{en:g} (faits financiers), écart {abs(dette - en) / abs(en):.1%} (> {ECART_DETTE_MAX:.0%}), "
             "non expliqué sur pièce ; tout critère qui la consomme est suspendu")
+
+
+def _rapprochement_etabli(dette: float, en: float, faits: dict) -> bool:
+    """L'écart est-il EXPLIQUÉ sur pièce ? (13/10/2026)
+
+    Oui seulement si `endettement_net.rapprochement` porte des éléments chiffrés,
+    chacun avec sa page et sa citation, dont la somme AJOUTÉE à la dette nette
+    retenue redonne l'endettement publié à ECART_DETTE_MAX près. La somme est
+    RECALCULÉE ici : le drapeau `etabli` du fichier ne suffit pas, et une dette
+    nette qui changerait invalide le rapprochement (`dette_nette_base`)."""
+    fait = ((faits or {}).get("faits") or {}).get("endettement_net")
+    rap = fait.get("rapprochement") if isinstance(fait, dict) else None
+    if not isinstance(rap, dict) or rap.get("etabli") is not True:
+        return False
+    base = _num(rap.get("dette_nette_base"))
+    elements = rap.get("elements")
+    if base is None or abs(base - dette) > 0.05 or not isinstance(elements, list) or not elements:
+        return False
+    total = dette
+    for el in elements:
+        v = _num(el.get("valeur")) if isinstance(el, dict) else None
+        if v is None or not isinstance(el.get("page"), int) or not el.get("citation"):
+            return False
+        total += v
+    return abs(total - en) / abs(en) <= ECART_DETTE_MAX
 
 
 def _consomme_dette_nette(ratio: dict | None) -> bool:

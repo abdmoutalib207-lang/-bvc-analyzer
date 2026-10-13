@@ -6,6 +6,7 @@ DSW 12,5, WAF 6,9, ARD 9,8 — identiques au dixième.
 """
 
 import json
+import re
 from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
@@ -297,3 +298,20 @@ def test_capitaux_employes_residuels_pas_de_roic():
     # DAR : 366,807 + (−365,7) ≈ 1,1 MMAD pour 683,177 d'actif : < 10 %
     assert "roic" not in FOND["DAR"]["ratios_publies"]
     assert "roic" in FOND["DAR"]["ratios_publies"]["non_calcules_2025"]
+
+
+def test_chaque_emetteur_ifrs_a_son_traitement_ifrs16_explicite_ou_declare_non_verifie():
+    """13/10/2026 : une définition unique de la dette nette (`_definition_dette_nette`),
+    IFRS 16 traité EXPLICITEMENT — jamais en silence."""
+    ratios = FAITS["_ratios_2025"]
+    assert "IFRS 16" in ratios["_definition_dette_nette"]
+    table = ratios["_ifrs16_par_titre"]
+    ifrs = {t for t, e in FAITS.items() if not t.startswith("_") and isinstance(e, dict)
+            and "IFRS" in (e.get("_controles_ratios_2025") or {}).get("base", "")
+            and (e.get("faits") or {}).get("dettes_financieres")}
+    assert ifrs, "aucun émetteur IFRS : le test ne contrôle plus rien"
+    connus = set(table["inclus"]) | set(table["non_verifie"])
+    assert ifrs <= connus, f"traitement IFRS 16 non dit : {sorted(ifrs - connus)}"
+    assert not set(table["inclus"]) & set(table["non_verifie"])
+    for t, texte in table["inclus"].items():
+        assert re.search(r"\d", texte) and ("p." in texte or "page" in texte), f"{t} : ni montant ni page"

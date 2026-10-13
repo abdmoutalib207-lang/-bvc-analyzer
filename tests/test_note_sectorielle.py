@@ -820,3 +820,58 @@ def test_une_note_sans_critere_essentiel_est_marquee_partielle():
 ])
 def test_limiter_signal_partiel(actuel, simule, partielle, attendu):
     assert fs.limiter_signal_partiel(actuel, simule, partielle) == attendu
+
+
+# ── 15. dette nette contestée : rapprochement sur pièce (13/10/2026) ──────────
+
+def _faits_avec_rapprochement(endettement=12674.0, elements=None, base=10933.2, etabli=True):
+    faits = _faits(2000.0, 2000.0, endettement_net=endettement)
+    faits["faits"]["endettement_net"]["rapprochement"] = {
+        "etabli": etabli, "dette_nette_base": base,
+        "elements": elements if elements is not None else [
+            {"libelle": "dérivés", "valeur": 1707.9, "page": 86, "citation": "Dont Instruments dérivés 1 707,9"},
+            {"libelle": "CCA", "valeur": 33.0, "page": 68, "citation": "CCA 554 33"}]}
+    return faits
+
+
+def _contestee(faits, dn=10933.2):
+    return fs._dette_nette_contestee({"valeur": dn, "date": "2025-12-31"}, faits)
+
+
+def test_un_rapprochement_etabli_sur_piece_leve_la_contestation():
+    assert _contestee(_faits_avec_rapprochement()) is None          # 10 933,2 + 1 707,9 + 33 = 12 674,1
+
+
+@pytest.mark.parametrize("kw", [
+    {"etabli": False},                                               # drapeau faux
+    {"base": 10000.0},                                               # la dette nette a changé : périmé
+    {"elements": [{"valeur": 1000.0, "page": 86, "citation": "x"}]},  # somme 11 933 : ne boucle pas
+    {"elements": [{"valeur": 1740.9, "citation": "x"}]},             # sans page
+    {"elements": [{"valeur": 1740.9, "page": 86}]},                  # sans citation
+    {"elements": []},
+])
+def test_un_rapprochement_incomplet_ou_qui_ne_boucle_pas_ne_leve_rien(kw):
+    assert "grandeur contestée" in _contestee(_faits_avec_rapprochement(**kw))
+
+
+def test_sans_rapprochement_la_dette_reste_contestee():
+    assert "grandeur contestée" in _contestee(_faits(2000.0, 2000.0, endettement_net=12674.0))
+
+
+def test_donnees_reelles_managem_rapproche_adi_et_mutandis_contestes():
+    res = fs.noter_depuis_fichiers()
+    contestes = {s for s, r in res.items() if r["entree"]["dette_nette_contestee"]}
+    assert "MNG" not in contestes, "MNG est rapproché sur pièce (dérivés + CCA)"
+    assert {"ADI", "MUT"} <= contestes, "ADI et MUT restent contestés : écart non expliqué"
+
+
+def test_les_rapprochements_non_etablis_disent_pourquoi_et_ne_levent_rien():
+    import json
+    faits = json.loads((Path(fs.__file__).resolve().parent.parent / "faits_financiers.json")
+                       .read_text(encoding="utf-8"))
+    for t in ("ADI", "MUT"):
+        rap = faits[t]["faits"]["endettement_net"]["rapprochement"]
+        assert rap["etabli"] is False and rap["constats"] and "NON ÉTABLIE" in rap["cause"], t
+    mng = faits["MNG"]["faits"]["endettement_net"]["rapprochement"]
+    assert mng["etabli"] is True and all(e["page"] and e["citation"] for e in mng["elements"])
+    assert abs(mng["dette_nette_base"] + sum(e["valeur"] for e in mng["elements"]) - mng["somme"]) < 0.05

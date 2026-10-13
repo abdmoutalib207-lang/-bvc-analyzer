@@ -317,6 +317,26 @@ fusion** : la fusion est la décision d'Abd Moutalib.
 - (10/10) yuna.ma répond HTTP 429 (défi Vercel, `x-vercel-mitigated: challenge`) depuis le
   conteneur : rebouclage impossible, à écrire tel quel ; reprendre alors le relevé yuna déjà
   consigné dans la fiche `exercice_2025_rectifie.json` du titre, daté, plutôt que d'inventer.
+- (13/10, dette nette contestée) Un « endettement net » de société peut différer par son PÉRIMÈTRE,
+  pas par un chiffre : MNG 12 674 = dette nette 10 933,2 + dérivés de couverture 1 707,9 (MtM, pas
+  un emprunt, p.86) + comptes courants d'associés 33 (graphique p.68), définis par la note de bas de
+  tableau p.68, résidu 0,3. Lire cette note AVANT de parler d'écart ; le rapprochement s'écrit dans
+  `endettement_net.rapprochement` (éléments avec page et citation) et le module en RECALCULE la somme.
+- (13/10) Un chiffre de société qui se recolle à notre formule l'an N-1 mais pas l'an N (ADI : 2024
+  = 1 136,4 exact, 2025 écart 58,5) est un écart né dans l'exercice, pas une autre définition ; MUT :
+  écart non constant (145,7 en 2024, 161,2 en 2025). Avant « non établi », tenter TOUS les sous-
+  ensembles des lignes du bilan (script) ; si rien ne boucle sur les deux années, laisser CONTESTÉ.
+- (13/10, fonds propres 2024) La colonne N-1 est sur la MÊME ligne que le fait 2025 : la relire sur
+  la page (pdftotext -layout), ne pas la tirer de la note. Faux positifs d'un extracteur automatique :
+  MRL (« 107.295 1.227.913 » = autres variations + clôture) et BAL (« 13.649.664 » = résultat ; le N-1
+  est 128.892.669 au bilan p.44, pas à l'attestation p.84). Pages image : rendre (INV, PPM, AFI, DAR,
+  MIC, ZLD, FNB). Tableaux de variation : prendre la ligne « au 31 décembre 2024 ».
+  `_nombres_cites` recolle deux colonnes (VCNE) : rang explicite, le test saute alors.
+- (13/10) Les parts du groupe SOMMÉES au 2025 (BCP, SLM, CASH, MSA) le sont aussi au N-1 et le disent
+  (`mode_de_lecture`) ; JET (part du groupe jamais imprimée, 2025 dérivé) n'a pas de N-1 : ne rien déduire.
+- (13/10) `test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi` compare au `origin/main`
+  LOCAL : quand main avance (commits `data:` du bot) il échoue « 45 séries » sur une branche sans
+  rapport. `git fetch origin main && git rebase origin/main`, ce n'est pas un défaut de la branche.
 
 ## Ce que tu ne fais jamais
 

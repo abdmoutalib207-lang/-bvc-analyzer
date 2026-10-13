@@ -19,7 +19,43 @@
    "total_actif, total_passif": "servent au contrôle d'équilibre du bilan"
   },
   "_regle": "chaque fait porte page, citation exacte (vérifiée contre le texte extrait de la page), unité et colonne. Base consolidée uniquement, jamais mêlée au social. Les contrôles arithmétiques de chaque émetteur sont dans `_controles_ratios_2025` ; un fait douteux n'est pas écrit et le ratio correspondant est listé dans `non_calcules` avec sa raison.",
-  "_non_traites": "les émetteurs financiers (sans objet). MOX traité au lot 3b (02/10/2026) : tableau des flux lu sur image, 310 MMAD de titres de placement de nature non établie comptés en trésorerie comme le fait la société et signalés en réserve."
+  "_non_traites": "les émetteurs financiers (sans objet). MOX traité au lot 3b (02/10/2026) : tableau des flux lu sur image, 310 MMAD de titres de placement de nature non établie comptés en trésorerie comme le fait la société et signalés en réserve.",
+  "_definition_dette_nette": "UNE définition pour tous les titres (fixée le 13/10/2026) : dette nette = dettes financières BRUTES du bilan (emprunts bancaires et obligataires, dettes de location-financement et dettes locatives IFRS 16 quand le bilan les classe en dettes financières, découverts, crédits de trésorerie et d'escompte) − trésorerie (disponibilités + équivalents + titres de placement, sauf exclusion sur pièce). Sont HORS dette nette : les instruments dérivés de couverture (MtM, ce n'est pas un emprunt), les comptes courants d'associés, les provisions. IFRS 16 : la dette locative est INCLUSE dès lors qu'elle figure dans les dettes financières du bilan (la note de chaque titre dit ce qui a été relevé) ; elle n'est jamais retranchée pour coller à un chiffre de la société. L'« endettement net » publié par une société (clé `endettement_net`) est un fait à part : il se rapproche de la dette nette par des éléments CITÉS (page, citation) dans `endettement_net.rapprochement`. Un écart sans rapprochement établi reste CONTESTÉ (`etabli: false`) et le module de note suspend alors les critères qui consomment la dette nette.",
+  "_ifrs16_par_titre": {
+   "_quoi": "Traitement des dettes locatives (IFRS 16) dans `dettes_financieres`, pour les émetteurs en normes IFRS. `inclus` : la dette locative figure dans le total retenu, montant et page cités. `non_verifie` : la page citée ne l'isole pas et le relevé du 13/10/2026 ne l'a pas établi — le montant est en général faible face à la dette, mais NON MESURÉ ici.",
+   "inclus": {
+    "MNG": "dette locative non courante 85,1 (p.86 : « Dont Dettes liées aux contrats à droit d'usage 85,1 66,2 ») ; part courante non isolée (dettes financières courantes = « envers les établissements de crédit » 6 487,2)",
+    "GAZ": "601,158 KMAD (note 14.1, p.134 : « dont dettes de location 601 158 ») dans les 1 194,543 de dettes de financement",
+    "MOX": "12,487 KMAD de dettes de location IFRS 16 + 173 KMAD de crédit-bail (note 18, p.145) dans les 476,213",
+    "IAM": "dettes locatives IFRS 16 comprises ; la dette nette publiée par la société (17 610, p.9) les EXCLUT, la nôtre (17 637) les inclut",
+    "SNA": "94,2 MMAD de « Dettes liées aux contrats à droit d'usage » (note 23, p.91) : l'unique dette non courante",
+    "LHM": "30,083 + 12,872 KMAD de dettes locatives (non courant + courant, p.73)",
+    "LES": "296 MMAD de dettes de location financement (p.81)",
+    "RDS": "16,184 KMAD (« Dettes de location-financement & IFRS 16 15.711 473 16.184 », p.26) dans le total 2 116,222",
+    "T2S": "57,511 KMAD de dettes de crédit-bail ET de locations longue/courte durée (p.239, notes 1 et 2 : « Endettement net = dettes de financement + dettes de crédit-bail + trésorerie passif − titres et valeurs de placement − trésorerie actif »)",
+    "MUT": "politique p.62 : « Les dettes issues de la comptabilisation des contrats de location financement, sont comptabilisées en dettes financières » ; montant NON isolé au bilan consolidé (aucune ligne « droit d'usage » au passif, p.40)"
+   },
+   "non_verifie": [
+    "ADH",
+    "CSR",
+    "RIS",
+    "SOT",
+    "CMGP",
+    "ARD",
+    "IMI",
+    "HAL"
+   ]
+  },
+  "_fonds_propres_2024_non_releves": {
+   "JET": "la part du groupe n'est jamais imprimée (le fait 2025 est DÉRIVÉ du total moins deux lignes d'intérêts hors groupe) ; la colonne 31/12/2024 du bilan consolidé (p.2, communiqué image) n'est pas lue : ne rien déduire.",
+   "STR": "pas de fait capitaux_propres_part_groupe 2025 (capitaux propres négatifs, social seul, aucun relevé 2025) : sans le 2025, un 2024 n'a pas d'usage.",
+   "ENK": "pas de fait capitaux_propres_part_groupe 2025 : comptes tenus en dinars tunisiens (normes tunisiennes), aucune conversion en MAD sourcée.",
+   "SAF": "pas de fait 2025 : fusion Sanlam / Allianz, nombre d'actions d'après la clôture (R11) ; lu mais non retenu.",
+   "CIH": "pas de fait 2025 : augmentation de capital du 28/07/2026 postérieure à la clôture (R11) ; lu mais non retenu.",
+   "CDM": "pas de fait 2025 : augmentation de capital postérieure à la clôture (+745 285 actions, R11) ; lu mais non retenu.",
+   "AGM": "pas de fait 2025 : aucun livre consolidé 2025 déposé (le RFA ne publie que le social, page image)."
+  },
+  "_fonds_propres_2024": "13/10/2026 : capitaux propres part du groupe au 31/12/2024 = colonne N-1 du rapport annuel 2025 déjà cité (`capitaux_propres_part_groupe_2024`, mêmes champs que le fait 2025 ; `colonne_exercice_precedent` = rang de la colonne N-1 dans la ligne citée). Colonne LUE ou rien : aucune valeur n'est déduite du 2025 ni du résultat. Exceptions DITES (`mode_de_lecture`) : BCP, SLM, CASH et MSA sont, comme leur fait 2025, une somme de lignes lues ou un total moins les minoritaires. La colonne N-1 est celle que le rapport 2025 imprime : elle peut être retraitée par rapport au rapport 2024 (WAF : IFRS 17). Sert au ROE sur fonds propres MOYENS."
  },
  "ADI": {
   "societe": "Alliances Développement Immobilier",
@@ -77,7 +113,24 @@
    "endettement_net": {
     "valeur": 1303.0,
     "page": 17,
-    "note": "dont emprunt obligataire de 449 MMAD émis en déc. 2025"
+    "note": "dont emprunt obligataire de 449 MMAD émis en déc. 2025",
+    "rapprochement": {
+     "etabli": false,
+     "dette_nette_base": 1361.5,
+     "dette_nette_base_formule": "dettes_financieres 2 114,079 (dettes de financement 1 980,718 + trésorerie-passif 133,361) − tresorerie_actif 752,59 (disponibilités 328,174 + titres et valeurs de placement 424,416), p.21",
+     "ecart": -58.5,
+     "ecart_relatif": "4,5 %",
+     "constats": [
+      "AUCUNE définition de l'« endettement net » dans le rapport (p.14, p.17, p.82-83, p.151 : le chiffre est donné sans périmètre).",
+      "Au 31/12/2024, notre formule redonne le chiffre publié : (1 681,143 + 191,534) − (711,134 + 25,126) = 1 136,417 contre « 1.136 » (p.17). La définition de la société est donc, en 2024, la nôtre ; l'écart naît en 2025.",
+      "Dettes locatives : le crédit-bail (60,916, note 5.2.12, p.27) est dans nos dettes de financement ; l'exclure donne 1 300,6, pas 1 303 (et ne se justifie pas : 2024 l'incluait).",
+      "Recherche exhaustive : aucune combinaison des lignes du bilan consolidé (emprunts obligataires 1 774,188, crédit-bail 60,916, établissements de crédit 109,793, autres emprunts 35,822, trésorerie-passif 133,361, comptes courants d'associés 32,988 au passif et 103,44 à l'actif, disponibilités 328,174, titres de placement 424,416) ne redonne 1 303 à ±1 MMAD.",
+      "Le rapport donne par ailleurs un « Gearing » de 24 % (p.151) qui ne se recolle pas non plus à 1 303 ÷ 4 084,918 (31,9 %).",
+      "Contradiction interne p.150 : le communiqué écrit « 1,303 milliard MAD au 31 décembre 2025, contre 1,713 milliard MAD un an plus tôt » (baisse de 24 %) alors que 1.713 est le chiffre de 2023 à la p.17 (2.128 | 1.713 | 1.136 | 1.303 pour 2022 | 2023 | 2024 | 2025) : le comparatif 2024 est 1 136, et le « −24 % » de la p.150 compare 2025 à 2023."
+     ],
+     "cause": "NON ÉTABLIE — écart consigné, grandeur laissée CONTESTÉE (le module suspend ROIC, dette nette/EBITDA, VE/EBITDA et dette nette/fonds propres).",
+     "releve_le": "2026-10-13"
+    }
    },
    "endettement_net_2024": {
     "valeur": 1136.0,
@@ -246,6 +299,16 @@
     "note": "« Résultat d'exploitation 586.160 445.676 » ; au compte de produits et charges consolidé ; la clé `resultat_exploitation` existante (586,0, p.17) en est l'arrondi.",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 3668.286,
+    "valeur_au_rapport": 3668286,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 21,
+    "note": "« Capitaux propres du Groupe 5.2.11 3.993.181 3.668.286 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_recoupement_arithmetique": "capital 2 207 858 800 ÷ VN 100 = 22 078 588 actions. La série 2022-2025 de la page 17 est cohérente ligne à ligne avec les évolutions annoncées.",
@@ -567,6 +630,16 @@
     "note": "« Flux net de trésorerie généré par l'exploitation (I) 243 311 624 72 856 250 »",
     "base": "consolidé, 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 722.030805,
+    "valeur_au_rapport": 722030805,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 57,
+    "note": "« Capitaux propres (Part du groupe) 901 142 608 722 030 805 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_evenement": "⚠️ COTATION SUSPENDUE DEPUIS LE 17/07/2026. L'AMMC a demandé à la Bourse de suspendre les actions CMT après le dépôt, le 16/07/2026, d'un projet d'OFFRE PUBLIQUE D'ACHAT OBLIGATOIRE par AYRAD GROUP LIMITED, OSEAD Fund, OSEAD MAROC MINING et la CIMR agissant de concert, à la suite du franchissement du seuil de 40 % des droits de vote (pacte d'actionnaires entré en vigueur le 13/07/2026). Source : avis de dépôt AMMC DO/EM/07/2026 du 17/07/2026. Le titre ne cote plus : tout prix postérieur au 16/07 est une reconduction, et aucun signal ne devrait être émis sur un instrument qu'on ne peut pas acheter.",
@@ -662,7 +735,35 @@
    "endettement_net": {
     "valeur": 12674.0,
     "page": 68,
-    "note": "10 272 en 2024"
+    "note": "10 272 en 2024",
+    "rapprochement": {
+     "etabli": true,
+     "dette_nette_base": 10933.2,
+     "dette_nette_base_formule": "dettes_financieres 15 323,5 − tresorerie_actif 4 390,3 (p.86), instruments dérivés de couverture EXCLUS",
+     "elements": [
+      {
+       "libelle": "dérivés de couverture nets (passif − actif) : passif 1 707,9, actif 0,0 au 31/12/2025 (p.86)",
+       "valeur": 1707.9,
+       "page": 86,
+       "citation": "Dont Instruments dérivés de couverture 26 1 707,9 560,7"
+      },
+      {
+       "libelle": "comptes courants d'associés envers les sociétés non intégrées (clôture 2025)",
+       "valeur": 33.0,
+       "page": 68,
+       "citation": "CCA 554 33 (figure « Répartition de l'endettement du Groupe », colonnes Clôture 2024 | Clôture 2025)"
+      }
+     ],
+     "somme": 12674.1,
+     "ecart_residuel": 0.3,
+     "definition_de_la_societe": {
+      "page": 68,
+      "citation": "(*) Endettement en intégrant le MtM et les contrats de location, ainsi que les comptes courants d’associés envers les sociétés non intégrées globalement dans le périmètre de consolidation"
+     },
+     "cause": "PÉRIMÈTRE, pas de chiffre : la société ajoute à la dette financière les dérivés de couverture (perte latente sur couvertures de métaux, note 26 : MtM −1 679,1 MMAD, p.106) et les comptes courants d'associés ; notre définition les exclut. 10 933,2 + 1 707,9 (dérivés nets) + 33,0 = 12 674,1 contre 12 674 (tableau) / 12 674,4 (texte) de la p.68 : 0,3 MMAD de résidu, arrondi. Dettes locatives IFRS 16 : la société les intègre, nous aussi (dette non courante 85,1, p.86 ; la part courante n'est pas isolée, les dettes financières courantes étant « intégralement envers les établissements de crédit » 6 487,2). Date : 31/12/2025 des deux côtés. Base : consolidé IFRS des deux côtés.",
+     "limites": "(1) Le rapprochement tient AUSSI pour 2024 (relevé verificateur-finance 13/10/2026) : les comptes courants 2024 valent −26 (RFA 2024 p.64, imprimé 126) et non 554 ; avec les dérivés NETS (passif 580,4 − actif 92,6 = 487,8) : dettes financières 12 979,9 − dérivés 580,4 − trésorerie 2 589,1 = 9 810,4 ; 9 810,4 + 487,8 − 26 = 10 272,2 contre 10 271,8 publiés (0,4). (2) Le graphique p.68 se recolle au bilan : 1 793 = impacts IFRS (location 85,1 + dérivés 1 707,9) et −804 = dette court terme nette de trésorerie ; 11 652 − 804 = 10 848 = 6 751,2 + 2 000,0 + 6 487,2 − 4 390,3 (10 848,1) ; 10 848,1 + 85,1 de location = 10 933,2 (notre dette nette) ; + 1 707,9 + 33 de comptes courants = 12 674. (3) Les 33 de comptes courants d'associés ne sont isolés qu'au graphique, pas au bilan.",
+     "releve_le": "2026-10-13"
+    }
    },
    "capital_social": {
     "valeur": 1186.4676,
@@ -812,6 +913,16 @@
     "note": "« Flux de trésorerie liés aux activités opérationnelles 5 483 3 122 » ; publié en millions arrondis à l'unité.",
     "base": "consolidé IFRS, 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 10687.8,
+    "valeur_au_rapport": 10687.8,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 86,
+    "note": "« Capitaux propres attribuables aux actionnaires ordinaires de la société mère 21 11 478,3 10 687,8 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_action_sur_titres": "⚠️ SPLIT 10:1 LE 27/07/2026, postérieur à la publication du rapport (30/04). Le nombre d'actions est passé de 11 864 676 à 118 646 760, valeur nominale 100 → 10. Tout ratio par action calculé depuis ce rapport DOIT être divisé par 10. Le registre `SPLITS` de bvc_config.py le déclare déjà.",
@@ -1072,6 +1183,16 @@
     "note": "« Flux nets de trésorerie générés par l'activité 2.648.149 2.013.818 »",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 3156.643,
+    "valeur_au_rapport": 3156643,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 7,
+    "page": 124,
+    "note": "« Capitaux propres au 31/12/2024 733 956 - 1 155 708 1 266 978 509 248 3 665 891 » ; ⚠️ TABLEAU DE VARIATIONS « (En milliers de Dirhams) » : la part du groupe n'a pas de colonne propre, elle se lit comme le total moins les minoritaires, 3 665 891 − 509 248 = 3 156 643, comme le fait 2025 ; la somme des colonnes du groupe, 733 956 + 1 155 708 + 1 266 978 = 3 156 642 (1 KMAD d'arrondi). Rang conventionnel, au-delà des montants cités.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "somme de lignes lues (ou total − minoritaires) dans la colonne 31/12/2024 — même construction que le fait 2025"
    }
   },
   "_recoupement_arithmetique": "capital 733 956 000 ÷ VN 10 = 73 395 600 actions. Et 1 588 764 KMAD ÷ 21,65 = 73 384 018, le nombre moyen pondéré retenu pour le résultat par action. Les deux concordent.",
@@ -1324,6 +1445,16 @@
     "note": "« Flux net de trésorerie généré par l'activité - 6.571.088 223.055.806 » ; négatif : 552,7 MMAD de marge brute d'autofinancement absorbés par 559,3 MMAD de hausse du BFR (stocks immobiliers).",
     "base": "consolidé IFRS, 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 9319.494058,
+    "valeur_au_rapport": 9319494058,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 53,
+    "note": "« CAPITAUX PROPRES PART DU GROUPE 9.481.694.524 9.319.494.058 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_ecarts_mesures": {
@@ -1545,6 +1676,16 @@
     "note": "« Flux net de trésorerie liés aux activités opérationnelles 1 551,5 2 000,9 »",
     "base": "consolidé IFRS, 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 5878.5,
+    "valeur_au_rapport": 5878.5,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 131,
+    "note": "« Capitaux propres - part du Groupe 5 633,8 5 878,5 -244,7 -4,2 » ; en-tête « (En Mdh) 2025 2024 Variation » : 2025 | 2024 | variation | %.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_ecarts_mesures": {
@@ -1768,6 +1909,16 @@
     "note": "« FLUX NET DE TRÉSORERIE LIÉS À L'ACTIVITÉ 238 698 141 49 374 099 »",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 774.719895,
+    "valeur_au_rapport": 774719895,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 58,
+    "note": "« CAPITAUX PROPRES PART DU GROUPE 816 636 777 774 719 895 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_ecarts_mesures": {
@@ -1996,6 +2147,16 @@
     "note": "« = FLUX DE TRÉSORERIE DES ACTIVITÉS OPERATIONNELLES [A] 435 034 542 042 »",
     "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 1581.198,
+    "valeur_au_rapport": 1581198,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 1,
+    "page": 36,
+    "note": "« Capitaux Propres Part Groupe 1 581 198 1 687 900 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 2, voir `capitaux_propres_part_groupe`) ; unité KMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_ecarts_mesures": {
@@ -2224,6 +2385,16 @@
     "note": "« Capitaux propres attribuables aux actionnaires ordinaires 20 1 990,3 1 876,6 » (ÉTATS DE LA SITUATION FINANCIÈRE - PASSIF, « En millions de dirhams », colonnes 31/12/2025 puis 31/12/2024 ; le 20 est un renvoi de note). Capital 390,0 + primes 1,6 + réserves 1 326,9 + résultat net part du groupe 271,8 = 1 990,3 ; l'ensemble consolidé (minoritaires inclus) vaut 1 993,2.",
     "base": "consolidé IFRS, 31/12/2025",
     "releve_le": "2026-10-10"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 1876.6,
+    "valeur_au_rapport": 1876.6,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 74,
+    "note": "« Capitaux propres attribuables aux actionnaires ordinaires 20 1 990,3 1 876,6 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_ecarts_mesures": {
@@ -2440,6 +2611,16 @@
     "note": "« Flux de trésorerie liés aux activités opérationnelles 460 693 233 651 »",
     "base": "consolidé IFRS, 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 1684.172,
+    "valeur_au_rapport": 1684172,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 52,
+    "note": "« Capitaux propres, part du groupe 2 619 648 1 684 172 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD. ⚠️ Fonds propres ×1,56 en 2025 — cause sur pièce : augmentation de capital par apport en nature (capital +20 336, prime +610 092 KMAD ; visa AMMC du 09/12/2025, p.43) et entrée de Soludia Maghreb (105 148), tableau de variation p.65, qui boucle exactement à 2 619 648 ; une moyenne 2024/2025 mêle deux bases de capital très différentes.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_ecarts_mesures": {
@@ -2484,6 +2665,19 @@
     "Le rapport écrit aussi « Résultat d'Exploitation 666 » (p.81) contre « RÉSULTAT OPÉRATIONNEL 626 524 » au compte consolidé (p.63) : nous retenons l'état financier.",
     "EBITDA publié 763 contre résultat opérationnel + dotations aux amortissements = 692,8 : la définition de la société inclut d'autres éléments (provisions)."
    ]
+  },
+  "_r11_nombre_actions": {
+   "constat": "DÉSACCORD NON TRANCHÉ (R11) sur le nombre d'actions après le regroupement 5:1 du 05/05/2026 (registre SPLITS, bvc_config.py).",
+   "sources": {
+    "rfa_2025": "capital 380 336 400 MAD (31/12/2025) = 7 606 728 actions × nominal 50 (RFA p.53, p.63, p.69 : « Nombre d'actions 7 606 728 7 200 000 ») ; ×5 = 38 033 640 actions de nominal 10",
+    "cp_post_age_25_03_2026": "CP_Sothema_post_AGE_25_03.pdf : « portant ainsi le nombre total d'actions à 38 309 500 actions d'une valeur nominale unitaire de dix (10) dirhams » ET « 380 336 400,00 MAD, divisé en 38 309 500 actions de 10,00 MAD » : le CP se contredit (380 336 400 ÷ 10 = 38 033 640 ; 38 309 500 × 10 = 383 095 000)",
+    "operateur": "datasets/corrections_acceptees/SOT.json : 13 025 230 000 ÷ 1 700 = 7 661 900 titres au 04/05, 14 097 896 000 ÷ 368 = 38 309 500 au 05/05 (ratio ×5 exact) ; référentiel opérateur et bvc_config.SPLITS : 38 309 500"
+   },
+   "ecart": "275 860 actions (0,73 %) ; 55 172 avant regroupement ; capital correspondant 2 758 600 MAD",
+   "ratio_5_1": "confirmé : 7 661 900 × 5 = 38 309 500 (opérateur) ; 7 606 728 × 5 = 38 033 640 (rapport)",
+   "effet": "BPA 2025 = 385,526 ÷ 38 309 500 = 10,06 (retenu dans bpa.json et resultats_s1_2026.json) ; ÷ 38 033 640 = 10,14, soit exactement le BPA implicite de yuna.ma (10,14).",
+   "non_etabli": "aucune pièce lue ne documente une émission de 55 172 actions (pré-regroupement) entre le 31/12/2025 et le 04/05/2026. Rien n'est forcé : nombre d'actions retenu inchangé (opérateur), à trancher en revue sur l'avis AMMC ou le capital post-regroupement.",
+   "releve_le": "2026-10-13"
   }
  },
  "TQA": {
@@ -2671,6 +2865,16 @@
     "note": "« Flux net de trésorerie généré par l'activité 1 812 793 1 404 101 »",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 6665.0,
+    "valeur_au_rapport": 6665,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 104,
+    "note": "« Capitaux propres Part du Groupe 6 773 6 665 1,62% » ; en-tête « En MMAD 2025 2024 Var. 25/24 ».",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_ecarts_mesures": {
@@ -2952,6 +3156,16 @@
     "note": "« Flux net généré par (affecté à) l'activité 152 180 358 169 352 948 »",
     "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 2583.560166,
+    "valeur_au_rapport": 2583560166,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 78,
+    "note": "« Dont : Capitaux propres part du groupe 2 853 529 135 2 583 560 166 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 94,
@@ -3128,6 +3342,16 @@
     "note": "« Flux net de trésorerie générés par l'activité (A) 418 058 470 342 ». après impôts payés (52 790) ; le résultat net contient +288 662 de juste valeur non monétaire, sans effet sur le flux",
     "base": "consolidé IFRS, 31/12/2025",
     "releve_le": "2026-10-01"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 5191.827,
+    "valeur_au_rapport": 5191827,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 6,
+    "note": "« Capitaux propres part du groupe 5 444 531 5 191 827 4 500 158 » ; en-tête « (En KMAD) Notes 31/12/2025 31/12/2024 31/12/2023 » : l'exercice précédent est la SECONDE colonne.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 199,
@@ -3188,6 +3412,16 @@
     "page": 140,
     "unite": "actions",
     "note": "capital 602 836 KMAD ÷ nominale 10. Le marché en implique 60 282 258 (écart 0,002 %)."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 2367.73,
+    "valeur_au_rapport": 2367730,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 140,
+    "note": "« Dont : Capitaux propres part du groupe 2 481 937 2 367 730 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 184
@@ -3362,6 +3596,16 @@
     "note": "« FLUX NET DE TRÉSORERIE GÉNÉRÉ PAR L'ACTIVITÉ (A) 406 390 000 310 380 286 »",
     "base": "consolidé IFRS, 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 2634.396857,
+    "valeur_au_rapport": 2634396857,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 68,
+    "note": "« TOTAL CAPITAUX PROPRES PART GROUPE 2 788 340 389 2 634 396 857 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 91,
@@ -3555,6 +3799,16 @@
     "note": "« Flux net de trésorerie liés aux activités opérationnelles 182 541 »",
     "base": "consolidé IFRS, 31/12/2025 (publié en millions de dirhams, arrondis)",
     "releve_le": "2026-10-01"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 1768.0,
+    "valeur_au_rapport": 1768,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 81,
+    "note": "« Capitaux propres attribuables aux actionnaires ordinaires de la société mère 1 672 1 768 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 92,
@@ -3702,7 +3956,23 @@
     "page": 40,
     "note": "« La dette nette bancaire s’établit à 828 Mdh contre 850 Mdh en 2024 ». « dette nette bancaire » PUBLIÉE par la société, sans définition de son périmètre (aussi p.17 : « Dette nette bancaire au 31 décembre 2025 : 828 Mdh »). Elle ne se recolle pas au bilan : 1 248,950 − 259,728 = 989,2 MMAD, écart de 161 MMAD non expliqué par une ligne du rapport. Non utilisée dans les ratios ; écart consigné dans _ecarts_mesures",
     "base": "consolidé IFRS, 31/12/2025",
-    "releve_le": "2026-10-01"
+    "releve_le": "2026-10-01",
+    "rapprochement": {
+     "etabli": false,
+     "dette_nette_base": 989.2,
+     "dette_nette_base_formule": "dettes_financieres 1 248,95 (emprunts LT 931,815 + emprunts et crédits < 1 an 94,706 + banques créditrices 222,429) − tresorerie_actif 259,728 (trésorerie 200,48 + VMP 59,248), p.54 ; note de dette p.62 : « Emprunts et dettes financières ... 1 248 949 »",
+     "ecart": -161.2,
+     "ecart_relatif": "19,5 %",
+     "constats": [
+      "« Dette nette bancaire » : p.17 et p.40, sans définition ni périmètre dans tout le rapport.",
+      "Au 31/12/2024 l'écart existe aussi : bilan 1 483,569 (note p.62) − (195,305 + 292,532) = 995,7 contre 850 publiés (écart 145,7) ; il n'est pas constant (161,2 en 2025).",
+      "Le crédit-bail / les dettes locatives IFRS 16 ne sont pas isolés au bilan consolidé (aucune ligne « droit d'usage » au passif) : la note de dette p.62 ne distingue que emprunts obligataires 265,424, établissements de crédit 666,391 + 67,492, autres emprunts < 1 an 15,04, intérêts courus 12,173, banques 222,429.",
+      "Recherche exhaustive : aucune combinaison de ces lignes et des placements (VMP 59,248, instruments de capitaux propres CFG Bank 382,087) ne redonne 828 en 2025 ET 850 en 2024 avec les mêmes éléments.",
+      "Le seul chiffre qui se recolle est la dette nette du SOCIAL de Mutandis SCA, 272 (p.39) — un autre périmètre."
+     ],
+     "cause": "NON ÉTABLIE — écart consigné, grandeur laissée CONTESTÉE (le module suspend ROIC, dette nette/EBITDA, VE/EBITDA et dette nette/fonds propres).",
+     "releve_le": "2026-10-13"
+    }
    },
    "excedent_brut_exploitation": {
     "valeur": 315.384,
@@ -3783,6 +4053,16 @@
     "note": "« Flux de trésorerie liés aux activités opérationnelles 262 726 275 904 ». ⚠️ Ici l'en-tête est « 31/12/2025 31/12/2024 » : l'exercice clos est la colonne de GAUCHE, l'inverse du bilan. Vérifié par la trésorerie de clôture : « Trésorerie de clôture 25 126 156 300 » ; 25 126 se reconstruit avec les comptes 2025, 156 300 avec ceux de 2024",
     "base": "consolidé IFRS, 31/12/2025",
     "releve_le": "2026-10-01"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 1562.845,
+    "valeur_au_rapport": 1562845,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 1,
+    "page": 54,
+    "note": "« Total Capitaux propres, part du groupe 1 562 845 1 551 387 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 2, voir `capitaux_propres_part_groupe`) ; unité KMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 77,
@@ -3968,6 +4248,16 @@
     "note": "« RESULTAT DE L'ENSEMBLE CONSOLIDE 4.491 (79.698) »",
     "base": "consolidé IFRS, 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 3735.121,
+    "valeur_au_rapport": 3735121,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 26,
+    "note": "« CAPITAUX PROPRES PART GROUPE 3.739.480 3.735.121 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 91,
@@ -4177,6 +4467,16 @@
     "note": "« FLUX NET DE TRÉSORERIE GÉNÉRÉ PAR L'ACTIVITÉ 1 614 497 1 545 716 »",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 2619.799,
+    "valeur_au_rapport": 2619799,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 87,
+    "note": "« Dont : Capitaux propres part du groupe 3 550 399 2 619 799 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD. ⚠️ Fonds propres ×1.36 entre 2024 et 2025 : opération sur capital, distribution ou résultat à établir par la revue — NON établi ici ; une moyenne 2024/2025 en dépend.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 101,
@@ -4369,6 +4669,16 @@
     "note": "« Flux net de trésorerie lié à l'activité -12 498 97 832 »",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 672.236,
+    "valeur_au_rapport": 672236,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 50,
+    "note": "« Capitaux propres part du Groupe 487 051 672 236 -185 185 » ; en-tête « (En milliers MAD) 31 décembre 2025 31 décembre 2024 » puis variation (487 051 − 672 236 = −185 185). ⚠️ Fonds propres ×0.72 entre 2024 et 2025 : opération sur capital, distribution ou résultat à établir par la revue — NON établi ici ; une moyenne 2024/2025 en dépend.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 68,
@@ -4559,6 +4869,16 @@
     "note": "« FLUX DE TRÉSORERIE NET PROVENANT DES ACTIVITÉS OPÉRATIONNELLES 1 737 231 764 063 »",
     "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 1761.218,
+    "valeur_au_rapport": 1761218,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 96,
+    "note": "« Capitaux Propres Part Groupe 4 544 126 1 761 218 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD. ⚠️ Fonds propres ×2,58 en 2025 : augmentation de capital de 2 199 999 450 MAD (RFA p.64 et p.72 : « L'augmentation de capital social réservée au public pour un montant de 2 199 999 450 dirhams »), capital 316 399 → 346 743 KMAD, primes 481 717 → 2 651 372 KMAD (même page) : une moyenne 2024/2025 mêle deux bases de capital très différentes.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 122,
@@ -4615,6 +4935,16 @@
     "page": 16,
     "unite": "actions",
     "note": "capital social 350 000 KMAD ÷ nominale 100. Le marché en implique exactement 3 500 000."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 12566.785,
+    "valeur_au_rapport": 12566785,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 16,
+    "note": "« Capitaux propres-part du groupe 14 960 337 12 566 785 10 894 830 » ; en-tête « 31/12/2025 31/12/2024 01/01/2024 (en milliers de dirhams) » : la colonne 31/12/2024 est celle que le rapport 2025 imprime (comptes « retraités » IFRS 17, p.16), pas celle du rapport 2024.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 154
@@ -4640,6 +4970,16 @@
     "page": 56,
     "unite": "actions",
     "note": "capital 10 000 000 MAD ÷ nominale 10. Le marché en implique exactement 1 000 000."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 68.518855,
+    "valeur_au_rapport": 68518855,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 56,
+    "note": "« Capitaux propres part du groupe 70 369 986 68 518 855 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 89
@@ -4665,6 +5005,16 @@
     "page": 40,
     "unite": "actions",
     "note": "capital 700 159 KMAD ÷ nominale 20. ⚠️ La nominale de 20 ne figure pas parmi les six usuelles ; c'est le marché qui tranche — 35 009 662 titres implicites, soit 0,005 % d'écart."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 1812.92,
+    "valeur_au_rapport": 1812920,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 6,
+    "page": 40,
+    "note": "« Capitaux propres au 31 décembre 2024 700 159 638 545 10 524 591 589 -127 897 1 812 920 27 144 1 840 062 » ; TABLEAU DE VARIATION (colonnes par composante) : la part du groupe est le septième montant de la ligne (année comprise) ; 1 812 920 + 27 144 = 1 840 062 = total du bilan p.38 au 31/12/2024.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 69
@@ -4908,6 +5258,16 @@
     "note": "« Nombre d'actions 14 436 004 14 436 004 » au bas du CPC consolidé ; « Résultat net consolidé par action en dirhams 95 63 ». ⚠️ Écart de 4 titres avec le fait existant (14 436 000 = capital 1 443 600 KMAD ÷ 100) : sans incidence (0,00003 %) ; le BPA 1 377 432 ÷ 14 436 = 95,42 recoupe les « 95 » publiés. Le référentiel de l'opérateur en implique 14 436 250.",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 3329.472,
+    "valeur_au_rapport": 3329472,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 60,
+    "note": "« Capitaux propres ( Part du groupe ) 3 739 311 3 329 472 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 80,
@@ -5192,6 +5552,16 @@
     "note": "« Résultat net consolidé de l’exercice 16 083 23 999 ». ensemble consolidé ; la part du groupe est 56 204 (les minoritaires portent une perte de 40 121)",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-10-01"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 362.36,
+    "valeur_au_rapport": 362360,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 47,
+    "note": "« Capitaux propres - part du Groupe 243 479 362 360 -118 881 » ; en-tête « EN KMAD 2025 2024 Variation » ; la part du groupe 2024 (362 360) excède les capitaux propres consolidés 2024 (358 564) : minoritaires négatifs, lu tel quel. ⚠️ Fonds propres ×0.67 entre 2024 et 2025 : opération sur capital, distribution ou résultat à établir par la revue — NON établi ici ; une moyenne 2024/2025 en dépend.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 80,
@@ -5372,6 +5742,16 @@
     "note": "« Flux net de trésorerie généré par l'activité (III= I+II) 110 373 237 101 341 377 »",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-09-30"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 675.92620881,
+    "valeur_au_rapport": 675926208.81,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 18,
+    "note": "« * Capitaux propres (part de groupe) 685 851 758,64 675 926 208,81 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 91,
@@ -5563,6 +5943,16 @@
     "note": "« Flux liés à l'activité 804 904 1 184 727 ». lu sur la page 106 rendue ; se recolle : marge brute d'autofinancement 1 107 230 − variations des actifs et passifs d'exploitation 302 326 = 804 904",
     "base": "consolidé IFRS, 31/12/2025 — états consolidés complets (p.104-106, pages image rendues et lues) ; communiqué p.172",
     "releve_le": "2026-10-01"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 3238.07,
+    "valeur_au_rapport": 3238070,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 172,
+    "note": "« Total capitaux propres part du groupe 3 387 007 3 238 070 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 174,
@@ -5810,6 +6200,16 @@
     "note": "« Flux nets de trésorerie générés par l’activité 183 629 273 883 »",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-10-01"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 720.476,
+    "valeur_au_rapport": 720476,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 76,
+    "note": "« Capitaux Propres Part du Groupe 788 101 720 476 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 85,
@@ -6020,6 +6420,16 @@
     "note": "« Résultat net part du Groupe 26.218 20.976 25% » et « Intérêts minoritaires dans le résultat 242 (20) » ; 26.218 + 242 = 26.460. En-tête « 31/12/2025 31/12/2024 Variation % » : exercice clos en PREMIÈRE colonne ; bilan et CPC lus sur rendu (la couche texte sépare les chiffres : « 4 25.636 »).",
     "base": "consolidé (normes marocaines), 31/12/2025, en KMAD ; capitaux propres NÉGATIFS ; OPINION AVEC RÉSERVE CHIFFRÉE des CAC (42,7 MAD millions d'insuffisance de provisions dans les filiales)",
     "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": -113.253,
+    "valeur_au_rapport": -113253,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 30,
+    "note": "« Dont : Capitaux propres part du groupe ( 97.214) ( 113.253) » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 62,
@@ -6152,6 +6562,16 @@
     "page": 6,
     "unite": "actions",
     "note": "« Capital 448.000 » (KMAD, avis d'AGO du 03/06/2026, p.6) ÷ nominale 50 = 8 960 000 titres ; le marché en implique 8 960 135 (écart 0,002 %) ; résultat net par action 95 (851 083 KMAD ÷ 8 960 000 = 94,99). Page 21 du RFA 2024 auparavant."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 2745.769,
+    "valeur_au_rapport": 2745769,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 6,
+    "note": "« Total des capitaux propres – part du Groupe 1.984.665 2.745.769 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD. (document : avis d'AGO du 03/06/2026, comptes consolidés « Décembre 2025 | Décembre 2024 »). ⚠️ Fonds propres ×0.72 entre 2024 et 2025 : opération sur capital, distribution ou résultat à établir par la revue — NON établi ici ; une moyenne 2024/2025 en dépend.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 8,
@@ -6338,6 +6758,16 @@
     "page": 39,
     "unite": "actions",
     "note": "Capital 876.000.000,00 (p.39 « Montant du capital ») ÷ valeur nominale 10,00 = 87 600 000 ; colonne « Exercice actuel » de l'état de répartition : 54 857 318 (H F International) + 32 742 422 (flottant) + 260 (divers) = 87 600 000 exactement. Accord avec le référentiel de l'opérateur (87 600 000)."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 2515.8704736,
+    "valeur_au_rapport": 2515870473.6,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 11,
+    "note": "« TOTAL DES CAPITAUX PROPRES - PART DU GROUPE (A1) 2.618.746.244,31 2.515.870.473,60 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_controles_ratios_2025": {
@@ -6541,6 +6971,16 @@
     "page": 27,
     "unite": "actions",
     "note": "« Au 31 décembre 2025, le capital social de Maroc Telecom est composé de 879 095 340 actions ordinaires » (p.27) ; « Nombre d'actions au 31 décembre 879 095 340 » p.24. Capital 5 275 MMAD ÷ 879 095 340 = 6 DH de nominal."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 14908.0,
+    "valeur_au_rapport": 14908,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 23,
+    "note": "« Capitaux propres - part du Groupe 13 17 126 14 908 20 478 » ; en-tête « PASSIF (en millions MAD) Note 31-déc.-23 31-déc.-24 31-déc.-25 » : ordre CHRONOLOGIQUE, 2024 en SECONDE colonne ; le 13 est un renvoi de note. ⚠️ Fonds propres ×1.37 entre 2024 et 2025 : opération sur capital, distribution ou résultat à établir par la revue — NON établi ici ; une moyenne 2024/2025 en dépend.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_controles_ratios_2025": {
@@ -6765,6 +7205,16 @@
     "page": 18,
     "unite": "actions",
     "note": "« le capital social s'élève à 289.395.700 MAD, divisé en 2.893.957 actions ordinaires de 100 MAD chacune, représentant 2.893.957 droits de vote » (p.18, AGM du 23/12/2025) ; bilan p.54 : capital 289.395.700,00. ⚠️ p.42 écrit « 283 916 300 MAD » (ancien capital ou coquille, cause non établie) : le bilan, l'AGM et le référentiel de l'opérateur (2 893 957) concordent, le texte p.42 est écarté."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 3409.74694901,
+    "valeur_au_rapport": 3409746949.01,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 54,
+    "note": "« TOTAL DES CAPITAUX PROPRES (A) 3.670.153.999,90 3.409.746.949,01 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_controles_ratios_2025": {
@@ -6996,6 +7446,16 @@
     "unite_au_rapport": "actions",
     "note": "« Nombre moyen pondéré : - d'actions ordinaires émises 23 431 240 - d'actions détenues dans le cadre de plans d'options d'achat - d'actions d'auto détention 111 651 — Nombre d'actions retenu pour le calcul du résultat de base par action 23 319 589 » (note 12 Résultat par action, mêmes montants 2025 et 2024). Ce sont des nombres MOYENS PONDÉRÉS servant au BPA, pas un nombre détenu à la clôture ; 23 431 240 − 111 651 = 23 319 589. Ne sert à aucun P/B.",
     "releve_le": "2026-10-11"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 11665.123,
+    "valeur_au_rapport": 11665123,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 73,
+    "note": "« Capitaux propres attribuables aux actionnaires ordinaires de la société mère 12 156 299 11 665 123 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_controles_ratios_2025": {
@@ -7208,6 +7668,16 @@
     "page": 39,
     "unite": "actions",
     "note": "⚠️ NON LU tel quel : le dépôt ne donne ni le nombre de titres ni le nominal. DÉDUIT : « Distribution des dividendes 86 584 694 ,00 » (p.39) ÷ dividende proposé « 8,44 /action » (p.13) = 10 258 850,0 exactement ; capital 512 942 500,00 (p.40) ÷ 10 258 850 = 50,00 de nominal rond ; identique au référentiel de l'opérateur (10 258 850). Trois chemins concordants, aucun n'est une lecture directe."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 450.391407,
+    "valeur_au_rapport": 450391407,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 57,
+    "note": "« Total Des Capitaux Propres-[A] 1.244.927.997 450.391.407 » ; Comptes consolidés, Bilan Passif, colonnes « EXERCICE | EXERCICE PRÉCÉDENT » ; les « Intérêts Minoritaires-[B] » (4.899.582 en 2024) sont une ligne à part, comme en 2025. ⚠️ Fonds propres ×2,76 en 2025 — cause sur pièce : augmentation de capital de l'introduction en bourse du 15/07/2025 (719 979 984 MAD), tableau de variation p.58, qui boucle exactement à 1 244 927 997 ; une moyenne 2024/2025 mêle donc deux bases de capital très différentes.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_controles_ratios_2025": {
@@ -7392,6 +7862,16 @@
     "page": 55,
     "unite": "actions",
     "note": "État CAPITAL SOCIAL (p.55) : « Total 1645090 1645090 -- 164 509 000,00 » (nombre de titres exercice N-1 puis actuel ; Managem 1320360 titres), valeur nominale 100 ; capital p.43 : 164 509 000,00. Accord exact avec le référentiel de l'opérateur (1 645 090)."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 1394.72176407,
+    "valeur_au_rapport": 1394721764.07,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 43,
+    "note": "« Total des capitaux propres (A) 1 660 223 158,08 1 394 721 764,07 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_controles_ratios_2025": {
@@ -7589,6 +8069,16 @@
     "page": 18,
     "unite": "actions",
     "note": "Tableau n° 13, ÉTAT DE RÉPARTITION DU CAPITAL SOCIAL (p.18) : « TOTAL 320000 320000 32 000 000,00 » (nombre de titres exercice précédent puis actuel, nominal 100,00) ; même état p.128. Accord exact avec le référentiel de l'opérateur (320 000)."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 165.71872459,
+    "valeur_au_rapport": 165718724.59,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 103,
+    "note": "« Total des capitaux propres (A) 177.784.941,01 165.718.724,59 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_controles_ratios_2025": {
@@ -7788,6 +8278,16 @@
     "page": 79,
     "unite": "actions",
     "note": "« Nombre d'action 9 007 000,00 9 007 000,00 9 007 000,00 » (p.79, résultat par titre) ; état de répartition du capital p.77 : « Total 9007000 9007000 », capital 563 297 780,00 (nominal 62,54). Accord avec le référentiel de l'opérateur (9 007 000) et avec l'AGO du 08/09/2026 qui confirme ce nombre."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 827.116,
+    "valeur_au_rapport": 827116,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 21,
+    "note": "« Total Capitaux propres, part du groupe 822.320 827.116 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "_controles_ratios_2025": {
@@ -8014,6 +8514,16 @@
     "page": 11,
     "unite": "actions",
     "note": "« Le capital social de la société Aluminium du Maroc est de 46 595 400.-DH divisé en 465 954 actions de 100.-MAD » (p.11) ; recoupé p.23 : dividende 110 DH × 465 954 = 51 254 940 DH. Le référentiel de l'opérateur (16/09/2026) implique 465 954 (862 014 900 ÷ 1 850) : accord exact."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 247.79032564,
+    "valeur_au_rapport": 247790325.64,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 36,
+    "note": "« Capitaux propres part du Groupe 262 142 600,03 247 790 325,64 » ; bilan passif « (EN M MAD) 31/12/2025 31/12/2024 » ; la couche texte espace les chiffres (« 2 47 790 325,64 »), relue : 247 790 325,64 ; capital 46 595 400 + primes 31 691 940 + réserves consolidées 132 664 484,36 + résultats 36 838 501,28 = 247 790 325,64.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 56,
@@ -8253,6 +8763,16 @@
     "page": 44,
     "unite": "actions",
     "note": "« Au capital de 29.837.500 Dirhams divisé en 298.375 actions de 100 Dirhams chacune » (en-tête du rapport de gestion, page image rendue et lue ; l'OCR automatique lisait à tort 298.373). Référentiel de l'opérateur (16/09/2026) : 1 253 175 000 ÷ 4 200 = 298 375, accord exact ; dividendes versés en 2025 : 41 772 500 ÷ 298 375 = 140 DH par action (p.35)."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 354.210236,
+    "valeur_au_rapport": 354210236,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 33,
+    "note": "« Dont : Capitaux propres part du groupe 366.807.324 354.210.236 » ; bilan passif « 31/12/2025 31/12/2024 » ; « Intérêts minoritaires » « - » ; ensemble consolidé 2024 = 354.210.236 (capital 29.837.500 + primes 21.520.000 + réserves 258.571.503 + résultat 43.660.239 + écart de conversion 620.994). [lu sur le rendu de la page : le tableau est une image]",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 49,
@@ -8497,6 +9017,16 @@
     "page": 22,
     "unite": "actions",
     "note": "« Dividendes à distribuer 19 463 145,00 » (p.22) ÷ « dividende de 19,5 MAD par action » (p.13) = 998 110 actions ; capital « Capital social ou personnel (1) 99 811 000,00 » (p.24) ÷ 998 110 = 100 DH exactement. Le référentiel de l'opérateur (16/09/2026) implique 998 110 (344 447 761 ÷ 345,1) : accord exact. Nombre d'actions non écrit tel quel au dépôt : reconstitué par ce double calcul."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 175.62564578,
+    "valeur_au_rapport": 175625645.78,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 24,
+    "note": "« TOTAL DES CAPITAUX PROPRES (a) 185 034 938,69 175 625 645,78 » ; base SOCIALE (pas de consolidé, comme en 2025) ; colonnes « EXERCICE | EXERCICE PRÉCÉDENT ».",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 37,
@@ -9064,6 +9594,16 @@
     "page": 1,
     "citation": "3 846 050 actions nouvelles d'une valeur nominale de 10 dirhams par action",
     "note": "50 294 528 actions au rapport 2025 (p.42) + 3 846 050 actions nouvelles de l'augmentation de capital de septembre 2026 (avis d'émission AMMC) = 54 140 578 ; égal au nombre implicite de la capitalisation de l'opérateur. Sert à la capitalisation au cours du jour ; les ratios par action 2025 restent sur 50 294 528 (relevé le 02/10/2026)"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 1458.51407909,
+    "valeur_au_rapport": 1458514079.09,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 58,
+    "note": "« Capitaux propres part groupe 1 445 975 818,36 1 458 514 079,09 » ; bilan passif « (En dirhams) 31 décembre 2025 31 décembre 2024 » ; ligne « Intérêts minoritaires » vide.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 64,
@@ -9348,6 +9888,16 @@
     "note": "« 2.1 CAPITAUX PROPRES CONSOLIDÉS - PART GROUPE (EXPRIMÉS EN MILLIONS DE DIRHAMS) … Capitaux propres à la fin de l'exercice 1 578,4 1 518,0 » (notes aux états consolidés, colonnes 2025 puis 2024). Recoupé au bilan p.59 en KMAD : capital 282 965 + réserves consolidées 952 036 + résultat 343 357 = 1 578 358 (= 1 597 040 − minoritaires 18 682), soit 1 578,4 arrondi ; la valeur lue (1 578,4) est retenue, la précision du bilan (1 578,358) est dans `capitaux_propres_part_groupe_deduit`.",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-10-10"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 1518.0,
+    "valeur_au_rapport": 1518,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 62,
+    "note": "« Capitaux propres à la fin de l'exercice 1 578,4 1 518,0 » ; tableau « 2.1 CAPITAUX PROPRES CONSOLIDÉS - PART GROUPE (EXPRIMÉS EN MILLIONS DE DIRHAMS) 2025 2024 » ; 1 518,0 = « Capitaux propres au début de l'exercice » 2025, égal à la clôture 2024.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 83,
@@ -9572,6 +10122,16 @@
     "page": 14,
     "unite": "actions",
     "note": "« Dividendes aux actionnaires (soit 40 MAD par action) 67 200 000,00 DH » (p.14) : 67 200 000 ÷ 40 = 1 680 000 ; capital 42 000 000 (p.21) ÷ 1 680 000 = 25 DH, nominal rond. Référentiel de l'opérateur (16/09/2026) : 1 260 000 000 ÷ 750 = 1 680 000, accord exact. Nombre d'actions non écrit tel quel : reconstitué."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 193.09066108,
+    "valeur_au_rapport": 193090661.08,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 21,
+    "note": "« TOTAL DES CAPITAUX PROPRES ( a ) 195 438 452,04 193 090 661,08 » ; base SOCIALE (pas de consolidé) ; colonnes « Exercice | Exercice Précédent ». [lu sur le rendu de la page : le tableau est une image]",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 66,
@@ -9836,6 +10396,16 @@
     "note": "« Capital social MAD 81 250 000 divisé en 812 500 actions de MAD 100 chacune au 31.12.2019 » ; capital 81 250 KMAD au bilan consolidé 2025 et 2024 (inchangé). Le référentiel de l'opérateur implique 812 500 (capitalisation 308 750 000 ÷ cours 380) : accord exact. BPA consolidé 15 447 ÷ 812,5 = 19,01 DH = « Résultat net par action 19,0 » publié ; social 8 493 ÷ 812,5 = 10,45 = « Bénéfice par action 10,45 » (p.169).",
     "base": "consolidé IFRS, 31/12/2025",
     "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 307.028,
+    "valeur_au_rapport": 307028,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 33,
+    "note": "« Capitaux propres 319 225 307 028 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 171,
@@ -10175,6 +10745,16 @@
     "note": "Le dépôt (6 pages) ne donne NI le nombre d'actions NI la valeur nominale : « Capital 64 777 700 » DH (bilan consolidé et tableau de variation). Nombre retenu 647 777 = référentiel de l'opérateur (capitalisation 261 442 797,2 ÷ cours 403,6 = 647 777,0), soit un nominal de 100,00 DH ; recoupé par le dépôt : « Résultat par action 8,19 » = 5 305 374 ÷ 647 777 = 8,19 (22,62 en 2024 = 14 651 275 ÷ 647 777). CALCUL recoupé, pas une lecture.",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 144.832311,
+    "valeur_au_rapport": 144832311,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 4,
+    "note": "« Capitaux propres (Part du groupe) 157 811 867 144 832 311 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 6,
@@ -10464,6 +11044,16 @@
     "note": "État de répartition du capital social (exercice 2025, p.23) : « Total 812070 812070 … 40 603 500,00 », valeur nominale de chaque action 50 DH (40 603 500 ÷ 50 = 812 070). Le référentiel de l'opérateur implique 812 070 (capitalisation 414 155 700 ÷ cours 510) : accord exact. BPA consolidé 32 558 354 ÷ 812 070 = 40,09 DH. [lu sur rendu]",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 103.027431,
+    "valeur_au_rapport": 103027431,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 25,
+    "note": "« Dont : Capitaux propres part du groupe 135 589 205 103 027 431 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD. ⚠️ Fonds propres ×1.32 entre 2024 et 2025 : opération sur capital, distribution ou résultat à établir par la revue — NON établi ici ; une moyenne 2024/2025 en dépend.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 32,
@@ -10772,6 +11362,16 @@
     "note": "« soit 102 326 400 Dhs répartis en 1 023 264 actions » (p.24, tableau « TOTAL NOMBRE D'ACTIONS 1 023 264 ») ; capital 102.326 KMAD au bilan ; nominal 100 DH ; « la répartition du capital … n'a pas connu de modification par rapport à l'exercice précédent » ; p.28 : « chacune des 1 023 264 actions composant le capital social ». Le référentiel de l'opérateur implique 1 023 264 (5 751 766 944 ÷ 5 621) : accord exact. BPA consolidé 324 181 862,89 ÷ 1 023 264 = 316,81 DH ; social 300 005 997,98 ÷ 1 023 264 = 293,19 DH.",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 1257.646,
+    "valeur_au_rapport": 1257646,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 104,
+    "note": "« Capitaux propres de l’ensemble consolidé 1.459.008 1.257.646 1.148.431 » ; bilan consolidé « (En KMAD) 31/12/2025 31/12/2024 31/12/2023 » ; aucun intérêt minoritaire (même lecture qu'en 2025) ; recoupé au tableau de variation p.106 : « Capitaux propres au 01/01/2025 102.326 - 949.937 205.383 1.257.646 ».",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 122,
@@ -11108,6 +11708,16 @@
     "note": "État du capital social (comptes sociaux, rubrique C1, p.51) : « T o t a l 572849 572849 -- 57 284 900,00 57 284 900,00 57 284 900,00 », valeur nominale 100 DH par action (SOMED 398 147 ; AXA 100 704 ; Al Hoceinia 28 714 ; Rebab 26 190 ; flottant 19 094). Le référentiel de l'opérateur implique 572 849 (capitalisation 160 970 569 ÷ cours 281) : accord exact ; bilan consolidé p.9 : « Capital 57 285 » (KMAD). BPA consolidé 21 588 000 ÷ 572 849 = 37,69 DH.",
     "base": "consolidé (normes marocaines, CNC avis n°5), 31/12/2025",
     "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 56.572,
+    "valeur_au_rapport": 56572,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 9,
+    "note": "« Capitaux propres, part du groupe 78 229 56 572 » ; bilan consolidé « En milliers de DH 31-déc.-25 31-déc.-24 » ; capital 57 285 + primes 2 480 − réserves 9 508 + résultat 6 315 = 56 572. [lu sur le rendu de la page : le tableau est une image] ⚠️ Fonds propres ×1.38 entre 2024 et 2025 : opération sur capital, distribution ou résultat à établir par la revue — NON établi ici ; une moyenne 2024/2025 en dépend.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 54,
@@ -11719,6 +12329,16 @@
     "note": "« ETAT C1 : ETAT DE REPARTITION DU CAPITAL SOCIAL — CAPITAL SOCIAL : 38 271 600,00 », colonne « Nombre de titres, exercice actuel » : AM Invest Morocco 143 357 + flottant 132 993 + Mohamed Bachir Rachdi 37 468 + Omar Bennani 27 000 + héritiers El Ouarzazi 22 379 + Laraki Walid 19 519 = 382 716 titres, « valeur nominale de chaque action » 100 DH (38 271 600 ÷ 100 = 382 716). Le référentiel de l'opérateur implique 382 716 (capitalisation 49 753 080 ÷ cours 130) : accord exact. Résultat par action publié p.59 : « 0,30 » (116 178,88 ÷ 382 716 = 0,3036). [lu sur rendu pivoté]",
     "base": "SOCIAL (normes marocaines), 31/12/2025 — Involys ne consolide pas ses comptes (CAC p.28 : filiales étrangères sans activité, états indisponibles)",
     "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 90.2529496,
+    "valeur_au_rapport": 90252949.6,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 33,
+    "note": "« CAPITAUX PROPRES (A) 90 369 128,48 90 252 949,60 » ; base SOCIALE ; colonnes « EXERCICE | EXERCICE PREC. » ; capital 38 271 600 + primes 25 751 959 + réserve légale 2 887 336 + autres réserves 3 061 728 + report 20 403 795,85 − résultat 123 469,25 = 90 252 949,60. [lu sur le rendu de la page : le tableau est une image]",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 78,
@@ -12030,6 +12650,16 @@
     "note": "C1 Capital Social, valeur nominale 10 DH, capital 161 176 110,00 : Colbert Finances 10 950 305 (109 503 050,00) + flottant en bourse 3 805 368 + Berrada Soleimane 336 858 + Chagar Abed 320 740 + Yan SASU 644 704 + Berrada Josette 56 412 + Berrada Sophia 3 224 = 16 117 611 titres (le texte du PDF coupe le total en « 1611761 1611761 »). 161 176 110 ÷ 10 = 16 117 611 ; le référentiel de l'opérateur implique 16 117 611 (capitalisation 1 283 767 716 ÷ cours 79,65) : accord exact. Résultat par action publié p.34 : « 4,06 » (65 479 341,98 ÷ 16 117 611 = 4,0626).",
     "base": "SOCIAL (normes marocaines), 31/12/2025 — Colorado ne publie pas de comptes consolidés (aucun titre de participation au bilan 2025)",
     "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 335.54632265,
+    "valeur_au_rapport": 335546322.65,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 12,
+    "note": "« Total des capitaux propres (A) 359 119 876,03 335 546 322,65 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 55,
@@ -12390,6 +13020,16 @@
     "note": "ETIC social, « C1. ETAT DE REPARTITION DU CAPITAL SOCIAL — MONTANT DU CAPITAL : 143 898 400,00 », colonne « Nombre de titres, ex. actuel » : Zellidja SA 821 313 + actionnaires en bourse 438 292 + Asma Invest 177 186 + Rhenalu Cegedur Pechiney 2 045 + M. Gautier Sauvagnac 107 + M. Leenhardt 38 + Somed 1 + Faouzi 1 + Chraibi 1 = « 1438984 » titres, valeur nominale 100,00 DH. Le référentiel de l'opérateur implique 1 438 984 (capitalisation 495 010 496 ÷ cours 344) : accord exact. Zellidja en détient 57,1 %. BPA consolidé 14 856 000 ÷ 1 438 984 = 10,32 DH. [lu sur rendu pivoté]",
     "base": "consolidé (normes marocaines), 31/12/2025 — périmètre : Fenie Brossette Maroc + Côte d'Ivoire, Mauritanie, Sénégal (100 %, intégration globale, p.51)",
     "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 148.527,
+    "valeur_au_rapport": 148527,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 104,
+    "note": "« Capitaux propres de l'ensemble consolidé 163 336 148 527 » ; bilan passif « déc.-25 déc.-24 » ; « Intérêts des minoritaires » « - » dans les deux colonnes : la part du groupe égale l'ensemble (même lecture qu'en 2025, où le sous-total « Capitaux propres du Groupe » reste vide) ; capital 143 898 − réserves 78 076 + primes 66 102 + résultat 16 603 = 148 527. [lu sur le rendu de la page : le tableau est une image]",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 134,
@@ -12735,6 +13375,16 @@
     "note": "« Total des capitaux propres (A) 590.840.385,99 530.925.751,86 » (bilan passif, colonnes « EXERCICE 31/12/2025 » puis « EXERCICE PRECEDENT 31/12/2024 », vérifié sur le rendu de la page : le tableau est une image). COMPTES SOCIAUX : le dépôt ne publie aucun consolidé (`base: sociale`). Hors « Capitaux propres assimilés (B) 18.108.518,66 » (subvention d'investissement). Attestation des CAC (p.5) : « 608 948 905 MAD dont un bénéfice net de 59 914 634 MAD » = 590 840 386 + 18 108 519.",
     "base": "sociale",
     "releve_le": "2026-10-10"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 530.92575186,
+    "valeur_au_rapport": 530925751.86,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 10,
+    "note": "« Total des capitaux propres (A) 590.840.385,99 530.925.751,86 » ; base SOCIALE ; colonnes « EXERCICE 31/12/2025 | EXERCICE PRÉCÉDENT 31/12/2024 » ; hors « Capitaux propres assimilés (B) 18.709.490,00 » (subvention d'investissement). [lu sur le rendu de la page : le tableau est une image]",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 27,
@@ -13106,6 +13756,16 @@
     "note": "Tableau C1 (état de répartition du capital) : « MONTANT DU CAPITAL: 14 575 000,00 DH », valeur nominale 50,00 par action ; titres : Aluminium du Maroc 148 665 + El Alami Malika 11 + El Alami Abdeslam 11 + Koutit 10 + Vaillant 10 + flottant en bourse 142 793 = 291 500 (colonne « exercice actuel », identique à l'exercice précédent). 14 575 000 ÷ 50 = 291 500. Le référentiel de l'opérateur implique 291 500 (capitalisation 97 069 500 ÷ cours 333) : accord exact. Dividende 2025 (rapport de gestion p.10, texte) : « distribution en 2026 de dividendes 2025 (20 dh / action) = 5.830.000,00 dh » = 291 500 × 20. Page IMAGE (scan net) : chiffre lu sur le rendu pypdfium2 (échelle 2), recoupé par l'arithmétique des états.",
     "base": "SOCIAL (normes marocaines), 31/12/2025 — Afric Industries ne publie que des comptes sociaux (aucun consolidé au dépôt ; titres de participation 21,6 MMAD : La Roseraie de l'Atlas, Balcony Residences)",
     "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 48.03644324,
+    "valeur_au_rapport": 48036443.24,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 18,
+    "note": "« Total des capitaux propres (A) 49 153 558,80 48 036 443,24 » ; base SOCIALE ; colonnes « EXERCICE | EXERCICE PRECEDENT » ; capital 14 575 000 + réserve légale 1 839 082,75 + autres réserves 3 418 150 + report 18 287 443,78 + résultat 9 916 766,71 = 48 036 443,24. [lu sur le rendu de la page : le tableau est une image]",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 46,
@@ -13374,6 +14034,16 @@
     "note": "Etat C1 (répartition du capital social, p.37) : « CAPITAL SOCIAL : 34 880 000,00 », valeur nominale 20, « TOTAUX : 1 744 000 1 744 000 34 880 000,00 » (exercice précédent / actuel). 34 880 000 ÷ 20 = 1 744 000. Le référentiel de l'opérateur implique 1 744 000 (capitalisation 327 872 000 ÷ cours 188) : accord exact.",
     "base": "consolidé (normes marocaines), 31/12/2025 — groupe Balima (Société Immobilière Balima + Société Hôtelière Balima Rabat + JR Vanlec) ; pas de minoritaires, part du groupe = ensemble",
     "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 128.892669,
+    "valeur_au_rapport": 128892669,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 44,
+    "note": "« Capitaux propres (part du groupe) 132 950 333 128 892 669 » ; bilan consolidé du groupe « ACTIF 31/12/2025 31/12/2024 PASSIF 31/12/2025 31/12/2024 » (la couche texte met la ligne à côté de « Actif immobilisé ») ; page du BILAN (p.44), et non celle de l'attestation (p.84) citée pour 2025.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 97,
@@ -13688,6 +14358,16 @@
     "base": "sociale",
     "exercice_clos": "2026-03-31",
     "releve_le": "2026-10-10"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 152.29996573,
+    "valeur_au_rapport": 152299965.73,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 2,
+    "note": "« TOTAL DES CAPITAUX PROPRES ( a ) 167 108 094,68 152 299 965,73 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 19,
@@ -14001,6 +14681,16 @@
     "note": "Etat de répartition du capital (p.30) : « Total 11 413 880 11 413 880 - 114 138 800,00 114 138 800,00 » (nominal 10,00 : Sanlam Maroc 694 127, Aljia Holding 397 023, divers porteurs 1 742 849…) ; note 4.11 p.39 : « Nombre moyen d'actions en circulation 11 413 880 ». Référentiel de l'opérateur : capitalisation 1 928 945 720 ÷ cours 169 = 11 413 880 : accord exact.",
     "base": "consolidé (normes marocaines), 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 304 714 KMAD)",
     "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 963.761,
+    "valeur_au_rapport": 963761,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 33,
+    "note": "« Dont : Capitaux propres part du groupe 4.3.a 919 333 963 761 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 110,
@@ -14312,6 +15002,16 @@
     "page": 47,
     "unite": "actions",
     "note": "Page 47 (C1 Capital social) : « Total 176456 176456 -- 17 645 600,00 » (nombre de titres exercice N-1 puis actuel, valeur nominale 100 par action : 146140 Fonds d'Abu Dhabi + 7938 Zellidja + 6034 Somed + 16344 flottant). Capital p.22 : 17 645 600,00. ⚠️ CORRIGE la note de `nombre_actions_referentiel` (« non publié par le dépôt ») : le nombre EST au dépôt, p.47. Accord exact avec le référentiel de l'opérateur (176 456)."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 24.80989931,
+    "valeur_au_rapport": 24809899.31,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_precedent": 2,
+    "page": 22,
+    "note": "« Total des capitaux propres (A) 25 864 154,36 24 809 899,31 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 51,
@@ -14608,6 +15308,16 @@
     "note": "NOMBRE D'ACTIONS AU 31/12/2025 (date des comptes, avant conversion, division et IPO) : capital 927 027 000 MAD (p.23, ligne du 24/12/2024 : « 926 979 200 … 927 027 000 ») ÷ nominal 100 = 9 270 270 actions, dont 2 478 actions de priorité (1 239 de catégorie A + 1 239 de catégorie B, p.26 note 6) et 9 267 792 ordinaires. Le 08/06/2026 les 2 478 actions de priorité sont converties à raison de 339 ordinaires pour 1 (+840 042, p.23-24) : 9 267 792 + 840 042 = 10 107 834 (p.21) ✓, puis ×2 (division du nominal) = 20 215 668, puis + 1 569 506 (IPO) = 21 785 174. Le BPA 2025 vaut 204 576 000 ÷ 9 270 270 = 22,07 sur ce nombre, 204 576 000 ÷ 20 215 668 = 10,12 sur les actions d'avant IPO (post-division), 204 576 000 ÷ 21 785 174 = 9,39 sur les actions actuelles ; les trois mesures sont consignées, à trancher en revue (R11 : les comptes 2025 ne sont pas retraités de la division).",
     "base": "consolidé IFRS, 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 31 941 KMAD)",
     "releve_le": "2026-10-02"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 1200.019,
+    "valeur_au_rapport": 1200019,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 221,
+    "note": "« Capitaux propres part du groupe 1 138 458 | 1 200 019 | 1 410 404 » ; ⚠️ en-tête « En KMAD 2023 2024 2025 » : l'exercice 2024 est en SECONDE colonne (le plus ancien à gauche) ; la ligne porte aussi « 5,4% 17,5% » (variations).",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   },
   "pages_document": 275,
@@ -15051,6 +15761,16 @@
     "releve_le": "2026-10-11",
     "nature": "titres détenus par une filiale consolidée (Wafa Assurance)",
     "lecture": "explicite (nombre)"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 62456.132,
+    "valeur_au_rapport": 62456132,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 8,
+    "page": 97,
+    "note": "« Capitaux propres de clôture au 31 décembre 2024 2 151 408 12 494 707 -2 600 212 49 895 967 -596 172 1 110 433 62 456 132 10 046 702 72 502 834 » ; TABLEAU DE VARIATION (colonnes par composante) : part du groupe = septième montant de la ligne ; 62 456 132 + 10 046 702 = 72 502 834 ; somme des cinq composantes du groupe 2 151 408 + 12 494 707 − 2 600 212 + 49 895 967 − 596 172 + 1 110 433 = 62 456 132 (à 1 près).",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   }
  },
@@ -15088,6 +15808,16 @@
     "page": 12,
     "unite": "actions",
     "note": "capital 2 033 125 KMAD (« Capitaux propres clôture 31/12/2025 2 033 125 29 170 028 … », tableau de variation p.12) ÷ nominale 10 = 203 312 500, ARRONDI au KMAD. ⚠️ La nominale (10 DH) n'est imprimée nulle part dans ce dépôt ; elle est confirmée par le BPA publié (4 503 361 ÷ 22,15 = 203,3 M de titres) et par le référentiel de l'opérateur (203 312 473, écart 0,00001 %, utilisé par le moteur à la place de ce nombre)."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 37043.849,
+    "valeur_au_rapport": 37043849,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 3,
+    "page": 11,
+    "note": "« Capitaux propres 57 956 029 57 167 311 » ; ⚠️ SOMME de lignes lues dans la colonne 31/12/2024 du BILAN CONSOLIDÉ IFRS (« en milliers de DH »), comme le fait 2025 (le bilan n'imprime pas de total part du groupe) : « Capital et réserves liées 30 438 267 » + réserves consolidées « Part du groupe 3 070 328 » + gains et pertes « Part du groupe -610 092 » + résultat « Part du groupe 4 145 346 » = 37 043 849 ; recoupé par total 57 167 311 − minoritaires (19 551 355 − 249 109 + 821 216 = 20 123 462) = 37 043 849. Même convention qu'en 2025 : fonds spéciaux de garantie HORS capitaux propres (bilan).",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "somme de lignes lues (ou total − minoritaires) dans la colonne 31/12/2024 — même construction que le fait 2025"
    }
   }
  },
@@ -15125,6 +15855,16 @@
     "page": 19,
     "unite": "actions",
     "note": "« ÉVOLUTION DU CAPITAL ET RÉSULTAT PAR ACTION … Nombre d'actions 13 279 286 13 279 286 ». Le référentiel de l'opérateur donne 13 279 286, identique au rapport."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 7318.181,
+    "valeur_au_rapport": 7318181,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 2,
+    "page": 15,
+    "note": "« Part du groupe 7 572 464 7 318 181 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité KMAD.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   }
  },
@@ -15172,6 +15912,16 @@
     "base": "consolidé IFRS, part du groupe, 31/12/2025",
     "releve_le": "2026-10-10",
     "lecture": "explicite (zéro)"
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 29129.447,
+    "valeur_au_rapport": 29129447,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 1,
+    "page": 121,
+    "note": "« 29 129 447 7 685 251 36 814 698 » ; fin de la ligne « Capitaux propres clôture 31.12.2024 2 157 863 19 218 004 0 8 735 189 -981 609 29 129 447 7 685 251 36 814 698 » du tableau de variation (en milliers de DH) ; part du groupe = montant qui précède les minoritaires 7 685 251 et le total 36 814 698 (= total du bilan p.120 au 31/12/2024) ; 2 157 863 + 19 218 004 + 8 735 189 − 981 609 = 29 129 447.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   }
  },
@@ -15209,6 +15959,16 @@
     "page": 55,
     "unite": "actions",
     "note": "« TOTAUX 1 670 250 1 670 250 100 » (répartition du capital, p.55) ; capital 167 025 KMAD ÷ nominale 100 = 1 670 250 (p.58). Identique au référentiel de l'opérateur."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 1387.16,
+    "valeur_au_rapport": 1387160,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 7,
+    "page": 63,
+    "note": "« Capitaux propores clôture au 31 décembre 2024 167 025 83 325 1 136 810 1 387 160 623 1 387 783 » ; TABLEAU DE VARIATION DES CAPITAUX PROPRES (CONSOLIDÉS) « EN MILLIERS DE DH », libellé imprimé « propores » (sic) ; colonnes capital | réserves liées | réserves consolidées | capitaux propres part du groupe | minoritaires | total ; 167 025 + 83 325 + 1 136 810 = 1 387 160 ; + 623 = 1 387 783. Rang = rang dans la liste que lit le test (l'année « 2024 » compte pour le premier).",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   }
  },
@@ -15246,6 +16006,16 @@
     "page": 57,
     "unite": "actions",
     "note": "« Nombre d'actions 3 124 119 » (projet d'affectation du résultat 2025, p.57) ; capital 312 412 KMAD ÷ nominale 100. Identique au référentiel de l'opérateur."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 866.878,
+    "valeur_au_rapport": 866878,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 3,
+    "page": 68,
+    "note": "« Réserves et primes liées au capital 462 304 461 319 » ; ⚠️ SOMME de lignes lues dans la colonne 31/12/2024 du BILAN PASSIF social (« en milliers de DH »), comme le fait 2025 (pas de total imprimé) : Capital 312 412 + Réserves et primes liées au capital 461 319 + Report à nouveau 0 + Résultat net 93 147 = 866 878 ; recoupé p.90 : « CAPITAUX PROPRES ET ASSIMILES 888 506 886 676 884 317 » (2025 | 2024 | 2023) − « Provisions réglementées 19 798 » = 866 878. Capitaux propres STRICTS, hors provisions réglementées (même convention qu'en 2025).",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "somme de lignes lues (ou total − minoritaires) dans la colonne 31/12/2024 — même construction que le fait 2025"
    }
   }
  },
@@ -15283,6 +16053,16 @@
     "page": 4,
     "unite": "actions",
     "note": "capital « 277 676 800,00 MAD » (p.4) ÷ nominale 100 = 2 776 768. ⚠️ La nominale (100 DH) n'est PAS imprimée dans ce dépôt ; elle est confirmée par le marché (2 776 740 implicites, 0,001 %), par la fiche CDG utilisée pour trancher l'ISIN (cf. CLAUDE.md), et par le dividende 2024 : 38.875 KMAD distribués (p.55) ÷ 14 DH = 2 776,8 milliers de titres. Pas de chiffre de l'opérateur dans datasets/historiques_importes pour ce titre : c'est ce nombre-ci qu'utilise le moteur."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 1159.493,
+    "valeur_au_rapport": 1159493,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 1,
+    "page": 55,
+    "note": "« Total 1.159.493 -38.875 107.295 1.227.913 » ; tableau des CAPITAUX PROPRES, colonnes « Encours 31/12/2024 | Affectation du résultat | Autres variations | Encours 31/12/2025 » : la colonne 31/12/2024 est la PREMIÈRE ; séparateur de milliers = POINT. Arithmétique : 1.159.493 − 38.875 + 107.295 = 1.227.913.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "colonne lue"
    }
   }
  },
@@ -15320,6 +16100,16 @@
     "page": 76,
     "unite": "actions",
     "note": "« CAPITAL SOCIAL AU 31 DÉCEMBRE 2025 24 553 090 245 530.9 » (note 16 : actions de nominale 10 MAD) ; p.78 « Nombre d'actions retenus 24 553 090 ». Identique au référentiel de l'opérateur. Introduction en bourse de 2025 : division du titre puis augmentation de capital, toutes deux avant la clôture."
+   },
+   "capitaux_propres_part_groupe_2024": {
+    "valeur": 391.029,
+    "valeur_au_rapport": 391029,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_precedent": 3,
+    "page": 65,
+    "note": "« RÉSERVES ET PRIMES DE CAPITAL 385 425 200 750 » ; ⚠️ SOMME de lignes lues dans la colonne 31/12/2024 du bilan consolidé IFRS (« En KMAD »), comme le fait 2025 (pas de total part du groupe imprimé) : « CAPITAL SOCIAL 54 250 » + « RÉSERVES ET PRIMES DE CAPITAL 200 750 » + « dont Part groupe -60 439 » + « dont Part groupe 196 468 » = 391 029 ; recoupé : ensemble 54 250 + 200 750 − 67 069 + 194 803 = 382 734 moins minoritaires (−6 630 − 1 665 = −8 295) = 391 029. ⚠️ Capital passé de 54 250 à 245 531 en 2025 : le tableau de variation n'est pas utilisé. ⚠️ Fonds propres ×2.02 entre 2024 et 2025 : opération sur capital, distribution ou résultat à établir par la revue — NON établi ici ; une moyenne 2024/2025 en dépend.",
+    "releve_le": "2026-10-13",
+    "mode_de_lecture": "somme de lignes lues (ou total − minoritaires) dans la colonne 31/12/2024 — même construction que le fait 2025"
    }
   }
  }
