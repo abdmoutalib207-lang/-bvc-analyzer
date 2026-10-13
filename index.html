@@ -10,6 +10,13 @@
   <title>BVC Analyzer v6.4 — Bourse de Casablanca</title>
   <meta name="description" content="Terminal d'analyse quantitative de la Bourse de Casablanca : 80 titres, dernière clôture vérifiée contre le bulletin de l'opérateur. Score composite Fondamental 65% · Technique 35%, modulé par titre."/>
   <meta name="theme-color" content="#080d1a"/>
+  <!-- Emblème de la marque (13/10/2026) : taureau en costume, tiré du logo
+       d'Abd Moutalib (assets/marque/logo-original.png), recoloré au dégradé
+       du terminal. Favicon d'onglet et icône d'écran d'accueil du téléphone. -->
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/marque/favicon-32.png"/>
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/marque/favicon-64.png"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/marque/icone-192.png"/>
+  <link rel="apple-touch-icon" href="assets/marque/apple-touch-icon.png"/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
@@ -203,6 +210,8 @@
     .intro-logo{font-size:clamp(28px,8vw,56px);font-weight:700;letter-spacing:.35em;
       background:linear-gradient(90deg,#00e5a0,#4db8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
       animation:intro-logo 500ms cubic-bezier(.2,.7,.2,1) both;}
+    .intro-embleme{width:clamp(84px,22vw,140px);height:auto;filter:drop-shadow(0 0 18px rgba(0,229,160,.3));
+      animation:intro-logo 500ms cubic-bezier(.2,.7,.2,1) both;}
     .intro-trait{height:2px;width:0;background:linear-gradient(90deg,#00e5a0,#4db8ff);
       animation:intro-trait 450ms 150ms cubic-bezier(.2,.7,.2,1) both;}
     @keyframes intro-logo{from{opacity:0;transform:scale(.92);letter-spacing:.6em;}to{opacity:1;transform:none;}}
@@ -256,7 +265,7 @@
   </style>
 </head>
 <body>
-<div id="root"><div id="loading-msg" style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#080d1a;font-family:'IBM Plex Mono',monospace"><div style="color:#00e5a0;font-size:18px;font-weight:700;letter-spacing:3px">BVC ANALYZER</div><div style="color:#8892a4;font-size:12px">Chargement en cours…</div><div class="sq" style="width:min(520px,86vw);height:120px;margin-top:8px"></div><div class="sq" style="width:min(520px,86vw);height:56px"></div><div id="cdn-err" style="display:none;color:#ff4f5a;font-size:11px;max-width:400px;text-align:center">Erreur de chargement des scripts (CDN). Vérifiez votre connexion et rechargez la page.</div></div></div>
+<div id="root"><div id="loading-msg" style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#080d1a;font-family:'IBM Plex Mono',monospace"><img src="assets/marque/taureau-128.png" alt="" width="64" height="64" style="display:block"/><div style="color:#00e5a0;font-size:18px;font-weight:700;letter-spacing:3px">BVC ANALYZER</div><div style="color:#8892a4;font-size:12px">Chargement en cours…</div><div class="sq" style="width:min(520px,86vw);height:120px;margin-top:8px"></div><div class="sq" style="width:min(520px,86vw);height:56px"></div><div id="cdn-err" style="display:none;color:#ff4f5a;font-size:11px;max-width:400px;text-align:center">Erreur de chargement des scripts (CDN). Vérifiez votre connexion et rechargez la page.</div></div></div>
 <script>setTimeout(function(){var e=document.getElementById('loading-msg');if(e&&e.parentNode.children.length===1){var c=document.getElementById('cdn-err');if(c)c.style.display='block';}},8000);</script>
 <script>const {
   useState,
@@ -6061,6 +6070,49 @@ const RUBRIQUES = [{
     aide: "Corpus NLP — gelé, poids nul dans la note"
   }]
 }];
+const Marque = ({
+  taille = 36
+}) => React.createElement("span", {
+  className: "marque",
+  style: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 9,
+    flex: "0 0 auto"
+  }
+}, React.createElement("img", {
+  src: "assets/marque/taureau-128.png",
+  alt: "",
+  width: taille,
+  height: taille,
+  style: {
+    display: "block",
+    filter: "drop-shadow(0 0 6px rgba(0,229,160,.25))"
+  }
+}), React.createElement("span", {
+  style: {
+    display: "inline-flex",
+    flexDirection: "column",
+    lineHeight: 1
+  }
+}, React.createElement("span", {
+  style: {
+    fontSize: Math.round(taille * .56),
+    fontWeight: 700,
+    letterSpacing: 3,
+    background: "linear-gradient(90deg,#00e5a0,#4db8ff)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent"
+  }
+}, "BVC"), React.createElement("span", {
+  style: {
+    fontSize: Math.max(8, Math.round(taille * .25)),
+    fontWeight: 600,
+    letterSpacing: ".32em",
+    color: "#8892a4",
+    marginTop: 3
+  }
+}, "ANALYZER")));
 const Menu = ({
   tab,
   setTab,
@@ -6145,16 +6197,9 @@ const Menu = ({
       justifyContent: "space-between",
       padding: "0 20px 14px"
     }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 18,
-      fontWeight: 700,
-      letterSpacing: 3,
-      background: "linear-gradient(90deg,#00e5a0,#4db8ff)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent"
-    }
-  }, "BVC ANALYZER"), React.createElement("button", {
+  }, React.createElement(Marque, {
+    taille: 32
+  }), React.createElement("button", {
     onClick: () => setOuvert(false),
     "aria-label": "Fermer le menu",
     style: {
@@ -6323,7 +6368,13 @@ const Intro = () => {
     onClick: entrer,
     role: "button",
     "aria-label": "Entrer dans BVC Analyzer"
-  }, React.createElement("div", {
+  }, React.createElement("img", {
+    className: "intro-embleme",
+    src: "assets/marque/taureau-512.png",
+    alt: "",
+    width: "120",
+    height: "120"
+  }), React.createElement("div", {
     className: "intro-logo"
   }, "BVC ANALYZER"), React.createElement("div", {
     className: "intro-trait"
@@ -6656,7 +6707,7 @@ const Header = ({
       gap: 14,
       flexWrap: "wrap"
     }
-  }, React.createElement(Menu, {
+  }, React.createElement(Marque, null), React.createElement(Menu, {
     tab: tab,
     setTab: setTab,
     TABS: TABS
@@ -6678,15 +6729,6 @@ const Header = ({
       flex: "0 0 auto"
     }
   }, "?"), React.createElement("span", {
-    style: {
-      fontSize: 22,
-      fontWeight: 700,
-      letterSpacing: 3,
-      background: "linear-gradient(90deg,#00e5a0,#4db8ff)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent"
-    }
-  }, "BVC ANALYZER"), React.createElement("span", {
     className: "badge-version",
     title: "Pond\xE9ration de R\xC9F\xC9RENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCH\xC9, le m\xEAme pour tous les titres \u2014 hors s\xE9ance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids R\xC9ELLEMENT appliqu\xE9 est affich\xE9 sur chaque fiche. Le pilier NLP est gel\xE9 \xE0 un poids de 0 : son corpus s'arr\xEAte au 02/07/2026 et il ne d\xE9pla\xE7ait plus que 0,37 point sur 10.",
     style: {
@@ -9572,19 +9614,54 @@ const Briefing = ({
   }), !semaine && React.createElement(ASurveiller, {
     a: src.a_surveiller
   }), semaine && blocConstats, !semaine && React.createElement("button", {
+    className: "bouton-detail",
     onClick: () => setDetail(!detail),
+    "aria-expanded": detail,
     style: {
-      alignSelf: "flex-start",
-      background: "#0a1220",
-      border: "1px solid #1a2540",
-      color: "#8892a4",
-      borderRadius: 5,
-      padding: "5px 14px",
-      fontSize: 11,
-      letterSpacing: .8,
-      cursor: "pointer"
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 12,
+      width: "100%",
+      minHeight: 46,
+      background: detail ? "rgba(77,184,255,.08)" : "linear-gradient(90deg,rgba(0,229,160,.14),rgba(77,184,255,.14))",
+      border: "1px solid rgba(77,184,255,.55)",
+      color: "#e6edf7",
+      borderRadius: 8,
+      padding: "10px 16px",
+      fontSize: 13,
+      fontWeight: 700,
+      letterSpacing: 1,
+      cursor: "pointer",
+      fontFamily: "var(--font)",
+      textAlign: "left"
     }
-  }, detail ? "MASQUER LE DÉTAIL DE LA SÉANCE ▴" : "DÉTAIL DE LA SÉANCE ▾"), !semaine && detail && React.createElement(SeanceDetail, {
+  }, React.createElement("span", null, detail ? "MASQUER LE DÉTAIL DE LA SÉANCE" : "VOIR LE DÉTAIL DE LA SÉANCE", React.createElement("span", {
+    style: {
+      display: "block",
+      fontSize: 10,
+      fontWeight: 400,
+      letterSpacing: .3,
+      color: "#8892a4",
+      marginTop: 3
+    }
+  }, detail ? "revenir à la lecture courte" : "tableau de bord : MASI, secteurs, volumes, hausses et baisses")), React.createElement("span", {
+    "aria-hidden": "true",
+    style: {
+      flex: "0 0 auto",
+      width: 28,
+      height: 28,
+      borderRadius: "50%",
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "rgba(77,184,255,.18)",
+      color: "#4db8ff",
+      fontSize: 14,
+      transition: "transform .2s",
+      transform: detail ? "rotate(180deg)" : "none"
+    }
+  }, "\u25BE")), !semaine && detail && React.createElement(SeanceDetail, {
     key: `${src.seance}-${src.moment}`,
     b: src,
     rows: rows,
