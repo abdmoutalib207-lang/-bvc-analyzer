@@ -178,7 +178,11 @@ def test_stokvis_retrouve_son_vrai_sommet_et_jamais_490():
     b = next(x for x in serie if x["d"] == "2025-10-07")
     assert (b["o"], b["h"], b["l"], b["c"], b["v"]) == (
         133.6, 138.0, 133.6, 135.0, 120405)
-    assert not [x for x in serie if x["c"] == 490.0]
+    # ⚠️ 11/10/2026 : borné aux séances d'AVANT le constat du 01/08/2026 (la
+    # valeur 490 venait de la table statique). Sans cette borne, une vraie
+    # clôture à 490,00 un jour futur ferait échouer le test ; la fuite, elle,
+    # reste couverte par `hors_echelle` (test_lot_sept_titres).
+    assert not [x for x in serie if x["c"] == 490.0 and x["d"] <= "2026-08-01"]
 
 
 def test_le_cache_est_exactement_recalculable_par_le_producteur(monkeypatch):

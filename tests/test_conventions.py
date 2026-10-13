@@ -32,6 +32,8 @@ import pytest
 RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE))
 
+import _echelle  # noqa: E402  (contrôles relatifs)
+
 
 @pytest.fixture(scope="module")
 def flux():
@@ -83,10 +85,13 @@ def test_la_convention_de_volume_est_celle_qui_est_appliquee(flux):
         pytest.skip("aucune réception ADI dans ce clone")
     serie = json.loads((RACINE / "pipeline" / "candles" / "ADI.json")
                        .read_text(encoding="utf-8"))
-    volumes = [b["v"] for b in serie[-60:] if b.get("v")]
-    assert volumes and max(volumes) < 100000, (
-        "ADI est réceptionné mais ses volumes gardent l'ordre de grandeur "
-        "d'un montant en dirhams")
+    # ⚠️ 11/10/2026 : plus de seuil fixe de volume (`max`, puis `médiane` <
+    # 100 000, tous deux datés). Le défaut est un saut d'ÉCHELLE (facteur ≈ le
+    # cours) entre les séances récentes et les précédentes ; une hausse durable
+    # et réelle des échanges passe. Contre-épreuves : test_controles_echelle.
+    assert _echelle.defauts_volume(serie) == [], (
+        "ADI est réceptionné mais l'échelle de ses volumes saute — un montant "
+        "en dirhams s'est glissé dans la série")
 
 
 def test_les_seances_exclues_le_sont_vraiment(flux):

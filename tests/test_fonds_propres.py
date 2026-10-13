@@ -40,11 +40,13 @@ La lecture, elle, se refait à la page indiquée.
 
 import json
 import re
+import statistics
 from pathlib import Path
 
 import pytest
 
 from conftest import chemin_data_json  # noqa: E402
+import _echelle  # noqa: E402  (contrôles relatifs)
 
 RACINE = Path(__file__).resolve().parent.parent
 
@@ -408,18 +410,75 @@ def test_les_fonds_propres_ont_un_ordre_de_grandeur_defendable(publie, faits):
     Les fonds propres négatifs sont hors sujet : il n'y a pas de rapport à
     former, et le moteur s'en abstient déjà.
     """
-    cap = {x["symbol"]: x.get("cap") for x in publie["tickers"]}
-    aberrants = []
-    for t, f in sorted(_avec_fonds_propres(faits).items()):
-        fp, c = f["valeur"], cap.get(t)
-        if not c or fp <= 0:
-            continue
-        r = c / fp
-        if not (0.2 <= r <= 50):
-            aberrants.append(f"{t} : capitalisation {c} MMAD ÷ fonds propres "
-                             f"{fp} MMAD = {r:.4f}")
+    # ⚠️ 11/10/2026 : la plage absolue [0,2 ; 50] est remplacée par la même
+    # bande RELATIVE que le P/B publié (×20 autour de la médiane de la place,
+    # voir `_echelle.ratios_hors_echelle`). Un titre dont la capitalisation
+    # tombe à 0,15 fois ses fonds propres après une vraie baisse n'est plus
+    # « indéfendable » ; un facteur mille, lui, l'est toujours.
+    #
+    # Hors bande ne suffit PAS à rejeter (fonds propres minces : un ratio de 30
+    # pour une médiane de 3 peut être réel) : second indice exigé — facteur
+    # proche d'une puissance de 1 000, ou P/B publié qui contredit le rapport
+    # de plus de 10 %. Sinon, avertissement. Contrôles : tests qui suivent.
+    pb_publies = {x["symbol"]: x.get("pb") for x in publie["tickers"]}
+    aberrants = _echelle.ratios_hors_echelle(
+        _cap_sur_fonds_propres(publie, faits), temoins=pb_publies)
     assert not aberrants, ("ordre de grandeur indéfendable — erreur d'unité ou "
                            "colonnes recollées :\n  " + "\n  ".join(aberrants))
+
+
+def _cap_sur_fonds_propres(publie, faits, fp_modifies=None, cap_modifiees=None):
+    """Capitalisation (MMAD) ÷ fonds propres (MMAD), par émetteur."""
+    cap = {x["symbol"]: x.get("cap") for x in publie["tickers"]}
+    cap.update(cap_modifiees or {})
+    out = {}
+    for t, f in sorted(_avec_fonds_propres(faits).items()):
+        fp, c = (fp_modifies or {}).get(t, f["valeur"]), cap.get(t)
+        if not c or fp <= 0:
+            continue
+        out[t] = c / fp
+    return out
+
+
+def test_controle_negatif_colonnes_recollees_toujours_attrapees(publie, faits):
+    """Le défaut d'origine : des fonds propres 1 000 fois trop gros (colonnes
+    recollées, CTM 243 479 MMAD) doivent faire échouer la bande."""
+    t = next(iter(_cap_sur_fonds_propres(publie, faits)))
+    fp = _avec_fonds_propres(faits)[t]["valeur"]
+    ratios = _cap_sur_fonds_propres(publie, faits, fp_modifies={t: fp * 1000})
+    assert any(x.startswith(t) for x in _echelle.ratios_hors_echelle(ratios)), (
+        "la bande relative n'attrape plus un facteur 1 000")
+    ratios = _cap_sur_fonds_propres(publie, faits, fp_modifies={t: fp / 1000})
+    assert any(x.startswith(t) for x in _echelle.ratios_hors_echelle(ratios))
+
+
+def test_controle_positif_un_ratio_isole_sans_second_indice_n_est_qu_un_avertissement(publie, faits):
+    """Fonds propres minces : un ratio 30 fois la médiane, avec un P/B publié
+    qui le confirme, passe (avertissement). Le même ratio contredit par le P/B
+    publié est rejeté."""
+    base = _cap_sur_fonds_propres(publie, faits)
+    med = statistics.median(base.values())
+    t = next(iter(base))
+    seul = dict(base)
+    seul[t] = med * 30                       # hors bande ×20, facteur 30 : pas une puissance de 1 000
+    with pytest.warns(UserWarning, match="à vérifier"):
+        assert _echelle.ratios_hors_echelle(seul, temoins={t: med * 30}) == []
+    assert any(x.startswith(t) for x in _echelle.ratios_hors_echelle(seul, temoins={t: med}))
+
+
+def test_controle_positif_une_chute_reelle_de_30_pour_cent_passe(publie, faits):
+    """Toute la place −30 % (puis −60 %), ou un seul titre −30 % : rien ne
+    rougit. L'ancienne borne basse 0,2 rougissait dès qu'un titre passait sous
+    20 % de ses fonds propres, quel que soit le marché."""
+    base = _cap_sur_fonds_propres(publie, faits)
+    assert _echelle.ratios_hors_echelle(base) == [], "base déjà hors bande"
+    for coef in (0.7, 0.4):
+        place = {t: v * coef for t, v in base.items()}
+        assert _echelle.ratios_hors_echelle(place) == [], coef
+    t = next(iter(base))
+    seul = dict(base)
+    seul[t] *= 0.7
+    assert _echelle.ratios_hors_echelle(seul) == []
 
 
 def test_le_releve_progresse_et_ne_recule_pas(faits):

@@ -32,6 +32,7 @@ from pathlib import Path
 import pytest
 
 from conftest import chemin_data_json  # noqa: E402
+import _echelle  # noqa: E402  (contrôles relatifs)
 
 RACINE = Path(__file__).resolve().parent.parent
 
@@ -209,16 +210,71 @@ def test_tout_pb_publie_remonte_a_un_fait_source(faits):
 
 
 def test_le_pb_publie_reste_dans_une_plage_defendable():
-    """Un price-to-book négatif n'a pas de sens ici, et au-delà de 50 il
-    signale une erreur d'unité plutôt qu'une valorisation."""
+    """Un price-to-book négatif n'a pas de sens ici. Un titre à un facteur 20
+    de la médiane de la place est un titre À VÉRIFIER, rejeté seulement si un
+    second indice concorde (facteur proche d'une puissance de 1 000 : erreur
+    d'unité) ; sinon avertissement — des fonds propres minces donnent
+    légitimement un P/B de 30. Le recoupement avec capitalisation ÷ fonds
+    propres est dans `test_le_pb_publie_se_recoupe_avec_la_capitalisation`.
+
+    ⚠️ 11/10/2026 : l'ancien `0 < pb < 50` était un seuil absolu — un vrai P/B
+    de 55 sur une société à fonds propres minces aurait bloqué la publication.
+    La bande est désormais RELATIVE à la place (voir `ratios_hors_echelle`) :
+    elle ne dépend pas du niveau du marché, seulement de l'isolement d'un
+    titre. Preuves négative (×1 000) et positive (marché −30 %) dans
+    `tests/test_controles_echelle.py`.
+    """
     d = json.loads(chemin_data_json().read_text(encoding="utf-8"))
-    for t in d["tickers"]:
-        pb = t.get("pb")
-        if pb is None:
-            continue
-        assert 0 < pb < 50, (
-            f"{t['symbol']} : price-to-book de {pb} — hors de toute plage "
-            "défendable, vérifier l'unité des capitaux propres (MMAD ?)")
+    fautifs = _echelle.ratios_hors_echelle({t["symbol"]: t.get("pb") for t in d["tickers"]})
+    assert not fautifs, (
+        f"price-to-book hors de toute plage défendable : {fautifs} — "
+        "vérifier l'unité des capitaux propres (MMAD ?)")
+
+
+def _pb_publies():
+    d = json.loads(chemin_data_json().read_text(encoding="utf-8"))
+    return {t["symbol"]: t.get("pb") for t in d["tickers"]}
+
+
+def test_controle_negatif_une_erreur_d_unite_est_toujours_attrapee():
+    """Le défaut que la plage protégeait : un P/B 1 000 fois trop haut (MMAD
+    lus comme des dirhams) ou trop bas, ou négatif, sur UN titre."""
+    pb = {t: v for t, v in _pb_publies().items() if v is not None}
+    t = next(iter(pb))
+    for faux in (pb[t] * 1000, pb[t] / 1000, -1.0, 0.0):
+        copie = dict(pb)
+        copie[t] = faux
+        assert any(x.startswith(t) for x in _echelle.ratios_hors_echelle(copie)), faux
+
+
+def test_controle_positif_un_pb_de_30_sur_fonds_propres_faibles_passe():
+    """Médiane 1, un titre à 30 (hors bande ×20, facteur 30 : pas une erreur
+    d'unité) : avertissement, pas d'échec. Un P/B normal ×1 000 échoue, et le
+    même 30 contredit par un témoin indépendant aussi."""
+    place = {f"T{i}": 1.0 + 0.05 * i for i in range(10)}
+    place["FAIBLE"] = 30.0
+    with pytest.warns(UserWarning, match="à vérifier"):
+        assert _echelle.ratios_hors_echelle(place) == []
+    rejets, a_verifier = _echelle.classer_ratios(place)
+    assert rejets == [] and len(a_verifier) == 1
+    assert _echelle.ratios_hors_echelle({**place, "FAIBLE": 1.2 * 1000})
+    assert _echelle.ratios_hors_echelle({**place, "FAIBLE": 1.2 / 1000})
+    assert _echelle.ratios_hors_echelle(place, temoins={"FAIBLE": 3.0})
+    assert _echelle.ratios_hors_echelle(place, temoins={"FAIBLE": 30.5}) == []
+
+
+def test_controle_positif_une_chute_reelle_de_30_pour_cent_passe():
+    """−30 % sur un titre, −30 % ou −60 % sur toute la place, +100 % sur la
+    place : la bande suit le marché, rien ne rougit. L'ancien `pb < 50` aurait
+    rougi dès qu'un titre dépassait 50, et `pb > 0` n'a jamais gêné."""
+    pb = {t: v for t, v in _pb_publies().items() if v is not None}
+    assert _echelle.ratios_hors_echelle(pb) == [], "base déjà hors bande"
+    for coef in (0.7, 0.4, 2.0):
+        assert _echelle.ratios_hors_echelle({t: v * coef for t, v in pb.items()}) == [], coef
+    t = next(iter(pb))
+    seul = dict(pb)
+    seul[t] *= 0.7
+    assert _echelle.ratios_hors_echelle(seul) == []
 
 
 def test_le_frontend_supporte_un_pb_absent():
