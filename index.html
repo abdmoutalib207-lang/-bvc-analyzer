@@ -10,6 +10,13 @@
   <title>BVC Analyzer v6.4 — Bourse de Casablanca</title>
   <meta name="description" content="Terminal d'analyse quantitative de la Bourse de Casablanca : 80 titres, dernière clôture vérifiée contre le bulletin de l'opérateur. Score composite Fondamental 65% · Technique 35%, modulé par titre."/>
   <meta name="theme-color" content="#080d1a"/>
+  <!-- Emblème de la marque (13/10/2026) : taureau en costume, tiré du logo
+       d'Abd Moutalib (assets/marque/logo-original.png), recoloré au dégradé
+       du terminal. Favicon d'onglet et icône d'écran d'accueil du téléphone. -->
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/marque/favicon-32.png"/>
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/marque/favicon-64.png"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/marque/icone-192.png"/>
+  <link rel="apple-touch-icon" href="assets/marque/apple-touch-icon.png"/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
@@ -200,8 +207,29 @@
       align-items:center;justify-content:center;gap:14px;cursor:pointer;animation:intro-sortie 200ms ease-in 600ms both;}
     /* 07/10/2026 : ouverture ramenée de 2 s à 800 ms (logo 500, trait 150+450,
        sortie 600+200), et jouée une fois par appareil, plus une par onglet. */
-    .intro-logo{font-size:clamp(28px,8vw,56px);font-weight:700;letter-spacing:.35em;
-      background:linear-gradient(90deg,#00e5a0,#4db8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    .intro-logo{font-size:clamp(28px,8vw,56px);font-weight:700;letter-spacing:.35em;}
+    /* ⚠️ MÉTAL ET ÉCLAT — 13/10/2026, demande d'Abd Moutalib : « couleurs
+       métalliques avec un coup d'éclat ». Le relief chromé est dans l'image
+       (assets/marque) ; l'éclat est un reflet qui balaie l'emblème, découpé
+       à sa silhouette par un masque, et le texte par un second fond. Toutes
+       les 6 s, 0,9 s de passage ; aucun mouvement si l'appareil le refuse. */
+    .metal-texte{background-image:linear-gradient(105deg,transparent 45%,rgba(255,255,255,.95) 50%,transparent 55%),
+        linear-gradient(180deg,#f0fffa 0%,#7ff5d2 30%,#00b98a 48%,#0a4a46 52%,#7fd8ff 58%,#e8f6ff 70%,#4db8ff 100%);
+      background-size:250% 100%,100% 100%;background-repeat:no-repeat;background-position:160% 0,0 0;
+      -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+      animation:eclat-texte 6s ease-in-out 1.2s infinite;}
+    @keyframes eclat-texte{0%,85%{background-position:160% 0,0 0;}100%{background-position:-60% 0,0 0;}}
+    .eclat{position:relative;display:inline-block;line-height:0;}
+    .eclat::after{content:"";position:absolute;inset:0;pointer-events:none;
+      background:linear-gradient(105deg,transparent 45%,rgba(255,255,255,.85) 50%,transparent 55%);
+      background-size:300% 100%;background-repeat:no-repeat;background-position:160% 0;
+      -webkit-mask:url(assets/marque/taureau-128.png) center/contain no-repeat;mask:url(assets/marque/taureau-128.png) center/contain no-repeat;
+      mix-blend-mode:screen;animation:eclat 6s ease-in-out 1s infinite;}
+    .eclat.grand::after{-webkit-mask-image:url(assets/marque/taureau-512.png);mask-image:url(assets/marque/taureau-512.png);animation-delay:.4s;}
+    @keyframes eclat{0%,85%{background-position:160% 0;}100%{background-position:-60% 0;}}
+    .intro-logo.metal-texte{animation:intro-logo 500ms cubic-bezier(.2,.7,.2,1) both,eclat-texte 6s ease-in-out .5s infinite;}
+    @media (prefers-reduced-motion: reduce){.eclat::after,.metal-texte{animation:none;}}
+    .intro-embleme{width:clamp(84px,22vw,140px);height:auto;filter:drop-shadow(0 0 18px rgba(0,229,160,.3));
       animation:intro-logo 500ms cubic-bezier(.2,.7,.2,1) both;}
     .intro-trait{height:2px;width:0;background:linear-gradient(90deg,#00e5a0,#4db8ff);
       animation:intro-trait 450ms 150ms cubic-bezier(.2,.7,.2,1) both;}
@@ -256,7 +284,7 @@
   </style>
 </head>
 <body>
-<div id="root"><div id="loading-msg" style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#080d1a;font-family:'IBM Plex Mono',monospace"><div style="color:#00e5a0;font-size:18px;font-weight:700;letter-spacing:3px">BVC ANALYZER</div><div style="color:#8892a4;font-size:12px">Chargement en cours…</div><div class="sq" style="width:min(520px,86vw);height:120px;margin-top:8px"></div><div class="sq" style="width:min(520px,86vw);height:56px"></div><div id="cdn-err" style="display:none;color:#ff4f5a;font-size:11px;max-width:400px;text-align:center">Erreur de chargement des scripts (CDN). Vérifiez votre connexion et rechargez la page.</div></div></div>
+<div id="root"><div id="loading-msg" style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#080d1a;font-family:'IBM Plex Mono',monospace"><img src="assets/marque/taureau-128.png" alt="" width="64" height="64" style="display:block"/><div style="color:#00e5a0;font-size:18px;font-weight:700;letter-spacing:3px">BVC ANALYZER</div><div style="color:#8892a4;font-size:12px">Chargement en cours…</div><div class="sq" style="width:min(520px,86vw);height:120px;margin-top:8px"></div><div class="sq" style="width:min(520px,86vw);height:56px"></div><div id="cdn-err" style="display:none;color:#ff4f5a;font-size:11px;max-width:400px;text-align:center">Erreur de chargement des scripts (CDN). Vérifiez votre connexion et rechargez la page.</div></div></div>
 <script>setTimeout(function(){var e=document.getElementById('loading-msg');if(e&&e.parentNode.children.length===1){var c=document.getElementById('cdn-err');if(c)c.style.display='block';}},8000);</script>
 <script>const {
   useState,
@@ -3873,7 +3901,7 @@ const Perime = ({
   const m = meta(r);
   if (!m.stale) return null;
   return React.createElement("span", {
-    title: `Cours du ${m.asof ? jjmm(m.asof) : "dernier run"} · source ${m.src}`,
+    title: `Cours du ${m.asof ? jjmm(m.asof) : "dernier run"} · source ${m.src === "cdg" ? "société de bourse agréée" : m.src}`,
     style: {
       marginLeft: 5,
       fontSize: 9,
@@ -6061,6 +6089,49 @@ const RUBRIQUES = [{
     aide: "Corpus NLP — gelé, poids nul dans la note"
   }]
 }];
+const Marque = ({
+  taille = 36
+}) => React.createElement("span", {
+  className: "marque",
+  style: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 9,
+    flex: "0 0 auto"
+  }
+}, React.createElement("span", {
+  className: "eclat"
+}, React.createElement("img", {
+  src: "assets/marque/taureau-128.png",
+  alt: "",
+  width: taille,
+  height: taille,
+  style: {
+    display: "block",
+    filter: "drop-shadow(0 0 6px rgba(0,229,160,.25))"
+  }
+})), React.createElement("span", {
+  style: {
+    display: "inline-flex",
+    flexDirection: "column",
+    lineHeight: 1
+  }
+}, React.createElement("span", {
+  className: "metal-texte",
+  style: {
+    fontSize: Math.round(taille * .56),
+    fontWeight: 700,
+    letterSpacing: 3
+  }
+}, "BVC"), React.createElement("span", {
+  style: {
+    fontSize: Math.max(8, Math.round(taille * .25)),
+    fontWeight: 600,
+    letterSpacing: ".32em",
+    color: "#aeb8c8",
+    marginTop: 3
+  }
+}, "ANALYZER")));
 const Menu = ({
   tab,
   setTab,
@@ -6145,16 +6216,9 @@ const Menu = ({
       justifyContent: "space-between",
       padding: "0 20px 14px"
     }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 18,
-      fontWeight: 700,
-      letterSpacing: 3,
-      background: "linear-gradient(90deg,#00e5a0,#4db8ff)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent"
-    }
-  }, "BVC ANALYZER"), React.createElement("button", {
+  }, React.createElement(Marque, {
+    taille: 32
+  }), React.createElement("button", {
     onClick: () => setOuvert(false),
     "aria-label": "Fermer le menu",
     style: {
@@ -6323,8 +6387,16 @@ const Intro = () => {
     onClick: entrer,
     role: "button",
     "aria-label": "Entrer dans BVC Analyzer"
-  }, React.createElement("div", {
-    className: "intro-logo"
+  }, React.createElement("span", {
+    className: "eclat grand"
+  }, React.createElement("img", {
+    className: "intro-embleme",
+    src: "assets/marque/taureau-512.png",
+    alt: "",
+    width: "120",
+    height: "120"
+  })), React.createElement("div", {
+    className: "intro-logo metal-texte"
   }, "BVC ANALYZER"), React.createElement("div", {
     className: "intro-trait"
   }), phase !== "auto" && React.createElement("div", {
@@ -6656,7 +6728,7 @@ const Header = ({
       gap: 14,
       flexWrap: "wrap"
     }
-  }, React.createElement(Menu, {
+  }, React.createElement(Marque, null), React.createElement(Menu, {
     tab: tab,
     setTab: setTab,
     TABS: TABS
@@ -6678,15 +6750,6 @@ const Header = ({
       flex: "0 0 auto"
     }
   }, "?"), React.createElement("span", {
-    style: {
-      fontSize: 22,
-      fontWeight: 700,
-      letterSpacing: 3,
-      background: "linear-gradient(90deg,#00e5a0,#4db8ff)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent"
-    }
-  }, "BVC ANALYZER"), React.createElement("span", {
     className: "badge-version",
     title: "Pond\xE9ration de R\xC9F\xC9RENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCH\xC9, le m\xEAme pour tous les titres \u2014 hors s\xE9ance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids R\xC9ELLEMENT appliqu\xE9 est affich\xE9 sur chaque fiche. Le pilier NLP est gel\xE9 \xE0 un poids de 0 : son corpus s'arr\xEAte au 02/07/2026 et il ne d\xE9pla\xE7ait plus que 0,37 point sur 10.",
     style: {
@@ -7599,7 +7662,7 @@ const Ranking = ({
         fontWeight: 400,
         whiteSpace: "nowrap"
       },
-      title: "Cours de r\xE9f\xE9rence : cl\xF4ture de la s\xE9ance pr\xE9c\xE9dente, base de la variation (servi par CDG)"
+      title: "Cours de r\xE9f\xE9rence : cl\xF4ture de la s\xE9ance pr\xE9c\xE9dente, base de la variation (servi par la synth\xE8se de s\xE9ance)"
     }, "r\xE9f. ", px(r.reference)), React.createElement("div", {
       className: "mobile-seul",
       style: {
@@ -8345,13 +8408,15 @@ const absencesTableau = (b, rows, masi) => {
   const a = ["la capitalisation boursière globale du marché — aucune de nos sources ne la publie pour la séance"];
   const t = b.trajectoire;
   if (!t) a.push("la trajectoire du MASI — non relevée pour cette séance");else a.push(`la courbe intrajournalière du MASI — le briefing n'en publie que les repères (${t.n_points ?? "?"} points relevés), pas la série`);
-  if (!(b.veille && b.veille.jour)) a.push("les chiffres du marché entier (volume, largeur, transactions) — synthèse CDG absente de cette lecture");else if (titresEchanges(b, masi) == null) a.push("le nombre de titres échangés — publié seulement avec le relevé courant de data.json, qui n'est pas celui de cette lecture");
+  if (!(b.veille && b.veille.jour)) a.push("les chiffres du marché entier (volume, largeur, transactions) — synthèse de séance absente de cette lecture");else if (titresEchanges(b, masi) == null) a.push("le nombre de titres échangés — publié seulement avec le relevé courant de data.json, qui n'est pas celui de cette lecture");
   if (!titresDuReleve(b, rows).ok) a.push("les secteurs, la répartition des variations et les plus fortes hausses, baisses et montants par titre — les cours par titre publiés (data.json) ne sont pas ceux de ce relevé");
-  if (!(b.secteurs || []).length) a.push("les indices sectoriels CDG — non servis pour cette séance");
+  if (!(b.secteurs || []).length) a.push("les indices sectoriels — non servis pour cette séance");
   if (!(b.matieres || []).length) a.push("les matières premières — non relevées");
   if (!(b.depots && (b.depots.titres || []).length)) a.push("des dépôts de résultats à l'AMMC rattachés à une action cotée — aucun relevé ce jour-là");
   return a;
 };
+const FORMULES_COURTIER = [["CDG Capital Bourse — INDICE-SYNTHESE et INDICE-O-GRAPH-INTRA (MASI)", "Synthèse de séance d'une société de bourse agréée — indices et série intrajournalière du MASI"], ["CDG Capital Bourse — INDICE-SYNTHESE, via pipeline/marche_history.json", "Synthèse de séance d'une société de bourse agréée"], [" servis par CDG)", " servis)"], ["(servis par CDG)", "(synthèse de séance)"], ["la synthèse CDG", "la synthèse de séance"], ["synthèse CDG", "synthèse de séance"], ["intrajournalière de CDG ", "intrajournalière "], ["non relevés auprès de CDG pour cette", "non relevés pour cette"]];
+const sansNomCourtier = o => typeof o === "string" ? FORMULES_COURTIER.reduce((t, [a, b]) => t.split(a).join(b), o) : Array.isArray(o) ? o.map(sansNomCourtier) : o && typeof o === "object" ? Object.fromEntries(Object.entries(o).map(([k, v]) => [k, sansNomCourtier(v)])) : o;
 const SeanceDetail = ({
   b,
   rows,
@@ -8414,10 +8479,10 @@ const SeanceDetail = ({
     })).sort((x, y) => y.v - x.v);
   }, [tranche, choisis, secteurs]);
   const totalVu = secteursVus.reduce((s, x) => s + x.v, 0) || 1;
-  const sourceReleve = rel.ok ? `data.json — ${tous.length} titres cotés le ${jm(b.seance)} ; somme de leurs montants ${montantCourt(rel.somme)}, égale au volume CDG (écart ${nfr(rel.ecart * 100, 2)} %)` : null;
+  const sourceReleve = rel.ok ? `data.json — ${tous.length} titres cotés le ${jm(b.seance)} ; somme de leurs montants ${montantCourt(rel.somme)}, égale au volume de la synthèse de séance (écart ${nfr(rel.ecart * 100, 2)} %)` : null;
   const ecrite = b.ecrit_a ? `écrite le ${jm(b.ecrit_a.slice(0, 10))} à ${b.ecrit_a.slice(11)}` : null;
   const dateLecture = `${jma(b.seance)}${ecrite ? ` · ${ecrite}` : ""}`;
-  const srcCdg = `CDG synthèse · séance du ${jm(b.seance)}`;
+  const srcCdg = `Synthèse de séance · ${jm(b.seance)}`;
   const te = titresEchanges(b, masi);
   const larg = j && (j.hausses != null || j.baisses != null) ? j : null;
   const nLarg = larg ? (larg.hausses || 0) + (larg.baisses || 0) + (larg.inchanges || 0) : 0;
@@ -8797,8 +8862,8 @@ const SeanceDetail = ({
     }
   }, "Barre pleine : titres \xAB ", filtre.v, " \xBB ; barre p\xE2le : tous les titres.")), sect.length > 0 && React.createElement(Panneau, {
     cls: rel.ok ? "c6" : "c8",
-    titre: "Indices sectoriels CDG",
-    source: `CDG Capital Bourse — INDICE-SYNTHESE, identité et date vérifiées pour chaque indice · ${dateLecture}. Classification CDG (${sect.length} indices), distincte de celle des titres : non reliée au filtre.`
+    titre: "Indices sectoriels",
+    source: `Synthèse de séance — identité et date vérifiées pour chaque indice · ${dateLecture}. Classification propre aux indices (${sect.length} indices), distincte de celle des titres : non reliée au filtre.`
   }, sectNuls && React.createElement("div", {
     style: {
       fontSize: 11.5,
@@ -9353,7 +9418,8 @@ const Briefing = ({
   const [detail, setDetail] = useState(false);
   useEffect(() => {
     const t = Math.floor(Date.now() / 3600000);
-    Promise.all([fetch("briefing.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null), fetch("briefing_hebdo.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null), fetch("briefing_mijournee.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null), fetch("briefing_cloture.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null)]).then(([j, s, m, c]) => {
+    const sn = r => r.ok ? r.json().then(sansNomCourtier) : null;
+    Promise.all([fetch("briefing.json?t=" + t).then(sn).catch(() => null), fetch("briefing_hebdo.json?t=" + t).then(sn).catch(() => null), fetch("briefing_mijournee.json?t=" + t).then(sn).catch(() => null), fetch("briefing_cloture.json?t=" + t).then(sn).catch(() => null)]).then(([j, s, m, c]) => {
       setB(j);
       setH(s);
       setMj(m);
@@ -9371,7 +9437,7 @@ const Briefing = ({
     }
     setChoix(d);
     setArch(null);
-    fetch(`briefings/${d}.json?t=${Math.floor(Date.now() / 3600000)}`).then(r => r.ok ? r.json() : null).catch(() => null).then(x => {
+    fetch(`briefings/${d}.json?t=${Math.floor(Date.now() / 3600000)}`).then(r => r.ok ? r.json().then(sansNomCourtier) : null).catch(() => null).then(x => {
       setArch(x || {});
       setVue(x && x.cloture ? "cloture" : "mijournee");
     });
@@ -9572,19 +9638,54 @@ const Briefing = ({
   }), !semaine && React.createElement(ASurveiller, {
     a: src.a_surveiller
   }), semaine && blocConstats, !semaine && React.createElement("button", {
+    className: "bouton-detail",
     onClick: () => setDetail(!detail),
+    "aria-expanded": detail,
     style: {
-      alignSelf: "flex-start",
-      background: "#0a1220",
-      border: "1px solid #1a2540",
-      color: "#8892a4",
-      borderRadius: 5,
-      padding: "5px 14px",
-      fontSize: 11,
-      letterSpacing: .8,
-      cursor: "pointer"
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 12,
+      width: "100%",
+      minHeight: 46,
+      background: detail ? "rgba(77,184,255,.08)" : "linear-gradient(90deg,rgba(0,229,160,.14),rgba(77,184,255,.14))",
+      border: "1px solid rgba(77,184,255,.55)",
+      color: "#e6edf7",
+      borderRadius: 8,
+      padding: "10px 16px",
+      fontSize: 13,
+      fontWeight: 700,
+      letterSpacing: 1,
+      cursor: "pointer",
+      fontFamily: "var(--font)",
+      textAlign: "left"
     }
-  }, detail ? "MASQUER LE DÉTAIL DE LA SÉANCE ▴" : "DÉTAIL DE LA SÉANCE ▾"), !semaine && detail && React.createElement(SeanceDetail, {
+  }, React.createElement("span", null, detail ? "MASQUER LE DÉTAIL DE LA SÉANCE" : "VOIR LE DÉTAIL DE LA SÉANCE", React.createElement("span", {
+    style: {
+      display: "block",
+      fontSize: 10,
+      fontWeight: 400,
+      letterSpacing: .3,
+      color: "#8892a4",
+      marginTop: 3
+    }
+  }, detail ? "revenir à la lecture courte" : "tableau de bord : MASI, secteurs, volumes, hausses et baisses")), React.createElement("span", {
+    "aria-hidden": "true",
+    style: {
+      flex: "0 0 auto",
+      width: 28,
+      height: 28,
+      borderRadius: "50%",
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "rgba(77,184,255,.18)",
+      color: "#4db8ff",
+      fontSize: 14,
+      transition: "transform .2s",
+      transform: detail ? "rotate(180deg)" : "none"
+    }
+  }, "\u25BE")), !semaine && detail && React.createElement(SeanceDetail, {
     key: `${src.seance}-${src.moment}`,
     b: src,
     rows: rows,
