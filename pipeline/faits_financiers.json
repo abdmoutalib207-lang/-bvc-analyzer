@@ -19,7 +19,33 @@
    "total_actif, total_passif": "servent au contrôle d'équilibre du bilan"
   },
   "_regle": "chaque fait porte page, citation exacte (vérifiée contre le texte extrait de la page), unité et colonne. Base consolidée uniquement, jamais mêlée au social. Les contrôles arithmétiques de chaque émetteur sont dans `_controles_ratios_2025` ; un fait douteux n'est pas écrit et le ratio correspondant est listé dans `non_calcules` avec sa raison.",
-  "_non_traites": "les émetteurs financiers (sans objet). MOX traité au lot 3b (02/10/2026) : tableau des flux lu sur image, 310 MMAD de titres de placement de nature non établie comptés en trésorerie comme le fait la société et signalés en réserve."
+  "_non_traites": "les émetteurs financiers (sans objet). MOX traité au lot 3b (02/10/2026) : tableau des flux lu sur image, 310 MMAD de titres de placement de nature non établie comptés en trésorerie comme le fait la société et signalés en réserve.",
+  "_definition_dette_nette": "UNE définition pour tous les titres (fixée le 13/10/2026) : dette nette = dettes financières BRUTES du bilan (emprunts bancaires et obligataires, dettes de location-financement et dettes locatives IFRS 16 quand le bilan les classe en dettes financières, découverts, crédits de trésorerie et d'escompte) − trésorerie (disponibilités + équivalents + titres de placement, sauf exclusion sur pièce). Sont HORS dette nette : les instruments dérivés de couverture (MtM, ce n'est pas un emprunt), les comptes courants d'associés, les provisions. IFRS 16 : la dette locative est INCLUSE dès lors qu'elle figure dans les dettes financières du bilan (la note de chaque titre dit ce qui a été relevé) ; elle n'est jamais retranchée pour coller à un chiffre de la société. L'« endettement net » publié par une société (clé `endettement_net`) est un fait à part : il se rapproche de la dette nette par des éléments CITÉS (page, citation) dans `endettement_net.rapprochement`. Un écart sans rapprochement établi reste CONTESTÉ (`etabli: false`) et le module de note suspend alors les critères qui consomment la dette nette.",
+  "_ifrs16_par_titre": {
+   "_quoi": "Traitement des dettes locatives (IFRS 16) dans `dettes_financieres`, pour les émetteurs en normes IFRS. `inclus` : la dette locative figure dans le total retenu, montant et page cités. `non_verifie` : la page citée ne l'isole pas et le relevé du 13/10/2026 ne l'a pas établi — le montant est en général faible face à la dette, mais NON MESURÉ ici.",
+   "inclus": {
+    "MNG": "dette locative non courante 85,1 (p.86 : « Dont Dettes liées aux contrats à droit d'usage 85,1 66,2 ») ; part courante non isolée (dettes financières courantes = « envers les établissements de crédit » 6 487,2)",
+    "GAZ": "601,158 KMAD (note 14.1, p.134 : « dont dettes de location 601 158 ») dans les 1 194,543 de dettes de financement",
+    "MOX": "12,487 KMAD de dettes de location IFRS 16 + 173 KMAD de crédit-bail (note 18, p.145) dans les 476,213",
+    "IAM": "dettes locatives IFRS 16 comprises ; la dette nette publiée par la société (17 610, p.9) les EXCLUT, la nôtre (17 637) les inclut",
+    "SNA": "94,2 MMAD de « Dettes liées aux contrats à droit d'usage » (note 23, p.91) : l'unique dette non courante",
+    "LHM": "30,083 + 12,872 KMAD de dettes locatives (non courant + courant, p.73)",
+    "LES": "296 MMAD de dettes de location financement (p.81)",
+    "RDS": "16,184 KMAD (« Dettes de location-financement & IFRS 16 15.711 473 16.184 », p.26) dans le total 2 116,222",
+    "T2S": "57,511 KMAD de dettes de crédit-bail ET de locations longue/courte durée (p.239, notes 1 et 2 : « Endettement net = dettes de financement + dettes de crédit-bail + trésorerie passif − titres et valeurs de placement − trésorerie actif »)",
+    "MUT": "politique p.62 : « Les dettes issues de la comptabilisation des contrats de location financement, sont comptabilisées en dettes financières » ; montant NON isolé au bilan consolidé (aucune ligne « droit d'usage » au passif, p.40)"
+   },
+   "non_verifie": [
+    "ADH",
+    "CSR",
+    "RIS",
+    "SOT",
+    "CMGP",
+    "ARD",
+    "IMI",
+    "HAL"
+   ]
+  }
  },
  "ADI": {
   "societe": "Alliances Développement Immobilier",
@@ -77,7 +103,23 @@
    "endettement_net": {
     "valeur": 1303.0,
     "page": 17,
-    "note": "dont emprunt obligataire de 449 MMAD émis en déc. 2025"
+    "note": "dont emprunt obligataire de 449 MMAD émis en déc. 2025",
+    "rapprochement": {
+     "etabli": false,
+     "dette_nette_base": 1361.5,
+     "dette_nette_base_formule": "dettes_financieres 2 114,079 (dettes de financement 1 980,718 + trésorerie-passif 133,361) − tresorerie_actif 752,59 (disponibilités 328,174 + titres et valeurs de placement 424,416), p.21",
+     "ecart": -58.5,
+     "ecart_relatif": "4,5 %",
+     "constats": [
+      "AUCUNE définition de l'« endettement net » dans le rapport (p.14, p.17, p.82-83, p.151 : le chiffre est donné sans périmètre).",
+      "Au 31/12/2024, notre formule redonne le chiffre publié : (1 681,143 + 191,534) − (711,134 + 25,126) = 1 136,417 contre « 1.136 » (p.17). La définition de la société est donc, en 2024, la nôtre ; l'écart naît en 2025.",
+      "Dettes locatives : le crédit-bail (60,916, note 5.2.12, p.27) est dans nos dettes de financement ; l'exclure donne 1 300,6, pas 1 303 (et ne se justifie pas : 2024 l'incluait).",
+      "Recherche exhaustive : aucune combinaison des lignes du bilan consolidé (emprunts obligataires 1 774,188, crédit-bail 60,916, établissements de crédit 109,793, autres emprunts 35,822, trésorerie-passif 133,361, comptes courants d'associés 32,988 au passif et 103,44 à l'actif, disponibilités 328,174, titres de placement 424,416) ne redonne 1 303 à ±1 MMAD.",
+      "Le rapport donne par ailleurs un « Gearing » de 24 % (p.151) qui ne se recolle pas non plus à 1 303 ÷ 4 084,918 (31,9 %)."
+     ],
+     "cause": "NON ÉTABLIE — écart consigné, grandeur laissée CONTESTÉE (le module suspend ROIC, dette nette/EBITDA, VE/EBITDA et dette nette/fonds propres).",
+     "releve_le": "2026-10-13"
+    }
    },
    "endettement_net_2024": {
     "valeur": 1136.0,
@@ -662,7 +704,35 @@
    "endettement_net": {
     "valeur": 12674.0,
     "page": 68,
-    "note": "10 272 en 2024"
+    "note": "10 272 en 2024",
+    "rapprochement": {
+     "etabli": true,
+     "dette_nette_base": 10933.2,
+     "dette_nette_base_formule": "dettes_financieres 15 323,5 − tresorerie_actif 4 390,3 (p.86), instruments dérivés de couverture EXCLUS",
+     "elements": [
+      {
+       "libelle": "instruments dérivés de couverture (MtM), passif non courant",
+       "valeur": 1707.9,
+       "page": 86,
+       "citation": "Dont Instruments dérivés de couverture 26 1 707,9 560,7"
+      },
+      {
+       "libelle": "comptes courants d'associés envers les sociétés non intégrées (clôture 2025)",
+       "valeur": 33.0,
+       "page": 68,
+       "citation": "CCA 554 33 (figure « Répartition de l'endettement du Groupe », colonnes Clôture 2024 | Clôture 2025)"
+      }
+     ],
+     "somme": 12674.1,
+     "ecart_residuel": 0.3,
+     "definition_de_la_societe": {
+      "page": 68,
+      "citation": "(*) Endettement en intégrant le MtM et les contrats de location, ainsi que les comptes courants d’associés envers les sociétés non intégrées globalement dans le périmètre de consolidation"
+     },
+     "cause": "PÉRIMÈTRE, pas de chiffre : la société ajoute à la dette financière les dérivés de couverture (perte latente sur couvertures de métaux, note 26 : MtM −1 679,1 MMAD, p.106) et les comptes courants d'associés ; notre définition les exclut. 10 933,2 + 1 707,9 + 33,0 = 12 674,1 contre 12 674 (tableau) / 12 674,4 (texte) de la p.68 : 0,3 MMAD de résidu, arrondi. Dettes locatives IFRS 16 : la société les intègre, nous aussi (dette non courante 85,1, p.86 ; la part courante n'est pas isolée, les dettes financières courantes étant « intégralement envers les établissements de crédit » 6 487,2). Date : 31/12/2025 des deux côtés. Base : consolidé IFRS des deux côtés.",
+     "limites": "(1) Le rapprochement tient pour 2025 seulement : au 31/12/2024 la même arithmétique ne boucle pas (dettes financières 12 979,9 − trésorerie 2 589,1 = 10 390,8 contre 10 271,8 publiés ; CCA 2024 = 554) — 2024 n'est pas utilisé. (2) Le graphique p.68 ventile l'endettement sur une base de gestion (emprunts MLT 11 652 + découvert 1 793 + CCA 33 − « impacts IFRS (locations/MtM) » 804 = 12 674) qui ne se recolle pas ligne à ligne au bilan : consigné, non utilisé. (3) Les 33 de CCA ne sont isolés qu'au graphique, pas au bilan.",
+     "releve_le": "2026-10-13"
+    }
    },
    "capital_social": {
     "valeur": 1186.4676,
@@ -3702,7 +3772,23 @@
     "page": 40,
     "note": "« La dette nette bancaire s’établit à 828 Mdh contre 850 Mdh en 2024 ». « dette nette bancaire » PUBLIÉE par la société, sans définition de son périmètre (aussi p.17 : « Dette nette bancaire au 31 décembre 2025 : 828 Mdh »). Elle ne se recolle pas au bilan : 1 248,950 − 259,728 = 989,2 MMAD, écart de 161 MMAD non expliqué par une ligne du rapport. Non utilisée dans les ratios ; écart consigné dans _ecarts_mesures",
     "base": "consolidé IFRS, 31/12/2025",
-    "releve_le": "2026-10-01"
+    "releve_le": "2026-10-01",
+    "rapprochement": {
+     "etabli": false,
+     "dette_nette_base": 989.2,
+     "dette_nette_base_formule": "dettes_financieres 1 248,95 (emprunts LT 931,815 + emprunts et crédits < 1 an 94,706 + banques créditrices 222,429) − tresorerie_actif 259,728 (trésorerie 200,48 + VMP 59,248), p.54 ; note de dette p.62 : « Emprunts et dettes financières ... 1 248 949 »",
+     "ecart": -161.2,
+     "ecart_relatif": "19,5 %",
+     "constats": [
+      "« Dette nette bancaire » : p.17 et p.40, sans définition ni périmètre dans tout le rapport.",
+      "Au 31/12/2024 l'écart existe aussi : bilan 1 483,569 (note p.62) − (195,305 + 292,532) = 995,7 contre 850 publiés (écart 145,7) ; il n'est pas constant (161,2 en 2025).",
+      "Le crédit-bail / les dettes locatives IFRS 16 ne sont pas isolés au bilan consolidé (aucune ligne « droit d'usage » au passif) : la note de dette p.62 ne distingue que emprunts obligataires 265,424, établissements de crédit 666,391 + 67,492, autres emprunts < 1 an 15,04, intérêts courus 12,173, banques 222,429.",
+      "Recherche exhaustive : aucune combinaison de ces lignes et des placements (VMP 59,248, instruments de capitaux propres CFG Bank 382,087) ne redonne 828 en 2025 ET 850 en 2024 avec les mêmes éléments.",
+      "Le seul chiffre qui se recolle est la dette nette du SOCIAL de Mutandis SCA, 272 (p.39) — un autre périmètre."
+     ],
+     "cause": "NON ÉTABLIE — écart consigné, grandeur laissée CONTESTÉE (le module suspend ROIC, dette nette/EBITDA, VE/EBITDA et dette nette/fonds propres).",
+     "releve_le": "2026-10-13"
+    }
    },
    "excedent_brut_exploitation": {
     "valeur": 315.384,
