@@ -5045,6 +5045,36 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:
         logger.warning(f"  🌑 pilier technique v2 (ombre) non calculé ({_e})")
 
+    # MESURES DE RISQUE PAR TITRE — 14/10/2026, `pipeline/risque.py`.
+    #
+    # ⚠️ DESCRIPTIVES, HORS NOTE (R8). Calculées APRÈS la note, le signal et
+    # la confiance, et rien en aval ne les lit : volatilité, bêta, perte
+    # maximale, VaR/CVaR et liquidité, chacune avec son effectif et sa
+    # période. Uniquement nos chandelles et l'historique du MASI.
+    #
+    # ⚠️ Pendant la séance, la bougie du jour est provisoire : la fenêtre
+    # s'arrête à la dernière séance CLOSE. Le run de 15h45 et le filet de 18h
+    # y font entrer la séance du jour.
+    try:
+        from pipeline.risque import mesurer_cote as _risque_cote
+        _masi_r = json.loads((Path(__file__).parent / "pipeline" / "masi_history.json")
+                             .read_text(encoding="utf-8")).get("seances", {})
+        _jusqu_r = None
+        if mkt_status == "OPEN":
+            _jusqu_r = (datetime.now(_tz_maroc()).date() - timedelta(days=1)).isoformat()
+        _series_r = {s: df.to_dict("records") for s, df in _candles_cache.items()
+                     if df is not None}
+        _risques = _risque_cote(_series_r, _masi_r, [x["symbol"] for x in tickers_out],
+                                jusqu_au=_jusqu_r)
+        for x in tickers_out:
+            x["risque"] = _risques.get(x["symbol"])
+        _mes = sum(1 for r in _risques.values()
+                   if r and r["volatilite"]["valeur"] is not None)
+        logger.info(f"  📐 risque mesuré : {_mes}/{len(_risques)} titres sur un an "
+                    f"(au {next(iter(_risques.values()), {}).get('asof')})")
+    except Exception as _e:                               # noqa: BLE001
+        logger.warning(f"  📐 mesures de risque non calculées ({_e})")
+
     # ⚠️ LE FLUX SE CONTRÔLE LUI-MÊME — ajouté le 24/09/2026.
     #
     # « Un score qui ne se vérifie pas lui-même ne peut pas être calibré. » La
@@ -5095,6 +5125,18 @@ def run(dry_run=False, push=False, token=""):
             "un NOMBRE DE TITRES, jamais un montant en dirhams. Les séries "
             "recoupées à l'export de l'opérateur portent sa colonne « Titres "
             "Échangés » ; voir datasets/historiques_importes/."),
+        "risque": (
+            "bloc `risque` de chaque titre, hors note (pipeline/risque.py). "
+            "Fenêtre : les 250 dernières séances CLOSES du marché (120 pour la "
+            "liquidité). Rendement = clôture échangée / clôture échangée "
+            "précédente − 1 ; bougies à volume nul exclues, saut > 10 % exclu "
+            "et compté (R10). Volatilité = écart-type (n−1) × √250. Bêta et "
+            "corrélation sur les intervalles où le MASI est connu aux deux "
+            "bornes, sans interpolation. VaR 95 % = la ⌈5 % × n⌉-ième pire "
+            "perte ; CVaR = moyenne de ces pertes. Séance sans échange : séance "
+            "réelle du marché (≥ 20 titres échangés) sans échange sur le titre "
+            "— jamais un férié ni un week-end. Moins de 120 observations : null, "
+            "avec le motif."),
         # ⚠️ LA CONVENTION QUI FERA DIVERGER TOUT RECOUPEMENT EXTÉRIEUR.
         #
         # Précisée par Abd Moutalib le 25/09/2026, et vérifiée : l'opérateur

@@ -9927,6 +9927,112 @@ const MarchesMondiaux = () => {
     }
   }, "Source : TradingView (scanner public), relev\xE9 le ", heure(d.releve_utc), ". Sous chaque valeur : l'heure de l'observation, le diff\xE9r\xE9 que la source d\xE9clare, et un lien pour la v\xE9rifier chez elle. Contexte seulement : n'entre pas dans la note."));
 };
+const RisqueMesure = ({
+  q
+}) => {
+  if (!q) return null;
+  const jj = d => d ? d.split("-").reverse().join("/") : "—";
+  const per = m => m && m.du ? `${jj(m.du)} → ${jj(m.au)}` : "";
+  const lignes = [["Volatilité annualisée", q.volatilite, m => `${fmt(m.valeur, 1)} %`, m => `${m.n} rendements quotidiens`], ["Bêta contre le MASI", q.beta, m => fmt(m.valeur, 2), m => `corrélation ${fmt(m.correlation, 2)} · ${m.n} séances communes`], ["Perte maximale", q.perte_max, m => m.valeur > 0 ? `−${fmt(m.valeur, 1)} %` : "aucune baisse", m => m.sommet && m.creux ? `sommet ${fmt(m.sommet.c, 2)} le ${jj(m.sommet.d)}, creux ${fmt(m.creux.c, 2)} le ${jj(m.creux.d)} · ${m.n} clôtures` : `${m.n} clôtures`], ["VaR 95 % à 1 jour", q.var95, m => `${fmt(m.valeur, 2)} %`, m => `CVaR ${fmt(m.cvar, 2)} % · ${m.n} rendements, queue de ${m.n_queue}`], ["Quantité médiane par séance (6 mois)", q.liquidite, m => `${Math.round(m.quantite_mediane).toLocaleString("fr-FR")} titres`, m => `${m.sans_echange} séance${m.sans_echange > 1 ? "s" : ""} sans échange sur ${m.seances}${m.dont_sans_bougie ? ` (dont ${m.dont_sans_bougie} sans bougie)` : ""}`]];
+  const annuelles = [q.volatilite, q.beta, q.perte_max, q.var95];
+  const motifAn = annuelles.every(m => !m || m.valeur == null) && q.volatilite && q.volatilite.motif;
+  const visibles = motifAn ? lignes.slice(4) : lignes;
+  const rd = q.rendements;
+  const ecartes = rd ? [rd.exclus_volume_nul ? `${rd.exclus_volume_nul} bougie${rd.exclus_volume_nul > 1 ? "s" : ""} à volume nul` : null, rd.exclus_saut ? `${rd.exclus_saut} saut${rd.exclus_saut > 1 ? "s" : ""} de plus de 10 %` : null].filter(Boolean) : [];
+  return React.createElement("div", {
+    className: "carte risque-mesure",
+    style: {
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      padding: 12,
+      marginBottom: 10
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "baseline",
+      marginBottom: 10,
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      letterSpacing: 1,
+      textTransform: "uppercase"
+    }
+  }, "Risque mesur\xE9 ", React.createElement("span", {
+    style: {
+      color: "#4db8ff"
+    }
+  }, "(1 an)")), React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: "#8892a4"
+    }
+  }, "nos chandelles \xB7 derni\xE8re s\xE9ance ", jj(q.asof))), q.motif && q.motif.code === "suspendu" ? React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      lineHeight: 1.5
+    }
+  }, q.motif.texte, ".") : React.createElement(React.Fragment, null, motifAn && React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#5a6478",
+      lineHeight: 1.5,
+      marginBottom: 7
+    }
+  }, "Volatilit\xE9, b\xEAta, perte maximale, VaR : ", React.createElement("b", null, "non calcul\xE9s"), " \u2014 ", motifAn, "."), React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))",
+      gap: 7
+    }
+  }, visibles.map(([k, m, val, detail]) => {
+    const ok = m && m.valeur != null;
+    return React.createElement("div", {
+      key: k,
+      style: {
+        background: "#0a1220",
+        borderRadius: 4,
+        padding: "6px 8px"
+      }
+    }, React.createElement("div", {
+      style: {
+        fontSize: 8,
+        color: "#8892a4",
+        marginBottom: 2,
+        textTransform: "uppercase"
+      }
+    }, k), React.createElement("div", {
+      style: {
+        fontSize: 13,
+        color: ok ? "#c8d3e8" : "#5a6478",
+        fontWeight: 700
+      }
+    }, ok ? val(m) : "—"), React.createElement("div", {
+      style: {
+        fontSize: 9,
+        color: ok ? "#8892a4" : "#5a6478",
+        marginTop: 1,
+        lineHeight: 1.4
+      }
+    }, ok ? React.createElement(React.Fragment, null, detail(m), React.createElement("br", null), per(m)) : m && m.motif || "non calculé"));
+  }))), React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: "#8892a4",
+      marginTop: 9,
+      lineHeight: 1.5
+    }
+  }, "Ce que le titre a fait sur l'ann\xE9e \xE9coul\xE9e \u2014 une description, pas une pr\xE9vision, et hors de la note.", ecartes.length > 0 && ` Écartés des rendements : ${ecartes.join(" et ")}.`, q.liquidite && q.liquidite.motif_amihud && React.createElement("span", {
+    title: q.liquidite.motif_amihud
+  }, " Montant échangé et ratio d'Amihud non calculés : nos chandelles ne portent que la quantité de titres.")));
+};
 const TickerNews = ({
   sym
 }) => {
@@ -10531,7 +10637,9 @@ const Detail = ({
         color: "#8892a4"
       }
     }, "/", e.pairs, " \xB7 ", e.ecart_pct > 0 ? "+" : "", e.ecart_pct, "% vs secteur"));
-  })())))), r.ratios_publies && React.createElement("div", {
+  })())))), React.createElement(RisqueMesure, {
+    q: r.risque
+  }), r.ratios_publies && React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
@@ -13732,6 +13840,7 @@ function App() {
             flags: t.flags,
             alertes: t.alertes,
             ratios_publies: t.ratios_publies,
+            risque: t.risque,
             conv: t.conv,
             setup: t.setup,
             obv: t.obv,

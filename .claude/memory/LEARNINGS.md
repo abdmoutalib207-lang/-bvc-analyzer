@@ -908,3 +908,24 @@ Relevé pour le briefing de clôture enrichi (`pipeline/seance_marche.py`).
   la part du groupe en MMAD ; JET : part du groupe = somme des lignes du groupe,
   non imprimée (dérivé, dit en note).
 - Ennakl : comptes en TND, pas de P/B en MAD sans taux de change sourcé.
+
+## Mesures de risque (14/10/2026) : ce que la mesure a appris
+
+- **Une séance sans échange se compte sur le calendrier du MARCHÉ**, jamais sur
+  les jours calendaires : une date est une séance si ≥ 20 titres y ont échangé
+  (même seuil que `seance.py`), hors week-end, férié fixe, séance annulée ou
+  sans cotation. ATW : 0 séance sans échange sur 120 (un concurrent publiait
+  8 sur 127 — fériés et week-ends comptés).
+- **Le flux live n'écrit pas de bougie à volume nul** (`session_candles.preparer`
+  refuse `v <= 0`) ; les exports de l'opérateur, si. Un titre peu liquide a donc
+  des séances sans échange des DEUX formes : bougie à v = 0, ou pas de bougie.
+  `risque.liquidite` les publie séparément (`dont_volume_nul`, `dont_sans_bougie`).
+- **Le plafond de ±10 % vaut d'une clôture ÉCHANGÉE à la suivante**, même
+  séparées par des séances sans échange : mesuré sur les 80 séries d'un an,
+  aucun écart entre 9,9985 % et 15 %. Les seuls sauts au-delà : CMT (reprise
+  après OPA, au registre) et quatre sur ZLD, non expliqués.
+- **`masi_history.json` a un trou de 7 séances** (07 au 15/09/2026), présentes
+  dans les chandelles. Le bêta d'ATW porte donc sur 241 séances communes sur
+  249 rendements : c'est publié (`beta.n`), pas comblé.
+- **VaR : `ceil((1 − 0,95) × n)` est faux en flottant** (0,050000000000000044 ;
+  40 rendements donnent une queue de 3). Arrondir avant `ceil`.

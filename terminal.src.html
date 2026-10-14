@@ -3426,6 +3426,60 @@ const MarchesMondiaux=()=>{
     </div>);
 };
 
+// ── RISQUE MESURÉ (1 an) — 14/10/2026 ────────────────────────────────────────
+// Bloc `risque` de data.json (pipeline/risque.py). DESCRIPTIF, hors note :
+// chaque valeur porte son effectif et sa période ; une valeur null s'affiche
+// en gris avec sa raison, jamais remplacée par un chiffre supposé.
+const RisqueMesure=({q})=>{
+  if(!q) return null;
+  const jj=d=>d?d.split("-").reverse().join("/"):"—";
+  const per=m=>m&&m.du?`${jj(m.du)} → ${jj(m.au)}`:"";
+  const lignes=[
+    ["Volatilité annualisée",q.volatilite,m=>`${fmt(m.valeur,1)} %`,m=>`${m.n} rendements quotidiens`],
+    ["Bêta contre le MASI",q.beta,m=>fmt(m.valeur,2),m=>`corrélation ${fmt(m.correlation,2)} · ${m.n} séances communes`],
+    ["Perte maximale",q.perte_max,m=>m.valeur>0?`−${fmt(m.valeur,1)} %`:"aucune baisse",
+      m=>m.sommet&&m.creux?`sommet ${fmt(m.sommet.c,2)} le ${jj(m.sommet.d)}, creux ${fmt(m.creux.c,2)} le ${jj(m.creux.d)} · ${m.n} clôtures`:`${m.n} clôtures`],
+    ["VaR 95 % à 1 jour",q.var95,m=>`${fmt(m.valeur,2)} %`,m=>`CVaR ${fmt(m.cvar,2)} % · ${m.n} rendements, queue de ${m.n_queue}`],
+    ["Quantité médiane par séance (6 mois)",q.liquidite,m=>`${Math.round(m.quantite_mediane).toLocaleString("fr-FR")} titres`,
+      m=>`${m.sans_echange} séance${m.sans_echange>1?"s":""} sans échange sur ${m.seances}${m.dont_sans_bougie?` (dont ${m.dont_sans_bougie} sans bougie)`:""}`],
+  ];
+  // Un même motif sur les quatre mesures annuelles (reprise, titre peu
+  // échangé) se dit une fois, pas quatre.
+  const annuelles=[q.volatilite,q.beta,q.perte_max,q.var95];
+  const motifAn=annuelles.every(m=>!m||m.valeur==null)&&q.volatilite&&q.volatilite.motif;
+  const visibles=motifAn?lignes.slice(4):lignes;
+  const rd=q.rendements;
+  const ecartes=rd?[rd.exclus_volume_nul?`${rd.exclus_volume_nul} bougie${rd.exclus_volume_nul>1?"s":""} à volume nul`:null,
+    rd.exclus_saut?`${rd.exclus_saut} saut${rd.exclus_saut>1?"s":""} de plus de 10 %`:null].filter(Boolean):[];
+  return(
+    <div className="carte risque-mesure" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,marginBottom:10}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:10,gap:8,flexWrap:"wrap"}}>
+        <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Risque mesuré <span style={{color:"#4db8ff"}}>(1 an)</span></div>
+        <div style={{fontSize:9,color:"#8892a4"}}>nos chandelles · dernière séance {jj(q.asof)}</div>
+      </div>
+      {q.motif&&q.motif.code==="suspendu"
+        ?<div style={{fontSize:11,color:"#8892a4",lineHeight:1.5}}>{q.motif.texte}.</div>
+        :<>{motifAn&&<div style={{fontSize:10,color:"#5a6478",lineHeight:1.5,marginBottom:7}}>
+            Volatilité, bêta, perte maximale, VaR : <b>non calculés</b> — {motifAn}.</div>}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:7}}>
+          {visibles.map(([k,m,val,detail])=>{const ok=m&&m.valeur!=null;
+            return(
+            <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
+              <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
+              <div style={{fontSize:13,color:ok?"#c8d3e8":"#5a6478",fontWeight:700}}>{ok?val(m):"—"}</div>
+              <div style={{fontSize:9,color:ok?"#8892a4":"#5a6478",marginTop:1,lineHeight:1.4}}>
+                {ok?<>{detail(m)}<br/>{per(m)}</>:(m&&m.motif)||"non calculé"}
+              </div>
+            </div>);})}
+        </div></>}
+      <div style={{fontSize:9,color:"#8892a4",marginTop:9,lineHeight:1.5}}>
+        Ce que le titre a fait sur l'année écoulée — une description, pas une prévision, et hors de la note.
+        {ecartes.length>0&&` Écartés des rendements : ${ecartes.join(" et ")}.`}
+        {q.liquidite&&q.liquidite.motif_amihud&&<span title={q.liquidite.motif_amihud}>{" Montant échangé et ratio d'Amihud non calculés : nos chandelles ne portent que la quantité de titres."}</span>}
+      </div>
+    </div>);
+};
+
 // ── TICKER NEWS (inline dans Detail) ─────────────────────────────────────────
 const TickerNews=({sym})=>{
   const [articles,setArticles]=useState([]);
@@ -3733,6 +3787,9 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               ))}
             </div>
           </div>
+
+          {/* Risque mesuré (1 an) — descriptif, hors note (14/10/2026). */}
+          <RisqueMesure q={r.risque}/>
 
           {/* ⚠️ RENTABILITÉ SUR COMPTES PUBLIÉS — 30/09/2026. Calculée par
               pipeline/ratios_financiers.py à partir de deux termes sourcés
@@ -4950,7 +5007,7 @@ function App(){
           ...Object.fromEntries(CHAMPS_SCORE.map(c=>[c,t[c]])),
           alpha:t.alpha,win:t.win,sig:t.sig,biais:t.biais,reference:t.reference,
           bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
-          bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,alertes:t.alertes,ratios_publies:t.ratios_publies,
+          bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,alertes:t.alertes,ratios_publies:t.ratios_publies,risque:t.risque,
           conv:t.conv,setup:t.setup,
           obv:t.obv,adx:t.adx,adx_pdi:t.adx_pdi,adx_mdi:t.adx_mdi,
           /* ⚠️ DEUX CHAMPS CALCULÉS QUI N'ARRIVAIENT PAS JUSQU'ICI — 25/09.
