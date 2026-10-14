@@ -71,8 +71,14 @@ def test_append_avance_les_champs_reproductibles_et_preserve_une_correction():
     assert nouveau["last_date"] == "2026-09-18"
     assert nouveau["n_candles"] == 3
     assert nouveau["rsi"] == 3.0, "un champ reproductible doit avancer"
-    assert nouveau["h52w"] == 380.0, "la correction historique ne doit pas être rejouée"
-    assert "h52w" in rapport["champs_preserves"]
+    # ⚠️ 14/10/2026 : les extrêmes glissants avancent depuis la copie
+    # CORRIGÉE du cache. L'anomalie brute (1700) n'est pas rejouée, mais le
+    # nouveau plus-haut (385, bougie du 18/09) est pris : l'ancienne attente
+    # (380 figé) était le défaut lui-même — c'est ainsi que le plus-haut
+    # 90 jours de CMT est resté à 5 100 après la sortie du sommet de la fenêtre.
+    assert nouveau["h52w"] == 385.0, "la correction est respectée et le nouveau sommet compte"
+    assert nouveau["h52w"] != 1700.0, "la correction historique ne doit pas être rejouée"
+    assert "h52w" in rapport["champs_recalcules"]
     assert nouveau["candles"][0]["h"] == 380.0
     assert nouveau["candles"][-1]["d"] == "2026-09-18"
 
@@ -106,3 +112,34 @@ def test_un_prefixe_historique_modifie_est_refuse():
 
     assert nouveau is None
     assert "préfixe modifié" in rapport["motif"]
+
+
+def test_un_sommet_sorti_de_la_fenetre_ne_reste_pas_fige():
+    """Cas CMT : sommet ancien hors fenêtre de 90 jours, valeur du cache figée."""
+    ancien_sommet = _b("2026-06-18", 5100, h=5100)
+    recentes = [_b(f"2026-09-{j:02d}", 4500, h=4550) for j in (1, 2, 3)]
+    nouvelle = _b("2026-09-04", 4520, h=4573)
+    ancien = _entree([ancien_sommet] + recentes)
+    ancien["h90"] = 5100.0                       # valeur restée figée
+    nouveau, rapport = rc._synchroniser_un_ajout(
+        "CMT", ancien, [ancien_sommet] + recentes + [nouvelle], _Moteur())
+    assert nouveau is not None, rapport
+    ext = rc.extremes_glissants(nouveau["candles"], serie_complete=True)
+    assert nouveau["h90"] == ext["h90"]
+    assert nouveau["h90"] != 5100.0 or ext["h90"] == 5100.0
+
+
+def test_extremes_sur_une_fenetre_non_couverte_sont_preserves():
+    """Une copie qui ne couvre pas 52 semaines et n'est pas la série entière :
+    aucun extrême calculé sur une fenêtre partielle."""
+    copie = [_b("2026-09-15", 100), _b("2026-09-16", 101)]
+    assert rc.extremes_glissants(copie, maintenant="2026-10-14") is None
+    assert rc.extremes_glissants(copie, maintenant="2026-10-14", serie_complete=True) == {
+        "h52w": 101.0, "l52w": 100.0, "h90": 101.0, "l90": 100.0}
+
+
+def test_bornes_des_fenetres_comme_le_calculateur():
+    copie = [_b("2025-10-01", 900, h=900), _b("2026-07-10", 500, h=520), _b("2026-10-13", 400, h=410)]
+    x = rc.extremes_glissants(copie, maintenant="2026-10-14")
+    assert x["h52w"] == 520.0          # le 01/10/2025 est hors des 52 semaines
+    assert x["h90"] == 410.0           # le 10/07 est hors des 90 jours

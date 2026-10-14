@@ -49,6 +49,15 @@ INDICATEURS_COMPLETS = (
     "stoch_k", "stoch_d", "last_close", "last_date", "n_candles", "candles",
 )
 INDICATEUR_RSI = ("rsi",)
+# ⚠️ 14/10/2026 — EXTRÊMES GLISSANTS. Leur fenêtre avance chaque jour : la
+# valeur d'hier n'est pas « reproductible » par un calcul fait avec la fenêtre
+# d'aujourd'hui, et le classement ci-dessous la croyait « divergente » dès
+# qu'un sommet sortait de la fenêtre. Elle restait alors figée : le plus-haut
+# 90 jours de CMT valait encore 5 100 (sommet du 18/06) au lieu de 4 600.
+# Ils se recalculent donc à chaque synchronisation, depuis la copie CORRIGÉE
+# du cache (250 bougies) — jamais depuis le brut, pour ne pas ressusciter une
+# anomalie déjà neutralisée (bougie SOT haut 1700).
+EXTREMES_GLISSANTS = ("h90", "l90", "h52w", "l52w")
 _CHAMPS_STRUCTURE = {"last_close", "last_date", "n_candles"}
 
 
@@ -109,6 +118,31 @@ def _fusion_candles_cache(candles_cache: list, candles_calculees: list,
     par_date = {str(b.get("d") or "")[:10]: b for b in base + queue
                 if b.get("d")}
     return [par_date[d] for d in sorted(par_date)][-250:]
+
+
+def extremes_glissants(candles: list, maintenant=None, serie_complete: bool = False) -> dict | None:
+    """Plus-haut / plus-bas 90 jours et 52 semaines sur une liste de bougies.
+
+    Mêmes fenêtres que `compute_indicators` (calendaires, depuis maintenant).
+    None si la copie ne couvre pas la fenêtre de 52 semaines : on ne publie pas
+    un extrême calculé sur une partie seulement de sa fenêtre — sauf si la
+    copie EST la série entière (titre coté depuis moins d'un an).
+    """
+    import pandas as pd
+    if not candles:
+        return None
+    now = pd.Timestamp.now() if maintenant is None else pd.Timestamp(maintenant)
+    d52, d90 = now - pd.Timedelta(weeks=52), now - pd.Timedelta(days=90)
+    lignes = [(pd.Timestamp(str(b.get("d"))[:10]), b.get("h"), b.get("l"))
+              for b in candles if b.get("d") and b.get("h") is not None and b.get("l") is not None]
+    if not lignes or (min(x[0] for x in lignes) > d52 and not serie_complete):
+        return None
+    f52 = [x for x in lignes if x[0] >= d52]
+    f90 = [x for x in lignes if x[0] >= d90]
+    if not f52 or not f90:
+        return None
+    return {"h52w": round(float(max(x[1] for x in f52)), 2), "l52w": round(float(min(x[2] for x in f52)), 2),
+            "h90": round(float(max(x[1] for x in f90)), 2), "l90": round(float(min(x[2] for x in f90)), 2)}
 
 
 def _synchroniser_un_ajout(t: str, entree: dict, serie: list, m):
@@ -187,7 +221,7 @@ def _synchroniser_un_ajout(t: str, entree: dict, serie: list, m):
     entree_nouvelle = dict(entree)
     reproductibles, preserves = [], []
     for champ in INDICATEURS_COMPLETS:
-        if champ in _CHAMPS_STRUCTURE or champ == "candles":
+        if champ in _CHAMPS_STRUCTURE or champ == "candles" or champ in EXTREMES_GLISSANTS:
             continue
         if entree.get(champ) == calc_avant.get(champ):
             entree_nouvelle[champ] = calc_apres.get(champ)
@@ -205,6 +239,14 @@ def _synchroniser_un_ajout(t: str, entree: dict, serie: list, m):
     # écrasée par une anomalie plus ancienne encore présente dans le brut.
     entree_nouvelle["candles"] = _fusion_candles_cache(
         entree.get("candles") or [], calc_apres.get("candles") or [], ancienne_date)
+    ext = extremes_glissants(
+        entree_nouvelle["candles"],
+        serie_complete=len(entree_nouvelle["candles"]) >= (entree_nouvelle.get("n_candles") or 10**9))
+    if ext is not None:
+        entree_nouvelle.update(ext)
+        reproductibles.extend(EXTREMES_GLISSANTS)
+    else:
+        preserves.extend(EXTREMES_GLISSANTS)
 
     change = entree_nouvelle != entree
     return entree_nouvelle, {
