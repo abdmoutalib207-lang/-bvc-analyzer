@@ -346,7 +346,7 @@ FAMILLES_ROE_HORS_OCI = ("assurance",)
 SEUIL_RESIDU_FP = 0.05      # résidu de fonds propres (hors résultat) au-delà duquel la moyenne est écartée
 SEUIL_APPORT_FP = 0.05      # apport frais d'une opération sur le capital en deçà duquel elle est non significative
 SEUIL_EXCEPTIONNEL_FP = 0.05  # dividende exceptionnel à partir duquel la moyenne simple est étiquetée
-COUVERTURE_CAUSE = (0.5, 1.5)  # une cause sur pièce explique le résidu si elle en couvre 50 % à 150 %
+# Une cause sur pièce est « portée » si le reste |R + D - C| est d'au plus SEUIL_RESIDU_FP des fonds propres 2024.
 MARGE_PALIER_ROE = 0.5      # drapeau « proche d'un palier de note » : à moins de 0,5 point d'une frontière
 _ECARTS_PALIERS_ROE = (-3, 0, 2, 5, 10, 15)   # frontières de `note_ecart_rentabilite`, écart à la référence
 
@@ -443,7 +443,7 @@ def _dividende_exercice(sym: str, faits: dict | None, exercice: int, calendrier:
                          for x in paiements if str(x.get("type") or "").lower().startswith("exception")]
     tab = DIVIDENDES_VERSES_TABLEAU.get(sym)
     if tab and tab.get("exercice") == exercice:
-        return {"mmad": float(tab["montant_mmad"]), "origine": "tableau_variation", "source": tab["source"],
+        return {"mmad": float(tab["montant_mmad"]), "origine": tab.get("origine", "tableau_variation"), "source": tab["source"],
                 "page": tab.get("page"), "calendrier_mmad": cal_mmad, "exceptionnels": exceptionnels}
     if cal_mmad is None:
         return None
@@ -540,8 +540,11 @@ def _controle_moyenne(sym, r25, rn, cp24f, cp25f, exercice, oci25: float = 0.0, 
     |R + D| > 5 % des fonds propres 2024 = un mouvement de fonds propres qui n'est NI du résultat NI
     un dividende, dans les DEUX sens (une perte de périmètre ou un retraitement écarte la moyenne
     comme un apport de capital). La cause, quand le rapport la nomme, est portée au registre
-    `CAUSES_RESIDU_FONDS_PROPRES` (code `residu_cause_sur_piece`) ; sinon l'étiquette dit « non
-    expliqué ». Quand D est INCONNU, le test historique reste en vigueur — résidu POSITIF > 5 % seul —
+    `CAUSES_RESIDU_FONDS_PROPRES` (code `residu_cause_sur_piece`) à une condition, le TEST DU RESTE :
+    |R + D − C| ≤ 5 % des fonds propres 2024 (C = montant de la cause), jugé sur UNE SEULE BASE — les
+    fonds propres et le résultat du tableau de variation où se lit C (`tableau` du registre), jamais
+    ceux du bilan mêlés à un C du tableau (BCP : 41 452 MMAD au tableau, 36 975 au bilan). Sinon
+    l'étiquette dit « non expliqué ». Quand D est INCONNU, le test historique reste en vigueur — résidu POSITIF > 5 % seul —
     et le verdict le dit (`dividende` = None, mention dans `motif` et dans la base).
     """
     from bvc_config import CAUSES_RESIDU_FONDS_PROPRES, OPERATIONS_SUR_CAPITAL
@@ -604,23 +607,35 @@ def _controle_moyenne(sym, r25, rn, cp24f, cp25f, exercice, oci25: float = 0.0, 
     if abs(apres) / cp24 <= SEUIL_RESIDU_FP:
         return r
     cause = CAUSES_RESIDU_FONDS_PROPRES.get(sym)
-    couverture = (cause["montant_mmad"] / apres) if cause and cause.get("exercice") == exercice else None
+    if cause and cause.get("exercice") != exercice:
+        cause = None
     detail = (f"résidu après dividende R + D = {resid:g} + {dividende['mmad']:g} = {apres:g} MMAD, "
               f"{apres / cp24:+.1%} des fonds propres 2024 (seuil ±{SEUIL_RESIDU_FP:.0%} ; dividende "
               f"{dividende['origine'].replace('_', ' ')}"
               + (f", p.{dividende['page']}" if dividende.get("page") else "") + ")")
-    if couverture is not None and COUVERTURE_CAUSE[0] <= couverture <= COUVERTURE_CAUSE[1]:
-        r["cause"] = cause | {"couverture": round(couverture, 3)}
-        return r | {"code": "residu_cause_sur_piece",
-                    "motif": (f"mouvement de fonds propres hors résultat et hors dividende, cause portée sur pièce : "
-                              f"{cause['libelle']} {cause['montant_mmad']:g} MMAD (p.{cause['page']}), "
-                              f"{couverture:.0%} du résidu — {detail}")}
-    if couverture is not None:
-        r["cause"] = cause | {"couverture": round(couverture, 3)}
+    if cause:
+        # Le reste, sur UNE base : celle du tableau de variation si le registre la donne.
+        tb = cause.get("tableau")
+        if tb:
+            r_base = tb["fonds_propres_2025"] - tb["fonds_propres_2024"] - tb["rnpg"]
+            fp24_base, base = tb["fonds_propres_2024"], f"tableau de variation p.{tb['page']}"
+        else:
+            r_base, fp24_base, base = resid, cp24, "fonds propres de la note (bilan)"
+        reste = r_base + dividende["mmad"] - cause["montant_mmad"]
+        r["cause"] = cause | {"base_du_reste": base, "residu_sur_cette_base_mmad": round(r_base, 3),
+                              "reste_mmad": round(reste, 3), "reste_pct": round(reste / fp24_base * 100, 2)}
+        if abs(reste) / fp24_base <= SEUIL_RESIDU_FP:
+            return r | {"code": "residu_cause_sur_piece",
+                        "motif": (f"mouvement de fonds propres hors résultat et hors dividende, cause portée sur pièce : "
+                                  f"{cause['libelle']} {cause['montant_mmad']:g} MMAD (p.{cause['page']}) ; reste "
+                                  f"R + D − C = {r_base:g} + {dividende['mmad']:g} − ({cause['montant_mmad']:g}) = {reste:.3f} MMAD, "
+                                  f"{reste / fp24_base:+.2%} des fonds propres 2024 (base : {base} ; seuil ±{SEUIL_RESIDU_FP:.0%}) "
+                                  f"— {detail}")}
     return r | {"code": "residu_non_explique",
                 "motif": ("mouvement hors résultat et hors dividende non expliqué : " + detail
-                          + (f" ; la cause inscrite au registre ({cause['libelle']} {cause['montant_mmad']:g} MMAD) ne couvre "
-                             f"que {couverture:.0%} du résidu, elle ne l'explique pas" if couverture is not None else
+                          + (f" ; la cause inscrite au registre ({cause['libelle']} {cause['montant_mmad']:g} MMAD) laisse un reste de "
+                             f"{r['cause']['reste_mmad']:g} MMAD ({r['cause']['reste_pct']:+.2f} %, base : {r['cause']['base_du_reste']}) "
+                             f"au-delà de ±{SEUIL_RESIDU_FP:.0%} : elle ne l'explique pas" if cause else
                              " ; cause absente du registre"))}
 
 
@@ -663,11 +678,23 @@ def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True, oci=None, dividendes=Non
     ses plus-values latentes sur placements sont HORS BILAN (annexes), la réserve OCI est nulle parce
     qu'il n'existe pas de compte de gains latents aux fonds propres. WAF (Wafa Assurance) publie en
     IFRS 17 / IFRS 9 : les placements en juste valeur par OCI alimentent une réserve consolidée
-    (4,7 MMAD de gains latents en 2025). Retrancher l'OCI de WAF et rien chez ATL met les deux sur la
+    (4,7 Md MAD de gains latents en 2025, soit 4 747 MMAD). Retrancher l'OCI de WAF et rien chez ATL met les deux sur la
     même définition des fonds propres COMPTABLES hors gains latents, mais PAS sur la même réalité
     économique : les plus-values latentes d'ATL existent, elles sont ailleurs. L'OCI d'assurance
     consolidé d'ATW (Attijariwafa, banque-assurance) RESTE INCLUS : la règle se limite à la famille
     « assurance » (`FAMILLES_ROE_HORS_OCI`). Le livrable porte la même note.
+
+    TROIS TRAITEMENTS DE L'OCI, ET POURQUOI (14/10/2026) :
+      · ASSURANCES (WAF, ATL, SAF) : l'OCI est RETIRÉ des fonds propres. Il mesure la valorisation des
+        placements en juste valeur, pas l'activité d'assurance ; il varie avec la bourse et dilue le
+        ROE (WAF : 6,86 % avec, 10,05 % sans). Décision d'Abd Moutalib, usage des analystes d'assureurs.
+      · ATW (banque-assurance) : l'OCI consolidé est CONSERVÉ. ATW est notée en famille « banque » ;
+        la décision d'Abd limite le retrait aux assureurs. Mesure : son résidu après dividende est de
+        +0,7 % des fonds propres 2024, l'OCI ne perturbe donc pas sa moyenne.
+      · MNG (mines) : l'OCI n'est pas retranché, mais SA VARIATION ÉCARTE LA MOYENNE : −1 747 MMAD
+        (couverture de flux de trésorerie, conversion), soit −16 % des fonds propres 2024, hors résultat
+        et hors dividende, cause portée sur pièce. Les fonds propres moyens de deux clôtures ne
+        représenteraient pas les fonds propres employés dans l'année ; la clôture est lue, étiquetée.
 
     DIVIDENDE (14/10/2026). Le verdict de la moyenne porte sur le résidu APRÈS dividende (voir
     `_controle_moyenne`). Un dividende EXCEPTIONNEL de plus de 5 % des fonds propres 2024 versé dans
@@ -759,7 +786,8 @@ def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True, oci=None, dividendes=Non
                          f"31/12/2025 {cp25:g}), même état financier{suffixe_oci}{non_signif}{div_inconnu}"
                          + (f" — {exc['etiquette']}" if exc else "")),
                 "periode": "exercice 2025",
-                "source": src | {"fonds_propres_2024": (f"{cp24f['origine']} › fonds propres 31/12/2024"
+                "source": src | {"formule": trace["formule"], "formule_roe_publie": src.get("formule"),
+                                 "fonds_propres_2024": (f"{cp24f['origine']} › fonds propres 31/12/2024"
                                                         + (f" (p.{cp24f['page']})" if cp24f.get("page") else "")),
                                  "rnpg_2025": "datasets/resultats_s1_2026.json › rnpg_exercice_2025"}
                           | ({"reserve_oci": ro["pieces"]} if hors_oci else {}),
@@ -772,7 +800,9 @@ def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True, oci=None, dividendes=Non
                                   if rn is not None and cp25f else None)}
             out = trace | {"etat": PRESENT, "valeur": round(valeur_cloture, 2) if hors_oci else valeur_cloture, "convention": genre,
                            "base": f"{base_cloture} ({etiquette} : {motif}){suffixe_oci}", "periode": "exercice 2025",
-                           "source": src | ({"reserve_oci": ro["pieces"]} if hors_oci else {}),
+                           "source": src | ({"formule": trace["formule"], "formule_roe_publie": src.get("formule")}
+                                            if trace["formule"] else {})
+                                     | ({"reserve_oci": ro["pieces"]} if hors_oci else {}),
                            "moyenne_ecartee": motif}
         front = _frontiere_roe(out["valeur"])
         return out | {"frontiere_palier": front}

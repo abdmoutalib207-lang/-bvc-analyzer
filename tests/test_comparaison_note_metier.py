@@ -198,7 +198,7 @@ def test_le_livrable_liste_les_titres_qui_changent_de_convention(comparaison):
     for s in ("CTM", "BCP"):
         assert ch["detail"][s]["avant"] == "moyenne" and ch["detail"][s]["apres"] == "cloture_moyenne_ecartee", s
         assert abs(ch["detail"][s]["residu_apres_dividende_pct"]) > 5
-    assert ch["detail"]["CTM"]["residu_apres_dividende_pct"] == pytest.approx(-39.58, abs=0.01)
+    assert ch["detail"]["CTM"]["residu_apres_dividende_pct"] == pytest.approx(-39.86, abs=0.01)
     assert ch["detail"]["BCP"]["residu_apres_dividende_pct"] == pytest.approx(-6.58, abs=0.01)
     # TMA ne change pas : son résidu après dividende est nul.
     assert "TMA" not in ch["detail"]
@@ -224,10 +224,14 @@ def test_le_livrable_porte_le_residu_apres_dividende_et_les_dividendes_inconnus(
     assert {"CTM", "BCP"} <= set(b["ecartes_par_le_residu"])
     for s, x in b["detail"].items():
         if x["dividende_mmad"] is not None:
-            assert x["dividende_origine"] in ("tableau_variation", "calendrier"), s
+            assert x["dividende_origine"] in ("tableau_variation", "flux_de_trésorerie", "calendrier"), s
     ex = comparaison["synthese"]["roe_d_exercice_par_titre"]
     for s in ("CTM", "BCP"):
-        assert ex[s]["cause_residu_sur_piece"]["page"] in (68, 12) and ex[s]["dividende_exercice"]["page"] in (68, 12)
+        assert ex[s]["cause_residu_sur_piece"]["page"] in (68, 12) and ex[s]["dividende_exercice"]["page"] in (66, 12)
+        assert abs(ex[s]["cause_residu_sur_piece"]["reste_pct"]) <= 5
+        assert ex[s]["cause_residu_sur_piece"]["base_du_reste"].startswith("tableau de variation")
+    assert ex["CTM"]["cause_residu_sur_piece"]["reste_pct"] == 0.0
+    assert "RIS" not in b["dividende_inconnu"] and b["detail"]["RIS"]["dividende_origine"] == "calendrier"
 
 
 def test_le_livrable_etiquette_tma_et_signale_waf(comparaison):
@@ -249,3 +253,18 @@ def test_le_livrable_documente_atl_waf_atw(comparaison):
 def test_le_livrable_empreinte_ses_deux_nouvelles_entrees(comparaison):
     emp = comparaison["empreintes_sha256"]
     assert "datasets/dividendes_bvc.json" in emp and "datasets/reserves_oci_assurances.json" in emp
+
+
+def test_le_livrable_documente_les_trois_traitements_de_l_oci(comparaison):
+    tr = comparaison["synthese"]["traitements_de_l_oci"]
+    assert [x["traitement"].split()[0] for x in tr] == ["RETIRÉ", "CONSERVÉ", "NON"]
+    assert [x["titres"] for x in tr][1:] == [["ATW"], ["MNG"]] and set(tr[0]["titres"]) == {"ATL", "SAF", "WAF"}
+    assert all(x["raison"] and x["mesure"] for x in tr)
+    assert tr[0]["mesure"]["WAF_roe_cloture_avec_oci"] == 6.86 and tr[0]["mesure"]["WAF_roe_cloture_hors_oci"] == 10.05
+    assert abs(tr[1]["mesure"]["residu_apres_dividende_pct"]) < tr[1]["mesure"]["seuil_pct"]
+    assert tr[2]["mesure"]["code"] == "residu_cause_sur_piece" and tr[2]["mesure"]["convention"] == "cloture_moyenne_ecartee"
+
+
+def test_l_unite_des_gains_latents_de_waf_est_lisible(comparaison):
+    doc = " ".join(comparaison["synthese"]["assurances_documentation"])
+    assert "4,7 Md MAD" in doc and "4 747" in doc and "4,7 MMAD" not in doc

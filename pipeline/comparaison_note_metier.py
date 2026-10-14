@@ -18,7 +18,9 @@ après abstentions, et sa référence de comparaison (famille ou cote entière).
 ⚠️ RÉSIDU APRÈS DIVIDENDE (14/10/2026) : la moyenne des fonds propres est écartée si
 |R + D| dépasse 5 % des fonds propres 2024 (R = FP2025 − FP2024 − RNPG2025 ; D = dividende
 versé dans l'exercice, lu au tableau de variation, sinon au calendrier × actions). La cause,
-quand le rapport la nomme, est portée sur pièce ; sinon « non expliqué ». D inconnu : l'ancien
+quand le rapport la nomme, est portée sur pièce si le RESTE |R + D − C| ne dépasse pas 5 % des
+fonds propres 2024 (jugé sur une seule base : celle du tableau de variation où se lit C) ; sinon
+« non expliqué ». D inconnu : l'ancien
 test (R > +5 % seul) reste en vigueur, dit. Liste des titres qui changent de convention :
 `changements_de_convention_du_residu_apres_dividende`.
 
@@ -142,7 +144,7 @@ def _palier_simule(t: dict, note, partielle: bool) -> tuple:
 _LIBELLE_CODE = {
     "registre_operation_capital": "opération sur le capital (registre OPERATIONS_SUR_CAPITAL)",
     "residu_non_explique": "mouvement hors résultat et hors dividende non expliqué (|R + D| > 5 %, ou R > +5 % si le dividende est inconnu)",
-    "residu_cause_sur_piece": "mouvement hors résultat et hors dividende, cause portée sur pièce (|R + D| > 5 %)",
+    "residu_cause_sur_piece": "mouvement hors résultat et hors dividende, cause portée sur pièce (|R + D| > 5 %, reste |R + D − C| ≤ 5 %)",
     "base_non_confirmee": "base 2024 non confirmée identique",
     "bases_contradictoires": "bases contradictoires (sociale / consolidée)",
     "numerateur_non_reproduit": "RNPG ÷ fonds propres 2025 ne reproduit pas le ROE publié",
@@ -286,9 +288,39 @@ def _roes_proches_d_un_palier(res: dict) -> dict:
             if (r["entree"]["roe"] or {}).get("frontiere_palier")}
 
 
+def _traitements_de_l_oci(res: dict) -> list:
+    """Les TROIS traitements de l'OCI (gains et pertes latents aux fonds propres), chacun avec sa raison
+    et sa mesure sur les données du jour."""
+    waf, atw, mng = (res[t]["entree"]["roe"] for t in ("WAF", "ATW", "MNG"))
+    wo = waf["oci"]
+    return [
+        {"titres": sorted(bvc_config.FAMILLES_NOTE["assurance"]), "traitement": "RETIRÉ des fonds propres (ROE hors OCI)",
+         "raison": "L'OCI mesure la valorisation des placements en juste valeur (IFRS 9), pas l'activité d'assurance ; il "
+                   "varie avec la bourse et dilue le ROE. Décision d'Abd Moutalib du 14/10/2026, usage des analystes "
+                   "d'assureurs ; exige la réserve sur pièce (page et citation), sinon le ROE reste AVEC OCI, étiqueté.",
+         "mesure": {"WAF_roe_cloture_avec_oci": (wo.get("roe_avec_oci") or {}).get("cloture"),
+                    "WAF_roe_cloture_hors_oci": (wo.get("roe_hors_oci") or {}).get("cloture"),
+                    "WAF_roe_moyenne_avec_oci": (wo.get("roe_avec_oci") or {}).get("moyenne"),
+                    "WAF_roe_moyenne_hors_oci": (wo.get("roe_hors_oci") or {}).get("moyenne")}},
+        {"titres": ["ATW"], "traitement": "CONSERVÉ dans les fonds propres",
+         "raison": "ATW est notée en famille « banque » ; la décision d'Abd limite le retrait aux assureurs "
+                   "(FAMILLES_ROE_HORS_OCI). Son OCI d'assurance consolidé ne perturbe pas la moyenne : le résidu "
+                   "après dividende reste sous le seuil.",
+         "mesure": {"residu_apres_dividende_pct": atw.get("residu_apres_dividende_pct"), "convention": atw.get("convention"),
+                    "seuil_pct": fs.SEUIL_RESIDU_FP * 100}},
+        {"titres": ["MNG"], "traitement": "NON retranché, mais SA VARIATION ÉCARTE LA MOYENNE",
+         "raison": "MNG n'est pas un assureur : aucun retrait. Sa variation d'OCI (couverture de flux de trésorerie, "
+                   "conversion) est un mouvement de fonds propres hors résultat et hors dividende de plus de 5 % des "
+                   "fonds propres 2024 ; la moyenne de deux clôtures ne représenterait pas les fonds propres employés. "
+                   "Cause portée sur pièce (p.87), clôture lue et étiquetée.",
+         "mesure": {"residu_apres_dividende_pct": mng.get("residu_apres_dividende_pct"), "convention": mng.get("convention"),
+                    "code": mng.get("moyenne_code"), "reste_pct_apres_cause": (mng.get("cause_residu") or {}).get("reste_pct")}},
+    ]
+
+
 DOC_ASSURANCES = [
     "WAF (Wafa Assurance) publie en IFRS 17 / IFRS 9 : ses placements en juste valeur par OCI alimentent une réserve "
-    "consolidée de gains latents (4 747,4 MMAD fin 2025), retranchée des fonds propres pour le ROE.",
+    "consolidée de gains latents (4,7 Md MAD, soit 4 747,4 MMAD, fin 2025), retranchée des fonds propres pour le ROE.",
     "ATL (Atlanta-Sanad) publie en NORMES MAROCAINES : ses plus-values latentes sur placements sont HORS BILAN, en "
     "annexe ; la réserve OCI est nulle parce qu'aucun compte de gains latents n'existe aux fonds propres (zéro "
     "confirmé p.140, normes marocaines p.144).",
@@ -440,6 +472,7 @@ def construire(racine: Path = RACINE) -> dict:
         "roe_d_exercice_par_titre": _roe_exercice(res),
         "assurances_roe_hors_gains_latents_oci": _bloc_oci(res, titres),
         "assurances_documentation": DOC_ASSURANCES,
+        "traitements_de_l_oci": _traitements_de_l_oci(res),
         "residu_apres_dividende": _bloc_residu_apres_dividende(res),
         "changements_de_convention_du_residu_apres_dividende": _changements_de_convention(res),
         "dividendes_exceptionnels_dans_l_exercice": _dividendes_exceptionnels(res),

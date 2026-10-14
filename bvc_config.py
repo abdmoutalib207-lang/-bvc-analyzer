@@ -892,10 +892,14 @@ OPERATIONS_SUR_CAPITAL: dict = {
 # (dividende d'avant la cotation de SGTM, qu'aucun calendrier de la BVC ne connaît ; titres propres ;
 # split de MNG). Chaque entrée porte sa pièce et sa page.
 DIVIDENDES_VERSES_TABLEAU: dict = {
-    "CTM": {"exercice": 2025, "montant_mmad": 31.651, "page": 68,
-            "source": "CTM RFA 2025 p.68, capitaux propres consolidés au 31/12/2025 : « Dividendes versés - - (31 651) "
-                      "- (31 651) - (31 651) » KMAD (le flux de trésorerie de la même page porte (30 651) : le "
-                      "tableau de variation, lui, boucle exactement à 243 479)"},
+    # CTM — corrigé le 14/10/2026 (troisième contre-vérification) : D est le dividende NET versé,
+    # 30,651 MMAD. Le tableau de variation (p.68) montre le BRUT, -31 651, compensé par la ligne
+    # « Distributions reçues +999 » : prendre le brut sans la ligne qui le compense surévalue D de 1,0 MMAD.
+    "CTM": {"exercice": 2025, "montant_mmad": 30.651, "page": 66, "origine": "flux_de_trésorerie",
+            "source": "CTM RFA 2025 p.66, flux de trésorerie consolidé : « Dividendes versés aux actionnaires de la "
+                      "société mère (30 651) » KMAD ; comptes sociaux p.54 : 30 649 450 = 25 DH × 1 225 978 actions ; "
+                      "le tableau de variation p.68 montre le brut « Dividendes versés (31 651) », compensé par « "
+                      "Distributions reçues 999 » : -31 651 + 999 = -30 652"},
     "BCP": {"exercice": 2025, "montant_mmad": 2134.781, "page": 12,
             "source": "BCP rapport financier 2025 p.12, tableau de variation des capitaux propres : « Dividendes "
                       "-2 134 781 -2 134 781 123 273 -2 011 508 » KMAD (total part du groupe 2 134 781)"},
@@ -916,25 +920,35 @@ DIVIDENDES_VERSES_TABLEAU: dict = {
 # Quand le résidu APRÈS dividende dépasse 5 % des fonds propres 2024, la moyenne est écartée. Si le
 # rapport nomme la cause, elle est inscrite ici et l'étiquette dit « cause portée sur pièce » ; sinon
 # l'étiquette est « mouvement hors résultat et hors dividende non expliqué ». R11 : un fait se
-# constate sur pièce, il ne se déduit pas du chiffre. La cause doit COUVRIR le résidu (entre 50 % et
-# 150 % de R + D) ; sinon elle ne l'explique pas et l'étiquette reste « non expliqué ».
+# constate sur pièce, il ne se déduit pas du chiffre.
+# TEST DU RESTE (14/10/2026) : la cause est « portée » si, une fois retranchée, il ne reste pas plus de
+# 5 % des fonds propres 2024 : |R + D - C| <= 5 %. Le reste se juge sur UNE SEULE BASE : `tableau` donne
+# les fonds propres 2024, 2025 et le résultat tels qu'ils sont imprimés au tableau de variation, la
+# même page que C ; R = FP2025 - FP2024 - RNPG se calcule sur ces trois chiffres, jamais mêlé à ceux
+# du bilan (BCP : le tableau porte 41 452 MMAD de fonds propres part du groupe, le bilan en lit 36 975).
 CAUSES_RESIDU_FONDS_PROPRES: dict = {
     "CTM": {"exercice": 2025, "montant_mmad": -144.434, "page": 68,
             "libelle": "« Autres retraitements » de consolidation",
+            "tableau": {"fonds_propres_2024": 362.360, "fonds_propres_2025": 243.479, "rnpg": 56.204, "page": 68},
             "source": "CTM RFA 2025 p.68, capitaux propres consolidés : « Autres retraitements - - (144 434) - (144 433) "
                       "142 469 (1 963) » KMAD (réserves consolidées, part du groupe) ; boucle avec les « Distributions "
                       "reçues » +999 KMAD : -31 651 + 56 204 + 999 - 144 433 = -118 881 = 243 479 - 362 360"},
     "BCP": {"exercice": 2025, "montant_mmad": -2119.062, "page": 12,
             "libelle": "« Variation de périmètre »",
+            "tableau": {"fonds_propres_2024": 41068.956, "fonds_propres_2025": 41452.033, "rnpg": 4503.361, "page": 12},
             "source": "BCP rapport financier 2025 p.12, tableau de variation des capitaux propres : « Variation de "
                       "périmètre -2 106 834 -11 572 -656 -2 119 062 -7 207 -2 126 269 » KMAD (total part du groupe "
-                      "-2 119 062)"},
+                      "-2 119 062) ; fonds propres part du groupe du tableau : « Capitaux propres clôture 31/12/2024 "
+                      "... 41 068 956 », « 31/12/2025 ... 41 452 033 »"},
     "MNG": {"exercice": 2025, "montant_mmad": -1747.0, "page": 87,
-            "libelle": "gains et pertes comptabilisés en capitaux propres (couverture de flux de trésorerie, écarts "
-                       "de conversion)",
+            "libelle": "autres éléments du résultat global, part du groupe -1 747 (couverture -1 158, conversion "
+                       "-408, autres -280, impôts +108, actuariels -9)",
+            "tableau": {"fonds_propres_2024": 10688.0, "fonds_propres_2025": 11478.0, "rnpg": 3002.0, "page": 87},
             "source": "Managem RFA 2025 p.87, variation des capitaux propres consolidés 2025 : « Résultat global total de "
-                      "l'année - -1 339 -408 3 002 1 255 » MMAD part du groupe, soit 1 255 - 3 002 = -1 747 (dont "
-                      "« Résultat couverture des flux de trésorerie -1 158 », « Pertes et profits de conversion -408 »)"},
+                      "l'année - -1 339 -408 3 002 1 255 » MMAD part du groupe, soit 1 255 - 3 002 = -1 747 = « Résultat "
+                      "couverture des flux de trésorerie -1 158 » + « Pertes et profits de conversion -408 » + « Autres "
+                      "éléments du résultat global -280 » + « Impôts relatifs aux autres éléments du résultat global +108 » "
+                      "+ « Gains / pertes actuariels -9 » (tableau en millions de dirhams, arrondi à l'unité)"},
 }
 
 
