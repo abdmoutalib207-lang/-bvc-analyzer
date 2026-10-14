@@ -3562,6 +3562,18 @@ def _apport_actualites(ticker: str) -> float:
     return contribution(mesures.get(ticker))
 
 
+def alpha_mesure(ticker, sent: dict):
+    """L'alpha 12 mois du corpus, ou None s'il n'est pas mesuré (défaut 0,0)."""
+    a = (sent or {}).get("alpha")
+    return a if ticker in SENTIMENT and a not in (None, 0, 0.0) else None
+
+
+def win_mesure(ticker, sent: dict):
+    """La probabilité SM~ du corpus en %, ou None si c'est le défaut (0,5)."""
+    w = (sent or {}).get("win")
+    return round(w * 100) if ticker in SENTIMENT and w is not None and w != 0.5 else None
+
+
 def compute_v53(ticker, score_tech, score_fond, red_flags, upside, context) -> dict:
     """ScoreEngineV53.compute() — score enrichi avec bonus/malus."""
     sent = SENTIMENT.get(ticker, {
@@ -3688,8 +3700,14 @@ def compute_v53(ticker, score_tech, score_fond, red_flags, upside, context) -> d
         # sans ses composantes rend le calcul invérifiable pour le lecteur.
         "score_fond": round(score_fond, 2),
         "score_nlp": round(score_nlp, 2),
-        "alpha":  sent.get("alpha", 0),
-        "win":    round(sent["win"] * 100),
+        # ⚠️ 14/10/2026 — chasse aux échecs silencieux : `alpha` 0,0 et `win`
+        # 0,5 sont les valeurs PAR DÉFAUT du corpus (titre absent, ou sans
+        # mesure) ; publiées, elles s'affichaient « +0 % » et « 50 » dans les
+        # colonnes ALPHA et SM~ comme des mesures — 61 et 46 titres sur 80.
+        # Hors mesure : None (« — » à l'écran). Les bonus, gelés, lisent
+        # toujours `sent` : rien de calculé ne change.
+        "alpha":  alpha_mesure(ticker, sent),
+        "win":    win_mesure(ticker, sent),
         "sig":    sig,
         "biais":  sent.get("biais", "NEUTRE"),
         "conv":   conv,
