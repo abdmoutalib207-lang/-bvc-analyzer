@@ -353,6 +353,13 @@ IDB_TICKER_MAP: dict = {
     # → laissées telles quelles. TIM (Timar) : absente du listing.
 }
 
+
+def code_affiche(sym: str) -> str:
+    """Le code OFFICIEL BVC d'un symbole interne — celui que la fiche affiche
+    (`data.json › code_bvc`). Tout texte publié l'emploie (14/10/2026) : notre
+    clé interne « SNA » est Sonasid, le code officiel « SNA » est Stokvis."""
+    return IDB_TICKER_MAP.get(sym, sym)
+
 # ── Opérations sur titres : splits (divisions de valeur nominale) ───────────
 # Les sources historiques (XLSX, BVCscrap) identifient les sociétés par NOM et
 # renvoient des cours NON ajustés : après un split, tout l'historique antérieur

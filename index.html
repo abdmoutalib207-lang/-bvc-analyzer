@@ -3870,6 +3870,8 @@ const lsEcrire = (k, v) => {
 const fmt = (n, d = 2) => n == null || !isFinite(n) ? "—" : (+n).toFixed(d);
 const fr = (n, d = 2) => fmt(n, d).replace(".", ",");
 const tk = r => r && (r.code_bvc || r.symbol || r.ticker) || "";
+const CODES_BVC = {};
+const codeDe = s => CODES_BVC[s] || s;
 const meta = r => {
   const m = r && r._meta || null;
   return m ? {
@@ -8561,7 +8563,7 @@ const SeanceDetail = ({
     style: {
       color: "#4db8ff"
     }
-  }, r.symbol), " ", React.createElement("span", {
+  }, codeDe(r.symbol)), " ", React.createElement("span", {
     style: {
       color: "#8892a4",
       fontSize: 10.5
@@ -9014,7 +9016,7 @@ const SeanceDetail = ({
     style: {
       color: "#4db8ff"
     }
-  }, x.symbol), " ", React.createElement("span", {
+  }, codeDe(x.symbol)), " ", React.createElement("span", {
     className: "tdb-num"
   }, montantEntier(x.montant_dh))), React.createElement("span", {
     className: "tdb-num",
@@ -9058,7 +9060,7 @@ const SeanceDetail = ({
       color: "#4db8ff",
       fontWeight: 600
     }
-  }, x.symbol), React.createElement("td", {
+  }, codeDe(x.symbol)), React.createElement("td", {
     style: cel,
     className: "tdb-num"
   }, montantEntier(x.montant_dh)), React.createElement("td", {
@@ -9378,7 +9380,7 @@ const ASurveiller = ({
       fontWeight: 600,
       whiteSpace: "nowrap"
     }
-  }, z.symbol), React.createElement("td", {
+  }, codeDe(z.symbol)), React.createElement("td", {
     style: {
       padding: "6px 8px 6px 0",
       fontFamily: "monospace",
@@ -9763,7 +9765,7 @@ const Briefing = ({
     style: {
       color: "#c8d3e8"
     }
-  }, x.symbol, x.reprise_recente && React.createElement("span", {
+  }, codeDe(x.symbol), x.reprise_recente && React.createElement("span", {
     title: "Reprise de cotation r\xE9cente : la r\xE9f\xE9rence a \xE9t\xE9 fix\xE9e par l'autorit\xE9 de march\xE9, cette performance ne se compare pas aux autres.",
     style: {
       color: "#ffd740",
@@ -9836,7 +9838,7 @@ const Briefing = ({
       color: "#4db8ff",
       fontWeight: 600
     }
-  }, t)), React.createElement("span", null, x.source), React.createElement("span", null, "\xB7"), React.createElement("span", null, x.date), x.type && React.createElement(React.Fragment, null, React.createElement("span", null, "\xB7"), React.createElement("span", null, x.type)), x.officielle && React.createElement("span", {
+  }, codeDe(t))), React.createElement("span", null, x.source), React.createElement("span", null, "\xB7"), React.createElement("span", null, x.date), x.type && React.createElement(React.Fragment, null, React.createElement("span", null, "\xB7"), React.createElement("span", null, x.type)), x.officielle && React.createElement("span", {
     style: {
       color: "#00e5a0"
     }
@@ -13630,7 +13632,7 @@ const NewsFeed = () => {
         color: "#4db8ff",
         fontWeight: 600
       }
-    }, t)), React.createElement("span", {
+    }, codeDe(t))), React.createElement("span", {
       style: {
         fontSize: 10,
         color: "#8892a4",
@@ -13731,7 +13733,18 @@ function App() {
   useEffect(() => {
     setSort("v53");
   }, [scoreMode]);
-  const [sel, setSel] = useState("CMT");
+  const [sel, setSel] = useState(() => {
+    try {
+      const m = /sym=([A-Z0-9]+)/.exec(location.hash || "");
+      if (m) return m[1];
+    } catch (e) {}
+    return "CMT";
+  });
+  useEffect(() => {
+    try {
+      history.replaceState(null, "", location.pathname + location.search + "#onglet=" + tab + (tab === "detail" ? "&sym=" + encodeURIComponent(sel) : ""));
+    } catch (e) {}
+  }, [tab, sel]);
   const [rows, setRows] = useState(STATIC);
   const [fav, setFav] = useState(() => {
     try {
@@ -13807,6 +13820,9 @@ function App() {
       const d = await fetch("data.json?t=" + Date.now()).then(r => r.ok ? r.json() : null);
       if (d?.tickers && d.tickers.length > 0) {
         const m = {};
+        d.tickers.forEach(t => {
+          if (t.code_bvc) CODES_BVC[t.symbol] = t.code_bvc;
+        });
         d.tickers.forEach(t => {
           m[t.symbol] = {
             price: t.price,

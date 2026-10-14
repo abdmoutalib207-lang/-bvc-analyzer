@@ -521,7 +521,15 @@ SOURCES_RSS = [
       for name, domain in OFFICIAL_DOMAINS.items()
       if name.endswith(" IR") or name in {"MEF", "Maroclear"}],
     # ── BVC / Marchés ────────────────────────────────────────────────────────
-    (GNEWS.format(q="site:casablanca-bourse.com"),              "BVC Officiel", 25),
+    # ⚠️ RETIRÉ le 14/10/2026 — signalé par Abd Moutalib : « Disty
+    # Technologies : IPO » ou « Mutandis SCA : augmentation de capital »
+    # s'affichaient datés du 11-13/10 et menaient à des avis de 2022-2023.
+    # Pour `site:casablanca-bourse.com`, le pubDate de Google News est la date
+    # de RÉINDEXATION de la page, pas celle de la publication : une fiche
+    # d'opération ancienne recrawlée ressort comme une nouvelle, sous
+    # l'étiquette « BVC Officiel ». Les dépôts AMMC (liens directs vers
+    # ammc.ma) restent la source officielle datée.
+    # (GNEWS.format(q="site:casablanca-bourse.com"), "BVC Officiel", 25),
     ("https://www.ammc.ma/fr/rss.xml",                                  "AMMC", 25),
     # ("https://www.leboursier.ma/feed", "Le Boursier"),  # domaine injoignable
     # depuis le 07/08/2026 et absent de l'index Google News. Son contenu est
@@ -712,6 +720,10 @@ def _load_archive() -> tuple:
             # Le cadrage finance s'applique aussi à l'archive : sans ça, les
             # articles déjà stockés continueraient de polluer le fil jusqu'à
             # leur expiration, soit une semaine.
+            # Archive : les articles du flux retiré ci-dessus disparaissent
+            # aussi — leur date n'est pas celle de la publication.
+            if a.get("source") == "BVC Officiel" and "news.google.com" in (a.get("url") or ""):
+                continue
             if _est_financier(a.get("source", ""), text, a["tickers"]):
                 retenus.append(a)
         ecartes = len(fresh) - len(retenus)
