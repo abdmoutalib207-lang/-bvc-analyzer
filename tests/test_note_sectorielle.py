@@ -1352,9 +1352,14 @@ def test_ctm_bcp_tma_mng_sgtm_sur_les_donnees_reelles():
     assert roe["SGTM"]["convention"] == "moyenne" and roe["SGTM"]["dividende"]["origine"] == "tableau_variation"
     assert roe["SGTM"]["dividende"]["calendrier_mmad"] == 0.0
     assert roe["SGTM"]["residu_apres_dividende_pct"] == pytest.approx(3.38, abs=0.01)
-    # RIS : nombre d'actions 2025 relevé sur pièce (14 326 947, RFA p.45) → D = 7 DH × 14 326 947 = 100,289.
-    assert roe["RIS"]["dividende"]["mmad"] == pytest.approx(100.289, abs=0.001) and roe["RIS"]["dividende"]["origine"] == "calendrier"
-    assert abs(roe["RIS"]["residu_apres_dividende_pct"]) < 5 and roe["RIS"]["convention"] == "moyenne"
+    # RIS : le tableau de variation (p.36) passe avant le calendrier : D = 160,289, pas 7 DH × 14 326 947 = 100,289.
+    # L'écart de 60,000 MMAD est consigné (cause non établie). R + D = −162,920 + 160,289 = −2,631 (−0,17 %).
+    ris = roe["RIS"]
+    assert ris["dividende"]["mmad"] == 160.289 and ris["dividende"]["origine"] == "tableau_variation" and ris["dividende"]["page"] == 36
+    assert ris["dividende"]["calendrier_mmad"] == pytest.approx(100.289, abs=0.001)
+    assert "cause non établie" in ris["dividende"]["source"] and "60,000" in ris["dividende"]["source"]
+    assert ris["residu_apres_dividende_mmad"] == pytest.approx(-2.631, abs=0.001)
+    assert ris["residu_apres_dividende_pct"] == pytest.approx(-0.17, abs=0.005) and ris["convention"] == "moyenne"
     # WAF et ATW (hors OCI pour WAF seulement) : un dividende explique le résidu.
     assert abs(roe["WAF"]["residu_apres_dividende_pct"]) < 1 and abs(roe["ATW"]["residu_apres_dividende_pct"]) < 1
 
@@ -1370,7 +1375,8 @@ def test_le_registre_des_dividendes_et_des_causes_est_source_et_page():
         assert f"p.{c['page']}" in c["source"] and c["libelle"], t
         tb = c["tableau"]                                    # la base UNIQUE du test du reste
         assert tb["page"] == c["page"] and tb["fonds_propres_2024"] > 0 and tb["fonds_propres_2025"] > 0 and tb["rnpg"] > 0, t
-    assert set(bvc_config.DIVIDENDES_VERSES_TABLEAU) == {"CTM", "BCP", "MNG", "SGTM", "CIH"}
+    assert set(bvc_config.DIVIDENDES_VERSES_TABLEAU) == {"CTM", "BCP", "MNG", "SGTM", "CIH", "RIS"}
+    assert bvc_config.DIVIDENDES_VERSES_TABLEAU["RIS"]["montant_mmad"] == 160.289 and bvc_config.DIVIDENDES_VERSES_TABLEAU["RIS"]["page"] == 36
     assert set(bvc_config.CAUSES_RESIDU_FONDS_PROPRES) == {"CTM", "BCP", "MNG"}
     # Les montants du registre sont ceux des pièces lues (KMAD ÷ 1 000).
     assert bvc_config.DIVIDENDES_VERSES_TABLEAU["CTM"]["montant_mmad"] == 30.651          # net, p.66 (le brut du tableau : 31,651)
@@ -1496,7 +1502,8 @@ def test_ris_nombre_d_actions_2025_releve_sur_piece():
     assert f["nombre_actions_existant"]["valeur"] == 16012132                    # le ratio par action d'aujourd'hui ne bouge pas
     assert "160 289" in n["note"]                                                # l'écart au tableau est consigné, non estimé
     d = fs._dividende_exercice("RIS", {"faits": f}, 2025, {"RIS": [_paiement(7.0, "2025-08-04")]})
-    assert d["mmad"] == pytest.approx(100.289, abs=0.001)
+    assert d["mmad"] == 160.289 and d["origine"] == "tableau_variation"        # le tableau prime (décision du 14/10)
+    assert d["calendrier_mmad"] == pytest.approx(100.289, abs=0.001)          # 7 × 14 326 947 : le calendrier reste calculé
 
 
 def test_la_documentation_des_trois_traitements_de_l_oci_est_dans_le_code():

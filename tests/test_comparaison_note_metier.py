@@ -231,7 +231,8 @@ def test_le_livrable_porte_le_residu_apres_dividende_et_les_dividendes_inconnus(
         assert abs(ex[s]["cause_residu_sur_piece"]["reste_pct"]) <= 5
         assert ex[s]["cause_residu_sur_piece"]["base_du_reste"].startswith("tableau de variation")
     assert ex["CTM"]["cause_residu_sur_piece"]["reste_pct"] == 0.0
-    assert "RIS" not in b["dividende_inconnu"] and b["detail"]["RIS"]["dividende_origine"] == "calendrier"
+    assert "RIS" not in b["dividende_inconnu"] and b["detail"]["RIS"]["dividende_origine"] == "tableau_variation"
+    assert ex["RIS"]["dividende_exercice"]["mmad"] == 160.289 and ex["RIS"]["dividende_exercice"]["calendrier_mmad"] == 100.289
 
 
 def test_le_livrable_etiquette_tma_et_signale_waf(comparaison):

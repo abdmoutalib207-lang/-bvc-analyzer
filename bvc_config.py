@@ -911,6 +911,15 @@ DIVIDENDES_VERSES_TABLEAU: dict = {
              "source": "SGTM RFA 2025 p.88, variation des capitaux propres consolidés : « Dividendes (500 000) "
                        "(500 000) (500 000) » KMAD en 2025 — versé AVANT l'introduction en bourse, donc absent du "
                        "calendrier de la BVC"},
+    # RIS — le tableau de variation passe avant le calendrier (décision du 14/10/2026, règle de la PR #241).
+    # ⚠️ ÉCART NON EXPLIQUÉ de 60,000 MMAD avec le calendrier : 7 DH × 14 326 947 actions (p.45) = 100,289 ;
+    # le tableau imprime 160,289. La cause n'est pas établie dans le rapport lu ; on n'en suppose aucune.
+    "RIS": {"exercice": 2025, "montant_mmad": 160.289, "page": 36,
+            "source": "Risma RFA 2025 p.36, tableau de variation des capitaux propres consolidés : « Dividendes "
+                      "distribués bruts de précompte - - (160 289) (160 289) (8 434) (168 723) » KMAD (160 289 part "
+                      "du groupe ; 168 723 avec les minoritaires, flux de trésorerie « Dividendes payés (168 723) »). "
+                      "Le calendrier (7 DH × 14 326 947 actions, p.14 et p.45) donne 100,289 : ÉCART de 60,000 MMAD, "
+                      "cause non établie"},
     "CIH": {"exercice": 2025, "montant_mmad": 440.953, "page": 26,
             "source": "CIH Bank RFA 2025 p.26, tableau de variation des capitaux propres : « Dividendes -440 953 » "
                       "KMAD part du groupe (-485 420 avec les minoritaires)"},
