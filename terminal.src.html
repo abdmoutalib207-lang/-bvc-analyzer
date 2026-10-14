@@ -576,6 +576,15 @@ async function fetchMed24Raw(sym,days){
 }
 
 // fetchChart: pipeline/candles EN PREMIER (OHLCV réel) + enrichissement Médias24 si données manquantes
+/* ⚠️ L'HEURE DU MAROC NE SE DEMANDE PAS AU NAVIGATEUR — 14/10/2026.
+   Le Maroc est passé à UTC+0 le 20/09/2026 (registre DECALAGES_MAROC de
+   bvc_config.py, seule horloge du projet). Un navigateur à base de fuseaux
+   périmée répond encore UTC+1 pour « Africa/Casablanca » : mesuré sur le
+   Chromium de contrôle, une heure d'avance. Le terminal applique donc le
+   même registre que le moteur ; un test vérifie qu'ils restent identiques. */
+const DECALAGES_MAROC=[["2018-10-28",1],["2026-02-08",0],["2026-03-29",1],["2026-09-20",0]];
+const decalageMaroc=d=>{const j=new Date(d).toISOString().slice(0,10);let o=DECALAGES_MAROC[0][1];for(const [x,v] of DECALAGES_MAROC)if(j>=x)o=v;return o;};
+const maroc=d=>{const t=d==null?new Date():new Date(d);return new Date(t.getTime()+decalageMaroc(t)*3600000);};
 async function fetchChart(sym,range){
   /* ⚠️ La fenêtre la plus longue s'arrêtait à 365 jours alors que les fichiers
      de pipeline/candles/ en portent bien davantage — 802 séances pour 31 titres
@@ -585,7 +594,7 @@ async function fetchChart(sym,range){
      prolonger la série au-delà. */
   const daysMap={"5d":7,"1mo":30,"3mo":90,"6mo":180,"1y":365,"3y":1095,"max":null};
   const days=range in daysMap?daysMap[range]:90;
-  const _dCas=new Date(new Date().toLocaleString("en-US",{timeZone:"Africa/Casablanca"}));
+  const _dCas=new Date(maroc().toLocaleString("en-US",{timeZone:"UTC"}));
   const todayStr=`${_dCas.getFullYear()}-${String(_dCas.getMonth()+1).padStart(2,"0")}-${String(_dCas.getDate()).padStart(2,"0")}`;
 
   // 1. Candles locales OHLCV
@@ -649,7 +658,7 @@ async function fetchChart(sym,range){
 
 // ── MARKET STATUS (BVC Casablanca, UTC+1 toute l'année) ───────────────────────
 function getMarketStatus(){
-  const d=new Date(new Date().toLocaleString("en-US",{timeZone:"Africa/Casablanca"}));
+  const d=new Date(maroc().toLocaleString("en-US",{timeZone:"UTC"}));
   const day=d.getDay(); // 0=dim, 6=sam
   if(day===0||day===6)return{label:"FERMÉ",color:"#ff4f5a",isOpen:false};
   const tot=d.getHours()*60+d.getMinutes();
@@ -996,8 +1005,8 @@ const Perime=({r})=>{const m=meta(r);if(!m.stale)return null;
    du calcul. */
 const heureCours=r=>{const m=meta(r);if(!m.asof)return "date du cours inconnue";
   let h="",jour="";try{const d=new Date(m.generated_at);
-    h=d.toLocaleTimeString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"});
-    jour=d.toLocaleDateString("en-CA",{timeZone:"Africa/Casablanca"});}catch(e){}
+    h=maroc(d).toLocaleTimeString("fr-FR",{timeZone:"UTC",hour:"2-digit",minute:"2-digit"});
+    jour=maroc(d).toLocaleDateString("en-CA",{timeZone:"UTC"});}catch(e){}
   const enSeance=jour===m.asof&&h&&h<"15:30";
   return enSeance?`dernière valeur relevée à ${h.replace(":","h")} le ${jjmm(m.asof)} — séance en cours`
     :`cours de clôture du ${jjmm(m.asof)}`;};
@@ -1693,7 +1702,7 @@ const StockChart=({r})=>{
         // Injecter la bougie du jour si la dernière candle est antérieure à aujourd'hui
         const cur=r.price||r.prix||0;
         if(c.length>0&&cur>0){
-          const now=new Date(new Date().toLocaleString("en-US",{timeZone:"Africa/Casablanca"}));
+          const now=new Date(maroc().toLocaleString("en-US",{timeZone:"UTC"}));
           const todayStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
           const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
           const lastCandle=c[c.length-1];
@@ -2259,7 +2268,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
   const [clock,setClock]=useState("");
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
   useEffect(()=>{
-    const tick=()=>setClock(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit",second:"2-digit"}));
+    const tick=()=>setClock(maroc().toLocaleString("fr-FR",{timeZone:"UTC",hour:"2-digit",minute:"2-digit",second:"2-digit"}));
     tick();
     const t=setInterval(tick,1000);
     return()=>clearInterval(t);
@@ -3591,7 +3600,7 @@ const TickerNews=({sym})=>{
     return()=>{vivant=false;};
   },[sym]);
   const SC=s=>s==="POSITIF"?"#00e5a0":s==="NEGATIF"?"#ff4f5a":"#8892a4";
-  const fmtD=iso=>{try{return new Date(iso).toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}catch{return "";}};
+  const fmtD=iso=>{try{return maroc(iso).toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}catch{return "";}};
   if(!ok||articles.length===0)return null;
   return(
     <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
@@ -4748,8 +4757,8 @@ const NewsFeed=()=>{
 
   const SC=s=>s==="POSITIF"?"#00e5a0":s==="NEGATIF"?"#ff4f5a":"#8892a4";
   const SBG=s=>s==="POSITIF"?"rgba(0,229,160,.1)":s==="NEGATIF"?"rgba(255,79,90,.1)":"rgba(136,146,164,.08)";
-  const fmtD=iso=>{try{return new Date(iso).toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}catch{return iso||"";}};
-  const fmtFull=iso=>{try{return new Date(iso).toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch{return iso||"";}};
+  const fmtD=iso=>{try{return maroc(iso).toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}catch{return iso||"";}};
+  const fmtFull=iso=>{try{return maroc(iso).toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch{return iso||"";}};
 
   /* La portée géographique est posée par article dans news.json, comme sur le
      radar. Elle était auparavant déduite de la catégorie — « geopolitique » et
@@ -5002,7 +5011,7 @@ const ChangementsFavoris=({rows,fav,ouvrir})=>{
     else if((a.v53==null)!==(r.v53==null))c.push(r.v53==null?"note retirée (données insuffisantes)":`note publiée : ${fmt(r.v53)}`);
     if(a.conf!==meta(r).conf)c.push(`confiance ${a.conf}/5 → ${meta(r).conf}/5`);
     if(c.length)lignes.push({sym,c});});
-  const depuis=avant&&avant.t?new Date(avant.t).toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):null;
+  const depuis=avant&&avant.t?maroc(avant.t).toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):null;
   return <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,marginBottom:12}}>
     <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:6}}>
       {depuis?`Depuis votre dernière visite (${depuis})`:"Ce qui a changé"}</div>
@@ -5086,7 +5095,7 @@ function App(){
   const [rows,setRows]=useState(STATIC);
   const [fav,setFav]=useState(()=>{try{return JSON.parse(localStorage.getItem("bvc_fav")||"[]");}catch{return [];}});
   const toggleFav=useCallback(sym=>{setFav(prev=>{const next=prev.includes(sym)?prev.filter(x=>x!==sym):[...prev,sym];lsEcrire("bvc_fav",JSON.stringify(next));return next;});},[]);
-  const [ts,setTs]=useState(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}));
+  const [ts,setTs]=useState(maroc().toLocaleString("fr-FR",{timeZone:"UTC",hour:"2-digit",minute:"2-digit"}));
   const [src,setSrc]=useState("connexion…");
   const [loading,setLoading]=useState(false);
   const [fetchErr,setFetchErr]=useState(false);
@@ -5217,8 +5226,8 @@ function App(){
                                 masi20:d.masi20||(m&&m.masi20)||null,
                                 }));
         const upd=d.updated?new Date(d.updated):null;
-        const timeStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit",second:"2-digit"}):"";
-        const dateStr=upd?upd.toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",year:"numeric"}):"";
+        const timeStr=upd?maroc(upd).toLocaleString("fr-FR",{timeZone:"UTC",hour:"2-digit",minute:"2-digit",second:"2-digit"}):"";
+        const dateStr=upd?maroc(upd).toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",year:"numeric"}):"";
         setTs(dateStr&&timeStr?`${dateStr} ${timeStr}`:"");
         if(manuel){
           const neuf=dernierUpd.current!==null&&d.updated!==dernierUpd.current;
@@ -5242,7 +5251,7 @@ function App(){
           const nIdb=Object.keys(liveMap).length;
           const srcs=Object.values(liveMap).map(v=>v.src).filter(Boolean);
           const mainSrc=srcs[0]||"live";
-          setTs(new Date().toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"}));
+          setTs(maroc().toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"}));
           setSrc(`${mainSrc} · ${nIdb} live ●`);
           setFetchErr(false);
           setLoading(false);return;

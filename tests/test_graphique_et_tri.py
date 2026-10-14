@@ -51,6 +51,14 @@ CANDLES = RACINE / "pipeline" / "candles"
 
 # ── extraction du code publié ────────────────────────────────────────────────
 
+
+def _avec_heure(code):
+    """fetchChart lit l'heure du Maroc par le registre partagé (14/10/2026) :
+    on joint ces trois lignes au bloc extrait."""
+    heure = "\n".join(l for l in _source().splitlines()
+                      if l.startswith(("const DECALAGES_MAROC=", "const decalageMaroc=", "const maroc=")))
+    return heure + "\n" + code
+
 def _source():
     return FRONT.read_text(encoding="utf-8")
 
@@ -109,7 +117,7 @@ def _lancer_fetchchart(n_bougies: int, periodes: list[str]):
     et les deux secours Médias24 rendent du vide. Si le code publié se mettait
     à dépendre d'eux, le test le verrait — il rendrait 0 bougie.
     """
-    code = _bloc(_source(), "async function fetchChart(")
+    code = _avec_heure(_bloc(_source(), "async function fetchChart("))
     script = textwrap.dedent("""
         %s
         const N = %d;
@@ -266,7 +274,7 @@ def test_sans_historique_local_aucun_secours_exterieur_n_est_appele():
     """Revue de la PR #234 (11/10/2026) : sans historique local, fetchChart
     appelait encore Médias24 — autre source, autre date — malgré la coupure du
     live. Le graphique doit rester vide, et aucun secours ne doit partir."""
-    code = _bloc(_source(), "async function fetchChart(")
+    code = _avec_heure(_bloc(_source(), "async function fetchChart("))
     script = textwrap.dedent("""
         %s
         globalThis.LIVE_ACTIF = %s;
