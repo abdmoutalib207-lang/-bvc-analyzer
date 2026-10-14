@@ -112,9 +112,68 @@ def test_l_effet_de_la_convention_des_fonds_propres_moyens_est_mesure(comparaiso
     assert (e["titres_sur_moyenne"] + e["titres_sur_cloture_moyenne_ecartee"]
             + e["titres_sur_cloture_moyenne_indisponible"] + e["titres_en_remplacement_12_mois"]
             + e["titres_sans_roe_d_exercice"]) == 80
-    for s in ("TGCC", "VCNE", "SOT", "CASH", "SGTM"):
-        assert e["moyenne_ecartee_par_motif"]["opération sur le capital (registre)"] >= 5
-        roe = t[s]["criteres"]["rentabilite"]
-        assert roe.get("convention") != "moyenne", s
-    for s, x in e["detail"].items():
-        assert x["roe_cloture"] is not None or x["roe_moyenne"] is not None
+    assert e["titres_avec_roe_d_exercice"] == (e["titres_sur_moyenne"] + e["titres_sur_cloture_moyenne_ecartee"]
+                                                + e["titres_sur_cloture_moyenne_indisponible"])
+    assert "NON arrondi" in e["ecart_roe_moyen_moins_cloture_non_arrondie"]["reference"]
+
+
+def test_les_motifs_d_ecartement_sont_comptes_par_code_et_exactement():
+    # Bogue du 14/10 : la recherche de texte « opération sur le capital » attrapait aussi le
+    # motif du seuil de variation. Le compte se fait par CODE ; ce test asserte le compte EXACT.
+    roes = {
+        "A": {"convention": "cloture_moyenne_ecartee", "moyenne_code": "registre_operation_capital"},
+        "B": {"convention": "cloture_moyenne_ecartee", "moyenne_code": "registre_operation_capital"},
+        "C": {"convention": "cloture_moyenne_ecartee", "moyenne_code": "residu_non_explique"},
+        "D": {"convention": "cloture_moyenne_ecartee", "moyenne_code": "base_non_confirmee"},
+        "E": {"convention": "moyenne", "moyenne_code": None},
+        "F": {"convention": "cloture_moyenne_indisponible", "moyenne_code": None},
+    }
+    assert cm.compter_motifs(roes) == {
+        "opération sur le capital (registre OPERATIONS_SUR_CAPITAL)": 2,
+        "mouvement de fonds propres hors résultat non expliqué (résidu R > +5 %)": 1,
+        "base 2024 non confirmée identique": 1}
+    # Et un motif texte « opération sur le capital » côté résidu ne fausse plus rien :
+    roes["C"]["moyenne_ecartee"] = "… (opération sur le capital, distribution ou résultat)"
+    assert cm.compter_motifs(roes)["opération sur le capital (registre OPERATIONS_SUR_CAPITAL)"] == 2
+
+
+def test_les_comptes_reels_par_motif_sont_exacts(comparaison):
+    e = comparaison["synthese"]["effet_convention_fonds_propres_moyens"]
+    ex = comparaison["synthese"]["roe_d_exercice_par_titre"]
+    reel = {}
+    for x in ex.values():
+        if x["convention"] == "cloture_moyenne_ecartee":
+            reel[x["code_motif"]] = reel.get(x["code_motif"], 0) + 1
+    assert sum(e["moyenne_ecartee_par_motif"].values()) == e["titres_sur_cloture_moyenne_ecartee"] == sum(reel.values())
+    assert e["moyenne_ecartee_par_motif"].get("opération sur le capital (registre OPERATIONS_SUR_CAPITAL)", 0) == \
+        reel.get("registre_operation_capital", 0)
+    assert e["moyenne_ecartee_par_motif"].get(
+        "mouvement de fonds propres hors résultat non expliqué (résidu R > +5 %)", 0) == reel.get("residu_non_explique", 0)
+
+
+def test_chaque_titre_avec_roe_d_exercice_porte_sa_tracabilite(comparaison):
+    ex = comparaison["synthese"]["roe_d_exercice_par_titre"]
+    assert len(ex) == comparaison["synthese"]["effet_convention_fonds_propres_moyens"]["titres_avec_roe_d_exercice"]
+    for s, x in ex.items():
+        assert {"convention", "motif", "roe_cloture_publie", "roe_cloture_non_arrondi", "roe_moyen",
+                "ecart_moyen_moins_cloture_non_arrondie", "residu_mmad", "residu_pct_fonds_propres_2024",
+                "page_2025", "page_2024"} <= set(x), s
+        assert x["convention"] in ("moyenne", "cloture_moyenne_ecartee", "cloture_moyenne_indisponible"), s
+        if x["convention"] == "cloture_moyenne_indisponible":
+            assert x["roe_moyen"] is None and x["motif"], s
+        if x["roe_moyen"] is not None and x["roe_cloture_non_arrondi"] is not None:
+            assert x["ecart_moyen_moins_cloture_non_arrondie"] == round(x["roe_moyen"] - x["roe_cloture_non_arrondi"], 3), s
+    assert ex["SGTM"]["convention"] == "moyenne" and ex["TGCC"]["code_motif"] == "registre_operation_capital"
+
+
+def test_assurances_gains_latents_aucun_choix_applique(comparaison):
+    oci = comparaison["synthese"]["assurances_gains_latents_oci"]
+    assert set(oci) == {"WAF", "ATL"}
+    assert oci["WAF"]["roe_avec_oci"] == {"cloture": 6.86, "moyenne": 7.45}
+    assert oci["WAF"]["roe_hors_oci"] == {"cloture": 10.05, "moyenne": 10.35}
+    assert oci["ATL"]["roe_hors_oci"] is None and "non relevé" in oci["ATL"]["source"], "absent n'est pas zéro"
+    for t in oci.values():
+        assert "AUCUN choix" in t["decision"]
+    # Le calcul du dépôt recoupe les ROE avec OCI fournis.
+    assert abs(oci["WAF"]["roe_avec_oci_recalcule"]["cloture"] - 6.86) < 0.05
+    assert abs(oci["WAF"]["roe_avec_oci_recalcule"]["moyenne"] - 7.45) < 0.05

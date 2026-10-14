@@ -126,18 +126,80 @@ def _palier_simule(t: dict, note, partielle: bool) -> tuple:
     return simulee, simule, simule != avant_garde
 
 
+_LIBELLE_CODE = {
+    "registre_operation_capital": "opération sur le capital (registre OPERATIONS_SUR_CAPITAL)",
+    "residu_non_explique": "mouvement de fonds propres hors résultat non expliqué (résidu R > +5 %)",
+    "base_non_confirmee": "base 2024 non confirmée identique",
+    "bases_contradictoires": "bases contradictoires (sociale / consolidée)",
+    "numerateur_non_reproduit": "RNPG ÷ fonds propres 2025 ne reproduit pas le ROE publié",
+    "fonds_propres_non_positifs": "fonds propres négatifs ou nuls",
+}
+
+
+def compter_motifs(roes: dict) -> dict:
+    """Compte EXACT des motifs d'écartement de la moyenne, par CODE — jamais par
+    recherche de texte : le motif du résidu et celui du registre sont deux codes
+    distincts et ne se recouvrent pas. `roes` : {titre: dict ROE du module}."""
+    c = collections.Counter(r["moyenne_code"] for r in roes.values()
+                            if r.get("convention") == "cloture_moyenne_ecartee")
+    return {_LIBELLE_CODE.get(k, k): v for k, v in sorted(c.items())}
+
+
+# ROE d'une assurance avec et sans gains latents (OCI) : AUCUN choix appliqué (décision d'Abd).
+# Valeurs relevées sur pièce par la contre-vérification de #241 ; les montants d'OCI ne sont pas
+# dans les faits financiers du dépôt. Ce qui n'est pas relevé est ABSENT, jamais zéro ni estimé.
+OCI_ASSURANCES = {
+    "WAF": {"roe_avec_oci": {"cloture": 6.86, "moyenne": 7.45}, "roe_hors_oci": {"cloture": 10.05, "moyenne": 10.35},
+            "source": "Wafa Assurance RFA 2025 p.16 (gains latents), relevé de la contre-vérification de #241 du 14/10/2026"},
+    "ATL": {"roe_avec_oci": None, "roe_hors_oci": None,
+            "source": "non relevé : ni le montant d'OCI d'AtlantaSanad ni son ROE hors gains latents ne sont dans les faits "
+                      "financiers ; à lire dans le RFA 2025 avant toute décision"},
+}
+
+
+def _bloc_oci(res: dict) -> dict:
+    out = {}
+    for t, x in OCI_ASSURANCES.items():
+        roe = res[t]["entree"]["roe"]
+        out[t] = {**x, "roe_avec_oci_recalcule": {"cloture": roe.get("valeur_cloture_non_arrondie"),
+                                                  "moyenne": roe.get("valeur_moyenne")},
+                  "convention_retenue_dans_la_comparaison": roe.get("convention"),
+                  "decision": "AUCUN choix appliqué — revient à Abd Moutalib"}
+    return out
+
+
+def _roe_exercice(res: dict) -> dict:
+    """Pour chaque titre qui a un ROE d'exercice : ROE de clôture (publié et NON arrondi),
+    ROE moyen, convention retenue, motif, résidu, pages. L'écart est mesuré contre la clôture
+    NON arrondie (RNPG ÷ fonds propres 2025), pas contre le ROE publié à 0,1."""
+    out = {}
+    for s, r in res.items():
+        roe = r["entree"]["roe"]
+        if not roe.get("convention") or roe["convention"] == "remplacement_12m":
+            continue
+        nr, mv = roe.get("valeur_cloture_non_arrondie"), roe.get("valeur_moyenne")
+        out[s] = {"famille": r["famille"], "convention": roe["convention"], "motif": roe.get("moyenne_ecartee"),
+                  "code_motif": roe.get("moyenne_code"),
+                  "roe_cloture_publie": roe.get("valeur_cloture_publiee"), "roe_cloture_non_arrondi": nr,
+                  "roe_moyen": mv, "ecart_moyen_moins_cloture_non_arrondie": (round(mv - nr, 3) if None not in (mv, nr) else None),
+                  "roe_retenu": roe["valeur"],
+                  "residu_mmad": roe.get("residu_mmad"), "residu_pct_fonds_propres_2024": roe.get("residu_pct"),
+                  "fonds_propres_2024": roe.get("fonds_propres_2024"), "fonds_propres_2025": roe.get("fonds_propres_2025"),
+                  "rnpg_2025": roe.get("rnpg_2025"), "page_2025": roe.get("page_2025"), "page_2024": roe.get("page_2024"),
+                  "rentabilite_utilise_le_roe": r["criteres"]["rentabilite"].get("convention") is not None}
+    return out
+
+
 def _effet_convention_roe(res: dict, res_cloture: dict, T: dict) -> dict:
-    """Effet de la convention « fonds propres moyens » sur la note par métier :
-    chaque titre dont le ROE d'exercice passe de la clôture à la moyenne."""
+    """Effet de la convention « fonds propres moyens » sur la note par métier."""
     par_titre, comptes = {}, collections.Counter()
+    roes = {s: r["entree"]["roe"] for s, r in res.items()}
     for s, r in res.items():
         roe = r["entree"]["roe"]
         comptes[roe.get("convention") or ("roe_" + roe["etat"])] += 1
         r0 = res_cloture[s]
         n1, n0 = r["note"], r0["note"]
         c1, c0 = r["criteres"]["rentabilite"], r0["criteres"]["rentabilite"]
-        if roe.get("convention") != "moyenne" and c1.get("note") == c0.get("note") and n1 == n0:
-            continue
         if c1.get("valeur") == c0.get("valeur") and n1 == n0:
             continue
         _, p1, _ = _palier_simule(T.get(s, {}), n1, r["partielle"])
@@ -149,18 +211,25 @@ def _effet_convention_roe(res: dict, res_cloture: dict, T: dict) -> dict:
                         "ecart_note_metier": round(n1 - n0, 2) if None not in (n0, n1) else None,
                         "palier_simule_avant": p0, "palier_simule_apres": p1}
     ecarts = [x["ecart_note_metier"] for x in par_titre.values() if x["ecart_note_metier"] is not None]
+    ex = _roe_exercice(res)
+    sur_moy = [x["ecart_moyen_moins_cloture_non_arrondie"] for x in ex.values()
+               if x["convention"] == "moyenne" and x["ecart_moyen_moins_cloture_non_arrondie"] is not None]
     return {
+        "titres_avec_roe_d_exercice": len(ex),
         "titres_sur_moyenne": comptes.get("moyenne", 0),
         "titres_sur_cloture_moyenne_ecartee": comptes.get("cloture_moyenne_ecartee", 0),
         "titres_sur_cloture_moyenne_indisponible": comptes.get("cloture_moyenne_indisponible", 0),
         "titres_en_remplacement_12_mois": comptes.get("remplacement_12m", 0),
         "titres_sans_roe_d_exercice": sum(v for k, v in comptes.items() if k.startswith("roe_")),
-        "moyenne_ecartee_par_motif": dict(collections.Counter(
-            ("opération sur le capital (registre)" if "opération sur le capital" in r["entree"]["roe"]["moyenne_ecartee"]
-             else "variation des fonds propres > 30 % non établie" if "cause non établie" in r["entree"]["roe"]["moyenne_ecartee"]
-             else "base non confirmée identique" if "base" in r["entree"]["roe"]["moyenne_ecartee"]
-             else r["entree"]["roe"]["moyenne_ecartee"][:60])
-            for r in res.values() if r["entree"]["roe"].get("convention") == "cloture_moyenne_ecartee")),
+        "moyenne_ecartee_par_motif": compter_motifs(roes),
+        "ecart_roe_moyen_moins_cloture_non_arrondie": {
+            "reference": "ROE de clôture NON arrondi = RNPG 2025 ÷ fonds propres 31/12/2025 (le ROE publié est arrondi à 0,1)",
+            "titres": len(sur_moy), "mediane": round(statistics.median(sur_moy), 3) if sur_moy else None,
+            "moyenne": round(statistics.mean(sur_moy), 3) if sur_moy else None,
+            "min": min(sur_moy, default=None), "max": max(sur_moy, default=None),
+            "extremes": {s: x["ecart_moyen_moins_cloture_non_arrondie"] for s, x in sorted(
+                ex.items(), key=lambda kv: -abs(kv[1]["ecart_moyen_moins_cloture_non_arrondie"] or 0))[:5]
+                if x["convention"] == "moyenne"}},
         "notes_metier_modifiees": len([x for x in par_titre.values() if x["ecart_note_metier"]]),
         "ecart_moyen_note_metier": round(statistics.mean(ecarts), 3) if ecarts else None,
         "ecart_absolu_max": max((abs(e) for e in ecarts), default=None),
@@ -258,6 +327,8 @@ def construire(racine: Path = RACINE) -> dict:
                                      for k in fs.POIDS},
         "changements_de_palier_simules": {"nombre": len(changements), "detail": changements},
         "effet_convention_fonds_propres_moyens": _effet_convention_roe(res, res_cloture, T),
+        "roe_d_exercice_par_titre": _roe_exercice(res),
+        "assurances_gains_latents_oci": _bloc_oci(res),
         "masi_1_sans_note_metier": {s: titres[s]["motif_sans_note"] for s in TICKERS_ACTIFS
                                     if s in titres and titres[s]["note_metier"] is None},
         "lecture": [
