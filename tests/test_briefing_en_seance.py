@@ -99,3 +99,16 @@ def test_dater_apres_la_cloture_ne_touche_rien():
     b = _enrichir(_secteurs(1), _traj(17041.9131))
     avant = list(b["constats"])
     assert bf.dater(b, SEANCE, 1845)["constats"] == avant
+
+
+def test_la_lecture_seche_ne_fait_rien_terminer_avant_la_cloture():
+    """Diagnostic externe du 14/10 : « L'indice termine au plus bas » écrit à 13h56."""
+    from pipeline.redaction import redaction_seche
+    b = {"accord": {"ratio": -0.6},
+         "trajectoire": {"cloture": 100, "plus_bas": 100, "plus_haut": 110, "ouverture": 105, "veille": 104},
+         "a_surveiller": {"a_publie": [{"symbol": "X", "chg": 1.0, "chiffres": {}}]}}
+    for m in ("mi_journee", "en_seance"):
+        t = redaction_seche(dict(b, moment=m))
+        assert "termine" not in t and "a reculé" not in t and "à ce stade" in t.lower(), t
+    t = redaction_seche(dict(b, moment="cloture"))
+    assert "L'indice termine au plus bas" in t and "le titre termine en hausse" in t
