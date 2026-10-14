@@ -594,7 +594,12 @@ def save_candle_file(ticker: str, df: pd.DataFrame, candles_dir: Path) -> None:
         for _, row in df.iterrows()
     ]
     out = candles_dir / f"{ticker}.json"
-    out.write_text(json.dumps(candles, ensure_ascii=False), encoding="utf-8")
+    # Même format que les deux autres écrivains (seance.py, generate_candles) :
+    # sans cela chaque passage réécrivait ~70 fichiers identiques au contenu
+    # près, et le suivant les remettait — 1 594 « retours » de fichiers
+    # mesurés du 05/09 au 14/10, dont 77 % de pure mise en forme.
+    out.write_text(json.dumps(candles, ensure_ascii=False, separators=(",", ":")),
+                   encoding="utf-8")
 
 
 # ⚠️ Chemin inséré explicitement : ce fichier est tantôt exécuté comme script
@@ -980,6 +985,21 @@ def main() -> None:
     # faire qu'après coup, à l'échelle du marché : titre par titre, une clôture
     # inchangée d'une séance à l'autre est parfaitement banale.
     _purger_fantome(results)
+
+    # ⚠️ Les balayages que font déjà les deux autres écrivains (update_data,
+    # generate_candles) — 14/10/2026. Celui-ci ne les faisait pas : chaque
+    # soir il réécrivait 177 bougies hors invariant OHLC (h < o, l > o), que
+    # le run suivant d'update_bvc réparait. Mesuré le 13/10 : 0 → 177 → 0.
+    try:
+        from seance import reparer_ohlc, purger_suspensions
+    except ImportError:
+        from pipeline.seance import reparer_ohlc, purger_suspensions
+    _no, _fo = reparer_ohlc(dry_run=args.dry_run)
+    if _no:
+        log.warning(f"Invariant OHLC : {_no} bougie(s) réparée(s) dans {_fo} fichier(s)")
+    _ns, _fs = purger_suspensions(dry_run=args.dry_run)
+    if _ns:
+        log.info(f"Suspensions : {_ns} bougie(s) fantôme(s) retirée(s) de {_fs} fichier(s)")
 
     log.info(f"Résultats : {len(results)} tickers traités")
     missing = [t for t in MANUAL_MAP if t not in results]
