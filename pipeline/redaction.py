@@ -149,24 +149,34 @@ def redaction_seche(b: dict) -> str:
     place (en-tête, tableau, détail) ; ce texte dit ce qu'ils montrent, en
     mots, et renvoie au tableau.
     """
+    # ⚠️ AVANT LA CLÔTURE, RIEN NE « TERMINE » — 14/10/2026 (diagnostic
+    # externe). Le passage de 13h56 écrivait « L'indice termine au plus bas de
+    # la séance » : une séance en cours se décrit au présent.
+    fini = b.get("moment") == "cloture"
     paras = []
     acc = b.get("accord") or {}
     t = b.get("trajectoire") or {}
     phr = []
     r = acc.get("ratio")
     if isinstance(r, (int, float)):
-        phr.append("La grande majorité des valeurs a reculé." if r <= -0.4 else
-                   "La grande majorité des valeurs a progressé." if r >= 0.4 else
-                   "Hausses et baisses se sont à peu près équilibrées.")
+        if fini:
+            phr.append("La grande majorité des valeurs a reculé." if r <= -0.4 else
+                       "La grande majorité des valeurs a progressé." if r >= 0.4 else
+                       "Hausses et baisses se sont à peu près équilibrées.")
+        else:
+            phr.append("À ce stade, la grande majorité des valeurs recule." if r <= -0.4 else
+                       "À ce stade, la grande majorité des valeurs progresse." if r >= 0.4 else
+                       "À ce stade, hausses et baisses s'équilibrent à peu près.")
     c, bas, haut = t.get("cloture"), t.get("plus_bas"), t.get("plus_haut")
     ouv, veille = t.get("ouverture"), t.get("veille")
     if all(isinstance(x, (int, float)) for x in (c, bas, haut)) and haut > bas:
         pos = (c - bas) / (haut - bas)
-        traj = ("L'indice termine au plus bas de la séance" if pos <= 0.05 else
-                "L'indice termine au plus haut de la séance" if pos >= 0.95 else
-                "L'indice termine dans le bas de sa fourchette du jour" if pos < 0.34 else
-                "L'indice termine dans le haut de sa fourchette du jour" if pos > 0.66 else
-                "L'indice termine au milieu de sa fourchette du jour")
+        v = "L'indice termine" if fini else "L'indice évolue"
+        traj = (f"{v} au plus bas de la séance" if pos <= 0.05 else
+                f"{v} au plus haut de la séance" if pos >= 0.95 else
+                f"{v} dans le bas de sa fourchette du jour" if pos < 0.34 else
+                f"{v} dans le haut de sa fourchette du jour" if pos > 0.66 else
+                f"{v} au milieu de sa fourchette du jour")
         if isinstance(ouv, (int, float)) and isinstance(veille, (int, float)):
             if ouv > veille and c <= veille:
                 traj += ", après avoir effacé son gain d'ouverture"
@@ -192,9 +202,10 @@ def redaction_seche(b: dict) -> str:
                    " : résultat semestriel en baisse" if r26 < r25 else
                    " : résultat semestriel stable")
         chg = z.get("chg")
+        t_ = "le titre termine" if fini else "le titre est, à ce stade,"
         reac = ("le titre n'a pas coté" if chg is None else
-                "le titre termine en hausse" if chg > 0 else
-                "le titre termine en baisse" if chg < 0 else "le titre termine inchangé")
+                f"{t_} en hausse" if chg > 0 else
+                f"{t_} en baisse" if chg < 0 else f"{t_} inchangé")
         lignes.append(f"{z['symbol']} a publié ses comptes{res}, et {reac}.")
     if lignes:
         paras.append("Publications. " + " ".join(lignes))
