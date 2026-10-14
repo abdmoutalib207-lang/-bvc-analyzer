@@ -2667,17 +2667,18 @@
    ]
   },
   "_r11_nombre_actions": {
-   "constat": "DÉSACCORD NON TRANCHÉ (R11) sur le nombre d'actions après le regroupement 5:1 du 05/05/2026 (registre SPLITS, bvc_config.py).",
+   "constat": "TRANCHÉ le 14/10/2026 : 38 309 500 actions après le regroupement 5:1 du 05/05/2026. L'écart avec le rapport annuel s'explique par une augmentation de capital réservée aux dirigeants, réalisée APRÈS la clôture 2025.",
    "sources": {
     "rfa_2025": "capital 380 336 400 MAD (31/12/2025) = 7 606 728 actions × nominal 50 (RFA p.53, p.63, p.69 : « Nombre d'actions 7 606 728 7 200 000 ») ; ×5 = 38 033 640 actions de nominal 10",
-    "cp_post_age_25_03_2026": "CP_Sothema_post_AGE_25_03.pdf : « portant ainsi le nombre total d'actions à 38 309 500 actions d'une valeur nominale unitaire de dix (10) dirhams » ET « 380 336 400,00 MAD, divisé en 38 309 500 actions de 10,00 MAD » : le CP se contredit (380 336 400 ÷ 10 = 38 033 640 ; 38 309 500 × 10 = 383 095 000)",
-    "operateur": "datasets/corrections_acceptees/SOT.json : 13 025 230 000 ÷ 1 700 = 7 661 900 titres au 04/05, 14 097 896 000 ÷ 368 = 38 309 500 au 05/05 (ratio ×5 exact) ; référentiel opérateur et bvc_config.SPLITS : 38 309 500"
+    "cp_post_age_25_03_2026": "CP_Sothema_post_AGE_25_03.pdf (https://www.ammc.ma/sites/default/files/CP_Sothema_post_AGE_25_03.pdf), résolution 02 : « portant ainsi le nombre total d'actions à 38 309 500 actions d'une valeur nominale unitaire de dix (10) dirhams » ; résolution 03 : « 380 336 400,00 MAD, divisé en 38 309 500 actions de 10,00 MAD » — le montant de capital y est celui d'AVANT l'émission réservée (7 606 728 × 50), le nombre d'actions celui d'APRÈS : coquille du communiqué sur le capital, pas sur le nombre d'actions.",
+    "operateur": "datasets/corrections_acceptees/SOT.json : 13 025 230 000 ÷ 1 700 = 7 661 900 titres au 04/05, 14 097 896 000 ÷ 368 = 38 309 500 au 05/05 (ratio ×5 exact) ; référentiel opérateur et bvc_config.SPLITS : 38 309 500",
+    "augmentation_reservee_mars_2026": "Boursenews, 06/03/2026 (https://boursenews.ma/article/marches/sothema-augmentation-de-capital-dirigeants) : « l'émission de 55.172 nouvelles actions », prix « 1.450 dirhams par action », jusqu'à « 79,99 millions de dirhams, prime d'émission incluse », souscription « du 12 mars 2026 au 16 mars 2026 », visa AMMC du 3 mars 2026. La page émetteur AMMC ne publie pas de note d'opération pour cette émission ; la Revue du marché de l'AMMC la recense au 03/03/2026."
    },
-   "ecart": "275 860 actions (0,73 %) ; 55 172 avant regroupement ; capital correspondant 2 758 600 MAD",
+   "ecart": "275 860 actions après regroupement (0,73 %) = 55 172 × 5 : EXPLIQUÉ par l'émission réservée de mars 2026.",
    "ratio_5_1": "confirmé : 7 661 900 × 5 = 38 309 500 (opérateur) ; 7 606 728 × 5 = 38 033 640 (rapport)",
-   "effet": "BPA 2025 = 385,526 ÷ 38 309 500 = 10,06 (retenu dans bpa.json et resultats_s1_2026.json) ; ÷ 38 033 640 = 10,14, soit exactement le BPA implicite de yuna.ma (10,14).",
-   "non_etabli": "aucune pièce lue ne documente une émission de 55 172 actions (pré-regroupement) entre le 31/12/2025 et le 04/05/2026. Rien n'est forcé : nombre d'actions retenu inchangé (opérateur), à trancher en revue sur l'avis AMMC ou le capital post-regroupement.",
-   "releve_le": "2026-10-13"
+   "effet": "Capitalisation : 38 309 500 est le bon nombre courant. BPA 2025 publié = 385,526 ÷ 38 309 500 = 10,06 (bpa.json, resultats_s1_2026.json), c'est-à-dire capitalisation ÷ RNPG pour le PER. yuna.ma divise par le nombre au 31/12/2025 (38 033 640 → 10,14) : deux conventions, aucune erreur.",
+   "releve_le": "2026-10-14",
+   "rapprochement": "7 606 728 (RFA 2025, 31/12/2025) + 55 172 (émission réservée, mars 2026) = 7 661 900 = nombre de l'opérateur au 04/05 ; × 5 = 38 309 500. Capital correspondant : 383 095 000 MAD."
   }
  },
  "TQA": {
