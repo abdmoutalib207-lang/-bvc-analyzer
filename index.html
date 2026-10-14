@@ -3975,6 +3975,59 @@ const Repli = ({
     padding: "6px 0 2px"
   }
 }, children));
+const InfoCellule = ({
+  texte
+}) => {
+  const [o, setO] = useState(false);
+  if (!texte) return null;
+  return React.createElement(React.Fragment, null, React.createElement("button", {
+    type: "button",
+    "aria-label": "Explication du ratio",
+    "aria-expanded": o,
+    onClick: e => {
+      e.stopPropagation();
+      setO(x => !x);
+    },
+    style: {
+      marginLeft: 4,
+      border: "none",
+      background: "none",
+      color: o ? "#4db8ff" : "#8892a4",
+      fontSize: 12,
+      padding: "0 4px",
+      minWidth: 24,
+      minHeight: 24,
+      cursor: "pointer",
+      verticalAlign: "middle"
+    }
+  }, "\u24D8"), o && React.createElement("span", {
+    style: {
+      display: "block",
+      textTransform: "none",
+      fontSize: 10.5,
+      color: "#c8d3e8",
+      lineHeight: 1.45,
+      margin: "4px 0 2px",
+      letterSpacing: 0,
+      whiteSpace: "pre-line"
+    }
+  }, texte));
+};
+const SOURCES_FOND = {
+  faits_ammc: "faits financiers relevés page par page dans les comptes déposés à l'AMMC",
+  bpa_calcule: "bénéfice par action calculé sur les comptes déposés à l'AMMC",
+  calculee_recoupee: "cours × nombre d'actions, recoupé avec la capitalisation servie par la source",
+  servie: "capitalisation servie par la source de cotation"
+};
+const explRatio = (cle, r, price) => {
+  const src = x => SOURCES_FOND[x] || x || "source non précisée";
+  const m = r._meta || {};
+  if (cle === "pe") return r.pe == null ? "Pas de PER : pas de bénéfice par action positif tiré des comptes." : `PER = cours ÷ bénéfice par action.\n${px(price)} DH ÷ ${fmt(r.bpa_12m ?? r.bpa)} DH${r.pe_base ? ` (${r.pe_base})` : ""}.\nSource : ${src(m.source_fond)}.\nRéserve : PER réalisé, pas prévisionnel.${r.pe_annuel != null ? ` Exercice 2025 seul : ${fmt(r.pe_annuel, 1)}.` : ""}`;
+  if (cle === "pb") return r.pb == null ? "Pas de P/B : fonds propres non relevés sur pièce." : `P/B = cours ÷ fonds propres par action (dernier exercice publié).\nSource : ${src(m.pb_source)}.`;
+  if (cle === "div") return r.div == null ? "Dividende inconnu : aucun versement relevé sur pièce." : `Rendement = dernier dividende ÷ cours.\n${r.div_dh != null ? `${fmt(r.div_dh)} DH ÷ ${px(price)} DH.\n` : ""}Réserve : dividende déjà versé, il peut ne pas être reconduit.`;
+  if (cle === "cap") return r.cap == null ? null : `Capitalisation = cours × nombre d'actions.\nSource : ${src(m.cap_source)}.`;
+  return null;
+};
 const NOMS_COMPOSANTES = {
   qualite: "Qualité (rentabilité)",
   croissance: "Croissance",
@@ -10778,7 +10831,7 @@ const Detail = ({
       gridTemplateColumns: "1fr 1fr",
       gap: 7
     }
-  }, [[r.pe_base && r.pe_base.startsWith("12") ? "PER 12 mois" : "PE Ratio", r.pe?.toFixed(1) || "—", r.pe > 25 ? "#ff8f00" : "#c8d3e8", "pe"], ["P/Book", r.pb?.toFixed(2) || "—", "#c8d3e8", "pb"], ["Dividende", r.div ? `${r.div.toFixed(1)}%` : "—", r.div > 4 ? "#00e5a0" : "#c8d3e8", "div"], ["Cap. Boursière", r.cap ? fmtM(r.cap) : "—", "#4db8ff"], ["Upside Base", ecart(r.base), r.base != null && (r.base - price) / price > 0 ? "#00e5a0" : "#ff4f5a"], ["Alpha 12M", r.alpha != null ? `${r.alpha > 0 ? "+" : ""}${r.alpha}%` : "—", r.alpha >= 0 ? "#00e5a0" : "#ff4f5a", "alpha"]].map(([k, v, c, ratio]) => React.createElement("div", {
+  }, [[r.pe_base && r.pe_base.startsWith("12") ? "PER 12 mois" : "PE Ratio", r.pe?.toFixed(1) || "—", r.pe > 25 ? "#ff8f00" : "#c8d3e8", "pe"], ["P/Book", r.pb?.toFixed(2) || "—", "#c8d3e8", "pb"], ["Dividende", r.div ? `${r.div.toFixed(1)}%` : "—", r.div > 4 ? "#00e5a0" : "#c8d3e8", "div"], ["Cap. Boursière", r.cap ? fmtM(r.cap) : "—", "#4db8ff", "cap"], ["Upside Base", ecart(r.base), r.base != null && (r.base - price) / price > 0 ? "#00e5a0" : "#ff4f5a"], ["Alpha 12M", r.alpha != null ? `${r.alpha > 0 ? "+" : ""}${r.alpha}%` : "—", r.alpha >= 0 ? "#00e5a0" : "#ff4f5a", "alpha"]].map(([k, v, c, ratio]) => React.createElement("div", {
     key: k,
     style: {
       background: "#0a1220",
@@ -10792,7 +10845,9 @@ const Detail = ({
       marginBottom: 2,
       textTransform: "uppercase"
     }
-  }, k), React.createElement("div", {
+  }, k, React.createElement(InfoCellule, {
+    texte: explRatio(ratio, r, price)
+  })), React.createElement("div", {
     style: {
       fontSize: 13,
       color: c,
@@ -10879,8 +10934,7 @@ const Detail = ({
       style: {
         background: "#0a1220",
         borderRadius: 4,
-        padding: "6px 8px",
-        cursor: "help"
+        padding: "6px 8px"
       }
     }, React.createElement("div", {
       style: {
@@ -10889,7 +10943,9 @@ const Detail = ({
         marginBottom: 2,
         textTransform: "uppercase"
       }
-    }, k), React.createElement("div", {
+    }, k, React.createElement(InfoCellule, {
+      texte: titre
+    })), React.createElement("div", {
       style: {
         fontSize: 13,
         color: x ? x.valeur >= 0 ? "#c8d3e8" : "#ff4f5a" : "#5a6478",
@@ -14010,6 +14066,9 @@ function App() {
             _meta: t._meta,
             pe: t.pe,
             pe_annuel: t.pe_annuel,
+            bpa: t.bpa,
+            bpa_12m: t.bpa_12m,
+            div_dh: t.div_dh,
             pe_base: t.pe_base,
             pb: t.pb,
             div: t.div,

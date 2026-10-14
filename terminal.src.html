@@ -1006,6 +1006,28 @@ const Repli=({titre,children})=>(
     <summary style={{cursor:"pointer",fontSize:12,color:"#4db8ff",minHeight:28,display:"flex",alignItems:"center"}}>{titre}</summary>
     <div style={{fontSize:11.5,color:"#c8d3e8",lineHeight:1.55,padding:"6px 0 2px"}}>{children}</div>
   </details>);
+/* ⓘ AU TOUCHER — 14/10/2026 (diagnostic externe, point 3). Les sources des
+   ratios n'étaient qu'en info-bulle (title=), inaccessibles sur iPhone, et le
+   PER, le P/B et le dividende n'en avaient aucune. Le bouton déplie dans la
+   case la formule, la période, la source et la réserve, tirées des champs
+   publiés. */
+const InfoCellule=({texte})=>{const [o,setO]=useState(false);if(!texte)return null;
+  return <><button type="button" aria-label="Explication du ratio" aria-expanded={o}
+    onClick={e=>{e.stopPropagation();setO(x=>!x);}}
+    style={{marginLeft:4,border:"none",background:"none",color:o?"#4db8ff":"#8892a4",fontSize:12,padding:"0 4px",minWidth:24,minHeight:24,cursor:"pointer",verticalAlign:"middle"}}>ⓘ</button>
+    {o&&<span style={{display:"block",textTransform:"none",fontSize:10.5,color:"#c8d3e8",lineHeight:1.45,margin:"4px 0 2px",letterSpacing:0,whiteSpace:"pre-line"}}>{texte}</span>}</>;};
+const SOURCES_FOND={faits_ammc:"faits financiers relevés page par page dans les comptes déposés à l'AMMC",
+  bpa_calcule:"bénéfice par action calculé sur les comptes déposés à l'AMMC",calculee_recoupee:"cours × nombre d'actions, recoupé avec la capitalisation servie par la source",
+  servie:"capitalisation servie par la source de cotation"};
+const explRatio=(cle,r,price)=>{const src=x=>SOURCES_FOND[x]||x||"source non précisée";const m=r._meta||{};
+  if(cle==="pe")return r.pe==null?"Pas de PER : pas de bénéfice par action positif tiré des comptes.":
+    `PER = cours ÷ bénéfice par action.\n${px(price)} DH ÷ ${fmt(r.bpa_12m??r.bpa)} DH${r.pe_base?` (${r.pe_base})`:""}.\nSource : ${src(m.source_fond)}.\nRéserve : PER réalisé, pas prévisionnel.${r.pe_annuel!=null?` Exercice 2025 seul : ${fmt(r.pe_annuel,1)}.`:""}`;
+  if(cle==="pb")return r.pb==null?"Pas de P/B : fonds propres non relevés sur pièce.":
+    `P/B = cours ÷ fonds propres par action (dernier exercice publié).\nSource : ${src(m.pb_source)}.`;
+  if(cle==="div")return r.div==null?"Dividende inconnu : aucun versement relevé sur pièce.":
+    `Rendement = dernier dividende ÷ cours.\n${r.div_dh!=null?`${fmt(r.div_dh)} DH ÷ ${px(price)} DH.\n`:""}Réserve : dividende déjà versé, il peut ne pas être reconduit.`;
+  if(cle==="cap")return r.cap==null?null:`Capitalisation = cours × nombre d'actions.\nSource : ${src(m.cap_source)}.`;
+  return null;};
 const NOMS_COMPOSANTES={qualite:"Qualité (rentabilité)",croissance:"Croissance",valorisation:"Valorisation (PER)",bilan:"Bilan (dette)"};
 const DetailConfiance=({r})=>{const m=meta(r);const g=m.garanties;
   if(!Array.isArray(g))return null;
@@ -3837,9 +3859,9 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                 </div>
               </a>;})()}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-              {[[r.pe_base&&r.pe_base.startsWith("12")?"PER 12 mois":"PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"],["Alpha 12M",r.alpha!=null?`${r.alpha>0?"+":""}${r.alpha}%`:"—",r.alpha>=0?"#00e5a0":"#ff4f5a","alpha"]].map(([k,v,c,ratio])=>(
+              {[[r.pe_base&&r.pe_base.startsWith("12")?"PER 12 mois":"PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff","cap"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"],["Alpha 12M",r.alpha!=null?`${r.alpha>0?"+":""}${r.alpha}%`:"—",r.alpha>=0?"#00e5a0":"#ff4f5a","alpha"]].map(([k,v,c,ratio])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
-                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
+                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}<InfoCellule texte={explRatio(ratio,r,price)}/></div>
                   <div style={{fontSize:13,color:c,fontWeight:700}}>{v}</div>
                   {/* ⚠️ 29/09 : le PER affiché porte sur douze mois glissants quand
                       les comptes semestriels ont été lus. L'annuel reste visible :
@@ -3888,8 +3910,8 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                 const x=r.ratios_publies[cle];
                 const titre=x?`${x.formule}${x.denominateur?` — dénominateur : ${x.denominateur}`:""}\nComptes au ${x.date.split("-").reverse().join("/")}\n${Object.values(x.sources||{}).filter(Boolean).join("\n")}`:"Terme manquant dans les comptes relevés : non calculé";
                 return(
-                <div key={k} title={titre} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px",cursor:"help"}}>
-                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
+                <div key={k} title={titre} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
+                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}<InfoCellule texte={titre}/></div>
                   <div style={{fontSize:13,color:x?(x.valeur>=0?"#c8d3e8":"#ff4f5a"):"#5a6478",fontWeight:700}}>{x?`${fmt(x.valeur,1)}%`:"—"}</div>
                   {x&&<div style={{fontSize:8,color:"#5a6478"}}>au {x.date.split("-").reverse().join("/")}</div>}
                 </div>);})}
@@ -5085,7 +5107,7 @@ function App(){
         d.tickers.forEach(t=>{m[t.symbol]={
           price:t.price,chg:t.chg,vol:t.vol||0,open:t.open,close:t.close,
           name:t.name,sector:t.sector,code_bvc:t.code_bvc,_meta:t._meta,
-          pe:t.pe,pe_annuel:t.pe_annuel,pe_base:t.pe_base,pb:t.pb,div:t.div,cap:t.cap,fwd:t.fwd,
+          pe:t.pe,pe_annuel:t.pe_annuel,bpa:t.bpa,bpa_12m:t.bpa_12m,div_dh:t.div_dh,pe_base:t.pe_base,pb:t.pb,div:t.div,cap:t.cap,fwd:t.fwd,
           h90:t.h90,l90:t.l90,ma200:t.ma200,h52w:t.h52w,l52w:t.l52w,
           rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,
           macd:t.macd,macd_signal:t.macd_signal,macd_hist:t.macd_hist,
