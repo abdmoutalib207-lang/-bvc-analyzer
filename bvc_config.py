@@ -837,27 +837,38 @@ FAMILLES_NOTE: dict = {
 # nombre d'actions) et les rapports cités. Un titre absent d'ici peut encore voir
 # sa moyenne écartée par la garde de variation (> 30 %), sans cause établie.
 OPERATIONS_SUR_CAPITAL: dict = {
-    "TGCC": {"exercice": 2025, "date": None, "montant_mmad": 2199.99945,
-             "nature": "augmentation de capital réservée au public (introduction en bourse)",
+    "TGCC": {"exercice": 2025, "date": "2025-07-02", "apport_frais_mmad": 2199.99945,
+             "nature": "augmentation de capital réservée au public de 2 199 999 450 MAD, décidée le 02/07/2025 "
+                       "(la société est cotée depuis décembre 2021 : ce n'est PAS une introduction en bourse)",
              "source": "TGCC RFA 2025 p.64 et p.72 (« L'augmentation de capital social réservée au public pour "
-                       "un montant de 2 199 999 450 dirhams ») ; faits_financiers.json › TGCC"},
-    "VCNE": {"exercice": 2025, "date": "2025-07-15", "montant_mmad": 719.979984,
+                       "un montant de 2 199 999 450 dirhams »), cotation depuis décembre 2021 p.68 ; "
+                       "faits_financiers.json › TGCC"},
+    "VCNE": {"exercice": 2025, "date": "2025-07-15", "apport_frais_mmad": 719.979984,
              "nature": "augmentation de capital de l'introduction en bourse",
              "source": "Vicenne RFA 2025 p.58, tableau de variation des capitaux propres (719 979 984 MAD, "
                        "boucle exactement à 1 244 927 997) ; faits_financiers.json › VCNE"},
-    "SOT": {"exercice": 2025, "date": None, "montant_mmad": 630.428,
+    "SOT": {"exercice": 2025, "date": None, "apport_frais_mmad": 630.428,
             "nature": "augmentation de capital par apport en nature (capital +20,336 ; prime +610,092 MMAD) et "
                       "entrée de Soludia Maghreb",
             "source": "Sothema RFA 2025 p.43 (visa AMMC du 09/12/2025 : date du visa, pas de l'opération) et "
                       "p.65 ; faits_financiers.json › SOT"},
-    "CASH": {"exercice": 2025, "date": None, "montant_mmad": None,
+    "CASH": {"exercice": 2025, "date": None, "apport_frais_mmad": None,
              "nature": "introduction en bourse : division du titre puis augmentation de capital (capital "
                        "54 250 → 245 531 KMAD), toutes deux avant la clôture",
              "source": "Cash Plus RFA 2025 (capital au 31/12/2025 : 24 553 090 actions) ; faits_financiers.json › CASH"},
-    "SGTM": {"exercice": 2025, "date": None, "montant_mmad": None,
-             "nature": "capital passé de 300 000 à 1 200 000 KMAD sur l'exercice (nature de l'opération non "
-                       "précisée dans la pièce lue)",
-             "source": "SGTM RFA 2025 p.87 ; faits_financiers.json › SGTM"},
+    "CIH": {"exercice": 2025, "date": None, "apport_frais_mmad": 1680.619,
+            "nature": "opérations sur le capital de l'exercice : 1 680,619 MMAD en part du groupe",
+            "source": "CIH Bank RFA 2025 p.26 (tableau de variation des capitaux propres) ; "
+                      "datasets/resultats_s1_2026.json › CIH"},
+    # SGTM — examiné le 14/10/2026 (RFA 2025 p.88-89) : en juin 2025, 100 MMAD d'augmentation en
+    # numéraire et 800 MMAD d'incorporation de réserves, SANS effet sur les fonds propres ; l'introduction en
+    # bourse n'apporte rien aux fonds propres au 31/12/2025. Apport frais : 100 ÷ 2 619,799 = 3,8 % des
+    # fonds propres 2024, sous le seuil de 5 % : opération NON SIGNIFICATIVE, la moyenne tient.
+    "SGTM": {"exercice": 2025, "date": "2025-06", "apport_frais_mmad": 100.0,
+             "nature": "juin 2025 : augmentation en numéraire de 100 MMAD et incorporation de réserves de 800 MMAD "
+                       "(sans effet sur les fonds propres) ; capital 300 000 → 1 200 000 KMAD ; l'introduction "
+                       "en bourse n'apporte rien aux fonds propres au 31/12/2025",
+             "source": "SGTM RFA 2025 p.87 (capital) et p.88-89 (opérations) ; faits_financiers.json › SGTM"},
 }
 
 
