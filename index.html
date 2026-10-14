@@ -3423,6 +3423,17 @@ async function fetchMed24Raw(sym, days) {
   for (let i = 0; i < rows.length; i++) rows[i].o = i === 0 ? rows[i].c : +rows[i - 1].c.toFixed(2);
   return rows;
 }
+const DECALAGES_MAROC = [["2018-10-28", 1], ["2026-02-08", 0], ["2026-03-29", 1], ["2026-09-20", 0]];
+const decalageMaroc = d => {
+  const j = new Date(d).toISOString().slice(0, 10);
+  let o = DECALAGES_MAROC[0][1];
+  for (const [x, v] of DECALAGES_MAROC) if (j >= x) o = v;
+  return o;
+};
+const maroc = d => {
+  const t = d == null ? new Date() : new Date(d);
+  return new Date(t.getTime() + decalageMaroc(t) * 3600000);
+};
 async function fetchChart(sym, range) {
   const daysMap = {
     "5d": 7,
@@ -3434,8 +3445,8 @@ async function fetchChart(sym, range) {
     "max": null
   };
   const days = range in daysMap ? daysMap[range] : 90;
-  const _dCas = new Date(new Date().toLocaleString("en-US", {
-    timeZone: "Africa/Casablanca"
+  const _dCas = new Date(maroc().toLocaleString("en-US", {
+    timeZone: "UTC"
   }));
   const todayStr = `${_dCas.getFullYear()}-${String(_dCas.getMonth() + 1).padStart(2, "0")}-${String(_dCas.getDate()).padStart(2, "0")}`;
   let local = [];
@@ -3487,8 +3498,8 @@ async function fetchChart(sym, range) {
   return fetchMed24History(sym, days != null ? days : 1825);
 }
 function getMarketStatus() {
-  const d = new Date(new Date().toLocaleString("en-US", {
-    timeZone: "Africa/Casablanca"
+  const d = new Date(maroc().toLocaleString("en-US", {
+    timeZone: "UTC"
   }));
   const day = d.getDay();
   if (day === 0 || day === 6) return {
@@ -3931,13 +3942,13 @@ const heureCours = r => {
     jour = "";
   try {
     const d = new Date(m.generated_at);
-    h = d.toLocaleTimeString("fr-FR", {
-      timeZone: "Africa/Casablanca",
+    h = maroc(d).toLocaleTimeString("fr-FR", {
+      timeZone: "UTC",
       hour: "2-digit",
       minute: "2-digit"
     });
-    jour = d.toLocaleDateString("en-CA", {
-      timeZone: "Africa/Casablanca"
+    jour = maroc(d).toLocaleDateString("en-CA", {
+      timeZone: "UTC"
     });
   } catch (e) {}
   const enSeance = jour === m.asof && h && h < "15:30";
@@ -5598,8 +5609,8 @@ const StockChart = ({
       if (c) {
         const cur = r.price || r.prix || 0;
         if (c.length > 0 && cur > 0) {
-          const now = new Date(new Date().toLocaleString("en-US", {
-            timeZone: "Africa/Casablanca"
+          const now = new Date(maroc().toLocaleString("en-US", {
+            timeZone: "UTC"
           }));
           const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
           const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -6884,8 +6895,8 @@ const Header = ({
     return () => clearInterval(t);
   }, []);
   useEffect(() => {
-    const tick = () => setClock(new Date().toLocaleString("fr-FR", {
-      timeZone: "Africa/Casablanca",
+    const tick = () => setClock(maroc().toLocaleString("fr-FR", {
+      timeZone: "UTC",
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit"
@@ -10280,8 +10291,8 @@ const TickerNews = ({
   const SC = s => s === "POSITIF" ? "#00e5a0" : s === "NEGATIF" ? "#ff4f5a" : "#8892a4";
   const fmtD = iso => {
     try {
-      return new Date(iso).toLocaleString("fr-FR", {
-        timeZone: "Africa/Casablanca",
+      return maroc(iso).toLocaleString("fr-FR", {
+        timeZone: "UTC",
         day: "2-digit",
         month: "2-digit",
         hour: "2-digit",
@@ -13538,8 +13549,8 @@ const NewsFeed = () => {
   const SBG = s => s === "POSITIF" ? "rgba(0,229,160,.1)" : s === "NEGATIF" ? "rgba(255,79,90,.1)" : "rgba(136,146,164,.08)";
   const fmtD = iso => {
     try {
-      return new Date(iso).toLocaleString("fr-FR", {
-        timeZone: "Africa/Casablanca",
+      return maroc(iso).toLocaleString("fr-FR", {
+        timeZone: "UTC",
         day: "2-digit",
         month: "2-digit",
         hour: "2-digit",
@@ -13551,8 +13562,8 @@ const NewsFeed = () => {
   };
   const fmtFull = iso => {
     try {
-      return new Date(iso).toLocaleString("fr-FR", {
-        timeZone: "Africa/Casablanca",
+      return maroc(iso).toLocaleString("fr-FR", {
+        timeZone: "UTC",
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -13967,8 +13978,8 @@ const ChangementsFavoris = ({
       c
     });
   });
-  const depuis = avant && avant.t ? new Date(avant.t).toLocaleString("fr-FR", {
-    timeZone: "Africa/Casablanca",
+  const depuis = avant && avant.t ? maroc(avant.t).toLocaleString("fr-FR", {
+    timeZone: "UTC",
     day: "2-digit",
     month: "2-digit",
     hour: "2-digit",
@@ -14123,8 +14134,8 @@ function App() {
       return next;
     });
   }, []);
-  const [ts, setTs] = useState(new Date().toLocaleString("fr-FR", {
-    timeZone: "Africa/Casablanca",
+  const [ts, setTs] = useState(maroc().toLocaleString("fr-FR", {
+    timeZone: "UTC",
     hour: "2-digit",
     minute: "2-digit"
   }));
@@ -14272,14 +14283,14 @@ function App() {
           masi20: d.masi20 || m && m.masi20 || null
         }));
         const upd = d.updated ? new Date(d.updated) : null;
-        const timeStr = upd ? upd.toLocaleString("fr-FR", {
-          timeZone: "Africa/Casablanca",
+        const timeStr = upd ? maroc(upd).toLocaleString("fr-FR", {
+          timeZone: "UTC",
           hour: "2-digit",
           minute: "2-digit",
           second: "2-digit"
         }) : "";
-        const dateStr = upd ? upd.toLocaleString("fr-FR", {
-          timeZone: "Africa/Casablanca",
+        const dateStr = upd ? maroc(upd).toLocaleString("fr-FR", {
+          timeZone: "UTC",
           day: "2-digit",
           month: "2-digit",
           year: "numeric"
@@ -14302,8 +14313,8 @@ function App() {
           const nIdb = Object.keys(liveMap).length;
           const srcs = Object.values(liveMap).map(v => v.src).filter(Boolean);
           const mainSrc = srcs[0] || "live";
-          setTs(new Date().toLocaleString("fr-FR", {
-            timeZone: "Africa/Casablanca",
+          setTs(maroc().toLocaleString("fr-FR", {
+            timeZone: "UTC",
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
