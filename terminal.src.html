@@ -934,6 +934,13 @@ const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":(+n).toFixed(d);
    restent inchangées partout ailleurs — sélection, favoris, chandelles,
    corpus WhatsApp. Repli sur le symbole si le champ manque (tableau STATIC). */
 const tk=r=>r&&(r.code_bvc||r.symbol||r.ticker)||"";
+/* Code AFFICHÉ d'un symbole interne — 14/10/2026 (diagnostic externe). Le
+   briefing, les publications et les tableaux affichaient notre clé interne
+   quand la fiche affiche le code officiel : 31 titres sur 80 différaient, et
+   « SNA » désignait Sonasid dans le briefing mais Stokvis sur la fiche.
+   Rempli au chargement de data.json. */
+const CODES_BVC={};
+const codeDe=s=>CODES_BVC[s]||s;
 /* Bloc _meta : provenance du prix et confiance 0–5, émis par le pipeline.
    En son absence on suppose le pire — c'est la règle du CLAUDE.md : sans
    _meta, le frontend doit considérer la donnée comme périmée. */
@@ -2919,7 +2926,7 @@ const SeanceDetail=({b,rows,masi,ouvrir})=>{
     <button key={r.symbol} className="tdb-ligne" onClick={()=>ouvrir&&ouvrir(r.symbol)}
       title={`${r.name||r.symbol} — ouvrir la fiche`} style={{gridTemplateColumns:"minmax(0,1fr) auto"}}>
       <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontSize:12}}>
-        <b style={{color:"#4db8ff"}}>{r.symbol}</b> <span style={{color:"#8892a4",fontSize:10.5}}>{r.name}</span>
+        <b style={{color:"#4db8ff"}}>{codeDe(r.symbol)}</b> <span style={{color:"#8892a4",fontSize:10.5}}>{r.name}</span>
         {meta(r).reprise_recente&&<span title="Reprise de cotation récente : la référence a été fixée par l'autorité de marché, cette variation ne se compare pas aux autres." style={{color:"#ffd740",marginLeft:5,fontSize:10}}>⚠ reprise</span>}
       </span>
       <span className="tdb-num" style={{fontSize:12,textAlign:"right"}}>
@@ -3047,7 +3054,7 @@ const SeanceDetail=({b,rows,masi,ouvrir})=>{
           {ntVus.map(x=>(
             <div key={x.symbol} style={{padding:"6px 0",borderTop:"1px solid #0a1220",fontSize:12,color:"#c8d3e8",lineHeight:1.55}}>
               <div style={{display:"flex",justifyContent:"space-between",gap:8}}>
-                <span><b style={{color:"#4db8ff"}}>{x.symbol}</b> <span className="tdb-num">{montantEntier(x.montant_dh)}</span></span>
+                <span><b style={{color:"#4db8ff"}}>{codeDe(x.symbol)}</b> <span className="tdb-num">{montantEntier(x.montant_dh)}</span></span>
                 <span className="tdb-num" title="Fourchette de la séance">{x.seance_bas!=null?`${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}`:"—"}</span></div>
               {x.fenetre&&<div className="tdb-num" style={{fontSize:11,color:"#8892a4",whiteSpace:"normal"}}>
                 {nv.n_seances||20} séances : bas <span style={{color:"#c8d3e8"}}>{nfr(x.fenetre.plus_bas)}</span> ({jm(x.fenetre.date_plus_bas)}) · haut <span style={{color:"#c8d3e8"}}>{nfr(x.fenetre.plus_haut)}</span> ({jm(x.fenetre.date_plus_haut)})</div>}
@@ -3057,7 +3064,7 @@ const SeanceDetail=({b,rows,masi,ouvrir})=>{
           {["Titre","Échangé","Séance","Plus bas","Plus haut"].map(x=><th key={x} style={tete}>{x}</th>)}
         </tr></thead><tbody>
           {ntVus.map(x=>(
-            <tr key={x.symbol} style={{borderTop:"1px solid #0a1220"}}><td style={{...cel,color:"#4db8ff",fontWeight:600}}>{x.symbol}</td>
+            <tr key={x.symbol} style={{borderTop:"1px solid #0a1220"}}><td style={{...cel,color:"#4db8ff",fontWeight:600}}>{codeDe(x.symbol)}</td>
               <td style={cel} className="tdb-num">{montantEntier(x.montant_dh)}</td>
               <td style={cel} className="tdb-num">{x.seance_bas!=null?`${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}`:"—"}</td>
               <td style={cel} className="tdb-num">{x.fenetre?<>{nfr(x.fenetre.plus_bas)} <span style={{color:"#8892a4"}}>{jm(x.fenetre.date_plus_bas)}</span></>:"—"}</td>
@@ -3184,7 +3191,7 @@ const ASurveiller=({a})=>{
               <th key={x} style={{textAlign:"left",fontSize:10,color:"#5a6478",fontWeight:400,letterSpacing:.6,textTransform:"uppercase",padding:"3px 8px 3px 0"}}>{x}</th>)}</tr></thead>
             <tbody>{l.map(z=>(
               <tr key={z.symbol} style={{borderTop:"1px solid #0a1220"}}>
-                <td style={{padding:"6px 8px 6px 0",color:"#e6edf7",fontWeight:600,whiteSpace:"nowrap"}}>{z.symbol}</td>
+                <td style={{padding:"6px 8px 6px 0",color:"#e6edf7",fontWeight:600,whiteSpace:"nowrap"}}>{codeDe(z.symbol)}</td>
                 <td style={{padding:"6px 8px 6px 0",fontFamily:"monospace",whiteSpace:"nowrap",color:z.chg==null?"#5a6478":z.chg>0?"#00e5a0":z.chg<0?"#ff4f5a":"#8892a4"}}>
                   {z.chg==null?"non coté":`${z.chg>0?"+":""}${fmt(z.chg).replace(".",",")} %`}</td>
                 <td style={{padding:"6px 8px 6px 0",fontFamily:"monospace",whiteSpace:"nowrap",color:z.volume_rapport>=3?"#ffd740":"#8892a4"}}
@@ -3362,7 +3369,7 @@ const Briefing=({rows,masi,ouvrir})=>{
                 <div style={{fontSize:10,color:"#5a6478",marginBottom:6}}>{t}</div>
                 {l.map(x=>(
                   <div key={x.symbol} style={{display:"flex",justifyContent:"space-between",fontSize:12.5,padding:"3px 0"}}>
-                    <span style={{color:"#c8d3e8"}}>{x.symbol}
+                    <span style={{color:"#c8d3e8"}}>{codeDe(x.symbol)}
                       {/* ⚠️ R11 — une reprise après OPA change la RÉFÉRENCE.
                           La performance est réelle mais ne se compare pas. */}
                       {x.reprise_recente&&<span title="Reprise de cotation récente : la référence a été fixée par l'autorité de marché, cette performance ne se compare pas aux autres." style={{color:"#ffd740",marginLeft:5,fontSize:10}}>⚠ reprise</span>}
@@ -3394,7 +3401,7 @@ const Briefing=({rows,masi,ouvrir})=>{
                 borderLeft:`2px solid ${x.officielle?"#00e5a0":"#1a2540"}`,textDecoration:"none"}}>
               <div style={{fontSize:13,color:"#c8d3e8",marginBottom:3}}>{x.titre}</div>
               <div style={{fontSize:10.5,color:"#5a6478",display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
-                {(x.tickers||[]).map(t=><span key={t} style={{color:"#4db8ff",fontWeight:600}}>{t}</span>)}
+                {(x.tickers||[]).map(t=><span key={t} style={{color:"#4db8ff",fontWeight:600}}>{codeDe(t)}</span>)}
                 <span>{x.source}</span><span>·</span><span>{x.date}</span>
                 {x.type&&<><span>·</span><span>{x.type}</span></>}
                 {/* ⚠️ Un communiqué déposé au régulateur et un article de presse
@@ -4783,7 +4790,7 @@ const NewsFeed=()=>{
                 <span style={{background:SBG(a.sentiment),border:`1px solid ${SC(a.sentiment)}35`,borderRadius:3,padding:"1px 7px",fontSize:9,color:SC(a.sentiment),fontWeight:700,letterSpacing:.5}}>{a.sentiment||"NEUTRE"}</span>
                 {catLabel&&<span style={{background:`${catColor}15`,border:`1px solid ${catColor}30`,borderRadius:3,padding:"1px 6px",fontSize:9,color:catColor,letterSpacing:.5}}>{catLabel}</span>}
                 {(a.tickers||[]).map(t=>(
-                  <span key={t} style={{background:"rgba(77,184,255,.1)",border:"1px solid rgba(77,184,255,.25)",borderRadius:3,padding:"1px 6px",fontSize:9,color:"#4db8ff",fontWeight:600}}>{t}</span>
+                  <span key={t} style={{background:"rgba(77,184,255,.1)",border:"1px solid rgba(77,184,255,.25)",borderRadius:3,padding:"1px 6px",fontSize:9,color:"#4db8ff",fontWeight:600}}>{codeDe(t)}</span>
                 ))}
                 <span style={{fontSize:10,color:"#8892a4",marginLeft:"auto"}}>{a.source}</span>
               </div>
@@ -4935,7 +4942,19 @@ function App(){
   const [sort,setSort]=useState("v53");
   const [scoreMode,setScoreMode]=useState(PONDERATIONS[0]);
   useEffect(()=>{setSort("v53");},[scoreMode]);
-  const [sel,setSel]=useState("CMT");
+  const [sel,setSel]=useState(()=>{
+    try{const m=/sym=([A-Z0-9]+)/.exec(location.hash||"");if(m)return m[1];}catch(e){}
+    return "CMT";});
+  /* ⚠️ 14/10/2026 — « quand je ferme une source, je retourne à l'accueil ».
+     Une source s'ouvre dans un nouvel onglet ; au retour, l'iPhone recharge
+     souvent la page, qui repartait sur l'Accueil (règle du 07/10). L'onglet
+     et le titre ouverts sont donc inscrits dans l'adresse, SANS nouvelle
+     entrée d'historique : un rechargement revient au même endroit, un
+     lancement depuis l'icône (adresse nue) ouvre toujours l'Accueil. */
+  useEffect(()=>{
+    try{history.replaceState(null,"",location.pathname+location.search
+      +"#onglet="+tab+(tab==="detail"?"&sym="+encodeURIComponent(sel):""));}catch(e){}
+  },[tab,sel]);
   const [rows,setRows]=useState(STATIC);
   const [fav,setFav]=useState(()=>{try{return JSON.parse(localStorage.getItem("bvc_fav")||"[]");}catch{return [];}});
   const toggleFav=useCallback(sym=>{setFav(prev=>{const next=prev.includes(sym)?prev.filter(x=>x!==sym):[...prev,sym];lsEcrire("bvc_fav",JSON.stringify(next));return next;});},[]);
@@ -5002,6 +5021,7 @@ function App(){
       const d=await fetch("data.json?t="+Date.now()).then(r=>r.ok?r.json():null);
       if(d?.tickers&&d.tickers.length>0){
         const m={};
+        d.tickers.forEach(t=>{if(t.code_bvc)CODES_BVC[t.symbol]=t.code_bvc;});
         d.tickers.forEach(t=>{m[t.symbol]={
           price:t.price,chg:t.chg,vol:t.vol||0,open:t.open,close:t.close,
           name:t.name,sector:t.sector,code_bvc:t.code_bvc,_meta:t._meta,

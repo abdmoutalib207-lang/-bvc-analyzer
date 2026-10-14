@@ -28,6 +28,7 @@ from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE))
+from bvc_config import code_affiche  # noqa: E402
 
 # Un nombre écrit à la française : milliers séparés par une espace (normale,
 # insécable ou fine), décimales par une virgule. « 17 733,06 », « 1,73 »,
@@ -206,10 +207,10 @@ def redaction_seche(b: dict) -> str:
         reac = ("le titre n'a pas coté" if chg is None else
                 f"{t_} en hausse" if chg > 0 else
                 f"{t_} en baisse" if chg < 0 else f"{t_} inchangé")
-        lignes.append(f"{z['symbol']} a publié ses comptes{res}, et {reac}.")
+        lignes.append(f"{code_affiche(z['symbol'])} a publié ses comptes{res}, et {reac}.")
     if lignes:
         paras.append("Publications. " + " ".join(lignes))
-    bouge = [z["symbol"] for z in a.get("a_bouge") or [] if z.get("chg") is not None]
+    bouge = [code_affiche(z["symbol"]) for z in a.get("a_bouge") or [] if z.get("chg") is not None]
     if bouge:
         paras.append("Critères remplis. " + ", ".join(bouge)
                      + " remplissent au moins un critère mesuré — volume inhabituel, "

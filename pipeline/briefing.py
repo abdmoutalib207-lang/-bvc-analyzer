@@ -41,6 +41,11 @@ au lieu de la combler : « non mesurable » est un résultat, pas un échec.
 from __future__ import annotations
 
 import re
+import sys as _sys
+from pathlib import Path as _P
+
+_sys.path.insert(0, str(_P(__file__).resolve().parent.parent))
+from bvc_config import code_affiche  # noqa: E402  (code officiel BVC des textes publiés)
 
 # ── Les seuils, et la raison de chacun ─────────────────────────────────────
 #
@@ -1200,7 +1205,7 @@ def composer(data: dict, series=None, contexte=None) -> dict:
         vol = f"{v['volume']:,}".replace(",", " ")
         med = f"{v['median20']:,}".replace(",", " ")
         b["constats"].append(
-            f"Activité inhabituelle sur {v['symbol']} : {vol} titres échangés "
+            f"Activité inhabituelle sur {code_affiche(v['symbol'])} : {vol} titres échangés "
             f"contre une médiane de {med} sur vingt séances, soit "
             f"{_fr(v['facteur'], 1)}×.")
 
@@ -1215,7 +1220,7 @@ def composer(data: dict, series=None, contexte=None) -> dict:
         # variations, et se tromper d'une unité sur un chiffre affiché suffit
         # à faire douter de tous les autres.
         b["constats"].append(
-            f"{x['symbol']} touche le {mot} de variation pour la "
+            f"{code_affiche(x['symbol'])} touche le {mot} de variation pour la "
             f"{_rang(x['seances'])} séance consécutive : de "
             f"{_fr(x['depuis'])} à {_fr(x['cloture'])} DH. Le marché n'a pas "
             f"eu le droit d'aller plus loin.")
