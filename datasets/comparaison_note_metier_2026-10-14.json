@@ -8,7 +8,7 @@
   "fondamentaux.json": "a1820170ede529367fec540ac111bb06a89210c4173bc862c9876b89c443b02d",
   "bpa.json": "8a9aa6658d8a71edbd11fb713eace775eacda2857f02132e8dea61f8d286f418",
   "pipeline/faits_financiers.json": "920f450e65127c6d1147d5a872528e6d6c3a4a3cdba7e2b2c66bdd05c5238b55",
-  "datasets/resultats_s1_2026.json": "d67d52374ed9ae6ad6ff5a818bf02dca0ae782b4139e053541ad31e206f581f0"
+  "datasets/resultats_s1_2026.json": "74a0bf3c7822eb278d930ba005510ee56ad5f95871e28dbe0d6c11d3109f3f6d"
  },
  "synthese": {
   "titres": 80,
@@ -25,8 +25,8 @@
   },
   "distribution_note_metier": {
    "n": 68,
-   "moyenne": 5.4,
-   "mediane": 5.63,
+   "moyenne": 5.42,
+   "mediane": 5.69,
    "ecart_type": 1.8,
    "min": 1.5,
    "max": 8.45,
@@ -138,8 +138,8 @@
   },
   "base_du_roe": {
    "ROE d'exercice 2025 sur CLÔTURE — moyenne indisponible (étiqueté)": 2,
-   "ROE d'exercice 2025 sur CLÔTURE — moyenne ÉCARTÉE (étiqueté)": 4,
-   "ROE d'exercice 2025 sur fonds propres MOYENS (31/12/2024 et 31/12/2025)": 17,
+   "ROE d'exercice 2025 sur CLÔTURE — moyenne ÉCARTÉE (étiqueté)": 3,
+   "ROE d'exercice 2025 sur fonds propres MOYENS (31/12/2024 et 31/12/2025)": 18,
    "ROIC (comptes publiés) — pas de ROE": 40,
    "pas de ROE (absent)": 7,
    "pas de ROE (suspendu)": 10
@@ -178,8 +178,8 @@
     "TQA",
     "WAF"
    ],
-   "points_de_note_en_jeu_somme_absolue": 6.82,
-   "ecart_moyen_points": -0.28,
+   "points_de_note_en_jeu_somme_absolue": 6.44,
+   "ecart_moyen_points": -0.3,
    "ecart_max_points": 1.1,
    "notes_qui_n_existeraient_pas_sans_la_cote": []
   },
@@ -234,7 +234,7 @@
    "bilan": 4
   },
   "changements_de_palier_simules": {
-   "nombre": 27,
+   "nombre": 26,
    "detail": {
     "IAM": {
      "de": "SURVEILLER",
@@ -253,12 +253,6 @@
      "a": "ATTENDRE",
      "v53": 5.56,
      "v53_simulee": 5.4
-    },
-    "WAF": {
-     "de": "ATTENDRE",
-     "a": "ÉVITER",
-     "v53": 4.93,
-     "v53_simulee": 4.43
     },
     "TMA": {
      "de": "ATTENDRE",
@@ -402,20 +396,20 @@
   },
   "effet_convention_fonds_propres_moyens": {
    "titres_avec_roe_d_exercice": 58,
-   "titres_sur_moyenne": 49,
-   "titres_sur_cloture_moyenne_ecartee": 7,
+   "titres_sur_moyenne": 50,
+   "titres_sur_cloture_moyenne_ecartee": 6,
    "titres_sur_cloture_moyenne_indisponible": 2,
    "titres_en_remplacement_12_mois": 0,
    "titres_sans_roe_d_exercice": 22,
    "moyenne_ecartee_par_motif": {
     "opération sur le capital (registre OPERATIONS_SUR_CAPITAL)": 5,
-    "mouvement de fonds propres hors résultat non expliqué (résidu R > +5 %)": 2
+    "mouvement de fonds propres hors résultat non expliqué (résidu R > +5 %)": 1
    },
    "ecart_roe_moyen_moins_cloture_non_arrondie": {
     "reference": "ROE de clôture NON arrondi = RNPG 2025 ÷ fonds propres 31/12/2025 (le ROE publié est arrondi à 0,1)",
-    "titres": 49,
-    "mediane": 0.249,
-    "moyenne": 0.535,
+    "titres": 50,
+    "mediane": 0.251,
+    "moyenne": 0.53,
     "min": -6.903,
     "max": 6.072,
     "extremes": {
@@ -465,9 +459,21 @@
      "palier_simule_avant": "ATTENDRE",
      "palier_simule_apres": "ATTENDRE"
     },
+    "WAF": {
+     "convention": "moyenne",
+     "roe_cloture": 10.05,
+     "roe_moyenne": 10.35,
+     "note_rentabilite_avant": 5.0,
+     "note_rentabilite_apres": 5.0,
+     "note_metier_avant": 5.94,
+     "note_metier_apres": 5.94,
+     "ecart_note_metier": 0.0,
+     "palier_simule_avant": "ATTENDRE",
+     "palier_simule_apres": "ATTENDRE"
+    },
     "ATL": {
      "convention": "moyenne",
-     "roe_cloture": 18.8,
+     "roe_cloture": 18.84,
      "roe_moyenne": 19.29,
      "note_rentabilite_avant": 7.0,
      "note_rentabilite_apres": 7.0,
@@ -689,7 +695,8 @@
     "rnpg_2025": 10644.852,
     "page_2025": 97,
     "page_2024": 97,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "BCP": {
     "famille": "banque",
@@ -708,7 +715,8 @@
     "rnpg_2025": 4503.361,
     "page_2025": 11,
     "page_2024": 11,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "BOA": {
     "famille": "banque",
@@ -727,7 +735,8 @@
     "rnpg_2025": 3813.552,
     "page_2025": 121,
     "page_2024": 121,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "CIH": {
     "famille": "banque",
@@ -744,9 +753,10 @@
     "fonds_propres_2024": 7644.9,
     "fonds_propres_2025": 9817.628,
     "rnpg_2025": 1089.362,
-    "page_2025": null,
-    "page_2024": null,
-    "rentabilite_utilise_le_roe": true
+    "page_2025": 26,
+    "page_2024": 26,
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "CDM": {
     "famille": "banque",
@@ -765,26 +775,28 @@
     "rnpg_2025": 863.551,
     "page_2025": null,
     "page_2024": null,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "WAF": {
     "famille": "assurance",
-    "convention": "cloture_moyenne_ecartee",
-    "motif": "mouvement de fonds propres hors résultat non expliqué : résidu R = FP2025 − FP2024 − RNPG2025 = 1367.52 MMAD, +10.9% des fonds propres 2024 (seuil 5%), cause absente du registre",
-    "code_motif": "residu_non_explique",
+    "convention": "moyenne",
+    "motif": null,
+    "code_motif": null,
     "roe_cloture_publie": 6.9,
-    "roe_cloture_non_arrondi": 6.8584,
-    "roe_moyen": 7.45,
-    "ecart_moyen_moins_cloture_non_arrondie": 0.592,
-    "roe_retenu": 6.9,
-    "residu_mmad": 1367.516,
-    "residu_pct_fonds_propres_2024": 10.88,
+    "roe_cloture_non_arrondi": 10.0465,
+    "roe_moyen": 10.35,
+    "ecart_moyen_moins_cloture_non_arrondie": 0.303,
+    "roe_retenu": 10.35,
+    "residu_mmad": -429.451,
+    "residu_pct_fonds_propres_2024": -4.47,
     "fonds_propres_2024": 12566.785,
     "fonds_propres_2025": 14960.337,
     "rnpg_2025": 1026.036,
     "page_2025": 16,
     "page_2024": 16,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": "hors OCI"
    },
    "GAZ": {
     "famille": "autre",
@@ -803,7 +815,8 @@
     "rnpg_2025": 750.5,
     "page_2025": 172,
     "page_2024": 172,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "ATL": {
     "famille": "assurance",
@@ -822,7 +835,8 @@
     "rnpg_2025": 467.639,
     "page_2025": 140,
     "page_2024": 140,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": "hors OCI"
    },
    "HPS": {
     "famille": "autre",
@@ -841,7 +855,8 @@
     "rnpg_2025": 105.78,
     "page_2025": 58,
     "page_2024": 58,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "LBV": {
     "famille": "autre",
@@ -860,7 +875,8 @@
     "rnpg_2025": 578.7906004,
     "page_2025": 54,
     "page_2024": 54,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "LES": {
     "famille": "autre",
@@ -879,7 +895,8 @@
     "rnpg_2025": 8.0,
     "page_2025": 81,
     "page_2024": 81,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "TQA": {
     "famille": "utility",
@@ -898,7 +915,8 @@
     "rnpg_2025": 980.722,
     "page_2025": 104,
     "page_2024": 104,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "MRL": {
     "famille": "financement",
@@ -917,7 +935,8 @@
     "rnpg_2025": 107.295,
     "page_2025": 55,
     "page_2024": 55,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "TMA": {
     "famille": "autre",
@@ -936,7 +955,8 @@
     "rnpg_2025": 851.083,
     "page_2025": 6,
     "page_2024": 6,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "CMT": {
     "famille": "mines",
@@ -955,7 +975,8 @@
     "rnpg_2025": 196.465103,
     "page_2025": 57,
     "page_2024": 57,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "MNG": {
     "famille": "mines",
@@ -974,7 +995,8 @@
     "rnpg_2025": 3002.0,
     "page_2025": 86,
     "page_2024": 86,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "AKD": {
     "famille": "autre",
@@ -993,7 +1015,8 @@
     "rnpg_2025": 443.680156,
     "page_2025": 78,
     "page_2024": 78,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "ARD": {
     "famille": "fonciere",
@@ -1012,7 +1035,8 @@
     "rnpg_2025": 534.413,
     "page_2025": 6,
     "page_2024": 6,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "OUL": {
     "famille": "autre",
@@ -1031,7 +1055,8 @@
     "rnpg_2025": 112.3,
     "page_2025": 76,
     "page_2024": 76,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "CIM": {
     "famille": "autre",
@@ -1050,7 +1075,8 @@
     "rnpg_2025": 1377.432,
     "page_2025": 60,
     "page_2024": 60,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "CTM": {
     "famille": "autre",
@@ -1069,7 +1095,8 @@
     "rnpg_2025": 56.204,
     "page_2025": 47,
     "page_2024": 47,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "ZLD": {
     "famille": "autre",
@@ -1088,7 +1115,8 @@
     "rnpg_2025": 21.588,
     "page_2025": 9,
     "page_2024": 9,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "SOT": {
     "famille": "autre",
@@ -1107,7 +1135,8 @@
     "rnpg_2025": 385.526,
     "page_2025": 52,
     "page_2024": 52,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "ADI": {
     "famille": "promoteur",
@@ -1126,7 +1155,8 @@
     "rnpg_2025": 407.601,
     "page_2025": 21,
     "page_2024": 21,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "ADH": {
     "famille": "promoteur",
@@ -1145,7 +1175,8 @@
     "rnpg_2025": 453.719,
     "page_2025": 53,
     "page_2024": 53,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "TGCC": {
     "famille": "btp",
@@ -1164,7 +1195,8 @@
     "rnpg_2025": 952.0,
     "page_2025": 96,
     "page_2024": 96,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "CFGB": {
     "famille": "banque",
@@ -1183,7 +1215,8 @@
     "rnpg_2025": 370.445,
     "page_2025": 40,
     "page_2024": 40,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "CASH": {
     "famille": "paiement",
@@ -1202,7 +1235,8 @@
     "rnpg_2025": 242.296,
     "page_2025": 65,
     "page_2024": 65,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "SGTM": {
     "famille": "btp",
@@ -1221,7 +1255,8 @@
     "rnpg_2025": 1342.0,
     "page_2025": 87,
     "page_2024": 87,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "CMGP": {
     "famille": "autre",
@@ -1240,7 +1275,8 @@
     "rnpg_2025": 244.0,
     "page_2025": 68,
     "page_2024": 68,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "VCNE": {
     "famille": "autre",
@@ -1259,7 +1295,8 @@
     "rnpg_2025": 144.284126,
     "page_2025": 57,
     "page_2024": 57,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "RIS": {
     "famille": "autre",
@@ -1278,7 +1315,8 @@
     "rnpg_2025": 269.622,
     "page_2025": 36,
     "page_2024": 36,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "CSR": {
     "famille": "autre",
@@ -1297,7 +1335,8 @@
     "rnpg_2025": 703.7,
     "page_2025": 131,
     "page_2024": 131,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "RDS": {
     "famille": "promoteur",
@@ -1316,7 +1355,8 @@
     "rnpg_2025": 4.494,
     "page_2025": 26,
     "page_2024": 26,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "ALU": {
     "famille": "autre",
@@ -1335,7 +1375,8 @@
     "rnpg_2025": 62.40607,
     "page_2025": 36,
     "page_2024": 36,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "MGL": {
     "famille": "financement",
@@ -1354,7 +1395,8 @@
     "rnpg_2025": 148.198775,
     "page_2025": null,
     "page_2024": null,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "DAR": {
     "famille": "autre",
@@ -1373,7 +1415,8 @@
     "rnpg_2025": 52.395028,
     "page_2025": 33,
     "page_2024": 33,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "IMI": {
     "famille": "fonciere",
@@ -1392,7 +1435,8 @@
     "rnpg_2025": 41.486,
     "page_2025": 21,
     "page_2024": 21,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "DTT": {
     "famille": "autre",
@@ -1411,7 +1455,8 @@
     "rnpg_2025": 25.878,
     "page_2025": 24,
     "page_2024": 24,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "DSW": {
     "famille": "autre",
@@ -1430,7 +1475,8 @@
     "rnpg_2025": 85.457932,
     "page_2025": 18,
     "page_2024": 18,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "MOX": {
     "famille": "autre",
@@ -1449,7 +1495,8 @@
     "rnpg_2025": 15.447,
     "page_2025": 33,
     "page_2024": 33,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "SNP": {
     "famille": "autre",
@@ -1468,7 +1515,8 @@
     "rnpg_2025": -185.186,
     "page_2025": 50,
     "page_2024": 50,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "SLM": {
     "famille": "financement",
@@ -1487,7 +1535,8 @@
     "rnpg_2025": 96.117,
     "page_2025": 68,
     "page_2024": 68,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "M2M": {
     "famille": "autre",
@@ -1506,7 +1555,8 @@
     "rnpg_2025": 5.305374,
     "page_2025": 4,
     "page_2024": 4,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "INV": {
     "famille": "autre",
@@ -1525,7 +1575,8 @@
     "rnpg_2025": 0.116,
     "page_2025": 33,
     "page_2024": 33,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "S2M": {
     "famille": "autre",
@@ -1544,7 +1595,8 @@
     "rnpg_2025": 32.558354,
     "page_2025": 25,
     "page_2024": 25,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "COL": {
     "famille": "autre",
@@ -1563,7 +1615,8 @@
     "rnpg_2025": 65.479342,
     "page_2025": 12,
     "page_2024": 12,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "FNB": {
     "famille": "autre",
@@ -1582,7 +1635,8 @@
     "rnpg_2025": 14.856,
     "page_2025": 104,
     "page_2024": 104,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "BAL": {
     "famille": "fonciere",
@@ -1601,7 +1655,8 @@
     "rnpg_2025": 13.649664,
     "page_2025": 84,
     "page_2024": 44,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "NEJ": {
     "famille": "autre",
@@ -1620,7 +1675,8 @@
     "rnpg_2025": 324.182,
     "page_2025": 106,
     "page_2024": 104,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "HAL": {
     "famille": "autre",
@@ -1639,7 +1695,8 @@
     "rnpg_2025": 99.832,
     "page_2025": 58,
     "page_2024": 58,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "BMC": {
     "famille": "banque",
@@ -1658,7 +1715,8 @@
     "rnpg_2025": 434.829,
     "page_2025": 15,
     "page_2024": 15,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "AFI": {
     "famille": "autre",
@@ -1677,7 +1735,8 @@
     "rnpg_2025": 7.530116,
     "page_2025": 18,
     "page_2024": 18,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "MIC": {
     "famille": "autre",
@@ -1696,7 +1755,8 @@
     "rnpg_2025": 69.54779096,
     "page_2025": 21,
     "page_2024": 21,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "MUT": {
     "famille": "autre",
@@ -1715,7 +1775,8 @@
     "rnpg_2025": 126.161,
     "page_2025": 54,
     "page_2024": 54,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "EQD": {
     "famille": "financement",
@@ -1734,7 +1795,8 @@
     "rnpg_2025": 98.561,
     "page_2025": 63,
     "page_2024": 63,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    },
    "DHO": {
     "famille": "autre",
@@ -1753,7 +1815,8 @@
     "rnpg_2025": 307.19143,
     "page_2025": 11,
     "page_2024": 11,
-    "rentabilite_utilise_le_roe": false
+    "rentabilite_utilise_le_roe": false,
+    "oci": null
    },
    "UNI": {
     "famille": "autre",
@@ -1772,11 +1835,56 @@
     "rnpg_2025": -31.94,
     "page_2025": 33,
     "page_2024": 33,
-    "rentabilite_utilise_le_roe": true
+    "rentabilite_utilise_le_roe": true,
+    "oci": null
    }
   },
-  "assurances_gains_latents_oci": {
+  "assurances_roe_hors_gains_latents_oci": {
+   "ATL": {
+    "oci": "hors OCI",
+    "reserve_oci_2025": 0.0,
+    "reserve_oci_2024": 0.0,
+    "etat_reserve": "releve",
+    "pieces": {
+     "2025": "p.140 — BILAN CONSOLIDÉ, passif 31 déc. 2025 : « Capital 602 836 ; Réserves consolidées 1 411 503 ; Résultat consolidé 467 641 ; CAPITAUX PROPRES DE L’ENSEMBLE CONSOLIDÉ 2 481 980 ; Dont : Capitaux propres part du groupe 2 481 937 ; Intérêts minoritaires 43 » (KMAD)",
+     "2024": "p.140 — même bilan, colonne 31 déc. 2024 : « Capital 602 836 ; Réserves consolidées 1 311 579 ; Résultat consolidé 453 361 ; CAPITAUX PROPRES DE L’ENSEMBLE CONSOLIDÉ 2 367 775 ; Dont part du groupe 2 367 730 » (KMAD)",
+     "etats": {
+      "2025": "zero_confirme",
+      "2024": "zero_confirme"
+     }
+    },
+    "roe_avec_oci": {
+     "cloture": 18.84,
+     "moyenne": 19.29
+    },
+    "roe_hors_oci": {
+     "cloture": 18.84,
+     "moyenne": 19.29
+    },
+    "convention": "moyenne",
+    "roe_retenu": 19.29,
+    "residu_hors_oci_mmad": -353.432,
+    "residu_hors_oci_pct": -14.93,
+    "residu_avec_oci_mmad": -353.432,
+    "residu_avec_oci_pct": -14.93,
+    "moyenne_ecartee": null,
+    "note_metier": 6.5,
+    "palier_simule": "ACHETER",
+    "palier_actuel": "ACHETER"
+   },
    "WAF": {
+    "oci": "hors OCI",
+    "reserve_oci_2025": 4747.429,
+    "reserve_oci_2024": 2950.462,
+    "etat_reserve": "releve",
+    "pieces": {
+     "2025": "p.16 — « Gains et pertes comptabilisés directement en capitaux propres 4 747 429 2 950 462 1 822 956 » ; en-tête « 31/12/2025 31/12/2024 01/01/2024 (en milliers de dirhams) retraité retraité »",
+     "2024": "p.16 — même ligne, colonne 31/12/2024 : 2 950 462",
+     "etats": {
+      "2025": "present",
+      "2024": "present"
+     }
+    },
     "roe_avec_oci": {
      "cloture": 6.86,
      "moyenne": 7.45
@@ -1785,24 +1893,35 @@
      "cloture": 10.05,
      "moyenne": 10.35
     },
-    "source": "Wafa Assurance RFA 2025 p.16 (gains latents), relevé de la contre-vérification de #241 du 14/10/2026",
-    "roe_avec_oci_recalcule": {
-     "cloture": 6.8584,
-     "moyenne": 7.45
-    },
-    "convention_retenue_dans_la_comparaison": "cloture_moyenne_ecartee",
-    "decision": "AUCUN choix appliqué — revient à Abd Moutalib"
+    "convention": "moyenne",
+    "roe_retenu": 10.35,
+    "residu_hors_oci_mmad": -429.451,
+    "residu_hors_oci_pct": -4.47,
+    "residu_avec_oci_mmad": 1367.516,
+    "residu_avec_oci_pct": 10.88,
+    "moyenne_ecartee": null,
+    "note_metier": 5.94,
+    "palier_simule": "ATTENDRE",
+    "palier_actuel": "ATTENDRE"
    },
-   "ATL": {
+   "SAF": {
+    "oci": "pas de ROE d'exercice",
+    "reserve_oci_2025": null,
+    "reserve_oci_2024": null,
+    "etat_reserve": null,
+    "pieces": null,
     "roe_avec_oci": null,
     "roe_hors_oci": null,
-    "source": "non relevé : ni le montant d'OCI d'AtlantaSanad ni son ROE hors gains latents ne sont dans les faits financiers ; à lire dans le RFA 2025 avant toute décision",
-    "roe_avec_oci_recalcule": {
-     "cloture": 18.8417,
-     "moyenne": 19.29
-    },
-    "convention_retenue_dans_la_comparaison": "moyenne",
-    "decision": "AUCUN choix appliqué — revient à Abd Moutalib"
+    "convention": null,
+    "roe_retenu": null,
+    "residu_hors_oci_mmad": null,
+    "residu_hors_oci_pct": null,
+    "residu_avec_oci_mmad": null,
+    "residu_avec_oci_pct": null,
+    "moyenne_ecartee": null,
+    "note_metier": null,
+    "palier_simule": "Données insuffisantes",
+    "palier_actuel": "ATTENDRE"
    }
   },
   "masi_1_sans_note_metier": {},
@@ -2415,13 +2534,13 @@
    "famille": "assurance",
    "secteur_referentiel": "Assurance",
    "note_actuelle": 5.25,
-   "note_metier": 4.61,
-   "ecart": -0.64,
+   "note_metier": 5.94,
+   "ecart": 0.69,
    "v53_actuelle": 4.93,
-   "v53_simulee": 4.43,
+   "v53_simulee": 5.47,
    "signal_actuel": "ATTENDRE",
    "palier_actuel": "ATTENDRE",
-   "palier_simule": "ÉVITER",
+   "palier_simule": "ATTENDRE",
    "poids_disponible": 90,
    "motif_sans_note": null,
    "partielle": false,
@@ -2431,8 +2550,8 @@
     "criteres": [
      "valorisation"
     ],
-    "note_sans_cote": 3.93,
-    "ecart_points": 0.68,
+    "note_sans_cote": 5.64,
+    "ecart_points": 0.3,
     "note_inexistante_sans_cote": false
    },
    "criteres": {
@@ -2440,20 +2559,30 @@
      "etat": "present",
      "poids_nominal": 40,
      "poids_effectif": 44.44,
-     "valeur": 6.9,
-     "mesure": "ROE 6.9 % — RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025 (moyenne écartée : mouvement de fonds propres hors résultat non expliqué : résidu R = FP2025 − FP2024 − RNPG2025 = 1367.52 MMAD, +10.9% des fonds propres 2024 (seuil 5%), cause absente du registre)",
-     "note": 2.0,
+     "valeur": 10.35,
+     "mesure": "ROE 10.35 % — RNPG 2025 1026.04 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 12566.8 ; 31/12/2025 14960.3), même état financier — HORS gains latents (OCI) : fonds propres part du groupe moins la réserve OCI (2025 4747.43 ; 2024 2950.46)",
+     "note": 5.0,
      "motif": null,
      "source": {
       "fichier": "fondamentaux.json › ratios publiés › roe_2025",
       "piece": "resultat : https://www.ammc.ma/sites/default/files/Wafa_Assurance_2025.pdf — « Résultat net consolidé - Part Du Groupe 1026036 » ; capitaux_propres : Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf, p. 16",
-      "formule": "1026.036 ÷ 14960.337 (MMAD)"
+      "formule": "1026.036 ÷ 14960.337 (MMAD)",
+      "fonds_propres_2024": "faits_financiers.json › fonds propres 31/12/2024 (p.16)",
+      "rnpg_2025": "datasets/resultats_s1_2026.json › rnpg_exercice_2025",
+      "reserve_oci": {
+       "2025": "p.16 — « Gains et pertes comptabilisés directement en capitaux propres 4 747 429 2 950 462 1 822 956 » ; en-tête « 31/12/2025 31/12/2024 01/01/2024 (en milliers de dirhams) retraité retraité »",
+       "2024": "p.16 — même ligne, colonne 31/12/2024 : 2 950 462",
+       "etats": {
+        "2025": "present",
+        "2024": "present"
+       }
+      }
      },
      "periode": "exercice 2025",
-     "base": "RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025 (moyenne écartée : mouvement de fonds propres hors résultat non expliqué : résidu R = FP2025 − FP2024 − RNPG2025 = 1367.52 MMAD, +10.9% des fonds propres 2024 (seuil 5%), cause absente du registre)",
+     "base": "RNPG 2025 1026.04 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 12566.8 ; 31/12/2025 14960.3), même état financier — HORS gains latents (OCI) : fonds propres part du groupe moins la réserve OCI (2025 4747.43 ; 2024 2950.46)",
      "reference": null,
-     "convention": "cloture_moyenne_ecartee",
-     "moyenne_ecartee": "mouvement de fonds propres hors résultat non expliqué : résidu R = FP2025 − FP2024 − RNPG2025 = 1367.52 MMAD, +10.9% des fonds propres 2024 (seuil 5%), cause absente du registre"
+     "convention": "moyenne",
+     "moyenne_ecartee": null
     },
     "croissance": {
      "etat": "present",
@@ -2741,7 +2870,7 @@
      "poids_nominal": 40,
      "poids_effectif": 44.44,
      "valeur": 19.29,
-     "mesure": "ROE 19.29 % — RNPG 2025 467.639 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 2367.73 ; 31/12/2025 2481.94), même état financier",
+     "mesure": "ROE 19.29 % — RNPG 2025 467.639 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 2367.73 ; 31/12/2025 2481.94), même état financier — HORS gains latents (OCI) : réserve OCI NULLE confirmée sur pièce en 2024 et 2025 (aucune ligne de gains latents aux fonds propres consolidés)",
      "note": 7.0,
      "motif": null,
      "source": {
@@ -2749,10 +2878,18 @@
       "piece": "resultat : https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf p.141 : « RÉSULTAT NET 467 641 453 361 / Dont : Part du Groupe 467 639 453 359 » (KMAD) ; capitaux_propres : Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf, p. 140",
       "formule": "467.639 ÷ 2481.937 (MMAD)",
       "fonds_propres_2024": "faits_financiers.json › fonds propres 31/12/2024 (p.140)",
-      "rnpg_2025": "datasets/resultats_s1_2026.json › rnpg_exercice_2025"
+      "rnpg_2025": "datasets/resultats_s1_2026.json › rnpg_exercice_2025",
+      "reserve_oci": {
+       "2025": "p.140 — BILAN CONSOLIDÉ, passif 31 déc. 2025 : « Capital 602 836 ; Réserves consolidées 1 411 503 ; Résultat consolidé 467 641 ; CAPITAUX PROPRES DE L’ENSEMBLE CONSOLIDÉ 2 481 980 ; Dont : Capitaux propres part du groupe 2 481 937 ; Intérêts minoritaires 43 » (KMAD)",
+       "2024": "p.140 — même bilan, colonne 31 déc. 2024 : « Capital 602 836 ; Réserves consolidées 1 311 579 ; Résultat consolidé 453 361 ; CAPITAUX PROPRES DE L’ENSEMBLE CONSOLIDÉ 2 367 775 ; Dont part du groupe 2 367 730 » (KMAD)",
+       "etats": {
+        "2025": "zero_confirme",
+        "2024": "zero_confirme"
+       }
+      }
      },
      "periode": "exercice 2025",
-     "base": "RNPG 2025 467.639 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 2367.73 ; 31/12/2025 2481.94), même état financier",
+     "base": "RNPG 2025 467.639 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 2367.73 ; 31/12/2025 2481.94), même état financier — HORS gains latents (OCI) : réserve OCI NULLE confirmée sur pièce en 2024 et 2025 (aucune ligne de gains latents aux fonds propres consolidés)",
      "reference": null,
      "convention": "moyenne",
      "moyenne_ecartee": null

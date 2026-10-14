@@ -166,14 +166,21 @@ def test_chaque_titre_avec_roe_d_exercice_porte_sa_tracabilite(comparaison):
     assert ex["SGTM"]["convention"] == "moyenne" and ex["TGCC"]["code_motif"] == "registre_operation_capital"
 
 
-def test_assurances_gains_latents_aucun_choix_applique(comparaison):
-    oci = comparaison["synthese"]["assurances_gains_latents_oci"]
-    assert set(oci) == {"WAF", "ATL"}
-    assert oci["WAF"]["roe_avec_oci"] == {"cloture": 6.86, "moyenne": 7.45}
-    assert oci["WAF"]["roe_hors_oci"] == {"cloture": 10.05, "moyenne": 10.35}
-    assert oci["ATL"]["roe_hors_oci"] is None and "non relevé" in oci["ATL"]["source"], "absent n'est pas zéro"
-    for t in oci.values():
-        assert "AUCUN choix" in t["decision"]
-    # Le calcul du dépôt recoupe les ROE avec OCI fournis.
-    assert abs(oci["WAF"]["roe_avec_oci_recalcule"]["cloture"] - 6.86) < 0.05
-    assert abs(oci["WAF"]["roe_avec_oci_recalcule"]["moyenne"] - 7.45) < 0.05
+def test_assurances_roe_hors_gains_latents(comparaison):
+    # Décision d'Abd (14/10) : ROE des assurances HORS OCI. WAF : 6,86 / 7,45 avec, 10,05 / 10,35 sans (p.16).
+    oci = comparaison["synthese"]["assurances_roe_hors_gains_latents_oci"]
+    assert set(oci) == {"ATL", "WAF", "SAF"}                     # toute la famille « assurance » de FAMILLES_NOTE
+    w = oci["WAF"]
+    assert w["oci"] == "hors OCI" and w["etat_reserve"] == "releve"
+    assert w["roe_avec_oci"] == {"cloture": 6.86, "moyenne": 7.45}
+    assert w["roe_hors_oci"] == {"cloture": 10.05, "moyenne": 10.35}
+    assert w["convention"] == "moyenne" and w["roe_retenu"] == 10.35
+    assert w["residu_hors_oci_mmad"] == -429.451 and w["residu_hors_oci_pct"] == -4.47
+    assert w["residu_avec_oci_pct"] > 5, "avec OCI, le résidu aurait écarté la moyenne"
+    assert w["moyenne_ecartee"] is None
+    a = oci["ATL"]
+    assert a["etat_reserve"] == "releve" and a["reserve_oci_2025"] == 0.0 and a["reserve_oci_2024"] == 0.0
+    assert a["roe_avec_oci"] == a["roe_hors_oci"] == {"cloture": 18.84, "moyenne": 19.29}
+    assert "p.140" in a["pieces"]["2025"] and "p.16" in w["pieces"]["2025"]
+    s = oci["SAF"]
+    assert s["oci"] == "pas de ROE d'exercice" and s["roe_retenu"] is None, "SAF : aucun ROE, rien d'estimé"

@@ -33,6 +33,7 @@ from pathlib import Path
 RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE))
 
+import bvc_config  # noqa: E402
 from pipeline.smart_money import fond_score_sectoriel as fs  # noqa: E402
 
 DEFAUT = "comparaison_note_metier_{date}.json"
@@ -145,26 +146,30 @@ def compter_motifs(roes: dict) -> dict:
     return {_LIBELLE_CODE.get(k, k): v for k, v in sorted(c.items())}
 
 
-# ROE d'une assurance avec et sans gains latents (OCI) : AUCUN choix appliqué (décision d'Abd).
-# Valeurs relevées sur pièce par la contre-vérification de #241 ; les montants d'OCI ne sont pas
-# dans les faits financiers du dépôt. Ce qui n'est pas relevé est ABSENT, jamais zéro ni estimé.
-OCI_ASSURANCES = {
-    "WAF": {"roe_avec_oci": {"cloture": 6.86, "moyenne": 7.45}, "roe_hors_oci": {"cloture": 10.05, "moyenne": 10.35},
-            "source": "Wafa Assurance RFA 2025 p.16 (gains latents), relevé de la contre-vérification de #241 du 14/10/2026"},
-    "ATL": {"roe_avec_oci": None, "roe_hors_oci": None,
-            "source": "non relevé : ni le montant d'OCI d'AtlantaSanad ni son ROE hors gains latents ne sont dans les faits "
-                      "financiers ; à lire dans le RFA 2025 avant toute décision"},
-}
-
-
-def _bloc_oci(res: dict) -> dict:
+def _bloc_oci(res: dict, titres: dict) -> dict:
+    """ROE des assurances AVEC et SANS gains latents (OCI), clôture et moyenne, la convention
+    retenue (décision d'Abd du 14/10/2026 : HORS OCI), le résidu avec et sans OCI, la note par
+    métier et le palier simulés. Les réserves viennent de `datasets/reserves_oci_assurances.json`
+    (page et citation) ; un titre sans réserve relevée reste AVEC OCI, étiqueté « OCI non relevé »."""
     out = {}
-    for t, x in OCI_ASSURANCES.items():
+    for t in bvc_config.FAMILLES_NOTE["assurance"]:
         roe = res[t]["entree"]["roe"]
-        out[t] = {**x, "roe_avec_oci_recalcule": {"cloture": roe.get("valeur_cloture_non_arrondie"),
-                                                  "moyenne": roe.get("valeur_moyenne")},
-                  "convention_retenue_dans_la_comparaison": roe.get("convention"),
-                  "decision": "AUCUN choix appliqué — revient à Abd Moutalib"}
+        oci = roe.get("oci") or {}
+        x = titres[t]
+        eff = roe.get("fonds_propres_2025")
+        resid_avec = (round(eff - roe["fonds_propres_2024"] - roe["rnpg_2025"], 3)
+                      if eff is not None and roe.get("fonds_propres_2024") is not None and roe.get("rnpg_2025") is not None else None)
+        out[t] = {
+            "oci": oci.get("etiquette") or "pas de ROE d'exercice",
+            "reserve_oci_2025": oci.get("reserve_2025"), "reserve_oci_2024": oci.get("reserve_2024"),
+            "etat_reserve": oci.get("etat"), "pieces": oci.get("pieces"),
+            "roe_avec_oci": oci.get("roe_avec_oci"), "roe_hors_oci": oci.get("roe_hors_oci"),
+            "convention": roe.get("convention"), "roe_retenu": roe.get("valeur"),
+            "residu_hors_oci_mmad": roe.get("residu_mmad"), "residu_hors_oci_pct": roe.get("residu_pct"),
+            "residu_avec_oci_mmad": resid_avec,
+            "residu_avec_oci_pct": (round(resid_avec / roe["fonds_propres_2024"] * 100, 2) if resid_avec is not None else None),
+            "moyenne_ecartee": roe.get("moyenne_ecartee"),
+            "note_metier": x["note_metier"], "palier_simule": x["palier_simule"], "palier_actuel": x["palier_actuel"]}
     return out
 
 
@@ -186,7 +191,8 @@ def _roe_exercice(res: dict) -> dict:
                   "residu_mmad": roe.get("residu_mmad"), "residu_pct_fonds_propres_2024": roe.get("residu_pct"),
                   "fonds_propres_2024": roe.get("fonds_propres_2024"), "fonds_propres_2025": roe.get("fonds_propres_2025"),
                   "rnpg_2025": roe.get("rnpg_2025"), "page_2025": roe.get("page_2025"), "page_2024": roe.get("page_2024"),
-                  "rentabilite_utilise_le_roe": r["criteres"]["rentabilite"].get("convention") is not None}
+                  "rentabilite_utilise_le_roe": r["criteres"]["rentabilite"].get("convention") is not None,
+                  "oci": (roe.get("oci") or {}).get("etiquette")}
     return out
 
 
@@ -328,7 +334,7 @@ def construire(racine: Path = RACINE) -> dict:
         "changements_de_palier_simules": {"nombre": len(changements), "detail": changements},
         "effet_convention_fonds_propres_moyens": _effet_convention_roe(res, res_cloture, T),
         "roe_d_exercice_par_titre": _roe_exercice(res),
-        "assurances_gains_latents_oci": _bloc_oci(res),
+        "assurances_roe_hors_gains_latents_oci": _bloc_oci(res, titres),
         "masi_1_sans_note_metier": {s: titres[s]["motif_sans_note"] for s in TICKERS_ACTIFS
                                     if s in titres and titres[s]["note_metier"] is None},
         "lecture": [
