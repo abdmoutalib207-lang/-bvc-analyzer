@@ -6,10 +6,12 @@
 name: BVC Fondamentaux Update
 
 on:
-  schedule:
-    # Trimestriel : janvier, avril, juillet, octobre (après publications résultats)
-    - cron: '0 6 15 1,4,7,10 *'
-
+  # ⚠️ DÉCLENCHEMENT AUTOMATIQUE RETIRÉ le 14/10/2026 (accord d'Abd Moutalib).
+  # Le collecteur associe MRL à Marsa Maroc, MSA à Mutandis et VCNE à Vivo
+  # Energy, et écrit l'extraction IA directement dans fondamentaux.json, sans
+  # contrôle d'identité ni de période. À ne remettre qu'une fois corrigé pour
+  # produire un CANDIDAT vérifié avant intégration. Ancien cron :
+  # '0 6 15 1,4,7,10 *'. Seul le lancement manuel subsiste.
   workflow_dispatch:
     inputs:
       ticker:
@@ -69,7 +71,7 @@ jobs:
           python pipeline/fetch_annual_reports.py $ARGS
 
       - name: Analyser tous les tickers
-        if: github.event.inputs.ticker == '' || github.event_name == 'schedule'
+        if: github.event.inputs.ticker == ''
         run: python pipeline/fetch_annual_reports.py --all
 
       - name: Recalculer les scores fondamentaux
