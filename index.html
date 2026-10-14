@@ -3891,6 +3891,13 @@ const meta = r => {
     suspMotif: null
   };
 };
+const varSeance = r => meta(r).stale ? null : r.chg;
+const NON_COTE = React.createElement("span", {
+  title: "Pas de cotation \xE0 la derni\xE8re s\xE9ance \u2014 aucune variation observ\xE9e",
+  style: {
+    color: "#8892a4"
+  }
+}, "n.c.");
 const jjmm = d => {
   const p = String(d || "").slice(0, 10).split("-");
   return p.length === 3 ? `${p[2]}/${p[1]}` : "";
@@ -6039,7 +6046,7 @@ const TickerTape = ({
     style: {
       color: nc(r.chg)
     }
-  }, r.chg > 0 ? "▲" : "▼", Math.abs(r.chg || 0).toFixed(2), "%", r.chg_alert && React.createElement("span", {
+  }, varSeance(r) == null ? NON_COTE : React.createElement(React.Fragment, null, r.chg > 0 ? "▲" : r.chg < 0 ? "▼" : "—", Math.abs(r.chg || 0).toFixed(2), "%"), r.chg_alert && React.createElement("span", {
     title: "Variation \u2265 \xB18% \u2014 approche limite BVC"
   }, "\u26A1"))))));
 };
@@ -7022,7 +7029,7 @@ const Heatmap = ({
     return Object.entries(map).sort((a, b) => b[1].reduce((s, r) => s + (r.cap || 0), 0) - a[1].reduce((s, r) => s + (r.cap || 0), 0)).map(([name, rs]) => ({
       name,
       rows: rs.sort((a, b) => (b.cap || 0) - (a.cap || 0)),
-      avgChg: rs.reduce((s, r) => s + (r.chg || 0), 0) / rs.length
+      avgChg: (c => c.length ? c.reduce((s, v) => s + v, 0) / c.length : 0)(rs.map(varSeance).filter(v => v != null))
     }));
   }, [rows]);
   return React.createElement("div", null, React.createElement("div", {
@@ -7117,7 +7124,8 @@ const Heatmap = ({
   }, sec.rows.map(r => {
     const sym = r.symbol || r.ticker;
     const isH = hov === sym;
-    const chg = r.chg || 0;
+    const chg = varSeance(r) || 0;
+    const nc_ = varSeance(r) == null;
     return React.createElement("div", {
       key: sym,
       onClick: () => {
@@ -7126,7 +7134,7 @@ const Heatmap = ({
       },
       onMouseEnter: () => setHov(sym),
       onMouseLeave: () => setHov(null),
-      title: `${r.name || sym} · ${px(r.price || 0)} · ${chg > 0 ? "▲" : "▼"}${Math.abs(chg).toFixed(2)}% · v5.3=${r.v53?.toFixed(2)}`,
+      title: `${r.name || sym} · ${px(r.price || 0)} · ${nc_ ? "non coté à la dernière séance" : `${chg > 0 ? "▲" : chg < 0 ? "▼" : "—"}${Math.abs(chg).toFixed(2)}%`} · v5.3=${r.v53?.toFixed(2)}`,
       style: {
         background: chgClr(chg),
         border: `1px solid ${isH ? "#c8d3e8" : "rgba(255,255,255,.04)"}`,
@@ -7156,7 +7164,7 @@ const Heatmap = ({
         fontWeight: 700,
         color: chg > 0 ? "#00e5a0" : chg < 0 ? "#ff4f5a" : "#8892a4"
       }
-    }, chg > 0 ? "▲" : chg < 0 ? "▼" : "—", Math.abs(chg).toFixed(2), "%"));
+    }, nc_ ? "n.c." : React.createElement(React.Fragment, null, chg > 0 ? "▲" : chg < 0 ? "▼" : "—", Math.abs(chg).toFixed(2), "%")));
   })))), React.createElement("div", {
     style: {
       marginTop: 12,
@@ -7210,7 +7218,7 @@ const Ranking = ({
       return sb - sa;
     }
     if (sort === "nlp") return b.nlp - a.nlp;
-    if (sort === "var") return b.chg - a.chg;
+    if (sort === "var") return (varSeance(b) ?? -Infinity) - (varSeance(a) ?? -Infinity) || 0;
     if (sort === "alpha") return b.alpha - a.alpha;
     if (sort === "rsi") {
       const ra = a.rsi ?? a.rsi14,
@@ -7668,7 +7676,7 @@ const Ranking = ({
       style: {
         whiteSpace: "nowrap"
       }
-    }, r.chg > 0 ? "▲" : r.chg < 0 ? "▼" : "—", " ", Math.abs(r.chg || 0).toFixed(2), "%"), r.chg_alert && React.createElement("span", {
+    }, varSeance(r) == null ? NON_COTE : React.createElement(React.Fragment, null, r.chg > 0 ? "▲" : r.chg < 0 ? "▼" : "—", " ", Math.abs(r.chg || 0).toFixed(2), "%")), r.chg_alert && React.createElement("span", {
       title: "Variation \u2265 \xB18% \u2014 approche limite BVC",
       style: {
         marginLeft: 3
