@@ -15,6 +15,18 @@ valeur, sa source (fichier + pièce), sa période, sa base, son ÉTAT (présent,
 absent, zéro confirmé, remplacement, suspendu), son poids nominal et EFFECTIF
 après abstentions, et sa référence de comparaison (famille ou cote entière).
 
+⚠️ RÉSIDU APRÈS DIVIDENDE (14/10/2026) : la moyenne des fonds propres est écartée si
+|R + D| dépasse 5 % des fonds propres 2024 (R = FP2025 − FP2024 − RNPG2025 ; D = dividende
+versé dans l'exercice, lu au tableau de variation, sinon au calendrier × actions). La cause,
+quand le rapport la nomme, est portée sur pièce ; sinon « non expliqué ». D inconnu : l'ancien
+test (R > +5 % seul) reste en vigueur, dit. Liste des titres qui changent de convention :
+`changements_de_convention_du_residu_apres_dividende`.
+
+⚠️ TMA : dividende exceptionnel de 67 DH le 11/12/2025 — moyenne simple conservée, pondérée
+indicative à côté. WAF : formule hors OCI et drapeau « à 0,35 point du seuil de 10 % ». ATL
+(normes marocaines, plus-values latentes hors bilan) et WAF (IFRS 17) ne se comparent pas terme
+à terme ; l'OCI d'assurance consolidé d'ATW reste inclus (`assurances_documentation`).
+
 ⚠️ LA v53 « SIMULÉE » est approchée : v53 publiée + (note métier − note actuelle)
 × poids fondamental publié (entier, en %). L'erreur d'arrondi du poids est de
 l'ordre de 0,005 × l'écart de note ; elle ne suffit à changer un palier que
@@ -129,7 +141,8 @@ def _palier_simule(t: dict, note, partielle: bool) -> tuple:
 
 _LIBELLE_CODE = {
     "registre_operation_capital": "opération sur le capital (registre OPERATIONS_SUR_CAPITAL)",
-    "residu_non_explique": "mouvement de fonds propres hors résultat non expliqué (résidu R > +5 %)",
+    "residu_non_explique": "mouvement hors résultat et hors dividende non expliqué (|R + D| > 5 %, ou R > +5 % si le dividende est inconnu)",
+    "residu_cause_sur_piece": "mouvement hors résultat et hors dividende, cause portée sur pièce (|R + D| > 5 %)",
     "base_non_confirmee": "base 2024 non confirmée identique",
     "bases_contradictoires": "bases contradictoires (sociale / consolidée)",
     "numerateur_non_reproduit": "RNPG ÷ fonds propres 2025 ne reproduit pas le ROE publié",
@@ -189,11 +202,102 @@ def _roe_exercice(res: dict) -> dict:
                   "roe_moyen": mv, "ecart_moyen_moins_cloture_non_arrondie": (round(mv - nr, 3) if None not in (mv, nr) else None),
                   "roe_retenu": roe["valeur"],
                   "residu_mmad": roe.get("residu_mmad"), "residu_pct_fonds_propres_2024": roe.get("residu_pct"),
+                  "dividende_exercice": ({k: v for k, v in roe["dividende"].items() if k != "exceptionnels"}
+                                         if roe.get("dividende") else None),
+                  "residu_apres_dividende_mmad": roe.get("residu_apres_dividende_mmad"),
+                  "residu_apres_dividende_pct": roe.get("residu_apres_dividende_pct"),
+                  "cause_residu_sur_piece": roe.get("cause_residu"),
+                  "formule": roe.get("formule"), "frontiere_palier": roe.get("frontiere_palier"),
+                  "dividende_exceptionnel": roe.get("dividende_exceptionnel"),
                   "fonds_propres_2024": roe.get("fonds_propres_2024"), "fonds_propres_2025": roe.get("fonds_propres_2025"),
                   "rnpg_2025": roe.get("rnpg_2025"), "page_2025": roe.get("page_2025"), "page_2024": roe.get("page_2024"),
                   "rentabilite_utilise_le_roe": r["criteres"]["rentabilite"].get("convention") is not None,
                   "oci": (roe.get("oci") or {}).get("etiquette")}
     return out
+
+
+def _roe_selon_ancien_test(roe: dict) -> tuple:
+    """(convention, ROE) que donnait le test d'AVANT le 14/10/2026 : moyenne écartée si le résidu AVANT
+    dividende dépasse +5 % des fonds propres 2024, jamais pour un résidu négatif. Rejoue le verdict à
+    partir de la trace, pour les seuls motifs qui relèvent du résidu ; les autres codes (registre, base,
+    numérateur, fonds propres) sont inchangés."""
+    code = roe.get("moyenne_code")
+    if code not in (None, "residu_cause_sur_piece", "residu_non_explique"):
+        return roe["convention"], roe["valeur"]
+    if roe.get("residu_pct") is not None and roe["residu_pct"] > fs.SEUIL_RESIDU_FP * 100:
+        hors = (roe.get("oci") or {}).get("etiquette") == "hors OCI"
+        v = roe.get("valeur_cloture_non_arrondie")
+        return "cloture_moyenne_ecartee", (round(v, 2) if hors and v is not None else roe.get("valeur_cloture_publiee"))
+    return "moyenne", roe.get("valeur_moyenne")
+
+
+def _changements_de_convention(res: dict) -> dict:
+    """Les titres dont la convention du ROE change avec le test du résidu APRÈS dividende, contre le
+    test d'avant (résidu positif > 5 % seul). Rendu : sens, ROE avant et après, cause."""
+    out = {}
+    for s, r in res.items():
+        roe = r["entree"]["roe"]
+        if roe.get("convention") not in ("moyenne", "cloture_moyenne_ecartee") or roe.get("valeur_moyenne") is None:
+            continue
+        avant_conv, avant_roe = _roe_selon_ancien_test(roe)
+        if avant_conv == roe["convention"]:
+            continue
+        out[s] = {"avant": avant_conv, "apres": roe["convention"], "roe_avant": avant_roe, "roe_apres": roe["valeur"],
+                  "residu_avant_dividende_pct": roe.get("residu_pct"),
+                  "residu_apres_dividende_pct": roe.get("residu_apres_dividende_pct"),
+                  "dividende_mmad": (roe.get("dividende") or {}).get("mmad"),
+                  "code": roe.get("moyenne_code"), "motif": roe.get("moyenne_ecartee")}
+    return {"nombre": len(out), "detail": dict(sorted(out.items()))}
+
+
+def _bloc_residu_apres_dividende(res: dict) -> dict:
+    """Le test du résidu après dividende, titre par titre : D et sa pièce, R et R + D, le verdict.
+    Les titres dont D est INCONNU sont listés : pour eux le test d'avant reste en vigueur."""
+    detail, inconnus = {}, []
+    for s, r in res.items():
+        roe = r["entree"]["roe"]
+        if roe.get("convention") not in ("moyenne", "cloture_moyenne_ecartee") or roe.get("residu_pct") is None:
+            continue
+        d = roe.get("dividende")
+        if d is None:
+            inconnus.append(s)
+        detail[s] = {"residu_avant_dividende_pct": roe["residu_pct"],
+                     "dividende_mmad": d["mmad"] if d else None, "dividende_origine": d["origine"] if d else None,
+                     "dividende_page": d.get("page") if d else None,
+                     "residu_apres_dividende_pct": roe.get("residu_apres_dividende_pct"),
+                     "code": roe.get("moyenne_code"), "convention": roe["convention"]}
+    ecartes = {s: x for s, x in detail.items() if x["code"] in ("residu_cause_sur_piece", "residu_non_explique")}
+    return {"regle": "moyenne écartée si |R + D| > 5 % des fonds propres 2024 (R = FP2025 − FP2024 − RNPG2025 ; "
+                     "D = dividende versé dans l'exercice, tableau de variation sinon calendrier × actions). "
+                     "D inconnu : test d'avant (R > +5 % seul), dit dans le motif.",
+            "titres_examines": len(detail), "dividende_inconnu": sorted(inconnus),
+            "ecartes_par_le_residu": ecartes, "detail": detail}
+
+
+def _dividendes_exceptionnels(res: dict) -> dict:
+    return {s: r["entree"]["roe"]["dividende_exceptionnel"] for s, r in res.items()
+            if (r["entree"]["roe"] or {}).get("dividende_exceptionnel")}
+
+
+def _roes_proches_d_un_palier(res: dict) -> dict:
+    return {s: {"roe": r["entree"]["roe"]["valeur"], "convention": r["entree"]["roe"]["convention"],
+                "formule": r["entree"]["roe"].get("formule"), **r["entree"]["roe"]["frontiere_palier"]}
+            for s, r in sorted(res.items())
+            if (r["entree"]["roe"] or {}).get("frontiere_palier")}
+
+
+DOC_ASSURANCES = [
+    "WAF (Wafa Assurance) publie en IFRS 17 / IFRS 9 : ses placements en juste valeur par OCI alimentent une réserve "
+    "consolidée de gains latents (4 747,4 MMAD fin 2025), retranchée des fonds propres pour le ROE.",
+    "ATL (Atlanta-Sanad) publie en NORMES MAROCAINES : ses plus-values latentes sur placements sont HORS BILAN, en "
+    "annexe ; la réserve OCI est nulle parce qu'aucun compte de gains latents n'existe aux fonds propres (zéro "
+    "confirmé p.140, normes marocaines p.144).",
+    "Les deux ne se comparent PAS terme à terme : retrancher l'OCI de WAF et rien chez ATL les met sur la même "
+    "définition des fonds propres COMPTABLES hors gains latents, pas sur la même réalité économique — les "
+    "plus-values latentes d'ATL existent, elles sont ailleurs. Lire leurs ROE côte à côte comme un classement "
+    "serait une erreur.",
+    "L'OCI d'assurance CONSOLIDÉ d'ATW (Attijariwafa, banque-assurance) reste INCLUS dans ses fonds propres : la "
+    "règle « ROE hors OCI » se limite à la famille « assurance » (FAMILLES_ROE_HORS_OCI)."]
 
 
 def _effet_convention_roe(res: dict, res_cloture: dict, T: dict) -> dict:
@@ -335,6 +439,11 @@ def construire(racine: Path = RACINE) -> dict:
         "effet_convention_fonds_propres_moyens": _effet_convention_roe(res, res_cloture, T),
         "roe_d_exercice_par_titre": _roe_exercice(res),
         "assurances_roe_hors_gains_latents_oci": _bloc_oci(res, titres),
+        "assurances_documentation": DOC_ASSURANCES,
+        "residu_apres_dividende": _bloc_residu_apres_dividende(res),
+        "changements_de_convention_du_residu_apres_dividende": _changements_de_convention(res),
+        "dividendes_exceptionnels_dans_l_exercice": _dividendes_exceptionnels(res),
+        "roe_a_moins_de_0_5_point_d_un_palier": _roes_proches_d_un_palier(res),
         "masi_1_sans_note_metier": {s: titres[s]["motif_sans_note"] for s in TICKERS_ACTIFS
                                     if s in titres and titres[s]["note_metier"] is None},
         "lecture": [
@@ -350,7 +459,8 @@ def construire(racine: Path = RACINE) -> dict:
             "source_cours": "data.json",
             "empreintes_sha256": {f: hashlib.sha256((racine / f).read_bytes()).hexdigest() for f in (
                 "data.json", "fondamentaux.json", "bpa.json", "pipeline/faits_financiers.json",
-                "datasets/resultats_s1_2026.json")},
+                "datasets/resultats_s1_2026.json", "datasets/reserves_oci_assurances.json",
+                "datasets/dividendes_bvc.json")},
             "synthese": synthese, "titres": titres}
 
 

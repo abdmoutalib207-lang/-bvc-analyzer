@@ -345,6 +345,10 @@ FAMILLES_ROE_HORS_OCI = ("assurance",)
 
 SEUIL_RESIDU_FP = 0.05      # résidu de fonds propres (hors résultat) au-delà duquel la moyenne est écartée
 SEUIL_APPORT_FP = 0.05      # apport frais d'une opération sur le capital en deçà duquel elle est non significative
+SEUIL_EXCEPTIONNEL_FP = 0.05  # dividende exceptionnel à partir duquel la moyenne simple est étiquetée
+COUVERTURE_CAUSE = (0.5, 1.5)  # une cause sur pièce explique le résidu si elle en couvre 50 % à 150 %
+MARGE_PALIER_ROE = 0.5      # drapeau « proche d'un palier de note » : à moins de 0,5 point d'une frontière
+_ECARTS_PALIERS_ROE = (-3, 0, 2, 5, 10, 15)   # frontières de `note_ecart_rentabilite`, écart à la référence
 
 
 def _chiffres(x) -> str:
@@ -400,27 +404,159 @@ def _meme_etat(cp24f: dict, cp25f: dict) -> bool:
     return cp24f.get("page") is not None and cp24f.get("page") == cp25f.get("page")
 
 
-def _controle_moyenne(sym, r25, rn, cp24f, cp25f, exercice, oci25: float = 0.0, oci24: float = 0.0) -> dict:
+def _dividende_exercice(sym: str, faits: dict | None, exercice: int, calendrier: dict | None) -> dict | None:
+    """Le dividende D versé dans l'exercice, en MMAD, AVEC sa pièce — ou None s'il n'est pas connu.
+
+    Deux origines, dans cet ordre :
+      1. `bvc_config.DIVIDENDES_VERSES_TABLEAU` : la ligne « Dividendes » du tableau de variation des
+         capitaux propres consolidés (part du groupe), page citée. Elle prime : c'est ce qui est sorti
+         des fonds propres, y compris un dividende d'avant la cotation (SGTM) ou d'avant un split (MNG).
+      2. le calendrier `datasets/dividendes_bvc.json` × `nombre_actions_au_rapport` : les montants
+         PAYÉS dans l'année civile de l'exercice, tels que versés (`montant`, pas le montant ajusté du
+         split, qui est un montant par action d'aujourd'hui). Un titre PRÉSENT au calendrier sans
+         versement dans l'exercice a D = 0 ; un titre ABSENT du calendrier, ou sans nombre d'actions,
+         a un D INCONNU (None) : le silence d'un calendrier n'est pas une preuve de non-versement.
+
+    ⚠️ Limite : un dividende versé avant la cotation n'est pas au calendrier (SGTM le montre) ; seul le
+    tableau de variation l'établit. Le calendrier ignore aussi un nombre d'actions qui a varié dans
+    l'exercice (opérations du registre : TGCC, SOT, CIH, CASH, VCNE jugées avant ce test).
+
+    {"mmad", "origine": "tableau_variation" | "calendrier", "source", "page", "calendrier_mmad",
+     "exceptionnels": [{"par_action", "paiement", "mmad"}]}"""
+    from bvc_config import DIVIDENDES_VERSES_TABLEAU
+    F = (faits or {}).get("faits") or {}
+    n = _num((F.get("nombre_actions_au_rapport") or {}).get("valeur"))
+    paiements = []
+    if calendrier is not None and sym in calendrier:
+        paiements = [x for x in calendrier[sym]
+                     if str(x.get("paiement") or x.get("detachement") or "")[:4] == str(exercice)]
+    cal_mmad = None
+    if calendrier is not None and sym in calendrier:
+        if not paiements:
+            cal_mmad = 0.0
+        elif n is not None:
+            cal_mmad = round(sum(float(x["montant"]) for x in paiements) * n / 1e6, 3)
+    exceptionnels = []
+    if n is not None:
+        exceptionnels = [{"par_action": float(x["montant"]), "paiement": x.get("paiement"),
+                          "mmad": round(float(x["montant"]) * n / 1e6, 3)}
+                         for x in paiements if str(x.get("type") or "").lower().startswith("exception")]
+    tab = DIVIDENDES_VERSES_TABLEAU.get(sym)
+    if tab and tab.get("exercice") == exercice:
+        return {"mmad": float(tab["montant_mmad"]), "origine": "tableau_variation", "source": tab["source"],
+                "page": tab.get("page"), "calendrier_mmad": cal_mmad, "exceptionnels": exceptionnels}
+    if cal_mmad is None:
+        return None
+    return {"mmad": cal_mmad, "origine": "calendrier",
+            "source": ("datasets/dividendes_bvc.json (versements de l'année " + str(exercice) + ") × "
+                       + (f"{n:g} actions (faits_financiers.json › nombre_actions_au_rapport)" if paiements
+                          else "— aucun versement recensé dans l'exercice")),
+            "page": None, "calendrier_mmad": cal_mmad, "exceptionnels": exceptionnels}
+
+
+def _moyenne_ponderee_exceptionnel(rn: float, cp24: float, cp25: float, exc: dict, exercice: int) -> float | None:
+    """ROE sur fonds propres moyens PONDÉRÉS du temps, quand UN dividende exceptionnel a été versé en
+    cours d'année. INDICATIF : jamais appliqué à la note. Avant le versement, les fonds propres vont de
+    FP2024 à FP2025 + D (la valeur d'avant le versement) ; après, ils valent FP2025. Pondération par
+    le nombre de jours : (FP24 + FP25 + D)/2 × (365 − j)/365 + FP25 × j/365, j = jours restants."""
+    from datetime import date
+    try:
+        y, m, d = (int(x) for x in str(exc["paiement"])[:10].split("-"))
+        j = (date(exercice, 12, 31) - date(y, m, d)).days
+    except (KeyError, ValueError, TypeError):
+        return None
+    if not 0 <= j <= 365:
+        return None
+    fp = (cp24 + cp25 + exc["mmad"]) / 2 * (365 - j) / 365 + cp25 * j / 365
+    return round(rn / fp * 100, 2) if fp > 0 else None
+
+
+def _etiquette_exceptionnel(trace: dict, rn, cp24, cp25, dividende: dict | None, exercice: int) -> dict | None:
+    """L'étiquette d'un dividende EXCEPTIONNEL significatif versé dans l'exercice, ou None.
+
+    Significatif = au moins `SEUIL_EXCEPTIONNEL_FP` des fonds propres 2024. La moyenne simple est
+    conservée (la convention ne change pas) ; la moyenne pondérée du temps est donnée à titre
+    INDICATIF, à côté, sans jamais entrer dans la note."""
+    if not dividende or not dividende.get("exceptionnels") or rn is None or not cp24 or cp24 <= 0:
+        return None
+    exc = [e for e in dividende["exceptionnels"] if e["mmad"] / cp24 >= SEUIL_EXCEPTIONNEL_FP]
+    if not exc:
+        return None
+    simple = trace.get("valeur_moyenne")
+    pondere = _moyenne_ponderee_exceptionnel(rn, cp24, cp25, exc[0], exercice) if len(exc) == 1 else None
+    quoi = " et ".join(f"{e['par_action']:g} DH payé le {_jj_mm_aaaa(e['paiement'])}" for e in exc)
+    total = f"{sum(e['mmad'] for e in exc):,.1f}".replace(",", " ").replace(".", ",")
+    txt = (f"dividende exceptionnel de {quoi} ({total} MMAD, "
+           + f"{sum(e['mmad'] for e in exc) / cp24:.0%} des fonds propres 2024) : moyenne simple "
+           + (f"{simple:.2f} %".replace(".", ",") if simple is not None else "n.d.")
+           + (f", pondérée ≈ {pondere:.1f} %".replace(".", ",") if pondere is not None else "")
+           + " — la pondérée est INDICATIVE, la note lit la moyenne simple")
+    return {"etiquette": txt, "exceptionnels": exc, "roe_moyenne_simple": simple, "roe_moyenne_ponderee_indicatif": pondere}
+
+
+def _n(x) -> str:
+    """Un montant en MMAD à pleine précision (3 décimales au plus, zéros inutiles retirés), pour une
+    formule que l'on recalcule à la main : `:g` arrondirait à 6 chiffres significatifs."""
+    return f"{float(x):.3f}".rstrip("0").rstrip(".")
+
+
+def _jj_mm_aaaa(iso) -> str:
+    s = str(iso or "")[:10]
+    return f"{s[8:10]}/{s[5:7]}/{s[:4]}" if len(s) == 10 else s
+
+
+def _frontiere_roe(valeur: float) -> dict | None:
+    """Le palier de note de rentabilité le plus proche, s'il est à moins de `MARGE_PALIER_ROE` points.
+
+    La note de rentabilité est une grille à paliers (`note_ecart_rentabilite`) : un ROE à 0,35 point
+    d'une frontière peut changer de note sur une révision d'un chiffre, un arrondi ou le choix de
+    la convention. Le drapeau le dit AVANT que la note ne bascule."""
+    proche = min((COUT_FONDS_PROPRES_REF + s for s in _ECARTS_PALIERS_ROE),
+                 key=lambda seuil: abs(valeur - seuil))
+    ecart = round(valeur - proche, 2)
+    if abs(ecart) > MARGE_PALIER_ROE:
+        return None
+    haut = note_ecart_rentabilite(proche, COUT_FONDS_PROPRES_REF)
+    bas = note_ecart_rentabilite(proche - 0.001, COUT_FONDS_PROPRES_REF)
+    return {"seuil": proche, "ecart_points": ecart, "cote": "au-dessus" if ecart >= 0 else "en dessous",
+            "note_au_dessus": haut, "note_en_dessous": bas,
+            "etiquette": (f"à {abs(ecart):.2f} point du seuil de {proche:g} % ({'au-dessus' if ecart >= 0 else 'en dessous'} ; "
+                          f"la note de rentabilité passe de {haut:g} à {bas:g} de l'autre côté)").replace(".", ",")}
+
+
+def _controle_moyenne(sym, r25, rn, cp24f, cp25f, exercice, oci25: float = 0.0, oci24: float = 0.0,
+                      dividende: dict | None = None) -> dict:
     """Verdict de la moyenne des fonds propres. Pure.
 
-    {"code": None | motif, "motif": texte, "residu_mmad", "residu_pct", "operation": entrée du
-    registre ou None, "non_significative": bool}. `code` None = la moyenne s'applique.
+    {"code": None | motif, "motif": texte, "residu_mmad", "residu_pct" (AVANT dividende),
+    "residu_apres_dividende_mmad/pct", "dividende", "cause", "operation": entrée du registre ou None,
+    "non_significative": bool}. `code` None = la moyenne s'applique.
     Les codes : fonds_propres_non_positifs, base_non_confirmee, bases_contradictoires,
-    numerateur_non_reproduit, registre_operation_capital, residu_non_explique.
+    numerateur_non_reproduit, registre_operation_capital, residu_cause_sur_piece, residu_non_explique.
+
+    RÉSIDU APRÈS DIVIDENDE (14/10/2026). R = FP2025 − FP2024 − RNPG2025 contient le dividende versé
+    (négatif) : une banque qui distribue 50 % de son résultat montre un R de −5 à −15 %, normal. Le test
+    porte donc sur R + D (D = dividende de l'exercice, `_dividende_exercice`, avec sa pièce) :
+    |R + D| > 5 % des fonds propres 2024 = un mouvement de fonds propres qui n'est NI du résultat NI
+    un dividende, dans les DEUX sens (une perte de périmètre ou un retraitement écarte la moyenne
+    comme un apport de capital). La cause, quand le rapport la nomme, est portée au registre
+    `CAUSES_RESIDU_FONDS_PROPRES` (code `residu_cause_sur_piece`) ; sinon l'étiquette dit « non
+    expliqué ». Quand D est INCONNU, le test historique reste en vigueur — résidu POSITIF > 5 % seul —
+    et le verdict le dit (`dividende` = None, mention dans `motif` et dans la base).
     """
-    from bvc_config import OPERATIONS_SUR_CAPITAL
+    from bvc_config import CAUSES_RESIDU_FONDS_PROPRES, OPERATIONS_SUR_CAPITAL
     # Fonds propres HORS OCI pour une assurance (`oci25` = `oci24` = 0 ailleurs) : positivité, apport
     # frais et résidu se jugent sur ces fonds propres ; « même état » et reproduction du ROE publié
     # se jugent sur les montants imprimés.
     cp24, cp25 = cp24f["valeur"] - oci24, cp25f["valeur"] - oci25
     r = {"code": None, "motif": None, "residu_mmad": None, "residu_pct": None, "operation": None,
-         "non_significative": False}
+         "non_significative": False, "dividende": None, "residu_apres_dividende_mmad": None,
+         "residu_apres_dividende_pct": None, "cause": None}
     if cp24 <= 0 or cp25 <= 0:
         return r | {"code": "fonds_propres_non_positifs",
                     "motif": f"fonds propres négatifs ou nuls ({cp24:g} ; {cp25:g})"}
-    # Résidu de fonds propres hors résultat : R = FP2025 − FP2024 − RNPG2025. Un résidu POSITIF
-    # important dit qu'il est entré des fonds propres qui ne sont pas du résultat (capital,
-    # gains latents) ; un résidu négatif est une distribution, normale et non retenue.
+    # Résidu de fonds propres hors résultat : R = FP2025 − FP2024 − RNPG2025. Il contient le dividende
+    # (négatif) : le verdict porte sur R + D (voir la docstring), pas sur R.
     resid = cp25 - cp24 - rn
     r["residu_mmad"], r["residu_pct"] = round(resid, 3), round(resid / cp24 * 100, 2)
     if not _meme_etat(cp24f, cp25f):
@@ -451,12 +587,41 @@ def _controle_moyenne(sym, r25, rn, cp24f, cp25f, exercice, oci25: float = 0.0, 
                         "motif": "opération sur le capital dans l'exercice (registre) : " + op["nature"]
                                  + (f" — apport frais {apport:g} MMAD = {apport / cp24:.1%} des fonds propres 2024"
                                     if apport is not None else " — apport frais non relevé")}
-    if resid / cp24 > SEUIL_RESIDU_FP:
-        return r | {"code": "residu_non_explique",
-                    "motif": (f"mouvement de fonds propres hors résultat non expliqué : résidu R = FP2025 − FP2024 − "
-                              f"RNPG2025 = {resid:g} MMAD, +{resid / cp24:.1%} des fonds propres 2024 "
-                              f"(seuil {SEUIL_RESIDU_FP:.0%}), cause absente du registre")}
-    return r
+    if dividende is None:
+        # D inconnu : on ne peut pas dire si un résidu négatif est un dividende. Le test d'avant (résidu
+        # POSITIF seul : il est entré des fonds propres qui ne sont pas du résultat) est conservé, et dit.
+        r["dividende"] = None
+        if resid / cp24 > SEUIL_RESIDU_FP:
+            return r | {"code": "residu_non_explique",
+                        "motif": (f"mouvement de fonds propres hors résultat non expliqué : résidu R = FP2025 − FP2024 − "
+                                  f"RNPG2025 = {resid:g} MMAD, +{resid / cp24:.1%} des fonds propres 2024 "
+                                  f"(seuil {SEUIL_RESIDU_FP:.0%}), cause absente du registre ; dividende de l'exercice "
+                                  f"non relevé : test limité au résidu positif")}
+        return r
+    apres = resid + dividende["mmad"]
+    r["dividende"] = dividende
+    r["residu_apres_dividende_mmad"], r["residu_apres_dividende_pct"] = round(apres, 3), round(apres / cp24 * 100, 2)
+    if abs(apres) / cp24 <= SEUIL_RESIDU_FP:
+        return r
+    cause = CAUSES_RESIDU_FONDS_PROPRES.get(sym)
+    couverture = (cause["montant_mmad"] / apres) if cause and cause.get("exercice") == exercice else None
+    detail = (f"résidu après dividende R + D = {resid:g} + {dividende['mmad']:g} = {apres:g} MMAD, "
+              f"{apres / cp24:+.1%} des fonds propres 2024 (seuil ±{SEUIL_RESIDU_FP:.0%} ; dividende "
+              f"{dividende['origine'].replace('_', ' ')}"
+              + (f", p.{dividende['page']}" if dividende.get("page") else "") + ")")
+    if couverture is not None and COUVERTURE_CAUSE[0] <= couverture <= COUVERTURE_CAUSE[1]:
+        r["cause"] = cause | {"couverture": round(couverture, 3)}
+        return r | {"code": "residu_cause_sur_piece",
+                    "motif": (f"mouvement de fonds propres hors résultat et hors dividende, cause portée sur pièce : "
+                              f"{cause['libelle']} {cause['montant_mmad']:g} MMAD (p.{cause['page']}), "
+                              f"{couverture:.0%} du résidu — {detail}")}
+    if couverture is not None:
+        r["cause"] = cause | {"couverture": round(couverture, 3)}
+    return r | {"code": "residu_non_explique",
+                "motif": ("mouvement hors résultat et hors dividende non expliqué : " + detail
+                          + (f" ; la cause inscrite au registre ({cause['libelle']} {cause['montant_mmad']:g} MMAD) ne couvre "
+                             f"que {couverture:.0%} du résidu, elle ne l'explique pas" if couverture is not None else
+                             " ; cause absente du registre"))}
 
 
 def _reserves_oci(sym: str, oci: dict | None) -> dict:
@@ -478,7 +643,7 @@ def _reserves_oci(sym: str, oci: dict | None) -> dict:
                        "etats": {"2025": o25["etat"], "2024": o24["etat"]}}}
 
 
-def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True, oci=None) -> dict | None:
+def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True, oci=None, dividendes=None) -> dict | None:
     """ROE de l'EXERCICE 2025 — la convention unique (règle 5).
 
     Passe par `roe_effectif` (AFM/AGM sans objet, MSA en vérification).
@@ -493,6 +658,22 @@ def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True, oci=None) -> dict | None
     ASSURANCES (`FAMILLES_ROE_HORS_OCI`) : les fonds propres sont pris MOINS la réserve OCI,
     en 2024 comme en 2025 (voir la constante) ; le résidu aussi. Sans réserve relevée sur
     pièce, le ROE reste AVEC OCI, étiqueté « OCI non relevé ».
+
+    ⚠️ ATL et WAF NE SE COMPARENT PAS TERME À TERME. ATL (Atlanta-Sanad) publie en NORMES MAROCAINES :
+    ses plus-values latentes sur placements sont HORS BILAN (annexes), la réserve OCI est nulle parce
+    qu'il n'existe pas de compte de gains latents aux fonds propres. WAF (Wafa Assurance) publie en
+    IFRS 17 / IFRS 9 : les placements en juste valeur par OCI alimentent une réserve consolidée
+    (4,7 MMAD de gains latents en 2025). Retrancher l'OCI de WAF et rien chez ATL met les deux sur la
+    même définition des fonds propres COMPTABLES hors gains latents, mais PAS sur la même réalité
+    économique : les plus-values latentes d'ATL existent, elles sont ailleurs. L'OCI d'assurance
+    consolidé d'ATW (Attijariwafa, banque-assurance) RESTE INCLUS : la règle se limite à la famille
+    « assurance » (`FAMILLES_ROE_HORS_OCI`). Le livrable porte la même note.
+
+    DIVIDENDE (14/10/2026). Le verdict de la moyenne porte sur le résidu APRÈS dividende (voir
+    `_controle_moyenne`). Un dividende EXCEPTIONNEL de plus de 5 % des fonds propres 2024 versé dans
+    l'année fausse la moyenne simple (les fonds propres moyens de l'année sont plus bas que la moyenne
+    des deux clôtures) : la moyenne simple est conservée MAIS étiquetée, avec la moyenne pondérée du
+    temps à titre INDICATIF (TMA : 67 DH le 11/12/2025, moyenne simple 35,98 %, pondérée ≈ 32,4 %).
 
     TRAÇABILITÉ : `valeur_cloture_publiee` (ROE publié, arrondi à 0,1, avec OCI),
     `valeur_cloture_non_arrondie` (RNPG ÷ fonds propres 2025 sur la base retenue, sans arrondi —
@@ -552,30 +733,49 @@ def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True, oci=None) -> dict | None
                       "fonds propres 31/12/2025 non relevés" if cp25f is None else "RNPG 2025 non relevé")
             motif, genre = manque, "cloture_moyenne_indisponible"
         else:
-            ctl = _controle_moyenne(sym, r25, rn, cp24f, cp25f, faits.get("exercice") or 2025, o25, o24)
-            trace |= {"residu_mmad": ctl["residu_mmad"], "residu_pct": ctl["residu_pct"], "moyenne_code": ctl["code"]}
+            exercice = faits.get("exercice") or 2025
+            div = _dividende_exercice(sym, faits, exercice, dividendes)
+            ctl = _controle_moyenne(sym, r25, rn, cp24f, cp25f, exercice, o25, o24, div)
+            trace |= {"residu_mmad": ctl["residu_mmad"], "residu_pct": ctl["residu_pct"], "moyenne_code": ctl["code"],
+                      "residu_apres_dividende_mmad": ctl["residu_apres_dividende_mmad"],
+                      "residu_apres_dividende_pct": ctl["residu_apres_dividende_pct"],
+                      "dividende": div, "cause_residu": ctl["cause"]}
             motif = ctl["motif"]
             genre = "cloture_moyenne_ecartee" if ctl["code"] else "moyenne"
+        div_inconnu = (" ; dividende de l'exercice non relevé : résidu jugé sur son seul sens positif"
+                       if moyenne and cp24f is not None and cp25f is not None and rn is not None
+                       and trace.get("dividende") is None else "")
         if genre == "moyenne":
             cp24, cp25 = cp24f["valeur"], cp25f["valeur"]
             non_signif = (" ; opération sur le capital de l'exercice NON SIGNIFICATIVE (apport frais ≤ "
                           f"{SEUIL_APPORT_FP:.0%} des fonds propres 2024), moyenne conservée" if ctl["non_significative"] else "")
-            return trace | {
+            exc = _etiquette_exceptionnel(trace, rn, cp24x, cp25x, trace.get("dividende"), faits.get("exercice") or 2025)
+            trace |= {"dividende_exceptionnel": exc,
+                      "formule": (f"{_n(rn)} ÷ moyenne({_n(cp24)}" + (f" − {_n(o24)}" if hors_oci else "") + f" ; {_n(cp25)}"
+                                  + (f" − {_n(o25)}" if hors_oci else "") + ")")}
+            out = trace | {
                 "etat": PRESENT, "valeur": trace["valeur_moyenne"], "convention": genre,
                 "base": (f"RNPG 2025 {rn:g} ÷ MOYENNE des fonds propres part du groupe (31/12/2024 {cp24:g} ; "
-                         f"31/12/2025 {cp25:g}), même état financier{suffixe_oci}{non_signif}"),
+                         f"31/12/2025 {cp25:g}), même état financier{suffixe_oci}{non_signif}{div_inconnu}"
+                         + (f" — {exc['etiquette']}" if exc else "")),
                 "periode": "exercice 2025",
                 "source": src | {"fonds_propres_2024": (f"{cp24f['origine']} › fonds propres 31/12/2024"
                                                         + (f" (p.{cp24f['page']})" if cp24f.get("page") else "")),
                                  "rnpg_2025": "datasets/resultats_s1_2026.json › rnpg_exercice_2025"}
                           | ({"reserve_oci": ro["pieces"]} if hors_oci else {}),
                 "moyenne_ecartee": None}
-        etiquette = "moyenne écartée" if genre == "cloture_moyenne_ecartee" else "moyenne indisponible"
-        valeur_cloture = trace["valeur_cloture_non_arrondie"] if hors_oci and trace["valeur_cloture_non_arrondie"] is not None else r25["valeur"]
-        return trace | {"etat": PRESENT, "valeur": round(valeur_cloture, 2) if hors_oci else valeur_cloture, "convention": genre,
-                        "base": f"{base_cloture} ({etiquette} : {motif}){suffixe_oci}", "periode": "exercice 2025",
-                        "source": src | ({"reserve_oci": ro["pieces"]} if hors_oci else {}),
-                        "moyenne_ecartee": motif}
+        else:
+            etiquette = "moyenne écartée" if genre == "cloture_moyenne_ecartee" else "moyenne indisponible"
+            valeur_cloture = trace["valeur_cloture_non_arrondie"] if hors_oci and trace["valeur_cloture_non_arrondie"] is not None else r25["valeur"]
+            trace |= {"dividende_exceptionnel": None,
+                      "formule": (f"{_n(rn)} ÷ ({_n(cp25f['valeur'])}" + (f" − {_n(o25)}" if hors_oci else "") + ")"
+                                  if rn is not None and cp25f else None)}
+            out = trace | {"etat": PRESENT, "valeur": round(valeur_cloture, 2) if hors_oci else valeur_cloture, "convention": genre,
+                           "base": f"{base_cloture} ({etiquette} : {motif}){suffixe_oci}", "periode": "exercice 2025",
+                           "source": src | ({"reserve_oci": ro["pieces"]} if hors_oci else {}),
+                           "moyenne_ecartee": motif}
+        front = _frontiere_roe(out["valeur"])
+        return out | {"frontiere_palier": front}
     r12 = _publie_complet(fiche, sym, "roe_12m")
     if r12 is not None:
         return {"etat": REMPLACEMENT, "valeur": r12["valeur"], "convention": "remplacement_12m",
@@ -633,7 +833,8 @@ def _ve_ebitda(sym, fiche, bpa, s1, faits, px) -> dict:
 def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict | None,
                       faits: dict | None, prix: float | None, pb: float | None, *,
                       sans_comptes: bool = False, suspendu: bool = False,
-                      roe_moyenne: bool = True, oci: dict | None = None) -> dict:
+                      roe_moyenne: bool = True, oci: dict | None = None,
+                      dividendes: dict | None = None) -> dict:
     """Tout ce que la note lit pour UN titre, rassemblé, daté et sourcé. Pure.
 
     `roe_moyenne=False` force le ROE sur la clôture (mesure de l'effet de la
@@ -674,7 +875,7 @@ def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict |
         "per": round(px / b12, 2) if px and b12 and b12 > 0 else None,
         "pb": _num(pb) if pb and pb > 0 else None,
         "ve": _ve_ebitda(sym, fiche, bpa, s1, faits, px),
-        "roe": _roe(sym, fiche, bpa, s1, faits, roe_moyenne, oci),
+        "roe": _roe(sym, fiche, bpa, s1, faits, roe_moyenne, oci, dividendes),
         "roic": _publie_complet(fiche, sym, "roic"),
         "dne": _publie_complet(fiche, sym, "dette_nette_ebitda"),
         "cc": _publie_complet(fiche, sym, "cash_conversion"),
@@ -843,7 +1044,8 @@ def _poser_roe(poser, roe, nom, remplacement_roic=False):
     poser(nom, ZERO if roe["valeur"] == 0 and etat == PRESENT else etat, valeur=roe["valeur"],
           mesure=f"ROE {roe['valeur']:g} % — {base}", periode=roe["periode"], base=base,
           source=roe["source"], note=note_ecart_rentabilite(roe["valeur"], COUT_FONDS_PROPRES_REF),
-          convention=roe.get("convention"), moyenne_ecartee=roe.get("moyenne_ecartee"))
+          convention=roe.get("convention"), moyenne_ecartee=roe.get("moyenne_ecartee"),
+          formule=roe.get("formule"), drapeau_palier=(roe.get("frontiere_palier") or {}).get("etiquette"))
 
 
 def _ref_dict(det, lib):
@@ -1024,12 +1226,12 @@ def detail_publie(r: dict | None) -> dict | None:
 
 def noter_univers(titres, prix: dict, pb: dict, fondamentaux: dict, bpa: dict,
                   s1: dict, faits: dict, sans_comptes=(), suspendus=(), roe_moyenne: bool = True,
-                  oci: dict | None = None) -> dict:
+                  oci: dict | None = None, dividendes: dict | None = None) -> dict:
     """{sym: résultat de `noter`} pour tous les `titres`. Pure."""
     entrees = [construire_entree(
         s, fondamentaux.get(s), bpa.get(s), s1.get(s), faits.get(s), prix.get(s), pb.get(s),
         sans_comptes=s in sans_comptes, suspendu=s in suspendus, roe_moyenne=roe_moyenne,
-        oci=oci) for s in titres]
+        oci=oci, dividendes=dividendes) for s in titres]
     med = calculer_medianes(entrees)
     return {e["sym"]: noter(e, med) | {"entree": e} for e in entrees}
 
@@ -1041,7 +1243,11 @@ def charger_sources(racine: Path = RACINE) -> dict:
     return {"fondamentaux": lire("fondamentaux.json"), "bpa": lire("bpa.json"),
             "s1": lire("datasets/resultats_s1_2026.json").get("titres", {}),
             "faits": lire("pipeline/faits_financiers.json"),
-            "oci": lire("datasets/reserves_oci_assurances.json").get("titres", {})}
+            "oci": lire("datasets/reserves_oci_assurances.json").get("titres", {}),
+            # Calendrier des dividendes (D du résidu de fonds propres) : un fichier absent ne coupe pas la
+            # note, D devient INCONNU et l'ancien test du résidu s'applique, étiqueté.
+            "dividendes": (lire("datasets/dividendes_bvc.json").get("dividendes")
+                           if (racine / "datasets/dividendes_bvc.json").exists() else None)}
 
 
 # ───────────────────── plancher : panne des SOURCES seulement ─────────────────────
@@ -1126,7 +1332,7 @@ def noter_depuis_fichiers(prix_surcharge: dict | None = None, racine: Path = RAC
         src["fondamentaux"], src["bpa"], src["s1"], src["faits"],
         sans_comptes=set(SANS_COMPTES),
         suspendus={s for s in TICKERS_ALL if est_suspendu(s)}, roe_moyenne=roe_moyenne,
-        oci=src["oci"])
+        oci=src["oci"], dividendes=src["dividendes"])
 
 
 def main() -> int:

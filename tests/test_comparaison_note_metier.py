@@ -130,7 +130,7 @@ def test_les_motifs_d_ecartement_sont_comptes_par_code_et_exactement():
     }
     assert cm.compter_motifs(roes) == {
         "opération sur le capital (registre OPERATIONS_SUR_CAPITAL)": 2,
-        "mouvement de fonds propres hors résultat non expliqué (résidu R > +5 %)": 1,
+        cm._LIBELLE_CODE["residu_non_explique"]: 1,
         "base 2024 non confirmée identique": 1}
     # Et un motif texte « opération sur le capital » côté résidu ne fausse plus rien :
     roes["C"]["moyenne_ecartee"] = "… (opération sur le capital, distribution ou résultat)"
@@ -147,8 +147,8 @@ def test_les_comptes_reels_par_motif_sont_exacts(comparaison):
     assert sum(e["moyenne_ecartee_par_motif"].values()) == e["titres_sur_cloture_moyenne_ecartee"] == sum(reel.values())
     assert e["moyenne_ecartee_par_motif"].get("opération sur le capital (registre OPERATIONS_SUR_CAPITAL)", 0) == \
         reel.get("registre_operation_capital", 0)
-    assert e["moyenne_ecartee_par_motif"].get(
-        "mouvement de fonds propres hors résultat non expliqué (résidu R > +5 %)", 0) == reel.get("residu_non_explique", 0)
+    for code in ("residu_non_explique", "residu_cause_sur_piece"):
+        assert e["moyenne_ecartee_par_motif"].get(cm._LIBELLE_CODE[code], 0) == reel.get(code, 0), code
 
 
 def test_chaque_titre_avec_roe_d_exercice_porte_sa_tracabilite(comparaison):
@@ -184,3 +184,68 @@ def test_assurances_roe_hors_gains_latents(comparaison):
     assert "p.140" in a["pieces"]["2025"] and "p.16" in w["pieces"]["2025"]
     s = oci["SAF"]
     assert s["oci"] == "pas de ROE d'exercice" and s["roe_retenu"] is None, "SAF : aucun ROE, rien d'estimé"
+
+
+# ── seconde contre-vérification du 14/10/2026 : résidu après dividende, TMA, WAF, ATL ──
+
+def test_le_livrable_liste_les_titres_qui_changent_de_convention(comparaison):
+    ch = comparaison["synthese"]["changements_de_convention_du_residu_apres_dividende"]
+    assert ch["nombre"] == len(ch["detail"])
+    for s, x in ch["detail"].items():
+        assert x["avant"] != x["apres"] and x["roe_avant"] is not None and x["roe_apres"] is not None, s
+        assert x["residu_apres_dividende_pct"] is not None and x["motif"], s
+    # CTM et BCP passent de la moyenne à la clôture : leur résidu après dividende dépasse 5 %.
+    for s in ("CTM", "BCP"):
+        assert ch["detail"][s]["avant"] == "moyenne" and ch["detail"][s]["apres"] == "cloture_moyenne_ecartee", s
+        assert abs(ch["detail"][s]["residu_apres_dividende_pct"]) > 5
+    assert ch["detail"]["CTM"]["residu_apres_dividende_pct"] == pytest.approx(-39.58, abs=0.01)
+    assert ch["detail"]["BCP"]["residu_apres_dividende_pct"] == pytest.approx(-6.58, abs=0.01)
+    # TMA ne change pas : son résidu après dividende est nul.
+    assert "TMA" not in ch["detail"]
+
+
+def test_le_rejeu_de_l_ancien_test_est_fidele():
+    # Résidu avant dividende > +5 % : écartée ; négatif ou faible : moyenne ; autres codes inchangés.
+    base = {"convention": "moyenne", "valeur": 20.0, "valeur_moyenne": 20.0, "valeur_cloture_publiee": 18.0,
+            "moyenne_code": None, "residu_pct": -50.0}
+    assert cm._roe_selon_ancien_test(base) == ("moyenne", 20.0)
+    assert cm._roe_selon_ancien_test(base | {"residu_pct": 5.1}) == ("cloture_moyenne_ecartee", 18.0)
+    assert cm._roe_selon_ancien_test(base | {"residu_pct": 5.0}) == ("moyenne", 20.0)
+    reg = base | {"convention": "cloture_moyenne_ecartee", "valeur": 18.0, "moyenne_code": "registre_operation_capital",
+                  "residu_pct": 40.0}
+    assert cm._roe_selon_ancien_test(reg) == ("cloture_moyenne_ecartee", 18.0)
+
+
+def test_le_livrable_porte_le_residu_apres_dividende_et_les_dividendes_inconnus(comparaison):
+    b = comparaison["synthese"]["residu_apres_dividende"]
+    assert "|R + D| > 5 %" in b["regle"] and b["titres_examines"] == len(b["detail"])
+    for s in b["dividende_inconnu"]:
+        assert b["detail"][s]["dividende_mmad"] is None and b["detail"][s]["residu_apres_dividende_pct"] is None
+    assert {"CTM", "BCP"} <= set(b["ecartes_par_le_residu"])
+    for s, x in b["detail"].items():
+        if x["dividende_mmad"] is not None:
+            assert x["dividende_origine"] in ("tableau_variation", "calendrier"), s
+    ex = comparaison["synthese"]["roe_d_exercice_par_titre"]
+    for s in ("CTM", "BCP"):
+        assert ex[s]["cause_residu_sur_piece"]["page"] in (68, 12) and ex[s]["dividende_exercice"]["page"] in (68, 12)
+
+
+def test_le_livrable_etiquette_tma_et_signale_waf(comparaison):
+    s = comparaison["synthese"]
+    assert "dividende exceptionnel de 67 DH payé le 11/12/2025" in s["dividendes_exceptionnels_dans_l_exercice"]["TMA"]["etiquette"]
+    assert s["roe_d_exercice_par_titre"]["TMA"]["convention"] == "moyenne"
+    w = s["roe_a_moins_de_0_5_point_d_un_palier"]["WAF"]
+    assert w["seuil"] == 10.0 and w["ecart_points"] == 0.35 and "à 0,35 point du seuil de 10 %" in w["etiquette"]
+    assert w["formule"] == "1026.036 ÷ moyenne(12566.785 − 2950.462 ; 14960.337 − 4747.429)"
+
+
+def test_le_livrable_documente_atl_waf_atw(comparaison):
+    doc = " ".join(comparaison["synthese"]["assurances_documentation"])
+    for mot in ("IFRS 17", "NORMES MAROCAINES", "HORS BILAN", "terme à terme", "ATW", "INCLUS"):
+        assert mot in doc, mot
+    assert "ATW" not in comparaison["synthese"]["assurances_roe_hors_gains_latents_oci"]      # banque : hors règle
+
+
+def test_le_livrable_empreinte_ses_deux_nouvelles_entrees(comparaison):
+    emp = comparaison["empreintes_sha256"]
+    assert "datasets/dividendes_bvc.json" in emp and "datasets/reserves_oci_assurances.json" in emp

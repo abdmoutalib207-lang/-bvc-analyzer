@@ -856,10 +856,21 @@ OPERATIONS_SUR_CAPITAL: dict = {
              "nature": "introduction en bourse : division du titre puis augmentation de capital (capital "
                        "54 250 → 245 531 KMAD), toutes deux avant la clôture",
              "source": "Cash Plus RFA 2025 (capital au 31/12/2025 : 24 553 090 actions) ; faits_financiers.json › CASH"},
-    "CIH": {"exercice": 2025, "date": None, "apport_frais_mmad": 1680.619,
-            "nature": "opérations sur le capital de l'exercice : 1 680,619 MMAD en part du groupe",
-            "source": "CIH Bank RFA 2025 p.26 (tableau de variation des capitaux propres) ; "
-                      "datasets/resultats_s1_2026.json › CIH"},
+    # CIH — corrigé le 14/10/2026 (contre-vérification) : l'APPORT FRAIS de l'augmentation de capital en
+    # numéraire est de 1 500 MMAD (« augmentation de capital de 1,5 milliard de dirhams » p.79 ;
+    # « 4 108 341 nouvelles actions » p.181, avis d'émission) — pas 1 680,619. Ce dernier chiffre est la
+    # ligne « Opérations sur capital » du tableau de variation (p.26), part du groupe : capital +410,834,
+    # réserves +1 269,785. Il englobe l'augmentation en numéraire ET d'autres opérations sur capital de
+    # l'exercice (prime comprise, souscription du personnel) ; il est conservé SOUS UN AUTRE NOM,
+    # `operations_sur_capital_tableau_mmad`, et ne sert pas de seuil.
+    "CIH": {"exercice": 2025, "date": None, "apport_frais_mmad": 1500.0,
+            "operations_sur_capital_tableau_mmad": 1680.619,
+            "nature": "augmentation de capital en numéraire de 1,5 milliard de dirhams (4 108 341 actions "
+                      "nouvelles) ; le tableau de variation des fonds propres part du groupe porte 1 680,619 MMAD "
+                      "sur la ligne « Opérations sur capital »",
+            "source": "CIH Bank RFA 2025 p.79 (« augmentation de capital de 1,5 milliard de dirhams ») et p.181 "
+                      "(« émission de 4 108 341 nouvelles actions ») ; ligne « Opérations sur capital 1 680 619 » "
+                      "du tableau de variation des capitaux propres p.26 ; datasets/resultats_s1_2026.json › CIH"},
     # SGTM — examiné le 14/10/2026 (RFA 2025 p.88-89) : en juin 2025, 100 MMAD d'augmentation en
     # numéraire et 800 MMAD d'incorporation de réserves, SANS effet sur les fonds propres ; l'introduction en
     # bourse n'apporte rien aux fonds propres au 31/12/2025. Apport frais : 100 ÷ 2 619,799 = 3,8 % des
@@ -869,6 +880,61 @@ OPERATIONS_SUR_CAPITAL: dict = {
                        "(sans effet sur les fonds propres) ; capital 300 000 → 1 200 000 KMAD ; l'introduction "
                        "en bourse n'apporte rien aux fonds propres au 31/12/2025",
              "source": "SGTM RFA 2025 p.87 (capital) et p.88-89 (opérations) ; faits_financiers.json › SGTM"},
+}
+
+
+# ─────────────────── dividendes versés dans l'exercice, lus au tableau de variation ───────────────────
+# Le résidu de fonds propres R = FP2025 − FP2024 − RNPG2025 contient, en premier lieu, le dividende versé.
+# Le test de la moyenne porte sur le résidu APRÈS dividende : R + D. D se lit d'abord ICI, au tableau de
+# variation des capitaux propres consolidés (part du groupe), ligne « Dividendes » ; à défaut, au
+# calendrier `datasets/dividendes_bvc.json` × nombre d'actions au rapport (voir `fond_score_sectoriel.
+# _dividende_exercice`). Le tableau prime : il compte ce qui est réellement sorti des fonds propres
+# (dividende d'avant la cotation de SGTM, qu'aucun calendrier de la BVC ne connaît ; titres propres ;
+# split de MNG). Chaque entrée porte sa pièce et sa page.
+DIVIDENDES_VERSES_TABLEAU: dict = {
+    "CTM": {"exercice": 2025, "montant_mmad": 31.651, "page": 68,
+            "source": "CTM RFA 2025 p.68, capitaux propres consolidés au 31/12/2025 : « Dividendes versés - - (31 651) "
+                      "- (31 651) - (31 651) » KMAD (le flux de trésorerie de la même page porte (30 651) : le "
+                      "tableau de variation, lui, boucle exactement à 243 479)"},
+    "BCP": {"exercice": 2025, "montant_mmad": 2134.781, "page": 12,
+            "source": "BCP rapport financier 2025 p.12, tableau de variation des capitaux propres : « Dividendes "
+                      "-2 134 781 -2 134 781 123 273 -2 011 508 » KMAD (total part du groupe 2 134 781)"},
+    "MNG": {"exercice": 2025, "montant_mmad": 475.0, "page": 87,
+            "source": "Managem RFA 2025 p.87, variation des capitaux propres consolidés 2025 : « Dividendes "
+                      "distribués -475 -475 -62 -536 » MMAD (475 part du groupe ; 40 DH × 11 864 676 actions "
+                      "avant le split 10:1 du 27/07/2026 = 474,6)"},
+    "SGTM": {"exercice": 2025, "montant_mmad": 500.0, "page": 88,
+             "source": "SGTM RFA 2025 p.88, variation des capitaux propres consolidés : « Dividendes (500 000) "
+                       "(500 000) (500 000) » KMAD en 2025 — versé AVANT l'introduction en bourse, donc absent du "
+                       "calendrier de la BVC"},
+    "CIH": {"exercice": 2025, "montant_mmad": 440.953, "page": 26,
+            "source": "CIH Bank RFA 2025 p.26, tableau de variation des capitaux propres : « Dividendes -440 953 » "
+                      "KMAD part du groupe (-485 420 avec les minoritaires)"},
+}
+
+# ─────────────────── mouvements de fonds propres hors résultat, établis sur pièce ───────────────────
+# Quand le résidu APRÈS dividende dépasse 5 % des fonds propres 2024, la moyenne est écartée. Si le
+# rapport nomme la cause, elle est inscrite ici et l'étiquette dit « cause portée sur pièce » ; sinon
+# l'étiquette est « mouvement hors résultat et hors dividende non expliqué ». R11 : un fait se
+# constate sur pièce, il ne se déduit pas du chiffre. La cause doit COUVRIR le résidu (entre 50 % et
+# 150 % de R + D) ; sinon elle ne l'explique pas et l'étiquette reste « non expliqué ».
+CAUSES_RESIDU_FONDS_PROPRES: dict = {
+    "CTM": {"exercice": 2025, "montant_mmad": -144.434, "page": 68,
+            "libelle": "« Autres retraitements » de consolidation",
+            "source": "CTM RFA 2025 p.68, capitaux propres consolidés : « Autres retraitements - - (144 434) - (144 433) "
+                      "142 469 (1 963) » KMAD (réserves consolidées, part du groupe) ; boucle avec les « Distributions "
+                      "reçues » +999 KMAD : -31 651 + 56 204 + 999 - 144 433 = -118 881 = 243 479 - 362 360"},
+    "BCP": {"exercice": 2025, "montant_mmad": -2119.062, "page": 12,
+            "libelle": "« Variation de périmètre »",
+            "source": "BCP rapport financier 2025 p.12, tableau de variation des capitaux propres : « Variation de "
+                      "périmètre -2 106 834 -11 572 -656 -2 119 062 -7 207 -2 126 269 » KMAD (total part du groupe "
+                      "-2 119 062)"},
+    "MNG": {"exercice": 2025, "montant_mmad": -1747.0, "page": 87,
+            "libelle": "gains et pertes comptabilisés en capitaux propres (couverture de flux de trésorerie, écarts "
+                       "de conversion)",
+            "source": "Managem RFA 2025 p.87, variation des capitaux propres consolidés 2025 : « Résultat global total de "
+                      "l'année - -1 339 -408 3 002 1 255 » MMAD part du groupe, soit 1 255 - 3 002 = -1 747 (dont "
+                      "« Résultat couverture des flux de trésorerie -1 158 », « Pertes et profits de conversion -408 »)"},
 }
 
 
