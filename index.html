@@ -8270,7 +8270,8 @@ const VueSecteurs = ({
   }, W >= 480 ? "Surface : montant échangé. Couleur : médiane des variations des titres du secteur (vert hausse, rouge baisse, intensité jusqu'à ±4 %)." : "Barre : montant échangé. Chiffre de droite : médiane des variations des titres du secteur."));
 };
 const FourchetteMasi = ({
-  t
+  t,
+  enSeance
 }) => {
   const pts = [t.veille, t.ouverture, t.plus_haut, t.plus_bas, t.cloture].filter(x => x != null && isFinite(x));
   if (pts.length < 2) return null;
@@ -8281,7 +8282,7 @@ const FourchetteMasi = ({
     z = hi + m;
   const p = x => `${((x - a) / (z - a) * 100).toFixed(2)}%`;
   const cc = VARC(t.cloture != null && t.veille != null ? t.cloture - t.veille : null);
-  const reperes = [["Veille", t.veille, null, "tiret"], ["1re valeur calculée", t.ouverture, t.heure_ouverture, "rond"], ["Plus haut", t.plus_haut, t.heure_plus_haut, null], ["Plus bas", t.plus_bas, t.heure_plus_bas, null], ["Clôture", t.cloture, null, "losange"]];
+  const reperes = [["Veille", t.veille, null, "tiret"], ["1re valeur calculée", t.ouverture, t.heure_ouverture, "rond"], ["Plus haut", t.plus_haut, t.heure_plus_haut, null], ["Plus bas", t.plus_bas, t.heure_plus_bas, null], [enSeance ? "Dernière valeur" : "Clôture", t.cloture, null, "losange"]];
   const Marque = ({
     k,
     c
@@ -8312,7 +8313,7 @@ const FourchetteMasi = ({
   }) : null;
   return React.createElement("div", null, React.createElement("div", {
     role: "img",
-    "aria-label": `MASI : plus bas ${nfr(t.plus_bas)}, plus haut ${nfr(t.plus_haut)}, veille ${nfr(t.veille)}, clôture ${nfr(t.cloture)}`,
+    "aria-label": `MASI : plus bas ${nfr(t.plus_bas)}, plus haut ${nfr(t.plus_haut)}, veille ${nfr(t.veille)}, ${enSeance ? "dernière valeur" : "clôture"} ${nfr(t.cloture)}`,
     style: {
       position: "relative",
       height: 34,
@@ -8748,7 +8749,8 @@ const SeanceDetail = ({
     titre: "S\xE9ance du MASI \u2014 rep\xE8res",
     source: `${t.source} · ${jma(t.seance || b.seance)} · ${t.n_points} points de la série intrajournalière${t.serie_rejoint_cloture === false ? ` · série arrêtée à ${t.serie_jusqu_a} ; clôture et extrêmes tirés de la synthèse` : ""}. Repères seulement, pas la courbe.`
   }, React.createElement(FourchetteMasi, {
-    t: t
+    t: t,
+    enSeance: !!b.moment && b.moment !== "cloture"
   })), rel.ok && React.createElement(Panneau, {
     cls: "c6",
     titre: `Titres de la séance${filtre ? ` — ${filtre.lab}` : ""}`,

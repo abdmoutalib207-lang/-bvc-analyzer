@@ -40,6 +40,8 @@ au lieu de la combler : « non mesurable » est un résultat, pas un échec.
 
 from __future__ import annotations
 
+import re
+
 # ── Les seuils, et la raison de chacun ─────────────────────────────────────
 #
 # ⚠️ Aucun n'est un chiffre rond choisi pour sa forme. Chacun sépare deux
@@ -526,7 +528,7 @@ def _liste_titres(titres, n=10):
     return ", ".join(noms[:n]) + f" et {reste} autre{'s' if reste > 1 else ''}"
 
 
-def phrase_trajectoire(t: dict | None) -> str | None:
+def phrase_trajectoire(t: dict | None, en_seance: bool = False) -> str | None:
     """La séance de l'indice en une phrase. Fonction pure.
 
     ⚠️ CHAQUE MOT DÉCRIT UNE COMPARAISON DE NOMBRES, et rien d'autre :
@@ -602,7 +604,23 @@ def phrase_trajectoire(t: dict | None) -> str | None:
         pos = (c - b) / (h - b)
         P.append(f"La clôture se situe à {pos*100:.0f} % de l'amplitude de "
                  f"séance ({_fr(h - b)} points) en partant du plus bas.")
-    return " ".join(P)
+    texte = " ".join(P)
+    # ⚠️ 13/10/2026 : à mi-journée la phrase annonçait « clôture 17 175,05 »
+    # pour une séance close ensuite à 17 041,91. En séance, la dernière valeur
+    # n'est pas une clôture : on le dit, avec son heure. « Clôture de la
+    # veille » reste une clôture.
+    if en_seance:
+        # L'heure n'est donnée que si la série rejoint la valeur : sinon la
+        # valeur vient de la synthèse, plus récente que la fin de la série.
+        heure = t.get("serie_jusqu_a") if t.get("serie_rejoint_cloture") is not False else None
+        texte = texte.replace(f", clôture {_fr(c)} pour",
+                              f", dernière valeur relevée {_fr(c)}"
+                              + (f" ({heure})" if heure else "") + " pour")
+        texte = texte.replace("jusqu'à la clôture", "jusqu'ici")
+        texte = re.sub(r"\b([Ll])a clôture(?! de la veille)",
+                       lambda m: ("L" if m.group(1) == "L" else "l") + "a dernière valeur", texte)
+        texte = texte.replace("clôture et extrêmes", "dernière valeur et extrêmes")
+    return texte
 
 
 # ⚠️ 13/10/2026, demande d'Abd Moutalib : le nom de la société de bourse qui
@@ -846,6 +864,26 @@ def phrase_niveaux_titres(lst: list) -> str | None:
             + " ; ".join(morceaux) + ".")
 
 
+# ⚠️ 13/10/2026 — SECTEURS FIGÉS À LA VEILLE EN SÉANCE. Mesuré sur les dix
+# lectures de mi-journée archivées (01/10 → 13/10) : 23 indices sur 23 au cours
+# de la veille, à chaque fois ; à la clôture, 0 à 3 sur 23. La source ne
+# rafraîchit les indices sectoriels qu'en fin de séance. Le briefing publiait
+# pourtant « 0 en hausse, 0 en baisse », tous à 0,00 % — une variation nulle
+# affichée sans vérification, ce que R9 interdit. Même principe que la séance
+# fantôme (pipeline/seance.py) : le signal n'existe qu'à l'échelle de
+# l'ensemble, et la marge (100 % contre 13 % au plus) ne laisse pas de doute.
+SEUIL_SECTEURS_FIGES = 0.95
+
+
+def secteurs_figes(sect: list) -> bool:
+    """Vrai si la quasi-totalité des indices porte encore le cours de la veille."""
+    if not sect:
+        return False
+    figes = sum(1 for x in sect
+                if x.get("cours") is not None and x.get("cours") == x.get("cours_veille"))
+    return figes / len(sect) >= SEUIL_SECTEURS_FIGES
+
+
 def phrase_secteurs(sect: list, k: int = N_SECTEURS_PHRASE) -> str | None:
     if not sect or len(sect) < 2 * k:
         return None
@@ -1030,6 +1068,9 @@ def enrichir(b: dict, titres: list, contexte: dict) -> dict:
     except Exception:                                     # noqa: BLE001
         b["depots"] = None
     b["secteurs"] = sm.get("secteurs") or []
+    secteurs_veille = secteurs_figes(b["secteurs"])
+    if secteurs_veille:
+        b["secteurs"] = []
     b["matieres"] = sm.get("matieres") or []
     bougies = ctx.get("bougies")
     if bougies is None:
@@ -1073,6 +1114,10 @@ def enrichir(b: dict, titres: list, contexte: dict) -> dict:
     ps = phrase_secteurs(b["secteurs"])
     if ps:
         b["constats"].append(ps)
+    elif secteurs_veille:
+        b["non_mesurable"].append(
+            "les indices sectoriels — la source ne les rafraîchit qu'en fin de "
+            "séance : tous portent encore le cours de la veille")
     else:
         b["non_mesurable"].append(
             "les indices sectoriels — non relevés pour cette séance")
@@ -1276,6 +1321,10 @@ def dater(b: dict, aujourd_hui: str, hhmm: int) -> dict:
     b["moment"] = moment(b.get("seance"), aujourd_hui, hhmm) or "en_seance"
     b["ecrit_a"] = f"{aujourd_hui} {hhmm // 100:02d}:{hhmm % 100:02d}"
     if b.get("seance") == aujourd_hui and hhmm < CLOTURE_FIXEE:
+        t = b.get("trajectoire")
+        if t:
+            avant, apres = phrase_trajectoire(t), phrase_trajectoire(t, en_seance=True)
+            b["constats"] = [apres if x == avant else x for x in b.get("constats") or []]
         b.setdefault("non_mesurable", []).insert(
             0, f"la séance entière — lecture prise à {hhmm // 100}h"
                f"{hhmm % 100:02d}, avant la clôture de 15h30 : volumes, largeur "
