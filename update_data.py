@@ -3082,6 +3082,18 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
     #   4. comptes déposés — BPA lu dans un dépôt AMMC (bpa.json, source
     #      officielle), ni table figée ni site tiers ;
     #   5. liquidité — au moins 100 000 DH échangés par séance (médiane 20).
+    # ⚠️ LE DÉTAIL EST PUBLIÉ (`_meta.garanties`, 14/10/2026) : derrière un
+    # « 5/5 », le lecteur doit pouvoir voir quelles garanties sont remplies.
+    # Même calcul qu'avant, nommé critère par critère.
+    _garanties = [
+        ("Cours de la dernière séance cotée", not stale),
+        ("Note fondamentale calculable sur comptes, sans grandeur contestée",
+         ticker in _FOND_COMPUTED and note_fond_ok and ticker not in _CONTESTES),
+        ("Au moins 15 séances échangées (historique suffisant)", n_echangees >= 15),
+        ("Comptes déposés à l'AMMC", bool(comptes_deposes)),
+        ("Au moins 100 000 DH échangés par séance (médiane 20 séances)",
+         (_echange_median_dh(df_candles) or 0) >= 100_000),
+    ]
     confiance = sum((
         0 if stale else 1,
         # ⚠️ 10/10/2026 : « fondamentaux réels » exige désormais une NOTE
@@ -3236,6 +3248,7 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         "fond_age_jours": _age_jours(_FOND_ASOF.get(ticker)),
         "stale":        stale,
         "confidence":   confiance,
+        "garanties":    [{"critere": c, "ok": bool(o)} for c, o in _garanties],
         "n_candles":    n_bougies,
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
     }
