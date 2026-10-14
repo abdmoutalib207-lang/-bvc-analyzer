@@ -13908,6 +13908,139 @@ function poidsAffiches(r, p) {
     t: p.t || 0
   };
 }
+const ChangementsFavoris = ({
+  rows,
+  fav,
+  ouvrir
+}) => {
+  const [avant] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("bvc_fav_vu") || "null");
+    } catch (e) {
+      return null;
+    }
+  });
+  const [pubs, setPubs] = useState([]);
+  const suivis = rows.filter(r => fav.includes(r.symbol || r.ticker));
+  const charges = suivis.length > 0 && suivis.every(r => r._meta);
+  const cle = suivis.map(r => `${r.symbol}:${r.v53}:${r.sig}`).join("|");
+  useEffect(() => {
+    if (!charges) return;
+    const snap = {
+      t: new Date().toISOString(),
+      titres: {}
+    };
+    suivis.forEach(r => {
+      snap.titres[r.symbol] = {
+        v53: r.v53 ?? null,
+        sig: r.sig || null,
+        conf: meta(r).conf
+      };
+    });
+    try {
+      localStorage.setItem("bvc_fav_vu", JSON.stringify(snap));
+    } catch (e) {}
+  }, [charges, cle]);
+  useEffect(() => {
+    if (!avant || !avant.t) return;
+    let vivant = true;
+    fetch("news.json?t=" + Math.floor(Date.now() / 3600000)).then(r => r.ok ? r.json() : null).then(d => {
+      if (!vivant || !d) return;
+      setPubs((d.articles || []).filter(a => /AMMC/.test(a.source || "") && (a.date || "") > avant.t.slice(0, 19) && (a.tickers || []).some(t => fav.includes(t))).slice(0, 8));
+    }).catch(() => {});
+    return () => {
+      vivant = false;
+    };
+  }, []);
+  if (!charges) return null;
+  const lignes = [];
+  if (avant && avant.titres) suivis.forEach(r => {
+    const a = avant.titres[r.symbol];
+    if (!a) return;
+    const sym = r.symbol;
+    const c = [];
+    if (a.sig !== (r.sig || null)) c.push(`palier ${a.sig || "—"} → ${r.sig || "—"}`);
+    if (a.v53 != null && r.v53 != null && Math.abs(a.v53 - r.v53) >= 0.05) c.push(`note ${fmt(a.v53)} → ${fmt(r.v53)}`);else if (a.v53 == null !== (r.v53 == null)) c.push(r.v53 == null ? "note retirée (données insuffisantes)" : `note publiée : ${fmt(r.v53)}`);
+    if (a.conf !== meta(r).conf) c.push(`confiance ${a.conf}/5 → ${meta(r).conf}/5`);
+    if (c.length) lignes.push({
+      sym,
+      c
+    });
+  });
+  const depuis = avant && avant.t ? new Date(avant.t).toLocaleString("fr-FR", {
+    timeZone: "Africa/Casablanca",
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  }) : null;
+  return React.createElement("div", {
+    className: "carte",
+    style: {
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      padding: 12,
+      marginBottom: 12
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      letterSpacing: 1,
+      textTransform: "uppercase",
+      marginBottom: 6
+    }
+  }, depuis ? `Depuis votre dernière visite (${depuis})` : "Ce qui a changé"), !depuis && React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#8892a4"
+    }
+  }, "Premi\xE8re visite sur cet appareil : les changements de note, de palier, de confiance et les nouvelles publications AMMC de vos favoris appara\xEEtront ici la prochaine fois."), depuis && !lignes.length && !pubs.length && React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#8892a4"
+    }
+  }, "Rien de nouveau sur vos favoris : notes, paliers et confiance inchang\xE9s, aucune publication AMMC."), lignes.map(l => React.createElement("div", {
+    key: l.sym,
+    style: {
+      fontSize: 12.5,
+      color: "#c8d3e8",
+      padding: "3px 0"
+    }
+  }, React.createElement("button", {
+    onClick: () => ouvrir(l.sym),
+    style: {
+      border: "none",
+      background: "none",
+      color: "#4db8ff",
+      fontWeight: 700,
+      padding: "0 6px 0 0",
+      cursor: "pointer",
+      fontSize: 12.5
+    }
+  }, codeDe(l.sym)), l.c.join(" · "))), pubs.map((a, i) => React.createElement("a", {
+    key: i,
+    href: a.url,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      display: "block",
+      fontSize: 12,
+      color: "#c8d3e8",
+      padding: "3px 0",
+      textDecoration: "none"
+    }
+  }, React.createElement("b", {
+    style: {
+      color: "#00e5a0"
+    }
+  }, (a.tickers || []).filter(t => fav.includes(t)).map(codeDe).join(", ")), " \xB7 publication AMMC : ", a.title || a.titre, " ", React.createElement("span", {
+    style: {
+      color: "#5a6478"
+    }
+  }, "(", (a.date || "").slice(0, 10).split("-").reverse().join("/"), ")"))));
+};
 const MentionLegale = () => React.createElement("footer", {
   role: "contentinfo",
   "aria-label": "Mentions l\xE9gales",
@@ -14293,7 +14426,14 @@ function App() {
       changeTab("detail");
     },
     setTab: changeTab
-  }), tab === "watchlist" && React.createElement(Ranking, {
+  }), tab === "watchlist" && React.createElement(React.Fragment, null, React.createElement(ChangementsFavoris, {
+    rows: rows,
+    fav: fav,
+    ouvrir: sym => {
+      choisirTitre(sym);
+      changeTab("detail");
+    }
+  }), React.createElement(Ranking, {
     rows: rows.filter(r => fav.includes(r.symbol || r.ticker)),
     sort: sort,
     setSort: setSort,
@@ -14306,7 +14446,7 @@ function App() {
     toggleFav: toggleFav,
     isWatchlist: true,
     scoreMode: scoreMode
-  }), tab === "detail" && React.createElement(Detail, {
+  })), tab === "detail" && React.createElement(Detail, {
     rows: rows,
     sel: sel,
     setSel: choisirTitre,

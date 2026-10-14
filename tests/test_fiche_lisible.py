@@ -35,3 +35,10 @@ def test_les_ratios_ont_un_info_au_toucher():
     assert 'cursor:"help"}}>\n                  <div style={{fontSize:8' not in SRC
     for champ in ("bpa_12m:t.bpa_12m", "div_dh:t.div_dh"):  # l'explication lit des champs fusionnés
         assert champ in SRC, champ
+
+
+def test_favoris_changements_sur_donnees_chargees():
+    assert "<ChangementsFavoris rows={rows} fav={fav}" in SRC
+    # l'instantané n'est pris que sur les données chargées (avec _meta)
+    assert "const charges=suivis.length>0&&suivis.every(r=>r._meta);" in SRC
+    assert '},[charges,cle]);' in SRC

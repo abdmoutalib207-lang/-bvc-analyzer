@@ -4968,6 +4968,52 @@ function poidsAffiches(r, p) {
   return {f: p.f || 0, n: p.n || 0, t: p.t || 0};
 }
 
+/* ── FAVORIS : CE QUI A CHANGÉ DEPUIS LA DERNIÈRE VISITE (14/10/2026) ───────
+   Diagnostic externe de l'interface, point 7. Un instantané par appareil
+   (localStorage « bvc_fav_vu » : note, palier, confiance, date) est comparé
+   à la visite suivante ; s'y ajoutent les documents AMMC publiés depuis,
+   rattachés au titre par le collecteur d'actualités. Rien n'est calculé ici :
+   on compare des valeurs publiées. */
+const ChangementsFavoris=({rows,fav,ouvrir})=>{
+  const [avant]=useState(()=>{try{return JSON.parse(localStorage.getItem("bvc_fav_vu")||"null");}catch(e){return null;}});
+  const [pubs,setPubs]=useState([]);
+  const suivis=rows.filter(r=>fav.includes(r.symbol||r.ticker));
+  // ⚠️ Seulement sur les données CHARGÉES (avec `_meta`) : au premier rendu,
+  // les lignes provisoires portent une note figée et une confiance 0, et
+  // l'instantané les aurait prises pour une visite.
+  const charges=suivis.length>0&&suivis.every(r=>r._meta);
+  const cle=suivis.map(r=>`${r.symbol}:${r.v53}:${r.sig}`).join("|");
+  useEffect(()=>{
+    if(!charges)return;
+    const snap={t:new Date().toISOString(),titres:{}};
+    suivis.forEach(r=>{snap.titres[r.symbol]={v53:r.v53??null,sig:r.sig||null,conf:meta(r).conf};});
+    try{localStorage.setItem("bvc_fav_vu",JSON.stringify(snap));}catch(e){}
+  },[charges,cle]);
+  useEffect(()=>{if(!avant||!avant.t)return;let vivant=true;
+    fetch("news.json?t="+Math.floor(Date.now()/3600000)).then(r=>r.ok?r.json():null).then(d=>{if(!vivant||!d)return;
+      setPubs((d.articles||[]).filter(a=>/AMMC/.test(a.source||"")&&(a.date||"")>avant.t.slice(0,19)
+        &&(a.tickers||[]).some(t=>fav.includes(t))).slice(0,8));}).catch(()=>{});
+    return()=>{vivant=false;};},[]);
+  if(!charges)return null;
+  const lignes=[];
+  if(avant&&avant.titres)suivis.forEach(r=>{const a=avant.titres[r.symbol];if(!a)return;const sym=r.symbol;const c=[];
+    if(a.sig!==(r.sig||null))c.push(`palier ${a.sig||"—"} → ${r.sig||"—"}`);
+    if(a.v53!=null&&r.v53!=null&&Math.abs(a.v53-r.v53)>=0.05)c.push(`note ${fmt(a.v53)} → ${fmt(r.v53)}`);
+    else if((a.v53==null)!==(r.v53==null))c.push(r.v53==null?"note retirée (données insuffisantes)":`note publiée : ${fmt(r.v53)}`);
+    if(a.conf!==meta(r).conf)c.push(`confiance ${a.conf}/5 → ${meta(r).conf}/5`);
+    if(c.length)lignes.push({sym,c});});
+  const depuis=avant&&avant.t?new Date(avant.t).toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):null;
+  return <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,marginBottom:12}}>
+    <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:6}}>
+      {depuis?`Depuis votre dernière visite (${depuis})`:"Ce qui a changé"}</div>
+    {!depuis&&<div style={{fontSize:12,color:"#8892a4"}}>Première visite sur cet appareil : les changements de note, de palier, de confiance et les nouvelles publications AMMC de vos favoris apparaîtront ici la prochaine fois.</div>}
+    {depuis&&!lignes.length&&!pubs.length&&<div style={{fontSize:12,color:"#8892a4"}}>Rien de nouveau sur vos favoris : notes, paliers et confiance inchangés, aucune publication AMMC.</div>}
+    {lignes.map(l=><div key={l.sym} style={{fontSize:12.5,color:"#c8d3e8",padding:"3px 0"}}>
+      <button onClick={()=>ouvrir(l.sym)} style={{border:"none",background:"none",color:"#4db8ff",fontWeight:700,padding:"0 6px 0 0",cursor:"pointer",fontSize:12.5}}>{codeDe(l.sym)}</button>{l.c.join(" · ")}</div>)}
+    {pubs.map((a,i)=><a key={i} href={a.url} target="_blank" rel="noopener noreferrer" style={{display:"block",fontSize:12,color:"#c8d3e8",padding:"3px 0",textDecoration:"none"}}>
+      <b style={{color:"#00e5a0"}}>{(a.tickers||[]).filter(t=>fav.includes(t)).map(codeDe).join(", ")}</b> · publication AMMC : {a.title||a.titre} <span style={{color:"#5a6478"}}>({(a.date||"").slice(0,10).split("-").reverse().join("/")})</span></a>)}
+  </div>;};
+
 // ── APP ───────────────────────────────────────────────────────────────────────
 // Mention légale — permanente, non masquable, présente sur tous les onglets.
 //
@@ -5273,7 +5319,7 @@ function App(){
         {tab==="accueil"  &&<Accueil rows={rows} fav={fav} ouvrir={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab}/>}
         {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={choisirTitre} setTab={changeTab} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab}/>}
-        {tab==="watchlist"&&<Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true} scoreMode={scoreMode}/>}
+        {tab==="watchlist"&&<><ChangementsFavoris rows={rows} fav={fav} ouvrir={sym=>{choisirTitre(sym);changeTab("detail");}}/><Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true} scoreMode={scoreMode}/></>}
         {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={choisirTitre} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
         {tab==="weights"  &&<Weights/>}
         {tab==="guide"    &&<Guide setTab={changeTab}/>}
