@@ -3292,6 +3292,23 @@ def fetch_masi20():
 SOURCES_MONTANT = ("cdg", "bmce")
 
 
+def volume_de_seance(vol, prix_asof, seance_reference):
+    """Le volume publié est celui de la séance de référence. Fonction pure.
+
+    ⚠️ 14/10/2026 — chasse aux échecs silencieux. En séance, 13 titres non
+    encore échangés publiaient leur cours de la veille (marqué périmé, date
+    affichée) avec le VOLUME de la veille dans la colonne du jour : WAF 103
+    titres le 14/10 à 14h56, alors qu'il n'avait rien échangé ce jour-là. Le
+    volume arrive par plusieurs replis (ligne de cotation, historique, fichier
+    précédent) ; la garde se pose donc une fois, à la fin : un cours antérieur
+    à la séance de référence signifie qu'aucun titre n'a été échangé à cette
+    séance, et c'est 0 qui est vrai.
+    """
+    if seance_reference and prix_asof and str(prix_asof)[:10] < str(seance_reference)[:10]:
+        return 0
+    return vol
+
+
 def _echange_rapprochable(ligne, src_prix, prix_asof, lp_asof):
     """(montant, seuil_bas, seuil_haut) — ou trois `None`. Fonction pure.
 
@@ -4726,6 +4743,7 @@ def run(dry_run=False, push=False, token=""):
             _cap_source = "publiee_la_veille"
         # Arguments de `_meta_ticker`, gardés pour la rappeler au second passage
         # (`appliquer_note_sectorielle`) si la note fondamentale est incalculable.
+        vol = volume_de_seance(vol, prix_asof, IDB_ASOF)
         _meta_args = (ticker, src_prix, prix_asof, sent,
                       _candles_cache.get(ticker), isin_suspect)
         _meta_kw = dict(
