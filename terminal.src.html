@@ -1504,13 +1504,18 @@ const SignauxTechniques=({r})=>{
   const STATS_SIGNAUX=(freq&&freq.frequences)||{};
   const v2=r.score_tech_v2, neu=r.technique_neutralise, reg=REGIME_TECH;
   const coul=v=>v>0?"#00e5a0":v<0?"#ff4f5a":"#8892a4";
+  // 14/10/2026 : une fréquence corrigée le DIT (errata du fichier publié).
+  const ERRATA=(freq&&freq.errata)||[];
   const ligne=(k,actif)=>{const x=STATS_SIGNAUX[k];if(!x)return null;
     const al=x.alpha_moyen_pct, ic=x.ic95_gagnants||[];
+    const er=ERRATA.filter(e=>e.frequence===k);
     return(
     <div key={k} style={{display:"flex",gap:8,alignItems:"baseline",padding:"5px 0",borderTop:"1px solid #1a2540",opacity:actif?1:.55,flexWrap:"wrap"}}>
       <span style={{color:actif?"#ffd740":"#5a6478",fontWeight:700,minWidth:14}}>{actif?"●":"○"}</span>
       <span style={{flex:"1 1 200px",color:actif?"#e8eef8":"#8892a4"}}>{x.libelle} <span style={{color:"#5a6478"}}>· {x.condition}</span></span>
       <span style={{fontSize:11,color:"#8892a4"}}><b style={{color:coul(al)}}>{al>0?"+":""}{al.toLocaleString("fr-FR")} %</b> d'écart moyen · {x.pct_gagnants.toLocaleString("fr-FR")} % gagnants (IC {ic[0].toLocaleString("fr-FR")}–{ic[1].toLocaleString("fr-FR")}) · {x.n} cas · {periodeFreq(x.periode_mesure)}</span>
+      {er.map(e=><span key={e.date} title={e.cause} style={{flexBasis:"100%",fontSize:10,color:"#ffd740",paddingLeft:22}}>
+        corrigé le {e.date.split("-").reverse().join("/")} : {e.avant.n} → {e.apres.n} cas, {e.avant.pct_gagnants.toLocaleString("fr-FR")} → {e.apres.pct_gagnants.toLocaleString("fr-FR")} % gagnants (historique de l'indice complété)</span>)}
     </div>);};
   return(
     <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>

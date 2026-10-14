@@ -4,6 +4,23 @@
  "_ne_pas_editer": "Produit par pipeline/frequences.py ; tests/test_frequences.py le recalcule.",
  "_r8": "Ces signaux n'entrent pas dans la note (mode ombre) : aucune note ne dépend de ce fichier.",
  "fin_calibrage": "2026-10-02",
+ "errata": [
+  {
+   "date": "2026-10-14",
+   "frequence": "pullback_off",
+   "avant": {
+    "n": 58,
+    "pct_gagnants": 24.1,
+    "alpha_moyen_pct": -3.84
+   },
+   "apres": {
+    "n": 60,
+    "pct_gagnants": 26.7,
+    "alpha_moyen_pct": -3.25
+   },
+   "cause": "masi_history.json n'avait pas les sept séances du 07 au 15/09/2026 ; faute d'indice, deux cas ne pouvaient pas être classés hors tendance. Séances rattrapées depuis les data.json publiés, chaîne recoupée aux deux bouts. Les trois autres fréquences sont inchangées."
+  }
+ ],
  "frequences": {
   "cassure": {
    "libelle": "Cassure du plus haut 90 jours avec volume",
@@ -106,16 +123,16 @@
    "univers": "titres liquides (deux tiers supérieurs du montant médian échangé)",
    "mesure": "alpha = rendement total du titre moins rendement du MASI, à 60 séances",
    "frais_inclus": false,
-   "n": 58,
-   "gagnants_k": 14,
-   "pct_gagnants": 24.1,
+   "n": 60,
+   "gagnants_k": 16,
+   "pct_gagnants": 26.7,
    "ic95_gagnants": [
-    15.0,
-    36.5
+    17.1,
+    39.0
    ],
-   "alpha_moyen_pct": -3.84,
-   "alpha_median_pct": -6.54,
-   "rendement_net_frais_moyen_pct": -5.13,
+   "alpha_moyen_pct": -3.25,
+   "alpha_median_pct": -5.97,
+   "rendement_net_frais_moyen_pct": -4.51,
    "source": {
     "fichier": "datasets/calibrage_technique/etape2_regime_2026-10-03.json",
     "commit": "ca92e7ac"
@@ -131,13 +148,13 @@
     "pct_gagnants": 52.9
    },
    "hors_tendance": {
-    "n": 14,
-    "gagnants_k": 9,
-    "pct_gagnants": 64.3
+    "n": 15,
+    "gagnants_k": 10,
+    "pct_gagnants": 66.7
    },
-   "ecart_points": -11.3,
-   "z": -0.81,
-   "p": 0.417,
+   "ecart_points": -13.7,
+   "z": -1.01,
+   "p": 0.311,
    "verdict": "effectif trop faible pour conclure (un groupe < 30 cas)"
   },
   {
@@ -165,13 +182,13 @@
     "pct_gagnants": 44.0
    },
    "hors_tendance": {
-    "n": 58,
-    "gagnants_k": 14,
-    "pct_gagnants": 24.1
+    "n": 60,
+    "gagnants_k": 16,
+    "pct_gagnants": 26.7
    },
-   "ecart_points": 19.9,
-   "z": 2.72,
-   "p": 0.00645,
+   "ecart_points": 17.3,
+   "z": 2.4,
+   "p": 0.0162,
    "verdict": "distingue les deux situations (p < 0,05, indépendance supposée)"
   }
  ]

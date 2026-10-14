@@ -189,6 +189,20 @@ def _commit(chemin: str) -> str | None:
         return None
 
 
+# ⚠️ ERRATA — chaque correction d'une fréquence déjà publiée est inscrite ici
+# et publiée avec le fichier : un chiffre affiché qui change sans le dire
+# ruine la confiance dans tous les autres.
+ERRATA = [
+    {"date": "2026-10-14", "frequence": "pullback_off",
+     "avant": {"n": 58, "pct_gagnants": 24.1, "alpha_moyen_pct": -3.84},
+     "apres": {"n": 60, "pct_gagnants": 26.7, "alpha_moyen_pct": -3.25},
+     "cause": ("masi_history.json n'avait pas les sept séances du 07 au 15/09/2026 ; "
+               "faute d'indice, deux cas ne pouvaient pas être classés hors tendance. "
+               "Séances rattrapées depuis les data.json publiés, chaîne recoupée aux "
+               "deux bouts. Les trois autres fréquences sont inchangées.")},
+]
+
+
 def construire() -> dict:
     c = calculer(FIN_CALIBRAGE)
     freqs = {}
@@ -210,6 +224,7 @@ def construire() -> dict:
             "_ne_pas_editer": "Produit par pipeline/frequences.py ; tests/test_frequences.py le recalcule.",
             "_r8": "Ces signaux n'entrent pas dans la note (mode ombre) : aucune note ne dépend de ce fichier.",
             "fin_calibrage": FIN_CALIBRAGE,
+            "errata": ERRATA,
             "frequences": freqs,
             "utilite": utilite(c["groupes"])}
 

@@ -96,10 +96,21 @@ def test_les_quatre_frequences_publiees_sont_recalculables():
         assert p["ic95_gagnants"] == pytest.approx(r["ic95_gagnants"], abs=0.051), cle
 
 
+def test_les_errata_sont_publies():
+    d = json.loads(PUBLIE.read_text(encoding="utf-8"))
+    assert d["errata"] == fq.ERRATA
+    for e in d["errata"]:
+        assert e["apres"]["n"] == d["frequences"][e["frequence"]]["n"], "erratum en retard sur le fichier"
+
+
 def test_frequences_egales_au_calibrage_du_03_10():
     """Les quatre chiffres affichés jusqu'ici en dur : n, alpha, % gagnants."""
     attendu = {"cassure": (136, 7.2, 53), "surachat": (137, 5.6, 50),
-               "pullback_on": (200, 2.8, 44), "pullback_off": (58, -3.8, 24)}
+               "pullback_on": (200, 2.8, 44),
+               # ⚠️ Erratum du 14/10/2026 (pipeline/frequences.py, ERRATA) :
+               # 58 cas / −3,8 % / 24 % tant que masi_history.json n'avait pas
+               # les séances du 07 au 15/09 ; deux cas n'étaient pas classables.
+               "pullback_off": (60, -3.2, 27)}
     publie = json.loads(PUBLIE.read_text(encoding="utf-8"))["frequences"]
     for cle, (n, alpha, gag) in attendu.items():
         assert publie[cle]["n"] == n
