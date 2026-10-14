@@ -291,3 +291,52 @@ def test_la_convention_du_ytd_est_publiee_dans_le_flux():
     assert "suivante" in t and "additionne" in t, (
         "la convention ne dit pas que l'opérateur décale d'une séance et "
         "recalcule au lieu d'additionner")
+
+
+# ── ⚠️ Synthèse pas encore consolidée (14/10/2026) ────────────────────────
+#
+# Relevé réel à 09:46 : MASI +0,69 %, 142 transactions, Volume 0,
+# NbrValeur 0, hausses et baisses à 0, QteEchange absent. À 09:57 la source
+# servait 2,66 M DH sur 44 valeurs. Ces zéros ne mesuraient rien.
+
+OUVERTURE = {"Cours": 17159.5555, "VariationP": 0.69, "NbrHausse": 0,
+             "NbrBaisse": 0, "NbrInchange": 0, "NbrValeur": 0,
+             "NbrTransaction": 142, "Volume": 0, "CoursVeille": 17041.9131}
+
+
+def test_transactions_sans_volume_rendent_volume_et_largeur_inconnus():
+    e = extraire(OUVERTURE)
+    assert e["synthese_partielle"] is True
+    for k in ("volume_mad", "titres_echanges", "hausses", "baisses",
+              "inchanges", "valeurs_traitees"):
+        assert e[k] is None, k
+    assert e["transactions"] == 142
+    assert e["cours"] == 17159.5555, "l'indice, lui, est servi"
+
+
+def test_la_largeur_dit_pourquoi_elle_manque():
+    lec = largeur(extraire(OUVERTURE))
+    assert lec["ratio"] is None
+    assert "pas encore consolidée" in lec["_lecture"] and "142" in lec["_lecture"]
+
+
+def test_sans_transaction_le_zero_reste_un_zero():
+    """Contrôle négatif : zéro transaction, zéro volume — la source est
+    cohérente, rien n'est requalifié."""
+    e = extraire(dict(OUVERTURE, NbrTransaction=0))
+    assert not e.get("synthese_partielle")
+    assert e["volume_mad"] == 0.0 and e["hausses"] == 0
+
+
+def test_une_seance_consolidee_n_est_pas_touchee():
+    e = extraire(REPONSE)
+    assert not e.get("synthese_partielle")
+    assert e["volume_mad"] == 199725886.19 and e["hausses"] == 16
+
+
+def test_le_cliquet_garde_un_releve_consolide_contre_un_partiel(tmp_path):
+    f = _f(tmp_path)
+    plein = dict(REPONSE, Cours=17159.5555)
+    assert enregistrer(plein, "2026-10-14", f, aujourd_hui="2026-10-14")
+    assert not enregistrer(OUVERTURE, "2026-10-14", f, aujourd_hui="2026-10-14")
+    assert dernier(f)["volume_mad"] == 199725886.19

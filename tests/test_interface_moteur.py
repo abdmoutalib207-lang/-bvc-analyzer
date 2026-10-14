@@ -159,6 +159,13 @@ def test_le_ytd_est_publie_dans_le_flux(flux):
 
 def test_le_flux_publie_la_largeur(flux):
     m = flux.get("masi") or {}
+    # ⚠️ 14/10/2026 : dans les premières minutes, la source compte des
+    # transactions sans servir la largeur. Le moteur publie alors une absence
+    # DÉCLARÉE — jamais « 0 hausse, 0 baisse ». Seule cette forme est admise.
+    if m.get("synthese_partielle"):
+        assert m.get("hausses") is None and m.get("baisses") is None
+        assert "pas encore consolidée" in ((m.get("largeur") or {}).get("_lecture") or "")
+        return
     assert m.get("hausses") is not None, "l'en-tête afficherait du vide"
     assert m.get("baisses") is not None
     assert (m.get("largeur") or {}).get("ratio") is not None
