@@ -1,6 +1,6 @@
 {
  "_quoi": "Comparaison note actuelle / note par métier — mode comparaison, NON retenue dans la note",
- "_methode": "Comparaison : note fondamentale ACTUELLE contre note PAR MÉTIER, 80 titres.\n\n    python3 pipeline/comparaison_note_metier.py [--nom comparaison_note_metier_AAAA-MM-JJ.json]\n\nLecture seule, aucun réseau. Les cours, P/B et notes actuelles viennent de\n`data.json` ; les comptes de `fondamentaux.json`, `bpa.json`,\n`pipeline/faits_financiers.json` et `datasets/resultats_s1_2026.json`. Deux\nexécutions sur les mêmes fichiers donnent le même résultat à l'octet près.\n\n⚠️ MODE COMPARAISON (11/10/2026) : la note par métier n'est PAS retenue dans la\nnote publiée. Ce fichier existe pour que chaque critère de chaque titre se\nvérifie : famille, note actuelle, note par métier, et pour chaque critère sa\nvaleur, sa source (fichier + pièce), sa période, sa base, son ÉTAT (présent,\nabsent, zéro confirmé, remplacement, suspendu), son poids nominal et EFFECTIF\naprès abstentions, et sa référence de comparaison (famille ou cote entière).\n\n⚠️ LA v53 « SIMULÉE » est approchée : v53 publiée + (note métier − note actuelle)\n× poids fondamental publié (entier, en %). L'erreur d'arrondi du poids est de\nl'ordre de 0,005 × l'écart de note ; elle ne suffit à changer un palier que\npour un titre à moins de ~0,01 d'une frontière.",
+ "_methode": "Comparaison : note fondamentale ACTUELLE contre note PAR MÉTIER, 80 titres.\n\n    python3 pipeline/comparaison_note_metier.py [--nom comparaison_note_metier_AAAA-MM-JJ.json]\n\nLecture seule, aucun réseau. Les cours, P/B et notes actuelles viennent de\n`data.json` ; les comptes de `fondamentaux.json`, `bpa.json`,\n`pipeline/faits_financiers.json` et `datasets/resultats_s1_2026.json`. Deux\nexécutions sur les mêmes fichiers donnent le même résultat à l'octet près.\n\n⚠️ MODE COMPARAISON (11/10/2026) : la note par métier n'est PAS retenue dans la\nnote publiée. Ce fichier existe pour que chaque critère de chaque titre se\nvérifie : famille, note actuelle, note par métier, et pour chaque critère sa\nvaleur, sa source (fichier + pièce), sa période, sa base, son ÉTAT (présent,\nabsent, zéro confirmé, remplacement, suspendu), son poids nominal et EFFECTIF\naprès abstentions, et sa référence de comparaison (famille ou cote entière).\n\n⚠️ RÉSIDU APRÈS DIVIDENDE (14/10/2026) : la moyenne des fonds propres est écartée si\n|R + D| dépasse 5 % des fonds propres 2024 (R = FP2025 − FP2024 − RNPG2025 ; D = dividende\nversé dans l'exercice, lu au tableau de variation, sinon au calendrier × actions). La cause,\nquand le rapport la nomme, est portée sur pièce ; sinon « non expliqué ». D inconnu : l'ancien\ntest (R > +5 % seul) reste en vigueur, dit. Liste des titres qui changent de convention :\n`changements_de_convention_du_residu_apres_dividende`.\n\n⚠️ TMA : dividende exceptionnel de 67 DH le 11/12/2025 — moyenne simple conservée, pondérée\nindicative à côté. WAF : formule hors OCI et drapeau « à 0,35 point du seuil de 10 % ». ATL\n(normes marocaines, plus-values latentes hors bilan) et WAF (IFRS 17) ne se comparent pas terme\nà terme ; l'OCI d'assurance consolidé d'ATW reste inclus (`assurances_documentation`).\n\n⚠️ LA v53 « SIMULÉE » est approchée : v53 publiée + (note métier − note actuelle)\n× poids fondamental publié (entier, en %). L'erreur d'arrondi du poids est de\nl'ordre de 0,005 × l'écart de note ; elle ne suffit à changer un palier que\npour un titre à moins de ~0,01 d'une frontière.",
  "date_donnees": "2026-10-13",
  "source_cours": "data.json",
  "empreintes_sha256": {
@@ -8,7 +8,9 @@
   "fondamentaux.json": "a1820170ede529367fec540ac111bb06a89210c4173bc862c9876b89c443b02d",
   "bpa.json": "8a9aa6658d8a71edbd11fb713eace775eacda2857f02132e8dea61f8d286f418",
   "pipeline/faits_financiers.json": "920f450e65127c6d1147d5a872528e6d6c3a4a3cdba7e2b2c66bdd05c5238b55",
-  "datasets/resultats_s1_2026.json": "74a0bf3c7822eb278d930ba005510ee56ad5f95871e28dbe0d6c11d3109f3f6d"
+  "datasets/resultats_s1_2026.json": "74a0bf3c7822eb278d930ba005510ee56ad5f95871e28dbe0d6c11d3109f3f6d",
+  "datasets/reserves_oci_assurances.json": "93a4c9c4167eb4adff51c3e9843ab26ea53773c10c5b74e99d6476f016e106d3",
+  "datasets/dividendes_bvc.json": "b171ac5ee23aee0146eb31b225ef2312bb6b8d208f9f6fdc2ae597144ca5e845"
  },
  "synthese": {
   "titres": 80,
@@ -138,8 +140,8 @@
   },
   "base_du_roe": {
    "ROE d'exercice 2025 sur CLÔTURE — moyenne indisponible (étiqueté)": 2,
-   "ROE d'exercice 2025 sur CLÔTURE — moyenne ÉCARTÉE (étiqueté)": 3,
-   "ROE d'exercice 2025 sur fonds propres MOYENS (31/12/2024 et 31/12/2025)": 18,
+   "ROE d'exercice 2025 sur CLÔTURE — moyenne ÉCARTÉE (étiqueté)": 4,
+   "ROE d'exercice 2025 sur fonds propres MOYENS (31/12/2024 et 31/12/2025)": 17,
    "ROIC (comptes publiés) — pas de ROE": 40,
    "pas de ROE (absent)": 7,
    "pas de ROE (suspendu)": 10
@@ -396,20 +398,21 @@
   },
   "effet_convention_fonds_propres_moyens": {
    "titres_avec_roe_d_exercice": 58,
-   "titres_sur_moyenne": 50,
-   "titres_sur_cloture_moyenne_ecartee": 6,
+   "titres_sur_moyenne": 47,
+   "titres_sur_cloture_moyenne_ecartee": 9,
    "titres_sur_cloture_moyenne_indisponible": 2,
    "titres_en_remplacement_12_mois": 0,
    "titres_sans_roe_d_exercice": 22,
    "moyenne_ecartee_par_motif": {
     "opération sur le capital (registre OPERATIONS_SUR_CAPITAL)": 5,
-    "mouvement de fonds propres hors résultat non expliqué (résidu R > +5 %)": 1
+    "mouvement hors résultat et hors dividende, cause portée sur pièce (|R + D| > 5 %)": 3,
+    "mouvement hors résultat et hors dividende non expliqué (|R + D| > 5 %, ou R > +5 % si le dividende est inconnu)": 1
    },
    "ecart_roe_moyen_moins_cloture_non_arrondie": {
     "reference": "ROE de clôture NON arrondi = RNPG 2025 ÷ fonds propres 31/12/2025 (le ROE publié est arrondi à 0,1)",
-    "titres": 50,
-    "mediane": 0.251,
-    "moyenne": 0.53,
+    "titres": 47,
+    "mediane": 0.252,
+    "moyenne": 0.641,
     "min": -6.903,
     "max": 6.072,
     "extremes": {
@@ -434,18 +437,6 @@
      "ecart_note_metier": 0.0,
      "palier_simule_avant": "ATTENDRE",
      "palier_simule_apres": "ATTENDRE"
-    },
-    "BCP": {
-     "convention": "moyenne",
-     "roe_cloture": 12.2,
-     "roe_moyenne": 12.17,
-     "note_rentabilite_avant": 6.0,
-     "note_rentabilite_apres": 6.0,
-     "note_metier_avant": 5.72,
-     "note_metier_apres": 5.72,
-     "ecart_note_metier": 0.0,
-     "palier_simule_avant": "SURVEILLER",
-     "palier_simule_apres": "SURVEILLER"
     },
     "BOA": {
      "convention": "moyenne",
@@ -690,6 +681,19 @@
     "roe_retenu": 16.14,
     "residu_mmad": -3669.715,
     "residu_pct_fonds_propres_2024": -5.88,
+    "dividende_exercice": {
+     "mmad": 4087.676,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 2.15141e+08 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 4087.676
+    },
+    "residu_apres_dividende_mmad": 417.961,
+    "residu_apres_dividende_pct": 0.67,
+    "cause_residu_sur_piece": null,
+    "formule": "10644.852 ÷ moyenne(62456.132 ; 69431.269)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 62456.132,
     "fonds_propres_2025": 69431.269,
     "rnpg_2025": 10644.852,
@@ -700,16 +704,43 @@
    },
    "BCP": {
     "famille": "banque",
-    "convention": "moyenne",
-    "motif": null,
-    "code_motif": null,
+    "convention": "cloture_moyenne_ecartee",
+    "motif": "mouvement de fonds propres hors résultat et hors dividende, cause portée sur pièce : « Variation de périmètre » -2119.06 MMAD (p.12), 87% du résidu — résidu après dividende R + D = -4572.22 + 2134.78 = -2437.44 MMAD, -6.6% des fonds propres 2024 (seuil ±5% ; dividende tableau variation, p.12)",
+    "code_motif": "residu_cause_sur_piece",
     "roe_cloture_publie": 12.2,
     "roe_cloture_non_arrondi": 12.1795,
     "roe_moyen": 12.17,
     "ecart_moyen_moins_cloture_non_arrondie": -0.01,
-    "roe_retenu": 12.17,
+    "roe_retenu": 12.2,
     "residu_mmad": -4572.221,
     "residu_pct_fonds_propres_2024": -12.34,
+    "dividende_exercice": {
+     "mmad": 2134.781,
+     "origine": "tableau_variation",
+     "source": "BCP rapport financier 2025 p.12, tableau de variation des capitaux propres : « Dividendes -2 134 781 -2 134 781 123 273 -2 011 508 » KMAD (total part du groupe 2 134 781)",
+     "page": 12,
+     "calendrier_mmad": 2134.781
+    },
+    "residu_apres_dividende_mmad": -2437.44,
+    "residu_apres_dividende_pct": -6.58,
+    "cause_residu_sur_piece": {
+     "exercice": 2025,
+     "montant_mmad": -2119.062,
+     "page": 12,
+     "libelle": "« Variation de périmètre »",
+     "source": "BCP rapport financier 2025 p.12, tableau de variation des capitaux propres : « Variation de périmètre -2 106 834 -11 572 -656 -2 119 062 -7 207 -2 126 269 » KMAD (total part du groupe -2 119 062)",
+     "couverture": 0.869
+    },
+    "formule": "4503.361 ÷ (36974.989)",
+    "frontiere_palier": {
+     "seuil": 12.0,
+     "ecart_points": 0.2,
+     "cote": "au-dessus",
+     "note_au_dessus": 6.0,
+     "note_en_dessous": 5.0,
+     "etiquette": "à 0,20 point du seuil de 12 % (au-dessus ; la note de rentabilité passe de 6 à 5 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 37043.849,
     "fonds_propres_2025": 36974.989,
     "rnpg_2025": 4503.361,
@@ -730,6 +761,19 @@
     "roe_retenu": 12.52,
     "residu_mmad": -1148.639,
     "residu_pct_fonds_propres_2024": -3.94,
+    "dividende_exercice": {
+     "mmad": 1101.409,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 2.20282e+08 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 1101.409
+    },
+    "residu_apres_dividende_mmad": -47.23,
+    "residu_apres_dividende_pct": -0.16,
+    "cause_residu_sur_piece": null,
+    "formule": "3813.552 ÷ moyenne(29129.447 ; 31794.36)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 29129.447,
     "fonds_propres_2025": 31794.36,
     "rnpg_2025": 3813.552,
@@ -741,7 +785,7 @@
    "CIH": {
     "famille": "banque",
     "convention": "cloture_moyenne_ecartee",
-    "motif": "opération sur le capital dans l'exercice (registre) : opérations sur le capital de l'exercice : 1 680,619 MMAD en part du groupe — apport frais 1680.62 MMAD = 22.0% des fonds propres 2024",
+    "motif": "opération sur le capital dans l'exercice (registre) : augmentation de capital en numéraire de 1,5 milliard de dirhams (4 108 341 actions nouvelles) ; le tableau de variation des fonds propres part du groupe porte 1 680,619 MMAD sur la ligne « Opérations sur capital » — apport frais 1500 MMAD = 19.6% des fonds propres 2024",
     "code_motif": "registre_operation_capital",
     "roe_cloture_publie": 11.1,
     "roe_cloture_non_arrondi": 11.096,
@@ -750,6 +794,19 @@
     "roe_retenu": 11.1,
     "residu_mmad": 1083.366,
     "residu_pct_fonds_propres_2024": 14.17,
+    "dividende_exercice": {
+     "mmad": 440.953,
+     "origine": "tableau_variation",
+     "source": "CIH Bank RFA 2025 p.26, tableau de variation des capitaux propres : « Dividendes -440 953 » KMAD part du groupe (-485 420 avec les minoritaires)",
+     "page": 26,
+     "calendrier_mmad": null
+    },
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "1089.362 ÷ (9817.628)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 7644.9,
     "fonds_propres_2025": 9817.628,
     "rnpg_2025": 1089.362,
@@ -770,6 +827,20 @@
     "roe_retenu": 10.5,
     "residu_mmad": null,
     "residu_pct_fonds_propres_2024": null,
+    "dividende_exercice": null,
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "863.551 ÷ (8203.01)",
+    "frontiere_palier": {
+     "seuil": 10.0,
+     "ecart_points": 0.5,
+     "cote": "au-dessus",
+     "note_au_dessus": 5.0,
+     "note_en_dessous": 3.5,
+     "etiquette": "à 0,50 point du seuil de 10 % (au-dessus ; la note de rentabilité passe de 5 à 3,5 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": null,
     "fonds_propres_2025": 8203.01,
     "rnpg_2025": 863.551,
@@ -790,6 +861,26 @@
     "roe_retenu": 10.35,
     "residu_mmad": -429.451,
     "residu_pct_fonds_propres_2024": -4.47,
+    "dividende_exercice": {
+     "mmad": 490.0,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 3.5e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 490.0
+    },
+    "residu_apres_dividende_mmad": 60.549,
+    "residu_apres_dividende_pct": 0.63,
+    "cause_residu_sur_piece": null,
+    "formule": "1026.036 ÷ moyenne(12566.785 − 2950.462 ; 14960.337 − 4747.429)",
+    "frontiere_palier": {
+     "seuil": 10.0,
+     "ecart_points": 0.35,
+     "cote": "au-dessus",
+     "note_au_dessus": 5.0,
+     "note_en_dessous": 3.5,
+     "etiquette": "à 0,35 point du seuil de 10 % (au-dessus ; la note de rentabilité passe de 5 à 3,5 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 12566.785,
     "fonds_propres_2025": 14960.337,
     "rnpg_2025": 1026.036,
@@ -810,6 +901,19 @@
     "roe_retenu": 22.66,
     "residu_mmad": -601.563,
     "residu_pct_fonds_propres_2024": -18.58,
+    "dividende_exercice": {
+     "mmad": 601.562,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 3.4375e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 601.562
+    },
+    "residu_apres_dividende_mmad": -0.001,
+    "residu_apres_dividende_pct": -0.0,
+    "cause_residu_sur_piece": null,
+    "formule": "750.5 ÷ moyenne(3238.07 ; 3387.007)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 3238.07,
     "fonds_propres_2025": 3387.007,
     "rnpg_2025": 750.5,
@@ -830,6 +934,19 @@
     "roe_retenu": 19.29,
     "residu_mmad": -353.432,
     "residu_pct_fonds_propres_2024": -14.93,
+    "dividende_exercice": {
+     "mmad": 349.645,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 6.02836e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 349.645
+    },
+    "residu_apres_dividende_mmad": -3.787,
+    "residu_apres_dividende_pct": -0.16,
+    "cause_residu_sur_piece": null,
+    "formule": "467.639 ÷ moyenne(2367.73 − 0 ; 2481.937 − 0)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 2367.73,
     "fonds_propres_2025": 2481.937,
     "rnpg_2025": 467.639,
@@ -850,6 +967,19 @@
     "roe_retenu": 13.29,
     "residu_mmad": -63.863,
     "residu_pct_fonds_propres_2024": -8.24,
+    "dividende_exercice": {
+     "mmad": 51.843,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 7.40619e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 51.843
+    },
+    "residu_apres_dividende_mmad": -12.02,
+    "residu_apres_dividende_pct": -1.55,
+    "cause_residu_sur_piece": null,
+    "formule": "105.78 ÷ moyenne(774.72 ; 816.637)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 774.719895,
     "fonds_propres_2025": 816.636777,
     "rnpg_2025": 105.78,
@@ -870,6 +1000,19 @@
     "roe_retenu": 16.35,
     "residu_mmad": -318.384,
     "residu_pct_fonds_propres_2024": -9.34,
+    "dividende_exercice": {
+     "mmad": 319.985,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 2.89396e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 319.985
+    },
+    "residu_apres_dividende_mmad": 1.601,
+    "residu_apres_dividende_pct": 0.05,
+    "cause_residu_sur_piece": null,
+    "formule": "578.791 ÷ moyenne(3409.747 ; 3670.154)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 3409.74694901,
     "fonds_propres_2025": 3670.1539999,
     "rnpg_2025": 578.7906004,
@@ -890,6 +1033,19 @@
     "roe_retenu": 0.47,
     "residu_mmad": -104.0,
     "residu_pct_fonds_propres_2024": -5.88,
+    "dividende_exercice": {
+     "mmad": 82.8,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 2.76e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 82.8
+    },
+    "residu_apres_dividende_mmad": -21.2,
+    "residu_apres_dividende_pct": -1.2,
+    "cause_residu_sur_piece": null,
+    "formule": "8 ÷ moyenne(1768 ; 1672)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 1768.0,
     "fonds_propres_2025": 1672.0,
     "rnpg_2025": 8.0,
@@ -910,6 +1066,26 @@
     "roe_retenu": 14.6,
     "residu_mmad": -872.722,
     "residu_pct_fonds_propres_2024": -13.09,
+    "dividende_exercice": {
+     "mmad": 872.776,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 2.35885e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 872.776
+    },
+    "residu_apres_dividende_mmad": 0.054,
+    "residu_apres_dividende_pct": 0.0,
+    "cause_residu_sur_piece": null,
+    "formule": "980.722 ÷ moyenne(6665 ; 6773)",
+    "frontiere_palier": {
+     "seuil": 15.0,
+     "ecart_points": -0.4,
+     "cote": "en dessous",
+     "note_au_dessus": 7.0,
+     "note_en_dessous": 6.0,
+     "etiquette": "à 0,40 point du seuil de 15 % (en dessous ; la note de rentabilité passe de 7 à 6 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 6665.0,
     "fonds_propres_2025": 6773.0,
     "rnpg_2025": 980.722,
@@ -930,6 +1106,19 @@
     "roe_retenu": 8.99,
     "residu_mmad": -38.875,
     "residu_pct_fonds_propres_2024": -3.35,
+    "dividende_exercice": {
+     "mmad": 38.875,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 2.77677e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 38.875
+    },
+    "residu_apres_dividende_mmad": 0.0,
+    "residu_apres_dividende_pct": 0.0,
+    "cause_residu_sur_piece": null,
+    "formule": "107.295 ÷ moyenne(1159.493 ; 1227.913)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 1159.493,
     "fonds_propres_2025": 1227.913,
     "rnpg_2025": 107.295,
@@ -950,6 +1139,30 @@
     "roe_retenu": 35.98,
     "residu_mmad": -1612.187,
     "residu_pct_fonds_propres_2024": -58.72,
+    "dividende_exercice": {
+     "mmad": 1612.8,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 8.96e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 1612.8
+    },
+    "residu_apres_dividende_mmad": 0.613,
+    "residu_apres_dividende_pct": 0.02,
+    "cause_residu_sur_piece": null,
+    "formule": "851.083 ÷ moyenne(2745.769 ; 1984.665)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": {
+     "etiquette": "dividende exceptionnel de 67 DH payé le 11/12/2025 (600,3 MMAD, 22% des fonds propres 2024) : moyenne simple 35,98 %, pondérée ≈ 32,4 % — la pondérée est INDICATIVE, la note lit la moyenne simple",
+     "exceptionnels": [
+      {
+       "par_action": 67.0,
+       "paiement": "2025-12-11",
+       "mmad": 600.32
+      }
+     ],
+     "roe_moyenne_simple": 35.98,
+     "roe_moyenne_ponderee_indicatif": 32.38
+    },
     "fonds_propres_2024": 2745.769,
     "fonds_propres_2025": 1984.665,
     "rnpg_2025": 851.083,
@@ -970,6 +1183,13 @@
     "roe_retenu": 24.21,
     "residu_mmad": -17.353,
     "residu_pct_fonds_propres_2024": -2.4,
+    "dividende_exercice": null,
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "196.465 ÷ moyenne(722.031 ; 901.143)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 722.030805,
     "fonds_propres_2025": 901.142608,
     "rnpg_2025": 196.465103,
@@ -980,16 +1200,36 @@
    },
    "MNG": {
     "famille": "mines",
-    "convention": "moyenne",
-    "motif": null,
-    "code_motif": null,
+    "convention": "cloture_moyenne_ecartee",
+    "motif": "mouvement de fonds propres hors résultat et hors dividende, cause portée sur pièce : gains et pertes comptabilisés en capitaux propres (couverture de flux de trésorerie, écarts de conversion) -1747 MMAD (p.87), 101% du résidu — résidu après dividende R + D = -2211.5 + 475 = -1736.5 MMAD, -16.2% des fonds propres 2024 (seuil ±5% ; dividende tableau variation, p.87)",
+    "code_motif": "residu_cause_sur_piece",
     "roe_cloture_publie": 26.2,
     "roe_cloture_non_arrondi": 26.1537,
     "roe_moyen": 27.09,
     "ecart_moyen_moins_cloture_non_arrondie": 0.936,
-    "roe_retenu": 27.09,
+    "roe_retenu": 26.2,
     "residu_mmad": -2211.5,
     "residu_pct_fonds_propres_2024": -20.69,
+    "dividende_exercice": {
+     "mmad": 475.0,
+     "origine": "tableau_variation",
+     "source": "Managem RFA 2025 p.87, variation des capitaux propres consolidés 2025 : « Dividendes distribués -475 -475 -62 -536 » MMAD (475 part du groupe ; 40 DH × 11 864 676 actions avant le split 10:1 du 27/07/2026 = 474,6)",
+     "page": 87,
+     "calendrier_mmad": 474.587
+    },
+    "residu_apres_dividende_mmad": -1736.5,
+    "residu_apres_dividende_pct": -16.25,
+    "cause_residu_sur_piece": {
+     "exercice": 2025,
+     "montant_mmad": -1747.0,
+     "page": 87,
+     "libelle": "gains et pertes comptabilisés en capitaux propres (couverture de flux de trésorerie, écarts de conversion)",
+     "source": "Managem RFA 2025 p.87, variation des capitaux propres consolidés 2025 : « Résultat global total de l'année - -1 339 -408 3 002 1 255 » MMAD part du groupe, soit 1 255 - 3 002 = -1 747 (dont « Résultat couverture des flux de trésorerie -1 158 », « Pertes et profits de conversion -408 »)",
+     "couverture": 1.006
+    },
+    "formule": "3002 ÷ (11478.3)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 10687.8,
     "fonds_propres_2025": 11478.3,
     "rnpg_2025": 3002.0,
@@ -1010,6 +1250,19 @@
     "roe_retenu": 16.32,
     "residu_mmad": -173.711,
     "residu_pct_fonds_propres_2024": -6.72,
+    "dividende_exercice": {
+     "mmad": 141.592,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 1.41592e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 141.592
+    },
+    "residu_apres_dividende_mmad": -32.119,
+    "residu_apres_dividende_pct": -1.24,
+    "cause_residu_sur_piece": null,
+    "formule": "443.68 ÷ moyenne(2583.56 ; 2853.529)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 2583.560166,
     "fonds_propres_2025": 2853.529135,
     "rnpg_2025": 443.680156,
@@ -1030,6 +1283,26 @@
     "roe_retenu": 10.05,
     "residu_mmad": -281.709,
     "residu_pct_fonds_propres_2024": -5.43,
+    "dividende_exercice": {
+     "mmad": 276.499,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 1.25681e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 276.499
+    },
+    "residu_apres_dividende_mmad": -5.21,
+    "residu_apres_dividende_pct": -0.1,
+    "cause_residu_sur_piece": null,
+    "formule": "534.413 ÷ moyenne(5191.827 ; 5444.531)",
+    "frontiere_palier": {
+     "seuil": 10.0,
+     "ecart_points": 0.05,
+     "cote": "au-dessus",
+     "note_au_dessus": 5.0,
+     "note_en_dessous": 3.5,
+     "etiquette": "à 0,05 point du seuil de 10 % (au-dessus ; la note de rentabilité passe de 5 à 3,5 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 5191.827,
     "fonds_propres_2025": 5444.531,
     "rnpg_2025": 534.413,
@@ -1050,6 +1323,26 @@
     "roe_retenu": 14.89,
     "residu_mmad": -44.675,
     "residu_pct_fonds_propres_2024": -6.2,
+    "dividende_exercice": {
+     "mmad": 45.54,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 1.98e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 45.54
+    },
+    "residu_apres_dividende_mmad": 0.865,
+    "residu_apres_dividende_pct": 0.12,
+    "cause_residu_sur_piece": null,
+    "formule": "112.3 ÷ moyenne(720.476 ; 788.101)",
+    "frontiere_palier": {
+     "seuil": 15.0,
+     "ecart_points": -0.11,
+     "cote": "en dessous",
+     "note_au_dessus": 7.0,
+     "note_en_dessous": 6.0,
+     "etiquette": "à 0,11 point du seuil de 15 % (en dessous ; la note de rentabilité passe de 7 à 6 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 720.476,
     "fonds_propres_2025": 788.101,
     "rnpg_2025": 112.3,
@@ -1070,6 +1363,19 @@
     "roe_retenu": 38.97,
     "residu_mmad": -967.593,
     "residu_pct_fonds_propres_2024": -29.06,
+    "dividende_exercice": {
+     "mmad": 866.16,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 1.4436e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 866.16
+    },
+    "residu_apres_dividende_mmad": -101.433,
+    "residu_apres_dividende_pct": -3.05,
+    "cause_residu_sur_piece": null,
+    "formule": "1377.432 ÷ moyenne(3329.472 ; 3739.311)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 3329.472,
     "fonds_propres_2025": 3739.311,
     "rnpg_2025": 1377.432,
@@ -1080,16 +1386,36 @@
    },
    "CTM": {
     "famille": "autre",
-    "convention": "moyenne",
-    "motif": null,
-    "code_motif": null,
+    "convention": "cloture_moyenne_ecartee",
+    "motif": "mouvement de fonds propres hors résultat et hors dividende, cause portée sur pièce : « Autres retraitements » de consolidation -144.434 MMAD (p.68), 101% du résidu — résidu après dividende R + D = -175.085 + 31.651 = -143.434 MMAD, -39.6% des fonds propres 2024 (seuil ±5% ; dividende tableau variation, p.68)",
+    "code_motif": "residu_cause_sur_piece",
     "roe_cloture_publie": 23.1,
     "roe_cloture_non_arrondi": 23.0837,
     "roe_moyen": 18.55,
     "ecart_moyen_moins_cloture_non_arrondie": -4.534,
-    "roe_retenu": 18.55,
+    "roe_retenu": 23.1,
     "residu_mmad": -175.085,
     "residu_pct_fonds_propres_2024": -48.32,
+    "dividende_exercice": {
+     "mmad": 31.651,
+     "origine": "tableau_variation",
+     "source": "CTM RFA 2025 p.68, capitaux propres consolidés au 31/12/2025 : « Dividendes versés - - (31 651) - (31 651) - (31 651) » KMAD (le flux de trésorerie de la même page porte (30 651) : le tableau de variation, lui, boucle exactement à 243 479)",
+     "page": 68,
+     "calendrier_mmad": 30.649
+    },
+    "residu_apres_dividende_mmad": -143.434,
+    "residu_apres_dividende_pct": -39.58,
+    "cause_residu_sur_piece": {
+     "exercice": 2025,
+     "montant_mmad": -144.434,
+     "page": 68,
+     "libelle": "« Autres retraitements » de consolidation",
+     "source": "CTM RFA 2025 p.68, capitaux propres consolidés : « Autres retraitements - - (144 434) - (144 433) 142 469 (1 963) » KMAD (réserves consolidées, part du groupe) ; boucle avec les « Distributions reçues » +999 KMAD : -31 651 + 56 204 + 999 - 144 433 = -118 881 = 243 479 - 362 360",
+     "couverture": 1.007
+    },
+    "formule": "56.204 ÷ (243.479)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 362.36,
     "fonds_propres_2025": 243.479,
     "rnpg_2025": 56.204,
@@ -1110,6 +1436,13 @@
     "roe_retenu": 32.03,
     "residu_mmad": 0.069,
     "residu_pct_fonds_propres_2024": 0.12,
+    "dividende_exercice": null,
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "21.588 ÷ moyenne(56.572 ; 78.229)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 56.572,
     "fonds_propres_2025": 78.229,
     "rnpg_2025": 21.588,
@@ -1130,6 +1463,26 @@
     "roe_retenu": 14.7,
     "residu_mmad": 549.95,
     "residu_pct_fonds_propres_2024": 32.65,
+    "dividende_exercice": {
+     "mmad": 212.988,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 7.60673e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 212.988
+    },
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "385.526 ÷ (2619.648)",
+    "frontiere_palier": {
+     "seuil": 15.0,
+     "ecart_points": -0.3,
+     "cote": "en dessous",
+     "note_au_dessus": 7.0,
+     "note_en_dessous": 6.0,
+     "etiquette": "à 0,30 point du seuil de 15 % (en dessous ; la note de rentabilité passe de 7 à 6 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 1684.172,
     "fonds_propres_2025": 2619.648,
     "rnpg_2025": 385.526,
@@ -1150,6 +1503,19 @@
     "roe_retenu": 10.64,
     "residu_mmad": -82.706,
     "residu_pct_fonds_propres_2024": -2.25,
+    "dividende_exercice": {
+     "mmad": 79.483,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 2.20786e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 79.483
+    },
+    "residu_apres_dividende_mmad": -3.223,
+    "residu_apres_dividende_pct": -0.09,
+    "cause_residu_sur_piece": null,
+    "formule": "407.601 ÷ moyenne(3668.286 ; 3993.181)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 3668.286,
     "fonds_propres_2025": 3993.181,
     "rnpg_2025": 407.601,
@@ -1170,6 +1536,19 @@
     "roe_retenu": 4.83,
     "residu_mmad": -291.519,
     "residu_pct_fonds_propres_2024": -3.13,
+    "dividende_exercice": {
+     "mmad": 201.276,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 4.02551e+08 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 201.276
+    },
+    "residu_apres_dividende_mmad": -90.243,
+    "residu_apres_dividende_pct": -0.97,
+    "cause_residu_sur_piece": null,
+    "formule": "453.719 ÷ moyenne(9319.494 ; 9481.695)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 9319.494058,
     "fonds_propres_2025": 9481.694524,
     "rnpg_2025": 453.719,
@@ -1190,6 +1569,19 @@
     "roe_retenu": 21.0,
     "residu_mmad": 1830.908,
     "residu_pct_fonds_propres_2024": 103.96,
+    "dividende_exercice": {
+     "mmad": 398.754,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 3.46743e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 398.754
+    },
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "952 ÷ (4544.126)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 1761.218,
     "fonds_propres_2025": 4544.126,
     "rnpg_2025": 952.0,
@@ -1210,6 +1602,19 @@
     "roe_retenu": 19.1,
     "residu_mmad": -117.788,
     "residu_pct_fonds_propres_2024": -6.5,
+    "dividende_exercice": {
+     "mmad": 115.526,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 3.5008e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 115.526
+    },
+    "residu_apres_dividende_mmad": -2.262,
+    "residu_apres_dividende_pct": -0.12,
+    "cause_residu_sur_piece": null,
+    "formule": "370.445 ÷ moyenne(1812.92 ; 2065.577)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 1812.92,
     "fonds_propres_2025": 2065.577,
     "rnpg_2025": 370.445,
@@ -1230,6 +1635,19 @@
     "roe_retenu": 30.6,
     "residu_mmad": 157.451,
     "residu_pct_fonds_propres_2024": 40.27,
+    "dividende_exercice": {
+     "mmad": 0.0,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × — aucun versement recensé dans l'exercice",
+     "page": null,
+     "calendrier_mmad": 0.0
+    },
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "242.296 ÷ (790.776)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 391.029,
     "fonds_propres_2025": 790.776,
     "rnpg_2025": 242.296,
@@ -1250,6 +1668,19 @@
     "roe_retenu": 43.5,
     "residu_mmad": -411.4,
     "residu_pct_fonds_propres_2024": -15.7,
+    "dividende_exercice": {
+     "mmad": 500.0,
+     "origine": "tableau_variation",
+     "source": "SGTM RFA 2025 p.88, variation des capitaux propres consolidés : « Dividendes (500 000) (500 000) (500 000) » KMAD en 2025 — versé AVANT l'introduction en bourse, donc absent du calendrier de la BVC",
+     "page": 88,
+     "calendrier_mmad": 0.0
+    },
+    "residu_apres_dividende_mmad": 88.6,
+    "residu_apres_dividende_pct": 3.38,
+    "cause_residu_sur_piece": null,
+    "formule": "1342 ÷ moyenne(2619.799 ; 3550.399)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 2619.799,
     "fonds_propres_2025": 3550.399,
     "rnpg_2025": 1342.0,
@@ -1270,6 +1701,19 @@
     "roe_retenu": 9.0,
     "residu_mmad": -90.056,
     "residu_pct_fonds_propres_2024": -3.42,
+    "dividende_exercice": {
+     "mmad": 107.106,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 1.70009e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 107.106
+    },
+    "residu_apres_dividende_mmad": 17.05,
+    "residu_apres_dividende_pct": 0.65,
+    "cause_residu_sur_piece": null,
+    "formule": "244 ÷ moyenne(2634.397 ; 2788.34)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 2634.396857,
     "fonds_propres_2025": 2788.340389,
     "rnpg_2025": 244.0,
@@ -1290,6 +1734,26 @@
     "roe_retenu": 11.6,
     "residu_mmad": 650.252,
     "residu_pct_fonds_propres_2024": 144.37,
+    "dividende_exercice": {
+     "mmad": 0.0,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × — aucun versement recensé dans l'exercice",
+     "page": null,
+     "calendrier_mmad": 0.0
+    },
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "144.284 ÷ (1244.928)",
+    "frontiere_palier": {
+     "seuil": 12.0,
+     "ecart_points": -0.4,
+     "cote": "en dessous",
+     "note_au_dessus": 6.0,
+     "note_en_dessous": 5.0,
+     "etiquette": "à 0,40 point du seuil de 12 % (en dessous ; la note de rentabilité passe de 6 à 5 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 450.391407,
     "fonds_propres_2025": 1244.927997,
     "rnpg_2025": 144.284126,
@@ -1310,6 +1774,13 @@
     "roe_retenu": 16.5,
     "residu_mmad": -162.92,
     "residu_pct_fonds_propres_2024": -10.3,
+    "dividende_exercice": null,
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "269.622 ÷ moyenne(1581.198 ; 1687.9)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 1581.198,
     "fonds_propres_2025": 1687.9,
     "rnpg_2025": 269.622,
@@ -1330,6 +1801,26 @@
     "roe_retenu": 12.23,
     "residu_mmad": -948.4,
     "residu_pct_fonds_propres_2024": -16.13,
+    "dividende_exercice": {
+     "mmad": 944.871,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 9.44871e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 944.871
+    },
+    "residu_apres_dividende_mmad": -3.529,
+    "residu_apres_dividende_pct": -0.06,
+    "cause_residu_sur_piece": null,
+    "formule": "703.7 ÷ moyenne(5878.5 ; 5633.8)",
+    "frontiere_palier": {
+     "seuil": 12.0,
+     "ecart_points": 0.23,
+     "cote": "au-dessus",
+     "note_au_dessus": 6.0,
+     "note_en_dessous": 5.0,
+     "etiquette": "à 0,23 point du seuil de 12 % (au-dessus ; la note de rentabilité passe de 6 à 5 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 5878.5,
     "fonds_propres_2025": 5633.8,
     "rnpg_2025": 703.7,
@@ -1350,6 +1841,13 @@
     "roe_retenu": 0.12,
     "residu_mmad": -0.135,
     "residu_pct_fonds_propres_2024": -0.0,
+    "dividende_exercice": null,
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "4.494 ÷ moyenne(3735.121 ; 3739.48)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 3735.121,
     "fonds_propres_2025": 3739.48,
     "rnpg_2025": 4.494,
@@ -1370,6 +1868,19 @@
     "roe_retenu": 24.48,
     "residu_mmad": -48.054,
     "residu_pct_fonds_propres_2024": -19.39,
+    "dividende_exercice": {
+     "mmad": 46.595,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 465954 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 46.595
+    },
+    "residu_apres_dividende_mmad": -1.459,
+    "residu_apres_dividende_pct": -0.59,
+    "cause_residu_sur_piece": null,
+    "formule": "62.406 ÷ moyenne(247.79 ; 262.143)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 247.79032564,
     "fonds_propres_2025": 262.1426,
     "rnpg_2025": 62.40607,
@@ -1390,6 +1901,20 @@
     "roe_retenu": 12.1,
     "residu_mmad": null,
     "residu_pct_fonds_propres_2024": null,
+    "dividende_exercice": null,
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": null,
+    "frontiere_palier": {
+     "seuil": 12.0,
+     "ecart_points": 0.1,
+     "cote": "au-dessus",
+     "note_au_dessus": 6.0,
+     "note_en_dessous": 5.0,
+     "etiquette": "à 0,10 point du seuil de 12 % (au-dessus ; la note de rentabilité passe de 6 à 5 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": null,
     "fonds_propres_2025": null,
     "rnpg_2025": 148.198775,
@@ -1410,6 +1935,26 @@
     "roe_retenu": 14.53,
     "residu_mmad": -39.798,
     "residu_pct_fonds_propres_2024": -11.24,
+    "dividende_exercice": {
+     "mmad": 41.773,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 298375 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 41.773
+    },
+    "residu_apres_dividende_mmad": 1.975,
+    "residu_apres_dividende_pct": 0.56,
+    "cause_residu_sur_piece": null,
+    "formule": "52.395 ÷ moyenne(354.21 ; 366.807)",
+    "frontiere_palier": {
+     "seuil": 15.0,
+     "ecart_points": -0.47,
+     "cote": "en dessous",
+     "note_au_dessus": 7.0,
+     "note_en_dessous": 6.0,
+     "etiquette": "à 0,47 point du seuil de 15 % (en dessous ; la note de rentabilité passe de 7 à 6 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 354.210236,
     "fonds_propres_2025": 366.807324,
     "rnpg_2025": 52.395028,
@@ -1430,6 +1975,19 @@
     "roe_retenu": 5.03,
     "residu_mmad": -46.282,
     "residu_pct_fonds_propres_2024": -5.6,
+    "dividende_exercice": {
+     "mmad": 46.836,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 9.007e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 46.836
+    },
+    "residu_apres_dividende_mmad": 0.554,
+    "residu_apres_dividende_pct": 0.07,
+    "cause_residu_sur_piece": null,
+    "formule": "41.486 ÷ moyenne(827.116 ; 822.32)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 827.116,
     "fonds_propres_2025": 822.32,
     "rnpg_2025": 41.486,
@@ -1450,6 +2008,19 @@
     "roe_retenu": 14.35,
     "residu_mmad": -16.469,
     "residu_pct_fonds_propres_2024": -9.38,
+    "dividende_exercice": {
+     "mmad": 16.469,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 998110 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 16.469
+    },
+    "residu_apres_dividende_mmad": 0.0,
+    "residu_apres_dividende_pct": 0.0,
+    "cause_residu_sur_piece": null,
+    "formule": "25.878 ÷ moyenne(175.626 ; 185.035)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 175.62564578,
     "fonds_propres_2025": 185.034939,
     "rnpg_2025": 25.878,
@@ -1470,6 +2041,19 @@
     "roe_retenu": 12.55,
     "residu_mmad": -75.532,
     "residu_pct_fonds_propres_2024": -11.17,
+    "dividende_exercice": {
+     "mmad": 75.43,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 1.88576e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 75.43
+    },
+    "residu_apres_dividende_mmad": -0.102,
+    "residu_apres_dividende_pct": -0.02,
+    "cause_residu_sur_piece": null,
+    "formule": "85.458 ÷ moyenne(675.926 ; 685.852)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 675.92620881,
     "fonds_propres_2025": 685.85175864,
     "rnpg_2025": 85.457932,
@@ -1490,6 +2074,19 @@
     "roe_retenu": 4.93,
     "residu_mmad": -3.25,
     "residu_pct_fonds_propres_2024": -1.06,
+    "dividende_exercice": {
+     "mmad": 3.25,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 812500 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 3.25
+    },
+    "residu_apres_dividende_mmad": 0.0,
+    "residu_apres_dividende_pct": 0.0,
+    "cause_residu_sur_piece": null,
+    "formule": "15.447 ÷ moyenne(307.028 ; 319.225)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 307.028,
     "fonds_propres_2025": 319.225,
     "rnpg_2025": 15.447,
@@ -1510,6 +2107,13 @@
     "roe_retenu": -31.95,
     "residu_mmad": 0.001,
     "residu_pct_fonds_propres_2024": 0.0,
+    "dividende_exercice": null,
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "-185.186 ÷ moyenne(672.236 ; 487.051)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 672.236,
     "fonds_propres_2025": 487.051,
     "rnpg_2025": -185.186,
@@ -1530,6 +2134,30 @@
     "roe_retenu": 11.06,
     "residu_mmad": -92.162,
     "residu_pct_fonds_propres_2024": -10.63,
+    "dividende_exercice": {
+     "mmad": 92.162,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 3.12412e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 92.162
+    },
+    "residu_apres_dividende_mmad": -0.0,
+    "residu_apres_dividende_pct": -0.0,
+    "cause_residu_sur_piece": null,
+    "formule": "96.117 ÷ moyenne(866.878 ; 870.833)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": {
+     "etiquette": "dividende exceptionnel de 14.75 DH payé le 17/06/2025 (46,1 MMAD, 5% des fonds propres 2024) : moyenne simple 11,06 %, pondérée ≈ 10,9 % — la pondérée est INDICATIVE, la note lit la moyenne simple",
+     "exceptionnels": [
+      {
+       "par_action": 14.75,
+       "paiement": "2025-06-17",
+       "mmad": 46.081
+      }
+     ],
+     "roe_moyenne_simple": 11.06,
+     "roe_moyenne_ponderee_indicatif": 10.92
+    },
     "fonds_propres_2024": 866.878,
     "fonds_propres_2025": 870.833,
     "rnpg_2025": 96.117,
@@ -1541,7 +2169,7 @@
    "M2M": {
     "famille": "autre",
     "convention": "cloture_moyenne_ecartee",
-    "motif": "mouvement de fonds propres hors résultat non expliqué : résidu R = FP2025 − FP2024 − RNPG2025 = 7.67418 MMAD, +5.3% des fonds propres 2024 (seuil 5%), cause absente du registre",
+    "motif": "mouvement de fonds propres hors résultat non expliqué : résidu R = FP2025 − FP2024 − RNPG2025 = 7.67418 MMAD, +5.3% des fonds propres 2024 (seuil 5%), cause absente du registre ; dividende de l'exercice non relevé : test limité au résidu positif",
     "code_motif": "residu_non_explique",
     "roe_cloture_publie": 3.4,
     "roe_cloture_non_arrondi": 3.3618,
@@ -1550,6 +2178,13 @@
     "roe_retenu": 3.4,
     "residu_mmad": 7.674,
     "residu_pct_fonds_propres_2024": 5.3,
+    "dividende_exercice": null,
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "5.305 ÷ (157.812)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 144.832311,
     "fonds_propres_2025": 157.811867,
     "rnpg_2025": 5.305374,
@@ -1570,6 +2205,13 @@
     "roe_retenu": 0.13,
     "residu_mmad": 0.0,
     "residu_pct_fonds_propres_2024": 0.0,
+    "dividende_exercice": null,
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "0.116 ÷ moyenne(90.253 ; 90.369)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 90.2529496,
     "fonds_propres_2025": 90.369128,
     "rnpg_2025": 0.116,
@@ -1590,6 +2232,13 @@
     "roe_retenu": 27.29,
     "residu_mmad": 0.003,
     "residu_pct_fonds_propres_2024": 0.0,
+    "dividende_exercice": null,
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "32.558 ÷ moyenne(103.027 ; 135.589)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 103.027431,
     "fonds_propres_2025": 135.589205,
     "rnpg_2025": 32.558354,
@@ -1610,6 +2259,19 @@
     "roe_retenu": 18.85,
     "residu_mmad": -41.906,
     "residu_pct_fonds_propres_2024": -12.49,
+    "dividende_exercice": {
+     "mmad": 41.906,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 1.61176e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 41.906
+    },
+    "residu_apres_dividende_mmad": 0.0,
+    "residu_apres_dividende_pct": 0.0,
+    "cause_residu_sur_piece": null,
+    "formule": "65.479 ÷ moyenne(335.546 ; 359.12)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 335.54632265,
     "fonds_propres_2025": 359.119876,
     "rnpg_2025": 65.479342,
@@ -1630,6 +2292,20 @@
     "roe_retenu": 9.53,
     "residu_mmad": -0.047,
     "residu_pct_fonds_propres_2024": -0.03,
+    "dividende_exercice": null,
+    "residu_apres_dividende_mmad": null,
+    "residu_apres_dividende_pct": null,
+    "cause_residu_sur_piece": null,
+    "formule": "14.856 ÷ moyenne(148.527 ; 163.336)",
+    "frontiere_palier": {
+     "seuil": 10.0,
+     "ecart_points": -0.47,
+     "cote": "en dessous",
+     "note_au_dessus": 5.0,
+     "note_en_dessous": 3.5,
+     "etiquette": "à 0,47 point du seuil de 10 % (en dessous ; la note de rentabilité passe de 5 à 3,5 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 148.527,
     "fonds_propres_2025": 163.336,
     "rnpg_2025": 14.856,
@@ -1650,6 +2326,26 @@
     "roe_retenu": 10.43,
     "residu_mmad": -9.592,
     "residu_pct_fonds_propres_2024": -7.44,
+    "dividende_exercice": {
+     "mmad": 9.592,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 1.744e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 9.592
+    },
+    "residu_apres_dividende_mmad": -0.0,
+    "residu_apres_dividende_pct": -0.0,
+    "cause_residu_sur_piece": null,
+    "formule": "13.65 ÷ moyenne(128.893 ; 132.95)",
+    "frontiere_palier": {
+     "seuil": 10.0,
+     "ecart_points": 0.43,
+     "cote": "au-dessus",
+     "note_au_dessus": 5.0,
+     "note_en_dessous": 3.5,
+     "etiquette": "à 0,43 point du seuil de 10 % (au-dessus ; la note de rentabilité passe de 5 à 3,5 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 128.892669,
     "fonds_propres_2025": 132.950333,
     "rnpg_2025": 13.649664,
@@ -1670,6 +2366,19 @@
     "roe_retenu": 23.87,
     "residu_mmad": -122.82,
     "residu_pct_fonds_propres_2024": -9.77,
+    "dividende_exercice": {
+     "mmad": 122.792,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 1.02326e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 122.792
+    },
+    "residu_apres_dividende_mmad": -0.028,
+    "residu_apres_dividende_pct": -0.0,
+    "cause_residu_sur_piece": null,
+    "formule": "324.182 ÷ moyenne(1257.646 ; 1459.008)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 1257.646,
     "fonds_propres_2025": 1459.008,
     "rnpg_2025": 324.182,
@@ -1690,6 +2399,26 @@
     "roe_retenu": 6.87,
     "residu_mmad": -112.37,
     "residu_pct_fonds_propres_2024": -7.7,
+    "dividende_exercice": {
+     "mmad": 100.589,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 5.02945e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 100.589
+    },
+    "residu_apres_dividende_mmad": -11.781,
+    "residu_apres_dividende_pct": -0.81,
+    "cause_residu_sur_piece": null,
+    "formule": "99.832 ÷ moyenne(1458.514 ; 1445.976)",
+    "frontiere_palier": {
+     "seuil": 7.0,
+     "ecart_points": -0.13,
+     "cote": "en dessous",
+     "note_au_dessus": 3.5,
+     "note_en_dessous": 2.0,
+     "etiquette": "à 0,13 point du seuil de 7 % (en dessous ; la note de rentabilité passe de 3,5 à 2 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 1458.51407909,
     "fonds_propres_2025": 1445.975818,
     "rnpg_2025": 99.832,
@@ -1710,6 +2439,19 @@
     "roe_retenu": 5.84,
     "residu_mmad": -180.546,
     "residu_pct_fonds_propres_2024": -2.47,
+    "dividende_exercice": {
+     "mmad": 239.027,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 1.32793e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 239.027
+    },
+    "residu_apres_dividende_mmad": 58.481,
+    "residu_apres_dividende_pct": 0.8,
+    "cause_residu_sur_piece": null,
+    "formule": "434.829 ÷ moyenne(7318.181 ; 7572.464)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 7318.181,
     "fonds_propres_2025": 7572.464,
     "rnpg_2025": 434.829,
@@ -1730,6 +2472,26 @@
     "roe_retenu": 15.5,
     "residu_mmad": -6.413,
     "residu_pct_fonds_propres_2024": -13.35,
+    "dividende_exercice": {
+     "mmad": 6.413,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 291500 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 6.413
+    },
+    "residu_apres_dividende_mmad": -0.0,
+    "residu_apres_dividende_pct": -0.0,
+    "cause_residu_sur_piece": null,
+    "formule": "7.53 ÷ moyenne(48.036 ; 49.154)",
+    "frontiere_palier": {
+     "seuil": 15.0,
+     "ecart_points": 0.5,
+     "cote": "au-dessus",
+     "note_au_dessus": 7.0,
+     "note_en_dessous": 6.0,
+     "etiquette": "à 0,50 point du seuil de 15 % (au-dessus ; la note de rentabilité passe de 7 à 6 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 48.03644324,
     "fonds_propres_2025": 49.153559,
     "rnpg_2025": 7.530116,
@@ -1750,6 +2512,19 @@
     "roe_retenu": 35.8,
     "residu_mmad": -67.2,
     "residu_pct_fonds_propres_2024": -34.8,
+    "dividende_exercice": {
+     "mmad": 67.2,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 1.68e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 67.2
+    },
+    "residu_apres_dividende_mmad": -0.0,
+    "residu_apres_dividende_pct": -0.0,
+    "cause_residu_sur_piece": null,
+    "formule": "69.548 ÷ moyenne(193.091 ; 195.438)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 193.09066108,
     "fonds_propres_2025": 195.438452,
     "rnpg_2025": 69.54779096,
@@ -1770,6 +2545,19 @@
     "roe_retenu": 8.1,
     "residu_mmad": -137.619,
     "residu_pct_fonds_propres_2024": -8.81,
+    "dividende_exercice": {
+     "mmad": 97.091,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 9.24674e+06 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 97.091
+    },
+    "residu_apres_dividende_mmad": -40.528,
+    "residu_apres_dividende_pct": -2.59,
+    "cause_residu_sur_piece": null,
+    "formule": "126.161 ÷ moyenne(1562.845 ; 1551.387)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 1562.845,
     "fonds_propres_2025": 1551.387,
     "rnpg_2025": 126.161,
@@ -1790,6 +2578,26 @@
     "roe_retenu": 6.86,
     "residu_mmad": 0.001,
     "residu_pct_fonds_propres_2024": 0.0,
+    "dividende_exercice": {
+     "mmad": 0.0,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × — aucun versement recensé dans l'exercice",
+     "page": null,
+     "calendrier_mmad": 0.0
+    },
+    "residu_apres_dividende_mmad": 0.001,
+    "residu_apres_dividende_pct": 0.0,
+    "cause_residu_sur_piece": null,
+    "formule": "98.561 ÷ moyenne(1387.16 ; 1485.722)",
+    "frontiere_palier": {
+     "seuil": 7.0,
+     "ecart_points": -0.14,
+     "cote": "en dessous",
+     "note_au_dessus": 3.5,
+     "note_en_dessous": 2.0,
+     "etiquette": "à 0,14 point du seuil de 7 % (en dessous ; la note de rentabilité passe de 3,5 à 2 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 1387.16,
     "fonds_propres_2025": 1485.722,
     "rnpg_2025": 98.561,
@@ -1810,6 +2618,26 @@
     "roe_retenu": 11.97,
     "residu_mmad": -204.316,
     "residu_pct_fonds_propres_2024": -8.12,
+    "dividende_exercice": {
+     "mmad": 197.1,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × 8.76e+07 actions (faits_financiers.json › nombre_actions_au_rapport)",
+     "page": null,
+     "calendrier_mmad": 197.1
+    },
+    "residu_apres_dividende_mmad": -7.216,
+    "residu_apres_dividende_pct": -0.29,
+    "cause_residu_sur_piece": null,
+    "formule": "307.191 ÷ moyenne(2515.87 ; 2618.746)",
+    "frontiere_palier": {
+     "seuil": 12.0,
+     "ecart_points": -0.03,
+     "cote": "en dessous",
+     "note_au_dessus": 6.0,
+     "note_en_dessous": 5.0,
+     "etiquette": "à 0,03 point du seuil de 12 % (en dessous ; la note de rentabilité passe de 6 à 5 de l'autre côté)"
+    },
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 2515.8704736,
     "fonds_propres_2025": 2618.74624431,
     "rnpg_2025": 307.19143,
@@ -1830,6 +2658,19 @@
     "roe_retenu": -3.39,
     "residu_mmad": -12.488,
     "residu_pct_fonds_propres_2024": -1.3,
+    "dividende_exercice": {
+     "mmad": 0.0,
+     "origine": "calendrier",
+     "source": "datasets/dividendes_bvc.json (versements de l'année 2025) × — aucun versement recensé dans l'exercice",
+     "page": null,
+     "calendrier_mmad": 0.0
+    },
+    "residu_apres_dividende_mmad": -12.488,
+    "residu_apres_dividende_pct": -1.3,
+    "cause_residu_sur_piece": null,
+    "formule": "-31.94 ÷ moyenne(963.761 ; 919.333)",
+    "frontiere_palier": null,
+    "dividende_exceptionnel": null,
     "fonds_propres_2024": 963.761,
     "fonds_propres_2025": 919.333,
     "rnpg_2025": -31.94,
@@ -1922,6 +2763,824 @@
     "note_metier": null,
     "palier_simule": "Données insuffisantes",
     "palier_actuel": "ATTENDRE"
+   }
+  },
+  "assurances_documentation": [
+   "WAF (Wafa Assurance) publie en IFRS 17 / IFRS 9 : ses placements en juste valeur par OCI alimentent une réserve consolidée de gains latents (4 747,4 MMAD fin 2025), retranchée des fonds propres pour le ROE.",
+   "ATL (Atlanta-Sanad) publie en NORMES MAROCAINES : ses plus-values latentes sur placements sont HORS BILAN, en annexe ; la réserve OCI est nulle parce qu'aucun compte de gains latents n'existe aux fonds propres (zéro confirmé p.140, normes marocaines p.144).",
+   "Les deux ne se comparent PAS terme à terme : retrancher l'OCI de WAF et rien chez ATL les met sur la même définition des fonds propres COMPTABLES hors gains latents, pas sur la même réalité économique — les plus-values latentes d'ATL existent, elles sont ailleurs. Lire leurs ROE côte à côte comme un classement serait une erreur.",
+   "L'OCI d'assurance CONSOLIDÉ d'ATW (Attijariwafa, banque-assurance) reste INCLUS dans ses fonds propres : la règle « ROE hors OCI » se limite à la famille « assurance » (FAMILLES_ROE_HORS_OCI)."
+  ],
+  "residu_apres_dividende": {
+   "regle": "moyenne écartée si |R + D| > 5 % des fonds propres 2024 (R = FP2025 − FP2024 − RNPG2025 ; D = dividende versé dans l'exercice, tableau de variation sinon calendrier × actions). D inconnu : test d'avant (R > +5 % seul), dit dans le motif.",
+   "titres_examines": 56,
+   "dividende_inconnu": [
+    "CMT",
+    "FNB",
+    "INV",
+    "M2M",
+    "RDS",
+    "RIS",
+    "S2M",
+    "SNP",
+    "ZLD"
+   ],
+   "ecartes_par_le_residu": {
+    "BCP": {
+     "residu_avant_dividende_pct": -12.34,
+     "dividende_mmad": 2134.781,
+     "dividende_origine": "tableau_variation",
+     "dividende_page": 12,
+     "residu_apres_dividende_pct": -6.58,
+     "code": "residu_cause_sur_piece",
+     "convention": "cloture_moyenne_ecartee"
+    },
+    "MNG": {
+     "residu_avant_dividende_pct": -20.69,
+     "dividende_mmad": 475.0,
+     "dividende_origine": "tableau_variation",
+     "dividende_page": 87,
+     "residu_apres_dividende_pct": -16.25,
+     "code": "residu_cause_sur_piece",
+     "convention": "cloture_moyenne_ecartee"
+    },
+    "CTM": {
+     "residu_avant_dividende_pct": -48.32,
+     "dividende_mmad": 31.651,
+     "dividende_origine": "tableau_variation",
+     "dividende_page": 68,
+     "residu_apres_dividende_pct": -39.58,
+     "code": "residu_cause_sur_piece",
+     "convention": "cloture_moyenne_ecartee"
+    },
+    "M2M": {
+     "residu_avant_dividende_pct": 5.3,
+     "dividende_mmad": null,
+     "dividende_origine": null,
+     "dividende_page": null,
+     "residu_apres_dividende_pct": null,
+     "code": "residu_non_explique",
+     "convention": "cloture_moyenne_ecartee"
+    }
+   },
+   "detail": {
+    "ATW": {
+     "residu_avant_dividende_pct": -5.88,
+     "dividende_mmad": 4087.676,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.67,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "BCP": {
+     "residu_avant_dividende_pct": -12.34,
+     "dividende_mmad": 2134.781,
+     "dividende_origine": "tableau_variation",
+     "dividende_page": 12,
+     "residu_apres_dividende_pct": -6.58,
+     "code": "residu_cause_sur_piece",
+     "convention": "cloture_moyenne_ecartee"
+    },
+    "BOA": {
+     "residu_avant_dividende_pct": -3.94,
+     "dividende_mmad": 1101.409,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.16,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "CIH": {
+     "residu_avant_dividende_pct": 14.17,
+     "dividende_mmad": 440.953,
+     "dividende_origine": "tableau_variation",
+     "dividende_page": 26,
+     "residu_apres_dividende_pct": null,
+     "code": "registre_operation_capital",
+     "convention": "cloture_moyenne_ecartee"
+    },
+    "WAF": {
+     "residu_avant_dividende_pct": -4.47,
+     "dividende_mmad": 490.0,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.63,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "GAZ": {
+     "residu_avant_dividende_pct": -18.58,
+     "dividende_mmad": 601.562,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.0,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "ATL": {
+     "residu_avant_dividende_pct": -14.93,
+     "dividende_mmad": 349.645,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.16,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "HPS": {
+     "residu_avant_dividende_pct": -8.24,
+     "dividende_mmad": 51.843,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -1.55,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "LBV": {
+     "residu_avant_dividende_pct": -9.34,
+     "dividende_mmad": 319.985,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.05,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "LES": {
+     "residu_avant_dividende_pct": -5.88,
+     "dividende_mmad": 82.8,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -1.2,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "TQA": {
+     "residu_avant_dividende_pct": -13.09,
+     "dividende_mmad": 872.776,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.0,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "MRL": {
+     "residu_avant_dividende_pct": -3.35,
+     "dividende_mmad": 38.875,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.0,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "TMA": {
+     "residu_avant_dividende_pct": -58.72,
+     "dividende_mmad": 1612.8,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.02,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "CMT": {
+     "residu_avant_dividende_pct": -2.4,
+     "dividende_mmad": null,
+     "dividende_origine": null,
+     "dividende_page": null,
+     "residu_apres_dividende_pct": null,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "MNG": {
+     "residu_avant_dividende_pct": -20.69,
+     "dividende_mmad": 475.0,
+     "dividende_origine": "tableau_variation",
+     "dividende_page": 87,
+     "residu_apres_dividende_pct": -16.25,
+     "code": "residu_cause_sur_piece",
+     "convention": "cloture_moyenne_ecartee"
+    },
+    "AKD": {
+     "residu_avant_dividende_pct": -6.72,
+     "dividende_mmad": 141.592,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -1.24,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "ARD": {
+     "residu_avant_dividende_pct": -5.43,
+     "dividende_mmad": 276.499,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.1,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "OUL": {
+     "residu_avant_dividende_pct": -6.2,
+     "dividende_mmad": 45.54,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.12,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "CIM": {
+     "residu_avant_dividende_pct": -29.06,
+     "dividende_mmad": 866.16,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -3.05,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "CTM": {
+     "residu_avant_dividende_pct": -48.32,
+     "dividende_mmad": 31.651,
+     "dividende_origine": "tableau_variation",
+     "dividende_page": 68,
+     "residu_apres_dividende_pct": -39.58,
+     "code": "residu_cause_sur_piece",
+     "convention": "cloture_moyenne_ecartee"
+    },
+    "ZLD": {
+     "residu_avant_dividende_pct": 0.12,
+     "dividende_mmad": null,
+     "dividende_origine": null,
+     "dividende_page": null,
+     "residu_apres_dividende_pct": null,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "SOT": {
+     "residu_avant_dividende_pct": 32.65,
+     "dividende_mmad": 212.988,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": null,
+     "code": "registre_operation_capital",
+     "convention": "cloture_moyenne_ecartee"
+    },
+    "ADI": {
+     "residu_avant_dividende_pct": -2.25,
+     "dividende_mmad": 79.483,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.09,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "ADH": {
+     "residu_avant_dividende_pct": -3.13,
+     "dividende_mmad": 201.276,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.97,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "TGCC": {
+     "residu_avant_dividende_pct": 103.96,
+     "dividende_mmad": 398.754,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": null,
+     "code": "registre_operation_capital",
+     "convention": "cloture_moyenne_ecartee"
+    },
+    "CFGB": {
+     "residu_avant_dividende_pct": -6.5,
+     "dividende_mmad": 115.526,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.12,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "CASH": {
+     "residu_avant_dividende_pct": 40.27,
+     "dividende_mmad": 0.0,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": null,
+     "code": "registre_operation_capital",
+     "convention": "cloture_moyenne_ecartee"
+    },
+    "SGTM": {
+     "residu_avant_dividende_pct": -15.7,
+     "dividende_mmad": 500.0,
+     "dividende_origine": "tableau_variation",
+     "dividende_page": 88,
+     "residu_apres_dividende_pct": 3.38,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "CMGP": {
+     "residu_avant_dividende_pct": -3.42,
+     "dividende_mmad": 107.106,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.65,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "VCNE": {
+     "residu_avant_dividende_pct": 144.37,
+     "dividende_mmad": 0.0,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": null,
+     "code": "registre_operation_capital",
+     "convention": "cloture_moyenne_ecartee"
+    },
+    "RIS": {
+     "residu_avant_dividende_pct": -10.3,
+     "dividende_mmad": null,
+     "dividende_origine": null,
+     "dividende_page": null,
+     "residu_apres_dividende_pct": null,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "CSR": {
+     "residu_avant_dividende_pct": -16.13,
+     "dividende_mmad": 944.871,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.06,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "RDS": {
+     "residu_avant_dividende_pct": -0.0,
+     "dividende_mmad": null,
+     "dividende_origine": null,
+     "dividende_page": null,
+     "residu_apres_dividende_pct": null,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "ALU": {
+     "residu_avant_dividende_pct": -19.39,
+     "dividende_mmad": 46.595,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.59,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "DAR": {
+     "residu_avant_dividende_pct": -11.24,
+     "dividende_mmad": 41.773,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.56,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "IMI": {
+     "residu_avant_dividende_pct": -5.6,
+     "dividende_mmad": 46.836,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.07,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "DTT": {
+     "residu_avant_dividende_pct": -9.38,
+     "dividende_mmad": 16.469,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.0,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "DSW": {
+     "residu_avant_dividende_pct": -11.17,
+     "dividende_mmad": 75.43,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.02,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "MOX": {
+     "residu_avant_dividende_pct": -1.06,
+     "dividende_mmad": 3.25,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.0,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "SNP": {
+     "residu_avant_dividende_pct": 0.0,
+     "dividende_mmad": null,
+     "dividende_origine": null,
+     "dividende_page": null,
+     "residu_apres_dividende_pct": null,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "SLM": {
+     "residu_avant_dividende_pct": -10.63,
+     "dividende_mmad": 92.162,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.0,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "M2M": {
+     "residu_avant_dividende_pct": 5.3,
+     "dividende_mmad": null,
+     "dividende_origine": null,
+     "dividende_page": null,
+     "residu_apres_dividende_pct": null,
+     "code": "residu_non_explique",
+     "convention": "cloture_moyenne_ecartee"
+    },
+    "INV": {
+     "residu_avant_dividende_pct": 0.0,
+     "dividende_mmad": null,
+     "dividende_origine": null,
+     "dividende_page": null,
+     "residu_apres_dividende_pct": null,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "S2M": {
+     "residu_avant_dividende_pct": 0.0,
+     "dividende_mmad": null,
+     "dividende_origine": null,
+     "dividende_page": null,
+     "residu_apres_dividende_pct": null,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "COL": {
+     "residu_avant_dividende_pct": -12.49,
+     "dividende_mmad": 41.906,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.0,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "FNB": {
+     "residu_avant_dividende_pct": -0.03,
+     "dividende_mmad": null,
+     "dividende_origine": null,
+     "dividende_page": null,
+     "residu_apres_dividende_pct": null,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "BAL": {
+     "residu_avant_dividende_pct": -7.44,
+     "dividende_mmad": 9.592,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.0,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "NEJ": {
+     "residu_avant_dividende_pct": -9.77,
+     "dividende_mmad": 122.792,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.0,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "HAL": {
+     "residu_avant_dividende_pct": -7.7,
+     "dividende_mmad": 100.589,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.81,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "BMC": {
+     "residu_avant_dividende_pct": -2.47,
+     "dividende_mmad": 239.027,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.8,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "AFI": {
+     "residu_avant_dividende_pct": -13.35,
+     "dividende_mmad": 6.413,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.0,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "MIC": {
+     "residu_avant_dividende_pct": -34.8,
+     "dividende_mmad": 67.2,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.0,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "MUT": {
+     "residu_avant_dividende_pct": -8.81,
+     "dividende_mmad": 97.091,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -2.59,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "EQD": {
+     "residu_avant_dividende_pct": 0.0,
+     "dividende_mmad": 0.0,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": 0.0,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "DHO": {
+     "residu_avant_dividende_pct": -8.12,
+     "dividende_mmad": 197.1,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -0.29,
+     "code": null,
+     "convention": "moyenne"
+    },
+    "UNI": {
+     "residu_avant_dividende_pct": -1.3,
+     "dividende_mmad": 0.0,
+     "dividende_origine": "calendrier",
+     "dividende_page": null,
+     "residu_apres_dividende_pct": -1.3,
+     "code": null,
+     "convention": "moyenne"
+    }
+   }
+  },
+  "changements_de_convention_du_residu_apres_dividende": {
+   "nombre": 3,
+   "detail": {
+    "BCP": {
+     "avant": "moyenne",
+     "apres": "cloture_moyenne_ecartee",
+     "roe_avant": 12.17,
+     "roe_apres": 12.2,
+     "residu_avant_dividende_pct": -12.34,
+     "residu_apres_dividende_pct": -6.58,
+     "dividende_mmad": 2134.781,
+     "code": "residu_cause_sur_piece",
+     "motif": "mouvement de fonds propres hors résultat et hors dividende, cause portée sur pièce : « Variation de périmètre » -2119.06 MMAD (p.12), 87% du résidu — résidu après dividende R + D = -4572.22 + 2134.78 = -2437.44 MMAD, -6.6% des fonds propres 2024 (seuil ±5% ; dividende tableau variation, p.12)"
+    },
+    "CTM": {
+     "avant": "moyenne",
+     "apres": "cloture_moyenne_ecartee",
+     "roe_avant": 18.55,
+     "roe_apres": 23.1,
+     "residu_avant_dividende_pct": -48.32,
+     "residu_apres_dividende_pct": -39.58,
+     "dividende_mmad": 31.651,
+     "code": "residu_cause_sur_piece",
+     "motif": "mouvement de fonds propres hors résultat et hors dividende, cause portée sur pièce : « Autres retraitements » de consolidation -144.434 MMAD (p.68), 101% du résidu — résidu après dividende R + D = -175.085 + 31.651 = -143.434 MMAD, -39.6% des fonds propres 2024 (seuil ±5% ; dividende tableau variation, p.68)"
+    },
+    "MNG": {
+     "avant": "moyenne",
+     "apres": "cloture_moyenne_ecartee",
+     "roe_avant": 27.09,
+     "roe_apres": 26.2,
+     "residu_avant_dividende_pct": -20.69,
+     "residu_apres_dividende_pct": -16.25,
+     "dividende_mmad": 475.0,
+     "code": "residu_cause_sur_piece",
+     "motif": "mouvement de fonds propres hors résultat et hors dividende, cause portée sur pièce : gains et pertes comptabilisés en capitaux propres (couverture de flux de trésorerie, écarts de conversion) -1747 MMAD (p.87), 101% du résidu — résidu après dividende R + D = -2211.5 + 475 = -1736.5 MMAD, -16.2% des fonds propres 2024 (seuil ±5% ; dividende tableau variation, p.87)"
+    }
+   }
+  },
+  "dividendes_exceptionnels_dans_l_exercice": {
+   "TMA": {
+    "etiquette": "dividende exceptionnel de 67 DH payé le 11/12/2025 (600,3 MMAD, 22% des fonds propres 2024) : moyenne simple 35,98 %, pondérée ≈ 32,4 % — la pondérée est INDICATIVE, la note lit la moyenne simple",
+    "exceptionnels": [
+     {
+      "par_action": 67.0,
+      "paiement": "2025-12-11",
+      "mmad": 600.32
+     }
+    ],
+    "roe_moyenne_simple": 35.98,
+    "roe_moyenne_ponderee_indicatif": 32.38
+   },
+   "SLM": {
+    "etiquette": "dividende exceptionnel de 14.75 DH payé le 17/06/2025 (46,1 MMAD, 5% des fonds propres 2024) : moyenne simple 11,06 %, pondérée ≈ 10,9 % — la pondérée est INDICATIVE, la note lit la moyenne simple",
+    "exceptionnels": [
+     {
+      "par_action": 14.75,
+      "paiement": "2025-06-17",
+      "mmad": 46.081
+     }
+    ],
+    "roe_moyenne_simple": 11.06,
+    "roe_moyenne_ponderee_indicatif": 10.92
+   }
+  },
+  "roe_a_moins_de_0_5_point_d_un_palier": {
+   "AFI": {
+    "roe": 15.5,
+    "convention": "moyenne",
+    "formule": "7.53 ÷ moyenne(48.036 ; 49.154)",
+    "seuil": 15.0,
+    "ecart_points": 0.5,
+    "cote": "au-dessus",
+    "note_au_dessus": 7.0,
+    "note_en_dessous": 6.0,
+    "etiquette": "à 0,50 point du seuil de 15 % (au-dessus ; la note de rentabilité passe de 7 à 6 de l'autre côté)"
+   },
+   "ARD": {
+    "roe": 10.05,
+    "convention": "moyenne",
+    "formule": "534.413 ÷ moyenne(5191.827 ; 5444.531)",
+    "seuil": 10.0,
+    "ecart_points": 0.05,
+    "cote": "au-dessus",
+    "note_au_dessus": 5.0,
+    "note_en_dessous": 3.5,
+    "etiquette": "à 0,05 point du seuil de 10 % (au-dessus ; la note de rentabilité passe de 5 à 3,5 de l'autre côté)"
+   },
+   "BAL": {
+    "roe": 10.43,
+    "convention": "moyenne",
+    "formule": "13.65 ÷ moyenne(128.893 ; 132.95)",
+    "seuil": 10.0,
+    "ecart_points": 0.43,
+    "cote": "au-dessus",
+    "note_au_dessus": 5.0,
+    "note_en_dessous": 3.5,
+    "etiquette": "à 0,43 point du seuil de 10 % (au-dessus ; la note de rentabilité passe de 5 à 3,5 de l'autre côté)"
+   },
+   "BCP": {
+    "roe": 12.2,
+    "convention": "cloture_moyenne_ecartee",
+    "formule": "4503.361 ÷ (36974.989)",
+    "seuil": 12.0,
+    "ecart_points": 0.2,
+    "cote": "au-dessus",
+    "note_au_dessus": 6.0,
+    "note_en_dessous": 5.0,
+    "etiquette": "à 0,20 point du seuil de 12 % (au-dessus ; la note de rentabilité passe de 6 à 5 de l'autre côté)"
+   },
+   "CDM": {
+    "roe": 10.5,
+    "convention": "cloture_moyenne_indisponible",
+    "formule": "863.551 ÷ (8203.01)",
+    "seuil": 10.0,
+    "ecart_points": 0.5,
+    "cote": "au-dessus",
+    "note_au_dessus": 5.0,
+    "note_en_dessous": 3.5,
+    "etiquette": "à 0,50 point du seuil de 10 % (au-dessus ; la note de rentabilité passe de 5 à 3,5 de l'autre côté)"
+   },
+   "CSR": {
+    "roe": 12.23,
+    "convention": "moyenne",
+    "formule": "703.7 ÷ moyenne(5878.5 ; 5633.8)",
+    "seuil": 12.0,
+    "ecart_points": 0.23,
+    "cote": "au-dessus",
+    "note_au_dessus": 6.0,
+    "note_en_dessous": 5.0,
+    "etiquette": "à 0,23 point du seuil de 12 % (au-dessus ; la note de rentabilité passe de 6 à 5 de l'autre côté)"
+   },
+   "DAR": {
+    "roe": 14.53,
+    "convention": "moyenne",
+    "formule": "52.395 ÷ moyenne(354.21 ; 366.807)",
+    "seuil": 15.0,
+    "ecart_points": -0.47,
+    "cote": "en dessous",
+    "note_au_dessus": 7.0,
+    "note_en_dessous": 6.0,
+    "etiquette": "à 0,47 point du seuil de 15 % (en dessous ; la note de rentabilité passe de 7 à 6 de l'autre côté)"
+   },
+   "DHO": {
+    "roe": 11.97,
+    "convention": "moyenne",
+    "formule": "307.191 ÷ moyenne(2515.87 ; 2618.746)",
+    "seuil": 12.0,
+    "ecart_points": -0.03,
+    "cote": "en dessous",
+    "note_au_dessus": 6.0,
+    "note_en_dessous": 5.0,
+    "etiquette": "à 0,03 point du seuil de 12 % (en dessous ; la note de rentabilité passe de 6 à 5 de l'autre côté)"
+   },
+   "EQD": {
+    "roe": 6.86,
+    "convention": "moyenne",
+    "formule": "98.561 ÷ moyenne(1387.16 ; 1485.722)",
+    "seuil": 7.0,
+    "ecart_points": -0.14,
+    "cote": "en dessous",
+    "note_au_dessus": 3.5,
+    "note_en_dessous": 2.0,
+    "etiquette": "à 0,14 point du seuil de 7 % (en dessous ; la note de rentabilité passe de 3,5 à 2 de l'autre côté)"
+   },
+   "FNB": {
+    "roe": 9.53,
+    "convention": "moyenne",
+    "formule": "14.856 ÷ moyenne(148.527 ; 163.336)",
+    "seuil": 10.0,
+    "ecart_points": -0.47,
+    "cote": "en dessous",
+    "note_au_dessus": 5.0,
+    "note_en_dessous": 3.5,
+    "etiquette": "à 0,47 point du seuil de 10 % (en dessous ; la note de rentabilité passe de 5 à 3,5 de l'autre côté)"
+   },
+   "HAL": {
+    "roe": 6.87,
+    "convention": "moyenne",
+    "formule": "99.832 ÷ moyenne(1458.514 ; 1445.976)",
+    "seuil": 7.0,
+    "ecart_points": -0.13,
+    "cote": "en dessous",
+    "note_au_dessus": 3.5,
+    "note_en_dessous": 2.0,
+    "etiquette": "à 0,13 point du seuil de 7 % (en dessous ; la note de rentabilité passe de 3,5 à 2 de l'autre côté)"
+   },
+   "MGL": {
+    "roe": 12.1,
+    "convention": "cloture_moyenne_indisponible",
+    "formule": null,
+    "seuil": 12.0,
+    "ecart_points": 0.1,
+    "cote": "au-dessus",
+    "note_au_dessus": 6.0,
+    "note_en_dessous": 5.0,
+    "etiquette": "à 0,10 point du seuil de 12 % (au-dessus ; la note de rentabilité passe de 6 à 5 de l'autre côté)"
+   },
+   "OUL": {
+    "roe": 14.89,
+    "convention": "moyenne",
+    "formule": "112.3 ÷ moyenne(720.476 ; 788.101)",
+    "seuil": 15.0,
+    "ecart_points": -0.11,
+    "cote": "en dessous",
+    "note_au_dessus": 7.0,
+    "note_en_dessous": 6.0,
+    "etiquette": "à 0,11 point du seuil de 15 % (en dessous ; la note de rentabilité passe de 7 à 6 de l'autre côté)"
+   },
+   "SOT": {
+    "roe": 14.7,
+    "convention": "cloture_moyenne_ecartee",
+    "formule": "385.526 ÷ (2619.648)",
+    "seuil": 15.0,
+    "ecart_points": -0.3,
+    "cote": "en dessous",
+    "note_au_dessus": 7.0,
+    "note_en_dessous": 6.0,
+    "etiquette": "à 0,30 point du seuil de 15 % (en dessous ; la note de rentabilité passe de 7 à 6 de l'autre côté)"
+   },
+   "TQA": {
+    "roe": 14.6,
+    "convention": "moyenne",
+    "formule": "980.722 ÷ moyenne(6665 ; 6773)",
+    "seuil": 15.0,
+    "ecart_points": -0.4,
+    "cote": "en dessous",
+    "note_au_dessus": 7.0,
+    "note_en_dessous": 6.0,
+    "etiquette": "à 0,40 point du seuil de 15 % (en dessous ; la note de rentabilité passe de 7 à 6 de l'autre côté)"
+   },
+   "VCNE": {
+    "roe": 11.6,
+    "convention": "cloture_moyenne_ecartee",
+    "formule": "144.284 ÷ (1244.928)",
+    "seuil": 12.0,
+    "ecart_points": -0.4,
+    "cote": "en dessous",
+    "note_au_dessus": 6.0,
+    "note_en_dessous": 5.0,
+    "etiquette": "à 0,40 point du seuil de 12 % (en dessous ; la note de rentabilité passe de 6 à 5 de l'autre côté)"
+   },
+   "WAF": {
+    "roe": 10.35,
+    "convention": "moyenne",
+    "formule": "1026.036 ÷ moyenne(12566.785 − 2950.462 ; 14960.337 − 4747.429)",
+    "seuil": 10.0,
+    "ecart_points": 0.35,
+    "cote": "au-dessus",
+    "note_au_dessus": 5.0,
+    "note_en_dessous": 3.5,
+    "etiquette": "à 0,35 point du seuil de 10 % (au-dessus ; la note de rentabilité passe de 5 à 3,5 de l'autre côté)"
    }
   },
   "masi_1_sans_note_metier": {},
@@ -2076,7 +3735,9 @@
      "base": "RNPG 2025 10644.9 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 62456.1 ; 31/12/2025 69431.3), même état financier",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "10644.852 ÷ moyenne(62456.132 ; 69431.269)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -2161,22 +3822,22 @@
      "etat": "present",
      "poids_nominal": 40,
      "poids_effectif": 44.44,
-     "valeur": 12.17,
-     "mesure": "ROE 12.17 % — RNPG 2025 4503.36 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 37043.8 ; 31/12/2025 36975), même état financier",
+     "valeur": 12.2,
+     "mesure": "ROE 12.2 % — RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025 (moyenne écartée : mouvement de fonds propres hors résultat et hors dividende, cause portée sur pièce : « Variation de périmètre » -2119.06 MMAD (p.12), 87% du résidu — résidu après dividende R + D = -4572.22 + 2134.78 = -2437.44 MMAD, -6.6% des fonds propres 2024 (seuil ±5% ; dividende tableau variation, p.12))",
      "note": 6.0,
      "motif": null,
      "source": {
       "fichier": "fondamentaux.json › ratios publiés › roe_2025",
       "piece": "resultat : https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf — compte de résultat consolidé ; capitaux_propres : https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf — bilan IFRS au 31/12/2025 (KMAD) : capitaux propres 57 956 029 (= 31 203 153 + 22 474 915 − 1 343 124 + 5 621 085) − minoritaires (20 246 892 − 383 576 + 1 117 724) = 36 974 989. Au 30/06/2026 : BCP_S1_26.pdf p.11, bilan consolidé — capital et réserves liées 32 197 298 + réserves PG 4 450 206 + gains/pertes PG −1 815 341 + résultat PG 3 218 498 = 38 050 661 KMAD (la mention antérieure « pas de bilan au 30/06 » était fausse). Fonds spéciaux de garantie EXCLUS, comme au bilan. ⚠️ yuna.ma sous-entend ≈ 41,3 Md (P/B 1,23) : convention différente, non identifiée",
-      "formule": "4503.361 ÷ 36974.989 (MMAD)",
-      "fonds_propres_2024": "faits_financiers.json › fonds propres 31/12/2024 (p.11)",
-      "rnpg_2025": "datasets/resultats_s1_2026.json › rnpg_exercice_2025"
+      "formule": "4503.361 ÷ 36974.989 (MMAD)"
      },
      "periode": "exercice 2025",
-     "base": "RNPG 2025 4503.36 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 37043.8 ; 31/12/2025 36975), même état financier",
+     "base": "RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025 (moyenne écartée : mouvement de fonds propres hors résultat et hors dividende, cause portée sur pièce : « Variation de périmètre » -2119.06 MMAD (p.12), 87% du résidu — résidu après dividende R + D = -4572.22 + 2134.78 = -2437.44 MMAD, -6.6% des fonds propres 2024 (seuil ±5% ; dividende tableau variation, p.12))",
      "reference": null,
-     "convention": "moyenne",
-     "moyenne_ecartee": null
+     "convention": "cloture_moyenne_ecartee",
+     "moyenne_ecartee": "mouvement de fonds propres hors résultat et hors dividende, cause portée sur pièce : « Variation de périmètre » -2119.06 MMAD (p.12), 87% du résidu — résidu après dividende R + D = -4572.22 + 2134.78 = -2437.44 MMAD, -6.6% des fonds propres 2024 (seuil ±5% ; dividende tableau variation, p.12)",
+     "formule": "4503.361 ÷ (36974.989)",
+     "drapeau_palier": "à 0,20 point du seuil de 12 % (au-dessus ; la note de rentabilité passe de 6 à 5 de l'autre côté)"
     },
     "croissance": {
      "etat": "present",
@@ -2276,7 +3937,9 @@
      "base": "RNPG 2025 3813.55 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 29129.4 ; 31/12/2025 31794.4), même état financier",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "3813.552 ÷ moyenne(29129.447 ; 31794.36)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -2362,7 +4025,7 @@
      "poids_nominal": 40,
      "poids_effectif": 44.44,
      "valeur": 11.1,
-     "mesure": "ROE 11.1 % — RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025 (moyenne écartée : opération sur le capital dans l'exercice (registre) : opérations sur le capital de l'exercice : 1 680,619 MMAD en part du groupe — apport frais 1680.62 MMAD = 22.0% des fonds propres 2024)",
+     "mesure": "ROE 11.1 % — RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025 (moyenne écartée : opération sur le capital dans l'exercice (registre) : augmentation de capital en numéraire de 1,5 milliard de dirhams (4 108 341 actions nouvelles) ; le tableau de variation des fonds propres part du groupe porte 1 680,619 MMAD sur la ligne « Opérations sur capital » — apport frais 1500 MMAD = 19.6% des fonds propres 2024)",
      "note": 5.0,
      "motif": null,
      "source": {
@@ -2371,10 +4034,12 @@
       "formule": "1089.362 ÷ 9817.628 (MMAD)"
      },
      "periode": "exercice 2025",
-     "base": "RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025 (moyenne écartée : opération sur le capital dans l'exercice (registre) : opérations sur le capital de l'exercice : 1 680,619 MMAD en part du groupe — apport frais 1680.62 MMAD = 22.0% des fonds propres 2024)",
+     "base": "RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025 (moyenne écartée : opération sur le capital dans l'exercice (registre) : augmentation de capital en numéraire de 1,5 milliard de dirhams (4 108 341 actions nouvelles) ; le tableau de variation des fonds propres part du groupe porte 1 680,619 MMAD sur la ligne « Opérations sur capital » — apport frais 1500 MMAD = 19.6% des fonds propres 2024)",
      "reference": null,
      "convention": "cloture_moyenne_ecartee",
-     "moyenne_ecartee": "opération sur le capital dans l'exercice (registre) : opérations sur le capital de l'exercice : 1 680,619 MMAD en part du groupe — apport frais 1680.62 MMAD = 22.0% des fonds propres 2024"
+     "moyenne_ecartee": "opération sur le capital dans l'exercice (registre) : augmentation de capital en numéraire de 1,5 milliard de dirhams (4 108 341 actions nouvelles) ; le tableau de variation des fonds propres part du groupe porte 1 680,619 MMAD sur la ligne « Opérations sur capital » — apport frais 1500 MMAD = 19.6% des fonds propres 2024",
+     "formule": "1089.362 ÷ (9817.628)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -2472,7 +4137,9 @@
      "base": "RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025 (moyenne indisponible : fonds propres 31/12/2024 non relevés)",
      "reference": null,
      "convention": "cloture_moyenne_indisponible",
-     "moyenne_ecartee": "fonds propres 31/12/2024 non relevés"
+     "moyenne_ecartee": "fonds propres 31/12/2024 non relevés",
+     "formule": "863.551 ÷ (8203.01)",
+     "drapeau_palier": "à 0,50 point du seuil de 10 % (au-dessus ; la note de rentabilité passe de 5 à 3,5 de l'autre côté)"
     },
     "croissance": {
      "etat": "present",
@@ -2582,7 +4249,9 @@
      "base": "RNPG 2025 1026.04 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 12566.8 ; 31/12/2025 14960.3), même état financier — HORS gains latents (OCI) : fonds propres part du groupe moins la réserve OCI (2025 4747.43 ; 2024 2950.46)",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "1026.036 ÷ moyenne(12566.785 − 2950.462 ; 14960.337 − 4747.429)",
+     "drapeau_palier": "à 0,35 point du seuil de 10 % (au-dessus ; la note de rentabilité passe de 5 à 3,5 de l'autre côté)"
     },
     "croissance": {
      "etat": "present",
@@ -2892,7 +4561,9 @@
      "base": "RNPG 2025 467.639 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 2367.73 ; 31/12/2025 2481.94), même état financier — HORS gains latents (OCI) : réserve OCI NULLE confirmée sur pièce en 2024 et 2025 (aucune ligne de gains latents aux fonds propres consolidés)",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "467.639 ÷ moyenne(2367.73 − 0 ; 2481.937 − 0)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -3387,7 +5058,9 @@
      "base": "RNPG 2025 107.295 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 1159.49 ; 31/12/2025 1227.91), même état financier",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "107.295 ÷ moyenne(1159.493 ; 1227.913)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -3473,7 +5146,7 @@
      "poids_nominal": 40,
      "poids_effectif": 44.44,
      "valeur": 35.98,
-     "mesure": "ROE 35.98 % — RNPG 2025 851.083 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 2745.77 ; 31/12/2025 1984.66), même état financier — ROE à défaut de ROIC (REMPLACEMENT)",
+     "mesure": "ROE 35.98 % — RNPG 2025 851.083 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 2745.77 ; 31/12/2025 1984.66), même état financier — dividende exceptionnel de 67 DH payé le 11/12/2025 (600,3 MMAD, 22% des fonds propres 2024) : moyenne simple 35,98 %, pondérée ≈ 32,4 % — la pondérée est INDICATIVE, la note lit la moyenne simple — ROE à défaut de ROIC (REMPLACEMENT)",
      "note": 9.5,
      "motif": null,
      "source": {
@@ -3484,10 +5157,12 @@
       "rnpg_2025": "datasets/resultats_s1_2026.json › rnpg_exercice_2025"
      },
      "periode": "exercice 2025",
-     "base": "RNPG 2025 851.083 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 2745.77 ; 31/12/2025 1984.66), même état financier — ROE à défaut de ROIC (REMPLACEMENT)",
+     "base": "RNPG 2025 851.083 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 2745.77 ; 31/12/2025 1984.66), même état financier — dividende exceptionnel de 67 DH payé le 11/12/2025 (600,3 MMAD, 22% des fonds propres 2024) : moyenne simple 35,98 %, pondérée ≈ 32,4 % — la pondérée est INDICATIVE, la note lit la moyenne simple — ROE à défaut de ROIC (REMPLACEMENT)",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "851.083 ÷ moyenne(2745.769 ; 1984.665)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -4759,7 +6434,9 @@
      "base": "RNPG 2025 407.601 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 3668.29 ; 31/12/2025 3993.18), même état financier",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "407.601 ÷ moyenne(3668.286 ; 3993.181)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -4865,7 +6542,9 @@
      "base": "RNPG 2025 453.719 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 9319.49 ; 31/12/2025 9481.69), même état financier",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "453.719 ÷ moyenne(9319.494 ; 9481.695)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -5071,7 +6750,9 @@
      "base": "RNPG 2025 370.445 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 1812.92 ; 31/12/2025 2065.58), même état financier",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "370.445 ÷ moyenne(1812.92 ; 2065.577)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -5171,7 +6852,9 @@
      "base": "RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025 (moyenne écartée : opération sur le capital dans l'exercice (registre) : introduction en bourse : division du titre puis augmentation de capital (capital 54 250 → 245 531 KMAD), toutes deux avant la clôture — apport frais non relevé)",
      "reference": null,
      "convention": "cloture_moyenne_ecartee",
-     "moyenne_ecartee": "opération sur le capital dans l'exercice (registre) : introduction en bourse : division du titre puis augmentation de capital (capital 54 250 → 245 531 KMAD), toutes deux avant la clôture — apport frais non relevé"
+     "moyenne_ecartee": "opération sur le capital dans l'exercice (registre) : introduction en bourse : division du titre puis augmentation de capital (capital 54 250 → 245 531 KMAD), toutes deux avant la clôture — apport frais non relevé",
+     "formule": "242.296 ÷ (790.776)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -5471,7 +7154,9 @@
      "base": "RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025 (moyenne écartée : opération sur le capital dans l'exercice (registre) : augmentation de capital de l'introduction en bourse — apport frais 719.98 MMAD = 159.9% des fonds propres 2024) — ROE à défaut de ROIC (REMPLACEMENT)",
      "reference": null,
      "convention": "cloture_moyenne_ecartee",
-     "moyenne_ecartee": "opération sur le capital dans l'exercice (registre) : augmentation de capital de l'introduction en bourse — apport frais 719.98 MMAD = 159.9% des fonds propres 2024"
+     "moyenne_ecartee": "opération sur le capital dans l'exercice (registre) : augmentation de capital de l'introduction en bourse — apport frais 719.98 MMAD = 159.9% des fonds propres 2024",
+     "formule": "144.284 ÷ (1244.928)",
+     "drapeau_palier": "à 0,40 point du seuil de 12 % (en dessous ; la note de rentabilité passe de 6 à 5 de l'autre côté)"
     },
     "croissance": {
      "etat": "present",
@@ -5959,7 +7644,7 @@
      "poids_nominal": 40,
      "poids_effectif": 44.44,
      "valeur": 0.12,
-     "mesure": "ROE 0.12 % — RNPG 2025 4.494 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 3735.12 ; 31/12/2025 3739.48), même état financier",
+     "mesure": "ROE 0.12 % — RNPG 2025 4.494 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 3735.12 ; 31/12/2025 3739.48), même état financier ; dividende de l'exercice non relevé : résidu jugé sur son seul sens positif",
      "note": 2.0,
      "motif": null,
      "source": {
@@ -5970,10 +7655,12 @@
       "rnpg_2025": "datasets/resultats_s1_2026.json › rnpg_exercice_2025"
      },
      "periode": "exercice 2025",
-     "base": "RNPG 2025 4.494 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 3735.12 ; 31/12/2025 3739.48), même état financier",
+     "base": "RNPG 2025 4.494 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 3735.12 ; 31/12/2025 3739.48), même état financier ; dividende de l'exercice non relevé : résidu jugé sur son seul sens positif",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "4.494 ÷ moyenne(3735.121 ; 3739.48)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -6077,7 +7764,9 @@
      "base": "RNPG 2025 62.4061 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 247.79 ; 31/12/2025 262.143), même état financier — ROE à défaut de ROIC (REMPLACEMENT)",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "62.406 ÷ moyenne(247.79 ; 262.143)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -6175,7 +7864,9 @@
      "base": "RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025 (moyenne indisponible : fonds propres 31/12/2024 non relevés)",
      "reference": null,
      "convention": "cloture_moyenne_indisponible",
-     "moyenne_ecartee": "fonds propres 31/12/2024 non relevés"
+     "moyenne_ecartee": "fonds propres 31/12/2024 non relevés",
+     "formule": null,
+     "drapeau_palier": "à 0,10 point du seuil de 12 % (au-dessus ; la note de rentabilité passe de 6 à 5 de l'autre côté)"
     },
     "croissance": {
      "etat": "present",
@@ -6275,7 +7966,9 @@
      "base": "RNPG 2025 52.395 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 354.21 ; 31/12/2025 366.807), même état financier — ROE à défaut de ROIC (REMPLACEMENT)",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "52.395 ÷ moyenne(354.21 ; 366.807)",
+     "drapeau_palier": "à 0,47 point du seuil de 15 % (en dessous ; la note de rentabilité passe de 7 à 6 de l'autre côté)"
     },
     "croissance": {
      "etat": "present",
@@ -6663,7 +8356,9 @@
      "base": "RNPG 2025 15.447 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 307.028 ; 31/12/2025 319.225), même état financier — ROE à défaut de ROIC (REMPLACEMENT)",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "15.447 ÷ moyenne(307.028 ; 319.225)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -6929,7 +8624,7 @@
      "poids_nominal": 40,
      "poids_effectif": 44.44,
      "valeur": 11.06,
-     "mesure": "ROE 11.06 % — RNPG 2025 96.117 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 866.878 ; 31/12/2025 870.833), même état financier",
+     "mesure": "ROE 11.06 % — RNPG 2025 96.117 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 866.878 ; 31/12/2025 870.833), même état financier — dividende exceptionnel de 14.75 DH payé le 17/06/2025 (46,1 MMAD, 5% des fonds propres 2024) : moyenne simple 11,06 %, pondérée ≈ 10,9 % — la pondérée est INDICATIVE, la note lit la moyenne simple",
      "note": 5.0,
      "motif": null,
      "source": {
@@ -6940,10 +8635,12 @@
       "rnpg_2025": "datasets/resultats_s1_2026.json › rnpg_exercice_2025"
      },
      "periode": "exercice 2025",
-     "base": "RNPG 2025 96.117 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 866.878 ; 31/12/2025 870.833), même état financier",
+     "base": "RNPG 2025 96.117 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 866.878 ; 31/12/2025 870.833), même état financier — dividende exceptionnel de 14.75 DH payé le 17/06/2025 (46,1 MMAD, 5% des fonds propres 2024) : moyenne simple 11,06 %, pondérée ≈ 10,9 % — la pondérée est INDICATIVE, la note lit la moyenne simple",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "96.117 ÷ moyenne(866.878 ; 870.833)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -8102,7 +9799,9 @@
      "base": "RNPG 2025 434.829 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 7318.18 ; 31/12/2025 7572.46), même état financier",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "434.829 ÷ moyenne(7318.181 ; 7572.464)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
@@ -8667,7 +10366,9 @@
      "base": "RNPG 2025 98.561 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 1387.16 ; 31/12/2025 1485.72), même état financier",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "98.561 ÷ moyenne(1387.16 ; 1485.722)",
+     "drapeau_palier": "à 0,14 point du seuil de 7 % (en dessous ; la note de rentabilité passe de 3,5 à 2 de l'autre côté)"
     },
     "croissance": {
      "etat": "present",
@@ -9235,7 +10936,9 @@
      "base": "RNPG 2025 -31.94 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 963.761 ; 31/12/2025 919.333), même état financier — ROE à défaut de ROIC (REMPLACEMENT)",
      "reference": null,
      "convention": "moyenne",
-     "moyenne_ecartee": null
+     "moyenne_ecartee": null,
+     "formule": "-31.94 ÷ moyenne(963.761 ; 919.333)",
+     "drapeau_palier": null
     },
     "croissance": {
      "etat": "present",
