@@ -289,14 +289,17 @@ def calculer_bilan(entree: dict | None) -> tuple[dict, dict]:
     return out, non
 
 
-def main() -> int:
-    s1 = json.loads(S1.read_text(encoding="utf-8"))["titres"]
-    faits = json.loads(FAITS.read_text(encoding="utf-8"))
-    fond = json.loads(FOND.read_text(encoding="utf-8"))
+def recalculer(s1: dict, faits: dict, fond: dict, verifies: dict, bavard: bool = False) -> tuple[int, int, int]:
+    """Pose les ratios publiés dans `fond`, EN PLACE. Renvoie (titres, bilans, financiers).
+
+    ⚠️ Séparé de l'écriture le 14/10/2026 : neuf ROE 2025 (IAM, JET, LHM,
+    PPM, REB, SBS, SNA, SRM, SMI) étaient calculables depuis les fonds propres
+    relevés dans la #238, mais `fondamentaux.json` n'avait pas été régénéré.
+    Un test rejoue désormais ce calcul et échoue si le fichier publié dérive.
+    """
     n = nb = nf = 0
     tickers = list(s1) + [s for s in faits if not s.startswith("_") and s not in s1]
     tickers += [s for s, v in fond.items() if isinstance(v, dict) and est_financier(v) and s not in tickers]
-    verifies = (json.loads(VERIFIES.read_text(encoding="utf-8")).get("titres") or {}) if VERIFIES.exists() else {}
     for sym in tickers:
         r = calculer(s1.get(sym) or {}, faits.get(sym))
         for k, v in (verifies.get(sym) or {}).items():
@@ -319,12 +322,26 @@ def main() -> int:
         # existe, même vide de fondamentaux. Créer une fiche pour y poser des
         # ratios publiés changerait donc une note (R8).
         if not isinstance(fond.get(sym), dict):
-            print(sym, "absent de fondamentaux.json : ratios non publiés (aucune fiche créée)")
+            if bavard:
+                print(sym, "absent de fondamentaux.json : ratios non publiés (aucune fiche créée)")
             continue
         fond[sym]["ratios_publies"] = {**r, "calcule_le": DATE_MAJ}
         n += 1
-        print(sym, {k: v.get("valeur", v.get("sans_objet")) for k, v in r.items()
-                    if isinstance(v, dict) and k != "non_calcules_2025"})
+        if bavard:
+            print(sym, {k: v.get("valeur", v.get("sans_objet")) for k, v in r.items()
+                        if isinstance(v, dict) and k != "non_calcules_2025"})
+    return n, nb, nf
+
+
+def charger_verifies() -> dict:
+    return (json.loads(VERIFIES.read_text(encoding="utf-8")).get("titres") or {}) if VERIFIES.exists() else {}
+
+
+def main() -> int:
+    s1 = json.loads(S1.read_text(encoding="utf-8"))["titres"]
+    faits = json.loads(FAITS.read_text(encoding="utf-8"))
+    fond = json.loads(FOND.read_text(encoding="utf-8"))
+    n, nb, nf = recalculer(s1, faits, fond, charger_verifies(), bavard=True)
     print(f"{nb} émetteurs avec au moins un ratio de bilan, {nf} financiers sans objet")
     FOND.write_text(json.dumps(fond, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"{n} titres avec au moins un ratio calculé")
