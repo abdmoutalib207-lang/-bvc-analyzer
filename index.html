@@ -3924,6 +3924,148 @@ const Perime = ({
     }
   }, "\u26A0 ", m.asof ? jjmm(m.asof) : "périmé");
 };
+const heureCours = r => {
+  const m = meta(r);
+  if (!m.asof) return "date du cours inconnue";
+  let h = "",
+    jour = "";
+  try {
+    const d = new Date(m.generated_at);
+    h = d.toLocaleTimeString("fr-FR", {
+      timeZone: "Africa/Casablanca",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+    jour = d.toLocaleDateString("en-CA", {
+      timeZone: "Africa/Casablanca"
+    });
+  } catch (e) {}
+  const enSeance = jour === m.asof && h && h < "15:30";
+  return enSeance ? `dernière valeur relevée à ${h.replace(":", "h")} le ${jjmm(m.asof)} — séance en cours` : `cours de clôture du ${jjmm(m.asof)}`;
+};
+const Repli = ({
+  titre,
+  children
+}) => React.createElement("details", {
+  className: "repli",
+  style: {
+    width: "100%",
+    maxWidth: 420,
+    margin: "6px auto 0",
+    textAlign: "left",
+    background: "#0a1220",
+    border: "1px solid #1a2540",
+    borderRadius: 6,
+    padding: "6px 10px"
+  }
+}, React.createElement("summary", {
+  style: {
+    cursor: "pointer",
+    fontSize: 12,
+    color: "#4db8ff",
+    minHeight: 28,
+    display: "flex",
+    alignItems: "center"
+  }
+}, titre), React.createElement("div", {
+  style: {
+    fontSize: 11.5,
+    color: "#c8d3e8",
+    lineHeight: 1.55,
+    padding: "6px 0 2px"
+  }
+}, children));
+const NOMS_COMPOSANTES = {
+  qualite: "Qualité (rentabilité)",
+  croissance: "Croissance",
+  valorisation: "Valorisation (PER)",
+  bilan: "Bilan (dette)"
+};
+const DetailConfiance = ({
+  r
+}) => {
+  const m = meta(r);
+  const g = m.garanties;
+  if (!Array.isArray(g)) return null;
+  return React.createElement(Repli, {
+    titre: `Que garantit la confiance ${m.conf}/5 ?`
+  }, g.map(x => React.createElement("div", {
+    key: x.critere,
+    style: {
+      display: "flex",
+      gap: 8
+    }
+  }, React.createElement("span", {
+    style: {
+      color: x.ok ? "#00e5a0" : "#ff4f5a",
+      width: 14
+    }
+  }, x.ok ? "✓" : "✗"), React.createElement("span", null, x.critere))), m.conf < g.filter(x => x.ok).length && React.createElement("div", {
+    style: {
+      color: "#ff8f00",
+      marginTop: 6
+    }
+  }, "Confiance plafonn\xE9e en dessous du nombre de garanties remplies (soci\xE9t\xE9 sans comptes, identit\xE9 \xE0 v\xE9rifier, note incalculable ou titre peu liquide)."), React.createElement("div", {
+    style: {
+      color: "#8892a4",
+      marginTop: 6
+    }
+  }, "La confiance dit si les donn\xE9es sont s\xFBres, pas si le titre va monter."));
+};
+const PourquoiNote = ({
+  r
+}) => {
+  const nf = r.note_fond;
+  const pw = poidsAffiches(r, null) || {};
+  if (!nf || !nf.composantes) return null;
+  const pf = pw.f,
+    pt = pw.t;
+  return React.createElement(Repli, {
+    titre: "Pourquoi cette note ?"
+  }, r.v53 == null ? React.createElement("div", {
+    style: {
+      color: "#ff8f00",
+      marginBottom: 6
+    }
+  }, "Pas de note : ", Math.round((nf.couverture || 0) * 100), " % seulement du poids est mesur\xE9 sur comptes, sous le seuil de 50 %.") : React.createElement("div", {
+    style: {
+      marginBottom: 6
+    }
+  }, "Note = fondamental ", React.createElement("b", null, fmt(r.score_fond)), pf != null && React.createElement(React.Fragment, null, " \xD7 ", pf, " %"), " + technique ", React.createElement("b", null, fmt(r.score_tech)), pt != null && React.createElement(React.Fragment, null, " \xD7 ", pt, " %"), (r.bonus || []).length > 0 && " + bonus/malus", " = ", React.createElement("b", null, fmt(r.v53)), "."), React.createElement("div", {
+    style: {
+      color: "#8892a4",
+      marginBottom: 4
+    }
+  }, "Note fondamentale, composante par composante (couverture ", Math.round((nf.couverture || 0) * 100), " % du poids) :"), Object.entries(nf.composantes).map(([k, c]) => React.createElement("div", {
+    key: k,
+    style: {
+      display: "flex",
+      gap: 8,
+      padding: "2px 0"
+    }
+  }, React.createElement("span", {
+    style: {
+      width: 118,
+      color: c.note == null ? "#5a6478" : "#c8d3e8"
+    }
+  }, NOMS_COMPOSANTES[k] || k, " \xB7 ", Math.round(c.poids * 100), " %"), React.createElement("span", {
+    style: {
+      width: 34,
+      fontWeight: 600,
+      color: c.note == null ? "#5a6478" : "#e6edf7"
+    }
+  }, c.note == null ? "—" : fmt(c.note, 1)), React.createElement("span", {
+    style: {
+      flex: 1,
+      color: c.note == null ? "#ff8f00" : "#8892a4"
+    }
+  }, c.note == null ? `non noté : ${c.motif}` : c.mesure))), React.createElement("div", {
+    style: {
+      color: "#8892a4",
+      marginTop: 6
+    }
+  }, "Une composante non mesur\xE9e n'est pas not\xE9e : son poids est r\xE9parti sur les autres. Sous 50 % du poids mesur\xE9, pas de note."));
+};
 const Confiance = ({
   r,
   sz = 11
@@ -10354,7 +10496,18 @@ const Detail = ({
     style: {
       color: "#ffd740"
     }
-  }, " \xB7 ", scoreModeLabel(scoreMode))), manqueAff.length > 0 && React.createElement("div", {
+  }, " \xB7 ", scoreModeLabel(scoreMode))), React.createElement("div", {
+    className: "heure-cours",
+    style: {
+      fontSize: 10.5,
+      color: "#8892a4",
+      marginBottom: 4
+    }
+  }, heureCours(r)), !simu && React.createElement(PourquoiNote, {
+    r: r
+  }), React.createElement(DetailConfiance, {
+    r: r
+  }), manqueAff.length > 0 && React.createElement("div", {
     style: {
       fontSize: 10,
       color: "#ff8f00",
@@ -11157,7 +11310,13 @@ const Detail = ({
       marginBottom: 10,
       textTransform: "uppercase"
     }
-  }, "Sc\xE9narios Prix (fondamentaux)"), !objectifs && React.createElement("div", {
+  }, "Sc\xE9narios Prix (fondamentaux)"), r.bear == null && r.base == null && r.bull == null ? React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#8892a4",
+      lineHeight: 1.55
+    }
+  }, "Aucun sc\xE9nario de prix n'est publi\xE9 : les objectifs saisis \xE0 la main ont \xE9t\xE9 retir\xE9s le 01/10/2026, faute de source v\xE9rifiable. Plut\xF4t qu'un objectif invent\xE9, rien.") : React.createElement(React.Fragment, null, !objectifs && React.createElement("div", {
     style: {
       fontSize: 11,
       color: "#ff8f00",
@@ -11235,7 +11394,7 @@ const Detail = ({
       color: "#ffd740",
       fontWeight: 600
     }
-  }, "\u25B2 ", px(price), " DH"), React.createElement("span", null, "Bull ", px(r.bull)))), React.createElement("div", {
+  }, "\u25B2 ", px(price), " DH"), React.createElement("span", null, "Bull ", px(r.bull))))), React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
@@ -13883,6 +14042,7 @@ function App() {
             reference: t.reference,
             bonus: t.bonus,
             poids: t.poids,
+            note_fond: t.note_fond,
             warn: t.warn,
             warnMsg: t.warnMsg,
             bear: t.bear,

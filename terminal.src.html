@@ -988,6 +988,47 @@ const Perime=({r})=>{const m=meta(r);if(!m.stale)return null;
     style={{marginLeft:5,fontSize:9,fontWeight:700,color:"#ffd740",border:"1px solid rgba(255,215,64,.45)",
             borderRadius:3,padding:"1px 4px",whiteSpace:"nowrap",verticalAlign:"middle"}}>
     ⚠ {m.asof?jjmm(m.asof):"périmé"}</span>;};
+/* ── FICHE LISIBLE (14/10/2026, diagnostic externe de l'interface) ──────────
+   Trois éléments repliables, au toucher (<details>, pas d'info-bulle) :
+   l'heure du cours, ce que garantit la confiance, et pourquoi cette note.
+   Ils n'affichent QUE ce que le moteur publie (`_meta.garanties`,
+   `note_fond`, `poids`, `score_tech`) : l'explication ne peut pas diverger
+   du calcul. */
+const heureCours=r=>{const m=meta(r);if(!m.asof)return "date du cours inconnue";
+  let h="",jour="";try{const d=new Date(m.generated_at);
+    h=d.toLocaleTimeString("fr-FR",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"});
+    jour=d.toLocaleDateString("en-CA",{timeZone:"Africa/Casablanca"});}catch(e){}
+  const enSeance=jour===m.asof&&h&&h<"15:30";
+  return enSeance?`dernière valeur relevée à ${h.replace(":","h")} le ${jjmm(m.asof)} — séance en cours`
+    :`cours de clôture du ${jjmm(m.asof)}`;};
+const Repli=({titre,children})=>(
+  <details className="repli" style={{width:"100%",maxWidth:420,margin:"6px auto 0",textAlign:"left",background:"#0a1220",border:"1px solid #1a2540",borderRadius:6,padding:"6px 10px"}}>
+    <summary style={{cursor:"pointer",fontSize:12,color:"#4db8ff",minHeight:28,display:"flex",alignItems:"center"}}>{titre}</summary>
+    <div style={{fontSize:11.5,color:"#c8d3e8",lineHeight:1.55,padding:"6px 0 2px"}}>{children}</div>
+  </details>);
+const NOMS_COMPOSANTES={qualite:"Qualité (rentabilité)",croissance:"Croissance",valorisation:"Valorisation (PER)",bilan:"Bilan (dette)"};
+const DetailConfiance=({r})=>{const m=meta(r);const g=m.garanties;
+  if(!Array.isArray(g))return null;
+  return <Repli titre={`Que garantit la confiance ${m.conf}/5 ?`}>
+    {g.map(x=><div key={x.critere} style={{display:"flex",gap:8}}>
+      <span style={{color:x.ok?"#00e5a0":"#ff4f5a",width:14}}>{x.ok?"✓":"✗"}</span><span>{x.critere}</span></div>)}
+    {m.conf<g.filter(x=>x.ok).length&&<div style={{color:"#ff8f00",marginTop:6}}>Confiance plafonnée en dessous du nombre de garanties remplies (société sans comptes, identité à vérifier, note incalculable ou titre peu liquide).</div>}
+    <div style={{color:"#8892a4",marginTop:6}}>La confiance dit si les données sont sûres, pas si le titre va monter.</div>
+  </Repli>;};
+const PourquoiNote=({r})=>{const nf=r.note_fond;const pw=poidsAffiches(r,null)||{};   // pondération officielle
+  if(!nf||!nf.composantes)return null;
+  const pf=pw.f,pt=pw.t;   // poids réellement appliqués, en %
+  return <Repli titre="Pourquoi cette note ?">
+    {r.v53==null
+      ?<div style={{color:"#ff8f00",marginBottom:6}}>Pas de note : {Math.round((nf.couverture||0)*100)} % seulement du poids est mesuré sur comptes, sous le seuil de 50 %.</div>
+      :<div style={{marginBottom:6}}>Note = fondamental <b>{fmt(r.score_fond)}</b>{pf!=null&&<> × {pf} %</>} + technique <b>{fmt(r.score_tech)}</b>{pt!=null&&<> × {pt} %</>}{(r.bonus||[]).length>0&&" + bonus/malus"} = <b>{fmt(r.v53)}</b>.</div>}
+    <div style={{color:"#8892a4",marginBottom:4}}>Note fondamentale, composante par composante (couverture {Math.round((nf.couverture||0)*100)} % du poids) :</div>
+    {Object.entries(nf.composantes).map(([k,c])=><div key={k} style={{display:"flex",gap:8,padding:"2px 0"}}>
+      <span style={{width:118,color:c.note==null?"#5a6478":"#c8d3e8"}}>{NOMS_COMPOSANTES[k]||k} · {Math.round(c.poids*100)} %</span>
+      <span style={{width:34,fontWeight:600,color:c.note==null?"#5a6478":"#e6edf7"}}>{c.note==null?"—":fmt(c.note,1)}</span>
+      <span style={{flex:1,color:c.note==null?"#ff8f00":"#8892a4"}}>{c.note==null?`non noté : ${c.motif}`:c.mesure}</span></div>)}
+    <div style={{color:"#8892a4",marginTop:6}}>Une composante non mesurée n'est pas notée : son poids est réparti sur les autres. Sous 50 % du poids mesuré, pas de note.</div>
+  </Repli>;};
 /* Indicateur de confiance ●●●○○ — jamais masqué (spécification CLAUDE.md). */
 const Confiance=({r,sz=11})=>{const {conf}=meta(r);
   const col=conf<=1?"#ff4f5a":conf<=2?"#ff8f00":conf<=3?"#ffd740":"#00e5a0";
@@ -3644,6 +3685,9 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
             <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 6px"}}>
               Score composite / 10{simu&&<span style={{color:"#ffd740"}}> · {scoreModeLabel(scoreMode)}</span>}
             </div>
+            <div className="heure-cours" style={{fontSize:10.5,color:"#8892a4",marginBottom:4}}>{heureCours(r)}</div>
+            {!simu&&<PourquoiNote r={r}/>}
+            <DetailConfiance r={r}/>
             {/* ⚠️ Une note absente doit DIRE ce qui manque. Un « — » muet se
                 lit comme une panne d'affichage ; nommé, il se lit comme un
                 refus de calculer sur une donnée qu'on n'a pas. */}
@@ -4010,6 +4054,9 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
           {/* Scénarios */}
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Scénarios Prix (fondamentaux)</div>
+            {r.bear==null&&r.base==null&&r.bull==null
+              ?<div style={{fontSize:12,color:"#8892a4",lineHeight:1.55}}>Aucun scénario de prix n'est publié : les objectifs saisis à la main ont été retirés le 01/10/2026, faute de source vérifiable. Plutôt qu'un objectif inventé, rien.</div>
+              :<>
             {!objectifs&&<div style={{fontSize:11,color:"#ff8f00",marginBottom:10}}>Objectifs indisponibles — {r.objectifs_motif||"cible périmée écartée"}</div>}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
               {[["BEAR",r.bear,"#ff4f5a",ecart(r.bear)],["BASE",r.base,"#ffd740",ecart(r.base)],["BULL",r.bull,"#00e5a0",upside==null?"—":`+${upside}%`]].map(([lbl,val,c,pct])=>(
@@ -4026,7 +4073,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
             </div>
             <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#8892a4",marginTop:5}}>
               <span>Bear {px(r.bear)}</span><span style={{color:"#ffd740",fontWeight:600}}>▲ {px(price)} DH</span><span>Bull {px(r.bull)}</span>
-            </div>
+            </div></>}
           </div>
 
           {/* Setup + formule */}
@@ -5056,7 +5103,7 @@ function App(){
              quarante champs cache ce qui lui manque. */
           ...Object.fromEntries(CHAMPS_SCORE.map(c=>[c,t[c]])),
           alpha:t.alpha,win:t.win,sig:t.sig,biais:t.biais,reference:t.reference,
-          bonus:t.bonus,poids:t.poids,warn:t.warn,warnMsg:t.warnMsg,
+          bonus:t.bonus,poids:t.poids,note_fond:t.note_fond,warn:t.warn,warnMsg:t.warnMsg,
           bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,alertes:t.alertes,ratios_publies:t.ratios_publies,risque:t.risque,
           conv:t.conv,setup:t.setup,
           obv:t.obv,adx:t.adx,adx_pdi:t.adx_pdi,adx_mdi:t.adx_mdi,
