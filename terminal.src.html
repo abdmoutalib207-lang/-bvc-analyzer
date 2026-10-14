@@ -1584,7 +1584,14 @@ const StockChart=({r})=>{
      que trois graphiques étaient rendus.
      Quatre états, dont deux que l'ancien code confondait : « en cours de
      chargement » n'est pas « indisponible ». */
-  const [etat,setEtat]=useState("chargement");   // chargement · ok · court · vide
+  const [etatBrut,setEtat]=useState("chargement");   // chargement · ok · court · vide
+  /* ⚠️ 14/10/2026 — passage de CMT à ATW : la légende montrait les cours de
+     CMT sous le nom ATW (137 ms en local, ~840 ms sur réseau lent). Au premier
+     rendu du nouveau titre, la série en mémoire est encore l'ancienne et
+     l'effet de dessin partait avec elle. Chaque série retient donc le titre
+     et la période qu'elle décrit ; tant qu'elle ne correspond pas, l'état
+     affiché est « chargement » et rien n'est dessiné. */
+  const [serieDe,setSerieDe]=useState(null);
   const [showBB,setShowBB]=useState(false);
   const [showIchi,setShowIchi]=useState(false);
   const [showSR,setShowSR]=useState(true);
@@ -1607,6 +1614,7 @@ const StockChart=({r})=>{
   });
   const [plein,setPlein]=useState(false);
   const sym=r.symbol||r.ticker;
+  const etat=serieDe===sym+"|"+period?etatBrut:"chargement";
   useEffect(()=>{fibRef.current.premier=null;setFibAttente(null);setFibAncres(null);},[sym]);
   const rangeMap={"5J":"5d","1M":"1mo","3M":"3mo","6M":"6mo","1A":"1y","3A":"3y","TOUT":"max"};
   const toDate=ts=>{const d=new Date(ts);return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;};
@@ -1635,11 +1643,11 @@ const StockChart=({r})=>{
           }
         }
         setLiveCandles(c);setIsLive(true);
-        setEtat(c.length>=5?"ok":(c.length>0?"court":"vide"));
+        setEtat(c.length>=5?"ok":(c.length>0?"court":"vide"));setSerieDe(sym+"|"+period);
       }else{
-        setLiveCandles([]);setEtat("vide");
+        setLiveCandles([]);setEtat("vide");setSerieDe(sym+"|"+period);
       }
-    }).catch(()=>{if(alive){setLiveCandles([]);setEtat("vide");}});
+    }).catch(()=>{if(alive){setLiveCandles([]);setEtat("vide");setSerieDe(sym+"|"+period);}});
     return()=>{alive=false;};
   },[sym,period,r.live,r.price,r.vol]);
 
@@ -1650,6 +1658,7 @@ const StockChart=({r})=>{
     // rien : c'est l'oubli qui laissait le message d'indisponibilité collé
     // au-dessus du graphique.
     refMain.current.innerHTML="";refMacd.current.innerHTML="";
+    if(refTooltip.current)refTooltip.current.innerHTML="";   // jamais la légende de l'ancien titre
     if(etat!=="ok"||!liveCandles||liveCandles.length<5)return;
 
     const candles=liveCandles;
@@ -3509,10 +3518,14 @@ const TickerNews=({sym})=>{
   const [articles,setArticles]=useState([]);
   const [ok,setOk]=useState(false);
   useEffect(()=>{
+    // Changement de titre : on vide d'abord — « Actualités — CMT » ne doit
+    // jamais coiffer un article d'Attijariwafa, même le temps d'un chargement.
+    let vivant=true;setArticles([]);setOk(false);
     fetch("news.json?t="+Math.floor(Date.now()/3600000))
       .then(r=>r.ok?r.json():null)
-      .then(d=>{if(d?.articles)setArticles((d.articles||[]).filter(a=>(a.tickers||[]).includes(sym)).slice(0,6));setOk(true);})
-      .catch(()=>setOk(true));
+      .then(d=>{if(!vivant)return;if(d?.articles)setArticles((d.articles||[]).filter(a=>(a.tickers||[]).includes(sym)).slice(0,6));setOk(true);})
+      .catch(()=>{if(vivant)setOk(true);});
+    return()=>{vivant=false;};
   },[sym]);
   const SC=s=>s==="POSITIF"?"#00e5a0":s==="NEGATIF"?"#ff4f5a":"#8892a4";
   const fmtD=iso=>{try{return new Date(iso).toLocaleString("fr-FR",{timeZone:"Africa/Casablanca",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}catch{return "";}};

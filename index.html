@@ -5321,7 +5321,8 @@ const StockChart = ({
   const [period, setPeriod] = useState(() => lsLire("bvc_period", "3M"));
   const [liveCandles, setLiveCandles] = useState(null);
   const [isLive, setIsLive] = useState(false);
-  const [etat, setEtat] = useState("chargement");
+  const [etatBrut, setEtat] = useState("chargement");
+  const [serieDe, setSerieDe] = useState(null);
   const [showBB, setShowBB] = useState(false);
   const [showIchi, setShowIchi] = useState(false);
   const [showSR, setShowSR] = useState(true);
@@ -5356,6 +5357,7 @@ const StockChart = ({
   });
   const [plein, setPlein] = useState(false);
   const sym = r.symbol || r.ticker;
+  const etat = serieDe === sym + "|" + period ? etatBrut : "chargement";
   useEffect(() => {
     fibRef.current.premier = null;
     setFibAttente(null);
@@ -5423,14 +5425,17 @@ const StockChart = ({
         setLiveCandles(c);
         setIsLive(true);
         setEtat(c.length >= 5 ? "ok" : c.length > 0 ? "court" : "vide");
+        setSerieDe(sym + "|" + period);
       } else {
         setLiveCandles([]);
         setEtat("vide");
+        setSerieDe(sym + "|" + period);
       }
     }).catch(() => {
       if (alive) {
         setLiveCandles([]);
         setEtat("vide");
+        setSerieDe(sym + "|" + period);
       }
     });
     return () => {
@@ -5447,6 +5452,7 @@ const StockChart = ({
     if (!refMain.current || !refMacd.current) return;
     refMain.current.innerHTML = "";
     refMacd.current.innerHTML = "";
+    if (refTooltip.current) refTooltip.current.innerHTML = "";
     if (etat !== "ok" || !liveCandles || liveCandles.length < 5) return;
     const candles = liveCandles;
     const closes = candles.map(c => c.y[3]);
@@ -10062,10 +10068,19 @@ const TickerNews = ({
   const [articles, setArticles] = useState([]);
   const [ok, setOk] = useState(false);
   useEffect(() => {
+    let vivant = true;
+    setArticles([]);
+    setOk(false);
     fetch("news.json?t=" + Math.floor(Date.now() / 3600000)).then(r => r.ok ? r.json() : null).then(d => {
+      if (!vivant) return;
       if (d?.articles) setArticles((d.articles || []).filter(a => (a.tickers || []).includes(sym)).slice(0, 6));
       setOk(true);
-    }).catch(() => setOk(true));
+    }).catch(() => {
+      if (vivant) setOk(true);
+    });
+    return () => {
+      vivant = false;
+    };
   }, [sym]);
   const SC = s => s === "POSITIF" ? "#00e5a0" : s === "NEGATIF" ? "#ff4f5a" : "#8892a4";
   const fmtD = iso => {
