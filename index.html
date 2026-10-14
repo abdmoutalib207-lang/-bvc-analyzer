@@ -4273,7 +4273,7 @@ const CarteIndices = ({
       whiteSpace: "nowrap"
     }
   }, fleche(v), " ", pct(v));
-  const volume = masi.volume_mad == null ? null : masi.volume_mad >= 1e9 ? `${nb(masi.volume_mad / 1e9)} Md DH` : `${nb(masi.volume_mad / 1e6, 1)} M DH`;
+  const volume = masi.volume_mad == null ? null : montantEntier(masi.volume_mad);
   return React.createElement("div", {
     className: "bandeau-masi carte-indices",
     "data-gabarit": gabarit || undefined,
@@ -4597,7 +4597,9 @@ const CarteIndices = ({
     }
   }, React.createElement(GraphiqueMASI, null)));
 };
-const montantCourt = dh => dh >= 1e9 ? `${(dh / 1e9).toFixed(2).replace(".", ",")} Md DH` : dh >= 1e6 ? `${(dh / 1e6).toFixed(1).replace(".", ",")} M DH` : dh >= 1e3 ? `${Math.round(dh / 1e3)} k DH` : `${Math.round(dh)} DH`;
+const montantEntier = dh => dh == null || !isFinite(dh) ? "—" : `${Math.round(dh).toLocaleString("fr-FR").replace(/\u202f|\u00a0/g, " ")} DH`;
+const montantCompact = dh => dh >= 1e9 ? `${(dh / 1e9).toFixed(2).replace(".", ",")} Md DH` : dh >= 1e6 ? `${(dh / 1e6).toFixed(1).replace(".", ",")} M DH` : dh >= 1e3 ? `${Math.round(dh / 1e3)} k DH` : `${Math.round(dh)} DH`;
+const montantCourt = montantEntier;
 const volumeCourt = r => r.echange_dh != null ? montantCourt(r.echange_dh) : r.vol ? `${r.vol.toLocaleString("fr-FR").replace(/\u202f|,/g, " ")} titres` : "—";
 function CompanyLogo({
   sym,
@@ -8207,7 +8209,7 @@ const VueSecteurs = ({
         fontSize: 11,
         marginTop: 2
       }
-    }, montantCourt(s.v), " \xB7 ", nfr(s.v / total * 100, 0), " %"), grand && React.createElement("div", {
+    }, montantCompact(s.v), " \xB7 ", nfr(s.v / total * 100, 0), " %"), grand && React.createElement("div", {
       className: "tdb-num",
       style: {
         fontSize: 11,
@@ -8662,7 +8664,7 @@ const SeanceDetail = ({
     }, " \xB7 veille ", nfr(vv.cours)))
   }), React.createElement(Kpi, {
     l: "Volume global",
-    val: j.volume_mad != null ? `${nfr(j.volume_mad / 1e6, 1)} M DH` : "—",
+    val: montantEntier(j.volume_mad),
     src: srcCdg,
     sous: v.ecart_volume_pct != null ? React.createElement(React.Fragment, null, React.createElement("span", {
       style: {
@@ -8672,7 +8674,7 @@ const SeanceDetail = ({
       style: {
         color: "#8892a4"
       }
-    }, " vs ", jm(v.seance_veille), vv && vv.volume_mad != null ? ` (${nfr(vv.volume_mad / 1e6, 1)} M)` : "")) : null
+    }, " vs ", jm(v.seance_veille), vv && vv.volume_mad != null ? ` (${montantEntier(vv.volume_mad)})` : "")) : null
   }), te != null && React.createElement(Kpi, {
     l: "Titres \xE9chang\xE9s",
     val: entier(te),
@@ -9014,7 +9016,7 @@ const SeanceDetail = ({
     }
   }, x.symbol), " ", React.createElement("span", {
     className: "tdb-num"
-  }, nfr(x.montant_dh / 1e6, 1), " M DH")), React.createElement("span", {
+  }, montantEntier(x.montant_dh))), React.createElement("span", {
     className: "tdb-num",
     title: "Fourchette de la s\xE9ance"
   }, x.seance_bas != null ? `${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}` : "—")), x.fenetre && React.createElement("div", {
@@ -9059,7 +9061,7 @@ const SeanceDetail = ({
   }, x.symbol), React.createElement("td", {
     style: cel,
     className: "tdb-num"
-  }, nfr(x.montant_dh / 1e6, 1), " M DH"), React.createElement("td", {
+  }, montantEntier(x.montant_dh)), React.createElement("td", {
     style: cel,
     className: "tdb-num"
   }, x.seance_bas != null ? `${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}` : "—"), React.createElement("td", {
@@ -9266,7 +9268,7 @@ const ChiffresCles = ({
   if (!t && !v) return null;
   const VCc = x => x > 0 ? "#00e5a0" : x < 0 ? "#ff4f5a" : "#8892a4";
   const sg = x => x == null ? "—" : `${x > 0 ? "+" : ""}${nfr(x)} %`;
-  const items = [["MASI", nfr(t ? t.cloture : v.cours), v && v.variation_pct != null ? sg(v.variation_pct) : null, v && VCc(v.variation_pct)], ["Échangé", v && v.volume_mad != null ? `${nfr(v.volume_mad / 1e6, 1)} M DH` : "—", vv && vv.ecart_volume_pct != null ? `${sg(vv.ecart_volume_pct)} vs veille` : null, "#8892a4"], ["Hausses · baisses", v ? `${v.hausses ?? "—"} · ${v.baisses ?? "—"}` : "—", v && v.valeurs_traitees ? `${v.inchanges ?? 0} inchangées sur ${v.valeurs_traitees}` : null, "#8892a4"], ["Plus haut · bas", t ? nfr(t.plus_haut) : "—", t ? `plus bas ${nfr(t.plus_bas)}` : null, "#8892a4"], ["Depuis janvier", sg(b.ytd_pct), null, null, VCc(b.ytd_pct)]];
+  const items = [["MASI", nfr(t ? t.cloture : v.cours), v && v.variation_pct != null ? sg(v.variation_pct) : null, v && VCc(v.variation_pct)], ["Échangé", v && v.volume_mad != null ? montantEntier(v.volume_mad) : "—", vv && vv.ecart_volume_pct != null ? `${sg(vv.ecart_volume_pct)} vs veille` : null, "#8892a4"], ["Hausses · baisses", v ? `${v.hausses ?? "—"} · ${v.baisses ?? "—"}` : "—", v && v.valeurs_traitees ? `${v.inchanges ?? 0} inchangées sur ${v.valeurs_traitees}` : null, "#8892a4"], ["Plus haut · bas", t ? nfr(t.plus_haut) : "—", t ? `plus bas ${nfr(t.plus_bas)}` : null, "#8892a4"], ["Depuis janvier", sg(b.ytd_pct), null, null, VCc(b.ytd_pct)]];
   return React.createElement("div", {
     style: {
       display: "grid",
@@ -10422,7 +10424,7 @@ const Detail = ({
         fontWeight: 700,
         color: bas ? "#ff8f00" : "#c8d3e8"
       }
-    }, dh >= 1e6 ? `${(dh / 1e6).toFixed(1)} M DH` : dh >= 1e3 ? `${(dh / 1e3).toFixed(0)} k DH` : `${dh} DH`, bas && React.createElement("span", {
+    }, montantEntier(dh), bas && React.createElement("span", {
       style: {
         fontSize: 10,
         fontWeight: 400,

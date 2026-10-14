@@ -43,7 +43,7 @@ def _const(nom: str) -> str:
     return SRC[i:m.start() if m else len(SRC)]
 
 
-FONCTIONS = ["meta", "nfr", "jm", "montantCourt", "VARC", "sgp", "mediane", "entier", "jma",
+FONCTIONS = ["meta", "nfr", "jm", "montantEntier", "montantCourt", "VARC", "sgp", "mediane", "entier", "jma",
              "titresDuReleve", "titresEchanges", "TRANCHES", "squarify", "absencesTableau"]
 
 

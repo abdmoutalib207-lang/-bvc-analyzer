@@ -1129,7 +1129,7 @@ const CarteIndices=({masi,gabarit=false})=>{
   // sous 640 px elles laissent place à cette ligne, défilante si besoin.
   // Les avertissements de date (⚠) y restent : un état incertain se voit.
   const varia=v=>v==null?null:<b style={{color:coul(v),whiteSpace:"nowrap"}}>{fleche(v)} {pct(v)}</b>;
-  const volume=masi.volume_mad==null?null:masi.volume_mad>=1e9?`${nb(masi.volume_mad/1e9)} Md DH`:`${nb(masi.volume_mad/1e6,1)} M DH`;
+  const volume=masi.volume_mad==null?null:montantEntier(masi.volume_mad);
   return(
     <div className="bandeau-masi carte-indices" data-gabarit={gabarit||undefined} aria-hidden={gabarit||undefined}
       aria-busy={gabarit||undefined}>
@@ -1233,7 +1233,12 @@ const CarteIndices=({masi,gabarit=false})=>{
    d'afficher le volume en DH il affiche la quantité échangée ». Le montant
    est celui servi par la source (`echange_dh`) ; à défaut, le nombre de
    TITRES, étiqueté comme tel — jamais une quantité sous l'étiquette DH. */
-const montantCourt=dh=>dh>=1e9?`${(dh/1e9).toFixed(2).replace(".",",")} Md DH`:dh>=1e6?`${(dh/1e6).toFixed(1).replace(".",",")} M DH`:dh>=1e3?`${Math.round(dh/1e3)} k DH`:`${Math.round(dh)} DH`;
+/* Montant échangé EN ENTIER (demande d'Abd Moutalib, 14/10/2026) :
+   « 152 470 312 DH » plutôt que « 152,5 M DH ». La forme abrégée ne subsiste
+   que dans les tuiles de la carte des secteurs, faute de place. */
+const montantEntier=dh=>dh==null||!isFinite(dh)?"—":`${Math.round(dh).toLocaleString("fr-FR").replace(/\u202f|\u00a0/g," ")} DH`;
+const montantCompact=dh=>dh>=1e9?`${(dh/1e9).toFixed(2).replace(".",",")} Md DH`:dh>=1e6?`${(dh/1e6).toFixed(1).replace(".",",")} M DH`:dh>=1e3?`${Math.round(dh/1e3)} k DH`:`${Math.round(dh)} DH`;
+const montantCourt=montantEntier;
 const volumeCourt=r=>r.echange_dh!=null?montantCourt(r.echange_dh)
   :r.vol?`${r.vol.toLocaleString("fr-FR").replace(/\u202f|,/g," ")} titres`:"—";
 
@@ -2771,7 +2776,7 @@ const VueSecteurs=({secteurs,total,filtre,basculer})=>{
           style={{left:s.x,top:s.y,width:s.w,height:s.h,background:teinteTuile(s.med),padding:moyen?undefined:0,
             borderLeft:`3px solid ${VARC(s.med)}`,opacity:actif&&actif!==s.nom?.38:1}}>
           {moyen&&<div style={{fontSize:grand?11.5:10,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.nom}</div>}
-          {grand&&<div className="tdb-num" style={{fontSize:11,marginTop:2}}>{montantCourt(s.v)} · {nfr(s.v/total*100,0)} %</div>}
+          {grand&&<div className="tdb-num" style={{fontSize:11,marginTop:2}}>{montantCompact(s.v)} · {nfr(s.v/total*100,0)} %</div>}
           {grand&&<div className="tdb-num" style={{fontSize:11,color:"#e6edf7"}}>méd. {sgp(s.med)} · {s.n} t.</div>}
         </button>;})}
     </div>
@@ -2940,8 +2945,8 @@ const SeanceDetail=({b,rows,masi,ouvrir})=>{
       <Kpi l="MASI" val={nfr(j.cours)} cv="#e6edf7" src={srcCdg}
         sous={<><span style={{color:VARC(j.variation_pct),fontWeight:600}}>{sgp(j.variation_pct)}</span>
           {vv&&vv.cours!=null&&<span style={{color:"#8892a4"}}> · veille {nfr(vv.cours)}</span>}</>}/>
-      <Kpi l="Volume global" val={j.volume_mad!=null?`${nfr(j.volume_mad/1e6,1)} M DH`:"—"} src={srcCdg}
-        sous={v.ecart_volume_pct!=null?<><span style={{color:"#c8d3e8"}}>{sgp(v.ecart_volume_pct,1)}</span><span style={{color:"#8892a4"}}> vs {jm(v.seance_veille)}{vv&&vv.volume_mad!=null?` (${nfr(vv.volume_mad/1e6,1)} M)`:""}</span></>:null}/>
+      <Kpi l="Volume global" val={montantEntier(j.volume_mad)} src={srcCdg}
+        sous={v.ecart_volume_pct!=null?<><span style={{color:"#c8d3e8"}}>{sgp(v.ecart_volume_pct,1)}</span><span style={{color:"#8892a4"}}> vs {jm(v.seance_veille)}{vv&&vv.volume_mad!=null?` (${montantEntier(vv.volume_mad)})`:""}</span></>:null}/>
       {te!=null&&<Kpi l="Titres échangés" val={entier(te)} src={`data.json · séance du ${jm(b.seance)}, même relevé (${entier(j.transactions)} transactions)`}
         sous={<span style={{color:"#8892a4"}}>nombre d'actions, toutes valeurs</span>}/>}
       {j.transactions!=null&&<Kpi l="Transactions" val={entier(j.transactions)} src={srcCdg}
@@ -3042,7 +3047,7 @@ const SeanceDetail=({b,rows,masi,ouvrir})=>{
           {ntVus.map(x=>(
             <div key={x.symbol} style={{padding:"6px 0",borderTop:"1px solid #0a1220",fontSize:12,color:"#c8d3e8",lineHeight:1.55}}>
               <div style={{display:"flex",justifyContent:"space-between",gap:8}}>
-                <span><b style={{color:"#4db8ff"}}>{x.symbol}</b> <span className="tdb-num">{nfr(x.montant_dh/1e6,1)} M DH</span></span>
+                <span><b style={{color:"#4db8ff"}}>{x.symbol}</b> <span className="tdb-num">{montantEntier(x.montant_dh)}</span></span>
                 <span className="tdb-num" title="Fourchette de la séance">{x.seance_bas!=null?`${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}`:"—"}</span></div>
               {x.fenetre&&<div className="tdb-num" style={{fontSize:11,color:"#8892a4",whiteSpace:"normal"}}>
                 {nv.n_seances||20} séances : bas <span style={{color:"#c8d3e8"}}>{nfr(x.fenetre.plus_bas)}</span> ({jm(x.fenetre.date_plus_bas)}) · haut <span style={{color:"#c8d3e8"}}>{nfr(x.fenetre.plus_haut)}</span> ({jm(x.fenetre.date_plus_haut)})</div>}
@@ -3053,7 +3058,7 @@ const SeanceDetail=({b,rows,masi,ouvrir})=>{
         </tr></thead><tbody>
           {ntVus.map(x=>(
             <tr key={x.symbol} style={{borderTop:"1px solid #0a1220"}}><td style={{...cel,color:"#4db8ff",fontWeight:600}}>{x.symbol}</td>
-              <td style={cel} className="tdb-num">{nfr(x.montant_dh/1e6,1)} M DH</td>
+              <td style={cel} className="tdb-num">{montantEntier(x.montant_dh)}</td>
               <td style={cel} className="tdb-num">{x.seance_bas!=null?`${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}`:"—"}</td>
               <td style={cel} className="tdb-num">{x.fenetre?<>{nfr(x.fenetre.plus_bas)} <span style={{color:"#8892a4"}}>{jm(x.fenetre.date_plus_bas)}</span></>:"—"}</td>
               <td style={cel} className="tdb-num">{x.fenetre?<>{nfr(x.fenetre.plus_haut)} <span style={{color:"#8892a4"}}>{jm(x.fenetre.date_plus_haut)}</span></>:"—"}</td></tr>))}
@@ -3140,7 +3145,7 @@ const ChiffresCles=({b})=>{
   const sg=x=>x==null?"—":`${x>0?"+":""}${nfr(x)} %`;
   const items=[
     ["MASI",nfr(t?t.cloture:v.cours),v&&v.variation_pct!=null?sg(v.variation_pct):null,v&&VCc(v.variation_pct)],
-    ["Échangé",v&&v.volume_mad!=null?`${nfr(v.volume_mad/1e6,1)} M DH`:"—",
+    ["Échangé",v&&v.volume_mad!=null?montantEntier(v.volume_mad):"—",
       vv&&vv.ecart_volume_pct!=null?`${sg(vv.ecart_volume_pct)} vs veille`:null,"#8892a4"],
     ["Hausses · baisses",v?`${v.hausses??"—"} · ${v.baisses??"—"}`:"—",
       v&&v.valeurs_traitees?`${v.inchanges??0} inchangées sur ${v.valeurs_traitees}`:null,"#8892a4"],
@@ -3674,7 +3679,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                   border:`1px solid ${bas?"rgba(255,143,0,.3)":"#1a2540"}`}}>
                 <div style={{fontSize:8,color:"#8892a4",textTransform:"uppercase",marginBottom:2}}>Échangé par séance (médiane 20 j)</div>
                 <div style={{fontSize:13,fontWeight:700,color:bas?"#ff8f00":"#c8d3e8"}}>
-                  {dh>=1e6?`${(dh/1e6).toFixed(1)} M DH`:dh>=1e3?`${(dh/1e3).toFixed(0)} k DH`:`${dh} DH`}
+                  {montantEntier(dh)}
                   {bas&&<span style={{fontSize:10,fontWeight:400,marginLeft:6}}>· confiance plafonnée — un ordre courant déplacerait le cours</span>}
                 </div>
               </div>;})()}
