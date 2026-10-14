@@ -1,0 +1,39 @@
+{
+  "_quoi": "Réserve de gains et pertes latents (OCI) des assureurs cotés, part du groupe, au 31/12/2025 et au 31/12/2024, lue dans le rapport financier annuel 2025. Sert à calculer le ROE des assurances HORS gains latents (décision d'Abd Moutalib du 14/10/2026) : dénominateur = fonds propres part du groupe − réserve OCI.",
+  "_regle": "Aucune estimation. Une réserve est PRÉSENTE (valeur lue), NULLE CONFIRMÉE (la composition des fonds propres imprimée ne comporte aucune ligne de gains latents : la somme des lignes boucle au total) ou ABSENTE du fichier (non relevée). Un titre absent d'ici garde son ROE avec OCI, étiqueté « OCI non relevé ».",
+  "_unites": "valeur en MMAD ; valeur_au_rapport en KMAD (milliers de dirhams), telle qu'imprimée.",
+  "titres": {
+    "WAF": {
+      "societe": "Wafa Assurance",
+      "document": "Rapport Financier Annuel 2025",
+      "url": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf",
+      "reserve_oci": {
+        "2025": {"etat": "present", "valeur": 4747.429, "valeur_au_rapport": 4747429, "unite_au_rapport": "KMAD", "page": 16,
+                 "ligne": "Gains et pertes comptabilisés directement en capitaux propres",
+                 "base": "consolidé IFRS, part du groupe, 31/12/2025",
+                 "citation": "« Gains et pertes comptabilisés directement en capitaux propres 4 747 429 2 950 462 1 822 956 » ; en-tête « 31/12/2025 31/12/2024 01/01/2024 (en milliers de dirhams) retraité retraité »",
+                 "controle": "350 000 + 0 + 8 836 872 + 4 747 429 + 1 026 036 = 14 960 337 = « Capitaux propres-part du groupe » (p.16)"},
+        "2024": {"etat": "present", "valeur": 2950.462, "valeur_au_rapport": 2950462, "unite_au_rapport": "KMAD", "page": 16,
+                 "ligne": "Gains et pertes comptabilisés directement en capitaux propres",
+                 "base": "consolidé IFRS, part du groupe, 31/12/2024 (comparatif RETRAITÉ IFRS 17 / IFRS 9)",
+                 "citation": "même ligne, colonne 31/12/2024 : 2 950 462",
+                 "controle": "350 000 + 0 + 8 343 176 + 2 950 462 + 923 147 = 12 566 785 = « Capitaux propres-part du groupe » (p.16)"}
+      }
+    },
+    "ATL": {
+      "societe": "AtlantaSanad Assurance",
+      "document": "Rapport Annuel Financier 2025",
+      "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf",
+      "reserve_oci": {
+        "2025": {"etat": "zero_confirme", "valeur": 0.0, "page": 140,
+                 "base": "consolidé aux normes marocaines (« référentiel comptable en vigueur au Maroc », rapport des CAC p.144), part du groupe",
+                 "citation": "BILAN CONSOLIDÉ, passif 31 déc. 2025 : « Capital 602 836 ; Réserves consolidées 1 411 503 ; Résultat consolidé 467 641 ; CAPITAUX PROPRES DE L’ENSEMBLE CONSOLIDÉ 2 481 980 ; Dont : Capitaux propres part du groupe 2 481 937 ; Intérêts minoritaires 43 » (KMAD)",
+                 "controle": "602 836 + 1 411 503 + 467 641 = 2 481 980 : les fonds propres ne comportent AUCUNE ligne de gains et pertes latents (pas d'OCI en normes marocaines)"},
+        "2024": {"etat": "zero_confirme", "valeur": 0.0, "page": 140,
+                 "base": "consolidé aux normes marocaines, part du groupe, 31/12/2024",
+                 "citation": "même bilan, colonne 31 déc. 2024 : « Capital 602 836 ; Réserves consolidées 1 311 579 ; Résultat consolidé 453 361 ; CAPITAUX PROPRES DE L’ENSEMBLE CONSOLIDÉ 2 367 775 ; Dont part du groupe 2 367 730 » (KMAD)",
+                 "controle": "602 836 + 1 311 579 + 453 361 = 2 367 776 (1 KMAD d'arrondi) : aucune ligne de gains latents"}
+      }
+    }
+  }
+}
