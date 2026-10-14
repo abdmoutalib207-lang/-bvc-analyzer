@@ -3,7 +3,8 @@
 
 Demande d'Abd Moutalib : une rubrique du menu avec les éléments de sa capture
 (S&P 500, Dow Jones, CAC 40, Nikkei 225 ; USD/MAD, EUR/MAD, VIX, indice
-dollar ; or, Brent, cuivre, charbon API2).
+dollar ; or, Brent, cuivre, charbon API2). Ajoutés le 14/10/2026 : MASI
+(recoupé au centime avec data.json : 16 967,31, −0,44 %) et argent.
 
 Source : le scanner public de TradingView (`/global/scan`), vérifié le 02/10
 sur les douze symboles. Même règle que les matières du briefing
@@ -32,11 +33,11 @@ CHEMIN = RACINE / "marches_mondiaux.json"
 TV_GLOBAL = "https://scanner.tradingview.com/global/scan"
 
 GROUPES = (
-    ("Indices actions", (("SP:SPX", "S&P 500"), ("DJ:DJI", "Dow Jones"),
+    ("Indices actions", (("CSEMA:MASI", "MASI"), ("SP:SPX", "S&P 500"), ("DJ:DJI", "Dow Jones"),
                          ("EURONEXT:PX1", "CAC 40"), ("TVC:NI225", "Nikkei 225"))),
     ("Risque et devises", (("FX_IDC:USDMAD", "USD/MAD"), ("FX_IDC:EURMAD", "EUR/MAD"),
                            ("CBOE:VIX", "VIX"), ("TVC:DXY", "Indice dollar"))),
-    ("Matières premières", (("COMEX:GC1!", "Or"), ("ICEEUR:BRN1!", "Brent"),
+    ("Matières premières", (("COMEX:GC1!", "Or"), ("COMEX:SI1!", "Argent"), ("ICEEUR:BRN1!", "Brent"),
                             ("COMEX:HG1!", "Cuivre"), ("ICEEUR:ATW1!", "Charbon (API2)"))),
 )
 

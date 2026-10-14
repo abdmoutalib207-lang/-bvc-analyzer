@@ -187,9 +187,11 @@ def test_la_cellule_affiche_les_deux_unites():
     assert i > 0, "la cellule de volume ne lit pas les deux champs"
     bloc = ECRAN[i:i + 1200]
     assert "montantCourt(dh)" in bloc and "titres" in bloc
-    j = ECRAN.find("const montantCourt=")
-    assert "M DH" in ECRAN[j:j + 300] and "k DH" in ECRAN[j:j + 300], (
-        "le montant n'est pas mis en forme selon son ordre de grandeur")
+    # Montant EN ENTIER depuis le 14/10/2026 (demande d'Abd Moutalib) :
+    # « 152 470 312 DH », plus « 152,5 M DH ».
+    assert "const montantCourt=montantEntier;" in ECRAN
+    j = ECRAN.find("const montantEntier=")
+    assert "Math.round(dh)" in ECRAN[j:j + 200] and " DH`" in ECRAN[j:j + 200]
 
 
 def test_les_champs_traversent_la_fusion():
