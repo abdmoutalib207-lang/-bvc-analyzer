@@ -130,6 +130,13 @@ def test_le_flux_publie_le_volume_global():
     if not f.exists():
         pytest.skip("data.json absent de ce clone")
     m = json.loads(f.read_text(encoding="utf-8")).get("masi") or {}
+    # ⚠️ 14/10/2026 : synthèse pas encore consolidée (premières minutes de
+    # séance) — le volume est INCONNU et le bloc le déclare. Un 0 publié ici
+    # était la faute : 142 transactions avaient eu lieu.
+    if m.get("synthese_partielle"):
+        assert m.get("volume_mad") is None, "un volume inconnu publié comme un nombre"
+        assert (m.get("transactions") or 0) > 0
+        return
     assert m.get("volume_mad") is not None, (
         "l'indice est publié sans son volume — la variation ne dit pas sur "
         "combien d'échanges elle s'est faite")
@@ -149,7 +156,12 @@ def test_les_trois_grandeurs_du_volume_sont_distinctes():
     # ⚠️ Contrôle de cohérence : la taille moyenne d'une transaction doit être
     # un nombre de titres plausible. Un rapport absurde signalerait que deux
     # champs ont été échangés.
+    if m.get("synthese_partielle"):
+        assert m.get("volume_mad") is None and m.get("titres_echanges") is None
+        return
     if m.get("transactions"):
+        assert m.get("titres_echanges") is not None, (
+            "des transactions sans nombre de titres, hors synthèse partielle déclarée")
         taille = m["titres_echanges"] / m["transactions"]
         assert 1 <= taille <= 100_000, (
             f"taille moyenne d'une transaction aberrante : {taille:.0f} titres")

@@ -4998,6 +4998,10 @@ def run(dry_run=False, push=False, token=""):
                 "volume_mad": e.get("volume_mad"),
                 "titres_echanges": e.get("titres_echanges"),
                 "transactions": e.get("transactions"),
+                # Vrai quand la source compte des transactions sans servir
+                # volume ni largeur (premières minutes de séance) : les champs
+                # ci-dessus valent alors None, jamais 0 (marche_history.extraire).
+                "synthese_partielle": bool(e.get("synthese_partielle")),
                 # ⚠️ Le YTD que le WeightEngine croyait incalculable.
                 # RECALCULÉ depuis la clôture et l'ancrage du 31/12 : le champ
                 # tout fait de la source décrit la veille (cf. `_ytd()`).

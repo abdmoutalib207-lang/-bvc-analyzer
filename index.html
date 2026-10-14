@@ -4517,7 +4517,14 @@ const CarteIndices = ({
     style: carte
   }, React.createElement("div", {
     style: etiquette
-  }, "La s\xE9ance"), masi.hausses != null && masi.baisses != null && tot > 0 && React.createElement(React.Fragment, null, React.createElement("div", {
+  }, "La s\xE9ance"), masi.synthese_partielle && React.createElement("div", {
+    style: {
+      marginTop: 6,
+      fontSize: 11,
+      color: "#ffd740",
+      lineHeight: 1.5
+    }
+  }, "Synth\xE8se de s\xE9ance pas encore consolid\xE9e", masi.transactions != null ? ` : ${masi.transactions.toLocaleString("fr-FR")} transactions comptées` : "", " \u2014 volume et largeur \xE0 venir."), masi.hausses != null && masi.baisses != null && tot > 0 && React.createElement(React.Fragment, null, React.createElement("div", {
     title: `${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges || 0} inchangées sur ${masi.valeurs_traitees || tot} valeurs traitées`,
     style: {
       display: "flex",
