@@ -3837,7 +3837,8 @@ def _setup_technique(v53_final, price, ma20, ma50, tech_nf):
 
 def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux: dict,
                                bpa: dict, faits: dict, s1: dict, publier: bool | None = None,
-                               nb_notes_precedent: int | None = None) -> dict:
+                               nb_notes_precedent: int | None = None, oci: dict | None = None,
+                               dividendes: dict | None = None) -> dict:
     """Calcule la note fondamentale de chaque fiche PAR FAMILLE et la publie.
 
     ⚠️ MODE COMPARAISON (11/10/2026, Abd Moutalib) : tant que `publier` est faux
@@ -3866,7 +3867,8 @@ def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux:
         {e["symbol"]: e.get("pb") for e in tickers_out},
         fondamentaux, bpa, s1, faits,
         sans_comptes={e["symbol"] for e in tickers_out if sans_comptes(e["symbol"])},
-        suspendus={e["symbol"] for e in tickers_out if (e.get("_meta") or {}).get("suspendu")})
+        suspendus={e["symbol"] for e in tickers_out if (e.get("_meta") or {}).get("suspendu")}, oci=oci,
+        dividendes=dividendes)
     if publier:
         # Ne bloque QUE sur des fichiers sources absents ou vides. Une chute du
         # nombre de notes est une ALERTE : une correction de méthode peut la causer.
@@ -3920,10 +3922,17 @@ def note_metier_du_run(tickers_out: list, passe1: dict, *, fondamentaux: dict, b
     def calcul():
         s1 = json.loads(((racine or Path(__file__).parent) / "datasets"
                          / "resultats_s1_2026.json").read_text(encoding="utf-8")).get("titres", {})
+        # Réserves OCI des assureurs (ROE hors gains latents) : un fichier absent ne coupe pas la
+        # comparaison, les assurances restent AVEC OCI, étiquetées « OCI non relevé ».
+        f_oci = (racine or Path(__file__).parent) / "datasets" / "reserves_oci_assurances.json"
+        oci = json.loads(f_oci.read_text(encoding="utf-8")).get("titres", {}) if f_oci.exists() else {}
+        # Calendrier des dividendes (résidu de fonds propres après dividende) : absent, D est inconnu.
+        f_div = (racine or Path(__file__).parent) / "datasets" / "dividendes_bvc.json"
+        dividendes = json.loads(f_div.read_text(encoding="utf-8")).get("dividendes") if f_div.exists() else None
         nb_prec = sum(1 for t in (ex_all or {}).values()
                       if ((t or {}).get("note_fond_metier") or {}).get("note") is not None)
         appliquer_note_sectorielle(tickers_out, passe1, fondamentaux=fondamentaux, bpa=bpa, faits=faits,
-                                   s1=s1, nb_notes_precedent=nb_prec or None)
+                                   s1=s1, nb_notes_precedent=nb_prec or None, oci=oci, dividendes=dividendes)
 
     if NOTE_METIER_PUBLIEE:
         calcul()
