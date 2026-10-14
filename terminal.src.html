@@ -2781,19 +2781,19 @@ const VueSecteurs=({secteurs,total,filtre,basculer})=>{
 
 // Repères de la séance du MASI sur une échelle. Ce n'est PAS la courbe : le
 // briefing ne publie que les repères, pas la série point par point.
-const FourchetteMasi=({t})=>{
+const FourchetteMasi=({t,enSeance})=>{
   const pts=[t.veille,t.ouverture,t.plus_haut,t.plus_bas,t.cloture].filter(x=>x!=null&&isFinite(x));
   if(pts.length<2)return null;
   const lo=Math.min(...pts),hi=Math.max(...pts),m=(hi-lo)*.08||1,a=lo-m,z=hi+m;
   const p=x=>`${((x-a)/(z-a)*100).toFixed(2)}%`;
   const cc=VARC(t.cloture!=null&&t.veille!=null?t.cloture-t.veille:null);
   const reperes=[["Veille",t.veille,null,"tiret"],["1re valeur calculée",t.ouverture,t.heure_ouverture,"rond"],
-    ["Plus haut",t.plus_haut,t.heure_plus_haut,null],["Plus bas",t.plus_bas,t.heure_plus_bas,null],["Clôture",t.cloture,null,"losange"]];
+    ["Plus haut",t.plus_haut,t.heure_plus_haut,null],["Plus bas",t.plus_bas,t.heure_plus_bas,null],[enSeance?"Dernière valeur":"Clôture",t.cloture,null,"losange"]];
   const Marque=({k,c})=>k==="tiret"?<span style={{display:"inline-block",width:0,height:12,borderLeft:"2px dashed #c8d3e8"}}/>
     :k==="rond"?<span style={{display:"inline-block",width:9,height:9,borderRadius:"50%",border:"2px solid #4db8ff",background:"#0d1829"}}/>
     :k==="losange"?<span style={{display:"inline-block",width:9,height:9,background:c,transform:"rotate(45deg)"}}/>:null;
   return <div>
-    <div role="img" aria-label={`MASI : plus bas ${nfr(t.plus_bas)}, plus haut ${nfr(t.plus_haut)}, veille ${nfr(t.veille)}, clôture ${nfr(t.cloture)}`}
+    <div role="img" aria-label={`MASI : plus bas ${nfr(t.plus_bas)}, plus haut ${nfr(t.plus_haut)}, veille ${nfr(t.veille)}, ${enSeance?"dernière valeur":"clôture"} ${nfr(t.cloture)}`}
       style={{position:"relative",height:34,margin:"6px 6px 4px"}}>
       <div style={{position:"absolute",left:0,right:0,top:16,height:2,background:"#1a2540"}}/>
       {t.plus_bas!=null&&t.plus_haut!=null&&<div style={{position:"absolute",left:p(t.plus_bas),width:`calc(${p(t.plus_haut)} - ${p(t.plus_bas)})`,top:11,height:12,background:`${cc}33`,border:`1px solid ${cc}88`,borderRadius:3}}/>}
@@ -2953,7 +2953,7 @@ const SeanceDetail=({b,rows,masi,ouvrir})=>{
           clôture, le panneau le dit. */}
       {t&&<Panneau cls="c4" titre="Séance du MASI — repères"
           source={`${t.source} · ${jma(t.seance||b.seance)} · ${t.n_points} points de la série intrajournalière${t.serie_rejoint_cloture===false?` · série arrêtée à ${t.serie_jusqu_a} ; clôture et extrêmes tirés de la synthèse`:""}. Repères seulement, pas la courbe.`}>
-        <FourchetteMasi t={t}/>
+        <FourchetteMasi t={t} enSeance={!!b.moment&&b.moment!=="cloture"}/>
       </Panneau>}
 
       {rel.ok&&<Panneau cls="c6" titre={`Titres de la séance${filtre?` — ${filtre.lab}`:""}`} source={`${sourceReleve}. Toucher un titre ouvre sa fiche.`}>
