@@ -73,17 +73,23 @@ LES RÈGLES (chacune a son test)
    n'est plus avancé.)
 5. ROE : UNE SEULE CONVENTION, celle de l'EXERCICE 2025 = RNPG 2025 ÷ fonds
    propres part du groupe. ÷ MOYENNE(31/12/2024, 31/12/2025) quand les deux sont
-   relevés sur pièce (`capitaux_propres_part_groupe_2024`, 13/10/2026), sur la
-   MÊME base (même page du même état, pas de bases contradictoires, RNPG ÷ fonds
-   propres 2025 qui reproduit le ROE publié à 0,15 point près) ET sans opération
-   sur le capital dans l'exercice (`bvc_config.OPERATIONS_SUR_CAPITAL` : TGCC,
-   VCNE, SOT, CASH, SGTM) ni variation des fonds propres > 30 % non établie sur
-   pièce. Sinon ÷ clôture 31/12/2025, ÉTIQUETÉ avec la raison. La moyenne simple
-   sous-estimerait les fonds propres réellement employés après une augmentation de
-   capital ; la PONDÉRER par la date n'est pas fait (dates sourcées pour VCNE
-   seulement, profil intra-exercice non sourcé) : clôture étiquetée. À défaut de
-   ROE d'exercice, le ROE 12 mois à fin juin 2026 est un REMPLACEMENT étiqueté.
-   Jamais de mélange silencieux.
+   relevés sur pièce, sur la MÊME base, et sans mouvement de fonds propres hors
+   résultat. Sinon ÷ clôture 31/12/2025, ÉTIQUETÉ avec la raison. Contrôles, dans
+   l'ordre (`_controle_moyenne`) : fonds propres positifs ; même état financier
+   (la ligne citée porte les deux exercices, ou même page, ou même base déclarée) ;
+   bases non contradictoires ; RNPG ÷ fonds propres 2025 qui reproduit le ROE
+   publié (0,15 pt) ; opération sur le capital de l'exercice
+   (`bvc_config.OPERATIONS_SUR_CAPITAL`, sur pièce) — écartée sauf si l'apport
+   frais est ≤ 5 % des fonds propres 2024 (SGTM : 100 MMAD, 3,8 %) ; enfin le
+   RÉSIDU R = FP2025 − FP2024 − RNPG2025, rapporté aux fonds propres 2024 :
+   R > +5 % sans cause au registre = « mouvement de fonds propres hors résultat
+   non expliqué » (CASH, SOT, TGCC, VCNE, WAF, M2M ; WAF : gains latents, p.16).
+   Seul un résidu POSITIF compte : un résidu négatif est une distribution de
+   dividendes — |R| > 5 % écarterait 40 titres qui distribuent. Pondérer par la
+   date n'est pas fait (dates sourcées pour VCNE seulement). À défaut de ROE
+   d'exercice, le ROE 12 mois à fin juin 2026 est un REMPLACEMENT étiqueté. Jamais
+   de mélange silencieux ; la clôture de référence pour mesurer l'écart est NON
+   arrondie (RNPG ÷ fonds propres 2025).
 6. COMPARAISON À LA COTE ENTIÈRE ≠ SECTORIELLE : faute de 3 pairs, la référence
    est la médiane de toute la cote (hors le titre) ; c'est ÉTIQUETÉ « non
    sectorielle », l'influence est MESURÉE (`dependance_marche` : critères
@@ -316,38 +322,115 @@ def _bpa_verifie(bpa: dict) -> bool:
                 and "ammc" in str(bpa.get("source_12m") or "").lower())
 
 
-SEUIL_VARIATION_FP = 0.30   # variation des fonds propres sur l'exercice au-delà de laquelle la moyenne est écartée
+SEUIL_RESIDU_FP = 0.05      # résidu de fonds propres (hors résultat) au-delà duquel la moyenne est écartée
+SEUIL_APPORT_FP = 0.05      # apport frais d'une opération sur le capital en deçà duquel elle est non significative
 
 
-def _motif_moyenne_ecartee(sym, r25, rn, cp24f, cp25f, faits, exercice) -> str | None:
-    """Pourquoi la moyenne des fonds propres NE s'applique pas (donnée présente
-    mais moyenne trompeuse), ou None si elle s'applique. Pure."""
+def _chiffres(x) -> str:
+    return "".join(ch for ch in str(x) if ch.isdigit())
+
+
+def _fonds_propres_exercice(faits: dict, s1: dict) -> tuple:
+    """(fonds propres 2025, fonds propres 2024) part du groupe : les faits financiers
+    d'abord, à défaut les relevés du dépôt S1 (`capitaux_propres_pg_31_12_*`).
+    Chaque élément : {"valeur", "page", "base", "note", "meme_base", "origine"} ou None."""
+    F = (faits or {}).get("faits") or {}
+
+    def depuis_faits(cle):
+        f = F.get(cle)
+        if isinstance(f, dict) and _num(f.get("valeur")) is not None:
+            return {"valeur": float(f["valeur"]), "page": f.get("page"), "base": f.get("base"), "note": f.get("note"),
+                    "valeur_au_rapport": f.get("valeur_au_rapport"), "meme_base": None,
+                    "origine": "faits_financiers.json"}
+        return None
+
+    def depuis_s1(an):
+        v = _num((s1 or {}).get(f"capitaux_propres_pg_31_12_{an}"))
+        if v is None:
+            return None
+        return {"valeur": v, "page": None, "base": None, "valeur_au_rapport": None,
+                "note": (s1 or {}).get(f"source_capitaux_propres_{an}"),
+                "meme_base": bool((s1 or {}).get(f"capitaux_propres_pg_31_12_{an}_meme_base")),
+                "origine": "datasets/resultats_s1_2026.json"}
+
+    return (depuis_faits("capitaux_propres_part_groupe") or depuis_s1(2025),
+            depuis_faits("capitaux_propres_part_groupe_2024") or depuis_s1(2024))
+
+
+def _meme_etat(cp24f: dict, cp25f: dict) -> bool:
+    """Les deux fonds propres viennent-ils du MÊME état financier, sur la même base ?
+
+    On compare la base des CHIFFRES, pas le numéro de page : (a) la ligne citée
+    pour 2024 imprime aussi le montant 2025 (les deux exercices sur la même
+    ligne : NEJ p.104, BAL p.44), ou (b) les deux sont à la même page, ou (c) le
+    relevé déclare expressément la même base (comparatif retraité, CIH)."""
+    if cp24f.get("meme_base") or cp25f.get("meme_base"):
+        return True
+    def entier(v):                       # 132950333.23 → "132950333" (la ligne imprimée ne porte pas les décimales)
+        n = _num(v)
+        return _chiffres(int(n)) if n is not None else ""
+
+    n24 = _chiffres(cp24f.get("note"))
+    v25 = entier(cp25f.get("valeur_au_rapport"))
+    v24 = entier(cp24f.get("valeur_au_rapport"))
+    if v25 and v24 and v25 in n24 and v24 in n24:
+        return True
+    return cp24f.get("page") is not None and cp24f.get("page") == cp25f.get("page")
+
+
+def _controle_moyenne(sym, r25, rn, cp24f, cp25f, exercice) -> dict:
+    """Verdict de la moyenne des fonds propres. Pure.
+
+    {"code": None | motif, "motif": texte, "residu_mmad", "residu_pct", "operation": entrée du
+    registre ou None, "non_significative": bool}. `code` None = la moyenne s'applique.
+    Les codes : fonds_propres_non_positifs, base_non_confirmee, bases_contradictoires,
+    numerateur_non_reproduit, registre_operation_capital, residu_non_explique.
+    """
+    from bvc_config import OPERATIONS_SUR_CAPITAL
     cp24, cp25 = cp24f["valeur"], cp25f["valeur"]
+    r = {"code": None, "motif": None, "residu_mmad": None, "residu_pct": None, "operation": None,
+         "non_significative": False}
     if cp24 <= 0 or cp25 <= 0:
-        return f"fonds propres négatifs ou nuls ({cp24:g} ; {cp25:g})"
-    # Même base : les deux montants doivent venir du MÊME état financier (même
-    # page de la même pièce) et ne pas déclarer des bases contradictoires.
-    if cp24f.get("page") != cp25f.get("page"):
-        return (f"base 2024 non confirmée identique : pages différentes (2025 p.{cp25f.get('page')}, "
-                f"2024 p.{cp24f.get('page')})")
+        return r | {"code": "fonds_propres_non_positifs",
+                    "motif": f"fonds propres négatifs ou nuls ({cp24:g} ; {cp25:g})"}
+    # Résidu de fonds propres hors résultat : R = FP2025 − FP2024 − RNPG2025. Un résidu POSITIF
+    # important dit qu'il est entré des fonds propres qui ne sont pas du résultat (capital,
+    # gains latents) ; un résidu négatif est une distribution, normale et non retenue.
+    resid = cp25 - cp24 - rn
+    r["residu_mmad"], r["residu_pct"] = round(resid, 3), round(resid / cp24 * 100, 2)
+    if not _meme_etat(cp24f, cp25f):
+        return r | {"code": "base_non_confirmee",
+                    "motif": "base 2024 non confirmée identique : ni la ligne citée ne porte les deux exercices, "
+                             f"ni la page (2025 p.{cp25f.get('page')}, 2024 p.{cp24f.get('page')}), "
+                             "ni une déclaration de même base"}
     b25 = str(cp25f.get("base") or "").lower()
     b_roe = str(r25.get("base") or "").lower()
     if b25 and b_roe and (("social" in b25) != ("social" in b_roe)):
-        return f"bases différentes : fonds propres « {cp25f.get('base')} », ROE « {r25.get('base')} »"
-    # Le numérateur doit reproduire le ROE publié sur les fonds propres 2025 : sinon
-    # le résultat et les fonds propres ne sont pas sur la même base.
+        return r | {"code": "bases_contradictoires",
+                    "motif": f"bases différentes : fonds propres « {cp25f.get('base')} », ROE « {r25.get('base')} »"}
+    # Le numérateur doit reproduire le ROE publié sur les fonds propres 2025 (écart ≤ 0,15 pt,
+    # le ROE publié est arrondi à 0,1) : sinon résultat et fonds propres ne sont pas sur la même base.
     if abs(rn / cp25 * 100 - r25["valeur"]) > 0.15:
-        return (f"RNPG {rn:g} ÷ fonds propres {cp25:g} = {rn / cp25 * 100:.2f} % ne reproduit pas le ROE "
-                f"publié {r25['valeur']:g} %")
-    from bvc_config import OPERATIONS_SUR_CAPITAL
+        return r | {"code": "numerateur_non_reproduit",
+                    "motif": f"RNPG {rn:g} ÷ fonds propres {cp25:g} = {rn / cp25 * 100:.2f} % ne reproduit pas le "
+                             f"ROE publié {r25['valeur']:g} %"}
     op = OPERATIONS_SUR_CAPITAL.get(sym)
     if op and op.get("exercice") == exercice:
-        return "opération sur le capital dans l'exercice : " + op["nature"]
-    ratio = cp25 / cp24
-    if round(max(ratio, 1 / ratio) - 1, 6) > SEUIL_VARIATION_FP:   # symétrique : ×1,32 comme ×0,72
-        return (f"fonds propres ×{ratio:.2f} sur l'exercice (> {SEUIL_VARIATION_FP:.0%}), cause non établie "
-                "sur pièce (opération sur le capital, distribution ou résultat)")
-    return None
+        r["operation"] = op
+        apport = op.get("apport_frais_mmad")
+        if apport is not None and apport / cp24 <= SEUIL_APPORT_FP:
+            r["non_significative"] = True      # apport frais ≤ 5 % des fonds propres 2024 : la moyenne tient
+        else:
+            return r | {"code": "registre_operation_capital",
+                        "motif": "opération sur le capital dans l'exercice (registre) : " + op["nature"]
+                                 + (f" — apport frais {apport:g} MMAD = {apport / cp24:.1%} des fonds propres 2024"
+                                    if apport is not None else " — apport frais non relevé")}
+    if resid / cp24 > SEUIL_RESIDU_FP:
+        return r | {"code": "residu_non_explique",
+                    "motif": (f"mouvement de fonds propres hors résultat non expliqué : résidu R = FP2025 − FP2024 − "
+                              f"RNPG2025 = {resid:g} MMAD, +{resid / cp24:.1%} des fonds propres 2024 "
+                              f"(seuil {SEUIL_RESIDU_FP:.0%}), cause absente du registre")}
+    return r
 
 
 def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True) -> dict | None:
@@ -356,13 +439,16 @@ def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True) -> dict | None:
     Passe par `roe_effectif` (AFM/AGM sans objet, MSA en vérification).
     ROE = RNPG 2025 ÷ MOYENNE(fonds propres part du groupe 31/12/2024,
     31/12/2025) quand les deux sont relevés sur pièce, sur la MÊME base et sans
-    opération sur le capital dans l'exercice (`_motif_moyenne_ecartee`) ; sinon
+    mouvement de fonds propres hors résultat (`_controle_moyenne`) ; sinon
     ÷ CLÔTURE 31/12/2025, ÉTIQUETÉ avec la raison (`convention` :
     moyenne | cloture_moyenne_ecartee | cloture_moyenne_indisponible). À défaut de
     ROE d'exercice, le ROE 12 mois à fin juin 2026 est un REMPLACEMENT étiqueté.
     `moyenne=False` force la clôture (mesure de l'effet de la convention).
-    Rend {"etat", "valeur", "base", "periode", "source", "convention"} ou
-    {"etat": SUSPENDU|ABSENT, "motif"}.
+
+    TRAÇABILITÉ : `valeur_cloture_publiee` (ROE publié, arrondi à 0,1),
+    `valeur_cloture_non_arrondie` (RNPG ÷ fonds propres 2025, sans arrondi — c'est
+    contre elle que l'écart de la moyenne se mesure), `valeur_moyenne` (calculée
+    même si écartée), résidu, pages.
     """
     if sym in ROE_SANS_OBJET:
         return {"etat": SUSPENDU, "motif": f"ROE sans objet : {ROE_SANS_OBJET[sym]}"}
@@ -374,12 +460,16 @@ def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True) -> dict | None:
     if r25 is not None:
         faits = faits or {}
         rn = _num((s1 or {}).get("rnpg_exercice_2025"))
-        cp24f = ((faits.get("faits") or {}).get("capitaux_propres_part_groupe_2024") or None)
-        cp25f = ((faits.get("faits") or {}).get("capitaux_propres_part_groupe") or None)
-        cp24f = cp24f if isinstance(cp24f, dict) and _num(cp24f.get("valeur")) is not None else None
-        cp25f = cp25f if isinstance(cp25f, dict) and _num(cp25f.get("valeur")) is not None else None
+        cp25f, cp24f = _fonds_propres_exercice(faits, s1)
         src = _src_ratio(r25, "roe_2025")
         base_cloture = "RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025"
+        trace = {"valeur_cloture_publiee": r25["valeur"],
+                 "valeur_cloture_non_arrondie": round(rn / cp25f["valeur"] * 100, 4) if rn is not None and cp25f and cp25f["valeur"] > 0 else None,
+                 "valeur_moyenne": (round(rn / ((cp24f["valeur"] + cp25f["valeur"]) / 2) * 100, 2)
+                                    if rn is not None and cp24f and cp25f and cp24f["valeur"] + cp25f["valeur"] > 0 else None),
+                 "page_2025": (cp25f or {}).get("page"), "page_2024": (cp24f or {}).get("page"),
+                 "fonds_propres_2025": (cp25f or {}).get("valeur"), "fonds_propres_2024": (cp24f or {}).get("valeur"),
+                 "rnpg_2025": rn, "residu_mmad": None, "residu_pct": None, "moyenne_code": None}
         if not moyenne:
             motif, genre = "moyenne non demandée", "cloture_moyenne_indisponible"
         elif cp24f is None or cp25f is None or rn is None:
@@ -387,21 +477,27 @@ def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True) -> dict | None:
                       "fonds propres 31/12/2025 non relevés" if cp25f is None else "RNPG 2025 non relevé")
             motif, genre = manque, "cloture_moyenne_indisponible"
         else:
-            motif = _motif_moyenne_ecartee(sym, r25, rn, cp24f, cp25f, faits, faits.get("exercice"))
-            genre = "cloture_moyenne_ecartee" if motif else "moyenne"
+            ctl = _controle_moyenne(sym, r25, rn, cp24f, cp25f, faits.get("exercice") or 2025)
+            trace |= {"residu_mmad": ctl["residu_mmad"], "residu_pct": ctl["residu_pct"], "moyenne_code": ctl["code"]}
+            motif = ctl["motif"]
+            genre = "cloture_moyenne_ecartee" if ctl["code"] else "moyenne"
         if genre == "moyenne":
             cp24, cp25 = cp24f["valeur"], cp25f["valeur"]
-            return {"etat": PRESENT, "valeur": round(rn / ((cp24 + cp25) / 2) * 100, 2), "convention": genre,
-                    "base": (f"RNPG 2025 {rn:g} ÷ MOYENNE des fonds propres part du groupe (31/12/2024 {cp24:g} ; "
-                             f"31/12/2025 {cp25:g}), même état financier"),
-                    "periode": "exercice 2025",
-                    "source": src | {"fonds_propres_2024": f"faits_financiers.json › capitaux_propres_part_groupe_2024 "
-                                                           f"(p.{cp24f.get('page')})",
-                                     "rnpg_2025": "datasets/resultats_s1_2026.json › rnpg_exercice_2025"}}
+            non_signif = (" ; opération sur le capital de l'exercice NON SIGNIFICATIVE (apport frais ≤ "
+                          f"{SEUIL_APPORT_FP:.0%} des fonds propres 2024), moyenne conservée" if ctl["non_significative"] else "")
+            return trace | {
+                "etat": PRESENT, "valeur": trace["valeur_moyenne"], "convention": genre,
+                "base": (f"RNPG 2025 {rn:g} ÷ MOYENNE des fonds propres part du groupe (31/12/2024 {cp24:g} ; "
+                         f"31/12/2025 {cp25:g}), même état financier{non_signif}"),
+                "periode": "exercice 2025",
+                "source": src | {"fonds_propres_2024": (f"{cp24f['origine']} › fonds propres 31/12/2024"
+                                                        + (f" (p.{cp24f['page']})" if cp24f.get("page") else "")),
+                                 "rnpg_2025": "datasets/resultats_s1_2026.json › rnpg_exercice_2025"},
+                "moyenne_ecartee": None}
         etiquette = "moyenne écartée" if genre == "cloture_moyenne_ecartee" else "moyenne indisponible"
-        return {"etat": PRESENT, "valeur": r25["valeur"], "convention": genre,
-                "base": f"{base_cloture} ({etiquette} : {motif})", "periode": "exercice 2025", "source": src,
-                "moyenne_ecartee": motif}
+        return trace | {"etat": PRESENT, "valeur": r25["valeur"], "convention": genre,
+                        "base": f"{base_cloture} ({etiquette} : {motif})", "periode": "exercice 2025", "source": src,
+                        "moyenne_ecartee": motif}
     r12 = _publie_complet(fiche, sym, "roe_12m")
     if r12 is not None:
         return {"etat": REMPLACEMENT, "valeur": r12["valeur"], "convention": "remplacement_12m",

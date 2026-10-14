@@ -867,105 +867,184 @@ def test_les_rapprochements_non_etablis_disent_pourquoi_et_ne_levent_rien():
     assert abs(mng["dette_nette_base"] + sum(e["valeur"] for e in mng["elements"]) - mng["somme"]) < 0.05
 
 
-# ── 16. ROE : fonds propres MOYENS (13/10/2026) et contrôles négatifs ───────
+# ── 16. ROE : fonds propres MOYENS (13-14/10/2026) et contrôles négatifs ───
 
-def _roe_faits(cp25=6000.0, cp24=5000.0, page25=21, page24=21, base25=None, **autres):
-    f = {"capitaux_propres_part_groupe": {"valeur": cp25, "page": page25},
-         "capitaux_propres_part_groupe_2024": {"valeur": cp24, "page": page24}}
+def _roe_faits(cp25=6000.0, cp24=5000.0, page25=21, page24=21, base25=None, note24=None, **autres):
+    f = {"capitaux_propres_part_groupe": {"valeur": cp25, "page": page25, "valeur_au_rapport": int(cp25 * 1000)},
+         "capitaux_propres_part_groupe_2024": {"valeur": cp24, "page": page24, "valeur_au_rapport": int(cp24 * 1000),
+                                               "note": note24}}
     if base25:
         f["capitaux_propres_part_groupe"]["base"] = base25
     f |= autres
     return {"exercice": 2025, "faits": f}
 
 
-def _roe_entree(sym="ATW", rn=1000.0, roe25=16.7, faits=None, moyenne=True, base_roe=None):
+def _roe_entree(sym="ATW", rn=1000.0, roe25=16.7, faits=None, moyenne=True, base_roe=None, s1=None):
     fiche = _fiche("Banque", roe_2025=roe25)
     if base_roe:
         fiche["ratios_publies"]["roe_2025"]["base"] = base_roe
-    return fs.construire_entree(sym, fiche, {"bpa_12m": 5.0}, {"rnpg_exercice_2025": rn},
+    return fs.construire_entree(sym, fiche, {"bpa_12m": 5.0}, {"rnpg_exercice_2025": rn} | (s1 or {}),
                                 faits or _roe_faits(), 100.0, None, roe_moyenne=moyenne)
 
 
 def test_roe_sur_fonds_propres_moyens_quand_tout_concorde():
     # RNPG 2025 1 000 ; fonds propres 5 000 (2024) et 6 000 (2025) : moyenne 5 500 → 18,18 %.
-    # Sur la clôture : 16,7 %. 1 000 ÷ 6 000 reproduit bien le ROE publié (16,7).
+    # R = 6 000 − 5 000 − 1 000 = 0 : aucun mouvement hors résultat.
     e = _roe_entree()
-    assert e["roe"]["convention"] == "moyenne" and e["roe"]["valeur"] == 18.18
-    assert "MOYENNE" in e["roe"]["base"] and "même état financier" in e["roe"]["base"]
+    r = e["roe"]
+    assert r["convention"] == "moyenne" and r["valeur"] == 18.18 and r["residu_mmad"] == 0.0
+    assert "MOYENNE" in r["base"] and "même état financier" in r["base"]
+    assert r["valeur_cloture_publiee"] == 16.7 and r["valeur_cloture_non_arrondie"] == 16.6667
     c = fs.noter(e, _med())["criteres"]["rentabilite"]
-    assert c["convention"] == "moyenne" and c["note"] == 7.0          # écart 8,18 ≥ 5 → 7,0
-    assert c["moyenne_ecartee"] is None
+    assert c["convention"] == "moyenne" and c["note"] == 7.0 and c["moyenne_ecartee"] is None
 
 
-def test_la_clôture_est_etiquetee_quand_les_fonds_propres_2024_manquent():
+def test_la_cloture_est_etiquetee_quand_les_fonds_propres_2024_manquent():
     f = _roe_faits()
     del f["faits"]["capitaux_propres_part_groupe_2024"]
     e = _roe_entree(faits=f)
     assert e["roe"]["convention"] == "cloture_moyenne_indisponible" and e["roe"]["valeur"] == 16.7
     assert "CLÔTURE" in e["roe"]["base"] and "moyenne indisponible" in e["roe"]["base"]
-    # Sans RNPG relevé : idem. Moyenne non demandée : idem (mesure de l'effet).
     sans_rn = fs.construire_entree("ATW", _fiche("Banque", roe_2025=16.7), {"bpa_12m": 5.0}, {}, _roe_faits(), 100.0, None)
     assert sans_rn["roe"]["convention"] == "cloture_moyenne_indisponible"
     assert _roe_entree(moyenne=False)["roe"]["valeur"] == 16.7
 
 
-@pytest.mark.parametrize("sym", ["TGCC", "VCNE", "SOT", "CASH", "SGTM"])
-def test_la_moyenne_est_ecartee_apres_une_operation_sur_le_capital_du_registre(sym):
-    # Augmentation de capital / introduction en bourse dans l'exercice : la moyenne
-    # simple sous-estimerait les fonds propres employés. Clôture, étiquetée.
+@pytest.mark.parametrize("sym", ["TGCC", "VCNE", "SOT", "CASH", "CIH"])
+def test_la_moyenne_est_ecartee_apres_une_operation_significative_du_registre(sym):
+    # Augmentation de capital / introduction en bourse dans l'exercice, apport frais
+    # supérieur à 5 % des fonds propres 2024 (ou non relevé) : clôture, étiquetée.
     e = _roe_entree(sym)
-    assert e["roe"]["convention"] == "cloture_moyenne_ecartee" and e["roe"]["valeur"] == 16.7
-    assert "opération sur le capital dans l'exercice" in e["roe"]["moyenne_ecartee"]
-    assert "moyenne écartée" in e["roe"]["base"]
+    r = e["roe"]
+    assert r["convention"] == "cloture_moyenne_ecartee" and r["moyenne_code"] == "registre_operation_capital"
+    assert r["valeur"] == 16.7 and "moyenne écartée" in r["base"] and "(registre)" in r["moyenne_ecartee"]
     # Contrôle négatif : le même dossier, pour un titre hors registre, est sur la moyenne.
     assert _roe_entree("ATW")["roe"]["convention"] == "moyenne"
+
+
+def test_sgtm_operation_non_significative_la_moyenne_tient():
+    # RFA 2025 p.88-89 : 100 MMAD en numéraire + 800 MMAD d'incorporation de réserves (sans effet
+    # sur les fonds propres). Apport frais 100 ÷ 2 619,799 = 3,8 % < 5 %.
+    faits = _roe_faits(cp25=3550.399, cp24=2619.799)
+    e = _roe_entree("SGTM", rn=1342.0, roe25=37.8, faits=faits)
+    r = e["roe"]
+    assert r["convention"] == "moyenne", r["moyenne_ecartee"]
+    assert "NON SIGNIFICATIVE" in r["base"]
+    assert 100.0 / 2619.799 < fs.SEUIL_APPORT_FP
+    # Contrôle négatif : le même titre avec un apport de 6 % des fonds propres 2024 serait écarté.
+    import copy
+    op = copy.deepcopy(bvc_config.OPERATIONS_SUR_CAPITAL["SGTM"])
+    try:
+        bvc_config.OPERATIONS_SUR_CAPITAL["SGTM"] = op | {"apport_frais_mmad": 0.06 * 2619.799}
+        assert _roe_entree("SGTM", rn=1342.0, roe25=37.8, faits=faits)["roe"]["moyenne_code"] == "registre_operation_capital"
+    finally:
+        bvc_config.OPERATIONS_SUR_CAPITAL["SGTM"] = op
 
 
 def test_le_registre_des_operations_sur_le_capital_est_source():
     for t, op in bvc_config.OPERATIONS_SUR_CAPITAL.items():
         assert t in bvc_config.TICKERS_ALL
         assert op["exercice"] == 2025 and op["nature"] and "RFA 2025" in op["source"], t
-    assert set(bvc_config.OPERATIONS_SUR_CAPITAL) == {"TGCC", "VCNE", "SOT", "CASH", "SGTM"}
+        assert "apport_frais_mmad" in op, t
+    assert set(bvc_config.OPERATIONS_SUR_CAPITAL) == {"TGCC", "VCNE", "SOT", "CASH", "CIH", "SGTM"}
+    tg = bvc_config.OPERATIONS_SUR_CAPITAL["TGCC"]
+    assert "introduction en bourse" in tg["nature"] and "PAS une introduction" in tg["nature"]
+    assert "02/07/2025" in tg["nature"] and tg["date"] == "2025-07-02" and "décembre 2021" in tg["source"]
+    assert bvc_config.OPERATIONS_SUR_CAPITAL["CIH"]["apport_frais_mmad"] == 1680.619
+    assert bvc_config.OPERATIONS_SUR_CAPITAL["SGTM"]["apport_frais_mmad"] == 100.0
 
 
-@pytest.mark.parametrize("cp25,ecartee", [(5200.0, False),      # ×1,30 : pas au-delà de 30 %
-                                          (5300.0, True),       # ×1,325
-                                          (3000.0, True)])      # ×0,75 : la baisse compte aussi
-def test_la_moyenne_est_ecartee_si_les_fonds_propres_varient_de_plus_de_30_pour_cent(cp25, ecartee):
-    e = _roe_entree(faits=_roe_faits(cp25=cp25, cp24=4000.0), roe25=round(1000.0 / cp25 * 100, 1))
-    assert (e["roe"]["convention"] == "cloture_moyenne_ecartee") is ecartee
+def test_cih_fonds_propres_2024_ligne_corrigee_etiquetee():
+    import json
+    s1 = json.loads((Path(bvc_config.__file__).parent / "datasets" / "resultats_s1_2026.json").read_text(encoding="utf-8"))["titres"]["CIH"]
+    assert s1["capitaux_propres_pg_31_12_2024"] == 7644.9 and s1["capitaux_propres_pg_31_12_2025"] == 9817.628
+    assert "7 467 336" in s1["source_capitaux_propres_2024"] and "CORRIGÉE" in s1["source_capitaux_propres_2024"]
+    assert s1["capitaux_propres_pg_31_12_2024_meme_base"] is True
+    res = fs.noter_depuis_fichiers()
+    roe = res["CIH"]["entree"]["roe"]
+    assert roe["moyenne_code"] == "registre_operation_capital" and roe["fonds_propres_2024"] == 7644.9
+    assert roe["valeur_moyenne"] == round(1089.362 / ((7644.9 + 9817.628) / 2) * 100, 2)
+
+
+# Résidu R = FP2025 − FP2024 − RNPG2025, rapporté aux fonds propres 2024 : seul un résidu POSITIF
+# au-delà de 5 % (mouvement de fonds propres hors résultat) écarte la moyenne.
+@pytest.mark.parametrize("residu_pct,ecartee", [(4.9, False), (5.0, False), (5.1, True), (30.0, True),
+                                                (0.0, False), (-15.7, False), (-58.7, False)])
+def test_residu_de_fonds_propres_positif_au_dela_de_5_pour_cent_ecarte_la_moyenne(residu_pct, ecartee):
+    cp24, rn = 5000.0, 1000.0
+    cp25 = cp24 + rn + residu_pct / 100 * cp24
+    e = _roe_entree(faits=_roe_faits(cp25=cp25, cp24=cp24), roe25=round(rn / cp25 * 100, 1))
+    r = e["roe"]
+    assert (r["convention"] == "cloture_moyenne_ecartee") is ecartee, (residu_pct, r["moyenne_ecartee"])
+    assert r["residu_pct"] == pytest.approx(residu_pct, abs=0.01)
     if ecartee:
-        assert "cause non établie" in e["roe"]["moyenne_ecartee"]
+        assert r["moyenne_code"] == "residu_non_explique"
+        assert "mouvement de fonds propres hors résultat non expliqué" in r["moyenne_ecartee"]
+        assert "cause non établie" not in r["moyenne_ecartee"]
 
 
-def test_la_moyenne_est_ecartee_si_la_base_2024_n_est_pas_confirmee_identique():
-    e = _roe_entree(faits=_roe_faits(page25=106, page24=104))                  # NEJ, BAL : pages différentes
-    assert e["roe"]["convention"] == "cloture_moyenne_ecartee" and "pages différentes" in e["roe"]["moyenne_ecartee"]
-    sociale = _roe_entree(faits=_roe_faits(base25="SOCIAL (normes marocaines), 31/12/2025"),
-                          base_roe="consolidé IFRS, part du groupe")
-    assert "bases différentes" in sociale["roe"]["moyenne_ecartee"]
+@pytest.mark.parametrize("cp24,cp25,rn", [(5000.0, 3600.0, -1400.0),   # SNP : ×0,72, perte
+                                           (5000.0, 6600.0, 1600.0),    # S2M : ×1,32
+                                           (5000.0, 6900.0, 1900.0)])   # ZLD : ×1,38
+def test_une_forte_variation_des_fonds_propres_sans_residu_passe_sur_la_moyenne(cp24, cp25, rn):
+    # Le résultat explique toute la variation : R = 0. L'ancien seuil symétrique de 30 % écartait
+    # ces titres à tort, avec une étiquette « cause non établie » fausse.
+    e = _roe_entree(faits=_roe_faits(cp25=cp25, cp24=cp24), rn=rn, roe25=round(rn / cp25 * 100, 1))
+    assert e["roe"]["convention"] == "moyenne" and e["roe"]["residu_mmad"] == 0.0
+
+
+def test_un_residu_dans_le_registre_garde_le_motif_du_registre():
+    # TGCC : R = +104 %. Le motif est celui du REGISTRE (cause établie), pas « non expliqué ».
+    e = _roe_entree("TGCC", faits=_roe_faits(cp25=4544.126, cp24=1761.218), rn=952.0, roe25=20.95)
+    assert e["roe"]["moyenne_code"] == "registre_operation_capital"
+    assert "non expliqué" not in e["roe"]["moyenne_ecartee"]
+
+
+def test_meme_etat_se_juge_sur_la_base_des_chiffres_pas_sur_le_numero_de_page():
+    # NEJ p.104 / p.106, BAL p.44 / p.84 : le bilan imprime les deux exercices sur la MÊME ligne.
+    note = "« Capitaux propres (part du groupe) 132 950 333 128 892 669 » ; bilan consolidé"
+    f = _roe_faits(cp25=132.950333, cp24=128.892669, page25=84, page24=44, note24=note)
+    f["faits"]["capitaux_propres_part_groupe"]["valeur_au_rapport"] = 132950333.23      # décimales : 132 950 333,23
+    f["faits"]["capitaux_propres_part_groupe_2024"]["valeur_au_rapport"] = 128892669
+    e = _roe_entree("BAL", rn=14.634, roe25=round(14.634 / 132.950333 * 100, 1), faits=f)
+    assert e["roe"]["convention"] == "moyenne", e["roe"]["moyenne_ecartee"]
+    # Contrôles négatifs : pages différentes ET la ligne 2024 ne porte pas le montant 2025 → écartée.
+    f2 = _roe_faits(cp25=132.950333, cp24=128.892669, page25=84, page24=44, note24="« Capitaux propres 128 892 669 »")
+    e2 = _roe_entree("BAL", rn=14.634, roe25=round(14.634 / 132.950333 * 100, 1), faits=f2)
+    assert e2["roe"]["moyenne_code"] == "base_non_confirmee" and "base 2024 non confirmée" in e2["roe"]["moyenne_ecartee"]
+    # Même page, sans citation : accepté ; même base déclarée (relevé S1) : accepté.
+    assert _roe_entree(faits=_roe_faits(page25=21, page24=21))["roe"]["convention"] == "moyenne"
+
+
+def test_la_moyenne_est_ecartee_si_les_bases_sont_contradictoires():
+    sociale = _roe_entree(faits=_roe_faits(base25="SOCIAL (normes marocaines), 31/12/2025"), base_roe="consolidé IFRS, part du groupe")
+    assert sociale["roe"]["moyenne_code"] == "bases_contradictoires"
     meme = _roe_entree(faits=_roe_faits(base25="consolidé IFRS, 31/12/2025"), base_roe="consolidé IFRS, part du groupe")
     assert meme["roe"]["convention"] == "moyenne"
 
 
 def test_la_moyenne_est_ecartee_si_le_numerateur_ne_reproduit_pas_le_roe_publie():
-    # RNPG 1 000 ÷ 6 000 = 16,7 ; un ROE publié de 18,0 vient d'une autre base.
     e = _roe_entree(roe25=18.0)
-    assert e["roe"]["convention"] == "cloture_moyenne_ecartee" and "ne reproduit pas le ROE" in e["roe"]["moyenne_ecartee"]
-    assert _roe_entree(roe25=16.8)["roe"]["convention"] == "moyenne"             # 0,1 point : arrondi
+    assert e["roe"]["moyenne_code"] == "numerateur_non_reproduit" and "ne reproduit pas le ROE" in e["roe"]["moyenne_ecartee"]
+    assert _roe_entree(roe25=16.8)["roe"]["convention"] == "moyenne"             # 0,13 point : arrondi
 
 
 def test_la_moyenne_est_ecartee_si_les_fonds_propres_sont_negatifs():
     e = _roe_entree(faits=_roe_faits(cp24=-50.0))
-    assert e["roe"]["convention"] == "cloture_moyenne_ecartee" and "négatifs" in e["roe"]["moyenne_ecartee"]
+    assert e["roe"]["moyenne_code"] == "fonds_propres_non_positifs" and "négatifs" in e["roe"]["moyenne_ecartee"]
+
+
+def test_l_ecart_se_mesure_contre_la_cloture_non_arrondie():
+    # ROE publié 16,7 (arrondi) ; RNPG ÷ fonds propres 2025 = 16,6667. La moyenne vaut 18,18.
+    r = _roe_entree()["roe"]
+    assert r["valeur_cloture_publiee"] == 16.7 and r["valeur_cloture_non_arrondie"] == 16.6667
+    assert round(r["valeur_moyenne"] - r["valeur_cloture_non_arrondie"], 2) == 1.51      # et non 1,48
 
 
 def test_la_moyenne_porte_sa_source_et_aucune_ponderation_n_est_inventee():
     e = _roe_entree()
     assert e["roe"]["source"]["fonds_propres_2024"].startswith("faits_financiers.json")
     assert e["roe"]["source"]["rnpg_2025"].endswith("rnpg_exercice_2025")
-    # Pas de pondération par la date : la moyenne est simple, et le registre le dit.
-    assert "PONDÉR" in Path(fs.__file__).read_text(encoding="utf-8")
     assert "Pondérer par la date n'est pas fait" in Path(bvc_config.__file__).read_text(encoding="utf-8")
 
 
@@ -973,12 +1052,14 @@ def test_les_bases_du_roe_sont_comptees_par_convention_sur_les_donnees_reelles()
     res = fs.noter_depuis_fichiers()
     conv = {r["entree"]["roe"].get("convention") for r in res.values()}
     assert "moyenne" in conv and "cloture_moyenne_ecartee" in conv
-    # Les cinq titres du registre ne sont jamais sur la moyenne.
-    for t in bvc_config.OPERATIONS_SUR_CAPITAL:
-        c = res[t]["entree"]["roe"].get("convention")
-        assert c != "moyenne", t
-    # Aucun mélange silencieux : toute clôture porte son étiquette.
+    # Les titres du registre à apport significatif ne sont jamais sur la moyenne ; SGTM, si.
+    for t in ("TGCC", "VCNE", "SOT", "CASH", "CIH"):
+        assert res[t]["entree"]["roe"].get("convention") == "cloture_moyenne_ecartee", t
+    assert res["SGTM"]["entree"]["roe"].get("convention") == "moyenne"
+    for t in ("SNP", "S2M", "ZLD", "NEJ", "BAL"):
+        assert res[t]["entree"]["roe"].get("convention") == "moyenne", t
     for t, r in res.items():
         roe = r["entree"]["roe"]
         if roe.get("convention", "").startswith("cloture"):
-            assert "(moyenne" in roe["base"], t
+            assert "(moyenne" in roe["base"], f"{t} : clôture sans étiquette"
+            assert "cause non établie" not in roe["base"], t
