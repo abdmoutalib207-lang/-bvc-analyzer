@@ -967,6 +967,12 @@ const meta=r=>{const m=(r&&r._meta)||null;
             stale:!!m.stale,conf:m.confidence??0,asof:m.prix_asof||null,src:m.source_prix||"inconnu",
             susp:!!m.suspendu,suspDepuis:m.suspendu_depuis||null,suspMotif:m.suspendu_motif||null}
           :{stale:true,conf:0,asof:null,src:"inconnu",susp:false,suspDepuis:null,suspMotif:null};};
+/* Variation de la séance, ou null quand le cours ne date pas de la dernière
+   séance cotée (B2, 14/10/2026). Le moteur publie 0,0 pour ces titres — le
+   briefing le neutralise (`reellement_cote`), l'affichage le montrait comme
+   « 0,00 % », une stabilité qui n'a pas été observée (R9). */
+const varSeance=r=>meta(r).stale?null:r.chg;
+const NON_COTE=<span title="Pas de cotation à la dernière séance — aucune variation observée" style={{color:"#8892a4"}}>n.c.</span>;
 const jjmm=d=>{const p=String(d||"").slice(0,10).split("-");return p.length===3?`${p[2]}/${p[1]}`:"";};
 /* Pastille de fraîcheur : n'apparaît que si le cours n'est pas celui de la
    dernière séance cotée. Le titre porte la date réelle et la source. */
@@ -1884,7 +1890,7 @@ const TickerTape=({rows})=>{
             <span style={{color:"#2a3550",fontSize:8}}>◆</span>
             <span style={{color:"#c8d3e8",fontWeight:600,letterSpacing:.5}}>{tk(r)}</span>
             <span style={{color:"#4db8ff"}}>{(r.price||0).toFixed(2)}</span>
-            <span style={{color:nc(r.chg)}}>{r.chg>0?"▲":"▼"}{Math.abs(r.chg||0).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC">⚡</span>}</span>
+            <span style={{color:nc(r.chg)}}>{varSeance(r)==null?NON_COTE:<>{r.chg>0?"▲":r.chg<0?"▼":"—"}{Math.abs(r.chg||0).toFixed(2)}%</>}{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC">⚡</span>}</span>
           </span>
         ))}
       </div>
@@ -2274,7 +2280,7 @@ const Heatmap=({rows,setSel,setTab})=>{
     });
     return Object.entries(map)
       .sort((a,b)=>b[1].reduce((s,r)=>s+(r.cap||0),0)-a[1].reduce((s,r)=>s+(r.cap||0),0))
-      .map(([name,rs])=>({name,rows:rs.sort((a,b)=>(b.cap||0)-(a.cap||0)),avgChg:rs.reduce((s,r)=>s+(r.chg||0),0)/rs.length}));
+      .map(([name,rs])=>({name,rows:rs.sort((a,b)=>(b.cap||0)-(a.cap||0)),avgChg:(c=>c.length?c.reduce((s,v)=>s+v,0)/c.length:0)(rs.map(varSeance).filter(v=>v!=null))}));
   },[rows]);
   return(
     <div>
@@ -2300,18 +2306,19 @@ const Heatmap=({rows,setSel,setTab})=>{
             {sec.rows.map(r=>{
               const sym=r.symbol||r.ticker;
               const isH=hov===sym;
-              const chg=r.chg||0;
+              const chg=varSeance(r)||0;
+              const nc_=varSeance(r)==null;
               return(
                 <div key={sym}
                   onClick={()=>{setSel(sym);setTab("detail");}}
                   onMouseEnter={()=>setHov(sym)}
                   onMouseLeave={()=>setHov(null)}
-                  title={`${r.name||sym} · ${px(r.price||0)} · ${chg>0?"▲":"▼"}${Math.abs(chg).toFixed(2)}% · v5.3=${r.v53?.toFixed(2)}`}
+                  title={`${r.name||sym} · ${px(r.price||0)} · ${nc_?"non coté à la dernière séance":`${chg>0?"▲":chg<0?"▼":"—"}${Math.abs(chg).toFixed(2)}%`} · v5.3=${r.v53?.toFixed(2)}`}
                   style={{background:chgClr(chg),border:`1px solid ${isH?"#c8d3e8":"rgba(255,255,255,.04)"}`,borderRadius:5,padding:"7px 10px",minWidth:88,cursor:"pointer",transition:"border-color .12s,transform .1s",transform:isH?"scale(1.05)":"scale(1)"}}>
                   <div style={{fontSize:12,fontWeight:700,color:"#fff",marginBottom:1}}>{tk(r)}</div>
                   <div style={{fontSize:10,color:"rgba(200,211,232,.7)",marginBottom:1}}>{px(r.price||0)}</div>
                   <div style={{fontSize:11,fontWeight:700,color:chg>0?"#00e5a0":chg<0?"#ff4f5a":"#8892a4"}}>
-                    {chg>0?"▲":chg<0?"▼":"—"}{Math.abs(chg).toFixed(2)}%
+                    {nc_?"n.c.":<>{chg>0?"▲":chg<0?"▼":"—"}{Math.abs(chg).toFixed(2)}%</>}
                   </div>
                 </div>
               );
@@ -2365,7 +2372,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       return sb-sa;
     }
     if(sort==="nlp") return b.nlp-a.nlp;
-    if(sort==="var") return b.chg-a.chg;
+    if(sort==="var") return (varSeance(b)??-Infinity)-(varSeance(a)??-Infinity)||0;
     if(sort==="alpha") return b.alpha-a.alpha;
     if(sort==="rsi"){
       /* Un RSI absent n'est ni bas ni haut : en fin de liste. */
@@ -2511,7 +2518,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                         sous la clôture et la variation (demande du 30/09). */}
                     <div className="mobile-seul" style={{fontSize:9.5,color:"#8892a4",fontWeight:400}}>ouv. {r.open?px(r.open):"—"}</div>
                   </td>
-                  <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}><span style={{whiteSpace:"nowrap"}}>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%</span>{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}
+                  <td style={{padding:"8px 8px",fontSize:13,color:VC(r.chg),fontWeight:600}}><span style={{whiteSpace:"nowrap"}}>{varSeance(r)==null?NON_COTE:<>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%</>}</span>{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}
                     {/* ⚠️ LA RÉFÉRENCE DE LA VARIATION — 30/09/2026. Relevé d'Abd
                         Moutalib : « variation pas adéquate avec l'ouverture et la
                         clôture ». Elle l'était (66/66 contre CDG) : elle se lit contre
