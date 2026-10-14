@@ -2859,6 +2859,36 @@ def _suspendu_maintenant(ticker: str):
     return est_suspendu(ticker, date_analyse())
 
 
+def reference_suspendu(price, prix_asof, bougies: list) -> dict:
+    """Référence de prix d'un titre SUSPENDU. Fonction pure.
+
+    `bougies` : la série du titre, en dictionnaires `{d, c, v}`. Rend
+    `{price, prix_asof, prix_diffuse, source}` — `source` vaut None quand la
+    référence n'est pas changée.
+
+    · Une dernière bougie PORTANT UN VOLUME existe : elle est la référence,
+      avec sa date (règle du 10/09/2026, cas CMT).
+    · ⚠️ AUCUNE n'en porte (14/10/2026, cas DLM) : la dernière cotation réelle
+      précède nos séries — l'export de l'opérateur du 04/10/2023 au 02/10/2026
+      ne compte aucun titre échangé. La source rediffuse 40 DH estampillés du
+      jour, et la date était recopiée : DLM se comptait parmi les titres
+      « cotés à la séance » (67 contre 66 valeurs traitées par la synthèse, le
+      13/10). Le cours est gardé comme cours DIFFUSÉ ; sa date devient
+      inconnue — `null`, comme le prévoit le bloc `_meta`.
+    """
+    reelles = [b for b in (bougies or []) if (b.get("v") or 0) > 0]
+    if reelles:
+        der = reelles[-1]
+        c, d = der.get("c"), str(der.get("d") or "")[:10]
+        if c and d and (price != c or prix_asof != d):
+            return {"price": c, "prix_asof": d, "prix_diffuse": price,
+                    "source": "derniere_cotation_avant_suspension"}
+        return {"price": price, "prix_asof": prix_asof, "prix_diffuse": None, "source": None}
+    if prix_asof:
+        return {"price": price, "prix_asof": None, "prix_diffuse": price, "source": None}
+    return {"price": price, "prix_asof": prix_asof, "prix_diffuse": None, "source": None}
+
+
 def date_analyse() -> str:
     """La date à laquelle l'analyse est réputée rendue. Aujourd'hui par défaut.
 
@@ -4547,17 +4577,19 @@ def run(dry_run=False, push=False, token=""):
                             if (b.get("v") or 0) > 0]
             except Exception:
                 _reelles = []
-            if _reelles:
-                _der = _reelles[-1]
-                _c, _d = _der.get("c"), str(_der.get("d") or "")[:10]
-                if _c and _d and (price != _c or prix_asof != _d):
-                    _prix_diffuse = price
-                    logger.info(f"  {ticker}: suspendu — référence ramenée à la "
-                                f"dernière cotation réelle {_c} du {_d} "
-                                f"(la source diffusait {price})")
-                    price, prix_asof = _c, _d
-                    src_prix = "derniere_cotation_avant_suspension"
-                    chg = 0.0
+            _ref = reference_suspendu(price, prix_asof, _reelles)
+            if _ref["source"]:
+                logger.info(f"  {ticker}: suspendu — référence ramenée à la "
+                            f"dernière cotation réelle {_ref['price']} du "
+                            f"{_ref['prix_asof']} (la source diffusait {price})")
+                src_prix = _ref["source"]
+                chg = 0.0
+            elif _ref["prix_diffuse"] is not None:
+                logger.info(f"  {ticker}: suspendu sans cotation connue — date "
+                            f"du cours rediffusé ({prix_asof}) retirée")
+            price, prix_asof = _ref["price"], _ref["prix_asof"]
+            if _ref["prix_diffuse"] is not None:
+                _prix_diffuse = _ref["prix_diffuse"]
 
         if not opn:
             opn = round(price / (1 + chg / 100), 2) if chg else price
