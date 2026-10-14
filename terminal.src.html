@@ -1193,6 +1193,11 @@ const CarteIndices=({masi,gabarit=false})=>{
         </div>}
       <div className="carte-ind" style={carte}>
         <div style={etiquette}>La séance</div>
+        {/* 14/10/2026 : dans les premières minutes, la source compte des
+            transactions sans servir ni volume ni largeur — le moteur les
+            publie alors inconnues (jamais 0) et le dit ici. */}
+        {masi.synthese_partielle&&<div style={{marginTop:6,fontSize:11,color:"#ffd740",lineHeight:1.5}}>
+          Synthèse de séance pas encore consolidée{masi.transactions!=null?` : ${masi.transactions.toLocaleString("fr-FR")} transactions comptées`:""} — volume et largeur à venir.</div>}
         {masi.hausses!=null&&masi.baisses!=null&&tot>0&&<>
           <div title={`${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges||0} inchangées sur ${masi.valeurs_traitees||tot} valeurs traitées`}
             style={{display:"flex",height:8,borderRadius:4,overflow:"hidden",marginTop:6,background:"#1a2540"}}>

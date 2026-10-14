@@ -119,7 +119,27 @@ def extraire(ligne: dict) -> dict:
     etat = {nom: _nombre(ligne.get(src), nom in ENTIERS)
             for nom, src in CHAMPS.items()}
     etat["ytd_pct"] = _ytd(etat)
+    # ⚠️ 14/10/2026 — SYNTHÈSE PAS ENCORE CONSOLIDÉE. Relevé à 09:46, seize
+    # minutes après l'ouverture : MASI +0,69 %, 142 transactions comptées, mais
+    # `Volume` = 0, `NbrValeur` = 0, `NbrHausse` = `NbrBaisse` = 0 et
+    # `QteEchange` absent. À 09:57, la même source servait 2,66 M DH sur 44
+    # valeurs. Des opérations ont eu lieu ; ces zéros ne mesurent rien. Les
+    # publier faisait lire « 0 DH échangé, aucune valeur traitée » un jour de
+    # hausse (R9). Ces champs deviennent inconnus, et on dit pourquoi.
+    if partielle(etat):
+        for k in ("volume_mad", "titres_echanges", "hausses", "baisses",
+                  "inchanges", "valeurs_traitees"):
+            etat[k] = None
+        etat["synthese_partielle"] = True
     return etat
+
+
+def partielle(etat: dict) -> bool:
+    """Vrai si la source compte des transactions sans servir ni volume ni
+    valeurs traitées : la synthèse n'est pas encore consolidée."""
+    return bool((etat.get("transactions") or 0) > 0
+                and not etat.get("volume_mad")
+                and not etat.get("valeurs_traitees"))
 
 
 def _ytd(etat: dict):
@@ -160,6 +180,11 @@ def largeur(etat: dict) -> dict:
     dans le dénominateur : un marché où rien ne bouge n'est pas un marché
     haussier, et les exclure gonflerait le ratio des séances calmes.
     """
+    if etat.get("synthese_partielle"):
+        return {"ratio": None,
+                "_lecture": (f"synthèse de séance pas encore consolidée : "
+                             f"{etat.get('transactions')} transactions comptées, "
+                             f"largeur et volume non encore servis")}
     h, b, i = (etat.get(k) for k in ("hausses", "baisses", "inchanges"))
     if h is None or b is None:
         return {"ratio": None, "_lecture": "largeur non servie par la source"}
