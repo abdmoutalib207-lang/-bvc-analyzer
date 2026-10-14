@@ -822,6 +822,145 @@ FAMILLES_NOTE: dict = {
     "telecom":    ("IAM",),
     "utility":    ("TQA",),
 }
+# ⚠️ OPÉRATIONS SUR LE CAPITAL DE L'EXERCICE 2025 — registre créé le 13/10/2026.
+#
+# R11 : une opération sur titres se CONSTATE sur pièce, elle ne se déduit pas
+# d'une série. Une augmentation de capital ou une introduction en bourse dans
+# l'exercice change le niveau des fonds propres sans rapport avec la
+# rentabilité : la MOYENNE simple (31/12/2024, 31/12/2025) sous-estime alors les
+# fonds propres réellement employés et surestime le ROE. La note par famille
+# (`fond_score_sectoriel._roe`) écarte la moyenne et lit la clôture, étiquetée.
+# Pondérer par la date n'est pas fait : seules deux dates sont sourcées (VCNE ;
+# le visa de SOT, qui n'est pas la date de l'opération), et le profil des fonds
+# propres dans l'exercice (résultat, dividendes) ne l'est pour aucun titre.
+# Pièces : pipeline/faits_financiers.json (notes des faits fonds propres 2024 et
+# nombre d'actions) et les rapports cités. Un titre absent d'ici peut encore voir
+# sa moyenne écartée par la garde de variation (> 30 %), sans cause établie.
+OPERATIONS_SUR_CAPITAL: dict = {
+    "TGCC": {"exercice": 2025, "date": "2025-07-02", "apport_frais_mmad": 2199.99945,
+             "nature": "augmentation de capital réservée au public de 2 199 999 450 MAD, décidée le 02/07/2025 "
+                       "(la société est cotée depuis décembre 2021 : ce n'est PAS une introduction en bourse)",
+             "source": "TGCC RFA 2025 p.64 et p.72 (« L'augmentation de capital social réservée au public pour "
+                       "un montant de 2 199 999 450 dirhams »), cotation depuis décembre 2021 p.68 ; "
+                       "faits_financiers.json › TGCC"},
+    "VCNE": {"exercice": 2025, "date": "2025-07-15", "apport_frais_mmad": 719.979984,
+             "nature": "augmentation de capital de l'introduction en bourse",
+             "source": "Vicenne RFA 2025 p.58, tableau de variation des capitaux propres (719 979 984 MAD, "
+                       "boucle exactement à 1 244 927 997) ; faits_financiers.json › VCNE"},
+    "SOT": {"exercice": 2025, "date": None, "apport_frais_mmad": 630.428,
+            "nature": "augmentation de capital par apport en nature (capital +20,336 ; prime +610,092 MMAD) et "
+                      "entrée de Soludia Maghreb",
+            "source": "Sothema RFA 2025 p.43 (visa AMMC du 09/12/2025 : date du visa, pas de l'opération) et "
+                      "p.65 ; faits_financiers.json › SOT"},
+    "CASH": {"exercice": 2025, "date": None, "apport_frais_mmad": None,
+             "nature": "introduction en bourse : division du titre puis augmentation de capital (capital "
+                       "54 250 → 245 531 KMAD), toutes deux avant la clôture",
+             "source": "Cash Plus RFA 2025 (capital au 31/12/2025 : 24 553 090 actions) ; faits_financiers.json › CASH"},
+    # CIH — corrigé le 14/10/2026 (contre-vérification) : l'APPORT FRAIS de l'augmentation de capital en
+    # numéraire est de 1 500 MMAD (« augmentation de capital de 1,5 milliard de dirhams » p.79 ;
+    # « 4 108 341 nouvelles actions » p.181, avis d'émission) — pas 1 680,619. Ce dernier chiffre est la
+    # ligne « Opérations sur capital » du tableau de variation (p.26), part du groupe : capital +410,834,
+    # réserves +1 269,785. Il englobe l'augmentation en numéraire ET d'autres opérations sur capital de
+    # l'exercice (prime comprise, souscription du personnel) ; il est conservé SOUS UN AUTRE NOM,
+    # `operations_sur_capital_tableau_mmad`, et ne sert pas de seuil.
+    "CIH": {"exercice": 2025, "date": None, "apport_frais_mmad": 1500.0,
+            "operations_sur_capital_tableau_mmad": 1680.619,
+            "nature": "augmentation de capital en numéraire de 1,5 milliard de dirhams (4 108 341 actions "
+                      "nouvelles) ; le tableau de variation des fonds propres part du groupe porte 1 680,619 MMAD "
+                      "sur la ligne « Opérations sur capital »",
+            "source": "CIH Bank RFA 2025 p.79 (« augmentation de capital de 1,5 milliard de dirhams ») et p.181 "
+                      "(« émission de 4 108 341 nouvelles actions ») ; ligne « Opérations sur capital 1 680 619 » "
+                      "du tableau de variation des capitaux propres p.26 ; datasets/resultats_s1_2026.json › CIH"},
+    # SGTM — examiné le 14/10/2026 (RFA 2025 p.88-89) : en juin 2025, 100 MMAD d'augmentation en
+    # numéraire et 800 MMAD d'incorporation de réserves, SANS effet sur les fonds propres ; l'introduction en
+    # bourse n'apporte rien aux fonds propres au 31/12/2025. Apport frais : 100 ÷ 2 619,799 = 3,8 % des
+    # fonds propres 2024, sous le seuil de 5 % : opération NON SIGNIFICATIVE, la moyenne tient.
+    "SGTM": {"exercice": 2025, "date": "2025-06", "apport_frais_mmad": 100.0,
+             "nature": "juin 2025 : augmentation en numéraire de 100 MMAD et incorporation de réserves de 800 MMAD "
+                       "(sans effet sur les fonds propres) ; capital 300 000 → 1 200 000 KMAD ; l'introduction "
+                       "en bourse n'apporte rien aux fonds propres au 31/12/2025",
+             "source": "SGTM RFA 2025 p.87 (capital) et p.88-89 (opérations) ; faits_financiers.json › SGTM"},
+}
+
+
+# ─────────────────── dividendes versés dans l'exercice, lus au tableau de variation ───────────────────
+# Le résidu de fonds propres R = FP2025 − FP2024 − RNPG2025 contient, en premier lieu, le dividende versé.
+# Le test de la moyenne porte sur le résidu APRÈS dividende : R + D. D se lit d'abord ICI, au tableau de
+# variation des capitaux propres consolidés (part du groupe), ligne « Dividendes » ; à défaut, au
+# calendrier `datasets/dividendes_bvc.json` × nombre d'actions au rapport (voir `fond_score_sectoriel.
+# _dividende_exercice`). Le tableau prime : il compte ce qui est réellement sorti des fonds propres
+# (dividende d'avant la cotation de SGTM, qu'aucun calendrier de la BVC ne connaît ; titres propres ;
+# split de MNG). Chaque entrée porte sa pièce et sa page.
+DIVIDENDES_VERSES_TABLEAU: dict = {
+    # CTM — corrigé le 14/10/2026 (troisième contre-vérification) : D est le dividende NET versé,
+    # 30,651 MMAD. Le tableau de variation (p.68) montre le BRUT, -31 651, compensé par la ligne
+    # « Distributions reçues +999 » : prendre le brut sans la ligne qui le compense surévalue D de 1,0 MMAD.
+    "CTM": {"exercice": 2025, "montant_mmad": 30.651, "page": 66, "origine": "flux_de_trésorerie",
+            "source": "CTM RFA 2025 p.66, flux de trésorerie consolidé : « Dividendes versés aux actionnaires de la "
+                      "société mère (30 651) » KMAD ; comptes sociaux p.54 : 30 649 450 = 25 DH × 1 225 978 actions ; "
+                      "le tableau de variation p.68 montre le brut « Dividendes versés (31 651) », compensé par « "
+                      "Distributions reçues 999 » : -31 651 + 999 = -30 652"},
+    "BCP": {"exercice": 2025, "montant_mmad": 2134.781, "page": 12,
+            "source": "BCP rapport financier 2025 p.12, tableau de variation des capitaux propres : « Dividendes "
+                      "-2 134 781 -2 134 781 123 273 -2 011 508 » KMAD (total part du groupe 2 134 781)"},
+    "MNG": {"exercice": 2025, "montant_mmad": 475.0, "page": 87,
+            "source": "Managem RFA 2025 p.87, variation des capitaux propres consolidés 2025 : « Dividendes "
+                      "distribués -475 -475 -62 -536 » MMAD (475 part du groupe ; 40 DH × 11 864 676 actions "
+                      "avant le split 10:1 du 27/07/2026 = 474,6)"},
+    "SGTM": {"exercice": 2025, "montant_mmad": 500.0, "page": 88,
+             "source": "SGTM RFA 2025 p.88, variation des capitaux propres consolidés : « Dividendes (500 000) "
+                       "(500 000) (500 000) » KMAD en 2025 — versé AVANT l'introduction en bourse, donc absent du "
+                       "calendrier de la BVC"},
+    # RIS — le tableau de variation passe avant le calendrier (décision du 14/10/2026, règle de la PR #241).
+    # ⚠️ ÉCART NON EXPLIQUÉ de 60,000 MMAD avec le calendrier : 7 DH × 14 326 947 actions (p.45) = 100,289 ;
+    # le tableau imprime 160,289. La cause n'est pas établie dans le rapport lu ; on n'en suppose aucune.
+    "RIS": {"exercice": 2025, "montant_mmad": 160.289, "page": 36,
+            "source": "Risma RFA 2025 p.36, tableau de variation des capitaux propres consolidés : « Dividendes "
+                      "distribués bruts de précompte - - (160 289) (160 289) (8 434) (168 723) » KMAD (160 289 part "
+                      "du groupe ; 168 723 avec les minoritaires, flux de trésorerie « Dividendes payés (168 723) »). "
+                      "Le calendrier (7 DH × 14 326 947 actions, p.14 et p.45) donne 100,289 : ÉCART de 60,000 MMAD, "
+                      "cause non établie"},
+    "CIH": {"exercice": 2025, "montant_mmad": 440.953, "page": 26,
+            "source": "CIH Bank RFA 2025 p.26, tableau de variation des capitaux propres : « Dividendes -440 953 » "
+                      "KMAD part du groupe (-485 420 avec les minoritaires)"},
+}
+
+# ─────────────────── mouvements de fonds propres hors résultat, établis sur pièce ───────────────────
+# Quand le résidu APRÈS dividende dépasse 5 % des fonds propres 2024, la moyenne est écartée. Si le
+# rapport nomme la cause, elle est inscrite ici et l'étiquette dit « cause portée sur pièce » ; sinon
+# l'étiquette est « mouvement hors résultat et hors dividende non expliqué ». R11 : un fait se
+# constate sur pièce, il ne se déduit pas du chiffre.
+# TEST DU RESTE (14/10/2026) : la cause est « portée » si, une fois retranchée, il ne reste pas plus de
+# 5 % des fonds propres 2024 : |R + D - C| <= 5 %. Le reste se juge sur UNE SEULE BASE : `tableau` donne
+# les fonds propres 2024, 2025 et le résultat tels qu'ils sont imprimés au tableau de variation, la
+# même page que C ; R = FP2025 - FP2024 - RNPG se calcule sur ces trois chiffres, jamais mêlé à ceux
+# du bilan (BCP : le tableau porte 41 452 MMAD de fonds propres part du groupe, le bilan en lit 36 975).
+CAUSES_RESIDU_FONDS_PROPRES: dict = {
+    "CTM": {"exercice": 2025, "montant_mmad": -144.434, "page": 68,
+            "libelle": "« Autres retraitements » de consolidation",
+            "tableau": {"fonds_propres_2024": 362.360, "fonds_propres_2025": 243.479, "rnpg": 56.204, "page": 68},
+            "source": "CTM RFA 2025 p.68, capitaux propres consolidés : « Autres retraitements - - (144 434) - (144 433) "
+                      "142 469 (1 963) » KMAD (réserves consolidées, part du groupe) ; boucle avec les « Distributions "
+                      "reçues » +999 KMAD : -31 651 + 56 204 + 999 - 144 433 = -118 881 = 243 479 - 362 360"},
+    "BCP": {"exercice": 2025, "montant_mmad": -2119.062, "page": 12,
+            "libelle": "« Variation de périmètre »",
+            "tableau": {"fonds_propres_2024": 41068.956, "fonds_propres_2025": 41452.033, "rnpg": 4503.361, "page": 12},
+            "source": "BCP rapport financier 2025 p.12, tableau de variation des capitaux propres : « Variation de "
+                      "périmètre -2 106 834 -11 572 -656 -2 119 062 -7 207 -2 126 269 » KMAD (total part du groupe "
+                      "-2 119 062) ; fonds propres part du groupe du tableau : « Capitaux propres clôture 31/12/2024 "
+                      "... 41 068 956 », « 31/12/2025 ... 41 452 033 »"},
+    "MNG": {"exercice": 2025, "montant_mmad": -1747.0, "page": 87,
+            "libelle": "autres éléments du résultat global, part du groupe -1 747 (couverture -1 158, conversion "
+                       "-408, autres -280, impôts +108, actuariels -9)",
+            "tableau": {"fonds_propres_2024": 10688.0, "fonds_propres_2025": 11478.0, "rnpg": 3002.0, "page": 87},
+            "source": "Managem RFA 2025 p.87, variation des capitaux propres consolidés 2025 : « Résultat global total de "
+                      "l'année - -1 339 -408 3 002 1 255 » MMAD part du groupe, soit 1 255 - 3 002 = -1 747 = « Résultat "
+                      "couverture des flux de trésorerie -1 158 » + « Pertes et profits de conversion -408 » + « Autres "
+                      "éléments du résultat global -280 » + « Impôts relatifs aux autres éléments du résultat global +108 » "
+                      "+ « Gains / pertes actuariels -9 » (tableau en millions de dirhams, arrondi à l'unité)"},
+}
+
+
 FAMILLE_NOTE_PAR_DEFAUT: str = "autre"
 
 

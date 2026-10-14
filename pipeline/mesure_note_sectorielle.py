@@ -82,7 +82,8 @@ def notes_rejouees(lignes: list[dict], racine: Path = RACINE) -> dict:
         pb = {t: u._pb_sourcé(t, p) for t, p in prix.items()}
         res = fs.noter_univers(TICKERS_ALL, prix, pb, src["fondamentaux"], src["bpa"], src["s1"],
                                src["faits"], sans_comptes=set(SANS_COMPTES),
-                               suspendus={t for t in TICKERS_ALL if est_suspendu(t, date)})
+                               suspendus={t for t in TICKERS_ALL if est_suspendu(t, date)},
+                               oci=src["oci"], dividendes=src["dividendes"])
         for t, r in res.items():
             out[(date, t)] = r["note"]
     return out

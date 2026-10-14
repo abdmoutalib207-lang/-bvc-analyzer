@@ -334,16 +334,6 @@ def test_roe_une_seule_convention_exercice_2025_sur_cloture_etiquetee():
     assert c["note"] == 7.0                                       # écart 5,3 → 7,0
 
 
-def test_roe_sur_fonds_propres_moyens_quand_les_deux_clotures_sont_structurees():
-    # RNPG 2025 1 000 ; fonds propres 4 000 (31/12/2024) et 6 000 (31/12/2025) →
-    # moyenne 5 000 → ROE 20,0 %. Sur la clôture il serait de 16,7 %.
-    e = _entree("ATW", _fiche("Banque", roe_2025=16.7), {"bpa_12m": 5.0},
-                {"rnpg_exercice_2025": 1000.0, "capitaux_propres_pg_31_12_2024": 4000.0,
-                 "capitaux_propres_pg_31_12_2025": 6000.0})
-    assert e["roe"]["valeur"] == 20.0 and "MOYENS" in e["roe"]["base"]
-    assert fs.noter(e, _med())["criteres"]["rentabilite"]["note"] == 8.5      # écart 10 → 8,5
-
-
 def test_roe_12_mois_est_un_remplacement_etiquete_jamais_un_melange_silencieux():
     e = _entree("ATW", _fiche("Banque", roe_12m=15.0))
     assert e["roe"]["etat"] == fs.REMPLACEMENT and "REMPLACEMENT" in e["roe"]["base"]
@@ -875,3 +865,650 @@ def test_les_rapprochements_non_etablis_disent_pourquoi_et_ne_levent_rien():
     mng = faits["MNG"]["faits"]["endettement_net"]["rapprochement"]
     assert mng["etabli"] is True and all(e["page"] and e["citation"] for e in mng["elements"])
     assert abs(mng["dette_nette_base"] + sum(e["valeur"] for e in mng["elements"]) - mng["somme"]) < 0.05
+
+
+# ── 16. ROE : fonds propres MOYENS (13-14/10/2026) et contrôles négatifs ───
+
+def _roe_faits(cp25=6000.0, cp24=5000.0, page25=21, page24=21, base25=None, note24=None, **autres):
+    f = {"capitaux_propres_part_groupe": {"valeur": cp25, "page": page25, "valeur_au_rapport": int(cp25 * 1000)},
+         "capitaux_propres_part_groupe_2024": {"valeur": cp24, "page": page24, "valeur_au_rapport": int(cp24 * 1000),
+                                               "note": note24}}
+    if base25:
+        f["capitaux_propres_part_groupe"]["base"] = base25
+    f |= autres
+    return {"exercice": 2025, "faits": f}
+
+
+def _roe_entree(sym="ATW", rn=1000.0, roe25=16.7, faits=None, moyenne=True, base_roe=None, s1=None):
+    fiche = _fiche("Banque", roe_2025=roe25)
+    if base_roe:
+        fiche["ratios_publies"]["roe_2025"]["base"] = base_roe
+    return fs.construire_entree(sym, fiche, {"bpa_12m": 5.0}, {"rnpg_exercice_2025": rn} | (s1 or {}),
+                                faits or _roe_faits(), 100.0, None, roe_moyenne=moyenne)
+
+
+def test_roe_sur_fonds_propres_moyens_quand_tout_concorde():
+    # RNPG 2025 1 000 ; fonds propres 5 000 (2024) et 6 000 (2025) : moyenne 5 500 → 18,18 %.
+    # R = 6 000 − 5 000 − 1 000 = 0 : aucun mouvement hors résultat.
+    e = _roe_entree()
+    r = e["roe"]
+    assert r["convention"] == "moyenne" and r["valeur"] == 18.18 and r["residu_mmad"] == 0.0
+    assert "MOYENNE" in r["base"] and "même état financier" in r["base"]
+    assert r["valeur_cloture_publiee"] == 16.7 and r["valeur_cloture_non_arrondie"] == 16.6667
+    c = fs.noter(e, _med())["criteres"]["rentabilite"]
+    assert c["convention"] == "moyenne" and c["note"] == 7.0 and c["moyenne_ecartee"] is None
+
+
+def test_la_cloture_est_etiquetee_quand_les_fonds_propres_2024_manquent():
+    f = _roe_faits()
+    del f["faits"]["capitaux_propres_part_groupe_2024"]
+    e = _roe_entree(faits=f)
+    assert e["roe"]["convention"] == "cloture_moyenne_indisponible" and e["roe"]["valeur"] == 16.7
+    assert "CLÔTURE" in e["roe"]["base"] and "moyenne indisponible" in e["roe"]["base"]
+    sans_rn = fs.construire_entree("ATW", _fiche("Banque", roe_2025=16.7), {"bpa_12m": 5.0}, {}, _roe_faits(), 100.0, None)
+    assert sans_rn["roe"]["convention"] == "cloture_moyenne_indisponible"
+    assert _roe_entree(moyenne=False)["roe"]["valeur"] == 16.7
+
+
+@pytest.mark.parametrize("sym", ["TGCC", "VCNE", "SOT", "CASH", "CIH"])
+def test_la_moyenne_est_ecartee_apres_une_operation_significative_du_registre(sym):
+    # Augmentation de capital / introduction en bourse dans l'exercice, apport frais
+    # supérieur à 5 % des fonds propres 2024 (ou non relevé) : clôture, étiquetée.
+    e = _roe_entree(sym)
+    r = e["roe"]
+    assert r["convention"] == "cloture_moyenne_ecartee" and r["moyenne_code"] == "registre_operation_capital"
+    assert r["valeur"] == 16.7 and "moyenne écartée" in r["base"] and "(registre)" in r["moyenne_ecartee"]
+    # Contrôle négatif : le même dossier, pour un titre hors registre, est sur la moyenne.
+    assert _roe_entree("ATW")["roe"]["convention"] == "moyenne"
+
+
+def test_sgtm_operation_non_significative_la_moyenne_tient():
+    # RFA 2025 p.88-89 : 100 MMAD en numéraire + 800 MMAD d'incorporation de réserves (sans effet
+    # sur les fonds propres). Apport frais 100 ÷ 2 619,799 = 3,8 % < 5 %.
+    faits = _roe_faits(cp25=3550.399, cp24=2619.799)
+    e = _roe_entree("SGTM", rn=1342.0, roe25=37.8, faits=faits)
+    r = e["roe"]
+    assert r["convention"] == "moyenne", r["moyenne_ecartee"]
+    assert "NON SIGNIFICATIVE" in r["base"]
+    assert 100.0 / 2619.799 < fs.SEUIL_APPORT_FP
+    # Contrôle négatif : le même titre avec un apport de 6 % des fonds propres 2024 serait écarté.
+    import copy
+    op = copy.deepcopy(bvc_config.OPERATIONS_SUR_CAPITAL["SGTM"])
+    try:
+        bvc_config.OPERATIONS_SUR_CAPITAL["SGTM"] = op | {"apport_frais_mmad": 0.06 * 2619.799}
+        assert _roe_entree("SGTM", rn=1342.0, roe25=37.8, faits=faits)["roe"]["moyenne_code"] == "registre_operation_capital"
+    finally:
+        bvc_config.OPERATIONS_SUR_CAPITAL["SGTM"] = op
+
+
+def test_le_registre_des_operations_sur_le_capital_est_source():
+    for t, op in bvc_config.OPERATIONS_SUR_CAPITAL.items():
+        assert t in bvc_config.TICKERS_ALL
+        assert op["exercice"] == 2025 and op["nature"] and "RFA 2025" in op["source"], t
+        assert "apport_frais_mmad" in op, t
+    assert set(bvc_config.OPERATIONS_SUR_CAPITAL) == {"TGCC", "VCNE", "SOT", "CASH", "CIH", "SGTM"}
+    tg = bvc_config.OPERATIONS_SUR_CAPITAL["TGCC"]
+    assert "introduction en bourse" in tg["nature"] and "PAS une introduction" in tg["nature"]
+    assert "02/07/2025" in tg["nature"] and tg["date"] == "2025-07-02" and "décembre 2021" in tg["source"]
+    cih = bvc_config.OPERATIONS_SUR_CAPITAL["CIH"]
+    assert cih["apport_frais_mmad"] == 1500.0                       # 14/10 : 1,5 Md (p.79), pas la ligne du tableau
+    assert cih["operations_sur_capital_tableau_mmad"] == 1680.619   # la ligne du tableau garde son nom
+    assert "p.79" in cih["source"] and "p.181" in cih["source"] and "4 108 341" in cih["source"] and "p.26" in cih["source"]
+    assert bvc_config.OPERATIONS_SUR_CAPITAL["SGTM"]["apport_frais_mmad"] == 100.0
+
+
+def test_cih_fonds_propres_2024_ligne_corrigee_etiquetee():
+    import json
+    s1 = json.loads((Path(bvc_config.__file__).parent / "datasets" / "resultats_s1_2026.json").read_text(encoding="utf-8"))["titres"]["CIH"]
+    assert s1["capitaux_propres_pg_31_12_2024"] == 7644.9 and s1["capitaux_propres_pg_31_12_2025"] == 9817.628
+    assert "7 467 336" in s1["source_capitaux_propres_2024"] and "CORRIGÉE" in s1["source_capitaux_propres_2024"]
+    assert s1["capitaux_propres_pg_31_12_2024_meme_base"] is True
+    res = fs.noter_depuis_fichiers()
+    roe = res["CIH"]["entree"]["roe"]
+    assert roe["moyenne_code"] == "registre_operation_capital" and roe["fonds_propres_2024"] == 7644.9
+    assert roe["valeur_moyenne"] == round(1089.362 / ((7644.9 + 9817.628) / 2) * 100, 2)
+
+
+# Résidu R = FP2025 − FP2024 − RNPG2025, rapporté aux fonds propres 2024 : seul un résidu POSITIF
+# au-delà de 5 % (mouvement de fonds propres hors résultat) écarte la moyenne.
+@pytest.mark.parametrize("residu_pct,ecartee", [(4.9, False), (5.0, False), (5.1, True), (30.0, True),
+                                                (0.0, False), (-15.7, False), (-58.7, False)])
+def test_residu_de_fonds_propres_positif_au_dela_de_5_pour_cent_ecarte_la_moyenne(residu_pct, ecartee):
+    cp24, rn = 5000.0, 1000.0
+    cp25 = cp24 + rn + residu_pct / 100 * cp24
+    e = _roe_entree(faits=_roe_faits(cp25=cp25, cp24=cp24), roe25=round(rn / cp25 * 100, 1))
+    r = e["roe"]
+    assert (r["convention"] == "cloture_moyenne_ecartee") is ecartee, (residu_pct, r["moyenne_ecartee"])
+    assert r["residu_pct"] == pytest.approx(residu_pct, abs=0.01)
+    if ecartee:
+        assert r["moyenne_code"] == "residu_non_explique"
+        assert "mouvement de fonds propres hors résultat non expliqué" in r["moyenne_ecartee"]
+        assert "cause non établie" not in r["moyenne_ecartee"]
+
+
+@pytest.mark.parametrize("cp24,cp25,rn", [(5000.0, 3600.0, -1400.0),   # SNP : ×0,72, perte
+                                           (5000.0, 6600.0, 1600.0),    # S2M : ×1,32
+                                           (5000.0, 6900.0, 1900.0)])   # ZLD : ×1,38
+def test_une_forte_variation_des_fonds_propres_sans_residu_passe_sur_la_moyenne(cp24, cp25, rn):
+    # Le résultat explique toute la variation : R = 0. L'ancien seuil symétrique de 30 % écartait
+    # ces titres à tort, avec une étiquette « cause non établie » fausse.
+    e = _roe_entree(faits=_roe_faits(cp25=cp25, cp24=cp24), rn=rn, roe25=round(rn / cp25 * 100, 1))
+    assert e["roe"]["convention"] == "moyenne" and e["roe"]["residu_mmad"] == 0.0
+
+
+def test_un_residu_dans_le_registre_garde_le_motif_du_registre():
+    # TGCC : R = +104 %. Le motif est celui du REGISTRE (cause établie), pas « non expliqué ».
+    e = _roe_entree("TGCC", faits=_roe_faits(cp25=4544.126, cp24=1761.218), rn=952.0, roe25=20.95)
+    assert e["roe"]["moyenne_code"] == "registre_operation_capital"
+    assert "non expliqué" not in e["roe"]["moyenne_ecartee"]
+
+
+def test_meme_etat_se_juge_sur_la_base_des_chiffres_pas_sur_le_numero_de_page():
+    # NEJ p.104 / p.106, BAL p.44 / p.84 : le bilan imprime les deux exercices sur la MÊME ligne.
+    note = "« Capitaux propres (part du groupe) 132 950 333 128 892 669 » ; bilan consolidé"
+    f = _roe_faits(cp25=132.950333, cp24=128.892669, page25=84, page24=44, note24=note)
+    f["faits"]["capitaux_propres_part_groupe"]["valeur_au_rapport"] = 132950333.23      # décimales : 132 950 333,23
+    f["faits"]["capitaux_propres_part_groupe_2024"]["valeur_au_rapport"] = 128892669
+    e = _roe_entree("BAL", rn=14.634, roe25=round(14.634 / 132.950333 * 100, 1), faits=f)
+    assert e["roe"]["convention"] == "moyenne", e["roe"]["moyenne_ecartee"]
+    # Contrôles négatifs : pages différentes ET la ligne 2024 ne porte pas le montant 2025 → écartée.
+    f2 = _roe_faits(cp25=132.950333, cp24=128.892669, page25=84, page24=44, note24="« Capitaux propres 128 892 669 »")
+    e2 = _roe_entree("BAL", rn=14.634, roe25=round(14.634 / 132.950333 * 100, 1), faits=f2)
+    assert e2["roe"]["moyenne_code"] == "base_non_confirmee" and "base 2024 non confirmée" in e2["roe"]["moyenne_ecartee"]
+    # Même page, sans citation : accepté ; même base déclarée (relevé S1) : accepté.
+    assert _roe_entree(faits=_roe_faits(page25=21, page24=21))["roe"]["convention"] == "moyenne"
+
+
+def test_la_moyenne_est_ecartee_si_les_bases_sont_contradictoires():
+    sociale = _roe_entree(faits=_roe_faits(base25="SOCIAL (normes marocaines), 31/12/2025"), base_roe="consolidé IFRS, part du groupe")
+    assert sociale["roe"]["moyenne_code"] == "bases_contradictoires"
+    meme = _roe_entree(faits=_roe_faits(base25="consolidé IFRS, 31/12/2025"), base_roe="consolidé IFRS, part du groupe")
+    assert meme["roe"]["convention"] == "moyenne"
+
+
+def test_la_moyenne_est_ecartee_si_le_numerateur_ne_reproduit_pas_le_roe_publie():
+    e = _roe_entree(roe25=18.0)
+    assert e["roe"]["moyenne_code"] == "numerateur_non_reproduit" and "ne reproduit pas le ROE" in e["roe"]["moyenne_ecartee"]
+    assert _roe_entree(roe25=16.8)["roe"]["convention"] == "moyenne"             # 0,13 point : arrondi
+
+
+def test_la_moyenne_est_ecartee_si_les_fonds_propres_sont_negatifs():
+    e = _roe_entree(faits=_roe_faits(cp24=-50.0))
+    assert e["roe"]["moyenne_code"] == "fonds_propres_non_positifs" and "négatifs" in e["roe"]["moyenne_ecartee"]
+
+
+def test_l_ecart_se_mesure_contre_la_cloture_non_arrondie():
+    # ROE publié 16,7 (arrondi) ; RNPG ÷ fonds propres 2025 = 16,6667. La moyenne vaut 18,18.
+    r = _roe_entree()["roe"]
+    assert r["valeur_cloture_publiee"] == 16.7 and r["valeur_cloture_non_arrondie"] == 16.6667
+    assert round(r["valeur_moyenne"] - r["valeur_cloture_non_arrondie"], 2) == 1.51      # et non 1,48
+
+
+def test_la_moyenne_porte_sa_source_et_aucune_ponderation_n_est_inventee():
+    e = _roe_entree()
+    assert e["roe"]["source"]["fonds_propres_2024"].startswith("faits_financiers.json")
+    assert e["roe"]["source"]["rnpg_2025"].endswith("rnpg_exercice_2025")
+    assert "Pondérer par la date n'est pas fait" in Path(bvc_config.__file__).read_text(encoding="utf-8")
+
+
+def test_les_bases_du_roe_sont_comptees_par_convention_sur_les_donnees_reelles():
+    res = fs.noter_depuis_fichiers()
+    conv = {r["entree"]["roe"].get("convention") for r in res.values()}
+    assert "moyenne" in conv and "cloture_moyenne_ecartee" in conv
+    # Les titres du registre à apport significatif ne sont jamais sur la moyenne ; SGTM, si.
+    for t in ("TGCC", "VCNE", "SOT", "CASH", "CIH"):
+        assert res[t]["entree"]["roe"].get("convention") == "cloture_moyenne_ecartee", t
+    assert res["SGTM"]["entree"]["roe"].get("convention") == "moyenne"
+    for t in ("SNP", "S2M", "ZLD", "NEJ", "BAL"):
+        assert res[t]["entree"]["roe"].get("convention") == "moyenne", t
+    for t, r in res.items():
+        roe = r["entree"]["roe"]
+        if roe.get("convention", "").startswith("cloture"):
+            assert "(moyenne" in roe["base"], f"{t} : clôture sans étiquette"
+            assert "cause non établie" not in roe["base"], t
+
+
+# ── 17. ROE des assurances HORS gains latents (OCI) — décision d'Abd, 14/10/2026 ──
+
+OCI_DE_TEST = {"ATL": {"reserve_oci": {"2025": {"etat": "present", "valeur": 400.0, "page": 1, "citation": "c25"},
+                                       "2024": {"etat": "present", "valeur": 100.0, "page": 1, "citation": "c24"}}},
+               "ATW": {"reserve_oci": {"2025": {"etat": "present", "valeur": 400.0, "page": 1, "citation": "c25"},
+                                       "2024": {"etat": "present", "valeur": 100.0, "page": 1, "citation": "c24"}}}}
+
+
+def _roe_assur(sym="ATL", rn=500.0, cp25=6000.0, cp24=5000.0, oci=None, roe25=None, secteur="Assurance"):
+    fiche = _fiche(secteur, roe_2025=roe25 if roe25 is not None else round(rn / cp25 * 100, 1))
+    return fs.construire_entree(sym, fiche, {"bpa_12m": 5.0}, {"rnpg_exercice_2025": rn},
+                                _roe_faits(cp25=cp25, cp24=cp24), 100.0, None, oci=oci)
+
+
+def test_le_roe_d_une_assurance_se_calcule_hors_gains_latents():
+    # RNPG 500 ; fonds propres 5 000 → 6 000 dont OCI 100 → 400. Hors OCI : 4 900 → 5 600, moyenne 5 250.
+    r = _roe_assur(oci=OCI_DE_TEST)["roe"]
+    assert r["oci"]["etiquette"] == "hors OCI" and r["convention"] == "moyenne"
+    assert r["valeur"] == round(500 / 5250 * 100, 2) == 9.52
+    assert r["oci"]["roe_avec_oci"] == {"cloture": 8.33, "moyenne": 9.09}
+    assert r["oci"]["roe_hors_oci"] == {"cloture": 8.93, "moyenne": 9.52}
+    assert "HORS gains latents" in r["base"] and "réserve OCI" in r["base"]
+    assert r["valeur_cloture_non_arrondie"] == round(500 / 5600 * 100, 4)          # clôture hors OCI
+    # Le numérateur reste le RNPG : même résultat, seul le dénominateur change.
+    assert r["rnpg_2025"] == 500.0
+
+
+def test_le_residu_d_une_assurance_se_calcule_hors_oci():
+    # Avec OCI : R = 6 000 − 5 000 − 500 = +500 (+10 %) → écarterait la moyenne.
+    # Hors OCI : R = 5 600 − 4 900 − 500 = +200 (+4,08 %) → la moyenne tient.
+    r = _roe_assur(oci=OCI_DE_TEST)["roe"]
+    assert r["residu_mmad"] == 200.0 and r["residu_pct"] == pytest.approx(4.08, abs=0.01)
+    assert r["convention"] == "moyenne"
+    # Contrôle négatif : un mouvement hors résultat ET hors OCI reste écarté (R hors OCI > 5 %).
+    fort = _roe_assur(cp25=6500.0, oci=OCI_DE_TEST)["roe"]                      # R hors OCI = +700 (+14,3 %)
+    assert fort["convention"] == "cloture_moyenne_ecartee" and fort["moyenne_code"] == "residu_non_explique"
+    assert "hors résultat non expliqué" in fort["moyenne_ecartee"]
+    assert fort["valeur"] == round(500 / (6500 - 400) * 100, 2)                 # clôture, elle aussi hors OCI
+
+
+def test_sans_reserve_oci_relevee_le_roe_reste_avec_oci_etiquete():
+    for oci in (None, {}, {"ATL": {"reserve_oci": {"2025": {"etat": "present", "valeur": 400.0}}}},      # 2024 manquant
+                {"ATL": {"reserve_oci": {"2025": {"etat": "estime", "valeur": 400.0}, "2024": {"etat": "present", "valeur": 100.0}}}}):
+        r = _roe_assur(cp25=5700.0, oci=oci)["roe"]           # R avec OCI = +200 (+4 %) : la moyenne tient
+        assert r["oci"]["etiquette"] == "OCI non relevé" and r["oci"]["etat"] == "non_releve"
+        assert "AVEC gains latents : OCI non relevé" in r["base"]
+        assert r["valeur"] == round(500 / 5350 * 100, 2)                      # moyenne AVEC OCI : aucune estimation
+        assert r["oci"]["roe_hors_oci"] == {"cloture": None, "moyenne": None}
+
+
+def test_la_regle_hors_oci_ne_s_applique_pas_hors_de_la_famille_assurances():
+    # NÉGATIF : le fichier contient une « réserve » pour ATW (banque), elle est ignorée.
+    avec = _roe_assur("ATW", cp25=5700.0, oci=OCI_DE_TEST, secteur="Banque")["roe"]
+    sans = _roe_assur("ATW", cp25=5700.0, oci=None, secteur="Banque")["roe"]
+    assert avec["valeur"] == sans["valeur"] == round(500 / 5350 * 100, 2)
+    assert avec["oci"]["applicable"] is False and avec["oci"]["etiquette"] is None
+    assert "OCI" not in avec["base"] and "OCI" not in sans["base"]
+    # Autres familles : industrie, foncière, mines, courtier AFM (famille « autre »).
+    for sym in ("ALU", "ARD", "MNG", "AFM", "CIH", "TGCC"):
+        assert bvc_config.famille_note(sym) not in fs.FAMILLES_ROE_HORS_OCI
+    assert fs.FAMILLES_ROE_HORS_OCI == ("assurance",)
+    assert set(bvc_config.FAMILLES_NOTE["assurance"]) == {"ATL", "WAF", "SAF"}
+
+
+def test_waf_et_atl_sur_les_donnees_reelles():
+    res = fs.noter_depuis_fichiers()
+    w, a, sf = (res[t]["entree"]["roe"] for t in ("WAF", "ATL", "SAF"))
+    # WAF : 10,05 % clôture / 10,35 % moyenne hors OCI (6,86 / 7,45 avec) ; résidu hors OCI −429,451 MMAD.
+    assert w["oci"]["roe_hors_oci"] == {"cloture": 10.05, "moyenne": 10.35}
+    assert w["oci"]["roe_avec_oci"] == {"cloture": 6.86, "moyenne": 7.45}
+    assert w["convention"] == "moyenne" and w["valeur"] == 10.35 and w["residu_mmad"] == -429.451
+    assert w["oci"]["reserve_2025"] == 4747.429 and w["oci"]["reserve_2024"] == 2950.462
+    # ATL : réserve OCI nulle CONFIRMÉE sur pièce (aucune ligne de gains latents) : ROE inchangé.
+    assert a["oci"]["etat"] == "releve" and a["oci"]["pieces"]["etats"] == {"2025": "zero_confirme", "2024": "zero_confirme"}
+    assert a["convention"] == "moyenne" and a["valeur"] == 19.29 and "NULLE confirmée" in a["base"]
+    # SAF : pas de ROE d'exercice, donc rien à calculer.
+    assert sf["etat"] == "absent"
+
+
+def test_le_fichier_des_reserves_oci_est_source_page_citation_et_boucle():
+    import json
+    d = json.loads((Path(bvc_config.__file__).parent / "datasets" / "reserves_oci_assurances.json").read_text(encoding="utf-8"))
+    assert set(d["titres"]) == {"WAF", "ATL"} and "Aucune estimation" in d["_regle"]
+    for t, e in d["titres"].items():
+        assert e["url"].startswith("https://www.ammc.ma/") and e["document"]
+        for an, o in e["reserve_oci"].items():
+            assert o["etat"] in ("present", "zero_confirme") and o["page"] and o["citation"] and o["controle"], (t, an)
+    w = d["titres"]["WAF"]["reserve_oci"]
+    assert w["2025"]["page"] == 16 and w["2025"]["valeur_au_rapport"] == 4747429 and w["2024"]["valeur_au_rapport"] == 2950462
+    # Les composantes bouclent sur « Capitaux propres-part du groupe » (RFA p.16, KMAD).
+    assert 350_000 + 8_836_872 + 4_747_429 + 1_026_036 == 14_960_337
+    assert 350_000 + 8_343_176 + 2_950_462 + 923_147 == 12_566_785
+    a = d["titres"]["ATL"]["reserve_oci"]
+    assert a["2025"]["etat"] == a["2024"]["etat"] == "zero_confirme" and a["2025"]["valeur"] == 0.0 and a["2025"]["page"] == 140
+    assert 602_836 + 1_411_503 + 467_641 == 2_481_980 and 602_836 + 1_311_579 + 453_361 - 2_367_775 == 1   # 1 KMAD d'arrondi
+
+
+def test_cih_page_des_fonds_propres_2024_corriges_renseignee():
+    import json
+    c = json.loads((Path(bvc_config.__file__).parent / "datasets" / "resultats_s1_2026.json").read_text(encoding="utf-8"))["titres"]["CIH"]
+    assert c["capitaux_propres_pg_31_12_2024_page"] == 26 and c["capitaux_propres_pg_31_12_2025_page"] == 26
+    assert "p.26" in c["source_capitaux_propres_2024"] and "7 644 900" in c["source_capitaux_propres_2024"]
+    assert "à renseigner" not in c["source_capitaux_propres_2024"]
+    roe = fs.noter_depuis_fichiers()["CIH"]["entree"]["roe"]
+    assert roe["page_2024"] == 26 and roe["page_2025"] == 26
+
+
+# ── 18. Résidu APRÈS dividende, TMA, WAF, ATL (14/10/2026, seconde contre-vérification) ──
+
+def _paiement(montant, jour="2025-07-01", type_="Ordinaire", ajuste=None):
+    return {"detachement": jour, "paiement": jour, "type": type_, "montant": montant,
+            "montant_ajuste_split": montant if ajuste is None else ajuste}
+
+
+def _roe_div(sym="ATW", rn=1000.0, cp24=5000.0, cp25=None, calendrier=None, actions=1_000_000, residu_apres=None,
+             dividende=300.0, roe25=None):
+    """Un ROE d'exercice avec calendrier de dividendes. Par défaut D = 300 MMAD (300 DH × 1 million
+    d'actions) et `residu_apres` (en % des fonds propres 2024) fixe R + D : fonds propres 2025 = FP2024
+    + RNPG − D + (R + D)."""
+    if cp25 is None:
+        cp25 = cp24 + rn - dividende + (residu_apres or 0.0) / 100 * cp24
+    cal = {sym: [_paiement(dividende)]} if calendrier is None else calendrier
+    faits = _roe_faits(cp25=cp25, cp24=cp24, nombre_actions_au_rapport={"valeur": actions})
+    fiche = _fiche("Banque", roe_2025=roe25 if roe25 is not None else round(rn / cp25 * 100, 1))
+    return fs.construire_entree(sym, fiche, {"bpa_12m": 5.0}, {"rnpg_exercice_2025": rn}, faits, 100.0, None,
+                                dividendes=cal)["roe"]
+
+
+@pytest.mark.parametrize("apres,ecartee", [(0.0, False), (4.9, False), (-4.9, False), (5.0, False), (-5.0, False),
+                                           (5.1, True), (-5.1, True), (-20.0, True), (30.0, True)])
+def test_le_residu_apres_dividende_ecarte_la_moyenne_dans_les_deux_sens(apres, ecartee):
+    r = _roe_div(residu_apres=apres)
+    assert r["dividende"]["mmad"] == 300.0 and r["dividende"]["origine"] == "calendrier"
+    assert r["residu_apres_dividende_pct"] == pytest.approx(apres, abs=0.01)
+    assert (r["convention"] == "cloture_moyenne_ecartee") is ecartee, (apres, r["moyenne_ecartee"])
+    if ecartee:
+        assert r["moyenne_code"] == "residu_non_explique"
+        assert "mouvement hors résultat et hors dividende non expliqué" in r["moyenne_ecartee"]
+        assert "cause absente du registre" in r["moyenne_ecartee"]
+
+
+def test_un_residu_negatif_qui_n_est_qu_un_dividende_ne_deplace_rien():
+    # R = −300 (−6 %) : avant, comme après, c'est un dividende ; R + D = 0 → la moyenne tient.
+    r = _roe_div(residu_apres=0.0)
+    assert r["residu_pct"] == -6.0 and r["residu_apres_dividende_pct"] == 0.0 and r["convention"] == "moyenne"
+
+
+def test_sans_le_dividende_le_meme_residu_negatif_ecarte_la_moyenne():
+    # NÉGATIF : même R = −20 % ; D = 0 (titre au calendrier, aucun versement dans l'exercice) →
+    # rien n'explique la baisse, la moyenne est écartée. Avant le 14/10, le test ne regardait que R > 0.
+    r = _roe_div(calendrier={"ATW": [_paiement(300.0, jour="2024-07-01")]}, cp25=5000.0 + 1000.0 - 1000.0)
+    assert r["dividende"]["mmad"] == 0.0 and r["residu_apres_dividende_pct"] == -20.0
+    assert r["convention"] == "cloture_moyenne_ecartee" and r["moyenne_code"] == "residu_non_explique"
+
+
+def test_dividende_inconnu_l_ancien_test_reste_en_vigueur_et_le_dit():
+    # Titre ABSENT du calendrier : D inconnu (le silence n'est pas un non-versement).
+    neg = _roe_div(calendrier={"AUTRE": []}, cp25=5000.0)                   # R = −1 000 (−20 %)
+    assert neg["dividende"] is None and neg["residu_apres_dividende_pct"] is None
+    assert neg["convention"] == "moyenne"                                   # résidu négatif : non retenu
+    assert "dividende de l'exercice non relevé" in neg["base"]
+    pos = _roe_div(calendrier={"AUTRE": []}, cp25=7000.0, roe25=14.3)       # R = +1 000 (+20 %)
+    assert pos["convention"] == "cloture_moyenne_ecartee" and pos["moyenne_code"] == "residu_non_explique"
+    assert "dividende de l'exercice non relevé : test limité au résidu positif" in pos["moyenne_ecartee"]
+    # Pas de calendrier du tout : même chose.
+    assert _roe_div(calendrier={}, cp25=5000.0)["dividende"] is None
+    # Le calendrier existe mais le NOMBRE D'ACTIONS manque : D inconnu aussi.
+    f = _roe_faits(cp25=5000.0, cp24=5000.0)
+    r = fs.construire_entree("ATW", _fiche("Banque", roe_2025=20.0), {"bpa_12m": 5.0}, {"rnpg_exercice_2025": 1000.0}, f,
+                             100.0, None, dividendes={"ATW": [_paiement(300.0)]})["roe"]
+    assert r["dividende"] is None
+
+
+def test_le_tableau_de_variation_prime_sur_le_calendrier(monkeypatch):
+    # SGTM : dividende de 500 MMAD d'avant la cotation, absent du calendrier (D = 0 au calendrier).
+    monkeypatch.setitem(bvc_config.DIVIDENDES_VERSES_TABLEAU, "ATW", {
+        "exercice": 2025, "montant_mmad": 300.0, "page": 9, "source": "RFA test p.9 « Dividendes (300 000) »"})
+    d = fs._dividende_exercice("ATW", _roe_faits(), 2025, {"ATW": []})
+    assert d["mmad"] == 300.0 and d["origine"] == "tableau_variation" and d["page"] == 9 and d["calendrier_mmad"] == 0.0
+    # Et un tableau d'un AUTRE exercice ne s'applique pas.
+    monkeypatch.setitem(bvc_config.DIVIDENDES_VERSES_TABLEAU, "ATW", {"exercice": 2024, "montant_mmad": 300.0,
+                                                                       "page": 9, "source": "x"})
+    assert fs._dividende_exercice("ATW", _roe_faits(), 2025, {"ATW": []})["origine"] == "calendrier"
+
+
+def test_le_calendrier_compte_ce_qui_est_paye_dans_l_exercice_au_montant_verse():
+    faits = _roe_faits(nombre_actions_au_rapport={"valeur": 11_864_676})
+    cal = {"MNG": [_paiement(30.0, "2024-07-01", ajuste=3.0), _paiement(40.0, "2025-07-08", ajuste=4.0),
+                   _paiement(55.0, "2026-07-24", ajuste=5.5)]}
+    d = fs._dividende_exercice("XXX", faits, 2025, {"XXX": cal["MNG"]})
+    # 40 DH (montant VERSÉ, avant split) × 11 864 676 = 474,587 ; le montant ajusté (4 DH) donnerait 47,5.
+    assert d["mmad"] == pytest.approx(474.587, abs=0.001) and d["origine"] == "calendrier"
+    assert fs._dividende_exercice("XXX", faits, 2025, {"XXX": [_paiement(30.0, "2024-07-01")]})["mmad"] == 0.0
+    assert fs._dividende_exercice("XXX", faits, 2025, {"YYY": []}) is None
+    assert fs._dividende_exercice("XXX", faits, 2025, None) is None
+
+
+def _cause(montant, exercice=2025, tableau=None):
+    c = {"exercice": exercice, "montant_mmad": montant, "page": 12, "libelle": "« Variation de périmètre »", "source": "RFA test p.12"}
+    if tableau:
+        c["tableau"] = tableau
+    return c
+
+
+def test_la_cause_portee_sur_piece_passe_le_test_du_reste(monkeypatch):
+    # Résidu après dividende : −20 % = −1 000 MMAD sur 5 000. Le reste R + D − C doit tenir dans ±5 % (250).
+    for montant, portee in ((-1000.0, True),     # reste 0
+                            (-800.0, True),      # reste −200 (−4 %)
+                            (-1250.0, True),     # reste +250 (+5,0 %) : à la borne
+                            (-740.0, False),     # reste −260 (−5,2 %)
+                            (-1260.0, False),    # reste +260 (+5,2 %)
+                            (-200.0, False),     # reste −800 : la cause n'explique presque rien
+                            (-2500.0, False)):   # reste +1 500 : elle explique trop
+        monkeypatch.setitem(bvc_config.CAUSES_RESIDU_FONDS_PROPRES, "ATW", _cause(montant))
+        r = _roe_div(residu_apres=-20.0)
+        assert r["convention"] == "cloture_moyenne_ecartee"
+        assert (r["moyenne_code"] == "residu_cause_sur_piece") is portee, (montant, r["moyenne_ecartee"])
+        if portee:
+            assert "cause portée sur pièce" in r["moyenne_ecartee"] and "p.12" in r["moyenne_ecartee"]
+            assert "non expliqué" not in r["moyenne_ecartee"]
+        else:
+            assert "non expliqué" in r["moyenne_ecartee"] and "ne l'explique pas" in r["moyenne_ecartee"]
+            assert "cause portée sur pièce" not in r["moyenne_ecartee"]
+    # NÉGATIF : une cause d'un autre exercice est ignorée.
+    monkeypatch.setitem(bvc_config.CAUSES_RESIDU_FONDS_PROPRES, "ATW", _cause(-1000.0, exercice=2024))
+    r = _roe_div(residu_apres=-20.0)
+    assert r["moyenne_code"] == "residu_non_explique" and "cause absente du registre" in r["moyenne_ecartee"]
+    # Et une cause au registre ne sert à rien quand il n'y a pas de résidu à expliquer.
+    monkeypatch.setitem(bvc_config.CAUSES_RESIDU_FONDS_PROPRES, "ATW", _cause(-1000.0))
+    assert _roe_div(residu_apres=1.0)["convention"] == "moyenne"
+
+
+def test_le_reste_se_juge_sur_une_seule_base_celle_du_tableau(monkeypatch):
+    # Bilan : FP2024 5 000, FP2025 = 5 000 + 1 000 − 300 − 1 000 = 4 700 → R + D = −1 000 (−20 %).
+    # Tableau (autre base, comme BCP) : FP 8 000 → 7 700... mais un RNPG et des fonds propres DIFFÉRENTS :
+    # R_tableau = 8 000 − 8 000 − 1 000 = −1 000 ; + D 300 = −700 ; cause −700 → reste 0 sur le tableau.
+    tab = {"fonds_propres_2024": 8000.0, "fonds_propres_2025": 8000.0, "rnpg": 1000.0, "page": 12}
+    monkeypatch.setitem(bvc_config.CAUSES_RESIDU_FONDS_PROPRES, "ATW", _cause(-700.0, tableau=tab))
+    r = _roe_div(residu_apres=-20.0)
+    assert r["moyenne_code"] == "residu_cause_sur_piece"
+    c = r["cause_residu"]
+    assert c["base_du_reste"] == "tableau de variation p.12" and c["residu_sur_cette_base_mmad"] == -1000.0
+    assert c["reste_mmad"] == 0.0
+    # Le MÊME C jugé sur la base du bilan (sans `tableau`) laisserait un reste de −300 (−6 %) : non portée.
+    monkeypatch.setitem(bvc_config.CAUSES_RESIDU_FONDS_PROPRES, "ATW", _cause(-700.0))
+    r = _roe_div(residu_apres=-20.0)
+    assert r["moyenne_code"] == "residu_non_explique" and r["cause_residu"]["reste_mmad"] == -300.0
+    assert "fonds propres de la note (bilan)" in r["cause_residu"]["base_du_reste"]
+
+
+def test_ctm_bcp_tma_mng_sgtm_sur_les_donnees_reelles():
+    res = fs.noter_depuis_fichiers()
+    roe = {t: res[t]["entree"]["roe"] for t in ("CTM", "BCP", "TMA", "MNG", "SGTM", "RIS", "WAF", "ATW")}
+    # CTM : D = 30,651 (dividende NET, flux de trésorerie p.66) → R + D = −144,434 = « Autres retraitements »
+    # (p.68) exactement : reste 0,00 %.
+    c = roe["CTM"]
+    assert c["dividende"]["mmad"] == 30.651 and c["dividende"]["origine"] == "flux_de_trésorerie" and c["dividende"]["page"] == 66
+    assert c["residu_apres_dividende_mmad"] == pytest.approx(-144.434, abs=0.001)
+    assert c["residu_apres_dividende_pct"] == pytest.approx(-39.86, abs=0.01) and c["convention"] == "cloture_moyenne_ecartee"
+    assert c["moyenne_code"] == "residu_cause_sur_piece" and "Autres retraitements" in c["moyenne_ecartee"]
+    assert "p.68" in c["moyenne_ecartee"] and c["cause_residu"]["reste_pct"] == 0.0
+    # BCP : −6,6 % après dividende (base du bilan, celle des fonds propres de la note) ; le reste se juge sur
+    # le TABLEAU de variation (p.12), où se lit la cause : +133,6 MMAD, +0,33 %.
+    b = roe["BCP"]
+    assert b["residu_apres_dividende_pct"] == pytest.approx(-6.58, abs=0.01) and b["moyenne_code"] == "residu_cause_sur_piece"
+    assert "Variation de périmètre" in b["moyenne_ecartee"] and "p.12" in b["moyenne_ecartee"]
+    assert b["residu_pct"] == pytest.approx(-12.34, abs=0.01)                 # avant dividende : −12,3 %
+    assert b["cause_residu"]["base_du_reste"] == "tableau de variation p.12"
+    assert b["cause_residu"]["reste_mmad"] == pytest.approx(133.559, abs=0.001)
+    assert b["cause_residu"]["reste_pct"] == pytest.approx(0.33, abs=0.005)
+    # TMA : ≈ 0 après dividende (ordinaire + exceptionnel) ; la moyenne tient.
+    assert abs(roe["TMA"]["residu_apres_dividende_pct"]) < 0.05 and roe["TMA"]["convention"] == "moyenne"
+    # MNG : −16,2 % après dividende, autres éléments du résultat global −1 747 MMAD (p.87) : reste +0,09 %
+    # sur le tableau (arrondi à l'unité : +10 MMAD ; +10,5 sur le bilan à la décimale = +0,10 %).
+    m = roe["MNG"]
+    assert m["moyenne_code"] == "residu_cause_sur_piece" and m["dividende"]["mmad"] == 475.0
+    assert m["cause_residu"]["reste_mmad"] == 10.0 and m["cause_residu"]["reste_pct"] == pytest.approx(0.09, abs=0.005)
+    for mot in ("autres éléments du résultat global, part du groupe -1 747", "couverture -1 158", "conversion -408",
+                "autres -280", "impôts +108", "actuariels -9", "p.87"):
+        assert mot in m["moyenne_ecartee"], mot
+    # SGTM : dividende de 500 MMAD lu au tableau (absent du calendrier) → +3,4 %, la moyenne tient.
+    assert roe["SGTM"]["convention"] == "moyenne" and roe["SGTM"]["dividende"]["origine"] == "tableau_variation"
+    assert roe["SGTM"]["dividende"]["calendrier_mmad"] == 0.0
+    assert roe["SGTM"]["residu_apres_dividende_pct"] == pytest.approx(3.38, abs=0.01)
+    # RIS : le tableau de variation (p.36) passe avant le calendrier : D = 160,289, pas 7 DH × 14 326 947 = 100,289.
+    # L'écart de 60,000 MMAD est consigné (cause non établie). R + D = −162,920 + 160,289 = −2,631 (−0,17 %).
+    ris = roe["RIS"]
+    assert ris["dividende"]["mmad"] == 160.289 and ris["dividende"]["origine"] == "tableau_variation" and ris["dividende"]["page"] == 36
+    assert ris["dividende"]["calendrier_mmad"] == pytest.approx(100.289, abs=0.001)
+    assert "cause non établie" in ris["dividende"]["source"] and "60,000" in ris["dividende"]["source"]
+    assert ris["residu_apres_dividende_mmad"] == pytest.approx(-2.631, abs=0.001)
+    assert ris["residu_apres_dividende_pct"] == pytest.approx(-0.17, abs=0.005) and ris["convention"] == "moyenne"
+    # WAF et ATW (hors OCI pour WAF seulement) : un dividende explique le résidu.
+    assert abs(roe["WAF"]["residu_apres_dividende_pct"]) < 1 and abs(roe["ATW"]["residu_apres_dividende_pct"]) < 1
+
+
+def test_le_registre_des_dividendes_et_des_causes_est_source_et_page():
+    for t, d in bvc_config.DIVIDENDES_VERSES_TABLEAU.items():
+        assert t in bvc_config.TICKERS_ALL and d["exercice"] == 2025 and d["montant_mmad"] > 0, t
+        assert isinstance(d["page"], int) and ("RFA" in d["source"] or "rapport financier" in d["source"]), t
+        assert "ividendes" in d["source"] and f"p.{d['page']}" in d["source"], t
+        assert d.get("origine", "tableau_variation") in ("tableau_variation", "flux_de_trésorerie"), t
+    for t, c in bvc_config.CAUSES_RESIDU_FONDS_PROPRES.items():
+        assert t in bvc_config.TICKERS_ALL and c["exercice"] == 2025 and c["montant_mmad"] < 0, t
+        assert f"p.{c['page']}" in c["source"] and c["libelle"], t
+        tb = c["tableau"]                                    # la base UNIQUE du test du reste
+        assert tb["page"] == c["page"] and tb["fonds_propres_2024"] > 0 and tb["fonds_propres_2025"] > 0 and tb["rnpg"] > 0, t
+    assert set(bvc_config.DIVIDENDES_VERSES_TABLEAU) == {"CTM", "BCP", "MNG", "SGTM", "CIH", "RIS"}
+    assert bvc_config.DIVIDENDES_VERSES_TABLEAU["RIS"]["montant_mmad"] == 160.289 and bvc_config.DIVIDENDES_VERSES_TABLEAU["RIS"]["page"] == 36
+    assert set(bvc_config.CAUSES_RESIDU_FONDS_PROPRES) == {"CTM", "BCP", "MNG"}
+    # Les montants du registre sont ceux des pièces lues (KMAD ÷ 1 000).
+    assert bvc_config.DIVIDENDES_VERSES_TABLEAU["CTM"]["montant_mmad"] == 30.651          # net, p.66 (le brut du tableau : 31,651)
+    assert bvc_config.DIVIDENDES_VERSES_TABLEAU["BCP"]["montant_mmad"] == 2134.781
+    assert bvc_config.CAUSES_RESIDU_FONDS_PROPRES["CTM"]["montant_mmad"] == -144.434
+    assert bvc_config.CAUSES_RESIDU_FONDS_PROPRES["BCP"]["montant_mmad"] == -2119.062
+
+
+# ── TMA : dividende exceptionnel ──
+
+def test_tma_dividende_exceptionnel_etiquete_la_moyenne_simple_reste_la_regle():
+    r = fs.noter_depuis_fichiers()["TMA"]["entree"]["roe"]
+    assert r["convention"] == "moyenne" and r["valeur"] == 35.98                   # la règle ne change pas
+    e = r["dividende_exceptionnel"]
+    assert e["roe_moyenne_simple"] == 35.98 and e["roe_moyenne_ponderee_indicatif"] == pytest.approx(32.4, abs=0.05)
+    assert ("dividende exceptionnel de 67 DH payé le 11/12/2025 (600,3 MMAD, 22% des fonds propres 2024) : "
+            "moyenne simple 35,98 %, pondérée ≈ 32,4 %") in e["etiquette"]
+    assert e["etiquette"] in r["base"]                                              # dans la trace, pas seulement le livrable
+    assert "INDICATIVE" in e["etiquette"]
+
+
+def test_la_moyenne_ponderee_se_calcule_a_la_main():
+    # FP 5 000 → 6 000, D = 600 versé le 11/12 (20 jours avant la fin) :
+    # (5 000 + 6 000 + 600)/2 × 345/365 + 6 000 × 20/365 = 5 800 × 0,945205 + 328,767 = 5 811,0 ; ROE = 1 000/5 811.
+    exc = {"mmad": 600.0, "paiement": "2025-12-11", "par_action": 67.0}
+    assert fs._moyenne_ponderee_exceptionnel(1000.0, 5000.0, 6000.0, exc, 2025) == pytest.approx(17.21, abs=0.01)
+    assert fs._moyenne_ponderee_exceptionnel(1000.0, 5000.0, 6000.0, {"mmad": 600.0, "paiement": "n'importe quoi"}, 2025) is None
+
+
+def test_pas_d_etiquette_sans_dividende_exceptionnel_significatif():
+    # Dividende ORDINAIRE : aucune étiquette. Exceptionnel de 1 % des fonds propres : aucune non plus.
+    assert _roe_div(residu_apres=0.0)["dividende_exceptionnel"] is None
+    petit = {"ATW": [_paiement(300.0), _paiement(50.0, "2025-12-11", "Exceptionnel")]}      # 50 = 1 % de 5 000
+    r = _roe_div(calendrier=petit, dividende=350.0, residu_apres=0.0)
+    assert r["convention"] == "moyenne" and r["dividende_exceptionnel"] is None
+    gros = {"ATW": [_paiement(300.0), _paiement(600.0, "2025-12-11", "Exceptionnel")]}      # 12 % de 5 000
+    r = _roe_div(calendrier=gros, dividende=900.0, residu_apres=0.0)
+    assert r["dividende_exceptionnel"]["exceptionnels"][0]["mmad"] == 600.0
+    assert "dividende exceptionnel de 600 DH payé le 11/12/2025" in r["base"]
+    ecart = fs.noter_depuis_fichiers()["ATW"]["entree"]["roe"]
+    assert ecart["dividende_exceptionnel"] is None
+
+
+# ── WAF : formule hors OCI et proximité d'un palier ──
+
+def test_waf_la_formule_porte_le_denominateur_hors_oci():
+    r = fs.noter_depuis_fichiers()["WAF"]["entree"]["roe"]
+    assert r["formule"] == "1026.036 ÷ moyenne(12566.785 − 2950.462 ; 14960.337 − 4747.429)"
+    # Recalcul à la main de la formule affichée.
+    assert round(1026.036 / (((12566.785 - 2950.462) + (14960.337 - 4747.429)) / 2) * 100, 2) == r["valeur"] == 10.35
+    # Les autres : sans OCI, la formule n'en porte pas ; clôture écartée : un seul dénominateur.
+    assert fs.noter_depuis_fichiers()["ATW"]["entree"]["roe"]["formule"].count("−") == 0
+    assert fs.noter_depuis_fichiers()["CTM"]["entree"]["roe"]["formule"] == "56.204 ÷ (243.479)"
+
+
+def test_waf_est_signale_a_035_point_du_seuil_de_10_pour_cent():
+    f = fs.noter_depuis_fichiers()["WAF"]["entree"]["roe"]["frontiere_palier"]
+    assert f["seuil"] == 10.0 and f["ecart_points"] == 0.35 and f["cote"] == "au-dessus"
+    assert (f["note_au_dessus"], f["note_en_dessous"]) == (5.0, 3.5)
+    assert "à 0,35 point du seuil de 10 %" in f["etiquette"]
+
+
+@pytest.mark.parametrize("roe,seuil", [(10.5, 10.0), (9.5, 10.0), (12.4, 12.0), (14.6, 15.0), (7.0, 7.0), (25.0, 25.0)])
+def test_la_frontiere_est_signalee_a_moins_d_un_demi_point(roe, seuil):
+    assert fs._frontiere_roe(roe)["seuil"] == seuil
+
+
+@pytest.mark.parametrize("roe", [10.51, 9.49, 11.0, 13.5, 17.5, 22.4, 5.0])
+def test_pas_de_drapeau_au_dela_d_un_demi_point(roe):
+    assert fs._frontiere_roe(roe) is None
+
+
+def test_les_frontieres_du_drapeau_sont_celles_de_la_grille_de_note():
+    # Le drapeau lit les mêmes paliers que `note_ecart_rentabilite` : de part et d'autre de chaque
+    # frontière du drapeau, la note change réellement.
+    ref = fg.COUT_FONDS_PROPRES_REF
+    for ecart in fs._ECARTS_PALIERS_ROE:
+        seuil = ref + ecart
+        assert fs.note_ecart_rentabilite(seuil, ref) != fs.note_ecart_rentabilite(seuil - 0.001, ref), seuil
+
+
+# ── ATL / WAF / ATW : ce qui ne se compare pas ──
+
+def test_la_documentation_atl_waf_atw_est_dans_le_code():
+    doc = fs._roe.__doc__
+    for mot in ("ATL", "NORMES MAROCAINES", "HORS BILAN", "WAF", "IFRS 17", "ATW", "RESTE INCLUS"):
+        assert mot in doc, mot
+    assert "ne se comparent pas terme à terme" in doc.lower()
+    assert "dividende exceptionnel" in doc.lower() and "67 DH" in doc
+
+
+def test_l_oci_d_assurance_consolide_d_atw_reste_inclus():
+    atw = fs.noter_depuis_fichiers()["ATW"]["entree"]["roe"]
+    assert atw["oci"]["applicable"] is False and atw["oci"]["etiquette"] is None and "OCI" not in atw["base"]
+    assert bvc_config.famille_note("ATW") == "banque"
+
+
+def test_le_critere_publie_porte_la_formule_et_le_drapeau_de_palier():
+    r = fs.noter_depuis_fichiers()["WAF"]
+    c = r["criteres"]["rentabilite"]
+    assert c["formule"] == "1026.036 ÷ moyenne(12566.785 − 2950.462 ; 14960.337 − 4747.429)"
+    assert "à 0,35 point du seuil de 10 %" in c["drapeau_palier"]
+    pub = fs.detail_publie(r)["criteres"]["rentabilite"]                      # ce que data.json publie
+    assert pub["formule"] == c["formule"] and pub["drapeau_palier"] == c["drapeau_palier"]
+    # Un ROE loin de toute frontière ne porte aucun drapeau.
+    assert fs.noter_depuis_fichiers()["ATW"]["criteres"]["rentabilite"]["drapeau_palier"] is None
+
+
+def test_la_source_du_critere_porte_la_formule_hors_oci_de_waf():
+    # 14/10 : `source.formule` affichait « 1026.036 ÷ 14960.337 » (avec OCI, clôture) sous un ROE moyen hors OCI.
+    s = fs.noter_depuis_fichiers()["WAF"]["criteres"]["rentabilite"]["source"]
+    assert s["formule"] == "1026.036 ÷ moyenne(12566.785 − 2950.462 ; 14960.337 − 4747.429)"
+    assert s["formule_roe_publie"] == "1026.036 ÷ 14960.337 (MMAD)"            # le ROE publié reste cité, étiqueté
+    # Clôture écartée : la formule de la source est celle de la clôture, avec le même dénominateur que la valeur.
+    assert fs.noter_depuis_fichiers()["BCP"]["criteres"]["rentabilite"]["source"]["formule"] == "4503.361 ÷ (36974.989)"
+
+
+def test_ris_nombre_d_actions_2025_releve_sur_piece():
+    import json
+    f = json.loads((Path(fs.__file__).resolve().parent.parent / "faits_financiers.json").read_text(encoding="utf-8"))["RIS"]["faits"]
+    n = f["nombre_actions_au_rapport"]
+    assert n["valeur"] == 14326947 and n["page"] == 45 and "14 326 947" in n["note"] and "7 × 14 326 947 = 100,289" in n["note"]
+    assert f["nombre_actions_existant"]["valeur"] == 16012132                    # le ratio par action d'aujourd'hui ne bouge pas
+    assert "160 289" in n["note"]                                                # l'écart au tableau est consigné, non estimé
+    d = fs._dividende_exercice("RIS", {"faits": f}, 2025, {"RIS": [_paiement(7.0, "2025-08-04")]})
+    assert d["mmad"] == 160.289 and d["origine"] == "tableau_variation"        # le tableau prime (décision du 14/10)
+    assert d["calendrier_mmad"] == pytest.approx(100.289, abs=0.001)          # 7 × 14 326 947 : le calendrier reste calculé
+
+
+def test_la_documentation_des_trois_traitements_de_l_oci_est_dans_le_code():
+    doc = fs._roe.__doc__
+    assert "TROIS TRAITEMENTS DE L'OCI" in doc
+    for mot in ("ASSURANCES (WAF, ATL, SAF)", "RETIRÉ", "ATW (banque-assurance)", "CONSERVÉ", "MNG (mines)", "ÉCARTE LA MOYENNE"):
+        assert mot in doc, mot
+    assert "4,7 Md MAD" in doc and "4,7 MMAD" not in doc
