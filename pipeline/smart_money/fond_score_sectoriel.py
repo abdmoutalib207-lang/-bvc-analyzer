@@ -83,13 +83,20 @@ LES RÈGLES (chacune a son test)
    frais est ≤ 5 % des fonds propres 2024 (SGTM : 100 MMAD, 3,8 %) ; enfin le
    RÉSIDU R = FP2025 − FP2024 − RNPG2025, rapporté aux fonds propres 2024 :
    R > +5 % sans cause au registre = « mouvement de fonds propres hors résultat
-   non expliqué » (CASH, SOT, TGCC, VCNE, WAF, M2M ; WAF : gains latents, p.16).
+   non expliqué » (M2M ; CASH, SOT, TGCC, VCNE et CIH relèvent du registre). WAF n'en fait
+   plus partie : son résidu de +10,9 % est l'OCI (p.16) ; hors OCI il vaut −4,5 %.
    Seul un résidu POSITIF compte : un résidu négatif est une distribution de
    dividendes — |R| > 5 % écarterait 40 titres qui distribuent. Pondérer par la
    date n'est pas fait (dates sourcées pour VCNE seulement). À défaut de ROE
    d'exercice, le ROE 12 mois à fin juin 2026 est un REMPLACEMENT étiqueté. Jamais
    de mélange silencieux ; la clôture de référence pour mesurer l'écart est NON
    arrondie (RNPG ÷ fonds propres 2025).
+   ASSURANCES (14/10/2026, décision d'Abd) : ROE HORS gains latents — fonds propres
+   part du groupe moins la réserve OCI en 2024 comme en 2025, résidu compris
+   (`FAMILLES_ROE_HORS_OCI`, réserves sur pièce dans
+   `datasets/reserves_oci_assurances.json`) ; les gains latents suivent les marchés,
+   pas l'activité (usage des analystes pour les assureurs IFRS 17). Sans réserve
+   relevée : ROE avec OCI, étiqueté « OCI non relevé ». Hors assurances : aucun effet.
 6. COMPARAISON À LA COTE ENTIÈRE ≠ SECTORIELLE : faute de 3 pairs, la référence
    est la médiane de toute la cote (hors le titre) ; c'est ÉTIQUETÉ « non
    sectorielle », l'influence est MESURÉE (`dependance_marche` : critères
@@ -322,6 +329,20 @@ def _bpa_verifie(bpa: dict) -> bool:
                 and "ammc" in str(bpa.get("source_12m") or "").lower())
 
 
+# ⚠️ ROE DES ASSURANCES HORS GAINS LATENTS (OCI) — décision d'Abd Moutalib, 14/10/2026.
+# Pour les familles listées ici, le ROE se calcule sur les fonds propres part du groupe MOINS la
+# réserve OCI (gains et pertes comptabilisés directement en capitaux propres), en 2024 comme en
+# 2025 ; le numérateur reste le RNPG. RAISON : les gains latents d'un assureur suivent les marchés
+# (valorisation des placements), pas l'activité d'assurance ; les inclure fait varier le
+# dénominateur avec la bourse et dilue le ROE (WAF : 6,86 % avec, 10,05 % sans). C'est l'usage
+# des analystes pour les assureurs sous IFRS 17 / IFRS 9. La règle ne s'applique QU'À cette
+# famille (banques, foncières, industrie : inchangés). Elle exige la réserve OCI SUR PIÈCE
+# (`datasets/reserves_oci_assurances.json`, page et citation) : sans elle, le ROE reste AVEC
+# OCI, étiqueté « OCI non relevé » — jamais d'estimation.
+FAMILLES_ROE_HORS_OCI = ("assurance",)
+# Le résidu de fonds propres se calcule lui aussi HORS OCI : le mouvement des gains latents est
+# expliqué, il ne justifie pas d'écarter la moyenne.
+
 SEUIL_RESIDU_FP = 0.05      # résidu de fonds propres (hors résultat) au-delà duquel la moyenne est écartée
 SEUIL_APPORT_FP = 0.05      # apport frais d'une opération sur le capital en deçà duquel elle est non significative
 
@@ -348,7 +369,8 @@ def _fonds_propres_exercice(faits: dict, s1: dict) -> tuple:
         v = _num((s1 or {}).get(f"capitaux_propres_pg_31_12_{an}"))
         if v is None:
             return None
-        return {"valeur": v, "page": None, "base": None, "valeur_au_rapport": None,
+        return {"valeur": v, "page": (s1 or {}).get(f"capitaux_propres_pg_31_12_{an}_page"), "base": None,
+                "valeur_au_rapport": None,
                 "note": (s1 or {}).get(f"source_capitaux_propres_{an}"),
                 "meme_base": bool((s1 or {}).get(f"capitaux_propres_pg_31_12_{an}_meme_base")),
                 "origine": "datasets/resultats_s1_2026.json"}
@@ -378,7 +400,7 @@ def _meme_etat(cp24f: dict, cp25f: dict) -> bool:
     return cp24f.get("page") is not None and cp24f.get("page") == cp25f.get("page")
 
 
-def _controle_moyenne(sym, r25, rn, cp24f, cp25f, exercice) -> dict:
+def _controle_moyenne(sym, r25, rn, cp24f, cp25f, exercice, oci25: float = 0.0, oci24: float = 0.0) -> dict:
     """Verdict de la moyenne des fonds propres. Pure.
 
     {"code": None | motif, "motif": texte, "residu_mmad", "residu_pct", "operation": entrée du
@@ -387,7 +409,10 @@ def _controle_moyenne(sym, r25, rn, cp24f, cp25f, exercice) -> dict:
     numerateur_non_reproduit, registre_operation_capital, residu_non_explique.
     """
     from bvc_config import OPERATIONS_SUR_CAPITAL
-    cp24, cp25 = cp24f["valeur"], cp25f["valeur"]
+    # Fonds propres HORS OCI pour une assurance (`oci25` = `oci24` = 0 ailleurs) : positivité, apport
+    # frais et résidu se jugent sur ces fonds propres ; « même état » et reproduction du ROE publié
+    # se jugent sur les montants imprimés.
+    cp24, cp25 = cp24f["valeur"] - oci24, cp25f["valeur"] - oci25
     r = {"code": None, "motif": None, "residu_mmad": None, "residu_pct": None, "operation": None,
          "non_significative": False}
     if cp24 <= 0 or cp25 <= 0:
@@ -410,10 +435,11 @@ def _controle_moyenne(sym, r25, rn, cp24f, cp25f, exercice) -> dict:
                     "motif": f"bases différentes : fonds propres « {cp25f.get('base')} », ROE « {r25.get('base')} »"}
     # Le numérateur doit reproduire le ROE publié sur les fonds propres 2025 (écart ≤ 0,15 pt,
     # le ROE publié est arrondi à 0,1) : sinon résultat et fonds propres ne sont pas sur la même base.
-    if abs(rn / cp25 * 100 - r25["valeur"]) > 0.15:
+    cp25_imprime = cp25f["valeur"]
+    if abs(rn / cp25_imprime * 100 - r25["valeur"]) > 0.15:
         return r | {"code": "numerateur_non_reproduit",
-                    "motif": f"RNPG {rn:g} ÷ fonds propres {cp25:g} = {rn / cp25 * 100:.2f} % ne reproduit pas le "
-                             f"ROE publié {r25['valeur']:g} %"}
+                    "motif": f"RNPG {rn:g} ÷ fonds propres {cp25_imprime:g} = {rn / cp25_imprime * 100:.2f} % ne reproduit "
+                             f"pas le ROE publié {r25['valeur']:g} %"}
     op = OPERATIONS_SUR_CAPITAL.get(sym)
     if op and op.get("exercice") == exercice:
         r["operation"] = op
@@ -433,7 +459,26 @@ def _controle_moyenne(sym, r25, rn, cp24f, cp25f, exercice) -> dict:
     return r
 
 
-def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True) -> dict | None:
+def _reserves_oci(sym: str, oci: dict | None) -> dict:
+    """La réserve OCI (gains latents) d'une assurance, sur pièce, ou l'état « non relevé ».
+
+    {"applicable", "etat": "releve" | "non_releve" | "non_applicable", "oci25", "oci24",
+     "pieces": {...}}. Hors des familles de `FAMILLES_ROE_HORS_OCI` : non applicable, quoi
+    que contienne le fichier. Une réserve n'est lue que PRÉSENTE ou NULLE CONFIRMÉE (jamais estimée)."""
+    if famille_note(sym) not in FAMILLES_ROE_HORS_OCI:
+        return {"applicable": False, "etat": "non_applicable", "oci25": None, "oci24": None, "pieces": {}}
+    ro = ((oci or {}).get(sym) or {}).get("reserve_oci") or {}
+    o25, o24 = ro.get("2025"), ro.get("2024")
+    ok = all(isinstance(o, dict) and o.get("etat") in ("present", "zero_confirme") and _num(o.get("valeur")) is not None
+             for o in (o25, o24))
+    if not ok:
+        return {"applicable": True, "etat": "non_releve", "oci25": None, "oci24": None, "pieces": {}}
+    return {"applicable": True, "etat": "releve", "oci25": float(o25["valeur"]), "oci24": float(o24["valeur"]),
+            "pieces": {"2025": f"p.{o25.get('page')} — {o25.get('citation')}", "2024": f"p.{o24.get('page')} — {o24.get('citation')}",
+                       "etats": {"2025": o25["etat"], "2024": o24["etat"]}}}
+
+
+def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True, oci=None) -> dict | None:
     """ROE de l'EXERCICE 2025 — la convention unique (règle 5).
 
     Passe par `roe_effectif` (AFM/AGM sans objet, MSA en vérification).
@@ -445,10 +490,14 @@ def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True) -> dict | None:
     ROE d'exercice, le ROE 12 mois à fin juin 2026 est un REMPLACEMENT étiqueté.
     `moyenne=False` force la clôture (mesure de l'effet de la convention).
 
-    TRAÇABILITÉ : `valeur_cloture_publiee` (ROE publié, arrondi à 0,1),
-    `valeur_cloture_non_arrondie` (RNPG ÷ fonds propres 2025, sans arrondi — c'est
-    contre elle que l'écart de la moyenne se mesure), `valeur_moyenne` (calculée
-    même si écartée), résidu, pages.
+    ASSURANCES (`FAMILLES_ROE_HORS_OCI`) : les fonds propres sont pris MOINS la réserve OCI,
+    en 2024 comme en 2025 (voir la constante) ; le résidu aussi. Sans réserve relevée sur
+    pièce, le ROE reste AVEC OCI, étiqueté « OCI non relevé ».
+
+    TRAÇABILITÉ : `valeur_cloture_publiee` (ROE publié, arrondi à 0,1, avec OCI),
+    `valeur_cloture_non_arrondie` (RNPG ÷ fonds propres 2025 sur la base retenue, sans arrondi —
+    contre elle se mesure l'écart de la moyenne), `valeur_moyenne` (calculée même si écartée),
+    résidu, pages ; pour une assurance, les quatre ROE avec et sans OCI.
     """
     if sym in ROE_SANS_OBJET:
         return {"etat": SUSPENDU, "motif": f"ROE sans objet : {ROE_SANS_OBJET[sym]}"}
@@ -461,15 +510,41 @@ def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True) -> dict | None:
         faits = faits or {}
         rn = _num((s1 or {}).get("rnpg_exercice_2025"))
         cp25f, cp24f = _fonds_propres_exercice(faits, s1)
+        ro = _reserves_oci(sym, oci)
+        # Hors OCI seulement si la réserve est relevée ET que le calcul est possible (RNPG et fonds propres 2025).
+        hors_oci = ro["etat"] == "releve" and rn is not None and cp25f is not None
+        o25, o24 = (ro["oci25"], ro["oci24"]) if hors_oci else (0.0, 0.0)
         src = _src_ratio(r25, "roe_2025")
-        base_cloture = "RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025"
+        cp25x = cp25f["valeur"] - o25 if cp25f else None
+        cp24x = cp24f["valeur"] - o24 if cp24f else None
+        nulle = hors_oci and all(v == "zero_confirme" for v in ro["pieces"]["etats"].values())
+        suffixe_oci = ((" — HORS gains latents (OCI) : réserve OCI NULLE confirmée sur pièce en 2024 et 2025 (aucune ligne "
+                        "de gains latents aux fonds propres consolidés)" if nulle else
+                        " — HORS gains latents (OCI) : fonds propres part du groupe moins la réserve OCI (2025 "
+                        f"{o25:g} ; 2024 {o24:g})") if hors_oci else
+                       " — AVEC gains latents : OCI non relevé" if ro["applicable"] else "")
+        base_cloture = ("RNPG 2025 ÷ fonds propres de CLÔTURE 31/12/2025" + (" hors OCI" if hors_oci else ""))
         trace = {"valeur_cloture_publiee": r25["valeur"],
-                 "valeur_cloture_non_arrondie": round(rn / cp25f["valeur"] * 100, 4) if rn is not None and cp25f and cp25f["valeur"] > 0 else None,
-                 "valeur_moyenne": (round(rn / ((cp24f["valeur"] + cp25f["valeur"]) / 2) * 100, 2)
-                                    if rn is not None and cp24f and cp25f and cp24f["valeur"] + cp25f["valeur"] > 0 else None),
+                 "valeur_cloture_non_arrondie": round(rn / cp25x * 100, 4) if rn is not None and cp25x and cp25x > 0 else None,
+                 "valeur_moyenne": (round(rn / ((cp24x + cp25x) / 2) * 100, 2)
+                                    if rn is not None and cp24x is not None and cp25x is not None and cp24x + cp25x > 0 else None),
                  "page_2025": (cp25f or {}).get("page"), "page_2024": (cp24f or {}).get("page"),
                  "fonds_propres_2025": (cp25f or {}).get("valeur"), "fonds_propres_2024": (cp24f or {}).get("valeur"),
-                 "rnpg_2025": rn, "residu_mmad": None, "residu_pct": None, "moyenne_code": None}
+                 "rnpg_2025": rn, "residu_mmad": None, "residu_pct": None, "moyenne_code": None,
+                 "oci": {"applicable": ro["applicable"], "etat": ro["etat"], "reserve_2025": ro["oci25"],
+                         "reserve_2024": ro["oci24"], "pieces": ro["pieces"],
+                         "etiquette": ("hors OCI" if hors_oci else "OCI non relevé" if ro["applicable"] else None)}}
+        if ro["applicable"] and cp25f and rn is not None:
+            # Les quatre ROE d'une assurance, avec et sans gains latents (aucun choix caché).
+            avec_c = rn / cp25f["valeur"] * 100 if cp25f["valeur"] > 0 else None
+            avec_m = (rn / ((cp24f["valeur"] + cp25f["valeur"]) / 2) * 100) if cp24f else None
+            sans_c = rn / (cp25f["valeur"] - ro["oci25"]) * 100 if ro["etat"] == "releve" else None
+            sans_m = (rn / ((cp24f["valeur"] + cp25f["valeur"] - ro["oci24"] - ro["oci25"]) / 2) * 100
+                      if ro["etat"] == "releve" and cp24f else None)
+            trace["oci"] |= {"roe_avec_oci": {"cloture": round(avec_c, 2) if avec_c is not None else None,
+                                              "moyenne": round(avec_m, 2) if avec_m is not None else None},
+                             "roe_hors_oci": {"cloture": round(sans_c, 2) if sans_c is not None else None,
+                                              "moyenne": round(sans_m, 2) if sans_m is not None else None}}
         if not moyenne:
             motif, genre = "moyenne non demandée", "cloture_moyenne_indisponible"
         elif cp24f is None or cp25f is None or rn is None:
@@ -477,7 +552,7 @@ def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True) -> dict | None:
                       "fonds propres 31/12/2025 non relevés" if cp25f is None else "RNPG 2025 non relevé")
             motif, genre = manque, "cloture_moyenne_indisponible"
         else:
-            ctl = _controle_moyenne(sym, r25, rn, cp24f, cp25f, faits.get("exercice") or 2025)
+            ctl = _controle_moyenne(sym, r25, rn, cp24f, cp25f, faits.get("exercice") or 2025, o25, o24)
             trace |= {"residu_mmad": ctl["residu_mmad"], "residu_pct": ctl["residu_pct"], "moyenne_code": ctl["code"]}
             motif = ctl["motif"]
             genre = "cloture_moyenne_ecartee" if ctl["code"] else "moyenne"
@@ -488,15 +563,18 @@ def _roe(sym, fiche, bpa, s1, faits=None, moyenne=True) -> dict | None:
             return trace | {
                 "etat": PRESENT, "valeur": trace["valeur_moyenne"], "convention": genre,
                 "base": (f"RNPG 2025 {rn:g} ÷ MOYENNE des fonds propres part du groupe (31/12/2024 {cp24:g} ; "
-                         f"31/12/2025 {cp25:g}), même état financier{non_signif}"),
+                         f"31/12/2025 {cp25:g}), même état financier{suffixe_oci}{non_signif}"),
                 "periode": "exercice 2025",
                 "source": src | {"fonds_propres_2024": (f"{cp24f['origine']} › fonds propres 31/12/2024"
                                                         + (f" (p.{cp24f['page']})" if cp24f.get("page") else "")),
-                                 "rnpg_2025": "datasets/resultats_s1_2026.json › rnpg_exercice_2025"},
+                                 "rnpg_2025": "datasets/resultats_s1_2026.json › rnpg_exercice_2025"}
+                          | ({"reserve_oci": ro["pieces"]} if hors_oci else {}),
                 "moyenne_ecartee": None}
         etiquette = "moyenne écartée" if genre == "cloture_moyenne_ecartee" else "moyenne indisponible"
-        return trace | {"etat": PRESENT, "valeur": r25["valeur"], "convention": genre,
-                        "base": f"{base_cloture} ({etiquette} : {motif})", "periode": "exercice 2025", "source": src,
+        valeur_cloture = trace["valeur_cloture_non_arrondie"] if hors_oci and trace["valeur_cloture_non_arrondie"] is not None else r25["valeur"]
+        return trace | {"etat": PRESENT, "valeur": round(valeur_cloture, 2) if hors_oci else valeur_cloture, "convention": genre,
+                        "base": f"{base_cloture} ({etiquette} : {motif}){suffixe_oci}", "periode": "exercice 2025",
+                        "source": src | ({"reserve_oci": ro["pieces"]} if hors_oci else {}),
                         "moyenne_ecartee": motif}
     r12 = _publie_complet(fiche, sym, "roe_12m")
     if r12 is not None:
@@ -555,7 +633,7 @@ def _ve_ebitda(sym, fiche, bpa, s1, faits, px) -> dict:
 def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict | None,
                       faits: dict | None, prix: float | None, pb: float | None, *,
                       sans_comptes: bool = False, suspendu: bool = False,
-                      roe_moyenne: bool = True) -> dict:
+                      roe_moyenne: bool = True, oci: dict | None = None) -> dict:
     """Tout ce que la note lit pour UN titre, rassemblé, daté et sourcé. Pure.
 
     `roe_moyenne=False` force le ROE sur la clôture (mesure de l'effet de la
@@ -596,7 +674,7 @@ def construire_entree(sym: str, fiche: dict | None, bpa: dict | None, s1: dict |
         "per": round(px / b12, 2) if px and b12 and b12 > 0 else None,
         "pb": _num(pb) if pb and pb > 0 else None,
         "ve": _ve_ebitda(sym, fiche, bpa, s1, faits, px),
-        "roe": _roe(sym, fiche, bpa, s1, faits, roe_moyenne),
+        "roe": _roe(sym, fiche, bpa, s1, faits, roe_moyenne, oci),
         "roic": _publie_complet(fiche, sym, "roic"),
         "dne": _publie_complet(fiche, sym, "dette_nette_ebitda"),
         "cc": _publie_complet(fiche, sym, "cash_conversion"),
@@ -945,11 +1023,13 @@ def detail_publie(r: dict | None) -> dict | None:
 
 
 def noter_univers(titres, prix: dict, pb: dict, fondamentaux: dict, bpa: dict,
-                  s1: dict, faits: dict, sans_comptes=(), suspendus=(), roe_moyenne: bool = True) -> dict:
+                  s1: dict, faits: dict, sans_comptes=(), suspendus=(), roe_moyenne: bool = True,
+                  oci: dict | None = None) -> dict:
     """{sym: résultat de `noter`} pour tous les `titres`. Pure."""
     entrees = [construire_entree(
         s, fondamentaux.get(s), bpa.get(s), s1.get(s), faits.get(s), prix.get(s), pb.get(s),
-        sans_comptes=s in sans_comptes, suspendu=s in suspendus, roe_moyenne=roe_moyenne) for s in titres]
+        sans_comptes=s in sans_comptes, suspendu=s in suspendus, roe_moyenne=roe_moyenne,
+        oci=oci) for s in titres]
     med = calculer_medianes(entrees)
     return {e["sym"]: noter(e, med) | {"entree": e} for e in entrees}
 
@@ -960,7 +1040,8 @@ def charger_sources(racine: Path = RACINE) -> dict:
         return json.loads((racine / p).read_text(encoding="utf-8"))
     return {"fondamentaux": lire("fondamentaux.json"), "bpa": lire("bpa.json"),
             "s1": lire("datasets/resultats_s1_2026.json").get("titres", {}),
-            "faits": lire("pipeline/faits_financiers.json")}
+            "faits": lire("pipeline/faits_financiers.json"),
+            "oci": lire("datasets/reserves_oci_assurances.json").get("titres", {})}
 
 
 # ───────────────────── plancher : panne des SOURCES seulement ─────────────────────
@@ -1044,7 +1125,8 @@ def noter_depuis_fichiers(prix_surcharge: dict | None = None, racine: Path = RAC
         TICKERS_ALL, prix, {s: t.get("pb") for s, t in T.items()},
         src["fondamentaux"], src["bpa"], src["s1"], src["faits"],
         sans_comptes=set(SANS_COMPTES),
-        suspendus={s for s in TICKERS_ALL if est_suspendu(s)}, roe_moyenne=roe_moyenne)
+        suspendus={s for s in TICKERS_ALL if est_suspendu(s)}, roe_moyenne=roe_moyenne,
+        oci=src["oci"])
 
 
 def main() -> int:

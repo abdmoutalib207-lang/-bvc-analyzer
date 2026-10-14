@@ -1063,3 +1063,110 @@ def test_les_bases_du_roe_sont_comptees_par_convention_sur_les_donnees_reelles()
         if roe.get("convention", "").startswith("cloture"):
             assert "(moyenne" in roe["base"], f"{t} : clôture sans étiquette"
             assert "cause non établie" not in roe["base"], t
+
+
+# ── 17. ROE des assurances HORS gains latents (OCI) — décision d'Abd, 14/10/2026 ──
+
+OCI_DE_TEST = {"ATL": {"reserve_oci": {"2025": {"etat": "present", "valeur": 400.0, "page": 1, "citation": "c25"},
+                                       "2024": {"etat": "present", "valeur": 100.0, "page": 1, "citation": "c24"}}},
+               "ATW": {"reserve_oci": {"2025": {"etat": "present", "valeur": 400.0, "page": 1, "citation": "c25"},
+                                       "2024": {"etat": "present", "valeur": 100.0, "page": 1, "citation": "c24"}}}}
+
+
+def _roe_assur(sym="ATL", rn=500.0, cp25=6000.0, cp24=5000.0, oci=None, roe25=None, secteur="Assurance"):
+    fiche = _fiche(secteur, roe_2025=roe25 if roe25 is not None else round(rn / cp25 * 100, 1))
+    return fs.construire_entree(sym, fiche, {"bpa_12m": 5.0}, {"rnpg_exercice_2025": rn},
+                                _roe_faits(cp25=cp25, cp24=cp24), 100.0, None, oci=oci)
+
+
+def test_le_roe_d_une_assurance_se_calcule_hors_gains_latents():
+    # RNPG 500 ; fonds propres 5 000 → 6 000 dont OCI 100 → 400. Hors OCI : 4 900 → 5 600, moyenne 5 250.
+    r = _roe_assur(oci=OCI_DE_TEST)["roe"]
+    assert r["oci"]["etiquette"] == "hors OCI" and r["convention"] == "moyenne"
+    assert r["valeur"] == round(500 / 5250 * 100, 2) == 9.52
+    assert r["oci"]["roe_avec_oci"] == {"cloture": 8.33, "moyenne": 9.09}
+    assert r["oci"]["roe_hors_oci"] == {"cloture": 8.93, "moyenne": 9.52}
+    assert "HORS gains latents" in r["base"] and "réserve OCI" in r["base"]
+    assert r["valeur_cloture_non_arrondie"] == round(500 / 5600 * 100, 4)          # clôture hors OCI
+    # Le numérateur reste le RNPG : même résultat, seul le dénominateur change.
+    assert r["rnpg_2025"] == 500.0
+
+
+def test_le_residu_d_une_assurance_se_calcule_hors_oci():
+    # Avec OCI : R = 6 000 − 5 000 − 500 = +500 (+10 %) → écarterait la moyenne.
+    # Hors OCI : R = 5 600 − 4 900 − 500 = +200 (+4,08 %) → la moyenne tient.
+    r = _roe_assur(oci=OCI_DE_TEST)["roe"]
+    assert r["residu_mmad"] == 200.0 and r["residu_pct"] == pytest.approx(4.08, abs=0.01)
+    assert r["convention"] == "moyenne"
+    # Contrôle négatif : un mouvement hors résultat ET hors OCI reste écarté (R hors OCI > 5 %).
+    fort = _roe_assur(cp25=6500.0, oci=OCI_DE_TEST)["roe"]                      # R hors OCI = +700 (+14,3 %)
+    assert fort["convention"] == "cloture_moyenne_ecartee" and fort["moyenne_code"] == "residu_non_explique"
+    assert "hors résultat non expliqué" in fort["moyenne_ecartee"]
+    assert fort["valeur"] == round(500 / (6500 - 400) * 100, 2)                 # clôture, elle aussi hors OCI
+
+
+def test_sans_reserve_oci_relevee_le_roe_reste_avec_oci_etiquete():
+    for oci in (None, {}, {"ATL": {"reserve_oci": {"2025": {"etat": "present", "valeur": 400.0}}}},      # 2024 manquant
+                {"ATL": {"reserve_oci": {"2025": {"etat": "estime", "valeur": 400.0}, "2024": {"etat": "present", "valeur": 100.0}}}}):
+        r = _roe_assur(cp25=5700.0, oci=oci)["roe"]           # R avec OCI = +200 (+4 %) : la moyenne tient
+        assert r["oci"]["etiquette"] == "OCI non relevé" and r["oci"]["etat"] == "non_releve"
+        assert "AVEC gains latents : OCI non relevé" in r["base"]
+        assert r["valeur"] == round(500 / 5350 * 100, 2)                      # moyenne AVEC OCI : aucune estimation
+        assert r["oci"]["roe_hors_oci"] == {"cloture": None, "moyenne": None}
+
+
+def test_la_regle_hors_oci_ne_s_applique_pas_hors_de_la_famille_assurances():
+    # NÉGATIF : le fichier contient une « réserve » pour ATW (banque), elle est ignorée.
+    avec = _roe_assur("ATW", cp25=5700.0, oci=OCI_DE_TEST, secteur="Banque")["roe"]
+    sans = _roe_assur("ATW", cp25=5700.0, oci=None, secteur="Banque")["roe"]
+    assert avec["valeur"] == sans["valeur"] == round(500 / 5350 * 100, 2)
+    assert avec["oci"]["applicable"] is False and avec["oci"]["etiquette"] is None
+    assert "OCI" not in avec["base"] and "OCI" not in sans["base"]
+    # Autres familles : industrie, foncière, mines, courtier AFM (famille « autre »).
+    for sym in ("ALU", "ARD", "MNG", "AFM", "CIH", "TGCC"):
+        assert bvc_config.famille_note(sym) not in fs.FAMILLES_ROE_HORS_OCI
+    assert fs.FAMILLES_ROE_HORS_OCI == ("assurance",)
+    assert set(bvc_config.FAMILLES_NOTE["assurance"]) == {"ATL", "WAF", "SAF"}
+
+
+def test_waf_et_atl_sur_les_donnees_reelles():
+    res = fs.noter_depuis_fichiers()
+    w, a, sf = (res[t]["entree"]["roe"] for t in ("WAF", "ATL", "SAF"))
+    # WAF : 10,05 % clôture / 10,35 % moyenne hors OCI (6,86 / 7,45 avec) ; résidu hors OCI −429,451 MMAD.
+    assert w["oci"]["roe_hors_oci"] == {"cloture": 10.05, "moyenne": 10.35}
+    assert w["oci"]["roe_avec_oci"] == {"cloture": 6.86, "moyenne": 7.45}
+    assert w["convention"] == "moyenne" and w["valeur"] == 10.35 and w["residu_mmad"] == -429.451
+    assert w["oci"]["reserve_2025"] == 4747.429 and w["oci"]["reserve_2024"] == 2950.462
+    # ATL : réserve OCI nulle CONFIRMÉE sur pièce (aucune ligne de gains latents) : ROE inchangé.
+    assert a["oci"]["etat"] == "releve" and a["oci"]["pieces"]["etats"] == {"2025": "zero_confirme", "2024": "zero_confirme"}
+    assert a["convention"] == "moyenne" and a["valeur"] == 19.29 and "NULLE confirmée" in a["base"]
+    # SAF : pas de ROE d'exercice, donc rien à calculer.
+    assert sf["etat"] == "absent"
+
+
+def test_le_fichier_des_reserves_oci_est_source_page_citation_et_boucle():
+    import json
+    d = json.loads((Path(bvc_config.__file__).parent / "datasets" / "reserves_oci_assurances.json").read_text(encoding="utf-8"))
+    assert set(d["titres"]) == {"WAF", "ATL"} and "Aucune estimation" in d["_regle"]
+    for t, e in d["titres"].items():
+        assert e["url"].startswith("https://www.ammc.ma/") and e["document"]
+        for an, o in e["reserve_oci"].items():
+            assert o["etat"] in ("present", "zero_confirme") and o["page"] and o["citation"] and o["controle"], (t, an)
+    w = d["titres"]["WAF"]["reserve_oci"]
+    assert w["2025"]["page"] == 16 and w["2025"]["valeur_au_rapport"] == 4747429 and w["2024"]["valeur_au_rapport"] == 2950462
+    # Les composantes bouclent sur « Capitaux propres-part du groupe » (RFA p.16, KMAD).
+    assert 350_000 + 8_836_872 + 4_747_429 + 1_026_036 == 14_960_337
+    assert 350_000 + 8_343_176 + 2_950_462 + 923_147 == 12_566_785
+    a = d["titres"]["ATL"]["reserve_oci"]
+    assert a["2025"]["etat"] == a["2024"]["etat"] == "zero_confirme" and a["2025"]["valeur"] == 0.0 and a["2025"]["page"] == 140
+    assert 602_836 + 1_411_503 + 467_641 == 2_481_980 and 602_836 + 1_311_579 + 453_361 - 2_367_775 == 1   # 1 KMAD d'arrondi
+
+
+def test_cih_page_des_fonds_propres_2024_corriges_renseignee():
+    import json
+    c = json.loads((Path(bvc_config.__file__).parent / "datasets" / "resultats_s1_2026.json").read_text(encoding="utf-8"))["titres"]["CIH"]
+    assert c["capitaux_propres_pg_31_12_2024_page"] == 26 and c["capitaux_propres_pg_31_12_2025_page"] == 26
+    assert "p.26" in c["source_capitaux_propres_2024"] and "7 644 900" in c["source_capitaux_propres_2024"]
+    assert "à renseigner" not in c["source_capitaux_propres_2024"]
+    roe = fs.noter_depuis_fichiers()["CIH"]["entree"]["roe"]
+    assert roe["page_2024"] == 26 and roe["page_2025"] == 26
