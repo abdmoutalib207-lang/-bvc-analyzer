@@ -5150,11 +5150,13 @@ const SignauxTechniques = ({
     neu = r.technique_neutralise,
     reg = REGIME_TECH;
   const coul = v => v > 0 ? "#00e5a0" : v < 0 ? "#ff4f5a" : "#8892a4";
+  const ERRATA = freq && freq.errata || [];
   const ligne = (k, actif) => {
     const x = STATS_SIGNAUX[k];
     if (!x) return null;
     const al = x.alpha_moyen_pct,
       ic = x.ic95_gagnants || [];
+    const er = ERRATA.filter(e => e.frequence === k);
     return React.createElement("div", {
       key: k,
       style: {
@@ -5190,7 +5192,16 @@ const SignauxTechniques = ({
       style: {
         color: coul(al)
       }
-    }, al > 0 ? "+" : "", al.toLocaleString("fr-FR"), " %"), " d'\xE9cart moyen \xB7 ", x.pct_gagnants.toLocaleString("fr-FR"), " % gagnants (IC ", ic[0].toLocaleString("fr-FR"), "\u2013", ic[1].toLocaleString("fr-FR"), ") \xB7 ", x.n, " cas \xB7 ", periodeFreq(x.periode_mesure)));
+    }, al > 0 ? "+" : "", al.toLocaleString("fr-FR"), " %"), " d'\xE9cart moyen \xB7 ", x.pct_gagnants.toLocaleString("fr-FR"), " % gagnants (IC ", ic[0].toLocaleString("fr-FR"), "\u2013", ic[1].toLocaleString("fr-FR"), ") \xB7 ", x.n, " cas \xB7 ", periodeFreq(x.periode_mesure)), er.map(e => React.createElement("span", {
+      key: e.date,
+      title: e.cause,
+      style: {
+        flexBasis: "100%",
+        fontSize: 10,
+        color: "#ffd740",
+        paddingLeft: 22
+      }
+    }, "corrig\xE9 le ", e.date.split("-").reverse().join("/"), " : ", e.avant.n, " \u2192 ", e.apres.n, " cas, ", e.avant.pct_gagnants.toLocaleString("fr-FR"), " \u2192 ", e.apres.pct_gagnants.toLocaleString("fr-FR"), " % gagnants (historique de l'indice compl\xE9t\xE9)")));
   };
   return React.createElement("div", {
     className: "carte",
