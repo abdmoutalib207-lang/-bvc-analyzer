@@ -122,6 +122,36 @@ def roe_effectif(f: dict | None, sym: str) -> dict | None:
     return None
 
 
+# ⚠️ GRANDEURS CONTESTÉES — 14/10/2026 (diagnostic externe, point 3).
+# La nouvelle grille suspendait la dette nette contredite par les faits
+# financiers ; l'ancienne, publiée, la lisait quand même — ADI et MUT notés
+# sur un ROIC et une dette/EBITDA contestés, confiance 5/5. Le registre est
+# rempli par `charger_contestations()` au démarrage du moteur ; la porte
+# unique le consulte, si bien que note, alertes et écran lisent la même
+# chose. Vide par défaut : un appelant qui ne le charge pas garde l'ancien
+# comportement.
+CONTESTES: dict[str, str] = {}
+# Ratios qui consomment la dette nette (ROIC : capital investi = fonds
+# propres + dette nette).
+_CONSOMMENT_DETTE_NETTE = ("roic", "dette_nette_ebitda", "dette_nette")
+
+
+def charger_contestations(fondamentaux: dict, faits: dict) -> dict:
+    """Remplit CONTESTES {sym: motif} depuis la règle de la note par famille
+    (`_dette_nette_contestee`). Une seule définition de la contestation."""
+    from pipeline.smart_money.fond_score_sectoriel import _dette_nette_contestee
+    CONTESTES.clear()
+    for sym, f in (fondamentaux or {}).items():
+        if not isinstance(f, dict):
+            continue
+        dn = (f.get("ratios_publies") or {}).get("dette_nette")
+        motif = _dette_nette_contestee(dn if isinstance(dn, dict) else None,
+                                       (faits or {}).get(sym) or {})
+        if motif:
+            CONTESTES[sym] = motif
+    return dict(CONTESTES)
+
+
 def ratio_effectif(f: dict | None, sym: str, cle: str) -> dict | None:
     """LA valeur d'un ratio que tout le moteur doit lire — note, alertes,
     écran. {"valeur", "origine", "date"} ou None. Fonction pure.
@@ -135,6 +165,8 @@ def ratio_effectif(f: dict | None, sym: str, cle: str) -> dict | None:
     f = f or {}
     if cle in _SANS_OBJET_FINANCIERES and est_financiere(f):
         return None
+    if cle in _CONSOMMENT_DETTE_NETTE and sym in CONTESTES:
+        return None                     # contestée : ni note, ni alerte, ni saisie
     v = _publie(f, sym, cle)
     if v is not None:
         x = f["ratios_publies"][cle]
@@ -164,6 +196,130 @@ def ratio_effectif(f: dict | None, sym: str, cle: str) -> dict | None:
 WACC_REF = 10.0
 
 
+# ⚠️ CE QUI N'EST PAS MESURÉ N'EST PAS NOTÉ — 14/10/2026.
+#
+# Accord d'Abd Moutalib (constats H1, H2, M2 de la chasse aux échecs
+# silencieux ; point 3 du diagnostic externe : « une donnée manquante ne doit
+# pas devenir une qualité moyenne de 5/10 »). Jusqu'ici, pour l'appel du
+# moteur : ROIC absent → 10 saisi (q = 5,0), croissance non sourcée → 5,0,
+# pas de PER → 5,0, dette absente → 1,0× fictif (7,0), financière → bilan
+# 5,0, titre absent du fichier → 5,0. Chaque défaut tirait la note vers le
+# milieu et se lisait comme une mesure.
+# Désormais une composante non mesurée est RETIRÉE et les poids des autres
+# sont remis à l'échelle ; sous COUVERTURE_MIN du poids total, pas de note
+# (« Données insuffisantes »). Les seuils de chaque grille sont inchangés.
+POIDS_FOND = {"qualite": 0.40, "croissance": 0.30, "valorisation": 0.20, "bilan": 0.10}
+COUVERTURE_MIN = 0.5
+
+
+def _grille_spread(sp: float) -> float:
+    return (9.5 if sp >= 15 else 8.5 if sp >= 10 else 7.0 if sp >= 5 else
+            6.0 if sp >= 2 else 5.0 if sp >= 0 else 3.5 if sp >= -3 else 2.0)
+
+
+def _grille_croissance(growth: float) -> float:
+    return (10.0 if growth >= 100 else 9.0 if growth >= 50 else 7.5 if growth >= 25 else
+            6.5 if growth >= 10 else 5.5 if growth >= 5 else 4.5 if growth >= 0 else
+            3.0 if growth >= -10 else 1.5)
+
+
+def _grille_per(fper: float) -> float:
+    return (9.5 if fper <= 8 else 8.5 if fper <= 12 else 7.0 if fper <= 17 else
+            5.5 if fper <= 25 else 4.0 if fper <= 35 else 2.5 if fper <= 50 else 1.5)
+
+
+def _grille_bilan(dne: float, cc: float | None) -> float:
+    bs = (9.0 if dne < 0 else 8.5 if dne < 0.5 else 7.0 if dne < 1.5 else 5.5 if dne < 2.5
+          else 4.0 if dne < 3.5 else 2.5 if dne < 5.0 else 1.5)
+    if cc is not None:
+        if cc >= 85:
+            bs = min(10.0, bs + 0.5)
+        elif cc < 40:
+            bs = max(0.0, bs - 0.5)
+    return bs
+
+
+def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | None = None,
+                      croissance_sourcee: bool = False) -> dict:
+    """La note fondamentale du moteur, composante par composante.
+
+    {"note": float | None, "couverture": float, "composantes": {nom: {"note",
+    "poids", "mesure" | "motif"}}}. Une composante non mesurée porte
+    `note: None` et son motif ; elle ne pèse rien. Pure (hors CONTESTES)."""
+    data = fondamentaux if fondamentaux is not None else _load()
+    f = data.get(sym) or {}
+    comp = {}
+
+    def non(nom, motif):
+        comp[nom] = {"note": None, "poids": POIDS_FOND[nom], "motif": motif}
+
+    def oui(nom, note, mesure):
+        comp[nom] = {"note": note, "poids": POIDS_FOND[nom], "mesure": mesure}
+
+    if not f:
+        for nom in POIDS_FOND:
+            non(nom, "société absente de fondamentaux.json")
+        return {"note": None, "couverture": 0.0, "composantes": comp}
+
+    # QUALITÉ — ROIC − WACC (ROE − coût des fonds propres pour une financière)
+    if est_financiere(f):
+        _roe = roe_effectif(f, sym)
+        if _roe is None:
+            non("qualite", "ROE non calculé sur comptes publiés")
+        else:
+            oui("qualite", _grille_spread(_roe["valeur"] - COUT_FONDS_PROPRES_REF),
+                f"ROE {_roe['valeur']:g} % − {COUT_FONDS_PROPRES_REF:g}")
+    else:
+        _r = ratio_effectif(f, sym, "roic")
+        if sym in CONTESTES:
+            non("qualite", "ROIC suspendu — " + CONTESTES[sym])
+        elif not _r or _r.get("origine") != "comptes publiés":
+            non("qualite", "ROIC non calculé sur comptes publiés (saisie sans pièce écartée)")
+        else:
+            oui("qualite", _grille_spread(_r["valeur"] - WACC_REF),
+                f"ROIC {_r['valeur']:g} % − WACC {WACC_REF:g}")
+
+    # CROISSANCE — BPA 60 % + CA 40 %, seulement si le BPA 12 mois est établi
+    if croissance_sourcee:
+        growth = float(f.get("croissance_bpa") or 0) * 0.6 + float(f.get("croissance_ca") or 0) * 0.4
+        oui("croissance", _grille_croissance(growth), f"croissance pondérée {growth:g} %")
+    else:
+        non("croissance", "croissance non établie sur comptes semestriels")
+
+    # VALORISATION — PER tiré des comptes
+    if isinstance(per_publie, (int, float)) and not isinstance(per_publie, bool) and per_publie > 0:
+        oui("valorisation", _grille_per(float(per_publie)), f"PER {per_publie:g}")
+    else:
+        non("valorisation", "pas de PER positif tiré des comptes")
+
+    # BILAN — dette nette / EBITDA sur comptes publiés, ou trésorerie nette
+    if est_financiere(f):
+        non("bilan", "sans objet pour une financière (coût du risque non intégré)")
+    elif sym in CONTESTES:
+        non("bilan", "dette nette suspendue — " + CONTESTES[sym])
+    else:
+        _d = ratio_effectif(f, sym, "dette_nette_ebitda")
+        _dne = _d["valeur"] if _d and _d.get("origine") == "comptes publiés" else None
+        _mesure = f"dette nette / EBITDA {_dne:g}" if _dne is not None else None
+        if _dne is None:
+            _dn = _publie(f, sym, "dette_nette")
+            if _dn is not None and _dn < 0:
+                _dne, _mesure = -1.0, "trésorerie nette positive"
+        if _dne is None:
+            non("bilan", "dette nette / EBITDA non calculée sur comptes publiés")
+        else:
+            _c = ratio_effectif(f, sym, "cash_conversion")
+            _cc = _c["valeur"] if _c and _c.get("origine") == "comptes publiés" else None
+            oui("bilan", _grille_bilan(_dne, _cc), _mesure)
+
+    couv = round(sum(c["poids"] for c in comp.values() if c["note"] is not None), 4)
+    note = None
+    if couv >= COUVERTURE_MIN:
+        note = round(min(max(sum(c["note"] * c["poids"] for c in comp.values()
+                                 if c["note"] is not None) / couv, 0.0), 10.0), 2)
+    return {"note": note, "couverture": couv, "composantes": comp}
+
+
 def compute_fond_score(sym: str, fondamentaux: dict = None,
                        per_publie: float | None = None,
                        croissance_sourcee: bool | None = None) -> float:
@@ -174,6 +330,11 @@ def compute_fond_score(sym: str, fondamentaux: dict = None,
         (cours du jour ÷ BPA 12 mois). Prime sur `forward_per` quand il existe.
     Retourne 5.0 si le ticker est absent du fichier.
     """
+    # Appel du moteur (`croissance_sourcee` renseigné) : rien de non mesuré
+    # n'est noté — peut rendre None. Les autres appelants, historiques,
+    # gardent l'ancienne formule.
+    if croissance_sourcee is not None:
+        return detail_fond_score(sym, fondamentaux, per_publie, croissance_sourcee)["note"]
     data = fondamentaux if fondamentaux is not None else _load()
     f = data.get(sym, {})
     if not f:

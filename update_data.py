@@ -111,10 +111,12 @@ TICKER_INFO = {
 # ─────────────────────────────────────────────────────────────────────────────
 try:
     from pipeline.smart_money.fond_score import compute_fond_score as _cfs, score_all as _fond_all
+    from pipeline.smart_money.fond_score import CONTESTES as _CONTESTES
     _FOND_COMPUTED = _fond_all()   # {sym: score} pour tous les tickers dans fondamentaux.json
     logger.info(f"fond_score: {len(_FOND_COMPUTED)} tickers chargés depuis fondamentaux.json")
 except Exception as _e:
     _FOND_COMPUTED = {}
+    _CONTESTES = {}
     logger.warning(f"fond_score: chargement fondamentaux.json échoué — scores statiques utilisés ({_e})")
 
 # ⚠️ LA DATE DES FONDAMENTAUX, PAR SOCIÉTÉ — ajoutée le 24/09/2026.
@@ -3087,7 +3089,10 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         # sa famille manque de la moitié de ses critères n'a pas de fondamentaux
         # exploitables, qu'il figure ou non dans fondamentaux.json. Rupture de
         # série de la confiance, comme celle du 06/10.
-        1 if (ticker in _FOND_COMPUTED and note_fond_ok) else 0,
+        # ⚠️ 14/10/2026 : ni une grandeur CONTESTÉE (dette nette contredite par
+        # les faits, `fond_score.CONTESTES`). ADI et MUT gardaient 5/5 avec
+        # un ROIC et une dette/EBITDA que la note par famille suspendait.
+        1 if (ticker in _FOND_COMPUTED and note_fond_ok and ticker not in _CONTESTES) else 0,
         1 if n_echangees >= 15 else 0,
         1 if comptes_deposes else 0,
         1 if (_echange_median_dh(df_candles) or 0) >= 100_000 else 0,
@@ -4010,6 +4015,16 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:
         logger.warning(f"faits_financiers.json illisible ({_e})")
         FAITS_DATA = {}
+    # Grandeurs contestées (dette nette contredite par les faits) : la porte
+    # unique `ratio_effectif` les refuse désormais à la note, aux alertes et à
+    # l'écran (14/10/2026).
+    try:
+        from pipeline.smart_money.fond_score import charger_contestations
+        _cont = charger_contestations(_FOND_BRUT, FAITS_DATA)
+        if _cont:
+            logger.info(f"Grandeurs contestées, suspendues partout : {sorted(_cont)}")
+    except Exception as _e:
+        logger.warning(f"contestations non chargées ({_e})")
     _n_pb = sum(1 for t in FAITS_DATA if not t.startswith("_") and _pb_sourcé(t, 1.0) is not None)
     logger.info(f"Faits AMMC chargés : {len([t for t in FAITS_DATA if not t.startswith('_')])} "
                 f"émetteurs, dont {_n_pb} avec un price-to-book calculable")
@@ -4675,11 +4690,23 @@ def run(dry_run=False, push=False, token=""):
         # devient la note publiée, ce passage refait v53, signal et setup.
         _b = BPA_DATA.get(ticker) or {}
         _per_12m = _per(price, _b.get("bpa_12m")) if _b.get("bpa_12m") is not None else _per(price, _b.get("bpa"))
-        if ticker in _FOND_COMPUTED:
-            score_fond = _cfs(ticker, per_publie=_per_12m,
-                              croissance_sourcee=_b.get("bpa_12m") is not None)
-        else:
-            score_fond = FOND_SCORES.get(ticker, 5.0)
+        # ⚠️ Le DÉTAIL est publié (`note_fond`) : composantes notées, poids,
+        # mesure ou motif de chaque absence, couverture. Une note sans ses
+        # composantes ne se vérifie pas (14/10/2026). Absente de
+        # fondamentaux.json : rien de mesuré, pas de note — ni la table
+        # figée, ni un 5,0.
+        from pipeline.smart_money.fond_score import detail_fond_score as _dfs
+        _note_fond = _dfs(ticker, None if ticker in _FOND_COMPUTED else {},
+                          per_publie=_per_12m, croissance_sourcee=_b.get("bpa_12m") is not None)
+        score_fond = _note_fond["note"]
+        _note_fond["motif"] = None if score_fond is not None else (
+            f"composantes mesurées : {_note_fond['couverture']:.0%} du poids, sous le "
+            f"seuil de 50 % — " + " ; ".join(
+                f"{k} : {c['motif']}" for k, c in _note_fond["composantes"].items() if c["note"] is None))
+        # Note fondamentale incalculable (couverture < COUVERTURE_MIN) : même
+        # traitement que la note par famille — note grise, « Données
+        # insuffisantes », confiance plafonnée à 1.
+        _sans_note_fond = score_fond is None
 
         # Contexte de pondération.
         #
@@ -4714,8 +4741,10 @@ def run(dry_run=False, push=False, token=""):
         # pas. Trouvé par une exécution à blanc, avant toute publication.
         _obj = _objectifs(ticker, price, fd)
         _alertes = detecter_alertes(_FOND_BRUT.get(ticker), rsi, ticker)
-        v53 = compute_v53(ticker, score_tech, score_fond,
+        v53 = compute_v53(ticker, score_tech, 5.0 if _sans_note_fond else score_fond,
                           fd.get("flags", 0), _obj["upside"] or 0, ctx)
+        if _sans_note_fond:             # 5,0 ci-dessus : simple garnissage, rien n'est publié
+            v53["v53"], v53["score_fond"] = None, None
 
         # Setup technique (déduit du score et des MAs)
         # ⚠️ Trois des cinq cas lisent `ma50`, qui peut être absente depuis que
@@ -4774,7 +4803,7 @@ def run(dry_run=False, push=False, token=""):
             seances_depuis_reprise=_seances_depuis_reprise,
             comptes_deposes=_comptes_deposes(BPA_DATA.get(ticker)))
         _sig_pub, _verdict_plafonne = _signal_publie(
-            ticker, v53["sig"], _tech_nf, _seances_depuis_reprise)
+            ticker, v53["sig"], _tech_nf, _seances_depuis_reprise, sans_note=_sans_note_fond)
         passe1[ticker] = {"score_tech": score_tech, "ctx": ctx, "tech_nf": _tech_nf,
                           "depuis_reprise": _seances_depuis_reprise, "price": price,
                           "ma20": ma20, "ma50": ma50,
@@ -4790,7 +4819,7 @@ def run(dry_run=False, push=False, token=""):
             # C'est la même condition que celle qui gouverne les champs `pe` et
             # `div` juste en dessous — elle est écrite ici pour que la
             # provenance annoncée ne puisse pas diverger de la valeur publiée.
-            "_meta": _meta_ticker(*_meta_args, **_meta_kw),
+            "_meta": _meta_ticker(*_meta_args, **_meta_kw, note_fond_ok=not _sans_note_fond),
             # Code officiel BVC, pour l'affichage seulement. Nos symboles
             # internes sont la clé primaire d'ISIN_MAP, des chandelles et de
             # six ans de corpus WhatsApp : on ne les renomme pas. Mais un
@@ -4924,6 +4953,7 @@ def run(dry_run=False, push=False, token=""):
             "nlp_news":   v53.get("nlp_news"),
             "score_tech": v53.get("score_tech", 5.0),
             "score_fond": v53.get("score_fond", 5.0),
+            "note_fond":  _note_fond,
             "score_nlp":  v53.get("score_nlp", 5.0),
             # Pourquoi le technique pèse zéro sur ce titre, s'il pèse zéro.
             "technique_neutralise": _tech_nf,
