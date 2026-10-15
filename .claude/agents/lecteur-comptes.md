@@ -337,6 +337,22 @@ fusion** : la fusion est la décision d'Abd Moutalib.
 - (13/10) `test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi` compare au `origin/main`
   LOCAL : quand main avance (commits `data:` du bot) il échoue « 45 séries » sur une branche sans
   rapport. `git fetch origin main && git rebase origin/main`, ce n'est pas un défaut de la branche.
+- (15/10, couverture fondamentale) Un « agrégat non ventilé » se ventile parfois par le TABLEAU DE
+  FINANCEMENT : Balima (« emprunts et dettes financières » 30,49 = cautionnements des locataires +
+  emprunt) se sépare par « augmentation 23 695 760,93 » et « remboursement 22 500 000 » (p.15) ; les
+  cautionnements sortent identiques au centime aux deux clôtures (6 760 760,34). Dérivé, dit `dérivé`.
+- (15/10) `tesseract` n'est PAS installé sur ce poste malgré la note du lot 14 : planches-contacts
+  (`pypdfium2` + PIL, 12 pages par image) puis rendu page par page.
+- (15/10) ROIC et titres mis en équivalence : le résultat d'exploitation EXCLUT leur quote-part mais le
+  capital employé CONTIENT leurs titres. Quand le fait `titres_mis_en_equivalence` est relevé,
+  `calculer_bilan` les retranche (`hors_mises_en_equivalence`) ; sans le fait, formule inchangée. Les
+  autres titres à MEE (ADH, CTM…) n'ont pas ce fait : leur ROIC publié garde les titres au dénominateur.
+- (15/10) Un ROIC qui change de PALIER de grille selon une composition non établie (ALU : 12,05 % si le
+  passif long terme consolidé 114,4 = dette de financement sociale 110,4 + 4,0 inconnus, 11,99 % sinon)
+  n'est pas publié : tester les deux bornes avant de conclure.
+- (15/10) Avis d'AGO IFRS (TMA) : une ligne de sous-total peut manquer (passifs non courants : 27,5 MMAD
+  d'écart, aussi dans le comparatif du S1) ; sommer chaque sous-total avant de s'y fier. IFRS 16 non
+  isolé → `_ifrs16_par_titre.non_verifie`.
 
 ## Ce que tu ne fais jamais
 

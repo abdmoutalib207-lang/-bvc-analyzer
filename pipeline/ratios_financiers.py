@@ -252,6 +252,19 @@ def calculer_bilan(entree: dict | None) -> tuple[dict, dict]:
             t = 0.0
             lib_t = f"t = 0 (résultat avant impôt {rai} ≤ 0 : pas d'impôt sur une perte)"
         ce = cp + dn
+        # ⚠️ TITRES MIS EN ÉQUIVALENCE — 15/10/2026. Le résultat d'exploitation
+        # EXCLUT la quote-part des sociétés mises en équivalence (elle est sous
+        # le résultat avant impôt), alors que leurs titres sont dans le bilan,
+        # donc dans les capitaux propres + dette nette. Les laisser au
+        # dénominateur rapporte un résultat qui n'a pas ces titres à un capital
+        # qui les contient (MOX : 86,4 sur 468 de capitaux employés, UNI : 681,2
+        # sur 1 982). Quand le fait `titres_mis_en_equivalence` est relevé, il
+        # est RETRANCHÉ des capitaux employés et le ratio le dit
+        # (« ROIC des sociétés intégrées »). Sans le fait, formule inchangée :
+        # les ROIC déjà publiés ne bougent pas.
+        mee = _v(f, "titres_mis_en_equivalence")
+        if mee:
+            ce -= mee
         ta = _v(f, "total_actif")
         if not 0 <= t < 1:
             non["roic"] = f"taux effectif hors de [0, 100 %[ ({round(t * 100, 1)} %)"
@@ -265,14 +278,17 @@ def calculer_bilan(entree: dict | None) -> tuple[dict, dict]:
             non["roic"] = (f"capitaux employés {round(ce, 1)} < 10 % du total actif ({ta}) : "
                            "base résiduelle, ratio sans signification")
         else:
-            out["roic"] = base(round(rex * (1 - t) / ce * 100, 1),
-                               f"{rex} × (1 − t) ÷ ({cp} + {round(dn, 3)}) ; {lib_t}", {
-                                   "resultat_exploitation": _src(entree, f, rex_k),
-                                   "impot": _src(entree, f, "impot_resultat"),
-                                   "resultat_avant_impot": _src(entree, f, "resultat_avant_impot"),
-                                   "capitaux_propres": _src(entree, f, "capitaux_propres_consolides"),
-                                   "dette_nette": "ratios_publies.dette_nette"},
-                               unite="%", taux_impot_effectif=round(t * 100, 1))
+            formule = f"{rex} × (1 − t) ÷ ({cp} + {round(dn, 3)}" + (f" − {mee} de titres mis en équivalence" if mee else "") + f") ; {lib_t}"
+            sources = {"resultat_exploitation": _src(entree, f, rex_k),
+                       "impot": _src(entree, f, "impot_resultat"),
+                       "resultat_avant_impot": _src(entree, f, "resultat_avant_impot"),
+                       "capitaux_propres": _src(entree, f, "capitaux_propres_consolides"),
+                       "dette_nette": "ratios_publies.dette_nette"}
+            if mee:
+                sources["titres_mis_en_equivalence"] = _src(entree, f, "titres_mis_en_equivalence")
+            out["roic"] = base(round(rex * (1 - t) / ce * 100, 1), formule, sources,
+                               unite="%", taux_impot_effectif=round(t * 100, 1),
+                               **({"hors_mises_en_equivalence": True} if mee else {}))
 
     # conversion en trésorerie
     cfo, rn = _v(f, "flux_tresorerie_exploitation"), _v(f, "resultat_net_consolide")
