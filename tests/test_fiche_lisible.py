@@ -42,3 +42,17 @@ def test_favoris_changements_sur_donnees_chargees():
     # l'instantané n'est pris que sur les données chargées (avec _meta)
     assert "const charges=suivis.length>0&&suivis.every(r=>r._meta);" in SRC
     assert '},[charges,cle]);' in SRC
+
+
+def test_sous_la_note_couverture_reserve_liquidite():
+    assert "<ResumeNote r={r}/>" in SRC
+    assert "du poids de la grille" in SRC              # pas « des critères »
+    assert "Fiabilité des données" in SRC
+    assert 'titre="Confiance' not in SRC and "`Confiance ${" not in SRC
+
+
+def test_essais_et_indicateurs_geles_replies_en_analyse_avancee():
+    i = SRC.index('<details className="avance carte"')
+    j = SRC.index("</details>", i)
+    assert "<SignauxTechniques r={r}/>" in SRC[i:j] and "{/* NLP */}" in SRC[i:j]
+    assert '<Repli titre="Analyse avancée — note par métier' in SRC
