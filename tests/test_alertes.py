@@ -117,9 +117,12 @@ def test_l_alerte_lit_le_ratio_des_comptes_publies(ud):
     assert "conversion en trésorerie" in a["non_evalues"]
 
 
-def test_msa_en_verification_n_est_pas_evaluee(ud):
-    """MSA : ratio calculé encore en vérification (RATIOS_EN_VERIFICATION), et
-    la saisie n'est plus lue → non évaluable, plutôt que l'ancienne saisie."""
+def test_un_titre_en_verification_n_est_pas_evalue(ud, monkeypatch):
+    """Un titre inscrit à RATIOS_EN_VERIFICATION (MSA l'a été jusqu'au
+    15/10/2026) : ratio calculé en vérification, et la saisie n'est plus lue →
+    non évaluable, plutôt que l'ancienne saisie."""
+    from pipeline.smart_money import fond_score as F
+    monkeypatch.setitem(F.RATIOS_EN_VERIFICATION, "MSA", "motif d'essai")
     fiche = {"dette_nette_ebitda": 1.0, "roic": 8, "wacc": 10,
              "ratios_publies": {"roic": {"valeur": 47.6, "date": "2025-12-31"}}}
     a = ud.detecter_alertes(fiche, sym="MSA")

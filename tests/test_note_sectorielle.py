@@ -150,8 +150,10 @@ def test_afm_roe_sans_objet_n_est_plus_contourne():
     assert r["criteres"]["rentabilite"]["etat"] == fs.SUSPENDU and r["criteres"]["rentabilite"]["poids_effectif"] == 0
 
 
-def test_msa_ratios_en_verification_ne_sont_pas_lus():
-    # Le module fantôme publiait un ROIC de 47,6 % pour MSA.
+def test_ratios_en_verification_ne_sont_pas_lus(monkeypatch):
+    # Le module fantôme publiait un ROIC de 47,6 % pour MSA ; le titre a été
+    # recoupé le 15/10/2026, le mécanisme est éprouvé sur une entrée d'essai.
+    monkeypatch.setitem(fs.RATIOS_EN_VERIFICATION, "MSA", "motif d'essai")
     e = _entree("MSA", _fiche("Transport", roic=47.6, roe_2025=39.2, roe_12m=41.0,
                               dette_nette_ebitda=0.3, cash_conversion=167.0))
     assert e["roic"] is None and e["dne"] is None and e["cc"] is None
@@ -168,10 +170,11 @@ def test_aucune_saisie_n_est_lue():
     assert e["roic"] is None and e["dne"] is None and e["cc"] is None
 
 
-def test_dette_nette_et_ebitda_passent_par_la_porte_unique():
+def test_dette_nette_et_ebitda_passent_par_la_porte_unique(monkeypatch):
     # Relecture du 10/10/2026 : `construire_entree` lisait encore `ratios_publies`
-    # en direct pour la dette nette et l'EBITDA. MSA (en vérification) les aurait
-    # fait entrer dans son bilan et dans un VE/EBITDA.
+    # en direct pour la dette nette et l'EBITDA. Un titre en vérification les aurait
+    # fait entrer dans son bilan et dans un VE/EBITDA (essai sur MSA, recoupé le 15/10).
+    monkeypatch.setitem(fs.RATIOS_EN_VERIFICATION, "MSA", "motif d'essai")
     msa = _dossier_ve("MSA")
     assert msa["gearing"] is None and msa["dette_nette"] is None
     assert msa["ve"]["etat"] == fs.ABSENT

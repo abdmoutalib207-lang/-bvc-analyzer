@@ -50,11 +50,22 @@ def test_la_valeur_saisie_reste_lue_faute_de_ratio_numerique():
     assert F.compute_fond_score("X", b) == F.compute_fond_score("X", c)
 
 
-def test_msa_garde_sa_saisie_jusqu_au_recoupement():
-    assert "MSA" in F.RATIOS_EN_VERIFICATION
+def test_un_titre_en_verification_garde_sa_saisie_jusqu_au_recoupement(monkeypatch):
+    # Le mécanisme est conservé : MSA l'a servi du 01/10 au 15/10/2026.
+    monkeypatch.setitem(F.RATIOS_EN_VERIFICATION, "MSA", "motif d'essai")
     f = {"MSA": _fiche(roic=11, ratios_publies={"roic": {"valeur": 47.6}})}
     g = {"MSA": _fiche(roic=11)}
     assert F.compute_fond_score("MSA", f) == F.compute_fond_score("MSA", g)
+
+
+def test_msa_est_recoupe_et_son_roic_publie_est_lu():
+    # 15/10/2026 : comptes en normes marocaines, pas d'IFRIC 12, identité du bilan
+    # (faits_financiers.json › MSA › reserves_verifiees). Écart ROIC − WACC de
+    # 37,6 points : tranche ≥ 15, q = 9,5 ; saisi 11 → écart 1, q = 5,0.
+    assert "MSA" not in F.RATIOS_EN_VERIFICATION
+    f = {"MSA": _fiche(roic=11, ratios_publies={"roic": {"valeur": 47.6}})}
+    g = {"MSA": _fiche(roic=11)}
+    assert round(F.compute_fond_score("MSA", f) - F.compute_fond_score("MSA", g), 2) == 1.8
 
 
 def test_la_saisie_n_est_pas_effacee():

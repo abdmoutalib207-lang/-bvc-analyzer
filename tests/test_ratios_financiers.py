@@ -161,8 +161,8 @@ def test_les_champs_lus_par_la_note_ne_sont_pas_ecrits():
 
 def test_seuls_les_trois_ratios_approuves_font_bouger_la_note():
     """Retirer ratios_publies ne change la note QUE d'un titre portant un
-    ROIC, une dette nette / EBITDA ou une conversion calculés — et jamais de
-    MSA, tenu à l'écart (décision du 01/10/2026, R8)."""
+    ROIC, une dette nette / EBITDA ou une conversion calculés (MSA, tenu à
+    l'écart du 01/10 au 15/10/2026, y est revenu après recoupement)."""
     import copy
     sys.path.insert(0, str(RACINE / "pipeline" / "smart_money"))
     from fond_score import compute_fond_score
@@ -178,7 +178,7 @@ def test_seuls_les_trois_ratios_approuves_font_bouger_la_note():
             # « dette_nette » depuis le 02/10 : lue quand elle est négative et
             # qu'aucun ratio dette / EBITDA n'existe (trésorerie nette).
             cles = ("roe_12m", "roe_2025") if fin else ("roic", "dette_nette_ebitda", "cash_conversion", "dette_nette")
-            lu = s != "MSA" and any(
+            lu = any(
                 isinstance(rp.get(k), dict) and isinstance(rp[k].get("valeur"), (int, float))
                 for k in cles)
             if not lu:

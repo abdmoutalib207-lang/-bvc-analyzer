@@ -359,3 +359,11 @@ rapport ; `Auto_Hall_RFA_2025.pdf` ne contient qu'une page de communiqué,
 manque ou paraît incomplet, essayer la variante `_0` avant de conclure
 « non déposé ». Vérifier aussi le nombre de pages : un rapport annuel en a
 des dizaines.
+- (15/10, ROIC d'un concessionnaire) « IFRIC 12 » était une hypothèse, pas un fait : MSA tient des comptes
+  en NORMES MAROCAINES (CNC avis n°5, p.125) ; ses immobilisations sont au bilan, les biens du domaine
+  public concédé n'y sont pas (CAC p.133, non chiffrés). Avant de « corriger le capital investi », vérifier
+  le référentiel et l'identité CP + dette nette = actif immobilisé + BFR − provisions durables (3 846,6).
+  Une définition ambiguë se tranche par ses variantes : si toutes tombent dans la même tranche de la
+  grille (MSA 31,4 à 47,6 %, tranche ≥ 25 %), l'ambiguïté ne déplace pas la note ; la limite non chiffrable
+  (actifs du concédant) se consigne dans `reserves_verifiees`. Un ROIC saisi sans pièce (17) se teste contre
+  la borne haute du bilan (19,6 % sur le total de l'actif) avant d'être traité comme « une autre définition ».
