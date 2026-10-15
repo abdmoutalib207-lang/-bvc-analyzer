@@ -1051,6 +1051,8 @@ const reservePrincipale=r=>{const m=meta(r),nf=r.note_fond||{};const c=nf.compos
   if(m.comptes_absents)return "aucuns comptes publiés récents";
   const susp=Object.values(c).find(x=>x.note==null&&/suspendu|contest/i.test(x.motif||""));
   if(susp)return "grandeur financière contestée, écartée de la note";
+  const rv=Object.values(c).find(x=>x.note!=null&&x.reserve);
+  if(rv)return rv.reserve.split(" ; ")[0].split(" : ")[0].replace(/\s*\(.*$/,"");
   const rq=(r.risque||{}).var95;
   if(rq&&rq.valeur==null&&rq.motif)return /reprise/.test(rq.motif)?"risque non mesurable depuis la reprise de cotation (historique trop court)":"risque non mesurable (historique trop court)";
   if(nf.couverture!=null&&nf.couverture<0.75)return `note sur ${Math.round(nf.couverture*100)} % du poids seulement`;
@@ -1093,7 +1095,7 @@ const PourquoiNote=({r})=>{const nf=r.note_fond;const pw=poidsAffiches(r,null)||
     {Object.entries(nf.composantes).map(([k,c])=><div key={k} style={{display:"flex",gap:8,padding:"2px 0"}}>
       <span style={{width:118,color:c.note==null?"#5a6478":"#c8d3e8"}}>{NOMS_COMPOSANTES[k]||k} · {Math.round(c.poids*100)} %</span>
       <span style={{width:34,fontWeight:600,color:c.note==null?"#5a6478":"#e6edf7"}}>{c.note==null?"—":fmt(c.note,1)}</span>
-      <span style={{flex:1,color:c.note==null?"#ff8f00":"#8892a4"}}>{c.note==null?`non noté : ${c.motif}`:c.mesure}</span></div>)}
+      <span style={{flex:1,color:c.note==null?"#ff8f00":"#8892a4"}}>{c.note==null?`non noté : ${c.motif}`:c.mesure}{c.reserve&&<span style={{display:"block",color:"#ffd740"}}>Réserve : {c.reserve}</span>}</span></div>)}
     <div style={{color:"#8892a4",marginTop:6}}>Une composante non mesurée n'est pas notée : son poids est réparti sur les autres. Sous 50 % du poids mesuré, pas de note.</div>
   </Repli>;};
 /* Indicateur de confiance ●●●○○ — jamais masqué (spécification CLAUDE.md). */

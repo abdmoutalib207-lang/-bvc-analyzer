@@ -217,6 +217,17 @@ WACC_REF = 10.0
 # Désormais une composante non mesurée est RETIRÉE et les poids des autres
 # sont remis à l'échelle ; sous COUVERTURE_MIN du poids total, pas de note
 # (« Données insuffisantes »). Les seuils de chaque grille sont inchangés.
+# Réserves VALIDÉES par la contre-vérification (verificateur-finance, 15/10/2026),
+# attachées à la composante qu'elles nuancent et affichées sur la fiche.
+RESERVES_RATIOS = {
+    "MSA": {"qualite": "ROIC sur le capital apporté par le groupe : l'infrastructure portuaire "
+                       "appartient au concédant et n'est pas au bilan (CAC, RFA 2025 p.133). Non "
+                       "comparable au ROIC d'un propriétaire d'actifs ; à lire avec la marge "
+                       "d'exploitation (44,3 %, p.122)."},
+    "VCNE": {"bilan": "Trésorerie nette dont 523,7 MMAD de placements (produit de l'introduction "
+                      "en bourse, nature non publiée) ; EBITDA tel que publié, sans définition "
+                      "(RFA 2025 p.20-21, p.57)."},
+}
 POIDS_FOND = {"qualite": 0.40, "croissance": 0.30, "valorisation": 0.20, "bilan": 0.10}
 COUVERTURE_MIN = 0.5
 
@@ -325,6 +336,9 @@ def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | N
             _cc = _c["valeur"] if _c and _c.get("origine") == "comptes publiés" else None
             oui("bilan", _grille_bilan(_dne, _cc), _mesure)
 
+    for nom, txt in RESERVES_RATIOS.get(sym, {}).items():
+        if nom in comp and comp[nom]["note"] is not None:
+            comp[nom]["reserve"] = txt
     couv = round(sum(c["poids"] for c in comp.values() if c["note"] is not None), 4)
     note = None
     if couv >= COUVERTURE_MIN:
