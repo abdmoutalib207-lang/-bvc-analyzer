@@ -4055,7 +4055,6 @@ const reservePrincipale = r => {
   if (rv) return rv.reserve.split(" ; ")[0].split(" : ")[0].replace(/\s*\(.*$/, "");
   const rq = (r.risque || {}).var95;
   if (rq && rq.valeur == null && rq.motif) return /reprise/.test(rq.motif) ? "risque non mesurable depuis la reprise de cotation (historique trop court)" : "risque non mesurable (historique trop court)";
-  if (nf.couverture != null && nf.couverture < 0.75) return `note sur ${Math.round(nf.couverture * 100)} % du poids seulement`;
   const MANQUE = {
     qualite: "rentabilité non mesurée",
     croissance: "croissance non mesurée",
@@ -4093,15 +4092,15 @@ const ResumeNote = ({
       lineHeight: 1.6,
       margin: "2px 0 4px"
     }
-  }, couvPartielle(r) && React.createElement("div", {
-    style: {
-      color: "#ffd740"
-    }
-  }, "Note indicative : couverture applicable ", ca, " %, sous le seuil de prudence provisoire de 75 %. Aucun verdict global."), cv != null && React.createElement("div", null, "Couverture : ", React.createElement("b", {
+  }, cv != null && React.createElement("div", null, "Couverture : ", React.createElement("b", {
     style: {
       color: ccol
     }
-  }, cv, " %"), " du poids de la grille", ca != null && ca !== cv ? ` (${ca} % hors critère sans objet pour ce métier)` : ""), res && React.createElement("div", null, "R\xE9serve principale : ", React.createElement("span", {
+  }, cv, " %"), " du poids de la grille", ca != null && ca !== cv ? ` (${ca} % applicable)` : "", couvPartielle(r) && React.createElement("span", {
+    style: {
+      color: "#ffd740"
+    }
+  }, " \u2014 note indicative (seuil de prudence : 75 %)")), res && React.createElement("div", null, "R\xE9serve principale : ", React.createElement("span", {
     style: {
       color: "#ff8f00"
     }
@@ -4170,7 +4169,7 @@ const PourquoiNote = ({
       color: "#ff8f00",
       marginBottom: 6
     }
-  }, "Pas de note : ", Math.round((nf.couverture || 0) * 100), " % seulement du poids est mesur\xE9 sur comptes, sous le seuil de 50 %.") : React.createElement("div", {
+  }, "Pas de note : moins de 50 % du poids mesur\xE9.") : React.createElement("div", {
     style: {
       marginBottom: 6
     }
@@ -4179,7 +4178,7 @@ const PourquoiNote = ({
       color: "#8892a4",
       marginBottom: 4
     }
-  }, "Note fondamentale, composante par composante (couverture ", Math.round((nf.couverture || 0) * 100), " % du poids) :"), Object.entries(nf.composantes).map(([k, c]) => React.createElement("div", {
+  }, "Note fondamentale, par composante :"), Object.entries(nf.composantes).map(([k, c]) => React.createElement("div", {
     key: k,
     style: {
       display: "flex",
@@ -4207,12 +4206,7 @@ const PourquoiNote = ({
       display: "block",
       color: "#ffd740"
     }
-  }, "R\xE9serve : ", c.reserve)))), React.createElement("div", {
-    style: {
-      color: "#8892a4",
-      marginTop: 6
-    }
-  }, "Une composante non mesur\xE9e n'est pas not\xE9e : son poids est r\xE9parti sur les autres. Sous 50 % du poids mesur\xE9, pas de note."));
+  }, "R\xE9serve : ", c.reserve)))));
 };
 const Confiance = ({
   r,

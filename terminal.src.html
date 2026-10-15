@@ -1055,7 +1055,6 @@ const reservePrincipale=r=>{const m=meta(r),nf=r.note_fond||{};const c=nf.compos
   if(rv)return rv.reserve.split(" ; ")[0].split(" : ")[0].replace(/\s*\(.*$/,"");
   const rq=(r.risque||{}).var95;
   if(rq&&rq.valeur==null&&rq.motif)return /reprise/.test(rq.motif)?"risque non mesurable depuis la reprise de cotation (historique trop court)":"risque non mesurable (historique trop court)";
-  if(nf.couverture!=null&&nf.couverture<0.75)return `note sur ${Math.round(nf.couverture*100)} % du poids seulement`;
   const MANQUE={qualite:"rentabilité non mesurée",croissance:"croissance non mesurée",valorisation:"valorisation non mesurée (pas de PER)",bilan:"dette non mesurée"};
   const fin=Object.values(c).find(x=>x.note==null&&/financière|équivalent bancaire/.test(x.motif||""));
   if(fin)return "analyse bancaire partielle : coût du risque, qualité des créances et solvabilité non intégrés";
@@ -1069,8 +1068,7 @@ const ResumeNote=({r})=>{const nf=r.note_fond;const m=meta(r);const dh=m.echange
   const al=((r.alertes||{}).liste)||[];const NIV={"critique":"#ff4f5a","élevé":"#ff8f00","moyen":"#ffd740"};
   const dfr=d=>d?d.split("-").reverse().join("/"):"date inconnue";
   return <div className="resume-note" style={{fontSize:11,color:"#8892a4",lineHeight:1.6,margin:"2px 0 4px"}}>
-    {couvPartielle(r)&&<div style={{color:"#ffd740"}}>Note indicative : couverture applicable {ca} %, sous le seuil de prudence provisoire de 75 %. Aucun verdict global.</div>}
-    {cv!=null&&<div>Couverture : <b style={{color:ccol}}>{cv} %</b> du poids de la grille{ca!=null&&ca!==cv?` (${ca} % hors critère sans objet pour ce métier)`:""}</div>}
+    {cv!=null&&<div>Couverture : <b style={{color:ccol}}>{cv} %</b> du poids de la grille{ca!=null&&ca!==cv?` (${ca} % applicable)`:""}{couvPartielle(r)&&<span style={{color:"#ffd740"}}> — note indicative (seuil de prudence : 75 %)</span>}</div>}
     {res&&<div>Réserve principale : <span style={{color:"#ff8f00"}}>{res}</span></div>}
     {dh!=null&&<div>Liquidité : {montantEntier(dh)} échangés par séance (médiane 20 j){dh<100000&&<span style={{color:"#ff8f00"}}> — faible</span>}</div>}
     {al.map((x,i)=><div key={i} className="alerte-verifiee"><span style={{color:NIV[x.niveau]||"#ff8f00"}}>⚠ {x.raison} : {x.valeur}</span> <span>({x.seuil}) — comptes au {dfr(x.date)}, {x.source}</span></div>)}
@@ -1089,14 +1087,13 @@ const PourquoiNote=({r})=>{const nf=r.note_fond;const pw=poidsAffiches(r,null)||
   const pf=pw.f,pt=pw.t;   // poids réellement appliqués, en %
   return <Repli titre="Pourquoi cette note ?">
     {r.v53==null
-      ?<div style={{color:"#ff8f00",marginBottom:6}}>Pas de note : {Math.round((nf.couverture||0)*100)} % seulement du poids est mesuré sur comptes, sous le seuil de 50 %.</div>
+      ?<div style={{color:"#ff8f00",marginBottom:6}}>Pas de note : moins de 50 % du poids mesuré.</div>
       :<div style={{marginBottom:6}}>Note = fondamental <b>{fmt(r.score_fond)}</b>{pf!=null&&<> × {pf} %</>} + technique <b>{fmt(r.score_tech)}</b>{pt!=null&&<> × {pt} %</>}{(r.bonus||[]).length>0&&" + bonus/malus"} = <b>{fmt(r.v53)}</b>.</div>}
-    <div style={{color:"#8892a4",marginBottom:4}}>Note fondamentale, composante par composante (couverture {Math.round((nf.couverture||0)*100)} % du poids) :</div>
+    <div style={{color:"#8892a4",marginBottom:4}}>Note fondamentale, par composante :</div>
     {Object.entries(nf.composantes).map(([k,c])=><div key={k} style={{display:"flex",gap:8,padding:"2px 0"}}>
       <span style={{width:118,color:c.note==null?"#5a6478":"#c8d3e8"}}>{NOMS_COMPOSANTES[k]||k} · {Math.round(c.poids*100)} %</span>
       <span style={{width:34,fontWeight:600,color:c.note==null?"#5a6478":"#e6edf7"}}>{c.note==null?"—":fmt(c.note,1)}</span>
       <span style={{flex:1,color:c.note==null?"#ff8f00":"#8892a4"}}>{c.note==null?`non noté : ${c.motif}`:c.mesure}{c.reserve&&<span style={{display:"block",color:"#ffd740"}}>Réserve : {c.reserve}</span>}</span></div>)}
-    <div style={{color:"#8892a4",marginTop:6}}>Une composante non mesurée n'est pas notée : son poids est réparti sur les autres. Sous 50 % du poids mesuré, pas de note.</div>
   </Repli>;};
 /* Indicateur de confiance ●●●○○ — jamais masqué (spécification CLAUDE.md). */
 const Confiance=({r,sz=11})=>{const {conf}=meta(r);
