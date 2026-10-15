@@ -320,3 +320,41 @@ def test_chaque_emetteur_ifrs_a_son_traitement_ifrs16_explicite_ou_declare_non_v
     assert not set(table["inclus"]) & set(table["non_verifie"])
     for t, texte in table["inclus"].items():
         assert re.search(r"\d", texte) and ("p." in texte or "page" in texte), f"{t} : ni montant ni page"
+
+
+# ── Lot « couverture fondamentale » (15/10/2026) : attendus calculés à la main ──
+
+def test_tma_ratios_de_bilan_sur_l_avis_d_ago():
+    # dette nette 514,346 + 373,609 − 1 176,535 = −288,580 ; EBITDA 1 339,712 + 345,774 = 1 685,486
+    assert _r("TMA", "dette_nette") == -288.6 and _r("TMA", "ebitda") == 1685.5
+    # t = 467,785 ÷ 1 257,093 = 37,2 % ; 1 339,712 × 0,6279 ÷ (1 984,665 − 288,580 − 185,890) = 55,7 %
+    assert _r("TMA", "roic") == 55.7
+    assert FOND["TMA"]["ratios_publies"]["roic"]["hors_mises_en_equivalence"] is True
+
+
+def test_balima_dette_financiere_est_l_emprunt_pas_les_cautionnements():
+    # 23 695 760,93 − (22 364 347 + 6 936 131) = −5,60 MMAD ; stricte +1,33
+    rp = FOND["BAL"]["ratios_publies"]["dette_nette"]
+    assert rp["valeur"] == -5.6 and rp["dette_nette_stricte"] == 1.3
+    # les cautionnements sont identiques aux deux clôtures, au centime
+    assert round(30456521.27 - 23695760.93, 2) == round(29260760.34 - 22500000.00, 2) == 6760760.34
+    # 19,917023 × (1 − 5,779411 ÷ 19,429075) ÷ (132,950333 − 5,604717) = 11,0 %
+    assert _r("BAL", "roic") == 11.0
+
+
+def test_roic_hors_mises_en_equivalence_mox_et_unimer():
+    # MOX : 12,518 × (1 − 2,544 ÷ 5,833) ÷ (319,225 + 148,623 − 86,416) = 1,85 %
+    assert _r("MOX", "roic") == 1.9
+    # UNI : −18,037 ÷ (1 224,047 + 757,981 − 681,234) = −1,39 % (t = 0, résultat avant impôt < 0)
+    assert _r("UNI", "roic") == -1.4
+
+
+def test_sans_titres_mis_en_equivalence_la_formule_du_roic_ne_bouge_pas():
+    assert "titres_mis_en_equivalence" not in FAITS["GAZ"]["faits"]
+    assert "hors_mises_en_equivalence" not in FOND["GAZ"]["ratios_publies"]["roic"]
+
+
+def test_alu_dar_reb_restent_sans_roic_avec_leur_motif():
+    for s in ("ALU", "DAR", "REB"):
+        assert "roic" not in FOND[s]["ratios_publies"], s
+        assert "roic" in FOND[s]["ratios_publies"]["non_calcules_2025"], s

@@ -220,6 +220,12 @@ WACC_REF = 10.0
 # Réserves VALIDÉES par la contre-vérification (verificateur-finance, 15/10/2026),
 # attachées à la composante qu'elles nuancent et affichées sur la fiche.
 RESERVES_RATIOS = {
+    "TMA": {"bilan": "Trésorerie nette au 31/12/2025 ; dette nette +326,3 MMAD au 30/06/2026 (comptes S1, p.4) ; "
+                     "27,5 MMAD de passif non courant non ventilé (avis d'AGO p.6)."},
+    "BAL": {"bilan": "Trésorerie nette reposant sur 6,9 MMAD de placements : sans eux, pas de note de bilan "
+                     "(note 5,28 au lieu de 5,65)."},
+    "MOX": {"qualite": "ROIC des seules sociétés intégrées (titres mis en équivalence retirés, p.32-33)."},
+    "UNI": {"qualite": "ROIC des seules sociétés intégrées (titres mis en équivalence retirés, p.33)."},
     "MSA": {"qualite": "ROIC sur le capital apporté par le groupe : l'infrastructure portuaire "
                        "appartient au concédant et n'est pas au bilan (CAC, RFA 2025 p.133). Non "
                        "comparable au ROIC d'un propriétaire d'actifs ; à lire avec la marge "

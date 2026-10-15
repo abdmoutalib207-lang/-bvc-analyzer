@@ -4586,6 +4586,59 @@
           "comptes": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf"
         }
       },
+      "dette_nette": {
+        "valeur": -288.6,
+        "date": "2025-12-31",
+        "formule": "887.955 − 1176.535 (MMAD)",
+        "sources": {
+          "dettes_financieres": "Avis d'AGO du 03/06/2026 (comptes consolidés IFRS au 31/12/2025, publiés par l'émetteur) — pas de rapport financier annuel 2025 au catalogue AMMC — https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf, p. 6",
+          "tresorerie": "Avis d'AGO du 03/06/2026 (comptes consolidés IFRS au 31/12/2025, publiés par l'émetteur) — pas de rapport financier annuel 2025 au catalogue AMMC — https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf, p. 6"
+        },
+        "base": "consolidé IFRS, 31/12/2025 (en KMAD, avis d'AGO du 03/06/2026 p.6 — pas de rapport financier annuel 2025 au catalogue AMMC, pas de tableau des flux ni de notes)",
+        "unite": "MMAD"
+      },
+      "ebitda": {
+        "valeur": 1685.5,
+        "date": "2025-12-31",
+        "formule": "1339.712 + 345.774 (MMAD) — résultat d'exploitation + dotations aux amortissements",
+        "sources": {
+          "resultat_exploitation": "Avis d'AGO du 03/06/2026 (comptes consolidés IFRS au 31/12/2025, publiés par l'émetteur) — pas de rapport financier annuel 2025 au catalogue AMMC — https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf, p. 6",
+          "amortissements": "Avis d'AGO du 03/06/2026 (comptes consolidés IFRS au 31/12/2025, publiés par l'émetteur) — pas de rapport financier annuel 2025 au catalogue AMMC — https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf, p. 6"
+        },
+        "base": "consolidé IFRS, 31/12/2025 (en KMAD, avis d'AGO du 03/06/2026 p.6 — pas de rapport financier annuel 2025 au catalogue AMMC, pas de tableau des flux ni de notes)",
+        "unite": "MMAD",
+        "origine": "calculé"
+      },
+      "dette_nette_ebitda": {
+        "valeur": -0.17,
+        "date": "2025-12-31",
+        "formule": "-288.58 ÷ 1685.486",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "consolidé IFRS, 31/12/2025 (en KMAD, avis d'AGO du 03/06/2026 p.6 — pas de rapport financier annuel 2025 au catalogue AMMC, pas de tableau des flux ni de notes)"
+      },
+      "roic": {
+        "valeur": 55.7,
+        "date": "2025-12-31",
+        "formule": "1339.712 × (1 − t) ÷ (1984.665 + -288.58 − 185.89 de titres mis en équivalence) ; t = 467.785 ÷ 1257.093 = 37.2 %",
+        "sources": {
+          "resultat_exploitation": "Avis d'AGO du 03/06/2026 (comptes consolidés IFRS au 31/12/2025, publiés par l'émetteur) — pas de rapport financier annuel 2025 au catalogue AMMC — https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf, p. 6",
+          "impot": "Avis d'AGO du 03/06/2026 (comptes consolidés IFRS au 31/12/2025, publiés par l'émetteur) — pas de rapport financier annuel 2025 au catalogue AMMC — https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf, p. 6",
+          "resultat_avant_impot": "Avis d'AGO du 03/06/2026 (comptes consolidés IFRS au 31/12/2025, publiés par l'émetteur) — pas de rapport financier annuel 2025 au catalogue AMMC — https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf, p. 6",
+          "capitaux_propres": "Avis d'AGO du 03/06/2026 (comptes consolidés IFRS au 31/12/2025, publiés par l'émetteur) — pas de rapport financier annuel 2025 au catalogue AMMC — https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf, p. 6",
+          "dette_nette": "ratios_publies.dette_nette",
+          "titres_mis_en_equivalence": "Avis d'AGO du 03/06/2026 (comptes consolidés IFRS au 31/12/2025, publiés par l'émetteur) — pas de rapport financier annuel 2025 au catalogue AMMC — https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf, p. 6"
+        },
+        "base": "consolidé IFRS, 31/12/2025 (en KMAD, avis d'AGO du 03/06/2026 p.6 — pas de rapport financier annuel 2025 au catalogue AMMC, pas de tableau des flux ni de notes)",
+        "unite": "%",
+        "taux_impot_effectif": 37.2,
+        "hors_mises_en_equivalence": true
+      },
+      "non_calcules_2025": {
+        "cash_conversion": "flux de trésorerie d'exploitation ou résultat net consolidé non relevé"
+      },
       "calcule_le": "2026-09-30"
     }
   },
@@ -4920,8 +4973,24 @@
         },
         "base": "consolidé IFRS, 31/12/2025"
       },
+      "roic": {
+        "valeur": 1.9,
+        "date": "2025-12-31",
+        "formule": "12.518 × (1 − t) ÷ (319.225 + 148.623 − 86.416 de titres mis en équivalence) ; t = 2.544 ÷ 5.833 = 43.6 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/MOX_RFA_2025.pdf, p. 32",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/MOX_RFA_2025.pdf, p. 32",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/MOX_RFA_2025.pdf, p. 32",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/MOX_RFA_2025.pdf, p. 33",
+          "dette_nette": "ratios_publies.dette_nette",
+          "titres_mis_en_equivalence": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/MOX_RFA_2025.pdf, p. 33"
+        },
+        "base": "consolidé IFRS, 31/12/2025",
+        "unite": "%",
+        "taux_impot_effectif": 43.6,
+        "hors_mises_en_equivalence": true
+      },
       "non_calcules_2025": {
-        "roic": "86,4 MMAD de titres mis en équivalence sont dans les capitaux employés alors que leur résultat (12,158) n'est pas dans le résultat d'exploitation : 1,5 % publié, 1,85 % hors mises en équivalence (« ROIC des sociétés intégrées »), le montant des titres n'étant pas encore relevé comme fait (MOX_RFA_2025 p.32-33) (verificateur-finance, 02/10/2026)",
         "cash_conversion": "79 % du résultat net vient de sociétés mises en équivalence, non encaissé (5,25 MMAD de dividendes reçus) : 282 % publié, 511 % sur base corrigée — illisible (p.112) (verificateur-finance, 02/10/2026)"
       },
       "calcule_le": "2026-09-30"
@@ -5907,11 +5976,37 @@
           "capitaux_propres": "bilan passif consolidé du dépôt S1 2026, p.3 (image), colonnes « 30-06-2026 31-12-2025 » — « Capitaux propres (part du groupe) 130 872 246 132 950 333 » (DH)"
         }
       },
+      "dette_nette": {
+        "valeur": -5.6,
+        "date": "2025-12-31",
+        "formule": "23.69576093 − (22.364347 + 6.936131 de titres de placement) (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier 2025 (comptes sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Balima_RFA_2025_0.pdf, p. 15",
+          "tresorerie": "Rapport Financier 2025 (comptes sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Balima_RFA_2025_0.pdf, p. 44",
+          "titres_de_placement": "Rapport Financier 2025 (comptes sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Balima_RFA_2025_0.pdf, p. 44"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025 — groupe Balima (Société Immobilière Balima + Société Hôtelière Balima Rabat + JR Vanlec) ; pas de minoritaires, part du groupe = ensemble",
+        "unite": "MMAD",
+        "dette_nette_stricte": 1.3
+      },
+      "roic": {
+        "valeur": 11.0,
+        "date": "2025-12-31",
+        "formule": "19.917023 × (1 − t) ÷ (132.950333 + -5.605) ; t = 5.779411 ÷ 19.429075 = 29.7 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier 2025 (comptes sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Balima_RFA_2025_0.pdf, p. 45",
+          "impot": "Rapport Financier 2025 (comptes sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Balima_RFA_2025_0.pdf, p. 45",
+          "resultat_avant_impot": "Rapport Financier 2025 (comptes sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Balima_RFA_2025_0.pdf, p. 45",
+          "capitaux_propres": "Rapport Financier 2025 (comptes sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Balima_RFA_2025_0.pdf, p. 84",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025 — groupe Balima (Société Immobilière Balima + Société Hôtelière Balima Rabat + JR Vanlec) ; pas de minoritaires, part du groupe = ensemble",
+        "unite": "%",
+        "taux_impot_effectif": 29.7
+      },
       "non_calcules_2025": {
-        "dette_nette": "« Emprunts et dettes financières » 30 488 521 non ventilés : cautionnements des locataires + fraction d'un emprunt (ETIC p.47). Le même agrégat vaut 6 777 760 au consolidé 2024 mais 29 260 760 en « autres dettes de financement » du social 2024 : périmètre instable d'un exercice à l'autre, la dette financière réelle n'est pas établie",
         "ebitda": "ni EBE/EBITDA publié au consolidé, ni dotations aux amortissements isolées (« Dotations d'exploitation » 4 770 384 mêle amortissements et provisions)",
-        "dette_nette_ebitda": "dette nette non établie et EBITDA non publié",
-        "roic": "dépend de la dette nette, non établie (dettes financières mêlant cautionnements des locataires et emprunt)",
+        "dette_nette_ebitda": "EBITDA non publié et dotations d'exploitation (4 770 384) mêlant amortissements et provisions : ratio non calculé ; la note retient la trésorerie nette (dette nette négative)",
         "cash_conversion": "aucun tableau des flux de trésorerie consolidé au dépôt (les CAC en citent un, absent des pages 43-48)"
       },
       "calcule_le": "2026-09-30"
@@ -6451,8 +6546,24 @@
         },
         "base": "consolidé (normes marocaines), 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 304 714 KMAD)"
       },
+      "roic": {
+        "valeur": -1.4,
+        "date": "2025-12-31",
+        "formule": "-18.037 × (1 − t) ÷ (1224.047 + 757.981 − 681.234 de titres mis en équivalence) ; t = 0 (résultat avant impôt -55.03 ≤ 0 : pas d'impôt sur une perte)",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 33",
+          "impot": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 33",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 33",
+          "capitaux_propres": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 33",
+          "dette_nette": "ratios_publies.dette_nette",
+          "titres_mis_en_equivalence": "Rapport Financier Annuel 2025 (états sociaux et consolidés) — https://www.ammc.ma/sites/default/files/Unimer_RFA_2025.pdf, p. 33"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 304 714 KMAD)",
+        "unite": "%",
+        "taux_impot_effectif": 0.0,
+        "hors_mises_en_equivalence": true
+      },
       "non_calcules_2025": {
-        "roic": "résultat d'exploitation négatif (−18,0 MMAD) et résultat consolidé porté par les mises en équivalence (+102,1 MMAD) : rendement du capital employé sans signification",
         "cash_conversion": "résultat net de l'ensemble (11,1) positif uniquement grâce aux mises en équivalence non encaissées (+102,1) et aux minoritaires : flux 87,8 ÷ 11,1 = 794 %, ratio sans signification"
       },
       "calcule_le": "2026-09-30"
