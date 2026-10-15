@@ -120,13 +120,18 @@ def test_les_financieres_sont_sans_objet_et_rien_n_est_calcule():
 
 
 def test_un_doute_declare_empeche_le_calcul():
-    # VCNE : titres de placement de nature non tranchée → pas de dette nette.
-    # (GAZ l'était aussi, pour une dette locative non identifiable : levée le
-    # 01/10 en lisant la note 14 sur image, voir test_gaz_...)
-    for s in ("VCNE",):
-        rp = FOND[s]["ratios_publies"]
-        assert "dette_nette" not in rp and "roic" not in rp, s
-        assert rp["non_calcules_2025"]["dette_nette"].startswith("doute"), s
+    # VCNE avait un doute (30/09) sur 523,7 MMAD de titres de placement issus de
+    # l'IPO ; levé le 15/10 par la convention du 02/10 (placements comptés sauf
+    # exclusion sur pièce, aucune ici). GAZ l'avait été le 01/10. Le blocage
+    # lui-même est testé sur un cas construit, juste dessous.
+    rp = FOND["VCNE"]["ratios_publies"]
+    assert rp["dette_nette"]["valeur"] == -368.7 and rp["dette_nette"]["dette_nette_stricte"] == 155.0
+    assert rp["ebitda"]["valeur"] == 264.0 and rp["ebitda"]["origine"] == "publié"
+    assert rp["dette_nette_ebitda"]["valeur"] == -1.4 and rp["roic"]["valeur"] == 18.3
+    assert "dette_nette" not in rp.get("non_calcules_2025", {}) and "ebitda" not in rp.get("non_calcules_2025", {})
+    # La définition de la société (trésorerie nette 311 / 315) n'est pas écrite en fait : écart consigné.
+    assert FAITS["VCNE"]["_ecarts_mesures"]["dette_nette"]["rapport"] == -311.0
+    assert "endettement_net" not in FAITS["VCNE"]["faits"]
 
 
 def test_calculer_bilan_sur_un_cas_construit():
