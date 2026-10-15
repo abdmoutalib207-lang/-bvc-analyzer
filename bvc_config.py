@@ -354,6 +354,14 @@ IDB_TICKER_MAP: dict = {
 }
 
 
+# ⚠️ RÈGLE DE PRUDENCE PROVISOIRE — 15/10/2026 (accord d'Abd Moutalib, verdict
+# externe). Sous ce seuil de couverture APPLICABLE (poids des composantes
+# mesurées, hors composantes sans objet pour le métier), la note reste publiée
+# comme indicative mais aucun verdict de palier n'est émis : « Couverture
+# partielle ». 75 % n'est PAS une frontière validée ; à revoir par mesure.
+COUVERTURE_VERDICT_MIN = 0.75
+
+
 def code_affiche(sym: str) -> str:
     """Le code OFFICIEL BVC d'un symbole interne — celui que la fiche affiche
     (`data.json › code_bvc`). Tout texte publié l'emploie (14/10/2026) : notre

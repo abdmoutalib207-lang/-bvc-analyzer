@@ -126,7 +126,10 @@ def test_signaux_dans_le_vocabulaire_connu(titres):
     # n'ont pas traversé le code neuf.
     connus = {"ACHAT FORT", "ACHAT", "ACHETER", "SURVEILLER", "ATTENDRE",
               "ÉVITER", "ÉVITER FORT", "EVITER", "NEUTRE",
-              "SUSPENDU", "Données insuffisantes"}
+              "SUSPENDU", "Données insuffisantes",
+              # 15/10/2026 : règle de prudence provisoire (COUVERTURE_VERDICT_MIN),
+              # stylée par le terminal (couvPartielle / PastilleNote).
+              "Couverture partielle"}
     vus = set()
     for t in titres.values():
         for cle in ("sig",):

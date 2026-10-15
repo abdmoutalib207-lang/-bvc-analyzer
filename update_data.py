@@ -3856,7 +3856,8 @@ def _entrees_depots_ammc() -> list:
         return _ammc.charger()
 
 
-def _signal_publie(ticker, sig_v53, tech_nf, depuis_reprise, sans_note=False):
+def _signal_publie(ticker, sig_v53, tech_nf, depuis_reprise, sans_note=False,
+                   couverture_partielle=False):
     """(signal publié, verdict_plafonne) : la SEULE règle de substitution.
 
     Ordre : suspension, puis « Données insuffisantes » (reprise récente, société
@@ -3868,6 +3869,10 @@ def _signal_publie(ticker, sig_v53, tech_nf, depuis_reprise, sans_note=False):
         return "SUSPENDU", None
     if depuis_reprise is not None or sans_comptes(ticker) or sans_note:
         return "Données insuffisantes", None
+    # Règle de prudence provisoire (bvc_config.COUVERTURE_VERDICT_MIN) : note
+    # publiée comme indicative, AUCUN verdict de palier (15/10/2026).
+    if couverture_partielle:
+        return "Couverture partielle", None
     if tech_nf and str(sig_v53).startswith("ACHETER"):
         return "SURVEILLER ★", f"ACHETER plafonné : {tech_nf['motif']}"
     return sig_v53, None
@@ -4712,6 +4717,16 @@ def run(dry_run=False, push=False, token=""):
         _note_fond = _dfs(ticker, None if ticker in _FOND_COMPUTED else {},
                           per_publie=_per_12m, croissance_sourcee=_b.get("bpa_12m") is not None)
         score_fond = _note_fond["note"]
+        # Couverture APPLICABLE : une composante sans objet pour le métier
+        # (dette/EBITDA d'une financière) ne compte pas comme manquante ; une
+        # donnée indisponible, si (15/10/2026).
+        _p_so = sum(c["poids"] for c in _note_fond["composantes"].values()
+                    if c["note"] is None and "sans objet" in (c.get("motif") or ""))
+        _note_fond["couverture_applicable"] = (round(_note_fond["couverture"] / (1 - _p_so), 4)
+                                               if _p_so < 1 else None)
+        from bvc_config import COUVERTURE_VERDICT_MIN
+        _couv_partielle = (score_fond is not None and _note_fond["couverture_applicable"] is not None
+                           and _note_fond["couverture_applicable"] < COUVERTURE_VERDICT_MIN)
         _note_fond["motif"] = None if score_fond is not None else (
             f"composantes mesurées : {_note_fond['couverture']:.0%} du poids, sous le "
             f"seuil de 50 % — " + " ; ".join(
@@ -4816,7 +4831,8 @@ def run(dry_run=False, push=False, token=""):
             seances_depuis_reprise=_seances_depuis_reprise,
             comptes_deposes=_comptes_deposes(BPA_DATA.get(ticker)))
         _sig_pub, _verdict_plafonne = _signal_publie(
-            ticker, v53["sig"], _tech_nf, _seances_depuis_reprise, sans_note=_sans_note_fond)
+            ticker, v53["sig"], _tech_nf, _seances_depuis_reprise, sans_note=_sans_note_fond,
+            couverture_partielle=_couv_partielle)
         passe1[ticker] = {"score_tech": score_tech, "ctx": ctx, "tech_nf": _tech_nf,
                           "depuis_reprise": _seances_depuis_reprise, "price": price,
                           "ma20": ma20, "ma50": ma50,
