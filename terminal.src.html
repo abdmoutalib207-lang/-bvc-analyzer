@@ -1037,14 +1037,42 @@ const explRatio=(cle,r,price)=>{const src=x=>SOURCES_FOND[x]||x||"source non pr�
     `Rendement = dernier dividende ÷ cours.\n${r.div_dh!=null?`${fmt(r.div_dh)} DH ÷ ${px(price)} DH.\n`:""}Réserve : dividende déjà versé, il peut ne pas être reconduit.`;
   if(cle==="cap")return r.cap==null?null:`Capitalisation = cours × nombre d'actions.\nSource : ${src(m.cap_source)}.`;
   return null;};
+/* ── SOUS LA NOTE : COUVERTURE, RÉSERVE PRINCIPALE, LIQUIDITÉ (15/10/2026) ──
+   Verdict externe : la couverture n'était visible que dans « Pourquoi cette
+   note ? », et une note sur 50 % du poids se lisait comme une note sur 100 %.
+   « du poids de la grille » et non « des critères » : les critères ne pèsent
+   pas pareil. Trois lignes, rien d'autre. */
+const reservePrincipale=r=>{const m=meta(r),nf=r.note_fond||{};const c=nf.composantes||{};
+  if(m.susp)return "cotation suspendue";
+  if(m.stale)return `cours non coté depuis le ${m.asof?jjmm(m.asof):"?"}`;
+  if(m.comptes_absents)return "aucuns comptes publiés récents";
+  const susp=Object.values(c).find(x=>x.note==null&&/suspendu|contest/i.test(x.motif||""));
+  if(susp)return "grandeur financière contestée, écartée de la note";
+  const rq=(r.risque||{}).var95;
+  if(rq&&rq.valeur==null&&rq.motif)return /reprise/.test(rq.motif)?"risque non mesurable depuis la reprise de cotation (historique trop court)":"risque non mesurable (historique trop court)";
+  if(nf.couverture!=null&&nf.couverture<0.75)return `note sur ${Math.round(nf.couverture*100)} % du poids seulement`;
+  const MANQUE={qualite:"rentabilité non mesurée",croissance:"croissance non mesurée",valorisation:"valorisation non mesurée (pas de PER)",bilan:"dette non mesurée"};
+  const fin=Object.values(c).find(x=>x.note==null&&/financière/.test(x.motif||""));
+  if(fin)return "analyse bancaire partielle : coût du risque, qualité des créances et solvabilité non intégrés";
+  const manque=Object.entries(c).find(([,x])=>x.note==null);
+  if(manque)return MANQUE[manque[0]]||`${manque[0]} non mesurée`;
+  return null;};
+const ResumeNote=({r})=>{const nf=r.note_fond;const m=meta(r);const dh=m.echange_median_dh;const res=reservePrincipale(r);
+  const cv=nf&&nf.couverture!=null?Math.round(nf.couverture*100):null;
+  const ccol=cv==null?"#8892a4":cv>=90?"#00e5a0":cv>=75?"#ffd740":"#ff8f00";
+  return <div className="resume-note" style={{fontSize:11,color:"#8892a4",lineHeight:1.6,margin:"2px 0 4px"}}>
+    {cv!=null&&<div>Couverture : <b style={{color:ccol}}>{cv} %</b> du poids de la grille</div>}
+    {res&&<div>Réserve principale : <span style={{color:"#ff8f00"}}>{res}</span></div>}
+    {dh!=null&&<div>Liquidité : {montantEntier(dh)} échangés par séance (médiane 20 j){dh<100000&&<span style={{color:"#ff8f00"}}> — faible</span>}</div>}
+  </div>;};
 const NOMS_COMPOSANTES={qualite:"Qualité (rentabilité)",croissance:"Croissance",valorisation:"Valorisation (PER)",bilan:"Bilan (dette)"};
 const DetailConfiance=({r})=>{const m=meta(r);const g=m.garanties;
   if(!Array.isArray(g))return null;
-  return <Repli titre={`Que garantit la confiance ${m.conf}/5 ?`}>
+  return <Repli titre={`Fiabilité des données ${m.conf}/5 : que garantit-elle ?`}>
     {g.map(x=><div key={x.critere} style={{display:"flex",gap:8}}>
       <span style={{color:x.ok?"#00e5a0":"#ff4f5a",width:14}}>{x.ok?"✓":"✗"}</span><span>{x.critere}</span></div>)}
-    {m.conf<g.filter(x=>x.ok).length&&<div style={{color:"#ff8f00",marginTop:6}}>Confiance plafonnée en dessous du nombre de garanties remplies (société sans comptes, identité à vérifier, note incalculable ou titre peu liquide).</div>}
-    <div style={{color:"#8892a4",marginTop:6}}>La confiance dit si les données sont sûres, pas si le titre va monter.</div>
+    {m.conf<g.filter(x=>x.ok).length&&<div style={{color:"#ff8f00",marginTop:6}}>Fiabilité plafonnée en dessous du nombre de garanties remplies (société sans comptes, identité à vérifier, note incalculable ou titre peu liquide).</div>}
+    <div style={{color:"#8892a4",marginTop:6}}>Ce score contrôle les DONNÉES (cours, comptes, historique, liquidité). Il ne dit rien du titre ni de son risque : 5/5 ne veut pas dire « sûr ».</div>
   </Repli>;};
 const PourquoiNote=({r})=>{const nf=r.note_fond;const pw=poidsAffiches(r,null)||{};   // pondération officielle
   if(!nf||!nf.composantes)return null;
@@ -1063,7 +1091,7 @@ const PourquoiNote=({r})=>{const nf=r.note_fond;const pw=poidsAffiches(r,null)||
 /* Indicateur de confiance ●●●○○ — jamais masqué (spécification CLAUDE.md). */
 const Confiance=({r,sz=11})=>{const {conf}=meta(r);
   const col=conf<=1?"#ff4f5a":conf<=2?"#ff8f00":conf<=3?"#ffd740":"#00e5a0";
-  return <span title={`Confiance ${conf}/5 — prix du jour, fondamentaux réels, historique suffisant, comptes déposés à l\u2019AMMC, liquidité ≥ 100 000 DH/séance`}
+  return <span title={`Fiabilité des données ${conf}/5 — prix du jour, fondamentaux réels, historique suffisant, comptes déposés à l\u2019AMMC, liquidité ≥ 100 000 DH/séance`}
     style={{fontSize:sz,letterSpacing:1,color:col,userSelect:"none"}}>
     {"●".repeat(conf)}<span style={{color:"#2a3550"}}>{"○".repeat(5-conf)}</span></span>;};
 const Bar=({v,max=10,c,h=6})=>(
@@ -3717,6 +3745,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               Score composite / 10{simu&&<span style={{color:"#ffd740"}}> · {scoreModeLabel(scoreMode)}</span>}
             </div>
             <div className="heure-cours" style={{fontSize:10.5,color:"#8892a4",marginBottom:4}}>{heureCours(r)}</div>
+            <ResumeNote r={r}/>
             {!simu&&<PourquoiNote r={r}/>}
             <DetailConfiance r={r}/>
             {/* ⚠️ Une note absente doit DIRE ce qui manque. Un « — » muet se
@@ -4050,6 +4079,11 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
             </div>
           </div>
 
+          {/* ── ANALYSE AVANCÉE (15/10/2026) : essais et indicateurs gelés, qui
+              n'entrent pas dans la note, regroupés et repliés. */}
+          <details className="avance carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"8px 12px"}}>
+            <summary style={{cursor:"pointer",fontSize:12,color:"#4db8ff",minHeight:28,display:"flex",alignItems:"center"}}>Analyse avancée — essais et indicateurs gelés (hors note)</summary>
+            <div style={{display:"flex",flexDirection:"column",gap:10,marginTop:8}}>
           {/* NLP */}
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>NLP — {META.tickers} tickers ({META.years} ans)</div>
@@ -4081,6 +4115,8 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
 
           {/* Signaux techniques en essai (calibrage du 03/10/2026) */}
           <SignauxTechniques r={r}/>
+            </div>
+          </details>
 
           {/* Scénarios */}
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
@@ -4118,7 +4154,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               <RedFlags alertes={r.alertes}/>
             </div>
             {pdsAff&&<WBar f={pdsAff.f} n={pdsAff.n} t={pdsAff.t}/>}
-            <NoteFond nf={r.note_fond_metier}/>
+            <Repli titre="Analyse avancée — note par métier (en comparaison, non publiée)"><NoteFond nf={r.note_fond_metier}/></Repli>
             <div style={{marginTop:10}}>
               {/* ⚠️ En simulation la note est une moyenne pondérée PURE :
                   computeDisplayScore n'applique ni bonus ni malus. Écrire
@@ -4243,7 +4279,7 @@ const Guide=({setTab})=>{
       </div>
       <L titre="Note /10">Moyenne de deux piliers sur 10 : <T>fondamental</T> (rentabilité, croissance, valorisation, bilan — ≈ 2/3) et <T>technique</T> (tendance, RSI — ≈ 1/3, 0 sur un titre peu liquide). Sentiment WhatsApp gelé, poids nul. <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des poids</a></L>
       <L titre="Couleur de la note">La note est colorée selon son palier, sans mot d'action : <T c="#00e5a0">● vert</T> dès 6,5 · <T c="#b5e655">● vert-jaune</T> dès 5,5 · <T c="#ffd740">● jaune</T> dès 4,5 · <T c="#ff8f00">● orange</T> dès 3,5 · <T c="#ff4f5a">● rouge</T> dessous. La couleur situe la note ; elle ne dit pas quoi faire. Titre trop peu échangé : une note dès 6,5 reste en vert-jaune, avec la mention « titre peu échangé ». <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, note grise. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
-      <L titre="Confiance ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>
+      <L titre="Fiabilité des données ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>
       <L titre="« X % gagnants (IC) · n cas » — fiche, Signaux techniques">Sur n cas passés à la BVC où le même signal est apparu, X % ont battu le MASI 60 séances après ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fréquence passée, pas une promesse.</L>
       <L titre="« non vérifié » · ⚠ jj/mm"><T c="#ff8f00">non vérifié</T> : source non recoupée, prudence. <T c="#ffd740">⚠ 05/08</T> près d'un cours : il date de ce jour-là, pas de la dernière séance.</L>
     </div>

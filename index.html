@@ -4039,6 +4039,61 @@ const explRatio = (cle, r, price) => {
   if (cle === "cap") return r.cap == null ? null : `Capitalisation = cours × nombre d'actions.\nSource : ${src(m.cap_source)}.`;
   return null;
 };
+const reservePrincipale = r => {
+  const m = meta(r),
+    nf = r.note_fond || {};
+  const c = nf.composantes || {};
+  if (m.susp) return "cotation suspendue";
+  if (m.stale) return `cours non coté depuis le ${m.asof ? jjmm(m.asof) : "?"}`;
+  if (m.comptes_absents) return "aucuns comptes publiés récents";
+  const susp = Object.values(c).find(x => x.note == null && /suspendu|contest/i.test(x.motif || ""));
+  if (susp) return "grandeur financière contestée, écartée de la note";
+  const rq = (r.risque || {}).var95;
+  if (rq && rq.valeur == null && rq.motif) return /reprise/.test(rq.motif) ? "risque non mesurable depuis la reprise de cotation (historique trop court)" : "risque non mesurable (historique trop court)";
+  if (nf.couverture != null && nf.couverture < 0.75) return `note sur ${Math.round(nf.couverture * 100)} % du poids seulement`;
+  const MANQUE = {
+    qualite: "rentabilité non mesurée",
+    croissance: "croissance non mesurée",
+    valorisation: "valorisation non mesurée (pas de PER)",
+    bilan: "dette non mesurée"
+  };
+  const fin = Object.values(c).find(x => x.note == null && /financière/.test(x.motif || ""));
+  if (fin) return "analyse bancaire partielle : coût du risque, qualité des créances et solvabilité non intégrés";
+  const manque = Object.entries(c).find(([, x]) => x.note == null);
+  if (manque) return MANQUE[manque[0]] || `${manque[0]} non mesurée`;
+  return null;
+};
+const ResumeNote = ({
+  r
+}) => {
+  const nf = r.note_fond;
+  const m = meta(r);
+  const dh = m.echange_median_dh;
+  const res = reservePrincipale(r);
+  const cv = nf && nf.couverture != null ? Math.round(nf.couverture * 100) : null;
+  const ccol = cv == null ? "#8892a4" : cv >= 90 ? "#00e5a0" : cv >= 75 ? "#ffd740" : "#ff8f00";
+  return React.createElement("div", {
+    className: "resume-note",
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      lineHeight: 1.6,
+      margin: "2px 0 4px"
+    }
+  }, cv != null && React.createElement("div", null, "Couverture : ", React.createElement("b", {
+    style: {
+      color: ccol
+    }
+  }, cv, " %"), " du poids de la grille"), res && React.createElement("div", null, "R\xE9serve principale : ", React.createElement("span", {
+    style: {
+      color: "#ff8f00"
+    }
+  }, res)), dh != null && React.createElement("div", null, "Liquidit\xE9 : ", montantEntier(dh), " \xE9chang\xE9s par s\xE9ance (m\xE9diane 20 j)", dh < 100000 && React.createElement("span", {
+    style: {
+      color: "#ff8f00"
+    }
+  }, " \u2014 faible")));
+};
 const NOMS_COMPOSANTES = {
   qualite: "Qualité (rentabilité)",
   croissance: "Croissance",
@@ -4052,7 +4107,7 @@ const DetailConfiance = ({
   const g = m.garanties;
   if (!Array.isArray(g)) return null;
   return React.createElement(Repli, {
-    titre: `Que garantit la confiance ${m.conf}/5 ?`
+    titre: `Fiabilité des données ${m.conf}/5 : que garantit-elle ?`
   }, g.map(x => React.createElement("div", {
     key: x.critere,
     style: {
@@ -4069,12 +4124,12 @@ const DetailConfiance = ({
       color: "#ff8f00",
       marginTop: 6
     }
-  }, "Confiance plafonn\xE9e en dessous du nombre de garanties remplies (soci\xE9t\xE9 sans comptes, identit\xE9 \xE0 v\xE9rifier, note incalculable ou titre peu liquide)."), React.createElement("div", {
+  }, "Fiabilit\xE9 plafonn\xE9e en dessous du nombre de garanties remplies (soci\xE9t\xE9 sans comptes, identit\xE9 \xE0 v\xE9rifier, note incalculable ou titre peu liquide)."), React.createElement("div", {
     style: {
       color: "#8892a4",
       marginTop: 6
     }
-  }, "La confiance dit si les donn\xE9es sont s\xFBres, pas si le titre va monter."));
+  }, "Ce score contr\xF4le les DONN\xC9ES (cours, comptes, historique, liquidit\xE9). Il ne dit rien du titre ni de son risque : 5/5 ne veut pas dire \xAB s\xFBr \xBB."));
 };
 const PourquoiNote = ({
   r
@@ -4139,7 +4194,7 @@ const Confiance = ({
   } = meta(r);
   const col = conf <= 1 ? "#ff4f5a" : conf <= 2 ? "#ff8f00" : conf <= 3 ? "#ffd740" : "#00e5a0";
   return React.createElement("span", {
-    title: `Confiance ${conf}/5 — prix du jour, fondamentaux réels, historique suffisant, comptes déposés à l\u2019AMMC, liquidité ≥ 100 000 DH/séance`,
+    title: `Fiabilité des données ${conf}/5 — prix du jour, fondamentaux réels, historique suffisant, comptes déposés à l\u2019AMMC, liquidité ≥ 100 000 DH/séance`,
     style: {
       fontSize: sz,
       letterSpacing: 1,
@@ -10567,7 +10622,9 @@ const Detail = ({
       color: "#8892a4",
       marginBottom: 4
     }
-  }, heureCours(r)), !simu && React.createElement(PourquoiNote, {
+  }, heureCours(r)), React.createElement(ResumeNote, {
+    r: r
+  }), !simu && React.createElement(PourquoiNote, {
     r: r
   }), React.createElement(DetailConfiance, {
     r: r
@@ -11259,7 +11316,31 @@ const Detail = ({
     }
   }, r.adx > 40 ? "tendance forte" : r.adx > 25 ? "tendance" : r.adx > 20 ? "émergente" : "range", r.adx_pdi > r.adx_mdi ? " ▲" : " ▼")))), React.createElement(RSIGauge, {
     value: rsiVal
-  }))), React.createElement("div", {
+  }))), React.createElement("details", {
+    className: "avance carte",
+    style: {
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      padding: "8px 12px"
+    }
+  }, React.createElement("summary", {
+    style: {
+      cursor: "pointer",
+      fontSize: 12,
+      color: "#4db8ff",
+      minHeight: 28,
+      display: "flex",
+      alignItems: "center"
+    }
+  }, "Analyse avanc\xE9e \u2014 essais et indicateurs gel\xE9s (hors note)"), React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10,
+      marginTop: 8
+    }
+  }, React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
@@ -11361,7 +11442,7 @@ const Detail = ({
     }
   }, "\u25CF"), " IDBourse / M\xE9dias24")), React.createElement(SignauxTechniques, {
     r: r
-  }), React.createElement("div", {
+  }))), React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
@@ -11495,9 +11576,11 @@ const Detail = ({
     f: pdsAff.f,
     n: pdsAff.n,
     t: pdsAff.t
-  }), React.createElement(NoteFond, {
+  }), React.createElement(Repli, {
+    titre: "Analyse avanc\xE9e \u2014 note par m\xE9tier (en comparaison, non publi\xE9e)"
+  }, React.createElement(NoteFond, {
     nf: r.note_fond_metier
-  }), React.createElement("div", {
+  })), React.createElement("div", {
     style: {
       marginTop: 10
     }
@@ -11803,7 +11886,7 @@ const Guide = ({
   }, "Donn\xE9es insuffisantes"), " : confiance 0 ou 1, note grise. ", React.createElement(T, {
     c: "#ff6b6b"
   }, "SUSPENDU"), " : le titre ne cote pas."), React.createElement(L, {
-    titre: "Confiance \u25CF\u25CF\u25CF\u25CB\u25CB"
+    titre: "Fiabilit\xE9 des donn\xE9es \u25CF\u25CF\u25CF\u25CB\u25CB"
   }, "Un point par garantie : prix de la derni\xE8re s\xE9ance \xB7 fondamentaux r\xE9els \xB7 historique \u2265 15 s\xE9ances \xE9chang\xE9es \xB7 comptes d\xE9pos\xE9s \xE0 l'AMMC \xB7 liquidit\xE9 \u2265 100 000 DH par s\xE9ance. Titre peu liquide : 2/5 au plus."), React.createElement(L, {
     titre: "\xAB X % gagnants (IC) \xB7 n cas \xBB \u2014 fiche, Signaux techniques"
   }, "Sur n cas pass\xE9s \xE0 la BVC o\xF9 le m\xEAme signal est apparu, X % ont battu le MASI 60 s\xE9ances apr\xE8s ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fr\xE9quence pass\xE9e, pas une promesse."), React.createElement(L, {
