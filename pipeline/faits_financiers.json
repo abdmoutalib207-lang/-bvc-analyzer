@@ -1193,6 +1193,28 @@
     "note": "« Capitaux propres au 31/12/2024 733 956 - 1 155 708 1 266 978 509 248 3 665 891 » ; ⚠️ TABLEAU DE VARIATIONS « (En milliers de Dirhams) » : la part du groupe n'a pas de colonne propre, elle se lit comme le total moins les minoritaires, 3 665 891 − 509 248 = 3 156 643, comme le fait 2025 ; la somme des colonnes du groupe, 733 956 + 1 155 708 + 1 266 978 = 3 156 642 (1 KMAD d'arrondi). Rang conventionnel, au-delà des montants cités.",
     "releve_le": "2026-10-13",
     "mode_de_lecture": "somme de lignes lues (ou total − minoritaires) dans la colonne 31/12/2024 — même construction que le fait 2025"
+   },
+   "provisions_durables_risques_charges": {
+    "valeur": 1975.331,
+    "valeur_au_rapport": 1975331,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 121,
+    "composantes": [
+     {
+      "page": 121,
+      "citation": "Provisions durables pour risques et charges 1.975.331 1.877.076",
+      "valeur_au_rapport": 1975331
+     },
+     {
+      "page": 128,
+      "citation": "Provisions pour grosses réparations 1 621 276 1 497 687",
+      "valeur_au_rapport": 1621276
+     }
+    ],
+    "note": "« Provisions durables pour risques et charges 1.975.331 » au passif du bilan consolidé (p.121) ; note 11 (p.128) : avantages sociaux 174 400 + risques 179 655 + grosses réparations 1 621 276 = 1 975 331, « comprend essentiellement les provisions pour grosses réparations ». Ces provisions sont NETTES dans le capital investi du ROIC (capitaux propres + dette nette) ; elles servent de variante, jamais d'entrée du calcul publié.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-15"
    }
   },
   "_recoupement_arithmetique": "capital 733 956 000 ÷ VN 10 = 73 395 600 actions. Et 1 588 764 KMAD ÷ 21,65 = 73 384 018, le nombre moyen pondéré retenu pour le résultat par action. Les deux concordent.",
@@ -1222,6 +1244,11 @@
     "rapport": 63487,
     "terminal": 63120,
     "ecart": "0,6 % ✓"
+   },
+   "roic": {
+    "rapport": 47.6,
+    "terminal": 17.0,
+    "ecart": "ROIC CALCULÉ sur comptes 2025 (47,6 %) contre ROIC SAISI sans pièce (17). Écart consigné, jamais corrigé pour coïncider ; la saisie n'est reproduite par aucune base du bilan (19,6 % sur le total de l'actif). Relevé le 15/10/2026."
    }
   },
   "_collision_identite": "⚠️ bpa.json[\"MSA\"] porte la note « Mutandis SCA — RN courant 140 MDH +10% FY2025 ». MSA est Sodep-Marsa Maroc ; MUT est Mutandis SCA. Le BPA de 13,64 est celui de Mutandis, pas de Marsa Maroc dont le rapport publie 21,65. L'anti-pattern est écrit noir sur blanc dans le CLAUDE.md — « MSA = Marsa Maroc, MUT = Mutandis SCA. Ne jamais les confondre » — et il s'est produit quand même. ⚠️ bpa.json[\"MUT\"] est VIDE : la donnée de Mutandis n'a pas été dupliquée, elle a été DÉPLACÉE.",
@@ -1258,8 +1285,21 @@
      "controle": "CP part du groupe = valeur existante (tolérance 0,01 % pour une valeur existante arrondie)",
      "ok": true,
      "detail": "4048.149 vs 4048.148"
+    },
+    {
+     "controle": "capital investi du ROIC (CP + dette nette) = actif immobilisé + BFR − provisions durables (identité du bilan p.121 ; BFR = stocks 131,225 + clients 652,844 + autres créances 636,062 − fournisseurs 499,573 − autres dettes 891,271 = 29,287)",
+     "ok": true,
+     "detail": "3846.621 vs 3846.619 (CP 4599.247 + dette nette -752.629) ; 2 KMAD d'arrondi"
     }
-   ]
+   ],
+   "reserves_verifiees": {
+    "roic_definition": "ROIC = REX × (1 − t) ÷ (capitaux propres de l'ensemble consolidé + dette nette), la définition UNIQUE du fichier : 2562,327 × (1 − 28,57 %) ÷ 3 846,619 = 47,6 %. Vérifié le 15/10/2026 contre le rapport (p.121-123, 128-129, 133).",
+    "pas_d_ifric_12": "HYPOTHÈSE ÉCARTÉE : les comptes consolidés suivent « la méthodologie adoptée par le Conseil National de la Comptabilité … avis n°5 » (p.125, normes marocaines), pas les IFRS. IFRIC 12 ne s'applique pas : les immobilisations incorporelles (1 002,978) et corporelles (4 016,916) sont DANS l'actif immobilisé donc dans le capital investi ; aucune dette de location IFRS 16 (tableau des biens en crédit-bail du social vide, p.145 ; dette = emprunt obligataire 350 + project finance 1 017,295, note 12 p.129).",
+    "biens_de_la_concession_hors_bilan": "Les commissaires aux comptes écrivent (p.133, « Autres points ») : « les biens du domaine public mis dans la concession par le concédant ne sont pas inclus dans les comptes du Groupe … L'intégration de ces biens aurait donné une meilleure traduction comptable des clauses de la concession sans toutefois impacter le résultat et la situation financière ». Aucune valeur n'en est donnée dans le rapport : le capital investi du ROIC est celui APPORTÉ par le groupe, pas celui de l'ensemble des actifs exploités. Limite non chiffrable sur pièce. La redevance de concession versée à l'ANP figure en charges : 127 567 KMAD en 2025 (comptes sociaux, p.165) — montant contractuel, pas un loyer de marché (contre-vérification du 15/10).",
+    "provisions_en_variante": "Capital investi 3 846,619 net 1 975,331 de provisions durables (dont 1 621,276 de grosses réparations des biens de retour, p.128 ; l'audit cite 1 576,250 p.133, écart non expliqué). Variantes, mêmes numérateur et taux : + grosses réparations (5 467,895) → ROIC 33,5 % ; + toutes les provisions durables (5 821,950) → 31,4 % ; sur le total de l'actif brut (9 332,718, qui n'est pas un capital investi) → 19,6 %. Toutes les variantes de capital investi restent ≥ 25 %, soit la tranche « écart ROIC − WACC ≥ 15 points » de la grille : le choix ne déplace pas la note qualité. Il faudrait un capital investi > 7 321 pour en sortir.",
+    "saisie_17_non_reconstituable": "Le ROIC saisi (17) n'a pas de pièce (« Casabourse.ma ; communication financière ») et aucune base du bilan ne le reproduit : même sur le total de l'actif (9 332,718) le ratio vaut 19,6 %. Conservé dans fondamentaux.json (champ `roic`), non lu par la note.",
+    "investissement_en_cours": "2025 : acquisitions d'immobilisations 1 824,544 (contre 485,652) ; immobilisations en cours 1 115,364 (dont WMCT 467,234, p.126) et 426,839 d'avances Nador West Med dans les autres créances (p.127) : un capital déjà engagé qui ne produit pas encore de résultat, donc un ROIC 2025 qui sera dilué quand ces actifs entreront en service."
+   }
   }
  },
  "ADH": {
@@ -7686,11 +7726,21 @@
     "note": "« Total Des Capitaux Propres-[A] 1.244.927.997 450.391.407 » ; Comptes consolidés, Bilan Passif, colonnes « EXERCICE | EXERCICE PRÉCÉDENT » ; les « Intérêts Minoritaires-[B] » (4.899.582 en 2024) sont une ligne à part, comme en 2025. ⚠️ Fonds propres ×2,76 en 2025 — cause sur pièce : augmentation de capital de l'introduction en bourse du 15/07/2025 (719 979 984 MAD), tableau de variation p.58, qui boucle exactement à 1 244 927 997 ; une moyenne 2024/2025 mêle donc deux bases de capital très différentes.",
     "releve_le": "2026-10-13",
     "mode_de_lecture": "colonne lue"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 264.0,
+    "valeur_au_rapport": 264,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 21,
+    "note": "« 264 millions de Dhs Ebitda 24% du chiffre d'affaires » (page « Chiffres clés », p.21 du fichier = pages imprimées 40-41, rendue et lue sur image) ; EBITDA consolidé 2025 PUBLIÉ par la société, en millions arrondis, définition non donnée. Même valeur 264 au graphique p.15 (« EBITDA 2025 264 → 2030 440 »). Recoupements : 264 ÷ CA consolidé 1 083,655 (p.58) = 24,4 % (« 24 % ») ; p.19 « notre EBITDA augmente de 50% » : 264 ÷ (REX 2024 162,133 + dotation d'exploitation 2024 12,591 = 174,724) = +51 %. Non reconstructible au millier : REX 225,676 + dotation d'exploitation 43,606 (qui mêle amortissements et provisions) = 269,3 ; REX + « élim. des amortissements et provisions » 22,386 (p.58) = 248,1 ; 264 est entre les deux. Les dotations aux amortissements restent donc NON isolées (fait `dotations_amortissements_exploitation` absent). ⚠️ L'EBE de la p.43 (−27,3 MMAD) est celui de Vicenne SA, société mère SOCIALE : écarté.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-15"
    }
   },
   "_controles_ratios_2025": {
    "base": "consolidé (normes marocaines), 31/12/2025",
-   "releve_le": "2026-09-30",
+   "releve_le": "2026-10-15",
    "controles": [
     {
      "controle": "total actif = total passif",
@@ -7706,11 +7756,28 @@
      "controle": "RAI − impôt − DEA écarts d'acquisition 10,089121 = RN consolidé",
      "ok": true,
      "detail": "144.20197 vs resultat_net_consolide 144.20197"
+    },
+    {
+     "controle": "EBITDA publié 264 ÷ CA consolidé 1 083,655 = « 24 % du chiffre d'affaires » (p.21)",
+     "ok": true,
+     "detail": "264 / 1083.655282 = 24.36 %"
     }
    ],
-   "non_calcules": {
-    "dette_nette": "doute sur la trésorerie : 523,7 MMAD de titres de placement (produit de l'IPO) que le tableau des flux classe en investissement. Sans eux, dette nette +155,0 ; avec eux, trésorerie nette de 368,7 — et la société écrit elle-même 311 (p.19, p.21) et 315 (p.15). Trois chiffres, aucune définition : on ne publie pas.",
-    "ebitda": "« Dotation D'exploitation 43.606.418 » (p.58) n'isole pas les amortissements ; l'EBITDA publié ne figure que sur des graphiques dont les valeurs ne sont pas attribuables avec certitude (p.15, p.21)."
+   "non_calcules": {},
+   "reserves": [
+    "Dette nette retenue par la convention du 02/10/2026 (titres de placement comptés dans la trésorerie, sauf exclusion sur pièce — aucune ici : p.54 « estimés à la date de clôture au cours de la valeur », aucun nantissement relevé) : dettes de financement 48,390 + trésorerie-passif 172,861 − disponibilités 66,279 − titres de placement 523,689 = −368,7 MMAD, soit une TRÉSORERIE NETTE. Dette nette stricte (disponibilités seules) : +155,0. Le produit de l'IPO (augmentation de capital 719,980, p.58) explique les placements.",
+    "La société écrit « trésorerie nette de 311 » (p.19) / « Endettement Net 311 » (p.21) et « 315 » (p.13, p.15) : définition non donnée, écart de 57,7 avec le bilan non expliqué sur pièce ; consigné dans `_ecarts_mesures`. Le fait `endettement_net` N'EST PAS écrit : il ferait contester la dette nette (écart > 2 %) sur une définition que la société ne publie pas. À trancher en revue.",
+    "Les « capitaux propres 1 006 MMAD » des pages chiffres clés (p.13, p.21) ne sont pas ceux du bilan (1 244,928 part du groupe, p.57) : le bilan prime, la différence n'est pas expliquée par le dépôt.",
+    "ROIC calculé sur capitaux employés de CLÔTURE (convention de pipeline/ratios_financiers.py : capitaux propres consolidés + dette nette au 31/12/2025). Avec l'augmentation de capital de l'IPO (15/07/2025), le produit est placé en actif circulant : fonds propres et trésorerie nette montent ensemble, donc le capital employé de clôture (880,9) n'est pas gonflé par la trésorerie. Il n'existe pas de moyenne dans la convention ; capital employé au 31/12/2024 (fonds propres 455,291 + dette nette 252,0) = 707,3.",
+    "Comptes en normes marocaines : pas de retraitement IFRS 16 ; les redevances de crédit-bail (3,4 MMAD au social, p.43) ne sont pas capitalisées."
+   ]
+  },
+  "_ecarts_mesures": {
+   "_quand": "2026-10-15, Rapport Financier Annuel 2025 de Vicenne",
+   "dette_nette": {
+    "rapport": -311.0,
+    "terminal": -368.7,
+    "ecart": "57,7 MMAD (18,5 %) non expliqué sur pièce : la société écrit une trésorerie nette de 311 (p.19, p.21) et 315 (p.13, p.15) sans définition ; le bilan donne 48,390 + 172,861 − 66,279 − 523,689 = −368,7 (dette nette stricte +155,0). Publié : celle du bilan."
    }
   }
  },

@@ -59,11 +59,20 @@ def reload():
 # ⚠️ Pas de backtest possible : les ratios calculés n'existent que depuis le
 # 29/09/2026. Le remplacement rend la note plus honnête, il ne prouve pas
 # qu'elle prédit mieux.
-RATIOS_EN_VERIFICATION = {
-    # Un titre ici garde ses valeurs saisies, avec le motif, jusqu'au recoupement.
-    "MSA": "ROIC calculé de 47,6 % contre 17 saisi — capital investi d'un "
-           "concessionnaire portuaire à recouper avant bascule (01/10/2026)",
-}
+# ⚠️ MSA SORT DE LA LISTE LE 15/10/2026. Motif d'entrée (01/10) : « ROIC calculé
+# de 47,6 % contre 17 saisi — capital investi d'un concessionnaire portuaire à
+# recouper ». Recoupé sur le rapport 2025 (faits_financiers.json › MSA ›
+# `_controles_ratios_2025.reserves_verifiees`) : comptes en NORMES MAROCAINES
+# (CNC avis n°5, p.125), pas d'IFRIC 12 ni d'IFRS 16 ; les immobilisations de
+# Marsa Maroc sont dans le capital investi, les biens du domaine public de la
+# concession n'y sont pas (CAC p.133, non chiffrés) ; 47,6 % = identité du
+# bilan (actif immobilisé + BFR − provisions durables = CP + dette nette), et
+# les variantes qui réintègrent les provisions (31,4 à 33,5 %) restent dans la
+# même tranche de la grille (écart ≥ 15 points). La saisie 17 n'a pas de pièce
+# et aucune base du bilan ne la reproduit (19,6 % sur le total de l'actif).
+# Le mécanisme reste : un titre inscrit ici garde l'écart consigné et n'est
+# plus lu jusqu'au recoupement.
+RATIOS_EN_VERIFICATION: dict[str, str] = {}
 
 
 def _publie(f: dict, sym: str, cle: str):
@@ -208,6 +217,17 @@ WACC_REF = 10.0
 # Désormais une composante non mesurée est RETIRÉE et les poids des autres
 # sont remis à l'échelle ; sous COUVERTURE_MIN du poids total, pas de note
 # (« Données insuffisantes »). Les seuils de chaque grille sont inchangés.
+# Réserves VALIDÉES par la contre-vérification (verificateur-finance, 15/10/2026),
+# attachées à la composante qu'elles nuancent et affichées sur la fiche.
+RESERVES_RATIOS = {
+    "MSA": {"qualite": "ROIC sur le capital apporté par le groupe : l'infrastructure portuaire "
+                       "appartient au concédant et n'est pas au bilan (CAC, RFA 2025 p.133). Non "
+                       "comparable au ROIC d'un propriétaire d'actifs ; à lire avec la marge "
+                       "d'exploitation (44,3 %, p.122)."},
+    "VCNE": {"bilan": "Trésorerie nette dont 523,7 MMAD de placements (produit de l'introduction "
+                      "en bourse, nature non publiée) ; EBITDA tel que publié, sans définition "
+                      "(RFA 2025 p.20-21, p.57)."},
+}
 POIDS_FOND = {"qualite": 0.40, "croissance": 0.30, "valorisation": 0.20, "bilan": 0.10}
 COUVERTURE_MIN = 0.5
 
@@ -316,6 +336,9 @@ def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | N
             _cc = _c["valeur"] if _c and _c.get("origine") == "comptes publiés" else None
             oui("bilan", _grille_bilan(_dne, _cc), _mesure)
 
+    for nom, txt in RESERVES_RATIOS.get(sym, {}).items():
+        if nom in comp and comp[nom]["note"] is not None:
+            comp[nom]["reserve"] = txt
     couv = round(sum(c["poids"] for c in comp.values() if c["note"] is not None), 4)
     note = None
     if couv >= COUVERTURE_MIN:
