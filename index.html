@@ -3695,7 +3695,9 @@ const PALIERS = [{
   plage: "sous 3,5"
 }];
 const palierDe = v => v == null || !isFinite(v) ? null : PALIERS.findIndex(p => v >= p.min);
+const couvPartielle = r => !!r && r.sig === "Couverture partielle";
 const couleurNote = r => {
+  if (couvPartielle(r)) return null;
   const i = palierDe(r && r.v53);
   if (i == null) return null;
   const plafonne = !!r.verdict_plafonne && i === 0,
@@ -3722,6 +3724,7 @@ const palierTexte = r => {
   if (m.susp) return "suspendu";
   if (m.reprise_recente) return "reprise de cotation";
   if (m.conf <= 1) return "données insuffisantes";
+  if (couvPartielle(r)) return "couverture partielle (note indicative)";
   const p = couleurNote(r);
   if (!p) return "";
   return p.plafonne ? `${p.nom} (plafonné : titre peu échangé)` : `${p.nom} (${p.plage})`;
@@ -4057,7 +4060,7 @@ const reservePrincipale = r => {
     valorisation: "valorisation non mesurée (pas de PER)",
     bilan: "dette non mesurée"
   };
-  const fin = Object.values(c).find(x => x.note == null && /financière/.test(x.motif || ""));
+  const fin = Object.values(c).find(x => x.note == null && /financière|équivalent bancaire/.test(x.motif || ""));
   if (fin) return "analyse bancaire partielle : coût du risque, qualité des créances et solvabilité non intégrés";
   const manque = Object.entries(c).find(([, x]) => x.note == null);
   if (manque) return MANQUE[manque[0]] || `${manque[0]} non mesurée`;
@@ -4072,6 +4075,14 @@ const ResumeNote = ({
   const res = reservePrincipale(r);
   const cv = nf && nf.couverture != null ? Math.round(nf.couverture * 100) : null;
   const ccol = cv == null ? "#8892a4" : cv >= 90 ? "#00e5a0" : cv >= 75 ? "#ffd740" : "#ff8f00";
+  const ca = nf && nf.couverture_applicable != null ? Math.round(nf.couverture_applicable * 100) : null;
+  const al = (r.alertes || {}).liste || [];
+  const NIV = {
+    "critique": "#ff4f5a",
+    "élevé": "#ff8f00",
+    "moyen": "#ffd740"
+  };
+  const dfr = d => d ? d.split("-").reverse().join("/") : "date inconnue";
   return React.createElement("div", {
     className: "resume-note",
     style: {
@@ -4080,11 +4091,15 @@ const ResumeNote = ({
       lineHeight: 1.6,
       margin: "2px 0 4px"
     }
-  }, cv != null && React.createElement("div", null, "Couverture : ", React.createElement("b", {
+  }, couvPartielle(r) && React.createElement("div", {
+    style: {
+      color: "#ffd740"
+    }
+  }, "Note indicative : couverture applicable ", ca, " %, sous le seuil de prudence provisoire de 75 %. Aucun verdict global."), cv != null && React.createElement("div", null, "Couverture : ", React.createElement("b", {
     style: {
       color: ccol
     }
-  }, cv, " %"), " du poids de la grille"), res && React.createElement("div", null, "R\xE9serve principale : ", React.createElement("span", {
+  }, cv, " %"), " du poids de la grille", ca != null && ca !== cv ? ` (${ca} % hors critère sans objet pour ce métier)` : ""), res && React.createElement("div", null, "R\xE9serve principale : ", React.createElement("span", {
     style: {
       color: "#ff8f00"
     }
@@ -4092,7 +4107,14 @@ const ResumeNote = ({
     style: {
       color: "#ff8f00"
     }
-  }, " \u2014 faible")));
+  }, " \u2014 faible")), al.map((x, i) => React.createElement("div", {
+    key: i,
+    className: "alerte-verifiee"
+  }, React.createElement("span", {
+    style: {
+      color: NIV[x.niveau] || "#ff8f00"
+    }
+  }, "\u26A0 ", x.raison, " : ", x.valeur), " ", React.createElement("span", null, "(", x.seuil, ") \u2014 comptes au ", dfr(x.date), ", ", x.source))));
 };
 const NOMS_COMPOSANTES = {
   qualite: "Qualité (rentabilité)",
@@ -4254,6 +4276,14 @@ const PastilleNote = ({
   sz = 11
 }) => {
   const p = couleurNote(r);
+  if (couvPartielle(r)) return React.createElement("span", {
+    title: `Note ${fmt(r.v53)}, indicative : couverture des données sous le seuil de prudence (75 % du poids applicable). Aucun verdict de palier.`,
+    style: {
+      fontSize: sz,
+      color: "#ffd740",
+      whiteSpace: "nowrap"
+    }
+  }, "\u25D0 couverture partielle");
   if (!p) return React.createElement("span", {
     style: {
       fontSize: sz,
@@ -10666,6 +10696,12 @@ const Detail = ({
     bg: "rgba(136,146,164,.12)",
     fg: "#8892a4",
     bd: "#2a3550",
+    sz: 12
+  }) : couvPartielle(r) ? React.createElement(Chip, {
+    label: "Couverture partielle \u2014 verdict global limit\xE9",
+    bg: "rgba(255,215,64,.10)",
+    fg: "#ffd740",
+    bd: "#ffd74040",
     sz: 12
   }) : React.createElement(PastilleNote, {
     r: r,

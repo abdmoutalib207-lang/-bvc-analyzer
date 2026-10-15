@@ -294,7 +294,11 @@ def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | N
 
     # BILAN — dette nette / EBITDA sur comptes publiés, ou trésorerie nette
     if est_financiere(f):
-        non("bilan", "sans objet pour une financière (coût du risque non intégré)")
+        # ⚠️ MANQUANT, pas « sans objet » (15/10/2026) : la dette/EBITDA n'a pas
+        # de sens pour une financière, mais son ÉQUIVALENT (coût du risque,
+        # qualité des créances, solvabilité) en a un — et il n'est pas intégré.
+        non("bilan", "équivalent bancaire non intégré (coût du risque, qualité des créances, "
+                     "solvabilité) — la dette/EBITDA ne s'applique pas à une financière")
     elif sym in CONTESTES:
         non("bilan", "dette nette suspendue — " + CONTESTES[sym])
     else:
