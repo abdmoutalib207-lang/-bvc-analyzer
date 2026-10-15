@@ -186,9 +186,23 @@ def test_volume_nul_exclu_des_rendements(petit):
     r = mesurer_risque(bougies(cal, closes, vols), cal)
     assert r["rendements"]["exclus_volume_nul"] == 1
     assert r["rendements"]["exclus_saut"] == 0
-    # même résultat que la série sans la bougie : 105 → 99,75 sur deux séances
-    assert r["volatilite"]["valeur"] == 75.69
+    # 105 → 99,75 couvre DEUX séances : compté, et écarté depuis le 14/10/2026
+    # (une mesure « à 1 jour » ne mélange pas les horizons). Restent 3
+    # rendements d'une séance, sous le minimum de 4 : pas de volatilité.
     assert r["rendements"]["sur_plusieurs_seances"] == 1
+    assert r["rendements"]["n"] == 3
+    assert r["volatilite"]["valeur"] is None
+
+
+def test_un_rendement_sur_plusieurs_seances_n_entre_pas_dans_la_var(petit):
+    cal = jours_ouvres("2025-03-03", 7)
+    closes = [100, 101, 102, 50, 96, 97, 98]              # 50 : recopie, volume nul
+    vols = [1000, 1000, 1000, 0, 1000, 1000, 1000]
+    r = mesurer_risque(bougies(cal, closes, vols), cal)
+    assert r["rendements"]["sur_plusieurs_seances"] == 1   # 102 → 96 sur deux séances
+    vals = [0.01, 102 / 101 - 1, 97 / 96 - 1, 98 / 97 - 1]
+    assert r["rendements"]["n"] == 4
+    assert r["volatilite"]["valeur"] == round(100 * stdev(vals) * math.sqrt(250), 2)
 
 
 def test_saut_de_plus_de_dix_pour_cent_exclu_et_compte(petit):

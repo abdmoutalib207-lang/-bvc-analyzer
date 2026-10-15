@@ -230,8 +230,14 @@ def mesurer_risque(bougies: list, calendrier: list, masi: dict | None = None, *,
         if abs(r) > SEUIL_SAUT + _TOLERANCE:
             sauts.append({"du": da, "au": db, "variation": round(100 * r, 2)})
             continue
+        # ⚠️ 14/10/2026 (diagnostic externe) : une « VaR à 1 jour » ne mélange
+        # pas des rendements qui couvrent plusieurs séances (titre non échangé
+        # entre deux). Mesuré : 10 titres sur 65 au-delà de 10 % de tels
+        # rendements, MGL 3,98 % publié contre 3,25 % sur une séance. On les
+        # compte, on les écarte de la VaR et de la volatilité.
         if rang[db] - rang[da] > 1:
             multi += 1
+            continue
         rendements.append((da, db, r))
 
     n = len(rendements)
@@ -242,12 +248,15 @@ def mesurer_risque(bougies: list, calendrier: list, masi: dict | None = None, *,
         "exclus_volume_nul": len(volume_nul),
         "exclus_saut": len(sauts),
         "sauts": sauts,
-        "sur_plusieurs_seances": multi,
+        "sur_plusieurs_seances": multi,            # écartés (voir plus haut)
         "seances_fenetre": len(dates_an),
     }
 
     if n < MIN_RENDEMENTS:
-        code, texte = _motif_court(n, MIN_RENDEMENTS, cause_an, "rendements")
+        code, texte = _motif_court(n, MIN_RENDEMENTS, cause_an, "rendements d'une séance")
+        if multi:
+            texte += (f" ; {multi} rendement(s) couvrant plusieurs séances (titre non "
+                      "échangé entre deux) écarté(s) d'une mesure à 1 jour")
         motif_global = {"code": code, "texte": texte}
         volatilite = _mesure_nulle(texte, n=n)
         var95 = _mesure_nulle(texte, n=n, cvar=None)
