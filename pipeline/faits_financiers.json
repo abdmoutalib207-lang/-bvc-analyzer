@@ -7686,11 +7686,21 @@
     "note": "« Total Des Capitaux Propres-[A] 1.244.927.997 450.391.407 » ; Comptes consolidés, Bilan Passif, colonnes « EXERCICE | EXERCICE PRÉCÉDENT » ; les « Intérêts Minoritaires-[B] » (4.899.582 en 2024) sont une ligne à part, comme en 2025. ⚠️ Fonds propres ×2,76 en 2025 — cause sur pièce : augmentation de capital de l'introduction en bourse du 15/07/2025 (719 979 984 MAD), tableau de variation p.58, qui boucle exactement à 1 244 927 997 ; une moyenne 2024/2025 mêle donc deux bases de capital très différentes.",
     "releve_le": "2026-10-13",
     "mode_de_lecture": "colonne lue"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 264.0,
+    "valeur_au_rapport": 264,
+    "unite_au_rapport": "MMAD",
+    "colonne_exercice_clos": 1,
+    "page": 21,
+    "note": "« 264 millions de Dhs Ebitda 24% du chiffre d'affaires » (page « Chiffres clés », p.21 du fichier = pages imprimées 40-41, rendue et lue sur image) ; EBITDA consolidé 2025 PUBLIÉ par la société, en millions arrondis, définition non donnée. Même valeur 264 au graphique p.15 (« EBITDA 2025 264 → 2030 440 »). Recoupements : 264 ÷ CA consolidé 1 083,655 (p.58) = 24,4 % (« 24 % ») ; p.19 « notre EBITDA augmente de 50% » : 264 ÷ (REX 2024 162,133 + dotation d'exploitation 2024 12,591 = 174,724) = +51 %. Non reconstructible au millier : REX 225,676 + dotation d'exploitation 43,606 (qui mêle amortissements et provisions) = 269,3 ; REX + « élim. des amortissements et provisions » 22,386 (p.58) = 248,1 ; 264 est entre les deux. Les dotations aux amortissements restent donc NON isolées (fait `dotations_amortissements_exploitation` absent). ⚠️ L'EBE de la p.43 (−27,3 MMAD) est celui de Vicenne SA, société mère SOCIALE : écarté.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-15"
    }
   },
   "_controles_ratios_2025": {
    "base": "consolidé (normes marocaines), 31/12/2025",
-   "releve_le": "2026-09-30",
+   "releve_le": "2026-10-15",
    "controles": [
     {
      "controle": "total actif = total passif",
@@ -7706,11 +7716,28 @@
      "controle": "RAI − impôt − DEA écarts d'acquisition 10,089121 = RN consolidé",
      "ok": true,
      "detail": "144.20197 vs resultat_net_consolide 144.20197"
+    },
+    {
+     "controle": "EBITDA publié 264 ÷ CA consolidé 1 083,655 = « 24 % du chiffre d'affaires » (p.21)",
+     "ok": true,
+     "detail": "264 / 1083.655282 = 24.36 %"
     }
    ],
-   "non_calcules": {
-    "dette_nette": "doute sur la trésorerie : 523,7 MMAD de titres de placement (produit de l'IPO) que le tableau des flux classe en investissement. Sans eux, dette nette +155,0 ; avec eux, trésorerie nette de 368,7 — et la société écrit elle-même 311 (p.19, p.21) et 315 (p.15). Trois chiffres, aucune définition : on ne publie pas.",
-    "ebitda": "« Dotation D'exploitation 43.606.418 » (p.58) n'isole pas les amortissements ; l'EBITDA publié ne figure que sur des graphiques dont les valeurs ne sont pas attribuables avec certitude (p.15, p.21)."
+   "non_calcules": {},
+   "reserves": [
+    "Dette nette retenue par la convention du 02/10/2026 (titres de placement comptés dans la trésorerie, sauf exclusion sur pièce — aucune ici : p.54 « estimés à la date de clôture au cours de la valeur », aucun nantissement relevé) : dettes de financement 48,390 + trésorerie-passif 172,861 − disponibilités 66,279 − titres de placement 523,689 = −368,7 MMAD, soit une TRÉSORERIE NETTE. Dette nette stricte (disponibilités seules) : +155,0. Le produit de l'IPO (augmentation de capital 719,980, p.58) explique les placements.",
+    "La société écrit « trésorerie nette de 311 » (p.19) / « Endettement Net 311 » (p.21) et « 315 » (p.13, p.15) : définition non donnée, écart de 57,7 avec le bilan non expliqué sur pièce ; consigné dans `_ecarts_mesures`. Le fait `endettement_net` N'EST PAS écrit : il ferait contester la dette nette (écart > 2 %) sur une définition que la société ne publie pas. À trancher en revue.",
+    "Les « capitaux propres 1 006 MMAD » des pages chiffres clés (p.13, p.21) ne sont pas ceux du bilan (1 244,928 part du groupe, p.57) : le bilan prime, la différence n'est pas expliquée par le dépôt.",
+    "ROIC calculé sur capitaux employés de CLÔTURE (convention de pipeline/ratios_financiers.py : capitaux propres consolidés + dette nette au 31/12/2025). Avec l'augmentation de capital de l'IPO (15/07/2025), le produit est placé en actif circulant : fonds propres et trésorerie nette montent ensemble, donc le capital employé de clôture (880,9) n'est pas gonflé par la trésorerie. Il n'existe pas de moyenne dans la convention ; capital employé au 31/12/2024 (fonds propres 455,291 + dette nette 252,0) = 707,3.",
+    "Comptes en normes marocaines : pas de retraitement IFRS 16 ; les redevances de crédit-bail (3,4 MMAD au social, p.43) ne sont pas capitalisées."
+   ]
+  },
+  "_ecarts_mesures": {
+   "_quand": "2026-10-15, Rapport Financier Annuel 2025 de Vicenne",
+   "dette_nette": {
+    "rapport": -311.0,
+    "terminal": -368.7,
+    "ecart": "57,7 MMAD (18,5 %) non expliqué sur pièce : la société écrit une trésorerie nette de 311 (p.19, p.21) et 315 (p.13, p.15) sans définition ; le bilan donne 48,390 + 172,861 − 66,279 − 523,689 = −368,7 (dette nette stricte +155,0). Publié : celle du bilan."
    }
   }
  },

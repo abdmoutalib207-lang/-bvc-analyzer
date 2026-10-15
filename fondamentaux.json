@@ -4027,6 +4027,55 @@
           "comptes": "https://www.ammc.ma/sites/default/files/Vicenne_RFS_S1_26.pdf"
         }
       },
+      "dette_nette": {
+        "valeur": -368.7,
+        "date": "2025-12-31",
+        "formule": "221.251197 − (66.278942 + 523.688778 de titres de placement) (MMAD)",
+        "sources": {
+          "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf, p. 57",
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf, p. 57",
+          "titres_de_placement": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf, p. 57"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "MMAD",
+        "dette_nette_stricte": 155.0
+      },
+      "ebitda": {
+        "valeur": 264.0,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 264.0 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf, p. 21"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": -1.4,
+        "date": "2025-12-31",
+        "formule": "-368.717 ÷ 264.0",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025"
+      },
+      "roic": {
+        "valeur": 18.3,
+        "date": "2025-12-31",
+        "formule": "225.676182 × (1 − t) ÷ (1249.588273 + -368.717) ; t = 62.151027 ÷ 216.442118 = 28.7 %",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf, p. 58",
+          "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf, p. 58",
+          "resultat_avant_impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf, p. 58",
+          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf, p. 57",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "%",
+        "taux_impot_effectif": 28.7
+      },
       "cash_conversion": {
         "valeur": 41.2,
         "date": "2025-12-31",
@@ -4037,12 +4086,6 @@
         },
         "base": "consolidé (normes marocaines), 31/12/2025",
         "unite": "%"
-      },
-      "non_calcules_2025": {
-        "dette_nette": "doute sur la trésorerie : 523,7 MMAD de titres de placement (produit de l'IPO) que le tableau des flux classe en investissement. Sans eux, dette nette +155,0 ; avec eux, trésorerie nette de 368,7 — et la société écrit elle-même 311 (p.19, p.21) et 315 (p.15). Trois chiffres, aucune définition : on ne publie pas.",
-        "ebitda": "« Dotation D'exploitation 43.606.418 » (p.58) n'isole pas les amortissements ; l'EBITDA publié ne figure que sur des graphiques dont les valeurs ne sont pas attribuables avec certitude (p.15, p.21).",
-        "dette_nette_ebitda": "dette nette ou EBITDA non calculé",
-        "roic": "un terme manque (résultat d'exploitation, résultat avant impôt, impôt, capitaux propres consolidés ou dette nette)"
       },
       "calcule_le": "2026-09-30"
     }
