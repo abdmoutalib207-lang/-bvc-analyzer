@@ -14,6 +14,7 @@ et les corrections qui se marchent dessus.
 | `quant-backtest` | la mesure de performance | la modification du scoring (R8) |
 | `lecteur-comptes` | le chiffre lu dans un dépôt AMMC, avec sa page | la note qui en découle (R8), la fusion |
 | `verificateur-finance` | le verdict sur un chiffre ou un ratio : relevé, calcul, définition adaptée au métier | la correction elle-même, la note |
+| `chercheur-pieces` | quelle pièce source établit un chiffre (URL, page, période, unité, périmètre, citation) ; la question IR à poser, sans l'envoyer | la règle de calcul, l'intégration dans `faits_financiers.json`, la note |
 
 ## Les deux séquences qui structurent le travail
 
