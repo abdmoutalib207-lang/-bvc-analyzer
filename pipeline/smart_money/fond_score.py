@@ -250,7 +250,17 @@ WACC_REF = 10.0
 # Réserves VALIDÉES par la contre-vérification (verificateur-finance, 15/10/2026),
 # attachées à la composante qu'elles nuancent et affichées sur la fiche.
 RESERVES_RATIOS = {
-    "TMA": {"bilan": "Trésorerie nette au 31/12/2025 ; dette nette +326,3 MMAD au 30/06/2026 (comptes S1, p.4) ; "
+    # ⚠️ TMA, 16/10/2026 — mesuré à blanc, NON appliqué : la note lit le bilan de
+    # l'exercice (31/12/2025). Sur le bilan le plus récent (Total_Maroc_S1_26.pdf
+    # p.4 : dettes financières 473,879 + 841,200 − trésorerie 988,736 = +326,3),
+    # dette nette/EBITDA 0,19 (EBITDA de l'exercice) à 0,22 (12 mois glissants) :
+    # grille 8,5 au lieu de 9,0, note fondamentale 7,0 → 6,95, palier ACHETER ★★
+    # → SURVEILLER ★ dans les deux variantes. La règle de choix de période
+    # (dernier bilan publié pour tous, EBITDA 12 mois glissants) reste à décider.
+    "TMA": {"bilan": "Trésorerie nette au 31/12/2025 (bilan de l'exercice, lu par la note) ; dette nette +326,3 MMAD "
+                     "au 30/06/2026 (comptes S1, p.4 : dettes financières 473,9 + 841,2 − trésorerie 988,7). Sur ce "
+                     "bilan plus récent, la note fondamentale serait 6,95 au lieu de 7,0 (dette nette/EBITDA 0,2 : "
+                     "grille 8,5 au lieu de 9,0) et le palier SURVEILLER ★ au lieu d'ACHETER ★★. "
                      "27,5 MMAD de passif non courant non ventilé (avis d'AGO p.6)."},
     "BAL": {"bilan": "Trésorerie nette reposant sur 6,9 MMAD de placements : sans eux, pas de note de bilan "
                      "(note 5,28 au lieu de 5,65)."},
