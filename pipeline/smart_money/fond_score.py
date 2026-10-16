@@ -139,6 +139,36 @@ def roe_effectif(f: dict | None, sym: str) -> dict | None:
 # unique le consulte, si bien que note, alertes et écran lisent la même
 # chose. Vide par défaut : un appelant qui ne le charge pas garde l'ancien
 # comportement.
+#
+# ⚠️ RÈGLE UNIQUE DE L'ÉCART DE DETTE NETTE — 16/10/2026 (relecture externe :
+# ADI contesté pour 4,5 % d'écart, VCNE libre malgré 18,5 %, parce que le
+# chiffre de Vicenne n'était rangé que dans `_ecarts_mesures`).
+#   1. RANGEMENT : le chiffre que la SOCIÉTÉ annonce (endettement net, dette
+#      nette ou trésorerie nette, même date, même base) est rangé pour TOUS au
+#      même endroit — `faits_financiers.json › <titre> › faits › endettement_net`,
+#      signé (négatif = trésorerie nette), avec sa page. Jamais seulement dans
+#      `_ecarts_mesures` (garde-fou : tests/test_regle_ecart_dette.py).
+#   2. CONCORDANCE : écart à la dette nette recalculée au bilan ≤
+#      SEUIL_ECART_DETTE (en valeur relative du chiffre de la société) : rien
+#      à expliquer.
+#   3. AU-DELÀ, l'écart n'est accepté QUE s'il est EXPLIQUÉ SUR PIÈCE
+#      (`endettement_net.rapprochement`) : la définition de la société citée
+#      (page, citation), et chaque élément de passage nommé par un poste de
+#      EXPLICATIONS_ECART_DETTE_ADMISES, chiffré, avec page et citation ; le
+#      module recalcule la somme, et l'écart RÉSIDUEL doit rester ≤ au même
+#      seuil. Sinon : CONTESTÉ, et ROIC, dette nette/EBITDA, dette nette sont
+#      suspendus. Aucune exception par titre, aucun seuil propre à un titre.
+SEUIL_ECART_DETTE = 0.02
+EXPLICATIONS_ECART_DETTE_ADMISES: dict[str, str] = {
+    "ifrs16_location": "dettes locatives IFRS 16 ou crédit-bail, comptés d'un côté et pas de l'autre",
+    "derives_couverture": "instruments dérivés de couverture (MtM), hors dette nette du fichier",
+    "comptes_courants_associes": "comptes courants d'associés, hors dette nette du fichier",
+    "mise_en_equivalence": "titres ou prêts des sociétés mises en équivalence",
+    "depots_tresorerie_bloquee": "dépôts, cautionnements, trésorerie bloquée",
+    "titres_de_placement": "titres de placement comptés ou non en trésorerie",
+    "dettes_de_financement": "dettes de financement exclues par la définition de la société "
+                             "(sa « trésorerie nette » ne retient que les soldes bancaires et placements)",
+}
 CONTESTES: dict[str, str] = {}
 # Ratios qui consomment la dette nette (ROIC : capital investi = fonds
 # propres + dette nette).
@@ -220,7 +250,17 @@ WACC_REF = 10.0
 # Réserves VALIDÉES par la contre-vérification (verificateur-finance, 15/10/2026),
 # attachées à la composante qu'elles nuancent et affichées sur la fiche.
 RESERVES_RATIOS = {
-    "TMA": {"bilan": "Trésorerie nette au 31/12/2025 ; dette nette +326,3 MMAD au 30/06/2026 (comptes S1, p.4) ; "
+    # ⚠️ TMA, 16/10/2026 — mesuré à blanc, NON appliqué : la note lit le bilan de
+    # l'exercice (31/12/2025). Sur le bilan le plus récent (Total_Maroc_S1_26.pdf
+    # p.4 : dettes financières 473,879 + 841,200 − trésorerie 988,736 = +326,3),
+    # dette nette/EBITDA 0,19 (EBITDA de l'exercice) à 0,22 (12 mois glissants) :
+    # grille 8,5 au lieu de 9,0, note fondamentale 7,0 → 6,95, palier ACHETER ★★
+    # → SURVEILLER ★ dans les deux variantes. La règle de choix de période
+    # (dernier bilan publié pour tous, EBITDA 12 mois glissants) reste à décider.
+    "TMA": {"bilan": "Trésorerie nette au 31/12/2025 (bilan de l'exercice, lu par la note) ; dette nette +326,3 MMAD "
+                     "au 30/06/2026 (comptes S1, p.4 : dettes financières 473,9 + 841,2 − trésorerie 988,7). Sur ce "
+                     "bilan plus récent, la note fondamentale serait 6,95 au lieu de 7,0 (dette nette/EBITDA 0,2 : "
+                     "grille 8,5 au lieu de 9,0) et le palier SURVEILLER ★ au lieu d'ACHETER ★★. "
                      "27,5 MMAD de passif non courant non ventilé (avis d'AGO p.6)."},
     "BAL": {"bilan": "Trésorerie nette reposant sur 6,9 MMAD de placements : sans eux, pas de note de bilan "
                      "(note 5,28 au lieu de 5,65)."},
@@ -230,9 +270,10 @@ RESERVES_RATIOS = {
                        "appartient au concédant et n'est pas au bilan (CAC, RFA 2025 p.133). Non "
                        "comparable au ROIC d'un propriétaire d'actifs ; à lire avec la marge "
                        "d'exploitation (44,3 %, p.122)."},
-    "VCNE": {"bilan": "Trésorerie nette dont 523,7 MMAD de placements (produit de l'introduction "
-                      "en bourse, nature non publiée) ; EBITDA tel que publié, sans définition "
-                      "(RFA 2025 p.20-21, p.57)."},
+    "VCNE": {"bilan": "Trésorerie nette annoncée 311 (p.19) / 315 (p.13) contre 368,7 au bilan, "
+                      "écart non expliqué sur pièce : grandeur contestée. Dont 523,7 MMAD de "
+                      "placements (produit de l'introduction en bourse, nature non publiée) ; "
+                      "EBITDA tel que publié, sans définition (RFA 2025 p.20-21, p.57)."},
 }
 POIDS_FOND = {"qualite": 0.40, "croissance": 0.30, "valorisation": 0.20, "bilan": 0.10}
 COUVERTURE_MIN = 0.5

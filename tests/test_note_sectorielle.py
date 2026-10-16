@@ -821,9 +821,12 @@ def _faits_avec_rapprochement(endettement=12674.0, elements=None, base=10933.2, 
     faits = _faits(2000.0, 2000.0, endettement_net=endettement)
     faits["faits"]["endettement_net"]["rapprochement"] = {
         "etabli": etabli, "dette_nette_base": base,
+        "definition_de_la_societe": {"page": 68, "citation": "(*) Endettement en intégrant le MtM ..."},
         "elements": elements if elements is not None else [
-            {"libelle": "dérivés", "valeur": 1707.9, "page": 86, "citation": "Dont Instruments dérivés 1 707,9"},
-            {"libelle": "CCA", "valeur": 33.0, "page": 68, "citation": "CCA 554 33"}]}
+            {"poste": "derives_couverture", "libelle": "dérivés", "valeur": 1707.9, "page": 86,
+             "citation": "Dont Instruments dérivés 1 707,9"},
+            {"poste": "comptes_courants_associes", "libelle": "CCA", "valeur": 33.0, "page": 68,
+             "citation": "CCA 554 33"}]}
     return faits
 
 
@@ -838,9 +841,10 @@ def test_un_rapprochement_etabli_sur_piece_leve_la_contestation():
 @pytest.mark.parametrize("kw", [
     {"etabli": False},                                               # drapeau faux
     {"base": 10000.0},                                               # la dette nette a changé : périmé
-    {"elements": [{"valeur": 1000.0, "page": 86, "citation": "x"}]},  # somme 11 933 : ne boucle pas
-    {"elements": [{"valeur": 1740.9, "citation": "x"}]},             # sans page
-    {"elements": [{"valeur": 1740.9, "page": 86}]},                  # sans citation
+    {"elements": [{"poste": "derives_couverture", "valeur": 1000.0, "page": 86, "citation": "x"}]},  # ne boucle pas
+    {"elements": [{"poste": "derives_couverture", "valeur": 1740.9, "citation": "x"}]},  # sans page
+    {"elements": [{"poste": "derives_couverture", "valeur": 1740.9, "page": 86}]},       # sans citation
+    {"elements": [{"valeur": 1740.9, "page": 86, "citation": "x"}]},  # poste non nommé (règle du 16/10)
     {"elements": []},
 ])
 def test_un_rapprochement_incomplet_ou_qui_ne_boucle_pas_ne_leve_rien(kw):
