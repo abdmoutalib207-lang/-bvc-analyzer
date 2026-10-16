@@ -139,6 +139,36 @@ def roe_effectif(f: dict | None, sym: str) -> dict | None:
 # unique le consulte, si bien que note, alertes et écran lisent la même
 # chose. Vide par défaut : un appelant qui ne le charge pas garde l'ancien
 # comportement.
+#
+# ⚠️ RÈGLE UNIQUE DE L'ÉCART DE DETTE NETTE — 16/10/2026 (relecture externe :
+# ADI contesté pour 4,5 % d'écart, VCNE libre malgré 18,5 %, parce que le
+# chiffre de Vicenne n'était rangé que dans `_ecarts_mesures`).
+#   1. RANGEMENT : le chiffre que la SOCIÉTÉ annonce (endettement net, dette
+#      nette ou trésorerie nette, même date, même base) est rangé pour TOUS au
+#      même endroit — `faits_financiers.json › <titre> › faits › endettement_net`,
+#      signé (négatif = trésorerie nette), avec sa page. Jamais seulement dans
+#      `_ecarts_mesures` (garde-fou : tests/test_regle_ecart_dette.py).
+#   2. CONCORDANCE : écart à la dette nette recalculée au bilan ≤
+#      SEUIL_ECART_DETTE (en valeur relative du chiffre de la société) : rien
+#      à expliquer.
+#   3. AU-DELÀ, l'écart n'est accepté QUE s'il est EXPLIQUÉ SUR PIÈCE
+#      (`endettement_net.rapprochement`) : la définition de la société citée
+#      (page, citation), et chaque élément de passage nommé par un poste de
+#      EXPLICATIONS_ECART_DETTE_ADMISES, chiffré, avec page et citation ; le
+#      module recalcule la somme, et l'écart RÉSIDUEL doit rester ≤ au même
+#      seuil. Sinon : CONTESTÉ, et ROIC, dette nette/EBITDA, dette nette sont
+#      suspendus. Aucune exception par titre, aucun seuil propre à un titre.
+SEUIL_ECART_DETTE = 0.02
+EXPLICATIONS_ECART_DETTE_ADMISES: dict[str, str] = {
+    "ifrs16_location": "dettes locatives IFRS 16 ou crédit-bail, comptés d'un côté et pas de l'autre",
+    "derives_couverture": "instruments dérivés de couverture (MtM), hors dette nette du fichier",
+    "comptes_courants_associes": "comptes courants d'associés, hors dette nette du fichier",
+    "mise_en_equivalence": "titres ou prêts des sociétés mises en équivalence",
+    "depots_tresorerie_bloquee": "dépôts, cautionnements, trésorerie bloquée",
+    "titres_de_placement": "titres de placement comptés ou non en trésorerie",
+    "dettes_de_financement": "dettes de financement exclues par la définition de la société "
+                             "(sa « trésorerie nette » ne retient que les soldes bancaires et placements)",
+}
 CONTESTES: dict[str, str] = {}
 # Ratios qui consomment la dette nette (ROIC : capital investi = fonds
 # propres + dette nette).

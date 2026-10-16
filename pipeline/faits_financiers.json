@@ -746,13 +746,15 @@
        "libelle": "dérivés de couverture nets (passif − actif) : passif 1 707,9, actif 0,0 au 31/12/2025 (p.86)",
        "valeur": 1707.9,
        "page": 86,
-       "citation": "Dont Instruments dérivés de couverture 26 1 707,9 560,7"
+       "citation": "Dont Instruments dérivés de couverture 26 1 707,9 560,7",
+       "poste": "derives_couverture"
       },
       {
        "libelle": "comptes courants d'associés envers les sociétés non intégrées (clôture 2025)",
        "valeur": 33.0,
        "page": 68,
-       "citation": "CCA 554 33 (figure « Répartition de l'endettement du Groupe », colonnes Clôture 2024 | Clôture 2025)"
+       "citation": "CCA 554 33 (figure « Répartition de l'endettement du Groupe », colonnes Clôture 2024 | Clôture 2025)",
+       "poste": "comptes_courants_associes"
       }
      ],
      "somme": 12674.1,
@@ -7220,6 +7222,15 @@
     "note": "« Capitaux propres - part du Groupe 13 17 126 14 908 20 478 » ; en-tête « PASSIF (en millions MAD) Note 31-déc.-23 31-déc.-24 31-déc.-25 » : ordre CHRONOLOGIQUE, 2024 en SECONDE colonne ; le 13 est un renvoi de note. ⚠️ Fonds propres ×1.37 entre 2024 et 2025 : opération sur capital, distribution ou résultat à établir par la revue — NON établi ici ; une moyenne 2024/2025 en dépend.",
     "releve_le": "2026-10-13",
     "mode_de_lecture": "colonne lue"
+   },
+   "endettement_net": {
+    "valeur": 17610.0,
+    "page": 9,
+    "citation": "Dette Nette 22 436 17 610 21,5% 20,2%",
+    "unite_au_rapport": "MMAD",
+    "base": "consolidé IFRS, 31/12/2025",
+    "note": "Colonnes 2024 | 2025. Définition de la société : renvoi (7) p.14, hors IFRS 16 et « y compris le cash bloqué ». Concorde avec notre 17 637 (0,15 %). Rangé ici le 16/10/2026 (règle unique de l'écart de dette nette (fond_score.py, registre CONTESTES, 16/10/2026)).",
+    "releve_le": "2026-10-16"
    }
   },
   "_controles_ratios_2025": {
@@ -7454,6 +7465,15 @@
     "note": "« TOTAL DES CAPITAUX PROPRES (A) 3.670.153.999,90 3.409.746.949,01 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
     "releve_le": "2026-10-13",
     "mode_de_lecture": "colonne lue"
+   },
+   "endettement_net": {
+    "valeur": 4605.0,
+    "page": 52,
+    "citation": "ENDETTEMENT NET 3.973 4.605",
+    "unite_au_rapport": "MMAD",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "note": "Colonnes 2024 | 2025. Concorde avec notre 4 605,6. Rangé ici le 16/10/2026 (règle unique de l'écart de dette nette (fond_score.py, registre CONTESTES, 16/10/2026)).",
+    "releve_le": "2026-10-16"
    }
   },
   "_controles_ratios_2025": {
@@ -7927,6 +7947,34 @@
     "note": "« 264 millions de Dhs Ebitda 24% du chiffre d'affaires » (page « Chiffres clés », p.21 du fichier = pages imprimées 40-41, rendue et lue sur image) ; EBITDA consolidé 2025 PUBLIÉ par la société, en millions arrondis, définition non donnée. Même valeur 264 au graphique p.15 (« EBITDA 2025 264 → 2030 440 »). Recoupements : 264 ÷ CA consolidé 1 083,655 (p.58) = 24,4 % (« 24 % ») ; p.19 « notre EBITDA augmente de 50% » : 264 ÷ (REX 2024 162,133 + dotation d'exploitation 2024 12,591 = 174,724) = +51 %. Non reconstructible au millier : REX 225,676 + dotation d'exploitation 43,606 (qui mêle amortissements et provisions) = 269,3 ; REX + « élim. des amortissements et provisions » 22,386 (p.58) = 248,1 ; 264 est entre les deux. Les dotations aux amortissements restent donc NON isolées (fait `dotations_amortissements_exploitation` absent). ⚠️ L'EBE de la p.43 (−27,3 MMAD) est celui de Vicenne SA, société mère SOCIALE : écarté.",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-10-15"
+   },
+   "endettement_net": {
+    "valeur": -311.0,
+    "page": 19,
+    "citation": "au 31 décembre 2025, Vicenne affiche une trésorerie nette de 311 millions de dirhams",
+    "autres_pages": {
+     "21": "« 311 » sous « Endettement Net fin 2025 » (chiffres clés : le libellé dit endettement, le texte de la p.19 dit trésorerie nette)",
+     "13": "« Trésorerie nette à fin 2025 » « 315 Mmad »",
+     "15": "« Trésorerie nette de » « 315MDH »"
+    },
+    "unite_au_rapport": "MMAD",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "note": "Négatif = trésorerie nette. La société donne 311 (p.19, p.21) et 315 (p.13, p.15), sans définition. Rangé ici le 16/10/2026 par la règle unique de l'écart de dette nette (fond_score.py, registre CONTESTES, 16/10/2026) : il n'était que dans _ecarts_mesures, ce qui laissait VCNE noté sur une dette nette contredite à 18,5 % quand ADI était contesté à 4,5 %.",
+    "releve_le": "2026-10-16",
+    "rapprochement": {
+     "etabli": false,
+     "dette_nette_base": -368.7,
+     "dette_nette_base_formule": "dettes de financement 48,390 + trésorerie-passif 172,861 − disponibilités 66,279 − titres de placement 523,689 (p.57)",
+     "ecart": 57.7,
+     "ecart_relatif": "18,55 %",
+     "constats": [
+      "Aucune définition de la « trésorerie nette » ni de l'« endettement net » dans le rapport (p.13, p.15, p.19, p.21).",
+      "Deux chiffres pour la même date : 311 (p.19, p.21) et 315 (p.13, p.15) ; ni l'un ni l'autre ne se recolle au bilan.",
+      "Dette nette stricte (disponibilités seules, placements exclus) : +155,0 ; aucune combinaison relevée des lignes du bilan (dettes de financement, trésorerie-passif, disponibilités, placements) ne redonne 311 ou 315."
+     ],
+     "cause": "NON ÉTABLIE — écart consigné, grandeur laissée CONTESTÉE (le module suspend ROIC, dette nette/EBITDA, VE/EBITDA et dette nette/fonds propres).",
+     "releve_le": "2026-10-16"
+    }
    }
   },
   "_controles_ratios_2025": {
@@ -7957,7 +8005,7 @@
    "non_calcules": {},
    "reserves": [
     "Dette nette retenue par la convention du 02/10/2026 (titres de placement comptés dans la trésorerie, sauf exclusion sur pièce — aucune ici : p.54 « estimés à la date de clôture au cours de la valeur », aucun nantissement relevé) : dettes de financement 48,390 + trésorerie-passif 172,861 − disponibilités 66,279 − titres de placement 523,689 = −368,7 MMAD, soit une TRÉSORERIE NETTE. Dette nette stricte (disponibilités seules) : +155,0. Le produit de l'IPO (augmentation de capital 719,980, p.58) explique les placements.",
-    "La société écrit « trésorerie nette de 311 » (p.19) / « Endettement Net 311 » (p.21) et « 315 » (p.13, p.15) : définition non donnée, écart de 57,7 avec le bilan non expliqué sur pièce ; consigné dans `_ecarts_mesures`. Le fait `endettement_net` N'EST PAS écrit : il ferait contester la dette nette (écart > 2 %) sur une définition que la société ne publie pas. À trancher en revue.",
+    "La société écrit « trésorerie nette de 311 » (p.19) / « Endettement Net 311 » (p.21) et « 315 » (p.13, p.15) : définition non donnée, écart de 57,7 avec le bilan non expliqué sur pièce ; consigné dans `_ecarts_mesures`. Tranché le 16/10/2026 (règle unique de l'écart de dette nette) : le fait `endettement_net` est écrit (−311, p.19) ; l'écart n'étant pas expliqué sur pièce, la dette nette est CONTESTÉE comme celle d'ADI.",
     "Les « capitaux propres 1 006 MMAD » des pages chiffres clés (p.13, p.21) ne sont pas ceux du bilan (1 244,928 part du groupe, p.57) : le bilan prime, la différence n'est pas expliquée par le dépôt.",
     "ROIC calculé sur capitaux employés de CLÔTURE (convention de pipeline/ratios_financiers.py : capitaux propres consolidés + dette nette au 31/12/2025). Avec l'augmentation de capital de l'IPO (15/07/2025), le produit est placé en actif circulant : fonds propres et trésorerie nette montent ensemble, donc le capital employé de clôture (880,9) n'est pas gonflé par la trésorerie. Il n'existe pas de moyenne dans la convention ; capital employé au 31/12/2024 (fonds propres 455,291 + dette nette 252,0) = 707,3.",
     "Comptes en normes marocaines : pas de retraitement IFRS 16 ; les redevances de crédit-bail (3,4 MMAD au social, p.43) ne sont pas capitalisées."
@@ -8138,6 +8186,37 @@
     "note": "« Total des capitaux propres (A) 1 660 223 158,08 1 394 721 764,07 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
     "releve_le": "2026-10-13",
     "mode_de_lecture": "colonne lue"
+   },
+   "endettement_net": {
+    "valeur": -539.8,
+    "page": 41,
+    "citation": "Endettement financier (*) -539.8 -311.8 -228.0",
+    "unite_au_rapport": "MDH",
+    "base": "SOCIAL (normes marocaines), 31/12/2025",
+    "note": "« endettement financier » de la société, colonnes 2025 | 2024 | variation. Rangé ici le 16/10/2026 (règle unique de l'écart de dette nette (fond_score.py, registre CONTESTES, 16/10/2026)).",
+    "releve_le": "2026-10-16",
+    "rapprochement": {
+     "etabli": true,
+     "dette_nette_base": 23.9,
+     "dette_nette_base_formule": "dettes de financement 34,684 + trésorerie-passif 0,196 − trésorerie-actif 10,957 (p.43)",
+     "definition_de_la_societe": {
+      "page": 41,
+      "citation": "(*) Endettement externe + trésorerie passif - trésorerie actif +/- comptes courants d’associés"
+     },
+     "elements": [
+      {
+       "poste": "comptes_courants_associes",
+       "libelle": "compte courant d'associés à l'actif (sur le groupe Managem), retranché par la société",
+       "valeur": -563.678127,
+       "page": 43,
+       "citation": "Comptes d’associés 563 678 126,74 563 678 126,74 352 053 126,74"
+      }
+     ],
+     "somme": -539.778,
+     "ecart_residuel": 0.022,
+     "cause": "PÉRIMÈTRE : la société retranche son compte courant d'associés (563,7 MMAD) ; notre définition l'exclut. 23,9 − 563,678 = −539,778 contre −539,8 (arrondi).",
+     "releve_le": "2026-10-16"
+    }
    }
   },
   "_controles_ratios_2025": {
@@ -12938,6 +13017,37 @@
     "note": "« Total des capitaux propres (A) 359 119 876,03 335 546 322,65 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
     "releve_le": "2026-10-13",
     "mode_de_lecture": "colonne lue"
+   },
+   "endettement_net": {
+    "valeur": -132.5,
+    "page": 51,
+    "citation": "Trésorerie nette 132,5 115,7",
+    "unite_au_rapport": "MDH (l'en-tête du tableau dit « KDH », coquille : 2,169 + 130,340 = 132,509 MMAD)",
+    "base": "SOCIAL (normes marocaines), 31/12/2025",
+    "note": "Négatif = trésorerie nette. Colonnes 2025 | 2024. Rangé ici le 16/10/2026 (règle unique de l'écart de dette nette (fond_score.py, registre CONTESTES, 16/10/2026)).",
+    "releve_le": "2026-10-16",
+    "rapprochement": {
+     "etabli": true,
+     "dette_nette_base": -119.4,
+     "dette_nette_base_formule": "dettes de financement 13,153 + trésorerie-passif 4,345 − trésorerie-actif 6,514 − titres de placement 130,340 (p.11-12)",
+     "definition_de_la_societe": {
+      "page": 51,
+      "citation": "Elle est composée des soldes bancaires et de placements FCP obligataires."
+     },
+     "elements": [
+      {
+       "poste": "dettes_de_financement",
+       "libelle": "dettes de financement, hors de la trésorerie nette de la société (soldes bancaires et placements seulement)",
+       "valeur": -13.152628,
+       "page": 12,
+       "citation": "Dettes de financement (C) 13 152 627,57 7 500 924,41"
+      }
+     ],
+     "somme": -132.553,
+     "ecart_residuel": 0.053,
+     "cause": "DÉFINITION : la « trésorerie nette » de la société = soldes bancaires (6,514 − 4,345) + placements 130,340 = 132,509 ; elle ne retranche pas les dettes de financement (13,153), que notre dette nette compte.",
+     "releve_le": "2026-10-16"
+    }
    }
   },
   "pages_document": 55,

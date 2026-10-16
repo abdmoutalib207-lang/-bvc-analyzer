@@ -119,6 +119,11 @@ LES RÈGLES (chacune a son test)
    ADI (écart 58,5, recherche exhaustive vaine) et MUT (écart 161,2) restent
    contestés : on ne choisit pas une grandeur « cohérente » sans la pièce qui
    la fonde. Le ROE ne remplace jamais un ROIC contesté.
+   RÈGLE UNIQUE (16/10/2026) : le chiffre de la société est rangé pour tous
+   dans `endettement_net` (VCNE ne l'était pas : libre à 18,5 % d'écart quand
+   ADI était contesté à 4,5 %) ; un écart > seuil n'est accepté que par des
+   postes de la liste admise, chiffrés sur pièce, avec la définition de la
+   société citée. Seuil et liste : registre de fond_score.py.
 10. REMPLACEMENT D'UNE VALORISATION SUSPENDUE : règle PAR FAMILLE, jamais au cas
    par cas (`REMPLACEMENT_PAR_PER`). Le PER relatif remplace la valorisation
    suspendue d'une famille seulement si (a) le PER est déclaré pertinent pour
@@ -153,8 +158,8 @@ sys.path.insert(0, str(RACINE))
 
 from bvc_config import famille_note  # noqa: E402
 from pipeline.smart_money.fond_score import (  # noqa: E402
-    COUT_FONDS_PROPRES_REF, RATIOS_EN_VERIFICATION, ROE_SANS_OBJET, WACC_REF,
-    ratio_effectif, roe_effectif,
+    COUT_FONDS_PROPRES_REF, EXPLICATIONS_ECART_DETTE_ADMISES, RATIOS_EN_VERIFICATION,
+    ROE_SANS_OBJET, SEUIL_ECART_DETTE, WACC_REF, ratio_effectif, roe_effectif,
 )
 
 # Poids en points entiers : 0,3 + 0,2 ne vaut pas exactement 0,5, et le seuil
@@ -162,7 +167,9 @@ from pipeline.smart_money.fond_score import (  # noqa: E402
 POIDS = {"rentabilite": 40, "croissance": 30, "valorisation": 20, "bilan": 10}
 SEUIL_POIDS = 50          # moins de la moitié du poids disponible : pas de note
 MIN_PAIRS = 3             # médiane de référence : au moins 3 pairs (titre noté exclu)
-ECART_DETTE_MAX = 0.02    # dette nette recoupée avec l'endettement net : 2 %
+# Dette nette recoupée avec l'endettement net de la société : LE seuil unique,
+# défini avec la liste des explications admises dans le registre de fond_score.py.
+ECART_DETTE_MAX = SEUIL_ECART_DETTE
 
 FINANCIERES = ("banque", "assurance", "financement", "paiement")
 
@@ -292,16 +299,22 @@ def _dette_nette_contestee(dn: dict | None, faits: dict) -> str | None:
 
 
 def _rapprochement_etabli(dette: float, en: float, faits: dict) -> bool:
-    """L'écart est-il EXPLIQUÉ sur pièce ? (13/10/2026)
+    """L'écart est-il EXPLIQUÉ sur pièce ? (13/10/2026, règle unique du 16/10)
 
-    Oui seulement si `endettement_net.rapprochement` porte des éléments chiffrés,
-    chacun avec sa page et sa citation, dont la somme AJOUTÉE à la dette nette
-    retenue redonne l'endettement publié à ECART_DETTE_MAX près. La somme est
-    RECALCULÉE ici : le drapeau `etabli` du fichier ne suffit pas, et une dette
-    nette qui changerait invalide le rapprochement (`dette_nette_base`)."""
+    Oui seulement si `endettement_net.rapprochement` porte (a) la définition de
+    la société citée (`definition_de_la_societe` : page et citation) et (b) des
+    éléments chiffrés, chacun nommé par un `poste` de
+    EXPLICATIONS_ECART_DETTE_ADMISES, avec sa page et sa citation, dont la somme
+    AJOUTÉE à la dette nette retenue redonne l'endettement publié à
+    ECART_DETTE_MAX près. La somme est RECALCULÉE ici : le drapeau `etabli` du
+    fichier ne suffit pas, et une dette nette qui changerait invalide le
+    rapprochement (`dette_nette_base`)."""
     fait = ((faits or {}).get("faits") or {}).get("endettement_net")
     rap = fait.get("rapprochement") if isinstance(fait, dict) else None
     if not isinstance(rap, dict) or rap.get("etabli") is not True:
+        return False
+    defi = rap.get("definition_de_la_societe")
+    if not isinstance(defi, dict) or not isinstance(defi.get("page"), int) or not defi.get("citation"):
         return False
     base = _num(rap.get("dette_nette_base"))
     elements = rap.get("elements")
@@ -311,6 +324,8 @@ def _rapprochement_etabli(dette: float, en: float, faits: dict) -> bool:
     for el in elements:
         v = _num(el.get("valeur")) if isinstance(el, dict) else None
         if v is None or not isinstance(el.get("page"), int) or not el.get("citation"):
+            return False
+        if el.get("poste") not in EXPLICATIONS_ECART_DETTE_ADMISES:
             return False
         total += v
     return abs(total - en) / abs(en) <= ECART_DETTE_MAX

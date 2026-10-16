@@ -129,9 +129,11 @@ def test_un_doute_declare_empeche_le_calcul():
     assert rp["ebitda"]["valeur"] == 264.0 and rp["ebitda"]["origine"] == "publié"
     assert rp["dette_nette_ebitda"]["valeur"] == -1.4 and rp["roic"]["valeur"] == 18.3
     assert "dette_nette" not in rp.get("non_calcules_2025", {}) and "ebitda" not in rp.get("non_calcules_2025", {})
-    # La définition de la société (trésorerie nette 311 / 315) n'est pas écrite en fait : écart consigné.
+    # Le chiffre de la société (trésorerie nette 311 / 315) est rangé en fait depuis la règle
+    # unique du 16/10/2026, et reste CONTESTÉ faute d'explication sur pièce.
     assert FAITS["VCNE"]["_ecarts_mesures"]["dette_nette"]["rapport"] == -311.0
-    assert "endettement_net" not in FAITS["VCNE"]["faits"]
+    en = FAITS["VCNE"]["faits"]["endettement_net"]
+    assert en["valeur"] == -311.0 and en["page"] == 19 and en["rapprochement"]["etabli"] is False
 
 
 def test_calculer_bilan_sur_un_cas_construit():
