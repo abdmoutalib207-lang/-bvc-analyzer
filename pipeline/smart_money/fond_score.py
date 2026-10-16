@@ -270,9 +270,10 @@ RESERVES_RATIOS = {
                        "appartient au concédant et n'est pas au bilan (CAC, RFA 2025 p.133). Non "
                        "comparable au ROIC d'un propriétaire d'actifs ; à lire avec la marge "
                        "d'exploitation (44,3 %, p.122)."},
-    "VCNE": {"bilan": "Trésorerie nette dont 523,7 MMAD de placements (produit de l'introduction "
-                      "en bourse, nature non publiée) ; EBITDA tel que publié, sans définition "
-                      "(RFA 2025 p.20-21, p.57)."},
+    "VCNE": {"bilan": "Trésorerie nette annoncée 311 (p.19) / 315 (p.13) contre 368,7 au bilan, "
+                      "écart non expliqué sur pièce : grandeur contestée. Dont 523,7 MMAD de "
+                      "placements (produit de l'introduction en bourse, nature non publiée) ; "
+                      "EBITDA tel que publié, sans définition (RFA 2025 p.20-21, p.57)."},
 }
 POIDS_FOND = {"qualite": 0.40, "croissance": 0.30, "valorisation": 0.20, "bilan": 0.10}
 COUVERTURE_MIN = 0.5
