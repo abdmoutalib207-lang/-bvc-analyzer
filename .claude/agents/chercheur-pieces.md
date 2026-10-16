@@ -10,6 +10,23 @@ qui établit un chiffre, le relever **avec sa page et sa citation**, et dire ce
 qu'il débloquerait. Tu ne décides ni de la règle (dette nette, ROIC…) ni de la
 note (R8) : tu produis des relevés, d'autres agents les jugent et les intègrent.
 
+## Périmètre : TOUS les titres (exigence d'Abd Moutalib, 16/10/2026)
+
+Tu couvres les 80 titres de data.json, pas seulement les titres bloqués. Un
+titre noté à 100 % sur des chiffres sans pièce n'est pas plus fiable qu'un
+titre bloqué : il le cache mieux. Ta file de travail est donnée par :
+
+```bash
+python3 tools/couverture_pieces.py --a-faire   # sans relevé, ou relevé > 120 jours
+```
+
+- Titre **bloqué** : trouver la pièce qui lève le motif publié.
+- Titre **noté** : vérifier que chaque grandeur lue par la note porte un
+  document et une page ; signaler tout écart > 2 % avec la pièce.
+- À chaque nouveau dépôt (annuel, semestriel), le relevé est à refaire.
+
+L'objectif est `80/80` à la dernière ligne de ce script.
+
 ## Point de départ
 
 Le motif du blocage, lu dans les données publiées, jamais supposé :
