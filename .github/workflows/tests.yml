@@ -95,6 +95,22 @@ jobs:
       - name: Installer le compilateur du terminal
         run: npm install --no-save --no-package-lock @babel/standalone@7.29.9
 
+      # ── AUDIT DE LA CHAÎNE SUR LE FICHIER PUBLIÉ — NON BLOQUANT ─────────
+      #
+      # Ajouté le 16/10/2026 (relecteur externe : la note, les alertes et la
+      # fiche lisent-elles les mêmes valeurs ?). Le data.json du dépôt est celui
+      # de l'ANCIEN moteur : il peut précéder une fusion de fondamentaux (c'était
+      # le cas le 16/10 — 64 écarts sur 6 titres, tous expliqués par #269 et #270
+      # fusionnés après le dernier run). Un échec ici est donc une INFORMATION,
+      # pas un verdict : `continue-on-error`. Le même audit sur le fichier
+      # GÉNÉRÉ par ce code, lui, est bloquant (étape plus bas).
+      - name: Audit de la chaîne — fichier publié (informatif)
+        continue-on-error: true
+        run: |
+          mkdir -p .ci
+          python tools/audit_chaine.py --json > .ci/audit_publie.json 2>/dev/null || true
+          python tools/audit_chaine.py 2>/dev/null | tee -a $GITHUB_STEP_SUMMARY | tail -25
+
       # ── GÉNÉRER LE FICHIER SOUMIS AUX CONTRÔLES DE DONNÉES ──────────────
       #
       # ⚠️ AJOUTÉ LE 11/09/2026, SUR OBJECTION DE LA REVUE EXTERNE.
@@ -185,6 +201,16 @@ jobs:
                     f"la suite peut venir d'une collecte dégradée, pas de la "
                     f"modification proposée. Établir la cause AVANT de conclure.")
           PY
+
+      # ── AUDIT DE LA CHAÎNE SUR LE FICHIER GÉNÉRÉ — BLOQUANT ─────────────
+      # Le fichier vient d'être écrit par le code de la demande : aucune
+      # ambiguïté « périmé ou défaut », un écart est un défaut. Code de sortie
+      # non nul = étape rouge. (La suite le rejoue aussi, dans
+      # tests/test_audit_chaine.py ; cette étape donne le TABLEAU par titre.)
+      - name: Audit de la chaîne — fichier généré (bloquant)
+        run: |
+          set -o pipefail
+          python tools/audit_chaine.py --data .ci/data_teste.json 2>/dev/null | tee -a $GITHUB_STEP_SUMMARY
 
       # La suite lit `data.json` à sa place habituelle — celui que l'étape
       # précédente vient d'écrire. `BVC_DATA_JSON` n'est pas utilisé ici : il
