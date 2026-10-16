@@ -3730,7 +3730,11 @@ def compute_v53(ticker, score_tech, score_fond, red_flags, upside, context) -> d
         "biais":  sent.get("biais", "NEUTRE"),
         "conv":   conv,
         "bonus":  bonus_log,
-        "poids":  {"f": round(w["fondamental"]*100), "n": round(w["comportemental"]*100), "t": round(w["technique"]*100)},
+        # get_weights() retient quatre décimales en fraction : publier deux
+        # décimales en pourcentage conserve exactement cette précision.
+        # Un entier (71 au lieu de 71,43) empêchait l'audit de recomposer la
+        # note et bloquait toute publication en séance. Calcul et seuils inchangés.
+        "poids":  {"f": round(w["fondamental"]*100, 2), "n": round(w["comportemental"]*100, 2), "t": round(w["technique"]*100, 2)},
         "warn":   warn,
         "warnMsg": warn_msg,
     }
