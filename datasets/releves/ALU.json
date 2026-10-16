@@ -1,0 +1,43 @@
+{
+  "ticker": "ALU",
+  "societe": "Aluminium du Maroc (code BVC : ALM)",
+  "releve_le": "2026-10-16",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF (1 = première page du fichier)",
+  "blocage": {
+    "motif": "ROIC non calculé sur comptes publiés ; dette nette / EBITDA non calculée : EBE consolidé non publié et « Passif à long terme » consolidé non décomposé (dettes de financement, provisions durables et écarts de conversion confondus)",
+    "effet": "fond_score : qualité et bilan sans note (couverture 0,5) ; note métier : ROE en remplacement, bilan absent",
+    "lu_dans": "data.json › ALU › note_fond et note_fond_metier ; pipeline/faits_financiers.json › ALU (pas d'EBE, pas de dettes de financement consolidées)"
+  },
+  "pieces": [
+    {"id": "rfa_2025", "rang_methode": 1, "titre": "Rapport financier annuel 2025 (comptes sociaux et consolidés, normes marocaines)", "url": "https://www.ammc.ma/sites/default/files/ALM_RFA_2025.pdf", "sha256": "2cdae36f05ada3977dae137f832e652be3fdda36052923efa7a2292827f2bb04", "octets": 2706921, "pages": 56, "note": "pages 28, 42-44, 46-52, 54-56 sans couche texte"},
+    {"id": "cp_4t_2025", "rang_methode": 2, "titre": "Communiqué de presse — indicateurs trimestriels au 31 décembre 2025 (26/02/2026)", "url": "https://aluminiumdumaroc.com/wp-content/uploads/2026/02/ALM_Communique-de-presse_-Indicateurs-4T-2025.pdf", "sha256": "23c2464a2e56e5f3a5a3daa9e24bc067e9bc1f26bd770b485e57b1fa3d49db56", "octets": 113170, "pages": 1}
+  ],
+  "chiffres": [
+    {"grandeur": "endettement_financier_net", "valeur": 505.37, "unite": "MMAD", "periode": "31/12/2025 (fin 2024 : 529,00)", "perimetre": "SOCIAL probable (le CA cumulé du même communiqué, 1 267,75, est le CA social ; le consolidé vaut 1 304,91) ; sans définition", "source": "https://aluminiumdumaroc.com/wp-content/uploads/2026/02/ALM_Communique-de-presse_-Indicateurs-4T-2025.pdf", "piece": "cp_4t_2025", "page": 1, "citation": "L’endettement financier net s’établit à 505,37 millions de dirhams, en légère diminution par rapport à la fin de l’exercice 2024."},
+    {"grandeur": "excedent_brut_exploitation", "valeur": 159.425, "unite": "MMAD", "periode": "exercice 2025 (2024 : 135,311)", "perimetre": "SOCIAL, normes marocaines", "source": "https://www.ammc.ma/sites/default/files/ALM_RFA_2025.pdf", "piece": "rfa_2025", "page": 29, "citation": "V = EXCEDENT BRUT D'EXPLOITATION (EBE) 159 424 975,22 135 311 167,44"},
+    {"grandeur": "dettes_de_financement", "valeur": 110.389, "unite": "MMAD", "periode": "31/12/2025 (2024 : 179,529)", "perimetre": "SOCIAL", "source": "https://www.ammc.ma/sites/default/files/ALM_RFA_2025.pdf", "piece": "rfa_2025", "page": 26, "citation": "DETTES DE FINANCEMENT (C) 110 389 474,27 179 529 225,68"},
+    {"grandeur": "tresorerie_passif", "valeur": 458.002, "unite": "MMAD", "periode": "31/12/2025", "perimetre": "SOCIAL (crédits de trésorerie 329,49 + banques 128,51)", "source": "https://www.ammc.ma/sites/default/files/ALM_RFA_2025.pdf", "piece": "rfa_2025", "page": 26, "citation": "TRESORERIE-PASSIF 458 001 579,41 388 758 027,19 / Crédits de trésorerie 329 490 602,94 / Banques 128 510 976,47"},
+    {"grandeur": "tresorerie_actif", "valeur": 37.696, "unite": "MMAD", "periode": "31/12/2025", "perimetre": "SOCIAL (TVP à part : 0,144)", "source": "https://www.ammc.ma/sites/default/files/ALM_RFA_2025.pdf", "piece": "rfa_2025", "page": 25, "citation": "TRESORERIE-ACTIF 37 695 528,01 … 12 963 572,33 ; TITRES VALEURS DE PLACEMENT 144 000,00"},
+    {"grandeur": "resultat_exploitation", "valeur": 138.502, "unite": "MMAD", "periode": "exercice 2025", "perimetre": "CONSOLIDÉ, normes marocaines (en-tête « EN M MAD », montants en KMAD)", "source": "https://www.ammc.ma/sites/default/files/ALM_RFA_2025.pdf", "piece": "rfa_2025", "page": 37, "citation": "Résultat d'exploitation 138 502,33 109 725,32"},
+    {"grandeur": "dotations_exploitation", "valeur": 34.487, "unite": "MMAD", "periode": "exercice 2025 (2024 : 37,400)", "perimetre": "CONSOLIDÉ ; aucune ligne de reprises au CPC condensé", "source": "https://www.ammc.ma/sites/default/files/ALM_RFA_2025.pdf", "piece": "rfa_2025", "page": 37, "citation": "Dotations d'exploitation 34 487,10 37 400,00"},
+    {"grandeur": "passif_long_terme", "valeur": 114.401, "unite": "MMAD", "periode": "31/12/2025", "perimetre": "CONSOLIDÉ, agrégat NON décomposé", "source": "https://www.ammc.ma/sites/default/files/ALM_RFA_2025.pdf", "piece": "rfa_2025", "page": 36, "citation": "Passif à long terme 114 400 543,11 183 980 244,23 (montants en dirhams)"}
+  ],
+  "estimations": [],
+  "calculs": [
+    {"quoi": "EBE consolidé reconstruit", "formule": "résultat d'exploitation 138,502 + dotations d'exploitation 34,487", "resultat": 172.989, "unite": "MMAD", "controle": "le CPC se reboucle : 1 304,910 + 18,287 + 0,843 − 940,708 − 67,869 − 137,332 − 2,060 − 3,082 − 34,487 = 138,502"},
+    {"quoi": "dette nette sociale selon notre formule", "formule": "110,389 + 458,002 − 37,696 − 0,144", "resultat": 530.551, "unite": "MMAD", "contre_publie": 505.37, "ecart": -25.18, "note": "2024 : 179,529 + 388,758 − 12,964 − 0,144 = 555,18 contre 529,00 publié, écart −26,18 : écart presque constant, cause non établie"},
+    {"quoi": "dette nette consolidée bornée", "formule": "trésorerie passif 458,139 − disponibilités 49,580 − VMP 0,144 + dette long terme ∈ [110,389 (dette sociale) ; 114,401 (passif LT entier)]", "resultat": "518,8 à 522,8", "unite": "MMAD"},
+    {"quoi": "dette nette / EBE", "resultat": "social publié 505,37 ÷ 159,425 = 3,17 ; consolidé 518,8–522,8 ÷ 172,989 = 3,00–3,02"}
+  ],
+  "constats": [
+    "IFRS 16 : SANS OBJET (normes marocaines, social comme consolidé).",
+    "Le seul « endettement financier net » publié est au périmètre SOCIAL (communiqué trimestriel) et ne se recolle pas à notre formule sociale (écart ~25 MMAD, stable sur deux ans) : divergence entre deux pièces du même émetteur.",
+    "La dette consolidée est bornée à 4 MMAD près : l'incertitude sur le passif à long terme ne change pas le ratio au dixième (3,00 contre 3,02).",
+    "Le site investisseurs (aluminiumdumaroc.com/finance) ne publie pas encore les comptes consolidés 2025 détaillés (dernier : 31/12/2024).",
+    "Rang 4 non consulté."
+  ],
+  "conclusion": "Pièces trouvées : EBE social publié, EBE consolidé reconstructible et rebouclé, dette consolidée bornée à ±2 MMAD. Divergence sociale de ~25 MMAD non expliquée : question IR rédigée.",
+  "debloquerait": "Dette nette / EBITDA consolidée ≈ 3,0 (barème « 2,5–3,5 ») si l'autre agent accepte un EBE reconstruit (REX + dotations) et la borne sur le passif LT ; ROIC sur capitaux employés à calculer par le vérificateur.",
+  "question_ir": "docs/questions_ir/ALU.md"
+}

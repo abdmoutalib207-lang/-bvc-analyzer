@@ -1,0 +1,35 @@
+{
+  "ticker": "REB",
+  "societe": "Rebab Company SA Limited (holding ; « Rebab » dans COMPANY_NAMES)",
+  "releve_le": "2026-10-16",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF",
+  "blocage": {
+    "motif": "note métier « holding » : valorisation absente (P/B : moins de 3 pairs, actif net réévalué non disponible) ; bilan suspendu (aucun barème sourcé pour dette nette / fonds propres) ; fond_score : ROIC non calculé",
+    "effet": "note métier partielle (poids disponible 70 %), critère essentiel « valorisation » manquant",
+    "lu_dans": "data.json › REB › note_fond_metier.criteres.valorisation.motif et .bilan.motif"
+  },
+  "pieces": [
+    {"id": "rfa_2025", "rang_methode": 1, "titre": "Rapport financier 2025 (comptes SOCIAUX ; aucun consolidé déposé)", "url": "https://www.ammc.ma/sites/default/files/Rebab_company_RFA_2025.pdf", "sha256": "29b29cb8f00b9e3e5cbc39e5c6c6465c03e49e52d2ec261885f0afe75c3586bf", "octets": 1090265, "pages": 51}
+  ],
+  "chiffres": [
+    {"grandeur": "participation_zellidja_pct", "valeur": 4.57, "unite": "% du capital", "periode": "31/12/2025", "perimetre": "social ; Zellidja S.A (holding cotée, ticker ZLD), capital 57 284 900 DH", "source": "https://www.ammc.ma/sites/default/files/Rebab_company_RFA_2025.pdf", "piece": "rfa_2025", "page": 34, "citation": "B4 Tableau des Titres de Participation — ZELLIDJA S.A | HOLDING | 57 284 900,00 | 4,57 | 14 033 956,89 | 2 979 026,09 | 31/12/2024 | 70 230 822,54 | 6 599 498,91 [lu sur image rendue]"},
+    {"grandeur": "participation_zellidja_vnc", "valeur": 2.979, "unite": "MMAD", "periode": "31/12/2025", "perimetre": "social (prix d'acquisition 14,034, provision 11,055)", "source": "https://www.ammc.ma/sites/default/files/Rebab_company_RFA_2025.pdf", "piece": "rfa_2025", "page": 34, "citation": "Valeur nette comptable 2 979 026,09 [lu sur image rendue]"},
+    {"grandeur": "participation_sfpz", "valeur": 0.0, "unite": "MMAD (VNC)", "periode": "31/12/2025", "perimetre": "social ; SFPZ (minière) 5,00 %, situation nette −110,3 MMAD au 31/12/2023", "source": "https://www.ammc.ma/sites/default/files/Rebab_company_RFA_2025.pdf", "piece": "rfa_2025", "page": 34, "citation": "SFPZ | Minière | 60 300 000,00 | 5,00 | 3 022 700,00 | 0,00 | 31/12/2023 | -110 300 533,10 | -4 983 257,51 [lu sur image rendue]"},
+    {"grandeur": "titres_valeurs_placement", "valeur": 22.175, "unite": "MMAD", "periode": "31/12/2025 (2024 : 21,996)", "perimetre": "social ; nature non précisée (produits d'intérêts 0,686 MMAD en 2025, p.4)", "source": "https://www.ammc.ma/sites/default/files/Rebab_company_RFA_2025.pdf", "piece": "rfa_2025", "page": 21, "citation": "Titres valeurs de placement→[H] 22 175 430,80 22 175 430,80 21 996 383,60"},
+    {"grandeur": "passif_circulant", "valeur": 1.24, "unite": "MMAD", "periode": "31/12/2025", "perimetre": "social ; trésorerie passif nulle, aucune dette de financement", "source": "https://www.ammc.ma/sites/default/files/Rebab_company_RFA_2025.pdf", "piece": "rfa_2025", "page": 5, "citation": "Passif circulant 1 240 727 / Trésorerie - passif 0 0 (en Kdh, colonnes 2025 puis 2024)"}
+  ],
+  "estimations": [],
+  "calculs": [
+    {"quoi": "actif net réévalué indicatif (look-through boursier)", "formule": "TVP 22,175 + trésorerie 0,342 + autres actifs circulants 0,502 + Zellidja 4,57 % × 572 849 titres × 240,05 DH (cours ZLD du 15/10/2026, data.json) − passif 1,240", "resultat": 28.06, "unite": "MMAD", "par_action": "28,06 ÷ 176 456 = 159 DH contre un cours de 88,5 DH (décote ~44 %)", "reserves": ["4,57 % est arrondi : ±0,005 point = ±0,07 MMAD", "nombre de titres ZLD (572 849) tiré du référentiel du projet, non relevé dans cette pièce", "SFPZ comptée pour zéro (situation nette négative)", "nature des TVP non établie"]}
+  ],
+  "constats": [
+    "Périmètre : comptes SOCIAUX seulement (holding sans consolidé déposé).",
+    "La pièce donne ce qu'il faut pour un actif net réévalué : pourcentage de détention, VNC, valeur boursière via le cours ZLD. Le blocage « actif net réévalué non disponible » n'est donc pas un défaut de pièce mais de calcul.",
+    "Bilan : aucune dette ; le « dette nette / fonds propres » vaut −0,87 (trésorerie nette) et le barème manquant est une question de règle, hors périmètre de ce relevé.",
+    "Rang 4 non consulté ; IFRS 16 sans objet (normes marocaines)."
+  ],
+  "conclusion": "Pièce trouvée (B4, p.34) : un ANR indicatif ~28 MMAD (159 DH/action) est calculable. Pas de divergence : aucune question IR.",
+  "debloquerait": "Critère « valorisation » de la famille holding par décote sur ANR, si la règle de note l'accepte (R8 : décision humaine).",
+  "question_ir": null
+}

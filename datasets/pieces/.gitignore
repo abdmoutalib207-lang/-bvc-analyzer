@@ -1,0 +1,8 @@
+# Pièces téléchargées : NON FIABLES, jamais commitées par défaut.
+# On commite index.json (URL + sha256) ; l'empreinte suffit à prouver qu'on
+# relit le même document. Un PDF de moins de 5 Mo utile comme preuve peut
+# être ajouté explicitement, avec l'option force de l'ajout.
+*
+!.gitignore
+!*/
+!*/index.json
