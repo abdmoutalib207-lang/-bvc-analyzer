@@ -1,0 +1,44 @@
+{
+  "ticker": "DAR",
+  "societe": "Dari Couspate (code BVC : DRI)",
+  "releve_le": "2026-10-16",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF ; le folio imprimé vaut rang + 1 sur les pages lues",
+  "blocage": {
+    "motif": "ROIC non calculé sur comptes publiés (saisie sans pièce écartée) ; le bilan est noté par « trésorerie nette positive »",
+    "effet": "fond_score : qualité sans note (couverture 0,6) ; note métier : ROE en remplacement du ROIC",
+    "lu_dans": "data.json › DAR › note_fond.composantes.qualite.motif ; pipeline/smart_money/fond_score.py l.303"
+  },
+  "pieces": [
+    {"id": "rfa_2025", "rang_methode": 1, "titre": "Rapport financier annuel 2025 (49 pages, toutes SANS couche texte)", "url": "https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf", "sha256": "111e33d82e0da5ce0eb1d6ac78438e57d9138371e858fb44cfa1904277cc4ec8", "octets": 28342096, "pages": 49, "note": "28 Mo : jamais commité, URL et empreinte seulement"}
+  ],
+  "chiffres": [
+    {"grandeur": "actif_immobilise", "valeur": 126.631, "unite": "MMAD", "periode": "31/12/2025 (2024 : 134,754)", "perimetre": "consolidé, normes marocaines", "source": "https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf", "piece": "rfa_2025", "page": 33, "page_imprimee": 34, "citation": "Actif immobilisé 126.630.836 134.753.847 [lu sur image rendue]"},
+    {"grandeur": "stocks", "valeur": 33.408, "unite": "MMAD", "periode": "31/12/2025", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf", "piece": "rfa_2025", "page": 33, "citation": "Stocks et en-cours 33.407.667 42.022.321 [lu sur image rendue]"},
+    {"grandeur": "clients", "valeur": 125.842, "unite": "MMAD", "periode": "31/12/2025", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf", "piece": "rfa_2025", "page": 33, "citation": "Clients et comptes rattachés 125.842.208 157.882.656 [lu sur image rendue]"},
+    {"grandeur": "autres_creances", "valeur": 31.593, "unite": "MMAD", "periode": "31/12/2025", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf", "piece": "rfa_2025", "page": 33, "citation": "Autres créances 31.593.154 52.876.564 [lu sur image rendue]"},
+    {"grandeur": "fournisseurs", "valeur": 161.256, "unite": "MMAD", "periode": "31/12/2025", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf", "piece": "rfa_2025", "page": 33, "citation": "Fournisseurs et comptes rattachés 161.255.569 170.679.953 [lu sur image rendue]"},
+    {"grandeur": "autres_dettes", "valeur": 13.792, "unite": "MMAD", "periode": "31/12/2025", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf", "piece": "rfa_2025", "page": 33, "citation": "Autres dettes 13.792.022 14.566.655 [lu sur image rendue]"},
+    {"grandeur": "provisions_risques_charges", "valeur": 139.391, "unite": "MMAD", "periode": "31/12/2025 (2024 : 129,204)", "perimetre": "consolidé, passif à long terme ; nature non détaillée au bilan", "source": "https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf", "piece": "rfa_2025", "page": 33, "citation": "Provisions pour risques et charges 139.390.655 129.204.285 ; Dettes de financement - [lu sur image rendue]"},
+    {"grandeur": "dotations_exploitation_nettes", "valeur": 65.399, "unite": "MMAD", "periode": "exercice 2025 (2024 : 73,913)", "perimetre": "consolidé, NETTES des reprises et transferts de charges", "source": "https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf", "piece": "rfa_2025", "page": 34, "page_imprimee": 35, "citation": "Dotations d'exploitation, nettes des reprises et TC 65.398.754 73.913.061 [lu sur image rendue]"},
+    {"grandeur": "resultat_exploitation", "valeur": 73.425, "unite": "MMAD", "periode": "exercice 2025", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf", "piece": "rfa_2025", "page": 34, "citation": "Résultat d'exploitation (III=I+II) 73.425.332 70.653.767 [lu sur image rendue]"},
+    {"grandeur": "impot_sur_benefices", "valeur": 20.176, "unite": "MMAD", "periode": "exercice 2025", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/Dari_Couspate_RFA_2025.pdf", "piece": "rfa_2025", "page": 34, "citation": "Impôt sur les bénéfices 20.175.584 ; Résultat avant impôts 72.570.612 [lu sur image rendue]"}
+  ],
+  "estimations": [],
+  "calculs": [
+    {"quoi": "BFR d'exploitation", "formule": "33,408 + 125,842 + 31,593 − 161,256 − 13,792", "resultat": 15.795, "unite": "MMAD"},
+    {"quoi": "capitaux employés (actif immobilisé + BFR)", "formule": "126,631 + 15,795", "resultat": 142.426, "unite": "MMAD"},
+    {"quoi": "taux d'impôt effectif", "formule": "20,176 ÷ 72,571", "resultat": 27.8, "unite": "%"},
+    {"quoi": "ROIC indicatif", "formule": "73,425 × (1 − 0,278) ÷ 142,426", "resultat": 37.2, "unite": "%", "reserve": "si les provisions pour risques et charges (139,4) sont traitées en quasi-dette, les capitaux employés ne changent pas mais la trésorerie nette (365,7) n'est plus « libre » ; la définition à retenir est du ressort du vérificateur, pas de ce relevé"},
+    {"quoi": "EBE indicatif", "formule": "73,425 + 65,399", "resultat": 138.824, "unite": "MMAD", "reserve": "dotations NETTES des reprises et transferts de charges : ce n'est pas l'EBE au sens du CPC marocain"}
+  ],
+  "constats": [
+    "IFRS 16 : SANS OBJET (« conformément aux normes marocaines », p.33).",
+    "Aucune dette de financement ni trésorerie passif : la « dette nette » est une trésorerie nette de 365,7 MMAD (titres et valeurs de placement 322,389 + trésorerie 43,314), soit ~29 % de la capitalisation publiée (1 247 MMAD).",
+    "Les provisions pour risques et charges (139,4 MMAD, 38 % des fonds propres) sont un poste majeur dont la nature n'est pas lue : à documenter avant tout ROIC (pages d'annexe sans texte, lecture sur image à poursuivre).",
+    "Rang 4 non consulté."
+  ],
+  "conclusion": "Tous les termes d'un ROIC sur comptes publiés sont relevés sur pièce. Pas de divergence entre pièces : aucune question IR.",
+  "debloquerait": "ROIC sur comptes publiés (~37 % indicatif) au lieu du ROE de remplacement, si le vérificateur valide la définition des capitaux employés et le traitement des provisions.",
+  "question_ir": null
+}

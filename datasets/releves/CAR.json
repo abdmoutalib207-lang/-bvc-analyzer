@@ -1,0 +1,39 @@
+{
+  "ticker": "CAR",
+  "societe": "Cartier Saada (code BVC : CRS)",
+  "releve_le": "2026-10-16",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF",
+  "blocage": {
+    "motif": "croissance « non établie sur comptes semestriels » ; valorisation « pas de PER positif tiré des comptes » (BPA 12 mois −4,87 DH)",
+    "effet": "fond_score couverture 0,5 ; note métier partielle (poids disponible 50 %), critère essentiel « valorisation » manquant",
+    "lu_dans": "data.json › CAR › note_fond.composantes et note_fond_metier.criteres ; pipeline/smart_money/fond_score.py l.313 et l.319"
+  },
+  "pieces": [
+    {"id": "annuel_2025_26", "rang_methode": 1, "titre": "Résultats annuels au 31/03/2026 (comptes sociaux + rapport des CAC)", "url": "https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf", "sha256": "293aeab11102ba336cfa7b84602268a869145ec2d376cf97fecebbb452c27e30", "octets": 4465399, "pages": 19},
+    {"id": "s1_2025_26", "rang_methode": 1, "titre": "Résultats semestriels au 30/09/2025 (comptes sociaux)", "url": "https://www.ammc.ma/sites/default/files/Cartier_Saada_S1_25.pdf", "sha256": "14e753e2a560d3bebcaad2275ec64fbd34dd2557aba63645f0ed011913681da2", "octets": 2546752, "pages": 6}
+  ],
+  "chiffres": [
+    {"grandeur": "ventes_biens_services_produits", "valeur": 257.755, "unite": "MMAD", "periode": "exercice 01/04/2025-31/03/2026 (précédent : 281,611)", "perimetre": "SOCIAL, normes marocaines (exercice décalé, clos le 31/03)", "source": "https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf", "piece": "annuel_2025_26", "page": 6, "citation": "3 Ventes de biens et services produits 257 754 793,68 281 610 704,02"},
+    {"grandeur": "ventes_marchandises", "valeur": 18.168, "unite": "MMAD", "periode": "exercice clos le 31/03/2026 (précédent : 15,083)", "perimetre": "SOCIAL", "source": "https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf", "piece": "annuel_2025_26", "page": 3, "citation": "Ventes de marchandises 18 168 290,77 0,00 18 168 290,77 15 083 327,24"},
+    {"grandeur": "excedent_brut_exploitation", "valeur": 9.423, "unite": "MMAD", "periode": "exercice clos le 31/03/2026 (précédent : 23,908)", "perimetre": "SOCIAL", "source": "https://www.ammc.ma/sites/default/files/Cartier_Saada_2025.pdf", "piece": "annuel_2025_26", "page": 6, "citation": "= EXCEDENT BRUT D'EXPLOITATION ( E.B.E ) 9 423 051,54 23 908 304,99"},
+    {"grandeur": "chiffre_affaires_semestriel", "valeur": 133.79, "unite": "MMAD", "periode": "semestre 01/04/2025-30/09/2025 (colonne « exercice précédent » : 133,054)", "perimetre": "SOCIAL", "source": "https://www.ammc.ma/sites/default/files/Cartier_Saada_S1_25.pdf", "piece": "s1_2025_26", "page": 3, "citation": "STE CARTIER SAADA Du 1/4/2025 Au 30/9/2025 … Chiffres d'affaires 133 790 475,29 0,00 133 790 475,29 133 053 650,27"},
+    {"grandeur": "resultat_net_semestriel", "valeur": 1.45, "unite": "MMAD", "periode": "semestre au 30/09/2025 (comparatif : 4,195)", "perimetre": "SOCIAL", "source": "https://www.ammc.ma/sites/default/files/Cartier_Saada_S1_25.pdf", "piece": "s1_2025_26", "page": 4, "citation": "XIII RESULTAT NET ( XI - XII ) 0,00 0,00 1 450 326,99 4 195 041,63"}
+  ],
+  "estimations": [],
+  "calculs": [
+    {"quoi": "croissance annuelle du chiffre d'affaires", "formule": "(257,755 + 18,168) ÷ (281,611 + 15,083) − 1", "resultat": -7.0, "unite": "%"},
+    {"quoi": "croissance semestrielle (S1 de l'exercice 2025/26)", "formule": "133,790 ÷ 133,054 − 1", "resultat": 0.55, "unite": "%", "reserve": "la période de la colonne comparative n'est pas libellée dans l'en-tête (« exercice précédent »)"},
+    {"quoi": "second semestre implicite", "formule": "résultat annuel −25,642 − S1 1,450", "resultat": -27.09, "unite": "MMAD"},
+    {"quoi": "P/B indicatif", "formule": "cours 20,0 DH ÷ (fonds propres 167,108 MMAD ÷ 5 265 000 titres = 31,74 DH)", "resultat": 0.63}
+  ],
+  "constats": [
+    "Valorisation : le PER est SANS OBJET, pas manquant — l'exercice clos le 31/03/2026 est en perte (résultat net −25,6 MMAD). Aucune pièce ne le débloquera ; seul un autre critère (P/B) le peut, et c'est une règle (R8), pas une pièce.",
+    "Croissance : le prochain semestre (01/04-30/09/2026) n'est pas encore déposé (AMMC : Cartier_Saada_S1_26.pdf en 404 le 16/10/2026). Le décalage d'exercice fait que « S1 2026 » n'a pas de sens calendaire pour ce titre.",
+    "Comptes SOCIAUX uniquement ; opinion avec réserve des CAC (déjà consignée dans faits_financiers.json).",
+    "Rang 4 non consulté."
+  ],
+  "conclusion": "Pièces trouvées pour une croissance ANNUELLE (−7,0 % de CA) et semestrielle (+0,55 %). Pas de divergence : aucune question IR.",
+  "debloquerait": "Croissance sur comptes annuels si la règle l'admet pour un exercice décalé ; la valorisation reste structurellement indisponible tant que le résultat est négatif.",
+  "question_ir": null
+}
