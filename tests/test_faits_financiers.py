@@ -67,9 +67,13 @@ def test_chaque_fait_porte_sa_page():
             for nom, fait in bloc["faits"].items():
                 assert "page" in fait, f"{tic}.{nom} n'a pas de page"
                 assert isinstance(fait["page"], int) and fait["page"] > 0
-                assert fait["page"] <= bloc["pages_document"], (
+                # Un fait tiré d'un AUTRE document (sa propre `url`) se borne
+                # aux pages de ce document-là (JET.endettement_net, RFS S1).
+                n_pages = (fait["pages_document"] if fait.get("url") and fait.get("pages_document")
+                           else bloc["pages_document"])
+                assert fait["page"] <= n_pages, (
                     f"{tic}.{nom} renvoie à la page {fait['page']} d'un "
-                    f"document qui en compte {bloc['pages_document']}")
+                    f"document qui en compte {n_pages}")
 
 
 def test_chaque_emetteur_porte_son_document_et_sa_date():
