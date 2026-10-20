@@ -1,0 +1,311 @@
+{
+ "ticker": "MGL",
+ "societe": "Maghrebail",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "bilan : « équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière »",
+  "effet": "composante bilan (poids 0,1) à null ; couverture 0,9 ; MGL absent de faits_financiers.json",
+  "lu_dans": "data.json › MGL › note_fond.composantes.bilan.motif ; fond_score.py l.362-368"
+ },
+ "pieces": [
+  {
+   "id": "rfa_2025",
+   "rang_methode": 1,
+   "titre": "Rapport financier annuel 2025 (déposé AMMC ; rapport de gestion en image, p.9-42 sans texte)",
+   "url": "https://www.ammc.ma/sites/default/files/Maghrebail_RFA_2025.pdf",
+   "sha256": "b42dcbe782557763fa221dc7e0a1d8b27d89389694609a8d384e04bfb56f5d5b",
+   "octets": 6966960,
+   "pages": 78,
+   "note": "> 5 Mo : non commité, URL et empreinte seulement"
+  },
+  {
+   "id": "cp_2025",
+   "rang_methode": 1,
+   "titre": "Communication financière, résultats 2025 (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/CP_Maghrebail_2025.pdf",
+   "sha256": "44f0d05255684264d56da858204d8c1117ec13c970dccb7e701ea75706c712ac",
+   "octets": 379765,
+   "pages": 3
+  },
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Communication financière et états au 30/06/2026 (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf",
+   "sha256": "8e7bc1383b1cb04b6ce6f0ed37b069d956db61c6fe52af3ba060ee923b147d06",
+   "octets": 652174,
+   "pages": 9
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "encours_net_comptable",
+   "valeur": 13335,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (2024 : 12 460)",
+   "perimetre": "social, normes marocaines",
+   "piece": "cp_2025",
+   "page": 1,
+   "citation": "A fin Décembre 2025, l'encours net comptable de Maghrebail s'élève à 13 335 millions de dirhams, en hausse de 7.02 %",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Maghrebail_2025.pdf"
+  },
+  {
+   "grandeur": "produit_net_bancaire",
+   "valeur": 438.374,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 377 618)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 46,
+   "citation": "III.PRODUIT NET 438 374 377 618 [BANCAIRE]",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "charges_generales_exploitation",
+   "valeur": 101.545,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 99 339)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 46,
+   "citation": "IV.CHARGES GENERALES D'EXPLOITATION 101 545 99 339",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "dotations_creances_en_souffrance",
+   "valeur": 142.584,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 158 069)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 46,
+   "citation": "20.Dotations aux provisions pour créances en souffrance 142 584 158 069",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "reprises_creances_en_souffrance",
+   "valeur": 84.738,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 102 309)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 46,
+   "citation": "23.Reprises de provisions pour créances en souffrance 84 738 102 309",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "dotations_nettes_creances_en_souffrance_communique",
+   "valeur": 74.1,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 76,5)",
+   "perimetre": "social ; chiffre du communiqué, ne recolle pas au CPC",
+   "piece": "cp_2025",
+   "page": 1,
+   "citation": "les dotations nettes aux provisions pour créances en souffrances s'établissent à 74.1 millions de dirhams contre 76.5 millions de dirhams une année auparavant.",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Maghrebail_2025.pdf"
+  },
+  {
+   "grandeur": "provisions_creances_en_souffrance",
+   "valeur": 1398.774,
+   "unite": "MMAD",
+   "periode": "31/12/2025",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 53,
+   "citation": "CREANCES EN SOUFFRANCE 1 801 260 75 816 11 068 1 866 009 142 584 84 738 1 398 774 467 235 (brut début, acquisitions, cessions, brut fin, dotations, reprises, cumul provisions, net)",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "creances_en_souffrance_brutes_tableau_immobilisations",
+   "valeur": 1866.009,
+   "unite": "MMAD",
+   "periode": "31/12/2025",
+   "perimetre": "social ; tableau des immobilisations en crédit-bail",
+   "piece": "rfa_2025",
+   "page": 53,
+   "citation": "CREANCES EN SOUFFRANCE 1 801 260 75 816 11 068 1 866 009 ...",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "creances_en_souffrance_brutes",
+   "valeur": 1549.64,
+   "unite": "MMAD",
+   "periode": "31/12/2025",
+   "perimetre": "social ; état des créances en souffrance du S1 2026, colonne comparative",
+   "piece": "s1_2026",
+   "page": 8,
+   "citation": "ETAT DES CREANCES EN SOUFFRANCE ET PROVISIONS 30/06/2025 31/12/2025 ... Total créances en souffrance 1 610 309 1 549 640 PROVISIONS 1 421 669 1 398 774 Taux de couverture 86.72% 87.43% [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf"
+  },
+  {
+   "grandeur": "taux_couverture_creances_en_souffrance",
+   "valeur": 87.43,
+   "unite": "%",
+   "periode": "31/12/2025",
+   "perimetre": "social ; publié par la société",
+   "piece": "cp_2025",
+   "page": 1,
+   "citation": "le taux de couverture des créances en souffrance par les provisions est de 87,43% au 31/12/2025.",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Maghrebail_2025.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_et_assimiles",
+   "valeur": 1228.22,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (2024 : 1 153 383)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 68,
+   "citation": "CAPITAUX PROPRES ET ASSIMILES 1 228 220 1 153 383 1 086 958 (2025 2024 2023, en milliers de dirhams)",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "resultat_net",
+   "valeur": 148.199,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 135 634)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 46,
+   "citation": "IX.RESULTAT NET DE L'EXERCICE 148 199 135 634",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "encours_net_comptable",
+   "valeur": 13527,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (30/06/2025 : 12 508)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "L'encours net comptable de Maghrebail ressort à 13.527 millions de dirhams au 30.06.2026, en hausse de 8.15%",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf"
+  },
+  {
+   "grandeur": "creances_en_souffrance_brutes",
+   "valeur": 1610.309,
+   "unite": "MMAD (dont compromises 1 530 597)",
+   "periode": "30/06/2026 (colonne titrée « 30/06/2025 »)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 8,
+   "citation": "Total créances en souffrance 1 610 309 1 549 640 PROVISIONS 1 421 669 1 398 774 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf"
+  },
+  {
+   "grandeur": "taux_couverture_creances_en_souffrance",
+   "valeur": 86.72,
+   "unite": "%",
+   "periode": "30/06/2026",
+   "perimetre": "social ; publié",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "le taux de couverture de créance en souffrance par les provisions se situe à 86.72 %au titre du 1er semestre 2026.",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf"
+  },
+  {
+   "grandeur": "produit_net_bancaire",
+   "valeur": 239.772,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 215 181)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "III.PRODUIT NET 2 39 772 2 15 181 (chiffres espacés par l'extraction)",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf"
+  },
+  {
+   "grandeur": "charges_generales_exploitation",
+   "valeur": 53.509,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 54 776)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "IV.CHARGES GENERALES D'EXPLOITATION 5 3 509 5 4 776",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf"
+  },
+  {
+   "grandeur": "dotations_nettes_creances_en_souffrance",
+   "valeur": 22.8,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 27,3)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Les dotations nettes aux provisions pour créances en souffrances au 30/06/2026 s'établissent à 22.8 millions de dirhams contre 27.3 millions de dirhams en juin 2025.",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net",
+   "valeur": 82.516,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 71 497)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "IX.RESULTAT NET DE L'EXERCICE 8 2 516 7 1 497",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf"
+  }
+ ],
+ "calculs": [
+  {
+   "quoi": "Coefficient d'exploitation 2025",
+   "formule": "101 545 / 438 374",
+   "resultat": 23.2,
+   "unite": "%"
+  },
+  {
+   "quoi": "Coefficient d'exploitation S1 2026",
+   "formule": "53 509 / 239 772",
+   "resultat": 22.3,
+   "unite": "%"
+  },
+  {
+   "quoi": "Coût du risque 2025 sur créances (CPC)",
+   "formule": "142 584 − 84 738",
+   "resultat": 57.846,
+   "unite": "MMAD",
+   "note": "le CPC imprime « −57 846 » (p.47) ; le communiqué dit 74,1"
+  },
+  {
+   "quoi": "Coût du risque S1 2026 (CPC)",
+   "formule": "82 313 − 59 422",
+   "resultat": 22.891,
+   "unite": "MMAD",
+   "note": "recolle le 22,8 du communiqué à 0,1 près ; S1 2025 : 82 504 − 55 189 = 27 315, recolle 27,3"
+  },
+  {
+   "quoi": "Couverture recalculée 31/12/2025",
+   "formule": "1 398 774 / 1 549 640",
+   "resultat": 90.26,
+   "unite": "%",
+   "note": "publié 87,43 %"
+  },
+  {
+   "quoi": "Couverture recalculée 30/06/2026",
+   "formule": "1 421 669 / 1 610 309",
+   "resultat": 88.29,
+   "unite": "%",
+   "note": "publié 86,72 %"
+  },
+  {
+   "quoi": "Coût du risque 2025 / encours net",
+   "formule": "57 846 / 13 335 000",
+   "resultat": 0.43,
+   "unite": "%"
+  }
+ ],
+ "constats": [
+  "Trois divergences persistantes, non résolues par les annexes : (1) taux de couverture publié 87,43 % / 86,72 % contre 90,3 % / 88,3 % recalculés sur le même état ; (2) dotations nettes 2025 de 74,1 MMAD au communiqué contre 57,8 au CPC, alors que le S1 recolle ; (3) créances en souffrance brutes 1 866 009 KMAD (tableau des immobilisations, RFA p.53) contre 1 549 640 (état des créances, S1 p.8). → question IR.",
+  "L'état des créances du S1 2026 titre sa première colonne « 30/06/2025 » ; le texte p.1 attribue 86,72 % au S1 2026 : en-tête vraisemblablement erroné, signalé dans la question IR.",
+  "Aucun ratio de solvabilité ni fonds propres réglementaires dans les pages à texte. Pages 9-42 (rapport de gestion) en image, non rendues — non vérifié.",
+  "Les 1 228 220 KMAD sont des « capitaux propres et assimilés » (p.68), pas des fonds propres réglementaires."
+ ],
+ "conclusion": "Encours, coefficient d'exploitation, coût du risque, créances en souffrance : publiés ; la couverture et le coût du risque annuel ont DEUX valeurs selon la pièce.",
+ "debloquerait": "La composante bilan d'un crédit-bailleur, une fois la définition de la couverture et du coût du risque établie par la réponse IR.",
+ "question_ir": "docs/questions_ir/MGL.md",
+ "estimations": []
+}
