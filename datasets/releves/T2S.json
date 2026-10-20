@@ -1,0 +1,242 @@
+{
+ "ticker": "T2S",
+ "societe": "T2S Group Holding (T2S GROUP HOLDING)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "société absente de fondamentaux.json (les quatre composantes)",
+  "effet": "couverture 0 % : aucune note fondamentale",
+  "lu_dans": "data.json › T2S › note_fond.composantes.*.motif ; fond_score.py detail_fond_score (« société absente de fondamentaux.json »)"
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Indicateurs semestriels au 30 juin 2026 — comptes consolidés et sociaux, attestations d'examen limité (déposé AMMC le 30/09/2026)",
+   "url": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf",
+   "sha256": "3cadf1e6898a7145c908cb01ad69965aa436ec67e9bb51ff023de41273bd6440",
+   "octets": 2269399,
+   "pages": 3
+  },
+  {
+   "id": "dr_2025",
+   "rang_methode": 1,
+   "titre": "Document de référence exercice 2025 (IPO, EN/EM/010/2026) — déjà relevé dans faits_financiers.json › T2S, non retéléchargé",
+   "url": "https://www.ammc.ma/sites/default/files/T2S_IPO_DR_010_2026.pdf"
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "chiffre_affaires",
+   "valeur": 977.702,
+   "unite": "MMAD",
+   "periode": "S1 2026 (01/01–30/06/2026)",
+   "perimetre": "consolidé IFRS",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "PRODUITS DES ACTIVITÉS ORDINAIRES 977 702 773 478 (EN MILLIERS ; colonnes 30/06/2026 puis 30/06/2025)",
+   "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+  },
+  {
+   "grandeur": "chiffre_affaires",
+   "valeur": 773.478,
+   "unite": "MMAD",
+   "periode": "S1 2025",
+   "perimetre": "consolidé IFRS",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "PRODUITS DES ACTIVITÉS ORDINAIRES 977 702 773 478",
+   "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+  },
+  {
+   "grandeur": "ebitda",
+   "valeur": 248.512,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 254,078)",
+   "perimetre": "consolidé IFRS ; libellé émetteur « résultat opérationnel avant dotations aux amortissements »",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "RÉSULTAT OPÉRATIONNEL AVANT DOTATIONS AUX AMORTISSEMENTS 248 512 254 078",
+   "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_exploitation",
+   "valeur": 205.958,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 216,388)",
+   "perimetre": "consolidé IFRS (résultat opérationnel)",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "RÉSULTAT OPÉRATIONNEL 205 958 216 388",
+   "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": 91.307,
+   "unite": "MMAD",
+   "periode": "S1 2026",
+   "perimetre": "consolidé IFRS",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "RÉSULTAT NET CONSOLIDÉ 91 307 113 111 / PART DU GROUPE 91 307 108 864 / INTÉRÊTS MINORITAIRES - 4 247",
+   "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": 108.864,
+   "unite": "MMAD",
+   "periode": "S1 2025",
+   "perimetre": "consolidé IFRS",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "PART DU GROUPE 91 307 108 864",
+   "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_part_groupe",
+   "valeur": 1430.811,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 1 410,404)",
+   "perimetre": "consolidé IFRS ; minoritaires rachetés (31 941 → 0)",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "TOTAL CAPITAUX PROPRES PART DU GROUPE 1 430 811 1 410 404 / MINORITAIRES - 31 941",
+   "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+  },
+  {
+   "grandeur": "dettes_financement_plus_un_an",
+   "valeur": 384.611,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 481,452)",
+   "perimetre": "consolidé IFRS ; IFRS 16 : non ventilé sur cette pièce",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "DETTES DE FINANCEMENT À PLUS D'UN AN 384 611 481 452",
+   "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+  },
+  {
+   "grandeur": "dettes_financement_moins_un_an",
+   "valeur": 19.048,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 17,081)",
+   "perimetre": "consolidé IFRS",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "DETTES DE FINANCEMENT À MOINS D'UN AN 19 048 17 081",
+   "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 376.757,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 156,820)",
+   "perimetre": "consolidé IFRS ; poste du PASSIF courant libellé « trésorerie et équivalents » (concours bancaires : trésorerie de clôture = 31 635 − 376 757 = −345 122)",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "TRÉSORERIE ET ÉQUIVALENTS 376 757 156 820 (côté passif) ; TRÉSORERIE DE CLÔTURE -345 122 -14 894",
+   "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 31.635,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 359,641)",
+   "perimetre": "consolidé IFRS",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "TRÉSORERIE ACTIF 31 635 359 641",
+   "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+  },
+  {
+   "grandeur": "titres_placement",
+   "valeur": 13.044,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 119,892)",
+   "perimetre": "consolidé IFRS",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "TITRES DE PLACEMENT ET AUTRES INSTRUMENTS 13 044 119 892",
+   "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+  },
+  {
+   "grandeur": "flux_tresorerie_exploitation",
+   "valeur": -452.556,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : −13,223)",
+   "perimetre": "consolidé IFRS ; variation du BFR −555,420",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "FLUX NET DE TRÉSORERIE LIÉS À L'ACTIVITÉ -452 556 -13 223",
+   "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+  },
+  {
+   "grandeur": "capital_social",
+   "valeur": 1010.7834,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 927,027)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "* CAPITAL SOCIAL OU PERSONNEL (1) 1 010 783 400,00 927 027 000,00",
+   "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "croissance du CA S1/S1",
+   "formule": "977,702 / 773,478 − 1",
+   "resultat": 26.4,
+   "unite": "%"
+  },
+  {
+   "quoi": "croissance du RNPG S1/S1",
+   "formule": "91,307 / 108,864 − 1",
+   "resultat": -16.13,
+   "unite": "%"
+  },
+  {
+   "quoi": "RNPG 12 mois glissants au 30/06/2026",
+   "formule": "RNPG 2025 (204,576, DR p.219, déjà dans faits_financiers) − S1 2025 108,864 + S1 2026 91,307",
+   "resultat": 187.019,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "dette nette au 30/06/2026 (définition bilan, sans passifs locatifs distincts)",
+   "formule": "384,611 + 19,048 + 376,757 − 31,635 − 13,044",
+   "resultat": 735.737,
+   "unite": "MMAD",
+   "reserves": [
+    "inclut la trésorerie passif ; la définition émetteur n'est pas donnée dans cette pièce",
+    "IFRS 16 non ventilé"
+   ]
+  },
+  {
+   "quoi": "dette nette au 31/12/2025, même formule",
+   "formule": "481,452 + 17,081 + 156,820 − 359,641 − 119,892",
+   "resultat": 175.82,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "nombre d'actions au 30/06/2026 (indicatif)",
+   "formule": "capital social 1 010 783 400 ÷ nominal 100 DH (927 027 000 ÷ 9 270 270 au 31/12/2025, faits_financiers p.23)",
+   "resultat": 10107834,
+   "unite": "actions",
+   "reserves": [
+    "nominal non relevé dans cette pièce",
+    "l'IPO (juillet 2026) est postérieure au 30/06 : faits_financiers porte 21 785 174 actions (DR p.21) — le BPA doit se rapporter au nombre post-IPO, à confirmer sur pièce BVC"
+   ]
+  }
+ ],
+ "constats": [
+  "Pièce semestrielle consolidée trouvée : CA, EBITDA, résultat opérationnel, RNPG sur deux semestres, bilan complet au 30/06/2026 et au 31/12/2025.",
+  "La ligne « RÉSULTAT PAR ACTION (EN MAD) » est vide dans la pièce [vérifié sur image rendue de la p.1].",
+  "Le capital du bilan consolidé (1 010 567) = capital social 1 010 783 − capital non libéré 217 (tableau des variations) : recollé.",
+  "Retournement de la trésorerie (variation du BFR −555,4 MMAD au S1) : dette nette (même formule) 175,8 MMAD au 31/12/2025 → 735,7 au 30/06/2026.",
+  "casablanca-bourse.com et maroclear.ma : HTTP 000 (TLS non vérifiable) depuis le proxy le 16/10 — nombre de titres post-IPO non vérifié."
+ ],
+ "conclusion": "Les comptes publiés (DR 2025 + S1 2026) suffisent à toutes les composantes ; le blocage vient de l'absence de T2S dans fondamentaux.json, pas d'une pièce manquante.",
+ "debloquerait": "croissance (CA +26,4 %, RNPG −16,1 % S1/S1), PER sur RNPG 12 mois glissants 187,0 MMAD (sous réserve du nombre d'actions post-IPO), bilan (dette nette / EBITDA), qualité (ROIC) — après inscription dans fondamentaux.json et intégration par PR.",
+ "question_ir": null
+}

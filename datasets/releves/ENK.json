@@ -1,0 +1,244 @@
+{
+ "ticker": "ENK",
+ "societe": "Ennakl Automobiles (ENNAKL AUTOMOBILES S.A., Tunis ; code Bourse « NKL »)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "qualité : ROIC non calculé sur comptes publiés ; croissance non établie sur comptes semestriels ; valorisation : pas de PER positif ; bilan : dette nette / EBITDA non calculée",
+  "effet": "couverture 0 %",
+  "lu_dans": "data.json › ENK › note_fond ; faits_financiers.json › ENK (RFA 2025, consolidé SCE tunisien, en MTND)"
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "États financiers intermédiaires au 30 juin 2026 : p.1 individuels IFRS, p.2 consolidés IFRS, avec rapports d'examen limité (déposé AMMC le 02/10/2026 ; pages sans couche texte)",
+   "url": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_S1_26.pdf",
+   "sha256": "65b123df7247ccea02328f87c04320f39053c2c7287fc10a70ed98b854ee3a14",
+   "octets": 3453085,
+   "pages": 2
+  },
+  {
+   "id": "rfa_2025",
+   "rang_methode": 1,
+   "titre": "Rapport à l'AGO du 29/04/2026 (exercice 2025) — déjà relevé dans faits_financiers ; relu ici pour le référentiel",
+   "url": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_RFA_2025.pdf",
+   "sha256": "4ba8d87b62b17455facd729b2b64f008062ea7dd21585867f518ee9ed5e00bec",
+   "octets": 5377614,
+   "pages": 112
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "chiffre_affaires",
+   "valeur": 368.37,
+   "unite": "MTND",
+   "periode": "S1 2026",
+   "perimetre": "consolidé IFRS, DINARS TUNISIENS (aucune conversion en dirhams)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Produits issus des contrats avec les clients R-1 368 370 286 352 118 840 (En dinars tunisiens ; colonnes 30/06/2026, 30/06/2025) [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_S1_26.pdf"
+  },
+  {
+   "grandeur": "chiffre_affaires",
+   "valeur": 352.119,
+   "unite": "MTND",
+   "periode": "S1 2025",
+   "perimetre": "consolidé IFRS, DINARS TUNISIENS (aucune conversion en dirhams)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Produits issus des contrats avec les clients R-1 368 370 286 352 118 840 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_operationnel",
+   "valeur": 30.931,
+   "unite": "MTND",
+   "periode": "S1 2026 (S1 2025 : 41,758)",
+   "perimetre": "consolidé IFRS, DINARS TUNISIENS (aucune conversion en dirhams)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "RÉSULTAT OPÉRATIONNEL 30 930 653 41 757 573 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_S1_26.pdf"
+  },
+  {
+   "grandeur": "amortissements_provisions",
+   "valeur": 5.272,
+   "unite": "MTND",
+   "periode": "S1 2026 (S1 2025 : 5,695)",
+   "perimetre": "consolidé IFRS, DINARS TUNISIENS (aucune conversion en dirhams) ; tableau des flux",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Amortissements & provisions 5 272 211 5 695 085 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": 29.973,
+   "unite": "MTND",
+   "periode": "S1 2026",
+   "perimetre": "consolidé IFRS, DINARS TUNISIENS (aucune conversion en dirhams)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "RÉSULTAT CONSOLIDÉ DE LA PÉRIODE 29 973 162 37 140 122 ; Résultat consolidé de base par action 0,999 1,238 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": 37.14,
+   "unite": "MTND",
+   "periode": "S1 2025",
+   "perimetre": "consolidé IFRS, DINARS TUNISIENS (aucune conversion en dirhams)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "RÉSULTAT CONSOLIDÉ DE LA PÉRIODE 29 973 162 37 140 122 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": 58.039,
+   "unite": "MTND",
+   "periode": "exercice 2025 (comparatif du bilan IFRS)",
+   "perimetre": "consolidé IFRS, DINARS TUNISIENS (aucune conversion en dirhams) ; diffère du RNPG SCE 59,658 de faits_financiers",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Résultat consolidé 29 973 162 58 038 643 (colonnes 30/06/2026, 31/12/2025) [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_S1_26.pdf"
+  },
+  {
+   "grandeur": "bpa",
+   "valeur": 0.999,
+   "unite": "TND",
+   "periode": "S1 2026 (S1 2025 : 1,238)",
+   "perimetre": "consolidé IFRS, DINARS TUNISIENS (aucune conversion en dirhams)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Résultat consolidé de base par action 0,999 1,238 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_S1_26.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_part_groupe",
+   "valeur": 486.675,
+   "unite": "MTND",
+   "periode": "30/06/2026 (31/12/2025 : 375,118)",
+   "perimetre": "consolidé IFRS, DINARS TUNISIENS (aucune conversion en dirhams) ; minoritaires 3 766 TND",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "TOTAL CAPITAUX CONSOLIDES 486 674 539 375 117 851 ; CAC : capitaux propres consolidés-part du groupe de 486 674 539 DT [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_S1_26.pdf"
+  },
+  {
+   "grandeur": "emprunts_dettes_financieres_courants",
+   "valeur": 65.551,
+   "unite": "MTND",
+   "periode": "30/06/2026 (31/12/2025 : 20,145)",
+   "perimetre": "consolidé IFRS, DINARS TUNISIENS (aucune conversion en dirhams)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Emprunts et dettes financières P1 65 551 223 20 144 637 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_S1_26.pdf"
+  },
+  {
+   "grandeur": "emprunts_non_courants",
+   "valeur": 0.0,
+   "unite": "MTND",
+   "periode": "30/06/2026 (31/12/2025 : 0,457)",
+   "perimetre": "consolidé IFRS, DINARS TUNISIENS (aucune conversion en dirhams)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Emprunts P1 0 457 069 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_S1_26.pdf"
+  },
+  {
+   "grandeur": "obligations_locatives",
+   "valeur": 4.927,
+   "unite": "MTND",
+   "periode": "30/06/2026 (31/12/2025 : 5,017)",
+   "perimetre": "consolidé IFRS, DINARS TUNISIENS (aucune conversion en dirhams) ; IFRS 16",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Obligations locatives P1 4 927 230 5 017 169 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_S1_26.pdf"
+  },
+  {
+   "grandeur": "liquidites",
+   "valeur": 54.438,
+   "unite": "MTND",
+   "periode": "30/06/2026 (31/12/2025 : 32,740)",
+   "perimetre": "consolidé IFRS, DINARS TUNISIENS (aucune conversion en dirhams) ; = trésorerie de fin de période du tableau des flux",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "A8 54 438 348 32 739 719 ; TRÉSORERIE ET ÉQUIVALENTS DE TRÉSORERIE EN FIN DE PÉRIODE 54 438 348 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_S1_26.pdf"
+  },
+  {
+   "grandeur": "referentiel_rfa_2025",
+   "valeur": "SCE tunisien ; IFRS établis à part",
+   "unite": "constat",
+   "periode": "exercice 2025",
+   "perimetre": "consolidé",
+   "piece": "rfa_2025",
+   "page": 82,
+   "citation": "Il est à noter que la société prépare aussi des états financiers consolidés selon les normes internationales de l'information financière (IFRS).",
+   "source": "https://www.ammc.ma/sites/default/files/Ennakl_Automobiles_RFA_2025.pdf"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "croissance du CA S1/S1 (IFRS)",
+   "formule": "368,370 / 352,119 − 1",
+   "resultat": 4.62,
+   "unite": "%"
+  },
+  {
+   "quoi": "croissance du RNPG S1/S1 (IFRS)",
+   "formule": "29,973 / 37,140 − 1",
+   "resultat": -19.3,
+   "unite": "%"
+  },
+  {
+   "quoi": "RNPG IFRS 12 mois glissants au 30/06/2026",
+   "formule": "58,039 − 37,140 + 29,973",
+   "resultat": 50.872,
+   "unite": "MTND"
+  },
+  {
+   "quoi": "BPA IFRS 12 mois glissants",
+   "formule": "50,872 MTND / 30 000 000 actions (capital 30 000 000, faits_financiers p.80)",
+   "resultat": 1.696,
+   "unite": "TND"
+  },
+  {
+   "quoi": "EBITDA approché S1 2026 (pas un chiffre publié)",
+   "formule": "résultat opérationnel 30,931 + amortissements & provisions 5,272",
+   "resultat": 36.203,
+   "unite": "MTND",
+   "reserves": [
+    "les provisions incluses ne sont pas toutes des amortissements"
+   ]
+  },
+  {
+   "quoi": "dette nette IFRS au 30/06/2026",
+   "formule": "65,551 + 0 + 4,927 (locatif) − 54,438",
+   "resultat": 16.04,
+   "unite": "MTND",
+   "reserves": [
+    "hors locatif : 11,113",
+    "actifs financiers au coût amorti (190,9 courant) non déduits : nature non établie"
+   ]
+  }
+ ],
+ "constats": [
+  "Deux référentiels pour le même exercice : le RFA 2025 déposé à l'AMMC est en SCE tunisien (base de faits_financiers : CP 279,6, RNPG 59,66 MTND) ; le semestriel 2026 est en IFRS, avec un 31/12/2025 IFRS (CP 375,1, RN 58,04). L'émetteur l'annonce (RFA p.82) : ce n'est pas une divergence entre pièces mais un changement de base. Ne PAS mélanger les deux dans un même ratio.",
+  "Les comptes consolidés IFRS 2025 complets, approuvés par l'AGO (RFA p.110 « états financiers individuels, consolidés et IFRS »), ne figurent pas dans la pièce AMMC : seul leur comparatif résumé est disponible.",
+  "Faute de frappe dans la pièce : capital social au 31/12/2025 imprimé « 330 000 000 » sur la p.2 ; la somme 30 000 000 + 287 079 208 + 58 038 643 = 375 117 851 (total imprimé) et la p.1 (« 30 000 000 ») établissent 30 000 000.",
+  "Écart CP IFRS/SCE au 31/12/2025 (375,1 contre 279,6) : vraisemblablement les actifs financiers à la juste valeur par AERG (154,8 MTND au bilan IFRS) — piste, non prouvée.",
+  "Toutes les valeurs sont en dinars tunisiens : un PER rapproché d'un cours en MAD exige un change daté, hors périmètre."
+ ],
+ "conclusion": "Pièce S1 2026 IFRS trouvée : CA, résultat opérationnel, RNPG et BPA sur deux semestres, bilan au 30/06/2026 et au 31/12/2025, cohérents entre eux. La croissance, le PER (BPA glissant 1,696 TND) et la dette nette (16,0 MTND avec locatif) deviennent calculables, À CONDITION de ne pas les recoller aux chiffres SCE du RFA. Aucune question IR (écart expliqué par l'émetteur).",
+ "debloquerait": "croissance (CA +4,6 %, RNPG −19,3 % S1/S1), valorisation (PER en TND converti), bilan (dette nette / EBITDA glissant) ; qualité (ROIC) si le verificateur-finance retient la base IFRS de bout en bout.",
+ "question_ir": null
+}

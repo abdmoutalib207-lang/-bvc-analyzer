@@ -1,0 +1,256 @@
+{
+ "ticker": "MDP",
+ "societe": "Med Paper (MED PAPER SA)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "société absente de fondamentaux.json (les quatre composantes)",
+  "effet": "couverture 0 % : aucune note fondamentale",
+  "lu_dans": "data.json › MDP › note_fond.composantes.*.motif ; faits_financiers.json › MDP absent"
+ },
+ "pieces": [
+  {
+   "id": "rfa_2025",
+   "rang_methode": 1,
+   "titre": "Rapport financier annuel 2025 (comptes sociaux ; 84 pages dont 37 sans couche texte, rapports des CAC p.11–18 en image)",
+   "url": "https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf",
+   "sha256": "1c38089c7767c9d8d14d2f040bf10b7abd5ba07a97b431ff1e10c044e560e6b7",
+   "octets": 3634264,
+   "pages": 84
+  },
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Résultat semestriel au 30 juin 2026 : communiqué (p.1) + bilan et CPC sociaux (p.2), sans couche texte — déposé AMMC le 30/09/2026",
+   "url": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf",
+   "sha256": "920bc778f0e04539db63e3f63e7f28429eba3a9ca15fa2a230d1fb8d6b9e8d01",
+   "octets": 4496411,
+   "pages": 3
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "chiffre_affaires",
+   "valeur": 88.409,
+   "unite": "MMAD",
+   "periode": "exercice 2025",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé)",
+   "piece": "rfa_2025",
+   "page": 41,
+   "citation": "3 Ventes de biens et services produits 88.408.885,33 105.563.865,54 (colonnes exercice 2025, exercice 2024)",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "chiffre_affaires",
+   "valeur": 105.564,
+   "unite": "MMAD",
+   "periode": "exercice 2024",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé)",
+   "piece": "rfa_2025",
+   "page": 41,
+   "citation": "3 Ventes de biens et services produits 88.408.885,33 105.563.865,54",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "excedent_brut_exploitation",
+   "valeur": -4.561,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 11,738)",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé)",
+   "piece": "rfa_2025",
+   "page": 41,
+   "citation": "EXCEDENT BRUT D'EXPLOITATION (EBE) OU INSUFFISANCE BRUTE D'EXPLOITATION (IBE) = -4.560.519,88 11.738.194,57",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "resultat_exploitation",
+   "valeur": -10.356,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 6,200)",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé)",
+   "piece": "rfa_2025",
+   "page": 41,
+   "citation": "VI = RESULTAT D'EXPLOITATION(+ou-) -10.355.525,86 6.199.680,89",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "resultat_net",
+   "valeur": 6.713,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 7,985)",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé) ; porté par un résultat non courant de +22,126",
+   "piece": "rfa_2025",
+   "page": 41,
+   "citation": "+ RESULTAT NON COURANT 22.126.203,77 5.337.743,41 ; X = RESULTAT NET DE L'EXERCICE 6.713.105,50 7.985.231,64",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "chiffre_affaires",
+   "valeur": 39.015,
+   "unite": "MMAD",
+   "periode": "S1 2026",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Chiffre d'affaires 39.015.295,23 | 39.015.295,23 | 88.408.885,33 (la 4e colonne « exercice précédent » est l'EXERCICE 2025, pas le S1 2025) [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf"
+  },
+  {
+   "grandeur": "chiffre_affaires",
+   "valeur": 42.42,
+   "unite": "MMAD",
+   "periode": "S1 2025",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé) ; seule source : le communiqué (le CPC semestriel ne donne pas le S1 2025)",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Ventes (HT) 1 er semestre 2026 17 235 21 781 39 015 ; Ventes (HT) 1 er semestre 2025 19 001 23 419 42 420 (en Kdh) [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf"
+  },
+  {
+   "grandeur": "excedent_brut_exploitation",
+   "valeur": 5.891,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 4,609)",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé)",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "*excédent brut d'exploitation (EBE) en kdh 5 891 4 609 (colonnes 30/06/2026, 30/06/2025) [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_exploitation",
+   "valeur": 2.825,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 1,596)",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "RESULTAT D'EXPLOITATION (I-II) 2.956.149,58 | -131.230,00 | 2.824.919,58 | -10.355.525,86 [lu sur image rendue] ; p.1 : 2 825 1 596",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net",
+   "valeur": 0.95,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 1,535 selon le communiqué)",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "RESULTAT NET (XI-XII) 1.081.197,74 | -131.230,00 | 949.967,74 | 6.713.105,50 [lu sur image rendue] ; p.1 : *résultat net de l'exercice en kdh 950 1 535",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres",
+   "valeur": 42.096,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 41,146)",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Total des capitaux propres (A) 42.095.935,85 41.145.968,11 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf"
+  },
+  {
+   "grandeur": "dettes_financement",
+   "valeur": 79.972,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 97,831)",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Dettes de financement (C) 79.971.792,27 97.830.543,27 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 17.905,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 70,152)",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé) ; dont crédits d'escompte 6,221 (59,769) et banques 11,683 (10,383)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "TRESORERIE PASSIF 17.904.875,13 70.151.927,05 ; Crédits d'escompte 6.221.468,75 59.768.916,60 ; Banques (Soldes créditeurs) 11.683.406,38 10.383.010,45 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 0.273,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 0,632)",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "TOTAL III 273.087,60 631.924,66 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf"
+  },
+  {
+   "grandeur": "capital_social",
+   "valeur": 47.838,
+   "unite": "MMAD",
+   "periode": "31/12/2025 et 30/06/2026",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 38,
+   "citation": "Capital social ou personnel (1) 47.838.230,00 47.838.230,00",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "croissance du CA S1/S1",
+   "formule": "39,015 / 42,420 − 1",
+   "resultat": -8.03,
+   "unite": "%"
+  },
+  {
+   "quoi": "croissance du résultat net S1/S1",
+   "formule": "0,950 / 1,535 − 1",
+   "resultat": -38.11,
+   "unite": "%"
+  },
+  {
+   "quoi": "résultat net 12 mois glissants au 30/06/2026",
+   "formule": "6,713 − 1,535 + 0,950",
+   "resultat": 6.128,
+   "unite": "MMAD",
+   "reserves": [
+    "S1 2025 tiré du communiqué seul",
+    "l'exercice 2025 doit son bénéfice au non courant (+22,1) : bénéfice non récurrent"
+   ]
+  },
+  {
+   "quoi": "EBE 12 mois glissants",
+   "formule": "−4,561 − 4,609 + 5,891",
+   "resultat": -3.279,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "dette nette au 30/06/2026",
+   "formule": "79,972 + 17,905 − 0,273",
+   "resultat": 97.604,
+   "unite": "MMAD",
+   "reserves": [
+    "le crédit d'escompte (6,2) est inclus ; 31/12/2025, même formule : 97,831 + 70,152 − 0,632 = 167,351"
+   ]
+  },
+  {
+   "quoi": "nombre d'actions (indicatif, pas sur pièce)",
+   "formule": "capital 47 838 230 ÷ nominal 10 (nominal NON relevé ; pipeline/balayage_rfa.json l'a déduit et recoupé à 0,4 % par capitalisation ÷ cours)",
+   "resultat": 4783823,
+   "unite": "actions"
+  }
+ ],
+ "constats": [
+  "Comptes SOCIAUX seulement ; normes marocaines.",
+  "Le CPC semestriel compare au 31/12/2025, pas au 30/06/2025 : la croissance S1/S1 ne s'établit que par le communiqué de la p.1 (CA 42 420 et RN 1 535 KDH au S1 2025). Le communiqué recolle avec le CPC sur le S1 2026 (CA 39 015, RE 2 825, RN 950).",
+  "Contrôles faits sur image : capitaux propres 47 838 230 + 0,46 − 6 692 262,35 + 949 967,74 = 42 095 935,85 ; trésorerie passif 6 221 468,75 + 11 683 406,38 = 17 904 875,13 — recollés.",
+  "Forte baisse des crédits d'escompte (59,8 → 6,2 MMAD) en même temps que les créances clients (116,2 → 63,7 MMAD net, lu sur image) : piste de remboursement ou de reclassement, non établie.",
+  "EBE 2025 négatif et EBE glissant négatif (−3,3 MMAD) : un ratio dette nette / EBITDA n'a pas de sens ici ; question de règle.",
+  "Non lus : rapports des CAC 2025 (p.11–18, images) et p.3 du semestriel (attestation probable). Nombre d'actions non établi sur pièce (Bourse de Casablanca injoignable)."
+ ],
+ "conclusion": "Pièces trouvées pour toutes les grandeurs sauf le nombre d'actions. Résultat net glissant positif (6,1 MMAD) mais non récurrent ; EBE glissant négatif. Pas de divergence : aucune question IR.",
+ "debloquerait": "croissance (CA −8,0 %, RN −38,1 % S1/S1), valorisation (PER sur 6,1 MMAD, si le nombre d'actions est établi sur pièce), bilan (dette nette 97,6 MMAD ; EBITDA négatif → règle à décider), après inscription de MDP dans fondamentaux.json.",
+ "question_ir": null
+}
