@@ -6362,10 +6362,16 @@
     "note": "« Dont : Capitaux propres part du groupe ( 97.214) ( 113.253) » ; en-tête « PASSIF 31/12/2025 31/12/2024 ». ⚠️ FONDS PROPRES NÉGATIFS — les parenthèses sont la convention comptable du signe moins. Stokvis a des réserves consolidées de -299 928 KMAD qui excèdent son capital de 176 952 KMAD. Le moteur ne publiera donc PAS de price-to-book : une société dont le livre est négatif ne se compare pas à son livre. Ce fait est relevé pour que ce refus soit SOURCÉ, et non pris pour une donnée manquante. Capital 176 952 KMAD = 17 695 200 titres de nominale 10."
    },
    "nombre_actions_au_rapport": {
-    "valeur": 17695200,
+    "valeur": 17695150,
     "page": 30,
     "unite": "actions",
-    "note": "capital 176 952 KMAD ÷ nominale 10. Le marché en implique 17 698 842 (écart 0,02 %)."
+    "source": "liste des émetteurs, Bourse de Casablanca (https://www.casablanca-bourse.com/emetteurs/liste-emetteurs, relevé du 20/10/2026, datasets/bourse_emetteurs.json : « STOKVIS NORD AFRIQUE … code SNA … nombre_titres 17695150 »)",
+    "note": "17 695 150 actions = capital 176 951 500 DH ÷ nominal 10. Le bilan p.30 ne donne le capital qu'en KMAD (« 176.952 ») : le diviser par 10 donnait 17 695 200, un artefact d'arrondi au millier. Nombre exact relevé sur la liste des émetteurs de l'opérateur, identique à fondamentaux.json (nb_actions). Validé par verificateur-finance le 20/10/2026.",
+    "releve_le": "2026-10-20",
+    "remplace": {
+     "valeur": 17695200,
+     "motif": "capital en KMAD arrondi ÷ 10 : capital 176 952 KMAD ÷ nominale 10. Le marché en implique 17 698 842 (écart 0,02 %)."
+    }
    },
    "total_actif": {
     "valeur": 425.636,
