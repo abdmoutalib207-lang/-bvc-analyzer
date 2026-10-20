@@ -1,0 +1,40 @@
+{
+  "ticker": "ADH",
+  "societe": "Douja Promotion Groupe Addoha",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF",
+  "blocage": {
+    "motif": "dette nette / EBITDA non calculée sur comptes publiés",
+    "effet": "composante « bilan » retirée ; ratios_publies.non_calcules_2025.ebitda : « ni EBE publié, ni dotations aux amortissements isolées »",
+    "lu_dans": "data.json › ADH › note_fond.composantes.bilan.motif ; fond_score.py l.380"
+  },
+  "pieces": [
+    {"id": "rfa_2025", "rang_methode": 1, "titre": "Rapport financier annuel 2025 (13,5 Mo, non commité)", "url": "https://www.ammc.ma/sites/default/files/Addoha_RFA_2025.pdf", "sha256": "0bec51e016409c0204221352b76c179087461a19e4ac7e1076622f0c130b6dbb", "octets": 13554703, "pages": 129},
+    {"id": "cp_2025", "rang_methode": 1, "titre": "Communiqué financier — résultats 2025", "url": "https://www.ammc.ma/sites/default/files/CP_Addoha_2025.pdf", "sha256": "419cc8161fe67f94298a98cc9ba7cb2eb7c1b95e423a28425ea192b7a08a3d51", "octets": 236599, "pages": 2},
+    {"id": "rfs_s1_2026", "rang_methode": 1, "titre": "Rapport financier semestriel au 30/06/2026 (7,9 Mo, non commité)", "url": "https://www.ammc.ma/sites/default/files/Addoha_RFS_S1_26.pdf", "sha256": "d73fb0ffd2ecae62b6b51a7d68bab415367befcb7c613debbfb733aa528a3c1e", "octets": 7948955, "pages": 33}
+  ],
+  "chiffres": [
+    {"grandeur": "endettement_net_emetteur", "valeur": 4385.0, "unite": "MMAD", "periode": "31/12/2025", "perimetre": "consolidé IFRS, sans définition", "source": "https://www.ammc.ma/sites/default/files/CP_Addoha_2025.pdf", "piece": "cp_2025", "page": 2, "citation": "4.1 Endettement net : En 2025, l’endettement net du Groupe s’est stabilisé à près de 4 385 millions de dirhams … avec un ratio de gearing limité à 30%"},
+    {"grandeur": "endettement_net_emetteur", "valeur": 4385.0, "unite": "MMAD", "periode": "31/12/2025", "perimetre": "consolidé IFRS", "source": "https://www.ammc.ma/sites/default/files/Addoha_RFA_2025.pdf", "piece": "rfa_2025", "page": 9, "citation": "En 2025, l’endettement net du Groupe s’est stabilisé à près de 4 385 millions de dirhams"},
+    {"grandeur": "amortissements_et_provisions_exploitation", "valeur": 114.112216, "unite": "MMAD (signe du compte de résultat : produit net)", "periode": "exercice 2025 (2024 : 184,804)", "perimetre": "consolidé IFRS ; amortissements ET provisions, ligne unique", "source": "https://www.ammc.ma/sites/default/files/Addoha_RFA_2025.pdf", "piece": "rfa_2025", "page": 54, "citation": "EN MAD 31.12.2025 31.12.2024 … Amortissements et provisions d'exploitation 114.112.216 184.804.434 … RÉSULTAT DES ACTIVITÉS OPÉRATIONNELLES 448.536.540 454.640.138"},
+    {"grandeur": "amortissements_et_provisions_flux", "valeur": 27.571635, "unite": "MMAD", "periode": "exercice 2025 (2024 : 52,359)", "perimetre": "consolidé IFRS, tableau des flux", "source": "https://www.ammc.ma/sites/default/files/Addoha_RFA_2025.pdf", "piece": "rfa_2025", "page": 57, "citation": "Amortissements et provisions 27.571.635 52.358.781"},
+    {"grandeur": "endettement_net_emetteur_s1", "valeur": 5000.0, "unite": "MMAD (arrondi « 5,0 Md »)", "periode": "30/06/2026", "perimetre": "consolidé IFRS", "source": "https://www.ammc.ma/sites/default/files/Addoha_RFS_S1_26.pdf", "piece": "rfs_s1_2026", "page": 5, "citation": "Capitaux propres Endettement net BFR 10,7 5,0 14,9 … Md MAD … gearing < 32 %"},
+    {"grandeur": "amortissements_et_provisions_exploitation_s1", "valeur": 131.634423, "unite": "MMAD", "periode": "S1 2026 (S1 2025 : −21,425)", "perimetre": "consolidé IFRS, ligne unique", "source": "https://www.ammc.ma/sites/default/files/Addoha_RFS_S1_26.pdf", "piece": "rfs_s1_2026", "page": 17, "citation": "Amortissements et provisions d'exploitation 131.634.423 -21.424.858 … RÉSULTAT DES ACTIVITÉS OPÉRATIONNELLES 304.212.560 234.843.257"}
+  ],
+  "estimations": [],
+  "calculs": [
+    {"quoi": "Dette nette du moteur contre endettement net de l'émetteur", "formule": "4 553,079 − 167,628 = 4 385,5 contre « près de 4 385 »", "resultat": 0.5},
+    {"quoi": "Gearing de l'émetteur reconstruit (forme DN/(DN+CP))", "formule": "4 385,5 ÷ (4 385,5 + 10 410,6)", "resultat": 0.296},
+    {"quoi": "Gearing sous la forme DN/CP, pour comparaison", "formule": "4 385,5 ÷ 10 410,6", "resultat": 0.421}
+  ],
+  "constats": [
+    "La dette nette n'est pas en cause : celle du moteur (4 385,5) concorde avec celle de l'émetteur (« près de 4 385 », communiqué p.2 et RFA p.9). Le gearing de 30 % se reconstruit sous la forme DN/(DN+CP), pas DN/CP (42 %).",
+    "Aucun EBITDA ni EBE consolidé n'est publié dans les trois pièces. L'EBE de la p.28 du RFA est SOCIAL (−148,2 MMAD).",
+    "La seule ligne d'amortissements du compte de résultat consolidé, « Amortissements et provisions d'exploitation », mêle amortissements et provisions et porte un solde de PRODUIT (114,1 en 2025, 131,6 au S1 2026) : reprises de provisions supérieures aux dotations. Résultat opérationnel + cette ligne ne donne pas un EBITDA.",
+    "Pour un promoteur dont l'actif est en stocks, la dette nette / EBITDA n'est pas l'indicateur que l'émetteur publie : il publie le gearing. Le choix d'un critère de bilan adapté relève de la note métier, pas de ce relevé."
+  ],
+  "conclusion": "Blocage confirmé sur pièce : pas d'EBITDA consolidé publié, pas d'amortissements isolés. Rien ne le lève dans le RFA 2025 ni dans le semestriel 2026.",
+  "debloquerait": "Rien pour la dette nette / EBITDA. Les pièces établissent en revanche la dette nette (4 385) et le gearing de l'émetteur (30 %, DN/(DN+CP)), utilisables par un critère de bilan propre aux promoteurs si la note métier le retient.",
+  "question_ir": null
+}
