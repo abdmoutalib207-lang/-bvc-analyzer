@@ -1,0 +1,281 @@
+{
+  "ticker": "CDM",
+  "societe": "Crédit du Maroc",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF (1 = première page du fichier), pas le folio imprimé",
+  "blocage": {
+    "motif": "équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière",
+    "effet": "composante « bilan » retirée de la note fondamentale ; note métier : bilan « sans objet : la dette est l'activité d'un établissement financier »",
+    "lu_dans": "pipeline/smart_money/fond_score.py l.367 (est_financiere) ; data.json › CDM › note_fond_metier.criteres.bilan.motif"
+  },
+  "pieces": [
+    {
+      "id": "rfa_2025",
+      "rang_methode": 1,
+      "titre": "Rapport financier annuel 2025 (dépôt AMMC)",
+      "url": "https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf",
+      "sha256": "11af272b57e92d54cc077b1d943ecff26c24c61972ca2a0c0464ab3c8796f692",
+      "octets": 16827640,
+      "pages": 225
+    },
+    {
+      "id": "rfs_s1_2026",
+      "rang_methode": 1,
+      "titre": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC)",
+      "url": "https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf",
+      "sha256": "dc2a230397f7b1b2cf6053be39b76cae7721a4d4e78b9ab552c4b0641a9b9097",
+      "octets": 1655358,
+      "pages": 24
+    }
+  ],
+  "chiffres": [
+    {
+      "grandeur": "ratio_solvabilite",
+      "valeur": 14.85,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé (« ratios du Groupe »), Bâle III ; colonnes déc-25 puis déc-24",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 19,
+      "citation": "Ratio sur fonds propres de base (T1) 12,16 % 12,72 % / Ratio de solvabilité 14,85 % 14,20 %"
+    },
+    {
+      "grandeur": "ratio_tier1",
+      "valeur": 12.16,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé, Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 19,
+      "citation": "Ratio sur fonds propres de base (T1) 12,16 % 12,72 %"
+    },
+    {
+      "grandeur": "cout_du_risque",
+      "valeur": 383.113,
+      "unite": "MMAD (charge)",
+      "periode": "exercice 2025",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 13,
+      "citation": "Coût du risque 2.1 -383 113 -398 408"
+    },
+    {
+      "grandeur": "encours_credits_clientele",
+      "valeur": 62862.585,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS, prêts et créances sur la clientèle au coût amorti (nets)",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 13,
+      "citation": "Prêts et créances sur la clientèle, au coût amorti 3.2 62 862 585 56 622 038"
+    },
+    {
+      "grandeur": "creances_bucket3_clientele_brutes",
+      "valeur": 4434.406,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 21,
+      "citation": "Prêts et créances sur la clientèle 57 700 546 4 696 345 4 434 406 207 406 621 672 3 139 634"
+    },
+    {
+      "grandeur": "depreciations_bucket3_clientele",
+      "valeur": 3139.634,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 21,
+      "citation": "Prêts et créances sur la clientèle 57 700 546 4 696 345 4 434 406 207 406 621 672 3 139 634"
+    },
+    {
+      "grandeur": "taux_couverture_creances_en_souffrance",
+      "valeur": 89.5,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé, définition émetteur = TOUTES les dépréciations (Buckets 1+2+3) / Bucket 3 (voir calculs)",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 5,
+      "citation": "Le taux de couverture des créances en souffrance s'établit à 89,5 %, en amélioration de 206 points de base"
+    },
+    {
+      "grandeur": "coefficient_exploitation",
+      "valeur": 46.3,
+      "unite": "%",
+      "periode": "exercice 2025",
+      "perimetre": "consolidé, définition émetteur",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 4,
+      "citation": "amélioration de 228 points du coefficient d'exploitation qui s'établit à 46,3 %."
+    },
+    {
+      "grandeur": "ratio_solvabilite",
+      "valeur": 13.7,
+      "unite": "%",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé, Bâle III ; colonnes juin-26 puis déc-25",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 10,
+      "citation": "Ratio sur fonds propres de base (T1) 11,22% 12,16% / Ratio de solvabilité 13,70% 14,85%"
+    },
+    {
+      "grandeur": "ratio_tier1",
+      "valeur": 11.22,
+      "unite": "%",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé, Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 10,
+      "citation": "Ratio sur fonds propres de base (T1) 11,22% 12,16%"
+    },
+    {
+      "grandeur": "cout_du_risque",
+      "valeur": 28.007,
+      "unite": "MMAD (charge)",
+      "periode": "S1 2026 (01/01-30/06/2026)",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 4,
+      "citation": "Coût du risque 2.1 -28 007 -129 863"
+    },
+    {
+      "grandeur": "encours_credits_clientele",
+      "valeur": 64276.464,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS, prêts et créances sur la clientèle au coût amorti (nets)",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 4,
+      "citation": "Prêts et créances sur la clientèle, au coût amorti 3.2 64 276 464 62 862 585"
+    },
+    {
+      "grandeur": "creances_bucket3_clientele_brutes",
+      "valeur": 4605.201,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 12,
+      "citation": "Prêts et créances sur la clientèle 57 476 753 6 166 205 4 605 201 202 883 467 989 3 300 822"
+    },
+    {
+      "grandeur": "depreciations_bucket3_clientele",
+      "valeur": 3300.822,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 12,
+      "citation": "Prêts et créances sur la clientèle 57 476 753 6 166 205 4 605 201 202 883 467 989 3 300 822"
+    },
+    {
+      "grandeur": "creances_en_souffrance_communique",
+      "valeur": 4259.0,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé selon le texte ; NE CONCORDE PAS avec le Bucket 3 de la note p.12 (4 605,2)",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 3,
+      "citation": "Les créances en souffrance s'élèvent à 4 259 MDH, en hausse de 8,2 %"
+    },
+    {
+      "grandeur": "taux_couverture_creances_en_souffrance",
+      "valeur": 86.2,
+      "unite": "%",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé, définition émetteur (toutes dépréciations / Bucket 3)",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 3,
+      "citation": "un taux de couverture des créances en souffrance qui s'améliore à 86,2 %."
+    },
+    {
+      "grandeur": "taux_creances_douteuses",
+      "valeur": 6.6,
+      "unite": "%",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé, définition émetteur",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 3,
+      "citation": "un taux de créances douteuses et litigieuses qui baisse de 50 points de base à 6,6 %"
+    },
+    {
+      "grandeur": "coefficient_exploitation",
+      "valeur": 45.0,
+      "unite": "%",
+      "periode": "S1 2026",
+      "perimetre": "consolidé, définition émetteur",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 3,
+      "citation": "amélioration du coefficient d'exploitation de 104 points de base pour s'établir à 45 %."
+    }
+  ],
+  "estimations": [],
+  "calculs": [
+    {
+      "quoi": "couverture 2025, définition émetteur reconstituée",
+      "formule": "(207 406 + 621 672 + 3 139 634) / 4 434 406",
+      "resultat": 89.5,
+      "unite": "%"
+    },
+    {
+      "quoi": "couverture Bucket 3 seule 2025 (définition des autres banques)",
+      "formule": "3 139 634 / 4 434 406",
+      "resultat": 70.8,
+      "unite": "%"
+    },
+    {
+      "quoi": "couverture 30/06/2026, définition émetteur reconstituée",
+      "formule": "(202 883 + 467 989 + 3 300 822) / 4 605 201",
+      "resultat": 86.24,
+      "unite": "%"
+    },
+    {
+      "quoi": "couverture Bucket 3 seule 30/06/2026",
+      "formule": "3 300 822 / 4 605 201",
+      "resultat": 71.68,
+      "unite": "%"
+    },
+    {
+      "quoi": "taux Bucket 3 clientèle 2025",
+      "formule": "4 434 406 / (57 700 546 + 4 696 345 + 4 434 406)",
+      "resultat": 6.64,
+      "unite": "%"
+    },
+    {
+      "quoi": "taux Bucket 3 clientèle 30/06/2026",
+      "formule": "4 605 201 / (57 476 753 + 6 166 205 + 4 605 201)",
+      "resultat": 6.75,
+      "unite": "%"
+    }
+  ],
+  "constats": [
+    "⚠️ DÉFINITION NON COMPARABLE : le « taux de couverture des créances en souffrance » de CDM (89,5 % ; 86,2 %) rapporte TOUTES les dépréciations IFRS 9 au Bucket 3 — reconstitué au dixième. Sur la définition Bucket 3 / Bucket 3 des autres banques, CDM est à 70,8 % (2025) et 71,7 % (S1 2026).",
+    "Écart interne au RFS S1 2026 : p.3 « créances en souffrance 4 259 MDH » contre Bucket 3 clientèle 4 605,2 MMAD p.12 ; le 86,2 % publié ne se reconstitue qu'avec 4 605,2. 4 605,2 / 4 259 = +8,1 %, proche du « +8,2 % » annoncé : 4 259 pourrait être le niveau de juin 2025. Hypothèse, non établie → question IR.",
+    "Pas de ratio CET1 publié (seuls T1 et solvabilité globale).",
+    "Le fichier « CDM_2025.pdf » (33 p., AMMC) reprend les états consolidés du RFA ; non utilisé comme pièce distincte.",
+    "www.creditdumaroc.ma joignable (HTTP 200) ; Pilier III non nécessaire : le RFA et le RFS contiennent la section « fonds propres du groupe »."
+  ],
+  "conclusion": "Les quatre familles sont disponibles en consolidé pour 2025 et S1 2026 ; la couverture publiée a une définition propre à CDM (à recalculer en Bucket 3 / Bucket 3 pour comparer).",
+  "debloquerait": "Grille bancaire CDM : solvabilité 14,85 % (T1 12,16 %), coût du risque 383 MMAD sur 62 863 MMAD, Bucket 3 6,6 % couvert à 70,8 % (définition commune), coefficient 46,3 %.",
+  "question_ir": "docs/questions_ir/CDM.md"
+}
