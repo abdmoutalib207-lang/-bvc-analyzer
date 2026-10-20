@@ -1,0 +1,39 @@
+{
+  "ticker": "NEJ",
+  "societe": "Auto Nejma",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF",
+  "blocage": {
+    "motif": "dette nette / EBITDA non calculée sur comptes publiés",
+    "effet": "composante « bilan » retirée ; non_calcules.ebitda : aucun EBE consolidé, « dotations d'exploitation » consolidées (106,831) mêlant amortissements et provisions, « Dotations aux amortissements nettes des reprises 37.618 » jugée pas assez sûre",
+    "lu_dans": "data.json › NEJ › note_fond.composantes.bilan.motif ; faits_financiers.json › NEJ › _controles_ratios_2025.non_calcules"
+  },
+  "pieces": [
+    {"id": "rfa_2025", "rang_methode": 1, "titre": "Rapport financier annuel 2025 (9,8 Mo, non commité)", "url": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf", "sha256": "3aa45802abba43218834cceb2854e802a8dca5209115098f60d36b212a7dbc3b", "octets": 9837647, "pages": 122},
+    {"id": "rfs_s1_2026", "rang_methode": 1, "titre": "Rapport financier semestriel au 30/06/2026", "url": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFS_S1_26.pdf", "sha256": "d1b05497a3ac02681ee711bac8abda2967ffe24979a719dd2bd83e087dcb3f73", "octets": 835586, "pages": 24}
+  ],
+  "chiffres": [
+    {"grandeur": "dotations_exploitation", "valeur": 106.831, "unite": "MMAD", "periode": "exercice 2025 (2024 : 60,410)", "perimetre": "consolidé, normes marocaines, crédit-bail retraité (p.108) ; amortissements ET provisions", "source": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf", "piece": "rfa_2025", "page": 105, "citation": "COMPTE DE RESULTAT (En KMAD) 31/12/2025 31/12/2024 31/12/2023 … Dotations d'exploitation 106.831 60.410 36.904 ; Résultat d'exploitation 533.038 357.914 264.829"},
+    {"grandeur": "dotations_amortissements_nettes_flux", "valeur": 37.618, "unite": "MMAD", "periode": "exercice 2025 (2024 : 29,872)", "perimetre": "consolidé, tableau des flux, nettes des reprises", "source": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf", "piece": "rfa_2025", "page": 106, "citation": "RÉSULTAT NET CONSOLIDÉ 324.182 205.383 157.773 Dotations aux amortissements nettes des reprises 37.618 29.872 24.095"},
+    {"grandeur": "dotations_amortissements_social", "valeur": 44.16425297, "unite": "MMAD", "periode": "exercice 2025", "perimetre": "SOCIAL Auto Nejma, tableau des amortissements", "source": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf", "piece": "rfa_2025", "page": 88, "citation": "TABLEAU DES AMORTISSEMENTS EXERCICE CLOS LE 31/12/2025 … IMMOBILISATIONS INCORPORELLES 14.644.492,11 2.532.572,58 … IMMOBILISATIONS CORPORELLES 323.317.236,45 34.222.995,32 … TOTAL GENERAL 366.537.109,10 44.164.252,97 29.105.466,97 381.595.895,10"},
+    {"grandeur": "note_dotations_exploitation", "valeur": 46.0, "unite": "MMAD (hausse)", "periode": "exercice 2025", "perimetre": "consolidé, commentaire", "source": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf", "piece": "rfa_2025", "page": 113, "citation": "9-4.5. DOTATIONS D’EXPLOITATION Les dotations d’exploitation ont connu une hausse de 46 millions de dirhams expliquée principalement par les investissements réalisés chez AUTO NEJMA notamment l’entrée en service de la succursale d’Agadir."},
+    {"grandeur": "dotations_amortissements_nettes_flux_s1", "valeur": 17.683, "unite": "MMAD", "periode": "S1 2026 (S1 2025 : 22,629)", "perimetre": "consolidé, tableau des flux", "source": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFS_S1_26.pdf", "piece": "rfs_s1_2026", "page": 12, "citation": "Dotations aux amortissements nettes des reprises 17 683 22 629 37 618 (30-juin-2026 / 30-juin-2025 / 31-déc-2025)"}
+  ],
+  "estimations": [],
+  "calculs": [
+    {"quoi": "EBITDA candidat bas (amortissements nets du tableau des flux)", "formule": "533,038 + 37,618", "resultat": 570.7},
+    {"quoi": "EBITDA candidat médian (amortissements sociaux)", "formule": "533,038 + 44,164", "resultat": 577.2},
+    {"quoi": "EBITDA candidat haut (toutes dotations d'exploitation)", "formule": "533,038 + 106,831", "resultat": 639.9},
+    {"quoi": "Dette nette du moteur (placements compris, 181,2) / EBITDA : bornes", "formule": "181,2 ÷ 639,9 ; 181,2 ÷ 570,7", "resultat": 0.32},
+    {"quoi": "Dette nette stricte (sans placements, 544,4) / EBITDA : bornes", "formule": "544,4 ÷ 639,9 = 0,85 ; 544,4 ÷ 570,7 = 0,95", "resultat": 0.95}
+  ],
+  "constats": [
+    "Aucune annexe consolidée n'isole les amortissements (contrairement à DSW) : le seul tableau des amortissements (p.88) est SOCIAL, 44,2 MMAD. La ligne consolidée du tableau des flux (37,6) est nette des reprises.",
+    "Le palier de la grille ne dépend pas du candidat : avec la dette nette du moteur (181,2), le ratio va de 0,28 à 0,32 (< 0,5 : palier 8,5) ; avec la dette nette stricte (544,4), de 0,85 à 0,95 (palier 7,0). Le choix qui compte est celui des titres de placement, déjà tranché par la règle du 02/10/2026, pas celui de l'EBITDA.",
+    "La note de la p.113 attribue la hausse de 46 MMAD des dotations aux investissements (succursale d'Agadir) : elle suggère que l'essentiel des 106,8 MMAD sont des amortissements, sans le chiffrer."
+  ],
+  "conclusion": "Pas d'EBITDA consolidé publié ; trois candidats sur pièce encadrent le ratio dans un seul palier.",
+  "debloquerait": "Si le verificateur-finance accepte un EBITDA encadré (570,7 à 639,9) : dette nette / EBITDA 0,28 à 0,32, palier 8,5 identique pour les trois candidats.",
+  "question_ir": null
+}
