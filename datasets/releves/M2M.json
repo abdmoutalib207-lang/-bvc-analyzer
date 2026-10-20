@@ -1,0 +1,90 @@
+{
+ "ticker": "M2M",
+ "societe": "M2M Group",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 9.7 % − WACC 10",
+   "croissance": "croissance pondérée 14.6 %",
+   "valorisation": "PER 20.5",
+   "bilan": "trésorerie nette positive"
+  }
+ },
+ "pieces": [
+  {
+   "id": "cp_s1_2026",
+   "rang_methode": 1,
+   "titre": "Communiqué S1 2026 M2M Group (1 page)",
+   "url": "https://www.ammc.ma/sites/default/files/M2M_group_S1_26.pdf",
+   "sha256": "f0d8aac22e85e906c99eba64a681f717b528c2f61b0c46b1290b74712058328a",
+   "octets": 431530,
+   "pages": 1
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "chiffre_affaires_consolide_s1",
+   "valeur": 82.914,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 60,740)",
+   "perimetre": "consolidé, normes marocaines",
+   "source": "https://www.ammc.ma/sites/default/files/M2M_group_S1_26.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Chiffres d'affaires consolidés 82 914 072 60 739 514"
+  },
+  {
+   "grandeur": "resultat_par_action_s1",
+   "valeur": 10.64,
+   "unite": "MAD",
+   "periode": "S1 2026 (S1 2025 : −0,70)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/M2M_group_S1_26.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Résultat par action 10,64 -0,70"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "croissance CA S1",
+   "formule": "82,914 ÷ 60,740 − 1",
+   "resultat": 36.5
+  },
+  {
+   "quoi": "RNPG S1 reconstitué depuis le BPA publié",
+   "formule": "10,64 × 647 777",
+   "resultat": 6.892
+  }
+ ],
+ "ecarts_plus_de_2_pct": [
+  {
+   "grandeur": "croissance_bpa",
+   "utilise": 0.0,
+   "piece": null,
+   "note": "base négative ; lue comme 0 par detail_fond_score (fond_score.py l.351)"
+  }
+ ],
+ "semestriel_s1_2026": {
+  "depose": "communiqué trouvé ; RFS (29 p.) en 404",
+  "dette_nette": null,
+  "unite": "MMAD",
+  "base": "non trouvée",
+  "page": null
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever.",
+  "⚠️ La pièce S1 de resultats_s1_2026 (« M2M_group_RFS_S1_26.pdf », 29 p., bilan p.23) répond 404 à l'AMMC le 20/10/2026 : l'URL citée n'établit plus rien. Le communiqué d'une page (« M2M_group_S1_26.pdf ») recoupe CA et BPA, mais ne porte ni bilan ni RNPG en clair.",
+  "⚠️ croissance_bpa absente (base S1 2025 négative : −0,70 par action) : la note lit 0 — « croissance pondérée 14,6 % » = 0,6 × 0 + 0,4 × 36,5. Une absence compte comme une croissance nulle.",
+  "Dette nette au 30/06/2026 : non trouvée (le communiqué n'a pas de bilan ; le RFS est introuvable à son URL)."
+ ],
+ "conclusion": "Adossé pour 2025 ; la pièce S1 détaillée a disparu de son URL ; croissance BPA absente lue comme 0 %.",
+ "debloquerait": "retrouver l'URL actuelle du RFS S1 2026 (sha256 à comparer à celui de l'index s'il existe) ; question de règle absence ≠ 0",
+ "question_ir": null
+}

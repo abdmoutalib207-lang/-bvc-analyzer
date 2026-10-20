@@ -1,0 +1,109 @@
+{
+ "ticker": "IAM",
+ "societe": "Maroc Telecom",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 20.2 % − WACC 10",
+   "croissance": "croissance pondérée 7.02 %",
+   "valorisation": "PER 15",
+   "bilan": "dette nette / EBITDA 0.95"
+  }
+ },
+ "pieces": [
+  {
+   "id": "cp_s1_2026",
+   "rang_methode": 1,
+   "titre": "Communiqué des résultats S1 2026 Maroc Telecom (consolidé IFRS)",
+   "url": "https://www.ammc.ma/sites/default/files/Maroc%20Telecom%20CP_R%C3%A9sultats%20S12026_Le%20MATIN.pdf",
+   "sha256": "17f2635600f82fb4db98dc09da8de2f8ca9f047c1d52196519d1e94032fa27af",
+   "octets": 601467,
+   "pages": 4
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "rnpg_s1",
+   "valeur": 2482.0,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 4 117)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/Maroc%20Telecom%20CP_R%C3%A9sultats%20S12026_Le%20MATIN.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Résultat Net Part du Groupe(2) 2 767 1 179 -57,4% -57,5% 4 117 2 482 -39,7% -40,0% (colonnes T2 2025, T2 2026, …, S1 2025, S1 2026)"
+  },
+  {
+   "grandeur": "croissance_resultat_hors_exceptionnel",
+   "valeur": 8.1,
+   "unite": "%",
+   "periode": "S1 2026 contre S1 2025",
+   "perimetre": "consolidé IFRS ; retraitement de l'émetteur",
+   "source": "https://www.ammc.ma/sites/default/files/Maroc%20Telecom%20CP_R%C3%A9sultats%20S12026_Le%20MATIN.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Résultat Net Part du Groupe de 2,5 milliards de dirhams ; hors effet de base lié à une recette exceptionnelle enregistré au S1 2025, les performances nettes du Groupe progressent de 8,1% ;"
+  },
+  {
+   "grandeur": "chiffre_affaires_s1",
+   "valeur": 19009.0,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 18 041)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/Maroc%20Telecom%20CP_R%C3%A9sultats%20S12026_Le%20MATIN.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Chiffre d'affaires 9 157 9 682 5,7% 4,4% 18 041 19 009 5,4% 4,2%"
+  },
+  {
+   "grandeur": "dette_nette_publiee",
+   "valeur": 18194.0,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (30/06/2025 : 17 624)",
+   "perimetre": "consolidé IFRS ; définition de la société (hors IFRS 16, cf. RFA p.14)",
+   "source": "https://www.ammc.ma/sites/default/files/Maroc%20Telecom%20CP_R%C3%A9sultats%20S12026_Le%20MATIN.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Dette Nette 17 624 18 194 -3,2% -2,4% ; Dette Nette/EBITDA 0,9x 0,9x"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "croissance RNPG publiée",
+   "formule": "2 482 ÷ 4 117 − 1",
+   "resultat": -39.7
+  }
+ ],
+ "ecarts_plus_de_2_pct": [
+  {
+   "grandeur": "croissance_bpa",
+   "utilise": 8.1,
+   "piece": -39.7,
+   "page": 1,
+   "piece_id": "cp_s1_2026",
+   "note": "8,1 = retraitement émetteur hors exceptionnel ; −39,7 = RNPG publié. Croissance pondérée 7,02 % contre −21,66 % sur le publié (0,6 × −39,7 + 0,4 × 5,4)"
+  }
+ ],
+ "semestriel_s1_2026": {
+  "depose": true,
+  "dette_nette": 18194.0,
+  "unite": "MMAD",
+  "base": "consolidé IFRS, chiffre de la société",
+  "page": 1
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever. Le chiffre de la société 2025 (17 610, RFA p.9) est rangé dans faits et concorde (0,15 %).",
+  "Page manquante comblée : tout le S1 est en p.1 du communiqué.",
+  "⚠️ croissance_bpa 8,1 % est la croissance RETRAITÉE par l'émetteur (« performances nettes » hors recette exceptionnelle du S1 2025), pas celle du RNPG publié (−39,7 %). Le retraitement n'est pas chiffré dans le communiqué (montant de la recette non donné). bpa_12m, lui, reste sur les chiffres publiés (l'exceptionnel du S1 2025 sort du 12 mois par soustraction).",
+  "Le communiqué renvoie au rapport financier semestriel (« Maroc_Telecom_RFS_S1_26.pdf » répond 200 à l'AMMC, non téléchargé : inutile à la dette nette, publiée ici)."
+ ],
+ "conclusion": "Adossé ; la croissance du BPA est un chiffre retraité de l'émetteur, non le publié.",
+ "debloquerait": "rien sur pièce ; choix de règle (retraité contre publié) pour le vérificateur",
+ "question_ir": null
+}

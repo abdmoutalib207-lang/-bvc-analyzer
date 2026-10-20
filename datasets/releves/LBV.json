@@ -1,0 +1,103 @@
+{
+ "ticker": "LBV",
+ "societe": "Label Vie",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 7.1 % − WACC 10",
+   "croissance": "croissance pondérée 29.1 %",
+   "valorisation": "PER 16.6",
+   "bilan": "dette nette / EBITDA 2.96"
+  }
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Communication financière S1 2026 LabelVie (consolidé et social)",
+   "url": "https://www.ammc.ma/sites/default/files/LabelVie_S1_26.pdf",
+   "sha256": "3bdbb73cebdbfa1f584a04e7343ceabfbb7d3045c304ae84d86c1754482e93b1",
+   "octets": 1666954,
+   "pages": 12
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "rnpg_s1",
+   "valeur": 370.171,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 269,585)",
+   "perimetre": "consolidé, normes marocaines",
+   "source": "https://www.ammc.ma/sites/default/files/LabelVie_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 5,
+   "citation": "RESULTAT NET PART DU GROUPE - - 370 170 586,50 269 585 441,14"
+  },
+  {
+   "grandeur": "chiffre_affaires_s1",
+   "valeur": 10192.528,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 8 727,591)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/LabelVie_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 5,
+   "citation": "CHIFFRE D'AFFAIRES 10 192 528 211,56 - 10 192 528 211,56 8 727 591 211,60"
+  },
+  {
+   "grandeur": "rnpg_exercice_2025",
+   "valeur": 578.791,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (colonne de comparaison du bilan)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/LabelVie_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "RESULTAT NET CONSOLIDE 370 170 586,50 578 790 600,36"
+  },
+  {
+   "grandeur": "endettement_net_publie",
+   "valeur": 4650.0,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 4 606)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/LabelVie_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "L’endettement net s’établit à 4 650 MDH au 30 juin 2026, contre 4 606 MDH à fin décembre 2025"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "croissance RNPG S1",
+   "formule": "370,171 ÷ 269,585 − 1",
+   "resultat": 37.3
+  },
+  {
+   "quoi": "croissance CA S1",
+   "formule": "10 192,528 ÷ 8 727,591 − 1",
+   "resultat": 16.8
+  }
+ ],
+ "ecarts_plus_de_2_pct": [],
+ "semestriel_s1_2026": {
+  "depose": true,
+  "dette_nette": 4650.0,
+  "unite": "MMAD",
+  "base": "consolidé, chiffre de la société",
+  "page": 2
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever. Le chiffre de la société 2025 (4 605, RFA p.52) est rangé dans faits ; le communiqué S1 dit 4 606 (arrondi).",
+  "Page manquante comblée : RNPG et CA du S1 p.5, RN 2025 p.4."
+ ],
+ "conclusion": "Entièrement adossé après ajout des pages.",
+ "debloquerait": "rien : déjà noté",
+ "question_ir": null
+}

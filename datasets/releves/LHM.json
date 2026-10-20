@@ -1,0 +1,120 @@
+{
+ "ticker": "LHM",
+ "societe": "Holcim Maroc SA",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 14.4 % − WACC 10",
+   "croissance": "croissance pondérée -5 %",
+   "valorisation": "PER 18",
+   "bilan": "dette nette / EBITDA 0.83"
+  }
+ },
+ "pieces": [
+  {
+   "id": "cp_s1_2026",
+   "rang_methode": 1,
+   "titre": "Communiqué S1 2026 Holcim Maroc",
+   "url": "https://www.ammc.ma/sites/default/files/CP_Holcim_Maroc_S1_26.pdf",
+   "sha256": "8c970df3a5c7c843871f63d2ec1e02e279d7d64ed27f0ac1d72eb13f18598e86",
+   "octets": 521987,
+   "pages": 1
+  },
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Communication financière S1 2026 Holcim Maroc (consolidé IFRS et social)",
+   "url": "https://www.ammc.ma/sites/default/files/Holcim_Maroc_S1_26.pdf",
+   "sha256": "f02f75b03f8d91bcf8f1a900303a8ff8b4cf6e5ca5ff9925742f482b9f9cc63d",
+   "octets": 2823140,
+   "pages": 3
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "resultat_net_consolide_s1",
+   "valeur": 843.0,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 918)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Holcim_Maroc_S1_26.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Comptes consolidés En MDH S1.2025 S1.2026 + / - Chiffre d’affaires 4 159 4 152 - 0,2% Résultat d’exploitation courant 1 747 1 655 - 5,2% Résultat net 918 843 - 8,1%"
+  },
+  {
+   "grandeur": "chiffre_affaires_s1",
+   "valeur": 4152.0,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 4 159)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Holcim_Maroc_S1_26.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Chiffre d’affaires 4 159 4 152 - 0,2%"
+  },
+  {
+   "grandeur": "dettes_financieres_non_courantes",
+   "valeur": 3086.848,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 3 510,859)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/Holcim_Maroc_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Dettes financières non courantes 3 086 848 3 510 859"
+  },
+  {
+   "grandeur": "dettes_financieres_courantes",
+   "valeur": 2287.159,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 177,044)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/Holcim_Maroc_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Dettes financières courantes 2 287 159 177 044"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 171.871,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 118,100)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/Holcim_Maroc_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Trésorerie et équivalent de trésorerie 171 871 118 100"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette 30/06/2026, mêmes postes qu'en 2025 (3 687,903 − 118,1 = 3 569,8)",
+   "formule": "3 086,848 + 2 287,159 − 171,871",
+   "resultat": 5202.14
+  }
+ ],
+ "ecarts_plus_de_2_pct": [],
+ "semestriel_s1_2026": {
+  "depose": true,
+  "dette_nette": 5202.14,
+  "unite": "MMAD",
+  "base": "consolidé IFRS, calcul au bilan",
+  "page": 1
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever.",
+  "Page manquante comblée : RN et CA du S1 p.1 du communiqué. RN consolidé = part du groupe (aucun minoritaire en 2025, faits p.74).",
+  "La colonne 31/12/2025 redonne au millier les dettes 2025 de faits (3 510,859 + 177,044 = 3 687,903).",
+  "Pour la règle « dernier bilan publié » : dette nette 3 569,8 → 5 202,1 MMAD (crédits de trésorerie sociaux 152,5 → 2 271,6, p.2 — dividende probable, non établi ici)."
+ ],
+ "conclusion": "Entièrement adossé après ajout de la p.1.",
+ "debloquerait": "rien : déjà noté",
+ "question_ir": null
+}
