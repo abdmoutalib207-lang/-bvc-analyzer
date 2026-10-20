@@ -1,0 +1,125 @@
+{
+ "ticker": "SNA",
+ "societe": "Sonasid (SID à la Bourse ; le SNA de la Bourse est Stokvis)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E2",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "aucun — note fondamentale à couverture 1,0 ; lot E2 : adossement des grandeurs lues et dernier bilan publié (30/06/2026)",
+  "effet": "aucun sur la note : relevé d'information pour la règle « dernier bilan publié » à l'étude",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; datasets/resultats_s1_2026.json"
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Résultats financiers du 1er semestre 2026 (dépôt AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Sonasid_S1_26.pdf",
+   "sha256": "51f803f9bec59d9dabe1180cddd23bd3a8bbd373c27d84a76b9c42daefe64da9",
+   "octets": 3979920,
+   "pages": 19
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "dettes_financieres_non_courantes",
+   "valeur": 92.2,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé IFRS (dettes de droit d'usage comprises, seule dette du groupe)",
+   "source": "https://www.ammc.ma/sites/default/files/Sonasid_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 10,
+   "citation": "Dettes financières non courantes 92,2 94,2 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "dettes_financieres_non_courantes",
+   "valeur": 94.2,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé IFRS (dettes de droit d'usage comprises, seule dette du groupe)",
+   "source": "https://www.ammc.ma/sites/default/files/Sonasid_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 10,
+   "citation": "Dettes financières non courantes 92,2 94,2 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "dettes_financieres_courantes",
+   "valeur": 0.0,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé IFRS (dettes de droit d'usage comprises, seule dette du groupe)",
+   "source": "https://www.ammc.ma/sites/default/files/Sonasid_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 10,
+   "citation": "Dettes financières courantes [case vide au 30/06/2026] 5,1 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "dettes_financieres_courantes",
+   "valeur": 5.1,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé IFRS (dettes de droit d'usage comprises, seule dette du groupe)",
+   "source": "https://www.ammc.ma/sites/default/files/Sonasid_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 10,
+   "citation": "Dettes financières courantes [case vide au 30/06/2026] 5,1 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 588.6,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé IFRS (dettes de droit d'usage comprises, seule dette du groupe)",
+   "source": "https://www.ammc.ma/sites/default/files/Sonasid_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 10,
+   "citation": "Trésorerie et équivalent de trésorerie 588,6 496,7 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 496.7,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé IFRS (dettes de droit d'usage comprises, seule dette du groupe)",
+   "source": "https://www.ammc.ma/sites/default/files/Sonasid_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 10,
+   "citation": "Trésorerie et équivalent de trésorerie 588,6 496,7 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "rnpg_exercice_2025",
+   "valeur": 271.8,
+   "unite": "MMAD",
+   "periode": "exercice 2025",
+   "perimetre": "consolidé IFRS (dettes de droit d'usage comprises, seule dette du groupe)",
+   "source": "https://www.ammc.ma/sites/default/files/Sonasid_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 10,
+   "citation": "Résultats net part du groupe 166,6 271,8 (colonne 31/12/2025) [lu sur image rendue]"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette au 30/06/2026, mêmes postes que la base 31/12/2025 de fondamentaux.json › ratios_publies.dette_nette",
+   "formule": "92,2 + 0 − 588,6 (MMAD)",
+   "resultat": -496.4,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "contrôle : même formule sur la colonne 31/12/2025 du dépôt S1",
+   "formule": "mêmes postes, colonne comparative",
+   "resultat": -397.4,
+   "unite": "MMAD",
+   "compare_a": "dette nette lue par la note au 31/12/2025 : -397.4"
+  }
+ ],
+ "constats": [
+  "RN 2025 (jeu S1 : « RFA 2025 p.89 », sans URL) : même page, « Résultats net part du groupe 166,6 271,8 »."
+ ],
+ "conclusion": "Semestriel au 30/06/2026 déposé à l'AMMC ; dette nette -496.4 MMAD au 30/06/2026 contre -397.4 lue par la note au 31/12/2025.",
+ "debloquerait": "rien de bloqué ; alimente la décision sur la règle « dernier bilan publié » (R8 : rien n'est appliqué)",
+ "question_ir": null
+}
