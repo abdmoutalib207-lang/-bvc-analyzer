@@ -132,3 +132,36 @@ def test_h_pas_de_borne_si_le_palier_change():
     e["_controles_ratios_2025"]["ebitda_borne_inferieure"]["valeur"] = 100.0   # 142,9 ÷ 100 = 1,43 : 8,5 → 7,0
     rb, non = calculer_bilan(e)
     assert "dette_nette_ebitda" not in rb and "palier" in non["dette_nette_ebitda"]
+
+
+# ── règle a : dettes d'acquisition, poste nommé du pont ; dette nette élargie hors note ──
+from pipeline.smart_money import fond_score as fg  # noqa: E402
+from pipeline.smart_money.fond_score_sectoriel import _dette_nette_contestee  # noqa: E402
+
+
+def test_a_poste_admis_et_note_sur_la_dette_stricte():
+    assert "dettes_acquisition" in fg.EXPLICATIONS_ECART_DETTE_ADMISES
+    for s, stricte, elargie in (("AKD", 3370.9, 4267.2), ("CMGP", 54.1, 895.5)):
+        r = FOND[s]["ratios_publies"]
+        assert r["dette_nette"]["valeur"] == stricte                      # la note : inchangée
+        assert r["dette_nette_elargie"]["valeur"] == elargie and r["dette_nette_elargie"]["hors_note"] is True
+
+
+def test_a_akd_rapproche_aux_deux_extremes_de_l_arrondi():
+    en = FAITS["AKD"]["faits"]["endettement_net"]
+    assert (en["valeur"], en["page"]) == (4268.0, 1)
+    assert _dette_nette_contestee(FOND["AKD"]["ratios_publies"]["dette_nette"], FAITS["AKD"]) is None
+    import copy
+    f = copy.deepcopy(FAITS["AKD"])
+    f["faits"]["endettement_net"]["rapprochement"]["elements"][0]["incertitude"] = 120.0   # résidu 2,8 % > 2 %
+    assert "contestée" in _dette_nette_contestee(FOND["AKD"]["ratios_publies"]["dette_nette"], f)
+
+
+def test_a_cmgp_conteste_meme_si_le_pont_etait_declare_etabli():
+    import copy
+    en = FAITS["CMGP"]["faits"]["endettement_net"]
+    assert (en["valeur"], en["page"], en["rapprochement"]["elements"][0]["valeur"]) == (949.0, 1, 841.389)
+    f = copy.deepcopy(FAITS["CMGP"])
+    f["faits"]["endettement_net"]["rapprochement"]["etabli"] = True    # 54,1 + 841,389 = 895,5 : résidu 5,6 %
+    for x in (FAITS["CMGP"], f):
+        assert "contestée" in _dette_nette_contestee(FOND["CMGP"]["ratios_publies"]["dette_nette"], x)

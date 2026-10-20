@@ -168,6 +168,16 @@ EXPLICATIONS_ECART_DETTE_ADMISES: dict[str, str] = {
     "titres_de_placement": "titres de placement comptés ou non en trésorerie",
     "dettes_de_financement": "dettes de financement exclues par la définition de la société "
                              "(sa « trésorerie nette » ne retient que les soldes bancaires et placements)",
+    # ⚠️ RÈGLE a — 20/10/2026 — IFRS 3.39-40 (contrepartie différée ou éventuelle
+    # d'un regroupement) et IAS 7.16 (acquisitions d'immobilisations à crédit :
+    # flux d'INVESTISSEMENT, pas de financement). La note lit la dette financière
+    # STRICTE, inchangée ; une dette d'acquisition comptée par la société n'est
+    # qu'un poste du PONT, admis seulement s'il est CHIFFRÉ sur pièce avec sa page.
+    # Un chiffre donné en pourcentage porte son `incertitude` d'arrondi, et le
+    # résidu doit tenir aux deux extrêmes. Elle forme la « dette nette élargie »,
+    # publiée HORS NOTE (`ratios_publies.dette_nette_elargie`).
+    "dettes_acquisition": "dettes d'acquisition (fournisseurs d'immobilisations, compléments de prix) comptées "
+                          "par la société, hors dette financière stricte — IFRS 3.39-40, IAS 7.16",
 }
 CONTESTES: dict[str, str] = {}
 # Ratios qui consomment la dette nette (ROIC : capital investi = fonds

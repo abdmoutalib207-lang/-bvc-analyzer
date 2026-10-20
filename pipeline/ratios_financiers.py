@@ -206,6 +206,22 @@ def calculer_bilan(entree: dict | None) -> tuple[dict, dict]:
     else:
         non["dette_nette"] = "dettes financières ou trésorerie non relevées"
 
+    # ⚠️ RÈGLE a — 20/10/2026 — DETTE NETTE ÉLARGIE, HORS NOTE (IFRS 3.39-40,
+    # IAS 7.16). La note lit la dette financière STRICTE ci-dessus, sans
+    # changement. Les dettes d'acquisition chiffrées sur pièce (éléments
+    # `dettes_acquisition` du pont de `endettement_net`) s'y ajoutent ICI
+    # seulement, dans un champ qu'aucune note ne lit.
+    en = f.get("endettement_net") if isinstance(f.get("endettement_net"), dict) else {}
+    acq = [e for e in ((en.get("rapprochement") or {}).get("elements") or [])
+           if isinstance(e, dict) and e.get("poste") == "dettes_acquisition" and e.get("valeur") is not None]
+    if dn is not None and acq:
+        tot = round(sum(e["valeur"] for e in acq), 3)
+        out["dette_nette_elargie"] = base(round(dn + tot, 1), f"{round(dn, 3)} + {tot} de dettes d'acquisition ({mm})", {
+            "dette_nette": "ratios_publies.dette_nette",
+            **{f"dettes_acquisition_{i + 1}": f"{e.get('document') or entree.get('url')}, p. {e.get('page')} — "
+                                               f"{e.get('citation')}" for i, e in enumerate(acq)}},
+            unite=mm, hors_note=True)
+
     # EBITDA
     rex_k = "resultat_exploitation_etats" if _v(f, "resultat_exploitation_etats") is not None else "resultat_exploitation"
     rex = _v(f, rex_k)

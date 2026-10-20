@@ -321,6 +321,7 @@ def _rapprochement_etabli(dette: float, en: float, faits: dict) -> bool:
     if base is None or abs(base - dette) > 0.05 or not isinstance(elements, list) or not elements:
         return False
     total = dette
+    marge = 0.0
     for el in elements:
         v = _num(el.get("valeur")) if isinstance(el, dict) else None
         if v is None or not isinstance(el.get("page"), int) or not el.get("citation"):
@@ -328,7 +329,10 @@ def _rapprochement_etabli(dette: float, en: float, faits: dict) -> bool:
         if el.get("poste") not in EXPLICATIONS_ECART_DETTE_ADMISES:
             return False
         total += v
-    return abs(total - en) / abs(en) <= ECART_DETTE_MAX
+        # Règle a (20/10/2026) : un élément chiffré par un POURCENTAGE arrondi porte
+        # son incertitude ; le rapprochement doit tenir à ses deux extrêmes.
+        marge += abs(_num(el.get("incertitude")) or 0.0)
+    return max(abs(total - marge - en), abs(total + marge - en)) / abs(en) <= ECART_DETTE_MAX
 
 
 def _consomme_dette_nette(ratio: dict | None) -> bool:
