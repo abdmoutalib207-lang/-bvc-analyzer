@@ -215,6 +215,18 @@ def test_d_btp_jamais_les_produits_d_exploitation():
             assert "produit" not in str(e.get("ca_libelle") or "").split("(")[0].lower(), s
 
 
+def test_f_saf_rien_sur_l_agregat_roe_avant_fusion_hors_note():
+    assert "SAF" not in JEU["titres"] and BPA.get("SAF", {}).get("bpa_12m") is None
+    r = FOND["SAF"]["ratios_publies"]
+    a, b = r["roe_2025_avant_fusion"], r["roe_12m_avant_fusion"]
+    assert a["hors_note"] is b["hors_note"] is True and "avant fusion" in a["etiquette"]
+    assert a["valeur"] == round(676.524 / ((5729.361 + 6062.749) / 2) * 100, 2) == 11.47
+    assert b["valeur"] == round((676.524 - 1177.155 - 88.608) / ((6574.847 + 5514.342) / 2) * 100, 2) == -9.75
+    assert "roe_2025" not in r and "roe_12m" not in r and fg.roe_effectif(FOND["SAF"], "SAF") is None
+    from pipeline.smart_money.fond_score import detail_fond_score
+    assert detail_fond_score("SAF", FOND)["composantes"]["qualite"]["note"] is None
+
+
 def test_c_mdp_reserve_per_non_recurrent_sans_retraitement():
     assert fg.RESERVES_RATIOS["MDP"]["valorisation"].startswith("PER non récurrent")
     assert "retraitement_exceptionnel" not in JEU["titres"]["MDP"]

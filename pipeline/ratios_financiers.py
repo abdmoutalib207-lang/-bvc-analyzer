@@ -53,6 +53,12 @@ VERIFIES = RACINE / "datasets" / "roe_verifies_2026-10-02.json"
 DATE_MAJ = "2026-09-30"
 BILAN_S1 = RACINE / "datasets" / "bilan_ebitda_s1_2026.json"
 RELEVES = RACINE / "datasets" / "releves"
+# ⚠️ RÈGLE f — 20/10/2026 — IFRS 3.8. Une fusion a sa date ; avant les premiers
+# comptes de l'entité fusionnée, RIEN n'est calculé sur l'agrégat (ni BPA, ni
+# ROE, ni croissance). Le ROE HISTORIQUE de l'absorbante est publié HORS NOTE,
+# étiqueté « avant fusion », sous des clés (`roe_2025_avant_fusion`, `roe_12m_avant_fusion`) qu'aucune porte
+# ne lit : `roe_effectif` ne lit que `roe_12m` et `roe_2025`.
+AVANT_FUSION = RACINE / "datasets" / "roe_avant_fusion.json"
 
 
 def _pct(num, den):
@@ -430,6 +436,8 @@ def recalculer(s1: dict, faits: dict, fond: dict, verifies: dict, bavard: bool =
     """
     n = nb = nf = 0
     bilan_s1 = _charger_bilan_s1()
+    avant_fusion = ((json.loads(AVANT_FUSION.read_text(encoding="utf-8")).get("titres") or {})
+                    if AVANT_FUSION.exists() else {})
     tickers = list(s1) + [s for s in faits if not s.startswith("_") and s not in s1]
     tickers += [s for s, v in fond.items() if isinstance(v, dict) and est_financier(v) and s not in tickers]
     for sym in tickers:
@@ -451,6 +459,11 @@ def recalculer(s1: dict, faits: dict, fond: dict, verifies: dict, bavard: bool =
             if non:
                 r["non_calcules_2025"] = non
             nb += bool(rb)
+        for cle in ("roe_2025", "roe_12m"):                      # règle f, 20/10/2026
+            x = (avant_fusion.get(sym) or {}).get(cle)
+            if x:
+                r[f"{cle}_avant_fusion"] = {**x, "etiquette": avant_fusion[sym].get("etiquette"),
+                                            "hors_note": True}
         if not r:
             continue
         # ⚠️ Ne JAMAIS créer d'entrée : compute_fond_score() rend 5,0 pour un
