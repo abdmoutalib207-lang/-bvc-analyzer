@@ -16669,5 +16669,88 @@
     "mode_de_lecture": "somme de lignes lues (ou total − minoritaires) dans la colonne 31/12/2024 — même construction que le fait 2025"
    }
   }
+ },
+ "MDP": {
+  "societe": "MED PAPER",
+  "exercice": 2025,
+  "document": "Rapport Financier Annuel 2025 (comptes sociaux)",
+  "url": "https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf",
+  "depose_aupres_de": "AMMC",
+  "releve_le": "2026-10-20",
+  "pages_document": 84,
+  "faits": {
+   "excedent_brut_exploitation": {
+    "valeur": -4.56052,
+    "valeur_au_rapport": -4560519.88,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 41,
+    "citation": "EXCEDENT BRUT D'EXPLOITATION (EBE) OU INSUFFISANCE BRUTE D'EXPLOITATION (IBE) = -4.560.519,88 11.738.194,57",
+    "note": "État des soldes de gestion, « DU 01/01/2025 AU 31/12/2025 », colonnes exercice 2025 puis 2024. Insuffisance brute d'exploitation. Sur 12 mois au 30/06/2026 : −4,561 − 4,609 + 5,891 = −3,279 (EBE S1 2026 5 891 et S1 2025 4 609 KDH, communiqué https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf p.1).",
+    "base": "SOCIAL (normes marocaines), 31/12/2025 — aucun compte consolidé",
+    "releve_le": "2026-10-20"
+   },
+   "resultat_exploitation": {
+    "valeur": -10.355526,
+    "valeur_au_rapport": -10355525.86,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 41,
+    "citation": "VI = RESULTAT D'EXPLOITATION(+ou-) -10.355.525,86 6.199.680,89",
+    "note": "État des soldes de gestion 2025.",
+    "base": "SOCIAL (normes marocaines), 31/12/2025 — aucun compte consolidé",
+    "releve_le": "2026-10-20"
+   },
+   "resultat_non_courant": {
+    "valeur": 22.126204,
+    "valeur_au_rapport": 22126203.77,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 41,
+    "citation": "+ RESULTAT NON COURANT 22.126.203,77 5.337.743,41",
+    "note": "Le bénéfice 2025 en dépend : résultat courant « -15.136.514,27 », résultat net « 6.713.105,50 » (même page).",
+    "base": "SOCIAL (normes marocaines), 31/12/2025 — aucun compte consolidé",
+    "releve_le": "2026-10-20"
+   },
+   "nombre_actions_au_rapport": {
+    "valeur": 4783823,
+    "page": 38,
+    "unite": "actions",
+    "source": "liste des émetteurs, Bourse de Casablanca (https://www.casablanca-bourse.com/emetteurs/liste-emetteurs, relevé du 20/10/2026, datasets/bourse_emetteurs.json : « MED PAPER … code MDP … nombre_titres 4783823 »)",
+    "note": "« Capital social ou personnel (1) 47.838.230,00 47.838.230,00 » (p.38) ÷ nominal 10 = 4 783 823 ; le nominal n'est pas relevé au rapport, le nombre exact l'est sur la liste des émetteurs de l'opérateur.",
+    "releve_le": "2026-10-20"
+   }
+  },
+  "_controles_ratios_2025": {
+   "base": "SOCIAL (normes marocaines), 31/12/2025 — aucun compte consolidé",
+   "releve_le": "2026-10-20",
+   "controles": [
+    {
+     "controle": "EBE −4 560 519,88 − dotations d'exploitation 5 795 005,98 = résultat d'exploitation (p.41)",
+     "ok": true,
+     "detail": "-10355525.86 vs -10355525.86"
+    },
+    {
+     "controle": "REX −10 355 525,86 + résultat financier −4 780 988,41 = résultat courant (p.41)",
+     "ok": true,
+     "detail": "-15136514.27 vs -15136514.27"
+    },
+    {
+     "controle": "résultat courant −15 136 514,27 + non courant 22 126 203,77 − impôts 276 584,00 = résultat net (p.41)",
+     "ok": true,
+     "detail": "6713105.50 vs 6713105.50"
+    }
+   ],
+   "non_calcules": {
+    "dette_nette": "bilan du 31/12/2025 non relevé ici (le relevé du 20/10/2026 donne la dette nette au 30/06/2026, 97,6, et au 31/12/2025 par les comparatifs du S1, 167,4 : non intégrée)",
+    "ebitda": "EBE NÉGATIF : −4,561 sur l'exercice 2025 (p.41), −3,28 sur 12 mois au 30/06/2026 — bilan sans objet",
+    "dette_nette_ebitda": "sans objet : EBE négatif (exercice −4,561 ; 12 mois −3,28)",
+    "roic": "résultat d'exploitation 2025 négatif (−10,356) et bénéfice issu du non courant ; impôt et capitaux employés non relevés",
+    "cash_conversion": "comptes SOCIAUX : pas de tableau des flux de trésorerie relevé"
+   },
+   "reserves": [
+    "le bénéfice 2025 (6,713 MDH) vient du NON COURANT : « RESULTAT NON COURANT 22.126.203,77 », « RESULTAT D'EXPLOITATION(+ou-) -10.355.525,86 », « RESULTAT COURANT (+ou-) -15.136.514,27 » (https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf p.41, état des soldes de gestion) ; bénéfice non récurrent"
+   ]
+  }
  }
 }
