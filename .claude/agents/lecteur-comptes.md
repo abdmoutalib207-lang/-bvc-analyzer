@@ -16,6 +16,11 @@ déposé des comptes à l'AMMC sans être encore intégrées. Tu ne cherches pas
 ailleurs : si une société n'y est pas, c'est qu'elle n'a pas déposé, ou que
 la détection l'a manquée — ce second cas se signale, il ne se contourne pas.
 
+Depuis le 20/10/2026, le résumé du workflow « Contrôle de séance » y ajoute une
+**seconde source** : les comptes semestriels mis en ligne par la Bourse de
+Casablanca et absents côté AMMC (`--bourse`, section « Seconde source »). Ils
+se lisent avec la même rigueur ; l'AMMC reste la source première.
+
 ## Ce que tu produis, pour chaque titre
 
 Une entrée de `datasets/resultats_s1_2026.json` au format des entrées
