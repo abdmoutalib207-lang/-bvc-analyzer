@@ -104,6 +104,16 @@ def douze_mois(t: dict, sym: str | None = None) -> dict | None:
     # jamais repris. Un pourcentage « hors exceptionnel » publié sans montant
     # (IAM, accord Wana) ne retraite rien : la croissance reste calculée sur le
     # publié.
+    # ⚠️ RÈGLE d — 20/10/2026 — PÉRIMÈTRE (IFRS 3.B64(q), IFRS 15, CGNC). La
+    # croissance n'est lue à périmètre CONSTANT que si l'émetteur publie le
+    # comparatif pro forma EN MONTANTS (`proforma_s1_2025` : ca, rnpg, page,
+    # citation) — recalculée ici sur ces montants, jamais son pourcentage.
+    # Composante sans montant pro forma : croissance PUBLIÉE et réserve
+    # « périmètre élargi » (`perimetre_elargi`). BTP au CGNC : « production de
+    # l'exercice » si le CPC en donne la ligne (`production_s1_2026/2025`),
+    # sinon le chiffre d'affaires ; jamais les « produits d'exploitation ».
+    pf = t.get("proforma_s1_2025") if isinstance(t.get("proforma_s1_2025"), dict) else {}
+    perim = []
     rx = t.get("retraitement_exceptionnel")
     if isinstance(rx, dict) and rx.get("rnpg_ajuste_s1_2025") and rx.get("rnpg_ajuste_s1_2026") is not None \
             and rx["rnpg_ajuste_s1_2025"] > 0:
@@ -111,6 +121,9 @@ def douze_mois(t: dict, sym: str | None = None) -> dict | None:
         out["croissance_bpa_retraitee"] = rx.get("motif")
         if t["rnpg_s1_2025"] > 0:
             out["croissance_bpa_publiee_brute"] = round((t["rnpg_s1_2026"] / t["rnpg_s1_2025"] - 1) * 100, 1)
+    elif pf.get("rnpg") and pf["rnpg"] > 0:
+        out["croissance_bpa"] = round((t["rnpg_s1_2026"] / pf["rnpg"] - 1) * 100, 1)
+        perim.append(f"résultat à périmètre constant ({t['rnpg_s1_2026']} ÷ {pf['rnpg']} pro forma)")
     elif t["rnpg_s1_2025"] > 0:
         out["croissance_bpa"] = round((t["rnpg_s1_2026"] / t["rnpg_s1_2025"] - 1) * 100, 1)
         if publiee is not None:
@@ -120,8 +133,24 @@ def douze_mois(t: dict, sym: str | None = None) -> dict | None:
     if t.get("croissance_ca_publiee") is not None:
         # Variation publiée sans montant (BCP, S1 2026) : reprise telle quelle.
         out["croissance_ca"] = t["croissance_ca_publiee"]
+    elif t.get("production_s1_2026") is not None and t.get("production_s1_2025"):
+        out["croissance_ca"] = round((t["production_s1_2026"] / t["production_s1_2025"] - 1) * 100, 1)
+    elif pf.get("ca") and t.get("ca_s1_2026") is not None:
+        out["croissance_ca"] = round((t["ca_s1_2026"] / pf["ca"] - 1) * 100, 1)
+        perim.append(f"chiffre d'affaires à périmètre constant ({t['ca_s1_2026']} ÷ {pf['ca']} pro forma)")
     elif t.get("ca_s1_2025"):
         out["croissance_ca"] = round((t["ca_s1_2026"] / t["ca_s1_2025"] - 1) * 100, 1)
+    if t.get("perimetre_elargi") or pf:
+        publiees = [n for n, k in (("résultat", "rnpg"), ("chiffre d'affaires", "ca"))
+                    if not pf.get(k) and not (k == "rnpg" and isinstance(rx, dict))]
+        out["perimetre"] = {
+            "constant": perim,
+            "reserve": (f"périmètre élargi — {', '.join(publiees)} : croissance publiée, pas de comparatif pro "
+                        "forma en montants"
+                        + (f" ({t.get('perimetre_elargi') or pf.get('motif')})"
+                           if (t.get('perimetre_elargi') or pf.get('motif')) else "")
+                        if publiees else None),
+            "source": pf.get("source"), "page": pf.get("page")}
     return out
 
 
@@ -200,6 +229,11 @@ def appliquer(jeu: dict, bpa: dict, fond: dict) -> list[str]:
         for k in ("croissance_bpa", "croissance_ca"):
             if k in m:
                 f[k] = m[k]
+        # Règle d (20/10/2026) : le périmètre de la croissance est dit sur la fiche.
+        if m.get("perimetre"):
+            f["croissance_perimetre"] = m["perimetre"]
+        else:
+            f.pop("croissance_perimetre", None)
         # Règle c (20/10/2026) : la base retraitée est dite sur la fiche.
         if m.get("croissance_bpa_retraitee"):
             f["croissance_bpa_retraitee"] = {"motif": m["croissance_bpa_retraitee"],

@@ -186,6 +186,35 @@ def test_c_pourcentage_sans_montant_ne_retraite_rien():
     assert douze_mois(t, "T2S")["croissance_bpa"] == -16.1
 
 
+def test_d_cim_perimetre_constant_sur_le_pro_forma_en_montants():
+    m = douze_mois(JEU["titres"]["CIM"], "CIM")
+    assert m["croissance_bpa"] == round((514.218 / 671.845 - 1) * 100, 1) == -23.5
+    assert m["croissance_ca"] == round((2694.845 / 2864.489 - 1) * 100, 1) == -5.9
+    assert m["perimetre"]["reserve"] is None and len(m["perimetre"]["constant"]) == 2
+
+
+def test_d_cmgp_ca_constant_resultat_publie_avec_reserve():
+    m = douze_mois(JEU["titres"]["CMGP"], "CMGP")
+    assert m["croissance_ca"] == round((1588 / 1461 - 1) * 100, 1) == 8.7     # pro forma en montant
+    assert m["croissance_bpa"] == round((130 / 97 - 1) * 100, 1) == 34.0      # résultat pro forma « n.d »
+    assert m["perimetre"]["reserve"].startswith("périmètre élargi — résultat")
+    from pipeline.smart_money.fond_score import detail_fond_score
+    c = detail_fond_score("CMGP", FOND, per_publie=18.0, croissance_sourcee=True)["composantes"]["croissance"]
+    assert "périmètre élargi" in c["reserve"]
+
+
+def test_d_btp_jamais_les_produits_d_exploitation():
+    t = JEU["titres"]["TGCC"]
+    assert douze_mois(t, "TGCC")["croissance_ca"] == round((4266.944 / 5071.093 - 1) * 100, 1)
+    assert "production de l'exercice" in t["production_lue"]
+    # Ligne « production de l'exercice » présente : elle prime sur le CA.
+    assert douze_mois(dict(t, production_s1_2026=110.0, production_s1_2025=100.0), "TGCC")["croissance_ca"] == 10.0
+    import bvc_config as bc
+    for s, e in JEU["titres"].items():
+        if bc.famille_note(s) == "btp":
+            assert "produit" not in str(e.get("ca_libelle") or "").split("(")[0].lower(), s
+
+
 def test_c_mdp_reserve_per_non_recurrent_sans_retraitement():
     assert fg.RESERVES_RATIOS["MDP"]["valorisation"].startswith("PER non récurrent")
     assert "retraitement_exceptionnel" not in JEU["titres"]["MDP"]

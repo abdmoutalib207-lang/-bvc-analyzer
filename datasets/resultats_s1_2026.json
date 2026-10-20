@@ -237,7 +237,19 @@
       "rnpg_exercice_2025": 244,
       "source_exercice_2025": "CP relatif aux résultats financiers 2025, déposé à l'AMMC le 31/03/2026 (CP_CMGP_2025.pdf, p.1) — yuna.ma sous-entend un BPA de 14,81 contre 14,35 ici (3 %)",
       "actions": 17000900,
-      "source_actions": "référentiel de l'opérateur du 16/09/2026 : capitalisation 5 168 273 600 DH ÷ cours 304 DH"
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 : capitalisation 5 168 273 600 DH ÷ cours 304 DH",
+      "proforma_s1_2025": {
+        "ca": 1461.0,
+        "rnpg": null,
+        "unite": "MMAD",
+        "source": "https://www.ammc.ma/sites/default/files/CP_CMGP_S1_26.pdf",
+        "page": 1,
+        "citation": "CHIFFRES CONSOLIDÉS EN M MAD S1 2026 S1 2025 Variation S1 2025 proforma¹ Variation : « Chiffre d’affaires 1 588 1 121 +41,7% 1 461 +8,7% » ; « Résultat net 130 97 +34,7% n.d3 n.d3 » — « résultat net non disponible en proforma, en l’absence d’arrêté semestriel »",
+        "motif": "CPCM, Agrosem et Sodipire sur tout le S1 2025",
+        "regle": "règle d du 20/10/2026 : CA pro forma en montant → périmètre constant ; résultat pro forma « n.d » → croissance publiée, réserve « périmètre élargi »",
+        "lu_le": "2026-10-20"
+      },
+      "perimetre_elargi": "CPCM, Agrosem et Sodipire intégrés depuis 2025"
     },
     "VCNE": {
       "url": "https://www.ammc.ma/sites/default/files/Vicenne_RFS_S1_26.pdf",
@@ -694,7 +706,8 @@
         "ca_s1_2025": 5605.0,
         "ca_libelle": "produit d'exploitation consolidé"
       },
-      "note": "20/10/2026 (verificateur-finance, sur pièce) : la croissance du CA était lue sur le PRODUIT d'exploitation du communiqué (5 477 contre 5 605, −2,3 %), qui ajoute au chiffre d'affaires les autres produits et reprises d'exploitation. Elle se lit désormais sur le chiffre d'affaires de l'état déposé : 4 266,944 ÷ 5 071,093 − 1 = −15,86 %. Anciennes valeurs dans `avant_2026_10_20`."
+      "note": "20/10/2026 (verificateur-finance, sur pièce) : la croissance du CA était lue sur le PRODUIT d'exploitation du communiqué (5 477 contre 5 605, −2,3 %), qui ajoute au chiffre d'affaires les autres produits et reprises d'exploitation. Elle se lit désormais sur le chiffre d'affaires de l'état déposé : 4 266,944 ÷ 5 071,093 − 1 = −15,86 %. Anciennes valeurs dans `avant_2026_10_20`.",
+      "production_lue": "20/10/2026, règle d : le compte de produits et charges consolidé (TGCC_S1_26.pdf p.2) ne porte AUCUNE ligne « production de l'exercice » (seulement « Chiffre d'affaires 4 266 944 5 071 093 », « Autres produits d'exploitation 1 173 499 515 590 », « PRODUIT D'EXPLOITATION 5 476 888 5 605 510 ») : le chiffre d'affaires reste la base, jamais le produit d'exploitation"
     },
     "LES": {
       "url": "https://www.ammc.ma/sites/default/files/CP_Lesieur_Cristal_S1_26.pdf",
@@ -731,7 +744,18 @@
         "ca_s1_2025": 2191.9,
         "ca_libelle": "chiffre d'affaires opérationnel consolidé (S1 2025 déduit : 2 661 ÷ 1,214)"
       },
-      "note": "20/10/2026 (verificateur-finance, sur pièce) : le CA était le « chiffre d'affaires opérationnel » du communiqué (2 661, S1 2025 DÉDUIT par 2 661 ÷ 1,214). Il est désormais lu au compte de résultat consolidé déposé, colonnes publiées : 2 694,845 ÷ 2 202,712 − 1 = +22,34 %. Anciennes valeurs dans `avant_2026_10_20`."
+      "note": "20/10/2026 (verificateur-finance, sur pièce) : le CA était le « chiffre d'affaires opérationnel » du communiqué (2 661, S1 2025 DÉDUIT par 2 661 ÷ 1,214). Il est désormais lu au compte de résultat consolidé déposé, colonnes publiées : 2 694,845 ÷ 2 202,712 − 1 = +22,34 %. Anciennes valeurs dans `avant_2026_10_20`.",
+      "proforma_s1_2025": {
+        "ca": 2864.489,
+        "rnpg": 671.845,
+        "unite": "MMAD (KMAD ÷ 1 000)",
+        "source": "https://www.ammc.ma/sites/default/files/Cimar_S1_26.pdf",
+        "page": 4,
+        "citation": "COMPTE DE RÉSULTAT CONSOLIDÉ PROFORMA AU 30 JUIN 2026 (EN KMAD) … Au 30 Juin 2026 Au 30 Juin 2025 Proforma : « Chiffres d'affaires 2 694 845 2 864 489 » ; « Résultat net (Part du groupe) 514 218 671 845 » ; « Résultat net consolidé par action en dirhams 36 47 »",
+        "motif": "Asment de Témara intégrée au 30/06/2025 (p.3)",
+        "regle": "règle d du 20/10/2026 : pro forma publié EN MONTANTS → périmètre constant",
+        "lu_le": "2026-10-20"
+      }
     },
     "MUT": {
       "url": "https://www.ammc.ma/sites/default/files/Mutandis_RFS_S1_26.pdf",

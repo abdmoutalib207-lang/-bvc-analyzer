@@ -381,6 +381,10 @@ def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | N
     if croissance_sourcee:
         growth = float(f.get("croissance_bpa") or 0) * 0.6 + float(f.get("croissance_ca") or 0) * 0.4
         oui("croissance", _grille_croissance(growth), f"croissance pondérée {growth:g} %")
+        # Règle d (20/10/2026) : périmètre élargi sans pro forma en montants → réserve.
+        _pr = (f.get("croissance_perimetre") or {}).get("reserve")
+        if _pr:
+            comp["croissance"]["reserve"] = _pr
     else:
         non("croissance", "croissance non établie sur comptes semestriels")
 
