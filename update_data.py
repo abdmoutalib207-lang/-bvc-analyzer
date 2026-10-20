@@ -3185,6 +3185,9 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         "suspendu":       bool(suspension),
         # Société qui cote sans publier de comptes (registre SANS_COMPTES).
         "comptes_absents": sans_comptes(ticker),
+        # Statut juridique écrit en clair (DIS « Liquidée », DLM « Liquidation
+        # judiciaire ») — décision d'Abd Moutalib du 20/10/2026.
+        "statut_juridique": (sans_comptes(ticker) or {}).get("statut_juridique"),
         # Le cours que la source continue de diffuser, conservé pour que
         # l'écart avec la dernière cotation réelle reste vérifiable.
         "prix_diffuse_source": prix_diffuse,

@@ -788,6 +788,10 @@ SANS_COMPTES: dict = {
                  "dernier état : situation au 30/06/2012 (capitaux propres −160,3 MDH)",
         "source": "AMMC — Diac_S1_2012.pdf (attestation du 26/09/2012) et "
                   "CP_CDVM_Diac_Salaf_20130304.pdf ; aucun acte postérieur au catalogue",
+        # Mention affichée — décision d'Abd Moutalib du 20/10/2026 : le titre
+        # reste dans l'univers (la Bourse le liste encore, 20/10/2026), avec
+        # son statut écrit en clair.
+        "statut_juridique": "Liquidée",
     },
     "DLM": {
         "dernier_depot": "2022-04-29",
@@ -795,6 +799,8 @@ SANS_COMPTES: dict = {
                  "derniers comptes : exercice 2021",
         "source": "AMMC — DLM_2021.pdf (29/04/2022), CP_DLM_post_CA_10_11_22.pdf ; "
                   "aucun dépôt postérieur au catalogue",
+        # Mention affichée — décision d'Abd Moutalib du 20/10/2026.
+        "statut_juridique": "Liquidation judiciaire",
     },
 }
 

@@ -2716,7 +2716,9 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                        un contresens. Les données ne manquent pas — le titre ne
                        cote plus. */
                     : meta(r).susp
-                    ? <Chip label="SUSPENDU" bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40"/>
+                    ? (meta(r).statut_juridique
+                       ? <Chip label={meta(r).statut_juridique.toUpperCase()} bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40"/>
+                       : <Chip label="SUSPENDU" bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40"/>)
                     /* ⚠️ Même raisonnement, deuxième cas — ajouté le 24/09.
                        Un titre qui vient de reprendre sa cotation sortait à
                        « Données insuffisantes », alors que ses données sont
@@ -3781,7 +3783,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
             {simu
               ? <Chip label="SIMULATION — couleur masquée" bg="rgba(255,215,64,.10)" fg="#ffd740" bd="#ffd74040" sz={12}/>
               : meta(r).susp
-              ? <Chip label={`SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`} bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40" sz={12}/>
+              ? <Chip label={meta(r).statut_juridique?`${meta(r).statut_juridique.toUpperCase()} · suspendu depuis le ${jjmm(meta(r).suspDepuis)}`:`SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`} bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40" sz={12}/>
               : meta(r).conf<=1
               ? (meta(r).reprise_recente
                  ? <Chip label={`REPRISE — ${meta(r).seances_depuis_reprise} séance(s)`} bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040" sz={12}/>
