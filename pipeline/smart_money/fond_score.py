@@ -274,6 +274,10 @@ RESERVES_RATIOS = {
                       "écart non expliqué sur pièce : grandeur contestée. Dont 523,7 MMAD de "
                       "placements (produit de l'introduction en bourse, nature non publiée) ; "
                       "EBITDA tel que publié, sans définition (RFA 2025 p.20-21, p.57)."},
+    # 20/10/2026, validé sur pièce par verificateur-finance.
+    "NEJ": {"bilan": "EBITDA calculé sur les amortissements consolidés NETS DES REPRISES (tableau des "
+                     "flux, RFA 2025 p.106 : 37,618), seule ligne consolidée qui les isole ; ils sont "
+                     "inférieurs aux dotations du social (55,2, p.83)."},
 }
 POIDS_FOND = {"qualite": 0.40, "croissance": 0.30, "valorisation": 0.20, "bilan": 0.10}
 COUVERTURE_MIN = 0.5

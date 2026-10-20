@@ -11808,6 +11808,18 @@
     "note": "« Capitaux propres de l’ensemble consolidé 1.459.008 1.257.646 1.148.431 » ; bilan consolidé « (En KMAD) 31/12/2025 31/12/2024 31/12/2023 » ; aucun intérêt minoritaire (même lecture qu'en 2025) ; recoupé au tableau de variation p.106 : « Capitaux propres au 01/01/2025 102.326 - 949.937 205.383 1.257.646 ».",
     "releve_le": "2026-10-13",
     "mode_de_lecture": "colonne lue"
+   },
+   "dotations_amortissements_exploitation": {
+    "valeur": 37.618,
+    "valeur_au_rapport": 37618,
+    "unite_au_rapport": "KMAD",
+    "colonne_exercice_clos": 1,
+    "page": 106,
+    "citation": "Dotations aux amortissements nettes des reprises 37.618 29.872 24.095",
+    "note": "Tableau des flux de trésorerie consolidés (p.106), colonnes « 31-déc-25 31-déc-24 31-déc-23 », point = séparateur de milliers. Seule ligne d'amortissements CONSOLIDÉE : les « dotations d'exploitation » du CPC consolidé (106,831, p.105) mêlent amortissements et provisions. ⚠️ RÉSERVE : montant « NET DES REPRISES », et inférieur aux dotations du social (55,215, p.83) ; retenu sur validation de verificateur-finance (20/10/2026). EBITDA = résultat d'exploitation 533,038 (p.105) + 37,618 = 570,656 ; dette nette / EBITDA = 181,178 ÷ 570,656 = 0,32.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-20",
+    "reserve": "amortissements nets des reprises (tableau des flux), pas une dotation brute"
    }
   },
   "pages_document": 122,
@@ -11942,9 +11954,7 @@
     }
    ],
    "non_calcules": {
-    "cash_conversion": "le flux d'exploitation publié (−3,839 MMAD) contient l'ACHAT de titres de placement : la « variation du BFR » du tableau (−363,886) = variation des postes d'exploitation par les bilans (−97,829) + hausse des titres de placement (−266,060), car la trésorerie du tableau (92,130) exclut ces titres. Le ratio publié (−1,2 %) serait faux ; sans cet effet le flux serait d'environ +262,2 MMAD (80,9 % du résultat net), reconstruction non publiée. Non calculé.",
-    "ebitda": "aucun EBE/EBITDA consolidé publié (l'état des soldes de gestion p.83 est SOCIAL : EBE 572,627 MMAD) et les « dotations d'exploitation » consolidées (106,831) mêlent amortissements et provisions. Seule ligne d'amortissements consolidée : « Dotations aux amortissements nettes des reprises 37.618 » du tableau des flux (p.106), net de reprises et inférieur aux dotations du social (55,215, p.83) : pas assez sûr pour publier. Indicatif non publié : 533,038 + 37,618 = 570,656 MMAD (dette nette/EBITDA ≈ 0,95 sans les placements, 0,32 avec).",
-    "dette_nette_ebitda": "sans EBITDA ; la note retombe sur la valeur par défaut (≈ 1,0), dans le même palier que l'indicatif 0,95."
+    "cash_conversion": "le flux d'exploitation publié (−3,839 MMAD) contient l'ACHAT de titres de placement : la « variation du BFR » du tableau (−363,886) = variation des postes d'exploitation par les bilans (−97,829) + hausse des titres de placement (−266,060), car la trésorerie du tableau (92,130) exclut ces titres. Le ratio publié (−1,2 %) serait faux ; sans cet effet le flux serait d'environ +262,2 MMAD (80,9 % du résultat net), reconstruction non publiée. Non calculé."
    },
    "reserves_verifiees": {
     "titres_de_placement": "363,226 MMAD de titres de placement (10 % du total actif ; 57 % de la dette financière) : actions cotées, SICAV et OPCVM au COÛT HISTORIQUE, issus d'un emprunt obligataire de 600 MDH dont « une partie non encore consommée est placée en mandat de gestion » (p.111). Deux définitions de la trésorerie coexistent dans le rapport : tableau des flux = 92,130 (placements exclus) ; note §9-3.6 = « 455 millions » (placements inclus). Retenu : placements exclus, règle du fichier (le tableau des flux de la société ne les compte pas). Dette nette 544,4 MMAD ; avec les placements 181,2 MMAD (capitaux employés 1 640,2 au lieu de 2 003,4 ; ROIC 20,4 % au lieu de 16,7 %).",
@@ -11953,7 +11963,10 @@
     "croissance": "chiffre d'affaires +45 % (4 210,6 contre 2 902,5 MMAD) : stocks +41 % (1 450,9) et fournisseurs +269 MMAD ; le flux d'exploitation hors placements dépend de ce cycle d'approvisionnement (arrivages de décembre, p.112).",
     "unite": "KMAD avec POINT comme séparateur de milliers ; l'AGO (p.28) donne le résultat en dirhams exacts.",
     "badwill": "écart d'acquisition négatif de 3,693 MMAD au passif immobilisé, repris en résultat à raison de 1,846 par an : hors capitaux propres retenus."
-   }
+   },
+   "reserves": [
+    "20/10/2026 : EBITDA désormais CALCULÉ = résultat d'exploitation 533,038 (p.105) + « Dotations aux amortissements nettes des reprises 37.618 » (tableau des flux, p.106) = 570,656 ; ⚠️ amortissements NETS des reprises (validé par verificateur-finance). Anciens motifs de refus : EBITDA « aucun EBE/EBITDA consolidé publié (l'état des soldes de gestion p.83 est SOCIAL : EBE 572,627 MMAD) et les « dotations d'exploitation » consolidées (106,831) mêlent amortissements et provisions. Seule ligne d'amortissements consolidée : « Dotations aux amortissements nettes des reprises 37.618 » du tableau des flux (p.106), net de reprises et inférieur aux dotations du social (55,215, p.83) : pas assez sûr pour publier. Indicatif non publié : 533,038 + 37,618 = 570,656 MMAD (dette nette/EBITDA ≈ 0,95 sans les placements, 0,32 avec). » ; dette nette/EBITDA « sans EBITDA ; la note retombe sur la valeur par défaut (≈ 1,0), dans le même palier que l'indicatif 0,95. »"
+   ]
   }
  },
  "ZLD": {
