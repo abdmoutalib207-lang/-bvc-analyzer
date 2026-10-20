@@ -314,3 +314,16 @@ def test_file_attente_seconde_source_sans_remplacer_ammc():
 def test_file_attente_sans_bourse_inchangee():
     f = {"a_lire": [], "avertissements": [], "ecartes": []}
     assert "Seconde source" not in rapport(f)
+
+
+def test_sous_marches_de_la_page_volume(tmp_path):
+    """Relevé du 20/10/2026 à 15h37 : volume global = carnet central + hors carnet."""
+    acc = _accueil("2026-10-19", 100612691)
+    acc["page_volume"] = {"seance": "2026-10-19", "volume_global_mad": 100612690.68,
+                          "sous_marches": [{"marche": "Carnet Central", "volume_mad": 98262533.69},
+                                           {"marche": "Hors Carnet", "volume_mad": 2350156.99}]}
+    m = cb.mesurer_volume(acc, SOIR, _bougies(tmp_path, "2026-10-19"))
+    assert m["volume_global_somme_des_sous_marches"] is True
+    assert m["carnet_central"] == 98262533.69
+    assert m["ecart_pct_vs_carnet_central"] == cb.ecart_pct(98262533.69, 11000.0)
+    assert "Hors Carnet (page des volumes)" in cb.rapport_volume(m, 1)

@@ -149,6 +149,19 @@ def mesurer_volume(accueil: dict, maintenant: datetime, dossier: Path | None = N
     m["historique_autres_marches"] = autres or {}
     m["ecart_pct_vs_marche_central"] = ecart_pct(central, nous)
     m["perimetre_volume_global"] = perimetre(vg, central, autres)
+
+    # Seconde lecture du périmètre, sur la page des volumes du même relevé :
+    # « Carnet Central », « Hors Carnet »… Mesuré le 20/10/2026 à 15h37 :
+    # 98 262 533,69 + 2 350 156,99 = 100 612 690,68 = le volume global. Le
+    # volume global y INCLUT donc le hors carnet (blocs) ce jour-là.
+    sous = {x["marche"]: x["volume_mad"] for x in (pv.get("sous_marches") or [])
+            if x.get("marche") and x.get("volume_mad") is not None}
+    carnet = sous.get("Carnet Central")
+    m["carnet_central"] = carnet
+    m["ecart_pct_vs_carnet_central"] = ecart_pct(carnet, nous)
+    vpv = pv.get("volume_global_mad")
+    m["volume_global_somme_des_sous_marches"] = (
+        abs(vpv - sum(sous.values())) <= ECART_EGALITE_MAD if sous and vpv is not None else None)
     m["statut"] = "observation" if TOLERANCE_PCT is None else (
         "conforme" if abs(m["ecart_pct"]) <= TOLERANCE_PCT else "hors_tolerance")
     m["bloquant"] = m["statut"] == "hors_tolerance"
@@ -161,6 +174,8 @@ def code_sortie(mesure: dict) -> int:
 
 
 MESURE_CHAMPS = ("seance", "volume_global_accueil", "notre_montant", "ecart_pct",
+                 "sous_marches", "carnet_central", "ecart_pct_vs_carnet_central",
+                 "volume_global_somme_des_sous_marches",
                  "historique_marche_central", "historique_autres_marches",
                  "ecart_pct_vs_marche_central", "perimetre_volume_global", "releve_le")
 
@@ -186,11 +201,16 @@ def rapport_volume(m: dict, n_mesures: int) -> str:
               f"| marché central (historique officiel) | {f(m.get('historique_marche_central'))} |"]
         for k, v in (m.get("historique_autres_marches") or {}).items():
             l.append(f"| {k} (historique officiel) | {f(v)} |")
+        for x in m.get("sous_marches") or []:
+            l.append(f"| {x.get('marche')} (page des volumes) | {f(x.get('volume_mad'))} |")
         l += [f"| nos bougies, Σ v × c ({m['nos_titres']} titres) | {f(m['notre_montant'])} |", "",
               f"Écart au volume global : **{m['ecart_pct']:+.2f} %**"
               + (f" ; au marché central : {m['ecart_pct_vs_marche_central']:+.2f} %"
                  if m.get("ecart_pct_vs_marche_central") is not None else ""),
-              f"Périmètre du volume global ce jour : {m.get('perimetre_volume_global')}."]
+              (f"Écart au carnet central (page des volumes) : {m['ecart_pct_vs_carnet_central']:+.2f} %."
+               if m.get("ecart_pct_vs_carnet_central") is not None else ""),
+              f"Périmètre du volume global ce jour : {m.get('perimetre_volume_global')} ; "
+              f"somme des sous-marchés affichés : {m.get('volume_global_somme_des_sous_marches')}."]
     l += ["", f"Mode observation : aucun seuil n'est fixé ({n_mesures} séance(s) mesurée(s), "
               f"{MIN_SEANCES_TOLERANCE} requises avant d'en proposer un). Ce contrôle ne fait pas échouer le workflow."]
     return "\n".join(l) + "\n"
