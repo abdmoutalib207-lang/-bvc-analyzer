@@ -1,0 +1,236 @@
+{
+  "ticker": "BCP",
+  "societe": "Banque Centrale Populaire (groupe BCP)",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF (1 = première page du fichier), pas le folio imprimé",
+  "blocage": {
+    "motif": "équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière",
+    "effet": "composante « bilan » retirée de la note fondamentale ; note métier : bilan « sans objet : la dette est l'activité d'un établissement financier »",
+    "lu_dans": "pipeline/smart_money/fond_score.py l.367 (est_financiere) ; data.json › BCP › note_fond_metier.criteres.bilan.motif"
+  },
+  "pieces": [
+    {
+      "id": "rfa_2025",
+      "rang_methode": 1,
+      "titre": "États financiers 2025 (dépôt AMMC « BCP_2025 »)",
+      "url": "https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf",
+      "sha256": "6267f97a20d10886c947b5a460f2d75b262e8589632271434ea2becd4c71dd64",
+      "octets": 3801598,
+      "pages": 42
+    },
+    {
+      "id": "rfs_s1_2026",
+      "rang_methode": 1,
+      "titre": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC)",
+      "url": "https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf",
+      "sha256": "159cbbdb913b0212c31e6a2fe6990f71ef0afd75b91788a6e76b9c2e1cc715aa",
+      "octets": 3530885,
+      "pages": 39
+    },
+    {
+      "id": "cp_2025",
+      "rang_methode": 3,
+      "titre": "Communiqué de résultats annuels 2025 (dépôt AMMC)",
+      "url": "https://www.ammc.ma/sites/default/files/CP_BCP_T4_25.pdf",
+      "sha256": "e7aabf06d6426643a4124f6f0df428b5558bfecf5deb7022209aee46ad72ac1f",
+      "octets": 404291,
+      "pages": 2
+    },
+    {
+      "id": "cp_s1_2026",
+      "rang_methode": 3,
+      "titre": "Communiqué de résultats S1 2026 (dépôt AMMC)",
+      "url": "https://www.ammc.ma/sites/default/files/CP_BCP_S1_26.pdf",
+      "sha256": "ddb3aed024e74a505cf10e5b0077cf856035a9c15c34eaed6ba8c1df43c0deb5",
+      "octets": 420911,
+      "pages": 2
+    }
+  ],
+  "chiffres": [
+    {
+      "grandeur": "ratio_cet1",
+      "valeur": 11.4,
+      "unite": "%",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé (base consolidée), Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 24,
+      "citation": "Ratio CET1 Juin-26 2026 (p) Juin-27 (p) Déc-27 (p) / Base sociale 12,16% 11,54% 11,71% 11,88% / Base consolidée 11,40% 10,71% 10,79% 10,86%"
+    },
+    {
+      "grandeur": "ratio_cet1",
+      "valeur": 12.16,
+      "unite": "%",
+      "periode": "30/06/2026",
+      "perimetre": "social (base sociale), Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 24,
+      "citation": "Base sociale 12,16% 11,54% 11,71% 11,88%"
+    },
+    {
+      "grandeur": "cout_du_risque",
+      "valeur": 5362.624,
+      "unite": "MMAD (charge)",
+      "periode": "exercice 2025",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf",
+      "piece": "rfa_2025",
+      "page": 11,
+      "citation": "Coût du risque 4.4 -5 362 624 -6 196 439"
+    },
+    {
+      "grandeur": "encours_credits_clientele",
+      "valeur": 298800.863,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS, prêts et créances sur la clientèle au coût amorti (nets)",
+      "source": "https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf",
+      "piece": "rfa_2025",
+      "page": 11,
+      "citation": "Prêts et créances sur la clientèle, au coût amorti 3.5/3.11 298 800 863 287 240 813"
+    },
+    {
+      "grandeur": "creances_bucket3_clientele_brutes",
+      "valeur": 30641.799,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf",
+      "piece": "rfa_2025",
+      "page": 16,
+      "citation": "Prêts et créances sur la clientèle 272 793 843 26 468 593 30 641 799 3 653 062 5 859 707 21 590 603 1,34% 22,14% 70,46%"
+    },
+    {
+      "grandeur": "depreciations_bucket3_clientele",
+      "valeur": 21590.603,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf",
+      "piece": "rfa_2025",
+      "page": 16,
+      "citation": "Prêts et créances sur la clientèle 272 793 843 26 468 593 30 641 799 3 653 062 5 859 707 21 590 603 1,34% 22,14% 70,46%"
+    },
+    {
+      "grandeur": "taux_couverture_bucket3_clientele",
+      "valeur": 70.46,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf",
+      "piece": "rfa_2025",
+      "page": 16,
+      "citation": "Prêts et créances sur la clientèle [...] 1,34% 22,14% 70,46%"
+    },
+    {
+      "grandeur": "coefficient_exploitation",
+      "valeur": 44.6,
+      "unite": "%",
+      "periode": "exercice 2025",
+      "perimetre": "consolidé, définition émetteur",
+      "source": "https://www.ammc.ma/sites/default/files/CP_BCP_T4_25.pdf",
+      "piece": "cp_2025",
+      "page": 2,
+      "citation": "le coefficient d'exploitation se situe à 44,6%"
+    },
+    {
+      "grandeur": "cout_du_risque",
+      "valeur": 1084.12,
+      "unite": "MMAD (charge)",
+      "periode": "S1 2026 (01/01-30/06/2026)",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 11,
+      "citation": "Coût du risque 4.4 -1 084 120 -2 703 566"
+    },
+    {
+      "grandeur": "encours_credits_clientele",
+      "valeur": 306134.386,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS, prêts et créances sur la clientèle au coût amorti (nets)",
+      "source": "https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 11,
+      "citation": "Prêts et créances sur la clientèle, au coût amorti 3.5/3.11 306 134 386 298 800 863"
+    },
+    {
+      "grandeur": "creances_bucket3_clientele_brutes",
+      "valeur": 32188.564,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 16,
+      "citation": "Prêts et créances sur la clientèle 278 326 961 26 994 042 32 188 564 3 476 582 5 627 867 22 270 732 1,25% 20,85% 69,19%"
+    },
+    {
+      "grandeur": "depreciations_bucket3_clientele",
+      "valeur": 22270.732,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 16,
+      "citation": "Prêts et créances sur la clientèle 278 326 961 26 994 042 32 188 564 3 476 582 5 627 867 22 270 732 1,25% 20,85% 69,19%"
+    },
+    {
+      "grandeur": "taux_couverture_bucket3_clientele",
+      "valeur": 69.19,
+      "unite": "%",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 16,
+      "citation": "Prêts et créances sur la clientèle [...] 1,25% 20,85% 69,19%"
+    },
+    {
+      "grandeur": "coefficient_exploitation",
+      "valeur": 44.7,
+      "unite": "%",
+      "periode": "S1 2026",
+      "perimetre": "consolidé, définition émetteur",
+      "source": "https://www.ammc.ma/sites/default/files/CP_BCP_S1_26.pdf",
+      "piece": "cp_s1_2026",
+      "page": 2,
+      "citation": "coefficient d'exploitation s'établit, pour sa part, à 44,7%"
+    }
+  ],
+  "estimations": [],
+  "calculs": [
+    {
+      "quoi": "coefficient d'exploitation 2025 recalculé",
+      "formule": "(charges générales 10 578 464 + dotations amortissements 1 467 315) / PNB 26 985 158 (rfa_2025 p.11)",
+      "resultat": 44.64,
+      "unite": "%"
+    },
+    {
+      "quoi": "taux de créances Bucket 3 clientèle 2025",
+      "formule": "30 641 799 / (272 793 843 + 26 468 593 + 30 641 799)",
+      "resultat": 9.29,
+      "unite": "%"
+    },
+    {
+      "quoi": "taux de créances Bucket 3 clientèle 30/06/2026",
+      "formule": "32 188 564 / (278 326 961 + 26 994 042 + 32 188 564)",
+      "resultat": 9.54,
+      "unite": "%"
+    }
+  ],
+  "constats": [
+    "Aucun ratio de solvabilité, Tier 1 ou CET1 au 31/12/2025 dans les états financiers 2025 déposés (42 pages) ni dans le communiqué annuel : p.25 décrit le dispositif (minima 9 % / 12 %) sans valeur.",
+    "Au 30/06/2026 seul le CET1 est publié (p.24), dans un tableau qui juxtapose la valeur à fin juin 2026 et des projections (colonnes « (p) ») : seules les valeurs « Juin-26 » sont relevées ; les projections de l'émetteur ne sont pas des réalisés.",
+    "Pilier III : www.groupebcp.com (SharePoint, HTTP 302 → 200) ne publie aucun lien PDF lisible sans JavaScript sur /fr/Pages/Finance.aspx ; ir.groupebcp.com et investisseurs.groupebcp.com ne résolvent pas (000). Pilier III non trouvé.",
+    "Le compte de résultat consolidé ne porte pas de coefficient : les valeurs viennent des communiqués ; le recalcul 2025 (44,64 %) concorde."
+  ],
+  "conclusion": "Coût du risque, encours, Bucket 3 et couverture, coefficient : disponibles en consolidé pour 2025 et S1 2026. Solvabilité : CET1 au 30/06/2026 seulement ; rien au 31/12/2025 dans les pièces trouvées.",
+  "debloquerait": "Coût du risque, qualité des créances et coefficient pour la grille bancaire ; la solvabilité 2025 reste à trouver (Pilier III BCP 2025).",
+  "question_ir": null
+}

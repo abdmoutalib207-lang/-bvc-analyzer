@@ -1,0 +1,248 @@
+{
+  "ticker": "BMC",
+  "societe": "BMCI (Banque Marocaine pour le Commerce et l'Industrie)",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF (1 = première page du fichier), pas le folio imprimé",
+  "blocage": {
+    "motif": "équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière",
+    "effet": "composante « bilan » retirée de la note fondamentale ; note métier : bilan « sans objet : la dette est l'activité d'un établissement financier »",
+    "lu_dans": "pipeline/smart_money/fond_score.py l.367 (est_financiere) ; data.json › BMC › note_fond_metier.criteres.bilan.motif"
+  },
+  "pieces": [
+    {
+      "id": "rfa_2025",
+      "rang_methode": 1,
+      "titre": "Rapport financier annuel 2025 (dépôt AMMC ; 357 p., 196 pages sans couche texte)",
+      "url": "https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf",
+      "sha256": "68ea6002eccc6b08fd854c7b2b7b2fdd708d6fcb740e74f4baabc1b3ddc0a289",
+      "octets": 25263169,
+      "pages": 357
+    },
+    {
+      "id": "rfs_s1_2026",
+      "rang_methode": 1,
+      "titre": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC)",
+      "url": "https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf",
+      "sha256": "90957b9716f8b17ada02df913b47b77fa174e65dc2decb58fe1831bea07562eb",
+      "octets": 5195397,
+      "pages": 28
+    }
+  ],
+  "chiffres": [
+    {
+      "grandeur": "ratio_solvabilite",
+      "valeur": 13.4,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé (« Base Consolidée », colonne 31/12/2025 « Réalisé »), Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 13,
+      "citation": "Base Consolidée 31/12/2025 30/06/2026 31/12/2026 30/06/2027 [...] Ratio de solvabilité (Seuil Min 12%) 13,4% 13,5% 13,6% 13,8%"
+    },
+    {
+      "grandeur": "ratio_tier1",
+      "valeur": 11.2,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé, Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 13,
+      "citation": "Tier 1 Ratio (Seuil Min 9%) 11,2% 11,3% 11,5% 11,6%"
+    },
+    {
+      "grandeur": "ratio_cet1",
+      "valeur": 10.0,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé, Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 13,
+      "citation": "CET 1 Ratio (Seuil Min 8%) 10,0% 10,2% 10,4% 10,6%"
+    },
+    {
+      "grandeur": "ratio_solvabilite",
+      "valeur": 15.1,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "social",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 5,
+      "citation": "un ratio de solvabilité consolidé de 13,4% et social de 15,1%."
+    },
+    {
+      "grandeur": "cout_du_risque",
+      "valeur": 911.575,
+      "unite": "MMAD (charge)",
+      "periode": "exercice 2025",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 15,
+      "citation": "COÛT DU RISQUE 911 575 809 988"
+    },
+    {
+      "grandeur": "encours_credits_clientele",
+      "valeur": 58829.455,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS, prêts et créances sur la clientèle au coût amorti (nets)",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 15,
+      "citation": "Prêts et créances sur la clientèle, au coût amorti 58 829 455 59 193 851"
+    },
+    {
+      "grandeur": "creances_bucket3_clientele_brutes",
+      "valeur": 7881.942,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 18,
+      "citation": "Prêts et créances sur la clientèle 48 451 769 9 317 839 7 881 942 287 871 728 028 5 806 197"
+    },
+    {
+      "grandeur": "depreciations_bucket3_clientele",
+      "valeur": 5806.197,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 18,
+      "citation": "Prêts et créances sur la clientèle 48 451 769 9 317 839 7 881 942 287 871 728 028 5 806 197"
+    },
+    {
+      "grandeur": "taux_couverture",
+      "valeur": 81.0,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "SOCIAL (normes marocaines), définition émetteur",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 5,
+      "citation": "Le taux de couverture en social s'établit ainsi à 81% à fin décembre 2025 (vs. 80,1% à fin décembre 2024)."
+    },
+    {
+      "grandeur": "coefficient_exploitation",
+      "valeur": 57.4,
+      "unite": "%",
+      "periode": "exercice 2025",
+      "perimetre": "consolidé (recalcul 57,38 % sur le compte de résultat consolidé)",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 5,
+      "citation": "Un coefficient d'exploitation en baisse de 176 pbs atteignant 57,4%"
+    },
+    {
+      "grandeur": "ratio_solvabilite",
+      "valeur": 14.1,
+      "unite": "%",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé, PROVISOIRE selon l'émetteur",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 2,
+      "citation": "un ratio de solvabilité (*) consolidé de 14,1 % et social de 16,1%. [...] (*) ratio de solvabilité provisoire au 30 juin 2026"
+    },
+    {
+      "grandeur": "cout_du_risque",
+      "valeur": 149.652,
+      "unite": "MMAD (charge)",
+      "periode": "S1 2026 (01/01-30/06/2026)",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 12,
+      "citation": "COÛT DU RISQUE 149 652 396 993"
+    },
+    {
+      "grandeur": "encours_credits_clientele",
+      "valeur": 59365.473,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS, prêts et créances sur la clientèle au coût amorti (nets)",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 12,
+      "citation": "Prêts et créances sur la clientèle, au coût amorti 59 365 473 58 829 455"
+    },
+    {
+      "grandeur": "creances_bucket3_clientele_brutes",
+      "valeur": 7821.361,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 15,
+      "citation": "Prêts et créances sur la clientèle 48 113 372 10 326 170 7 821 361 270 775 720 496 5 904 159"
+    },
+    {
+      "grandeur": "depreciations_bucket3_clientele",
+      "valeur": 5904.159,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 15,
+      "citation": "Prêts et créances sur la clientèle 48 113 372 10 326 170 7 821 361 270 775 720 496 5 904 159"
+    }
+  ],
+  "estimations": [],
+  "calculs": [
+    {
+      "quoi": "couverture Bucket 3 clientèle 2025",
+      "formule": "5 806 197 / 7 881 942",
+      "resultat": 73.66,
+      "unite": "%"
+    },
+    {
+      "quoi": "couverture Bucket 3 clientèle 30/06/2026",
+      "formule": "5 904 159 / 7 821 361",
+      "resultat": 75.49,
+      "unite": "%"
+    },
+    {
+      "quoi": "taux Bucket 3 clientèle 2025",
+      "formule": "7 881 942 / (48 451 769 + 9 317 839 + 7 881 942)",
+      "resultat": 12.01,
+      "unite": "%"
+    },
+    {
+      "quoi": "taux Bucket 3 clientèle 30/06/2026",
+      "formule": "7 821 361 / (48 113 372 + 10 326 170 + 7 821 361)",
+      "resultat": 11.8,
+      "unite": "%"
+    },
+    {
+      "quoi": "coefficient d'exploitation 2025 recalculé",
+      "formule": "(2 002 549 + 260 543) / 3 943 792 (rfa_2025 p.15)",
+      "resultat": 57.38,
+      "unite": "%"
+    },
+    {
+      "quoi": "coefficient d'exploitation S1 2026 (non publié)",
+      "formule": "(1 037 567 + 150 631) / 2 005 825 (rfs_s1_2026 p.12)",
+      "resultat": 59.24,
+      "unite": "%"
+    }
+  ],
+  "constats": [
+    "Les colonnes 30/06/2026 à 30/06/2027 du tableau p.13 du RFA sont des PROJECTIONS (« Projection ») : seule la colonne « Réalisé » est relevée.",
+    "Le ratio au 30/06/2026 (14,1 %) est dit PROVISOIRE par l'émetteur ; ni CET1 ni Tier 1 publiés au S1.",
+    "Le taux de couverture publié (81 %) est SOCIAL ; la couverture consolidée n'existe que par calcul (73,7 % en Bucket 3 / Bucket 3).",
+    "196 pages du RFA sans couche texte (31 à 302 pour l'essentiel) : comptes sociaux scannés, non rendus ici — les chiffres consolidés relevés sont sur des pages à texte (5, 13, 15, 18).",
+    "Pilier III non cherché : www.bmci.ma joignable (HTTP 200) ; le RFA contient les ratios consolidés 2025."
+  ],
+  "conclusion": "2025 : les quatre familles en consolidé (couverture par calcul). S1 2026 : solvabilité provisoire seule, coût du risque, encours, Bucket 3 ; coefficient par calcul.",
+  "debloquerait": "Grille bancaire BMCI : solvabilité 13,4 % (T1 11,2 %, CET1 10,0 %), coût du risque 912 MMAD sur 58 829 MMAD, Bucket 3 12,0 % couvert à 73,7 % (calcul), coefficient 57,4 %.",
+  "question_ir": null
+}

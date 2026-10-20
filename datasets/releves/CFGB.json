@@ -1,0 +1,237 @@
+{
+  "ticker": "CFGB",
+  "societe": "CFG Bank",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF (1 = première page du fichier), pas le folio imprimé",
+  "blocage": {
+    "motif": "équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière",
+    "effet": "composante « bilan » retirée de la note fondamentale ; note métier : bilan « sans objet : la dette est l'activité d'un établissement financier »",
+    "lu_dans": "pipeline/smart_money/fond_score.py l.367 (est_financiere) ; data.json › CFGB › note_fond_metier.criteres.bilan.motif"
+  },
+  "pieces": [
+    {
+      "id": "rfa_2025",
+      "rang_methode": 1,
+      "titre": "Rapport financier annuel 2025 (dépôt AMMC)",
+      "url": "https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf",
+      "sha256": "0f33a6ec10bf1e0204978786d359e78fe1a4f07df958e3e0b8f06f1de314dd85",
+      "octets": 12934136,
+      "pages": 69
+    },
+    {
+      "id": "rfs_s1_2026",
+      "rang_methode": 1,
+      "titre": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC)",
+      "url": "https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf",
+      "sha256": "4ba5ae2ee482847d63ece4103fae86e72c9316533d2c304c0479e0c20a483c4c",
+      "octets": 7724942,
+      "pages": 13
+    }
+  ],
+  "chiffres": [
+    {
+      "grandeur": "ratio_solvabilite",
+      "valeur": 18.66,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé (« indicateurs prudentiels consolidés »), Bâle III ; colonne 2025, seule réalisée",
+      "source": "https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 32,
+      "citation": "EVOLUTION DES PRINCIPAUX INDICATEURS PRUDENTIELS CONSOLIDÉS SUR LES 18 PROCHAINS MOIS / En MMAD/% 2025 S1 2026 2026 S1 2027 / Ratio de solvabilité (4)/(5) 18.66% 17.81% 18.17% 17.20%"
+    },
+    {
+      "grandeur": "ratio_tier1",
+      "valeur": 10.74,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé, Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 32,
+      "citation": "Ratio sur fonds propres de catégorie 1 (2)/(5) 10.74% 10.42% 11.29% 10.83%"
+    },
+    {
+      "grandeur": "ratio_cet1",
+      "valeur": 9.99,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé, Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 32,
+      "citation": "Ratio sur fonds propres de base CET1 (1)/(5) 9.99% 9.73% 10.65% 10.29%"
+    },
+    {
+      "grandeur": "risques_ponderes",
+      "valeur": 16154.0,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé",
+      "source": "https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 32,
+      "citation": "Risques pondérés(5) 16154 17315 18610 19890"
+    },
+    {
+      "grandeur": "cout_du_risque",
+      "valeur": 45.653,
+      "unite": "MMAD (charge)",
+      "periode": "exercice 2025",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 39,
+      "citation": "Coût du risque 3.4 -45 653 -41 071"
+    },
+    {
+      "grandeur": "encours_credits_clientele",
+      "valeur": 21781.999,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS, prêts et créances sur la clientèle au coût amorti (nets)",
+      "source": "https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 38,
+      "citation": "Prêts et créances sur la clientèle, au coût amorti 2.4 21 781 999 17 394 296"
+    },
+    {
+      "grandeur": "creances_bucket3_clientele_brutes",
+      "valeur": 312.041,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 44,
+      "citation": "Prêts et créances sur la clientèle 21 574 064 131 451 312 041 17 123 826 172 094 288 391"
+    },
+    {
+      "grandeur": "depreciations_bucket3_clientele",
+      "valeur": 114.362,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 44,
+      "citation": "Prêts et créances sur la clientèle 107 427 8 064 114 362 96 623 10 854 78 361"
+    },
+    {
+      "grandeur": "taux_creances_en_souffrance",
+      "valeur": 1.63,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "définition émetteur ; périmètre non précisé sur la page (vraisemblablement la banque, social)",
+      "source": "https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 14,
+      "citation": "Le taux de créances en souffrance ressort à 1,63% à fin 2025, contre 1,85% en 2024."
+    },
+    {
+      "grandeur": "coefficient_exploitation",
+      "valeur": 49.0,
+      "unite": "%",
+      "periode": "exercice 2025",
+      "perimetre": "consolidé (même page que le PNB consolidé), arrondi au point",
+      "source": "https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 16,
+      "citation": "coefficient d'exploitation s'améliore de 10 points à 49%."
+    },
+    {
+      "grandeur": "cout_du_risque",
+      "valeur": 22.17,
+      "unite": "MMAD (charge)",
+      "periode": "S1 2026 (01/01-30/06/2026)",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 5,
+      "citation": "Coût du risque 3.4 -22.170 -23.363"
+    },
+    {
+      "grandeur": "encours_credits_clientele",
+      "valeur": 21385.128,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS, prêts et créances sur la clientèle au coût amorti (nets)",
+      "source": "https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 5,
+      "citation": "Prêts et créances sur la clientèle, au coût amorti 2.4 21.385.128 21.781.999"
+    },
+    {
+      "grandeur": "creances_bucket3_clientele_brutes",
+      "valeur": 315.43,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 7,
+      "citation": "Prêts et créances sur la clientèle 21.166.441 160.067 315.430 21.574.064 131.451 312.041"
+    },
+    {
+      "grandeur": "depreciations_bucket3_clientele",
+      "valeur": 127.69,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 7,
+      "citation": "Prêts et créances sur la clientèle 115.940 5.964 127.690 107.452 8.064 114.362"
+    }
+  ],
+  "estimations": [],
+  "calculs": [
+    {
+      "quoi": "couverture Bucket 3 clientèle 2025",
+      "formule": "114 362 / 312 041",
+      "resultat": 36.65,
+      "unite": "%"
+    },
+    {
+      "quoi": "couverture Bucket 3 clientèle 30/06/2026",
+      "formule": "127 690 / 315 430",
+      "resultat": 40.48,
+      "unite": "%"
+    },
+    {
+      "quoi": "taux Bucket 3 clientèle 2025",
+      "formule": "312 041 / (21 574 064 + 131 451 + 312 041)",
+      "resultat": 1.42,
+      "unite": "%"
+    },
+    {
+      "quoi": "taux Bucket 3 clientèle 30/06/2026",
+      "formule": "315 430 / (21 166 441 + 160 067 + 315 430)",
+      "resultat": 1.46,
+      "unite": "%"
+    },
+    {
+      "quoi": "coefficient d'exploitation 2025 recalculé",
+      "formule": "(513 422 + 100 560) / 1 247 229 (rfa_2025 p.39)",
+      "resultat": 49.23,
+      "unite": "%"
+    },
+    {
+      "quoi": "coefficient d'exploitation S1 2026 (non publié)",
+      "formule": "(241 740 + 38 014) / 634 039 (rfs_s1_2026 p.5)",
+      "resultat": 44.12,
+      "unite": "%"
+    }
+  ],
+  "constats": [
+    "Le RFS S1 2026 ne chiffre aucun ratio prudentiel (p.10 : méthodologie seulement). La colonne « S1 2026 » du tableau du RFA 2025 p.32 (17,81 %) est une PROJECTION faite en 2026 sur les 18 mois suivants : non relevée.",
+    "Le RFS S1 2026 écrit les milliers avec des points (« 21.385.128 ») : lu en KMAD comme le RFA.",
+    "Couverture Bucket 3 très inférieure aux grandes banques (36,7 %) sur un taux de Bucket 3 très bas (1,4 %) : un même seuil de couverture ne peut pas juger CFGB et ATW sans tenir compte du niveau de défaut.",
+    "Écart mineur, sans effet sur le Bucket 3 : dépréciation Bucket 1 au 31/12/2025 = 107 427 (RFA p.44) contre 107.452 (RFS p.7, colonne de comparaison).",
+    "Pilier III non cherché : www.cfgbank.com répond 301 ; le RFA contient les ratios consolidés 2025."
+  ],
+  "conclusion": "2025 : les quatre familles en consolidé (couverture par calcul). S1 2026 : coût du risque, encours, Bucket 3 ; ni solvabilité ni coefficient publiés.",
+  "debloquerait": "Grille bancaire CFGB : solvabilité 18,66 % (T1 10,74 %, CET1 9,99 %), coût du risque 46 MMAD sur 21 782 MMAD, Bucket 3 1,4 % couvert à 36,7 % (calcul), coefficient 49 %.",
+  "question_ir": null
+}
