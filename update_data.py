@@ -2561,6 +2561,12 @@ def _est_rediffusion(chg, vol, df_candles, seance=None):
 
 
 FAITS_DATA: dict = {}
+_TAUX_MAD_TND: dict = {}   # règle g, 20/10/2026 — rempli au démarrage de run()
+
+
+def _cap_en_devise(cap_mdh, prix_asof, devise, taux):
+    from pipeline.change_bct import cap_en_devise
+    return cap_en_devise(cap_mdh, prix_asof, devise, taux)
 
 
 def _cp_s1_pour_pb(ticker: str):
@@ -4037,6 +4043,14 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:
         logger.warning(f"faits_financiers.json illisible ({_e})")
         FAITS_DATA = {}
+    # Règle g (20/10/2026, IAS 21) : taux MAD → TND relevés à la BCT, par journée.
+    global _TAUX_MAD_TND
+    try:
+        from pipeline.change_bct import lire_taux
+        _TAUX_MAD_TND = lire_taux()
+    except Exception as _e:
+        logger.warning(f"datasets/change_mad_tnd.json illisible ({_e})")
+        _TAUX_MAD_TND = {}
     # Grandeurs contestées (dette nette contredite par les faits) : la porte
     # unique `ratio_effectif` les refuse désormais à la note, aux alertes et à
     # l'écran (14/10/2026).
@@ -4910,6 +4924,13 @@ def run(dry_run=False, push=False, token=""):
                         "exercice 2025" if (BPA_DATA.get(ticker) or {}).get("bpa") else None),
             "bpa":    BPA_DATA[ticker]["bpa"] if ticker in BPA_DATA else None,
             "bpa_12m": (BPA_DATA.get(ticker) or {}).get("bpa_12m"),
+            # ⚠️ RÈGLE e — 20/10/2026 — IAS 33.19-20 et 33.64 : le PER ci-dessus
+            # est cours ÷ BPA sur le nombre MOYEN PONDÉRÉ d'actions de la
+            # période (`bvc_config.HISTORIQUE_ACTIONS`). La capitalisation ÷ le
+            # résultat 12 mois, qui lit le nombre d'actions ACTUEL, s'affiche
+            # en regard : les deux divergent quand le capital a varié (CIH, CDM).
+            "pe_capitalisation": _per(_cap_retenue, (BPA_DATA.get(ticker) or {}).get("rnpg_12m")),
+            "bpa_reserve": (BPA_DATA.get(ticker) or {}).get("reserve_bpa"),
             # ⚠️ Le price-to-book vient désormais des FAITS SOURCÉS quand ils
             # existent, et vaut None sinon — jamais la constante de FOND_DATA.
             # Sur Alliances, la table annonçait 0,80 quand les comptes 2025
@@ -4948,6 +4969,13 @@ def run(dry_run=False, push=False, token=""):
             # ⚠️ Mais elle est confrontée à prix × actions sourcées avant d'être
             # publiée : voir `_capitalisation()`.
             "cap":    _cap_retenue,
+            # ⚠️ RÈGLE g — 20/10/2026 — IAS 21.21 : comptes publiés dans une
+            # autre monnaie (ENK : TND) → capitalisation convertie au taux
+            # officiel (BCT) DU JOUR DU COURS, taux, date et source stockés ;
+            # sans taux de ce jour, pas de conversion. None pour un titre en MAD.
+            "cap_devise_comptes": _cap_en_devise(
+                _cap_retenue, prix_asof, ((FAITS_DATA.get(ticker) or {}) if isinstance(FAITS_DATA.get(ticker), dict)
+                                          else {}).get("devise"), _TAUX_MAD_TND),
             # ⚠️ None-safe, comme `ma200` juste en dessous. Un titre qui
             # reprend sa cotation n'a pas de plage 90 jours comparable à son
             # nouveau cours : la borne est ABSENTE, pas égale au prix.

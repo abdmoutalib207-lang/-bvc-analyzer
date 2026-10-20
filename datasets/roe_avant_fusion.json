@@ -1,0 +1,17 @@
+{
+  "_regle": "Règle f du 20/10/2026 (IFRS 3.8 : l'acquisition — ici la fusion-absorption d'Allianz Maroc par Sanlam Maroc, actée le 02/07/2026 — a sa date ; aucun compte publié ne décrit encore l'entité fusionnée). Rien n'est calculé sur l'agrégat fusionné avant ses comptes. Le ROE HISTORIQUE de l'entité absorbante peut être publié HORS NOTE, étiqueté « avant fusion ». Aucune note, aucune alerte, aucun BPA ne lit ce fichier (pipeline/ratios_financiers.py le range dans ratios_publies.roe_2025_avant_fusion et roe_12m_avant_fusion, clés qu'aucune porte ne lit).",
+  "titres": {
+    "SAF": {
+      "etiquette": "avant fusion — Sanlam Maroc seule, sans Allianz Maroc",
+      "roe_2025": {"valeur": 11.47, "date": "2025-12-31",
+        "formule": "676.524 ÷ ((5 729.361 + 6 062.749) ÷ 2) (MMAD) — RNPG consolidé 2025 ÷ capitaux propres part du groupe moyens",
+        "sources": {"resultat": "https://www.ammc.ma/sites/default/files/Sanlam_Maroc_S1_26.pdf p.4, bilan consolidé : « Résultat net-part du groupe -88.608 676.524 » (colonnes 06.2026 / 12.2025)",
+                    "capitaux_propres": "même page, tableau de variation des capitaux propres consolidés : « SITUATION AU 1ER JANVIER 2025 … 5.729.361 » et « SITUATION AU 31 DÉCEMBRE 2025 … 6.062.749 » (part du groupe) — page rendue et lue le 20/10/2026"}},
+      "roe_12m": {"valeur": -9.75, "date": "2026-06-30",
+        "formule": "(676.524 − 1 177.155 − 88.608) ÷ ((6 574.847 + 5 514.342) ÷ 2) = −589.239 ÷ 6 044.595 (MMAD)",
+        "sources": {"resultat": "Sanlam_Maroc_S1_26.pdf p.4 : « RÉSULTAT NET (PART DU GROUPE) -88.608 1.177.155 » (06.2026 / 06.2025) ; exercice 2025 676.524 (bilan)",
+                    "capitaux_propres": "Sanlam_Maroc_S1_26.pdf p.4 : « CAPITAUX PROPRES - PART DU GROUPE 5.514.342 » au 30/06/2026 ; https://www.ammc.ma/sites/default/files/Sanlam_Maroc_S1_25.pdf p.4 : « CAPITAUX PROPRES - PART DU GROUPE 5.346.604 5.729.361 6.574.847 » (colonne 30.06.2025)"},
+        "reserve": "consolidé IFRS 17 ; le résultat SOCIAL du S1 2026 est positif (172,2 MDH, p.2) : deux bases, deux signes"}
+    }
+  }
+}

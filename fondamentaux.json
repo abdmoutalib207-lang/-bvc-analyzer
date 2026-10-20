@@ -206,7 +206,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025"
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 9.4,
@@ -314,6 +315,18 @@
         "unite": "MMAD",
         "dette_nette_stricte": 3972.6
       },
+      "dette_nette_elargie": {
+        "valeur": 4267.2,
+        "date": "2025-12-31",
+        "formule": "3370.867 + 896.3 de dettes d'acquisition (MMAD)",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "dettes_acquisition_1": "https://www.ammc.ma/sites/default/files/CP_Akdital_2025_0.pdf, p. 1 — (dont 21% de dettes de fournisseurs d’immobilisations)"
+        },
+        "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+        "unite": "MMAD",
+        "hors_note": true
+      },
       "ebitda": {
         "valeur": 1214.0,
         "date": "2025-12-31",
@@ -333,7 +346,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025"
+        "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 9.1,
@@ -464,7 +478,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS, 31/12/2025"
+        "base": "consolidé IFRS, 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette 3142 MMAD, p.2) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 7.6,
@@ -1161,7 +1176,7 @@
     "secteur": "Industrie",
     "per": 22,
     "forward_per": 18,
-    "croissance_ca": 41.7,
+    "croissance_ca": 8.7,
     "croissance_bpa": 34.0,
     "dette_nette_ebitda": 1.0,
     "roic": 14,
@@ -1226,6 +1241,18 @@
         "base": "consolidé IFRS, 31/12/2025",
         "unite": "MMAD"
       },
+      "dette_nette_elargie": {
+        "valeur": 895.5,
+        "date": "2025-12-31",
+        "formule": "54.087 + 841.389 de dettes d'acquisition (MMAD)",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "dettes_acquisition_1": "https://www.ammc.ma/sites/default/files/CMGP_RFA_2025.pdf, p. 80 — Dettes sur acquisition immos 841 389 364"
+        },
+        "base": "consolidé IFRS, 31/12/2025",
+        "unite": "MMAD",
+        "hors_note": true
+      },
       "ebitda": {
         "valeur": 470.0,
         "date": "2025-12-31",
@@ -1245,7 +1272,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS, 31/12/2025"
+        "base": "consolidé IFRS, 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette 1083 MMAD, p.1) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 8.8,
@@ -1274,6 +1302,14 @@
         "unite": "%"
       },
       "calcule_le": "2026-09-30"
+    },
+    "croissance_perimetre": {
+      "constant": [
+        "chiffre d'affaires à périmètre constant (1588 ÷ 1461.0 pro forma)"
+      ],
+      "reserve": "périmètre élargi — résultat : croissance publiée, pas de comparatif pro forma en montants (CPCM, Agrosem et Sodipire intégrés depuis 2025)",
+      "source": "https://www.ammc.ma/sites/default/files/CP_CMGP_S1_26.pdf",
+      "page": 1
     }
   },
   "CMT": {
@@ -1359,6 +1395,22 @@
         "base": "consolidé, 31/12/2025",
         "unite": "MMAD"
       },
+      "dette_nette_ebitda": {
+        "valeur": 0.3684,
+        "date": "2025-12-31",
+        "formule": "0 < 142.868 ÷ EBITDA ≤ 142.868 ÷ 387.848",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda_borne_inferieure": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/CMT_RFA_2025.pdf, p. 58 — EBITDA = résultat d'exploitation + dotations aux amortissements ; les amortissements sont ≥ 0, donc EBITDA ≥ résultat d'exploitation consolidé « après dotations aux amortissements » 387,848 MMAD (RFA 2025 p.58). La valeur exacte reste inconnue : la seule dotation publiée (38,412) mêle provisions et dépréciations."
+        },
+        "base": "consolidé, 31/12/2025",
+        "borne": "supérieure",
+        "intervalle": [
+          0,
+          0.3684
+        ],
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
+      },
       "roic": {
         "valeur": 23.1,
         "date": "2025-12-31",
@@ -1386,8 +1438,7 @@
         "unite": "%"
       },
       "non_calcules_2025": {
-        "ebitda": "ni EBE publié, ni dotations aux amortissements isolées",
-        "dette_nette_ebitda": "dette nette ou EBITDA non calculé"
+        "ebitda": "ni EBE publié, ni dotations aux amortissements isolées"
       },
       "calcule_le": "2026-09-30"
     }
@@ -1483,7 +1534,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS, 31/12/2025"
+        "base": "consolidé IFRS, 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette 1465.7 MMAD, p.2) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 12.5,
@@ -1607,7 +1659,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025"
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette 380 MMAD, p.4) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 0.5,
@@ -1745,7 +1798,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS, 31/12/2025 — états consolidés complets (p.104-106, pages image rendues et lues) ; communiqué p.172"
+        "base": "consolidé IFRS, 31/12/2025 — états consolidés complets (p.104-106, pages image rendues et lues) ; communiqué p.172",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette 248.41 MMAD, p.3) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 19.1,
@@ -1876,7 +1930,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025"
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette 206 MMAD, p.4) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 18.3,
@@ -1997,7 +2052,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS, 31/12/2025"
+        "base": "consolidé IFRS, 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette 18194 MMAD, p.1) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 20.2,
@@ -2242,7 +2298,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025"
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette 4650 MMAD, p.2) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 7.1,
@@ -2364,7 +2421,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS, 31/12/2025 (publié en millions de dirhams, arrondis)"
+        "base": "consolidé IFRS, 31/12/2025 (publié en millions de dirhams, arrondis)",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 0.3,
@@ -2479,7 +2537,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS, 31/12/2025"
+        "base": "consolidé IFRS, 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette 5202.14 MMAD, p.1) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 14.4,
@@ -2657,7 +2716,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS, 31/12/2025"
+        "base": "consolidé IFRS, 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 15.3,
@@ -2788,7 +2848,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025"
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 47.6,
@@ -2910,7 +2971,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025"
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 6.2,
@@ -3135,7 +3197,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025"
+        "base": "consolidé IFRS (comptes consolidés résumés), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 9.4,
@@ -3211,6 +3274,29 @@
           "roic",
           "cash_conversion"
         ]
+      },
+      "roe_2025_avant_fusion": {
+        "valeur": 11.47,
+        "date": "2025-12-31",
+        "formule": "676.524 ÷ ((5 729.361 + 6 062.749) ÷ 2) (MMAD) — RNPG consolidé 2025 ÷ capitaux propres part du groupe moyens",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Sanlam_Maroc_S1_26.pdf p.4, bilan consolidé : « Résultat net-part du groupe -88.608 676.524 » (colonnes 06.2026 / 12.2025)",
+          "capitaux_propres": "même page, tableau de variation des capitaux propres consolidés : « SITUATION AU 1ER JANVIER 2025 … 5.729.361 » et « SITUATION AU 31 DÉCEMBRE 2025 … 6.062.749 » (part du groupe) — page rendue et lue le 20/10/2026"
+        },
+        "etiquette": "avant fusion — Sanlam Maroc seule, sans Allianz Maroc",
+        "hors_note": true
+      },
+      "roe_12m_avant_fusion": {
+        "valeur": -9.75,
+        "date": "2026-06-30",
+        "formule": "(676.524 − 1 177.155 − 88.608) ÷ ((6 574.847 + 5 514.342) ÷ 2) = −589.239 ÷ 6 044.595 (MMAD)",
+        "sources": {
+          "resultat": "Sanlam_Maroc_S1_26.pdf p.4 : « RÉSULTAT NET (PART DU GROUPE) -88.608 1.177.155 » (06.2026 / 06.2025) ; exercice 2025 676.524 (bilan)",
+          "capitaux_propres": "Sanlam_Maroc_S1_26.pdf p.4 : « CAPITAUX PROPRES - PART DU GROUPE 5.514.342 » au 30/06/2026 ; https://www.ammc.ma/sites/default/files/Sanlam_Maroc_S1_25.pdf p.4 : « CAPITAUX PROPRES - PART DU GROUPE 5.346.604 5.729.361 6.574.847 » (colonne 30.06.2025)"
+        },
+        "reserve": "consolidé IFRS 17 ; le résultat SOCIAL du S1 2026 est positif (172,2 MDH, p.2) : deux bases, deux signes",
+        "etiquette": "avant fusion — Sanlam Maroc seule, sans Allianz Maroc",
+        "hors_note": true
       },
       "calcule_le": "2026-09-30"
     }
@@ -3297,7 +3383,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025"
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 38.6,
@@ -3417,7 +3504,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "SOCIAL (SMI ne publie pas de comptes consolidés), 31/12/2025"
+        "base": "SOCIAL (SMI ne publie pas de comptes consolidés), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 24.7,
@@ -3528,7 +3616,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS, 31/12/2025"
+        "base": "consolidé IFRS, 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 18.2,
@@ -3647,7 +3736,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS, 31/12/2025"
+        "base": "consolidé IFRS, 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 11.2,
@@ -3766,7 +3856,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "SOCIAL (SRM n'a ni titres de participation ni comptes consolidés), 31/12/2025"
+        "base": "SOCIAL (SRM n'a ni titres de participation ni comptes consolidés), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 6.3,
@@ -3794,7 +3885,7 @@
     "per": null,
     "forward_per": null,
     "croissance_ca": 26.4,
-    "croissance_bpa": -16.1,
+    "croissance_bpa": 65.5,
     "dette_nette_ebitda": null,
     "roic": null,
     "wacc": null,
@@ -3877,7 +3968,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS, 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 31 941 KMAD)"
+        "base": "consolidé IFRS, 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 31 941 KMAD)",
+        "periode": "31/12/2025 ÷ exercice 2025 — dette nette au 30/06/2026 non relevée sur pièce (le relevé T2S ne porte ni dettes financières ni trésorerie au 30/06)"
       },
       "roic": {
         "valeur": 11.9,
@@ -3906,6 +3998,10 @@
         "unite": "%"
       },
       "calcule_le": "2026-09-30"
+    },
+    "croissance_bpa_retraitee": {
+      "motif": "S1 2025 retraité de la cession de l'activité Varian à Siemens Healthineers : élément chiffré EN MONTANT par l'émetteur (RNPG ajusté 55 contre 109 publiés, soit ≈ 54 MDH) ; croissance recalculée sur ses montants, numérateur et dénominateur du même tableau : 91 ÷ 55 − 1 = +65,5 % (l'émetteur écrit 65 %)",
+      "croissance_publiee_brute": -16.1
     }
   },
   "TGCC": {
@@ -3996,7 +4092,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025"
+        "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 24.1,
@@ -4127,7 +4224,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025"
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 11.3,
@@ -4248,7 +4346,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025"
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 18.3,
@@ -4455,7 +4554,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS, 31/12/2025"
+        "base": "consolidé IFRS, 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 5.0,
@@ -4566,7 +4666,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025"
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette 1887.69 MMAD, p.15) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 10.2,
@@ -4685,7 +4786,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "SOCIAL (normes marocaines), 31/12/2025 — Afric Industries ne publie que des comptes sociaux (aucun consolidé au dépôt ; titres de participation 21,6 MMAD : La Roseraie de l'Atlas, Balcony Residences)"
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Afric Industries ne publie que des comptes sociaux (aucun consolidé au dépôt ; titres de participation 21,6 MMAD : La Roseraie de l'Atlas, Balcony Residences)",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette -1.149 MMAD, p.3-4) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 20.7,
@@ -4799,14 +4901,19 @@
         "origine": "calculé"
       },
       "dette_nette_ebitda": {
-        "valeur": -0.17,
-        "date": "2025-12-31",
-        "formule": "-288.58 ÷ 1685.486",
+        "valeur": 0.22,
+        "date": "2026-06-30",
+        "formule": "326.343 ÷ (1685.486 + 562.182 − 731.903)",
         "sources": {
-          "dette_nette": "ratios_publies.dette_nette",
-          "ebitda": "ratios_publies.ebitda"
+          "dette_nette_30_06_2026": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf, p. 4 — 473.879 + 841.200 − 988.736 (MMAD)",
+          "ebitda_exercice_2025": "ratios_publies.ebitda",
+          "ebitda_s1_2026": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf, p. 4 — 435.138 + 127.044 (MMAD) — résultat opérationnel + dotations aux amortissements",
+          "ebitda_s1_2025": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf, p. 4 — 569.961 + 161.942 (MMAD) — même lignes, colonne Juin 2025"
         },
-        "base": "consolidé IFRS, 31/12/2025 (en KMAD, avis d'AGO du 03/06/2026 p.6 — pas de rapport financier annuel 2025 au catalogue AMMC, pas de tableau des flux ni de notes)"
+        "base": "consolidé IFRS, 31/12/2025 (en KMAD, avis d'AGO du 03/06/2026 p.6 — pas de rapport financier annuel 2025 au catalogue AMMC, pas de tableau des flux ni de notes)",
+        "ebitda_12m": 1515.765,
+        "periode": "30/06/2026 ÷ 12 mois glissants — bilan S1 2026 déposé et trois EBITDA sur pièce, même base",
+        "reserve": "bilan au 30/06 : la dette nette de mi-exercice porte la saisonnalité du besoin en fonds de roulement, elle n'est pas comparable terme à terme à une clôture annuelle"
       },
       "roic": {
         "valeur": 55.7,
@@ -4825,6 +4932,16 @@
         "taux_impot_effectif": 37.2,
         "hors_mises_en_equivalence": true
       },
+      "dette_nette_ebitda_31_12_2025": {
+        "valeur": -0.17,
+        "date": "2025-12-31",
+        "formule": "-288.58 ÷ 1685.486",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "consolidé IFRS, 31/12/2025 (en KMAD, avis d'AGO du 03/06/2026 p.6 — pas de rapport financier annuel 2025 au catalogue AMMC, pas de tableau des flux ni de notes)"
+      },
       "non_calcules_2025": {
         "cash_conversion": "flux de trésorerie d'exploitation ou résultat net consolidé non relevé"
       },
@@ -4839,7 +4956,7 @@
     "source": "Calendrier BVC 2026",
     "date_maj": "2026-09-29",
     "per": null,
-    "croissance_ca": 22.3,
+    "croissance_ca": -5.9,
     "dette_nette_ebitda": null,
     "roic": null,
     "marge_nette": null,
@@ -4868,7 +4985,7 @@
       "nb_actions": 14436004,
       "date_maj": "2026-06-22"
     },
-    "croissance_bpa": -14.4,
+    "croissance_bpa": -23.5,
     "source_s1_2026": "https://www.ammc.ma/sites/default/files/Cimar_S1_26.pdf",
     "ratios_publies": {
       "roe_2025": {
@@ -4929,7 +5046,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025"
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette 951.46 MMAD, p.3) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 29.2,
@@ -4950,6 +5068,15 @@
         "cash_conversion": "flux d'exploitation 1 865,4 MMAD ÷ résultat 1 401,7 = 133 % : la variation du BFR (+124,5) est la différence brute de deux bilans sans retraitement du périmètre (Asment de Témara, Grabemaro, Asment du Centre entrés en 2025 pour 2,3 milliards, « incidence des variations de périmètre » = 0) ; la part organique n'est pas établie. Non calculé."
       },
       "calcule_le": "2026-09-30"
+    },
+    "croissance_perimetre": {
+      "constant": [
+        "résultat à périmètre constant (514.218 ÷ 671.845 pro forma)",
+        "chiffre d'affaires à périmètre constant (2694.845 ÷ 2864.489 pro forma)"
+      ],
+      "reserve": null,
+      "source": "https://www.ammc.ma/sites/default/files/Cimar_S1_26.pdf",
+      "page": 4
     }
   },
   "DTT": {
@@ -5040,7 +5167,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "SOCIAL (normes marocaines), 31/12/2025 — aucun état consolidé : la filiale SLA Technologies (100 %) n'a pas encore démarré (p.23)"
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — aucun état consolidé : la filiale SLA Technologies (100 %) n'a pas encore démarré (p.23)",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 11.6,
@@ -5160,7 +5288,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS, 31/12/2025"
+        "base": "consolidé IFRS, 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 1.9,
@@ -5285,7 +5414,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025"
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 20.4,
@@ -5396,7 +5526,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé IFRS, 31/12/2025"
+        "base": "consolidé IFRS, 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette 4004.69 MMAD, p.5) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 3.4,
@@ -5517,7 +5648,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025"
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette -245.34 MMAD, p.2) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 14.4,
@@ -5735,7 +5867,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025"
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 9.3,
@@ -6404,7 +6537,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "SOCIAL (normes marocaines), 31/12/2025 — Colorado ne publie pas de comptes consolidés (aucun titre de participation au bilan 2025)"
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Colorado ne publie pas de comptes consolidés (aucun titre de participation au bilan 2025)",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 35.6,
@@ -6514,7 +6648,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025 — périmètre : Fenie Brossette Maroc + Côte d'Ivoire, Mauritanie, Sénégal (100 %, intégration globale, p.51)"
+        "base": "consolidé (normes marocaines), 31/12/2025 — périmètre : Fenie Brossette Maroc + Côte d'Ivoire, Mauritanie, Sénégal (100 %, intégration globale, p.51)",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 déposé (dette nette 99 MMAD, p.1) mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
       },
       "roic": {
         "valeur": 10.2,
@@ -6774,7 +6909,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines), 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 304 714 KMAD)"
+        "base": "consolidé (normes marocaines), 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 304 714 KMAD)",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": -1.4,
@@ -6860,7 +6996,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "SOCIAL (normes marocaines), exercice du 01/04/2025 au 31/03/2026 (clos le 31/03/2026, PAS le 31/12/2025) — Cartier Saada ne publie que des comptes sociaux ; OPINION AVEC RÉSERVE des CAC (achats auprès d'agriculteurs sans identification fiscale, non chiffrée)"
+        "base": "SOCIAL (normes marocaines), exercice du 01/04/2025 au 31/03/2026 (clos le 31/03/2026, PAS le 31/12/2025) — Cartier Saada ne publie que des comptes sociaux ; OPINION AVEC RÉSERVE des CAC (achats auprès d'agriculteurs sans identification fiscale, non chiffrée)",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": -3.6,
@@ -7056,7 +7193,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "consolidé (normes marocaines, CNC avis n°5), 31/12/2025"
+        "base": "consolidé (normes marocaines, CNC avis n°5), 31/12/2025",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 12.5,
@@ -7235,7 +7373,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "SOCIAL (normes marocaines), 31/12/2025 — le dépôt ne publie que des « comptes sociaux » (p.9) ; titres de participation 8 003 175 MAD intégralement dépréciés (valeur nette 0), aucun consolidé"
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — le dépôt ne publie que des « comptes sociaux » (p.9) ; titres de participation 8 003 175 MAD intégralement dépréciés (valeur nette 0), aucun consolidé",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 8.6,
@@ -7492,7 +7631,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "SOCIAL (normes marocaines), 31/12/2025 — Involys ne consolide pas ses comptes (CAC p.28 : filiales étrangères sans activité, états indisponibles)"
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Involys ne consolide pas ses comptes (CAC p.28 : filiales étrangères sans activité, états indisponibles)",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 0.1,
@@ -7695,7 +7835,8 @@
           "dette_nette": "ratios_publies.dette_nette",
           "ebitda": "ratios_publies.ebitda"
         },
-        "base": "SOCIAL (normes marocaines), 31/12/2025 — Microdata ne consolide pas sa filiale DGSM (p.16 : « pas encore été consolidée … non significatifs »)"
+        "base": "SOCIAL (normes marocaines), 31/12/2025 — Microdata ne consolide pas sa filiale DGSM (p.16 : « pas encore été consolidée … non significatifs »)",
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
       },
       "roic": {
         "valeur": 25.9,

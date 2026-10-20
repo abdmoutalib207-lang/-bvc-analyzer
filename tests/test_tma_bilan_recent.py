@@ -1,6 +1,7 @@
 """TMA : le bilan le plus récent (30/06/2026) contredit celui que lit la note
-(31/12/2025). Tant que la règle de choix de période n'est pas décidée, l'écart
-est une RÉSERVE VISIBLE, chiffrée sur pièce — pas un changement silencieux."""
+(31/12/2025). Règle b du 20/10/2026 : dates appariées — la note lit désormais
+le 30/06/2026 sur l'EBITDA 12 mois ; la dette nette publiée (ROIC) reste celle
+du 31/12/2025. La réserve le dit, chiffré sur pièce."""
 import json
 import sys
 from pathlib import Path
@@ -13,7 +14,7 @@ from pipeline.smart_money import fond_score as fg  # noqa: E402
 
 def test_la_reserve_de_tma_dit_le_bilan_recent_et_son_effet():
     txt = fg.RESERVES_RATIOS["TMA"]["bilan"]
-    for attendu in ("+326,3", "30/06/2026", "p.4", "6,95", "SURVEILLER ★", "ACHETER ★★"):
+    for attendu in ("+326,3", "30/06/2026", "p.4", "1 515,8", "règle b", "saisonnalité"):
         assert attendu in txt, attendu
 
 

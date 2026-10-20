@@ -51,6 +51,14 @@ FOND = RACINE / "fondamentaux.json"
 # en entier et les effacerait au prochain lot.
 VERIFIES = RACINE / "datasets" / "roe_verifies_2026-10-02.json"
 DATE_MAJ = "2026-09-30"
+BILAN_S1 = RACINE / "datasets" / "bilan_ebitda_s1_2026.json"
+RELEVES = RACINE / "datasets" / "releves"
+# ⚠️ RÈGLE f — 20/10/2026 — IFRS 3.8. Une fusion a sa date ; avant les premiers
+# comptes de l'entité fusionnée, RIEN n'est calculé sur l'agrégat (ni BPA, ni
+# ROE, ni croissance). Le ROE HISTORIQUE de l'absorbante est publié HORS NOTE,
+# étiqueté « avant fusion », sous des clés (`roe_2025_avant_fusion`, `roe_12m_avant_fusion`) qu'aucune porte
+# ne lit : `roe_effectif` ne lit que `roe_12m` et `roe_2025`.
+AVANT_FUSION = RACINE / "datasets" / "roe_avant_fusion.json"
 
 
 def _pct(num, den):
@@ -204,6 +212,22 @@ def calculer_bilan(entree: dict | None) -> tuple[dict, dict]:
     else:
         non["dette_nette"] = "dettes financières ou trésorerie non relevées"
 
+    # ⚠️ RÈGLE a — 20/10/2026 — DETTE NETTE ÉLARGIE, HORS NOTE (IFRS 3.39-40,
+    # IAS 7.16). La note lit la dette financière STRICTE ci-dessus, sans
+    # changement. Les dettes d'acquisition chiffrées sur pièce (éléments
+    # `dettes_acquisition` du pont de `endettement_net`) s'y ajoutent ICI
+    # seulement, dans un champ qu'aucune note ne lit.
+    en = f.get("endettement_net") if isinstance(f.get("endettement_net"), dict) else {}
+    acq = [e for e in ((en.get("rapprochement") or {}).get("elements") or [])
+           if isinstance(e, dict) and e.get("poste") == "dettes_acquisition" and e.get("valeur") is not None]
+    if dn is not None and acq:
+        tot = round(sum(e["valeur"] for e in acq), 3)
+        out["dette_nette_elargie"] = base(round(dn + tot, 1), f"{round(dn, 3)} + {tot} de dettes d'acquisition ({mm})", {
+            "dette_nette": "ratios_publies.dette_nette",
+            **{f"dettes_acquisition_{i + 1}": f"{e.get('document') or entree.get('url')}, p. {e.get('page')} — "
+                                               f"{e.get('citation')}" for i, e in enumerate(acq)}},
+            unite=mm, hors_note=True)
+
     # EBITDA
     rex_k = "resultat_exploitation_etats" if _v(f, "resultat_exploitation_etats") is not None else "resultat_exploitation"
     rex = _v(f, rex_k)
@@ -213,19 +237,45 @@ def calculer_bilan(entree: dict | None) -> tuple[dict, dict]:
     elif _v(f, "excedent_brut_exploitation") is not None:
         eb = _v(f, "excedent_brut_exploitation")
         out["ebitda"] = base(round(eb, 1), f"EBE/EBITDA publié par la société : {eb} ({mm})",
-                             {"ebitda": _src(entree, f, "excedent_brut_exploitation")}, unite=mm, origine="publié")
+                             {"ebitda": _src(entree, f, "excedent_brut_exploitation")}, unite=mm, origine="publié",
+                             valeur_exacte=eb)
     elif rex is not None and _v(f, "dotations_amortissements_exploitation") is not None:
         d = _v(f, "dotations_amortissements_exploitation")
         eb = round(rex + d, 3)
         out["ebitda"] = base(round(eb, 1), f"{rex} + {d} ({mm}) — résultat d'exploitation + dotations aux amortissements",
                              {"resultat_exploitation": _src(entree, f, rex_k),
                               "amortissements": _src(entree, f, "dotations_amortissements_exploitation")},
-                             unite=mm, origine="calculé")
+                             unite=mm, origine="calculé", valeur_exacte=eb)
     else:
         non["ebitda"] = "ni EBE publié, ni dotations aux amortissements isolées"
 
     # dette nette / EBITDA
-    if "dette_nette_ebitda" in refus:
+    # ⚠️ RÈGLE h — 20/10/2026 — EBITDA ENCADRÉ (analyse de sensibilité). Quand
+    # l'EBITDA n'est pas calculable mais qu'une BORNE INFÉRIEURE est démontrée
+    # sur pièce (`_controles_ratios_2025.ebitda_borne_inferieure` : par exemple
+    # EBITDA ≥ résultat d'exploitation, les amortissements étant ≥ 0), le
+    # ratio est encadré : 0 < dette nette / EBITDA ≤ dette nette ÷ borne. On ne
+    # publie la BORNE que si le palier de la grille de bilan est le MÊME sur tout
+    # l'intervalle — alors la note est la même quelle que soit la vraie valeur.
+    # La borne est arrondie VERS LE HAUT (une borne supérieure arrondie vers le
+    # bas n'en serait plus une). La mesure dit « borne », jamais « valeur ».
+    borne_eb = (ctrl.get("ebitda_borne_inferieure") or {}).get("valeur")
+    if "dette_nette_ebitda" not in refus and eb is None and borne_eb and borne_eb > 0 \
+            and dn is not None and dn > 0:
+        import math
+        from pipeline.smart_money.fond_score import _grille_bilan
+        sup = math.ceil(dn / borne_eb * 10000) / 10000
+        if _grille_bilan(1e-9, None) == _grille_bilan(sup, None):
+            out["dette_nette_ebitda"] = base(sup, f"0 < {round(dn, 3)} ÷ EBITDA ≤ {round(dn, 3)} ÷ {borne_eb}", {
+                "dette_nette": "ratios_publies.dette_nette",
+                "ebitda_borne_inferieure": f"{entree.get('document')} — {entree.get('url')}, p. "
+                                           f"{ctrl['ebitda_borne_inferieure'].get('page')} — "
+                                           f"{ctrl['ebitda_borne_inferieure'].get('fondement')}"},
+                borne="supérieure", intervalle=[0, sup])
+        else:
+            non["dette_nette_ebitda"] = (f"EBITDA non calculé ; borne ≤ {sup:g} démontrée mais le palier de la "
+                                         "grille change sur l'intervalle : pas de note")
+    elif "dette_nette_ebitda" in refus:
         # Numérateur non établi (ex. STR : arriérés fiscaux et sociaux hors
         # dette financière, dettes « en cours de vérification ») — 02/10/2026.
         non["dette_nette_ebitda"] = refus["dette_nette_ebitda"]
@@ -305,6 +355,77 @@ def calculer_bilan(entree: dict | None) -> tuple[dict, dict]:
     return out, non
 
 
+# ⚠️ RÈGLE b — 20/10/2026 — DATES APPARIÉES (usage des prêteurs et des agences
+# de notation : la dette d'une date se rapporte au flux des douze mois qui s'y
+# terminent). Jamais une dette du 30/06 sur un EBITDA de l'exercice.
+#   · bilan S1 2026 déposé ET trois EBITDA sur pièce (exercice 2025, S1 2026,
+#     S1 2025), même base que celui de l'exercice : dette nette au 30/06/2026
+#     ÷ EBITDA 12 mois = exercice + S1 2026 − S1 2025 ;
+#   · sinon : dette nette au 31/12/2025 ÷ EBITDA de l'exercice.
+# Le MOTIF du choix est publié avec le ratio (`periode`), et lu dans la mesure.
+# Réserve du 30/06 : saisonnalité du besoin en fonds de roulement — une dette
+# de mi-année n'est pas celle d'une clôture annuelle.
+# Chiffres : datasets/bilan_ebitda_s1_2026.json, transcrits des relevés sur pièce.
+RESERVE_BFR_30_06 = ("bilan au 30/06 : la dette nette de mi-exercice porte la saisonnalité du besoin en fonds "
+                     "de roulement, elle n'est pas comparable terme à terme à une clôture annuelle")
+DATE_S1 = "2026-06-30"
+
+
+def _charger_bilan_s1() -> dict:
+    return (json.loads(BILAN_S1.read_text(encoding="utf-8")).get("titres") or {}) if BILAN_S1.exists() else {}
+
+
+def _releve_s1(sym: str) -> dict | None:
+    p = RELEVES / f"{sym}.json"
+    if not p.exists():
+        return None
+    return (json.loads(p.read_text(encoding="utf-8")) or {}).get("semestriel_s1_2026")
+
+
+def periode_bilan(rb: dict, e: dict | None, releve_s1: dict | None) -> None:
+    """Règle b : choisit la période de dette nette / EBITDA, EN PLACE dans `rb`. Pure."""
+    r = rb.get("dette_nette_ebitda")
+    if r is None:
+        return
+    eb = rb.get("ebitda") or {}
+    e = e or {}
+    manque = None
+    if (e.get("dette_nette_30_06_2026") or {}).get("valeur") is None:
+        manque = e.get("motif_absence") or (
+            f"bilan S1 2026 déposé (dette nette {releve_s1['dette_nette']:g} MMAD, p.{releve_s1.get('page')}) "
+            "mais EBITDA S1 2026 et S1 2025 non relevés sur pièce"
+            if releve_s1 and releve_s1.get("depose") is True and releve_s1.get("dette_nette") is not None
+            else "bilan S1 2026 non relevé sur pièce")
+    elif any((e.get(k) or {}).get("valeur") is None for k in ("ebitda_s1_2026", "ebitda_s1_2025")):
+        manque = "EBITDA S1 2026 ou S1 2025 non relevé sur pièce"
+    elif e.get("base_ebitda") != eb.get("origine"):
+        manque = (f"EBITDA semestriels sur une autre base ({e.get('base_ebitda')}) que celui de l'exercice "
+                  f"({eb.get('origine')})")
+    if manque:
+        r["periode"] = "31/12/2025 ÷ exercice 2025 — " + manque
+        return
+    eb12 = round(eb["valeur_exacte"] + e["ebitda_s1_2026"]["valeur"] - e["ebitda_s1_2025"]["valeur"], 3)
+    dn = e["dette_nette_30_06_2026"]["valeur"]
+    if eb12 <= 0:
+        r["periode"] = f"31/12/2025 ÷ exercice 2025 — EBITDA 12 mois négatif ou nul ({eb12})"
+        return
+    rb["dette_nette_ebitda_31_12_2025"] = dict(r)
+    src = e.get("source")
+
+    def piece(k):
+        return f"{src}, p. {e[k].get('page')} — {e[k].get('formule')}"
+    rb["dette_nette_ebitda"] = {
+        "valeur": round(dn / eb12, 2), "date": DATE_S1,
+        "formule": f"{dn} ÷ ({eb['valeur_exacte']} + {e['ebitda_s1_2026']['valeur']} − {e['ebitda_s1_2025']['valeur']})",
+        "sources": {"dette_nette_30_06_2026": piece("dette_nette_30_06_2026"),
+                    "ebitda_exercice_2025": "ratios_publies.ebitda",
+                    "ebitda_s1_2026": piece("ebitda_s1_2026"), "ebitda_s1_2025": piece("ebitda_s1_2025")},
+        "base": r.get("base"), "ebitda_12m": eb12,
+        "periode": "30/06/2026 ÷ 12 mois glissants — bilan S1 2026 déposé et trois EBITDA sur pièce, même base",
+        "reserve": RESERVE_BFR_30_06,
+    }
+
+
 def recalculer(s1: dict, faits: dict, fond: dict, verifies: dict, bavard: bool = False) -> tuple[int, int, int]:
     """Pose les ratios publiés dans `fond`, EN PLACE. Renvoie (titres, bilans, financiers).
 
@@ -314,6 +435,9 @@ def recalculer(s1: dict, faits: dict, fond: dict, verifies: dict, bavard: bool =
     Un test rejoue désormais ce calcul et échoue si le fichier publié dérive.
     """
     n = nb = nf = 0
+    bilan_s1 = _charger_bilan_s1()
+    avant_fusion = ((json.loads(AVANT_FUSION.read_text(encoding="utf-8")).get("titres") or {})
+                    if AVANT_FUSION.exists() else {})
     tickers = list(s1) + [s for s in faits if not s.startswith("_") and s not in s1]
     tickers += [s for s, v in fond.items() if isinstance(v, dict) and est_financier(v) and s not in tickers]
     for sym in tickers:
@@ -327,10 +451,19 @@ def recalculer(s1: dict, faits: dict, fond: dict, verifies: dict, bavard: bool =
             nf += 1
         else:
             rb, non = calculer_bilan(faits.get(sym))
+            periode_bilan(rb, bilan_s1.get(sym), _releve_s1(sym))   # règle b, 20/10/2026
+            for v in rb.values():
+                if isinstance(v, dict):
+                    v.pop("valeur_exacte", None)
             r.update(rb)
             if non:
                 r["non_calcules_2025"] = non
             nb += bool(rb)
+        for cle in ("roe_2025", "roe_12m"):                      # règle f, 20/10/2026
+            x = (avant_fusion.get(sym) or {}).get(cle)
+            if x:
+                r[f"{cle}_avant_fusion"] = {**x, "etiquette": avant_fusion[sym].get("etiquette"),
+                                            "hors_note": True}
         if not r:
             continue
         # ⚠️ Ne JAMAIS créer d'entrée : compute_fond_score() rend 5,0 pour un

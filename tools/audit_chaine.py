@@ -375,7 +375,7 @@ def controler_alertes(sym, t, f, contestes) -> list:
             if sym in contestes:
                 out.append(_inc(sym, "contestee.alerte", ERREUR, "alerte de dette sur une grandeur contestée", a.get("valeur")))
             mes = (comp.get("bilan") or {}).get("mesure") or ""
-            if "dette nette / EBITDA" in mes and not _egal(_premier_nombre(mes.split("EBITDA")[-1]), v, 1e-9):
+            if "dette nette / EBITDA" in mes and not _egal(_premier_nombre(mes.split("EBITDA", 1)[-1]), v, 1e-9):
                 out.append(_inc(sym, "alerte.vs_note", ERREUR, "dette/EBITDA de l'alerte ≠ celui de la note",
                                 a.get("valeur"), mes))
             if "dette nette / EBITDA" not in mes:

@@ -168,6 +168,16 @@ EXPLICATIONS_ECART_DETTE_ADMISES: dict[str, str] = {
     "titres_de_placement": "titres de placement comptés ou non en trésorerie",
     "dettes_de_financement": "dettes de financement exclues par la définition de la société "
                              "(sa « trésorerie nette » ne retient que les soldes bancaires et placements)",
+    # ⚠️ RÈGLE a — 20/10/2026 — IFRS 3.39-40 (contrepartie différée ou éventuelle
+    # d'un regroupement) et IAS 7.16 (acquisitions d'immobilisations à crédit :
+    # flux d'INVESTISSEMENT, pas de financement). La note lit la dette financière
+    # STRICTE, inchangée ; une dette d'acquisition comptée par la société n'est
+    # qu'un poste du PONT, admis seulement s'il est CHIFFRÉ sur pièce avec sa page.
+    # Un chiffre donné en pourcentage porte son `incertitude` d'arrondi, et le
+    # résidu doit tenir aux deux extrêmes. Elle forme la « dette nette élargie »,
+    # publiée HORS NOTE (`ratios_publies.dette_nette_elargie`).
+    "dettes_acquisition": "dettes d'acquisition (fournisseurs d'immobilisations, compléments de prix) comptées "
+                          "par la société, hors dette financière stricte — IFRS 3.39-40, IAS 7.16",
 }
 CONTESTES: dict[str, str] = {}
 # Ratios qui consomment la dette nette (ROIC : capital investi = fonds
@@ -213,7 +223,10 @@ def ratio_effectif(f: dict | None, sym: str, cle: str) -> dict | None:
         # pour dire d'où vient chaque chiffre (ajout du 11/10/2026, sans effet
         # sur la valeur).
         return {"valeur": v, "origine": "comptes publiés", "date": x.get("date"),
-                "formule": x.get("formule"), "sources": x.get("sources"), "base": x.get("base")}
+                "formule": x.get("formule"), "sources": x.get("sources"), "base": x.get("base"),
+                **({"periode": x["periode"]} if x.get("periode") else {}),
+                **({"borne": x["borne"]} if x.get("borne") else {}),
+                **({"reserve": x["reserve"]} if x.get("reserve") else {})}
     s = f.get(cle)
     if isinstance(s, (int, float)) and not isinstance(s, bool):
         return {"valeur": float(s), "origine": "saisie", "date": f.get("date_maj"),
@@ -257,10 +270,11 @@ RESERVES_RATIOS = {
     # grille 8,5 au lieu de 9,0, note fondamentale 7,0 → 6,95, palier ACHETER ★★
     # → SURVEILLER ★ dans les deux variantes. La règle de choix de période
     # (dernier bilan publié pour tous, EBITDA 12 mois glissants) reste à décider.
-    "TMA": {"bilan": "Trésorerie nette au 31/12/2025 (bilan de l'exercice, lu par la note) ; dette nette +326,3 MMAD "
-                     "au 30/06/2026 (comptes S1, p.4 : dettes financières 473,9 + 841,2 − trésorerie 988,7). Sur ce "
-                     "bilan plus récent, la note fondamentale serait 6,95 au lieu de 7,0 (dette nette/EBITDA 0,2 : "
-                     "grille 8,5 au lieu de 9,0) et le palier SURVEILLER ★ au lieu d'ACHETER ★★. "
+    # Règle b appliquée le 20/10/2026 : la note lit désormais le 30/06/2026.
+    "TMA": {"bilan": "Dette nette +326,3 MMAD au 30/06/2026 (comptes S1, p.4 : dettes financières 473,9 + 841,2 − "
+                     "trésorerie 988,7) ÷ EBITDA 12 mois 1 515,8 (exercice 1 685,5 + S1 2026 562,2 − S1 2025 731,9) "
+                     "= 0,22 — règle b du 20/10/2026. Au 31/12/2025 : trésorerie nette de 288,6 (−0,17). "
+                     "Bilan au 30/06 : saisonnalité du besoin en fonds de roulement. "
                      "27,5 MMAD de passif non courant non ventilé (avis d'AGO p.6)."},
     "BAL": {"bilan": "Trésorerie nette reposant sur 6,9 MMAD de placements : sans eux, pas de note de bilan "
                      "(note 5,28 au lieu de 5,65)."},
@@ -278,7 +292,15 @@ RESERVES_RATIOS = {
     "NEJ": {"bilan": "EBITDA calculé sur les amortissements consolidés NETS DES REPRISES (tableau des "
                      "flux, RFA 2025 p.106 : 37,618), seule ligne consolidée qui les isole ; ils sont "
                      "inférieurs aux dotations du social (55,2, p.83)."},
-    "MDP": {"valorisation": "PER sur un résultat 12 mois (6,1 MDH, comptes sociaux) qui doit l'exercice "
+    # Règle c (20/10/2026) : croissance retraitée sur les MONTANTS de l'émetteur.
+    "T2S": {"croissance": "BPA +65,5 % = 91 ÷ 55 − 1, S1 2025 retraité de la cession Varian (montants ajustés du "
+                          "communiqué S1 p.1) ; publié brut −16,1 %. 55 est arrondi au MDH : croissance pondérée "
+                          "49,8 % (91 ÷ 55) ou 50,2 % (91,307 ÷ 55), le seuil de 50 % de la grille passe dans "
+                          "l'incertitude d'arrondi (palier 7,5 ou 9,0).",
+            "valorisation": "BPA sur le nombre d'actions actuel, traitement IAS 33 des actions de priorité non "
+                            "établi : PER plafond (voir la réserve du BPA)."},
+    # Règle c (20/10/2026) : réserve « PER non récurrent », sans retraitement.
+    "MDP": {"valorisation": "PER non récurrent — PER sur un résultat 12 mois (6,1 MDH, comptes sociaux) qui doit l'exercice "
                             "2025 au NON COURANT (+22,1 MDH ; résultat d'exploitation −10,4 ; RFA 2025 "
                             "p.41) : bénéfice non récurrent. Examen limité S1 « sous réserve » des CAC "
                             "(8,6 MDH chiffrés).",
@@ -359,6 +381,10 @@ def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | N
     if croissance_sourcee:
         growth = float(f.get("croissance_bpa") or 0) * 0.6 + float(f.get("croissance_ca") or 0) * 0.4
         oui("croissance", _grille_croissance(growth), f"croissance pondérée {growth:g} %")
+        # Règle d (20/10/2026) : périmètre élargi sans pro forma en montants → réserve.
+        _pr = (f.get("croissance_perimetre") or {}).get("reserve")
+        if _pr:
+            comp["croissance"]["reserve"] = _pr
     else:
         non("croissance", "croissance non établie sur comptes semestriels")
 
@@ -381,6 +407,11 @@ def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | N
         _d = ratio_effectif(f, sym, "dette_nette_ebitda")
         _dne = _d["valeur"] if _d and _d.get("origine") == "comptes publiés" else None
         _mesure = f"dette nette / EBITDA {_dne:g}" if _dne is not None else None
+        if _mesure and (_d or {}).get("borne") == "supérieure":   # règle h, 20/10/2026
+            _mesure = f"dette nette / EBITDA ≤ {_dne:g} (borne supérieure démontrée, pas une valeur)"
+        # Règle b (20/10/2026) : le motif du choix de période est publié dans la mesure.
+        if _mesure and (_d or {}).get("periode"):
+            _mesure += f" — période : {_d['periode']}"
         if _dne is None:
             _dn = _publie(f, sym, "dette_nette")
             if _dn is not None and _dn < 0:
@@ -391,6 +422,8 @@ def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | N
             _c = ratio_effectif(f, sym, "cash_conversion")
             _cc = _c["valeur"] if _c and _c.get("origine") == "comptes publiés" else None
             oui("bilan", _grille_bilan(_dne, _cc), _mesure)
+            if (_d or {}).get("reserve") and _mesure.startswith("dette nette / EBITDA"):
+                comp["bilan"]["reserve"] = _d["reserve"]   # saisonnalité du BFR au 30/06
 
     for nom, txt in RESERVES_RATIOS.get(sym, {}).items():
         if nom in comp and comp[nom]["note"] is not None:

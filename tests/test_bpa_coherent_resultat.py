@@ -39,7 +39,11 @@ def test_le_bpa_2025_se_deduit_du_resultat_releve():
         b = (bpa.get(t) or {}).get("bpa")
         if b is None or not v.get("actions") or not v.get("rnpg_exercice_2025"):
             continue
-        calcule = v["rnpg_exercice_2025"] * 1e6 / v["actions"]
+        # Règle e (20/10/2026, IAS 33.19-20) : nombre MOYEN PONDÉRÉ de 2025,
+        # égal au nombre actuel pour un titre absent de HISTORIQUE_ACTIONS.
+        from bvc_config import actions_ponderees
+        n = actions_ponderees(t, "2025-01-01", "2025-12-31", v["actions"])["nombre"]
+        calcule = v["rnpg_exercice_2025"] * 1e6 / n
         if abs(b / calcule - 1) * 100 > TOLERANCE_PCT:
             ecarts.append(f"{t} : bpa.json {b} contre {calcule:.2f} (résultat ÷ actions)")
     assert not ecarts, "BPA incohérents avec le résultat relevé : " + " ; ".join(ecarts)

@@ -695,7 +695,14 @@
    "reserves": [
     "EBITDA NON calculé : la ligne « Résultat d'exploitation avant dotations aux amort. et dép. EA 387 847 981 » (p.58) porte le MÊME montant que le résultat après dotations — erreur de mise en page du rapport (le recalcul par les composantes donne 387,848 après dotations). Et la seule dotation publiée, « Dotations aux amortissements, dépréciations et provisions (38 412 256) », inclut des provisions : l'ajouter au résultat d'exploitation ne donnerait pas un EBITDA au sens demandé.",
     "Titre suspendu du 17/07 au 16/09/2026 (OPA obligatoire) : les ratios décrivent l'exercice 2025, pas l'actionnariat actuel."
-   ]
+   ],
+   "ebitda_borne_inferieure": {
+    "valeur": 387.848,
+    "page": 58,
+    "fondement": "EBITDA = résultat d'exploitation + dotations aux amortissements ; les amortissements sont ≥ 0, donc EBITDA ≥ résultat d'exploitation consolidé « après dotations aux amortissements » 387,848 MMAD (RFA 2025 p.58). La valeur exacte reste inconnue : la seule dotation publiée (38,412) mêle provisions et dépréciations.",
+    "regle": "règle h du 20/10/2026 (analyse de sensibilité)",
+    "releve_le": "2026-10-20"
+   }
   }
  },
  "MNG": {
@@ -3239,6 +3246,39 @@
     "note": "EBITDA PUBLIÉ par la société, rapport de gestion du RFA 2025 p.50 (« Les principaux résultats consolidés se présentent comme suit : (En millions DH) … EBITDA 1 214 839 +45% »), confirmé par le communiqué https://www.ammc.ma/sites/default/files/CP_Akdital_2025_0.pdf p.1 : « L'EBITDA consolidé s'établit à 1 214 M MAD en 2025, en hausse de +45 % par rapport à 2024 » (marge 27,5 %). Arrondi au MDH ; non recalculable aux états (les dotations consolidées mêlent amortissements et provisions, voir réserve). Dette nette / EBITDA : 3 370,867 ÷ 1 214 = 2,78. Validé par verificateur-finance le 20/10/2026.",
     "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
     "releve_le": "2026-10-20"
+   },
+   "endettement_net": {
+    "valeur": 4268.0,
+    "page": 1,
+    "document": "https://www.ammc.ma/sites/default/files/CP_Akdital_2025_0.pdf",
+    "note": "chiffre de la société, communiqué des résultats 2025 p.1 (le RFA 2025 ne le reprend pas : aucune occurrence d'« endettement net » ni de « 4 268 » dans ses 94 pages, relu le 20/10/2026)",
+    "base": "consolidé, 31/12/2025",
+    "releve_le": "2026-10-20",
+    "rapprochement": {
+     "etabli": true,
+     "dette_nette_base": 3370.9,
+     "dette_nette_base_formule": "dettes de financement 3 727,486 + trésorerie-passif 749,507 − trésorerie-actif 504,350 − titres et valeurs de placement 601,776 (RFA 2025 p.78)",
+     "definition_de_la_societe": {
+      "page": 1,
+      "document": "https://www.ammc.ma/sites/default/files/CP_Akdital_2025_0.pdf",
+      "citation": "L’endettement net consolidé s’établit à 4 268 M MAD à fin décembre 2025 (dont 21% de dettes de fournisseurs d’immobilisations), contre 1 753 M MAD à fin 2024."
+     },
+     "elements": [
+      {
+       "poste": "dettes_acquisition",
+       "valeur": 896.3,
+       "incertitude": 21.3,
+       "page": 1,
+       "document": "https://www.ammc.ma/sites/default/files/CP_Akdital_2025_0.pdf",
+       "libelle": "dettes de fournisseurs d'immobilisations : 21 % × 4 268 = 896,3 ; le pourcentage étant arrondi à l'unité (20,5 à 21,5 %), incertitude ± 21,3 (IAS 7.16)",
+       "citation": "(dont 21% de dettes de fournisseurs d’immobilisations)"
+      }
+     ],
+     "somme": 4267.2,
+     "ecart_residuel": -0.8,
+     "regle": "règle a du 20/10/2026 ; résidu ≤ 0,52 % aux deux extrêmes de l'incertitude (seuil 2 %)",
+     "reserve": "montant DÉDUIT d'un pourcentage publié, pas lu en montant : le RFA 2025 ne ventile pas les fournisseurs d'immobilisations au bilan (p.79 : seule leur variation, −303,9 MMAD)"
+    }
    }
   },
   "pages_document": 94,
@@ -3679,6 +3719,37 @@
     "note": "« TOTAL CAPITAUX PROPRES PART GROUPE 2 788 340 389 2 634 396 857 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
     "releve_le": "2026-10-13",
     "mode_de_lecture": "colonne lue"
+   },
+   "endettement_net": {
+    "valeur": 949.0,
+    "page": 1,
+    "document": "https://www.ammc.ma/sites/default/files/CP_CMGP_S1_26.pdf",
+    "note": "chiffre de la société au 31/12/2025, communiqué S1 2026 p.1 (« Endettement net² 1 083 949 ») ; « ² … incluant les contrats de leasing »",
+    "base": "consolidé IFRS, 31/12/2025",
+    "releve_le": "2026-10-20",
+    "rapprochement": {
+     "etabli": false,
+     "dette_nette_base": 54.1,
+     "dette_nette_base_formule": "dettes financières non courantes 918,245 + courantes 97,141 + concours bancaires 14,434 − trésorerie 975,733 (RFA 2025 p.68)",
+     "definition_de_la_societe": {
+      "page": 1,
+      "document": "https://www.ammc.ma/sites/default/files/CP_CMGP_S1_26.pdf",
+      "citation": "² Endettement net au 30 juin 2026 comparé au 31 décembre 2025, incluant les contrats de leasing."
+     },
+     "elements": [
+      {
+       "poste": "dettes_acquisition",
+       "valeur": 841.389,
+       "page": 80,
+       "document": "https://www.ammc.ma/sites/default/files/CMGP_RFA_2025.pdf",
+       "libelle": "dettes sur acquisition d'immobilisations, note 35.2 « Autres passifs courants » (IAS 7.16) — page rendue et lue le 20/10/2026. ⚠️ L'en-tête de la première colonne porte « 31/12/2024 » par erreur : son total (1 063 599 973) est celui du 31/12/2025 de la note 35 ; colonne 2024 vide pour cette ligne",
+       "citation": "Dettes sur acquisition immos 841 389 364"
+      }
+     ],
+     "somme": 895.5,
+     "ecart_residuel": -53.5,
+     "cause": "NON ÉTABLIE : 54,1 + 841,389 = 895,5 contre 949 publiés ; résidu 53,5 MMAD (5,6 %) > 2 %, aucun poste sur pièce pour le combler (le leasing, 14,857 p.80, est déjà dans les dettes financières). Règle a du 20/10/2026 : la dette d'acquisition est confirmée sur pièce, mais elle n'explique pas tout l'écart."
+    }
    }
   },
   "pages_document": 91,
