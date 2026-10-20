@@ -4154,6 +4154,49 @@ const DetailConfiance = ({
     }
   }, "Ce score contr\xF4le les DONN\xC9ES (cours, comptes, historique, liquidit\xE9). Il ne dit rien du titre ni de son risque : 5/5 ne veut pas dire \xAB s\xFBr \xBB."));
 };
+const SousMesures = ({
+  liste
+}) => {
+  if (!Array.isArray(liste) || !liste.length) return null;
+  return React.createElement("span", {
+    style: {
+      display: "block",
+      marginTop: 3
+    }
+  }, liste.map(s => {
+    const src = [...new Set(Object.values(s.sources || {}).filter(Boolean))];
+    return React.createElement("span", {
+      key: s.nom,
+      style: {
+        display: "block",
+        padding: "2px 0 2px 8px",
+        borderLeft: "2px solid #2a3550",
+        marginTop: 2
+      }
+    }, React.createElement("span", {
+      style: {
+        color: "#c8d3e8"
+      }
+    }, s.libelle, " ", React.createElement("b", null, fmt(s.valeur, 2), " %"), " \u2192 ", fmt(s.note, 1)), s.periode && React.createElement("span", {
+      style: {
+        display: "block",
+        color: "#5a6478"
+      }
+    }, "P\xE9riode : ", s.periode), s.formule && React.createElement("span", {
+      style: {
+        display: "block",
+        color: "#5a6478",
+        overflowWrap: "anywhere"
+      }
+    }, "Calcul : ", s.formule), src.length > 0 && React.createElement("span", {
+      style: {
+        display: "block",
+        color: "#5a6478",
+        overflowWrap: "anywhere"
+      }
+    }, "Source : ", src.join(" ; ")));
+  }));
+};
 const PourquoiNote = ({
   r
 }) => {
@@ -4190,7 +4233,7 @@ const PourquoiNote = ({
       width: 118,
       color: c.note == null ? "#5a6478" : "#c8d3e8"
     }
-  }, NOMS_COMPOSANTES[k] || k, " \xB7 ", Math.round(c.poids * 100), " %"), React.createElement("span", {
+  }, k === "bilan" && c.sous_mesures ? "Bilan bancaire" : NOMS_COMPOSANTES[k] || k, " \xB7 ", Math.round(c.poids * 100), " %"), React.createElement("span", {
     style: {
       width: 34,
       fontWeight: 600,
@@ -4206,7 +4249,9 @@ const PourquoiNote = ({
       display: "block",
       color: "#ffd740"
     }
-  }, "R\xE9serve : ", c.reserve)))));
+  }, "R\xE9serve : ", c.reserve), React.createElement(SousMesures, {
+    liste: c.sous_mesures
+  })))));
 };
 const Confiance = ({
   r,

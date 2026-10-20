@@ -1082,6 +1082,19 @@ const DetailConfiance=({r})=>{const m=meta(r);const g=m.garanties;
     {m.conf<g.filter(x=>x.ok).length&&<div style={{color:"#ff8f00",marginTop:6}}>Fiabilité plafonnée en dessous du nombre de garanties remplies (société sans comptes, identité à vérifier, note incalculable ou titre peu liquide).</div>}
     <div style={{color:"#8892a4",marginTop:6}}>Ce score contrôle les DONNÉES (cours, comptes, historique, liquidité). Il ne dit rien du titre ni de son risque : 5/5 ne veut pas dire « sûr ».</div>
   </Repli>;};
+/* Grille bancaire (20/10/2026) : les sous-mesures d'une composante — solvabilité,
+   coût du risque, couverture Bucket 3, coefficient d'exploitation — chacune avec
+   sa valeur, sa note, sa période et sa pièce. Lues telles quelles dans
+   note_fond.composantes[*].sous_mesures : aucune seconde source. */
+const SousMesures=({liste})=>{if(!Array.isArray(liste)||!liste.length)return null;
+  return <span style={{display:"block",marginTop:3}}>{liste.map(s=>{
+    const src=[...new Set(Object.values(s.sources||{}).filter(Boolean))];
+    return <span key={s.nom} style={{display:"block",padding:"2px 0 2px 8px",borderLeft:"2px solid #2a3550",marginTop:2}}>
+      <span style={{color:"#c8d3e8"}}>{s.libelle} <b>{fmt(s.valeur,2)} %</b> → {fmt(s.note,1)}</span>
+      {s.periode&&<span style={{display:"block",color:"#5a6478"}}>Période : {s.periode}</span>}
+      {s.formule&&<span style={{display:"block",color:"#5a6478",overflowWrap:"anywhere"}}>Calcul : {s.formule}</span>}
+      {src.length>0&&<span style={{display:"block",color:"#5a6478",overflowWrap:"anywhere"}}>Source : {src.join(" ; ")}</span>}
+    </span>;})}</span>;};
 const PourquoiNote=({r})=>{const nf=r.note_fond;const pw=poidsAffiches(r,null)||{};   // pondération officielle
   if(!nf||!nf.composantes)return null;
   const pf=pw.f,pt=pw.t;   // poids réellement appliqués, en %
@@ -1091,9 +1104,10 @@ const PourquoiNote=({r})=>{const nf=r.note_fond;const pw=poidsAffiches(r,null)||
       :<div style={{marginBottom:6}}>Note = fondamental <b>{fmt(r.score_fond)}</b>{pf!=null&&<> × {pf} %</>} + technique <b>{fmt(r.score_tech)}</b>{pt!=null&&<> × {pt} %</>}{(r.bonus||[]).length>0&&" + bonus/malus"} = <b>{fmt(r.v53)}</b>.</div>}
     <div style={{color:"#8892a4",marginBottom:4}}>Note fondamentale, par composante :</div>
     {Object.entries(nf.composantes).map(([k,c])=><div key={k} style={{display:"flex",gap:8,padding:"2px 0"}}>
-      <span style={{width:118,color:c.note==null?"#5a6478":"#c8d3e8"}}>{NOMS_COMPOSANTES[k]||k} · {Math.round(c.poids*100)} %</span>
+      <span style={{width:118,color:c.note==null?"#5a6478":"#c8d3e8"}}>{k==="bilan"&&c.sous_mesures?"Bilan bancaire":(NOMS_COMPOSANTES[k]||k)} · {Math.round(c.poids*100)} %</span>
       <span style={{width:34,fontWeight:600,color:c.note==null?"#5a6478":"#e6edf7"}}>{c.note==null?"—":fmt(c.note,1)}</span>
-      <span style={{flex:1,color:c.note==null?"#ff8f00":"#8892a4"}}>{c.note==null?`non noté : ${c.motif}`:c.mesure}{c.reserve&&<span style={{display:"block",color:"#ffd740"}}>Réserve : {c.reserve}</span>}</span></div>)}
+      <span style={{flex:1,color:c.note==null?"#ff8f00":"#8892a4"}}>{c.note==null?`non noté : ${c.motif}`:c.mesure}{c.reserve&&<span style={{display:"block",color:"#ffd740"}}>Réserve : {c.reserve}</span>}
+        <SousMesures liste={c.sous_mesures}/></span></div>)}
   </Repli>;};
 /* Indicateur de confiance ●●●○○ — jamais masqué (spécification CLAUDE.md). */
 const Confiance=({r,sz=11})=>{const {conf}=meta(r);
