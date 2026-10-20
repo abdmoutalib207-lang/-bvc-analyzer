@@ -8127,7 +8127,12 @@ const Ranking = ({
         color: "#8892a4",
         letterSpacing: 1
       }
-    }, "\u2014") : meta(r).susp ? React.createElement(Chip, {
+    }, "\u2014") : meta(r).susp ? meta(r).statut_juridique ? React.createElement(Chip, {
+      label: meta(r).statut_juridique.toUpperCase(),
+      bg: "rgba(255,107,107,.12)",
+      fg: "#ff6b6b",
+      bd: "#ff6b6b40"
+    }) : React.createElement(Chip, {
       label: "SUSPENDU",
       bg: "rgba(255,107,107,.12)",
       fg: "#ff6b6b",
@@ -10681,7 +10686,7 @@ const Detail = ({
     bd: "#ffd74040",
     sz: 12
   }) : meta(r).susp ? React.createElement(Chip, {
-    label: `SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`,
+    label: meta(r).statut_juridique ? `${meta(r).statut_juridique.toUpperCase()} · suspendu depuis le ${jjmm(meta(r).suspDepuis)}` : `SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`,
     bg: "rgba(255,107,107,.12)",
     fg: "#ff6b6b",
     bd: "#ff6b6b40",
