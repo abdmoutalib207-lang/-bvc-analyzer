@@ -1,0 +1,88 @@
+{
+ "ticker": "AFI",
+ "societe": "Afric Industries SA",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 20.7 % − WACC 10",
+   "croissance": "croissance pondérée 16.96 %",
+   "valorisation": "PER 11.4",
+   "bilan": "dette nette / EBITDA -0.71"
+  }
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Dépôt S1 2026 Afric Industries (comptes sociaux ; pages 2-6 scannées)",
+   "url": "https://www.ammc.ma/sites/default/files/Afric_Industries_S1_26.pdf",
+   "sha256": "434bcceb24e882efe9d94f4f383624d40cd3be7c229f4d1383d9fe340d241999",
+   "octets": 9523180,
+   "pages": 6
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 2.39243,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (exercice précédent : 8,175538)",
+   "perimetre": "SOCIAL, normes marocaines",
+   "source": "https://www.ammc.ma/sites/default/files/Afric_Industries_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "TOTAL III 2 392 430,09 2 392 430,09 8 175 538,28 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 1.243191,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (exercice précédent : néant)",
+   "perimetre": "SOCIAL, normes marocaines",
+   "source": "https://www.ammc.ma/sites/default/files/Afric_Industries_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Banques (soldes créditeurs) 1 243 191,43 ; TOTAL III 1 243 191,43 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "dettes_de_financement",
+   "valeur": 0.0,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "SOCIAL, normes marocaines",
+   "source": "https://www.ammc.ma/sites/default/files/Afric_Industries_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "DETTES DE FINANCEMENT (C) — Emprunts obligataires, Autres dettes de financement : cases vides aux deux colonnes [lu sur image rendue]"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette au 30/06/2026, mêmes postes qu'en 2025",
+   "formule": "0 + 1,243191 − 2,392430",
+   "resultat": -1.149
+  }
+ ],
+ "ecarts_plus_de_2_pct": [],
+ "semestriel_s1_2026": {
+  "depose": true,
+  "dette_nette": -1.149,
+  "unite": "MMAD",
+  "base": "social, calcul au bilan (trésorerie nette)",
+  "page": "3-4"
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever.",
+  "Croissance (BPA +24,6 %, CA +5,5 %) et BPA 12 mois : pages déjà citées (p.1, p.5-6), recalculées à l'identique.",
+  "La colonne « exercice précédent » de la trésorerie actif (8 175 538,28) redonne celle du RFA 2025 lue dans faits_financiers."
+ ],
+ "conclusion": "Entièrement adossé.",
+ "debloquerait": "rien : déjà noté",
+ "question_ir": null
+}
