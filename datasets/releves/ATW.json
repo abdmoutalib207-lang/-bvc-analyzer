@@ -1,0 +1,262 @@
+{
+  "ticker": "ATW",
+  "societe": "Attijariwafa bank",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF (1 = première page du fichier), pas le folio imprimé",
+  "blocage": {
+    "motif": "équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière",
+    "effet": "composante « bilan » retirée de la note fondamentale ; note métier : bilan « sans objet : la dette est l'activité d'un établissement financier »",
+    "lu_dans": "pipeline/smart_money/fond_score.py l.367 (est_financiere) ; data.json › ATW › note_fond_metier.criteres.bilan.motif"
+  },
+  "pieces": [
+    {
+      "id": "rfa_2025",
+      "rang_methode": 1,
+      "titre": "Rapport financier annuel 2025 (dépôt AMMC)",
+      "url": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
+      "sha256": "766da5ac174bfd22e1a9aac59fd5465bb51b2249ed8143268afba5235f1e3afb",
+      "octets": 6285237,
+      "pages": 156
+    },
+    {
+      "id": "rfs_s1_2026",
+      "rang_methode": 1,
+      "titre": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC)",
+      "url": "https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf",
+      "sha256": "5e50e3ab60535e09d7b51e27c9ef66b867561f3fbe90c76f787add1b9e785ca9",
+      "octets": 1653147,
+      "pages": 26
+    }
+  ],
+  "chiffres": [
+    {
+      "grandeur": "ratio_solvabilite",
+      "valeur": 13.13,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé (groupe), Bâle III, circulaire BAM 14/G/2013",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 67,
+      "citation": "Ratio de solvabilité 13,13% 13,73%"
+    },
+    {
+      "grandeur": "ratio_tier1",
+      "valeur": 11.84,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé (groupe), Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 67,
+      "citation": "Ratio sur fonds propres de base (Tier 1) 11,84% 12,30%"
+    },
+    {
+      "grandeur": "fonds_propres_cet1",
+      "valeur": 55846.913,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé (groupe)",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 67,
+      "citation": "Fonds propres de base après déduction (CET1) 55 846 913 54 325 381"
+    },
+    {
+      "grandeur": "risques_ponderes",
+      "valeur": 547863.141,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé (groupe), approche standard",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 67,
+      "citation": "Risques pondérés 547 863 141 514 691 368"
+    },
+    {
+      "grandeur": "cout_du_risque",
+      "valeur": 3664.557,
+      "unite": "MMAD (charge)",
+      "periode": "exercice 2025",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 96,
+      "citation": "Coût du risque de crédit 3.7 -3 664 557 -4 210 257"
+    },
+    {
+      "grandeur": "cout_du_risque_sur_encours",
+      "valeur": 0.77,
+      "unite": "%",
+      "periode": "exercice 2025",
+      "perimetre": "consolidé IFRS, définition émetteur « rapporté au total encours »",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 31,
+      "citation": "Rapporté au total encours, le coût du risque reste quasi-stable [...] à 0,77% contre 0,95%"
+    },
+    {
+      "grandeur": "encours_credits_clientele",
+      "valeur": 447885.567,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS, prêts et créances sur la clientèle au coût amorti (nets)",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 95,
+      "citation": "Prêts et créances sur la clientèle, au coût amorti 2.4 / 2.17 447 885 567 413 590 717"
+    },
+    {
+      "grandeur": "creances_bucket3_clientele_brutes",
+      "valeur": 30815.632,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS 9, prêts et créances sur la clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 105,
+      "citation": "Prêts et créances sur la clientèle 427 146 857 20 223 364 30 815 632 2 914 105 3 540 502 23 845 679 0,7% 17,5% 77,4%"
+    },
+    {
+      "grandeur": "depreciations_bucket3_clientele",
+      "valeur": 23845.679,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 105,
+      "citation": "Prêts et créances sur la clientèle 427 146 857 20 223 364 30 815 632 2 914 105 3 540 502 23 845 679 0,7% 17,5% 77,4%"
+    },
+    {
+      "grandeur": "taux_couverture_bucket3_clientele",
+      "valeur": 77.4,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 105,
+      "citation": "Prêts et créances sur la clientèle [...] 0,7% 17,5% 77,4%"
+    },
+    {
+      "grandeur": "taux_contentialite",
+      "valeur": 6.4,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé, définition émetteur",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 31,
+      "citation": "le taux de contentialité se fixe à 6,4% en baisse par rapport à fin 2024 (6,6%)"
+    },
+    {
+      "grandeur": "coefficient_exploitation",
+      "valeur": 37.9,
+      "unite": "%",
+      "periode": "exercice 2025",
+      "perimetre": "consolidé IFRS, charges générales y compris dotations aux amortissements / PNB",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 31,
+      "citation": "Le coefficient d'exploitation s'établit ainsi à 37,9% en 2025."
+    },
+    {
+      "grandeur": "cout_du_risque",
+      "valeur": 1234.597,
+      "unite": "MMAD (charge)",
+      "periode": "S1 2026 (01/01-30/06/2026)",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 13,
+      "citation": "Coût du risque de crédit -1 234 597 -1 389 715"
+    },
+    {
+      "grandeur": "encours_credits_clientele",
+      "valeur": 464256.98,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS, prêts et créances sur la clientèle au coût amorti (nets)",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 8,
+      "citation": "Prêts et créances sur la clientèle, au coût amorti 2.4 / 2.12 464 256 980 447 885 567"
+    },
+    {
+      "grandeur": "creances_bucket3_clientele_brutes",
+      "valeur": 30659.157,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 12,
+      "citation": "Prêts et créances sur la clientèle 440 263 950 24 712 070 30 659 157 2 947 550 3 921 976 24 508 671 0,7% 15,9% 79,9%"
+    },
+    {
+      "grandeur": "depreciations_bucket3_clientele",
+      "valeur": 24508.671,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 12,
+      "citation": "Prêts et créances sur la clientèle 440 263 950 24 712 070 30 659 157 2 947 550 3 921 976 24 508 671 0,7% 15,9% 79,9%"
+    },
+    {
+      "grandeur": "taux_couverture_bucket3_clientele",
+      "valeur": 79.9,
+      "unite": "%",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS 9, clientèle, Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 12,
+      "citation": "Prêts et créances sur la clientèle [...] 0,7% 15,9% 79,9%"
+    },
+    {
+      "grandeur": "coefficient_exploitation",
+      "valeur": 36.8,
+      "unite": "%",
+      "periode": "S1 2026",
+      "perimetre": "consolidé IFRS, définition émetteur",
+      "source": "https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 2,
+      "citation": "Le coefficient d'exploitation s'établit à 36,8% à fin juin 2026."
+    }
+  ],
+  "estimations": [],
+  "calculs": [
+    {
+      "quoi": "ratio CET1 2025 (non publié comme ratio)",
+      "formule": "fonds propres CET1 / risques pondérés = 55 846 913 / 547 863 141",
+      "resultat": 10.19,
+      "unite": "%"
+    },
+    {
+      "quoi": "taux de créances Bucket 3 clientèle 2025",
+      "formule": "30 815 632 / (427 146 857 + 20 223 364 + 30 815 632)",
+      "resultat": 6.44,
+      "unite": "%"
+    },
+    {
+      "quoi": "taux de créances Bucket 3 clientèle 30/06/2026",
+      "formule": "30 659 157 / (440 263 950 + 24 712 070 + 30 659 157)",
+      "resultat": 6.19,
+      "unite": "%"
+    }
+  ],
+  "constats": [
+    "Le ratio de solvabilité au 30/06/2026 n'est pas chiffré dans le rapport semestriel (p.2 : « des ratios de solvabilité en amélioration » sans valeur) : il faudrait le Pilier III semestriel.",
+    "Le taux de couverture retenu est celui du Bucket 3 IFRS 9 de la clientèle (note 2.17 / 2.12) ; le RFA cite aussi une couverture SOCIALE (Maroc) des créances en souffrance de 69,3 % (p.21), autre périmètre et autre norme.",
+    "Le CET1 n'est publié qu'en montant ; le ratio CET1 est un calcul, pas une pièce.",
+    "Pilier III : ir.attijariwafabank.com (HTTP 200) › financial-information/quarterly-results publie deux « Pilar III – Basel III » dans la rubrique 2025 et AUCUN dans la rubrique 2026 au 20/10/2026 : la solvabilité au 30/06/2026 n'est pas publiée à cette date."
+  ],
+  "conclusion": "Les quatre familles d'indicateurs sont disponibles en consolidé IFRS pour 2025 ; pour le S1 2026 tout sauf la solvabilité.",
+  "debloquerait": "Une composante « bilan » bancaire : solvabilité (13,13 % / Tier 1 11,84 %), coût du risque 3 665 MMAD sur 447 886 MMAD d'encours, Bucket 3 6,4 % couvert à 77,4 %, coefficient 37,9 %.",
+  "question_ir": null
+}
