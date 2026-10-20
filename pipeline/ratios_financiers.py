@@ -426,6 +426,101 @@ def periode_bilan(rb: dict, e: dict | None, releve_s1: dict | None) -> None:
     }
 
 
+# ⚠️ GRILLE BANCAIRE — 20/10/2026, accord d'Abd Moutalib. Pour les banques,
+# l'équivalent de la dette nette / EBITDA : solvabilité, coût du risque,
+# couverture des créances en défaut ; et le coefficient d'exploitation pour la
+# qualité. Faits : `faits_financiers.json › _grille_bancaire` (comptes
+# consolidés IFRS, chaque nombre à sa page). Les TAUX PUBLIÉS ne sont jamais
+# repris : chaque banque a sa définition. Tout est recalculé ici, sur UNE
+# définition.
+#
+# PÉRIODES (règle b, dates appariées) :
+#   · coefficient d'exploitation : 12 mois glissants au 30/06/2026 =
+#     exercice 2025 + S1 2026 − S1 2025, numérateur et dénominateur sur la même
+#     période, quand les neuf montants sont sur pièce ; sinon l'exercice 2025 ;
+#   · coût du risque ÷ encours net MOYEN : 12 mois si l'encours du 30/06/2025
+#     est sur pièce (moyenne 30/06/2025–30/06/2026) — il ne l'est pour aucune
+#     banque (rapport semestriel 2025 hors des pièces) ; donc l'exercice 2025,
+#     coût du risque 2025 ÷ moyenne(31/12/2024, 31/12/2025) ;
+#   · couverture Bucket 3 : dernier bilan sur pièce (30/06/2026), sinon
+#     31/12/2025 ;
+#   · solvabilité globale : 31/12/2025, seule date publiée par les six banques
+#     qui la publient (au 30/06/2026 : CIH, CDM et BMCI, dont un provisoire).
+GRILLE_BANCAIRE = "_grille_bancaire"
+FORMULE_COEFFICIENT = ("(charges générales d'exploitation + dotations aux amortissements et aux dépréciations "
+                       "des immobilisations incorporelles et corporelles) ÷ produit net bancaire — compte de "
+                       "résultat consolidé IFRS")
+FORMULE_COUVERTURE = "dépréciations Bucket 3 ÷ encours bruts Bucket 3, prêts et créances sur la clientèle (IFRS 9)"
+FORMULE_COUT_RISQUE = "coût du risque ÷ moyenne des encours nets de crédits à la clientèle (début et fin de période)"
+
+
+def _piece_bancaire(e: dict, cle: str) -> str:
+    f = e["faits"][cle]
+    return f"{(e.get('documents') or {}).get(f.get('piece'), f.get('piece'))} — {f.get('url')}, p. {f.get('page')}"
+
+
+def calculer_bancaire(e: dict | None) -> dict:
+    """Les quatre ratios de la grille bancaire d'une banque, recalculés depuis
+    ses faits. Une grandeur sans tous ses termes sur pièce n'est pas calculée.
+    Pure."""
+    if not e:
+        return {}
+    F = e.get("faits") or {}
+    v = {k: (x or {}).get("valeur") for k, x in F.items()}
+    res = e.get("reserves") or {}
+    out = {}
+    # coefficient d'exploitation
+    s = ("cge", "dap", "pnb")
+    if all(v.get(f"{k}_{p}") is not None for k in s for p in ("2025", "s1_2026", "s1_2025")):
+        d = {k: round(v[f"{k}_2025"] + v[f"{k}_s1_2026"] - v[f"{k}_s1_2025"], 3) for k in s}
+        periode = "12 mois glissants au 30/06/2026 = exercice 2025 + S1 2026 − S1 2025, tout sur pièce"
+        date, cles = DATE_S1, [f"{k}_{p}" for k in s for p in ("2025", "s1_2026", "s1_2025")]
+    elif all(v.get(f"{k}_2025") is not None for k in s):
+        d = {k: v[f"{k}_2025"] for k in s}
+        periode = "exercice 2025 — un montant semestriel manque sur pièce"
+        date, cles = DATE_EXERCICE, [f"{k}_2025" for k in s]
+    else:
+        d = None
+    if d and d["pnb"] > 0:
+        out["coefficient_exploitation"] = {
+            "valeur": round((d["cge"] + d["dap"]) / d["pnb"] * 100, 2), "unite": "%", "date": date,
+            "formule": f"({d['cge']} + {d['dap']}) ÷ {d['pnb']} (MMAD) — {FORMULE_COEFFICIENT}",
+            "sources": {k: _piece_bancaire(e, k) for k in cles}, "periode": periode}
+    # coût du risque ÷ encours net moyen
+    if v.get("cdr_2025") is not None and v.get("encours_31_12_2024") and v.get("encours_31_12_2025"):
+        moy = round((v["encours_31_12_2024"] + v["encours_31_12_2025"]) / 2, 3)
+        out["cout_du_risque_encours"] = {
+            "valeur": round(v["cdr_2025"] / moy * 100, 3), "unite": "%", "date": DATE_EXERCICE,
+            "formule": f"{v['cdr_2025']} ÷ ({v['encours_31_12_2024']} + {v['encours_31_12_2025']}) / 2 (MMAD) — {FORMULE_COUT_RISQUE}",
+            "sources": {k: _piece_bancaire(e, k) for k in ("cdr_2025", "encours_31_12_2024", "encours_31_12_2025")},
+            "periode": ("exercice 2025 — encours au 30/06/2025 non relevé sur pièce, la moyenne sur 12 mois "
+                        "glissants n'est pas calculable"),
+            "cout_du_risque_12m": (round(v["cdr_2025"] + v["cdr_s1_2026"] - v["cdr_s1_2025"], 3)
+                                   if v.get("cdr_s1_2026") is not None and v.get("cdr_s1_2025") is not None else None)}
+    # couverture Bucket 3
+    for suf, date in (("30_06_2026", DATE_S1), ("31_12_2025", DATE_EXERCICE)):
+        b, dep = v.get(f"bucket3_brut_{suf}"), v.get(f"bucket3_depreciations_{suf}")
+        if b and dep is not None:
+            out["couverture_bucket3"] = {
+                "valeur": round(dep / b * 100, 2), "unite": "%", "date": date,
+                "formule": f"{dep} ÷ {b} (MMAD) — {FORMULE_COUVERTURE}",
+                "sources": {k: _piece_bancaire(e, k) for k in (f"bucket3_depreciations_{suf}", f"bucket3_brut_{suf}")},
+                "periode": ("30/06/2026 — dernier bilan sur pièce" if suf == "30_06_2026"
+                            else "31/12/2025 — bilan au 30/06/2026 non relevé sur pièce"),
+                **({"reserve": res["couverture_bucket3"]} if res.get("couverture_bucket3") else {})}
+            break
+    # solvabilité globale
+    if v.get("solvabilite_31_12_2025") is not None:
+        out["solvabilite_globale"] = {
+            "valeur": v["solvabilite_31_12_2025"], "unite": "%", "date": DATE_EXERCICE,
+            "formule": "ratio de solvabilité global consolidé publié (fonds propres totaux ÷ risques pondérés, Bâle III)",
+            "sources": {"solvabilite_31_12_2025": _piece_bancaire(e, "solvabilite_31_12_2025")},
+            "periode": "31/12/2025 — seule date publiée par toutes les banques qui publient le ratio"}
+    elif res.get("solvabilite"):
+        out["solvabilite_globale_absente"] = {"motif": res["solvabilite"]}
+    return out
+
+
 def recalculer(s1: dict, faits: dict, fond: dict, verifies: dict, bavard: bool = False) -> tuple[int, int, int]:
     """Pose les ratios publiés dans `fond`, EN PLACE. Renvoie (titres, bilans, financiers).
 
@@ -448,6 +543,7 @@ def recalculer(s1: dict, faits: dict, fond: dict, verifies: dict, bavard: bool =
         if fiche is not None and est_financier(fiche):
             r["ratios_bilan_2025"] = {"sans_objet": SANS_OBJET_FINANCIER, "secteur": fiche.get("secteur"),
                                       "ratios": ["dette_nette", "ebitda", "dette_nette_ebitda", "roic", "cash_conversion"]}
+            r.update(calculer_bancaire(((faits.get(GRILLE_BANCAIRE) or {}).get("titres") or {}).get(sym)))
             nf += 1
         else:
             rb, non = calculer_bilan(faits.get(sym))
