@@ -1,0 +1,60 @@
+{
+ "ticker": "DTT",
+ "societe": "Disty Technologies",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 11.6 % − WACC 10",
+   "croissance": "croissance pondérée 25.52 %",
+   "valorisation": "PER 11.6",
+   "bilan": "dette nette / EBITDA 2.27"
+  }
+ },
+ "pieces": [
+  {
+   "id": "cp_s1_2026",
+   "rang_methode": 1,
+   "titre": "Communiqué S1 2026 Disty Technologies",
+   "url": "https://www.ammc.ma/sites/default/files/CP_Disty_Technologies_S1_26.pdf",
+   "sha256": "1e7c6128847a6e9b0f48843090f7e5ac8c205d0865911d11505bb158b02fb83d",
+   "octets": 87056,
+   "pages": 1
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "endettement_net_publie",
+   "valeur": 153.6,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé (périmètre non précisé par le communiqué)",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Disty_Technologies_S1_26.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "A fin juin 2026, l’endettement net s’établit à 153,6 MMAD, reflétant la constitution délibérée des stocks en amont."
+  }
+ ],
+ "estimations": [],
+ "calculs": [],
+ "ecarts_plus_de_2_pct": [],
+ "semestriel_s1_2026": {
+  "depose": "communiqué seul (pas de bilan trouvé)",
+  "dette_nette": 153.6,
+  "unite": "MMAD",
+  "base": "chiffre de la société",
+  "page": 1
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever. Le chiffre de la société 2025 (86,4, RFA p.13) est rangé dans faits et concorde.",
+  "Croissance et BPA 12 mois : p.1 du communiqué déjà citée ; recalcul identique.",
+  "Le dépôt S1 2026 trouvé est un communiqué d'une page : pas de bilan ; « Disty_Technologies_S1_26.pdf » et « _RFS_S1_26.pdf » répondent 404 à l'AMMC le 20/10/2026."
+ ],
+ "conclusion": "Entièrement adossé.",
+ "debloquerait": "rien : déjà noté",
+ "question_ir": null
+}

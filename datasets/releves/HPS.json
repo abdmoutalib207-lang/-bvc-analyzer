@@ -1,0 +1,66 @@
+{
+ "ticker": "HPS",
+ "societe": "HPS",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 18.3 % − WACC 10",
+   "croissance": "croissance pondérée 109.82 %",
+   "valorisation": "PER 20",
+   "bilan": "dette nette / EBITDA 0.69"
+  }
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Communication financière S1 2026 HPS (consolidé)",
+   "url": "https://www.ammc.ma/sites/default/files/HPS_S1_26.pdf",
+   "sha256": "7ec71dd3d03ee95c236eb7730e521f9db0128e526a68eefbc3a4b3717a359394",
+   "octets": 961056,
+   "pages": 8
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "endettement_net_publie",
+   "valeur": 206.0,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/HPS_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "à 440 M MAD, contre 452 M MAD à fin décembre 2025, soit une diminution de 2,9%, la trésorerie ressort à 234 M MAD contre 256 M MAD à fin 2025, et l’endettement net s’établit à 206 M MAD."
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette de la société au 31/12/2025, mêmes termes",
+   "formule": "452 − 256",
+   "resultat": 196.0
+  }
+ ],
+ "ecarts_plus_de_2_pct": [],
+ "semestriel_s1_2026": {
+  "depose": true,
+  "dette_nette": 206.0,
+  "unite": "MMAD",
+  "base": "consolidé, chiffre de la société",
+  "page": 4
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever.",
+  "Le calcul 31/12/2025 sur les termes du communiqué (196) redonne la dette nette de la note (196,0).",
+  "Croissance BPA +173,7 % : passage d'une perte (−47,25) à un bénéfice (34,81) ; c'est le chiffre PUBLIÉ par l'émetteur (p.2), un rapport à une base négative n'ayant pas de sens arithmétique — choix de règle à confirmer par le vérificateur."
+ ],
+ "conclusion": "Entièrement adossé.",
+ "debloquerait": "rien : déjà noté",
+ "question_ir": null
+}
