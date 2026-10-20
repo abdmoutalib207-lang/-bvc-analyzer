@@ -1200,7 +1200,9 @@ def _bilan_industriel(e, poser):
     elif dne is not None and not (dne["valeur"] == 0 and e["financiere"]):
         v = dne["valeur"]
         poser("bilan", ZERO if v == 0 else PRESENT, valeur=v,
-              mesure=f"dette nette / EBITDA {v:g}" + (f" · conversion {cc['valeur']:g} %" if cc else ""),
+              mesure=(f"dette nette / EBITDA {'≤ ' if dne.get('borne') else ''}{v:g}"
+                      + (" (borne, pas une valeur)" if dne.get("borne") else "")   # règle h, 20/10/2026
+                      + (f" · conversion {cc['valeur']:g} %" if cc else "")),
               note=note_bilan_industriel(v, cc["valeur"] if cc else None),
               source=_src_ratio(dne, "dette_nette_ebitda"), periode=dne.get("date"))
     elif e["dette_nette"] is not None and e["dette_nette"] < 0 and not e["financiere"]:

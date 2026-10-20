@@ -107,3 +107,28 @@ def test_b_tma_sur_piece():
     from pipeline.smart_money.fond_score import detail_fond_score
     b = detail_fond_score("TMA", FOND, per_publie=14.6, croissance_sourcee=True)["composantes"]["bilan"]
     assert b["note"] == 8.5 and "période : 30/06/2026" in b["mesure"] and "saisonnalité" in b["reserve"]
+
+
+# ── règle h : EBITDA encadré, borne publiée si le palier ne change pas ──
+from pipeline.ratios_financiers import calculer_bilan  # noqa: E402
+
+FAITS = json.loads((RACINE / "pipeline" / "faits_financiers.json").read_text(encoding="utf-8"))
+
+
+def test_h_cmt_borne_superieure_sur_piece():
+    r = FOND["CMT"]["ratios_publies"]["dette_nette_ebitda"]
+    # 142,868134 ÷ 387,848 = 0,36836 → arrondi VERS LE HAUT : 0,3684 (sous le seuil de 0,5)
+    assert (r["valeur"], r["borne"]) == (0.3684, "supérieure") and r["valeur"] >= 142.868134 / 387.848
+    from pipeline.smart_money.fond_score import detail_fond_score
+    d = detail_fond_score("CMT", FOND, per_publie=21.9, croissance_sourcee=True)
+    b = d["composantes"]["bilan"]
+    assert b["note"] == 9.0 and "≤ 0.3684" in b["mesure"] and "borne" in b["mesure"] and "valeur)" in b["mesure"]
+    assert d["note"] == 8.4    # (8,5×0,4 + 10×0,3 + 5,5×0,2 + 9,0×0,1) ÷ 1
+
+
+def test_h_pas_de_borne_si_le_palier_change():
+    import copy
+    e = copy.deepcopy(FAITS["CMT"])
+    e["_controles_ratios_2025"]["ebitda_borne_inferieure"]["valeur"] = 100.0   # 142,9 ÷ 100 = 1,43 : 8,5 → 7,0
+    rb, non = calculer_bilan(e)
+    assert "dette_nette_ebitda" not in rb and "palier" in non["dette_nette_ebitda"]

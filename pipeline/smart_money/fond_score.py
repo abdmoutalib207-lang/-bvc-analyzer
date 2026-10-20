@@ -215,6 +215,7 @@ def ratio_effectif(f: dict | None, sym: str, cle: str) -> dict | None:
         return {"valeur": v, "origine": "comptes publiés", "date": x.get("date"),
                 "formule": x.get("formule"), "sources": x.get("sources"), "base": x.get("base"),
                 **({"periode": x["periode"]} if x.get("periode") else {}),
+                **({"borne": x["borne"]} if x.get("borne") else {}),
                 **({"reserve": x["reserve"]} if x.get("reserve") else {})}
     s = f.get(cle)
     if isinstance(s, (int, float)) and not isinstance(s, bool):
@@ -384,6 +385,8 @@ def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | N
         _d = ratio_effectif(f, sym, "dette_nette_ebitda")
         _dne = _d["valeur"] if _d and _d.get("origine") == "comptes publiés" else None
         _mesure = f"dette nette / EBITDA {_dne:g}" if _dne is not None else None
+        if _mesure and (_d or {}).get("borne") == "supérieure":   # règle h, 20/10/2026
+            _mesure = f"dette nette / EBITDA ≤ {_dne:g} (borne supérieure démontrée, pas une valeur)"
         # Règle b (20/10/2026) : le motif du choix de période est publié dans la mesure.
         if _mesure and (_d or {}).get("periode"):
             _mesure += f" — période : {_d['periode']}"

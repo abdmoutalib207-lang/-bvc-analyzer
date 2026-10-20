@@ -228,7 +228,32 @@ def calculer_bilan(entree: dict | None) -> tuple[dict, dict]:
         non["ebitda"] = "ni EBE publié, ni dotations aux amortissements isolées"
 
     # dette nette / EBITDA
-    if "dette_nette_ebitda" in refus:
+    # ⚠️ RÈGLE h — 20/10/2026 — EBITDA ENCADRÉ (analyse de sensibilité). Quand
+    # l'EBITDA n'est pas calculable mais qu'une BORNE INFÉRIEURE est démontrée
+    # sur pièce (`_controles_ratios_2025.ebitda_borne_inferieure` : par exemple
+    # EBITDA ≥ résultat d'exploitation, les amortissements étant ≥ 0), le
+    # ratio est encadré : 0 < dette nette / EBITDA ≤ dette nette ÷ borne. On ne
+    # publie la BORNE que si le palier de la grille de bilan est le MÊME sur tout
+    # l'intervalle — alors la note est la même quelle que soit la vraie valeur.
+    # La borne est arrondie VERS LE HAUT (une borne supérieure arrondie vers le
+    # bas n'en serait plus une). La mesure dit « borne », jamais « valeur ».
+    borne_eb = (ctrl.get("ebitda_borne_inferieure") or {}).get("valeur")
+    if "dette_nette_ebitda" not in refus and eb is None and borne_eb and borne_eb > 0 \
+            and dn is not None and dn > 0:
+        import math
+        from pipeline.smart_money.fond_score import _grille_bilan
+        sup = math.ceil(dn / borne_eb * 10000) / 10000
+        if _grille_bilan(1e-9, None) == _grille_bilan(sup, None):
+            out["dette_nette_ebitda"] = base(sup, f"0 < {round(dn, 3)} ÷ EBITDA ≤ {round(dn, 3)} ÷ {borne_eb}", {
+                "dette_nette": "ratios_publies.dette_nette",
+                "ebitda_borne_inferieure": f"{entree.get('document')} — {entree.get('url')}, p. "
+                                           f"{ctrl['ebitda_borne_inferieure'].get('page')} — "
+                                           f"{ctrl['ebitda_borne_inferieure'].get('fondement')}"},
+                borne="supérieure", intervalle=[0, sup])
+        else:
+            non["dette_nette_ebitda"] = (f"EBITDA non calculé ; borne ≤ {sup:g} démontrée mais le palier de la "
+                                         "grille change sur l'intervalle : pas de note")
+    elif "dette_nette_ebitda" in refus:
         # Numérateur non établi (ex. STR : arriérés fiscaux et sociaux hors
         # dette financière, dettes « en cours de vérification ») — 02/10/2026.
         non["dette_nette_ebitda"] = refus["dette_nette_ebitda"]

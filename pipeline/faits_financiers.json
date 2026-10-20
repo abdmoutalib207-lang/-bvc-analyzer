@@ -695,7 +695,14 @@
    "reserves": [
     "EBITDA NON calculé : la ligne « Résultat d'exploitation avant dotations aux amort. et dép. EA 387 847 981 » (p.58) porte le MÊME montant que le résultat après dotations — erreur de mise en page du rapport (le recalcul par les composantes donne 387,848 après dotations). Et la seule dotation publiée, « Dotations aux amortissements, dépréciations et provisions (38 412 256) », inclut des provisions : l'ajouter au résultat d'exploitation ne donnerait pas un EBITDA au sens demandé.",
     "Titre suspendu du 17/07 au 16/09/2026 (OPA obligatoire) : les ratios décrivent l'exercice 2025, pas l'actionnariat actuel."
-   ]
+   ],
+   "ebitda_borne_inferieure": {
+    "valeur": 387.848,
+    "page": 58,
+    "fondement": "EBITDA = résultat d'exploitation + dotations aux amortissements ; les amortissements sont ≥ 0, donc EBITDA ≥ résultat d'exploitation consolidé « après dotations aux amortissements » 387,848 MMAD (RFA 2025 p.58). La valeur exacte reste inconnue : la seule dotation publiée (38,412) mêle provisions et dépréciations.",
+    "regle": "règle h du 20/10/2026 (analyse de sensibilité)",
+    "releve_le": "2026-10-20"
+   }
   }
  },
  "MNG": {

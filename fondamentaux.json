@@ -1363,6 +1363,22 @@
         "base": "consolidé, 31/12/2025",
         "unite": "MMAD"
       },
+      "dette_nette_ebitda": {
+        "valeur": 0.3684,
+        "date": "2025-12-31",
+        "formule": "0 < 142.868 ÷ EBITDA ≤ 142.868 ÷ 387.848",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda_borne_inferieure": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/CMT_RFA_2025.pdf, p. 58 — EBITDA = résultat d'exploitation + dotations aux amortissements ; les amortissements sont ≥ 0, donc EBITDA ≥ résultat d'exploitation consolidé « après dotations aux amortissements » 387,848 MMAD (RFA 2025 p.58). La valeur exacte reste inconnue : la seule dotation publiée (38,412) mêle provisions et dépréciations."
+        },
+        "base": "consolidé, 31/12/2025",
+        "borne": "supérieure",
+        "intervalle": [
+          0,
+          0.3684
+        ],
+        "periode": "31/12/2025 ÷ exercice 2025 — bilan S1 2026 non relevé sur pièce"
+      },
       "roic": {
         "valeur": 23.1,
         "date": "2025-12-31",
@@ -1390,8 +1406,7 @@
         "unite": "%"
       },
       "non_calcules_2025": {
-        "ebitda": "ni EBE publié, ni dotations aux amortissements isolées",
-        "dette_nette_ebitda": "dette nette ou EBITDA non calculé"
+        "ebitda": "ni EBE publié, ni dotations aux amortissements isolées"
       },
       "calcule_le": "2026-09-30"
     }
