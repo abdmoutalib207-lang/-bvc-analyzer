@@ -165,3 +165,27 @@ def test_a_cmgp_conteste_meme_si_le_pont_etait_declare_etabli():
     f["faits"]["endettement_net"]["rapprochement"]["etabli"] = True    # 54,1 + 841,389 = 895,5 : résidu 5,6 %
     for x in (FAITS["CMGP"], f):
         assert "contestée" in _dette_nette_contestee(FOND["CMGP"]["ratios_publies"]["dette_nette"], x)
+
+
+# ── règle c : éléments exceptionnels — PER sur le publié, croissance retraitée sur montants ──
+def test_c_t2s_croissance_recalculee_sur_les_montants_de_l_emetteur():
+    t = JEU["titres"]["T2S"]
+    m = douze_mois(t, "T2S")
+    assert m["croissance_bpa"] == round((91 / 55 - 1) * 100, 1) == 65.5       # jamais le « 65 % » publié
+    assert m["croissance_bpa_publiee_brute"] == -16.1
+    assert m["rnpg_12m"] == 187.019 and BPA["T2S"]["bpa_12m"] == 8.58          # le PER lit le publié
+    assert FOND["T2S"]["croissance_bpa"] == 65.5 and FOND["T2S"]["croissance_bpa_retraitee"]["motif"]
+
+
+def test_c_pourcentage_sans_montant_ne_retraite_rien():
+    # IAM : « +8,1 % hors exceptionnel » sans montant Wana → croissance du publié.
+    assert "retraitement_exceptionnel" not in JEU["titres"]["IAM"]
+    assert douze_mois(JEU["titres"]["IAM"], "IAM")["croissance_bpa"] == -39.7
+    # Un retraitement exige les DEUX montants ajustés.
+    t = dict(JEU["titres"]["T2S"], retraitement_exceptionnel={"rnpg_ajuste_s1_2025": 55.0})
+    assert douze_mois(t, "T2S")["croissance_bpa"] == -16.1
+
+
+def test_c_mdp_reserve_per_non_recurrent_sans_retraitement():
+    assert fg.RESERVES_RATIOS["MDP"]["valorisation"].startswith("PER non récurrent")
+    assert "retraitement_exceptionnel" not in JEU["titres"]["MDP"]

@@ -292,7 +292,15 @@ RESERVES_RATIOS = {
     "NEJ": {"bilan": "EBITDA calculé sur les amortissements consolidés NETS DES REPRISES (tableau des "
                      "flux, RFA 2025 p.106 : 37,618), seule ligne consolidée qui les isole ; ils sont "
                      "inférieurs aux dotations du social (55,2, p.83)."},
-    "MDP": {"valorisation": "PER sur un résultat 12 mois (6,1 MDH, comptes sociaux) qui doit l'exercice "
+    # Règle c (20/10/2026) : croissance retraitée sur les MONTANTS de l'émetteur.
+    "T2S": {"croissance": "BPA +65,5 % = 91 ÷ 55 − 1, S1 2025 retraité de la cession Varian (montants ajustés du "
+                          "communiqué S1 p.1) ; publié brut −16,1 %. 55 est arrondi au MDH : croissance pondérée "
+                          "49,8 % (91 ÷ 55) ou 50,2 % (91,307 ÷ 55), le seuil de 50 % de la grille passe dans "
+                          "l'incertitude d'arrondi (palier 7,5 ou 9,0).",
+            "valorisation": "BPA sur le nombre d'actions actuel, traitement IAS 33 des actions de priorité non "
+                            "établi : PER plafond (voir la réserve du BPA)."},
+    # Règle c (20/10/2026) : réserve « PER non récurrent », sans retraitement.
+    "MDP": {"valorisation": "PER non récurrent — PER sur un résultat 12 mois (6,1 MDH, comptes sociaux) qui doit l'exercice "
                             "2025 au NON COURANT (+22,1 MDH ; résultat d'exploitation −10,4 ; RFA 2025 "
                             "p.41) : bénéfice non récurrent. Examen limité S1 « sous réserve » des CAC "
                             "(8,6 MDH chiffrés).",

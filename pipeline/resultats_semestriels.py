@@ -95,7 +95,23 @@ def douze_mois(t: dict, sym: str | None = None) -> dict | None:
     # publiée reste consignée dans le jeu de données et rendue à côté
     # (`croissance_bpa_publiee_non_retenue`), jamais appliquée.
     publiee = t.get("croissance_bpa_publiee")
-    if t["rnpg_s1_2025"] > 0:
+    # ⚠️ RÈGLE c — 20/10/2026 — ÉLÉMENTS EXCEPTIONNELS (IAS 33, IAS 1.87 et
+    # 1.97). La VALORISATION lit le résultat PUBLIÉ : le douze mois et le PER
+    # ci-dessus ne sont jamais retraités. La CROISSANCE ne l'est que si
+    # l'émetteur chiffre l'élément exceptionnel EN MONTANT, sur pièce
+    # (`retraitement_exceptionnel` : résultats ajustés des deux semestres, page,
+    # citation) ; le pourcentage est alors RECALCULÉ ici sur ses montants,
+    # jamais repris. Un pourcentage « hors exceptionnel » publié sans montant
+    # (IAM, accord Wana) ne retraite rien : la croissance reste calculée sur le
+    # publié.
+    rx = t.get("retraitement_exceptionnel")
+    if isinstance(rx, dict) and rx.get("rnpg_ajuste_s1_2025") and rx.get("rnpg_ajuste_s1_2026") is not None \
+            and rx["rnpg_ajuste_s1_2025"] > 0:
+        out["croissance_bpa"] = round((rx["rnpg_ajuste_s1_2026"] / rx["rnpg_ajuste_s1_2025"] - 1) * 100, 1)
+        out["croissance_bpa_retraitee"] = rx.get("motif")
+        if t["rnpg_s1_2025"] > 0:
+            out["croissance_bpa_publiee_brute"] = round((t["rnpg_s1_2026"] / t["rnpg_s1_2025"] - 1) * 100, 1)
+    elif t["rnpg_s1_2025"] > 0:
         out["croissance_bpa"] = round((t["rnpg_s1_2026"] / t["rnpg_s1_2025"] - 1) * 100, 1)
         if publiee is not None:
             out["croissance_bpa_publiee_non_retenue"] = publiee
@@ -184,6 +200,12 @@ def appliquer(jeu: dict, bpa: dict, fond: dict) -> list[str]:
         for k in ("croissance_bpa", "croissance_ca"):
             if k in m:
                 f[k] = m[k]
+        # Règle c (20/10/2026) : la base retraitée est dite sur la fiche.
+        if m.get("croissance_bpa_retraitee"):
+            f["croissance_bpa_retraitee"] = {"motif": m["croissance_bpa_retraitee"],
+                                             "croissance_publiee_brute": m.get("croissance_bpa_publiee_brute")}
+        else:
+            f.pop("croissance_bpa_retraitee", None)
         f["nb_actions"] = t["actions"]
         f["date_maj"] = DATE_MAJ
         f["source_s1_2026"] = t["url"]
