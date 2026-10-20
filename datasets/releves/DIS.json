@@ -1,0 +1,65 @@
+{
+ "ticker": "DIS",
+ "societe": "Diac Salaf (DIAC SALAF)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "société absente de fondamentaux.json (les quatre composantes)",
+  "effet": "couverture 0 % : aucune note fondamentale",
+  "lu_dans": "data.json › DIS › note_fond.composantes.*.motif"
+ },
+ "pieces": [
+  {
+   "id": "liste_ammc",
+   "rang_methode": 1,
+   "titre": "AMMC — communiqués de presse émetteurs filtrés sur DIAC SALAF, identifiant 2769, consultés le 20/10/2026",
+   "url": "https://www.ammc.ma/fr/communiques-presse-emetteurs?field_emetteur_target_id_verf=2769"
+  },
+  {
+   "id": "cp_cdvm_2013",
+   "rang_methode": 1,
+   "titre": "Communiqué de presse du CDVM relatif à Diac Salaf, 04/03/2013 (retrait d'agrément, liquidation, radiation annoncée)",
+   "url": "https://www.ammc.ma/sites/default/files/CP_CDVM_Diac_Salaf_20130304.pdf",
+   "sha256": "4a0e0b5078e68a0cdffbb587f667c27880cb73f32b1fcfc61f0ea22443f51cdf",
+   "octets": 92437,
+   "pages": 1
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "derniere_publication_emetteur_ammc",
+   "valeur": "2013-01-14",
+   "unite": "date",
+   "periode": "—",
+   "perimetre": "—",
+   "piece": "liste_ammc",
+   "page": "liste web, 1re ligne",
+   "citation": "14/01/2013 Diac Salaf - CP relatif au partenariat avec un fonds d'investissement CP_Diac_Salaf_14_01_13.pdf",
+   "source": "https://www.ammc.ma/fr/communiques-presse-emetteurs?field_emetteur_target_id_verf=2769"
+  },
+  {
+   "grandeur": "retrait_agrement_bam",
+   "valeur": "2013-02-28",
+   "unite": "date",
+   "periode": "—",
+   "perimetre": "social",
+   "piece": "cp_cdvm_2013",
+   "page": 1,
+   "citation": "En date du 28 février 2013, Bank Al-Maghrib a décidé le retrait d'agrément à la société de financement Diac Salaf. [...] le CDVM demandera, dès l'annonce officielle de la mise en liquidation, à la société gestionnaire de prononcer la radiation des titres de la société Diac Salaf de la cote de la Bourse des Valeurs.",
+   "source": "https://www.ammc.ma/sites/default/files/CP_CDVM_Diac_Salaf_20130304.pdf"
+  }
+ ],
+ "estimations": [],
+ "calculs": [],
+ "constats": [
+  "La liste AMMC de l'émetteur s'arrête au 14/01/2013 ; les entrées précédentes portent sur un projet de recapitalisation (23/01/2012) et un délai accordé par Bank Al-Maghrib au 31/12/2012 (08/10/2012).",
+  "Pièce du CDVM (04/03/2013, p.1) : retrait d'agrément par Bank Al-Maghrib le 28/02/2013, liquidation selon la loi 34-03, et radiation de la cote demandée « dès l'annonce officielle de la mise en liquidation ». La décision de radiation elle-même n'a pas été trouvée (Bourse de Casablanca non joignable).",
+  "Aucun état financier trouvé après 2012 ; Diac_Salaf_RFA_2025.pdf répond 404.",
+  "Sites www.diacsalaf.ma / www.diac-salaf.ma : HTTP 000 ; Bourse de Casablanca non vérifiable (TLS).",
+  "data.json publie 26,25 (source idbourse_perime, aucune chandelle) : cours figé d'une valeur sans publication depuis 2013."
+ ],
+ "conclusion": "Non publié depuis le 14/01/2013 ; société en liquidation après retrait d'agrément (28/02/2013), radiation de la cote annoncée par le CDVM. Aucune composante calculable, et le titre ne devrait probablement pas être noté.",
+ "debloquerait": "rien sur les fondamentaux. À traiter hors de ce relevé (R11, décision humaine) : établir la radiation sur pièce BVC et sortir DIS de l'univers noté ; le cours publié (26,25, idbourse_perime, 0 chandelle) est vraisemblablement un reliquat.",
+ "question_ir": null
+}

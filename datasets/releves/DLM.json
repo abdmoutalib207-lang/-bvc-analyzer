@@ -1,0 +1,76 @@
+{
+ "ticker": "DLM",
+ "societe": "Delattre Levivier Maroc (DLM)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "société absente de fondamentaux.json (les quatre composantes)",
+  "effet": "couverture 0 % : aucune note fondamentale",
+  "lu_dans": "data.json › DLM › note_fond.composantes.*.motif"
+ },
+ "pieces": [
+  {
+   "id": "liste_ammc",
+   "rang_methode": 1,
+   "titre": "AMMC — communiqués de presse émetteurs filtrés sur DLM (Delattre Levivier Maroc), identifiant 2771, consultés le 20/10/2026",
+   "url": "https://www.ammc.ma/fr/communiques-presse-emetteurs?field_emetteur_target_id_verf=2771"
+  },
+  {
+   "id": "comptes_2021",
+   "rang_methode": 1,
+   "titre": "Résultats annuels 2021, comptes sociaux (dernier état financier déposé, 29/04/2022)",
+   "url": "https://www.ammc.ma/sites/default/files/DLM_2021.pdf",
+   "sha256": "371828299ae1a627cc0656479c6f59e4f7487e20db36ff1731901f3018460c15",
+   "octets": 6482791,
+   "pages": 9
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "derniere_publication_ammc",
+   "valeur": "2022-11-16",
+   "unite": "date",
+   "periode": "—",
+   "perimetre": "—",
+   "piece": "liste_ammc",
+   "page": "liste web, 1re ligne",
+   "citation": "16/11/2022 DLM - CP relatif à la réalisation de l'augmentation de capital CP_DLMrealisation_augmentation_capital.pdf",
+   "source": "https://www.ammc.ma/fr/communiques-presse-emetteurs?field_emetteur_target_id_verf=2771"
+  },
+  {
+   "grandeur": "dernier_etat_financier_ammc",
+   "valeur": "2022-04-29",
+   "unite": "date",
+   "periode": "exercice 2021 (01/01–31/12/2021)",
+   "perimetre": "social",
+   "piece": "liste_ammc",
+   "page": "liste web, 6e ligne",
+   "citation": "29/04/2022 DLM - Résultats financiers 2021 DLM_2021.pdf",
+   "source": "https://www.ammc.ma/fr/communiques-presse-emetteurs?field_emetteur_target_id_verf=2771"
+  },
+  {
+   "grandeur": "perimetre_dernier_etat",
+   "valeur": "comptes sociaux 2021",
+   "unite": "constat",
+   "periode": "01/01/2021–31/12/2021",
+   "perimetre": "social",
+   "piece": "comptes_2021",
+   "page": 1,
+   "citation": "RÉSULTATS ANNUELS 2021 Comptes Sociaux du 01/01/2021 au 31/12/2021",
+   "source": "https://www.ammc.ma/sites/default/files/DLM_2021.pdf"
+  }
+ ],
+ "estimations": [],
+ "calculs": [],
+ "constats": [
+  "Dernière publication AMMC : 16/11/2022 (réalisation de l'augmentation de capital) ; dernier indicateur : T2 2022 (31/08/2022) ; dernier état financier : comptes sociaux 2021 (29/04/2022). Rien pour 2022, 2023, 2024, 2025 ni S1 2026.",
+  "Contexte sur pièce de la liste : « CP relatif à l'obtention du redressement judiciaire sur 10 ans » (23/02/2022).",
+  "Les fichiers DLM_RFA_2022 à _2025, DLM_2022, DLM_S1_25, DLM_S1_26 répondent 404 à l'AMMC.",
+  "Site émetteur www.dlm.ma : certificat TLS ne couvrant pas le nom (curl 60) — signalé, non contourné.",
+  "data.json publie un cours (40,0, source idbourse) : le titre cote sans comptes récents. Candidat à SANS_COMPTES (décision humaine)."
+ ],
+ "conclusion": "Non publié depuis le 16/11/2022 (derniers comptes : exercice 2021). Aucune composante calculable sur pièce récente.",
+ "debloquerait": "rien ; à examiner : inscription dans bvc_config.SANS_COMPTES, comme IBM (décision humaine, hors périmètre).",
+ "question_ir": null
+}
