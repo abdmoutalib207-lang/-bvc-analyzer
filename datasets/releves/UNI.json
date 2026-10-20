@@ -1,0 +1,114 @@
+{
+ "ticker": "UNI",
+ "societe": "Unimer",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E2",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "aucun — note fondamentale à couverture 1,0 ; lot E2 : adossement des grandeurs lues et dernier bilan publié (30/06/2026)",
+  "effet": "aucun sur la note : relevé d'information pour la règle « dernier bilan publié » à l'étude",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; datasets/resultats_s1_2026.json"
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Résultats financiers du 1er semestre 2026 (dépôt AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Unimer_S1_26.pdf",
+   "sha256": "c9a6675a2eecfdb20298daccc19edef9664c647ea6d821b9d3dda50dc1e3f940",
+   "octets": 3391488,
+   "pages": 2
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "dettes_de_financement",
+   "valeur": 277279,
+   "unite": "KMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/Unimer_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Dettes de financement 277 279 316 612 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "dettes_de_financement",
+   "valeur": 316612,
+   "unite": "KMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/Unimer_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Dettes de financement 277 279 316 612 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 513631,
+   "unite": "KMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/Unimer_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "TRÉSORERIE - PASSIF 513 631 654 903 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 654903,
+   "unite": "KMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/Unimer_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "TRÉSORERIE - PASSIF 513 631 654 903 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 103580,
+   "unite": "KMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/Unimer_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "TRÉSORERIE - ACTIF 103 580 213 400 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 213400,
+   "unite": "KMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/Unimer_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "TRÉSORERIE - ACTIF 103 580 213 400 [lu sur image rendue]"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette au 30/06/2026, mêmes postes que la base 31/12/2025 de fondamentaux.json › ratios_publies.dette_nette",
+   "formule": "277 279 + 513 631 − 103 580 (KMAD)",
+   "resultat": 687.33,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "contrôle : même formule sur la colonne 31/12/2025 du dépôt S1",
+   "formule": "mêmes postes, colonne comparative",
+   "resultat": 758.115,
+   "unite": "MMAD",
+   "compare_a": "dette nette lue par la note au 31/12/2025 : 758.0"
+  }
+ ],
+ "constats": [
+  "Couche texte inexploitable (polices cid) : page lue sur image. Même page : « Résultat net part du Groupe (10 489) (64 251) », « Chiffre d'affaires 443 966 392 101 »."
+ ],
+ "conclusion": "Semestriel au 30/06/2026 déposé à l'AMMC ; dette nette +687.3 MMAD au 30/06/2026 contre +758.0 lue par la note au 31/12/2025.",
+ "debloquerait": "rien de bloqué ; alimente la décision sur la règle « dernier bilan publié » (R8 : rien n'est appliqué)",
+ "question_ir": null
+}
