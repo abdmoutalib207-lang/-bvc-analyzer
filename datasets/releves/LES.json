@@ -1,0 +1,51 @@
+{
+  "ticker": "LES",
+  "societe": "Lesieur Cristal",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF",
+  "blocage": {
+    "motif": "valorisation : pas de PER positif tiré des comptes",
+    "effet": "composante « valorisation » retirée : bpa.json porte bpa_12m −1,85 (RNPG 12 mois −51 MDH), que _per() écarte",
+    "lu_dans": "data.json › LES › note_fond.composantes.valorisation.motif ; update_data.py::_per ; bpa.json › LES"
+  },
+  "pieces": [
+    {
+      "id": "cp_s1_2026",
+      "rang_methode": 1,
+      "titre": "Communiqué financier au 30/06/2026",
+      "url": "https://www.ammc.ma/sites/default/files/CP_Lesieur_Cristal_S1_26.pdf",
+      "sha256": "09fe0e7f41647e4daeb4380e32463435b35440d178171a1451f1481862fdf65b",
+      "octets": 461315,
+      "pages": 1
+    }
+  ],
+  "chiffres": [
+    {
+      "grandeur": "resultat_net_part_groupe_s1",
+      "valeur": -47.0,
+      "unite": "MMAD",
+      "periode": "S1 2026 (S1 2025 : 12)",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/CP_Lesieur_Cristal_S1_26.pdf",
+      "piece": "cp_s1_2026",
+      "page": 1,
+      "citation": "En MDh S1 2025 S1 2026 Variation … Résultat net part du groupe 12 -47 <-100% ; « le résultat net part du groupe s’établit à -47 MDH, sous l’effet de provisions liées à cette filiale »"
+    }
+  ],
+  "estimations": [],
+  "calculs": [
+    {
+      "quoi": "Résultat net part du groupe sur 12 mois au 30/06/2026 (exercice 2025 : 8, communiqué annuel cité par bpa.json)",
+      "formule": "exercice 2025 + S1 2026 − S1 2025 = 8 − 47 − 12 = −51 MDH ; −51 ÷ 27,6 M actions",
+      "resultat": -1.85
+    }
+  ],
+  "constats": [
+    "La perte sur 12 mois est confirmée sur pièce (−51 MDH, provisions liées à la filiale sénégalaise) : pas de PER, et aucune pièce ne peut en donner un.",
+    "Même sur le seul exercice 2025 (RNPG 8 MDH, BPA 0,29), le PER dépasserait plusieurs centaines : la composante resterait sans portée utile."
+  ],
+  "conclusion": "Blocage fondé sur un fait (perte sur 12 mois) ; aucune pièce ne le lève.",
+  "debloquerait": "Rien tant que le résultat 12 mois reste négatif ; à revoir à la publication des comptes annuels 2026.",
+  "question_ir": null
+}

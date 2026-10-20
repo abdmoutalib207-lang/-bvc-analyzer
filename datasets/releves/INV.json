@@ -1,0 +1,51 @@
+{
+  "ticker": "INV",
+  "societe": "Involys",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF",
+  "blocage": {
+    "motif": "valorisation : pas de PER positif tiré des comptes",
+    "effet": "composante « valorisation » retirée : bpa.json porte bpa_12m −16,94 (résultat 12 mois −6,484 MDH), que _per() écarte",
+    "lu_dans": "data.json › INV › note_fond.composantes.valorisation.motif ; update_data.py::_per ; bpa.json › INV"
+  },
+  "pieces": [
+    {
+      "id": "cp_s1_2026",
+      "rang_methode": 1,
+      "titre": "Communiqué « Comptes & Résultats au 30 Juin 2026 »",
+      "url": "https://www.ammc.ma/sites/default/files/CP_Involys_S1_26.pdf",
+      "sha256": "77ee087f1525021067d81432a0780f9238ea21871d5d05851383e4e9acfe7b84",
+      "octets": 281368,
+      "pages": 1
+    }
+  ],
+  "chiffres": [
+    {
+      "grandeur": "resultat_net_s1",
+      "valeur": -3.8,
+      "unite": "MMAD",
+      "periode": "S1 2026 (S1 2025 : 2,8)",
+      "perimetre": "SOCIAL (Involys ne consolide pas)",
+      "source": "https://www.ammc.ma/sites/default/files/CP_Involys_S1_26.pdf",
+      "piece": "cp_s1_2026",
+      "page": 1,
+      "citation": "Les précédents éléments combinés dégagent un résultat d’exploitation de -1,5 millions de dirhams et un résultat net de -3,8 millions de dirhams, contre respectivement 3,8 millions de dirhams et 2,8 millions de dirhams au 30 Juin 2025."
+    }
+  ],
+  "estimations": [],
+  "calculs": [
+    {
+      "quoi": "Résultat net sur 12 mois au 30/06/2026 (exercice 2025 : 0,116, RFA p.35)",
+      "formule": "exercice 2025 + S1 2026 − S1 2025 = 0,116 − 3,8 − 2,8",
+      "resultat": -6.484
+    }
+  ],
+  "constats": [
+    "La perte semestrielle est confirmée (−3,8 MDH contre +2,8) : le résultat 12 mois vaut −6,484 MDH, identique à bpa.json › INV › rnpg_12m. Pas de PER, quel que soit le calcul.",
+    "Résultat social : Involys ne publie pas de comptes consolidés (CAC, RFA 2025 p.28, déjà relevé)."
+  ],
+  "conclusion": "Blocage fondé (résultat 12 mois négatif, recalculé et conforme à bpa.json) ; aucune pièce ne le lève.",
+  "debloquerait": "Rien tant que le résultat 12 mois reste négatif ; à revoir aux comptes annuels 2026.",
+  "question_ir": null
+}

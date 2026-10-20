@@ -1,0 +1,36 @@
+{
+  "ticker": "SNP",
+  "societe": "SNEP",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF",
+  "blocage": {
+    "motif": "valorisation : pas de PER positif tiré des comptes ; bilan : dette nette / EBITDA non calculée sur comptes publiés",
+    "effet": "composantes « valorisation » et « bilan » retirées ; ratios_publies.non_calcules_2025.dette_nette_ebitda : « EBITDA négatif ou nul (-31.751) : ratio sans signification » ; bpa.json : BPA −77,16",
+    "lu_dans": "data.json › SNP › note_fond.composantes.valorisation.motif et .bilan.motif ; update_data.py::_per (BPA ≤ 0 → None) ; fondamentaux.json › SNP › ratios_publies.non_calcules_2025"
+  },
+  "pieces": [
+    {"id": "rfs_s1_2026", "rang_methode": 1, "titre": "Rapport financier semestriel au 30/06/2026", "url": "https://www.ammc.ma/sites/default/files/SNEP_RFS_S1_26.pdf", "sha256": "faca2f29a91dce9d3ff695966a15c607f4e54d3e67f7937faad55ee66a940b56", "octets": 2794188, "pages": 24}
+  ],
+  "chiffres": [
+    {"grandeur": "resultat_net_part_groupe_s1", "valeur": -50.029, "unite": "MMAD", "periode": "S1 2026 (S1 2025 : −91,075)", "perimetre": "consolidé, normes marocaines", "source": "https://www.ammc.ma/sites/default/files/SNEP_RFS_S1_26.pdf", "piece": "rfs_s1_2026", "page": 19, "citation": "NATURE (en milliers de dirhams) 30/06/2026 30/06/2025 … Résultat net (Part du groupe) -50 029 -91 075 ; Résultat par action -20,85 -37,95"},
+    {"grandeur": "resultat_exploitation_s1", "valeur": -26.498, "unite": "MMAD", "periode": "S1 2026 (S1 2025 : −82,203)", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/SNEP_RFS_S1_26.pdf", "piece": "rfs_s1_2026", "page": 19, "citation": "Dotations d'exploitation -52 969 -53 597 ; Résultat d'exploitation -26 498 -82 203"},
+    {"grandeur": "resultat_consolide_2025_au_bilan_s1", "valeur": -185.186, "unite": "MMAD", "periode": "exercice 2025 (colonne 31/12/2025)", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/SNEP_RFS_S1_26.pdf", "piece": "rfs_s1_2026", "page": 18, "citation": "Résultats consolidés -50 029 -185 186 ; Capitaux propres part du Groupe 437 022 487 051 (30/06/2026 / 31/12/2025)"},
+    {"grandeur": "excedent_brut_exploitation_social_s1", "valeur": 4.316, "unite": "MMAD", "periode": "S1 2026 (S1 2025 : −57,254)", "perimetre": "SOCIAL", "source": "https://www.ammc.ma/sites/default/files/SNEP_RFS_S1_26.pdf", "piece": "rfs_s1_2026", "page": 13, "citation": "EXCEDENT BRUT D'EXPLOITATION (EBE) |OU INSUFFISANCE BRUTE 4 315 979,77 -57 254 045,09"}
+  ],
+  "estimations": [],
+  "calculs": [
+    {"quoi": "Résultat net part du groupe sur 12 mois au 30/06/2026", "formule": "−185,186 − 50,029 + 91,075", "resultat": -144.14},
+    {"quoi": "EBITDA consolidé de l'exercice 2025 (moteur)", "formule": "−133,729 + 101,978", "resultat": -31.75},
+    {"quoi": "Résultat d'exploitation + dotations d'exploitation, S1 2026 (dotations mêlées)", "formule": "−26,498 + 52,969", "resultat": 26.47},
+    {"quoi": "Même agrégat sur 12 mois glissants au 30/06/2026", "formule": "−31,751 + 26,471 − (−82,203 + 53,597)", "resultat": 23.33},
+    {"quoi": "Dette nette du moteur / agrégat 12 mois", "formule": "815,0 ÷ 23,33", "resultat": 34.9}
+  ],
+  "constats": [
+    "Valorisation : la perte est confirmée sur 12 mois au 30/06/2026 (−144,1 MMAD) : pas de PER, et aucune pièce ne peut en donner un. Ce n'est pas un défaut de source.",
+    "Bilan : l'EBITDA de l'exercice 2025 est NÉGATIF (−31,8) ; sur 12 mois glissants l'agrégat résultat d'exploitation + dotations redevient positif (+23,3), avec des dotations qui mêlent provisions. Même alors, la dette nette (815) vaut 35 fois l'agrégat : palier 1,5. Le choix de la période (exercice ou 12 mois glissants, même question que la réserve TMA) ne relève pas de ce relevé."
+  ],
+  "conclusion": "Blocages fondés sur des faits : perte sur 12 mois, EBITDA 2025 négatif. Aucune pièce ne les lève.",
+  "debloquerait": "Rien pour la valorisation. Pour le bilan, seulement si la règle de période passe aux 12 mois glissants : dette nette / agrégat ≈ 35 (palier 1,5).",
+  "question_ir": null
+}
