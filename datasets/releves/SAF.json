@@ -1,0 +1,236 @@
+{
+ "ticker": "SAF",
+ "societe": "Sanlam Maroc (ex Saham Assurance ; code BVC « SAH »)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "qualité : ROE non calculé sur comptes publiés ; croissance non établie sur comptes semestriels ; pas de PER positif tiré des comptes ; bilan : équivalent bancaire non intégré",
+  "effet": "couverture 0 % : aucune note fondamentale",
+  "lu_dans": "data.json › SAF › note_fond.composantes ; fond_score.py detail_fond_score (est_financiere → roe_effectif) ; faits_financiers.json › SAF absent"
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Comptes semestriels au 30 juin 2026, sociaux et consolidés IFRS (déposé AMMC le 30/09/2026) — entité AVANT fusion avec Allianz Maroc",
+   "url": "https://www.ammc.ma/sites/default/files/Sanlam_Maroc_S1_26.pdf",
+   "sha256": "ef54e441e352f84bddc666d0236f314a48da3da2a3d1500451af33e21a87e6b9",
+   "octets": 737405,
+   "pages": 12
+  },
+  {
+   "id": "s1_2025",
+   "rang_methode": 1,
+   "titre": "Comptes semestriels au 30 juin 2025, sociaux et consolidés IFRS",
+   "url": "https://www.ammc.ma/sites/default/files/Sanlam_Maroc_S1_25.pdf",
+   "sha256": "03d35ff723be37b13e5299eb1e91adbee2f685481e7fb060cda5b590eb3908af",
+   "octets": 763756,
+   "pages": 10
+  },
+  {
+   "id": "rfa_2025",
+   "rang_methode": 1,
+   "titre": "Rapport financier annuel 2025 (12,8 Mo : non commité, URL et empreinte)",
+   "url": "https://www.ammc.ma/sites/default/files/Sanlam_RFA_2025.pdf",
+   "sha256": "77cd2b4d50e2094e4f9a7f55a4a383f48ec6d05b64583a9016855a39767fd327",
+   "octets": 12813004,
+   "pages": 82
+  },
+  {
+   "id": "cp_s1_2026",
+   "rang_methode": 1,
+   "titre": "Communiqué de presse résultats S1 2026 (24/09/2026) — indicateurs SOCIAUX",
+   "url": "https://www.ammc.ma/sites/default/files/CP_Sanlam_Maroc_S1_26.pdf",
+   "sha256": "7eb4f4c6723c3a3520b0320fbbf9f3f2846854ba2232df01b460e155b7b8725f",
+   "octets": 209770,
+   "pages": 1
+  },
+  {
+   "id": "cp_age_2026",
+   "rang_methode": 1,
+   "titre": "Communiqué post AGE du 2 juillet 2026 (fusion-absorption d'Allianz Maroc)",
+   "url": "https://www.ammc.ma/sites/default/files/CP_Sanlam_Maroc_post_AGE_02_07_26.pdf",
+   "sha256": "43ae7b52a6a452a178ac7ca8ab7bf3ce510d9390ebdf593cf261046d51e77f34",
+   "octets": 181769,
+   "pages": 1
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": -88.608,
+   "unite": "MMAD",
+   "periode": "S1 2026",
+   "perimetre": "consolidé IFRS (IFRS 17)",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "RÉSULTAT NET (PART DU GROUPE) -88.608 1.177.155 (En milliers de dirhams ; colonnes 06.2026 puis 06.2025)",
+   "source": "https://www.ammc.ma/sites/default/files/Sanlam_Maroc_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": 1177.155,
+   "unite": "MMAD",
+   "periode": "S1 2025",
+   "perimetre": "consolidé IFRS ; identique au chiffre publié en 2025",
+   "piece": "s1_2025",
+   "page": 4,
+   "citation": "RÉSULTAT NET PART DU GROUPE 1.177.155 265.067 (colonnes 06.2025 puis 06.2024)",
+   "source": "https://www.ammc.ma/sites/default/files/Sanlam_Maroc_S1_25.pdf"
+  },
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": 676.523,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 690,920)",
+   "perimetre": "consolidé IFRS",
+   "piece": "rfa_2025",
+   "page": 9,
+   "citation": "RÉSULTAT NET (PART DU GROUPE) 676.523 690.920",
+   "source": "https://www.ammc.ma/sites/default/files/Sanlam_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_part_groupe",
+   "valeur": 5514.342,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 6 062,749)",
+   "perimetre": "consolidé IFRS",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "CAPITAUX PROPRES - PART DU GROUPE 5.514.342 6.062.749 (colonnes 06.2026 puis 12.2025)",
+   "source": "https://www.ammc.ma/sites/default/files/Sanlam_Maroc_S1_26.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_part_groupe",
+   "valeur": 6574.847,
+   "unite": "MMAD",
+   "periode": "30/06/2025",
+   "perimetre": "consolidé IFRS",
+   "piece": "s1_2025",
+   "page": 4,
+   "citation": "CAPITAUX PROPRES - PART DU GROUPE 5.346.604 5.729.361 6.574.847 (… 30.06.2025)",
+   "source": "https://www.ammc.ma/sites/default/files/Sanlam_Maroc_S1_25.pdf"
+  },
+  {
+   "grandeur": "produits_activites_assurance",
+   "valeur": 3687.11,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 3 019,420)",
+   "perimetre": "consolidé IFRS 17 (revenu d'assurance, pas les primes émises)",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Produits des activités d'assurance 4.1 3.687.110 3.019.420",
+   "source": "https://www.ammc.ma/sites/default/files/Sanlam_Maroc_S1_26.pdf"
+  },
+  {
+   "grandeur": "produits_activites_assurance",
+   "valeur": 6396.362,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 6 186,016)",
+   "perimetre": "consolidé IFRS 17",
+   "piece": "rfa_2025",
+   "page": 9,
+   "citation": "Produits des activités d'assurance 4.1 6.396.362 6.186.016",
+   "source": "https://www.ammc.ma/sites/default/files/Sanlam_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "resultat_operationnel",
+   "valeur": -239.705,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 1 995,204)",
+   "perimetre": "consolidé IFRS ; résultat net des placements −274,005 contre +2 644,220",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "RÉSULTAT OPÉRATIONNEL -239.705 1.995.204 ; RÉSULTAT NET DES PLACEMENTS 4.2 -274.005 2.644.220",
+   "source": "https://www.ammc.ma/sites/default/files/Sanlam_Maroc_S1_26.pdf"
+  },
+  {
+   "grandeur": "chiffre_affaires_social",
+   "valeur": 4103,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 3 430)",
+   "perimetre": "SOCIAL (primes, normes marocaines), avant fusion",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "À fin juin 2026, le chiffre d'affaires global de Sanlam Maroc s'établit à 4 103 MDH, enregistrant une progression de 19,6% ; (*) ceux-ci concernent uniquement l'entité Sanlam Maroc, avant la fusion actée le 2 juillet 2026",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Sanlam_Maroc_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net_social",
+   "valeur": 172.193,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 169,268 ; exercice 2025 : 451,630)",
+   "perimetre": "SOCIAL",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "VI- RESULTAT NET 172.192.621,21 169.268.166,84 451.629.897,95",
+   "source": "https://www.ammc.ma/sites/default/files/Sanlam_Maroc_S1_26.pdf"
+  },
+  {
+   "grandeur": "nombre_actions",
+   "valeur": 4116874,
+   "unite": "actions",
+   "periode": "exercice 2025 (avant fusion)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 51,
+   "citation": "Soit un dividende total de : 403 453 652 Nombre d'actions 4 116 874 Coupons 98",
+   "source": "https://www.ammc.ma/sites/default/files/Sanlam_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "actions_nouvelles_fusion",
+   "valeur": 1225000,
+   "unite": "actions",
+   "periode": "AGE du 02/07/2026",
+   "perimetre": "social ; capital 411 687 400 → 534 187 400 DH, nominal 100",
+   "piece": "cp_age_2026",
+   "page": 1,
+   "citation": "capital social de Sanlam Maroc d'un montant de 122.500.000 dirhams pour le porter de 411.687.400 dirhams à 534.187.400 dirhams, par émission de 1.225.000 actions nouvelles",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Sanlam_Maroc_post_AGE_02_07_26.pdf"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "RNPG consolidé 12 mois glissants au 30/06/2026",
+   "formule": "676,523 − 1 177,155 + (−88,608)",
+   "resultat": -589.24,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "ROE consolidé 12 mois glissants",
+   "formule": "−589,24 / moyenne(CPPG 30/06/2025 6 574,847 ; 30/06/2026 5 514,342) = −589,24 / 6 044,59",
+   "resultat": -9.75,
+   "unite": "%"
+  },
+  {
+   "quoi": "ROE consolidé exercice 2025",
+   "formule": "676,523 / moyenne(5 729,361 ; 6 062,749)",
+   "resultat": 11.47,
+   "unite": "%"
+  },
+  {
+   "quoi": "nombre d'actions après fusion",
+   "formule": "4 116 874 + 1 225 000 (= 534 187 400 / 100)",
+   "resultat": 5341874,
+   "unite": "actions"
+  },
+  {
+   "quoi": "croissance S1/S1 du revenu d'assurance consolidé",
+   "formule": "3 687,110 / 3 019,420 − 1",
+   "resultat": 22.11,
+   "unite": "%"
+  }
+ ],
+ "constats": [
+  "Le consolidé et le social divergent en sens opposé : social S1 2026 +172 MMAD (+1,7 %), consolidé −88,6 MMAD contre +1 177,2. L'écart vient du résultat net des placements consolidé (−274 contre +2 644), IFRS 9 / IFRS 17 en juste valeur.",
+  "Le communiqué du 24/09/2026 ne cite que le social (CA 4 103, RN 172, fonds propres 5 218) : piège ALU, le chiffre du communiqué n'est pas le consolidé.",
+  "Pas de divergence entre pièces : le S1 2025 consolidé (1 177,155) est le même dans la pièce 2025 et en comparatif 2026 ; le second semestre 2025 vaut 676,523 − 1 177,155 = −500,6 MMAD.",
+  "Les comptes au 30/06/2026 sont ANTÉRIEURS à la fusion avec Allianz Maroc (AGE du 02/07/2026) : un PER ou un BPA rapproché du cours post-fusion doit le dire.",
+  "Aucun BPA publié trouvé ; ratio de solvabilité non recherché (bilan « équivalent bancaire » : règle non définie, hors périmètre)."
+ ],
+ "conclusion": "Pièces trouvées pour le ROE et la croissance. Sur le consolidé, le RNPG sur 12 mois glissants est NÉGATIF (−589 MMAD) : le PER reste non calculable par construction, et le ROE glissant vaut environ −9,8 %. Aucune question IR.",
+ "debloquerait": "qualité (ROE sur comptes publiés, consolidé : −9,75 % glissant ou 11,47 % sur 2025 selon la règle retenue) et croissance (revenu d'assurance +22,1 %, RNPG en recul) ; la valorisation reste bloquée (bénéfice glissant négatif) ; choix consolidé/social et glissant/exercice = décision du verificateur-finance.",
+ "question_ir": null
+}
