@@ -1,0 +1,39 @@
+{
+  "ticker": "IMI",
+  "societe": "Immorente Invest",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF",
+  "blocage": {
+    "motif": "dette nette / EBITDA non calculée sur comptes publiés",
+    "effet": "composante « bilan » retirée ; non_calcules.ebitda : « ni EBE/EBITDA publié ni dotations aux amortissements isolées : immeubles de placement à la juste valeur, non amortis »",
+    "lu_dans": "data.json › IMI › note_fond.composantes.bilan.motif ; faits_financiers.json › IMI › _controles_ratios_2025.non_calcules"
+  },
+  "pieces": [
+    {"id": "rfa_2025", "rang_methode": 1, "titre": "Rapport financier annuel 2025 (10 Mo, non commité)", "url": "https://www.ammc.ma/sites/default/files/Immorente_Invest_RFA_2025.pdf", "sha256": "a17430459e934288da9b28fe7c7a59f550bd4ecc28b74cb6af80515f0714b2b4", "octets": 9957302, "pages": 97},
+    {"id": "s1_2026", "rang_methode": 1, "titre": "Communication financière au 30/06/2026", "url": "https://www.ammc.ma/sites/default/files/Immorente_Invest_S1_26.pdf", "sha256": "38c61b09442e1f2e3b9a4c28a3047ab324c80aa90a2ab1a1e24ac360a7085485", "octets": 1346586, "pages": 4}
+  ],
+  "chiffres": [
+    {"grandeur": "resultat_exploitation_avant_provisions", "valeur": 60.228, "unite": "MMAD", "periode": "exercice 2025 (2024 : 50,222)", "perimetre": "consolidé IFRS, immeubles de placement à la juste valeur (aucune ligne d'amortissement)", "source": "https://www.ammc.ma/sites/default/files/Immorente_Invest_RFA_2025.pdf", "piece": "rfa_2025", "page": 21, "citation": "Chiffres d’affaires 85.302 78.675 ; Achats consommés -2.524 -2.109 ; Charges de personnel - 0 ; Charges externes -15.495 -19.233 ; Impôts et taxes -7.055 -7.111 ; Résultat d’exploitation 60.228 50.222 ; Dotations nettes de reprises aux provisions courantes -3.687 -5.333 ; Résultat opérationnel courant 56.241 44.593 ; Résultat opérationnel 55.289 45.136"},
+    {"grandeur": "elimination_amortissements_provisions_flux", "valeur": -1.493, "unite": "MMAD", "periode": "exercice 2025 (2024 : −0,561)", "perimetre": "consolidé IFRS, tableau des flux", "source": "https://www.ammc.ma/sites/default/files/Immorente_Invest_RFA_2025.pdf", "piece": "rfa_2025", "page": 21, "citation": "Elim. des amortissements et provisions -1.493 -561 ; Elim. des profits / pertes de réévaluation (juste valeur) 7.042 -11.672"},
+    {"grandeur": "ltv_emetteur", "valeur": 26.0, "unite": "%", "periode": "31/12/2025 (2024 : 24 %)", "perimetre": "dette nette de financement ÷ valeur actualisée des investissements HT (expertises Cap Eval, titres OPCI SYHATI IMMO)", "source": "https://www.ammc.ma/sites/default/files/Immorente_Invest_RFA_2025.pdf", "piece": "rfa_2025", "page": 13, "citation": "Au 31 décembre 2025, le ratio d’endettement du fond s’établit à 26% (Loan To Value*) : ✓ Dette financière brute : 370 MDH ; ✓ Trésorerie : 25,7 MDH. *LTV : ratio de la dette nette de financement divisée par la valeur actualisée des investissements hors taxes"},
+    {"grandeur": "excedent_brut_exploitation_social", "valeur": 21.75428955, "unite": "MMAD", "periode": "exercice 2025 (2024 : 20,389)", "perimetre": "SOCIAL, normes marocaines (immeubles amortis) — non comparable au consolidé IFRS", "source": "https://www.ammc.ma/sites/default/files/Immorente_Invest_RFA_2025.pdf", "piece": "rfa_2025", "page": 54, "citation": "EXCEDENT BRUT D'EXPLOITATION (EBE) |OU INSUFFISANCE = 21 754 289,55 20 389 383,38"},
+    {"grandeur": "ltv_emetteur_s1", "valeur": 28.0, "unite": "%", "periode": "30/06/2026", "perimetre": "même définition ; dette brute 370,0, trésorerie 13,4", "source": "https://www.ammc.ma/sites/default/files/Immorente_Invest_S1_26.pdf", "piece": "s1_2026", "page": 2, "citation": "Le ratio Loan to Value s’établit à 28% au 30 juin … - Dette financière brute : 370,0 MDH … - Trésorerie : 13,4MDH"}
+  ],
+  "estimations": [],
+  "calculs": [
+    {"quoi": "Recoupement du résultat d'exploitation consolidé : aucune dotation aux amortissements entre le chiffre d'affaires et lui", "formule": "85,302 − 2,524 − 15,495 − 7,055", "resultat": 60.228},
+    {"quoi": "Dette nette du moteur / résultat d'exploitation avant provisions", "formule": "345,3 ÷ 60,228", "resultat": 5.73},
+    {"quoi": "Dette nette du moteur / résultat opérationnel", "formule": "345,3 ÷ 55,289", "resultat": 6.25},
+    {"quoi": "Dette nette de l'émetteur (brute − trésorerie)", "formule": "370 − 25,7", "resultat": 344.3}
+  ],
+  "constats": [
+    "Le compte de résultat consolidé IFRS n'a AUCUNE ligne d'amortissement : le « Résultat d’exploitation » (60,228) est le chiffre d'affaires moins achats, charges externes et impôts et taxes, au dirham. Il est donc, en substance, un résultat avant dotations — mais l'émetteur ne l'appelle pas EBITDA. À juger par le verificateur-finance.",
+    "La dette nette de l'émetteur (370 − 25,7 = 344,3) concorde avec celle du moteur (345,3) à 1 MMAD près (arrondis de la page 13).",
+    "Quel que soit le dénominateur retenu (60,2 ou 55,3), la dette nette vaut plus de 5 fois le résultat : palier 1,5 de la grille de bilan dans les deux cas. Pour une foncière, l'indicateur publié par l'émetteur est la LTV (26 %, 28 % au 30/06/2026), pas la dette nette / EBITDA.",
+    "L'EBE de 21,8 MMAD (p.54) est SOCIAL, en normes marocaines où les immeubles sont amortis : il ne se substitue pas au consolidé IFRS."
+  ],
+  "conclusion": "Pas d'EBITDA publié ; un résultat d'exploitation consolidé sans aucune dotation aux amortissements est établi sur pièce, ainsi que la LTV de l'émetteur et sa définition.",
+  "debloquerait": "Si le verificateur-finance admet le résultat d'exploitation IFRS sans amortissements comme EBITDA : dette nette / EBITDA 5,73 (palier 1,5). Sinon, la LTV (26 %) pour un critère de bilan propre aux foncières.",
+  "question_ir": null
+}
