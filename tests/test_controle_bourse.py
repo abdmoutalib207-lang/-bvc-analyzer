@@ -327,3 +327,9 @@ def test_sous_marches_de_la_page_volume(tmp_path):
     assert m["carnet_central"] == 98262533.69
     assert m["ecart_pct_vs_carnet_central"] == cb.ecart_pct(98262533.69, 11000.0)
     assert "Hors Carnet (page des volumes)" in cb.rapport_volume(m, 1)
+
+
+def test_ctm_nom_long_apparie():
+    """« Compagnie de Transports au Maroc » (publication S1 2026 du 30/09) → CTM."""
+    from pipeline.depots_ammc import resoudre_emetteur
+    assert resoudre_emetteur("Compagnie de Transports au Maroc") == "CTM"
