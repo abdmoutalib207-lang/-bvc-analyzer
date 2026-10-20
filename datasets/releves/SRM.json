@@ -1,0 +1,112 @@
+{
+ "ticker": "SRM",
+ "societe": "Société de Réalisations Mécaniques (SRM)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E2",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "aucun — note fondamentale à couverture 1,0 ; lot E2 : adossement des grandeurs lues et dernier bilan publié (30/06/2026)",
+  "effet": "aucun sur la note : relevé d'information pour la règle « dernier bilan publié » à l'étude",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; datasets/resultats_s1_2026.json"
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Résultats financiers du 1er semestre 2026 (dépôt AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/SRM_S1_26.pdf",
+   "sha256": "62925da1982b3d3d03991e469a5fffc3cf706613caaeb6b6b8aad9406381a20c",
+   "octets": 5305879,
+   "pages": 1
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "dettes_de_financement",
+   "valeur": 1212795.6,
+   "unite": "MAD",
+   "periode": "30/06/2026",
+   "perimetre": "SOCIAL (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/SRM_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Dettes de financement (C) 1.212.795,60 5.164.695,09 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "dettes_de_financement",
+   "valeur": 5164695.09,
+   "unite": "MAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "SOCIAL (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/SRM_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Dettes de financement (C) 1.212.795,60 5.164.695,09 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 106327166.76,
+   "unite": "MAD",
+   "periode": "30/06/2026",
+   "perimetre": "SOCIAL (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/SRM_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "TRÉSORERIE - PASSIF 106.327.166,76 82.352.414,50 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 82352414.5,
+   "unite": "MAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "SOCIAL (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/SRM_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "TRÉSORERIE - PASSIF 106.327.166,76 82.352.414,50 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 9025844.08,
+   "unite": "MAD",
+   "periode": "30/06/2026",
+   "perimetre": "SOCIAL (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/SRM_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Trésorerie-Actif 9.025.844,08 9.025.844,08 12.504.673,67 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 12504673.67,
+   "unite": "MAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "SOCIAL (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/SRM_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Trésorerie-Actif 9.025.844,08 9.025.844,08 12.504.673,67 [lu sur image rendue]"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette au 30/06/2026, mêmes postes que la base 31/12/2025 de fondamentaux.json › ratios_publies.dette_nette",
+   "formule": "1 212 795,60 + 106 327 166,76 − 9 025 844,08 (MAD)",
+   "resultat": 98.514,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "contrôle : même formule sur la colonne 31/12/2025 du dépôt S1",
+   "formule": "mêmes postes, colonne comparative",
+   "resultat": 75.012,
+   "unite": "MMAD",
+   "compare_a": "dette nette lue par la note au 31/12/2025 : 75.0"
+  }
+ ],
+ "constats": [],
+ "conclusion": "Semestriel au 30/06/2026 déposé à l'AMMC ; dette nette +98.5 MMAD au 30/06/2026 contre +75.0 lue par la note au 31/12/2025.",
+ "debloquerait": "rien de bloqué ; alimente la décision sur la règle « dernier bilan publié » (R8 : rien n'est appliqué)",
+ "question_ir": null
+}

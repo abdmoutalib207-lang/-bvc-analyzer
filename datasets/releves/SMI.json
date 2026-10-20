@@ -1,0 +1,137 @@
+{
+ "ticker": "SMI",
+ "societe": "Société Métallurgique d'Imiter (SMI)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E2",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "aucun — note fondamentale à couverture 1,0 ; lot E2 : adossement des grandeurs lues et dernier bilan publié (30/06/2026)",
+  "effet": "aucun sur la note : relevé d'information pour la règle « dernier bilan publié » à l'étude",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; datasets/resultats_s1_2026.json"
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Résultats financiers du 1er semestre 2026 (dépôt AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/SMI_S1_26.pdf",
+   "sha256": "94f608a03f43c9c22fd92f05e18561c53abbb9539d0e0192c310ea6fa725fc0c",
+   "octets": 390262,
+   "pages": 1
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "dettes_de_financement",
+   "valeur": 26313252.67,
+   "unite": "MAD",
+   "periode": "30/06/2026",
+   "perimetre": "SOCIAL (normes marocaines) — comptes d'associés à l'actif EXCLUS de la trésorerie, comme la base 2025",
+   "source": "https://www.ammc.ma/sites/default/files/SMI_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Dettes de financement (C) 26 313 252,67 34 684 488,29"
+  },
+  {
+   "grandeur": "dettes_de_financement",
+   "valeur": 34684488.29,
+   "unite": "MAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "SOCIAL (normes marocaines) — comptes d'associés à l'actif EXCLUS de la trésorerie, comme la base 2025",
+   "source": "https://www.ammc.ma/sites/default/files/SMI_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Dettes de financement (C) 26 313 252,67 34 684 488,29"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 2776016.62,
+   "unite": "MAD",
+   "periode": "30/06/2026",
+   "perimetre": "SOCIAL (normes marocaines) — comptes d'associés à l'actif EXCLUS de la trésorerie, comme la base 2025",
+   "source": "https://www.ammc.ma/sites/default/files/SMI_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "TOTAL III 2 776 016,62 196 119,86"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 196119.86,
+   "unite": "MAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "SOCIAL (normes marocaines) — comptes d'associés à l'actif EXCLUS de la trésorerie, comme la base 2025",
+   "source": "https://www.ammc.ma/sites/default/files/SMI_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "TOTAL III 2 776 016,62 196 119,86"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 19177002.03,
+   "unite": "MAD",
+   "periode": "30/06/2026",
+   "perimetre": "SOCIAL (normes marocaines) — comptes d'associés à l'actif EXCLUS de la trésorerie, comme la base 2025",
+   "source": "https://www.ammc.ma/sites/default/files/SMI_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Trésorerie-Actif 19 177 002,03 19 177 002,03 10 957 381,08"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 10957381.08,
+   "unite": "MAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "SOCIAL (normes marocaines) — comptes d'associés à l'actif EXCLUS de la trésorerie, comme la base 2025",
+   "source": "https://www.ammc.ma/sites/default/files/SMI_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Trésorerie-Actif 19 177 002,03 19 177 002,03 10 957 381,08"
+  },
+  {
+   "grandeur": "comptes_associes_actif",
+   "valeur": 499578126.74,
+   "unite": "MAD",
+   "periode": "30/06/2026",
+   "perimetre": "SOCIAL (normes marocaines) — comptes d'associés à l'actif EXCLUS de la trésorerie, comme la base 2025",
+   "source": "https://www.ammc.ma/sites/default/files/SMI_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Comptes d'associés 499 578 126,74 499 578 126,74 563 678 126,74"
+  },
+  {
+   "grandeur": "comptes_associes_actif",
+   "valeur": 563678126.74,
+   "unite": "MAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "SOCIAL (normes marocaines) — comptes d'associés à l'actif EXCLUS de la trésorerie, comme la base 2025",
+   "source": "https://www.ammc.ma/sites/default/files/SMI_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Comptes d'associés 499 578 126,74 499 578 126,74 563 678 126,74"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette au 30/06/2026, mêmes postes que la base 31/12/2025 de fondamentaux.json › ratios_publies.dette_nette",
+   "formule": "26 313 252,67 + 2 776 016,62 − 19 177 002,03 (MAD)",
+   "resultat": 9.912,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "contrôle : même formule sur la colonne 31/12/2025 du dépôt S1",
+   "formule": "mêmes postes, colonne comparative",
+   "resultat": 23.923,
+   "unite": "MMAD",
+   "compare_a": "dette nette lue par la note au 31/12/2025 : 23.9"
+  }
+ ],
+ "constats": [
+  "Avec la définition de la société (comptes d'associés retranchés, RFA 2025 p.41) : 9,9 − 499,6 = −489,7. Au passif apparaît « Comptes d'associés - Créditeur 246 763 500,00 », absent au 31/12/2025.",
+  "Même page : « Résultat net de l'exercice (2) 243 361 240,21 397 108 594,01 » ; CA S1 851 906 844,96 / 628 393 029,66."
+ ],
+ "conclusion": "Semestriel au 30/06/2026 déposé à l'AMMC ; dette nette +9.9 MMAD au 30/06/2026 contre +23.9 lue par la note au 31/12/2025.",
+ "debloquerait": "rien de bloqué ; alimente la décision sur la règle « dernier bilan publié » (R8 : rien n'est appliqué)",
+ "question_ir": null
+}

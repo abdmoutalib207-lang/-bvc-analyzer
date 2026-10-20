@@ -1,0 +1,134 @@
+{
+ "ticker": "MSA",
+ "societe": "Sodep-Marsa Maroc (PAS Mutandis, qui est MUT)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E2",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "aucun — note fondamentale à couverture 1,0 ; lot E2 : adossement des grandeurs lues et dernier bilan publié (30/06/2026)",
+  "effet": "aucun sur la note : relevé d'information pour la règle « dernier bilan publié » à l'étude",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; datasets/resultats_s1_2026.json"
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Résultats financiers du 1er semestre 2026 (dépôt AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Marsa_S1_26.pdf",
+   "sha256": "7462fd671abeb79b3ceb87945962f17f940333de5cc5185ea390276af2aa56ad",
+   "octets": 552815,
+   "pages": 4
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "dettes_de_financement",
+   "valeur": 1647079,
+   "unite": "KMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/Marsa_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Dettes de financement 1 647 079 1 367 295"
+  },
+  {
+   "grandeur": "dettes_de_financement",
+   "valeur": 1367295,
+   "unite": "KMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/Marsa_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Dettes de financement 1 647 079 1 367 295"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 0,
+   "unite": "KMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/Marsa_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Trésorerie-passif 0 0"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 0,
+   "unite": "KMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/Marsa_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Trésorerie-passif 0 0"
+  },
+  {
+   "grandeur": "titres_et_valeurs_de_placement",
+   "valeur": 2315293,
+   "unite": "KMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/Marsa_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Titres et valeurs de placement 2 315 293 1 965 022"
+  },
+  {
+   "grandeur": "titres_et_valeurs_de_placement",
+   "valeur": 1965022,
+   "unite": "KMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/Marsa_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Titres et valeurs de placement 2 315 293 1 965 022"
+  },
+  {
+   "grandeur": "disponibilites",
+   "valeur": 470161,
+   "unite": "KMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/Marsa_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Disponibilités 470 161 154 902"
+  },
+  {
+   "grandeur": "disponibilites",
+   "valeur": 154902,
+   "unite": "KMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé (normes marocaines)",
+   "source": "https://www.ammc.ma/sites/default/files/Marsa_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Disponibilités 470 161 154 902"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette au 30/06/2026, mêmes postes que la base 31/12/2025 de fondamentaux.json › ratios_publies.dette_nette",
+   "formule": "1 647 079 − 2 315 293 − 470 161 (KMAD)",
+   "resultat": -1138.375,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "contrôle : même formule sur la colonne 31/12/2025 du dépôt S1",
+   "formule": "mêmes postes, colonne comparative",
+   "resultat": -752.629,
+   "unite": "MMAD",
+   "compare_a": "dette nette lue par la note au 31/12/2025 : -752.6"
+  }
+ ],
+ "constats": [],
+ "conclusion": "Semestriel au 30/06/2026 déposé à l'AMMC ; dette nette -1138.4 MMAD au 30/06/2026 contre -752.6 lue par la note au 31/12/2025.",
+ "debloquerait": "rien de bloqué ; alimente la décision sur la règle « dernier bilan publié » (R8 : rien n'est appliqué)",
+ "question_ir": null
+}
