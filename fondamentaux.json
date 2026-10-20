@@ -302,20 +302,43 @@
         }
       },
       "dette_nette": {
-        "valeur": 3972.6,
+        "valeur": 3370.9,
         "date": "2025-12-31",
-        "formule": "4476.992962 − 504.349961 (MMAD)",
+        "formule": "4476.992962 − (504.349961 + 601.775808 de titres de placement) (MMAD)",
         "sources": {
           "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf, p. 78",
-          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf, p. 78"
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf, p. 78",
+          "titres_de_placement": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf, p. 78"
         },
         "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
-        "unite": "MMAD"
+        "unite": "MMAD",
+        "dette_nette_stricte": 3972.6
+      },
+      "ebitda": {
+        "valeur": 1214.0,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 1214.0 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf, p. 50"
+        },
+        "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 2.78,
+        "date": "2025-12-31",
+        "formule": "3370.867 ÷ 1214.0",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025"
       },
       "roic": {
-        "valeur": 8.3,
+        "valeur": 9.1,
         "date": "2025-12-31",
-        "formule": "807.750348 × (1 − t) ÷ (2925.562585 + 3972.643) ; t = 207.163156 ÷ 712.80748 = 29.1 %",
+        "formule": "807.750348 × (1 − t) ÷ (2925.562585 + 3370.867) ; t = 207.163156 ÷ 712.80748 = 29.1 %",
         "sources": {
           "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf, p. 78",
           "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf, p. 78",
@@ -337,10 +360,6 @@
         },
         "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
         "unite": "%"
-      },
-      "non_calcules_2025": {
-        "ebitda": "ni EBE publié, ni dotations aux amortissements isolées",
-        "dette_nette_ebitda": "dette nette ou EBITDA non calculé"
       },
       "calcule_le": "2026-09-30"
     }
@@ -1054,7 +1073,7 @@
     "per": 11.3,
     "forward_per": 11.3,
     "croissance_ca": 2.8,
-    "croissance_bpa": -11.3,
+    "croissance_bpa": 0.3,
     "dette_nette_ebitda": 0.0,
     "roic": 12.5,
     "wacc": 10,
@@ -1893,7 +1912,7 @@
     "per": 14.2,
     "forward_per": 13.8,
     "croissance_ca": 5.4,
-    "croissance_bpa": 8.1,
+    "croissance_bpa": -39.7,
     "dette_nette_ebitda": 0.9,
     "roic": 35,
     "wacc": 9,
@@ -2487,6 +2506,57 @@
         },
         "base": "consolidé IFRS, 31/12/2025",
         "unite": "%"
+      },
+      "calcule_le": "2026-09-30"
+    }
+  },
+  "MDP": {
+    "secteur": "Industrie",
+    "per": null,
+    "forward_per": null,
+    "croissance_ca": -8.0,
+    "croissance_bpa": -38.1,
+    "dette_nette_ebitda": null,
+    "roic": null,
+    "wacc": null,
+    "marge_nette": null,
+    "cash_conversion": null,
+    "div_yield": 0.0,
+    "momentum_fondamental": "neutre",
+    "rerating": false,
+    "catalyseur": null,
+    "risque": null,
+    "source": "AMMC — rapport financier annuel 2025 (https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf) et dépôt S1 2026 (https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf), comptes SOCIAUX ; fiche créée le 20/10/2026 sur validation de verificateur-finance (aucune valeur saisie). Dividende 0 : « décide d'affecter en report à nouveau le gain de l'exercice 2025 » (bpa.json › dividende_piece)",
+    "date_maj": "2026-09-29",
+    "nb_actions": 4783823,
+    "secteur_libre": null,
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 4783823,
+      "date_maj": "2026-10-20"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf",
+    "ratios_publies": {
+      "marge_nette_s1_2026": {
+        "valeur": 2.4,
+        "date": "2026-06-30",
+        "denominateur": "ventes HT (social)",
+        "formule": "0.949968 ÷ 39.015 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf"
+        }
+      },
+      "reserve_cac": {
+        "texte": "Examen limité S1 2026 « sous réserve de l'incidence » de quatre situations : charges de 4,3 MDH non reconnues par un ancien actionnaire (créance 4,3 / dette 2,9), pénalités CNSS de 2 318 KMAD capitalisées en non-valeurs, prélèvement bancaire de 2 MMAD porté en diminution de dette, protocole fiscal non respecté (pénalités non chiffrées) — 8,6 MDH chiffrés pour un bénéfice semestriel de 0,95. Et le bénéfice 2025 (6,713 MDH) vient du NON COURANT : « RESULTAT NON COURANT 22.126.203,77 », « RESULTAT D'EXPLOITATION(+ou-) -10.355.525,86 », « RESULTAT COURANT (+ou-) -15.136.514,27 » (https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf p.41, état des soldes de gestion) ; bénéfice non récurrent.",
+        "source": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf p.3 (attestation des commissaires aux comptes, image rendue)"
+      },
+      "non_calcules_2025": {
+        "dette_nette": "bilan du 31/12/2025 non relevé ici (le relevé du 20/10/2026 donne la dette nette au 30/06/2026, 97,6, et au 31/12/2025 par les comparatifs du S1, 167,4 : non intégrée)",
+        "ebitda": "EBE NÉGATIF : −4,561 sur l'exercice 2025 (p.41), −3,28 sur 12 mois au 30/06/2026 — bilan sans objet",
+        "dette_nette_ebitda": "sans objet : EBE négatif (exercice −4,561 ; 12 mois −3,28)",
+        "roic": "résultat d'exploitation 2025 négatif (−10,356) et bénéfice issu du non courant ; impôt et capitaux employés non relevés",
+        "cash_conversion": "comptes SOCIAUX : pas de tableau des flux de trésorerie relevé"
       },
       "calcule_le": "2026-09-30"
     }
@@ -3719,11 +3789,130 @@
       "calcule_le": "2026-09-30"
     }
   },
+  "T2S": {
+    "secteur": "Santé",
+    "per": null,
+    "forward_per": null,
+    "croissance_ca": 26.4,
+    "croissance_bpa": -16.1,
+    "dette_nette_ebitda": null,
+    "roic": null,
+    "wacc": null,
+    "marge_nette": null,
+    "cash_conversion": null,
+    "div_yield": null,
+    "momentum_fondamental": "neutre",
+    "rerating": false,
+    "catalyseur": null,
+    "risque": null,
+    "source": "AMMC — document de référence 2025 (https://www.ammc.ma/sites/default/files/T2S_IPO_DR_010_2026.pdf, enregistré le 06/07/2026 sous EN/EM/010/2026) et dépôt S1 2026 (https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf) ; fiche créée le 20/10/2026 sur validation de verificateur-finance (aucune valeur saisie : croissance et ratios recalculés depuis les comptes)",
+    "date_maj": "2026-09-29",
+    "nb_actions": 21785174,
+    "secteur_libre": null,
+    "reserve_nb_actions": "21 785 174 actions, établies sur pièce (R11) ; la liste des émetteurs de la Bourse de Casablanca en donne 22 584 118. Écart = les 798 944 actions de l'« Augmentation de Capital Dirigeant » (document de référence p.37 et p.258), sans avis de réalisation daté : voir docs/questions_ir/T2S.md. Nombre NON modifié.",
+    "avant_2026_09_29": {
+      "croissance_bpa": null,
+      "croissance_ca": null,
+      "nb_actions": 21785174,
+      "date_maj": "2026-10-20"
+    },
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf",
+    "ratios_publies": {
+      "roe_2025": {
+        "valeur": 14.5,
+        "date": "2025-12-31",
+        "formule": "204.576 ÷ 1410.404 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/T2S_IPO_DR_010_2026.pdf (document de référence exercice 2025, enregistré AMMC le 06/07/2026 sous EN/EM/010/2026), en KMAD : p.221 bilan consolidé « Résultat consolidé 74 937 67 311 204 576 » (2023, 2024, 2025) ; p.211 « dont Résultat net (part du groupe) 74 937 67 311 204 576 » ; p.229 « résultat net part du groupe de l'exercice 2025 de 204 576 KMAD » ; identité : résultat net consolidé 211 269 − minoritaires 6 693 = 204 576. Conversion : 204 576 KMAD = 204,576 MDH. yuna.ma n'affiche ni PER ni ROE pour T2S au 30/09 : pas de rebouclage sur le BPA ; sa capitalisation (4,7 Mrds MAD pour 216,80) recoupe toutefois le nombre d'actions (216,80 × 21 785 174 = 4,72 Mrds) ; recoupé au dépôt S1 p.1 : « RÉSULTAT CONSOLIDÉ 91 307 204 576 » (colonnes 30/06/2026 et 31/12/2025)",
+          "capitaux_propres": "T2S_Group_S1_26.pdf p.1, bilan passif consolidé (KMAD) : « TOTAL CAPITAUX PROPRES PART DU GROUPE 1 430 811 1 410 404 » ; le tableau de variation donne 1 410 393 au 31/12/2025 (écart de 11 KMAD dans le dépôt, consigné)"
+        }
+      },
+      "roe_12m": {
+        "valeur": 13.1,
+        "date": "2026-06-30",
+        "formule": "(204.576 + 91.307 − 108.864) ÷ 1430.811 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf",
+          "capitaux_propres": "T2S_Group_S1_26.pdf p.1, bilan passif consolidé (KMAD) : « TOTAL CAPITAUX PROPRES PART DU GROUPE 1 430 811 1 410 404 » ; le tableau de variation donne 1 410 393 au 31/12/2025 (écart de 11 KMAD dans le dépôt, consigné)"
+        }
+      },
+      "marge_nette_s1_2026": {
+        "valeur": 9.3,
+        "date": "2026-06-30",
+        "denominateur": "chiffre d'affaires consolidé",
+        "formule": "91.307 ÷ 977.702 (MMAD)",
+        "sources": {
+          "comptes": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf"
+        }
+      },
+      "dette_nette": {
+        "valeur": 222.3,
+        "date": "2025-12-31",
+        "formule": "695.783 − (359.641 + 113.797 de titres de placement) (MMAD)",
+        "sources": {
+          "dettes_financieres": "Document de référence relatif à l'exercice 2025 (introduction en bourse, enregistré AMMC le 06/07/2026 sous EN/EM/010/2026) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/T2S_IPO_DR_010_2026.pdf, p. 239",
+          "tresorerie": "Document de référence relatif à l'exercice 2025 (introduction en bourse, enregistré AMMC le 06/07/2026 sous EN/EM/010/2026) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/T2S_IPO_DR_010_2026.pdf, p. 221",
+          "titres_de_placement": "Document de référence relatif à l'exercice 2025 (introduction en bourse, enregistré AMMC le 06/07/2026 sous EN/EM/010/2026) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/T2S_IPO_DR_010_2026.pdf, p. 228"
+        },
+        "base": "consolidé IFRS, 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 31 941 KMAD)",
+        "unite": "MMAD",
+        "dette_nette_stricte": 336.1
+      },
+      "ebitda": {
+        "valeur": 388.4,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 388.402 (MMAD)",
+        "sources": {
+          "ebitda": "Document de référence relatif à l'exercice 2025 (introduction en bourse, enregistré AMMC le 06/07/2026 sous EN/EM/010/2026) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/T2S_IPO_DR_010_2026.pdf, p. 220"
+        },
+        "base": "consolidé IFRS, 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 31 941 KMAD)",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 0.57,
+        "date": "2025-12-31",
+        "formule": "222.345 ÷ 388.402",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "consolidé IFRS, 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 31 941 KMAD)"
+      },
+      "roic": {
+        "valeur": 11.9,
+        "date": "2025-12-31",
+        "formule": "315.934 × (1 − t) ÷ (1442.346 + 222.345) ; t = 126.101 ÷ 337.371 = 37.4 %",
+        "sources": {
+          "resultat_exploitation": "Document de référence relatif à l'exercice 2025 (introduction en bourse, enregistré AMMC le 06/07/2026 sous EN/EM/010/2026) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/T2S_IPO_DR_010_2026.pdf, p. 220",
+          "impot": "Document de référence relatif à l'exercice 2025 (introduction en bourse, enregistré AMMC le 06/07/2026 sous EN/EM/010/2026) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/T2S_IPO_DR_010_2026.pdf, p. 220",
+          "resultat_avant_impot": "Document de référence relatif à l'exercice 2025 (introduction en bourse, enregistré AMMC le 06/07/2026 sous EN/EM/010/2026) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/T2S_IPO_DR_010_2026.pdf, p. 220",
+          "capitaux_propres": "Document de référence relatif à l'exercice 2025 (introduction en bourse, enregistré AMMC le 06/07/2026 sous EN/EM/010/2026) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/T2S_IPO_DR_010_2026.pdf, p. 221",
+          "dette_nette": "ratios_publies.dette_nette"
+        },
+        "base": "consolidé IFRS, 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 31 941 KMAD)",
+        "unite": "%",
+        "taux_impot_effectif": 37.4
+      },
+      "cash_conversion": {
+        "valeur": 150.7,
+        "date": "2025-12-31",
+        "formule": "318.466 ÷ 211.269 (MMAD)",
+        "sources": {
+          "flux": "Document de référence relatif à l'exercice 2025 (introduction en bourse, enregistré AMMC le 06/07/2026 sous EN/EM/010/2026) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/T2S_IPO_DR_010_2026.pdf, p. 241",
+          "resultat_net": "Document de référence relatif à l'exercice 2025 (introduction en bourse, enregistré AMMC le 06/07/2026 sous EN/EM/010/2026) — pas de rapport financier annuel au catalogue — https://www.ammc.ma/sites/default/files/T2S_IPO_DR_010_2026.pdf, p. 220"
+        },
+        "base": "consolidé IFRS, 31/12/2025, en KMAD ; part du groupe distincte de l'ensemble (minoritaires 31 941 KMAD)",
+        "unite": "%"
+      },
+      "calcule_le": "2026-09-30"
+    }
+  },
   "TGCC": {
     "secteur": "Construction",
     "per": 14.5,
     "forward_per": 12.0,
-    "croissance_ca": -2.3,
+    "croissance_ca": -15.9,
     "croissance_bpa": 4.6,
     "dette_nette_ebitda": 1.9,
     "roic": 22,
@@ -3769,10 +3958,10 @@
         }
       },
       "marge_nette_s1_2026": {
-        "valeur": 7.9,
+        "valeur": 10.2,
         "date": "2026-06-30",
-        "denominateur": "produit d'exploitation consolidé",
-        "formule": "435.0 ÷ 5477.0 (MMAD)",
+        "denominateur": "chiffre d'affaires consolidé (et non le produit d'exploitation : la croissance se lit sur le chiffre d'affaires)",
+        "formule": "435.0 ÷ 4266.944 (MMAD)",
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/CP_TGCC_S1_26.pdf"
         }
@@ -4650,7 +4839,7 @@
     "source": "Calendrier BVC 2026",
     "date_maj": "2026-09-29",
     "per": null,
-    "croissance_ca": 21.4,
+    "croissance_ca": 22.3,
     "dette_nette_ebitda": null,
     "roic": null,
     "marge_nette": null,
@@ -4701,10 +4890,10 @@
         }
       },
       "marge_nette_s1_2026": {
-        "valeur": 19.3,
+        "valeur": 19.1,
         "date": "2026-06-30",
-        "denominateur": "chiffre d'affaires opérationnel consolidé (S1 2025 déduit : 2 661 ÷ 1,214)",
-        "formule": "514.218 ÷ 2661.0 (MMAD)",
+        "denominateur": "chiffre d'affaires consolidé PUBLIÉ (compte de résultat consolidé déposé, pas le proforma)",
+        "formule": "514.218 ÷ 2694.845 (MMAD)",
         "sources": {
           "comptes": "https://www.ammc.ma/sites/default/files/Cimar_S1_26.pdf"
         }
@@ -5076,6 +5265,28 @@
         "unite": "MMAD",
         "dette_nette_stricte": 544.4
       },
+      "ebitda": {
+        "valeur": 570.7,
+        "date": "2025-12-31",
+        "formule": "533.038 + 37.618 (MMAD) — résultat d'exploitation + dotations aux amortissements",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf, p. 105",
+          "amortissements": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf, p. 106"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "MMAD",
+        "origine": "calculé"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 0.32,
+        "date": "2025-12-31",
+        "formule": "181.178 ÷ 570.656",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025"
+      },
       "roic": {
         "valeur": 20.4,
         "date": "2025-12-31",
@@ -5092,8 +5303,6 @@
         "taux_impot_effectif": 37.2
       },
       "non_calcules_2025": {
-        "ebitda": "aucun EBE/EBITDA consolidé publié (l'état des soldes de gestion p.83 est SOCIAL : EBE 572,627 MMAD) et les « dotations d'exploitation » consolidées (106,831) mêlent amortissements et provisions. Seule ligne d'amortissements consolidée : « Dotations aux amortissements nettes des reprises 37.618 » du tableau des flux (p.106), net de reprises et inférieur aux dotations du social (55,215, p.83) : pas assez sûr pour publier. Indicatif non publié : 533,038 + 37,618 = 570,656 MMAD (dette nette/EBITDA ≈ 0,95 sans les placements, 0,32 avec).",
-        "dette_nette_ebitda": "sans EBITDA ; la note retombe sur la valeur par défaut (≈ 1,0), dans le même palier que l'indicatif 0,95.",
         "cash_conversion": "le flux d'exploitation publié (−3,839 MMAD) contient l'ACHAT de titres de placement : la « variation du BFR » du tableau (−363,886) = variation des postes d'exploitation par les bilans (−97,829) + hausse des titres de placement (−266,060), car la trésorerie du tableau (92,130) exclut ces titres. Le ratio publié (−1,2 %) serait faux ; sans cet effet le flux serait d'environ +262,2 MMAD (80,9 % du résultat net), reconstruction non publiée. Non calculé."
       },
       "calcule_le": "2026-09-30"
@@ -5494,20 +5703,44 @@
         }
       },
       "dette_nette": {
-        "valeur": 237.3,
+        "valeur": 208.6,
         "date": "2025-12-31",
-        "formule": "337.422075 − 100.078077 (MMAD)",
+        "formule": "337.422075 − (100.078077 + 28.763386 de titres de placement) (MMAD)",
         "sources": {
           "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 18",
-          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 18"
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 18",
+          "titres_de_placement": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 18"
         },
         "base": "consolidé (normes marocaines), 31/12/2025",
-        "unite": "MMAD"
+        "unite": "MMAD",
+        "dette_nette_stricte": 237.3
+      },
+      "ebitda": {
+        "valeur": 121.3,
+        "date": "2025-12-31",
+        "formule": "107.526426 + 13.804592 (MMAD) — résultat d'exploitation + dotations aux amortissements",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 19",
+          "amortissements": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 21"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "MMAD",
+        "origine": "calculé"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 1.72,
+        "date": "2025-12-31",
+        "formule": "208.581 ÷ 121.331",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025"
       },
       "roic": {
-        "valeur": 9.0,
+        "valeur": 9.3,
         "date": "2025-12-31",
-        "formule": "107.526426 × (1 − t) ÷ (685.851759 + 237.344) ; t = 24.684381 ÷ 110.142313 = 22.4 %",
+        "formule": "107.526426 × (1 − t) ÷ (685.851759 + 208.581) ; t = 24.684381 ÷ 110.142313 = 22.4 %",
         "sources": {
           "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 19",
           "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 19",
@@ -5529,10 +5762,6 @@
         },
         "base": "consolidé (normes marocaines), 31/12/2025",
         "unite": "%"
-      },
-      "non_calcules_2025": {
-        "ebitda": "« Dotations d'exploitation 33 097 468,61 » (p.19) n'isole pas les amortissements des provisions, et le tableau des flux ne donne qu'une « Dotation d'exploitation durable nette de reprise 13 804 592 ». L'EBE de la p.31 est SOCIAL. Aucun EBITDA consolidé publié.",
-        "dette_nette_ebitda": "dette nette ou EBITDA non calculé"
       },
       "calcule_le": "2026-09-30"
     }
@@ -6320,7 +6549,7 @@
     "secteur": "Distribution",
     "per": null,
     "forward_per": null,
-    "croissance_ca": null,
+    "croissance_ca": 4.7,
     "croissance_bpa": null,
     "dette_nette_ebitda": null,
     "roic": null,
@@ -6367,7 +6596,8 @@
         "cash_conversion": "pas de tableau des flux consolidé au dépôt ; réserve chiffrée des CAC (42,7 MMAD) supérieure au résultat net (26,5) : le signe du résultat n'est pas établi"
       },
       "calcule_le": "2026-09-30"
-    }
+    },
+    "source_croissance_ca": "https://www.ammc.ma/sites/default/files/Stokvis_NA_S1_26.pdf p.3 (en KMAD, colonnes 30-juin-26, 30-juin-25) : « Chiffre d'affaires 112.708 107.617 5% » [lu sur image rendue] ; 112,708 ÷ 107,617 − 1 = +4,73 %. Inscrit le 20/10/2026 (verificateur-finance). ⚠️ Sans BPA 12 mois, la croissance n'entre pas dans la note ; PER et ratios de bilan restent rejetés : réserve chiffrée des CAC (42,7 MDH) supérieure au RNPG 12 mois (26,218 − 7,089 + 0,323 = 19,45 MDH), capitaux propres négatifs."
   },
   "DAR": {
     "secteur": "Agroalimentaire",

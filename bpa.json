@@ -1245,7 +1245,7 @@
     "rnpg_12m": 971.0,
     "bpa_12m": 28.0,
     "fin_12m": "2026-06-30",
-    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/CP_TGCC_S1_26.pdf tableau du communiqué (« Résultat net part du Groupe 435 416 19 +4,5 % », « Produit d'exploitation 5 477 5 605 ») ; carnet de commandes 28 360 M MAD (+48,5 %) ; base : résultat net part du groupe, consolidé, en M MAD",
+    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/CP_TGCC_S1_26.pdf tableau du communiqué (« Résultat net part du Groupe 435 416 19 +4,5 % », « Produit d'exploitation 5 477 5 605 ») ; carnet de commandes 28 360 M MAD (+48,5 %) ; CA : https://www.ammc.ma/sites/default/files/TGCC_S1_26.pdf p.2, compte de produits et charges consolidé « (En milliers de dirhams) 30/06/2026 30/06/2025 » : « Chiffre d'affaires 4 266 944 5 071 093 » (KMAD → MMAD ÷ 1 000), soit −15,86 % ; base : résultat net part du groupe, consolidé, en M MAD",
     "dividende_piece": {
       "dpa": 15.0,
       "ordinaire": 15.0,
@@ -1733,7 +1733,7 @@
     "rnpg_12m": 1290.652,
     "bpa_12m": 89.41,
     "fin_12m": "2026-06-30",
-    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/Cimar_S1_26.pdf compte de résultat consolidé (KMAD) : « Résultat net (Part du groupe) 514 218 600 998 » ; un second tableau donne 671 845 pour le S1 2025 à périmètre retraité (Asment de Témara, Grabemaro) — non retenu : 600 998 est la valeur DÉPOSÉE (https://www.ammc.ma/sites/default/files/Cimar_S1_25.pdf, « Résultat net (Part du groupe) 600 998 »). CA : « Le chiffre d'affaires opérationnel consolidé de Ciments du Maroc s'établit à 2 661 MMAD, en progression de 21,4 % » ; à périmètre comparable, −6 % ; base : résultat net part du groupe, consolidé (normes marocaines)",
+    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/Cimar_S1_26.pdf compte de résultat consolidé (KMAD) : « Résultat net (Part du groupe) 514 218 600 998 » ; un second tableau donne 671 845 pour le S1 2025 à périmètre retraité (Asment de Témara, Grabemaro) — non retenu : 600 998 est la valeur DÉPOSÉE (https://www.ammc.ma/sites/default/files/Cimar_S1_25.pdf, « Résultat net (Part du groupe) 600 998 »). CA : « Le chiffre d'affaires opérationnel consolidé de Ciments du Maroc s'établit à 2 661 MMAD, en progression de 21,4 % » ; à périmètre comparable, −6 % ; CA retenu (20/10/2026) : p.4, « COMPTE DE RÉSULTAT CONSOLIDÉ AU 30 JUIN 2026 (EN KMAD) … Au 30 Juin 2026 Au 30 Juin 2025 » : « Chiffres d'affaires 2 694 845 2 202 712 », soit +22,34 % ; le tableau PROFORMA de la même page (« Chiffres d'affaires 2 694 845 2 864 489 ») n'est pas retenu ; base : résultat net part du groupe, consolidé (normes marocaines)",
     "div_dh": 65.0,
     "dividende_piece": {
       "dpa": 65.0,
@@ -1906,7 +1906,7 @@
     }
   },
   "MDP": {
-    "bpa": null,
+    "bpa": 1.4,
     "div_dh": 0.0,
     "dividende_piece": {
       "dpa": 0.0,
@@ -1917,6 +1917,11 @@
       "source": "https://www.ammc.ma/sites/default/files/Avis_Med_Paper_AGO_22_06_26.pdf p.1 : « L'assemblée générale, sur proposition du conseil d'administration, décide d'affecter en report à nouveau le gain de l'exercice 2025. »",
       "verifie": "verificateur-finance, 02/10/2026",
       "note": "Avis (projet), OCR. Notre valeur null : publier 0."
-    }
+    },
+    "source": "resultats_officiels",
+    "rnpg_12m": 6.128,
+    "bpa_12m": 1.28,
+    "fin_12m": "2026-06-30",
+    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf Med_Paper_S1_26.pdf, pages en image rendues et lues. p.1 (communiqué, en KDH) : « Ventes (HT) 1 er semestre 2026 17 235 21 781 39 015 », « Ventes (HT) 1 er semestre 2025 19 001 23 419 42 420 », « *résultat net de l'exercice en kdh 950 1 535 » (colonnes 30/06/2026, 30/06/2025) ; p.2 (CPC social S1) : « RESULTAT NET (XI-XII) 1.081.197,74 | -131.230,00 | 949.967,74 | 6.713.105,50 » (la 4e colonne est l'exercice 2025) ; attestation p.3 : « bénéfice net du semestre de MAD 949 968 ». Le S1 2025 (1 535 KDH) n'est donné que par le communiqué. CA −8,03 % (39 015 ÷ 42 420 − 1), résultat net −38,11 % (950 ÷ 1 535 − 1). ; base : résultat net SOCIAL (aucun compte consolidé), normes marocaines. ⚠️ Examen limité des CAC « sous réserve de l'incidence » de quatre situations (voir `reserve_cac`) ; le bénéfice 2025 (6,713 MDH) vient du NON COURANT : « RESULTAT NON COURANT 22.126.203,77 », « RESULTAT D'EXPLOITATION(+ou-) -10.355.525,86 », « RESULTAT COURANT (+ou-) -15.136.514,27 » (https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf p.41, état des soldes de gestion) ; bénéfice non récurrent. Intégré le 20/10/2026 sur validation de verificateur-finance, réserves écrites (cas M2M)."
   }
 }

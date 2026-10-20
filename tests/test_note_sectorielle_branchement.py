@@ -211,14 +211,15 @@ def test_la_confiance_est_plafonnee_a_1_sans_note_fondamentale(monkeypatch):
 def test_publie_un_titre_sans_note_a_une_confiance_au_plus_1_meme_hors_fondamentaux_json(monkeypatch):
     # T2S (confiance 4 à côté de « Données insuffisantes ») n'était pas dans
     # fondamentaux.json : la correction ne doit pas dépendre de _FOND_COMPUTED.
+    # T2S y a une fiche depuis le 20/10/2026 : le cas se rejoue sur DLM, encore absent.
     import update_data
     monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: False)
     monkeypatch.setattr(update_data, "sans_comptes", lambda t: None)
-    assert "T2S" not in update_data._FOND_COMPUTED
+    assert "DLM" not in update_data._FOND_COMPUTED
     sources = {f"T{i}": {} for i in range(80)}
-    out = [_fiche_sortie("T2S")]
+    out = [_fiche_sortie("DLM")]
     out[0]["_meta"]["confidence"] = 4
-    update_data.appliquer_note_sectorielle(out, {"T2S": _passe1("T2S")}, fondamentaux=sources, bpa=sources,
+    update_data.appliquer_note_sectorielle(out, {"DLM": _passe1("DLM")}, fondamentaux=sources, bpa=sources,
                                            faits=sources, s1=sources, publier=True)
     assert out[0]["sig"] == "Données insuffisantes" and out[0]["_meta"]["confidence"] <= 1
 

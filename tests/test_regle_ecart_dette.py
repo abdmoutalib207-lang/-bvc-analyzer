@@ -101,7 +101,7 @@ def test_adi_et_vcne_sont_traites_de_la_meme_facon():
         assert rap["etabli"] is False and "NON ÉTABLIE" in rap["cause"], s
 
 
-@pytest.mark.parametrize("sym", ["MNG", "SMI", "COL"])
+@pytest.mark.parametrize("sym", ["MNG", "SMI", "COL", "JET"])
 def test_les_ecarts_expliques_sur_piece_sont_acceptes(sym):
     assert _contestee_reelle(sym) is None
     rap = FAITS[sym]["faits"]["endettement_net"]["rapprochement"]
