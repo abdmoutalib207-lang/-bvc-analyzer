@@ -64,3 +64,46 @@ def test_e_registre_source_chaque_mouvement():
         assert e.get("reserve") if e.get("denominateur_ambigu") else e["mouvements"], s
         for m in e["mouvements"]:
             assert m["source"] and m["nature"] in ("numeraire", "division"), s
+
+
+# ── règle b : dette nette / EBITDA aux dates appariées ──
+from pipeline.ratios_financiers import periode_bilan, RESERVE_BFR_30_06  # noqa: E402
+
+FOND = json.loads((RACINE / "fondamentaux.json").read_text(encoding="utf-8"))
+
+
+def _rb(origine="calculé"):
+    return {"ebitda": {"valeur": 100.0, "valeur_exacte": 100.0, "origine": origine},
+            "dette_nette_ebitda": {"valeur": -0.5, "date": "2025-12-31", "base": "consolidé"}}
+
+
+def _e(base="calculé", dn=60.0):
+    return {"source": "x.pdf", "base_ebitda": base,
+            "dette_nette_30_06_2026": {"valeur": dn, "page": 4, "formule": "a − b"},
+            "ebitda_s1_2026": {"valeur": 50.0, "page": 4, "formule": "c"},
+            "ebitda_s1_2025": {"valeur": 30.0, "page": 4, "formule": "d"}}
+
+
+def test_b_complet_dette_du_30_06_sur_ebitda_12_mois():
+    rb = _rb()
+    periode_bilan(rb, _e(), None)
+    r = rb["dette_nette_ebitda"]
+    assert (r["valeur"], r["date"], r["ebitda_12m"]) == (0.5, "2026-06-30", 120.0)   # 60 ÷ (100 + 50 − 30)
+    assert r["reserve"] == RESERVE_BFR_30_06 and rb["dette_nette_ebitda_31_12_2025"]["valeur"] == -0.5
+
+
+def test_b_incomplet_ou_autre_base_garde_le_31_12_avec_motif():
+    for e, motif in ((None, "non relevé"), (_e(dn=None), "non relevé"), (_e(base="publié"), "autre base")):
+        rb = _rb()
+        periode_bilan(rb, e, None)
+        r = rb["dette_nette_ebitda"]
+        assert r["valeur"] == -0.5 and r["periode"].startswith("31/12/2025 ÷ exercice 2025") and motif in r["periode"]
+
+
+def test_b_tma_sur_piece():
+    r = FOND["TMA"]["ratios_publies"]["dette_nette_ebitda"]
+    # 326,343 ÷ (1 685,486 + 562,182 − 731,903) = 326,343 ÷ 1 515,765
+    assert (r["valeur"], r["date"], r["ebitda_12m"]) == (0.22, "2026-06-30", 1515.765)
+    from pipeline.smart_money.fond_score import detail_fond_score
+    b = detail_fond_score("TMA", FOND, per_publie=14.6, croissance_sourcee=True)["composantes"]["bilan"]
+    assert b["note"] == 8.5 and "période : 30/06/2026" in b["mesure"] and "saisonnalité" in b["reserve"]

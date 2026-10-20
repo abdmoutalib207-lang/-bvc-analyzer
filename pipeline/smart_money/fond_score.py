@@ -213,7 +213,9 @@ def ratio_effectif(f: dict | None, sym: str, cle: str) -> dict | None:
         # pour dire d'où vient chaque chiffre (ajout du 11/10/2026, sans effet
         # sur la valeur).
         return {"valeur": v, "origine": "comptes publiés", "date": x.get("date"),
-                "formule": x.get("formule"), "sources": x.get("sources"), "base": x.get("base")}
+                "formule": x.get("formule"), "sources": x.get("sources"), "base": x.get("base"),
+                **({"periode": x["periode"]} if x.get("periode") else {}),
+                **({"reserve": x["reserve"]} if x.get("reserve") else {})}
     s = f.get(cle)
     if isinstance(s, (int, float)) and not isinstance(s, bool):
         return {"valeur": float(s), "origine": "saisie", "date": f.get("date_maj"),
@@ -257,10 +259,11 @@ RESERVES_RATIOS = {
     # grille 8,5 au lieu de 9,0, note fondamentale 7,0 → 6,95, palier ACHETER ★★
     # → SURVEILLER ★ dans les deux variantes. La règle de choix de période
     # (dernier bilan publié pour tous, EBITDA 12 mois glissants) reste à décider.
-    "TMA": {"bilan": "Trésorerie nette au 31/12/2025 (bilan de l'exercice, lu par la note) ; dette nette +326,3 MMAD "
-                     "au 30/06/2026 (comptes S1, p.4 : dettes financières 473,9 + 841,2 − trésorerie 988,7). Sur ce "
-                     "bilan plus récent, la note fondamentale serait 6,95 au lieu de 7,0 (dette nette/EBITDA 0,2 : "
-                     "grille 8,5 au lieu de 9,0) et le palier SURVEILLER ★ au lieu d'ACHETER ★★. "
+    # Règle b appliquée le 20/10/2026 : la note lit désormais le 30/06/2026.
+    "TMA": {"bilan": "Dette nette +326,3 MMAD au 30/06/2026 (comptes S1, p.4 : dettes financières 473,9 + 841,2 − "
+                     "trésorerie 988,7) ÷ EBITDA 12 mois 1 515,8 (exercice 1 685,5 + S1 2026 562,2 − S1 2025 731,9) "
+                     "= 0,22 — règle b du 20/10/2026. Au 31/12/2025 : trésorerie nette de 288,6 (−0,17). "
+                     "Bilan au 30/06 : saisonnalité du besoin en fonds de roulement. "
                      "27,5 MMAD de passif non courant non ventilé (avis d'AGO p.6)."},
     "BAL": {"bilan": "Trésorerie nette reposant sur 6,9 MMAD de placements : sans eux, pas de note de bilan "
                      "(note 5,28 au lieu de 5,65)."},
@@ -381,6 +384,9 @@ def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | N
         _d = ratio_effectif(f, sym, "dette_nette_ebitda")
         _dne = _d["valeur"] if _d and _d.get("origine") == "comptes publiés" else None
         _mesure = f"dette nette / EBITDA {_dne:g}" if _dne is not None else None
+        # Règle b (20/10/2026) : le motif du choix de période est publié dans la mesure.
+        if _mesure and (_d or {}).get("periode"):
+            _mesure += f" — période : {_d['periode']}"
         if _dne is None:
             _dn = _publie(f, sym, "dette_nette")
             if _dn is not None and _dn < 0:
@@ -391,6 +397,8 @@ def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | N
             _c = ratio_effectif(f, sym, "cash_conversion")
             _cc = _c["valeur"] if _c and _c.get("origine") == "comptes publiés" else None
             oui("bilan", _grille_bilan(_dne, _cc), _mesure)
+            if (_d or {}).get("reserve") and _mesure.startswith("dette nette / EBITDA"):
+                comp["bilan"]["reserve"] = _d["reserve"]   # saisonnalité du BFR au 30/06
 
     for nom, txt in RESERVES_RATIOS.get(sym, {}).items():
         if nom in comp and comp[nom]["note"] is not None:

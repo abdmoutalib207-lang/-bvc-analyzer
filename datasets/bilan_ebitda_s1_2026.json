@@ -1,0 +1,27 @@
+{
+  "_regle": "Règle b du 20/10/2026 (verificateur-finance ; usage des prêteurs et des agences de notation) : dette nette ÷ EBITDA aux dates APPARIÉES. Si le bilan S1 2026 est déposé ET que les trois EBITDA (exercice 2025, S1 2026, S1 2025) sont sur pièce et sur la même base : dette nette au 30/06/2026 ÷ EBITDA 12 mois (exercice + S1 2026 − S1 2025). Sinon : 31/12/2025 ÷ EBITDA de l'exercice, motif publié. Appliqué par pipeline/ratios_financiers.py (periode_bilan).",
+  "_note": "Seuls des chiffres déjà relevés sur pièce (datasets/releves/<TICKER>.json, page citée). `base_ebitda` doit être celle de l'EBITDA de l'exercice (ratios_publies.ebitda.origine) : « calculé » = résultat d'exploitation + dotations aux amortissements ; « publié » = EBE/EBITDA publié par la société. La dette nette au 30/06 doit reprendre les MÊMES postes que celle du 31/12/2025 (faits_financiers.json).",
+  "titres": {
+    "TMA": {
+      "source": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf",
+      "releve": "datasets/releves/TMA.json",
+      "dette_nette_30_06_2026": {"valeur": 326.343, "formule": "473.879 + 841.200 − 988.736 (MMAD)", "page": 4,
+        "postes": "dettes financières non courantes + courantes − trésorerie et équivalents, comme au 31/12/2025 (887.955 − 1176.535, faits_financiers.json › TMA, avis d'AGO p.6)",
+        "citation": "Dettes financières non courantes 473.879 514.346 ; Dettes financières courantes 841.200 373.609 ; Trésorerie et équivalents de trésorerie 988.736 1.176.535"},
+      "base_ebitda": "calculé",
+      "ebitda_s1_2026": {"valeur": 562.182, "formule": "435.138 + 127.044 (MMAD) — résultat opérationnel + dotations aux amortissements", "page": 4,
+        "citation": "RÉSULTAT OPÉRATIONNEL 435.138 569.961 ; Dotations aux amortissements (127.044) (161.942)"},
+      "ebitda_s1_2025": {"valeur": 731.903, "formule": "569.961 + 161.942 (MMAD) — même lignes, colonne Juin 2025", "page": 4,
+        "citation": "RÉSULTAT OPÉRATIONNEL 435.138 569.961 ; Dotations aux amortissements (127.044) (161.942)"}
+    },
+    "T2S": {
+      "source": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf",
+      "releve": "datasets/releves/T2S.json",
+      "dette_nette_30_06_2026": null,
+      "motif_absence": "dette nette au 30/06/2026 non relevée sur pièce (le relevé T2S ne porte ni dettes financières ni trésorerie au 30/06)",
+      "base_ebitda": "publié",
+      "ebitda_s1_2026": {"valeur": 248.512, "formule": "EBITDA publié par la société (MMAD)", "page": 1},
+      "ebitda_s1_2025": {"valeur": 254.078, "formule": "EBITDA publié par la société (MMAD)", "page": 1}
+    }
+  }
+}
