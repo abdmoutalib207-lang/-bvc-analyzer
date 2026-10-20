@@ -1,0 +1,178 @@
+{
+ "ticker": "AFM",
+ "societe": "AFMA (courtier en assurance)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "qualité : « ROE non calculé sur comptes publiés » ; bilan : « équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière »",
+  "effet": "composantes qualité (0,4) et bilan (0,1) à null ; couverture 0,5",
+  "lu_dans": "data.json › AFM › note_fond.composantes ; fond_score.py l.104-127 (ROE_SANS_OBJET['AFM'] : roe_effectif() rend None quels que soient les comptes) et l.362-368"
+ },
+ "pieces": [
+  {
+   "id": "rfa_2025",
+   "rang_methode": 1,
+   "titre": "Rapport financier annuel 2025 (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Afma_RFA_2025.pdf",
+   "sha256": "bcc6aa26ed9b131582b0db9d3fb4c3f5b474dd528b69bbb962da7c7305d8eb03",
+   "octets": 4693069,
+   "pages": 89
+  },
+  {
+   "id": "rfs_s1_2026",
+   "rang_methode": 1,
+   "titre": "Communiqué et rapport financier semestriel au 30/06/2026 (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/AFMA_S1_26.pdf",
+   "sha256": "323bc462defe8e5dece5717ce7761037084482870b02c9045d2bfec5b3ecea13",
+   "octets": 541172,
+   "pages": 4
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "chiffre_affaires",
+   "valeur": 316.421,
+   "unite": "MMAD (316 421 198 MAD)",
+   "periode": "exercice 2025 (2024 : 286 224 142 MAD)",
+   "perimetre": "consolidé IFRS (IFRS 16 inclus)",
+   "piece": "rfa_2025",
+   "page": 57,
+   "page_imprimee": "56",
+   "citation": "Chiffre d'affaires 316 421 198 286 224 142 (ÉTAT DU RÉSULTAT GLOBAL (en MAD) 31/12/2025 31/12/2024)",
+   "source": "https://www.ammc.ma/sites/default/files/Afma_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": 72.656,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 72 354 KMAD)",
+   "perimetre": "consolidé IFRS, IFRS 16 inclus (70 204 KMAD sans retraitement IFRS 16, p.18)",
+   "piece": "rfa_2025",
+   "page": 19,
+   "citation": "RESULTAT NET PART DU GROUPE 72 656 72 354 302 0%",
+   "source": "https://www.ammc.ma/sites/default/files/Afma_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "rnpg_hors_controle_fiscal",
+   "valeur": 81.095,
+   "unite": "MMAD",
+   "periode": "exercice 2025",
+   "perimetre": "consolidé IFRS 16 inclus ; retraitement de la société",
+   "piece": "rfa_2025",
+   "page": 19,
+   "citation": "RNPG HORS CONTRÔLE FISCAL 81 095 72 354 8 741 12%",
+   "source": "https://www.ammc.ma/sites/default/files/Afma_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "reserves_consolidees",
+   "valeur": -12.322,
+   "unite": "MMAD (-12 321 879 MAD)",
+   "periode": "31/12/2025 (31/12/2024 : -13 880 253)",
+   "perimetre": "consolidé IFRS",
+   "piece": "rfa_2025",
+   "page": 56,
+   "page_imprimee": "55",
+   "citation": "Réserves (12 321 879) (13 880 253) ... Capitaux propres part du groupe 70 369 986 68 518 855",
+   "source": "https://www.ammc.ma/sites/default/files/Afma_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_sociaux",
+   "valeur": 83.419,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (2024 : 78 989 039 MAD)",
+   "perimetre": "social, normes marocaines",
+   "piece": "rfa_2025",
+   "page": 71,
+   "citation": "E TOTAL DES CAPITAUX PROPRES (A) 83 419 065,06 78 989 038,84",
+   "source": "https://www.ammc.ma/sites/default/files/Afma_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "resultat_net_social",
+   "valeur": 64.43,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 65 101 986 MAD)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 71,
+   "citation": "* Résultat net de l'exercice (2) 64 430 026,22 65 101 986,06",
+   "source": "https://www.ammc.ma/sites/default/files/Afma_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "dividende_propose",
+   "valeur": 62,
+   "unite": "MAD par action (62 MMAD au total)",
+   "periode": "au titre de 2025",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 19,
+   "citation": "• Dividendes 62 000 000,00 dirhams (Soit 62 dirhams par action)",
+   "source": "https://www.ammc.ma/sites/default/files/Afma_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": 57.747,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 51,4 MMAD au communiqué)",
+   "perimetre": "consolidé IFRS",
+   "piece": "rfs_s1_2026",
+   "page": 2,
+   "citation": "Résultats consolidés de l'exercice 57 747 72 656 (PASSIF CONSOLIDÉ (en KDH) 30/06/2026 31/12/2025)",
+   "source": "https://www.ammc.ma/sites/default/files/AFMA_S1_26.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_part_groupe",
+   "valeur": 66.732,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 70 370)",
+   "perimetre": "consolidé IFRS",
+   "piece": "rfs_s1_2026",
+   "page": 2,
+   "citation": "Réserves Consolidées -1 058 -12 322 ... CAPITAUX PROPRES PART DU GROUPE 66 732 70 370",
+   "source": "https://www.ammc.ma/sites/default/files/AFMA_S1_26.pdf"
+  }
+ ],
+ "calculs": [
+  {
+   "quoi": "ROE consolidé 2025 sur capitaux propres moyens",
+   "formule": "72,656 / ((70,370 + 68,519) / 2)",
+   "resultat": 104.6,
+   "unite": "%"
+  },
+  {
+   "quoi": "Capitaux propres part du groupe hors résultat de l'exercice, 31/12/2025",
+   "formule": "70,370 − 72,656",
+   "resultat": -2.286,
+   "unite": "MMAD",
+   "note": "recolle le « −2,3 MDH » de ROE_SANS_OBJET"
+  },
+  {
+   "quoi": "ROE social 2025 sur capitaux propres moyens",
+   "formule": "64,430 / ((83,419 + 78,989) / 2)",
+   "resultat": 79.3,
+   "unite": "%"
+  },
+  {
+   "quoi": "Marge nette consolidée 2025",
+   "formule": "RNPG 72,656 / CA 316,421",
+   "resultat": 22.96,
+   "unite": "%"
+  },
+  {
+   "quoi": "Taux de distribution 2025 (social)",
+   "formule": "62,000 / 64,430",
+   "resultat": 96.2,
+   "unite": "%"
+  }
+ ],
+ "constats": [
+  "Pourquoi la qualité n'est pas mesurée : ce n'est pas l'absence de pièce, c'est une exclusion écrite dans le moteur (ROE_SANS_OBJET['AFM'], fond_score.py l.104-110). Les capitaux propres consolidés sont faits presque entièrement du résultat de l'année, les réserves étant négatives (−12,3 MMAD, p.56) : le ROE (104,6 %) est vrai et ne mesure rien de comparable.",
+  "Les pièces permettent d'autres mesures de rentabilité qui ne dépendent pas des capitaux propres : marge nette (23,0 %) ; ROE social (79,3 %, encore dominé par la distribution de 96 %). Le choix d'une mesure est une décision de règle (verificateur-finance), pas de ce relevé.",
+  "Composante bilan : un courtier ne porte pas de risque d'assurance — ni marge de solvabilité ACAPS, ni ratio combiné, ni coût du risque n'existent dans ses comptes. Rien à relever : « équivalent bancaire » est sans objet ici, à distinguer de « manquant ».",
+  "Le communiqué S1 2026 p.1 a un tableau en texte vertical inexploitable ; les chiffres viennent de la p.2 (bilan) et des p.3-4 (commentaires)."
+ ],
+ "conclusion": "Toutes les grandeurs nécessaires à une mesure de rentabilité sont publiées ; le blocage qualité est une règle du moteur, le blocage bilan n'a pas d'objet pour un courtier.",
+ "debloquerait": "Qualité : seulement si la règle accepte une mesure alternative (marge nette, ROE social) pour les intermédiaires ; bilan : passer de « manquant » à « sans objet » (décision moteur, hors relevé).",
+ "estimations": [],
+ "question_ir": null
+}
