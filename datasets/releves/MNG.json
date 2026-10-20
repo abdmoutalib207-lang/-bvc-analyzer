@@ -1,0 +1,137 @@
+{
+ "ticker": "MNG",
+ "societe": "Managem",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E2",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "aucun — note fondamentale à couverture 1,0 ; lot E2 : adossement des grandeurs lues et dernier bilan publié (30/06/2026)",
+  "effet": "aucun sur la note : relevé d'information pour la règle « dernier bilan publié » à l'étude",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; datasets/resultats_s1_2026.json"
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Résultats financiers du 1er semestre 2026 (dépôt AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_S1_26.pdf",
+   "sha256": "5bffbe9b3c75cfd76ddfe9325395c45ce831cfe3a2a1f0a88298161ff92ad8d3",
+   "octets": 1231831,
+   "pages": 2
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "dettes_financieres_non_courantes",
+   "valeur": 9931,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé IFRS (instruments dérivés de couverture EXCLUS, comme la base 2025)",
+   "source": "https://www.ammc.ma/sites/default/files/Managem_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Dettes financières non courantes 9 931 10 544"
+  },
+  {
+   "grandeur": "dettes_financieres_non_courantes",
+   "valeur": 10544,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé IFRS (instruments dérivés de couverture EXCLUS, comme la base 2025)",
+   "source": "https://www.ammc.ma/sites/default/files/Managem_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Dettes financières non courantes 9 931 10 544"
+  },
+  {
+   "grandeur": "dont_derives_couverture",
+   "valeur": 713,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé IFRS (instruments dérivés de couverture EXCLUS, comme la base 2025)",
+   "source": "https://www.ammc.ma/sites/default/files/Managem_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Dont Instruments dérivés de couverture 713 1 708"
+  },
+  {
+   "grandeur": "dont_derives_couverture",
+   "valeur": 1708,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé IFRS (instruments dérivés de couverture EXCLUS, comme la base 2025)",
+   "source": "https://www.ammc.ma/sites/default/files/Managem_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Dont Instruments dérivés de couverture 713 1 708"
+  },
+  {
+   "grandeur": "dettes_financieres_courantes",
+   "valeur": 6609,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé IFRS (instruments dérivés de couverture EXCLUS, comme la base 2025)",
+   "source": "https://www.ammc.ma/sites/default/files/Managem_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Dettes financières courantes 6 609 6 487"
+  },
+  {
+   "grandeur": "dettes_financieres_courantes",
+   "valeur": 6487,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé IFRS (instruments dérivés de couverture EXCLUS, comme la base 2025)",
+   "source": "https://www.ammc.ma/sites/default/files/Managem_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Dettes financières courantes 6 609 6 487"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 6589,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé IFRS (instruments dérivés de couverture EXCLUS, comme la base 2025)",
+   "source": "https://www.ammc.ma/sites/default/files/Managem_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Trésorerie et équivalent de trésorerie 6 589 4 390"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 4390,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé IFRS (instruments dérivés de couverture EXCLUS, comme la base 2025)",
+   "source": "https://www.ammc.ma/sites/default/files/Managem_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Trésorerie et équivalent de trésorerie 6 589 4 390"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette au 30/06/2026, mêmes postes que la base 31/12/2025 de fondamentaux.json › ratios_publies.dette_nette",
+   "formule": "9 931 − 713 + 6 609 − 6 589 (MMAD)",
+   "resultat": 9238.0,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "contrôle : même formule sur la colonne 31/12/2025 du dépôt S1",
+   "formule": "mêmes postes, colonne comparative",
+   "resultat": 10933,
+   "unite": "MMAD",
+   "compare_a": "dette nette lue par la note au 31/12/2025 : 10933.2"
+  }
+ ],
+ "constats": [
+  "Même page : « Résultat net - Part du groupe 3 778 380 », « Chiffre d'affaires 11 764 4 422 » = valeurs du jeu S1.",
+  "Le RFA 2025 publie un endettement net de 12 674 (p.68) contre 10 933,2 lu par la note : écart de 15,9 %, déjà rapproché dans faits_financiers (dérivés 1 707,9 + CCA 33)."
+ ],
+ "conclusion": "Semestriel au 30/06/2026 déposé à l'AMMC ; dette nette +9238.0 MMAD au 30/06/2026 contre +10933.2 lue par la note au 31/12/2025.",
+ "debloquerait": "rien de bloqué ; alimente la décision sur la règle « dernier bilan publié » (R8 : rien n'est appliqué)",
+ "question_ir": null
+}
