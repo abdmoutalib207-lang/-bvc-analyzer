@@ -5749,7 +5749,7 @@
     "unite_au_rapport": "MAD",
     "colonne_exercice_clos": 1,
     "page": 18,
-    "note": "« * Disponibilités 100 078 076,70 58 106 908,50 » ; disponibilités seules : « Trésorerie de clôture -175 820 013 » (p.20) = 100 078 077 − 275 898 089, hors titres et valeurs de placement (28 763 386).",
+    "note": "« * Disponibilités 100 078 076,70 58 106 908,50 » ; disponibilités seules : « Trésorerie de clôture -175 820 013 » (p.20) = 100 078 077 − 275 898 089, hors titres et valeurs de placement (28 763 386). — 20/10/2026 : les titres de placement sont désormais relevés à part (`titres_valeurs_placement`, 28,763) et comptés dans la trésorerie de la dette nette, par la règle du 02/10/2026.",
     "base": "consolidé (normes marocaines), 31/12/2025",
     "releve_le": "2026-09-30"
    },
@@ -5825,6 +5825,28 @@
     "note": "« * Capitaux propres (part de groupe) 685 851 758,64 675 926 208,81 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
     "releve_le": "2026-10-13",
     "mode_de_lecture": "colonne lue"
+   },
+   "dotations_amortissements_exploitation": {
+    "valeur": 13.804592,
+    "valeur_au_rapport": 13804592,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 2,
+    "page": 21,
+    "citation": "TOTAL 121 217 530 13 804 592 723 433 - 134 298 690",
+    "note": "Tableau consolidé « EVOLUTION DES AMORTISSEMENTS ET PROVISIONS SUR IMMOBILISATIONS » (p.21), colonnes « Montant au 31/12/2024 | Dotations | Cessions et Sorties | Virements | Montant au … » : dotations de l'exercice 13 804 592 (incorporelles 318 762 + corporelles 13 485 830), soit 121 217 530 + 13 804 592 − 723 433 = 134 298 690. ⚠️ L'en-tête de la colonne de clôture de cette page porte « 30/06/2025 » : COQUILLE — le tableau part du 31/12/2024 et sa dotation est celle de l'exercice 2025 du tableau des flux (p.20, colonne 31/12/2025 : « *Dotation d'exploitation durable nette de reprise 13 804 592 8 120 751 ») ; et ses soldes se recollent au bilan du 31/12/2025 (p.18) : valeur brute au 31/12/2025 (p.21) moins amortissements de cette colonne = net du bilan — incorporelles 175 986 555 − 3 237 632 = 172 748 923 (bilan 172 748 923,65), corporelles 323 205 761 − 131 061 058 = 192 144 703 (bilan 192 144 702,41). Dotations aux AMORTISSEMENTS seules : les « Dotations d'exploitation 33 097 468,61 » du CPC (p.19) mêlent les provisions. EBITDA = 107,526 + 13,805 = 121,331.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-20"
+   },
+   "titres_valeurs_placement": {
+    "valeur": 28.763386,
+    "valeur_au_rapport": 28763385.6,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 18,
+    "citation": "* Titres et valeurs de placement 28 763 385,60 47 964 288,40",
+    "note": "Bilan actif consolidé, en-tête « ACTIF 31/12/2025 31/12/2024 » (En Dirhams). Comptés dans la trésorerie de la dette nette par la règle des titres de placement du 02/10/2026 (aucune exclusion sur pièce) : 337,422 − 100,078 − 28,763 = 208,581. Validé par verificateur-finance le 20/10/2026.",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "releve_le": "2026-10-20"
    }
   },
   "pages_document": 91,
@@ -5853,9 +5875,9 @@
      "detail": "685.851759 vs 685.85175864"
     }
    ],
-   "non_calcules": {
-    "ebitda": "« Dotations d'exploitation 33 097 468,61 » (p.19) n'isole pas les amortissements des provisions, et le tableau des flux ne donne qu'une « Dotation d'exploitation durable nette de reprise 13 804 592 ». L'EBE de la p.31 est SOCIAL. Aucun EBITDA consolidé publié."
-   }
+   "reserves": [
+    "20/10/2026 : EBITDA désormais CALCULÉ = résultat d'exploitation 107,526 + dotations aux amortissements 13,805 (tableau p.21, coquille d'en-tête « 30/06/2025 » ; même montant au tableau des flux p.20). Ancien motif de refus : « « Dotations d'exploitation 33 097 468,61 » (p.19) n'isole pas les amortissements des provisions, et le tableau des flux ne donne qu'une « Dotation d'exploitation durable nette de reprise 13 804 592 ». L'EBE de la p.31 est SOCIAL. Aucun EBITDA consolidé publié. »"
+   ]
   }
  },
  "GAZ": {

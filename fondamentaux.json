@@ -5513,20 +5513,44 @@
         }
       },
       "dette_nette": {
-        "valeur": 237.3,
+        "valeur": 208.6,
         "date": "2025-12-31",
-        "formule": "337.422075 − 100.078077 (MMAD)",
+        "formule": "337.422075 − (100.078077 + 28.763386 de titres de placement) (MMAD)",
         "sources": {
           "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 18",
-          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 18"
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 18",
+          "titres_de_placement": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 18"
         },
         "base": "consolidé (normes marocaines), 31/12/2025",
-        "unite": "MMAD"
+        "unite": "MMAD",
+        "dette_nette_stricte": 237.3
+      },
+      "ebitda": {
+        "valeur": 121.3,
+        "date": "2025-12-31",
+        "formule": "107.526426 + 13.804592 (MMAD) — résultat d'exploitation + dotations aux amortissements",
+        "sources": {
+          "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 19",
+          "amortissements": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 21"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025",
+        "unite": "MMAD",
+        "origine": "calculé"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 1.72,
+        "date": "2025-12-31",
+        "formule": "208.581 ÷ 121.331",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "consolidé (normes marocaines), 31/12/2025"
       },
       "roic": {
-        "valeur": 9.0,
+        "valeur": 9.3,
         "date": "2025-12-31",
-        "formule": "107.526426 × (1 − t) ÷ (685.851759 + 237.344) ; t = 24.684381 ÷ 110.142313 = 22.4 %",
+        "formule": "107.526426 × (1 − t) ÷ (685.851759 + 208.581) ; t = 24.684381 ÷ 110.142313 = 22.4 %",
         "sources": {
           "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 19",
           "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf, p. 19",
@@ -5548,10 +5572,6 @@
         },
         "base": "consolidé (normes marocaines), 31/12/2025",
         "unite": "%"
-      },
-      "non_calcules_2025": {
-        "ebitda": "« Dotations d'exploitation 33 097 468,61 » (p.19) n'isole pas les amortissements des provisions, et le tableau des flux ne donne qu'une « Dotation d'exploitation durable nette de reprise 13 804 592 ». L'EBE de la p.31 est SOCIAL. Aucun EBITDA consolidé publié.",
-        "dette_nette_ebitda": "dette nette ou EBITDA non calculé"
       },
       "calcule_le": "2026-09-30"
     }
