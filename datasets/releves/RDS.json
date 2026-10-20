@@ -1,0 +1,39 @@
+{
+  "ticker": "RDS",
+  "societe": "Résidences Dar Saada",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF",
+  "blocage": {
+    "motif": "dette nette / EBITDA non calculée sur comptes publiés",
+    "effet": "composante « bilan » retirée ; non_calcules.ebitda : « Dotations nettes aux amort,et aux provisions (4.281) » mêle amortissements et provisions",
+    "lu_dans": "data.json › RDS › note_fond.composantes.bilan.motif ; faits_financiers.json › RDS › _controles_ratios_2025.non_calcules"
+  },
+  "pieces": [
+    {"id": "rfa_2025", "rang_methode": 1, "titre": "Rapport financier annuel 2025", "url": "https://www.ammc.ma/sites/default/files/RDS_RFA_2025.pdf", "sha256": "af0e17be057fcc51f43834745462b8ca07dc9c9de506cf3340ca0330ca8576fd", "octets": 4338740, "pages": 91},
+    {"id": "rfs_s1_2026", "rang_methode": 1, "titre": "Rapport financier semestriel au 30/06/2026", "url": "https://www.ammc.ma/sites/default/files/RDS_RFS_S1_26.pdf", "sha256": "c3e55473bfa6ccbddc0495eab17ea8ef17e50d616493aa1076ec5695fb928226", "octets": 760504, "pages": 33},
+    {"id": "cp_2025", "rang_methode": 1, "titre": "Communiqué 2025 (3 pages sans couche texte, non lu : les deux rapports suffisent)", "url": "https://www.ammc.ma/sites/default/files/CP_RDS_2025.pdf", "sha256": "28350f4358e91b7b77d7cd1e9d101b6402c3087782fd19304fa9b4955a5ec274", "octets": 1506671, "pages": 3}
+  ],
+  "chiffres": [
+    {"grandeur": "endettement_global_emetteur", "valeur": 1780.0, "unite": "MMAD", "periode": "31/12/2025 (2024 : 1 710)", "perimetre": "consolidé IFRS, « y compris les contrats de location (IFRS 16) et hors trésorerie à court terme » — dette BRUTE", "source": "https://www.ammc.ma/sites/default/files/RDS_RFA_2025.pdf", "piece": "rfa_2025", "page": 15, "citation": "l’endettement global au titre de l’exercice 2025, y compris les contrats de location (IFRS 16) et hors trésorerie à court terme, s’élève à 1,78 milliard DH contre 1,71 milliard DH à fin 2024. Ainsi, le gearing net reste maîtrisé et s’établit à 33 % à fin 2025."},
+    {"grandeur": "total_dettes_financieres", "valeur": 2116.222, "unite": "MMAD", "periode": "31/12/2025 (2024 : 2 013,150)", "perimetre": "consolidé IFRS, note des dettes financières", "source": "https://www.ammc.ma/sites/default/files/RDS_RFA_2025.pdf", "piece": "rfa_2025", "page": 26, "citation": "Emprunts et dettes auprès des établissements de crédit 162.646 1.283.344 1.445.990 1.361.553 ; Emprunts et dettes financières divers 96.667 215.917 312.583 324.583 ; Dettes de location-financement & IFRS 16 15.711 473 16.184 25.874 ; Concours Bancaires courants et soldes créditeurs de banques 341.465 0 341.465 301.140 ; Total Dettes Financières 616.489 1.499.734 2.116.222 2.013.150"},
+    {"grandeur": "dotations_nettes_amortissements_provisions", "valeur": 4.281, "unite": "MMAD", "periode": "exercice 2025 (2024 : 3,499)", "perimetre": "consolidé IFRS ; amortissements ET provisions", "source": "https://www.ammc.ma/sites/default/files/RDS_RFA_2025.pdf", "piece": "rfa_2025", "page": 22, "citation": "Dotations nettes aux amort,et aux provisions (4.281) (3.499) ; RESULTAT D'EXPLOITATION COURANT 36.987 (30.315) ; RESULTAT D'EXPLOITATION 32.714 (47.343)"},
+    {"grandeur": "variation_immobilisations_corporelles", "valeur": 4.018, "unite": "MMAD", "periode": "exercice 2025", "perimetre": "consolidé IFRS ; variation NETTE, « principalement » l'amortissement", "source": "https://www.ammc.ma/sites/default/files/RDS_RFA_2025.pdf", "piece": "rfa_2025", "page": 24, "citation": "Il s'agit principalement de l'amortissement annuel (4.018) Total Investissements en immobilisations corporelles (4.018) ; S/T Immobilisations coporelles 59.641 63.659"},
+    {"grandeur": "endettement_global_emetteur_s1", "valeur": 1920.0, "unite": "MMAD", "periode": "30/06/2026", "perimetre": "consolidé IFRS, même définition", "source": "https://www.ammc.ma/sites/default/files/RDS_RFS_S1_26.pdf", "piece": "rfs_s1_2026", "page": 11, "citation": "l’endettement global à fin juin 2026, y compris les contrats de location (IFRS 16) et hors trésorerie à court terme, s’élève à 1,92 MMDH contre 1,78 MMDH à fin 2025. … le gearing net reste stable et s’établit à 34 % à fin Juin 2026."}
+  ],
+  "estimations": [],
+  "calculs": [
+    {"quoi": "Endettement global de l'émetteur reconstruit (hors concours bancaires)", "formule": "1 445,990 + 312,583 + 16,184", "resultat": 1774.8},
+    {"quoi": "Gearing net reconstruit, forme DN/(DN+CP), dette nette du moteur", "formule": "1 867,0 ÷ (1 867,0 + 3 739,578)", "resultat": 0.333},
+    {"quoi": "EBITDA candidat le plus large", "formule": "résultat d'exploitation courant 36,987 + dotations nettes 4,281", "resultat": 41.3},
+    {"quoi": "Dette nette / EBITDA avec le candidat le plus favorable", "formule": "1 867,0 ÷ 41,3", "resultat": 45.2}
+  ],
+  "constats": [
+    "La dette nette du moteur (1 867,0) est celle de l'émetteur : son gearing net de 33 % se reconstruit exactement sous la forme DN/(DN+CP). Le « 1,78 milliard » est une dette BRUTE hors concours bancaires (1 774,8 sur la note p.26), pas une dette nette.",
+    "Aucun EBITDA ni EBE consolidé publié. Le 4,018 de la p.24 est la variation nette des immobilisations corporelles (63,659 − 59,641), dite « principalement » l'amortissement : pas une dotation isolée.",
+    "Quel que soit le candidat (32,7 + 4,0 ; 36,99 + 4,28), la dette nette vaut plus de 40 fois l'EBITDA : un promoteur porte sa dette contre ses stocks (5 140,5 MMAD), pas contre un EBITDA. Le palier de la grille (≥ 5 : 1,5) ne dépend pas du choix."
+  ],
+  "conclusion": "Blocage confirmé : pas d'EBITDA publié, dotations non isolées. Dette nette et gearing de l'émetteur recoupés.",
+  "debloquerait": "Rien pour la dette nette / EBITDA telle que définie. Les pièces établissent le gearing net de l'émetteur (33 % ; 34 % au 30/06/2026), utilisable par un critère de bilan propre aux promoteurs si la note métier le retient.",
+  "question_ir": null
+}
