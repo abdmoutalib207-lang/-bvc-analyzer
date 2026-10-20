@@ -2,7 +2,6 @@
 des 7 banques. Décrit le CODE (grilles, renormalisation, recalcul) et relit les
 FAITS sur pièce (pipeline/faits_financiers.json › _grille_bancaire)."""
 import json
-import statistics
 import sys
 from pathlib import Path
 
@@ -28,17 +27,20 @@ GB = FAITS["_grille_bancaire"]["titres"]
     ("solvabilite_globale", 13.0, 5.5),
     ("solvabilite_globale", 14.0, 7.0),
     ("solvabilite_globale", 14.5, 8.5),
-    ("cout_du_risque_encours", 0.75, 8.5),
-    ("cout_du_risque_encours", 0.76, 7.0),
-    ("cout_du_risque_encours", 1.5, 5.5),
-    ("cout_du_risque_encours", 1.51, 4.0),
-    ("couverture_bucket3", 75.0, 8.5),
-    ("couverture_bucket3", 69.99, 5.5),
-    ("couverture_bucket3", 59.9, 4.0),
+    ("cout_du_risque_encours", 0.5, 8.5),
+    ("cout_du_risque_encours", 0.51, 7.0),
+    ("cout_du_risque_encours", 1.0, 7.0),
+    ("cout_du_risque_encours", 2.0, 5.5),
+    ("cout_du_risque_encours", 2.01, 4.0),
+    ("couverture_bucket3", 85.0, 8.5),
+    ("couverture_bucket3", 84.9, 7.0),
+    ("couverture_bucket3", 65.0, 7.0),
+    ("couverture_bucket3", 45.0, 5.5),
+    ("couverture_bucket3", 44.9, 4.0),
     ("coefficient_exploitation", 45.0, 8.5),
-    ("coefficient_exploitation", 46.0, 7.0),
-    ("coefficient_exploitation", 47.0, 5.5),
-    ("coefficient_exploitation", 47.01, 4.0),
+    ("coefficient_exploitation", 50.0, 7.0),
+    ("coefficient_exploitation", 55.0, 5.5),
+    ("coefficient_exploitation", 55.01, 4.0),
 ])
 def test_paliers(nom, x, attendu):
     assert F.grille_bancaire(nom, x) == attendu
@@ -50,17 +52,31 @@ def test_minimum_bam_cite_sur_piece():
     assert len(m["pieces"]) >= 2 and all(p.get("page") and "12" in p["note"] for p in m["pieces"])
 
 
-@pytest.mark.parametrize("nom", list(F.PALIERS_BANCAIRES))
-def test_seuils_reproduisent_la_distribution_observee(nom):
-    """Chaque seuil = un quartile des banques notées, arrondi au pas déclaré (R12).
-    Si les comptes changent, ce test dit qu'il faut recalibrer — pas de seuil muet."""
-    sens, seuils, pas, _ = F.PALIERS_BANCAIRES[nom]
-    xs = [FOND[b]["ratios_publies"][nom]["valeur"] for b in BANQUES if nom in FOND[b]["ratios_publies"]]
-    if nom == "solvabilite_globale":
-        xs = [x - F.SOLVABILITE_MIN_BAM for x in xs]
-    q = statistics.quantiles(sorted(xs), n=4, method="inclusive")
-    arr = [round(round(v / pas) * pas, 4) for v in q]
-    assert sorted(seuils) == sorted(arr), (nom, q, seuils)
+def test_seuils_figes():
+    """Stabilité avant tout (20/10/2026) : les seuils ne dérivent pas avec la
+    distribution. Les changer est une décision (R8), pas un recalcul."""
+    assert {k: v[:2] for k, v in F.PALIERS_BANCAIRES.items()} == {
+        "solvabilite_globale": ("haut", (2.5, 2.0, 1.0)),
+        "cout_du_risque_encours": ("bas", (0.5, 1.0, 2.0)),
+        "couverture_bucket3": ("haut", (85.0, 65.0, 45.0)),
+        "coefficient_exploitation": ("bas", (45.0, 50.0, 55.0)),
+    }
+    assert F.TAUX_BUCKET3_MIN_NOTE == 2.0 and F.NOTES_QUARTS == (8.5, 7.0, 5.5, 4.0)
+    assert all(len(v[2]) > 40 for v in F.PALIERS_BANCAIRES.values())   # justification écrite
+
+
+def test_couverture_non_notee_sous_deux_pour_cent_de_bucket3():
+    """CFGB : Bucket 3 à 1,46 % de l'encours brut — couverture retirée, réserve gardée."""
+    b = _detail("CFGB")["composantes"]["bilan"]
+    cov = [s for s in b["sous_mesures"] if s["nom"] == "couverture_bucket3"][0]
+    assert cov["note"] is None and cov["taux_bucket3"] == 1.46
+    assert b["note"] == round((F.grille_bancaire("solvabilite_globale", 18.66)
+                               + F.grille_bancaire("cout_du_risque_encours", 0.233)) / 2, 2)
+    assert "sous le seuil de 2 %" in b["reserve"] and "1,46 %" in b["reserve"]
+    for s in BANQUES:
+        if s != "CFGB":
+            c = [x for x in _detail(s)["composantes"]["bilan"]["sous_mesures"] if x["nom"] == "couverture_bucket3"][0]
+            assert c["note"] is not None and c["taux_bucket3"] >= 2.0
 
 
 # ── les ratios, recalculés depuis les faits ──

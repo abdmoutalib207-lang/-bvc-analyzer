@@ -508,6 +508,13 @@ def calculer_bancaire(e: dict | None) -> dict:
                 "periode": ("30/06/2026 — dernier bilan sur pièce" if suf == "30_06_2026"
                             else "31/12/2025 — bilan au 30/06/2026 non relevé sur pièce"),
                 **({"reserve": res["couverture_bucket3"]} if res.get("couverture_bucket3") else {})}
+            # Poids des créances en défaut dans l'encours brut : la couverture se lit avec lui.
+            eb = v.get(f"encours_brut_{suf}")
+            if eb:
+                out["couverture_bucket3"]["taux_bucket3"] = {
+                    "valeur": round(b / eb * 100, 2), "formule": f"{b} ÷ {eb} (MMAD) — Bucket 3 brut ÷ encours bruts "
+                                                                 "clientèle (Buckets 1 + 2 + 3)",
+                    "source": _piece_bancaire(e, f"encours_brut_{suf}")}
             break
     # solvabilité globale
     if v.get("solvabilite_31_12_2025") is not None:

@@ -360,28 +360,43 @@ def _grille_bilan(dne: float, cc: float | None) -> float:
 #     (Seuil Min 12%) », CIH RFA 2025 p.22 « (minimum exigible 12 %) » —
 #     faits_financiers.json › _grille_bancaire › minimum_solvabilite_bam).
 #     Sous le minimum : 1,5, la note la plus basse de la grille de bilan.
-#   · paliers au-dessus : DISTRIBUTION OBSERVÉE sur les banques notées le
-#     20/10/2026 — quartiles (méthode inclusive) arrondis au pas déclaré ;
-#     meilleur quart 8,5, deuxième 7,0, troisième 5,5, dernier 4,0 (l'échelle
-#     de `_grille_bilan`). C'est une note RELATIVE à la place, pas un jugement
-#     absolu : aucun barème BAM ni de place sourcé n'existe au-delà du minimum.
-#     `tests/test_grille_bancaire.py` recalcule les quartiles depuis
-#     fondamentaux.json et échoue si un seuil ne les reproduit plus.
+#   · paliers : notes 8,5 / 7,0 / 5,5 / 4,0 (l'échelle de `_grille_bilan`).
+#     ⚠️ STABILITÉ AVANT TOUT (Abd Moutalib, 20/10/2026) : la première version
+#     tirait les seuils des quartiles de 7 banques (coefficient à 45/46/47 :
+#     0,4 point faisait changer un palier). Les seuils sont désormais en pas
+#     LARGES et RONDS ; au 20/10/2026, aucune banque n'est à moins d'un dixième
+#     de l'écart entre deux seuils d'un seuil. `tests/test_grille_bancaire.py`
+#     fige les seuils.
+#   · aucun barème BAM ni de place SOURCÉ n'existe au-delà du minimum de
+#     solvabilité : les autres seuils sont d'USAGE, déclarés comme tels.
 SOLVABILITE_MIN_BAM = 12.0
 PALIERS_BANCAIRES = {
-    # nom: (sens, seuils du meilleur au moins bon, pas d'arrondi, justification)
-    "solvabilite_globale": ("haut", (2.5, 2.0, 1.0), 0.5,
-        "marge sur le minimum BAM de 12 %, en points ; 6 banques (BCP ne publie pas) : 12,86 13,13 13,40 "
-        "14,42 14,85 18,66 % → marges 0,86 1,13 1,40 2,42 2,85 6,66 ; quartiles 1,20 / 1,91 / 2,74 → 1,0 / 2,0 / 2,5"),
-    "cout_du_risque_encours": ("bas", (0.75, 1.0, 1.5), 0.25,
-        "% de l'encours net moyen, exercice 2025 ; 7 banques : 0,23 0,64 0,85 1,10 1,44 1,55 1,83 ; "
-        "quartiles 0,75 / 1,10 / 1,49 → 0,75 / 1,00 / 1,50"),
-    "couverture_bucket3": ("haut", (75.0, 70.0, 60.0), 5.0,
-        "% au 30/06/2026 ; 7 banques : 40,5 48,8 69,2 70,5 71,7 75,5 79,9 ; quartiles 59,0 / 70,5 / 73,6 → 60 / 70 / 75"),
-    "coefficient_exploitation": ("bas", (45.0, 46.0, 47.0), 1.0,
-        "% sur 12 mois au 30/06/2026 ; 7 banques : 38,6 43,6 45,8 46,4 46,7 47,1 57,0 ; "
-        "quartiles 44,6 / 46,4 / 46,9 → 45 / 46 / 47"),
+    # nom: (sens, seuils du meilleur au moins bon, justification)
+    "solvabilite_globale": ("haut", (2.5, 2.0, 1.0),
+        "marge sur le minimum BAM de 12 %, en points (quartiles des 6 banques qui publient, arrondis au "
+        "demi-point : 1,20 / 1,91 / 2,74 → 1,0 / 2,0 / 2,5). Marges observées 0,86 1,13 1,40 2,42 2,85 6,66 : "
+        "la plus proche d'un seuil (2,42) en est à 0,08 pt, au-delà du dixième d'écart (0,05)"),
+    "cout_du_risque_encours": ("bas", (0.5, 1.0, 2.0),
+        "% de l'encours net moyen ; usage du métier en points de base — 50 pb faible, 100 pb normal, "
+        "200 pb élevé. La première version (0,75 / 1,00 / 1,50) plaçait BMCI (1,545 %) à 0,045 pt du "
+        "seuil de 1,50. Observé : 0,23 0,64 0,85 1,10 1,44 1,55 1,83"),
+    "couverture_bucket3": ("haut", (85.0, 65.0, 45.0),
+        "% des créances Bucket 3 couvertes par leurs dépréciations ; IFRS 9 ne fixe aucun taux et BAM aucun "
+        "barème consolidé : paliers d'USAGE de 20 points (sous 45 % : moins de la moitié couverte ; 45-65 ; "
+        "65-85 ; au-delà de 85). La première version (60 / 70 / 75) plaçait BCP (69,2), BOA (70,5) et BMCI "
+        "(75,5) à moins d'un point d'un seuil. Observé : 40,5 48,8 69,2 70,5 71,7 75,5 79,9"),
+    "coefficient_exploitation": ("bas", (45.0, 50.0, 55.0),
+        "% sur 12 mois ; usage du métier : un coefficient sous 50 % est généralement jugé efficace. Paliers "
+        "de 5 points (la première version, 45 / 46 / 47, faisait changer un palier pour 0,4 point). "
+        "Observé : 38,6 43,6 45,8 46,4 46,7 47,1 57,0"),
 }
+# Couverture NON NOTÉE quand le Bucket 3 pèse moins de 2 % de l'encours brut :
+# la couverture d'une masse marginale de créances en défaut ne dit rien de la
+# qualité du portefeuille (usage : la couverture se lit AVEC le taux de
+# créances en défaut). Retirée, poids renormalisé, réserve gardée. Observé au
+# 30/06/2026 : CFGB 1,46 %, puis 6,19 % (ATW) à 11,80 % (BMCI) — aucune banque
+# près du seuil.
+TAUX_BUCKET3_MIN_NOTE = 2.0
 NOTES_QUARTS = (8.5, 7.0, 5.5, 4.0)
 NOTE_SOUS_MINIMUM = 1.5
 LIBELLES_BANCAIRES = {"solvabilite_globale": "solvabilité globale", "cout_du_risque_encours": "coût du risque",
@@ -390,7 +405,7 @@ LIBELLES_BANCAIRES = {"solvabilite_globale": "solvabilité globale", "cout_du_ri
 
 def grille_bancaire(nom: str, x: float) -> float:
     """La note d'une sous-mesure bancaire. Pure."""
-    sens, seuils, _, _ = PALIERS_BANCAIRES[nom]
+    sens, seuils, _ = PALIERS_BANCAIRES[nom]
     if nom == "solvabilite_globale":
         x = x - SOLVABILITE_MIN_BAM
         if x < 0:
@@ -421,10 +436,20 @@ def _sous_mesure_bancaire(f: dict, sym: str, nom: str) -> dict | None:
     _jj = "/".join(reversed(_d.split("-"))) if _d else "?"
     quand = (f"12 mois au {_jj}" if _p.startswith("12 mois") else
              "exercice 2025" if _p.startswith("exercice 2025") else f"au {_jj}")
-    mesure += f", {quand} → {note:g}"
+    tb = (x.get("taux_bucket3") or {}).get("valeur") if nom == "couverture_bucket3" else None
+    non_notee = None
+    if isinstance(tb, (int, float)) and tb < TAUX_BUCKET3_MIN_NOTE:
+        note = None
+        non_notee = (f"couverture non notée : Bucket 3 à {tb:g} % de l'encours brut, sous le seuil de "
+                     f"{TAUX_BUCKET3_MIN_NOTE:g} % — poids renormalisé")
+        mesure += f", {quand} → non notée (Bucket 3 {tb:g} % de l'encours brut)"
+    else:
+        mesure += f", {quand} → {note:g}"
     return {"nom": nom, "libelle": LIBELLES_BANCAIRES[nom], "valeur": v, "unite": "%", "date": x.get("date"),
             "periode": x.get("periode"), "formule": x.get("formule"), "sources": x.get("sources"),
-            "note": note, "mesure": mesure, **({"reserve": x["reserve"]} if x.get("reserve") else {})}
+            "note": note, "mesure": mesure, **({"taux_bucket3": tb} if tb is not None else {}),
+            **({"non_notee": non_notee} if non_notee else {}),
+            **({"reserve": x["reserve"]} if x.get("reserve") else {})}
 
 
 def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | None = None,
@@ -502,15 +527,17 @@ def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | N
     _sm = ([s for s in (_sous_mesure_bancaire(f, sym, n) for n in
                         ("solvabilite_globale", "cout_du_risque_encours", "couverture_bucket3")) if s]
            if est_financiere(f) and est_banque(f) else [])
-    if _sm:
+    _notees = [s for s in _sm if s["note"] is not None]
+    if _notees:
         # BILAN BANCAIRE (20/10/2026) : remplace la dette nette / EBITDA.
-        oui("bilan", round(sum(s["note"] for s in _sm) / len(_sm), 2),
+        oui("bilan", round(sum(s["note"] for s in _notees) / len(_notees), 2),
             "bilan bancaire : " + " ; ".join(s["mesure"] for s in _sm)
-            + f" — moyenne à poids égaux de {len(_sm)} sous-mesure(s) sur 3")
+            + f" — moyenne à poids égaux de {len(_notees)} sous-mesure(s) notée(s) sur 3")
         comp["bilan"]["sous_mesures"] = _sm
         _abs = ((f.get("ratios_publies") or {}).get("solvabilite_globale_absente") or {}).get("motif")
         _res = ([f"solvabilité retirée, poids renormalisé — {_abs}"]
                 if _abs and not any(s["nom"] == "solvabilite_globale" for s in _sm) else [])
+        _res += [s["non_notee"] for s in _sm if s.get("non_notee")]
         _res += [f"{s['libelle']} : {s['reserve']}" for s in _sm if s.get("reserve")]
         if _res:
             comp["bilan"]["reserve"] = " | ".join(_res)
