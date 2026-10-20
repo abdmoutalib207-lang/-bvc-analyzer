@@ -7,7 +7,7 @@ Composantes [0-10]:
   Qualité       40%  Spread ROIC-WACC
   Croissance    30%  BPA (60%) + CA (40%) composite
   Valorisation  20%  Forward PER vs marché BVC
-  Bilan         10%  Dette/EBITDA + cash conversion
+  Bilan         10%  Dette/EBITDA + cash conversion ; banques : bilan bancaire (20/10/2026)
 
 Modificateurs: momentum, rerating, cycle_commodities
 
@@ -337,6 +337,96 @@ def _grille_bilan(dne: float, cc: float | None) -> float:
     return bs
 
 
+# ⚠️ GRILLE BANCAIRE — 20/10/2026, accord d'Abd Moutalib (cadre : usage du
+# métier, directives de Bank Al-Maghrib, IFRS 9). Pour les 7 banques (secteur
+# « Banque » : ATW, BCP, BOA, CIH, CDM, CFGB, BMC), la composante « bilan »
+# n'est plus retirée : elle devient le BILAN BANCAIRE, qui REMPLACE la dette
+# nette / EBITDA, et le coefficient d'exploitation entre dans la QUALITÉ à
+# côté du ROE (une seule fois : il n'est pas dans le bilan). Ratios recalculés
+# sur pièce par pipeline/ratios_financiers.py (`calculer_bancaire`), jamais
+# les taux publiés.
+#   bilan bancaire = moyenne à POIDS ÉGAUX des sous-mesures présentes :
+#     solvabilité globale (marge sur le minimum BAM), coût du risque ÷ encours
+#     net moyen, couverture Bucket 3 ; une sous-mesure absente est retirée et
+#     les poids renormalisés (BCP : pas de solvabilité publiée → deux
+#     sous-mesures, avec réserve).
+#   qualité = moyenne à POIDS ÉGAUX de la grille ROE − 10 et de la grille du
+#     coefficient ; l'une absente : l'autre seule.
+#   ⚠️ Poids égaux : HYPOTHÈSE DÉCLARÉE, faute de référence qui en fixe d'autres.
+#
+# LES SEUILS — chacun justifié (R12) :
+#   · plancher RÉGLEMENTAIRE de la solvabilité : 12 % (Bank Al-Maghrib,
+#     circulaire 14/G/2013 ; pièces : BMCI RFA 2025 p.13 « Ratio de solvabilité
+#     (Seuil Min 12%) », CIH RFA 2025 p.22 « (minimum exigible 12 %) » —
+#     faits_financiers.json › _grille_bancaire › minimum_solvabilite_bam).
+#     Sous le minimum : 1,5, la note la plus basse de la grille de bilan.
+#   · paliers au-dessus : DISTRIBUTION OBSERVÉE sur les banques notées le
+#     20/10/2026 — quartiles (méthode inclusive) arrondis au pas déclaré ;
+#     meilleur quart 8,5, deuxième 7,0, troisième 5,5, dernier 4,0 (l'échelle
+#     de `_grille_bilan`). C'est une note RELATIVE à la place, pas un jugement
+#     absolu : aucun barème BAM ni de place sourcé n'existe au-delà du minimum.
+#     `tests/test_grille_bancaire.py` recalcule les quartiles depuis
+#     fondamentaux.json et échoue si un seuil ne les reproduit plus.
+SOLVABILITE_MIN_BAM = 12.0
+PALIERS_BANCAIRES = {
+    # nom: (sens, seuils du meilleur au moins bon, pas d'arrondi, justification)
+    "solvabilite_globale": ("haut", (2.5, 2.0, 1.0), 0.5,
+        "marge sur le minimum BAM de 12 %, en points ; 6 banques (BCP ne publie pas) : 12,86 13,13 13,40 "
+        "14,42 14,85 18,66 % → marges 0,86 1,13 1,40 2,42 2,85 6,66 ; quartiles 1,20 / 1,91 / 2,74 → 1,0 / 2,0 / 2,5"),
+    "cout_du_risque_encours": ("bas", (0.75, 1.0, 1.5), 0.25,
+        "% de l'encours net moyen, exercice 2025 ; 7 banques : 0,23 0,64 0,85 1,10 1,44 1,55 1,83 ; "
+        "quartiles 0,75 / 1,10 / 1,49 → 0,75 / 1,00 / 1,50"),
+    "couverture_bucket3": ("haut", (75.0, 70.0, 60.0), 5.0,
+        "% au 30/06/2026 ; 7 banques : 40,5 48,8 69,2 70,5 71,7 75,5 79,9 ; quartiles 59,0 / 70,5 / 73,6 → 60 / 70 / 75"),
+    "coefficient_exploitation": ("bas", (45.0, 46.0, 47.0), 1.0,
+        "% sur 12 mois au 30/06/2026 ; 7 banques : 38,6 43,6 45,8 46,4 46,7 47,1 57,0 ; "
+        "quartiles 44,6 / 46,4 / 46,9 → 45 / 46 / 47"),
+}
+NOTES_QUARTS = (8.5, 7.0, 5.5, 4.0)
+NOTE_SOUS_MINIMUM = 1.5
+LIBELLES_BANCAIRES = {"solvabilite_globale": "solvabilité globale", "cout_du_risque_encours": "coût du risque",
+                      "couverture_bucket3": "couverture Bucket 3", "coefficient_exploitation": "coefficient d'exploitation"}
+
+
+def grille_bancaire(nom: str, x: float) -> float:
+    """La note d'une sous-mesure bancaire. Pure."""
+    sens, seuils, _, _ = PALIERS_BANCAIRES[nom]
+    if nom == "solvabilite_globale":
+        x = x - SOLVABILITE_MIN_BAM
+        if x < 0:
+            return NOTE_SOUS_MINIMUM
+    for s, n in zip(seuils, NOTES_QUARTS):
+        if (x >= s) if sens == "haut" else (x <= s):
+            return n
+    return NOTES_QUARTS[-1]
+
+
+def est_banque(f: dict | None) -> bool:
+    return str((f or {}).get("secteur") or "").startswith("Banque")
+
+
+def _sous_mesure_bancaire(f: dict, sym: str, nom: str) -> dict | None:
+    """Une sous-mesure de la grille bancaire lue dans `ratios_publies`, notée."""
+    v = _publie(f, sym, nom)
+    if v is None:
+        return None
+    x = f["ratios_publies"][nom]
+    note = grille_bancaire(nom, v)
+    mesure = f"{LIBELLES_BANCAIRES[nom]} {v:g} %"
+    if nom == "solvabilite_globale":
+        mesure += f" (minimum BAM {SOLVABILITE_MIN_BAM:g} %, marge {v - SOLVABILITE_MIN_BAM:+.2f} pt)"
+    elif nom == "cout_du_risque_encours":
+        mesure += " de l'encours net moyen"
+    _p, _d = str(x.get("periode") or ""), str(x.get("date") or "")
+    _jj = "/".join(reversed(_d.split("-"))) if _d else "?"
+    quand = (f"12 mois au {_jj}" if _p.startswith("12 mois") else
+             "exercice 2025" if _p.startswith("exercice 2025") else f"au {_jj}")
+    mesure += f", {quand} → {note:g}"
+    return {"nom": nom, "libelle": LIBELLES_BANCAIRES[nom], "valeur": v, "unite": "%", "date": x.get("date"),
+            "periode": x.get("periode"), "formule": x.get("formule"), "sources": x.get("sources"),
+            "note": note, "mesure": mesure, **({"reserve": x["reserve"]} if x.get("reserve") else {})}
+
+
 def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | None = None,
                       croissance_sourcee: bool = False) -> dict:
     """La note fondamentale du moteur, composante par composante.
@@ -362,11 +452,25 @@ def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | N
     # QUALITÉ — ROIC − WACC (ROE − coût des fonds propres pour une financière)
     if est_financiere(f):
         _roe = roe_effectif(f, sym)
-        if _roe is None:
+        # Banques : le coefficient d'exploitation à côté du ROE (grille bancaire, 20/10/2026).
+        _coef = _sous_mesure_bancaire(f, sym, "coefficient_exploitation") if est_banque(f) else None
+        if _roe is None and _coef is None:
             non("qualite", "ROE non calculé sur comptes publiés")
-        else:
+        elif _coef is None:
             oui("qualite", _grille_spread(_roe["valeur"] - COUT_FONDS_PROPRES_REF),
                 f"ROE {_roe['valeur']:g} % − {COUT_FONDS_PROPRES_REF:g}")
+        else:
+            _parts, _notes = [], [_coef["note"]]
+            if _roe is not None:
+                _nr = _grille_spread(_roe["valeur"] - COUT_FONDS_PROPRES_REF)
+                _notes.insert(0, _nr)
+                _parts.append(f"ROE {_roe['valeur']:g} % − {COUT_FONDS_PROPRES_REF:g} → {_nr:g}")
+            else:
+                _parts.append("ROE non calculé sur comptes publiés (retiré)")
+            _parts.append(_coef["mesure"])
+            oui("qualite", round(sum(_notes) / len(_notes), 2),
+                " ; ".join(_parts) + f" — moyenne à poids égaux de {len(_notes)} sous-mesure(s)")
+            comp["qualite"]["sous_mesures"] = [_coef]
     else:
         _r = ratio_effectif(f, sym, "roic")
         if sym in CONTESTES:
@@ -395,10 +499,27 @@ def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | N
         non("valorisation", "pas de PER positif tiré des comptes")
 
     # BILAN — dette nette / EBITDA sur comptes publiés, ou trésorerie nette
-    if est_financiere(f):
+    _sm = ([s for s in (_sous_mesure_bancaire(f, sym, n) for n in
+                        ("solvabilite_globale", "cout_du_risque_encours", "couverture_bucket3")) if s]
+           if est_financiere(f) and est_banque(f) else [])
+    if _sm:
+        # BILAN BANCAIRE (20/10/2026) : remplace la dette nette / EBITDA.
+        oui("bilan", round(sum(s["note"] for s in _sm) / len(_sm), 2),
+            "bilan bancaire : " + " ; ".join(s["mesure"] for s in _sm)
+            + f" — moyenne à poids égaux de {len(_sm)} sous-mesure(s) sur 3")
+        comp["bilan"]["sous_mesures"] = _sm
+        _abs = ((f.get("ratios_publies") or {}).get("solvabilite_globale_absente") or {}).get("motif")
+        _res = ([f"solvabilité retirée, poids renormalisé — {_abs}"]
+                if _abs and not any(s["nom"] == "solvabilite_globale" for s in _sm) else [])
+        _res += [f"{s['libelle']} : {s['reserve']}" for s in _sm if s.get("reserve")]
+        if _res:
+            comp["bilan"]["reserve"] = " | ".join(_res)
+    elif est_financiere(f):
         # ⚠️ MANQUANT, pas « sans objet » (15/10/2026) : la dette/EBITDA n'a pas
         # de sens pour une financière, mais son ÉQUIVALENT (coût du risque,
-        # qualité des créances, solvabilité) en a un — et il n'est pas intégré.
+        # qualité des créances, solvabilité) en a un — intégré pour les banques
+        # le 20/10/2026 (grille bancaire), pas pour les assurances ni les
+        # sociétés de financement.
         non("bilan", "équivalent bancaire non intégré (coût du risque, qualité des créances, "
                      "solvabilité) — la dette/EBITDA ne s'applique pas à une financière")
     elif sym in CONTESTES:
