@@ -227,6 +227,25 @@ def test_f_saf_rien_sur_l_agregat_roe_avant_fusion_hors_note():
     assert detail_fond_score("SAF", FOND)["composantes"]["qualite"]["note"] is None
 
 
+def test_g_conversion_au_taux_du_jour_du_cours_seulement():
+    from pipeline.change_bct import cap_en_devise, analyser, lire_taux
+    taux = lire_taux()
+    assert taux["2026-10-19"]["tnd_par_mad"] == 0.3054 and "Banque Centrale de Tunisie" in taux["2026-10-19"]["source"]
+    c = cap_en_devise(1404.0, "2026-10-19", "TND", taux)
+    assert (c["valeur"], c["date_taux"], c["devise"]) == (round(1404.0 * 0.3054, 1), "2026-10-19", "TND")
+    # Jour sans taux relevé : pas de conversion, jamais le taux de la veille.
+    assert cap_en_devise(1404.0, "2026-10-20", "TND", taux)["valeur"] is None
+    assert cap_en_devise(1404.0, "2026-10-19", "MAD", taux) is None
+    p = analyser("<td>Journée du 19/10/2026</td> ... <td>DIRHAM MAROCAIN</td><td>MAD</td><td>10</td><td>3,0540</td>")
+    assert p == {"date": "2026-10-19", "tnd_par_mad": 0.3054, "citation": "DIRHAM MAROCAIN MAD 10 3,0540"}
+
+
+def test_g_jamais_sce_plus_ifrs_sur_douze_mois():
+    t = dict(JEU["titres"]["CDM"], referentiel_exercice="SCE", referentiel_s1="IFRS")
+    assert douze_mois(t, "CDM") is None
+    assert "ENK" not in JEU["titres"] and BPA.get("ENK") is None
+
+
 def test_c_mdp_reserve_per_non_recurrent_sans_retraitement():
     assert fg.RESERVES_RATIOS["MDP"]["valorisation"].startswith("PER non récurrent")
     assert "retraitement_exceptionnel" not in JEU["titres"]["MDP"]

@@ -78,6 +78,13 @@ def douze_mois(t: dict, sym: str | None = None) -> dict | None:
     cles = ("rnpg_exercice_2025", "rnpg_s1_2026", "rnpg_s1_2025", "actions")
     if any(t.get(k) is None for k in cles) or not t["actions"]:
         return None
+    # ⚠️ RÈGLE g — 20/10/2026 — IAS 21 / référentiels : jamais d'addition d'un
+    # exercice et de semestres tenus dans des référentiels (SCE tunisien, IFRS,
+    # CGNC) ou des monnaies différents (ENK : exercice 2025 SCE, S1 2026 IFRS).
+    for cle in ("referentiel", "devise"):
+        ex, s1 = t.get(f"{cle}_exercice"), t.get(f"{cle}_s1")
+        if ex and s1 and ex != s1:
+            return None
     rn = t["rnpg_exercice_2025"] + t["rnpg_s1_2026"] - t["rnpg_s1_2025"]
     pond = _ponderees(sym, t, DEBUT_12M, FIN_12M)
     out = {"rnpg_12m": round(rn, 3),
