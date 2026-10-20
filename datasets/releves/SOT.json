@@ -1,0 +1,114 @@
+{
+ "ticker": "SOT",
+ "societe": "Sothema",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E2",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "aucun — note fondamentale à couverture 1,0 ; lot E2 : adossement des grandeurs lues et dernier bilan publié (30/06/2026)",
+  "effet": "aucun sur la note : relevé d'information pour la règle « dernier bilan publié » à l'étude",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; datasets/resultats_s1_2026.json"
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Résultats financiers du 1er semestre 2026 (dépôt AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Sothema_S1_26.pdf",
+   "sha256": "e641c15b2c5de0cdb68bf9759d64af3be950a27f72bc445da0a4f80bc86d427c",
+   "octets": 688734,
+   "pages": 3
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "emprunts_et_dettes_financieres",
+   "valeur": 289354,
+   "unite": "KMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/Sothema_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Emprunts et dettes financières (Note 4.10) 289 354 395 411"
+  },
+  {
+   "grandeur": "emprunts_et_dettes_financieres",
+   "valeur": 395411,
+   "unite": "KMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/Sothema_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Emprunts et dettes financières (Note 4.10) 289 354 395 411"
+  },
+  {
+   "grandeur": "emprunts_concours_moins_un_an",
+   "valeur": 545601,
+   "unite": "KMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/Sothema_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Emprunts et concours bancaires (part à moins d'un an) (Note 4.12) 545 601 581 309"
+  },
+  {
+   "grandeur": "emprunts_concours_moins_un_an",
+   "valeur": 581309,
+   "unite": "KMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/Sothema_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Emprunts et concours bancaires (part à moins d'un an) (Note 4.12) 545 601 581 309"
+  },
+  {
+   "grandeur": "disponibilites",
+   "valeur": 150251,
+   "unite": "KMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/Sothema_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Disponibilités (Note 4.6) 150 251 148 850"
+  },
+  {
+   "grandeur": "disponibilites",
+   "valeur": 148850,
+   "unite": "KMAD",
+   "periode": "31/12/2025 (colonne comparative du même dépôt)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/Sothema_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Disponibilités (Note 4.6) 150 251 148 850"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette au 30/06/2026, mêmes postes que la base 31/12/2025 de fondamentaux.json › ratios_publies.dette_nette",
+   "formule": "289 354 + 545 601 − 150 251 (KMAD)",
+   "resultat": 684.704,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "contrôle : même formule sur la colonne 31/12/2025 du dépôt S1",
+   "formule": "mêmes postes, colonne comparative",
+   "resultat": 827.87,
+   "unite": "MMAD",
+   "compare_a": "dette nette lue par la note au 31/12/2025 : 827.9"
+  }
+ ],
+ "constats": [
+  "L'« Endettement Net 833 » publié pour 2025 (RFA p.81) s'écarte de 0,6 % de la base lue (827,9) : sous le seuil de 2 %."
+ ],
+ "conclusion": "Semestriel au 30/06/2026 déposé à l'AMMC ; dette nette +684.7 MMAD au 30/06/2026 contre +827.9 lue par la note au 31/12/2025.",
+ "debloquerait": "rien de bloqué ; alimente la décision sur la règle « dernier bilan publié » (R8 : rien n'est appliqué)",
+ "question_ir": null
+}
