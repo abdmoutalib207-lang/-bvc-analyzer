@@ -1,0 +1,39 @@
+{
+  "ticker": "DSW",
+  "societe": "Disway",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF",
+  "blocage": {
+    "motif": "dette nette / EBITDA non calculée sur comptes publiés",
+    "effet": "composante « bilan » retirée ; non_calcules.ebitda : « Dotations d'exploitation 33 097 468,61 (p.19) n'isole pas les amortissements des provisions … Aucun EBITDA consolidé publié »",
+    "lu_dans": "data.json › DSW › note_fond.composantes.bilan.motif ; faits_financiers.json › DSW › _controles_ratios_2025.non_calcules"
+  },
+  "pieces": [
+    {"id": "rfa_2025", "rang_methode": 1, "titre": "Rapport financier annuel 2025 (13,7 Mo, non commité)", "url": "https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf", "sha256": "feb9d97611e4f893e308a79bc9137a300a5900d97e7f63c8212862fc741960ce", "octets": 13702242, "pages": 91},
+    {"id": "rfs_s1_2026", "rang_methode": 1, "titre": "Rapport financier semestriel au 30/06/2026", "url": "https://www.ammc.ma/sites/default/files/Disway_RFS_S1_26.pdf", "sha256": "0d40d047a79856c9ccd36c960d0622b18684afb5bc7cefe980555c50de617572", "octets": 2080260, "pages": 19}
+  ],
+  "chiffres": [
+    {"grandeur": "dotations_amortissements_immobilisations", "valeur": 13.804592, "unite": "MMAD", "periode": "exercice 2025 (en-tête imprimé « 30/06/2025 » : coquille, voir calculs)", "perimetre": "consolidé, normes marocaines ; annexe « Évolution des amortissements et provisions sur immobilisations »", "source": "https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf", "piece": "rfa_2025", "page": 21, "citation": "EVOLUTION DES AMORTISSEMENTS ET PROVISIONS SUR IMMOBILISATIONS … Immobilisations incorporelles 2 919 018 318 762 148 - 3 237 632 ; Immobilisations corporelles 118 298 513 13 485 830 723 285 - 131 061 058 ; Immobilisations financières 0 - - - 0 ; TOTAL 121 217 530 13 804 592 723 433 - 134 298 690"},
+    {"grandeur": "dotations_amortissements_flux", "valeur": 13.804592, "unite": "MMAD", "periode": "exercice 2025 (2024 : 8,121)", "perimetre": "consolidé, tableau des flux", "source": "https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf", "piece": "rfa_2025", "page": 20, "citation": "*Dotation d'exploitation durable nette de reprise 13 804 592 8 120 751"},
+    {"grandeur": "valeur_brute_immobilisations", "valeur": 500.556362, "unite": "MMAD", "periode": "31/12/2025", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf", "piece": "rfa_2025", "page": 21, "citation": "EVOLUTION DES IMMOBILISATIONS … 31/12/2024 … 31/12/2025 … TOTAL 484 810 178 16 855 109 1 108 924 - 500 556 362"},
+    {"grandeur": "actif_immobilise_net", "valeur": 366.2576719, "unite": "MMAD", "periode": "31/12/2025 (2024 : 363,593)", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf", "piece": "rfa_2025", "page": 18, "citation": "ACTIF IMMOBILISE 366 257 671,90 363 592 647,09"},
+    {"grandeur": "dotations_exploitation", "valeur": 33.09746861, "unite": "MMAD", "periode": "exercice 2025 (2024 : 30,825)", "perimetre": "consolidé ; amortissements ET provisions", "source": "https://www.ammc.ma/sites/default/files/Disway_RFA_2025.pdf", "piece": "rfa_2025", "page": 19, "citation": "* Dotations d'exploitation 33 097 468,61 30 824 980,17 Résultat d'exploitation 107 526 425,61 102 652 825,62"},
+    {"grandeur": "dotations_exploitation_s1", "valeur": 22.37565048, "unite": "MMAD", "periode": "S1 2026 (S1 2025 : 21,384)", "perimetre": "consolidé ; amortissements ET provisions (annexe semestrielle non relevée)", "source": "https://www.ammc.ma/sites/default/files/Disway_RFS_S1_26.pdf", "piece": "rfs_s1_2026", "page": 11, "citation": "* Dotations d'exploitation 22 375 650,48 21 383 946,74 Résultat d'exploitation 76 881 762,52 57 591 539,59"}
+  ],
+  "estimations": [],
+  "calculs": [
+    {"quoi": "L'annexe d'amortissements est bien au 31/12/2025 malgré son en-tête : brut fin moins cumul fin = actif immobilisé net du bilan", "formule": "500,556362 − 134,298690", "resultat": 366.257672},
+    {"quoi": "Même contrôle sur les seules immobilisations corporelles (bilan p.18 : 192 144 702,41)", "formule": "323,205761 − 131,061058", "resultat": 192.144703},
+    {"quoi": "EBITDA consolidé (résultat d'exploitation + dotations aux amortissements isolées)", "formule": "107,526426 + 13,804592", "resultat": 121.331},
+    {"quoi": "Dette nette du moteur / EBITDA", "formule": "237,3 ÷ 121,331", "resultat": 1.96}
+  ],
+  "constats": [
+    "Les amortissements consolidés SONT isolés : annexe p.21, 13 804 592 MAD de dotations sur immobilisations (incorporelles 318 762, corporelles 13 485 830, aucune provision sur immobilisations financières), égal au dirham à la « dotation d'exploitation durable » du tableau des flux (p.20).",
+    "L'en-tête de colonne imprimé dit « 30/06/2025 ». C'est une coquille : le cumul de fin (134 298 690) soustrait du brut au 31/12/2025 (500 556 362) redonne au centime l'actif immobilisé net du bilan au 31/12/2025 (366 257 671,90, p.18), et de même pour les corporelles.",
+    "Les 19,3 MMAD restants des « Dotations d'exploitation » (33,1) sont donc des provisions sur actif circulant, que l'EBITDA ci-dessus ne réintègre pas."
+  ],
+  "conclusion": "Pièce trouvée : amortissements consolidés isolés et recoupés ; EBITDA calculable sur comptes publiés.",
+  "debloquerait": "La composante « bilan » : EBITDA 121,3 MMAD (107,5 + 13,8), dette nette / EBITDA 1,96 (grille 5,5).",
+  "question_ir": null
+}
