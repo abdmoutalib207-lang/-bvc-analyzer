@@ -4910,6 +4910,13 @@ def run(dry_run=False, push=False, token=""):
                         "exercice 2025" if (BPA_DATA.get(ticker) or {}).get("bpa") else None),
             "bpa":    BPA_DATA[ticker]["bpa"] if ticker in BPA_DATA else None,
             "bpa_12m": (BPA_DATA.get(ticker) or {}).get("bpa_12m"),
+            # ⚠️ RÈGLE e — 20/10/2026 — IAS 33.19-20 et 33.64 : le PER ci-dessus
+            # est cours ÷ BPA sur le nombre MOYEN PONDÉRÉ d'actions de la
+            # période (`bvc_config.HISTORIQUE_ACTIONS`). La capitalisation ÷ le
+            # résultat 12 mois, qui lit le nombre d'actions ACTUEL, s'affiche
+            # en regard : les deux divergent quand le capital a varié (CIH, CDM).
+            "pe_capitalisation": _per(_cap_retenue, (BPA_DATA.get(ticker) or {}).get("rnpg_12m")),
+            "bpa_reserve": (BPA_DATA.get(ticker) or {}).get("reserve_bpa"),
             # ⚠️ Le price-to-book vient désormais des FAITS SOURCÉS quand ils
             # existent, et vaut None sinon — jamais la constante de FOND_DATA.
             # Sur Alliances, la table annonçait 0,80 quand les comptes 2025

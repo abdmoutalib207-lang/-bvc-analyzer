@@ -17,7 +17,8 @@ un chiffre et l'appliquer sont deux actes distincts, et le premier se relit.
   · le résultat sur douze mois glissants :
         exercice 2025 + S1 2026 − S1 2025
     — le semestre 2026 ne REMPLACE pas l'exercice, il le décale de six mois ;
-  · le BPA correspondant, sur le nombre d'actions ACTUEL ;
+  · le BPA correspondant, sur le nombre MOYEN PONDÉRÉ d'actions de la période
+    (IAS 33.19-20 — règle e du 20/10/2026, voir `bvc_config.HISTORIQUE_ACTIONS`) ;
   · la croissance semestrielle du résultat et du chiffre d'affaires, qui
     remplace dans la note fondamentale une croissance saisie en juin.
 
@@ -40,14 +41,50 @@ JEU = RACINE / "datasets" / "resultats_s1_2026.json"
 DATE_MAJ = "2026-09-29"
 
 
-def douze_mois(t: dict) -> dict | None:
-    """Résultat, BPA et croissances sur douze mois. None si une valeur manque."""
+FIN_12M = "2026-06-30"
+DEBUT_12M = "2025-07-01"
+
+
+def _ponderees(sym: str | None, t: dict, debut: str, fin: str) -> dict:
+    """Nombre d'actions de la période (IAS 33). Sans symbole : nombre actuel."""
+    if sym is None:
+        return {"nombre": t["actions"], "methode": "nombre actuel", "reserve": None}
+    if str(RACINE) not in sys.path:
+        sys.path.insert(0, str(RACINE))
+    from bvc_config import actions_ponderees
+    return actions_ponderees(sym, debut, fin, t["actions"])
+
+
+def _historique() -> dict:
+    if str(RACINE) not in sys.path:
+        sys.path.insert(0, str(RACINE))
+    from bvc_config import HISTORIQUE_ACTIONS
+    return HISTORIQUE_ACTIONS
+
+
+def douze_mois(t: dict, sym: str | None = None) -> dict | None:
+    """Résultat, BPA et croissances sur douze mois. None si une valeur manque.
+
+    ⚠️ RÈGLE e — 20/10/2026 — IAS 33.19-20, 33.21(a), 33.26-28 et 33.64. Le BPA
+    se calcule sur le nombre MOYEN PONDÉRÉ d'actions de la période, et non sur
+    le nombre ACTUEL : une émission en numéraire ne compte qu'à partir de sa
+    date (exclue si elle suit la clôture), une division ou une attribution
+    gratuite est rétro-ajustée sur toutes les périodes. Les mouvements, chacun
+    avec sa pièce, sont dans `bvc_config.HISTORIQUE_ACTIONS` ; un titre absent
+    garde nombre pondéré = nombre actuel. Cas : CIH (émission du 31/07/2025
+    dans la période, celle du 28/07/2026 exclue), CDM (émission du 23/07/2026
+    exclue), T2S (traitement des actions de priorité non établi : nombre
+    actuel ET réserve publiée). Sans `sym`, nombre actuel (tests d'unité)."""
     cles = ("rnpg_exercice_2025", "rnpg_s1_2026", "rnpg_s1_2025", "actions")
     if any(t.get(k) is None for k in cles) or not t["actions"]:
         return None
     rn = t["rnpg_exercice_2025"] + t["rnpg_s1_2026"] - t["rnpg_s1_2025"]
+    pond = _ponderees(sym, t, DEBUT_12M, FIN_12M)
     out = {"rnpg_12m": round(rn, 3),
-           "bpa_12m": round(rn * 1e6 / t["actions"], 2)}
+           "bpa_12m": round(rn * 1e6 / pond["nombre"], 2),
+           "actions_12m": pond["nombre"], "methode_actions_12m": pond["methode"]}
+    if pond.get("reserve"):
+        out["reserve_bpa"] = pond["reserve"]
     # ⚠️ Une croissance rapportée à une base NÉGATIVE n'a pas de sens : on
     # reprend alors celle que l'émetteur publie, et on le dit.
     # ⚠️ SEULEMENT dans ce cas — 20/10/2026 (verificateur-finance). Le code
@@ -76,17 +113,20 @@ def appliquer(jeu: dict, bpa: dict, fond: dict) -> list[str]:
     """Met à jour `bpa` et `fond` EN PLACE. Renvoie le journal des changements."""
     journal = []
     for s, t in jeu["titres"].items():
-        m = douze_mois(t)
+        m = douze_mois(t, s)
         if m is None:
             journal.append(f"{s} : incomplet, rien d'appliqué")
             continue
-        exercice = round(t["rnpg_exercice_2025"] * 1e6 / t["actions"], 2)
+        # Règle e (IAS 33.19-20, 20/10/2026) : exercice 2025 sur le nombre
+        # moyen pondéré de 2025, comme le douze mois sur le sien.
+        pond25 = _ponderees(s, t, "2025-01-01", "2025-12-31")
+        exercice = round(t["rnpg_exercice_2025"] * 1e6 / pond25["nombre"], 2)
         b = bpa.setdefault(s, {})
         # ⚠️ L'ancien BPA est conservé à côté du nouveau, jamais effacé.
         if b.get("bpa") is not None and abs(b["bpa"] - exercice) > 0.05:
             b.setdefault("bpa_avant_2026_09_29", b["bpa"])
             journal.append(f"{s} : BPA 2025 {b['bpa']} → {exercice} "
-                           f"({t['rnpg_exercice_2025']} MDH ÷ {t['actions']:,} actions)")
+                           f"({t['rnpg_exercice_2025']} MDH ÷ {pond25['nombre']:,} actions)")
             b["bpa"] = exercice
         elif t.get("affiner_bpa") and b.get("bpa") is not None and b["bpa"] != exercice:
             # Écart ≤ 0,05 : même BPA, mais calculé sur un résultat ARRONDI
@@ -113,7 +153,18 @@ def appliquer(jeu: dict, bpa: dict, fond: dict) -> list[str]:
             b.setdefault("source_avant_2026_10_05", b["source"])
             b["source"] = "resultats_officiels"
         b["rnpg_12m"] = m["rnpg_12m"]
+        if s in _historique() and b.get("bpa_12m") not in (None, m["bpa_12m"]):
+            # Règle e (20/10/2026) : l'ancien BPA, sur le nombre actuel, est gardé.
+            b.setdefault("bpa_12m_avant_2026_10_20", b["bpa_12m"])
         b["bpa_12m"] = m["bpa_12m"]
+        if s in _historique():
+            b["actions_12m"] = m["actions_12m"]
+            b["actions_exercice_2025"] = pond25["nombre"]
+            b["methode_actions"] = m["methode_actions_12m"]
+        if m.get("reserve_bpa"):
+            b["reserve_bpa"] = m["reserve_bpa"]
+        else:
+            b.pop("reserve_bpa", None)
         b["fin_12m"] = jeu["fin_periode"]
         b["source_12m"] = (f"exercice 2025 + S1 2026 − S1 2025 ; S1 : {t['url']} "
                            f"{t['pages']} ; base : {t['base']}")

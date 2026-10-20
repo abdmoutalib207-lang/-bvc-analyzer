@@ -184,9 +184,10 @@ def test_sanlam_ecarte_pour_fusion():
 def test_lot5_grandes_valeurs_sur_piece():
     """Lot 5. Attendus calculés à la main depuis les dépôts AMMC."""
     bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
-    # CDM : 863,551 + 531,692 − 445,147 = 950,096 ÷ 11 626 499 = 81,72
-    # (actions APRÈS l'augmentation de capital de 745 285 titres)
-    assert bpa["CDM"]["bpa_12m"] == 81.72
+    # CDM : 863,551 + 531,692 − 445,147 = 950,096 ÷ 10 881 214 = 87,32
+    # Règle e (20/10/2026, IAS 33.21) : les 745 285 actions nouvelles du
+    # 23/07/2026 suivent la clôture du 30/06 et sont EXCLUES (81,72 avant).
+    assert bpa["CDM"]["bpa_12m"] == 87.32 and bpa["CDM"]["bpa_12m_avant_2026_10_20"] == 81.72
     # IAM : 6 969 + 2 482 − 4 117 = 5 334 ÷ 879 095 340 = 6,07 — la recette
     # exceptionnelle du S1 2025 sort avec le semestre soustrait.
     assert bpa["IAM"]["bpa_12m"] == 6.07

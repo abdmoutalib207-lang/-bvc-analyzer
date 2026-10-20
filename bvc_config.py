@@ -898,6 +898,102 @@ OPERATIONS_SUR_CAPITAL: dict = {
 }
 
 
+# ─────────────────── nombre d'actions de la période, pour le BPA (IAS 33) ───────────────────
+# RÈGLE e — 20/10/2026 (verificateur-finance, tranché par Abd Moutalib : la norme prime).
+# IAS 33.19-20 : le BPA de base se calcule sur le nombre MOYEN PONDÉRÉ d'actions ordinaires en
+# circulation pendant la période. IAS 33.21(a) : une émission en numéraire compte à partir de sa date
+# (ici la date où l'organe social CONSTATE la réalisation) ; postérieure à la clôture, elle est exclue.
+# IAS 33.26-28 et 33.64 : une division du nominal ou une attribution gratuite est rétro-ajustée sur
+# TOUTES les périodes présentées, même si elle intervient après la clôture.
+#
+# Ce registre ne porte que les titres dont le capital a varié sur les périodes lues (exercice 2025,
+# douze mois au 30/06/2026) ; un titre absent garde nombre pondéré = nombre actuel. Chaque mouvement
+# porte sa pièce (R11 : une opération sur titres se CONSTATE, elle ne se déduit pas d'une série).
+#   nature "numeraire" : `avant` → `apres`, compté à partir de `date` (exclu si après la fin) ;
+#   nature "division"  : `ratio`, appliqué à tout ce qui précède `date`, quelle que soit la période.
+# `denominateur_ambigu` : la pièce ne tranche pas le traitement IAS 33 → le calcul garde le nombre
+# ACTUEL et publie `reserve` (consigne du 20/10/2026 : « n'invente pas »).
+HISTORIQUE_ACTIONS: dict = {
+    "CIH": {"mouvements": [
+        {"date": "2025-07-31", "nature": "numeraire", "avant": 31497283, "apres": 35605624,
+         "source": "CIH Bank RFA 2025 p.36 note R12 (« Nombre d'actions ordinaires émises 35 605 624 "
+                   "31 497 283 », déc-25 / déc-24) et p.181 (« émission de 4 108 341 nouvelles actions », "
+                   "communiqué « Résultats Augmentation de Capital ») ; date : communiqué de l'émetteur relayé "
+                   "par boursenews.ma le 06/08/2025 : « Le Conseil d'Administration, réuni en date du "
+                   "31 juillet 2025, a constaté la réalisation effective de cette opération » (souscription "
+                   "du 4 au 23 juillet 2025). Le BPA S1 2025 publié (19,5) est sur 31 497 283 : émission "
+                   "postérieure au 30/06/2025, confirmée."},
+        {"date": "2026-07-28", "nature": "numeraire", "avant": 35605624, "apres": 38641338,
+         "source": "CP_CIH_Bank_resultats_augmentation_capital_numeraire.pdf p.1 et "
+                   "CP_CIH_resultats_augmentation_reservee_personnel.pdf p.1 (AMMC) : conseil du 28/07/2026, "
+                   "« Nombre d'actions anciennes 35 605 624 / Nombre d'actions nouvelles 3 035 714 / Nouveau "
+                   "nombre d'action total 38 641 338 » — après la clôture du 30/06/2026 : exclu."},
+    ]},
+    "CDM": {"mouvements": [
+        {"date": "2026-07-23", "nature": "numeraire", "avant": 10881214, "apres": 11626499,
+         "source": "https://www.ammc.ma/sites/default/files/CP_CDM_cloture_augmentation_capital.pdf p.1 : "
+                   "« Le Directoire, lors de sa réunion du 23 juillet 2026, a constaté que l'augmentation du "
+                   "capital social par émission de 745.285 actions nouvelles […] est définitivement réalisée » ; "
+                   "capital porté à 1 162 649 900 DH. Avant : 10 881 214 (avis de dividende 2025 : "
+                   "522 298 272 = 48 × 10 881 214 ; capital au 30/06/2026 1 088 121 KDH, CDM_S1_26.pdf). "
+                   "Après la clôture du 30/06/2026 : exclu. ⚠️ Le dépôt S1 publie un RNPG par action 2025 "
+                   "de 79,44 (10 870 xxx actions) contre 79,36 ici : écart de 0,1 % non expliqué (titres "
+                   "propres ?), consigné."},
+    ]},
+    "T2S": {"denominateur_ambigu": True, "mouvements": [],
+            "reserve": "BPA sur le nombre d'actions ACTUEL (21 785 174), faute de pouvoir trancher IAS 33. "
+                       "Lu le 20/10/2026 dans T2S_IPO_DR_010_2026.pdf : les 1 239 actions de priorité A et "
+                       "1 239 B (« assorties de droits financiers particuliers », p.26 note 6) étaient le plan "
+                       "d'intéressement du management (MIP, p.152 : « actions ordinaires gratuites » « en "
+                       "contrepartie de l'atteinte des objectifs de performance ») ; converties le 08/06/2026 "
+                       "en 840 042 actions ordinaires par incorporation de réserves (p.28) ; nominal divisé "
+                       "par 2 au premier jour de cotation (p.21) ; 1 569 506 actions nouvelles de l'introduction "
+                       "(juillet 2026, p.37). Deux lectures d'IAS 33 restent possibles et aucune n'est écrite "
+                       "par l'émetteur (pas de note « résultat par action ») : attribution gratuite rétro-"
+                       "ajustée (IAS 33.28 : 20 215 668 actions, BPA 12 mois 9,25) ou actions à émission "
+                       "conditionnelle comptées du 08/06/2026 (IAS 33.24 et 52 : ≈ 18,64 M, ≈ 10,03). Dans les "
+                       "deux, les actions de l'introduction, postérieures à la clôture, seraient exclues : le "
+                       "BPA publié ici (sur 21,79 M) est donc un PLANCHER."},
+}
+
+
+def actions_ponderees(ticker: str, debut: str, fin: str, actuel: int) -> dict:
+    """Nombre moyen pondéré d'actions sur [debut, fin] (dates ISO incluses) — IAS 33.19-20, 21, 26-28, 64.
+
+    Renvoie {"nombre", "methode", "reserve"}. Titre absent du registre : nombre actuel, méthode
+    « actuel (capital inchangé) ». Registre ambigu : nombre actuel et sa réserve."""
+    from datetime import date as _d
+    e = HISTORIQUE_ACTIONS.get(ticker)
+    if not e:
+        return {"nombre": actuel, "methode": "nombre actuel (capital inchangé sur la période)", "reserve": None}
+    if e.get("denominateur_ambigu"):
+        return {"nombre": actuel, "methode": "nombre actuel (traitement IAS 33 non établi)",
+                "reserve": e.get("reserve")}
+    d0, d1 = _d.fromisoformat(debut), _d.fromisoformat(fin)
+    mvts = sorted(e["mouvements"], key=lambda m: m["date"])
+    num = [m for m in mvts if m["nature"] == "numeraire"]
+
+    def n_brut(j):            # actions en circulation le jour j, unités du jour j
+        n = num[0]["avant"] if num else actuel
+        for m in num:
+            if _d.fromisoformat(m["date"]) <= j:
+                n = m["apres"]
+        return n
+
+    def facteur(j):           # divisions postérieures au jour j : rétro-ajustement (IAS 33.64)
+        f = 1
+        for m in mvts:
+            if m["nature"] == "division" and _d.fromisoformat(m["date"]) > j:
+                f *= m["ratio"]
+        return f
+
+    jours = (d1 - d0).days + 1
+    total = sum(n_brut(_d.fromordinal(d0.toordinal() + k)) * facteur(_d.fromordinal(d0.toordinal() + k))
+                for k in range(jours))
+    return {"nombre": round(total / jours), "reserve": e.get("reserve"),
+            "methode": f"moyenne pondérée IAS 33 du {debut} au {fin} ({jours} jours)"}
+
+
 # ─────────────────── dividendes versés dans l'exercice, lus au tableau de variation ───────────────────
 # Le résidu de fonds propres R = FP2025 − FP2024 − RNPG2025 contient, en premier lieu, le dividende versé.
 # Le test de la moyenne porte sur le résidu APRÈS dividende : R + D. D se lit d'abord ICI, au tableau de
