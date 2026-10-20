@@ -50,10 +50,20 @@ def douze_mois(t: dict) -> dict | None:
            "bpa_12m": round(rn * 1e6 / t["actions"], 2)}
     # ⚠️ Une croissance rapportée à une base NÉGATIVE n'a pas de sens : on
     # reprend alors celle que l'émetteur publie, et on le dit.
-    if t.get("croissance_bpa_publiee") is not None:
-        out["croissance_bpa"] = t["croissance_bpa_publiee"]
-    elif t["rnpg_s1_2025"] > 0:
+    # ⚠️ SEULEMENT dans ce cas — 20/10/2026 (verificateur-finance). Le code
+    # reprenait la croissance publiée dès qu'elle existait, base positive
+    # comprise : IAM était noté sur +8,1 % « hors exceptionnel » au lieu des
+    # −39,7 % que donnent ses comptes (2 482 ÷ 4 117 − 1), CIH sur −11,3 % au
+    # lieu de +0,3 %. Base positive : la croissance se CALCULE. La valeur
+    # publiée reste consignée dans le jeu de données et rendue à côté
+    # (`croissance_bpa_publiee_non_retenue`), jamais appliquée.
+    publiee = t.get("croissance_bpa_publiee")
+    if t["rnpg_s1_2025"] > 0:
         out["croissance_bpa"] = round((t["rnpg_s1_2026"] / t["rnpg_s1_2025"] - 1) * 100, 1)
+        if publiee is not None:
+            out["croissance_bpa_publiee_non_retenue"] = publiee
+    elif publiee is not None:
+        out["croissance_bpa"] = publiee
     if t.get("croissance_ca_publiee") is not None:
         # Variation publiée sans montant (BCP, S1 2026) : reprise telle quelle.
         out["croissance_ca"] = t["croissance_ca_publiee"]

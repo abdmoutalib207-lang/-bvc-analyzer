@@ -359,7 +359,8 @@
       "rnpg_exercice_2025": 6969.0,
       "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Maroc_Telecom_2025.pdf — « Résultat Net Part du Groupe 6 969 » (recette exceptionnelle incluse)",
       "actions": 879095340,
-      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation ÷ cours), identique à fondamentaux.json"
+      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation ÷ cours), identique à fondamentaux.json",
+      "croissance_bpa_note": "20/10/2026 : la croissance publiée hors exceptionnel (+8,1 %) reste consignée ici mais n'est PLUS appliquée. Base S1 2025 positive (4 117) : la convention de pipeline/resultats_semestriels.py calcule la croissance, 2 482 ÷ 4 117 − 1 = −39,7 %, chiffre que le communiqué publie aussi (CP S1 2026 p.1 : « Résultat Net Part du Groupe(2) … 4 117 2 482 -39,7% »). Le code reprenait la publiée dès qu'elle existait, contrairement à la convention écrite (verificateur-finance)."
     },
     "ATW": {
       "url": "https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf",
@@ -1090,7 +1091,8 @@
       "capitaux_propres_pg_31_12_2024_meme_base": true,
       "source_capitaux_propres_2024": "CIH_Bank_RFA_2025.pdf p.26, tableau des capitaux propres (KMAD) : « Capitaux propres au : 2024.décembre 3 051 978 - - 4 183 198 232 160 7 467 336 792 427 8 259 763 » (ligne publiée à l'origine) ; « Autres changements de méthodes comptables, corrections d'erreurs 97 750 - - 85 159 -5 345 177 564 121 177 685 » ; « Capitaux propres corrigés : 2024.décembre 3 149 728 - - 4 268 357 226 815 7 644 900 792 548 8 437 448 » : part du groupe CORRIGÉE 7 644 900 KMAD (comparatif retraité de même base que 2025). CHOIX : la ligne corrigée, comparable au 31/12/2025, plutôt que la ligne publiée 7 467 336. Page relevée le 14/10/2026.",
       "capitaux_propres_pg_31_12_2024_page": 26,
-      "capitaux_propres_pg_31_12_2025_page": 26
+      "capitaux_propres_pg_31_12_2025_page": 26,
+      "croissance_bpa_note": "20/10/2026 : la croissance publiée (−11,3 %) reste consignée ici mais n'est PLUS appliquée. Base S1 2025 positive (615,437) : la croissance est calculée sur le résultat, 616,987 ÷ 615,437 − 1 = +0,3 % (communiqué p.1 : « RNPG 617,0 MDH, +0,3 % »). ⚠️ Le −11,3 % publié est une variation de BPA PAR ACTION sur des nombres d'actions différents (17,3 contre 19,5 DH, sur 35 605 624 et 31 497 283 actions, note R12 p.15) : il mesure la dilution, que le calcul sur le résultat ne voit pas."
     },
     "JET": {
       "url": "https://www.ammc.ma/sites/default/files/Jet_Contractors_RFS_S1_26.pdf",

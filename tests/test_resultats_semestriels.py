@@ -197,10 +197,13 @@ def test_lot5_grandes_valeurs_sur_piece():
 
 
 def test_iam_croissance_hors_exceptionnel():
-    """−39,7 % brut ; +8,1 % publié hors recette exceptionnelle. On retient
-    ce que l'émetteur publie, et le dataset le dit."""
+    """−39,7 % brut ; +8,1 % publié hors recette exceptionnelle. Jusqu'au
+    20/10/2026 on retenait le +8,1 % ; la convention (base positive : la
+    croissance se calcule) retient désormais −39,7 %. Le +8,1 % et son motif
+    restent consignés dans le jeu de données."""
     fond = json.loads((RACINE / "fondamentaux.json").read_text(encoding="utf-8"))
-    assert fond["IAM"]["croissance_bpa"] == 8.1
+    assert fond["IAM"]["croissance_bpa"] == -39.7
+    assert JEU["titres"]["IAM"]["croissance_bpa_publiee"] == 8.1
     assert "exceptionnelle" in JEU["titres"]["IAM"]["pages"]
 
 
@@ -319,3 +322,39 @@ def test_lot12_six_integres_trois_ecartes():
     # JET et M2M ont été intégrés le 05/10/2026 sur le rapport semestriel complet.
     assert "STK" not in JEU["titres"] and "STK" in JEU["_ecartes"]
     assert "réserve" in JEU["_ecartes"]["STK"]
+
+
+# ── Convention de la croissance publiée (20/10/2026, verificateur-finance) ──
+# La croissance PUBLIÉE par l'émetteur n'est reprise que si la base (S1 2025)
+# est négative ou nulle. Le code la reprenait dès qu'elle existait : IAM était
+# noté sur +8,1 % « hors exceptionnel » au lieu des −39,7 % de ses comptes.
+
+def test_base_positive_la_croissance_se_calcule_meme_si_une_autre_est_publiee():
+    # IAM, CP S1 2026 p.1 : « Résultat Net Part du Groupe(2) … 4 117 2 482 -39,7% »
+    # 2 482 ÷ 4 117 − 1 = −39,71 % ; le +8,1 % publié (hors exceptionnel) reste consigné.
+    t = JEU["titres"]["IAM"]
+    assert t["croissance_bpa_publiee"] == 8.1, "la donnée publiée ne doit pas disparaître du jeu"
+    m = douze_mois(t)
+    assert m["croissance_bpa"] == -39.7
+    assert m["croissance_bpa_publiee_non_retenue"] == 8.1
+
+
+def test_la_convention_sur_cas_fabriques():
+    base = {"rnpg_exercice_2025": 100.0, "rnpg_s1_2026": 60.0, "actions": 1_000_000,
+            "croissance_bpa_publiee": 12.0}
+    # base positive : 60 ÷ 50 − 1 = +20 %, la publiée n'est pas appliquée
+    assert douze_mois(dict(base, rnpg_s1_2025=50.0))["croissance_bpa"] == 20.0
+    # base négative : la publiée est reprise, et rien n'est marqué « non retenu »
+    m = douze_mois(dict(base, rnpg_s1_2025=-50.0))
+    assert m["croissance_bpa"] == 12.0 and "croissance_bpa_publiee_non_retenue" not in m
+    # base nulle : pas de rapport possible, la publiée est reprise
+    assert douze_mois(dict(base, rnpg_s1_2025=0.0))["croissance_bpa"] == 12.0
+    # base négative sans publiée : aucune croissance inventée
+    sans = {k: v for k, v in base.items() if k != "croissance_bpa_publiee"}
+    assert "croissance_bpa" not in douze_mois(dict(sans, rnpg_s1_2025=-50.0))
+
+
+def test_le_fichier_publie_applique_la_convention():
+    fond = json.loads((RACINE / "fondamentaux.json").read_text(encoding="utf-8"))
+    assert fond["IAM"]["croissance_bpa"] == -39.7
+    assert fond["HPS"]["croissance_bpa"] == 173.7      # base négative : publiée
