@@ -1,0 +1,75 @@
+{
+ "ticker": "IBM",
+ "societe": "IB Maroc.com (IB MAROC.COM)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "ROIC, croissance, PER et dette nette / EBITDA non calculés sur comptes publiés ; société inscrite dans bvc_config.SANS_COMPTES",
+  "effet": "couverture 0 % ; confiance ≤ 1, signal « Données insuffisantes »",
+  "lu_dans": "data.json › IBM › note_fond ; bvc_config.SANS_COMPTES['IBM']"
+ },
+ "pieces": [
+  {
+   "id": "ef_2022_s1_2023",
+   "rang_methode": 1,
+   "titre": "États financiers 2022 et 1er semestre 2023 (dernier dépôt AMMC, daté du 31/10/2023)",
+   "url": "https://www.ammc.ma/sites/default/files/IB_Maroc_2022_S1_23.pdf",
+   "sha256": "4539d8f203c51c81040227de284195844d1b3b25a0f66036452a5369caa263b0",
+   "octets": 1804366,
+   "pages": 1
+  },
+  {
+   "id": "liste_ammc",
+   "rang_methode": 1,
+   "titre": "AMMC — communiqués de presse émetteurs filtrés sur IB MAROC.COM (identifiant 2780), consultés le 20/10/2026",
+   "url": "https://www.ammc.ma/fr/communiques-presse-emetteurs?field_emetteur_target_id_verf=2780"
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "derniere_publication_ammc",
+   "valeur": "2023-10-31",
+   "unite": "date",
+   "periode": "exercice 2022 et S1 2023",
+   "perimetre": "social",
+   "piece": "liste_ammc",
+   "page": "liste web, 1re ligne",
+   "citation": "31/10/2023 IB Maroc - Résultats financiers 2022 et résultats financiers du 1er semestre 2023 IB_Maroc_2022_S1_23.pdf",
+   "source": "https://www.ammc.ma/fr/communiques-presse-emetteurs?field_emetteur_target_id_verf=2780"
+  },
+  {
+   "grandeur": "activite",
+   "valeur": "suspendue",
+   "unite": "constat de l'émetteur",
+   "periode": "au dépôt du 31/10/2023",
+   "perimetre": "social",
+   "piece": "ef_2022_s1_2023",
+   "page": 1,
+   "citation": "Les états financiers qui sont présentés révèlent que la société IBMAROC a suspendu son activité dans l'attente de l'aboutissement des procédures judiciaires en cours",
+   "source": "https://www.ammc.ma/sites/default/files/IB_Maroc_2022_S1_23.pdf"
+  },
+  {
+   "grandeur": "capital_social",
+   "valeur": 41.7486,
+   "unite": "MMAD",
+   "periode": "au 31/10/2023",
+   "perimetre": "social",
+   "piece": "ef_2022_s1_2023",
+   "page": 1,
+   "citation": "SOCIÉTÉ ANONYME AU CAPITAL DE 41.748.600,00 DH",
+   "source": "https://www.ammc.ma/sites/default/files/IB_Maroc_2022_S1_23.pdf"
+  }
+ ],
+ "estimations": [],
+ "calculs": [],
+ "constats": [
+  "Aucun dépôt après le 31/10/2023 dans la liste AMMC de l'émetteur (dix entrées, de 2021 au 31/10/2023) ; ni comptes 2023, 2024, 2025, ni semestriel 2024, 2025 ou 2026.",
+  "Les fichiers IB_Maroc_RFA_2025.pdf, IB_Maroc_2025.pdf, IB_Maroc_2023.pdf, IB_Maroc_S1_26.pdf répondent 404 à l'AMMC (16/10/2026).",
+  "Le constat recoupe SANS_COMPTES (dernier_depot 2023-10-31) : rien à changer.",
+  "Bourse de Casablanca non consultable (TLS non vérifiable depuis le proxy)."
+ ],
+ "conclusion": "Non publié depuis le 31/10/2023 : aucune composante n'est calculable sur pièce, et le blocage est légitime.",
+ "debloquerait": "rien : le blocage est fondé (SANS_COMPTES confirmé).",
+ "question_ir": null
+}
