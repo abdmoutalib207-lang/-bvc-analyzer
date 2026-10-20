@@ -1,0 +1,198 @@
+{
+ "ticker": "CASH",
+ "societe": "Cash Plus SA (établissement de paiement)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "bilan : « équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière »",
+  "effet": "composante bilan (poids 0,1) à null ; couverture 0,9",
+  "lu_dans": "data.json › CASH › note_fond.composantes.bilan.motif ; fond_score.py l.362-368"
+ },
+ "pieces": [
+  {
+   "id": "rfa_2025",
+   "rang_methode": 1,
+   "titre": "Rapport financier annuel 2025 (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Cash_Plus_RFA_2025.pdf",
+   "sha256": "e4a200dc1e2048a14280f411adeff0163090e697d7f743562e50a397ead4f090",
+   "octets": 5682592,
+   "pages": 108,
+   "note": "> 5 Mo : non commité, URL et empreinte seulement"
+  },
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Communiqué et états au 30/06/2026, consolidés IFRS et sociaux (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Cash_Plus_S1_26.pdf",
+   "sha256": "82f10c0ef7a7ff1b61eff264ac9ada77e7cf72f048ff47262bc0ce24193a3b1b",
+   "octets": 1055513,
+   "pages": 9
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "produit_net_bancaire",
+   "valeur": 863.267,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 759 840)",
+   "perimetre": "consolidé IFRS",
+   "piece": "rfa_2025",
+   "page": 66,
+   "citation": "PRODUIT NET BANCAIRE 863 267 759 840 (L'ÉTAT DU RÉSULTAT GLOBAL (En KMAD) 31/12/2025 31/12/2024)",
+   "source": "https://www.ammc.ma/sites/default/files/Cash_Plus_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "charges_generales_exploitation",
+   "valeur": 334.078,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 307 225)",
+   "perimetre": "consolidé IFRS",
+   "piece": "rfa_2025",
+   "page": 66,
+   "citation": "- Charges générales d'exploitation 20 -334 078 -307 225",
+   "source": "https://www.ammc.ma/sites/default/files/Cash_Plus_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "dotations_amortissements",
+   "valeur": 68.678,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 56 591)",
+   "perimetre": "consolidé IFRS",
+   "piece": "rfa_2025",
+   "page": 66,
+   "citation": "- Dotations aux amortissements et aux dépréciations des immobilisations incorporelles et corporelles 21 -68 678 -56 591",
+   "source": "https://www.ammc.ma/sites/default/files/Cash_Plus_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "cout_du_risque",
+   "valeur": -10.051,
+   "unite": "MMAD (charge)",
+   "periode": "exercice 2025 (2024 : -18 329)",
+   "perimetre": "consolidé IFRS (note 22)",
+   "piece": "rfa_2025",
+   "page": 66,
+   "citation": "- Coût du risque 22 -10 051 -18 329",
+   "source": "https://www.ammc.ma/sites/default/files/Cash_Plus_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": 242.296,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 196 468)",
+   "perimetre": "consolidé IFRS",
+   "piece": "rfa_2025",
+   "page": 66,
+   "citation": "RÉSULTAT NET – PART DU GROUPE 242 296 196 468",
+   "source": "https://www.ammc.ma/sites/default/files/Cash_Plus_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "encours_financiers_bruts",
+   "valeur": 355.176,
+   "unite": "MMAD (cautionnements, créances sur commissions, créances en souffrance)",
+   "periode": "31/12/2025 (2024 : 255 819)",
+   "perimetre": "consolidé IFRS",
+   "piece": "rfa_2025",
+   "page": 73,
+   "citation": "VALEUR BRUTE DES ENCOURS FINANCIERS 355 176 255 819 ... VALEUR NETTES DES ENCOURS FINANCIERS 333 303 222 036",
+   "source": "https://www.ammc.ma/sites/default/files/Cash_Plus_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "creances_en_souffrance",
+   "valeur": 15.181,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (2024 : 13 468)",
+   "perimetre": "consolidé IFRS",
+   "piece": "rfa_2025",
+   "page": 73,
+   "citation": "Créances en souffrances 15 181 13 468 ... Provisions souffrances -15 181 -13 468",
+   "source": "https://www.ammc.ma/sites/default/files/Cash_Plus_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "produit_net_bancaire",
+   "valeur": 476.441,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 415 155)",
+   "perimetre": "consolidé IFRS",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "PRODUIT NET BANCAIRE 476 441 415 155 (L'ÉTAT DU RÉSULTAT GLOBAL (EN KMAD) 30/06/2026 30/06/2025)",
+   "source": "https://www.ammc.ma/sites/default/files/Cash_Plus_S1_26.pdf"
+  },
+  {
+   "grandeur": "charges_generales_exploitation",
+   "valeur": 165.481,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 149 067)",
+   "perimetre": "consolidé IFRS",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "- Charges générales d'exploitation -165 481 -149 067",
+   "source": "https://www.ammc.ma/sites/default/files/Cash_Plus_S1_26.pdf"
+  },
+  {
+   "grandeur": "cout_du_risque",
+   "valeur": 1.922,
+   "unite": "MMAD (produit net : reprise)",
+   "periode": "S1 2026 (S1 2025 : -5 325)",
+   "perimetre": "consolidé IFRS",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "- Coût du risque 1 922 -5 325",
+   "source": "https://www.ammc.ma/sites/default/files/Cash_Plus_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": 151.031,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 127 456)",
+   "perimetre": "consolidé IFRS",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "RÉSULTAT NET – PART DU GROUPE 151 031 127 456",
+   "source": "https://www.ammc.ma/sites/default/files/Cash_Plus_S1_26.pdf"
+  }
+ ],
+ "calculs": [
+  {
+   "quoi": "Coefficient d'exploitation 2025 (CGE seules)",
+   "formule": "334 078 / 863 267",
+   "resultat": 38.7,
+   "unite": "%"
+  },
+  {
+   "quoi": "Coefficient d'exploitation 2025 (CGE + amortissements)",
+   "formule": "(334 078 + 68 678) / 863 267",
+   "resultat": 46.7,
+   "unite": "%",
+   "note": "les deux définitions coexistent dans le secteur ; à fixer par la règle"
+  },
+  {
+   "quoi": "Coefficient d'exploitation S1 2026 (CGE seules)",
+   "formule": "165 481 / 476 441",
+   "resultat": 34.7,
+   "unite": "%"
+  },
+  {
+   "quoi": "Coût du risque 2025 / PNB",
+   "formule": "10 051 / 863 267",
+   "resultat": 1.16,
+   "unite": "%"
+  },
+  {
+   "quoi": "Couverture des créances en souffrance 31/12/2025",
+   "formule": "15 181 / 15 181",
+   "resultat": 100.0,
+   "unite": "%"
+  }
+ ],
+ "constats": [
+  "Cash Plus est un établissement de paiement : il ne fait pas de crédit à la clientèle. Ses « encours financiers » (355 MMAD) sont des créances sur commissions et cautionnements, pas un portefeuille de prêts. Coût du risque/encours et taux de créances en souffrance n'ont pas le sens qu'ils ont pour MRL, MGL, SLM ou EQD : ne pas les comparer.",
+  "Aucun ratio de solvabilité ni fonds propres réglementaires publié dans les pages à texte.",
+  "Le coût du risque S1 2026 est un produit (+1,9 MMAD, reprise nette)."
+ ],
+ "conclusion": "PNB, coefficient d'exploitation, coût du risque, créances en souffrance : publiés en consolidé IFRS 2025 et S1 2026 ; leur lecture « bancaire » ne convient pas à un établissement de paiement.",
+ "debloquerait": "Le coefficient d'exploitation est la seule grandeur comparable aux autres financières ; le reste demande une règle propre aux établissements de paiement (décision verificateur-finance).",
+ "estimations": [],
+ "question_ir": null
+}

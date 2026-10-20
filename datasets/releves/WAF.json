@@ -1,0 +1,237 @@
+{
+ "ticker": "WAF",
+ "societe": "Wafa Assurance",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "bilan : « équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière »",
+  "effet": "composante bilan (poids 0,1) à null ; couverture 0,9",
+  "lu_dans": "data.json › WAF › note_fond.composantes.bilan.motif ; fond_score.py l.362-368"
+ },
+ "pieces": [
+  {
+   "id": "cp_2025",
+   "rang_methode": 1,
+   "titre": "Communiqué financier résultats annuels 2025 (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_2025.pdf",
+   "sha256": "1103c18dd783b4c4a39950af98d65d801cca5bd79392896e682590a1c610240b",
+   "octets": 65786,
+   "pages": 1
+  },
+  {
+   "id": "cp_s1_2026",
+   "rang_methode": 1,
+   "titre": "Communiqué financier résultats semestriels S1 2026 (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_S1_26.pdf",
+   "sha256": "1ae099731712f17fe5e32887d20a1e69493890fac676ded9d435b33992ce1f63",
+   "octets": 1542571,
+   "pages": 1
+  },
+  {
+   "id": "rfa_2025",
+   "rang_methode": 1,
+   "titre": "Rapport financier annuel 2025 (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf",
+   "sha256": "162f0a480d639cd9e19b6e44304d6170bd47f5c5ab899dc3260d7db0fc3b8ec6",
+   "octets": 9006603,
+   "pages": 154,
+   "note": "> 5 Mo : non commité, URL et empreinte seulement"
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "primes_emises",
+   "valeur": 15226,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 13 726)",
+   "perimetre": "consolidé IFRS (première application IFRS 17 / IFRS 9)",
+   "piece": "cp_2025",
+   "page": 1,
+   "citation": "Le Groupe Wafa Assurance affiche une croissance robuste avec un volume de Primes Emises atteignant 15 226 MDH, soit une progression de 10,9%.",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_2025.pdf"
+  },
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": 1026,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 923)",
+   "perimetre": "consolidé IFRS",
+   "piece": "cp_2025",
+   "page": 1,
+   "citation": "Le Résultat Net Part du Groupe (RNPG) se hisse à 1 026 MDH, marquant une hausse de 11,2% par rapport aux 923 MDH en 2024.",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_2025.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_part_groupe",
+   "valeur": 14960,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (31/12/2024 : 12 567)",
+   "perimetre": "consolidé IFRS",
+   "piece": "cp_2025",
+   "page": 1,
+   "citation": "capitaux propres part du groupe en hausse de 19%, atteignant 14 960 MDH.",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_2025.pdf"
+  },
+  {
+   "grandeur": "taux_couverture_marge_solvabilite",
+   "valeur": 299,
+   "unite": "%",
+   "periode": "31/12/2025 (+30 pts sur 2024)",
+   "perimetre": "social (compagnie), réglementation ACAPS ; plus-values latentes incluses selon p.91",
+   "piece": "rfa_2025",
+   "page": 65,
+   "page_imprimee": "159",
+   "citation": "En application des dispositions réglementaires, le taux de couverture de la marge de solvabilité s'établit à 299%, en hausse de 30 pts par rapport à 2024 tiré par l'amélioration du marché boursier.",
+   "source": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "marge_solvabilite_hors_plus_values_latentes",
+   "valeur": "~2 x la marge réglementaire",
+   "unite": "multiple",
+   "periode": "31/12/2025",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 91,
+   "page_imprimee": "185",
+   "citation": "Une marge de solvabilité* résiliente à ~2 x la marge réglementaire hors plus-values latentes",
+   "source": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "ratio_combine_non_vie",
+   "valeur": 106.2,
+   "unite": "% (net de réassurance)",
+   "periode": "exercice 2025 (+4,2 pts sur 2024)",
+   "perimetre": "social, normes marocaines",
+   "piece": "rfa_2025",
+   "page": 85,
+   "page_imprimee": "179",
+   "citation": "Un Ratio combiné Non-Vie en augmentation de 4,2 pts, soit 106,2% suite à l'augmentation de la sinistralité nette de réassurance.",
+   "source": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "sinistralite_non_vie_s_p",
+   "valeur": 63.8,
+   "unite": "% (S/P ; 2024 : 60,8)",
+   "periode": "exercice 2025",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 84,
+   "page_imprimee": "178",
+   "citation": "Une sinistralité en augmentation à 63,8% comparée à 2024. 60,8% 63,8% S/P NON-VIE",
+   "source": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "ratio_frais_gestion_non_vie",
+   "valeur": 13.3,
+   "unite": "% des primes acquises (2024 : 13,4)",
+   "periode": "exercice 2025",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 84,
+   "page_imprimee": "178",
+   "citation": "En Non Vie, un Ratio de frais de gestion à 13,3% en légère amélioration de 0,1 pt",
+   "source": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "ratio_frais_acquisition_non_vie",
+   "valeur": 12.2,
+   "unite": "% des primes acquises (2024 : 11,9)",
+   "periode": "exercice 2025",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 85,
+   "page_imprimee": "179",
+   "citation": "En Non Vie, un ratio de frais d'acquisition à 12,2% en légère augmentation, en raison du mix branches.",
+   "source": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "fonds_propres_sociaux",
+   "valeur": 7350,
+   "unite": "MMAD",
+   "periode": "31/12/2025",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 65,
+   "page_imprimee": "159",
+   "citation": "Les fonds propres de la compagnie s'établissent à 7 350 MDH en augmentation de 6,6% après distribution en 2025 d'un dividende de 490 MDH.",
+   "source": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "primes_emises",
+   "valeur": 10031,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 7 883)",
+   "perimetre": "consolidé IFRS",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Les Primes Emises par le Groupe Wafa Assurance ressortent à 10 031 MDH au 30 juin 2026, en hausse de 27,2%",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_S1_26.pdf"
+  },
+  {
+   "grandeur": "revenus_assurance_ifrs17",
+   "valeur": 5006,
+   "unite": "MMAD",
+   "periode": "S1 2026",
+   "perimetre": "consolidé IFRS 17",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Les revenus d'assurance du groupe en normes IFRS atteignent 5 006 MDH, en croissance de 14,9%",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": 760,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 692)",
+   "perimetre": "consolidé IFRS ; filiales égyptiennes consolidées depuis le T4 2025",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Le résultat net part du groupe (RNPG) en normes IFRS s'élève à 760 MDH, enregistrant une progression de 9,8% par rapport au 1er semestre 2025",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_S1_26.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_part_groupe",
+   "valeur": 14692,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé IFRS",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Les fonds propres consolidés - part du groupe - sous le référenciel IFRS s'élèvent à 14 692 MDH au 30 juin 2026, en recul de -1,8%",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_S1_26.pdf"
+  },
+  {
+   "grandeur": "fonds_propres_sociaux",
+   "valeur": 7431,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "social",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Les fonds propres sociaux se renforcent de 1,1% à fin juin 2026 atteignant 7 431 MDH.",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Wafa_Assurance_S1_26.pdf"
+  }
+ ],
+ "calculs": [
+  {
+   "quoi": "ROE consolidé 2025 sur capitaux propres moyens",
+   "formule": "1 026 / ((14 960 + 12 567) / 2)",
+   "resultat": 7.45,
+   "unite": "%",
+   "note": "recolle le ROE 7,5 % de data.json"
+  }
+ ],
+ "constats": [
+  "Le ratio combiné, la sinistralité et les ratios de frais ne sont publiés qu'en SOCIAL (normes marocaines) ; aucun ratio combiné consolidé IFRS 17 n'est publié dans le RFA 2025 ni dans le communiqué S1 2026.",
+  "Les composantes ne s'additionnent pas : S/P brut 63,8 % + frais de gestion 13,3 % + frais d'acquisition 12,2 % = 89,3 %, contre 106,2 % « net de réassurance ». Le ratio combiné intègre le solde de réassurance ; sa formule n'est pas imprimée.",
+  "Le tableau « Chiffres clés » p.86 (imprimée 180) est défectueux : les colonnes 2021 à 2025 répètent les mêmes valeurs (ratio combiné 112,2 %, CA 9.089) — incompatible avec le 106,2 % de la p.85. Ne pas le relever.",
+  "p.91 : « Fonds Propres à 7 381 MDH » en titre, « 7 350 MDH » dans le texte de la même page (7 350 aussi p.65). 7 350 retenu.",
+  "Le S1 2026 ne publie ni ratio combiné, ni taux de solvabilité.",
+  "Pages 35 à 56, 92 et 149 sans couche texte : non rendues (aucun mot-clé de solvabilité ou de ratio combiné attendu d'après les pages voisines) — non vérifié."
+ ],
+ "conclusion": "Solvabilité (299 %, social) et ratio combiné non-vie (106,2 %, social, net de réassurance) relevés sur pièce AMMC pour 2025 ; rien pour le S1 2026.",
+ "debloquerait": "La composante bilan pour un assureur, si la règle retient taux de couverture de la marge de solvabilité et/ou ratio combiné non-vie ; décision du verificateur-finance (R8 pour la pondération).",
+ "question_ir": "docs/questions_ir/WAF.md",
+ "estimations": []
+}

@@ -1,0 +1,239 @@
+{
+ "ticker": "EQD",
+ "societe": "Crédit EQDOM",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "bilan : « équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière »",
+  "effet": "composante bilan (poids 0,1) à null ; couverture 0,9",
+  "lu_dans": "data.json › EQD › note_fond.composantes.bilan.motif ; fond_score.py l.362-368"
+ },
+ "pieces": [
+  {
+   "id": "rfa_2025",
+   "rang_methode": 1,
+   "titre": "Rapport financier annuel 2025 (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Eqdom_RFA_2025.pdf",
+   "sha256": "a0b6f48f3391a3428f98a6b5ff21e924a692bdb838416d96594d1b677d7002d6",
+   "octets": 28411108,
+   "pages": 74,
+   "note": "> 5 Mo : non commité, URL et empreinte seulement"
+  },
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "États de synthèse au 30/06/2026, sociaux (p.2-8) et consolidés (p.9-11) (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Eqdom_S1_26.pdf",
+   "sha256": "afb25873328ca393a4ad70a3dce352fa793b9eeebd40a4ad5409da784587d343",
+   "octets": 9697313,
+   "pages": 11,
+   "note": "> 5 Mo : non commité, URL et empreinte seulement"
+  },
+  {
+   "id": "cp_s1_2026",
+   "rang_methode": 1,
+   "titre": "Communiqué au 30 juin 2026 (déposé AMMC ; image, données sociales non certifiées)",
+   "url": "https://www.ammc.ma/sites/default/files/CP_Eqdom_T2_26.pdf",
+   "sha256": "62a9f0116426193c9f85ba9748952de6296b1a11febb8032350694f6812f5023",
+   "octets": 1228337,
+   "pages": 1
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "encours_brut_clients",
+   "valeur": 11376,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (2024 : 10 257)",
+   "perimetre": "social, normes marocaines",
+   "piece": "rfa_2025",
+   "page": 34,
+   "citation": "Les encours bruts augmentent de +10,9% (+1,12 Mds MAD) pour atteindre 11 376 MMAD à fin décembre 2025, contre 10 257 MMAD fin 2024.",
+   "source": "https://www.ammc.ma/sites/default/files/Eqdom_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "encours_sains",
+   "valeur": 9621,
+   "unite": "MMAD",
+   "periode": "31/12/2025",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 34,
+   "citation": "Les encours sains d'EQDOM progressent de +14,6% pour atteindre 9 621 MMAD à fin décembre 2025",
+   "source": "https://www.ammc.ma/sites/default/files/Eqdom_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "taux_creances_en_souffrance",
+   "valeur": 15.4,
+   "unite": "% (2024 : 18,2)",
+   "periode": "31/12/2025",
+   "perimetre": "social ; publié",
+   "piece": "rfa_2025",
+   "page": 15,
+   "citation": "le taux de créances en souffrance baisse à 15,4% contre 18,2% en 2024.",
+   "source": "https://www.ammc.ma/sites/default/files/Eqdom_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "taux_couverture_creances_en_souffrance",
+   "valeur": 78.1,
+   "unite": "% (2024 : 74,5)",
+   "periode": "31/12/2025",
+   "perimetre": "social ; publié",
+   "piece": "rfa_2025",
+   "page": 34,
+   "citation": "le taux de couverture s'améliore à 78,1% (contre 74,5% fin 2024).",
+   "source": "https://www.ammc.ma/sites/default/files/Eqdom_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "cout_du_risque",
+   "valeur": 74.995,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 124 556)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 39,
+   "citation": "17. (+/-) Dotations nettes des reprises aux provisions pour créances et engagements par signature en souffrance -74 995 -124 556 ; p.15 : « Coût du risque (MDH) 125 75 »",
+   "source": "https://www.ammc.ma/sites/default/files/Eqdom_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "produit_net_bancaire",
+   "valeur": 590,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 540)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 35,
+   "citation": "PRODUIT NET BANCAIRE 590 540 9,3% (EN MILLIONS DE DH 31/12/2025 31/12/2024)",
+   "source": "https://www.ammc.ma/sites/default/files/Eqdom_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "charges_generales_exploitation",
+   "valeur": 356,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 326)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 35,
+   "citation": "CHARGES GENERALES D'EXPLOITATION 356 326 9,5%",
+   "source": "https://www.ammc.ma/sites/default/files/Eqdom_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "encours_brut_clients",
+   "valeur": 12240,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "social, non certifié",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "L'encours brut clients s'établit à 12 240 MMAD contre 11 376 MMAD à fin 2025, en hausse de +7,6% [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Eqdom_T2_26.pdf"
+  },
+  {
+   "grandeur": "produit_net_bancaire",
+   "valeur": 337.272,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 305 473)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "PRODUIT NET BANCAIRE 337 272 305 473",
+   "source": "https://www.ammc.ma/sites/default/files/Eqdom_S1_26.pdf"
+  },
+  {
+   "grandeur": "charges_generales_exploitation",
+   "valeur": 186.074,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 163 948)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "CHARGES GENERALES D'EXPLOITATION 186 074 163 948",
+   "source": "https://www.ammc.ma/sites/default/files/Eqdom_S1_26.pdf"
+  },
+  {
+   "grandeur": "cout_du_risque",
+   "valeur": 66.76,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 18 515)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "17. (+/-) Dotations nettes des reprises aux provisions pour créances et engagements par signature en souffrance -66 760 -18 515",
+   "source": "https://www.ammc.ma/sites/default/files/Eqdom_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net",
+   "valeur": 61.33,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 72 132)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "RESULTAT NET DE L'EXERCICE 61 330 72 132",
+   "source": "https://www.ammc.ma/sites/default/files/Eqdom_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net_groupe",
+   "valeur": 51.081,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 63 236)",
+   "perimetre": "consolidé",
+   "piece": "s1_2026",
+   "page": 9,
+   "citation": "XI. RESULTAT NET DU GROUPE 51 081 63 236",
+   "source": "https://www.ammc.ma/sites/default/files/Eqdom_S1_26.pdf"
+  }
+ ],
+ "calculs": [
+  {
+   "quoi": "Vérification du coût du risque 2025 (social)",
+   "formule": "dotations 241 504 + pertes 108 601 − reprises 259 017 − récupérations 16 092 (p.38)",
+   "resultat": 74.996,
+   "unite": "MMAD",
+   "note": "recolle les 74 995 de la p.39"
+  },
+  {
+   "quoi": "Vérification du coût du risque S1 2026",
+   "formule": "153 322 + 52 493 − 133 258 − 5 798 (p.2)",
+   "resultat": 66.759,
+   "unite": "MMAD",
+   "note": "recolle 66 760"
+  },
+  {
+   "quoi": "Coefficient d'exploitation 2025",
+   "formule": "356 / 590",
+   "resultat": 60.3,
+   "unite": "%"
+  },
+  {
+   "quoi": "Coefficient d'exploitation S1 2026",
+   "formule": "186 074 / 337 272",
+   "resultat": 55.2,
+   "unite": "%"
+  },
+  {
+   "quoi": "Coût du risque 2025 / encours brut de clôture",
+   "formule": "74 995 / 11 376 000",
+   "resultat": 0.66,
+   "unite": "%"
+  },
+  {
+   "quoi": "Coût du risque S1 2026 annualisé / encours brut au 30/06",
+   "formule": "2 × 66 760 / 12 240 000",
+   "resultat": 1.09,
+   "unite": "%",
+   "note": "annualisation naïve ; S1 2025 très bas (18,5) à cause de reprises de 181,8"
+  }
+ ],
+ "constats": [
+  "Le coût du risque S1 2026 (66,8 MMAD) est 3,6 fois celui du S1 2025 (18,5) : les reprises baissent de 181,8 à 133,3 MMAD. À lire avant toute annualisation.",
+  "Taux de créances en souffrance et de couverture publiés pour 2025 seulement ; non publiés au S1 2026.",
+  "Aucun ratio de solvabilité ni fonds propres réglementaires trouvé (« solvab » : aucune occurrence pertinente). Pages 9, 16, 33 sans texte, non rendues — non vérifié.",
+  "Le communiqué S1 donne un PNB de 337,4 MMAD (social non certifié), les états 337 272 KDH : concordant."
+ ],
+ "conclusion": "Coût du risque, taux de créances en souffrance, couverture, encours, coefficient d'exploitation : disponibles pour 2025 ; au S1 2026 tout sauf le taux et la couverture.",
+ "debloquerait": "La composante bilan d'une société de crédit si la règle retient coût du risque/encours et couverture (décision verificateur-finance).",
+ "estimations": [],
+ "question_ir": null
+}

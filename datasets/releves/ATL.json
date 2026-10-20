@@ -1,0 +1,181 @@
+{
+ "ticker": "ATL",
+ "societe": "AtlantaSanad",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "bilan : « équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière »",
+  "effet": "composante bilan (poids 0,1) à null ; couverture 0,9",
+  "lu_dans": "data.json › ATL › note_fond.composantes.bilan.motif ; fond_score.py l.362-368"
+ },
+ "pieces": [
+  {
+   "id": "rfa_2025",
+   "rang_methode": 1,
+   "titre": "Rapport annuel financier 2025 (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf",
+   "sha256": "5c700bd201146a3c38b60b962b1ef0cbba75f338917087e36842f49f8880b67e",
+   "octets": 8735071,
+   "pages": 184,
+   "note": "> 5 Mo : non commité, URL et empreinte seulement"
+  },
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "États de synthèse au 30/06/2026, consolidés et sociaux (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Atlanta_S1_26.pdf",
+   "sha256": "bf9b66222d65c1002027c56af3e8c1a15c7af60155b5aec38b87a74afbff4c21",
+   "octets": 1459661,
+   "pages": 4
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "primes_emises_brutes_vie",
+   "valeur": 1786.734,
+   "unite": "MMAD (1 786 734 KMAD)",
+   "periode": "exercice 2025 (2024 : 1 250 388 KMAD)",
+   "perimetre": "consolidé, normes marocaines",
+   "piece": "rfa_2025",
+   "page": 141,
+   "citation": "COMPTE TECHNIQUE ASSURANCE VIE Primes émises brutes 1 786 734 1 250 388",
+   "source": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "primes_emises_brutes_non_vie",
+   "valeur": 4262.628,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 4 009 582 KMAD)",
+   "perimetre": "consolidé, normes marocaines",
+   "piece": "rfa_2025",
+   "page": 141,
+   "citation": "COMPTE TECHNIQUE ASSURANCE NON-VIE Primes émises brutes 4 262 628 4 009 582",
+   "source": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "resultat_net_part_groupe",
+   "valeur": 467.639,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 453 359 KMAD)",
+   "perimetre": "consolidé, normes marocaines",
+   "piece": "rfa_2025",
+   "page": 141,
+   "citation": "Dont : Part du Groupe 467 639 453 359",
+   "source": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "sinistralite_non_vie_s_p",
+   "valeur": 64,
+   "unite": "% (2024 : 64)",
+   "periode": "exercice 2025",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 51,
+   "citation": "Maintien à l'équilibre : un ratio S/P Non-Vie stable à 64%.",
+   "source": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "ratio_frais_gestion_global",
+   "valeur": 25.5,
+   "unite": "% (frais généraux + commissions, Vie et Non-Vie)",
+   "periode": "exercice 2025",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 52,
+   "citation": "Les frais de gestion progressent de +7,2%, sous l'effet d'une hausse de +3,8% des frais généraux et de +10,9% des charges d'acquisition, tandis que le ratio global s'améliore à 25,5%.",
+   "source": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "primes_acquises_sociales",
+   "valeur": 5964,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 5 132)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 54,
+   "citation": "Primes Acquises 5 132 5 964 832 16,2 %",
+   "source": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "solde_reassurance_social",
+   "valeur": -481,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : -268)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 54,
+   "citation": "F- Solde de Réassurance -268 -481 -213 79,5 %",
+   "source": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "primes_emises_brutes_vie",
+   "valeur": 1121.462,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 1 042 651 KMAD)",
+   "perimetre": "consolidé, normes marocaines",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "COMPTE TECHNIQUE ASSURANCE VIE ... Primes émises brutes 1 121 462 1 042 651 (en-tête « 30-juin-2026 30-juin-2025 », « Exprimé en milliers de Dirhams Marocains »)",
+   "source": "https://www.ammc.ma/sites/default/files/Atlanta_S1_26.pdf"
+  },
+  {
+   "grandeur": "primes_emises_brutes_non_vie",
+   "valeur": 2855.269,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 2 620 426 KMAD)",
+   "perimetre": "consolidé, normes marocaines",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "COMPTE TECHNIQUE ASSURANCE NON VIE Primes émises brutes 2 855 269 2 620 426",
+   "source": "https://www.ammc.ma/sites/default/files/Atlanta_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net_consolide",
+   "valeur": 288.219,
+   "unite": "MMAD",
+   "periode": "S1 2026",
+   "perimetre": "consolidé (intérêts minoritaires 44 KMAD au bilan)",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Résultat consolidé 288 219 467 641 (colonnes 30-juin 2026 | 31-déc 2025)",
+   "source": "https://www.ammc.ma/sites/default/files/Atlanta_S1_26.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_part_groupe",
+   "valeur": 2430.582,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 2 481 937 KMAD)",
+   "perimetre": "consolidé, normes marocaines",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Dont : Capitaux propres part du groupe 2 430 582 2 481 937",
+   "source": "https://www.ammc.ma/sites/default/files/Atlanta_S1_26.pdf"
+  }
+ ],
+ "calculs": [
+  {
+   "quoi": "Primes émises brutes consolidées 2025",
+   "formule": "1 786 734 + 4 262 628",
+   "resultat": 6049.362,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "Primes émises brutes consolidées S1 2026",
+   "formule": "1 121 462 + 2 855 269",
+   "resultat": 3976.731,
+   "unite": "MMAD",
+   "note": "S1 2025 : 3 663 077, soit +8,6 %"
+  }
+ ],
+ "constats": [
+  "Aucun taux de couverture de la marge de solvabilité dans le RFA 2025 (recherche « solvab », « marge », « couverture » : aucune occurrence pertinente sur les pages à texte) ni dans les états S1 2026. Pages 58, 59, 63, 155, 162, 184 sans couche texte, non rendues : pages ESG et annexes d'après leurs voisines — non vérifié.",
+  "Aucun ratio combiné publié. Le S/P non-vie (64 %) et le ratio de frais global (25,5 %, Vie comprise) n'ont pas la même base : leur somme n'est pas un ratio combiné et n'est pas calculée ici.",
+  "Capitaux propres part du groupe 2025 (2 481 937 KMAD, p.140) déjà dans faits_financiers.json : non refait.",
+  "Comptes consolidés en normes marocaines (pas IFRS 17), contrairement à WAF : les grandeurs consolidées des deux assureurs ne sont pas comparables terme à terme."
+ ],
+ "conclusion": "Primes, RNPG, S/P non-vie et ratio de frais relevés ; solvabilité et ratio combiné NON publiés dans les pièces AMMC.",
+ "debloquerait": "Rien de complet pour la composante bilan tant qu'aucun taux de solvabilité n'est publié ; voir question IR.",
+ "question_ir": "docs/questions_ir/ATL.md",
+ "estimations": []
+}

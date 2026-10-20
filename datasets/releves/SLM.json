@@ -1,0 +1,254 @@
+{
+ "ticker": "SLM",
+ "societe": "Salafin",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "bilan : « équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière »",
+  "effet": "composante bilan (poids 0,1) à null ; couverture 0,9",
+  "lu_dans": "data.json › SLM › note_fond.composantes.bilan.motif ; fond_score.py l.362-368"
+ },
+ "pieces": [
+  {
+   "id": "rfa_2025",
+   "rang_methode": 1,
+   "titre": "Rapport financier annuel 2025, comptes sociaux (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Salafin_RFA_2025.pdf",
+   "sha256": "0f26aed96bc94fb23438c439b0de8a941cd61b6ee3ed0d7b4e5f7cb1cbb003cb",
+   "octets": 4244942,
+   "pages": 106
+  },
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Communication financière et états au 30/06/2026 (déposé AMMC ; p.1 sans couche texte)",
+   "url": "https://www.ammc.ma/sites/default/files/Salafin_S1_26.pdf",
+   "sha256": "1bef2eed909aa6dd45b1ab826b1d52ae94d90b5322f13f06516f102d35c1673e",
+   "octets": 1741011,
+   "pages": 6
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "encours_financiers",
+   "valeur": 3096,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (2024 : 2 966)",
+   "perimetre": "social, normes marocaines",
+   "piece": "rfa_2025",
+   "page": 12,
+   "citation": "Les encours financiers à fin décembre 2025 totalisent 3 096 MDH, en progression de +4,4% par rapport à décembre 2024",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "produit_net_bancaire",
+   "valeur": 384.035,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 378 646)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 69,
+   "citation": "PRODUIT NET BANCAIRE 384 035 378 646",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "charges_generales_exploitation",
+   "valeur": 150.883,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 140 202)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 69,
+   "citation": "CHARGES GENERALES D'EXPLOITATION 150 883 140 202",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "cout_du_risque",
+   "valeur": 63,
+   "unite": "MMAD (« DAP nettes totales »)",
+   "periode": "exercice 2025 (2024 : 78)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 12,
+   "citation": "Les dotations nettes aux provisions affichent une amélioration de -18,8% à 63 MDH.",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "creances_en_souffrance_nettes_credit",
+   "valeur": 143.824,
+   "unite": "MMAD (pré-douteuses 33 324, douteuses 726, compromises 109 775)",
+   "periode": "31/12/2025 (2024 : 149 955)",
+   "perimetre": "social ; créances sur la clientèle, montants NETS de provisions et d'agios",
+   "piece": "rfa_2025",
+   "page": 73,
+   "citation": "CREANCES EN SOUFFRANCE 143 824 143 824 149 955 - Créances pré-douteuses 33 324 33 324 37 398 - Créances douteuses 726 726 633 - Créances compromises 109 775 109 775 111 924",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "creances_en_souffrance_brutes_loa",
+   "valeur": 349.24,
+   "unite": "MMAD",
+   "periode": "31/12/2025",
+   "perimetre": "social ; immobilisations en crédit-bail et location (LOA)",
+   "piece": "rfa_2025",
+   "page": 74,
+   "citation": "CREANCES EN SOUFFRANCE 376 534 27 294 349 240 12 833 215 319 133 920 (brut début, cessions, brut fin, dotation, cumul provisions, net)",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "provisions_creances_en_souffrance_loa",
+   "valeur": 215.319,
+   "unite": "MMAD",
+   "periode": "31/12/2025",
+   "perimetre": "social ; LOA",
+   "piece": "rfa_2025",
+   "page": 74,
+   "citation": "... 349 240 12 833 215 319 133 920",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "resultat_net",
+   "valeur": 96.117,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 93 147)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 69,
+   "citation": "RESULTAT NET DE L'EXERCICE 96 117 93 147",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "encours_financiers",
+   "valeur": 3139,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Les encours financiers fin de période atteignent 3 139 MDH, en progression de +1,4% par rapport à fin décembre 2025. [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_S1_26.pdf"
+  },
+  {
+   "grandeur": "cout_du_risque",
+   "valeur": 38,
+   "unite": "MMAD (dotations nettes aux provisions)",
+   "periode": "S1 2026 (S1 2025 : 41)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "Les dotations nettes aux provisions affichent une amélioration de -6,8% à 38 MDH. [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_S1_26.pdf"
+  },
+  {
+   "grandeur": "produit_net_bancaire",
+   "valeur": 195.098,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 190 978)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "PRODUIT NET BANCAIRE 195 098 190 978",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_S1_26.pdf"
+  },
+  {
+   "grandeur": "charges_generales_exploitation",
+   "valeur": 70.226,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 68 256)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "CHARGES GENERALES D'EXPLOITATION 70 226 68 256",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_S1_26.pdf"
+  },
+  {
+   "grandeur": "creances_en_souffrance_nettes_credit",
+   "valeur": 143.313,
+   "unite": "MMAD (pré-douteuses 25 516, douteuses 3 805, compromises 113 992)",
+   "periode": "30/06/2026",
+   "perimetre": "social ; nettes des agios et provisions",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "CREANCES EN SOUFFRANCE 143 313 143 313 143 824 ; « CREANCES EN SOUFFRANCE NETTES des Agios et des Provisions »",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_S1_26.pdf"
+  },
+  {
+   "grandeur": "creances_en_souffrance_brutes_loa",
+   "valeur": 377.99,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "social ; LOA",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "CREANCES EN SOUFFRANCE 349 240 28 750 377 990 7 173 222 492 155 498",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_S1_26.pdf"
+  },
+  {
+   "grandeur": "provisions_creances_en_souffrance_loa",
+   "valeur": 222.492,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "social ; LOA",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "... 377 990 7 173 222 492 155 498",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net",
+   "valeur": 50.073,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 46 727)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "RESULTAT NET DE L'EXERCICE 50 073 46 727",
+   "source": "https://www.ammc.ma/sites/default/files/Salafin_S1_26.pdf"
+  }
+ ],
+ "calculs": [
+  {
+   "quoi": "Coefficient d'exploitation 2025",
+   "formule": "150 883 / 384 035",
+   "resultat": 39.3,
+   "unite": "%"
+  },
+  {
+   "quoi": "Coefficient d'exploitation S1 2026",
+   "formule": "70 226 / 195 098",
+   "resultat": 36.0,
+   "unite": "%"
+  },
+  {
+   "quoi": "Coût du risque 2025 / encours de clôture",
+   "formule": "63 / 3 096",
+   "resultat": 2.03,
+   "unite": "%"
+  },
+  {
+   "quoi": "Couverture des créances en souffrance LOA 31/12/2025",
+   "formule": "215 319 / 349 240",
+   "resultat": 61.7,
+   "unite": "%",
+   "note": "LOA seule"
+  },
+  {
+   "quoi": "Couverture des créances en souffrance LOA 30/06/2026",
+   "formule": "222 492 / 377 990",
+   "resultat": 58.9,
+   "unite": "%",
+   "note": "LOA seule"
+  }
+ ],
+ "constats": [
+  "Le taux de créances en souffrance et leur couverture TOTALE ne sont pas calculables : côté crédit, les créances en souffrance ne sont publiées que NETTES (p.73) ; le brut et les provisions du crédit ne sont pas isolés dans les pages lues. Seule la partie LOA a brut et provisions.",
+  "Le « 57 % » de « taux de couverture » p.48 est celui de la balance commerciale du Maroc, pas des créances : ne pas le relever.",
+  "Aucun ratio de solvabilité ni fonds propres réglementaires publié. Comptes sociaux seuls (Salafin ne publie pas de consolidé — déjà constaté dans faits_financiers.json).",
+  "La croissance de -6,8 % des « dotations nettes » au S1 (41 → 38) est imprimée comme « Niveau de risque en amélioration »."
+ ],
+ "conclusion": "Coût du risque, encours, coefficient d'exploitation : disponibles 2025 et S1 2026. Créances en souffrance : nettes seulement côté crédit ; couverture calculable pour la LOA seule.",
+ "debloquerait": "Coût du risque/encours et coefficient d'exploitation pour la composante bilan ; la couverture totale exigerait le brut des créances clientèle (question IR possible, non rédigée : ce n'est pas une divergence).",
+ "estimations": [],
+ "question_ir": null
+}

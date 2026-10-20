@@ -1,0 +1,166 @@
+{
+ "ticker": "AGM",
+ "societe": "Agma (courtier en assurance)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "qualité : « ROE non calculé sur comptes publiés » ; bilan : « équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière »",
+  "effet": "composantes qualité (0,4) et bilan (0,1) à null ; couverture 0,5 ; AGM absent de faits_financiers.json",
+  "lu_dans": "data.json › AGM › note_fond.composantes ; fond_score.py l.104-110 (ROE_SANS_OBJET['AGM']) et l.362-368"
+ },
+ "pieces": [
+  {
+   "id": "rfa_2025",
+   "rang_methode": 1,
+   "titre": "Rapport financier au 31/12/2025, comptes SOCIAUX (déposé AMMC, 17 pages)",
+   "url": "https://www.ammc.ma/sites/default/files/Agma_RFA_2025.pdf",
+   "sha256": "7558ce34b46cbe9bf95d2c73a26cbe5cf2bd7aed678be5cde140ae65ac427f5c",
+   "octets": 1346322,
+   "pages": 17
+  },
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Attestations d'examen limité au 30/06/2026, sociales et consolidées (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/Agma_S1_26.pdf",
+   "sha256": "df7b04fcd25875e4f4ec60754a411d053ed319e1af90ca405a2903a9941cefa4",
+   "octets": 10995437,
+   "pages": 2,
+   "note": "> 5 Mo : non commité, URL et empreinte seulement"
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "chiffre_affaires",
+   "valeur": 186.6,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 172,2)",
+   "perimetre": "social, normes marocaines",
+   "piece": "rfa_2025",
+   "page": 8,
+   "citation": "Le chiffre d'affaires réalisé au 31/12/25 a augmenté de 8,3% (+14,4 MDH). Il s'est établi à 186,6 MDH contre 172,2 MDH au 31/12/24.",
+   "source": "https://www.ammc.ma/sites/default/files/Agma_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "resultat_net_social",
+   "valeur": 71.0,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 68,9)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 10,
+   "citation": "le résultat net au 31/12/25 s'est établi à 71 MDH contre 68,9 MDH au 31/12/24, en raison de la baisse du taux de l'IS.",
+   "source": "https://www.ammc.ma/sites/default/files/Agma_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_sociaux",
+   "valeur": 153.6,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (+11 MMAD sur 2024)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 10,
+   "citation": "Les capitaux propres ont atteint le niveau de 153,6 MDH au 31/12/25, soit une augmentation de 11 MDH",
+   "source": "https://www.ammc.ma/sites/default/files/Agma_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "taux_distribution",
+   "valeur": 87.1,
+   "unite": "% (dividende 300 DH, 60 MMAD, versé en juillet 2025 au titre de 2024)",
+   "periode": "exercice 2024",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 11,
+   "citation": "verser en juillet 2025 un dividende de 300 DH (60 MDH), soit un taux de distribution de 87,1%",
+   "source": "https://www.ammc.ma/sites/default/files/Agma_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "endettement_net",
+   "valeur": -194.1,
+   "unite": "MMAD (négatif = trésorerie nette)",
+   "periode": "31/12/2025 (31/12/2024 : -143,9)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 11,
+   "citation": "L'endettement est passé de -143,9 MDH au 31/12/24 à -194,1 MDH au 3112/25",
+   "source": "https://www.ammc.ma/sites/default/files/Agma_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_sociaux",
+   "valeur": 134.762,
+   "unite": "MMAD (134 761 792,68 MAD, « capitaux propres et assimilés »)",
+   "periode": "30/06/2026",
+   "perimetre": "social, examen limité",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "un montant de capitaux propres et assimilés de MAD 134 761 792,68, dont un bénéfice net de MAD 43 149 761,77",
+   "source": "https://www.ammc.ma/sites/default/files/Agma_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net_social",
+   "valeur": 43.15,
+   "unite": "MMAD",
+   "periode": "S1 2026",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "dont un bénéfice net de MAD 43 149 761,77",
+   "source": "https://www.ammc.ma/sites/default/files/Agma_S1_26.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_consolides",
+   "valeur": 149.006,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé (Groupe AGMA), examen limité",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Cette situation intermédiaire fait ressortir un montant de capitaux propres consolidés de KMAD 149 006 dont un bénéfice net consolidé de KMAD 39 109.",
+   "source": "https://www.ammc.ma/sites/default/files/Agma_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net_consolide",
+   "valeur": 39.109,
+   "unite": "MMAD",
+   "periode": "S1 2026",
+   "perimetre": "consolidé",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "dont un bénéfice net consolidé de KMAD 39 109",
+   "source": "https://www.ammc.ma/sites/default/files/Agma_S1_26.pdf"
+  }
+ ],
+ "calculs": [
+  {
+   "quoi": "ROE social 2025 sur capitaux propres de clôture",
+   "formule": "71,0 / 153,6",
+   "resultat": 46.2,
+   "unite": "%",
+   "note": "recolle le « ROE social 46 % » de ROE_SANS_OBJET"
+  },
+  {
+   "quoi": "ROE social 2025 sur capitaux propres moyens",
+   "formule": "71,0 / ((153,6 + 142,6) / 2), 142,6 = 153,6 − 11",
+   "resultat": 47.9,
+   "unite": "%"
+  },
+  {
+   "quoi": "Marge nette sociale 2025",
+   "formule": "71,0 / 186,6",
+   "resultat": 38.0,
+   "unite": "%"
+  }
+ ],
+ "constats": [
+  "Pourquoi la qualité n'est pas mesurée : exclusion écrite dans le moteur (ROE_SANS_OBJET['AGM']) — intermédiaire qui distribue l'essentiel de son résultat (87,1 % en 2025). Ce n'est pas un manque de pièce.",
+  "Le RFA 2025 déposé est SOCIAL seulement (17 pages ; bilan p.14-15 en image non lue). Le S1 2026 contient une attestation sur des comptes CONSOLIDÉS (Groupe AGMA) : les comptes consolidés eux-mêmes ne sont pas dans le fichier de 2 pages déposé, seules les attestations. Pas de consolidé 2025 trouvé.",
+  "p.10 « capitaux propres 153,6 MDH », p.11 « financement permanent… capitaux propres (154,3 MDH vs 143,3 MDH) » : 154,3 inclut vraisemblablement les capitaux propres assimilés — non vérifié (bilan passif en image).",
+  "Avis de vérification fiscale reçu le 02/06/2026 (IS, TVA, IR 2022-2025), cité en observation par les commissaires aux comptes, S1 p.1.",
+  "Composante bilan : comme AFM, un courtier ne porte pas de risque d'assurance — solvabilité ACAPS et ratio combiné sans objet."
+ ],
+ "conclusion": "Les grandeurs d'une mesure alternative (marge nette, résultat, CP) sont publiées en social ; le consolidé n'apparaît qu'au S1 2026, en attestation.",
+ "debloquerait": "Qualité : seulement par une règle propre aux intermédiaires (décision verificateur-finance) ; bilan : « sans objet » plutôt que « manquant ».",
+ "estimations": [],
+ "question_ir": null
+}
