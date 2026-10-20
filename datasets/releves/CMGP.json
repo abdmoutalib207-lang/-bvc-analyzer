@@ -1,0 +1,192 @@
+{
+ "ticker": "CMGP",
+ "societe": "CMGP Group",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 8.8 % − WACC 10",
+   "croissance": "croissance pondérée 37.08 %",
+   "valorisation": "PER 16",
+   "bilan": "dette nette / EBITDA 0.12"
+  }
+ },
+ "pieces": [
+  {
+   "id": "cp_s1_2026",
+   "rang_methode": 1,
+   "titre": "Communiqué S1 2026 CMGP Group",
+   "url": "https://www.ammc.ma/sites/default/files/CP_CMGP_S1_26.pdf",
+   "sha256": "2cc45ca9e9ed78cf8ea16e91e3db0645d10c8781a85db054a33fa6de0634d31b",
+   "octets": 585034,
+   "pages": 2
+  },
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Communication financière S1 2026 CMGP Group (comptes consolidés IFRS)",
+   "url": "https://www.ammc.ma/sites/default/files/CMGP_S1_26.pdf",
+   "sha256": "95b2016cb3a608730ffc67dc5d7b24a10866d7a807370d826ca638c308a632fd",
+   "octets": 1459406,
+   "pages": 4
+  },
+  {
+   "id": "rfa_2025",
+   "rang_methode": 1,
+   "titre": "Rapport financier annuel 2025 CMGP Group (> 5 Mo, non commité)",
+   "url": "https://www.ammc.ma/sites/default/files/CMGP_RFA_2025.pdf",
+   "sha256": "148b8aa41b858c54702c7ea94f98494ed4f7dcf498d57102275e662f3b3fb1fa",
+   "octets": 12889581,
+   "pages": 91
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "endettement_net_publie",
+   "valeur": 1083.0,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé ; « incluant les contrats de leasing »",
+   "source": "https://www.ammc.ma/sites/default/files/CP_CMGP_S1_26.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Endettement net² 1 083 949 +14,1% 975 +11,1% — ² Endettement net au 30 juin 2026 comparé au 31 décembre 2025, incluant les contrats de leasing."
+  },
+  {
+   "grandeur": "endettement_net_publie",
+   "valeur": 949.0,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (proforma : 975)",
+   "perimetre": "consolidé ; « incluant les contrats de leasing »",
+   "source": "https://www.ammc.ma/sites/default/files/CP_CMGP_S1_26.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "S1 2026 Décembre 2025 Variation Décembre 2025 proforma¹ Variation / Endettement net² 1 083 949 +14,1% 975 +11,1%"
+  },
+  {
+   "grandeur": "dettes_financieres_non_courantes",
+   "valeur": 908.807,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 918,245)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/CMGP_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "Dettes financières non courantes 908 806 650 918 245 131"
+  },
+  {
+   "grandeur": "dettes_financieres_courantes",
+   "valeur": 134.494,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 97,141)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/CMGP_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "Dettes financières courantes 134 493 519 97 141 056"
+  },
+  {
+   "grandeur": "concours_bancaires",
+   "valeur": 184.84,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 14,434)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/CMGP_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "Concours bancaires 184 840 492 14 434 029"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 134.058,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 975,733)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/CMGP_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "Trésorerie et équivalent de trésorerie 134 058 180 975 732 912"
+  },
+  {
+   "grandeur": "autres_passifs_courants",
+   "valeur": 433.685,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 1 063,600)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/CMGP_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "Autres passifs courants 433 685 252 1 063 599 973"
+  },
+  {
+   "grandeur": "dettes_location_financement",
+   "valeur": 14.857,
+   "unite": "MMAD",
+   "periode": "31/12/2025",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/CMGP_RFA_2025.pdf",
+   "piece": "rfa_2025",
+   "page": 80,
+   "citation": "NOTE 35.1: AUTRES PASSIFS NON COURANTS Dettes de location-financement (leasing) 14 857 353 14 857 353 20 068 178 20 068 178"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette au bilan 31/12/2025 (celle de la note)",
+   "formule": "918,245 + 97,141 + 14,434 − 975,733",
+   "resultat": 54.09
+  },
+  {
+   "quoi": "dette nette au bilan 30/06/2026, mêmes postes",
+   "formule": "908,807 + 134,494 + 184,840 − 134,058",
+   "resultat": 1094.08
+  },
+  {
+   "quoi": "écart au chiffre de la société, 30/06/2026",
+   "formule": "(1 094,08 − 1 083) ÷ 1 083",
+   "resultat": 1.0
+  },
+  {
+   "quoi": "écart au chiffre de la société, 31/12/2025",
+   "formule": "(54,09 − 949) ÷ 949",
+   "resultat": -94.3
+  },
+  {
+   "quoi": "dette nette / EBITDA 2025 avec le chiffre de la société (EBITDA 469,984, RFA p.68)",
+   "formule": "949 ÷ 469,984",
+   "resultat": 2.02
+  }
+ ],
+ "ecarts_plus_de_2_pct": [
+  {
+   "grandeur": "dette_nette",
+   "utilise": 54.1,
+   "piece": 949.0,
+   "ecart_relatif_pct": -94.3,
+   "page": 1,
+   "piece_id": "cp_s1_2026",
+   "note": "31/12/2025 ; DN/EBITDA 0,12 utilisé contre 2,02 sur le chiffre de la société"
+  }
+ ],
+ "semestriel_s1_2026": {
+  "depose": true,
+  "dette_nette": 1083.0,
+  "unite": "MMAD",
+  "base": "consolidé IFRS, chiffre de la société (bilan : 1 094,1)",
+  "page": 1
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever. (Le chiffre du bilan, pas celui de la société : voir l'écart.)",
+  "Croissance (BPA +34,0 %, CA +41,7 %) et BPA 12 mois : p.1 du communiqué déjà citée.",
+  "⚠️ La société publie un endettement net de 949 MMAD au 31/12/2025 ; le bilan de la note donne 54,1 (trésorerie de 975,7 en fin d'exercice). Au 30/06/2026 les deux se recollent (1 094 contre 1 083, 1 %). L'écart de décembre (895) ne s'explique ni par le leasing (14,9, p.80) ni par un poste nommé ; la baisse des « autres passifs courants » (1 063,6 → 433,7) et la sortie de trésorerie du semestre suggèrent un décaissement d'acquisition (CPCM, Agrosem, Sodipire) que la société aurait déjà déduit — piste, pas preuve.",
+  "Le chiffre de la société n'est pas rangé dans faits › endettement_net : la règle unique de l'écart (SEUIL_ECART_DETTE 2 %) ne s'applique donc pas encore à CMGP. Rangé, il rendrait CMGP CONTESTÉ (écart 94 %) tant qu'il n'est pas expliqué sur pièce."
+ ],
+ "conclusion": "Grandeurs adossées, mais la dette nette 2025 de la note contredit le chiffre publié par la société : question IR rédigée.",
+ "debloquerait": "si la société confirme une définition (dette d'acquisition incluse, trésorerie affectée exclue…), l'écart devient explicable ; sinon ROIC, dette nette/EBITDA suspendus par la règle unique",
+ "question_ir": "docs/questions_ir/CMGP.md"
+}

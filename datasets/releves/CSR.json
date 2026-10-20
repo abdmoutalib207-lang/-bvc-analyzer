@@ -1,0 +1,98 @@
+{
+ "ticker": "CSR",
+ "societe": "Cosumar",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 12.5 % − WACC 10",
+   "croissance": "croissance pondérée -12.4 %",
+   "valorisation": "PER 25.7",
+   "bilan": "dette nette / EBITDA 0.17"
+  }
+ },
+ "pieces": [
+  {
+   "id": "cp_s1_2026",
+   "rang_methode": 1,
+   "titre": "Communiqué S1 2026 Cosumar",
+   "url": "https://www.ammc.ma/sites/default/files/CP_Cosumar_S1_26.pdf",
+   "sha256": "f1549052c9a4f4766c52f33c424fde46c051fa7a117e46ec495adb0fcb1115ba",
+   "octets": 120682,
+   "pages": 1
+  },
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Communication financière S1 2026 Cosumar (social et consolidé IFRS)",
+   "url": "https://www.ammc.ma/sites/default/files/Cosumar_S1_26.pdf",
+   "sha256": "400ed883964bd245e28904413f77e70872dd5802dc00e3cea191c10089a86f1d",
+   "octets": 946939,
+   "pages": 3
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "dettes_financieres_non_courantes",
+   "valeur": 22.4,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 23,4)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/Cosumar_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Dettes financières non courantes 22,4 23,4"
+  },
+  {
+   "grandeur": "dettes_financieres_courantes",
+   "valeur": 1989.9,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 1 090,5)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/Cosumar_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Dettes financières courantes 1 989,9 1 090,5"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 546.6,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 832,0)",
+   "perimetre": "consolidé IFRS",
+   "source": "https://www.ammc.ma/sites/default/files/Cosumar_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Trésorerie et équivalent de trésorerie 546,6 832,0"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette 30/06/2026, mêmes postes qu'en 2025 (1 113,9 − 832,0 = 281,9)",
+   "formule": "22,4 + 1 989,9 − 546,6",
+   "resultat": 1465.7
+  }
+ ],
+ "ecarts_plus_de_2_pct": [],
+ "semestriel_s1_2026": {
+  "depose": true,
+  "dette_nette": 1465.7,
+  "unite": "MMAD",
+  "base": "consolidé IFRS, calcul au bilan",
+  "page": 2
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever.",
+  "Croissance et BPA 12 mois : p.1 du communiqué déjà citée ; recalcul identique.",
+  "La colonne 31/12/2025 redonne les postes 2025 de faits (23,4 + 1 090,5 = 1 113,9 ; 832,0).",
+  "Pour la règle « dernier bilan publié » : la dette nette passe de 281,9 à 1 465,7 MMAD (saisonnalité de campagne sucrière probable, non établie sur pièce)."
+ ],
+ "conclusion": "Entièrement adossé.",
+ "debloquerait": "rien : déjà noté",
+ "question_ir": null
+}
