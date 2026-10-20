@@ -4124,6 +4124,17 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               ))}
             </div>
           </div>
+
+          {/* Signaux techniques en essai (calibrage du 03/10/2026) */}
+          <SignauxTechniques r={r}/>
+            </div>
+          </details>
+          {/* ⚠️ 20/10/2026 — ce repli (#266, 15/10) se refermait APRÈS la
+              colonne de droite : le graphique, les scénarios et la formule
+              se retrouvaient dans « Analyse avancée — hors note », replié, et
+              la grille n'avait plus qu'une colonne de 290 px (1 100 px vides
+              mesurés à 1440 px). Il ne contient que le NLP gelé et les
+              signaux en essai, comme annoncé. */}
         </div>
 
         {/* RIGHT */}
@@ -4140,11 +4151,6 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff"}}>── MA50</span> &nbsp; <span style={{color:"#ff9800"}}>── MA200</span> &nbsp; <span style={{color:"#ffd740"}}>┈ FIB</span> &nbsp; <span style={{color:"#00e5a0"}}>── S support</span> &nbsp; <span style={{color:"#ff4f5a"}}>── R résistance</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24
             </div>
           </div>
-
-          {/* Signaux techniques en essai (calibrage du 03/10/2026) */}
-          <SignauxTechniques r={r}/>
-            </div>
-          </details>
 
           {/* Scénarios */}
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
