@@ -35,7 +35,9 @@ concurrency:
 jobs:
   controler:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # 5 min suffisaient aux contrôles du dépôt ; l'installation de Chromium pour
+    # les contrôles Bourse de Casablanca (20/10/2026) en demande davantage.
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -53,9 +55,62 @@ jobs:
       - name: Contrôler la dernière séance échue
         run: python pipeline/verifier_seance.py
 
+      # ── Bourse de Casablanca (20/10/2026) ─────────────────────────────
+      # Deux contrôles sur le site public : volume global contre nos bougies,
+      # publications d'émetteurs contre ce que nous avons intégré. Le site
+      # n'est lisible qu'avec un vrai navigateur (curl refuse sa chaîne de
+      # certificats ; Chromium l'ouvre en TLS strict, sans contournement).
+      #
+      # ⚠️ TOUTES ces étapes sont `continue-on-error` : la disponibilité d'un
+      # site tiers ne doit jamais faire tomber les contrôles de séance
+      # ci-dessus, qui sont l'alerte du projet. Et le contrôle de volume est en
+      # OBSERVATION (aucun seuil sans mesure, R12) : il ne rend jamais d'échec.
+      #
+      # Playwright est installé dans $RUNNER_TEMP, version figée, sans scripts
+      # d'installation : ni package.json ni node_modules dans le dépôt.
+      - name: Installer Playwright (Bourse de Casablanca)
+        id: playwright
+        if: always()
+        continue-on-error: true
+        run: |
+          mkdir -p "$RUNNER_TEMP/pw" "$RUNNER_TEMP/bourse"
+          npm install --prefix "$RUNNER_TEMP/pw" --no-save --no-package-lock --ignore-scripts playwright@1.63.0
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps --only-shell chromium
+
+      - name: Relever le site de la Bourse de Casablanca
+        if: always() && steps.playwright.outcome == 'success'
+        continue-on-error: true
+        env:
+          BVC_PLAYWRIGHT: ${{ runner.temp }}/pw/node_modules/playwright
+          BVC_CHROMIUM: ''
+        run: |
+          node tools/bourse_casablanca.js accueil > "$RUNNER_TEMP/bourse/accueil.json" || rm -f "$RUNNER_TEMP/bourse/accueil.json"
+          node tools/bourse_casablanca.js publications > "$RUNNER_TEMP/bourse/publications.json" || rm -f "$RUNNER_TEMP/bourse/publications.json"
+
+      - name: Contrôles Bourse de Casablanca (observation)
+        if: always()
+        continue-on-error: true
+        run: |
+          python pipeline/controle_bourse.py \
+            --accueil "$RUNNER_TEMP/bourse/accueil.json" \
+            --publications "$RUNNER_TEMP/bourse/publications.json" \
+            --sortie "$RUNNER_TEMP/bourse"
+
+      - name: Artefact Bourse de Casablanca
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: bourse-casablanca
+          path: ${{ runner.temp }}/bourse
+          if-no-files-found: ignore
+          retention-days: 90
+
       # File d'attente des comptes (30/09/2026) : dépôts AMMC pas encore
       # intégrés, écrits dans le résumé du run. Toujours exécutée, jamais
       # bloquante — une file non vide n'est pas une panne de séance.
+      # `--bourse` (20/10/2026) y ajoute la seconde source, à côté de l'AMMC ;
+      # un fichier absent est ignoré.
       - name: Comptes déposés à lire
         if: always()
-        run: python pipeline/file_attente_comptes.py
+        run: python pipeline/file_attente_comptes.py --bourse "$RUNNER_TEMP/bourse/candidats_comptes_bourse.json"
