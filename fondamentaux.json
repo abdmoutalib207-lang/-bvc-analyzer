@@ -302,20 +302,43 @@
         }
       },
       "dette_nette": {
-        "valeur": 3972.6,
+        "valeur": 3370.9,
         "date": "2025-12-31",
-        "formule": "4476.992962 − 504.349961 (MMAD)",
+        "formule": "4476.992962 − (504.349961 + 601.775808 de titres de placement) (MMAD)",
         "sources": {
           "dettes_financieres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf, p. 78",
-          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf, p. 78"
+          "tresorerie": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf, p. 78",
+          "titres_de_placement": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf, p. 78"
         },
         "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
-        "unite": "MMAD"
+        "unite": "MMAD",
+        "dette_nette_stricte": 3972.6
+      },
+      "ebitda": {
+        "valeur": 1214.0,
+        "date": "2025-12-31",
+        "formule": "EBE/EBITDA publié par la société : 1214.0 (MMAD)",
+        "sources": {
+          "ebitda": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf, p. 50"
+        },
+        "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+        "unite": "MMAD",
+        "origine": "publié"
+      },
+      "dette_nette_ebitda": {
+        "valeur": 2.78,
+        "date": "2025-12-31",
+        "formule": "3370.867 ÷ 1214.0",
+        "sources": {
+          "dette_nette": "ratios_publies.dette_nette",
+          "ebitda": "ratios_publies.ebitda"
+        },
+        "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025"
       },
       "roic": {
-        "valeur": 8.3,
+        "valeur": 9.1,
         "date": "2025-12-31",
-        "formule": "807.750348 × (1 − t) ÷ (2925.562585 + 3972.643) ; t = 207.163156 ÷ 712.80748 = 29.1 %",
+        "formule": "807.750348 × (1 − t) ÷ (2925.562585 + 3370.867) ; t = 207.163156 ÷ 712.80748 = 29.1 %",
         "sources": {
           "resultat_exploitation": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf, p. 78",
           "impot": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf, p. 78",
@@ -337,10 +360,6 @@
         },
         "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
         "unite": "%"
-      },
-      "non_calcules_2025": {
-        "ebitda": "ni EBE publié, ni dotations aux amortissements isolées",
-        "dette_nette_ebitda": "dette nette ou EBITDA non calculé"
       },
       "calcule_le": "2026-09-30"
     }

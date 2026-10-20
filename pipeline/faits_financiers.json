@@ -3134,7 +3134,7 @@
     "unite_au_rapport": "MAD",
     "colonne_exercice_clos": 1,
     "page": 78,
-    "note": "« Trésorerie - Actif 504 349 961 575 808 633 » ; trésorerie-actif SEULE. Les « Titres et Valeurs de placement 601 775 808 » ne sont pas comptés : le tableau des flux (p.79) arrête la trésorerie de clôture à −245 156 571 = 504 349 961 − 749 506 532, hors TVP. Les inclure abaisserait la dette nette de 601,8 MMAD.",
+    "note": "« Trésorerie - Actif 504 349 961 575 808 633 » ; trésorerie-actif SEULE. Les « Titres et Valeurs de placement 601 775 808 » ne sont pas comptés : le tableau des flux (p.79) arrête la trésorerie de clôture à −245 156 571 = 504 349 961 − 749 506 532, hors TVP. Les inclure abaisserait la dette nette de 601,8 MMAD. — 20/10/2026 : les titres de placement sont désormais relevés à part (`titres_valeurs_placement`, 601,776) et comptés dans la trésorerie de la dette nette, par la règle du 02/10/2026.",
     "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
     "releve_le": "2026-09-30"
    },
@@ -3217,6 +3217,28 @@
     "note": "« Dont : Capitaux propres part du groupe 2 853 529 135 2 583 560 166 » ; colonne de l'exercice PRÉCÉDENT (31/12/2024) de la ligne même qui porte le fait 2025 (exercice clos au rang 1, voir `capitaux_propres_part_groupe`) ; unité MAD.",
     "releve_le": "2026-10-13",
     "mode_de_lecture": "colonne lue"
+   },
+   "titres_valeurs_placement": {
+    "valeur": 601.775808,
+    "valeur_au_rapport": 601775808,
+    "unite_au_rapport": "MAD",
+    "colonne_exercice_clos": 1,
+    "page": 78,
+    "citation": "Titres et Valeurs de placement 601 775 808 322 529 434",
+    "note": "« Titres et Valeurs de placement 601 775 808 322 529 434 » ; bilan actif consolidé, en-tête « (Montants en dhs) 31/12/2025 31/12/2024 ». Comptés dans la trésorerie de la dette nette par la règle des titres de placement du 02/10/2026 (aucune exclusion sur pièce). Dette nette : 3 727,486 + 749,507 − 504,350 − 601,776 = 3 370,867. Validé par verificateur-finance le 20/10/2026.",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-10-20"
+   },
+   "excedent_brut_exploitation": {
+    "valeur": 1214.0,
+    "valeur_au_rapport": 1214,
+    "unite_au_rapport": "MMAD (« En millions DH »)",
+    "colonne_exercice_clos": 1,
+    "page": 50,
+    "citation": "(En millions DH) 2025 2024 Evolution / EBITDA 1 214 839 +45%",
+    "note": "EBITDA PUBLIÉ par la société, rapport de gestion du RFA 2025 p.50 (« Les principaux résultats consolidés se présentent comme suit : (En millions DH) … EBITDA 1 214 839 +45% »), confirmé par le communiqué https://www.ammc.ma/sites/default/files/CP_Akdital_2025_0.pdf p.1 : « L'EBITDA consolidé s'établit à 1 214 M MAD en 2025, en hausse de +45 % par rapport à 2024 » (marge 27,5 %). Arrondi au MDH ; non recalculable aux états (les dotations consolidées mêlent amortissements et provisions, voir réserve). Dette nette / EBITDA : 3 370,867 ÷ 1 214 = 2,78. Validé par verificateur-finance le 20/10/2026.",
+    "base": "consolidé (normes marocaines, avis CNC n°5), 31/12/2025",
+    "releve_le": "2026-10-20"
    }
   },
   "pages_document": 94,
@@ -3246,7 +3268,7 @@
     }
    ],
    "reserves": [
-    "EBITDA non calculable : « Dotations d'exploitation, nettes des reprises et TC -406 181 549 » (p.78) et « Élimination des amortissements et provisions 495 405 547 » (p.79) mêlent amortissements, provisions et reprises ; aucune page consolidée n'isole les dotations aux amortissements."
+    "EBITDA non calculable : « Dotations d'exploitation, nettes des reprises et TC -406 181 549 » (p.78) et « Élimination des amortissements et provisions 495 405 547 » (p.79) mêlent amortissements, provisions et reprises ; aucune page consolidée n'isole les dotations aux amortissements. — 20/10/2026 : l'EBITDA retenu est celui PUBLIÉ par la société (1 214, RFA p.50, communiqué p.1), non recalculé."
    ]
   }
  },
