@@ -1,0 +1,120 @@
+{
+ "ticker": "COL",
+ "societe": "Colorado",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 35.6 % − WACC 10",
+   "croissance": "croissance pondérée 6.66 %",
+   "valorisation": "PER 18.2",
+   "bilan": "dette nette / EBITDA -1.01"
+  }
+ },
+ "pieces": [
+  {
+   "id": "s1_2026_ammc",
+   "rang_methode": 1,
+   "titre": "Dépôt AMMC S1 2026 Colorado (2 pages scannées : communiqué + CPC)",
+   "url": "https://www.ammc.ma/sites/default/files/Colorado_S1_26.pdf",
+   "sha256": "5576d6a5582fbb0acb39b7b120811bc695f5f38bc657c8ac1c29ba50d8a6e4d4",
+   "octets": 2758450,
+   "pages": 2
+  },
+  {
+   "id": "rfs_s1_2026",
+   "rang_methode": 2,
+   "titre": "Rapport financier semestriel 1S2026 Colorado (site de l'émetteur)",
+   "url": "https://www.colorado.ma/corporate/sites/default/files/rapport_financier_semestriel_1s2026.pdf",
+   "sha256": "847ee756805985bc1cfaf351ad3025d33f2a446d91ff738481af28f5ec01b735",
+   "octets": 5136700,
+   "pages": 10,
+   "note": "> 5 Mo (5 136 700 octets) : non commité ; p.10 sans couche texte"
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "dettes_de_financement",
+   "valeur": 47.672,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (exercice précédent : 13,153)",
+   "perimetre": "SOCIAL, normes marocaines",
+   "source": "https://www.colorado.ma/corporate/sites/default/files/rapport_financier_semestriel_1s2026.pdf",
+   "piece": "rfs_s1_2026",
+   "page": 6,
+   "citation": "Dettes de financement (C) 47 672 117,73 13 152 627,57"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 2.755,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (exercice précédent : 4,345)",
+   "perimetre": "SOCIAL",
+   "source": "https://www.colorado.ma/corporate/sites/default/files/rapport_financier_semestriel_1s2026.pdf",
+   "piece": "rfs_s1_2026",
+   "page": 6,
+   "citation": "TRESORERIE PASSIF 2 754 765,42 4 344 984,62"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 14.197,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (exercice précédent : 6,514)",
+   "perimetre": "SOCIAL",
+   "source": "https://www.colorado.ma/corporate/sites/default/files/rapport_financier_semestriel_1s2026.pdf",
+   "piece": "rfs_s1_2026",
+   "page": 5,
+   "citation": "TOTAL III 14 197 082,38 14 197 082,38 6 513 886,79"
+  },
+  {
+   "grandeur": "titres_valeurs_placement",
+   "valeur": 6.046,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (exercice précédent : 130,340)",
+   "perimetre": "SOCIAL",
+   "source": "https://www.colorado.ma/corporate/sites/default/files/rapport_financier_semestriel_1s2026.pdf",
+   "piece": "rfs_s1_2026",
+   "page": 5,
+   "citation": "Titres valeurs de placement [H] 6 045 790,81 6 045 790,81 130 339 980,29"
+  },
+  {
+   "grandeur": "emprunt_semestre",
+   "valeur": 36.8,
+   "unite": "MMAD",
+   "periode": "S1 2026",
+   "perimetre": "SOCIAL",
+   "source": "https://www.ammc.ma/sites/default/files/Colorado_S1_26.pdf",
+   "piece": "s1_2026_ammc",
+   "page": 1,
+   "citation": "Ces investissements ont été financés en partie par un emprunt de 36,8 MDH. [lu sur image rendue]"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette 30/06/2026, mêmes postes qu'en 2025 (13,153 + 4,345 − 6,514 − 130,340 = −119,4)",
+   "formule": "47,672 + 2,755 − 14,197 − 6,046",
+   "resultat": 30.18
+  }
+ ],
+ "ecarts_plus_de_2_pct": [],
+ "semestriel_s1_2026": {
+  "depose": "dépôt AMMC sans bilan ; RFS sur colorado.ma",
+  "dette_nette": 30.18,
+  "unite": "MMAD",
+  "base": "social, calcul au bilan",
+  "page": "5-6"
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever. Le chiffre de la société (« Trésorerie nette 132,5 », RFA p.51) est rangé et rapproché dans faits.",
+  "Le dépôt AMMC S1 ne contient pas de bilan (communiqué + CPC) ; le bilan semestriel est dans le RFS du site de l'émetteur (rang 2).",
+  "⚠️ Pour la règle « dernier bilan publié » : COLORADO passe de trésorerie nette (−119,4 au 31/12/2025) à dette nette (+30,2 au 30/06/2026) — dividende 56,4 MDH, investissements 75,7 MDH, emprunt 36,8 MDH (communiqué p.1). Le ratio DN/EBITDA changerait de signe."
+ ],
+ "conclusion": "Entièrement adossé pour 2025 ; S1 relevé au RFS de l'émetteur.",
+ "debloquerait": "rien : déjà noté",
+ "question_ir": null
+}

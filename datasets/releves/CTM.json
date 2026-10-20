@@ -1,0 +1,110 @@
+{
+ "ticker": "CTM",
+ "societe": "CTM",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 0.5 % − WACC 10",
+   "croissance": "croissance pondérée -114.02 %",
+   "valorisation": "PER 32",
+   "bilan": "dette nette / EBITDA 1.91"
+  }
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Communication financière S1 2026 CTM (social et consolidé)",
+   "url": "https://www.ammc.ma/sites/default/files/CTM_S1_26.pdf",
+   "sha256": "df34fdb4e3028bffae70e72fd2a46ae953b3fd37a865687e6cb274ac1e2960b7",
+   "octets": 1981736,
+   "pages": 6
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "dettes_de_financement",
+   "valeur": 254.986,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 324,403)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/CTM_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Dettes de financement 254 986 324 403"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 212.539,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 91,090)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/CTM_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Trésorerie - Passif 212 539 91 090"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 75.379,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 80,402)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/CTM_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Trésorerie - Actif 75 379 80 402"
+  },
+  {
+   "grandeur": "valeurs_mobilieres_placement",
+   "valeur": 12.149,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 25,599)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/CTM_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Valeurs mobilières de placement 12 149 25 599"
+  },
+  {
+   "grandeur": "rnpg_s1",
+   "valeur": -13.011,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 12,402)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/CTM_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 4,
+   "citation": "Résultat net (part du groupe) (13 011) 12 402"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette 30/06/2026, mêmes postes qu'en 2025 (324,403 + 91,090 − 80,402 − 25,599 = 309,5)",
+   "formule": "254,986 + 212,539 − 75,379 − 12,149",
+   "resultat": 379.997
+  }
+ ],
+ "ecarts_plus_de_2_pct": [],
+ "semestriel_s1_2026": {
+  "depose": true,
+  "dette_nette": 380.0,
+  "unite": "MMAD",
+  "base": "consolidé, calcul au bilan",
+  "page": 4
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever.",
+  "La trésorerie 2025 de faits (106,001) = trésorerie actif 80,402 + VMP 25,599 : recollé au millier sur la colonne 31/12/2025.",
+  "Croissance BPA −204,9 % : RNPG S1 2026 négatif (−13,0) rapporté à une base positive — arithmétiquement défini ; pages déjà citées."
+ ],
+ "conclusion": "Entièrement adossé.",
+ "debloquerait": "rien : déjà noté",
+ "question_ir": null
+}

@@ -1,0 +1,125 @@
+{
+ "ticker": "HAL",
+ "societe": "Auto Hall",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 3.4 % − WACC 10",
+   "croissance": "croissance pondérée 32.16 %",
+   "valorisation": "PER 27.6",
+   "bilan": "dette nette / EBITDA 5.77"
+  }
+ },
+ "pieces": [
+  {
+   "id": "cp_s1_2026",
+   "rang_methode": 1,
+   "titre": "Communiqué S1 2026 Auto Hall",
+   "url": "https://www.ammc.ma/sites/default/files/CP_Auto_Hall_S1_26.pdf",
+   "sha256": "0b780f7a699151f6346c8fdd3d258ae6a3fd507b299e59e3925f769e7356bb05",
+   "octets": 446075,
+   "pages": 1
+  },
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Communication financière S1 2026 Auto Hall (consolidé)",
+   "url": "https://www.ammc.ma/sites/default/files/Auto_Hall_S1_26.pdf",
+   "sha256": "b9b63eb2197d1cbf73176bec98c5b7e4a03fbb32aadfef4397733c675b2dd766",
+   "octets": 601915,
+   "pages": 5
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "resultat_net_consolide_s1",
+   "valeur": 64.8,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 47,3)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Auto_Hall_S1_26.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Le résultat net consolidé atteint 64,8 MDH, contre 47,3 MDH un an auparavant"
+  },
+  {
+   "grandeur": "chiffre_affaires_s1",
+   "valeur": 3344.0,
+   "unite": "MMAD",
+   "periode": "S1 2026",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Auto_Hall_S1_26.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "le chiffre d’affaires consolidé d’Auto Hall s’établit à 3 344 MDH, en progression de 25 %"
+  },
+  {
+   "grandeur": "autres_passifs_non_courants",
+   "valeur": 1909.478,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 1 399,132)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/Auto_Hall_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 5,
+   "citation": "Autres passifs non courants 1 909 478 189,55 1 399 132 266,83"
+  },
+  {
+   "grandeur": "autres_passifs_financiers_court_terme",
+   "valeur": 2535.558,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 2 121,095)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/Auto_Hall_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 5,
+   "citation": "Autres passifs financiers à court terme 2 535 558 091,79 2 121 095 317,26"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 440.342,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 397,799)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/Auto_Hall_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 5,
+   "citation": "Trésorerie et équivalents de trésorerie 440 342 258,80 397 798 873,12"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "contrôle : dettes 2025 de faits (3 520,228) = colonne 31/12/2025",
+   "formule": "1 399,132 + 2 121,095",
+   "resultat": 3520.227
+  },
+  {
+   "quoi": "dette nette 30/06/2026, mêmes postes",
+   "formule": "1 909,478 + 2 535,558 − 440,342",
+   "resultat": 4004.69
+  }
+ ],
+ "ecarts_plus_de_2_pct": [],
+ "semestriel_s1_2026": {
+  "depose": true,
+  "dette_nette": 4004.69,
+  "unite": "MMAD",
+  "base": "consolidé, calcul au bilan (mêmes postes qu'en 2025)",
+  "page": 5
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever. Le chiffre de la société 2025 (3 122,4, p.42) est rangé dans faits et concorde.",
+  "Page manquante comblée : le communiqué (1 p.) porte RN et CA en p.1. Le RN est « consolidé » : aucun minoritaire au 31/12/2025 (faits p.58).",
+  "Le nombre d'actions du BPA (54 140 578) est établi par l'avis d'émission AMMC (faits › nombre_actions_existant, p.1).",
+  "Le communiqué S1 ne donne pas d'endettement net ; « Trésorerie de clôture −2 095 216 » (KMAD, p.5) est une trésorerie nette du tableau de flux, pas une dette nette."
+ ],
+ "conclusion": "Entièrement adossé après ajout de la p.1.",
+ "debloquerait": "rien : déjà noté",
+ "question_ir": null
+}

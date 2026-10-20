@@ -1,0 +1,125 @@
+{
+ "ticker": "JET",
+ "societe": "Jet Contractors",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 10.2 % − WACC 10",
+   "croissance": "croissance pondérée -7.88 %",
+   "valorisation": "PER 23.5",
+   "bilan": "dette nette / EBITDA 2.9"
+  }
+ },
+ "pieces": [
+  {
+   "id": "rfs_s1_2026",
+   "rang_methode": 1,
+   "titre": "Rapport financier semestriel S1 2026 Jet Contractors (> 5 Mo, non commité)",
+   "url": "https://www.ammc.ma/sites/default/files/Jet_Contractors_RFS_S1_26.pdf",
+   "sha256": "2e9545f2565811407ed0d2fe27bf20dcb770916eb0d23d249594c52568f4cf9d",
+   "octets": 31964149,
+   "pages": 21
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "endettement_net_publie",
+   "valeur": 1647.89,
+   "unite": "MMAD",
+   "periode": "31/12/2025",
+   "perimetre": "consolidé, normes marocaines ; crédit-bail inclus",
+   "source": "https://www.ammc.ma/sites/default/files/Jet_Contractors_RFS_S1_26.pdf",
+   "piece": "rfs_s1_2026",
+   "page": 15,
+   "citation": "Endettement net (en Mdhs) 2025 S1 2026 / Dettes de financement 1 191,40 1 026,68 / Tresorerie nette - 149,88 - 549,69 / Encours de credit bail 306,61 311,32 / Billet tresorerie - - / En (df - tn -tvp + cb + bt) 1 647,89 1 887,69 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "endettement_net_publie",
+   "valeur": 1887.69,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "consolidé, normes marocaines ; crédit-bail inclus",
+   "source": "https://www.ammc.ma/sites/default/files/Jet_Contractors_RFS_S1_26.pdf",
+   "piece": "rfs_s1_2026",
+   "page": 15,
+   "citation": "L’endettement net au 30/06/2026 s’élève à 1 887,69 Mdhs contre 1 647,89 Mdhs au 31/12/2025 en hausse de 14,55%. [lu sur image rendue]"
+  },
+  {
+   "grandeur": "encours_credit_bail",
+   "valeur": 306.61,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (30/06/2026 : 311,32)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/Jet_Contractors_RFS_S1_26.pdf",
+   "piece": "rfs_s1_2026",
+   "page": 15,
+   "citation": "Encours de credit bail 306,61 311,32 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "endettement_net_social_publie",
+   "valeur": 2011.94,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 1 636,54)",
+   "perimetre": "SOCIAL — ne pas confondre avec le consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/Jet_Contractors_RFS_S1_26.pdf",
+   "piece": "rfs_s1_2026",
+   "page": 14,
+   "citation": "L’endettement net au 30/06/2026 s’élève à 2 011,94 Mdhs contre 1 636,54 Mdhs au 31/12/2025 en augmentation de 23%. [lu sur image rendue]"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "endettement net de la société hors crédit-bail, 31/12/2025",
+   "formule": "1 191,40 + 149,88",
+   "resultat": 1341.28
+  },
+  {
+   "quoi": "contrôle : dette nette de la note 2025 (1 908,366 − 567,085)",
+   "formule": "1 908,366 − 567,085",
+   "resultat": 1341.28
+  },
+  {
+   "quoi": "écart de la note au chiffre de la société, 31/12/2025",
+   "formule": "(1 341,3 − 1 647,89) ÷ 1 647,89",
+   "resultat": -18.6
+  },
+  {
+   "quoi": "dette nette 30/06/2026 hors crédit-bail (base de la note)",
+   "formule": "1 026,68 + 549,69",
+   "resultat": 1576.37
+  }
+ ],
+ "ecarts_plus_de_2_pct": [
+  {
+   "grandeur": "dette_nette",
+   "utilise": 1341.3,
+   "piece": 1647.89,
+   "ecart_relatif_pct": -18.6,
+   "page": 15,
+   "piece_id": "rfs_s1_2026",
+   "note": "expliqué : encours de crédit-bail 306,61 (même tableau) ; résidu 0,0"
+  }
+ ],
+ "semestriel_s1_2026": {
+  "depose": true,
+  "dette_nette": 1887.69,
+  "unite": "MMAD",
+  "base": "consolidé, chiffre de la société, crédit-bail inclus (hors crédit-bail : 1 576,37)",
+  "page": 15
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever.",
+  "Les dettes de financement de faits (1 908,366) comprennent la trésorerie passif (716,969) : 1 191,40 + 716,97 = 1 908,37 ; la « trésorerie nette » de la société (−149,88) = 567,09 − 716,97.",
+  "⚠️ Le chiffre de la société au 31/12/2025 (1 647,89) n'est pas rangé dans faits › endettement_net. L'écart avec la note (−18,6 %) est EXACTEMENT l'encours de crédit-bail (306,61, même page) : il relève de l'explication admise « ifrs16_location » (crédit-bail compté d'un côté seulement), résidu 0,0. À ranger avec ce rapprochement, sinon la règle unique le jugerait contesté.",
+  "Croissance (BPA −27,4 %, CA +21,4 %) et BPA 12 mois : pages déjà citées dans resultats_s1_2026."
+ ],
+ "conclusion": "Adossé ; l'écart au chiffre de la société est entièrement expliqué par le crédit-bail, sur la même page.",
+ "debloquerait": "le rangement d'endettement_net avec rapprochement ifrs16_location (306,61, p.15) mettrait JET en conformité avec la règle unique",
+ "question_ir": null
+}

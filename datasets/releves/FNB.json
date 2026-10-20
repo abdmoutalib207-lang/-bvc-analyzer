@@ -1,0 +1,99 @@
+{
+ "ticker": "FNB",
+ "societe": "Fénie Brossette",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 10.2 % − WACC 10",
+   "croissance": "croissance pondérée 39.14 %",
+   "valorisation": "PER 24.5",
+   "bilan": "dette nette / EBITDA 1.43"
+  }
+ },
+ "pieces": [
+  {
+   "id": "cp_s1_2026",
+   "rang_methode": 1,
+   "titre": "Communiqué S1 2026 Fenie Brossette",
+   "url": "https://www.ammc.ma/sites/default/files/CP_Fenie_Brossette_S1_26.pdf",
+   "sha256": "e2764a1afa3acc8d6438981681c56b9b7eb796a08707dc786eae630e8ec41092",
+   "octets": 502041,
+   "pages": 1
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "resultat_net_consolide_s1",
+   "valeur": 12.7,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 8,2)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Fenie_Brossette_S1_26.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Le résultat net consolidé s’établit à 12,7 M MAD, contre 8,2 M MAD au premier semestre 2025."
+  },
+  {
+   "grandeur": "chiffre_affaires_s1",
+   "valeur": 432.0,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 374)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Fenie_Brossette_S1_26.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Au 30 juin 2026, le chiffre d’affaires consolidé s’établit à 432 M MAD, contre 374 M MAD au premier semestre 2025"
+  },
+  {
+   "grandeur": "endettement_net_publie",
+   "valeur": 99.0,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 59)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/CP_Fenie_Brossette_S1_26.pdf",
+   "piece": "cp_s1_2026",
+   "page": 1,
+   "citation": "Au 30 juin 2026, l’endettement net consolidé ressort à 99 M MAD, à un niveau comparable à celui enregistré à fin juin 2025, contre 59 M MAD à fin décembre 2025."
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "croissance RN S1",
+   "formule": "12,7 ÷ 8,2 − 1",
+   "resultat": 54.9
+  },
+  {
+   "quoi": "croissance CA S1",
+   "formule": "432 ÷ 374 − 1",
+   "resultat": 15.5
+  },
+  {
+   "quoi": "écart du chiffre de la société 31/12/2025 au bilan de la note (59,4)",
+   "formule": "(59,4 − 59) ÷ 59",
+   "resultat": 0.7
+  }
+ ],
+ "ecarts_plus_de_2_pct": [],
+ "semestriel_s1_2026": {
+  "depose": true,
+  "dette_nette": 99.0,
+  "unite": "MMAD",
+  "base": "consolidé, chiffre de la société",
+  "page": 1
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever.",
+  "Page manquante comblée : le communiqué S1 (p.1) porte RN et CA.",
+  "Le chiffre de la société au 31/12/2025 (59) concorde avec le bilan de la note (59,4, 0,7 %) — il n'est pas rangé dans faits › endettement_net (règle unique).",
+  "Le dossier « Fenie_Brossette_S1_26.pdf » (5 p.) a été téléchargé : aucun bilan lisible en texte ; non exploité."
+ ],
+ "conclusion": "Entièrement adossé après ajout de la p.1.",
+ "debloquerait": "rien : déjà noté",
+ "question_ir": null
+}

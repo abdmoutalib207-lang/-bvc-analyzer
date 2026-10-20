@@ -1,0 +1,100 @@
+{
+ "ticker": "BAL",
+ "societe": "Balima",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 11 % − WACC 10",
+   "croissance": "croissance pondérée 9.06 %",
+   "valorisation": "PER 23.7",
+   "bilan": "trésorerie nette positive"
+  }
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Communication financière S1 2026 Balima (3 pages scannées)",
+   "url": "https://www.ammc.ma/sites/default/files/Balima_S1_26.pdf",
+   "sha256": "f82ee66e134e152f245fac0e6168a99c9f1ee41f08912eaa9aa03bd80846aab4",
+   "octets": 4505667,
+   "pages": 3
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "emprunts_et_dettes_financieres",
+   "valeur": 33.446707,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 30,488521)",
+   "perimetre": "consolidé, normes marocaines ; agrégat emprunt + cautionnements des locataires",
+   "source": "https://www.ammc.ma/sites/default/files/Balima_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "Emprunts et dettes financières 33 446 707 30 488 521 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "titres_valeurs_placement",
+   "valeur": 32.244306,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 6,936131)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/Balima_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "Titres et Valeurs de Placement 32 244 306 6 936 131 [lu sur image rendue]"
+  },
+  {
+   "grandeur": "disponibilites",
+   "valeur": 3.159797,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 22,364347)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/Balima_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "Disponibilités 3 159 797 22 364 347 [lu sur image rendue]"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette 30/06/2026 sur l'agrégat publié",
+   "formule": "33,446707 − 32,244306 − 3,159797",
+   "resultat": -1.957
+  },
+  {
+   "quoi": "dette nette 30/06/2026 hors cautionnements (6,760760 établis pour 2025 dans faits ; hypothèse : inchangés)",
+   "formule": "(33,446707 − 6,760760) − 32,244306 − 3,159797",
+   "resultat": -8.718
+  }
+ ],
+ "ecarts_plus_de_2_pct": [
+  {
+   "grandeur": "croissance_ca",
+   "utilise": 0.0,
+   "piece": null,
+   "note": "non publiée en consolidé ; lue comme 0 par detail_fond_score (fond_score.py l.351)"
+  }
+ ],
+ "semestriel_s1_2026": {
+  "depose": true,
+  "dette_nette": -1.957,
+  "unite": "MMAD",
+  "base": "consolidé, calcul au bilan (agrégat publié)",
+  "page": 3
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever. Réserve : les dettes financières 2025 (23,70) sont DÉRIVÉES (identité à deux exercices, faits p.11/15/44), non lues sur une ligne.",
+  "⚠️ croissance_ca absente (aucun CA consolidé publié au S1) : la note lit 0 — « croissance pondérée 9,06 % » = 0,6 × 15,1 + 0,4 × 0. Une absence compte comme une croissance nulle.",
+  "EBITDA absent : sans effet, le bilan lit « trésorerie nette positive », qui le reste au 30/06/2026 sous les deux lectures."
+ ],
+ "conclusion": "Adossé ; une composante (croissance du CA) est une absence lue comme 0 %.",
+ "debloquerait": "rien sur pièce ; question de règle pour le vérificateur (absence ≠ 0)",
+ "question_ir": null
+}

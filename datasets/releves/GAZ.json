@@ -1,0 +1,99 @@
+{
+ "ticker": "GAZ",
+ "societe": "Afriquia Gaz",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "lot": "E1 — vérification des titres notés à 100 %",
+ "blocage": {
+  "motif": "aucun : titre noté à couverture 1,0 ; vérification que chaque grandeur lue par la note est adossée à une pièce",
+  "effet": "aucun sur la note tant que le vérificateur n'a pas jugé les constats",
+  "lu_dans": "data.json › note_fond.composantes.*.mesure ; fondamentaux.json › ratios_publies ; bpa.json ; datasets/resultats_s1_2026.json ; pipeline/faits_financiers.json",
+  "mesures_lues": {
+   "qualite": "ROIC 19.1 % − WACC 10",
+   "croissance": "croissance pondérée 0.18 %",
+   "valorisation": "PER 16.5",
+   "bilan": "dette nette / EBITDA 0.3"
+  }
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Communication financière S1 2026 Afriquia Gaz (social et consolidé)",
+   "url": "https://www.ammc.ma/sites/default/files/AFG_S1_2026.pdf",
+   "sha256": "677296fcc1a0288da41c56174138456e0a0aca3f07df8cafd5e2050d6fcd89ad",
+   "octets": 5353837,
+   "pages": 4
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "dettes_financement_plus_un_an",
+   "valeur": 1029.598,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 1 061,912)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/AFG_S1_2026.pdf",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "Dettes de financement à plus d'un an 1 029 598 1 061 912"
+  },
+  {
+   "grandeur": "dettes_financement_moins_un_an",
+   "valeur": 125.007,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 132,631)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/AFG_S1_2026.pdf",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "Dettes de financement à moins d'un an 125 007 132 631"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 388.33,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 318,011)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/AFG_S1_2026.pdf",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "Trésorerie et équivalents 388 330 318 011 (côté passif)"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 1294.524,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 1 039,041)",
+   "perimetre": "consolidé",
+   "source": "https://www.ammc.ma/sites/default/files/AFG_S1_2026.pdf",
+   "piece": "s1_2026",
+   "page": 3,
+   "citation": "Trésorerie actif 1 294 524 1 039 041"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "dette nette 30/06/2026, mêmes postes qu'en 2025 (1 512,554 − 1 039,041 = 473,5)",
+   "formule": "1 029,598 + 125,007 + 388,330 − 1 294,524",
+   "resultat": 248.41
+  }
+ ],
+ "ecarts_plus_de_2_pct": [],
+ "semestriel_s1_2026": {
+  "depose": true,
+  "dette_nette": 248.41,
+  "unite": "MMAD",
+  "base": "consolidé, calcul au bilan",
+  "page": 3
+ },
+ "constats": [
+  "Exercice 2025 (ROIC et ses entrées, dette nette, EBITDA, RN, nombre d'actions) : chaque entrée porte document et page dans faits_financiers.json / ratios_publies — vérifié, rien à relever.",
+  "La colonne 31/12/2025 redonne au millier les dettes 2025 de faits (1 061,912 + 132,631 + 318,011 = 1 512,554).",
+  "Croissance et BPA 12 mois : pages déjà citées ; recalcul identique."
+ ],
+ "conclusion": "Entièrement adossé.",
+ "debloquerait": "rien : déjà noté",
+ "question_ir": null
+}
