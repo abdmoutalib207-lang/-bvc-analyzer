@@ -1,0 +1,46 @@
+{
+  "ticker": "CMT",
+  "societe": "Compagnie Minière de Touissit",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF",
+  "blocage": {
+    "motif": "dette nette / EBITDA non calculée sur comptes publiés",
+    "effet": "composante « bilan » retirée ; ratios_publies.non_calcules_2025.ebitda : « ni EBE publié, ni dotations aux amortissements isolées »",
+    "lu_dans": "data.json › CMT › note_fond.composantes.bilan.motif ; fond_score.py l.380"
+  },
+  "pieces": [
+    {"id": "rfa_2025", "rang_methode": 1, "titre": "Rapport financier annuel 2025 (20 Mo, non commité)", "url": "https://www.ammc.ma/sites/default/files/CMT_RFA_2025.pdf", "sha256": "e80e17ab79e0beeb150824752907427da21c9747bb120cca6c9da2f2df757f69", "octets": 20481709, "pages": 82},
+    {"id": "cp_2025", "rang_methode": 1, "titre": "Communication financière — comptes 2025", "url": "https://www.ammc.ma/sites/default/files/CP_CMT_2025.pdf", "sha256": "1907392bcf604678f754d11625d56a06eb6ab7b0841bf6874c84e583c8b95f59", "octets": 4122238, "pages": 4},
+    {"id": "s1_2026", "rang_methode": 1, "titre": "Comptes semestriels au 30/06/2026", "url": "https://www.ammc.ma/sites/default/files/CMT_S1_26.pdf", "sha256": "32acc848b126dcbc5c93312b60da60adf21796b060da0e71cc117b8b72c346f5", "octets": 2572062, "pages": 4}
+  ],
+  "chiffres": [
+    {"grandeur": "dotations_amortissements_depreciations_provisions", "valeur": 38.412256, "unite": "MMAD", "periode": "exercice 2025 (2024 : 34,054)", "perimetre": "consolidé, normes marocaines ; amortissements, dépréciations ET provisions sur une ligne", "source": "https://www.ammc.ma/sites/default/files/CMT_RFA_2025.pdf", "piece": "rfa_2025", "page": 58, "citation": "Dotations aux amortissements, dépréciations et provisions (38 412 256) (34 054 375) … Résultat d'exploitation avant dotations aux amort. et dép. EA 387 847 981 297 564 799 ((En dirhams) 31/12/2025 31/12/2024)"},
+    {"grandeur": "dotations_amortissements_social", "valeur": 37.314711, "unite": "MMAD", "periode": "exercice 2025", "perimetre": "SOCIAL, état B2 bis", "source": "https://www.ammc.ma/sites/default/files/CMT_RFA_2025.pdf", "piece": "rfa_2025", "page": 47, "citation": "B2 (BIS) TABLEAU DES AMORTISSEMENTS DU 01/01/2025 AU 31/12/2025 … TOTAL GÉNÉRAL 828 322 681,39 37 314 711,02 865 637 392,41 (colonnes cumul début / dotation de l'exercice / cumul fin) [lu sur image rendue]"},
+    {"grandeur": "excedent_brut_exploitation_social", "valeur": 426.5458531, "unite": "MMAD", "periode": "exercice 2025 (2024 : 333,125)", "perimetre": "SOCIAL (état des soldes de gestion)", "source": "https://www.ammc.ma/sites/default/files/CMT_RFA_2025.pdf", "piece": "rfa_2025", "page": 41, "citation": "= EXCÉDENT BRUT D’EXPLOITATION (E.B.E) 426 545 853,10 333 125 023,81 ; 14 - Dotations d’exploitation 39 664 807,02 37 535 973,02 VI = RÉSULTAT D’EXPLOITATION (+ou-) 393 566 899,58"},
+    {"grandeur": "endettement_net_emetteur", "valeur": 70.0, "unite": "MMAD", "periode": "31/12/2025 (2024 : 231)", "perimetre": "rubrique « Situation financière » du rapport de gestion, sans définition ; périmètre non dit (graphiques voisins : MLT 136 978, CT 23 164, trésorerie 23 347 KMAD)", "source": "https://www.ammc.ma/sites/default/files/CMT_RFA_2025.pdf", "piece": "rfa_2025", "page": 77, "citation": "l'endettement net recule de 70% pour s'établir à 70 MDH. Cette amélioration s'explique par la réduction de l'encours de la dette long terme (-47%) … taux d'endettement (Gearing) de 25% ; graphiques : MLT 197 824 / 136 978, CT 126 780 / 23 164, Trésorerie 26 720 / 23 347, Endettement net 231 / 70, Gearing 43 % / 25 % (2024 / 2025) [lu sur image rendue]"},
+    {"grandeur": "definition_ratio_endettement_covenant", "valeur": 2.0, "unite": "plafond du ratio dette financière / EBITDA", "periode": "contrat d'emprunt obligataire en vigueur au 31/12/2025", "perimetre": "SOCIAL (engagements B9) ; dette financière BRUTE, leasing compris", "source": "https://www.ammc.ma/sites/default/files/CMT_RFA_2025.pdf", "piece": "rfa_2025", "page": 50, "citation": "Ratio d'endettement = (Dette financière) / EBITDA ; Dette financière = (+) Endettement financier long terme (+) Encours du leasing (+) Endettement financier court terme … soit inférieur ou égal à 2,0"},
+    {"grandeur": "dettes_financieres_s1", "valeur": 91.845231, "unite": "MMAD", "periode": "30/06/2026 (31/12/2025 : 171,582)", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/CMT_S1_26.pdf", "piece": "s1_2026", "page": 3, "citation": "Dettes financières 91 845 231 171 581 683"},
+    {"grandeur": "disponibilites_s1", "valeur": 412.661756, "unite": "MMAD", "periode": "30/06/2026 (31/12/2025 : 28,714)", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/CMT_S1_26.pdf", "piece": "s1_2026", "page": 3, "citation": "Disponibilités 412 661 756 28 713 549"},
+    {"grandeur": "dotations_amortissements_depreciations_provisions_s1", "valeur": 30.415485, "unite": "MMAD", "periode": "S1 2026 (S1 2025 : 15,222)", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/CMT_S1_26.pdf", "piece": "s1_2026", "page": 3, "citation": "Dotations aux amortissements, dépréciations et provisions (30 415 485) (15 222 035) ; Résultat d'exploitation après dotations aux amort. et dép. EA 353 659 709 198 905 435"}
+  ],
+  "estimations": [],
+  "calculs": [
+    {"quoi": "EBITDA consolidé candidat (dotations mêlées)", "formule": "387,848 + 38,412", "resultat": 426.3},
+    {"quoi": "Part des amortissements dans les dotations d'exploitation, au social", "formule": "37,315 ÷ 39,665", "resultat": 0.94},
+    {"quoi": "Dette nette consolidée du moteur / EBITDA candidat", "formule": "142,9 ÷ 426,3", "resultat": 0.34},
+    {"quoi": "Dette nette reconstruite depuis les graphiques de la p.77", "formule": "136,978 + 23,164 − 23,347 (2025) ; 197,824 + 126,780 − 26,720 (2024)", "resultat": 136.8},
+    {"quoi": "Écart avec l'endettement net publié, les deux années", "formule": "136,8 − 70 = 66,8 (2025) ; 297,9 − 231 = 66,9 (2024)", "resultat": 66.8},
+    {"quoi": "Dette nette consolidée au 30/06/2026", "formule": "91,845 − 412,662", "resultat": -320.8}
+  ],
+  "constats": [
+    "Aucun EBITDA consolidé n'est publié. La seule ligne consolidée (p.58) réunit amortissements, dépréciations et provisions (38,4 MMAD). Au social, les amortissements font 37,3 des 39,7 MMAD de dotations d'exploitation (B2 bis p.47, CPC p.41) : 94 %. Le candidat 426,3 se recoupe avec l'EBE SOCIAL publié (426,5) — CMT pèse l'essentiel du consolidé.",
+    "Le palier de la grille de bilan ne dépend pas de ce mélange : 142,9 ÷ 426,3 = 0,34, et même en retirant toutes les dotations sauf les amortissements sociaux (387,8 + 37,3 = 425,2) on reste à 0,34 (< 0,5).",
+    "L'endettement net publié (70 MMAD, p.77) ne se reconstruit pas depuis les graphiques de la même page : MLT + CT − trésorerie donne 136,8 en 2025 et 297,9 en 2024, soit un écart quasi constant de 66,8-66,9 MMAD. Un actif fixe est déduit sans être nommé (piste : placements D.A.T. affectés à la réhabilitation de la digue à stériles, note p.43 — non prouvé). Question IR rédigée.",
+    "Le covenant (p.50) définit une dette financière BRUTE, leasing compris, plafonnée à 2,0 × EBITDA : définition du prêteur, pas de l'endettement net.",
+    "Au 30/06/2026, la dette nette consolidée est NÉGATIVE (−320,8 MMAD : disponibilités 412,7 contre dettes 91,8) : le choix de la période du bilan (même question que la réserve TMA) change le signe."
+  ],
+  "conclusion": "EBITDA consolidé non publié mais encadré sur pièce (candidat 426,3, dont 94 % d'amortissements au social) ; endettement net de l'émetteur (70) sans définition et non reconstructible : question IR.",
+  "debloquerait": "Si le verificateur-finance accepte des dotations consolidées non ventilées (ou le recoupement avec l'EBE social), la composante « bilan » : dette nette / EBITDA 0,34 au 31/12/2025 (grille 8,5), trésorerie nette au 30/06/2026.",
+  "question_ir": "docs/questions_ir/CMT.md"
+}
