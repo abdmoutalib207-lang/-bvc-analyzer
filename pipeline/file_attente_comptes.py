@@ -13,6 +13,12 @@ la lecture reste un acte relu (agent `lecteur-comptes`, puis PR). Il ne fait
 jamais échouer un workflow — une file non vide n'est pas une panne.
 
     python pipeline/file_attente_comptes.py
+    python pipeline/file_attente_comptes.py --bourse candidats_comptes_bourse.json
+
+SECONDE SOURCE — 20/10/2026. La Bourse de Casablanca met aussi en ligne des
+comptes d'émetteurs (`pipeline/controle_bourse.py` en tire les semestriels
+non intégrés). Ils s'AJOUTENT à la file, dans une liste à part, sans jamais
+remplacer l'AMMC (R3) : un titre déjà présent côté AMMC n'est pas redoublé.
 """
 
 from __future__ import annotations
@@ -59,6 +65,28 @@ def file_attente(depots: dict, jeu: dict, depuis: str) -> dict:
     return out
 
 
+def ajouter_bourse(f: dict, candidats: list[dict], jeu: dict) -> dict:
+    """Ajoute les candidats de la Bourse sous `bourse`, sans toucher aux listes AMMC. Pure.
+
+    Écartés : un titre déjà intégré ou écarté dans le jeu, ou déjà présent dans
+    une liste AMMC (celle-ci reste la source première).
+    """
+    out = {k: list(v) for k, v in f.items()}
+    deja = {e["ticker"] for v in f.values() for e in v}
+    deja |= set(jeu.get("titres") or {}) | set(jeu.get("_ecartes") or {})
+    vus = set()
+    out["bourse"] = []
+    for c in candidats or []:
+        t = c.get("ticker")
+        if not t or t in deja or t in vus:
+            continue
+        vus.add(t)
+        out["bourse"].append({"ticker": t, "date": c.get("date"), "titre": c.get("titre"),
+                              "url": c.get("url"), "source": "Bourse de Casablanca"})
+    out["bourse"].sort(key=lambda e: (e["date"] or "", e["ticker"]))
+    return out
+
+
 def rapport(f: dict) -> str:
     lignes = [f"## Comptes déposés à l'AMMC, pas encore intégrés : {len(f['a_lire'])}", ""]
     for e in f["a_lire"]:
@@ -69,13 +97,30 @@ def rapport(f: dict) -> str:
     if f["ecartes"]:
         lignes += ["", "Écartés, motif consigné dans le jeu :"]
         lignes += [f"- {e['ticker']} — {e['date']}" for e in f["ecartes"]]
+    if "bourse" in f:
+        lignes += ["", f"## Seconde source — Bourse de Casablanca, absents côté AMMC : {len(f['bourse'])}", ""]
+        lignes += [f"- **{e['ticker']}** — {e['date'] or 'date inconnue'} — [{e['titre']}]({e['url']})"
+                   for e in f["bourse"]]
     return "\n".join(lignes) + "\n"
 
 
-def main() -> int:
+def _candidats_bourse(argv: list[str]) -> list[dict] | None:
+    """Le fichier passé par `--bourse`, ou None. Absent ou illisible : on s'en passe."""
+    if "--bourse" not in argv or argv.index("--bourse") + 1 >= len(argv):
+        return None
+    try:
+        return json.loads(Path(argv[argv.index("--bourse") + 1]).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def main(argv: list[str] | None = None) -> int:
     from pipeline.depots_ammc import charger, depots_par_ticker
     jeu = json.loads(JEU.read_text(encoding="utf-8"))
     f = file_attente(depots_par_ticker(charger()), jeu, jeu["fin_periode"])
+    bourse = _candidats_bourse(sys.argv[1:] if argv is None else argv)
+    if bourse is not None:
+        f = ajouter_bourse(f, bourse, jeu)
     texte = rapport(f)
     print(texte)
     resume = os.environ.get("GITHUB_STEP_SUMMARY")
