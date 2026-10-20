@@ -1,0 +1,196 @@
+{
+ "ticker": "STR",
+ "societe": "Stroc Industrie (STROC INDUSTRIE S.A.)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "qualité : ROIC non calculé sur comptes publiés ; valorisation : pas de PER positif tiré des comptes ; bilan : dette nette / EBITDA non calculée sur comptes publiés (croissance mesurée : −84,06 %)",
+  "effet": "couverture 30 %, sous le seuil de 50 % : pas de note",
+  "lu_dans": "data.json › STR › note_fond ; faits_financiers.json › STR (RFA 2025, SOCIAL)"
+ },
+ "pieces": [
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Résultats semestriels 2026 : communiqué (p.1, texte) + bilan et CPC sociaux au 30/06/2026 (p.2, image) — déposé AMMC le 29/09/2026",
+   "url": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf",
+   "sha256": "af7310ce400370633401cc3ea57da2276898ac9be0a72f0adc2e9c3defb75774",
+   "octets": 2185977,
+   "pages": 3
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "chiffre_affaires",
+   "valeur": 37.735,
+   "unite": "MMAD",
+   "periode": "S1 2026 (01/01–30/06/2026)",
+   "perimetre": "SOCIAL, normes marocaines (STROC ne consolide pas)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Chiffres d'affaires 37 734 698,60 | 37 734 698,60 | 142 219 887,36 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf"
+  },
+  {
+   "grandeur": "chiffre_affaires",
+   "valeur": 142.22,
+   "unite": "MMAD",
+   "periode": "S1 2025",
+   "perimetre": "social ; la colonne « exercice précédent » du CPC est le S1 2025 (recoupé : communiqué p.1 « passe de 142,2 à 37,7 millions »)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Chiffres d'affaires … 142 219 887,36 [lu sur image rendue] ; p.1 : Le chiffre d'affaires passe de 142,2 à 37,7 millions de dirhams entre le premier semestre 2025 et 2026",
+   "source": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_exploitation",
+   "valeur": 3.189,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 31,468)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "RESULTAT D'EXPLOITATION (I-II) 3 442 348,99 | -252 864,33 | 3 189 484,66 | 31 468 109,65 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf"
+  },
+  {
+   "grandeur": "dotations_exploitation",
+   "valeur": 5.246,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 5,623)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Dotations d'exploitation 5 246 414,72 | 5 246 414,72 | 5 622 669,27 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf"
+  },
+  {
+   "grandeur": "reprises_exploitation",
+   "valeur": 3.318,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 0,694)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Reprises d'exploitation : transferts de charges 3 317 953,38 | 3 317 953,38 | 693 985,26 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net",
+   "valeur": 1.379,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 15,419)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "RESULTAT NET (XI-XII) 1 638 347,06 | -259 679,41 | 1 378 667,65 | 15 418 690,12 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres",
+   "valeur": -339.514,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : −340,892)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Total des capitaux propres (A) -339 513 768,18 | -340 892 435,83 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf"
+  },
+  {
+   "grandeur": "dettes_financement",
+   "valeur": 145.746,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 145,746, inchangé)",
+   "perimetre": "social ; crédit-bail non retraité (normes marocaines)",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Dettes de financement (C) 145 746 142,74 | 145 746 142,74 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf"
+  },
+  {
+   "grandeur": "tresorerie_passif",
+   "valeur": 78.344,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 78,344)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Banques (Soldes créditeurs) 78 344 486,50 | 78 343 927,70 ; TOTAL III 78 344 486,50 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf"
+  },
+  {
+   "grandeur": "tresorerie_actif",
+   "valeur": 3.644,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 3,512)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "TOTAL III 3 643 754,22 | 3 511 510,40 [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf"
+  },
+  {
+   "grandeur": "total_bilan",
+   "valeur": 385.819,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (31/12/2025 : 387,073)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "TOTAL GENERAL I+II+III 385818812,21 | 387072949,74 (actif) ; 385 818 812,21 | 387 072 949,74 (passif) [lu sur image rendue]",
+   "source": "https://www.ammc.ma/sites/default/files/Stroc_industrie_S1_26.pdf"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "croissance du CA S1/S1",
+   "formule": "37,735 / 142,220 − 1",
+   "resultat": -73.47,
+   "unite": "%"
+  },
+  {
+   "quoi": "croissance du résultat net S1/S1",
+   "formule": "1,379 / 15,419 − 1",
+   "resultat": -91.06,
+   "unite": "%"
+  },
+  {
+   "quoi": "résultat net 12 mois glissants au 30/06/2026",
+   "formule": "RN 2025 0,476 (faits_financiers, RFA p.17) − S1 2025 15,419 + S1 2026 1,379",
+   "resultat": -13.564,
+   "unite": "MMAD",
+   "reserves": [
+    "bénéfice glissant négatif : PER non calculable par construction"
+   ]
+  },
+  {
+   "quoi": "EBE approché S1 2026 (pas un chiffre publié)",
+   "formule": "résultat d'exploitation 3,189 + dotations d'exploitation 5,246 − reprises d'exploitation 3,318",
+   "resultat": 5.118,
+   "unite": "MMAD",
+   "reserves": [
+    "formule de proxy, l'EBE des états de synthèse (ESG) n'est pas dans cette pièce",
+    "S1 2025 : 31,468 + 5,623 − 0,694 = 36,397"
+   ]
+  },
+  {
+   "quoi": "dette nette au 30/06/2026",
+   "formule": "145,746 + 78,344 − 3,644",
+   "resultat": 220.447,
+   "unite": "MMAD"
+  }
+ ],
+ "constats": [
+  "Pièce du semestre : comptes SOCIAUX seulement, comme le RFA 2025 (pas de consolidé).",
+  "Tous les chiffres du bilan et du CPC sont lus sur image rendue de la p.2 (pas de couche texte) ; la p.3 (sans texte) n'a pas été lue.",
+  "Le communiqué p.1 recoupe le CPC : CA 142,2 → 37,7 ; RE 31,5 → 3,2 ; RN 15,4 → 1,4.",
+  "Capitaux propres négatifs (−339,5 MMAD) : un ROIC sur capitaux investis et un ratio dette/fonds propres sont à définir par la règle (verificateur-finance), pas par la pièce.",
+  "Résultat net sur 12 mois glissants négatif (−13,6 MMAD) : la valorisation restera bloquée sur PER, à bon droit."
+ ],
+ "conclusion": "La pièce S1 2026 donne CA, RE, RN sur deux semestres et le bilan complet. Le blocage « valorisation » est fondé (bénéfice glissant négatif) ; le « bilan » devient calculable (dette nette 220,4 MMAD) si un EBITDA est retenu. Aucune divergence : pas de question IR.",
+ "debloquerait": "bilan (dette nette 220,4 MMAD sur EBITDA glissant, à définir) et mise à jour de la croissance sur le S1 2026 (CA −73,5 %, RN −91,1 %) ; qualité : ROIC à capitaux propres négatifs, question de règle.",
+ "question_ir": null
+}
