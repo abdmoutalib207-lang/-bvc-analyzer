@@ -1,0 +1,232 @@
+{
+ "ticker": "MRL",
+ "societe": "Maroc Leasing (code BVC MLE)",
+ "releve_le": "2026-10-20",
+ "agent": "chercheur-pieces",
+ "convention_page": "page = rang dans le fichier PDF",
+ "blocage": {
+  "motif": "bilan : « équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière »",
+  "effet": "composante bilan (poids 0,1) à null ; couverture 0,9",
+  "lu_dans": "data.json › MRL › note_fond.composantes.bilan.motif ; fond_score.py l.362-368"
+ },
+ "pieces": [
+  {
+   "id": "rfa_2025",
+   "rang_methode": 1,
+   "titre": "Rapport financier annuel 2025 (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/MLE_RFA_2025.pdf",
+   "sha256": "c2e2497885b96a859ccbcdd7a01dc61be13d0bf7017403f6ff79517dfad09aa5",
+   "octets": 2095070,
+   "pages": 59
+  },
+  {
+   "id": "s1_2026",
+   "rang_methode": 1,
+   "titre": "Communication financière, situation au 30/06/2026, comptes sociaux (déposé AMMC)",
+   "url": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf",
+   "sha256": "6fec61c31aedb0495de3e794d7882b8175d13d5682fa7adb3d043b8d6548965f",
+   "octets": 298338,
+   "pages": 4
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "encours_financier",
+   "valeur": 13766.434,
+   "unite": "MMAD",
+   "periode": "31/12/2025 (2024 : 12 880 002 KDH)",
+   "perimetre": "social, normes marocaines (PCEC)",
+   "piece": "rfa_2025",
+   "page": 14,
+   "citation": "Encours financier 13.766.434 12 880 002 6,88% (En KDH 2025 2024 EVOL)",
+   "source": "https://www.ammc.ma/sites/default/files/MLE_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "produit_net_bancaire",
+   "valeur": 387.199,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 379 186)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 14,
+   "citation": "Produit Net Bancaire (PNB) 387 199 379 186 2,11%",
+   "source": "https://www.ammc.ma/sites/default/files/MLE_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "charges_generales_exploitation",
+   "valeur": 102.651,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 100 241)",
+   "perimetre": "social",
+   "piece": "rfa_2025",
+   "page": 14,
+   "citation": "Charges générales d'exploitation 102 651 100 241 2,41%",
+   "source": "https://www.ammc.ma/sites/default/files/MLE_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "cout_du_risque",
+   "valeur": 82.015,
+   "unite": "MMAD",
+   "periode": "exercice 2025 (2024 : 97 240)",
+   "perimetre": "social ; « dotations aux provisions nettes de reprises » (créances en souffrance ET autres provisions)",
+   "piece": "rfa_2025",
+   "page": 14,
+   "citation": "Dotations aux provisions nettes de reprises 82 015 97 240 -15,66% ; p.13 : « Le cout du risque net se situe à 82 MDH contre 97 MDH »",
+   "source": "https://www.ammc.ma/sites/default/files/MLE_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "creances_en_souffrance_brutes",
+   "valeur": 1469.496,
+   "unite": "MMAD",
+   "periode": "31/12/2025",
+   "perimetre": "social ; colonne comparative de l'état S1 2026",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "ETAT DES CREANCES EN SOUFFRANCES ET PROVISIONS ... 30/06/2026 31/12/2025 ... TOTAL 1 405 613 901 360 1 469 496 877 855",
+   "source": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf"
+  },
+  {
+   "grandeur": "provisions_creances_en_souffrance",
+   "valeur": 877.855,
+   "unite": "MMAD",
+   "periode": "31/12/2025",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "TOTAL 1 405 613 901 360 1 469 496 877 855",
+   "source": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf"
+  },
+  {
+   "grandeur": "creances_en_souffrance_brutes",
+   "valeur": 1405.613,
+   "unite": "MMAD (dont compromises 1 367 529)",
+   "periode": "30/06/2026",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Créances Pré-douteuses 9 402 1 573 ... Créances Douteuses 28 682 11 960 ... Créances Compromises 1 367 529 887 827 ... TOTAL 1 405 613 901 360",
+   "source": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf"
+  },
+  {
+   "grandeur": "provisions_creances_en_souffrance",
+   "valeur": 901.36,
+   "unite": "MMAD",
+   "periode": "30/06/2026",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "TOTAL 1 405 613 901 360 1 469 496 877 855",
+   "source": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf"
+  },
+  {
+   "grandeur": "produit_net_bancaire",
+   "valeur": 181.743,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 171 269)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "III.PRODUIT NET BANCAIRE 181 743 171 269 (COMPTE DE PRODUITS ET CHARGES, En Milliers de Dh, 30/06/2026 30/06/2025)",
+   "source": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf"
+  },
+  {
+   "grandeur": "charges_generales_exploitation",
+   "valeur": 47.751,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 46 895)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "IV.CHARGES GENERALES D'EXPLOITATION 47 751 46 895",
+   "source": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf"
+  },
+  {
+   "grandeur": "dotations_provisions_totales",
+   "valeur": 74.051,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 84 289)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "V.DOTATIONS AUX PROVISIONS ET PERTES SUR CREANCES IRRECOUVRABLES 74 051 84 289",
+   "source": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf"
+  },
+  {
+   "grandeur": "reprises_provisions_totales",
+   "valeur": 50.911,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 58 223)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "VI.REPRISES DE PROVISIONS ET RECUPERATIONS SUR CREANCES AMORTIES 50 911 58 223",
+   "source": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf"
+  },
+  {
+   "grandeur": "resultat_net",
+   "valeur": 55.397,
+   "unite": "MMAD",
+   "periode": "S1 2026 (S1 2025 : 52 719)",
+   "perimetre": "social",
+   "piece": "s1_2026",
+   "page": 1,
+   "citation": "IX.RESULTAT NET DE L'EXERCICE 55 397 52 719",
+   "source": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf"
+  }
+ ],
+ "calculs": [
+  {
+   "quoi": "Coefficient d'exploitation 2025",
+   "formule": "CGE 102 651 / PNB 387 199",
+   "resultat": 26.5,
+   "unite": "%"
+  },
+  {
+   "quoi": "Coefficient d'exploitation S1 2026",
+   "formule": "47 751 / 181 743",
+   "resultat": 26.3,
+   "unite": "%"
+  },
+  {
+   "quoi": "Taux de couverture des créances en souffrance 31/12/2025",
+   "formule": "877 855 / 1 469 496",
+   "resultat": 59.7,
+   "unite": "%"
+  },
+  {
+   "quoi": "Taux de couverture des créances en souffrance 30/06/2026",
+   "formule": "901 360 / 1 405 613",
+   "resultat": 64.1,
+   "unite": "%"
+  },
+  {
+   "quoi": "Coût du risque S1 2026, même définition que p.14 du RFA (dotations totales − reprises totales)",
+   "formule": "74 051 − 50 911",
+   "resultat": 23.14,
+   "unite": "MMAD",
+   "note": "vérification de la définition sur 2025 : dotations 112 778 + 56 370 = 169 148 ; 169 148 − 82 015 = 87 133 de reprises totales, cohérent avec les 81 006 de reprises sur créances (p.40) plus autres reprises"
+  },
+  {
+   "quoi": "Coût du risque 2025 rapporté à l'encours financier de clôture",
+   "formule": "82 015 / 13 766 434",
+   "resultat": 0.6,
+   "unite": "%"
+  },
+  {
+   "quoi": "Créances en souffrance brutes / encours financier, 31/12/2025",
+   "formule": "1 469 496 / 13 766 434",
+   "resultat": 10.7,
+   "unite": "%",
+   "note": "⚠️ base discutable : l'encours financier est-il brut des créances en souffrance ? non établi"
+  }
+ ],
+ "constats": [
+  "Aucun ratio de solvabilité ni montant de fonds propres réglementaires publié dans le RFA 2025 ni dans le S1 2026 (« solvab » n'apparaît que p.21, dans la description des stress tests).",
+  "Le taux de créances en souffrance et le taux de couverture ne sont pas imprimés : ils se calculent depuis l'état des créances en souffrance (S1 p.2). La société ne publie pas sa propre formule.",
+  "Comptes sociaux seuls (pas de consolidé)."
+ ],
+ "conclusion": "Coût du risque, créances en souffrance et leur couverture, encours, coefficient d'exploitation : disponibles sur pièce AMMC pour 2025 et S1 2026. Fonds propres réglementaires : non publiés.",
+ "debloquerait": "La composante bilan d'une société de crédit-bail si la règle retient coût du risque/encours et couverture des créances en souffrance (décision verificateur-finance).",
+ "estimations": [],
+ "question_ir": null
+}
