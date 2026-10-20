@@ -9678,6 +9678,41 @@
       "valeur_au_rapport": -2386956.65
      }
     ]
+   },
+   "endettement_net": {
+    "valeur": 1647.89,
+    "valeur_au_rapport": 1647.89,
+    "unite_au_rapport": "MMAD (« Mdhs »)",
+    "colonne_exercice_clos": 1,
+    "page": 15,
+    "citation": "Endettement net (en Mdhs) 2025 S1 2026 / Dettes de financement 1 191,40 1 026,68 / Tresorerie nette - 149,88 - 549,69 / Encours de credit bail 306,61 311,32 / Billet tresorerie - - / En (df - tn -tvp + cb + bt) 1 647,89 1 887,69 [lu sur image rendue]",
+    "document": "Rapport financier semestriel S1 2026 (colonne 2025 = 31/12/2025)",
+    "url": "https://www.ammc.ma/sites/default/files/Jet_Contractors_RFS_S1_26.pdf",
+    "base": "consolidé (normes marocaines), 31/12/2025",
+    "note": "Endettement net PUBLIÉ par la société au 31/12/2025, colonne « 2025 » du tableau de la p.15 du RFS S1 2026 ; même page, en texte : « L'endettement net au 30/06/2026 s'élève à 1 887,69 Mdhs contre 1 647,89 Mdhs au 31/12/2025 en hausse de 14,55% ». La société y ajoute l'encours de crédit-bail, que nos dettes financières (bilan 2025, p.2) ne comptent pas. Relevé datasets/releves/JET.json, validé sur pièce par verificateur-finance le 20/10/2026.",
+    "releve_le": "2026-10-20",
+    "rapprochement": {
+     "etabli": true,
+     "dette_nette_base": 1341.28,
+     "dette_nette_base_formule": "dettes_financieres 1 908,366 (dettes de financement 1 191,397 + trésorerie passif 716,969) − tresorerie_actif 567,085 (comptes consolidés 2025, p.2) ; même chiffre par la p.15 du RFS : dettes de financement 1 191,40 − trésorerie nette (−149,88) = 1 341,28",
+     "definition_de_la_societe": {
+      "page": 15,
+      "citation": "En (df - tn -tvp + cb + bt) 1 647,89 1 887,69 [lu sur image rendue]"
+     },
+     "elements": [
+      {
+       "poste": "ifrs16_location",
+       "libelle": "encours de crédit-bail au 31/12/2025, compté par la société (« cb »), absent de nos dettes financières",
+       "valeur": 306.61,
+       "page": 15,
+       "citation": "Encours de credit bail 306,61 311,32 [lu sur image rendue]"
+      }
+     ],
+     "somme": 1647.89,
+     "ecart_residuel": 0.0,
+     "cause": "PÉRIMÈTRE : la société ajoute l'encours de crédit-bail (306,61) à ses dettes de financement nettes de la trésorerie ; notre dette nette, bâtie sur le bilan consolidé 2025, ne le compte pas. 1 341,28 + 306,61 = 1 647,89 : résidu 0,00. Billets de trésorerie et titres de placement : « - » (néant). La note continue de lire la dette nette du bilan, 1 341,3.",
+     "releve_le": "2026-10-20"
+    }
    }
   },
   "pages_document": 3,
