@@ -1,0 +1,264 @@
+{
+  "ticker": "CIH",
+  "societe": "CIH Bank",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF (1 = première page du fichier), pas le folio imprimé",
+  "blocage": {
+    "motif": "équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière",
+    "effet": "composante « bilan » retirée de la note fondamentale ; note métier : bilan « sans objet : la dette est l'activité d'un établissement financier »",
+    "lu_dans": "pipeline/smart_money/fond_score.py l.367 (est_financiere) ; data.json › CIH › note_fond_metier.criteres.bilan.motif"
+  },
+  "pieces": [
+    {
+      "id": "rfa_2025",
+      "rang_methode": 1,
+      "titre": "Rapport financier annuel 2025 (dépôt AMMC)",
+      "url": "https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf",
+      "sha256": "fe67f5488c79c339dc40a61d4cba8b54f675849a6dc6a80db146ec9ef27fac96",
+      "octets": 9280441,
+      "pages": 182
+    },
+    {
+      "id": "rfs_s1_2026",
+      "rang_methode": 1,
+      "titre": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC)",
+      "url": "https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf",
+      "sha256": "4938f7b50e5bd89a851aee1120a4aa8a7ba27df6090e7f355e52ca99e531ccc5",
+      "octets": 2404229,
+      "pages": 24
+    }
+  ],
+  "chiffres": [
+    {
+      "grandeur": "ratio_solvabilite",
+      "valeur": 14.42,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé, Bâle III (circulaire 14/G/2013)",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 22,
+      "citation": "Au 31 décembre 2025, le ratio de solvabilité sur base consolidée s'établit à 14,42 % contre 13,70% au 31 décembre 2024. / Ratio de fonds propres total 14,42 %"
+    },
+    {
+      "grandeur": "ratio_tier1",
+      "valeur": 11.22,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé, Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 22,
+      "citation": "Ratio de fonds propres T1 11,22 %"
+    },
+    {
+      "grandeur": "ratio_cet1",
+      "valeur": 9.68,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé, Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 22,
+      "citation": "Ratio de fonds propres CET1 9,68 %"
+    },
+    {
+      "grandeur": "cout_du_risque",
+      "valeur": 1209.369,
+      "unite": "MMAD (charge)",
+      "periode": "exercice 2025",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 25,
+      "citation": "Coût du risque de crédit -1 209 369 -1 071 601"
+    },
+    {
+      "grandeur": "encours_credits_clientele",
+      "valeur": 118137.266,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS, prêts et créances sur la clientèle au coût amorti (nets)",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 24,
+      "citation": "Prêts et créances sur la clientèle, au coût amorti 118 137 266 101 209 734"
+    },
+    {
+      "grandeur": "creances_bucket3_clientele_brutes",
+      "valeur": 11504.365,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS 9, clientèle, encours bilan Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 27,
+      "citation": "Encours Bilan au 31/12/2025 106 844 523 6 255 133 11 504 365 124 604 022"
+    },
+    {
+      "grandeur": "depreciations_bucket3_clientele",
+      "valeur": 5500.665,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS 9, clientèle, provisions bilan Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 27,
+      "citation": "Provisions Bilan sous IFRS 9 au 31/12/2025 544 371 421 720 5 500 665 6 466 756"
+    },
+    {
+      "grandeur": "taux_creances_en_souffrance",
+      "valeur": 9.3,
+      "unite": "%",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé, définition émetteur",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 77,
+      "citation": "Le taux de créances en souffrance augmente de 95 points à 9,3 % contre 8,3 % l'année dernière."
+    },
+    {
+      "grandeur": "coefficient_exploitation",
+      "valeur": 42.93,
+      "unite": "%",
+      "periode": "exercice 2025",
+      "perimetre": "consolidé IFRS, définition émetteur",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 77,
+      "citation": "« Ainsi, le coefficient » … « d'exploitation s'élève à 42,93 % en 2025 contre » [fragments d'une même phrase, colonnes entremêlées à l'extraction ; concorde avec le recalcul]"
+    },
+    {
+      "grandeur": "ratio_solvabilite",
+      "valeur": 14.23,
+      "unite": "%",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé, Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 9,
+      "citation": "Au 30 juin 2026, le ratio de solvabilité sur base consolidée s'établit à 14,23 % contre 14,42 % au 31 décembre 2025."
+    },
+    {
+      "grandeur": "ratio_tier1",
+      "valeur": 11.73,
+      "unite": "%",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé, Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 9,
+      "citation": "Ratio de fonds propres T1 (minimum exigible 9 %) 11,73%"
+    },
+    {
+      "grandeur": "ratio_cet1",
+      "valeur": 9.3,
+      "unite": "%",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé, Bâle III",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 9,
+      "citation": "Ratio de fonds propres CET1 (minimum exigible 8 %) 9,30%"
+    },
+    {
+      "grandeur": "cout_du_risque",
+      "valeur": 590.222,
+      "unite": "MMAD (charge)",
+      "periode": "S1 2026 (01/01-30/06/2026)",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 10,
+      "citation": "Coût du risque de crédit -590 222 -582 281"
+    },
+    {
+      "grandeur": "encours_credits_clientele",
+      "valeur": 119012.128,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS, prêts et créances sur la clientèle au coût amorti (nets)",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 10,
+      "citation": "Prêts et créances sur la clientèle, au coût amorti 119 012 128 118 137 266"
+    },
+    {
+      "grandeur": "creances_bucket3_clientele_brutes",
+      "valeur": 12247.515,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS 9, clientèle, encours bilan Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 11,
+      "citation": "Encours Bilan au 30/06/2026 106 946 281 6 816 749 12 247 515 126 010 545"
+    },
+    {
+      "grandeur": "depreciations_bucket3_clientele",
+      "valeur": 5970.19,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS 9, clientèle, provisions bilan Bucket 3",
+      "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 11,
+      "citation": "Provisions Bilan sous IFRS 9 au 30/06/2026 572 204 456 022 5 970 190 6 998 417"
+    }
+  ],
+  "estimations": [],
+  "calculs": [
+    {
+      "quoi": "couverture Bucket 3 clientèle 2025",
+      "formule": "5 500 665 / 11 504 365",
+      "resultat": 47.81,
+      "unite": "%"
+    },
+    {
+      "quoi": "couverture Bucket 3 clientèle 30/06/2026",
+      "formule": "5 970 190 / 12 247 515",
+      "resultat": 48.75,
+      "unite": "%"
+    },
+    {
+      "quoi": "taux Bucket 3 clientèle 2025",
+      "formule": "11 504 365 / 124 604 022",
+      "resultat": 9.23,
+      "unite": "%"
+    },
+    {
+      "quoi": "taux Bucket 3 clientèle 30/06/2026",
+      "formule": "12 247 515 / 126 010 545",
+      "resultat": 9.72,
+      "unite": "%"
+    },
+    {
+      "quoi": "coefficient d'exploitation 2025 recalculé",
+      "formule": "(2 088 001 + 240 029) / 5 422 526 (rfa_2025 p.25)",
+      "resultat": 42.93,
+      "unite": "%"
+    },
+    {
+      "quoi": "coefficient d'exploitation S1 2026 (non publié)",
+      "formule": "(charges générales 1 112 869 + dotations 126 553) / PNB 2 825 752 (rfs_s1_2026 p.10)",
+      "resultat": 43.86,
+      "unite": "%"
+    },
+    {
+      "quoi": "contrôle solvabilité 2025",
+      "formule": "(Tier 1 10 619 064 + Tier 2 3 025 861) / actifs pondérés 94 625 225",
+      "resultat": 14.42,
+      "unite": "%"
+    }
+  ],
+  "constats": [
+    "Le 15,66 % (p.23 du RFA) et le 13,43 % (p.9 du RFS) sont les ratios de la filiale SOFAC Crédit, pas ceux du groupe CIH : ne pas les confondre.",
+    "Le coefficient d'exploitation au S1 2026 n'est pas publié dans le RFS : seul un calcul (43,86 %) est disponible.",
+    "Le taux de couverture publié p.74 (56,7 %) est SOCIAL ; la couverture consolidée n'est pas énoncée en clair, seul le calcul Bucket 3 (47,8 %) existe. Les deux ne sont pas comparables.",
+    "Site émetteur www.cihbank.ma injoignable (000) le 16/10/2026 depuis le proxy de session : Pilier III non consulté."
+  ],
+  "conclusion": "Solvabilité, coût du risque, encours, Bucket 3 : disponibles en consolidé pour 2025 et S1 2026 ; coefficient publié pour 2025, calculé seulement pour le S1 ; couverture consolidée seulement par calcul.",
+  "debloquerait": "Grille bancaire CIH : solvabilité 14,42 % (T1 11,22 %, CET1 9,68 %), coût du risque 1 209 MMAD sur 118 137 MMAD, Bucket 3 9,2 % couvert à 47,8 % (calcul), coefficient 42,93 %.",
+  "question_ir": null
+}
