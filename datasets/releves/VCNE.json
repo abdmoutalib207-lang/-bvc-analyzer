@@ -1,0 +1,347 @@
+{
+  "ticker": "VCNE",
+  "societe": "Vicenne",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF",
+  "blocage": {
+    "motif": "grandeur contestée : dette nette -368.7 (ratios publiés) contredite par l'endettement net -311 (faits financiers), écart 18.6% (> 2%), non expliqué sur pièce ; tout critère qui la consomme est suspendu",
+    "effet": "composantes « qualite » (ROIC) et « bilan » (dette nette / EBITDA) suspendues",
+    "lu_dans": "data.json › VCNE › note_fond.composantes.qualite.motif et .bilan.motif ; fond_score.py l.343 et l.371 (CONTESTES)"
+  },
+  "pieces": [
+    {
+      "id": "dr_2024",
+      "rang_methode": 1,
+      "titre": "Document de référence de Vicenne — exercice 2024 (introduction en bourse, visa AMMC VI/EM/023/2025 du 18/06/2025)",
+      "url": "https://www.ammc.ma/sites/default/files/IPO_Vicenne_DR_010_2025.pdf",
+      "sha256": "765a197be3eebbe06495e25b1a0bddd47c3b04d59490038e58e31cc28a9f3297",
+      "octets": 4516549,
+      "pages": 274
+    },
+    {
+      "id": "rfa_2025",
+      "rang_methode": 1,
+      "titre": "Rapport financier annuel 2025 (PDF de 24 Mo, non commité)",
+      "url": "https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf",
+      "sha256": "6762d0d26c152460f4f21cc0d5b279228b4ffc45afbc59d73089343d4e6cf76c",
+      "octets": 24011807,
+      "pages": 66
+    },
+    {
+      "id": "rfs_s1_2026",
+      "rang_methode": 1,
+      "titre": "Rapport financier semestriel au 30/06/2026",
+      "url": "https://www.ammc.ma/sites/default/files/Vicenne_RFS_S1_26.pdf",
+      "sha256": "0a497ef3aa54f918d61820a9259442f17914f7722d52aa6dc0ebc4f2442101e6",
+      "octets": 1038827,
+      "pages": 21
+    }
+  ],
+  "chiffres": [
+    {
+      "grandeur": "endettement_net_2024_emetteur",
+      "valeur": 321.638,
+      "unite": "MMAD",
+      "periode": "31/12/2024",
+      "perimetre": "consolidé, normes marocaines, hors crédit-bail",
+      "source": "https://www.ammc.ma/sites/default/files/IPO_Vicenne_DR_010_2025.pdf",
+      "piece": "dr_2024",
+      "page": 246,
+      "citation": "Total dettes financières 155 747 155 437 194 107 286 570 … Trésorerie-actif … 34 597 … Dette bancaire (court terme) - - - 46 500 … Autres comptes courants d'associés 4 259 4 259 74 023 23 165 … Endettement net (1) 222 511 225 949 271 461 321 638 (En KMAD 2022 2022PF 2023 2024)"
+    },
+    {
+      "grandeur": "dette_credit_bail_2024",
+      "valeur": 35.758,
+      "unite": "MMAD",
+      "periode": "31/12/2024",
+      "perimetre": "consolidé, hors bilan (normes marocaines)",
+      "source": "https://www.ammc.ma/sites/default/files/IPO_Vicenne_DR_010_2025.pdf",
+      "piece": "dr_2024",
+      "page": 246,
+      "citation": "Dette crédit-bail 4 395 4 395 33 791 35 758 ; Endettement net incluant crédit-bail 226 907 230 344 305 253 357 396 ; « les règles comptables appliquées par le groupe Vicenne … ne prévoient pas la comptabilisation des encours de crédit-bail dans le bilan »"
+    },
+    {
+      "grandeur": "excedent_brut_exploitation_2024",
+      "valeur": 174.325,
+      "unite": "MMAD",
+      "periode": "exercice 2024",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/IPO_Vicenne_DR_010_2025.pdf",
+      "piece": "dr_2024",
+      "page": 218,
+      "citation": "Excédent brut d'exploitation 113 312 107 140 138 464 174 325 (En KMAD 2022 2022PF 2023 2024)"
+    },
+    {
+      "grandeur": "endettement_net_2025_emetteur",
+      "valeur": -311.0,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé (non précisé sur la page), sans définition",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 21,
+      "citation": "4,6 311 1 006 milliards de Dhs millions de Dhs millions de Dhs Capitalisation Endettement Net Capitaux propres boursière fin 2025 fin 2025 ; p.19 : « Vicenne affiche une trésorerie nette de 311 millions de dirhams »"
+    },
+    {
+      "grandeur": "tresorerie_nette_2025_emetteur_variante",
+      "valeur": 315.0,
+      "unite": "MMAD",
+      "periode": "31/12/2025",
+      "perimetre": "non précisé ; à côté de « Capitaux propres à fin 2025 1 006 Mmad », qui est le chiffre SOCIAL (consolidé : 1 244,9)",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 13,
+      "citation": "Ressources financières … 315 Mmad … Trésorerie nette à fin 2025 1 006 Mmad … Capitaux propres à fin 2025"
+    },
+    {
+      "grandeur": "autres_dettes_de_financement",
+      "valeur": 48.390436,
+      "unite": "MMAD",
+      "periode": "31/12/2025 (colonne exercice ; N-1 à droite)",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 57,
+      "citation": "Autres Dettes De Financement 48.390.436 65.936.398"
+    },
+    {
+      "grandeur": "comptes_associes_passif",
+      "valeur": 2.074919,
+      "unite": "MMAD",
+      "periode": "31/12/2025 (colonne exercice ; N-1 à droite)",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 57,
+      "citation": "Comptes D’associes 2.074.919 1.455.614"
+    },
+    {
+      "grandeur": "autres_creanciers",
+      "valeur": 86.707491,
+      "unite": "MMAD",
+      "periode": "31/12/2025 (colonne exercice ; N-1 à droite)",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 57,
+      "citation": "Autres Créanciers 86.707.491 71.283.227"
+    },
+    {
+      "grandeur": "credits_de_tresorerie",
+      "valeur": 147.946384,
+      "unite": "MMAD",
+      "periode": "31/12/2025 (colonne exercice ; N-1 à droite)",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 57,
+      "citation": "Crédits De Trésorerie 147.946.384 173.038.592"
+    },
+    {
+      "grandeur": "banques_soldes_crediteurs",
+      "valeur": 24.914377,
+      "unite": "MMAD",
+      "periode": "31/12/2025 (colonne exercice ; N-1 à droite)",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 57,
+      "citation": "Banques (Soldes Créditeurs) 24.914.377 47.594.711"
+    },
+    {
+      "grandeur": "titres_valeurs_placement",
+      "valeur": 523.688778,
+      "unite": "MMAD",
+      "periode": "31/12/2025 (colonne exercice ; N-1 à droite)",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 57,
+      "citation": "Titres Et Valeurs De Placement-[H] 523.688.778 0 523.688.778 0"
+    },
+    {
+      "grandeur": "tresorerie_actif",
+      "valeur": 66.278942,
+      "unite": "MMAD",
+      "periode": "31/12/2025 (colonne exercice ; N-1 à droite)",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 57,
+      "citation": "Banques, T.G Et C.C.P 66.278.942 0 66.278.942 34.597.097"
+    },
+    {
+      "grandeur": "excedent_brut_exploitation_2025",
+      "valeur": 264.0,
+      "unite": "MMAD",
+      "periode": "exercice 2025",
+      "perimetre": "consolidé, intitulé « Ebitda »",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 21,
+      "citation": "Chiffre d’affaires Ebitda Résultat Net Part du Groupe … 1 084 264 144 ; p.19 : « notre EBITDA augmente de 50% sur la même période »"
+    },
+    {
+      "grandeur": "dette_nette_s1_2026_emetteur",
+      "valeur": -211.0,
+      "unite": "MMAD",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé, « hors encours leasing »",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFS_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 4,
+      "citation": "DETTE NETTE -211 MDH * hors encours leasing"
+    },
+    {
+      "grandeur": "ebitda_s1_2026",
+      "valeur": 144.0,
+      "unite": "MMAD",
+      "periode": "S1 2026 (S1 2025 : 126)",
+      "perimetre": "consolidé",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFS_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 4,
+      "citation": "EBITDA 126 144 14% (Poste Consolidé S1 25 Consolidé S1 26 Variation)"
+    },
+    {
+      "grandeur": "autres_dettes_de_financement",
+      "valeur": 39.491702,
+      "unite": "MMAD",
+      "periode": "30/06/2026 (N-1 : 31/12/2025)",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFS_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 15,
+      "citation": "Autres dettes de financement 39.491.702,00 48.390.436,00"
+    },
+    {
+      "grandeur": "comptes_associes_passif",
+      "valeur": 0.752031,
+      "unite": "MMAD",
+      "periode": "30/06/2026 (N-1 : 31/12/2025)",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFS_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 15,
+      "citation": "Comptes d'associes 752.031,00 2.074.919,00"
+    },
+    {
+      "grandeur": "autres_creanciers",
+      "valeur": 30.783551,
+      "unite": "MMAD",
+      "periode": "30/06/2026 (N-1 : 31/12/2025)",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFS_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 15,
+      "citation": "Autres créanciers 30.783.551,00 86.707.492,00"
+    },
+    {
+      "grandeur": "credits_de_tresorerie",
+      "valeur": 121.734502,
+      "unite": "MMAD",
+      "periode": "30/06/2026 (N-1 : 31/12/2025)",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFS_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 15,
+      "citation": "Crédits de trésorerie 121.734.502,00 147.946.384,00"
+    },
+    {
+      "grandeur": "banques_soldes_crediteurs",
+      "valeur": 86.264529,
+      "unite": "MMAD",
+      "periode": "30/06/2026 (N-1 : 31/12/2025)",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFS_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 15,
+      "citation": "Banques (Soldes créditeurs) 86.264.529,00 24.914.377,00"
+    },
+    {
+      "grandeur": "titres_valeurs_placement",
+      "valeur": 467.519459,
+      "unite": "MMAD",
+      "periode": "30/06/2026 (N-1 : 31/12/2025)",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFS_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 14,
+      "citation": "Titres et valeurs de placement→[H] 467.519.459,00 467.519.459,00 523.688.778,00"
+    },
+    {
+      "grandeur": "tresorerie_actif",
+      "valeur": 20.03853,
+      "unite": "MMAD",
+      "periode": "30/06/2026 (N-1 : 31/12/2025)",
+      "perimetre": "consolidé, normes marocaines",
+      "source": "https://www.ammc.ma/sites/default/files/Vicenne_RFS_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 14,
+      "citation": "Banques, T.G E C.P 20.038.530,00 20.038.530,00 66.278.942,00"
+    }
+  ],
+  "estimations": [],
+  "calculs": [
+    {
+      "quoi": "2024 — définition de l'émetteur appliquée aux seules lignes du bilan",
+      "formule": "65,936 + 1,456 + 220,633 − 0 − 0 − 34,597",
+      "resultat": 253.4
+    },
+    {
+      "quoi": "2024 — écart avec l'endettement net publié (321,638), expliqué au DR p.246 par deux lignes qui ne sont PAS des lignes du bilan",
+      "formule": "321,638 − 251,972 (dettes 286,570 − trésorerie actif 34,597) = dette bancaire CT 46,500 + autres comptes courants d'associés 23,165",
+      "resultat": 69.665
+    },
+    {
+      "quoi": "31/12/2025 — dette nette du terminal (lignes du bilan)",
+      "formule": "48,390 + 147,946 + 24,914 − 66,279 − 523,689",
+      "resultat": -368.7
+    },
+    {
+      "quoi": "31/12/2025 — écart avec l'endettement net publié (−311)",
+      "formule": "−311 − (−368,717)",
+      "resultat": 57.7
+    },
+    {
+      "quoi": "30/06/2026 — dette nette sur les lignes du bilan",
+      "formule": "39,492 + 121,735 + 86,265 − 20,039 − 467,519",
+      "resultat": -240.1
+    },
+    {
+      "quoi": "30/06/2026 — écart avec la dette nette publiée (−211)",
+      "formule": "−211 − (−240,066)",
+      "resultat": 29.1
+    },
+    {
+      "quoi": "Effet de l'écart sur la grille de bilan (calcul, pas une règle)",
+      "formule": "−311 ÷ 264 = −1,18 ; −368,7 ÷ 264 = −1,40 : les deux < 0",
+      "resultat": -1.18
+    },
+    {
+      "quoi": "EBITDA 2025 rapporté à l'EBE 2024 du document de référence",
+      "formule": "264 ÷ 174,325 − 1",
+      "resultat": 0.514
+    }
+  ],
+  "constats": [
+    "La définition de l'émetteur existe, au document de référence visé (p.246, note (1)) : elle COMPTE les titres et valeurs de placement et exclut le crédit-bail (hors bilan en normes marocaines). Le « hors encours leasing » du S1 2026 (p.4) est cohérent avec elle.",
+    "En 2024, le document de référence ajoute deux montants absents des lignes du bilan : « Dette bancaire (court terme) 46 500 » et « Autres comptes courants d'associés 23 165 » KMAD, alors que le poste « Comptes d'associés » du bilan 2024 vaut 1 456 KMAD. Ils sont donc logés dans une autre ligne du passif circulant, vraisemblablement « Autres créanciers » (71 283 KMAD en 2024). C'est une piste : la pièce ne le dit pas.",
+    "L'écart 2025 (57,7 MMAD) et l'écart du 30/06/2026 (29,1 MMAD) sont du même signe et de même nature que celui de 2024 (69,7 MMAD) : ils sont inférieurs au poste « Autres créanciers » (86,7 puis 30,8 MMAD). La ventilation 2025 et S1 2026 de ces dettes n'est publiée nulle part dans les deux rapports : on ne peut pas recoller 311 au dirham.",
+    "Les deux chiffres de l'émetteur ne concordent pas entre eux dans le même rapport : 311 (p.19, p.21) et 315 (p.13). Le 1 006 placé à côté du 315 (p.13) et du 311 (p.21) est le chiffre SOCIAL des capitaux propres (1 006 785 953 MAD, RFS S1 2026 p.8, colonne exercice précédent), pas le consolidé (1 244,9) : la page de chiffres clés mêle les deux périmètres.",
+    "Le signe n'est pas en cause : les trois mesures donnent une trésorerie nette. Le désaccord porte sur 57,7 MMAD qui changent le ROIC (capital investi = CP + DN) mais pas le palier de la grille de bilan (dette nette / EBITDA < 0 dans les deux cas).",
+    "L'« Ebitda » de 264 MMAD se recoupe avec l'EBE consolidé du document de référence : 174,3 MMAD en 2024 (p.218), soit +51 %, la hausse annoncée de « +50% » (RFA p.19). Il se lit donc comme un EBE en normes marocaines."
+  ],
+  "conclusion": "L'écart se décompose en partie sur pièce : définition publiée (DR p.246), même famille de lignes hors bilan en 2024 (dette bancaire CT + comptes courants d'associés logés hors du poste « Comptes d'associés »). Le montant 2025 de ces lignes n'est pas publié : divergence persistante, question IR rédigée.",
+  "debloquerait": "Une réponse de l'émetteur ventilant les 57,7 MMAD (dette bancaire CT, comptes courants d'associés, dividendes à payer) lèverait la contestation : la dette nette du bilan reconstruite selon la définition du DR pourrait alors remplacer −368,7, et le ROIC comme le bilan seraient recalculés.",
+  "question_ir": "docs/questions_ir/VCNE.md",
+  "definitions": [
+    {
+      "source": "https://www.ammc.ma/sites/default/files/IPO_Vicenne_DR_010_2025.pdf",
+      "piece": "dr_2024",
+      "page": 246,
+      "citation": "(1) : Endettement net = dette de financement + comptes d’associés passif + trésorerie passif – comptes d’associés actif – titres et valeurs de placement – trésorerie actif"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "ticker": "AKD",
+  "societe": "Akdital",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF",
+  "blocage": {
+    "motif": "dette nette / EBITDA non calculée sur comptes publiés",
+    "effet": "composante « bilan » retirée ; ratios_publies.non_calcules_2025.ebitda : « ni EBE publié, ni dotations aux amortissements isolées »",
+    "lu_dans": "data.json › AKD › note_fond.composantes.bilan.motif ; fond_score.py l.380 ; ratios_financiers.py l.211-225"
+  },
+  "pieces": [
+    {"id": "rfa_2025", "rang_methode": 1, "titre": "Rapport financier annuel 2025 (12 Mo, non commité)", "url": "https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf", "sha256": "82b9d050c7275c416b70116fc17d4d6e7187997b22e12029c83d639340d04d5f", "octets": 12302370, "pages": 94},
+    {"id": "cp_2025", "rang_methode": 1, "titre": "Communiqué financier — résultats au 31/12/2025", "url": "https://www.ammc.ma/sites/default/files/CP_Akdital_2025_0.pdf", "sha256": "bd2f975e4f41b0eee9f2ab2b80c18a92956b612d4253623b8fb91a8c3fcc86c7", "octets": 331372, "pages": 3},
+    {"id": "rfs_s1_2026", "rang_methode": 1, "titre": "Rapport financier semestriel au 30/06/2026", "url": "https://www.ammc.ma/sites/default/files/Akdital_RFS_S1_26.pdf", "sha256": "010655065bffd9efa174eb65fc59e6b702b267f8696f1cda9e3eebf91a3a0d9d", "octets": 2992457, "pages": 28}
+  ],
+  "chiffres": [
+    {"grandeur": "ebitda", "valeur": 1214.0, "unite": "MMAD", "periode": "exercice 2025 (2024 : 839)", "perimetre": "consolidé, normes marocaines (avis CNC n°5)", "source": "https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf", "piece": "rfa_2025", "page": 50, "citation": "(En millions DH) 2025 2024 Evolution … EBITDA 1 214 839 +45%"},
+    {"grandeur": "ebitda", "valeur": 1214.0, "unite": "MMAD", "periode": "exercice 2025", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/CP_Akdital_2025_0.pdf", "piece": "cp_2025", "page": 1, "citation": "L’EBITDA consolidé s’établit à 1 214 M MAD en 2025, en hausse de +45 % par rapport à 2024. … La marge EBITDA ressort à 27,5 %"},
+    {"grandeur": "dotations_exploitation_nettes", "valeur": 406.181549, "unite": "MMAD", "periode": "exercice 2025 (2024 : 319,563)", "perimetre": "consolidé, nettes des reprises et transferts de charges (amortissements ET provisions)", "source": "https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf", "piece": "rfa_2025", "page": 78, "citation": "Dotations d'exploitation, nettes des reprises et TC -406 181 549 -319 562 536 ((Montants en dhs) 31/12/2025 31/12/2024)"},
+    {"grandeur": "titres_valeurs_placement", "valeur": 601.775808, "unite": "MMAD", "periode": "31/12/2025 (2024 : 322,529)", "perimetre": "consolidé, actif circulant", "source": "https://www.ammc.ma/sites/default/files/Akdital_RFA_2025.pdf", "piece": "rfa_2025", "page": 78, "citation": "Titres et Valeurs de placement 601 775 808 322 529 434"},
+    {"grandeur": "endettement_net_emetteur", "valeur": 4268.0, "unite": "MMAD", "periode": "31/12/2025 (2024 : 1 753)", "perimetre": "consolidé, y compris dettes envers les fournisseurs d'immobilisations (21 %)", "source": "https://www.ammc.ma/sites/default/files/CP_Akdital_2025_0.pdf", "piece": "cp_2025", "page": 1, "citation": "L’endettement net consolidé s’établit à 4 268 M MAD à fin décembre 2025 (dont 21% de dettes de fournisseurs d’immobilisations), contre 1 753 M MAD à fin 2024."},
+    {"grandeur": "ebitda_s1", "valeur": 634.0, "unite": "MMAD", "periode": "S1 2026 (+19 %)", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/Akdital_RFS_S1_26.pdf", "piece": "rfs_s1_2026", "page": 4, "citation": "L’EBITDA consolidé atteint 634 M MAD au premier semestre 2026, en hausse de 19 %"},
+    {"grandeur": "endettement_net_emetteur_s1", "valeur": 4858.0, "unite": "MMAD", "periode": "30/06/2026", "perimetre": "consolidé (même définition présumée, non répétée)", "source": "https://www.ammc.ma/sites/default/files/Akdital_RFS_S1_26.pdf", "piece": "rfs_s1_2026", "page": 5, "citation": "L’endettement net consolidé atteint 4 858 M MAD au 30 juin 2026, en hausse de 14 % par rapport à fin décembre 2025."},
+    {"grandeur": "dotations_exploitation_nettes_s1", "valeur": 231.096225, "unite": "MMAD", "periode": "S1 2026 (S1 2025 : 206,996)", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/Akdital_RFS_S1_26.pdf", "piece": "rfs_s1_2026", "page": 14, "citation": "Dotations d'exploitation, nettes des reprises et transferts de charges -231 096 225 -206 995 730"},
+    {"grandeur": "postes_dette_s1_2026", "valeur": 4150.06, "unite": "MMAD (somme des quatre lignes)", "periode": "30/06/2026 (N-1 : 31/12/2025)", "perimetre": "consolidé", "source": "https://www.ammc.ma/sites/default/files/Akdital_RFS_S1_26.pdf", "piece": "rfs_s1_2026", "page": 13, "citation": "Titres et Valeurs de placement 261 150 808 601 775 808 ; Trésorerie - Actif 429 601 483 504 349 961 ; Dettes de financement 4 232 304 511 3 727 486 430 ; Trésorerie - Passif 608 510 252 749 506 532"}
+  ],
+  "estimations": [],
+  "calculs": [
+    {"quoi": "Recoupement de l'EBITDA publié", "formule": "résultat d'exploitation 807,750 (p.78) + dotations d'exploitation nettes 406,182 (p.78)", "resultat": 1213.9},
+    {"quoi": "Dette nette selon la règle du moteur (titres de placement comptés) — ils manquent aux faits relevés", "formule": "3 727,486 + 749,507 − 504,350 − 601,776", "resultat": 3370.9},
+    {"quoi": "Part de la dette nette du bilan dans l'endettement net publié", "formule": "3 370,9 ÷ 4 268", "resultat": 0.79},
+    {"quoi": "Dette nette / EBITDA, dette nette du bilan", "formule": "3 370,9 ÷ 1 214", "resultat": 2.78},
+    {"quoi": "Dette nette / EBITDA, endettement net de l'émetteur", "formule": "4 268 ÷ 1 214", "resultat": 3.52},
+    {"quoi": "Dette nette du bilan au 30/06/2026", "formule": "4 232,305 + 608,510 − 429,601 − 261,151", "resultat": 4150.1}
+  ],
+  "constats": [
+    "L'EBITDA est publié (1 214 MMAD, RFA p.50 et communiqué p.1) et se recalcule au million près : résultat d'exploitation + dotations d'exploitation nettes des reprises (p.78). Le motif « ni EBE publié » ne tient plus.",
+    "Les dotations sont « nettes des reprises et TC » et mêlent amortissements et provisions : l'EBITDA de l'émetteur est donc un résultat d'exploitation avant dotations NETTES, pas avant amortissements seuls.",
+    "⚠️ Les faits relevés omettent les titres et valeurs de placement (601,8 MMAD au 31/12/2025, p.78). Avec eux, la dette nette du bilan vaut 3 370,9 MMAD, et elle représente exactement 79 % de l'endettement net publié (4 268) : le complément de 21 % est, selon le communiqué, la dette envers les fournisseurs d'immobilisations (≈ 897 MMAD), hors dettes financières.",
+    "Les deux dettes nettes tombent dans des paliers différents de la grille de bilan (2,78 contre 3,52 ; seuil à 3,5) : le choix de définition (dettes fournisseurs d'immobilisations incluses ou non) est à trancher par le verificateur-finance, pas ici."
+  ],
+  "conclusion": "Pièces trouvées : EBITDA publié et recalculable, endettement net de l'émetteur avec sa composition, titres de placement manquants aux faits.",
+  "debloquerait": "La composante « bilan » : EBITDA 1 214 (p.50) et dette nette du bilan 3 370,9 (p.78, placements compris) donnent dette nette / EBITDA 2,78 ; ou 3,52 sur l'endettement net de l'émetteur.",
+  "question_ir": null
+}

@@ -1,0 +1,156 @@
+{
+  "ticker": "TMA",
+  "societe": "TotalEnergies Marketing Maroc",
+  "releve_le": "2026-10-20",
+  "agent": "chercheur-pieces",
+  "convention_page": "page = rang dans le fichier PDF",
+  "blocage": {
+    "motif": "aucun blocage : composante « bilan » notée 9,0 (dette nette / EBITDA −0,17 sur le bilan du 31/12/2025), assortie d'une réserve validée (RESERVES_RATIOS › TMA › bilan) qui renvoie au bilan du 30/06/2026",
+    "effet": "relevé de la pièce citée par la réserve, pour qu'elle soit vérifiable ; la règle de choix de période reste à décider",
+    "lu_dans": "data.json › TMA › note_fond.composantes.bilan (mesure et reserve) ; fond_score.py RESERVES_RATIOS › TMA"
+  },
+  "pieces": [
+    {
+      "id": "s1_2026",
+      "rang_methode": 1,
+      "titre": "Comptes consolidés au 30 juin 2026 (IFRS), avec l'attestation d'examen limité",
+      "url": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf",
+      "sha256": "da3d59b5038415464640b87cc3c0a2f71c3ee3c67ffa689cab1496c428a0db96",
+      "octets": 773669,
+      "pages": 4
+    }
+  ],
+  "chiffres": [
+    {
+      "grandeur": "dettes_financieres_non_courantes",
+      "valeur": 473.879,
+      "unite": "MMAD",
+      "periode": "30/06/2026 (31/12/2025 : 514,346)",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf",
+      "piece": "s1_2026",
+      "page": 4,
+      "citation": "ACTIF Juin 2026 Décembre 2025 … Dettes financières non courantes 473.879 514.346 (En milliers de Dirhams)"
+    },
+    {
+      "grandeur": "dettes_financieres_courantes",
+      "valeur": 841.2,
+      "unite": "MMAD",
+      "periode": "30/06/2026 (31/12/2025 : 373,609)",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf",
+      "piece": "s1_2026",
+      "page": 4,
+      "citation": "Dettes financières courantes 841.200 373.609"
+    },
+    {
+      "grandeur": "tresorerie_actif",
+      "valeur": 988.736,
+      "unite": "MMAD",
+      "periode": "30/06/2026 (31/12/2025 : 1 176,535)",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf",
+      "piece": "s1_2026",
+      "page": 4,
+      "citation": "Trésorerie et équivalents de trésorerie 988.736 1.176.535"
+    },
+    {
+      "grandeur": "autres_passifs_financiers_courants",
+      "valeur": 6.478,
+      "unite": "MMAD",
+      "periode": "30/06/2026 (31/12/2025 : néant)",
+      "perimetre": "consolidé IFRS ; hors dette nette ci-dessous",
+      "source": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf",
+      "piece": "s1_2026",
+      "page": 4,
+      "citation": "Autres passifs financiers courants 6.478"
+    },
+    {
+      "grandeur": "immobilisations_droit_usage",
+      "valeur": 566.512,
+      "unite": "MMAD",
+      "periode": "30/06/2026 (31/12/2025 : 614,966)",
+      "perimetre": "consolidé IFRS 16 ; la dette locative correspondante n'est pas ventilée sur la page",
+      "source": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf",
+      "piece": "s1_2026",
+      "page": 4,
+      "citation": "Immobilisations en droit d'usage 566.512 614.966"
+    },
+    {
+      "grandeur": "resultat_operationnel_s1",
+      "valeur": 435.138,
+      "unite": "MMAD",
+      "periode": "S1 2026 (S1 2025 : 569,961)",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf",
+      "piece": "s1_2026",
+      "page": 4,
+      "citation": "COMPTE DE RÉSULTAT CONSOLIDÉ … Juin 2026 Juin 2025 … RÉSULTAT OPÉRATIONNEL 435.138 569.961"
+    },
+    {
+      "grandeur": "dotations_amortissements_s1",
+      "valeur": 127.044,
+      "unite": "MMAD",
+      "periode": "S1 2026 (S1 2025 : 161,942)",
+      "perimetre": "consolidé IFRS",
+      "source": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf",
+      "piece": "s1_2026",
+      "page": 4,
+      "citation": "Dotations aux amortissements (127.044) (161.942)"
+    },
+    {
+      "grandeur": "capitaux_propres_part_groupe_s1",
+      "valeur": 1468.318,
+      "unite": "MMAD",
+      "periode": "30/06/2026 (31/12/2025 : 1 984,665)",
+      "perimetre": "consolidé IFRS ; attestation : bénéfice net consolidé 284 955 KMAD",
+      "source": "https://www.ammc.ma/sites/default/files/Total_Maroc_S1_26.pdf",
+      "piece": "s1_2026",
+      "page": 4,
+      "citation": "TOTAL DES CAPITAUX PROPRES – PART DU GROUPE 1.468.318 1.984.665 ; « capitaux propres consolidés totalisant 1 468 318 KMAD, dont un bénéfice net consolidé de 284 955 KMAD »"
+    }
+  ],
+  "estimations": [],
+  "calculs": [
+    {
+      "quoi": "Dette nette au 30/06/2026",
+      "formule": "473,879 + 841,200 − 988,736",
+      "resultat": 326.3
+    },
+    {
+      "quoi": "Dette nette au 31/12/2025, même page (colonne Décembre 2025), recoupe ratios_publies.dette_nette",
+      "formule": "514,346 + 373,609 − 1 176,535",
+      "resultat": -288.6
+    },
+    {
+      "quoi": "EBITDA S1 2026 et S1 2025",
+      "formule": "435,138 + 127,044 = 562,182 ; 569,961 + 161,942 = 731,903",
+      "resultat": 562.2
+    },
+    {
+      "quoi": "EBITDA 12 mois glissants au 30/06/2026",
+      "formule": "1 685,486 (exercice 2025) + 562,182 − 731,903",
+      "resultat": 1515.8
+    },
+    {
+      "quoi": "Dette nette 30/06/2026 / EBITDA de l'exercice",
+      "formule": "326,3 ÷ 1 685,5",
+      "resultat": 0.19
+    },
+    {
+      "quoi": "Dette nette 30/06/2026 / EBITDA 12 mois glissants",
+      "formule": "326,3 ÷ 1 515,8",
+      "resultat": 0.22
+    }
+  ],
+  "constats": [
+    "Les chiffres de la réserve sont exacts sur pièce : dette nette +326,3 MMAD au 30/06/2026 contre −288,6 au 31/12/2025, les deux lus sur la même page (colonnes « Juin 2026 » et « Décembre 2025 »), et un ratio de 0,19 à 0,22 selon l'EBITDA retenu.",
+    "Le passage d'une trésorerie nette à une dette nette en six mois suit le besoin en fonds de roulement : stocks +519,9, clients +432,7, autres créances +357,6, contre fournisseurs +1 057,2 (p.4). Distribution comprise, les capitaux propres baissent de 516,3. C'est un mouvement saisonnier ou ponctuel possible, pas un constat durable : deux points ne suffisent pas à le dire.",
+    "« Autres passifs financiers courants » (6,478) n'est pas compté dans la dette nette ; avec lui, 332,8. Sans effet sur le palier (0,20 ou 0,22).",
+    "IFRS 16 : 566,5 MMAD de droits d'usage à l'actif ; la page ne dit pas si la dette locative est dans les « dettes financières ». À vérifier dans le rapport financier semestriel complet (site de l'émetteur, cité p.4), non téléchargé ici.",
+    "Exercice 2025 : chiffres (EBITDA 1 685,5 = 1 339,712 + 345,774) repris de pipeline/faits_financiers.json › TMA, relevés le 15/10/2026 dans l’avis d’AGO du 03/06/2026 p.6 (https://www.ammc.ma/sites/default/files/Total_2025_avis_AGO_03_06_26_0.pdf), non retéléchargé ici."
+  ],
+  "conclusion": "Pièce de la réserve relevée et recalculée : chiffres conformes. La décision de période (bilan de l'exercice ou dernier bilan publié) reste ouverte.",
+  "debloquerait": "Rien n'est bloqué. Le relevé rend la réserve vérifiable, et chiffre la variante « dernier bilan » : 0,19 à 0,22, palier 8,5 au lieu de 9,0.",
+  "question_ir": null
+}
