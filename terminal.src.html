@@ -216,6 +216,8 @@
     .menu-item:hover{background:rgba(77,184,255,.07);box-shadow:none!important;}
     .menu-item.actif{border-left-color:#00e5a0;background:rgba(0,229,160,.08);color:#00e5a0;}
     .menu-flottant{display:none;}
+    /* Légende S/R : 10 px sur téléphone, deux lignes au plus par niveau (21/10/2026). */
+    @media (max-width:640px){.legende-sr .sr-ligne{font-size:10px;}}
     @media (max-width:640px){
       .menu-flottant{display:flex;position:fixed;left:14px;bottom:18px;z-index:250;width:56px;height:56px;border-radius:50%;
         align-items:center;justify-content:center;background:#00e5a0;color:#080d1a;border:none;
@@ -958,34 +960,73 @@ function calcIchimoku(candles){
      sommet tombent presque toujours dans la tolérance, et la fréquence
      affichée était fausse.
    · le RÔLE se lit sur la clôture de la séance cotée qui PRÉCÈDE l'épisode :
-     au-dessus du niveau, le cours arrive par le dessus (rôle de support) ;
-     en dessous, par le dessous (rôle de résistance). TENU = dans le bon rôle,
+     au-dessus du niveau, le cours arrive par-dessus (rôle de support) ;
+     en dessous, par-dessous (rôle de résistance). TENU = dans le bon rôle,
      la clôture de fin d'épisode reste du même côté (au niveau compris). Un
      contact dans l'autre rôle n'est ni tenu ni cassé : compté à part. Sans
      séance précédente dans la fenêtre, ou clôture pile au niveau : rôle
-     indéterminé, compté à part aussi.
+     indéterminé, compté à part aussi. `roles` range les contacts de rôle
+     connu en SÉQUENCES chronologiques (support, résistance) : deux séquences
+     = une inversion, que la légende date.
    · le MOT suit la position : au-dessus de la dernière clôture, Résistance ;
-     au niveau ou en dessous, Support — quelle que soit l'origine du niveau
-     (creux ou sommet). La sélection reste celle d'origine : 3 creux sous
-     cours +3 %, 3 sommets au-dessus de cours −3 %.
-   · un niveau ne se trace qu'à partir de SR_MIN_CONTACTS contacts. Le filtre
-     s'applique APRÈS le choix des 3 niveaux les plus proches : il retire,
-     il ne va pas chercher plus loin un niveau de remplacement.
+     au niveau ou en dessous, Support — quelle que soit l'origine du niveau.
+   · un niveau ne se trace qu'à partir de SR_MIN_CONTACTS contacts.
+
+   ⚠️ SÉLECTION PAR IMPORTANCE, 21/10/2026 (lot 1 bis). Avant : les 3 creux
+   et les 3 sommets les plus PROCHES du cours, à ±3 %. Mesuré sur 78 titres :
+   en 3A, les niveaux tracés couvraient 13 % de la plage bas–haut de la
+   fenêtre (médiane), et 138 paires de niveaux tracés étaient à moins de
+   1,2 % l'une de l'autre. Désormais :
+   · les CANDIDATS sont tous les niveaux de la fenêtre : sommets et creux
+     mêlés (un même prix peut avoir été l'un puis l'autre), regroupés à
+     SR_TOL ;
+   · le CLASSEMENT est le nombre de contacts ; à égalité, le contact le plus
+     récent, puis le plus proche du cours ;
+   · on retient, dans cet ordre, au plus SR_PAR_COTE niveaux au-dessus du
+     cours et SR_PAR_COTE au niveau ou en dessous ; un candidat à moins de
+     l'ÉCART MINIMAL d'un niveau déjà retenu est ÉCARTÉ, pas fusionné — une
+     fusion inventerait un prix jamais touché et un nombre de contacts à
+     recompter ;
+   · ÉCART MINIMAL = 1 ATR(14) relatif (moyenne des 14 dernières étendues
+     vraies des séances cotées, rapportée à la dernière clôture cotée), avec
+     un plancher de 2 × SR_TOL : en dessous, les bandes de contact de deux
+     niveaux se chevaucheraient et partageraient leurs épisodes. Mesuré : un
+     écart fixe de 3 % donne des totaux presque identiques ; l'ATR est
+     retenu parce que l'ATR médian vaut 3,1 % mais va de 0,2 à 6,2 % selon
+     le titre, et 3 % sépare mal deux niveaux d'un titre qui bouge de 6 % par
+     séance ;
+   · ⚠️ SR_TOL reste 1,2 % FIXE. Comparé à une tolérance de 0,4 ATR (même
+     valeur au titre médian) : les niveaux retenus sont touchés 1,5 à 2,3 fois
+     plus qu'un prix quelconque de la fenêtre dans les deux cas — aucun gain
+     mesuré, et une règle à un seul chiffre se vérifie à l'œil.
    Aucun n'entre dans la note (R8) et aucun ne dit quoi faire : ce sont des
    séances passées, comptées et datées. Règles publiées dans « Comment lire ». */
-const SR_TOL=0.012, SR_LB=3, SR_MIN_CONTACTS=2;
+const SR_TOL=0.012, SR_LB=3, SR_MIN_CONTACTS=2, SR_PAR_COTE=3, SR_ATR=14;
 const srCotee=c=>(c.vol||0)>0&&!c.live;
+/* ATR(SR_ATR) relatif des séances cotées : moyenne des dernières étendues
+   vraies (plus-haut − plus-bas, élargi à la clôture cotée précédente),
+   rapportée à la dernière clôture cotée. null sans deux séances cotées. */
+const srAtrRel=cot=>{
+  if(!cot||cot.length<2)return null;
+  const tr=[];
+  for(let i=1;i<cot.length;i++){const[,h,l]=cot[i].y,pc=cot[i-1].y[3];tr.push(Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc)));}
+  const d=tr.slice(-SR_ATR),dc=cot[cot.length-1].y[3];
+  return dc>0?d.reduce((a,b)=>a+b,0)/d.length/dc:null;
+};
 function calcSR(candles,price,min=SR_MIN_CONTACTS){
   const cot=(candles||[]).filter(srCotee);
   const ecartees=(candles||[]).length-cot.length;
-  if(cot.length<10)return{sup:[],res:[],ecartees,retires:0,cotees:cot.length};
+  const n=cot.length;
+  if(n<10)return{sup:[],res:[],ecartees,retires:0,ecartes:0,cotees:n,atr:null,ecart:null};
+  const atr=srAtrRel(cot);
+  const ecart=Math.max(atr||0,2*SR_TOL);
   const highs=cot.map(c=>c.y[1]);
   const lows =cot.map(c=>c.y[2]);
-  const n=cot.length,lb=SR_LB;
-  const swH=[],swL=[];
+  const lb=SR_LB;
+  const pivots=[];
   for(let i=lb;i<n-lb;i++){
-    if(highs.slice(i-lb,i).every(h=>h<=highs[i])&&highs.slice(i+1,i+lb+1).every(h=>h<=highs[i]))swH.push(highs[i]);
-    if(lows.slice(i-lb,i).every(l=>l>=lows[i])&&lows.slice(i+1,i+lb+1).every(l=>l>=lows[i]))swL.push(lows[i]);
+    if(highs.slice(i-lb,i).every(h=>h<=highs[i])&&highs.slice(i+1,i+lb+1).every(h=>h<=highs[i]))pivots.push(highs[i]);
+    if(lows.slice(i-lb,i).every(l=>l>=lows[i])&&lows.slice(i+1,i+lb+1).every(l=>l>=lows[i]))pivots.push(lows[i]);
   }
   function cluster(arr,tol=SR_TOL){
     const s=[...arr].sort((a,b)=>a-b);const out=[];let i=0;
@@ -1000,6 +1041,7 @@ function calcSR(candles,price,min=SR_MIN_CONTACTS){
      attendu, déduit de la position du niveau par rapport au dernier cours. */
   const compter=(niveau,support)=>{
     let contacts=0,dansRole=0,tenus=0,autreRole=0,indetermines=0,premier=null,dernier=null;
+    const roles=[];
     let i=0;
     while(i<n){
       const[,h,l]=cot[i].y;
@@ -1011,19 +1053,30 @@ function calcSR(candles,price,min=SR_MIN_CONTACTS){
       dernier=cot[j].x;
       const avant=i>0?cot[i-1].y[3]:null,fin=cot[j].y[3];
       if(avant==null||avant===niveau)indetermines++;
-      else if(support?avant>niveau:avant<niveau){dansRole++;if(support?fin>=niveau:fin<=niveau)tenus++;}
-      else autreRole++;
+      else{
+        if(support?avant>niveau:avant<niveau){dansRole++;if(support?fin>=niveau:fin<=niveau)tenus++;}
+        else autreRole++;
+        const role=avant>niveau?"support":"résistance",k=roles[roles.length-1];
+        if(k&&k.role===role){k.n++;k.dernier=cot[j].x;}
+        else roles.push({role,n:1,premier:cot[i].x,dernier:cot[j].x});
+      }
       i=j+1;
     }
-    return{niveau,contacts,dansRole,tenus,autreRole,indetermines,premier,dernier};
+    return{niveau,contacts,dansRole,tenus,autreRole,indetermines,premier,dernier,roles};
   };
-  const choisis=[...cluster(swL).filter(v=>v<price*1.03).slice(-3),
-                 ...cluster(swH).filter(v=>v>price*0.97).slice(0,3)];
-  const tous=choisis.map(v=>compter(v,v<=price));
-  const gardes=tous.filter(x=>x.contacts>=min);
-  const sup=gardes.filter(x=>x.niveau<=price).sort((a,b)=>a.niveau-b.niveau);
-  const res=gardes.filter(x=>x.niveau>price).sort((a,b)=>a.niveau-b.niveau);
-  return{sup,res,ecartees,retires:tous.length-gardes.length,cotees:n};
+  const tous=cluster(pivots).map(v=>compter(v,v<=price));
+  const candidats=tous.filter(x=>x.contacts>=min)
+    .sort((a,b)=>b.contacts-a.contacts||b.dernier-a.dernier||Math.abs(a.niveau-price)-Math.abs(b.niveau-price)||a.niveau-b.niveau);
+  const pris=[];let nSup=0,nRes=0,ecartes=0;
+  for(const L of candidats){
+    const sup=L.niveau<=price;
+    if(sup?nSup>=SR_PAR_COTE:nRes>=SR_PAR_COTE)continue;
+    if(pris.some(P=>Math.abs(P.niveau-L.niveau)/Math.min(P.niveau,L.niveau)<ecart)){ecartes++;continue;}
+    pris.push(L);if(sup)nSup++;else nRes++;
+  }
+  const sup=pris.filter(x=>x.niveau<=price).sort((a,b)=>a.niveau-b.niveau);
+  const res=pris.filter(x=>x.niveau>price).sort((a,b)=>a.niveau-b.niveau);
+  return{sup,res,ecartees,retires:tous.length-candidats.length,ecartes,cotees:n,atr,ecart};
 }
 
 // ── ATOMS ────────────────────────────────────────────────────────────────────
@@ -1789,15 +1842,45 @@ const SignauxTechniques=({r})=>{
 };
 
 /* Légende des supports et résistances, sous le graphique — 21/10/2026.
-   Une ligne par niveau tracé, du plus haut au plus bas comme sur l'axe :
-   « Support 89,90 — touché 4 fois : 3 par le dessus, tenu 2 · 1 par en
-   dessous — du 06/08 au 13/10 ». Un contact = un épisode ; « tenu » ne se
-   compte que dans le bon rôle (voir calcSR). Le mot suit la position du
-   niveau par rapport à la dernière clôture.
+   Un paragraphe par niveau tracé, du plus haut au plus bas comme sur l'axe.
+   Un contact = un épisode ; « tenu » ne se compte que dans le bon rôle (voir
+   calcSR). Le mot suit la position du niveau par rapport à la dernière
+   clôture. Trois formes, selon les séquences de rôle (`roles`) :
+   · un seul rôle connu — « Support 89,90 — 4 contacts, du 06/08 au 13/10 :
+     3 par-dessus, tenu 2 · 1 sens inconnu » ;
+   · une inversion — « Support 29,10 — 5 contacts : résistance jusqu'au
+     12/06 (2), support depuis (3, tenu 2) » : le rôle d'avant, la date de
+     son dernier contact, puis le rôle d'après ; chaque séquence porte son
+     nombre de contacts, et « tenu » celle du rôle actuel ;
+   · des rôles alternés — « Résistance 36,62 — 34 contacts, résistance depuis
+     le 05/03/26 : 21 par-dessous, tenu 15 · 13 par-dessus » : la dernière
+     séquence et sa date de début ; les comptes disent les deux côtés.
+   ⚠️ Deux lignes au plus à 390 px (lot 1 bis) : l'ancienne rédaction en
+   prenait trois par niveau. Mesuré par simulation (chasse fixe, 53 signes à
+   10 px) puis dans le navigateur. C'est pourquoi la plage « du … au » cède
+   la place aux dates de rôle quand le rôle a changé, et pourquoi le corps
+   passe à 10 px sous 640 px de large.
    Les dates sont ÉCRITES : une infobulle ne s'ouvre pas au doigt. L'année
    n'apparaît que si la fenêtre affichée chevauche deux années. */
 const srJour=(ts,an)=>{const d=new Date(ts),j=String(d.getUTCDate()).padStart(2,"0"),m=String(d.getUTCMonth()+1).padStart(2,"0");
   return an?`${j}/${m}/${String(d.getUTCFullYear()).slice(2)}`:`${j}/${m}`;};
+/* Tout ce qui suit le mot et le prix, en texte : testé tel quel sous node. */
+const srSuite=(L,support,an)=>{
+  const j=ts=>srJour(ts,an);
+  const tete=` — ${L.contacts} contact${L.contacts>1?"s":""}`;
+  const inconnu=L.indetermines>0?`${L.indetermines} sens inconnu`:null;
+  const comptes=[L.dansRole>0?`${L.dansRole} ${support?"par-dessus":"par-dessous"}, tenu ${L.tenus}`:null,
+                 L.autreRole>0?`${L.autreRole} ${support?"par-dessous":"par-dessus"}`:null,
+                 inconnu].filter(Boolean).join(" · ");
+  const R=L.roles||[],actuel=support?"support":"résistance";
+  if(R.length===2){
+    const part=r=>r.role===actuel&&L.dansRole>0?`${r.n}, tenu ${L.tenus}`:`${r.n}`;
+    return `${tete} : ${R[0].role} jusqu'au ${j(R[0].dernier)} (${part(R[0])}), ${R[1].role} depuis (${part(R[1])})${inconnu?` · ${inconnu}`:""}`;
+  }
+  if(R.length>2){const k=R[R.length-1];return `${tete}, ${k.role} depuis le ${j(k.premier)} : ${comptes}`;}
+  return `${tete}, du ${j(L.premier)} au ${j(L.dernier)} : ${comptes}`;
+};
+const pctFR=x=>(x*100).toFixed(1).replace(".",",");
 const LegendeSR=({sr,candles,period})=>{
   if(!sr||!candles||!candles.length)return null;
   const an=new Date(candles[0].x).getUTCFullYear()!==new Date(candles[candles.length-1].x).getUTCFullYear();
@@ -1808,15 +1891,12 @@ const LegendeSR=({sr,candles,period})=>{
       <div style={{fontSize:9,color:"#8892a4",letterSpacing:.6,textTransform:"uppercase",marginBottom:2}}>S/R · fenêtre {period} · séances échangées seulement</div>
       {lignes.length===0&&<div style={{color:"#8892a4"}}>{sr.cotees<10?`Aucun niveau : ${sr.cotees} séance${sr.cotees>1?"s":""} échangée${sr.cotees>1?"s":""} sur cette fenêtre, il en faut 10.`:`Aucun niveau touché au moins ${SR_MIN_CONTACTS} fois sur cette fenêtre.`}</div>}
       {lignes.map(([nom,c,L])=>(
-        <div key={nom+L.niveau} style={{textWrap:"pretty"}}>
-          <span style={{color:c}}>{nom}</span> <b style={{color:"#e8eef8",fontWeight:600}}>{fmtPrixFR(L.niveau)}</b>
-          {" — "}touché {L.contacts} fois : {L.dansRole} {nom==="Support"?"par le dessus":"par le dessous"}{L.dansRole>0&&<>, tenu {L.tenus}</>}
-          {L.autreRole>0&&<> · {L.autreRole} {nom==="Support"?"par en dessous":"par le dessus"}</>}
-          {L.indetermines>0&&<> · {L.indetermines} sens inconnu</>}
-          {" — "}<span style={{whiteSpace:"nowrap"}}>du {srJour(L.premier,an)} au {srJour(L.dernier,an)}</span>
+        <div key={nom+L.niveau} className="sr-ligne" data-niveau={L.niveau} style={{textWrap:"pretty"}}>
+          <span style={{color:c}}>{nom}</span> <b style={{color:"#e8eef8",fontWeight:600}}>{fmtPrixFR(L.niveau)}</b>{srSuite(L,nom==="Support",an)}
         </div>
       ))}
       <div style={{fontSize:9.5,color:"#8892a4",marginTop:2}}>
+        {lignes.length>0&&sr.ecart!=null&&<>Les niveaux les plus touchés, {SR_PAR_COTE} au plus de chaque côté, espacés d'au moins {pctFR(sr.ecart)} % ; contact à {pctFR(SR_TOL)} % du niveau. </>}
         {sr.ecartees>0&&<>{sr.ecartees} séance{sr.ecartees>1?"s":""} écartée{sr.ecartees>1?"s":""} du calcul (sans échange, ou bougie du jour reconstituée), toujours dessinée{sr.ecartees>1?"s":""}. </>}
         Séances passées, comptées et datées — pas un niveau annoncé. Règles : « Comment lire ».
       </div>
@@ -4607,7 +4687,7 @@ const Guide=({setTab})=>{
       <L titre="Couleur de la note">La note est colorée selon son palier, sans mot d'action : <T c="#00e5a0">● vert</T> dès 6,5 · <T c="#b5e655">● vert-jaune</T> dès 5,5 · <T c="#ffd740">● jaune</T> dès 4,5 · <T c="#ff8f00">● orange</T> dès 3,5 · <T c="#ff4f5a">● rouge</T> dessous. La couleur situe la note ; elle ne dit pas quoi faire. Titre trop peu échangé : une note dès 6,5 reste en vert-jaune, avec la mention « titre peu échangé ». <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, note grise. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
       <L titre="Fiabilité des données ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>
       <L titre="« X % gagnants (IC) · n cas » — fiche, Signaux techniques">Sur n cas passés à la BVC où le même signal est apparu, X % ont battu le MASI 60 séances après ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fréquence passée, pas une promesse.</L>
-      <L titre="S/R — supports et résistances du graphique">Tirés de la fenêtre affichée : un creux est un plus-bas sous lequel aucune des 3 séances échangées voisines, de chaque côté, ne descend — un sommet, l'inverse ; des points à moins de 1,2 % l'un de l'autre font un seul niveau. Au plus 3 creux et 3 sommets, les plus proches du dernier cours ; il faut au moins 10 séances échangées dans la fenêtre. <T>Le mot suit la position</T> : au-dessus de la dernière clôture, Résistance ; au niveau ou en dessous, Support. <T>Contact</T> : un épisode — une ou plusieurs séances échangées consécutives dont la fourchette plus-bas–plus-haut passe à moins de 1,2 % du niveau ; une séance sans échange au milieu ne le coupe pas. Un niveau n'est tracé qu'à partir de 2 contacts, avec la date du premier et du dernier. <T>Par le dessus, par le dessous</T> : la clôture de la séance échangée qui précède le contact dit d'où le cours arrive. <T>Tenu</T> : un support abordé par le dessus dont la clôture de fin d'épisode reste au niveau ou au-dessus (une résistance : abordée par le dessous, clôture au niveau ou en dessous). Un contact venu de l'autre côté n'est ni tenu ni cassé : il est compté à part. « Sens inconnu » : contact au début de la fenêtre, ou clôture précédente pile au niveau. <T>Séances écartées</T> : volume nul — le titre n'a pas échangé, ou la bougie a été refaite depuis la seule clôture — et bougie du jour reconstituée depuis le dernier cours. Aucun plus-haut ni plus-bas n'y a été atteint ou mesuré : elles fabriqueraient des creux. Elles restent dessinées. Des séances passées, comptées et datées ; pas un niveau annoncé.</L>
+      <L titre="S/R — supports et résistances du graphique">Tirés de la fenêtre affichée : un creux est un plus-bas sous lequel aucune des 3 séances échangées voisines, de chaque côté, ne descend — un sommet, l'inverse ; creux et sommets à moins de 1,2 % l'un de l'autre font un seul niveau, car un même prix peut avoir été l'un puis l'autre. Il faut au moins 10 séances échangées dans la fenêtre. <T>Contact</T> : un épisode — une ou plusieurs séances échangées consécutives dont la fourchette plus-bas–plus-haut passe à moins de 1,2 % du niveau ; une séance sans échange au milieu ne le coupe pas. La même tolérance de 1,2 % sert à regrouper les points et à compter les contacts, pour tous les titres. <T>Niveaux retenus</T> : les plus touchés de toute la fenêtre, et non les plus proches du cours — au plus 3 au-dessus du dernier cours et 3 au niveau ou en dessous, à partir de 2 contacts ; à égalité, le contact le plus récent, puis le plus proche du cours. <T>Écart minimal</T> : deux niveaux tracés sont distants d'au moins 1 ATR(14) relatif du titre — la moyenne des 14 dernières étendues séance (plus-haut − plus-bas, élargi à la clôture précédente) rapportée à la dernière clôture — et jamais de moins de 2,4 % (deux fois la tolérance : en deçà, deux niveaux se partageraient leurs contacts). Un niveau trop proche d'un niveau mieux classé est écarté, pas fusionné. La valeur du titre est écrite sous la légende. <T>Le mot suit la position</T> : au-dessus de la dernière clôture, Résistance ; au niveau ou en dessous, Support. <T>Par-dessus, par-dessous</T> : la clôture de la séance échangée qui précède le contact dit d'où le cours arrive — par-dessus, il joue le rôle de support ; par-dessous, de résistance. <T>Tenu</T> : un support abordé par-dessus dont la clôture de fin d'épisode reste au niveau ou au-dessus (une résistance : abordée par-dessous, clôture au niveau ou en dessous). Un contact venu de l'autre côté n'est ni tenu ni cassé : il est compté à part. <T>Inversion</T> : quand les contacts passent d'un rôle à l'autre une seule fois, la légende l'écrit — « résistance jusqu'au 12/06 (2), support depuis (3, tenu 2) » : le dernier contact dans l'ancien rôle est daté, et chaque rôle porte son nombre de contacts. Quand les rôles ont alterné plusieurs fois, elle donne le rôle des derniers contacts et la date où il a commencé ; les comptes par-dessus et par-dessous disent le reste. « Sens inconnu » : contact au début de la fenêtre, ou clôture précédente pile au niveau. <T>Séances écartées</T> : volume nul — le titre n'a pas échangé, ou la bougie a été refaite depuis la seule clôture — et bougie du jour reconstituée depuis le dernier cours. Aucun plus-haut ni plus-bas n'y a été atteint ou mesuré : elles fabriqueraient des creux. Elles restent dessinées. Des séances passées, comptées et datées ; pas un niveau annoncé.</L>
       <L titre="« non vérifié » · ⚠ jj/mm"><T c="#ff8f00">non vérifié</T> : source non recoupée, prudence. <T c="#ffd740">⚠ 05/08</T> près d'un cours : il date de ce jour-là, pas de la dernière séance.</L>
     </div>
   );

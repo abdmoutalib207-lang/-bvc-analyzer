@@ -216,6 +216,8 @@
     .menu-item:hover{background:rgba(77,184,255,.07);box-shadow:none!important;}
     .menu-item.actif{border-left-color:#00e5a0;background:rgba(0,229,160,.08);color:#00e5a0;}
     .menu-flottant{display:none;}
+    /* Légende S/R : 10 px sur téléphone, deux lignes au plus par niveau (21/10/2026). */
+    @media (max-width:640px){.legende-sr .sr-ligne{font-size:10px;}}
     @media (max-width:640px){
       .menu-flottant{display:flex;position:fixed;left:14px;bottom:18px;z-index:250;width:56px;height:56px;border-radius:50%;
         align-items:center;justify-content:center;background:#00e5a0;color:#080d1a;border:none;
@@ -3868,27 +3870,45 @@ function calcIchimoku(candles) {
 }
 const SR_TOL = 0.012,
   SR_LB = 3,
-  SR_MIN_CONTACTS = 2;
+  SR_MIN_CONTACTS = 2,
+  SR_PAR_COTE = 3,
+  SR_ATR = 14;
 const srCotee = c => (c.vol || 0) > 0 && !c.live;
+const srAtrRel = cot => {
+  if (!cot || cot.length < 2) return null;
+  const tr = [];
+  for (let i = 1; i < cot.length; i++) {
+    const [, h, l] = cot[i].y,
+      pc = cot[i - 1].y[3];
+    tr.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)));
+  }
+  const d = tr.slice(-SR_ATR),
+    dc = cot[cot.length - 1].y[3];
+  return dc > 0 ? d.reduce((a, b) => a + b, 0) / d.length / dc : null;
+};
 function calcSR(candles, price, min = SR_MIN_CONTACTS) {
   const cot = (candles || []).filter(srCotee);
   const ecartees = (candles || []).length - cot.length;
-  if (cot.length < 10) return {
+  const n = cot.length;
+  if (n < 10) return {
     sup: [],
     res: [],
     ecartees,
     retires: 0,
-    cotees: cot.length
+    ecartes: 0,
+    cotees: n,
+    atr: null,
+    ecart: null
   };
+  const atr = srAtrRel(cot);
+  const ecart = Math.max(atr || 0, 2 * SR_TOL);
   const highs = cot.map(c => c.y[1]);
   const lows = cot.map(c => c.y[2]);
-  const n = cot.length,
-    lb = SR_LB;
-  const swH = [],
-    swL = [];
+  const lb = SR_LB;
+  const pivots = [];
   for (let i = lb; i < n - lb; i++) {
-    if (highs.slice(i - lb, i).every(h => h <= highs[i]) && highs.slice(i + 1, i + lb + 1).every(h => h <= highs[i])) swH.push(highs[i]);
-    if (lows.slice(i - lb, i).every(l => l >= lows[i]) && lows.slice(i + 1, i + lb + 1).every(l => l >= lows[i])) swL.push(lows[i]);
+    if (highs.slice(i - lb, i).every(h => h <= highs[i]) && highs.slice(i + 1, i + lb + 1).every(h => h <= highs[i])) pivots.push(highs[i]);
+    if (lows.slice(i - lb, i).every(l => l >= lows[i]) && lows.slice(i + 1, i + lb + 1).every(l => l >= lows[i])) pivots.push(lows[i]);
   }
   function cluster(arr, tol = SR_TOL) {
     const s = [...arr].sort((a, b) => a - b);
@@ -3914,6 +3934,7 @@ function calcSR(candles, price, min = SR_MIN_CONTACTS) {
       indetermines = 0,
       premier = null,
       dernier = null;
+    const roles = [];
     let i = 0;
     while (i < n) {
       const [, h, l] = cot[i].y;
@@ -3928,10 +3949,23 @@ function calcSR(candles, price, min = SR_MIN_CONTACTS) {
       dernier = cot[j].x;
       const avant = i > 0 ? cot[i - 1].y[3] : null,
         fin = cot[j].y[3];
-      if (avant == null || avant === niveau) indetermines++;else if (support ? avant > niveau : avant < niveau) {
-        dansRole++;
-        if (support ? fin >= niveau : fin <= niveau) tenus++;
-      } else autreRole++;
+      if (avant == null || avant === niveau) indetermines++;else {
+        if (support ? avant > niveau : avant < niveau) {
+          dansRole++;
+          if (support ? fin >= niveau : fin <= niveau) tenus++;
+        } else autreRole++;
+        const role = avant > niveau ? "support" : "résistance",
+          k = roles[roles.length - 1];
+        if (k && k.role === role) {
+          k.n++;
+          k.dernier = cot[j].x;
+        } else roles.push({
+          role,
+          n: 1,
+          premier: cot[i].x,
+          dernier: cot[j].x
+        });
+      }
       i = j + 1;
     }
     return {
@@ -3942,20 +3976,37 @@ function calcSR(candles, price, min = SR_MIN_CONTACTS) {
       autreRole,
       indetermines,
       premier,
-      dernier
+      dernier,
+      roles
     };
   };
-  const choisis = [...cluster(swL).filter(v => v < price * 1.03).slice(-3), ...cluster(swH).filter(v => v > price * 0.97).slice(0, 3)];
-  const tous = choisis.map(v => compter(v, v <= price));
-  const gardes = tous.filter(x => x.contacts >= min);
-  const sup = gardes.filter(x => x.niveau <= price).sort((a, b) => a.niveau - b.niveau);
-  const res = gardes.filter(x => x.niveau > price).sort((a, b) => a.niveau - b.niveau);
+  const tous = cluster(pivots).map(v => compter(v, v <= price));
+  const candidats = tous.filter(x => x.contacts >= min).sort((a, b) => b.contacts - a.contacts || b.dernier - a.dernier || Math.abs(a.niveau - price) - Math.abs(b.niveau - price) || a.niveau - b.niveau);
+  const pris = [];
+  let nSup = 0,
+    nRes = 0,
+    ecartes = 0;
+  for (const L of candidats) {
+    const sup = L.niveau <= price;
+    if (sup ? nSup >= SR_PAR_COTE : nRes >= SR_PAR_COTE) continue;
+    if (pris.some(P => Math.abs(P.niveau - L.niveau) / Math.min(P.niveau, L.niveau) < ecart)) {
+      ecartes++;
+      continue;
+    }
+    pris.push(L);
+    if (sup) nSup++;else nRes++;
+  }
+  const sup = pris.filter(x => x.niveau <= price).sort((a, b) => a.niveau - b.niveau);
+  const res = pris.filter(x => x.niveau > price).sort((a, b) => a.niveau - b.niveau);
   return {
     sup,
     res,
     ecartees,
-    retires: tous.length - gardes.length,
-    cotees: n
+    retires: tous.length - candidats.length,
+    ecartes,
+    cotees: n,
+    atr,
+    ecart
   };
 }
 const lsLire = (k, def = null) => {
@@ -5742,6 +5793,24 @@ const srJour = (ts, an) => {
     m = String(d.getUTCMonth() + 1).padStart(2, "0");
   return an ? `${j}/${m}/${String(d.getUTCFullYear()).slice(2)}` : `${j}/${m}`;
 };
+const srSuite = (L, support, an) => {
+  const j = ts => srJour(ts, an);
+  const tete = ` — ${L.contacts} contact${L.contacts > 1 ? "s" : ""}`;
+  const inconnu = L.indetermines > 0 ? `${L.indetermines} sens inconnu` : null;
+  const comptes = [L.dansRole > 0 ? `${L.dansRole} ${support ? "par-dessus" : "par-dessous"}, tenu ${L.tenus}` : null, L.autreRole > 0 ? `${L.autreRole} ${support ? "par-dessous" : "par-dessus"}` : null, inconnu].filter(Boolean).join(" · ");
+  const R = L.roles || [],
+    actuel = support ? "support" : "résistance";
+  if (R.length === 2) {
+    const part = r => r.role === actuel && L.dansRole > 0 ? `${r.n}, tenu ${L.tenus}` : `${r.n}`;
+    return `${tete} : ${R[0].role} jusqu'au ${j(R[0].dernier)} (${part(R[0])}), ${R[1].role} depuis (${part(R[1])})${inconnu ? ` · ${inconnu}` : ""}`;
+  }
+  if (R.length > 2) {
+    const k = R[R.length - 1];
+    return `${tete}, ${k.role} depuis le ${j(k.premier)} : ${comptes}`;
+  }
+  return `${tete}, du ${j(L.premier)} au ${j(L.dernier)} : ${comptes}`;
+};
+const pctFR = x => (x * 100).toFixed(1).replace(".", ",");
 const LegendeSR = ({
   sr,
   candles,
@@ -5777,6 +5846,8 @@ const LegendeSR = ({
     }
   }, sr.cotees < 10 ? `Aucun niveau : ${sr.cotees} séance${sr.cotees > 1 ? "s" : ""} échangée${sr.cotees > 1 ? "s" : ""} sur cette fenêtre, il en faut 10.` : `Aucun niveau touché au moins ${SR_MIN_CONTACTS} fois sur cette fenêtre.`), lignes.map(([nom, c, L]) => React.createElement("div", {
     key: nom + L.niveau,
+    className: "sr-ligne",
+    "data-niveau": L.niveau,
     style: {
       textWrap: "pretty"
     }
@@ -5789,17 +5860,13 @@ const LegendeSR = ({
       color: "#e8eef8",
       fontWeight: 600
     }
-  }, fmtPrixFR(L.niveau)), " — ", "touch\xE9 ", L.contacts, " fois : ", L.dansRole, " ", nom === "Support" ? "par le dessus" : "par le dessous", L.dansRole > 0 && React.createElement(React.Fragment, null, ", tenu ", L.tenus), L.autreRole > 0 && React.createElement(React.Fragment, null, " \xB7 ", L.autreRole, " ", nom === "Support" ? "par en dessous" : "par le dessus"), L.indetermines > 0 && React.createElement(React.Fragment, null, " \xB7 ", L.indetermines, " sens inconnu"), " — ", React.createElement("span", {
-    style: {
-      whiteSpace: "nowrap"
-    }
-  }, "du ", srJour(L.premier, an), " au ", srJour(L.dernier, an)))), React.createElement("div", {
+  }, fmtPrixFR(L.niveau)), srSuite(L, nom === "Support", an))), React.createElement("div", {
     style: {
       fontSize: 9.5,
       color: "#8892a4",
       marginTop: 2
     }
-  }, sr.ecartees > 0 && React.createElement(React.Fragment, null, sr.ecartees, " s\xE9ance", sr.ecartees > 1 ? "s" : "", " \xE9cart\xE9e", sr.ecartees > 1 ? "s" : "", " du calcul (sans \xE9change, ou bougie du jour reconstitu\xE9e), toujours dessin\xE9e", sr.ecartees > 1 ? "s" : "", ". "), "S\xE9ances pass\xE9es, compt\xE9es et dat\xE9es \u2014 pas un niveau annonc\xE9. R\xE8gles : \xAB Comment lire \xBB."));
+  }, lignes.length > 0 && sr.ecart != null && React.createElement(React.Fragment, null, "Les niveaux les plus touch\xE9s, ", SR_PAR_COTE, " au plus de chaque c\xF4t\xE9, espac\xE9s d'au moins ", pctFR(sr.ecart), " % ; contact \xE0 ", pctFR(SR_TOL), " % du niveau. "), sr.ecartees > 0 && React.createElement(React.Fragment, null, sr.ecartees, " s\xE9ance", sr.ecartees > 1 ? "s" : "", " \xE9cart\xE9e", sr.ecartees > 1 ? "s" : "", " du calcul (sans \xE9change, ou bougie du jour reconstitu\xE9e), toujours dessin\xE9e", sr.ecartees > 1 ? "s" : "", ". "), "S\xE9ances pass\xE9es, compt\xE9es et dat\xE9es \u2014 pas un niveau annonc\xE9. R\xE8gles : \xAB Comment lire \xBB."));
 };
 const StockChart = ({
   r
@@ -12648,7 +12715,7 @@ const Guide = ({
     titre: "\xAB X % gagnants (IC) \xB7 n cas \xBB \u2014 fiche, Signaux techniques"
   }, "Sur n cas pass\xE9s \xE0 la BVC o\xF9 le m\xEAme signal est apparu, X % ont battu le MASI 60 s\xE9ances apr\xE8s ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fr\xE9quence pass\xE9e, pas une promesse."), React.createElement(L, {
     titre: "S/R \u2014 supports et r\xE9sistances du graphique"
-  }, "Tir\xE9s de la fen\xEAtre affich\xE9e : un creux est un plus-bas sous lequel aucune des 3 s\xE9ances \xE9chang\xE9es voisines, de chaque c\xF4t\xE9, ne descend \u2014 un sommet, l'inverse ; des points \xE0 moins de 1,2 % l'un de l'autre font un seul niveau. Au plus 3 creux et 3 sommets, les plus proches du dernier cours ; il faut au moins 10 s\xE9ances \xE9chang\xE9es dans la fen\xEAtre. ", React.createElement(T, null, "Le mot suit la position"), " : au-dessus de la derni\xE8re cl\xF4ture, R\xE9sistance ; au niveau ou en dessous, Support. ", React.createElement(T, null, "Contact"), " : un \xE9pisode \u2014 une ou plusieurs s\xE9ances \xE9chang\xE9es cons\xE9cutives dont la fourchette plus-bas\u2013plus-haut passe \xE0 moins de 1,2 % du niveau ; une s\xE9ance sans \xE9change au milieu ne le coupe pas. Un niveau n'est trac\xE9 qu'\xE0 partir de 2 contacts, avec la date du premier et du dernier. ", React.createElement(T, null, "Par le dessus, par le dessous"), " : la cl\xF4ture de la s\xE9ance \xE9chang\xE9e qui pr\xE9c\xE8de le contact dit d'o\xF9 le cours arrive. ", React.createElement(T, null, "Tenu"), " : un support abord\xE9 par le dessus dont la cl\xF4ture de fin d'\xE9pisode reste au niveau ou au-dessus (une r\xE9sistance : abord\xE9e par le dessous, cl\xF4ture au niveau ou en dessous). Un contact venu de l'autre c\xF4t\xE9 n'est ni tenu ni cass\xE9 : il est compt\xE9 \xE0 part. \xAB Sens inconnu \xBB : contact au d\xE9but de la fen\xEAtre, ou cl\xF4ture pr\xE9c\xE9dente pile au niveau. ", React.createElement(T, null, "S\xE9ances \xE9cart\xE9es"), " : volume nul \u2014 le titre n'a pas \xE9chang\xE9, ou la bougie a \xE9t\xE9 refaite depuis la seule cl\xF4ture \u2014 et bougie du jour reconstitu\xE9e depuis le dernier cours. Aucun plus-haut ni plus-bas n'y a \xE9t\xE9 atteint ou mesur\xE9 : elles fabriqueraient des creux. Elles restent dessin\xE9es. Des s\xE9ances pass\xE9es, compt\xE9es et dat\xE9es ; pas un niveau annonc\xE9."), React.createElement(L, {
+  }, "Tir\xE9s de la fen\xEAtre affich\xE9e : un creux est un plus-bas sous lequel aucune des 3 s\xE9ances \xE9chang\xE9es voisines, de chaque c\xF4t\xE9, ne descend \u2014 un sommet, l'inverse ; creux et sommets \xE0 moins de 1,2 % l'un de l'autre font un seul niveau, car un m\xEAme prix peut avoir \xE9t\xE9 l'un puis l'autre. Il faut au moins 10 s\xE9ances \xE9chang\xE9es dans la fen\xEAtre. ", React.createElement(T, null, "Contact"), " : un \xE9pisode \u2014 une ou plusieurs s\xE9ances \xE9chang\xE9es cons\xE9cutives dont la fourchette plus-bas\u2013plus-haut passe \xE0 moins de 1,2 % du niveau ; une s\xE9ance sans \xE9change au milieu ne le coupe pas. La m\xEAme tol\xE9rance de 1,2 % sert \xE0 regrouper les points et \xE0 compter les contacts, pour tous les titres. ", React.createElement(T, null, "Niveaux retenus"), " : les plus touch\xE9s de toute la fen\xEAtre, et non les plus proches du cours \u2014 au plus 3 au-dessus du dernier cours et 3 au niveau ou en dessous, \xE0 partir de 2 contacts ; \xE0 \xE9galit\xE9, le contact le plus r\xE9cent, puis le plus proche du cours. ", React.createElement(T, null, "\xC9cart minimal"), " : deux niveaux trac\xE9s sont distants d'au moins 1 ATR(14) relatif du titre \u2014 la moyenne des 14 derni\xE8res \xE9tendues s\xE9ance (plus-haut \u2212 plus-bas, \xE9largi \xE0 la cl\xF4ture pr\xE9c\xE9dente) rapport\xE9e \xE0 la derni\xE8re cl\xF4ture \u2014 et jamais de moins de 2,4 % (deux fois la tol\xE9rance : en de\xE7\xE0, deux niveaux se partageraient leurs contacts). Un niveau trop proche d'un niveau mieux class\xE9 est \xE9cart\xE9, pas fusionn\xE9. La valeur du titre est \xE9crite sous la l\xE9gende. ", React.createElement(T, null, "Le mot suit la position"), " : au-dessus de la derni\xE8re cl\xF4ture, R\xE9sistance ; au niveau ou en dessous, Support. ", React.createElement(T, null, "Par-dessus, par-dessous"), " : la cl\xF4ture de la s\xE9ance \xE9chang\xE9e qui pr\xE9c\xE8de le contact dit d'o\xF9 le cours arrive \u2014 par-dessus, il joue le r\xF4le de support ; par-dessous, de r\xE9sistance. ", React.createElement(T, null, "Tenu"), " : un support abord\xE9 par-dessus dont la cl\xF4ture de fin d'\xE9pisode reste au niveau ou au-dessus (une r\xE9sistance : abord\xE9e par-dessous, cl\xF4ture au niveau ou en dessous). Un contact venu de l'autre c\xF4t\xE9 n'est ni tenu ni cass\xE9 : il est compt\xE9 \xE0 part. ", React.createElement(T, null, "Inversion"), " : quand les contacts passent d'un r\xF4le \xE0 l'autre une seule fois, la l\xE9gende l'\xE9crit \u2014 \xAB r\xE9sistance jusqu'au 12/06 (2), support depuis (3, tenu 2) \xBB : le dernier contact dans l'ancien r\xF4le est dat\xE9, et chaque r\xF4le porte son nombre de contacts. Quand les r\xF4les ont altern\xE9 plusieurs fois, elle donne le r\xF4le des derniers contacts et la date o\xF9 il a commenc\xE9 ; les comptes par-dessus et par-dessous disent le reste. \xAB Sens inconnu \xBB : contact au d\xE9but de la fen\xEAtre, ou cl\xF4ture pr\xE9c\xE9dente pile au niveau. ", React.createElement(T, null, "S\xE9ances \xE9cart\xE9es"), " : volume nul \u2014 le titre n'a pas \xE9chang\xE9, ou la bougie a \xE9t\xE9 refaite depuis la seule cl\xF4ture \u2014 et bougie du jour reconstitu\xE9e depuis le dernier cours. Aucun plus-haut ni plus-bas n'y a \xE9t\xE9 atteint ou mesur\xE9 : elles fabriqueraient des creux. Elles restent dessin\xE9es. Des s\xE9ances pass\xE9es, compt\xE9es et dat\xE9es ; pas un niveau annonc\xE9."), React.createElement(L, {
     titre: "\xAB non v\xE9rifi\xE9 \xBB \xB7 \u26A0 jj/mm"
   }, React.createElement(T, {
     c: "#ff8f00"
