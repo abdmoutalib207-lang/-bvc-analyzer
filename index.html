@@ -5947,6 +5947,9 @@ const figFrequence = (fp, ref, liq, apres) => {
   return `${apres}, sur ${u.n} cas (${ou}), ${figPct(u.part_bon_sens_brute_pct)} % ont fait ${f.sens_teste < 0 ? "moins bien" : "mieux"} que le MASI à ${f.horizon_seances || 20} séances, hors frais`;
 };
 const figNiveau = nd => !nd ? null : nd.forme === "horizontal" ? fmtPrixFR(nd.prix) : nd.prix_a_la_derniere_seance != null ? `${fmtPrixFR(nd.prix_a_la_derniere_seance)} à la dernière séance` : null;
+const figVolume = e => e && e.volume_cassure_ratio != null && isFinite(e.volume_cassure_ratio) ? ` (volume ×${(+e.volume_cassure_ratio).toLocaleString("fr-FR", {
+  maximumFractionDigits: 2
+})} la médiane des 20 séances précédentes)` : "";
 const figLegende = (f, fp, liq, an) => {
   const lib = f.libelle || f.type,
     j = d => figJour(d, an),
@@ -5959,7 +5962,7 @@ const figLegende = (f, fp, liq, an) => {
   }
   if (f.statut === "declenchee") {
     if (/^fibo_/.test(f.type)) return `${lib} — constaté le ${j(f.date_constat || f.date_confirmation)} · ${fr()}`;
-    return `${lib} — cassure le ${j(f.date_cassure)} · ${fr()}`;
+    return `${lib} — cassure le ${j(f.date_cassure)}${figVolume(f)} · ${fr()}`;
   }
   if (f.statut === "invalidee") return `${lib} — figure invalidée le ${j(f.date_fin)}, avant toute cassure`;
   if (f.statut === "expiree") return `${lib} — figure expirée le ${j(f.date_fin)}, sans cassure`;
@@ -5976,7 +5979,7 @@ const ligneLegende = (l, fp, liq, an) => {
   if (l.statut === "armee") return `${lib} — ${trace}, ${canal ? "ni rebond ni sortie" : "pas encore cassée"} · ${fr(refs)}`;
   if (l.statut === "declenchee") {
     const quoi = l.signal === "canal_rebond_support" ? "rebond sur le support" : l.signal === "canal_cassure_bas" ? "sortie par le bas" : "cassure";
-    return `${lib} — ${trace} · ${quoi} le ${j(l.date_cassure)} · ${fr(l.signal ? [l.signal] : refs)}`;
+    return `${lib} — ${trace} · ${quoi} le ${j(l.date_cassure)}${figVolume(l)} · ${fr(l.signal ? [l.signal] : refs)}`;
   }
   if (l.statut === "invalidee") return `${lib} — ${trace}, ${canal ? "invalidé" : "invalidée"} le ${j(l.date_fin)}, avant toute cassure`;
   if (l.statut === "expiree") return `${lib} — ${trace}, ${canal ? "expiré" : "expirée"} le ${j(l.date_fin)}, sans cassure`;
@@ -6003,23 +6006,35 @@ const gapLegende = (g, fp, liq, an) => {
   return `${tete} · ${per ? `sur ${per}, ` : ""}${figPct(c.pct_combles)} % des ${nom} ont été comblés ${quand} (${c.n} cas, ${U.nom})`;
 };
 const figDebut = e => e.pivots && e.pivots.length ? e.pivots[0].date : e.points && e.points.length ? e.points[0].date : e.date || null;
+const figPassee = e => e.statut === "invalidee" || e.statut === "expiree";
 const figElements = (t, debut, show) => {
   const pris = [];
-  let h = 0;
+  let h = 0,
+    passees = 0;
   if (!t || t.statut_titre !== "analyse") return {
     pris,
-    hors: 0
+    hors: 0,
+    passees: 0
   };
   [["figures", show.fig], ["lignes", show.tend], ["gaps", show.gap]].forEach(([k, on]) => {
     if (!on) return;
-    (t[k] || []).forEach(e => {
+    (t[k] || []).forEach((e, n) => {
       const d = figDebut(e);
-      if (d && debut && d >= debut) pris.push([k, e]);else h++;
+      if (!(d && debut && d >= debut)) {
+        h++;
+        return;
+      }
+      if (k !== "gaps" && figPassee(e) && !show.passees) {
+        passees++;
+        return;
+      }
+      pris.push([k, e, k + ":" + n]);
     });
   });
   return {
     pris,
-    hors: h
+    hors: h,
+    passees
   };
 };
 const figIndice = (dates, d) => {
@@ -6032,133 +6047,295 @@ const figIndice = (dates, d) => {
   }
   return a < dates.length ? a : null;
 };
-const figFormes = (pris, dates, t) => {
+const figFin = e => e.date_cassure || e.date_fin || (/^fibo_/.test(e.type || "") ? e.date_constat || e.date_confirmation : null);
+const FIG_REPERE_BAS = {
+  double_creux: 1,
+  tasse_anse: 1,
+  ete_inversee: 1
+};
+const FIG_CLASSIQUE = {
+  ete: 1,
+  ete_inversee: 1,
+  double_creux: 1,
+  double_sommet: 1
+};
+const FIG_REPERE_HAUT = {
+  double_sommet: 1,
+  ete: 1
+};
+const figRepere = e => {
+  const piv = e.pivots || [],
+    cr = piv.filter(p => p.type === "creux"),
+    so = piv.filter(p => p.type === "sommet");
+  const min = l => l.reduce((m, p) => !m || p.prix < m.prix ? p : m, null),
+    max = l => l.reduce((m, p) => !m || p.prix > m.prix ? p : m, null);
+  if (FIG_REPERE_BAS[e.type] && cr.length) return {
+    p: min(cr),
+    dessus: false
+  };
+  if (FIG_REPERE_HAUT[e.type] && so.length) return {
+    p: max(so),
+    dessus: true
+  };
+  if (/^fibo_/.test(e.type) && piv.length) return {
+    p: piv[piv.length - 1],
+    dessus: piv[piv.length - 1].type === "sommet"
+  };
+  const pv = piv[Math.floor(piv.length / 2)];
+  return pv ? {
+    p: pv,
+    dessus: pv.type === "sommet"
+  } : null;
+};
+const figFormes = (pris, dates, t, focus, tel) => {
   const I = d => figIndice(dates, d),
     der = dates.length - 1,
     out = [],
     rangs = {};
   const iDer = (t && I(t.derniere_seance_echangee)) ?? der;
-  const chemin = (points, prixDer) => {
+  const val = (a, b, i) => a[1] + (b[1] - a[1]) * (i - a[0]) / (b[0] - a[0]);
+  const droite2 = (points, i0, fin, arme, prixDer) => {
     const v = (points || []).map(p => [I(p.date), p.prix]).filter(p => p[0] != null);
-    if (v.length < 2) return v;
-    if (prixDer != null && iDer > v[v.length - 1][0]) v.push([iDer, prixDer]);
-    const [a, b] = v.slice(-2);
-    if (b[0] < der && b[0] !== a[0]) v.push([der, b[1] + (b[1] - a[1]) * (der - b[0]) / (b[0] - a[0])]);
-    return v;
+    if (v.length < 2 || v[0][0] === v[1][0]) return null;
+    const [a, b] = v,
+      d = i0 != null && i0 < a[0] ? [[i0, val(a, b, i0)]] : [];
+    d.push(a);
+    if (fin <= a[0]) return null;
+    if (fin < b[0]) {
+      d.push([fin, val(a, b, fin)]);
+      return d;
+    }
+    d.push(b);
+    if (arme && prixDer != null && iDer > b[0]) {
+      d.push([iDer, prixDer]);
+      if (der > iDer) d.push([der, prixDer + (prixDer - b[1]) * (der - iDer) / (iDer - b[0])]);
+    } else if (fin > b[0]) d.push([fin, val(a, b, fin)]);
+    return d;
   };
-  const droite = (nd, i0, fin, cloture, court) => {
+  const niveau = (nd, i0, fin, arme) => {
     if (!nd) return null;
-    if (nd.forme === "horizontal") return [[i0, nd.prix], [fin, nd.prix]];
-    const [a, b] = (nd.points || []).map(p => [I(p.date), p.prix]);
-    if (!a || !b || a[0] == null || b[0] == null || a[0] === b[0]) return null;
-    if (court) return [a, b];
-    if (!cloture) return chemin(nd.points, nd.prix_a_la_derniere_seance);
-    return [a, b, [fin, a[1] + (b[1] - a[1]) * (fin - a[0]) / (b[0] - a[0])]];
+    if (nd.forme === "horizontal") return fin > i0 ? [[i0, nd.prix], [fin, nd.prix]] : null;
+    return droite2(nd.points, i0, fin, arme, nd.prix_a_la_derniere_seance);
   };
-  pris.forEach(([k, e]) => {
-    const faible = e.statut === "invalidee" || e.statut === "expiree";
+  const auPoint = (d, i) => {
+    if (!d) return null;
+    for (let k = 1; k < d.length; k++) if (d[k][0] >= i) return val(d[k - 1], d[k], i);
+    return null;
+  };
+  pris.forEach(([k, e, id]) => {
+    const passee = figPassee(e),
+      vu = focus == null || focus === id;
+    const al = (passee ? .4 : .95) * (vu ? 1 : .18),
+      w = focus === id ? .7 : 0;
+    const arme = e.statut === "armee",
+      fd = figFin(e),
+      fin = arme || !fd ? der : I(fd) ?? der;
+    const ic = e.date_cassure ? I(e.date_cassure) : null;
     if (k === "figures") {
       const c = figCoul(figSens(e)),
-        al = faible ? .4 : .95,
         piv = e.pivots || [];
       const pts = piv.map(p => [I(p.date), p.prix]).filter(p => p[0] != null);
       if (pts.length < 2) return;
-      out.push({
-        k: "poly",
-        pts,
-        c,
-        w: 1.6,
-        al
-      });
-      const clos = e.date_cassure || e.date_fin,
-        fin = clos ? I(clos) ?? der : der;
-      [e.niveau_declenchement, e.niveau_declenchement_bas].forEach(nd => {
-        const d = droite(nd, pts[0][0], fin, !!clos, faible);
-        if (d) out.push({
-          k: "poly",
-          pts: d,
-          c,
-          w: 1,
-          al: al * .85,
-          tirets: [5, 4]
-        });
-      });
-      if (e.reperes_retracement && piv.length >= 3) {
-        const i0 = I(piv[1].date),
-          i1 = I(piv[2].date);
-        if (i0 != null && i1 != null) ["0.382", "0.618"].forEach(r => {
-          const v = e.reperes_retracement[r];
-          if (v != null) out.push({
+      const i0 = pts[0][0],
+        tri = /^triangle_/.test(e.type);
+      if (tri) {
+        const so = piv.filter(p => p.type === "sommet"),
+          cr = piv.filter(p => p.type === "creux");
+        const P2 = l => l.slice(0, 2).map(p => [I(p.date), p.prix]);
+        const [ha, hz] = P2(so),
+          [ba, bz] = P2(cr);
+        let pointe = fin;
+        if (ha && hz && ba && bz && ha[0] !== hz[0] && ba[0] !== bz[0]) {
+          const ph = (hz[1] - ha[1]) / (hz[0] - ha[0]),
+            pb = (bz[1] - ba[1]) / (bz[0] - ba[0]);
+          if (ph !== pb) {
+            const ia = (ba[1] - pb * ba[0] - ha[1] + ph * ha[0]) / (ph - pb);
+            if (ia > i0 && ia < fin) pointe = Math.floor(ia);
+          }
+        }
+        const hb = hz ? droite2(so, i0, Math.max(hz[0], pointe), false, null) : null;
+        const bb = bz ? droite2(cr, i0, Math.max(bz[0], pointe), false, null) : null;
+        [hb, bb].forEach(d => {
+          if (d) out.push({
             k: "poly",
-            pts: [[i0, v], [i1, v]],
-            c: "#ffd740",
-            w: 1,
-            al: .6,
-            tirets: [2, 3]
+            pts: d,
+            c,
+            w: 1.6 + w,
+            al,
+            id
           });
         });
-      }
-      if (e.date_cassure && e.niveau_declenchement) {
-        const ic = I(e.date_cassure),
-          d = droite(e.niveau_declenchement, pts[0][0], ic, true);
-        if (ic != null && d) out.push({
-          k: "point",
-          i: ic,
-          p: d[d.length - 1][1],
-          c,
-          al
+        const ic0 = pts[pts.length - 1][0];
+        [e.niveau_declenchement, e.niveau_declenchement_bas].forEach(nd => {
+          const d = niveau(nd, ic0, fin, arme);
+          if (d) out.push({
+            k: "poly",
+            pts: d,
+            c,
+            w: 1 + w,
+            al: al * .85,
+            tirets: [5, 4],
+            id
+          });
         });
-      }
-      const pv = piv[Math.floor(piv.length / 2)];
-      if (pv && I(pv.date) != null) {
-        const cle = I(pv.date) + "|" + (pv.type === "sommet");
-        rangs[cle] = (rangs[cle] || 0) + 1;
-        out.push({
+        const ir = Math.max(i0, Math.min(ic0, pointe - 1)),
+          yh = auPoint(hb, ir),
+          yb = auPoint(bb, ir);
+        if (yh != null && yb != null) out.push({
           k: "txt",
-          i: I(pv.date),
-          p: pv.prix,
+          i: ir,
+          p: (yh + yb) / 2,
           s: FIG_COURT[e.type] || e.type,
           c,
           al,
-          dessus: pv.type === "sommet",
-          rang: rangs[cle] - 1
+          centre: true,
+          id
+        });
+      } else {
+        const classique = !!FIG_CLASSIQUE[e.type];
+        out.push({
+          k: "poly",
+          pts,
+          c,
+          w: 1.6 + w,
+          al,
+          id
+        });
+        [e.niveau_declenchement, e.niveau_declenchement_bas].forEach(nd => {
+          const d = niveau(nd, i0, fin, arme);
+          if (!d) return;
+          out.push(classique ? {
+            k: "poly",
+            pts: d,
+            c,
+            w: 1.3 + w,
+            al: al * .9,
+            id
+          } : {
+            k: "poly",
+            pts: d,
+            c,
+            w: 1 + w,
+            al: al * .85,
+            tirets: [5, 4],
+            id
+          });
+          if (classique && nd === e.niveau_declenchement) {
+            const a = auPoint(d, pts[0][0]) ?? (nd.forme === "horizontal" ? nd.prix : null),
+              z = auPoint(d, pts[pts.length - 1][0]);
+            if (a != null && z != null) out.push({
+              k: "aire",
+              pts: [...pts, [pts[pts.length - 1][0], z], [pts[0][0], a]],
+              c,
+              al: .1 * (passee ? .6 : 1) * (vu ? 1 : .3),
+              id
+            });
+          }
+        });
+        if (e.reperes_retracement && piv.length >= 3) {
+          const a0 = I(piv[1].date),
+            a1 = I(piv[2].date);
+          if (a0 != null && a1 != null) ["0.382", "0.618"].forEach(r => {
+            const v = e.reperes_retracement[r];
+            if (v != null) out.push({
+              k: "poly",
+              pts: [[a0, v], [a1, v]],
+              c: "#ffd740",
+              w: 1,
+              al: .6 * (vu ? 1 : .3),
+              tirets: [2, 3],
+              id
+            });
+          });
+        }
+        const pose = (p, s, dessus) => {
+          const ir = I(p.date);
+          if (ir == null) return;
+          const cle = ir + "|" + dessus;
+          rangs[cle] = (rangs[cle] || 0) + 1;
+          out.push({
+            k: "txt",
+            i: ir,
+            p: p.prix,
+            s,
+            c,
+            al,
+            dessus,
+            rang: rangs[cle] - 1,
+            id
+          });
+        };
+        if ((e.type === "ete" || e.type === "ete_inversee") && piv.length >= 5) {
+          const dessus = e.type === "ete",
+            N = tel ? ["EG", "T", "ED"] : ["Épaule g.", "Tête", "Épaule d."];
+          [0, 2, 4].forEach((k, n) => pose(piv[k], N[n], dessus));
+        } else {
+          const rp = figRepere(e);
+          if (rp) pose(rp.p, FIG_COURT[e.type] || e.type, rp.dessus);
+        }
+      }
+      if (ic != null) {
+        const nd = /_bas$/.test(e.signal || "") && e.niveau_declenchement_bas ? e.niveau_declenchement_bas : e.niveau_declenchement;
+        const d = niveau(nd, i0, ic, false),
+          y = auPoint(d, ic);
+        if (y != null) out.push({
+          k: "croix",
+          i: ic,
+          p: y,
+          c,
+          al,
+          id
         });
       }
     } else if (k === "lignes") {
-      const al = faible ? .4 : .9,
-        c = "#4db8ff";
-      const d = chemin(e.points, e.prix_a_la_derniere_seance);
-      if (d.length >= 2) out.push({
+      const c = "#4db8ff",
+        i0 = null;
+      const d = droite2(e.points, i0, fin, arme, e.prix_a_la_derniere_seance);
+      if (d) out.push({
         k: "poly",
         pts: d,
         c,
-        w: 1.4,
-        al
+        w: 1.4 + w,
+        al: al * .95,
+        id
       });
       if (e.parallele) {
-        const q = chemin(e.parallele.points, e.parallele.prix_a_la_derniere_seance);
-        if (q.length >= 2) out.push({
+        const q = droite2(e.parallele.points, i0, fin, arme, e.parallele.prix_a_la_derniere_seance);
+        if (q) out.push({
           k: "poly",
           pts: q,
           c,
-          w: 1,
+          w: 1 + w,
           al: al * .8,
-          tirets: [6, 4]
+          tirets: [6, 4],
+          id
+        });
+      }
+      if (ic != null) {
+        const y = auPoint(d, ic);
+        if (y != null) out.push({
+          k: "croix",
+          i: ic,
+          p: y,
+          c,
+          al,
+          id
         });
       }
     } else if (k === "gaps") {
-      const i0 = I(e.date);
-      if (i0 == null) return;
-      const i1 = e.date_comblement ? I(e.date_comblement) ?? der : der;
+      const g0 = I(e.date);
+      if (g0 == null) return;
+      const g1 = e.date_comblement ? I(e.date_comblement) ?? der : der;
       const c = e.statut === "comble" ? "#8892a4" : e.type === "gap_baissier" ? "#ff4f5a" : "#00e5a0";
       out.push({
         k: "zone",
-        i0,
-        i1,
+        i0: g0,
+        i1: g1,
         hi: e.zone_haute,
         lo: e.zone_basse,
         c,
-        al: e.statut === "comble" ? .5 : 1
+        al: (e.statut === "comble" ? .5 : 1) * (vu ? 1 : .25),
+        id
       });
     }
   });
@@ -6178,7 +6355,7 @@ const creerDessins = () => {
       mediaSize
     }) => {
       formes.forEach(f => {
-        if (fond !== (f.k === "zone")) return;
+        if (fond !== (f.k === "zone" || f.k === "aire")) return;
         g.save();
         g.globalAlpha = f.al == null ? 1 : f.al;
         g.strokeStyle = f.c;
@@ -6214,6 +6391,19 @@ const creerDessins = () => {
           g.stroke();
           g.globalAlpha = .6 * (f.al || 1);
           g.strokeRect(x + .5, y + .5, w - 1, h - 1);
+        } else if (f.k === "aire") {
+          g.beginPath();
+          let ok = 0;
+          f.pts.forEach(([i, p]) => {
+            const x = X(i),
+              y = Y(p);
+            if (x == null || y == null) return;
+            ok++ ? g.lineTo(x, y) : g.moveTo(x, y);
+          });
+          if (ok > 2) {
+            g.closePath();
+            g.fill();
+          }
         } else if (f.k === "poly") {
           g.lineWidth = f.w || 1;
           g.setLineDash(f.tirets || []);
@@ -6226,13 +6416,18 @@ const creerDessins = () => {
             ok++ ? g.lineTo(x, y) : g.moveTo(x, y);
           });
           if (ok > 1) g.stroke();
-        } else if (f.k === "point") {
+        } else if (f.k === "croix") {
           const x = X(f.i),
             y = Y(f.p);
           if (x != null && y != null) {
+            g.lineWidth = 2;
+            g.setLineDash([]);
             g.beginPath();
-            g.arc(x, y, 3, 0, 2 * Math.PI);
-            g.fill();
+            g.moveTo(x - 4, y - 4);
+            g.lineTo(x + 4, y + 4);
+            g.moveTo(x - 4, y + 4);
+            g.lineTo(x + 4, y - 4);
+            g.stroke();
           }
         } else if (f.k === "txt") {
           const x = X(f.i),
@@ -6241,7 +6436,7 @@ const creerDessins = () => {
             g.font = "600 10px 'IBM Plex Mono','Courier New',monospace";
             const dy = 14 * (f.rang || 0),
               w = g.measureText(f.s).width + 6,
-              yy = f.dessus ? y - 16 - dy : y + 4 + dy;
+              yy = f.centre ? y - 6.5 : f.dessus ? y - 16 - dy : y + 4 + dy;
             g.globalAlpha = .85 * (f.al || 1);
             g.fillStyle = "#0d1829";
             g.fillRect(x - w / 2, yy, w, 13);
@@ -6289,10 +6484,14 @@ const LegendeFigures = ({
   etatF,
   fp,
   show,
-  period
+  period,
+  passees,
+  basculePassees,
+  focus,
+  choisir
 }) => {
   const actifs = [show.fig && "FIG", show.tend && "TEND", show.gap && "GAP"].filter(Boolean).join(" · ");
-  const boite = contenu => React.createElement("div", {
+  const boite = (contenu, interrupteur) => React.createElement("div", {
     className: "legende-sr legende-fig",
     style: {
       marginTop: 6,
@@ -6307,13 +6506,20 @@ const LegendeFigures = ({
     }
   }, React.createElement("div", {
     style: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "2px 10px",
+      alignItems: "baseline",
+      marginBottom: 2
+    }
+  }, React.createElement("span", {
+    style: {
       fontSize: 9,
       color: "#8892a4",
       letterSpacing: .6,
-      textTransform: "uppercase",
-      marginBottom: 2
+      textTransform: "uppercase"
     }
-  }, actifs, " \xB7 fen\xEAtre ", period, " \xB7 motifs constat\xE9s et dat\xE9s, pas des annonces"), contenu);
+  }, actifs, " \xB7 fen\xEAtre ", period, " \xB7 motifs constat\xE9s et dat\xE9s, pas des annonces"), interrupteur), contenu);
   if (etatF === "chargement" || !fp && etatF !== "erreur") return boite(React.createElement("div", {
     style: {
       color: "#8892a4"
@@ -6340,11 +6546,24 @@ const LegendeFigures = ({
     U = figUnivers(liq);
   const {
     pris,
-    hors
+    hors,
+    passees: nPassees
   } = vue.el || {
     pris: [],
-    hors: 0
+    hors: 0,
+    passees: 0
   };
+  const nbPassees = nPassees || (passees ? pris.filter(p => p[0] !== "gaps" && figPassee(p[1])).length : 0);
+  const lien = {
+    background: "none",
+    border: "none",
+    padding: 0,
+    color: "#4db8ff",
+    textDecoration: "underline",
+    cursor: "pointer",
+    font: "inherit"
+  };
+  const focusVu = pris.some(p => p[2] === focus) ? focus : null;
   const TAG = {
     figures: "FIG",
     lignes: "TEND",
@@ -6354,18 +6573,35 @@ const LegendeFigures = ({
     style: {
       color: "#8892a4"
     }
-  }, "Aucun \xE9l\xE9ment sur la fen\xEAtre ", period, hors > 0 ? ` — ${hors} plus ancien${hors > 1 ? "s" : ""} : élargir la fenêtre` : "", "."), pris.map(([k, e], n) => {
+  }, "Aucun \xE9l\xE9ment sur la fen\xEAtre ", period, hors > 0 ? ` — ${hors} plus ancien${hors > 1 ? "s" : ""} : élargir la fenêtre` : "", "."), pris.map(([k, e, id], n) => {
     const faible = e.statut === "invalidee" || e.statut === "expiree" || e.statut === "comble";
+    const estompe = focusVu != null && focusVu !== id;
     const c = k === "figures" ? figCoul(figSens(e)) : k === "lignes" ? "#4db8ff" : e.type === "gap_baissier" ? "#ff4f5a" : "#00e5a0";
     const txt = k === "figures" ? figLegende(e, fp, liq, an) : k === "lignes" ? ligneLegende(e, fp, liq, an) : gapLegende(e, fp, liq, an);
     return React.createElement("div", {
-      key: k + n,
+      key: id || k + n,
       className: "fig-ligne",
       "data-type": e.type,
       "data-statut": e.statut,
+      "data-id": id,
+      role: "button",
+      tabIndex: 0,
+      "aria-pressed": focusVu === id,
+      title: focusVu === id ? "Cliquer pour tout réafficher" : "Cliquer pour mettre cet élément en évidence sur le graphique",
+      onClick: () => choisir && choisir(id),
+      onKeyDown: ev => {
+        if ((ev.key === "Enter" || ev.key === " ") && choisir) {
+          ev.preventDefault();
+          choisir(id);
+        }
+      },
       style: {
         textWrap: "pretty",
-        opacity: faible ? .7 : 1
+        opacity: estompe ? .45 : faible ? .7 : 1,
+        cursor: "pointer",
+        borderLeft: `2px solid ${focusVu === id ? c : "transparent"}`,
+        paddingLeft: 4,
+        marginLeft: -6
       }
     }, React.createElement("span", {
       style: {
@@ -6373,13 +6609,26 @@ const LegendeFigures = ({
         fontWeight: 600
       }
     }, TAG[k]), " ", txt);
-  }), React.createElement("div", {
+  }), !passees && nbPassees > 0 && React.createElement("div", {
+    className: "fig-passees",
+    style: {
+      color: "#8892a4"
+    }
+  }, nbPassees, " figure", nbPassees > 1 ? "s" : "", " pass\xE9e", nbPassees > 1 ? "s" : "", " (invalid\xE9e", nbPassees > 1 ? "s" : "", " ou expir\xE9e", nbPassees > 1 ? "s" : "", ") masqu\xE9e", nbPassees > 1 ? "s" : "", "."), React.createElement("div", {
     style: {
       fontSize: 9.5,
       color: "#8892a4",
       marginTop: 2
     }
-  }, pris.length > 0 && hors > 0 && React.createElement(React.Fragment, null, hors, " \xE9l\xE9ment", hors > 1 ? "s" : "", " plus ancien", hors > 1 ? "s" : "", " que la fen\xEAtre, non trac\xE9", hors > 1 ? "s" : "", ". "), "Univers des fr\xE9quences : ", U.nom, ". Parts brutes de frais (2 % d'aller-retour non d\xE9duits), observations chevauchantes ; sous ", figMin(fp), " cas, aucun pourcentage. D\xE9tection sur les ", fp.methode && fp.methode.fenetre_seances || 60, " derni\xE8res s\xE9ances \xE9chang\xE9es, arr\xEAt\xE9e au ", figJour(fp.derniere_seance_du_marche), ". Fr\xE9quences pass\xE9es, pas des promesses \u2014 r\xE8gles : \xAB Comment lire \xBB.")));
+  }, pris.length > 0 && hors > 0 && React.createElement(React.Fragment, null, hors, " \xE9l\xE9ment", hors > 1 ? "s" : "", " plus ancien", hors > 1 ? "s" : "", " que la fen\xEAtre, non trac\xE9", hors > 1 ? "s" : "", ". "), pris.length > 1 && React.createElement(React.Fragment, null, "Clic sur une ligne : mettre l'\xE9l\xE9ment en \xE9vidence. "), "Univers des fr\xE9quences : ", U.nom, ". Parts brutes de frais (2 % d'aller-retour non d\xE9duits), observations chevauchantes ; sous ", figMin(fp), " cas, aucun pourcentage. D\xE9tection sur les ", fp.methode && fp.methode.fenetre_seances || 60, " derni\xE8res s\xE9ances \xE9chang\xE9es, arr\xEAt\xE9e au ", figJour(fp.derniere_seance_du_marche), ". Fr\xE9quences pass\xE9es, pas des promesses \u2014 r\xE8gles : \xAB Comment lire \xBB.")), nbPassees > 0 && React.createElement("button", {
+    className: "fig-interrupteur",
+    onClick: basculePassees,
+    "aria-pressed": !passees,
+    style: {
+      ...lien,
+      fontSize: 10
+    }
+  }, passees ? "Masquer" : "Afficher", " les figures pass\xE9es (", nbPassees, ")"));
 };
 const StockChart = ({
   r
@@ -6405,6 +6654,20 @@ const StockChart = ({
   const [showGap, setShowGap] = useState(false);
   const [figPub, setFigPub] = useState(FIG_PUB);
   const [figEtat, setFigEtat] = useState(FIG_PUB ? "ok" : null);
+  const [figPassees, setFigPassees] = useState(() => {
+    try {
+      return localStorage.getItem("bvc_fig_passees_masquees") !== "1";
+    } catch (e) {
+      return true;
+    }
+  });
+  const basculePassees = () => setFigPassees(v => {
+    try {
+      localStorage.setItem("bvc_fig_passees_masquees", v ? "1" : "0");
+    } catch (e) {}
+    return !v;
+  });
+  const [figFocus, setFigFocus] = useState(null);
   const basculeFig = set => {
     set(v => !v);
     if (FIG_PUB) {
@@ -6876,6 +7139,9 @@ const StockChart = ({
       title: `R ${fmtPrixFR(L.niveau)} · ${L.contacts}×`
     })));
   }, [sym, period, liveCandles, etat, plein, showBB, showIchi, showSR, showFib, fibAncres, fibAttente, mas, sr]);
+  useEffect(() => {
+    setFigFocus(null);
+  }, [sym, period]);
   const figVue = useMemo(() => {
     if (!(showFig || showTend || showGap) || !figPub || etat !== "ok" || !liveCandles || liveCandles.length < 5) return null;
     const dates = liveCandles.map(c => toDate(c.x));
@@ -6886,21 +7152,24 @@ const StockChart = ({
       el: figElements(t, dates[0], {
         fig: showFig,
         tend: showTend,
-        gap: showGap
+        gap: showGap,
+        passees: figPassees
       })
     };
-  }, [showFig, showTend, showGap, figPub, etat, liveCandles, sym]);
+  }, [showFig, showTend, showGap, figPassees, figPub, etat, liveCandles, sym]);
   useEffect(() => {
     const x = series.current;
     if (!x || !x.dessins) return;
     let f = [];
+    const focus = figVue && figVue.el && figVue.el.pris.some(p => p[2] === figFocus) ? figFocus : null;
+    const tel = (window.innerWidth || 1000) < 640;
     try {
-      f = figVue && figVue.el ? figFormes(figVue.el.pris, figVue.dates, figVue.t) : [];
+      f = figVue && figVue.el ? figFormes(figVue.el.pris, figVue.dates, figVue.t, focus, tel) : [];
     } catch (e) {
       f = [];
     }
     x.dessins.poser(f);
-  }, [figVue, sym, period, liveCandles, etat, plein]);
+  }, [figVue, figFocus, sym, period, liveCandles, etat, plein]);
   const changePeriod = p => {
     setPeriod(p);
     lsEcrire("bvc_period", p);
@@ -7151,7 +7420,11 @@ const StockChart = ({
       tend: showTend,
       gap: showGap
     },
-    period: period
+    period: period,
+    passees: figPassees,
+    basculePassees: basculePassees,
+    focus: figFocus,
+    choisir: id => setFigFocus(f => f === id ? null : id)
   }), etat === "ok" && React.createElement("div", {
     style: {
       fontSize: 9,
@@ -13319,7 +13592,7 @@ const Guide = ({
     titre: "S/R \u2014 supports et r\xE9sistances du graphique"
   }, "Tir\xE9s de la fen\xEAtre affich\xE9e : un creux est un plus-bas sous lequel aucune des 3 s\xE9ances \xE9chang\xE9es voisines, de chaque c\xF4t\xE9, ne descend \u2014 un sommet, l'inverse ; creux et sommets \xE0 moins de 1,2 % l'un de l'autre font un seul niveau, car un m\xEAme prix peut avoir \xE9t\xE9 l'un puis l'autre. Il faut au moins 10 s\xE9ances \xE9chang\xE9es dans la fen\xEAtre. ", React.createElement(T, null, "Contact"), " : un \xE9pisode \u2014 une ou plusieurs s\xE9ances \xE9chang\xE9es cons\xE9cutives dont la fourchette plus-bas\u2013plus-haut passe \xE0 moins de 1,2 % du niveau ; une s\xE9ance sans \xE9change au milieu ne le coupe pas. La m\xEAme tol\xE9rance de 1,2 % sert \xE0 regrouper les points et \xE0 compter les contacts, pour tous les titres. ", React.createElement(T, null, "Niveaux retenus"), " : les plus touch\xE9s de toute la fen\xEAtre, et non les plus proches du cours \u2014 au plus 3 au-dessus du dernier cours et 3 au niveau ou en dessous, \xE0 partir de 2 contacts ; \xE0 \xE9galit\xE9, le contact le plus r\xE9cent, puis le plus proche du cours. ", React.createElement(T, null, "Proche du cours"), " : de chaque c\xF4t\xE9, s'y ajoute au plus un niveau non retenu \u2014 le plus proche du cours parmi ceux qui ont au moins 2 contacts, respectent l'\xE9cart minimal avec les niveaux affich\xE9s et se trouvent \xE0 moins de 2 ATR(14) de la derni\xE8re cl\xF4ture. Il est trac\xE9 comme les autres et marqu\xE9 \xAB proche \xBB dans la l\xE9gende : un niveau moins touch\xE9 r\xE9appara\xEEt quand le cours s'en approche. Au plus 4 niveaux de chaque c\xF4t\xE9. ", React.createElement(T, null, "\xC9cart minimal"), " : deux niveaux trac\xE9s sont distants d'au moins 1 ATR(14) relatif du titre \u2014 la moyenne des 14 derni\xE8res \xE9tendues s\xE9ance (plus-haut \u2212 plus-bas, \xE9largi \xE0 la cl\xF4ture pr\xE9c\xE9dente) rapport\xE9e \xE0 la derni\xE8re cl\xF4ture \u2014 et jamais de moins de 2,4 % (deux fois la tol\xE9rance : en de\xE7\xE0, deux niveaux se partageraient leurs contacts). Un niveau trop proche d'un niveau mieux class\xE9 est \xE9cart\xE9, pas fusionn\xE9. La valeur du titre est \xE9crite sous la l\xE9gende. ", React.createElement(T, null, "Le mot suit la position"), " : au-dessus de la derni\xE8re cl\xF4ture, R\xE9sistance ; au niveau ou en dessous, Support. ", React.createElement(T, null, "Par-dessus, par-dessous"), " : la cl\xF4ture de la s\xE9ance \xE9chang\xE9e qui pr\xE9c\xE8de le contact dit d'o\xF9 le cours arrive \u2014 par-dessus, il joue le r\xF4le de support ; par-dessous, de r\xE9sistance. ", React.createElement(T, null, "Tenu"), " : un support abord\xE9 par-dessus dont la cl\xF4ture de fin d'\xE9pisode reste au niveau ou au-dessus (une r\xE9sistance : abord\xE9e par-dessous, cl\xF4ture au niveau ou en dessous). Un contact venu de l'autre c\xF4t\xE9 n'est ni tenu ni cass\xE9 : il est compt\xE9 \xE0 part. ", React.createElement(T, null, "Inversion"), " : quand les contacts passent d'un r\xF4le \xE0 l'autre une seule fois, la l\xE9gende l'\xE9crit \u2014 \xAB r\xE9sistance jusqu'au 12/06 (2), support depuis (3, tenu 2) \xBB : le dernier contact dans l'ancien r\xF4le est dat\xE9, et chaque r\xF4le porte son nombre de contacts. Quand les r\xF4les ont altern\xE9 plusieurs fois, elle ne nomme aucun r\xF4le : elle donne la p\xE9riode des contacts et les comptes par-dessus et par-dessous \u2014 \xAB 20 contacts du 12/11/25 au 12/10/26 : 12 par-dessus (tenu 8) \xB7 8 par-dessous \xBB. \xAB Sens inconnu \xBB : contact au d\xE9but de la fen\xEAtre, ou cl\xF4ture pr\xE9c\xE9dente pile au niveau. ", React.createElement(T, null, "S\xE9ances \xE9cart\xE9es"), " : volume nul \u2014 le titre n'a pas \xE9chang\xE9, ou la bougie a \xE9t\xE9 refaite depuis la seule cl\xF4ture \u2014 et bougie du jour reconstitu\xE9e depuis le dernier cours. Aucun plus-haut ni plus-bas n'y a \xE9t\xE9 atteint ou mesur\xE9 : elles fabriqueraient des creux. Elles restent dessin\xE9es. Des s\xE9ances pass\xE9es, compt\xE9es et dat\xE9es ; pas un niveau annonc\xE9."), React.createElement(L, {
     titre: "FIG \u2014 figures chartistes du graphique"
-  }, "Motifs relev\xE9s sur les cl\xF4tures des 60 derni\xE8res s\xE9ances \xE9chang\xE9es, r\xE8gles fix\xE9es avant toute mesure. Un sommet ou un creux est un retournement d'au moins 6 %, et n'existe qu'\xE0 sa date de ", React.createElement(T, null, "confirmation"), ". ", React.createElement(T, null, "Double creux (2C) / double sommet (2S)"), " : deux creux (sommets) \xE0 moins de 3 % l'un de l'autre, 15 \xE0 120 s\xE9ances d'\xE9cart, s\xE9par\xE9s d'au moins 8 %. ", React.createElement(T, null, "ETE / ETE invers\xE9e"), " : cinq pivots, \xE9paules \xE0 moins de 5 %, t\xEAte au-del\xE0 d'au moins 3 %. ", React.createElement(T, null, "Triangles"), " : quatre pivots altern\xE9s, c\xF4t\xE9 plat \xE0 2 %, c\xF4t\xE9 inclin\xE9 d'au moins 3 %. ", React.createElement(T, null, "Tasse avec anse"), " : creux de 12 \xE0 40 %. ", React.createElement(T, null, "Fibonacci"), " : rebond entre 38,2 et 61,8 % d'une hausse d'au moins 20 %. La silhouette relie les pivots, la ligne de cou est en pointill\xE9s. ", React.createElement(T, null, "Arm\xE9e"), " : form\xE9e, pas encore cass\xE9e ; ", React.createElement(T, null, "cassure"), " : cl\xF4ture au-del\xE0 de la ligne de cou ; ", React.createElement(T, null, "invalid\xE9e"), " : cl\xF4ture au-del\xE0 du niveau d'invalidation avant ; ", React.createElement(T, null, "expir\xE9e"), " : 40 s\xE9ances sans cassure (60 pour la tasse). Vert, rouge, violet : sens que le manuel pr\xEAte au motif \u2014 un nom, pas une annonce. ", React.createElement(T, null, "La fr\xE9quence"), " : sur N cas pass\xE9s (2023-2026), la part qui a fait mieux (motif haussier) ou moins bien (baissier) que le MASI 20 s\xE9ances apr\xE8s la cassure, frais de 2 % d'aller-retour ", React.createElement(T, null, "non d\xE9duits"), ". Une figure arm\xE9e n'a pas de fr\xE9quence propre : le chiffre d\xE9crit les cas o\xF9 la cassure a eu lieu. Sous 30 cas : \xAB \xE9chantillon insuffisant \xBB, aucun pourcentage."), React.createElement(L, {
+  }, "Motifs relev\xE9s sur les cl\xF4tures des 60 derni\xE8res s\xE9ances \xE9chang\xE9es, r\xE8gles fix\xE9es avant toute mesure. Un sommet ou un creux est un retournement d'au moins 6 %, et n'existe qu'\xE0 sa date de ", React.createElement(T, null, "confirmation"), ". ", React.createElement(T, null, "Double creux (2C) / double sommet (2S)"), " : deux creux (sommets) \xE0 moins de 3 % l'un de l'autre, 15 \xE0 120 s\xE9ances d'\xE9cart, s\xE9par\xE9s d'au moins 8 %. ", React.createElement(T, null, "ETE / ETE invers\xE9e"), " : cinq pivots, \xE9paules \xE0 moins de 5 %, t\xEAte au-del\xE0 d'au moins 3 %. ", React.createElement(T, null, "Triangles"), " : quatre pivots altern\xE9s, c\xF4t\xE9 plat \xE0 2 %, c\xF4t\xE9 inclin\xE9 d'au moins 3 %. ", React.createElement(T, null, "Tasse avec anse"), " : creux de 12 \xE0 40 %. ", React.createElement(T, null, "Fibonacci"), " : rebond entre 38,2 et 61,8 % d'une hausse d'au moins 20 %. La silhouette relie les pivots \u2014 pour un triangle, ses deux bornes ; la ligne de cou est en pointill\xE9s, sur l'\xE9tendue de sa figure, et une croix marque la cassure. Une figure ou une droite s'arr\xEAte \xE0 sa cassure, son invalidation ou son expiration ; seule une figure arm\xE9e se prolonge jusqu'\xE0 la derni\xE8re s\xE9ance. Les figures invalid\xE9es ou expir\xE9es sont trac\xE9es en p\xE2le (\xAB Masquer les figures pass\xE9es \xBB dans la l\xE9gende) ; ETE, ETE invers\xE9e et doubles creux ou sommets portent une ligne de cou en trait plein et une aire translucide, sans aucune projection de cours ; un clic sur une ligne de la l\xE9gende met sa figure en \xE9vidence. ", React.createElement(T, null, "Arm\xE9e"), " : form\xE9e, pas encore cass\xE9e ; ", React.createElement(T, null, "cassure"), " : cl\xF4ture au-del\xE0 de la ligne de cou ; ", React.createElement(T, null, "invalid\xE9e"), " : cl\xF4ture au-del\xE0 du niveau d'invalidation avant ; ", React.createElement(T, null, "expir\xE9e"), " : 40 s\xE9ances sans cassure (60 pour la tasse). Vert, rouge, violet : sens que le manuel pr\xEAte au motif \u2014 un nom, pas une annonce. ", React.createElement(T, null, "La fr\xE9quence"), " : sur N cas pass\xE9s (2023-2026), la part qui a fait mieux (motif haussier) ou moins bien (baissier) que le MASI 20 s\xE9ances apr\xE8s la cassure, frais de 2 % d'aller-retour ", React.createElement(T, null, "non d\xE9duits"), ". Une figure arm\xE9e n'a pas de fr\xE9quence propre : le chiffre d\xE9crit les cas o\xF9 la cassure a eu lieu. Sous 30 cas : \xAB \xE9chantillon insuffisant \xBB, aucun pourcentage."), React.createElement(L, {
     titre: "TEND \u2014 obliques et canaux"
   }, "M\xEAmes sommets et creux que FIG. ", React.createElement(T, null, "Oblique descendante"), " : la droite qui joint deux sommets descendants \xE9cart\xE9s de 20 \xE0 250 s\xE9ances, prolong\xE9e jusqu'\xE0 la derni\xE8re s\xE9ance ; cass\xE9e \xE0 la premi\xE8re cl\xF4ture au-dessus. ", React.createElement(T, null, "Oblique ascendante"), " : deux creux montants, cass\xE9e \xE0 la premi\xE8re cl\xF4ture en dessous. ", React.createElement(T, null, "Canal ascendant"), " : support par deux creux montants, parall\xE8le par le sommet qui les s\xE9pare (pointill\xE9s) ; rebond = retour \xE0 moins de 2 % du support puis cl\xF4ture 3 % au-dessus ; sortie par le bas = cl\xF4ture 2 % sous le support. Fr\xE9quence : m\xEAme lecture que FIG \u2014 apr\xE8s une cassure ou un rebond pass\xE9, frais non d\xE9duits, rien sous 30 cas."), React.createElement(L, {
     titre: "GAP \u2014 trous de cotation"
