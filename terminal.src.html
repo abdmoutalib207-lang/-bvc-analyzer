@@ -216,8 +216,12 @@
     .menu-item:hover{background:rgba(77,184,255,.07);box-shadow:none!important;}
     .menu-item.actif{border-left-color:#00e5a0;background:rgba(0,229,160,.08);color:#00e5a0;}
     .menu-flottant{display:none;}
-    /* Légende S/R : 10 px sur téléphone, deux lignes au plus par niveau (21/10/2026). */
-    @media (max-width:640px){.legende-sr .sr-ligne{font-size:10px;}}
+    /* Légende S/R : 10 px sur téléphone, deux lignes au plus par niveau (21/10/2026).
+       ⚠️ Le retrait passe de 8 à 6 px : à 390 px la ligne mesurait 318 px, soit
+       52,99 signes de 6 px — le navigateur en loge 52, pas 53, et 12 % des
+       niveaux de la fenêtre 3A repassaient à trois lignes (mesuré). */
+    @media (max-width:640px){.legende-sr .sr-ligne{font-size:10px;}
+      .legende-sr{padding-left:6px!important;padding-right:6px!important;}}
     @media (max-width:640px){
       .menu-flottant{display:flex;position:fixed;left:14px;bottom:18px;z-index:250;width:56px;height:56px;border-radius:50%;
         align-items:center;justify-content:center;background:#00e5a0;color:#080d1a;border:none;

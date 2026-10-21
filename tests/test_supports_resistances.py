@@ -348,7 +348,8 @@ def test_titre_court_sur_la_ligne_et_legende_datee():
 
 def test_la_legende_passe_a_10_px_sur_telephone():
     """Trois lignes par niveau à 390 px avant ; deux au plus visé."""
-    assert "@media (max-width:640px){.legende-sr .sr-ligne{font-size:10px;}}" in SRC
+    assert "@media (max-width:640px){.legende-sr .sr-ligne{font-size:10px;}" in SRC
+    assert ".legende-sr{padding-left:6px!important;padding-right:6px!important;}" in SRC
     assert 'className="sr-ligne"' in _bloc(SRC, "const LegendeSR=(")
 
 
