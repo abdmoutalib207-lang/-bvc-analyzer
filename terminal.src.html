@@ -1974,6 +1974,11 @@ const figFrequence=(fp,ref,liq,apres)=>{
 };
 const figNiveau=nd=>!nd?null:nd.forme==="horizontal"?fmtPrixFR(nd.prix)
   :nd.prix_a_la_derniere_seance!=null?`${fmtPrixFR(nd.prix_a_la_derniere_seance)} à la dernière séance`:null;
+/* Volume de la séance de cassure ÷ médiane des 20 séances échangées
+   précédentes (`volume_cassure_ratio`, PR #300). INFORMATION SEULE : aucun
+   jugement, aucun filtre — le chiffre, son unité, sa référence. */
+const figVolume=e=>e&&e.volume_cassure_ratio!=null&&isFinite(e.volume_cassure_ratio)
+  ?` (volume ×${(+e.volume_cassure_ratio).toLocaleString("fr-FR",{maximumFractionDigits:2})} la médiane des 20 séances précédentes)`:"";
 const figLegende=(f,fp,liq,an)=>{
   const lib=f.libelle||f.type,j=d=>figJour(d,an),refs=f.frequence_ref||[];
   const fr=()=>refs.map(r=>figFrequence(fp,r,liq,FIG_APRES[r]||"après une cassure")).join(" ; ");
@@ -1981,7 +1986,7 @@ const figLegende=(f,fp,liq,an)=>{
     return `${lib} — figure formée le ${j(f.date_confirmation)}, armée, pas encore cassée${nv?` (ligne de cou ${nv}${nb?`, bas ${nb}`:""})`:""} · ${fr()}`;}
   if(f.statut==="declenchee"){
     if(/^fibo_/.test(f.type))return `${lib} — constaté le ${j(f.date_constat||f.date_confirmation)} · ${fr()}`;
-    return `${lib} — cassure le ${j(f.date_cassure)} · ${fr()}`;}
+    return `${lib} — cassure le ${j(f.date_cassure)}${figVolume(f)} · ${fr()}`;}
   if(f.statut==="invalidee")return `${lib} — figure invalidée le ${j(f.date_fin)}, avant toute cassure`;
   if(f.statut==="expiree")return `${lib} — figure expirée le ${j(f.date_fin)}, sans cassure`;
   return lib;
@@ -1994,7 +1999,7 @@ const ligneLegende=(l,fp,liq,an)=>{
   if(l.statut==="armee")return `${lib} — ${trace}, ${canal?"ni rebond ni sortie":"pas encore cassée"} · ${fr(refs)}`;
   if(l.statut==="declenchee"){
     const quoi=l.signal==="canal_rebond_support"?"rebond sur le support":l.signal==="canal_cassure_bas"?"sortie par le bas":"cassure";
-    return `${lib} — ${trace} · ${quoi} le ${j(l.date_cassure)} · ${fr(l.signal?[l.signal]:refs)}`;}
+    return `${lib} — ${trace} · ${quoi} le ${j(l.date_cassure)}${figVolume(l)} · ${fr(l.signal?[l.signal]:refs)}`;}
   if(l.statut==="invalidee")return `${lib} — ${trace}, ${canal?"invalidé":"invalidée"} le ${j(l.date_fin)}, avant toute cassure`;
   if(l.statut==="expiree")return `${lib} — ${trace}, ${canal?"expiré":"expirée"} le ${j(l.date_fin)}, sans cassure`;
   return `${lib} — ${trace}`;
@@ -2026,73 +2031,157 @@ const gapLegende=(g,fp,liq,an)=>{
 };
 // Un élément n'est retenu que si TOUTES ses dates tombent dans la fenêtre.
 const figDebut=e=>e.pivots&&e.pivots.length?e.pivots[0].date:e.points&&e.points.length?e.points[0].date:e.date||null;
+/* FIGURES PASSÉES (invalidées, expirées) : tracées en pâle par défaut
+   (décision d'Abd Moutalib, 22/10/2026) ; un interrupteur de la légende les
+   masque (`show.passees` faux), elles sont alors seulement comptées.
+   Chaque élément porte un identifiant stable (`id`) : la légende s'en sert
+   pour mettre une figure en évidence. */
+const figPassee=e=>e.statut==="invalidee"||e.statut==="expiree";
 const figElements=(t,debut,show)=>{
-  const pris=[];let h=0;
-  if(!t||t.statut_titre!=="analyse")return{pris,hors:0};
+  const pris=[];let h=0,passees=0;
+  if(!t||t.statut_titre!=="analyse")return{pris,hors:0,passees:0};
   [["figures",show.fig],["lignes",show.tend],["gaps",show.gap]].forEach(([k,on])=>{if(!on)return;
-    (t[k]||[]).forEach(e=>{const d=figDebut(e);if(d&&debut&&d>=debut)pris.push([k,e]);else h++;});});
-  return{pris,hors:h};
+    (t[k]||[]).forEach((e,n)=>{const d=figDebut(e);
+      if(!(d&&debut&&d>=debut)){h++;return;}
+      if(k!=="gaps"&&figPassee(e)&&!show.passees){passees++;return;}
+      pris.push([k,e,k+":"+n]);});});
+  return{pris,hors:h,passees};
 };
 // Indice de la première séance affichée datée au plus tôt de `d` (recherche dichotomique).
 const figIndice=(dates,d)=>{if(!d)return null;let a=0,b=dates.length;while(a<b){const m=(a+b)>>1;if(dates[m]<d)a=m+1;else b=m;}return a<dates.length?a:null;};
+// Date de FIN DE VIE : cassure, invalidation ou expiration. Une figure ou
+// une droite ARMÉE n'en a pas — elle seule se prolonge jusqu'à la dernière séance.
+const figFin=e=>e.date_cassure||e.date_fin||(/^fibo_/.test(e.type||"")?(e.date_constat||e.date_confirmation):null);
+/* Où poser le repère : au point CARACTÉRISTIQUE de la figure, pas au pivot
+   central (« 2C » posé sur le sommet du milieu se lisait à l'envers).
+   Rend le pivot retenu et le côté : true = au-dessus. */
+const FIG_REPERE_BAS={double_creux:1,tasse_anse:1,ete_inversee:1};
+const FIG_CLASSIQUE={ete:1,ete_inversee:1,double_creux:1,double_sommet:1};
+const FIG_REPERE_HAUT={double_sommet:1,ete:1};
+const figRepere=e=>{
+  const piv=e.pivots||[],cr=piv.filter(p=>p.type==="creux"),so=piv.filter(p=>p.type==="sommet");
+  const min=l=>l.reduce((m,p)=>!m||p.prix<m.prix?p:m,null),max=l=>l.reduce((m,p)=>!m||p.prix>m.prix?p:m,null);
+  if(FIG_REPERE_BAS[e.type]&&cr.length)return{p:min(cr),dessus:false};
+  if(FIG_REPERE_HAUT[e.type]&&so.length)return{p:max(so),dessus:true};
+  if(/^fibo_/.test(e.type)&&piv.length)return{p:piv[piv.length-1],dessus:piv[piv.length-1].type==="sommet"};  // creux du rebond
+  const pv=piv[Math.floor(piv.length/2)];
+  return pv?{p:pv,dessus:pv.type==="sommet"}:null;
+};
 /* Formes en coordonnées (indice de séance, prix) ; le dessin les convertit en
    pixels à chaque image. ⚠️ Les droites du pipeline sont tracées en séances
    ÉCHANGÉES : on passe donc par les points PUBLIÉS (les deux points, puis le
    prix publié à la dernière séance échangée) plutôt que de reprolonger la
-   droite dans l'axe du graphique, qui compte aussi les séances sans échange. */
-const figFormes=(pris,dates,t)=>{
+   droite dans l'axe du graphique, qui compte aussi les séances sans échange.
+   `focus` : identifiant de l'élément mis en évidence (clic dans la légende),
+   les autres sont estompés. `tel` : écran de moins de 640 px (repères abrégés).
+   ETE, ETE inversée, doubles creux et sommets : dessin des références
+   classiques — ligne de cou en trait plein, aire translucide entre la
+   silhouette et la ligne de cou, épaules et tête nommées. ⚠️ Ni flèche
+   « objectif » ni report de la hauteur de la tête : les références les
+   dessinent, nous non — le produit ne prédit pas. */
+const figFormes=(pris,dates,t,focus,tel)=>{
   const I=d=>figIndice(dates,d),der=dates.length-1,out=[],rangs={};
   const iDer=(t&&I(t.derniere_seance_echangee))??der;
-  // Les points publiés, le prix publié à la dernière séance échangée, puis
-  // le prolongement jusqu'à la dernière séance affichée.
-  const chemin=(points,prixDer)=>{const v=(points||[]).map(p=>[I(p.date),p.prix]).filter(p=>p[0]!=null);
-    if(v.length<2)return v;
-    if(prixDer!=null&&iDer>v[v.length-1][0])v.push([iDer,prixDer]);
-    const [a,b]=v.slice(-2);
-    if(b[0]<der&&b[0]!==a[0])v.push([der,b[1]+(b[1]-a[1])*(der-b[0])/(b[0]-a[0])]);
-    return v;};
-  const droite=(nd,i0,fin,cloture,court)=>{
-    if(!nd)return null;
-    if(nd.forme==="horizontal")return[[i0,nd.prix],[fin,nd.prix]];
-    const [a,b]=(nd.points||[]).map(p=>[I(p.date),p.prix]);
-    if(!a||!b||a[0]==null||b[0]==null||a[0]===b[0])return null;
-    // Figure invalidée ou expirée : la ligne de cou s'arrête à ses deux
-    // points — prolongée, une oblique raide sortait du cadre (ADH, ETE inv.).
-    if(court)return[a,b];
-    if(!cloture)return chemin(nd.points,nd.prix_a_la_derniere_seance);
-    return[a,b,[fin,a[1]+(b[1]-a[1])*(fin-a[0])/(b[0]-a[0])]];
+  // Droite par deux points, du premier indice `i0` à `fin`. Armée (fin = la
+  // dernière séance) : on passe par le prix publié à la dernière séance échangée.
+  const val=(a,b,i)=>a[1]+(b[1]-a[1])*(i-a[0])/(b[0]-a[0]);
+  const droite2=(points,i0,fin,arme,prixDer)=>{
+    const v=(points||[]).map(p=>[I(p.date),p.prix]).filter(p=>p[0]!=null);
+    if(v.length<2||v[0][0]===v[1][0])return null;
+    const [a,b]=v,d=i0!=null&&i0<a[0]?[[i0,val(a,b,i0)]]:[];
+    d.push(a);
+    if(fin<=a[0])return null;
+    if(fin<b[0]){d.push([fin,val(a,b,fin)]);return d;}
+    d.push(b);
+    if(arme&&prixDer!=null&&iDer>b[0]){d.push([iDer,prixDer]);
+      if(der>iDer)d.push([der,prixDer+(prixDer-b[1])*(der-iDer)/(iDer-b[0])]);}
+    else if(fin>b[0])d.push([fin,val(a,b,fin)]);
+    return d;
   };
-  pris.forEach(([k,e])=>{
-    const faible=e.statut==="invalidee"||e.statut==="expiree";
+  const niveau=(nd,i0,fin,arme)=>{
+    if(!nd)return null;
+    if(nd.forme==="horizontal")return fin>i0?[[i0,nd.prix],[fin,nd.prix]]:null;
+    return droite2(nd.points,i0,fin,arme,nd.prix_a_la_derniere_seance);
+  };
+  const auPoint=(d,i)=>{if(!d)return null;for(let k=1;k<d.length;k++)if(d[k][0]>=i)return val(d[k-1],d[k],i);return null;};
+  pris.forEach(([k,e,id])=>{
+    const passee=figPassee(e),vu=focus==null||focus===id;
+    const al=(passee?.4:.95)*(vu?1:.18),w=focus===id?.7:0;
+    const arme=e.statut==="armee",fd=figFin(e),fin=arme||!fd?der:(I(fd)??der);
+    const ic=e.date_cassure?I(e.date_cassure):null;
     if(k==="figures"){
-      const c=figCoul(figSens(e)),al=faible?.4:.95,piv=e.pivots||[];
+      const c=figCoul(figSens(e)),piv=e.pivots||[];
       const pts=piv.map(p=>[I(p.date),p.prix]).filter(p=>p[0]!=null);
       if(pts.length<2)return;
-      out.push({k:"poly",pts,c,w:1.6,al});
-      const clos=e.date_cassure||e.date_fin,fin=clos?(I(clos)??der):der;
-      [e.niveau_declenchement,e.niveau_declenchement_bas].forEach(nd=>{const d=droite(nd,pts[0][0],fin,!!clos,faible);
-        if(d)out.push({k:"poly",pts:d,c,w:1,al:al*.85,tirets:[5,4]});});
-      if(e.reperes_retracement&&piv.length>=3){const i0=I(piv[1].date),i1=I(piv[2].date);
-        if(i0!=null&&i1!=null)["0.382","0.618"].forEach(r=>{const v=e.reperes_retracement[r];
-          if(v!=null)out.push({k:"poly",pts:[[i0,v],[i1,v]],c:"#ffd740",w:1,al:.6,tirets:[2,3]});});}
-      if(e.date_cassure&&e.niveau_declenchement){const ic=I(e.date_cassure),d=droite(e.niveau_declenchement,pts[0][0],ic,true);
-        if(ic!=null&&d)out.push({k:"point",i:ic,p:d[d.length-1][1],c,al});}
-      // Repère au pivot central ; plusieurs figures partagent souvent ce
-      // pivot (STR : 2S, tasse et ETE inv. au même creux) — on les empile.
-      const pv=piv[Math.floor(piv.length/2)];
-      if(pv&&I(pv.date)!=null){const cle=I(pv.date)+"|"+(pv.type==="sommet");rangs[cle]=(rangs[cle]||0)+1;
-        out.push({k:"txt",i:I(pv.date),p:pv.prix,s:FIG_COURT[e.type]||e.type,c,al,dessus:pv.type==="sommet",rang:rangs[cle]-1});}
+      const i0=pts[0][0],tri=/^triangle_/.test(e.type);
+      if(tri){
+        /* TRIANGLE : ses deux BORNES — haute par H1-H2, basse par L1-L2 —
+           du premier pivot à la fin de vie, jamais le zigzag des pivots, qui
+           se lisait comme une autre figure (un triangle descendant pris pour
+           un ascendant). */
+        const so=piv.filter(p=>p.type==="sommet"),cr=piv.filter(p=>p.type==="creux");
+        /* Les bornes s'arrêtent à la POINTE (leur croisement) si elle vient
+           avant la fin de vie — prolongées au-delà, elles se croisent et
+           l'une plonge hors du cadre (GAZ : deux sommets à 5 jours d'écart).
+           Chacune atteint au moins son second pivot. */
+        const P2=l=>l.slice(0,2).map(p=>[I(p.date),p.prix]);
+        const [ha,hz]=P2(so),[ba,bz]=P2(cr);
+        let pointe=fin;
+        if(ha&&hz&&ba&&bz&&ha[0]!==hz[0]&&ba[0]!==bz[0]){
+          const ph=(hz[1]-ha[1])/(hz[0]-ha[0]),pb=(bz[1]-ba[1])/(bz[0]-ba[0]);
+          if(ph!==pb){const ia=(ba[1]-pb*ba[0]-ha[1]+ph*ha[0])/(ph-pb);if(ia>i0&&ia<fin)pointe=Math.floor(ia);}}
+        const hb=hz?droite2(so,i0,Math.max(hz[0],pointe),false,null):null;
+        const bb=bz?droite2(cr,i0,Math.max(bz[0],pointe),false,null):null;
+        [hb,bb].forEach(d=>{if(d)out.push({k:"poly",pts:d,c,w:1.6+w,al,id});});
+        // Niveau de cassure : de la confirmation de la figure à sa fin de vie.
+        const ic0=pts[pts.length-1][0];
+        [e.niveau_declenchement,e.niveau_declenchement_bas].forEach(nd=>{const d=niveau(nd,ic0,fin,arme);
+          if(d)out.push({k:"poly",pts:d,c,w:1+w,al:al*.85,tirets:[5,4],id});});
+        // Repère À L'INTÉRIEUR, près de la pointe : entre les deux bornes, au
+        // dernier pivot — le point de la figure le plus proche de la pointe.
+        // Plus loin, les bornes prolongées peuvent s'être croisées (GAZ).
+        const ir=Math.max(i0,Math.min(ic0,pointe-1)),yh=auPoint(hb,ir),yb=auPoint(bb,ir);
+        if(yh!=null&&yb!=null)out.push({k:"txt",i:ir,p:(yh+yb)/2,s:FIG_COURT[e.type]||e.type,c,al,centre:true,id});
+      }else{
+        const classique=!!FIG_CLASSIQUE[e.type];
+        out.push({k:"poly",pts,c,w:1.6+w,al,id});
+        // Ligne de cou : sur l'étendue de SA figure, dans SA couleur — en
+        // trait plein pour les figures classiques, en tirets sinon.
+        [e.niveau_declenchement,e.niveau_declenchement_bas].forEach(nd=>{const d=niveau(nd,i0,fin,arme);
+          if(!d)return;
+          out.push(classique?{k:"poly",pts:d,c,w:1.3+w,al:al*.9,id}:{k:"poly",pts:d,c,w:1+w,al:al*.85,tirets:[5,4],id});
+          if(classique&&nd===e.niveau_declenchement){
+            // Aire entre la silhouette et la ligne de cou (≈ 10 % d'opacité).
+            const a=auPoint(d,pts[0][0])??(nd.forme==="horizontal"?nd.prix:null),z=auPoint(d,pts[pts.length-1][0]);
+            if(a!=null&&z!=null)out.push({k:"aire",pts:[...pts,[pts[pts.length-1][0],z],[pts[0][0],a]],c,al:.1*(passee?.6:1)*(vu?1:.3),id});}
+        });
+        if(e.reperes_retracement&&piv.length>=3){const a0=I(piv[1].date),a1=I(piv[2].date);
+          if(a0!=null&&a1!=null)["0.382","0.618"].forEach(r=>{const v=e.reperes_retracement[r];
+            if(v!=null)out.push({k:"poly",pts:[[a0,v],[a1,v]],c:"#ffd740",w:1,al:.6*(vu?1:.3),tirets:[2,3],id});});}
+        const pose=(p,s,dessus)=>{const ir=I(p.date);if(ir==null)return;const cle=ir+"|"+dessus;rangs[cle]=(rangs[cle]||0)+1;
+          out.push({k:"txt",i:ir,p:p.prix,s,c,al,dessus,rang:rangs[cle]-1,id});};
+        if((e.type==="ete"||e.type==="ete_inversee")&&piv.length>=5){
+          // Épaule gauche, tête, épaule droite : S1 N1 T N2 S2.
+          const dessus=e.type==="ete",N=tel?["EG","T","ED"]:["Épaule g.","Tête","Épaule d."];
+          [0,2,4].forEach((k,n)=>pose(piv[k],N[n],dessus));
+        }else{const rp=figRepere(e);if(rp)pose(rp.p,FIG_COURT[e.type]||e.type,rp.dessus);}
+      }
+      // Croix à la cassure, sur le niveau franchi.
+      if(ic!=null){const nd=/_bas$/.test(e.signal||"")&&e.niveau_declenchement_bas?e.niveau_declenchement_bas:e.niveau_declenchement;
+        const d=niveau(nd,i0,ic,false),y=auPoint(d,ic);
+        if(y!=null)out.push({k:"croix",i:ic,p:y,c,al,id});}
     }else if(k==="lignes"){
-      const al=faible?.4:.9,c="#4db8ff";
-      const d=chemin(e.points,e.prix_a_la_derniere_seance);
-      if(d.length>=2)out.push({k:"poly",pts:d,c,w:1.4,al});
-      if(e.parallele){const q=chemin(e.parallele.points,e.parallele.prix_a_la_derniere_seance);
-        if(q.length>=2)out.push({k:"poly",pts:q,c,w:1,al:al*.8,tirets:[6,4]});}
+      const c="#4db8ff",i0=null;
+      const d=droite2(e.points,i0,fin,arme,e.prix_a_la_derniere_seance);
+      if(d)out.push({k:"poly",pts:d,c,w:1.4+w,al:al*.95,id});
+      if(e.parallele){const q=droite2(e.parallele.points,i0,fin,arme,e.parallele.prix_a_la_derniere_seance);
+        if(q)out.push({k:"poly",pts:q,c,w:1+w,al:al*.8,tirets:[6,4],id});}
+      if(ic!=null){const y=auPoint(d,ic);if(y!=null)out.push({k:"croix",i:ic,p:y,c,al,id});}
     }else if(k==="gaps"){
-      const i0=I(e.date);if(i0==null)return;
-      const i1=e.date_comblement?(I(e.date_comblement)??der):der;
+      const g0=I(e.date);if(g0==null)return;
+      const g1=e.date_comblement?(I(e.date_comblement)??der):der;
       const c=e.statut==="comble"?"#8892a4":e.type==="gap_baissier"?"#ff4f5a":"#00e5a0";
-      out.push({k:"zone",i0,i1,hi:e.zone_haute,lo:e.zone_basse,c,al:e.statut==="comble"?.5:1});
+      out.push({k:"zone",i0:g0,i1:g1,hi:e.zone_haute,lo:e.zone_basse,c,al:(e.statut==="comble"?.5:1)*(vu?1:.25),id});
     }
   });
   return out;
@@ -2110,7 +2199,7 @@ const creerDessins=()=>{
     const X=i=>ts.logicalToCoordinate(i),Y=p=>se.priceToCoordinate(p);
     target.useMediaCoordinateSpace(({context:g,mediaSize})=>{
       formes.forEach(f=>{
-        if(fond!==(f.k==="zone"))return;
+        if(fond!==(f.k==="zone"||f.k==="aire"))return;
         g.save();g.globalAlpha=f.al==null?1:f.al;g.strokeStyle=f.c;g.fillStyle=f.c;
         if(f.k==="zone"){
           // ⚠️ logicalToCoordinate ne rend rien d'utile sur un indice non
@@ -2123,17 +2212,23 @@ const creerDessins=()=>{
           g.beginPath();g.rect(x,y,w,h);g.clip();g.globalAlpha=.38*(f.al||1);g.lineWidth=1;
           g.beginPath();for(let k=x-h;k<x+w;k+=6){g.moveTo(k,y+h);g.lineTo(k+h,y);}g.stroke();
           g.globalAlpha=.6*(f.al||1);g.strokeRect(x+.5,y+.5,w-1,h-1);
+        }else if(f.k==="aire"){
+          g.beginPath();let ok=0;
+          f.pts.forEach(([i,p])=>{const x=X(i),y=Y(p);if(x==null||y==null)return;ok++?g.lineTo(x,y):g.moveTo(x,y);});
+          if(ok>2){g.closePath();g.fill();}
         }else if(f.k==="poly"){
           g.lineWidth=f.w||1;g.setLineDash(f.tirets||[]);g.beginPath();let ok=0;
           f.pts.forEach(([i,p])=>{const x=X(i),y=Y(p);if(x==null||y==null)return;ok++?g.lineTo(x,y):g.moveTo(x,y);});
           if(ok>1)g.stroke();
-        }else if(f.k==="point"){
-          const x=X(f.i),y=Y(f.p);if(x!=null&&y!=null){g.beginPath();g.arc(x,y,3,0,2*Math.PI);g.fill();}
+        }else if(f.k==="croix"){
+          const x=X(f.i),y=Y(f.p);
+          if(x!=null&&y!=null){g.lineWidth=2;g.setLineDash([]);g.beginPath();
+            g.moveTo(x-4,y-4);g.lineTo(x+4,y+4);g.moveTo(x-4,y+4);g.lineTo(x+4,y-4);g.stroke();}
         }else if(f.k==="txt"){
           const x=X(f.i),y=Y(f.p);
           if(x!=null&&y!=null&&x>-40&&x<mediaSize.width+40){
             g.font="600 10px 'IBM Plex Mono','Courier New',monospace";
-            const dy=14*(f.rang||0),w=g.measureText(f.s).width+6,yy=f.dessus?y-16-dy:y+4+dy;
+            const dy=14*(f.rang||0),w=g.measureText(f.s).width+6,yy=f.centre?y-6.5:f.dessus?y-16-dy:y+4+dy;
             g.globalAlpha=.85*(f.al||1);g.fillStyle="#0d1829";g.fillRect(x-w/2,yy,w,13);
             g.globalAlpha=f.al||1;g.strokeStyle=f.c;g.lineWidth=1;g.strokeRect(x-w/2+.5,yy+.5,w-1,12);
             g.fillStyle=f.c;g.textBaseline="top";g.fillText(f.s,x-w/2+3,yy+1.5);
@@ -2151,11 +2246,14 @@ const creerDessins=()=>{
     poser:f=>{formes=f||[];if(P)P.requestUpdate();},
   };
 };
-const LegendeFigures=({vue,etatF,fp,show,period})=>{
+const LegendeFigures=({vue,etatF,fp,show,period,passees,basculePassees,focus,choisir})=>{
   const actifs=[show.fig&&"FIG",show.tend&&"TEND",show.gap&&"GAP"].filter(Boolean).join(" · ");
-  const boite=contenu=>(
+  const boite=(contenu,interrupteur)=>(
     <div className="legende-sr legende-fig" style={{marginTop:6,padding:"5px 8px",background:"#0a1220",border:"1px solid #1a2540",borderRadius:4,fontSize:11,lineHeight:1.5,color:"#c8d3e8",fontVariantNumeric:"tabular-nums"}}>
-      <div style={{fontSize:9,color:"#8892a4",letterSpacing:.6,textTransform:"uppercase",marginBottom:2}}>{actifs} · fenêtre {period} · motifs constatés et datés, pas des annonces</div>
+      <div style={{display:"flex",flexWrap:"wrap",gap:"2px 10px",alignItems:"baseline",marginBottom:2}}>
+        <span style={{fontSize:9,color:"#8892a4",letterSpacing:.6,textTransform:"uppercase"}}>{actifs} · fenêtre {period} · motifs constatés et datés, pas des annonces</span>
+        {interrupteur}
+      </div>
       {contenu}
     </div>);
   if(etatF==="chargement"||(!fp&&etatF!=="erreur"))return boite(<div style={{color:"#8892a4"}}>Chargement des figures…</div>);
@@ -2164,24 +2262,33 @@ const LegendeFigures=({vue,etatF,fp,show,period})=>{
   if(!t)return boite(<div style={{color:"#8892a4"}}>Ce titre n'est pas couvert par le fichier des figures.</div>);
   if(t.statut_titre!=="analyse")return boite(<div style={{color:"#ffd740"}}>Rien n'est tracé pour ce titre : {t.raison||"non analysé"}.</div>);
   const an=(fp.derniere_seance_du_marche||"").slice(0,4),liq=!!t.liquide,U=figUnivers(liq);
-  const {pris,hors}=vue.el||{pris:[],hors:0};
+  const {pris,hors,passees:nPassees}=vue.el||{pris:[],hors:0,passees:0};
+  const nbPassees=nPassees||(passees?pris.filter(p=>p[0]!=="gaps"&&figPassee(p[1])).length:0);
+  const lien={background:"none",border:"none",padding:0,color:"#4db8ff",textDecoration:"underline",cursor:"pointer",font:"inherit"};
+  const focusVu=pris.some(p=>p[2]===focus)?focus:null;
   const TAG={figures:"FIG",lignes:"TEND",gaps:"GAP"};
   return boite(<>
     {pris.length===0&&<div style={{color:"#8892a4"}}>Aucun élément sur la fenêtre {period}{hors>0?` — ${hors} plus ancien${hors>1?"s":""} : élargir la fenêtre`:""}.</div>}
-    {pris.map(([k,e],n)=>{
+    {pris.map(([k,e,id],n)=>{
       const faible=e.statut==="invalidee"||e.statut==="expiree"||e.statut==="comble";
+      const estompe=focusVu!=null&&focusVu!==id;
       const c=k==="figures"?figCoul(figSens(e)):k==="lignes"?"#4db8ff":e.type==="gap_baissier"?"#ff4f5a":"#00e5a0";
       const txt=k==="figures"?figLegende(e,fp,liq,an):k==="lignes"?ligneLegende(e,fp,liq,an):gapLegende(e,fp,liq,an);
       return(
-        <div key={k+n} className="fig-ligne" data-type={e.type} data-statut={e.statut} style={{textWrap:"pretty",opacity:faible?.7:1}}>
+        <div key={id||k+n} className="fig-ligne" data-type={e.type} data-statut={e.statut} data-id={id}
+          role="button" tabIndex={0} aria-pressed={focusVu===id}
+          title={focusVu===id?"Cliquer pour tout réafficher":"Cliquer pour mettre cet élément en évidence sur le graphique"}
+          onClick={()=>choisir&&choisir(id)} onKeyDown={ev=>{if((ev.key==="Enter"||ev.key===" ")&&choisir){ev.preventDefault();choisir(id);}}}
+          style={{textWrap:"pretty",opacity:estompe?.45:faible?.7:1,cursor:"pointer",borderLeft:`2px solid ${focusVu===id?c:"transparent"}`,paddingLeft:4,marginLeft:-6}}>
           <span style={{color:c,fontWeight:600}}>{TAG[k]}</span> {txt}
         </div>);
     })}
+    {!passees&&nbPassees>0&&<div className="fig-passees" style={{color:"#8892a4"}}>{nbPassees} figure{nbPassees>1?"s":""} passée{nbPassees>1?"s":""} (invalidée{nbPassees>1?"s":""} ou expirée{nbPassees>1?"s":""}) masquée{nbPassees>1?"s":""}.</div>}
     <div style={{fontSize:9.5,color:"#8892a4",marginTop:2}}>
       {pris.length>0&&hors>0&&<>{hors} élément{hors>1?"s":""} plus ancien{hors>1?"s":""} que la fenêtre, non tracé{hors>1?"s":""}. </>}
-      Univers des fréquences : {U.nom}. Parts brutes de frais (2 % d'aller-retour non déduits), observations chevauchantes ; sous {figMin(fp)} cas, aucun pourcentage. Détection sur les {(fp.methode&&fp.methode.fenetre_seances)||60} dernières séances échangées, arrêtée au {figJour(fp.derniere_seance_du_marche)}. Fréquences passées, pas des promesses — règles : « Comment lire ».
+      {pris.length>1&&<>Clic sur une ligne : mettre l'élément en évidence. </>}Univers des fréquences : {U.nom}. Parts brutes de frais (2 % d'aller-retour non déduits), observations chevauchantes ; sous {figMin(fp)} cas, aucun pourcentage. Détection sur les {(fp.methode&&fp.methode.fenetre_seances)||60} dernières séances échangées, arrêtée au {figJour(fp.derniere_seance_du_marche)}. Fréquences passées, pas des promesses — règles : « Comment lire ».
     </div>
-  </>);
+  </>,nbPassees>0&&<button className="fig-interrupteur" onClick={basculePassees} aria-pressed={!passees} style={{...lien,fontSize:10}}>{passees?"Masquer":"Afficher"} les figures passées ({nbPassees})</button>);
 };
 
 const StockChart=({r})=>{
@@ -2223,6 +2330,12 @@ const StockChart=({r})=>{
   const [showGap,setShowGap]=useState(false);
   const [figPub,setFigPub]=useState(FIG_PUB);
   const [figEtat,setFigEtat]=useState(FIG_PUB?"ok":null);   // null · chargement · ok · erreur
+  // Figures passées (invalidées, expirées) : masquées tant qu'on ne les demande pas.
+  // Vrai : figures passées tracées en pâle (défaut). Le choix de les masquer est retenu.
+  const [figPassees,setFigPassees]=useState(()=>{try{return localStorage.getItem("bvc_fig_passees_masquees")!=="1";}catch(e){return true;}});
+  const basculePassees=()=>setFigPassees(v=>{try{localStorage.setItem("bvc_fig_passees_masquees",v?"1":"0");}catch(e){}return !v;});
+  // Élément mis en évidence par un clic dans la légende (null : aucun).
+  const [figFocus,setFigFocus]=useState(null);
   const basculeFig=set=>{
     set(v=>!v);
     if(FIG_PUB){setFigPub(FIG_PUB);setFigEtat("ok");return;}
@@ -2465,19 +2578,23 @@ const StockChart=({r})=>{
   /* Ce que FIG · TEND · GAP montrent sur la fenêtre affichée — calculé une
      fois, lu par le dessin ET par la légende. ⚠️ Déclaré AVANT l'effet qui le
      cite (même piège que `sr`). */
+  // ⚠️ Après `const sym` : le citer plus haut casse tout le terminal (vu le 22/10).
+  useEffect(()=>{setFigFocus(null);},[sym,period]);
   const figVue=useMemo(()=>{
     if(!(showFig||showTend||showGap)||!figPub||etat!=="ok"||!liveCandles||liveCandles.length<5)return null;
     const dates=liveCandles.map(c=>toDate(c.x));
     const t=(figPub.titres||{})[sym]||null;
-    return{t,dates,el:figElements(t,dates[0],{fig:showFig,tend:showTend,gap:showGap})};
-  },[showFig,showTend,showGap,figPub,etat,liveCandles,sym]);
+    return{t,dates,el:figElements(t,dates[0],{fig:showFig,tend:showTend,gap:showGap,passees:figPassees})};
+  },[showFig,showTend,showGap,figPassees,figPub,etat,liveCandles,sym]);
   useEffect(()=>{
     const x=series.current;
     if(!x||!x.dessins)return;
     let f=[];
-    try{f=figVue&&figVue.el?figFormes(figVue.el.pris,figVue.dates,figVue.t):[];}catch(e){f=[];}
+    const focus=figVue&&figVue.el&&figVue.el.pris.some(p=>p[2]===figFocus)?figFocus:null;
+    const tel=(window.innerWidth||1000)<640;
+    try{f=figVue&&figVue.el?figFormes(figVue.el.pris,figVue.dates,figVue.t,focus,tel):[];}catch(e){f=[];}
     x.dessins.poser(f);
-  },[figVue,sym,period,liveCandles,etat,plein]);
+  },[figVue,figFocus,sym,period,liveCandles,etat,plein]);
 
   const changePeriod=(p)=>{setPeriod(p);lsEcrire("bvc_period",p);};
   const reinitialiser=()=>{if(chartMain.current&&liveCandles)vueEntiere(chartMain.current,liveCandles.length);};
@@ -2547,7 +2664,8 @@ const StockChart=({r})=>{
       <div style={{fontSize:8,color:"#8892a4",letterSpacing:1,marginTop:2}}>MACD (12,26,9) · <span style={{color:"#4db8ff"}}>MACD</span> · <span style={{color:"#ffd740"}}>Signal</span></div>
       <div ref={refMacd}/>
       {showSR&&etat==="ok"&&<LegendeSR sr={sr} candles={liveCandles} period={period}/>}
-      {(showFig||showTend||showGap)&&etat==="ok"&&<LegendeFigures vue={figVue} etatF={figEtat} fp={figPub} show={{fig:showFig,tend:showTend,gap:showGap}} period={period}/>}
+      {(showFig||showTend||showGap)&&etat==="ok"&&<LegendeFigures vue={figVue} etatF={figEtat} fp={figPub} show={{fig:showFig,tend:showTend,gap:showGap}} period={period}
+        passees={figPassees} basculePassees={basculePassees} focus={figFocus} choisir={id=>setFigFocus(f=>f===id?null:id)}/>}
       {etat==="ok"&&<div style={{fontSize:9,color:"#8892a4",marginTop:4}}>Pincer ou molette : zoom · Glisser : déplacer · Double-clic : vue de départ</div>}
     </div>
   );
@@ -5005,7 +5123,7 @@ const Guide=({setTab})=>{
       <L titre="Fiabilité des données ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>
       <L titre="« X % gagnants (IC) · n cas » — fiche, Signaux techniques">Sur n cas passés à la BVC où le même signal est apparu, X % ont battu le MASI 60 séances après ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fréquence passée, pas une promesse.</L>
       <L titre="S/R — supports et résistances du graphique">Tirés de la fenêtre affichée : un creux est un plus-bas sous lequel aucune des 3 séances échangées voisines, de chaque côté, ne descend — un sommet, l'inverse ; creux et sommets à moins de 1,2 % l'un de l'autre font un seul niveau, car un même prix peut avoir été l'un puis l'autre. Il faut au moins 10 séances échangées dans la fenêtre. <T>Contact</T> : un épisode — une ou plusieurs séances échangées consécutives dont la fourchette plus-bas–plus-haut passe à moins de 1,2 % du niveau ; une séance sans échange au milieu ne le coupe pas. La même tolérance de 1,2 % sert à regrouper les points et à compter les contacts, pour tous les titres. <T>Niveaux retenus</T> : les plus touchés de toute la fenêtre, et non les plus proches du cours — au plus 3 au-dessus du dernier cours et 3 au niveau ou en dessous, à partir de 2 contacts ; à égalité, le contact le plus récent, puis le plus proche du cours. <T>Proche du cours</T> : de chaque côté, s'y ajoute au plus un niveau non retenu — le plus proche du cours parmi ceux qui ont au moins 2 contacts, respectent l'écart minimal avec les niveaux affichés et se trouvent à moins de 2 ATR(14) de la dernière clôture. Il est tracé comme les autres et marqué « proche » dans la légende : un niveau moins touché réapparaît quand le cours s'en approche. Au plus 4 niveaux de chaque côté. <T>Écart minimal</T> : deux niveaux tracés sont distants d'au moins 1 ATR(14) relatif du titre — la moyenne des 14 dernières étendues séance (plus-haut − plus-bas, élargi à la clôture précédente) rapportée à la dernière clôture — et jamais de moins de 2,4 % (deux fois la tolérance : en deçà, deux niveaux se partageraient leurs contacts). Un niveau trop proche d'un niveau mieux classé est écarté, pas fusionné. La valeur du titre est écrite sous la légende. <T>Le mot suit la position</T> : au-dessus de la dernière clôture, Résistance ; au niveau ou en dessous, Support. <T>Par-dessus, par-dessous</T> : la clôture de la séance échangée qui précède le contact dit d'où le cours arrive — par-dessus, il joue le rôle de support ; par-dessous, de résistance. <T>Tenu</T> : un support abordé par-dessus dont la clôture de fin d'épisode reste au niveau ou au-dessus (une résistance : abordée par-dessous, clôture au niveau ou en dessous). Un contact venu de l'autre côté n'est ni tenu ni cassé : il est compté à part. <T>Inversion</T> : quand les contacts passent d'un rôle à l'autre une seule fois, la légende l'écrit — « résistance jusqu'au 12/06 (2), support depuis (3, tenu 2) » : le dernier contact dans l'ancien rôle est daté, et chaque rôle porte son nombre de contacts. Quand les rôles ont alterné plusieurs fois, elle ne nomme aucun rôle : elle donne la période des contacts et les comptes par-dessus et par-dessous — « 20 contacts du 12/11/25 au 12/10/26 : 12 par-dessus (tenu 8) · 8 par-dessous ». « Sens inconnu » : contact au début de la fenêtre, ou clôture précédente pile au niveau. <T>Séances écartées</T> : volume nul — le titre n'a pas échangé, ou la bougie a été refaite depuis la seule clôture — et bougie du jour reconstituée depuis le dernier cours. Aucun plus-haut ni plus-bas n'y a été atteint ou mesuré : elles fabriqueraient des creux. Elles restent dessinées. Des séances passées, comptées et datées ; pas un niveau annoncé.</L>
-      <L titre="FIG — figures chartistes du graphique">Motifs relevés sur les clôtures des 60 dernières séances échangées, règles fixées avant toute mesure. Un sommet ou un creux est un retournement d'au moins 6 %, et n'existe qu'à sa date de <T>confirmation</T>. <T>Double creux (2C) / double sommet (2S)</T> : deux creux (sommets) à moins de 3 % l'un de l'autre, 15 à 120 séances d'écart, séparés d'au moins 8 %. <T>ETE / ETE inversée</T> : cinq pivots, épaules à moins de 5 %, tête au-delà d'au moins 3 %. <T>Triangles</T> : quatre pivots alternés, côté plat à 2 %, côté incliné d'au moins 3 %. <T>Tasse avec anse</T> : creux de 12 à 40 %. <T>Fibonacci</T> : rebond entre 38,2 et 61,8 % d'une hausse d'au moins 20 %. La silhouette relie les pivots, la ligne de cou est en pointillés. <T>Armée</T> : formée, pas encore cassée ; <T>cassure</T> : clôture au-delà de la ligne de cou ; <T>invalidée</T> : clôture au-delà du niveau d'invalidation avant ; <T>expirée</T> : 40 séances sans cassure (60 pour la tasse). Vert, rouge, violet : sens que le manuel prête au motif — un nom, pas une annonce. <T>La fréquence</T> : sur N cas passés (2023-2026), la part qui a fait mieux (motif haussier) ou moins bien (baissier) que le MASI 20 séances après la cassure, frais de 2 % d'aller-retour <T>non déduits</T>. Une figure armée n'a pas de fréquence propre : le chiffre décrit les cas où la cassure a eu lieu. Sous 30 cas : « échantillon insuffisant », aucun pourcentage.</L>
+      <L titre="FIG — figures chartistes du graphique">Motifs relevés sur les clôtures des 60 dernières séances échangées, règles fixées avant toute mesure. Un sommet ou un creux est un retournement d'au moins 6 %, et n'existe qu'à sa date de <T>confirmation</T>. <T>Double creux (2C) / double sommet (2S)</T> : deux creux (sommets) à moins de 3 % l'un de l'autre, 15 à 120 séances d'écart, séparés d'au moins 8 %. <T>ETE / ETE inversée</T> : cinq pivots, épaules à moins de 5 %, tête au-delà d'au moins 3 %. <T>Triangles</T> : quatre pivots alternés, côté plat à 2 %, côté incliné d'au moins 3 %. <T>Tasse avec anse</T> : creux de 12 à 40 %. <T>Fibonacci</T> : rebond entre 38,2 et 61,8 % d'une hausse d'au moins 20 %. La silhouette relie les pivots — pour un triangle, ses deux bornes ; la ligne de cou est en pointillés, sur l'étendue de sa figure, et une croix marque la cassure. Une figure ou une droite s'arrête à sa cassure, son invalidation ou son expiration ; seule une figure armée se prolonge jusqu'à la dernière séance. Les figures invalidées ou expirées sont tracées en pâle (« Masquer les figures passées » dans la légende) ; ETE, ETE inversée et doubles creux ou sommets portent une ligne de cou en trait plein et une aire translucide, sans aucune projection de cours ; un clic sur une ligne de la légende met sa figure en évidence. <T>Armée</T> : formée, pas encore cassée ; <T>cassure</T> : clôture au-delà de la ligne de cou ; <T>invalidée</T> : clôture au-delà du niveau d'invalidation avant ; <T>expirée</T> : 40 séances sans cassure (60 pour la tasse). Vert, rouge, violet : sens que le manuel prête au motif — un nom, pas une annonce. <T>La fréquence</T> : sur N cas passés (2023-2026), la part qui a fait mieux (motif haussier) ou moins bien (baissier) que le MASI 20 séances après la cassure, frais de 2 % d'aller-retour <T>non déduits</T>. Une figure armée n'a pas de fréquence propre : le chiffre décrit les cas où la cassure a eu lieu. Sous 30 cas : « échantillon insuffisant », aucun pourcentage.</L>
       <L titre="TEND — obliques et canaux">Mêmes sommets et creux que FIG. <T>Oblique descendante</T> : la droite qui joint deux sommets descendants écartés de 20 à 250 séances, prolongée jusqu'à la dernière séance ; cassée à la première clôture au-dessus. <T>Oblique ascendante</T> : deux creux montants, cassée à la première clôture en dessous. <T>Canal ascendant</T> : support par deux creux montants, parallèle par le sommet qui les sépare (pointillés) ; rebond = retour à moins de 2 % du support puis clôture 3 % au-dessus ; sortie par le bas = clôture 2 % sous le support. Fréquence : même lecture que FIG — après une cassure ou un rebond passé, frais non déduits, rien sous 30 cas.</L>
       <L titre="GAP — trous de cotation">Une séance dont le plus bas dépasse d'au moins 1 % le plus haut de la veille (gap haussier), ou l'inverse (baissier) ; seules les séances à extrêmes réels comptent, et jamais un écart de plus de 10 % de la clôture de la veille. La zone hachurée s'étend du plus haut de la veille au plus bas du jour du gap et s'arrête à son <T>comblement</T> : la zone entièrement traversée. <T>Partiellement comblé</T> : le cours est revenu dans la zone sans la traverser. Fréquence : la part des gaps passés comblés en 20 séances au plus ; pour un gap ouvert depuis 20 séances ou davantage, la part comblée dans les 60 séances suivant l'ouverture ; à 60 séances et au-delà, aucun taux : c'est hors de l'horizon mesuré. Un fait de marché, aucun achat supposé ; rien sous 30 cas.</L>
       <L titre="« non vérifié » · ⚠ jj/mm"><T c="#ff8f00">non vérifié</T> : source non recoupée, prudence. <T c="#ffd740">⚠ 05/08</T> près d'un cours : il date de ce jour-là, pas de la dernière séance.</L>
