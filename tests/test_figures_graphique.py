@@ -244,7 +244,54 @@ def test_la_phrase_d_un_gap_ouvert(publie, phrases):
         c = publie["frequences"][p["type"]]["univers"]["liquides" if p["liq"] else "tous"]["h20"]["toutes_periodes"]
         s = "s" if g["age_seances"] > 1 else ""
         assert f"ouvert depuis {g['age_seances']} séance{s}" in p["txt"], p["txt"]
-        assert f"des {'gaps baissiers' if p['type'] == 'gap_baissier' else 'gaps haussiers'} ont été comblés en 20 séances ({c['n']} cas" in p["txt"], p["txt"]
+        if g["age_seances"] < 20:
+            assert f"des {'gaps baissiers' if p['type'] == 'gap_baissier' else 'gaps haussiers'} ont été comblés en 20 séances ({c['n']} cas" in p["txt"], p["txt"]
+
+
+# Horizon selon l'âge du gap (décision du 21/10/2026) : < 20 séances, taux à
+# 20 ; de 20 à 59, taux à 60 ; 60 et plus, aucun taux. Un gap réel (STR,
+# 36 séances) et des gaps construits pour les bornes.
+
+def _gap(age, statut="ouvert", liq=False):
+    g = {"type": "gap_baissier", "libelle": "Gap baissier", "date": "2026-08-31", "statut": statut,
+         "zone_haute": 205.0, "zone_basse": 198.0, "date_retour_dans_la_zone": None,
+         "date_comblement": None, "age_seances": age, "frequence_ref": ["gap_baissier"]}
+    return _node(_harnais(f"console.log(JSON.stringify(gapLegende({json.dumps(g)},FP,{json.dumps(liq)},'2026')));"))
+
+
+def _taux(publie, h, liq=False):
+    c = publie["frequences"]["gap_baissier"]["univers"]["liquides" if liq else "tous"][h]["toutes_periodes"]
+    return f"{c['pct_combles']:.1f}".rstrip("0").rstrip(".").replace(".", ","), c["n"]
+
+
+def test_gap_de_moins_de_20_seances_taux_a_20(publie):
+    pct, n = _taux(publie, "h20")
+    for age in (0, 6, 19):
+        txt = _gap(age)
+        assert f"{pct} % des gaps baissiers ont été comblés en 20 séances ({n} cas, tous titres)" in txt, txt
+        assert "60 séances" not in txt, txt
+
+
+def test_gap_de_20_a_59_seances_taux_a_60_cas_reel_str(publie, phrases):
+    g = next(g for g in publie["titres"]["STR"]["gaps"] if g["statut"] == "ouvert")
+    assert g["age_seances"] == 36 and g["type"] == "gap_baissier", g   # le cas réel décrit
+    liq = bool(publie["titres"]["STR"].get("liquide"))
+    txt = next(p["txt"] for p in phrases if p["t"] == "STR" and p["k"] == "gaps" and p["statut"] == "ouvert")
+    pct, n = _taux(publie, "h60", liq)
+    assert ("ouvert depuis 36 séances · sur 2023-2026, "
+            f"{pct} % des gaps baissiers ont été comblés dans les 60 séances suivant leur ouverture ({n} cas, ") in txt, txt
+    assert "en 20 séances" not in txt, txt
+    for age in (20, 59):                                     # les deux bornes
+        assert "dans les 60 séances suivant leur ouverture" in _gap(age)
+    assert "dans les 60 séances suivant leur ouverture" in _gap(36, "partiellement_comble")
+
+
+def test_gap_de_60_seances_et_plus_aucun_taux():
+    for age in (60, 84, 200):
+        for statut in ("ouvert", "partiellement_comble"):
+            txt = _gap(age, statut)
+            assert txt.endswith(f"ouvert depuis {age} séances, au-delà de l'horizon mesuré (60 séances)"), txt
+            assert "%" not in txt and "cas" not in txt, txt
 
 
 def test_un_gap_comble_ne_porte_aucune_frequence(phrases):

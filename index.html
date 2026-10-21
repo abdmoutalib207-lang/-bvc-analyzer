@@ -5991,13 +5991,16 @@ const gapLegende = (g, fp, liq, an) => {
   const s = n => `${n} séance${n > 1 ? "s" : ""}`;
   if (g.statut === "comble") return `${lib} du ${j(g.date)} (${zone}), comblé le ${j(g.date_comblement)}`;
   const tete = g.statut === "partiellement_comble" ? `${lib} du ${j(g.date)} (${zone}), partiellement comblé depuis le ${j(g.date_retour_dans_la_zone)}, ouvert depuis ${s(age)}` : `${lib} du ${j(g.date)} (${zone}), ouvert depuis ${s(age)}`;
+  if (age != null && age >= 60) return `${tete}, au-delà de l'horizon mesuré (60 séances)`;
+  const h = age != null && age >= 20 ? "h60" : "h20";
   const f = fp && fp.frequences && fp.frequences[g.type];
-  const c = f && f.univers && f.univers[U.cle] && f.univers[U.cle].h20 && f.univers[U.cle].h20.toutes_periodes;
+  const c = f && f.univers && f.univers[U.cle] && f.univers[U.cle][h] && f.univers[U.cle][h].toutes_periodes;
   const nom = g.type === "gap_baissier" ? "gaps baissiers" : "gaps haussiers",
     per = figPeriode(fp);
   if (!c) return `${tete} · fréquence non publiée`;
   if (c.statut !== "publie" || !(c.n >= figMin(fp)) || c.pct_combles == null) return `${tete} · échantillon insuffisant (${c.n} cas, ${U.nom})`;
-  return `${tete} · ${per ? `sur ${per}, ` : ""}${figPct(c.pct_combles)} % des ${nom} ont été comblés en 20 séances (${c.n} cas, ${U.nom})`;
+  const quand = h === "h60" ? "dans les 60 séances suivant leur ouverture" : "en 20 séances";
+  return `${tete} · ${per ? `sur ${per}, ` : ""}${figPct(c.pct_combles)} % des ${nom} ont été comblés ${quand} (${c.n} cas, ${U.nom})`;
 };
 const figDebut = e => e.pivots && e.pivots.length ? e.pivots[0].date : e.points && e.points.length ? e.points[0].date : e.date || null;
 const figElements = (t, debut, show) => {
@@ -13320,7 +13323,7 @@ const Guide = ({
     titre: "TEND \u2014 obliques et canaux"
   }, "M\xEAmes sommets et creux que FIG. ", React.createElement(T, null, "Oblique descendante"), " : la droite qui joint deux sommets descendants \xE9cart\xE9s de 20 \xE0 250 s\xE9ances, prolong\xE9e jusqu'\xE0 la derni\xE8re s\xE9ance ; cass\xE9e \xE0 la premi\xE8re cl\xF4ture au-dessus. ", React.createElement(T, null, "Oblique ascendante"), " : deux creux montants, cass\xE9e \xE0 la premi\xE8re cl\xF4ture en dessous. ", React.createElement(T, null, "Canal ascendant"), " : support par deux creux montants, parall\xE8le par le sommet qui les s\xE9pare (pointill\xE9s) ; rebond = retour \xE0 moins de 2 % du support puis cl\xF4ture 3 % au-dessus ; sortie par le bas = cl\xF4ture 2 % sous le support. Fr\xE9quence : m\xEAme lecture que FIG \u2014 apr\xE8s une cassure ou un rebond pass\xE9, frais non d\xE9duits, rien sous 30 cas."), React.createElement(L, {
     titre: "GAP \u2014 trous de cotation"
-  }, "Une s\xE9ance dont le plus bas d\xE9passe d'au moins 1 % le plus haut de la veille (gap haussier), ou l'inverse (baissier) ; seules les s\xE9ances \xE0 extr\xEAmes r\xE9els comptent, et jamais un \xE9cart de plus de 10 % de la cl\xF4ture de la veille. La zone hachur\xE9e s'\xE9tend du plus haut de la veille au plus bas du jour du gap et s'arr\xEAte \xE0 son ", React.createElement(T, null, "comblement"), " : la zone enti\xE8rement travers\xE9e. ", React.createElement(T, null, "Partiellement combl\xE9"), " : le cours est revenu dans la zone sans la traverser. Fr\xE9quence : la part des gaps pass\xE9s combl\xE9s en 20 s\xE9ances au plus \u2014 un fait de march\xE9, aucun achat suppos\xE9 ; rien sous 30 cas."), React.createElement(L, {
+  }, "Une s\xE9ance dont le plus bas d\xE9passe d'au moins 1 % le plus haut de la veille (gap haussier), ou l'inverse (baissier) ; seules les s\xE9ances \xE0 extr\xEAmes r\xE9els comptent, et jamais un \xE9cart de plus de 10 % de la cl\xF4ture de la veille. La zone hachur\xE9e s'\xE9tend du plus haut de la veille au plus bas du jour du gap et s'arr\xEAte \xE0 son ", React.createElement(T, null, "comblement"), " : la zone enti\xE8rement travers\xE9e. ", React.createElement(T, null, "Partiellement combl\xE9"), " : le cours est revenu dans la zone sans la traverser. Fr\xE9quence : la part des gaps pass\xE9s combl\xE9s en 20 s\xE9ances au plus ; pour un gap ouvert depuis 20 s\xE9ances ou davantage, la part combl\xE9e dans les 60 s\xE9ances suivant l'ouverture ; \xE0 60 s\xE9ances et au-del\xE0, aucun taux : c'est hors de l'horizon mesur\xE9. Un fait de march\xE9, aucun achat suppos\xE9 ; rien sous 30 cas."), React.createElement(L, {
     titre: "\xAB non v\xE9rifi\xE9 \xBB \xB7 \u26A0 jj/mm"
   }, React.createElement(T, {
     c: "#ff8f00"
