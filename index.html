@@ -3866,22 +3866,31 @@ function calcIchimoku(candles) {
     kijun
   };
 }
-function calcSR(candles, price) {
-  if (candles.length < 10) return {
+const SR_TOL = 0.012,
+  SR_LB = 3,
+  SR_MIN_CONTACTS = 2;
+const srCotee = c => (c.vol || 0) > 0 && !c.live;
+function calcSR(candles, price, min = SR_MIN_CONTACTS) {
+  const cot = (candles || []).filter(srCotee);
+  const ecartees = (candles || []).length - cot.length;
+  if (cot.length < 10) return {
     sup: [],
-    res: []
+    res: [],
+    ecartees,
+    retires: 0,
+    cotees: cot.length
   };
-  const highs = candles.map(c => c.y[1]);
-  const lows = candles.map(c => c.y[2]);
-  const n = candles.length,
-    lb = 3;
+  const highs = cot.map(c => c.y[1]);
+  const lows = cot.map(c => c.y[2]);
+  const n = cot.length,
+    lb = SR_LB;
   const swH = [],
     swL = [];
   for (let i = lb; i < n - lb; i++) {
     if (highs.slice(i - lb, i).every(h => h <= highs[i]) && highs.slice(i + 1, i + lb + 1).every(h => h <= highs[i])) swH.push(highs[i]);
     if (lows.slice(i - lb, i).every(l => l >= lows[i]) && lows.slice(i + 1, i + lb + 1).every(l => l >= lows[i])) swL.push(lows[i]);
   }
-  function cluster(arr, tol = 0.012) {
+  function cluster(arr, tol = SR_TOL) {
     const s = [...arr].sort((a, b) => a - b);
     const out = [];
     let i = 0;
@@ -3897,11 +3906,38 @@ function calcSR(candles, price) {
     }
     return out;
   }
-  const sup = cluster(swL).filter(v => v < price * 1.03).slice(-3);
-  const res = cluster(swH).filter(v => v > price * 0.97).slice(0, 3);
+  const compter = (niveau, support) => {
+    let contacts = 0,
+      tenus = 0,
+      premier = null,
+      dernier = null;
+    cot.forEach(c => {
+      const [, h, l, cl] = c.y;
+      if (l <= niveau * (1 + SR_TOL) && h >= niveau * (1 - SR_TOL)) {
+        contacts++;
+        if (support ? cl >= niveau : cl <= niveau) tenus++;
+        if (premier == null) premier = c.x;
+        dernier = c.x;
+      }
+    });
+    return {
+      niveau,
+      contacts,
+      tenus,
+      premier,
+      dernier
+    };
+  };
+  const sup0 = cluster(swL).filter(v => v < price * 1.03).slice(-3).map(v => compter(v, true));
+  const res0 = cluster(swH).filter(v => v > price * 0.97).slice(0, 3).map(v => compter(v, false));
+  const sup = sup0.filter(x => x.contacts >= min),
+    res = res0.filter(x => x.contacts >= min);
   return {
     sup,
-    res
+    res,
+    ecartees,
+    retires: sup0.length + res0.length - sup.length - res.length,
+    cotees: n
   };
 }
 const lsLire = (k, def = null) => {
@@ -5682,6 +5718,71 @@ const SignauxTechniques = ({
     }
   }, "\u25CF signal pr\xE9sent dans les 20 derni\xE8res s\xE9ances \xB7 chiffres mesur\xE9s sur la BVC (titres liquides) : \xE9cart au MASI 60 s\xE9ances apr\xE8s le signal, dividendes compris, frais non inclus ; % gagnants = part des cas o\xF9 l'\xE9cart est positif, IC = intervalle de Wilson \xE0 95 %. Observations chevauchantes : l'incertitude r\xE9elle est plus large. Une fr\xE9quence pass\xE9e, pas une promesse.")));
 };
+const srJour = (ts, an) => {
+  const d = new Date(ts),
+    j = String(d.getUTCDate()).padStart(2, "0"),
+    m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  return an ? `${j}/${m}/${String(d.getUTCFullYear()).slice(2)}` : `${j}/${m}`;
+};
+const LegendeSR = ({
+  sr,
+  candles,
+  period
+}) => {
+  if (!sr || !candles || !candles.length) return null;
+  const an = new Date(candles[0].x).getUTCFullYear() !== new Date(candles[candles.length - 1].x).getUTCFullYear();
+  const lignes = [...[...sr.res].reverse().map(L => ["Résistance", "#ff4f5a", L]), ...[...sr.sup].reverse().map(L => ["Support", "#00e5a0", L])];
+  return React.createElement("div", {
+    className: "legende-sr",
+    style: {
+      marginTop: 6,
+      padding: "5px 8px",
+      background: "#0a1220",
+      border: "1px solid #1a2540",
+      borderRadius: 4,
+      fontSize: 11,
+      lineHeight: 1.5,
+      color: "#c8d3e8",
+      fontVariantNumeric: "tabular-nums"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: "#8892a4",
+      letterSpacing: .6,
+      textTransform: "uppercase",
+      marginBottom: 2
+    }
+  }, "S/R \xB7 fen\xEAtre ", period, " \xB7 s\xE9ances \xE9chang\xE9es seulement"), lignes.length === 0 && React.createElement("div", {
+    style: {
+      color: "#8892a4"
+    }
+  }, sr.cotees < 10 ? `Aucun niveau : ${sr.cotees} séance${sr.cotees > 1 ? "s" : ""} échangée${sr.cotees > 1 ? "s" : ""} sur cette fenêtre, il en faut 10.` : `Aucun niveau touché au moins ${SR_MIN_CONTACTS} fois sur cette fenêtre.`), lignes.map(([nom, c, L]) => React.createElement("div", {
+    key: nom + L.niveau,
+    style: {
+      textWrap: "pretty"
+    }
+  }, React.createElement("span", {
+    style: {
+      color: c
+    }
+  }, nom), " ", React.createElement("b", {
+    style: {
+      color: "#e8eef8",
+      fontWeight: 600
+    }
+  }, fmtPrixFR(L.niveau)), " — ", "touch\xE9 ", L.contacts, " fois, tenu ", L.tenus, " — ", React.createElement("span", {
+    style: {
+      whiteSpace: "nowrap"
+    }
+  }, "du ", srJour(L.premier, an), " au ", srJour(L.dernier, an)))), React.createElement("div", {
+    style: {
+      fontSize: 9.5,
+      color: "#8892a4",
+      marginTop: 2
+    }
+  }, sr.ecartees > 0 && React.createElement(React.Fragment, null, sr.ecartees, " s\xE9ance", sr.ecartees > 1 ? "s" : "", " \xE9cart\xE9e", sr.ecartees > 1 ? "s" : "", " du calcul (sans \xE9change, ou bougie du jour reconstitu\xE9e), toujours dessin\xE9e", sr.ecartees > 1 ? "s" : "", ". "), "S\xE9ances pass\xE9es, compt\xE9es et dat\xE9es \u2014 pas un niveau annonc\xE9. R\xE8gles : \xAB Comment lire \xBB."));
+};
 const StockChart = ({
   r
 }) => {
@@ -6072,6 +6173,10 @@ const StockChart = ({
       });
     };
   }, [sym, period, liveCandles, etat, plein]);
+  const sr = useMemo(() => {
+    if (!showSR || etat !== "ok" || !liveCandles || liveCandles.length < 5) return null;
+    return calcSR(liveCandles, liveCandles[liveCandles.length - 1].y[3] || 0);
+  }, [showSR, etat, liveCandles]);
   useEffect(() => {
     const x = series.current;
     if (!x) return;
@@ -6127,25 +6232,25 @@ const StockChart = ({
         title: "Fib 1 — cliquez le point 0"
       }));
     }
-    const srData = showSR ? calcSR(candles, curPrice) : {
+    const srData = showSR && sr || {
       sup: [],
       res: []
     };
-    srData.sup.forEach(v => x.lignes.push(cs.createPriceLine({
-      price: v,
+    srData.sup.forEach(L => x.lignes.push(cs.createPriceLine({
+      price: L.niveau,
       color: "#00e5a060",
       lineWidth: 1,
       lineStyle: LW.LineStyle.Dashed,
-      title: `S ${v >= 1000 ? v.toLocaleString("fr-FR") : v.toFixed(2)}`
+      title: `S ${fmtPrixFR(L.niveau)} · ${L.contacts}×`
     })));
-    srData.res.forEach(v => x.lignes.push(cs.createPriceLine({
-      price: v,
+    srData.res.forEach(L => x.lignes.push(cs.createPriceLine({
+      price: L.niveau,
       color: "#ff4f5a60",
       lineWidth: 1,
       lineStyle: LW.LineStyle.Dashed,
-      title: `R ${v >= 1000 ? v.toLocaleString("fr-FR") : v.toFixed(2)}`
+      title: `R ${fmtPrixFR(L.niveau)} · ${L.contacts}×`
     })));
-  }, [sym, period, liveCandles, etat, plein, showBB, showIchi, showSR, showFib, fibAncres, fibAttente, mas]);
+  }, [sym, period, liveCandles, etat, plein, showBB, showIchi, showSR, showFib, fibAncres, fibAttente, mas, sr]);
   const changePeriod = p => {
     setPeriod(p);
     lsEcrire("bvc_period", p);
@@ -6246,7 +6351,7 @@ const StockChart = ({
   }, "ICHI"), React.createElement(Btn, {
     on: showSR,
     c: "#00e5a0",
-    titre: "Support / R\xE9sistance (sommets et creux)",
+    titre: "Supports et r\xE9sistances : sommets et creux des s\xE9ances \xE9chang\xE9es, trac\xE9s s'ils ont \xE9t\xE9 touch\xE9s au moins 2 fois \u2014 d\xE9tail dat\xE9 sous le graphique",
     onClick: () => setShowSR(v => !v)
   }, "S/R"), React.createElement(Btn, {
     on: showFib,
@@ -6368,6 +6473,10 @@ const StockChart = ({
     }
   }, "Signal")), React.createElement("div", {
     ref: refMacd
+  }), showSR && etat === "ok" && React.createElement(LegendeSR, {
+    sr: sr,
+    candles: liveCandles,
+    period: period
   }), etat === "ok" && React.createElement("div", {
     style: {
       fontSize: 9,
@@ -12520,6 +12629,8 @@ const Guide = ({
   }, "Un point par garantie : prix de la derni\xE8re s\xE9ance \xB7 fondamentaux r\xE9els \xB7 historique \u2265 15 s\xE9ances \xE9chang\xE9es \xB7 comptes d\xE9pos\xE9s \xE0 l'AMMC \xB7 liquidit\xE9 \u2265 100 000 DH par s\xE9ance. Titre peu liquide : 2/5 au plus."), React.createElement(L, {
     titre: "\xAB X % gagnants (IC) \xB7 n cas \xBB \u2014 fiche, Signaux techniques"
   }, "Sur n cas pass\xE9s \xE0 la BVC o\xF9 le m\xEAme signal est apparu, X % ont battu le MASI 60 s\xE9ances apr\xE8s ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fr\xE9quence pass\xE9e, pas une promesse."), React.createElement(L, {
+    titre: "S/R \u2014 supports et r\xE9sistances du graphique"
+  }, "Tir\xE9s de la fen\xEAtre affich\xE9e : un creux est un plus-bas sous lequel aucune des 3 s\xE9ances \xE9chang\xE9es voisines, de chaque c\xF4t\xE9, ne descend \u2014 un sommet, l'inverse ; des points \xE0 moins de 1,2 % l'un de l'autre font un seul niveau. Au plus 3 supports et 3 r\xE9sistances, les plus proches du dernier cours ; il faut au moins 10 s\xE9ances \xE9chang\xE9es dans la fen\xEAtre. ", React.createElement(T, null, "Contact"), " : une s\xE9ance \xE9chang\xE9e dont la fourchette plus-bas\u2013plus-haut passe \xE0 moins de 1,2 % du niveau ; deux s\xE9ances de suite comptent pour deux. ", React.createElement(T, null, "Tenu"), " : ce jour-l\xE0, la cl\xF4ture est rest\xE9e au niveau ou au-dessus d'un support (au niveau ou en dessous d'une r\xE9sistance). Un niveau n'est trac\xE9 qu'\xE0 partir de 2 contacts, avec la date du premier et du dernier. ", React.createElement(T, null, "S\xE9ances \xE9cart\xE9es"), " : volume nul \u2014 le titre n'a pas \xE9chang\xE9, ou la bougie a \xE9t\xE9 refaite depuis la seule cl\xF4ture \u2014 et bougie du jour reconstitu\xE9e depuis le dernier cours. Aucun plus-haut ni plus-bas n'y a \xE9t\xE9 atteint ou mesur\xE9 : elles fabriqueraient des creux. Elles restent dessin\xE9es. Des s\xE9ances pass\xE9es, compt\xE9es et dat\xE9es ; pas un niveau annonc\xE9."), React.createElement(L, {
     titre: "\xAB non v\xE9rifi\xE9 \xBB \xB7 \u26A0 jj/mm"
   }, React.createElement(T, {
     c: "#ff8f00"
