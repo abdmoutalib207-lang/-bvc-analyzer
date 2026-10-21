@@ -677,6 +677,63 @@
           "cash_conversion"
         ]
       },
+      "coefficient_exploitation": {
+        "valeur": 38.59,
+        "unite": "%",
+        "date": "2026-06-30",
+        "formule": "(12262.874 + 1483.064) ÷ 35620.697 (MMAD) — (charges générales d'exploitation + dotations aux amortissements et aux dépréciations des immobilisations incorporelles et corporelles) ÷ produit net bancaire — compte de résultat consolidé IFRS",
+        "sources": {
+          "cge_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf, p. 96",
+          "cge_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf, p. 8",
+          "cge_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf, p. 8",
+          "dap_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf, p. 96",
+          "dap_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf, p. 8",
+          "dap_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf, p. 8",
+          "pnb_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf, p. 96",
+          "pnb_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf, p. 8",
+          "pnb_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf, p. 8"
+        },
+        "periode": "12 mois glissants au 30/06/2026 = exercice 2025 + S1 2026 − S1 2025, tout sur pièce"
+      },
+      "cout_du_risque_encours": {
+        "valeur": 0.851,
+        "unite": "%",
+        "date": "2025-12-31",
+        "formule": "3664.557 ÷ (413590.717 + 447885.567) / 2 (MMAD) — coût du risque ÷ moyenne des encours nets de crédits à la clientèle (début et fin de période)",
+        "sources": {
+          "cdr_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf, p. 96",
+          "encours_31_12_2024": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf, p. 95",
+          "encours_31_12_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf, p. 95"
+        },
+        "periode": "exercice 2025 — encours au 30/06/2025 non relevé sur pièce, la moyenne sur 12 mois glissants n'est pas calculable",
+        "cout_du_risque_12m": 3509.439
+      },
+      "couverture_bucket3": {
+        "valeur": 79.94,
+        "unite": "%",
+        "date": "2026-06-30",
+        "formule": "24508.671 ÷ 30659.157 (MMAD) — dépréciations Bucket 3 ÷ encours bruts Bucket 3, prêts et créances sur la clientèle (IFRS 9)",
+        "sources": {
+          "bucket3_depreciations_30_06_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf, p. 12",
+          "bucket3_brut_30_06_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf, p. 12"
+        },
+        "periode": "30/06/2026 — dernier bilan sur pièce",
+        "taux_bucket3": {
+          "valeur": 6.19,
+          "formule": "30659.157 ÷ 495635.177 (MMAD) — Bucket 3 brut ÷ encours bruts clientèle (Buckets 1 + 2 + 3)",
+          "source": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf, p. 12"
+        }
+      },
+      "solvabilite_globale": {
+        "valeur": 13.13,
+        "unite": "%",
+        "date": "2025-12-31",
+        "formule": "ratio de solvabilité global consolidé publié (fonds propres totaux ÷ risques pondérés, Bâle III)",
+        "sources": {
+          "solvabilite_31_12_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf, p. 67"
+        },
+        "periode": "31/12/2025 — seule date publiée par toutes les banques qui publient le ratio"
+      },
       "calcule_le": "2026-09-30"
     }
   },
@@ -752,6 +809,56 @@
           "roic",
           "cash_conversion"
         ]
+      },
+      "coefficient_exploitation": {
+        "valeur": 46.71,
+        "unite": "%",
+        "date": "2026-06-30",
+        "formule": "(10862.302 + 1532.372) ÷ 26534.778 (MMAD) — (charges générales d'exploitation + dotations aux amortissements et aux dépréciations des immobilisations incorporelles et corporelles) ÷ produit net bancaire — compte de résultat consolidé IFRS",
+        "sources": {
+          "cge_2025": "États financiers 2025 (dépôt AMMC « BCP_2025 ») — https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf, p. 11",
+          "cge_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf, p. 11",
+          "cge_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf, p. 11",
+          "dap_2025": "États financiers 2025 (dépôt AMMC « BCP_2025 ») — https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf, p. 11",
+          "dap_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf, p. 11",
+          "dap_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf, p. 11",
+          "pnb_2025": "États financiers 2025 (dépôt AMMC « BCP_2025 ») — https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf, p. 11",
+          "pnb_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf, p. 11",
+          "pnb_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf, p. 11"
+        },
+        "periode": "12 mois glissants au 30/06/2026 = exercice 2025 + S1 2026 − S1 2025, tout sur pièce"
+      },
+      "cout_du_risque_encours": {
+        "valeur": 1.83,
+        "unite": "%",
+        "date": "2025-12-31",
+        "formule": "5362.624 ÷ (287240.813 + 298800.863) / 2 (MMAD) — coût du risque ÷ moyenne des encours nets de crédits à la clientèle (début et fin de période)",
+        "sources": {
+          "cdr_2025": "États financiers 2025 (dépôt AMMC « BCP_2025 ») — https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf, p. 11",
+          "encours_31_12_2024": "États financiers 2025 (dépôt AMMC « BCP_2025 ») — https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf, p. 11",
+          "encours_31_12_2025": "États financiers 2025 (dépôt AMMC « BCP_2025 ») — https://www.ammc.ma/sites/default/files/BCP_2025_0.pdf, p. 11"
+        },
+        "periode": "exercice 2025 — encours au 30/06/2025 non relevé sur pièce, la moyenne sur 12 mois glissants n'est pas calculable",
+        "cout_du_risque_12m": 3743.178
+      },
+      "couverture_bucket3": {
+        "valeur": 69.19,
+        "unite": "%",
+        "date": "2026-06-30",
+        "formule": "22270.732 ÷ 32188.564 (MMAD) — dépréciations Bucket 3 ÷ encours bruts Bucket 3, prêts et créances sur la clientèle (IFRS 9)",
+        "sources": {
+          "bucket3_depreciations_30_06_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf, p. 16",
+          "bucket3_brut_30_06_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf, p. 16"
+        },
+        "periode": "30/06/2026 — dernier bilan sur pièce",
+        "taux_bucket3": {
+          "valeur": 9.54,
+          "formule": "32188.564 ÷ 337509.567 (MMAD) — Bucket 3 brut ÷ encours bruts clientèle (Buckets 1 + 2 + 3)",
+          "source": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BCP_S1_26.pdf, p. 16"
+        }
+      },
+      "solvabilite_globale_absente": {
+        "motif": "Solvabilité globale NON PUBLIÉE : ni les états financiers 2025 déposés (42 p. ; p.25 décrit le dispositif et les minima 9 % / 12 % sans valeur), ni le communiqué annuel, ni le rapport semestriel (seul le CET1, 11,4 % au 30/06/2026, est chiffré — hétérogène entre banques, non utilisé). Pilier III non trouvé (relevé du 20/10/2026). Bilan bancaire calculé sur le coût du risque et la couverture Bucket 3 seulement."
       },
       "calcule_le": "2026-09-30"
     }
@@ -834,6 +941,63 @@
           "roic",
           "cash_conversion"
         ]
+      },
+      "coefficient_exploitation": {
+        "valeur": 47.1,
+        "unite": "%",
+        "date": "2026-06-30",
+        "formule": "(8550.251 + 1096.587) ÷ 20479.575 (MMAD) — (charges générales d'exploitation + dotations aux amortissements et aux dépréciations des immobilisations incorporelles et corporelles) ÷ produit net bancaire — compte de résultat consolidé IFRS",
+        "sources": {
+          "cge_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_RFA_2025_0.pdf, p. 120",
+          "cge_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_S1_26.pdf, p. 9",
+          "cge_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_S1_26.pdf, p. 9",
+          "dap_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_RFA_2025_0.pdf, p. 120",
+          "dap_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_S1_26.pdf, p. 9",
+          "dap_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_S1_26.pdf, p. 9",
+          "pnb_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_RFA_2025_0.pdf, p. 120",
+          "pnb_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_S1_26.pdf, p. 9",
+          "pnb_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_S1_26.pdf, p. 9"
+        },
+        "periode": "12 mois glissants au 30/06/2026 = exercice 2025 + S1 2026 − S1 2025, tout sur pièce"
+      },
+      "cout_du_risque_encours": {
+        "valeur": 1.44,
+        "unite": "%",
+        "date": "2025-12-31",
+        "formule": "3287.621 ÷ (225617.043 + 230849.356) / 2 (MMAD) — coût du risque ÷ moyenne des encours nets de crédits à la clientèle (début et fin de période)",
+        "sources": {
+          "cdr_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_RFA_2025_0.pdf, p. 120",
+          "encours_31_12_2024": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_RFA_2025_0.pdf, p. 120",
+          "encours_31_12_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_RFA_2025_0.pdf, p. 120"
+        },
+        "periode": "exercice 2025 — encours au 30/06/2025 non relevé sur pièce, la moyenne sur 12 mois glissants n'est pas calculable",
+        "cout_du_risque_12m": 3020.206
+      },
+      "couverture_bucket3": {
+        "valeur": 70.5,
+        "unite": "%",
+        "date": "2026-06-30",
+        "formule": "17852.175 ÷ 25321.875 (MMAD) — dépréciations Bucket 3 ÷ encours bruts Bucket 3, prêts et créances sur la clientèle (IFRS 9)",
+        "sources": {
+          "bucket3_depreciations_30_06_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_S1_26.pdf, p. 12",
+          "bucket3_brut_30_06_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_S1_26.pdf, p. 12"
+        },
+        "periode": "30/06/2026 — dernier bilan sur pièce",
+        "taux_bucket3": {
+          "valeur": 9.83,
+          "formule": "25321.875 ÷ 257681.488 (MMAD) — Bucket 3 brut ÷ encours bruts clientèle (Buckets 1 + 2 + 3)",
+          "source": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_S1_26.pdf, p. 12"
+        }
+      },
+      "solvabilite_globale": {
+        "valeur": 12.86,
+        "unite": "%",
+        "date": "2025-12-31",
+        "formule": "ratio de solvabilité global consolidé publié (fonds propres totaux ÷ risques pondérés, Bâle III)",
+        "sources": {
+          "solvabilite_31_12_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BOA_RFA_2025_0.pdf, p. 101"
+        },
+        "periode": "31/12/2025 — seule date publiée par toutes les banques qui publient le ratio"
       },
       "calcule_le": "2026-09-30"
     }
@@ -995,6 +1159,64 @@
           "cash_conversion"
         ]
       },
+      "coefficient_exploitation": {
+        "valeur": 45.75,
+        "unite": "%",
+        "date": "2026-06-30",
+        "formule": "(1382.791 + 313.267) ÷ 3707.624 (MMAD) — (charges générales d'exploitation + dotations aux amortissements et aux dépréciations des immobilisations incorporelles et corporelles) ÷ produit net bancaire — compte de résultat consolidé IFRS",
+        "sources": {
+          "cge_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf, p. 13",
+          "cge_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf, p. 4",
+          "cge_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf, p. 4",
+          "dap_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf, p. 13",
+          "dap_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf, p. 4",
+          "dap_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf, p. 4",
+          "pnb_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf, p. 13",
+          "pnb_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf, p. 4",
+          "pnb_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf, p. 4"
+        },
+        "periode": "12 mois glissants au 30/06/2026 = exercice 2025 + S1 2026 − S1 2025, tout sur pièce"
+      },
+      "cout_du_risque_encours": {
+        "valeur": 0.641,
+        "unite": "%",
+        "date": "2025-12-31",
+        "formule": "383.113 ÷ (56622.038 + 62862.585) / 2 (MMAD) — coût du risque ÷ moyenne des encours nets de crédits à la clientèle (début et fin de période)",
+        "sources": {
+          "cdr_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf, p. 13",
+          "encours_31_12_2024": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf, p. 13",
+          "encours_31_12_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf, p. 13"
+        },
+        "periode": "exercice 2025 — encours au 30/06/2025 non relevé sur pièce, la moyenne sur 12 mois glissants n'est pas calculable",
+        "cout_du_risque_12m": 281.257
+      },
+      "couverture_bucket3": {
+        "valeur": 71.68,
+        "unite": "%",
+        "date": "2026-06-30",
+        "formule": "3300.822 ÷ 4605.201 (MMAD) — dépréciations Bucket 3 ÷ encours bruts Bucket 3, prêts et créances sur la clientèle (IFRS 9)",
+        "sources": {
+          "bucket3_depreciations_30_06_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf, p. 12",
+          "bucket3_brut_30_06_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf, p. 12"
+        },
+        "periode": "30/06/2026 — dernier bilan sur pièce",
+        "reserve": "Divergence interne au rapport semestriel : « créances en souffrance 4 259 MDH » (p.3) contre un Bucket 3 clientèle de 4 605,2 MMAD (p.12). Le Bucket 3 est retenu : c'est lui qui reconstitue le taux publié (86,2 %), et c'est la grandeur comparable aux autres banques. 4 259 pourrait être le niveau de juin 2025 (+8,1 %, proche des +8,2 % annoncés) : hypothèse non établie, question à poser à la société. Le taux publié de CDM rapporte TOUTES les dépréciations IFRS 9 au Bucket 3 : non repris.",
+        "taux_bucket3": {
+          "valeur": 6.75,
+          "formule": "4605.201 ÷ 68248.159 (MMAD) — Bucket 3 brut ÷ encours bruts clientèle (Buckets 1 + 2 + 3)",
+          "source": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf, p. 12"
+        }
+      },
+      "solvabilite_globale": {
+        "valeur": 14.85,
+        "unite": "%",
+        "date": "2025-12-31",
+        "formule": "ratio de solvabilité global consolidé publié (fonds propres totaux ÷ risques pondérés, Bâle III)",
+        "sources": {
+          "solvabilite_31_12_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf, p. 19"
+        },
+        "periode": "31/12/2025 — seule date publiée par toutes les banques qui publient le ratio"
+      },
       "calcule_le": "2026-09-30"
     }
   },
@@ -1080,6 +1302,64 @@
           "cash_conversion"
         ]
       },
+      "coefficient_exploitation": {
+        "valeur": 46.44,
+        "unite": "%",
+        "date": "2026-06-30",
+        "formule": "(495.72 + 99.398) ÷ 1281.541 (MMAD) — (charges générales d'exploitation + dotations aux amortissements et aux dépréciations des immobilisations incorporelles et corporelles) ÷ produit net bancaire — compte de résultat consolidé IFRS",
+        "sources": {
+          "cge_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf, p. 39",
+          "cge_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf, p. 5",
+          "cge_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf, p. 5",
+          "dap_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf, p. 39",
+          "dap_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf, p. 5",
+          "dap_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf, p. 5",
+          "pnb_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf, p. 39",
+          "pnb_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf, p. 5",
+          "pnb_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf, p. 5"
+        },
+        "periode": "12 mois glissants au 30/06/2026 = exercice 2025 + S1 2026 − S1 2025, tout sur pièce"
+      },
+      "cout_du_risque_encours": {
+        "valeur": 0.233,
+        "unite": "%",
+        "date": "2025-12-31",
+        "formule": "45.653 ÷ (17394.296 + 21781.999) / 2 (MMAD) — coût du risque ÷ moyenne des encours nets de crédits à la clientèle (début et fin de période)",
+        "sources": {
+          "cdr_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf, p. 39",
+          "encours_31_12_2024": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf, p. 38",
+          "encours_31_12_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf, p. 38"
+        },
+        "periode": "exercice 2025 — encours au 30/06/2025 non relevé sur pièce, la moyenne sur 12 mois glissants n'est pas calculable",
+        "cout_du_risque_12m": 44.46
+      },
+      "couverture_bucket3": {
+        "valeur": 40.48,
+        "unite": "%",
+        "date": "2026-06-30",
+        "formule": "127.69 ÷ 315.43 (MMAD) — dépréciations Bucket 3 ÷ encours bruts Bucket 3, prêts et créances sur la clientèle (IFRS 9)",
+        "sources": {
+          "bucket3_depreciations_30_06_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf, p. 7",
+          "bucket3_brut_30_06_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf, p. 7"
+        },
+        "periode": "30/06/2026 — dernier bilan sur pièce",
+        "reserve": "Couverture Bucket 3 basse sur un taux de Bucket 3 très bas (1,46 % de l'encours brut au 30/06/2026, relevé datasets/releves/CFGB.json) : un même seuil de couverture ne juge pas un portefeuille presque sans défaut comme ceux des grandes banques (6 à 12 %).",
+        "taux_bucket3": {
+          "valeur": 1.46,
+          "formule": "315.43 ÷ 21641.938 (MMAD) — Bucket 3 brut ÷ encours bruts clientèle (Buckets 1 + 2 + 3)",
+          "source": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_Bank_S1_26.pdf, p. 7"
+        }
+      },
+      "solvabilite_globale": {
+        "valeur": 18.66,
+        "unite": "%",
+        "date": "2025-12-31",
+        "formule": "ratio de solvabilité global consolidé publié (fonds propres totaux ÷ risques pondérés, Bâle III)",
+        "sources": {
+          "solvabilite_31_12_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf, p. 32"
+        },
+        "periode": "31/12/2025 — seule date publiée par toutes les banques qui publient le ratio"
+      },
       "calcule_le": "2026-09-30"
     }
   },
@@ -1161,6 +1441,64 @@
           "roic",
           "cash_conversion"
         ]
+      },
+      "coefficient_exploitation": {
+        "valeur": 43.55,
+        "unite": "%",
+        "date": "2026-06-30",
+        "formule": "(2158.945 + 236.492) ÷ 5500.142 (MMAD) — (charges générales d'exploitation + dotations aux amortissements et aux dépréciations des immobilisations incorporelles et corporelles) ÷ produit net bancaire — compte de résultat consolidé IFRS",
+        "sources": {
+          "cge_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf, p. 25",
+          "cge_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf, p. 10",
+          "cge_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf, p. 10",
+          "dap_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf, p. 25",
+          "dap_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf, p. 10",
+          "dap_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf, p. 10",
+          "pnb_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf, p. 25",
+          "pnb_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf, p. 10",
+          "pnb_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf, p. 10"
+        },
+        "periode": "12 mois glissants au 30/06/2026 = exercice 2025 + S1 2026 − S1 2025, tout sur pièce"
+      },
+      "cout_du_risque_encours": {
+        "valeur": 1.103,
+        "unite": "%",
+        "date": "2025-12-31",
+        "formule": "1209.369 ÷ (101209.734 + 118137.266) / 2 (MMAD) — coût du risque ÷ moyenne des encours nets de crédits à la clientèle (début et fin de période)",
+        "sources": {
+          "cdr_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf, p. 25",
+          "encours_31_12_2024": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf, p. 24",
+          "encours_31_12_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf, p. 24"
+        },
+        "periode": "exercice 2025 — encours au 30/06/2025 non relevé sur pièce, la moyenne sur 12 mois glissants n'est pas calculable",
+        "cout_du_risque_12m": 1217.31
+      },
+      "couverture_bucket3": {
+        "valeur": 48.75,
+        "unite": "%",
+        "date": "2026-06-30",
+        "formule": "5970.19 ÷ 12247.515 (MMAD) — dépréciations Bucket 3 ÷ encours bruts Bucket 3, prêts et créances sur la clientèle (IFRS 9)",
+        "sources": {
+          "bucket3_depreciations_30_06_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf, p. 11",
+          "bucket3_brut_30_06_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf, p. 11"
+        },
+        "periode": "30/06/2026 — dernier bilan sur pièce",
+        "reserve": "Taux de couverture publié (56,7 %, p.74 du RFA) SOCIAL : non repris ; la couverture consolidée n'existe que par le calcul Bucket 3 ÷ Bucket 3.",
+        "taux_bucket3": {
+          "valeur": 9.72,
+          "formule": "12247.515 ÷ 126010.545 (MMAD) — Bucket 3 brut ÷ encours bruts clientèle (Buckets 1 + 2 + 3)",
+          "source": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_S1_26.pdf, p. 11"
+        }
+      },
+      "solvabilite_globale": {
+        "valeur": 14.42,
+        "unite": "%",
+        "date": "2025-12-31",
+        "formule": "ratio de solvabilité global consolidé publié (fonds propres totaux ÷ risques pondérés, Bâle III)",
+        "sources": {
+          "solvabilite_31_12_2025": "Rapport financier annuel 2025 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf, p. 22"
+        },
+        "periode": "31/12/2025 — seule date publiée par toutes les banques qui publient le ratio"
       },
       "calcule_le": "2026-09-30"
     },
@@ -5974,6 +6312,64 @@
           "roic",
           "cash_conversion"
         ]
+      },
+      "coefficient_exploitation": {
+        "valeur": 57.03,
+        "unite": "%",
+        "date": "2026-06-30",
+        "formule": "(1987.4 + 271.291) ÷ 3960.809 (MMAD) — (charges générales d'exploitation + dotations aux amortissements et aux dépréciations des immobilisations incorporelles et corporelles) ÷ produit net bancaire — compte de résultat consolidé IFRS",
+        "sources": {
+          "cge_2025": "Rapport financier annuel 2025 (dépôt AMMC ; 357 p., 196 pages sans couche texte) — https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf, p. 15",
+          "cge_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf, p. 12",
+          "cge_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf, p. 12",
+          "dap_2025": "Rapport financier annuel 2025 (dépôt AMMC ; 357 p., 196 pages sans couche texte) — https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf, p. 15",
+          "dap_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf, p. 12",
+          "dap_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf, p. 12",
+          "pnb_2025": "Rapport financier annuel 2025 (dépôt AMMC ; 357 p., 196 pages sans couche texte) — https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf, p. 15",
+          "pnb_s1_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf, p. 12",
+          "pnb_s1_2025": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf, p. 12"
+        },
+        "periode": "12 mois glissants au 30/06/2026 = exercice 2025 + S1 2026 − S1 2025, tout sur pièce"
+      },
+      "cout_du_risque_encours": {
+        "valeur": 1.545,
+        "unite": "%",
+        "date": "2025-12-31",
+        "formule": "911.575 ÷ (59193.851 + 58829.455) / 2 (MMAD) — coût du risque ÷ moyenne des encours nets de crédits à la clientèle (début et fin de période)",
+        "sources": {
+          "cdr_2025": "Rapport financier annuel 2025 (dépôt AMMC ; 357 p., 196 pages sans couche texte) — https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf, p. 15",
+          "encours_31_12_2024": "Rapport financier annuel 2025 (dépôt AMMC ; 357 p., 196 pages sans couche texte) — https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf, p. 15",
+          "encours_31_12_2025": "Rapport financier annuel 2025 (dépôt AMMC ; 357 p., 196 pages sans couche texte) — https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf, p. 15"
+        },
+        "periode": "exercice 2025 — encours au 30/06/2025 non relevé sur pièce, la moyenne sur 12 mois glissants n'est pas calculable",
+        "cout_du_risque_12m": 664.234
+      },
+      "couverture_bucket3": {
+        "valeur": 75.49,
+        "unite": "%",
+        "date": "2026-06-30",
+        "formule": "5904.159 ÷ 7821.361 (MMAD) — dépréciations Bucket 3 ÷ encours bruts Bucket 3, prêts et créances sur la clientèle (IFRS 9)",
+        "sources": {
+          "bucket3_depreciations_30_06_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf, p. 15",
+          "bucket3_brut_30_06_2026": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf, p. 15"
+        },
+        "periode": "30/06/2026 — dernier bilan sur pièce",
+        "reserve": "Taux de couverture publié (81 %, p.5 du RFA) SOCIAL : non repris ; la couverture consolidée n'existe que par le calcul Bucket 3 ÷ Bucket 3.",
+        "taux_bucket3": {
+          "valeur": 11.8,
+          "formule": "7821.361 ÷ 66260.903 (MMAD) — Bucket 3 brut ÷ encours bruts clientèle (Buckets 1 + 2 + 3)",
+          "source": "Rapport financier semestriel au 30/06/2026 (dépôt AMMC) — https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf, p. 15"
+        }
+      },
+      "solvabilite_globale": {
+        "valeur": 13.4,
+        "unite": "%",
+        "date": "2025-12-31",
+        "formule": "ratio de solvabilité global consolidé publié (fonds propres totaux ÷ risques pondérés, Bâle III)",
+        "sources": {
+          "solvabilite_31_12_2025": "Rapport financier annuel 2025 (dépôt AMMC ; 357 p., 196 pages sans couche texte) — https://www.ammc.ma/sites/default/files/BMCI_RFA_2025.pdf, p. 13"
+        },
+        "periode": "31/12/2025 — seule date publiée par toutes les banques qui publient le ratio"
       },
       "calcule_le": "2026-09-30"
     }

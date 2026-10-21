@@ -39,7 +39,8 @@ def test_une_perte_donne_un_roe_negatif_pas_une_absence():
 def test_chaque_ratio_porte_sa_date_et_ses_sources():
     for s, f in FOND.items():
         for k, x in ((f or {}).get("ratios_publies") or {}).items():
-            if k in ("calcule_le", "non_calcules_2025", "ratios_bilan_2025", "reserve_cac"):
+            if k in ("calcule_le", "non_calcules_2025", "ratios_bilan_2025", "reserve_cac",
+                     "solvabilite_globale_absente"):   # un motif d'absence, pas un ratio
                 continue
             assert x["date"] and x["formule"] and any(x["sources"].values()), (s, k)
 
