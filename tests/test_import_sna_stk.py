@@ -271,3 +271,11 @@ def test_bvcscrap_ne_peut_pas_retrancher_ou_ecraser_l_historique():
     assert par_date["2025-10-07"]["high"] == 138.0
     assert par_date["2026-09-16"]["close"] == 63.8
     assert par_date["2026-09-18"]["close"] == 65.0
+
+
+def test_le_moteur_date_le_cache_qu_il_ecrit():
+    """21/10/2026 : le cache recalculé à la date du jour gardait l'horodatage
+    de l'écriture précédente — le rejeu à `_updated` divergeait (STK h52w)."""
+    src = (RACINE / "update_data.py").read_text(encoding="utf-8")
+    i = src.index('"pipeline" / "historical_data.json").write_text(')
+    assert '_hd_all["_updated"] = datetime.now(timezone.utc).isoformat()' in src[i - 1500:i]
