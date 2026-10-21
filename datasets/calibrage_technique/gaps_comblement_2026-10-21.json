@@ -1,0 +1,261 @@
+{
+ "_quoi": "Fréquence de comblement des gaps (mesurée, pas reprise d'un artefact)",
+ "_methode": "Fréquence de COMBLEMENT des gaps — banc d'essai, aucune note modifiée.\n\nLes artefacts du 03/10/2026 mesurent ce qui suit un REBOND sur la zone d'un\ngap (`gap_haussier_rebond`, `gap_baissier_rejet`), pas la fréquence à laquelle\nun gap se comble. Celle-ci est mesurée ici, avec le protocole de\n`calibrage_figures.py` :\n\n- données : chandelles `pipeline/candles/`, séances ÉCHANGÉES seules, arrêtées\n  au 02/10/2026 (stable d'une séance à l'autre, comme `frequences.py`) ;\n- événement : le gap, daté de SA séance — connu à la clôture de ce jour-là,\n  jamais plus tôt. Définition de `lignes.gaps` : extrêmes de la séance au moins\n  1 % au-dessus du plus haut (au-dessous du plus bas) de la veille, deux\n  séances à extrêmes réels. Plus : jamais à travers une rupture, jamais un\n  écart de plus de 10 % (R10/R11, voir `technical/serie_propre.py`) ;\n- une occurrence au plus par titre, par sens et par fenêtre de 20 séances ;\n- période : à partir du 04/10/2023 ; deux sous-périodes (coupure 01/01/2025) ;\n- univers : « tous » et « liquides » (montant médian ≥ le seuil FIXE de\n  l'artefact `etape4`, 119 564 DH — le même que celui qui sert à marquer un\n  titre liquide dans `figures_publiees.json`) ;\n- comblement : une séance ultérieure dont l'extrême traverse TOUTE la zone\n  (bas ≤ plus haut de la veille pour un gap haussier ; haut ≥ plus bas de la\n  veille pour un gap baissier). Mesuré à 20 et à 60 séances. Un gap sans\n  `horizon` séances de recul n'est pas compté (censure) ; un gap dont le suivi\n  est interrompu par une rupture avant l'horizon non plus.\n\n⚠️ Le comblement n'est PAS une performance : c'est la fréquence d'un fait de\nmarché (le cours revient sur son point de départ). Il n'est pas en alpha ni en\nfrais — aucun achat n'est supposé. Observations chevauchantes entre titres un\nmême jour (une baisse de marché ouvre des gaps baissiers partout) : les\nintervalles sont optimistes.",
+ "fin_donnees": "2026-10-02",
+ "seuil_liquidite_dh": 119564,
+ "evenements": 712,
+ "gaps": {
+  "gap_haussier": {
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 137,
+      "combles_k": 98,
+      "pct_combles": 71.5,
+      "ic95_combles": [
+       63.5,
+       78.4
+      ]
+     },
+     "h60": {
+      "n": 137,
+      "combles_k": 108,
+      "pct_combles": 78.8,
+      "ic95_combles": [
+       71.3,
+       84.8
+      ]
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 275,
+      "combles_k": 198,
+      "pct_combles": 72.0,
+      "ic95_combles": [
+       66.4,
+       77.0
+      ]
+     },
+     "h60": {
+      "n": 259,
+      "combles_k": 211,
+      "pct_combles": 81.5,
+      "ic95_combles": [
+       76.3,
+       85.7
+      ]
+     }
+    },
+    "toutes_periodes": {
+     "h20": {
+      "n": 412,
+      "combles_k": 296,
+      "pct_combles": 71.8,
+      "ic95_combles": [
+       67.3,
+       76.0
+      ]
+     },
+     "h60": {
+      "n": 396,
+      "combles_k": 319,
+      "pct_combles": 80.6,
+      "ic95_combles": [
+       76.4,
+       84.2
+      ]
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 73,
+      "combles_k": 50,
+      "pct_combles": 68.5,
+      "ic95_combles": [
+       57.1,
+       78.0
+      ]
+     },
+     "h60": {
+      "n": 73,
+      "combles_k": 53,
+      "pct_combles": 72.6,
+      "ic95_combles": [
+       61.4,
+       81.5
+      ]
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 191,
+      "combles_k": 136,
+      "pct_combles": 71.2,
+      "ic95_combles": [
+       64.4,
+       77.2
+      ]
+     },
+     "h60": {
+      "n": 185,
+      "combles_k": 151,
+      "pct_combles": 81.6,
+      "ic95_combles": [
+       75.4,
+       86.5
+      ]
+     }
+    },
+    "toutes_periodes": {
+     "h20": {
+      "n": 264,
+      "combles_k": 186,
+      "pct_combles": 70.5,
+      "ic95_combles": [
+       64.7,
+       75.6
+      ]
+     },
+     "h60": {
+      "n": 258,
+      "combles_k": 204,
+      "pct_combles": 79.1,
+      "ic95_combles": [
+       73.7,
+       83.6
+      ]
+     }
+    }
+   }
+  },
+  "gap_baissier": {
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 108,
+      "combles_k": 84,
+      "pct_combles": 77.8,
+      "ic95_combles": [
+       69.1,
+       84.6
+      ]
+     },
+     "h60": {
+      "n": 108,
+      "combles_k": 99,
+      "pct_combles": 91.7,
+      "ic95_combles": [
+       84.9,
+       95.6
+      ]
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 179,
+      "combles_k": 130,
+      "pct_combles": 72.6,
+      "ic95_combles": [
+       65.7,
+       78.6
+      ]
+     },
+     "h60": {
+      "n": 158,
+      "combles_k": 140,
+      "pct_combles": 88.6,
+      "ic95_combles": [
+       82.7,
+       92.7
+      ]
+     }
+    },
+    "toutes_periodes": {
+     "h20": {
+      "n": 287,
+      "combles_k": 214,
+      "pct_combles": 74.6,
+      "ic95_combles": [
+       69.2,
+       79.3
+      ]
+     },
+     "h60": {
+      "n": 266,
+      "combles_k": 239,
+      "pct_combles": 89.8,
+      "ic95_combles": [
+       85.6,
+       92.9
+      ]
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 50,
+      "combles_k": 38,
+      "pct_combles": 76.0,
+      "ic95_combles": [
+       62.6,
+       85.7
+      ]
+     },
+     "h60": {
+      "n": 50,
+      "combles_k": 45,
+      "pct_combles": 90.0,
+      "ic95_combles": [
+       78.6,
+       95.7
+      ]
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 114,
+      "combles_k": 82,
+      "pct_combles": 71.9,
+      "ic95_combles": [
+       63.1,
+       79.4
+      ]
+     },
+     "h60": {
+      "n": 104,
+      "combles_k": 92,
+      "pct_combles": 88.5,
+      "ic95_combles": [
+       80.9,
+       93.3
+      ]
+     }
+    },
+    "toutes_periodes": {
+     "h20": {
+      "n": 164,
+      "combles_k": 120,
+      "pct_combles": 73.2,
+      "ic95_combles": [
+       65.9,
+       79.4
+      ]
+     },
+     "h60": {
+      "n": 154,
+      "combles_k": 137,
+      "pct_combles": 89.0,
+      "ic95_combles": [
+       83.0,
+       93.0
+      ]
+     }
+    }
+   }
+  }
+ }
+}
