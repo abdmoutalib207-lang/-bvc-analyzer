@@ -1030,7 +1030,8 @@ const InfoCellule=({texte})=>{const [o,setO]=useState(false);if(!texte)return nu
     {o&&<span style={{display:"block",textTransform:"none",fontSize:10.5,color:"#c8d3e8",lineHeight:1.45,margin:"4px 0 2px",letterSpacing:0,whiteSpace:"pre-line"}}>{texte}</span>}</>;};
 const SOURCES_FOND={faits_ammc:"faits financiers relevés page par page dans les comptes déposés à l'AMMC",
   bpa_calcule:"bénéfice par action calculé sur les comptes déposés à l'AMMC",calculee_recoupee:"cours × nombre d'actions, recoupé avec la capitalisation servie par la source",
-  servie:"capitalisation servie par la source de cotation"};
+  calculee_bourse_officielle:"cours du jour × nombre officiel d'actions de la Bourse de Casablanca (liste des émetteurs)",
+  servie:"capitalisation servie par la source de cotation (dernier recours)"};
 const explRatio=(cle,r,price)=>{const src=x=>SOURCES_FOND[x]||x||"source non précisée";const m=r._meta||{};
   if(cle==="pe")return r.pe==null?"Pas de PER : pas de bénéfice par action positif tiré des comptes.":
     `PER = cours ÷ bénéfice par action.\n${px(price)} DH ÷ ${fmt(r.bpa_12m??r.bpa)} DH${r.pe_base?` (${r.pe_base})`:""}.\nSource : ${src(m.source_fond)}.\nRéserve : PER réalisé, pas prévisionnel.${r.pe_annuel!=null?` Exercice 2025 seul : ${fmt(r.pe_annuel,1)}.`:""}${r.pe_capitalisation!=null&&r.pe_capitalisation!==r.pe?`\nCapitalisation ÷ résultat 12 mois (nombre d'actions actuel) : ${fmt(r.pe_capitalisation,1)} — le BPA, lui, porte sur le nombre moyen pondéré de la période (IAS 33).`:""}${r.bpa_reserve?`\n⚠ ${r.bpa_reserve}`:""}`;

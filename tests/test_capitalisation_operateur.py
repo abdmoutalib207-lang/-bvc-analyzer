@@ -15,6 +15,16 @@ RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE))
 logging.disable(logging.CRITICAL)
 
+import pytest  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _maillon_2(ud, monkeypatch):
+    """⚠️ 20/10/2026 : ces cas décrivent le MAILLON 2 (nombre d'actions de
+    l'opérateur / des faits) ; la liste officielle de la Bourse, maillon 1,
+    est neutralisée ici (test_cap_bourse_officielle.py la couvre)."""
+    monkeypatch.setattr(ud, "ACTIONS_BOURSE", {})
+
 
 def test_le_nombre_d_actions_de_l_operateur_prime(ud):
     assert ud._actions_sourcees("LHM") == 23431240

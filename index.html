@@ -4031,7 +4031,8 @@ const SOURCES_FOND = {
   faits_ammc: "faits financiers relevés page par page dans les comptes déposés à l'AMMC",
   bpa_calcule: "bénéfice par action calculé sur les comptes déposés à l'AMMC",
   calculee_recoupee: "cours × nombre d'actions, recoupé avec la capitalisation servie par la source",
-  servie: "capitalisation servie par la source de cotation"
+  calculee_bourse_officielle: "cours du jour × nombre officiel d'actions de la Bourse de Casablanca (liste des émetteurs)",
+  servie: "capitalisation servie par la source de cotation (dernier recours)"
 };
 const explRatio = (cle, r, price) => {
   const src = x => SOURCES_FOND[x] || x || "source non précisée";
