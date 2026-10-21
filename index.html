@@ -51,6 +51,33 @@
     @media (prefers-reduced-motion:reduce){[data-gabarit] .carte-ind::after,[data-gabarit] .indices-ligne::after{display:none;}}
     .carte-indices{flex-basis:100%;width:100%;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.2fr);gap:10px;margin-top:8px}
     @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
+    /* ⚠️ GABARIT À PANNEAUX DE LA FICHE — 20/10/2026, sur captures d'Abd
+       Moutalib : à 1440 px la fiche tenait dans 290 px collés à gauche,
+       1 100 px vides. Au-delà de 1200 px : liste des titres | graphique et
+       fiche | note et chiffres. De 768 à 1199 px : note | graphique et fiche.
+       Sous 768 px : une colonne, dans l'ordre du téléphone. */
+    .liste-nom,.liste-var{display:none}
+    /* Heatmap (20/10/2026) : un secteur par ligne laissait 93 % de la largeur
+       vide à 1440 px. Au-delà de 768 px, les secteurs se rangent en colonnes. */
+    @media(min-width:768px){.heatmap-secteurs{column-width:340px;column-gap:24px}.heatmap-secteurs>div{break-inside:avoid}}
+    @media(max-width:767px){.detail-grid{grid-template-columns:1fr!important;gap:10px}}
+    @media(min-width:768px){.fiche-graphique{order:-1}}
+    @media(min-width:1200px){
+      .fiche-gabarit{display:grid;grid-template-columns:272px minmax(0,1fr);gap:12px;align-items:start}
+      .fiche-liste{position:sticky;top:calc(var(--h-entete,0px) + 8px);max-height:calc(100vh - var(--h-entete,0px) - 16px);
+        display:flex;flex-direction:column;min-height:240px;background:#0d1829;border:1px solid #1a2540;border-radius:8px;padding:8px}
+      .fiche-liste input{width:100%!important}
+      .fiche-liste [data-liste="titres"]{flex-direction:column;flex-wrap:nowrap!important;max-height:none!important;flex:1 1 auto;min-height:0;gap:2px!important;margin-bottom:0!important}
+      [data-liste="titres"]>button{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:8px;align-items:center;text-align:left;
+        flex:0 0 auto;min-height:30px;padding:4px 8px!important;font-size:11px!important}
+      [data-liste="titres"]>button[aria-pressed="false"]{border-color:transparent!important}
+      [data-liste="titres"]>button[aria-pressed="false"]:hover{background:#0a1220!important;color:#c8d3e8!important}
+      .liste-nom{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8892a4;font-weight:400}
+      .liste-var{display:block;font-variant-numeric:tabular-nums;font-weight:400}
+      .detail-grid{grid-template-columns:minmax(0,1fr) clamp(300px,24vw,380px)}
+      .fiche-note{grid-column:2;grid-row:1}
+      .fiche-centre{grid-column:1;grid-row:1}
+    }
     /* ⚠️ TÉLÉPHONE EN PAYSAGE — 10/10/2026, signalé par Abd Moutalib. Couché,
        le téléphone dépasse 640 px de large et reçoit l'en-tête COLLÉ de
        l'ordinateur. Mesuré à 844×390 : en-tête de 474 px pour 390 visibles,
@@ -257,6 +284,15 @@
     .tdb-titre{font-size:10.5px;color:#c8d3e8;letter-spacing:1px;text-transform:uppercase;text-wrap:balance;}
     .tdb-src{font-size:10.5px;color:#8892a4;line-height:1.5;margin-bottom:10px;text-wrap:pretty;}
     .tdb-num{font-family:var(--font);font-variant-numeric:tabular-nums;white-space:nowrap;}
+    /* Niveaux mesurés en barres (21/10/2026) : sur deux lignes dans un panneau
+       étroit, sur une seule au-delà de 520 px de panneau. */
+    .niv-liste{container-type:inline-size;display:flex;flex-direction:column}
+    .niv-ligne{display:grid;grid-template-columns:46px minmax(0,1fr);gap:4px 12px;align-items:center;padding:7px 0;border-top:1px solid #0a1220}
+    .niv-ligne .niv-fourchette{grid-column:1 / -1}
+    .niv-barre{container-type:inline-size}
+    .niv-haut{order:2}.niv-seance{order:3;flex-basis:100%}
+    @container (min-width:400px){.niv-haut,.niv-seance{order:0}.niv-seance{flex-basis:auto}}
+    @container (min-width:520px){.niv-ligne{grid-template-columns:46px minmax(120px,.8fr) minmax(0,2.2fr)}.niv-ligne .niv-fourchette{grid-column:auto}}
     .tdb-ligne{display:grid;align-items:center;gap:8px;width:100%;background:transparent;border:none;border-radius:4px;
       padding:4px 6px;font-family:var(--font);color:#c8d3e8;text-align:left;cursor:pointer;min-height:30px;
       transition:background-color var(--t-court) var(--ease),opacity var(--t-court) var(--ease);}
@@ -7432,7 +7468,9 @@ const Heatmap = ({
       color: "#00e5a0",
       fontWeight: 600
     }
-  }, "Hausse"))), sectors.map(sec => React.createElement("div", {
+  }, "Hausse"))), React.createElement("div", {
+    className: "heatmap-secteurs"
+  }, sectors.map(sec => React.createElement("div", {
     key: sec.name,
     style: {
       marginBottom: 16
@@ -7513,7 +7551,7 @@ const Heatmap = ({
         color: chg > 0 ? "#00e5a0" : chg < 0 ? "#ff4f5a" : "#8892a4"
       }
     }, nc_ ? "n.c." : React.createElement(React.Fragment, null, chg > 0 ? "▲" : chg < 0 ? "▼" : "—", Math.abs(chg).toFixed(2), "%")));
-  })))), React.createElement("div", {
+  }))))), React.createElement("div", {
     style: {
       marginTop: 12,
       fontSize: 10,
@@ -8783,6 +8821,512 @@ const FourchetteMasi = ({
     }
   }, h ? `à ${h}` : l === "Plus haut" || l === "Plus bas" ? "heure hors de la série" : "\u00a0")))));
 };
+const NivBarre = ({
+  lib,
+  bas,
+  haut,
+  dbas,
+  dhaut,
+  sb,
+  sh,
+  c,
+  lc = "clôture"
+}) => {
+  const ok = x => x != null && isFinite(x);
+  const xs = [bas, haut, sb, sh, c].filter(ok);
+  if (xs.length < 2) return React.createElement("span", {
+    style: {
+      color: "#8892a4",
+      fontSize: 11
+    }
+  }, "\u2014");
+  const lo = Math.min(...xs),
+    hi = Math.max(...xs),
+    m = (hi - lo) * .04 || 1,
+    a = lo - m,
+    z = hi + m;
+  const p = x => `${((x - a) / (z - a) * 100).toFixed(2)}%`;
+  const info = [ok(bas) && `${lib} : plus bas ${nfr(bas)}${dbas ? ` le ${jm(dbas)}` : ""}`, ok(haut) && `plus haut ${nfr(haut)}${dhaut ? ` le ${jm(dhaut)}` : ""}`, ok(sb) && ok(sh) && `séance ${nfr(sb)} – ${nfr(sh)}`, ok(c) && `${lc} ${nfr(c)}`].filter(Boolean).join(" · ");
+  return React.createElement("div", {
+    className: "niv-barre",
+    title: info,
+    style: {
+      minWidth: 0
+    }
+  }, React.createElement("div", {
+    role: "img",
+    "aria-label": info,
+    style: {
+      position: "relative",
+      height: 12,
+      background: "#0a1220",
+      borderRadius: 3,
+      margin: "2px 1px 0"
+    }
+  }, ok(bas) && ok(haut) && React.createElement("span", {
+    style: {
+      position: "absolute",
+      left: p(bas),
+      width: `calc(${p(haut)} - ${p(bas)})`,
+      top: 3,
+      height: 6,
+      background: "#2a3550",
+      borderRadius: 3
+    }
+  }), ok(sb) && ok(sh) && React.createElement("span", {
+    style: {
+      position: "absolute",
+      left: p(sb),
+      width: `max(3px, calc(${p(sh)} - ${p(sb)}))`,
+      top: 1,
+      height: 10,
+      background: "rgba(77,184,255,.6)",
+      borderRadius: 2
+    }
+  }), ok(c) && React.createElement("span", {
+    style: {
+      position: "absolute",
+      left: p(c),
+      top: -2,
+      height: 16,
+      width: 2,
+      marginLeft: -1,
+      background: "#e6edf7",
+      borderRadius: 1
+    }
+  })), React.createElement("div", {
+    className: "tdb-num",
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      gap: "0 8px",
+      fontSize: 10.5,
+      color: "#c8d3e8",
+      marginTop: 3,
+      flexWrap: "wrap",
+      whiteSpace: "normal"
+    }
+  }, React.createElement("span", null, nfr(bas), dbas && React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, " ", jm(dbas))), ok(sb) && ok(sh) && React.createElement("span", {
+    className: "niv-seance",
+    style: {
+      color: "#4db8ff"
+    }
+  }, "s\xE9ance ", nfr(sb), " \u2013 ", nfr(sh)), React.createElement("span", {
+    className: "niv-haut"
+  }, nfr(haut), dhaut && React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, " ", jm(dhaut)))));
+};
+const LegendeNiv = ({
+  n
+}) => React.createElement("div", {
+  style: {
+    display: "flex",
+    gap: "2px 12px",
+    flexWrap: "wrap",
+    fontSize: 10,
+    color: "#8892a4",
+    margin: "2px 0 4px"
+  }
+}, React.createElement("span", null, React.createElement("span", {
+  style: {
+    display: "inline-block",
+    width: 16,
+    height: 6,
+    background: "#2a3550",
+    borderRadius: 3,
+    marginRight: 5
+  }
+}), "bas \u2013 haut, ", n, " s\xE9ances"), React.createElement("span", null, React.createElement("span", {
+  style: {
+    display: "inline-block",
+    width: 16,
+    height: 10,
+    background: "rgba(77,184,255,.6)",
+    borderRadius: 2,
+    marginRight: 5,
+    verticalAlign: -1
+  }
+}), "s\xE9ance"), React.createElement("span", null, React.createElement("span", {
+  style: {
+    display: "inline-block",
+    width: 2,
+    height: 12,
+    background: "#e6edf7",
+    marginRight: 5,
+    verticalAlign: -2
+  }
+}), "cl\xF4ture"));
+const NiveauxTitres = ({
+  l,
+  n
+}) => {
+  const vMax = Math.max(1, ...l.map(x => x.montant_dh || 0));
+  return React.createElement("div", {
+    className: "niv-liste"
+  }, l.map(x => React.createElement("div", {
+    key: x.symbol,
+    className: "niv-ligne"
+  }, React.createElement("b", {
+    className: "niv-code",
+    title: x.name || x.symbol,
+    style: {
+      color: "#4db8ff",
+      fontSize: 12
+    }
+  }, codeDe(x.symbol)), React.createElement("div", {
+    className: "niv-vol",
+    title: `Échangé : ${montantEntier(x.montant_dh)}`
+  }, React.createElement("div", {
+    className: "tdb-num",
+    style: {
+      fontSize: 11.5,
+      color: "#c8d3e8"
+    }
+  }, montantEntier(x.montant_dh)), React.createElement("div", {
+    style: {
+      height: 5,
+      background: "#0a1220",
+      borderRadius: 3,
+      marginTop: 3
+    }
+  }, React.createElement("div", {
+    style: {
+      width: `${(x.montant_dh || 0) / vMax * 100}%`,
+      height: "100%",
+      background: "#4db8ff",
+      opacity: .65,
+      borderRadius: 3
+    }
+  }))), React.createElement("div", {
+    className: "niv-fourchette"
+  }, React.createElement(NivBarre, {
+    lib: `${n} séances`,
+    bas: x.fenetre && x.fenetre.plus_bas,
+    haut: x.fenetre && x.fenetre.plus_haut,
+    dbas: x.fenetre && x.fenetre.date_plus_bas,
+    dhaut: x.fenetre && x.fenetre.date_plus_haut,
+    sb: x.seance_bas,
+    sh: x.seance_haut,
+    c: x.cloture
+  })))));
+};
+const CarteConstat = ({
+  l,
+  val,
+  cv,
+  sous,
+  phrase,
+  enfant,
+  taille = 20
+}) => React.createElement("div", {
+  title: phrase,
+  style: {
+    background: "#0a1220",
+    border: "1px solid #1a2540",
+    borderRadius: 8,
+    padding: "10px 12px",
+    display: "flex",
+    flexDirection: "column",
+    gap: 2,
+    minWidth: 0
+  }
+}, React.createElement("div", {
+  style: {
+    fontSize: 10,
+    color: "#8892a4",
+    letterSpacing: .8,
+    textTransform: "uppercase"
+  }
+}, l), React.createElement("div", {
+  className: "tdb-num",
+  style: {
+    fontSize: taille,
+    fontWeight: 700,
+    color: cv || "#e6edf7",
+    lineHeight: 1.25,
+    whiteSpace: "normal"
+  }
+}, val), sous && React.createElement("div", {
+  style: {
+    fontSize: 11,
+    color: "#8892a4",
+    lineHeight: 1.45
+  }
+}, sous), enfant);
+const constatsVisuels = s => {
+  const C = s.constats || [],
+    t = s.trajectoire,
+    v = s.veille,
+    j = v && v.jour,
+    vv = v && v.veille,
+    a = s.accord,
+    k = s.concentration,
+    vol = (s.volumes || [])[0],
+    nv = s.niveaux || {},
+    nm = nv.masi;
+  const pris = new Set(),
+    ph = {};
+  const prend = (cle, f, ok) => {
+    if (!ok) return;
+    const i = C.findIndex((c, n) => !pris.has(n) && typeof c === "string" && f(c));
+    if (i >= 0) {
+      pris.add(i);
+      ph[cle] = C[i];
+    }
+  };
+  prend("masi", c => c.startsWith("MASI : première valeur"), !!t);
+  prend("veille", c => c.startsWith("Par rapport à la séance du"), !!(j && vv));
+  prend("accord", c => c.startsWith("Marché partagé :") || c.startsWith("Séance de ") && c.includes(" large :"), !!a);
+  prend("conc", c => c.startsWith("L'activité est concentrée"), !!k);
+  prend("vol", c => c.startsWith("Activité inhabituelle sur"), !!vol);
+  prend("ytd", c => c.startsWith("Depuis le 1er janvier"), s.ytd_pct != null);
+  prend("nivmasi", c => c.startsWith("Niveaux mesurés du MASI"), !!nm);
+  prend("nivtitres", c => c.startsWith("Titres les plus échangés"), (nv.titres || []).length > 0);
+  if (!pris.size) return null;
+  const enSeance = !!s.moment && s.moment !== "cloture";
+  const fin = t && t.cloture != null ? t.cloture : j && j.cours;
+  const reste = ph.masi ? ph.masi.slice(ph.masi.indexOf(". ", ph.masi.indexOf("pour une veille")) + 1 || ph.masi.length).trim() : "";
+  const cl = nm && nm.clotures;
+  const nLarg = a ? (a.hausses || 0) + (a.baisses || 0) + (a.inchanges || 0) : 0;
+  const M = montantEntier;
+  const cadre = {
+    background: "#0a1220",
+    border: "1px solid #1a2540",
+    borderRadius: 8,
+    padding: "10px 12px",
+    minWidth: 0
+  };
+  const titreCadre = {
+    fontSize: 10,
+    color: "#8892a4",
+    letterSpacing: .8,
+    textTransform: "uppercase",
+    marginBottom: 4
+  };
+  const lf = enSeance ? "dernière valeur" : "clôture";
+  const rendu = React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10,
+      marginBottom: 12
+    }
+  }, (ph.masi || ph.nivmasi) && React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(min(320px,100%),1fr))",
+      gap: 10
+    }
+  }, ph.masi && React.createElement("div", {
+    style: cadre,
+    title: ph.masi
+  }, React.createElement("div", {
+    style: titreCadre
+  }, "MASI \u2014 la s\xE9ance, rep\xE8re par rep\xE8re"), React.createElement(FourchetteMasi, {
+    t: t,
+    enSeance: enSeance
+  }), reste && React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      lineHeight: 1.5,
+      marginTop: 8
+    }
+  }, reste)), ph.nivmasi && React.createElement("div", {
+    style: cadre,
+    title: ph.nivmasi
+  }, React.createElement("div", {
+    style: titreCadre
+  }, "MASI \u2014 niveaux mesur\xE9s"), nm.seance_bas != null && nm.seance_haut != null && React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: "#8892a4"
+    }
+  }, "s\xE9ance ", React.createElement("span", {
+    className: "tdb-num",
+    style: {
+      color: "#4db8ff"
+    }
+  }, nfr(nm.seance_bas), " \u2013 ", nfr(nm.seance_haut))), cl && React.createElement("div", {
+    style: {
+      marginTop: 8
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: "#c8d3e8",
+      marginBottom: 2
+    }
+  }, cl.n_seances ? `${cl.n_seances} dernières séances` : `${cl.n} dernières clôtures enregistrées`, " ", React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, "\u2014 cl\xF4tures du ", jm(cl.du), " au ", jm(cl.au)), cl.n_seances && cl.n < cl.n_seances && React.createElement("span", {
+    style: {
+      color: "#ff8f00"
+    }
+  }, " \xB7 sur les ", cl.n, " cl\xF4tures de l'indice enregistr\xE9es dans cette fen\xEAtre")), React.createElement(NivBarre, {
+    lib: "cl\xF4tures",
+    bas: cl.plus_basse,
+    dbas: cl.date_plus_basse,
+    haut: cl.plus_haute,
+    dhaut: cl.date_plus_haute,
+    sb: nm.seance_bas,
+    sh: nm.seance_haut,
+    c: fin,
+    lc: lf
+  })), nm.annee_haut != null && nm.annee_bas != null && React.createElement("div", {
+    style: {
+      marginTop: 10
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: "#c8d3e8",
+      marginBottom: 2
+    }
+  }, "Sur l'ann\xE9e ", React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, "\u2014 plus bas et plus haut (synth\xE8se de s\xE9ance)")), React.createElement(NivBarre, {
+    lib: "ann\xE9e",
+    bas: nm.annee_bas,
+    haut: nm.annee_haut,
+    c: fin,
+    lc: lf
+  })))), React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(min(160px,46%),1fr))",
+      gap: 8
+    }
+  }, ph.veille && React.createElement(CarteConstat, {
+    l: `MASI vs ${jm(v.seance_veille)}`,
+    phrase: ph.veille,
+    val: sgp(j.variation_pct),
+    cv: VARC(j.variation_pct),
+    sous: React.createElement(React.Fragment, null, "apr\xE8s ", React.createElement("span", {
+      style: {
+        color: VARC(vv.variation_pct)
+      }
+    }, sgp(vv.variation_pct)), " le ", jm(v.seance_veille))
+  }), ph.veille && v.ecart_volume_pct != null && React.createElement(CarteConstat, {
+    l: "Volume global",
+    phrase: ph.veille,
+    val: j.volume_mad == null ? "—" : React.createElement(React.Fragment, null, entier(j.volume_mad), React.createElement("span", {
+      style: {
+        fontSize: 11,
+        fontWeight: 400,
+        color: "#8892a4"
+      }
+    }, " DH")),
+    taille: 17,
+    sous: React.createElement(React.Fragment, null, React.createElement("span", {
+      style: {
+        color: "#c8d3e8"
+      }
+    }, sgp(v.ecart_volume_pct, 1)), " contre ", M(vv.volume_mad), " le ", jm(v.seance_veille))
+  }), (ph.accord || ph.veille) && a && React.createElement(CarteConstat, {
+    l: "Hausses / baisses",
+    phrase: [ph.accord, ph.veille].filter(Boolean).join("\n"),
+    val: React.createElement(React.Fragment, null, React.createElement("span", {
+      style: {
+        color: "#00e5a0"
+      }
+    }, a.hausses), React.createElement("span", {
+      style: {
+        color: "#8892a4",
+        fontSize: 14
+      }
+    }, " / "), React.createElement("span", {
+      style: {
+        color: "#ff4f5a"
+      }
+    }, a.baisses)),
+    sous: React.createElement(React.Fragment, null, "sur ", a.total, " valeurs", ph.accord ? React.createElement(React.Fragment, null, " \xB7 indice \xE0 ", React.createElement("span", {
+      style: {
+        color: VARC(a.change_pct)
+      }
+    }, sgp(a.change_pct))) : null, ph.veille && vv.hausses != null ? React.createElement(React.Fragment, null, " \xB7 veille ", vv.hausses, " / ", vv.baisses) : null),
+    enfant: nLarg > 0 && React.createElement("div", {
+      "aria-hidden": "true",
+      style: {
+        display: "flex",
+        height: 5,
+        borderRadius: 3,
+        overflow: "hidden",
+        marginTop: 4,
+        background: "#0d1829"
+      }
+    }, React.createElement("span", {
+      style: {
+        width: `${(a.hausses || 0) / nLarg * 100}%`,
+        background: "#00e5a0"
+      }
+    }), React.createElement("span", {
+      style: {
+        width: `${(a.inchanges || 0) / nLarg * 100}%`,
+        background: "#5a6478"
+      }
+    }), React.createElement("span", {
+      style: {
+        width: `${(a.baisses || 0) / nLarg * 100}%`,
+        background: "#ff4f5a"
+      }
+    }))
+  }), ph.conc && React.createElement(CarteConstat, {
+    l: "Concentration",
+    phrase: ph.conc,
+    val: `${(k.part_top5 * 100).toFixed(0)} %`,
+    sous: React.createElement(React.Fragment, null, "aux 5 titres les plus \xE9chang\xE9s, sur ", M(k.total_dh), " et ", k.n_titres_actifs, " valeurs actives"),
+    enfant: React.createElement("div", {
+      "aria-hidden": "true",
+      style: {
+        height: 5,
+        borderRadius: 3,
+        background: "#0d1829",
+        marginTop: 4
+      }
+    }, React.createElement("div", {
+      style: {
+        width: `${Math.min(100, k.part_top5 * 100)}%`,
+        height: "100%",
+        background: "#4db8ff",
+        opacity: .65,
+        borderRadius: 3
+      }
+    }))
+  }), ph.vol && React.createElement(CarteConstat, {
+    l: `Activité inhabituelle · ${codeDe(vol.symbol)}`,
+    phrase: ph.vol,
+    val: `${nfr(vol.facteur, 1)}×`,
+    sous: React.createElement(React.Fragment, null, entier(vol.volume), " titres \xE9chang\xE9s contre une m\xE9diane de ", entier(vol.median20), " sur vingt s\xE9ances")
+  }), ph.ytd && React.createElement(CarteConstat, {
+    l: "Depuis le 1er janvier",
+    phrase: ph.ytd,
+    val: sgp(s.ytd_pct),
+    cv: VARC(s.ytd_pct),
+    sous: "variation de l'indice"
+  })), ph.nivtitres && React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4"
+    },
+    title: ph.nivtitres
+  }, "Titres les plus \xE9chang\xE9s \u2014 extr\xEAmes des ", nv.n_seances || 20, " derni\xE8res s\xE9ances : en barres dans \xAB Niveaux mesur\xE9s \xBB ci-dessus ; la phrase compl\xE8te est dans le texte int\xE9gral."));
+  return {
+    pris,
+    rendu
+  };
+};
 const absencesTableau = (b, rows, masi) => {
   if (!b) return [];
   const a = ["la capitalisation boursière globale du marché — aucune de nos sources ne la publie pour la séance"];
@@ -9329,107 +9873,48 @@ const SeanceDetail = ({
     cls: "c6",
     titre: `Niveaux mesurés — ${nv.n_seances || 20} dernières séances${filtre && rel.ok ? ` — ${filtre.lab}` : ""}`,
     source: "Plus hauts et plus bas r\xE9ellement atteints. Ce ne sont ni des supports ni des objectifs : des faits dat\xE9s."
-  }, nm && nm.clotures && React.createElement("div", {
+  }, (ntVus.length > 0 || nm && nm.clotures) && React.createElement(LegendeNiv, {
+    n: nv.n_seances || 20
+  }), nm && nm.clotures && React.createElement("div", {
+    className: "niv-liste",
     style: {
-      fontSize: 12,
-      color: "#c8d3e8",
-      marginBottom: 8,
-      lineHeight: 1.6
+      marginBottom: 4
     }
-  }, "MASI \u2014 s\xE9ance ", nfr(nm.seance_bas), " \u2013 ", nfr(nm.seance_haut), " \xB7 cl\xF4tures du ", jm(nm.clotures.du), " au ", jm(nm.clotures.au), " : plus basse ", nfr(nm.clotures.plus_basse), " (", jm(nm.clotures.date_plus_basse), "), plus haute ", nfr(nm.clotures.plus_haute), " (", jm(nm.clotures.date_plus_haute), ")", nm.clotures.n_seances && nm.clotures.n < nm.clotures.n_seances && React.createElement("span", {
+  }, React.createElement("div", {
+    className: "niv-ligne"
+  }, React.createElement("b", {
+    className: "niv-code",
+    style: {
+      color: "#e6edf7",
+      fontSize: 12
+    }
+  }, "MASI"), React.createElement("div", {
+    className: "niv-vol",
+    style: {
+      fontSize: 10.5,
+      color: "#8892a4",
+      lineHeight: 1.4
+    }
+  }, "cl\xF4tures du ", jm(nm.clotures.du), " au ", jm(nm.clotures.au), nm.clotures.n_seances && nm.clotures.n < nm.clotures.n_seances && React.createElement("span", {
     style: {
       color: "#ff8f00"
     }
-  }, " \xB7 ", nm.clotures.n, " cl\xF4tures de l'indice enregistr\xE9es sur ", nm.clotures.n_seances, " s\xE9ances")), ntVus.length > 0 && React.createElement("div", {
-    className: "tdb-etroit",
-    style: {
-      display: "flex",
-      flexDirection: "column"
-    }
-  }, ntVus.map(x => React.createElement("div", {
-    key: x.symbol,
-    style: {
-      padding: "6px 0",
-      borderTop: "1px solid #0a1220",
-      fontSize: 12,
-      color: "#c8d3e8",
-      lineHeight: 1.55
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      gap: 8
-    }
-  }, React.createElement("span", null, React.createElement("b", {
-    style: {
-      color: "#4db8ff"
-    }
-  }, codeDe(x.symbol)), " ", React.createElement("span", {
-    className: "tdb-num"
-  }, montantEntier(x.montant_dh))), React.createElement("span", {
-    className: "tdb-num",
-    title: "Fourchette de la s\xE9ance"
-  }, x.seance_bas != null ? `${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}` : "—")), x.fenetre && React.createElement("div", {
-    className: "tdb-num",
-    style: {
-      fontSize: 11,
-      color: "#8892a4",
-      whiteSpace: "normal"
-    }
-  }, nv.n_seances || 20, " s\xE9ances : bas ", React.createElement("span", {
-    style: {
-      color: "#c8d3e8"
-    }
-  }, nfr(x.fenetre.plus_bas)), " (", jm(x.fenetre.date_plus_bas), ") \xB7 haut ", React.createElement("span", {
-    style: {
-      color: "#c8d3e8"
-    }
-  }, nfr(x.fenetre.plus_haut)), " (", jm(x.fenetre.date_plus_haut), ")")))), ntVus.length > 0 ? React.createElement("div", {
-    className: "tdb-large",
-    style: {
-      overflowX: "auto"
-    }
-  }, React.createElement("table", {
-    style: {
-      borderCollapse: "collapse",
-      width: "100%"
-    }
-  }, React.createElement("thead", null, React.createElement("tr", null, ["Titre", "Échangé", "Séance", "Plus bas", "Plus haut"].map(x => React.createElement("th", {
-    key: x,
-    style: tete
-  }, x)))), React.createElement("tbody", null, ntVus.map(x => React.createElement("tr", {
-    key: x.symbol,
-    style: {
-      borderTop: "1px solid #0a1220"
-    }
-  }, React.createElement("td", {
-    style: {
-      ...cel,
-      color: "#4db8ff",
-      fontWeight: 600
-    }
-  }, codeDe(x.symbol)), React.createElement("td", {
-    style: cel,
-    className: "tdb-num"
-  }, montantEntier(x.montant_dh)), React.createElement("td", {
-    style: cel,
-    className: "tdb-num"
-  }, x.seance_bas != null ? `${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}` : "—"), React.createElement("td", {
-    style: cel,
-    className: "tdb-num"
-  }, x.fenetre ? React.createElement(React.Fragment, null, nfr(x.fenetre.plus_bas), " ", React.createElement("span", {
-    style: {
-      color: "#8892a4"
-    }
-  }, jm(x.fenetre.date_plus_bas))) : "—"), React.createElement("td", {
-    style: cel,
-    className: "tdb-num"
-  }, x.fenetre ? React.createElement(React.Fragment, null, nfr(x.fenetre.plus_haut), " ", React.createElement("span", {
-    style: {
-      color: "#8892a4"
-    }
-  }, jm(x.fenetre.date_plus_haut))) : "—")))))) : nt.length > 0 && React.createElement("div", {
+  }, " \xB7 ", nm.clotures.n, " cl\xF4tures de l'indice enregistr\xE9es sur ", nm.clotures.n_seances, " s\xE9ances")), React.createElement("div", {
+    className: "niv-fourchette"
+  }, React.createElement(NivBarre, {
+    lib: "cl\xF4tures",
+    bas: nm.clotures.plus_basse,
+    dbas: nm.clotures.date_plus_basse,
+    haut: nm.clotures.plus_haute,
+    dhaut: nm.clotures.date_plus_haute,
+    sb: nm.seance_bas,
+    sh: nm.seance_haut,
+    c: t && t.cloture != null ? t.cloture : j && j.cours,
+    lc: b.moment && b.moment !== "cloture" ? "dernière valeur" : "clôture"
+  })))), ntVus.length > 0 ? React.createElement(NiveauxTitres, {
+    l: ntVus,
+    n: nv.n_seances || 20
+  }) : nt.length > 0 && React.createElement("div", {
     style: {
       fontSize: 11.5,
       color: "#8892a4"
@@ -9896,6 +10381,7 @@ const Briefing = ({
     en_seance: "Lecture en séance"
   };
   const nonDit = [...(src.non_mesurable || []), ...(semaine ? [] : absencesTableau(src, rows, masi))];
+  const cVis = semaine ? null : constatsVisuels(src);
   const blocConstats = React.createElement("div", {
     className: "carte",
     style: {
@@ -9924,7 +10410,7 @@ const Briefing = ({
       fontSize: 11,
       marginLeft: 8
     }
-  }, "\xB7 \xE9crite le ", src.ecrit_a.slice(8, 10), "/", src.ecrit_a.slice(5, 7), " \xE0 ", src.ecrit_a.slice(11)))), React.createElement("ul", {
+  }, "\xB7 \xE9crite le ", src.ecrit_a.slice(8, 10), "/", src.ecrit_a.slice(5, 7), " \xE0 ", src.ecrit_a.slice(11)))), cVis && cVis.rendu, React.createElement("ul", {
     style: {
       margin: 0,
       paddingLeft: 18,
@@ -9932,7 +10418,7 @@ const Briefing = ({
       lineHeight: 1.65,
       color: "#c8d3e8"
     }
-  }, (src.constats || []).map((c, i) => React.createElement("li", {
+  }, (src.constats || []).map((c, i) => cVis && cVis.pris.has(i) ? null : React.createElement("li", {
     key: i,
     style: {
       marginBottom: 6
@@ -9941,7 +10427,33 @@ const Briefing = ({
     style: {
       color: "#8892a4"
     }
-  }, "Rien de mesurable \xE0 signaler.")), nonDit.length > 0 && React.createElement("div", {
+  }, "Rien de mesurable \xE0 signaler.")), cVis && React.createElement("details", {
+    style: {
+      marginTop: 10
+    }
+  }, React.createElement("summary", {
+    style: {
+      fontSize: 11,
+      color: "#4db8ff",
+      cursor: "pointer",
+      minHeight: 28,
+      display: "flex",
+      alignItems: "center"
+    }
+  }, "Texte int\xE9gral des constats (", (src.constats || []).length, " phrases)"), React.createElement("ul", {
+    style: {
+      margin: "4px 0 0",
+      paddingLeft: 18,
+      fontSize: 12,
+      lineHeight: 1.6,
+      color: "#c8d3e8"
+    }
+  }, (src.constats || []).map((c, i) => React.createElement("li", {
+    key: i,
+    style: {
+      marginBottom: 4
+    }
+  }, c)))), nonDit.length > 0 && React.createElement("div", {
     style: {
       marginTop: 12,
       paddingTop: 10,
@@ -10534,6 +11046,20 @@ const Detail = ({
   }) : [...rows]).sort((a, b) => tk(a).localeCompare(tk(b)));
   const refFiche = useRef(null);
   useEffect(() => {
+    const e = document.querySelector(".entete");
+    if (!e || !window.ResizeObserver) return;
+    const f = () => {
+      try {
+        const colle = getComputedStyle(e).position === "sticky";
+        document.documentElement.style.setProperty("--h-entete", (colle ? Math.max(0, Math.round(e.getBoundingClientRect().bottom)) : 0) + "px");
+      } catch (x) {}
+    };
+    const ro = new ResizeObserver(f);
+    ro.observe(e);
+    f();
+    return () => ro.disconnect();
+  }, []);
+  useEffect(() => {
     try {
       if (refFiche.current && window.matchMedia && window.matchMedia("(max-width:640px)").matches) refFiche.current.scrollIntoView({
         block: "start"
@@ -10541,7 +11067,10 @@ const Detail = ({
     } catch (e) {}
   }, [sel]);
   return React.createElement("div", {
-    ref: refFiche
+    ref: refFiche,
+    className: "fiche-gabarit"
+  }, React.createElement("div", {
+    className: "fiche-liste"
   }, React.createElement("div", {
     className: "selecteur-titres",
     style: {
@@ -10576,6 +11105,7 @@ const Detail = ({
     }
   }, "\u2715")), React.createElement("div", {
     className: "selecteur-titres",
+    "data-liste": "titres",
     style: {
       display: "flex",
       gap: 4,
@@ -10593,6 +11123,7 @@ const Detail = ({
     return React.createElement("button", {
       key: sym2,
       onClick: () => setSel(sym2),
+      "aria-pressed": a,
       style: {
         background: a ? ds.bg : "transparent",
         border: a ? `1px solid ${ds.bd}` : "1px solid #1a2540",
@@ -10603,8 +11134,17 @@ const Detail = ({
         fontWeight: a ? 700 : 400,
         transition: "all .15s"
       }
-    }, tk(d));
-  })), r.warn && React.createElement("div", {
+    }, tk(d), React.createElement("span", {
+      className: "liste-nom"
+    }, d.name), d.chg != null && isFinite(d.chg) && React.createElement("span", {
+      className: "liste-var",
+      style: {
+        color: VC(d.chg)
+      }
+    }, d.chg > 0 ? "+" : "", (+d.chg).toFixed(2), "%"));
+  }))), React.createElement("div", {
+    className: "fiche-corps"
+  }, r.warn && React.createElement("div", {
     style: {
       background: "rgba(255,215,64,.08)",
       border: "1px solid rgba(255,215,64,.3)",
@@ -10617,6 +11157,7 @@ const Detail = ({
   }, "\u26A0\uFE0F ", r.warnMsg), React.createElement("div", {
     className: "detail-grid"
   }, React.createElement("div", {
+    className: "fiche-note",
     style: {
       display: "flex",
       flexDirection: "column",
@@ -11039,7 +11580,14 @@ const Detail = ({
         color: "#8892a4"
       }
     }, "/", e.pairs, " \xB7 ", e.ecart_pct > 0 ? "+" : "", e.ecart_pct, "% vs secteur"));
-  })())))), React.createElement(RisqueMesure, {
+  })()))))), React.createElement("div", {
+    className: "fiche-centre",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10
+    }
+  }, React.createElement(RisqueMesure, {
     q: r.risque
   }), r.ratios_publies && React.createElement("div", {
     className: "carte",
@@ -11470,14 +12018,10 @@ const Detail = ({
       color: c,
       fontWeight: 700
     }
-  }, v)))))), React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 10
-    }
-  }, React.createElement("div", {
-    className: "carte",
+  }, v))))), React.createElement(SignauxTechniques, {
+    r: r
+  }))), React.createElement("div", {
+    className: "carte fiche-graphique",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -11528,9 +12072,7 @@ const Detail = ({
     style: {
       color: "#00e5a0"
     }
-  }, "\u25CF"), " IDBourse / M\xE9dias24")), React.createElement(SignauxTechniques, {
-    r: r
-  }))), React.createElement("div", {
+  }, "\u25CF"), " IDBourse / M\xE9dias24")), React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
@@ -11732,7 +12274,7 @@ const Detail = ({
     }
   }, b.startsWith("-") ? "▼" : "▲", " ", b.slice(1))))), React.createElement(TickerNews, {
     sym: sym
-  }))));
+  })))));
 };
 const POIDS_CTX = [["Séance ouverte — base", "65,28 %", "34,72 %", "actif", "#00e5a0", "Référence depuis le 25/09/2026 : 47 et 25 repliés sur 72 une fois le NLP à zéro."], ["Hors séance (fermé, pré-ouverture)", "72,22 %", "27,78 %", "actif", "#4db8ff", "Le fondamental gagne 5 points avant repli. C'est le cas des runs du soir."], ["MASI < −5 % depuis janvier", "71,43 %", "28,57 %", "actif", "#ff8f00", "Mode défensif. Cumulé au hors-séance : 77,92 % / 22,08 %."], ["MASI > +10 % depuis janvier", "61,11 %", "38,89 %", "actif", "#ffd740", "Le technique gagne 3 points avant repli."], ["Titre peu liquide ou au fixing", "100 %", "0 %", "actif", "#b388ff", "Depuis le 03/10 : le technique y annonçait l'inverse de la suite. Tout va au fondamental, et une note ≥ 6,5 y garde la couleur vert-jaune (« titre peu échangé »)."], ["Publication de résultats", "76 %", "24 %", "inactif", "#5a6478", "Prévu dans le moteur, jamais branché : aucun calendrier de publications."], ["Hype spike (>2σ NLP)", "—", "—", "retiré le 29/09", "#5a6478", "Lisait le corpus WhatsApp gelé."], ["Smart Money Tier 1", "—", "—", "retiré le 29/09", "#5a6478", "Lisait le corpus WhatsApp gelé."], ["Titre peu suivi (NLP)", "—", "—", "retiré le 29/09", "#5a6478", "Lisait le corpus WhatsApp gelé."]];
 const Weights = () => {
