@@ -32,3 +32,5 @@ et sur quel avis (AMMC ou Bourse de Casablanca) ?
 **En attendant :** aucune correction. Le chiffre de 21 785 174, établi sur pièce, est conservé (R11) :
 une opération sur titres se constate sur pièce datée, elle ne se déduit pas d'un écart. Effet si elle
 était constatée : BPA 12 mois 187,019 ÷ 22 584 118 = 8,28 au lieu de 8,58.
+
+**Décision du 20/10/2026 (Abd Moutalib) :** pour la CAPITALISATION seule, le chiffre de la Bourse (22 584 118) est retenu — une admission à la cote inscrite dans la liste officielle de l'opérateur constate que les actions sont cotées (`update_data.py`, `ACTIONS_BOURSE`) ; le BPA (IAS 33) et le P/B gardent 21 785 174, et la question de date reste ouverte.
