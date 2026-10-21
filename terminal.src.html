@@ -1849,20 +1849,18 @@ const SignauxTechniques=({r})=>{
    Un paragraphe par niveau tracé, du plus haut au plus bas comme sur l'axe.
    Un contact = un épisode ; « tenu » ne se compte que dans le bon rôle (voir
    calcSR). Le mot suit la position du niveau par rapport à la dernière
-   clôture. Trois formes, selon les séquences de rôle (`roles`) :
-   · un seul rôle connu — « Support 89,90 — 4 contacts, du 06/08 au 13/10 :
-     3 par-dessus, tenu 2 · 1 sens inconnu » ;
-   · une inversion — « Support 29,10 — 5 contacts : résistance jusqu'au
-     12/06 (2), support depuis (3, tenu 2) » : le rôle d'avant, la date de
-     son dernier contact, puis le rôle d'après ; chaque séquence porte son
-     nombre de contacts, et « tenu » celle du rôle actuel ;
-   · des rôles alternés — « Résistance 36,62 — 34 contacts, résistance depuis
-     le 05/03/26 : 21 par-dessous, tenu 15 · 13 par-dessus » : la dernière
-     séquence et sa date de début ; les comptes disent les deux côtés.
+   clôture. Deux formes, selon les séquences de rôle (`roles`) :
+   · une inversion nette (deux séquences) — « Support 29,10 — 5 contacts :
+     résistance jusqu'au 12/06 (2), support depuis (3, tenu 2) » : le rôle
+     d'avant, la date de son dernier contact, puis le rôle d'après ; chaque
+     séquence porte son nombre de contacts, et « tenu » celle du rôle actuel ;
+   · sinon — un seul rôle, ou des rôles alternés — le décompte daté, sans
+     nommer de rôle : « Support 34,50 — 20 contacts du 12/11/25 au 12/10/26 :
+     12 par-dessus (tenu 8) · 8 par-dessous ».
    ⚠️ Deux lignes au plus à 390 px (lot 1 bis) : l'ancienne rédaction en
    prenait trois par niveau. Mesuré par simulation (chasse fixe, 53 signes à
    10 px) puis dans le navigateur. C'est pourquoi la plage « du … au » cède
-   la place aux dates de rôle quand le rôle a changé, et pourquoi le corps
+   la place aux dates de rôle dans une inversion nette, et pourquoi le corps
    passe à 10 px sous 640 px de large.
    Les dates sont ÉCRITES : une infobulle ne s'ouvre pas au doigt. L'année
    n'apparaît que si la fenêtre affichée chevauche deux années. */
@@ -1873,7 +1871,7 @@ const srSuite=(L,support,an)=>{
   const j=ts=>srJour(ts,an);
   const tete=` — ${L.contacts} contact${L.contacts>1?"s":""}`;
   const inconnu=L.indetermines>0?`${L.indetermines} sens inconnu`:null;
-  const comptes=[L.dansRole>0?`${L.dansRole} ${support?"par-dessus":"par-dessous"}, tenu ${L.tenus}`:null,
+  const comptes=[L.dansRole>0?`${L.dansRole} ${support?"par-dessus":"par-dessous"} (tenu ${L.tenus})`:null,
                  L.autreRole>0?`${L.autreRole} ${support?"par-dessous":"par-dessus"}`:null,
                  inconnu].filter(Boolean).join(" · ");
   const R=L.roles||[],actuel=support?"support":"résistance";
@@ -1881,8 +1879,11 @@ const srSuite=(L,support,an)=>{
     const part=r=>r.role===actuel&&L.dansRole>0?`${r.n}, tenu ${L.tenus}`:`${r.n}`;
     return `${tete} : ${R[0].role} jusqu'au ${j(R[0].dernier)} (${part(R[0])}), ${R[1].role} depuis (${part(R[1])})${inconnu?` · ${inconnu}`:""}`;
   }
-  if(R.length>2){const k=R[R.length-1];return `${tete}, ${k.role} depuis le ${j(k.premier)} : ${comptes}`;}
-  return `${tete}, du ${j(L.premier)} au ${j(L.dernier)} : ${comptes}`;
+  /* Un seul rôle, ou des rôles alternés : la période et les comptes, sans
+     nommer de rôle. ⚠️ « Support 34,50 — 20 contacts, résistance depuis le
+     18/09/26 » se lisait comme une contradiction : le nom vient de la
+     position, le rôle du dernier contact (relecture du 21/10/2026). */
+  return `${tete} du ${j(L.premier)} au ${j(L.dernier)} : ${comptes}`;
 };
 const pctFR=x=>(x*100).toFixed(1).replace(".",",");
 const LegendeSR=({sr,candles,period})=>{
@@ -4691,7 +4692,7 @@ const Guide=({setTab})=>{
       <L titre="Couleur de la note">La note est colorée selon son palier, sans mot d'action : <T c="#00e5a0">● vert</T> dès 6,5 · <T c="#b5e655">● vert-jaune</T> dès 5,5 · <T c="#ffd740">● jaune</T> dès 4,5 · <T c="#ff8f00">● orange</T> dès 3,5 · <T c="#ff4f5a">● rouge</T> dessous. La couleur situe la note ; elle ne dit pas quoi faire. Titre trop peu échangé : une note dès 6,5 reste en vert-jaune, avec la mention « titre peu échangé ». <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, note grise. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
       <L titre="Fiabilité des données ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>
       <L titre="« X % gagnants (IC) · n cas » — fiche, Signaux techniques">Sur n cas passés à la BVC où le même signal est apparu, X % ont battu le MASI 60 séances après ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fréquence passée, pas une promesse.</L>
-      <L titre="S/R — supports et résistances du graphique">Tirés de la fenêtre affichée : un creux est un plus-bas sous lequel aucune des 3 séances échangées voisines, de chaque côté, ne descend — un sommet, l'inverse ; creux et sommets à moins de 1,2 % l'un de l'autre font un seul niveau, car un même prix peut avoir été l'un puis l'autre. Il faut au moins 10 séances échangées dans la fenêtre. <T>Contact</T> : un épisode — une ou plusieurs séances échangées consécutives dont la fourchette plus-bas–plus-haut passe à moins de 1,2 % du niveau ; une séance sans échange au milieu ne le coupe pas. La même tolérance de 1,2 % sert à regrouper les points et à compter les contacts, pour tous les titres. <T>Niveaux retenus</T> : les plus touchés de toute la fenêtre, et non les plus proches du cours — au plus 3 au-dessus du dernier cours et 3 au niveau ou en dessous, à partir de 2 contacts ; à égalité, le contact le plus récent, puis le plus proche du cours. <T>Écart minimal</T> : deux niveaux tracés sont distants d'au moins 1 ATR(14) relatif du titre — la moyenne des 14 dernières étendues séance (plus-haut − plus-bas, élargi à la clôture précédente) rapportée à la dernière clôture — et jamais de moins de 2,4 % (deux fois la tolérance : en deçà, deux niveaux se partageraient leurs contacts). Un niveau trop proche d'un niveau mieux classé est écarté, pas fusionné. La valeur du titre est écrite sous la légende. <T>Le mot suit la position</T> : au-dessus de la dernière clôture, Résistance ; au niveau ou en dessous, Support. <T>Par-dessus, par-dessous</T> : la clôture de la séance échangée qui précède le contact dit d'où le cours arrive — par-dessus, il joue le rôle de support ; par-dessous, de résistance. <T>Tenu</T> : un support abordé par-dessus dont la clôture de fin d'épisode reste au niveau ou au-dessus (une résistance : abordée par-dessous, clôture au niveau ou en dessous). Un contact venu de l'autre côté n'est ni tenu ni cassé : il est compté à part. <T>Inversion</T> : quand les contacts passent d'un rôle à l'autre une seule fois, la légende l'écrit — « résistance jusqu'au 12/06 (2), support depuis (3, tenu 2) » : le dernier contact dans l'ancien rôle est daté, et chaque rôle porte son nombre de contacts. Quand les rôles ont alterné plusieurs fois, elle donne le rôle des derniers contacts et la date où il a commencé ; les comptes par-dessus et par-dessous disent le reste. « Sens inconnu » : contact au début de la fenêtre, ou clôture précédente pile au niveau. <T>Séances écartées</T> : volume nul — le titre n'a pas échangé, ou la bougie a été refaite depuis la seule clôture — et bougie du jour reconstituée depuis le dernier cours. Aucun plus-haut ni plus-bas n'y a été atteint ou mesuré : elles fabriqueraient des creux. Elles restent dessinées. Des séances passées, comptées et datées ; pas un niveau annoncé.</L>
+      <L titre="S/R — supports et résistances du graphique">Tirés de la fenêtre affichée : un creux est un plus-bas sous lequel aucune des 3 séances échangées voisines, de chaque côté, ne descend — un sommet, l'inverse ; creux et sommets à moins de 1,2 % l'un de l'autre font un seul niveau, car un même prix peut avoir été l'un puis l'autre. Il faut au moins 10 séances échangées dans la fenêtre. <T>Contact</T> : un épisode — une ou plusieurs séances échangées consécutives dont la fourchette plus-bas–plus-haut passe à moins de 1,2 % du niveau ; une séance sans échange au milieu ne le coupe pas. La même tolérance de 1,2 % sert à regrouper les points et à compter les contacts, pour tous les titres. <T>Niveaux retenus</T> : les plus touchés de toute la fenêtre, et non les plus proches du cours — au plus 3 au-dessus du dernier cours et 3 au niveau ou en dessous, à partir de 2 contacts ; à égalité, le contact le plus récent, puis le plus proche du cours. <T>Écart minimal</T> : deux niveaux tracés sont distants d'au moins 1 ATR(14) relatif du titre — la moyenne des 14 dernières étendues séance (plus-haut − plus-bas, élargi à la clôture précédente) rapportée à la dernière clôture — et jamais de moins de 2,4 % (deux fois la tolérance : en deçà, deux niveaux se partageraient leurs contacts). Un niveau trop proche d'un niveau mieux classé est écarté, pas fusionné. La valeur du titre est écrite sous la légende. <T>Le mot suit la position</T> : au-dessus de la dernière clôture, Résistance ; au niveau ou en dessous, Support. <T>Par-dessus, par-dessous</T> : la clôture de la séance échangée qui précède le contact dit d'où le cours arrive — par-dessus, il joue le rôle de support ; par-dessous, de résistance. <T>Tenu</T> : un support abordé par-dessus dont la clôture de fin d'épisode reste au niveau ou au-dessus (une résistance : abordée par-dessous, clôture au niveau ou en dessous). Un contact venu de l'autre côté n'est ni tenu ni cassé : il est compté à part. <T>Inversion</T> : quand les contacts passent d'un rôle à l'autre une seule fois, la légende l'écrit — « résistance jusqu'au 12/06 (2), support depuis (3, tenu 2) » : le dernier contact dans l'ancien rôle est daté, et chaque rôle porte son nombre de contacts. Quand les rôles ont alterné plusieurs fois, elle ne nomme aucun rôle : elle donne la période des contacts et les comptes par-dessus et par-dessous — « 20 contacts du 12/11/25 au 12/10/26 : 12 par-dessus (tenu 8) · 8 par-dessous ». « Sens inconnu » : contact au début de la fenêtre, ou clôture précédente pile au niveau. <T>Séances écartées</T> : volume nul — le titre n'a pas échangé, ou la bougie a été refaite depuis la seule clôture — et bougie du jour reconstituée depuis le dernier cours. Aucun plus-haut ni plus-bas n'y a été atteint ou mesuré : elles fabriqueraient des creux. Elles restent dessinées. Des séances passées, comptées et datées ; pas un niveau annoncé.</L>
       <L titre="« non vérifié » · ⚠ jj/mm"><T c="#ff8f00">non vérifié</T> : source non recoupée, prudence. <T c="#ffd740">⚠ 05/08</T> près d'un cours : il date de ce jour-là, pas de la dernière séance.</L>
     </div>
   );

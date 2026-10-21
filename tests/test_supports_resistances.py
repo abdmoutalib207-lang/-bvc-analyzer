@@ -297,23 +297,29 @@ def test_legende_d_un_niveau_a_un_seul_role():
          "premier": 5 * JOUR, "dernier": 12 * JOUR,
          "roles": [{"role": "support", "n": 3, "premier": 6 * JOUR, "dernier": 12 * JOUR}]}
     assert _suite(L, True, False) == (
-        " — 4 contacts, du 06/01 au 13/01 : 3 par-dessus, tenu 2 · 1 sens inconnu")
+        " — 4 contacts du 06/01 au 13/01 : 3 par-dessus (tenu 2) · 1 sens inconnu")
     # Un support touché seulement par-dessous : un seul compte, celui de l'autre côté.
     L2 = {**L, "dansRole": 0, "tenus": 0, "autreRole": 3, "indetermines": 1,
           "roles": [{"role": "résistance", "n": 3, "premier": 6 * JOUR, "dernier": 12 * JOUR}]}
     assert _suite(L2, True, True) == (
-        " — 4 contacts, du 06/01/70 au 13/01/70 : 3 par-dessous · 1 sens inconnu")
+        " — 4 contacts du 06/01/70 au 13/01/70 : 3 par-dessous · 1 sens inconnu")
 
 
 def test_legende_de_roles_alternes():
-    """Trois séquences : la dernière et sa date de début, puis les comptes."""
+    """Trois séquences : aucun rôle nommé, la période et les comptes.
+
+    « Support 34,50 — 20 contacts, résistance depuis le 18/09/26 » se lisait
+    comme une contradiction (le nom vient de la position, le rôle du dernier
+    contact) : retiré à la relecture du 21/10/2026. Premier contact au jour 0
+    (01/01/1970), dernier au jour 30 (31/01)."""
     L = {"contacts": 6, "dansRole": 2, "tenus": 1, "autreRole": 4, "indetermines": 0,
          "premier": 0, "dernier": 30 * JOUR,
          "roles": [{"role": "résistance", "n": 1, "premier": 0, "dernier": 0},
                    {"role": "support", "n": 4, "premier": 5 * JOUR, "dernier": 20 * JOUR},
                    {"role": "résistance", "n": 1, "premier": 30 * JOUR, "dernier": 30 * JOUR}]}
     assert _suite(L, False, False) == (
-        " — 6 contacts, résistance depuis le 31/01 : 2 par-dessous, tenu 1 · 4 par-dessus")
+        " — 6 contacts du 01/01 au 31/01 : 2 par-dessous (tenu 1) · 4 par-dessus")
+    assert "depuis" not in _suite(L, False, False)
 
 
 def test_legende_d_une_inversion_vers_le_role_oppose_a_la_position():
