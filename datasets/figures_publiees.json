@@ -2,7 +2,7 @@
  "_quoi": "Figures, obliques, canaux et gaps constatés — faits datés, pas des prévisions",
  "_ne_pas_editer": "Produit par pipeline/figures_publiees.py ; tests/test_figures_publiees.py le contrôle.",
  "_r8": "Mode ombre : aucune note ne dépend de ce fichier.",
- "_avertissement": "Fréquences passées, pas des promesses. Observations chevauchantes (un même mouvement compte plusieurs fois) et un seul régime de marché par période : les écarts affichés sont optimistes. Une figure armée n'a pas de fréquence propre : la fréquence décrit ce qui suit une CASSURE.",
+ "_avertissement": "Fréquences passées, pas des promesses. Observations chevauchantes (un même mouvement compte plusieurs fois) et un seul régime de marché par période : les écarts affichés sont optimistes. Les parts sont brutes de frais (2 % d'aller-retour non déduits) : la part « dans le bon sens » est mesurée sur l'alpha avant frais. Une figure armée n'a pas de fréquence propre : la fréquence décrit ce qui suit une CASSURE (frequence_condition = apres_cassure).",
  "derniere_seance_du_marche": "2026-10-21",
  "entree_sha256": "a1b5772f8f3063be655b28a072e2639b13b089d209a6d22081d8034cf13e09c7",
  "methode": {
@@ -33,7 +33,7 @@
  "seuil_liquidite_dh": 119564,
  "frequences": {
   "double_creux": {
-   "sens_attendu": 1,
+   "sens_teste": 1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -56,7 +56,7 @@
        "n": 30,
        "statut": "publie",
        "titres": 25,
-       "part_bon_sens_pct": 50.0,
+       "part_bon_sens_brute_pct": 50.0,
        "alpha_median_pct": -0.56,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -66,7 +66,7 @@
        "n": 59,
        "statut": "publie",
        "titres": 39,
-       "part_bon_sens_pct": 49.2,
+       "part_bon_sens_brute_pct": 49.2,
        "alpha_median_pct": -0.55,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -74,7 +74,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 49.4,
+     "part_bon_sens_brute_pct": 49.4,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
@@ -89,7 +89,7 @@
        "n": 44,
        "statut": "publie",
        "titres": 30,
-       "part_bon_sens_pct": 50.0,
+       "part_bon_sens_brute_pct": 50.0,
        "alpha_median_pct": -0.2,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -97,7 +97,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 54.2,
+     "part_bon_sens_brute_pct": 54.2,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
      "reproductible_sur_deux_periodes": false
@@ -105,7 +105,7 @@
    }
   },
   "double_sommet": {
-   "sens_attendu": -1,
+   "sens_teste": -1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -132,7 +132,7 @@
        "n": 48,
        "statut": "publie",
        "titres": 41,
-       "part_bon_sens_pct": 35.4,
+       "part_bon_sens_brute_pct": 35.4,
        "alpha_median_pct": 1.64,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -140,7 +140,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 39.7,
+     "part_bon_sens_brute_pct": 39.7,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
@@ -155,7 +155,7 @@
        "n": 33,
        "statut": "publie",
        "titres": 29,
-       "part_bon_sens_pct": 39.4,
+       "part_bon_sens_brute_pct": 39.4,
        "alpha_median_pct": 0.96,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -163,7 +163,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 42.5,
+     "part_bon_sens_brute_pct": 42.5,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
      "reproductible_sur_deux_periodes": false
@@ -171,7 +171,7 @@
    }
   },
   "ete": {
-   "sens_attendu": -1,
+   "sens_teste": -1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -198,7 +198,7 @@
        "n": 40,
        "statut": "publie",
        "titres": 30,
-       "part_bon_sens_pct": 50.0,
+       "part_bon_sens_brute_pct": 50.0,
        "alpha_median_pct": -0.13,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -206,7 +206,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 48.9,
+     "part_bon_sens_brute_pct": 48.9,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
@@ -223,7 +223,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 50.0,
+     "part_bon_sens_brute_pct": 50.0,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
      "reproductible_sur_deux_periodes": false
@@ -231,7 +231,7 @@
    }
   },
   "ete_inversee": {
-   "sens_attendu": 1,
+   "sens_teste": 1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -279,7 +279,7 @@
    }
   },
   "tasse_anse": {
-   "sens_attendu": 1,
+   "sens_teste": 1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -327,7 +327,7 @@
    }
   },
   "triangle_ascendant": {
-   "sens_attendu": 1,
+   "sens_teste": 1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -356,7 +356,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 50.0,
+     "part_bon_sens_brute_pct": 50.0,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
@@ -378,7 +378,7 @@
    }
   },
   "triangle_descendant": {
-   "sens_attendu": -1,
+   "sens_teste": -1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -405,7 +405,7 @@
        "n": 30,
        "statut": "publie",
        "titres": 24,
-       "part_bon_sens_pct": 50.0,
+       "part_bon_sens_brute_pct": 50.0,
        "alpha_median_pct": -0.41,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -413,7 +413,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 55.8,
+     "part_bon_sens_brute_pct": 55.8,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
@@ -435,7 +435,7 @@
    }
   },
   "triangle_sym_haut": {
-   "sens_attendu": 1,
+   "sens_teste": 1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -462,7 +462,7 @@
        "n": 30,
        "statut": "publie",
        "titres": 22,
-       "part_bon_sens_pct": 36.7,
+       "part_bon_sens_brute_pct": 36.7,
        "alpha_median_pct": -2.19,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -470,7 +470,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 33.3,
+     "part_bon_sens_brute_pct": 33.3,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
@@ -487,7 +487,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 33.3,
+     "part_bon_sens_brute_pct": 33.3,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
      "reproductible_sur_deux_periodes": false
@@ -495,7 +495,7 @@
    }
   },
   "triangle_sym_bas": {
-   "sens_attendu": -1,
+   "sens_teste": -1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -522,7 +522,7 @@
        "n": 53,
        "statut": "publie",
        "titres": 38,
-       "part_bon_sens_pct": 50.9,
+       "part_bon_sens_brute_pct": 50.9,
        "alpha_median_pct": -0.68,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -530,7 +530,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 54.1,
+     "part_bon_sens_brute_pct": 54.1,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
@@ -545,7 +545,7 @@
        "n": 40,
        "statut": "publie",
        "titres": 31,
-       "part_bon_sens_pct": 55.0,
+       "part_bon_sens_brute_pct": 55.0,
        "alpha_median_pct": -1.77,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -553,7 +553,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 51.1,
+     "part_bon_sens_brute_pct": 51.1,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
      "reproductible_sur_deux_periodes": false
@@ -561,7 +561,7 @@
    }
   },
   "fibo_rebond_382_618": {
-   "sens_attendu": 1,
+   "sens_teste": 1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -584,7 +584,7 @@
        "n": 44,
        "statut": "publie",
        "titres": 30,
-       "part_bon_sens_pct": 38.6,
+       "part_bon_sens_brute_pct": 38.6,
        "alpha_median_pct": -3.08,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -594,7 +594,7 @@
        "n": 84,
        "statut": "publie",
        "titres": 46,
-       "part_bon_sens_pct": 46.4,
+       "part_bon_sens_brute_pct": 46.4,
        "alpha_median_pct": -0.95,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -602,7 +602,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 43.8,
+     "part_bon_sens_brute_pct": 43.8,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
@@ -617,7 +617,7 @@
        "n": 62,
        "statut": "publie",
        "titres": 36,
-       "part_bon_sens_pct": 45.2,
+       "part_bon_sens_brute_pct": 45.2,
        "alpha_median_pct": -0.95,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -625,7 +625,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 49.4,
+     "part_bon_sens_brute_pct": 49.4,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
      "reproductible_sur_deux_periodes": false
@@ -633,7 +633,7 @@
    }
   },
   "fibo_au_dela_786": {
-   "sens_attendu": -1,
+   "sens_teste": -1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -660,7 +660,7 @@
        "n": 33,
        "statut": "publie",
        "titres": 25,
-       "part_bon_sens_pct": 48.5,
+       "part_bon_sens_brute_pct": 48.5,
        "alpha_median_pct": 0.01,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -668,7 +668,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 50.0,
+     "part_bon_sens_brute_pct": 50.0,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
@@ -690,7 +690,7 @@
    }
   },
   "oblique_baissiere_cassee": {
-   "sens_attendu": 1,
+   "sens_teste": 1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -713,7 +713,7 @@
        "n": 30,
        "statut": "publie",
        "titres": 24,
-       "part_bon_sens_pct": 36.7,
+       "part_bon_sens_brute_pct": 36.7,
        "alpha_median_pct": -1.65,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -723,7 +723,7 @@
        "n": 76,
        "statut": "publie",
        "titres": 48,
-       "part_bon_sens_pct": 40.8,
+       "part_bon_sens_brute_pct": 40.8,
        "alpha_median_pct": -1.08,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -731,7 +731,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 39.6,
+     "part_bon_sens_brute_pct": 39.6,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
@@ -746,7 +746,7 @@
        "n": 46,
        "statut": "publie",
        "titres": 34,
-       "part_bon_sens_pct": 47.8,
+       "part_bon_sens_brute_pct": 47.8,
        "alpha_median_pct": -0.38,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -754,7 +754,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 48.4,
+     "part_bon_sens_brute_pct": 48.4,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
      "reproductible_sur_deux_periodes": false
@@ -762,7 +762,7 @@
    }
   },
   "oblique_haussiere_cassee": {
-   "sens_attendu": -1,
+   "sens_teste": -1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -785,7 +785,7 @@
        "n": 54,
        "statut": "publie",
        "titres": 37,
-       "part_bon_sens_pct": 48.1,
+       "part_bon_sens_brute_pct": 48.1,
        "alpha_median_pct": 0.16,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -795,7 +795,7 @@
        "n": 126,
        "statut": "publie",
        "titres": 65,
-       "part_bon_sens_pct": 46.8,
+       "part_bon_sens_brute_pct": 46.8,
        "alpha_median_pct": 0.83,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -803,7 +803,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 47.2,
+     "part_bon_sens_brute_pct": 47.2,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
@@ -814,7 +814,7 @@
        "n": 31,
        "statut": "publie",
        "titres": 22,
-       "part_bon_sens_pct": 45.2,
+       "part_bon_sens_brute_pct": 45.2,
        "alpha_median_pct": 0.49,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -824,7 +824,7 @@
        "n": 88,
        "statut": "publie",
        "titres": 48,
-       "part_bon_sens_pct": 50.0,
+       "part_bon_sens_brute_pct": 50.0,
        "alpha_median_pct": 0.1,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -832,7 +832,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 48.7,
+     "part_bon_sens_brute_pct": 48.7,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
      "reproductible_sur_deux_periodes": false
@@ -840,7 +840,7 @@
    }
   },
   "canal_rebond_support": {
-   "sens_attendu": 1,
+   "sens_teste": 1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -863,7 +863,7 @@
        "n": 41,
        "statut": "publie",
        "titres": 30,
-       "part_bon_sens_pct": 43.9,
+       "part_bon_sens_brute_pct": 43.9,
        "alpha_median_pct": -0.81,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -873,7 +873,7 @@
        "n": 89,
        "statut": "publie",
        "titres": 52,
-       "part_bon_sens_pct": 44.9,
+       "part_bon_sens_brute_pct": 44.9,
        "alpha_median_pct": -0.85,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -881,7 +881,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 44.6,
+     "part_bon_sens_brute_pct": 44.6,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
@@ -896,7 +896,7 @@
        "n": 57,
        "statut": "publie",
        "titres": 33,
-       "part_bon_sens_pct": 50.9,
+       "part_bon_sens_brute_pct": 50.9,
        "alpha_median_pct": 0.26,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -904,7 +904,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 51.2,
+     "part_bon_sens_brute_pct": 51.2,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
      "reproductible_sur_deux_periodes": false
@@ -912,7 +912,7 @@
    }
   },
   "canal_cassure_bas": {
-   "sens_attendu": -1,
+   "sens_teste": -1,
    "horizon_seances": 20,
    "mesure": "alpha contre le MASI, rendement total, à l'horizon",
    "frais_inclus_dans_la_part": false,
@@ -935,7 +935,7 @@
        "n": 46,
        "statut": "publie",
        "titres": 34,
-       "part_bon_sens_pct": 56.5,
+       "part_bon_sens_brute_pct": 56.5,
        "alpha_median_pct": -1.41,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -945,7 +945,7 @@
        "n": 113,
        "statut": "publie",
        "titres": 60,
-       "part_bon_sens_pct": 44.2,
+       "part_bon_sens_brute_pct": 44.2,
        "alpha_median_pct": 0.71,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -953,7 +953,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 47.8,
+     "part_bon_sens_brute_pct": 47.8,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
@@ -968,7 +968,7 @@
        "n": 89,
        "statut": "publie",
        "titres": 48,
-       "part_bon_sens_pct": 48.3,
+       "part_bon_sens_brute_pct": 48.3,
        "alpha_median_pct": 0.29,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
@@ -976,7 +976,7 @@
       }
      },
      "statut": "publie",
-     "part_bon_sens_pct": 50.4,
+     "part_bon_sens_brute_pct": 50.4,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
      "reproductible_sur_deux_periodes": false
@@ -984,7 +984,7 @@
    }
   },
   "gap_haussier": {
-   "mesure": "part des gaps dont la zone est entièrement traversée en ≤ N séances",
+   "mesure": "part des gaps dont la zone est entièrement traversée en ≤ N séances depuis la séance du gap (l'âge de chaque gap publié est `age_seances`)",
    "frais_inclus": false,
    "note": "fait de marché, pas une performance : aucun achat supposé",
    "univers": {
@@ -1119,7 +1119,7 @@
    }
   },
   "gap_baissier": {
-   "mesure": "part des gaps dont la zone est entièrement traversée en ≤ N séances",
+   "mesure": "part des gaps dont la zone est entièrement traversée en ≤ N séances depuis la séance du gap (l'âge de chaque gap publié est `age_seances`)",
    "frais_inclus": false,
    "note": "fait de marché, pas une performance : aucun achat supposé",
    "univers": {
@@ -2339,7 +2339,8 @@
      "signal": "tasse_anse",
      "frequence_ref": [
       "tasse_anse"
-     ]
+     ],
+     "frequence_condition": "apres_cassure"
     },
     {
      "type": "triangle_sym",
@@ -2504,7 +2505,8 @@
      "signal": null,
      "frequence_ref": [
       "oblique_haussiere_cassee"
-     ]
+     ],
+     "frequence_condition": "apres_cassure"
     },
     {
      "type": "oblique_baissiere",
@@ -2556,6 +2558,7 @@
       "canal_rebond_support",
       "canal_cassure_bas"
      ],
+     "frequence_condition": "apres_cassure",
      "parallele": {
       "points": [
        {
@@ -3251,7 +3254,8 @@
      "signal": null,
      "frequence_ref": [
       "oblique_baissiere_cassee"
-     ]
+     ],
+     "frequence_condition": "apres_cassure"
     }
    ],
    "gaps": [
@@ -3490,7 +3494,8 @@
      "signal": null,
      "frequence_ref": [
       "oblique_baissiere_cassee"
-     ]
+     ],
+     "frequence_condition": "apres_cassure"
     }
    ],
    "gaps": [],
@@ -4667,7 +4672,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
+     ],
+     "frequence_condition": "apres_cassure"
     }
    ],
    "lignes": [
@@ -4695,7 +4701,8 @@
      "signal": null,
      "frequence_ref": [
       "oblique_baissiere_cassee"
-     ]
+     ],
+     "frequence_condition": "apres_cassure"
     }
    ],
    "gaps": [],
@@ -6056,7 +6063,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
+     ],
+     "frequence_condition": "apres_cassure"
     },
     {
      "type": "tasse_anse",
@@ -6125,7 +6133,8 @@
      "signal": null,
      "frequence_ref": [
       "oblique_baissiere_cassee"
-     ]
+     ],
+     "frequence_condition": "apres_cassure"
     }
    ],
    "gaps": [],
@@ -6657,7 +6666,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
+     ],
+     "frequence_condition": "apres_cassure"
     }
    ],
    "lignes": [],
@@ -6885,7 +6895,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
+     ],
+     "frequence_condition": "apres_cassure"
     }
    ],
    "lignes": [],
@@ -7405,7 +7416,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
+     ],
+     "frequence_condition": "apres_cassure"
     },
     {
      "type": "double_creux",
@@ -7474,6 +7486,7 @@
       "canal_rebond_support",
       "canal_cassure_bas"
      ],
+     "frequence_condition": "apres_cassure",
      "parallele": {
       "points": [
        {
@@ -8450,7 +8463,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
+     ],
+     "frequence_condition": "apres_cassure"
     }
    ],
    "lignes": [
@@ -8478,6 +8492,7 @@
       "canal_rebond_support",
       "canal_cassure_bas"
      ],
+     "frequence_condition": "apres_cassure",
      "parallele": {
       "points": [
        {

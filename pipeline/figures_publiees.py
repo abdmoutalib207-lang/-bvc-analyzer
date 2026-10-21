@@ -98,7 +98,7 @@ def _cellule_alpha(c: dict) -> dict:
     if n < MIN_CAS:
         return {"n": n, "statut": "echantillon_insuffisant"}
     return {"n": n, "statut": "publie", "titres": c["titres"],
-            "part_bon_sens_pct": round(100 * c["dans_le_bon_sens"], 1),
+            "part_bon_sens_brute_pct": round(100 * c["dans_le_bon_sens"], 1),
             "alpha_median_pct": round(100 * c["alpha_median"], 2),
             "alpha_median_net_frais_pct": None, "raison_alpha_net": RAISON_ALPHA_NET,
             "rendement_net_frais_moyen_pct": round(100 * c["rendement_net_frais"], 2)}
@@ -106,7 +106,7 @@ def _cellule_alpha(c: dict) -> dict:
 
 def frequence_signal(sig: dict, h: str = "h20") -> dict:
     """Fréquence d'un signal depuis l'artefact, effectifs et période compris."""
-    out = {"sens_attendu": sig["sens_attendu"], "horizon_seances": int(h[1:]),
+    out = {"sens_teste": sig["sens_attendu"], "horizon_seances": int(h[1:]),
            "mesure": "alpha contre le MASI, rendement total, à l'horizon",
            "frais_inclus_dans_la_part": False, "frais_aller_retour_pct": 2,
            "periodes": PERIODES_ALPHA, "univers": {}}
@@ -118,7 +118,7 @@ def frequence_signal(sig: dict, h: str = "h20") -> dict:
             u["statut"] = "echantillon_insuffisant"
         else:
             k = sum(round(c["dans_le_bon_sens"] * c["n"]) for c in cel.values() if c.get("n"))
-            u.update({"statut": "publie", "part_bon_sens_pct": round(100 * k / n, 1),
+            u.update({"statut": "publie", "part_bon_sens_brute_pct": round(100 * k / n, 1),
                       "alpha_median_pct": None, "raison_alpha_median": RAISON_MEDIANE})
         if lib == "liquides":
             u["reproductible_sur_deux_periodes"] = bool(sig["retenu_liquides"][h])
@@ -128,7 +128,8 @@ def frequence_signal(sig: dict, h: str = "h20") -> dict:
 
 def frequence_gap(g: dict) -> dict:
     """Fréquence de comblement (mesurée par `calibrage_gaps.py`)."""
-    out = {"mesure": "part des gaps dont la zone est entièrement traversée en ≤ N séances",
+    out = {"mesure": ("part des gaps dont la zone est entièrement traversée en ≤ N séances "
+                      "depuis la séance du gap (l'âge de chaque gap publié est `age_seances`)"),
            "frais_inclus": False, "note": "fait de marché, pas une performance : aucun achat supposé",
            "univers": {}}
     for lib in ("tous", "liquides"):
@@ -195,6 +196,8 @@ def _fig_publiee(f: dict, s: dict, n: int) -> dict:
          "signal": f["signal"],
          "frequence_ref": ([f["signal"]] if f["signal"]
                            else REF_ARMEE.get(f["type"], [f["type"]]))}
+    if f["statut"] == ARMEE:
+        o["frequence_condition"] = "apres_cassure"   # la fréquence décrit ce qui suit la cassure
     if f["type"].startswith("fibo_"):
         (_, p0, _, _), (_, ph, _, _), _ = f["pivots"]
         o["reperes_retracement"] = {str(r): round(float(ph - r * (ph - p0)), 4)
@@ -217,6 +220,8 @@ def _ligne_publiee(f: dict, s: dict, n: int) -> dict:
          "signal": f["signal"],
          "frequence_ref": ([f["signal"]] if f["signal"]
                            else REF_ARMEE.get(f["type"], [f["type"]]))}
+    if f["statut"] == ARMEE:
+        o["frequence_condition"] = "apres_cassure"
     if f["type"] == "canal_haussier":
         ih, ph = f["sommet"]
         decal = ph - f["droite"](ih)          # parallèle au support passant par le sommet
@@ -350,8 +355,11 @@ def construire(racine: Path = RACINE, fin: str | None = None) -> dict:
         "_r8": "Mode ombre : aucune note ne dépend de ce fichier.",
         "_avertissement": ("Fréquences passées, pas des promesses. Observations chevauchantes "
                            "(un même mouvement compte plusieurs fois) et un seul régime de marché "
-                           "par période : les écarts affichés sont optimistes. Une figure armée n'a "
-                           "pas de fréquence propre : la fréquence décrit ce qui suit une CASSURE."),
+                           "par période : les écarts affichés sont optimistes. Les parts sont brutes "
+                           "de frais (2 % d'aller-retour non déduits) : la part « dans le bon sens » "
+                           "est mesurée sur l'alpha avant frais. Une figure armée n'a pas de "
+                           "fréquence propre : la fréquence décrit ce qui suit une CASSURE "
+                           "(frequence_condition = apres_cassure)."),
         "derniere_seance_du_marche": cal[-1] if cal else None,
         "entree_sha256": empreinte(racine, fin),
         "methode": {

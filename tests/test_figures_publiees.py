@@ -276,7 +276,7 @@ def test_effectifs_et_part_agreges_a_la_main(pub):
     k = 0,500 × 30 = 15 ; 0,492 × 59 = 29,03 → 29. Total 44 / 89 = 49,4 %.
     """
     u = pub["frequences"]["double_creux"]["univers"]["tous"]
-    assert u["n"] == 89 and u["part_bon_sens_pct"] == 49.4
+    assert u["n"] == 89 and u["part_bon_sens_brute_pct"] == 49.4
     assert u["alpha_median_pct"] is None and u["raison_alpha_median"]
     p2 = u["periodes"]["2025-01_2026-10"]
     assert p2["n"] == 59 and p2["alpha_median_net_frais_pct"] is None and p2["raison_alpha_net"]
@@ -371,3 +371,30 @@ def test_sortie_deterministe_sans_horloge():
     a = json.dumps(fp.construire(RACINE, "2026-10-02"), ensure_ascii=False)
     b = json.dumps(fp.construire(RACINE, "2026-10-02"), ensure_ascii=False)
     assert a == b
+
+
+# ── lisibilité des conditions d'usage (revue du 21/10) ───────────────────
+
+def test_frais_dits_en_clair(pub):
+    assert "brutes de frais (2 % d'aller-retour non déduits)" in pub["_avertissement"]
+    for chemin, d in _parcourir(pub["frequences"]):
+        assert "part_bon_sens_pct" not in d, chemin          # le champ s'appelle _brute_
+        assert "sens_attendu" not in d, chemin               # renommé sens_teste
+    assert pub["frequences"]["double_creux"]["sens_teste"] == +1
+
+
+def test_figure_armee_porte_sa_condition_d_usage(pub):
+    armees = [x for v in pub["titres"].values() for x in v["figures"] + v["lignes"]
+              if x["statut"] == "armee"]
+    assert len(armees) > 0
+    assert all(x["frequence_condition"] == "apres_cassure" for x in armees)
+    autres = [x for v in pub["titres"].values() for x in v["figures"] + v["lignes"]
+              if x["statut"] != "armee"]
+    assert all("frequence_condition" not in x for x in autres)
+
+
+def test_gap_publie_son_age_et_se_mesure_depuis_la_seance_du_gap(pub):
+    assert "depuis la séance du gap" in pub["frequences"]["gap_haussier"]["mesure"]
+    gaps = [g for v in pub["titres"].values() for g in v["gaps"]]
+    assert gaps and all(isinstance(g["age_seances"], int) and g["age_seances"] >= 0
+                        for g in gaps)
