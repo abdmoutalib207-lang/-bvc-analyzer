@@ -245,6 +245,56 @@ def _atr(cot):
     return _node(code + f"\nconsole.log(JSON.stringify(srAtrRel({json.dumps(cot)})));")
 
 
+def test_un_niveau_exclu_par_le_quota_reapparait_proche_du_cours():
+    """Décision d'Abd Moutalib, 21/10/2026 : les 3 + 3 ne bougent pas ; de
+    chaque côté s'ajoute au plus le candidat non retenu le plus proche du
+    cours, s'il a 2 contacts, respecte l'écart minimal et se trouve à moins
+    de 2 ATR(14) de la dernière clôture cotée.
+
+    Base (100 ; 101,5 ; 98,5 ; 100) sur 60 séances, plongées à 78 (séances
+    4, 20, 36), à 85 (12, 28, 44) et à 92,5 (50, 55) — assez espacées pour
+    que la base et chaque plongée fassent un creux (3 séances de chaque
+    côté). Calcul à la main, bandes à ±1,2 % :
+    · 98,5 — la base, coupée par chacune des 8 plongées : 9 contacts ;
+    · 85 — ses plongées ET celles à 78 (plus-haut 84 ≥ 83,98) : 6 contacts ;
+    · 78 — 3 contacts ; 92,5 — 2 contacts : quatrième, hors quota.
+    ATR(14), séances 46 à 59 : 7,5 aux plongées à 92,5 et à leurs retours
+    (4 séances), 3 aux dix autres — 60 / 14 = 4,29 %.
+    92,5 est à 6,49 % de 98,5 et 8,8 % de 85 (au-delà de l'écart), et à 7,5 %
+    de la clôture 100 (en deçà de 2 ATR, 8,57 %) : il s'ajoute.
+    """
+    c = [{"x": i * JOUR, "y": [100, 101.5, 98.5, 100], "vol": 10} for i in range(60)]
+    _poser(c, (4, 20, 36), (83, 84, 78, 83))
+    _poser(c, (12, 28, 44), (88, 89, 85, 88))
+    _poser(c, (50, 55), (94, 94, 92.5, 94))
+    out = _sr(c, 100)
+    assert abs(out["atr"] - 60 / 14 / 100) < 1e-12, out["atr"]
+    assert [(L["niveau"], L["contacts"], L.get("proche", False)) for L in out["sup"]] == [
+        (78, 3, False), (85, 6, False), (92.5, 2, True), (98.5, 9, False)], out["sup"]
+    assert out["proches"] == 1
+    # 101,5 (9 contacts aussi) est à 3,05 % de 98,5 : sous l'écart, il est
+    # écarté — égalité de contacts, de date et de distance au cours, le plus
+    # bas passe d'abord. Aucune résistance, donc aucune à ajouter.
+    assert out["res"] == [] and out["ecartes"] == 1
+    # Sans plongée à 92,5 : rien à ajouter, et les 3 + 3 restent les mêmes.
+    c2 = [dict(x) for x in c]
+    for i in (50, 55):
+        c2[i] = {"x": i * JOUR, "y": [100, 101.5, 98.5, 100], "vol": 10}
+    out2 = _sr(c2, 100)
+    assert out2["proches"] == 0
+    assert [L["niveau"] for L in out2["sup"]] == [78, 85, 98.5], out2["sup"]
+
+
+def test_la_legende_marque_un_niveau_proche_du_cours():
+    L = {"contacts": 2, "dansRole": 2, "tenus": 2, "autreRole": 0, "indetermines": 0,
+         "premier": 31 * JOUR, "dernier": 35 * JOUR, "proche": True,
+         "roles": [{"role": "support", "n": 2, "premier": 31 * JOUR, "dernier": 35 * JOUR}]}
+    assert _suite(L, True, False) == (
+        " (proche du cours) — 2 contacts du 01/02 au 05/02 : 2 par-dessus (tenu 2)")
+    # L'étiquette sur l'axe reste courte : pas de mention.
+    assert "proche" not in "title:`S ${fmtPrixFR(L.niveau)} · ${L.contacts}×`"
+
+
 def test_l_atr_est_la_moyenne_des_14_dernieres_etendues_vraies():
     # Étendue 6 à chaque séance, clôture 100 : 6 %.
     assert abs(_atr([{"y": [100, 103, 97, 100]}] * 16) - 0.06) < 1e-12
@@ -376,9 +426,12 @@ def test_les_regles_sont_publiees_dans_comment_lire():
                 "Niveaux retenus", "les plus touchés", "non les plus proches",
                 "au plus 3 au-dessus", "Écart minimal", "ATR(14)", "2,4 %",
                 "écarté, pas fusionné", "La même tolérance de 1,2 %",
-                "Inversion", "jusqu'au", "alterné"):
+                "Inversion", "jusqu'au", "alterné",
+                # niveaux proches du cours
+                "Proche du cours", "2 ATR(14)", "au plus un niveau non retenu",
+                "Au plus 4 niveaux de chaque côté"):
         assert mot in guide, mot
-    assert re.search(r"SR_TOL=0\.012, SR_LB=3, SR_MIN_CONTACTS=2, SR_PAR_COTE=3, SR_ATR=14;", SRC), (
+    assert re.search(r"SR_TOL=0\.012, SR_LB=3, SR_MIN_CONTACTS=2, SR_PAR_COTE=3, SR_ATR=14, SR_PROCHE_ATR=2;", SRC), (
         "le guide écrit 1,2 %, 3 séances, 2 contacts, 3 par côté et ATR(14) : le code doit le dire aussi")
     # Plancher de l'écart = 2 × la tolérance, écrit 2,4 % dans le guide.
     assert "Math.max(atr||0,2*SR_TOL)" in _bloc(SRC, "function calcSR(")
@@ -387,7 +440,8 @@ def test_les_regles_sont_publiees_dans_comment_lire():
 
 
 def test_index_compile_porte_le_nouveau_calcul():
-    for nom in ("SR_MIN_CONTACTS", "LegendeSR", "SR_PAR_COTE", "srAtrRel", "srSuite"):
+    for nom in ("SR_MIN_CONTACTS", "LegendeSR", "SR_PAR_COTE", "srAtrRel", "srSuite",
+                "SR_PROCHE_ATR", "proche du cours"):
         assert nom in COMPILE, nom
 
 
@@ -395,7 +449,8 @@ def test_index_compile_porte_le_nouveau_calcul():
 
 def test_les_regles_tiennent_sur_les_chandelles_de_tous_les_titres():
     """Propriétés du CODE, vérifiées sur les séries réelles : au plus 3 niveaux
-    de chaque côté, 2 contacts au moins, et aucune paire tracée à moins de
+    retenus et 1 « proche du cours » de chaque côté, chaque proche à moins de
+    2 ATR de la dernière clôture cotée, 2 contacts au moins, et aucune paire tracée à moins de
     l'écart minimal. Fenêtres 3M, 1A et 3A finissant à la dernière séance du
     fichier — indépendant de la date du jour."""
     script = _code() + r"""
@@ -411,7 +466,13 @@ for(const f of fs.readdirSync(dir).filter(f=>f.endsWith('.json'))){
     const c=w.map(x=>{const o=x.o!=null?x.o:(prev!=null?prev:x.c);const h=x.h!=null?x.h:Math.max(o,x.c);const l=x.l!=null?x.l:Math.min(o,x.c);prev=x.c;return{x:new Date(x.d).getTime(),y:[o,h,l,x.c],vol:x.v||0};});
     if(c.length<5)continue;
     const r=calcSR(c,c[c.length-1].y[3]);vus++;
-    if(r.sup.length>3||r.res.length>3)viol.push([f,jours,'plus de 3']);
+    for(const cote of [r.sup,r.res]){
+      if(cote.filter(L=>!L.proche).length>3)viol.push([f,jours,'plus de 3 retenus']);
+      if(cote.filter(L=>L.proche).length>1)viol.push([f,jours,'plus d\'un proche']);
+    }
+    const cot=c.filter(x=>x.vol>0),clo=cot.length?cot[cot.length-1].y[3]:null;
+    for(const L of [...r.sup,...r.res].filter(L=>L.proche))
+      if(!(Math.abs(L.niveau-clo)/clo<2*r.atr))viol.push([f,jours,'proche au-delà de 2 ATR',L.niveau]);
     const t=[...r.sup,...r.res];
     if(t.some(L=>L.contacts<2))viol.push([f,jours,'moins de 2 contacts']);
     if(t.length&&!(r.ecart>=0.024))viol.push([f,jours,'écart sous le plancher']);
