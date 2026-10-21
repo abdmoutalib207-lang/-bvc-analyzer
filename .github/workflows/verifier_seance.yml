@@ -87,6 +87,23 @@ jobs:
           node tools/bourse_casablanca.js accueil > "$RUNNER_TEMP/bourse/accueil.json" || rm -f "$RUNNER_TEMP/bourse/accueil.json"
           node tools/bourse_casablanca.js publications > "$RUNNER_TEMP/bourse/publications.json" || rm -f "$RUNNER_TEMP/bourse/publications.json"
 
+      # Liste officielle des émetteurs (20/10/2026). La capitalisation publiée
+      # est cours × nombre d'actions de `datasets/bourse_emetteurs.json` : un
+      # relevé neuf est comparé à ce fichier, et tout nombre d'actions changé
+      # est listé dans le résumé — c'est le signal pour rafraîchir le fichier,
+      # après vérification sur pièce (R11). Rien n'est commité.
+      - name: Liste des émetteurs — nombres d'actions changés
+        if: always() && steps.playwright.outcome == 'success'
+        continue-on-error: true
+        env:
+          BVC_PLAYWRIGHT: ${{ runner.temp }}/pw/node_modules/playwright
+          BVC_CHROMIUM: ''
+          BVC_SORTIE: ${{ runner.temp }}/bourse/emetteurs.json
+        run: |
+          node tools/releve_emetteurs_bourse.js
+          python tools/comparer_emetteurs.py --releve datasets/bourse_emetteurs.json \
+            --nouveau "$RUNNER_TEMP/bourse/emetteurs.json" | tee -a "$GITHUB_STEP_SUMMARY"
+
       - name: Contrôles Bourse de Casablanca (observation)
         if: always()
         continue-on-error: true
