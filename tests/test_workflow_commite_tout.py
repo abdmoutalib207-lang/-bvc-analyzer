@@ -162,3 +162,13 @@ def test_l_ajout_est_conditionne_a_l_existence_du_fichier():
     bloc = WORKFLOW[i:i + 400]
     assert '[ -f "$f" ]' in bloc, (
         "un fichier manquant ferait échouer le commit et donc la publication")
+
+
+def test_figures_publiees_partent_dans_le_commit_existant():
+    """Les figures publiées (21/10/2026) sont écrites par une étape de
+    workflow, pas par le moteur : elles ne figurent donc PAS dans
+    ECRITS_PAR_LE_MOTEUR. Leur fichier doit pourtant être passé à `git add`, et
+    aucun commit ne doit s'ajouter (le quota de Pages est la ressource rare)."""
+    assert "datasets/figures_publiees.json" in _chemins_ajoutes()
+    assert WORKFLOW.count("git commit") == 1, "un commit de plus a été ajouté"
+    assert all(f != "datasets/figures_publiees.json" for f, _ in ECRITS_PAR_LE_MOTEUR)

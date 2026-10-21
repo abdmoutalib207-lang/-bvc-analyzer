@@ -413,6 +413,56 @@ def test_frequences_et_ruptures_dit_ce_qui_a_ete_mesure(pub):
     assert "ne porte PAS sur les fréquences publiées" in m["texte"]
 
 
+# ── branchement dans update_bvc.yml (non bloquant, horloge unique) ───────
+
+def _etapes_update_bvc():
+    import yaml
+    w = yaml.safe_load((RACINE / ".github" / "workflows" / "update_bvc.yml").read_text(encoding="utf-8"))
+    return w["jobs"]["pytest"]["steps"] if "pytest" in w["jobs"] else list(w["jobs"].values())[0]["steps"]
+
+
+def test_etape_figures_non_bloquante_et_avant_les_controles_bloquants():
+    etapes = _etapes_update_bvc()
+    noms = [(e.get("name") or "").lower() for e in etapes]
+    i = next(k for k, n in enumerate(noms) if n.startswith("figures publiées"))
+    j = noms.index("contrôles bloquants sur le fichier généré")
+    k = noms.index("commit data.json si modifié")
+    assert i < j < k
+    e = etapes[i]
+    assert e["continue-on-error"] is True
+    assert "steps.gate.outputs.run == 'true'" in e["if"]
+    assert "date" not in e["if"] and "hour" not in e["if"]          # l'heure n'est pas dans le `if`
+    run = "\n".join(l for l in e["run"].splitlines() if not l.strip().startswith("#"))
+    assert "TZ=" not in run and "date " not in run                  # ni `TZ=`, ni `date` shell
+    assert "python pipeline/figures_publiees.py" in run
+    assert "pytest tests/test_figures_publiees.py" in run
+    assert "git checkout -- datasets/figures_publiees.json" in run
+    assert etapes[j].get("continue-on-error") is not True            # les contrôles restent bloquants
+
+
+def test_garde_horaire_17h45_dans_le_script():
+    from datetime import datetime, timedelta, timezone
+    jour = datetime(2026, 10, 21)
+    off = cfg.decalage_maroc(jour.date())
+
+    def instant(h, m):      # l'instant UTC qui correspond à h:m heure du Maroc
+        return (datetime(2026, 10, 21, h, m) - timedelta(hours=off)).replace(tzinfo=timezone.utc)
+    assert fp.avant_cloture_definitive(instant(17, 44)) is True
+    assert fp.avant_cloture_definitive(instant(17, 45)) is False
+    assert fp.avant_cloture_definitive(instant(9, 30)) is True
+
+
+def test_avant_17h45_le_script_n_ecrit_rien(tmp_path, monkeypatch):
+    sortie = tmp_path / "f.json"
+    monkeypatch.setattr(fp, "avant_cloture_definitive", lambda instant=None: True)
+    monkeypatch.setattr(sys, "argv", ["figures_publiees.py", "--sortie", str(sortie)])
+    assert fp.main() == 0
+    assert not sortie.exists()
+    monkeypatch.setattr(sys, "argv", ["figures_publiees.py", "--sortie", str(sortie),
+                                      "--sans-garde-horaire", "--fin", "2026-10-02"])
+    assert fp.main() == 0 and sortie.exists()
+
+
 def test_ecart_de_1299_a_1286_vient_du_fichier_tgc():
     """76 titres de TICKERS_ALL avec ≥ 80 séances échangées → 1 286 signaux ;
     le fichier TGC (alias, hors TICKERS_ALL) en ajoute 13, d'où 1 299 sur 77 fichiers."""

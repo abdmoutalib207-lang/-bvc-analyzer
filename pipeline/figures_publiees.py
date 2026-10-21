@@ -29,7 +29,12 @@ NON DÉTERMINISTE ? Non. Aucune horloge dans le fichier : il ne change que si le
 chandelles changent. Un run sans séance nouvelle réécrit le même octet — donc
 aucun commit (voir le rapport de branchement).
 
+GARDE HORAIRE : avant 17h45 (heure du Maroc, `bvc_config.heure_maroc`), le script
+sort sans rien écrire — la bougie du jour n'est pas définitive. `--sans-garde-horaire`
+pour un essai manuel.
+
 Usage : python3 pipeline/figures_publiees.py [--sortie FICHIER] [--fin AAAA-MM-JJ]
+                                             [--sans-garde-horaire]
 """
 from __future__ import annotations
 
@@ -433,11 +438,29 @@ def resume(res: dict) -> dict:
             "frequences": freq_statuts}
 
 
+HEURE_MIN = (17, 45)
+
+
+def avant_cloture_definitive(instant=None) -> bool:
+    """Vrai avant 17h45 à l'heure du Maroc (registre `bvc_config.DECALAGES_MAROC`)."""
+    import bvc_config as cfg
+    h = cfg.heure_maroc(instant)
+    return (h.hour, h.minute) < HEURE_MIN
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--sortie", default=str(SORTIE))
     ap.add_argument("--fin", default=None, help="tronque les chandelles (AAAA-MM-JJ), pour rejouer le passé")
+    ap.add_argument("--sans-garde-horaire", action="store_true",
+                    help="écrit même avant 17h45 (essais manuels, tests)")
     arg = ap.parse_args()
+    # Garde horaire DANS le script (une seule horloge : bvc_config.heure_maroc).
+    # Avant 17h45 la bougie du jour est encore rafraîchie par les runs
+    # intrajournaliers : les statuts changeraient d'un run à l'autre pour rien.
+    if not arg.sans_garde_horaire and avant_cloture_definitive():
+        print("avant 17h45 (heure du Maroc) : bougie du jour non définitive, rien écrit")
+        return 0
     res = construire(RACINE, arg.fin)
     texte = json.dumps(res, ensure_ascii=False, indent=1, sort_keys=False) + "\n"
     sortie = Path(arg.sortie)
