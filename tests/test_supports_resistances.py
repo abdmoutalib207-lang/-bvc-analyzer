@@ -19,6 +19,13 @@ presque toujours dans la tolérance. Un contact est désormais un ÉPISODE, la
 tenue ne se compte que dans le bon rôle, et le mot (Support, Résistance) suit
 la position du niveau par rapport à la dernière clôture.
 
+Troisième passage, même jour (lot 1 bis) : les niveaux étaient les 3 creux et
+les 3 sommets les plus PROCHES du cours, à ±3 %. Sur 78 titres en 3A, ils
+couvraient 13 % de la plage bas–haut de la fenêtre (médiane) et 138 paires
+tracées étaient à moins de 1,2 % l'une de l'autre. Ils sont désormais choisis
+par nombre de contacts sur toute la fenêtre, espacés d'au moins 1 ATR(14)
+relatif (plancher 2,4 %), et la légende date les inversions de rôle.
+
 ⚠️ Les attendus sont construits ICI, à la main, sur des séances fabriquées —
 jamais recopiés d'une sortie du code testé. Le code est extrait du fichier
 servi et exécuté sous node.
@@ -39,7 +46,7 @@ JOUR = 86_400_000
 
 def _code():
     consts = "\n".join(_instruction(SRC, c) for c in
-                       ("const SR_TOL=", "const srCotee="))
+                       ("const SR_TOL=", "const srCotee=", "const srAtrRel="))
     return f"{consts}\n{_bloc(SRC, 'function calcSR(')}\n"
 
 
@@ -105,7 +112,9 @@ def test_contacts_tenue_et_dates_d_une_resistance():
     assert _niveau(out, 110.25) == [{
         "niveau": 110.25, "contacts": 2, "dansRole": 2, "tenus": 1,
         "autreRole": 0, "indetermines": 0,
-        "premier": 5 * JOUR, "dernier": 10 * JOUR}], out
+        "premier": 5 * JOUR, "dernier": 10 * JOUR,
+        "roles": [{"role": "résistance", "n": 2,
+                   "premier": 5 * JOUR, "dernier": 10 * JOUR}]}], out
 
 
 def test_des_seances_consecutives_font_un_seul_contact():
@@ -122,7 +131,9 @@ def test_des_seances_consecutives_font_un_seul_contact():
     assert _niveau(out, 110.45) == [{
         "niveau": 110.45, "contacts": 2, "dansRole": 2, "tenus": 1,
         "autreRole": 0, "indetermines": 0,
-        "premier": 5 * JOUR, "dernier": 11 * JOUR}], out
+        "premier": 5 * JOUR, "dernier": 11 * JOUR,
+        "roles": [{"role": "résistance", "n": 2,
+                   "premier": 5 * JOUR, "dernier": 11 * JOUR}]}], out
 
 
 def test_un_support_aborde_par_en_dessous_n_est_ni_tenu_ni_casse():
@@ -132,10 +143,13 @@ def test_un_support_aborde_par_en_dessous_n_est_ni_tenu_ni_casse():
     c[12] = {"x": 12 * JOUR, "y": [93, 93.5, 92.5, 93], "vol": 10}  # passe sous 95
     c[13] = {"x": 13 * JOUR, "y": [93, 96, 93, 95.5], "vol": 10}    # revient par en dessous
     out = _sr(c, 100)
+    # Rôles dans l'ordre : support (séances 4 et 8), puis résistance (13).
     assert _niveau(out, 95) == [{
         "niveau": 95, "contacts": 3, "dansRole": 2, "tenus": 2,
         "autreRole": 1, "indetermines": 0,
-        "premier": 4 * JOUR, "dernier": 13 * JOUR}], out
+        "premier": 4 * JOUR, "dernier": 13 * JOUR,
+        "roles": [{"role": "support", "n": 2, "premier": 4 * JOUR, "dernier": 8 * JOUR},
+                  {"role": "résistance", "n": 1, "premier": 13 * JOUR, "dernier": 13 * JOUR}]}], out
     assert _niveau(out, 95)[0] in out["sup"]
 
 
@@ -168,20 +182,231 @@ def test_un_niveau_touche_une_seule_fois_n_est_pas_trace():
     assert _sr(c, 100)["retires"] == 3
 
 
-# ── 3. Affichage ─────────────────────────────────────────────────────────────
+# ── 3. Sélection par importance (lot 1 bis, 21/10/2026) ─────────────────────
+#
+# Avant : les 3 creux et les 3 sommets les plus PROCHES du cours, à ±3 %.
+# Mesuré sur 78 titres en 3A : 13 % de la plage bas–haut couverte (médiane),
+# 138 paires tracées à moins de 1,2 % l'une de l'autre. ADH : 6 lignes entre
+# 35,25 et 36,62 pour une plage de 14 à 48.
+
+def _plat(n, prix=100, vol=10):
+    return [{"x": i * JOUR, "y": [prix] * 4, "vol": vol} for i in range(n)]
+
+
+def _poser(c, seances, bougie):
+    for i in seances:
+        c[i] = {"x": i * JOUR, "y": list(bougie), "vol": 10}
+    return c
+
+
+def test_les_niveaux_sont_choisis_par_contacts_et_non_par_proximite():
+    """Quatre niveaux sous le cours, trois places : le moins touché sort.
+
+    Bandes de contact (±1,2 %) calculées à la main :
+    · 100 (la base) — coupée par les plongées à 80 et à 90 : 6 épisodes ;
+    · 80 — séances 5, 15, 25 : 3 contacts, à 20 % sous le cours ;
+    · 97 — séances 30, 34 : 2 contacts, le dernier à la séance 34 ;
+    · 90 — séances 10, 20 : 2 contacts, le dernier à la séance 20.
+    97 et 90 sont à égalité : le contact le plus récent départage. L'ancien
+    calcul gardait 90, 97 et 100 — les plus proches — et jamais 80.
+    """
+    c = _plat(40)
+    _poser(c, (5, 15, 25), (85, 86, 80, 85))
+    _poser(c, (10, 20), (91, 92, 90, 91))
+    _poser(c, (30, 34), (98, 99, 97, 98))
+    out = _sr(c, 100)
+    assert [L["niveau"] for L in out["sup"]] == [80, 97, 100], out
+    assert out["res"] == [] and out["ecartes"] == 0
+    assert [L["contacts"] for L in out["sup"]] == [3, 2, 6]
+
+
+def test_deux_niveaux_traces_sont_espaces_d_au_moins_l_ecart_minimal():
+    """90 et 92 sont à 2,2 % : au-delà de la tolérance (deux niveaux), en deçà
+    du plancher de 2,4 % (un seul tracé). 92 est touché 5 fois — ses bandes
+    accrochent aussi les plongées à 90 — contre 3 : 90 est écarté.
+
+    ATR(14) à la main, séances 26 à 39 : étendues vraies 8 et 7 deux fois
+    (plongée à 92 depuis 100, puis retour), zéro ailleurs — 30 / 14 = 2,14 %,
+    sous le plancher.
+    """
+    c = _plat(40)
+    _poser(c, (5, 12, 19), (91, 92, 90, 91))
+    _poser(c, (26, 33), (93, 94, 92, 93))
+    out = _sr(c, 100)
+    assert [L["niveau"] for L in out["sup"]] == [92, 100], out
+    assert [L["contacts"] for L in out["sup"]] == [5, 6]
+    assert out["ecartes"] == 1
+    assert abs(out["atr"] - 30 / 14 / 100) < 1e-12
+    assert out["ecart"] == 0.024
+
+
+def _atr(cot):
+    code = _instruction(SRC, "const SR_TOL=") + "\n" + _instruction(SRC, "const srAtrRel=")
+    return _node(code + f"\nconsole.log(JSON.stringify(srAtrRel({json.dumps(cot)})));")
+
+
+def test_un_niveau_exclu_par_le_quota_reapparait_proche_du_cours():
+    """Décision d'Abd Moutalib, 21/10/2026 : les 3 + 3 ne bougent pas ; de
+    chaque côté s'ajoute au plus le candidat non retenu le plus proche du
+    cours, s'il a 2 contacts, respecte l'écart minimal et se trouve à moins
+    de 2 ATR(14) de la dernière clôture cotée.
+
+    Base (100 ; 101,5 ; 98,5 ; 100) sur 60 séances, plongées à 78 (séances
+    4, 20, 36), à 85 (12, 28, 44) et à 92,5 (50, 55) — assez espacées pour
+    que la base et chaque plongée fassent un creux (3 séances de chaque
+    côté). Calcul à la main, bandes à ±1,2 % :
+    · 98,5 — la base, coupée par chacune des 8 plongées : 9 contacts ;
+    · 85 — ses plongées ET celles à 78 (plus-haut 84 ≥ 83,98) : 6 contacts ;
+    · 78 — 3 contacts ; 92,5 — 2 contacts : quatrième, hors quota.
+    ATR(14), séances 46 à 59 : 7,5 aux plongées à 92,5 et à leurs retours
+    (4 séances), 3 aux dix autres — 60 / 14 = 4,29 %.
+    92,5 est à 6,49 % de 98,5 et 8,8 % de 85 (au-delà de l'écart), et à 7,5 %
+    de la clôture 100 (en deçà de 2 ATR, 8,57 %) : il s'ajoute.
+    """
+    c = [{"x": i * JOUR, "y": [100, 101.5, 98.5, 100], "vol": 10} for i in range(60)]
+    _poser(c, (4, 20, 36), (83, 84, 78, 83))
+    _poser(c, (12, 28, 44), (88, 89, 85, 88))
+    _poser(c, (50, 55), (94, 94, 92.5, 94))
+    out = _sr(c, 100)
+    assert abs(out["atr"] - 60 / 14 / 100) < 1e-12, out["atr"]
+    assert [(L["niveau"], L["contacts"], L.get("proche", False)) for L in out["sup"]] == [
+        (78, 3, False), (85, 6, False), (92.5, 2, True), (98.5, 9, False)], out["sup"]
+    assert out["proches"] == 1
+    # 101,5 (9 contacts aussi) est à 3,05 % de 98,5 : sous l'écart, il est
+    # écarté — égalité de contacts, de date et de distance au cours, le plus
+    # bas passe d'abord. Aucune résistance, donc aucune à ajouter.
+    assert out["res"] == [] and out["ecartes"] == 1
+    # Sans plongée à 92,5 : rien à ajouter, et les 3 + 3 restent les mêmes.
+    c2 = [dict(x) for x in c]
+    for i in (50, 55):
+        c2[i] = {"x": i * JOUR, "y": [100, 101.5, 98.5, 100], "vol": 10}
+    out2 = _sr(c2, 100)
+    assert out2["proches"] == 0
+    assert [L["niveau"] for L in out2["sup"]] == [78, 85, 98.5], out2["sup"]
+
+
+def test_la_legende_marque_un_niveau_proche_du_cours():
+    L = {"contacts": 2, "dansRole": 2, "tenus": 2, "autreRole": 0, "indetermines": 0,
+         "premier": 31 * JOUR, "dernier": 35 * JOUR, "proche": True,
+         "roles": [{"role": "support", "n": 2, "premier": 31 * JOUR, "dernier": 35 * JOUR}]}
+    assert _suite(L, True, False) == (
+        " · proche — 2 contacts du 01/02 au 05/02 : 2 par-dessus (tenu 2)")
+    # L'étiquette sur l'axe reste courte : pas de mention.
+    assert "proche" not in "title:`S ${fmtPrixFR(L.niveau)} · ${L.contacts}×`"
+
+
+def test_l_atr_est_la_moyenne_des_14_dernieres_etendues_vraies():
+    # Étendue 6 à chaque séance, clôture 100 : 6 %.
+    assert abs(_atr([{"y": [100, 103, 97, 100]}] * 16) - 0.06) < 1e-12
+    # Saut de 100 à 110 : l'étendue vraie part de la clôture précédente (11),
+    # pas du seul plus-haut − plus-bas (2). 11 / 110 = 10 %.
+    assert abs(_atr([{"y": [100, 101, 99, 100]}, {"y": [110, 111, 109, 110]}]) - 0.1) < 1e-12
+    # Seules les 14 dernières comptent : 20 séances d'étendue 20, puis 14 de 2.
+    serie = [{"y": [100, 110, 90, 100]}] * 20 + [{"y": [100, 101, 99, 100]}] * 14
+    assert abs(_atr(serie) - 0.02) < 1e-12
+    assert _atr([{"y": [100, 101, 99, 100]}]) is None
+
+
+def test_l_ecart_suit_l_atr_au_dessus_du_plancher():
+    c = [{"x": i * JOUR, "y": [100, 103, 97, 100], "vol": 10} for i in range(16)]
+    out = _sr(c, 100)
+    assert abs(out["ecart"] - 0.06) < 1e-12 and abs(out["atr"] - 0.06) < 1e-12
+
+
+def test_une_inversion_de_role_est_datee():
+    """Le cours vit à 90, touche 95 deux fois par-dessous (séances 3 et 7),
+    passe à 100, puis revient sur 95 trois fois par-dessus (13, 17, 21) et
+    clôture au-dessus à chaque fois. 95 est sous le cours : Support."""
+    c = _plat(10, 90) + [{"x": i * JOUR, "y": [100] * 4, "vol": 10} for i in range(10, 25)]
+    _poser(c, (3, 7), (91, 95, 91, 91))
+    _poser(c, (13, 17, 21), (99, 99.5, 95, 99))
+    out = _sr(c, 100)
+    assert _niveau(out, 95) == [{
+        "niveau": 95, "contacts": 5, "dansRole": 3, "tenus": 3,
+        "autreRole": 2, "indetermines": 0,
+        "premier": 3 * JOUR, "dernier": 21 * JOUR,
+        "roles": [{"role": "résistance", "n": 2, "premier": 3 * JOUR, "dernier": 7 * JOUR},
+                  {"role": "support", "n": 3, "premier": 13 * JOUR, "dernier": 21 * JOUR}]}], out
+    assert _niveau(out, 95)[0] in out["sup"]
+    # La phrase : la date du dernier contact dans l'ancien rôle (séance 7 =
+    # 08/01/1970), et le nombre de contacts de chaque rôle.
+    assert _suite(_niveau(out, 95)[0], True, False) == (
+        " — 5 contacts : résistance jusqu'au 08/01 (2), support depuis (3, tenu 3)")
+
+
+# ── 4. Légende ───────────────────────────────────────────────────────────────
+
+def _suite(L, support, an):
+    code = "\n".join(_instruction(SRC, c) for c in ("const srJour=", "const srSuite="))
+    return _node(code + f"\nconsole.log(JSON.stringify(srSuite({json.dumps(L)},"
+                 f"{json.dumps(support)},{json.dumps(an)})));")
+
+
+def test_legende_d_un_niveau_a_un_seul_role():
+    L = {"contacts": 4, "dansRole": 3, "tenus": 2, "autreRole": 0, "indetermines": 1,
+         "premier": 5 * JOUR, "dernier": 12 * JOUR,
+         "roles": [{"role": "support", "n": 3, "premier": 6 * JOUR, "dernier": 12 * JOUR}]}
+    assert _suite(L, True, False) == (
+        " — 4 contacts du 06/01 au 13/01 : 3 par-dessus (tenu 2) · 1 sens inconnu")
+    # Un support touché seulement par-dessous : un seul compte, celui de l'autre côté.
+    L2 = {**L, "dansRole": 0, "tenus": 0, "autreRole": 3, "indetermines": 1,
+          "roles": [{"role": "résistance", "n": 3, "premier": 6 * JOUR, "dernier": 12 * JOUR}]}
+    assert _suite(L2, True, True) == (
+        " — 4 contacts du 06/01/70 au 13/01/70 : 3 par-dessous · 1 sens inconnu")
+
+
+def test_legende_de_roles_alternes():
+    """Trois séquences : aucun rôle nommé, la période et les comptes.
+
+    « Support 34,50 — 20 contacts, résistance depuis le 18/09/26 » se lisait
+    comme une contradiction (le nom vient de la position, le rôle du dernier
+    contact) : retiré à la relecture du 21/10/2026. Premier contact au jour 0
+    (01/01/1970), dernier au jour 30 (31/01)."""
+    L = {"contacts": 6, "dansRole": 2, "tenus": 1, "autreRole": 4, "indetermines": 0,
+         "premier": 0, "dernier": 30 * JOUR,
+         "roles": [{"role": "résistance", "n": 1, "premier": 0, "dernier": 0},
+                   {"role": "support", "n": 4, "premier": 5 * JOUR, "dernier": 20 * JOUR},
+                   {"role": "résistance", "n": 1, "premier": 30 * JOUR, "dernier": 30 * JOUR}]}
+    assert _suite(L, False, False) == (
+        " — 6 contacts du 01/01 au 31/01 : 2 par-dessous (tenu 1) · 4 par-dessus")
+    assert "depuis" not in _suite(L, False, False)
+
+
+def test_legende_d_une_inversion_vers_le_role_oppose_a_la_position():
+    """Touché par-dessus puis par-dessous, et le cours est remonté au-dessus
+    sans le retoucher : Support par la position, résistance au dernier contact.
+    « tenu » s'accroche au rôle de la position, ici la première séquence."""
+    L = {"contacts": 3, "dansRole": 2, "tenus": 2, "autreRole": 1, "indetermines": 0,
+         "premier": 4 * JOUR, "dernier": 13 * JOUR,
+         "roles": [{"role": "support", "n": 2, "premier": 4 * JOUR, "dernier": 8 * JOUR},
+                   {"role": "résistance", "n": 1, "premier": 13 * JOUR, "dernier": 13 * JOUR}]}
+    assert _suite(L, True, False) == (
+        " — 3 contacts : support jusqu'au 09/01 (2, tenu 2), résistance depuis (1)")
+
 
 def test_titre_court_sur_la_ligne_et_legende_datee():
     assert "title:`S ${fmtPrixFR(L.niveau)} · ${L.contacts}×`" in SRC
     assert "title:`R ${fmtPrixFR(L.niveau)} · ${L.contacts}×`" in SRC
     leg = _bloc(SRC, "const LegendeSR=(")
-    for mot in ("touché", "tenu", "du ", " au ", "Support", "Résistance",
-                "par le dessus", "par le dessous", "par en dessous",
-                "sens inconnu"):
+    suite = _instruction(SRC, "const srSuite=")
+    assert "srSuite(L,nom===\"Support\",an)" in leg
+    for mot in ("Support", "Résistance", "pctFR(sr.ecart)", "SR_PAR_COTE",
+                "les plus touchés"):
         assert mot in leg, mot
+    for mot in ("contact", "tenu", "du ", " au ", "par-dessus", "par-dessous",
+                "sens inconnu", "jusqu'au", "depuis"):
+        assert mot in suite, mot
     assert '<LegendeSR sr={sr}' in SRC
     # Vocabulaire du produit : des faits, pas une annonce.
-    for faux in ("objectif", "rebond", "va ", "cible"):
-        assert faux not in leg.lower(), faux
+    for faux in ("objectif", "rebond", "va ", "cible", "achet", "vend"):
+        assert faux not in (leg + suite).lower(), faux
+
+
+def test_la_legende_passe_a_10_px_sur_telephone():
+    """Trois lignes par niveau à 390 px avant ; deux au plus visé."""
+    assert "@media (max-width:640px){.legende-sr .sr-ligne{font-size:10px;}" in SRC
+    assert ".legende-sr{padding-left:6px!important;padding-right:6px!important;}" in SRC
+    assert 'className="sr-ligne"' in _bloc(SRC, "const LegendeSR=(")
 
 
 def test_le_resultat_est_declare_avant_l_effet_qui_le_lit():
@@ -196,11 +421,74 @@ def test_les_regles_sont_publiees_dans_comment_lire():
     for mot in ("Contact", "épisode", "Tenu", "1,2 %", "2 contacts",
                 "volume nul", "Séances écartées", "restent dessinées",
                 "3 séances", "ne le coupe pas", "Le mot suit la position",
-                "par le dessus", "ni tenu ni cassé", "Sens inconnu"):
+                "Par-dessus", "par-dessous", "ni tenu ni cassé", "Sens inconnu",
+                # lot 1 bis
+                "Niveaux retenus", "les plus touchés", "non les plus proches",
+                "au plus 3 au-dessus", "Écart minimal", "ATR(14)", "2,4 %",
+                "écarté, pas fusionné", "La même tolérance de 1,2 %",
+                "Inversion", "jusqu'au", "alterné",
+                # niveaux proches du cours
+                "Proche du cours", "2 ATR(14)", "au plus un niveau non retenu",
+                "Au plus 4 niveaux de chaque côté"):
         assert mot in guide, mot
-    assert re.search(r"SR_TOL=0\.012, SR_LB=3, SR_MIN_CONTACTS=2;", SRC), (
-        "le guide écrit 1,2 %, 3 séances et 2 contacts : le code doit le dire aussi")
+    assert re.search(r"SR_TOL=0\.012, SR_LB=3, SR_MIN_CONTACTS=2, SR_PAR_COTE=3, SR_ATR=14, SR_PROCHE_ATR=2;", SRC), (
+        "le guide écrit 1,2 %, 3 séances, 2 contacts, 3 par côté et ATR(14) : le code doit le dire aussi")
+    # Plancher de l'écart = 2 × la tolérance, écrit 2,4 % dans le guide.
+    assert "Math.max(atr||0,2*SR_TOL)" in _bloc(SRC, "function calcSR(")
+    # Plus de filtre à ±3 % autour du cours.
+    assert "price*1.03" not in SRC and "price*0.97" not in SRC
 
 
 def test_index_compile_porte_le_nouveau_calcul():
-    assert "SR_MIN_CONTACTS" in COMPILE and "LegendeSR" in COMPILE
+    for nom in ("SR_MIN_CONTACTS", "LegendeSR", "SR_PAR_COTE", "srAtrRel", "srSuite",
+                "SR_PROCHE_ATR", "proche du cours"):
+        assert nom in COMPILE, nom
+
+
+# ── 5. Les règles tiennent sur tous les titres ───────────────────────────────
+
+def test_les_regles_tiennent_sur_les_chandelles_de_tous_les_titres():
+    """Propriétés du CODE, vérifiées sur les séries réelles : au plus 3 niveaux
+    retenus et 1 « proche du cours » de chaque côté, chaque proche à moins de
+    2 ATR de la dernière clôture cotée, 2 contacts au moins, et aucune paire tracée à moins de
+    l'écart minimal. Fenêtres 3M, 1A et 3A finissant à la dernière séance du
+    fichier — indépendant de la date du jour."""
+    script = _code() + r"""
+const fs=require('fs'),path=require('path');
+const dir=process.argv[1];const viol=[];let vus=0;
+for(const f of fs.readdirSync(dir).filter(f=>f.endsWith('.json'))){
+  let s=JSON.parse(fs.readFileSync(path.join(dir,f),'utf8'));s=Array.isArray(s)?s:(s.candles||[]);
+  if(s.length<5)continue;
+  const fin=new Date(s[s.length-1].d).getTime();
+  for(const jours of [90,365,1095]){
+    const w=s.filter(c=>new Date(c.d).getTime()>=fin-jours*86400000);
+    let prev=null;
+    const c=w.map(x=>{const o=x.o!=null?x.o:(prev!=null?prev:x.c);const h=x.h!=null?x.h:Math.max(o,x.c);const l=x.l!=null?x.l:Math.min(o,x.c);prev=x.c;return{x:new Date(x.d).getTime(),y:[o,h,l,x.c],vol:x.v||0};});
+    if(c.length<5)continue;
+    const r=calcSR(c,c[c.length-1].y[3]);vus++;
+    for(const cote of [r.sup,r.res]){
+      if(cote.filter(L=>!L.proche).length>3)viol.push([f,jours,'plus de 3 retenus']);
+      if(cote.filter(L=>L.proche).length>1)viol.push([f,jours,'plus d\'un proche']);
+    }
+    const cot=c.filter(x=>x.vol>0),clo=cot.length?cot[cot.length-1].y[3]:null;
+    for(const L of [...r.sup,...r.res].filter(L=>L.proche))
+      if(!(Math.abs(L.niveau-clo)/clo<2*r.atr))viol.push([f,jours,'proche au-delà de 2 ATR',L.niveau]);
+    const t=[...r.sup,...r.res];
+    if(t.some(L=>L.contacts<2))viol.push([f,jours,'moins de 2 contacts']);
+    if(t.length&&!(r.ecart>=0.024))viol.push([f,jours,'écart sous le plancher']);
+    const v=t.map(L=>L.niveau).sort((a,b)=>a-b);
+    for(let i=1;i<v.length;i++)if((v[i]-v[i-1])/v[i-1]<r.ecart)viol.push([f,jours,v[i-1],v[i],r.ecart]);
+  }
+}
+console.log(JSON.stringify({vus,viol}));
+"""
+    node = __import__("shutil").which("node")
+    if not node:                                    # pragma: no cover
+        import pytest
+        pytest.skip("node absent de cette machine")
+    r = __import__("subprocess").run([node, "-e", script, str(RACINE / "pipeline" / "candles")],
+                                     capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, r.stderr
+    out = json.loads(r.stdout)
+    assert out["vus"] >= 150, out["vus"]
+    assert out["viol"] == [], out["viol"][:10]
