@@ -5881,6 +5881,506 @@ const LegendeSR = ({
     }
   }, lignes.length > 0 && sr.ecart != null && React.createElement(React.Fragment, null, "Les niveaux les plus touch\xE9s, ", SR_PAR_COTE, " au plus de chaque c\xF4t\xE9, plus un \xAB proche du cours \xBB s'il est \xE0 moins de ", SR_PROCHE_ATR, " ATR ; espac\xE9s d'au moins ", pctFR(sr.ecart), " % ; contact \xE0 ", pctFR(SR_TOL), " % du niveau. "), sr.ecartees > 0 && React.createElement(React.Fragment, null, sr.ecartees, " s\xE9ance", sr.ecartees > 1 ? "s" : "", " \xE9cart\xE9e", sr.ecartees > 1 ? "s" : "", " du calcul (sans \xE9change, ou bougie du jour reconstitu\xE9e), toujours dessin\xE9e", sr.ecartees > 1 ? "s" : "", ". "), "S\xE9ances pass\xE9es, compt\xE9es et dat\xE9es \u2014 pas un niveau annonc\xE9. R\xE8gles : \xAB Comment lire \xBB."));
 };
+let FIG_PUB = null,
+  FIG_PUB_P = null;
+const chargerFigures = () => FIG_PUB_P || (FIG_PUB_P = fetch("datasets/figures_publiees.json?t=" + Math.floor(Date.now() / 3600000)).then(x => x.ok ? x.json() : null).then(j => {
+  FIG_PUB = j;
+  if (!j) FIG_PUB_P = null;
+  return j;
+}).catch(() => {
+  FIG_PUB_P = null;
+  return null;
+}));
+const FIG_COURT = {
+  double_creux: "2C",
+  double_sommet: "2S",
+  ete: "ETE",
+  ete_inversee: "ETE inv.",
+  tasse_anse: "Tasse",
+  triangle_ascendant: "Tri. asc.",
+  triangle_descendant: "Tri. desc.",
+  triangle_sym: "Tri. sym.",
+  fibo_rebond_382_618: "Fib 38-62",
+  fibo_au_dela_786: "Fib >78,6"
+};
+const FIG_APRES = {
+  triangle_sym_haut: "après une cassure par le haut",
+  triangle_sym_bas: "après une cassure par le bas",
+  canal_rebond_support: "après un rebond sur le support",
+  canal_cassure_bas: "après une cassure du support par le bas",
+  fibo_rebond_382_618: "après un tel rebond",
+  fibo_au_dela_786: "après un tel retracement"
+};
+const figCoul = s => s > 0 ? "#00e5a0" : s < 0 ? "#ff4f5a" : "#b388ff";
+const figSens = e => e.orientation_classique === "haussiere" ? 1 : e.orientation_classique === "baissiere" ? -1 : /_haut$/.test(e.signal || "") ? 1 : /_bas$/.test(e.signal || "") ? -1 : 0;
+const figJour = (iso, an) => iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}${an && iso.slice(0, 4) !== an ? "/" + iso.slice(2, 4) : ""}` : "—";
+const figPct = x => (+x).toLocaleString("fr-FR", {
+  maximumFractionDigits: 1
+});
+const figMin = fp => fp && fp.methode && fp.methode.min_cas_pour_publier || 30;
+const figUnivers = liq => liq ? {
+  cle: "liquides",
+  nom: "titres liquides"
+} : {
+  cle: "tous",
+  nom: "tous titres"
+};
+const figPeriode = fp => {
+  let a = null,
+    b = null;
+  Object.values(fp && fp.frequences || {}).forEach(f => Object.values(f && f.periodes || {}).forEach(p => {
+    const d = String(p.debut || "").slice(0, 4),
+      e = String(p.fin || "").slice(0, 4);
+    if (/^\d{4}$/.test(d) && (!a || d < a)) a = d;
+    if (/^\d{4}$/.test(e) && (!b || e > b)) b = e;
+  }));
+  return a && b ? `${a}-${b}` : null;
+};
+const figFrequence = (fp, ref, liq, apres) => {
+  const f = fp && fp.frequences && fp.frequences[ref],
+    U = figUnivers(liq);
+  const u = f && f.univers && f.univers[U.cle];
+  if (!u) return `${apres} : fréquence non publiée`;
+  const per = figPeriode(fp),
+    ou = `${per ? per + ", " : ""}${U.nom}`;
+  if (u.statut !== "publie" || !(u.n >= figMin(fp)) || u.part_bon_sens_brute_pct == null) return `${apres}, échantillon insuffisant (${u.n} cas, ${ou})`;
+  return `${apres}, sur ${u.n} cas (${ou}), ${figPct(u.part_bon_sens_brute_pct)} % ont fait ${f.sens_teste < 0 ? "moins bien" : "mieux"} que le MASI à ${f.horizon_seances || 20} séances, hors frais`;
+};
+const figNiveau = nd => !nd ? null : nd.forme === "horizontal" ? fmtPrixFR(nd.prix) : nd.prix_a_la_derniere_seance != null ? `${fmtPrixFR(nd.prix_a_la_derniere_seance)} à la dernière séance` : null;
+const figLegende = (f, fp, liq, an) => {
+  const lib = f.libelle || f.type,
+    j = d => figJour(d, an),
+    refs = f.frequence_ref || [];
+  const fr = () => refs.map(r => figFrequence(fp, r, liq, FIG_APRES[r] || "après une cassure")).join(" ; ");
+  if (f.statut === "armee") {
+    const nv = figNiveau(f.niveau_declenchement),
+      nb = figNiveau(f.niveau_declenchement_bas);
+    return `${lib} — figure formée le ${j(f.date_confirmation)}, armée, pas encore cassée${nv ? ` (ligne de cou ${nv}${nb ? `, bas ${nb}` : ""})` : ""} · ${fr()}`;
+  }
+  if (f.statut === "declenchee") {
+    if (/^fibo_/.test(f.type)) return `${lib} — constaté le ${j(f.date_constat || f.date_confirmation)} · ${fr()}`;
+    return `${lib} — cassure le ${j(f.date_cassure)} · ${fr()}`;
+  }
+  if (f.statut === "invalidee") return `${lib} — figure invalidée le ${j(f.date_fin)}, avant toute cassure`;
+  if (f.statut === "expiree") return `${lib} — figure expirée le ${j(f.date_fin)}, sans cassure`;
+  return lib;
+};
+const ligneLegende = (l, fp, liq, an) => {
+  const lib = l.libelle || l.type,
+    j = d => figJour(d, an),
+    refs = l.frequence_ref || [];
+  const fr = rs => rs.map(r => figFrequence(fp, r, liq, FIG_APRES[r] || "après une cassure")).join(" ; ");
+  const pt = k => j(l.points && l.points[k] && l.points[k].date),
+    canal = l.type === "canal_haussier";
+  const trace = `par les points du ${pt(0)} et du ${pt(1)}`;
+  if (l.statut === "armee") return `${lib} — ${trace}, ${canal ? "ni rebond ni sortie" : "pas encore cassée"} · ${fr(refs)}`;
+  if (l.statut === "declenchee") {
+    const quoi = l.signal === "canal_rebond_support" ? "rebond sur le support" : l.signal === "canal_cassure_bas" ? "sortie par le bas" : "cassure";
+    return `${lib} — ${trace} · ${quoi} le ${j(l.date_cassure)} · ${fr(l.signal ? [l.signal] : refs)}`;
+  }
+  if (l.statut === "invalidee") return `${lib} — ${trace}, ${canal ? "invalidé" : "invalidée"} le ${j(l.date_fin)}, avant toute cassure`;
+  if (l.statut === "expiree") return `${lib} — ${trace}, ${canal ? "expiré" : "expirée"} le ${j(l.date_fin)}, sans cassure`;
+  return `${lib} — ${trace}`;
+};
+const gapLegende = (g, fp, liq, an) => {
+  const lib = g.libelle || g.type,
+    j = d => figJour(d, an),
+    U = figUnivers(liq);
+  const zone = `${fmtPrixFR(g.zone_basse)}–${fmtPrixFR(g.zone_haute)}`,
+    age = g.age_seances;
+  const s = n => `${n} séance${n > 1 ? "s" : ""}`;
+  if (g.statut === "comble") return `${lib} du ${j(g.date)} (${zone}), comblé le ${j(g.date_comblement)}`;
+  const tete = g.statut === "partiellement_comble" ? `${lib} du ${j(g.date)} (${zone}), partiellement comblé depuis le ${j(g.date_retour_dans_la_zone)}, ouvert depuis ${s(age)}` : `${lib} du ${j(g.date)} (${zone}), ouvert depuis ${s(age)}`;
+  if (age != null && age >= 60) return `${tete}, au-delà de l'horizon mesuré (60 séances)`;
+  const h = age != null && age >= 20 ? "h60" : "h20";
+  const f = fp && fp.frequences && fp.frequences[g.type];
+  const c = f && f.univers && f.univers[U.cle] && f.univers[U.cle][h] && f.univers[U.cle][h].toutes_periodes;
+  const nom = g.type === "gap_baissier" ? "gaps baissiers" : "gaps haussiers",
+    per = figPeriode(fp);
+  if (!c) return `${tete} · fréquence non publiée`;
+  if (c.statut !== "publie" || !(c.n >= figMin(fp)) || c.pct_combles == null) return `${tete} · échantillon insuffisant (${c.n} cas, ${U.nom})`;
+  const quand = h === "h60" ? "dans les 60 séances suivant leur ouverture" : "en 20 séances";
+  return `${tete} · ${per ? `sur ${per}, ` : ""}${figPct(c.pct_combles)} % des ${nom} ont été comblés ${quand} (${c.n} cas, ${U.nom})`;
+};
+const figDebut = e => e.pivots && e.pivots.length ? e.pivots[0].date : e.points && e.points.length ? e.points[0].date : e.date || null;
+const figElements = (t, debut, show) => {
+  const pris = [];
+  let h = 0;
+  if (!t || t.statut_titre !== "analyse") return {
+    pris,
+    hors: 0
+  };
+  [["figures", show.fig], ["lignes", show.tend], ["gaps", show.gap]].forEach(([k, on]) => {
+    if (!on) return;
+    (t[k] || []).forEach(e => {
+      const d = figDebut(e);
+      if (d && debut && d >= debut) pris.push([k, e]);else h++;
+    });
+  });
+  return {
+    pris,
+    hors: h
+  };
+};
+const figIndice = (dates, d) => {
+  if (!d) return null;
+  let a = 0,
+    b = dates.length;
+  while (a < b) {
+    const m = a + b >> 1;
+    if (dates[m] < d) a = m + 1;else b = m;
+  }
+  return a < dates.length ? a : null;
+};
+const figFormes = (pris, dates, t) => {
+  const I = d => figIndice(dates, d),
+    der = dates.length - 1,
+    out = [],
+    rangs = {};
+  const iDer = (t && I(t.derniere_seance_echangee)) ?? der;
+  const chemin = (points, prixDer) => {
+    const v = (points || []).map(p => [I(p.date), p.prix]).filter(p => p[0] != null);
+    if (v.length < 2) return v;
+    if (prixDer != null && iDer > v[v.length - 1][0]) v.push([iDer, prixDer]);
+    const [a, b] = v.slice(-2);
+    if (b[0] < der && b[0] !== a[0]) v.push([der, b[1] + (b[1] - a[1]) * (der - b[0]) / (b[0] - a[0])]);
+    return v;
+  };
+  const droite = (nd, i0, fin, cloture, court) => {
+    if (!nd) return null;
+    if (nd.forme === "horizontal") return [[i0, nd.prix], [fin, nd.prix]];
+    const [a, b] = (nd.points || []).map(p => [I(p.date), p.prix]);
+    if (!a || !b || a[0] == null || b[0] == null || a[0] === b[0]) return null;
+    if (court) return [a, b];
+    if (!cloture) return chemin(nd.points, nd.prix_a_la_derniere_seance);
+    return [a, b, [fin, a[1] + (b[1] - a[1]) * (fin - a[0]) / (b[0] - a[0])]];
+  };
+  pris.forEach(([k, e]) => {
+    const faible = e.statut === "invalidee" || e.statut === "expiree";
+    if (k === "figures") {
+      const c = figCoul(figSens(e)),
+        al = faible ? .4 : .95,
+        piv = e.pivots || [];
+      const pts = piv.map(p => [I(p.date), p.prix]).filter(p => p[0] != null);
+      if (pts.length < 2) return;
+      out.push({
+        k: "poly",
+        pts,
+        c,
+        w: 1.6,
+        al
+      });
+      const clos = e.date_cassure || e.date_fin,
+        fin = clos ? I(clos) ?? der : der;
+      [e.niveau_declenchement, e.niveau_declenchement_bas].forEach(nd => {
+        const d = droite(nd, pts[0][0], fin, !!clos, faible);
+        if (d) out.push({
+          k: "poly",
+          pts: d,
+          c,
+          w: 1,
+          al: al * .85,
+          tirets: [5, 4]
+        });
+      });
+      if (e.reperes_retracement && piv.length >= 3) {
+        const i0 = I(piv[1].date),
+          i1 = I(piv[2].date);
+        if (i0 != null && i1 != null) ["0.382", "0.618"].forEach(r => {
+          const v = e.reperes_retracement[r];
+          if (v != null) out.push({
+            k: "poly",
+            pts: [[i0, v], [i1, v]],
+            c: "#ffd740",
+            w: 1,
+            al: .6,
+            tirets: [2, 3]
+          });
+        });
+      }
+      if (e.date_cassure && e.niveau_declenchement) {
+        const ic = I(e.date_cassure),
+          d = droite(e.niveau_declenchement, pts[0][0], ic, true);
+        if (ic != null && d) out.push({
+          k: "point",
+          i: ic,
+          p: d[d.length - 1][1],
+          c,
+          al
+        });
+      }
+      const pv = piv[Math.floor(piv.length / 2)];
+      if (pv && I(pv.date) != null) {
+        const cle = I(pv.date) + "|" + (pv.type === "sommet");
+        rangs[cle] = (rangs[cle] || 0) + 1;
+        out.push({
+          k: "txt",
+          i: I(pv.date),
+          p: pv.prix,
+          s: FIG_COURT[e.type] || e.type,
+          c,
+          al,
+          dessus: pv.type === "sommet",
+          rang: rangs[cle] - 1
+        });
+      }
+    } else if (k === "lignes") {
+      const al = faible ? .4 : .9,
+        c = "#4db8ff";
+      const d = chemin(e.points, e.prix_a_la_derniere_seance);
+      if (d.length >= 2) out.push({
+        k: "poly",
+        pts: d,
+        c,
+        w: 1.4,
+        al
+      });
+      if (e.parallele) {
+        const q = chemin(e.parallele.points, e.parallele.prix_a_la_derniere_seance);
+        if (q.length >= 2) out.push({
+          k: "poly",
+          pts: q,
+          c,
+          w: 1,
+          al: al * .8,
+          tirets: [6, 4]
+        });
+      }
+    } else if (k === "gaps") {
+      const i0 = I(e.date);
+      if (i0 == null) return;
+      const i1 = e.date_comblement ? I(e.date_comblement) ?? der : der;
+      const c = e.statut === "comble" ? "#8892a4" : e.type === "gap_baissier" ? "#ff4f5a" : "#00e5a0";
+      out.push({
+        k: "zone",
+        i0,
+        i1,
+        hi: e.zone_haute,
+        lo: e.zone_basse,
+        c,
+        al: e.statut === "comble" ? .5 : 1
+      });
+    }
+  });
+  return out;
+};
+const creerDessins = () => {
+  let P = null,
+    formes = [];
+  const peindre = (target, fond) => {
+    if (!P || !formes.length) return;
+    const ts = P.chart.timeScale(),
+      se = P.series;
+    const X = i => ts.logicalToCoordinate(i),
+      Y = p => se.priceToCoordinate(p);
+    target.useMediaCoordinateSpace(({
+      context: g,
+      mediaSize
+    }) => {
+      formes.forEach(f => {
+        if (fond !== (f.k === "zone")) return;
+        g.save();
+        g.globalAlpha = f.al == null ? 1 : f.al;
+        g.strokeStyle = f.c;
+        g.fillStyle = f.c;
+        if (f.k === "zone") {
+          const a0 = X(f.i0),
+            a1 = X(f.i1),
+            y0 = Y(f.hi),
+            y1 = Y(f.lo);
+          if (a0 == null || a1 == null || y0 == null || y1 == null) {
+            g.restore();
+            return;
+          }
+          const dm = ((ts.options() || {}).barSpacing || 6) / 2,
+            x0 = a0 - dm,
+            x1 = a1 + dm;
+          const x = Math.min(x0, x1),
+            w = Math.max(1, Math.abs(x1 - x0)),
+            y = Math.min(y0, y1),
+            h = Math.max(1, Math.abs(y1 - y0));
+          g.globalAlpha = .13 * (f.al || 1);
+          g.fillRect(x, y, w, h);
+          g.beginPath();
+          g.rect(x, y, w, h);
+          g.clip();
+          g.globalAlpha = .38 * (f.al || 1);
+          g.lineWidth = 1;
+          g.beginPath();
+          for (let k = x - h; k < x + w; k += 6) {
+            g.moveTo(k, y + h);
+            g.lineTo(k + h, y);
+          }
+          g.stroke();
+          g.globalAlpha = .6 * (f.al || 1);
+          g.strokeRect(x + .5, y + .5, w - 1, h - 1);
+        } else if (f.k === "poly") {
+          g.lineWidth = f.w || 1;
+          g.setLineDash(f.tirets || []);
+          g.beginPath();
+          let ok = 0;
+          f.pts.forEach(([i, p]) => {
+            const x = X(i),
+              y = Y(p);
+            if (x == null || y == null) return;
+            ok++ ? g.lineTo(x, y) : g.moveTo(x, y);
+          });
+          if (ok > 1) g.stroke();
+        } else if (f.k === "point") {
+          const x = X(f.i),
+            y = Y(f.p);
+          if (x != null && y != null) {
+            g.beginPath();
+            g.arc(x, y, 3, 0, 2 * Math.PI);
+            g.fill();
+          }
+        } else if (f.k === "txt") {
+          const x = X(f.i),
+            y = Y(f.p);
+          if (x != null && y != null && x > -40 && x < mediaSize.width + 40) {
+            g.font = "600 10px 'IBM Plex Mono','Courier New',monospace";
+            const dy = 14 * (f.rang || 0),
+              w = g.measureText(f.s).width + 6,
+              yy = f.dessus ? y - 16 - dy : y + 4 + dy;
+            g.globalAlpha = .85 * (f.al || 1);
+            g.fillStyle = "#0d1829";
+            g.fillRect(x - w / 2, yy, w, 13);
+            g.globalAlpha = f.al || 1;
+            g.strokeStyle = f.c;
+            g.lineWidth = 1;
+            g.strokeRect(x - w / 2 + .5, yy + .5, w - 1, 12);
+            g.fillStyle = f.c;
+            g.textBaseline = "top";
+            g.fillText(f.s, x - w / 2 + 3, yy + 1.5);
+          }
+        }
+        g.restore();
+      });
+    });
+  };
+  const vues = [{
+    zOrder: () => "bottom",
+    renderer: () => ({
+      draw: t => peindre(t, true)
+    })
+  }, {
+    zOrder: () => "top",
+    renderer: () => ({
+      draw: t => peindre(t, false)
+    })
+  }];
+  return {
+    attached: p => {
+      P = p;
+    },
+    detached: () => {
+      P = null;
+    },
+    updateAllViews: () => {},
+    paneViews: () => vues,
+    poser: f => {
+      formes = f || [];
+      if (P) P.requestUpdate();
+    }
+  };
+};
+const LegendeFigures = ({
+  vue,
+  etatF,
+  fp,
+  show,
+  period
+}) => {
+  const actifs = [show.fig && "FIG", show.tend && "TEND", show.gap && "GAP"].filter(Boolean).join(" · ");
+  const boite = contenu => React.createElement("div", {
+    className: "legende-sr legende-fig",
+    style: {
+      marginTop: 6,
+      padding: "5px 8px",
+      background: "#0a1220",
+      border: "1px solid #1a2540",
+      borderRadius: 4,
+      fontSize: 11,
+      lineHeight: 1.5,
+      color: "#c8d3e8",
+      fontVariantNumeric: "tabular-nums"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: "#8892a4",
+      letterSpacing: .6,
+      textTransform: "uppercase",
+      marginBottom: 2
+    }
+  }, actifs, " \xB7 fen\xEAtre ", period, " \xB7 motifs constat\xE9s et dat\xE9s, pas des annonces"), contenu);
+  if (etatF === "chargement" || !fp && etatF !== "erreur") return boite(React.createElement("div", {
+    style: {
+      color: "#8892a4"
+    }
+  }, "Chargement des figures\u2026"));
+  if (!fp) return boite(React.createElement("div", {
+    style: {
+      color: "#ffd740"
+    }
+  }, "Fichier des figures indisponible pour l'instant \u2014 rien n'est trac\xE9."));
+  const t = vue && vue.t;
+  if (!t) return boite(React.createElement("div", {
+    style: {
+      color: "#8892a4"
+    }
+  }, "Ce titre n'est pas couvert par le fichier des figures."));
+  if (t.statut_titre !== "analyse") return boite(React.createElement("div", {
+    style: {
+      color: "#ffd740"
+    }
+  }, "Rien n'est trac\xE9 pour ce titre : ", t.raison || "non analysé", "."));
+  const an = (fp.derniere_seance_du_marche || "").slice(0, 4),
+    liq = !!t.liquide,
+    U = figUnivers(liq);
+  const {
+    pris,
+    hors
+  } = vue.el || {
+    pris: [],
+    hors: 0
+  };
+  const TAG = {
+    figures: "FIG",
+    lignes: "TEND",
+    gaps: "GAP"
+  };
+  return boite(React.createElement(React.Fragment, null, pris.length === 0 && React.createElement("div", {
+    style: {
+      color: "#8892a4"
+    }
+  }, "Aucun \xE9l\xE9ment sur la fen\xEAtre ", period, hors > 0 ? ` — ${hors} plus ancien${hors > 1 ? "s" : ""} : élargir la fenêtre` : "", "."), pris.map(([k, e], n) => {
+    const faible = e.statut === "invalidee" || e.statut === "expiree" || e.statut === "comble";
+    const c = k === "figures" ? figCoul(figSens(e)) : k === "lignes" ? "#4db8ff" : e.type === "gap_baissier" ? "#ff4f5a" : "#00e5a0";
+    const txt = k === "figures" ? figLegende(e, fp, liq, an) : k === "lignes" ? ligneLegende(e, fp, liq, an) : gapLegende(e, fp, liq, an);
+    return React.createElement("div", {
+      key: k + n,
+      className: "fig-ligne",
+      "data-type": e.type,
+      "data-statut": e.statut,
+      style: {
+        textWrap: "pretty",
+        opacity: faible ? .7 : 1
+      }
+    }, React.createElement("span", {
+      style: {
+        color: c,
+        fontWeight: 600
+      }
+    }, TAG[k]), " ", txt);
+  }), React.createElement("div", {
+    style: {
+      fontSize: 9.5,
+      color: "#8892a4",
+      marginTop: 2
+    }
+  }, pris.length > 0 && hors > 0 && React.createElement(React.Fragment, null, hors, " \xE9l\xE9ment", hors > 1 ? "s" : "", " plus ancien", hors > 1 ? "s" : "", " que la fen\xEAtre, non trac\xE9", hors > 1 ? "s" : "", ". "), "Univers des fr\xE9quences : ", U.nom, ". Parts brutes de frais (2 % d'aller-retour non d\xE9duits), observations chevauchantes ; sous ", figMin(fp), " cas, aucun pourcentage. D\xE9tection sur les ", fp.methode && fp.methode.fenetre_seances || 60, " derni\xE8res s\xE9ances \xE9chang\xE9es, arr\xEAt\xE9e au ", figJour(fp.derniere_seance_du_marche), ". Fr\xE9quences pass\xE9es, pas des promesses \u2014 r\xE8gles : \xAB Comment lire \xBB.")));
+};
 const StockChart = ({
   r
 }) => {
@@ -5900,6 +6400,26 @@ const StockChart = ({
   const [showIchi, setShowIchi] = useState(false);
   const [showSR, setShowSR] = useState(true);
   const [showFib, setShowFib] = useState(false);
+  const [showFig, setShowFig] = useState(false);
+  const [showTend, setShowTend] = useState(false);
+  const [showGap, setShowGap] = useState(false);
+  const [figPub, setFigPub] = useState(FIG_PUB);
+  const [figEtat, setFigEtat] = useState(FIG_PUB ? "ok" : null);
+  const basculeFig = set => {
+    set(v => !v);
+    if (FIG_PUB) {
+      setFigPub(FIG_PUB);
+      setFigEtat("ok");
+      return;
+    }
+    setFigEtat("chargement");
+    chargerFigures().then(j => {
+      if (j) {
+        setFigPub(j);
+        setFigEtat("ok");
+      } else setFigEtat("erreur");
+    });
+  };
   const [fibAncres, setFibAncres] = useState(null);
   const [fibAttente, setFibAttente] = useState(null);
   const fibRef = useRef({
@@ -6139,6 +6659,12 @@ const StockChart = ({
       lineWidth: 1.5,
       lineStyle: LW.LineStyle.Dashed
     }, i => ichiData.kijun[i])];
+    const dessins = creerDessins();
+    if (typeof cs.attachPrimitive === "function") {
+      try {
+        cs.attachPrimitive(dessins);
+      } catch (e) {}
+    }
     series.current = {
       cs,
       ma,
@@ -6147,7 +6673,8 @@ const StockChart = ({
       lignes: [],
       candles,
       curPrice,
-      LW
+      LW,
+      dessins
     };
     const legende = i => {
       if (!refTooltip.current) return;
@@ -6349,6 +6876,31 @@ const StockChart = ({
       title: `R ${fmtPrixFR(L.niveau)} · ${L.contacts}×`
     })));
   }, [sym, period, liveCandles, etat, plein, showBB, showIchi, showSR, showFib, fibAncres, fibAttente, mas, sr]);
+  const figVue = useMemo(() => {
+    if (!(showFig || showTend || showGap) || !figPub || etat !== "ok" || !liveCandles || liveCandles.length < 5) return null;
+    const dates = liveCandles.map(c => toDate(c.x));
+    const t = (figPub.titres || {})[sym] || null;
+    return {
+      t,
+      dates,
+      el: figElements(t, dates[0], {
+        fig: showFig,
+        tend: showTend,
+        gap: showGap
+      })
+    };
+  }, [showFig, showTend, showGap, figPub, etat, liveCandles, sym]);
+  useEffect(() => {
+    const x = series.current;
+    if (!x || !x.dessins) return;
+    let f = [];
+    try {
+      f = figVue && figVue.el ? figFormes(figVue.el.pris, figVue.dates, figVue.t) : [];
+    } catch (e) {
+      f = [];
+    }
+    x.dessins.poser(f);
+  }, [figVue, sym, period, liveCandles, etat, plein]);
   const changePeriod = p => {
     setPeriod(p);
     lsEcrire("bvc_period", p);
@@ -6456,7 +7008,22 @@ const StockChart = ({
     c: "#ffd740",
     titre: "Fibonacci fa\xE7on TradingView : extr\xEAmes de la fen\xEAtre affich\xE9e, ou deux clics sur le graphique (point 1 puis point 0). Extensions 1,272 \xB7 1,414 \xB7 1,618 en violet.",
     onClick: () => setShowFib(v => !v)
-  }, "FIB"), React.createElement("span", {
+  }, "FIB"), React.createElement(Btn, {
+    on: showFig,
+    c: "#b388ff",
+    titre: "Figures chartistes \u2014 \xE9paule-t\xEAte-\xE9paule (ETE) et ETE invers\xE9e, double creux (2C), double sommet (2S), triangles, tasse avec anse, rebonds de Fibonacci : motifs constat\xE9s sur les 60 derni\xE8res s\xE9ances \xE9chang\xE9es, avec leurs dates. D\xE9tail et fr\xE9quences pass\xE9es sous le graphique.",
+    onClick: () => basculeFig(setShowFig)
+  }, "FIG"), React.createElement(Btn, {
+    on: showTend,
+    c: "#4db8ff",
+    titre: "Lignes de tendance \u2014 obliques (droite par deux sommets descendants, ou deux creux montants) et canaux ascendants (la droite et sa parall\xE8le), prolong\xE9es jusqu'\xE0 la derni\xE8re s\xE9ance. D\xE9tail dat\xE9 sous le graphique.",
+    onClick: () => basculeFig(setShowTend)
+  }, "TEND"), React.createElement(Btn, {
+    on: showGap,
+    c: "#ffb74d",
+    titre: "Gaps \u2014 trous de cotation : s\xE9ance enti\xE8rement au-dessus du plus haut de la veille (ou au-dessous du plus bas) d'au moins 1 %. Zone hachur\xE9e jusqu'\xE0 son comblement. D\xE9tail dat\xE9 sous le graphique.",
+    onClick: () => basculeFig(setShowGap)
+  }, "GAP"), React.createElement("span", {
     style: {
       color: "#1a2540",
       margin: "0 2px"
@@ -6574,6 +7141,16 @@ const StockChart = ({
   }), showSR && etat === "ok" && React.createElement(LegendeSR, {
     sr: sr,
     candles: liveCandles,
+    period: period
+  }), (showFig || showTend || showGap) && etat === "ok" && React.createElement(LegendeFigures, {
+    vue: figVue,
+    etatF: figEtat,
+    fp: figPub,
+    show: {
+      fig: showFig,
+      tend: showTend,
+      gap: showGap
+    },
     period: period
   }), etat === "ok" && React.createElement("div", {
     style: {
@@ -12275,7 +12852,19 @@ const Detail = ({
     style: {
       color: "#ff4f5a"
     }
-  }, "\u2500\u2500 R r\xE9sistance"), " \xA0 | ", React.createElement("span", {
+  }, "\u2500\u2500 R r\xE9sistance"), " \xA0 ", React.createElement("span", {
+    style: {
+      color: "#b388ff"
+    }
+  }, "\u2500\u2500 FIG figure"), " \xA0 ", React.createElement("span", {
+    style: {
+      color: "#4db8ff"
+    }
+  }, "\u2500\u2500 TEND oblique"), " \xA0 ", React.createElement("span", {
+    style: {
+      color: "#ffb74d"
+    }
+  }, "\u25A8 GAP"), " \xA0 | ", React.createElement("span", {
     style: {
       color: "#00e5a0"
     }
@@ -12729,6 +13318,12 @@ const Guide = ({
   }, "Sur n cas pass\xE9s \xE0 la BVC o\xF9 le m\xEAme signal est apparu, X % ont battu le MASI 60 s\xE9ances apr\xE8s ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fr\xE9quence pass\xE9e, pas une promesse."), React.createElement(L, {
     titre: "S/R \u2014 supports et r\xE9sistances du graphique"
   }, "Tir\xE9s de la fen\xEAtre affich\xE9e : un creux est un plus-bas sous lequel aucune des 3 s\xE9ances \xE9chang\xE9es voisines, de chaque c\xF4t\xE9, ne descend \u2014 un sommet, l'inverse ; creux et sommets \xE0 moins de 1,2 % l'un de l'autre font un seul niveau, car un m\xEAme prix peut avoir \xE9t\xE9 l'un puis l'autre. Il faut au moins 10 s\xE9ances \xE9chang\xE9es dans la fen\xEAtre. ", React.createElement(T, null, "Contact"), " : un \xE9pisode \u2014 une ou plusieurs s\xE9ances \xE9chang\xE9es cons\xE9cutives dont la fourchette plus-bas\u2013plus-haut passe \xE0 moins de 1,2 % du niveau ; une s\xE9ance sans \xE9change au milieu ne le coupe pas. La m\xEAme tol\xE9rance de 1,2 % sert \xE0 regrouper les points et \xE0 compter les contacts, pour tous les titres. ", React.createElement(T, null, "Niveaux retenus"), " : les plus touch\xE9s de toute la fen\xEAtre, et non les plus proches du cours \u2014 au plus 3 au-dessus du dernier cours et 3 au niveau ou en dessous, \xE0 partir de 2 contacts ; \xE0 \xE9galit\xE9, le contact le plus r\xE9cent, puis le plus proche du cours. ", React.createElement(T, null, "Proche du cours"), " : de chaque c\xF4t\xE9, s'y ajoute au plus un niveau non retenu \u2014 le plus proche du cours parmi ceux qui ont au moins 2 contacts, respectent l'\xE9cart minimal avec les niveaux affich\xE9s et se trouvent \xE0 moins de 2 ATR(14) de la derni\xE8re cl\xF4ture. Il est trac\xE9 comme les autres et marqu\xE9 \xAB proche \xBB dans la l\xE9gende : un niveau moins touch\xE9 r\xE9appara\xEEt quand le cours s'en approche. Au plus 4 niveaux de chaque c\xF4t\xE9. ", React.createElement(T, null, "\xC9cart minimal"), " : deux niveaux trac\xE9s sont distants d'au moins 1 ATR(14) relatif du titre \u2014 la moyenne des 14 derni\xE8res \xE9tendues s\xE9ance (plus-haut \u2212 plus-bas, \xE9largi \xE0 la cl\xF4ture pr\xE9c\xE9dente) rapport\xE9e \xE0 la derni\xE8re cl\xF4ture \u2014 et jamais de moins de 2,4 % (deux fois la tol\xE9rance : en de\xE7\xE0, deux niveaux se partageraient leurs contacts). Un niveau trop proche d'un niveau mieux class\xE9 est \xE9cart\xE9, pas fusionn\xE9. La valeur du titre est \xE9crite sous la l\xE9gende. ", React.createElement(T, null, "Le mot suit la position"), " : au-dessus de la derni\xE8re cl\xF4ture, R\xE9sistance ; au niveau ou en dessous, Support. ", React.createElement(T, null, "Par-dessus, par-dessous"), " : la cl\xF4ture de la s\xE9ance \xE9chang\xE9e qui pr\xE9c\xE8de le contact dit d'o\xF9 le cours arrive \u2014 par-dessus, il joue le r\xF4le de support ; par-dessous, de r\xE9sistance. ", React.createElement(T, null, "Tenu"), " : un support abord\xE9 par-dessus dont la cl\xF4ture de fin d'\xE9pisode reste au niveau ou au-dessus (une r\xE9sistance : abord\xE9e par-dessous, cl\xF4ture au niveau ou en dessous). Un contact venu de l'autre c\xF4t\xE9 n'est ni tenu ni cass\xE9 : il est compt\xE9 \xE0 part. ", React.createElement(T, null, "Inversion"), " : quand les contacts passent d'un r\xF4le \xE0 l'autre une seule fois, la l\xE9gende l'\xE9crit \u2014 \xAB r\xE9sistance jusqu'au 12/06 (2), support depuis (3, tenu 2) \xBB : le dernier contact dans l'ancien r\xF4le est dat\xE9, et chaque r\xF4le porte son nombre de contacts. Quand les r\xF4les ont altern\xE9 plusieurs fois, elle ne nomme aucun r\xF4le : elle donne la p\xE9riode des contacts et les comptes par-dessus et par-dessous \u2014 \xAB 20 contacts du 12/11/25 au 12/10/26 : 12 par-dessus (tenu 8) \xB7 8 par-dessous \xBB. \xAB Sens inconnu \xBB : contact au d\xE9but de la fen\xEAtre, ou cl\xF4ture pr\xE9c\xE9dente pile au niveau. ", React.createElement(T, null, "S\xE9ances \xE9cart\xE9es"), " : volume nul \u2014 le titre n'a pas \xE9chang\xE9, ou la bougie a \xE9t\xE9 refaite depuis la seule cl\xF4ture \u2014 et bougie du jour reconstitu\xE9e depuis le dernier cours. Aucun plus-haut ni plus-bas n'y a \xE9t\xE9 atteint ou mesur\xE9 : elles fabriqueraient des creux. Elles restent dessin\xE9es. Des s\xE9ances pass\xE9es, compt\xE9es et dat\xE9es ; pas un niveau annonc\xE9."), React.createElement(L, {
+    titre: "FIG \u2014 figures chartistes du graphique"
+  }, "Motifs relev\xE9s sur les cl\xF4tures des 60 derni\xE8res s\xE9ances \xE9chang\xE9es, r\xE8gles fix\xE9es avant toute mesure. Un sommet ou un creux est un retournement d'au moins 6 %, et n'existe qu'\xE0 sa date de ", React.createElement(T, null, "confirmation"), ". ", React.createElement(T, null, "Double creux (2C) / double sommet (2S)"), " : deux creux (sommets) \xE0 moins de 3 % l'un de l'autre, 15 \xE0 120 s\xE9ances d'\xE9cart, s\xE9par\xE9s d'au moins 8 %. ", React.createElement(T, null, "ETE / ETE invers\xE9e"), " : cinq pivots, \xE9paules \xE0 moins de 5 %, t\xEAte au-del\xE0 d'au moins 3 %. ", React.createElement(T, null, "Triangles"), " : quatre pivots altern\xE9s, c\xF4t\xE9 plat \xE0 2 %, c\xF4t\xE9 inclin\xE9 d'au moins 3 %. ", React.createElement(T, null, "Tasse avec anse"), " : creux de 12 \xE0 40 %. ", React.createElement(T, null, "Fibonacci"), " : rebond entre 38,2 et 61,8 % d'une hausse d'au moins 20 %. La silhouette relie les pivots, la ligne de cou est en pointill\xE9s. ", React.createElement(T, null, "Arm\xE9e"), " : form\xE9e, pas encore cass\xE9e ; ", React.createElement(T, null, "cassure"), " : cl\xF4ture au-del\xE0 de la ligne de cou ; ", React.createElement(T, null, "invalid\xE9e"), " : cl\xF4ture au-del\xE0 du niveau d'invalidation avant ; ", React.createElement(T, null, "expir\xE9e"), " : 40 s\xE9ances sans cassure (60 pour la tasse). Vert, rouge, violet : sens que le manuel pr\xEAte au motif \u2014 un nom, pas une annonce. ", React.createElement(T, null, "La fr\xE9quence"), " : sur N cas pass\xE9s (2023-2026), la part qui a fait mieux (motif haussier) ou moins bien (baissier) que le MASI 20 s\xE9ances apr\xE8s la cassure, frais de 2 % d'aller-retour ", React.createElement(T, null, "non d\xE9duits"), ". Une figure arm\xE9e n'a pas de fr\xE9quence propre : le chiffre d\xE9crit les cas o\xF9 la cassure a eu lieu. Sous 30 cas : \xAB \xE9chantillon insuffisant \xBB, aucun pourcentage."), React.createElement(L, {
+    titre: "TEND \u2014 obliques et canaux"
+  }, "M\xEAmes sommets et creux que FIG. ", React.createElement(T, null, "Oblique descendante"), " : la droite qui joint deux sommets descendants \xE9cart\xE9s de 20 \xE0 250 s\xE9ances, prolong\xE9e jusqu'\xE0 la derni\xE8re s\xE9ance ; cass\xE9e \xE0 la premi\xE8re cl\xF4ture au-dessus. ", React.createElement(T, null, "Oblique ascendante"), " : deux creux montants, cass\xE9e \xE0 la premi\xE8re cl\xF4ture en dessous. ", React.createElement(T, null, "Canal ascendant"), " : support par deux creux montants, parall\xE8le par le sommet qui les s\xE9pare (pointill\xE9s) ; rebond = retour \xE0 moins de 2 % du support puis cl\xF4ture 3 % au-dessus ; sortie par le bas = cl\xF4ture 2 % sous le support. Fr\xE9quence : m\xEAme lecture que FIG \u2014 apr\xE8s une cassure ou un rebond pass\xE9, frais non d\xE9duits, rien sous 30 cas."), React.createElement(L, {
+    titre: "GAP \u2014 trous de cotation"
+  }, "Une s\xE9ance dont le plus bas d\xE9passe d'au moins 1 % le plus haut de la veille (gap haussier), ou l'inverse (baissier) ; seules les s\xE9ances \xE0 extr\xEAmes r\xE9els comptent, et jamais un \xE9cart de plus de 10 % de la cl\xF4ture de la veille. La zone hachur\xE9e s'\xE9tend du plus haut de la veille au plus bas du jour du gap et s'arr\xEAte \xE0 son ", React.createElement(T, null, "comblement"), " : la zone enti\xE8rement travers\xE9e. ", React.createElement(T, null, "Partiellement combl\xE9"), " : le cours est revenu dans la zone sans la traverser. Fr\xE9quence : la part des gaps pass\xE9s combl\xE9s en 20 s\xE9ances au plus ; pour un gap ouvert depuis 20 s\xE9ances ou davantage, la part combl\xE9e dans les 60 s\xE9ances suivant l'ouverture ; \xE0 60 s\xE9ances et au-del\xE0, aucun taux : c'est hors de l'horizon mesur\xE9. Un fait de march\xE9, aucun achat suppos\xE9 ; rien sous 30 cas."), React.createElement(L, {
     titre: "\xAB non v\xE9rifi\xE9 \xBB \xB7 \u26A0 jj/mm"
   }, React.createElement(T, {
     c: "#ff8f00"
