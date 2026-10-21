@@ -5640,6 +5640,15 @@ def run(dry_run=False, push=False, token=""):
         if not _ecrire_candles_sous_garde(sym, existing, cfp):
             raise ValueError(f"{sym}: écriture refusée, publication interrompue")
     if _series_cotations:
+        # ⚠️ 21/10/2026 — L'HORODATAGE SUIT L'ÉCRITURE. Les entrées synchronisées
+        # ci-dessus sont recalculées à la date du jour (`compute_indicators`
+        # sans `as_of`), mais `_updated` gardait la date de l'écriture
+        # précédente. Le 21/10, un plus haut de STK (137,0) est sorti de la
+        # fenêtre de 52 semaines : le cache, calculé aujourd'hui, disait 132,8,
+        # et le contrôle bloquant (test_import_sna_stk), qui rejoue le calcul
+        # à `_updated`, retrouvait 137,0 — trois passages refusés. Même
+        # convention que collect_history_bvcscrap.py : on date ce qu'on écrit.
+        _hd_all["_updated"] = datetime.now(timezone.utc).isoformat()
         (Path(__file__).parent / "pipeline" / "historical_data.json").write_text(
             json.dumps(_hd_all, ensure_ascii=False, indent=2), encoding="utf-8")
         logger.info(f"Chandelles et cache synchronisés : {len(_series_cotations)} titres au {IDB_ASOF}")
