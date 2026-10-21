@@ -271,23 +271,23 @@ def test_aucune_frequence_publiee_sous_30_cas(pub):
 
 
 def test_effectifs_et_part_agreges_a_la_main(pub):
-    """double_creux, tous, h20 — artefact : (n=30 ; 50,0 %) + (n=59 ; 49,2 %).
+    """double_creux, tous, h20 — artefact des règles du 21/10 : (n=30 ; 50,0 %) + (n=62 ; 50,0 %).
 
-    k = 0,500 × 30 = 15 ; 0,492 × 59 = 29,03 → 29. Total 44 / 89 = 49,4 %.
+    k = 0,500 × 30 = 15 ; 0,500 × 62 = 31. Total 46 / 92 = 50,0 %.
     """
     u = pub["frequences"]["double_creux"]["univers"]["tous"]
-    assert u["n"] == 89 and u["part_bon_sens_brute_pct"] == 49.4
+    assert u["n"] == 92 and u["part_bon_sens_brute_pct"] == 50.0
     assert u["alpha_median_pct"] is None and u["raison_alpha_median"]
     p2 = u["periodes"]["2025-01_2026-10"]
-    assert p2["n"] == 59 and p2["alpha_median_net_frais_pct"] is None and p2["raison_alpha_net"]
+    assert p2["n"] == 62 and p2["alpha_median_net_frais_pct"] is None and p2["raison_alpha_net"]
 
 
 def test_signal_a_peu_de_cas_reste_insuffisant(pub):
-    # ete_inversee : 7 + 20 = 27 cas « tous » dans l'artefact
-    u = pub["frequences"]["ete_inversee"]["univers"]["tous"]
-    assert u == {"n": 27, "periodes": {
-        "2023-10_2024-12": {"n": 7, "statut": "echantillon_insuffisant"},
-        "2025-01_2026-10": {"n": 20, "statut": "echantillon_insuffisant"}},
+    # ete : 4 + 15 = 19 cas « tous » dans l'artefact des règles du 21/10 (47 avant)
+    u = pub["frequences"]["ete"]["univers"]["tous"]
+    assert u == {"n": 19, "periodes": {
+        "2023-10_2024-12": {"n": 4, "statut": "echantillon_insuffisant"},
+        "2025-01_2026-10": {"n": 15, "statut": "echantillon_insuffisant"}},
         "statut": "echantillon_insuffisant"}
 
 
@@ -405,10 +405,11 @@ def test_frequences_et_ruptures_dit_ce_qui_a_ete_mesure(pub):
     mesure = json.loads((RACINE / fp.ARTEFACT_RUPTURES).read_text(encoding="utf-8"))
     assert m["evenements"] == mesure["evenements_publies_signaux"]
     assert m["traversant_une_rupture"] == mesure["evenements_traversant_une_rupture"]
-    # 8 / 1 229 = 0,65 % (< 1 %) mais le plus grand écart de part est 1,1 point (> 0,5) :
-    # la règle « moins de 1 % ET aucun écart > 0,5 point » n'est PAS satisfaite.
-    assert (m["traversant_une_rupture"], m["evenements"]) == (8, 1229)
-    assert m["pct_traversant"] == 0.65 and m["plus_grand_ecart_part_points"] == 1.1
+    # Règles du 21/10 : 2 / 532 = 0,38 % (< 1 %) mais le plus grand écart de part est 1,1 point
+    # (> 0,5) : la règle « moins de 1 % ET aucun écart > 0,5 point » n'est PAS satisfaite.
+    # (Règles du 03/10 : 8 / 1 229 = 0,65 %, écart 1,1 point — fichier conservé.)
+    assert (m["traversant_une_rupture"], m["evenements"]) == (2, 532)
+    assert m["pct_traversant"] == 0.38 and m["plus_grand_ecart_part_points"] == 1.1
     assert m["negligeable"] is False and m["filtre_applique_aux_frequences"] is False
     assert "ne porte PAS sur les fréquences publiées" in m["texte"]
 

@@ -34,7 +34,8 @@ sys.path.insert(0, str(RACINE / "pipeline"))
 
 import calibrage_figures as cf  # noqa: E402
 import calibrage_signaux as cs  # noqa: E402
-from figures_publiees import SIGNAUX_PUBLIES  # noqa: E402
+from figures_publiees import ARTEFACTS_ALPHA, SIGNAUX_PUBLIES  # noqa: E402
+from technical.regles_strictes import REGLES, verifier  # noqa: E402
 from technical.figures_detail import figures_detail, lignes_detail  # noqa: E402
 from technical.serie_propre import charger, evenements_titre, ruptures, traverse  # noqa: E402
 
@@ -42,14 +43,14 @@ FIN = "2026-10-02"
 H = 20
 
 
-def _etendues(t: str) -> dict:
+def _etendues(t: str, regles: str) -> dict:
     """{(signal, date_du_signal): [étendue traverse une rupture ?, …]}"""
     s = charger(RACINE / "pipeline" / "candles" / f"{t}.json", FIN)
     if s is None or len(s["c"]) < 80:
         return {}
     rup = ruptures(s["d"], s["c"], evenements_titre(t))
     out: dict = {}
-    for f in figures_detail(s["c"]) + lignes_detail(s["c"]):
+    for f in figures_detail(s["c"], regles=regles) + lignes_detail(s["c"], regles=regles):
         if f["statut"] != "declenchee" or not f["signal"]:
             continue
         debut = f["pivots"][0][0] if "pivots" in f else f["points"][0][0]
@@ -66,23 +67,25 @@ def _stats(g: pd.DataFrame, sens: int) -> dict:
             "alpha_median_pct": round(100 * float(a.median()), 2)}
 
 
-def mesurer() -> dict:
+def mesurer(regles: str | None = None) -> dict:
+    regles = verifier(regles or REGLES)
     cs.FIN = cf.FIN = FIN
+    cf.REGLES = regles
     try:
         titres = [p.stem for p in sorted((RACINE / "pipeline" / "candles").glob("*.json"))]
         ev = pd.DataFrame([o for t in titres for o in cf._evenements(t)])
-        etendues = {t: _etendues(t) for t in titres}
+        etendues = {t: _etendues(t, regles) for t in titres}
     finally:
-        cs.FIN = cf.FIN = None
+        cs.FIN = cf.FIN = cf.REGLES = None
     ev = ev[ev["signal"].isin(SIGNAUX_PUBLIES)].copy()
     # Un événement est « traversant » si TOUTES les figures qui le portent le sont.
     ev["traverse"] = [bool(etendues[r.t].get((r.signal, r.date)) and
                            all(etendues[r.t][(r.signal, r.date)]))
                       for r in ev.itertuples()]
     ev["rattache"] = [bool(etendues[r.t].get((r.signal, r.date))) for r in ev.itertuples()]
-    seuil = cf_seuil()
+    seuil = cf_seuil(regles)
     ev["liquide"] = ev["montant"] >= seuil
-    res = {"_quoi": "Événements de l'artefact etape4 qui traversent une rupture",
+    res = {"_quoi": "Événements de l'artefact etape4 qui traversent une rupture", "regles": regles,
            "fin_donnees": FIN, "horizon_seances": H,
            "evenements_publies_signaux": int(len(ev)),
            "evenements_sans_figure_rattachee": int((~ev["rattache"]).sum()),
@@ -104,8 +107,7 @@ def mesurer() -> dict:
         res["par_signal"][nom] = r
     res["plus_grand_ecart_part_points"] = round(plus_grand, 1)
     # Contrôle de reproduction : les effectifs rejoués égalent-ils ceux de l'artefact ?
-    art = json.loads((RACINE / "datasets" / "calibrage_technique" /
-                      "etape4_lignes_gaps_hebdo_2026-10-03.json").read_text(encoding="utf-8"))["signaux"]
+    art = json.loads((RACINE / ARTEFACTS_ALPHA[regles]).read_text(encoding="utf-8"))["signaux"]
     diff = {}
     for nom, g in ev.groupby("signal"):
         for p_, deb, fin in (("2023-10_2024-12", "0", cf.COUPURE), ("2025-01_2026-10", cf.COUPURE, "9")):
@@ -118,17 +120,17 @@ def mesurer() -> dict:
     return res
 
 
-def cf_seuil() -> float:
+def cf_seuil(regles: str) -> float:
     """Seuil de liquidité de l'artefact (tiers inférieur des montants, tous signaux)."""
-    return json.loads((RACINE / "datasets" / "calibrage_technique" /
-                       "etape4_lignes_gaps_hebdo_2026-10-03.json").read_text(encoding="utf-8"))["seuil_liquidite_dh"]
+    return json.loads((RACINE / ARTEFACTS_ALPHA[regles]).read_text(encoding="utf-8"))["seuil_liquidite_dh"]
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--sortie", default="")
+    ap.add_argument("--regles", default=None)
     arg = ap.parse_args()
-    res = mesurer()
+    res = mesurer(arg.regles)
     texte = json.dumps(res, ensure_ascii=False, indent=1)
     if arg.sortie:
         Path(arg.sortie).write_text(texte + "\n", encoding="utf-8")

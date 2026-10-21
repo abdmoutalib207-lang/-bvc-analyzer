@@ -1,5 +1,11 @@
 """Figures chartistes et signaux d'indicateurs, détectés SANS regarder le futur.
 
+⚠️ DEUX JEUX DE RÈGLES (21/10/2026) : `figures(c, regles=...)`. "2026-10-03" = les
+règles d'origine ci-dessous (fonction archivée `figures_v1`, intacte) ;
+"2026-10-21" (défaut) y ajoute symétrie et ligne de cou de l'ETE et confinement
+des triangles — voir `technical/regles_strictes.py`. Ce qui suit décrit le jeu
+d'origine.
+
 ⚠️ LA RÈGLE QUI REND LA MESURE HONNÊTE
 Un sommet ou un creux n'existe qu'APRÈS coup : on ne sait qu'un cours était un
 creux que lorsqu'il est remonté. Chaque pivot porte donc sa date de
@@ -72,8 +78,9 @@ def _cassure(c, depuis, expire, haut=None, bas=None, invalide_sous=None,
     return None
 
 
-def figures(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE) -> list[tuple]:
-    """Figures chartistes sur une série de clôtures (séances échangées).
+def figures_v1(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE) -> list[tuple]:
+    """ARCHIVE — règles du 03/10/2026, conservées telles quelles (regles="2026-10-03").
+    Figures chartistes sur une série de clôtures (séances échangées).
     `s` et `expire` permettent de rejouer la MÊME recette en hebdomadaire
     (pivots 10 %, expiration 12 semaines — fixés le 03/10/2026)."""
     P = pivots(c, s)
@@ -124,6 +131,96 @@ def figures(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE) -> list[tuple
             hauts = [x for x in q if x[2] == "H"]
             bas_ = [x for x in q if x[2] == "L"]
             if len(hauts) == 2 and len(bas_) == 2 and q[-1][0] - q[0][0] >= 20:
+                h1, h2 = hauts[0][1], hauts[1][1]
+                l1, l2 = bas_[0][1], bas_[1][1]
+                fin = q[-1][0] + expire
+                if abs(h2 / h1 - 1) <= 0.02 and l2 >= l1 * 1.03:
+                    j = _cassure(c, conf, fin, haut=max(h1, h2), invalide_sous=l2)
+                    if j is not None:
+                        sig.append((j, "triangle_ascendant", +1))
+                elif abs(l2 / l1 - 1) <= 0.02 and h2 <= h1 * 0.97:
+                    j = _cassure(c, conf, fin, bas=min(l1, l2), invalide_sur=h2)
+                    if j is not None:
+                        sig.append((j, "triangle_descendant", -1))
+                elif h2 <= h1 * 0.97 and l2 >= l1 * 1.03:
+                    j = _cassure(c, conf, fin, haut=h2, bas=l2)
+                    if j is not None:
+                        sig.append((j, "triangle_sym_haut" if c[j] > h2 else "triangle_sym_bas",
+                                    +1 if c[j] > h2 else -1))
+        # ── Fibonacci : rebond sur 38,2-61,8 % d'une jambe haussière ≥ 20 % ─
+        if k >= 2 and P[k][2] == "L":
+            (i0, p0, t0, _), (ih, phh, _, _), (il, pl, _, _) = P[k - 2], P[k - 1], P[k]
+            if t0 == "L" and phh >= p0 * 1.20:
+                r = (phh - pl) / (phh - p0)
+                if 0.352 <= r <= 0.648:
+                    sig.append((conf, "fibo_rebond_382_618", +1))
+                elif r > 0.786:
+                    sig.append((conf, "fibo_au_dela_786", -1))
+    return sig
+
+
+def figures(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE,
+            regles: str | None = None) -> list[tuple]:
+    """Figures chartistes ; `regles` choisit le jeu de règles (défaut : le plus récent).
+
+    "2026-10-03" : règles d'origine (= `figures_v1`, identique à l'octet près
+    dans ses résultats, vérifié par test). "2026-10-21" : les mêmes plus les
+    règles de `technical/regles_strictes.py` — symétrie et ligne de cou de
+    l'ETE, confinement des triangles. Ces règles ne font que REJETER."""
+    from technical import regles_strictes as rs
+    regles = rs.verifier(regles or rs.REGLES)
+    if regles == rs.REGLES_V1:
+        return figures_v1(c, s, expire)
+    P = pivots(c, s)
+    sig = []
+    for k in range(len(P)):
+        conf = P[k][3]
+        # ── Double creux / double sommet : X1, Y, X2 ──────────────────────
+        if k >= 2:
+            (i1, p1, t1, _), (iy, py, ty, _), (i2, p2, t2, _) = P[k - 2], P[k - 1], P[k]
+            if 15 <= i2 - i1 <= 120 and abs(p2 / p1 - 1) <= 0.03:
+                if t1 == "L" and py >= max(p1, p2) * 1.08:
+                    j = _cassure(c, conf, i2 + expire, haut=py, invalide_sous=min(p1, p2) * 0.97)
+                    if j is not None:
+                        sig.append((j, "double_creux", +1))
+                if t1 == "H" and py <= min(p1, p2) * 0.92:
+                    j = _cassure(c, conf, i2 + expire, bas=py, invalide_sur=max(p1, p2) * 1.03)
+                    if j is not None:
+                        sig.append((j, "double_sommet", -1))
+        # ── ETE et ETE inversée (+ symétrie et ligne de cou, 21/10) ───────
+        if k >= 4:
+            (a, pa, ta, _), (n1, pn1, _, _), (h, ph, _, _), (n2, pn2, _, _), (b, pb, _, _) = P[k - 4:k + 1]
+            if (20 <= b - a <= 200 and abs(pb / pa - 1) <= 0.05 and n2 > n1
+                    and rs.ete_ok(a, h, b, pn1, pn2)):
+                cou = (lambda i, n1=n1, pn1=pn1, n2=n2, pn2=pn2:
+                       pn1 + (pn2 - pn1) * (i - n1) / (n2 - n1))
+                if ta == "L" and ph <= min(pa, pb) * 0.97:
+                    j = _cassure(c, conf, b + expire, haut=1, invalide_sous=ph, niveau=cou)
+                    if j is not None:
+                        sig.append((j, "ete_inversee", +1))
+                if ta == "H" and ph >= max(pa, pb) * 1.03:
+                    j = _cassure(c, conf, b + expire, bas=1, invalide_sur=ph, niveau=cou)
+                    if j is not None:
+                        sig.append((j, "ete", -1))
+        # ── Tasse avec anse ───────────────────────────────────────────────
+        if k >= 2 and P[k][2] == "H":
+            (ia, pa, ta, _), (ib, pb, _, _), (ic, pc, _, _) = P[k - 2], P[k - 1], P[k]
+            prof = 1 - pb / pa
+            if (ta == "H" and 0.12 <= prof <= 0.40 and abs(pc / pa - 1) <= 0.05
+                    and 30 <= ic - ia <= 250 and 0.25 <= (ib - ia) / (ic - ia) <= 0.75):
+                plafond = max(pa, pc)
+                anse_max = min(0.15, prof / 2)
+                j = _cassure(c, conf, ic + 60, haut=plafond,
+                             invalide_sous=pc * (1 - anse_max))
+                if j is not None:
+                    sig.append((j, "tasse_anse", +1))
+        # ── Triangles (+ confinement, 21/10) ──────────────────────────────
+        if k >= 3:
+            q = P[k - 3:k + 1]
+            hauts = [x for x in q if x[2] == "H"]
+            bas_ = [x for x in q if x[2] == "L"]
+            if (len(hauts) == 2 and len(bas_) == 2 and q[-1][0] - q[0][0] >= 20
+                    and rs.triangle_confine(c, hauts, bas_, q[0][0], conf)):
                 h1, h2 = hauts[0][1], hauts[1][1]
                 l1, l2 = bas_[0][1], bas_[1][1]
                 fin = q[-1][0] + expire

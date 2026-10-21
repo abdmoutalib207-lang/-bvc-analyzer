@@ -11,9 +11,12 @@ les paramètres (SEUIL, EXPIRE, 3 %, 5 %, 8 %…) sont ceux de `figures.py` et d
 qu'elles jetaient : la figure armée, l'invalidée, l'expirée.
 
 La preuve que rien n'a bougé n'est pas ce commentaire mais un test :
-`tests/test_figures_publiees.py` vérifie, sur chacun des 80 titres, que les
-figures DÉCLENCHÉES d'ici sont exactement les signaux de `figures()` et de
-`lignes()` (même séance, même nom, même sens).
+`tests/test_figures_publiees.py` et `tests/test_figures_strictes.py` vérifient,
+sur chacun des 80 titres et SOUS CHAQUE JEU DE RÈGLES (`regles=`, voir
+`regles_strictes.py` : "2026-10-03" d'origine, "2026-10-21" figures strictes),
+que les figures DÉCLENCHÉES d'ici sont exactement les signaux de `figures()` et
+de `lignes()` (même séance, même nom, même sens). Publication et calibrage ne
+peuvent donc pas diverger.
 
 Tout est en INDICES de la série des séances échangées ; la conversion en dates
 est faite par l'appelant. Aucun regard vers le futur : une figure n'existe qu'à
@@ -24,6 +27,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from technical import regles_strictes as rs
 from technical.figures import EXPIRE, SEUIL, pivots
 
 ARMEE, DECLENCHEE, INVALIDEE, EXPIREE = "armee", "declenchee", "invalidee", "expiree"
@@ -63,8 +67,22 @@ def _fig(type_, orient, piv, conf, niveau, invalidation, suivi, signal=None, sen
             "statut": statut, "i_fin": i_fin, "signal": signal, "sens": sens}
 
 
-def figures_detail(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE) -> list[dict]:
-    """Toutes les figures de `figures.figures`, déclenchées ou non."""
+def _volume(out: list[dict], v) -> list[dict]:
+    """Rapport de volume de la séance de cassure — INFORMATION, jamais un filtre."""
+    for f in out:
+        cassure = f["statut"] == DECLENCHEE and not str(f["type"]).startswith("fibo_")
+        f["volume_ratio"] = rs.ratio_volume(v, f["i_fin"]) if cassure else None
+    return out
+
+
+def figures_detail(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE,
+                   regles: str | None = None, v=None) -> list[dict]:
+    """Toutes les figures de `figures.figures`, déclenchées ou non.
+
+    `regles` : jeu de règles (défaut : le plus récent, voir `regles_strictes`).
+    `v` : volumes de la même série, pour le rapport de volume de la cassure."""
+    regles = rs.verifier(regles or rs.REGLES)
+    strict = regles == rs.REGLES_V2
     P = pivots(c, s)
     out = []
     for k in range(len(P)):
@@ -90,7 +108,8 @@ def figures_detail(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE) -> lis
         # ── Épaule-tête-épaule et inversée ────────────────────────────────
         if k >= 4:
             (a, pa, ta, _), (n1, pn1, _, _), (h, ph, _, _), (n2, pn2, _, _), (b, pb, _, _) = P[k - 4:k + 1]
-            if 20 <= b - a <= 200 and abs(pb / pa - 1) <= 0.05 and n2 > n1:
+            if (20 <= b - a <= 200 and abs(pb / pa - 1) <= 0.05 and n2 > n1
+                    and (not strict or rs.ete_ok(a, h, b, pn1, pn2))):
                 cou = (lambda i, n1=n1, pn1=pn1, n2=n2, pn2=pn2:
                        pn1 + (pn2 - pn1) * (i - n1) / (n2 - n1))
                 niv = {"forme": "oblique", "points": [(n1, pn1), (n2, pn2)]}
@@ -123,7 +142,8 @@ def figures_detail(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE) -> lis
             q = P[k - 3:k + 1]
             hauts = [x for x in q if x[2] == "H"]
             bas_ = [x for x in q if x[2] == "L"]
-            if len(hauts) == 2 and len(bas_) == 2 and q[-1][0] - q[0][0] >= 20:
+            if (len(hauts) == 2 and len(bas_) == 2 and q[-1][0] - q[0][0] >= 20
+                    and (not strict or rs.triangle_confine(c, hauts, bas_, q[0][0], conf))):
                 h1, h2 = hauts[0][1], hauts[1][1]
                 l1, l2 = bas_[0][1], bas_[1][1]
                 fin = q[-1][0] + expire
@@ -163,7 +183,7 @@ def figures_detail(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE) -> lis
                 if nom:
                     out.append(_fig(nom, orient, P[k - 2:k + 1], conf, None, None,
                                     (DECLENCHEE, conf), nom, sens))
-    return out
+    return _volume(out, v)
 
 
 def _droite(i1, p1, i2, p2):
@@ -171,19 +191,23 @@ def _droite(i1, p1, i2, p2):
     return lambda i: p1 + pente * (i - i1)
 
 
-def lignes_detail(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE) -> list[dict]:
+def lignes_detail(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE,
+                  regles: str | None = None, v=None) -> list[dict]:
     """Toutes les obliques et canaux de `lignes.lignes`, déclenchés ou non.
 
     `points` : les deux pivots qui définissent la droite (indice, prix).
     Canal : `parallele` = (indice, prix) d'un point de la résistance, la
     parallèle au support passant par le sommet intermédiaire.
     """
+    regles = rs.verifier(regles or rs.REGLES)
+    strict = regles == rs.REGLES_V2
     P = pivots(c, s)
     n, out = len(c), []
     hauts = [p for p in P if p[2] == "H"]
     bas = [p for p in P if p[2] == "L"]
-    for a, b in zip(hauts, hauts[1:]):
-        if b[1] < a[1] and 20 <= b[0] - a[0] <= 250:
+    for m, (a, b) in enumerate(zip(hauts, hauts[1:])):
+        if (b[1] < a[1] and 20 <= b[0] - a[0] <= 250
+                and (not strict or rs.droite_validee(c, a, b, hauts[:m], +1))):
             f = _droite(a[0], a[1], b[0], b[1])
             plancher = min((p[1] for p in bas if a[0] < p[0] < b[0]), default=None)
             r = _suivre(c, b[3], b[3] + expire, haut=1, invalide_sous=plancher, niveau=f)
@@ -192,8 +216,9 @@ def lignes_detail(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE) -> list
                         "invalidation": {"sous": plancher} if plancher is not None else None,
                         "signal": "oblique_baissiere_cassee" if r[0] == DECLENCHEE else None,
                         "sens": +1 if r[0] == DECLENCHEE else 0})
-    for a, b in zip(bas, bas[1:]):
-        if b[1] > a[1] and 20 <= b[0] - a[0] <= 250:
+    for m, (a, b) in enumerate(zip(bas, bas[1:])):
+        if (b[1] > a[1] and 20 <= b[0] - a[0] <= 250
+                and (not strict or rs.droite_validee(c, a, b, bas[:m], -1))):
             f = _droite(a[0], a[1], b[0], b[1])
             plafond = max((p[1] for p in hauts if a[0] < p[0] < b[0]), default=None)
             r = _suivre(c, b[3], b[3] + expire, bas=1, invalide_sur=plafond, niveau=f)
@@ -207,6 +232,8 @@ def lignes_detail(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE) -> list
         if not (l1[2] == "L" and h[2] == "H" and l2[2] == "L"):
             continue
         if not (l2[1] > l1[1] and 20 <= l2[0] - l1[0] <= 250):
+            continue
+        if strict and not rs.droite_validee(c, l1, l2, [p for p in P[:k - 2] if p[2] == "L"], -1):
             continue
         sup = _droite(l1[0], l1[1], l2[0], l2[1])
         touche, statut, i_fin, sig, sens = False, None, None, None, 0
@@ -225,7 +252,7 @@ def lignes_detail(c: np.ndarray, s: float = SEUIL, expire: int = EXPIRE) -> list
                     "parallele": (h[0], h[1]), "sommet": (h[0], h[1]),
                     "conf": l2[3], "droite": sup, "statut": statut, "i_fin": i_fin,
                     "invalidation": None, "signal": sig, "sens": sens})
-    return out
+    return _volume(out, v)
 
 
 def gaps_detail(o, h, l, c, rupture=frozenset(), plafond: float = 0.10) -> list[dict]:

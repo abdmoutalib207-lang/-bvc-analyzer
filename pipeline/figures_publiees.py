@@ -52,14 +52,23 @@ sys.path.insert(0, str(RACINE / "pipeline"))
 from technical.figures import EXPIRE, SEUIL  # noqa: E402
 from technical.figures_detail import (ARMEE, DECLENCHEE, EXPIREE, INVALIDEE,  # noqa: E402
                                       figures_detail, gaps_detail, lignes_detail)
+from technical.regles_strictes import REGLES, REGLES_V1, REGLES_V2, verifier  # noqa: E402
 from technical.serie_propre import charger, evenements_titre, ruptures, traverse  # noqa: E402
 
 FENETRE = 60                 # dernières séances échangées examinées
 MIN_CAS = 30                 # sous ce seuil : « échantillon insuffisant »
 INACTIF_APRES = 10           # séances de la place sans échange => titre écarté
-ARTEFACT_ALPHA = "datasets/calibrage_technique/etape4_lignes_gaps_hebdo_2026-10-03.json"
+# Un artefact de fréquences par jeu de règles : on publie TOUJOURS les fréquences
+# mesurées avec le détecteur qui produit les figures affichées.
+ARTEFACTS_ALPHA = {
+    REGLES_V1: "datasets/calibrage_technique/etape4_lignes_gaps_hebdo_2026-10-03.json",
+    REGLES_V2: "datasets/calibrage_technique/etape4_regles_2026-10-21.json"}
+ARTEFACTS_RUPTURES = {
+    REGLES_V1: "datasets/calibrage_technique/ruptures_dans_etape4_2026-10-21.json",
+    REGLES_V2: "datasets/calibrage_technique/ruptures_dans_etape4_regles_2026-10-21.json"}
+ARTEFACT_ALPHA = ARTEFACTS_ALPHA[REGLES]
 ARTEFACT_GAPS = "datasets/calibrage_technique/gaps_comblement_2026-10-21.json"
-ARTEFACT_RUPTURES = "datasets/calibrage_technique/ruptures_dans_etape4_2026-10-21.json"
+ARTEFACT_RUPTURES = ARTEFACTS_RUPTURES[REGLES]
 SORTIE = RACINE / "datasets" / "figures_publiees.json"
 PERIODES_ALPHA = {"2023-10_2024-12": {"debut": "2023-10-04", "fin": "2024-12-31"},
                   "2025-01_2026-10": {"debut": "2025-01-01",
@@ -152,8 +161,9 @@ def frequence_gap(g: dict) -> dict:
     return out
 
 
-def table_frequences(racine: Path = RACINE) -> tuple[dict, dict]:
-    alpha = json.loads((racine / ARTEFACT_ALPHA).read_text(encoding="utf-8"))
+def table_frequences(racine: Path = RACINE, regles: str | None = None) -> tuple[dict, dict]:
+    regles = verifier(regles or REGLES)
+    alpha = json.loads((racine / ARTEFACTS_ALPHA[regles]).read_text(encoding="utf-8"))
     gaps = json.loads((racine / ARTEFACT_GAPS).read_text(encoding="utf-8"))
     freq = {nom: frequence_signal(alpha["signaux"][nom]) for nom in SIGNAUX_PUBLIES}
     for nom, g in gaps["gaps"].items():
@@ -175,6 +185,13 @@ def _droite_en(points: list, i: int) -> float:
 
 def _hors_fenetre(statut: str, i_fin, n: int) -> bool:
     return statut != ARMEE and (i_fin is None or i_fin < n - FENETRE)
+
+
+def _volume_info(f: dict) -> dict:
+    """Rapport de volume de la cassure — INFORMATION, aucun filtre (décision d'Abd requise)."""
+    r = f.get("volume_ratio")
+    return {"volume_cassure_ratio": None if r is None else round(float(r), 2)} \
+        if f["statut"] == DECLENCHEE and not str(f["type"]).startswith("fibo_") else {}
 
 
 def _fig_publiee(f: dict, s: dict, n: int) -> dict:
@@ -204,6 +221,7 @@ def _fig_publiee(f: dict, s: dict, n: int) -> dict:
                            else REF_ARMEE.get(f["type"], [f["type"]]))}
     if f["statut"] == ARMEE:
         o["frequence_condition"] = "apres_cassure"   # la fréquence décrit ce qui suit la cassure
+    o.update(_volume_info(f))
     if f["type"].startswith("fibo_"):
         (_, p0, _, _), (_, ph, _, _), _ = f["pivots"]
         o["reperes_retracement"] = {str(r): round(float(ph - r * (ph - p0)), 4)
@@ -228,6 +246,7 @@ def _ligne_publiee(f: dict, s: dict, n: int) -> dict:
                            else REF_ARMEE.get(f["type"], [f["type"]]))}
     if f["statut"] == ARMEE:
         o["frequence_condition"] = "apres_cassure"
+    o.update(_volume_info(f))
     if f["type"] == "canal_haussier":
         ih, ph = f["sommet"]
         decal = ph - f["droite"](ih)          # parallèle au support passant par le sommet
@@ -255,7 +274,8 @@ def _gap_publie(g: dict, s: dict, n: int) -> dict:
 
 # ── un titre ─────────────────────────────────────────────────────────────
 
-def analyser(t: str, s: dict | None, calendrier: list[str], seuil_liq: float) -> dict:
+def analyser(t: str, s: dict | None, calendrier: list[str], seuil_liq: float,
+             regles: str | None = None) -> dict:
     """Entrée du fichier pour un titre. `s` : sortie de `serie_propre.charger`."""
     vide = {"statut_titre": None, "figures": [], "lignes": [], "gaps": [], "ecartes": {}}
     if s is None or len(s["c"]) < 80:
@@ -277,7 +297,7 @@ def analyser(t: str, s: dict | None, calendrier: list[str], seuil_liq: float) ->
           "anterieures_a_une_rupture": 0}
     figs, lig, gps = [], [], []
     derniere_rupture = max(rup, default=0)
-    for f in figures_detail(s["c"]):
+    for f in figures_detail(s["c"], regles=regles, v=s["v"]):
         if _hors_fenetre(f["statut"], f["i_fin"], n):
             continue
         fin = n - 1 if f["i_fin"] is None else f["i_fin"]
@@ -288,7 +308,7 @@ def analyser(t: str, s: dict | None, calendrier: list[str], seuil_liq: float) ->
             ec["traversent_une_rupture"] += 1
             continue
         figs.append(_fig_publiee(f, s, n))
-    for f in lignes_detail(s["c"]):
+    for f in lignes_detail(s["c"], regles=regles, v=s["v"]):
         # Une droite « encore valide » : armée, ou cassée récemment. Une oblique
         # invalidée ou expirée n'est plus une droite à tracer.
         if f["statut"] in (INVALIDEE, EXPIREE) or _hors_fenetre(f["statut"], f["i_fin"], n):
@@ -325,13 +345,14 @@ def calendrier_marche(series: dict) -> list[str]:
     return sorted(d for d, k in cnt.items() if k >= 20)
 
 
-def frequences_et_ruptures(racine: Path = RACINE) -> dict:
+def frequences_et_ruptures(racine: Path = RACINE, regles: str | None = None) -> dict:
     """Ce que le filtre de rupture aurait changé aux fréquences de l'artefact.
 
     Seuil de négligeabilité fixé avant la lecture : moins de 1 % d'événements
     concernés ET aucune part dans le bon sens qui bouge de plus de 0,5 point.
     """
-    r = json.loads((racine / ARTEFACT_RUPTURES).read_text(encoding="utf-8"))
+    fichier = ARTEFACTS_RUPTURES[verifier(regles or REGLES)]
+    r = json.loads((racine / fichier).read_text(encoding="utf-8"))
     n, k, pct, ecart = (r["evenements_publies_signaux"], r["evenements_traversant_une_rupture"],
                         r["pct_traversant"], r["plus_grand_ecart_part_points"])
     negligeable = pct < 1 and ecart <= 0.5
@@ -347,7 +368,7 @@ def frequences_et_ruptures(racine: Path = RACINE) -> dict:
             "negligeable": negligeable, "texte": texte,
             "perimetre_artefact": ("produit sur les fichiers de chandelles de pipeline/candles/ "
                                    "(81, TGC alias compris), pas sur les seuls 80 titres"),
-            "mesure": ARTEFACT_RUPTURES}
+            "mesure": fichier}
 
 
 def empreinte(racine: Path = RACINE, fin: str | None = None) -> str:
@@ -372,13 +393,14 @@ def empreinte(racine: Path = RACINE, fin: str | None = None) -> str:
     return h.hexdigest()
 
 
-def construire(racine: Path = RACINE, fin: str | None = None) -> dict:
+def construire(racine: Path = RACINE, fin: str | None = None, regles: str | None = None) -> dict:
     import bvc_config as cfg
-    freq, meta = table_frequences(racine)
+    regles = verifier(regles or REGLES)
+    freq, meta = table_frequences(racine, regles)
     series = {t: charger(racine / "pipeline" / "candles" / f"{t}.json", fin)
               for t in cfg.TICKERS_ALL}
     cal = calendrier_marche(series)
-    titres = {t: analyser(t, series[t], cal, meta["seuil_liquidite_dh"])
+    titres = {t: analyser(t, series[t], cal, meta["seuil_liquidite_dh"], regles)
               for t in sorted(cfg.TICKERS_ALL)}
     return {
         "_quoi": "Figures, obliques, canaux et gaps constatés — faits datés, pas des prévisions",
@@ -391,11 +413,24 @@ def construire(racine: Path = RACINE, fin: str | None = None) -> dict:
                            "est mesurée sur l'alpha avant frais. Une figure armée n'a pas de "
                            "fréquence propre : la fréquence décrit ce qui suit une CASSURE "
                            "(frequence_condition = apres_cassure)."),
+        "regles": regles,
         "derniere_seance_du_marche": cal[-1] if cal else None,
         "entree_sha256": empreinte(racine, fin),
         "methode": {
             "donnees": "pipeline/candles/, séances à volume > 0 uniquement",
-            "fenetre_seances": FENETRE, "detecteurs": "pipeline/technical/figures.py et lignes.py, paramètres inchangés",
+            "fenetre_seances": FENETRE, "detecteurs": "pipeline/technical/figures.py et lignes.py (via figures_detail.py)",
+            "regles": {
+                "date": regles,
+                "jeu": ("figures strictes (21/10/2026) : ETE à durées symétriques (0,5 à 2) et ligne de cou "
+                        "à ±5 % ; triangle confiné (au plus 2 clôtures hors des droites, tolérance 1 %) ; "
+                        "oblique et support de canal à 3 contacts au moins (1 %) sans clôture à plus de 1 % "
+                        "du mauvais côté" if regles == REGLES_V2 else
+                        "règles d'origine du 03/10/2026 (aucun filtre de symétrie, de confinement ni de contacts)"),
+                "ancien_jeu_accessible": f"regles=\"{REGLES_V1}\" (figures_v1 / lignes_v1, intactes)",
+                "details": "pipeline/technical/regles_strictes.py"},
+            "volume": ("`volume_cassure_ratio` : volume de la séance de cassure ÷ médiane des 20 séances "
+                       "échangées précédentes. INFORMATION SEULE, aucun filtre ; la mesure est dans "
+                       "`volume` de l'artefact des fréquences"),
             "parametres": {"seuil_pivot": SEUIL, "expiration_seances": EXPIRE},
             "pivots": "zigzag sur clôtures, datés de leur CONFIRMATION ; une figure n'existe qu'après la confirmation de son dernier pivot",
             "statuts": {ARMEE: "motif formé, pas encore cassé ni expiré", DECLENCHEE: "clôture au-delà du niveau de déclenchement",
@@ -406,8 +441,8 @@ def construire(racine: Path = RACINE, fin: str | None = None) -> dict:
             "gaps": "extrêmes ≥ 1 % au-dessus/au-dessous de la veille, séances à extrêmes réels, jamais > 10 % de la clôture de la veille",
             "titre_inactif": f"écarté si aucun échange depuis plus de {INACTIF_APRES} séances de la place",
             "min_cas_pour_publier": MIN_CAS,
-            "artefacts": {"figures_lignes": ARTEFACT_ALPHA, "gaps_comblement": ARTEFACT_GAPS},
-            "frequences_et_ruptures": frequences_et_ruptures(racine),
+            "artefacts": {"figures_lignes": ARTEFACTS_ALPHA[regles], "gaps_comblement": ARTEFACT_GAPS},
+            "frequences_et_ruptures": frequences_et_ruptures(racine, regles),
             "hebdomadaire": "les variantes hebdomadaires mesurées dans l'artefact ne sont pas détectées ici",
         },
         "seuil_liquidite_dh": meta["seuil_liquidite_dh"],
@@ -452,6 +487,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--sortie", default=str(SORTIE))
     ap.add_argument("--fin", default=None, help="tronque les chandelles (AAAA-MM-JJ), pour rejouer le passé")
+    ap.add_argument("--regles", default=None, help="jeu de règles (défaut : le plus récent)")
     ap.add_argument("--sans-garde-horaire", action="store_true",
                     help="écrit même avant 17h45 (essais manuels, tests)")
     arg = ap.parse_args()
@@ -461,7 +497,7 @@ def main() -> int:
     if not arg.sans_garde_horaire and avant_cloture_definitive():
         print("avant 17h45 (heure du Maroc) : bougie du jour non définitive, rien écrit")
         return 0
-    res = construire(RACINE, arg.fin)
+    res = construire(RACINE, arg.fin, arg.regles)
     texte = json.dumps(res, ensure_ascii=False, indent=1, sort_keys=False) + "\n"
     sortie = Path(arg.sortie)
     # Réécrit seulement si le contenu change : pas de mtime inutile, pas de commit inutile.
