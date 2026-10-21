@@ -938,17 +938,56 @@ function calcIchimoku(candles){
   return{tenkan,kijun};
 }
 
-function calcSR(candles,price){
-  if(candles.length<10)return{sup:[],res:[]};
-  const highs=candles.map(c=>c.y[1]);
-  const lows =candles.map(c=>c.y[2]);
-  const n=candles.length,lb=3;
+/* ⚠️ SUPPORTS ET RÉSISTANCES — DES FAITS DATÉS, 21/10/2026.
+   Avant : sommets et creux pris sur TOUTES les séances, sans compter les
+   contacts. Or 15 % des séances de pipeline/candles/ ont un volume nul
+   (8 588 sur 58 334, relevé du 21/10), et 8 581 d'entre elles sont plates
+   (o=h=l=c) : un jour sans échange, ou une séance reconstituée depuis la
+   seule clôture du bulletin. Leur « plus-bas » n'a jamais été atteint par
+   personne, et il fabriquait des creux.
+   Désormais :
+   · seules les séances COTÉES (volume > 0) font les sommets et les creux, et
+     la fenêtre de 3 séances de chaque côté se compte en séances cotées ;
+     les autres restent dessinées. La bougie du jour reconstituée depuis le
+     dernier cours (`live`) est écartée aussi : ses extrêmes sont déduits.
+     Une séance plate AVEC volume est un vrai échange à prix unique : gardée.
+   · un CONTACT est un ÉPISODE : des séances cotées CONSÉCUTIVES dont la
+     fourchette bas–haut passe à moins de SR_TOL du niveau n'en font qu'un —
+     une séance sans échange au milieu ne le coupe pas. ⚠️ Compter par séance
+     donnait « touché 19 fois » sur 57 séances pour IAM : les voisines d'un
+     sommet tombent presque toujours dans la tolérance, et la fréquence
+     affichée était fausse.
+   · le RÔLE se lit sur la clôture de la séance cotée qui PRÉCÈDE l'épisode :
+     au-dessus du niveau, le cours arrive par le dessus (rôle de support) ;
+     en dessous, par le dessous (rôle de résistance). TENU = dans le bon rôle,
+     la clôture de fin d'épisode reste du même côté (au niveau compris). Un
+     contact dans l'autre rôle n'est ni tenu ni cassé : compté à part. Sans
+     séance précédente dans la fenêtre, ou clôture pile au niveau : rôle
+     indéterminé, compté à part aussi.
+   · le MOT suit la position : au-dessus de la dernière clôture, Résistance ;
+     au niveau ou en dessous, Support — quelle que soit l'origine du niveau
+     (creux ou sommet). La sélection reste celle d'origine : 3 creux sous
+     cours +3 %, 3 sommets au-dessus de cours −3 %.
+   · un niveau ne se trace qu'à partir de SR_MIN_CONTACTS contacts. Le filtre
+     s'applique APRÈS le choix des 3 niveaux les plus proches : il retire,
+     il ne va pas chercher plus loin un niveau de remplacement.
+   Aucun n'entre dans la note (R8) et aucun ne dit quoi faire : ce sont des
+   séances passées, comptées et datées. Règles publiées dans « Comment lire ». */
+const SR_TOL=0.012, SR_LB=3, SR_MIN_CONTACTS=2;
+const srCotee=c=>(c.vol||0)>0&&!c.live;
+function calcSR(candles,price,min=SR_MIN_CONTACTS){
+  const cot=(candles||[]).filter(srCotee);
+  const ecartees=(candles||[]).length-cot.length;
+  if(cot.length<10)return{sup:[],res:[],ecartees,retires:0,cotees:cot.length};
+  const highs=cot.map(c=>c.y[1]);
+  const lows =cot.map(c=>c.y[2]);
+  const n=cot.length,lb=SR_LB;
   const swH=[],swL=[];
   for(let i=lb;i<n-lb;i++){
     if(highs.slice(i-lb,i).every(h=>h<=highs[i])&&highs.slice(i+1,i+lb+1).every(h=>h<=highs[i]))swH.push(highs[i]);
     if(lows.slice(i-lb,i).every(l=>l>=lows[i])&&lows.slice(i+1,i+lb+1).every(l=>l>=lows[i]))swL.push(lows[i]);
   }
-  function cluster(arr,tol=0.012){
+  function cluster(arr,tol=SR_TOL){
     const s=[...arr].sort((a,b)=>a-b);const out=[];let i=0;
     while(i<s.length){
       let sum=s[i],cnt=1;
@@ -957,9 +996,34 @@ function calcSR(candles,price){
     }
     return out;
   }
-  const sup=cluster(swL).filter(v=>v<price*1.03).slice(-3);
-  const res=cluster(swH).filter(v=>v>price*0.97).slice(0,3);
-  return{sup,res};
+  /* Épisodes de contact sur les seules séances cotées. `support` dit le rôle
+     attendu, déduit de la position du niveau par rapport au dernier cours. */
+  const compter=(niveau,support)=>{
+    let contacts=0,dansRole=0,tenus=0,autreRole=0,indetermines=0,premier=null,dernier=null;
+    let i=0;
+    while(i<n){
+      const[,h,l]=cot[i].y;
+      if(!(l<=niveau*(1+SR_TOL)&&h>=niveau*(1-SR_TOL))){i++;continue;}
+      let j=i;
+      while(j+1<n&&cot[j+1].y[2]<=niveau*(1+SR_TOL)&&cot[j+1].y[1]>=niveau*(1-SR_TOL))j++;
+      contacts++;
+      if(premier==null)premier=cot[i].x;
+      dernier=cot[j].x;
+      const avant=i>0?cot[i-1].y[3]:null,fin=cot[j].y[3];
+      if(avant==null||avant===niveau)indetermines++;
+      else if(support?avant>niveau:avant<niveau){dansRole++;if(support?fin>=niveau:fin<=niveau)tenus++;}
+      else autreRole++;
+      i=j+1;
+    }
+    return{niveau,contacts,dansRole,tenus,autreRole,indetermines,premier,dernier};
+  };
+  const choisis=[...cluster(swL).filter(v=>v<price*1.03).slice(-3),
+                 ...cluster(swH).filter(v=>v>price*0.97).slice(0,3)];
+  const tous=choisis.map(v=>compter(v,v<=price));
+  const gardes=tous.filter(x=>x.contacts>=min);
+  const sup=gardes.filter(x=>x.niveau<=price).sort((a,b)=>a.niveau-b.niveau);
+  const res=gardes.filter(x=>x.niveau>price).sort((a,b)=>a.niveau-b.niveau);
+  return{sup,res,ecartees,retires:tous.length-gardes.length,cotees:n};
 }
 
 // ── ATOMS ────────────────────────────────────────────────────────────────────
@@ -1724,6 +1788,42 @@ const SignauxTechniques=({r})=>{
   );
 };
 
+/* Légende des supports et résistances, sous le graphique — 21/10/2026.
+   Une ligne par niveau tracé, du plus haut au plus bas comme sur l'axe :
+   « Support 89,90 — touché 4 fois : 3 par le dessus, tenu 2 · 1 par en
+   dessous — du 06/08 au 13/10 ». Un contact = un épisode ; « tenu » ne se
+   compte que dans le bon rôle (voir calcSR). Le mot suit la position du
+   niveau par rapport à la dernière clôture.
+   Les dates sont ÉCRITES : une infobulle ne s'ouvre pas au doigt. L'année
+   n'apparaît que si la fenêtre affichée chevauche deux années. */
+const srJour=(ts,an)=>{const d=new Date(ts),j=String(d.getUTCDate()).padStart(2,"0"),m=String(d.getUTCMonth()+1).padStart(2,"0");
+  return an?`${j}/${m}/${String(d.getUTCFullYear()).slice(2)}`:`${j}/${m}`;};
+const LegendeSR=({sr,candles,period})=>{
+  if(!sr||!candles||!candles.length)return null;
+  const an=new Date(candles[0].x).getUTCFullYear()!==new Date(candles[candles.length-1].x).getUTCFullYear();
+  const lignes=[...[...sr.res].reverse().map(L=>["Résistance","#ff4f5a",L]),
+                ...[...sr.sup].reverse().map(L=>["Support","#00e5a0",L])];
+  return(
+    <div className="legende-sr" style={{marginTop:6,padding:"5px 8px",background:"#0a1220",border:"1px solid #1a2540",borderRadius:4,fontSize:11,lineHeight:1.5,color:"#c8d3e8",fontVariantNumeric:"tabular-nums"}}>
+      <div style={{fontSize:9,color:"#8892a4",letterSpacing:.6,textTransform:"uppercase",marginBottom:2}}>S/R · fenêtre {period} · séances échangées seulement</div>
+      {lignes.length===0&&<div style={{color:"#8892a4"}}>{sr.cotees<10?`Aucun niveau : ${sr.cotees} séance${sr.cotees>1?"s":""} échangée${sr.cotees>1?"s":""} sur cette fenêtre, il en faut 10.`:`Aucun niveau touché au moins ${SR_MIN_CONTACTS} fois sur cette fenêtre.`}</div>}
+      {lignes.map(([nom,c,L])=>(
+        <div key={nom+L.niveau} style={{textWrap:"pretty"}}>
+          <span style={{color:c}}>{nom}</span> <b style={{color:"#e8eef8",fontWeight:600}}>{fmtPrixFR(L.niveau)}</b>
+          {" — "}touché {L.contacts} fois : {L.dansRole} {nom==="Support"?"par le dessus":"par le dessous"}{L.dansRole>0&&<>, tenu {L.tenus}</>}
+          {L.autreRole>0&&<> · {L.autreRole} {nom==="Support"?"par en dessous":"par le dessus"}</>}
+          {L.indetermines>0&&<> · {L.indetermines} sens inconnu</>}
+          {" — "}<span style={{whiteSpace:"nowrap"}}>du {srJour(L.premier,an)} au {srJour(L.dernier,an)}</span>
+        </div>
+      ))}
+      <div style={{fontSize:9.5,color:"#8892a4",marginTop:2}}>
+        {sr.ecartees>0&&<>{sr.ecartees} séance{sr.ecartees>1?"s":""} écartée{sr.ecartees>1?"s":""} du calcul (sans échange, ou bougie du jour reconstituée), toujours dessinée{sr.ecartees>1?"s":""}. </>}
+        Séances passées, comptées et datées — pas un niveau annoncé. Règles : « Comment lire ».
+      </div>
+    </div>
+  );
+};
+
 const StockChart=({r})=>{
   const refMain=useRef(null),refMacd=useRef(null),refTooltip=useRef(null);
   const chartMain=useRef(null),chartMacd=useRef(null);
@@ -1942,6 +2042,15 @@ const StockChart=({r})=>{
     };
   },[sym,period,liveCandles,etat,plein]);
 
+  /* Supports et résistances calculés UNE fois par série, en dehors de l'effet :
+     les lignes de prix et la légende sous le graphique lisent le même résultat.
+     ⚠️ Déclaré AVANT l'effet qui le cite dans ses dépendances — une constante
+     lue avant sa déclaration casse tout le terminal (« Erreur de rendu »). */
+  const sr=useMemo(()=>{
+    if(!showSR||etat!=="ok"||!liveCandles||liveCandles.length<5)return null;
+    return calcSR(liveCandles,liveCandles[liveCandles.length-1].y[3]||0);
+  },[showSR,etat,liveCandles]);
+
   // ── Indicateurs : montrés ou cachés sans recréer le graphique ──
   useEffect(()=>{
     const x=series.current;
@@ -1970,10 +2079,12 @@ const StockChart=({r})=>{
       }
       if(fibAttente!=null)x.lignes.push(cs.createPriceLine({price:fibAttente,color:"#ffd740",lineWidth:1,lineStyle:LW.LineStyle.Solid,axisLabelVisible:true,title:"Fib 1 — cliquez le point 0"}));
     }
-    const srData=showSR?calcSR(candles,curPrice):{sup:[],res:[]};
-    srData.sup.forEach(v=>x.lignes.push(cs.createPriceLine({price:v,color:"#00e5a060",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`S ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`})));
-    srData.res.forEach(v=>x.lignes.push(cs.createPriceLine({price:v,color:"#ff4f5a60",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`R ${v>=1000?v.toLocaleString("fr-FR"):v.toFixed(2)}`})));
-  },[sym,period,liveCandles,etat,plein,showBB,showIchi,showSR,showFib,fibAncres,fibAttente,mas]);
+    // Titre court sur la ligne (« S 89,90 · 4× ») ; le détail daté est dans
+    // la légende sous le graphique — une infobulle ne s'ouvre pas au doigt.
+    const srData=(showSR&&sr)||{sup:[],res:[]};
+    srData.sup.forEach(L=>x.lignes.push(cs.createPriceLine({price:L.niveau,color:"#00e5a060",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`S ${fmtPrixFR(L.niveau)} · ${L.contacts}×`})));
+    srData.res.forEach(L=>x.lignes.push(cs.createPriceLine({price:L.niveau,color:"#ff4f5a60",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`R ${fmtPrixFR(L.niveau)} · ${L.contacts}×`})));
+  },[sym,period,liveCandles,etat,plein,showBB,showIchi,showSR,showFib,fibAncres,fibAttente,mas,sr]);
 
   const changePeriod=(p)=>{setPeriod(p);lsEcrire("bvc_period",p);};
   const reinitialiser=()=>{if(chartMain.current&&liveCandles)vueEntiere(chartMain.current,liveCandles.length);};
@@ -2005,7 +2116,7 @@ const StockChart=({r})=>{
         <span style={{color:"#1a2540",margin:"0 2px"}}>|</span>
         <Btn on={showBB} c="#ffd740" titre="Bandes de Bollinger (20, 2σ)" onClick={()=>setShowBB(v=>!v)}>BB</Btn>
         <Btn on={showIchi} c="#ff6f40" titre="Ichimoku (Tenkan 9 / Kijun 26)" onClick={()=>setShowIchi(v=>!v)}>ICHI</Btn>
-        <Btn on={showSR} c="#00e5a0" titre="Support / Résistance (sommets et creux)" onClick={()=>setShowSR(v=>!v)}>S/R</Btn>
+        <Btn on={showSR} c="#00e5a0" titre="Supports et résistances : sommets et creux des séances échangées, tracés s'ils ont été touchés au moins 2 fois — détail daté sous le graphique" onClick={()=>setShowSR(v=>!v)}>S/R</Btn>
         <Btn on={showFib} c="#ffd740" titre="Fibonacci façon TradingView : extrêmes de la fenêtre affichée, ou deux clics sur le graphique (point 1 puis point 0). Extensions 1,272 · 1,414 · 1,618 en violet." onClick={()=>setShowFib(v=>!v)}>FIB</Btn>
         <span style={{color:"#1a2540",margin:"0 2px"}}>|</span>
         <Btn on={false} c="#8892a4" titre="Revenir à la vue entière (ou double-clic sur le graphique)" onClick={reinitialiser}>⟳</Btn>
@@ -2039,6 +2150,7 @@ const StockChart=({r})=>{
       </div>
       <div style={{fontSize:8,color:"#8892a4",letterSpacing:1,marginTop:2}}>MACD (12,26,9) · <span style={{color:"#4db8ff"}}>MACD</span> · <span style={{color:"#ffd740"}}>Signal</span></div>
       <div ref={refMacd}/>
+      {showSR&&etat==="ok"&&<LegendeSR sr={sr} candles={liveCandles} period={period}/>}
       {etat==="ok"&&<div style={{fontSize:9,color:"#8892a4",marginTop:4}}>Pincer ou molette : zoom · Glisser : déplacer · Double-clic : vue de départ</div>}
     </div>
   );
@@ -4495,6 +4607,7 @@ const Guide=({setTab})=>{
       <L titre="Couleur de la note">La note est colorée selon son palier, sans mot d'action : <T c="#00e5a0">● vert</T> dès 6,5 · <T c="#b5e655">● vert-jaune</T> dès 5,5 · <T c="#ffd740">● jaune</T> dès 4,5 · <T c="#ff8f00">● orange</T> dès 3,5 · <T c="#ff4f5a">● rouge</T> dessous. La couleur situe la note ; elle ne dit pas quoi faire. Titre trop peu échangé : une note dès 6,5 reste en vert-jaune, avec la mention « titre peu échangé ». <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, note grise. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
       <L titre="Fiabilité des données ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>
       <L titre="« X % gagnants (IC) · n cas » — fiche, Signaux techniques">Sur n cas passés à la BVC où le même signal est apparu, X % ont battu le MASI 60 séances après ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fréquence passée, pas une promesse.</L>
+      <L titre="S/R — supports et résistances du graphique">Tirés de la fenêtre affichée : un creux est un plus-bas sous lequel aucune des 3 séances échangées voisines, de chaque côté, ne descend — un sommet, l'inverse ; des points à moins de 1,2 % l'un de l'autre font un seul niveau. Au plus 3 creux et 3 sommets, les plus proches du dernier cours ; il faut au moins 10 séances échangées dans la fenêtre. <T>Le mot suit la position</T> : au-dessus de la dernière clôture, Résistance ; au niveau ou en dessous, Support. <T>Contact</T> : un épisode — une ou plusieurs séances échangées consécutives dont la fourchette plus-bas–plus-haut passe à moins de 1,2 % du niveau ; une séance sans échange au milieu ne le coupe pas. Un niveau n'est tracé qu'à partir de 2 contacts, avec la date du premier et du dernier. <T>Par le dessus, par le dessous</T> : la clôture de la séance échangée qui précède le contact dit d'où le cours arrive. <T>Tenu</T> : un support abordé par le dessus dont la clôture de fin d'épisode reste au niveau ou au-dessus (une résistance : abordée par le dessous, clôture au niveau ou en dessous). Un contact venu de l'autre côté n'est ni tenu ni cassé : il est compté à part. « Sens inconnu » : contact au début de la fenêtre, ou clôture précédente pile au niveau. <T>Séances écartées</T> : volume nul — le titre n'a pas échangé, ou la bougie a été refaite depuis la seule clôture — et bougie du jour reconstituée depuis le dernier cours. Aucun plus-haut ni plus-bas n'y a été atteint ou mesuré : elles fabriqueraient des creux. Elles restent dessinées. Des séances passées, comptées et datées ; pas un niveau annoncé.</L>
       <L titre="« non vérifié » · ⚠ jj/mm"><T c="#ff8f00">non vérifié</T> : source non recoupée, prudence. <T c="#ffd740">⚠ 05/08</T> près d'un cours : il date de ce jour-là, pas de la dernière séance.</L>
     </div>
   );
