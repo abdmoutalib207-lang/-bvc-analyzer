@@ -54,6 +54,7 @@ MIN_CAS = 30                 # sous ce seuil : « échantillon insuffisant »
 INACTIF_APRES = 10           # séances de la place sans échange => titre écarté
 ARTEFACT_ALPHA = "datasets/calibrage_technique/etape4_lignes_gaps_hebdo_2026-10-03.json"
 ARTEFACT_GAPS = "datasets/calibrage_technique/gaps_comblement_2026-10-21.json"
+ARTEFACT_RUPTURES = "datasets/calibrage_technique/ruptures_dans_etape4_2026-10-21.json"
 SORTIE = RACINE / "datasets" / "figures_publiees.json"
 PERIODES_ALPHA = {"2023-10_2024-12": {"debut": "2023-10-04", "fin": "2024-12-31"},
                   "2025-01_2026-10": {"debut": "2025-01-01",
@@ -319,6 +320,31 @@ def calendrier_marche(series: dict) -> list[str]:
     return sorted(d for d, k in cnt.items() if k >= 20)
 
 
+def frequences_et_ruptures(racine: Path = RACINE) -> dict:
+    """Ce que le filtre de rupture aurait changé aux fréquences de l'artefact.
+
+    Seuil de négligeabilité fixé avant la lecture : moins de 1 % d'événements
+    concernés ET aucune part dans le bon sens qui bouge de plus de 0,5 point.
+    """
+    r = json.loads((racine / ARTEFACT_RUPTURES).read_text(encoding="utf-8"))
+    n, k, pct, ecart = (r["evenements_publies_signaux"], r["evenements_traversant_une_rupture"],
+                        r["pct_traversant"], r["plus_grand_ecart_part_points"])
+    negligeable = pct < 1 and ecart <= 0.5
+    base = (f"{k} événements sur {n} ({str(pct).replace('.', ',')} %) de l'artefact de calibrage "
+            f"traversent une rupture ; sans eux, la part dans le bon sens bougerait au plus de "
+            f"{str(ecart).replace('.', ',')} point.")
+    texte = (base + " Négligeable : le filtre de rupture des figures publiées ne change pas les fréquences."
+             if negligeable else
+             base + " Le filtre de rupture ne porte PAS sur les fréquences publiées : l'artefact a "
+                    "été produit sans lui, et il n'est pas rejoué. Rejeu à décider.")
+    return {"filtre_applique_aux_frequences": False, "evenements": n, "traversant_une_rupture": k,
+            "pct_traversant": pct, "plus_grand_ecart_part_points": ecart,
+            "negligeable": negligeable, "texte": texte,
+            "perimetre_artefact": ("produit sur les fichiers de chandelles de pipeline/candles/ "
+                                   "(81, TGC alias compris), pas sur les seuls 80 titres"),
+            "mesure": ARTEFACT_RUPTURES}
+
+
 def empreinte(racine: Path = RACINE, fin: str | None = None) -> str:
     """SHA-256 des chandelles lues (80 titres, jusqu'à `fin` inclus).
 
@@ -376,6 +402,7 @@ def construire(racine: Path = RACINE, fin: str | None = None) -> dict:
             "titre_inactif": f"écarté si aucun échange depuis plus de {INACTIF_APRES} séances de la place",
             "min_cas_pour_publier": MIN_CAS,
             "artefacts": {"figures_lignes": ARTEFACT_ALPHA, "gaps_comblement": ARTEFACT_GAPS},
+            "frequences_et_ruptures": frequences_et_ruptures(racine),
             "hebdomadaire": "les variantes hebdomadaires mesurées dans l'artefact ne sont pas détectées ici",
         },
         "seuil_liquidite_dh": meta["seuil_liquidite_dh"],

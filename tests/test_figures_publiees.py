@@ -398,3 +398,22 @@ def test_gap_publie_son_age_et_se_mesure_depuis_la_seance_du_gap(pub):
     gaps = [g for v in pub["titres"].values() for g in v["gaps"]]
     assert gaps and all(isinstance(g["age_seances"], int) and g["age_seances"] >= 0
                         for g in gaps)
+
+
+def test_frequences_et_ruptures_dit_ce_qui_a_ete_mesure(pub):
+    m = pub["methode"]["frequences_et_ruptures"]
+    mesure = json.loads((RACINE / fp.ARTEFACT_RUPTURES).read_text(encoding="utf-8"))
+    assert m["evenements"] == mesure["evenements_publies_signaux"]
+    assert m["traversant_une_rupture"] == mesure["evenements_traversant_une_rupture"]
+    # 8 / 1 229 = 0,65 % (< 1 %) mais le plus grand écart de part est 1,1 point (> 0,5) :
+    # la règle « moins de 1 % ET aucun écart > 0,5 point » n'est PAS satisfaite.
+    assert (m["traversant_une_rupture"], m["evenements"]) == (8, 1229)
+    assert m["pct_traversant"] == 0.65 and m["plus_grand_ecart_part_points"] == 1.1
+    assert m["negligeable"] is False and m["filtre_applique_aux_frequences"] is False
+    assert "ne porte PAS sur les fréquences publiées" in m["texte"]
+
+
+def test_ecart_de_1299_a_1286_vient_du_fichier_tgc():
+    """76 titres de TICKERS_ALL avec ≥ 80 séances échangées → 1 286 signaux ;
+    le fichier TGC (alias, hors TICKERS_ALL) en ajoute 13, d'où 1 299 sur 77 fichiers."""
+    assert {p.stem for p in CANDLES.glob("*.json")} - set(cfg.TICKERS_ALL) == {"TGC"}

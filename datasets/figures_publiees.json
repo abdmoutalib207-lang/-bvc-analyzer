@@ -28,6 +28,17 @@
    "figures_lignes": "datasets/calibrage_technique/etape4_lignes_gaps_hebdo_2026-10-03.json",
    "gaps_comblement": "datasets/calibrage_technique/gaps_comblement_2026-10-21.json"
   },
+  "frequences_et_ruptures": {
+   "filtre_applique_aux_frequences": false,
+   "evenements": 1229,
+   "traversant_une_rupture": 8,
+   "pct_traversant": 0.65,
+   "plus_grand_ecart_part_points": 1.1,
+   "negligeable": false,
+   "texte": "8 événements sur 1229 (0,65 %) de l'artefact de calibrage traversent une rupture ; sans eux, la part dans le bon sens bougerait au plus de 1,1 point. Le filtre de rupture ne porte PAS sur les fréquences publiées : l'artefact a été produit sans lui, et il n'est pas rejoué. Rejeu à décider.",
+   "perimetre_artefact": "produit sur les fichiers de chandelles de pipeline/candles/ (81, TGC alias compris), pas sur les seuls 80 titres",
+   "mesure": "datasets/calibrage_technique/ruptures_dans_etape4_2026-10-21.json"
+  },
   "hebdomadaire": "les variantes hebdomadaires mesurées dans l'artefact ne sont pas détectées ici"
  },
  "seuil_liquidite_dh": 119564,
