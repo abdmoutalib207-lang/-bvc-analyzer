@@ -57,6 +57,9 @@
        fiche | note et chiffres. De 768 à 1199 px : note | graphique et fiche.
        Sous 768 px : une colonne, dans l'ordre du téléphone. */
     .liste-nom,.liste-var{display:none}
+    /* Heatmap (20/10/2026) : un secteur par ligne laissait 93 % de la largeur
+       vide à 1440 px. Au-delà de 768 px, les secteurs se rangent en colonnes. */
+    @media(min-width:768px){.heatmap-secteurs{column-width:340px;column-gap:24px}.heatmap-secteurs>div{break-inside:avoid}}
     @media(max-width:767px){.detail-grid{grid-template-columns:1fr!important;gap:10px}}
     @media(min-width:768px){.fiche-graphique{order:-1}}
     @media(min-width:1200px){
@@ -7465,7 +7468,9 @@ const Heatmap = ({
       color: "#00e5a0",
       fontWeight: 600
     }
-  }, "Hausse"))), sectors.map(sec => React.createElement("div", {
+  }, "Hausse"))), React.createElement("div", {
+    className: "heatmap-secteurs"
+  }, sectors.map(sec => React.createElement("div", {
     key: sec.name,
     style: {
       marginBottom: 16
@@ -7546,7 +7551,7 @@ const Heatmap = ({
         color: chg > 0 ? "#00e5a0" : chg < 0 ? "#ff4f5a" : "#8892a4"
       }
     }, nc_ ? "n.c." : React.createElement(React.Fragment, null, chg > 0 ? "▲" : chg < 0 ? "▼" : "—", Math.abs(chg).toFixed(2), "%")));
-  })))), React.createElement("div", {
+  }))))), React.createElement("div", {
     style: {
       marginTop: 12,
       fontSize: 10,

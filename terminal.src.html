@@ -57,6 +57,9 @@
        fiche | note et chiffres. De 768 à 1199 px : note | graphique et fiche.
        Sous 768 px : une colonne, dans l'ordre du téléphone. */
     .liste-nom,.liste-var{display:none}
+    /* Heatmap (20/10/2026) : un secteur par ligne laissait 93 % de la largeur
+       vide à 1440 px. Au-delà de 768 px, les secteurs se rangent en colonnes. */
+    @media(min-width:768px){.heatmap-secteurs{column-width:340px;column-gap:24px}.heatmap-secteurs>div{break-inside:avoid}}
     @media(max-width:767px){.detail-grid{grid-template-columns:1fr!important;gap:10px}}
     @media(min-width:768px){.fiche-graphique{order:-1}}
     @media(min-width:1200px){
@@ -2471,6 +2474,7 @@ const Heatmap=({rows,setSel,setTab})=>{
           <span style={{background:"rgba(0,229,160,.45)",borderRadius:3,padding:"2px 8px",color:"#00e5a0",fontWeight:600}}>Hausse</span>
         </div>
       </div>
+      <div className="heatmap-secteurs">
       {sectors.map(sec=>(
         <div key={sec.name} style={{marginBottom:16}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6,paddingLeft:2}}>
@@ -2504,6 +2508,7 @@ const Heatmap=({rows,setSel,setTab})=>{
           </div>
         </div>
       ))}
+      </div>
       <div style={{marginTop:12,fontSize:10,color:"#8892a4",borderTop:"1px solid #0d1829",paddingTop:8}}>
         Clic sur une cellule → vue détaillée · Trié par capitalisation · Couleur = variation journalière
       </div>
