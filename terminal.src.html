@@ -281,6 +281,15 @@
     .tdb-titre{font-size:10.5px;color:#c8d3e8;letter-spacing:1px;text-transform:uppercase;text-wrap:balance;}
     .tdb-src{font-size:10.5px;color:#8892a4;line-height:1.5;margin-bottom:10px;text-wrap:pretty;}
     .tdb-num{font-family:var(--font);font-variant-numeric:tabular-nums;white-space:nowrap;}
+    /* Niveaux mesurés en barres (21/10/2026) : sur deux lignes dans un panneau
+       étroit, sur une seule au-delà de 520 px de panneau. */
+    .niv-liste{container-type:inline-size;display:flex;flex-direction:column}
+    .niv-ligne{display:grid;grid-template-columns:46px minmax(0,1fr);gap:4px 12px;align-items:center;padding:7px 0;border-top:1px solid #0a1220}
+    .niv-ligne .niv-fourchette{grid-column:1 / -1}
+    .niv-barre{container-type:inline-size}
+    .niv-haut{order:2}.niv-seance{order:3;flex-basis:100%}
+    @container (min-width:400px){.niv-haut,.niv-seance{order:0}.niv-seance{flex-basis:auto}}
+    @container (min-width:520px){.niv-ligne{grid-template-columns:46px minmax(120px,.8fr) minmax(0,2.2fr)}.niv-ligne .niv-fourchette{grid-column:auto}}
     .tdb-ligne{display:grid;align-items:center;gap:8px;width:100%;background:transparent;border:none;border-radius:4px;
       padding:4px 6px;font-family:var(--font);color:#c8d3e8;text-align:left;cursor:pointer;min-height:30px;
       transition:background-color var(--t-court) var(--ease),opacity var(--t-court) var(--ease);}
@@ -3000,6 +3009,140 @@ const FourchetteMasi=({t,enSeance})=>{
   </div>;
 };
 
+// ⚠️ PRÉSENTATION EN TABLEAU DE BORD — 21/10/2026, demande d'Abd Moutalib :
+// « Tous les constats » et « Niveaux mesurés » étaient des phrases longues.
+// Même contenu, autre forme : AUCUN CHIFFRE NE DISPARAÎT. Les dates restent
+// écrites (en petit — une infobulle ne s'ouvre pas au doigt), la phrase
+// d'origine reste en infobulle et dans le texte intégral replié.
+// Barre bas ↔ haut : fourchette de la fenêtre (gris), séance (bleu),
+// clôture (trait blanc). Ni rouge ni vert : une position n'est pas un sens.
+const NivBarre=({lib,bas,haut,dbas,dhaut,sb,sh,c,lc="clôture"})=>{
+  const ok=x=>x!=null&&isFinite(x);
+  const xs=[bas,haut,sb,sh,c].filter(ok);
+  if(xs.length<2)return <span style={{color:"#8892a4",fontSize:11}}>—</span>;
+  const lo=Math.min(...xs),hi=Math.max(...xs),m=(hi-lo)*.04||1,a=lo-m,z=hi+m;
+  const p=x=>`${((x-a)/(z-a)*100).toFixed(2)}%`;
+  const info=[ok(bas)&&`${lib} : plus bas ${nfr(bas)}${dbas?` le ${jm(dbas)}`:""}`,ok(haut)&&`plus haut ${nfr(haut)}${dhaut?` le ${jm(dhaut)}`:""}`,
+    ok(sb)&&ok(sh)&&`séance ${nfr(sb)} – ${nfr(sh)}`,ok(c)&&`${lc} ${nfr(c)}`].filter(Boolean).join(" · ");
+  return <div className="niv-barre" title={info} style={{minWidth:0}}>
+    <div role="img" aria-label={info} style={{position:"relative",height:12,background:"#0a1220",borderRadius:3,margin:"2px 1px 0"}}>
+      {ok(bas)&&ok(haut)&&<span style={{position:"absolute",left:p(bas),width:`calc(${p(haut)} - ${p(bas)})`,top:3,height:6,background:"#2a3550",borderRadius:3}}/>}
+      {ok(sb)&&ok(sh)&&<span style={{position:"absolute",left:p(sb),width:`max(3px, calc(${p(sh)} - ${p(sb)}))`,top:1,height:10,background:"rgba(77,184,255,.6)",borderRadius:2}}/>}
+      {ok(c)&&<span style={{position:"absolute",left:p(c),top:-2,height:16,width:2,marginLeft:-1,background:"#e6edf7",borderRadius:1}}/>}
+    </div>
+    <div className="tdb-num" style={{display:"flex",justifyContent:"space-between",gap:"0 8px",fontSize:10.5,color:"#c8d3e8",marginTop:3,flexWrap:"wrap",whiteSpace:"normal"}}>
+      <span>{nfr(bas)}{dbas&&<span style={{color:"#8892a4"}}> {jm(dbas)}</span>}</span>
+      {ok(sb)&&ok(sh)&&<span className="niv-seance" style={{color:"#4db8ff"}}>séance {nfr(sb)} – {nfr(sh)}</span>}
+      <span className="niv-haut">{nfr(haut)}{dhaut&&<span style={{color:"#8892a4"}}> {jm(dhaut)}</span>}</span>
+    </div>
+  </div>;
+};
+const LegendeNiv=({n})=><div style={{display:"flex",gap:"2px 12px",flexWrap:"wrap",fontSize:10,color:"#8892a4",margin:"2px 0 4px"}}>
+  <span><span style={{display:"inline-block",width:16,height:6,background:"#2a3550",borderRadius:3,marginRight:5}}/>bas – haut, {n} séances</span>
+  <span><span style={{display:"inline-block",width:16,height:10,background:"rgba(77,184,255,.6)",borderRadius:2,marginRight:5,verticalAlign:-1}}/>séance</span>
+  <span><span style={{display:"inline-block",width:2,height:12,background:"#e6edf7",marginRight:5,verticalAlign:-2}}/>clôture</span></div>;
+
+// Une ligne par titre : volume en barre proportionnelle, fourchettes en barre.
+const NiveauxTitres=({l,n})=>{
+  const vMax=Math.max(1,...l.map(x=>x.montant_dh||0));
+  return <div className="niv-liste">
+    {l.map(x=>(
+      <div key={x.symbol} className="niv-ligne">
+        <b className="niv-code" title={x.name||x.symbol} style={{color:"#4db8ff",fontSize:12}}>{codeDe(x.symbol)}</b>
+        <div className="niv-vol" title={`Échangé : ${montantEntier(x.montant_dh)}`}>
+          <div className="tdb-num" style={{fontSize:11.5,color:"#c8d3e8"}}>{montantEntier(x.montant_dh)}</div>
+          <div style={{height:5,background:"#0a1220",borderRadius:3,marginTop:3}}>
+            <div style={{width:`${(x.montant_dh||0)/vMax*100}%`,height:"100%",background:"#4db8ff",opacity:.65,borderRadius:3}}/></div>
+        </div>
+        <div className="niv-fourchette">
+          <NivBarre lib={`${n} séances`} bas={x.fenetre&&x.fenetre.plus_bas} haut={x.fenetre&&x.fenetre.plus_haut}
+            dbas={x.fenetre&&x.fenetre.date_plus_bas} dhaut={x.fenetre&&x.fenetre.date_plus_haut}
+            sb={x.seance_bas} sh={x.seance_haut} c={x.cloture}/></div>
+      </div>))}
+  </div>;
+};
+
+const CarteConstat=({l,val,cv,sous,phrase,enfant,taille=20})=>(
+  <div title={phrase} style={{background:"#0a1220",border:"1px solid #1a2540",borderRadius:8,padding:"10px 12px",display:"flex",flexDirection:"column",gap:2,minWidth:0}}>
+    <div style={{fontSize:10,color:"#8892a4",letterSpacing:.8,textTransform:"uppercase"}}>{l}</div>
+    <div className="tdb-num" style={{fontSize:taille,fontWeight:700,color:cv||"#e6edf7",lineHeight:1.25,whiteSpace:"normal"}}>{val}</div>
+    {sous&&<div style={{fontSize:11,color:"#8892a4",lineHeight:1.45}}>{sous}</div>}
+    {enfant}
+  </div>);
+
+// Les constats dont les chiffres sont publiés AUSSI en champs structurés se
+// montrent en visuels ; les autres restent des phrases. Une phrase n'est
+// reprise que si sa forme est connue (pipeline/briefing.py) ET si ses
+// champs sont là : sinon elle reste écrite, rien n'est perdu.
+const constatsVisuels=s=>{
+  const C=s.constats||[], t=s.trajectoire, v=s.veille, j=v&&v.jour, vv=v&&v.veille,
+    a=s.accord, k=s.concentration, vol=(s.volumes||[])[0], nv=s.niveaux||{}, nm=nv.masi;
+  const pris=new Set(), ph={};
+  const prend=(cle,f,ok)=>{if(!ok)return;const i=C.findIndex((c,n)=>!pris.has(n)&&typeof c==="string"&&f(c));if(i>=0){pris.add(i);ph[cle]=C[i];}};
+  prend("masi",c=>c.startsWith("MASI : première valeur"),!!t);
+  prend("veille",c=>c.startsWith("Par rapport à la séance du"),!!(j&&vv));
+  prend("accord",c=>c.startsWith("Marché partagé :")||(c.startsWith("Séance de ")&&c.includes(" large :")),!!a);
+  prend("conc",c=>c.startsWith("L'activité est concentrée"),!!k);
+  prend("vol",c=>c.startsWith("Activité inhabituelle sur"),!!vol);
+  prend("ytd",c=>c.startsWith("Depuis le 1er janvier"),s.ytd_pct!=null);
+  prend("nivmasi",c=>c.startsWith("Niveaux mesurés du MASI"),!!nm);
+  prend("nivtitres",c=>c.startsWith("Titres les plus échangés"),(nv.titres||[]).length>0);
+  if(!pris.size)return null;
+  const enSeance=!!s.moment&&s.moment!=="cloture";
+  const fin=t&&t.cloture!=null?t.cloture:j&&j.cours;
+  // La suite de la phrase MASI (réserve sur la série, lecture de l'ouverture,
+  // place de la clôture dans l'amplitude) reste écrite, en ligne secondaire.
+  const reste=ph.masi?ph.masi.slice((ph.masi.indexOf(". ",ph.masi.indexOf("pour une veille"))+1)||ph.masi.length).trim():"";
+  const cl=nm&&nm.clotures;
+  const nLarg=a?(a.hausses||0)+(a.baisses||0)+(a.inchanges||0):0;
+  const M=montantEntier;   // montant entier, jamais arrondi en « M DH » (test_montants_et_marches)
+  const cadre={background:"#0a1220",border:"1px solid #1a2540",borderRadius:8,padding:"10px 12px",minWidth:0};
+  const titreCadre={fontSize:10,color:"#8892a4",letterSpacing:.8,textTransform:"uppercase",marginBottom:4};
+  const lf=enSeance?"dernière valeur":"clôture";
+  const rendu=<div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:12}}>
+    {(ph.masi||ph.nivmasi)&&<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(320px,100%),1fr))",gap:10}}>
+      {ph.masi&&<div style={cadre} title={ph.masi}>
+        <div style={titreCadre}>MASI — la séance, repère par repère</div>
+        <FourchetteMasi t={t} enSeance={enSeance}/>
+        {reste&&<div style={{fontSize:11,color:"#8892a4",lineHeight:1.5,marginTop:8}}>{reste}</div>}
+      </div>}
+      {ph.nivmasi&&<div style={cadre} title={ph.nivmasi}>
+        <div style={titreCadre}>MASI — niveaux mesurés</div>
+        {nm.seance_bas!=null&&nm.seance_haut!=null&&<div style={{fontSize:10.5,color:"#8892a4"}}>séance <span className="tdb-num" style={{color:"#4db8ff"}}>{nfr(nm.seance_bas)} – {nfr(nm.seance_haut)}</span></div>}
+        {cl&&<div style={{marginTop:8}}>
+          <div style={{fontSize:10.5,color:"#c8d3e8",marginBottom:2}}>{cl.n_seances?`${cl.n_seances} dernières séances`:`${cl.n} dernières clôtures enregistrées`} <span style={{color:"#8892a4"}}>— clôtures du {jm(cl.du)} au {jm(cl.au)}</span>
+            {cl.n_seances&&cl.n<cl.n_seances&&<span style={{color:"#ff8f00"}}> · sur les {cl.n} clôtures de l'indice enregistrées dans cette fenêtre</span>}</div>
+          <NivBarre lib="clôtures" bas={cl.plus_basse} dbas={cl.date_plus_basse} haut={cl.plus_haute} dhaut={cl.date_plus_haute}
+            sb={nm.seance_bas} sh={nm.seance_haut} c={fin} lc={lf}/></div>}
+        {nm.annee_haut!=null&&nm.annee_bas!=null&&<div style={{marginTop:10}}>
+          <div style={{fontSize:10.5,color:"#c8d3e8",marginBottom:2}}>Sur l'année <span style={{color:"#8892a4"}}>— plus bas et plus haut (synthèse de séance)</span></div>
+          <NivBarre lib="année" bas={nm.annee_bas} haut={nm.annee_haut} c={fin} lc={lf}/></div>}
+      </div>}
+    </div>}
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(160px,46%),1fr))",gap:8}}>
+      {ph.veille&&<CarteConstat l={`MASI vs ${jm(v.seance_veille)}`} phrase={ph.veille} val={sgp(j.variation_pct)} cv={VARC(j.variation_pct)}
+        sous={<>après <span style={{color:VARC(vv.variation_pct)}}>{sgp(vv.variation_pct)}</span> le {jm(v.seance_veille)}</>}/>}
+      {ph.veille&&v.ecart_volume_pct!=null&&<CarteConstat l="Volume global" phrase={ph.veille} val={j.volume_mad==null?"—":<>{entier(j.volume_mad)}<span style={{fontSize:11,fontWeight:400,color:"#8892a4"}}> DH</span></>} taille={17}
+        sous={<><span style={{color:"#c8d3e8"}}>{sgp(v.ecart_volume_pct,1)}</span> contre {M(vv.volume_mad)} le {jm(v.seance_veille)}</>}/>}
+      {(ph.accord||ph.veille)&&a&&<CarteConstat l="Hausses / baisses" phrase={[ph.accord,ph.veille].filter(Boolean).join("\n")}
+        val={<><span style={{color:"#00e5a0"}}>{a.hausses}</span><span style={{color:"#8892a4",fontSize:14}}> / </span><span style={{color:"#ff4f5a"}}>{a.baisses}</span></>}
+        sous={<>sur {a.total} valeurs{ph.accord?<> · indice à <span style={{color:VARC(a.change_pct)}}>{sgp(a.change_pct)}</span></>:null}{ph.veille&&vv.hausses!=null?<> · veille {vv.hausses} / {vv.baisses}</>:null}</>}
+        enfant={nLarg>0&&<div aria-hidden="true" style={{display:"flex",height:5,borderRadius:3,overflow:"hidden",marginTop:4,background:"#0d1829"}}>
+          <span style={{width:`${(a.hausses||0)/nLarg*100}%`,background:"#00e5a0"}}/>
+          <span style={{width:`${(a.inchanges||0)/nLarg*100}%`,background:"#5a6478"}}/>
+          <span style={{width:`${(a.baisses||0)/nLarg*100}%`,background:"#ff4f5a"}}/></div>}/>}
+      {ph.conc&&<CarteConstat l="Concentration" phrase={ph.conc} val={`${(k.part_top5*100).toFixed(0)} %`}
+        sous={<>aux 5 titres les plus échangés, sur {M(k.total_dh)} et {k.n_titres_actifs} valeurs actives</>}
+        enfant={<div aria-hidden="true" style={{height:5,borderRadius:3,background:"#0d1829",marginTop:4}}><div style={{width:`${Math.min(100,k.part_top5*100)}%`,height:"100%",background:"#4db8ff",opacity:.65,borderRadius:3}}/></div>}/>}
+      {ph.vol&&<CarteConstat l={`Activité inhabituelle · ${codeDe(vol.symbol)}`} phrase={ph.vol} val={`${nfr(vol.facteur,1)}×`}
+        sous={<>{entier(vol.volume)} titres échangés contre une médiane de {entier(vol.median20)} sur vingt séances</>}/>}
+      {ph.ytd&&<CarteConstat l="Depuis le 1er janvier" phrase={ph.ytd} val={sgp(s.ytd_pct)} cv={VARC(s.ytd_pct)} sous="variation de l'indice"/>}
+    </div>
+    {ph.nivtitres&&<div style={{fontSize:11,color:"#8892a4"}} title={ph.nivtitres}>Titres les plus échangés — extrêmes des {nv.n_seances||20} dernières séances : en barres dans « Niveaux mesurés » ci-dessus ; la phrase complète est dans le texte intégral.</div>}
+  </div>;
+  return {pris,rendu};
+};
+
 // ⚠️ LES ABSENCES — un visuel qui n'a pas de donnée ne s'affiche pas, et il
 // est DIT ici. Lu par le bloc « Ce que cette lecture ne dit pas ».
 const absencesTableau=(b,rows,masi)=>{
@@ -3200,35 +3343,19 @@ const SeanceDetail=({b,rows,masi,ouvrir})=>{
 
       {(nm||nt.length>0)&&<Panneau cls="c6" titre={`Niveaux mesurés — ${nv.n_seances||20} dernières séances${filtre&&rel.ok?` — ${filtre.lab}`:""}`}
           source="Plus hauts et plus bas réellement atteints. Ce ne sont ni des supports ni des objectifs : des faits datés.">
-        {nm&&nm.clotures&&<div style={{fontSize:12,color:"#c8d3e8",marginBottom:8,lineHeight:1.6}}>
-          MASI — séance {nfr(nm.seance_bas)} – {nfr(nm.seance_haut)} ·
-          clôtures du {jm(nm.clotures.du)} au {jm(nm.clotures.au)} : plus basse {nfr(nm.clotures.plus_basse)} ({jm(nm.clotures.date_plus_basse)}),
-          plus haute {nfr(nm.clotures.plus_haute)} ({jm(nm.clotures.date_plus_haute)})
-          {nm.clotures.n_seances&&nm.clotures.n<nm.clotures.n_seances&&<span style={{color:"#ff8f00"}}> · {nm.clotures.n} clôtures de l'indice enregistrées sur {nm.clotures.n_seances} séances</span>}
-        </div>}
-        {/* Téléphone et tablette : cinq colonnes ne tiennent pas en moins de
-            400 px (la dernière sortait du cadre) ; chaque titre passe sur deux
-            lignes. */}
-        {ntVus.length>0&&<div className="tdb-etroit" style={{display:"flex",flexDirection:"column"}}>
-          {ntVus.map(x=>(
-            <div key={x.symbol} style={{padding:"6px 0",borderTop:"1px solid #0a1220",fontSize:12,color:"#c8d3e8",lineHeight:1.55}}>
-              <div style={{display:"flex",justifyContent:"space-between",gap:8}}>
-                <span><b style={{color:"#4db8ff"}}>{codeDe(x.symbol)}</b> <span className="tdb-num">{montantEntier(x.montant_dh)}</span></span>
-                <span className="tdb-num" title="Fourchette de la séance">{x.seance_bas!=null?`${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}`:"—"}</span></div>
-              {x.fenetre&&<div className="tdb-num" style={{fontSize:11,color:"#8892a4",whiteSpace:"normal"}}>
-                {nv.n_seances||20} séances : bas <span style={{color:"#c8d3e8"}}>{nfr(x.fenetre.plus_bas)}</span> ({jm(x.fenetre.date_plus_bas)}) · haut <span style={{color:"#c8d3e8"}}>{nfr(x.fenetre.plus_haut)}</span> ({jm(x.fenetre.date_plus_haut)})</div>}
-            </div>))}
-        </div>}
-        {ntVus.length>0?<div className="tdb-large" style={{overflowX:"auto"}}><table style={{borderCollapse:"collapse",width:"100%"}}><thead><tr>
-          {["Titre","Échangé","Séance","Plus bas","Plus haut"].map(x=><th key={x} style={tete}>{x}</th>)}
-        </tr></thead><tbody>
-          {ntVus.map(x=>(
-            <tr key={x.symbol} style={{borderTop:"1px solid #0a1220"}}><td style={{...cel,color:"#4db8ff",fontWeight:600}}>{codeDe(x.symbol)}</td>
-              <td style={cel} className="tdb-num">{montantEntier(x.montant_dh)}</td>
-              <td style={cel} className="tdb-num">{x.seance_bas!=null?`${nfr(x.seance_bas)} – ${nfr(x.seance_haut)}`:"—"}</td>
-              <td style={cel} className="tdb-num">{x.fenetre?<>{nfr(x.fenetre.plus_bas)} <span style={{color:"#8892a4"}}>{jm(x.fenetre.date_plus_bas)}</span></>:"—"}</td>
-              <td style={cel} className="tdb-num">{x.fenetre?<>{nfr(x.fenetre.plus_haut)} <span style={{color:"#8892a4"}}>{jm(x.fenetre.date_plus_haut)}</span></>:"—"}</td></tr>))}
-        </tbody></table></div>
+        {/* 21/10/2026 : phrases et tableau remplacés par des barres (demande
+            d'Abd Moutalib, « façon Power BI »). Mêmes chiffres, dates écrites. */}
+        {(ntVus.length>0||(nm&&nm.clotures))&&<LegendeNiv n={nv.n_seances||20}/>}
+        {nm&&nm.clotures&&<div className="niv-liste" style={{marginBottom:4}}>
+          <div className="niv-ligne">
+            <b className="niv-code" style={{color:"#e6edf7",fontSize:12}}>MASI</b>
+            <div className="niv-vol" style={{fontSize:10.5,color:"#8892a4",lineHeight:1.4}}>clôtures du {jm(nm.clotures.du)} au {jm(nm.clotures.au)}
+              {nm.clotures.n_seances&&nm.clotures.n<nm.clotures.n_seances&&<span style={{color:"#ff8f00"}}> · {nm.clotures.n} clôtures de l'indice enregistrées sur {nm.clotures.n_seances} séances</span>}</div>
+            <div className="niv-fourchette">
+              <NivBarre lib="clôtures" bas={nm.clotures.plus_basse} dbas={nm.clotures.date_plus_basse} haut={nm.clotures.plus_haute} dhaut={nm.clotures.date_plus_haute}
+                sb={nm.seance_bas} sh={nm.seance_haut} c={t&&t.cloture!=null?t.cloture:j&&j.cours} lc={b.moment&&b.moment!=="cloture"?"dernière valeur":"clôture"}/></div>
+          </div></div>}
+        {ntVus.length>0?<NiveauxTitres l={ntVus} n={nv.n_seances||20}/>
         :nt.length>0&&<div style={{fontSize:11.5,color:"#8892a4"}}>Aucun des {nt.length} titres les plus échangés ne relève du filtre.</div>}
       </Panneau>}
 
@@ -3438,6 +3565,7 @@ const Briefing=({rows,masi,ouvrir})=>{
     {id:"semaine",label:"LA SEMAINE",dispo:!passe&&!!h,pourquoi:passe?"Bilan de la semaine en cours seulement.":"Le bilan de semaine n'a pas été publié par le dernier run."}];
   const LIB_MOMENT={mi_journee:"Lecture de mi-journée",cloture:"Lecture de clôture",en_seance:"Lecture en séance"};
   const nonDit=[...(src.non_mesurable||[]),...(semaine?[]:absencesTableau(src,rows,masi))];
+  const cVis=semaine?null:constatsVisuels(src);
   const blocConstats=<div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
         <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>
           {semaine?"Bilan de la semaine":`Tous les constats mesurés — ${(LIB_MOMENT[src.moment]||"lecture de la séance").toLowerCase()}`}</div>
@@ -3445,10 +3573,18 @@ const Briefing=({rows,masi,ouvrir})=>{
           {semaine
             ?`${h.semaine?.n||0} séance${(h.semaine?.n||0)>1?"s":""} cotée${(h.semaine?.n||0)>1?"s":""}${h.semaine?.seances?.length?` · ${h.semaine.seances[0]} → ${h.semaine.seances[h.semaine.seances.length-1]}`:""}`
             :<>{src.seance||"—"}{src.ecrit_a&&<span style={{color:"#5a6478",fontSize:11,marginLeft:8}}>· écrite le {src.ecrit_a.slice(8,10)}/{src.ecrit_a.slice(5,7)} à {src.ecrit_a.slice(11)}</span>}</>}</div>
+        {cVis&&cVis.rendu}
         <ul style={{margin:0,paddingLeft:18,fontSize:13.5,lineHeight:1.65,color:"#c8d3e8"}}>
-          {(src.constats||[]).map((c,i)=><li key={i} style={{marginBottom:6}}>{c}</li>)}
+          {(src.constats||[]).map((c,i)=>cVis&&cVis.pris.has(i)?null:<li key={i} style={{marginBottom:6}}>{c}</li>)}
           {(src.constats||[]).length===0&&<li style={{color:"#8892a4"}}>Rien de mesurable à signaler.</li>}
         </ul>
+        {/* Le texte intégral, dans l'ordre du moteur : rien n'est perdu à la
+            mise en visuels (21/10/2026). */}
+        {cVis&&<details style={{marginTop:10}}>
+          <summary style={{fontSize:11,color:"#4db8ff",cursor:"pointer",minHeight:28,display:"flex",alignItems:"center"}}>Texte intégral des constats ({(src.constats||[]).length} phrases)</summary>
+          <ul style={{margin:"4px 0 0",paddingLeft:18,fontSize:12,lineHeight:1.6,color:"#c8d3e8"}}>
+            {(src.constats||[]).map((c,i)=><li key={i} style={{marginBottom:4}}>{c}</li>)}</ul>
+        </details>}
         {/* ⚠️ Les absences du tableau de bord s'ajoutent à celles du
             moteur (13/10/2026) : un visuel retiré faute de donnée est DIT. */}
         {nonDit.length>0&&
