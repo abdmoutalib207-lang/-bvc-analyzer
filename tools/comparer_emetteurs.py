@@ -105,9 +105,18 @@ def _ecart_rel(nous: int, bourse: int) -> float:
     return abs(nous - bourse) / bourse if bourse else float("inf")
 
 
-def comparer(releve: dict, ref: dict) -> dict:
-    """Rend {'appariements': [...], 'ecarts': [...], 'non_apparies_bourse': [...]}."""
-    actions = [r for r in releve.get("enregistrements", []) if r.get("type_instrument") == "Actions"]
+def _actions(releve: dict) -> list:
+    return [r for r in releve.get("enregistrements", []) if r.get("type_instrument") == "Actions"]
+
+
+def apparier(releve: dict, ref: dict, passes=("isin", "code", "nom")):
+    """[(ticker, indice dans les actions, méthode)], liste des tickers restants.
+
+    `ref` n'a besoin que de `tickers`, `isin`, `code_officiel` et `noms`. Le
+    moteur (update_data.py) l'appelle avec `passes=("isin", "code")` : pour
+    la capitalisation, un appariement par NOM n'est pas une preuve.
+    """
+    actions = _actions(releve)
     pris: set[int] = set()
 
     def chercher(t: str) -> tuple[int | None, str | None]:
@@ -120,7 +129,7 @@ def comparer(releve: dict, ref: dict) -> dict:
         cands = [i for i, r in enumerate(actions) if i not in pris and r.get("code") == code]
         if len(cands) == 1:
             return cands[0], "code"
-        nom = normaliser(ref["noms"].get(t))
+        nom = normaliser(ref.get("noms", {}).get(t))
         if nom:
             cands = [i for i, r in enumerate(actions) if i not in pris
                      and nom in (normaliser(r.get("instrument")), normaliser(r.get("emetteur")))]
@@ -128,11 +137,11 @@ def comparer(releve: dict, ref: dict) -> dict:
                 return cands[0], "nom"
         return None, None
 
-    appariements, ecarts = [], []
+    appariements = []
     # ISIN d'abord pour tous, puis code, puis nom : un titre apparié par une preuve
     # forte ne doit pas se faire prendre sa ligne par un appariement faible.
     restants = list(ref["tickers"])
-    for passe in ("isin", "code", "nom"):
+    for passe in passes:
         suivants = []
         for t in restants:
             i, methode = chercher(t)
@@ -142,6 +151,56 @@ def comparer(releve: dict, ref: dict) -> dict:
             else:
                 suivants.append(t)
         restants = suivants
+    return appariements, restants
+
+
+def actions_officielles(releve: dict, ref: dict) -> dict:
+    """{notre ticker: nombre de titres} de l'instrument « Actions » de la Bourse.
+
+    Appariement par ISIN ou par CODE OFFICIEL seulement (IDB_TICKER_MAP : notre
+    SNA = Sonasid = SID ; le SNA de la Bourse est Stokvis, notre STK). Un nombre
+    absent, nul ou non entier n'est pas rendu : le moteur passe alors au maillon
+    suivant de la chaîne, jamais à zéro.
+    """
+    actions = _actions(releve)
+    out = {}
+    for t, i, _m in apparier(releve, ref, passes=("isin", "code"))[0]:
+        n = actions[i].get("nombre_titres")
+        if isinstance(n, int) and not isinstance(n, bool) and n > 0:
+            out[t] = n
+    return out
+
+
+def nombres_changes(ancien: dict, nouveau: dict) -> list:
+    """Actions dont le nombre de titres diffère entre deux relevés, par code.
+
+    Rend [{code, instrument, ancien, nouveau, ecart_pct}] — plus les codes
+    apparus ou disparus (ancien ou nouveau à None). Sert au contrôle du soir :
+    c'est ainsi qu'on sait quand rafraîchir datasets/bourse_emetteurs.json.
+    """
+    def par_code(r):
+        return {a["code"]: a for a in _actions(r) if a.get("code")}
+    a, n = par_code(ancien), par_code(nouveau)
+    out = []
+    for code in sorted(set(a) | set(n)):
+        va = (a.get(code) or {}).get("nombre_titres")
+        vn = (n.get(code) or {}).get("nombre_titres")
+        if va == vn:
+            continue
+        out.append({"code": code,
+                    "instrument": (n.get(code) or a.get(code)).get("instrument"),
+                    "ancien": va, "nouveau": vn,
+                    "ecart_pct": (round(100 * (vn - va) / va, 3)
+                                  if isinstance(va, int) and isinstance(vn, int) and va else None)})
+    return out
+
+
+def comparer(releve: dict, ref: dict) -> dict:
+    """Rend {'appariements': [...], 'ecarts': [...], 'non_apparies_bourse': [...]}."""
+    actions = _actions(releve)
+    appariements, restants = apparier(releve, ref)
+    pris = {i for _t, i, _m in appariements}
+    ecarts = []
 
     sortie_app = []
     for t, i, methode in sorted(appariements):
@@ -194,8 +253,27 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--releve", default=str(RELEVE))
     ap.add_argument("--json", action="store_true", help="sortie JSON complète sur stdout")
+    ap.add_argument("--nouveau", help="relevé FRAIS à comparer à --releve : liste, en "
+                    "Markdown, les nombres d'actions changés (contrôle du soir)")
     a = ap.parse_args()
     releve = json.loads(Path(a.releve).read_text(encoding="utf-8"))
+    if a.nouveau:
+        nouveau = json.loads(Path(a.nouveau).read_text(encoding="utf-8"))
+        ch = nombres_changes(releve, nouveau)
+        print(f"### Nombre d'actions — relevé du dépôt ({releve.get('releve_le')}) "
+              f"contre relevé du soir ({nouveau.get('releve_le')})\n")
+        if not ch:
+            print(f"Aucun changement sur {len(_actions(nouveau))} actions : "
+                  "`datasets/bourse_emetteurs.json` est à jour.")
+            return 0
+        print(f"**{len(ch)} changement(s)** — rafraîchir `datasets/bourse_emetteurs.json` "
+              "(`node tools/releve_emetteurs_bourse.js`) après vérification sur pièce (R11).\n")
+        print("| code | instrument | dépôt | ce soir | écart |")
+        print("|---|---|---|---|---|")
+        for e in ch:
+            ec = f"{e['ecart_pct']:+.3f} %" if e["ecart_pct"] is not None else "—"
+            print(f"| {e['code']} | {e['instrument']} | {e['ancien']} | {e['nouveau']} | {ec} |")
+        return 0
     res = comparer(releve, charger_referentiel())
     if a.json:
         print(json.dumps(res, ensure_ascii=False, indent=1))

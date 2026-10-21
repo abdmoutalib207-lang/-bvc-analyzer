@@ -175,7 +175,7 @@ def test_aucun_signal_n_est_emis_sur_des_indicateurs_neutralises():
     assert not fautifs, "\n  ".join(["recommandation sans fondement :"] + fautifs)
 
 
-def test_la_capitalisation_n_est_plus_arbitree_sur_un_prix_perime(moteur):
+def test_la_capitalisation_n_est_plus_arbitree_sur_un_prix_perime(moteur, monkeypatch):
     """⚠️ LA CORRECTION DE MA PROPRE FAUTE DU 16/09.
 
     Le contrôle posé le matin a refusé la capitalisation JUSTE de CMT parce
@@ -184,6 +184,9 @@ def test_la_capitalisation_n_est_plus_arbitree_sur_un_prix_perime(moteur):
     """
     moteur.FAITS_DATA = {"CMT": {"exercice": 2025, "faits": {
         "nombre_actions_au_rapport": {"valeur": 1_681_233, "page": 57}}}}
+    # ⚠️ 20/10/2026 : maillon 2 seul ; avec la liste officielle (maillon 1),
+    # le cas « prix périmé » est couvert par test_cap_bourse_officielle.py.
+    monkeypatch.setattr(moteur, "ACTIONS_BOURSE", {})
 
     # Le cas exact du 16/09 : cours figé à 4 350, capitalisation servie 3 727.
     for src in ("derniere_cotation_avant_suspension", "candles", "static",

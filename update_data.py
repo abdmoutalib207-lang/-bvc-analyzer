@@ -2657,6 +2657,116 @@ def _charger_actions_operateur() -> dict:
 ACTIONS_OPERATEUR = _charger_actions_operateur()
 
 
+# ⚠️ 20/10/2026 — DÉCISION D'ABD MOUTALIB : LA CAPITALISATION SE CALCULE.
+# Cours du jour × nombre officiel d'actions relevé sur la liste des émetteurs
+# de la Bourse de Casablanca (`datasets/bourse_emetteurs.json`, relevé par
+# `tools/releve_emetteurs_bourse.js`). La capitalisation servie par IDBourse ne
+# sert plus que de COMPARAISON (`_meta.cap_servie`, `_meta.cap_ecart_servie_pct`).
+# Deux raisons : la fiabilité (un nombre d'actions officiel, daté, au lieu d'une
+# valeur qui retarde d'une séance), et sortir de la dépendance contractuelle
+# envers IDBourse (chantier 5).
+#
+# Chaîne du nombre d'actions pour la capitalisation (R3 — un maillon AJOUTÉ en
+# tête, aucun retiré) :
+#   1. liste officielle de la Bourse, datée     → « calculee_bourse_officielle »
+#   2. nombre sourcé de nos faits (opérateur, rapport) → « calculee_recoupee »,
+#      « calculee_apres_refus », « calculee_faute_de_source », « servie »
+#   3. capitalisation servie ÷ cours (dernier recours) → « servie »
+# Un nombre officiel absent pour un titre fait passer au maillon suivant,
+# jamais à zéro.
+#
+# ⚠️ Ce nombre ne sert QU'À LA CAPITALISATION. Le P/B (`_actions_sourcees`) et
+# le dénominateur du BPA (IAS 33, nombre moyen pondéré) n'y touchent pas : cas
+# T2S, 22 584 118 à la Bourse contre 21 785 174 sur nos pièces — l'écart est
+# l'« Augmentation de Capital Dirigeant » (798 944 actions, DR p.37 et p.258),
+# non datée sur pièce. Une admission à la cote inscrite dans la liste de
+# l'opérateur constate que ces actions sont COTÉES : elles entrent dans la
+# capitalisation (valeur de marché du titre), pas dans un BPA de période.
+RELEVE_BOURSE = Path(__file__).parent / "datasets" / "bourse_emetteurs.json"
+# Au-delà, le relevé est encore utilisé mais signalé (`_meta.cap_releve_perime`).
+# Le contrôle du soir (verifier_seance.yml) le compare chaque jour au site : un
+# relevé ancien n'est donc pas faux par défaut, il est seulement moins vérifié.
+RELEVE_BOURSE_MAX_JOURS = 45
+
+
+def _charger_actions_bourse(chemin: Path = RELEVE_BOURSE):
+    """({ticker: nombre d'actions}, date du relevé AAAA-MM-JJ). ({}, None) sinon.
+
+    L'appariement est celui de `tools/comparer_emetteurs.py`, restreint à
+    l'ISIN et au CODE OFFICIEL (`IDB_TICKER_MAP` : notre SNA = Sonasid = SID ;
+    le SNA de la Bourse est Stokvis, notre STK). Jamais par le nom.
+    """
+    try:
+        releve = json.loads(Path(chemin).read_text(encoding="utf-8"))
+        import importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location(
+            "comparer_emetteurs", Path(__file__).parent / "tools" / "comparer_emetteurs.py")
+        _ce = _ilu.module_from_spec(_spec)
+        _spec.loader.exec_module(_ce)
+        ref = {"tickers": sorted(set(TICKERS_ALL) | set(COMPANY_NAMES)),
+               "isin": dict(ISIN_MAP), "code_officiel": dict(IDB_TICKER_MAP)}
+        date_releve = str(releve.get("releve_le") or "")[:10] or None
+        return _ce.actions_officielles(releve, ref), date_releve
+    except (OSError, ValueError, AttributeError, ImportError) as e:
+        logger.warning(f"Liste officielle des émetteurs illisible ({e}) : "
+                       "capitalisation sur le maillon suivant")
+        return {}, None
+
+
+ACTIONS_BOURSE, RELEVE_BOURSE_DATE = _charger_actions_bourse()
+
+
+def _actions_bourse(ticker: str):
+    """Nombre officiel d'actions de la Bourse, ajusté des splits POSTÉRIEURS au
+    relevé (registre SPLITS, R11). None si le titre n'y figure pas."""
+    n = ACTIONS_BOURSE.get(ticker)
+    if not n:
+        return None
+    n = float(n)
+    for sp in SPLITS.get(ticker, []):
+        if RELEVE_BOURSE_DATE and sp["date"] > RELEVE_BOURSE_DATE:
+            n *= sp["ratio"]
+    return n
+
+
+def _age_releve_bourse(ref_date=None):
+    """Âge du relevé officiel en jours à `ref_date` (AAAA-MM-JJ, défaut : ce
+    jour), None sans relevé daté."""
+    if not RELEVE_BOURSE_DATE:
+        return None
+    try:
+        d0 = datetime.strptime(RELEVE_BOURSE_DATE, "%Y-%m-%d").date()
+        d1 = (datetime.strptime(str(ref_date)[:10], "%Y-%m-%d").date()
+              if ref_date else datetime.now(timezone.utc).date())
+    except ValueError:
+        return None
+    return (d1 - d0).days
+
+
+def _cap_detail(ticker: str, cap_source, cap_retenue, cap_servie_du_jour, ref_date=None) -> dict:
+    """Champs `_meta` qui disent d'où vient le NOMBRE D'ACTIONS de la
+    capitalisation, et l'écart avec la valeur servie (comparaison seulement)."""
+    if cap_source == "calculee_bourse_officielle":
+        actions = "bourse_officielle"
+    elif cap_source in ("calculee_recoupee", "calculee_apres_refus", "calculee_faute_de_source"):
+        actions = "operateur" if ticker in ACTIONS_OPERATEUR else "faits"
+    elif cap_source in ("servie", "publiee_la_veille"):
+        # Dernier recours : le nombre d'actions implicite est celui de la
+        # capitalisation servie ÷ cours. Le titre dépend encore d'IDBourse.
+        actions = "capitalisation_servie"
+    else:
+        actions = None
+    out = {"cap_actions_source": actions,
+           "cap_ecart_servie_pct": (round(100 * (cap_retenue / cap_servie_du_jour - 1), 2)
+                                    if cap_retenue and cap_servie_du_jour else None)}
+    if actions == "bourse_officielle":
+        age = _age_releve_bourse(ref_date)
+        out.update({"cap_releve_bourse": RELEVE_BOURSE_DATE,
+                    "cap_releve_age_j": age,
+                    "cap_releve_perime": bool(age is not None and age > RELEVE_BOURSE_MAX_JOURS)})
+    return out
+
+
 def _actions_sourcees(ticker: str):
     """Le nombre d'actions du rapport, ajusté des splits postérieurs. None sinon.
 
@@ -2769,7 +2879,43 @@ def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None,
     # Un contrôle qui s'appuie sur une valeur périmée est pire que pas de
     # contrôle : il remplace du juste par du faux, et il le fait avec autorité.
     if src_prix is not None and src_prix not in SOURCES_PRIX_VIVANTES:
+        # ⚠️ 20/10/2026 — titre qui n'a pas coté ce jour (cours des chandelles,
+        # dernière séance réelle). Mesuré sur le data.json du 20/10 à 21h27 :
+        # 16 titres sur 16, dernier cours × nombre officiel = valeur servie à
+        # 0,00 %. Le produit est donc publié… SAUF si la valeur servie le
+        # contredit : c'est le cas CMT ci-dessus (reprise sur une référence
+        # remise à neuf, notre cours figé), où la valeur servie est la seule
+        # à savoir. Un cours ancien n'arbitre rien — ni dans un sens ni dans
+        # l'autre : il ne réfute pas la valeur servie, il se range derrière.
+        n_off = _actions_bourse(ticker)
+        if n_off and price and price > 0:
+            calculee = round(price * n_off / 1e6)
+            if not cap_servie or (calculee and abs(cap_servie / calculee - 1)
+                                  <= TOL_COURS_IMPLICITE_JOUR + 0.5 / cap_servie):
+                return calculee, "calculee_bourse_officielle"
         return cap_servie, ("servie" if cap_servie else "absente")
+
+    # ⚠️ 20/10/2026 — MAILLON 1 : LE NOMBRE OFFICIEL DE LA BOURSE (voir
+    # `ACTIONS_BOURSE`). La valeur servie n'arbitre plus rien : elle est
+    # gardée en comparaison, et un écart qu'aucun cours (jour ou veille)
+    # n'explique est seulement journalisé — c'est le signe d'une opération sur
+    # titres que le relevé ne connaît pas encore, et le contrôle du soir la
+    # verra sur le site de la Bourse.
+    n_off = _actions_bourse(ticker)
+    if n_off and price and price > 0:
+        calculee = round(price * n_off / 1e6)
+        if cap_servie and temoin_du_jour and calculee:
+            implicite = cap_servie * 1e6 / n_off
+            arrondi = 0.5 / cap_servie
+            if not (abs(implicite / price - 1) <= TOL_COURS_IMPLICITE_JOUR + arrondi
+                    or (cloture_veille and abs(implicite / cloture_veille - 1)
+                        <= TOL_COURS_IMPLICITE_VEILLE + arrondi)):
+                logger.warning(
+                    f"{ticker} : capitalisation servie {cap_servie} MDHS, calculée "
+                    f"{calculee} sur " + f"{n_off:,.0f}".replace(",", " ") + " actions officielles "
+                    f"(relevé du {RELEVE_BOURSE_DATE}) — écart {calculee / cap_servie - 1:+.1%} "
+                    "inexpliqué par le cours")
+        return calculee, "calculee_bourse_officielle"
 
     n = _actions_sourcees(ticker)
     if not n or not price or price <= 0:
@@ -3012,7 +3158,7 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
                  chg=None, vol=None, prix_diffuse=None, cap_source=None,
                  cap_servie=None, cliquet_volume=False,
                  seances_depuis_reprise=None, comptes_deposes=False,
-                 note_fond_ok=True) -> dict:
+                 note_fond_ok=True, cap_detail=None) -> dict:
     """Provenance du prix et score de confiance 0–5.
 
     Le score suit la spécification du CLAUDE.md, un point par garantie :
@@ -3200,7 +3346,9 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         # désormais soit calculé depuis un dépôt AMMC, soit absent.
         "pb_source":    ("faits_ammc" if _pb_sourcé(ticker, 1.0) is not None
                          else "non_disponible"),
-        # D'où vient la capitalisation publiée : « servie » par la source
+        # D'où vient la capitalisation publiée. Depuis le 20/10/2026, d'abord
+        # « calculee_bourse_officielle » — cours du jour × nombre d'actions de
+        # la liste officielle des émetteurs. Sinon : « servie » par la source
         # (actions non sourcées, cours périmé, ou écart inexpliqué sous le
         # seuil), « calculee_recoupee » — prix du jour × actions sourcées, la
         # valeur servie s'expliquant par le cours du jour ou de la veille —,
@@ -3214,6 +3362,10 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         # la capitalisation publiée est prix × actions, elle ne peut plus
         # recouper le nombre d'actions — c'est ce champ qui le peut encore.
         "cap_servie":   cap_servie,
+        # ⚠️ 20/10/2026 : d'où vient le NOMBRE D'ACTIONS (bourse_officielle,
+        # operateur, faits, ou capitalisation_servie en dernier recours), date
+        # et âge du relevé officiel, écart en % avec la valeur servie.
+        **(cap_detail or {}),
         # ⚠️ 10/10/2026 : vrai quand la source a servi un relevé plus ancien
         # de la même séance et que la ligne publiée a été conservée.
         "cliquet_volume": bool(cliquet_volume),
@@ -4046,6 +4198,14 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:
         logger.warning(f"faits_financiers.json illisible ({_e})")
         FAITS_DATA = {}
+    # Liste officielle des émetteurs (capitalisation, 20/10/2026) : utilisée
+    # même ancienne, mais signalée au-delà de RELEVE_BOURSE_MAX_JOURS.
+    _age_rel = _age_releve_bourse()
+    logger.info(f"Liste officielle des émetteurs : {len(ACTIONS_BOURSE)} titres, "
+                f"relevé du {RELEVE_BOURSE_DATE} ({_age_rel} j)")
+    if _age_rel is not None and _age_rel > RELEVE_BOURSE_MAX_JOURS:
+        logger.warning(f"Liste officielle des émetteurs PÉRIMÉE ({_age_rel} j > "
+                       f"{RELEVE_BOURSE_MAX_JOURS}) : utilisée, signalée dans _meta")
     # Règle g (20/10/2026, IAS 21) : taux MAD → TND relevés à la BCT, par journée.
     global _TAUX_MAD_TND
     try:
@@ -4848,6 +5008,8 @@ def run(dry_run=False, push=False, token=""):
             chg=chg, vol=vol, prix_diffuse=_prix_diffuse,
             cap_source=_cap_source,
             cap_servie=lp.get("cap"),
+            cap_detail=_cap_detail(ticker, _cap_source, _cap_retenue, lp.get("cap"),
+                                   prix_asof or IDB_ASOF or None),
             cliquet_volume=lp.get("cliquet_volume", False),
             seances_depuis_reprise=_seances_depuis_reprise,
             comptes_deposes=_comptes_deposes(BPA_DATA.get(ticker)))

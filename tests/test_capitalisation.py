@@ -65,6 +65,15 @@ def moteur():
     return m
 
 
+@pytest.fixture(autouse=True)
+def _maillon_2(request, monkeypatch):
+    """⚠️ 20/10/2026 : ces cas décrivent le MAILLON 2 de la chaîne (nombre
+    d'actions de nos faits). Le maillon 1, la liste officielle de la Bourse,
+    est neutralisé ici ; il a ses propres tests (test_cap_bourse_officielle.py)."""
+    if "moteur" in request.fixturenames:
+        monkeypatch.setattr(request.getfixturevalue("moteur"), "ACTIONS_BOURSE", {})
+
+
 def _faits(n_actions, exercice=2025):
     return {"CMT": {"exercice": exercice,
                     "faits": {"nombre_actions_au_rapport": {"valeur": n_actions,

@@ -30,7 +30,8 @@ const crypto = require('crypto');
 const URL_SOURCE = 'https://www.casablanca-bourse.com/emetteurs/liste-emetteurs';
 const RACINE = path.resolve(__dirname, '..');
 const MOD_PW = process.env.BVC_PLAYWRIGHT || '/home/user/-bvc-analyzer/node_modules/playwright';
-const EXE = process.env.BVC_CHROMIUM || '/opt/pw-browsers/chromium';
+// Vide (BVC_CHROMIUM='') = le Chromium de Playwright, comme tools/bourse_casablanca.js.
+const EXE = process.env.BVC_CHROMIUM !== undefined ? process.env.BVC_CHROMIUM : '/opt/pw-browsers/chromium';
 const SORTIE = process.env.BVC_SORTIE || path.join(RACINE, 'datasets', 'bourse_emetteurs.json');
 
 const STATUTS = /\b(suspendu[e]?s?|radi[ée]e?s?|en liquidation|liquidation|retir[ée]e?|délist[ée]e?)\b/i;
@@ -47,7 +48,7 @@ function entier(txt) {
 
 async function main() {
   const { chromium } = require(MOD_PW);
-  const nav = await chromium.launch({ executablePath: EXE });
+  const nav = await chromium.launch(EXE && fs.existsSync(EXE) ? { executablePath: EXE } : {});
   const page = await nav.newPage();
   const requetesClic = [];
   try {
