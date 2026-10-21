@@ -241,6 +241,35 @@ jobs:
           echo "Synchronisation incrémentale sûre du cache pour: $TICKERS"
           python pipeline/recalculer_cache.py --sync-ajouts $TICKERS --ecrire
 
+      # ── 3a bis. FIGURES PUBLIÉES — mode ombre, JAMAIS bloquant ──
+      #
+      # Ajouté le 21/10/2026. Écrit `datasets/figures_publiees.json` (figures,
+      # obliques, canaux, gaps) à partir des chandelles qui viennent d'être
+      # écrites. Aucune note n'en dépend (R8).
+      #
+      # La condition horaire (≥ 17h45 à l'heure du Maroc, bougie du jour
+      # définitive) est testée DANS le script, par `bvc_config.heure_maroc()` :
+      # avant, il sort sans rien écrire. Pas de `TZ=` ici, pas d'heure dans le
+      # `if` — une seule horloge.
+      #
+      # `continue-on-error`, car un défaut de figures ne doit jamais empêcher
+      # de publier data.json. Placée AVANT les contrôles bloquants pour qu'ils
+      # voient l'état qui sera commité : si la génération ou ses tests échouent,
+      # le fichier commité est restauré. Le fichier part dans le commit
+      # existant (liste `git add` plus bas) : aucun commit de plus.
+      - name: Figures publiées (génération, tests, restauration si échec)
+        if: steps.gate.outputs.run == 'true' && github.event.inputs.dry_run != 'true'
+        continue-on-error: true
+        run: |
+          pip install --quiet -r requirements_dev.txt
+          if python pipeline/figures_publiees.py && python -m pytest tests/test_figures_publiees.py -q; then
+            echo "Figures publiées : à jour."
+          else
+            echo "::warning::Figures publiées en échec — fichier commité restauré, data.json non concerné"
+            git checkout -- datasets/figures_publiees.json
+            exit 1
+          fi
+
       # ── 3b. CONTRÔLES BLOQUANTS — avant toute publication ──
       #
       # ⚠️ Ajouté le 10/09/2026, après l'audit externe du 09/09.
@@ -357,6 +386,10 @@ jobs:
             done
             if [ -f pipeline/historical_data.json ]; then
               git add pipeline/historical_data.json
+            fi
+            # Figures publiées (21/10/2026) : même commit, aucun commit de plus.
+            if [ -f datasets/figures_publiees.json ]; then
+              git add datasets/figures_publiees.json
             fi
             # L'archive des lectures, un fichier par séance (30/09/2026).
             if [ -d briefings ]; then
