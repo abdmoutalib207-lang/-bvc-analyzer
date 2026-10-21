@@ -3,12 +3,20 @@
  "_ne_pas_editer": "Produit par pipeline/figures_publiees.py ; tests/test_figures_publiees.py le contrôle.",
  "_r8": "Mode ombre : aucune note ne dépend de ce fichier.",
  "_avertissement": "Fréquences passées, pas des promesses. Observations chevauchantes (un même mouvement compte plusieurs fois) et un seul régime de marché par période : les écarts affichés sont optimistes. Les parts sont brutes de frais (2 % d'aller-retour non déduits) : la part « dans le bon sens » est mesurée sur l'alpha avant frais. Une figure armée n'a pas de fréquence propre : la fréquence décrit ce qui suit une CASSURE (frequence_condition = apres_cassure).",
+ "regles": "2026-10-21",
  "derniere_seance_du_marche": "2026-10-21",
  "entree_sha256": "4af8404f4b26a0ebeb42a0b5579194ed5d5e1696e982922a24697f88795f2ea6",
  "methode": {
   "donnees": "pipeline/candles/, séances à volume > 0 uniquement",
   "fenetre_seances": 60,
-  "detecteurs": "pipeline/technical/figures.py et lignes.py, paramètres inchangés",
+  "detecteurs": "pipeline/technical/figures.py et lignes.py (via figures_detail.py)",
+  "regles": {
+   "date": "2026-10-21",
+   "jeu": "figures strictes (21/10/2026) : ETE à durées symétriques (0,5 à 2) et ligne de cou à ±5 % ; triangle confiné (au plus 2 clôtures hors des droites, tolérance 1 %) ; oblique et support de canal à 3 contacts au moins (1 %) sans clôture à plus de 1 % du mauvais côté",
+   "ancien_jeu_accessible": "regles=\"2026-10-03\" (figures_v1 / lignes_v1, intactes)",
+   "details": "pipeline/technical/regles_strictes.py"
+  },
+  "volume": "`volume_cassure_ratio` : volume de la séance de cassure ÷ médiane des 20 séances échangées précédentes. INFORMATION SEULE, aucun filtre ; la mesure est dans `volume` de l'artefact des fréquences",
   "parametres": {
    "seuil_pivot": 0.06,
    "expiration_seances": 40
@@ -25,19 +33,19 @@
   "titre_inactif": "écarté si aucun échange depuis plus de 10 séances de la place",
   "min_cas_pour_publier": 30,
   "artefacts": {
-   "figures_lignes": "datasets/calibrage_technique/etape4_lignes_gaps_hebdo_2026-10-03.json",
+   "figures_lignes": "datasets/calibrage_technique/etape4_regles_2026-10-21.json",
    "gaps_comblement": "datasets/calibrage_technique/gaps_comblement_2026-10-21.json"
   },
   "frequences_et_ruptures": {
    "filtre_applique_aux_frequences": false,
-   "evenements": 1229,
-   "traversant_une_rupture": 8,
-   "pct_traversant": 0.65,
+   "evenements": 532,
+   "traversant_une_rupture": 2,
+   "pct_traversant": 0.38,
    "plus_grand_ecart_part_points": 1.1,
    "negligeable": false,
-   "texte": "8 événements sur 1229 (0,65 %) de l'artefact de calibrage traversent une rupture ; sans eux, la part dans le bon sens bougerait au plus de 1,1 point. Le filtre de rupture ne porte PAS sur les fréquences publiées : l'artefact a été produit sans lui, et il n'est pas rejoué. Rejeu à décider.",
+   "texte": "2 événements sur 532 (0,38 %) de l'artefact de calibrage traversent une rupture ; sans eux, la part dans le bon sens bougerait au plus de 1,1 point. Le filtre de rupture ne porte PAS sur les fréquences publiées : l'artefact a été produit sans lui, et il n'est pas rejoué. Rejeu à décider.",
    "perimetre_artefact": "produit sur les fichiers de chandelles de pipeline/candles/ (81, TGC alias compris), pas sur les seuls 80 titres",
-   "mesure": "datasets/calibrage_technique/ruptures_dans_etape4_2026-10-21.json"
+   "mesure": "datasets/calibrage_technique/ruptures_dans_etape4_regles_2026-10-21.json"
   },
   "hebdomadaire": "les variantes hebdomadaires mesurées dans l'artefact ne sont pas détectées ici"
  },
@@ -61,7 +69,7 @@
    },
    "univers": {
     "tous": {
-     "n": 89,
+     "n": 92,
      "periodes": {
       "2023-10_2024-12": {
        "n": 30,
@@ -74,41 +82,41 @@
        "rendement_net_frais_moyen_pct": 2.46
       },
       "2025-01_2026-10": {
-       "n": 59,
+       "n": 62,
        "statut": "publie",
-       "titres": 39,
-       "part_bon_sens_brute_pct": 49.2,
-       "alpha_median_pct": -0.55,
+       "titres": 40,
+       "part_bon_sens_brute_pct": 50.0,
+       "alpha_median_pct": -0.2,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 1.71
+       "rendement_net_frais_moyen_pct": 1.9
       }
      },
      "statut": "publie",
-     "part_bon_sens_brute_pct": 49.4,
+     "part_bon_sens_brute_pct": 50.0,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
     "liquides": {
-     "n": 59,
+     "n": 62,
      "periodes": {
       "2023-10_2024-12": {
        "n": 15,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 44,
+       "n": 47,
        "statut": "publie",
-       "titres": 30,
-       "part_bon_sens_brute_pct": 50.0,
-       "alpha_median_pct": -0.2,
+       "titres": 31,
+       "part_bon_sens_brute_pct": 51.1,
+       "alpha_median_pct": 0.15,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 2.56
+       "rendement_net_frais_moyen_pct": 2.76
       }
      },
      "statut": "publie",
-     "part_bon_sens_brute_pct": 54.2,
+     "part_bon_sens_brute_pct": 54.8,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
      "reproductible_sur_deux_periodes": false
@@ -199,44 +207,32 @@
    },
    "univers": {
     "tous": {
-     "n": 47,
+     "n": 19,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 7,
+       "n": 4,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 40,
-       "statut": "publie",
-       "titres": 30,
-       "part_bon_sens_brute_pct": 50.0,
-       "alpha_median_pct": -0.13,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 0.18
+       "n": 15,
+       "statut": "echantillon_insuffisant"
       }
      },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 48.9,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
+     "statut": "echantillon_insuffisant"
     },
     "liquides": {
-     "n": 30,
+     "n": 11,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 3,
+       "n": 2,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 27,
+       "n": 9,
        "statut": "echantillon_insuffisant"
       }
      },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 50.0,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
+     "statut": "echantillon_insuffisant",
      "reproductible_sur_deux_periodes": false
     }
    }
@@ -259,28 +255,28 @@
    },
    "univers": {
     "tous": {
-     "n": 27,
+     "n": 9,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 7,
+       "n": 3,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 20,
+       "n": 6,
        "statut": "echantillon_insuffisant"
       }
      },
      "statut": "echantillon_insuffisant"
     },
     "liquides": {
-     "n": 14,
+     "n": 4,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 2,
+       "n": 1,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 12,
+       "n": 3,
        "statut": "echantillon_insuffisant"
       }
      },
@@ -355,31 +351,28 @@
    },
    "univers": {
     "tous": {
-     "n": 30,
-     "periodes": {
-      "2023-10_2024-12": {
-       "n": 10,
-       "statut": "echantillon_insuffisant"
-      },
-      "2025-01_2026-10": {
-       "n": 20,
-       "statut": "echantillon_insuffisant"
-      }
-     },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 50.0,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
-    },
-    "liquides": {
      "n": 22,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 6,
+       "n": 8,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 16,
+       "n": 14,
+       "statut": "echantillon_insuffisant"
+      }
+     },
+     "statut": "echantillon_insuffisant"
+    },
+    "liquides": {
+     "n": 17,
+     "periodes": {
+      "2023-10_2024-12": {
+       "n": 5,
+       "statut": "echantillon_insuffisant"
+      },
+      "2025-01_2026-10": {
+       "n": 12,
        "statut": "echantillon_insuffisant"
       }
      },
@@ -406,37 +399,31 @@
    },
    "univers": {
     "tous": {
-     "n": 43,
+     "n": 34,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 13,
-       "statut": "echantillon_insuffisant"
-      },
-      "2025-01_2026-10": {
-       "n": 30,
-       "statut": "publie",
-       "titres": 24,
-       "part_bon_sens_brute_pct": 50.0,
-       "alpha_median_pct": -0.41,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 1.34
-      }
-     },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 55.8,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
-    },
-    "liquides": {
-     "n": 29,
-     "periodes": {
-      "2023-10_2024-12": {
-       "n": 6,
+       "n": 11,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
        "n": 23,
+       "statut": "echantillon_insuffisant"
+      }
+     },
+     "statut": "publie",
+     "part_bon_sens_brute_pct": 67.6,
+     "alpha_median_pct": null,
+     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
+    },
+    "liquides": {
+     "n": 25,
+     "periodes": {
+      "2023-10_2024-12": {
+       "n": 5,
+       "statut": "echantillon_insuffisant"
+      },
+      "2025-01_2026-10": {
+       "n": 20,
        "statut": "echantillon_insuffisant"
       }
      },
@@ -463,44 +450,32 @@
    },
    "univers": {
     "tous": {
-     "n": 42,
+     "n": 20,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 12,
+       "n": 7,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 30,
-       "statut": "publie",
-       "titres": 22,
-       "part_bon_sens_brute_pct": 36.7,
-       "alpha_median_pct": -2.19,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": -1.32
+       "n": 13,
+       "statut": "echantillon_insuffisant"
       }
      },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 33.3,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
+     "statut": "echantillon_insuffisant"
     },
     "liquides": {
-     "n": 30,
+     "n": 17,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 8,
+       "n": 5,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 22,
+       "n": 12,
        "statut": "echantillon_insuffisant"
       }
      },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 33.3,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
+     "statut": "echantillon_insuffisant",
      "reproductible_sur_deux_periodes": false
     }
    }
@@ -523,50 +498,35 @@
    },
    "univers": {
     "tous": {
-     "n": 74,
+     "n": 37,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 21,
+       "n": 8,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 53,
-       "statut": "publie",
-       "titres": 38,
-       "part_bon_sens_brute_pct": 50.9,
-       "alpha_median_pct": -0.68,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 3.98
+       "n": 29,
+       "statut": "echantillon_insuffisant"
       }
      },
      "statut": "publie",
-     "part_bon_sens_brute_pct": 54.1,
+     "part_bon_sens_brute_pct": 45.9,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
     "liquides": {
-     "n": 47,
+     "n": 24,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 7,
+       "n": 2,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 40,
-       "statut": "publie",
-       "titres": 31,
-       "part_bon_sens_brute_pct": 55.0,
-       "alpha_median_pct": -1.77,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 0.48
+       "n": 22,
+       "statut": "echantillon_insuffisant"
       }
      },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 51.1,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
+     "statut": "echantillon_insuffisant",
      "reproductible_sur_deux_periodes": false
     }
    }
@@ -661,41 +621,44 @@
    },
    "univers": {
     "tous": {
-     "n": 44,
+     "n": 45,
      "periodes": {
       "2023-10_2024-12": {
        "n": 11,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 33,
+       "n": 34,
        "statut": "publie",
        "titres": 25,
-       "part_bon_sens_brute_pct": 48.5,
-       "alpha_median_pct": 0.01,
+       "part_bon_sens_brute_pct": 50.0,
+       "alpha_median_pct": -0.04,
        "alpha_median_net_frais_pct": null,
        "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 0.5
+       "rendement_net_frais_moyen_pct": 0.25
       }
      },
      "statut": "publie",
-     "part_bon_sens_brute_pct": 50.0,
+     "part_bon_sens_brute_pct": 51.1,
      "alpha_median_pct": null,
      "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
     },
     "liquides": {
-     "n": 29,
+     "n": 30,
      "periodes": {
       "2023-10_2024-12": {
        "n": 6,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 23,
+       "n": 24,
        "statut": "echantillon_insuffisant"
       }
      },
-     "statut": "echantillon_insuffisant",
+     "statut": "publie",
+     "part_bon_sens_brute_pct": 50.0,
+     "alpha_median_pct": null,
+     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
      "reproductible_sur_deux_periodes": false
     }
    }
@@ -718,56 +681,32 @@
    },
    "univers": {
     "tous": {
-     "n": 106,
+     "n": 19,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 30,
-       "statut": "publie",
-       "titres": 24,
-       "part_bon_sens_brute_pct": 36.7,
-       "alpha_median_pct": -1.65,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 0.63
-      },
-      "2025-01_2026-10": {
-       "n": 76,
-       "statut": "publie",
-       "titres": 48,
-       "part_bon_sens_brute_pct": 40.8,
-       "alpha_median_pct": -1.08,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": -1.12
-      }
-     },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 39.6,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
-    },
-    "liquides": {
-     "n": 62,
-     "periodes": {
-      "2023-10_2024-12": {
-       "n": 16,
+       "n": 6,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 46,
-       "statut": "publie",
-       "titres": 34,
-       "part_bon_sens_brute_pct": 47.8,
-       "alpha_median_pct": -0.38,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 0.28
+       "n": 13,
+       "statut": "echantillon_insuffisant"
       }
      },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 48.4,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
+     "statut": "echantillon_insuffisant"
+    },
+    "liquides": {
+     "n": 9,
+     "periodes": {
+      "2023-10_2024-12": {
+       "n": 4,
+       "statut": "echantillon_insuffisant"
+      },
+      "2025-01_2026-10": {
+       "n": 5,
+       "statut": "echantillon_insuffisant"
+      }
+     },
+     "statut": "echantillon_insuffisant",
      "reproductible_sur_deux_periodes": false
     }
    }
@@ -790,62 +729,32 @@
    },
    "univers": {
     "tous": {
-     "n": 180,
+     "n": 5,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 54,
-       "statut": "publie",
-       "titres": 37,
-       "part_bon_sens_brute_pct": 48.1,
-       "alpha_median_pct": 0.16,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 0.87
+       "n": 1,
+       "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 126,
-       "statut": "publie",
-       "titres": 65,
-       "part_bon_sens_brute_pct": 46.8,
-       "alpha_median_pct": 0.83,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 2.47
+       "n": 4,
+       "statut": "echantillon_insuffisant"
       }
      },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 47.2,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
+     "statut": "echantillon_insuffisant"
     },
     "liquides": {
-     "n": 119,
+     "n": 2,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 31,
-       "statut": "publie",
-       "titres": 22,
-       "part_bon_sens_brute_pct": 45.2,
-       "alpha_median_pct": 0.49,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 3.48
+       "n": 0,
+       "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 88,
-       "statut": "publie",
-       "titres": 48,
-       "part_bon_sens_brute_pct": 50.0,
-       "alpha_median_pct": 0.1,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 0.86
+       "n": 2,
+       "statut": "echantillon_insuffisant"
       }
      },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 48.7,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
+     "statut": "echantillon_insuffisant",
      "reproductible_sur_deux_periodes": false
     }
    }
@@ -868,56 +777,32 @@
    },
    "univers": {
     "tous": {
-     "n": 130,
+     "n": 6,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 41,
-       "statut": "publie",
-       "titres": 30,
-       "part_bon_sens_brute_pct": 43.9,
-       "alpha_median_pct": -0.81,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 2.01
-      },
-      "2025-01_2026-10": {
-       "n": 89,
-       "statut": "publie",
-       "titres": 52,
-       "part_bon_sens_brute_pct": 44.9,
-       "alpha_median_pct": -0.85,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": -1.6
-      }
-     },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 44.6,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
-    },
-    "liquides": {
-     "n": 86,
-     "periodes": {
-      "2023-10_2024-12": {
-       "n": 29,
+       "n": 1,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 57,
-       "statut": "publie",
-       "titres": 33,
-       "part_bon_sens_brute_pct": 50.9,
-       "alpha_median_pct": 0.26,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": -1.48
+       "n": 5,
+       "statut": "echantillon_insuffisant"
       }
      },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 51.2,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
+     "statut": "echantillon_insuffisant"
+    },
+    "liquides": {
+     "n": 4,
+     "periodes": {
+      "2023-10_2024-12": {
+       "n": 1,
+       "statut": "echantillon_insuffisant"
+      },
+      "2025-01_2026-10": {
+       "n": 3,
+       "statut": "echantillon_insuffisant"
+      }
+     },
+     "statut": "echantillon_insuffisant",
      "reproductible_sur_deux_periodes": false
     }
    }
@@ -940,56 +825,32 @@
    },
    "univers": {
     "tous": {
-     "n": 159,
+     "n": 3,
      "periodes": {
       "2023-10_2024-12": {
-       "n": 46,
-       "statut": "publie",
-       "titres": 34,
-       "part_bon_sens_brute_pct": 56.5,
-       "alpha_median_pct": -1.41,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": -1.63
-      },
-      "2025-01_2026-10": {
-       "n": 113,
-       "statut": "publie",
-       "titres": 60,
-       "part_bon_sens_brute_pct": 44.2,
-       "alpha_median_pct": 0.71,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 3.06
-      }
-     },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 47.8,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période"
-    },
-    "liquides": {
-     "n": 113,
-     "periodes": {
-      "2023-10_2024-12": {
-       "n": 24,
+       "n": 1,
        "statut": "echantillon_insuffisant"
       },
       "2025-01_2026-10": {
-       "n": 89,
-       "statut": "publie",
-       "titres": 48,
-       "part_bon_sens_brute_pct": 48.3,
-       "alpha_median_pct": 0.29,
-       "alpha_median_net_frais_pct": null,
-       "raison_alpha_net": "l'artefact de calibrage mesure l'alpha brut de frais ; l'alpha médian après 2 % d'aller-retour n'y figure pas et n'est pas recalculé ici",
-       "rendement_net_frais_moyen_pct": 1.82
+       "n": 2,
+       "statut": "echantillon_insuffisant"
       }
      },
-     "statut": "publie",
-     "part_bon_sens_brute_pct": 50.4,
-     "alpha_median_pct": null,
-     "raison_alpha_median": "la médiane ne s'agrège pas entre deux périodes : elle n'est publiée que par période",
+     "statut": "echantillon_insuffisant"
+    },
+    "liquides": {
+     "n": 1,
+     "periodes": {
+      "2023-10_2024-12": {
+       "n": 0,
+       "statut": "echantillon_insuffisant"
+      },
+      "2025-01_2026-10": {
+       "n": 1,
+       "statut": "echantillon_insuffisant"
+      }
+     },
+     "statut": "echantillon_insuffisant",
      "reproductible_sur_deux_periodes": false
     }
    }
@@ -1274,69 +1135,6 @@
    "statut_titre": "analyse",
    "figures": [
     {
-     "type": "ete_inversee",
-     "libelle": "Épaule-tête-épaule inversée",
-     "orientation_classique": "haussiere",
-     "statut": "expiree",
-     "pivots": [
-      {
-       "date": "2026-05-19",
-       "prix": 31.0,
-       "type": "creux",
-       "date_confirmation": "2026-05-25"
-      },
-      {
-       "date": "2026-05-25",
-       "prix": 32.99,
-       "type": "sommet",
-       "date_confirmation": "2026-06-11"
-      },
-      {
-       "date": "2026-06-11",
-       "prix": 30.0,
-       "type": "creux",
-       "date_confirmation": "2026-06-12"
-      },
-      {
-       "date": "2026-06-16",
-       "prix": 36.7,
-       "type": "sommet",
-       "date_confirmation": "2026-07-08"
-      },
-      {
-       "date": "2026-07-22",
-       "prix": 32.4,
-       "type": "creux",
-       "date_confirmation": "2026-07-29"
-      }
-     ],
-     "date_confirmation": "2026-07-29",
-     "niveau_declenchement": {
-      "forme": "oblique",
-      "points": [
-       {
-        "date": "2026-05-25",
-        "prix": 32.99
-       },
-       {
-        "date": "2026-06-16",
-        "prix": 36.7
-       }
-      ],
-      "prix_a_la_derniere_seance": 60.3869
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sous": 30.0
-     },
-     "date_cassure": null,
-     "date_fin": "2026-09-24",
-     "signal": "ete_inversee",
-     "frequence_ref": [
-      "ete_inversee"
-     ]
-    },
-    {
      "type": "fibo_rebond_382_618",
      "libelle": "Rebond sur le retracement 38,2-61,8 %",
      "orientation_classique": "haussiere",
@@ -1418,7 +1216,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
+     ],
+     "volume_cassure_ratio": 3.37
     },
     {
      "type": "double_creux",
@@ -1460,165 +1259,9 @@
      "frequence_ref": [
       "double_creux"
      ]
-    },
-    {
-     "type": "triangle_descendant",
-     "libelle": "Triangle descendant",
-     "orientation_classique": "baissiere",
-     "statut": "declenchee",
-     "pivots": [
-      {
-       "date": "2026-07-22",
-       "prix": 32.4,
-       "type": "creux",
-       "date_confirmation": "2026-07-29"
-      },
-      {
-       "date": "2026-08-07",
-       "prix": 37.59,
-       "type": "sommet",
-       "date_confirmation": "2026-08-31"
-      },
-      {
-       "date": "2026-09-18",
-       "prix": 32.5,
-       "type": "creux",
-       "date_confirmation": "2026-09-22"
-      },
-      {
-       "date": "2026-09-22",
-       "prix": 34.49,
-       "type": "sommet",
-       "date_confirmation": "2026-10-02"
-      }
-     ],
-     "date_confirmation": "2026-10-02",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 32.4
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sur": 34.49
-     },
-     "date_cassure": "2026-10-02",
-     "date_fin": null,
-     "signal": "triangle_descendant",
-     "frequence_ref": [
-      "triangle_descendant"
-     ]
     }
    ],
-   "lignes": [
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-06-11",
-       "prix": 30.0
-      },
-      {
-       "date": "2026-07-22",
-       "prix": 32.4
-      }
-     ],
-     "prix_a_la_derniere_seance": 37.3714,
-     "date_confirmation": "2026-07-29",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-09-01",
-     "date_fin": null,
-     "signal": "canal_rebond_support",
-     "frequence_ref": [
-      "canal_rebond_support"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-06-11",
-        "prix": 36.4429
-       },
-       {
-        "date": "2026-07-22",
-        "prix": 38.8429
-       }
-      ],
-      "prix_a_la_derniere_seance": 43.8143
-     },
-     "sommet": {
-      "date": "2026-06-16",
-      "prix": 36.7
-     }
-    },
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-07-22",
-       "prix": 32.4
-      },
-      {
-       "date": "2026-09-18",
-       "prix": 32.5
-      }
-     ],
-     "prix_a_la_derniere_seance": 32.5657,
-     "date_confirmation": "2026-09-22",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-09-29",
-     "date_fin": null,
-     "signal": "canal_rebond_support",
-     "frequence_ref": [
-      "canal_rebond_support"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-07-22",
-        "prix": 37.5586
-       },
-       {
-        "date": "2026-09-18",
-        "prix": 37.6586
-       }
-      ],
-      "prix_a_la_derniere_seance": 37.7243
-     },
-     "sommet": {
-      "date": "2026-08-07",
-      "prix": 37.59
-     }
-    },
-    {
-     "type": "oblique_haussiere",
-     "libelle": "Oblique ascendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-07-22",
-       "prix": 32.4
-      },
-      {
-       "date": "2026-09-18",
-       "prix": 32.5
-      }
-     ],
-     "prix_a_la_derniere_seance": 32.5657,
-     "date_confirmation": "2026-09-22",
-     "niveau_invalidation": {
-      "sur": 37.59
-     },
-     "date_cassure": "2026-10-02",
-     "date_fin": null,
-     "signal": "oblique_haussiere_cassee",
-     "frequence_ref": [
-      "oblique_haussiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_haussier",
@@ -1664,69 +1307,6 @@
    "statut_titre": "analyse",
    "figures": [
     {
-     "type": "ete",
-     "libelle": "Épaule-tête-épaule",
-     "orientation_classique": "baissiere",
-     "statut": "expiree",
-     "pivots": [
-      {
-       "date": "2026-03-05",
-       "prix": 432.0,
-       "type": "sommet",
-       "date_confirmation": "2026-03-09"
-      },
-      {
-       "date": "2026-03-09",
-       "prix": 391.5,
-       "type": "creux",
-       "date_confirmation": "2026-03-10"
-      },
-      {
-       "date": "2026-04-17",
-       "prix": 470.0,
-       "type": "sommet",
-       "date_confirmation": "2026-04-28"
-      },
-      {
-       "date": "2026-06-11",
-       "prix": 360.5,
-       "type": "creux",
-       "date_confirmation": "2026-06-12"
-      },
-      {
-       "date": "2026-06-16",
-       "prix": 423.9,
-       "type": "sommet",
-       "date_confirmation": "2026-06-24"
-      }
-     ],
-     "date_confirmation": "2026-06-24",
-     "niveau_declenchement": {
-      "forme": "oblique",
-      "points": [
-       {
-        "date": "2026-03-09",
-        "prix": 391.5
-       },
-       {
-        "date": "2026-06-11",
-        "prix": 360.5
-       }
-      ],
-      "prix_a_la_derniere_seance": 317.5
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sur": 470.0
-     },
-     "date_cassure": null,
-     "date_fin": "2026-08-12",
-     "signal": "ete",
-     "frequence_ref": [
-      "ete"
-     ]
-    },
-    {
      "type": "double_creux",
      "libelle": "Double creux",
      "orientation_classique": "haussiere",
@@ -1765,7 +1345,8 @@
      "signal": "double_creux",
      "frequence_ref": [
       "double_creux"
-     ]
+     ],
+     "volume_cassure_ratio": 12.6
     },
     {
      "type": "triangle_descendant",
@@ -1856,69 +1437,6 @@
      ]
     },
     {
-     "type": "ete",
-     "libelle": "Épaule-tête-épaule",
-     "orientation_classique": "baissiere",
-     "statut": "declenchee",
-     "pivots": [
-      {
-       "date": "2026-06-16",
-       "prix": 423.9,
-       "type": "sommet",
-       "date_confirmation": "2026-06-24"
-      },
-      {
-       "date": "2026-07-24",
-       "prix": 360.0,
-       "type": "creux",
-       "date_confirmation": "2026-08-07"
-      },
-      {
-       "date": "2026-08-27",
-       "prix": 437.0,
-       "type": "sommet",
-       "date_confirmation": "2026-09-11"
-      },
-      {
-       "date": "2026-09-18",
-       "prix": 377.0,
-       "type": "creux",
-       "date_confirmation": "2026-09-22"
-      },
-      {
-       "date": "2026-09-22",
-       "prix": 404.0,
-       "type": "sommet",
-       "date_confirmation": "2026-09-28"
-      }
-     ],
-     "date_confirmation": "2026-09-28",
-     "niveau_declenchement": {
-      "forme": "oblique",
-      "points": [
-       {
-        "date": "2026-07-24",
-        "prix": 360.0
-       },
-       {
-        "date": "2026-09-18",
-        "prix": 377.0
-       }
-      ],
-      "prix_a_la_derniere_seance": 388.8485
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sur": 437.0
-     },
-     "date_cassure": "2026-09-28",
-     "date_fin": null,
-     "signal": "ete",
-     "frequence_ref": [
-      "ete"
-     ]
-    },
-    {
      "type": "triangle_sym",
      "libelle": "Triangle symétrique",
      "orientation_classique": "neutre",
@@ -1964,78 +1482,11 @@
      "signal": "triangle_sym_bas",
      "frequence_ref": [
       "triangle_sym_bas"
-     ]
+     ],
+     "volume_cassure_ratio": 1.28
     }
    ],
-   "lignes": [
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-07-24",
-       "prix": 360.0
-      },
-      {
-       "date": "2026-09-18",
-       "prix": 377.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 388.8485,
-     "date_confirmation": "2026-09-22",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-10-01",
-     "date_fin": null,
-     "signal": "canal_cassure_bas",
-     "frequence_ref": [
-      "canal_cassure_bas"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-07-24",
-        "prix": 427.7273
-       },
-       {
-        "date": "2026-09-18",
-        "prix": 444.7273
-       }
-      ],
-      "prix_a_la_derniere_seance": 456.5758
-     },
-     "sommet": {
-      "date": "2026-08-27",
-      "prix": 437.0
-     }
-    },
-    {
-     "type": "oblique_haussiere",
-     "libelle": "Oblique ascendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-07-24",
-       "prix": 360.0
-      },
-      {
-       "date": "2026-09-18",
-       "prix": 377.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 388.8485,
-     "date_confirmation": "2026-09-22",
-     "niveau_invalidation": {
-      "sur": 437.0
-     },
-     "date_cassure": "2026-09-28",
-     "date_fin": null,
-     "signal": "oblique_haussiere_cassee",
-     "frequence_ref": [
-      "oblique_haussiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_haussier",
@@ -2230,7 +1681,8 @@
      "signal": "triangle_descendant",
      "frequence_ref": [
       "triangle_descendant"
-     ]
+     ],
+     "volume_cassure_ratio": 1.5
     }
    ],
    "lignes": [],
@@ -2399,7 +1851,8 @@
      "signal": "triangle_sym_haut",
      "frequence_ref": [
       "triangle_sym_haut"
-     ]
+     ],
+     "volume_cassure_ratio": 17.31
     },
     {
      "type": "triangle_sym",
@@ -2447,148 +1900,11 @@
      "signal": "triangle_sym_haut",
      "frequence_ref": [
       "triangle_sym_haut"
-     ]
+     ],
+     "volume_cassure_ratio": 17.31
     }
    ],
-   "lignes": [
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-03-09",
-       "prix": 1653.0
-      },
-      {
-       "date": "2026-07-17",
-       "prix": 1732.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 1784.3247,
-     "date_confirmation": "2026-08-13",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-09-09",
-     "date_fin": null,
-     "signal": "canal_rebond_support",
-     "frequence_ref": [
-      "canal_rebond_support"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-03-09",
-        "prix": 1943.8571
-       },
-       {
-        "date": "2026-07-17",
-        "prix": 2022.8571
-       }
-      ],
-      "prix_a_la_derniere_seance": 2075.1818
-     },
-     "sommet": {
-      "date": "2026-05-20",
-      "prix": 1989.0
-     }
-    },
-    {
-     "type": "oblique_haussiere",
-     "libelle": "Oblique ascendante",
-     "statut": "armee",
-     "points": [
-      {
-       "date": "2026-03-09",
-       "prix": 1653.0
-      },
-      {
-       "date": "2026-07-17",
-       "prix": 1732.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 1784.3247,
-     "date_confirmation": "2026-08-13",
-     "niveau_invalidation": {
-      "sur": 1989.0
-     },
-     "date_cassure": null,
-     "date_fin": null,
-     "signal": null,
-     "frequence_ref": [
-      "oblique_haussiere_cassee"
-     ],
-     "frequence_condition": "apres_cassure"
-    },
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-05-20",
-       "prix": 1989.0
-      },
-      {
-       "date": "2026-08-28",
-       "prix": 1901.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 1854.6,
-     "date_confirmation": "2026-09-08",
-     "niveau_invalidation": {
-      "sous": 1732.0
-     },
-     "date_cassure": "2026-09-30",
-     "date_fin": null,
-     "signal": "oblique_baissiere_cassee",
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ]
-    },
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "armee",
-     "points": [
-      {
-       "date": "2026-07-17",
-       "prix": 1732.0
-      },
-      {
-       "date": "2026-09-08",
-       "prix": 1786.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 1830.3571,
-     "date_confirmation": "2026-09-30",
-     "niveau_invalidation": null,
-     "date_cassure": null,
-     "date_fin": null,
-     "signal": null,
-     "frequence_ref": [
-      "canal_rebond_support",
-      "canal_cassure_bas"
-     ],
-     "frequence_condition": "apres_cassure",
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-07-17",
-        "prix": 1858.5714
-       },
-       {
-        "date": "2026-09-08",
-        "prix": 1912.5714
-       }
-      ],
-      "prix_a_la_derniere_seance": 1956.9286
-     },
-     "sommet": {
-      "date": "2026-08-28",
-      "prix": 1901.0
-     }
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_baissier",
@@ -2749,55 +2065,7 @@
    "montant_median_60_dh": 14994859,
    "liquide": true,
    "statut_titre": "analyse",
-   "figures": [
-    {
-     "type": "triangle_descendant",
-     "libelle": "Triangle descendant",
-     "orientation_classique": "baissiere",
-     "statut": "expiree",
-     "pivots": [
-      {
-       "date": "2026-01-09",
-       "prix": 764.5,
-       "type": "sommet",
-       "date_confirmation": "2026-03-02"
-      },
-      {
-       "date": "2026-03-09",
-       "prix": 667.9,
-       "type": "creux",
-       "date_confirmation": "2026-03-18"
-      },
-      {
-       "date": "2026-04-17",
-       "prix": 715.0,
-       "type": "sommet",
-       "date_confirmation": "2026-06-11"
-      },
-      {
-       "date": "2026-06-11",
-       "prix": 665.0,
-       "type": "creux",
-       "date_confirmation": "2026-06-15"
-      }
-     ],
-     "date_confirmation": "2026-06-15",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 665.0
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sur": 715.0
-     },
-     "date_cassure": null,
-     "date_fin": "2026-08-07",
-     "signal": "triangle_descendant",
-     "frequence_ref": [
-      "triangle_descendant"
-     ]
-    }
-   ],
+   "figures": [],
    "lignes": [],
    "gaps": [
     {
@@ -2909,7 +2177,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
+     ],
+     "volume_cassure_ratio": 0.17
     },
     {
      "type": "triangle_descendant",
@@ -2956,7 +2225,8 @@
      "signal": "triangle_descendant",
      "frequence_ref": [
       "triangle_descendant"
-     ]
+     ],
+     "volume_cassure_ratio": 0.8
     }
    ],
    "lignes": [],
@@ -3078,124 +2348,9 @@
      "frequence_ref": [
       "triangle_ascendant"
      ]
-    },
-    {
-     "type": "triangle_ascendant",
-     "libelle": "Triangle ascendant",
-     "orientation_classique": "haussiere",
-     "statut": "invalidee",
-     "pivots": [
-      {
-       "date": "2026-05-20",
-       "prix": 557.0,
-       "type": "creux",
-       "date_confirmation": "2026-05-22"
-      },
-      {
-       "date": "2026-06-16",
-       "prix": 630.0,
-       "type": "sommet",
-       "date_confirmation": "2026-07-17"
-      },
-      {
-       "date": "2026-07-20",
-       "prix": 581.2,
-       "type": "creux",
-       "date_confirmation": "2026-09-10"
-      },
-      {
-       "date": "2026-09-10",
-       "prix": 618.9,
-       "type": "sommet",
-       "date_confirmation": "2026-09-16"
-      }
-     ],
-     "date_confirmation": "2026-09-16",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 630.0
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sous": 581.2
-     },
-     "date_cassure": null,
-     "date_fin": "2026-09-16",
-     "signal": "triangle_ascendant",
-     "frequence_ref": [
-      "triangle_ascendant"
-     ]
     }
    ],
-   "lignes": [
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-05-20",
-       "prix": 557.0
-      },
-      {
-       "date": "2026-07-20",
-       "prix": 581.2
-      }
-     ],
-     "prix_a_la_derniere_seance": 623.3548,
-     "date_confirmation": "2026-09-10",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-09-14",
-     "date_fin": null,
-     "signal": "canal_cassure_bas",
-     "frequence_ref": [
-      "canal_cassure_bas"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-05-20",
-        "prix": 618.2903
-       },
-       {
-        "date": "2026-07-20",
-        "prix": 642.4903
-       }
-      ],
-      "prix_a_la_derniere_seance": 684.6452
-     },
-     "sommet": {
-      "date": "2026-06-16",
-      "prix": 630.0
-     }
-    },
-    {
-     "type": "oblique_haussiere",
-     "libelle": "Oblique ascendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-05-20",
-       "prix": 557.0
-      },
-      {
-       "date": "2026-07-20",
-       "prix": 581.2
-      }
-     ],
-     "prix_a_la_derniere_seance": 623.3548,
-     "date_confirmation": "2026-09-10",
-     "niveau_invalidation": {
-      "sur": 630.0
-     },
-     "date_cassure": "2026-09-11",
-     "date_fin": null,
-     "signal": "oblique_haussiere_cassee",
-     "frequence_ref": [
-      "oblique_haussiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_baissier",
@@ -3240,35 +2395,7 @@
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "armee",
-     "points": [
-      {
-       "date": "2026-05-25",
-       "prix": 209.95
-      },
-      {
-       "date": "2026-09-22",
-       "prix": 195.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 190.814,
-     "date_confirmation": "2026-10-07",
-     "niveau_invalidation": {
-      "sous": 178.0
-     },
-     "date_cassure": null,
-     "date_fin": null,
-     "signal": null,
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ],
-     "frequence_condition": "apres_cassure"
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_haussier",
@@ -3345,37 +2472,11 @@
      "signal": "triangle_sym_bas",
      "frequence_ref": [
       "triangle_sym_bas"
-     ]
-    }
-   ],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-08-10",
-       "prix": 25.5
-      },
-      {
-       "date": "2026-10-06",
-       "prix": 20.39
-      }
      ],
-     "prix_a_la_derniere_seance": 18.784,
-     "date_confirmation": "2026-10-09",
-     "niveau_invalidation": {
-      "sous": 18.0
-     },
-     "date_cassure": "2026-10-13",
-     "date_fin": null,
-     "signal": "oblique_baissiere_cassee",
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ]
+     "volume_cassure_ratio": 1.04
     }
    ],
+   "lignes": [],
    "gaps": [],
    "ecartes": {
     "traversent_une_rupture": 0,
@@ -3480,35 +2581,7 @@
      ]
     }
    ],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "armee",
-     "points": [
-      {
-       "date": "2026-04-17",
-       "prix": 219.0
-      },
-      {
-       "date": "2026-09-11",
-       "prix": 211.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 208.7021,
-     "date_confirmation": "2026-09-30",
-     "niveau_invalidation": {
-      "sous": 190.0
-     },
-     "date_cassure": null,
-     "date_fin": null,
-     "signal": null,
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ],
-     "frequence_condition": "apres_cassure"
-    }
-   ],
+   "lignes": [],
    "gaps": [],
    "ecartes": {
     "traversent_une_rupture": 0,
@@ -3579,7 +2652,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
+     ],
+     "volume_cassure_ratio": 12.82
     }
    ],
    "lignes": [],
@@ -3713,7 +2787,8 @@
      "signal": "triangle_descendant",
      "frequence_ref": [
       "triangle_descendant"
-     ]
+     ],
+     "volume_cassure_ratio": 1.31
     }
    ],
    "lignes": [],
@@ -3896,7 +2971,8 @@
      "signal": "ete",
      "frequence_ref": [
       "ete"
-     ]
+     ],
+     "volume_cassure_ratio": 3.0
     },
     {
      "type": "tasse_anse",
@@ -3984,78 +3060,11 @@
      "signal": "triangle_descendant",
      "frequence_ref": [
       "triangle_descendant"
-     ]
+     ],
+     "volume_cassure_ratio": 1.63
     }
    ],
-   "lignes": [
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-06-11",
-       "prix": 178.0
-      },
-      {
-       "date": "2026-07-28",
-       "prix": 181.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 186.0625,
-     "date_confirmation": "2026-08-10",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-09-18",
-     "date_fin": null,
-     "signal": "canal_cassure_bas",
-     "frequence_ref": [
-      "canal_cassure_bas"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-06-11",
-        "prix": 204.975
-       },
-       {
-        "date": "2026-07-28",
-        "prix": 207.975
-       }
-      ],
-      "prix_a_la_derniere_seance": 213.0375
-     },
-     "sommet": {
-      "date": "2026-06-30",
-      "prix": 206.1
-     }
-    },
-    {
-     "type": "oblique_haussiere",
-     "libelle": "Oblique ascendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-06-11",
-       "prix": 178.0
-      },
-      {
-       "date": "2026-07-28",
-       "prix": 181.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 186.0625,
-     "date_confirmation": "2026-08-10",
-     "niveau_invalidation": {
-      "sur": 206.1
-     },
-     "date_cassure": "2026-09-18",
-     "date_fin": null,
-     "signal": "oblique_haussiere_cassee",
-     "frequence_ref": [
-      "oblique_haussiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_baissier",
@@ -4111,7 +3120,8 @@
      "signal": "oblique_baissiere_cassee",
      "frequence_ref": [
       "oblique_baissiere_cassee"
-     ]
+     ],
+     "volume_cassure_ratio": 2.57
     }
    ],
    "gaps": [],
@@ -4268,7 +3278,8 @@
      "signal": "triangle_descendant",
      "frequence_ref": [
       "triangle_descendant"
-     ]
+     ],
+     "volume_cassure_ratio": 3.54
     },
     {
      "type": "tasse_anse",
@@ -4356,7 +3367,8 @@
      "signal": "triangle_descendant",
      "frequence_ref": [
       "triangle_descendant"
-     ]
+     ],
+     "volume_cassure_ratio": 3.54
     }
    ],
    "lignes": [],
@@ -4474,83 +3486,9 @@
      "frequence_ref": [
       "double_creux"
      ]
-    },
-    {
-     "type": "triangle_descendant",
-     "libelle": "Triangle descendant",
-     "orientation_classique": "baissiere",
-     "statut": "declenchee",
-     "pivots": [
-      {
-       "date": "2026-03-27",
-       "prix": 725.0,
-       "type": "creux",
-       "date_confirmation": "2026-04-10"
-      },
-      {
-       "date": "2026-06-16",
-       "prix": 812.0,
-       "type": "sommet",
-       "date_confirmation": "2026-06-25"
-      },
-      {
-       "date": "2026-06-30",
-       "prix": 737.6,
-       "type": "creux",
-       "date_confirmation": "2026-07-06"
-      },
-      {
-       "date": "2026-07-06",
-       "prix": 783.9,
-       "type": "sommet",
-       "date_confirmation": "2026-09-04"
-      }
-     ],
-     "date_confirmation": "2026-09-04",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 725.0
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sur": 783.9
-     },
-     "date_cassure": "2026-09-04",
-     "date_fin": null,
-     "signal": "triangle_descendant",
-     "frequence_ref": [
-      "triangle_descendant"
-     ]
     }
    ],
-   "lignes": [
-    {
-     "type": "oblique_haussiere",
-     "libelle": "Oblique ascendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-03-27",
-       "prix": 725.0
-      },
-      {
-       "date": "2026-06-30",
-       "prix": 737.6
-      }
-     ],
-     "prix_a_la_derniere_seance": 752.4355,
-     "date_confirmation": "2026-07-06",
-     "niveau_invalidation": {
-      "sur": 812.0
-     },
-     "date_cassure": "2026-09-04",
-     "date_fin": null,
-     "signal": "oblique_haussiere_cassee",
-     "frequence_ref": [
-      "oblique_haussiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_haussier",
@@ -4816,125 +3754,9 @@
       "0.786": 295.314
      },
      "date_constat": "2026-09-25"
-    },
-    {
-     "type": "triangle_sym",
-     "libelle": "Triangle symétrique",
-     "orientation_classique": "neutre",
-     "statut": "declenchee",
-     "pivots": [
-      {
-       "date": "2026-07-17",
-       "prix": 263.0,
-       "type": "creux",
-       "date_confirmation": "2026-08-03"
-      },
-      {
-       "date": "2026-08-19",
-       "prix": 414.0,
-       "type": "sommet",
-       "date_confirmation": "2026-08-31"
-      },
-      {
-       "date": "2026-09-18",
-       "prix": 336.0,
-       "type": "creux",
-       "date_confirmation": "2026-09-25"
-      },
-      {
-       "date": "2026-09-25",
-       "prix": 365.0,
-       "type": "sommet",
-       "date_confirmation": "2026-09-30"
-      }
-     ],
-     "date_confirmation": "2026-09-30",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 365.0
-     },
-     "niveau_declenchement_bas": {
-      "forme": "horizontal",
-      "prix": 336.0
-     },
-     "niveau_invalidation": null,
-     "date_cassure": "2026-09-30",
-     "date_fin": null,
-     "signal": "triangle_sym_bas",
-     "frequence_ref": [
-      "triangle_sym_bas"
-     ]
     }
    ],
-   "lignes": [
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-07-17",
-       "prix": 263.0
-      },
-      {
-       "date": "2026-09-18",
-       "prix": 336.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 380.1842,
-     "date_confirmation": "2026-09-25",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-09-29",
-     "date_fin": null,
-     "signal": "canal_rebond_support",
-     "frequence_ref": [
-      "canal_rebond_support"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-07-17",
-        "prix": 373.6579
-       },
-       {
-        "date": "2026-09-18",
-        "prix": 446.6579
-       }
-      ],
-      "prix_a_la_derniere_seance": 490.8421
-     },
-     "sommet": {
-      "date": "2026-08-19",
-      "prix": 414.0
-     }
-    },
-    {
-     "type": "oblique_haussiere",
-     "libelle": "Oblique ascendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-07-17",
-       "prix": 263.0
-      },
-      {
-       "date": "2026-09-18",
-       "prix": 336.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 380.1842,
-     "date_confirmation": "2026-09-25",
-     "niveau_invalidation": {
-      "sur": 414.0
-     },
-     "date_cassure": "2026-09-30",
-     "date_fin": null,
-     "signal": "oblique_haussiere_cassee",
-     "frequence_ref": [
-      "oblique_haussiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_haussier",
@@ -4978,55 +3800,7 @@
    "montant_median_60_dh": 118104,
    "liquide": false,
    "statut_titre": "analyse",
-   "figures": [
-    {
-     "type": "triangle_descendant",
-     "libelle": "Triangle descendant",
-     "orientation_classique": "baissiere",
-     "statut": "declenchee",
-     "pivots": [
-      {
-       "date": "2026-03-05",
-       "prix": 4050.0,
-       "type": "sommet",
-       "date_confirmation": "2026-03-06"
-      },
-      {
-       "date": "2026-03-06",
-       "prix": 3664.0,
-       "type": "creux",
-       "date_confirmation": "2026-03-12"
-      },
-      {
-       "date": "2026-03-12",
-       "prix": 3900.0,
-       "type": "sommet",
-       "date_confirmation": "2026-06-19"
-      },
-      {
-       "date": "2026-07-31",
-       "prix": 3636.0,
-       "type": "creux",
-       "date_confirmation": "2026-09-07"
-      }
-     ],
-     "date_confirmation": "2026-09-07",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 3636.0
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sur": 3900.0
-     },
-     "date_cassure": "2026-09-23",
-     "date_fin": null,
-     "signal": "triangle_descendant",
-     "frequence_ref": [
-      "triangle_descendant"
-     ]
-    }
-   ],
+   "figures": [],
    "lignes": [],
    "gaps": [
     {
@@ -5172,7 +3946,8 @@
      "signal": "triangle_descendant",
      "frequence_ref": [
       "triangle_descendant"
-     ]
+     ],
+     "volume_cassure_ratio": 20.92
     },
     {
      "type": "triangle_descendant",
@@ -5219,7 +3994,8 @@
      "signal": "triangle_descendant",
      "frequence_ref": [
       "triangle_descendant"
-     ]
+     ],
+     "volume_cassure_ratio": 20.92
     }
    ],
    "lignes": [],
@@ -5318,7 +4094,8 @@
      "signal": "double_creux",
      "frequence_ref": [
       "double_creux"
-     ]
+     ],
+     "volume_cassure_ratio": 1.08
     }
    ],
    "lignes": [
@@ -5346,48 +4123,8 @@
      "signal": "oblique_baissiere_cassee",
      "frequence_ref": [
       "oblique_baissiere_cassee"
-     ]
-    },
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-06-11",
-       "prix": 585.2
-      },
-      {
-       "date": "2026-07-29",
-       "prix": 590.0
-      }
      ],
-     "prix_a_la_derniere_seance": 597.7091,
-     "date_confirmation": "2026-08-07",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-10-02",
-     "date_fin": null,
-     "signal": "canal_cassure_bas",
-     "frequence_ref": [
-      "canal_cassure_bas"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-06-11",
-        "prix": 644.4636
-       },
-       {
-        "date": "2026-07-29",
-        "prix": 649.2636
-       }
-      ],
-      "prix_a_la_derniere_seance": 656.9727
-     },
-     "sommet": {
-      "date": "2026-06-16",
-      "prix": 644.9
-     }
+     "volume_cassure_ratio": 9.11
     }
    ],
    "gaps": [],
@@ -5444,54 +4181,8 @@
      "signal": "double_creux",
      "frequence_ref": [
       "double_creux"
-     ]
-    },
-    {
-     "type": "triangle_descendant",
-     "libelle": "Triangle descendant",
-     "orientation_classique": "baissiere",
-     "statut": "invalidee",
-     "pivots": [
-      {
-       "date": "2026-01-05",
-       "prix": 114.4,
-       "type": "sommet",
-       "date_confirmation": "2026-01-26"
-      },
-      {
-       "date": "2026-03-09",
-       "prix": 90.0,
-       "type": "creux",
-       "date_confirmation": "2026-03-18"
-      },
-      {
-       "date": "2026-04-17",
-       "prix": 99.0,
-       "type": "sommet",
-       "date_confirmation": "2026-05-15"
-      },
-      {
-       "date": "2026-06-11",
-       "prix": 89.99,
-       "type": "creux",
-       "date_confirmation": "2026-08-05"
-      }
      ],
-     "date_confirmation": "2026-08-05",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 89.99
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sur": 99.0
-     },
-     "date_cassure": null,
-     "date_fin": "2026-08-07",
-     "signal": "triangle_descendant",
-     "frequence_ref": [
-      "triangle_descendant"
-     ]
+     "volume_cassure_ratio": 7.56
     }
    ],
    "lignes": [],
@@ -5571,84 +4262,11 @@
      "signal": "triangle_sym_bas",
      "frequence_ref": [
       "triangle_sym_bas"
-     ]
-    },
-    {
-     "type": "triangle_descendant",
-     "libelle": "Triangle descendant",
-     "orientation_classique": "baissiere",
-     "statut": "invalidee",
-     "pivots": [
-      {
-       "date": "2026-09-07",
-       "prix": 60.0,
-       "type": "sommet",
-       "date_confirmation": "2026-09-14"
-      },
-      {
-       "date": "2026-10-05",
-       "prix": 49.49,
-       "type": "creux",
-       "date_confirmation": "2026-10-06"
-      },
-      {
-       "date": "2026-10-06",
-       "prix": 53.9,
-       "type": "sommet",
-       "date_confirmation": "2026-10-15"
-      },
-      {
-       "date": "2026-10-15",
-       "prix": 50.1,
-       "type": "creux",
-       "date_confirmation": "2026-10-19"
-      }
      ],
-     "date_confirmation": "2026-10-19",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 49.49
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sur": 53.9
-     },
-     "date_cassure": null,
-     "date_fin": "2026-10-19",
-     "signal": "triangle_descendant",
-     "frequence_ref": [
-      "triangle_descendant"
-     ]
+     "volume_cassure_ratio": 10.49
     }
    ],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-06-15",
-       "prix": 67.0
-      },
-      {
-       "date": "2026-07-29",
-       "prix": 61.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 47.9091,
-     "date_confirmation": "2026-08-05",
-     "niveau_invalidation": {
-      "sous": 54.0
-     },
-     "date_cassure": "2026-08-06",
-     "date_fin": null,
-     "signal": "oblique_baissiere_cassee",
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_haussier",
@@ -5987,7 +4605,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
+     ],
+     "volume_cassure_ratio": 2.2
     }
    ],
    "lignes": [],
@@ -6119,35 +4738,7 @@
      ]
     }
    ],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "armee",
-     "points": [
-      {
-       "date": "2026-04-17",
-       "prix": 4399.0
-      },
-      {
-       "date": "2026-09-01",
-       "prix": 4290.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 4245.6395,
-     "date_confirmation": "2026-09-18",
-     "niveau_invalidation": {
-      "sous": 3522.0
-     },
-     "date_cassure": null,
-     "date_fin": null,
-     "signal": null,
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ],
-     "frequence_condition": "apres_cassure"
-    }
-   ],
+   "lignes": [],
    "gaps": [],
    "ecartes": {
     "traversent_une_rupture": 0,
@@ -6287,34 +4878,7 @@
      ]
     }
    ],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-05-06",
-       "prix": 441.9
-      },
-      {
-       "date": "2026-07-24",
-       "prix": 387.4
-      }
-     ],
-     "prix_a_la_derniere_seance": 339.3881,
-     "date_confirmation": "2026-07-27",
-     "niveau_invalidation": {
-      "sous": 360.0
-     },
-     "date_cassure": "2026-07-29",
-     "date_fin": null,
-     "signal": "oblique_baissiere_cassee",
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_baissier",
@@ -6476,124 +5040,9 @@
      "frequence_ref": [
       "double_sommet"
      ]
-    },
-    {
-     "type": "triangle_ascendant",
-     "libelle": "Triangle ascendant",
-     "orientation_classique": "haussiere",
-     "statut": "declenchee",
-     "pivots": [
-      {
-       "date": "2026-03-03",
-       "prix": 21.5,
-       "type": "creux",
-       "date_confirmation": "2026-03-04"
-      },
-      {
-       "date": "2026-04-21",
-       "prix": 27.0,
-       "type": "sommet",
-       "date_confirmation": "2026-04-29"
-      },
-      {
-       "date": "2026-06-05",
-       "prix": 24.19,
-       "type": "creux",
-       "date_confirmation": "2026-06-18"
-      },
-      {
-       "date": "2026-07-14",
-       "prix": 26.5,
-       "type": "sommet",
-       "date_confirmation": "2026-07-31"
-      }
-     ],
-     "date_confirmation": "2026-07-31",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 27.0
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sous": 24.19
-     },
-     "date_cassure": "2026-08-13",
-     "date_fin": null,
-     "signal": "triangle_ascendant",
-     "frequence_ref": [
-      "triangle_ascendant"
-     ]
     }
    ],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-04-21",
-       "prix": 27.0
-      },
-      {
-       "date": "2026-07-14",
-       "prix": 26.5
-      }
-     ],
-     "prix_a_la_derniere_seance": 25.9182,
-     "date_confirmation": "2026-07-31",
-     "niveau_invalidation": {
-      "sous": 24.19
-     },
-     "date_cassure": "2026-08-12",
-     "date_fin": null,
-     "signal": "oblique_baissiere_cassee",
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ]
-    },
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-06-05",
-       "prix": 24.19
-      },
-      {
-       "date": "2026-07-31",
-       "prix": 24.8
-      }
-     ],
-     "prix_a_la_derniere_seance": 25.6347,
-     "date_confirmation": "2026-08-12",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-09-02",
-     "date_fin": null,
-     "signal": "canal_cassure_bas",
-     "frequence_ref": [
-      "canal_cassure_bas"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-06-05",
-        "prix": 26.0826
-       },
-       {
-        "date": "2026-07-31",
-        "prix": 26.6926
-       }
-      ],
-      "prix_a_la_derniere_seance": 27.5274
-     },
-     "sommet": {
-      "date": "2026-07-14",
-      "prix": 26.5
-     }
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_baissier",
@@ -6818,7 +5267,8 @@
      "signal": "double_creux",
      "frequence_ref": [
       "double_creux"
-     ]
+     ],
+     "volume_cassure_ratio": 3.45
     },
     {
      "type": "triangle_descendant",
@@ -7057,7 +5507,7 @@
     }
    ],
    "ecartes": {
-    "traversent_une_rupture": 5,
+    "traversent_une_rupture": 2,
     "gaps_interrompus_par_une_rupture": 0,
     "gaps_anterieurs_a_une_rupture": 0,
     "anterieures_a_une_rupture": 0
@@ -7118,34 +5568,7 @@
      ]
     }
    ],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-03-18",
-       "prix": 402.9
-      },
-      {
-       "date": "2026-06-26",
-       "prix": 386.9
-      }
-     ],
-     "prix_a_la_derniere_seance": 367.7,
-     "date_confirmation": "2026-07-14",
-     "niveau_invalidation": {
-      "sous": 356.7
-     },
-     "date_cassure": "2026-08-04",
-     "date_fin": null,
-     "signal": "oblique_baissiere_cassee",
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_haussier",
@@ -7229,70 +5652,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
-    },
-    {
-     "type": "ete_inversee",
-     "libelle": "Épaule-tête-épaule inversée",
-     "orientation_classique": "haussiere",
-     "statut": "invalidee",
-     "pivots": [
-      {
-       "date": "2025-10-30",
-       "prix": 356.1,
-       "type": "creux",
-       "date_confirmation": "2025-11-04"
-      },
-      {
-       "date": "2025-11-04",
-       "prix": 382.0,
-       "type": "sommet",
-       "date_confirmation": "2025-11-19"
-      },
-      {
-       "date": "2025-11-21",
-       "prix": 341.0,
-       "type": "creux",
-       "date_confirmation": "2025-11-28"
-      },
-      {
-       "date": "2025-12-19",
-       "prix": 384.8,
-       "type": "sommet",
-       "date_confirmation": "2025-12-24"
-      },
-      {
-       "date": "2025-12-24",
-       "prix": 357.2,
-       "type": "creux",
-       "date_confirmation": "2026-01-02"
-      }
      ],
-     "date_confirmation": "2026-01-02",
-     "niveau_declenchement": {
-      "forme": "oblique",
-      "points": [
-       {
-        "date": "2025-11-04",
-        "prix": 382.0
-       },
-       {
-        "date": "2025-12-19",
-        "prix": 384.8
-       }
-      ],
-      "prix_a_la_derniere_seance": 395.4105
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sous": 341.0
-     },
-     "date_cassure": null,
-     "date_fin": "2026-03-02",
-     "signal": "ete_inversee",
-     "frequence_ref": [
-      "ete_inversee"
-     ]
+     "volume_cassure_ratio": 21.6
     },
     {
      "type": "triangle_ascendant",
@@ -7326,53 +5687,6 @@
       }
      ],
      "date_confirmation": "2026-01-02",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 384.8
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sous": 357.2
-     },
-     "date_cassure": null,
-     "date_fin": "2026-02-05",
-     "signal": "triangle_ascendant",
-     "frequence_ref": [
-      "triangle_ascendant"
-     ]
-    },
-    {
-     "type": "triangle_ascendant",
-     "libelle": "Triangle ascendant",
-     "orientation_classique": "haussiere",
-     "statut": "invalidee",
-     "pivots": [
-      {
-       "date": "2025-11-21",
-       "prix": 341.0,
-       "type": "creux",
-       "date_confirmation": "2025-11-28"
-      },
-      {
-       "date": "2025-12-19",
-       "prix": 384.8,
-       "type": "sommet",
-       "date_confirmation": "2025-12-24"
-      },
-      {
-       "date": "2025-12-24",
-       "prix": 357.2,
-       "type": "creux",
-       "date_confirmation": "2026-01-02"
-      },
-      {
-       "date": "2026-01-02",
-       "prix": 380.9,
-       "type": "sommet",
-       "date_confirmation": "2026-02-05"
-      }
-     ],
-     "date_confirmation": "2026-02-05",
      "niveau_declenchement": {
       "forme": "horizontal",
       "prix": 384.8
@@ -7469,54 +5783,11 @@
      "signal": "double_creux",
      "frequence_ref": [
       "double_creux"
-     ]
+     ],
+     "volume_cassure_ratio": 3.33
     }
    ],
-   "lignes": [
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "armee",
-     "points": [
-      {
-       "date": "2026-03-02",
-       "prix": 337.0
-      },
-      {
-       "date": "2026-07-10",
-       "prix": 340.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 342.8696,
-     "date_confirmation": "2026-07-17",
-     "niveau_invalidation": null,
-     "date_cassure": null,
-     "date_fin": null,
-     "signal": null,
-     "frequence_ref": [
-      "canal_rebond_support",
-      "canal_cassure_bas"
-     ],
-     "frequence_condition": "apres_cassure",
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-03-02",
-        "prix": 382.2043
-       },
-       {
-        "date": "2026-07-10",
-        "prix": 385.2043
-       }
-      ],
-      "prix_a_la_derniere_seance": 388.0739
-     },
-     "sommet": {
-      "date": "2026-04-24",
-      "prix": 383.9
-     }
-    }
-   ],
+   "lignes": [],
    "gaps": [],
    "ecartes": {
     "traversent_une_rupture": 0,
@@ -7532,55 +5803,6 @@
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
-    {
-     "type": "triangle_sym",
-     "libelle": "Triangle symétrique",
-     "orientation_classique": "neutre",
-     "statut": "expiree",
-     "pivots": [
-      {
-       "date": "2025-11-03",
-       "prix": 1001.0,
-       "type": "sommet",
-       "date_confirmation": "2025-11-19"
-      },
-      {
-       "date": "2026-03-03",
-       "prix": 702.1,
-       "type": "creux",
-       "date_confirmation": "2026-03-05"
-      },
-      {
-       "date": "2026-04-21",
-       "prix": 900.0,
-       "type": "sommet",
-       "date_confirmation": "2026-04-30"
-      },
-      {
-       "date": "2026-06-11",
-       "prix": 800.1,
-       "type": "creux",
-       "date_confirmation": "2026-06-15"
-      }
-     ],
-     "date_confirmation": "2026-06-15",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 900.0
-     },
-     "niveau_declenchement_bas": {
-      "forme": "horizontal",
-      "prix": 800.1
-     },
-     "niveau_invalidation": null,
-     "date_cassure": null,
-     "date_fin": "2026-08-07",
-     "signal": null,
-     "frequence_ref": [
-      "triangle_sym_haut",
-      "triangle_sym_bas"
-     ]
-    },
     {
      "type": "double_sommet",
      "libelle": "Double sommet",
@@ -7620,99 +5842,11 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
-    },
-    {
-     "type": "triangle_ascendant",
-     "libelle": "Triangle ascendant",
-     "orientation_classique": "haussiere",
-     "statut": "invalidee",
-     "pivots": [
-      {
-       "date": "2026-03-03",
-       "prix": 702.1,
-       "type": "creux",
-       "date_confirmation": "2026-03-05"
-      },
-      {
-       "date": "2026-04-21",
-       "prix": 900.0,
-       "type": "sommet",
-       "date_confirmation": "2026-04-30"
-      },
-      {
-       "date": "2026-06-11",
-       "prix": 800.1,
-       "type": "creux",
-       "date_confirmation": "2026-06-15"
-      },
-      {
-       "date": "2026-08-07",
-       "prix": 889.0,
-       "type": "sommet",
-       "date_confirmation": "2026-09-16"
-      }
      ],
-     "date_confirmation": "2026-09-16",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 900.0
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sous": 800.1
-     },
-     "date_cassure": null,
-     "date_fin": "2026-10-01",
-     "signal": "triangle_ascendant",
-     "frequence_ref": [
-      "triangle_ascendant"
-     ]
+     "volume_cassure_ratio": 0.62
     }
    ],
-   "lignes": [
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-03-03",
-       "prix": 702.1
-      },
-      {
-       "date": "2026-06-11",
-       "prix": 800.1
-      }
-     ],
-     "prix_a_la_derniere_seance": 927.797,
-     "date_confirmation": "2026-06-15",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-07-24",
-     "date_fin": null,
-     "signal": "canal_rebond_support",
-     "frequence_ref": [
-      "canal_rebond_support"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-03-03",
-        "prix": 851.0
-       },
-       {
-        "date": "2026-06-11",
-        "prix": 949.0
-       }
-      ],
-      "prix_a_la_derniere_seance": 1076.697
-     },
-     "sommet": {
-      "date": "2026-04-21",
-      "prix": 900.0
-     }
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_haussier",
@@ -7870,7 +6004,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
+     ],
+     "volume_cassure_ratio": 2.54
     }
    ],
    "lignes": [],
@@ -7978,53 +6113,6 @@
      "frequence_ref": [
       "ete"
      ]
-    },
-    {
-     "type": "triangle_descendant",
-     "libelle": "Triangle descendant",
-     "orientation_classique": "baissiere",
-     "statut": "invalidee",
-     "pivots": [
-      {
-       "date": "2026-06-03",
-       "prix": 1290.0,
-       "type": "sommet",
-       "date_confirmation": "2026-06-08"
-      },
-      {
-       "date": "2026-08-17",
-       "prix": 1097.0,
-       "type": "creux",
-       "date_confirmation": "2026-08-31"
-      },
-      {
-       "date": "2026-08-31",
-       "prix": 1165.0,
-       "type": "sommet",
-       "date_confirmation": "2026-09-28"
-      },
-      {
-       "date": "2026-09-28",
-       "prix": 1091.0,
-       "type": "creux",
-       "date_confirmation": "2026-10-02"
-      }
-     ],
-     "date_confirmation": "2026-10-02",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 1091.0
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sur": 1165.0
-     },
-     "date_cassure": null,
-     "date_fin": "2026-10-08",
-     "signal": "triangle_descendant",
-     "frequence_ref": [
-      "triangle_descendant"
-     ]
     }
    ],
    "lignes": [],
@@ -8097,101 +6185,7 @@
      ]
     }
    ],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-05-07",
-       "prix": 181.9
-      },
-      {
-       "date": "2026-06-16",
-       "prix": 178.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 165.052,
-     "date_confirmation": "2026-07-14",
-     "niveau_invalidation": {
-      "sous": 156.1
-     },
-     "date_cassure": "2026-08-07",
-     "date_fin": null,
-     "signal": "oblique_baissiere_cassee",
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ]
-    },
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-06-11",
-       "prix": 156.1
-      },
-      {
-       "date": "2026-07-14",
-       "prix": 165.2
-      }
-     ],
-     "prix_a_la_derniere_seance": 191.6727,
-     "date_confirmation": "2026-08-07",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-08-24",
-     "date_fin": null,
-     "signal": "canal_rebond_support",
-     "frequence_ref": [
-      "canal_rebond_support"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-06-11",
-        "prix": 176.7591
-       },
-       {
-        "date": "2026-07-14",
-        "prix": 185.8591
-       }
-      ],
-      "prix_a_la_derniere_seance": 212.3318
-     },
-     "sommet": {
-      "date": "2026-06-16",
-      "prix": 178.0
-     }
-    },
-    {
-     "type": "oblique_haussiere",
-     "libelle": "Oblique ascendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-06-11",
-       "prix": 156.1
-      },
-      {
-       "date": "2026-07-14",
-       "prix": 165.2
-      }
-     ],
-     "prix_a_la_derniere_seance": 191.6727,
-     "date_confirmation": "2026-08-07",
-     "niveau_invalidation": {
-      "sur": 178.0
-     },
-     "date_cassure": "2026-08-12",
-     "date_fin": null,
-     "signal": "oblique_haussiere_cassee",
-     "frequence_ref": [
-      "oblique_haussiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [],
    "ecartes": {
     "traversent_une_rupture": 0,
@@ -8282,55 +6276,7 @@
    "montant_median_60_dh": 256289,
    "liquide": true,
    "statut_titre": "analyse",
-   "figures": [
-    {
-     "type": "triangle_ascendant",
-     "libelle": "Triangle ascendant",
-     "orientation_classique": "haussiere",
-     "statut": "declenchee",
-     "pivots": [
-      {
-       "date": "2026-07-28",
-       "prix": 451.0,
-       "type": "creux",
-       "date_confirmation": "2026-08-10"
-      },
-      {
-       "date": "2026-08-17",
-       "prix": 532.0,
-       "type": "sommet",
-       "date_confirmation": "2026-08-31"
-      },
-      {
-       "date": "2026-08-31",
-       "prix": 500.0,
-       "type": "creux",
-       "date_confirmation": "2026-09-01"
-      },
-      {
-       "date": "2026-09-02",
-       "prix": 539.9,
-       "type": "sommet",
-       "date_confirmation": "2026-09-18"
-      }
-     ],
-     "date_confirmation": "2026-09-18",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 539.9
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sous": 500.0
-     },
-     "date_cassure": "2026-09-30",
-     "date_fin": null,
-     "signal": "triangle_ascendant",
-     "frequence_ref": [
-      "triangle_ascendant"
-     ]
-    }
-   ],
+   "figures": [],
    "lignes": [],
    "gaps": [],
    "ecartes": {
@@ -8347,53 +6293,6 @@
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [
-    {
-     "type": "triangle_ascendant",
-     "libelle": "Triangle ascendant",
-     "orientation_classique": "haussiere",
-     "statut": "invalidee",
-     "pivots": [
-      {
-       "date": "2026-03-09",
-       "prix": 2037.0,
-       "type": "creux",
-       "date_confirmation": "2026-03-13"
-      },
-      {
-       "date": "2026-04-14",
-       "prix": 3140.0,
-       "type": "sommet",
-       "date_confirmation": "2026-04-20"
-      },
-      {
-       "date": "2026-04-20",
-       "prix": 2900.0,
-       "type": "creux",
-       "date_confirmation": "2026-04-21"
-      },
-      {
-       "date": "2026-05-06",
-       "prix": 3120.0,
-       "type": "sommet",
-       "date_confirmation": "2026-06-09"
-      }
-     ],
-     "date_confirmation": "2026-06-09",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 3140.0
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sous": 2900.0
-     },
-     "date_cassure": null,
-     "date_fin": "2026-06-24",
-     "signal": "triangle_ascendant",
-     "frequence_ref": [
-      "triangle_ascendant"
-     ]
-    },
     {
      "type": "double_creux",
      "libelle": "Double creux",
@@ -8433,7 +6332,8 @@
      "signal": "double_creux",
      "frequence_ref": [
       "double_creux"
-     ]
+     ],
+     "volume_cassure_ratio": 10.29
     },
     {
      "type": "double_sommet",
@@ -8478,51 +6378,7 @@
      "frequence_condition": "apres_cassure"
     }
    ],
-   "lignes": [
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "armee",
-     "points": [
-      {
-       "date": "2026-06-24",
-       "prix": 2765.0
-      },
-      {
-       "date": "2026-08-24",
-       "prix": 2800.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 2826.5517,
-     "date_confirmation": "2026-09-04",
-     "niveau_invalidation": null,
-     "date_cassure": null,
-     "date_fin": null,
-     "signal": null,
-     "frequence_ref": [
-      "canal_rebond_support",
-      "canal_cassure_bas"
-     ],
-     "frequence_condition": "apres_cassure",
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-06-24",
-        "prix": 3081.5517
-       },
-       {
-        "date": "2026-08-24",
-        "prix": 3116.5517
-       }
-      ],
-      "prix_a_la_derniere_seance": 3143.1034
-     },
-     "sommet": {
-      "date": "2026-07-10",
-      "prix": 3090.0
-     }
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_baissier",
@@ -8698,7 +6554,8 @@
      "signal": "ete",
      "frequence_ref": [
       "ete"
-     ]
+     ],
+     "volume_cassure_ratio": 5.93
     },
     {
      "type": "triangle_descendant",
@@ -8745,7 +6602,8 @@
      "signal": "triangle_descendant",
      "frequence_ref": [
       "triangle_descendant"
-     ]
+     ],
+     "volume_cassure_ratio": 5.93
     },
     {
      "type": "triangle_descendant",
@@ -8792,78 +6650,11 @@
      "signal": "triangle_descendant",
      "frequence_ref": [
       "triangle_descendant"
-     ]
+     ],
+     "volume_cassure_ratio": 0.61
     }
    ],
-   "lignes": [
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-03-24",
-       "prix": 2001.0
-      },
-      {
-       "date": "2026-06-25",
-       "prix": 2012.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 2024.4043,
-     "date_confirmation": "2026-06-30",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-07-06",
-     "date_fin": null,
-     "signal": "canal_rebond_support",
-     "frequence_ref": [
-      "canal_rebond_support"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-03-24",
-        "prix": 2443.9149
-       },
-       {
-        "date": "2026-06-25",
-        "prix": 2454.9149
-       }
-      ],
-      "prix_a_la_derniere_seance": 2467.3191
-     },
-     "sommet": {
-      "date": "2026-05-06",
-      "prix": 2450.0
-     }
-    },
-    {
-     "type": "oblique_haussiere",
-     "libelle": "Oblique ascendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-03-24",
-       "prix": 2001.0
-      },
-      {
-       "date": "2026-06-25",
-       "prix": 2012.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 2024.4043,
-     "date_confirmation": "2026-06-30",
-     "niveau_invalidation": {
-      "sur": 2450.0
-     },
-     "date_cassure": "2026-07-14",
-     "date_fin": null,
-     "signal": "oblique_haussiere_cassee",
-     "frequence_ref": [
-      "oblique_haussiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_haussier",
@@ -8964,34 +6755,7 @@
      ]
     }
    ],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-08-07",
-       "prix": 734.0
-      },
-      {
-       "date": "2026-09-23",
-       "prix": 639.9
-      }
-     ],
-     "prix_a_la_derniere_seance": 570.1963,
-     "date_confirmation": "2026-10-02",
-     "niveau_invalidation": {
-      "sous": 580.0
-     },
-     "date_cassure": "2026-10-14",
-     "date_fin": null,
-     "signal": "oblique_baissiere_cassee",
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [],
    "ecartes": {
     "traversent_une_rupture": 0,
@@ -9032,7 +6796,8 @@
      "signal": "oblique_baissiere_cassee",
      "frequence_ref": [
       "oblique_baissiere_cassee"
-     ]
+     ],
+     "volume_cassure_ratio": 0.21
     }
    ],
    "gaps": [],
@@ -9089,54 +6854,8 @@
      "signal": "double_creux",
      "frequence_ref": [
       "double_creux"
-     ]
-    },
-    {
-     "type": "triangle_descendant",
-     "libelle": "Triangle descendant",
-     "orientation_classique": "baissiere",
-     "statut": "invalidee",
-     "pivots": [
-      {
-       "date": "2026-06-16",
-       "prix": 7750.0,
-       "type": "sommet",
-       "date_confirmation": "2026-06-18"
-      },
-      {
-       "date": "2026-06-24",
-       "prix": 5772.0,
-       "type": "creux",
-       "date_confirmation": "2026-07-01"
-      },
-      {
-       "date": "2026-07-03",
-       "prix": 6580.0,
-       "type": "sommet",
-       "date_confirmation": "2026-07-08"
-      },
-      {
-       "date": "2026-07-16",
-       "prix": 5851.0,
-       "type": "creux",
-       "date_confirmation": "2026-07-22"
-      }
      ],
-     "date_confirmation": "2026-07-22",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 5772.0
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sur": 6580.0
-     },
-     "date_cassure": null,
-     "date_fin": "2026-08-05",
-     "signal": "triangle_descendant",
-     "frequence_ref": [
-      "triangle_descendant"
-     ]
+     "volume_cassure_ratio": 4.66
     }
    ],
    "lignes": [],
@@ -9285,7 +7004,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
+     ],
+     "volume_cassure_ratio": 16.74
     },
     {
      "type": "double_creux",
@@ -9370,104 +7090,10 @@
      ]
     }
    ],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-06-01",
-       "prix": 395.0
-      },
-      {
-       "date": "2026-07-03",
-       "prix": 385.95
-      }
-     ],
-     "prix_a_la_derniere_seance": 356.2143,
-     "date_confirmation": "2026-07-07",
-     "niveau_invalidation": {
-      "sous": 350.0
-     },
-     "date_cassure": "2026-09-02",
-     "date_fin": null,
-     "signal": "oblique_baissiere_cassee",
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ]
-    },
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-06-11",
-       "prix": 350.0
-      },
-      {
-       "date": "2026-07-22",
-       "prix": 355.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 365.7692,
-     "date_confirmation": "2026-09-02",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-09-04",
-     "date_fin": null,
-     "signal": "canal_cassure_bas",
-     "frequence_ref": [
-      "canal_cassure_bas"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-06-11",
-        "prix": 383.45
-       },
-       {
-        "date": "2026-07-22",
-        "prix": 388.45
-       }
-      ],
-      "prix_a_la_derniere_seance": 399.2192
-     },
-     "sommet": {
-      "date": "2026-07-03",
-      "prix": 385.95
-     }
-    },
-    {
-     "type": "oblique_haussiere",
-     "libelle": "Oblique ascendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-06-11",
-       "prix": 350.0
-      },
-      {
-       "date": "2026-07-22",
-       "prix": 355.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 365.7692,
-     "date_confirmation": "2026-09-02",
-     "niveau_invalidation": {
-      "sur": 385.95
-     },
-     "date_cassure": "2026-09-04",
-     "date_fin": null,
-     "signal": "oblique_haussiere_cassee",
-     "frequence_ref": [
-      "oblique_haussiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [],
    "ecartes": {
-    "traversent_une_rupture": 1,
+    "traversent_une_rupture": 0,
     "gaps_interrompus_par_une_rupture": 0,
     "gaps_anterieurs_a_une_rupture": 0,
     "anterieures_a_une_rupture": 0
@@ -9479,124 +7105,8 @@
    "montant_median_60_dh": 5550,
    "liquide": false,
    "statut_titre": "analyse",
-   "figures": [
-    {
-     "type": "triangle_ascendant",
-     "libelle": "Triangle ascendant",
-     "orientation_classique": "haussiere",
-     "statut": "invalidee",
-     "pivots": [
-      {
-       "date": "2026-03-03",
-       "prix": 400.0,
-       "type": "creux",
-       "date_confirmation": "2026-03-04"
-      },
-      {
-       "date": "2026-04-08",
-       "prix": 515.0,
-       "type": "sommet",
-       "date_confirmation": "2026-04-24"
-      },
-      {
-       "date": "2026-04-24",
-       "prix": 477.2,
-       "type": "creux",
-       "date_confirmation": "2026-04-27"
-      },
-      {
-       "date": "2026-04-27",
-       "prix": 513.0,
-       "type": "sommet",
-       "date_confirmation": "2026-05-15"
-      }
-     ],
-     "date_confirmation": "2026-05-15",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 515.0
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sous": 477.2
-     },
-     "date_cassure": null,
-     "date_fin": "2026-05-18",
-     "signal": "triangle_ascendant",
-     "frequence_ref": [
-      "triangle_ascendant"
-     ]
-    }
-   ],
-   "lignes": [
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-03-03",
-       "prix": 400.0
-      },
-      {
-       "date": "2026-04-24",
-       "prix": 477.2
-      }
-     ],
-     "prix_a_la_derniere_seance": 640.864,
-     "date_confirmation": "2026-04-27",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-05-11",
-     "date_fin": null,
-     "signal": "canal_cassure_bas",
-     "frequence_ref": [
-      "canal_cassure_bas"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-03-03",
-        "prix": 465.592
-       },
-       {
-        "date": "2026-04-24",
-        "prix": 542.792
-       }
-      ],
-      "prix_a_la_derniere_seance": 706.456
-     },
-     "sommet": {
-      "date": "2026-04-08",
-      "prix": 515.0
-     }
-    },
-    {
-     "type": "oblique_haussiere",
-     "libelle": "Oblique ascendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-03-03",
-       "prix": 400.0
-      },
-      {
-       "date": "2026-04-24",
-       "prix": 477.2
-      }
-     ],
-     "prix_a_la_derniere_seance": 640.864,
-     "date_confirmation": "2026-04-27",
-     "niveau_invalidation": {
-      "sur": 515.0
-     },
-     "date_cassure": "2026-05-04",
-     "date_fin": null,
-     "signal": "oblique_haussiere_cassee",
-     "frequence_ref": [
-      "oblique_haussiere_cassee"
-     ]
-    }
-   ],
+   "figures": [],
+   "lignes": [],
    "gaps": [],
    "ecartes": {
     "traversent_une_rupture": 0,
@@ -9612,34 +7122,7 @@
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-08-06",
-       "prix": 75.0
-      },
-      {
-       "date": "2026-10-07",
-       "prix": 50.95
-      }
-     ],
-     "prix_a_la_derniere_seance": 44.6211,
-     "date_confirmation": "2026-10-16",
-     "niveau_invalidation": {
-      "sous": 46.18
-     },
-     "date_cassure": "2026-10-16",
-     "date_fin": null,
-     "signal": "oblique_baissiere_cassee",
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_haussier",
@@ -9723,7 +7206,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
+     ],
+     "volume_cassure_ratio": 2.49
     },
     {
      "type": "tasse_anse",
@@ -9764,7 +7248,8 @@
      "signal": "tasse_anse",
      "frequence_ref": [
       "tasse_anse"
-     ]
+     ],
+     "volume_cassure_ratio": 10.23
     },
     {
      "type": "ete_inversee",
@@ -9827,78 +7312,11 @@
      "signal": "ete_inversee",
      "frequence_ref": [
       "ete_inversee"
-     ]
+     ],
+     "volume_cassure_ratio": 10.23
     }
    ],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-06-15",
-       "prix": 202.0
-      },
-      {
-       "date": "2026-08-06",
-       "prix": 196.5
-      }
-     ],
-     "prix_a_la_derniere_seance": 189.1667,
-     "date_confirmation": "2026-08-24",
-     "niveau_invalidation": {
-      "sous": 167.6
-     },
-     "date_cassure": "2026-08-27",
-     "date_fin": null,
-     "signal": "oblique_baissiere_cassee",
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ]
-    },
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-07-14",
-       "prix": 167.6
-      },
-      {
-       "date": "2026-08-24",
-       "prix": 184.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 209.584,
-     "date_confirmation": "2026-08-27",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-09-03",
-     "date_fin": null,
-     "signal": "canal_cassure_bas",
-     "frequence_ref": [
-      "canal_cassure_bas"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-07-14",
-        "prix": 186.004
-       },
-       {
-        "date": "2026-08-24",
-        "prix": 202.404
-       }
-      ],
-      "prix_a_la_derniere_seance": 227.988
-     },
-     "sommet": {
-      "date": "2026-08-06",
-      "prix": 196.5
-     }
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_haussier",
@@ -10052,7 +7470,8 @@
      "signal": "triangle_descendant",
      "frequence_ref": [
       "triangle_descendant"
-     ]
+     ],
+     "volume_cassure_ratio": 2.62
     }
    ],
    "lignes": [
@@ -10080,7 +7499,8 @@
      "signal": "oblique_baissiere_cassee",
      "frequence_ref": [
       "oblique_baissiere_cassee"
-     ]
+     ],
+     "volume_cassure_ratio": 0.63
     }
    ],
    "gaps": [],
@@ -10178,7 +7598,8 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
+     ],
+     "volume_cassure_ratio": 32.3
     },
     {
      "type": "double_creux",
@@ -10359,7 +7780,8 @@
      "signal": "double_creux",
      "frequence_ref": [
       "double_creux"
-     ]
+     ],
+     "volume_cassure_ratio": 0.95
     },
     {
      "type": "double_sommet",
@@ -10400,37 +7822,11 @@
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ]
-    }
-   ],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-04-22",
-       "prix": 1900.0
-      },
-      {
-       "date": "2026-06-15",
-       "prix": 1849.0
-      }
      ],
-     "prix_a_la_derniere_seance": 1723.0,
-     "date_confirmation": "2026-07-10",
-     "niveau_invalidation": {
-      "sous": 1700.0
-     },
-     "date_cassure": "2026-08-05",
-     "date_fin": null,
-     "signal": "oblique_baissiere_cassee",
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ]
+     "volume_cassure_ratio": 7.34
     }
    ],
+   "lignes": [],
    "gaps": [],
    "ecartes": {
     "traversent_une_rupture": 0,
@@ -10462,34 +7858,7 @@
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
-   "lignes": [
-    {
-     "type": "oblique_baissiere",
-     "libelle": "Oblique descendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-06-18",
-       "prix": 388.8
-      },
-      {
-       "date": "2026-08-10",
-       "prix": 359.95
-      }
-     ],
-     "prix_a_la_derniere_seance": 323.0861,
-     "date_confirmation": "2026-09-01",
-     "niveau_invalidation": {
-      "sous": 336.0
-     },
-     "date_cassure": "2026-09-09",
-     "date_fin": null,
-     "signal": "oblique_baissiere_cassee",
-     "frequence_ref": [
-      "oblique_baissiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [],
    "ecartes": {
     "traversent_une_rupture": 0,
@@ -10594,166 +7963,11 @@
      "signal": "triangle_sym_bas",
      "frequence_ref": [
       "triangle_sym_bas"
-     ]
-    },
-    {
-     "type": "triangle_descendant",
-     "libelle": "Triangle descendant",
-     "orientation_classique": "baissiere",
-     "statut": "invalidee",
-     "pivots": [
-      {
-       "date": "2026-09-04",
-       "prix": 5450.0,
-       "type": "sommet",
-       "date_confirmation": "2026-09-18"
-      },
-      {
-       "date": "2026-09-18",
-       "prix": 4810.0,
-       "type": "creux",
-       "date_confirmation": "2026-09-23"
-      },
-      {
-       "date": "2026-09-23",
-       "prix": 5151.0,
-       "type": "sommet",
-       "date_confirmation": "2026-10-02"
-      },
-      {
-       "date": "2026-10-08",
-       "prix": 4760.0,
-       "type": "creux",
-       "date_confirmation": "2026-10-19"
-      }
      ],
-     "date_confirmation": "2026-10-19",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 4760.0
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sur": 5151.0
-     },
-     "date_cassure": null,
-     "date_fin": "2026-10-19",
-     "signal": "triangle_descendant",
-     "frequence_ref": [
-      "triangle_descendant"
-     ]
+     "volume_cassure_ratio": 10.65
     }
    ],
-   "lignes": [
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-03-03",
-       "prix": 4650.0
-      },
-      {
-       "date": "2026-04-13",
-       "prix": 5000.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 6327.0833,
-     "date_confirmation": "2026-04-21",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-07-09",
-     "date_fin": null,
-     "signal": "canal_cassure_bas",
-     "frequence_ref": [
-      "canal_cassure_bas"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-03-03",
-        "prix": 4999.5833
-       },
-       {
-        "date": "2026-04-13",
-        "prix": 5349.5833
-       }
-      ],
-      "prix_a_la_derniere_seance": 6676.6667
-     },
-     "sommet": {
-      "date": "2026-04-10",
-      "prix": 5335.0
-     }
-    },
-    {
-     "type": "canal_haussier",
-     "libelle": "Canal ascendant",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-04-13",
-       "prix": 5000.0
-      },
-      {
-       "date": "2026-07-24",
-       "prix": 5150.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 5267.6471,
-     "date_confirmation": "2026-08-06",
-     "niveau_invalidation": null,
-     "date_cassure": "2026-09-02",
-     "date_fin": null,
-     "signal": "canal_cassure_bas",
-     "frequence_ref": [
-      "canal_cassure_bas"
-     ],
-     "parallele": {
-      "points": [
-       {
-        "date": "2026-04-13",
-        "prix": 5914.7059
-       },
-       {
-        "date": "2026-07-24",
-        "prix": 6064.7059
-       }
-      ],
-      "prix_a_la_derniere_seance": 6182.3529
-     },
-     "sommet": {
-      "date": "2026-06-08",
-      "prix": 6000.0
-     }
-    },
-    {
-     "type": "oblique_haussiere",
-     "libelle": "Oblique ascendante",
-     "statut": "declenchee",
-     "points": [
-      {
-       "date": "2026-04-13",
-       "prix": 5000.0
-      },
-      {
-       "date": "2026-07-24",
-       "prix": 5150.0
-      }
-     ],
-     "prix_a_la_derniere_seance": 5267.6471,
-     "date_confirmation": "2026-08-06",
-     "niveau_invalidation": {
-      "sur": 6000.0
-     },
-     "date_cassure": "2026-09-02",
-     "date_fin": null,
-     "signal": "oblique_haussiere_cassee",
-     "frequence_ref": [
-      "oblique_haussiere_cassee"
-     ]
-    }
-   ],
+   "lignes": [],
    "gaps": [
     {
      "type": "gap_haussier",

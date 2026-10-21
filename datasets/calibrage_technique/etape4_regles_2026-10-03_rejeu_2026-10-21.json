@@ -1,0 +1,6295 @@
+{
+ "_quoi": "Étape 1 bis — figures chartistes et signaux d'indicateurs",
+ "_methode": "Étape 1 bis : les FIGURES CHARTISTES et les signaux d'indicateurs ont-ils\nannoncé quelque chose sur la BVC ? Banc d'essai — aucune note publiée n'est\nmodifiée.\n\nFigures (détection : `pipeline/technical/figures.py`, paramètres fixés AVANT la\nmesure) : double creux, double sommet, ETE, ETE inversée, tasse avec anse,\ntriangles ascendant / descendant / symétrique, rebond Fibonacci 38,2-61,8 %,\nretracement au-delà de 78,6 %. Indicateurs : croisement doré / mortel,\nMACD, sorties de survente / surachat du RSI, compression de Bollinger,\ndivergences RSI.\n\nMesure pour chaque signal, daté du jour de la CASSURE (jamais du creux) :\nalpha en RENDEMENT TOTAL contre le MASI à 20, 60 et 120 séances ; part des cas\ndans le bon sens ; rendement après 2 % de frais aller-retour ; t naïf.\nUne occurrence au plus par titre, par signal et par fenêtre de 20 séances.\n\n⚠️ LIMITES, AVANT LES RÉSULTATS\n1. Une figure haussière se juge par un alpha POSITIF, une baissière par un\n   alpha NÉGATIF. La BVC ne permet pas la vente à découvert : un signal\n   baissier vaut comme « sortir » ou « ne pas acheter », pas comme un gain.\n2. Une vingtaine de signaux, trois horizons, deux périodes : sur autant\n   d'essais, quelques résultats « forts » sortiront par hasard. N'est retenu\n   que ce qui garde le même sens sur les DEUX périodes avec un |t| ≥ 2\n   dans chacune.\n3. Figures rares : beaucoup de cases ont moins de 20 cas. Un chiffre sur\n   10 cas est une anecdote, il est publié avec son effectif.\n4. Dividendes : 2024-2026 ; octobre-décembre 2023 en cours seuls.\n\nRÈGLES (21/10/2026) : `--regles 2026-10-03` rejoue les règles d'origine,\n`--regles 2026-10-21` (défaut) ajoute les règles « figures strictes » de\n`technical/regles_strictes.py`. `--fin` tronque les chandelles (le banc\nd'essai initial s'arrêtait au 02/10/2026), `--seuil-liquidite` fixe le seuil de\nl'univers « liquides » (sinon : tiers inférieur des montants des événements\ndu run — il bouge dès que l'ensemble d'événements bouge). Le VOLUME est mesuré,\npas filtré : section `volume` du résultat.",
+ "regles": "2026-10-03",
+ "fin_donnees": "2026-10-02",
+ "seuil_liquidite_dh": 119564,
+ "evenements": 5081,
+ "signaux": {
+  "bollinger_compression_bas": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 33,
+      "titres": 24,
+      "alpha_moyen": 0.0206,
+      "alpha_median": 0.0157,
+      "dans_le_bon_sens": 0.333,
+      "t": 2.34,
+      "rendement_net_frais": 0.0356
+     },
+     "h60": {
+      "n": 33,
+      "titres": 24,
+      "alpha_moyen": 0.0313,
+      "alpha_median": 0.0042,
+      "dans_le_bon_sens": 0.485,
+      "t": 1.14,
+      "rendement_net_frais": 0.121
+     },
+     "h120": {
+      "n": 33,
+      "titres": 24,
+      "alpha_moyen": 0.0735,
+      "alpha_median": -0.0565,
+      "dans_le_bon_sens": 0.545,
+      "t": 1.31,
+      "rendement_net_frais": 0.2492
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 254,
+      "titres": 65,
+      "alpha_moyen": 0.014,
+      "alpha_median": 0.0029,
+      "dans_le_bon_sens": 0.465,
+      "t": 2.41,
+      "rendement_net_frais": -0.0023
+     },
+     "h60": {
+      "n": 224,
+      "titres": 65,
+      "alpha_moyen": 0.0097,
+      "alpha_median": -0.011,
+      "dans_le_bon_sens": 0.54,
+      "t": 0.98,
+      "rendement_net_frais": 0.0041
+     },
+     "h120": {
+      "n": 178,
+      "titres": 63,
+      "alpha_moyen": 0.0148,
+      "alpha_median": -0.0267,
+      "dans_le_bon_sens": 0.562,
+      "t": 0.84,
+      "rendement_net_frais": 0.0055
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 25,
+      "titres": 19,
+      "alpha_moyen": 0.0255,
+      "alpha_median": 0.025,
+      "dans_le_bon_sens": 0.24,
+      "t": 2.58,
+      "rendement_net_frais": 0.044
+     },
+     "h60": {
+      "n": 25,
+      "titres": 19,
+      "alpha_moyen": 0.0314,
+      "alpha_median": 0.0042,
+      "dans_le_bon_sens": 0.48,
+      "t": 0.96,
+      "rendement_net_frais": 0.1245
+     },
+     "h120": {
+      "n": 25,
+      "titres": 19,
+      "alpha_moyen": 0.0517,
+      "alpha_median": -0.0672,
+      "dans_le_bon_sens": 0.56,
+      "t": 0.78,
+      "rendement_net_frais": 0.2251
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 173,
+      "titres": 50,
+      "alpha_moyen": 0.0028,
+      "alpha_median": -0.0006,
+      "dans_le_bon_sens": 0.514,
+      "t": 0.57,
+      "rendement_net_frais": -0.0125
+     },
+     "h60": {
+      "n": 150,
+      "titres": 50,
+      "alpha_moyen": -0.0048,
+      "alpha_median": -0.0214,
+      "dans_le_bon_sens": 0.58,
+      "t": -0.5,
+      "rendement_net_frais": -0.0155
+     },
+     "h120": {
+      "n": 119,
+      "titres": 49,
+      "alpha_moyen": -0.0332,
+      "alpha_median": -0.0578,
+      "dans_le_bon_sens": 0.655,
+      "t": -1.86,
+      "rendement_net_frais": -0.0493
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "bollinger_compression_haut": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 36,
+      "titres": 25,
+      "alpha_moyen": 0.0107,
+      "alpha_median": -0.0083,
+      "dans_le_bon_sens": 0.389,
+      "t": 0.73,
+      "rendement_net_frais": 0.0244
+     },
+     "h60": {
+      "n": 36,
+      "titres": 25,
+      "alpha_moyen": 0.073,
+      "alpha_median": -0.0186,
+      "dans_le_bon_sens": 0.444,
+      "t": 1.5,
+      "rendement_net_frais": 0.1429
+     },
+     "h120": {
+      "n": 36,
+      "titres": 25,
+      "alpha_moyen": 0.2819,
+      "alpha_median": 0.0015,
+      "dans_le_bon_sens": 0.5,
+      "t": 2.21,
+      "rendement_net_frais": 0.4542
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 188,
+      "titres": 64,
+      "alpha_moyen": 0.0406,
+      "alpha_median": -0.0003,
+      "dans_le_bon_sens": 0.495,
+      "t": 3.02,
+      "rendement_net_frais": 0.0216
+     },
+     "h60": {
+      "n": 154,
+      "titres": 61,
+      "alpha_moyen": 0.0694,
+      "alpha_median": 0.0084,
+      "dans_le_bon_sens": 0.552,
+      "t": 3.05,
+      "rendement_net_frais": 0.0632
+     },
+     "h120": {
+      "n": 124,
+      "titres": 59,
+      "alpha_moyen": 0.1983,
+      "alpha_median": 0.0059,
+      "dans_le_bon_sens": 0.532,
+      "t": 3.2,
+      "rendement_net_frais": 0.2214
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 26,
+      "titres": 18,
+      "alpha_moyen": 0.0163,
+      "alpha_median": -0.0037,
+      "dans_le_bon_sens": 0.423,
+      "t": 0.92,
+      "rendement_net_frais": 0.0249
+     },
+     "h60": {
+      "n": 26,
+      "titres": 18,
+      "alpha_moyen": 0.1188,
+      "alpha_median": 0.0179,
+      "dans_le_bon_sens": 0.538,
+      "t": 1.84,
+      "rendement_net_frais": 0.1806
+     },
+     "h120": {
+      "n": 26,
+      "titres": 18,
+      "alpha_moyen": 0.3295,
+      "alpha_median": 0.0438,
+      "dans_le_bon_sens": 0.577,
+      "t": 2.17,
+      "rendement_net_frais": 0.4934
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 134,
+      "titres": 49,
+      "alpha_moyen": 0.0236,
+      "alpha_median": 0.0002,
+      "dans_le_bon_sens": 0.5,
+      "t": 2.6,
+      "rendement_net_frais": 0.0012
+     },
+     "h60": {
+      "n": 112,
+      "titres": 46,
+      "alpha_moyen": 0.0338,
+      "alpha_median": 0.0031,
+      "dans_le_bon_sens": 0.527,
+      "t": 1.84,
+      "rendement_net_frais": 0.0259
+     },
+     "h120": {
+      "n": 88,
+      "titres": 42,
+      "alpha_moyen": 0.0714,
+      "alpha_median": -0.0106,
+      "dans_le_bon_sens": 0.455,
+      "t": 1.74,
+      "rendement_net_frais": 0.0869
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "canal_cassure_bas": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 46,
+      "titres": 34,
+      "alpha_moyen": -0.0084,
+      "alpha_median": -0.0141,
+      "dans_le_bon_sens": 0.565,
+      "t": -0.73,
+      "rendement_net_frais": -0.0163
+     },
+     "h60": {
+      "n": 46,
+      "titres": 34,
+      "alpha_moyen": 0.0539,
+      "alpha_median": 0.0172,
+      "dans_le_bon_sens": 0.457,
+      "t": 1.63,
+      "rendement_net_frais": 0.0967
+     },
+     "h120": {
+      "n": 46,
+      "titres": 34,
+      "alpha_moyen": 0.1113,
+      "alpha_median": -0.0378,
+      "dans_le_bon_sens": 0.565,
+      "t": 1.51,
+      "rendement_net_frais": 0.2455
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 113,
+      "titres": 60,
+      "alpha_moyen": 0.0339,
+      "alpha_median": 0.0071,
+      "dans_le_bon_sens": 0.442,
+      "t": 2.0,
+      "rendement_net_frais": 0.0306
+     },
+     "h60": {
+      "n": 105,
+      "titres": 58,
+      "alpha_moyen": 0.0653,
+      "alpha_median": -0.0115,
+      "dans_le_bon_sens": 0.543,
+      "t": 1.83,
+      "rendement_net_frais": 0.0844
+     },
+     "h120": {
+      "n": 90,
+      "titres": 58,
+      "alpha_moyen": 0.06,
+      "alpha_median": -0.0331,
+      "dans_le_bon_sens": 0.6,
+      "t": 1.08,
+      "rendement_net_frais": 0.0845
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 24,
+      "titres": 19,
+      "alpha_moyen": 0.0059,
+      "alpha_median": -0.0095,
+      "dans_le_bon_sens": 0.583,
+      "t": 0.31,
+      "rendement_net_frais": -0.0059
+     },
+     "h60": {
+      "n": 24,
+      "titres": 19,
+      "alpha_moyen": 0.0892,
+      "alpha_median": 0.0672,
+      "dans_le_bon_sens": 0.292,
+      "t": 1.94,
+      "rendement_net_frais": 0.1304
+     },
+     "h120": {
+      "n": 24,
+      "titres": 19,
+      "alpha_moyen": 0.1799,
+      "alpha_median": 0.0456,
+      "dans_le_bon_sens": 0.458,
+      "t": 1.47,
+      "rendement_net_frais": 0.3065
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 89,
+      "titres": 48,
+      "alpha_moyen": 0.0186,
+      "alpha_median": 0.0029,
+      "dans_le_bon_sens": 0.483,
+      "t": 1.7,
+      "rendement_net_frais": 0.0182
+     },
+     "h60": {
+      "n": 83,
+      "titres": 45,
+      "alpha_moyen": 0.0377,
+      "alpha_median": -0.0151,
+      "dans_le_bon_sens": 0.566,
+      "t": 1.77,
+      "rendement_net_frais": 0.0607
+     },
+     "h120": {
+      "n": 71,
+      "titres": 45,
+      "alpha_moyen": -0.0031,
+      "alpha_median": -0.0566,
+      "dans_le_bon_sens": 0.648,
+      "t": -0.12,
+      "rendement_net_frais": 0.0244
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "canal_rebond_support": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 41,
+      "titres": 30,
+      "alpha_moyen": 0.0232,
+      "alpha_median": -0.0081,
+      "dans_le_bon_sens": 0.439,
+      "t": 1.26,
+      "rendement_net_frais": 0.0201
+     },
+     "h60": {
+      "n": 41,
+      "titres": 30,
+      "alpha_moyen": 0.0526,
+      "alpha_median": -0.0279,
+      "dans_le_bon_sens": 0.439,
+      "t": 1.68,
+      "rendement_net_frais": 0.0895
+     },
+     "h120": {
+      "n": 41,
+      "titres": 30,
+      "alpha_moyen": 0.2231,
+      "alpha_median": 0.0437,
+      "dans_le_bon_sens": 0.561,
+      "t": 2.37,
+      "rendement_net_frais": 0.3392
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 89,
+      "titres": 52,
+      "alpha_moyen": 0.0008,
+      "alpha_median": -0.0085,
+      "dans_le_bon_sens": 0.449,
+      "t": 0.12,
+      "rendement_net_frais": -0.016
+     },
+     "h60": {
+      "n": 80,
+      "titres": 51,
+      "alpha_moyen": 0.0762,
+      "alpha_median": -0.014,
+      "dans_le_bon_sens": 0.45,
+      "t": 1.65,
+      "rendement_net_frais": 0.066
+     },
+     "h120": {
+      "n": 74,
+      "titres": 49,
+      "alpha_moyen": 0.1741,
+      "alpha_median": 0.0195,
+      "dans_le_bon_sens": 0.608,
+      "t": 2.83,
+      "rendement_net_frais": 0.1749
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 29,
+      "titres": 21,
+      "alpha_moyen": 0.0252,
+      "alpha_median": 0.0083,
+      "dans_le_bon_sens": 0.517,
+      "t": 1.54,
+      "rendement_net_frais": 0.0224
+     },
+     "h60": {
+      "n": 29,
+      "titres": 21,
+      "alpha_moyen": 0.0577,
+      "alpha_median": -0.0154,
+      "dans_le_bon_sens": 0.483,
+      "t": 1.64,
+      "rendement_net_frais": 0.0943
+     },
+     "h120": {
+      "n": 29,
+      "titres": 21,
+      "alpha_moyen": 0.1915,
+      "alpha_median": 0.0611,
+      "dans_le_bon_sens": 0.586,
+      "t": 1.88,
+      "rendement_net_frais": 0.301
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 57,
+      "titres": 33,
+      "alpha_moyen": 0.0069,
+      "alpha_median": 0.0026,
+      "dans_le_bon_sens": 0.509,
+      "t": 0.75,
+      "rendement_net_frais": -0.0148
+     },
+     "h60": {
+      "n": 51,
+      "titres": 32,
+      "alpha_moyen": 0.0504,
+      "alpha_median": -0.0319,
+      "dans_le_bon_sens": 0.412,
+      "t": 1.1,
+      "rendement_net_frais": 0.026
+     },
+     "h120": {
+      "n": 47,
+      "titres": 32,
+      "alpha_moyen": 0.1519,
+      "alpha_median": 0.0133,
+      "dans_le_bon_sens": 0.511,
+      "t": 1.86,
+      "rendement_net_frais": 0.135
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "croisement_dore": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 16,
+      "titres": 15,
+      "alpha_moyen": -0.0172,
+      "alpha_median": -0.0136,
+      "dans_le_bon_sens": 0.375,
+      "t": -1.28,
+      "rendement_net_frais": -0.0142
+     },
+     "h60": {
+      "n": 16,
+      "titres": 15,
+      "alpha_moyen": 0.0063,
+      "alpha_median": -0.0659,
+      "dans_le_bon_sens": 0.25,
+      "t": 0.09,
+      "rendement_net_frais": 0.0651
+     },
+     "h120": {
+      "n": 16,
+      "titres": 15,
+      "alpha_moyen": -0.0293,
+      "alpha_median": -0.0949,
+      "dans_le_bon_sens": 0.312,
+      "t": -0.53,
+      "rendement_net_frais": 0.1181
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 48,
+      "titres": 36,
+      "alpha_moyen": 0.0009,
+      "alpha_median": -0.0107,
+      "dans_le_bon_sens": 0.417,
+      "t": 0.09,
+      "rendement_net_frais": -0.0107
+     },
+     "h60": {
+      "n": 46,
+      "titres": 35,
+      "alpha_moyen": -0.008,
+      "alpha_median": -0.008,
+      "dans_le_bon_sens": 0.435,
+      "t": -0.39,
+      "rendement_net_frais": 0.0044
+     },
+     "h120": {
+      "n": 36,
+      "titres": 30,
+      "alpha_moyen": 0.0086,
+      "alpha_median": -0.0103,
+      "dans_le_bon_sens": 0.472,
+      "t": 0.26,
+      "rendement_net_frais": 0.0708
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 10,
+      "titres": 9,
+      "alpha_moyen": -0.0238,
+      "alpha_median": -0.0344,
+      "dans_le_bon_sens": 0.3,
+      "t": -1.17,
+      "rendement_net_frais": -0.0177
+     },
+     "h60": {
+      "n": 10,
+      "titres": 9,
+      "alpha_moyen": -0.0772,
+      "alpha_median": -0.0857,
+      "dans_le_bon_sens": 0.2,
+      "t": -3.05,
+      "rendement_net_frais": -0.0147
+     },
+     "h120": {
+      "n": 10,
+      "titres": 9,
+      "alpha_moyen": -0.0681,
+      "alpha_median": -0.0517,
+      "dans_le_bon_sens": 0.3,
+      "t": -1.93,
+      "rendement_net_frais": 0.0769
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 27,
+      "titres": 23,
+      "alpha_moyen": -0.0249,
+      "alpha_median": -0.0302,
+      "dans_le_bon_sens": 0.222,
+      "t": -2.29,
+      "rendement_net_frais": -0.0373
+     },
+     "h60": {
+      "n": 26,
+      "titres": 22,
+      "alpha_moyen": -0.0363,
+      "alpha_median": -0.0218,
+      "dans_le_bon_sens": 0.346,
+      "t": -1.24,
+      "rendement_net_frais": -0.0168
+     },
+     "h120": {
+      "n": 21,
+      "titres": 17,
+      "alpha_moyen": -0.0501,
+      "alpha_median": -0.0282,
+      "dans_le_bon_sens": 0.381,
+      "t": -1.89,
+      "rendement_net_frais": 0.0015
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "croisement_mortel": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 22,
+      "titres": 20,
+      "alpha_moyen": -0.0151,
+      "alpha_median": -0.0193,
+      "dans_le_bon_sens": 0.682,
+      "t": -1.97,
+      "rendement_net_frais": -0.0161
+     },
+     "h60": {
+      "n": 22,
+      "titres": 20,
+      "alpha_moyen": -0.0536,
+      "alpha_median": -0.0736,
+      "dans_le_bon_sens": 0.773,
+      "t": -1.76,
+      "rendement_net_frais": 0.0318
+     },
+     "h120": {
+      "n": 22,
+      "titres": 20,
+      "alpha_moyen": -0.069,
+      "alpha_median": -0.1218,
+      "dans_le_bon_sens": 0.682,
+      "t": -1.67,
+      "rendement_net_frais": 0.1083
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 78,
+      "titres": 64,
+      "alpha_moyen": 0.0048,
+      "alpha_median": -0.005,
+      "dans_le_bon_sens": 0.551,
+      "t": 0.32,
+      "rendement_net_frais": -0.0024
+     },
+     "h60": {
+      "n": 73,
+      "titres": 62,
+      "alpha_moyen": 0.02,
+      "alpha_median": -0.0127,
+      "dans_le_bon_sens": 0.562,
+      "t": 0.86,
+      "rendement_net_frais": 0.0156
+     },
+     "h120": {
+      "n": 65,
+      "titres": 56,
+      "alpha_moyen": 0.0245,
+      "alpha_median": -0.0337,
+      "dans_le_bon_sens": 0.646,
+      "t": 0.63,
+      "rendement_net_frais": 0.01
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 13,
+      "titres": 11,
+      "alpha_moyen": -0.0216,
+      "alpha_median": -0.0212,
+      "dans_le_bon_sens": 0.769,
+      "t": -2.19,
+      "rendement_net_frais": -0.0298
+     },
+     "h60": {
+      "n": 13,
+      "titres": 11,
+      "alpha_moyen": -0.0659,
+      "alpha_median": -0.0449,
+      "dans_le_bon_sens": 0.769,
+      "t": -2.81,
+      "rendement_net_frais": 0.0118
+     },
+     "h120": {
+      "n": 13,
+      "titres": 11,
+      "alpha_moyen": -0.1125,
+      "alpha_median": -0.1247,
+      "dans_le_bon_sens": 0.769,
+      "t": -3.1,
+      "rendement_net_frais": 0.051
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 48,
+      "titres": 42,
+      "alpha_moyen": -0.0138,
+      "alpha_median": -0.0089,
+      "dans_le_bon_sens": 0.604,
+      "t": -1.45,
+      "rendement_net_frais": -0.0274
+     },
+     "h60": {
+      "n": 48,
+      "titres": 42,
+      "alpha_moyen": 0.0001,
+      "alpha_median": -0.0278,
+      "dans_le_bon_sens": 0.708,
+      "t": 0.0,
+      "rendement_net_frais": -0.0058
+     },
+     "h120": {
+      "n": 42,
+      "titres": 37,
+      "alpha_moyen": -0.012,
+      "alpha_median": -0.0669,
+      "dans_le_bon_sens": 0.738,
+      "t": -0.26,
+      "rendement_net_frais": -0.0233
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "divergence_rsi_baissiere": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 35,
+      "titres": 28,
+      "alpha_moyen": 0.072,
+      "alpha_median": 0.0113,
+      "dans_le_bon_sens": 0.371,
+      "t": 1.82,
+      "rendement_net_frais": 0.0639
+     },
+     "h60": {
+      "n": 35,
+      "titres": 28,
+      "alpha_moyen": 0.1714,
+      "alpha_median": 0.0206,
+      "dans_le_bon_sens": 0.343,
+      "t": 2.57,
+      "rendement_net_frais": 0.2149
+     },
+     "h120": {
+      "n": 35,
+      "titres": 28,
+      "alpha_moyen": 0.1686,
+      "alpha_median": 0.0295,
+      "dans_le_bon_sens": 0.486,
+      "t": 1.87,
+      "rendement_net_frais": 0.29
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 63,
+      "titres": 46,
+      "alpha_moyen": 0.0039,
+      "alpha_median": 0.0034,
+      "dans_le_bon_sens": 0.492,
+      "t": 0.37,
+      "rendement_net_frais": 0.0039
+     },
+     "h60": {
+      "n": 62,
+      "titres": 46,
+      "alpha_moyen": 0.1183,
+      "alpha_median": 0.0046,
+      "dans_le_bon_sens": 0.484,
+      "t": 1.8,
+      "rendement_net_frais": 0.1384
+     },
+     "h120": {
+      "n": 57,
+      "titres": 46,
+      "alpha_moyen": 0.1422,
+      "alpha_median": 0.0537,
+      "dans_le_bon_sens": 0.456,
+      "t": 2.41,
+      "rendement_net_frais": 0.1644
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 24,
+      "titres": 20,
+      "alpha_moyen": 0.1126,
+      "alpha_median": 0.0361,
+      "dans_le_bon_sens": 0.208,
+      "t": 2.04,
+      "rendement_net_frais": 0.1027
+     },
+     "h60": {
+      "n": 24,
+      "titres": 20,
+      "alpha_moyen": 0.2131,
+      "alpha_median": 0.0745,
+      "dans_le_bon_sens": 0.208,
+      "t": 2.65,
+      "rendement_net_frais": 0.2552
+     },
+     "h120": {
+      "n": 24,
+      "titres": 20,
+      "alpha_moyen": 0.2305,
+      "alpha_median": 0.0532,
+      "dans_le_bon_sens": 0.417,
+      "t": 1.92,
+      "rendement_net_frais": 0.34
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 50,
+      "titres": 36,
+      "alpha_moyen": 0.009,
+      "alpha_median": 0.011,
+      "dans_le_bon_sens": 0.46,
+      "t": 0.79,
+      "rendement_net_frais": 0.0108
+     },
+     "h60": {
+      "n": 49,
+      "titres": 36,
+      "alpha_moyen": 0.0642,
+      "alpha_median": -0.0081,
+      "dans_le_bon_sens": 0.531,
+      "t": 1.84,
+      "rendement_net_frais": 0.089
+     },
+     "h120": {
+      "n": 44,
+      "titres": 35,
+      "alpha_moyen": 0.0959,
+      "alpha_median": 0.0041,
+      "dans_le_bon_sens": 0.5,
+      "t": 1.9,
+      "rendement_net_frais": 0.1219
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "divergence_rsi_haussiere": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 13,
+      "titres": 13,
+      "alpha_moyen": -0.0181,
+      "alpha_median": -0.0387,
+      "dans_le_bon_sens": 0.231,
+      "t": -0.9,
+      "rendement_net_frais": -0.0113
+     },
+     "h60": {
+      "n": 13,
+      "titres": 13,
+      "alpha_moyen": 0.3182,
+      "alpha_median": -0.0424,
+      "dans_le_bon_sens": 0.308,
+      "t": 0.93,
+      "rendement_net_frais": 0.3623
+     },
+     "h120": {
+      "n": 13,
+      "titres": 13,
+      "alpha_moyen": 0.2509,
+      "alpha_median": -0.0733,
+      "dans_le_bon_sens": 0.462,
+      "t": 1.04,
+      "rendement_net_frais": 0.3509
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 52,
+      "titres": 40,
+      "alpha_moyen": 0.0035,
+      "alpha_median": -0.0141,
+      "dans_le_bon_sens": 0.346,
+      "t": 0.27,
+      "rendement_net_frais": -0.0152
+     },
+     "h60": {
+      "n": 45,
+      "titres": 36,
+      "alpha_moyen": 0.0038,
+      "alpha_median": -0.0323,
+      "dans_le_bon_sens": 0.422,
+      "t": 0.21,
+      "rendement_net_frais": -0.016
+     },
+     "h120": {
+      "n": 33,
+      "titres": 27,
+      "alpha_moyen": 0.1187,
+      "alpha_median": -0.0717,
+      "dans_le_bon_sens": 0.364,
+      "t": 0.76,
+      "rendement_net_frais": 0.1162
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": -0.017,
+      "alpha_median": -0.0308,
+      "dans_le_bon_sens": 0.143,
+      "t": -0.61,
+      "rendement_net_frais": -0.0083
+     },
+     "h60": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": 0.0039,
+      "alpha_median": -0.0355,
+      "dans_le_bon_sens": 0.286,
+      "t": 0.14,
+      "rendement_net_frais": 0.0582
+     },
+     "h120": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": -0.0537,
+      "alpha_median": -0.0985,
+      "dans_le_bon_sens": 0.286,
+      "t": -0.72,
+      "rendement_net_frais": 0.0424
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 40,
+      "titres": 33,
+      "alpha_moyen": 0.0025,
+      "alpha_median": -0.0141,
+      "dans_le_bon_sens": 0.325,
+      "t": 0.18,
+      "rendement_net_frais": -0.0263
+     },
+     "h60": {
+      "n": 34,
+      "titres": 29,
+      "alpha_moyen": -0.0231,
+      "alpha_median": -0.0338,
+      "dans_le_bon_sens": 0.353,
+      "t": -1.5,
+      "rendement_net_frais": -0.0476
+     },
+     "h120": {
+      "n": 25,
+      "titres": 22,
+      "alpha_moyen": -0.0561,
+      "alpha_median": -0.1072,
+      "dans_le_bon_sens": 0.28,
+      "t": -1.48,
+      "rendement_net_frais": -0.0694
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "double_creux": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 30,
+      "titres": 25,
+      "alpha_moyen": 0.0261,
+      "alpha_median": -0.0056,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.96,
+      "rendement_net_frais": 0.0246
+     },
+     "h60": {
+      "n": 30,
+      "titres": 25,
+      "alpha_moyen": 0.0234,
+      "alpha_median": -0.0449,
+      "dans_le_bon_sens": 0.4,
+      "t": 0.56,
+      "rendement_net_frais": 0.0646
+     },
+     "h120": {
+      "n": 30,
+      "titres": 25,
+      "alpha_moyen": 0.1387,
+      "alpha_median": 0.0086,
+      "dans_le_bon_sens": 0.567,
+      "t": 1.92,
+      "rendement_net_frais": 0.2586
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 62,
+      "titres": 40,
+      "alpha_moyen": 0.0291,
+      "alpha_median": -0.002,
+      "dans_le_bon_sens": 0.5,
+      "t": 1.7,
+      "rendement_net_frais": 0.019
+     },
+     "h60": {
+      "n": 55,
+      "titres": 37,
+      "alpha_moyen": 0.0858,
+      "alpha_median": 0.0493,
+      "dans_le_bon_sens": 0.6,
+      "t": 2.32,
+      "rendement_net_frais": 0.0734
+     },
+     "h120": {
+      "n": 48,
+      "titres": 33,
+      "alpha_moyen": 0.144,
+      "alpha_median": -0.0034,
+      "dans_le_bon_sens": 0.5,
+      "t": 2.06,
+      "rendement_net_frais": 0.1631
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 15,
+      "titres": 12,
+      "alpha_moyen": 0.0437,
+      "alpha_median": 0.0243,
+      "dans_le_bon_sens": 0.667,
+      "t": 1.7,
+      "rendement_net_frais": 0.0456
+     },
+     "h60": {
+      "n": 15,
+      "titres": 12,
+      "alpha_moyen": 0.0403,
+      "alpha_median": -0.0295,
+      "dans_le_bon_sens": 0.4,
+      "t": 0.82,
+      "rendement_net_frais": 0.0862
+     },
+     "h120": {
+      "n": 15,
+      "titres": 12,
+      "alpha_moyen": 0.2108,
+      "alpha_median": 0.0896,
+      "dans_le_bon_sens": 0.733,
+      "t": 2.03,
+      "rendement_net_frais": 0.325
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 47,
+      "titres": 31,
+      "alpha_moyen": 0.0422,
+      "alpha_median": 0.0015,
+      "dans_le_bon_sens": 0.511,
+      "t": 2.06,
+      "rendement_net_frais": 0.0276
+     },
+     "h60": {
+      "n": 41,
+      "titres": 29,
+      "alpha_moyen": 0.0981,
+      "alpha_median": 0.0351,
+      "dans_le_bon_sens": 0.585,
+      "t": 2.04,
+      "rendement_net_frais": 0.0787
+     },
+     "h120": {
+      "n": 34,
+      "titres": 25,
+      "alpha_moyen": 0.1307,
+      "alpha_median": -0.046,
+      "dans_le_bon_sens": 0.412,
+      "t": 1.37,
+      "rendement_net_frais": 0.1373
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "double_sommet": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 15,
+      "titres": 12,
+      "alpha_moyen": 0.0227,
+      "alpha_median": -0.0003,
+      "dans_le_bon_sens": 0.533,
+      "t": 1.25,
+      "rendement_net_frais": 0.0233
+     },
+     "h60": {
+      "n": 15,
+      "titres": 12,
+      "alpha_moyen": 0.0365,
+      "alpha_median": 0.0057,
+      "dans_le_bon_sens": 0.4,
+      "t": 1.43,
+      "rendement_net_frais": 0.083
+     },
+     "h120": {
+      "n": 15,
+      "titres": 12,
+      "alpha_moyen": 0.0657,
+      "alpha_median": -0.0554,
+      "dans_le_bon_sens": 0.533,
+      "t": 0.83,
+      "rendement_net_frais": 0.2131
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 48,
+      "titres": 41,
+      "alpha_moyen": 0.0442,
+      "alpha_median": 0.0164,
+      "dans_le_bon_sens": 0.354,
+      "t": 2.2,
+      "rendement_net_frais": 0.0554
+     },
+     "h60": {
+      "n": 47,
+      "titres": 41,
+      "alpha_moyen": 0.0639,
+      "alpha_median": 0.0224,
+      "dans_le_bon_sens": 0.447,
+      "t": 1.86,
+      "rendement_net_frais": 0.1086
+     },
+     "h120": {
+      "n": 45,
+      "titres": 39,
+      "alpha_moyen": 0.0557,
+      "alpha_median": 0.0337,
+      "dans_le_bon_sens": 0.444,
+      "t": 1.52,
+      "rendement_net_frais": 0.0825
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 7,
+      "titres": 6,
+      "alpha_moyen": 0.043,
+      "alpha_median": -0.0034,
+      "dans_le_bon_sens": 0.571,
+      "t": 1.2,
+      "rendement_net_frais": 0.0425
+     },
+     "h60": {
+      "n": 7,
+      "titres": 6,
+      "alpha_moyen": 0.058,
+      "alpha_median": 0.0439,
+      "dans_le_bon_sens": 0.143,
+      "t": 1.35,
+      "rendement_net_frais": 0.1188
+     },
+     "h120": {
+      "n": 7,
+      "titres": 6,
+      "alpha_moyen": 0.2424,
+      "alpha_median": 0.2047,
+      "dans_le_bon_sens": 0.429,
+      "t": 1.74,
+      "rendement_net_frais": 0.3787
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 33,
+      "titres": 29,
+      "alpha_moyen": 0.0115,
+      "alpha_median": 0.0096,
+      "dans_le_bon_sens": 0.394,
+      "t": 1.31,
+      "rendement_net_frais": 0.02
+     },
+     "h60": {
+      "n": 32,
+      "titres": 29,
+      "alpha_moyen": 0.0211,
+      "alpha_median": 0.0036,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.7,
+      "rendement_net_frais": 0.0622
+     },
+     "h120": {
+      "n": 32,
+      "titres": 29,
+      "alpha_moyen": 0.0038,
+      "alpha_median": -0.0146,
+      "dans_le_bon_sens": 0.531,
+      "t": 0.12,
+      "rendement_net_frais": 0.0184
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "ete": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": 0.0055,
+      "alpha_median": 0.0158,
+      "dans_le_bon_sens": 0.429,
+      "t": 0.34,
+      "rendement_net_frais": -0.0058
+     },
+     "h60": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": 0.0012,
+      "alpha_median": 0.016,
+      "dans_le_bon_sens": 0.429,
+      "t": 0.04,
+      "rendement_net_frais": 0.0392
+     },
+     "h120": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": -0.0452,
+      "alpha_median": -0.0625,
+      "dans_le_bon_sens": 0.571,
+      "t": -1.01,
+      "rendement_net_frais": 0.0952
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 40,
+      "titres": 30,
+      "alpha_moyen": 0.0196,
+      "alpha_median": -0.0013,
+      "dans_le_bon_sens": 0.5,
+      "t": 1.7,
+      "rendement_net_frais": 0.0018
+     },
+     "h60": {
+      "n": 36,
+      "titres": 27,
+      "alpha_moyen": 0.012,
+      "alpha_median": -0.0106,
+      "dans_le_bon_sens": 0.583,
+      "t": 0.62,
+      "rendement_net_frais": 0.0079
+     },
+     "h120": {
+      "n": 30,
+      "titres": 25,
+      "alpha_moyen": 0.0941,
+      "alpha_median": -0.0628,
+      "dans_le_bon_sens": 0.633,
+      "t": 0.76,
+      "rendement_net_frais": 0.0899
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.0034,
+      "alpha_median": 0.0158,
+      "dans_le_bon_sens": 0.333,
+      "t": 0.22,
+      "rendement_net_frais": -0.0046
+     },
+     "h60": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.0151,
+      "alpha_median": 0.016,
+      "dans_le_bon_sens": 0.333,
+      "t": 0.47,
+      "rendement_net_frais": 0.0538
+     },
+     "h120": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": -0.0451,
+      "alpha_median": -0.0625,
+      "dans_le_bon_sens": 0.667,
+      "t": -0.61,
+      "rendement_net_frais": 0.0787
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 27,
+      "titres": 22,
+      "alpha_moyen": 0.0121,
+      "alpha_median": -0.0032,
+      "dans_le_bon_sens": 0.519,
+      "t": 0.93,
+      "rendement_net_frais": -0.0154
+     },
+     "h60": {
+      "n": 25,
+      "titres": 21,
+      "alpha_moyen": 0.0033,
+      "alpha_median": -0.0286,
+      "dans_le_bon_sens": 0.64,
+      "t": 0.15,
+      "rendement_net_frais": -0.0046
+     },
+     "h120": {
+      "n": 21,
+      "titres": 19,
+      "alpha_moyen": -0.0514,
+      "alpha_median": -0.0911,
+      "dans_le_bon_sens": 0.667,
+      "t": -2.07,
+      "rendement_net_frais": -0.0749
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "ete_inversee": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 7,
+      "titres": 6,
+      "alpha_moyen": -0.0329,
+      "alpha_median": -0.0346,
+      "dans_le_bon_sens": 0.286,
+      "t": -1.08,
+      "rendement_net_frais": -0.0345
+     },
+     "h60": {
+      "n": 7,
+      "titres": 6,
+      "alpha_moyen": 0.0093,
+      "alpha_median": -0.0292,
+      "dans_le_bon_sens": 0.429,
+      "t": 0.18,
+      "rendement_net_frais": 0.0476
+     },
+     "h120": {
+      "n": 7,
+      "titres": 6,
+      "alpha_moyen": 0.2241,
+      "alpha_median": -0.034,
+      "dans_le_bon_sens": 0.429,
+      "t": 1.04,
+      "rendement_net_frais": 0.3363
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 20,
+      "titres": 20,
+      "alpha_moyen": -0.0092,
+      "alpha_median": -0.0399,
+      "dans_le_bon_sens": 0.3,
+      "t": -0.3,
+      "rendement_net_frais": -0.0082
+     },
+     "h60": {
+      "n": 19,
+      "titres": 19,
+      "alpha_moyen": 0.1207,
+      "alpha_median": -0.0442,
+      "dans_le_bon_sens": 0.474,
+      "t": 1.05,
+      "rendement_net_frais": 0.1398
+     },
+     "h120": {
+      "n": 13,
+      "titres": 13,
+      "alpha_moyen": 0.3077,
+      "alpha_median": -0.005,
+      "dans_le_bon_sens": 0.462,
+      "t": 1.48,
+      "rendement_net_frais": 0.3535
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": 0.0098,
+      "alpha_median": 0.0098,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.22,
+      "rendement_net_frais": 0.0162
+     },
+     "h60": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0353,
+      "alpha_median": -0.0353,
+      "dans_le_bon_sens": 0.0,
+      "t": -5.81,
+      "rendement_net_frais": -0.0306
+     },
+     "h120": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.1427,
+      "alpha_median": -0.1427,
+      "dans_le_bon_sens": 0.0,
+      "t": -4.62,
+      "rendement_net_frais": -0.0729
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 12,
+      "titres": 12,
+      "alpha_moyen": 0.0224,
+      "alpha_median": -0.0203,
+      "dans_le_bon_sens": 0.417,
+      "t": 0.48,
+      "rendement_net_frais": 0.0128
+     },
+     "h60": {
+      "n": 12,
+      "titres": 12,
+      "alpha_moyen": 0.0253,
+      "alpha_median": -0.0463,
+      "dans_le_bon_sens": 0.417,
+      "t": 0.44,
+      "rendement_net_frais": 0.0115
+     },
+     "h120": {
+      "n": 8,
+      "titres": 8,
+      "alpha_moyen": 0.1639,
+      "alpha_median": -0.0299,
+      "dans_le_bon_sens": 0.375,
+      "t": 0.95,
+      "rendement_net_frais": 0.1416
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "fibo_au_dela_786": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 11,
+      "titres": 10,
+      "alpha_moyen": 0.0362,
+      "alpha_median": -0.0247,
+      "dans_le_bon_sens": 0.545,
+      "t": 0.83,
+      "rendement_net_frais": 0.0454
+     },
+     "h60": {
+      "n": 11,
+      "titres": 10,
+      "alpha_moyen": 0.0279,
+      "alpha_median": 0.0596,
+      "dans_le_bon_sens": 0.364,
+      "t": 0.47,
+      "rendement_net_frais": 0.0634
+     },
+     "h120": {
+      "n": 11,
+      "titres": 10,
+      "alpha_moyen": 0.1992,
+      "alpha_median": 0.0541,
+      "dans_le_bon_sens": 0.364,
+      "t": 1.86,
+      "rendement_net_frais": 0.3352
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 34,
+      "titres": 25,
+      "alpha_moyen": 0.0142,
+      "alpha_median": -0.0004,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.68,
+      "rendement_net_frais": 0.0025
+     },
+     "h60": {
+      "n": 32,
+      "titres": 25,
+      "alpha_moyen": 0.0617,
+      "alpha_median": -0.0324,
+      "dans_le_bon_sens": 0.562,
+      "t": 1.21,
+      "rendement_net_frais": 0.0529
+     },
+     "h120": {
+      "n": 26,
+      "titres": 21,
+      "alpha_moyen": -0.0054,
+      "alpha_median": -0.0263,
+      "dans_le_bon_sens": 0.577,
+      "t": -0.2,
+      "rendement_net_frais": -0.0039
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 6,
+      "titres": 5,
+      "alpha_moyen": 0.0867,
+      "alpha_median": 0.084,
+      "dans_le_bon_sens": 0.333,
+      "t": 1.43,
+      "rendement_net_frais": 0.0978
+     },
+     "h60": {
+      "n": 6,
+      "titres": 5,
+      "alpha_moyen": 0.013,
+      "alpha_median": 0.0588,
+      "dans_le_bon_sens": 0.333,
+      "t": 0.24,
+      "rendement_net_frais": 0.052
+     },
+     "h120": {
+      "n": 6,
+      "titres": 5,
+      "alpha_moyen": 0.2359,
+      "alpha_median": 0.1987,
+      "dans_le_bon_sens": 0.333,
+      "t": 1.35,
+      "rendement_net_frais": 0.3729
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 24,
+      "titres": 19,
+      "alpha_moyen": 0.0109,
+      "alpha_median": -0.0034,
+      "dans_le_bon_sens": 0.542,
+      "t": 0.41,
+      "rendement_net_frais": -0.0096
+     },
+     "h60": {
+      "n": 22,
+      "titres": 19,
+      "alpha_moyen": 0.0903,
+      "alpha_median": -0.0324,
+      "dans_le_bon_sens": 0.591,
+      "t": 1.26,
+      "rendement_net_frais": 0.0902
+     },
+     "h120": {
+      "n": 17,
+      "titres": 16,
+      "alpha_moyen": -0.008,
+      "alpha_median": -0.0282,
+      "dans_le_bon_sens": 0.647,
+      "t": -0.23,
+      "rendement_net_frais": -0.0227
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "fibo_rebond_382_618": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 44,
+      "titres": 30,
+      "alpha_moyen": -0.0112,
+      "alpha_median": -0.0308,
+      "dans_le_bon_sens": 0.386,
+      "t": -0.76,
+      "rendement_net_frais": -0.0126
+     },
+     "h60": {
+      "n": 44,
+      "titres": 30,
+      "alpha_moyen": 0.0628,
+      "alpha_median": -0.0426,
+      "dans_le_bon_sens": 0.386,
+      "t": 1.03,
+      "rendement_net_frais": 0.105
+     },
+     "h120": {
+      "n": 44,
+      "titres": 30,
+      "alpha_moyen": 0.1492,
+      "alpha_median": 0.0371,
+      "dans_le_bon_sens": 0.523,
+      "t": 1.79,
+      "rendement_net_frais": 0.2739
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 84,
+      "titres": 46,
+      "alpha_moyen": 0.0416,
+      "alpha_median": -0.0095,
+      "dans_le_bon_sens": 0.464,
+      "t": 1.25,
+      "rendement_net_frais": 0.0317
+     },
+     "h60": {
+      "n": 81,
+      "titres": 46,
+      "alpha_moyen": 0.0705,
+      "alpha_median": -0.0354,
+      "dans_le_bon_sens": 0.395,
+      "t": 1.75,
+      "rendement_net_frais": 0.073
+     },
+     "h120": {
+      "n": 69,
+      "titres": 44,
+      "alpha_moyen": 0.1251,
+      "alpha_median": -0.0037,
+      "dans_le_bon_sens": 0.478,
+      "t": 1.88,
+      "rendement_net_frais": 0.1511
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 27,
+      "titres": 18,
+      "alpha_moyen": 0.0273,
+      "alpha_median": 0.02,
+      "dans_le_bon_sens": 0.593,
+      "t": 1.68,
+      "rendement_net_frais": 0.0255
+     },
+     "h60": {
+      "n": 27,
+      "titres": 18,
+      "alpha_moyen": 0.1258,
+      "alpha_median": 0.0016,
+      "dans_le_bon_sens": 0.519,
+      "t": 1.39,
+      "rendement_net_frais": 0.1693
+     },
+     "h120": {
+      "n": 27,
+      "titres": 18,
+      "alpha_moyen": 0.1869,
+      "alpha_median": 0.0564,
+      "dans_le_bon_sens": 0.63,
+      "t": 2.02,
+      "rendement_net_frais": 0.2964
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 62,
+      "titres": 36,
+      "alpha_moyen": 0.0383,
+      "alpha_median": -0.0095,
+      "dans_le_bon_sens": 0.452,
+      "t": 0.94,
+      "rendement_net_frais": 0.025
+     },
+     "h60": {
+      "n": 60,
+      "titres": 36,
+      "alpha_moyen": 0.0685,
+      "alpha_median": -0.0349,
+      "dans_le_bon_sens": 0.383,
+      "t": 1.37,
+      "rendement_net_frais": 0.0711
+     },
+     "h120": {
+      "n": 50,
+      "titres": 34,
+      "alpha_moyen": 0.0733,
+      "alpha_median": -0.0209,
+      "dans_le_bon_sens": 0.44,
+      "t": 1.05,
+      "rendement_net_frais": 0.0923
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "gap_baissier_rejet": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 52,
+      "titres": 37,
+      "alpha_moyen": 0.0294,
+      "alpha_median": 0.0031,
+      "dans_le_bon_sens": 0.423,
+      "t": 1.84,
+      "rendement_net_frais": 0.0394
+     },
+     "h60": {
+      "n": 52,
+      "titres": 37,
+      "alpha_moyen": 0.0786,
+      "alpha_median": -0.011,
+      "dans_le_bon_sens": 0.558,
+      "t": 1.96,
+      "rendement_net_frais": 0.1351
+     },
+     "h120": {
+      "n": 52,
+      "titres": 37,
+      "alpha_moyen": 0.1581,
+      "alpha_median": -0.0006,
+      "dans_le_bon_sens": 0.5,
+      "t": 2.12,
+      "rendement_net_frais": 0.2961
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 90,
+      "titres": 48,
+      "alpha_moyen": 0.0107,
+      "alpha_median": 0.0001,
+      "dans_le_bon_sens": 0.489,
+      "t": 0.88,
+      "rendement_net_frais": 0.0196
+     },
+     "h60": {
+      "n": 86,
+      "titres": 46,
+      "alpha_moyen": 0.0485,
+      "alpha_median": -0.0049,
+      "dans_le_bon_sens": 0.523,
+      "t": 1.79,
+      "rendement_net_frais": 0.0722
+     },
+     "h120": {
+      "n": 67,
+      "titres": 41,
+      "alpha_moyen": 0.0712,
+      "alpha_median": -0.0223,
+      "dans_le_bon_sens": 0.537,
+      "t": 2.02,
+      "rendement_net_frais": 0.0948
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 23,
+      "titres": 18,
+      "alpha_moyen": 0.0267,
+      "alpha_median": 0.018,
+      "dans_le_bon_sens": 0.348,
+      "t": 1.21,
+      "rendement_net_frais": 0.036
+     },
+     "h60": {
+      "n": 23,
+      "titres": 18,
+      "alpha_moyen": 0.0086,
+      "alpha_median": -0.0092,
+      "dans_le_bon_sens": 0.609,
+      "t": 0.28,
+      "rendement_net_frais": 0.0669
+     },
+     "h120": {
+      "n": 23,
+      "titres": 18,
+      "alpha_moyen": 0.0315,
+      "alpha_median": -0.0709,
+      "dans_le_bon_sens": 0.609,
+      "t": 0.58,
+      "rendement_net_frais": 0.1592
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 59,
+      "titres": 35,
+      "alpha_moyen": 0.0039,
+      "alpha_median": -0.0092,
+      "dans_le_bon_sens": 0.542,
+      "t": 0.24,
+      "rendement_net_frais": 0.0142
+     },
+     "h60": {
+      "n": 59,
+      "titres": 35,
+      "alpha_moyen": 0.0279,
+      "alpha_median": -0.0176,
+      "dans_le_bon_sens": 0.576,
+      "t": 0.92,
+      "rendement_net_frais": 0.0516
+     },
+     "h120": {
+      "n": 44,
+      "titres": 31,
+      "alpha_moyen": 0.0471,
+      "alpha_median": -0.0302,
+      "dans_le_bon_sens": 0.568,
+      "t": 1.18,
+      "rendement_net_frais": 0.0819
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "gap_haussier_rebond": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 66,
+      "titres": 39,
+      "alpha_moyen": 0.0086,
+      "alpha_median": -0.0141,
+      "dans_le_bon_sens": 0.409,
+      "t": 0.63,
+      "rendement_net_frais": 0.0069
+     },
+     "h60": {
+      "n": 66,
+      "titres": 39,
+      "alpha_moyen": 0.063,
+      "alpha_median": -0.0014,
+      "dans_le_bon_sens": 0.5,
+      "t": 1.92,
+      "rendement_net_frais": 0.0996
+     },
+     "h120": {
+      "n": 66,
+      "titres": 39,
+      "alpha_moyen": 0.136,
+      "alpha_median": 0.021,
+      "dans_le_bon_sens": 0.545,
+      "t": 2.72,
+      "rendement_net_frais": 0.245
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 155,
+      "titres": 58,
+      "alpha_moyen": 0.0304,
+      "alpha_median": -0.0066,
+      "dans_le_bon_sens": 0.452,
+      "t": 2.65,
+      "rendement_net_frais": 0.0274
+     },
+     "h60": {
+      "n": 145,
+      "titres": 58,
+      "alpha_moyen": 0.0746,
+      "alpha_median": -0.0063,
+      "dans_le_bon_sens": 0.483,
+      "t": 2.99,
+      "rendement_net_frais": 0.0808
+     },
+     "h120": {
+      "n": 126,
+      "titres": 56,
+      "alpha_moyen": 0.1279,
+      "alpha_median": -0.0368,
+      "dans_le_bon_sens": 0.444,
+      "t": 2.51,
+      "rendement_net_frais": 0.1545
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 43,
+      "titres": 26,
+      "alpha_moyen": 0.0423,
+      "alpha_median": 0.009,
+      "dans_le_bon_sens": 0.581,
+      "t": 2.33,
+      "rendement_net_frais": 0.039
+     },
+     "h60": {
+      "n": 43,
+      "titres": 26,
+      "alpha_moyen": 0.118,
+      "alpha_median": 0.0299,
+      "dans_le_bon_sens": 0.628,
+      "t": 2.77,
+      "rendement_net_frais": 0.1471
+     },
+     "h120": {
+      "n": 43,
+      "titres": 26,
+      "alpha_moyen": 0.2069,
+      "alpha_median": 0.054,
+      "dans_le_bon_sens": 0.628,
+      "t": 3.02,
+      "rendement_net_frais": 0.3057
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 108,
+      "titres": 48,
+      "alpha_moyen": 0.0358,
+      "alpha_median": -0.0017,
+      "dans_le_bon_sens": 0.491,
+      "t": 2.81,
+      "rendement_net_frais": 0.0319
+     },
+     "h60": {
+      "n": 104,
+      "titres": 48,
+      "alpha_moyen": 0.0725,
+      "alpha_median": -0.0043,
+      "dans_le_bon_sens": 0.49,
+      "t": 2.71,
+      "rendement_net_frais": 0.0728
+     },
+     "h120": {
+      "n": 90,
+      "titres": 46,
+      "alpha_moyen": 0.0596,
+      "alpha_median": -0.0444,
+      "dans_le_bon_sens": 0.433,
+      "t": 1.48,
+      "rendement_net_frais": 0.0669
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": true,
+    "h60": true,
+    "h120": false
+   }
+  },
+  "hebdo_canal_cassure_bas": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 9,
+      "titres": 9,
+      "alpha_moyen": -0.0038,
+      "alpha_median": -0.0085,
+      "dans_le_bon_sens": 0.556,
+      "t": -0.16,
+      "rendement_net_frais": 0.0099
+     },
+     "h60": {
+      "n": 9,
+      "titres": 9,
+      "alpha_moyen": 0.0496,
+      "alpha_median": 0.0163,
+      "dans_le_bon_sens": 0.333,
+      "t": 1.0,
+      "rendement_net_frais": 0.1167
+     },
+     "h120": {
+      "n": 9,
+      "titres": 9,
+      "alpha_moyen": 0.371,
+      "alpha_median": -0.0646,
+      "dans_le_bon_sens": 0.556,
+      "t": 1.24,
+      "rendement_net_frais": 0.5291
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 28,
+      "titres": 26,
+      "alpha_moyen": 0.0208,
+      "alpha_median": -0.0102,
+      "dans_le_bon_sens": 0.607,
+      "t": 0.86,
+      "rendement_net_frais": 0.024
+     },
+     "h60": {
+      "n": 24,
+      "titres": 23,
+      "alpha_moyen": 0.0331,
+      "alpha_median": -0.0228,
+      "dans_le_bon_sens": 0.583,
+      "t": 0.72,
+      "rendement_net_frais": 0.0475
+     },
+     "h120": {
+      "n": 22,
+      "titres": 21,
+      "alpha_moyen": 0.0732,
+      "alpha_median": -0.0217,
+      "dans_le_bon_sens": 0.545,
+      "t": 1.11,
+      "rendement_net_frais": 0.0639
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": 0.0131,
+      "alpha_median": 0.0129,
+      "dans_le_bon_sens": 0.429,
+      "t": 0.5,
+      "rendement_net_frais": 0.013
+     },
+     "h60": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": 0.069,
+      "alpha_median": 0.0163,
+      "dans_le_bon_sens": 0.286,
+      "t": 1.25,
+      "rendement_net_frais": 0.1227
+     },
+     "h120": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": 0.1255,
+      "alpha_median": -0.0646,
+      "dans_le_bon_sens": 0.571,
+      "t": 0.88,
+      "rendement_net_frais": 0.2644
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 24,
+      "titres": 22,
+      "alpha_moyen": 0.0229,
+      "alpha_median": -0.0104,
+      "dans_le_bon_sens": 0.625,
+      "t": 0.83,
+      "rendement_net_frais": 0.0268
+     },
+     "h60": {
+      "n": 21,
+      "titres": 20,
+      "alpha_moyen": 0.03,
+      "alpha_median": -0.0532,
+      "dans_le_bon_sens": 0.667,
+      "t": 0.57,
+      "rendement_net_frais": 0.0536
+     },
+     "h120": {
+      "n": 19,
+      "titres": 18,
+      "alpha_moyen": 0.0817,
+      "alpha_median": -0.0431,
+      "dans_le_bon_sens": 0.526,
+      "t": 1.07,
+      "rendement_net_frais": 0.0862
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "hebdo_canal_rebond_support": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0833,
+      "alpha_median": -0.0833,
+      "dans_le_bon_sens": 0.0,
+      "t": -1.87,
+      "rendement_net_frais": -0.0883
+     },
+     "h60": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.1469,
+      "alpha_median": -0.1469,
+      "dans_le_bon_sens": 0.0,
+      "t": -3.59,
+      "rendement_net_frais": -0.0791
+     },
+     "h120": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0556,
+      "alpha_median": -0.0556,
+      "dans_le_bon_sens": 0.5,
+      "t": -0.31,
+      "rendement_net_frais": 0.1088
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 10,
+      "titres": 9,
+      "alpha_moyen": 0.0357,
+      "alpha_median": -0.009,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.74,
+      "rendement_net_frais": 0.0083
+     },
+     "h60": {
+      "n": 10,
+      "titres": 9,
+      "alpha_moyen": 0.0631,
+      "alpha_median": -0.0701,
+      "dans_le_bon_sens": 0.2,
+      "t": 0.46,
+      "rendement_net_frais": 0.0558
+     },
+     "h120": {
+      "n": 10,
+      "titres": 9,
+      "alpha_moyen": 0.16,
+      "alpha_median": -0.0631,
+      "dans_le_bon_sens": 0.3,
+      "t": 0.7,
+      "rendement_net_frais": 0.1858
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 1,
+      "titres": 1,
+      "alpha_moyen": -0.1279,
+      "alpha_median": -0.1279,
+      "dans_le_bon_sens": 0.0,
+      "t": null,
+      "rendement_net_frais": -0.1271
+     },
+     "h60": {
+      "n": 1,
+      "titres": 1,
+      "alpha_moyen": -0.1878,
+      "alpha_median": -0.1878,
+      "dans_le_bon_sens": 0.0,
+      "t": null,
+      "rendement_net_frais": -0.1382
+     },
+     "h120": {
+      "n": 1,
+      "titres": 1,
+      "alpha_moyen": 0.122,
+      "alpha_median": 0.122,
+      "dans_le_bon_sens": 1.0,
+      "t": null,
+      "rendement_net_frais": 0.2818
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 8,
+      "titres": 7,
+      "alpha_moyen": 0.0251,
+      "alpha_median": -0.0217,
+      "dans_le_bon_sens": 0.375,
+      "t": 0.42,
+      "rendement_net_frais": 0.0056
+     },
+     "h60": {
+      "n": 8,
+      "titres": 7,
+      "alpha_moyen": 0.0977,
+      "alpha_median": -0.0615,
+      "dans_le_bon_sens": 0.25,
+      "t": 0.57,
+      "rendement_net_frais": 0.0881
+     },
+     "h120": {
+      "n": 8,
+      "titres": 7,
+      "alpha_moyen": 0.2015,
+      "alpha_median": -0.0835,
+      "dans_le_bon_sens": 0.25,
+      "t": 0.7,
+      "rendement_net_frais": 0.2197
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "hebdo_double_creux": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 5,
+      "titres": 4,
+      "alpha_moyen": -0.0551,
+      "alpha_median": -0.0731,
+      "dans_le_bon_sens": 0.2,
+      "t": -0.68,
+      "rendement_net_frais": -0.0365
+     },
+     "h60": {
+      "n": 5,
+      "titres": 4,
+      "alpha_moyen": -0.1486,
+      "alpha_median": -0.1378,
+      "dans_le_bon_sens": 0.0,
+      "t": -3.09,
+      "rendement_net_frais": -0.0981
+     },
+     "h120": {
+      "n": 5,
+      "titres": 4,
+      "alpha_moyen": -0.1704,
+      "alpha_median": -0.157,
+      "dans_le_bon_sens": 0.2,
+      "t": -2.16,
+      "rendement_net_frais": -0.0269
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 6,
+      "titres": 6,
+      "alpha_moyen": 0.0127,
+      "alpha_median": 0.017,
+      "dans_le_bon_sens": 0.667,
+      "t": 0.24,
+      "rendement_net_frais": 0.0175
+     },
+     "h60": {
+      "n": 6,
+      "titres": 6,
+      "alpha_moyen": 0.0142,
+      "alpha_median": 0.0248,
+      "dans_le_bon_sens": 0.667,
+      "t": 0.38,
+      "rendement_net_frais": -0.0067
+     },
+     "h120": {
+      "n": 5,
+      "titres": 5,
+      "alpha_moyen": -0.0449,
+      "alpha_median": -0.0017,
+      "dans_le_bon_sens": 0.4,
+      "t": -0.66,
+      "rendement_net_frais": -0.0071
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 2,
+      "titres": 1,
+      "alpha_moyen": -0.1378,
+      "alpha_median": -0.1378,
+      "dans_le_bon_sens": 0.0,
+      "t": -1.14,
+      "rendement_net_frais": -0.0801
+     },
+     "h60": {
+      "n": 2,
+      "titres": 1,
+      "alpha_moyen": -0.1816,
+      "alpha_median": -0.1816,
+      "dans_le_bon_sens": 0.0,
+      "t": -1.33,
+      "rendement_net_frais": -0.0976
+     },
+     "h120": {
+      "n": 2,
+      "titres": 1,
+      "alpha_moyen": -0.2292,
+      "alpha_median": -0.2292,
+      "dans_le_bon_sens": 0.0,
+      "t": -1.75,
+      "rendement_net_frais": -0.0518
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.1044,
+      "alpha_median": -0.1044,
+      "dans_le_bon_sens": 0.0,
+      "t": -1.0,
+      "rendement_net_frais": -0.1186
+     },
+     "h60": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0386,
+      "alpha_median": -0.0386,
+      "dans_le_bon_sens": 0.5,
+      "t": -0.61,
+      "rendement_net_frais": -0.1578
+     },
+     "h120": {
+      "n": 1,
+      "titres": 1,
+      "alpha_moyen": -0.2924,
+      "alpha_median": -0.2924,
+      "dans_le_bon_sens": 0.0,
+      "t": null,
+      "rendement_net_frais": -0.3073
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "hebdo_double_sommet": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 4,
+      "titres": 4,
+      "alpha_moyen": 0.0403,
+      "alpha_median": 0.0464,
+      "dans_le_bon_sens": 0.25,
+      "t": 0.73,
+      "rendement_net_frais": 0.0488
+     },
+     "h60": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0427,
+      "alpha_median": -0.0427,
+      "dans_le_bon_sens": 0.5,
+      "t": -0.51,
+      "rendement_net_frais": 0.0155
+     },
+     "h120": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.184,
+      "alpha_median": -0.184,
+      "dans_le_bon_sens": 1.0,
+      "t": -16.73,
+      "rendement_net_frais": -0.1116
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 1,
+      "titres": 1,
+      "alpha_moyen": 0.1685,
+      "alpha_median": 0.1685,
+      "dans_le_bon_sens": 0.0,
+      "t": null,
+      "rendement_net_frais": 0.1435
+     },
+     "h60": {
+      "n": 1,
+      "titres": 1,
+      "alpha_moyen": 0.0405,
+      "alpha_median": 0.0405,
+      "dans_le_bon_sens": 0.0,
+      "t": null,
+      "rendement_net_frais": 0.0055
+     },
+     "h120": {
+      "n": 1,
+      "titres": 1,
+      "alpha_moyen": -0.173,
+      "alpha_median": -0.173,
+      "dans_le_bon_sens": 1.0,
+      "t": null,
+      "rendement_net_frais": -0.182
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "hebdo_ete": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0058,
+      "alpha_median": -0.0058,
+      "dans_le_bon_sens": 0.5,
+      "t": -0.05,
+      "rendement_net_frais": 0.0278
+     },
+     "h60": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": 0.0009,
+      "alpha_median": 0.0009,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.01,
+      "rendement_net_frais": 0.1278
+     },
+     "h120": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0667,
+      "alpha_median": -0.0667,
+      "dans_le_bon_sens": 1.0,
+      "t": -1.21,
+      "rendement_net_frais": 0.1602
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 4,
+      "titres": 4,
+      "alpha_moyen": 0.0126,
+      "alpha_median": -0.0021,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.72,
+      "rendement_net_frais": 0.0058
+     },
+     "h60": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": -0.0363,
+      "alpha_median": -0.0429,
+      "dans_le_bon_sens": 0.667,
+      "t": -1.49,
+      "rendement_net_frais": -0.028
+     },
+     "h120": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0594,
+      "alpha_median": -0.0594,
+      "dans_le_bon_sens": 0.5,
+      "t": -0.64,
+      "rendement_net_frais": -0.0631
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.0155,
+      "alpha_median": -0.0079,
+      "dans_le_bon_sens": 0.667,
+      "t": 0.64,
+      "rendement_net_frais": 0.0152
+     },
+     "h60": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0588,
+      "alpha_median": -0.0588,
+      "dans_le_bon_sens": 1.0,
+      "t": -3.7,
+      "rendement_net_frais": -0.043
+     },
+     "h120": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0594,
+      "alpha_median": -0.0594,
+      "dans_le_bon_sens": 0.5,
+      "t": -0.64,
+      "rendement_net_frais": -0.0631
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "hebdo_ete_inversee": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": 0.0696,
+      "alpha_median": 0.0696,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.33,
+      "rendement_net_frais": 0.0719
+     },
+     "h60": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0347,
+      "alpha_median": -0.0347,
+      "dans_le_bon_sens": 0.5,
+      "t": -0.18,
+      "rendement_net_frais": 0.0217
+     },
+     "h120": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": 0.2373,
+      "alpha_median": 0.2373,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.42,
+      "rendement_net_frais": 0.4089
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "hebdo_fibo_au_dela_786": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": 0.0631,
+      "alpha_median": -0.0102,
+      "dans_le_bon_sens": 0.571,
+      "t": 0.9,
+      "rendement_net_frais": 0.0572
+     },
+     "h60": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": -0.0369,
+      "alpha_median": -0.0925,
+      "dans_le_bon_sens": 0.571,
+      "t": -0.68,
+      "rendement_net_frais": 0.0154
+     },
+     "h120": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": 0.021,
+      "alpha_median": -0.0728,
+      "dans_le_bon_sens": 0.714,
+      "t": 0.15,
+      "rendement_net_frais": 0.1515
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 36,
+      "titres": 29,
+      "alpha_moyen": -0.0082,
+      "alpha_median": -0.0205,
+      "dans_le_bon_sens": 0.611,
+      "t": -0.5,
+      "rendement_net_frais": -0.0317
+     },
+     "h60": {
+      "n": 32,
+      "titres": 27,
+      "alpha_moyen": 0.0049,
+      "alpha_median": -0.0156,
+      "dans_le_bon_sens": 0.562,
+      "t": 0.13,
+      "rendement_net_frais": -0.0253
+     },
+     "h120": {
+      "n": 20,
+      "titres": 18,
+      "alpha_moyen": 0.2925,
+      "alpha_median": 0.0346,
+      "dans_le_bon_sens": 0.4,
+      "t": 1.54,
+      "rendement_net_frais": 0.3063
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": 0.0379,
+      "alpha_median": 0.0379,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.79,
+      "rendement_net_frais": 0.0284
+     },
+     "h60": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0164,
+      "alpha_median": -0.0164,
+      "dans_le_bon_sens": 0.5,
+      "t": -0.13,
+      "rendement_net_frais": 0.0325
+     },
+     "h120": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0878,
+      "alpha_median": -0.0878,
+      "dans_le_bon_sens": 0.5,
+      "t": -0.49,
+      "rendement_net_frais": 0.0634
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 21,
+      "titres": 18,
+      "alpha_moyen": 0.017,
+      "alpha_median": -0.0147,
+      "dans_le_bon_sens": 0.524,
+      "t": 0.7,
+      "rendement_net_frais": -0.0202
+     },
+     "h60": {
+      "n": 17,
+      "titres": 16,
+      "alpha_moyen": 0.028,
+      "alpha_median": -0.0092,
+      "dans_le_bon_sens": 0.529,
+      "t": 0.43,
+      "rendement_net_frais": -0.005
+     },
+     "h120": {
+      "n": 11,
+      "titres": 10,
+      "alpha_moyen": 0.0948,
+      "alpha_median": 0.0003,
+      "dans_le_bon_sens": 0.455,
+      "t": 0.68,
+      "rendement_net_frais": 0.0992
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "hebdo_fibo_rebond_382_618": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 16,
+      "titres": 14,
+      "alpha_moyen": 0.0206,
+      "alpha_median": -0.0072,
+      "dans_le_bon_sens": 0.312,
+      "t": 0.44,
+      "rendement_net_frais": 0.0136
+     },
+     "h60": {
+      "n": 16,
+      "titres": 14,
+      "alpha_moyen": 0.0184,
+      "alpha_median": -0.0419,
+      "dans_le_bon_sens": 0.438,
+      "t": 0.28,
+      "rendement_net_frais": 0.0766
+     },
+     "h120": {
+      "n": 16,
+      "titres": 14,
+      "alpha_moyen": 0.0377,
+      "alpha_median": -0.0764,
+      "dans_le_bon_sens": 0.438,
+      "t": 0.36,
+      "rendement_net_frais": 0.1913
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 50,
+      "titres": 36,
+      "alpha_moyen": 0.0559,
+      "alpha_median": -0.0106,
+      "dans_le_bon_sens": 0.44,
+      "t": 1.71,
+      "rendement_net_frais": 0.0398
+     },
+     "h60": {
+      "n": 47,
+      "titres": 34,
+      "alpha_moyen": 0.0894,
+      "alpha_median": -0.0134,
+      "dans_le_bon_sens": 0.468,
+      "t": 1.58,
+      "rendement_net_frais": 0.0825
+     },
+     "h120": {
+      "n": 39,
+      "titres": 30,
+      "alpha_moyen": 0.1788,
+      "alpha_median": -0.0487,
+      "dans_le_bon_sens": 0.385,
+      "t": 1.73,
+      "rendement_net_frais": 0.21
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 4,
+      "titres": 3,
+      "alpha_moyen": -0.0094,
+      "alpha_median": -0.0158,
+      "dans_le_bon_sens": 0.25,
+      "t": -0.52,
+      "rendement_net_frais": -0.0172
+     },
+     "h60": {
+      "n": 4,
+      "titres": 3,
+      "alpha_moyen": 0.0092,
+      "alpha_median": 0.0163,
+      "dans_le_bon_sens": 0.75,
+      "t": 0.22,
+      "rendement_net_frais": 0.0807
+     },
+     "h120": {
+      "n": 4,
+      "titres": 3,
+      "alpha_moyen": 0.0303,
+      "alpha_median": 0.0875,
+      "dans_le_bon_sens": 0.75,
+      "t": 0.51,
+      "rendement_net_frais": 0.1662
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 34,
+      "titres": 26,
+      "alpha_moyen": 0.0152,
+      "alpha_median": -0.026,
+      "dans_le_bon_sens": 0.353,
+      "t": 0.63,
+      "rendement_net_frais": -0.0037
+     },
+     "h60": {
+      "n": 32,
+      "titres": 25,
+      "alpha_moyen": 0.0379,
+      "alpha_median": -0.0297,
+      "dans_le_bon_sens": 0.406,
+      "t": 0.75,
+      "rendement_net_frais": 0.0226
+     },
+     "h120": {
+      "n": 25,
+      "titres": 22,
+      "alpha_moyen": 0.0546,
+      "alpha_median": -0.091,
+      "dans_le_bon_sens": 0.24,
+      "t": 0.54,
+      "rendement_net_frais": 0.0796
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "hebdo_oblique_baissiere_cassee": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 5,
+      "titres": 5,
+      "alpha_moyen": -0.0674,
+      "alpha_median": -0.0731,
+      "dans_le_bon_sens": 0.2,
+      "t": -1.73,
+      "rendement_net_frais": -0.0679
+     },
+     "h60": {
+      "n": 5,
+      "titres": 5,
+      "alpha_moyen": -0.124,
+      "alpha_median": -0.1378,
+      "dans_le_bon_sens": 0.2,
+      "t": -3.14,
+      "rendement_net_frais": -0.085
+     },
+     "h120": {
+      "n": 5,
+      "titres": 5,
+      "alpha_moyen": -0.1764,
+      "alpha_median": -0.2326,
+      "dans_le_bon_sens": 0.2,
+      "t": -1.98,
+      "rendement_net_frais": -0.0338
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 17,
+      "titres": 16,
+      "alpha_moyen": -0.0276,
+      "alpha_median": -0.0274,
+      "dans_le_bon_sens": 0.235,
+      "t": -1.23,
+      "rendement_net_frais": -0.0541
+     },
+     "h60": {
+      "n": 14,
+      "titres": 13,
+      "alpha_moyen": 0.0156,
+      "alpha_median": 0.0036,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.28,
+      "rendement_net_frais": -0.004
+     },
+     "h120": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": -0.0728,
+      "alpha_median": -0.0431,
+      "dans_le_bon_sens": 0.143,
+      "t": -1.94,
+      "rendement_net_frais": -0.0641
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": 0.0161,
+      "alpha_median": 0.0161,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.39,
+      "rendement_net_frais": -0.0019
+     },
+     "h60": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0431,
+      "alpha_median": -0.0431,
+      "dans_le_bon_sens": 0.5,
+      "t": -0.82,
+      "rendement_net_frais": -0.05
+     },
+     "h120": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.0382,
+      "alpha_median": -0.0382,
+      "dans_le_bon_sens": 0.5,
+      "t": -0.2,
+      "rendement_net_frais": 0.054
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 11,
+      "titres": 10,
+      "alpha_moyen": -0.0189,
+      "alpha_median": -0.0252,
+      "dans_le_bon_sens": 0.182,
+      "t": -1.01,
+      "rendement_net_frais": -0.0673
+     },
+     "h60": {
+      "n": 10,
+      "titres": 9,
+      "alpha_moyen": 0.0564,
+      "alpha_median": 0.0228,
+      "dans_le_bon_sens": 0.6,
+      "t": 0.84,
+      "rendement_net_frais": 0.0128
+     },
+     "h120": {
+      "n": 4,
+      "titres": 4,
+      "alpha_moyen": -0.0591,
+      "alpha_median": -0.0541,
+      "dans_le_bon_sens": 0.0,
+      "t": -2.59,
+      "rendement_net_frais": -0.0788
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "hebdo_oblique_haussiere_cassee": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 9,
+      "titres": 9,
+      "alpha_moyen": -0.019,
+      "alpha_median": -0.0411,
+      "dans_le_bon_sens": 0.667,
+      "t": -1.28,
+      "rendement_net_frais": -0.0074
+     },
+     "h60": {
+      "n": 9,
+      "titres": 9,
+      "alpha_moyen": -0.0441,
+      "alpha_median": -0.032,
+      "dans_le_bon_sens": 0.778,
+      "t": -0.91,
+      "rendement_net_frais": 0.0268
+     },
+     "h120": {
+      "n": 9,
+      "titres": 9,
+      "alpha_moyen": 0.3678,
+      "alpha_median": -0.0655,
+      "dans_le_bon_sens": 0.556,
+      "t": 1.29,
+      "rendement_net_frais": 0.5365
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 30,
+      "titres": 30,
+      "alpha_moyen": 0.0115,
+      "alpha_median": -0.0087,
+      "dans_le_bon_sens": 0.633,
+      "t": 0.64,
+      "rendement_net_frais": 0.0055
+     },
+     "h60": {
+      "n": 26,
+      "titres": 26,
+      "alpha_moyen": 0.0398,
+      "alpha_median": -0.0478,
+      "dans_le_bon_sens": 0.654,
+      "t": 0.63,
+      "rendement_net_frais": 0.0547
+     },
+     "h120": {
+      "n": 22,
+      "titres": 22,
+      "alpha_moyen": 0.1755,
+      "alpha_median": 0.0355,
+      "dans_le_bon_sens": 0.455,
+      "t": 1.37,
+      "rendement_net_frais": 0.1733
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": -0.0085,
+      "alpha_median": -0.0338,
+      "dans_le_bon_sens": 0.571,
+      "t": -0.5,
+      "rendement_net_frais": -0.0033
+     },
+     "h60": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": -0.0183,
+      "alpha_median": -0.032,
+      "dans_le_bon_sens": 0.714,
+      "t": -0.33,
+      "rendement_net_frais": 0.0334
+     },
+     "h120": {
+      "n": 7,
+      "titres": 7,
+      "alpha_moyen": 0.1618,
+      "alpha_median": -0.0655,
+      "dans_le_bon_sens": 0.571,
+      "t": 1.02,
+      "rendement_net_frais": 0.314
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 22,
+      "titres": 22,
+      "alpha_moyen": 0.0102,
+      "alpha_median": -0.0216,
+      "dans_le_bon_sens": 0.682,
+      "t": 0.43,
+      "rendement_net_frais": -0.0041
+     },
+     "h60": {
+      "n": 20,
+      "titres": 20,
+      "alpha_moyen": 0.0485,
+      "alpha_median": -0.0711,
+      "dans_le_bon_sens": 0.7,
+      "t": 0.59,
+      "rendement_net_frais": 0.056
+     },
+     "h120": {
+      "n": 17,
+      "titres": 17,
+      "alpha_moyen": 0.1732,
+      "alpha_median": -0.0909,
+      "dans_le_bon_sens": 0.588,
+      "t": 1.06,
+      "rendement_net_frais": 0.1674
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "hebdo_triangle_ascendant": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.3677,
+      "alpha_median": -0.0927,
+      "dans_le_bon_sens": 0.333,
+      "t": 0.78,
+      "rendement_net_frais": 0.3671
+     },
+     "h60": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.8836,
+      "alpha_median": 0.6571,
+      "dans_le_bon_sens": 0.667,
+      "t": 1.43,
+      "rendement_net_frais": 0.9046
+     },
+     "h120": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 1.6888,
+      "alpha_median": 2.141,
+      "dans_le_bon_sens": 0.667,
+      "t": 1.88,
+      "rendement_net_frais": 1.7305
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "hebdo_triangle_descendant": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": 0.0616,
+      "alpha_median": 0.0616,
+      "dans_le_bon_sens": 0.0,
+      "t": 37.87,
+      "rendement_net_frais": 0.0382
+     },
+     "h60": {
+      "n": 1,
+      "titres": 1,
+      "alpha_moyen": 0.0611,
+      "alpha_median": 0.0611,
+      "dans_le_bon_sens": 0.0,
+      "t": null,
+      "rendement_net_frais": 0.0323
+     },
+     "h120": {
+      "n": 1,
+      "titres": 1,
+      "alpha_moyen": 0.1023,
+      "alpha_median": 0.1023,
+      "dans_le_bon_sens": 0.0,
+      "t": null,
+      "rendement_net_frais": 0.0031
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 0
+     },
+     "h60": {
+      "n": 0
+     },
+     "h120": {
+      "n": 0
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "hebdo_triangle_sym_bas": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 5,
+      "titres": 5,
+      "alpha_moyen": 0.0352,
+      "alpha_median": 0.0094,
+      "dans_le_bon_sens": 0.2,
+      "t": 0.72,
+      "rendement_net_frais": 0.046
+     },
+     "h60": {
+      "n": 5,
+      "titres": 5,
+      "alpha_moyen": -0.033,
+      "alpha_median": -0.0226,
+      "dans_le_bon_sens": 0.6,
+      "t": -0.78,
+      "rendement_net_frais": 0.0406
+     },
+     "h120": {
+      "n": 5,
+      "titres": 5,
+      "alpha_moyen": -0.017,
+      "alpha_median": -0.0792,
+      "dans_le_bon_sens": 0.6,
+      "t": -0.13,
+      "rendement_net_frais": 0.1584
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 18,
+      "titres": 18,
+      "alpha_moyen": 0.0073,
+      "alpha_median": -0.0102,
+      "dans_le_bon_sens": 0.667,
+      "t": 0.28,
+      "rendement_net_frais": 0.017
+     },
+     "h60": {
+      "n": 15,
+      "titres": 15,
+      "alpha_moyen": 0.0003,
+      "alpha_median": -0.0429,
+      "dans_le_bon_sens": 0.8,
+      "t": 0.01,
+      "rendement_net_frais": 0.0061
+     },
+     "h120": {
+      "n": 13,
+      "titres": 13,
+      "alpha_moyen": 0.0352,
+      "alpha_median": -0.043,
+      "dans_le_bon_sens": 0.615,
+      "t": 0.44,
+      "rendement_net_frais": 0.0303
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.0942,
+      "alpha_median": 0.1271,
+      "dans_le_bon_sens": 0.0,
+      "t": 2.02,
+      "rendement_net_frais": 0.0708
+     },
+     "h60": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.0277,
+      "alpha_median": 0.0163,
+      "dans_le_bon_sens": 0.333,
+      "t": 0.84,
+      "rendement_net_frais": 0.0743
+     },
+     "h120": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.1302,
+      "alpha_median": 0.0025,
+      "dans_le_bon_sens": 0.333,
+      "t": 0.76,
+      "rendement_net_frais": 0.2722
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 15,
+      "titres": 15,
+      "alpha_moyen": 0.0167,
+      "alpha_median": -0.0095,
+      "dans_le_bon_sens": 0.6,
+      "t": 0.55,
+      "rendement_net_frais": 0.0219
+     },
+     "h60": {
+      "n": 13,
+      "titres": 13,
+      "alpha_moyen": 0.0052,
+      "alpha_median": -0.0445,
+      "dans_le_bon_sens": 0.769,
+      "t": 0.12,
+      "rendement_net_frais": 0.0139
+     },
+     "h120": {
+      "n": 11,
+      "titres": 11,
+      "alpha_moyen": 0.039,
+      "alpha_median": -0.0646,
+      "dans_le_bon_sens": 0.636,
+      "t": 0.41,
+      "rendement_net_frais": 0.0335
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "hebdo_triangle_sym_haut": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.1647,
+      "alpha_median": -0.1647,
+      "dans_le_bon_sens": 0.0,
+      "t": -7.58,
+      "rendement_net_frais": -0.1555
+     },
+     "h60": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.1091,
+      "alpha_median": -0.1091,
+      "dans_le_bon_sens": 0.5,
+      "t": -0.94,
+      "rendement_net_frais": -0.0432
+     },
+     "h120": {
+      "n": 2,
+      "titres": 2,
+      "alpha_moyen": -0.2352,
+      "alpha_median": -0.2352,
+      "dans_le_bon_sens": 0.0,
+      "t": -2.41,
+      "rendement_net_frais": -0.0935
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 6,
+      "titres": 6,
+      "alpha_moyen": -0.017,
+      "alpha_median": -0.0283,
+      "dans_le_bon_sens": 0.333,
+      "t": -0.37,
+      "rendement_net_frais": -0.028
+     },
+     "h60": {
+      "n": 5,
+      "titres": 5,
+      "alpha_moyen": 0.0598,
+      "alpha_median": 0.0455,
+      "dans_le_bon_sens": 0.6,
+      "t": 0.44,
+      "rendement_net_frais": 0.0357
+     },
+     "h120": {
+      "n": 4,
+      "titres": 4,
+      "alpha_moyen": -0.0671,
+      "alpha_median": -0.0311,
+      "dans_le_bon_sens": 0.25,
+      "t": -0.95,
+      "rendement_net_frais": -0.0617
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 1,
+      "titres": 1,
+      "alpha_moyen": -0.1864,
+      "alpha_median": -0.1864,
+      "dans_le_bon_sens": 0.0,
+      "t": null,
+      "rendement_net_frais": -0.2035
+     },
+     "h60": {
+      "n": 1,
+      "titres": 1,
+      "alpha_moyen": 0.0065,
+      "alpha_median": 0.0065,
+      "dans_le_bon_sens": 1.0,
+      "t": null,
+      "rendement_net_frais": 0.0244
+     },
+     "h120": {
+      "n": 1,
+      "titres": 1,
+      "alpha_moyen": -0.1376,
+      "alpha_median": -0.1376,
+      "dans_le_bon_sens": 0.0,
+      "t": null,
+      "rendement_net_frais": -0.0498
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 5,
+      "titres": 5,
+      "alpha_moyen": 0.0173,
+      "alpha_median": -0.0089,
+      "dans_le_bon_sens": 0.4,
+      "t": 0.46,
+      "rendement_net_frais": -0.0164
+     },
+     "h60": {
+      "n": 4,
+      "titres": 4,
+      "alpha_moyen": 0.1536,
+      "alpha_median": 0.0494,
+      "dans_le_bon_sens": 0.75,
+      "t": 1.19,
+      "rendement_net_frais": 0.0856
+     },
+     "h120": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.0002,
+      "alpha_median": -0.0213,
+      "dans_le_bon_sens": 0.333,
+      "t": 0.01,
+      "rendement_net_frais": -0.0438
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "macd_baissier_sur_zero": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 332,
+      "titres": 71,
+      "alpha_moyen": 0.0191,
+      "alpha_median": 0.0007,
+      "dans_le_bon_sens": 0.485,
+      "t": 3.43,
+      "rendement_net_frais": 0.0152
+     },
+     "h60": {
+      "n": 332,
+      "titres": 71,
+      "alpha_moyen": 0.0553,
+      "alpha_median": -0.0056,
+      "dans_le_bon_sens": 0.527,
+      "t": 4.38,
+      "rendement_net_frais": 0.0955
+     },
+     "h120": {
+      "n": 332,
+      "titres": 71,
+      "alpha_moyen": 0.1064,
+      "alpha_median": -0.007,
+      "dans_le_bon_sens": 0.524,
+      "t": 4.76,
+      "rendement_net_frais": 0.2234
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 485,
+      "titres": 77,
+      "alpha_moyen": 0.0163,
+      "alpha_median": -0.0005,
+      "dans_le_bon_sens": 0.503,
+      "t": 3.91,
+      "rendement_net_frais": 0.0048
+     },
+     "h60": {
+      "n": 443,
+      "titres": 77,
+      "alpha_moyen": 0.0476,
+      "alpha_median": -0.002,
+      "dans_le_bon_sens": 0.503,
+      "t": 3.85,
+      "rendement_net_frais": 0.0513
+     },
+     "h120": {
+      "n": 382,
+      "titres": 75,
+      "alpha_moyen": 0.098,
+      "alpha_median": -0.0015,
+      "dans_le_bon_sens": 0.5,
+      "t": 4.01,
+      "rendement_net_frais": 0.122
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 213,
+      "titres": 45,
+      "alpha_moyen": 0.0285,
+      "alpha_median": 0.0058,
+      "dans_le_bon_sens": 0.455,
+      "t": 3.6,
+      "rendement_net_frais": 0.0231
+     },
+     "h60": {
+      "n": 213,
+      "titres": 45,
+      "alpha_moyen": 0.0679,
+      "alpha_median": -0.001,
+      "dans_le_bon_sens": 0.507,
+      "t": 3.99,
+      "rendement_net_frais": 0.1074
+     },
+     "h120": {
+      "n": 213,
+      "titres": 45,
+      "alpha_moyen": 0.1207,
+      "alpha_median": 0.009,
+      "dans_le_bon_sens": 0.488,
+      "t": 4.33,
+      "rendement_net_frais": 0.2363
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 332,
+      "titres": 59,
+      "alpha_moyen": 0.0146,
+      "alpha_median": -0.0027,
+      "dans_le_bon_sens": 0.53,
+      "t": 2.83,
+      "rendement_net_frais": 0.0012
+     },
+     "h60": {
+      "n": 302,
+      "titres": 59,
+      "alpha_moyen": 0.0378,
+      "alpha_median": -0.0053,
+      "dans_le_bon_sens": 0.52,
+      "t": 2.88,
+      "rendement_net_frais": 0.0384
+     },
+     "h120": {
+      "n": 259,
+      "titres": 57,
+      "alpha_moyen": 0.0485,
+      "alpha_median": -0.0194,
+      "dans_le_bon_sens": 0.544,
+      "t": 2.52,
+      "rendement_net_frais": 0.0636
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "macd_haussier_sous_zero": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 305,
+      "titres": 67,
+      "alpha_moyen": -0.0006,
+      "alpha_median": -0.0196,
+      "dans_le_bon_sens": 0.344,
+      "t": -0.1,
+      "rendement_net_frais": 0.0006
+     },
+     "h60": {
+      "n": 305,
+      "titres": 67,
+      "alpha_moyen": 0.0134,
+      "alpha_median": -0.0334,
+      "dans_le_bon_sens": 0.328,
+      "t": 0.79,
+      "rendement_net_frais": 0.0622
+     },
+     "h120": {
+      "n": 305,
+      "titres": 67,
+      "alpha_moyen": 0.0517,
+      "alpha_median": -0.0549,
+      "dans_le_bon_sens": 0.37,
+      "t": 1.92,
+      "rendement_net_frais": 0.1749
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 554,
+      "titres": 76,
+      "alpha_moyen": -0.0122,
+      "alpha_median": -0.0167,
+      "dans_le_bon_sens": 0.377,
+      "t": -3.61,
+      "rendement_net_frais": -0.0233
+     },
+     "h60": {
+      "n": 483,
+      "titres": 76,
+      "alpha_moyen": -0.0113,
+      "alpha_median": -0.0303,
+      "dans_le_bon_sens": 0.375,
+      "t": -1.7,
+      "rendement_net_frais": -0.0183
+     },
+     "h120": {
+      "n": 407,
+      "titres": 75,
+      "alpha_moyen": 0.0232,
+      "alpha_median": -0.0388,
+      "dans_le_bon_sens": 0.381,
+      "t": 1.15,
+      "rendement_net_frais": 0.026
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 166,
+      "titres": 45,
+      "alpha_moyen": -0.007,
+      "alpha_median": -0.0143,
+      "dans_le_bon_sens": 0.398,
+      "t": -1.49,
+      "rendement_net_frais": -0.0072
+     },
+     "h60": {
+      "n": 166,
+      "titres": 45,
+      "alpha_moyen": 0.0042,
+      "alpha_median": -0.028,
+      "dans_le_bon_sens": 0.361,
+      "t": 0.38,
+      "rendement_net_frais": 0.0513
+     },
+     "h120": {
+      "n": 166,
+      "titres": 45,
+      "alpha_moyen": 0.0204,
+      "alpha_median": -0.0522,
+      "dans_le_bon_sens": 0.38,
+      "t": 0.83,
+      "rendement_net_frais": 0.1394
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 359,
+      "titres": 58,
+      "alpha_moyen": -0.0118,
+      "alpha_median": -0.017,
+      "dans_le_bon_sens": 0.376,
+      "t": -2.82,
+      "rendement_net_frais": -0.0257
+     },
+     "h60": {
+      "n": 315,
+      "titres": 58,
+      "alpha_moyen": -0.0225,
+      "alpha_median": -0.039,
+      "dans_le_bon_sens": 0.349,
+      "t": -3.4,
+      "rendement_net_frais": -0.0339
+     },
+     "h120": {
+      "n": 266,
+      "titres": 58,
+      "alpha_moyen": -0.021,
+      "alpha_median": -0.0602,
+      "dans_le_bon_sens": 0.338,
+      "t": -1.4,
+      "rendement_net_frais": -0.0279
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "oblique_baissiere_cassee": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 30,
+      "titres": 24,
+      "alpha_moyen": 0.0078,
+      "alpha_median": -0.0165,
+      "dans_le_bon_sens": 0.367,
+      "t": 0.43,
+      "rendement_net_frais": 0.0063
+     },
+     "h60": {
+      "n": 30,
+      "titres": 24,
+      "alpha_moyen": 0.069,
+      "alpha_median": 0.0387,
+      "dans_le_bon_sens": 0.533,
+      "t": 1.69,
+      "rendement_net_frais": 0.1266
+     },
+     "h120": {
+      "n": 30,
+      "titres": 24,
+      "alpha_moyen": 0.2111,
+      "alpha_median": -0.0176,
+      "dans_le_bon_sens": 0.4,
+      "t": 1.83,
+      "rendement_net_frais": 0.3415
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 84,
+      "titres": 50,
+      "alpha_moyen": -0.0053,
+      "alpha_median": -0.0134,
+      "dans_le_bon_sens": 0.393,
+      "t": -0.57,
+      "rendement_net_frais": -0.0133
+     },
+     "h60": {
+      "n": 70,
+      "titres": 46,
+      "alpha_moyen": 0.0018,
+      "alpha_median": -0.0204,
+      "dans_le_bon_sens": 0.386,
+      "t": 0.09,
+      "rendement_net_frais": -0.0042
+     },
+     "h120": {
+      "n": 53,
+      "titres": 43,
+      "alpha_moyen": 0.0353,
+      "alpha_median": -0.0337,
+      "dans_le_bon_sens": 0.396,
+      "t": 0.8,
+      "rendement_net_frais": 0.0514
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 16,
+      "titres": 12,
+      "alpha_moyen": 0.0332,
+      "alpha_median": 0.0007,
+      "dans_le_bon_sens": 0.5,
+      "t": 1.17,
+      "rendement_net_frais": 0.035
+     },
+     "h60": {
+      "n": 16,
+      "titres": 12,
+      "alpha_moyen": 0.0957,
+      "alpha_median": 0.0674,
+      "dans_le_bon_sens": 0.625,
+      "t": 1.99,
+      "rendement_net_frais": 0.1422
+     },
+     "h120": {
+      "n": 16,
+      "titres": 12,
+      "alpha_moyen": 0.2524,
+      "alpha_median": 0.0068,
+      "dans_le_bon_sens": 0.5,
+      "t": 1.44,
+      "rendement_net_frais": 0.3702
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 50,
+      "titres": 34,
+      "alpha_moyen": 0.0066,
+      "alpha_median": -0.0038,
+      "dans_le_bon_sens": 0.48,
+      "t": 0.47,
+      "rendement_net_frais": 0.0014
+     },
+     "h60": {
+      "n": 45,
+      "titres": 33,
+      "alpha_moyen": 0.0147,
+      "alpha_median": -0.0222,
+      "dans_le_bon_sens": 0.356,
+      "t": 0.56,
+      "rendement_net_frais": 0.0053
+     },
+     "h120": {
+      "n": 33,
+      "titres": 30,
+      "alpha_moyen": 0.0383,
+      "alpha_median": -0.0595,
+      "dans_le_bon_sens": 0.333,
+      "t": 0.57,
+      "rendement_net_frais": 0.0431
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "oblique_haussiere_cassee": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 54,
+      "titres": 37,
+      "alpha_moyen": 0.0087,
+      "alpha_median": 0.0016,
+      "dans_le_bon_sens": 0.481,
+      "t": 0.67,
+      "rendement_net_frais": 0.0087
+     },
+     "h60": {
+      "n": 54,
+      "titres": 37,
+      "alpha_moyen": 0.0668,
+      "alpha_median": -0.006,
+      "dans_le_bon_sens": 0.519,
+      "t": 1.96,
+      "rendement_net_frais": 0.1153
+     },
+     "h120": {
+      "n": 54,
+      "titres": 37,
+      "alpha_moyen": 0.2091,
+      "alpha_median": -0.0388,
+      "dans_le_bon_sens": 0.556,
+      "t": 2.18,
+      "rendement_net_frais": 0.3377
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 126,
+      "titres": 65,
+      "alpha_moyen": 0.0336,
+      "alpha_median": 0.0083,
+      "dans_le_bon_sens": 0.468,
+      "t": 2.44,
+      "rendement_net_frais": 0.0247
+     },
+     "h60": {
+      "n": 119,
+      "titres": 63,
+      "alpha_moyen": 0.0448,
+      "alpha_median": -0.0135,
+      "dans_le_bon_sens": 0.555,
+      "t": 1.42,
+      "rendement_net_frais": 0.0455
+     },
+     "h120": {
+      "n": 100,
+      "titres": 62,
+      "alpha_moyen": 0.1108,
+      "alpha_median": -0.0244,
+      "dans_le_bon_sens": 0.57,
+      "t": 1.95,
+      "rendement_net_frais": 0.1241
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 31,
+      "titres": 22,
+      "alpha_moyen": 0.0318,
+      "alpha_median": 0.0049,
+      "dans_le_bon_sens": 0.452,
+      "t": 1.57,
+      "rendement_net_frais": 0.0348
+     },
+     "h60": {
+      "n": 31,
+      "titres": 22,
+      "alpha_moyen": 0.0995,
+      "alpha_median": 0.0142,
+      "dans_le_bon_sens": 0.452,
+      "t": 2.05,
+      "rendement_net_frais": 0.1557
+     },
+     "h120": {
+      "n": 31,
+      "titres": 22,
+      "alpha_moyen": 0.2478,
+      "alpha_median": 0.0179,
+      "dans_le_bon_sens": 0.484,
+      "t": 1.87,
+      "rendement_net_frais": 0.3643
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 88,
+      "titres": 48,
+      "alpha_moyen": 0.0192,
+      "alpha_median": 0.001,
+      "dans_le_bon_sens": 0.5,
+      "t": 1.71,
+      "rendement_net_frais": 0.0086
+     },
+     "h60": {
+      "n": 82,
+      "titres": 47,
+      "alpha_moyen": 0.0005,
+      "alpha_median": -0.0211,
+      "dans_le_bon_sens": 0.61,
+      "t": 0.02,
+      "rendement_net_frais": 0.0012
+     },
+     "h120": {
+      "n": 69,
+      "titres": 46,
+      "alpha_moyen": 0.027,
+      "alpha_median": -0.0625,
+      "dans_le_bon_sens": 0.667,
+      "t": 0.64,
+      "rendement_net_frais": 0.0373
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "rsi_sortie_surachat": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 169,
+      "titres": 59,
+      "alpha_moyen": 0.0181,
+      "alpha_median": 0.0036,
+      "dans_le_bon_sens": 0.456,
+      "t": 2.47,
+      "rendement_net_frais": 0.0102
+     },
+     "h60": {
+      "n": 169,
+      "titres": 59,
+      "alpha_moyen": 0.0701,
+      "alpha_median": -0.0016,
+      "dans_le_bon_sens": 0.503,
+      "t": 3.23,
+      "rendement_net_frais": 0.1059
+     },
+     "h120": {
+      "n": 169,
+      "titres": 59,
+      "alpha_moyen": 0.1541,
+      "alpha_median": 0.0139,
+      "dans_le_bon_sens": 0.456,
+      "t": 4.51,
+      "rendement_net_frais": 0.2622
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 217,
+      "titres": 71,
+      "alpha_moyen": 0.0311,
+      "alpha_median": 0.0018,
+      "dans_le_bon_sens": 0.479,
+      "t": 2.42,
+      "rendement_net_frais": 0.021
+     },
+     "h60": {
+      "n": 202,
+      "titres": 70,
+      "alpha_moyen": 0.0795,
+      "alpha_median": 0.0062,
+      "dans_le_bon_sens": 0.485,
+      "t": 3.39,
+      "rendement_net_frais": 0.083
+     },
+     "h120": {
+      "n": 185,
+      "titres": 70,
+      "alpha_moyen": 0.1533,
+      "alpha_median": 0.0212,
+      "dans_le_bon_sens": 0.476,
+      "t": 3.68,
+      "rendement_net_frais": 0.1922
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 124,
+      "titres": 37,
+      "alpha_moyen": 0.0291,
+      "alpha_median": 0.0071,
+      "dans_le_bon_sens": 0.411,
+      "t": 3.32,
+      "rendement_net_frais": 0.021
+     },
+     "h60": {
+      "n": 124,
+      "titres": 37,
+      "alpha_moyen": 0.1159,
+      "alpha_median": 0.0178,
+      "dans_le_bon_sens": 0.419,
+      "t": 4.21,
+      "rendement_net_frais": 0.152
+     },
+     "h120": {
+      "n": 124,
+      "titres": 37,
+      "alpha_moyen": 0.2272,
+      "alpha_median": 0.0667,
+      "dans_le_bon_sens": 0.363,
+      "t": 5.33,
+      "rendement_net_frais": 0.3349
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 166,
+      "titres": 57,
+      "alpha_moyen": 0.0183,
+      "alpha_median": 0.0005,
+      "dans_le_bon_sens": 0.482,
+      "t": 2.13,
+      "rendement_net_frais": 0.0067
+     },
+     "h60": {
+      "n": 155,
+      "titres": 56,
+      "alpha_moyen": 0.0536,
+      "alpha_median": 0.0043,
+      "dans_le_bon_sens": 0.49,
+      "t": 2.61,
+      "rendement_net_frais": 0.0532
+     },
+     "h120": {
+      "n": 141,
+      "titres": 56,
+      "alpha_moyen": 0.0817,
+      "alpha_median": 0.008,
+      "dans_le_bon_sens": 0.489,
+      "t": 2.68,
+      "rendement_net_frais": 0.1142
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "rsi_sortie_survente": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 53,
+      "titres": 32,
+      "alpha_moyen": -0.0051,
+      "alpha_median": -0.017,
+      "dans_le_bon_sens": 0.321,
+      "t": -0.32,
+      "rendement_net_frais": -0.0052
+     },
+     "h60": {
+      "n": 53,
+      "titres": 32,
+      "alpha_moyen": 0.0033,
+      "alpha_median": -0.0384,
+      "dans_le_bon_sens": 0.358,
+      "t": 0.16,
+      "rendement_net_frais": 0.0523
+     },
+     "h120": {
+      "n": 53,
+      "titres": 32,
+      "alpha_moyen": 0.0023,
+      "alpha_median": -0.0332,
+      "dans_le_bon_sens": 0.34,
+      "t": 0.08,
+      "rendement_net_frais": 0.1197
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 143,
+      "titres": 62,
+      "alpha_moyen": -0.0074,
+      "alpha_median": -0.0085,
+      "dans_le_bon_sens": 0.42,
+      "t": -1.5,
+      "rendement_net_frais": 0.0008
+     },
+     "h60": {
+      "n": 131,
+      "titres": 62,
+      "alpha_moyen": -0.0149,
+      "alpha_median": -0.025,
+      "dans_le_bon_sens": 0.389,
+      "t": -1.17,
+      "rendement_net_frais": 0.0121
+     },
+     "h120": {
+      "n": 121,
+      "titres": 60,
+      "alpha_moyen": -0.0135,
+      "alpha_median": -0.0274,
+      "dans_le_bon_sens": 0.397,
+      "t": -0.62,
+      "rendement_net_frais": 0.0041
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 37,
+      "titres": 24,
+      "alpha_moyen": -0.021,
+      "alpha_median": -0.0168,
+      "dans_le_bon_sens": 0.297,
+      "t": -1.86,
+      "rendement_net_frais": -0.0211
+     },
+     "h60": {
+      "n": 37,
+      "titres": 24,
+      "alpha_moyen": 0.0002,
+      "alpha_median": -0.0322,
+      "dans_le_bon_sens": 0.405,
+      "t": 0.01,
+      "rendement_net_frais": 0.0502
+     },
+     "h120": {
+      "n": 37,
+      "titres": 24,
+      "alpha_moyen": 0.0036,
+      "alpha_median": -0.033,
+      "dans_le_bon_sens": 0.351,
+      "t": 0.1,
+      "rendement_net_frais": 0.1197
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 111,
+      "titres": 47,
+      "alpha_moyen": -0.009,
+      "alpha_median": -0.0124,
+      "dans_le_bon_sens": 0.414,
+      "t": -1.67,
+      "rendement_net_frais": -0.0034
+     },
+     "h60": {
+      "n": 104,
+      "titres": 47,
+      "alpha_moyen": -0.0183,
+      "alpha_median": -0.0314,
+      "dans_le_bon_sens": 0.365,
+      "t": -1.22,
+      "rendement_net_frais": 0.0074
+     },
+     "h120": {
+      "n": 96,
+      "titres": 45,
+      "alpha_moyen": -0.0185,
+      "alpha_median": -0.0324,
+      "dans_le_bon_sens": 0.375,
+      "t": -0.71,
+      "rendement_net_frais": -0.0047
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "tasse_anse": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.142,
+      "alpha_median": 0.0709,
+      "dans_le_bon_sens": 1.0,
+      "t": 1.4,
+      "rendement_net_frais": 0.1408
+     },
+     "h60": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.4827,
+      "alpha_median": 0.1064,
+      "dans_le_bon_sens": 0.667,
+      "t": 1.0,
+      "rendement_net_frais": 0.5112
+     },
+     "h120": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.9257,
+      "alpha_median": 0.027,
+      "dans_le_bon_sens": 1.0,
+      "t": 1.02,
+      "rendement_net_frais": 1.0634
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 6,
+      "titres": 6,
+      "alpha_moyen": -0.0239,
+      "alpha_median": -0.0619,
+      "dans_le_bon_sens": 0.167,
+      "t": -0.59,
+      "rendement_net_frais": -0.0489
+     },
+     "h60": {
+      "n": 5,
+      "titres": 5,
+      "alpha_moyen": 0.1039,
+      "alpha_median": -0.0306,
+      "dans_le_bon_sens": 0.2,
+      "t": 0.71,
+      "rendement_net_frais": 0.129
+     },
+     "h120": {
+      "n": 4,
+      "titres": 4,
+      "alpha_moyen": 0.1313,
+      "alpha_median": 0.0606,
+      "dans_le_bon_sens": 0.5,
+      "t": 1.11,
+      "rendement_net_frais": 0.191
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.142,
+      "alpha_median": 0.0709,
+      "dans_le_bon_sens": 1.0,
+      "t": 1.4,
+      "rendement_net_frais": 0.1408
+     },
+     "h60": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.4827,
+      "alpha_median": 0.1064,
+      "dans_le_bon_sens": 0.667,
+      "t": 1.0,
+      "rendement_net_frais": 0.5112
+     },
+     "h120": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.9257,
+      "alpha_median": 0.027,
+      "dans_le_bon_sens": 1.0,
+      "t": 1.02,
+      "rendement_net_frais": 1.0634
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 4,
+      "titres": 4,
+      "alpha_moyen": -0.0048,
+      "alpha_median": -0.0601,
+      "dans_le_bon_sens": 0.25,
+      "t": -0.08,
+      "rendement_net_frais": -0.019
+     },
+     "h60": {
+      "n": 4,
+      "titres": 4,
+      "alpha_moyen": 0.1376,
+      "alpha_median": -0.0417,
+      "dans_le_bon_sens": 0.25,
+      "t": 0.75,
+      "rendement_net_frais": 0.1463
+     },
+     "h120": {
+      "n": 3,
+      "titres": 3,
+      "alpha_moyen": 0.1806,
+      "alpha_median": 0.1378,
+      "dans_le_bon_sens": 0.667,
+      "t": 1.19,
+      "rendement_net_frais": 0.2504
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "triangle_ascendant": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 10,
+      "titres": 9,
+      "alpha_moyen": 0.0354,
+      "alpha_median": -0.0007,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.97,
+      "rendement_net_frais": 0.0325
+     },
+     "h60": {
+      "n": 10,
+      "titres": 9,
+      "alpha_moyen": 0.1359,
+      "alpha_median": -0.0066,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.92,
+      "rendement_net_frais": 0.1664
+     },
+     "h120": {
+      "n": 10,
+      "titres": 9,
+      "alpha_moyen": 0.3368,
+      "alpha_median": 0.0013,
+      "dans_le_bon_sens": 0.5,
+      "t": 1.2,
+      "rendement_net_frais": 0.442
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 20,
+      "titres": 18,
+      "alpha_moyen": 0.0458,
+      "alpha_median": 0.0022,
+      "dans_le_bon_sens": 0.5,
+      "t": 1.44,
+      "rendement_net_frais": 0.0519
+     },
+     "h60": {
+      "n": 19,
+      "titres": 17,
+      "alpha_moyen": 0.0842,
+      "alpha_median": 0.0096,
+      "dans_le_bon_sens": 0.526,
+      "t": 1.88,
+      "rendement_net_frais": 0.0959
+     },
+     "h120": {
+      "n": 16,
+      "titres": 14,
+      "alpha_moyen": 0.2184,
+      "alpha_median": 0.122,
+      "dans_le_bon_sens": 0.688,
+      "t": 2.7,
+      "rendement_net_frais": 0.2352
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 6,
+      "titres": 5,
+      "alpha_moyen": 0.0644,
+      "alpha_median": 0.0106,
+      "dans_le_bon_sens": 0.667,
+      "t": 1.12,
+      "rendement_net_frais": 0.0675
+     },
+     "h60": {
+      "n": 6,
+      "titres": 5,
+      "alpha_moyen": 0.2153,
+      "alpha_median": -0.0119,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.87,
+      "rendement_net_frais": 0.2455
+     },
+     "h120": {
+      "n": 6,
+      "titres": 5,
+      "alpha_moyen": 0.4221,
+      "alpha_median": 0.0013,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.91,
+      "rendement_net_frais": 0.5254
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 16,
+      "titres": 14,
+      "alpha_moyen": 0.056,
+      "alpha_median": 0.0022,
+      "dans_le_bon_sens": 0.5,
+      "t": 1.5,
+      "rendement_net_frais": 0.0677
+     },
+     "h60": {
+      "n": 16,
+      "titres": 14,
+      "alpha_moyen": 0.0994,
+      "alpha_median": 0.0137,
+      "dans_le_bon_sens": 0.5,
+      "t": 1.91,
+      "rendement_net_frais": 0.1115
+     },
+     "h120": {
+      "n": 13,
+      "titres": 11,
+      "alpha_moyen": 0.2588,
+      "alpha_median": 0.1321,
+      "dans_le_bon_sens": 0.692,
+      "t": 2.69,
+      "rendement_net_frais": 0.2733
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "triangle_descendant": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 13,
+      "titres": 12,
+      "alpha_moyen": -0.0211,
+      "alpha_median": -0.0228,
+      "dans_le_bon_sens": 0.692,
+      "t": -1.7,
+      "rendement_net_frais": -0.0154
+     },
+     "h60": {
+      "n": 13,
+      "titres": 12,
+      "alpha_moyen": -0.0304,
+      "alpha_median": -0.0184,
+      "dans_le_bon_sens": 0.692,
+      "t": -1.08,
+      "rendement_net_frais": 0.0256
+     },
+     "h120": {
+      "n": 13,
+      "titres": 12,
+      "alpha_moyen": -0.053,
+      "alpha_median": -0.062,
+      "dans_le_bon_sens": 0.692,
+      "t": -1.63,
+      "rendement_net_frais": 0.0654
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 30,
+      "titres": 24,
+      "alpha_moyen": 0.0097,
+      "alpha_median": -0.0041,
+      "dans_le_bon_sens": 0.5,
+      "t": 0.64,
+      "rendement_net_frais": 0.0134
+     },
+     "h60": {
+      "n": 24,
+      "titres": 21,
+      "alpha_moyen": -0.018,
+      "alpha_median": -0.0259,
+      "dans_le_bon_sens": 0.667,
+      "t": -0.73,
+      "rendement_net_frais": -0.0005
+     },
+     "h120": {
+      "n": 21,
+      "titres": 19,
+      "alpha_moyen": -0.0444,
+      "alpha_median": -0.0429,
+      "dans_le_bon_sens": 0.714,
+      "t": -1.49,
+      "rendement_net_frais": -0.0473
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 6,
+      "titres": 5,
+      "alpha_moyen": -0.0366,
+      "alpha_median": -0.0359,
+      "dans_le_bon_sens": 0.833,
+      "t": -2.94,
+      "rendement_net_frais": -0.0165
+     },
+     "h60": {
+      "n": 6,
+      "titres": 5,
+      "alpha_moyen": -0.0161,
+      "alpha_median": -0.0176,
+      "dans_le_bon_sens": 0.667,
+      "t": -0.36,
+      "rendement_net_frais": 0.0631
+     },
+     "h120": {
+      "n": 6,
+      "titres": 5,
+      "alpha_moyen": -0.0595,
+      "alpha_median": -0.0431,
+      "dans_le_bon_sens": 0.833,
+      "t": -0.99,
+      "rendement_net_frais": 0.0796
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 23,
+      "titres": 18,
+      "alpha_moyen": -0.0081,
+      "alpha_median": -0.0124,
+      "dans_le_bon_sens": 0.565,
+      "t": -0.84,
+      "rendement_net_frais": -0.0079
+     },
+     "h60": {
+      "n": 19,
+      "titres": 17,
+      "alpha_moyen": -0.0315,
+      "alpha_median": -0.0247,
+      "dans_le_bon_sens": 0.632,
+      "t": -1.62,
+      "rendement_net_frais": -0.0223
+     },
+     "h120": {
+      "n": 16,
+      "titres": 15,
+      "alpha_moyen": -0.0515,
+      "alpha_median": -0.0572,
+      "dans_le_bon_sens": 0.688,
+      "t": -1.72,
+      "rendement_net_frais": -0.0664
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "triangle_sym_bas": {
+   "sens_attendu": -1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 21,
+      "titres": 18,
+      "alpha_moyen": -0.0071,
+      "alpha_median": -0.0187,
+      "dans_le_bon_sens": 0.619,
+      "t": -0.55,
+      "rendement_net_frais": -0.0101
+     },
+     "h60": {
+      "n": 21,
+      "titres": 18,
+      "alpha_moyen": 0.0265,
+      "alpha_median": -0.0367,
+      "dans_le_bon_sens": 0.571,
+      "t": 0.53,
+      "rendement_net_frais": 0.0727
+     },
+     "h120": {
+      "n": 21,
+      "titres": 18,
+      "alpha_moyen": 0.1897,
+      "alpha_median": -0.0807,
+      "dans_le_bon_sens": 0.571,
+      "t": 1.22,
+      "rendement_net_frais": 0.3389
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 53,
+      "titres": 38,
+      "alpha_moyen": 0.0432,
+      "alpha_median": -0.0068,
+      "dans_le_bon_sens": 0.509,
+      "t": 1.22,
+      "rendement_net_frais": 0.0398
+     },
+     "h60": {
+      "n": 49,
+      "titres": 35,
+      "alpha_moyen": 0.0477,
+      "alpha_median": -0.0454,
+      "dans_le_bon_sens": 0.694,
+      "t": 0.67,
+      "rendement_net_frais": 0.0647
+     },
+     "h120": {
+      "n": 42,
+      "titres": 32,
+      "alpha_moyen": 0.0588,
+      "alpha_median": -0.0933,
+      "dans_le_bon_sens": 0.69,
+      "t": 0.52,
+      "rendement_net_frais": 0.0732
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 7,
+      "titres": 6,
+      "alpha_moyen": 0.0447,
+      "alpha_median": 0.03,
+      "dans_le_bon_sens": 0.286,
+      "t": 1.81,
+      "rendement_net_frais": 0.0229
+     },
+     "h60": {
+      "n": 7,
+      "titres": 6,
+      "alpha_moyen": -0.0029,
+      "alpha_median": -0.0044,
+      "dans_le_bon_sens": 0.571,
+      "t": -0.07,
+      "rendement_net_frais": 0.0269
+     },
+     "h120": {
+      "n": 7,
+      "titres": 6,
+      "alpha_moyen": 0.014,
+      "alpha_median": -0.0989,
+      "dans_le_bon_sens": 0.714,
+      "t": 0.1,
+      "rendement_net_frais": 0.133
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 40,
+      "titres": 31,
+      "alpha_moyen": 0.0054,
+      "alpha_median": -0.0177,
+      "dans_le_bon_sens": 0.55,
+      "t": 0.24,
+      "rendement_net_frais": 0.0048
+     },
+     "h60": {
+      "n": 37,
+      "titres": 28,
+      "alpha_moyen": -0.0329,
+      "alpha_median": -0.0501,
+      "dans_le_bon_sens": 0.73,
+      "t": -1.2,
+      "rendement_net_frais": -0.0213
+     },
+     "h120": {
+      "n": 32,
+      "titres": 26,
+      "alpha_moyen": -0.0609,
+      "alpha_median": -0.1053,
+      "dans_le_bon_sens": 0.75,
+      "t": -1.81,
+      "rendement_net_frais": -0.0578
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  },
+  "triangle_sym_haut": {
+   "sens_attendu": 1,
+   "tous": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 12,
+      "titres": 10,
+      "alpha_moyen": -0.0061,
+      "alpha_median": -0.0279,
+      "dans_le_bon_sens": 0.25,
+      "t": -0.16,
+      "rendement_net_frais": -0.0034
+     },
+     "h60": {
+      "n": 12,
+      "titres": 10,
+      "alpha_moyen": 0.1673,
+      "alpha_median": 0.1482,
+      "dans_le_bon_sens": 0.75,
+      "t": 2.11,
+      "rendement_net_frais": 0.2238
+     },
+     "h120": {
+      "n": 12,
+      "titres": 10,
+      "alpha_moyen": 0.5234,
+      "alpha_median": 0.215,
+      "dans_le_bon_sens": 0.583,
+      "t": 2.13,
+      "rendement_net_frais": 0.6501
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 30,
+      "titres": 22,
+      "alpha_moyen": 0.0051,
+      "alpha_median": -0.0219,
+      "dans_le_bon_sens": 0.367,
+      "t": 0.26,
+      "rendement_net_frais": -0.0132
+     },
+     "h60": {
+      "n": 30,
+      "titres": 22,
+      "alpha_moyen": 0.0964,
+      "alpha_median": -0.0291,
+      "dans_le_bon_sens": 0.467,
+      "t": 1.73,
+      "rendement_net_frais": 0.0705
+     },
+     "h120": {
+      "n": 21,
+      "titres": 17,
+      "alpha_moyen": 0.2529,
+      "alpha_median": 0.0003,
+      "dans_le_bon_sens": 0.524,
+      "t": 2.02,
+      "rendement_net_frais": 0.2309
+     }
+    }
+   },
+   "liquides": {
+    "2023-10_2024-12": {
+     "h20": {
+      "n": 8,
+      "titres": 6,
+      "alpha_moyen": 0.0159,
+      "alpha_median": -0.0253,
+      "dans_le_bon_sens": 0.25,
+      "t": 0.31,
+      "rendement_net_frais": 0.0123
+     },
+     "h60": {
+      "n": 8,
+      "titres": 6,
+      "alpha_moyen": 0.2312,
+      "alpha_median": 0.16,
+      "dans_le_bon_sens": 0.875,
+      "t": 2.76,
+      "rendement_net_frais": 0.2607
+     },
+     "h120": {
+      "n": 8,
+      "titres": 6,
+      "alpha_moyen": 0.6707,
+      "alpha_median": 0.4946,
+      "dans_le_bon_sens": 0.625,
+      "t": 2.09,
+      "rendement_net_frais": 0.7752
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "n": 22,
+      "titres": 17,
+      "alpha_moyen": 0.0052,
+      "alpha_median": -0.0234,
+      "dans_le_bon_sens": 0.364,
+      "t": 0.2,
+      "rendement_net_frais": -0.01
+     },
+     "h60": {
+      "n": 22,
+      "titres": 17,
+      "alpha_moyen": 0.1321,
+      "alpha_median": -0.0353,
+      "dans_le_bon_sens": 0.409,
+      "t": 1.78,
+      "rendement_net_frais": 0.1062
+     },
+     "h120": {
+      "n": 16,
+      "titres": 13,
+      "alpha_moyen": 0.3028,
+      "alpha_median": -0.0043,
+      "dans_le_bon_sens": 0.5,
+      "t": 1.9,
+      "rendement_net_frais": 0.2825
+     }
+    }
+   },
+   "retenu_liquides": {
+    "h20": false,
+    "h60": false,
+    "h120": false
+   }
+  }
+ },
+ "volume": {
+  "seuil_ratio": 1.5,
+  "definition": "volume de la séance de cassure ÷ médiane du volume des 20 séances échangées précédentes",
+  "note": "alpha signé = alpha × sens ; part = part des cas dans le bon sens ; aucun filtre",
+  "tous_signaux": {
+   "tous": {
+    "toutes_periodes": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 594,
+       "dans_le_bon_sens": 0.434,
+       "alpha_signe_median": -0.009
+      },
+      "ratio_lt_1_5": {
+       "n": 416,
+       "dans_le_bon_sens": 0.49,
+       "alpha_signe_median": -0.0009
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 550,
+       "dans_le_bon_sens": 0.489,
+       "alpha_signe_median": -0.0059
+      },
+      "ratio_lt_1_5": {
+       "n": 397,
+       "dans_le_bon_sens": 0.554,
+       "alpha_signe_median": 0.0127
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 493,
+       "dans_le_bon_sens": 0.531,
+       "alpha_signe_median": 0.0151
+      },
+      "ratio_lt_1_5": {
+       "n": 353,
+       "dans_le_bon_sens": 0.598,
+       "alpha_signe_median": 0.0412
+      }
+     }
+    },
+    "2023-10_2024-12": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 162,
+       "dans_le_bon_sens": 0.512,
+       "alpha_signe_median": 0.001
+      },
+      "ratio_lt_1_5": {
+       "n": 127,
+       "dans_le_bon_sens": 0.465,
+       "alpha_signe_median": -0.0034
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 162,
+       "dans_le_bon_sens": 0.5,
+       "alpha_signe_median": -0.0032
+      },
+      "ratio_lt_1_5": {
+       "n": 127,
+       "dans_le_bon_sens": 0.496,
+       "alpha_signe_median": -0.0036
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 162,
+       "dans_le_bon_sens": 0.562,
+       "alpha_signe_median": 0.0521
+      },
+      "ratio_lt_1_5": {
+       "n": 127,
+       "dans_le_bon_sens": 0.535,
+       "alpha_signe_median": 0.0153
+      }
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 432,
+       "dans_le_bon_sens": 0.405,
+       "alpha_signe_median": -0.0151
+      },
+      "ratio_lt_1_5": {
+       "n": 289,
+       "dans_le_bon_sens": 0.502,
+       "alpha_signe_median": 0.0006
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 388,
+       "dans_le_bon_sens": 0.485,
+       "alpha_signe_median": -0.0059
+      },
+      "ratio_lt_1_5": {
+       "n": 270,
+       "dans_le_bon_sens": 0.581,
+       "alpha_signe_median": 0.0153
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 331,
+       "dans_le_bon_sens": 0.517,
+       "alpha_signe_median": 0.0121
+      },
+      "ratio_lt_1_5": {
+       "n": 226,
+       "dans_le_bon_sens": 0.633,
+       "alpha_signe_median": 0.0456
+      }
+     }
+    }
+   },
+   "liquides": {
+    "toutes_periodes": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 376,
+       "dans_le_bon_sens": 0.479,
+       "alpha_signe_median": -0.0029
+      },
+      "ratio_lt_1_5": {
+       "n": 289,
+       "dans_le_bon_sens": 0.522,
+       "alpha_signe_median": 0.0032
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 349,
+       "dans_le_bon_sens": 0.493,
+       "alpha_signe_median": -0.004
+      },
+      "ratio_lt_1_5": {
+       "n": 277,
+       "dans_le_bon_sens": 0.552,
+       "alpha_signe_median": 0.0112
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 305,
+       "dans_le_bon_sens": 0.557,
+       "alpha_signe_median": 0.0304
+      },
+      "ratio_lt_1_5": {
+       "n": 247,
+       "dans_le_bon_sens": 0.595,
+       "alpha_signe_median": 0.039
+      }
+     }
+    },
+    "2023-10_2024-12": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 81,
+       "dans_le_bon_sens": 0.556,
+       "alpha_signe_median": 0.0083
+      },
+      "ratio_lt_1_5": {
+       "n": 76,
+       "dans_le_bon_sens": 0.5,
+       "alpha_signe_median": 0.0007
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 81,
+       "dans_le_bon_sens": 0.469,
+       "alpha_signe_median": -0.0154
+      },
+      "ratio_lt_1_5": {
+       "n": 76,
+       "dans_le_bon_sens": 0.461,
+       "alpha_signe_median": -0.01
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 81,
+       "dans_le_bon_sens": 0.58,
+       "alpha_signe_median": 0.0654
+      },
+      "ratio_lt_1_5": {
+       "n": 76,
+       "dans_le_bon_sens": 0.539,
+       "alpha_signe_median": 0.0099
+      }
+     }
+    },
+    "2025-01_2026-10": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 295,
+       "dans_le_bon_sens": 0.458,
+       "alpha_signe_median": -0.0044
+      },
+      "ratio_lt_1_5": {
+       "n": 213,
+       "dans_le_bon_sens": 0.531,
+       "alpha_signe_median": 0.0033
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 268,
+       "dans_le_bon_sens": 0.5,
+       "alpha_signe_median": 0.001
+      },
+      "ratio_lt_1_5": {
+       "n": 201,
+       "dans_le_bon_sens": 0.587,
+       "alpha_signe_median": 0.0154
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 224,
+       "dans_le_bon_sens": 0.549,
+       "alpha_signe_median": 0.0246
+      },
+      "ratio_lt_1_5": {
+       "n": 171,
+       "dans_le_bon_sens": 0.62,
+       "alpha_signe_median": 0.0624
+      }
+     }
+    }
+   }
+  },
+  "par_signal": {
+   "canal_cassure_bas": {
+    "tous": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 81,
+       "dans_le_bon_sens": 0.42,
+       "alpha_signe_median": -0.0097
+      },
+      "ratio_lt_1_5": {
+       "n": 78,
+       "dans_le_bon_sens": 0.538,
+       "alpha_signe_median": 0.0041
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 75,
+       "dans_le_bon_sens": 0.493,
+       "alpha_signe_median": -0.0224
+      },
+      "ratio_lt_1_5": {
+       "n": 76,
+       "dans_le_bon_sens": 0.539,
+       "alpha_signe_median": 0.0107
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 68,
+       "dans_le_bon_sens": 0.559,
+       "alpha_signe_median": 0.025
+      },
+      "ratio_lt_1_5": {
+       "n": 68,
+       "dans_le_bon_sens": 0.618,
+       "alpha_signe_median": 0.0469
+      }
+     }
+    },
+    "liquides": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 56,
+       "dans_le_bon_sens": 0.429,
+       "alpha_signe_median": -0.0136
+      },
+      "ratio_lt_1_5": {
+       "n": 57,
+       "dans_le_bon_sens": 0.579,
+       "alpha_signe_median": 0.0068
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 52,
+       "dans_le_bon_sens": 0.481,
+       "alpha_signe_median": -0.0264
+      },
+      "ratio_lt_1_5": {
+       "n": 55,
+       "dans_le_bon_sens": 0.527,
+       "alpha_signe_median": 0.0102
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 46,
+       "dans_le_bon_sens": 0.587,
+       "alpha_signe_median": 0.0406
+      },
+      "ratio_lt_1_5": {
+       "n": 49,
+       "dans_le_bon_sens": 0.612,
+       "alpha_signe_median": 0.0482
+      }
+     }
+    }
+   },
+   "canal_rebond_support": {
+    "tous": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 60,
+       "dans_le_bon_sens": 0.433,
+       "alpha_signe_median": -0.0091
+      },
+      "ratio_lt_1_5": {
+       "n": 70,
+       "dans_le_bon_sens": 0.457,
+       "alpha_signe_median": -0.0082
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 56,
+       "dans_le_bon_sens": 0.464,
+       "alpha_signe_median": -0.0147
+      },
+      "ratio_lt_1_5": {
+       "n": 65,
+       "dans_le_bon_sens": 0.431,
+       "alpha_signe_median": -0.0153
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 54,
+       "dans_le_bon_sens": 0.667,
+       "alpha_signe_median": 0.0515
+      },
+      "ratio_lt_1_5": {
+       "n": 61,
+       "dans_le_bon_sens": 0.525,
+       "alpha_signe_median": 0.0055
+      }
+     }
+    },
+    "liquides": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 38,
+       "dans_le_bon_sens": 0.553,
+       "alpha_signe_median": 0.0085
+      },
+      "ratio_lt_1_5": {
+       "n": 48,
+       "dans_le_bon_sens": 0.479,
+       "alpha_signe_median": -0.0082
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 34,
+       "dans_le_bon_sens": 0.529,
+       "alpha_signe_median": 0.0148
+      },
+      "ratio_lt_1_5": {
+       "n": 46,
+       "dans_le_bon_sens": 0.37,
+       "alpha_signe_median": -0.0423
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 32,
+       "dans_le_bon_sens": 0.688,
+       "alpha_signe_median": 0.0515
+      },
+      "ratio_lt_1_5": {
+       "n": 44,
+       "dans_le_bon_sens": 0.432,
+       "alpha_signe_median": -0.0297
+      }
+     }
+    }
+   },
+   "double_creux": {
+    "tous": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 67,
+       "dans_le_bon_sens": 0.478,
+       "alpha_signe_median": -0.0066
+      },
+      "ratio_lt_1_5": {
+       "n": 25,
+       "dans_le_bon_sens": 0.56,
+       "alpha_signe_median": 0.0063
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 62,
+       "dans_le_bon_sens": 0.532,
+       "alpha_signe_median": 0.0288
+      },
+      "ratio_lt_1_5": {
+       "n": 23,
+       "dans_le_bon_sens": 0.522,
+       "alpha_signe_median": 0.03
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 58,
+       "dans_le_bon_sens": 0.517,
+       "alpha_signe_median": 0.0086
+      },
+      "ratio_lt_1_5": {
+       "n": 20,
+       "dans_le_bon_sens": 0.55,
+       "alpha_signe_median": 0.0439
+      }
+     }
+    },
+    "liquides": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 44,
+       "dans_le_bon_sens": 0.545,
+       "alpha_signe_median": 0.0038
+      },
+      "ratio_lt_1_5": {
+       "n": 18,
+       "dans_le_bon_sens": 0.556,
+       "alpha_signe_median": 0.006
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 40,
+       "dans_le_bon_sens": 0.575,
+       "alpha_signe_median": 0.0347
+      },
+      "ratio_lt_1_5": {
+       "n": 16,
+       "dans_le_bon_sens": 0.438,
+       "alpha_signe_median": -0.0276
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 36,
+       "dans_le_bon_sens": 0.528,
+       "alpha_signe_median": 0.0094
+      },
+      "ratio_lt_1_5": {
+       "n": 13,
+       "dans_le_bon_sens": 0.462,
+       "alpha_signe_median": -0.0213
+      }
+     }
+    }
+   },
+   "double_sommet": {
+    "tous": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 43,
+       "dans_le_bon_sens": 0.372,
+       "alpha_signe_median": -0.0216
+      },
+      "ratio_lt_1_5": {
+       "n": 20,
+       "dans_le_bon_sens": 0.45,
+       "alpha_signe_median": -0.0025
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 42,
+       "dans_le_bon_sens": 0.357,
+       "alpha_signe_median": -0.0415
+      },
+      "ratio_lt_1_5": {
+       "n": 20,
+       "dans_le_bon_sens": 0.6,
+       "alpha_signe_median": 0.0214
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 41,
+       "dans_le_bon_sens": 0.341,
+       "alpha_signe_median": -0.0427
+      },
+      "ratio_lt_1_5": {
+       "n": 19,
+       "dans_le_bon_sens": 0.737,
+       "alpha_signe_median": 0.1197
+      }
+     }
+    },
+    "liquides": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 23,
+       "dans_le_bon_sens": 0.391,
+       "alpha_signe_median": -0.0153
+      },
+      "ratio_lt_1_5": {
+       "n": 17,
+       "dans_le_bon_sens": 0.471,
+       "alpha_signe_median": -0.0024
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 22,
+       "dans_le_bon_sens": 0.318,
+       "alpha_signe_median": -0.0443
+      },
+      "ratio_lt_1_5": {
+       "n": 17,
+       "dans_le_bon_sens": 0.588,
+       "alpha_signe_median": 0.0154
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 22,
+       "dans_le_bon_sens": 0.318,
+       "alpha_signe_median": -0.0953
+      },
+      "ratio_lt_1_5": {
+       "n": 17,
+       "dans_le_bon_sens": 0.765,
+       "alpha_signe_median": 0.1197
+      }
+     }
+    }
+   },
+   "ete": {
+    "tous": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 28,
+       "dans_le_bon_sens": 0.357,
+       "alpha_signe_median": -0.0178
+      },
+      "ratio_lt_1_5": {
+       "n": 19,
+       "dans_le_bon_sens": 0.684,
+       "alpha_signe_median": 0.0202
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 25,
+       "dans_le_bon_sens": 0.44,
+       "alpha_signe_median": -0.0346
+      },
+      "ratio_lt_1_5": {
+       "n": 18,
+       "dans_le_bon_sens": 0.722,
+       "alpha_signe_median": 0.0415
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 21,
+       "dans_le_bon_sens": 0.476,
+       "alpha_signe_median": -0.0195
+      },
+      "ratio_lt_1_5": {
+       "n": 16,
+       "dans_le_bon_sens": 0.812,
+       "alpha_signe_median": 0.1095
+      }
+     }
+    },
+    "liquides": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 19,
+       "dans_le_bon_sens": 0.368,
+       "alpha_signe_median": -0.0177
+      },
+      "ratio_lt_1_5": {
+       "n": 11,
+       "dans_le_bon_sens": 0.727,
+       "alpha_signe_median": 0.0202
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 17,
+       "dans_le_bon_sens": 0.412,
+       "alpha_signe_median": -0.0371
+      },
+      "ratio_lt_1_5": {
+       "n": 11,
+       "dans_le_bon_sens": 0.909,
+       "alpha_signe_median": 0.0454
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 14,
+       "dans_le_bon_sens": 0.429,
+       "alpha_signe_median": -0.0358
+      },
+      "ratio_lt_1_5": {
+       "n": 10,
+       "dans_le_bon_sens": 1.0,
+       "alpha_signe_median": 0.1231
+      }
+     }
+    }
+   },
+   "ete_inversee": {
+    "tous": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 22,
+       "dans_le_bon_sens": 0.318,
+       "alpha_signe_median": -0.0355
+      },
+      "ratio_lt_1_5": {
+       "n": 5,
+       "dans_le_bon_sens": 0.2,
+       "alpha_signe_median": -0.0742
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 21,
+       "dans_le_bon_sens": 0.429,
+       "alpha_signe_median": -0.0414
+      },
+      "ratio_lt_1_5": {
+       "n": 5,
+       "dans_le_bon_sens": 0.6,
+       "alpha_signe_median": 0.0427
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 16,
+       "dans_le_bon_sens": 0.438,
+       "alpha_signe_median": -0.0299
+      },
+      "ratio_lt_1_5": {
+       "n": 4,
+       "dans_le_bon_sens": 0.5,
+       "alpha_signe_median": 0.3518
+      }
+     }
+    },
+    "liquides": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 13,
+       "dans_le_bon_sens": 0.385,
+       "alpha_signe_median": -0.0346
+      },
+      "ratio_lt_1_5": {
+       "n": 1,
+       "dans_le_bon_sens": 1.0,
+       "alpha_signe_median": 0.0754
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 13,
+       "dans_le_bon_sens": 0.308,
+       "alpha_signe_median": -0.0442
+      },
+      "ratio_lt_1_5": {
+       "n": 1,
+       "dans_le_bon_sens": 1.0,
+       "alpha_signe_median": 0.0427
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 10,
+       "dans_le_bon_sens": 0.3,
+       "alpha_signe_median": -0.0632
+      },
+      "ratio_lt_1_5": {
+       "n": 0
+      }
+     }
+    }
+   },
+   "oblique_baissiere_cassee": {
+    "tous": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 74,
+       "dans_le_bon_sens": 0.378,
+       "alpha_signe_median": -0.0121
+      },
+      "ratio_lt_1_5": {
+       "n": 40,
+       "dans_le_bon_sens": 0.4,
+       "alpha_signe_median": -0.0189
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 65,
+       "dans_le_bon_sens": 0.431,
+       "alpha_signe_median": -0.0145
+      },
+      "ratio_lt_1_5": {
+       "n": 35,
+       "dans_le_bon_sens": 0.429,
+       "alpha_signe_median": -0.0186
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 58,
+       "dans_le_bon_sens": 0.466,
+       "alpha_signe_median": -0.0058
+      },
+      "ratio_lt_1_5": {
+       "n": 25,
+       "dans_le_bon_sens": 0.24,
+       "alpha_signe_median": -0.0498
+      }
+     }
+    },
+    "liquides": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 43,
+       "dans_le_bon_sens": 0.465,
+       "alpha_signe_median": -0.0043
+      },
+      "ratio_lt_1_5": {
+       "n": 23,
+       "dans_le_bon_sens": 0.522,
+       "alpha_signe_median": 0.0015
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 41,
+       "dans_le_bon_sens": 0.39,
+       "alpha_signe_median": -0.0184
+      },
+      "ratio_lt_1_5": {
+       "n": 20,
+       "dans_le_bon_sens": 0.5,
+       "alpha_signe_median": 0.0097
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 35,
+       "dans_le_bon_sens": 0.457,
+       "alpha_signe_median": -0.005
+      },
+      "ratio_lt_1_5": {
+       "n": 14,
+       "dans_le_bon_sens": 0.214,
+       "alpha_signe_median": -0.0617
+      }
+     }
+    }
+   },
+   "oblique_haussiere_cassee": {
+    "tous": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 92,
+       "dans_le_bon_sens": 0.489,
+       "alpha_signe_median": -0.0031
+      },
+      "ratio_lt_1_5": {
+       "n": 88,
+       "dans_le_bon_sens": 0.455,
+       "alpha_signe_median": -0.0097
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 87,
+       "dans_le_bon_sens": 0.506,
+       "alpha_signe_median": 0.0065
+      },
+      "ratio_lt_1_5": {
+       "n": 86,
+       "dans_le_bon_sens": 0.581,
+       "alpha_signe_median": 0.0137
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 79,
+       "dans_le_bon_sens": 0.506,
+       "alpha_signe_median": 0.0008
+      },
+      "ratio_lt_1_5": {
+       "n": 75,
+       "dans_le_bon_sens": 0.627,
+       "alpha_signe_median": 0.0365
+      }
+     }
+    },
+    "liquides": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 54,
+       "dans_le_bon_sens": 0.519,
+       "alpha_signe_median": 0.0005
+      },
+      "ratio_lt_1_5": {
+       "n": 65,
+       "dans_le_bon_sens": 0.462,
+       "alpha_signe_median": -0.0083
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 50,
+       "dans_le_bon_sens": 0.54,
+       "alpha_signe_median": 0.0127
+      },
+      "ratio_lt_1_5": {
+       "n": 63,
+       "dans_le_bon_sens": 0.587,
+       "alpha_signe_median": 0.0138
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 45,
+       "dans_le_bon_sens": 0.622,
+       "alpha_signe_median": 0.0694
+      },
+      "ratio_lt_1_5": {
+       "n": 55,
+       "dans_le_bon_sens": 0.6,
+       "alpha_signe_median": 0.0365
+      }
+     }
+    }
+   },
+   "tasse_anse": {
+    "tous": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 5,
+       "dans_le_bon_sens": 0.2,
+       "alpha_signe_median": -0.0685
+      },
+      "ratio_lt_1_5": {
+       "n": 4,
+       "dans_le_bon_sens": 0.75,
+       "alpha_signe_median": 0.0419
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 4,
+       "dans_le_bon_sens": 0.25,
+       "alpha_signe_median": -0.0417
+      },
+      "ratio_lt_1_5": {
+       "n": 4,
+       "dans_le_bon_sens": 0.5,
+       "alpha_signe_median": 0.0379
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 3,
+       "dans_le_bon_sens": 0.667,
+       "alpha_signe_median": 0.1378
+      },
+      "ratio_lt_1_5": {
+       "n": 4,
+       "dans_le_bon_sens": 0.75,
+       "alpha_signe_median": 0.0163
+      }
+     }
+    },
+    "liquides": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 4,
+       "dans_le_bon_sens": 0.25,
+       "alpha_signe_median": -0.0601
+      },
+      "ratio_lt_1_5": {
+       "n": 3,
+       "dans_le_bon_sens": 1.0,
+       "alpha_signe_median": 0.0709
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 4,
+       "dans_le_bon_sens": 0.25,
+       "alpha_signe_median": -0.0417
+      },
+      "ratio_lt_1_5": {
+       "n": 3,
+       "dans_le_bon_sens": 0.667,
+       "alpha_signe_median": 0.1064
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 3,
+       "dans_le_bon_sens": 0.667,
+       "alpha_signe_median": 0.1378
+      },
+      "ratio_lt_1_5": {
+       "n": 3,
+       "dans_le_bon_sens": 1.0,
+       "alpha_signe_median": 0.027
+      }
+     }
+    }
+   },
+   "triangle_ascendant": {
+    "tous": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 18,
+       "dans_le_bon_sens": 0.389,
+       "alpha_signe_median": -0.0148
+      },
+      "ratio_lt_1_5": {
+       "n": 12,
+       "dans_le_bon_sens": 0.667,
+       "alpha_signe_median": 0.0283
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 17,
+       "dans_le_bon_sens": 0.412,
+       "alpha_signe_median": -0.0256
+      },
+      "ratio_lt_1_5": {
+       "n": 12,
+       "dans_le_bon_sens": 0.667,
+       "alpha_signe_median": 0.0634
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 15,
+       "dans_le_bon_sens": 0.6,
+       "alpha_signe_median": 0.1049
+      },
+      "ratio_lt_1_5": {
+       "n": 11,
+       "dans_le_bon_sens": 0.636,
+       "alpha_signe_median": 0.027
+      }
+     }
+    },
+    "liquides": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 15,
+       "dans_le_bon_sens": 0.467,
+       "alpha_signe_median": -0.0137
+      },
+      "ratio_lt_1_5": {
+       "n": 7,
+       "dans_le_bon_sens": 0.714,
+       "alpha_signe_median": 0.0181
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 15,
+       "dans_le_bon_sens": 0.467,
+       "alpha_signe_median": -0.0153
+      },
+      "ratio_lt_1_5": {
+       "n": 7,
+       "dans_le_bon_sens": 0.571,
+       "alpha_signe_median": 0.0427
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 13,
+       "dans_le_bon_sens": 0.615,
+       "alpha_signe_median": 0.112
+      },
+      "ratio_lt_1_5": {
+       "n": 6,
+       "dans_le_bon_sens": 0.667,
+       "alpha_signe_median": 0.0163
+      }
+     }
+    }
+   },
+   "triangle_descendant": {
+    "tous": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 28,
+       "dans_le_bon_sens": 0.5,
+       "alpha_signe_median": 0.0054
+      },
+      "ratio_lt_1_5": {
+       "n": 15,
+       "dans_le_bon_sens": 0.667,
+       "alpha_signe_median": 0.0228
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 23,
+       "dans_le_bon_sens": 0.609,
+       "alpha_signe_median": 0.0184
+      },
+      "ratio_lt_1_5": {
+       "n": 14,
+       "dans_le_bon_sens": 0.786,
+       "alpha_signe_median": 0.054
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 21,
+       "dans_le_bon_sens": 0.619,
+       "alpha_signe_median": 0.0246
+      },
+      "ratio_lt_1_5": {
+       "n": 13,
+       "dans_le_bon_sens": 0.846,
+       "alpha_signe_median": 0.0935
+      }
+     }
+    },
+    "liquides": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 19,
+       "dans_le_bon_sens": 0.526,
+       "alpha_signe_median": 0.0119
+      },
+      "ratio_lt_1_5": {
+       "n": 10,
+       "dans_le_bon_sens": 0.8,
+       "alpha_signe_median": 0.0359
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 15,
+       "dans_le_bon_sens": 0.533,
+       "alpha_signe_median": 0.0026
+      },
+      "ratio_lt_1_5": {
+       "n": 10,
+       "dans_le_bon_sens": 0.8,
+       "alpha_signe_median": 0.061
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 13,
+       "dans_le_bon_sens": 0.538,
+       "alpha_signe_median": 0.0082
+      },
+      "ratio_lt_1_5": {
+       "n": 9,
+       "dans_le_bon_sens": 1.0,
+       "alpha_signe_median": 0.1084
+      }
+     }
+    }
+   },
+   "triangle_sym_bas": {
+    "tous": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 44,
+       "dans_le_bon_sens": 0.591,
+       "alpha_signe_median": 0.0199
+      },
+      "ratio_lt_1_5": {
+       "n": 30,
+       "dans_le_bon_sens": 0.467,
+       "alpha_signe_median": -0.0042
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 41,
+       "dans_le_bon_sens": 0.634,
+       "alpha_signe_median": 0.058
+      },
+      "ratio_lt_1_5": {
+       "n": 29,
+       "dans_le_bon_sens": 0.69,
+       "alpha_signe_median": 0.0367
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 35,
+       "dans_le_bon_sens": 0.6,
+       "alpha_signe_median": 0.0801
+      },
+      "ratio_lt_1_5": {
+       "n": 28,
+       "dans_le_bon_sens": 0.714,
+       "alpha_signe_median": 0.1095
+      }
+     }
+    },
+    "liquides": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 25,
+       "dans_le_bon_sens": 0.6,
+       "alpha_signe_median": 0.021
+      },
+      "ratio_lt_1_5": {
+       "n": 22,
+       "dans_le_bon_sens": 0.409,
+       "alpha_signe_median": -0.0082
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 23,
+       "dans_le_bon_sens": 0.696,
+       "alpha_signe_median": 0.059
+      },
+      "ratio_lt_1_5": {
+       "n": 21,
+       "dans_le_bon_sens": 0.714,
+       "alpha_signe_median": 0.0197
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 19,
+       "dans_le_bon_sens": 0.737,
+       "alpha_signe_median": 0.0989
+      },
+      "ratio_lt_1_5": {
+       "n": 20,
+       "dans_le_bon_sens": 0.75,
+       "alpha_signe_median": 0.1083
+      }
+     }
+    }
+   },
+   "triangle_sym_haut": {
+    "tous": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 32,
+       "dans_le_bon_sens": 0.375,
+       "alpha_signe_median": -0.0225
+      },
+      "ratio_lt_1_5": {
+       "n": 10,
+       "dans_le_bon_sens": 0.2,
+       "alpha_signe_median": -0.0274
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 32,
+       "dans_le_bon_sens": 0.562,
+       "alpha_signe_median": 0.0233
+      },
+      "ratio_lt_1_5": {
+       "n": 10,
+       "dans_le_bon_sens": 0.5,
+       "alpha_signe_median": 0.0053
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 24,
+       "dans_le_bon_sens": 0.625,
+       "alpha_signe_median": 0.0689
+      },
+      "ratio_lt_1_5": {
+       "n": 9,
+       "dans_le_bon_sens": 0.333,
+       "alpha_signe_median": -0.0957
+      }
+     }
+    },
+    "liquides": {
+     "h20": {
+      "ratio_ge_1_5": {
+       "n": 23,
+       "dans_le_bon_sens": 0.391,
+       "alpha_signe_median": -0.018
+      },
+      "ratio_lt_1_5": {
+       "n": 7,
+       "dans_le_bon_sens": 0.143,
+       "alpha_signe_median": -0.0368
+      }
+     },
+     "h60": {
+      "ratio_ge_1_5": {
+       "n": 23,
+       "dans_le_bon_sens": 0.565,
+       "alpha_signe_median": 0.0244
+      },
+      "ratio_lt_1_5": {
+       "n": 7,
+       "dans_le_bon_sens": 0.429,
+       "alpha_signe_median": -0.0554
+      }
+     },
+     "h120": {
+      "ratio_ge_1_5": {
+       "n": 17,
+       "dans_le_bon_sens": 0.647,
+       "alpha_signe_median": 0.1032
+      },
+      "ratio_lt_1_5": {
+       "n": 7,
+       "dans_le_bon_sens": 0.286,
+       "alpha_signe_median": -0.0957
+      }
+     }
+    }
+   }
+  }
+ }
+}
