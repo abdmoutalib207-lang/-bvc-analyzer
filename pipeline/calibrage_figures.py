@@ -27,7 +27,16 @@ Une occurrence au plus par titre, par signal et par fenêtre de 20 séances.
    10 cas est une anecdote, il est publié avec son effectif.
 4. Dividendes : 2024-2026 ; octobre-décembre 2023 en cours seuls.
 
-Usage : python3 pipeline/calibrage_figures.py [--sortie FICHIER.json]
+RÈGLES (21/10/2026) : `--regles 2026-10-03` rejoue les règles d'origine,
+`--regles 2026-10-21` (défaut) ajoute les règles « figures strictes » de
+`technical/regles_strictes.py`. `--fin` tronque les chandelles (le banc
+d'essai initial s'arrêtait au 02/10/2026), `--seuil-liquidite` fixe le seuil de
+l'univers « liquides » (sinon : tiers inférieur des montants des événements
+du run — il bouge dès que l'ensemble d'événements bouge). Le VOLUME est mesuré,
+pas filtré : section `volume` du résultat.
+
+Usage : python3 pipeline/calibrage_figures.py [--sortie FICHIER.json] [--regles AAAA-MM-JJ]
+                                              [--fin AAAA-MM-JJ] [--seuil-liquidite DH]
 """
 from __future__ import annotations
 
@@ -46,6 +55,12 @@ sys.path.insert(0, str(RACINE / "pipeline"))
 from calibrage_signaux import _dividendes, _masi  # noqa: E402
 from technical.figures import figures, indicateurs  # noqa: E402
 from technical.lignes import gaps, lignes  # noqa: E402
+from technical.regles_strictes import VOLUME_SEUIL_INFO, ratio_volume  # noqa: E402
+
+# Injectés par `main()` ou par l'appelant (`frequences.py` pose `FIN`), AVANT la
+# création du Pool. None = tout / règles les plus récentes.
+FIN: str | None = None
+REGLES: str | None = None
 
 DEBUT, COUPURE = "2023-10-04", "2025-01-01"
 HORIZONS = (20, 60, 120)
@@ -77,15 +92,19 @@ def _evenements(t: str) -> list[dict]:
     ech = df.index[df["v"] > 0].to_numpy()
     ce = c.values[ech]
     oe, he, le = (df[k].astype(float).values[ech] for k in ("o", "h", "l"))
+    kw = {} if REGLES is None else {"regles": REGLES}
+    fl = figures(ce, **kw) + lignes(ce, **kw)
+    ve = df["v"].astype(float).values[ech]
+    vol = {(int(ech[j]), nom): ratio_volume(ve, j) for j, nom, sens in fl}   # information
     brut = [(int(ech[j]), nom, sens) for j, nom, sens in
-            figures(ce) + indicateurs(ce) + lignes(ce) + gaps(oe, he, le, ce)]
+            fl + indicateurs(ce) + gaps(oe, he, le, ce)]
     # Hebdomadaire (03/10/2026) : la même recette sur des bougies de semaine,
     # pivots 10 %, expiration 12 semaines. Le signal est daté de la DERNIÈRE
     # séance échangée de la semaine de cassure — jamais plus tôt.
     sem = df.loc[ech].assign(s=df.loc[ech, "date"].dt.to_period("W-FRI"))
     der = sem.groupby("s").apply(lambda g: g.index.max()).to_numpy()
     cw = sem.groupby("s")["c"].last().astype(float).to_numpy()
-    for j, nom, sens in figures(cw, 0.10, 12) + lignes(cw, 0.10, 12):
+    for j, nom, sens in figures(cw, 0.10, 12, **kw) + lignes(cw, 0.10, 12, **kw):
         brut.append((int(der[j]), "hebdo_" + nom, sens))
     out, dernier = [], {}
     for i, nom, sens in sorted(brut):
@@ -95,7 +114,8 @@ def _evenements(t: str) -> list[dict]:
         if nom in dernier and i - dernier[nom] < 20:
             continue
         dernier[nom] = i
-        o = {"t": t, "date": str(d.date()), "signal": nom, "sens": sens, "montant": montant[i]}
+        o = {"t": t, "date": str(d.date()), "signal": nom, "sens": sens, "montant": montant[i],
+             "vol_ratio": vol.get((i, nom))}
         for h in HORIZONS:
             if i + h < len(df) and not np.isnan(masi[i]) and not np.isnan(masi[i + h]):
                 r = tr[i + h] / tr[i] - 1
@@ -119,17 +139,59 @@ def _stats(g: pd.DataFrame, h: int, sens: int) -> dict:
             "rendement_net_frais": round(float(r.mean() - FRAIS_AR), 4)}
 
 
+def _stats_signees(g: pd.DataFrame, h: int) -> dict:
+    """Part et médiane de l'alpha SIGNÉ (alpha × sens) : valable pour un mélange
+    de figures haussières et baissières."""
+    a = (g[f"a{h}"] * g["sens"]).dropna()
+    if a.empty:
+        return {"n": 0}
+    return {"n": int(len(a)), "dans_le_bon_sens": round(float((a > 0).mean()), 3),
+            "alpha_signe_median": round(float(a.median()), 4)}
+
+
+def _volume(ev: pd.DataFrame) -> dict:
+    """Les cassures où le volume vaut au moins 1,5 × la médiane des 20 séances
+    précédentes font-elles mieux que les autres ? MESURE seulement : aucun
+    filtre n'en découle sans décision d'Abd. Figures et droites quotidiennes
+    déclenchées (hors Fibonacci : un constat, pas une cassure)."""
+    g = ev[ev["vol_ratio"].notna() & ~ev["signal"].str.startswith("fibo_")].copy()
+    out = {"seuil_ratio": VOLUME_SEUIL_INFO,
+           "definition": "volume de la séance de cassure ÷ médiane du volume des 20 séances échangées précédentes",
+           "note": "alpha signé = alpha × sens ; part = part des cas dans le bon sens ; aucun filtre"}
+
+    def coupe(x: pd.DataFrame) -> dict:
+        fort, faible = x[x["vol_ratio"] >= VOLUME_SEUIL_INFO], x[x["vol_ratio"] < VOLUME_SEUIL_INFO]
+        return {f"h{h}": {"ratio_ge_1_5": _stats_signees(fort, h), "ratio_lt_1_5": _stats_signees(faible, h)}
+                for h in HORIZONS}
+    out["tous_signaux"] = {lib: {"toutes_periodes": coupe(s),
+                                 "2023-10_2024-12": coupe(s[s["date"] < COUPURE]),
+                                 "2025-01_2026-10": coupe(s[s["date"] >= COUPURE])}
+                           for lib, s in (("tous", g), ("liquides", g[g["liquide"]]))}
+    out["par_signal"] = {nom: {lib: coupe(s) for lib, s in (("tous", x), ("liquides", x[x["liquide"]]))}
+                         for nom, x in g.groupby("signal")}
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--sortie", default="")
+    ap.add_argument("--regles", default=None)
+    ap.add_argument("--fin", default=None)
+    ap.add_argument("--seuil-liquidite", type=float, default=None)
     arg = ap.parse_args()
+    global FIN, REGLES
+    from technical.regles_strictes import REGLES as DEFAUT, verifier
+    import calibrage_signaux as cs
+    REGLES = verifier(arg.regles or DEFAUT)
+    FIN = cs.FIN = arg.fin
     titres = [p.stem for p in sorted((RACINE / "pipeline" / "candles").glob("*.json"))]
     with Pool() as pool:
         ev = pd.DataFrame([o for lot in pool.map(_evenements, titres) for o in lot])
-    seuil = float(ev["montant"].quantile(1 / 3))
+    seuil = arg.seuil_liquidite if arg.seuil_liquidite is not None else float(ev["montant"].quantile(1 / 3))
     ev["liquide"] = ev["montant"] >= seuil
     res = {"_quoi": "Étape 1 bis — figures chartistes et signaux d'indicateurs",
            "_methode": __doc__.split("Usage :")[0].strip(),
+           "regles": REGLES, "fin_donnees": FIN,
            "seuil_liquidite_dh": round(seuil), "evenements": int(len(ev)),
            "signaux": {}}
     for nom, g in ev.groupby("signal"):
@@ -147,6 +209,7 @@ def main() -> int:
             ok[f"h{h}"] = bool(s1.get("t") and s2.get("t") and s1["t"] * sens >= 2 and s2["t"] * sens >= 2)
         r["retenu_liquides"] = ok
         res["signaux"][nom] = r
+    res["volume"] = _volume(ev)
     texte = json.dumps(res, ensure_ascii=False, indent=1)
     if arg.sortie:
         Path(arg.sortie).write_text(texte + "\n", encoding="utf-8")
