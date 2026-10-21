@@ -290,7 +290,7 @@ def test_la_legende_marque_un_niveau_proche_du_cours():
          "premier": 31 * JOUR, "dernier": 35 * JOUR, "proche": True,
          "roles": [{"role": "support", "n": 2, "premier": 31 * JOUR, "dernier": 35 * JOUR}]}
     assert _suite(L, True, False) == (
-        " (proche du cours) — 2 contacts du 01/02 au 05/02 : 2 par-dessus (tenu 2)")
+        " · proche — 2 contacts du 01/02 au 05/02 : 2 par-dessus (tenu 2)")
     # L'étiquette sur l'axe reste courte : pas de mention.
     assert "proche" not in "title:`S ${fmtPrixFR(L.niveau)} · ${L.contacts}×`"
 
