@@ -152,7 +152,11 @@ def test_source_des_fondamentaux_dit_la_verite(titres):
     fondamental existait — vingt titres étaient ainsi présentés comme ayant des
     fondamentaux réels alors que leur PER venait d'une table codée en dur.
     """
-    connues = {"bpa_calcule", "table_figee"}
+    # ⚠️ 22/10/2026 : « table_figee » n'est plus émis (`_meta_ticker`) — rien
+    # n'y venait plus de la table ; il reste accepté ici tant que le data.json
+    # publié précède le code (seconde famille). Garde-fou côté code :
+    # tests/test_lot_a_moteur.py::test_plus_aucun_table_figee_emis.
+    connues = {"bpa_calcule", "dividende_sur_piece", "aucun_ratio", "table_figee"}
     vues = {(t.get("_meta") or {}).get("source_fond") for t in titres.values()}
     assert vues <= connues, f"valeurs inattendues : {vues - connues}"
 
