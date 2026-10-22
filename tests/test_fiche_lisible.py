@@ -31,7 +31,9 @@ def test_les_garanties_recoupent_la_confiance():
 
 
 def test_les_ratios_ont_un_info_au_toucher():
-    assert SRC.count("<InfoCellule texte=") == 2           # grille principale + comptes publiés
+    # grille principale + comptes publiés + ROE DATA+ « sans objet » (22/10/2026 :
+    # la raison de l'écart, lue dans note_fond_metier, doit se lire au toucher).
+    assert SRC.count("<InfoCellule texte=") == 3
     assert 'cursor:"help"}}>\n                  <div style={{fontSize:8' not in SRC
     for champ in ("bpa_12m:t.bpa_12m", "div_dh:t.div_dh"):  # l'explication lit des champs fusionnés
         assert champ in SRC, champ

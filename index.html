@@ -1632,6 +1632,12 @@ const meta = r => {
   };
 };
 const varSeance = r => meta(r).stale ? null : r.chg;
+const roeSansObjet = r => {
+  const c = (((r || {}).note_fond_metier || {}).criteres || {}).rentabilite;
+  if (!c || c.etat !== "suspendu" || typeof c.motif !== "string") return null;
+  const m = /^ROE sans objet\s*:\s*(.+)$/.exec(c.motif);
+  return m ? m[1] : null;
+};
 const NON_COTE = React.createElement("span", {
   title: "Pas de cotation \xE0 la derni\xE8re s\xE9ance \u2014 aucune variation observ\xE9e",
   style: {
@@ -10255,7 +10261,8 @@ const Detail = ({
     }
   }, [["ROE 2025", "roe_2025"], ["ROE 12 mois", "roe_12m"], ["Marge nette S1 2026", "marge_nette_s1_2026"]].map(([k, cle]) => {
     const x = r.ratios_publies[cle];
-    const titre = x ? `${x.formule}${x.denominateur ? ` — dénominateur : ${x.denominateur}` : ""}\nComptes au ${x.date.split("-").reverse().join("/")}\n${Object.values(x.sources || {}).filter(Boolean).join("\n")}` : "Terme manquant dans les comptes relevés : non calculé";
+    const so = cle.startsWith("roe_") ? roeSansObjet(r) : null;
+    const titre = so ? `ROE sans objet : ${so}` : x ? `${x.formule}${x.denominateur ? ` — dénominateur : ${x.denominateur}` : ""}\nComptes au ${x.date.split("-").reverse().join("/")}\n${Object.values(x.sources || {}).filter(Boolean).join("\n")}` : "Terme manquant dans les comptes relevés : non calculé";
     return React.createElement("div", {
       key: k,
       title: titre,
@@ -10273,7 +10280,18 @@ const Detail = ({
       }
     }, k, React.createElement(InfoCellule, {
       texte: titre
-    })), React.createElement("div", {
+    })), so ? React.createElement(React.Fragment, null, React.createElement("div", {
+      style: {
+        fontSize: 13,
+        color: "#8892a4",
+        fontWeight: 700
+      }
+    }, "sans objet"), React.createElement("div", {
+      style: {
+        fontSize: 8,
+        color: "#5a6478"
+      }
+    }, "\xE9cart\xE9 de la note")) : React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
         fontSize: 13,
         color: x ? x.valeur >= 0 ? "#c8d3e8" : "#ff4f5a" : "#5a6478",
@@ -10284,7 +10302,7 @@ const Detail = ({
         fontSize: 8,
         color: "#5a6478"
       }
-    }, "au ", x.date.split("-").reverse().join("/")));
+    }, "au ", x.date.split("-").reverse().join("/"))));
   })), r.ratios_publies.reserve_cac && React.createElement("div", {
     title: r.ratios_publies.reserve_cac.source,
     style: {
@@ -10337,41 +10355,57 @@ const Detail = ({
     }
   }, "export IDBourse DATA+ du ", r.fwd.asof ? r.fwd.asof.split("-").reverse().join("/") : "—", ", non v\xE9rifi\xE9")), (() => {
     const roeCalc = r.ratios_publies && r.ratios_publies.roe_2025 && r.ratios_publies.roe_2025.valeur != null;
-    const cases = [["PER 2026e", fmt(r.fwd.per_26e, 1), r.fwd.per_26e > 25 ? "#ff8f00" : "#c8d3e8"], ["PER 2027e", fmt(r.fwd.per_27e, 1), r.fwd.per_27e > 25 ? "#ff8f00" : "#c8d3e8"], ["Rendement 2026e", r.fwd.dy_26e != null ? `${fmt(r.fwd.dy_26e, 1)}%` : "—", r.fwd.dy_26e > 4 ? "#00e5a0" : "#c8d3e8"], ["Rendement 2027e", r.fwd.dy_27e != null ? `${fmt(r.fwd.dy_27e, 1)}%` : "—", r.fwd.dy_27e > 4 ? "#00e5a0" : "#c8d3e8"], ...(roeCalc ? [] : [["ROE 2025", r.fwd.roe_25 != null ? `${fmt(r.fwd.roe_25, 1)}%` : "—", r.fwd.roe_25 >= 0 ? "#c8d3e8" : "#ff4f5a"]]), ["Marge nette 2025", r.fwd.marge_nette_25 != null ? `${fmt(r.fwd.marge_nette_25, 1)}%` : "—", r.fwd.marge_nette_25 >= 0 ? "#c8d3e8" : "#ff4f5a"]];
+    const dateExport = r.fwd.asof ? r.fwd.asof.split("-").reverse().join("/") : "date inconnue";
+    const cases = [["PER 2026e", fmt(r.fwd.per_26e, 1), r.fwd.per_26e > 25 ? "#ff8f00" : "#c8d3e8"], ["PER 2027e", fmt(r.fwd.per_27e, 1), r.fwd.per_27e > 25 ? "#ff8f00" : "#c8d3e8"], ["Rendement 2026e", r.fwd.dy_26e != null ? `${fmt(r.fwd.dy_26e, 1)}%` : "—", r.fwd.dy_26e > 4 ? "#00e5a0" : "#c8d3e8"], ["Rendement 2027e", r.fwd.dy_27e != null ? `${fmt(r.fwd.dy_27e, 1)}%` : "—", r.fwd.dy_27e > 4 ? "#00e5a0" : "#c8d3e8"], ...(roeCalc ? [] : [roeSansObjet(r) ? ["ROE 2025", "sans objet", "#8892a4", `ROE sans objet : ${roeSansObjet(r)}`] : ["ROE 2025", r.fwd.roe_25 != null ? `${fmt(r.fwd.roe_25, 1)}%` : "—", r.fwd.roe_25 >= 0 ? "#c8d3e8" : "#ff4f5a"]]), ["Marge nette 2025", r.fwd.marge_nette_25 != null ? `${fmt(r.fwd.marge_nette_25, 1)}%` : "—", r.fwd.marge_nette_25 >= 0 ? "#c8d3e8" : "#ff4f5a"]];
     return React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
         gap: 7
       }
-    }, cases.map(([k, v, c]) => React.createElement("div", {
-      key: k,
-      style: {
-        background: "#0a1220",
-        borderRadius: 4,
-        padding: "6px 8px"
-      }
-    }, React.createElement("div", {
-      style: {
-        fontSize: 8,
-        color: "#8892a4",
-        marginBottom: 2,
-        textTransform: "uppercase"
-      }
-    }, k), React.createElement("div", {
-      style: {
-        fontSize: 13,
-        color: c,
-        fontWeight: 700
-      }
-    }, v)))), React.createElement("div", {
+    }, cases.map(([k, v, c, so]) => {
+      const statut = so || (/20(2[6-9])e$/.test(k) ? `estimation DATA+ du ${dateExport}, non vérifiée` : `export DATA+ du ${dateExport}, non vérifié`);
+      return React.createElement("div", {
+        key: k,
+        title: statut,
+        style: {
+          background: "#0a1220",
+          borderRadius: 4,
+          padding: "6px 8px"
+        }
+      }, React.createElement("div", {
+        style: {
+          fontSize: 8,
+          color: "#8892a4",
+          marginBottom: 2,
+          textTransform: "uppercase"
+        }
+      }, k, so && React.createElement(InfoCellule, {
+        texte: so
+      })), React.createElement("div", {
+        style: {
+          fontSize: 13,
+          color: c,
+          fontWeight: 700,
+          fontVariantNumeric: "tabular-nums"
+        }
+      }, v), React.createElement("div", {
+        style: {
+          fontSize: 8,
+          color: so ? "#5a6478" : "#ff8f00",
+          lineHeight: 1.35,
+          marginTop: 1,
+          textWrap: "pretty"
+        }
+      }, so ? "écarté de la note" : statut));
+    })), React.createElement("div", {
       style: {
         fontSize: 9,
         color: "#8892a4",
         marginTop: 9,
         lineHeight: 1.5
       }
-    }, "Chiffres repris tels quels de l'export, non recoup\xE9s avec les comptes, non retenus dans le score. Un tiret signale une valeur \xE9cart\xE9e comme invraisemblable.", roeCalc && " ROE 2025 de l'export masqué : celui calculé sur les comptes publiés fait foi."));
+    }, "Chiffres repris tels quels de l'export, non recoup\xE9s avec les comptes, non retenus dans le score. Un tiret signale une valeur \xE9cart\xE9e comme invraisemblable.", roeCalc && (roeSansObjet(r) ? " ROE 2025 de l'export masqué : le ROE est sans objet pour ce titre (bloc du dessus)." : " ROE 2025 de l'export masqué : celui calculé sur les comptes publiés fait foi.")));
   })()), React.createElement("div", {
     className: "carte",
     style: {

@@ -1174,6 +1174,17 @@ const meta=r=>{const m=(r&&r._meta)||null;
    briefing le neutralise (`reellement_cote`), l'affichage le montrait comme
    « 0,00 % », une stabilité qui n'a pas été observée (R9). */
 const varSeance=r=>meta(r).stale?null:r.chg;
+/* ⚠️ ROE « SANS OBJET » — 22/10/2026 (audit du 22/10, lot A). La fiche
+   d'AFM affichait un ROE 2025 de 103,2 % que la note écarte
+   (`ROE_SANS_OBJET`, pipeline/smart_money/fond_score.py), et celle d'AGM le
+   ROE DATA+ de 48,2 % que la note écarte de même. data.json ne publie pas de
+   champ dédié : l'information n'existe que dans le critère « rentabilité »
+   de la note par famille, état `suspendu`, motif « ROE sans objet : … ».
+   Rend la raison, ou null. ⚠️ Lecture d'un libellé : si le moteur le
+   reformule, la fiche reviendrait au chiffre brut. */
+const roeSansObjet=r=>{const c=(((r||{}).note_fond_metier||{}).criteres||{}).rentabilite;
+  if(!c||c.etat!=="suspendu"||typeof c.motif!=="string")return null;
+  const m=/^ROE sans objet\s*:\s*(.+)$/.exec(c.motif);return m?m[1]:null;};
 const NON_COTE=<span title="Pas de cotation à la dernière séance — aucune variation observée" style={{color:"#8892a4"}}>n.c.</span>;
 const jjmm=d=>{const p=String(d||"").slice(0,10).split("-");return p.length===3?`${p[2]}/${p[1]}`:"";};
 /* Pastille de fraîcheur : n'apparaît que si le cours n'est pas celui de la
@@ -4798,12 +4809,17 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:7}}>
               {[["ROE 2025","roe_2025"],["ROE 12 mois","roe_12m"],["Marge nette S1 2026","marge_nette_s1_2026"]].map(([k,cle])=>{
                 const x=r.ratios_publies[cle];
-                const titre=x?`${x.formule}${x.denominateur?` — dénominateur : ${x.denominateur}`:""}\nComptes au ${x.date.split("-").reverse().join("/")}\n${Object.values(x.sources||{}).filter(Boolean).join("\n")}`:"Terme manquant dans les comptes relevés : non calculé";
+                /* ROE que la note écarte : « sans objet », la raison au survol
+                   et au toucher, jamais le chiffre brut (AFM 103,2 %). */
+                const so=cle.startsWith("roe_")?roeSansObjet(r):null;
+                const titre=so?`ROE sans objet : ${so}`:x?`${x.formule}${x.denominateur?` — dénominateur : ${x.denominateur}`:""}\nComptes au ${x.date.split("-").reverse().join("/")}\n${Object.values(x.sources||{}).filter(Boolean).join("\n")}`:"Terme manquant dans les comptes relevés : non calculé";
                 return(
                 <div key={k} title={titre} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}<InfoCellule texte={titre}/></div>
+                  {so?<><div style={{fontSize:13,color:"#8892a4",fontWeight:700}}>sans objet</div>
+                    <div style={{fontSize:8,color:"#5a6478"}}>écarté de la note</div></>:<>
                   <div style={{fontSize:13,color:x?(x.valeur>=0?"#c8d3e8":"#ff4f5a"):"#5a6478",fontWeight:700}}>{x?`${fmt(x.valeur,1)}%`:"—"}</div>
-                  {x&&<div style={{fontSize:8,color:"#5a6478"}}>au {x.date.split("-").reverse().join("/")}</div>}
+                  {x&&<div style={{fontSize:8,color:"#5a6478"}}>au {x.date.split("-").reverse().join("/")}</div>}</>}
                 </div>);})}
             </div>
             {r.ratios_publies.reserve_cac&&(
@@ -4832,25 +4848,35 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                 sur les comptes, 11,2 DATA+. Quand le ROE 2025 est calculé sur
                 comptes publiés, seul celui-là s'affiche (bloc du dessus). */}
             {(()=>{const roeCalc=r.ratios_publies&&r.ratios_publies.roe_2025&&r.ratios_publies.roe_2025.valeur!=null;
+              const dateExport=r.fwd.asof?r.fwd.asof.split("-").reverse().join("/"):"date inconnue";
               const cases=[["PER 2026e",fmt(r.fwd.per_26e,1),r.fwd.per_26e>25?"#ff8f00":"#c8d3e8"],
                 ["PER 2027e",fmt(r.fwd.per_27e,1),r.fwd.per_27e>25?"#ff8f00":"#c8d3e8"],
                 ["Rendement 2026e",r.fwd.dy_26e!=null?`${fmt(r.fwd.dy_26e,1)}%`:"—",r.fwd.dy_26e>4?"#00e5a0":"#c8d3e8"],
                 ["Rendement 2027e",r.fwd.dy_27e!=null?`${fmt(r.fwd.dy_27e,1)}%`:"—",r.fwd.dy_27e>4?"#00e5a0":"#c8d3e8"],
-                ...(roeCalc?[]:[["ROE 2025",r.fwd.roe_25!=null?`${fmt(r.fwd.roe_25,1)}%`:"—",r.fwd.roe_25>=0?"#c8d3e8":"#ff4f5a"]]),
+                ...(roeCalc?[]:[roeSansObjet(r)
+                  ?["ROE 2025","sans objet","#8892a4",`ROE sans objet : ${roeSansObjet(r)}`]
+                  :["ROE 2025",r.fwd.roe_25!=null?`${fmt(r.fwd.roe_25,1)}%`:"—",r.fwd.roe_25>=0?"#c8d3e8":"#ff4f5a"]]),
                 ["Marge nette 2025",r.fwd.marge_nette_25!=null?`${fmt(r.fwd.marge_nette_25,1)}%`:"—",r.fwd.marge_nette_25>=0?"#c8d3e8":"#ff4f5a"]];
               return(<>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-              {cases.map(([k,v,c])=>(
-                <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
-                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
-                  <div style={{fontSize:13,color:c,fontWeight:700}}>{v}</div>
-                </div>
-              ))}
+              {cases.map(([k,v,c,so])=>{
+                /* Statut porté par CHAQUE valeur — 22/10/2026 (audit du 22/10,
+                   lot A). L'en-tête du bloc le disait une fois ; une case lue
+                   seule (capture, regard rapide) ne le disait pas. */
+                const statut=so||(/20(2[6-9])e$/.test(k)?`estimation DATA+ du ${dateExport}, non vérifiée`:`export DATA+ du ${dateExport}, non vérifié`);
+                return(
+                <div key={k} title={statut} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
+                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}{so&&<InfoCellule texte={so}/>}</div>
+                  <div style={{fontSize:13,color:c,fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{v}</div>
+                  <div style={{fontSize:8,color:so?"#5a6478":"#ff8f00",lineHeight:1.35,marginTop:1,textWrap:"pretty"}}>{so?"écarté de la note":statut}</div>
+                </div>);})}
             </div>
             <div style={{fontSize:9,color:"#8892a4",marginTop:9,lineHeight:1.5}}>
               Chiffres repris tels quels de l'export, non recoupés avec les comptes, non retenus
               dans le score. Un tiret signale une valeur écartée comme invraisemblable.
-              {roeCalc&&" ROE 2025 de l'export masqué : celui calculé sur les comptes publiés fait foi."}
+              {roeCalc&&(roeSansObjet(r)
+                ?" ROE 2025 de l'export masqué : le ROE est sans objet pour ce titre (bloc du dessus)."
+                :" ROE 2025 de l'export masqué : celui calculé sur les comptes publiés fait foi.")}
             </div></>);})()}
           </div>)}
 
