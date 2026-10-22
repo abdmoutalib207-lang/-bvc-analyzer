@@ -123,7 +123,8 @@ def _fusion_candles_cache(candles_cache: list, candles_calculees: list,
 def extremes_glissants(candles: list, maintenant=None, serie_complete: bool = False) -> dict | None:
     """Plus-haut / plus-bas 90 jours et 52 semaines sur une liste de bougies.
 
-    Mêmes fenêtres que `compute_indicators` (calendaires, depuis maintenant).
+    Mêmes fenêtres que `compute_indicators` (calendaires, depuis aujourd'hui
+    à minuit, bord inclus).
     None si la copie ne couvre pas la fenêtre de 52 semaines : on ne publie pas
     un extrême calculé sur une partie seulement de sa fenêtre — sauf si la
     copie EST la série entière (titre coté depuis moins d'un an).
@@ -131,7 +132,13 @@ def extremes_glissants(candles: list, maintenant=None, serie_complete: bool = Fa
     import pandas as pd
     if not candles:
         return None
+    # ⚠️ 22/10/2026 : ancre à MINUIT, bord inclus — même règle que
+    # `compute_indicators` (`_ancre_du_jour`). Avec l'heure, une séance pile
+    # sur le bord sortait de la fenêtre selon l'heure du run (STK 137,0).
     now = pd.Timestamp.now() if maintenant is None else pd.Timestamp(maintenant)
+    if now.tzinfo is not None:
+        now = now.tz_localize(None)
+    now = now.normalize()
     d52, d90 = now - pd.Timedelta(weeks=52), now - pd.Timedelta(days=90)
     lignes = [(pd.Timestamp(str(b.get("d"))[:10]), b.get("h"), b.get("l"))
               for b in candles if b.get("d") and b.get("h") is not None and b.get("l") is not None]
