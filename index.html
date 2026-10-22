@@ -14148,7 +14148,6 @@ const NLP_RANKS = [{
   sig: "ACHAT",
   sm: 91,
   alpha: 42.1,
-  upside: 14,
   mentions: 4142,
   pe: 18.5
 }, {
@@ -14157,7 +14156,6 @@ const NLP_RANKS = [{
   sig: "ACHAT",
   sm: 80,
   alpha: 22.8,
-  upside: 18,
   mentions: 2888,
   pe: 22.4
 }, {
@@ -14166,7 +14164,6 @@ const NLP_RANKS = [{
   sig: "ACHAT",
   sm: 100,
   alpha: 55.3,
-  upside: 2,
   mentions: 6665,
   pe: 58.7
 }, {
@@ -14175,7 +14172,6 @@ const NLP_RANKS = [{
   sig: "ACHAT",
   sm: 89,
   alpha: 38.5,
-  upside: 7,
   mentions: 4279,
   pe: 37.0
 }, {
@@ -14184,7 +14180,6 @@ const NLP_RANKS = [{
   sig: "ACHAT",
   sm: 75,
   alpha: 18.7,
-  upside: 27,
   mentions: 9537,
   pe: 14.5
 }, {
@@ -14193,7 +14188,6 @@ const NLP_RANKS = [{
   sig: "ACHAT",
   sm: 69,
   alpha: 14.6,
-  upside: 17,
   mentions: 900,
   pe: 14.2
 }, {
@@ -14202,7 +14196,6 @@ const NLP_RANKS = [{
   sig: "ACHAT",
   sm: 70,
   alpha: 15.9,
-  upside: 27,
   mentions: 1841,
   pe: 15.0
 }, {
@@ -14211,7 +14204,6 @@ const NLP_RANKS = [{
   sig: "NEUTRE",
   sm: 60,
   alpha: 9.8,
-  upside: 8,
   mentions: 853,
   pe: 8.2
 }, {
@@ -14220,7 +14212,6 @@ const NLP_RANKS = [{
   sig: "NEUTRE",
   sm: 67,
   alpha: 5.0,
-  upside: 12,
   mentions: 1772,
   pe: 19.5
 }, {
@@ -14229,7 +14220,6 @@ const NLP_RANKS = [{
   sig: "NEUTRE",
   sm: 65,
   alpha: 11.5,
-  upside: -3,
   mentions: 1251,
   pe: 11.8
 }, {
@@ -14238,7 +14228,6 @@ const NLP_RANKS = [{
   sig: "NEUTRE",
   sm: 50,
   alpha: 0.0,
-  upside: 6,
   mentions: 699,
   pe: 11.0
 }, {
@@ -14247,7 +14236,6 @@ const NLP_RANKS = [{
   sig: "NEUTRE",
   sm: 64,
   alpha: 10.1,
-  upside: 12,
   mentions: 4410,
   pe: 28.4
 }, {
@@ -14256,7 +14244,6 @@ const NLP_RANKS = [{
   sig: "NEUTRE",
   sm: 47,
   alpha: 8.5,
-  upside: 17,
   mentions: 22893,
   pe: 9.8
 }, {
@@ -14265,7 +14252,6 @@ const NLP_RANKS = [{
   sig: "NEUTRE",
   sm: 40,
   alpha: 3.1,
-  upside: 0,
   mentions: 18290,
   pe: 12.5
 }, {
@@ -14274,7 +14260,6 @@ const NLP_RANKS = [{
   sig: "NEUTRE",
   sm: 42,
   alpha: 5.2,
-  upside: -38,
   mentions: 14692,
   pe: 8.5
 }, {
@@ -14283,7 +14268,6 @@ const NLP_RANKS = [{
   sig: "NEUTRE",
   sm: 57,
   alpha: 7.6,
-  upside: -11,
   mentions: 2669,
   pe: 18.5
 }, {
@@ -14292,7 +14276,6 @@ const NLP_RANKS = [{
   sig: "NEUTRE",
   sm: 77,
   alpha: 21.0,
-  upside: -13,
   mentions: 1433,
   pe: 38.0
 }, {
@@ -14301,7 +14284,6 @@ const NLP_RANKS = [{
   sig: "NEUTRE",
   sm: 62,
   alpha: 10.3,
-  upside: -20,
   mentions: 3096,
   pe: 17.7
 }, {
@@ -14310,7 +14292,6 @@ const NLP_RANKS = [{
   sig: "NEUTRE",
   sm: 72,
   alpha: 19.2,
-  upside: -15,
   mentions: 202,
   pe: 24.2
 }];
@@ -14714,7 +14695,7 @@ const NlpDash = () => {
       flexDirection: "column",
       gap: 3
     }
-  }, [["SM", `${r.sm}/100`, "#ffd740"], ["Alpha", `+${r.alpha}%`, "#00e5a0"], ["Upside", `${r.upside > 0 ? "+" : ""}${r.upside}%`, r.upside > 0 ? "#00e5a0" : "#ff4f5a"], ["Mentions", r.mentions.toLocaleString(), "#4db8ff"]].map(([k, v, c]) => React.createElement("div", {
+  }, [["SM", `${r.sm}/100`, "#ffd740"], ["Alpha", `+${r.alpha}%`, "#00e5a0"], ["Mentions", r.mentions.toLocaleString(), "#4db8ff"]].map(([k, v, c]) => React.createElement("div", {
     key: k,
     style: {
       display: "flex",
@@ -14875,7 +14856,7 @@ const NlpDash = () => {
     style: {
       borderBottom: "1px solid #1a2540"
     }
-  }, ["#", "TICKER", "SCORE", "SIGNAL", "SM/100", "ALPHA", "UPSIDE", "MENTIONS"].map(h => React.createElement("th", {
+  }, ["#", "TICKER", "SCORE", "SIGNAL", "SM/100", "ALPHA", "MENTIONS"].map(h => React.createElement("th", {
     key: h,
     style: {
       padding: "5px 8px",
@@ -14962,13 +14943,6 @@ const NlpDash = () => {
       fontWeight: 600
     }
   }, "+", r.alpha, "%"), React.createElement("td", {
-    style: {
-      padding: "5px 8px",
-      textAlign: "right",
-      color: r.upside > 0 ? "#00e5a0" : "#ff4f5a",
-      fontWeight: 600
-    }
-  }, r.upside > 0 ? "+" : "", r.upside, "%"), React.createElement("td", {
     style: {
       padding: "5px 8px",
       textAlign: "right",

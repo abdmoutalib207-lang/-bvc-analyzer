@@ -5303,26 +5303,30 @@ const NLP_SM=[
   {name:"Y.M",            calls:365,  timeliness:0.399, sm:true},
   {name:"M1051",   calls:3849, timeliness:0.473, sm:true},
 ];
+/* ⚠️ 22/10/2026 — champ `upside` retiré des 19 lignes ci-dessous (audit du
+   22/10, lot A). Écrit en dur, sans date ni source (MSA −13, RDS −38,
+   CSR −15…) : rien ne permettait de le recalculer. Il n'est remplacé par
+   rien ; les valeurs restent dans l'historique git. */
 const NLP_RANKS=[
-  {t:"CMT", score:68.0, sig:"ACHAT", sm:91,  alpha:42.1, upside:14,  mentions:4142,  pe:18.5},
-  {t:"AKD", score:64.2, sig:"ACHAT", sm:80,  alpha:22.8, upside:18,  mentions:2888,  pe:22.4},
-  {t:"MNG", score:63.1, sig:"ACHAT", sm:100, alpha:55.3, upside:2,   mentions:6665,  pe:58.7},
-  {t:"SMI", score:61.4, sig:"ACHAT", sm:89,  alpha:38.5, upside:7,   mentions:4279,  pe:37.0},
-  {t:"TGCC",score:61.3, sig:"ACHAT", sm:75,  alpha:18.7, upside:27,  mentions:9537,  pe:14.5},
-  {t:"CFGB",score:61.2, sig:"ACHAT", sm:69,  alpha:14.6, upside:17,  mentions:900,   pe:14.2},
-  {t:"SGTM",score:60.4, sig:"ACHAT", sm:70,  alpha:15.9, upside:27,  mentions:1841,  pe:15.0},
-  {t:"SRM", score:58.8, sig:"NEUTRE",sm:60,  alpha:9.8,  upside:8,   mentions:853,   pe:8.2},
-  {t:"SOT", score:58.0, sig:"NEUTRE",sm:67,  alpha:5.0,  upside:12,  mentions:1772,  pe:19.5},
-  {t:"CMGP",score:57.4, sig:"NEUTRE",sm:65,  alpha:11.5, upside:-3,  mentions:1251,  pe:11.8},
-  {t:"CDM", score:56.1, sig:"NEUTRE",sm:50,  alpha:0.0,  upside:6,   mentions:699,   pe:11.0},
-  {t:"CASH",score:56.0, sig:"NEUTRE",sm:64,  alpha:10.1, upside:12,  mentions:4410,  pe:28.4},
-  {t:"ADI", score:55.6, sig:"NEUTRE",sm:47,  alpha:8.5,  upside:17,  mentions:22893, pe:9.8},
-  {t:"ADH", score:51.0, sig:"NEUTRE",sm:40,  alpha:3.1,  upside:0,   mentions:18290, pe:12.5},
-  {t:"RDS", score:49.9, sig:"NEUTRE",sm:42,  alpha:5.2,  upside:-38, mentions:14692, pe:8.5},
-  {t:"SNA", score:50.8, sig:"NEUTRE",sm:57,  alpha:7.6,  upside:-11, mentions:2669,  pe:18.5},
-  {t:"MSA", score:54.1, sig:"NEUTRE",sm:77,  alpha:21.0, upside:-13, mentions:1433,  pe:38.0},
-  {t:"RIS", score:53.7, sig:"NEUTRE",sm:62,  alpha:10.3, upside:-20, mentions:3096,  pe:17.7},
-  {t:"CSR", score:54.9, sig:"NEUTRE",sm:72,  alpha:19.2, upside:-15, mentions:202,   pe:24.2},
+  {t:"CMT", score:68.0, sig:"ACHAT", sm:91,  alpha:42.1, mentions:4142,  pe:18.5},
+  {t:"AKD", score:64.2, sig:"ACHAT", sm:80,  alpha:22.8, mentions:2888,  pe:22.4},
+  {t:"MNG", score:63.1, sig:"ACHAT", sm:100, alpha:55.3, mentions:6665,  pe:58.7},
+  {t:"SMI", score:61.4, sig:"ACHAT", sm:89,  alpha:38.5, mentions:4279,  pe:37.0},
+  {t:"TGCC",score:61.3, sig:"ACHAT", sm:75,  alpha:18.7, mentions:9537,  pe:14.5},
+  {t:"CFGB",score:61.2, sig:"ACHAT", sm:69,  alpha:14.6, mentions:900,   pe:14.2},
+  {t:"SGTM",score:60.4, sig:"ACHAT", sm:70,  alpha:15.9, mentions:1841,  pe:15.0},
+  {t:"SRM", score:58.8, sig:"NEUTRE",sm:60,  alpha:9.8,  mentions:853,   pe:8.2},
+  {t:"SOT", score:58.0, sig:"NEUTRE",sm:67,  alpha:5.0,  mentions:1772,  pe:19.5},
+  {t:"CMGP",score:57.4, sig:"NEUTRE",sm:65,  alpha:11.5, mentions:1251,  pe:11.8},
+  {t:"CDM", score:56.1, sig:"NEUTRE",sm:50,  alpha:0.0,  mentions:699,   pe:11.0},
+  {t:"CASH",score:56.0, sig:"NEUTRE",sm:64,  alpha:10.1, mentions:4410,  pe:28.4},
+  {t:"ADI", score:55.6, sig:"NEUTRE",sm:47,  alpha:8.5,  mentions:22893, pe:9.8},
+  {t:"ADH", score:51.0, sig:"NEUTRE",sm:40,  alpha:3.1,  mentions:18290, pe:12.5},
+  {t:"RDS", score:49.9, sig:"NEUTRE",sm:42,  alpha:5.2,  mentions:14692, pe:8.5},
+  {t:"SNA", score:50.8, sig:"NEUTRE",sm:57,  alpha:7.6,  mentions:2669,  pe:18.5},
+  {t:"MSA", score:54.1, sig:"NEUTRE",sm:77,  alpha:21.0, mentions:1433,  pe:38.0},
+  {t:"RIS", score:53.7, sig:"NEUTRE",sm:62,  alpha:10.3, mentions:3096,  pe:17.7},
+  {t:"CSR", score:54.9, sig:"NEUTRE",sm:72,  alpha:19.2, mentions:202,   pe:24.2},
 ];
 
 const NLP_RECENT6M=[
@@ -5444,7 +5448,7 @@ const NlpDash=()=>{
               <div style={{fontSize:22,fontWeight:900,color:"#fff",marginBottom:2}}>{r.score}</div>
               <div style={{fontSize:9,color:"#8892a4",marginBottom:8}}>score composite</div>
               <div style={{display:"flex",flexDirection:"column",gap:3}}>
-                {[["SM",`${r.sm}/100`,"#ffd740"],["Alpha",`+${r.alpha}%`,"#00e5a0"],["Upside",`${r.upside>0?"+":""}${r.upside}%`,r.upside>0?"#00e5a0":"#ff4f5a"],["Mentions",r.mentions.toLocaleString(),"#4db8ff"]].map(([k,v,c])=>(
+                {[["SM",`${r.sm}/100`,"#ffd740"],["Alpha",`+${r.alpha}%`,"#00e5a0"],["Mentions",r.mentions.toLocaleString(),"#4db8ff"]].map(([k,v,c])=>(
                   <div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:10}}>
                     <span style={{color:"#8892a4"}}>{k}</span>
                     <span style={{color:c,fontWeight:600}}>{v}</span>
@@ -5493,7 +5497,7 @@ const NlpDash=()=>{
             <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
               <thead>
                 <tr style={{borderBottom:"1px solid #1a2540"}}>
-                  {["#","TICKER","SCORE","SIGNAL","SM/100","ALPHA","UPSIDE","MENTIONS"].map(h=>(
+                  {["#","TICKER","SCORE","SIGNAL","SM/100","ALPHA","MENTIONS"].map(h=>(
                     <th key={h} style={{padding:"5px 8px",color:"#8892a4",fontWeight:500,textAlign:h==="#"||h==="TICKER"?"left":"right",fontSize:10,letterSpacing:.5}}>{h}</th>
                   ))}
                 </tr>
@@ -5518,7 +5522,6 @@ const NlpDash=()=>{
                       </div>
                     </td>
                     <td style={{padding:"5px 8px",textAlign:"right",color:"#00e5a0",fontWeight:600}}>+{r.alpha}%</td>
-                    <td style={{padding:"5px 8px",textAlign:"right",color:r.upside>0?"#00e5a0":"#ff4f5a",fontWeight:600}}>{r.upside>0?"+":""}{r.upside}%</td>
                     <td style={{padding:"5px 8px",textAlign:"right",color:"#4db8ff"}}>{r.mentions.toLocaleString()}</td>
                   </tr>
                 ))}
