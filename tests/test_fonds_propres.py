@@ -316,19 +316,10 @@ def test_le_pb_publie_se_recoupe_avec_la_capitalisation(publie, faits):
                      .read_text(encoding="utf-8")).get("titres") or {})
     # ⚠️ 22/10/2026 (lot B4) : le moteur prend les fonds propres du 30/06/2026
     # dès qu'ils sont relevés sur pièce (citation), et plus seulement pour TQA.
-    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION de fiab/lot-b-note :
-    # supprimer `avant_le_code` et ne garder que la nouvelle règle. Tant que le
-    # data.json publié a été écrit par un moteur d'une autre version du score
-    # (avant v5.3-croissance-pb-2026-10-27), son P/B suit l'ANCIENNE règle :
-    # 31/12/2025, sauf les entrées S1 portant `pb_sur_cp_s1` (TQA).
-    from bvc_config import SCORE_VERSION
-    versions = {x.get("score_version") for x in publie["tickers"]}
-    avant_le_code = versions != {SCORE_VERSION}
+    # (Transition retirée le 27/10/2026 : le run de 13h56 a publié les 80 titres
+    # sous cette règle.)
     for t, e in s1.items():
-        if avant_le_code:
-            if e.get("pb_sur_cp_s1") and e.get("capitaux_propres_pg_30_06_2026"):
-                cp[t] = float(e["capitaux_propres_pg_30_06_2026"])
-        elif t in cp and e.get("capitaux_propres_pg_30_06_2026") and e.get("source_capitaux_propres"):
+        if t in cp and e.get("capitaux_propres_pg_30_06_2026") and e.get("source_capitaux_propres"):
             cp[t] = float(e["capitaux_propres_pg_30_06_2026"])
     ecarts = []
     for x in publie["tickers"]:
