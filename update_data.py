@@ -2577,15 +2577,90 @@ def _cap_en_devise(cap_mdh, prix_asof, devise, taux):
 
 
 def _cp_s1_pour_pb(ticker: str):
-    """Fonds propres part du groupe au 30/06/2026 (MMAD) si l'entrée S1 du titre
-    demande le P/B dessus (`pb_sur_cp_s1`), sinon None."""
+    """Fonds propres part du groupe au 30/06/2026 relevés sur pièce, ou None.
+
+    ({"valeur": MMAD, "date": "2026-06-30", "source": citation}) quand l'entrée
+    S1 du titre porte `capitaux_propres_pg_30_06_2026` ET sa citation
+    (`source_capitaux_propres`). Le drapeau `pb_sur_cp_s1` n'est plus requis
+    depuis le 22/10/2026 (voir `_fonds_propres_pb`)."""
     try:
         jeu = json.loads((Path(__file__).parent / "datasets"
                           / "resultats_s1_2026.json").read_text(encoding="utf-8"))
         t = (jeu.get("titres") or {}).get(ticker) or {}
         v = t.get("capitaux_propres_pg_30_06_2026")
-        return float(v) if t.get("pb_sur_cp_s1") and v else None
+        if v is None or not t.get("source_capitaux_propres"):
+            return None
+        return {"valeur": float(v), "date": "2026-06-30", "source": t["source_capitaux_propres"]}
     except (OSError, ValueError, TypeError):
+        return None
+
+
+# Réserves publiées avec le P/B d'un titre (22/10/2026, lot B3). Une réserve
+# dit ce que le ratio ne voit pas ; elle ne le corrige pas.
+RESERVES_PB = {
+    "T2S": ("l'argent levé à l'introduction en bourse de juillet n'est dans aucun des fonds "
+            "propres déposés (ni au 31/12/2025, ni au 30/06/2026) : le P/B rapporte la "
+            "capitalisation de toutes les actions cotées à des fonds propres qui ne comprennent "
+            "pas cette levée"),
+}
+
+
+def _fonds_propres_pb(ticker: str):
+    """Les fonds propres part du groupe les PLUS RÉCENTS relevés sur pièce.
+
+    ⚠️ 22/10/2026, accord R8 d'Abd Moutalib (audit verificateur-finance, lot
+    B4). Le P/B lisait les fonds propres du 31/12/2025 alors que 31 autres
+    titres avaient déposé, et nous avions relevé page à page, ceux du
+    30/06/2026 (IAM compris, relevé le 22/10) ; seul TQA (drapeau `pb_sur_cp_s1`, 06/10) était déjà au 30/06. Règle
+    unique : la date la plus récente l'emporte. TMA 5,94 → 8,03 (dividende
+    versé au 1er semestre), CTM −25,6 %, CIM +13,2 %, SNP +11,1 %…
+
+    {"valeur": MMAD, "date": "AAAA-MM-JJ", "source": str} ou None."""
+    cands = []
+    e = FAITS_DATA.get(ticker)
+    if isinstance(e, dict):
+        cp = (e.get("faits") or {}).get("capitaux_propres_part_groupe")
+        if isinstance(cp, dict) and cp.get("valeur") is not None:
+            cands.append({"valeur": float(cp["valeur"]),
+                          "date": f"{e.get('exercice', 2025)}-12-31",
+                          "source": f"{e.get('document') or 'comptes déposés'} — {e.get('url')}, "
+                                    f"p. {cp.get('page')}"})
+    # Le 30/06 REMPLACE un 31/12 relevé, il ne crée pas de P/B là où aucun
+    # n'était publié (CDM : fonds propres S1 relevés, pas ceux de l'exercice) —
+    # l'extension de couverture est une autre décision.
+    s1 = _cp_s1_pour_pb(ticker) if cands else None
+    if s1:
+        cands.append(s1)
+    return max(cands, key=lambda c: c["date"]) if cands else None
+
+
+def _actions_pb(ticker: str):
+    """Le nombre d'actions du P/B : LE MÊME que celui de la capitalisation.
+
+    ⚠️ 22/10/2026, accord R8 (lot B3). La capitalisation lisait le nombre
+    officiel de la Bourse (`_actions_bourse`) et le P/B celui de nos pièces
+    (`_actions_sourcees`) : un même titre portait deux nombres d'actions. Sur
+    79 titres où les deux existent, seul T2S diffère (22 584 118 contre
+    21 785 174, l'« Augmentation de Capital Dirigeant ») ; le nombre officiel
+    prime désormais pour les deux. Le BPA, lui, reste sur le nombre moyen
+    pondéré de la période (IAS 33) : c'est une autre grandeur."""
+    return _actions_bourse(ticker) or _actions_sourcees(ticker)
+
+
+def _pb_detail(ticker: str, price: float):
+    """{"pb", "fonds_propres_au", "fonds_propres", "actions", "reserve"} ou None."""
+    if not price or price <= 0:
+        return None
+    fp = _fonds_propres_pb(ticker)
+    n = _actions_pb(ticker)
+    if not fp or not n or fp["valeur"] <= 0:
+        return None
+    try:
+        return {"pb": round(price * n / (fp["valeur"] * 1e6), 2),   # fonds propres en MMAD
+                "fonds_propres_au": fp["date"], "fonds_propres": fp["valeur"],
+                "fonds_propres_source": fp["source"], "actions": n,
+                "reserve": RESERVES_PB.get(ticker)}
+    except (TypeError, ValueError):
         return None
 
 
@@ -2612,31 +2687,12 @@ def _pb_sourcé(ticker: str, price: float):
     Les capitaux propres retenus sont ceux de la PART DU GROUPE, cohérents
     avec un nombre d'actions de la société mère. Les prendre consolidés, donc
     minoritaires inclus, sous-estimerait le ratio.
+
+    Depuis le 22/10/2026 : fonds propres les plus récents relevés sur pièce
+    (`_fonds_propres_pb`), nombre d'actions de la capitalisation (`_actions_pb`).
     """
-    e = FAITS_DATA.get(ticker)
-    if not isinstance(e, dict) or not price or price <= 0:
-        return None
-    faits = e.get("faits") or {}
-    cp = faits.get("capitaux_propres_part_groupe")
-    n = _actions_sourcees(ticker)
-    if not cp or not n:
-        return None
-    try:
-        fp = float(cp["valeur"]) * 1e6          # les faits sont en MMAD
-        # ⚠️ 06/10/2026 (audit verificateur-finance, TQA) : un dépôt S1 2026
-        # donne des fonds propres plus RÉCENTS (30/06/2026, après dividende)
-        # que ceux du 31/12/2025. Sur Taqa : 6 338,7 contre 6 772,7 MMAD, soit
-        # un P/B de 4,6 % trop bas. L'entrée S1 le demande par
-        # `pb_sur_cp_s1` ; sans ce drapeau rien ne change pour les autres
-        # titres (leur généralisation est une décision, pas un correctif).
-        _cp_s1 = _cp_s1_pour_pb(ticker)
-        if _cp_s1:
-            fp = _cp_s1 * 1e6                   # MMAD aussi
-        if fp <= 0:
-            return None
-        return round(price * n / fp, 2)
-    except (TypeError, ValueError, KeyError):
-        return None
+    d = _pb_detail(ticker, price)
+    return d["pb"] if d else None
 
 
 def _charger_actions_operateur() -> dict:
@@ -2682,9 +2738,10 @@ ACTIONS_OPERATEUR = _charger_actions_operateur()
 # Un nombre officiel absent pour un titre fait passer au maillon suivant,
 # jamais à zéro.
 #
-# ⚠️ Ce nombre ne sert QU'À LA CAPITALISATION. Le P/B (`_actions_sourcees`) et
-# le dénominateur du BPA (IAS 33, nombre moyen pondéré) n'y touchent pas : cas
-# T2S, 22 584 118 à la Bourse contre 21 785 174 sur nos pièces — l'écart est
+# ⚠️ Ce nombre sert à la CAPITALISATION et, depuis le 22/10/2026 (accord R8,
+# lot B3, `_actions_pb`), au P/B : un titre n'a plus qu'un nombre d'actions
+# courant. Le dénominateur du BPA (IAS 33, nombre moyen pondéré) n'y touche
+# pas : cas T2S, 22 584 118 à la Bourse contre 21 785 174 sur nos pièces — l'écart est
 # l'« Augmentation de Capital Dirigeant » (798 944 actions, DR p.37 et p.258),
 # non datée sur pièce. Une admission à la cote inscrite dans la liste de
 # l'opérateur constate que ces actions sont COTÉES : elles entrent dans la
@@ -3381,6 +3438,10 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         # désormais soit calculé depuis un dépôt AMMC, soit absent.
         "pb_source":    ("faits_ammc" if _pb_sourcé(ticker, 1.0) is not None
                          else "non_disponible"),
+        # Date des fonds propres du P/B (22/10/2026, lot B4) : les plus récents
+        # relevés sur pièce, 30/06/2026 ou 31/12/2025. Et la réserve (B3).
+        "pb_fonds_propres_au": (_pb_detail(ticker, 1.0) or {}).get("fonds_propres_au"),
+        "pb_reserve":   (_pb_detail(ticker, 1.0) or {}).get("reserve"),
         # D'où vient la capitalisation publiée. Depuis le 20/10/2026, d'abord
         # « calculee_bourse_officielle » — cours du jour × nombre d'actions de
         # la liste officielle des émetteurs. Sinon : « servie » par la source

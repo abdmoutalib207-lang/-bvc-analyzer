@@ -314,8 +314,10 @@ def test_le_pb_publie_se_recoupe_avec_la_capitalisation(publie, faits):
     cp = {t: f["valeur"] for t, f in _avec_fonds_propres(faits).items()}
     s1 = (json.loads((RACINE / "datasets" / "resultats_s1_2026.json")
                      .read_text(encoding="utf-8")).get("titres") or {})
+    # ⚠️ 22/10/2026 (lot B4) : le moteur prend les fonds propres du 30/06/2026
+    # dès qu'ils sont relevés sur pièce (citation), et plus seulement pour TQA.
     for t, e in s1.items():
-        if e.get("pb_sur_cp_s1") and e.get("capitaux_propres_pg_30_06_2026"):
+        if t in cp and e.get("capitaux_propres_pg_30_06_2026") and e.get("source_capitaux_propres"):
             cp[t] = float(e["capitaux_propres_pg_30_06_2026"])
     ecarts = []
     for x in publie["tickers"]:
