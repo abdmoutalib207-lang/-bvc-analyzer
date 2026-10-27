@@ -156,6 +156,8 @@ def test_source_des_fondamentaux_dit_la_verite(titres):
     # n'y venait plus de la table ; il reste accepté ici tant que le data.json
     # publié précède le code (seconde famille). Garde-fou côté code :
     # tests/test_lot_a_moteur.py::test_plus_aucun_table_figee_emis.
+    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION de fiab/lot-a-moteur :
+    # ôter alors « table_figee » de cet ensemble.
     connues = {"bpa_calcule", "dividende_sur_piece", "aucun_ratio", "table_figee"}
     vues = {(t.get("_meta") or {}).get("source_fond") for t in titres.values()}
     assert vues <= connues, f"valeurs inattendues : {vues - connues}"

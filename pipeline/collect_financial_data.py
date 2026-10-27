@@ -281,7 +281,8 @@ def to_legacy_format(pipeline_out: dict) -> dict:
             "price":    m.get("price"),
             "open":     m.get("open"),
             "close":    m.get("price"),
-            "chg":      m.get("variation_pct") or 0,
+            # None si non servie (R9, 22/10/2026) : une variation absente n'est pas 0,00 %.
+            "chg":      m.get("variation_pct"),
             "vol":      m.get("volume"),            # index.html lit t.vol, pas t.volume
             "pe":       f.get("pe_ratio_ttm"),
             "pb":       f.get("pb_ratio"),

@@ -667,6 +667,8 @@ def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():
     # EXACTEMENT le recalcul du producteur actuel sur la copie de bougies du
     # cache, à `_updated` — et que `origin/main` ne l'était pas. Toute autre
     # valeur reste refusée ; une fois fusionné, l'ensemble redevient vide.
+    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION de fiab/lot-a-moteur :
+    # c'est alors du code mort — retirer `_realignes_sur_le_producteur` et son usage.
     from recalculer_cache import extremes_glissants as _ext
 
     def _realignes_sur_le_producteur(t):
