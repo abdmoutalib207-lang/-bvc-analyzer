@@ -22,9 +22,12 @@ LES FAMILLES (`bvc_config.FAMILLES_NOTE`, listes explicites de tickers)
       rentabilité = ROE ; valorisation = PER 12 mois relatif ; P/B comptable à
       la place du PER seulement si le résultat 12 mois est ≤ 0 ; pas de bilan.
   fonciere
-      rentabilité SUSPENDUE : le ROE d'une foncière intègre les mêmes effets de
-      juste valeur des immeubles qui ont fait exclure la croissance de son BPA ;
-      croissance = CA seulement ; valorisation par P/B COMPTABLE (voir 3) ;
+      rentabilité SUSPENDUE quand la foncière évalue ses immeubles à la JUSTE
+      VALEUR : son ROE intègre alors les mêmes effets qui ont fait exclure la
+      croissance de son BPA. Depuis le 27/10/2026 (accord d'Abd), la méthode se
+      lit au registre `bvc_config.METHODE_COMPTABLE`, sur pièce : juste valeur
+      (ARD, IMI) → suspendu ; COÛT HISTORIQUE (BAL) → ROE noté ; non établie →
+      suspendu par prudence. croissance = CA seulement ; valorisation par P/B COMPTABLE (voir 3) ;
       bilan : dette nette / fonds propres AFFICHÉ, non noté (voir 1).
   holding
       rentabilité = ROE ; croissance ; P/B COMPTABLE ; bilan comme les foncières.
@@ -48,8 +51,10 @@ LES RÈGLES (chacune a son test)
    PAIRS (titre noté exclu). Avec 3 foncières, chacune n'a que 2 pairs : le P/B
    ne peut JAMAIS contribuer à leur note. REB est seul dans « holding » : idem.
    Avec ROE suspendu, bilan suspendu et P/B inutilisable, il ne reste aux
-   foncières que la croissance du CA (30 % du poids) : PAS DE NOTE, et c'est le
-   résultat attendu, pas un défaut. « P/B COMPTABLE » = cours × actions ÷
+   foncières à la juste valeur que la croissance du CA (30 % du poids) : PAS DE
+   NOTE, et c'est le résultat attendu, pas un défaut. Une foncière au coût
+   (BAL) a son ROE noté (40 %) : sans croissance publiée, 40 < 50, toujours pas
+   de note. « P/B COMPTABLE » = cours × actions ÷
    capitaux propres part du groupe. L'ACTIF NET RÉÉVALUÉ (ANR) n'est PAS
    disponible : on ne dit jamais « P/ANR ».
 3. TROIS ÉTATS DISTINCTS PARTOUT : ABSENT (la donnée manque : aucune valeur),
@@ -156,7 +161,7 @@ from pathlib import Path
 RACINE = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(RACINE))
 
-from bvc_config import famille_note  # noqa: E402
+from bvc_config import famille_note, immeubles_a_juste_valeur, methode_comptable  # noqa: E402
 from pipeline.smart_money.fond_score import (  # noqa: E402
     COUT_FONDS_PROPRES_REF, EXPLICATIONS_ECART_DETTE_ADMISES, RATIOS_EN_VERIFICATION,
     ROE_SANS_OBJET, SEUIL_ECART_DETTE, WACC_REF, ratio_effectif, roe_effectif,
@@ -1020,13 +1025,26 @@ def noter(e: dict, medianes: dict, autoriser_cote: bool = True, _mesurer: bool =
     sur_roe = fam in FINANCIERES or fam in ("fonciere", "holding", "promoteur")
     roe, roic = e["roe"], e["roic"]
     if sur_roe:
-        if fam == "fonciere":
-            poser("rentabilite", SUSPENDU,
-                  motif="ROE suspendu pour les foncières : il intègre les effets de juste valeur des immeubles, "
-                        "comme le BPA exclu de la croissance",
+        jv = immeubles_a_juste_valeur(e["sym"]) if fam == "fonciere" else None
+        if fam == "fonciere" and jv is not False:
+            # Suspendu si la juste valeur est ÉTABLIE (registre METHODE_COMPTABLE), ou par
+            # prudence si la méthode n'est PAS établie (comportement d'avant le registre).
+            src = _src_methode(e["sym"])
+            motif = ("ROE suspendu : la société évalue ses immeubles de placement à la juste valeur (IAS 40) — le "
+                     "résultat porte la variation de valeur du patrimoine, comme le BPA exclu de la croissance"
+                     if jv else
+                     "ROE suspendu par prudence : méthode d'évaluation des immeubles NON ÉTABLIE sur pièce "
+                     "(registre METHODE_COMPTABLE) — la juste valeur ne peut pas être écartée")
+            poser("rentabilite", SUSPENDU, motif=motif,
                   valeur=roe.get("valeur") if roe else None,
                   mesure=f"ROE {roe['valeur']:g} % — affiché, non noté" if roe and roe.get("valeur") is not None else None,
-                  base=roe.get("base") if roe else None)
+                  base=roe.get("base") if roe else None, methode_comptable=src)
+        elif fam == "fonciere":
+            # Immeubles au COÛT HISTORIQUE, établi sur pièce : aucun effet de juste valeur dans le
+            # résultat ; le ROE se note comme celui d'une holding (27/10/2026, accord d'Abd).
+            _poser_roe(poser, roe, "rentabilite")
+            if "rentabilite" in crit:
+                crit["rentabilite"]["methode_comptable"] = _src_methode(e["sym"])
         else:
             _poser_roe(poser, roe, "rentabilite")
     elif roic is not None and e["dette_nette_contestee"] and _consomme_dette_nette(roic):
@@ -1080,6 +1098,19 @@ def noter(e: dict, medianes: dict, autoriser_cote: bool = True, _mesurer: bool =
         _bilan_industriel(e, poser)
 
     return _conclure(e, fam, crit, medianes, autoriser_cote, _mesurer)
+
+
+def _src_methode(sym: str) -> dict:
+    """Ce que la note publie du registre METHODE_COMPTABLE pour une foncière :
+    méthode, référentiel, pièce, page et citation sur les immeubles. Pure."""
+    m = methode_comptable(sym)
+    if not m:
+        return {"immeubles_placement": "non_etabli", "registre": "bvc_config.METHODE_COMPTABLE"}
+    src = m.get("source") or {}
+    cit = next((c for c in src.get("citations", []) if c.get("objet") == "immeubles_placement"), {})
+    return {"immeubles_placement": m.get("immeubles_placement"), "referentiel": m.get("referentiel"),
+            "exercice": m.get("exercice"), "piece": src.get("url"), "sha256": src.get("sha256"),
+            "page": cit.get("page"), "citation": cit.get("texte"), "registre": "bvc_config.METHODE_COMPTABLE"}
 
 
 def _poser_roe(poser, roe, nom, remplacement_roic=False):
