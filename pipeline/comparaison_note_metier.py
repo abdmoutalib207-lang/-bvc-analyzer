@@ -130,7 +130,8 @@ def _palier_simule(t: dict, note, partielle: bool) -> tuple:
     simulee = (round(min(max(v53 + (note - actuelle) * wf, 0), 10), 2)
                if None not in (note, v53, actuelle) else None)
     actuel = palier_publie(t.get("sig"))
-    if actuel in ("Données insuffisantes", "SUSPENDU"):
+    # « Non comparable » (règle A, 27/10/2026) ne dépend pas de la note : il reste.
+    if actuel in ("Données insuffisantes", "SUSPENDU", "Non comparable (liquidité)"):
         simule = actuel
     else:
         simule = palier(simulee)

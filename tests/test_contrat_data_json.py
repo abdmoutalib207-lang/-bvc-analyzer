@@ -129,7 +129,10 @@ def test_signaux_dans_le_vocabulaire_connu(titres):
               "SUSPENDU", "Données insuffisantes",
               # 15/10/2026 : règle de prudence provisoire (COUVERTURE_VERDICT_MIN),
               # stylée par le terminal (couvPartielle / PastilleNote).
-              "Couverture partielle"}
+              "Couverture partielle",
+              # 27/10/2026 : règle A, accord R8 (titre très peu liquide), stylée par
+              # le terminal via `_meta.non_comparable` (nonComparable / PastilleNote).
+              "Non comparable (liquidité)"}
     vus = set()
     for t in titres.values():
         for cle in ("sig",):
@@ -153,12 +156,9 @@ def test_source_des_fondamentaux_dit_la_verite(titres):
     fondamentaux réels alors que leur PER venait d'une table codée en dur.
     """
     # ⚠️ 22/10/2026 : « table_figee » n'est plus émis (`_meta_ticker`) — rien
-    # n'y venait plus de la table ; il reste accepté ici tant que le data.json
-    # publié précède le code (seconde famille). Garde-fou côté code :
+    # n'y venait plus de la table. Garde-fou côté code :
     # tests/test_lot_a_moteur.py::test_plus_aucun_table_figee_emis.
-    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION de fiab/lot-a-moteur :
-    # ôter alors « table_figee » de cet ensemble.
-    connues = {"bpa_calcule", "dividende_sur_piece", "aucun_ratio", "table_figee"}
+    connues = {"bpa_calcule", "dividende_sur_piece", "aucun_ratio"}
     vues = {(t.get("_meta") or {}).get("source_fond") for t in titres.values()}
     assert vues <= connues, f"valeurs inattendues : {vues - connues}"
 

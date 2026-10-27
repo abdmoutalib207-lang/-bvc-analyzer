@@ -101,6 +101,18 @@ def _fonctions_js(*noms: str) -> str:
     return "\n".join(out)
 
 
+def _consts_js(*noms: str) -> str:
+    """Le source de ces constantes de tête (`const NOM=…`), jusqu'à la ligne
+    suivante qui commence en colonne 0 — les fonctions fléchées du terminal."""
+    s = _front()
+    out = []
+    for nom in noms:
+        m = re.search(r"^const " + nom + r"=.*?(?=^\S)", s, re.S | re.M)
+        assert m, f"const {nom} introuvable dans terminal.src.html"
+        out.append(m.group(0))
+    return "\n".join(out)
+
+
 def _machinerie() -> str:
     """Les trois fonctions du score personnalisé, prises ensemble.
 
@@ -298,8 +310,10 @@ def test_une_note_indisponible_ne_se_confond_pas_avec_une_note_de_zero():
     tri = m.group(1)
     zero = dict(NOUVEAU, symbol="ZERO", score_fond=0.0, score_tech=0.0)
     script = (
-        _fonctions_js("composantesScore", "composantesManquantes",
-                      "computeDisplayScore")
+        # `meta` et `nonComparable` : lus par le tri depuis la règle A (27/10/2026).
+        _consts_js("meta", "nonComparable") + "\n"
+        + _fonctions_js("composantesScore", "composantesManquantes",
+                        "computeDisplayScore")
         + "\nconst scoreMode = " + json.dumps(P7030) + ";"
         + "\nfunction comparer(a, b){" + tri + "\n}"
         # ⚠️ L'absent est placé EN PREMIER à l'entrée : si le tri ne tranche

@@ -196,18 +196,10 @@ def test_chaque_capitalisation_officielle_vaut_cours_fois_actions(ud):
            if (t.get("_meta") or {}).get("cap_source") == "calculee_bourse_officielle"]
     if not off:
         pytest.skip("data.json antérieur à la capitalisation officielle (20/10/2026)")
-    # ⚠️ 22/10/2026 : une décimale sous 100 MDHS (`_arrondi_cap`). Un fichier
-    # publié avant ce changement porte encore des entiers sur ces petites
-    # capitalisations : elles ne sont alors jugées qu'à l'arrondi d'avant
-    # (seconde famille) — mais seulement si AUCUNE ne porte de décimale.
-    petites = [t for t in off if t["cap"] is not None and t["cap"] < 100]
-    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION de fiab/lot-a-moteur :
-    # supprimer `avant_le_code` et juger toutes les capitalisations à `_arrondi_cap`.
-    avant_le_code = petites and all(float(t["cap"]).is_integer() for t in petites)
+    # ⚠️ 22/10/2026 : une décimale sous 100 MDHS (`_arrondi_cap`).
 
     def attendu(t):
-        exact = t["price"] * ud._actions_bourse(t["symbol"]) / 1e6
-        return round(exact) if (avant_le_code and exact < 100) else ud._arrondi_cap(exact)
+        return ud._arrondi_cap(t["price"] * ud._actions_bourse(t["symbol"]) / 1e6)
     fautes = [f"{t['symbol']} : {t['cap']} ≠ {t['price']} × {ud._actions_bourse(t['symbol'])}"
               for t in off
               if t["cap"] != attendu(t)]

@@ -203,7 +203,10 @@ def test_reserve_effacee_de_l_affichage(audit, regenere):
 
 
 def test_couverture_gonflee(audit, regenere):
-    sym = _premier(regenere[1], lambda t: t["sig"] == "Couverture partielle")
+    # Une couverture RÉELLEMENT partielle : depuis la règle B (27/10/2026), une
+    # foncière à couverture pleine peut aussi porter « Couverture partielle ».
+    sym = _premier(regenere[1], lambda t: t["sig"] == "Couverture partielle"
+                   and (t["note_fond"].get("couverture_applicable") or 1) < 0.75)
     assert "note.couverture" in audit(sym, lambda t: t["note_fond"].update(couverture=1.0))
 
 
@@ -218,6 +221,28 @@ def test_signal_incoherent_avec_la_confiance(audit, regenere):
     sym = _premier(regenere[1], lambda t: t["sig"] == "Données insuffisantes" and t["_meta"]["confidence"] <= 1)
     assert "signal.confiance" in audit(sym, lambda t: t.update(sig="ÉVITER FORT"))
     assert "signal.sans_donnees" in audit(sym, lambda t: t.update(sig="ATTENDRE"))
+
+
+def test_regle_a_signal_et_champ_non_comparables_vont_ensemble(audit, regenere):
+    """Règle A (27/10/2026, accord R8) : un verdict sur un titre très peu liquide,
+    un champ `_meta.non_comparable` effacé ou décalé, un libellé sans condition —
+    chacun doit être refusé."""
+    nc = "Non comparable (liquidité)"
+    sym = _premier(regenere[1], lambda t: t["sig"] == nc)
+    assert "signal.non_comparable" in audit(sym, lambda t: t.update(sig="SURVEILLER ★"))
+    assert "signal.non_comparable_meta" in audit(sym, lambda t: t["_meta"].pop("non_comparable"))
+    assert "signal.non_comparable_meta" in audit(
+        sym, lambda t: t["_meta"]["non_comparable"].update(montant_median_dh=1))
+    ok = _premier(regenere[1], lambda t: t["sig"] in ("ACHETER ★★", "SURVEILLER ★") and not t.get("technique_neutralise"))
+    assert "signal.non_comparable" in audit(ok, lambda t: t.update(sig=nc))
+
+
+def test_regle_b_fonciere_sans_note_metier(audit, regenere):
+    """Règle B (27/10/2026) : foncière sans note par métier → « Couverture partielle »."""
+    sym = _premier(regenere[1], lambda t: (t.get("note_fond_metier") or {}).get("famille") == "fonciere"
+                   and (t.get("note_fond_metier") or {}).get("note") is None
+                   and t["sig"] == "Couverture partielle")
+    assert "signal.couverture" in audit(sym, lambda t: t.update(sig="ATTENDRE"))
 
 
 def test_suspendu_sans_signal_suspendu(audit, regenere):
@@ -347,6 +372,14 @@ def test_le_seuil_de_couverture_affiche_suit_la_config(monkeypatch):
     import bvc_config
     monkeypatch.setattr(bvc_config, "COUVERTURE_VERDICT_MIN", 0.80)
     assert any(i["controle"] == "affichage.seuil" for i in A.auditer_affichage(SRC, bvc_config))
+
+
+def test_le_seuil_de_non_comparabilite_affiche_suit_la_config(monkeypatch):
+    import bvc_config
+    monkeypatch.setattr(bvc_config, "SEUIL_NON_COMPARABLE_DH", 150_000)
+    assert any(i["controle"] == "affichage.seuil" for i in A.auditer_affichage(SRC, bvc_config))
+    faux = SRC.replace("m.non_comparable", "m.autre_champ")
+    assert any(i["controle"] == "affichage.non_comparable" for i in _erreurs_affichage(faux))
 
 
 # ═══ 5. Le code de l'audit lui-même ═════════════════════════════════════════

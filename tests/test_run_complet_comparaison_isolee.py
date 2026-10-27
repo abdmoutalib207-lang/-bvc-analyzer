@@ -92,10 +92,23 @@ def test_tout_ce_qui_est_publie_est_identique_avec_ou_sans_erreur(deux_runs):
     ok, err, *_ = deux_runs
     a, b = _tickers(ok), _tickers(err)
     assert a.keys() == b.keys()
-    differents = [s for s in a if _publie(a[s]) != _publie(b[s])]
+    # ⚠️ SEULE EXCEPTION, VOULUE — règle B (27/10/2026) : une foncière sans note
+    # par métier est publiée « Couverture partielle ». Ce fait n'existe QUE dans
+    # la note par métier : si son calcul échoue, il ne peut pas être constaté, et
+    # le titre garde le signal de la grille actuelle. Seuls `sig` et
+    # `verdict_plafonne` de ces titres peuvent donc différer ; tout le reste,
+    # note comprise, est identique.
+    regle_b = {s for s, t in a.items()
+               if (t["note_fond_metier"].get("famille") == "fonciere"
+                   and t["note_fond_metier"].get("note") is None and t["sig"] == "Couverture partielle")}
+    assert regle_b, "aucune foncière sans note par métier : l'exception ne teste rien"
+    sans_sig = lambda t: {k: v for k, v in _publie(t).items() if k not in ("sig", "verdict_plafonne")}
+    differents = [s for s in a if (sans_sig(a[s]) if s in regle_b else _publie(a[s]))
+                  != (sans_sig(b[s]) if s in regle_b else _publie(b[s]))]
     assert not differents, f"publié différent avec une erreur de comparaison : {differents}"
     for champ in ("score_fond", "v53", "sig", "setup", "verdict_plafonne", "poids"):
-        assert all(a[s][champ] == b[s][champ] for s in a), champ
+        assert all(a[s][champ] == b[s][champ] for s in a if s not in regle_b or champ not in
+                   ("sig", "verdict_plafonne")), champ
     assert all(a[s]["_meta"]["confidence"] == b[s]["_meta"]["confidence"] for s in a)
 
 
