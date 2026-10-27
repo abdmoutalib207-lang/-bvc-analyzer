@@ -191,6 +191,9 @@ def test_accueil_exclut_les_non_comparables_des_mieux_notes():
 def test_fiche_bandeau_et_guide():
     assert 'label="Non comparable — titre peu liquide"' in SRC
     assert 'className="bandeau-non-comparable"' in SRC
+    # Deux médianes à l'écran (754 / 199 DH sur BAL le 27/10) : le bandeau dit laquelle.
+    assert "Médiane sur les séances échangées uniquement" in SRC
+    assert "compte aussi les séances sans échange" in SRC
     guide = SRC[SRC.index("const Guide=("):]
     guide = guide[:guide.index("\n};\n")]
     assert '<L titre="Note non comparable">' in guide

@@ -4235,7 +4235,11 @@ def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux:
     (`bvc_config.NOTE_METIER_PUBLIEE`), la note par famille est calculée et
     publiée À CÔTÉ (`note_fond_metier`) ; `score_fond`, `v53`, `sig`, `setup`, la
     confiance et le plancher de publication restent ceux de la grille ACTUELLE,
-    calculés dans la boucle. Rien de publié ne change.
+    calculés dans la boucle. Rien de publié ne change, À UNE EXCEPTION PRÈS :
+    la règle B (27/10/2026, accord R8) — une foncière dont la note par famille
+    est nulle reçoit le signal « Couverture partielle ». Ce fait n'existe que
+    dans cette note ; seuls `sig` et `verdict_plafonne` en dépendent, jamais la
+    note ni le rang.
 
     ⚠️ DEUX PASSES, ET C'EST VOULU. Les valorisations sont RELATIVES (médiane des
     pairs) : il faut les cours des 80 titres avant de noter le premier, or chaque
@@ -4320,7 +4324,12 @@ def note_metier_du_run(tickers_out: list, passe1: dict, *, fondamentaux: dict, b
     enveloppé. Une erreur devient un avertissement journalisé, `note_fond_metier`
     est marquée indisponible et la grille ACTUELLE se publie normalement : un
     ajout de comparaison ne doit jamais interrompre le run. En mode publié, une
-    erreur reste bloquante (la note publiée en dépend)."""
+    erreur reste bloquante (la note publiée en dépend).
+
+    ⚠️ Exception, règle B (27/10/2026) : sans note par famille, une foncière
+    sans note ne peut pas être reconnue ; elle garde alors le signal de la
+    grille actuelle au lieu de « Couverture partielle ». Seuls `sig` et
+    `verdict_plafonne` diffèrent (tests/test_run_complet_comparaison_isolee.py)."""
     from bvc_config import NOTE_METIER_PUBLIEE
 
     def calcul():

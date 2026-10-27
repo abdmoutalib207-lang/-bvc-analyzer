@@ -129,7 +129,10 @@ def test_signaux_dans_le_vocabulaire_connu(titres):
               "SUSPENDU", "Données insuffisantes",
               # 15/10/2026 : règle de prudence provisoire (COUVERTURE_VERDICT_MIN),
               # stylée par le terminal (couvPartielle / PastilleNote).
-              "Couverture partielle"}
+              "Couverture partielle",
+              # 27/10/2026 : règle A, accord R8 (titre très peu liquide), stylée par
+              # le terminal via `_meta.non_comparable` (nonComparable / PastilleNote).
+              "Non comparable (liquidité)"}
     vus = set()
     for t in titres.values():
         for cle in ("sig",):
