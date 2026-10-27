@@ -2173,7 +2173,7 @@
     "per": 45.1,
     "forward_per": 36.0,
     "croissance_ca": 14.0,
-    "croissance_bpa": 173.7,
+    "croissance_bpa": null,
     "dette_nette_ebitda": 0.68,
     "roic": 14,
     "wacc": 10.0,
@@ -2298,6 +2298,10 @@
         "unite": "%"
       },
       "calcule_le": "2026-09-30"
+    },
+    "croissance_bpa_non_retenue": {
+      "publiee": 173.7,
+      "motif": "base négative (résultat S1 2025 = -47.3 MDH) : pas de croissance du BPA, règle unique (22/10/2026)"
     }
   },
   "IAM": {
@@ -2348,7 +2352,16 @@
         "formule": "6969.0 ÷ 20478.0 (MMAD)",
         "sources": {
           "resultat": "https://www.ammc.ma/sites/default/files/Maroc_Telecom_2025.pdf — « Résultat Net Part du Groupe 6 969 » (recette exceptionnelle incluse)",
-          "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Maroc_Telecom_RFA_2025.pdf, p. 23"
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Maroc%20Telecom%20CP_R%C3%A9sultats%20S12026_Le%20MATIN.pdf p.2, « État de la situation financière consolidée », PASSIF (en millions de MAD), colonnes « 31/12/2025 30/06/2026 » — « Capitaux propres - part du groupe 20 478 19 409 » ; recoupé : capital 5 275 + réserves consolidées 11 653 + résultat 2 482 = 19 410 (arrondi au MDH) ; le 31/12/2025 concorde avec le rapport annuel 2025 (20 478, faits_financiers p.23). Pièce : sha256 17f2635600f82fb4db98dc09da8de2f8ca9f047c1d52196519d1e94032fa27af (datasets/pieces/IAM/index.json), relevé le 22/10/2026"
+        }
+      },
+      "roe_12m": {
+        "valeur": 27.5,
+        "date": "2026-06-30",
+        "formule": "(6969.0 + 2482.0 − 4117.0) ÷ 19409.0 (MMAD)",
+        "sources": {
+          "resultat": "https://www.ammc.ma/sites/default/files/Maroc%20Telecom%20CP_R%C3%A9sultats%20S12026_Le%20MATIN.pdf",
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Maroc%20Telecom%20CP_R%C3%A9sultats%20S12026_Le%20MATIN.pdf p.2, « État de la situation financière consolidée », PASSIF (en millions de MAD), colonnes « 31/12/2025 30/06/2026 » — « Capitaux propres - part du groupe 20 478 19 409 » ; recoupé : capital 5 275 + réserves consolidées 11 653 + résultat 2 482 = 19 410 (arrondi au MDH) ; le 31/12/2025 concorde avec le rapport annuel 2025 (20 478, faits_financiers p.23). Pièce : sha256 17f2635600f82fb4db98dc09da8de2f8ca9f047c1d52196519d1e94032fa27af (datasets/pieces/IAM/index.json), relevé le 22/10/2026"
         }
       },
       "marge_nette_s1_2026": {
@@ -7329,6 +7342,10 @@
         "cash_conversion": "résultat net de l'ensemble (11,1) positif uniquement grâce aux mises en équivalence non encaissées (+102,1) et aux minoritaires : flux 87,8 ÷ 11,1 = 794 %, ratio sans signification"
       },
       "calcule_le": "2026-09-30"
+    },
+    "croissance_bpa_non_retenue": {
+      "publiee": null,
+      "motif": "base négative (résultat S1 2025 = -64.3 MDH) : pas de croissance du BPA, règle unique (22/10/2026)"
     }
   },
   "CAR": {
@@ -7908,6 +7925,10 @@
         "cash_conversion": "résultat net ≤ 0 (-185.186) : ratio sans signification"
       },
       "calcule_le": "2026-09-30"
+    },
+    "croissance_bpa_non_retenue": {
+      "publiee": null,
+      "motif": "base négative (résultat S1 2025 = -91.1 MDH) : pas de croissance du BPA, règle unique (22/10/2026)"
     }
   },
   "IBM": {
@@ -8143,7 +8164,11 @@
       "nb_actions": 647777,
       "date_maj": "2026-06-24"
     },
-    "source_s1_2026": "https://www.ammc.ma/sites/default/files/M2M_group_RFS_S1_26.pdf"
+    "source_s1_2026": "https://www.ammc.ma/sites/default/files/M2M_group_RFS_S1_26.pdf",
+    "croissance_bpa_non_retenue": {
+      "publiee": null,
+      "motif": "base négative (résultat S1 2025 = -0.5 MDH) : pas de croissance du BPA, règle unique (22/10/2026)"
+    }
   },
   "MIC": {
     "secteur": "Technologie",

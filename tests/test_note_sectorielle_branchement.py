@@ -80,7 +80,7 @@ def _fond_alu():
 
 def test_l_interrupteur_est_en_mode_comparaison_et_la_version_du_score_ne_change_pas():
     assert bvc_config.NOTE_METIER_PUBLIEE is False
-    assert bvc_config.SCORE_VERSION == "v5.3-sans-saisie-2026-10-02"
+    assert bvc_config.SCORE_VERSION == "v5.3-croissance-pb-2026-10-27"
 
 
 def test_mode_comparaison_ne_change_ni_note_ni_signal_ni_confiance(monkeypatch):

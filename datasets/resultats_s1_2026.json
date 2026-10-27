@@ -372,7 +372,10 @@
       "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Maroc_Telecom_2025.pdf — « Résultat Net Part du Groupe 6 969 » (recette exceptionnelle incluse)",
       "actions": 879095340,
       "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation ÷ cours), identique à fondamentaux.json",
-      "croissance_bpa_note": "20/10/2026 : la croissance publiée hors exceptionnel (+8,1 %) reste consignée ici mais n'est PLUS appliquée. Base S1 2025 positive (4 117) : la convention de pipeline/resultats_semestriels.py calcule la croissance, 2 482 ÷ 4 117 − 1 = −39,7 %, chiffre que le communiqué publie aussi (CP S1 2026 p.1 : « Résultat Net Part du Groupe(2) … 4 117 2 482 -39,7% »). Le code reprenait la publiée dès qu'elle existait, contrairement à la convention écrite (verificateur-finance)."
+      "croissance_bpa_note": "20/10/2026 : la croissance publiée hors exceptionnel (+8,1 %) reste consignée ici mais n'est PLUS appliquée. Base S1 2025 positive (4 117) : la convention de pipeline/resultats_semestriels.py calcule la croissance, 2 482 ÷ 4 117 − 1 = −39,7 %, chiffre que le communiqué publie aussi (CP S1 2026 p.1 : « Résultat Net Part du Groupe(2) … 4 117 2 482 -39,7% »). Le code reprenait la publiée dès qu'elle existait, contrairement à la convention écrite (verificateur-finance).",
+      "capitaux_propres_pg_30_06_2026": 19409.0,
+      "capitaux_propres_pg_31_12_2025": 20478.0,
+      "source_capitaux_propres": "https://www.ammc.ma/sites/default/files/Maroc%20Telecom%20CP_R%C3%A9sultats%20S12026_Le%20MATIN.pdf p.2, « État de la situation financière consolidée », PASSIF (en millions de MAD), colonnes « 31/12/2025 30/06/2026 » — « Capitaux propres - part du groupe 20 478 19 409 » ; recoupé : capital 5 275 + réserves consolidées 11 653 + résultat 2 482 = 19 410 (arrondi au MDH) ; le 31/12/2025 concorde avec le rapport annuel 2025 (20 478, faits_financiers p.23). Pièce : sha256 17f2635600f82fb4db98dc09da8de2f8ca9f047c1d52196519d1e94032fa27af (datasets/pieces/IAM/index.json), relevé le 22/10/2026"
     },
     "ATW": {
       "url": "https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf",

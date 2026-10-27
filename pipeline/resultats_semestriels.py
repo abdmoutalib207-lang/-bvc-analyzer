@@ -92,9 +92,16 @@ def douze_mois(t: dict, sym: str | None = None) -> dict | None:
            "actions_12m": pond["nombre"], "methode_actions_12m": pond["methode"]}
     if pond.get("reserve"):
         out["reserve_bpa"] = pond["reserve"]
-    # ⚠️ Une croissance rapportée à une base NÉGATIVE n'a pas de sens : on
-    # reprend alors celle que l'émetteur publie, et on le dit.
-    # ⚠️ SEULEMENT dans ce cas — 20/10/2026 (verificateur-finance). Le code
+    # ⚠️ Une croissance rapportée à une base NÉGATIVE n'a pas de sens : il n'y
+    # a alors PAS de croissance du BPA — 22/10/2026, accord R8 d'Abd Moutalib
+    # (audit verificateur-finance, lot B2). Le code reprenait jusqu'ici la
+    # croissance publiée par l'émetteur quand il en donnait une : HPS était
+    # noté sur +173,7 % (BPA S1 2025 = −47,25 MDH) quand M2M, SNP et UNI, dans
+    # le même cas mais sans pourcentage publié, n'en avaient aucune. Une seule
+    # règle désormais : base négative → pas de croissance BPA, la note la
+    # retire et remet le poids du CA à l'échelle (fond_score, B1). Le
+    # pourcentage publié reste consigné (`croissance_bpa_publiee_non_retenue`).
+    # ⚠️ Base positive (20/10/2026) — 20/10/2026 (verificateur-finance). Le code
     # reprenait la croissance publiée dès qu'elle existait, base positive
     # comprise : IAM était noté sur +8,1 % « hors exceptionnel » au lieu des
     # −39,7 % que donnent ses comptes (2 482 ÷ 4 117 − 1), CIH sur −11,3 % au
@@ -135,8 +142,12 @@ def douze_mois(t: dict, sym: str | None = None) -> dict | None:
         out["croissance_bpa"] = round((t["rnpg_s1_2026"] / t["rnpg_s1_2025"] - 1) * 100, 1)
         if publiee is not None:
             out["croissance_bpa_publiee_non_retenue"] = publiee
-    elif publiee is not None:
-        out["croissance_bpa"] = publiee
+    else:
+        # Base nulle ou négative (B2, 22/10/2026) : pas de croissance du BPA,
+        # pourcentage publié ou non. Il reste consigné à côté, jamais appliqué.
+        out["croissance_bpa_base_negative"] = t["rnpg_s1_2025"]
+        if publiee is not None:
+            out["croissance_bpa_publiee_non_retenue"] = publiee
     if t.get("croissance_ca_publiee") is not None:
         # Variation publiée sans montant (BCP, S1 2026) : reprise telle quelle.
         out["croissance_ca"] = t["croissance_ca_publiee"]
@@ -236,6 +247,18 @@ def appliquer(jeu: dict, bpa: dict, fond: dict) -> list[str]:
         for k in ("croissance_bpa", "croissance_ca"):
             if k in m:
                 f[k] = m[k]
+            elif f.get(k) is not None and k == "croissance_bpa" and "croissance_bpa_base_negative" in m:
+                # Base négative (B2, 22/10/2026) : l'ancienne croissance appliquée
+                # serait reconduite sans le dire. Elle est retirée ; sa valeur
+                # reste dans `avant_2026_09_29` et dans le jeu de données.
+                f[k] = None
+        if "croissance_bpa_base_negative" in m:
+            f["croissance_bpa_non_retenue"] = {
+                "publiee": m.get("croissance_bpa_publiee_non_retenue"),
+                "motif": f"base négative (résultat S1 2025 = {round(m['croissance_bpa_base_negative'], 1):g} MDH) : "
+                         "pas de croissance du BPA, règle unique (22/10/2026)"}
+        else:
+            f.pop("croissance_bpa_non_retenue", None)
         # Règle d (20/10/2026) : le périmètre de la croissance est dit sur la fiche.
         if m.get("perimetre"):
             f["croissance_perimetre"] = m["perimetre"]

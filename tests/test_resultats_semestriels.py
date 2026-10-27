@@ -25,10 +25,14 @@ def test_hps_douze_mois_a_la_main():
     assert m["bpa_12m"] == 25.36
 
 
-def test_une_base_negative_prend_la_croissance_publiee():
+def test_une_base_negative_n_a_pas_de_croissance_bpa():
     """HPS passe d'une perte à un bénéfice : 34,8 ÷ (−47,3) − 1 donnerait
-    −174 %, une « baisse » absurde. On reprend le +173,7 % de l'émetteur."""
-    assert douze_mois(JEU["titres"]["HPS"])["croissance_bpa"] == 173.7
+    −174 %, une « baisse » absurde. ⚠️ 22/10/2026 (accord R8, lot B2) : le
+    +173,7 % de l'émetteur n'est plus repris — même règle que M2M, SNP et UNI,
+    pas de croissance BPA sur une base négative. Il reste consigné."""
+    m = douze_mois(JEU["titres"]["HPS"])
+    assert "croissance_bpa" not in m
+    assert m["croissance_bpa_publiee_non_retenue"] == 173.7
 
 
 def test_cosumar_recule():
@@ -345,11 +349,11 @@ def test_la_convention_sur_cas_fabriques():
             "croissance_bpa_publiee": 12.0}
     # base positive : 60 ÷ 50 − 1 = +20 %, la publiée n'est pas appliquée
     assert douze_mois(dict(base, rnpg_s1_2025=50.0))["croissance_bpa"] == 20.0
-    # base négative : la publiée est reprise, et rien n'est marqué « non retenu »
+    # base négative (B2, 22/10/2026) : pas de croissance, la publiée est consignée
     m = douze_mois(dict(base, rnpg_s1_2025=-50.0))
-    assert m["croissance_bpa"] == 12.0 and "croissance_bpa_publiee_non_retenue" not in m
-    # base nulle : pas de rapport possible, la publiée est reprise
-    assert douze_mois(dict(base, rnpg_s1_2025=0.0))["croissance_bpa"] == 12.0
+    assert "croissance_bpa" not in m and m["croissance_bpa_publiee_non_retenue"] == 12.0
+    # base nulle : pas de rapport possible, pas de croissance non plus
+    assert "croissance_bpa" not in douze_mois(dict(base, rnpg_s1_2025=0.0))
     # base négative sans publiée : aucune croissance inventée
     sans = {k: v for k, v in base.items() if k != "croissance_bpa_publiee"}
     assert "croissance_bpa" not in douze_mois(dict(sans, rnpg_s1_2025=-50.0))
@@ -358,4 +362,4 @@ def test_la_convention_sur_cas_fabriques():
 def test_le_fichier_publie_applique_la_convention():
     fond = json.loads((RACINE / "fondamentaux.json").read_text(encoding="utf-8"))
     assert fond["IAM"]["croissance_bpa"] == -39.7
-    assert fond["HPS"]["croissance_bpa"] == 173.7      # base négative : publiée
+    assert fond["HPS"]["croissance_bpa"] is None       # base négative : aucune (B2)

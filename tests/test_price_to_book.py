@@ -76,13 +76,16 @@ def test_le_calcul_est_celui_annonce():
 
     Les capitaux propres consolidés, minoritaires inclus, sous-estimeraient le
     ratio : le nombre d'actions est celui de la société mère."""
+    # ⚠️ 22/10/2026 (lot B3-B4) : le calcul vit dans `_pb_detail`, les fonds
+    # propres dans `_fonds_propres_pb` (les plus récents relevés sur pièce).
     m = re.search(r"def _pb_sourcé\(ticker: str, price: float\):(.*?)\n\ndef ",
                   _moteur(), re.S)
     assert m, "_pb_sourcé introuvable"
-    corps = m.group(1)
-    assert 'faits.get("capitaux_propres_part_groupe")' in corps
-    assert "return round(price * n / fp, 2)" in corps
-    assert 'float(cp["valeur"]) * 1e6' in corps, (
+    assert "_pb_detail(ticker, price)" in m.group(1)
+    fp = re.search(r"def _fonds_propres_pb.*?\n\ndef ", _moteur(), re.S).group(0)
+    assert '.get("capitaux_propres_part_groupe")' in fp
+    corps = re.search(r"def _pb_detail.*?\n\ndef ", _moteur(), re.S).group(0)
+    assert 'round(price * n / (fp["valeur"] * 1e6), 2)' in corps, (
         "les faits sont en MMAD : sans conversion le ratio est un million de "
         "fois trop grand")
 
@@ -104,7 +107,9 @@ def test_un_split_posterieur_a_la_cloture_est_applique(faits):
     # Et le registre fait foi, il n'est pas redéclaré ici.
     assert "SPLITS.get(ticker" in corps
 
-    pb = re.search(r"def _pb_sourcé.*?\n\ndef ", _moteur(), re.S).group(0)
+    # 22/10/2026 (B3) : le P/B lit le nombre de la capitalisation
+    # (`_actions_pb` : officiel, sinon `_actions_sourcees`).
+    pb = re.search(r"def _actions_pb.*?\n\ndef ", _moteur(), re.S).group(0)
     assert "_actions_sourcees(ticker)" in pb, (
         "le price-to-book a recopié le calcul au lieu de le partager — deux "
         "copies d'une même règle finissent par ne plus dire la même chose")
