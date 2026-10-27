@@ -507,9 +507,26 @@ def detail_fond_score(sym: str, fondamentaux: dict = None, per_publie: float | N
                 f"ROIC {_r['valeur']:g} % − WACC {WACC_REF:g}")
 
     # CROISSANCE — BPA 60 % + CA 40 %, seulement si le BPA 12 mois est établi
-    if croissance_sourcee:
-        growth = float(f.get("croissance_bpa") or 0) * 0.6 + float(f.get("croissance_ca") or 0) * 0.4
-        oui("croissance", _grille_croissance(growth), f"croissance pondérée {growth:g} %")
+    # ⚠️ UNE PARTIE ABSENTE N'EST PAS UN ZÉRO — 22/10/2026, accord R8 d'Abd
+    # Moutalib (audit verificateur-finance, lot B1). Le code remplaçait un BPA
+    # ou un CA absent par 0 % (`or 0`) : BAL, sans CA comparable, était noté
+    # sur 15,1 × 0,6 = 9,1 % ; M2M, SNP et UNI, sans croissance BPA (base
+    # négative), sur 0,4 × leur CA. La partie absente est RETIRÉE et le poids
+    # restant remis à l'échelle — même règle que `fond_score_sectoriel`.
+    _parts = [(float(f[k]), w) for k, w in (("croissance_bpa", 0.6), ("croissance_ca", 0.4))
+              if isinstance(f.get(k), (int, float)) and not isinstance(f.get(k), bool)]
+    if croissance_sourcee and not _parts:
+        non("croissance", "ni croissance du BPA ni croissance du chiffre d'affaires établies "
+                          "sur comptes semestriels")
+    elif croissance_sourcee:
+        growth = round(sum(v * w for v, w in _parts) / sum(w for _, w in _parts), 4)
+        _seule = ("" if len(_parts) == 2 else
+                  " — BPA seul, CA absent (poids remis à l'échelle)" if _parts[0][1] == 0.6 else
+                  " — CA seul, BPA absent (poids remis à l'échelle)")
+        _nr = (f.get("croissance_bpa_non_retenue") or {}).get("motif")
+        if _nr and len(_parts) == 1 and _parts[0][1] == 0.4:
+            _seule += f" ; BPA : {_nr}"
+        oui("croissance", _grille_croissance(growth), f"croissance pondérée {growth:g} %{_seule}")
         # Règle d (20/10/2026) : périmètre élargi sans pro forma en montants → réserve.
         _pr = (f.get("croissance_perimetre") or {}).get("reserve")
         if _pr:
