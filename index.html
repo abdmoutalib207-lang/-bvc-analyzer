@@ -9830,7 +9830,7 @@ const Detail = ({
       color: VC(r.chg),
       fontWeight: 600
     }
-  }, r.chg > 0 ? "▲" : "▼", " ", Math.abs(r.chg).toFixed(2), "%", r.chg_alert && React.createElement("span", {
+  }, varSeance(r) == null ? "—" : React.createElement(React.Fragment, null, r.chg > 0 ? "▲" : "▼", " ", Math.abs(r.chg).toFixed(2), "%"), r.chg_alert && React.createElement("span", {
     title: "Variation \u2265 \xB18% \u2014 approche limite BVC",
     style: {
       marginLeft: 3

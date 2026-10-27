@@ -26,7 +26,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from pipeline.scrapers.constants      import TICKERS, IPO_RECENT
 from pipeline.scrapers.market         import fetch_market_data
-from pipeline.scrapers.fundamentals   import fetch_fundamentals
 from bvc_config import NOTE_METIER_PUBLIEE
 from pipeline.smart_money.fond_score  import compute_fond_score, reload as fond_reload
 from pipeline.smart_money.fond_score_sectoriel import detail_publie, noter_depuis_fichiers
@@ -36,22 +35,82 @@ from pipeline.utils.validation      import validate_ticker_data
 from pipeline.utils.logging_config  import setup_logging
 
 ROOT       = Path(__file__).parent
-FALLBACK_P = ROOT / "fallback_data.json"
 OUT_V9     = ROOT.parent / "financial_data.json"
 OUT_LEGACY = ROOT.parent / "data.json"
 
+# ⚠️ PLUS DE `fallback_data.json` — 22/10/2026 (audit).
+#
+# Ce fichier — une table de juillet saisie à la main, archivée sous
+# `archive/fallback_data_2026-07.json` — servait de repli à TOUT ce que les
+# scrapers ne rendaient pas, c'est-à-dire, depuis que Médias24 répond 403, à
+# TOUS les fondamentaux et à tous les indicateurs : le run du 21/10 publiait
+# `"fundamentals": "fallback"` et `"rsi": "fallback"` sur 19 titres sur 19.
+# Mesuré contre data.json le même jour : ADH PER 13,85 au lieu de 29,7, SGTM
+# capitalisation 5 062 MDHS au lieu de 34 800, CMT dividende 120 DH au lieu
+# de 0 (« Dividende 0,00 dirhams », RFA 2025 p.79).
+#
+# Le repli est désormais ce que `update_data.py` — propriétaire unique de
+# data.json, calculé sur les comptes déposés — a PUBLIÉ pour ce titre, avec sa
+# séance. Ce qu'il ne publie pas reste `null` : on ne comble pas une absence.
+# Les fondamentaux ne sont plus scrapés du tout : Médias24 / casabourse /
+# Zonebourse sont des sources tierces non vérifiées, et la note du moteur ne
+# les lit pas.
+SOURCE_PUBLIEE = "data.json publié (update_data.py)"
 
-def load_fallback() -> dict:
+
+def charger_publie(chemin: Path = OUT_LEGACY) -> dict:
+    """Valeurs PUBLIÉES par update_data.py, par titre, au format v9. Pure en
+    lecture ; `{}` si le fichier manque ou se lit mal.
+
+    Les clés absentes de data.json valent `None` — jamais une valeur par défaut.
+    """
     try:
-        return json.loads(FALLBACK_P.read_text(encoding="utf-8"))
-    except Exception as e:
-        logging.warning(f"Fallback non chargé: {e}")
+        d = json.loads(Path(chemin).read_text(encoding="utf-8"))
+    except Exception as e:                                    # noqa: BLE001
+        logging.warning(f"data.json publié illisible ({e}) : aucun repli")
         return {}
+    out = {}
+    for t in d.get("tickers") or []:
+        sym = t.get("symbol")
+        if not sym:
+            continue
+        meta = t.get("_meta") or {}
+        bpa = t.get("bpa_12m") if t.get("bpa_12m") is not None else t.get("bpa")
+        out[sym] = {
+            "market": {"price": t.get("price"), "open": t.get("open"),
+                       "volume": t.get("vol"), "variation_pct": t.get("chg")},
+            "technical": {"rsi_14": t.get("rsi"), "ma20": t.get("ma20"),
+                          "ma50": t.get("ma50"), "high_90d": t.get("h90"),
+                          "low_90d": t.get("l90")},
+            # Mêmes champs que la fiche du terminal : PER (12 mois s'il existe,
+            # sur le BPA correspondant), P/B sur faits AMMC, dividende sur pièce.
+            "fundamentals": {"pe_ratio_ttm": t.get("pe"), "pe_ratio_2026e": None,
+                             "pb_ratio": t.get("pb"), "eps_ttm": bpa,
+                             "dividend_per_share": t.get("div_dh"),
+                             "dividend_yield": t.get("div"),
+                             "market_cap_mdh": t.get("cap")},
+            "asof": meta.get("prix_asof"),
+            "source_fond": meta.get("source_fond"),
+        }
+    return out
 
 
-def collect_ticker(sym: str, fallback: dict, dry_run: bool = False) -> tuple[str, dict]:
+def _source_publiee(pub: dict) -> str:
+    return f"{SOURCE_PUBLIEE}, séance {pub.get('asof') or 'non datée'}"
+
+
+def collect_ticker(sym: str, publie: dict, dry_run: bool = False) -> tuple[str, dict]:
+    """`publie` : sortie de `charger_publie()` — le seul repli admis."""
     log = logging.getLogger(sym)
-    fb  = fallback.get(sym, {})
+    pub = publie.get(sym) or {}
+    pub_market = pub.get("market") or {}
+    pub_tech   = pub.get("technical") or {}
+    # Toutes les clés, `None` comprises : un fondamental absent de data.json
+    # est publié `null`, et `_sources` dit pourquoi.
+    pub_fund   = dict(pub.get("fundamentals") or dict.fromkeys(
+        ["pe_ratio_ttm", "pe_ratio_2026e", "pb_ratio", "eps_ttm",
+         "dividend_per_share", "dividend_yield", "market_cap_mdh"]))
+    src_pub    = _source_publiee(pub) if pub else "non_disponible (titre absent de data.json)"
 
     result = {
         "market":                {},
@@ -68,12 +127,12 @@ def collect_ticker(sym: str, fallback: dict, dry_run: bool = False) -> tuple[str
     }
 
     if dry_run:
-        log.info("DRY-RUN — utilisation fallback uniquement")
-        result["market"]       = {k: fb.get(k) for k in ["price","open","high","low","volume","variation_pct"] if fb.get(k) is not None}
-        result["technical"]    = {k: fb.get(k) for k in ["rsi_14","ma20","ma50","high_90d","low_90d"]          if fb.get(k) is not None}
-        result["fundamentals"] = {k: fb.get(k) for k in ["pe_ratio_ttm","pe_ratio_2026e","pb_ratio","eps_ttm","dividend_per_share","dividend_yield","market_cap_mdh"] if fb.get(k) is not None}
+        log.info("DRY-RUN — valeurs publiées de data.json uniquement")
+        result["market"]       = {k: v for k, v in pub_market.items() if v is not None}
+        result["technical"]    = {k: v for k, v in pub_tech.items() if v is not None}
+        result["fundamentals"] = pub_fund
         result["flags"]["stale"] = True
-        result["_sources"] = {"all": "fallback (dry-run)"}
+        result["_sources"] = {"all": f"{src_pub} (dry-run)"}
         result["smart_money"] = get_smart_money(sym)
         return sym, result
 
@@ -86,10 +145,10 @@ def collect_ticker(sym: str, fallback: dict, dry_run: bool = False) -> tuple[str
         else:
             raise ValueError("no price")
     except Exception as e:
-        log.warning(f"market FAIL: {e} → fallback")
-        result["market"] = {k: fb.get(k) for k in ["price","open","high","low","volume","variation_pct"] if fb.get(k) is not None}
+        log.warning(f"market FAIL: {e} → valeurs publiées de data.json")
+        result["market"] = {k: v for k, v in pub_market.items() if v is not None}
         result["flags"]["stale"] = True
-        result["_sources"]["price"] = "fallback"
+        result["_sources"]["price"] = src_pub
 
     # ── 2. Indicateurs techniques (RSI calculé) ──────────────────────────────
     try:
@@ -101,25 +160,16 @@ def collect_ticker(sym: str, fallback: dict, dry_run: bool = False) -> tuple[str
         else:
             raise ValueError("RSI non calculé")
     except Exception as e:
-        log.warning(f"technical FAIL: {e} → fallback")
-        result["technical"] = {k: fb.get(k) for k in ["rsi_14","ma20","ma50","high_90d","low_90d"] if fb.get(k) is not None}
+        log.warning(f"technical FAIL: {e} → valeurs publiées de data.json")
+        result["technical"] = {k: v for k, v in pub_tech.items() if v is not None}
         result["flags"]["stale"] = True
-        result["_sources"]["rsi"] = "fallback"
+        result["_sources"]["rsi"] = src_pub
 
     # ── 3. Fondamentaux ──────────────────────────────────────────────────────
-    try:
-        fund = fetch_fundamentals(sym)
-        if fund:
-            result["_sources"]["fundamentals"] = fund.pop("_source", "scraped")
-            result["fundamentals"] = fund
-        else:
-            raise ValueError("no fundamentals")
-    except Exception as e:
-        log.warning(f"fundamentals FAIL: {e} → fallback")
-        fund_keys = ["pe_ratio_ttm","pe_ratio_2026e","pb_ratio","eps_ttm",
-                     "dividend_per_share","dividend_yield","market_cap_mdh"]
-        result["fundamentals"] = {k: fb.get(k) for k in fund_keys if fb.get(k) is not None}
-        result["_sources"]["fundamentals"] = "fallback"
+    # ⚠️ 22/10/2026 : ceux que le moteur PUBLIE (comptes déposés, voir en tête
+    # de fichier), jamais scrapés ni tirés d'une table figée. Absents : `null`.
+    result["fundamentals"] = pub_fund
+    result["_sources"]["fundamentals"] = src_pub
 
     # ── 4. Performance financière ── désactivé
     #    fetch_financials scrape des articles de presse Médias24 (jusqu'à 20 req/ticker)
@@ -231,7 +281,8 @@ def to_legacy_format(pipeline_out: dict) -> dict:
             "price":    m.get("price"),
             "open":     m.get("open"),
             "close":    m.get("price"),
-            "chg":      m.get("variation_pct") or 0,
+            # None si non servie (R9, 22/10/2026) : une variation absente n'est pas 0,00 %.
+            "chg":      m.get("variation_pct"),
             "vol":      m.get("volume"),            # index.html lit t.vol, pas t.volume
             "pe":       f.get("pe_ratio_ttm"),
             "pb":       f.get("pb_ratio"),
@@ -276,7 +327,7 @@ def run(tickers=None, dry_run=False, max_workers=3):
     log.info(f"BVC DATA PIPELINE v9.0 — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     log.info("=" * 60)
 
-    fallback = load_fallback()
+    publie   = charger_publie()
     selected = tickers or TICKERS
 
     output = {
@@ -288,7 +339,7 @@ def run(tickers=None, dry_run=False, max_workers=3):
 
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=max_workers) as pool:
-        futures = {pool.submit(collect_ticker, sym, fallback, dry_run): sym for sym in selected}
+        futures = {pool.submit(collect_ticker, sym, publie, dry_run): sym for sym in selected}
         for fut in as_completed(futures):
             sym = futures[fut]
             try:
@@ -348,7 +399,7 @@ def run(tickers=None, dry_run=False, max_workers=3):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="BVC Financial Data Pipeline v9.0")
-    parser.add_argument("--dry-run",  action="store_true", help="Utilise uniquement le fallback")
+    parser.add_argument("--dry-run",  action="store_true", help="Sans réseau : valeurs publiées de data.json uniquement")
     parser.add_argument("--tickers",  type=str,  help="Tickers séparés par virgule, ex: MNG,SMI")
     parser.add_argument("--workers",  type=int,  default=3, help="Nb threads parallèles (défaut: 3)")
     args = parser.parse_args()

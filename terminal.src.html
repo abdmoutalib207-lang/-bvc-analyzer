@@ -4586,7 +4586,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               <CompanyLogo sym={tk(r)} logo={r.symbol} sector={r.sector} size={56}/>
             </div>
             <div style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-              <span>{tk(r)} · {px(price)} DH<Perime r={r}/> <span style={{color:VC(r.chg),fontWeight:600}}>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
+              <span>{tk(r)} · {px(price)} DH<Perime r={r}/> <span style={{color:VC(r.chg),fontWeight:600}}>{varSeance(r)==null?"—":<>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%</>}{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
               <button onClick={()=>toggleFav(sym)} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
                 className="etoile" aria-pressed={fav.includes(sym)}
                 style={{fontSize:18,color:fav.includes(sym)?"#ffd740":"#8892a4",border:"none",background:"none",cursor:"pointer",padding:"0 2px",lineHeight:1,transition:"color .2s"}}>

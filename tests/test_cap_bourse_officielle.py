@@ -156,7 +156,7 @@ def test_t2s_capitalisation_sur_la_bourse_bpa_inchange(ud):
     DR p.37 et p.258). Admises à la cote selon la liste de l'opérateur :
     la capitalisation les compte. Le P/B et le BPA (IAS 33) n'y touchent pas."""
     assert ud.ACTIONS_BOURSE["T2S"] == 22_584_118 == 21_785_174 + 798_944
-    assert ud._capitalisation("T2S", 211.8, None, "cdg") == (round(211.8 * 22_584_118 / 1e6),
+    assert ud._capitalisation("T2S", 211.8, None, "cdg") == (ud._arrondi_cap(211.8 * 22_584_118 / 1e6),
                                                              "calculee_bourse_officielle")
     assert ud._actions_sourcees("T2S") != 22_584_118
     bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8")).get("T2S") or {}
@@ -196,8 +196,20 @@ def test_chaque_capitalisation_officielle_vaut_cours_fois_actions(ud):
            if (t.get("_meta") or {}).get("cap_source") == "calculee_bourse_officielle"]
     if not off:
         pytest.skip("data.json antérieur à la capitalisation officielle (20/10/2026)")
+    # ⚠️ 22/10/2026 : une décimale sous 100 MDHS (`_arrondi_cap`). Un fichier
+    # publié avant ce changement porte encore des entiers sur ces petites
+    # capitalisations : elles ne sont alors jugées qu'à l'arrondi d'avant
+    # (seconde famille) — mais seulement si AUCUNE ne porte de décimale.
+    petites = [t for t in off if t["cap"] is not None and t["cap"] < 100]
+    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION de fiab/lot-a-moteur :
+    # supprimer `avant_le_code` et juger toutes les capitalisations à `_arrondi_cap`.
+    avant_le_code = petites and all(float(t["cap"]).is_integer() for t in petites)
+
+    def attendu(t):
+        exact = t["price"] * ud._actions_bourse(t["symbol"]) / 1e6
+        return round(exact) if (avant_le_code and exact < 100) else ud._arrondi_cap(exact)
     fautes = [f"{t['symbol']} : {t['cap']} ≠ {t['price']} × {ud._actions_bourse(t['symbol'])}"
               for t in off
-              if t["cap"] != round(t["price"] * ud._actions_bourse(t["symbol"]) / 1e6)]
+              if t["cap"] != attendu(t)]
     assert not fautes, "\n".join(fautes)
     assert all(t["_meta"].get("cap_releve_bourse") for t in off)

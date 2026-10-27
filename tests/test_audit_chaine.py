@@ -120,6 +120,27 @@ def test_les_80_titres_sont_audites(regenere):
     assert len(data["tickers"]) == 80
 
 
+def test_titre_non_cote_variation_et_ouverture_nulles(regenere):
+    """R9 (audit du 22/10/2026) : un cours antérieur à la séance de référence
+    n'a ni variation ni ouverture du jour — `null`, pas 0,00 % ni la clôture.
+    Le volume, lui, est mesuré (0) et motivé."""
+    _, data = regenere
+    asofs = [(t.get("_meta") or {}).get("prix_asof") for t in data["tickers"]]
+    seance = max(a for a in asofs if a)
+    non_cotes = [t for t in data["tickers"]
+                 if (t["_meta"].get("prix_asof") or seance) < seance]
+    assert non_cotes, "aucun titre non coté : le contrôle ne teste rien"
+    fautes = [f"{t['symbol']} chg={t['chg']} open={t['open']} vol={t['vol']} "
+              f"motif={t['_meta'].get('motif_vol')}"
+              for t in non_cotes
+              if t["chg"] is not None or t["open"] is not None or t["vol"] != 0
+              or not t["_meta"].get("motif_vol") or not t["_meta"].get("stale")]
+    assert not fautes, "\n".join(fautes)
+    cotes = [t for t in data["tickers"] if t["_meta"].get("prix_asof") == seance]
+    assert cotes and all(t["chg"] is not None and t["open"] is not None
+                         and t["_meta"].get("motif_vol") is None for t in cotes)
+
+
 def test_l_audit_n_est_pas_vide_de_sens(regenere, entrees):
     """Garde contre un audit qui passerait faute de matière : il existe des titres
     contestés, des couvertures partielles, des alertes et des titres sans note."""
