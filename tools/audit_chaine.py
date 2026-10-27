@@ -238,20 +238,14 @@ def controler_signal(sym, t, contestes) -> list:
     conf = m.get("confidence")
     couv_app, note = nf.get("couverture_applicable"), nf.get("note")
     partielle = note is not None and couv_app is not None and couv_app < COUVERTURE_VERDICT_MIN
-    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION de fiab/non-comparable :
-    # supprimer `avant_regles_ab` et appliquer les règles A et B à toute fiche. Une fiche
-    # écrite par le moteur v5.3-croissance-pb-2026-10-27 (data.json publié avant la
-    # fusion) suit les règles d'AVANT : ni « Non comparable », ni règle B.
-    avant_regles_ab = t.get("score_version") == "v5.3-croissance-pb-2026-10-27"
     # Règle B (27/10/2026) : foncière sans note par métier → « Couverture partielle ».
     nfm = t.get("note_fond_metier") or {}
-    fonciere_sn = (not avant_regles_ab and nfm.get("famille") == "fonciere" and nfm.get("note") is None
+    fonciere_sn = (nfm.get("famille") == "fonciere" and nfm.get("note") is None
                    and not nfm.get("indisponible"))
     # Règle A (27/10/2026, accord R8) : technique neutralisée ET médiane < seuil.
     tn = t.get("technique_neutralise") or None
     med = (tn or {}).get("montant_median_dh")
-    peu_liquide = (not avant_regles_ab and bool(tn)
-                   and (med if med is not None else 0) < SEUIL_NON_COMPARABLE_DH)
+    peu_liquide = bool(tn) and (med if med is not None else 0) < SEUIL_NON_COMPARABLE_DH
     if m.get("suspendu"):
         if sig != "SUSPENDU":
             out.append(_inc(sym, "signal.suspendu", ERREUR, "titre suspendu sans signal SUSPENDU", sig, "SUSPENDU"))
