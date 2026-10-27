@@ -862,7 +862,16 @@ const palierDe=v=>v==null||!isFinite(v)?null:PALIERS.findIndex(p=>v>=p.min);
 // ⚠️ « Couverture partielle » (15/10/2026, règle de prudence provisoire) :
 // pas de couleur de palier — la note reste, indicative, sans verdict.
 const couvPartielle=r=>!!r&&r.sig==="Couverture partielle";
-const couleurNote=r=>{if(couvPartielle(r))return null;const i=palierDe(r&&r.v53);if(i==null)return null;
+// ⚠️ « Non comparable » (27/10/2026, règle A, accord R8 d'Abd Moutalib) : titre
+// trop peu échangé — technique neutralisée ET montant médian des 20 dernières
+// séances échangées sous le seuil du moteur. La note reste calculée et
+// affichée, en gris, sans palier ; le titre est classé APRÈS les titres
+// comparables. Lu sur `_meta.non_comparable` (jamais sur un libellé) ;
+// suspension et confiance ≤ 1 gardent la priorité.
+const nonComparable=r=>{const m=meta(r);return m.susp||m.conf<=1?null:(m.non_comparable||null);};
+const dhSeance=n=>n==null?"aucune séance échangée":`${Math.round(n).toLocaleString("fr-FR")} DH/séance`;
+const texteNonComparable=nc=>`non comparable — titre peu liquide (médiane ${dhSeance(nc.montant_median_dh)})`;
+const couleurNote=r=>{if(couvPartielle(r)||nonComparable(r))return null;const i=palierDe(r&&r.v53);if(i==null)return null;
   const plafonne=!!r.verdict_plafonne&&i===0, k=plafonne?1:i;
   return{...PALIERS[k],i:k,plafonne};};
 const teinte=c=>({bg:`${c}1a`,fg:c,bd:`${c}59`});
@@ -873,7 +882,8 @@ const NEUTRE={bg:"rgba(136,146,164,.08)",fg:"#8892a4",bd:"rgba(136,146,164,.25)"
 const couleurChiffre=(r,simu)=>simu?"#c8d3e8":meta(r).conf<=1?"#8892a4":((couleurNote(r)||{}).c||"#8892a4");
 // Libellé de l'export CSV : l'état, ou la couleur et sa plage.
 const palierTexte=r=>{const m=meta(r);if(m.susp)return"suspendu";if(m.reprise_recente)return"reprise de cotation";
-  if(m.conf<=1)return"données insuffisantes";if(couvPartielle(r))return"couverture partielle (note indicative)";const p=couleurNote(r);if(!p)return"";
+  if(m.conf<=1)return"données insuffisantes";const nc=nonComparable(r);if(nc)return texteNonComparable(nc);
+  if(couvPartielle(r))return"couverture partielle (note indicative)";const p=couleurNote(r);if(!p)return"";
   return p.plafonne?`${p.nom} (plafonné : titre peu échangé)`:`${p.nom} (${p.plage})`;};
 const VC=v=>v>0?"#00e5a0":v<0?"#ff4f5a":"#8892a4";
 const SC=v=>v>=7.5?"#00ffb3":v>=6.5?"#00e5a0":v>=5.5?"#ffd740":v>=4?"#ff8f00":"#ff4f5a";
@@ -1321,8 +1331,12 @@ const Chip=({label,bg,fg,bd,sz=11})=>(
 /* La pastille qui remplace le mot d'action : un rond de la couleur du palier
    et la plage de note qu'il couvre. Sur un titre plafonné, le texte neutre
    « titre peu échangé » dit pourquoi la couleur est en dessous de la note. */
-const PastilleNote=({r,sz=11})=>{const p=couleurNote(r);
-  if(couvPartielle(r))return <span title={`Note ${fmt(r.v53)}, indicative : couverture des données sous le seuil de prudence (75 % du poids applicable). Aucun verdict de palier.`}
+const PastilleNote=({r,sz=11})=>{const p=couleurNote(r);const nc=nonComparable(r);
+  if(nc)return <span className="pastille-non-comparable" title={`Note ${fmt(r.v53)}, ${texteNonComparable(nc)} — seuil ${dhSeance(nc.seuil)}, sur les 20 dernières séances échangées. Note calculée, sans palier ; classée après les titres comparables.`}
+    style={{fontSize:sz,color:"#8892a4",whiteSpace:"nowrap"}}>◌ non comparable</span>;
+  if(couvPartielle(r))return <span title={((r.note_fond||{}).couverture_applicable??0)>=0.75
+      ?`Note ${fmt(r.v53)}, indicative : foncière dont la note par métier n'est pas calculable. Aucun verdict de palier.`
+      :`Note ${fmt(r.v53)}, indicative : couverture des données sous le seuil de prudence (75 % du poids applicable). Aucun verdict de palier.`}
     style={{fontSize:sz,color:"#ffd740",whiteSpace:"nowrap"}}>◐ couverture partielle</span>;
   if(!p)return <span style={{fontSize:sz,color:"#8892a4"}}>—</span>;
   const motif=r.technique_neutralise&&r.technique_neutralise.motif;
@@ -2966,7 +2980,8 @@ const Accueil=({rows,fav,ouvrir,setTab})=>{
   const frais=rows.filter(r=>!meta(r).stale&&r.chg!=null);
   const hausses=[...frais].filter(r=>r.chg>0).sort((a,b)=>b.chg-a.chg).slice(0,10);
   const baisses=[...frais].filter(r=>r.chg<0).sort((a,b)=>a.chg-b.chg).slice(0,10);
-  const notes=[...rows].filter(r=>meta(r).conf>=2&&r.v53!=null).sort((a,b)=>b.v53-a.v53).slice(0,10);
+  // Titres non comparables (règle A, 27/10/2026) exclus : leur note ne se range pas avec les autres.
+  const notes=[...rows].filter(r=>meta(r).conf>=2&&r.v53!=null&&!nonComparable(r)).sort((a,b)=>b.v53-a.v53).slice(0,10);
   const a=(b&&b.a_surveiller)||{};
   const surv=[...(a.a_publie||[]),...(a.a_bouge||[])].filter(z=>par[z.symbol]);
   const favs=rows.filter(r=>fav.includes(r.symbol||r.ticker));
@@ -2992,7 +3007,7 @@ const Accueil=({rows,fav,ouvrir,setTab})=>{
         items={surv.map(z=>t(par[z.symbol],(z.criteres||[]).map(c=>c.texte).join(" · ")))}/>
       <Rangee titre="Plus fortes hausses" sous="séance du jour" vers="ranking" setTab={setTab} items={hausses.map(r=>t(r))}/>
       <Rangee titre="Plus fortes baisses" sous="séance du jour" vers="ranking" setTab={setTab} items={baisses.map(r=>t(r))}/>
-      <Rangee titre="Les mieux notés" sous="note v5.3, confiance ≥ 2" vers="ranking" setTab={setTab}
+      <Rangee titre="Les mieux notés" sous="note v5.3, confiance ≥ 2, titres comparables" vers="ranking" setTab={setTab}
         items={notes.map(r=>t(r,`Note ${fmt(r.v53)}`))}/>
       <Rangee titre="Mes favoris" vers="watchlist" setTab={setTab} items={favs.map(r=>t(r))}/>
     </div>);
@@ -3205,6 +3220,10 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       if(sa==null&&sb==null) return 0;
       if(sa==null) return 1;
       if(sb==null) return -1;
+      /* Règle A (27/10/2026) : un titre NON COMPARABLE se classe après tous
+         les titres comparables, quelle que soit sa note ou la pondération. */
+      const na=!!nonComparable(a), nb=!!nonComparable(b);
+      if(na!==nb) return na?1:-1;
       return sb-sa;
     }
     if(sort==="nlp") return b.nlp-a.nlp;
@@ -4635,9 +4654,17 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               ? (meta(r).reprise_recente
                  ? <Chip label={`REPRISE — ${meta(r).seances_depuis_reprise} séance(s)`} bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040" sz={12}/>
                  : <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550" sz={12}/>)
+              : nonComparable(r)
+              ? <Chip label="Non comparable — titre peu liquide" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550" sz={12}/>
               : couvPartielle(r)
               ? <Chip label="Couverture partielle — verdict global limité" bg="rgba(255,215,64,.10)" fg="#ffd740" bd="#ffd74040" sz={12}/>
               : <PastilleNote r={r} sz={12}/>}
+            {/* Règle A (27/10/2026) : pourquoi cette note ne se compare pas. */}
+            {!simu&&nonComparable(r)&&(nc=>
+              <div className="bandeau-non-comparable" style={{marginTop:6,fontSize:10.5,color:"#8892a4",lineHeight:1.45,maxWidth:260}}>
+                Note {texteNonComparable(nc)}, sous le seuil de {dhSeance(nc.seuil)} (20 dernières séances échangées).
+                Avec si peu d'échanges, elle ne se compare pas à celle d'un titre liquide : aucune couleur de palier,
+                rang après les titres comparables.</div>)(nonComparable(r))}
             {/* Le motif, pour que la suspension ne soit pas une énigme : une
                 OPA n'est pas une sanction, et la nuance change tout pour le
                 lecteur. */}
@@ -5161,6 +5188,7 @@ const Guide=({setTab})=>{
       </div>
       <L titre="Note /10">Moyenne de deux piliers sur 10 : <T>fondamental</T> (rentabilité, croissance, valorisation, bilan — ≈ 2/3) et <T>technique</T> (tendance, RSI — ≈ 1/3, 0 sur un titre peu liquide). Sentiment WhatsApp gelé, poids nul. <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des poids</a></L>
       <L titre="Couleur de la note">La note est colorée selon son palier, sans mot d'action : <T c="#00e5a0">● vert</T> dès 6,5 · <T c="#b5e655">● vert-jaune</T> dès 5,5 · <T c="#ffd740">● jaune</T> dès 4,5 · <T c="#ff8f00">● orange</T> dès 3,5 · <T c="#ff4f5a">● rouge</T> dessous. La couleur situe la note ; elle ne dit pas quoi faire. Titre trop peu échangé : une note dès 6,5 reste en vert-jaune, avec la mention « titre peu échangé ». <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, note grise. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
+      <L titre="Note non comparable">Un titre très peu échangé — pilier technique neutralisé, et moins de 100 000 DH échangés par séance en médiane sur ses 20 dernières séances échangées — garde sa note, affichée en gris avec la mention « non comparable » et la médiane réelle. Avec si peu d'échanges, le cours peut sauter d'un côté à l'autre du carnet : la note ne se compare pas à celle d'un titre liquide. Aucune couleur de palier ; le titre est classé après tous les titres comparables et sort des « mieux notés » de l'accueil.</L>
       <L titre="Fiabilité des données ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>
       <L titre="« X % gagnants (IC) · n cas » — fiche, Signaux techniques">Sur n cas passés à la BVC où le même signal est apparu, X % ont battu le MASI 60 séances après ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fréquence passée, pas une promesse.</L>
       <L titre="S/R — supports et résistances du graphique">Tirés de la fenêtre affichée : un creux est un plus-bas sous lequel aucune des 3 séances échangées voisines, de chaque côté, ne descend — un sommet, l'inverse ; creux et sommets à moins de 1,2 % l'un de l'autre font un seul niveau, car un même prix peut avoir été l'un puis l'autre. Il faut au moins 10 séances échangées dans la fenêtre. <T>Contact</T> : un épisode — une ou plusieurs séances échangées consécutives dont la fourchette plus-bas–plus-haut passe à moins de 1,2 % du niveau ; une séance sans échange au milieu ne le coupe pas. La même tolérance de 1,2 % sert à regrouper les points et à compter les contacts, pour tous les titres. <T>Niveaux retenus</T> : les plus touchés de toute la fenêtre, et non les plus proches du cours — au plus 3 au-dessus du dernier cours et 3 au niveau ou en dessous, à partir de 2 contacts ; à égalité, le contact le plus récent, puis le plus proche du cours. <T>Proche du cours</T> : de chaque côté, s'y ajoute au plus un niveau non retenu — le plus proche du cours parmi ceux qui ont au moins 2 contacts, respectent l'écart minimal avec les niveaux affichés et se trouvent à moins de 2 ATR(14) de la dernière clôture. Il est tracé comme les autres et marqué « proche » dans la légende : un niveau moins touché réapparaît quand le cours s'en approche. Au plus 4 niveaux de chaque côté. <T>Écart minimal</T> : deux niveaux tracés sont distants d'au moins 1 ATR(14) relatif du titre — la moyenne des 14 dernières étendues séance (plus-haut − plus-bas, élargi à la clôture précédente) rapportée à la dernière clôture — et jamais de moins de 2,4 % (deux fois la tolérance : en deçà, deux niveaux se partageraient leurs contacts). Un niveau trop proche d'un niveau mieux classé est écarté, pas fusionné. La valeur du titre est écrite sous la légende. <T>Le mot suit la position</T> : au-dessus de la dernière clôture, Résistance ; au niveau ou en dessous, Support. <T>Par-dessus, par-dessous</T> : la clôture de la séance échangée qui précède le contact dit d'où le cours arrive — par-dessus, il joue le rôle de support ; par-dessous, de résistance. <T>Tenu</T> : un support abordé par-dessus dont la clôture de fin d'épisode reste au niveau ou au-dessus (une résistance : abordée par-dessous, clôture au niveau ou en dessous). Un contact venu de l'autre côté n'est ni tenu ni cassé : il est compté à part. <T>Inversion</T> : quand les contacts passent d'un rôle à l'autre une seule fois, la légende l'écrit — « résistance jusqu'au 12/06 (2), support depuis (3, tenu 2) » : le dernier contact dans l'ancien rôle est daté, et chaque rôle porte son nombre de contacts. Quand les rôles ont alterné plusieurs fois, elle ne nomme aucun rôle : elle donne la période des contacts et les comptes par-dessus et par-dessous — « 20 contacts du 12/11/25 au 12/10/26 : 12 par-dessus (tenu 8) · 8 par-dessous ». « Sens inconnu » : contact au début de la fenêtre, ou clôture précédente pile au niveau. <T>Séances écartées</T> : volume nul — le titre n'a pas échangé, ou la bougie a été refaite depuis la seule clôture — et bougie du jour reconstituée depuis le dernier cours. Aucun plus-haut ni plus-bas n'y a été atteint ou mesuré : elles fabriqueraient des creux. Elles restent dessinées. Des séances passées, comptées et datées ; pas un niveau annoncé.</L>

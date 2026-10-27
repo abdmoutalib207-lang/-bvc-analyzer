@@ -33,6 +33,6 @@ def test_une_financiere_n_a_pas_de_critere_sans_objet_gratuit():
 
 def test_terminal_sans_couleur_et_alertes_visibles():
     assert 'const couvPartielle=r=>!!r&&r.sig==="Couverture partielle";' in SRC
-    assert "if(couvPartielle(r))return null;" in SRC          # pas de couleur de palier
+    assert "if(couvPartielle(r)||nonComparable(r))return null;" in SRC   # pas de couleur de palier
     assert "Couverture partielle — verdict global limité" in SRC
     assert 'className="alerte-verifiee"' in SRC
