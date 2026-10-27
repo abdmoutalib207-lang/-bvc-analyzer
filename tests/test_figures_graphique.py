@@ -272,16 +272,26 @@ def test_gap_de_moins_de_20_seances_taux_a_20(publie):
         assert "60 séances" not in txt, txt
 
 
-def test_gap_de_20_a_59_seances_taux_a_60_cas_reel_str(publie, phrases):
-    g = next(g for g in publie["titres"]["STR"]["gaps"] if g["statut"] == "ouvert")
-    assert g["age_seances"] == 36 and g["type"] == "gap_baissier", g   # le cas réel décrit
-    liq = bool(publie["titres"]["STR"].get("liquide"))
-    txt = next(p["txt"] for p in phrases if p["t"] == "STR" and p["k"] == "gaps" and p["statut"] == "ouvert")
-    pct, n = _taux(publie, "h60", liq)
-    assert ("ouvert depuis 36 séances · sur 2023-2026, "
-            f"{pct} % des gaps baissiers ont été comblés dans les 60 séances suivant leur ouverture ({n} cas, ") in txt, txt
-    assert "en 20 séances" not in txt, txt
-    for age in (20, 59):                                     # les deux bornes
+def test_gap_de_20_a_59_seances_taux_a_60_cas_reels(publie, phrases):
+    # ⚠️ 28/10/2026 — ne JAMAIS figer l'âge d'un gap RÉEL : il croît d'une
+    # séance par jour. Ce test exigeait « STR, 36 séances » ; dès la 37e, le
+    # passage du soir (seul à régénérer figures_publiees.json, ≥ 17h45) échouait
+    # sur ses contrôles bloquants et ne publiait plus rien, chaque soir depuis
+    # le 22/10. Les cas réels sont maintenant pris dans le fichier publié, à
+    # leur âge du jour ; les bornes restent testées sur des cas construits.
+    cas = [(t, g) for t, v in publie["titres"].items() for g in (v.get("gaps") or [])
+           if g["statut"] in ("ouvert", "partiellement_comble") and 20 <= g.get("age_seances", -1) < 60]
+    for t, g in cas:
+        liq = bool(publie["titres"][t].get("liquide"))
+        sens = "baissiers" if g["type"] == "gap_baissier" else "haussiers"
+        c = publie["frequences"][g["type"]]["univers"]["liquides" if liq else "tous"]["h60"]["toutes_periodes"]
+        pct = f"{c['pct_combles']:.1f}".rstrip("0").rstrip(".").replace(".", ",")
+        attendu = (f"ouvert depuis {g['age_seances']} séances · sur 2023-2026, {pct} % des gaps "
+                   f"{sens} ont été comblés dans les 60 séances suivant leur ouverture ({c['n']} cas, ")
+        txts = [p["txt"] for p in phrases if p["t"] == t and p["k"] == "gaps" and p["statut"] == g["statut"]]
+        assert any(attendu in x for x in txts), (t, g, txts)
+        assert not any(attendu in x and "en 20 séances" in x for x in txts), (t, txts)
+    for age in (20, 36, 59):                                 # bornes et milieu, cas construits
         assert "dans les 60 séances suivant leur ouverture" in _gap(age)
     assert "dans les 60 séances suivant leur ouverture" in _gap(36, "partiellement_comble")
 
