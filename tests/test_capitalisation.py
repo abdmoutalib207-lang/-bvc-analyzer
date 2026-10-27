@@ -110,8 +110,9 @@ SITUATIONS = [
     ("capitalisation doublée : refusée aussi",
      1_681_233, 4350.0, 14600, None, True, 7313, "calculee_apres_refus"),
 
+    # 22/10/2026 : publiée à la décimale sous 100 MDHS (`_arrondi_cap`).
     ("petite capitalisation (22 MDHS, comme IBM) : l'arrondi n'empêche pas d'expliquer",
-     100_000, 225.0, 22, 220.0, True, 22, "calculee_recoupee"),
+     100_000, 225.0, 22, 220.0, True, 22.5, "calculee_recoupee"),
 
     ("témoin non déclaré du jour : par défaut il ne recoupe rien",
      1_681_233, 4350.0, 7100, 4223.2, None, 7100, "servie"),

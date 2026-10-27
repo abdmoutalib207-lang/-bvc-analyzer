@@ -512,14 +512,35 @@ def calc_stoch(closes: pd.Series, highs: pd.Series, lows: pd.Series,
     return round(k_vals[0], 2), round(float(np.mean(k_vals)), 2)
 
 
+def _ancre_du_jour(as_of=None) -> pd.Timestamp:
+    """La date d'ancrage des fenêtres glissantes, à MINUIT, sans fuseau.
+
+    `as_of` absent : aujourd'hui (horloge de la machine). Présent (date ou
+    horodatage, avec ou sans fuseau) : son jour calendaire tel qu'écrit.
+    """
+    t = pd.Timestamp.now() if as_of is None else pd.Timestamp(as_of)
+    if t.tzinfo is not None:
+        t = t.tz_localize(None)
+    return t.normalize()
+
+
 def compute_indicators(df: pd.DataFrame, *, as_of=None) -> dict:
     closes = df["close"]
     highs  = df["high"]
     lows   = df["low"]
 
     # Un rejeu historique doit utiliser la date du cache, pas celle du test.
-    # Le calcul courant conserve son comportement habituel.
-    now = pd.Timestamp.now() if as_of is None else pd.Timestamp(as_of).tz_localize(None)
+    #
+    # ⚠️ 22/10/2026 (audit) — L'ANCRE EST UNE DATE, PAS UNE HEURE. Comparée à
+    # `pd.Timestamp.now()` avec l'heure, une séance tombant pile sur le bord
+    # de la fenêtre (minuit) en sortait dès que le run passait minuit et une
+    # seconde : le 21/10 au soir, STK publiait un plus-haut 52 semaines de
+    # 132,8 au lieu de 137,0 (séance du 22/10/2025), IAM 121,2 au lieu de
+    # 121,45, ZLD un plus-bas 90 jours de 200,0 au lieu de 197,95. Le même
+    # extrême changeait donc selon l'heure du run. Ancre ramenée à minuit,
+    # bord inclus — la convention de `update_data._indicateurs_depuis_candles`
+    # et de `recalculer_cache.extremes_glissants`.
+    now = _ancre_du_jour(as_of)
     w52_start = now - pd.Timedelta(weeks=52)
     w90_start = now - pd.Timedelta(days=90)
 

@@ -929,3 +929,18 @@ Relevé pour le briefing de clôture enrichi (`pipeline/seance_marche.py`).
   249 rendements : c'est publié (`beta.n`), pas comblé.
 - **VaR : `ceil((1 − 0,95) × n)` est faux en flottant** (0,050000000000000044 ;
   40 rendements donnent une queue de 3). Arrondir avant `ceil`.
+
+## Lot A moteur (22/10/2026) : ce que l'audit a appris
+
+- **Une fenêtre glissante s'ancre sur une DATE, pas sur une heure.** Ancrée à
+  `Timestamp.now()`, la séance tombant pile 52 semaines (ou 90 jours) avant
+  sortait de la fenêtre selon l'heure du run : STK h52w 132,8 au lieu de 137,0
+  (séance du 22/10/2025), 12 extrêmes du cache dans ce cas au 21/10. Les trois
+  calculs (`compute_indicators`, `extremes_glissants`,
+  `_indicateurs_depuis_candles`) s'ancrent à minuit, bord inclus.
+- **Un titre non coté n'a ni variation ni ouverture : `null`, pas 0.** Le
+  volume, lui, est une mesure (0 titre échangé) et porte `_meta.motif_vol`.
+  16 titres le 21/10. Aucun effet sur `stale`, déjà vrai par la date du cours.
+- **Les seuils CDG changent de sens avec l'heure** : ±3 % glissants en séance
+  (réservation), ±10 % de la référence après la clôture ; ±6 % pour certains
+  titres (MGL, REB au 21/10 ; OUL, REB au 29/09).

@@ -659,11 +659,31 @@ def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():
     # ⚠️ Une série PROLONGÉE — qui a seulement gagné des séances — a le droit
     # de voir ses champs dérivés avancer. Une série RÉÉCRITE, non.
     prolongees = _series_prolongees_dans_cette_livraison()
+    # ⚠️ 22/10/2026 — CHANGEMENT DE CONVENTION DU PRODUCTEUR, PAS DE SÉRIE.
+    # Les extrêmes glissants s'ancrent désormais à minuit, bord inclus
+    # (`recalculer_cache.extremes_glissants`, `compute_indicators`) : douze
+    # extrêmes du cache, calculés à 19h30 avec l'ancienne règle, ont été
+    # recalculés À LA DATE DU CACHE. Un tel champ n'est toléré que s'il est
+    # EXACTEMENT le recalcul du producteur actuel sur la copie de bougies du
+    # cache, à `_updated` — et que `origin/main` ne l'était pas. Toute autre
+    # valeur reste refusée ; une fois fusionné, l'ensemble redevient vide.
+    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION de fiab/lot-a-moteur :
+    # c'est alors du code mort — retirer `_realignes_sur_le_producteur` et son usage.
+    from recalculer_cache import extremes_glissants as _ext
+
+    def _realignes_sur_le_producteur(t):
+        e = livre.get(t, {})
+        c = e.get("candles") or []
+        ext = _ext(c, maintenant=livre.get("_updated"),
+                   serie_complete=len(c) >= (e.get("n_candles") or 10**9)) or {}
+        return {k for k, v in ext.items()
+                if e.get(k) == v and base[t].get(k) != v
+                and base[t].get("candles") == e.get("candles")}
     fautifs = {}
     for t in (k for k in base if not k.startswith("_") and k not in exceptions):
         d = {k for k in set(base[t]) | set(livre.get(t, {}))
              if base[t].get(k) != livre.get(t, {}).get(k)}
-        toleres = _CHAMPS_QUI_AVANCENT if t in prolongees else {"rsi"}
+        toleres = _CHAMPS_QUI_AVANCENT if t in prolongees else {"rsi"} | _realignes_sur_le_producteur(t)
         if d - toleres:
             fautifs[t] = sorted(d - toleres)
     assert fautifs == {}, (

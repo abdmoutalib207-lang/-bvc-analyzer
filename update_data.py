@@ -658,6 +658,13 @@ def prendre_prix_live(ligne, seance):
 
     `src_prix` reste vide quand le prix est nul : c'est ce vide qui déclenche
     les replis successifs plus bas dans la boucle.
+
+    ⚠️ Le `chg = 0.0` d'une ligne périmée n'est qu'un BOUCHE-TROU de calcul
+    (la ligne est rejetée, son prix vaut 0) : les gardes arithmétiques qui
+    suivent (plafond R10, recalcul depuis les chandelles) attendent un nombre.
+    Il n'est jamais publié comme tel — depuis le 22/10/2026, un cours retenu
+    antérieur à la séance de référence sort avec `chg: null` et `open: null`
+    (`non_cote_a_la_seance`, juste avant la neutralisation ISIN).
     """
     asof = ligne.get("asof") or ""
     perime = bool(seance and asof and asof < seance)
@@ -2838,6 +2845,19 @@ TOL_COURS_IMPLICITE_VEILLE = 0.005
 SOURCES_PRIX_VIVANTES = {"idbourse", "cdg", "bmce", "medias24"}
 
 
+def _arrondi_cap(mdh):
+    """Capitalisation calculée, en MDHS : une décimale sous 100 MDHS, l'unité
+    au-delà. Fonction pure.
+
+    ⚠️ 22/10/2026 (audit) : arrondie à l'unité, l'erreur relative vaut
+    jusqu'à 0,5 ÷ cap — 1,3 % pour DIS (27,65 MDHS publiée 28), jusqu'à 3 %
+    pour REB (15,9). Au-delà de 100 MDHS, l'unité reste sous 0,5 %.
+    """
+    if mdh is None:
+        return None
+    return round(mdh, 1) if abs(mdh) < 100 else round(mdh)
+
+
 def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None,
                     cloture_veille=None, temoin_du_jour=False):
     """(capitalisation retenue, provenance) — en refusant l'invraisemblable.
@@ -2889,7 +2909,7 @@ def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None,
         # l'autre : il ne réfute pas la valeur servie, il se range derrière.
         n_off = _actions_bourse(ticker)
         if n_off and price and price > 0:
-            calculee = round(price * n_off / 1e6)
+            calculee = _arrondi_cap(price * n_off / 1e6)
             if not cap_servie or (calculee and abs(cap_servie / calculee - 1)
                                   <= TOL_COURS_IMPLICITE_JOUR + 0.5 / cap_servie):
                 return calculee, "calculee_bourse_officielle"
@@ -2903,7 +2923,7 @@ def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None,
     # verra sur le site de la Bourse.
     n_off = _actions_bourse(ticker)
     if n_off and price and price > 0:
-        calculee = round(price * n_off / 1e6)
+        calculee = _arrondi_cap(price * n_off / 1e6)
         if cap_servie and temoin_du_jour and calculee:
             implicite = cap_servie * 1e6 / n_off
             arrondi = 0.5 / cap_servie
@@ -2921,7 +2941,7 @@ def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None,
     if not n or not price or price <= 0:
         return cap_servie, ("servie" if cap_servie else "absente")
 
-    calculee = round(price * n / 1e6)           # data.json exprime en MDHS
+    calculee = _arrondi_cap(price * n / 1e6)         # data.json exprime en MDHS
     if not cap_servie:
         return calculee, "calculee_faute_de_source"
 
@@ -3158,7 +3178,8 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
                  chg=None, vol=None, prix_diffuse=None, cap_source=None,
                  cap_servie=None, cliquet_volume=False,
                  seances_depuis_reprise=None, comptes_deposes=False,
-                 note_fond_ok=True, cap_detail=None) -> dict:
+                 note_fond_ok=True, cap_detail=None, motif_vol=None,
+                 dividende_sur_piece=False) -> dict:
     """Provenance du prix et score de confiance 0–5.
 
     Le score suit la spécification du CLAUDE.md, un point par garantie :
@@ -3341,7 +3362,21 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         "suspendu_motif":  suspension["motif"] if suspension else None,
         "source_prix":  src_prix or "inconnu",
         # Décrit d'où viennent les RATIOS AFFICHÉS, pas l'existence d'un score.
-        "source_fond":  "bpa_calcule" if ratios_calcules else "table_figee",
+        #
+        # ⚠️ 22/10/2026 (audit) : « table_figee » était écrit pour SAF, ENK,
+        # STK, IBM, DLM et DIS alors que RIEN n'y vient plus de la table —
+        # depuis le 02/10, sans BPA lu dans les comptes, PER et rendement sont
+        # absents, jamais lus dans FOND_DATA. Trois libellés exacts :
+        #   · bpa_calcule         — PER et rendement calculés sur bpa.json ;
+        #   · dividende_sur_piece — pas de BPA, seul le rendement est publié,
+        #                           sur un dividende relevé sur pièce (SAF, STK) ;
+        #   · aucun_ratio         — ni PER ni rendement publiés.
+        "source_fond":  ("bpa_calcule" if ratios_calcules
+                         else "dividende_sur_piece" if dividende_sur_piece
+                         else "aucun_ratio"),
+        # Pourquoi `vol` vaut 0 quand il ne s'agit pas d'une séance échangée
+        # (R9, 22/10/2026) ; None quand le volume est celui de la séance.
+        "motif_vol":    motif_vol,
         # `pb_fige` disparaît : il annonçait une constante là où le champ est
         # désormais soit calculé depuis un dépôt AMMC, soit absent.
         "pb_source":    ("faits_ammc" if _pb_sourcé(ticker, 1.0) is not None
@@ -3471,6 +3506,17 @@ def fetch_masi20():
 SOURCES_MONTANT = ("cdg", "bmce")
 
 
+def non_cote_a_la_seance(prix_asof, seance_reference) -> bool:
+    """Le cours publié est-il ANTÉRIEUR à la séance de référence ? Fonction pure.
+
+    Vrai quand le titre n'a pas coté à cette séance : le cours retenu (repli
+    des chandelles, dernière cotation connue) date d'une séance plus ancienne.
+    Faux quand l'une des deux dates manque — on ne conclut pas sans date.
+    """
+    return bool(seance_reference and prix_asof
+                and str(prix_asof)[:10] < str(seance_reference)[:10])
+
+
 def volume_de_seance(vol, prix_asof, seance_reference):
     """Le volume publié est celui de la séance de référence. Fonction pure.
 
@@ -3482,10 +3528,26 @@ def volume_de_seance(vol, prix_asof, seance_reference):
     précédent) ; la garde se pose donc une fois, à la fin : un cours antérieur
     à la séance de référence signifie qu'aucun titre n'a été échangé à cette
     séance, et c'est 0 qui est vrai.
+
+    ⚠️ 22/10/2026 — ce zéro-là est une MESURE (aucun échange), contrairement à
+    la variation et à l'ouverture du même titre, qui n'existent pas et sont
+    publiées `null`. Il est accompagné de `_meta.motif_vol` (`motif_volume`).
     """
-    if seance_reference and prix_asof and str(prix_asof)[:10] < str(seance_reference)[:10]:
+    if non_cote_a_la_seance(prix_asof, seance_reference):
         return 0
     return vol
+
+
+def motif_volume(prix_asof, seance_reference):
+    """Pourquoi le volume publié vaut 0 — ou None s'il est mesuré. Pure.
+
+    « pas d'échange à la séance du JJ/MM » : la séance nommée est celle de
+    RÉFÉRENCE, à laquelle le titre n'a pas coté (et non celle de son cours).
+    """
+    if not non_cote_a_la_seance(prix_asof, seance_reference):
+        return None
+    s = str(seance_reference)[:10]
+    return f"pas d'échange à la séance du {s[8:10]}/{s[5:7]}"
 
 
 def _echange_rapprochable(ligne, src_prix, prix_asof, lp_asof):
@@ -4849,7 +4911,20 @@ def run(dry_run=False, push=False, token=""):
             if _ref["prix_diffuse"] is not None:
                 _prix_diffuse = _ref["prix_diffuse"]
 
-        if not opn:
+        # ⚠️ R9 — TITRE NON COTÉ À LA SÉANCE DE RÉFÉRENCE (audit du 22/10/2026).
+        #
+        # Seize titres (source `candles`, `stale: true`) publiaient `chg: 0.0`
+        # et une ouverture égale à la clôture, comme s'il s'agissait de
+        # mesures : « 0,00 % » se lit « a coté à prix inchangé », ce que R9
+        # interdit d'affirmer sans vérification. Le titre n'a pas coté à la
+        # séance de référence : sa variation et son ouverture du jour
+        # N'EXISTENT PAS, elles sont publiées `null` (« — » à l'écran). Le
+        # volume, lui, est une vraie mesure — zéro titre échangé —, gardé à 0
+        # et motivé par `_meta.motif_vol` (`volume_de_seance`, `motif_volume`).
+        # `stale` n'en dépend pas : il est déjà vrai par la date du cours.
+        if non_cote_a_la_seance(prix_asof, IDB_ASOF):
+            chg = opn = None
+        elif not opn:
             opn = round(price / (1 + chg / 100), 2) if chg else price
 
         rsi, ma20, ma50, h90, l90, isin_suspect = neutraliser_si_isin_suspect(
@@ -5005,11 +5080,19 @@ def run(dry_run=False, push=False, token=""):
         _meta_kw = dict(
             ratios_calcules=bool(
                 ticker in BPA_DATA and BPA_DATA[ticker].get("bpa") and price > 0),
+            # Même condition que le champ `div` publié plus bas.
+            dividende_sur_piece=bool(
+                ticker in BPA_DATA and BPA_DATA[ticker].get("div_dh") is not None
+                and price > 0),
             chg=chg, vol=vol, prix_diffuse=_prix_diffuse,
+            motif_vol=motif_volume(prix_asof, IDB_ASOF),
             cap_source=_cap_source,
             cap_servie=lp.get("cap"),
+            # ⚠️ L'âge du relevé officiel se mesure à la DATE D'ANALYSE (22/10/2026).
+            # Mesuré au cours retenu, il devenait négatif pour un titre non coté
+            # dont le cours précède le relevé : SRM −8 j, NEJ −22 j au 21/10.
             cap_detail=_cap_detail(ticker, _cap_source, _cap_retenue, lp.get("cap"),
-                                   prix_asof or IDB_ASOF or None),
+                                   date_analyse()),
             cliquet_volume=lp.get("cliquet_volume", False),
             seances_depuis_reprise=_seances_depuis_reprise,
             comptes_deposes=_comptes_deposes(BPA_DATA.get(ticker)))
@@ -5051,19 +5134,34 @@ def run(dry_run=False, push=False, token=""):
             "name":   info.get("name", ticker),
             "sector": info.get("sector", ""),
             "price":  round(price, 2),
-            "chg":    round(chg, 2),
+            # `None` quand le titre n'a pas coté à la séance de référence (R9,
+            # 22/10/2026) : une variation qui n'a pas eu lieu n'est pas 0,00 %.
+            "chg":    round(chg, 2) if chg is not None else None,
             "vol":    int(vol) if vol else 0,
             # ⚠️ Le montant RÉEL de la séance, en dirhams — voir la condition
             # de validité plus haut. `None` signifie « pas rapprochable », pas
             # « zéro échangé ».
             "echange_dh": round(echange_dh, 2) if echange_dh else None,
             "reference": round(_reference, 2) if _reference else None,
-            # ⚠️ Bornes de RÉSERVATION intraday (±3 % glissants), à ne pas
-            # confondre avec le plafond journalier de ±10 % (R10) que publie
-            # `niveaux.bornes_seance`.
+            # ⚠️ Seuils servis par CDG (`SeuilBas` / `SeuilHaut`), recopiés
+            # tels quels. Leur SENS DÉPEND DE L'HEURE du relevé :
+            #   · EN SÉANCE — bornes de RÉSERVATION, ±3 % GLISSANTS autour du
+            #     dernier cours (d'où l'asymétrie d'un titre qui a déjà bougé :
+            #     voir `fetch_all_cdg`, relevé du 25/09) ;
+            #   · APRÈS LA CLÔTURE — ±10 % de la RÉFÉRENCE du jour, au pas de
+            #     cotation près (mesuré sur le run du 22/10 à 00h12 UTC, séance
+            #     du 21/10 : 60 titres à ±10 %/±9,9 %) ;
+            #   · EXCEPTION — CDG sert ±6 % pour MGL et REB (même relevé ;
+            #     OUL et REB au 29/09, voir `pipeline/briefing.py`) : la liste
+            #     varie, d'où la lecture des seuils servis plutôt qu'un 10 % écrit.
+            # Ni l'un ni l'autre n'est la règle R10 : le plafond journalier de
+            # ±10 % est publié à part, dans `niveaux.bornes_seance`. La note ne
+            # les lit pas ; le briefing s'en sert pour « au seuil de la séance ».
             "seuil_bas":  _seuil_bas,
             "seuil_haut": _seuil_haut,
-            "open":   round(opn, 2),
+            # `None` pour un titre non coté à la séance de référence (R9) :
+            # recopier la clôture ferait croire à une séance sans amplitude.
+            "open":   round(opn, 2) if opn is not None else None,
             "close":  round(price, 2),
             # ⚠️ PER SUR DOUZE MOIS GLISSANTS quand les comptes semestriels ont
             # été lus (29/09/2026, `pipeline/resultats_semestriels.py`), annuel
@@ -5217,7 +5315,7 @@ def run(dry_run=False, push=False, token=""):
             "warn":   v53["warn"],
             "warnMsg":v53["warnMsg"],
             # Alerte variation extrême (≥ ±8% approche limite BVC ±10%)
-            "chg_alert": abs(round(chg, 2)) >= 8.0,
+            "chg_alert": chg is not None and abs(round(chg, 2)) >= 8.0,
             # Fondamentaux
             **_obj,
             # ⚠️ `flags` compte désormais les alertes CALCULÉES et expliquées
