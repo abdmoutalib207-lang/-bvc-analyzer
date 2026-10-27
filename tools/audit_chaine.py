@@ -228,13 +228,30 @@ def controler_note_fond(sym, t, attendu, contestes) -> list:
 
 
 # ── maillon 3 : signal, confiance, alertes, v53 ────────────────────────────
+NON_COMPARABLE = "Non comparable (liquidité)"
+
+
 def controler_signal(sym, t, contestes) -> list:
-    from bvc_config import COUVERTURE_VERDICT_MIN
+    from bvc_config import COUVERTURE_VERDICT_MIN, SEUIL_NON_COMPARABLE_DH
     out = []
     m, nf, sig = t.get("_meta") or {}, t.get("note_fond") or {}, t.get("sig")
     conf = m.get("confidence")
     couv_app, note = nf.get("couverture_applicable"), nf.get("note")
     partielle = note is not None and couv_app is not None and couv_app < COUVERTURE_VERDICT_MIN
+    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION de fiab/non-comparable :
+    # supprimer `avant_regles_ab` et appliquer les règles A et B à toute fiche. Une fiche
+    # écrite par le moteur v5.3-croissance-pb-2026-10-27 (data.json publié avant la
+    # fusion) suit les règles d'AVANT : ni « Non comparable », ni règle B.
+    avant_regles_ab = t.get("score_version") == "v5.3-croissance-pb-2026-10-27"
+    # Règle B (27/10/2026) : foncière sans note par métier → « Couverture partielle ».
+    nfm = t.get("note_fond_metier") or {}
+    fonciere_sn = (not avant_regles_ab and nfm.get("famille") == "fonciere" and nfm.get("note") is None
+                   and not nfm.get("indisponible"))
+    # Règle A (27/10/2026, accord R8) : technique neutralisée ET médiane < seuil.
+    tn = t.get("technique_neutralise") or None
+    med = (tn or {}).get("montant_median_dh")
+    peu_liquide = (not avant_regles_ab and bool(tn)
+                   and (med if med is not None else 0) < SEUIL_NON_COMPARABLE_DH)
     if m.get("suspendu"):
         if sig != "SUSPENDU":
             out.append(_inc(sym, "signal.suspendu", ERREUR, "titre suspendu sans signal SUSPENDU", sig, "SUSPENDU"))
@@ -246,11 +263,30 @@ def controler_signal(sym, t, contestes) -> list:
         out.append(_inc(sym, "signal.sans_donnees", ERREUR,
                         "note absente / sans comptes / reprise récente, mais signal ≠ « Données insuffisantes »",
                         sig, "Données insuffisantes"))
-    if not sans_donnees and partielle and sig != "Couverture partielle":
-        out.append(_inc(sym, "signal.couverture", ERREUR,
-                        f"couverture applicable {couv_app} < {COUVERTURE_VERDICT_MIN} mais un verdict est émis",
+    # Règle A : signal, champ `_meta.non_comparable` et condition vont ensemble.
+    non_comp = not sans_donnees and peu_liquide
+    if non_comp and sig != NON_COMPARABLE:
+        out.append(_inc(sym, "signal.non_comparable", ERREUR,
+                        f"technique neutralisée et médiane {med} DH < {SEUIL_NON_COMPARABLE_DH} DH, mais un verdict est émis",
+                        sig, NON_COMPARABLE))
+    if sig == NON_COMPARABLE and not non_comp:
+        out.append(_inc(sym, "signal.non_comparable", ERREUR,
+                        f"« {NON_COMPARABLE} » sans technique neutralisée sous {SEUIL_NON_COMPARABLE_DH} DH", sig))
+    bloc = m.get("non_comparable")
+    if (sig == NON_COMPARABLE) != bool(bloc):
+        out.append(_inc(sym, "signal.non_comparable_meta", ERREUR,
+                        "_meta.non_comparable doit être présent si et seulement si le signal est "
+                        f"« {NON_COMPARABLE} »", bloc, sig))
+    elif bloc and (bloc.get("seuil") != SEUIL_NON_COMPARABLE_DH or bloc.get("montant_median_dh") != med):
+        out.append(_inc(sym, "signal.non_comparable_meta", ERREUR,
+                        "_meta.non_comparable ne reprend pas la médiane publiée et le seuil du moteur",
+                        bloc, {"montant_median_dh": med, "seuil": SEUIL_NON_COMPARABLE_DH}))
+    if not sans_donnees and not non_comp and (partielle or fonciere_sn) and sig != "Couverture partielle":
+        motif = (f"couverture applicable {couv_app} < {COUVERTURE_VERDICT_MIN}" if partielle
+                 else "foncière sans note par métier")
+        out.append(_inc(sym, "signal.couverture", ERREUR, f"{motif} mais un verdict est émis",
                         sig, "Couverture partielle"))
-    if sig == "Couverture partielle" and not partielle:
+    if sig == "Couverture partielle" and not (partielle or fonciere_sn):
         out.append(_inc(sym, "signal.couverture", ERREUR,
                         f"« Couverture partielle » alors que la couverture applicable ({couv_app}) "
                         f"atteint le seuil {COUVERTURE_VERDICT_MIN}", sig))
@@ -480,6 +516,13 @@ def auditer_affichage(src: str, bvc_config=None) -> list:
         if motif not in src:
             out.append(_inc(T, "affichage.seuil", ERREUR,
                             f"le terminal n'annonce plus le seuil de couverture du moteur ({seuil} %) : « {motif} »"))
+    # Règle A (27/10/2026) : le terminal lit le CHAMP, pas le libellé, et annonce le seuil du moteur.
+    if "m.non_comparable" not in src:
+        out.append(_inc(T, "affichage.non_comparable", ERREUR, "nonComparable ne lit pas _meta.non_comparable"))
+    seuil_nc = f"{bvc_config.SEUIL_NON_COMPARABLE_DH:,}".replace(",", " ")
+    if f"moins de {seuil_nc} DH échangés par séance" not in src:
+        out.append(_inc(T, "affichage.seuil", ERREUR,
+                        f"« Comment lire » n'annonce plus le seuil de non-comparabilité du moteur ({seuil_nc} DH)"))
     if "m.conf<=1" not in src:
         out.append(_inc(T, "affichage.confiance", ERREUR, "la règle d'affichage « confiance ≤ 1 : note grise » a disparu"))
     if "conf:m.confidence??0" not in src:

@@ -4144,22 +4144,66 @@ def _entrees_depots_ammc() -> list:
         return _ammc.charger()
 
 
+SIG_NON_COMPARABLE = "Non comparable (liquidité)"
+
+
+def non_comparable(tech_nf) -> dict | None:
+    """Règle A (27/10/2026, accord R8) : le bloc `_meta.non_comparable`, ou None.
+
+    Condition : pilier technique neutralisé faute d'échanges (`tech_nf`, motif
+    de `technique_non_fiable`) ET montant médian des 20 dernières séances
+    échangées sous `bvc_config.SEUIL_NON_COMPARABLE_DH`. Sans séance échangée,
+    la médiane est absente et comptée 0 — convention de la mesure préalable.
+    Pure : ne lit ni la suspension ni la note ; la précédence est dans
+    `_signal_publie`.
+    """
+    from bvc_config import SEUIL_NON_COMPARABLE_DH
+    if not tech_nf:
+        return None
+    med = tech_nf.get("montant_median_dh")
+    if (med if med is not None else 0) >= SEUIL_NON_COMPARABLE_DH:
+        return None
+    return {"motif": "titre peu liquide" if med is not None else "aucune séance échangée",
+            "montant_median_dh": med, "seuil": SEUIL_NON_COMPARABLE_DH}
+
+
+def _poser_non_comparable(e: dict, nc) -> None:
+    """`_meta.non_comparable` présent SI ET SEULEMENT SI le signal publié est
+    « Non comparable (liquidité) » : le terminal lit ce champ, pas le libellé."""
+    m = e.setdefault("_meta", {})
+    if e.get("sig") == SIG_NON_COMPARABLE and nc:
+        m["non_comparable"] = nc
+    else:
+        m.pop("non_comparable", None)
+
+
 def _signal_publie(ticker, sig_v53, tech_nf, depuis_reprise, sans_note=False,
-                   couverture_partielle=False):
+                   couverture_partielle=False, non_comparable=None,
+                   fonciere_sans_note=False):
     """(signal publié, verdict_plafonne) : la SEULE règle de substitution.
 
     Ordre : suspension, puis « Données insuffisantes » (reprise récente, société
-    sans comptes, ou note fondamentale incalculable), puis plafond de liquidité
-    du verdict (04/10/2026). Un titre sans note fondamentale ne reçoit JAMAIS un
-    verdict ACHETER ou ÉVITER : il n'a pas de pilier fondamental à juger.
+    sans comptes, ou note fondamentale incalculable), puis « Non comparable
+    (liquidité) » (règle A, 27/10/2026), puis « Couverture partielle »
+    (couverture sous le seuil, ou foncière sans note par métier — règle B,
+    27/10/2026), puis plafond de liquidité du verdict (04/10/2026). Un titre
+    sans note fondamentale ne reçoit JAMAIS un verdict ACHETER ou ÉVITER : il
+    n'a pas de pilier fondamental à juger.
     """
     if _suspendu_maintenant(ticker):
         return "SUSPENDU", None
     if depuis_reprise is not None or sans_comptes(ticker) or sans_note:
         return "Données insuffisantes", None
+    # Règle A (accord R8 du 27/10/2026) : titre trop peu échangé pour que sa
+    # note se compare à celle d'un titre liquide. La note reste publiée ;
+    # AUCUN verdict de palier (ni ACHETER, ni SURVEILLER, ATTENDRE, ÉVITER).
+    if non_comparable:
+        return SIG_NON_COMPARABLE, None
     # Règle de prudence provisoire (bvc_config.COUVERTURE_VERDICT_MIN) : note
     # publiée comme indicative, AUCUN verdict de palier (15/10/2026).
-    if couverture_partielle:
+    # Règle B (27/10/2026) : foncière dont la note par métier est incalculable
+    # (ARD, IMI, BAL) — même étiquette, la note et le rang ne changent pas.
+    if couverture_partielle or fonciere_sans_note:
         return "Couverture partielle", None
     if tech_nf and str(sig_v53).startswith("ACHETER"):
         return "SURVEILLER ★", f"ACHETER plafonné : {tech_nf['motif']}"
@@ -4191,7 +4235,11 @@ def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux:
     (`bvc_config.NOTE_METIER_PUBLIEE`), la note par famille est calculée et
     publiée À CÔTÉ (`note_fond_metier`) ; `score_fond`, `v53`, `sig`, `setup`, la
     confiance et le plancher de publication restent ceux de la grille ACTUELLE,
-    calculés dans la boucle. Rien de publié ne change.
+    calculés dans la boucle. Rien de publié ne change, À UNE EXCEPTION PRÈS :
+    la règle B (27/10/2026, accord R8) — une foncière dont la note par famille
+    est nulle reçoit le signal « Couverture partielle ». Ce fait n'existe que
+    dans cette note ; seuls `sig` et `verdict_plafonne` en dépendent, jamais la
+    note ni le rang.
 
     ⚠️ DEUX PASSES, ET C'EST VOULU. Les valorisations sont RELATIVES (médiane des
     pairs) : il faut les cours des 80 titres avant de noter le premier, or chaque
@@ -4230,6 +4278,12 @@ def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux:
         r, p1 = res[sym], passe1[sym]
         note = r["note"]
         e["note_fond_metier"] = details[sym]
+        # Règle B (27/10/2026) : foncière sans note par métier → « Couverture
+        # partielle ». Connue seulement ici : la note par famille se calcule
+        # après la boucle. Mêmes entrées que la boucle, une seule règle.
+        fonciere_sn = (details[sym].get("famille") == "fonciere" and details[sym].get("note") is None
+                       and not details[sym].get("indisponible"))
+        nc = p1.get("non_comparable")
         if publier:
             sig_actuel = e["sig"]               # signal de la grille actuelle, calculé dans la boucle
             if note is None:
@@ -4243,10 +4297,18 @@ def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux:
                 v = compute_v53(sym, p1["score_tech"], note, 0, 0, p1["ctx"])
                 e["score_fond"], e["v53"] = v["score_fond"], v["v53"]
                 e["sig"], e["verdict_plafonne"] = _signal_publie(
-                    sym, v["sig"], p1["tech_nf"], p1["depuis_reprise"])
+                    sym, v["sig"], p1["tech_nf"], p1["depuis_reprise"], non_comparable=nc,
+                    fonciere_sans_note=fonciere_sn)
                 # Règle 11 : une note PARTIELLE ne peut pas être plus favorable que la grille actuelle.
                 e["sig"] = limiter_signal_partiel(sig_actuel, e["sig"], r["partielle"])
                 e["setup"] = _setup_technique(v["v53"], p1["price"], p1["ma20"], p1["ma50"], p1["tech_nf"])
+            _poser_non_comparable(e, nc)
+        elif fonciere_sn and "sig_v53" in p1:
+            e["sig"], e["verdict_plafonne"] = _signal_publie(
+                sym, p1["sig_v53"], p1["tech_nf"], p1["depuis_reprise"], sans_note=p1.get("sans_note", False),
+                couverture_partielle=p1.get("couv_partielle", False), non_comparable=nc,
+                fonciere_sans_note=True)
+            _poser_non_comparable(e, nc)
         logger.info(f"  ✓ {sym}: {e['price']} DH | RSI {e.get('rsi')} | Score v5.3: "
                     f"{e['v53']} (fond {e['score_fond']}) | {e['sig']} | note par famille "
                     f"({r['famille']}) : {note}")
@@ -4262,7 +4324,12 @@ def note_metier_du_run(tickers_out: list, passe1: dict, *, fondamentaux: dict, b
     enveloppé. Une erreur devient un avertissement journalisé, `note_fond_metier`
     est marquée indisponible et la grille ACTUELLE se publie normalement : un
     ajout de comparaison ne doit jamais interrompre le run. En mode publié, une
-    erreur reste bloquante (la note publiée en dépend)."""
+    erreur reste bloquante (la note publiée en dépend).
+
+    ⚠️ Exception, règle B (27/10/2026) : sans note par famille, une foncière
+    sans note ne peut pas être reconnue ; elle garde alors le signal de la
+    grille actuelle au lieu de « Couverture partielle ». Seuls `sig` et
+    `verdict_plafonne` diffèrent (tests/test_run_complet_comparaison_isolee.py)."""
     from bvc_config import NOTE_METIER_PUBLIEE
 
     def calcul():
@@ -5157,13 +5224,18 @@ def run(dry_run=False, push=False, token=""):
             cliquet_volume=lp.get("cliquet_volume", False),
             seances_depuis_reprise=_seances_depuis_reprise,
             comptes_deposes=_comptes_deposes(BPA_DATA.get(ticker)))
+        # Règle A (27/10/2026, accord R8) : titre très peu liquide, non comparable.
+        _nc = non_comparable(_tech_nf)
         _sig_pub, _verdict_plafonne = _signal_publie(
             ticker, v53["sig"], _tech_nf, _seances_depuis_reprise, sans_note=_sans_note_fond,
-            couverture_partielle=_couv_partielle)
+            couverture_partielle=_couv_partielle, non_comparable=_nc)
         passe1[ticker] = {"score_tech": score_tech, "ctx": ctx, "tech_nf": _tech_nf,
                           "depuis_reprise": _seances_depuis_reprise, "price": price,
                           "ma20": ma20, "ma50": ma50,
-                          "meta_args": _meta_args, "meta_kw": _meta_kw}
+                          "meta_args": _meta_args, "meta_kw": _meta_kw,
+                          # Entrées du signal, gardées pour la règle B (second passage).
+                          "sig_v53": v53["sig"], "sans_note": _sans_note_fond,
+                          "couv_partielle": _couv_partielle, "non_comparable": _nc}
         tickers_out.append({
             "symbol": ticker,
             # ── Bloc _meta (spécification CLAUDE.md) ─────────────────────────
@@ -5384,6 +5456,9 @@ def run(dry_run=False, push=False, token=""):
             "alertes": _alertes,
             "flags":  len(_alertes["liste"]) if _alertes["evaluable"] else None,
         })
+        # `_meta.non_comparable` : {motif, montant_median_dh, seuil}, posé SI ET
+        # SEULEMENT SI le signal publié est « Non comparable (liquidité) ».
+        _poser_non_comparable(tickers_out[-1], _nc)
 
         # Le signal JOURNALISÉ doit être celui qui sera PUBLIÉ. Il imprimait
         # `v53['sig']`, calculé avant la substitution : le dry-run annonçait

@@ -361,6 +361,24 @@ IDB_TICKER_MAP: dict = {
 # partielle ». 75 % n'est PAS une frontière validée ; à revoir par mesure.
 COUVERTURE_VERDICT_MIN = 0.75
 
+# ⚠️ RÈGLE A — TITRES TRÈS PEU LIQUIDES NON COMPARABLES (27/10/2026, accord R8
+# d'Abd Moutalib). Quand le pilier technique est neutralisé faute d'échanges
+# (`technique_neutralise` publié) ET que son `montant_median_dh` est sous ce
+# seuil, la note v53 reste calculée et affichée mais n'est PAS comparable à
+# celle d'un titre liquide : signal « Non comparable (liquidité) », champ
+# `_meta.non_comparable`, rang après tous les titres comparables. « SUSPENDU »
+# et « Données insuffisantes » gardent la priorité ; la règle passe avant
+# « Couverture partielle ».
+#   · La médiane est celle de `pipeline/technique_fiable.py` : montant (cours ×
+#     titres) des 20 dernières séances ÉCHANGÉES — convention de la mesure
+#     préalable, gardée telle quelle. Ce n'est pas `_meta.echange_median_dh`
+#     (point « liquidité » de la confiance), calculé autrement.
+#   · Sans aucune séance échangée, la médiane est absente : traitée comme 0.
+#   · 100 000 DH est le seuil du point « liquidité » de la confiance ; il est
+#     sous celui de la neutralisation technique (125 947 DH). Pas une frontière
+#     validée par mesure de performance : une convention de lisibilité.
+SEUIL_NON_COMPARABLE_DH = 100_000
+
 
 def code_affiche(sym: str) -> str:
     """Le code OFFICIEL BVC d'un symbole interne — celui que la fiche affiche
@@ -1223,6 +1241,12 @@ TICKERS_ALL: list = [
 #   quand l'émetteur publie un pourcentage (B2, HPS). P/B : nombre d'actions
 #   de la capitalisation (B3, T2S) et fonds propres les plus récents relevés
 #   sur pièce, 30/06/2026 quand ils existent (B4). Poids des piliers inchangés.
+#   v5.3-non-comparable-2026-10-27 : accord R8 d'Abd Moutalib du 27/10/2026.
+#   Aucune note ne change. Règle A : titre très peu liquide (technique
+#   neutralisée ET montant médian < SEUIL_NON_COMPARABLE_DH) → signal « Non
+#   comparable (liquidité) », `_meta.non_comparable`, classé après les titres
+#   comparables. Règle B : foncière sans note par métier → « Couverture
+#   partielle » (étiquette seule).
 # ⚠️ MODE COMPARAISON (11/10/2026). Abd Moutalib a validé le principe d'une note
 # par métier (10/10) mais exige des corrections avant toute bascule : tant que
 # cet interrupteur est FAUX, `score_fond`, `v53`, le signal, la confiance et le
@@ -1233,4 +1257,4 @@ TICKERS_ALL: list = [
 # et la version du score.
 NOTE_METIER_PUBLIEE: bool = False
 SCORE_VERSION = ("v5.3-fond-sectoriel-2026-10-10" if NOTE_METIER_PUBLIEE
-                 else "v5.3-croissance-pb-2026-10-27")
+                 else "v5.3-non-comparable-2026-10-27")

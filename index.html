@@ -1304,8 +1304,14 @@ const PALIERS = [{
 }];
 const palierDe = v => v == null || !isFinite(v) ? null : PALIERS.findIndex(p => v >= p.min);
 const couvPartielle = r => !!r && r.sig === "Couverture partielle";
+const nonComparable = r => {
+  const m = meta(r);
+  return m.susp || m.conf <= 1 ? null : m.non_comparable || null;
+};
+const dhSeance = n => n == null ? "aucune séance échangée" : `${Math.round(n).toLocaleString("fr-FR")} DH/séance`;
+const texteNonComparable = nc => `non comparable — titre peu liquide (médiane ${dhSeance(nc.montant_median_dh)})`;
 const couleurNote = r => {
-  if (couvPartielle(r)) return null;
+  if (couvPartielle(r) || nonComparable(r)) return null;
   const i = palierDe(r && r.v53);
   if (i == null) return null;
   const plafonne = !!r.verdict_plafonne && i === 0,
@@ -1332,6 +1338,8 @@ const palierTexte = r => {
   if (m.susp) return "suspendu";
   if (m.reprise_recente) return "reprise de cotation";
   if (m.conf <= 1) return "données insuffisantes";
+  const nc = nonComparable(r);
+  if (nc) return texteNonComparable(nc);
   if (couvPartielle(r)) return "couverture partielle (note indicative)";
   const p = couleurNote(r);
   if (!p) return "";
@@ -2053,8 +2061,18 @@ const PastilleNote = ({
   sz = 11
 }) => {
   const p = couleurNote(r);
+  const nc = nonComparable(r);
+  if (nc) return React.createElement("span", {
+    className: "pastille-non-comparable",
+    title: `Note ${fmt(r.v53)}, ${texteNonComparable(nc)} — seuil ${dhSeance(nc.seuil)}, sur les 20 dernières séances échangées. Note calculée, sans palier ; classée après les titres comparables.`,
+    style: {
+      fontSize: sz,
+      color: "#8892a4",
+      whiteSpace: "nowrap"
+    }
+  }, "\u25CC non comparable");
   if (couvPartielle(r)) return React.createElement("span", {
-    title: `Note ${fmt(r.v53)}, indicative : couverture des données sous le seuil de prudence (75 % du poids applicable). Aucun verdict de palier.`,
+    title: ((r.note_fond || {}).couverture_applicable ?? 0) >= 0.75 ? `Note ${fmt(r.v53)}, indicative : foncière dont la note par métier n'est pas calculable. Aucun verdict de palier.` : `Note ${fmt(r.v53)}, indicative : couverture des données sous le seuil de prudence (75 % du poids applicable). Aucun verdict de palier.`,
     style: {
       fontSize: sz,
       color: "#ffd740",
@@ -5576,7 +5594,7 @@ const Accueil = ({
   const frais = rows.filter(r => !meta(r).stale && r.chg != null);
   const hausses = [...frais].filter(r => r.chg > 0).sort((a, b) => b.chg - a.chg).slice(0, 10);
   const baisses = [...frais].filter(r => r.chg < 0).sort((a, b) => a.chg - b.chg).slice(0, 10);
-  const notes = [...rows].filter(r => meta(r).conf >= 2 && r.v53 != null).sort((a, b) => b.v53 - a.v53).slice(0, 10);
+  const notes = [...rows].filter(r => meta(r).conf >= 2 && r.v53 != null && !nonComparable(r)).sort((a, b) => b.v53 - a.v53).slice(0, 10);
   const a = b && b.a_surveiller || {};
   const surv = [...(a.a_publie || []), ...(a.a_bouge || [])].filter(z => par[z.symbol]);
   const favs = rows.filter(r => fav.includes(r.symbol || r.ticker));
@@ -5656,7 +5674,7 @@ const Accueil = ({
     items: baisses.map(r => t(r))
   }), React.createElement(Rangee, {
     titre: "Les mieux not\xE9s",
-    sous: "note v5.3, confiance \u2265 2",
+    sous: "note v5.3, confiance \u2265 2, titres comparables",
     vers: "ranking",
     setTab: setTab,
     items: notes.map(r => t(r, `Note ${fmt(r.v53)}`))
@@ -6231,6 +6249,9 @@ const Ranking = ({
       if (sa == null && sb == null) return 0;
       if (sa == null) return 1;
       if (sb == null) return -1;
+      const na = !!nonComparable(a),
+        nb = !!nonComparable(b);
+      if (na !== nb) return na ? 1 : -1;
       return sb - sa;
     }
     if (sort === "nlp") return b.nlp - a.nlp;
@@ -9920,6 +9941,12 @@ const Detail = ({
     fg: "#8892a4",
     bd: "#2a3550",
     sz: 12
+  }) : nonComparable(r) ? React.createElement(Chip, {
+    label: "Non comparable \u2014 titre peu liquide",
+    bg: "rgba(136,146,164,.12)",
+    fg: "#8892a4",
+    bd: "#2a3550",
+    sz: 12
   }) : couvPartielle(r) ? React.createElement(Chip, {
     label: "Couverture partielle \u2014 verdict global limit\xE9",
     bg: "rgba(255,215,64,.10)",
@@ -9929,7 +9956,16 @@ const Detail = ({
   }) : React.createElement(PastilleNote, {
     r: r,
     sz: 12
-  }), meta(r).susp && meta(r).suspMotif && !simu && React.createElement("div", {
+  }), !simu && nonComparable(r) && (nc => React.createElement("div", {
+    className: "bandeau-non-comparable",
+    style: {
+      marginTop: 6,
+      fontSize: 10.5,
+      color: "#8892a4",
+      lineHeight: 1.45,
+      maxWidth: 260
+    }
+  }, "Note ", texteNonComparable(nc), ", sous le seuil de ", dhSeance(nc.seuil), " (20 derni\xE8res s\xE9ances \xE9chang\xE9es). Avec si peu d'\xE9changes, elle ne se compare pas \xE0 celle d'un titre liquide : aucune couleur de palier, rang apr\xE8s les titres comparables. M\xE9diane sur les s\xE9ances \xE9chang\xE9es uniquement ; le cadre \xAB \xC9chang\xE9 par s\xE9ance \xBB compte aussi les s\xE9ances sans \xE9change."))(nonComparable(r)), meta(r).susp && meta(r).suspMotif && !simu && React.createElement("div", {
     style: {
       marginTop: 6,
       fontSize: 10,
@@ -11186,6 +11222,8 @@ const Guide = ({
   }, "Donn\xE9es insuffisantes"), " : confiance 0 ou 1, note grise. ", React.createElement(T, {
     c: "#ff6b6b"
   }, "SUSPENDU"), " : le titre ne cote pas."), React.createElement(L, {
+    titre: "Note non comparable"
+  }, "Un titre tr\xE8s peu \xE9chang\xE9 \u2014 pilier technique neutralis\xE9, et moins de 100 000 DH \xE9chang\xE9s par s\xE9ance en m\xE9diane sur ses 20 derni\xE8res s\xE9ances \xE9chang\xE9es \u2014 garde sa note, affich\xE9e en gris avec la mention \xAB non comparable \xBB et la m\xE9diane r\xE9elle. Avec si peu d'\xE9changes, le cours peut sauter d'un c\xF4t\xE9 \xE0 l'autre du carnet : la note ne se compare pas \xE0 celle d'un titre liquide. Aucune couleur de palier ; le titre est class\xE9 apr\xE8s tous les titres comparables et sort des \xAB mieux not\xE9s \xBB de l'accueil."), React.createElement(L, {
     titre: "Fiabilit\xE9 des donn\xE9es \u25CF\u25CF\u25CF\u25CB\u25CB"
   }, "Un point par garantie : prix de la derni\xE8re s\xE9ance \xB7 fondamentaux r\xE9els \xB7 historique \u2265 15 s\xE9ances \xE9chang\xE9es \xB7 comptes d\xE9pos\xE9s \xE0 l'AMMC \xB7 liquidit\xE9 \u2265 100 000 DH par s\xE9ance. Titre peu liquide : 2/5 au plus."), React.createElement(L, {
     titre: "\xAB X % gagnants (IC) \xB7 n cas \xBB \u2014 fiche, Signaux techniques"
