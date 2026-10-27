@@ -388,3 +388,18 @@ des dizaines.
   grille (MSA 31,4 à 47,6 %, tranche ≥ 25 %), l'ambiguïté ne déplace pas la note ; la limite non chiffrable
   (actifs du concédant) se consigne dans `reserves_verifiees`. Un ROIC saisi sans pièce (17) se teste contre
   la borne haute du bilan (19,6 % sur le total de l'actif) avant d'être traité comme « une autre définition ».
+- (27/10, relevé des fonds propres du 30/06) Écrire `capitaux_propres_pg_30_06_2026` suffit pour le P/B ; y
+  ajouter `capitaux_propres_pg_31_12_2025` fait REMPLACER la source du ROE 2025 par la citation du S1
+  (`ratios_financiers`) : MNG 11 478,3 (RFA p.86) devenait 11 478,0 (MMAD arrondis du S1). Ne l'écrire que si le
+  31/12 n'a aucune autre pièce. Effet de bord à mesurer : un titre à fonds propres du 30/06 sort du VE/EBITDA
+  (« un bilan plus récent existe », `fond_score_sectoriel`) et la note par métier retombe sur le PER (MNG 6,9 →
+  7,2) ; la v53, le signal et `note_fond` ne bougent pas.
+- (27/10) La date de CONSTATATION d'une augmentation de capital se lit au tableau « Travaux du Conseil
+  d'administration » du RFA (TGCC p.64, rendu : « Réunion du 24 juillet 2025 Constatation de l'augmentation du
+  capital social d'un montant de 30 344 820 MAD » = 3 034 482 × 10), pas au communiqué de résultats (période de
+  souscription et chiffres, aucune date de constatation). Le texte extrait de cette page mélange les colonnes
+  (comité de nomination) : rendre avant de lire. La note « résultat par action » du même RFA retient le nombre
+  de FIN d'exercice (34 674 332 → 27,46), pas le pondéré : l'écart avec IAS 33 (28,87) se consigne.
+- (27/10) Un test qui relit `data.json` (`test_le_pb_publie_se_recoupe_avec_la_capitalisation`) rougit tant que
+  le moteur n'a pas tourné sur un nouveau relevé de fonds propres : sans commit de `data.json` (propriétaire
+  unique : `update_data`), le vérifier en y posant provisoirement l'essai à blanc, puis `git checkout data.json`.

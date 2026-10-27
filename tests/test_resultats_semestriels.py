@@ -284,9 +284,12 @@ def test_lot9_akdital_tgcc_lesieur():
     # 443 680 156 ») et non plus au « 444 M MAD » arrondi du communiqué, qui
     # donnait 474,87 et 33,54 ; ROE 2025 = 443,680 ÷ 2 853,529 = 15,5 %.
     assert bpa["AKD"]["bpa_12m"] == 33.52 and bpa["AKD"]["bpa"] == 31.34
-    # TGCC : 952 ÷ 34 674 332 = 27,46 (actions confirmées par le rapport
-    # annuel : 34 674 300) — l'ancien 65 était faux
-    assert bpa["TGCC"]["bpa"] == 27.46 and bpa["TGCC"]["bpa_avant_2026_09_29"] == 65
+    # TGCC : l'ancien 65 était faux. 952 ÷ 34 674 332 = 27,46 sur le nombre de FIN
+    # d'exercice (celui de la note 13 du RFA) ; depuis le 27/10/2026, l'émission de
+    # 3 034 482 actions constatée le 24/07/2025 (RFA p.64) est pondérée (IAS 33,
+    # règle e) : 952 ÷ 32 978 348 = 28,87 sur 2025, 971 ÷ 34 483 118 = 28,16 sur douze mois.
+    assert bpa["TGCC"]["bpa"] == 28.87 and bpa["TGCC"]["bpa_avant_2026_09_29"] == 65
+    assert bpa["TGCC"]["bpa_12m"] == 28.16 and bpa["TGCC"]["actions_exercice_2025"] == 32978348
     # LES : 8 − 47 − 12 = −51 ÷ 27 631 510 = −1,85 — en perte
     assert bpa["LES"]["bpa_12m"] == -1.85 and bpa["LES"]["perte_documentee"]
 
