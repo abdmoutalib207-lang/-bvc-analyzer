@@ -152,6 +152,25 @@ def test_b4_iam_releve_au_30_06_avec_sa_citation(moteur):
     assert moteur._fonds_propres_pb("IAM")["date"] == "2026-06-30"
 
 
+def test_b4_mng_tgcc_releves_au_30_06_avec_citation_et_sha256(moteur):
+    """27/10/2026 : MNG 15 439 (Managem_S1_26.pdf p.2) et TGCC 4 459,032 (TGCC_S1_26.pdf p.2)."""
+    s1 = json.loads((RACINE / "datasets" / "resultats_s1_2026.json").read_text(encoding="utf-8"))["titres"]
+    assert s1["MNG"]["capitaux_propres_pg_30_06_2026"] == 15439.0
+    assert "15 439 11 478" in s1["MNG"]["source_capitaux_propres"] and "5bffbe9b" in s1["MNG"]["source_capitaux_propres"]
+    assert s1["TGCC"]["capitaux_propres_pg_30_06_2026"] == 4459.032
+    assert "4 459 032 4 544 126" in s1["TGCC"]["source_capitaux_propres"] and "29a6ba5c" in s1["TGCC"]["source_capitaux_propres"]
+    for t in ("MNG", "TGCC"):
+        assert moteur._fonds_propres_pb(t)["date"] == "2026-06-30"
+
+
+def test_tgcc_augmentation_de_capital_constatee_le_24_07_2025():
+    import bvc_config
+    (m,) = bvc_config.HISTORIQUE_ACTIONS["TGCC"]["mouvements"]
+    assert (m["date"], m["avant"], m["apres"]) == ("2025-07-24", 31639850, 34674332)
+    assert m["apres"] - m["avant"] == 3034482 and "24 juillet 2025" in m["source"]
+    assert bvc_config.actions_ponderees("TGCC", "2025-01-01", "2025-06-30", 34674332)["nombre"] == 31639850
+
+
 def test_b4_sans_releve_s1_le_31_12_reste(moteur):
     s1 = json.loads((RACINE / "datasets" / "resultats_s1_2026.json").read_text(encoding="utf-8"))["titres"]
     for t, e in moteur.FAITS_DATA.items():
