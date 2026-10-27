@@ -946,6 +946,25 @@ HISTORIQUE_ACTIONS: dict = {
                    "de 79,44 (10 870 xxx actions) contre 79,36 ici : écart de 0,1 % non expliqué (titres "
                    "propres ?), consigné."},
     ]},
+    "TGCC": {"mouvements": [
+        {"date": "2025-07-24", "nature": "numeraire", "avant": 31639850, "apres": 34674332,
+         "source": "TGCC RFA 2025 (https://www.ammc.ma/sites/default/files/TGCC_RFA_2025.pdf) p.64 (pages "
+                   "imprimées 126-127), tableau « Travaux du Conseil d'administration » : « Réunion du 02 "
+                   "juillet 2025 Décision d'augmentation du capital social d'un montant de 2 199 999 450,00 "
+                   "MAD » puis « Réunion du 24 juillet 2025 Constatation de l'augmentation du capital social "
+                   "d'un montant de 30 344 820 MAD » (= 3 034 482 actions × 10 MAD de nominal). Nombres : p.102 "
+                   "note 13 (« Nombre total d'actions 34 674 332 31 639 850 », déc-25 / déc-24), p.72 et p.98 "
+                   "(« émission de 3 034 482 actions nouvelles »), 34 674 332 − 3 034 482 = 31 639 850. "
+                   "Chronologie recoupée : souscription du 14 au 18/07/2025 et résultats définitifs "
+                   "(3 034 482 actions attribuées à 725 MAD) dans CP_TGCC_resultats_augmentation_capital.pdf "
+                   "p.1 (le PDF ne porte pas de date ; le calendrier du RFA p.68 place le « communiqué relatif aux "
+                   "résultats de l'augmentation de capital » au 01/08/2025), capital 316 398 500 → "
+                   "346 743 320 DH (p.78). Émission postérieure au 30/06/2025 : le BPA S1 2025 reste sur "
+                   "31 639 850 ; comptée dans le douze mois et dans l'exercice 2025 à partir du 24/07/2025. "
+                   "⚠️ Le tableau du RFA (note 13) retient le nombre de FIN d'exercice (34 674 332) pour le "
+                   "résultat de base par action 27,46, non le nombre pondéré : le BPA 2025 publié par "
+                   "l'émetteur est donc inférieur à celui d'IAS 33.19-21 ; la règle e (20/10/2026) prime."},
+    ]},
     "T2S": {"denominateur_ambigu": True, "mouvements": [],
             "reserve": "BPA sur le nombre d'actions ACTUEL (21 785 174), faute de pouvoir trancher IAS 33. "
                        "Lu le 20/10/2026 dans T2S_IPO_DR_010_2026.pdf : les 1 239 actions de priorité A et "
