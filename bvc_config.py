@@ -960,6 +960,124 @@ def immeubles_a_juste_valeur(ticker: str) -> bool | None:
     None : non établi (absent du registre, ou « non_etabli »)."""
     ev = (METHODE_COMPTABLE.get(ticker) or {}).get("immeubles_placement")
     return {"juste_valeur": True, "cout": False}.get(ev)
+
+
+# ⚠️ RUPTURES DE MÉTHODE COMPTABLE — registre créé le 27/10/2026, accord d'Abd
+# Moutalib. Un changement de méthode rend deux exercices NON COMPARABLES terme à
+# terme, sans que rien dans la série ne le signale. R11 vaut ici aussi : il se
+# CONSTATE sur pièce, il ne se déduit jamais d'un saut de chiffre d'affaires ou
+# de résultat. Publié dans `_meta.rupture_methode` ; AUCUN effet sur la note.
+#
+# Par ticker, une LISTE d'entrées : date_effet (premier jour de la nouvelle
+# méthode), premier_exercice (premiers comptes annuels publiés selon elle),
+# nature, application (rétrospective, comparatifs retraités…), non_comparable
+# (ce qu'on ne doit plus rapprocher), source (fichier, url, sha256 de la copie
+# relue, citations page par page). Chaque citation est relue sur la pièce.
+#
+# Examinés et NON inscrits, faute de preuve d'un changement :
+#   · ADI — RFA 2025 : « Annexe 4 : Etat de changement des méthodes » = NÉANT
+#     (p.32), ligne « Effet des changements de méthodes comptables » vide au
+#     tableau de variation des capitaux propres consolidés (p.23) ; rien dans le
+#     rapport semestriel S1 2026 (p.15, même ligne vide). Le CA de promotion y
+#     est déjà « comptabilisé selon la méthode de l'achèvement » (p.25).
+#   · SAF — la fusion-absorption d'Allianz Maroc (AGE du 02/07/2026) est un
+#     changement de PÉRIMÈTRE, pas de méthode : non inscrite ici (voir
+#     datasets/resultats_s1_2026.json › SAF).
+RUPTURES_METHODE: dict = {
+    "RDS": [{
+        "date_effet": "2025-01-01",
+        "premier_exercice": 2025,
+        "nature": "reconnaissance du chiffre d'affaires de la promotion immobilière : désormais à la signature "
+                  "de l'acte notarié (mise à jour du plan comptable du secteur immobilier, avis n° 20 du CNC ; "
+                  "réévaluation du transfert de contrôle au sens d'IFRS 15)",
+        "application": "consolidés : rétrospective (31/12/2024 « Ajusté » dans le RFA 2025) ; sociaux : "
+                       "prospective (2024 non retraité)",
+        "non_comparable": "chiffre d'affaires et résultat de 2025 contre les comptes publiés avant le RFA 2025 "
+                          "(RFA 2024 tel que publié) ; en SOCIAL, 2025 contre 2024 et avant",
+        "source": {
+            "fichier": "RDS_RFA_2025.pdf",
+            "url": "https://www.ammc.ma/sites/default/files/RDS_RFA_2025.pdf",
+            "sha256": "af0e17be057fcc51f43834745462b8ca07dc9c9de506cf3340ca0330ca8576fd",
+            "citations": [
+                {"page": 16, "texte": "En conséquence et à compter du 1er janvier 2025, le Groupe a modifié sa "
+                                      "méthode de reconnaissance du chiffre d'affaires pour ses activités de "
+                                      "promotion immobilière."},
+                {"page": 16, "texte": "le chiffre d'affaires est désormais reconnu à la date de signature de "
+                                      "l'acte notarié (livraison juridique du bien)."},
+                {"page": 17, "texte": "Conformément aux règles comptables en vigueur, le changement de méthode a "
+                                      "été appliqué de manière prospective."},
+                {"page": 17, "texte": "Ainsi, l'adoption volontaire du changement du critère de reconnaissance "
+                                      "du chiffre d'affaires et de son application de manière rétrospective"},
+            ],
+        },
+    }],
+    "WAF": [{
+        "date_effet": "2024-01-01",
+        "premier_exercice": 2025,
+        "nature": "IFRS 17 (contrats d'assurance) et IFRS 9 (instruments financiers) remplacent IFRS 4 et IAS 39 "
+                  "dans les comptes consolidés — fin du « référentiel comptable transitoire de consolidation »",
+        "application": "premiers comptes annuels publiés selon IFRS 17 / IFRS 9 : exercice 2025 ; date de "
+                       "transition 01/01/2024, comparatifs 2024 « retraités »",
+        "non_comparable": "consolidés publiés jusqu'au 31/12/2024 (IFRS 4 / IAS 39, dont les primes émises) "
+                          "contre consolidés 2025 et suivants (revenus d'assurance IFRS 17) ; seul le 2024 "
+                          "« retraité » du RFA 2025 se compare à 2025",
+        "source": {
+            "fichier": "Wafa_Assurance_RFA_2025.pdf",
+            "url": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf",
+            "sha256": "162f0a480d639cd9e19b6e44304d6170bd47f5c5ab899dc3260d7db0fc3b8ec6",
+            "citations": [
+                {"page": 16, "texte": "sont entrées en vigueur et appliquées par le Groupe depuis le 1er janvier "
+                                      "2024. Dans le présent document, le terme « retraité » désigne les périodes "
+                                      "comparatives qui ont été retraitées pour tenir compte de l'impact de "
+                                      "l'application d'IFRS 17 et d'IFRS 9."},
+                {"page": 20, "texte": "Pour rappel, jusqu'à la période close au 31 décembre 2024, le Groupe Wafa "
+                                      "Assurance avait opté pour l'application du « référentiel comptable "
+                                      "transitoire de consolidation » pour l'établissement des comptes "
+                                      "consolidés."},
+                {"page": 60, "texte": "2025, marqués par la première application des normes IFRS 17 « Contrats "
+                                      "d'assurance » et IFRS 9"},
+            ],
+        },
+    }],
+    "SAF": [{
+        "date_effet": "2025-01-01",
+        "premier_exercice": 2025,
+        "nature": "IFRS 17 (contrats d'assurance) remplace IFRS 4 dans les comptes consolidés",
+        "application": "à compter du 1er janvier 2025 ; bilan d'ouverture 01/01/2024 « Retraité » ; date "
+                       "d'application d'IFRS 9 NON relevée",
+        "non_comparable": "consolidés publiés selon IFRS 4 (exercice 2024 et avant, tels que publiés) contre "
+                          "consolidés 2025 et suivants",
+        "source": {
+            "fichier": "Sanlam_RFA_2025.pdf",
+            "url": "https://www.ammc.ma/sites/default/files/Sanlam_RFA_2025.pdf",
+            "sha256": "77cd2b4d50e2094e4f9a7f55a4a383f48ec6d05b64583a9016855a39767fd327",
+            "citations": [
+                {"page": 10, "texte": "Sanlam Maroc applique IFRS 17 - Contrats d'assurance à compter du 1er "
+                                      "janvier 2025."},
+                {"page": 10, "texte": "L'application d'IFRS 17 a engendré des changements significatifs donnant "
+                                      "lieu à des impacts sur l'état consolidé de la situation financière"},
+                {"page": 11, "texte": "La transition de la norme IFRS 4 à la norme IFRS 17 exige, en théorie, "
+                                      "une application rétrospective complète de la norme"},
+            ],
+        },
+    }],
+}
+
+
+def rupture_methode(ticker: str) -> list | None:
+    """Les ruptures de méthode établies sur pièce pour ce titre (registre
+    RUPTURES_METHODE), réduites à ce que `_meta` publie ; None si aucune."""
+    r = RUPTURES_METHODE.get(ticker)
+    if not r:
+        return None
+    out = []
+    for e in r:
+        src = e["source"]
+        out.append({"date_effet": e["date_effet"], "premier_exercice": e["premier_exercice"],
+                    "nature": e["nature"], "application": e["application"],
+                    "non_comparable": e["non_comparable"], "source": src["url"],
+                    "pages": sorted({c["page"] for c in src["citations"]})})
+    return out
 # ⚠️ OPÉRATIONS SUR LE CAPITAL DE L'EXERCICE 2025 — registre créé le 13/10/2026.
 #
 # R11 : une opération sur titres se CONSTATE sur pièce, elle ne se déduit pas
