@@ -25,17 +25,21 @@ CHAMPS_OBLIGATOIRES = {
     # scores et signaux
     # `bvc`, `sigBvc` et `delta` retirés le 29/09/2026 : note et signal
     # figés du 03/06, plus lus par le terminal (test_score_canonique.py).
-    "v53", "sig", "score_tech", "nlp", "poids",
+    # `nlp` retiré le 28/10/2026 avec tout le pilier NLP (corpus supprimé) :
+    # le terminal ne le lit plus. Garde inverse : tests/test_retrait_nlp.py.
+    "v53", "sig", "score_tech", "poids",
     # fondamentaux
     "pe", "pb", "div", "bpa", "upside",
     # technique
     "rsi", "ma20", "ma50", "ma200", "macd", "macd_signal", "macd_hist",
     "bb_upper", "bb_mid", "bb_lower", "stoch_k", "stoch_d", "obv", "adx",
     "h52w", "l52w", "h90", "l90",
-    # corpus et smart money
-    "bull", "bear", "base", "win", "alpha",
-    # présentation
-    "setup", "biais", "conv", "flags", "warn", "warnMsg", "bonus",
+    # objectifs de prix (bear/base/bull : scénarios FONDAMENTAUX, vides
+    # depuis le 01/10 — rien à voir avec le corpus). `win` et `alpha`
+    # (corpus WhatsApp, SM~ et ALPHA 12M) retirés le 28/10/2026.
+    "bull", "bear", "base",
+    # présentation — `biais` et `conv` (corpus) retirés le 28/10/2026.
+    "setup", "flags", "warn", "warnMsg", "bonus",
     # provenance
     "_meta",
 }
@@ -47,7 +51,7 @@ CHAMPS_META = {"source_prix", "source_fond", "prix_asof", "stale",
                "pb_source",      # « faits_ammc » ou « non_disponible »
                "vol_median20"}   # liquidité, qui plafonne la confiance
 
-NUMERIQUES = {"price", "chg", "vol", "bvc", "v53", "score_tech", "nlp",
+NUMERIQUES = {"price", "chg", "vol", "bvc", "v53", "score_tech",
               "rsi", "ma20", "ma50", "ma200", "upside"}
 
 

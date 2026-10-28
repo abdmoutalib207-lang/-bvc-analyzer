@@ -118,6 +118,10 @@ def test_le_mot_probabilite_ne_qualifie_plus_le_champ_heuristique():
 
 def test_le_champ_heuristique_porte_le_meme_nom_partout():
     """Un même nombre, un même libellé. La contradiction d'horizon était le
-    défaut le plus trompeur des trois."""
-    texte = FRONT.read_text(encoding="utf-8")
-    assert texte.count("SM~") >= 2, "le libellé unique SM~ doit être utilisé"
+    défaut le plus trompeur des trois.
+
+    ⚠️ 28/10/2026 : le champ heuristique SM~ (corpus WhatsApp) n'est plus
+    affiché du tout — la garde devient son absence, source ET page servie."""
+    for f in (FRONT, FRONT.parent / "index.html"):
+        texte = f.read_text(encoding="utf-8")
+        assert "SM~" not in texte, f"le champ SM~ réapparaît dans {f.name}"

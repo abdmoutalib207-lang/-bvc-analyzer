@@ -334,6 +334,17 @@ def test_le_frontend_publie_ne_contient_aucun_nom_de_membre():
 
     assert not fautes, f"nom de personne en clair dans index.html : {fautes[:5]}"
 
+    # ⚠️ 28/10/2026 : les tables de membres (onglets SMART MONEY et NLP CORPUS)
+    # sont RETIRÉES avec le corpus — un audit y avait relevé des entrées non
+    # pseudonymisées. Le contrôle ci-dessus deviendrait muet faute d'objet :
+    # la garde exige désormais qu'il n'y ait plus AUCUNE table de membres, ni
+    # dans la page servie ni dans sa source.
+    src = idx.parent / "terminal.src.html"
+    for f, t in (("index.html", texte),
+                 ("terminal.src.html", src.read_text(encoding="utf-8"))):
+        tables = _re.findall(r"\{[^{}]*\btier\s*:[^{}]*\}", t)
+        assert not tables, f"{f} : {len(tables)} entrée(s) de table de membres"
+
 
 # ── Noms cités DANS le corps des messages ─────────────────────────────────
 

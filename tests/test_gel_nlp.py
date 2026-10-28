@@ -20,8 +20,8 @@ de l'audit indépendant du 26/09 : injecter l'inverse et constater que rien ne
 bouge.
 
 Ce qui PEUT changer, et doit changer : `nlp`, `score_nlp`, `nlp_corpus` — le
-pilier reste calculé et publié, à poids nul, pour garder la trace de ce qu'il
-valait.
+pilier reste calculé, à poids nul. ⚠️ Depuis le 28/10/2026 il n'est plus
+PUBLIÉ (data.json, terminal) : garde dans tests/test_retrait_nlp.py.
 """
 
 from __future__ import annotations

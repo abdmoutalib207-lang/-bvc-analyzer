@@ -56,5 +56,7 @@ def test_sous_la_note_couverture_reserve_liquidite():
 def test_essais_et_indicateurs_geles_replies_en_analyse_avancee():
     i = SRC.index('<details className="avance carte"')
     j = SRC.index("</details>", i)
-    assert "<SignauxTechniques r={r}/>" in SRC[i:j] and "{/* NLP */}" in SRC[i:j]
+    assert "<SignauxTechniques r={r}/>" in SRC[i:j]
+    # 28/10/2026 : la carte NLP gelée est retirée avec le corpus.
+    assert "{/* NLP */}" not in SRC and "Smart Sentiment" not in SRC
     assert '<Repli titre="Analyse avancée — note par métier' in SRC

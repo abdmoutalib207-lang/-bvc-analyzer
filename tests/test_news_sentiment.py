@@ -189,17 +189,18 @@ def test_les_ponderations_ne_sont_pas_touchees():
     assert "score_nlp  * w[\"comportemental\"]" in source
 
 
-def test_les_deux_entrees_du_pilier_sont_publiees():
-    """⚠️ Sans elles, `nlp` serait une valeur composite indécomposable : devant
-    un score, impossible de dire ce qui vient du corpus et ce qui vient de
-    l'actualité. Ma première version les calculait sans les propager jusqu'à
-    `data.json` — elles sortaient à `None`."""
+def test_les_entrees_du_pilier_ne_sont_plus_publiees():
+    """⚠️ RETOURNÉ LE 28/10/2026. Ce test exigeait la publication de
+    `nlp_corpus` et `nlp_news` ; le pilier NLP est retiré de data.json
+    (décision d'Abd Moutalib : « le corpus à supprimer et tout ce qui est
+    NLP »). Le flux d'actualités reste ; le sentiment calculé dessus ne se
+    publie plus. Le calcul interne demeure jusqu'au lot 2."""
     source = (RACINE / "update_data.py").read_text(encoding="utf-8")
-    assert '"nlp_corpus": v53.get("nlp_corpus")' in source
-    assert '"nlp_news":   v53.get("nlp_news")' in source
+    assert '"nlp_corpus": v53.get("nlp_corpus")' not in source
+    assert '"nlp_news":   v53.get("nlp_news")' not in source
 
 
-def test_le_flux_publie_porte_les_deux_entrees():
+def test_le_flux_publie_ne_porte_plus_le_sentiment():
     import json
     chemin = RACINE / "data.json"
     if not chemin.exists():
@@ -207,7 +208,13 @@ def test_le_flux_publie_porte_les_deux_entrees():
     lignes = json.loads(chemin.read_text(encoding="utf-8")).get("tickers") or []
     if not lignes:
         pytest.skip("data.json vide")
-    manquants = [r["symbol"] for r in lignes if "nlp_news" not in r]
-    assert not manquants, (
-        f"{len(manquants)} titre(s) sans `nlp_news` — le pilier agit sans "
-        f"dire ce qu'il doit à l'actualité : {manquants[:5]}")
+    porteurs = [r["symbol"] for r in lignes if "nlp_news" in r]
+    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION (transition du 28/10/2026).
+    # Le data.json du dépôt est écrit par le moteur d'AVANT la fusion : les 80
+    # titres portent encore `nlp_news` jusqu'au premier run. Tous = fichier
+    # antérieur, on le dit ; une partie seulement = vraie incohérence, on échoue.
+    if len(porteurs) == len(lignes):
+        pytest.skip("⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION — data.json antérieur au retrait du "
+                    "pilier NLP (28/10/2026)")
+    assert not porteurs, (
+        f"{len(porteurs)} titre(s) publient encore `nlp_news` : {porteurs[:5]}")
