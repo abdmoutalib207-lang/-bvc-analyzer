@@ -118,8 +118,8 @@
       .classement th:nth-child(1),.classement td:nth-child(1),
       .classement th:nth-child(3),.classement td:nth-child(3),
       .classement th:nth-child(n+6):nth-child(-n+8),.classement td:nth-child(n+6):nth-child(-n+8),
-      .classement th:nth-child(n+10):nth-child(-n+13),.classement td:nth-child(n+10):nth-child(-n+13),
-      .classement th:nth-child(15),.classement td:nth-child(15){display:none}
+      .classement th:nth-child(10),.classement td:nth-child(10),
+      .classement th:nth-child(12),.classement td:nth-child(12){display:none}
       .classement td,.classement th{padding:7px 3px!important}
       /* Colonne COULEUR (07/10/2026) : sur téléphone, la pastille seule —
          la note colorée est à côté. La mention « titre peu échangé » reste,
@@ -130,11 +130,11 @@
          409). Le remplissage 3px 5px s'appliquait à TOUT le contenu, rond
          compris : 92 px pour une colonne qui en a 60. Le rond passe au-dessus
          de sa mention, les étiquettes se coupent aux mots. */
-      .classement th:nth-child(14),.classement td:nth-child(14){width:64px;max-width:64px}
-      .classement td:nth-child(14) .pastille{flex-direction:column;align-items:flex-start;gap:3px}
-      .classement td:nth-child(14) .rond{padding:0!important}
-      .classement td:nth-child(14){padding-left:1px!important;padding-right:1px!important}
-      .classement td:nth-child(14) .chip{padding:2px 3px!important;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+      .classement th:nth-child(11),.classement td:nth-child(11){width:64px;max-width:64px}
+      .classement td:nth-child(11) .pastille{flex-direction:column;align-items:flex-start;gap:3px}
+      .classement td:nth-child(11) .rond{padding:0!important}
+      .classement td:nth-child(11){padding-left:1px!important;padding-right:1px!important}
+      .classement td:nth-child(11) .chip{padding:2px 3px!important;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
       /* La ligne « CMT ~hist ☆ » tenait la colonne TICKER à 124 px : elle
          peut désormais se replier. */
       .classement .ligne-ticker{flex-wrap:wrap;row-gap:2px}
@@ -146,7 +146,7 @@
       .classement .logo-pastille{width:26px!important;height:26px!important;font-size:8px!important}
       .classement td:nth-child(2)>div{gap:7px!important}
       .nom-societe{max-width:80px!important;font-size:11px!important}
-      .classement td:nth-child(14) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}
+      .classement td:nth-child(11) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}
       .classement td:nth-child(4),.classement td:nth-child(4) *{white-space:normal!important}
     }
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -425,33 +425,6 @@ const STATIC = [
   {symbol:"UNI", name:"Unimer", sector:"Agroalimentaire"},
   {symbol:"IBM", name:"IB Maroc.com", sector:"Technologie"},
 ];
-
-const MEMBERS=[
-  {name:"M1051",  tier:"Admin",  w:1.00,snr:null,win:null, alpha:null},
-  {name:"M0545",     tier:"Tier 1", w:0.88,snr:21.7,win:83,   alpha:38.3},
-  {name:"M1489",     tier:"Tier 1", w:0.85,snr:10.3,win:82,   alpha:32.1},
-  {name:"M0803", tier:"Tier 1", w:0.85,snr:10.2,win:82,   alpha:30.5},
-  {name:"M0477",     tier:"Tier 1", w:0.83,snr:9.2, win:80,   alpha:27.8},
-  {name:"M0345",  tier:"Tier 1", w:0.83,snr:7.4, win:80,   alpha:25.2},
-  {name:"M1662",       tier:"Tier 2", w:0.82,snr:6.8, win:79,   alpha:21.9},
-  {name:"M0550",     tier:"Tier 2", w:0.65,snr:8.1, win:79,   alpha:22.4},
-];
-
-const CHAT=[
-  {id:1,time:"14:23",date:"01/06/2026",member:"M0545",    tier:"Tier 1",snr:21.7,alpha:38.3,ticker:"CMT", signal:"ACHAT", conf:94,ctx:"Breakout volume ×3.4", msg:"CMT breakout confirmé au-dessus de 5300 DH. Volume ×3.4 vs moyenne 20j. La résistance devient support. Objectif T1: 5700, T2: 6200. Stop: 5100."},
-  {id:2,time:"11:47",date:"01/06/2026",member:"M1489",    tier:"Tier 1",snr:10.3,alpha:32.1,ticker:"SMI", signal:"ACHAT", conf:88,ctx:"Pullback haussier sain",  msg:"SMI consolide proprement au-dessus de 9200. Pullback sur MM20 sain. Tenir. Upside fondamental +30% sur 12 mois selon bilan S1 2026."},
-  {id:3,time:"09:15",date:"01/06/2026",member:"M0803",tier:"Tier 1",snr:10.2,alpha:30.5,ticker:"AKD", signal:"ACHAT", conf:86,ctx:"Croissance Akdital +18%",  msg:"AKD: résultats S1 excellents. Croissance CA +18% YoY. Valorisation tendue (PE 28) mais justifiée. Alpha historique +15.2%. Objectif: 700."},
-  {id:4,time:"16:08",date:"31/05/2026",member:"M0345", tier:"Tier 1",snr:7.4, alpha:25.2,ticker:"TGCC",signal:"VENTE", conf:71,ctx:"Contrarian — alpha négatif",msg:"TGCC: alpha négatif confirmé (-2.3%). Signal ACHAT communauté = contrarian indicator V3. Win rate vendeurs 61%. Ne pas suivre les achats."},
-  {id:5,time:"10:33",date:"31/05/2026",member:"M1662",      tier:"Tier 2",snr:6.8, alpha:21.9,ticker:"SRM", signal:"EVITER",conf:68,ctx:"Chute -8.5% + 4 red flags",msg:"SRM: -8.54% aujourd'hui. 4 red flags actifs. Biais groupe NÉGATIF. Smart money absent. À éviter absolument jusqu'à clarification."},
-];
-
-// ── MÉTADONNÉES CORPUS (synchronisé depuis whatsapp_analysis/output/) ────────
-const META = {
-  msgs:    "896 907",   // messages WhatsApp analysés (corpus brut)
-  years:   6,           // 2020 → 2026
-  signals: "24 777",    // tous types : ACHAT_FORT + ACHETER + RENFORCEMENT + VENTE + PANIQUE + EUPHORIE
-  tickers: 64,          // tickers avec activité NLP
-};
 
 // ⚠️ SURCOUCHE « LIVE » COUPÉE — 11/10/2026.
 // Le navigateur lisait les codes IDBourse sans la table de traduction du
@@ -827,12 +800,14 @@ const PONDERATIONS=[
   // pilier ne déplaçait plus que 0,37 point sur 10. Backtest sur les notes
   // publiées : écart haut/bas décile IDENTIQUE (+3,22 %). La redistribution
   // ne change pas la performance, elle supprime une annonce fausse.
-  {nom:"OFFICIEL",f:65,n:0,t:35,officiel:true,aide:"Formule v5.3 publiée au 25/09/2026 — Fond 65 · Tech 35. Le pilier NLP est gelé (poids 0) : son corpus s'arrête au 02/07/2026."},
-  {nom:"70/30",f:70,n:0,t:30,aide:"Fondamental dominant — horizon long"},
-  {nom:"60/40",f:60,n:0,t:40,aide:"Fondamental dominant, technique renforcée"},
-  {nom:"50/50",f:50,n:0,t:50,aide:"Équilibre"},
-  {nom:"40/60",f:40,n:0,t:60,aide:"Technique dominante"},
-  {nom:"30/70",f:30,n:0,t:70,aide:"Technique dominante — horizon court"},
+  // ⚠️ 28/10/2026 — le pilier NLP est retiré de l'écran (corpus supprimé) :
+  // plus de champ `n` dans ces vues, deux piliers seulement.
+  {nom:"OFFICIEL",f:65,t:35,officiel:true,aide:"Formule v5.3 publiée au 25/09/2026 — Fond 65 · Tech 35."},
+  {nom:"70/30",f:70,t:30,aide:"Fondamental dominant — horizon long"},
+  {nom:"60/40",f:60,t:40,aide:"Fondamental dominant, technique renforcée"},
+  {nom:"50/50",f:50,t:50,aide:"Équilibre"},
+  {nom:"40/60",f:40,t:60,aide:"Technique dominante"},
+  {nom:"30/70",f:30,t:70,aide:"Technique dominante — horizon court"},
 ];
 
 // ── COULEUR DE LA NOTE — 07/10/2026 ─────────────────────────────────────────
@@ -887,7 +862,6 @@ const palierTexte=r=>{const m=meta(r);if(m.susp)return"suspendu";if(m.reprise_re
   return p.plafonne?`${p.nom} (plafonné : titre peu échangé)`:`${p.nom} (${p.plage})`;};
 const VC=v=>v>0?"#00e5a0":v<0?"#ff4f5a":"#8892a4";
 const SC=v=>v>=7.5?"#00ffb3":v>=6.5?"#00e5a0":v>=5.5?"#ffd740":v>=4?"#ff8f00":"#ff4f5a";
-const NC=v=>v>0.15?"#00e5a0":v>-0.15?"#ffd740":"#ff4f5a";
 const CCO=v=>v>=85?"#00e5a0":v>=70?"#ffd740":"#ff8f00";
 const px=n=>n>=1000?n.toLocaleString("fr-FR"):n;
 const fmtM=n=>n>=1000?`${(n/1000).toFixed(1)} Md`:`${n} M`;
@@ -1136,8 +1110,8 @@ const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":(+n).toFixed(d);
 /* Code affiché : celui de la BVC, pas notre clé interne. Le marché lit
    « SNA » comme Stokvis et « SID » comme Sonasid ; afficher nos symboles
    désoriente dès qu'on compare le terminal à une autre source. Nos clés
-   restent inchangées partout ailleurs — sélection, favoris, chandelles,
-   corpus WhatsApp. Repli sur le symbole si le champ manque (tableau STATIC). */
+   restent inchangées partout ailleurs — sélection, favoris, chandelles.
+   Repli sur le symbole si le champ manque (tableau STATIC). */
 const tk=r=>r&&(r.code_bvc||r.symbol||r.ticker)||"";
 /* Code AFFICHÉ d'un symbole interne — 14/10/2026 (diagnostic externe). Le
    briefing, les publications et les tableaux affichaient notre clé interne
@@ -1351,10 +1325,9 @@ const Delta=({d})=>{
   const c=d>0?"#00e5a0":d<0?"#ff4f5a":"#8892a4";
   return <span style={{fontSize:10,padding:"1px 5px",borderRadius:3,background:`${c}15`,color:c,border:`1px solid ${c}28`,fontWeight:700}}>{d>0?"+":""}{d.toFixed(2)}</span>;
 };
-const WBar=({f,n,t})=>(
+const WBar=({f,t})=>(
   <div style={{display:"flex",height:7,borderRadius:3,overflow:"hidden",gap:1}}>
     <div style={{width:`${f}%`,background:"#b388ff"}} title={`Fond ${f}%`}/>
-    <div style={{width:`${n}%`,background:"#00e5a0"}} title={`NLP ${n}%`}/>
     <div style={{width:`${t}%`,background:"#4db8ff"}} title={`Tech ${t}%`}/>
   </div>
 );
@@ -2759,9 +2732,6 @@ const RUBRIQUES=[
   {titre:"Analyse d'un titre",vues:[
     {id:"detail",icone:"◩",aide:"Graphique, niveaux, fondamentaux, alertes"},
     {id:"weights",icone:"⚖",aide:"Ce qui compose la note, pilier par pilier"}]},
-  {titre:"Données avancées",vues:[
-    {id:"smart",icone:"◎",aide:"Smart money — corpus gelé au 02/07/2026"},
-    {id:"nlp",icone:"◌",aide:"Corpus NLP — gelé, poids nul dans la note"}]},
 ];
 // ⚠️ LA MARQUE — 13/10/2026, demande d'Abd Moutalib sur le modèle de Simply
 // Wall St (emblème en haut à gauche). Le dessin est son logo — taureau en
@@ -3028,7 +2998,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
   // briefing porte la séance close de la veille, il est donc écrit à 18h et
   // disponible toute la nuit — sans dépendre d'un déclenchement matinal, qui
   // est aujourd'hui le point faible du produit.
-  const TABS=[{id:"accueil",label:"ACCUEIL"},{id:"ranking",label:"CLASSEMENT"},{id:"briefing",label:"BRIEFING"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"smart",label:"SMART MONEY"},{id:"nlp",label:"NLP CORPUS"},{id:"news",label:"ACTUALITÉS"},{id:"monde",label:"MARCHÉS MONDIAUX"},{id:"guide",label:"? COMMENT LIRE"}];
+  const TABS=[{id:"accueil",label:"ACCUEIL"},{id:"ranking",label:"CLASSEMENT"},{id:"briefing",label:"BRIEFING"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"news",label:"ACTUALITÉS"},{id:"monde",label:"MARCHÉS MONDIAUX"},{id:"guide",label:"? COMMENT LIRE"}];
   return(
     <div className="entete" style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
@@ -3039,7 +3009,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
               du haut sont masqués ou hors écran. */}
           <button onClick={()=>setTab("guide")} aria-label="Comment lire l'écran" title="Comment lire l'écran"
             style={{background:tab==="guide"?"rgba(77,184,255,.25)":"rgba(77,184,255,.10)",border:"1px solid rgba(77,184,255,.5)",color:"#4db8ff",borderRadius:"50%",width:32,height:32,fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"var(--font)",flex:"0 0 auto"}}>?</button>
-          <span className="badge-version" title="Pondération de RÉFÉRENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCHÉ, le même pour tous les titres — hors séance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche. Le pilier NLP est gelé à un poids de 0 : son corpus s'arrête au 02/07/2026 et il ne déplaçait plus que 0,37 point sur 10." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 65 · TECH 35 <span style={{color:"#8892a4"}}>· modulée par le marché · NLP gelé</span></span>
+          <span className="badge-version" title="Pondération de RÉFÉRENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCHÉ, le même pour tous les titres — hors séance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 65 · TECH 35 <span style={{color:"#8892a4"}}>· modulée par le marché</span></span>
           {/* Score mode — composantes indépendantes */}
           <div className="choix-score" style={{display:"flex",alignItems:"center",gap:4,background:"rgba(10,18,32,.8)",border:"1px solid #1a2540",borderRadius:5,padding:"3px 6px"}}>
             <span style={{fontSize:9,color:"#8892a4",letterSpacing:.5,marginRight:2}}>SCORE</span>
@@ -3092,7 +3062,6 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
         </div>
         <div className="entete-droite" style={{textAlign:"right",fontSize:11}}>
           <div style={{color:"#8892a4"}}>BVC · {univers??STATIC.length} titres</div>
-          <div style={{color:"#ffd740"}}>{META.msgs} msgs · {META.years} ans · {META.signals} signaux</div>
         </div>
       </div>
       <div className={"onglets"+(peutRevenir?"":" sans-retour")} style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
@@ -3187,16 +3156,16 @@ const Heatmap=({rows,setSel,setTab})=>{
 const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchlist=false,scoreMode})=>{
   const [search,setSearch]=useState("");
   const [sector,setSector]=useState("ALL");
-  const [group,setGroup]=useState("ALL"); // ALL = 77 titres / MASI1 = 19 tickers NLP
+  const [group,setGroup]=useState("ALL"); // ALL = tous les titres / MASI1 = les 19 du MASI 1
   const [palierFiltre,setPalierFiltre]=useState(null);
   const [rsiZone,setRsiZone]=useState(null);
   const customMode=!!(scoreMode&&!scoreMode.officiel);
-  const NLP_TICKERS=new Set(["CMT","SMI","CASH","MNG","AKD","SOT","SGTM","MSA","CFGB","RIS","ADI","VCNE","CMGP","CSR","TGCC","ADH","SRM","SNA","RDS"]);
+  const MASI1_TICKERS=new Set(["CMT","SMI","CASH","MNG","AKD","SOT","SGTM","MSA","CFGB","RIS","ADI","VCNE","CMGP","CSR","TGCC","ADH","SRM","SNA","RDS"]);
   const sectors=useMemo(()=>["ALL",...new Set(rows.map(r=>r.sector).filter(Boolean).sort())],[rows]);
 
   const filtered=useMemo(()=>{
     let r=rows;
-    if(group==="MASI1") r=r.filter(x=>NLP_TICKERS.has(x.symbol||x.ticker||""));
+    if(group==="MASI1") r=r.filter(x=>MASI1_TICKERS.has(x.symbol||x.ticker||""));
     if(sector!=="ALL") r=r.filter(x=>x.sector===sector);
     if(search.trim()){
       const q=search.trim().toUpperCase();
@@ -3226,9 +3195,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       if(na!==nb) return na?1:-1;
       return sb-sa;
     }
-    if(sort==="nlp") return b.nlp-a.nlp;
     if(sort==="var") return (varSeance(b)??-Infinity)-(varSeance(a)??-Infinity)||0;
-    if(sort==="alpha") return b.alpha-a.alpha;
     if(sort==="rsi"){
       /* Un RSI absent n'est ni bas ni haut : en fin de liste. */
       const ra=a.rsi??a.rsi14,rb=b.rsi??b.rsi14;
@@ -3238,9 +3205,9 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
     }
     return 0;
   }),[filtered,sort,scoreMode]);
-  const SORTS=[["az","A → Z"],["v53",customMode?"SCORE PERSO":("SCORE v5.3")],["nlp","NLP"],["var","VAR%"],["alpha","ALPHA"],["rsi","RSI"]];
+  const SORTS=[["az","A → Z"],["v53",customMode?"SCORE PERSO":("SCORE v5.3")],["var","VAR%"],["rsi","RSI"]];
   const scoreColLabel=customMode?scoreModeLabel(scoreMode):"SCORE";
-  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","VOLUME","PE","DIV%",scoreColLabel,"NLP%","SM~","ALPHA","RSI","COULEUR","POIDS"];
+  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","VOLUME","PE","DIV%",scoreColLabel,"RSI","COULEUR","POIDS"];
   if(isWatchlist&&rows.length===0) return(
     <div style={{textAlign:"center",padding:"60px 20px",color:"#8892a4"}}>
       <div style={{fontSize:52,marginBottom:16,color:"#2a3550"}}>★</div>
@@ -3261,19 +3228,19 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
           style={{background:"#0d1829",border:"1px solid #1a2540",color:"#8892a4",borderRadius:4,padding:"5px 8px",fontSize:11,fontFamily:"var(--font)",cursor:"pointer"}}>
           {sectors.map(s=><option key={s} value={s}>{s==="ALL"?`Tous (${rows.length})`:s}</option>)}
         </select>
-        {/* Filtre NLP group */}
+        {/* Filtre MASI 1 */}
         <div style={{display:"flex",gap:4,background:"#0a1220",borderRadius:4,padding:2,border:"1px solid #1a2540"}}>
-          {[["MASI1","MASI 1 · NLP","#00e5a0"],["ALL","ÉLARGI","#4db8ff"]].map(([g,lbl,c])=>(
+          {[["MASI1","MASI 1","#00e5a0"],["ALL","ÉLARGI","#4db8ff"]].map(([g,lbl,c])=>(
             <button key={g} onClick={()=>setGroup(g)} style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:3,border:"none",cursor:"pointer",background:group===g?`${c}18`:"transparent",color:group===g?c:"#8892a4",transition:"all .2s"}}>{lbl}</button>
           ))}
         </div>
         {(search||sector!=="ALL"||palierFiltre!=null||rsiZone)&&<button onClick={()=>{setSearch("");setSector("ALL");setPalierFiltre(null);setRsiZone(null);}} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"3px 8px",background:"transparent"}}>✕ Réinitialiser</button>}
-        <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{sorted.length}/{group==="MASI1"?19:rows.length} titres{group==="MASI1"&&<span style={{color:"#00e5a0",marginLeft:4}}>NLP ✓</span>}</span>
+        <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{sorted.length}/{group==="MASI1"?19:rows.length} titres</span>
         <button onClick={()=>{
           // ⚠️ La pondération part avec le fichier : un CSV survit à l'écran
           // qui l'a produit, et une note sans sa formule est ininterprétable.
-          const cols=["TICKER BVC","CODE INTERNE","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE","PONDERATION","COULEUR_NOTE","ALPHA","SM_HEUR_NON_CALIBRE","VERSION_SCORE"];
-          const rows_csv=sorted.map(r=>[tk(r),r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",r.pe?.toFixed(1)||"",r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",(sc=>sc==null?"indisponible":sc.toFixed(2))(computeDisplayScore(r,scoreMode)),scoreModeLabel(scoreMode),customMode?"":palierTexte(r),r.alpha||"",r.win||"",customMode?"":(r.score_version||"")]);
+          const cols=["TICKER BVC","CODE INTERNE","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE","PONDERATION","COULEUR_NOTE","VERSION_SCORE"];
+          const rows_csv=sorted.map(r=>[tk(r),r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",r.pe?.toFixed(1)||"",r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",(sc=>sc==null?"indisponible":sc.toFixed(2))(computeDisplayScore(r,scoreMode)),scoreModeLabel(scoreMode),customMode?"":palierTexte(r),customMode?"":(r.score_version||"")]);
           const csv="﻿"+[cols,...rows_csv].map(r=>r.join(";")).join("\n");
           const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
           const url=URL.createObjectURL(blob);
@@ -3318,7 +3285,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         <span style={{color:"#8892a4",fontSize:10}}>— Le score composite officiel reste inchangé ; les couleurs, propres à la note officielle, sont masquées</span>
       </div>}
       <div style={{overflowX:"auto"}}>
-        <table className="classement" style={{width:"100%",borderCollapse:"collapse",minWidth:1220}}>
+        <table className="classement" style={{width:"100%",borderCollapse:"collapse",minWidth:1000}}>
           <thead>
             <tr style={{borderBottom:"2px solid #1a2540"}}>
               {HEADS.map(h=><th key={h} style={{padding:"8px 8px",fontSize:10,color:"#8892a4",textAlign:"left",letterSpacing:.4,whiteSpace:"nowrap",fontWeight:500}}>{h}</th>)}
@@ -3416,9 +3383,6 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                         longueur nulle se lit comme un score de zéro. */}
                     {displayScore!=null&&<Bar v={displayScore} c={couleurChiffre(r,customMode)} h={4}/>}
                   </td>
-                  <td style={{padding:"8px 8px",fontSize:13,color:NC(r.nlp),fontWeight:600}}>{r.nlp>0?"+":""}{(r.nlp*100).toFixed(0)}%</td>
-                  <td style={{padding:"8px 8px",fontSize:12,color:r.win>=80?"#00e5a0":r.win>=70?"#ffd740":"#ff8f00",fontWeight:600}}>{r.win!=null?`${r.win}`:"—"}</td>
-                  <td style={{padding:"8px 8px",fontSize:12,color:r.alpha>=0?"#00e5a0":"#ff4f5a",fontWeight:600}}>{r.alpha!=null?<>{r.alpha>0?"+":""}{r.alpha}%{r.alpha<0&&<span style={{fontSize:10}}>⚠️</span>}</>:"—"}</td>
                   <td style={{padding:"8px 8px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:5}}>
                       <span style={{fontSize:12,color:isStat?"#8892a4":rsiColor,fontWeight:700}}>{isStat?"—":rsiVal}</span>
@@ -3458,8 +3422,8 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                     : <PastilleNote r={r}/>}</td>
                   <td style={{padding:"8px 8px",minWidth:85}}>
                     {(()=>{const pw=poidsAffiches(r,scoreMode);return pw&&<>
-                      <WBar f={pw.f} n={pw.n} t={pw.t}/>
-                      <div style={{fontSize:9,color:customMode?"#ffd740":"#8892a4",marginTop:2}}>F{pw.f}·N{pw.n}·T{pw.t}</div>
+                      <WBar f={pw.f} t={pw.t}/>
+                      <div style={{fontSize:9,color:customMode?"#ffd740":"#8892a4",marginTop:2}}>F{pw.f}·T{pw.t}</div>
                     </>;})()}
                   </td>
                 </tr>
@@ -3469,10 +3433,9 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         </table>
       </div>
       <div style={{marginTop:12,padding:"10px 14px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
-        <span style={{color:"#00e5a0"}}>●</span> SCORE = base Fond×65% + Tech×35% (NLP gelé à 0 depuis le 25/09), <span style={{color:"#ffd740"}}>modulée par le contexte de marché</span> — ouverture de la séance et tendance du MASI depuis janvier ; le poids appliqué est sur chaque fiche &nbsp;|&nbsp;
-        <span style={{color:"#ffd740"}}>●</span> SM~ = score Smart Money <b>heuristique, NON calibré</b>, tiré du corpus WhatsApp gelé au 02/07/2026 — ce n'est pas une probabilité mesurée ; « — » = titre non couvert par le corpus &nbsp;|&nbsp;
+        <span style={{color:"#00e5a0"}}>●</span> SCORE = base Fond×65% + Tech×35%, <span style={{color:"#ffd740"}}>modulée par le contexte de marché</span> — ouverture de la séance et tendance du MASI depuis janvier ; le poids appliqué est sur chaque fiche &nbsp;|&nbsp;
         <span style={{color:"#8892a4"}}>~hist</span> = moins de 15 séances cotées : RSI et moyennes absents, jamais estimés &nbsp;|&nbsp;
-        <span style={{color:"#ff4f5a"}}>⚠️</span> Alpha/RSI rouge = prudence &nbsp;|&nbsp; PE = Price/Earnings · DIV = dividende &nbsp;|&nbsp; Clic → vue détaillée
+        <span style={{color:"#ff4f5a"}}>⚠️</span> RSI rouge = prudence &nbsp;|&nbsp; PE = Price/Earnings · DIV = dividende &nbsp;|&nbsp; Clic → vue détaillée
       </div>
     </div>
   );
@@ -4490,7 +4453,6 @@ const TickerNews=({sym})=>{
       .catch(()=>{if(vivant)setOk(true);});
     return()=>{vivant=false;};
   },[sym]);
-  const SC=s=>s==="POSITIF"?"#00e5a0":s==="NEGATIF"?"#ff4f5a":"#8892a4";
   const fmtD=iso=>{try{return maroc(iso).toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}catch{return "";}};
   if(!ok||articles.length===0)return null;
   return(
@@ -4498,10 +4460,9 @@ const TickerNews=({sym})=>{
       <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Actualités — {sym}</div>
       {articles.map(a=>(
         <a key={a.id} href={a.url} target="_blank" rel="noopener noreferrer"
-          style={{display:"block",paddingLeft:8,paddingBottom:8,marginBottom:8,borderBottom:"1px solid #0a1220",borderLeft:`2px solid ${SC(a.sentiment)}`,textDecoration:"none"}}>
+          style={{display:"block",paddingLeft:8,paddingBottom:8,marginBottom:8,borderBottom:"1px solid #0a1220",borderLeft:"2px solid #1a2540",textDecoration:"none"}}>
           <div style={{fontSize:11,color:"#c8d3e8",lineHeight:1.4,marginBottom:3}}>{a.title}</div>
           <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-            <span style={{fontSize:9,color:SC(a.sentiment),fontWeight:700}}>{a.sentiment||"NEUTRE"}</span>
             <span style={{fontSize:9,color:"#8892a4"}}>{a.source}</span>
             <span style={{fontSize:9,color:"#8892a4",marginLeft:"auto"}}>{fmtD(a.date)}</span>
           </div>
@@ -4785,16 +4746,13 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                 </div>
               </a>;})()}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-              {[[r.pe_base&&r.pe_base.startsWith("12")?"PER 12 mois":"PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff","cap"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"],["Alpha 12M",r.alpha!=null?`${r.alpha>0?"+":""}${r.alpha}%`:"—",r.alpha>=0?"#00e5a0":"#ff4f5a","alpha"]].map(([k,v,c,ratio])=>(
+              {[[r.pe_base&&r.pe_base.startsWith("12")?"PER 12 mois":"PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff","cap"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"]].map(([k,v,c,ratio])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}<InfoCellule texte={explRatio(ratio,r,price)}/></div>
                   <div style={{fontSize:13,color:c,fontWeight:700}}>{v}</div>
                   {/* ⚠️ 29/09 : le PER affiché porte sur douze mois glissants quand
                       les comptes semestriels ont été lus. L'annuel reste visible :
                       l'écart entre les deux EST l'information (Managem 63 → 30). */}
-                  {/* ⚠️ 06/10/2026 — l'alpha vient de la table SENTIMENT, figée sur le
-                      corpus du 02/07 et jamais recalculée : dit non vérifié. */}
-                  {ratio==="alpha"&&<div title="Table du corpus WhatsApp figée au 02/07/2026, jamais recalculée ni recoupée" style={{fontSize:9,color:"#ff8f00",marginTop:1}}>corpus figé 02/07 · non vérifié</div>}
                   {ratio==="pe"&&r.pe_base?.startsWith("12")&&r.pe_annuel!=null&&
                     <div title={`PER sur ${r.pe_base} ; exercice 2025 seul : ${r.pe_annuel}`} style={{fontSize:9,color:"#5a6478",marginTop:1}}>exercice 2025 : {fmt(r.pe_annuel,1)}</div>}
                   {/* ⚠️ LE RANG DANS SON SECTEUR — ajouté le 25/09.
@@ -4908,7 +4866,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
             </div></>);})()}
           </div>)}
 
-          {/* RSI + NLP */}
+          {/* RSI */}
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
@@ -4988,21 +4946,8 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
           {/* ── ANALYSE AVANCÉE (15/10/2026) : essais et indicateurs gelés, qui
               n'entrent pas dans la note, regroupés et repliés. */}
           <details className="avance carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"8px 12px"}}>
-            <summary style={{cursor:"pointer",fontSize:12,color:"#4db8ff",minHeight:28,display:"flex",alignItems:"center"}}>Analyse avancée — essais et indicateurs gelés (hors note)</summary>
+            <summary style={{cursor:"pointer",fontSize:12,color:"#4db8ff",minHeight:28,display:"flex",alignItems:"center"}}>Analyse avancée — signaux techniques en essai (hors note)</summary>
             <div style={{display:"flex",flexDirection:"column",gap:10,marginTop:8}}>
-          {/* NLP */}
-          <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>NLP — {META.tickers} tickers ({META.years} ans)</div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-              {[["Biais groupe",r.biais,NC(r.nlp)],["Smart Sentiment",`${r.nlp>0?"+":""}${(r.nlp*100).toFixed(0)}%`,NC(r.nlp)],["Score SM~ (non calibré)",r.win!=null?`${r.win}`:"—",r.win>=80?"#00e5a0":"#ffd740"],["Convergence",r.conv==="CONFIRME"?"✅ OK":r.conv==null?"— pilier gelé":"⚠️ Div.",r.conv==="CONFIRME"?"#00e5a0":r.conv==null?"#8892a4":"#ffd740"]].map(([k,v,c])=>(
-                <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
-                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
-                  <div style={{fontSize:12,color:c,fontWeight:700}}>{v}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Signaux techniques en essai (calibrage du 03/10/2026) */}
           <SignauxTechniques r={r}/>
             </div>
@@ -5011,8 +4956,8 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               colonne de droite : le graphique, les scénarios et la formule
               se retrouvaient dans « Analyse avancée — hors note », replié, et
               la grille n'avait plus qu'une colonne de 290 px (1 100 px vides
-              mesurés à 1440 px). Il ne contient que le NLP gelé et les
-              signaux en essai, comme annoncé. */}
+              mesurés à 1440 px). Il ne contient que les signaux en essai,
+              comme annoncé (la carte NLP gelée est retirée le 28/10/2026). */}
 
           {/* Chart */}
           <div className="carte fiche-graphique" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
@@ -5055,14 +5000,14 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
           {/* Setup + formule */}
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,fontFamily:"var(--font)",fontSize:12,lineHeight:1.9}}>
             <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
-              {[[`Setup: ${r.setup||"—"}`,"#ffd740"],[pdsAff?`Fond:${pdsAff.f}% NLP:${pdsAff.n}% Tech:${pdsAff.t}%`:"Poids: —",simu?"#ffd740":"#8892a4"]].map(([lbl,c])=>(
+              {[[`Setup: ${r.setup||"—"}`,"#ffd740"],[pdsAff?`Fond:${pdsAff.f}% Tech:${pdsAff.t}%`:"Poids: —",simu?"#ffd740":"#8892a4"]].map(([lbl,c])=>(
                 <span key={lbl} style={{fontSize:11,padding:"3px 8px",borderRadius:4,background:"#0a1220",color:c,border:"1px solid #1a2540"}}>{lbl}</span>
               ))}
               {/* ⚠️ La pastille « Flags » affichait un nombre que rien
                   n'expliquait. Elle s'ouvre désormais. */}
               <RedFlags alertes={r.alertes}/>
             </div>
-            {pdsAff&&<WBar f={pdsAff.f} n={pdsAff.n} t={pdsAff.t}/>}
+            {pdsAff&&<WBar f={pdsAff.f} t={pdsAff.t}/>}
             <Repli titre="Analyse avancée — note par métier (en comparaison, non publiée)"><NoteFond nf={r.note_fond_metier}/></Repli>
             <div style={{marginTop:10}}>
               {/* ⚠️ En simulation la note est une moyenne pondérée PURE :
@@ -5076,29 +5021,13 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                   d'un bon dossier mal noté techniquement ou l'inverse.
                   Les trois notes étaient DÉJÀ publiées dans data.json — elles
                   n'étaient simplement pas montrées. */}
-              {/* ⚠️ 25/09 — LE PILIER NLP À POIDS NUL NE S'ÉCRIT PLUS COMME UN
-                  TERME DE LA SOMME. « nlp 5,0×0 % » se lirait comme un
-                  calcul ; c'est un pilier GELÉ, et le dire est le but même de
-                  la redistribution. Sa note reste affichée, à part et en gris,
-                  parce que l'effacer supprimerait la trace de ce qu'il valait. */}
+              {/* ⚠️ 28/10/2026 — le pilier NLP est retiré de l'écran (corpus
+                  WhatsApp supprimé, décision d'Abd Moutalib) : la somme n'a
+                  que deux termes, fond et tech. */}
               {pdsAff&&<><span style={{color:"#b388ff"}}>fond {fmt(r.score_fond,1)}×{pdsAff.f}%</span><span style={{color:"#8892a4"}}> + </span><span style={{color:"#4db8ff"}}>tech {fmt(r.score_tech,1)}×{pdsAff.t}%</span>
-                {pdsAff.n>0&&<><span style={{color:"#8892a4"}}> + </span><span style={{color:"#00e5a0"}}>nlp {fmt(r.score_nlp,1)}×{pdsAff.n}%</span></>}
                 <span style={{color:"#8892a4"}}>{simu?" =":" + bonus/malus ="}</span></>}
               <span style={{color:scoreAffiche==null?"#8892a4":couleurChiffre(r,simu),fontWeight:700}}> {fmt(scoreAffiche)}</span>
             </div>
-            {/* ⚠️ LE PILIER GELÉ, DIT PLUTÔT QUE CACHÉ — 25/09/2026.
-                Le corpus WhatsApp s'arrête au 02/07 : le pilier est devenu une
-                constante par titre, 48 titres sur 80 à la valeur neutre, et
-                0,37 point d'amplitude pour 28 % de poids annoncé. Son poids
-                est désormais nul ; sa note reste visible pour que le lecteur
-                puisse vérifier ce qu'elle valait, et pour qu'on se souvienne
-                de le rebrancher si le corpus repart. */}
-            {pdsAff&&pdsAff.n===0&&r.score_nlp!=null&&
-              <div style={{marginTop:6,fontSize:10.5,color:"#8892a4"}}
-                title="Pilier gelé le 25/09/2026 — corpus arrêté au 02/07/2026. Le poids de 28 % a été reversé au prorata sur le fondamental et la technique. Backtest sur les notes publiées : écart de performance haut/bas décile inchangé (+3,22 %).">
-                <span style={{color:"#5a6478"}}>●</span> pilier NLP <span style={{color:"#c8d3e8"}}>{fmt(r.score_nlp,1)}</span> — gelé, poids 0
-                <span style={{color:"#5a6478"}}> · corpus arrêté au 02/07/2026</span>
-              </div>}
             {(r.bonus||[]).length>0&&<div style={{marginTop:6,fontSize:11}}>
               {(r.bonus||[]).map((b,i)=><div key={i} style={{color:b.startsWith("-")?"#ff8f00":"#00e5a0"}}>{b.startsWith("-")?"▼":"▲"} {b.slice(1)}</div>)}
             </div>}
@@ -5120,21 +5049,18 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
    compare. Si le moteur change, le test casse avant l'écran. */
 const POIDS_CTX=[
   // [situation, fond, tech, statut, couleur, justification]
-  ["Séance ouverte — base","65,28 %","34,72 %","actif","#00e5a0","Référence depuis le 25/09/2026 : 47 et 25 repliés sur 72 une fois le NLP à zéro."],
+  ["Séance ouverte — base","65,28 %","34,72 %","actif","#00e5a0","Référence depuis le 25/09/2026."],
   ["Hors séance (fermé, pré-ouverture)","72,22 %","27,78 %","actif","#4db8ff","Le fondamental gagne 5 points avant repli. C'est le cas des runs du soir."],
   ["MASI < −5 % depuis janvier","71,43 %","28,57 %","actif","#ff8f00","Mode défensif. Cumulé au hors-séance : 77,92 % / 22,08 %."],
   ["MASI > +10 % depuis janvier","61,11 %","38,89 %","actif","#ffd740","Le technique gagne 3 points avant repli."],
   ["Titre peu liquide ou au fixing","100 %","0 %","actif","#b388ff","Depuis le 03/10 : le technique y annonçait l'inverse de la suite. Tout va au fondamental, et une note ≥ 6,5 y garde la couleur vert-jaune (« titre peu échangé »)."],
   ["Publication de résultats","76 %","24 %","inactif","#5a6478","Prévu dans le moteur, jamais branché : aucun calendrier de publications."],
-  ["Hype spike (>2σ NLP)","—","—","retiré le 29/09","#5a6478","Lisait le corpus WhatsApp gelé."],
-  ["Smart Money Tier 1","—","—","retiré le 29/09","#5a6478","Lisait le corpus WhatsApp gelé."],
-  ["Titre peu suivi (NLP)","—","—","retiré le 29/09","#5a6478","Lisait le corpus WhatsApp gelé."],
 ];
 const Weights=()=>{
   return(
     <div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:12,marginBottom:14}}>
-        {[["Fondamental","65,28 %","#b388ff","Qualité (rentabilité), croissance, valorisation, bilan. ⚠️ Seuls les ratios calculés sur comptes AMMC sont vérifiés ; le reste de fondamentaux.json est saisi à la main."],["Technique","34,72 %","#4db8ff","Tendance du cours (moyennes 20 et 50 séances), RSI, position dans le range 90 séances. Neutralisé (0 %) sur les titres peu liquides ou au fixing."],["NLP Comportemental","0 %","#5a6478","GELÉ depuis le 25/09/2026 : corpus arrêté au 02/07, il ne déplaçait plus que 0,37 point sur 10. Toujours calculé et publié, à poids nul."]].map(([lbl,pct,c,desc])=>(
+        {[["Fondamental","65,28 %","#b388ff","Qualité (rentabilité), croissance, valorisation, bilan. ⚠️ Seuls les ratios calculés sur comptes AMMC sont vérifiés ; le reste de fondamentaux.json est saisi à la main."],["Technique","34,72 %","#4db8ff","Tendance du cours (moyennes 20 et 50 séances), RSI, position dans le range 90 séances. Neutralisé (0 %) sur les titres peu liquides ou au fixing."]].map(([lbl,pct,c,desc])=>(
           <div key={lbl} style={{background:"#0d1829",borderRadius:8,padding:16,border:`1px solid ${c}20`}}>
             <div style={{fontSize:40,fontWeight:700,color:c,marginBottom:4}}>{pct}</div>
             <div style={{fontSize:15,color:"#fff",marginBottom:6,fontWeight:600}}>{lbl}</div>
@@ -5144,7 +5070,7 @@ const Weights=()=>{
       </div>
       <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
         <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:4}}>MODULATION DE LA PONDÉRATION</div>
-        <div style={{fontSize:11,color:"#8892a4",marginBottom:10,lineHeight:1.6}}>La base est modulée par le contexte de marché, puis titre par titre (liquidité). Le poids réellement appliqué figure sur chaque fiche et dans la colonne POIDS du classement. Plus aucun modulateur ne lit le corpus WhatsApp.</div>
+        <div style={{fontSize:11,color:"#8892a4",marginBottom:10,lineHeight:1.6}}>La base est modulée par le contexte de marché, puis titre par titre (liquidité). Le poids réellement appliqué figure sur chaque fiche et dans la colonne POIDS du classement.</div>
         <div style={{overflowX:"auto"}}>
           <table style={{width:"100%",borderCollapse:"collapse"}}>
             <thead><tr style={{borderBottom:"1px solid #1a2540"}}>{["Situation","Fond","Tech","Statut","Justification"].map(h=><th key={h} style={{padding:"7px 10px",fontSize:10,color:"#8892a4",textAlign:"left",fontWeight:500}}>{h}</th>)}</tr></thead>
@@ -5158,7 +5084,7 @@ const Weights=()=>{
               </tr>);})}</tbody>
           </table>
         </div>
-        <div style={{fontSize:10,color:"#8892a4",marginTop:8}}>NLP à 0 % dans toutes les situations. Pourcentages tels que rendus par le moteur.</div>
+        <div style={{fontSize:10,color:"#8892a4",marginTop:8}}>Pourcentages tels que rendus par le moteur.</div>
       </div>
     </div>
   );
@@ -5187,7 +5113,7 @@ const Guide=({setTab})=>{
       <div style={{fontSize:12,color:"#ffd740",lineHeight:1.45,background:"rgba(255,215,64,.07)",border:"1px solid rgba(255,215,64,.3)",borderRadius:6,padding:"6px 9px",marginBottom:3}}>
         <b>L'outil ne prédit pas. Ce n'est pas un conseil en investissement. Données J+1, pas de temps réel.</b> Après 15h30, les cours sont ceux de la dernière clôture. Pendant la séance, des relevés intermédiaires (vers 10h et 12h) donnent la dernière valeur relevée, pas un cours définitif : une lecture « à ce stade » peut encore changer jusqu'à la clôture. Il montre des notes et des fréquences passées.
       </div>
-      <L titre="Note /10">Moyenne de deux piliers sur 10 : <T>fondamental</T> (rentabilité, croissance, valorisation, bilan — ≈ 2/3) et <T>technique</T> (tendance, RSI — ≈ 1/3, 0 sur un titre peu liquide). Sentiment WhatsApp gelé, poids nul. <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des poids</a></L>
+      <L titre="Note /10">Moyenne de deux piliers sur 10 : <T>fondamental</T> (rentabilité, croissance, valorisation, bilan — ≈ 2/3) et <T>technique</T> (tendance, RSI — ≈ 1/3, 0 sur un titre peu liquide). <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des poids</a></L>
       <L titre="Couleur de la note">La note est colorée selon son palier, sans mot d'action : <T c="#00e5a0">● vert</T> dès 6,5 · <T c="#b5e655">● vert-jaune</T> dès 5,5 · <T c="#ffd740">● jaune</T> dès 4,5 · <T c="#ff8f00">● orange</T> dès 3,5 · <T c="#ff4f5a">● rouge</T> dessous. La couleur situe la note ; elle ne dit pas quoi faire. Titre trop peu échangé : une note dès 6,5 reste en vert-jaune, avec la mention « titre peu échangé ». <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, note grise. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
       <L titre="Note non comparable">Un titre très peu échangé — pilier technique neutralisé, et moins de 100 000 DH échangés par séance en médiane sur ses 20 dernières séances échangées — garde sa note, affichée en gris avec la mention « non comparable » et la médiane réelle. Avec si peu d'échanges, le cours peut sauter d'un côté à l'autre du carnet : la note ne se compare pas à celle d'un titre liquide. Aucune couleur de palier ; le titre est classé après tous les titres comparables et sort des « mieux notés » de l'accueil.</L>
       <L titre="Fiabilité des données ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>
@@ -5197,498 +5123,6 @@ const Guide=({setTab})=>{
       <L titre="TEND — obliques et canaux">Mêmes sommets et creux que FIG. <T>Oblique descendante</T> : la droite qui joint deux sommets descendants écartés de 20 à 250 séances, prolongée jusqu'à la dernière séance ; cassée à la première clôture au-dessus. <T>Oblique ascendante</T> : deux creux montants, cassée à la première clôture en dessous. <T>Canal ascendant</T> : support par deux creux montants, parallèle par le sommet qui les sépare (pointillés) ; rebond = retour à moins de 2 % du support puis clôture 3 % au-dessus ; sortie par le bas = clôture 2 % sous le support. Fréquence : même lecture que FIG — après une cassure ou un rebond passé, frais non déduits, rien sous 30 cas.</L>
       <L titre="GAP — trous de cotation">Une séance dont le plus bas dépasse d'au moins 1 % le plus haut de la veille (gap haussier), ou l'inverse (baissier) ; seules les séances à extrêmes réels comptent, et jamais un écart de plus de 10 % de la clôture de la veille. La zone hachurée s'étend du plus haut de la veille au plus bas du jour du gap et s'arrête à son <T>comblement</T> : la zone entièrement traversée. <T>Partiellement comblé</T> : le cours est revenu dans la zone sans la traverser. Fréquence : la part des gaps passés comblés en 20 séances au plus ; pour un gap ouvert depuis 20 séances ou davantage, la part comblée dans les 60 séances suivant l'ouverture ; à 60 séances et au-delà, aucun taux : c'est hors de l'horizon mesuré. Un fait de marché, aucun achat supposé ; rien sous 30 cas.</L>
       <L titre="« non vérifié » · ⚠ jj/mm"><T c="#ff8f00">non vérifié</T> : source non recoupée, prudence. <T c="#ffd740">⚠ 05/08</T> près d'un cours : il date de ce jour-là, pas de la dernière séance.</L>
-    </div>
-  );
-};
-
-// ── SMART MONEY ───────────────────────────────────────────────────────────────
-const Smart=()=>{
-  // ⚠️ RETIRÉ LE 05/09/2026 — ces quatre lignes affichaient 83 % de réussite
-  // et +38,3 % de rendement à 12 mois, écrits EN DUR dans ce fichier. Le
-  // dépôt ne contient aucun artefact permettant de refaire le calcul et de
-  // retrouver ces chiffres : ni jeu de données figé, ni commande, ni journal.
-  // Un résultat de backtest qu'on ne peut pas reproduire n'est pas un
-  // résultat, c'est une affirmation. Signalé par l'audit externe du 05/09.
-  //
-  // Pour les republier il faudra : une commande unique et documentée qui
-  // régénère exactement le résultat, des séries réelles figées et sans
-  // regard sur le futur, les frais réels de la place, le vrai historique du
-  // MASI comme référence, et le nombre de signaux avec son intervalle de
-  // confiance. Le code d'origine est conservé ci-dessous, en commentaire,
-  // pour que le chantier reparte de quelque chose.
-  //
-  // const BT=[["Horizon 12M","83%","+38.3%"],["Horizon 6M","80%","+18.1%"],
-  //           ["Horizon 3M","78%","+8.7%"],["Horizon 1M","73%","+2.7%"]];
-  const BT=[];
-  const CT=[["MNG","0%","100% du temps cours monte après signal vente"],["RDS","0%","0% réussite vendeur (contrarian parfait)"],["SMI","19%","81% cours monte après signal vente"],["TGCC","39%","Seul titre validant une confirmation vente"]];
-  return(
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-      <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-        <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:4}}>MEMBRES SMART MONEY — POIDS V3</div>
-        <div style={{fontSize:11,color:"#8892a4",marginBottom:10}}>SNR = Signal/Noise Ratio · 1994 signaux backtestés 2020-2026</div>
-        <div style={{display:"grid",gridTemplateColumns:"auto auto auto 1fr auto auto auto",gap:"4px 8px",fontSize:9,color:"#8892a4",marginBottom:5,paddingBottom:5,borderBottom:"1px solid #1a2540",alignItems:"center"}}>
-          <span>MEMBRE</span><span>TIER</span><span>POIDS</span><span></span><span>SNR</span><span>WIN</span><span>ALPHA</span>
-        </div>
-        {MEMBERS.map(m=>(
-          <div key={m.name} style={{display:"grid",gridTemplateColumns:"auto auto auto 1fr auto auto auto",gap:"4px 8px",alignItems:"center",padding:"6px 0",borderBottom:"1px solid #0d1829"}}>
-            <span style={{fontSize:13,color:m.tier==="Admin"?"#ffd740":"#c8d3e8",fontWeight:600,minWidth:110}}>{m.name}</span>
-            <span style={{fontSize:9,color:m.tier==="Admin"?"#ffd740":"#00e5a0",background:m.tier==="Admin"?"rgba(255,215,64,.1)":"rgba(0,229,160,.08)",border:`1px solid ${m.tier==="Admin"?"rgba(255,215,64,.28)":"rgba(0,229,160,.25)"}`,borderRadius:3,padding:"1px 5px"}}>{m.tier}</span>
-            <span style={{fontSize:11,color:"#8892a4",background:"#0a1220",borderRadius:3,padding:"1px 5px"}}>w={m.w.toFixed(2)}</span>
-            <Bar v={m.w} max={1} c={m.tier==="Admin"?"#ffd740":"#00e5a0"} h={5}/>
-            <span style={{fontSize:12,color:"#4db8ff",textAlign:"center",minWidth:36}}>{m.snr||"—"}</span>
-            <span style={{fontSize:12,color:"#00e5a0",textAlign:"center",minWidth:34}}>{m.win?`${m.win}%`:"—"}</span>
-            <span style={{fontSize:12,color:"#00e5a0",textAlign:"center",minWidth:40}}>{m.alpha?`+${m.alpha}%`:"—"}</span>
-          </div>
-        ))}
-      </div>
-      <div style={{display:"flex",flexDirection:"column",gap:10}}>
-        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-          <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:10}}>PERFORMANCE HISTORIQUE</div>
-          {BT.length===0 ? (
-            <div style={{fontSize:12,color:"#ffd740",lineHeight:1.8}}>
-              ⚠️ <b>Non publiée.</b> Les chiffres affichés ici jusqu'au 05/09/2026
-              (83 % de réussite, +38,3 % à 12 mois) étaient écrits en dur dans la
-              page. Aucun élément du dépôt ne permet de refaire le calcul et de
-              retrouver ces valeurs.
-              <div style={{marginTop:8,color:"#8892a4"}}>
-                Ils reviendront quand une commande unique et documentée régénèrera
-                exactement le résultat, sur des séries réelles figées, avec les
-                frais de la place, le vrai historique du MASI comme référence, et
-                le nombre de signaux avec son intervalle de confiance.
-              </div>
-            </div>
-          ) : BT.map(([h,wr,rdt,c])=>(
-            <div key={h} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:"1px solid #0d1829"}}>
-              <span style={{fontSize:13,color:"#c8d3e8"}}>{h}</span>
-              <span style={{fontSize:13,color:c,fontWeight:700}}>Win {wr}</span>
-              <span style={{fontSize:13,color:c,fontWeight:700}}>Rdt {rdt}</span>
-            </div>
-          ))}
-        </div>
-        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-          <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:10}}>CONTRARIANS V3 — VENTE = ACHAT</div>
-          {CT.map(([t,acc,note])=>(
-            <div key={t} style={{padding:"7px 0",borderBottom:"1px solid #0d1829"}}>
-              <div style={{display:"flex",alignItems:"center",gap:8}}>
-                <span style={{fontSize:14,color:"#fff",fontWeight:700,minWidth:48}}>{t}</span>
-                <span style={{fontSize:12,color:parseInt(acc)<20?"#ff4f5a":"#ffd740"}}>Précision vendeurs: {acc}</span>
-              </div>
-              <div style={{fontSize:11,color:"#8892a4",marginTop:2}}>{note}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ── CHAT 3 MAJ ────────────────────────────────────────────────────────────────
-const Chat=()=>{
-  const [filt,setFilt]=useState("ALL");
-  const tickers=[...new Set(CHAT.map(m=>m.ticker))];
-  const filtered=filt==="ALL"?CHAT:CHAT.filter(m=>m.ticker===filt);
-  const SC2=s=>s==="ACHAT"?"#00e5a0":s==="VENTE"?"#ff4f5a":s==="TENIR"?"#ffd740":"#8892a4";
-  return(
-    <div>
-      <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center",flexWrap:"wrap"}}>
-        <span style={{fontSize:12,color:"#8892a4"}}>FILTRE TICKER</span>
-        {["ALL",...tickers].map(t=>(
-          <button key={t} onClick={()=>setFilt(t)} style={{background:filt===t?"rgba(0,229,160,.12)":"transparent",border:filt===t?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:filt===t?"#00e5a0":"#8892a4",padding:"3px 10px",borderRadius:4,fontSize:11}}>{t==="ALL"?"TOUS":t}</button>
-        ))}
-        <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>3 dernières MAJ <span style={{color:"#ffd740"}}>Smart Money</span></span>
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:14}}>
-        {[["Messages analysés","896 907","#00e5a0"],["Membres actifs","8","#4db8ff"],["Signaux backtestés","1 994","#b388ff"],["Win Rate moyen","80%","#ffd740"]].map(([lbl,val,c])=>(
-          <div key={lbl} style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,padding:"10px 12px"}}>
-            <div style={{fontSize:9,color:"#8892a4",marginBottom:3,textTransform:"uppercase",letterSpacing:.5}}>{lbl}</div>
-            <div style={{fontSize:20,fontWeight:700,color:c}}>{val}</div>
-          </div>
-        ))}
-      </div>
-      <div style={{fontSize:14,color:"#c8d3e8",fontWeight:600,marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
-        <span style={{display:"inline-block",width:9,height:9,borderRadius:"50%",background:"#00e5a0",boxShadow:"0 0 8px #00e5a060"}}/>
-        3 DERNIÈRES MISES À JOUR — SMART MONEY
-        {filt!=="ALL"&&<span style={{fontSize:12,color:"#4db8ff"}}>filtre: {filt}</span>}
-      </div>
-      <div style={{display:"flex",flexDirection:"column",gap:12}}>
-        {filtered.slice(0,3).map(msg=>(
-          <div key={msg.id} style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:14,borderLeft:`3px solid ${SC2(msg.signal)}`}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10,flexWrap:"wrap",gap:8}}>
-              <div style={{display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>
-                <span style={{fontSize:13,fontWeight:700,color:"#fff",background:"#0a1220",border:"1px solid #1a2540",borderRadius:4,padding:"2px 8px"}}>{msg.member}</span>
-                <span style={{fontSize:10,color:msg.tier==="Tier 1"?"#00e5a0":"#ffd740",background:msg.tier==="Tier 1"?"rgba(0,229,160,.08)":"rgba(255,215,64,.08)",border:`1px solid ${msg.tier==="Tier 1"?"rgba(0,229,160,.28)":"rgba(255,215,64,.28)"}`,borderRadius:3,padding:"1px 6px"}}>{msg.tier}</span>
-                <span style={{fontSize:13,color:"#4db8ff",fontWeight:700}}>→ {msg.ticker}</span>
-                <Chip label={msg.signal} bg={`${SC2(msg.signal)}15`} fg={SC2(msg.signal)} bd={`${SC2(msg.signal)}35`} sz={12}/>
-              </div>
-              <div style={{textAlign:"right",fontSize:12}}>
-                <div style={{color:"#ffd740",fontWeight:600}}>{msg.time}</div>
-                <div style={{color:"#8892a4"}}>{msg.date}</div>
-              </div>
-            </div>
-            <div style={{fontSize:13,color:"#c8d3e8",lineHeight:1.7,background:"#0a1220",borderRadius:5,padding:"10px 12px",marginBottom:10,borderLeft:"2px solid #1a2540",fontStyle:"italic"}}>"{msg.msg}"</div>
-            <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr",gap:8}}>
-              <div>
-                <div style={{fontSize:9,color:"#8892a4",marginBottom:3,textTransform:"uppercase"}}>Score confiance</div>
-                <div style={{display:"flex",alignItems:"center",gap:6}}>
-                  <div style={{flex:1,background:"#0d1829",borderRadius:3,height:6}}>
-                    <div style={{width:`${msg.conf}%`,height:"100%",background:CCO(msg.conf),borderRadius:3}}/>
-                  </div>
-                  <span style={{color:CCO(msg.conf),fontSize:12,fontWeight:700,minWidth:32}}>{msg.conf}%</span>
-                </div>
-              </div>
-              {[["SNR",msg.snr,"#4db8ff"],["Alpha 12M",`+${msg.alpha}%`,"#00e5a0"],["Contexte",msg.ctx,"#ffd740"]].map(([k,v,c])=>(
-                <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"5px 8px"}}>
-                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
-                  <div style={{fontSize:11,color:c,fontWeight:700,lineHeight:1.3}}>{v}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-      <div style={{marginTop:12,padding:"10px 12px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
-        Confiance = <span style={{color:"#4db8ff"}}>SNR×2.5</span> + <span style={{color:"#00e5a0"}}>Alpha×0.4</span> + <span style={{color:"#b388ff"}}>Win×0.25</span> (norm. 100) &nbsp;|&nbsp;
-        Données simulées basées backtesting V3 &nbsp;|&nbsp;
-        <span style={{color:"#ffd740"}}>Connecter API WhatsApp pour données live</span>
-      </div>
-    </div>
-  );
-};
-
-// ── NLP DASHBOARD DATA (source: corpus WhatsApp 882 734 msgs · 6 ans · 14 phases) ──
-const NLP_CORPUS={msgs:"882 734",membres:2013,annees:6,signals:110000,smart_money:14,duree:"102 min"};
-// NLP_FG retiré le 03/09/2026 : constante figée présentée comme une mesure de marché.
-// Voir la note dans le bloc d'affichage. Code d'origine dans l'historique git.
-const NLP_LANGS=[["Français",510120,0.578,"#4db8ff"],["Arabe",78126,0.088,"#b388ff"],["Arabizi",70018,0.079,"#ffd740"],["Mixte",56640,0.064,"#00e5a0"],["Darija",12799,0.014,"#ff8f00"],["Anglais",5969,0.007,"#8892a4"]];
-const NLP_SIGS=[["VENTE",60440,"#ff4f5a"],["ACHAT",21527,"#00e5a0"],["IRONIE",8342,"#8892a4"],["DOUTE",6849,"#ffd740"],["EUPHORIE",4551,"#ff8f00"],["PANIQUE",4016,"#ff4f5a"],["ACHAT FORT",2927,"#00e5a0"],["RENFORCEMENT",1480,"#4db8ff"],["RUMEUR",548,"#b388ff"]];
-const NLP_SM=[
-  {name:"M1469",      calls:143,  timeliness:0.895, sm:true},
-  {name:"M1088",    calls:263,  timeliness:0.894, sm:true},
-  {name:"M0910",        calls:44,   timeliness:0.726, sm:true},
-  {name:"M0274",           calls:96,   timeliness:0.748, sm:true},
-  {name:"M1430",calls:97,  timeliness:0.682, sm:true},
-  {name:"Med",            calls:79,   timeliness:0.632, sm:true},
-  {name:"M1476",   calls:379,  timeliness:0.596, sm:true},
-  {name:"M1793",          calls:81,   timeliness:0.648, sm:true},
-  {name:"Y.M",            calls:365,  timeliness:0.399, sm:true},
-  {name:"M1051",   calls:3849, timeliness:0.473, sm:true},
-];
-/* ⚠️ 22/10/2026 — champ `upside` retiré des 19 lignes ci-dessous (audit du
-   22/10, lot A). Écrit en dur, sans date ni source (MSA −13, RDS −38,
-   CSR −15…) : rien ne permettait de le recalculer. Il n'est remplacé par
-   rien ; les valeurs restent dans l'historique git. */
-const NLP_RANKS=[
-  {t:"CMT", score:68.0, sig:"ACHAT", sm:91,  alpha:42.1, mentions:4142,  pe:18.5},
-  {t:"AKD", score:64.2, sig:"ACHAT", sm:80,  alpha:22.8, mentions:2888,  pe:22.4},
-  {t:"MNG", score:63.1, sig:"ACHAT", sm:100, alpha:55.3, mentions:6665,  pe:58.7},
-  {t:"SMI", score:61.4, sig:"ACHAT", sm:89,  alpha:38.5, mentions:4279,  pe:37.0},
-  {t:"TGCC",score:61.3, sig:"ACHAT", sm:75,  alpha:18.7, mentions:9537,  pe:14.5},
-  {t:"CFGB",score:61.2, sig:"ACHAT", sm:69,  alpha:14.6, mentions:900,   pe:14.2},
-  {t:"SGTM",score:60.4, sig:"ACHAT", sm:70,  alpha:15.9, mentions:1841,  pe:15.0},
-  {t:"SRM", score:58.8, sig:"NEUTRE",sm:60,  alpha:9.8,  mentions:853,   pe:8.2},
-  {t:"SOT", score:58.0, sig:"NEUTRE",sm:67,  alpha:5.0,  mentions:1772,  pe:19.5},
-  {t:"CMGP",score:57.4, sig:"NEUTRE",sm:65,  alpha:11.5, mentions:1251,  pe:11.8},
-  {t:"CDM", score:56.1, sig:"NEUTRE",sm:50,  alpha:0.0,  mentions:699,   pe:11.0},
-  {t:"CASH",score:56.0, sig:"NEUTRE",sm:64,  alpha:10.1, mentions:4410,  pe:28.4},
-  {t:"ADI", score:55.6, sig:"NEUTRE",sm:47,  alpha:8.5,  mentions:22893, pe:9.8},
-  {t:"ADH", score:51.0, sig:"NEUTRE",sm:40,  alpha:3.1,  mentions:18290, pe:12.5},
-  {t:"RDS", score:49.9, sig:"NEUTRE",sm:42,  alpha:5.2,  mentions:14692, pe:8.5},
-  {t:"SNA", score:50.8, sig:"NEUTRE",sm:57,  alpha:7.6,  mentions:2669,  pe:18.5},
-  {t:"MSA", score:54.1, sig:"NEUTRE",sm:77,  alpha:21.0, mentions:1433,  pe:38.0},
-  {t:"RIS", score:53.7, sig:"NEUTRE",sm:62,  alpha:10.3, mentions:3096,  pe:17.7},
-  {t:"CSR", score:54.9, sig:"NEUTRE",sm:72,  alpha:19.2, mentions:202,   pe:24.2},
-];
-
-const NLP_RECENT6M=[
-  {t:"SMI",  mentions:1563,authors:118,buy:121,strong_buy:15,sell:116,net:5,   pos:171,neg:142,sentiment:0.017},
-  {t:"ADI",  mentions:1403,authors:140,buy:115,strong_buy:17,sell:130,net:-15, pos:168,neg:135,sentiment:0.026},
-  {t:"MNG",  mentions:1382,authors:123,buy:114,strong_buy:15,sell:95, net:19,  pos:158,neg:122,sentiment:0.026},
-  {t:"RDS",  mentions:1112,authors:114,buy:96, strong_buy:13,sell:53, net:43,  pos:146,neg:69, sentiment:0.056},
-  {t:"CMT",  mentions:924, authors:99, buy:67, strong_buy:10,sell:67, net:0,   pos:89, neg:117,sentiment:-0.012},
-  {t:"ADH",  mentions:646, authors:94, buy:42, strong_buy:5, sell:42, net:0,   pos:68, neg:53, sentiment:0.023},
-  {t:"TGCC", mentions:555, authors:100,buy:40, strong_buy:2, sell:69, net:-29, pos:72, neg:70, sentiment:0.031},
-  {t:"SGTM", mentions:390, authors:99, buy:39, strong_buy:7, sell:49, net:-10, pos:51, neg:43, sentiment:0.038},
-  {t:"CASH", mentions:490, authors:88, buy:39, strong_buy:6, sell:52, net:-13, pos:51, neg:55, sentiment:0.005},
-  {t:"RIS",  mentions:415, authors:76, buy:30, strong_buy:5, sell:26, net:4,   pos:51, neg:36, sentiment:0.044},
-];
-const NlpDash=()=>{
-  // fgColor / fgLabel / FGGauge retirés le 03/09/2026 avec l'indicateur
-  // Fear & Greed : plus rien ne les appelait, et les laisser invitait à
-  // rebrancher un cadran sur une valeur figée.
-  const [view,setView]=useState("rankings");
-  const SC=s=>s==="ACHAT"?"#00e5a0":s==="VENTE"?"#ff4f5a":"#8892a4";
-
-  // Fear & Greed arc SVG
-
-  const top7=NLP_RANKS.filter(r=>r.sig==="ACHAT").slice(0,7);
-  const maxMentions=Math.max(...NLP_RANKS.map(r=>r.mentions));
-
-
-  return(
-    <div style={{display:"flex",flexDirection:"column",gap:12}}>
-
-      {/* ── BANDEAU CORPUS ── */}
-      <div style={{background:"linear-gradient(90deg,#0d1829,#0a1a30)",border:"1px solid rgba(0,229,160,.2)",borderRadius:8,padding:"10px 16px",display:"flex",gap:24,flexWrap:"wrap",alignItems:"center"}}>
-        <span style={{fontSize:12,color:"#00e5a0",fontWeight:700,letterSpacing:1}}>CORPUS WHATSAPP BVC</span>
-        {[[NLP_CORPUS.msgs,"messages","#c8d3e8"],[NLP_CORPUS.membres.toLocaleString(),"membres","#4db8ff"],[NLP_CORPUS.annees+" ans","période","#b388ff"],["110 000","signaux NLP","#ffd740"],[NLP_CORPUS.smart_money+" SM","identifiés","#00e5a0"],[NLP_CORPUS.duree,"analyse","#8892a4"]].map(([v,l,c])=>(
-          <div key={l} style={{textAlign:"center"}}>
-            <div style={{fontSize:15,fontWeight:700,color:c}}>{v}</div>
-            <div style={{fontSize:9,color:"#8892a4",textTransform:"uppercase",letterSpacing:.5}}>{l}</div>
-          </div>
-        ))}
-        <div style={{marginLeft:"auto",fontSize:10,color:"#8892a4"}}>Analyse 14 phases · sept 2020 → juin 2026</div>
-      </div>
-
-      {/* ── Indicateur Fear & Greed retiré le 03/09/2026 ────────────────
-          La courbe publiée ici n'était pas le MASI. Mesuré sur ses 285 points :
-          +150 % sur la période quand l'indice réel a fait +64 %, et une baisse
-          maximale de 6,7 % quand le MASI en a perdu 27 entre mi-2022 et mars
-          2023 — la courbe MONTAIT de 13 % pendant cet effondrement. L'indice de
-          sentiment, lui, n'a jamais quitté la bande 36,4–46,6 : les mentions
-          « panique » et « euphorie » qualifiaient un écart-type de 1,8.
-          Un graphique inventé ne peut pas figurer sur une page qui promet une
-          analyse quantitative. Il reviendra adossé à un historique réel du
-          MASI — data.json n'en garde aujourd'hui que la valeur du jour.
-          Le code retiré reste dans l'historique git. */}
-      <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 16px",fontSize:11,color:"#6b7689",lineHeight:1.6}}>
-        <strong style={{color:"#8892a4"}}>Fear &amp; Greed BVC × MASI</strong> — indicateur retiré.
-        La série publiée jusqu'ici ne reproduisait pas la trajectoire réelle de l'indice.
-        Il reviendra une fois adossé à un historique vérifiable.
-      </div>
-
-      {/* ── ROW 1 : FEAR&GREED + SIGNAUX + LANGUES ── */}
-      <div style={{display:"grid",gridTemplateColumns:"220px 1fr 1fr",gap:12}}>
-
-        {/* Jauge Fear & Greed retirée le 03/09/2026 — même motif que la
-            courbe : NLP_FG était une constante écrite en dur (41,5 · « Peur
-            légère »), immobile depuis la mise en ligne, affichée comme une
-            mesure du sentiment de marché. Retirer la courbe en laissant le
-            cadran n'aurait corrigé que la moitié du mensonge. */}
-        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,fontSize:11,color:"#6b7689",lineHeight:1.6}}>
-          <div style={{fontSize:11,color:"#8892a4",marginBottom:6,textTransform:"uppercase",letterSpacing:1}}>Fear &amp; Greed BVC</div>
-          Indicateur retiré — il affichait une valeur figée, non recalculée.
-        </div>
-
-        {/* Distribution signaux */}
-        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-          <div style={{fontSize:11,color:"#8892a4",marginBottom:10,textTransform:"uppercase",letterSpacing:1}}>Distribution des Signaux NLP</div>
-          <div style={{fontSize:11,color:"#ffd740",marginBottom:8}}>Ratio SELL/BUY = <strong>2.8×</strong> — groupe majoritairement prudent (signal contrarian)</div>
-          {NLP_SIGS.map(([lbl,cnt,c])=>{
-            const pct=cnt/60440*100;
-            return(
-              <div key={lbl} style={{marginBottom:5,display:"flex",alignItems:"center",gap:8}}>
-                <span style={{fontSize:10,color:"#8892a4",minWidth:88,textAlign:"right"}}>{lbl}</span>
-                <div style={{flex:1,background:"#0a1220",borderRadius:2,height:14,position:"relative"}}>
-                  <div style={{width:`${Math.min(pct*100/100,100)}%`,height:"100%",background:c,borderRadius:2,opacity:.8}}/>
-                </div>
-                <span style={{fontSize:10,color:c,minWidth:46,textAlign:"right",fontWeight:600}}>{cnt.toLocaleString()}</span>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Langues */}
-        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-          <div style={{fontSize:11,color:"#8892a4",marginBottom:10,textTransform:"uppercase",letterSpacing:1}}>Langues détectées</div>
-          {NLP_LANGS.map(([lbl,cnt,pct,c])=>(
-            <div key={lbl} style={{marginBottom:8}}>
-              <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-                <span style={{fontSize:11,color:"#c8d3e8"}}>{lbl}</span>
-                <span style={{fontSize:11,color:c,fontWeight:700}}>{(pct*100).toFixed(1)}%</span>
-              </div>
-              <div style={{background:"#0a1220",borderRadius:2,height:8}}>
-                <div style={{width:`${pct*100}%`,height:"100%",background:c,borderRadius:2}}/>
-              </div>
-            </div>
-          ))}
-          <div style={{marginTop:8,fontSize:10,color:"#8892a4",lineHeight:1.6}}>
-            <span style={{color:"#ffd740"}}>Darija</span> + <span style={{color:"#ffd740"}}>Arabizi</span> = 9.3% — lexique financier spécialisé inclus
-          </div>
-        </div>
-      </div>
-
-      {/* ── TOP 7 ACHAT ── */}
-      <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-        <div style={{fontSize:11,color:"#8892a4",marginBottom:10,textTransform:"uppercase",letterSpacing:1}}>TOP 7 — Signal ACHAT ★★★★ (corpus complet 6 ans)</div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:8}}>
-          {top7.map((r,i)=>(
-            <div key={r.t} style={{background:"#0a1220",border:"1px solid rgba(0,229,160,.2)",borderRadius:8,padding:"10px 8px",textAlign:"center",position:"relative"}}>
-              <div style={{position:"absolute",top:6,left:8,fontSize:9,color:"#8892a4"}}>#{i+1}</div>
-              <div style={{fontSize:20,fontWeight:800,color:"#00e5a0",marginBottom:4}}>{r.t}</div>
-              <div style={{fontSize:22,fontWeight:900,color:"#fff",marginBottom:2}}>{r.score}</div>
-              <div style={{fontSize:9,color:"#8892a4",marginBottom:8}}>score composite</div>
-              <div style={{display:"flex",flexDirection:"column",gap:3}}>
-                {[["SM",`${r.sm}/100`,"#ffd740"],["Alpha",`+${r.alpha}%`,"#00e5a0"],["Mentions",r.mentions.toLocaleString(),"#4db8ff"]].map(([k,v,c])=>(
-                  <div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:10}}>
-                    <span style={{color:"#8892a4"}}>{k}</span>
-                    <span style={{color:c,fontWeight:600}}>{v}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── ROW 3 : SMART MONEY + CLASSEMENT COMPLET ── */}
-      <div style={{display:"grid",gridTemplateColumns:"320px 1fr",gap:12}}>
-
-        {/* Smart Money */}
-        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-          <div style={{fontSize:11,color:"#8892a4",marginBottom:4,textTransform:"uppercase",letterSpacing:1}}>Smart Money identifiés</div>
-          <div style={{fontSize:10,color:"#4db8ff",marginBottom:10}}>14 membres sur 2013 · score = timeliness</div>
-          {NLP_SM.map((m,i)=>(
-            <div key={m.name} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 0",borderBottom:"1px solid #0a1220"}}>
-              <span style={{fontSize:11,color:"#8892a4",minWidth:16}}>#{i+1}</span>
-              <span style={{fontSize:12,color:"#c8d3e8",flex:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{m.name}</span>
-              <div style={{width:60,background:"#0a1220",borderRadius:2,height:6}}>
-                <div style={{width:`${m.timeliness*100}%`,height:"100%",background:m.timeliness>0.8?"#00e5a0":m.timeliness>0.6?"#ffd740":"#4db8ff",borderRadius:2}}/>
-              </div>
-              <span style={{fontSize:11,color:m.timeliness>0.8?"#00e5a0":m.timeliness>0.6?"#ffd740":"#4db8ff",minWidth:36,textAlign:"right",fontWeight:700}}>{m.timeliness.toFixed(3)}</span>
-              <span style={{fontSize:9,color:"#8892a4",minWidth:42,textAlign:"right"}}>{m.calls} calls</span>
-            </div>
-          ))}
-          <div style={{marginTop:10,padding:"8px 10px",background:"#0a1220",borderRadius:5,fontSize:10,color:"#8892a4",lineHeight:1.7}}>
-            <span style={{color:"#ffd740"}}>Timeliness</span> = proportion de signaux émis avant le mouvement de prix · Phase 5 pipeline NLP
-          </div>
-        </div>
-
-        {/* Classement complet */}
-        <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,overflow:"auto"}}>
-          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:10}}>
-            <div style={{fontSize:11,color:"#8892a4",textTransform:"uppercase",letterSpacing:1}}>Classement final Phase 13 — {NLP_RANKS.length} valeurs</div>
-            <div style={{marginLeft:"auto",display:"flex",gap:6}}>
-              {[["rankings","CLASSEMENT"],["mentions","MENTIONS"]].map(([v,l])=>(
-                <button key={v} onClick={()=>setView(v)} style={{background:view===v?"rgba(0,229,160,.12)":"transparent",border:view===v?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:view===v?"#00e5a0":"#8892a4",padding:"3px 10px",borderRadius:3,fontSize:10}}>{l}</button>
-              ))}
-            </div>
-          </div>
-          {view==="rankings"?(
-            <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
-              <thead>
-                <tr style={{borderBottom:"1px solid #1a2540"}}>
-                  {["#","TICKER","SCORE","SIGNAL","SM/100","ALPHA","MENTIONS"].map(h=>(
-                    <th key={h} style={{padding:"5px 8px",color:"#8892a4",fontWeight:500,textAlign:h==="#"||h==="TICKER"?"left":"right",fontSize:10,letterSpacing:.5}}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {NLP_RANKS.map((r,i)=>(
-                  <tr key={r.t} style={{borderBottom:"1px solid #0a1220",background:i%2===0?"transparent":"rgba(255,255,255,.01)"}}>
-                    <td style={{padding:"5px 8px",color:"#8892a4"}}>{i+1}</td>
-                    <td style={{padding:"5px 8px",fontWeight:700,color:"#fff"}}>{r.t}</td>
-                    <td style={{padding:"5px 8px",textAlign:"right"}}>
-                      <span style={{fontWeight:700,color:r.score>=60?"#00e5a0":r.score>=55?"#ffd740":"#8892a4"}}>{r.score}</span>
-                    </td>
-                    <td style={{padding:"5px 8px",textAlign:"right"}}>
-                      <span style={{color:SC(r.sig),fontSize:10,fontWeight:600}}>{r.sig}</span>
-                    </td>
-                    <td style={{padding:"5px 8px",textAlign:"right"}}>
-                      <div style={{display:"flex",alignItems:"center",justifyContent:"flex-end",gap:4}}>
-                        <div style={{width:30,background:"#0a1220",borderRadius:2,height:4}}>
-                          <div style={{width:`${r.sm}%`,height:"100%",background:r.sm>=80?"#00e5a0":r.sm>=60?"#ffd740":"#4db8ff",borderRadius:2}}/>
-                        </div>
-                        <span style={{color:"#c8d3e8",minWidth:24}}>{r.sm}</span>
-                      </div>
-                    </td>
-                    <td style={{padding:"5px 8px",textAlign:"right",color:"#00e5a0",fontWeight:600}}>+{r.alpha}%</td>
-                    <td style={{padding:"5px 8px",textAlign:"right",color:"#4db8ff"}}>{r.mentions.toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ):(
-            <div style={{display:"flex",flexDirection:"column",gap:5}}>
-              {[...NLP_RANKS].sort((a,b)=>b.mentions-a.mentions).map(r=>(
-                <div key={r.t} style={{display:"flex",alignItems:"center",gap:8}}>
-                  <span style={{fontSize:11,fontWeight:700,color:r.sig==="ACHAT"?"#00e5a0":"#8892a4",minWidth:40}}>{r.t}</span>
-                  <div style={{flex:1,background:"#0a1220",borderRadius:2,height:16,position:"relative"}}>
-                    <div style={{width:`${r.mentions/maxMentions*100}%`,height:"100%",background:r.sig==="ACHAT"?"rgba(0,229,160,.5)":"rgba(77,184,255,.3)",borderRadius:2}}/>
-                    <span style={{position:"absolute",right:6,top:1,fontSize:10,color:"#c8d3e8",fontWeight:600}}>{r.mentions.toLocaleString()}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── TOP SIGNAUX ACHAT Jan-Jun 2026 ── */}
-      <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexWrap:"wrap",gap:8}}>
-          <div>
-            <div style={{fontSize:12,fontWeight:700,color:"#00e5a0",textTransform:"uppercase",letterSpacing:1.5}}>
-              Top Signaux ACHAT — Jan. → Jun. 2026
-            </div>
-            <div style={{fontSize:10,color:"#8892a4",marginTop:3}}>
-              91 748 messages analysés · 57 valeurs actives · classement par volume de signaux ACHAT
-            </div>
-          </div>
-          <span style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:10,color:"#00e5a0",letterSpacing:.5}}>6 mois · 2026</span>
-        </div>
-
-        {/* En-tête colonnes */}
-        <div style={{display:"flex",alignItems:"center",gap:8,padding:"4px 0 6px",borderBottom:"1px solid #1a2540",fontSize:9,color:"#8892a4"}}>
-          <span style={{minWidth:16}}>#</span>
-          <span style={{minWidth:44}}>TICKER</span>
-          <span style={{flex:1}}>PRESSION ACHAT/VENTE</span>
-          <span style={{minWidth:26,textAlign:"right"}}>ACHAT</span>
-          <span style={{minWidth:30}}/>
-          <span style={{minWidth:28,textAlign:"right"}}>NET</span>
-          <span style={{minWidth:70,textAlign:"right"}}>VERDICT</span>
-          <span style={{minWidth:38,textAlign:"right",color:"#00e5a0"}}>POS</span>
-          <span style={{minWidth:38,textAlign:"right",color:"#ff4f5a"}}>NEG</span>
-          <span style={{minWidth:46,textAlign:"right"}}>MEMBRES</span>
-        </div>
-        {NLP_RECENT6M.map((r,i)=>{
-          const totalSig=r.buy+r.sell;
-          const buyPct=totalSig>0?(r.buy/totalSig*100):50;
-          const nc=r.net>0?"#00e5a0":r.net<0?"#ff4f5a":"#ffd740";
-          const nl=r.net>0?"NET ACHAT":r.net<0?"NET VENTE":"ÉQUILIBRÉ";
-          const totalPosNeg=r.pos+r.neg;
-          const posPct=totalPosNeg>0?(r.pos/totalPosNeg*100):50;
-          return(
-            <div key={r.t} style={{padding:"7px 0",borderBottom:"1px solid rgba(26,37,64,.7)"}}>
-              {/* Ligne principale */}
-              <div style={{display:"flex",alignItems:"center",gap:8}}>
-                <span style={{fontSize:10,color:"#4db8ff",fontWeight:700,minWidth:16,textAlign:"right"}}>{i+1}</span>
-                <span style={{fontSize:12,fontWeight:700,color:"#c8d3e8",minWidth:44}}>{r.t}</span>
-                <div style={{flex:1,height:14,background:"#0a1220",borderRadius:2,overflow:"hidden",position:"relative"}}>
-                  <div style={{position:"absolute",left:0,top:0,height:"100%",width:`${buyPct}%`,background:"rgba(0,229,160,.5)"}}/>
-                  <div style={{position:"absolute",right:0,top:0,height:"100%",width:`${100-buyPct}%`,background:"rgba(255,79,90,.35)"}}/>
-                </div>
-                <span style={{fontSize:11,fontWeight:700,color:"#00e5a0",minWidth:26,textAlign:"right"}}>{r.buy}</span>
-                {r.strong_buy>0
-                  ?<span style={{fontSize:9,background:"rgba(0,229,160,.12)",border:"1px solid rgba(0,229,160,.35)",borderRadius:3,padding:"1px 4px",color:"#00e5a0",minWidth:30}}>★{r.strong_buy}</span>
-                  :<span style={{minWidth:30}}/>}
-                <span style={{fontSize:10,fontWeight:700,color:nc,minWidth:28,textAlign:"right"}}>{r.net>0?"+":""}{r.net}</span>
-                <span style={{fontSize:9,color:nc,minWidth:70,textAlign:"right",opacity:.85}}>{nl}</span>
-                {/* Messages positifs */}
-                <span style={{fontSize:10,fontWeight:600,color:"#00e5a0",minWidth:38,textAlign:"right"}}>+{r.pos}</span>
-                {/* Messages négatifs */}
-                <span style={{fontSize:10,fontWeight:600,color:"#ff4f5a",minWidth:38,textAlign:"right"}}>−{r.neg}</span>
-                <span style={{fontSize:9,color:"#8892a4",minWidth:46,textAlign:"right"}}>{r.authors} mbr.</span>
-              </div>
-              {/* Barre pos/neg tonalité */}
-              <div style={{display:"flex",alignItems:"center",gap:6,marginTop:4,paddingLeft:68}}>
-                <span style={{fontSize:8,color:"#8892a4",minWidth:50}}>tonalité</span>
-                <div style={{flex:1,height:4,background:"#0a1220",borderRadius:2,overflow:"hidden",position:"relative",maxWidth:160}}>
-                  <div style={{position:"absolute",left:0,top:0,height:"100%",width:`${posPct}%`,background:"rgba(0,229,160,.6)"}}/>
-                  <div style={{position:"absolute",right:0,top:0,height:"100%",width:`${100-posPct}%`,background:"rgba(255,79,90,.4)"}}/>
-                </div>
-                <span style={{fontSize:8,color:"#8892a4"}}>{posPct.toFixed(0)}% pos</span>
-              </div>
-            </div>
-          );
-        })}
-
-        <div style={{marginTop:10,padding:"8px 10px",background:"rgba(77,184,255,.05)",borderRadius:4,border:"1px solid rgba(77,184,255,.15)"}}>
-          <span style={{fontSize:10,color:"#8892a4"}}>
-            Meilleur ratio NET : <strong style={{color:"#00e5a0"}}>RDS +43</strong> — <strong style={{color:"#00e5a0"}}>MNG +19</strong> — <strong style={{color:"#ffd740"}}>CMT &amp; ADH équilibrés</strong> — <strong style={{color:"#ff4f5a"}}>TGCC pression vendeuse −29</strong>
-          </span>
-        </div>
-      </div>
-
     </div>
   );
 };
@@ -5709,8 +5143,6 @@ const NewsFeed=()=>{
       .catch(()=>setLoading(false));
   },[]);
 
-  const SC=s=>s==="POSITIF"?"#00e5a0":s==="NEGATIF"?"#ff4f5a":"#8892a4";
-  const SBG=s=>s==="POSITIF"?"rgba(0,229,160,.1)":s==="NEGATIF"?"rgba(255,79,90,.1)":"rgba(136,146,164,.08)";
   const fmtD=iso=>{try{return maroc(iso).toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}catch{return iso||"";}};
   const fmtFull=iso=>{try{return maroc(iso).toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch{return iso||"";}};
 
@@ -5746,8 +5178,6 @@ const NewsFeed=()=>{
     ticker==="ALL"?scopeFiltered:scopeFiltered.filter(a=>(a.tickers||[]).includes(ticker))
   ,[scopeFiltered,ticker]);
 
-  const sentPos=scopeFiltered.filter(a=>a.sentiment==="POSITIF").length;
-  const sentNeg=scopeFiltered.filter(a=>a.sentiment==="NEGATIF").length;
 
   const changeScope=s=>{setScope(s);setTicker("ALL");};
 
@@ -5792,8 +5222,8 @@ const NewsFeed=()=>{
       </div>
 
       {/* Stats bar */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:14}}>
-        {[["Articles","#4db8ff",scopeFiltered.length],["Ton positif","#00e5a0",sentPos],["Ton négatif","#ff4f5a",sentNeg],["Dernière MAJ","#ffd740",updated?fmtFull(updated):"—"]].map(([lbl,c,val])=>(
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10,marginBottom:14}}>
+        {[["Articles","#4db8ff",scopeFiltered.length],["Dernière MAJ","#ffd740",updated?fmtFull(updated):"—"]].map(([lbl,c,val])=>(
           <div key={lbl} style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,padding:"10px 12px"}}>
             <div style={{fontSize:9,color:"#8892a4",marginBottom:3,textTransform:"uppercase",letterSpacing:.5}}>{lbl}</div>
             <div style={{fontSize:lbl==="Dernière MAJ"?11:20,fontWeight:700,color:c,lineHeight:1.3}}>{val}</div>
@@ -5823,7 +5253,7 @@ const NewsFeed=()=>{
           const catLabel=CAT_LABEL[a.category||"economie"]||"Éco";
           return(
             <a key={a.id} href={a.url} target="_blank" rel="noopener noreferrer"
-              style={{display:"block",background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 14px",textDecoration:"none",borderLeft:`3px solid ${SC(a.sentiment)}`,transition:"background .12s"}}
+              style={{display:"block",background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 14px",textDecoration:"none",borderLeft:"3px solid #1a2540",transition:"background .12s"}}
               onMouseEnter={e=>e.currentTarget.style.background="#0f1e30"}
               onMouseLeave={e=>e.currentTarget.style.background="#0d1829"}>
               <div style={{display:"flex",justifyContent:"space-between",gap:12,marginBottom:5,flexWrap:"wrap"}}>
@@ -5832,7 +5262,6 @@ const NewsFeed=()=>{
               </div>
               {a.summary&&<div style={{fontSize:11,color:"#8892a4",lineHeight:1.6,marginBottom:7}}>{a.summary.slice(0,240)}{a.summary.length>240?"…":""}</div>}
               <div style={{display:"flex",gap:5,alignItems:"center",flexWrap:"wrap"}}>
-                <span style={{background:SBG(a.sentiment),border:`1px solid ${SC(a.sentiment)}35`,borderRadius:3,padding:"1px 7px",fontSize:9,color:SC(a.sentiment),fontWeight:700,letterSpacing:.5}}>{a.sentiment||"NEUTRE"}</span>
                 {catLabel&&<span style={{background:`${catColor}15`,border:`1px solid ${catColor}30`,borderRadius:3,padding:"1px 6px",fontSize:9,color:catColor,letterSpacing:.5}}>{catLabel}</span>}
                 {(a.tickers||[]).map(t=>(
                   <span key={t} style={{background:"rgba(77,184,255,.1)",border:"1px solid rgba(77,184,255,.25)",borderRadius:3,padding:"1px 6px",fontSize:9,color:"#4db8ff",fontWeight:600}}>{codeDe(t)}</span>
@@ -5848,31 +5277,29 @@ const NewsFeed=()=>{
 };
 
 // ── SCORE PERSONNALISÉ ────────────────────────────────────────────────────────
-// Recalcule un score d'affichage selon les composantes actives (F/N/T)
+// Recalcule un score d'affichage selon les composantes actives (F/T)
 // Ne modifie PAS le score v5.3 stocké — lecture seule des sous-scores
 /* Les composantes du score v5.3, transportées telles quelles depuis data.json.
    Déclarées ici, à côté de la fonction qui les consomme, plutôt que noyées
    dans le mapping de loadData où l'absence de score_tech est passée inaperçue
    pendant tout le temps qu'a duré le mode personnalisé. */
-const CHAMPS_SCORE = ["score_tech", "score_fond", "score_nlp"];
+const CHAMPS_SCORE = ["score_tech", "score_fond"];
 
-/* Les trois composantes telles qu'elles sont DANS LE FICHIER, ou `null`.
+/* Les deux composantes telles qu'elles sont DANS LE FICHIER, ou `null`.
    Aucune n'est devinée : une composante absente reste absente. */
 function composantesScore(r) {
   return {
     f: r.score_fond != null ? r.score_fond : null,            // 0-10
-    n: r.nlp != null ? (r.nlp + 1) * 5 : null,                // [-1,+1] → [0,10]
     t: r.score_tech != null ? r.score_tech : null,            // 0-10
   };
 }
 
 /* Ce qui MANQUE pour cette pondération. Une composante de poids nul n'est pas
-   requise : en 70/30, l'absence de NLP ne gêne personne. */
+   requise. */
 function composantesManquantes(r, p) {
   if (!p || p.officiel) return [];
   const c = composantesScore(r), m = [];
   if ((p.f||0) > 0 && c.f == null) m.push("Fondamental");
-  if ((p.n||0) > 0 && c.n == null) m.push("NLP");
   if ((p.t||0) > 0 && c.t == null) m.push("Technique");
   return m;
 }
@@ -5898,13 +5325,13 @@ function computeDisplayScore(r, p) {
      Une note approchée ressemble à une note. Elle ne doit donc pas exister :
      si une composante requise manque, le score est INDISPONIBLE, et le tri
      comme l'export le traitent en tant que tel. */
-  const total = (p.f||0) + (p.n||0) + (p.t||0);
+  const total = (p.f||0) + (p.t||0);
   if (total === 0) return null;
   if (composantesManquantes(r, p).length) return null;
 
   const c = composantesScore(r);
   return +Math.min(10, Math.max(0,
-    ((c.f ?? 0)*(p.f||0) + (c.n ?? 0)*(p.n||0) + (c.t ?? 0)*(p.t||0)) / total
+    ((c.f ?? 0)*(p.f||0) + (c.t ?? 0)*(p.t||0)) / total
   )).toFixed(2);
 }
 
@@ -5928,7 +5355,7 @@ function scoreModeLabel(p) {
 // l'interface doit être vérifié PARTOUT où il s'applique.
 function poidsAffiches(r, p) {
   if (!p || p.officiel) return r.poids || null;
-  return {f: p.f || 0, n: p.n || 0, t: p.t || 0};
+  return {f: p.f || 0, t: p.t || 0};
 }
 
 /* ── FAVORIS : CE QUI A CHANGÉ DEPUIS LA DERNIÈRE VISITE (14/10/2026) ───────
@@ -6022,9 +5449,13 @@ const MentionLegale=()=>(
 );
 
 /* Vues qui lisent les cours et les notes de data.json (`rows`). Les autres
-   (POIDS, COMMENT LIRE, SMART MONEY, NLP, ACTUALITÉS, MARCHÉS MONDIAUX) ont
-   leurs propres fichiers et restent ouvertes quand data.json manque. */
+   (POIDS, COMMENT LIRE, ACTUALITÉS, MARCHÉS MONDIAUX) ont leurs propres
+   fichiers et restent ouvertes quand data.json manque. */
 const VUES_SUR_DONNEES=["accueil","ranking","heatmap","watchlist","detail","briefing"];
+/* ⚠️ 28/10/2026 — onglets « smart » et « nlp » retirés (corpus WhatsApp
+   supprimé, décision d'Abd Moutalib). Un lien ancien `#onglet=nlp` ouvrait
+   une page vide : seule une vue connue est acceptée depuis l'adresse. */
+const VUES_CONNUES=["accueil","ranking","briefing","heatmap","detail","watchlist","weights","news","monde","guide"];
 /* État explicite tant que data.json n'a pas chargé — 22/10/2026. Aucun
    chiffre : ni ceux de la table de repli (elle n'en a plus), ni un écran
    de titres vides qui se lirait comme un marché sans cotation. */
@@ -6050,7 +5481,7 @@ function App(){
      L'ouverture se fait désormais TOUJOURS sur l'Accueil ; seul un lien
      explicite (#onglet=ranking) choisit un autre onglet. */
   const [tab,setTab]=useState(()=>{
-    try{const m=/onglet=([a-z]+)/.exec(location.hash||"");if(m)return m[1];}catch(e){}
+    try{const m=/onglet=([a-z]+)/.exec(location.hash||"");if(m&&VUES_CONNUES.includes(m[1]))return m[1];}catch(e){}
     return "accueil";});
   const [sort,setSort]=useState("v53");
   const [scoreMode,setScoreMode]=useState(PONDERATIONS[0]);
@@ -6154,7 +5585,7 @@ function App(){
           macd:t.macd,macd_signal:t.macd_signal,macd_hist:t.macd_hist,
           bb_upper:t.bb_upper,bb_mid:t.bb_mid,bb_lower:t.bb_lower,
           stoch_k:t.stoch_k,stoch_d:t.stoch_d,
-          v53:t.v53,nlp:t.nlp,score_version:t.score_version,
+          v53:t.v53,score_version:t.score_version,
           /* ⚠️ LES COMPOSANTES DU SCORE, oubliées jusqu'au 10/09/2026.
              `score_tech` existait dans data.json et n'arrivait jamais ici :
              computeDisplayScore retombait donc sur son repli `RSI / 10`, qui
@@ -6165,10 +5596,10 @@ function App(){
              NOMMÉE pour qu'un oubli futur se voie — une énumération de
              quarante champs cache ce qui lui manque. */
           ...Object.fromEntries(CHAMPS_SCORE.map(c=>[c,t[c]])),
-          alpha:t.alpha,win:t.win,sig:t.sig,biais:t.biais,reference:t.reference,
+          sig:t.sig,reference:t.reference,
           bonus:t.bonus,poids:t.poids,note_fond:t.note_fond,warn:t.warn,warnMsg:t.warnMsg,
           bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,alertes:t.alertes,ratios_publies:t.ratios_publies,risque:t.risque,
-          conv:t.conv,setup:t.setup,
+          setup:t.setup,
           obv:t.obv,adx:t.adx,adx_pdi:t.adx_pdi,adx_mdi:t.adx_mdi,
           /* ⚠️ DEUX CHAMPS CALCULÉS QUI N'ARRIVAIENT PAS JUSQU'ICI — 25/09.
              `rang_secteur`, publié le 24/09, et `niveaux`, le 25/09 : les
@@ -6330,8 +5761,6 @@ function App(){
         {tab==="guide"    &&<Guide setTab={changeTab}/>}
         {tab==="briefing" &&<Briefing rows={rows} masi={masi} ouvrir={sym=>{choisirTitre(sym);changeTab("detail");}}/>}
         {tab==="monde" &&<MarchesMondiaux/>}
-        {tab==="smart"    &&<Smart/>}
-        {tab==="nlp"      &&<NlpDash/>}
         {tab==="news"     &&<NewsFeed/>}
           </>}
         <MentionLegale/>

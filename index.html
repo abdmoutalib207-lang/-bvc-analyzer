@@ -118,8 +118,8 @@
       .classement th:nth-child(1),.classement td:nth-child(1),
       .classement th:nth-child(3),.classement td:nth-child(3),
       .classement th:nth-child(n+6):nth-child(-n+8),.classement td:nth-child(n+6):nth-child(-n+8),
-      .classement th:nth-child(n+10):nth-child(-n+13),.classement td:nth-child(n+10):nth-child(-n+13),
-      .classement th:nth-child(15),.classement td:nth-child(15){display:none}
+      .classement th:nth-child(10),.classement td:nth-child(10),
+      .classement th:nth-child(12),.classement td:nth-child(12){display:none}
       .classement td,.classement th{padding:7px 3px!important}
       /* Colonne COULEUR (07/10/2026) : sur téléphone, la pastille seule —
          la note colorée est à côté. La mention « titre peu échangé » reste,
@@ -130,11 +130,11 @@
          409). Le remplissage 3px 5px s'appliquait à TOUT le contenu, rond
          compris : 92 px pour une colonne qui en a 60. Le rond passe au-dessus
          de sa mention, les étiquettes se coupent aux mots. */
-      .classement th:nth-child(14),.classement td:nth-child(14){width:64px;max-width:64px}
-      .classement td:nth-child(14) .pastille{flex-direction:column;align-items:flex-start;gap:3px}
-      .classement td:nth-child(14) .rond{padding:0!important}
-      .classement td:nth-child(14){padding-left:1px!important;padding-right:1px!important}
-      .classement td:nth-child(14) .chip{padding:2px 3px!important;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+      .classement th:nth-child(11),.classement td:nth-child(11){width:64px;max-width:64px}
+      .classement td:nth-child(11) .pastille{flex-direction:column;align-items:flex-start;gap:3px}
+      .classement td:nth-child(11) .rond{padding:0!important}
+      .classement td:nth-child(11){padding-left:1px!important;padding-right:1px!important}
+      .classement td:nth-child(11) .chip{padding:2px 3px!important;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
       /* La ligne « CMT ~hist ☆ » tenait la colonne TICKER à 124 px : elle
          peut désormais se replier. */
       .classement .ligne-ticker{flex-wrap:wrap;row-gap:2px}
@@ -146,7 +146,7 @@
       .classement .logo-pastille{width:26px!important;height:26px!important;font-size:8px!important}
       .classement td:nth-child(2)>div{gap:7px!important}
       .nom-societe{max-width:80px!important;font-size:11px!important}
-      .classement td:nth-child(14) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}
+      .classement td:nth-child(11) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}
       .classement td:nth-child(4),.classement td:nth-child(4) *{white-space:normal!important}
     }
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -640,135 +640,6 @@ const STATIC = [{
   name: "IB Maroc.com",
   sector: "Technologie"
 }];
-const MEMBERS = [{
-  name: "M1051",
-  tier: "Admin",
-  w: 1.00,
-  snr: null,
-  win: null,
-  alpha: null
-}, {
-  name: "M0545",
-  tier: "Tier 1",
-  w: 0.88,
-  snr: 21.7,
-  win: 83,
-  alpha: 38.3
-}, {
-  name: "M1489",
-  tier: "Tier 1",
-  w: 0.85,
-  snr: 10.3,
-  win: 82,
-  alpha: 32.1
-}, {
-  name: "M0803",
-  tier: "Tier 1",
-  w: 0.85,
-  snr: 10.2,
-  win: 82,
-  alpha: 30.5
-}, {
-  name: "M0477",
-  tier: "Tier 1",
-  w: 0.83,
-  snr: 9.2,
-  win: 80,
-  alpha: 27.8
-}, {
-  name: "M0345",
-  tier: "Tier 1",
-  w: 0.83,
-  snr: 7.4,
-  win: 80,
-  alpha: 25.2
-}, {
-  name: "M1662",
-  tier: "Tier 2",
-  w: 0.82,
-  snr: 6.8,
-  win: 79,
-  alpha: 21.9
-}, {
-  name: "M0550",
-  tier: "Tier 2",
-  w: 0.65,
-  snr: 8.1,
-  win: 79,
-  alpha: 22.4
-}];
-const CHAT = [{
-  id: 1,
-  time: "14:23",
-  date: "01/06/2026",
-  member: "M0545",
-  tier: "Tier 1",
-  snr: 21.7,
-  alpha: 38.3,
-  ticker: "CMT",
-  signal: "ACHAT",
-  conf: 94,
-  ctx: "Breakout volume ×3.4",
-  msg: "CMT breakout confirmé au-dessus de 5300 DH. Volume ×3.4 vs moyenne 20j. La résistance devient support. Objectif T1: 5700, T2: 6200. Stop: 5100."
-}, {
-  id: 2,
-  time: "11:47",
-  date: "01/06/2026",
-  member: "M1489",
-  tier: "Tier 1",
-  snr: 10.3,
-  alpha: 32.1,
-  ticker: "SMI",
-  signal: "ACHAT",
-  conf: 88,
-  ctx: "Pullback haussier sain",
-  msg: "SMI consolide proprement au-dessus de 9200. Pullback sur MM20 sain. Tenir. Upside fondamental +30% sur 12 mois selon bilan S1 2026."
-}, {
-  id: 3,
-  time: "09:15",
-  date: "01/06/2026",
-  member: "M0803",
-  tier: "Tier 1",
-  snr: 10.2,
-  alpha: 30.5,
-  ticker: "AKD",
-  signal: "ACHAT",
-  conf: 86,
-  ctx: "Croissance Akdital +18%",
-  msg: "AKD: résultats S1 excellents. Croissance CA +18% YoY. Valorisation tendue (PE 28) mais justifiée. Alpha historique +15.2%. Objectif: 700."
-}, {
-  id: 4,
-  time: "16:08",
-  date: "31/05/2026",
-  member: "M0345",
-  tier: "Tier 1",
-  snr: 7.4,
-  alpha: 25.2,
-  ticker: "TGCC",
-  signal: "VENTE",
-  conf: 71,
-  ctx: "Contrarian — alpha négatif",
-  msg: "TGCC: alpha négatif confirmé (-2.3%). Signal ACHAT communauté = contrarian indicator V3. Win rate vendeurs 61%. Ne pas suivre les achats."
-}, {
-  id: 5,
-  time: "10:33",
-  date: "31/05/2026",
-  member: "M1662",
-  tier: "Tier 2",
-  snr: 6.8,
-  alpha: 21.9,
-  ticker: "SRM",
-  signal: "EVITER",
-  conf: 68,
-  ctx: "Chute -8.5% + 4 red flags",
-  msg: "SRM: -8.54% aujourd'hui. 4 red flags actifs. Biais groupe NÉGATIF. Smart money absent. À éviter absolument jusqu'à clarification."
-}];
-const META = {
-  msgs: "896 907",
-  years: 6,
-  signals: "24 777",
-  tickers: 64
-};
 const LIVE_ACTIF = false;
 const PROXY_LIST = ["https://corsproxy.io/?", "https://api.allorigins.win/raw?url="];
 const IDB_BASE = "https://www.idbourse.com";
@@ -1241,38 +1112,32 @@ async function fetchMASI() {
 const PONDERATIONS = [{
   nom: "OFFICIEL",
   f: 65,
-  n: 0,
   t: 35,
   officiel: true,
-  aide: "Formule v5.3 publiée au 25/09/2026 — Fond 65 · Tech 35. Le pilier NLP est gelé (poids 0) : son corpus s'arrête au 02/07/2026."
+  aide: "Formule v5.3 publiée au 25/09/2026 — Fond 65 · Tech 35."
 }, {
   nom: "70/30",
   f: 70,
-  n: 0,
   t: 30,
   aide: "Fondamental dominant — horizon long"
 }, {
   nom: "60/40",
   f: 60,
-  n: 0,
   t: 40,
   aide: "Fondamental dominant, technique renforcée"
 }, {
   nom: "50/50",
   f: 50,
-  n: 0,
   t: 50,
   aide: "Équilibre"
 }, {
   nom: "40/60",
   f: 40,
-  n: 0,
   t: 60,
   aide: "Technique dominante"
 }, {
   nom: "30/70",
   f: 30,
-  n: 0,
   t: 70,
   aide: "Technique dominante — horizon court"
 }];
@@ -1347,7 +1212,6 @@ const palierTexte = r => {
 };
 const VC = v => v > 0 ? "#00e5a0" : v < 0 ? "#ff4f5a" : "#8892a4";
 const SC = v => v >= 7.5 ? "#00ffb3" : v >= 6.5 ? "#00e5a0" : v >= 5.5 ? "#ffd740" : v >= 4 ? "#ff8f00" : "#ff4f5a";
-const NC = v => v > 0.15 ? "#00e5a0" : v > -0.15 ? "#ffd740" : "#ff4f5a";
 const CCO = v => v >= 85 ? "#00e5a0" : v >= 70 ? "#ffd740" : "#ff8f00";
 const px = n => n >= 1000 ? n.toLocaleString("fr-FR") : n;
 const fmtM = n => n >= 1000 ? `${(n / 1000).toFixed(1)} Md` : `${n} M`;
@@ -2143,7 +2007,6 @@ const Delta = ({
 };
 const WBar = ({
   f,
-  n,
   t
 }) => React.createElement("div", {
   style: {
@@ -2159,12 +2022,6 @@ const WBar = ({
     background: "#b388ff"
   },
   title: `Fond ${f}%`
-}), React.createElement("div", {
-  style: {
-    width: `${n}%`,
-    background: "#00e5a0"
-  },
-  title: `NLP ${n}%`
 }), React.createElement("div", {
   style: {
     width: `${t}%`,
@@ -5133,17 +4990,6 @@ const RUBRIQUES = [{
     icone: "⚖",
     aide: "Ce qui compose la note, pilier par pilier"
   }]
-}, {
-  titre: "Données avancées",
-  vues: [{
-    id: "smart",
-    icone: "◎",
-    aide: "Smart money — corpus gelé au 02/07/2026"
-  }, {
-    id: "nlp",
-    icone: "◌",
-    aide: "Corpus NLP — gelé, poids nul dans la note"
-  }]
 }];
 const Marque = ({
   taille = 36
@@ -5743,12 +5589,6 @@ const Header = ({
     id: "weights",
     label: "POIDS"
   }, {
-    id: "smart",
-    label: "SMART MONEY"
-  }, {
-    id: "nlp",
-    label: "NLP CORPUS"
-  }, {
     id: "news",
     label: "ACTUALITÉS"
   }, {
@@ -5807,7 +5647,7 @@ const Header = ({
     }
   }, "?"), React.createElement("span", {
     className: "badge-version",
-    title: "Pond\xE9ration de R\xC9F\xC9RENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCH\xC9, le m\xEAme pour tous les titres \u2014 hors s\xE9ance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids R\xC9ELLEMENT appliqu\xE9 est affich\xE9 sur chaque fiche. Le pilier NLP est gel\xE9 \xE0 un poids de 0 : son corpus s'arr\xEAte au 02/07/2026 et il ne d\xE9pla\xE7ait plus que 0,37 point sur 10.",
+    title: "Pond\xE9ration de R\xC9F\xC9RENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCH\xC9, le m\xEAme pour tous les titres \u2014 hors s\xE9ance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids R\xC9ELLEMENT appliqu\xE9 est affich\xE9 sur chaque fiche.",
     style: {
       background: "rgba(0,229,160,.1)",
       border: "1px solid rgba(0,229,160,.3)",
@@ -5821,7 +5661,7 @@ const Header = ({
     style: {
       color: "#8892a4"
     }
-  }, "\xB7 modul\xE9e par le march\xE9 \xB7 NLP gel\xE9")), React.createElement("div", {
+  }, "\xB7 modul\xE9e par le march\xE9")), React.createElement("div", {
     className: "choix-score",
     style: {
       display: "flex",
@@ -5977,11 +5817,7 @@ const Header = ({
     style: {
       color: "#8892a4"
     }
-  }, "BVC \xB7 ", univers ?? STATIC.length, " titres"), React.createElement("div", {
-    style: {
-      color: "#ffd740"
-    }
-  }, META.msgs, " msgs \xB7 ", META.years, " ans \xB7 ", META.signals, " signaux"))), React.createElement("div", {
+  }, "BVC \xB7 ", univers ?? STATIC.length, " titres"))), React.createElement("div", {
     className: "onglets" + (peutRevenir ? "" : " sans-retour"),
     style: {
       display: "flex",
@@ -6226,11 +6062,11 @@ const Ranking = ({
   const [palierFiltre, setPalierFiltre] = useState(null);
   const [rsiZone, setRsiZone] = useState(null);
   const customMode = !!(scoreMode && !scoreMode.officiel);
-  const NLP_TICKERS = new Set(["CMT", "SMI", "CASH", "MNG", "AKD", "SOT", "SGTM", "MSA", "CFGB", "RIS", "ADI", "VCNE", "CMGP", "CSR", "TGCC", "ADH", "SRM", "SNA", "RDS"]);
+  const MASI1_TICKERS = new Set(["CMT", "SMI", "CASH", "MNG", "AKD", "SOT", "SGTM", "MSA", "CFGB", "RIS", "ADI", "VCNE", "CMGP", "CSR", "TGCC", "ADH", "SRM", "SNA", "RDS"]);
   const sectors = useMemo(() => ["ALL", ...new Set(rows.map(r => r.sector).filter(Boolean).sort())], [rows]);
   const filtered = useMemo(() => {
     let r = rows;
-    if (group === "MASI1") r = r.filter(x => NLP_TICKERS.has(x.symbol || x.ticker || ""));
+    if (group === "MASI1") r = r.filter(x => MASI1_TICKERS.has(x.symbol || x.ticker || ""));
     if (sector !== "ALL") r = r.filter(x => x.sector === sector);
     if (search.trim()) {
       const q = search.trim().toUpperCase();
@@ -6254,9 +6090,7 @@ const Ranking = ({
       if (na !== nb) return na ? 1 : -1;
       return sb - sa;
     }
-    if (sort === "nlp") return b.nlp - a.nlp;
     if (sort === "var") return (varSeance(b) ?? -Infinity) - (varSeance(a) ?? -Infinity) || 0;
-    if (sort === "alpha") return b.alpha - a.alpha;
     if (sort === "rsi") {
       const ra = a.rsi ?? a.rsi14,
         rb = b.rsi ?? b.rsi14;
@@ -6266,9 +6100,9 @@ const Ranking = ({
     }
     return 0;
   }), [filtered, sort, scoreMode]);
-  const SORTS = [["az", "A → Z"], ["v53", customMode ? "SCORE PERSO" : "SCORE v5.3"], ["nlp", "NLP"], ["var", "VAR%"], ["alpha", "ALPHA"], ["rsi", "RSI"]];
+  const SORTS = [["az", "A → Z"], ["v53", customMode ? "SCORE PERSO" : "SCORE v5.3"], ["var", "VAR%"], ["rsi", "RSI"]];
   const scoreColLabel = customMode ? scoreModeLabel(scoreMode) : "SCORE";
-  const HEADS = ["#", "TICKER", "OUVERT", "CLÔT.", "VAR%", "VOLUME", "PE", "DIV%", scoreColLabel, "NLP%", "SM~", "ALPHA", "RSI", "COULEUR", "POIDS"];
+  const HEADS = ["#", "TICKER", "OUVERT", "CLÔT.", "VAR%", "VOLUME", "PE", "DIV%", scoreColLabel, "RSI", "COULEUR", "POIDS"];
   if (isWatchlist && rows.length === 0) return React.createElement("div", {
     style: {
       textAlign: "center",
@@ -6341,7 +6175,7 @@ const Ranking = ({
       padding: 2,
       border: "1px solid #1a2540"
     }
-  }, [["MASI1", "MASI 1 · NLP", "#00e5a0"], ["ALL", "ÉLARGI", "#4db8ff"]].map(([g, lbl, c]) => React.createElement("button", {
+  }, [["MASI1", "MASI 1", "#00e5a0"], ["ALL", "ÉLARGI", "#4db8ff"]].map(([g, lbl, c]) => React.createElement("button", {
     key: g,
     onClick: () => setGroup(g),
     style: {
@@ -6376,15 +6210,10 @@ const Ranking = ({
       fontSize: 11,
       color: "#8892a4"
     }
-  }, sorted.length, "/", group === "MASI1" ? 19 : rows.length, " titres", group === "MASI1" && React.createElement("span", {
-    style: {
-      color: "#00e5a0",
-      marginLeft: 4
-    }
-  }, "NLP \u2713")), React.createElement("button", {
+  }, sorted.length, "/", group === "MASI1" ? 19 : rows.length, " titres"), React.createElement("button", {
     onClick: () => {
-      const cols = ["TICKER BVC", "CODE INTERNE", "NOM", "SECTEUR", "PRIX", "VAR%", "PE", "DIV%", "RSI", "SCORE", "PONDERATION", "COULEUR_NOTE", "ALPHA", "SM_HEUR_NON_CALIBRE", "VERSION_SCORE"];
-      const rows_csv = sorted.map(r => [tk(r), r.symbol, r.name || "", r.sector || "", r.price || "", r.chg || "", r.pe?.toFixed(1) || "", r.div?.toFixed(2) || "", r.rsi?.toFixed(1) || "", (sc => sc == null ? "indisponible" : sc.toFixed(2))(computeDisplayScore(r, scoreMode)), scoreModeLabel(scoreMode), customMode ? "" : palierTexte(r), r.alpha || "", r.win || "", customMode ? "" : r.score_version || ""]);
+      const cols = ["TICKER BVC", "CODE INTERNE", "NOM", "SECTEUR", "PRIX", "VAR%", "PE", "DIV%", "RSI", "SCORE", "PONDERATION", "COULEUR_NOTE", "VERSION_SCORE"];
+      const rows_csv = sorted.map(r => [tk(r), r.symbol, r.name || "", r.sector || "", r.price || "", r.chg || "", r.pe?.toFixed(1) || "", r.div?.toFixed(2) || "", r.rsi?.toFixed(1) || "", (sc => sc == null ? "indisponible" : sc.toFixed(2))(computeDisplayScore(r, scoreMode)), scoreModeLabel(scoreMode), customMode ? "" : palierTexte(r), customMode ? "" : r.score_version || ""]);
       const csv = "﻿" + [cols, ...rows_csv].map(r => r.join(";")).join("\n");
       const blob = new Blob([csv], {
         type: "text/csv;charset=utf-8"
@@ -6540,7 +6369,7 @@ const Ranking = ({
     style: {
       width: "100%",
       borderCollapse: "collapse",
-      minWidth: 1220
+      minWidth: 1000
     }
   }, React.createElement("thead", null, React.createElement("tr", {
     style: {
@@ -6798,31 +6627,6 @@ const Ranking = ({
       h: 4
     })), React.createElement("td", {
       style: {
-        padding: "8px 8px",
-        fontSize: 13,
-        color: NC(r.nlp),
-        fontWeight: 600
-      }
-    }, r.nlp > 0 ? "+" : "", (r.nlp * 100).toFixed(0), "%"), React.createElement("td", {
-      style: {
-        padding: "8px 8px",
-        fontSize: 12,
-        color: r.win >= 80 ? "#00e5a0" : r.win >= 70 ? "#ffd740" : "#ff8f00",
-        fontWeight: 600
-      }
-    }, r.win != null ? `${r.win}` : "—"), React.createElement("td", {
-      style: {
-        padding: "8px 8px",
-        fontSize: 12,
-        color: r.alpha >= 0 ? "#00e5a0" : "#ff4f5a",
-        fontWeight: 600
-      }
-    }, r.alpha != null ? React.createElement(React.Fragment, null, r.alpha > 0 ? "+" : "", r.alpha, "%", r.alpha < 0 && React.createElement("span", {
-      style: {
-        fontSize: 10
-      }
-    }, "\u26A0\uFE0F")) : "—"), React.createElement("td", {
-      style: {
         padding: "8px 8px"
       }
     }, React.createElement("div", {
@@ -6893,7 +6697,6 @@ const Ranking = ({
       const pw = poidsAffiches(r, scoreMode);
       return pw && React.createElement(React.Fragment, null, React.createElement(WBar, {
         f: pw.f,
-        n: pw.n,
         t: pw.t
       }), React.createElement("div", {
         style: {
@@ -6901,7 +6704,7 @@ const Ranking = ({
           color: customMode ? "#ffd740" : "#8892a4",
           marginTop: 2
         }
-      }, "F", pw.f, "\xB7N", pw.n, "\xB7T", pw.t));
+      }, "F", pw.f, "\xB7T", pw.t));
     })()));
   })))), React.createElement("div", {
     style: {
@@ -6918,15 +6721,11 @@ const Ranking = ({
     style: {
       color: "#00e5a0"
     }
-  }, "\u25CF"), " SCORE = base Fond\xD765% + Tech\xD735% (NLP gel\xE9 \xE0 0 depuis le 25/09), ", React.createElement("span", {
+  }, "\u25CF"), " SCORE = base Fond\xD765% + Tech\xD735%, ", React.createElement("span", {
     style: {
       color: "#ffd740"
     }
   }, "modul\xE9e par le contexte de march\xE9"), " \u2014 ouverture de la s\xE9ance et tendance du MASI depuis janvier ; le poids appliqu\xE9 est sur chaque fiche \xA0|\xA0", React.createElement("span", {
-    style: {
-      color: "#ffd740"
-    }
-  }, "\u25CF"), " SM~ = score Smart Money ", React.createElement("b", null, "heuristique, NON calibr\xE9"), ", tir\xE9 du corpus WhatsApp gel\xE9 au 02/07/2026 \u2014 ce n'est pas une probabilit\xE9 mesur\xE9e ; \xAB \u2014 \xBB = titre non couvert par le corpus \xA0|\xA0", React.createElement("span", {
     style: {
       color: "#8892a4"
     }
@@ -6934,7 +6733,7 @@ const Ranking = ({
     style: {
       color: "#ff4f5a"
     }
-  }, "\u26A0\uFE0F"), " Alpha/RSI rouge = prudence \xA0|\xA0 PE = Price/Earnings \xB7 DIV = dividende \xA0|\xA0 Clic \u2192 vue d\xE9taill\xE9e"));
+  }, "\u26A0\uFE0F"), " RSI rouge = prudence \xA0|\xA0 PE = Price/Earnings \xB7 DIV = dividende \xA0|\xA0 Clic \u2192 vue d\xE9taill\xE9e"));
 };
 const nfr = (x, d = 2) => x == null || !isFinite(x) ? "—" : (+x).toLocaleString("fr-FR", {
   minimumFractionDigits: d,
@@ -9588,7 +9387,6 @@ const TickerNews = ({
       vivant = false;
     };
   }, [sym]);
-  const SC = s => s === "POSITIF" ? "#00e5a0" : s === "NEGATIF" ? "#ff4f5a" : "#8892a4";
   const fmtD = iso => {
     try {
       return maroc(iso).toLocaleString("fr-FR", {
@@ -9630,7 +9428,7 @@ const TickerNews = ({
       paddingBottom: 8,
       marginBottom: 8,
       borderBottom: "1px solid #0a1220",
-      borderLeft: `2px solid ${SC(a.sentiment)}`,
+      borderLeft: "2px solid #1a2540",
       textDecoration: "none"
     }
   }, React.createElement("div", {
@@ -9648,12 +9446,6 @@ const TickerNews = ({
       flexWrap: "wrap"
     }
   }, React.createElement("span", {
-    style: {
-      fontSize: 9,
-      color: SC(a.sentiment),
-      fontWeight: 700
-    }
-  }, a.sentiment || "NEUTRE"), React.createElement("span", {
     style: {
       fontSize: 9,
       color: "#8892a4"
@@ -10194,7 +9986,7 @@ const Detail = ({
       gridTemplateColumns: "1fr 1fr",
       gap: 7
     }
-  }, [[r.pe_base && r.pe_base.startsWith("12") ? "PER 12 mois" : "PE Ratio", r.pe?.toFixed(1) || "—", r.pe > 25 ? "#ff8f00" : "#c8d3e8", "pe"], ["P/Book", r.pb?.toFixed(2) || "—", "#c8d3e8", "pb"], ["Dividende", r.div ? `${r.div.toFixed(1)}%` : "—", r.div > 4 ? "#00e5a0" : "#c8d3e8", "div"], ["Cap. Boursière", r.cap ? fmtM(r.cap) : "—", "#4db8ff", "cap"], ["Upside Base", ecart(r.base), r.base != null && (r.base - price) / price > 0 ? "#00e5a0" : "#ff4f5a"], ["Alpha 12M", r.alpha != null ? `${r.alpha > 0 ? "+" : ""}${r.alpha}%` : "—", r.alpha >= 0 ? "#00e5a0" : "#ff4f5a", "alpha"]].map(([k, v, c, ratio]) => React.createElement("div", {
+  }, [[r.pe_base && r.pe_base.startsWith("12") ? "PER 12 mois" : "PE Ratio", r.pe?.toFixed(1) || "—", r.pe > 25 ? "#ff8f00" : "#c8d3e8", "pe"], ["P/Book", r.pb?.toFixed(2) || "—", "#c8d3e8", "pb"], ["Dividende", r.div ? `${r.div.toFixed(1)}%` : "—", r.div > 4 ? "#00e5a0" : "#c8d3e8", "div"], ["Cap. Boursière", r.cap ? fmtM(r.cap) : "—", "#4db8ff", "cap"], ["Upside Base", ecart(r.base), r.base != null && (r.base - price) / price > 0 ? "#00e5a0" : "#ff4f5a"]].map(([k, v, c, ratio]) => React.createElement("div", {
     key: k,
     style: {
       background: "#0a1220",
@@ -10216,14 +10008,7 @@ const Detail = ({
       color: c,
       fontWeight: 700
     }
-  }, v), ratio === "alpha" && React.createElement("div", {
-    title: "Table du corpus WhatsApp fig\xE9e au 02/07/2026, jamais recalcul\xE9e ni recoup\xE9e",
-    style: {
-      fontSize: 9,
-      color: "#ff8f00",
-      marginTop: 1
-    }
-  }, "corpus fig\xE9 02/07 \xB7 non v\xE9rifi\xE9"), ratio === "pe" && r.pe_base?.startsWith("12") && r.pe_annuel != null && React.createElement("div", {
+  }, v), ratio === "pe" && r.pe_base?.startsWith("12") && r.pe_annuel != null && React.createElement("div", {
     title: `PER sur ${r.pe_base} ; exercice 2025 seul : ${r.pe_annuel}`,
     style: {
       fontSize: 9,
@@ -10663,56 +10448,14 @@ const Detail = ({
       display: "flex",
       alignItems: "center"
     }
-  }, "Analyse avanc\xE9e \u2014 essais et indicateurs gel\xE9s (hors note)"), React.createElement("div", {
+  }, "Analyse avanc\xE9e \u2014 signaux techniques en essai (hors note)"), React.createElement("div", {
     style: {
       display: "flex",
       flexDirection: "column",
       gap: 10,
       marginTop: 8
     }
-  }, React.createElement("div", {
-    className: "carte",
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 8,
-      padding: 12
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: "#8892a4",
-      letterSpacing: 1,
-      marginBottom: 8,
-      textTransform: "uppercase"
-    }
-  }, "NLP \u2014 ", META.tickers, " tickers (", META.years, " ans)"), React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: 6
-    }
-  }, [["Biais groupe", r.biais, NC(r.nlp)], ["Smart Sentiment", `${r.nlp > 0 ? "+" : ""}${(r.nlp * 100).toFixed(0)}%`, NC(r.nlp)], ["Score SM~ (non calibré)", r.win != null ? `${r.win}` : "—", r.win >= 80 ? "#00e5a0" : "#ffd740"], ["Convergence", r.conv === "CONFIRME" ? "✅ OK" : r.conv == null ? "— pilier gelé" : "⚠️ Div.", r.conv === "CONFIRME" ? "#00e5a0" : r.conv == null ? "#8892a4" : "#ffd740"]].map(([k, v, c]) => React.createElement("div", {
-    key: k,
-    style: {
-      background: "#0a1220",
-      borderRadius: 4,
-      padding: "6px 8px"
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 8,
-      color: "#8892a4",
-      marginBottom: 2,
-      textTransform: "uppercase"
-    }
-  }, k), React.createElement("div", {
-    style: {
-      fontSize: 12,
-      color: c,
-      fontWeight: 700
-    }
-  }, v))))), React.createElement(SignauxTechniques, {
+  }, React.createElement(SignauxTechniques, {
     r: r
   }))), React.createElement("div", {
     className: "carte fiche-graphique",
@@ -10896,7 +10639,7 @@ const Detail = ({
       marginBottom: 10,
       flexWrap: "wrap"
     }
-  }, [[`Setup: ${r.setup || "—"}`, "#ffd740"], [pdsAff ? `Fond:${pdsAff.f}% NLP:${pdsAff.n}% Tech:${pdsAff.t}%` : "Poids: —", simu ? "#ffd740" : "#8892a4"]].map(([lbl, c]) => React.createElement("span", {
+  }, [[`Setup: ${r.setup || "—"}`, "#ffd740"], [pdsAff ? `Fond:${pdsAff.f}% Tech:${pdsAff.t}%` : "Poids: —", simu ? "#ffd740" : "#8892a4"]].map(([lbl, c]) => React.createElement("span", {
     key: lbl,
     style: {
       fontSize: 11,
@@ -10910,7 +10653,6 @@ const Detail = ({
     alertes: r.alertes
   })), pdsAff && React.createElement(WBar, {
     f: pdsAff.f,
-    n: pdsAff.n,
     t: pdsAff.t
   }), React.createElement(Repli, {
     titre: "Analyse avanc\xE9e \u2014 note par m\xE9tier (en comparaison, non publi\xE9e)"
@@ -10932,15 +10674,7 @@ const Detail = ({
     style: {
       color: "#4db8ff"
     }
-  }, "tech ", fmt(r.score_tech, 1), "\xD7", pdsAff.t, "%"), pdsAff.n > 0 && React.createElement(React.Fragment, null, React.createElement("span", {
-    style: {
-      color: "#8892a4"
-    }
-  }, " + "), React.createElement("span", {
-    style: {
-      color: "#00e5a0"
-    }
-  }, "nlp ", fmt(r.score_nlp, 1), "\xD7", pdsAff.n, "%")), React.createElement("span", {
+  }, "tech ", fmt(r.score_tech, 1), "\xD7", pdsAff.t, "%"), React.createElement("span", {
     style: {
       color: "#8892a4"
     }
@@ -10949,26 +10683,7 @@ const Detail = ({
       color: scoreAffiche == null ? "#8892a4" : couleurChiffre(r, simu),
       fontWeight: 700
     }
-  }, " ", fmt(scoreAffiche))), pdsAff && pdsAff.n === 0 && r.score_nlp != null && React.createElement("div", {
-    style: {
-      marginTop: 6,
-      fontSize: 10.5,
-      color: "#8892a4"
-    },
-    title: "Pilier gel\xE9 le 25/09/2026 \u2014 corpus arr\xEAt\xE9 au 02/07/2026. Le poids de 28 % a \xE9t\xE9 revers\xE9 au prorata sur le fondamental et la technique. Backtest sur les notes publi\xE9es : \xE9cart de performance haut/bas d\xE9cile inchang\xE9 (+3,22 %)."
-  }, React.createElement("span", {
-    style: {
-      color: "#5a6478"
-    }
-  }, "\u25CF"), " pilier NLP ", React.createElement("span", {
-    style: {
-      color: "#c8d3e8"
-    }
-  }, fmt(r.score_nlp, 1)), " \u2014 gel\xE9, poids 0", React.createElement("span", {
-    style: {
-      color: "#5a6478"
-    }
-  }, " \xB7 corpus arr\xEAt\xE9 au 02/07/2026")), (r.bonus || []).length > 0 && React.createElement("div", {
+  }, " ", fmt(scoreAffiche))), (r.bonus || []).length > 0 && React.createElement("div", {
     style: {
       marginTop: 6,
       fontSize: 11
@@ -10982,7 +10697,7 @@ const Detail = ({
     sym: sym
   })))));
 };
-const POIDS_CTX = [["Séance ouverte — base", "65,28 %", "34,72 %", "actif", "#00e5a0", "Référence depuis le 25/09/2026 : 47 et 25 repliés sur 72 une fois le NLP à zéro."], ["Hors séance (fermé, pré-ouverture)", "72,22 %", "27,78 %", "actif", "#4db8ff", "Le fondamental gagne 5 points avant repli. C'est le cas des runs du soir."], ["MASI < −5 % depuis janvier", "71,43 %", "28,57 %", "actif", "#ff8f00", "Mode défensif. Cumulé au hors-séance : 77,92 % / 22,08 %."], ["MASI > +10 % depuis janvier", "61,11 %", "38,89 %", "actif", "#ffd740", "Le technique gagne 3 points avant repli."], ["Titre peu liquide ou au fixing", "100 %", "0 %", "actif", "#b388ff", "Depuis le 03/10 : le technique y annonçait l'inverse de la suite. Tout va au fondamental, et une note ≥ 6,5 y garde la couleur vert-jaune (« titre peu échangé »)."], ["Publication de résultats", "76 %", "24 %", "inactif", "#5a6478", "Prévu dans le moteur, jamais branché : aucun calendrier de publications."], ["Hype spike (>2σ NLP)", "—", "—", "retiré le 29/09", "#5a6478", "Lisait le corpus WhatsApp gelé."], ["Smart Money Tier 1", "—", "—", "retiré le 29/09", "#5a6478", "Lisait le corpus WhatsApp gelé."], ["Titre peu suivi (NLP)", "—", "—", "retiré le 29/09", "#5a6478", "Lisait le corpus WhatsApp gelé."]];
+const POIDS_CTX = [["Séance ouverte — base", "65,28 %", "34,72 %", "actif", "#00e5a0", "Référence depuis le 25/09/2026."], ["Hors séance (fermé, pré-ouverture)", "72,22 %", "27,78 %", "actif", "#4db8ff", "Le fondamental gagne 5 points avant repli. C'est le cas des runs du soir."], ["MASI < −5 % depuis janvier", "71,43 %", "28,57 %", "actif", "#ff8f00", "Mode défensif. Cumulé au hors-séance : 77,92 % / 22,08 %."], ["MASI > +10 % depuis janvier", "61,11 %", "38,89 %", "actif", "#ffd740", "Le technique gagne 3 points avant repli."], ["Titre peu liquide ou au fixing", "100 %", "0 %", "actif", "#b388ff", "Depuis le 03/10 : le technique y annonçait l'inverse de la suite. Tout va au fondamental, et une note ≥ 6,5 y garde la couleur vert-jaune (« titre peu échangé »)."], ["Publication de résultats", "76 %", "24 %", "inactif", "#5a6478", "Prévu dans le moteur, jamais branché : aucun calendrier de publications."]];
 const Weights = () => {
   return React.createElement("div", null, React.createElement("div", {
     style: {
@@ -10991,7 +10706,7 @@ const Weights = () => {
       gap: 12,
       marginBottom: 14
     }
-  }, [["Fondamental", "65,28 %", "#b388ff", "Qualité (rentabilité), croissance, valorisation, bilan. ⚠️ Seuls les ratios calculés sur comptes AMMC sont vérifiés ; le reste de fondamentaux.json est saisi à la main."], ["Technique", "34,72 %", "#4db8ff", "Tendance du cours (moyennes 20 et 50 séances), RSI, position dans le range 90 séances. Neutralisé (0 %) sur les titres peu liquides ou au fixing."], ["NLP Comportemental", "0 %", "#5a6478", "GELÉ depuis le 25/09/2026 : corpus arrêté au 02/07, il ne déplaçait plus que 0,37 point sur 10. Toujours calculé et publié, à poids nul."]].map(([lbl, pct, c, desc]) => React.createElement("div", {
+  }, [["Fondamental", "65,28 %", "#b388ff", "Qualité (rentabilité), croissance, valorisation, bilan. ⚠️ Seuls les ratios calculés sur comptes AMMC sont vérifiés ; le reste de fondamentaux.json est saisi à la main."], ["Technique", "34,72 %", "#4db8ff", "Tendance du cours (moyennes 20 et 50 séances), RSI, position dans le range 90 séances. Neutralisé (0 %) sur les titres peu liquides ou au fixing."]].map(([lbl, pct, c, desc]) => React.createElement("div", {
     key: lbl,
     style: {
       background: "#0d1829",
@@ -11041,7 +10756,7 @@ const Weights = () => {
       marginBottom: 10,
       lineHeight: 1.6
     }
-  }, "La base est modul\xE9e par le contexte de march\xE9, puis titre par titre (liquidit\xE9). Le poids r\xE9ellement appliqu\xE9 figure sur chaque fiche et dans la colonne POIDS du classement. Plus aucun modulateur ne lit le corpus WhatsApp."), React.createElement("div", {
+  }, "La base est modul\xE9e par le contexte de march\xE9, puis titre par titre (liquidit\xE9). Le poids r\xE9ellement appliqu\xE9 figure sur chaque fiche et dans la colonne POIDS du classement."), React.createElement("div", {
     style: {
       overflowX: "auto"
     }
@@ -11123,7 +10838,7 @@ const Weights = () => {
       color: "#8892a4",
       marginTop: 8
     }
-  }, "NLP \xE0 0 % dans toutes les situations. Pourcentages tels que rendus par le moteur.")));
+  }, "Pourcentages tels que rendus par le moteur.")));
 };
 const Guide = ({
   setTab
@@ -11198,7 +10913,7 @@ const Guide = ({
     }
   }, React.createElement("b", null, "L'outil ne pr\xE9dit pas. Ce n'est pas un conseil en investissement. Donn\xE9es J+1, pas de temps r\xE9el."), " Apr\xE8s 15h30, les cours sont ceux de la derni\xE8re cl\xF4ture. Pendant la s\xE9ance, des relev\xE9s interm\xE9diaires (vers 10h et 12h) donnent la derni\xE8re valeur relev\xE9e, pas un cours d\xE9finitif : une lecture \xAB \xE0 ce stade \xBB peut encore changer jusqu'\xE0 la cl\xF4ture. Il montre des notes et des fr\xE9quences pass\xE9es."), React.createElement(L, {
     titre: "Note /10"
-  }, "Moyenne de deux piliers sur 10 : ", React.createElement(T, null, "fondamental"), " (rentabilit\xE9, croissance, valorisation, bilan \u2014 \u2248 2/3) et ", React.createElement(T, null, "technique"), " (tendance, RSI \u2014 \u2248 1/3, 0 sur un titre peu liquide). Sentiment WhatsApp gel\xE9, poids nul. ", React.createElement("a", {
+  }, "Moyenne de deux piliers sur 10 : ", React.createElement(T, null, "fondamental"), " (rentabilit\xE9, croissance, valorisation, bilan \u2014 \u2248 2/3) et ", React.createElement(T, null, "technique"), " (tendance, RSI \u2014 \u2248 1/3, 0 sur un titre peu liquide). ", React.createElement("a", {
     onClick: () => setTab && setTab("weights"),
     style: {
       color: "#4db8ff",
@@ -11243,1694 +10958,6 @@ const Guide = ({
     c: "#ffd740"
   }, "\u26A0 05/08"), " pr\xE8s d'un cours : il date de ce jour-l\xE0, pas de la derni\xE8re s\xE9ance."));
 };
-const Smart = () => {
-  const BT = [];
-  const CT = [["MNG", "0%", "100% du temps cours monte après signal vente"], ["RDS", "0%", "0% réussite vendeur (contrarian parfait)"], ["SMI", "19%", "81% cours monte après signal vente"], ["TGCC", "39%", "Seul titre validant une confirmation vente"]];
-  return React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: 12
-    }
-  }, React.createElement("div", {
-    className: "carte",
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 8,
-      padding: 12
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 13,
-      color: "#c8d3e8",
-      fontWeight: 600,
-      marginBottom: 4
-    }
-  }, "MEMBRES SMART MONEY \u2014 POIDS V3"), React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#8892a4",
-      marginBottom: 10
-    }
-  }, "SNR = Signal/Noise Ratio \xB7 1994 signaux backtest\xE9s 2020-2026"), React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "auto auto auto 1fr auto auto auto",
-      gap: "4px 8px",
-      fontSize: 9,
-      color: "#8892a4",
-      marginBottom: 5,
-      paddingBottom: 5,
-      borderBottom: "1px solid #1a2540",
-      alignItems: "center"
-    }
-  }, React.createElement("span", null, "MEMBRE"), React.createElement("span", null, "TIER"), React.createElement("span", null, "POIDS"), React.createElement("span", null), React.createElement("span", null, "SNR"), React.createElement("span", null, "WIN"), React.createElement("span", null, "ALPHA")), MEMBERS.map(m => React.createElement("div", {
-    key: m.name,
-    style: {
-      display: "grid",
-      gridTemplateColumns: "auto auto auto 1fr auto auto auto",
-      gap: "4px 8px",
-      alignItems: "center",
-      padding: "6px 0",
-      borderBottom: "1px solid #0d1829"
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 13,
-      color: m.tier === "Admin" ? "#ffd740" : "#c8d3e8",
-      fontWeight: 600,
-      minWidth: 110
-    }
-  }, m.name), React.createElement("span", {
-    style: {
-      fontSize: 9,
-      color: m.tier === "Admin" ? "#ffd740" : "#00e5a0",
-      background: m.tier === "Admin" ? "rgba(255,215,64,.1)" : "rgba(0,229,160,.08)",
-      border: `1px solid ${m.tier === "Admin" ? "rgba(255,215,64,.28)" : "rgba(0,229,160,.25)"}`,
-      borderRadius: 3,
-      padding: "1px 5px"
-    }
-  }, m.tier), React.createElement("span", {
-    style: {
-      fontSize: 11,
-      color: "#8892a4",
-      background: "#0a1220",
-      borderRadius: 3,
-      padding: "1px 5px"
-    }
-  }, "w=", m.w.toFixed(2)), React.createElement(Bar, {
-    v: m.w,
-    max: 1,
-    c: m.tier === "Admin" ? "#ffd740" : "#00e5a0",
-    h: 5
-  }), React.createElement("span", {
-    style: {
-      fontSize: 12,
-      color: "#4db8ff",
-      textAlign: "center",
-      minWidth: 36
-    }
-  }, m.snr || "—"), React.createElement("span", {
-    style: {
-      fontSize: 12,
-      color: "#00e5a0",
-      textAlign: "center",
-      minWidth: 34
-    }
-  }, m.win ? `${m.win}%` : "—"), React.createElement("span", {
-    style: {
-      fontSize: 12,
-      color: "#00e5a0",
-      textAlign: "center",
-      minWidth: 40
-    }
-  }, m.alpha ? `+${m.alpha}%` : "—")))), React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 10
-    }
-  }, React.createElement("div", {
-    className: "carte",
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 8,
-      padding: 12
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 13,
-      color: "#c8d3e8",
-      fontWeight: 600,
-      marginBottom: 10
-    }
-  }, "PERFORMANCE HISTORIQUE"), BT.length === 0 ? React.createElement("div", {
-    style: {
-      fontSize: 12,
-      color: "#ffd740",
-      lineHeight: 1.8
-    }
-  }, "\u26A0\uFE0F ", React.createElement("b", null, "Non publi\xE9e."), " Les chiffres affich\xE9s ici jusqu'au 05/09/2026 (83 % de r\xE9ussite, +38,3 % \xE0 12 mois) \xE9taient \xE9crits en dur dans la page. Aucun \xE9l\xE9ment du d\xE9p\xF4t ne permet de refaire le calcul et de retrouver ces valeurs.", React.createElement("div", {
-    style: {
-      marginTop: 8,
-      color: "#8892a4"
-    }
-  }, "Ils reviendront quand une commande unique et document\xE9e r\xE9g\xE9n\xE8rera exactement le r\xE9sultat, sur des s\xE9ries r\xE9elles fig\xE9es, avec les frais de la place, le vrai historique du MASI comme r\xE9f\xE9rence, et le nombre de signaux avec son intervalle de confiance.")) : BT.map(([h, wr, rdt, c]) => React.createElement("div", {
-    key: h,
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: "8px 0",
-      borderBottom: "1px solid #0d1829"
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 13,
-      color: "#c8d3e8"
-    }
-  }, h), React.createElement("span", {
-    style: {
-      fontSize: 13,
-      color: c,
-      fontWeight: 700
-    }
-  }, "Win ", wr), React.createElement("span", {
-    style: {
-      fontSize: 13,
-      color: c,
-      fontWeight: 700
-    }
-  }, "Rdt ", rdt)))), React.createElement("div", {
-    className: "carte",
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 8,
-      padding: 12
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 13,
-      color: "#c8d3e8",
-      fontWeight: 600,
-      marginBottom: 10
-    }
-  }, "CONTRARIANS V3 \u2014 VENTE = ACHAT"), CT.map(([t, acc, note]) => React.createElement("div", {
-    key: t,
-    style: {
-      padding: "7px 0",
-      borderBottom: "1px solid #0d1829"
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 8
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 14,
-      color: "#fff",
-      fontWeight: 700,
-      minWidth: 48
-    }
-  }, t), React.createElement("span", {
-    style: {
-      fontSize: 12,
-      color: parseInt(acc) < 20 ? "#ff4f5a" : "#ffd740"
-    }
-  }, "Pr\xE9cision vendeurs: ", acc)), React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#8892a4",
-      marginTop: 2
-    }
-  }, note))))));
-};
-const Chat = () => {
-  const [filt, setFilt] = useState("ALL");
-  const tickers = [...new Set(CHAT.map(m => m.ticker))];
-  const filtered = filt === "ALL" ? CHAT : CHAT.filter(m => m.ticker === filt);
-  const SC2 = s => s === "ACHAT" ? "#00e5a0" : s === "VENTE" ? "#ff4f5a" : s === "TENIR" ? "#ffd740" : "#8892a4";
-  return React.createElement("div", null, React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 8,
-      marginBottom: 14,
-      alignItems: "center",
-      flexWrap: "wrap"
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 12,
-      color: "#8892a4"
-    }
-  }, "FILTRE TICKER"), ["ALL", ...tickers].map(t => React.createElement("button", {
-    key: t,
-    onClick: () => setFilt(t),
-    style: {
-      background: filt === t ? "rgba(0,229,160,.12)" : "transparent",
-      border: filt === t ? "1px solid rgba(0,229,160,.4)" : "1px solid #1a2540",
-      color: filt === t ? "#00e5a0" : "#8892a4",
-      padding: "3px 10px",
-      borderRadius: 4,
-      fontSize: 11
-    }
-  }, t === "ALL" ? "TOUS" : t)), React.createElement("span", {
-    style: {
-      marginLeft: "auto",
-      fontSize: 11,
-      color: "#8892a4"
-    }
-  }, "3 derni\xE8res MAJ ", React.createElement("span", {
-    style: {
-      color: "#ffd740"
-    }
-  }, "Smart Money"))), React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "repeat(4,1fr)",
-      gap: 10,
-      marginBottom: 14
-    }
-  }, [["Messages analysés", "896 907", "#00e5a0"], ["Membres actifs", "8", "#4db8ff"], ["Signaux backtestés", "1 994", "#b388ff"], ["Win Rate moyen", "80%", "#ffd740"]].map(([lbl, val, c]) => React.createElement("div", {
-    key: lbl,
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 6,
-      padding: "10px 12px"
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 9,
-      color: "#8892a4",
-      marginBottom: 3,
-      textTransform: "uppercase",
-      letterSpacing: .5
-    }
-  }, lbl), React.createElement("div", {
-    style: {
-      fontSize: 20,
-      fontWeight: 700,
-      color: c
-    }
-  }, val)))), React.createElement("div", {
-    style: {
-      fontSize: 14,
-      color: "#c8d3e8",
-      fontWeight: 600,
-      marginBottom: 12,
-      display: "flex",
-      alignItems: "center",
-      gap: 8
-    }
-  }, React.createElement("span", {
-    style: {
-      display: "inline-block",
-      width: 9,
-      height: 9,
-      borderRadius: "50%",
-      background: "#00e5a0",
-      boxShadow: "0 0 8px #00e5a060"
-    }
-  }), "3 DERNI\xC8RES MISES \xC0 JOUR \u2014 SMART MONEY", filt !== "ALL" && React.createElement("span", {
-    style: {
-      fontSize: 12,
-      color: "#4db8ff"
-    }
-  }, "filtre: ", filt)), React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 12
-    }
-  }, filtered.slice(0, 3).map(msg => React.createElement("div", {
-    key: msg.id,
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 8,
-      padding: 14,
-      borderLeft: `3px solid ${SC2(msg.signal)}`
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "flex-start",
-      marginBottom: 10,
-      flexWrap: "wrap",
-      gap: 8
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 7,
-      flexWrap: "wrap"
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 13,
-      fontWeight: 700,
-      color: "#fff",
-      background: "#0a1220",
-      border: "1px solid #1a2540",
-      borderRadius: 4,
-      padding: "2px 8px"
-    }
-  }, msg.member), React.createElement("span", {
-    style: {
-      fontSize: 10,
-      color: msg.tier === "Tier 1" ? "#00e5a0" : "#ffd740",
-      background: msg.tier === "Tier 1" ? "rgba(0,229,160,.08)" : "rgba(255,215,64,.08)",
-      border: `1px solid ${msg.tier === "Tier 1" ? "rgba(0,229,160,.28)" : "rgba(255,215,64,.28)"}`,
-      borderRadius: 3,
-      padding: "1px 6px"
-    }
-  }, msg.tier), React.createElement("span", {
-    style: {
-      fontSize: 13,
-      color: "#4db8ff",
-      fontWeight: 700
-    }
-  }, "\u2192 ", msg.ticker), React.createElement(Chip, {
-    label: msg.signal,
-    bg: `${SC2(msg.signal)}15`,
-    fg: SC2(msg.signal),
-    bd: `${SC2(msg.signal)}35`,
-    sz: 12
-  })), React.createElement("div", {
-    style: {
-      textAlign: "right",
-      fontSize: 12
-    }
-  }, React.createElement("div", {
-    style: {
-      color: "#ffd740",
-      fontWeight: 600
-    }
-  }, msg.time), React.createElement("div", {
-    style: {
-      color: "#8892a4"
-    }
-  }, msg.date))), React.createElement("div", {
-    style: {
-      fontSize: 13,
-      color: "#c8d3e8",
-      lineHeight: 1.7,
-      background: "#0a1220",
-      borderRadius: 5,
-      padding: "10px 12px",
-      marginBottom: 10,
-      borderLeft: "2px solid #1a2540",
-      fontStyle: "italic"
-    }
-  }, "\"", msg.msg, "\""), React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "2fr 1fr 1fr 1fr",
-      gap: 8
-    }
-  }, React.createElement("div", null, React.createElement("div", {
-    style: {
-      fontSize: 9,
-      color: "#8892a4",
-      marginBottom: 3,
-      textTransform: "uppercase"
-    }
-  }, "Score confiance"), React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 6
-    }
-  }, React.createElement("div", {
-    style: {
-      flex: 1,
-      background: "#0d1829",
-      borderRadius: 3,
-      height: 6
-    }
-  }, React.createElement("div", {
-    style: {
-      width: `${msg.conf}%`,
-      height: "100%",
-      background: CCO(msg.conf),
-      borderRadius: 3
-    }
-  })), React.createElement("span", {
-    style: {
-      color: CCO(msg.conf),
-      fontSize: 12,
-      fontWeight: 700,
-      minWidth: 32
-    }
-  }, msg.conf, "%"))), [["SNR", msg.snr, "#4db8ff"], ["Alpha 12M", `+${msg.alpha}%`, "#00e5a0"], ["Contexte", msg.ctx, "#ffd740"]].map(([k, v, c]) => React.createElement("div", {
-    key: k,
-    style: {
-      background: "#0a1220",
-      borderRadius: 4,
-      padding: "5px 8px"
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 8,
-      color: "#8892a4",
-      marginBottom: 2,
-      textTransform: "uppercase"
-    }
-  }, k), React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: c,
-      fontWeight: 700,
-      lineHeight: 1.3
-    }
-  }, v))))))), React.createElement("div", {
-    style: {
-      marginTop: 12,
-      padding: "10px 12px",
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 6,
-      fontSize: 11,
-      color: "#8892a4",
-      lineHeight: 1.9
-    }
-  }, "Confiance = ", React.createElement("span", {
-    style: {
-      color: "#4db8ff"
-    }
-  }, "SNR\xD72.5"), " + ", React.createElement("span", {
-    style: {
-      color: "#00e5a0"
-    }
-  }, "Alpha\xD70.4"), " + ", React.createElement("span", {
-    style: {
-      color: "#b388ff"
-    }
-  }, "Win\xD70.25"), " (norm. 100) \xA0|\xA0 Donn\xE9es simul\xE9es bas\xE9es backtesting V3 \xA0|\xA0", React.createElement("span", {
-    style: {
-      color: "#ffd740"
-    }
-  }, "Connecter API WhatsApp pour donn\xE9es live")));
-};
-const NLP_CORPUS = {
-  msgs: "882 734",
-  membres: 2013,
-  annees: 6,
-  signals: 110000,
-  smart_money: 14,
-  duree: "102 min"
-};
-const NLP_LANGS = [["Français", 510120, 0.578, "#4db8ff"], ["Arabe", 78126, 0.088, "#b388ff"], ["Arabizi", 70018, 0.079, "#ffd740"], ["Mixte", 56640, 0.064, "#00e5a0"], ["Darija", 12799, 0.014, "#ff8f00"], ["Anglais", 5969, 0.007, "#8892a4"]];
-const NLP_SIGS = [["VENTE", 60440, "#ff4f5a"], ["ACHAT", 21527, "#00e5a0"], ["IRONIE", 8342, "#8892a4"], ["DOUTE", 6849, "#ffd740"], ["EUPHORIE", 4551, "#ff8f00"], ["PANIQUE", 4016, "#ff4f5a"], ["ACHAT FORT", 2927, "#00e5a0"], ["RENFORCEMENT", 1480, "#4db8ff"], ["RUMEUR", 548, "#b388ff"]];
-const NLP_SM = [{
-  name: "M1469",
-  calls: 143,
-  timeliness: 0.895,
-  sm: true
-}, {
-  name: "M1088",
-  calls: 263,
-  timeliness: 0.894,
-  sm: true
-}, {
-  name: "M0910",
-  calls: 44,
-  timeliness: 0.726,
-  sm: true
-}, {
-  name: "M0274",
-  calls: 96,
-  timeliness: 0.748,
-  sm: true
-}, {
-  name: "M1430",
-  calls: 97,
-  timeliness: 0.682,
-  sm: true
-}, {
-  name: "Med",
-  calls: 79,
-  timeliness: 0.632,
-  sm: true
-}, {
-  name: "M1476",
-  calls: 379,
-  timeliness: 0.596,
-  sm: true
-}, {
-  name: "M1793",
-  calls: 81,
-  timeliness: 0.648,
-  sm: true
-}, {
-  name: "Y.M",
-  calls: 365,
-  timeliness: 0.399,
-  sm: true
-}, {
-  name: "M1051",
-  calls: 3849,
-  timeliness: 0.473,
-  sm: true
-}];
-const NLP_RANKS = [{
-  t: "CMT",
-  score: 68.0,
-  sig: "ACHAT",
-  sm: 91,
-  alpha: 42.1,
-  mentions: 4142,
-  pe: 18.5
-}, {
-  t: "AKD",
-  score: 64.2,
-  sig: "ACHAT",
-  sm: 80,
-  alpha: 22.8,
-  mentions: 2888,
-  pe: 22.4
-}, {
-  t: "MNG",
-  score: 63.1,
-  sig: "ACHAT",
-  sm: 100,
-  alpha: 55.3,
-  mentions: 6665,
-  pe: 58.7
-}, {
-  t: "SMI",
-  score: 61.4,
-  sig: "ACHAT",
-  sm: 89,
-  alpha: 38.5,
-  mentions: 4279,
-  pe: 37.0
-}, {
-  t: "TGCC",
-  score: 61.3,
-  sig: "ACHAT",
-  sm: 75,
-  alpha: 18.7,
-  mentions: 9537,
-  pe: 14.5
-}, {
-  t: "CFGB",
-  score: 61.2,
-  sig: "ACHAT",
-  sm: 69,
-  alpha: 14.6,
-  mentions: 900,
-  pe: 14.2
-}, {
-  t: "SGTM",
-  score: 60.4,
-  sig: "ACHAT",
-  sm: 70,
-  alpha: 15.9,
-  mentions: 1841,
-  pe: 15.0
-}, {
-  t: "SRM",
-  score: 58.8,
-  sig: "NEUTRE",
-  sm: 60,
-  alpha: 9.8,
-  mentions: 853,
-  pe: 8.2
-}, {
-  t: "SOT",
-  score: 58.0,
-  sig: "NEUTRE",
-  sm: 67,
-  alpha: 5.0,
-  mentions: 1772,
-  pe: 19.5
-}, {
-  t: "CMGP",
-  score: 57.4,
-  sig: "NEUTRE",
-  sm: 65,
-  alpha: 11.5,
-  mentions: 1251,
-  pe: 11.8
-}, {
-  t: "CDM",
-  score: 56.1,
-  sig: "NEUTRE",
-  sm: 50,
-  alpha: 0.0,
-  mentions: 699,
-  pe: 11.0
-}, {
-  t: "CASH",
-  score: 56.0,
-  sig: "NEUTRE",
-  sm: 64,
-  alpha: 10.1,
-  mentions: 4410,
-  pe: 28.4
-}, {
-  t: "ADI",
-  score: 55.6,
-  sig: "NEUTRE",
-  sm: 47,
-  alpha: 8.5,
-  mentions: 22893,
-  pe: 9.8
-}, {
-  t: "ADH",
-  score: 51.0,
-  sig: "NEUTRE",
-  sm: 40,
-  alpha: 3.1,
-  mentions: 18290,
-  pe: 12.5
-}, {
-  t: "RDS",
-  score: 49.9,
-  sig: "NEUTRE",
-  sm: 42,
-  alpha: 5.2,
-  mentions: 14692,
-  pe: 8.5
-}, {
-  t: "SNA",
-  score: 50.8,
-  sig: "NEUTRE",
-  sm: 57,
-  alpha: 7.6,
-  mentions: 2669,
-  pe: 18.5
-}, {
-  t: "MSA",
-  score: 54.1,
-  sig: "NEUTRE",
-  sm: 77,
-  alpha: 21.0,
-  mentions: 1433,
-  pe: 38.0
-}, {
-  t: "RIS",
-  score: 53.7,
-  sig: "NEUTRE",
-  sm: 62,
-  alpha: 10.3,
-  mentions: 3096,
-  pe: 17.7
-}, {
-  t: "CSR",
-  score: 54.9,
-  sig: "NEUTRE",
-  sm: 72,
-  alpha: 19.2,
-  mentions: 202,
-  pe: 24.2
-}];
-const NLP_RECENT6M = [{
-  t: "SMI",
-  mentions: 1563,
-  authors: 118,
-  buy: 121,
-  strong_buy: 15,
-  sell: 116,
-  net: 5,
-  pos: 171,
-  neg: 142,
-  sentiment: 0.017
-}, {
-  t: "ADI",
-  mentions: 1403,
-  authors: 140,
-  buy: 115,
-  strong_buy: 17,
-  sell: 130,
-  net: -15,
-  pos: 168,
-  neg: 135,
-  sentiment: 0.026
-}, {
-  t: "MNG",
-  mentions: 1382,
-  authors: 123,
-  buy: 114,
-  strong_buy: 15,
-  sell: 95,
-  net: 19,
-  pos: 158,
-  neg: 122,
-  sentiment: 0.026
-}, {
-  t: "RDS",
-  mentions: 1112,
-  authors: 114,
-  buy: 96,
-  strong_buy: 13,
-  sell: 53,
-  net: 43,
-  pos: 146,
-  neg: 69,
-  sentiment: 0.056
-}, {
-  t: "CMT",
-  mentions: 924,
-  authors: 99,
-  buy: 67,
-  strong_buy: 10,
-  sell: 67,
-  net: 0,
-  pos: 89,
-  neg: 117,
-  sentiment: -0.012
-}, {
-  t: "ADH",
-  mentions: 646,
-  authors: 94,
-  buy: 42,
-  strong_buy: 5,
-  sell: 42,
-  net: 0,
-  pos: 68,
-  neg: 53,
-  sentiment: 0.023
-}, {
-  t: "TGCC",
-  mentions: 555,
-  authors: 100,
-  buy: 40,
-  strong_buy: 2,
-  sell: 69,
-  net: -29,
-  pos: 72,
-  neg: 70,
-  sentiment: 0.031
-}, {
-  t: "SGTM",
-  mentions: 390,
-  authors: 99,
-  buy: 39,
-  strong_buy: 7,
-  sell: 49,
-  net: -10,
-  pos: 51,
-  neg: 43,
-  sentiment: 0.038
-}, {
-  t: "CASH",
-  mentions: 490,
-  authors: 88,
-  buy: 39,
-  strong_buy: 6,
-  sell: 52,
-  net: -13,
-  pos: 51,
-  neg: 55,
-  sentiment: 0.005
-}, {
-  t: "RIS",
-  mentions: 415,
-  authors: 76,
-  buy: 30,
-  strong_buy: 5,
-  sell: 26,
-  net: 4,
-  pos: 51,
-  neg: 36,
-  sentiment: 0.044
-}];
-const NlpDash = () => {
-  const [view, setView] = useState("rankings");
-  const SC = s => s === "ACHAT" ? "#00e5a0" : s === "VENTE" ? "#ff4f5a" : "#8892a4";
-  const top7 = NLP_RANKS.filter(r => r.sig === "ACHAT").slice(0, 7);
-  const maxMentions = Math.max(...NLP_RANKS.map(r => r.mentions));
-  return React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 12
-    }
-  }, React.createElement("div", {
-    style: {
-      background: "linear-gradient(90deg,#0d1829,#0a1a30)",
-      border: "1px solid rgba(0,229,160,.2)",
-      borderRadius: 8,
-      padding: "10px 16px",
-      display: "flex",
-      gap: 24,
-      flexWrap: "wrap",
-      alignItems: "center"
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 12,
-      color: "#00e5a0",
-      fontWeight: 700,
-      letterSpacing: 1
-    }
-  }, "CORPUS WHATSAPP BVC"), [[NLP_CORPUS.msgs, "messages", "#c8d3e8"], [NLP_CORPUS.membres.toLocaleString(), "membres", "#4db8ff"], [NLP_CORPUS.annees + " ans", "période", "#b388ff"], ["110 000", "signaux NLP", "#ffd740"], [NLP_CORPUS.smart_money + " SM", "identifiés", "#00e5a0"], [NLP_CORPUS.duree, "analyse", "#8892a4"]].map(([v, l, c]) => React.createElement("div", {
-    key: l,
-    style: {
-      textAlign: "center"
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 15,
-      fontWeight: 700,
-      color: c
-    }
-  }, v), React.createElement("div", {
-    style: {
-      fontSize: 9,
-      color: "#8892a4",
-      textTransform: "uppercase",
-      letterSpacing: .5
-    }
-  }, l))), React.createElement("div", {
-    style: {
-      marginLeft: "auto",
-      fontSize: 10,
-      color: "#8892a4"
-    }
-  }, "Analyse 14 phases \xB7 sept 2020 \u2192 juin 2026")), React.createElement("div", {
-    className: "carte",
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 8,
-      padding: "12px 16px",
-      fontSize: 11,
-      color: "#6b7689",
-      lineHeight: 1.6
-    }
-  }, React.createElement("strong", {
-    style: {
-      color: "#8892a4"
-    }
-  }, "Fear & Greed BVC \xD7 MASI"), " \u2014 indicateur retir\xE9. La s\xE9rie publi\xE9e jusqu'ici ne reproduisait pas la trajectoire r\xE9elle de l'indice. Il reviendra une fois adoss\xE9 \xE0 un historique v\xE9rifiable."), React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "220px 1fr 1fr",
-      gap: 12
-    }
-  }, React.createElement("div", {
-    className: "carte",
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 8,
-      padding: 12,
-      fontSize: 11,
-      color: "#6b7689",
-      lineHeight: 1.6
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#8892a4",
-      marginBottom: 6,
-      textTransform: "uppercase",
-      letterSpacing: 1
-    }
-  }, "Fear & Greed BVC"), "Indicateur retir\xE9 \u2014 il affichait une valeur fig\xE9e, non recalcul\xE9e."), React.createElement("div", {
-    className: "carte",
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 8,
-      padding: 12
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#8892a4",
-      marginBottom: 10,
-      textTransform: "uppercase",
-      letterSpacing: 1
-    }
-  }, "Distribution des Signaux NLP"), React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#ffd740",
-      marginBottom: 8
-    }
-  }, "Ratio SELL/BUY = ", React.createElement("strong", null, "2.8\xD7"), " \u2014 groupe majoritairement prudent (signal contrarian)"), NLP_SIGS.map(([lbl, cnt, c]) => {
-    const pct = cnt / 60440 * 100;
-    return React.createElement("div", {
-      key: lbl,
-      style: {
-        marginBottom: 5,
-        display: "flex",
-        alignItems: "center",
-        gap: 8
-      }
-    }, React.createElement("span", {
-      style: {
-        fontSize: 10,
-        color: "#8892a4",
-        minWidth: 88,
-        textAlign: "right"
-      }
-    }, lbl), React.createElement("div", {
-      style: {
-        flex: 1,
-        background: "#0a1220",
-        borderRadius: 2,
-        height: 14,
-        position: "relative"
-      }
-    }, React.createElement("div", {
-      style: {
-        width: `${Math.min(pct * 100 / 100, 100)}%`,
-        height: "100%",
-        background: c,
-        borderRadius: 2,
-        opacity: .8
-      }
-    })), React.createElement("span", {
-      style: {
-        fontSize: 10,
-        color: c,
-        minWidth: 46,
-        textAlign: "right",
-        fontWeight: 600
-      }
-    }, cnt.toLocaleString()));
-  })), React.createElement("div", {
-    className: "carte",
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 8,
-      padding: 12
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#8892a4",
-      marginBottom: 10,
-      textTransform: "uppercase",
-      letterSpacing: 1
-    }
-  }, "Langues d\xE9tect\xE9es"), NLP_LANGS.map(([lbl, cnt, pct, c]) => React.createElement("div", {
-    key: lbl,
-    style: {
-      marginBottom: 8
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      marginBottom: 3
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 11,
-      color: "#c8d3e8"
-    }
-  }, lbl), React.createElement("span", {
-    style: {
-      fontSize: 11,
-      color: c,
-      fontWeight: 700
-    }
-  }, (pct * 100).toFixed(1), "%")), React.createElement("div", {
-    style: {
-      background: "#0a1220",
-      borderRadius: 2,
-      height: 8
-    }
-  }, React.createElement("div", {
-    style: {
-      width: `${pct * 100}%`,
-      height: "100%",
-      background: c,
-      borderRadius: 2
-    }
-  })))), React.createElement("div", {
-    style: {
-      marginTop: 8,
-      fontSize: 10,
-      color: "#8892a4",
-      lineHeight: 1.6
-    }
-  }, React.createElement("span", {
-    style: {
-      color: "#ffd740"
-    }
-  }, "Darija"), " + ", React.createElement("span", {
-    style: {
-      color: "#ffd740"
-    }
-  }, "Arabizi"), " = 9.3% \u2014 lexique financier sp\xE9cialis\xE9 inclus"))), React.createElement("div", {
-    className: "carte",
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 8,
-      padding: 12
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#8892a4",
-      marginBottom: 10,
-      textTransform: "uppercase",
-      letterSpacing: 1
-    }
-  }, "TOP 7 \u2014 Signal ACHAT \u2605\u2605\u2605\u2605 (corpus complet 6 ans)"), React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "repeat(7,1fr)",
-      gap: 8
-    }
-  }, top7.map((r, i) => React.createElement("div", {
-    key: r.t,
-    style: {
-      background: "#0a1220",
-      border: "1px solid rgba(0,229,160,.2)",
-      borderRadius: 8,
-      padding: "10px 8px",
-      textAlign: "center",
-      position: "relative"
-    }
-  }, React.createElement("div", {
-    style: {
-      position: "absolute",
-      top: 6,
-      left: 8,
-      fontSize: 9,
-      color: "#8892a4"
-    }
-  }, "#", i + 1), React.createElement("div", {
-    style: {
-      fontSize: 20,
-      fontWeight: 800,
-      color: "#00e5a0",
-      marginBottom: 4
-    }
-  }, r.t), React.createElement("div", {
-    style: {
-      fontSize: 22,
-      fontWeight: 900,
-      color: "#fff",
-      marginBottom: 2
-    }
-  }, r.score), React.createElement("div", {
-    style: {
-      fontSize: 9,
-      color: "#8892a4",
-      marginBottom: 8
-    }
-  }, "score composite"), React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 3
-    }
-  }, [["SM", `${r.sm}/100`, "#ffd740"], ["Alpha", `+${r.alpha}%`, "#00e5a0"], ["Mentions", r.mentions.toLocaleString(), "#4db8ff"]].map(([k, v, c]) => React.createElement("div", {
-    key: k,
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      fontSize: 10
-    }
-  }, React.createElement("span", {
-    style: {
-      color: "#8892a4"
-    }
-  }, k), React.createElement("span", {
-    style: {
-      color: c,
-      fontWeight: 600
-    }
-  }, v)))))))), React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "320px 1fr",
-      gap: 12
-    }
-  }, React.createElement("div", {
-    className: "carte",
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 8,
-      padding: 12
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#8892a4",
-      marginBottom: 4,
-      textTransform: "uppercase",
-      letterSpacing: 1
-    }
-  }, "Smart Money identifi\xE9s"), React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: "#4db8ff",
-      marginBottom: 10
-    }
-  }, "14 membres sur 2013 \xB7 score = timeliness"), NLP_SM.map((m, i) => React.createElement("div", {
-    key: m.name,
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 8,
-      padding: "5px 0",
-      borderBottom: "1px solid #0a1220"
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 11,
-      color: "#8892a4",
-      minWidth: 16
-    }
-  }, "#", i + 1), React.createElement("span", {
-    style: {
-      fontSize: 12,
-      color: "#c8d3e8",
-      flex: 1,
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis"
-    }
-  }, m.name), React.createElement("div", {
-    style: {
-      width: 60,
-      background: "#0a1220",
-      borderRadius: 2,
-      height: 6
-    }
-  }, React.createElement("div", {
-    style: {
-      width: `${m.timeliness * 100}%`,
-      height: "100%",
-      background: m.timeliness > 0.8 ? "#00e5a0" : m.timeliness > 0.6 ? "#ffd740" : "#4db8ff",
-      borderRadius: 2
-    }
-  })), React.createElement("span", {
-    style: {
-      fontSize: 11,
-      color: m.timeliness > 0.8 ? "#00e5a0" : m.timeliness > 0.6 ? "#ffd740" : "#4db8ff",
-      minWidth: 36,
-      textAlign: "right",
-      fontWeight: 700
-    }
-  }, m.timeliness.toFixed(3)), React.createElement("span", {
-    style: {
-      fontSize: 9,
-      color: "#8892a4",
-      minWidth: 42,
-      textAlign: "right"
-    }
-  }, m.calls, " calls"))), React.createElement("div", {
-    style: {
-      marginTop: 10,
-      padding: "8px 10px",
-      background: "#0a1220",
-      borderRadius: 5,
-      fontSize: 10,
-      color: "#8892a4",
-      lineHeight: 1.7
-    }
-  }, React.createElement("span", {
-    style: {
-      color: "#ffd740"
-    }
-  }, "Timeliness"), " = proportion de signaux \xE9mis avant le mouvement de prix \xB7 Phase 5 pipeline NLP")), React.createElement("div", {
-    className: "carte",
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 8,
-      padding: 12,
-      overflow: "auto"
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 12,
-      marginBottom: 10
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#8892a4",
-      textTransform: "uppercase",
-      letterSpacing: 1
-    }
-  }, "Classement final Phase 13 \u2014 ", NLP_RANKS.length, " valeurs"), React.createElement("div", {
-    style: {
-      marginLeft: "auto",
-      display: "flex",
-      gap: 6
-    }
-  }, [["rankings", "CLASSEMENT"], ["mentions", "MENTIONS"]].map(([v, l]) => React.createElement("button", {
-    key: v,
-    onClick: () => setView(v),
-    style: {
-      background: view === v ? "rgba(0,229,160,.12)" : "transparent",
-      border: view === v ? "1px solid rgba(0,229,160,.4)" : "1px solid #1a2540",
-      color: view === v ? "#00e5a0" : "#8892a4",
-      padding: "3px 10px",
-      borderRadius: 3,
-      fontSize: 10
-    }
-  }, l)))), view === "rankings" ? React.createElement("table", {
-    style: {
-      width: "100%",
-      borderCollapse: "collapse",
-      fontSize: 11
-    }
-  }, React.createElement("thead", null, React.createElement("tr", {
-    style: {
-      borderBottom: "1px solid #1a2540"
-    }
-  }, ["#", "TICKER", "SCORE", "SIGNAL", "SM/100", "ALPHA", "MENTIONS"].map(h => React.createElement("th", {
-    key: h,
-    style: {
-      padding: "5px 8px",
-      color: "#8892a4",
-      fontWeight: 500,
-      textAlign: h === "#" || h === "TICKER" ? "left" : "right",
-      fontSize: 10,
-      letterSpacing: .5
-    }
-  }, h)))), React.createElement("tbody", null, NLP_RANKS.map((r, i) => React.createElement("tr", {
-    key: r.t,
-    style: {
-      borderBottom: "1px solid #0a1220",
-      background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,.01)"
-    }
-  }, React.createElement("td", {
-    style: {
-      padding: "5px 8px",
-      color: "#8892a4"
-    }
-  }, i + 1), React.createElement("td", {
-    style: {
-      padding: "5px 8px",
-      fontWeight: 700,
-      color: "#fff"
-    }
-  }, r.t), React.createElement("td", {
-    style: {
-      padding: "5px 8px",
-      textAlign: "right"
-    }
-  }, React.createElement("span", {
-    style: {
-      fontWeight: 700,
-      color: r.score >= 60 ? "#00e5a0" : r.score >= 55 ? "#ffd740" : "#8892a4"
-    }
-  }, r.score)), React.createElement("td", {
-    style: {
-      padding: "5px 8px",
-      textAlign: "right"
-    }
-  }, React.createElement("span", {
-    style: {
-      color: SC(r.sig),
-      fontSize: 10,
-      fontWeight: 600
-    }
-  }, r.sig)), React.createElement("td", {
-    style: {
-      padding: "5px 8px",
-      textAlign: "right"
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "flex-end",
-      gap: 4
-    }
-  }, React.createElement("div", {
-    style: {
-      width: 30,
-      background: "#0a1220",
-      borderRadius: 2,
-      height: 4
-    }
-  }, React.createElement("div", {
-    style: {
-      width: `${r.sm}%`,
-      height: "100%",
-      background: r.sm >= 80 ? "#00e5a0" : r.sm >= 60 ? "#ffd740" : "#4db8ff",
-      borderRadius: 2
-    }
-  })), React.createElement("span", {
-    style: {
-      color: "#c8d3e8",
-      minWidth: 24
-    }
-  }, r.sm))), React.createElement("td", {
-    style: {
-      padding: "5px 8px",
-      textAlign: "right",
-      color: "#00e5a0",
-      fontWeight: 600
-    }
-  }, "+", r.alpha, "%"), React.createElement("td", {
-    style: {
-      padding: "5px 8px",
-      textAlign: "right",
-      color: "#4db8ff"
-    }
-  }, r.mentions.toLocaleString()))))) : React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 5
-    }
-  }, [...NLP_RANKS].sort((a, b) => b.mentions - a.mentions).map(r => React.createElement("div", {
-    key: r.t,
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 8
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 11,
-      fontWeight: 700,
-      color: r.sig === "ACHAT" ? "#00e5a0" : "#8892a4",
-      minWidth: 40
-    }
-  }, r.t), React.createElement("div", {
-    style: {
-      flex: 1,
-      background: "#0a1220",
-      borderRadius: 2,
-      height: 16,
-      position: "relative"
-    }
-  }, React.createElement("div", {
-    style: {
-      width: `${r.mentions / maxMentions * 100}%`,
-      height: "100%",
-      background: r.sig === "ACHAT" ? "rgba(0,229,160,.5)" : "rgba(77,184,255,.3)",
-      borderRadius: 2
-    }
-  }), React.createElement("span", {
-    style: {
-      position: "absolute",
-      right: 6,
-      top: 1,
-      fontSize: 10,
-      color: "#c8d3e8",
-      fontWeight: 600
-    }
-  }, r.mentions.toLocaleString()))))))), React.createElement("div", {
-    className: "carte",
-    style: {
-      background: "#0d1829",
-      border: "1px solid #1a2540",
-      borderRadius: 8,
-      padding: 16
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      marginBottom: 12,
-      flexWrap: "wrap",
-      gap: 8
-    }
-  }, React.createElement("div", null, React.createElement("div", {
-    style: {
-      fontSize: 12,
-      fontWeight: 700,
-      color: "#00e5a0",
-      textTransform: "uppercase",
-      letterSpacing: 1.5
-    }
-  }, "Top Signaux ACHAT \u2014 Jan. \u2192 Jun. 2026"), React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: "#8892a4",
-      marginTop: 3
-    }
-  }, "91 748 messages analys\xE9s \xB7 57 valeurs actives \xB7 classement par volume de signaux ACHAT")), React.createElement("span", {
-    style: {
-      background: "rgba(0,229,160,.1)",
-      border: "1px solid rgba(0,229,160,.3)",
-      borderRadius: 4,
-      padding: "3px 10px",
-      fontSize: 10,
-      color: "#00e5a0",
-      letterSpacing: .5
-    }
-  }, "6 mois \xB7 2026")), React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 8,
-      padding: "4px 0 6px",
-      borderBottom: "1px solid #1a2540",
-      fontSize: 9,
-      color: "#8892a4"
-    }
-  }, React.createElement("span", {
-    style: {
-      minWidth: 16
-    }
-  }, "#"), React.createElement("span", {
-    style: {
-      minWidth: 44
-    }
-  }, "TICKER"), React.createElement("span", {
-    style: {
-      flex: 1
-    }
-  }, "PRESSION ACHAT/VENTE"), React.createElement("span", {
-    style: {
-      minWidth: 26,
-      textAlign: "right"
-    }
-  }, "ACHAT"), React.createElement("span", {
-    style: {
-      minWidth: 30
-    }
-  }), React.createElement("span", {
-    style: {
-      minWidth: 28,
-      textAlign: "right"
-    }
-  }, "NET"), React.createElement("span", {
-    style: {
-      minWidth: 70,
-      textAlign: "right"
-    }
-  }, "VERDICT"), React.createElement("span", {
-    style: {
-      minWidth: 38,
-      textAlign: "right",
-      color: "#00e5a0"
-    }
-  }, "POS"), React.createElement("span", {
-    style: {
-      minWidth: 38,
-      textAlign: "right",
-      color: "#ff4f5a"
-    }
-  }, "NEG"), React.createElement("span", {
-    style: {
-      minWidth: 46,
-      textAlign: "right"
-    }
-  }, "MEMBRES")), NLP_RECENT6M.map((r, i) => {
-    const totalSig = r.buy + r.sell;
-    const buyPct = totalSig > 0 ? r.buy / totalSig * 100 : 50;
-    const nc = r.net > 0 ? "#00e5a0" : r.net < 0 ? "#ff4f5a" : "#ffd740";
-    const nl = r.net > 0 ? "NET ACHAT" : r.net < 0 ? "NET VENTE" : "ÉQUILIBRÉ";
-    const totalPosNeg = r.pos + r.neg;
-    const posPct = totalPosNeg > 0 ? r.pos / totalPosNeg * 100 : 50;
-    return React.createElement("div", {
-      key: r.t,
-      style: {
-        padding: "7px 0",
-        borderBottom: "1px solid rgba(26,37,64,.7)"
-      }
-    }, React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: 8
-      }
-    }, React.createElement("span", {
-      style: {
-        fontSize: 10,
-        color: "#4db8ff",
-        fontWeight: 700,
-        minWidth: 16,
-        textAlign: "right"
-      }
-    }, i + 1), React.createElement("span", {
-      style: {
-        fontSize: 12,
-        fontWeight: 700,
-        color: "#c8d3e8",
-        minWidth: 44
-      }
-    }, r.t), React.createElement("div", {
-      style: {
-        flex: 1,
-        height: 14,
-        background: "#0a1220",
-        borderRadius: 2,
-        overflow: "hidden",
-        position: "relative"
-      }
-    }, React.createElement("div", {
-      style: {
-        position: "absolute",
-        left: 0,
-        top: 0,
-        height: "100%",
-        width: `${buyPct}%`,
-        background: "rgba(0,229,160,.5)"
-      }
-    }), React.createElement("div", {
-      style: {
-        position: "absolute",
-        right: 0,
-        top: 0,
-        height: "100%",
-        width: `${100 - buyPct}%`,
-        background: "rgba(255,79,90,.35)"
-      }
-    })), React.createElement("span", {
-      style: {
-        fontSize: 11,
-        fontWeight: 700,
-        color: "#00e5a0",
-        minWidth: 26,
-        textAlign: "right"
-      }
-    }, r.buy), r.strong_buy > 0 ? React.createElement("span", {
-      style: {
-        fontSize: 9,
-        background: "rgba(0,229,160,.12)",
-        border: "1px solid rgba(0,229,160,.35)",
-        borderRadius: 3,
-        padding: "1px 4px",
-        color: "#00e5a0",
-        minWidth: 30
-      }
-    }, "\u2605", r.strong_buy) : React.createElement("span", {
-      style: {
-        minWidth: 30
-      }
-    }), React.createElement("span", {
-      style: {
-        fontSize: 10,
-        fontWeight: 700,
-        color: nc,
-        minWidth: 28,
-        textAlign: "right"
-      }
-    }, r.net > 0 ? "+" : "", r.net), React.createElement("span", {
-      style: {
-        fontSize: 9,
-        color: nc,
-        minWidth: 70,
-        textAlign: "right",
-        opacity: .85
-      }
-    }, nl), React.createElement("span", {
-      style: {
-        fontSize: 10,
-        fontWeight: 600,
-        color: "#00e5a0",
-        minWidth: 38,
-        textAlign: "right"
-      }
-    }, "+", r.pos), React.createElement("span", {
-      style: {
-        fontSize: 10,
-        fontWeight: 600,
-        color: "#ff4f5a",
-        minWidth: 38,
-        textAlign: "right"
-      }
-    }, "\u2212", r.neg), React.createElement("span", {
-      style: {
-        fontSize: 9,
-        color: "#8892a4",
-        minWidth: 46,
-        textAlign: "right"
-      }
-    }, r.authors, " mbr.")), React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: 6,
-        marginTop: 4,
-        paddingLeft: 68
-      }
-    }, React.createElement("span", {
-      style: {
-        fontSize: 8,
-        color: "#8892a4",
-        minWidth: 50
-      }
-    }, "tonalit\xE9"), React.createElement("div", {
-      style: {
-        flex: 1,
-        height: 4,
-        background: "#0a1220",
-        borderRadius: 2,
-        overflow: "hidden",
-        position: "relative",
-        maxWidth: 160
-      }
-    }, React.createElement("div", {
-      style: {
-        position: "absolute",
-        left: 0,
-        top: 0,
-        height: "100%",
-        width: `${posPct}%`,
-        background: "rgba(0,229,160,.6)"
-      }
-    }), React.createElement("div", {
-      style: {
-        position: "absolute",
-        right: 0,
-        top: 0,
-        height: "100%",
-        width: `${100 - posPct}%`,
-        background: "rgba(255,79,90,.4)"
-      }
-    })), React.createElement("span", {
-      style: {
-        fontSize: 8,
-        color: "#8892a4"
-      }
-    }, posPct.toFixed(0), "% pos")));
-  }), React.createElement("div", {
-    style: {
-      marginTop: 10,
-      padding: "8px 10px",
-      background: "rgba(77,184,255,.05)",
-      borderRadius: 4,
-      border: "1px solid rgba(77,184,255,.15)"
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 10,
-      color: "#8892a4"
-    }
-  }, "Meilleur ratio NET : ", React.createElement("strong", {
-    style: {
-      color: "#00e5a0"
-    }
-  }, "RDS +43"), " \u2014 ", React.createElement("strong", {
-    style: {
-      color: "#00e5a0"
-    }
-  }, "MNG +19"), " \u2014 ", React.createElement("strong", {
-    style: {
-      color: "#ffd740"
-    }
-  }, "CMT & ADH \xE9quilibr\xE9s"), " \u2014 ", React.createElement("strong", {
-    style: {
-      color: "#ff4f5a"
-    }
-  }, "TGCC pression vendeuse \u221229")))));
-};
 const NewsFeed = () => {
   const [allNews, setAllNews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12948,8 +10975,6 @@ const NewsFeed = () => {
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
-  const SC = s => s === "POSITIF" ? "#00e5a0" : s === "NEGATIF" ? "#ff4f5a" : "#8892a4";
-  const SBG = s => s === "POSITIF" ? "rgba(0,229,160,.1)" : s === "NEGATIF" ? "rgba(255,79,90,.1)" : "rgba(136,146,164,.08)";
   const fmtD = iso => {
     try {
       return maroc(iso).toLocaleString("fr-FR", {
@@ -13004,8 +11029,6 @@ const NewsFeed = () => {
     return ["ALL", ...[...s].sort()];
   }, [scopeFiltered]);
   const filtered = useMemo(() => ticker === "ALL" ? scopeFiltered : scopeFiltered.filter(a => (a.tickers || []).includes(ticker)), [scopeFiltered, ticker]);
-  const sentPos = scopeFiltered.filter(a => a.sentiment === "POSITIF").length;
-  const sentNeg = scopeFiltered.filter(a => a.sentiment === "NEGATIF").length;
   const changeScope = s => {
     setScope(s);
     setTicker("ALL");
@@ -13108,11 +11131,11 @@ const NewsFeed = () => {
   }, count)))), React.createElement("div", {
     style: {
       display: "grid",
-      gridTemplateColumns: "repeat(4,1fr)",
+      gridTemplateColumns: "repeat(2,1fr)",
       gap: 10,
       marginBottom: 14
     }
-  }, [["Articles", "#4db8ff", scopeFiltered.length], ["Ton positif", "#00e5a0", sentPos], ["Ton négatif", "#ff4f5a", sentNeg], ["Dernière MAJ", "#ffd740", updated ? fmtFull(updated) : "—"]].map(([lbl, c, val]) => React.createElement("div", {
+  }, [["Articles", "#4db8ff", scopeFiltered.length], ["Dernière MAJ", "#ffd740", updated ? fmtFull(updated) : "—"]].map(([lbl, c, val]) => React.createElement("div", {
     key: lbl,
     style: {
       background: "#0d1829",
@@ -13202,7 +11225,7 @@ const NewsFeed = () => {
         borderRadius: 8,
         padding: "12px 14px",
         textDecoration: "none",
-        borderLeft: `3px solid ${SC(a.sentiment)}`,
+        borderLeft: "3px solid #1a2540",
         transition: "background .12s"
       },
       onMouseEnter: e => e.currentTarget.style.background = "#0f1e30",
@@ -13244,18 +11267,7 @@ const NewsFeed = () => {
         alignItems: "center",
         flexWrap: "wrap"
       }
-    }, React.createElement("span", {
-      style: {
-        background: SBG(a.sentiment),
-        border: `1px solid ${SC(a.sentiment)}35`,
-        borderRadius: 3,
-        padding: "1px 7px",
-        fontSize: 9,
-        color: SC(a.sentiment),
-        fontWeight: 700,
-        letterSpacing: .5
-      }
-    }, a.sentiment || "NEUTRE"), catLabel && React.createElement("span", {
+    }, catLabel && React.createElement("span", {
       style: {
         background: `${catColor}15`,
         border: `1px solid ${catColor}30`,
@@ -13285,11 +11297,10 @@ const NewsFeed = () => {
     }, a.source)));
   })));
 };
-const CHAMPS_SCORE = ["score_tech", "score_fond", "score_nlp"];
+const CHAMPS_SCORE = ["score_tech", "score_fond"];
 function composantesScore(r) {
   return {
     f: r.score_fond != null ? r.score_fond : null,
-    n: r.nlp != null ? (r.nlp + 1) * 5 : null,
     t: r.score_tech != null ? r.score_tech : null
   };
 }
@@ -13298,17 +11309,16 @@ function composantesManquantes(r, p) {
   const c = composantesScore(r),
     m = [];
   if ((p.f || 0) > 0 && c.f == null) m.push("Fondamental");
-  if ((p.n || 0) > 0 && c.n == null) m.push("NLP");
   if ((p.t || 0) > 0 && c.t == null) m.push("Technique");
   return m;
 }
 function computeDisplayScore(r, p) {
   if (!p || p.officiel) return r.v53;
-  const total = (p.f || 0) + (p.n || 0) + (p.t || 0);
+  const total = (p.f || 0) + (p.t || 0);
   if (total === 0) return null;
   if (composantesManquantes(r, p).length) return null;
   const c = composantesScore(r);
-  return +Math.min(10, Math.max(0, ((c.f ?? 0) * (p.f || 0) + (c.n ?? 0) * (p.n || 0) + (c.t ?? 0) * (p.t || 0)) / total)).toFixed(2);
+  return +Math.min(10, Math.max(0, ((c.f ?? 0) * (p.f || 0) + (c.t ?? 0) * (p.t || 0)) / total)).toFixed(2);
 }
 function scoreModeLabel(p) {
   if (!p || p.officiel) return "OFFICIEL";
@@ -13318,7 +11328,6 @@ function poidsAffiches(r, p) {
   if (!p || p.officiel) return r.poids || null;
   return {
     f: p.f || 0,
-    n: p.n || 0,
     t: p.t || 0
   };
 }
@@ -13498,6 +11507,7 @@ const MentionLegale = () => React.createElement("footer", {
   }
 }, "Les performances pass\xE9es ne pr\xE9jugent pas des performances futures. Toute d\xE9cision d'investissement rel\xE8ve de votre seule responsabilit\xE9 et devrait \xEAtre pr\xE9c\xE9d\xE9e de l'avis d'un professionnel habilit\xE9.")));
 const VUES_SUR_DONNEES = ["accueil", "ranking", "heatmap", "watchlist", "detail", "briefing"];
+const VUES_CONNUES = ["accueil", "ranking", "briefing", "heatmap", "detail", "watchlist", "weights", "news", "monde", "guide"];
 const EtatDonnees = ({
   etat,
   loading,
@@ -13556,7 +11566,7 @@ function App() {
   const [tab, setTab] = useState(() => {
     try {
       const m = /onglet=([a-z]+)/.exec(location.hash || "");
-      if (m) return m[1];
+      if (m && VUES_CONNUES.includes(m[1])) return m[1];
     } catch (e) {}
     return "accueil";
   });
@@ -13692,13 +11702,9 @@ function App() {
             stoch_k: t.stoch_k,
             stoch_d: t.stoch_d,
             v53: t.v53,
-            nlp: t.nlp,
             score_version: t.score_version,
             ...Object.fromEntries(CHAMPS_SCORE.map(c => [c, t[c]])),
-            alpha: t.alpha,
-            win: t.win,
             sig: t.sig,
-            biais: t.biais,
             reference: t.reference,
             bonus: t.bonus,
             poids: t.poids,
@@ -13713,7 +11719,6 @@ function App() {
             alertes: t.alertes,
             ratios_publies: t.ratios_publies,
             risque: t.risque,
-            conv: t.conv,
             setup: t.setup,
             obv: t.obv,
             adx: t.adx,
@@ -13938,7 +11943,7 @@ function App() {
       choisirTitre(sym);
       changeTab("detail");
     }
-  }), tab === "monde" && React.createElement(MarchesMondiaux, null), tab === "smart" && React.createElement(Smart, null), tab === "nlp" && React.createElement(NlpDash, null), tab === "news" && React.createElement(NewsFeed, null)), React.createElement(MentionLegale, null)));
+  }), tab === "monde" && React.createElement(MarchesMondiaux, null), tab === "news" && React.createElement(NewsFeed, null)), React.createElement(MentionLegale, null)));
 }
 class ErrorBoundary extends React.Component {
   constructor(p) {
