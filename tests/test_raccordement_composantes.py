@@ -66,9 +66,10 @@ def test_le_moteur_emet_score_fond():
 
 
 def test_le_moteur_emet_les_trois_composantes(candidat):
-    """Les trois piliers de la formule v5.3 doivent être lisibles séparément.
-    Publier la note sans ses composantes rend le calcul invérifiable."""
-    manquants = [k for k in ("score_tech", "score_fond", "score_nlp")
+    """Les piliers de la formule v5.3 doivent être lisibles séparément.
+    Publier la note sans ses composantes rend le calcul invérifiable.
+    (28/10/2026 : deux piliers — `score_nlp` n'est plus publié.)"""
+    manquants = [k for k in ("score_tech", "score_fond")
                  if candidat.get(k) is None]
     assert not manquants, (
         f"composantes absentes du fichier publié : {manquants}")
@@ -84,8 +85,10 @@ def test_load_data_transporte_les_composantes():
     assert m, ("aucune liste explicite des champs de score à transporter — "
                "sans elle, un champ oublié retombe silencieusement sur un repli")
     champs = set(re.findall(r'"([a-z_0-9]+)"', m.group(1)))
-    for c in ("score_tech", "score_fond", "score_nlp"):
+    for c in ("score_tech", "score_fond"):
         assert c in champs, f"{c} n'est pas transporté vers la ligne affichée"
+    # 28/10/2026 : pilier NLP retiré, il ne doit plus être transporté.
+    assert "score_nlp" not in champs
 
 
 # ── 3. Le critère de l'auditeur, littéralement ───────────────────────────
@@ -174,11 +177,14 @@ def test_une_composante_requise_absente_rend_le_score_indisponible():
 
 
 def test_une_composante_de_poids_nul_n_est_pas_requise():
-    """En 70/30, l'absence de NLP ne doit rien bloquer : son poids est nul."""
+    """Une composante n'est exigée que si son poids est non nul (28/10/2026 :
+    deux piliers, le NLP est retiré)."""
     corps = _machinerie()
-    assert re.search(r"\(p\.n\s*\|\|\s*0\)\s*>\s*0", corps), (
-        "l'exigence ne tient pas compte du poids : un pilier non pondéré "
-        "bloquerait le calcul sans raison")
+    for k in ("f", "t"):
+        assert re.search(r"\(p\." + k + r"\s*\|\|\s*0\)\s*>\s*0", corps), (
+            "l'exigence ne tient pas compte du poids : un pilier non pondéré "
+            "bloquerait le calcul sans raison")
+    assert "p.n" not in corps, "un pilier NLP est de nouveau exigé"
 
 
 @pytest.mark.parametrize("vue,champ", [("technique", "score_tech"),
@@ -201,7 +207,7 @@ def test_une_vue_a_cent_pour_cent_egale_sa_composante(candidat, vue, champ):
     script_fn = _fonctions_js("composantesScore", "composantesManquantes",
                               "computeDisplayScore")
 
-    poids = {"f": 100 if vue == "fondamental" else 0, "n": 0,
+    poids = {"f": 100 if vue == "fondamental" else 0,
              "t": 100 if vue == "technique" else 0}
     script = (script_fn + "\n"
               + f"const r = {json.dumps(candidat)};\n"
@@ -262,7 +268,7 @@ def _executer_js(script: str) -> str:
 
 ANCIEN = {"symbol": "ADH", "bvc": 4.28, "v53": 5.82, "rsi": 52.3, "nlp": 0.03}
 NOUVEAU = dict(ANCIEN, score_fond=6.15, score_tech=6.70, score_nlp=5.0)
-P7030 = {"f": 70, "n": 0, "t": 30}
+P7030 = {"f": 70, "t": 30}
 
 
 def test_situation_A_ancien_fichier_la_note_est_indisponible():

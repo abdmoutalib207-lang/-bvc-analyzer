@@ -32,9 +32,14 @@ def test_vraie_mesure_conservee():
     assert u.win_mesure(t, {"alpha": 8.5, "win": 0.39}) == 39
 
 
-def test_la_legende_ne_dit_plus_derive_du_score_composite():
-    # La source : la compilation encode les accents (\xE9) dans index.html.
+def test_sm_et_alpha_ne_s_affichent_plus():
+    """⚠️ RETOURNÉ LE 28/10/2026. Ce test exigeait que la légende dise « corpus
+    WhatsApp gelé » ; les colonnes SM~ et ALPHA, la cellule « Alpha 12M » de
+    la fiche et leur légende sont retirées avec le pilier NLP. Les fonctions
+    `alpha_mesure` / `win_mesure` restent dans le moteur jusqu'au lot 2."""
     src = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
-    assert "dérivé du score composite" not in src
-    assert "corpus WhatsApp gelé au 02/07/2026" in src
-    assert "corpus WhatsApp gel" in (RACINE / "index.html").read_text(encoding="utf-8")
+    idx = (RACINE / "index.html").read_text(encoding="utf-8")
+    for texte in (src, idx):
+        assert "dérivé du score composite" not in texte
+        assert "SM~" not in texte and "Alpha 12M" not in texte
+        assert "corpus WhatsApp gel" not in texte

@@ -390,7 +390,8 @@ def test_la_legende_s_affiche_sous_le_graphique():
 
 def test_comment_lire_a_une_entree_par_bouton():
     src = _source()
-    guide = _entre(src, "Comment lire l'écran</div>", "// ── SMART MONEY")
+    # 28/10/2026 : l'onglet SMART MONEY, qui suivait le guide, est retiré.
+    guide = _entre(src, "Comment lire l'écran</div>", "// ── NEWS FEED")
     for titre in ("FIG — figures chartistes du graphique", "TEND — obliques et canaux", "GAP — trous de cotation"):
         m = re.search(r'<L titre="' + re.escape(titre) + r'">(.*?)</L>', guide, re.S)
         assert m, titre

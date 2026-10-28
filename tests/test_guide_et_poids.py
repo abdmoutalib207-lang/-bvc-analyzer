@@ -66,7 +66,8 @@ def test_onglet_poids_affiche_la_base_rendue_par_le_moteur():
     assert w["comportemental"] == 0.0
     assert f'["Fondamental","{_pct(w["fondamental"])}"' in ONGLET_POIDS
     assert f'["Technique","{_pct(w["technique"])}"' in ONGLET_POIDS
-    assert '["NLP Comportemental","0 %"' in ONGLET_POIDS
+    # 28/10/2026 : plus de carte « NLP Comportemental » — pilier retiré.
+    assert "NLP Comportemental" not in ONGLET_POIDS
     assert _ligne("Séance ouverte — base")[:2] == (
         _pct(w["fondamental"]), _pct(w["technique"]))
 
@@ -91,9 +92,10 @@ def test_chaque_contexte_actif_correspond_a_get_weights():
 
 
 def test_contextes_morts_marques_retires():
-    for situation in ("Hype spike (>2σ NLP)", "Smart Money Tier 1",
-                      "Titre peu suivi (NLP)"):
-        assert _ligne(situation) == ("—", "—", "retiré le 29/09")
+    # 28/10/2026 : les trois contextes tirés du corpus (Hype spike, Smart
+    # Money, titre peu suivi), retirés le 29/09, ne s'affichent plus du tout.
+    for situation in ("Hype spike", "Smart Money Tier 1", "Titre peu suivi"):
+        assert situation not in ONGLET_POIDS, situation
     # `has_results` n'est fourni par aucun appelant : le dire inactif.
     assert '"has_results"' not in _entre(MOTEUR, "mkt_ctx_base = {", "}")
     assert _ligne("Publication de résultats")[2] == "inactif"

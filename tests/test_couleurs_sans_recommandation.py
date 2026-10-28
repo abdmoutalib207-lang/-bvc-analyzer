@@ -58,14 +58,10 @@ MOTS_D_ACTION = re.compile(
 
 # Citations du corpus WhatsApp (libellés de messages de membres), exclues
 # NOMMÉMENT : une exclusion large masquerait un vrai libellé du produit.
-CITATIONS_CORPUS = (
-    # Messages de membres de l'onglet SMART MONEY, avec leur classe.
-    re.compile(r"const CHAT = \[.*?\];", re.S),
-    # Répartition des classes de messages du corpus (onglet NLP CORPUS).
-    re.compile(r"const NLP_SIGS = \[.*?\];", re.S),
-    # « Biais groupe » : la classe dominante des messages du groupe.
-    re.compile(r'biais: "[^"]*"'),
-)
+# ⚠️ 28/10/2026 : VIDE. Les onglets SMART MONEY et NLP CORPUS, et le « biais
+# groupe » de la fiche, sont retirés avec le corpus — plus aucune exclusion,
+# le contrôle porte désormais sur TOUTE la page servie.
+CITATIONS_CORPUS = ()
 
 
 def _decoder(t: str) -> str:

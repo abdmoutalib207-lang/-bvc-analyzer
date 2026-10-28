@@ -127,6 +127,33 @@ def test_un_titre_sans_decomposition_n_est_pas_accuse():
     assert "score_irreproductible" not in _codes(t)
 
 
+# ── ⚠️ 28/10/2026 : le pilier NLP n'est plus publié ────────────────────────
+# `poids.n` et `score_nlp` sortent de data.json. Leur absence ne doit PAS
+# désarmer les deux contrôles ci-dessus : avant le correctif, il suffisait
+# qu'un des trois poids manque pour que les deux se taisent sur 80 titres.
+
+def _deux_piliers(**kw):
+    """Un titre au format publié depuis le 28/10 : deux poids, deux notes.
+    Socle : fond 7,25×65 + tech 5,2×35 = 6,5325, calculé à la main."""
+    t = _t(poids={"f": 65, "t": 35}, v53=6.53)
+    for k in ("score_nlp", "nlp", "nlp_corpus", "nlp_news"):
+        t.pop(k, None)
+    t.update(kw)
+    return t
+
+
+def test_sans_pilier_nlp_un_titre_coherent_reste_muet():
+    assert not {"poids_somme", "score_irreproductible"} & _codes(_deux_piliers())
+
+
+def test_sans_pilier_nlp_des_poids_faux_sont_vus():
+    assert "poids_somme" in _codes(_deux_piliers(poids={"f": 60, "t": 30}))
+
+
+def test_sans_pilier_nlp_un_score_irreproductible_est_vu():
+    assert "score_irreproductible" in _codes(_deux_piliers(v53=9.4))
+
+
 # ── ⚠️ La conviction directionnelle sans tendance ──────────────────────────
 
 def test_un_setup_directionnel_sous_adx_20_est_signale():

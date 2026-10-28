@@ -18,7 +18,8 @@ SRC = (Path(__file__).resolve().parent.parent / "terminal.src.html").read_text(e
 # 03/06) ont quitté le classement — voir test_score_canonique.py.
 # « SIGNAL » devient « COULEUR » le 07/10/2026 : plus de mot d'action, la
 # pastille de couleur de la note (test_couleurs_sans_recommandation.py).
-GARDEES = {2: "TICKER", 4: "CLÔT.", 5: "VAR%", 9: "scoreColLabel", 14: "COULEUR"}
+# 28/10/2026 : NLP%, SM~ et ALPHA retirées — COULEUR passe de 14 à 11.
+GARDEES = {2: "TICKER", 4: "CLÔT.", 5: "VAR%", 9: "scoreColLabel", 11: "COULEUR"}
 
 
 def _entetes() -> list[str]:
@@ -99,7 +100,7 @@ def test_la_colonne_couleur_tient_dans_l_ecran_du_telephone():
     """07/10/2026 : à 390 px la colonne COULEUR finissait à 409 px. Le
     remplissage posé sur TOUT son contenu (rond compris) la portait à 92 px."""
     css = SRC[SRC.index("VERSION TÉLÉPHONE"):SRC.index("</style>")]
-    assert "td:nth-child(14) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}" in css
+    assert "td:nth-child(11) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}" in css
     assert "padding:3px 5px!important" not in css
     assert ".classement .ligne-ticker{flex-wrap:wrap" in css and 'className="ligne-ticker"' in SRC
 

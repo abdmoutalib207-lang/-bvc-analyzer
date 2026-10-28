@@ -46,12 +46,15 @@ def _bloc_ponderations():
 
 
 def _vues():
-    """[(nom, f, n, t, officiel)] — lu depuis le source."""
+    """[(nom, f, t, officiel)] — lu depuis le source.
+
+    ⚠️ 28/10/2026 : le champ `n` (pilier NLP) a disparu des vues avec le
+    retrait du pilier ; deux piliers seulement."""
     out = []
-    for ligne in re.findall(r"\{nom:\"([^\"]+)\",f:(\d+),n:(\d+),t:(\d+)([^}]*)\}",
+    for ligne in re.findall(r"\{nom:\"([^\"]+)\",f:(\d+),t:(\d+)([^}]*)\}",
                             _bloc_ponderations()):
-        nom, f, n, t, reste = ligne
-        out.append((nom, int(f), int(n), int(t), "officiel:true" in reste))
+        nom, f, t, reste = ligne
+        out.append((nom, int(f), int(t), "officiel:true" in reste))
     return out
 
 
@@ -64,7 +67,7 @@ def test_les_six_vues_demandees_existent():
 
 def test_une_seule_vue_est_officielle():
     """Deux pondérations officielles, ce serait deux vérités concurrentes."""
-    officielles = [v[0] for v in _vues() if v[4]]
+    officielles = [v[0] for v in _vues() if v[3]]
     assert officielles == ["OFFICIEL"], f"officielles : {officielles}"
 
 
@@ -85,14 +88,15 @@ def test_la_vue_officielle_ne_diverge_pas_du_moteur():
     """
     from update_data import get_weights
     w = get_weights({})            # pondération de base, hors contexte
-    off = [v for v in _vues() if v[4]][0]
-    attendu = (round(w["fondamental"] * 100),
-               round(w["comportemental"] * 100),
-               round(w["technique"] * 100))
-    obtenu = (off[1], off[2], off[3])
+    off = [v for v in _vues() if v[3]][0]
+    # L'écran n'a plus que deux piliers : il ne peut dire vrai que si le
+    # moteur ne donne rien au troisième.
+    assert w["comportemental"] == 0.0
+    attendu = (round(w["fondamental"] * 100), round(w["technique"] * 100))
+    obtenu = (off[1], off[2])
     assert all(abs(a - b) <= 1 for a, b in zip(attendu, obtenu)), (
-        f"l'écran annonce {obtenu[0]}/{obtenu[1]}/{obtenu[2]} alors que le "
-        f"moteur applique {attendu[0]}/{attendu[1]}/{attendu[2]} — les deux "
+        f"l'écran annonce {obtenu[0]}/{obtenu[1]} alors que le "
+        f"moteur applique {attendu[0]}/{attendu[1]} — les deux "
         f"colonnes ne parleraient plus de la même formule")
 
 
@@ -109,18 +113,17 @@ def test_le_pilier_nlp_est_gele_dans_la_vue_officielle():
     redistribution ne change pas le classement ; elle supprime une annonce
     fausse.
 
-    ⚠️ Ce test tombera le jour où le corpus repartira et où le pilier sera
-    rebranché — c'est voulu. Il force alors à repasser par un backtest.
+    ⚠️ 28/10/2026 : le pilier est retiré de l'écran (corpus supprimé). La
+    garde devient : AUCUNE vue ne porte plus de poids NLP, pas même nul.
     """
-    off = [v for v in _vues() if v[4]][0]
-    assert off[2] == 0, (
-        f"la vue officielle donne encore {off[2]} % au pilier NLP alors que "
-        f"son corpus est arrêté depuis le 02/07/2026")
+    assert not re.search(r"\bn:\s*\d", _bloc_ponderations()), (
+        "une vue de pondération porte de nouveau un poids NLP")
+    assert len(_vues()) == 6, "une vue n'est plus reconnue (format f/t)"
 
 
 def test_chaque_vue_totalise_cent():
-    for nom, f, n, t, _ in _vues():
-        assert f + n + t == 100, f"{nom} totalise {f+n+t}, pas 100"
+    for nom, f, t, _ in _vues():
+        assert f + t == 100, f"{nom} totalise {f+t}, pas 100"
 
 
 def test_les_vues_de_simulation_ecartent_le_nlp():
@@ -130,9 +133,12 @@ def test_les_vues_de_simulation_ecartent_le_nlp():
     avec un écart-type de 0,081 — dix fois moins que le fondamental. Il occupe
     28 % de la note et n'explique pas 2 % des écarts entre titres.
     """
-    for nom, f, n, t, officiel in _vues():
-        if not officiel:
-            assert n == 0, f"{nom} garde un poids NLP de {n}"
+    # 28/10/2026 : plus de pilier NLP du tout — ni poids, ni composante.
+    s = _src()
+    machinerie = s[s.index("// ── SCORE PERSONNALISÉ"):s.index("function scoreModeLabel")]
+    assert "(p.n||0)" not in machinerie and not re.search(r"\bc\.n\b", machinerie), (
+        "le score personnalisé lit de nouveau un pilier NLP")
+    assert "r.nlp" not in machinerie
 
 
 def test_le_signal_disparait_hors_du_mode_officiel():
@@ -256,9 +262,9 @@ def test_les_quatre_affichages_utilisent_les_poids_de_la_vue():
     s = _src()
     assert "poidsAffiches(r,scoreMode)" in s, "le classement n'appelle pas l'helper"
     assert "const pdsAff=poidsAffiches(r,scoreMode);" in s, "la fiche n'appelle pas l'helper"
-    for attendu, ou in ((("<WBar f={pw.f} n={pw.n} t={pw.t}/>"), "barre du classement"),
-                        (("F{pw.f}·N{pw.n}·T{pw.t}"), "libellé du classement"),
-                        (("<WBar f={pdsAff.f} n={pdsAff.n} t={pdsAff.t}/>"), "barre de la fiche"),
+    for attendu, ou in ((("<WBar f={pw.f} t={pw.t}/>"), "barre du classement"),
+                        (("F{pw.f}·T{pw.t}"), "libellé du classement"),
+                        (("<WBar f={pdsAff.f} t={pdsAff.t}/>"), "barre de la fiche"),
                         # ⚠️ On vise le MOTIF qui porte la règle — le poids de
                         # la vue — et non la chaîne entière. Le 24/09 la formule
                         # s'est enrichie des NOTES de chaque pilier
@@ -302,10 +308,12 @@ def test_la_formule_montre_la_note_de_chaque_pilier():
     publiées dans data.json, et simplement pas affichées.
     """
     s = _src()
-    for champ in ("r.score_fond", "r.score_nlp", "r.score_tech"):
+    for champ in ("r.score_fond", "r.score_tech"):
         assert champ in s, (
             f"la fiche n'affiche pas {champ} — le lecteur voit la somme sans "
             f"pouvoir la décomposer")
+    # 28/10/2026 : le pilier NLP n'est plus publié ni affiché.
+    assert "r.score_nlp" not in s
 
 
 def test_l_en_tete_ne_presente_plus_la_base_comme_appliquee():
