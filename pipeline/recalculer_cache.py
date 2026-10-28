@@ -152,7 +152,7 @@ def extremes_glissants(candles: list, maintenant=None, serie_complete: bool = Fa
             "h90": round(float(max(x[1] for x in f90)), 2), "l90": round(float(min(x[2] for x in f90)), 2)}
 
 
-def _synchroniser_un_ajout(t: str, entree: dict, serie: list, m):
+def _synchroniser_un_ajout(t: str, entree: dict, serie: list, m, maintenant=None):
     """Synchronise un append ou le remplacement de la dernière bougie.
 
     On reconstruit l'état PRÉCÉDENT à partir des chandelles brutes antérieures
@@ -247,7 +247,7 @@ def _synchroniser_un_ajout(t: str, entree: dict, serie: list, m):
     entree_nouvelle["candles"] = _fusion_candles_cache(
         entree.get("candles") or [], calc_apres.get("candles") or [], ancienne_date)
     ext = extremes_glissants(
-        entree_nouvelle["candles"],
+        entree_nouvelle["candles"], maintenant=maintenant,
         serie_complete=len(entree_nouvelle["candles"]) >= (entree_nouvelle.get("n_candles") or 10**9))
     if ext is not None:
         entree_nouvelle.update(ext)

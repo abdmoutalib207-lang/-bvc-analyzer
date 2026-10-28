@@ -50,6 +50,11 @@ class _Moteur:
         }
 
 
+# ⚠️ 28/10/2026 — chaque appel fixe `maintenant` à la date de sa dernière
+# bougie. Sans elle, les extrêmes glissants lisaient l'horloge réelle : les
+# bougies de septembre sortaient de la fenêtre de 90 jours et le test aurait
+# échoué à partir du 04/12/2026, bloquant toute publication (audit externe
+# du 28/10, C1 ; même famille que le test d'âge du gap, PR #307).
 def _entree(serie):
     return _Moteur.compute_indicators(rc._df(serie))
 
@@ -65,7 +70,7 @@ def test_append_avance_les_champs_reproductibles_et_preserve_une_correction():
     ancien["candles"][0]["h"] = 380.0
 
     nouveau, rapport = rc._synchroniser_un_ajout(
-        "SOT", ancien, [brut_15, b16, b18], _Moteur())
+        "SOT", ancien, [brut_15, b16, b18], _Moteur(), maintenant="2026-09-18")
 
     assert nouveau is not None, rapport
     assert nouveau["last_date"] == "2026-09-18"
@@ -90,7 +95,7 @@ def test_remplacement_intraday_de_la_derniere_bougie_est_synchronise():
     ancien = _entree([b15, ancien16])
 
     nouveau, rapport = rc._synchroniser_un_ajout(
-        "SNA", ancien, [b15, nouveau16], _Moteur())
+        "SNA", ancien, [b15, nouveau16], _Moteur(), maintenant="2026-09-16")
 
     assert nouveau is not None, rapport
     assert nouveau["last_date"] == "2026-09-16"
@@ -108,7 +113,7 @@ def test_un_prefixe_historique_modifie_est_refuse():
 
     # La série courante a perdu une séance AVANT la date que le cache décrit.
     nouveau, rapport = rc._synchroniser_un_ajout(
-        "SNA", ancien, [b15, b16, _b("2026-09-18", 105)], _Moteur())
+        "SNA", ancien, [b15, b16, _b("2026-09-18", 105)], _Moteur(), maintenant="2026-09-18")
 
     assert nouveau is None
     assert "préfixe modifié" in rapport["motif"]
@@ -122,9 +127,10 @@ def test_un_sommet_sorti_de_la_fenetre_ne_reste_pas_fige():
     ancien = _entree([ancien_sommet] + recentes)
     ancien["h90"] = 5100.0                       # valeur restée figée
     nouveau, rapport = rc._synchroniser_un_ajout(
-        "CMT", ancien, [ancien_sommet] + recentes + [nouvelle], _Moteur())
+        "CMT", ancien, [ancien_sommet] + recentes + [nouvelle], _Moteur(),
+        maintenant="2026-09-04")
     assert nouveau is not None, rapport
-    ext = rc.extremes_glissants(nouveau["candles"], serie_complete=True)
+    ext = rc.extremes_glissants(nouveau["candles"], maintenant="2026-09-04", serie_complete=True)
     assert nouveau["h90"] == ext["h90"]
     assert nouveau["h90"] != 5100.0 or ext["h90"] == 5100.0
 
