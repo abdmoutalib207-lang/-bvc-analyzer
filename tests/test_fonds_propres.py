@@ -327,6 +327,16 @@ def test_le_pb_publie_se_recoupe_avec_la_capitalisation(publie, faits):
         if pb is None or not cap or t not in cp:
             continue
         temoin = cap / cp[t]                    # capitalisation et fonds propres, en MMAD
+        # 27/10/2026 (accord R8, IAS 32) : le moteur rapporte les fonds propres
+        # aux actions EN CIRCULATION. Le témoin retire la même part, lue au
+        # rapport (autodétenues ÷ actions du rapport), pas dans le moteur.
+        fa = faits[t].get("faits") or {}
+        auto = (fa.get("actions_autodetenues") or {}).get("valeur")
+        na = (fa.get("nombre_actions_existant") or fa.get("nombre_actions_au_rapport") or {}).get("valeur")
+        # 28/10/2026 : seulement pour les titres sous accord nominatif (ATW),
+        # comme le moteur (`ACCORD_AUTODETENUES_PB`).
+        if auto and na and t in {"ATW"}:
+            temoin *= (na - auto) / na
         # ⚠️ MÊME BASE QUE LE GARDE-FOU D'ENTRÉE (`_capitalisation`) :
         # |calculée ÷ servie − 1|. L'écart se lisait à l'envers, servie ÷
         # calculée : une baisse de 9,5 % sur un titre dont la capitalisation

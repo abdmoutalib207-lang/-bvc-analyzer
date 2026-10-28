@@ -2647,27 +2647,109 @@ def _actions_pb(ticker: str):
     return _actions_bourse(ticker) or _actions_sourcees(ticker)
 
 
+# Titres dont la déduction des actions autodétenues au P/B a reçu l'accord R8
+# NOMINATIF d'Abd Moutalib. La déduction ne s'applique QU'À EUX : un fait cité
+# pour un autre titre est lu mais ne change pas son P/B tant que l'accord
+# manque (28/10/2026, relecture de la PR #310 : le fait de LHM vient de l'état
+# C1 des comptes SOCIAUX, ses fonds propres sont CONSOLIDÉS — non recoupé).
+ACCORD_AUTODETENUES_PB = {
+    "ATW": "accord R8 d'Abd Moutalib du 27/10/2026",
+}
+
+
+def _actions_autodetenues_pb(ticker: str):
+    """Les actions autodétenues relevées au rapport, à déduire au P/B, ou None.
+
+    ⚠️ 27/10/2026, accord R8 d'Abd Moutalib (ATW). IAS 32 : les actions
+    propres — y compris celles qu'une filiale consolidée détient (Wafa
+    Assurance dans Attijariwafa : 13 602 015) — sont DÉDUITES des capitaux
+    propres. Le P/B rapporte donc ces capitaux propres aux actions EN
+    CIRCULATION, pas à toutes les actions émises : sinon le numérateur compte
+    des titres dont le dénominateur a déjà retiré la valeur.
+
+    Lit `faits.actions_autodetenues` (convention du 10/10/2026,
+    `tests/test_actions_autodetenues.py`) et ne retient qu'un fait CITÉ :
+    valeur entière, page, citation « … », forme de la preuve (`lecture`), et
+    jamais un nombre moyen pondéré. Absence = « non trouvé » → None, jamais
+    zéro. Un zéro n'existe que s'il est énoncé au rapport (BOA).
+
+    Le nombre est celui de la clôture de l'exercice : un split postérieur
+    (registre SPLITS, R11) le multiplie comme il multiplie les actions.
+
+    {"nombre", "au", "page", "source", "nature", "accord"} ou None.
+    """
+    e = FAITS_DATA.get(ticker)
+    if not isinstance(e, dict):
+        return None
+    f = (e.get("faits") or {}).get("actions_autodetenues")
+    if not isinstance(f, dict):
+        return None
+    v, page, note = f.get("valeur"), f.get("page"), f.get("note") or ""
+    if (not isinstance(v, int) or isinstance(v, bool) or v < 0
+            or not isinstance(page, int) or "«" not in note or "»" not in note
+            or not f.get("lecture")
+            or "moyen pondéré" in (f.get("base") or "").lower()):
+        return None
+    au = f"{e.get('exercice', 2025)}-12-31"
+    n = float(v)
+    for sp in SPLITS.get(ticker, []):
+        if sp["date"] > au:
+            n *= sp["ratio"]
+    return {"nombre": n, "au": au, "page": page,
+            "source": f"{e.get('document') or 'comptes déposés'} — {e.get('url')}, p. {page}",
+            "nature": f.get("nature"), "accord": ACCORD_AUTODETENUES_PB.get(ticker)}
+
+
 def _pb_detail(ticker: str, price: float):
-    """{"pb", "fonds_propres_au", "fonds_propres", "actions", "reserve"} ou None."""
+    """{"pb", "fonds_propres_au", "fonds_propres", "actions", "actions_en_circulation",
+    "autodetenues", "reserve"} ou None.
+
+    `actions` reste le nombre de la capitalisation (`_actions_pb`) ; le ratio
+    se calcule sur `actions_en_circulation` = actions − autodétenues citées
+    (`_actions_autodetenues_pb`, 27/10/2026), égal à `actions` sans fait cité.
+    """
     if not price or price <= 0:
         return None
     fp = _fonds_propres_pb(ticker)
-    n = _actions_pb(ticker)
-    if not fp or not n or fp["valeur"] <= 0:
+    n_emises = _actions_pb(ticker)
+    if not fp or not n_emises or fp["valeur"] <= 0:
         return None
+    auto = _actions_autodetenues_pb(ticker)
+    if auto and not auto["accord"]:
+        auto = None          # fait cité mais sans accord nominatif : P/B inchangé
+    if auto and not auto["nombre"] < n_emises:
+        logger.warning(f"{ticker} : {auto['nombre']:.0f} actions autodétenues pour "
+                       f"{n_emises:.0f} émises — déduction écartée au P/B")
+        auto = None
+    n = n_emises - auto["nombre"] if auto else n_emises
     try:
         return {"pb": round(price * n / (fp["valeur"] * 1e6), 2),   # fonds propres en MMAD
                 "fonds_propres_au": fp["date"], "fonds_propres": fp["valeur"],
-                "fonds_propres_source": fp["source"], "actions": n,
+                "fonds_propres_source": fp["source"], "actions": n_emises,
+                "actions_en_circulation": n, "autodetenues": auto,
                 "reserve": RESERVES_PB.get(ticker)}
     except (TypeError, ValueError):
         return None
+
+
+def _trace_autodetenues_pb(ticker: str):
+    """La trace publiée dans `_meta.pb_actions_autodetenues`, ou None.
+
+    Seulement si la déduction a réellement servi à un P/B publié."""
+    a = (_pb_detail(ticker, 1.0) or {}).get("autodetenues")
+    if not a:
+        return None
+    return {"nombre": int(round(a["nombre"])), "au": a["au"], "page": a["page"],
+            "source": a["source"], "nature": a["nature"], "accord": a["accord"]}
 
 
 def _pb_sourcé(ticker: str, price: float):
     """Price-to-book calculé depuis des faits SOURCÉS, ou None.
 
         PB = cours × nombre d'actions ÷ capitaux propres part du groupe
+
+    (Depuis le 27/10/2026 : actions EN CIRCULATION — moins les actions
+    autodétenues citées au rapport, `_actions_autodetenues_pb`.)
 
     ⚠️ Pourquoi ce calcul remplace une constante, et pourquoi il rend None
     plutôt qu'une valeur de repli.
@@ -3442,6 +3524,11 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         # relevés sur pièce, 30/06/2026 ou 31/12/2025. Et la réserve (B3).
         "pb_fonds_propres_au": (_pb_detail(ticker, 1.0) or {}).get("fonds_propres_au"),
         "pb_reserve":   (_pb_detail(ticker, 1.0) or {}).get("reserve"),
+        # Actions autodétenues déduites du dénominateur du P/B (27/10/2026,
+        # IAS 32, accord R8 pour ATW) : {nombre, au, page, source, nature,
+        # accord}. None = aucun fait cité (« non trouvé », jamais zéro). La
+        # capitalisation et le BPA ne sont PAS touchés.
+        "pb_actions_autodetenues": _trace_autodetenues_pb(ticker),
         # D'où vient la capitalisation publiée. Depuis le 20/10/2026, d'abord
         # « calculee_bourse_officielle » — cours du jour × nombre d'actions de
         # la liste officielle des émetteurs. Sinon : « servie » par la source
