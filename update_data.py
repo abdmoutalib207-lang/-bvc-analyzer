@@ -2648,9 +2648,10 @@ def _actions_pb(ticker: str):
 
 
 # Titres dont la déduction des actions autodétenues au P/B a reçu l'accord R8
-# NOMINATIF d'Abd Moutalib. La règle s'applique à tout fait cité (même calcul
-# partout) ; un titre absent d'ici est publié avec `accord: null` — « à faire
-# valider », jamais caché.
+# NOMINATIF d'Abd Moutalib. La déduction ne s'applique QU'À EUX : un fait cité
+# pour un autre titre est lu mais ne change pas son P/B tant que l'accord
+# manque (28/10/2026, relecture de la PR #310 : le fait de LHM vient de l'état
+# C1 des comptes SOCIAUX, ses fonds propres sont CONSOLIDÉS — non recoupé).
 ACCORD_AUTODETENUES_PB = {
     "ATW": "accord R8 d'Abd Moutalib du 27/10/2026",
 }
@@ -2714,6 +2715,8 @@ def _pb_detail(ticker: str, price: float):
     if not fp or not n_emises or fp["valeur"] <= 0:
         return None
     auto = _actions_autodetenues_pb(ticker)
+    if auto and not auto["accord"]:
+        auto = None          # fait cité mais sans accord nominatif : P/B inchangé
     if auto and not auto["nombre"] < n_emises:
         logger.warning(f"{ticker} : {auto['nombre']:.0f} actions autodétenues pour "
                        f"{n_emises:.0f} émises — déduction écartée au P/B")

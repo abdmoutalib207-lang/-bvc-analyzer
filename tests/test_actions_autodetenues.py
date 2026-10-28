@@ -190,18 +190,25 @@ def test_absence_n_est_pas_zero(moteur, monkeypatch):
     assert moteur._trace_autodetenues_pb("ATW") is None
 
 
-def test_un_zero_enonce_est_trace_sans_changer_le_ratio(moteur):
+def test_un_zero_enonce_est_lu_sans_changer_le_ratio(moteur):
+    assert moteur._actions_autodetenues_pb("BOA")["nombre"] == 0
     d = moteur._pb_detail("BOA", 100.0)
-    assert d["autodetenues"]["nombre"] == 0 and d["actions_en_circulation"] == d["actions"]
+    assert d["autodetenues"] is None and d["actions_en_circulation"] == d["actions"]
 
 
-def test_les_autres_emetteurs_sont_publies_sans_accord(moteur):
-    """La règle est la même pour tous ; l'accord nominatif ne couvre qu'ATW."""
+def test_sans_accord_nominatif_le_pb_ne_change_pas(moteur):
+    """L'accord nominatif ne couvre qu'ATW : un fait cité ailleurs (LHM) est lu
+    mais ne touche ni le P/B ni la trace publiée."""
+    assert set(moteur.ACCORD_AUTODETENUES_PB) == {"ATW"}
     for t in moteur.TICKERS_ALL:
         a = moteur._actions_autodetenues_pb(t)
         if a and t not in moteur.ACCORD_AUTODETENUES_PB:
             assert a["accord"] is None, t
-    assert set(moteur.ACCORD_AUTODETENUES_PB) == {"ATW"}
+            d = moteur._pb_detail(t, 100.0)
+            if d:
+                assert d["actions_en_circulation"] == d["actions"], t
+            assert moteur._trace_autodetenues_pb(t) is None, t
+    assert moteur._actions_autodetenues_pb("LHM") is not None
 
 
 def test_ni_la_capitalisation_ni_le_bpa_ne_lisent_les_autodetenues():

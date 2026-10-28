@@ -333,7 +333,9 @@ def test_le_pb_publie_se_recoupe_avec_la_capitalisation(publie, faits):
         fa = faits[t].get("faits") or {}
         auto = (fa.get("actions_autodetenues") or {}).get("valeur")
         na = (fa.get("nombre_actions_existant") or fa.get("nombre_actions_au_rapport") or {}).get("valeur")
-        if auto and na:
+        # 28/10/2026 : seulement pour les titres sous accord nominatif (ATW),
+        # comme le moteur (`ACCORD_AUTODETENUES_PB`).
+        if auto and na and t in {"ATW"}:
             temoin *= (na - auto) / na
         # ⚠️ MÊME BASE QUE LE GARDE-FOU D'ENTRÉE (`_capitalisation`) :
         # |calculée ÷ servie − 1|. L'écart se lisait à l'envers, servie ÷
