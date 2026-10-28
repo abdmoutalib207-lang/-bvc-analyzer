@@ -9941,7 +9941,21 @@ const Detail = ({
       lineHeight: 1.4,
       cursor: "help"
     }
-  }, React.createElement("b", null, "\u26A0 Aucun compte r\xE9cent"), " \u2014 dernier d\xE9p\xF4t le ", r._meta.comptes_absents.dernier_depot.split("-").reverse().join("/"), " : ", r._meta.comptes_absents.motif, ". La note est affich\xE9e pour m\xE9moire, sans conclusion."), (() => {
+  }, React.createElement("b", null, "\u26A0 Aucun compte r\xE9cent"), " \u2014 dernier d\xE9p\xF4t le ", r._meta.comptes_absents.dernier_depot.split("-").reverse().join("/"), " : ", r._meta.comptes_absents.motif, ". La note est affich\xE9e pour m\xE9moire, sans conclusion."), ((r._meta || {}).rupture_methode || []).map((x, i) => React.createElement("div", {
+    key: "rm" + i,
+    title: `${x.source} · p. ${(x.pages || []).join(", ")}`,
+    style: {
+      margin: "0 0 10px",
+      padding: "6px 8px",
+      borderRadius: 4,
+      background: "rgba(255,143,0,.08)",
+      border: "1px solid rgba(255,143,0,.3)",
+      fontSize: 10,
+      color: "#ffb74d",
+      lineHeight: 1.4,
+      cursor: "help"
+    }
+  }, React.createElement("b", null, "\u26A0 Changement de m\xE9thode comptable"), " au ", jjmm(x.date_effet), "/", String(x.date_effet).slice(0, 4), " (comptes ", x.premier_exercice, ") \u2014 ", x.nature, ". Non comparable : ", x.non_comparable, ".")), (() => {
     const c = meta(r).comptes_plus_recents;
     if (!c) return null;
     return React.createElement("a", {
