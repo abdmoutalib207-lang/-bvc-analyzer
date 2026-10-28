@@ -861,6 +861,105 @@ FAMILLES_NOTE: dict = {
     "telecom":    ("IAM",),
     "utility":    ("TQA",),
 }
+
+# ⚠️ MÉTHODE COMPTABLE PAR SOCIÉTÉ — registre créé le 27/10/2026, accord d'Abd
+# Moutalib (idée reprise du dépôt BVC Nour, qui ne confond jamais une base
+# sociale, une base IFRS et une base en normes marocaines ; AUCUN fait n'en est
+# repris : chaque entrée ci-dessous est établie sur la pièce citée, relue ici).
+#
+# Pourquoi : un même ratio ne mesure pas la même chose selon la méthode. Une
+# foncière qui évalue ses immeubles de placement à la JUSTE VALEUR (IAS 40)
+# porte en résultat — donc dans son ROE — la variation de valeur du patrimoine ;
+# une foncière qui les tient au COÛT HISTORIQUE (amortis) n'en porte aucune. La
+# note par métier (`fond_score_sectoriel.noter`) ne suspend le ROE d'une
+# foncière que si ce registre établit la juste valeur.
+#
+# Champs :
+#   referentiel          le référentiel des comptes LUS PAR LA NOTE (la base des
+#                        faits de pipeline/faits_financiers.json), cité.
+#   immeubles_placement  "juste_valeur" | "cout" | "non_etabli". Jamais deviné :
+#                        sans pièce, "non_etabli" — et la note garde alors la
+#                        suspension prudente d'avant le registre.
+#   source               fichier, url, sha256 de la copie relue, et pour chaque
+#                        affirmation la page (page du PDF) et la citation exacte.
+#
+# ⚠️ Les rapports annuels cités ne sont PAS commités (10 à 16 Mo) : l'empreinte
+# est celle de la copie relue le 27/10/2026 ; pour IMI, elle est identique à
+# celle déjà enregistrée dans datasets/pieces/IMI/index.json.
+METHODE_COMPTABLE: dict = {
+    "ARD": {
+        "exercice": 2025,
+        "referentiel": "IFRS tel qu'adopté dans l'Union européenne — comptes consolidés",
+        "immeubles_placement": "juste_valeur",
+        "source": {
+            "fichier": "Aradei_Capital_RFA_2025.pdf",
+            "url": "https://www.ammc.ma/sites/default/files/Aradei_Capital_RFA_2025.pdf",
+            "sha256": "272fdb3d9d6ead47bee49030106ae671774421580c0e7f4f44cf8d8fe354e658",
+            "citations": [
+                {"page": 7, "objet": "referentiel",
+                 "texte": "La société Aradei Capital a établi les comptes consolidés au titre de l'exercice clos "
+                          "le 31 Décembre 2025 en conformité avec le référentiel IFRS tel qu'adopté dans "
+                          "l'Union Européenne et applicable à cette date."},
+                {"page": 8, "objet": "immeubles_placement",
+                 "texte": "En application de la norme IAS 40, les immeubles de placement sont valorisés à "
+                          "leur valeur de marché."},
+            ],
+        },
+    },
+    "IMI": {
+        "exercice": 2025,
+        "referentiel": "normes comptables internationales (IFRS) adoptées dans l'Union européenne — comptes "
+                       "consolidés (la société publie AUSSI des consolidés en normes marocaines ; la note lit "
+                       "les IFRS : faits_financiers.json › IMI, base « consolidé IFRS »)",
+        "immeubles_placement": "juste_valeur",
+        "source": {
+            "fichier": "Immorente_Invest_RFA_2025.pdf",
+            "url": "https://www.ammc.ma/sites/default/files/Immorente_Invest_RFA_2025.pdf",
+            "sha256": "a17430459e934288da9b28fe7c7a59f550bd4ecc28b74cb6af80515f0714b2b4",
+            "citations": [
+                {"page": 22, "objet": "referentiel",
+                 "texte": "Les états financiers consolidés du Groupe Immorente Invest sont préparés en "
+                          "conformité avec les normes comptables internationales adoptées au sein de l'Union "
+                          "Européenne au 31 décembre 2025 et telles que publiées à cette même date."},
+                {"page": 22, "objet": "immeubles_placement",
+                 "texte": "Les immeubles de placement sont évalués à leur juste valeur. La périodicité de "
+                          "réévaluation de la juste valeur est annuelle."},
+            ],
+        },
+    },
+    "BAL": {
+        "exercice": 2025,
+        "referentiel": "normes marocaines (Conseil National de Comptabilité) — comptes consolidés",
+        "immeubles_placement": "cout",
+        "source": {
+            "fichier": "Balima_RFA_2025_0.pdf",
+            "url": "https://www.ammc.ma/sites/default/files/Balima_RFA_2025_0.pdf",
+            "sha256": "b81d7f5f74da6f29c27e25f04b696c3cc7c7b52a9dae7f66a93291cfcdd7c8e6",
+            "citations": [
+                {"page": 46, "objet": "referentiel",
+                 "texte": "Les comptes consolidés du Groupe BALIMA sont établis conformément aux Normes "
+                          "Marocaines telles que prescrites par le Conseil National de Comptabilité."},
+                {"page": 47, "objet": "immeubles_placement",
+                 "texte": "Le patrimoine immobilier n'a pas été réévalué et est inscrit au coût historique."},
+                {"page": 60, "objet": "immeubles_placement",
+                 "texte": "Le patrimoine immobilier n'a pas été réévalué et demeure inscrit au coût historique."},
+            ],
+        },
+    },
+}
+EVALUATIONS_IMMEUBLES = ("juste_valeur", "cout", "non_etabli")
+
+
+def methode_comptable(ticker: str) -> dict | None:
+    """L'entrée du registre METHODE_COMPTABLE, ou None (non établie)."""
+    return METHODE_COMPTABLE.get(ticker)
+
+
+def immeubles_a_juste_valeur(ticker: str) -> bool | None:
+    """True : juste valeur établie sur pièce ; False : coût établi sur pièce ;
+    None : non établi (absent du registre, ou « non_etabli »)."""
+    ev = (METHODE_COMPTABLE.get(ticker) or {}).get("immeubles_placement")
+    return {"juste_valeur": True, "cout": False}.get(ev)
 # ⚠️ OPÉRATIONS SUR LE CAPITAL DE L'EXERCICE 2025 — registre créé le 13/10/2026.
 #
 # R11 : une opération sur titres se CONSTATE sur pièce, elle ne se déduit pas

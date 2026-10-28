@@ -420,9 +420,16 @@ def test_fonciere_p_b_comptable_jamais_utilisable_avec_trois_foncieres():
         r = fs.noter(e, med)
         c = r["criteres"]
         assert c["valorisation"]["etat"] == fs.ABSENT and "actif net réévalué non disponible" in c["valorisation"]["motif"]
+        assert c["croissance"]["note"] == 7.5 and "BPA exclu" in c["croissance"]["mesure"]
+        if e["sym"] == "BAL":
+            # 27/10/2026 : BAL tient ses immeubles au COÛT HISTORIQUE (registre METHODE_COMPTABLE,
+            # RFA 2025 p.47) — son ROE est noté ; ROE 40 + croissance 30 = 70 ≥ 50 : une note.
+            assert c["rentabilite"]["etat"] == fs.PRESENT and c["rentabilite"]["valeur"] == 9.0
+            assert c["rentabilite"]["methode_comptable"]["immeubles_placement"] == "cout"
+            assert r["poids_disponible"] == 70 and r["note"] is not None
+            continue
         assert c["rentabilite"]["etat"] == fs.SUSPENDU and "juste valeur" in c["rentabilite"]["motif"]
         assert c["rentabilite"]["valeur"] == 9.0                    # affiché, non noté
-        assert c["croissance"]["note"] == 7.5 and "BPA exclu" in c["croissance"]["mesure"]
         assert r["poids_disponible"] == 30 and r["note"] is None
     # Avec 4 foncières, le P/B contribuerait (3 pairs) : la règle est le nombre de pairs.
     quatre = entrees + [_entree("REB", _fiche(roe_2025=9.0), {"bpa_12m": 1.0}, prix=10.0, pb=1.0)]
