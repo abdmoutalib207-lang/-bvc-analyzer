@@ -5610,6 +5610,28 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:                               # noqa: BLE001
         logger.warning(f"  📐 mesures de risque non calculées ({_e})")
 
+    # SCORE DESCRIPTIF (référentiel BVC Nour) — MODE FANTÔME, 28/10/2026.
+    #
+    # ⚠️ PUBLIÉ À CÔTÉ, JAMAIS DANS LA NOTE (R8). Décision d'Abd Moutalib du
+    # 28/10 : étape 1 = construire le référentiel de Nour dans notre moteur et
+    # mesurer ses fréquences ; la bascule viendra après, sur accord et sur
+    # preuves. Calculé APRÈS `v53`, `sig`, `confidence` et le classement, et
+    # rien en aval ne le lit : ces champs sont identiques avec ou sans ce bloc
+    # (essai à blanc jumeau, voir `pipeline/score_descriptif.py`).
+    # Un échec ici ne doit jamais emporter la publication.
+    try:
+        from pipeline.score_descriptif import annexer as _sd_annexer
+        _sd = _sd_annexer(
+            tickers_out,
+            lambda s: [] if _candles_cache.get(s) is None
+            else _candles_cache[s].to_dict("records"))
+        logger.info(f"  👻 score descriptif (fantôme) : "
+                    f"{sum(1 for v in _sd.values() if v['valeur'] is not None)} valeurs, "
+                    f"{sum(1 for v in _sd.values() if v['etat'] == 'PARTIEL')} partiels, "
+                    f"{sum(1 for v in _sd.values() if v['etat'] == 'NON_CALCULABLE')} non calculables")
+    except Exception as _e:                               # noqa: BLE001
+        logger.warning(f"  👻 score descriptif non calculé ({_e})")
+
     # ⚠️ LE FLUX SE CONTRÔLE LUI-MÊME — ajouté le 24/09/2026.
     #
     # « Un score qui ne se vérifie pas lui-même ne peut pas être calibré. » La
