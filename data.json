@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-28T18:56:15+0000",
+  "updated": "2026-10-28T20:33:40+0000",
   "date_analyse": "2026-10-28",
   "source": "IDBourse / Médias24",
   "market_status": "CLOSED",
@@ -42,6 +42,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -51,6 +52,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 76921,
         "cap_actions_source": "bourse_officielle",
@@ -91,7 +93,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:41+00:00"
+        "generated_at": "2026-10-28T20:32:40+00:00"
       },
       "code_bvc": "IAM",
       "fwd": {
@@ -201,8 +203,8 @@
       "vol": 28808,
       "echange_dh": 2524757.37,
       "reference": 87.9,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 79.12,
+      "seuil_haut": 96.68,
       "open": 88.0,
       "close": 87.5,
       "pe": 14.4,
@@ -239,9 +241,6 @@
       "adx_mdi": 26.9,
       "v53": 5.69,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.1,
-      "nlp_corpus": 0.0,
-      "nlp_news": 0.1,
       "score_tech": 4.6,
       "score_fond": 6.0,
       "note_fond": {
@@ -272,19 +271,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.5,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": 26,
       "sig": "SURVEILLER ★",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -535,6 +528,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -544,6 +538,14 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": {
+          "nombre": 13602015,
+          "au": "2025-12-31",
+          "page": 110,
+          "source": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/AWB_RFA_2025.pdf, p. 110",
+          "nature": "titres détenus par une filiale consolidée (Wafa Assurance)",
+          "accord": "accord R8 d'Abd Moutalib du 27/10/2026"
+        },
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 143499,
         "cap_actions_source": "bourse_officielle",
@@ -584,7 +586,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:41+00:00"
+        "generated_at": "2026-10-28T20:32:41+00:00"
       },
       "code_bvc": "ATW",
       "fwd": {
@@ -702,8 +704,8 @@
       "vol": 26395,
       "echange_dh": 17606150.3,
       "reference": 670.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 603.1,
+      "seuil_haut": 736.9,
       "open": 672.0,
       "close": 667.0,
       "pe": 13.4,
@@ -713,7 +715,7 @@
       "bpa_12m": 49.78,
       "pe_capitalisation": 13.4,
       "bpa_reserve": null,
-      "pb": 2.05,
+      "pb": 1.92,
       "div": 3.3,
       "div_dh": 22.0,
       "cap": 143499,
@@ -740,9 +742,6 @@
       "adx_mdi": 21.4,
       "v53": 5.84,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.04,
-      "nlp_corpus": 0.04,
-      "nlp_news": 0.0,
       "score_tech": 3.5,
       "score_fond": 6.5,
       "note_fond": {
@@ -845,19 +844,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.18,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": 28,
       "sig": "SURVEILLER ★",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -937,7 +930,7 @@
               "pairs_famille": 6,
               "libelle": "médiane des 6 autres titres de la famille « banque »"
             },
-            "pb_comptable_affiche": 2.05,
+            "pb_comptable_affiche": 1.92,
             "source": {
               "fichier": "bpa.json › bpa_12m",
               "piece": "https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf"
@@ -1052,11 +1045,11 @@
           "secteur": "Banque"
         },
         "pb": {
-          "valeur": 2.05,
+          "valeur": 1.92,
           "mediane_secteur": 1.32,
           "rang": 4,
           "pairs": 5,
-          "ecart_pct": 55.3,
+          "ecart_pct": 45.5,
           "secteur": "Banque"
         },
         "div": {
@@ -1133,6 +1126,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -1142,6 +1136,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 50218,
         "cap_actions_source": "bourse_officielle",
@@ -1182,7 +1177,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:42+00:00"
+        "generated_at": "2026-10-28T20:32:42+00:00"
       },
       "code_bvc": "BCP",
       "fwd": {
@@ -1287,8 +1282,8 @@
       "vol": 24453,
       "echange_dh": 6101109.4,
       "reference": 247.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 222.35,
+      "seuil_haut": 271.65,
       "open": 249.9,
       "close": 247.0,
       "pe": 10.4,
@@ -1325,9 +1320,6 @@
       "adx_mdi": 18.6,
       "v53": 6.48,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.01,
-      "nlp_corpus": 0.01,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 6.28,
       "note_fond": {
@@ -1417,19 +1409,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.07,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": 28,
       "sig": "SURVEILLER ★",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -1705,6 +1691,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -1714,6 +1701,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 41832,
         "cap_actions_source": "bourse_officielle",
@@ -1754,7 +1742,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:42+00:00"
+        "generated_at": "2026-10-28T20:32:43+00:00"
       },
       "code_bvc": "BOA",
       "fwd": {
@@ -1872,8 +1860,8 @@
       "vol": 7829,
       "echange_dh": 1477833.0,
       "reference": 188.95,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 170.1,
+      "seuil_haut": 207.8,
       "open": 189.5,
       "close": 189.9,
       "pe": 10.3,
@@ -1910,9 +1898,6 @@
       "adx_mdi": 14.3,
       "v53": 6.65,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": -0.01,
-      "nlp_corpus": -0.01,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 6.5,
       "note_fond": {
@@ -2015,19 +2000,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 4.96,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": 28,
       "sig": "ACHETER ★★",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -2303,6 +2282,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -2312,6 +2292,7 @@
         "pb_source": "non_disponible",
         "pb_fonds_propres_au": null,
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 11979,
         "cap_actions_source": "bourse_officielle",
@@ -2352,7 +2333,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:43+00:00"
+        "generated_at": "2026-10-28T20:32:44+00:00"
       },
       "code_bvc": "CIH",
       "fwd": {
@@ -2477,8 +2458,8 @@
       "vol": 1120,
       "echange_dh": 345303.8,
       "reference": 310.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 279.05,
+      "seuil_haut": 340.95,
       "open": 307.0,
       "close": 310.0,
       "pe": 10.0,
@@ -2515,9 +2496,6 @@
       "adx_mdi": 12.6,
       "v53": 6.45,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.13,
-      "nlp_corpus": 0.03,
-      "nlp_news": 0.1,
       "score_tech": 6.8,
       "score_fond": 6.35,
       "note_fond": {
@@ -2622,19 +2600,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.63,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": 28,
       "sig": "SURVEILLER ★",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -2902,6 +2874,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -2911,6 +2884,7 @@
         "pb_source": "non_disponible",
         "pb_fonds_propres_au": null,
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 10685,
         "cap_actions_source": "bourse_officielle",
@@ -2951,7 +2925,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:43+00:00"
+        "generated_at": "2026-10-28T20:32:45+00:00"
       },
       "code_bvc": "CDM",
       "fwd": {
@@ -3070,8 +3044,8 @@
       "vol": 6685,
       "echange_dh": 6143872.2,
       "reference": 919.2,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 827.3,
+      "seuil_haut": 1011.0,
       "open": 921.4,
       "close": 919.0,
       "pe": 10.5,
@@ -3108,9 +3082,6 @@
       "adx_mdi": 15.3,
       "v53": 6.36,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.12,
-      "nlp_corpus": 0.02,
-      "nlp_news": 0.1,
       "score_tech": 4.8,
       "score_fond": 6.8,
       "note_fond": {
@@ -3215,19 +3186,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.62,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": 29,
       "sig": "SURVEILLER ★",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -3495,6 +3460,21 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": [
+          {
+            "date_effet": "2024-01-01",
+            "premier_exercice": 2025,
+            "nature": "IFRS 17 (contrats d'assurance) et IFRS 9 (instruments financiers) remplacent IFRS 4 et IAS 39 dans les comptes consolidés — fin du « référentiel comptable transitoire de consolidation »",
+            "application": "premiers comptes annuels publiés selon IFRS 17 / IFRS 9 : exercice 2025 ; date de transition 01/01/2024, comparatifs 2024 « retraités »",
+            "non_comparable": "consolidés publiés jusqu'au 31/12/2024 (IFRS 4 / IAS 39, dont les primes émises) contre consolidés 2025 et suivants (revenus d'assurance IFRS 17) ; seul le 2024 « retraité » du RFA 2025 se compare à 2025",
+            "source": "https://www.ammc.ma/sites/default/files/Wafa_Assurance_RFA_2025.pdf",
+            "pages": [
+              16,
+              20,
+              60
+            ]
+          }
+        ],
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -3504,6 +3484,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 18550,
         "cap_actions_source": "bourse_officielle",
@@ -3544,7 +3525,7 @@
           }
         ],
         "n_candles": 759,
-        "generated_at": "2026-10-28T18:55:44+00:00"
+        "generated_at": "2026-10-28T20:32:46+00:00"
       },
       "code_bvc": "WAA",
       "fwd": {
@@ -3609,8 +3590,8 @@
       "vol": 6804,
       "echange_dh": 36053600.0,
       "reference": 5150.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 4636.0,
+      "seuil_haut": 5664.0,
       "open": 5250.0,
       "close": 5300.0,
       "pe": 17.0,
@@ -3647,9 +3628,6 @@
       "adx_mdi": 22.8,
       "v53": 5.7,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": -0.02,
-      "nlp_corpus": -0.02,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 5.28,
       "note_fond": {
@@ -3680,19 +3658,13 @@
         "couverture_applicable": 0.9,
         "motif": null
       },
-      "score_nlp": 4.89,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": 28,
       "sig": "SURVEILLER ★",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -3962,6 +3934,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -3971,6 +3944,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 41005,
         "cap_actions_source": "bourse_officielle",
@@ -4011,7 +3985,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:45+00:00"
+        "generated_at": "2026-10-28T20:32:46+00:00"
       },
       "code_bvc": "LHM",
       "fwd": null,
@@ -4103,8 +4077,8 @@
       "vol": 1877,
       "echange_dh": 3020734.0,
       "reference": 1605.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 1445.0,
+      "seuil_haut": 1765.0,
       "open": 1640.0,
       "close": 1603.0,
       "pe": 18.0,
@@ -4141,9 +4115,6 @@
       "adx_mdi": 16.1,
       "v53": 5.6,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 5.15,
       "note_fond": {
@@ -4174,19 +4145,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "SURVEILLER ★",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -4461,6 +4426,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -4470,6 +4436,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 12031,
         "cap_actions_source": "bourse_officielle",
@@ -4510,7 +4477,7 @@
           }
         ],
         "n_candles": 833,
-        "generated_at": "2026-10-28T18:55:45+00:00"
+        "generated_at": "2026-10-28T20:32:47+00:00"
       },
       "code_bvc": "GAZ",
       "fwd": {
@@ -4620,8 +4587,8 @@
       "vol": 73,
       "echange_dh": 255980.0,
       "reference": 3600.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 3241.0,
+      "seuil_haut": 3959.0,
       "open": 3580.0,
       "close": 3500.0,
       "pe": 16.0,
@@ -4658,9 +4625,6 @@
       "adx_mdi": 42.4,
       "v53": 5.86,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 3.8,
       "score_fond": 6.45,
       "note_fond": {
@@ -4691,19 +4655,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "SURVEILLER ★",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -4952,6 +4910,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -4961,6 +4920,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 7113,
         "cap_actions_source": "bourse_officielle",
@@ -4968,7 +4928,7 @@
         "cap_releve_bourse": "2026-10-20",
         "cap_releve_age_j": 8,
         "cap_releve_perime": false,
-        "cliquet_volume": true,
+        "cliquet_volume": false,
         "vol_median20": 672.0,
         "echange_median_dh": 81421,
         "prix_asof": "2026-10-28",
@@ -5001,7 +4961,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:46+00:00",
+        "generated_at": "2026-10-28T20:32:48+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 81421,
@@ -5109,9 +5069,6 @@
       "adx_mdi": 15.3,
       "v53": 6.5,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0.0,
-      "nlp_news": 0.0,
       "score_tech": 4.8,
       "score_fond": 6.5,
       "note_fond": {
@@ -5142,24 +5099,18 @@
         "couverture_applicable": 0.9,
         "motif": null
       },
-      "score_nlp": 5.01,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 81421,
         "seances_plates": 0,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": 28,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -5429,6 +5380,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -5438,6 +5390,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 3969,
         "cap_actions_source": "bourse_officielle",
@@ -5478,7 +5431,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:46+00:00"
+        "generated_at": "2026-10-28T20:32:49+00:00"
       },
       "code_bvc": "HPS",
       "fwd": {
@@ -5587,8 +5540,8 @@
       "vol": 46,
       "echange_dh": 24367.6,
       "reference": 518.7,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 466.85,
+      "seuil_haut": 570.5,
       "open": 525.0,
       "close": 535.9,
       "pe": 21.1,
@@ -5625,9 +5578,6 @@
       "adx_mdi": 18.4,
       "v53": 6.64,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.02,
-      "nlp_corpus": 0.02,
-      "nlp_news": 0.0,
       "score_tech": 6.8,
       "score_fond": 6.6,
       "note_fond": {
@@ -5658,19 +5608,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.1,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": 26,
       "sig": "ACHETER ★★",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -5945,6 +5889,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -5954,6 +5899,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 11286,
         "cap_actions_source": "bourse_officielle",
@@ -5994,7 +5940,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:47+00:00"
+        "generated_at": "2026-10-28T20:32:50+00:00"
       },
       "code_bvc": "LBV",
       "fwd": {
@@ -6104,8 +6050,8 @@
       "vol": 361,
       "echange_dh": 1397900.0,
       "reference": 3860.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 3475.0,
+      "seuil_haut": 4245.0,
       "open": 3850.0,
       "close": 3900.0,
       "pe": 16.6,
@@ -6142,9 +6088,6 @@
       "adx_mdi": 31.4,
       "v53": 5.84,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.01,
-      "nlp_corpus": 0.01,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 5.45,
       "note_fond": {
@@ -6175,19 +6118,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.05,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": 27,
       "sig": "SURVEILLER ★",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -6472,6 +6409,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -6481,6 +6419,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 8013,
         "cap_actions_source": "bourse_officielle",
@@ -6521,7 +6460,7 @@
           }
         ],
         "n_candles": 833,
-        "generated_at": "2026-10-28T18:55:47+00:00",
+        "generated_at": "2026-10-28T20:32:51+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 19330,
@@ -6617,8 +6556,8 @@
       "vol": 196,
       "echange_dh": 56840.0,
       "reference": 290.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 261.05,
+      "seuil_haut": 318.95,
       "open": 290.0,
       "close": 290.0,
       "pe": null,
@@ -6655,9 +6594,6 @@
       "adx_mdi": 32.8,
       "v53": 2.62,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 2.62,
       "note_fond": {
@@ -6688,24 +6624,18 @@
         "couverture_applicable": 0.8,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 19330,
         "seances_plates": 3,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -6966,6 +6896,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -6975,6 +6906,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 38921,
         "cap_actions_source": "bourse_officielle",
@@ -6982,7 +6914,7 @@
         "cap_releve_bourse": "2026-10-20",
         "cap_releve_age_j": 8,
         "cap_releve_perime": false,
-        "cliquet_volume": true,
+        "cliquet_volume": false,
         "vol_median20": 268.5,
         "echange_median_dh": 440340,
         "prix_asof": "2026-10-28",
@@ -7015,7 +6947,7 @@
           }
         ],
         "n_candles": 764,
-        "generated_at": "2026-10-28T18:55:48+00:00"
+        "generated_at": "2026-10-28T20:32:52+00:00"
       },
       "code_bvc": "TQM",
       "fwd": {
@@ -7163,9 +7095,6 @@
       "adx_mdi": 15.2,
       "v53": 5.06,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 4.45,
       "note_fond": {
@@ -7196,19 +7125,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "ATTENDRE",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -7459,6 +7382,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -7468,6 +7392,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 1000,
         "cap_actions_source": "bourse_officielle",
@@ -7508,7 +7433,7 @@
           }
         ],
         "n_candles": 751,
-        "generated_at": "2026-10-28T18:55:48+00:00",
+        "generated_at": "2026-10-28T20:32:53+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 1497,
@@ -7618,9 +7543,6 @@
       "adx_mdi": 73.1,
       "v53": 5.28,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.1,
       "score_fond": 5.28,
       "note_fond": {
@@ -7651,24 +7573,18 @@
         "couverture_applicable": 0.9,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide et coté au fixing",
         "montant_median_dh": 1497,
         "seances_plates": 20,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -7929,6 +7845,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -7938,6 +7855,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 11827,
         "cap_actions_source": "bourse_officielle",
@@ -7978,7 +7896,7 @@
           }
         ],
         "n_candles": 764,
-        "generated_at": "2026-10-28T18:55:49+00:00"
+        "generated_at": "2026-10-28T20:32:54+00:00"
       },
       "code_bvc": "TMA",
       "fwd": {
@@ -8097,8 +8015,8 @@
       "vol": 223,
       "echange_dh": 295129.0,
       "reference": 1330.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 1198.0,
+      "seuil_haut": 1462.0,
       "open": 1344.0,
       "close": 1320.0,
       "pe": 14.6,
@@ -8135,9 +8053,6 @@
       "adx_mdi": 24.5,
       "v53": 6.54,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.1,
       "score_fond": 6.95,
       "note_fond": {
@@ -8169,19 +8084,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "ACHETER ★★",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -8432,6 +8341,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -8441,6 +8351,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 6330,
         "cap_actions_source": "bourse_officielle",
@@ -8481,7 +8392,7 @@
           }
         ],
         "n_candles": 711,
-        "generated_at": "2026-10-28T18:55:49+00:00"
+        "generated_at": "2026-10-28T20:32:55+00:00"
       },
       "code_bvc": "CMT",
       "fwd": {
@@ -8588,8 +8499,8 @@
       "vol": 85,
       "echange_dh": 322674.0,
       "reference": 3900.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 3511.0,
+      "seuil_haut": 4289.0,
       "open": 3900.0,
       "close": 3765.0,
       "pe": 20.5,
@@ -8626,9 +8537,6 @@
       "adx_mdi": 26.8,
       "v53": 7.69,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0.0,
-      "nlp_news": 0.0,
       "score_tech": 5.2,
       "score_fond": 8.4,
       "note_fond": {
@@ -8659,19 +8567,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.01,
       "technique_neutralise": null,
-      "alpha": 42.1,
-      "win": 35,
       "sig": "ACHETER ★★",
       "verdict_plafonne": null,
-      "biais": "ACHAT",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -8918,6 +8820,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -8927,6 +8830,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 179394,
         "cap_actions_source": "bourse_officielle",
@@ -8934,7 +8838,7 @@
         "cap_releve_bourse": "2026-10-20",
         "cap_releve_age_j": 8,
         "cap_releve_perime": false,
-        "cliquet_volume": true,
+        "cliquet_volume": false,
         "vol_median20": 7693.5,
         "echange_median_dh": 11503636,
         "prix_asof": "2026-10-28",
@@ -8967,7 +8871,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:50+00:00"
+        "generated_at": "2026-10-28T20:32:56+00:00"
       },
       "code_bvc": "MNG",
       "fwd": {
@@ -9115,9 +9019,6 @@
       "adx_mdi": 25.1,
       "v53": 7.2,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.02,
-      "nlp_corpus": 0.02,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 7.2,
       "note_fond": {
@@ -9148,19 +9049,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.11,
       "technique_neutralise": null,
-      "alpha": 55.3,
-      "win": 32,
       "sig": "ACHETER ★★",
       "verdict_plafonne": null,
-      "biais": "ACHAT",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -9411,6 +9306,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -9420,6 +9316,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 8867,
         "cap_actions_source": "bourse_officielle",
@@ -9460,7 +9357,7 @@
           }
         ],
         "n_candles": 754,
-        "generated_at": "2026-10-28T18:55:50+00:00"
+        "generated_at": "2026-10-28T20:32:56+00:00"
       },
       "code_bvc": "SMI",
       "fwd": {
@@ -9553,8 +9450,8 @@
       "vol": 335,
       "echange_dh": 1829709.0,
       "reference": 5555.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 5000.0,
+      "seuil_haut": 6110.0,
       "open": 5560.0,
       "close": 5390.0,
       "pe": 16.7,
@@ -9591,9 +9488,6 @@
       "adx_mdi": 34.3,
       "v53": 7.52,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.02,
-      "nlp_corpus": 0.02,
-      "nlp_news": 0.0,
       "score_tech": 4.6,
       "score_fond": 8.35,
       "note_fond": {
@@ -9624,19 +9518,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.1,
       "technique_neutralise": null,
-      "alpha": 38.5,
-      "win": 31,
       "sig": "ACHETER ★★",
       "verdict_plafonne": null,
-      "biais": "ACHAT",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -9889,6 +9777,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -9898,6 +9787,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 14159,
         "cap_actions_source": "bourse_officielle",
@@ -9938,7 +9828,7 @@
           }
         ],
         "n_candles": 764,
-        "generated_at": "2026-10-28T18:55:51+00:00"
+        "generated_at": "2026-10-28T20:32:57+00:00"
       },
       "code_bvc": "AKT",
       "fwd": {
@@ -10053,8 +9943,8 @@
       "vol": 5338,
       "echange_dh": 5404519.0,
       "reference": 1030.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 927.1,
+      "seuil_haut": 1132.0,
       "open": 1030.0,
       "close": 1000.0,
       "pe": 29.8,
@@ -10091,9 +9981,6 @@
       "adx_mdi": 37.3,
       "v53": 4.52,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.01,
-      "nlp_corpus": 0.01,
-      "nlp_news": 0.0,
       "score_tech": 4.6,
       "score_fond": 4.5,
       "note_fond": {
@@ -10124,19 +10011,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.07,
       "technique_neutralise": null,
-      "alpha": 22.8,
-      "win": 33,
       "sig": "ATTENDRE",
       "verdict_plafonne": null,
-      "biais": "ACHAT",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -10430,6 +10311,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -10439,6 +10321,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 5341,
         "cap_actions_source": "bourse_officielle",
@@ -10479,7 +10362,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:51+00:00"
+        "generated_at": "2026-10-28T20:32:58+00:00"
       },
       "code_bvc": "ARD",
       "fwd": {
@@ -10589,8 +10472,8 @@
       "vol": 393,
       "echange_dh": 167580.8,
       "reference": 425.8,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 383.25,
+      "seuil_haut": 468.35,
       "open": 430.0,
       "close": 425.0,
       "pe": 10.9,
@@ -10627,9 +10510,6 @@
       "adx_mdi": 14.2,
       "v53": 3.94,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 4.8,
       "score_fond": 3.7,
       "note_fond": {
@@ -10660,19 +10540,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "Couverture partielle",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "FAIBLESSE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -10728,10 +10602,20 @@
             "valeur": 10.05,
             "mesure": "ROE 10.05 % — affiché, non noté",
             "note": null,
-            "motif": "ROE suspendu pour les foncières : il intègre les effets de juste valeur des immeubles, comme le BPA exclu de la croissance",
+            "motif": "ROE suspendu : la société évalue ses immeubles de placement à la juste valeur (IAS 40) — le résultat porte la variation de valeur du patrimoine, comme le BPA exclu de la croissance",
             "periode": null,
             "base": "RNPG 2025 534.413 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 5191.83 ; 31/12/2025 5444.53), même état financier",
             "reference": null,
+            "methode_comptable": {
+              "immeubles_placement": "juste_valeur",
+              "referentiel": "IFRS tel qu'adopté dans l'Union européenne — comptes consolidés",
+              "exercice": 2025,
+              "piece": "https://www.ammc.ma/sites/default/files/Aradei_Capital_RFA_2025.pdf",
+              "sha256": "272fdb3d9d6ead47bee49030106ae671774421580c0e7f4f44cf8d8fe354e658",
+              "page": 8,
+              "citation": "En application de la norme IAS 40, les immeubles de placement sont valorisés à leur valeur de marché.",
+              "registre": "bvc_config.METHODE_COMPTABLE"
+            },
             "source": null
           },
           "croissance": {
@@ -10956,6 +10840,20 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": [
+          {
+            "date_effet": "2025-01-01",
+            "premier_exercice": 2025,
+            "nature": "IFRS 17 (contrats d'assurance) remplace IFRS 4 dans les comptes consolidés",
+            "application": "à compter du 1er janvier 2025 ; bilan d'ouverture 01/01/2024 « Retraité » ; date d'application d'IFRS 9 NON relevée",
+            "non_comparable": "consolidés publiés selon IFRS 4 (exercice 2024 et avant, tels que publiés) contre consolidés 2025 et suivants",
+            "source": "https://www.ammc.ma/sites/default/files/Sanlam_RFA_2025.pdf",
+            "pages": [
+              10,
+              11
+            ]
+          }
+        ],
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -10965,6 +10863,7 @@
         "pb_source": "non_disponible",
         "pb_fonds_propres_au": null,
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 16768,
         "cap_actions_source": "bourse_officielle",
@@ -11005,7 +10904,7 @@
           }
         ],
         "n_candles": 708,
-        "generated_at": "2026-10-28T18:55:52+00:00",
+        "generated_at": "2026-10-28T20:32:59+00:00",
         "comptes_plus_recents": {
           "date": "2026-09-30",
           "titre": "Sanlam Maroc - Résultats financiers du 1er semestre 2026",
@@ -11071,8 +10970,8 @@
       "vol": 26,
       "echange_dh": 80514.0,
       "reference": 3094.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 2785.0,
+      "seuil_haut": 3403.0,
       "open": 3095.0,
       "close": 3139.0,
       "pe": null,
@@ -11109,9 +11008,6 @@
       "adx_mdi": 40.5,
       "v53": null,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 6.9,
       "score_fond": null,
       "note_fond": {
@@ -11142,24 +11038,18 @@
         "couverture_applicable": 0.0,
         "motif": "composantes mesurées : 0% du poids, sous le seuil de 50 % — qualite : ROE non calculé sur comptes publiés ; croissance : croissance non établie sur comptes semestriels ; valorisation : pas de PER positif tiré des comptes ; bilan : équivalent bancaire non intégré (coût du risque, qualité des créances, solvabilité) — la dette/EBITDA ne s'applique pas à une financière"
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 40522,
         "seances_plates": 8,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Données insuffisantes",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -11402,6 +11292,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -11411,6 +11302,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 2237,
         "cap_actions_source": "bourse_officielle",
@@ -11451,7 +11343,7 @@
           }
         ],
         "n_candles": 742,
-        "generated_at": "2026-10-28T18:55:52+00:00",
+        "generated_at": "2026-10-28T20:32:59+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 2414,
@@ -11595,9 +11487,6 @@
       "adx_mdi": 57.9,
       "v53": 2.65,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": -0.03,
-      "nlp_corpus": -0.03,
-      "nlp_news": 0.0,
       "score_tech": 5.2,
       "score_fond": 2.65,
       "note_fond": {
@@ -11628,24 +11517,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 4.84,
       "technique_neutralise": {
         "motif": "peu liquide et coté au fixing",
         "montant_median_dh": 2414,
         "seances_plates": 20,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": 27,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -11933,6 +11816,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -11942,6 +11826,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 20283,
         "cap_actions_source": "bourse_officielle",
@@ -11982,7 +11867,7 @@
           }
         ],
         "n_candles": 754,
-        "generated_at": "2026-10-28T18:55:53+00:00"
+        "generated_at": "2026-10-28T20:33:00+00:00"
       },
       "code_bvc": "CMA",
       "fwd": {
@@ -12085,8 +11970,8 @@
       "vol": 573,
       "echange_dh": 807656.0,
       "reference": 1408.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 1268.0,
+      "seuil_haut": 1548.0,
       "open": 1410.0,
       "close": 1405.0,
       "pe": 15.7,
@@ -12123,9 +12008,6 @@
       "adx_mdi": 21.9,
       "v53": 5.9,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 3.8,
       "score_fond": 6.5,
       "note_fond": {
@@ -12156,19 +12038,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "SURVEILLER ★",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -12445,6 +12321,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -12454,6 +12331,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 980,
         "cap_actions_source": "bourse_officielle",
@@ -12494,7 +12372,7 @@
           }
         ],
         "n_candles": 832,
-        "generated_at": "2026-10-28T18:55:53+00:00",
+        "generated_at": "2026-10-28T20:33:00+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 20686,
@@ -12647,9 +12525,6 @@
       "adx_mdi": 40.7,
       "v53": 2.55,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 3.9,
       "score_fond": 2.55,
       "note_fond": {
@@ -12680,24 +12555,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 20686,
         "seances_plates": 4,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -12965,6 +12834,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -12974,6 +12844,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 130,
         "cap_actions_source": "bourse_officielle",
@@ -13014,7 +12885,7 @@
           }
         ],
         "n_candles": 90,
-        "generated_at": "2026-10-28T18:55:53+00:00",
+        "generated_at": "2026-10-28T20:33:01+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 2412,
@@ -13120,8 +12991,8 @@
       "vol": 69,
       "echange_dh": 16639.9,
       "reference": 227.65,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 204.9,
+      "seuil_haut": 250.4,
       "open": 244.5,
       "close": 220.0,
       "pe": 6.3,
@@ -13158,9 +13029,6 @@
       "adx_mdi": 36.3,
       "v53": 5.85,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 3.8,
       "score_fond": 5.85,
       "note_fond": {
@@ -13191,24 +13059,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 2412,
         "seances_plates": 10,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -13514,6 +13376,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -13523,6 +13386,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 11836,
         "cap_actions_source": "bourse_officielle",
@@ -13563,7 +13427,7 @@
           }
         ],
         "n_candles": 754,
-        "generated_at": "2026-10-28T18:55:54+00:00"
+        "generated_at": "2026-10-28T20:33:02+00:00"
       },
       "code_bvc": "SOT",
       "fwd": {
@@ -13664,8 +13528,8 @@
       "vol": 151,
       "echange_dh": 46250.55,
       "reference": 300.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 270.05,
+      "seuil_haut": 329.95,
       "open": 305.0,
       "close": 308.95,
       "pe": 29.1,
@@ -13702,9 +13566,6 @@
       "adx_mdi": 27.4,
       "v53": 5.35,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.03,
-      "nlp_corpus": 0.03,
-      "nlp_news": 0.0,
       "score_tech": 4.8,
       "score_fond": 5.5,
       "note_fond": {
@@ -13735,19 +13596,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.12,
       "technique_neutralise": null,
-      "alpha": 5.0,
-      "win": 30,
       "sig": "ATTENDRE",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -14022,6 +13877,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -14031,6 +13887,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 55193,
         "cap_actions_source": "bourse_officielle",
@@ -14071,7 +13928,7 @@
           }
         ],
         "n_candles": 754,
-        "generated_at": "2026-10-28T18:55:54+00:00"
+        "generated_at": "2026-10-28T20:33:03+00:00"
       },
       "code_bvc": "MSA",
       "fwd": {
@@ -14181,8 +14038,8 @@
       "vol": 7478,
       "echange_dh": 5641935.9,
       "reference": 775.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 697.6,
+      "seuil_haut": 852.4,
       "open": 785.0,
       "close": 752.0,
       "pe": 32.8,
@@ -14219,9 +14076,6 @@
       "adx_mdi": 26.4,
       "v53": 6.68,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.04,
-      "nlp_corpus": 0.04,
-      "nlp_news": 0.0,
       "score_tech": 3.8,
       "score_fond": 7.5,
       "note_fond": {
@@ -14253,19 +14107,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.21,
       "technique_neutralise": null,
-      "alpha": 21.0,
-      "win": 28,
       "sig": "ACHETER ★★",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -14514,6 +14362,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -14523,6 +14372,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 7936,
         "cap_actions_source": "bourse_officielle",
@@ -14563,7 +14413,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:55+00:00"
+        "generated_at": "2026-10-28T20:33:04+00:00"
       },
       "code_bvc": "ADI",
       "fwd": {
@@ -14673,8 +14523,8 @@
       "vol": 5297,
       "echange_dh": 1899625.6,
       "reference": 360.5,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 324.5,
+      "seuil_haut": 396.5,
       "open": 356.5,
       "close": 359.45,
       "pe": 18.6,
@@ -14711,9 +14561,6 @@
       "adx_mdi": 23.7,
       "v53": 5.88,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.03,
-      "nlp_corpus": 0.03,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 5.5,
       "note_fond": {
@@ -14744,19 +14591,13 @@
         "couverture_applicable": 0.5,
         "motif": null
       },
-      "score_nlp": 5.17,
       "technique_neutralise": null,
-      "alpha": 8.5,
-      "win": 28,
       "sig": "Couverture partielle",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -15034,6 +14875,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -15043,6 +14885,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 14291,
         "cap_actions_source": "bourse_officielle",
@@ -15083,7 +14926,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:55+00:00"
+        "generated_at": "2026-10-28T20:33:05+00:00"
       },
       "code_bvc": "ADH",
       "fwd": {
@@ -15175,8 +15018,8 @@
       "vol": 109910,
       "echange_dh": 3901925.61,
       "reference": 36.5,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 32.86,
+      "seuil_haut": 40.14,
       "open": 35.31,
       "close": 35.5,
       "pe": 29.1,
@@ -15213,9 +15056,6 @@
       "adx_mdi": 25.1,
       "v53": 4.57,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.03,
-      "nlp_corpus": 0.03,
-      "nlp_news": 0.0,
       "score_tech": 6.8,
       "score_fond": 3.94,
       "note_fond": {
@@ -15246,19 +15086,13 @@
         "couverture_applicable": 0.9,
         "motif": null
       },
-      "score_nlp": 5.12,
       "technique_neutralise": null,
-      "alpha": 3.1,
-      "win": 26,
       "sig": "ATTENDRE",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -15560,6 +15394,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -15569,6 +15404,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 20319,
         "cap_actions_source": "bourse_officielle",
@@ -15609,7 +15445,7 @@
           }
         ],
         "n_candles": 1207,
-        "generated_at": "2026-10-28T18:55:56+00:00"
+        "generated_at": "2026-10-28T20:33:06+00:00"
       },
       "code_bvc": "TGC",
       "fwd": {
@@ -15719,8 +15555,8 @@
       "vol": 15171,
       "echange_dh": 8889340.5,
       "reference": 580.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 522.1,
+      "seuil_haut": 637.9,
       "open": 588.0,
       "close": 586.0,
       "pe": 20.8,
@@ -15757,9 +15593,6 @@
       "adx_mdi": 39.2,
       "v53": 5.92,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.03,
-      "nlp_corpus": 0.03,
-      "nlp_news": 0.0,
       "score_tech": 4.6,
       "score_fond": 6.3,
       "note_fond": {
@@ -15790,19 +15623,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.15,
       "technique_neutralise": null,
-      "alpha": 18.7,
-      "win": 31,
       "sig": "SURVEILLER ★",
       "verdict_plafonne": null,
-      "biais": "ACHAT",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -16053,6 +15880,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -16062,6 +15890,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 6792,
         "cap_actions_source": "bourse_officielle",
@@ -16102,7 +15931,7 @@
           }
         ],
         "n_candles": 702,
-        "generated_at": "2026-10-28T18:55:56+00:00"
+        "generated_at": "2026-10-28T20:33:06+00:00"
       },
       "code_bvc": "CFG",
       "fwd": {
@@ -16224,8 +16053,8 @@
       "vol": 14187,
       "echange_dh": 2754898.0,
       "reference": 194.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 174.65,
+      "seuil_haut": 213.35,
       "open": 196.0,
       "close": 194.0,
       "pe": 17.4,
@@ -16262,9 +16091,6 @@
       "adx_mdi": 13.3,
       "v53": 6.49,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0.0,
-      "nlp_news": 0.0,
       "score_tech": 6.8,
       "score_fond": 6.4,
       "note_fond": {
@@ -16370,19 +16196,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": 14.6,
-      "win": 31,
       "sig": "SURVEILLER ★",
       "verdict_plafonne": null,
-      "biais": "ACHAT",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -16658,6 +16478,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -16667,6 +16488,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 5156,
         "cap_actions_source": "bourse_officielle",
@@ -16707,7 +16529,7 @@
           }
         ],
         "n_candles": 217,
-        "generated_at": "2026-10-28T18:55:57+00:00"
+        "generated_at": "2026-10-28T20:33:07+00:00"
       },
       "code_bvc": "CAP",
       "fwd": {
@@ -16774,8 +16596,8 @@
       "vol": 1280,
       "echange_dh": 272214.95,
       "reference": 216.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 194.45,
+      "seuil_haut": 237.55,
       "open": 215.0,
       "close": 210.0,
       "pe": 19.4,
@@ -16812,9 +16634,6 @@
       "adx_mdi": 21.6,
       "v53": 6.99,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.01,
-      "nlp_corpus": 0.01,
-      "nlp_news": 0.0,
       "score_tech": 4.8,
       "score_fond": 7.61,
       "note_fond": {
@@ -16845,19 +16664,13 @@
         "couverture_applicable": 0.9,
         "motif": null
       },
-      "score_nlp": 5.04,
       "technique_neutralise": null,
-      "alpha": 10.1,
-      "win": 29,
       "sig": "ACHETER ★★",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -17135,6 +16948,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -17144,6 +16958,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 33600,
         "cap_actions_source": "bourse_officielle",
@@ -17184,7 +16999,7 @@
           }
         ],
         "n_candles": 211,
-        "generated_at": "2026-10-28T18:55:57+00:00"
+        "generated_at": "2026-10-28T20:33:08+00:00"
       },
       "code_bvc": "GTM",
       "fwd": {
@@ -17284,8 +17099,8 @@
       "vol": 3975,
       "echange_dh": 2228173.7,
       "reference": 565.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 508.6,
+      "seuil_haut": 621.4,
       "open": 560.0,
       "close": 560.0,
       "pe": 24.1,
@@ -17322,9 +17137,6 @@
       "adx_mdi": 31.9,
       "v53": 6.63,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.01,
-      "nlp_corpus": 0.01,
-      "nlp_news": 0.0,
       "score_tech": 4.6,
       "score_fond": 7.2,
       "note_fond": {
@@ -17355,19 +17167,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.03,
       "technique_neutralise": null,
-      "alpha": 15.9,
-      "win": 31,
       "sig": "ACHETER ★★",
       "verdict_plafonne": null,
-      "biais": "ACHAT",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -17618,6 +17424,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -17627,6 +17434,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 4369,
         "cap_actions_source": "bourse_officielle",
@@ -17667,7 +17475,7 @@
           }
         ],
         "n_candles": 458,
-        "generated_at": "2026-10-28T18:55:58+00:00"
+        "generated_at": "2026-10-28T20:33:09+00:00"
       },
       "code_bvc": "CMG",
       "fwd": {
@@ -17780,8 +17588,8 @@
       "vol": 4164,
       "echange_dh": 1072677.3,
       "reference": 259.95,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 234.0,
+      "seuil_haut": 285.9,
       "open": 259.95,
       "close": 257.0,
       "pe": 15.8,
@@ -17818,9 +17626,6 @@
       "adx_mdi": 22.2,
       "v53": 6.06,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.04,
-      "nlp_corpus": 0.04,
-      "nlp_news": 0.0,
       "score_tech": 3.8,
       "score_fond": 6.7,
       "note_fond": {
@@ -17852,19 +17657,13 @@
         "couverture_applicable": 0.5,
         "motif": null
       },
-      "score_nlp": 5.19,
       "technique_neutralise": null,
-      "alpha": 11.5,
-      "win": 29,
       "sig": "Couverture partielle",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -18140,6 +17939,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -18149,6 +17949,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 3078,
         "cap_actions_source": "bourse_officielle",
@@ -18189,7 +17990,7 @@
           }
         ],
         "n_candles": 314,
-        "generated_at": "2026-10-28T18:55:58+00:00"
+        "generated_at": "2026-10-28T20:33:10+00:00"
       },
       "code_bvc": "VCN",
       "fwd": {
@@ -18301,8 +18102,8 @@
       "vol": 768,
       "echange_dh": 229302.15,
       "reference": 300.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 270.05,
+      "seuil_haut": 329.95,
       "open": 300.5,
       "close": 300.0,
       "pe": 19.8,
@@ -18339,9 +18140,6 @@
       "adx_mdi": 20.5,
       "v53": 6.34,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0.0,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 6.1,
       "note_fond": {
@@ -18372,19 +18170,13 @@
         "couverture_applicable": 0.5,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": 5.5,
-      "win": 28,
       "sig": "Couverture partielle",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -18660,6 +18452,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -18669,6 +18462,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 4696,
         "cap_actions_source": "bourse_officielle",
@@ -18709,7 +18503,7 @@
           }
         ],
         "n_candles": 754,
-        "generated_at": "2026-10-28T18:55:59+00:00"
+        "generated_at": "2026-10-28T20:33:11+00:00"
       },
       "code_bvc": "RIS",
       "fwd": {
@@ -18810,8 +18604,8 @@
       "vol": 6009,
       "echange_dh": 1758986.05,
       "reference": 292.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 262.85,
+      "seuil_haut": 321.15,
       "open": 291.2,
       "close": 293.25,
       "pe": 15.9,
@@ -18848,9 +18642,6 @@
       "adx_mdi": 17.7,
       "v53": 4.89,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.03,
-      "nlp_corpus": 0.03,
-      "nlp_news": 0.0,
       "score_tech": 3.8,
       "score_fond": 5.2,
       "note_fond": {
@@ -18881,19 +18672,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.14,
       "technique_neutralise": null,
-      "alpha": 10.3,
-      "win": 27,
       "sig": "ATTENDRE",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -19161,6 +18946,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -19170,6 +18956,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 16535,
         "cap_actions_source": "bourse_officielle",
@@ -19210,7 +18997,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:55:59+00:00"
+        "generated_at": "2026-10-28T20:33:12+00:00"
       },
       "code_bvc": "CSR",
       "fwd": {
@@ -19311,8 +19098,8 @@
       "vol": 2405,
       "echange_dh": 421801.7,
       "reference": 174.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 156.65,
+      "seuil_haut": 191.35,
       "open": 178.55,
       "close": 175.0,
       "pe": 25.4,
@@ -19349,9 +19136,6 @@
       "adx_mdi": 12.7,
       "v53": 5.05,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": -0.04,
-      "nlp_corpus": -0.04,
-      "nlp_news": 0.0,
       "score_tech": 6.8,
       "score_fond": 4.55,
       "note_fond": {
@@ -19382,19 +19166,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 4.82,
       "technique_neutralise": null,
-      "alpha": 19.2,
-      "win": 28,
       "sig": "ATTENDRE",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -19669,6 +19447,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -19678,6 +19457,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 6630,
         "cap_actions_source": "bourse_officielle",
@@ -19718,7 +19498,7 @@
           }
         ],
         "n_candles": 764,
-        "generated_at": "2026-10-28T18:56:00+00:00"
+        "generated_at": "2026-10-28T20:33:13+00:00"
       },
       "code_bvc": "SID",
       "fwd": {
@@ -19819,8 +19599,8 @@
       "vol": 232,
       "echange_dh": 406653.0,
       "reference": 1640.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 1477.0,
+      "seuil_haut": 1803.0,
       "open": 1627.0,
       "close": 1700.0,
       "pe": 19.4,
@@ -19857,9 +19637,6 @@
       "adx_mdi": 21.5,
       "v53": 6.99,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.02,
-      "nlp_corpus": 0.02,
-      "nlp_news": 0.0,
       "score_tech": 6.8,
       "score_fond": 7.05,
       "note_fond": {
@@ -19890,19 +19667,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.1,
       "technique_neutralise": null,
-      "alpha": 7.6,
-      "win": 26,
       "sig": "ACHETER ★★",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -20177,6 +19948,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -20186,6 +19958,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 144,
         "cap_actions_source": "bourse_officielle",
@@ -20226,7 +19999,7 @@
           }
         ],
         "n_candles": 738,
-        "generated_at": "2026-10-28T18:56:00+00:00",
+        "generated_at": "2026-10-28T20:33:13+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 5550,
@@ -20360,9 +20133,6 @@
       "adx_mdi": 59.0,
       "v53": 1.95,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.01,
-      "nlp_corpus": 0.01,
-      "nlp_news": 0.0,
       "score_tech": 5.2,
       "score_fond": 1.95,
       "note_fond": {
@@ -20393,24 +20163,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.07,
       "technique_neutralise": {
         "motif": "peu liquide et coté au fixing",
         "montant_median_dh": 5550,
         "seances_plates": 20,
         "seances_echangees": 20
       },
-      "alpha": 9.8,
-      "win": 30,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -20691,6 +20455,20 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": [
+          {
+            "date_effet": "2025-01-01",
+            "premier_exercice": 2025,
+            "nature": "reconnaissance du chiffre d'affaires de la promotion immobilière : désormais à la signature de l'acte notarié (mise à jour du plan comptable du secteur immobilier, avis n° 20 du CNC ; réévaluation du transfert de contrôle au sens d'IFRS 15)",
+            "application": "consolidés : rétrospective (31/12/2024 « Ajusté » dans le RFA 2025) ; sociaux : prospective (2024 non retraité)",
+            "non_comparable": "chiffre d'affaires et résultat de 2025 contre les comptes publiés avant le RFA 2025 (RFA 2024 tel que publié) ; en SOCIAL, 2025 contre 2024 et avant",
+            "source": "https://www.ammc.ma/sites/default/files/RDS_RFA_2025.pdf",
+            "pages": [
+              16,
+              17
+            ]
+          }
+        ],
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -20700,6 +20478,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 4403,
         "cap_actions_source": "bourse_officielle",
@@ -20740,7 +20519,7 @@
           }
         ],
         "n_candles": 754,
-        "generated_at": "2026-10-28T18:56:01+00:00"
+        "generated_at": "2026-10-28T20:33:14+00:00"
       },
       "code_bvc": "RDS",
       "fwd": {
@@ -20820,8 +20599,8 @@
       "vol": 376,
       "echange_dh": 63207.35,
       "reference": 170.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 153.05,
+      "seuil_haut": 186.95,
       "open": 169.05,
       "close": 168.0,
       "pe": 247.1,
@@ -20858,9 +20637,6 @@
       "adx_mdi": 21.4,
       "v53": 5.14,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.03,
-      "nlp_corpus": 0.03,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 4.56,
       "note_fond": {
@@ -20891,19 +20667,13 @@
         "couverture_applicable": 0.9,
         "motif": null
       },
-      "score_nlp": 5.16,
       "technique_neutralise": null,
-      "alpha": 5.2,
-      "win": 26,
       "sig": "ATTENDRE",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -21197,6 +20967,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -21206,6 +20977,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 867,
         "cap_actions_source": "bourse_officielle",
@@ -21246,7 +21018,7 @@
           }
         ],
         "n_candles": 748,
-        "generated_at": "2026-10-28T18:56:01+00:00",
+        "generated_at": "2026-10-28T20:33:14+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 18480,
@@ -21347,9 +21119,6 @@
       "adx_mdi": 11.2,
       "v53": 7.3,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 6.7,
       "score_fond": 7.3,
       "note_fond": {
@@ -21380,24 +21149,18 @@
         "couverture_applicable": 0.5,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 18480,
         "seances_plates": 7,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -21662,6 +21425,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -21671,6 +21435,7 @@
         "pb_source": "non_disponible",
         "pb_fonds_propres_au": null,
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 1218,
         "cap_actions_source": "bourse_officielle",
@@ -21711,7 +21476,7 @@
           }
         ],
         "n_candles": 755,
-        "generated_at": "2026-10-28T18:56:01+00:00",
+        "generated_at": "2026-10-28T20:33:15+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 20471,
@@ -21821,9 +21586,6 @@
       "adx_mdi": 58.5,
       "v53": 6.94,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.1,
       "score_fond": 6.94,
       "note_fond": {
@@ -21854,24 +21616,18 @@
         "couverture_applicable": 0.9,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide et coté au fixing",
         "montant_median_dh": 20471,
         "seances_plates": 20,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -22124,6 +21880,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -22133,6 +21890,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 1247,
         "cap_actions_source": "bourse_officielle",
@@ -22173,7 +21931,7 @@
           }
         ],
         "n_candles": 736,
-        "generated_at": "2026-10-28T18:56:01+00:00",
+        "generated_at": "2026-10-28T20:33:15+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 22752,
@@ -22286,9 +22044,6 @@
       "adx_mdi": 44.1,
       "v53": 5.58,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 6.3,
       "score_fond": 5.58,
       "note_fond": {
@@ -22319,24 +22074,18 @@
         "couverture_applicable": 0.6,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide et coté au fixing",
         "montant_median_dh": 22752,
         "seances_plates": 20,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -22600,6 +22349,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -22609,6 +22359,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 828,
         "cap_actions_source": "bourse_officielle",
@@ -22616,7 +22367,7 @@
         "cap_releve_bourse": "2026-10-20",
         "cap_releve_age_j": 8,
         "cap_releve_perime": false,
-        "cliquet_volume": true,
+        "cliquet_volume": false,
         "vol_median20": 1621.0,
         "echange_median_dh": 146612,
         "prix_asof": "2026-10-28",
@@ -22649,7 +22400,7 @@
           }
         ],
         "n_candles": 754,
-        "generated_at": "2026-10-28T18:56:02+00:00"
+        "generated_at": "2026-10-28T20:33:16+00:00"
       },
       "code_bvc": "IMO",
       "fwd": {
@@ -22779,9 +22530,6 @@
       "adx_mdi": 15.6,
       "v53": 4.4,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 3.61,
       "note_fond": {
@@ -22812,19 +22560,13 @@
         "couverture_applicable": 0.9,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "Couverture partielle",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "FAIBLESSE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -22873,10 +22615,20 @@
             "valeur": 5.03,
             "mesure": "ROE 5.03 % — affiché, non noté",
             "note": null,
-            "motif": "ROE suspendu pour les foncières : il intègre les effets de juste valeur des immeubles, comme le BPA exclu de la croissance",
+            "motif": "ROE suspendu : la société évalue ses immeubles de placement à la juste valeur (IAS 40) — le résultat porte la variation de valeur du patrimoine, comme le BPA exclu de la croissance",
             "periode": null,
             "base": "RNPG 2025 41.486 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 827.116 ; 31/12/2025 822.32), même état financier",
             "reference": null,
+            "methode_comptable": {
+              "immeubles_placement": "juste_valeur",
+              "referentiel": "normes comptables internationales (IFRS) adoptées dans l'Union européenne — comptes consolidés (la société publie AUSSI des consolidés en normes marocaines ; la note lit les IFRS : faits_financiers.json › IMI, base « consolidé IFRS »)",
+              "exercice": 2025,
+              "piece": "https://www.ammc.ma/sites/default/files/Immorente_Invest_RFA_2025.pdf",
+              "sha256": "a17430459e934288da9b28fe7c7a59f550bd4ecc28b74cb6af80515f0714b2b4",
+              "page": 22,
+              "citation": "Les immeubles de placement sont évalués à leur juste valeur. La périodicité de réévaluation de la juste valeur est annuelle.",
+              "registre": "bvc_config.METHODE_COMPTABLE"
+            },
             "source": null
           },
           "croissance": {
@@ -23101,6 +22853,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -23110,6 +22863,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 343,
         "cap_actions_source": "bourse_officielle",
@@ -23150,7 +22904,7 @@
           }
         ],
         "n_candles": 754,
-        "generated_at": "2026-10-28T18:56:02+00:00",
+        "generated_at": "2026-10-28T20:33:17+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 44258,
@@ -23248,8 +23002,8 @@
       "vol": 114,
       "echange_dh": 39315.95,
       "reference": 351.9,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 316.75,
+      "seuil_haut": 387.05,
       "open": 343.1,
       "close": 344.0,
       "pe": 11.6,
@@ -23286,9 +23040,6 @@
       "adx_mdi": 19.4,
       "v53": 6.5,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.2,
       "score_fond": 6.5,
       "note_fond": {
@@ -23319,24 +23070,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 44258,
         "seances_plates": 1,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -23613,6 +23358,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -23622,6 +23368,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 1411,
         "cap_actions_source": "bourse_officielle",
@@ -23662,7 +23409,7 @@
           }
         ],
         "n_candles": 753,
-        "generated_at": "2026-10-28T18:56:03+00:00",
+        "generated_at": "2026-10-28T20:33:18+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 76574,
@@ -23780,8 +23527,8 @@
       "vol": 160,
       "echange_dh": 117699.6,
       "reference": 754.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 678.7,
+      "seuil_haut": 829.3,
       "open": 753.0,
       "close": 748.0,
       "pe": 14.7,
@@ -23818,9 +23565,6 @@
       "adx_mdi": 37.0,
       "v53": 5.35,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.2,
       "score_fond": 5.35,
       "note_fond": {
@@ -23851,24 +23595,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 76574,
         "seances_plates": 3,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -24153,6 +23891,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -24162,6 +23901,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 312,
         "cap_actions_source": "bourse_officielle",
@@ -24202,7 +23942,7 @@
           }
         ],
         "n_candles": 828,
-        "generated_at": "2026-10-28T18:56:03+00:00",
+        "generated_at": "2026-10-28T20:33:18+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 2740,
@@ -24349,9 +24089,6 @@
       "adx_mdi": 49.2,
       "v53": 3.05,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.2,
       "score_fond": 3.05,
       "note_fond": {
@@ -24383,24 +24120,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 2740,
         "seances_plates": 9,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -24696,6 +24427,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -24705,6 +24437,7 @@
         "pb_source": "non_disponible",
         "pb_fonds_propres_au": null,
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 244,
         "cap_actions_source": "bourse_officielle",
@@ -24745,7 +24478,7 @@
           }
         ],
         "n_candles": 754,
-        "generated_at": "2026-10-28T18:56:04+00:00"
+        "generated_at": "2026-10-28T20:33:19+00:00"
       },
       "code_bvc": "STR",
       "fwd": {
@@ -24801,8 +24534,8 @@
       "vol": 122,
       "echange_dh": 18511.55,
       "reference": 152.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 136.85,
+      "seuil_haut": 167.15,
       "open": 152.0,
       "close": 153.0,
       "pe": null,
@@ -24839,9 +24572,6 @@
       "adx_mdi": 22.9,
       "v53": null,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 3.8,
       "score_fond": null,
       "note_fond": {
@@ -24872,24 +24602,18 @@
         "couverture_applicable": 0.3,
         "motif": "composantes mesurées : 30% du poids, sous le seuil de 50 % — qualite : ROIC non calculé sur comptes publiés (saisie sans pièce écartée) ; valorisation : pas de PER positif tiré des comptes ; bilan : dette nette / EBITDA non calculée sur comptes publiés"
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 40890,
         "seances_plates": 0,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Données insuffisantes",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -25137,6 +24861,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -25146,6 +24871,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 648,
         "cap_actions_source": "bourse_officielle",
@@ -25186,7 +24912,7 @@
           }
         ],
         "n_candles": 754,
-        "generated_at": "2026-10-28T18:56:04+00:00"
+        "generated_at": "2026-10-28T20:33:20+00:00"
       },
       "code_bvc": "SNP",
       "fwd": {
@@ -25277,8 +25003,8 @@
       "vol": 1015,
       "echange_dh": 274695.5,
       "reference": 272.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 244.85,
+      "seuil_haut": 299.15,
       "open": 273.1,
       "close": 270.0,
       "pe": null,
@@ -25315,9 +25041,6 @@
       "adx_mdi": 22.3,
       "v53": 3.57,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 3.8,
       "score_fond": 3.5,
       "note_fond": {
@@ -25348,19 +25071,13 @@
         "couverture_applicable": 0.7,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "Couverture partielle",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "FAIBLESSE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -25630,6 +25347,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -25639,6 +25357,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 1312,
         "cap_actions_source": "bourse_officielle",
@@ -25679,7 +25398,7 @@
           }
         ],
         "n_candles": 749,
-        "generated_at": "2026-10-28T18:56:05+00:00",
+        "generated_at": "2026-10-28T20:33:21+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 27887,
@@ -25751,8 +25470,8 @@
       "vol": 36,
       "echange_dh": 15110.5,
       "reference": 419.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 377.15,
+      "seuil_haut": 460.85,
       "open": 420.0,
       "close": 420.0,
       "pe": 13.2,
@@ -25789,9 +25508,6 @@
       "adx_mdi": 34.6,
       "v53": 6.06,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.2,
       "score_fond": 6.06,
       "note_fond": {
@@ -25822,24 +25538,18 @@
         "couverture_applicable": 0.9,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 27887,
         "seances_plates": 5,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -26115,6 +25825,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -26124,6 +25835,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 4381,
         "cap_actions_source": "bourse_officielle",
@@ -26164,7 +25876,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:56:05+00:00"
+        "generated_at": "2026-10-28T20:33:22+00:00"
       },
       "code_bvc": "JET",
       "fwd": {
@@ -26257,8 +25969,8 @@
       "vol": 495,
       "echange_dh": 717314.0,
       "reference": 1440.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 1297.0,
+      "seuil_haut": 1583.0,
       "open": 1445.0,
       "close": 1446.0,
       "pe": 23.3,
@@ -26295,9 +26007,6 @@
       "adx_mdi": 22.1,
       "v53": 4.44,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 4.6,
       "score_fond": 4.4,
       "note_fond": {
@@ -26328,19 +26037,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "ÉVITER",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "FAIBLESSE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -26593,6 +26296,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -26602,6 +26306,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 236,
         "cap_actions_source": "bourse_officielle",
@@ -26642,7 +26347,7 @@
           }
         ],
         "n_candles": 821,
-        "generated_at": "2026-10-28T18:56:06+00:00",
+        "generated_at": "2026-10-28T20:33:23+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 7331,
@@ -26722,8 +26427,8 @@
       "vol": 59,
       "echange_dh": 21535.0,
       "reference": 395.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 355.55,
+      "seuil_haut": 434.45,
       "open": 365.0,
       "close": 365.0,
       "pe": 18.7,
@@ -26760,9 +26465,6 @@
       "adx_mdi": 30.5,
       "v53": 5.65,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.08,
-      "nlp_corpus": -0.03,
-      "nlp_news": 0.1,
       "score_tech": 3.8,
       "score_fond": 5.65,
       "note_fond": {
@@ -26793,24 +26495,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.38,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 7331,
         "seances_plates": 7,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": 27,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -27087,6 +26783,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -27096,6 +26793,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 45,
         "cap_actions_source": "bourse_officielle",
@@ -27136,7 +26834,7 @@
           }
         ],
         "n_candles": 831,
-        "generated_at": "2026-10-28T18:56:06+00:00",
+        "generated_at": "2026-10-28T20:33:23+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 8164,
@@ -27227,8 +26925,8 @@
       "vol": 41,
       "echange_dh": 4837.25,
       "reference": 115.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 103.55,
+      "seuil_haut": 126.45,
       "open": 118.0,
       "close": 118.0,
       "pe": null,
@@ -27265,9 +26963,6 @@
       "adx_mdi": 23.0,
       "v53": 2.44,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 6.8,
       "score_fond": 2.44,
       "note_fond": {
@@ -27298,24 +26993,18 @@
         "couverture_applicable": 0.8,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 8164,
         "seances_plates": 5,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -27587,6 +27276,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -27596,6 +27286,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 391,
         "cap_actions_source": "bourse_officielle",
@@ -27636,7 +27327,7 @@
           }
         ],
         "n_candles": 753,
-        "generated_at": "2026-10-28T18:56:06+00:00"
+        "generated_at": "2026-10-28T20:33:24+00:00"
       },
       "code_bvc": "S2M",
       "fwd": {
@@ -27754,9 +27445,6 @@
       "adx_mdi": 22.3,
       "v53": 7.65,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.05,
-      "nlp_corpus": 0.05,
-      "nlp_news": 0.0,
       "score_tech": 5.2,
       "score_fond": 8.35,
       "note_fond": {
@@ -27787,19 +27475,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.24,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": 27,
       "sig": "ACHETER ★★",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -28077,6 +27759,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -28086,6 +27769,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 1177,
         "cap_actions_source": "bourse_officielle",
@@ -28093,7 +27777,7 @@
         "cap_releve_bourse": "2026-10-20",
         "cap_releve_age_j": 8,
         "cap_releve_perime": false,
-        "cliquet_volume": true,
+        "cliquet_volume": false,
         "vol_median20": 288.5,
         "echange_median_dh": 21794,
         "prix_asof": "2026-10-28",
@@ -28126,7 +27810,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:56:07+00:00",
+        "generated_at": "2026-10-28T20:33:25+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 21794,
@@ -28264,9 +27948,6 @@
       "adx_mdi": 21.6,
       "v53": 7.45,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.1,
       "score_fond": 7.45,
       "note_fond": {
@@ -28297,24 +27978,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 21794,
         "seances_plates": 0,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -28591,6 +28266,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -28600,6 +28276,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 1250,
         "cap_actions_source": "bourse_officielle",
@@ -28640,7 +28317,7 @@
           }
         ],
         "n_candles": 821,
-        "generated_at": "2026-10-28T18:56:07+00:00",
+        "generated_at": "2026-10-28T20:33:25+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 12450,
@@ -28739,9 +28416,6 @@
       "adx_mdi": 54.5,
       "v53": 6.7,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.2,
       "score_fond": 6.7,
       "note_fond": {
@@ -28772,24 +28446,18 @@
         "couverture_applicable": 0.5,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide et coté au fixing",
         "montant_median_dh": 12450,
         "seances_plates": 20,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -29037,6 +28705,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -29046,6 +28715,7 @@
         "pb_source": "non_disponible",
         "pb_fonds_propres_au": null,
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 1400,
         "cap_actions_source": "bourse_officielle",
@@ -29086,7 +28756,7 @@
           }
         ],
         "n_candles": 815,
-        "generated_at": "2026-10-28T18:56:07+00:00",
+        "generated_at": "2026-10-28T20:33:25+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 10267,
@@ -29173,9 +28843,6 @@
       "adx_mdi": 47.3,
       "v53": 4.9,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 7.5,
       "score_fond": 4.9,
       "note_fond": {
@@ -29206,24 +28873,18 @@
         "couverture_applicable": 0.5,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide et coté au fixing",
         "montant_median_dh": 10267,
         "seances_plates": 20,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -29471,6 +29132,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -29480,6 +29142,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 472,
         "cap_actions_source": "bourse_officielle",
@@ -29520,7 +29183,7 @@
           }
         ],
         "n_candles": 764,
-        "generated_at": "2026-10-28T18:56:08+00:00",
+        "generated_at": "2026-10-28T20:33:26+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 74349,
@@ -29625,8 +29288,8 @@
       "vol": 101,
       "echange_dh": 32596.6,
       "reference": 326.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 293.45,
+      "seuil_haut": 358.55,
       "open": 308.0,
       "close": 328.0,
       "pe": 24.4,
@@ -29663,9 +29326,6 @@
       "adx_mdi": 27.4,
       "v53": 6.1,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 6.1,
       "note_fond": {
@@ -29696,24 +29356,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 74349,
         "seances_plates": 1,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -29998,6 +29652,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -30007,6 +29662,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 347,
         "cap_actions_source": "bourse_officielle",
@@ -30047,7 +29703,7 @@
           }
         ],
         "n_candles": 818,
-        "generated_at": "2026-10-28T18:56:08+00:00",
+        "generated_at": "2026-10-28T20:33:26+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 754,
@@ -30155,9 +29811,6 @@
       "adx_mdi": 42.3,
       "v53": 5.95,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 6.8,
       "score_fond": 5.95,
       "note_fond": {
@@ -30189,24 +29842,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide et coté au fixing",
         "montant_median_dh": 754,
         "seances_plates": 20,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -30232,26 +29879,42 @@
       "note_fond_metier": {
         "famille": "fonciere",
         "note": null,
-        "poids_disponible": 0,
-        "motif": "poids disponible 0 % < 50 %",
+        "poids_disponible": 40,
+        "motif": "poids disponible 40 % < 50 %",
         "partielle": false,
         "criteres_essentiels_manquants": [
-          "rentabilite",
           "valorisation"
         ],
         "criteres": {
           "rentabilite": {
-            "etat": "suspendu",
+            "etat": "present",
             "poids_nominal": 40,
-            "poids_effectif": 0.0,
+            "poids_effectif": 100.0,
             "valeur": 10.43,
-            "mesure": "ROE 10.43 % — affiché, non noté",
-            "note": null,
-            "motif": "ROE suspendu pour les foncières : il intègre les effets de juste valeur des immeubles, comme le BPA exclu de la croissance",
-            "periode": null,
+            "mesure": "ROE 10.43 % — RNPG 2025 13.6497 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 128.893 ; 31/12/2025 132.95), même état financier",
+            "note": 5.0,
+            "motif": null,
+            "periode": "exercice 2025",
             "base": "RNPG 2025 13.6497 ÷ MOYENNE des fonds propres part du groupe (31/12/2024 128.893 ; 31/12/2025 132.95), même état financier",
             "reference": null,
-            "source": null
+            "convention": "moyenne",
+            "moyenne_ecartee": null,
+            "formule": "13.65 ÷ moyenne(128.893 ; 132.95)",
+            "drapeau_palier": "à 0,43 point du seuil de 10 % (au-dessus ; la note de rentabilité passe de 5 à 3,5 de l'autre côté)",
+            "methode_comptable": {
+              "immeubles_placement": "cout",
+              "referentiel": "normes marocaines (Conseil National de Comptabilité) — comptes consolidés",
+              "exercice": 2025,
+              "piece": "https://www.ammc.ma/sites/default/files/Balima_RFA_2025_0.pdf",
+              "sha256": "b81d7f5f74da6f29c27e25f04b696c3cc7c7b52a9dae7f66a93291cfcdd7c8e6",
+              "page": 47,
+              "citation": "Le patrimoine immobilier n'a pas été réévalué et est inscrit au coût historique.",
+              "registre": "bvc_config.METHODE_COMPTABLE"
+            },
+            "source": {
+              "fichier": "fondamentaux.json › ratios publiés › roe_2025",
+              "piece": "https://www.ammc.ma/sites/default/files/Balima_2025.pdf"
+            }
           },
           "croissance": {
             "etat": "absent",
@@ -30457,6 +30120,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -30466,6 +30130,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 5752,
         "cap_actions_source": "bourse_officielle",
@@ -30506,7 +30171,7 @@
           }
         ],
         "n_candles": 812,
-        "generated_at": "2026-10-28T18:56:08+00:00",
+        "generated_at": "2026-10-28T20:33:27+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 5621,
@@ -30654,9 +30319,6 @@
       "adx_mdi": 17.3,
       "v53": 6.25,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.9,
       "score_fond": 6.25,
       "note_fond": {
@@ -30688,24 +30350,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide et coté au fixing",
         "montant_median_dh": 5621,
         "seances_plates": 20,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -30967,6 +30623,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -30976,6 +30633,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 3213,
         "cap_actions_source": "bourse_officielle",
@@ -31016,7 +30674,7 @@
           }
         ],
         "n_candles": 764,
-        "generated_at": "2026-10-28T18:56:08+00:00"
+        "generated_at": "2026-10-28T20:33:27+00:00"
       },
       "code_bvc": "ATH",
       "fwd": {
@@ -31109,8 +30767,8 @@
       "vol": 506,
       "echange_dh": 29976.55,
       "reference": 59.62,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 53.66,
+      "seuil_haut": 65.58,
       "open": 59.8,
       "close": 59.35,
       "pe": 27.4,
@@ -31147,9 +30805,6 @@
       "adx_mdi": 16.5,
       "v53": 4.24,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.1,
       "score_fond": 4.0,
       "note_fond": {
@@ -31180,19 +30835,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "ÉVITER",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "FAIBLESSE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -31497,6 +31146,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -31506,6 +31156,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 7569,
         "cap_actions_source": "bourse_officielle",
@@ -31546,7 +31197,7 @@
           }
         ],
         "n_candles": 751,
-        "generated_at": "2026-10-28T18:56:09+00:00",
+        "generated_at": "2026-10-28T20:33:28+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 79674,
@@ -31670,8 +31321,8 @@
       "vol": 2,
       "echange_dh": 1140.0,
       "reference": 573.9,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 516.6,
+      "seuil_haut": 631.2,
       "open": 570.0,
       "close": 570.0,
       "pe": 13.4,
@@ -31708,9 +31359,6 @@
       "adx_mdi": 31.8,
       "v53": 5.75,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 5.75,
       "note_fond": {
@@ -31815,24 +31463,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 79674,
         "seances_plates": 4,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -32097,6 +31739,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -32106,6 +31749,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 100,
         "cap_actions_source": "bourse_officielle",
@@ -32146,7 +31790,7 @@
           }
         ],
         "n_candles": 754,
-        "generated_at": "2026-10-28T18:56:09+00:00",
+        "generated_at": "2026-10-28T20:33:29+00:00",
         "comptes_plus_recents": {
           "date": "2026-10-23",
           "titre": "Cartier Saada - CP relatif à la publication d'un profit warning sur les résultats du 1er semestre 2026",
@@ -32219,8 +31863,8 @@
       "vol": 2925,
       "echange_dh": 55309.41,
       "reference": 18.9,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 17.02,
+      "seuil_haut": 20.78,
       "open": 19.2,
       "close": 19.0,
       "pe": null,
@@ -32257,9 +31901,6 @@
       "adx_mdi": 22.6,
       "v53": 2.54,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 4.8,
       "score_fond": 1.9,
       "note_fond": {
@@ -32290,19 +31931,13 @@
         "couverture_applicable": 0.5,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "Couverture partielle",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "FAIBLESSE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -32580,6 +32215,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -32589,6 +32225,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 95,
         "cap_actions_source": "bourse_officielle",
@@ -32629,7 +32266,7 @@
           }
         ],
         "n_candles": 833,
-        "generated_at": "2026-10-28T18:56:10+00:00",
+        "generated_at": "2026-10-28T20:33:30+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 22434,
@@ -32727,8 +32364,8 @@
       "vol": 134,
       "echange_dh": 43724.5,
       "reference": 326.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 293.45,
+      "seuil_haut": 358.55,
       "open": 327.5,
       "close": 326.0,
       "pe": 11.4,
@@ -32765,9 +32402,6 @@
       "adx_mdi": 24.6,
       "v53": 7.95,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 4.8,
       "score_fond": 7.95,
       "note_fond": {
@@ -32798,24 +32432,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 22434,
         "seances_plates": 4,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -33092,6 +32720,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -33101,6 +32730,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 1310,
         "cap_actions_source": "bourse_officielle",
@@ -33141,7 +32771,7 @@
           }
         ],
         "n_candles": 747,
-        "generated_at": "2026-10-28T18:56:10+00:00",
+        "generated_at": "2026-10-28T20:33:31+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 37422,
@@ -33239,8 +32869,8 @@
       "vol": 3,
       "echange_dh": 2339.0,
       "reference": 785.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 706.6,
+      "seuil_haut": 863.4,
       "open": 779.5,
       "close": 780.0,
       "pe": 16.4,
@@ -33277,9 +32907,6 @@
       "adx_mdi": 21.6,
       "v53": 8.15,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.02,
-      "nlp_corpus": 0.02,
-      "nlp_news": 0.0,
       "score_tech": 6.9,
       "score_fond": 8.15,
       "note_fond": {
@@ -33310,24 +32937,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.08,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 37422,
         "seances_plates": 6,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": 25,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -33604,6 +33225,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -33613,6 +33235,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 2044,
         "cap_actions_source": "bourse_officielle",
@@ -33653,7 +33276,7 @@
           }
         ],
         "n_candles": 764,
-        "generated_at": "2026-10-28T18:56:11+00:00"
+        "generated_at": "2026-10-28T20:33:32+00:00"
       },
       "code_bvc": "MUT",
       "fwd": {
@@ -33763,8 +33386,8 @@
       "vol": 454,
       "echange_dh": 100635.25,
       "reference": 228.15,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 205.35,
+      "seuil_haut": 250.95,
       "open": 225.5,
       "close": 221.0,
       "pe": 38.5,
@@ -33801,9 +33424,6 @@
       "adx_mdi": 26.1,
       "v53": 2.54,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.06,
-      "nlp_corpus": 0.06,
-      "nlp_news": 0.0,
       "score_tech": 4.8,
       "score_fond": 1.9,
       "note_fond": {
@@ -33834,19 +33454,13 @@
         "couverture_applicable": 0.5,
         "motif": null
       },
-      "score_nlp": 5.29,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": 25,
       "sig": "Couverture partielle",
       "verdict_plafonne": null,
-      "biais": "NEUTRE",
-      "conv": null,
       "setup": "FAIBLESSE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -34122,6 +33736,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -34131,6 +33746,7 @@
         "pb_source": "non_disponible",
         "pb_fonds_propres_au": null,
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 1350,
         "cap_actions_source": "bourse_officielle",
@@ -34138,7 +33754,7 @@
         "cap_releve_bourse": "2026-10-20",
         "cap_releve_age_j": 8,
         "cap_releve_perime": false,
-        "cliquet_volume": true,
+        "cliquet_volume": false,
         "vol_median20": 570.5,
         "echange_median_dh": 26963,
         "prix_asof": "2026-10-28",
@@ -34171,7 +33787,7 @@
           }
         ],
         "n_candles": 759,
-        "generated_at": "2026-10-28T18:56:12+00:00",
+        "generated_at": "2026-10-28T20:33:33+00:00",
         "comptes_plus_recents": {
           "date": "2026-10-02",
           "titre": "Ennakl Automobiles - Résultats financiers du 1er semestre 2026",
@@ -34252,9 +33868,6 @@
       "adx_mdi": 32.1,
       "v53": null,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 3.5,
       "score_fond": null,
       "note_fond": {
@@ -34285,24 +33898,18 @@
         "couverture_applicable": 0.0,
         "motif": "composantes mesurées : 0% du poids, sous le seuil de 50 % — qualite : ROIC non calculé sur comptes publiés (saisie sans pièce écartée) ; croissance : croissance non établie sur comptes semestriels ; valorisation : pas de PER positif tiré des comptes ; bilan : dette nette / EBITDA non calculée sur comptes publiés"
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 26963,
         "seances_plates": 0,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Données insuffisantes",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -34535,6 +34142,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -34544,6 +34152,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 2472,
         "cap_actions_source": "bourse_officielle",
@@ -34584,7 +34193,7 @@
           }
         ],
         "n_candles": 771,
-        "generated_at": "2026-10-28T18:56:12+00:00"
+        "generated_at": "2026-10-28T20:33:33+00:00"
       },
       "code_bvc": "EQD",
       "fwd": {
@@ -34689,9 +34298,6 @@
       "adx_mdi": 59.0,
       "v53": 2.78,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.1,
       "score_fond": 2.78,
       "note_fond": {
@@ -34722,24 +34328,18 @@
         "couverture_applicable": 0.9,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "coté au fixing",
         "montant_median_dh": 445544,
         "seances_plates": 20,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "ÉVITER FORT",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -35000,6 +34600,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -35009,6 +34610,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 4194,
         "cap_actions_source": "bourse_officielle",
@@ -35049,7 +34651,7 @@
           }
         ],
         "n_candles": 834,
-        "generated_at": "2026-10-28T18:56:12+00:00"
+        "generated_at": "2026-10-28T20:33:34+00:00"
       },
       "code_bvc": "DHO",
       "fwd": {
@@ -35160,8 +34762,8 @@
       "vol": 190,
       "echange_dh": 9080.14,
       "reference": 47.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 42.31,
+      "seuil_haut": 51.69,
       "open": 47.54,
       "close": 47.88,
       "pe": 13.6,
@@ -35198,9 +34800,6 @@
       "adx_mdi": 15.5,
       "v53": 5.9,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 6.8,
       "score_fond": 5.65,
       "note_fond": {
@@ -35231,19 +34830,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "SURVEILLER ★",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -35492,6 +35085,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -35501,6 +35095,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 1432,
         "cap_actions_source": "bourse_officielle",
@@ -35541,7 +35136,7 @@
           }
         ],
         "n_candles": 743,
-        "generated_at": "2026-10-28T18:56:12+00:00",
+        "generated_at": "2026-10-28T20:33:34+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 28120,
@@ -35677,9 +35272,6 @@
       "adx_mdi": 43.0,
       "v53": 3.2,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 7.5,
       "score_fond": 3.2,
       "note_fond": {
@@ -35710,24 +35302,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide et coté au fixing",
         "montant_median_dh": 28120,
         "seances_plates": 20,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -36008,6 +35594,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -36017,6 +35604,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 16,
         "cap_actions_source": "bourse_officielle",
@@ -36057,7 +35645,7 @@
           }
         ],
         "n_candles": 750,
-        "generated_at": "2026-10-28T18:56:12+00:00",
+        "generated_at": "2026-10-28T20:33:35+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 1374,
@@ -36142,9 +35730,6 @@
       "adx_mdi": 54.0,
       "v53": 4.08,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 4.8,
       "score_fond": 4.08,
       "note_fond": {
@@ -36175,24 +35760,18 @@
         "couverture_applicable": 0.6,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide et coté au fixing",
         "montant_median_dh": 1374,
         "seances_plates": 20,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -36452,6 +36031,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -36461,6 +36041,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 5376,
         "cap_actions_source": "bourse_officielle",
@@ -36501,7 +36082,7 @@
           }
         ],
         "n_candles": 744,
-        "generated_at": "2026-10-28T18:56:13+00:00",
+        "generated_at": "2026-10-28T20:33:35+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 20859,
@@ -36589,8 +36170,8 @@
       "vol": 571,
       "echange_dh": 1095655.0,
       "reference": 2076.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 1869.0,
+      "seuil_haut": 2283.0,
       "open": 1985.0,
       "close": 1900.0,
       "pe": 16.0,
@@ -36627,9 +36208,6 @@
       "adx_mdi": 49.2,
       "v53": 7.05,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 3.9,
       "score_fond": 7.05,
       "note_fond": {
@@ -36660,24 +36238,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 20859,
         "seances_plates": 5,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -36954,6 +36526,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -36963,6 +36536,7 @@
         "pb_source": "non_disponible",
         "pb_fonds_propres_au": null,
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 823,
         "cap_actions_source": "bourse_officielle",
@@ -37003,7 +36577,7 @@
           }
         ],
         "n_candles": 764,
-        "generated_at": "2026-10-28T18:56:13+00:00",
+        "generated_at": "2026-10-28T20:33:36+00:00",
         "comptes_plus_recents": {
           "date": "2026-09-30",
           "titre": "Stokvis Nord Afrique - Résultats financiers du 1er semestre 2026",
@@ -37052,8 +36626,8 @@
       "vol": 3540,
       "echange_dh": 164219.65,
       "reference": 47.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 42.31,
+      "seuil_haut": 51.69,
       "open": 47.0,
       "close": 46.5,
       "pe": null,
@@ -37090,9 +36664,6 @@
       "adx_mdi": 29.9,
       "v53": null,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 4.3,
       "score_fond": null,
       "note_fond": {
@@ -37123,19 +36694,13 @@
         "couverture_applicable": 0.0,
         "motif": "composantes mesurées : 0% du poids, sous le seuil de 50 % — qualite : ROIC non calculé sur comptes publiés (saisie sans pièce écartée) ; croissance : croissance non établie sur comptes semestriels ; valorisation : pas de PER positif tiré des comptes ; bilan : dette nette / EBITDA non calculée sur comptes publiés"
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "Données insuffisantes",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -37378,6 +36943,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -37387,6 +36953,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2025-12-31",
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 1929,
         "cap_actions_source": "bourse_officielle",
@@ -37427,7 +36994,7 @@
           }
         ],
         "n_candles": 738,
-        "generated_at": "2026-10-28T18:56:14+00:00",
+        "generated_at": "2026-10-28T20:33:36+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 2336,
@@ -37563,9 +37130,6 @@
       "adx_mdi": 68.0,
       "v53": 3.2,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 4.8,
       "score_fond": 3.2,
       "note_fond": {
@@ -37597,24 +37161,18 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide et coté au fixing",
         "montant_median_dh": 2336,
         "seances_plates": 20,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -37899,6 +37457,7 @@
           "source": "AMMC — IB_Maroc_2022_S1_23.pdf (31/10/2023) et CP_IB_Maroc_redressement_judiciaire.pdf ; aucun dépôt 2023, 2024 ni 2025 (datasets/exercice_2025_rectifie.json, _ecartes)"
         },
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -37908,6 +37467,7 @@
         "pb_source": "non_disponible",
         "pb_fonds_propres_au": null,
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 21,
         "cap_actions_source": "bourse_officielle",
@@ -37948,7 +37508,7 @@
           }
         ],
         "n_candles": 751,
-        "generated_at": "2026-10-28T18:56:14+00:00"
+        "generated_at": "2026-10-28T20:33:37+00:00"
       },
       "code_bvc": "IBC",
       "fwd": null,
@@ -37998,9 +37558,6 @@
       "adx_mdi": 47.8,
       "v53": null,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 3.5,
       "score_fond": null,
       "note_fond": {
@@ -38031,24 +37588,18 @@
         "couverture_applicable": 0.0,
         "motif": "composantes mesurées : 0% du poids, sous le seuil de 50 % — qualite : ROIC non calculé sur comptes publiés (saisie sans pièce écartée) ; croissance : croissance non établie sur comptes semestriels ; valorisation : pas de PER positif tiré des comptes ; bilan : dette nette / EBITDA non calculée sur comptes publiés"
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 1400,
         "seances_plates": 7,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Données insuffisantes",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -38270,6 +37821,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -38279,6 +37831,7 @@
         "pb_source": "faits_ammc",
         "pb_fonds_propres_au": "2026-06-30",
         "pb_reserve": "l'argent levé à l'introduction en bourse de juillet n'est dans aucun des fonds propres déposés (ni au 31/12/2025, ni au 30/06/2026) : le P/B rapporte la capitalisation de toutes les actions cotées à des fonds propres qui ne comprennent pas cette levée",
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 4743,
         "cap_actions_source": "bourse_officielle",
@@ -38319,7 +37872,7 @@
           }
         ],
         "n_candles": 61,
-        "generated_at": "2026-10-28T18:56:14+00:00"
+        "generated_at": "2026-10-28T20:33:38+00:00"
       },
       "code_bvc": "T2S",
       "fwd": null,
@@ -38421,8 +37974,8 @@
       "vol": 3496,
       "echange_dh": 740135.75,
       "reference": 216.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 194.45,
+      "seuil_haut": 237.55,
       "open": 213.5,
       "close": 210.0,
       "pe": 24.5,
@@ -38459,9 +38012,6 @@
       "adx_mdi": 24.2,
       "v53": 6.34,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 7.2,
       "score_fond": 6.1,
       "note_fond": {
@@ -38494,19 +38044,13 @@
         "couverture_applicable": 1.0,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "SURVEILLER ★",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "CONTRARIEN",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -38764,6 +38308,7 @@
         "suspendu": false,
         "comptes_absents": null,
         "statut_juridique": null,
+        "rupture_methode": null,
         "prix_diffuse_source": null,
         "suspendu_depuis": null,
         "suspendu_motif": null,
@@ -38773,6 +38318,7 @@
         "pb_source": "non_disponible",
         "pb_fonds_propres_au": null,
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 105,
         "cap_actions_source": "bourse_officielle",
@@ -38813,7 +38359,7 @@
           }
         ],
         "n_candles": 754,
-        "generated_at": "2026-10-28T18:56:15+00:00",
+        "generated_at": "2026-10-28T20:33:39+00:00",
         "non_comparable": {
           "motif": "titre peu liquide",
           "montant_median_dh": 15918,
@@ -38852,8 +38398,8 @@
       "vol": 1506,
       "echange_dh": 33617.02,
       "reference": 22.0,
-      "seuil_bas": null,
-      "seuil_haut": null,
+      "seuil_bas": 19.81,
+      "seuil_haut": 24.19,
       "open": 22.42,
       "close": 22.0,
       "pe": 17.2,
@@ -38890,9 +38436,6 @@
       "adx_mdi": 28.1,
       "v53": 3.1,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.1,
       "score_fond": 3.1,
       "note_fond": {
@@ -38925,24 +38468,18 @@
         "couverture_applicable": 0.5,
         "motif": null
       },
-      "score_nlp": 5.0,
       "technique_neutralise": {
         "motif": "peu liquide",
         "montant_median_dh": 15918,
         "seances_plates": 1,
         "seances_echangees": 20
       },
-      "alpha": null,
-      "win": null,
       "sig": "Non comparable (liquidité)",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 100.0,
-        "n": 0.0,
         "t": 0.0
       },
       "warn": false,
@@ -39210,6 +38747,7 @@
           "statut_juridique": "Liquidation judiciaire"
         },
         "statut_juridique": "Liquidation judiciaire",
+        "rupture_methode": null,
         "prix_diffuse_source": 40.0,
         "suspendu_depuis": "2023-10-04",
         "suspendu_motif": "liquidation (suspendu depuis le 09/01/2023 selon Abd Moutalib, pièce non lue) — aucune transaction",
@@ -39219,6 +38757,7 @@
         "pb_source": "non_disponible",
         "pb_fonds_propres_au": null,
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 70,
         "cap_actions_source": "bourse_officielle",
@@ -39259,7 +38798,7 @@
           }
         ],
         "n_candles": 0,
-        "generated_at": "2026-10-28T18:56:15+00:00"
+        "generated_at": "2026-10-28T20:33:39+00:00"
       },
       "code_bvc": "DLM",
       "fwd": null,
@@ -39309,9 +38848,6 @@
       "adx_mdi": null,
       "v53": null,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.0,
       "score_fond": null,
       "note_fond": {
@@ -39342,19 +38878,13 @@
         "couverture_applicable": 0.0,
         "motif": "composantes mesurées : 0% du poids, sous le seuil de 50 % — qualite : société absente de fondamentaux.json ; croissance : société absente de fondamentaux.json ; valorisation : société absente de fondamentaux.json ; bilan : société absente de fondamentaux.json"
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "SUSPENDU",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
@@ -39524,6 +39054,7 @@
           "statut_juridique": "Liquidée"
         },
         "statut_juridique": "Liquidée",
+        "rupture_methode": null,
         "prix_diffuse_source": 26.25,
         "suspendu_depuis": "2023-10-03",
         "suspendu_motif": "liquidation judiciaire (depuis 2013 selon Abd Moutalib, jugement non lu) — aucune transaction",
@@ -39533,6 +39064,7 @@
         "pb_source": "non_disponible",
         "pb_fonds_propres_au": null,
         "pb_reserve": null,
+        "pb_actions_autodetenues": null,
         "cap_source": "calculee_bourse_officielle",
         "cap_servie": 28,
         "cap_actions_source": "bourse_officielle",
@@ -39573,7 +39105,7 @@
           }
         ],
         "n_candles": 0,
-        "generated_at": "2026-10-28T18:56:15+00:00"
+        "generated_at": "2026-10-28T20:33:40+00:00"
       },
       "code_bvc": "DIS",
       "fwd": null,
@@ -39623,9 +39155,6 @@
       "adx_mdi": null,
       "v53": null,
       "score_version": "v5.3-non-comparable-2026-10-27",
-      "nlp": 0.0,
-      "nlp_corpus": 0,
-      "nlp_news": 0.0,
       "score_tech": 5.0,
       "score_fond": null,
       "note_fond": {
@@ -39656,19 +39185,13 @@
         "couverture_applicable": 0.0,
         "motif": "composantes mesurées : 0% du poids, sous le seuil de 50 % — qualite : société absente de fondamentaux.json ; croissance : société absente de fondamentaux.json ; valorisation : société absente de fondamentaux.json ; bilan : société absente de fondamentaux.json"
       },
-      "score_nlp": 5.0,
       "technique_neutralise": null,
-      "alpha": null,
-      "win": null,
       "sig": "SUSPENDU",
       "verdict_plafonne": null,
-      "biais": "N/A",
-      "conv": null,
       "setup": "NEUTRE",
       "bonus": [],
       "poids": {
         "f": 77.92,
-        "n": 0.0,
         "t": 22.08
       },
       "warn": false,
