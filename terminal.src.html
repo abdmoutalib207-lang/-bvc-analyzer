@@ -4730,6 +4730,14 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                 style={{margin:"0 0 10px",padding:"6px 8px",borderRadius:4,background:"rgba(255,79,90,.08)",border:"1px solid rgba(255,79,90,.35)",fontSize:10,color:"#ff8a80",lineHeight:1.4,cursor:"help"}}>
                 <b>⚠ Aucun compte récent</b> — dernier dépôt le {r._meta.comptes_absents.dernier_depot.split("-").reverse().join("/")} : {r._meta.comptes_absents.motif}. La note est affichée pour mémoire, sans conclusion.
               </div>)}
+            {/* Changement de méthode comptable établi sur pièce (registre
+                RUPTURES_METHODE, 27/10/2026) : avertissement seul, la note
+                n'en dépend pas. */}
+            {((r._meta||{}).rupture_methode||[]).map((x,i)=>(
+              <div key={"rm"+i} title={`${x.source} · p. ${(x.pages||[]).join(", ")}`}
+                style={{margin:"0 0 10px",padding:"6px 8px",borderRadius:4,background:"rgba(255,143,0,.08)",border:"1px solid rgba(255,143,0,.3)",fontSize:10,color:"#ffb74d",lineHeight:1.4,cursor:"help"}}>
+                <b>⚠ Changement de méthode comptable</b> au {jjmm(x.date_effet)}/{String(x.date_effet).slice(0,4)} (comptes {x.premier_exercice}) — {x.nature}. Non comparable : {x.non_comparable}.
+              </div>))}
             {(()=>{const c=meta(r).comptes_plus_recents; if(!c) return null;
               return <a href={c.url} target="_blank" rel="noopener noreferrer"
                 title={c._lecture||""}
