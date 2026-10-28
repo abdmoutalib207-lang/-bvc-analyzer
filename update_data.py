@@ -5401,21 +5401,20 @@ def run(dry_run=False, push=False, token=""):
             # Quelle formule a produit la note — la même partout : écran,
             # bulletin, export, score_history.
             "score_version": SCORE_VERSION,
-            "nlp":        v53["nlp"],
-            # ⚠️ Les deux entrées du pilier, séparées et publiées. Sans elles,
-            # `nlp` serait une valeur composite qu'on ne pourrait plus
-            # décomposer : impossible de dire, devant un score, ce qui vient du
-            # corpus WhatsApp et ce qui vient de l'actualité.
-            "nlp_corpus": v53.get("nlp_corpus"),
-            "nlp_news":   v53.get("nlp_news"),
+            # ⚠️ 28/10/2026 — LE PILIER NLP N'EST PLUS PUBLIÉ (décision d'Abd
+            # Moutalib : « le corpus à supprimer et tout ce qui est NLP »).
+            # `nlp`, `nlp_corpus`, `nlp_news`, `score_nlp`, `alpha`, `win`,
+            # `biais`, `conv` et `poids.n` sortent du flux. Il pesait 0 depuis
+            # le 25/09 et ses bonus étaient gelés depuis le 29/09 : la note,
+            # le signal et la confiance n'en dépendent pas (mesuré à blanc,
+            # 80/80 identiques). Le calcul interne reste en place jusqu'au
+            # lot 2 ; seule la publication cesse.
+            # Garde-fou : tests/test_retrait_nlp.py.
             "score_tech": v53.get("score_tech", 5.0),
             "score_fond": v53.get("score_fond", 5.0),
             "note_fond":  _note_fond,
-            "score_nlp":  v53.get("score_nlp", 5.0),
             # Pourquoi le technique pèse zéro sur ce titre, s'il pèse zéro.
             "technique_neutralise": _tech_nf,
-            "alpha":  v53["alpha"],
-            "win":    v53["win"],
             # ⚠️ Un titre suspendu ne reçoit PAS de recommandation.
             #
             # Le 09/09/2026 le terminal affichait « ACHETER ★★ » sur CMT,
@@ -5440,11 +5439,11 @@ def run(dry_run=False, push=False, token=""):
             # note fondamentale ne dit pas qu'on peut y entrer ou en sortir :
             # « ACHETER » y devient « SURVEILLER ★ ». La note chiffrée ne change pas.
             "verdict_plafonne": _verdict_plafonne,
-            "biais":  v53["biais"],
-            "conv":   v53["conv"],
             "setup":  setup,
             "bonus":  v53["bonus"],
-            "poids":  v53["poids"],
+            # Deux piliers publiés : fondamental et technique. Le poids du
+            # pilier NLP (`n`, nul depuis le 25/09) ne l'est plus.
+            "poids":  {k: v for k, v in v53["poids"].items() if k != "n"},
             "warn":   v53["warn"],
             "warnMsg":v53["warnMsg"],
             # Alerte variation extrême (≥ ±8% approche limite BVC ±10%)

@@ -91,7 +91,11 @@ def controler(t: dict) -> list[dict]:
 
     # ── 2. La somme des poids ──────────────────────────────────────────────
     p = t.get("poids") or {}
-    parts = [_nb(p.get(k)) for k in ("f", "n", "t")]
+    # ⚠️ 28/10/2026 — `poids.n` (pilier NLP) n'est plus publié : son absence
+    # vaut 0. Sans ce défaut, l'absence du troisième poids désarmait EN
+    # SILENCE ce contrôle et le suivant sur les 80 titres.
+    parts = [_nb(p.get(k)) if k in p else (0.0 if k == "n" else None)
+             for k in ("f", "n", "t")]
     if all(x is not None for x in parts):
         total = sum(parts)
         if abs(total - 100) > 1:
@@ -106,7 +110,11 @@ def controler(t: dict) -> list[dict]:
     # La note v5.3 porte en plus des bonus/malus ; on ne vérifie donc que
     # l'écart au socle, et on ne s'alarme qu'au-delà de ce que les bonus
     # documentés peuvent produire (±1,5 point au total).
+    # Une note de pilier n'est requise que si son poids est non nul : le
+    # pilier NLP, de poids absent ou nul, ne publie plus `score_nlp`.
     notes = [_nb(t.get(k)) for k in ("score_fond", "score_nlp", "score_tech")]
+    if notes[1] is None and parts[1] == 0:
+        notes[1] = 0.0
     if all(x is not None for x in parts) and all(x is not None for x in notes):
         socle = sum(n * w for n, w in zip(notes, parts)) / 100.0
         v53 = _nb(t.get("v53"))
