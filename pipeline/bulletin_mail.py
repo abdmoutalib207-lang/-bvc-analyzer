@@ -19,6 +19,7 @@ données sont trop dégradées pour être envoyées.
 
 import json
 import sys
+from html import escape
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -72,6 +73,37 @@ def _pct(v):
         return f"{float(v):+.2f} %".replace(".", ",")
     except (TypeError, ValueError):
         return "—"
+
+
+def _jjmm(iso, annee=False):
+    j = str(iso or "")[:10]
+    return f"{j[8:10]}/{j[5:7]}" + (f"/{j[:4]}" if annee else "") if len(j) == 10 else ""
+
+
+def mention_offre(x):
+    """La phrase d'une offre publique publiée dans `_meta.offre_publique`, ou
+    None. La même que le bandeau du terminal (registre OFFRES_PUBLIQUES,
+    29/10/2026) : prix, période, pièces, écart du prix de l'offre au cours
+    publié. Factuelle, sans mot d'action.
+
+    ⚠️ Un titre sous offre publique peut figurer parmi les notes vertes — CMT,
+    n°1 à ~3 800 DH le 28/10, sous une OPA obligatoire à 2 217 DH. La note n'en
+    tient pas compte ; le courriel, lu sans le terminal, doit le dire."""
+    o = (x.get("_meta") or {}).get("offre_publique")
+    if not o:
+        return None
+    if o.get("phase") == "close":
+        periode = f"close le {_jjmm(o['cloture'], True)}, résultats le {_jjmm(o['resultats'], True)}"
+    else:
+        periode = (("ouverte " if o.get("phase") == "ouverte" else "")
+                   + f"du {_jjmm(o['ouverture'])} au {_jjmm(o['cloture'], True)}")
+    t = (f"{o['nature']} à {_nb(o['prix'], 0)} DH, {periode} "
+         f"(visa AMMC {o['visa']} ; avis de la Bourse {o['avis_bourse']})")
+    cours = x.get("price")
+    if isinstance(cours, (int, float)) and cours > 0 and o.get("prix"):
+        e = (o["prix"] - cours) / cours * 100
+        t += f" — écart avec le cours : {'−' if e < 0 else '+'}{abs(e):.1f} %".replace(".", ",")
+    return t
 
 
 def charger(chemin=None):
@@ -281,6 +313,8 @@ def texte(a):
             c = (x.get("_meta") or {}).get("confidence")
             add(f"   {x['symbol']:<6} {(x.get('name') or '')[:26]:<26} "
                 f"note {_nb(x.get('v53'), 2)}/10   confiance {c}/5")
+            if mention_offre(x):
+                add(f"          ↳ {mention_offre(x)}")
     else:
         add("   Aucune note verte avec une confiance suffisante sur cette séance.")
     add("")
@@ -328,6 +362,8 @@ def html(a):
         f'{_nb(x.get("v53"), 2)}/10</td>'
         f'<td style="padding:7px 10px;text-align:right;font-family:monospace;'
         f'color:#6d7887">{(x.get("_meta") or {}).get("confidence")}/5</td></tr>'
+        + (f'<tr><td></td><td colspan="3" style="padding:0 10px 9px;font-size:12.5px;'
+           f'color:#9a5b00">↳ {escape(mention_offre(x), quote=False)}</td></tr>' if mention_offre(x) else "")
         for x in a["achats"][:10]) or (
         '<tr><td colspan="4" style="padding:12px 10px;color:#6d7887">'
         'Aucune note verte avec une confiance suffisante sur cette séance.</td></tr>')
