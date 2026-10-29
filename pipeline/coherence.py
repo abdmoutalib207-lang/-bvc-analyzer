@@ -47,9 +47,11 @@ ADX_SANS_TENDANCE = 20
 BORNES = {
     "rsi": (0, 100), "stoch_k": (0, 100), "stoch_d": (0, 100),
     "adx": (0, 100), "adx_pdi": (0, 100), "adx_mdi": (0, 100),
-    "score_fond": (0, 10), "score_tech": (0, 10), "score_nlp": (0, 10),
+    "score_fond": (0, 10), "score_tech": (0, 10),
     "v53": (0, 10), "bvc": (0, 10),
-    "nlp": (-1, 1), "nlp_corpus": (-1, 1), "nlp_news": (-1, 1),
+    # ⚠️ 29/10/2026 : plus de bornes `score_nlp`, `nlp`, `nlp_corpus`,
+    # `nlp_news` — le pilier NLP est retiré du moteur (lot 2) et ces champs ne
+    # sont plus publiés depuis le lot 1 ; leurs bornes ne s'armaient plus.
 }
 
 # Les setups qui affirment une DIRECTION. Les opposer à un ADX qui dit
@@ -91,11 +93,10 @@ def controler(t: dict) -> list[dict]:
 
     # ── 2. La somme des poids ──────────────────────────────────────────────
     p = t.get("poids") or {}
-    # ⚠️ 28/10/2026 — `poids.n` (pilier NLP) n'est plus publié : son absence
-    # vaut 0. Sans ce défaut, l'absence du troisième poids désarmait EN
-    # SILENCE ce contrôle et le suivant sur les 80 titres.
-    parts = [_nb(p.get(k)) if k in p else (0.0 if k == "n" else None)
-             for k in ("f", "n", "t")]
+    # ⚠️ Deux piliers depuis le 28/10/2026 : fondamental et technique. Le
+    # pilier NLP (`n`) est retiré ; s'il réapparaissait avec un poids non nul,
+    # la somme f + t ne ferait plus 100 et ce contrôle le dirait.
+    parts = [_nb(p.get(k)) for k in ("f", "t")]
     if all(x is not None for x in parts):
         total = sum(parts)
         if abs(total - 100) > 1:
@@ -104,23 +105,19 @@ def controler(t: dict) -> list[dict]:
 
     # ── 3. ⚠️ LE SCORE DOIT SE REFAIRE À LA MAIN ───────────────────────────
     # Le contrôle central. Si la note affichée ne se retrouve pas depuis les
-    # trois notes et les trois poids publiés, alors l'un des sept chiffres est
+    # deux notes et les deux poids publiés, alors l'un des cinq chiffres est
     # faux — et le lecteur qui refait le calcul le verra avant nous.
     #
     # La note v5.3 porte en plus des bonus/malus ; on ne vérifie donc que
     # l'écart au socle, et on ne s'alarme qu'au-delà de ce que les bonus
     # documentés peuvent produire (±1,5 point au total).
-    # Une note de pilier n'est requise que si son poids est non nul : le
-    # pilier NLP, de poids absent ou nul, ne publie plus `score_nlp`.
-    notes = [_nb(t.get(k)) for k in ("score_fond", "score_nlp", "score_tech")]
-    if notes[1] is None and parts[1] == 0:
-        notes[1] = 0.0
+    notes = [_nb(t.get(k)) for k in ("score_fond", "score_tech")]
     if all(x is not None for x in parts) and all(x is not None for x in notes):
         socle = sum(n * w for n, w in zip(notes, parts)) / 100.0
         v53 = _nb(t.get("v53"))
         if v53 is not None and abs(v53 - socle) > 1.5:
             dire("score_irreproductible",
-                 f"v53 = {v53:g} alors que fond×f + nlp×n + tech×t donne "
+                 f"v53 = {v53:g} alors que fond×f + tech×t donne "
                  f"{socle:.2f} — écart {abs(v53 - socle):.2f}, au-delà de ce "
                  f"que les bonus/malus peuvent expliquer", "erreur")
 
@@ -159,13 +156,10 @@ def controler(t: dict) -> list[dict]:
              f"{ADX_SANS_TENDANCE}, notre propre indicateur dit qu'il n'y a "
              f"pas de tendance à suivre")
 
-    # ── 7. Le sentiment publié doit correspondre à ses composantes ─────────
-    nlp, corpus, news = (_nb(t.get(k)) for k in ("nlp", "nlp_corpus", "nlp_news"))
-    if all(x is not None for x in (nlp, corpus, news)):
-        if abs(nlp - (corpus + news)) > 0.02:
-            dire("nlp_decompose_faux",
-                 f"nlp = {nlp:g} alors que corpus ({corpus:g}) + news "
-                 f"({news:g}) donne {corpus + news:g}")
+    # ── 7. (retiré le 29/10/2026) ──────────────────────────────────────────
+    # « nlp_decompose_faux » vérifiait nlp = corpus + news. Les trois champs
+    # ne sont plus publiés depuis le 28/10 et le pilier est retiré du moteur :
+    # le contrôle était devenu inerte. Numérotation conservée pour la trace.
 
     # ── 8. Un signal exige de la confiance ─────────────────────────────────
     meta = t.get("_meta") or {}
