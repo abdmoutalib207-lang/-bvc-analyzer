@@ -59,8 +59,10 @@ CHEMIN = RACINE / "pipeline" / "score_history.json"
 # les deux colonnes décalerait la lecture de tout l'historique. Depuis :
 #   · `score_nlp` vaut None — il n'y a plus de note de pilier à enregistrer ;
 #   · `poids_n` vaut 0 — c'est le poids RÉELLEMENT appliqué, nul depuis le
-#     25/09. Les lignes du 28/10 (lot 1 publié, lot 2 pas encore) portent
-#     None : le journal ne se réécrit pas, on les laisse telles quelles.
+#     25/09. Les séances écrites entre le lot 1 et le lot 2 portent None ;
+#     une séance close n'est jamais réécrite (`enregistrer`), elles restent
+#     telles quelles — seule la séance EN COURS est réenregistrée par le
+#     run suivant, comme toujours.
 COLONNES = [
     "symbol",      # le ticker, tel que le projet le nomme (pas celui de l'opérateur)
     "v53",         # la note publiée, bonus compris
