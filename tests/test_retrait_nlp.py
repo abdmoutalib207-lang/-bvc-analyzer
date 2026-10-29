@@ -160,6 +160,106 @@ def test_le_moteur_ne_publie_plus_les_champs_du_corpus():
 
 
 
+# ── 2 bis. Le moteur ne contient plus le pilier (lot 2) ────────────────────
+
+# Ce qui ne doit plus exister dans le moteur, ni comme nom, ni comme fichier.
+NOMS_RETIRES_DU_MOTEUR = ("SENTIMENT", "_load_nlp_csv_overlay", "_apport_actualites",
+                          "_NEWS_SENT", "alpha_mesure", "win_mesure",
+                          "_replier_comportemental")
+FICHIERS_RETIRES = ("sync_sentiment.py", "pipeline/news_sentiment.py",
+                    "pipeline/smart_money/alpha.py")
+# Les modules qui lisaient le corpus ou en dérivaient. `whatsapp_analysis`
+# lui-même part au lot 3 ; ce qui reste ne doit plus en importer.
+IMPORTS_INTERDITS = ("whatsapp_analysis", "news_sentiment", "sync_sentiment",
+                     "pipeline.smart_money.alpha", "smart_money.alpha")
+
+
+def _noms_definis(arbre) -> set:
+    import ast
+    noms = set()
+    for n in arbre.body:
+        if isinstance(n, (ast.FunctionDef, ast.ClassDef)):
+            noms.add(n.name)
+        elif isinstance(n, ast.Assign):
+            noms |= {t.id for t in n.targets if isinstance(t, ast.Name)}
+        elif isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name):
+            noms.add(n.target.id)
+    return noms
+
+
+def _imports(arbre) -> list[str]:
+    import ast
+    vus = []
+    for n in ast.walk(arbre):
+        if isinstance(n, ast.Import):
+            vus += [a.name for a in n.names]
+        elif isinstance(n, ast.ImportFrom):
+            vus.append(n.module or "")
+            vus += [f"{n.module}.{a.name}" for a in n.names]
+    return vus
+
+
+def _fautes_moteur(source: str) -> list[str]:
+    import ast
+    arbre = ast.parse(source)
+    f = sorted(_noms_definis(arbre) & set(NOMS_RETIRES_DU_MOTEUR))
+    f += sorted({i for i in _imports(arbre)
+                 if any(i == x or i.startswith(x + ".") or i.endswith("." + x)
+                        for x in IMPORTS_INTERDITS)})
+    return f
+
+
+def test_le_moteur_ne_contient_plus_le_pilier():
+    fautes = _fautes_moteur(MOTEUR)
+    assert not fautes, f"update_data.py porte encore le pilier NLP : {fautes}"
+
+
+def test_les_fichiers_du_pilier_sont_retires():
+    revenus = [f for f in FICHIERS_RETIRES if (RACINE / f).exists()]
+    assert not revenus, f"fichiers du pilier NLP revenus : {revenus}"
+
+
+def test_aucun_module_du_projet_n_importe_le_corpus():
+    """Hors `whatsapp_analysis/` (lot 3), `archive/` et les tests qui
+    exercent encore `whatsapp_analysis` jusqu'au lot 3, aucun fichier Python
+    n'importe le corpus, le sentiment ou les constantes smart money."""
+    exclus = ("whatsapp_analysis", "archive", "tests", "node_modules", ".claude")
+    fautes = {}
+    for f in RACINE.rglob("*.py"):
+        rel = f.relative_to(RACINE)
+        if rel.parts[0] in exclus:
+            continue
+        try:
+            imp = _fautes_moteur(f.read_text(encoding="utf-8"))
+        except (SyntaxError, UnicodeDecodeError):
+            continue
+        imp = [i for i in imp if i not in NOMS_RETIRES_DU_MOTEUR]
+        if imp:
+            fautes[str(rel)] = imp
+    assert not fautes, f"modules qui importent encore le corpus : {fautes}"
+
+
+def test_les_poids_n_ont_que_deux_piliers():
+    import update_data
+    for ctx in ({}, {"market_status": "CLOSED"}, {"market_status": "OPEN", "masi_ytd": -6.0},
+                {"market_status": "CLOSED", "tech_non_fiable": True}):
+        w = update_data.get_weights(ctx)
+        assert set(w) == {"fondamental", "technique"}, ctx
+        assert abs(sum(w.values()) - 1) < 1e-9, ctx
+
+
+def test_le_controle_du_moteur_voit_bien_un_retour():
+    """Contrôle négatif : chaque forme de retour est vue."""
+    for faux in ("SENTIMENT = {}\n",
+                 "def alpha_mesure(t, s):\n    return None\n",
+                 "from whatsapp_analysis.config import BVC_TICKERS\n",
+                 "import news_sentiment\n",
+                 "from pipeline.smart_money.alpha import SENTIMENT_CORPUS\n",
+                 "from pipeline.smart_money import alpha\n"):
+        assert _fautes_moteur(faux), faux
+    assert not _fautes_moteur("from pipeline.smart_money.fond_score import WACC_REF\n")
+
+
 # ── 3. Le fichier publié ───────────────────────────────────────────────────
 
 def test_le_fichier_publie_ne_porte_plus_le_corpus(titres):
