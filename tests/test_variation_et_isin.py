@@ -126,13 +126,12 @@ def test_isin_suspect_plafonne_la_confiance(ud):
     « pas de signal sans confiance » du CLAUDE.md.
     """
     import pandas as pd
-    sent = {"mentions": 500, "win": 60}
     bougies = pd.DataFrame([{"d": f"2026-0{1 + i // 28}-{1 + i % 28:02d}", "c": 100.0}
                             for i in range(60)])
 
-    sain = ud._meta_ticker("IAM", "cdg", "2026-08-31", sent, bougies,
+    sain = ud._meta_ticker("IAM", "cdg", "2026-08-31", bougies,
                            isin_suspect=False)
-    suspect = ud._meta_ticker("IAM", "cdg", "2026-08-31", sent, bougies,
+    suspect = ud._meta_ticker("IAM", "cdg", "2026-08-31", bougies,
                               isin_suspect=True)
 
     assert sain["confidence"] > 1, "un titre sain doit garder sa confiance"
@@ -141,7 +140,7 @@ def test_isin_suspect_plafonne_la_confiance(ud):
 
 def test_le_plafond_ne_remonte_jamais_une_confiance_basse(ud):
     """Le plafond abaisse, il ne relève pas : `min`, pas une affectation."""
-    m = ud._meta_ticker("XXX", "static", "", {"mentions": 0, "win": None}, None,
+    m = ud._meta_ticker("XXX", "static", "", None,
                         isin_suspect=True)
     assert m["confidence"] == 0
 

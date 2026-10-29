@@ -251,121 +251,14 @@ FOND_DATA = {
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CORPUS SENTIMENT NLP (source: bvc_analyzer_v53.py — 896 907 messages / 6 ans)
+# ⚠️ PLUS DE TABLE `SENTIMENT` — 28/10/2026, décision d'Abd Moutalib : « le
+# corpus à supprimer et tout ce qui est NLP » (retrait en quatre lots ; ici le
+# lot 2, le moteur). La table écrite en dur (corpus WhatsApp arrêté au
+# 02/07/2026) et son chargement depuis `whatsapp_analysis/output/*.csv` sont
+# retirés. Le pilier pesait 0 depuis le 25/09 et ses bonus étaient gelés depuis
+# le 29/09 : la note, le signal et la confiance n'en dépendaient plus.
+# L'historique du dépôt garde la table. Garde-fou : tests/test_retrait_nlp.py.
 # ─────────────────────────────────────────────────────────────────────────────
-
-SENTIMENT = {
-    "ADH": {"smart":0.025,"hype":0.08,"alpha":3.1,"win":0.36,"mentions":18290,"biais":"NEUTRE","contrarian":False},
-    "ADI": {"smart":0.034,"hype":0.09,"alpha":8.5,"win":0.39,"mentions":22893,"biais":"NEUTRE","contrarian":False},
-    "AFMA": {"smart":0.045,"hype":0.33,"alpha":0.0,"win":0.5,"mentions":24,"biais":"NEUTRE","contrarian":False},
-    "AKD": {"smart":0.015,"hype":0.12,"alpha":22.8,"win":0.45,"mentions":2888,"biais":"ACHAT","contrarian":False},
-    "ATL": {"smart":0.003,"hype":0.09,"alpha":0.0,"win":0.39,"mentions":243,"biais":"NEUTRE","contrarian":False},
-    "ATLANTA": {"smart":0.029,"hype":0.06,"alpha":0.0,"win":0.5,"mentions":612,"biais":"NEUTRE","contrarian":False},
-    "ATW": {"smart":0.036,"hype":0.11,"alpha":0.0,"win":0.39,"mentions":2751,"biais":"NEUTRE","contrarian":False},
-    "BCP": {"smart":0.014,"hype":0.09,"alpha":0.0,"win":0.39,"mentions":5379,"biais":"NEUTRE","contrarian":False},
-    "BMCE": {"smart":-0.01,"hype":0.15,"alpha":0.0,"win":0.5,"mentions":653,"biais":"NEUTRE","contrarian":False},
-    "BMCI": {"smart":-0.014,"hype":0.16,"alpha":0.0,"win":0.5,"mentions":835,"biais":"NEUTRE","contrarian":False},
-    "BOA": {"smart":-0.007,"hype":0.14,"alpha":0.0,"win":0.39,"mentions":1284,"biais":"NEUTRE","contrarian":False},
-    "CAM": {"smart":-0.02,"hype":0.08,"alpha":0.0,"win":0.5,"mentions":12,"biais":"NEUTRE","contrarian":False},
-    "CASH": {"smart":0.008,"hype":0.15,"alpha":10.1,"win":0.39,"mentions":4410,"biais":"NEUTRE","contrarian":False},
-    "CCA": {"smart":0.085,"hype":0.25,"alpha":0.0,"win":0.5,"mentions":8,"biais":"NEUTRE","contrarian":True},
-    "CDM": {"smart":0.023,"hype":0.14,"alpha":0.0,"win":0.39,"mentions":699,"biais":"NEUTRE","contrarian":False},
-    "CFGB": {"smart":0.0,"hype":0.5,"alpha":14.6,"win":0.43,"mentions":0,"biais":"ACHAT","contrarian":False},
-    "CIH": {"smart":0.027,"hype":0.12,"alpha":0.0,"win":0.38,"mentions":1191,"biais":"NEUTRE","contrarian":False},
-    "CIMAR": {"smart":0.012,"hype":0.14,"alpha":0.0,"win":0.5,"mentions":308,"biais":"NEUTRE","contrarian":False},
-    "CMGP": {"smart":0.039,"hype":0.11,"alpha":11.5,"win":0.4,"mentions":1251,"biais":"NEUTRE","contrarian":False},
-    "CMT": {"smart":0.002,"hype":0.12,"alpha":42.1,"win":0.48,"mentions":4142,"biais":"ACHAT","contrarian":False},
-    "COSUMAR": {"smart":0.014,"hype":0.16,"alpha":0.0,"win":0.5,"mentions":889,"biais":"NEUTRE","contrarian":False},
-    "CSR": {"smart":-0.036,"hype":0.11,"alpha":19.2,"win":0.38,"mentions":202,"biais":"NEUTRE","contrarian":False},
-    "DARI": {"smart":-0.094,"hype":0.3,"alpha":0.0,"win":0.5,"mentions":70,"biais":"NEUTRE","contrarian":False},
-    "DELATTRE": {"smart":-0.169,"hype":0.45,"alpha":0.0,"win":0.5,"mentions":42,"biais":"NEUTRE","contrarian":False},
-    "DISWAY": {"smart":0.03,"hype":0.1,"alpha":0.0,"win":0.5,"mentions":2450,"biais":"NEUTRE","contrarian":False},
-    "DWY": {"smart":-0.012,"hype":0.13,"alpha":0.0,"win":0.5,"mentions":359,"biais":"NEUTRE","contrarian":False},
-    "ENGIE": {"smart":-0.143,"hype":0.46,"alpha":0.0,"win":0.5,"mentions":13,"biais":"NEUTRE","contrarian":False},
-    "HALIMA": {"smart":0.0,"hype":0.0,"alpha":0.0,"win":0.5,"mentions":3,"biais":"NEUTRE","contrarian":False},
-    "HPS": {"smart":0.02,"hype":0.11,"alpha":0.0,"win":0.35,"mentions":2801,"biais":"NEUTRE","contrarian":False},
-    "IAM": {"smart":0.001,"hype":0.15,"alpha":0.0,"win":0.36,"mentions":3260,"biais":"NEUTRE","contrarian":False},
-    "INVOLYS": {"smart":0.044,"hype":0.08,"alpha":0.0,"win":0.5,"mentions":212,"biais":"NEUTRE","contrarian":False},
-    "LBV": {"smart":0.01,"hype":0.08,"alpha":0.0,"win":0.37,"mentions":256,"biais":"NEUTRE","contrarian":False},
-    "LESIEUR": {"smart":-0.025,"hype":0.14,"alpha":0.0,"win":0.5,"mentions":652,"biais":"NEUTRE","contrarian":False},
-    "M2M": {"smart":-0.025,"hype":0.14,"alpha":0.0,"win":0.37,"mentions":250,"biais":"NEUTRE","contrarian":False},
-    "MAMDA": {"smart":-0.005,"hype":0.18,"alpha":0.0,"win":0.5,"mentions":11,"biais":"NEUTRE","contrarian":False},
-    "MIC": {"smart":0.016,"hype":0.1,"alpha":0.0,"win":0.34,"mentions":512,"biais":"NEUTRE","contrarian":False},
-    "MNG": {"smart":0.023,"hype":0.1,"alpha":55.3,"win":0.44,"mentions":6665,"biais":"ACHAT","contrarian":False},
-    "MSA": {"smart":0.041,"hype":0.07,"alpha":21.0,"win":0.38,"mentions":1433,"biais":"NEUTRE","contrarian":False},
-    "MSIN": {"smart":-0.082,"hype":0.41,"alpha":0.0,"win":0.5,"mentions":27,"biais":"NEUTRE","contrarian":False},
-    "MUT": {"smart":0.057,"hype":0.07,"alpha":0.0,"win":0.35,"mentions":338,"biais":"NEUTRE","contrarian":False},
-    "NAPS": {"smart":-0.122,"hype":0.37,"alpha":0.0,"win":0.5,"mentions":41,"biais":"NEUTRE","contrarian":False},
-    "NEXANS": {"smart":-0.033,"hype":0.21,"alpha":0.0,"win":0.5,"mentions":34,"biais":"NEUTRE","contrarian":False},
-    "OUL": {"smart":-0.032,"hype":0.14,"alpha":0.0,"win":0.38,"mentions":98,"biais":"NEUTRE","contrarian":False},
-    "PHARM": {"smart":-0.36,"hype":1.0,"alpha":0.0,"win":0.5,"mentions":2,"biais":"NEUTRE","contrarian":False},
-    "RDS": {"smart":0.033,"hype":0.07,"alpha":5.2,"win":0.35,"mentions":14692,"biais":"NEUTRE","contrarian":False},
-    "REBAB": {"smart":-0.013,"hype":0.08,"alpha":0.0,"win":0.5,"mentions":66,"biais":"NEUTRE","contrarian":False},
-    "RIS": {"smart":0.028,"hype":0.09,"alpha":10.3,"win":0.38,"mentions":3096,"biais":"NEUTRE","contrarian":False},
-    "RMA": {"smart":0.01,"hype":0.08,"alpha":0.0,"win":0.5,"mentions":48,"biais":"NEUTRE","contrarian":False},
-    "S2M": {"smart":0.049,"hype":0.08,"alpha":0.0,"win":0.36,"mentions":792,"biais":"NEUTRE","contrarian":False},
-    "SGMB": {"smart":0.016,"hype":0.09,"alpha":0.0,"win":0.5,"mentions":107,"biais":"NEUTRE","contrarian":False},
-    "SGTM": {"smart":0.006,"hype":0.14,"alpha":15.9,"win":0.42,"mentions":1841,"biais":"ACHAT","contrarian":False},
-    "SMI": {"smart":0.021,"hype":0.09,"alpha":38.5,"win":0.43,"mentions":4279,"biais":"ACHAT","contrarian":False},
-    "SNA": {"smart":0.021,"hype":0.06,"alpha":7.6,"win":0.36,"mentions":2669,"biais":"NEUTRE","contrarian":False},
-    "SODEP": {"smart":0.071,"hype":0.07,"alpha":0.0,"win":0.5,"mentions":104,"biais":"NEUTRE","contrarian":False},
-    "SOT": {"smart":0.025,"hype":0.11,"alpha":5.0,"win":0.41,"mentions":1772,"biais":"NEUTRE","contrarian":False},
-    "SOTHEMA": {"smart":0.022,"hype":0.11,"alpha":0.0,"win":0.5,"mentions":1517,"biais":"NEUTRE","contrarian":False},
-    "SRM": {"smart":0.014,"hype":0.08,"alpha":9.8,"win":0.41,"mentions":853,"biais":"NEUTRE","contrarian":False},
-    "TGCC": {"smart":0.031,"hype":0.1,"alpha":18.7,"win":0.43,"mentions":9537,"biais":"ACHAT","contrarian":False},
-    "TIMAR": {"smart":-0.032,"hype":0.14,"alpha":0.0,"win":0.5,"mentions":85,"biais":"NEUTRE","contrarian":False},
-    "TOTAL": {"smart":0.003,"hype":0.16,"alpha":0.0,"win":0.5,"mentions":1444,"biais":"NEUTRE","contrarian":False},
-    "UNIMER": {"smart":-0.036,"hype":0.12,"alpha":0.0,"win":0.5,"mentions":40,"biais":"NEUTRE","contrarian":False},
-    "VCNE": {"smart":0.0,"hype":0.5,"alpha":5.5,"win":0.38,"mentions":0,"biais":"NEUTRE","contrarian":False},
-    "WAF": {"smart":-0.022,"hype":0.12,"alpha":0.0,"win":0.38,"mentions":425,"biais":"NEUTRE","contrarian":False},
-    "WAFA": {"smart":-0.024,"hype":0.12,"alpha":0.0,"win":0.5,"mentions":418,"biais":"NEUTRE","contrarian":False},
-    "YNNA": {"smart":0.017,"hype":0.42,"alpha":0.0,"win":0.5,"mentions":12,"biais":"NEUTRE","contrarian":False},
-    "ZELLIDJA": {"smart":-0.004,"hype":0.03,"alpha":0.0,"win":0.5,"mentions":40,"biais":"NEUTRE","contrarian":False},
-}
-
-# Overlay dynamique depuis whatsapp_analysis/output/ si les fichiers existent
-# (met à jour alpha, win, mentions, biais sans toucher smart/hype — INVIOLABLE)
-def _load_nlp_csv_overlay():
-    try:
-        import csv
-        base = Path(__file__).parent / "whatsapp_analysis" / "output"
-        final_path  = base / "final_rankings.csv"
-        scores_path = base / "stock_scores.csv"
-        if not final_path.exists() or not scores_path.exists():
-            return
-
-        # final_rankings: alpha_12m, p_outperform_12m, signal
-        with open(final_path, encoding="utf-8") as f:
-            for row in csv.DictReader(f):
-                t = row.get("ticker", "").strip()
-                if t not in SENTIMENT:
-                    continue
-                try:
-                    if row.get("alpha_12m"):
-                        SENTIMENT[t]["alpha"] = float(row["alpha_12m"])
-                    if row.get("p_outperform_12m"):
-                        SENTIMENT[t]["win"]   = float(row["p_outperform_12m"])
-                    sig = row.get("signal", "").strip().upper()
-                    if sig in ("ACHAT", "VENTE", "NEUTRE"):
-                        SENTIMENT[t]["biais"] = sig
-                except (ValueError, KeyError):
-                    pass
-
-        # stock_scores: total_mentions
-        with open(scores_path, encoding="utf-8") as f:
-            for row in csv.DictReader(f):
-                t = row.get("ticker", "").strip()
-                if t not in SENTIMENT:
-                    continue
-                try:
-                    if row.get("total_mentions"):
-                        SENTIMENT[t]["mentions"] = int(float(row["total_mentions"]))
-                except (ValueError, KeyError):
-                    pass
-    except Exception:
-        pass  # fallback silencieux sur le dict statique
-
-_load_nlp_csv_overlay()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -2260,6 +2153,8 @@ def calc_score_tech(rsi, price, ma20, ma50, h90, l90) -> float:
 def get_weights(context: dict) -> dict:
     """WeightEngine.get_weights() — pondération dynamique selon contexte.
 
+    Deux piliers : `fondamental` et `technique`, qui totalisent 1.
+
     ⚠️ `masi_ytd` attend la performance de l'indice DEPUIS LE 1ER JANVIER, en
     pourcentage. Les deux seuils (-5 % et +10 %) sont annuels. Jusqu'au
     05/09/2026 l'appelant y passait `masi["chg"]`, c'est-à-dire la variation
@@ -2273,29 +2168,40 @@ def get_weights(context: dict) -> dict:
     calculable aujourd'hui (cf. `pipeline/masi_history.json`, qui commence à
     l'enregistrer). Un `0` par défaut aurait affirmé « marché plat » —
     une affirmation, alors que nous ne savons pas.
+
+    ⚠️ LE PILIER NLP (« comportemental ») N'EXISTE PLUS — 28/10/2026.
+    Historique, pour la trace (R8) :
+      · jusqu'au 25/09/2026 : Tech 25 · Fond 47 · NLP 28, et cinq modulateurs
+        déplaçaient aussi le pilier NLP ;
+      · 25/09/2026 (accord d'Abd Moutalib, backtest à l'appui) : poids NLP
+        ramené à zéro et reversé AU PRORATA sur les deux autres
+        (`_replier_comportemental`). Le pilier ne déplaçait que 0,37 point
+        sur 10 ; sur les notes publiées (13 jours, 194 observations), la
+        corrélation à l'alpha passait de +0,0774 à +0,0752, écart
+        décile haut / bas identique (+3,22 %). La redistribution ne
+        dégradait rien — elle rendait le score sincère ;
+      · 29/09/2026 : les modulateurs tirés du corpus (`ticker_coverage`,
+        `smart_money_active`, `hype_spike`) ne sont plus construits ;
+      · 28/10/2026 (lot 2 du retrait) : le pilier sort du calcul.
+    Un repli au prorata d'un poids `c` sur `t` et `f` donne t/(t+f) et
+    f/(t+f) : c'est exactement ce que rend la normalisation ci-dessous sur
+    les seuls deux piliers. Les poids publiés sont donc INCHANGÉS — vérifié
+    par énumération de tous les contextes (tests/test_retrait_nlp.py) et par
+    deux essais à blanc simultanés, 80/80 identiques.
     """
-    w = {"technique": 0.25, "fondamental": 0.47, "comportemental": 0.28}
+    w = {"technique": 0.25, "fondamental": 0.47}
 
     if context.get("market_status") in ["CLOSED", "PRE_MARKET"]:
         w["fondamental"] += 0.05; w["technique"] -= 0.05
     if context.get("has_results"):
-        w["fondamental"] += 0.10; w["technique"] -= 0.07; w["comportemental"] -= 0.03
-    if context.get("hype_spike"):
-        w["comportemental"] += 0.08; w["fondamental"] -= 0.05; w["technique"] -= 0.03
-    if context.get("smart_money_active"):
-        w["comportemental"] += 0.07; w["technique"] -= 0.04; w["fondamental"] -= 0.03
+        w["fondamental"] += 0.10; w["technique"] -= 0.07
 
     masi_ytd = context.get("masi_ytd")
     if masi_ytd is not None:
         if masi_ytd < -5:
-            w["fondamental"] += 0.08; w["comportemental"] -= 0.05; w["technique"] -= 0.03
+            w["fondamental"] += 0.08; w["technique"] -= 0.03
         elif masi_ytd > 10:
             w["technique"] += 0.03; w["fondamental"] -= 0.03
-
-    if context.get("ticker_coverage", 100) < 50:
-        w["comportemental"] -= 0.10; w["fondamental"] += 0.07; w["technique"] += 0.03
-
-    w = _replier_comportemental(w)
 
     # ⚠️ PILIER TECHNIQUE NEUTRALISÉ SUR LES TITRES PEU LIQUIDES ET AU FIXING —
     # 03/10/2026, accord d'Abd Moutalib (R8). Rejoué sur trois ans, il y
@@ -2307,76 +2213,6 @@ def get_weights(context: dict) -> dict:
 
     total = sum(w.values())
     return {k: round(v / total, 4) for k, v in w.items()}
-
-
-def _replier_comportemental(w: dict) -> dict:
-    """Reverse le poids du pilier comportemental sur les deux autres, au prorata.
-
-    ⚠️ POURQUOI CE PILIER EST RAMENÉ À ZÉRO — décision du 25/09/2026,
-    approuvée par Abd Moutalib, backtest à l'appui comme R8 l'exige.
-
-    Le pilier annonçait 28 % du score. Ce qu'il pesait réellement :
-
-      · son corpus s'arrête au **02/07/2026** ; `SENTIMENT` est une table
-        écrite en dur, donc une CONSTANTE par titre ;
-      · 48 titres sur 80 sont à la valeur exactement neutre (5,00) ;
-      · amplitude publiée 4,32 → 5,64, soit **0,37 point d'écart maximal sur
-        10** entre le titre le mieux et le moins bien noté, à 28 % de poids ;
-      · le sentiment d'actualités, sa seule entrée vivante, ne bouge que
-        **5 titres sur 80**.
-
-    ⚠️ CE QUE LE BACKTEST DIT, ET IL EST NEUTRE.
-    Sur les notes RÉELLEMENT PUBLIÉES (13 jours, 194 observations à
-    5 séances, confiance ≥ 2), la corrélation de la base au surcroît de
-    performance sur le MASI passe de **+0,0774 à +0,0752**, et l'écart de
-    performance entre décile haut et décile bas est **identique au centième :
-    +3,22 % dans les deux cas**.
-
-    **Cette modification n'améliore donc pas le score — elle le rend
-    sincère.** Annoncer 28 % pour un pilier qui déplace 0,37 point était le
-    reproche d'une lecture extérieure, et il était fondé.
-
-    ⚠️ Limite à énoncer AVANT le chiffre : 13 jours consécutifs, c'est un
-    seul régime de marché, et les observations se chevauchent lourdement.
-    L'échantillon suffit à établir que la redistribution **ne dégrade rien** ;
-    il ne suffirait pas à établir qu'elle améliore quoi que ce soit — et nous
-    n'affirmons pas qu'elle améliore.
-
-    ⚠️ POURQUOI REPLIER PLUTÔT QUE DÉMONTER LES MODULATEURS.
-    `hype_spike` et `smart_money_active` poussent le pilier comportemental ;
-    les retirer un par un multiplierait les points de rupture. Le repli les
-    neutralise d'office — ce qu'ils ajoutent à un pilier de poids nul
-    redescend au prorata là d'où il venait — tout en laissant intacte la
-    logique de régime qui, elle, discrimine encore fondamental et technique.
-
-    ⚠️ LE PILIER RESTE CALCULÉ ET PUBLIÉ. `score_nlp` continue de figurer
-    dans le flux, et `poids.n` y vaut désormais 0. Le supprimer effacerait la
-    trace de ce qu'il valait ; le garder à poids nul le rend vérifiable.
-
-    ⚠️ CE QUE CE REPLI NE TOUCHE PAS — et qu'il ne faut pas croire réglé.
-    Le sentiment entre encore par les BONUS (`sent["smart"]`, `sent["win"]`,
-    `sent["alpha"]`), qui sont un mécanisme distinct des pondérations. Relevé
-    du 25/09 : seul « Conv baissière +0,15 » se déclenche, sur 35 titres — et
-    `nlp_bull` n'y étant jamais vrai, il ne teste en fait que le score BVC.
-    Smart Money, Contrarian et Hype spike : zéro occurrence sur 80 titres.
-    Chantier suivant, hors du périmètre approuvé ici.
-
-    ✅ Traité le 29/09 : bonus, palier ACHAT FORT et modulateurs tirés du
-    corpus retirés — voir `compute_v53` et `tests/test_gel_nlp.py`. Seul le
-    score de CONFIANCE lit encore le corpus.
-    """
-    comp = w.get("comportemental", 0.0)
-    reste = w.get("technique", 0.0) + w.get("fondamental", 0.0)
-    if reste <= 0:
-        # ⚠️ Aucun pilier vivant : on ne fabrique pas une pondération.
-        # Le cas n'est pas atteignable avec les modulateurs actuels (le
-        # minimum arithmétique du reste vaut 0,44), mais un modulateur futur
-        # pourrait l'ouvrir, et une division par zéro est une panne muette.
-        return w
-    w["technique"] += comp * w["technique"] / reste
-    w["fondamental"] += comp * w["fondamental"] / reste
-    w["comportemental"] = 0.0
-    return w
 
 def _indicateurs_depuis_candles(df_candles):
     """Recalcule les indicateurs depuis les chandelles stockées.
@@ -3313,7 +3149,7 @@ def _comptes_deposes(entree_bpa: dict | None) -> bool:
     return officielle and (entree_bpa or {}).get("bpa") is not None
 
 
-def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
+def _meta_ticker(ticker, src_prix, prix_asof, df_candles,
                  isin_suspect=False, ratios_calcules=False,
                  chg=None, vol=None, prix_diffuse=None, cap_source=None,
                  cap_servie=None, cliquet_volume=False,
@@ -3932,87 +3768,38 @@ def _objectifs(ticker, price, fd) -> dict:
                                "n'est affichée que recalculée et sourcée"}
 
 
-# Relevé du sentiment d'actualité, chargé UNE fois par run.
-#
-# ⚠️ Un flux absent, illisible ou vide laisse le moteur strictement inchangé :
-# le pilier retombe sur sa seule table, comme avant ce branchement. Une entrée
-# neuve ne doit jamais pouvoir empêcher la publication.
-_NEWS_SENT = None
-
-
-def _apport_actualites(ticker: str) -> float:
-    """La part que l'actualité ajoute à `smart` pour ce titre, ou 0,0."""
-    global _NEWS_SENT
-    if _NEWS_SENT is None:
-        try:
-            sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
-            import news_sentiment
-            _NEWS_SENT = (news_sentiment.charger(), news_sentiment.contribution)
-            retenus = sum(1 for m in _NEWS_SENT[0].values()
-                          if m.get("n", 0) >= news_sentiment.MIN_ARTICLES)
-            logger.info(f"  Actualités : {len(_NEWS_SENT[0])} titre(s) avec "
-                        f"sentiment, {retenus} au-dessus du seuil de "
-                        f"{news_sentiment.MIN_ARTICLES} article(s)")
-        except Exception as e:                       # noqa: BLE001
-            logger.warning(f"  Actualités indisponibles ({e}) — pilier NLP "
-                           f"inchangé")
-            _NEWS_SENT = ({}, lambda _m: 0.0)
-    mesures, contribution = _NEWS_SENT
-    return contribution(mesures.get(ticker))
-
-
-def alpha_mesure(ticker, sent: dict):
-    """L'alpha 12 mois du corpus, ou None s'il n'est pas mesuré (défaut 0,0)."""
-    a = (sent or {}).get("alpha")
-    return a if ticker in SENTIMENT and a not in (None, 0, 0.0) else None
-
-
-def win_mesure(ticker, sent: dict):
-    """La probabilité SM~ du corpus en %, ou None si c'est le défaut (0,5)."""
-    w = (sent or {}).get("win")
-    return round(w * 100) if ticker in SENTIMENT and w is not None and w != 0.5 else None
-
-
 def compute_v53(ticker, score_tech, score_fond, red_flags, upside, context) -> dict:
-    """ScoreEngineV53.compute() — score enrichi avec bonus/malus."""
-    sent = SENTIMENT.get(ticker, {
-        "smart": 0, "hype": 0, "alpha": 0, "win": 0.5,
-        "mentions": 0, "biais": "N/A", "contrarian": False
-    })
+    """ScoreEngineV53.compute() — note sur 10 : fondamental et technique pondérés.
 
+    ⚠️ PLUS DE PILIER NLP — 28/10/2026 (lot 2 du retrait, décision d'Abd
+    Moutalib). Retirés d'ici : la lecture de la table `SENTIMENT`, l'apport
+    du sentiment d'actualités (`_apport_actualites`, pipeline/news_sentiment.py),
+    `score_nlp` et son terme `score_nlp × poids` (poids nul depuis le 25/09),
+    les champs `nlp`, `nlp_corpus`, `nlp_news`, `alpha`, `win`, `biais`,
+    `conv`, `poids.n` (plus publiés depuis le lot 1) et l'alerte `warn` /
+    `warnMsg` (« alpha historique négatif », lue dans le corpus, toujours
+    fausse depuis le gel du 29/09). La note, le signal et les poids sont
+    inchangés : mesuré par deux essais à blanc simultanés, 80/80 identiques.
+
+    `ticker` reste dans la signature pour ne pas réécrire les appelants ; il
+    n'entre plus dans le calcul.
+    """
+    del ticker
     w = get_weights(context)
 
-    # ⚠️ LE PILIER NLP PÈSE 28 % ET N'EN EXPLIQUAIT QUE 2,6 %.
-    #
-    # Son entrée est une table de sentiment écrite en dur, couvrant 34 titres
-    # sur 80, d'écart-type 0,078 contre 1,1 pour les deux autres piliers.
-    # Quarante-neuf titres y sont strictement neutres. Le sentiment
-    # d'actualité lui apporte une seconde entrée.
-    #
-    # ⚠️ AUCUNE PONDÉRATION N'EST TOUCHÉE — R8 reste intact. On remplit une
-    # entrée creuse ; on ne redistribue pas les poids. La contribution est
-    # plafonnée à ±0,10 sur `smart`, l'ordre de grandeur de ce que la table
-    # produit déjà : au-delà, l'entrée neuve écraserait l'ancienne et
-    # changerait DE FAIT le poids du pilier.
-    apport_news = _apport_actualites(ticker)
-    smart = max(-1.0, min(1.0, sent["smart"] + apport_news))
-    score_nlp = (smart + 1) * 5   # [-1,+1] → [0,10]
-
     base = (score_tech   * w["technique"]
-            + score_fond * w["fondamental"]
-            + score_nlp  * w["comportemental"])
+            + score_fond * w["fondamental"])
 
     bonus = 0.0
     bonus_log = []
 
-    # ⚠️ LE GEL DU PILIER NLP S'ÉTEND AUX BONUS — 29/09/2026.
+    # ⚠️ LE GEL DU PILIER NLP S'ÉTENDAIT AUX BONUS — 29/09/2026.
     #
     # Le 25/09, le poids du pilier est passé à zéro ; le sentiment entrait
-    # pourtant encore dans la note par six bonus lisant `sent` : convergence,
+    # pourtant encore dans la note par six bonus lisant le corpus : convergence,
     # convergence baissière, divergence, Smart Money, Contrarian, alpha
     # historique négatif. Un pilier « gelé » qui déplace la note n'est pas
-    # gelé. Tous sont retirés ; restent les deux bonus qui ne lisent que le
-    # fondamental (red flags, upside).
+    # gelé. Tous ont été retirés.
     #
     # Seul « Conv baissière +0,15 » se déclenchait, sur 35 titres au 28/09 —
     # et `nlp_bull` n'étant jamais vrai, il récompensait en fait un score BVC
@@ -4024,8 +3811,6 @@ def compute_v53(ticker, score_tech, score_fond, red_flags, upside, context) -> d
     # NÉGATIVE dans les deux cas : la note ne se montre pas prédictive sur
     # cette période — un seul régime, observations chevauchantes.
     #
-    # ⚠️ Le garde-fou est un test d'INVARIANCE (tests/test_gel_nlp.py) : le
-    # sentiment le plus extrême ne doit changer ni la note ni le signal.
     # ⚠️ LES DEUX DERNIERS MALUS SONT GELÉS — 30/09/2026 (accord d'Abd
     # Moutalib, R8). « Red flags » et « Upside négatif » lisaient `FOND_DATA`,
     # une table ÉCRITE EN DUR : un nombre d'alertes sans aucune raison
@@ -4050,12 +3835,11 @@ def compute_v53(ticker, score_tech, score_fond, red_flags, upside, context) -> d
 
     # Signal enrichi
     #
-    # ⚠️ « ACHAT FORT » est SUSPENDU avec le pilier. Il exigeait une note
-    # ≥ 7,5 ET un taux de réussite smart money ≥ 80 % — lu dans le corpus
-    # arrêté au 02/07, et atteint par aucun titre depuis le 10/08. Le
-    # rebrancher sur la seule note créerait un palier qui n'a jamais été
-    # mesuré ; le laisser lire le corpus contredirait le gel. Aujourd'hui
-    # comme hier, une note ≥ 7,5 publie donc « ACHETER ».
+    # ⚠️ « ACHAT FORT » est SUSPENDU depuis le gel du pilier NLP (29/09). Il
+    # exigeait une note ≥ 7,5 ET un taux de réussite smart money ≥ 80 % — lu
+    # dans le corpus arrêté au 02/07, et atteint par aucun titre depuis le
+    # 10/08. Le rebrancher sur la seule note créerait un palier qui n'a jamais
+    # été mesuré. Une note ≥ 7,5 publie donc « ACHETER ».
     if final >= 6.5:
         sig = "ACHETER ★★"
     elif final >= 5.5:
@@ -4067,30 +3851,12 @@ def compute_v53(ticker, score_tech, score_fond, red_flags, upside, context) -> d
     else:
         sig = "ÉVITER FORT"
 
-    # ⚠️ L'alerte « alpha historique négatif » lisait le corpus gelé, et
-    # annonçait « Signal enrichi = ÉVITER » : une conclusion que la note ne
-    # porte plus. Champs conservés pour le terminal, vides.
-    warn = False
-    warn_msg = ""
-
-    # ⚠️ `conv` valait « DIVERGE » sur 80 titres sur 80 : une constante
-    # affichée comme une mesure. Sans pilier NLP, il n'y a rien à faire
-    # converger — `None`, que le terminal affiche comme tel.
-    conv = None
-
     return {
         "v53":       final,
         # ⚠️ SCORE CANONIQUE — 29/09/2026. `bvc` (la note figée du 03/06) et
         # `delta` (l'écart à cette note) ne sont plus publiés : le terminal
         # les affichait comme une « note BVC de référence », et ce n'était
         # pas un calcul. Un seul verdict, versionné par SCORE_VERSION.
-        # ⚠️ `nlp` porte désormais la valeur EFFECTIVEMENT utilisée par le
-        # pilier — corpus + actualité — et non plus la seule table. Sans ça,
-        # le terminal afficherait une entrée différente de celle qui a compté,
-        # et le champ cesserait d'expliquer le score qu'il accompagne.
-        "nlp":       round(smart, 2),
-        "nlp_corpus": round(sent["smart"], 2),
-        "nlp_news":   round(apport_news, 4),
         "score_tech": round(score_tech, 2),
         # ⚠️ `score_fond` n'était émis NULLE PART. Le moteur le calcule pour
         # composer la v5.3 et ne le publiait pas : le frontend ne pouvait donc
@@ -4098,26 +3864,13 @@ def compute_v53(ticker, score_tech, score_fond, red_flags, upside, context) -> d
         # `r.bvc` — la note BVC de référence — faute de mieux. Publier une note
         # sans ses composantes rend le calcul invérifiable pour le lecteur.
         "score_fond": round(score_fond, 2),
-        "score_nlp": round(score_nlp, 2),
-        # ⚠️ 14/10/2026 — chasse aux échecs silencieux : `alpha` 0,0 et `win`
-        # 0,5 sont les valeurs PAR DÉFAUT du corpus (titre absent, ou sans
-        # mesure) ; publiées, elles s'affichaient « +0 % » et « 50 » dans les
-        # colonnes ALPHA et SM~ comme des mesures — 61 et 46 titres sur 80.
-        # Hors mesure : None (« — » à l'écran). Les bonus, gelés, lisent
-        # toujours `sent` : rien de calculé ne change.
-        "alpha":  alpha_mesure(ticker, sent),
-        "win":    win_mesure(ticker, sent),
         "sig":    sig,
-        "biais":  sent.get("biais", "NEUTRE"),
-        "conv":   conv,
         "bonus":  bonus_log,
         # get_weights() retient quatre décimales en fraction : publier deux
         # décimales en pourcentage conserve exactement cette précision.
         # Un entier (71 au lieu de 71,43) empêchait l'audit de recomposer la
         # note et bloquait toute publication en séance. Calcul et seuils inchangés.
-        "poids":  {"f": round(w["fondamental"]*100, 2), "n": round(w["comportemental"]*100, 2), "t": round(w["technique"]*100, 2)},
-        "warn":   warn,
-        "warnMsg": warn_msg,
+        "poids":  {"f": round(w["fondamental"]*100, 2), "t": round(w["technique"]*100, 2)},
     }
 
 def bougie_a_ecrire(seance: str, aujourd_hui: str,
@@ -5219,24 +4972,18 @@ def run(dry_run=False, push=False, token=""):
 
         # Contexte de pondération.
         #
-        # ⚠️ Plus aucune entrée tirée du corpus WhatsApp (gel du 29/09).
-        # `ticker_coverage`, `smart_money_active` et `hype_spike` lisaient
-        # `SENTIMENT` ; le repli au prorata annulait leur apport au pilier
-        # NLP, mais PAS la façon dont ils redécoupaient fondamental et
-        # technique — le corpus pouvait donc encore déplacer la note.
-        # Aucun ne se déclenchait au 28/09 (80/80 titres à 78/22). La
-        # pondération ne dépend désormais que du contexte de MARCHÉ : c'est
-        # ce que dit le badge « modulée par le contexte de marché ».
+        # ⚠️ Plus aucune entrée tirée du corpus WhatsApp (gel du 29/09,
+        # retrait du 28/10). `ticker_coverage`, `smart_money_active` et
+        # `hype_spike` lisaient la table `SENTIMENT`, aujourd'hui retirée ; ils
+        # redécoupaient fondamental et technique, le corpus pouvait donc
+        # déplacer la note. La pondération ne dépend que du contexte de
+        # MARCHÉ : c'est ce que dit le badge « modulée par le contexte de marché ».
         ctx = dict(mkt_ctx_base)
         # Pilier technique illisible (peu liquide, fixing) : voir get_weights.
         # ⚠️ Un titre SUSPENDU n'a pas de motif à publier : « aucune
         # chandelle » se lirait comme un défaut de données (relecture du 03/10).
         _tech_nf = None if _suspendu_maintenant(ticker) else technique_non_fiable(_candles_cache.get(ticker))
         ctx["tech_non_fiable"] = bool(_tech_nf)
-        # ⚠️ `sent` ne sert plus qu'au score de CONFIANCE (`_meta_ticker`,
-        # critères « corpus » et « smart money »). Ils lisent encore le corpus
-        # gelé : c'est un changement d'échelle visible à l'écran, traité à part.
-        sent = SENTIMENT.get(ticker, {})
 
         # Score enrichi v5.3
         #
@@ -5300,7 +5047,7 @@ def run(dry_run=False, push=False, token=""):
         # Arguments de `_meta_ticker`, gardés pour la rappeler au second passage
         # (`appliquer_note_sectorielle`) si la note fondamentale est incalculable.
         vol = volume_de_seance(vol, prix_asof, IDB_ASOF)
-        _meta_args = (ticker, src_prix, prix_asof, sent,
+        _meta_args = (ticker, src_prix, prix_asof,
                       _candles_cache.get(ticker), isin_suspect)
         _meta_kw = dict(
             ratios_calcules=bool(
@@ -5504,8 +5251,10 @@ def run(dry_run=False, push=False, token=""):
             # `biais`, `conv` et `poids.n` sortent du flux. Il pesait 0 depuis
             # le 25/09 et ses bonus étaient gelés depuis le 29/09 : la note,
             # le signal et la confiance n'en dépendent pas (mesuré à blanc,
-            # 80/80 identiques). Le calcul interne reste en place jusqu'au
-            # lot 2 ; seule la publication cesse.
+            # 80/80 identiques). Lot 2 (même jour) : le calcul lui-même est
+            # retiré du moteur (compute_v53, get_weights), avec `warn` et
+            # `warnMsg`, l'alerte « alpha historique négatif » lue dans le
+            # corpus et toujours fausse depuis le 29/09.
             # Garde-fou : tests/test_retrait_nlp.py.
             "score_tech": v53.get("score_tech", 5.0),
             "score_fond": v53.get("score_fond", 5.0),
@@ -5538,11 +5287,9 @@ def run(dry_run=False, push=False, token=""):
             "verdict_plafonne": _verdict_plafonne,
             "setup":  setup,
             "bonus":  v53["bonus"],
-            # Deux piliers publiés : fondamental et technique. Le poids du
-            # pilier NLP (`n`, nul depuis le 25/09) ne l'est plus.
-            "poids":  {k: v for k, v in v53["poids"].items() if k != "n"},
-            "warn":   v53["warn"],
-            "warnMsg":v53["warnMsg"],
+            # Deux piliers publiés : fondamental et technique. Le pilier NLP
+            # (`n`, nul depuis le 25/09) n'existe plus depuis le 28/10.
+            "poids":  v53["poids"],
             # Alerte variation extrême (≥ ±8% approche limite BVC ±10%)
             "chg_alert": chg is not None and abs(round(chg, 2)) >= 8.0,
             # Fondamentaux

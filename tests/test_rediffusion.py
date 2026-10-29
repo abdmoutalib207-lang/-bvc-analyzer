@@ -99,6 +99,5 @@ def test_entrees_absentes_ne_font_pas_lever(ud):
 def test_une_rediffusion_est_marquee_perimee(ud):
     """C'est tout l'objet : que le frontend le sache et affiche le badge."""
     veille = _candles([{"d": f"2026-08-{d:02d}", "c": 465.0, "v": 56} for d in range(1, 29)])
-    m = ud._meta_ticker("SRM", "bmce", "2026-09-01", {"mentions": 0, "win": None},
-                        veille, chg=0.0, vol=56)
+    m = ud._meta_ticker("SRM", "bmce", "2026-09-01", veille, chg=0.0, vol=56)
     assert m["stale"] is True, "un titre qui n'a pas coté ne doit pas passer pour frais"

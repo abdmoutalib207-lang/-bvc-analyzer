@@ -38,8 +38,9 @@ CHAMPS_OBLIGATOIRES = {
     # depuis le 01/10 — rien à voir avec le corpus). `win` et `alpha`
     # (corpus WhatsApp, SM~ et ALPHA 12M) retirés le 28/10/2026.
     "bull", "bear", "base",
-    # présentation — `biais` et `conv` (corpus) retirés le 28/10/2026.
-    "setup", "flags", "warn", "warnMsg", "bonus",
+    # présentation — `biais` et `conv` (corpus) retirés le 28/10/2026, avec
+    # `warn` / `warnMsg` (« alpha historique négatif », lu dans le corpus).
+    "setup", "flags", "bonus",
     # provenance
     "_meta",
 }

@@ -7,8 +7,11 @@ SMART MONEY et NLP CORPUS, compteur de messages, tableaux écrits en dur tirés
 du corpus) et dans data.json (`nlp`, `nlp_corpus`, `nlp_news`, `score_nlp`,
 `alpha`, `win`, `biais`, `conv`, `poids.n`).
 
-Ce lot 1 retire ce que voit l'investisseur. Le calcul interne du moteur,
-`whatsapp_analysis/` et `sync_sentiment.py` partent au lot 2.
+Le lot 1 retire ce que voit l'investisseur. Le lot 2 retire le moteur : la
+table `SENTIMENT` et son chargement depuis `whatsapp_analysis/output/`, le
+pilier de `compute_v53` / `get_weights`, le sentiment d'actualités
+(`pipeline/news_sentiment.py`), `warn` / `warnMsg`, `sync_sentiment.py` et
+`pipeline/smart_money/alpha.py`. `whatsapp_analysis/` part au lot 3.
 
 ⚠️ Deux tableaux en dur du terminal portaient, d'après un audit, des entrées
 non pseudonymisées. Ils disparaissent avec le reste ; ce fichier ne recopie
@@ -33,9 +36,11 @@ MOTEUR = (RACINE / "update_data.py").read_text(encoding="utf-8")
 
 TRANSITION = "⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION"
 
-# Les champs qui ne sont plus publiés dans data.json.
+# Les champs qui ne sont plus publiés dans data.json. `warn` / `warnMsg`
+# (alerte « alpha historique négatif », lue dans le corpus, toujours fausse
+# depuis le 29/09) s'y ajoutent au lot 2.
 CHAMPS_RETIRES = ("nlp", "nlp_corpus", "nlp_news", "score_nlp",
-                  "alpha", "win", "biais", "conv")
+                  "alpha", "win", "biais", "conv", "warn", "warnMsg")
 
 
 def _decoder(t: str) -> str:
@@ -138,11 +143,16 @@ def test_les_actualites_restent_sans_leur_sentiment():
 
 def test_le_moteur_ne_publie_plus_les_champs_du_corpus():
     """L'enregistrement du titre (update_data.run) ne recopie plus les champs
-    du pilier depuis `v53`. Le calcul interne (`compute_v53`) reste au lot 2."""
+    du pilier depuis `v53`, et `compute_v53` ne les calcule plus (lot 2)."""
     publies = re.findall(r'^\s*"(' + "|".join(CHAMPS_RETIRES) + r')":\s*v53\b',
                          MOTEUR, re.M)
     assert not publies, f"update_data.py publie encore : {publies}"
-    assert '"poids":  {k: v for k, v in v53["poids"].items() if k != "n"}' in MOTEUR
+    assert '"poids":  v53["poids"],' in MOTEUR
+    import update_data
+    r = update_data.compute_v53("MNG", 6.0, 7.0, 0, 0.0, {"market_status": "CLOSED"})
+    assert not set(CHAMPS_RETIRES) & set(r), sorted(set(CHAMPS_RETIRES) & set(r))
+    assert set(r["poids"]) == {"f", "t"}
+
 
 
 # ── 3. Le fichier publié ───────────────────────────────────────────────────

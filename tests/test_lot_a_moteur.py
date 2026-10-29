@@ -44,7 +44,7 @@ def test_motif_du_volume_nul():
 
 def test_le_motif_et_la_variation_absente_sont_publies_dans_meta(monkeypatch):
     monkeypatch.setattr(ud, "IDB_ASOF", "2026-01-05")
-    m = ud._meta_ticker("XXX", "candles", "2026-01-02", {}, None, chg=None, vol=0,
+    m = ud._meta_ticker("XXX", "candles", "2026-01-02", None, chg=None, vol=0,
                         motif_vol=ud.motif_volume("2026-01-02", "2026-01-05"))
     assert m["motif_vol"] == "pas d'échange à la séance du 05/01"
     assert m["stale"] is True
@@ -161,7 +161,7 @@ def test_la_correction_du_roe_ne_change_pas_le_palier():
     (dict(ratios_calcules=False), "aucun_ratio"),
 ])
 def test_source_des_fondamentaux_exacte(kw, attendu):
-    m = ud._meta_ticker("XXX", "cdg", "2026-10-21", {}, None, **kw)
+    m = ud._meta_ticker("XXX", "cdg", "2026-10-21", None, **kw)
     assert m["source_fond"] == attendu
 
 

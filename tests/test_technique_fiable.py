@@ -57,7 +57,7 @@ def test_la_part_du_technique_revient_au_fondamental():
     import update_data
     w = update_data.get_weights({"market_status": "CLOSED", "tech_non_fiable": True})
     assert w["technique"] == 0.0
-    assert w["comportemental"] == 0.0
+    assert "comportemental" not in w        # pilier NLP retiré du moteur (28/10)
     assert w["fondamental"] == 1.0
 
 
