@@ -12,6 +12,17 @@ historique** — cela recréerait une référence exposée.
 
 # En cours — à lire au démarrage de chaque session
 
+## ▶ 28-29/10/2026 — le NLP est SUPPRIMÉ
+
+Décision d'Abd Moutalib du 28/10 : « supprimer le corpus et tout ce qui est
+NLP ». Fusionné : #312 (écran, `data.json`), #314 (moteur, smart money,
+sentiment des actualités, `sync_sentiment.py`), #316 (`whatsapp_analysis/`,
+`requirements_nlp.txt`, archives NLP). L'agent `analyste-nlp` est retiré. La
+note publiée ne compte que deux piliers, Fond 65,28 % · Tech 34,72 % (poids
+de base inchangés depuis le 25/09, modulés par titre). Toute mention du
+corpus, du pilier NLP ou de `whatsapp_analysis/` plus bas dans ce fichier
+est de l'HISTOIRE.
+
 ## ▶ ÉTAT AU 07/10/2026, 10h50 — LIRE EN PREMIER
 
 **Fait du 04 au 07/10** (PR #189 → #212, toutes fusionnées, aucune ouverte) :
@@ -219,7 +230,8 @@ seule chose qu'on peut en dire, et c'est ce qui est écrit dans R8.
 
 ### ⚠️ Ce qui N'EST PAS réglé — ne pas le croire fait
 
-1. **Les bonus NLP subsistent.** Relevé du 25/09 : seul « Conv baissière
+1. **Les bonus NLP subsistaient** (retirés par le gel du 29/09, supprimés du
+   code le 28-29/10). Relevé du 25/09 : seul « Conv baissière
    +0,15 » se déclenche, sur 35 titres — et `nlp_bull` n'y étant jamais vrai,
    il ne teste EN FAIT que le score BVC. Smart Money, Contrarian, Hype spike :
    **zéro occurrence sur 80 titres**. Et `conv` vaut « DIVERGE » sur **80/80**,
@@ -471,7 +483,10 @@ fausses** (18/06→06/08, R1) · 842 séances absentes.
   --manquants`. Les plus utiles d'abord : CIM, AKD, MUT, SNA, TQA, WAF, TMA,
   STK, DAR, STR.
 
-- [ ] **Corpus WhatsApp à jour — ⚠️ ÉCHÉANCE DÉPASSÉE.**
+- [x] ~~**Corpus WhatsApp à jour**~~ — **sans objet** : corpus et NLP
+  supprimés les 28-29/10/2026 (décision d'Abd Moutalib, PR #312, #314, #316).
+  Ne plus le réclamer. Ce qui suit est l'état au 28/08, conservé pour la trace.
+  ⚠️ ÉCHÉANCE DÉPASSÉE à l'époque.
   Annoncé le 28/08 au soir pour « demain », soit le samedi 29/08. Non reçu à ce
   jour. **Le lui rappeler dès le premier échange**, sans insister : c'est un
   week-end, et rien ne bloque tant que l'étape 2 n'a pas commencé.
@@ -545,12 +560,16 @@ L'ordre est délibéré. Ne pas le réordonner sans raison écrite.
    ⚠️ Reste découvert et écrit dans `tests/README.md` : la fusion des sources,
    cœur de R3, **n'est pas testable tant qu'elle vit dans `run()`**. C'est
    l'argument de l'étape 5.
-2. **Réveiller le NLP** (`analyste-nlp`) — 1 semaine. ← **prochaine étape**
-   28 % du score ; 29 titres sur 81 seulement ont un score non nul.
+2. ~~**Réveiller le NLP** (`analyste-nlp`) — 1 semaine.~~ **Abandonné** :
+   pilier ramené à poids nul le 25/09, puis corpus et NLP supprimés les
+   28-29/10/2026 (décision d'Abd Moutalib, PR #312, #314, #316).
+   (À l'époque : 28 % du score ; 29 titres sur 81 avec un score non nul.)
 3. ~~**Mentions légales**~~ — ✅ fait le 28/08 (composant `MentionLegale`).
    ⚠️ Reste à faire relire par un juriste connaissant l'AMMC.
 4. **Publier le backtest** (`quant-backtest`) — 3 à 4 jours.
-   `phase11_backtest.py` existe, ses résultats ne sont nulle part dans l'UI.
+   (Il citait `phase11_backtest.py`, qui testait des stratégies NLP et non la
+   note publiée ; supprimé avec `whatsapp_analysis/` le 29/10. Le backtest du
+   produit est `pipeline/backtest_reproductible.py`.)
 5. **Découper `run()`** — en cours, par tranches.
    ✅ Tranche 1 faite le 31/08 : `fusionner_cotations()` extraite, 12 tests,
    validée sur 4 779 champs sans aucun écart. run() : 768 → 738 lignes.
@@ -570,5 +589,6 @@ L'ordre est délibéré. Ne pas le réordonner sans raison écrite.
 Les agents couvrent l'exécution ; ces trois rôles couvrent ce qu'un agent ne
 peut pas trancher :
 - **Juriste AMMC / CNDP** — droit de publier, puis de monétiser.
-- **Data scientist NLP** — valider la méthode, pas seulement la brancher.
-- **Quant** — valider empiriquement la pondération 25 / 47 / 28, jamais testée.
+- ~~**Data scientist NLP**~~ — sans objet depuis le retrait du NLP (28-29/10/2026).
+- **Quant** — valider empiriquement la pondération (Fond 65,28 / Tech 34,72
+  depuis le 25/09 ; 25 / 47 / 28 avant), jamais validée en elle-même.
