@@ -196,6 +196,9 @@ def validate_news():
     else:
         ok("Champs requis présents dans tous les articles")
 
+    # ⏳ À RETIRER APRÈS LE PREMIER RUN fetch_news SUIVANT LA FUSION (retrait
+    # NLP, lot 2) : l'avertissement devient alors une erreur — un article qui
+    # porte encore le champ viendrait d'un producteur non mis à jour.
     if bad_sent:
         warn(f"{len(bad_sent)} article(s) portent encore un champ `sentiment`, "
              f"retiré le 29/10/2026 — ôté au prochain passage de fetch_news")

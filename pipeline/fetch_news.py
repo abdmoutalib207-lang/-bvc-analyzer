@@ -381,7 +381,7 @@ def fetch_rss(url: str, source_name: str, max_items=30) -> list:
                     "date":      _parse_date(date),
                     "tickers":   _tag_tickers(text),
                     "scope":     _scope(text, _tag_tickers(text)),
-                    })
+                })
                 if len(articles) >= max_items: break
 
         log.info(f"{source_name}: {len(articles)} articles")
@@ -420,7 +420,7 @@ def fetch_medias24_api(max_items=20) -> list:
                         "date":      _parse_date(date),
                         "tickers":   _tag_tickers(text),
                         "scope":     _scope(text, _tag_tickers(text)),
-                            })
+                    })
                 if articles:
                     log.info(f"Medias24 API: {len(articles)} articles via {ep.split('?')[1][:40]}")
                     return articles
@@ -455,7 +455,7 @@ def fetch_idb_news(max_items=15) -> list:
                     "date":      _parse_date(date),
                     "tickers":   _tag_tickers(text),
                     "scope":     _scope(text, _tag_tickers(text)),
-                    })
+                })
             log.info(f"IDBourse news: {len(articles)} articles")
     except Exception as e:
         log.warning(f"IDBourse news erreur: {e}")
