@@ -62,7 +62,8 @@ from bvc_config import SCORE_VERSION
 from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
                         COMPANY_NAMES, COMPANY_SECTORS, est_ferie_fixe,
                         est_suspendu, SPLITS, SUSPENSIONS, sans_comptes,
-                        SEANCES_ANNULEES, seance_annulee, rupture_methode)
+                        SEANCES_ANNULEES, seance_annulee, rupture_methode,
+                        offre_publique)
 
 TICKERS = TICKERS_ALL
 
@@ -3498,6 +3499,11 @@ def _meta_ticker(ticker, src_prix, prix_asof, sent, df_candles,
         # RUPTURES_METHODE, 27/10/2026) : date d'effet, nature, ce qui n'est
         # plus comparable, source. Avertissement seul : aucun effet sur la note.
         "rupture_methode": rupture_methode(ticker),
+        # Offre publique ÉTABLIE SUR PIÈCE (registre OFFRES_PUBLIQUES,
+        # 29/10/2026) : prix, période, initiateurs, visa AMMC et avis de la
+        # Bourse, phase à la date de l'analyse. Information seule : ni la
+        # note ni le signal ne la lisent.
+        "offre_publique": offre_publique(ticker, date_analyse()),
         # Le cours que la source continue de diffuser, conservé pour que
         # l'écart avec la dernière cotation réelle reste vérifiable.
         "prix_diffuse_source": prix_diffuse,
