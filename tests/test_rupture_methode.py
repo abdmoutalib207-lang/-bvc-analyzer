@@ -44,10 +44,10 @@ def test_les_ruptures_etablies_le_27_10():
 
 def test_meta_publie_la_rupture_et_rien_ailleurs():
     import update_data as ud
-    m = ud._meta_ticker("RDS", "cdg", "2026-10-27", {}, None)["rupture_methode"]
+    m = ud._meta_ticker("RDS", "cdg", "2026-10-27", None)["rupture_methode"]
     assert m[0]["date_effet"] == "2025-01-01" and m[0]["pages"] == [16, 17]
     assert m[0]["source"].endswith("RDS_RFA_2025.pdf") and m[0]["non_comparable"]
-    assert ud._meta_ticker("ATW", "cdg", "2026-10-27", {}, None)["rupture_methode"] is None
+    assert ud._meta_ticker("ATW", "cdg", "2026-10-27", None)["rupture_methode"] is None
 
 
 def test_aucun_effet_sur_la_note():

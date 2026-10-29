@@ -34,13 +34,18 @@ SRC = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
 COMPILE = (RACINE / "index.html").read_text(encoding="utf-8")
 MOTEUR = (RACINE / "update_data.py").read_text(encoding="utf-8")
 
-TRANSITION = "⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION"
+# ⚠️ La transition du lot 1 est retirée le 29/10/2026 : le run update_bvc de
+# 22h29 le 28/10, premier après la fusion de #312, a publié un data.json sans
+# aucun champ du lot 1 (mesuré : 0/80). Reste celle du lot 2, pour `warn` et
+# `warnMsg`, que le moteur cesse de publier avec ce lot.
+TRANSITION_LOT2 = "⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION DU LOT 2"
 
 # Les champs qui ne sont plus publiés dans data.json. `warn` / `warnMsg`
 # (alerte « alpha historique négatif », lue dans le corpus, toujours fausse
 # depuis le 29/09) s'y ajoutent au lot 2.
 CHAMPS_RETIRES = ("nlp", "nlp_corpus", "nlp_news", "score_nlp",
                   "alpha", "win", "biais", "conv", "warn", "warnMsg")
+CHAMPS_RETIRES_LOT2 = ("warn", "warnMsg")
 
 
 def _decoder(t: str) -> str:
@@ -162,15 +167,18 @@ def test_le_fichier_publie_ne_porte_plus_le_corpus(titres):
                 for s, t in titres.items()}
     porteurs = {s: k for s, k in porteurs.items() if k}
     avec_n = sorted(s for s, t in titres.items() if "n" in (t.get("poids") or {}))
-    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION
-    # (transition du 28/10/2026). Le data.json du dépôt est écrit par le moteur
-    # d'AVANT : les 80 titres portent encore tous les champs. TOUS = fichier
-    # antérieur au code, on le dit ; une PARTIE seulement = vraie incohérence,
-    # on échoue. Dans la CI (tests.yml) et dans update_bvc, le fichier est
-    # généré par le code courant : cette échappatoire ne s'y déclenche pas.
+    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION DU LOT 2
+    # (transition du 29/10/2026). Le data.json du dépôt est écrit par le moteur
+    # d'AVANT le lot 2 : les 80 titres portent encore `warn` et `warnMsg`, et
+    # rien d'autre du pilier. TOUS, et exactement ces deux-là = fichier
+    # antérieur au code, on le dit ; une PARTIE seulement, ou un champ du
+    # lot 1 = vraie incohérence, on échoue. Dans la CI (tests.yml) et dans
+    # update_bvc, le fichier est généré par le code courant : cette
+    # échappatoire ne s'y déclenche pas.
     if titres and len(porteurs) == len(titres) and all(
-            len(k) == len(CHAMPS_RETIRES) for k in porteurs.values()):
-        pytest.skip(f"{TRANSITION} — data.json antérieur au retrait du pilier "
-                    f"NLP (28/10/2026)")
+            tuple(k) == tuple(sorted(CHAMPS_RETIRES_LOT2)) for k in porteurs.values()):
+        assert not avec_n, f"`poids.n` encore publié sur {len(avec_n)} titre(s) : {avec_n[:5]}"
+        pytest.skip(f"{TRANSITION_LOT2} — data.json antérieur au retrait de "
+                    f"warn / warnMsg (29/10/2026)")
     assert not porteurs, f"champs du corpus encore publiés : {dict(list(porteurs.items())[:5])}"
     assert not avec_n, f"`poids.n` encore publié sur {len(avec_n)} titre(s) : {avec_n[:5]}"
