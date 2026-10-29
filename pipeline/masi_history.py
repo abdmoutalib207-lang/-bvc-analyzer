@@ -239,11 +239,12 @@ def serie(debut: str | None = None, fin: str | None = None,
           chemin: Path | None = None) -> dict:
     """Les clôtures de l'indice sur une période, triées par date.
 
-    C'est le point d'entrée des consommateurs extérieurs au moteur de prix —
-    en particulier `phase11_backtest.py`, qui fabriquait jusqu'ici son propre
-    « MASI » en moyennant les titres dont il disposait. Comparer une stratégie
-    à une référence qu'on construit soi-même revient à se noter sur sa propre
-    copie : la référence bouge avec l'univers testé.
+    C'est le point d'entrée des consommateurs extérieurs au moteur de prix.
+    Il a été écrit pour l'ancien backtest des stratégies NLP (supprimé le
+    29/10/2026), qui fabriquait son propre « MASI » en moyennant les titres
+    dont il disposait. Comparer une stratégie à une référence qu'on construit
+    soi-même revient à se noter sur sa propre copie : la référence bouge avec
+    l'univers testé.
 
     Bornes incluses. Renvoie un dictionnaire vide si rien ne correspond.
     """

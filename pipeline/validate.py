@@ -319,8 +319,8 @@ def validate_meta():
 # `validate_referentiel()` — retiré le 29/10/2026. Il vérifiait que le module
 # NLP (`whatsapp_analysis.config`, `phase7_stocks`) dérivait ses noms, alias et
 # secteurs de bvc_config. Le pilier NLP est retiré du moteur (décision d'Abd
-# Moutalib du 28/10, lot 2) et le dossier part au lot 3 : le contrôle n'a plus
-# d'objet, et le moteur n'importe plus rien de `whatsapp_analysis`.
+# Moutalib du 28/10, lot 2) et le dossier est supprimé au lot 3 (29/10) : le
+# contrôle n'a plus d'objet.
 
 
 # ── Résumé final ──────────────────────────────────────────────────────────────

@@ -114,8 +114,8 @@ COMPANY_NAMES: dict = {
 # « Technologies & Paiement » et « Distribution IT » comme trois secteurs
 # distincts, et 19 secteurs à membre unique. À cette granularité un filtre
 # sectoriel ne filtre rien et une moyenne sectorielle n'a aucun sens
-# statistique (cf. whatsapp_analysis/phase7_stocks.py, qui calcule un
-# sector_rank et des agrégats par secteur).
+# statistique (l'ancien module NLP en tirait un sector_rank et des agrégats
+# par secteur ; supprimé le 29/10/2026).
 #
 # Méthode : croisement de notre table historique avec celle de casabourse.app
 # (82 sociétés, relevé du 09/08/2026). Aucune des deux ne fait autorité — les
@@ -132,7 +132,7 @@ COMPANY_SECTORS: dict = {
     # ⚠️ SECTEURS ALIGNÉS SUR LE RÉFÉRENTIEL DE LA COTE (17/09/2026).
     #
     # Trois taxonomies coexistaient et se contredisaient : celle-ci (22 valeurs),
-    # `SECTOR_MAP` dans whatsapp_analysis/phase7_stocks.py, et le champ `secteur`
+    # `SECTOR_MAP` du module NLP (supprimé le 29/10/2026), et le champ `secteur`
     # de fondamentaux.json — 45 libellés libres, du type « Mines - Plomb/Argent/
     # Zinc » ou « Fintech / Paiements SaaS ». 55 titres sur 77 divergeaient du
     # relevé officiel. Un secteur écrit trois fois de trois façons n'est pas un
