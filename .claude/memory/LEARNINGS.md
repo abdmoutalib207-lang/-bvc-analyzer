@@ -91,6 +91,18 @@ fermé code 1006 — ce n'est pas testable d'ici, seulement de là-bas).
   ⚠️ Et c'est ce même recoupement qui a révélé l'incohérence OHLC — cf.
   `ERRORS.md`, famille 7 : ce qu'on cherche à confirmer n'est pas toujours ce
   qu'on trouve.
+- ⚠️ **29/10/2026 — le domaine est joignable depuis le conteneur ; c'est sa
+  chaîne TLS qui est incomplète.** Le serveur n'envoie que son certificat
+  (`*.casablanca-bourse.com`, émis par « Sectigo Public Server Authentication
+  CA DV R36 ») sans l'intermédiaire : curl répond « unable to get local issuer
+  certificate ». Parade SANS désactiver la vérification : récupérer
+  l'intermédiaire sur crt.sh (`https://crt.sh/?d=4267304690`, émis par la
+  racine R46 du magasin système), l'ajouter au paquet de CA
+  (`cat /root/.ccr/ca-bundle.crt r36.pem > bundle.pem`) et passer
+  `--cacert bundle.pem`. La page d'accueil liste alors les avis récents
+  (`/sites/default/files/avis/AAAA-MM/av-AAAA-NNN_fr.pdf`) et les notes
+  d'information (`/sites/default/files/pemetteur/…`). C'est ainsi qu'a été
+  trouvé le calendrier de l'OPA CMT (avis AV-2026-134).
 
 ## Sur l'infrastructure
 
