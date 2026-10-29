@@ -1171,6 +1171,33 @@ const roeSansObjet=r=>{const c=(((r||{}).note_fond_metier||{}).criteres||{}).ren
   const m=/^ROE sans objet\s*:\s*(.+)$/.exec(c.motif);return m?m[1]:null;};
 const NON_COTE=<span title="Pas de cotation à la dernière séance — aucune variation observée" style={{color:"#8892a4"}}>n.c.</span>;
 const jjmm=d=>{const p=String(d||"").slice(0,10).split("-");return p.length===3?`${p[2]}/${p[1]}`:"";};
+/* OFFRE PUBLIQUE ÉTABLIE SUR PIÈCE — 29/10/2026 (registre OFFRES_PUBLIQUES,
+   publié dans `_meta.offre_publique`). CMT sortait n°1 du classement à
+   ~3 800 DH alors qu'une OPA obligatoire à 2 217 DH allait s'ouvrir : le fait
+   n'apparaissait que dans le fil d'actualités. Phrase FACTUELLE : prix,
+   période, pièces, et l'écart du prix de l'offre au cours publié, calculé ici.
+   Aucun mot d'action, aucun effet sur la note. */
+const jjmmaaaa=d=>{const s=String(d||"").slice(0,10);return s.length===10?`${jjmm(s)}/${s.slice(0,4)}`:"";};
+const ecartOffre=(o,cours)=>{if(!o||!(cours>0)||!(o.prix>0))return null;
+  const e=(o.prix-cours)/cours*100;return `${e<0?"−":"+"}${Math.abs(e).toFixed(1).replace(".",",")} %`;};
+const periodeOffre=o=>o.phase==="close"
+  ?`close le ${jjmmaaaa(o.cloture)}, résultats le ${jjmmaaaa(o.resultats)}`
+  :`${o.phase==="ouverte"?"ouverte ":""}du ${jjmm(o.ouverture)} au ${jjmmaaaa(o.cloture)}`;
+const texteOffre=(o,cours)=>{const e=ecartOffre(o,cours);
+  return `${o.nature} à ${px(o.prix)} DH, ${periodeOffre(o)} (visa AMMC ${o.visa} ; avis de la Bourse ${o.avis_bourse})`
+    +(e?` — écart avec le cours : ${e}`:"");};
+const BandeauOffre=({r,cours})=>{const o=meta(r).offre_publique;if(!o)return null;return(
+  <div className="bandeau-offre" role="note" style={{background:"rgba(255,143,0,.10)",border:"1px solid rgba(255,143,0,.45)",borderLeft:"3px solid #ff8f00",borderRadius:6,padding:"10px 14px",marginBottom:12,lineHeight:1.5}}>
+    <div style={{fontSize:13,color:"#ffb74d",fontWeight:600}}>{texteOffre(o,cours)}</div>
+    <div style={{fontSize:10.5,color:"#8892a4",marginTop:4}}>
+      Initiateurs : {o.initiateurs} · {Number(o.titres_vises).toLocaleString("fr-FR")} actions visées ({Number(o.part_capital_pct).toFixed(2).replace(".",",")} % du capital)
+      {" "}· règlement-livraison le {jjmmaaaa(o.reglement_livraison)}
+      {o.maintien_cote&&" · les initiateurs déclarent vouloir maintenir la société à la cote"}.
+      {" "}Pièces : {(o.sources||[]).map((u,i)=>(
+        <a key={u} href={u} target="_blank" rel="noopener noreferrer" style={{color:"#8892a4"}}>{i?"avis de la Bourse":"note d'information"}</a>
+      )).reduce((a,x)=>a.length?[...a," · ",x]:[x],[])}. La note n'en tient pas compte.
+    </div>
+  </div>);};
 /* Pastille de fraîcheur : n'apparaît que si le cours n'est pas celui de la
    dernière séance cotée. Le titre porte la date réelle et la source. */
 const Perime=({r})=>{const m=meta(r);if(!m.stale)return null;
@@ -3315,6 +3342,8 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                         <div className="ligne-ticker" style={{display:"flex",alignItems:"center",gap:5}}>
                           <span style={{fontSize:16,color:"#fff",fontWeight:800,letterSpacing:.3}}>{tk(r)}</span>
                           {r.warn&&<span title={r.warnMsg} style={{fontSize:10,cursor:"help"}}>⚠️</span>}
+                          {meta(r).offre_publique&&<span className="marqueur-offre" title={texteOffre(meta(r).offre_publique,r.price||r.prix||r.close)}
+                            style={{fontSize:9,color:"#ffb74d",border:"1px solid rgba(255,143,0,.5)",background:"rgba(255,143,0,.10)",borderRadius:2,padding:"1px 4px",cursor:"help",whiteSpace:"nowrap",fontWeight:600}}>OPA {px(meta(r).offre_publique.prix)} DH</span>}
                           {isStat&&<span title="Historique insuffisant : indicateurs techniques absents, la note technique s'abstient (5,0)" style={{fontSize:9,color:"#8892a4",border:"1px solid #1a2540",borderRadius:2,padding:"1px 3px",cursor:"default"}}>~hist</span>}
                           <button onClick={e=>{e.stopPropagation();toggleFav(sym);}} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
                             className="etoile" aria-pressed={fav.includes(sym)}
@@ -4556,6 +4585,8 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
       </div>
       <div className="fiche-corps">
       {r.warn&&<div style={{background:"rgba(255,215,64,.08)",border:"1px solid rgba(255,215,64,.3)",borderRadius:6,padding:"10px 14px",marginBottom:12,fontSize:13,color:"#ffd740"}}>⚠️ {r.warnMsg}</div>}
+      {/* Offre publique établie sur pièce : en tête de fiche, avant la note. */}
+      <BandeauOffre r={r} cours={price}/>
 
       <div className="detail-grid">
         {/* NOTE — la note et les chiffres clés ; panneau de droite au-delà de 1200 px */}

@@ -1520,6 +1520,60 @@ const jjmm = d => {
   const p = String(d || "").slice(0, 10).split("-");
   return p.length === 3 ? `${p[2]}/${p[1]}` : "";
 };
+const jjmmaaaa = d => {
+  const s = String(d || "").slice(0, 10);
+  return s.length === 10 ? `${jjmm(s)}/${s.slice(0, 4)}` : "";
+};
+const ecartOffre = (o, cours) => {
+  if (!o || !(cours > 0) || !(o.prix > 0)) return null;
+  const e = (o.prix - cours) / cours * 100;
+  return `${e < 0 ? "−" : "+"}${Math.abs(e).toFixed(1).replace(".", ",")} %`;
+};
+const periodeOffre = o => o.phase === "close" ? `close le ${jjmmaaaa(o.cloture)}, résultats le ${jjmmaaaa(o.resultats)}` : `${o.phase === "ouverte" ? "ouverte " : ""}du ${jjmm(o.ouverture)} au ${jjmmaaaa(o.cloture)}`;
+const texteOffre = (o, cours) => {
+  const e = ecartOffre(o, cours);
+  return `${o.nature} à ${px(o.prix)} DH, ${periodeOffre(o)} (visa AMMC ${o.visa} ; avis de la Bourse ${o.avis_bourse})` + (e ? ` — écart avec le cours : ${e}` : "");
+};
+const BandeauOffre = ({
+  r,
+  cours
+}) => {
+  const o = meta(r).offre_publique;
+  if (!o) return null;
+  return React.createElement("div", {
+    className: "bandeau-offre",
+    role: "note",
+    style: {
+      background: "rgba(255,143,0,.10)",
+      border: "1px solid rgba(255,143,0,.45)",
+      borderLeft: "3px solid #ff8f00",
+      borderRadius: 6,
+      padding: "10px 14px",
+      marginBottom: 12,
+      lineHeight: 1.5
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: "#ffb74d",
+      fontWeight: 600
+    }
+  }, texteOffre(o, cours)), React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: "#8892a4",
+      marginTop: 4
+    }
+  }, "Initiateurs : ", o.initiateurs, " \xB7 ", Number(o.titres_vises).toLocaleString("fr-FR"), " actions vis\xE9es (", Number(o.part_capital_pct).toFixed(2).replace(".", ","), " % du capital)", " ", "\xB7 r\xE8glement-livraison le ", jjmmaaaa(o.reglement_livraison), o.maintien_cote && " · les initiateurs déclarent vouloir maintenir la société à la cote", ".", " ", "Pi\xE8ces : ", (o.sources || []).map((u, i) => React.createElement("a", {
+    key: u,
+    href: u,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      color: "#8892a4"
+    }
+  }, i ? "avis de la Bourse" : "note d'information")).reduce((a, x) => a.length ? [...a, " · ", x] : [x], []), ". La note n'en tient pas compte."));
+};
 const Perime = ({
   r
 }) => {
@@ -6451,7 +6505,21 @@ const Ranking = ({
         fontSize: 10,
         cursor: "help"
       }
-    }, "\u26A0\uFE0F"), isStat && React.createElement("span", {
+    }, "\u26A0\uFE0F"), meta(r).offre_publique && React.createElement("span", {
+      className: "marqueur-offre",
+      title: texteOffre(meta(r).offre_publique, r.price || r.prix || r.close),
+      style: {
+        fontSize: 9,
+        color: "#ffb74d",
+        border: "1px solid rgba(255,143,0,.5)",
+        background: "rgba(255,143,0,.10)",
+        borderRadius: 2,
+        padding: "1px 4px",
+        cursor: "help",
+        whiteSpace: "nowrap",
+        fontWeight: 600
+      }
+    }, "OPA ", px(meta(r).offre_publique.prix), " DH"), isStat && React.createElement("span", {
       title: "Historique insuffisant : indicateurs techniques absents, la note technique s'abstient (5,0)",
       style: {
         fontSize: 9,
@@ -9597,7 +9665,10 @@ const Detail = ({
       fontSize: 13,
       color: "#ffd740"
     }
-  }, "\u26A0\uFE0F ", r.warnMsg), React.createElement("div", {
+  }, "\u26A0\uFE0F ", r.warnMsg), React.createElement(BandeauOffre, {
+    r: r,
+    cours: price
+  }), React.createElement("div", {
     className: "detail-grid"
   }, React.createElement("div", {
     className: "fiche-note",
