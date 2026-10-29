@@ -303,7 +303,7 @@ def tool_fetch_bvc(target: str) -> str:
         lines = [f"📰 Actualités BVC — {data.get('count', len(articles))} articles (màj: {data.get('updated','?')})\n"]
         for a in articles:
             tickers = ", ".join(a.get("tickers", [])) or "—"
-            sent = "✅" if a.get("sentiment") == "POSITIF" else ("❌" if a.get("sentiment") == "NEGATIF" else "◦")
+            sent = "◦"   # plus de ton : sentiment retiré (29/10/2026)
             lines.append(f"{sent} [{a.get('source','?')}] **{a.get('title','?')}** ({tickers})")
         return "\n".join(lines)
 
@@ -415,7 +415,7 @@ def tool_fetch_bvc(target: str) -> str:
         if related:
             sections.append(f"\n📰 Actualités ({len(related)}):")
             for a in related:
-                sent = "✅" if a.get("sentiment") == "POSITIF" else ("❌" if a.get("sentiment") == "NEGATIF" else "◦")
+                sent = "◦"   # plus de ton : sentiment retiré (29/10/2026)
                 sections.append(f"   {sent} {a.get('title','?')} [{a.get('source','?')}] ({a.get('date','?')[:10]})")
 
     if not sections:
@@ -656,7 +656,7 @@ def tool_analyze_ticker(ticker: str, mode: str = "full") -> str:
             out.append(f"\n## 📰 Actualités récentes ({len(related)})")
             if related:
                 for a in related[:8]:
-                    sent = "✅" if a.get("sentiment") == "POSITIF" else ("❌" if a.get("sentiment") == "NEGATIF" else "◦")
+                    sent = "◦"   # plus de ton : sentiment retiré (29/10/2026)
                     out.append(f"- {sent} **{a.get('title','?')}**")
                     out.append(f"  [{a.get('source','?')}] — {a.get('date','?')[:10]}")
             else:

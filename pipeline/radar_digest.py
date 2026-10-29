@@ -29,7 +29,7 @@ RUBRIQUES = [
     ("commodites",   "🛢️ MATIÈRES PREMIÈRES"),
     ("geopolitique", "🌍 GÉOPOLITIQUE"),
 ]
-SENTIMENT = {"POSITIF": "🟢", "NEGATIF": "🔴"}   # NEUTRE : pas de pastille
+# Plus de pastille de ton : le sentiment des articles est retiré (29/10/2026).
 
 # Sujets à écarter du bulletin. Les éditeurs généralistes publient sport,
 # culture et société dans le même flux que l'économie ; ces articles héritent
@@ -162,7 +162,7 @@ def construire(heures=6, maxi=12, rubrique=None):
             continue
         out.append(f"*{entete}*")
         for a in lot:
-            puce = SENTIMENT.get(a.get("sentiment"), "•")
+            puce = "•"
             tickers = a.get("tickers") or []
             tag = f" `{' '.join(tickers[:3])}`" if tickers else ""
             out.append(f"{puce} {a['title'].strip()}{tag}")

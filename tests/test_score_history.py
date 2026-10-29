@@ -45,8 +45,8 @@ def journal(tmp_path, monkeypatch):
 def _titre(sym="ADH", v53=6.5, conf=4, asof="2026-09-24"):
     return {
         "symbol": sym, "v53": v53, "price": 37.2,
-        "score_fond": 7.25, "score_tech": 5.2, "score_nlp": 5.0,
-        "poids": {"f": 65, "t": 35, "n": 0}, "sig": "ACHETER ★★",
+        "score_fond": 7.25, "score_tech": 5.2,
+        "poids": {"f": 65, "t": 35}, "sig": "ACHETER ★★",
         "_meta": {"confidence": conf, "prix_asof": asof},
     }
 
@@ -88,6 +88,19 @@ def test_la_ligne_porte_les_poids_reellement_appliques():
     assert sh.valeur(l, "poids_f") == 65
     assert sh.valeur(l, "poids_n") == 0
     assert sh.valeur(l, "sig") == "ACHETER ★★"
+
+
+def test_sans_pilier_nlp_le_contrat_de_colonnes_tient():
+    """⚠️ 29/10/2026 — pilier NLP retiré du moteur. Les colonnes restent (le
+    format est positionnel) ; `poids_n` écrit 0, le poids réellement
+    appliqué, et `score_nlp` None, même si un vieux flux portait encore une
+    note ou un poids NLP."""
+    vieux = dict(_titre(), score_nlp=5.0, poids={"f": 52, "t": 20, "n": 28})
+    for t in (_titre(), vieux):
+        l = sh.ligne_ticker(t)
+        assert len(l) == len(sh.COLONNES)
+        assert sh.valeur(l, "poids_n") == 0
+        assert sh.valeur(l, "score_nlp") is None
 
 
 def test_un_titre_sans_note_n_est_pas_enregistre():

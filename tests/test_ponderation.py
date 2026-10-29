@@ -21,7 +21,8 @@ bloc — ce qui est la bonne réponse à « nous ne savons pas ». Un `0` aurait
 affirmé « marché plat ».
 
 ⚠️ R8 — la formule 47/28/25 n'est pas touchée. C'est l'entrée du moteur qui
-était fausse, pas la pondération.
+était fausse, pas la pondération. (Depuis le 28/10/2026, le pilier NLP — 28,
+nul depuis le 25/09 — est retiré : deux piliers, mêmes poids publiés.)
 """
 
 import json
@@ -29,7 +30,8 @@ import json
 from update_data import get_weights
 from masi_history import enregistrer, performance_ytd, profondeur, MIN_SEANCES
 
-BASE = {"technique": 0.25, "fondamental": 0.47, "comportemental": 0.28}
+# Base des deux piliers, à la normalisation près : 0,47/0,72 et 0,25/0,72.
+BASE = {"technique": round(0.25 / 0.72, 4), "fondamental": round(0.47 / 0.72, 4)}
 
 
 # ── get_weights ──────────────────────────────────────────────────────────
@@ -52,7 +54,7 @@ def test_marche_baissier_arme_le_mode_defensif():
     """
     w = get_weights({"masi_ytd": -12.0})
     assert w["fondamental"] > BASE["fondamental"]
-    assert w["comportemental"] < BASE["comportemental"]
+    assert w["technique"] < BASE["technique"]
 
 
 def test_marche_haussier_favorise_le_technique():
@@ -74,8 +76,8 @@ def test_les_seuils_sont_annuels_pas_quotidiens():
 
 def test_les_poids_somment_toujours_a_un():
     for ctx in ({}, {"masi_ytd": -30.0}, {"masi_ytd": 40.0},
-                {"has_results": True}, {"hype_spike": True, "masi_ytd": -9.0},
-                {"smart_money_active": True, "ticker_coverage": 12}):
+                {"has_results": True}, {"market_status": "CLOSED", "masi_ytd": -9.0},
+                {"tech_non_fiable": True, "has_results": True}):
         assert abs(sum(get_weights(ctx).values()) - 1.0) < 1e-6
 
 

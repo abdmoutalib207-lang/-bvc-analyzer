@@ -33,9 +33,9 @@ def _fiche(secteur="Industrie", s1=True, **ratios):
 def test_poids_des_piliers_inchanges():
     import update_data
     # Base historique 25/47/28 repliée : le pilier NLP à zéro, 47/72 et 25/72.
-    w = update_data._replier_comportemental({"technique": 0.25, "fondamental": 0.47, "comportemental": 0.28})
-    assert round(w["fondamental"], 4) == 0.6528 and round(w["technique"], 4) == 0.3472
-    assert w["comportemental"] == 0.0
+    # ⚠️ 28/10/2026 : le repli (`_replier_comportemental`) et le pilier NLP
+    # sont retirés du moteur ; restent deux piliers, aux mêmes poids.
+    assert not hasattr(update_data, "_replier_comportemental")
     # Pondération en vigueur, mesurée le 10/10/2026 avant le changement de note :
     # base 65,28 / 34,72 / 0 ; marché fermé 72,22 / 27,78 / 0 ; technique
     # neutralisé 100 / 0 / 0. Aucune ne dépend de la note fondamentale.
@@ -43,7 +43,8 @@ def test_poids_des_piliers_inchanges():
                          ({"market_status": "CLOSED"}, (0.7222, 0.2778)),
                          ({"market_status": "CLOSED", "tech_non_fiable": True}, (1.0, 0.0))):
         p = update_data.get_weights(ctx)
-        assert (round(p["fondamental"], 4), round(p["technique"], 4), p["comportemental"]) == attendu + (0.0,), ctx
+        assert set(p) == {"fondamental", "technique"}, ctx
+        assert (round(p["fondamental"], 4), round(p["technique"], 4)) == attendu, ctx
     src = (Path(bvc_config.__file__).parent / "pipeline" / "collect_financial_data.py").read_text(encoding="utf-8")
     assert "score_tech * 0.3472 + fond_score * 0.6528" in src
 
@@ -133,7 +134,7 @@ def test_le_second_pipeline_garde_la_note_actuelle_en_comparaison(monkeypatch):
     monkeypatch.setattr(c, "compute_fond_score", lambda sym: 4.0)
     sortie = {"timestamp": "2026-10-11T00:00:00Z", "data": {"ALU": {
         "market": {"price": 100.0}, "technical": {"rsi_14": 50}, "fundamentals": {},
-        "smart_money": {}, "flags": {"stale": False, "partial_data": False}}}}
+        "flags": {"stale": False, "partial_data": False}}}}
     t = c.to_legacy_format(sortie)["tickers"][0]
     assert t["score_fond"] == 4.0 and t["note_fond_metier"]["note"] == 9.0
 
@@ -190,7 +191,7 @@ def test_publie_le_second_pipeline_note_par_famille(monkeypatch):
     monkeypatch.setattr(c, "NOTE_METIER_PUBLIEE", True)
     sortie = {"timestamp": "2026-10-10T00:00:00Z", "data": {
         s: {"market": {"price": 100.0}, "technical": {"rsi_14": 50}, "fundamentals": {},
-            "smart_money": {}, "flags": {"stale": False, "partial_data": False}} for s in ("AAA", "BBB")}}
+            "flags": {"stale": False, "partial_data": False}} for s in ("AAA", "BBB")}}
     par = {t["symbol"]: t for t in c.to_legacy_format(sortie)["tickers"]}
     assert par["AAA"]["score_fond"] is None and par["AAA"]["v53"] is None
     assert par["AAA"]["sig"] == "Données insuffisantes"
@@ -202,8 +203,8 @@ def test_la_confiance_est_plafonnee_a_1_sans_note_fondamentale(monkeypatch):
     import update_data
     monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: False)
     monkeypatch.setitem(update_data._FOND_COMPUTED, "ALU", 5.0)
-    avec = update_data._meta_ticker("ALU", "cdg", "2026-10-09", {}, None, False, note_fond_ok=True)
-    sans = update_data._meta_ticker("ALU", "cdg", "2026-10-09", {}, None, False, note_fond_ok=False)
+    avec = update_data._meta_ticker("ALU", "cdg", "2026-10-09", None, False, note_fond_ok=True)
+    sans = update_data._meta_ticker("ALU", "cdg", "2026-10-09", None, False, note_fond_ok=False)
     assert avec["confidence"] - sans["confidence"] >= 1
     assert sans["confidence"] <= 1
 
@@ -407,7 +408,7 @@ def test_le_second_pipeline_isole_aussi_la_comparaison(monkeypatch):
     monkeypatch.setattr(c, "compute_fond_score", lambda sym: 4.0)
     sortie = {"timestamp": "2026-10-12T00:00:00Z", "data": {"ALU": {
         "market": {"price": 100.0}, "technical": {"rsi_14": 50}, "fundamentals": {},
-        "smart_money": {}, "flags": {"stale": False, "partial_data": False}}}}
+        "flags": {"stale": False, "partial_data": False}}}}
     t = c.to_legacy_format(sortie)["tickers"][0]
     assert t["score_fond"] == 4.0 and t["note_fond_metier"] == {"indisponible": True}
 

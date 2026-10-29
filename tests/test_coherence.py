@@ -37,17 +37,17 @@ from coherence import ADX_SANS_TENDANCE, controler, controler_tous  # noqa: E402
 def _t(**kw):
     """Un titre publié, cohérent par défaut. Chaque test ne casse qu'un point.
 
-    ⚠️ Le socle vaut exactement 6,21 : fond 7,25×52 + nlp 5,0×28 + tech 5,2×20.
-    Calculé à la main, pas par la fonction testée.
+    ⚠️ Le socle vaut 6,5325 : fond 7,25×65 + tech 5,2×35 — deux piliers depuis
+    le retrait du pilier NLP (28/10/2026). Calculé à la main, pas par la
+    fonction testée.
     """
     base = {
         "symbol": "ZZZ", "close": 95.05, "open": 96.2,
         "h52w": 121.45, "l52w": 89.99,
         "ma20": 97.66, "ma50": 95.71, "ma200": 99.18,
         "rsi": 41.6, "adx": 22.9, "stoch_k": 23.86, "stoch_d": 31.39,
-        "score_fond": 7.25, "score_nlp": 5.0, "score_tech": 5.2,
-        "poids": {"f": 52, "n": 28, "t": 20}, "v53": 6.21, "bvc": 7.08,
-        "nlp": 0.0, "nlp_corpus": 0.0, "nlp_news": 0.0,
+        "score_fond": 7.25, "score_tech": 5.2,
+        "poids": {"f": 65, "t": 35}, "v53": 6.53, "bvc": 7.08,
         "setup": "NEUTRE", "sig": "SURVEILLER ★",
         "_meta": {"confidence": 5, "fond_asof": "2026-06-18",
                   "fond_age_jours": 98, "source_fond": "bpa_calcule"},
@@ -80,29 +80,33 @@ def test_un_rsi_extreme_mais_valide_ne_declenche_rien():
     assert "hors_bornes" not in _codes(_t(rsi=100))
 
 
-def test_un_sentiment_hors_intervalle_est_vu():
-    assert "hors_bornes" in _codes(_t(nlp=1.4, nlp_corpus=1.4, nlp_news=0.0))
+def test_les_bornes_du_pilier_nlp_sont_retirees():
+    """⚠️ RETOURNÉ LE 29/10/2026. Ce test exigeait qu'un sentiment hors
+    [-1, 1] soit vu ; le pilier NLP est retiré du moteur et ses champs ne
+    sont plus publiés. Leurs bornes ne doivent pas revenir."""
+    from coherence import BORNES
+    assert not {"nlp", "nlp_corpus", "nlp_news", "score_nlp"} & set(BORNES)
 
 
 # ── Les poids ──────────────────────────────────────────────────────────────
 
 def test_des_poids_qui_ne_font_pas_cent_sont_une_erreur():
-    a = controler(_t(poids={"f": 52, "n": 28, "t": 30}))
+    a = controler(_t(poids={"f": 65, "t": 45}))
     assert any(x["code"] == "poids_somme" and x["gravite"] == "erreur" for x in a)
 
 
 def test_un_arrondi_a_un_point_pres_est_tolere():
-    """⚠️ Trois arrondis d'un calcul normalisé peuvent donner 99 ou 101.
+    """⚠️ Les arrondis d'un calcul normalisé peuvent donner 99 ou 101.
     Sans cette tolérance, le contrôle rougirait sur des runs parfaitement
     sains — et on apprendrait à l'ignorer."""
-    assert "poids_somme" not in _codes(_t(poids={"f": 52, "n": 28, "t": 21}))
+    assert "poids_somme" not in _codes(_t(poids={"f": 65, "t": 36}))
 
 
 # ── ⚠️ Le score doit se refaire à la main ──────────────────────────────────
 
 def test_un_score_irreproductible_est_une_erreur():
-    """LE CONTRÔLE CENTRAL. Si la note ne se retrouve pas depuis les trois
-    notes et les trois poids publiés, l'un des sept chiffres est faux — et le
+    """LE CONTRÔLE CENTRAL. Si la note ne se retrouve pas depuis les deux
+    notes et les deux poids publiés, l'un des cinq chiffres est faux — et le
     lecteur qui refait le calcul le verra avant nous."""
     a = controler(_t(v53=9.4))
     assert any(x["code"] == "score_irreproductible" and x["gravite"] == "erreur"
@@ -122,36 +126,29 @@ def test_un_titre_sans_decomposition_n_est_pas_accuse():
     Ne rien dire est alors la seule réponse honnête — inventer un verdict sur
     une absence serait pire que le silence."""
     t = _t()
-    for k in ("score_fond", "score_nlp", "score_tech"):
+    for k in ("score_fond", "score_tech"):
         t.pop(k)
     assert "score_irreproductible" not in _codes(t)
 
 
-# ── ⚠️ 28/10/2026 : le pilier NLP n'est plus publié ────────────────────────
-# `poids.n` et `score_nlp` sortent de data.json. Leur absence ne doit PAS
-# désarmer les deux contrôles ci-dessus : avant le correctif, il suffisait
-# qu'un des trois poids manque pour que les deux se taisent sur 80 titres.
+# ── ⚠️ 28/10/2026 : le pilier NLP est retiré ───────────────────────────────
+# Deux piliers publiés : fondamental et technique. Le 28/10 (lot 1), l'absence
+# de `poids.n` valait 0 pour ne pas désarmer les deux contrôles ci-dessus ; le
+# 29/10 (lot 2), le contrôle ne lit plus que `f` et `t`. Un pilier NLP qui
+# reviendrait avec un poids non nul doit donc se voir.
 
-def _deux_piliers(**kw):
-    """Un titre au format publié depuis le 28/10 : deux poids, deux notes.
-    Socle : fond 7,25×65 + tech 5,2×35 = 6,5325, calculé à la main."""
-    t = _t(poids={"f": 65, "t": 35}, v53=6.53)
-    for k in ("score_nlp", "nlp", "nlp_corpus", "nlp_news"):
-        t.pop(k, None)
-    t.update(kw)
-    return t
+def test_un_troisieme_poids_non_nul_est_vu():
+    assert "poids_somme" in _codes(_t(poids={"f": 52, "n": 28, "t": 20}))
 
 
-def test_sans_pilier_nlp_un_titre_coherent_reste_muet():
-    assert not {"poids_somme", "score_irreproductible"} & _codes(_deux_piliers())
-
-
-def test_sans_pilier_nlp_des_poids_faux_sont_vus():
-    assert "poids_somme" in _codes(_deux_piliers(poids={"f": 60, "t": 30}))
+def test_un_poids_n_nul_reste_muet():
+    """Les data.json écrits entre le 25/09 et le 28/10 portaient `n: 0`."""
+    assert not {"poids_somme", "score_irreproductible"} & _codes(
+        _t(poids={"f": 65, "n": 0, "t": 35}))
 
 
 def test_sans_pilier_nlp_un_score_irreproductible_est_vu():
-    assert "score_irreproductible" in _codes(_deux_piliers(v53=9.4))
+    assert "score_irreproductible" in _codes(_t(v53=9.4))
 
 
 # ── ⚠️ La conviction directionnelle sans tendance ──────────────────────────
@@ -200,16 +197,14 @@ def test_un_cours_egal_au_plus_haut_ne_l_est_pas():
     assert "cours_hors_extremes" not in _codes(_t(close=121.45))
 
 
-# ── La décomposition du sentiment ──────────────────────────────────────────
+# ── La décomposition du sentiment (contrôle n°7, retiré le 29/10/2026) ───
 
-def test_un_nlp_qui_ne_vaut_pas_ses_composantes_est_signale():
-    assert "nlp_decompose_faux" in _codes(
-        _t(nlp=0.5, nlp_corpus=0.1, nlp_news=0.1))
-
-
-def test_la_somme_exacte_ne_declenche_rien():
+def test_le_controle_de_decomposition_du_sentiment_est_retire():
+    """⚠️ RETOURNÉ. « nlp_decompose_faux » vérifiait nlp = corpus + news ; les
+    trois champs ne sont plus publiés et le pilier est retiré du moteur. Même
+    une décomposition fausse ne doit plus produire ce code."""
     assert "nlp_decompose_faux" not in _codes(
-        _t(nlp=0.2, nlp_corpus=0.1, nlp_news=0.1))
+        _t(nlp=0.5, nlp_corpus=0.1, nlp_news=0.1))
 
 
 # ── Le signal exige de la confiance ────────────────────────────────────────

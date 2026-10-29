@@ -89,9 +89,8 @@ def test_la_vue_officielle_ne_diverge_pas_du_moteur():
     from update_data import get_weights
     w = get_weights({})            # pondération de base, hors contexte
     off = [v for v in _vues() if v[3]][0]
-    # L'écran n'a plus que deux piliers : il ne peut dire vrai que si le
-    # moteur ne donne rien au troisième.
-    assert w["comportemental"] == 0.0
+    # L'écran n'a plus que deux piliers, le moteur non plus (28/10/2026).
+    assert set(w) == {"fondamental", "technique"}
     attendu = (round(w["fondamental"] * 100), round(w["technique"] * 100))
     obtenu = (off[1], off[2])
     assert all(abs(a - b) <= 1 for a, b in zip(attendu, obtenu)), (

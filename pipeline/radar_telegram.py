@@ -96,7 +96,7 @@ def envoyer(texte, token, chat_id, apercu=False):
 
 def formater(a):
     """Un article, au format prêt à coller dans WhatsApp."""
-    puce = {"POSITIF": "🟢", "NEGATIF": "🔴"}.get(a.get("sentiment"), "•")
+    puce = "•"   # plus de pastille de ton : sentiment retiré (29/10/2026)
     tk = a.get("tickers") or []
     tag = f" `{' '.join(tk[:3])}`" if tk else ""
     return (f"📡 *RADAR BVC*\n\n"

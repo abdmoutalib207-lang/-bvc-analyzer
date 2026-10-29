@@ -63,7 +63,7 @@ def test_onglet_poids_ne_presente_plus_47_28_25():
 
 def test_onglet_poids_affiche_la_base_rendue_par_le_moteur():
     w = get_weights({"market_status": "OPEN"})
-    assert w["comportemental"] == 0.0
+    assert set(w) == {"fondamental", "technique"}     # pilier NLP retiré (28/10)
     assert f'["Fondamental","{_pct(w["fondamental"])}"' in ONGLET_POIDS
     assert f'["Technique","{_pct(w["technique"])}"' in ONGLET_POIDS
     # 28/10/2026 : plus de carte « NLP Comportemental » — pilier retiré.
@@ -83,7 +83,7 @@ def test_chaque_contexte_actif_correspond_a_get_weights():
     }
     for situation, ctx in cas.items():
         w = get_weights(ctx)
-        assert w["comportemental"] == 0.0
+        assert set(w) == {"fondamental", "technique"}
         f, t, _ = _ligne(situation)
         assert (f, t) == (_pct(w["fondamental"]), _pct(w["technique"])), situation
     # Le cumul hors séance + MASI baissier, cité dans la justification.

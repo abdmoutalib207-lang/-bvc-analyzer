@@ -26,12 +26,12 @@ def warn(msg):  warnings.append(msg); print(f"  ⚠️  {msg}")
 def err(msg):   errors.append(msg);   print(f"  ❌ {msg}")
 def hdr(title): print(f"\n── {title} {'─'*(55-len(title))}")
 
-VALID_SENTIMENTS      = {"POSITIF", "NEGATIF", "NEUTRE"}
 # Champs obligatoires dans fondamentaux.json (bpa_2025/dps_2025 sont optionnels — FY anciens)
 REQUIRED_FOND_FIELDS  = ["secteur","per","croissance_ca","dette_nette_ebitda",
                           "roic","marge_nette","source","date_maj"]
 OPTIONAL_FOND_FIELDS  = ["bpa_2025","dps_2025"]
-REQUIRED_ARTICLE_FLDS = ["title","url","date","sentiment","tickers"]
+# `sentiment` retiré le 29/10/2026 (retrait du pilier NLP, lot 2).
+REQUIRED_ARTICLE_FLDS = ["title","url","date","tickers"]
 
 
 # ── bpa.json ──────────────────────────────────────────────────────────────────
@@ -178,9 +178,10 @@ def validate_news():
             if f not in a:
                 missing_flds.append(f"#{i}.{f}")
 
-        sent = a.get("sentiment","")
-        if sent not in VALID_SENTIMENTS:
-            bad_sent.append(f"#{i}:{repr(sent)}")
+        # Le champ est retiré : un article qui le porte encore vient d'un
+        # producteur qui n'a pas suivi (ou d'un news.json antérieur).
+        if "sentiment" in a or "sentiment_lexical" in a:
+            bad_sent.append(f"#{i}")
 
         tickers = a.get("tickers", [])
         if not isinstance(tickers, list) or not tickers:
@@ -195,10 +196,14 @@ def validate_news():
     else:
         ok("Champs requis présents dans tous les articles")
 
+    # ⏳ À RETIRER APRÈS LE PREMIER RUN fetch_news SUIVANT LA FUSION (retrait
+    # NLP, lot 2) : l'avertissement devient alors une erreur — un article qui
+    # porte encore le champ viendrait d'un producteur non mis à jour.
     if bad_sent:
-        err(f"Sentiments invalides ({len(bad_sent)}) : {', '.join(bad_sent[:5])}")
+        warn(f"{len(bad_sent)} article(s) portent encore un champ `sentiment`, "
+             f"retiré le 29/10/2026 — ôté au prochain passage de fetch_news")
     else:
-        ok("Sentiments valides (POSITIF / NEGATIF / NEUTRE)")
+        ok("Aucun champ `sentiment` (retiré le 29/10/2026)")
 
     if invalid_tck:
         uniq = sorted(set(t.split(":")[1] for t in invalid_tck))
@@ -206,10 +211,6 @@ def validate_news():
 
     if empty_tck and len(empty_tck) > len(articles) * 0.6:
         warn(f"{len(empty_tck)}/{len(articles)} articles sans tickers (taux > 60%)")
-
-    # Distribution sentiments
-    dist = {s: sum(1 for a in articles if a.get("sentiment")==s) for s in VALID_SENTIMENTS}
-    ok(f"Sentiment : ✅ {dist['POSITIF']} positifs · ❌ {dist['NEGATIF']} négatifs · ◦ {dist['NEUTRE']} neutres")
 
     # Couverture par ticker (top 10 les plus cités)
     from collections import Counter
@@ -315,50 +316,11 @@ def validate_meta():
         warn(f"{len(faibles)} titres à confiance ≤ 1 (signal grisé) : {sorted(faibles)}")
 
 
-def validate_referentiel():
-    """Le module NLP doit dériver ses tickers de bvc_config, pas les recopier.
-
-    Il entretenait quatre tables saisies à la main — noms, alias, secteurs,
-    synonymes — qui avaient divergé : SNA y valait « Snep », MSA « Mutandis »,
-    CMT « Ciments du Maroc ». Le NLP pesant 28 % du score, un message sur SNEP
-    remontait dans la note de Sonasid.
-
-    Erreur bloquante, pas avertissement : une divergence ici fausse un quart
-    de la note sans que rien ne le signale à l'écran.
-    """
-    hdr("référentiel unique — bvc_config ↔ whatsapp_analysis")
-    try:
-        sys.path.insert(0, str(ROOT))
-        from bvc_config import COMPANY_NAMES, COMPANY_SECTORS
-        from whatsapp_analysis.config import BVC_TICKERS, TICKER_ALIASES
-        from whatsapp_analysis.phase7_stocks import SECTOR_MAP
-    except Exception as e:
-        warn(f"modules NLP non importables ({type(e).__name__}) — contrôle ignoré")
-        return
-
-    if BVC_TICKERS != COMPANY_NAMES:
-        ecarts = {t for t in set(BVC_TICKERS) | set(COMPANY_NAMES)
-                  if BVC_TICKERS.get(t) != COMPANY_NAMES.get(t)}
-        err(f"noms NLP divergents de bvc_config : {sorted(ecarts)[:10]}")
-    else:
-        ok(f"{len(BVC_TICKERS)} noms alignés sur bvc_config")
-
-    if SECTOR_MAP != COMPANY_SECTORS:
-        ecarts = {t for t in set(SECTOR_MAP) | set(COMPANY_SECTORS)
-                  if SECTOR_MAP.get(t) != COMPANY_SECTORS.get(t)}
-        err(f"secteurs NLP divergents de bvc_config : {sorted(ecarts)[:10]}")
-    else:
-        ok(f"{len(SECTOR_MAP)} secteurs alignés sur bvc_config")
-
-    index = {}
-    for t, alias in TICKER_ALIASES.items():
-        for a in alias:
-            index.setdefault(a, []).append(t)
-    partages = {a: ts for a, ts in index.items() if len(ts) > 1}
-    if partages:
-        err(f"alias désignant plusieurs sociétés : {partages}")
-    else:
-        ok(f"{sum(len(v) for v in TICKER_ALIASES.values())} alias, aucun partagé")
+# `validate_referentiel()` — retiré le 29/10/2026. Il vérifiait que le module
+# NLP (`whatsapp_analysis.config`, `phase7_stocks`) dérivait ses noms, alias et
+# secteurs de bvc_config. Le pilier NLP est retiré du moteur (décision d'Abd
+# Moutalib du 28/10, lot 2) et le dossier part au lot 3 : le contrôle n'a plus
+# d'objet, et le moteur n'importe plus rien de `whatsapp_analysis`.
 
 
 # ── Résumé final ──────────────────────────────────────────────────────────────
@@ -373,7 +335,6 @@ if __name__ == "__main__":
     validate_fondamentaux()
     validate_news()
     validate_candles()
-    validate_referentiel()
     validate_meta()
 
     print("\n" + "═"*60)

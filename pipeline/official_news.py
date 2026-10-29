@@ -58,7 +58,7 @@ def parse_ammc(page, fetched_at):
                 "source_type": "regulator_index", "source_tier": "S1",
                 "classification": "PUBLICATION", "validation_status": "listed_officially",
                 "document_content_verified": False, "rights": "unknown",
-                "usable_for_score": False, "scope": "MAROC", "sentiment": "NEUTRE",
+                "usable_for_score": False, "scope": "MAROC",
             })
     return articles
 
@@ -67,8 +67,10 @@ def annotate_provenance(article, fetched_at=None):
     """Un relais Google n'est jamais présenté comme un document consulté."""
     article = dict(article)
     article.setdefault("usable_for_score", False)
+    # Plus de `sentiment` (retrait du pilier NLP, 29/10/2026).
+    article.pop("sentiment", None)
+    article.pop("sentiment_lexical", None)
     if article.get("validation_status") == "listed_officially":
-        article["sentiment"] = "NEUTRE"
         article["scope"] = "MAROC"
         return article
     host = (urlparse(article.get("url", "")).hostname or "").lower()
@@ -82,7 +84,6 @@ def annotate_provenance(article, fetched_at=None):
     article["rights"] = "unknown"
     if official:
         article["target_domain"] = official
-        article["sentiment"] = "NEUTRE"
     if fetched_at:
         article["fetched_at"] = fetched_at
         article.setdefault("first_seen_at", fetched_at)

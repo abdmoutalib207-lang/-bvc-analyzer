@@ -1,6 +1,4 @@
 """La précision publiée doit permettre de recomposer la note sans la modifier."""
-from unittest.mock import patch
-
 import pytest
 
 import update_data as u
@@ -16,12 +14,12 @@ import update_data as u
 ])
 def test_export_conserve_la_precision_reelle_sans_changer_la_note(context):
     weights = u.get_weights(context)
-    with patch.object(u, '_apport_actualites', return_value=0):
-        out = u.compute_v53('MUT', 7.2, 1.9, 0, 0, context)
+    out = u.compute_v53('MUT', 7.2, 1.9, 0, 0, context)
+    # Deux piliers : le pilier NLP (`n`) est retiré du moteur le 28/10/2026.
     expected = {short: round(weights[key] * 100, 2) for short, key in
-                [('f', 'fondamental'), ('n', 'comportemental'), ('t', 'technique')]}
+                [('f', 'fondamental'), ('t', 'technique')]}
     assert out['poids'] == expected
-    for short, key in [('f', 'fondamental'), ('n', 'comportemental'), ('t', 'technique')]:
+    for short, key in [('f', 'fondamental'), ('t', 'technique')]:
         assert out['poids'][short] / 100 == pytest.approx(weights[key], abs=1e-12)
     # Le moteur garde sa formule originale : seule sa description est précisée.
     assert out['v53'] == round(1.9 * weights['fondamental'] + 7.2 * weights['technique'], 2)
@@ -34,10 +32,9 @@ def test_export_conserve_la_precision_reelle_sans_changer_la_note(context):
     ('MUT', 1.9, 7.2, 3.41), ('CAR', 1.9, 6.8, 3.30), ('SMI', 8.05, 3.8, 6.84),
 ])
 def test_regression_des_trois_cas_bloquants_du_16_octobre(symbol, fundamental, technical, score):
-    with patch.object(u, '_apport_actualites', return_value=0):
-        out = u.compute_v53(symbol, technical, fundamental, 0, 0,
-                            {'market_status': 'OPEN', 'masi_ytd': -6})
-    assert out['poids'] == {'f': 71.43, 'n': 0.0, 't': 28.57}
+    out = u.compute_v53(symbol, technical, fundamental, 0, 0,
+                        {'market_status': 'OPEN', 'masi_ytd': -6})
+    assert out['poids'] == {'f': 71.43, 't': 28.57}
     assert out['v53'] == score
     exact = (fundamental * out['poids']['f'] + technical * out['poids']['t']) / 100
     assert abs(exact - score) <= .005000001

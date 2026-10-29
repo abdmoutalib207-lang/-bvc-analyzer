@@ -6499,13 +6499,7 @@ const Ranking = ({
         fontWeight: 800,
         letterSpacing: .3
       }
-    }, tk(r)), r.warn && React.createElement("span", {
-      title: r.warnMsg,
-      style: {
-        fontSize: 10,
-        cursor: "help"
-      }
-    }, "\u26A0\uFE0F"), meta(r).offre_publique && React.createElement("span", {
+    }, tk(r)), meta(r).offre_publique && React.createElement("span", {
       className: "marqueur-offre",
       title: texteOffre(meta(r).offre_publique, r.price || r.prix || r.close),
       style: {
@@ -9655,17 +9649,7 @@ const Detail = ({
     }, d.chg > 0 ? "+" : "", (+d.chg).toFixed(2), "%"));
   }))), React.createElement("div", {
     className: "fiche-corps"
-  }, r.warn && React.createElement("div", {
-    style: {
-      background: "rgba(255,215,64,.08)",
-      border: "1px solid rgba(255,215,64,.3)",
-      borderRadius: 6,
-      padding: "10px 14px",
-      marginBottom: 12,
-      fontSize: 13,
-      color: "#ffd740"
-    }
-  }, "\u26A0\uFE0F ", r.warnMsg), React.createElement(BandeauOffre, {
+  }, React.createElement(BandeauOffre, {
     r: r,
     cours: price
   }), React.createElement("div", {
@@ -11794,8 +11778,6 @@ function App() {
             bonus: t.bonus,
             poids: t.poids,
             note_fond: t.note_fond,
-            warn: t.warn,
-            warnMsg: t.warnMsg,
             bear: t.bear,
             base: t.base,
             bull: t.bull,

@@ -94,7 +94,7 @@
   .scope b{display:block;font-size:15px;margin-top:3px;color:inherit}
   .scope.on{border-color:currentColor}
 
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:12px}
   .stat{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px 7px}
   .stat i{display:block;font-style:normal;color:var(--dim);font-size:9.5px;letter-spacing:.5px}
   .stat b{display:block;font-size:17px;margin-top:3px}
@@ -285,12 +285,10 @@ function dessiner(){
          style="color:${scope===id?c:"var(--dim)"}">${l}<b>${n}</b></div>`).join("");
 
   const vus = affichables();
-  const pos = vus.filter(a=>a.sentiment==="POSITIF").length;
-  const neg = vus.filter(a=>a.sentiment==="NEGATIF").length;
+  /* Plus de compteurs de ton : le sentiment des articles est retiré avec le
+     pilier NLP (29/10/2026). Le flux, lui, reste. */
   document.getElementById("stats").innerHTML =
     `<div class="stat"><i>ARTICLES</i><b style="color:var(--bleu)">${vus.length}</b></div>
-     <div class="stat"><i>TON POSITIF</i><b style="color:var(--vert)">${pos}</b></div>
-     <div class="stat"><i>TON NÉGATIF</i><b style="color:var(--rouge)">${neg}</b></div>
      <div class="stat"><i>SÉLECTION</i><b style="color:var(--jaune)">${choisis.size}</b></div>`;
 
   document.getElementById("fenetres").innerHTML =
@@ -306,9 +304,6 @@ function dessiner(){
   document.getElementById("liste").innerHTML = vus.length ? vus.map(a=>{
     const c = a.category||"economie";
     const col = CAT_COL[c]||"#8892a4";
-    const s = a.sentiment;
-    const sc = s==="POSITIF"?"var(--vert)" : s==="NEGATIF"?"var(--rouge)" : "var(--dim)";
-    const bord = s==="POSITIF"?"var(--vert)" : s==="NEGATIF"?"var(--rouge)" : "var(--line)";
     const k = cle(a), on = choisis.has(k);
     // Sur les articles relayés, le résumé reprend mot pour mot le titre :
     // on ne l'affiche que s'il apporte vraiment quelque chose.
@@ -320,7 +315,7 @@ function dessiner(){
       `<span class="tag" style="color:var(--bleu);border-color:rgba(77,184,255,.4)">${codeAff(t)}</span>`).join("");
     // Deux gestes distincts : la case sélectionne, le corps ouvre la source.
     // Un même clic ne peut pas faire les deux sans surprendre l'utilisateur.
-    return `<div class="art${on?" sel":""}" style="border-left-color:${bord}">
+    return `<div class="art${on?" sel":""}" style="border-left-color:var(--line)">
       <div class="box" data-sel="${encodeURIComponent(k)}" data-c="${on?"✓":""}"></div>
       <a class="corps" href="${a.url||"#"}" target="_blank" rel="noopener">
         <div style="display:flex;align-items:flex-start">
@@ -328,7 +323,6 @@ function dessiner(){
         </div>
         ${ex?`<p>${ex}…</p>`:""}
         <div class="tags">
-          ${s&&s!=="NEUTRE"?`<span class="tag" style="color:${sc};border-color:${sc}55">${s}</span>`:""}
           <span class="tag" style="color:${col};border-color:${col}55">${CAT_LBL[c]||c}</span>
           ${tags}<span class="src">${a.source||""} · ${a.validation_status==="listed_officially"?"Document officiel référencé":"Alerte à recouper"} ↗</span>
         </div>
@@ -358,7 +352,7 @@ function composer(){
     if(!lot.length) continue;
     L.push(CAT_ENTETE[c]);
     for(const a of lot){
-      const puce = a.sentiment==="POSITIF"?"🟢" : a.sentiment==="NEGATIF"?"🔴" : "•";
+      const puce = "•";
       const tk = (a.tickers||[]).length ? " ["+a.tickers.slice(0,3).join(" ")+"]" : "";
       L.push(`${puce} ${(a.title||"").trim()}${tk}`);
       L.push(`   ${a.source||"?"} — ${a.url||""}`);
