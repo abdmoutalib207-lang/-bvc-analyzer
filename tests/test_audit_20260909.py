@@ -23,7 +23,8 @@ mesure ce qu'on a pensé à vérifier, pas ce qui est juste.
      l'achat. Acheter à 100, monter à 110, vendre à 120 rendait 132 au lieu de
      120. La fonction annonçait +20 % de rendement de transaction tout en
      traçant une courbe finissant à +32 % : elle se contredisait elle-même.
-     Trois stratégies touchées.
+     Trois stratégies touchées. (Backtest des stratégies NLP, supprimé avec
+     `whatsapp_analysis/` le 29/10/2026 : ses contrôles sont partis avec lui.)
 
   4. UN STATUT HORS CONTRAT. « SUSPENDU », émis depuis le 09/09, n'était pas
      dans le vocabulaire admis par test_contrat_data_json. La suite passait au
@@ -44,7 +45,6 @@ code neuf. Il donne l'illusion inverse.
 
 import json
 import re
-import sys
 from pathlib import Path
 
 import pytest
@@ -82,54 +82,13 @@ def test_le_bilan_ne_penalise_pas_une_societe_sans_dette():
     assert "float(_dne) if _dne is not None else 1.0" in s
 
 
-# ── 3. Le double comptage du backtest ────────────────────────────────────
-
-def test_le_backtest_ne_compte_pas_un_gain_deux_fois():
-    """LE cas de contrôle de l'audit, rejoué tel quel.
-
-    Acheter à 100, le cours monte à 110, vendre à 120. Le capital doit finir à
-    120. Avant correction il finissait à 132 — 110 × 1,20.
-    """
-    pd = pytest.importorskip("pandas")
-    sys.path.insert(0, str(RACINE / "whatsapp_analysis"))
-    import phase11_backtest as bt
-
-    cout, slip, rf = bt.TRANSACTION_COST, bt.SLIPPAGE, bt.RF_ANNUAL
-    bt.TRANSACTION_COST = bt.SLIPPAGE = bt.RF_ANNUAL = 0.0
-    try:
-        d = pd.date_range("2026-01-01", periods=12, freq="D")
-        prix = pd.DataFrame({"X": [100.] * 4 + [110., 120.] + [120.] * 6}, index=d)
-        sent = pd.DataFrame({"date": d,
-                             "sentiment_mean": [0.] * 3 + [0.9, 0.0, -0.9] + [0.] * 6})
-        eq, trades = bt.strategy_smart_sentiment(
-            sent, prix, pd.Series([1000.] * 12, index=d),
-            buy_threshold=0.5, sell_threshold=-0.5)
-    finally:
-        bt.TRANSACTION_COST, bt.SLIPPAGE, bt.RF_ANNUAL = cout, slip, rf
-
-    assert len(eq) > 0, "la stratégie n'a produit aucune courbe"
-    rendement = eq.iloc[-1] / eq.iloc[0] - 1
-    assert rendement == pytest.approx(0.20, abs=0.005), (
-        f"capital final {eq.iloc[-1]:.2f} pour un départ à {eq.iloc[0]:.2f} — "
-        f"soit {rendement*100:+.1f} %, attendu +20 %")
-
-    # Et la courbe doit CONCORDER avec le rendement annoncé du trade : c'est
-    # la contradiction interne qui a permis de démasquer le défaut.
-    ventes = [t for t in trades if "return" in t]
-    assert ventes, "aucune vente enregistrée"
-    assert ventes[0]["return"] == pytest.approx(rendement, abs=0.005), (
-        "la courbe de portefeuille et le rendement de transaction se "
-        "contredisent — c'est la signature du double comptage")
-
-
-def test_aucune_strategie_ne_garde_le_motif_fautif():
-    """Le défaut existait dans trois stratégies. En corriger une seule
-    laisserait les deux autres produire des performances gonflées."""
-    s = (RACINE / "whatsapp_analysis" / "phase11_backtest.py").read_text(encoding="utf-8")
-    fautif = re.findall(r"equity\.append\(equity\[-1\] \* \(1 \+ ret\)\)", s)
-    assert not fautif, (
-        f"{len(fautif)} stratégie(s) multiplient encore le capital composé par "
-        "le rendement total depuis l'achat")
+# ── 3. Le double comptage du backtest — RETIRÉ le 29/10/2026 ─────────────
+# Le défaut vivait dans `whatsapp_analysis/phase11_backtest.py`, le backtest des
+# STRATÉGIES NLP (sentiment, smart money, consensus ACHAT_FORT, contrariante
+# F&G) — pas celui de la note, qui est `pipeline/backtest.py` et
+# `pipeline/backtest_reproductible.py` et n'en importe rien. Le module est
+# supprimé avec le dossier (décision d'Abd Moutalib du 28/10, lot 3) ; ses deux
+# contrôles n'ont plus d'objet. L'historique du dépôt les garde.
 
 
 # ── 4. Le contrat de data.json ───────────────────────────────────────────

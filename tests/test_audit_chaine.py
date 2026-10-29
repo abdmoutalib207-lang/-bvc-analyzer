@@ -71,7 +71,7 @@ def regenere(tmp_path_factory):
     """(dossier de travail, data.json écrit par le code ACTUEL en essai à blanc)."""
     dossier = tmp_path_factory.mktemp("regen") / "depot"
     shutil.copytree(RACINE, dossier, ignore=shutil.ignore_patterns(
-        ".git", "node_modules", "__pycache__", ".pytest_cache", ".claude", "whatsapp_analysis"))
+        ".git", "node_modules", "__pycache__", ".pytest_cache", ".claude"))
     (dossier / "_pilote.py").write_text(PILOTE, encoding="utf-8")
     r = subprocess.run([sys.executable, "_pilote.py"], cwd=dossier, capture_output=True, text=True, timeout=600)
     assert "RUN_TERMINE" in r.stdout and (dossier / "regenere.json").exists(), \

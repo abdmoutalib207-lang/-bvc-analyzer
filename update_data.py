@@ -102,8 +102,9 @@ TICKER_INFO = {
     for sym in TICKERS_ALL
 }
 
-# `SIG_BVC` — table de signaux saisie le 03/06 — archivée le 29/09/2026 :
-# archive/sig_bvc_2026-06-03.py. Voir « score canonique » dans compute_v53().
+# `SIG_BVC` — table de signaux saisie le 03/06, retirée le 29/09/2026 et
+# supprimée de l'arbre le 29/10/2026 avec le NLP (historique git :
+# archive/sig_bvc_2026-06-03.py). Voir « score canonique » dans compute_v53().
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SCORES FONDAMENTAUX

@@ -11,7 +11,9 @@ Le lot 1 retire ce que voit l'investisseur. Le lot 2 retire le moteur : la
 table `SENTIMENT` et son chargement depuis `whatsapp_analysis/output/`, le
 pilier de `compute_v53` / `get_weights`, le sentiment d'actualités
 (`pipeline/news_sentiment.py`), `warn` / `warnMsg`, `sync_sentiment.py` et
-`pipeline/smart_money/alpha.py`. `whatsapp_analysis/` part au lot 3.
+`pipeline/smart_money/alpha.py`. Le lot 3 supprime le dossier
+`whatsapp_analysis/` lui-même (corpus, 14 phases, pseudonymisation, sorties
+CSV) et `requirements_nlp.txt` ; il ne doit pas réapparaître.
 
 ⚠️ Deux tableaux en dur du terminal portaient, d'après un audit, des entrées
 non pseudonymisées. Ils disparaissent avec le reste ; ce fichier ne recopie
@@ -167,9 +169,11 @@ NOMS_RETIRES_DU_MOTEUR = ("SENTIMENT", "_load_nlp_csv_overlay", "_apport_actuali
                           "_NEWS_SENT", "alpha_mesure", "win_mesure",
                           "_replier_comportemental")
 FICHIERS_RETIRES = ("sync_sentiment.py", "pipeline/news_sentiment.py",
-                    "pipeline/smart_money/alpha.py")
+                    "pipeline/smart_money/alpha.py",
+                    # lot 3 (29/10/2026)
+                    "whatsapp_analysis", "requirements_nlp.txt")
 # Les modules qui lisaient le corpus ou en dérivaient. `whatsapp_analysis`
-# lui-même part au lot 3 ; ce qui reste ne doit plus en importer.
+# est supprimé au lot 3 ; rien ne doit plus en importer.
 IMPORTS_INTERDITS = ("whatsapp_analysis", "news_sentiment", "sync_sentiment",
                      "pipeline.smart_money.alpha", "smart_money.alpha")
 
@@ -220,10 +224,11 @@ def test_les_fichiers_du_pilier_sont_retires():
 
 
 def test_aucun_module_du_projet_n_importe_le_corpus():
-    """Hors `whatsapp_analysis/` (lot 3), `archive/` et les tests qui
-    exercent encore `whatsapp_analysis` jusqu'au lot 3, aucun fichier Python
-    n'importe le corpus, le sentiment ou les constantes smart money."""
-    exclus = ("whatsapp_analysis", "archive", "tests", "node_modules", ".claude")
+    """Hors `archive/`, aucun fichier Python — tests compris — n'importe le
+    corpus, le sentiment ou les constantes smart money. Les exclusions
+    `whatsapp_analysis/` et `tests/` sont tombées au lot 3 (29/10/2026) : le
+    dossier est supprimé, et plus aucun test ne l'exerce."""
+    exclus = ("archive", "node_modules", ".claude", ".git")
     fautes = {}
     for f in RACINE.rglob("*.py"):
         rel = f.relative_to(RACINE)
@@ -237,6 +242,16 @@ def test_aucun_module_du_projet_n_importe_le_corpus():
         if imp:
             fautes[str(rel)] = imp
     assert not fautes, f"modules qui importent encore le corpus : {fautes}"
+
+
+def test_le_dossier_du_corpus_ne_revient_pas():
+    """Lot 3 : ni le dossier, ni un module qui en porterait le nom ailleurs
+    (`pipeline/whatsapp_analysis.py`, `outils/whatsapp_analysis/`…)."""
+    revenus = [str(p.relative_to(RACINE)) for p in RACINE.rglob("whatsapp_analysis*")
+               if not ({".git", ".claude", "node_modules", "archive"}
+                       & set(p.relative_to(RACINE).parts))]
+    assert not revenus, f"le dossier du corpus NLP réapparaît : {revenus}"
+    assert not (RACINE / "requirements_nlp.txt").exists()
 
 
 def test_les_poids_n_ont_que_deux_piliers():

@@ -49,7 +49,7 @@ print("RUN_TERMINE" if resultat is not None else "RUN_SANS_ECRITURE")
 
 def _copier(dest: Path) -> Path:
     shutil.copytree(RACINE, dest, ignore=shutil.ignore_patterns(
-        ".git", "node_modules", "__pycache__", ".pytest_cache", ".claude", "whatsapp_analysis"))
+        ".git", "node_modules", "__pycache__", ".pytest_cache", ".claude"))
     return dest
 
 
