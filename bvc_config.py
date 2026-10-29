@@ -779,6 +779,117 @@ SUSPENSIONS: dict = {
 }
 
 
+# ⚠️ OFFRES PUBLIQUES EN COURS — registre créé le 29/10/2026.
+#
+# Une offre publique est un FAIT JURIDIQUE (R11) : un prix, une période, des
+# initiateurs, fixés par un visa de l'AMMC et un avis de la Bourse. Aucune série
+# de prix ne la porte, et aucune note ne la voit : CMT sortait n°1 du classement
+# à ~3 800 DH alors qu'une OPA obligatoire à 2 217 DH allait s'ouvrir, et
+# l'information ne paraissait que dans le fil d'actualités de la fiche.
+#
+# Publié dans `_meta.offre_publique` ; AUCUN effet sur la note ni sur le signal
+# (le registre n'est lu que pour `_meta`). C'est une information affichée, pas
+# une correction de la note.
+#
+# Ne s'inscrit qu'une offre dont la PÉRIODE est établie sur pièce. Le calendrier
+# annoncé ailleurs (audit externe, presse) ne suffit pas : la recevabilité du
+# 15/09 disait « calendrier définitif fixé ultérieurement ». Il l'a été le
+# 26/10 (visa) et publié le 27/10 (avis de la Bourse) — les deux pièces sont
+# relues et citées ci-dessous.
+#
+# Champs : nature, initiateurs, prix (MAD), titres_vises, part_capital_pct,
+# ouverture / cloture (période d'offre, bornes INCLUSES), resultats (avis de
+# résultat de la Bourse), reglement_livraison, maintien_cote, visa, avis_bourse,
+# pieces (fichier local, url, sha256, citations page par page).
+#
+# L'entrée est publiée jusqu'au règlement-livraison inclus, puis disparaît : une
+# offre réglée n'est plus une offre en cours (son résultat relèvera d'une autre
+# pièce, l'avis de résultat).
+OFFRES_PUBLIQUES: dict = {
+    "CMT": {
+        "nature": "Offre publique d'achat obligatoire",
+        # Loi 26-03 art. 18 : pacte d'actionnaires du 13/07/2026 portant les
+        # initiateurs au-delà de 40 % des droits de vote (voir SUSPENSIONS).
+        "initiateurs": "Ayrad Group Limited, Osead Fund, Ayrad Maroc (ex-Osead Maroc Mining) "
+                       "et la Caisse Interprofessionnelle Marocaine de Retraite (CIMR)",
+        "prix": 2217.0,
+        "titres_vises": 611898,
+        # 611 898 ÷ 1 681 233 = 36,396 % — le total d'actions de la recevabilité
+        # du 15/09 et de pipeline/faits_financiers.json.
+        "part_capital_pct": 36.40,
+        "ouverture": "2026-11-03",
+        "cloture": "2026-11-17",
+        "resultats": "2026-11-26",
+        "reglement_livraison": "2026-12-01",
+        "maintien_cote": True,
+        "visa": "VI/EM/032/2026 du 26/10/2026",
+        "avis_bourse": "AV-2026-134 du 27/10/2026",
+        "pieces": [
+            {
+                "fichier": "datasets/pieces_ammc/AMMC_note_information_OPA_CMT_VI-EM-032-2026_2026-10-26.pdf",
+                "url": "https://www.ammc.ma/sites/default/files/NI_CMT_OPA_032_2026.pdf",
+                # Copie identique, octet pour octet, sur le site de la Bourse :
+                # casablanca-bourse.com/sites/default/files/pemetteur/2026-10/ni_cmt_opa_032_2026.pdf
+                "sha256": "3d6fcce6cedc03992b2e42b0835594ef1b4a1a9634c95fe2bb9e298c3cff5123",
+                "titre": "Note d'information visée par l'AMMC (87 pages)",
+                "citations": [
+                    {"page": 1, "texte": "NOMBRE D'ACTIONS VISEES 611 898 ACTIONS ORDINAIRES"},
+                    {"page": 1, "texte": "PRIX PAR ACTION 2 217 MAD"},
+                    {"page": 1, "texte": "DUREE DE L'OFFRE DU 3 AU 17 NOVEMBRE 2026 INCLUS"},
+                    {"page": 1, "texte": "l'original de la présente note d'information a été visé par l'AMMC "
+                                         "en date du 26 octobre 2026 sous la référence VI/EM/032/2026."},
+                    {"page": 41, "texte": "L'Offre portera sur une durée de 10 jours de bourse, du 3 au "
+                                          "17 novembre 2026 inclus."},
+                    {"page": 80, "texte": "Les Initiateurs ont l'intention de maintenir la Société à la cote "
+                                          "de la Bourse des Valeurs de Casablanca."},
+                ],
+            },
+            {
+                "fichier": "datasets/pieces_ammc/BVC_avis_AV-2026-134_OPA_CMT_2026-10-27.pdf",
+                "url": "https://www.casablanca-bourse.com/sites/default/files/avis/2026-10/av-2026-134_fr.pdf",
+                "sha256": "46d31c68a951dbf9c1fa2a1225ff69fbebb0b726f6df8705114ac6a0609c21c6",
+                "titre": "Bourse de Casablanca, avis n° AV-2026-134 du 27/10/2026 (2 pages)",
+                "citations": [
+                    {"page": 1, "texte": "Prix de l'offre en MAD 2217,00"},
+                    {"page": 1, "texte": "Nbre de titres visée par l'offre 611.898"},
+                    {"page": 1, "texte": "Date début de l'offre 03/11/2026"},
+                    {"page": 1, "texte": "Date clôture de l'offre 17/11/2026"},
+                    # Étape 10 du calendrier, qui réunit l'enregistrement et
+                    # l'avis de résultat sur la même date.
+                    {"page": 2, "texte": "Date d'enregistrement 26/11/2026"},
+                    {"page": 2, "texte": "Publication par la Bourse de Casablanca de l'avis relatif aux résultats"},
+                    {"page": 2, "texte": "Règlement / Livraison de l'offre 01/12/2026"},
+                ],
+            },
+        ],
+    },
+}
+
+
+def offre_publique(ticker: str, date_iso: str | None = None) -> dict | None:
+    """L'offre publique établie sur pièce pour ce titre, réduite à ce que
+    `_meta` publie, avec sa `phase` à `date_iso` (« a_venir », « ouverte »,
+    « close ») ; None si aucune, ou si son règlement-livraison est passé."""
+    o = OFFRES_PUBLIQUES.get(ticker)
+    if not o:
+        return None
+    jour = (date_iso or datetime.now().strftime("%Y-%m-%d"))[:10]
+    if jour > o["reglement_livraison"]:
+        return None
+    phase = ("a_venir" if jour < o["ouverture"]
+             else "ouverte" if jour <= o["cloture"] else "close")
+    p0 = o["pieces"][0]
+    return {
+        "nature": o["nature"], "initiateurs": o["initiateurs"], "prix": o["prix"],
+        "titres_vises": o["titres_vises"], "part_capital_pct": o["part_capital_pct"],
+        "ouverture": o["ouverture"], "cloture": o["cloture"], "resultats": o["resultats"],
+        "reglement_livraison": o["reglement_livraison"], "maintien_cote": o["maintien_cote"],
+        "visa": o["visa"], "avis_bourse": o["avis_bourse"], "phase": phase,
+        "source": p0["url"], "pages": sorted({c["page"] for c in p0["citations"]}),
+        "sources": [p["url"] for p in o["pieces"]],
+    }
+
+
 # ⚠️ SOCIÉTÉS COTÉES SANS COMPTES DÉPOSÉS — registre créé le 06/10/2026.
 #
 # Un titre qui cote encore mais ne publie plus de comptes n'a pas de pilier
