@@ -30,7 +30,6 @@ from bvc_config import NOTE_METIER_PUBLIEE
 from pipeline.smart_money.fond_score  import compute_fond_score, reload as fond_reload
 from pipeline.smart_money.fond_score_sectoriel import detail_publie, noter_depuis_fichiers
 from pipeline.technical.indicators  import compute_technical
-from pipeline.smart_money.alpha     import get_smart_money
 from pipeline.utils.validation      import validate_ticker_data
 from pipeline.utils.logging_config  import setup_logging
 
@@ -117,7 +116,6 @@ def collect_ticker(sym: str, publie: dict, dry_run: bool = False) -> tuple[str, 
         "technical":             {},
         "fundamentals":          {},
         "financials_performance":{},
-        "smart_money":           {},
         "flags": {
             "stale":        False,
             "partial_data": sym in IPO_RECENT,
@@ -133,7 +131,6 @@ def collect_ticker(sym: str, publie: dict, dry_run: bool = False) -> tuple[str, 
         result["fundamentals"] = pub_fund
         result["flags"]["stale"] = True
         result["_sources"] = {"all": f"{src_pub} (dry-run)"}
-        result["smart_money"] = get_smart_money(sym)
         return sym, result
 
     # ── 1. Données de marché ─────────────────────────────────────────────────
@@ -177,8 +174,11 @@ def collect_ticker(sym: str, publie: dict, dry_run: bool = False) -> tuple[str, 
     #    Non consommé par to_legacy_format() ni par fond_score.py.
     #    Cause principale du timeout à 20 min — à réactiver avec une source API structurée.
 
-    # ── 5. Smart Money ────────────────────────────────────────────────────────
-    result["smart_money"] = get_smart_money(sym)
+    # ── 5. Smart Money ── retiré le 29/10/2026
+    #    `pipeline/smart_money/alpha.py` servait des constantes écrites en dur
+    #    (alpha 12 mois, taux de réussite, sentiment) tirées du corpus WhatsApp.
+    #    Retrait du pilier NLP (décision d'Abd Moutalib du 28/10, lot 2) :
+    #    plus de bloc `smart_money` dans financial_data.json.
 
     # ── 6. Flags ──────────────────────────────────────────────────────────────
     has_price  = bool(result["market"].get("price"))
@@ -202,8 +202,6 @@ def collect_ticker(sym: str, publie: dict, dry_run: bool = False) -> tuple[str, 
 
 def to_legacy_format(pipeline_out: dict) -> dict:
     """Convertit le format v9 → format data.json consommé par index.html."""
-    from pipeline.smart_money.alpha import SENTIMENT_CORPUS
-
     # ⚠️ NOTE FONDAMENTALE PAR FAMILLE — second point d'application (avec
     # `update_data.appliquer_note_sectorielle`) : les deux bougent ENSEMBLE, selon
     # `bvc_config.NOTE_METIER_PUBLIEE`. En mode comparaison (11/10/2026, faux),
@@ -226,8 +224,6 @@ def to_legacy_format(pipeline_out: dict) -> dict:
         m  = d.get("market", {})
         t  = d.get("technical", {})
         f  = d.get("fundamentals", {})
-        sm = d.get("smart_money", {})
-        sc = SENTIMENT_CORPUS.get(sym, {})
 
         # Score v5.3 simplifié (recalcul complet possible via update_data.py)
         rsi    = t.get("rsi_14") or 50
@@ -250,17 +246,15 @@ def to_legacy_format(pipeline_out: dict) -> dict:
             fond_score = (notes.get(sym) or {}).get("note")
         else:
             fond_score = compute_fond_score(sym)  # fondamentaux.json → 5.0 si absent
-        nlp_score  = round((sc.get("smart", 0) + 1) * 5, 2)
         # ⚠️ PONDÉRATION DU 25/09/2026 — le pilier NLP est ramené à zéro et son
         # poids reversé au prorata sur les deux autres : 0,47/0,72 et 0,25/0,72.
         # Justification complète et résultat du backtest dans
-        # `update_data.py::_replier_comportemental()`.
+        # `update_data.py::get_weights()`. Le pilier est retiré le 28/10/2026.
         #
         # ⚠️ Ce fichier porte la SECONDE formule de score du projet. Elle est
         # écrite en dur ici alors que `update_data.py` la module par titre :
         # les deux doivent bouger ensemble, sans quoi le terminal publierait
         # deux notes différentes selon le pipeline qui a tourné en dernier.
-        # `nlp_score` reste calculé et publié — à poids nul, pas supprimé.
         v53        = (round(score_tech * 0.3472 + fond_score * 0.6528, 2)
                       if fond_score is not None else None)
 
@@ -300,10 +294,7 @@ def to_legacy_format(pipeline_out: dict) -> dict:
             "score_fond": round(fond_score, 2) if fond_score is not None else None,
             # Comparaison, non retenue dans la note tant que NOTE_METIER_PUBLIEE est faux.
             "note_fond_metier": (detail_publie(notes.get(sym)) if notes else {"indisponible": True}),
-            "nlp":      nlp_score,
             "sig":      sig(v53),
-            "alpha":    sm.get("alpha_12m"),
-            "win":      sm.get("win_rate_6m"),      # index.html lit r.win, pas r.win_rate
             "stale":    d["flags"]["stale"],
             "partial":  d["flags"]["partial_data"],
         })

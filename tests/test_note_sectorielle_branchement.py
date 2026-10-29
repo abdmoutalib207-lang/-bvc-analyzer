@@ -134,7 +134,7 @@ def test_le_second_pipeline_garde_la_note_actuelle_en_comparaison(monkeypatch):
     monkeypatch.setattr(c, "compute_fond_score", lambda sym: 4.0)
     sortie = {"timestamp": "2026-10-11T00:00:00Z", "data": {"ALU": {
         "market": {"price": 100.0}, "technical": {"rsi_14": 50}, "fundamentals": {},
-        "smart_money": {}, "flags": {"stale": False, "partial_data": False}}}}
+        "flags": {"stale": False, "partial_data": False}}}}
     t = c.to_legacy_format(sortie)["tickers"][0]
     assert t["score_fond"] == 4.0 and t["note_fond_metier"]["note"] == 9.0
 
@@ -191,7 +191,7 @@ def test_publie_le_second_pipeline_note_par_famille(monkeypatch):
     monkeypatch.setattr(c, "NOTE_METIER_PUBLIEE", True)
     sortie = {"timestamp": "2026-10-10T00:00:00Z", "data": {
         s: {"market": {"price": 100.0}, "technical": {"rsi_14": 50}, "fundamentals": {},
-            "smart_money": {}, "flags": {"stale": False, "partial_data": False}} for s in ("AAA", "BBB")}}
+            "flags": {"stale": False, "partial_data": False}} for s in ("AAA", "BBB")}}
     par = {t["symbol"]: t for t in c.to_legacy_format(sortie)["tickers"]}
     assert par["AAA"]["score_fond"] is None and par["AAA"]["v53"] is None
     assert par["AAA"]["sig"] == "Données insuffisantes"
@@ -408,7 +408,7 @@ def test_le_second_pipeline_isole_aussi_la_comparaison(monkeypatch):
     monkeypatch.setattr(c, "compute_fond_score", lambda sym: 4.0)
     sortie = {"timestamp": "2026-10-12T00:00:00Z", "data": {"ALU": {
         "market": {"price": 100.0}, "technical": {"rsi_14": 50}, "fundamentals": {},
-        "smart_money": {}, "flags": {"stale": False, "partial_data": False}}}}
+        "flags": {"stale": False, "partial_data": False}}}}
     t = c.to_legacy_format(sortie)["tickers"][0]
     assert t["score_fond"] == 4.0 and t["note_fond_metier"] == {"indisponible": True}
 
