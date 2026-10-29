@@ -53,15 +53,24 @@ CHEMIN = RACINE / "pipeline" / "score_history.json"
 # ailleurs qu'à la fin décalerait la lecture de tout l'historique déjà écrit.
 # Ajouter une colonne se fait EN FIN DE LISTE, et les anciennes lignes, plus
 # courtes, se relisent sans erreur (cf. `lire()`).
+#
+# ⚠️ `score_nlp` ET `poids_n` RESTENT DANS LE CONTRAT — 29/10/2026. Le pilier
+# NLP est retiré du moteur (décision d'Abd Moutalib du 28/10, lot 2) ; retirer
+# les deux colonnes décalerait la lecture de tout l'historique. Depuis :
+#   · `score_nlp` vaut None — il n'y a plus de note de pilier à enregistrer ;
+#   · `poids_n` vaut 0 — c'est le poids RÉELLEMENT appliqué, nul depuis le
+#     25/09. Les lignes du 28/10 (lot 1 publié, lot 2 pas encore) portent
+#     None : le journal ne se réécrit pas, on les laisse telles quelles.
 COLONNES = [
     "symbol",      # le ticker, tel que le projet le nomme (pas celui de l'opérateur)
     "v53",         # la note publiée, bonus compris
     "score_fond",  # les trois piliers, pour pouvoir re-pondérer après coup
     "score_tech",
-    "score_nlp",
+    "score_nlp",   # None depuis le 29/10/2026 (pilier NLP retiré)
     "poids_f",     # ⚠️ les poids RÉELLEMENT appliqués, pas ceux de référence :
     "poids_t",     #    le WeightEngine module par titre, et sans eux on ne
-    "poids_n",     #    saurait pas reconstituer la note
+    "poids_n",     #    saurait pas reconstituer la note. 0 depuis le
+                   #    retrait du pilier NLP : le poids appliqué est nul
     "sig",         # le signal affiché — c'est lui que le lecteur a vu
     "conf",        # la confiance 0-5 : en dessous de 2, le produit ne conclut pas
     "prix",        # le cours retenu ce jour-là
@@ -106,8 +115,9 @@ def ligne_ticker(t: dict) -> list | None:
     return [
         sym, v53,
         _nombre(t.get("score_fond")), _nombre(t.get("score_tech")),
-        _nombre(t.get("score_nlp")),
-        _entier(p.get("f")), _entier(p.get("t")), _entier(p.get("n")),
+        None,                       # score_nlp : plus de pilier NLP (29/10/2026)
+        _entier(p.get("f")), _entier(p.get("t")),
+        0,                          # poids_n : poids NLP appliqué, nul (cf. COLONNES)
         t.get("sig"), _entier(m.get("confidence")),
         _nombre(t.get("price")), m.get("prix_asof"),
     ]
