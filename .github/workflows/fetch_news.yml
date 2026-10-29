@@ -136,9 +136,8 @@ jobs:
               print(f"- **Mis à jour** : {d.get('updated','?')}")
               tickers = sorted(set(t for a in articles for t in a.get('tickers', [])))
               print(f"- **Tickers couverts** : {len(tickers)} ({', '.join(tickers[:12])}{'...' if len(tickers)>12 else ''})")
-              pos = sum(1 for a in articles if a.get('sentiment')=='POSITIF')
-              neg = sum(1 for a in articles if a.get('sentiment')=='NEGATIF')
-              print(f"- **Sentiment** : ✅ {pos} positifs · ❌ {neg} négatifs · ◦ {len(articles)-pos-neg} neutres")
+              # Plus de ligne « Sentiment » : champ retiré le 29/10/2026
+              # (retrait du pilier NLP). Le flux d'actualités reste.
               material = sum(1 for a in articles if a.get('material'))
               # `source_tier` reste celui du collecteur : S1 = index du
               # régulateur. L'enrichissement ne le réécrit pas.

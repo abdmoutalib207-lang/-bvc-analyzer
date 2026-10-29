@@ -130,33 +130,13 @@ SOURCE_CATEGORY = {
     "Europe / Partenaires":  "macro",
 }
 
-# ── Mots-clés sentiment ───────────────────────────────────────────────────────
-POSITIVE_KW = [
-    "hausse", "bénéfice", "benefice", "dividende", "croissance", "progression",
-    "record", "résultats positifs", "succès", "signature", "contrat", "expansion",
-    "revalorisation", "recommande", "acheter", "achat", "objectif relevé",
-    "surperformance", "rebond", "reprise", "nouveau sommet", "distribution",
-    "augmentation", "forte", "solide", "robuste", "amélioration",
-]
-NEGATIVE_KW = [
-    "baisse", "perte", "déficit", "recul", "sanction", "amende", "fraude",
-    "retrait", "suspension", "restructuration", "alerte", "avertissement",
-    "dépréciation", "provision", "risque", "dégradation", "vendre", "éviter",
-    "objectif abaissé", "déception", "chute", "effondrement", "difficultés",
-    "stagnation", "déprime", "faible",
-]
-
-# Motifs compilés une fois : la correspondance doit respecter les limites de
-# mots. En simple sous-chaîne, « vendre » matchait « vendredi » — un décès
-# survenu un vendredi comptait comme signal négatif. Un suffixe court est
-# toléré pour couvrir pluriels et conjugaisons (« baisses », « pertes »).
-def _motif(mots):
-    return re.compile(
-        r"\b(?:" + "|".join(re.escape(m) for m in mots) + r")(?:s|e|es|nt|r|rs)?\b",
-        re.IGNORECASE)
-
-_RE_POS = _motif(POSITIVE_KW)
-_RE_NEG = _motif(NEGATIVE_KW)
+# ── Plus de sentiment lexical — 29/10/2026 ───────────────────────────────────
+# Les articles portaient un champ `sentiment` (POSITIF / NEGATIF / NEUTRE),
+# compté sur deux listes de mots-clés. Il alimentait le pilier NLP du score
+# (pipeline/news_sentiment.py) et des pastilles du radar. Retrait du pilier
+# NLP (décision d'Abd Moutalib du 28/10, lot 2) : le champ n'est plus produit,
+# et il est retiré de l'archive au prochain passage (`_load_archive`). Le FLUX
+# d'actualités, lui, reste : titres, sources, rattachement aux tickers.
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -238,25 +218,6 @@ def _est_financier(source: str, text: str, tickers: list) -> bool:
     if source not in SOURCES_GENERALISTES:
         return True
     return bool(tickers) or bool(_FINANCE.search(text))
-
-
-def _sentiment(text: str) -> str:
-    """Tonalité d'un article, d'après le vocabulaire employé.
-
-    On compte les mots-clés DISTINCTS présents, pas leurs occurrences : un
-    titre répétant « hausse » trois fois n'est pas trois fois plus positif.
-
-    Majorité simple. L'ancien seuil exigeait deux mots d'écart, si bien qu'un
-    article ne portant qu'un seul terme négatif — « légère baisse des
-    livraisons de ciment » — restait classé neutre. Résultat mesuré le
-    10/08/2026 : 1 seul négatif sur 300 articles, ce qui n'a aucun sens pour
-    de l'actualité financière.
-    """
-    pos = len(set(m.lower() for m in _RE_POS.findall(text)))
-    neg = len(set(m.lower() for m in _RE_NEG.findall(text)))
-    if pos > neg: return "POSITIF"
-    if neg > pos: return "NEGATIF"
-    return "NEUTRE"
 
 
 def _tag_tickers(text: str) -> list:
@@ -392,7 +353,6 @@ def fetch_rss(url: str, source_name: str, max_items=30) -> list:
                 "date":      _parse_date(date),
                 "tickers":   tickers,
                 "scope":     _scope(text, tickers),
-                "sentiment": _sentiment(text),
             })
             if len(articles) >= max_items: break
 
@@ -421,8 +381,7 @@ def fetch_rss(url: str, source_name: str, max_items=30) -> list:
                     "date":      _parse_date(date),
                     "tickers":   _tag_tickers(text),
                     "scope":     _scope(text, _tag_tickers(text)),
-                    "sentiment": _sentiment(text),
-                })
+                    })
                 if len(articles) >= max_items: break
 
         log.info(f"{source_name}: {len(articles)} articles")
@@ -461,8 +420,7 @@ def fetch_medias24_api(max_items=20) -> list:
                         "date":      _parse_date(date),
                         "tickers":   _tag_tickers(text),
                         "scope":     _scope(text, _tag_tickers(text)),
-                        "sentiment": _sentiment(text),
-                    })
+                            })
                 if articles:
                     log.info(f"Medias24 API: {len(articles)} articles via {ep.split('?')[1][:40]}")
                     return articles
@@ -497,8 +455,7 @@ def fetch_idb_news(max_items=15) -> list:
                     "date":      _parse_date(date),
                     "tickers":   _tag_tickers(text),
                     "scope":     _scope(text, _tag_tickers(text)),
-                    "sentiment": _sentiment(text),
-                })
+                    })
             log.info(f"IDBourse news: {len(articles)} articles")
     except Exception as e:
         log.warning(f"IDBourse news erreur: {e}")
@@ -706,14 +663,15 @@ def _load_archive() -> tuple:
                      cutoff_doc if a.get("validation_status") == "listed_officially"
                      else cutoff)]
         # Re-tagger avec les règles actuelles + ajouter champ category si absent.
-        # Le sentiment est recalculé lui aussi : sans ça, une correction des
-        # règles ne s'appliquerait qu'aux articles neufs et l'archive
-        # continuerait d'afficher des étiquettes produites par l'ancien code.
+        # ⚠️ Le sentiment (retiré le 29/10/2026) est ÔTÉ de l'archive : sans
+        # ça, les articles déjà stockés le porteraient encore jusqu'à leur
+        # expiration — la règle des articles neufs doit valoir pour l'archive.
         retenus = []
         for a in fresh:
             text = f"{a.get('title','')} {a.get('summary','')}"
             a["tickers"] = _tag_tickers(text)
-            a["sentiment"] = _sentiment(text)
+            a.pop("sentiment", None)
+            a.pop("sentiment_lexical", None)
             a = annotate_provenance(a)
             a["category"] = SOURCE_CATEGORY.get(a.get("source", ""), "economie")
             a["scope"] = "MAROC" if a.get("validation_status") == "listed_officially" else _scope(text, a["tickers"])

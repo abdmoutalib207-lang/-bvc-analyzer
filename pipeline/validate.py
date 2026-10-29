@@ -26,12 +26,12 @@ def warn(msg):  warnings.append(msg); print(f"  ⚠️  {msg}")
 def err(msg):   errors.append(msg);   print(f"  ❌ {msg}")
 def hdr(title): print(f"\n── {title} {'─'*(55-len(title))}")
 
-VALID_SENTIMENTS      = {"POSITIF", "NEGATIF", "NEUTRE"}
 # Champs obligatoires dans fondamentaux.json (bpa_2025/dps_2025 sont optionnels — FY anciens)
 REQUIRED_FOND_FIELDS  = ["secteur","per","croissance_ca","dette_nette_ebitda",
                           "roic","marge_nette","source","date_maj"]
 OPTIONAL_FOND_FIELDS  = ["bpa_2025","dps_2025"]
-REQUIRED_ARTICLE_FLDS = ["title","url","date","sentiment","tickers"]
+# `sentiment` retiré le 29/10/2026 (retrait du pilier NLP, lot 2).
+REQUIRED_ARTICLE_FLDS = ["title","url","date","tickers"]
 
 
 # ── bpa.json ──────────────────────────────────────────────────────────────────
@@ -178,9 +178,10 @@ def validate_news():
             if f not in a:
                 missing_flds.append(f"#{i}.{f}")
 
-        sent = a.get("sentiment","")
-        if sent not in VALID_SENTIMENTS:
-            bad_sent.append(f"#{i}:{repr(sent)}")
+        # Le champ est retiré : un article qui le porte encore vient d'un
+        # producteur qui n'a pas suivi (ou d'un news.json antérieur).
+        if "sentiment" in a or "sentiment_lexical" in a:
+            bad_sent.append(f"#{i}")
 
         tickers = a.get("tickers", [])
         if not isinstance(tickers, list) or not tickers:
@@ -196,9 +197,10 @@ def validate_news():
         ok("Champs requis présents dans tous les articles")
 
     if bad_sent:
-        err(f"Sentiments invalides ({len(bad_sent)}) : {', '.join(bad_sent[:5])}")
+        warn(f"{len(bad_sent)} article(s) portent encore un champ `sentiment`, "
+             f"retiré le 29/10/2026 — ôté au prochain passage de fetch_news")
     else:
-        ok("Sentiments valides (POSITIF / NEGATIF / NEUTRE)")
+        ok("Aucun champ `sentiment` (retiré le 29/10/2026)")
 
     if invalid_tck:
         uniq = sorted(set(t.split(":")[1] for t in invalid_tck))
@@ -206,10 +208,6 @@ def validate_news():
 
     if empty_tck and len(empty_tck) > len(articles) * 0.6:
         warn(f"{len(empty_tck)}/{len(articles)} articles sans tickers (taux > 60%)")
-
-    # Distribution sentiments
-    dist = {s: sum(1 for a in articles if a.get("sentiment")==s) for s in VALID_SENTIMENTS}
-    ok(f"Sentiment : ✅ {dist['POSITIF']} positifs · ❌ {dist['NEGATIF']} négatifs · ◦ {dist['NEUTRE']} neutres")
 
     # Couverture par ticker (top 10 les plus cités)
     from collections import Counter

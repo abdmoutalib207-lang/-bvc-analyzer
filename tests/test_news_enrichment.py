@@ -33,7 +33,11 @@ def test_publication_ammc_sur_resultats_est_materielle():
     assert a["horizon"] == "IMMEDIAT"
 
 
-def test_sentiment_fort_peut_sortir_un_neutre_du_brouillard():
+def test_le_sentiment_est_ote_de_chaque_article():
+    """⚠️ RETOURNÉ LE 29/10/2026. Ce test exigeait qu'un vocabulaire fort
+    corrige le sentiment lexical (« Recul et baisse… » → NEGATIF). Le
+    sentiment est retiré avec le pilier NLP : l'enrichissement l'ôte de tout
+    article, y compris d'un news.json antérieur qui le porterait encore."""
     a = enrich_article({
         "title": "Recul et baisse du résultat net",
         "summary": "La marge se dégrade après une forte perte.",
@@ -42,9 +46,14 @@ def test_sentiment_fort_peut_sortir_un_neutre_du_brouillard():
         "scope": "MAROC",
         "tickers": ["ADI"],
         "sentiment": "NEUTRE",
+        "sentiment_lexical": "NEUTRE",
     })
-    assert a["sentiment_lexical"] == "NEUTRE"
-    assert a["sentiment"] == "NEGATIF"
+    assert "sentiment" not in a and "sentiment_lexical" not in a
+    assert a["event_type"] == "resultats"
+    assert not hasattr(en, "_strong_sentiment") and not hasattr(en, "POS")
+    p = enrich_payload({"articles": [dict(a, sentiment="POSITIF")]})
+    assert "sentiment" not in p["articles"][0]
+    assert "sentiment_lexical" not in p["enrichment"]["champs"]
 
 
 def test_article_contextuel_non_rattache_reste_secondaire():

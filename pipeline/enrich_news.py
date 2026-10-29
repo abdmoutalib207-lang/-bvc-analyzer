@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 """Enrichissement déterministe du flux commun BVC Analyzer / Radar BVC.
 
-Le collecteur reste responsable de la collecte, du rattachement aux tickers et
-du premier sentiment lexical. Ce passage ajoute ce qui manquait pour une veille
+Le collecteur reste responsable de la collecte et du rattachement aux
+tickers. Ce passage ajoute ce qui manquait pour une veille
 financière exploitable : importance, type d'événement, horizon et qualité de la
 source. Il travaille sur news.json, donc le terminal, Radar BVC et le relais
 Telegram reçoivent exactement la même qualification.
 
 Aucun LLM et aucun accès réseau : même entrée => même sortie. Les champs source
-sont conservés. Le sentiment n'est corrigé que lorsqu'un vocabulaire financier
-fort donne un signal nettement plus clair que le premier passage.
+sont conservés.
+
+⚠️ Plus de sentiment — 29/10/2026 (retrait du pilier NLP, décision d'Abd
+Moutalib du 28/10, lot 2). Ce passage corrigeait le `sentiment` lexical du
+collecteur et publiait l'ancien sous `sentiment_lexical` ; les deux champs
+sont désormais ÔTÉS de chaque article, y compris d'un news.json antérieur.
 """
 from __future__ import annotations
 
@@ -35,7 +39,7 @@ NEWS = ROOT / "news.json"
 # les dépôts réglementaires recevaient +7 d'importance au lieu de +25.
 #
 # C'est la famille d'erreurs la plus coûteuse de ce projet — `IDB_TICKER_MAP`,
-# `MANUAL_MAP`, les clés de `SENTIMENT` : des noms SUPPOSÉS au lieu des noms
+# `MANUAL_MAP`, les clés de l'ancienne table `SENTIMENT` : des noms SUPPOSÉS au lieu des noms
 # OBSERVÉS. La parade n'est pas de corriger la liste, c'est de ne plus en avoir.
 #
 # Le collecteur établit déjà la qualité de la source, structurellement, et sa
@@ -77,15 +81,6 @@ EVENTS = [
         r"\b(guerre|conflit|sanctions internationales|cessez-le-feu|iran|ukraine|"
         r"proche-orient|mer rouge)\b", re.I)),
 ]
-
-POS = re.compile(
-    r"\b(hausse|progression|croissance|accélération|record|gagne|remporte|"
-    r"amélioration|rebond|reprise|excédent|bénéfice|profit|surperformance|"
-    r"relèvement|dividende en hausse)\b", re.I)
-NEG = re.compile(
-    r"\b(baisse|recul|chute|perte|déficit|ralentissement|dégradation|"
-    r"avertissement|profit warning|sanction|suspension|effondrement|"
-    r"sous-performance|réduction du dividende)\b", re.I)
 
 EVENT_WEIGHT = {
     "operation_capital": 34,
@@ -143,17 +138,6 @@ def _horizon(event: str) -> str:
     return "CONTEXTE"
 
 
-def _strong_sentiment(text: str) -> tuple[str, int]:
-    pos = len({m.group(0).lower() for m in POS.finditer(text)})
-    neg = len({m.group(0).lower() for m in NEG.finditer(text)})
-    delta = pos - neg
-    if delta >= 2:
-        return "POSITIF", abs(delta)
-    if delta <= -2:
-        return "NEGATIF", abs(delta)
-    return "NEUTRE", abs(delta)
-
-
 def enrich_article(article: dict) -> dict:
     a = dict(article)
     title = str(a.get("title") or "")
@@ -172,17 +156,9 @@ def enrich_article(article: dict) -> dict:
         score += 6
     score = max(0, min(100, score))
 
-    old_sent = str(a.get("sentiment") or "NEUTRE")
-    strong, strength = _strong_sentiment(text)
-    # Très conservateur : on ne touche au sentiment publié que si le second
-    # lexique trouve au moins deux signaux concordants. L'ancien reste auditable.
-    new_sent = old_sent
-    if strong != "NEUTRE" and strength >= 2:
-        if old_sent == "NEUTRE" or strong == old_sent or strength >= 3:
-            new_sent = strong
-
-    a["sentiment_lexical"] = old_sent
-    a["sentiment"] = new_sent
+    # Retrait du sentiment (29/10/2026) : ôté de tout article, même ancien.
+    a.pop("sentiment", None)
+    a.pop("sentiment_lexical", None)
     a["event_type"] = event
     # ⚠️ `source_tier` N'EST PAS RÉÉCRIT. Il appartient au collecteur, qui y
     # pose S1/S2. L'écraser avec une seconde échelle détruisait l'information
@@ -203,8 +179,7 @@ def enrich_payload(payload: dict) -> dict:
         "version": 1,
         "methode": "deterministe",
         # `source_tier` n'y figure plus : il reste au collecteur.
-        "champs": ["event_type", "importance", "material", "horizon",
-                   "sentiment_lexical"],
+        "champs": ["event_type", "importance", "material", "horizon"],
         "material_count": sum(1 for a in articles if a["material"]),
         "ticker_tagged_count": sum(1 for a in articles if a.get("tickers")),
     }

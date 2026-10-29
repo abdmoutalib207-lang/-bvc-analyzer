@@ -35,7 +35,8 @@ def test_relay_cannot_claim_official_confirmation():
     a = annotate_provenance({"source": "Bank Al-Maghrib", "url": "https://news.google.com/rss/articles/abc", "sentiment": "POSITIF"}, NOW)
     assert a["source_type"] == "search_relay"
     assert a["validation_status"] == "unverified"
-    assert a["sentiment"] == "NEUTRE"
+    # Le sentiment est retiré (29/10/2026) : ôté, même s'il arrivait en entrée.
+    assert "sentiment" not in a
     assert not a["usable_for_score"]
     assert news._parse_date("") == ""
 
@@ -61,7 +62,7 @@ def test_collect_then_outage_preserves_publication_and_first_seen(tmp_path, monk
     second = news.run()
     assert second["source_health"]["AMMC documents"]["status"] == "error"
     assert second["articles"][0]["first_seen_at"] == first["articles"][0]["first_seen_at"]
-    assert second["articles"][0]["sentiment"] == "NEUTRE"
+    assert "sentiment" not in second["articles"][0]
     assert json.loads(news.OUTPUT_PATH.read_text())["count"] == 1
 
 

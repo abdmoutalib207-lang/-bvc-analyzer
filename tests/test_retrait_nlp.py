@@ -182,3 +182,63 @@ def test_le_fichier_publie_ne_porte_plus_le_corpus(titres):
                     f"warn / warnMsg (29/10/2026)")
     assert not porteurs, f"champs du corpus encore publiés : {dict(list(porteurs.items())[:5])}"
     assert not avec_n, f"`poids.n` encore publié sur {len(avec_n)} titre(s) : {avec_n[:5]}"
+
+
+# ── 4. Les actualités : le flux reste, le sentiment part (lot 2) ───────────
+
+TRANSITION_NEWS = "⏳ À RETIRER APRÈS LE PREMIER RUN fetch_news SUIVANT LA FUSION DU LOT 2"
+
+
+def _articles_types():
+    """Un article tel que chaque producteur le fabrique, sans réseau."""
+    from datetime import datetime, timezone
+    from pipeline import enrich_news, official_news
+    brut = {"title": "TGCC : hausse du résultat net", "summary": "", "url": "https://x.ma/a",
+            "source": "BourseNews", "category": "bvc", "scope": "MAROC",
+            "tickers": ["TGCC"], "sentiment": "POSITIF", "sentiment_lexical": "NEUTRE"}
+    return {
+        "enrich_news": enrich_news.enrich_article(brut),
+        "official_news.annotate_provenance": official_news.annotate_provenance(
+            brut, datetime(2026, 10, 29, tzinfo=timezone.utc).isoformat()),
+    }
+
+
+def test_aucun_producteur_n_emet_de_sentiment():
+    porteurs = {nom: sorted(k for k in a if k.startswith("sentiment"))
+                for nom, a in _articles_types().items()}
+    porteurs = {k: v for k, v in porteurs.items() if v}
+    assert not porteurs, f"le sentiment réapparaît dans les actualités : {porteurs}"
+    src = (RACINE / "pipeline" / "fetch_news.py").read_text(encoding="utf-8")
+    assert '"sentiment":' not in src and "def _sentiment" not in src
+    assert "POSITIVE_KW" not in src and "NEGATIVE_KW" not in src
+
+
+def test_radar_et_relais_n_affichent_plus_de_ton():
+    for f in ("radar.html", "pipeline/radar_digest.py", "pipeline/radar_telegram.py",
+              "pipeline/bvc_agent.py", ".github/workflows/fetch_news.yml"):
+        texte = (RACINE / f).read_text(encoding="utf-8")
+        for motif in ("a.sentiment", 'get("sentiment")', "get('sentiment')",
+                      "TON POSITIF", "TON NÉGATIF"):
+            assert motif not in texte, f"{f} lit encore le sentiment : {motif}"
+
+
+def test_le_flux_d_actualites_publie_ne_porte_plus_le_sentiment():
+    import json
+    chemin = RACINE / "news.json"
+    if not chemin.exists():
+        pytest.skip("news.json absent de ce clone")
+    articles = json.loads(chemin.read_text(encoding="utf-8")).get("articles") or []
+    if not articles:
+        pytest.skip("news.json vide")
+    porteurs = [i for i, a in enumerate(articles)
+                if isinstance(a, dict) and ("sentiment" in a or "sentiment_lexical" in a)]
+    # ⏳ À RETIRER APRÈS LE PREMIER RUN fetch_news SUIVANT LA FUSION DU LOT 2
+    # (transition du 29/10/2026). Le news.json du dépôt est écrit par le
+    # collecteur d'AVANT : tous ses articles portent encore le champ. TOUS =
+    # fichier antérieur au code, on le dit ; une PARTIE seulement = un
+    # producteur qui n'a pas suivi, on échoue.
+    if len(porteurs) == len(articles):
+        pytest.skip(f"{TRANSITION_NEWS} — news.json antérieur au retrait du "
+                    f"sentiment (29/10/2026)")
+    assert not porteurs, (f"{len(porteurs)} article(s) de news.json portent encore "
+                          f"un sentiment : {porteurs[:5]}")
