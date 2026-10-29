@@ -10,7 +10,6 @@ et les corrections qui se marchent dessus.
 | `veilleur-sources` | l'état de santé des sources | l'écriture du pipeline |
 | `relecteur-pipeline` | la conformité d'un diff aux règles R1–R11 | le contenu fonctionnel |
 | `ingenieur-tests` | ce qui est vérifié automatiquement | les règles métier elles-mêmes |
-| `analyste-nlp` | le calcul du champ `nlp` | la pondération du score (R8) |
 | `quant-backtest` | la mesure de performance | la modification du scoring (R8) |
 | `lecteur-comptes` | le chiffre lu dans un dépôt AMMC, avec sa page | la note qui en découle (R8), la fusion |
 | `verificateur-finance` | le verdict sur un chiffre ou un ratio : relevé, calcul, définition adaptée au métier | la correction elle-même, la note |
@@ -81,8 +80,9 @@ L'ordre de la feuille de route est **délibéré** :
 
 1. `ingenieur-tests` — le filet d'abord. 0 test aujourd'hui ; sans lui, aucun
    refactoring n'est raisonnable et aucune garantie n'est vérifiable.
-2. `analyste-nlp` — 28 % du score ne pèse presque rien. C'est la promesse la
-   plus forte du produit et la moins tenue.
+2. ~~`analyste-nlp`~~ — étape abandonnée. Le pilier NLP a été ramené à un
+   poids nul le 25/09/2026, puis supprimé avec le corpus les 28-29/10/2026
+   (décision d'Abd Moutalib, PR #312, #314, #316) ; l'agent est retiré.
 3. `quant-backtest` — rendre la performance visible. C'est ce qui fait passer de
    « joli » à « crédible ».
 

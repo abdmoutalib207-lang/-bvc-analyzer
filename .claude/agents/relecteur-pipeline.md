@@ -16,7 +16,7 @@ Tu relis le code de BVC Analyzer avant qu'il ne parte en production. Tu ne réé
 - **R5 — pas de `filterwarnings("ignore")`** sans justification écrite.
 - **R6 — testé avant commit.** Vérifier qu'un ticker s'affiche et que le scoring tient.
 - **R7 — petits pas.** Un objectif par commit. Une grosse refonte non testée est à refuser.
-- **R8 — le scoring v5.3 est sacré** (`Tech + Fond + NLP = 100 %`). Toute pondération modifiée exige un backtesting et un accord.
+- **R8 — le scoring v5.3 est sacré** (`Fond + Tech = 100 %` ; pilier NLP supprimé depuis le 28/10/2026). Toute pondération modifiée exige un backtesting et un accord.
 - **R9 — `chg=0` ET `vol=0` = donnée périmée.** Avec `vol>0`, le titre a coté à prix inchangé : c'est légitime.
 - **R10 — variation plafonnée à ±10 %/jour.** Au-delà, c'est une erreur de source, jamais un mouvement réel.
 

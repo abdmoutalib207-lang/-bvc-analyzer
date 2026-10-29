@@ -210,6 +210,10 @@ Relevé le **05/09/2026** sur `maroclear.com/fr/data-services/referentiel/valeur
 
 ## Sur le corpus WhatsApp (02/09/2026)
 
+> Historique : corpus et NLP supprimés de l'arbre les 28-29/10/2026 (PR #312,
+> #314, #316). Cette section et les trois suivantes décrivent ce qui existait ;
+> les leçons de méthode restent valables.
+
 - **Un filtre de bruit se justifie par une mesure, jamais par l'intuition.**
   Le hors-sujet football semblait un nettoyage évident. Mesuré : 3 953 messages
   de football dans 919 372, mais seulement **111 mentionnent aussi un ticker**
@@ -238,19 +242,21 @@ Relevé le **05/09/2026** sur `maroclear.com/fr/data-services/referentiel/valeur
 
 ## ⚠️ Données personnelles dans le dépôt public (02/09/2026)
 
-- **Le dépôt est PUBLIC et contient les noms de 2 013 personnes.**
+- **Le dépôt est PUBLIC et contenait les noms de 2 013 personnes.**
   `whatsapp_analysis/output/smart_money_ranking.csv` et `network_metrics.csv`
-  sont versionnés depuis le 5 juin 2026 et portent les noms WhatsApp réels des
-  membres du groupe, associés à un jugement de compétence (taux de réussite,
+  étaient versionnés depuis le 5 juin 2026 (purgés de l'historique le 03/09 ;
+  dossier entier supprimé de l'arbre le 29/10/2026) et portaient les noms
+  WhatsApp réels des membres du groupe, associés à un jugement de compétence (taux de réussite,
   alpha, régularité) et à leur influence dans le réseau. **Deux entrées sont
   des numéros de téléphone en clair.**
 - Ces personnes n'ont pas consenti à ce traitement. Sur le plan légal c'est un
   traitement de données personnelles non déclaré (CNDP) ; sur le plan pratique
   c'est ce qui fait perdre l'accès au groupe le jour où quelqu'un le découvre —
-  et le groupe est la seule source du pilier NLP.
+  et le groupe était la seule source du pilier NLP (supprimé le 28-29/10/2026).
 - **Règle désormais : aucun nom, numéro ou identifiant direct ne doit atteindre
-  un fichier du dépôt.** Les sorties NLP doivent être pseudonymisées (`M0417`)
-  avant tout commit. La table de correspondance reste hors dépôt. Le moteur n'a
+  un fichier du dépôt.** Les sorties NLP devaient être pseudonymisées (`M0417`)
+  avant tout commit — sans objet depuis le retrait du NLP, la règle générale
+  demeure. La table de correspondance reste hors dépôt. Le moteur n'a
   besoin que de la performance d'un membre, jamais de son identité.
 - ⚠️ Retirer les noms des fichiers ne suffit pas : ils restent dans l'historique
   git. Un effacement réel demande une réécriture d'historique.
@@ -445,7 +451,7 @@ devinable ; tout a coûté un aller-retour.
   COURS ne dépend d'aucun nom — c'est la vérification qui compte.
 - **Ce qui était réellement faux** : une entrée d'une table de NOMS
   (`MANUAL_MAP["MRL"] = "SODEP"`) et les SECTEURS, écrits trois fois de trois
-  façons — `COMPANY_SECTORS` (22 valeurs), `SECTOR_MAP` du NLP, et le champ
+  façons — `COMPANY_SECTORS` (22 valeurs), `SECTOR_MAP` du NLP (supprimé le 29/10/2026), et le champ
   `secteur` de `fondamentaux.json` (**45 libellés libres**). 55 titres sur 77
   divergeaient.
 - ⚠️ **Un relevé de cote n'est PAS l'autorité sur les dénominations.** Ses
@@ -956,3 +962,46 @@ Relevé pour le briefing de clôture enrichi (`pipeline/seance_marche.py`).
 - **Les seuils CDG changent de sens avec l'heure** : ±3 % glissants en séance
   (réservation), ±10 % de la référence après la clôture ; ±6 % pour certains
   titres (MGL, REB au 21/10 ; OUL, REB au 29/09).
+
+## Retrait du NLP, MASI long, backtest du score descriptif (28-29/10/2026)
+
+- **Le NLP est supprimé, pas gelé.** Corpus, pilier, smart money, sentiment
+  des actualités, `sync_sentiment.py`, `whatsapp_analysis/` : PR #312, #314,
+  #316, décision d'Abd Moutalib du 28/10. Les poids publiés n'ont pas bougé
+  (Fond 65,28 · Tech 34,72 de base) : le pilier pesait zéro depuis le 25/09.
+  La trace reste dans l'historique git et dans `pipeline/score_history.json`.
+- **Le MASI est disponible sur 941 séances**, du 02/01/2023 au 28/10/2026
+  (`pipeline/masi_history.json`, compté le 29/10). Le trou du 07 au 15/09/2026
+  relevé le 14/10 est comblé. Une mesure à 20 séances sur ~3 ans est donc
+  possible contre l'indice.
+- ⚠️ **Le clone git de travail est TRONQUÉ au 05/09/2026** (dépôt superficiel,
+  premier commit visible le 05/09). Un backtest par archéologie de `data.json`
+  (`backtest_reproductible.py --source git`) ne remonte pas plus loin depuis
+  une session ; `score_history.json` commence le 24/09. La note v53 publiée
+  n'est donc mesurable que sur quelques semaines, quelle que soit la
+  profondeur des chandelles.
+- **Backtest du score descriptif (référentiel Nour) — constat EXPLORATOIRE.**
+  Artefact `datasets/backtests/score_descriptif_2026-10-28.json`, sur la
+  branche `score/descriptif-nour`, **non fusionnée** (commande :
+  `python3 pipeline/backtest_score_descriptif.py`). Rejoué chaque séance du
+  05/06/2023 au 28/10/2026, horizon 20 séances, 2 % de frais aller-retour,
+  référence MASI.
+  - Le score lui-même ne distingue rien : corrélation de rang score → écart
+    −0,024 (p = 0,16, 765 jours) ; fréquences de surperformance de 30 à 33 %
+    dans les quatre tranches, pour un taux de base de 32 %.
+  - Ce qui ressort est le **RSI en zone extrême**, des DEUX côtés :
+
+        zone       n      dates  titres  surperf.  base mêmes dates  médiane nette
+        RSI < 30    594    278     63     44,3 %       30,3 %          −0,83 %
+        RSI > 70  2 661    607     69     42,5 %       33,5 %          −1,73 %
+        45–70    28 709    808     76     31,3 %       32,5 %          −2,74 %
+
+    t de Newey-West 4,21 (RSI < 30) et 3,90 (RSI > 70), confirmé par
+    bootstrap par blocs ; tient séparément sur titres liquides et peu liquides.
+  - ⚠️ **Non corrigé de la multiplicité** (4 tranches × variantes × zones),
+    environ 40 fenêtres de 20 séances réellement indépendantes, un seul cycle
+    de marché, univers d'aujourd'hui (biais du survivant non signé), MASI
+    indice de cours contre titres en rendement total. **La médiane reste
+    négative après frais** : « plus souvent devant le MASI » ne veut pas dire
+    « gagnant ». À traiter comme une piste à confirmer hors échantillon,
+    jamais comme un résultat publiable en l'état.

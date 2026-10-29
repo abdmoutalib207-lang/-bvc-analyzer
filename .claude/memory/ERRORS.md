@@ -169,6 +169,9 @@ le front) alimentaient et affichaient le même champ sans contrat commun.
 **Correctif** : libellé unique `SM~`, mention « heuristique, non calibré »,
 suffixe `%` retiré, et deux tests qui échouent si le mot « probabilité »
 revient.
+**Suite (28-29/10/2026)** : `phase13_prediction.py`, `sync_sentiment.py` et le
+champ `SM~` ont été supprimés avec le reste du NLP (PR #312, #314, #316). Le
+défaut ne peut plus se reproduire par ce chemin ; le signal reste valable.
 
 ### Des chiffres de performance écrits en dur dans la page (05/09)
 83 % de réussite, +38,3 % de rendement à 12 mois, inscrits dans `index.html`.
@@ -350,6 +353,8 @@ sur les noms composés, pas sur toute chaîne de six caractères.
 **Leçon** : chercher les données personnelles là où on ne les a pas mises. La
 pseudonymisation visait `whatsapp_analysis/output/` ; l'exposition la plus
 grave était ailleurs, à la racine, dans le fichier le plus consulté du dépôt.
+(Le dossier `whatsapp_analysis/` a été supprimé de l'arbre le 29/10/2026,
+PR #316.)
 
 ## 02/09/2026 — Un nettoyage relancé qui se mord la queue
 
@@ -362,7 +367,9 @@ membres et leur attribuait des numéros à leur tour.
 
 **Leçon** : tout script de nettoyage sera relancé — par prudence, par erreur,
 ou parce qu'un run a échoué au milieu. Il doit reconnaître son propre résultat
-et le laisser tel quel. `DEJA_PSEUDO` + un test dédié.
+et le laisser tel quel. `DEJA_PSEUDO` + un test dédié — l'un et l'autre
+supprimés avec `whatsapp_analysis/` le 29/10/2026 (PR #316) ; la leçon vaut
+pour tout autre script de nettoyage.
 
 ## 03/09/2026 — 2 092 identités publiques pendant trois mois
 
@@ -372,9 +379,13 @@ et le laisser tel quel. `DEJA_PSEUDO` + un test dédié.
   PUBLIC avec les noms réels des membres, leur taux de réussite et leur
   influence. `.gitignore` n'excluait que `.pkl` et `messages.csv`.
 - **Signal qui aurait dû alerter** : aucun test ne lisait le contenu des
-  fichiers versionnés. Le garde-fou qui existe aujourd'hui
+  fichiers versionnés. Le garde-fou alors écrit
   (`test_aucun_nom_reel_dans_les_csv_versionnes`) échouait dès sa création — il
-  décrivait un défaut réel, pas une précaution théorique.
+  décrivait un défaut réel, pas une précaution théorique. Depuis la
+  suppression du corpus (28-29/10/2026), il est remplacé dans
+  `tests/test_pseudonymes.py` par
+  `test_aucun_module_table_ni_sortie_du_corpus_dans_le_depot` et
+  `test_aucun_csv_ne_porte_une_colonne_d_auteur`.
 - **Aggravation par Claude** : le nom d'un membre servait de donnée de test
   dans 70 endroits et d'exemple dans la documentation, y compris dans les
   commentaires expliquant comment on protège les gens.

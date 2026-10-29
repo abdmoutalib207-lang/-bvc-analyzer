@@ -33,6 +33,9 @@ une conversation privée et n'avaient rien accepté.
     whatsapp_analysis/pseudonymes.py               3
     .claude/memory/ERRORS.md                       2
 
+(Les trois modules de `whatsapp_analysis/` ci-dessus n'existent plus depuis
+le 29/10/2026, PR #316 ; voir la dernière section.)
+
 Le nom d'un membre servait de **donnée de test** et d'**exemple de
 documentation** — y compris dans les commentaires qui expliquent comment on
 protège les gens. Écrit par Claude, en toute bonne foi, en croyant illustrer.
@@ -118,6 +121,31 @@ historique** — cela recréerait une référence.
    les références de pull requests** — trois endroits distincts.
 5. **`data/` est ignoré en entier**, avec liste blanche si besoin. Une liste de
    fichiers nommés un par un laisse passer le prochain fichier sensible.
-6. **Le garde-fou qui compte est celui qui tourne en CI**, sans secret :
-   `test_aucun_nom_reel_dans_les_csv_versionnes` relit les fichiers versionnés
-   et refuse tout ce qui n'est pas un `M####`.
+6. **Le garde-fou qui compte est celui qui tourne en CI**, sans secret.
+   Jusqu'au 29/10/2026 c'était `test_aucun_nom_reel_dans_les_csv_versionnes`,
+   qui refusait tout auteur qui n'était pas un `M####`. Depuis le retrait du
+   corpus, `tests/test_pseudonymes.py` porte
+   `test_aucun_module_table_ni_sortie_du_corpus_dans_le_depot` (aucun module
+   de pseudonymisation, table de correspondance, sortie ou fichier du corpus,
+   versionné ou prêt à l'être) et `test_aucun_csv_ne_porte_une_colonne_d_auteur`
+   (aucun CSV à colonne d'auteur, sous quelque nom que ce soit), chacun avec
+   son contrôle négatif.
+
+## 28-29/10/2026 : corpus et NLP supprimés de l'arbre
+
+Décision d'Abd Moutalib du 28/10/2026 : « supprimer le corpus et tout ce qui
+est NLP ». Trois PR fusionnées : **#312** (écran et `data.json`), **#314**
+(moteur, smart money, sentiment des actualités, `sync_sentiment.py`),
+**#316** (dossier `whatsapp_analysis/`, `requirements_nlp.txt`, archives NLP).
+Plus aucun fichier du corpus, de ses sorties ni de sa pseudonymisation dans
+l'arbre courant.
+
+⚠️ **Ce que cela ne change pas** :
+- **L'historique git n'est pas réécrit.** Les fichiers supprimés restent
+  lisibles dans les commits antérieurs. L'état mesuré le 03/09 (aucun nom ni
+  numéro dans un clone normal) reste celui de l'historique.
+- **`refs/pull/8` et `/9` sont toujours en attente de GitHub Support** et
+  exposent toujours l'ancien historique nominatif. La suppression du 28-29/10
+  ne les touche pas.
+- Les règles ci-dessus restent valables : elles portent sur toute donnée
+  personnelle, pas seulement sur ce corpus.
