@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-30T19:31:02Z",
+  "timestamp": "2026-10-30T19:41:14Z",
   "version": "v9.0_unified",
   "sources_used": {
     "ADI": {
@@ -17,11 +17,6 @@
       "rsi": "data.json publié (update_data.py), séance 2026-10-30",
       "fundamentals": "data.json publié (update_data.py), séance 2026-10-30"
     },
-    "CFGB": {
-      "price": "IDBourse",
-      "rsi": "data.json publié (update_data.py), séance 2026-10-30",
-      "fundamentals": "data.json publié (update_data.py), séance 2026-10-30"
-    },
     "CASH": {
       "price": "IDBourse",
       "rsi": "data.json publié (update_data.py), séance 2026-10-30",
@@ -32,7 +27,17 @@
       "rsi": "data.json publié (update_data.py), séance 2026-10-30",
       "fundamentals": "data.json publié (update_data.py), séance 2026-10-30"
     },
+    "CFGB": {
+      "price": "IDBourse",
+      "rsi": "data.json publié (update_data.py), séance 2026-10-30",
+      "fundamentals": "data.json publié (update_data.py), séance 2026-10-30"
+    },
     "CMT": {
+      "price": "IDBourse",
+      "rsi": "data.json publié (update_data.py), séance 2026-10-30",
+      "fundamentals": "data.json publié (update_data.py), séance 2026-10-30"
+    },
+    "CSR": {
       "price": "IDBourse",
       "rsi": "data.json publié (update_data.py), séance 2026-10-30",
       "fundamentals": "data.json publié (update_data.py), séance 2026-10-30"
@@ -41,11 +46,6 @@
       "price": "IDBourse",
       "rsi": "data.json publié (update_data.py), séance 2026-10-29",
       "fundamentals": "data.json publié (update_data.py), séance 2026-10-29"
-    },
-    "CSR": {
-      "price": "IDBourse",
-      "rsi": "data.json publié (update_data.py), séance 2026-10-30",
-      "fundamentals": "data.json publié (update_data.py), séance 2026-10-30"
     },
     "MSA": {
       "price": "IDBourse",
@@ -77,15 +77,15 @@
       "rsi": "data.json publié (update_data.py), séance 2026-10-30",
       "fundamentals": "data.json publié (update_data.py), séance 2026-10-30"
     },
-    "SOT": {
-      "price": "IDBourse",
-      "rsi": "data.json publié (update_data.py), séance 2026-10-30",
-      "fundamentals": "data.json publié (update_data.py), séance 2026-10-30"
-    },
     "SRM": {
       "price": "IDBourse",
       "rsi": "data.json publié (update_data.py), séance 2026-10-12",
       "fundamentals": "data.json publié (update_data.py), séance 2026-10-12"
+    },
+    "SOT": {
+      "price": "IDBourse",
+      "rsi": "data.json publié (update_data.py), séance 2026-10-30",
+      "fundamentals": "data.json publié (update_data.py), séance 2026-10-30"
     },
     "TGCC": {
       "price": "IDBourse",
@@ -198,39 +198,6 @@
         "ipo_recent": false
       }
     },
-    "CFGB": {
-      "market": {
-        "price": 187.0,
-        "open": 192.0,
-        "high": 193.95,
-        "low": 187.0,
-        "volume": 6249.0,
-        "variation_pct": -2.6042,
-        "market_cap_mdh": 6546.48852
-      },
-      "technical": {
-        "rsi_14": 35.1,
-        "ma20": 192.33,
-        "ma50": 198.54,
-        "high_90d": 213.5,
-        "low_90d": 187.0
-      },
-      "fundamentals": {
-        "pe_ratio_ttm": 16.8,
-        "pe_ratio_2026e": null,
-        "pb_ratio": 3.17,
-        "eps_ttm": 11.12,
-        "dividend_per_share": 4.0,
-        "dividend_yield": 2.14,
-        "market_cap_mdh": 6546
-      },
-      "financials_performance": {},
-      "flags": {
-        "stale": true,
-        "partial_data": false,
-        "ipo_recent": false
-      }
-    },
     "CASH": {
       "market": {
         "price": 204.3,
@@ -297,6 +264,39 @@
         "ipo_recent": false
       }
     },
+    "CFGB": {
+      "market": {
+        "price": 187.0,
+        "open": 192.0,
+        "high": 193.95,
+        "low": 187.0,
+        "volume": 6249.0,
+        "variation_pct": -2.6042,
+        "market_cap_mdh": 6546.48852
+      },
+      "technical": {
+        "rsi_14": 35.1,
+        "ma20": 192.33,
+        "ma50": 198.54,
+        "high_90d": 213.5,
+        "low_90d": 187.0
+      },
+      "fundamentals": {
+        "pe_ratio_ttm": 16.8,
+        "pe_ratio_2026e": null,
+        "pb_ratio": 3.17,
+        "eps_ttm": 11.12,
+        "dividend_per_share": 4.0,
+        "dividend_yield": 2.14,
+        "market_cap_mdh": 6546
+      },
+      "financials_performance": {},
+      "flags": {
+        "stale": true,
+        "partial_data": false,
+        "ipo_recent": false
+      }
+    },
     "CMT": {
       "market": {
         "price": 3608.0,
@@ -330,39 +330,6 @@
         "ipo_recent": false
       }
     },
-    "MNG": {
-      "market": {
-        "price": 1490.0,
-        "open": null,
-        "high": null,
-        "low": null,
-        "volume": null,
-        "variation_pct": 0.0,
-        "market_cap_mdh": 176783.6724
-      },
-      "technical": {
-        "rsi_14": 42.7,
-        "ma20": 1504.65,
-        "ma50": 1622.18,
-        "high_90d": 1900.0,
-        "low_90d": 1300.0
-      },
-      "fundamentals": {
-        "pe_ratio_ttm": 27.6,
-        "pe_ratio_2026e": null,
-        "pb_ratio": 11.45,
-        "eps_ttm": 53.94,
-        "dividend_per_share": 5.5,
-        "dividend_yield": 0.37,
-        "market_cap_mdh": 176784
-      },
-      "financials_performance": {},
-      "flags": {
-        "stale": true,
-        "partial_data": false,
-        "ipo_recent": false
-      }
-    },
     "CSR": {
       "market": {
         "price": 172.05,
@@ -388,6 +355,39 @@
         "dividend_per_share": 10.0,
         "dividend_yield": 5.81,
         "market_cap_mdh": 16257
+      },
+      "financials_performance": {},
+      "flags": {
+        "stale": true,
+        "partial_data": false,
+        "ipo_recent": false
+      }
+    },
+    "MNG": {
+      "market": {
+        "price": 1490.0,
+        "open": null,
+        "high": null,
+        "low": null,
+        "volume": null,
+        "variation_pct": 0.0,
+        "market_cap_mdh": 176783.6724
+      },
+      "technical": {
+        "rsi_14": 42.7,
+        "ma20": 1504.65,
+        "ma50": 1622.18,
+        "high_90d": 1900.0,
+        "low_90d": 1300.0
+      },
+      "fundamentals": {
+        "pe_ratio_ttm": 27.6,
+        "pe_ratio_2026e": null,
+        "pb_ratio": 11.45,
+        "eps_ttm": 53.94,
+        "dividend_per_share": 5.5,
+        "dividend_yield": 0.37,
+        "market_cap_mdh": 176784
       },
       "financials_performance": {},
       "flags": {
@@ -594,39 +594,6 @@
         "ipo_recent": false
       }
     },
-    "SOT": {
-      "market": {
-        "price": 298.0,
-        "open": 307.5,
-        "high": 308.0,
-        "low": 296.15,
-        "volume": 331.0,
-        "variation_pct": -3.0894,
-        "market_cap_mdh": 11416.231
-      },
-      "technical": {
-        "rsi_14": 38.1,
-        "ma20": 309.57,
-        "ma50": 338.6,
-        "high_90d": 386.0,
-        "low_90d": 291.0
-      },
-      "fundamentals": {
-        "pe_ratio_ttm": 28.1,
-        "pe_ratio_2026e": null,
-        "pb_ratio": 4.36,
-        "eps_ttm": 10.61,
-        "dividend_per_share": 6.6,
-        "dividend_yield": 2.21,
-        "market_cap_mdh": 11416
-      },
-      "financials_performance": {},
-      "flags": {
-        "stale": true,
-        "partial_data": false,
-        "ipo_recent": false
-      }
-    },
     "SRM": {
       "market": {
         "price": 449.0,
@@ -652,6 +619,39 @@
         "dividend_per_share": 0.0,
         "dividend_yield": 0.0,
         "market_cap_mdh": 144
+      },
+      "financials_performance": {},
+      "flags": {
+        "stale": true,
+        "partial_data": false,
+        "ipo_recent": false
+      }
+    },
+    "SOT": {
+      "market": {
+        "price": 298.0,
+        "open": 307.5,
+        "high": 308.0,
+        "low": 296.15,
+        "volume": 331.0,
+        "variation_pct": -3.0894,
+        "market_cap_mdh": 11416.231
+      },
+      "technical": {
+        "rsi_14": 38.1,
+        "ma20": 309.57,
+        "ma50": 338.6,
+        "high_90d": 386.0,
+        "low_90d": 291.0
+      },
+      "fundamentals": {
+        "pe_ratio_ttm": 28.1,
+        "pe_ratio_2026e": null,
+        "pb_ratio": 4.36,
+        "eps_ttm": 10.61,
+        "dividend_per_share": 6.6,
+        "dividend_yield": 2.21,
+        "market_cap_mdh": 11416
       },
       "financials_performance": {},
       "flags": {
