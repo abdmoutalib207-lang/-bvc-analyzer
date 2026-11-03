@@ -18,7 +18,7 @@ Le backtest du produit est **`pipeline/backtest_reproductible.py`** : une comman
 1. **Un backtest reproductible** sur les 81 titres, avec les chandelles disponibles (`pipeline/candles/`, 32 260 séances). Rendement du signal ACHETER contre un porte-feuille équipondéré et contre le MASI.
 2. **La publication honnête du résultat** : taux de réussite, rendement, **et les périodes de mauvaise performance**. Un backtest qui ne montre que ses réussites détruit la crédibilité qu'il devait construire.
 3. **La méthode écrite** : période, univers, coûts de transaction, règle d'entrée et de sortie, traitement des splits et des titres radiés.
-4. **La validation des pondérations** — aujourd'hui `Fond 65,28 % / Tech 34,72 %` de base (depuis le 25/09/2026 ; `Tech 25 / Fond 47 / NLP 28` auparavant), modulées par titre par `update_data.py::get_weights()`. Le pilier NLP est supprimé depuis le 28/10/2026. La redistribution du 25/09 a seulement été montrée comme ne dégradant rien ; la répartition elle-même n'a jamais été validée empiriquement.
+4. **La validation des pondérations** — aujourd'hui `Fond 72,22 % / Tech 27,78 %` de base à toute heure (depuis le 03/11/2026, PR #319 ; `Fond 65,28 / Tech 34,72` en séance du 25/09 au 02/11 ; `Tech 25 / Fond 47 / NLP 28` auparavant), modulées par titre par `update_data.py::get_weights()`. Le pilier NLP est supprimé depuis le 28/10/2026. La redistribution du 25/09 a seulement été montrée comme ne dégradant rien ; la répartition elle-même n'a jamais été validée empiriquement.
 
 ## Les pièges de ce marché
 

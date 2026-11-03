@@ -18,8 +18,9 @@ Décision d'Abd Moutalib du 28/10 : « supprimer le corpus et tout ce qui est
 NLP ». Fusionné : #312 (écran, `data.json`), #314 (moteur, smart money,
 sentiment des actualités, `sync_sentiment.py`), #316 (`whatsapp_analysis/`,
 `requirements_nlp.txt`, archives NLP). L'agent `analyste-nlp` est retiré. La
-note publiée ne compte que deux piliers, Fond 65,28 % · Tech 34,72 % (poids
-de base inchangés depuis le 25/09, modulés par titre). Toute mention du
+note publiée ne compte que deux piliers : base Fond 72,22 % · Tech 27,78 % à
+toute heure depuis le 03/11 (PR #319 ; 65,28 / 34,72 en séance du 25/09 au
+02/11), modulée par titre. Toute mention du
 corpus, du pilier NLP ou de `whatsapp_analysis/` plus bas dans ce fichier
 est de l'HISTOIRE.
 
@@ -590,5 +591,6 @@ Les agents couvrent l'exécution ; ces trois rôles couvrent ce qu'un agent ne
 peut pas trancher :
 - **Juriste AMMC / CNDP** — droit de publier, puis de monétiser.
 - ~~**Data scientist NLP**~~ — sans objet depuis le retrait du NLP (28-29/10/2026).
-- **Quant** — valider empiriquement la pondération (Fond 65,28 / Tech 34,72
-  depuis le 25/09 ; 25 / 47 / 28 avant), jamais validée en elle-même.
+- **Quant** — valider empiriquement la pondération (Fond 72,22 / Tech 27,78
+  à toute heure depuis le 03/11 ; 25 / 47 / 28 avant le 25/09), jamais validée
+  en elle-même.

@@ -51,7 +51,7 @@ def test_r10_aucune_variation_hors_limite(titres):
 # ── R8 : le scoring v5.3 est sacré ─────────────────────────────────────────
 
 def test_r8_les_ponderations_somment_a_cent(titres):
-    """Technique + Fondamental + NLP = 100 %, quelle que soit l'adaptation.
+    """Fondamental + Technique = 100 %, quelle que soit l'adaptation.
 
     Le WeightEngine module la répartition selon le contexte, mais la somme est
     un invariant. L'ancienne documentation annonçait 47 + 36 + 25 = 108 % —

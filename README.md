@@ -14,22 +14,22 @@ dont chaque chiffre porte sa source et sa date.
 
 ## Ce que le terminal fait
 
-Deux piliers sont combinés en une note composite ; un troisième est gelé :
+Deux piliers sont combinés en une note composite :
 
 | Pilier | Poids de référence | Ce qu'il mesure |
 |---|---:|---|
-| **Fondamental** | 65 % | rentabilité du capital, croissance, valorisation, bilan |
-| **Technique** | 35 % | RSI(14), moyennes 20/50/200, position dans la fourchette 90 jours |
-| **Comportemental** | **0 % — gelé** | sentiment tiré d'un corpus d'investisseurs arrêté au 02/07/2026 |
+| **Fondamental** | 72 % | rentabilité du capital, croissance, valorisation, bilan |
+| **Technique** | 28 % | RSI(14), moyennes 20/50/200, position dans la fourchette 90 jours |
 
-La pondération de référence est **modulée par le contexte de marché**, le
-même pour tous les titres — hors séance le fondamental pèse davantage, un MASI
-en forte baisse depuis janvier le renforce encore. Le poids réellement
-appliqué est affiché sur chaque fiche, avec la note de chaque pilier.
+La pondération de référence est la même à toute heure (depuis le 03/11/2026)
+et **modulée par le contexte** : un MASI en forte baisse depuis janvier
+renforce le fondamental, et le technique est neutralisé sur les titres peu
+liquides. Le poids réellement appliqué est affiché sur chaque fiche, avec la
+note de chaque pilier.
 
-Le pilier comportemental reste calculé et affiché pour la trace, mais il ne
-pèse plus rien : son corpus est figé, il ne déplaçait que 0,37 point sur 10,
-et son retrait n'a dégradé aucune mesure sur les notes publiées.
+L'ancien pilier comportemental (sentiment tiré d'un corpus d'investisseurs) a
+été ramené à un poids nul le 25/09/2026, puis supprimé avec son corpus les
+28-29/10/2026.
 
 ### Des fondamentaux lus dans les comptes publiés
 
@@ -145,7 +145,9 @@ suspect.
   GitHub Actions saute des passages ; cron-job.org déclenche les passages
   depuis le 29/09/2026, avec les crons GitHub en filet.
 - **La conformité n'est pas tranchée** : agrément AMMC pour une offre
-  commerciale, et gouvernance des données personnelles du corpus.
+  commerciale, et gouvernance des données personnelles (le corpus est
+  supprimé depuis le 29/10/2026, mais d'anciennes références de pull request
+  attendent encore leur purge par GitHub).
 
 ---
 

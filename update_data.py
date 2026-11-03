@@ -2185,7 +2185,8 @@ def calc_score_tech(rsi, price, ma20, ma50, h90, l90) -> float:
     return round(min(max(score, 0), 10), 2)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# MOTEUR DE SCORE v5.3 (port depuis bvc_analyzer_v53.py)
+# MOTEUR DE SCORE v5.3 (port depuis l'ancien archive/bvc_analyzer_v53.py,
+# supprimé le 03/11/2026 avec le reste du NLP ; il reste dans l'historique git)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def get_weights(context: dict) -> dict:
