@@ -146,6 +146,12 @@ def test_branchement_moteur_unique_apres_la_note_et_hors_note():
     for p in sorted((RACINE / "pipeline").rglob("*.py")):
         if p.name in {"score_bvc.py", "backtest_score_bvc.py"}:
             continue
+        if p.name == "verifier_seance.py":
+            # Seul lecteur admis : le contrôle du soir, qui compte les titres
+            # publiés (avertissement non bloquant) et n'écrit rien.
+            code = re.sub(r"#.*", "", p.read_text(encoding="utf-8"))
+            assert code.count("score_bvc") == 1 and "ajouter(\"avertissement" in code
+            continue
         assert "score_bvc" not in re.sub(r"#.*", "", p.read_text(encoding="utf-8")), p.name
 
 

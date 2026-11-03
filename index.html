@@ -6878,7 +6878,7 @@ const Ranking = ({
       style: {
         padding: "8px 8px",
         fontSize: 12,
-        color: "#c8d3e8",
+        color: r.confidence != null && r.confidence <= 1 ? "#4a566f" : "#c8d3e8",
         whiteSpace: "nowrap"
       },
       title: r.score_bvc ? r.score_bvc.etat === "CALCULABLE" ? "Score BVC (observation), couverture " + r.score_bvc.couverture_pct + " %" : r.score_bvc.motif || r.score_bvc.etat : "Score BVC non publié"
@@ -10009,10 +10009,12 @@ const NOMS_FACTEURS_BVC = {
 };
 const ORDRE_FACTEURS_BVC = ["moyennes_mobiles", "momentum", "macd", "activité", "liquidité", "rentabilité"];
 const ScoreBVC = ({
-  s
+  s,
+  conf
 }) => {
   if (!s) return null;
   const ok = s.etat === "CALCULABLE";
+  const gris = !ok || conf != null && conf <= 1;
   const vTxt = ok && s.valeur != null ? `${Math.round(s.valeur)}/100` : "—";
   const etatTxt = {
     CALCULABLE: "CALCULABLE",
@@ -10052,7 +10054,7 @@ const ScoreBVC = ({
     style: {
       fontSize: 26,
       fontWeight: 800,
-      color: ok ? "#fff" : "#8892a4"
+      color: gris ? "#8892a4" : "#fff"
     }
   }, vTxt), React.createElement("span", {
     style: {
@@ -10936,7 +10938,8 @@ const Detail = ({
       gap: 10
     }
   }, React.createElement(ScoreBVC, {
-    s: r.score_bvc
+    s: r.score_bvc,
+    conf: r.confidence
   }), React.createElement(RisqueMesure, {
     q: r.risque
   }), r.ratios_publies && React.createElement("div", {

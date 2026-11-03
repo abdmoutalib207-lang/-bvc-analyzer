@@ -3521,7 +3521,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       <div style={{fontSize:9,color:customMode?"#ffd740":"#8892a4",marginTop:2}}>F{pw.f}·T{pw.t}</div>
                     </>;})()}
                   </td>
-                  <td style={{padding:"8px 8px",fontSize:12,color:"#c8d3e8",whiteSpace:"nowrap"}} title={r.score_bvc?(r.score_bvc.etat==="CALCULABLE"?"Score BVC (observation), couverture "+r.score_bvc.couverture_pct+" %":(r.score_bvc.motif||r.score_bvc.etat)):"Score BVC non publié"}>{r.score_bvc?.valeur!=null?Math.round(r.score_bvc.valeur):"—"}</td>
+                  <td style={{padding:"8px 8px",fontSize:12,color:r.confidence!=null&&r.confidence<=1?"#4a566f":"#c8d3e8",whiteSpace:"nowrap"}} title={r.score_bvc?(r.score_bvc.etat==="CALCULABLE"?"Score BVC (observation), couverture "+r.score_bvc.couverture_pct+" %":(r.score_bvc.motif||r.score_bvc.etat)):"Score BVC non publié"}>{r.score_bvc?.valeur!=null?Math.round(r.score_bvc.valeur):"—"}</td>
                 </tr>
               );
             })}
@@ -4667,9 +4667,11 @@ const MarchesMondiaux=()=>{
 const NOMS_FACTEURS_BVC={moyennes_mobiles:"Moyennes mobiles",momentum:"Momentum (RSI)",macd:"MACD",
   "activité":"Activité (volume)","liquidité":"Liquidité","rentabilité":"Rentabilité (ROE)"};
 const ORDRE_FACTEURS_BVC=["moyennes_mobiles","momentum","macd","activité","liquidité","rentabilité"];
-const ScoreBVC=({s})=>{
+const ScoreBVC=({s,conf})=>{
   if(!s) return null;
   const ok=s.etat==="CALCULABLE";
+  // Règle d'affichage (CLAUDE.md) : confiance ≤ 1 → la valeur passe en gris.
+  const gris=!ok||(conf!=null&&conf<=1);
   const vTxt=ok&&s.valeur!=null?`${Math.round(s.valeur)}/100`:"—";
   const etatTxt={CALCULABLE:"CALCULABLE",PARTIEL:"PARTIEL",NON_CALCULABLE:"NON CALCULABLE"}[s.etat]||s.etat;
   const fac=s.facteurs||{};
@@ -4678,7 +4680,7 @@ const ScoreBVC=({s})=>{
     <div className="score-bvc" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 14px"}}>
       <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Score BVC <span style={{color:"#4db8ff"}}>(observation)</span></div>
       <div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap",marginTop:4}}>
-        <span style={{fontSize:26,fontWeight:800,color:ok?"#fff":"#8892a4"}}>{vTxt}</span>
+        <span style={{fontSize:26,fontWeight:800,color:gris?"#8892a4":"#fff"}}>{vTxt}</span>
         <span style={{fontSize:12,color:ok?"#00e5a0":"#ffd740",letterSpacing:.5}}>· {etatTxt}</span>
       </div>
       <div style={{fontSize:12,color:"#c8d3e8",marginTop:4}}>Couverture des facteurs : {s.couverture_pct}&nbsp;%. Score descriptif, sans prévision de cours.</div>
@@ -5103,7 +5105,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
         {/* CENTRE — graphique (remonté en tête au-delà de 768 px) puis la fiche */}
         <div className="fiche-centre" style={{display:"flex",flexDirection:"column",gap:10}}>
           {/* Risque mesuré (1 an) — descriptif, hors note (14/10/2026). */}
-          <ScoreBVC s={r.score_bvc}/>
+          <ScoreBVC s={r.score_bvc} conf={r.confidence}/>
           <RisqueMesure q={r.risque}/>
 
           {/* ⚠️ RENTABILITÉ SUR COMPTES PUBLIÉS — 30/09/2026. Calculée par

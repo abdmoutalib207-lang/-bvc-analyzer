@@ -5557,11 +5557,11 @@ def run(dry_run=False, push=False, token=""):
                     f"{sum(1 for v in _sd.values() if v['etat'] == 'PARTIEL')} partiels, "
                     f"{sum(1 for v in _sd.values() if v['etat'] == 'NON_CALCULABLE')} non calculables")
     except Exception as _e:                               # noqa: BLE001
-        logger.warning(f"  👻 score descriptif non calculé ({_e})")
+        logger.exception(f"  👻 score descriptif non calculé ({_e})")
 
-    # SCORE BVC UNIQUE (Nour + Boursenews) — MODE FANTÔME, 03/11/2026, R8 accordé
-    # sur le principe par Abd Moutalib ; la bascule du signal viendra après le
-    # rapport. Même garde que ci-dessus : aucun autre champ lu en écriture.
+    # SCORE BVC UNIQUE (Nour + Boursenews) — MODE FANTÔME, 03/11/2026, demandé
+    # par Abd Moutalib ; toute bascule de la note ou du signal attend la mesure
+    # et son accord explicite (R8). Même garde que ci-dessus : aucun autre champ lu en écriture.
     try:
         from pipeline.score_bvc import annexer_bvc as _bvc_annexer
         _sb = _bvc_annexer(
@@ -5571,7 +5571,7 @@ def run(dry_run=False, push=False, token=""):
         logger.info(f"  👻 score BVC (fantôme) : "
                     f"{sum(1 for v in _sb.values() if v['valeur'] is not None)} valeurs")
     except Exception as _e:                               # noqa: BLE001
-        logger.warning(f"  👻 score BVC non calculé ({_e})")
+        logger.exception(f"  👻 score BVC non calculé ({_e})")
 
     # ⚠️ LE FLUX SE CONTRÔLE LUI-MÊME — ajouté le 24/09/2026.
     #
