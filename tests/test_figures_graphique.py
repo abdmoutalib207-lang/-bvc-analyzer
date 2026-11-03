@@ -575,9 +575,21 @@ const v=FP.titres.ADH,dates=[];
 for(let d=new Date('2026-01-02');d<=new Date('2026-10-21');d.setDate(d.getDate()+1))dates.push(d.toISOString().slice(0,10));
 const el=figElements(v,dates[0],{fig:true,tend:true,gap:true});
 const id=el.pris[0][2],f=figFormes(el.pris,dates,v,id);
-console.log(JSON.stringify({id,vu:f.filter(x=>x.id===id).map(x=>x.al),autres:f.filter(x=>x.id!==id).map(x=>x.al)}));
+console.log(JSON.stringify({id,vu:f.filter(x=>x.id===id).map(x=>[x.k,x.al]),autres:f.filter(x=>x.id!==id).map(x=>[x.k,x.al])}));
 """))
-    assert sortie["autres"] and max(sortie["autres"]) < min(sortie["vu"]), sortie
+    # ⚠️ 03/11/2026 — le remplissage d'une figure (`aire`) est volontairement
+    # pâle (0,1) même mis en évidence : il ne se compare pas aux traits. Le
+    # comparer faisait échouer le test dès que la première figure d'ADH
+    # portait une aire — arrivé à la régénération du soir du 02/11, ce qui a
+    # bloqué tous les passages du soir.
+    vu = [al for k, al in sortie["vu"] if k != "aire"]
+    autres = [al for k, al in sortie["autres"]]
+    assert vu and autres and max(autres) < min(vu), sortie
+    # Et une aire mise en évidence reste plus visible qu'une aire éteinte.
+    aires_vu = [al for k, al in sortie["vu"] if k == "aire"]
+    aires_autres = [al for k, al in sortie["autres"] if k == "aire"]
+    if aires_vu and aires_autres:
+        assert max(aires_autres) < min(aires_vu), sortie
     leg = _entre(_source(), "const LegendeFigures=", "const StockChart=")
     assert "onClick={()=>choisir&&choisir(id)}" in leg and "aria-pressed" in leg
 
