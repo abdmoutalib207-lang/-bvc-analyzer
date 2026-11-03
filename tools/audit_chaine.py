@@ -331,6 +331,12 @@ def controler_confiance(sym, t, contestes) -> list:
         plafond = 0
     if m.get("comptes_absents") or nf.get("note") is None:
         plafond = min(plafond, 1)
+    # Reprise de cotation de moins de 20 séances (update_data : indicateurs
+    # retirés, `isin_suspect` forcé, donc confiance ≤ 1). Publié dans
+    # `_meta.reprise_recente` ; absent de ce contrôle jusqu'au 03/11/2026, faute
+    # de reprise en cours depuis sa création (MNG, reprise du 03/11).
+    if m.get("reprise_recente"):
+        plafond = min(plafond, 1)
     ech, volmed = m.get("echange_median_dh"), m.get("vol_median20")
     if (ech is not None and ech < 100_000) or (ech is None and volmed is not None and volmed < 10):
         plafond = min(plafond, 2)
