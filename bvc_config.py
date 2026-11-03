@@ -811,9 +811,16 @@ SUSPENSIONS: dict = {
                                  "à partir du 30/10/2026 , et ce en attente de publication "
                                  "d''informations importantes."},
         ],
-        # ⚠️ REPRISE ÉTABLIE SUR PIÈCE (avis de la Bourse du 03/11), pas
-        # encore constatée dans une séance close : à l'inscription, la séance
-        # du 03/11 était en cours.
+        # ⚠️ REPRISE ÉTABLIE SUR PIÈCE (avis de la Bourse du 03/11) ET
+        # CONSTATÉE : data.json du 03/11 à 11h55 (source CDG) cote MNG à
+        # 1 390 DH, −6,71 % sur la clôture du 29/10, 60 394 titres ; bougie du
+        # 03/11 écrite (o 1 343, h 1 430). Séance en cours à l'inscription :
+        # pas de `cours_de_reprise` tant qu'elle n'est pas close.
+        #
+        # Pas de `reference_impliquee` → pas d'abstention de reprise ni de
+        # relance de la fenêtre de risque (règle du 03/11/2026,
+        # `derniere_reprise_remise_a_neuf`) : signal et indicateurs reviennent
+        # dès la reprise.
         "reprise": "2026-11-03",
         "reprise_source": "Bourse de Casablanca, avis n° AV-2026-141 du 03/11/2026",
         "reprise_url": "https://www.casablanca-bourse.com/sites/default/files/avis/2026-11/av-2026-141_fr-002%29.pdf",
@@ -1534,6 +1541,29 @@ def est_suspendu(ticker: str, date_iso: str | None = None) -> dict | None:
         if reprise is None or jour < reprise:
             return p
     return None
+
+
+def derniere_reprise_remise_a_neuf(ticker: str, jusqu_au: str | None = None) -> str | None:
+    """La dernière reprise de cotation, au plus tard à `jusqu_au`, qui porte une
+    RÉFÉRENCE REMISE À NEUF au registre (`reference_impliquee`), ou None.
+
+    ⚠️ Règle du 03/11/2026 (accord d'Abd Moutalib, R8/R11). L'abstention de
+    reprise (20 séances sans indicateurs ni signal) et la relance de la fenêtre
+    de risque supposent que les cours d'avant décrivent un AUTRE régime de prix
+    — vrai pour CMT, repartie sur 2 217 DH au lieu de 4 501 après OPA. Une
+    reprise sans nouvelle référence (MNG le 03/11 : deux séances suspendues
+    « en attente d'informations », nombre d'actions inchangé, variation calculée
+    sur la clôture d'avant) ne change pas de régime : le titre retrouve signal,
+    indicateurs et risque dès qu'il cote.
+
+    `jusqu_au` (date d'analyse ou dernière séance close) : une reprise
+    postérieure est ignorée — sans cette borne, un rejeu daté pendant la
+    suspension publiait à la fois `suspendu` et `reprise_recente`.
+    """
+    dates = [p["reprise"] for p in SUSPENSIONS.get(ticker, [])
+             if p.get("reprise") and p.get("reference_impliquee")
+             and (jusqu_au is None or p["reprise"] <= str(jusqu_au)[:10])]
+    return max(dates) if dates else None
 
 
 def adjust_splits(ticker: str, candles: list, date_key: str = "d") -> list:

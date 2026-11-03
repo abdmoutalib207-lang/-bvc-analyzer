@@ -122,16 +122,45 @@ def test_le_signal_est_suspendu_pendant_la_suspension(moteur, monkeypatch):
     assert moteur._signal_publie("MNG", "ACHETER ★★", None, None) == ("SUSPENDU", None)
 
 
-def test_a_la_reprise_le_signal_s_abstient(moteur, monkeypatch):
-    """Le 03/11 : plus suspendu, mais 0 séance depuis la reprise — règle
-    `reprise_recente` (20 séances), signal « Données insuffisantes »."""
+def test_a_la_reprise_le_signal_revient_sans_abstention(moteur, monkeypatch):
+    """Règle du 03/11/2026 (accord R8/R11) : sans référence remise à neuf au
+    registre, la reprise ne déclenche ni `reprise_recente` ni neutralisation —
+    MNG retrouve son signal dès qu'il cote."""
+    monkeypatch.setenv("BVC_DATE_ANALYSE", "2026-11-03")
+    for dates in (["2026-10-28", "2026-10-29"], ["2026-10-29", "2026-11-03"]):
+        serie = pd.DataFrame({"d": dates, "c": [1490.0, 1390.0]})
+        assert moteur.reprise_trop_recente("MNG", serie) is None
+    assert moteur._signal_publie("MNG", "ACHETER ★★", None, None) == ("ACHETER ★★", None)
+
+
+def test_la_regle_de_reprise_ne_vise_que_la_reference_remise_a_neuf():
+    from bvc_config import derniere_reprise_remise_a_neuf
+    from pipeline.risque import derniere_reprise
+    assert derniere_reprise_remise_a_neuf("MNG") is None
+    assert derniere_reprise(SUSPENSIONS["MNG"]) is None, "la fenêtre de risque ne doit pas repartir"
+    # CMT, reprise à 2 217 DH après OPA : la règle reste entière.
+    assert derniere_reprise_remise_a_neuf("CMT") == "2026-09-16"
+    assert derniere_reprise(SUSPENSIONS["CMT"]) == "2026-09-16"
+
+
+def test_un_rejeu_pendant_la_suspension_ignore_la_reprise_future(moteur, monkeypatch):
+    """Incohérence de rejeu relevée le 03/11 : `suspendu` ET `reprise_recente`
+    publiés ensemble. La reprise se juge à la date d'analyse (cas CMT, le seul
+    à référence remise à neuf)."""
+    from bvc_config import derniere_reprise_remise_a_neuf
+    assert derniere_reprise_remise_a_neuf("CMT", "2026-09-15") is None
+    monkeypatch.setenv("BVC_DATE_ANALYSE", "2026-09-15")
+    serie = pd.DataFrame({"d": ["2026-07-15", "2026-07-16"], "c": [4400.0, 4501.0]})
+    assert moteur.reprise_trop_recente("CMT", serie) is None
+    monkeypatch.setenv("BVC_DATE_ANALYSE", "2026-09-16")
+    assert moteur.reprise_trop_recente("CMT", serie) == 0
+
+
+def test_la_variation_sans_chg_source_ne_leve_pas(moteur, monkeypatch):
+    """`chg=None` faisait lever le format du journal de `recalculer_variation`."""
     monkeypatch.setenv("BVC_DATE_ANALYSE", "2026-11-03")
     serie = pd.DataFrame({"d": ["2026-10-28", "2026-10-29"], "c": [1512.0, 1490.0]})
-    n = moteur.reprise_trop_recente("MNG", serie)
-    assert n == 0
-    assert moteur._signal_publie("MNG", "ACHETER ★★", None, n)[0] == "Données insuffisantes"
-    serie = pd.DataFrame({"d": ["2026-10-29", "2026-11-03"], "c": [1490.0, 1500.0]})
-    assert moteur.reprise_trop_recente("MNG", serie) == 1
+    assert moteur.recalculer_variation("MNG", 1390.0, None, serie, "2026-11-03", "2026-11-03") == -6.71
 
 
 def test_a_la_reprise_r10_porte_sur_la_derniere_cloture(moteur, monkeypatch):
@@ -154,9 +183,11 @@ def test_aucune_chandelle_pendant_la_suspension():
 
 
 def test_l_audit_reconnait_le_plafond_de_reprise():
-    """Le 03/11, MNG sort à 1/5 (reprise de 0 séance) : l'audit de la chaîne
-    doit lire ce plafond dans `_meta.reprise_recente` au lieu de le déclarer
-    « inexpliqué » — et le déclarer encore si le drapeau manque."""
+    """Une reprise à référence remise à neuf (cas CMT) plafonne la confiance à 1
+    pendant 20 séances : l'audit de la chaîne doit lire ce plafond dans
+    `_meta.reprise_recente` au lieu de le déclarer « inexpliqué » — et le
+    déclarer encore si le drapeau manque. (Constaté le 03/11 avec MNG, avant la
+    règle qui l'exempte de cette abstention.)"""
     sys.path.insert(0, str(RACINE / "tools"))
     import audit_chaine as A
     g = [{"critere": f"g{i}", "ok": i != 0} for i in range(5)]
@@ -167,3 +198,20 @@ def test_l_audit_reconnait_le_plafond_de_reprise():
     t["_meta"]["reprise_recente"] = False
     codes = [x["controle"] for x in A.controler_confiance("MNG", t, set())]
     assert "confiance.plafond_inexplique" in codes
+
+
+def test_le_risque_juge_la_suspension_a_la_date_d_analyse():
+    """Pendant la séance du 03/11, le risque s'arrête à la veille (02/11), où MNG
+    était suspendu : jugée à cette date, la suspension vidait son bloc toute la
+    journée de la reprise. Jugée à la date d'analyse, il est mesuré."""
+    from pipeline.risque import mesurer_cote
+    jours = ["2026-10-28", "2026-10-29", "2026-10-30", "2026-11-02"]
+    marche = {f"T{i:02d}": [{"d": d, "o": 10, "h": 10, "l": 10, "c": 10, "v": 5} for d in jours]
+              for i in range(25)}
+    marche["MNG"] = [{"d": d, "o": 1500, "h": 1500, "l": 1500, "c": 1500, "v": 9} for d in jours[:2]]
+    veille = mesurer_cote(marche, {}, ["MNG"], jusqu_au="2026-11-02")["MNG"]
+    assert (veille["motif"] or {}).get("code") == "suspendu"
+    jour = mesurer_cote(marche, {}, ["MNG"], jusqu_au="2026-11-02", suspendu_le="2026-11-03")["MNG"]
+    assert (jour["motif"] or {}).get("code") != "suspendu"
+    encore = mesurer_cote(marche, {}, ["MNG"], jusqu_au="2026-11-02", suspendu_le="2026-11-02")["MNG"]
+    assert encore["motif"]["code"] == "suspendu"
