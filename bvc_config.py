@@ -776,6 +776,69 @@ SUSPENSIONS: dict = {
         "dernier_cours_cote": {"date": "2026-07-16", "valeur": 4501.0, "volume": 67515},
         "cours_diffuse_depuis_suspension": 4350.0,
     }],
+    # Managem — MASI 1. Inscrit le 03/11/2026.
+    # Suspension À LA DEMANDE DE L'AMMC (sollicitée par l'émetteur, d'après son
+    # communiqué), « en attente de publication d'informations importantes »,
+    # après des rumeurs nées de la révision annuelle du MASI entrée en vigueur
+    # le 29/10 (avis AV-2026-133), reportée le 30/10 (AV-2026-139).
+    #
+    # ⚠️ CE N'EST PAS UNE OPÉRATION SUR CAPITAL (R11). Les deux avis de la
+    # Bourse sont des « Suspension de cotation » / « Reprise de cotation », sans
+    # nouvelle référence de cours ; le communiqué de Managem du 02/11 déclare
+    # « aucun événement significatif ». Le nombre d'actions reste 118 646 760
+    # (liste officielle des émetteurs, datasets/bourse_emetteurs.json,
+    # 20/10/2026 ; SPLITS n'a que le split du 27/07). Pas de
+    # `reference_impliquee` : le jour de la reprise, la variation se calcule
+    # sur la dernière clôture cotée (29/10, 1 490 DH) et R10 s'applique telle
+    # quelle.
+    #
+    # Constaté dans nos données : dernière bougie au 29/10 (5 297 titres),
+    # aucune au 30/10 ni au 02/11 alors que le marché a coté ces deux jours ;
+    # bulletin CDG « Indices du lundi 2 novembre 2026 » (séance du 02/11,
+    # 65/65 cours concordants avec nos chandelles, sha256 8f7ed5ee…) : ligne
+    # MNG entièrement à zéro.
+    "MNG": [{
+        "depuis": "2026-10-30",
+        "motif": ("suspension à la demande de l'AMMC, en attente de publication "
+                  "d'informations importantes (rumeurs après la révision du MASI)"),
+        "source": "Bourse de Casablanca, avis n° AV-2026-138 du 30/10/2026",
+        "url": "https://www.casablanca-bourse.com/sites/default/files/avis/2026-10/av-2026-138_fr.pdf",
+        "piece": "datasets/pieces_ammc/BVC_avis_AV-2026-138_suspension_MNG_2026-10-30.pdf",
+        "piece_sha256": "5afdead8a83d2a766eb274c2e1b15fa8b314d9424462dcdbbb757ef16bc5f471",
+        "citations": [
+            {"page": 1, "texte": "Suite à la demande de l''Autorité Marocaine du Marché des Capitaux, "
+                                 "la cotation des titres de capital de la société MANAGEM est suspendue "
+                                 "à partir du 30/10/2026 , et ce en attente de publication "
+                                 "d''informations importantes."},
+        ],
+        # ⚠️ REPRISE ÉTABLIE SUR PIÈCE (avis de la Bourse du 03/11), pas
+        # encore constatée dans une séance close : à l'inscription, la séance
+        # du 03/11 était en cours.
+        "reprise": "2026-11-03",
+        "reprise_source": "Bourse de Casablanca, avis n° AV-2026-141 du 03/11/2026",
+        "reprise_url": "https://www.casablanca-bourse.com/sites/default/files/avis/2026-11/av-2026-141_fr-002%29.pdf",
+        "reprise_piece": "datasets/pieces_ammc/BVC_avis_AV-2026-141_reprise_MNG_2026-11-03.pdf",
+        "reprise_piece_sha256": "81386279f13c6d9637c4bd87eaa9d89fbf9c0ff6745ecdb053e8538226d5198a",
+        "reprise_citations": [
+            {"page": 1, "texte": "Suite à la demande de l''Autorité Marocaine du Marché des Capitaux, "
+                                 "la cotation des titres de capital de MANAGEM reprend le 03/11/2026."},
+        ],
+        # Le communiqué de l'émetteur, référencé par l'AMMC (copie identique,
+        # même sha256, sur casablanca-bourse.com/sites/default/files/pemetteur/2026-11/cp_managem_02_11_26.pdf).
+        "communique": "Managem, communiqué de presse du 02/11/2026",
+        "communique_url": "https://www.ammc.ma/sites/default/files/CP_Managem_02_11_26.pdf",
+        "communique_piece": "datasets/pieces_ammc/AMMC_CP_Managem_2026-11-02.pdf",
+        "communique_piece_sha256": "39c01b2afa1c524d521dfce9fc811a8fb6a295a08aef2338c612e5960feef1b2",
+        "communique_citations": [
+            {"page": 1, "texte": "Managem a sollicité la suspension de la cotation de son titre "
+                                 "à compter du 30 octobre 2026 inclus."},
+            {"page": 1, "texte": "aucun événement significatif susceptible d'avoir une incidence sur "
+                                 "le cours de son titre n’est intervenu ou n'a été porté à sa connaissance."},
+            {"page": 1, "texte": "Managem a par ailleurs demandé la reprise de la cotation de son titre "
+                                 "à compter du mardi 3 novembre 2026, dès l'ouverture de la séance."},
+        ],
+        "dernier_cours_cote": {"date": "2026-10-29", "valeur": 1490.0, "volume": 5297},
+    }],
 }
 
 

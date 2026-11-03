@@ -114,3 +114,56 @@ CE QU'IL ÉTABLIT
     émetteurs distincts (le régulateur, l'opérateur du marché).
 
 Ces deux pièces fondent le registre OFFRES_PUBLIQUES de bvc_config.py.
+
+
+BVC_avis_AV-2026-138_suspension_MNG_2026-10-30.pdf
+──────────────────────────────────────────────────
+sha256 5afdead8a83d2a766eb274c2e1b15fa8b314d9424462dcdbbb757ef16bc5f471
+Bourse de Casablanca, avis n° AV-2026-138 du 30/10/2026, 1 page.
+https://www.casablanca-bourse.com/sites/default/files/avis/2026-10/av-2026-138_fr.pdf
+(téléchargé le 03/11/2026, chaîne TLS complétée par l'intermédiaire Sectigo R36).
+
+CE QU'IL ÉTABLIT
+  · « Suite à la demande de l'Autorité Marocaine du Marché des Capitaux, la
+    cotation des titres de capital de la société MANAGEM est suspendue à partir
+    du 30/10/2026, et ce en attente de publication d'informations importantes. »
+  · Aucune nouvelle référence de cours, aucune opération sur capital.
+
+C'est la pièce qui fonde l'entrée « depuis: 2026-10-30 » de SUSPENSIONS["MNG"].
+
+
+BVC_avis_AV-2026-141_reprise_MNG_2026-11-03.pdf
+───────────────────────────────────────────────
+sha256 81386279f13c6d9637c4bd87eaa9d89fbf9c0ff6745ecdb053e8538226d5198a
+Bourse de Casablanca, avis n° AV-2026-141 du 03/11/2026, 1 page.
+https://www.casablanca-bourse.com/sites/default/files/avis/2026-11/av-2026-141_fr-002%29.pdf
+
+CE QU'IL ÉTABLIT
+  · « Suite à la demande de l'Autorité Marocaine du Marché des Capitaux, la
+    cotation des titres de capital de MANAGEM reprend le 03/11/2026. »
+  · Pas de référence remise à neuf : la variation du 03/11 se calcule sur la
+    dernière clôture (29/10), R10 s'applique (≠ CMT, R10 seconde précision).
+
+C'est la pièce qui autorise l'entrée « reprise: 2026-11-03 ».
+
+
+AMMC_CP_Managem_2026-11-02.pdf
+──────────────────────────────
+sha256 39c01b2afa1c524d521dfce9fc811a8fb6a295a08aef2338c612e5960feef1b2
+Managem, communiqué de presse du 02/11/2026, référencé par l'AMMC, 1 page.
+https://www.ammc.ma/sites/default/files/CP_Managem_02_11_26.pdf
+Copie IDENTIQUE (même sha256) sur le site de la Bourse :
+https://www.casablanca-bourse.com/sites/default/files/pemetteur/2026-11/cp_managem_02_11_26.pdf
+
+CE QU'IL ÉTABLIT
+  · Managem « a sollicité la suspension de la cotation de son titre à compter
+    du 30 octobre 2026 inclus », après des « informations non confirmées »
+    nées de « la modification de la composition de l'indice MASI ».
+  · « aucun événement significatif susceptible d'avoir une incidence sur le
+    cours de son titre » ; reprise demandée « à compter du mardi 3 novembre
+    2026, dès l'ouverture de la séance ».
+
+⚠️ Les deux pièces ne disent pas la même chose de l'initiative : la Bourse
+écrit « à la demande de l'AMMC », l'émetteur dit l'avoir sollicitée. Les deux
+sont compatibles (l'émetteur demande, l'AMMC requiert la Bourse) ; le registre
+cite l'avis de la Bourse.
