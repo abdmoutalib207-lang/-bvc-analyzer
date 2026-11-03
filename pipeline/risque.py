@@ -31,8 +31,9 @@ CONVENTIONS — chacune répond à un piège déjà rencontré
 
 · **Un saut de plus de 10 % n'entre pas dans les rendements.** R10 : sur un
   titre coté, c'est une erreur de source ou une opération sur titres. Il est
-  exclu, compté, et daté. Une reprise de cotation inscrite au registre
-  (`SUSPENSIONS[...]["reprise"]`) est traitée À PART : la fenêtre recommence
+  exclu, compté, et daté. Une reprise de cotation à référence remise à neuf
+  (`SUSPENSIONS[...]["reprise"]` avec `reference_impliquee` — règle du
+  03/11/2026) est traitée À PART : la fenêtre recommence
   à la reprise, parce que les cours d'avant décrivent un autre régime de prix
   (R11). Les splits du registre (`SPLITS`) sont déjà ajustés dans les
   chandelles stockées ; un split non ajusté apparaîtrait ici comme un saut
@@ -365,24 +366,40 @@ def mesurer_risque(bougies: list, calendrier: list, masi: dict | None = None, *,
 
 
 def derniere_reprise(periodes: list | None) -> str | None:
-    """La date de la dernière reprise inscrite au registre, ou None."""
-    reprises = [p["reprise"] for p in (periodes or []) if p.get("reprise")]
+    """La date de la dernière reprise à RÉFÉRENCE REMISE À NEUF inscrite au
+    registre (`reference_impliquee`), ou None.
+
+    ⚠️ 03/11/2026 (accord R8/R11) : seule une telle reprise change de régime de
+    prix et relance la fenêtre de risque (CMT après OPA). Une reprise sans
+    nouvelle référence (MNG, 03/11) garde sa série : les rendements qui
+    enjambent la suspension sont déjà écartés comme « sur plusieurs séances ».
+    `mesurer_risque` ignore de son côté une reprise postérieure à `au`.
+    """
+    reprises = [p["reprise"] for p in (periodes or [])
+                if p.get("reprise") and p.get("reference_impliquee")]
     return max(reprises) if reprises else None
 
 
 def mesurer_cote(series: dict, masi: dict | None, tickers: list, *,
-                 jusqu_au: str | None = None) -> dict:
+                 jusqu_au: str | None = None, suspendu_le: str | None = None) -> dict:
     """Le bloc `risque` de chaque titre de `tickers`, sur un calendrier commun.
 
     `series` : {ticker: [bougie, ...]} — TOUTES les séries disponibles, pas
     seulement celles des `tickers` : le calendrier se déduit du marché entier.
     Les registres `SUSPENSIONS` (suspension en vigueur, dernière reprise) sont
     lus dans `bvc_config`, à la date de la dernière séance retenue.
+
+    `suspendu_le` : date à laquelle juger la SUSPENSION (le moteur y passe la
+    date d'analyse). ⚠️ 03/11/2026 : jugée à la dernière séance close, elle
+    vidait le risque de MNG toute la séance de sa reprise — la veille, il était
+    suspendu. Même règle que `update_data._suspendu_maintenant` : un titre
+    suspendu AUJOURD'HUI n'a pas de risque de marché ; un titre qui a repris
+    retrouve le sien, mesuré jusqu'à la dernière séance close.
     """
     from bvc_config import SUSPENSIONS, est_suspendu
     cal = [d for d in calendrier_seances(series) if jusqu_au is None or d <= jusqu_au]
     au = cal[-1] if cal else jusqu_au
     return {t: mesurer_risque(series.get(t) or [], cal, masi, jusqu_au=au,
-                              suspension=est_suspendu(t, au) if au else None,
+                              suspension=est_suspendu(t, suspendu_le or au) if (suspendu_le or au) else None,
                               reprise=derniere_reprise(SUSPENSIONS.get(t)))
             for t in tickers}

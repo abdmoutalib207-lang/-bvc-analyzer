@@ -4250,6 +4250,36 @@ const StockChart = ({
     } catch {}
     return n;
   });
+  const suspJours = useMemo(() => {
+    if (!liveCandles || liveCandles.length < 5) return [];
+    const jours = {
+      "5d": 7,
+      "1mo": 30,
+      "3mo": 90,
+      "6mo": 180,
+      "1y": 365,
+      "3y": 1095
+    }[rangeMap[period]];
+    let debut = toDate(liveCandles[0].x);
+    if (jours) {
+      const c = new Date();
+      c.setDate(c.getDate() - jours);
+      debut = c.toISOString().slice(0, 10);
+    }
+    const vus = new Set(liveCandles.map(c => toDate(c.x))),
+      out = [];
+    ((r._meta || {}).suspensions || []).forEach(p => (p.seances || []).forEach(d => {
+      if (d >= debut && !vus.has(d)) out.push({
+        d,
+        motif: p.motif,
+        source: p.source,
+        depuis: p.depuis,
+        reprise: p.reprise
+      });
+    }));
+    return out.sort((a, b) => a.d < b.d ? -1 : 1);
+  }, [liveCandles, period, r._meta]);
+  const axe = useMemo(() => liveCandles ? [...new Set([...liveCandles.map(c => toDate(c.x)), ...suspJours.map(x => x.d)])].sort() : [], [liveCandles, suspJours]);
   useEffect(() => {
     let alive = true;
     setLiveCandles(null);
@@ -4330,6 +4360,16 @@ const StockChart = ({
       close: c.y[3]
     }));
     const n = lwData.length;
+    const nAxe = axe.length || n,
+      iBougie = {},
+      suspDe = {};
+    lwData.forEach((d, i) => {
+      iBougie[d.time] = i;
+    });
+    suspJours.forEach(x => {
+      suspDe[x.d] = x;
+    });
+    const iDerAxe = axe.length ? axe.indexOf(lwData[n - 1].time) : n - 1;
     const LW = window.LightweightCharts;
     const W = refMain.current.offsetWidth || 600;
     const tel = (window.innerWidth || 1000) < 640;
@@ -4382,6 +4422,28 @@ const StockChart = ({
       lastValueVisible: true
     });
     cs.setData(lwData);
+    const bandeSusp = ch => {
+      if (!suspJours.length) return;
+      const b = ch.addHistogramSeries({
+        priceScaleId: "susp",
+        priceLineVisible: false,
+        lastValueVisible: false,
+        base: 0
+      });
+      ch.priceScale("susp").applyOptions({
+        scaleMargins: {
+          top: 0,
+          bottom: 0
+        },
+        visible: false
+      });
+      b.setData(suspJours.map(x => ({
+        time: x.d,
+        value: 1,
+        color: "#8892a42e"
+      })));
+    };
+    bandeSusp(main);
     const COULEUR_MA = {
       20: "#4db8ff",
       50: "#b388ff",
@@ -4442,7 +4504,13 @@ const StockChart = ({
     };
     const legende = i => {
       if (!refTooltip.current) return;
-      const k = Math.max(0, Math.min(n - 1, i));
+      const t = axe[Math.max(0, Math.min(nAxe - 1, i))];
+      if (t && suspDe[t]) {
+        const x = suspDe[t];
+        refTooltip.current.innerHTML = `<div><b style="color:#fff;font-size:13px">${tk(r)}</b> <span style="color:#8892a4">${r.name ? "· " + r.name : ""} · J · ${dateFR(t)}</span></div>` + `<div><span style="color:#ffd740">Suspendu (AMMC/Bourse)</span> <span style="color:#8892a4">— pas de cotation ce jour${x.motif && !tel ? " · " + x.motif : ""}</span></div>` + `<div style="color:#5a6478">${x.source || ""}${x.reprise ? " · reprise le " + dateFR(x.reprise) : ""}</div>`;
+        return;
+      }
+      const k = t && iBougie[t] != null ? iBougie[t] : Math.max(0, Math.min(n - 1, i));
       const d = lwData[k],
         p = k > 0 ? lwData[k - 1].close : null;
       const col = d.close >= d.open ? "#00e5a0" : "#ff4f5a";
@@ -4457,13 +4525,13 @@ const StockChart = ({
         maximumFractionDigits: 2
       })} %)</span>` : "") + `</div>` + `<div>${lab("Vol")} <span style="color:${col}">${fmtVolFR(v)}</span></div>`;
     };
-    legende(n - 1);
-    main.subscribeCrosshairMove(prm => legende(prm && prm.point && prm.logical != null ? Math.round(prm.logical) : n - 1));
+    legende(iDerAxe);
+    main.subscribeCrosshairMove(prm => legende(prm && prm.point && prm.logical != null ? Math.round(prm.logical) : iDerAxe));
     main.subscribeClick(prm => {
       const f = fibRef.current;
       if (!f.on || !prm || !prm.point || prm.logical == null) return;
-      const k = Math.round(prm.logical);
-      if (k < 0 || k >= n) return;
+      const k = iBougie[axe[Math.round(prm.logical)]];
+      if (k == null || k < 0 || k >= n) return;
       const y = cs.coordinateToPrice(prm.point.y);
       if (y == null) return;
       const d = lwData[k];
@@ -4492,6 +4560,7 @@ const StockChart = ({
       }
     });
     chartMacd.current = macdChart;
+    bandeSusp(macdChart);
     macdChart.__s = macdChart.addLineSeries({
       color: "#4db8ff",
       lineWidth: 1.5,
@@ -4538,8 +4607,8 @@ const StockChart = ({
         syncing.current = false;
       });
     });
-    vueEntiere(main, n);
-    const retour = () => vueEntiere(main, n);
+    vueEntiere(main, nAxe);
+    const retour = () => vueEntiere(main, nAxe);
     refMain.current.addEventListener("dblclick", retour);
     const ro = new ResizeObserver(([e]) => {
       const w = Math.floor(e.contentRect.width);
@@ -4561,7 +4630,7 @@ const StockChart = ({
         }
       });
     };
-  }, [sym, period, liveCandles, etat, plein]);
+  }, [sym, period, liveCandles, etat, plein, axe, suspJours]);
   const sr = useMemo(() => {
     if (!showSR || etat !== "ok" || !liveCandles || liveCandles.length < 5) return null;
     return calcSR(liveCandles, liveCandles[liveCandles.length - 1].y[3] || 0);
@@ -4645,7 +4714,7 @@ const StockChart = ({
   }, [sym, period]);
   const figVue = useMemo(() => {
     if (!(showFig || showTend || showGap) || !figPub || etat !== "ok" || !liveCandles || liveCandles.length < 5) return null;
-    const dates = liveCandles.map(c => toDate(c.x));
+    const dates = axe.length ? axe : liveCandles.map(c => toDate(c.x));
     const t = (figPub.titres || {})[sym] || null;
     return {
       t,
@@ -4657,7 +4726,7 @@ const StockChart = ({
         passees: figPassees
       })
     };
-  }, [showFig, showTend, showGap, figPassees, figPub, etat, liveCandles, sym]);
+  }, [showFig, showTend, showGap, figPassees, figPub, etat, liveCandles, sym, axe]);
   useEffect(() => {
     const x = series.current;
     if (!x || !x.dessins) return;
@@ -4676,7 +4745,7 @@ const StockChart = ({
     lsEcrire("bvc_period", p);
   };
   const reinitialiser = () => {
-    if (chartMain.current && liveCandles) vueEntiere(chartMain.current, liveCandles.length);
+    if (chartMain.current && liveCandles) vueEntiere(chartMain.current, axe.length || liveCandles.length);
   };
   const Btn = ({
     on,

@@ -79,7 +79,7 @@ def test_la_veille_le_titre_cotait_encore():
 
 
 def test_un_titre_normal_n_est_jamais_suspendu():
-    for t in ("ATW", "IAM", "ADI", "MNG"):
+    for t in ("ATW", "IAM", "ADI", "BCP"):
         assert est_suspendu(t) is None, f"{t} n'est pas suspendu"
 
 

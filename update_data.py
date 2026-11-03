@@ -63,7 +63,7 @@ from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
                         COMPANY_NAMES, COMPANY_SECTORS, est_ferie_fixe,
                         est_suspendu, SPLITS, SUSPENSIONS, sans_comptes,
                         SEANCES_ANNULEES, seance_annulee, rupture_methode,
-                        offre_publique)
+                        offre_publique, derniere_reprise_remise_a_neuf)
 
 TICKERS = TICKERS_ALL
 
@@ -640,7 +640,10 @@ def recalculer_variation(ticker, price, chg, candles, seance, asof_prix=""):
             f" — cours de référence suspect (prix={price}, ref={veille})")
         return 0.0
     if calcule != chg:
-        logger.info(f"  {ticker}: chg corrigé {chg:+.2f}% → {calcule:+.2f}%"
+        # ⚠️ `chg` peut valoir None (source muette sur la variation) : le
+        # format `:+.2f` levait alors une TypeError dans le journal (03/11/2026).
+        _avant = "—" if chg is None else f"{chg:+.2f}%"
+        logger.info(f"  {ticker}: chg corrigé {_avant} → {calcule:+.2f}%"
                     f" (prix={price}, clôture_j-1={veille})")
     return calcule
 
@@ -710,14 +713,16 @@ def reprise_trop_recente(ticker: str, df_candles) -> int | None:
     Tant que la série ne porte pas assez de séances POSTÉRIEURES à la reprise,
     ses indicateurs ne décrivent pas le titre qui cote aujourd'hui. On ne les
     corrige pas — on les retire, et le signal s'abstient.
+
+    ⚠️ 03/11/2026 (accord R8/R11) : seule une reprise à RÉFÉRENCE REMISE À NEUF
+    (`reference_impliquee` au registre) déclenche cette abstention, et
+    seulement si elle précède la date d'analyse — voir
+    `bvc_config.derniere_reprise_remise_a_neuf`. MNG, repris le 03/11 sur sa
+    clôture du 29/10, n'est pas concerné.
     """
-    susp = SUSPENSIONS.get(ticker)
-    if not susp:
+    reprise = derniere_reprise_remise_a_neuf(ticker, date_analyse())
+    if reprise is None:
         return None
-    reprises = [p["reprise"] for p in susp if p.get("reprise")]
-    if not reprises:
-        return None
-    reprise = max(reprises)
     try:
         dates = [str(d)[:10] for d in df_candles["d"]] if df_candles is not None else []
     except Exception:
@@ -5500,7 +5505,7 @@ def run(dry_run=False, push=False, token=""):
         _series_r = {s: df.to_dict("records") for s, df in _candles_cache.items()
                      if df is not None}
         _risques = _risque_cote(_series_r, _masi_r, [x["symbol"] for x in tickers_out],
-                                jusqu_au=_jusqu_r)
+                                jusqu_au=_jusqu_r, suspendu_le=date_analyse())
         for x in tickers_out:
             x["risque"] = _risques.get(x["symbol"])
         _mes = sum(1 for r in _risques.values()
@@ -5509,6 +5514,27 @@ def run(dry_run=False, push=False, token=""):
                     f"(au {next(iter(_risques.values()), {}).get('asof')})")
     except Exception as _e:                               # noqa: BLE001
         logger.warning(f"  📐 mesures de risque non calculées ({_e})")
+
+    # SÉANCES DE SUSPENSION, POUR LE GRAPHIQUE — 03/11/2026, demande d'Abd
+    # Moutalib. Le registre `SUSPENSIONS`, avec les séances où le MARCHÉ a coté
+    # pendant chaque période (calendrier déduit de toutes les chandelles). Le
+    # terminal les marque sur l'axe du temps ; aucune bougie n'est écrite (R11).
+    # Descriptif : rien en aval ne le lit, ni la note ni le signal.
+    try:
+        from pipeline.risque import calendrier_seances as _cal_seances
+        from pipeline.seance import suspensions_publiees as _susp_pub
+        _cal_s = _cal_seances({s: df.to_dict("records") for s, df in _candles_cache.items()
+                               if df is not None})
+        for x in tickers_out:
+            _periodes_s = SUSPENSIONS.get(x["symbol"])
+            if not _periodes_s:
+                continue
+            _df = _candles_cache.get(x["symbol"])
+            _prem = (str(min(_df["d"]))[:10] if _df is not None and len(_df) else "9999-12-31")
+            x.setdefault("_meta", {})["suspensions"] = _susp_pub(
+                _periodes_s, _cal_s, premiere=_prem, jusqu_au=date_analyse())
+    except Exception as _e:                               # noqa: BLE001
+        logger.warning(f"  séances de suspension non publiées ({_e})")
 
     # ⚠️ LE FLUX SE CONTRÔLE LUI-MÊME — ajouté le 24/09/2026.
     #

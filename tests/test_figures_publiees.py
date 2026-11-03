@@ -134,7 +134,8 @@ def test_gap_jamais_a_travers_une_operation_declaree():
 
 
 def test_registre_des_cas_temoins():
-    assert evenements_titre("MNG") == ["2026-07-27"]
+    # Split du 27/07, puis suspension du 30/10 et reprise du 03/11/2026 (AV-2026-138 / 141).
+    assert evenements_titre("MNG") == ["2026-07-27", "2026-10-30", "2026-11-03"]
     assert "2026-09-16" in evenements_titre("CMT") and "2026-07-17" in evenements_titre("CMT")
 
 
