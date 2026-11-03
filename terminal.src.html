@@ -120,7 +120,8 @@
       .classement th:nth-child(3),.classement td:nth-child(3),
       .classement th:nth-child(n+6):nth-child(-n+8),.classement td:nth-child(n+6):nth-child(-n+8),
       .classement th:nth-child(10),.classement td:nth-child(10),
-      .classement th:nth-child(12),.classement td:nth-child(12){display:none}
+      .classement th:nth-child(12),.classement td:nth-child(12),
+      .classement th:nth-child(13),.classement td:nth-child(13){display:none}
       .classement td,.classement th{padding:7px 3px!important}
       /* Classement par PER (03/11/2026) : rang, base et BPA passent sous le
          PER (lignes .per-mobile) faute de largeur. */
@@ -3277,6 +3278,13 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       if(na!==nb) return na?1:-1;
       return sb-sa;
     }
+    if(sort==="bvc"){
+      /* Score BVC (observation) : une valeur absente sort du classement par le bas. */
+      const va=a.score_bvc?.valeur, vb=b.score_bvc?.valeur;
+      if(va==null) return vb==null?0:1;
+      if(vb==null) return -1;
+      return vb-va;
+    }
     if(sort==="var") return (varSeance(b)??-Infinity)-(varSeance(a)??-Infinity)||0;
     if(sort==="rsi"){
       /* Un RSI absent n'est ni bas ni haut : en fin de liste. */
@@ -3287,9 +3295,9 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
     }
     return 0;
   }),[filtered,sort,scoreMode]);
-  const SORTS=[["az","A → Z"],["v53",customMode?"SCORE PERSO":("SCORE v5.3")],["var","VAR%"],["rsi","RSI"]];
+  const SORTS=[["az","A → Z"],["v53",customMode?"SCORE PERSO":("SCORE v5.3")],["bvc","SCORE BVC"],["var","VAR%"],["rsi","RSI"]];
   const scoreColLabel=customMode?scoreModeLabel(scoreMode):"SCORE";
-  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","VOLUME","PE","DIV%",scoreColLabel,"RSI","COULEUR","POIDS"];
+  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","VOLUME","PE","DIV%",scoreColLabel,"RSI","COULEUR","POIDS","SCORE BVC"];
   if(isWatchlist&&rows.length===0) return(
     <div style={{textAlign:"center",padding:"60px 20px",color:"#8892a4"}}>
       <div style={{fontSize:52,marginBottom:16,color:"#2a3550"}}>★</div>
@@ -3374,7 +3382,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         <table className="classement" style={{width:"100%",borderCollapse:"collapse",minWidth:1000}}>
           <thead>
             <tr style={{borderBottom:"2px solid #1a2540"}}>
-              {HEADS.map(h=><th key={h} style={{padding:"8px 8px",fontSize:10,color:"#8892a4",textAlign:"left",letterSpacing:.4,whiteSpace:"nowrap",fontWeight:500}}>{h}</th>)}
+              {HEADS.map(h=><th key={h} onClick={h==="SCORE BVC"?()=>setSort("bvc"):undefined} aria-sort={h==="SCORE BVC"&&sort==="bvc"?"descending":undefined} title={h==="SCORE BVC"?"Trier par score BVC (observation)":undefined} style={{padding:"8px 8px",fontSize:10,color:h==="SCORE BVC"&&sort==="bvc"?"#00e5a0":"#8892a4",textAlign:"left",letterSpacing:.4,whiteSpace:"nowrap",fontWeight:500,cursor:h==="SCORE BVC"?"pointer":undefined}}>{h}{h==="SCORE BVC"&&sort==="bvc"?" ▼":""}</th>)}
             </tr>
           </thead>
           <tbody>
@@ -3513,6 +3521,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       <div style={{fontSize:9,color:customMode?"#ffd740":"#8892a4",marginTop:2}}>F{pw.f}·T{pw.t}</div>
                     </>;})()}
                   </td>
+                  <td style={{padding:"8px 8px",fontSize:12,color:r.confidence!=null&&r.confidence<=1?"#4a566f":"#c8d3e8",whiteSpace:"nowrap"}} title={r.score_bvc?(r.score_bvc.etat==="CALCULABLE"?"Score BVC (observation), couverture "+r.score_bvc.couverture_pct+" %":(r.score_bvc.motif||r.score_bvc.etat)):"Score BVC non publié"}>{r.score_bvc?.valeur!=null?Math.round(r.score_bvc.valeur):"—"}</td>
                 </tr>
               );
             })}
@@ -4651,6 +4660,52 @@ const MarchesMondiaux=()=>{
 // Bloc `risque` de data.json (pipeline/risque.py). DESCRIPTIF, hors note :
 // chaque valeur porte son effectif et sa période ; une valeur null s'affiche
 // en gris avec sa raison, jamais remplacée par un chiffre supposé.
+/* ── SCORE BVC (Nour + Boursenews) — mode observation, 03/11/2026 ────────────
+   Score descriptif 0-100 : six facteurs notés, publié À CÔTÉ de la note v5.3
+   (il ne la nourrit pas, R8). Une barre par facteur ; la couleur ne dit que la
+   PROPORTION de points obtenus, jamais un rendement attendu. */
+const NOMS_FACTEURS_BVC={moyennes_mobiles:"Moyennes mobiles",momentum:"Momentum (RSI)",macd:"MACD",
+  "activité":"Activité (volume)","liquidité":"Liquidité","rentabilité":"Rentabilité (ROE)"};
+const ORDRE_FACTEURS_BVC=["moyennes_mobiles","momentum","macd","activité","liquidité","rentabilité"];
+const ScoreBVC=({s,conf})=>{
+  if(!s) return null;
+  const ok=s.etat==="CALCULABLE";
+  // Règle d'affichage (CLAUDE.md) : confiance ≤ 1 → la valeur passe en gris.
+  const gris=!ok||(conf!=null&&conf<=1);
+  const vTxt=ok&&s.valeur!=null?`${Math.round(s.valeur)}/100`:"—";
+  const etatTxt={CALCULABLE:"CALCULABLE",PARTIEL:"PARTIEL",NON_CALCULABLE:"NON CALCULABLE"}[s.etat]||s.etat;
+  const fac=s.facteurs||{};
+  const couleur=(pts,w)=>pts==null?"#2a3550":pts<=0?"#4a566f":pts>=w-1e-9?"#00e5a0":"#ffd740";
+  return(
+    <div className="score-bvc" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 14px"}}>
+      <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Score BVC <span style={{color:"#4db8ff"}}>(observation)</span></div>
+      <div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap",marginTop:4}}>
+        <span style={{fontSize:26,fontWeight:800,color:gris?"#8892a4":"#fff"}}>{vTxt}</span>
+        <span style={{fontSize:12,color:ok?"#00e5a0":"#ffd740",letterSpacing:.5}}>· {etatTxt}</span>
+      </div>
+      <div style={{fontSize:12,color:"#c8d3e8",marginTop:4}}>Couverture des facteurs : {s.couverture_pct}&nbsp;%. Score descriptif, sans prévision de cours.</div>
+      {!ok&&s.motif&&<div style={{fontSize:11,color:"#8892a4",marginTop:4}}>{s.motif}</div>}
+      {ORDRE_FACTEURS_BVC.some(k=>fac[k])&&<>
+        <div style={{fontSize:11,color:"#8892a4",letterSpacing:.5,margin:"12px 0 6px",textTransform:"uppercase"}}>Composition du score</div>
+        {ORDRE_FACTEURS_BVC.filter(k=>fac[k]).map(k=>{const f=fac[k];const nom=f.poids_nominal||f.poids;const w=f.poids;
+          const pct=f.points==null||!w?0:Math.max(0,Math.min(100,f.points/w*100));
+          return(
+          <div key={k} style={{marginBottom:7}} title={f.mesure}>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#c8d3e8",gap:8}}>
+              <span>{NOMS_FACTEURS_BVC[k]||k}</span>
+              <span style={{color:"#8892a4",whiteSpace:"nowrap"}}>{f.points==null?"non disponible":`${Number(f.points).toLocaleString("fr-FR",{maximumFractionDigits:1})} / ${w} pts`}</span>
+            </div>
+            <div role="img" aria-label={`${NOMS_FACTEURS_BVC[k]||k} : ${f.points==null?"non disponible":Math.round(pct)+" % des points"}`}
+              style={{height:7,background:"#111c30",borderRadius:4,marginTop:3,overflow:"hidden"}}>
+              <div style={{width:`${f.points==null?100:Math.max(pct,f.points<=0?100:0)}%`,height:"100%",background:couleur(f.points,w),opacity:f.points==null?.35:1}}/>
+            </div>
+            <div style={{fontSize:10,color:"#6b7a99",marginTop:2}}>{f.mesure}</div>
+          </div>);})}
+        <div style={{fontSize:10.5,color:"#8892a4",marginTop:8,lineHeight:1.5}}>Couleurs : proportion de points obtenus dans chaque facteur, sans prévision de rendement. <span style={{color:"#00e5a0"}}>vert</span> = plein · <span style={{color:"#ffd740"}}>jaune</span> = partiel · <span style={{color:"#4a566f"}}>gris</span> = 0 point.</div>
+      </>}
+    </div>);
+};
+
 const RisqueMesure=({q})=>{
   if(!q) return null;
   const jj=d=>d?d.split("-").reverse().join("/"):"—";
@@ -5050,6 +5105,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
         {/* CENTRE — graphique (remonté en tête au-delà de 768 px) puis la fiche */}
         <div className="fiche-centre" style={{display:"flex",flexDirection:"column",gap:10}}>
           {/* Risque mesuré (1 an) — descriptif, hors note (14/10/2026). */}
+          <ScoreBVC s={r.score_bvc} conf={r.confidence}/>
           <RisqueMesure q={r.risque}/>
 
           {/* ⚠️ RENTABILITÉ SUR COMPTES PUBLIÉS — 30/09/2026. Calculée par
@@ -5869,7 +5925,7 @@ function App(){
           ...Object.fromEntries(CHAMPS_SCORE.map(c=>[c,t[c]])),
           sig:t.sig,reference:t.reference,
           bonus:t.bonus,poids:t.poids,note_fond:t.note_fond,
-          bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,alertes:t.alertes,ratios_publies:t.ratios_publies,risque:t.risque,
+          bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,alertes:t.alertes,ratios_publies:t.ratios_publies,risque:t.risque,score_bvc:t.score_bvc,
           setup:t.setup,
           obv:t.obv,adx:t.adx,adx_pdi:t.adx_pdi,adx_mdi:t.adx_mdi,
           /* ⚠️ DEUX CHAMPS CALCULÉS QUI N'ARRIVAIENT PAS JUSQU'ICI — 25/09.

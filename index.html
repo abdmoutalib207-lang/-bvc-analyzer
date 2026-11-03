@@ -120,7 +120,8 @@
       .classement th:nth-child(3),.classement td:nth-child(3),
       .classement th:nth-child(n+6):nth-child(-n+8),.classement td:nth-child(n+6):nth-child(-n+8),
       .classement th:nth-child(10),.classement td:nth-child(10),
-      .classement th:nth-child(12),.classement td:nth-child(12){display:none}
+      .classement th:nth-child(12),.classement td:nth-child(12),
+      .classement th:nth-child(13),.classement td:nth-child(13){display:none}
       .classement td,.classement th{padding:7px 3px!important}
       /* Classement par PER (03/11/2026) : rang, base et BPA passent sous le
          PER (lignes .per-mobile) faute de largeur. */
@@ -6227,6 +6228,13 @@ const Ranking = ({
       if (na !== nb) return na ? 1 : -1;
       return sb - sa;
     }
+    if (sort === "bvc") {
+      const va = a.score_bvc?.valeur,
+        vb = b.score_bvc?.valeur;
+      if (va == null) return vb == null ? 0 : 1;
+      if (vb == null) return -1;
+      return vb - va;
+    }
     if (sort === "var") return (varSeance(b) ?? -Infinity) - (varSeance(a) ?? -Infinity) || 0;
     if (sort === "rsi") {
       const ra = a.rsi ?? a.rsi14,
@@ -6237,9 +6245,9 @@ const Ranking = ({
     }
     return 0;
   }), [filtered, sort, scoreMode]);
-  const SORTS = [["az", "A → Z"], ["v53", customMode ? "SCORE PERSO" : "SCORE v5.3"], ["var", "VAR%"], ["rsi", "RSI"]];
+  const SORTS = [["az", "A → Z"], ["v53", customMode ? "SCORE PERSO" : "SCORE v5.3"], ["bvc", "SCORE BVC"], ["var", "VAR%"], ["rsi", "RSI"]];
   const scoreColLabel = customMode ? scoreModeLabel(scoreMode) : "SCORE";
-  const HEADS = ["#", "TICKER", "OUVERT", "CLÔT.", "VAR%", "VOLUME", "PE", "DIV%", scoreColLabel, "RSI", "COULEUR", "POIDS"];
+  const HEADS = ["#", "TICKER", "OUVERT", "CLÔT.", "VAR%", "VOLUME", "PE", "DIV%", scoreColLabel, "RSI", "COULEUR", "POIDS", "SCORE BVC"];
   if (isWatchlist && rows.length === 0) return React.createElement("div", {
     style: {
       textAlign: "center",
@@ -6526,16 +6534,20 @@ const Ranking = ({
     }
   }, HEADS.map(h => React.createElement("th", {
     key: h,
+    onClick: h === "SCORE BVC" ? () => setSort("bvc") : undefined,
+    "aria-sort": h === "SCORE BVC" && sort === "bvc" ? "descending" : undefined,
+    title: h === "SCORE BVC" ? "Trier par score BVC (observation)" : undefined,
     style: {
       padding: "8px 8px",
       fontSize: 10,
-      color: "#8892a4",
+      color: h === "SCORE BVC" && sort === "bvc" ? "#00e5a0" : "#8892a4",
       textAlign: "left",
       letterSpacing: .4,
       whiteSpace: "nowrap",
-      fontWeight: 500
+      fontWeight: 500,
+      cursor: h === "SCORE BVC" ? "pointer" : undefined
     }
-  }, h)))), React.createElement("tbody", null, sorted.map((r, i) => {
+  }, h, h === "SCORE BVC" && sort === "bvc" ? " ▼" : "")))), React.createElement("tbody", null, sorted.map((r, i) => {
     const sym = r.symbol || r.ticker;
     const displayScore = computeDisplayScore(r, scoreMode);
     const manque = composantesManquantes(r, scoreMode);
@@ -6862,7 +6874,15 @@ const Ranking = ({
           marginTop: 2
         }
       }, "F", pw.f, "\xB7T", pw.t));
-    })()));
+    })()), React.createElement("td", {
+      style: {
+        padding: "8px 8px",
+        fontSize: 12,
+        color: r.confidence != null && r.confidence <= 1 ? "#4a566f" : "#c8d3e8",
+        whiteSpace: "nowrap"
+      },
+      title: r.score_bvc ? r.score_bvc.etat === "CALCULABLE" ? "Score BVC (observation), couverture " + r.score_bvc.couverture_pct + " %" : r.score_bvc.motif || r.score_bvc.etat : "Score BVC non publié"
+    }, r.score_bvc?.valeur != null ? Math.round(r.score_bvc.valeur) : "—"));
   })))), React.createElement("div", {
     style: {
       marginTop: 12,
@@ -9979,6 +9999,160 @@ const MarchesMondiaux = () => {
     }
   }, "Source : TradingView (scanner public), relev\xE9 le ", heure(d.releve_utc), ". Sous chaque valeur : l'heure de l'observation, le diff\xE9r\xE9 que la source d\xE9clare, et un lien pour la v\xE9rifier chez elle. Contexte seulement : n'entre pas dans la note."));
 };
+const NOMS_FACTEURS_BVC = {
+  moyennes_mobiles: "Moyennes mobiles",
+  momentum: "Momentum (RSI)",
+  macd: "MACD",
+  "activité": "Activité (volume)",
+  "liquidité": "Liquidité",
+  "rentabilité": "Rentabilité (ROE)"
+};
+const ORDRE_FACTEURS_BVC = ["moyennes_mobiles", "momentum", "macd", "activité", "liquidité", "rentabilité"];
+const ScoreBVC = ({
+  s,
+  conf
+}) => {
+  if (!s) return null;
+  const ok = s.etat === "CALCULABLE";
+  const gris = !ok || conf != null && conf <= 1;
+  const vTxt = ok && s.valeur != null ? `${Math.round(s.valeur)}/100` : "—";
+  const etatTxt = {
+    CALCULABLE: "CALCULABLE",
+    PARTIEL: "PARTIEL",
+    NON_CALCULABLE: "NON CALCULABLE"
+  }[s.etat] || s.etat;
+  const fac = s.facteurs || {};
+  const couleur = (pts, w) => pts == null ? "#2a3550" : pts <= 0 ? "#4a566f" : pts >= w - 1e-9 ? "#00e5a0" : "#ffd740";
+  return React.createElement("div", {
+    className: "score-bvc",
+    style: {
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      padding: "12px 14px"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      letterSpacing: 1,
+      textTransform: "uppercase"
+    }
+  }, "Score BVC ", React.createElement("span", {
+    style: {
+      color: "#4db8ff"
+    }
+  }, "(observation)")), React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "baseline",
+      gap: 10,
+      flexWrap: "wrap",
+      marginTop: 4
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 26,
+      fontWeight: 800,
+      color: gris ? "#8892a4" : "#fff"
+    }
+  }, vTxt), React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: ok ? "#00e5a0" : "#ffd740",
+      letterSpacing: .5
+    }
+  }, "\xB7 ", etatTxt)), React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#c8d3e8",
+      marginTop: 4
+    }
+  }, "Couverture des facteurs : ", s.couverture_pct, "\xA0%. Score descriptif, sans pr\xE9vision de cours."), !ok && s.motif && React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      marginTop: 4
+    }
+  }, s.motif), ORDRE_FACTEURS_BVC.some(k => fac[k]) && React.createElement(React.Fragment, null, React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      letterSpacing: .5,
+      margin: "12px 0 6px",
+      textTransform: "uppercase"
+    }
+  }, "Composition du score"), ORDRE_FACTEURS_BVC.filter(k => fac[k]).map(k => {
+    const f = fac[k];
+    const nom = f.poids_nominal || f.poids;
+    const w = f.poids;
+    const pct = f.points == null || !w ? 0 : Math.max(0, Math.min(100, f.points / w * 100));
+    return React.createElement("div", {
+      key: k,
+      style: {
+        marginBottom: 7
+      },
+      title: f.mesure
+    }, React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        fontSize: 11,
+        color: "#c8d3e8",
+        gap: 8
+      }
+    }, React.createElement("span", null, NOMS_FACTEURS_BVC[k] || k), React.createElement("span", {
+      style: {
+        color: "#8892a4",
+        whiteSpace: "nowrap"
+      }
+    }, f.points == null ? "non disponible" : `${Number(f.points).toLocaleString("fr-FR", {
+      maximumFractionDigits: 1
+    })} / ${w} pts`)), React.createElement("div", {
+      role: "img",
+      "aria-label": `${NOMS_FACTEURS_BVC[k] || k} : ${f.points == null ? "non disponible" : Math.round(pct) + " % des points"}`,
+      style: {
+        height: 7,
+        background: "#111c30",
+        borderRadius: 4,
+        marginTop: 3,
+        overflow: "hidden"
+      }
+    }, React.createElement("div", {
+      style: {
+        width: `${f.points == null ? 100 : Math.max(pct, f.points <= 0 ? 100 : 0)}%`,
+        height: "100%",
+        background: couleur(f.points, w),
+        opacity: f.points == null ? .35 : 1
+      }
+    })), React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: "#6b7a99",
+        marginTop: 2
+      }
+    }, f.mesure));
+  }), React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: "#8892a4",
+      marginTop: 8,
+      lineHeight: 1.5
+    }
+  }, "Couleurs : proportion de points obtenus dans chaque facteur, sans pr\xE9vision de rendement. ", React.createElement("span", {
+    style: {
+      color: "#00e5a0"
+    }
+  }, "vert"), " = plein \xB7 ", React.createElement("span", {
+    style: {
+      color: "#ffd740"
+    }
+  }, "jaune"), " = partiel \xB7 ", React.createElement("span", {
+    style: {
+      color: "#4a566f"
+    }
+  }, "gris"), " = 0 point.")));
+};
 const RisqueMesure = ({
   q
 }) => {
@@ -10763,7 +10937,10 @@ const Detail = ({
       flexDirection: "column",
       gap: 10
     }
-  }, React.createElement(RisqueMesure, {
+  }, React.createElement(ScoreBVC, {
+    s: r.score_bvc,
+    conf: r.confidence
+  }), React.createElement(RisqueMesure, {
     q: r.risque
   }), r.ratios_publies && React.createElement("div", {
     className: "carte",
@@ -12451,6 +12628,7 @@ function App() {
             alertes: t.alertes,
             ratios_publies: t.ratios_publies,
             risque: t.risque,
+            score_bvc: t.score_bvc,
             setup: t.setup,
             obv: t.obv,
             adx: t.adx,

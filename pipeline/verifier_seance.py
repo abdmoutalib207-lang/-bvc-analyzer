@@ -253,6 +253,14 @@ def _controles(jour, ecart):
         ajouter("avertissement : titres du MASI 1 sans note par famille (non bloquant)", True,
                 "sans objet : data.json sans note par famille")
 
+    # Score BVC (fantôme, 03/11/2026) : son calcul est protégé par un
+    # try/except dans update_data.py, pour ne jamais emporter la publication.
+    # Sans ce contrôle, une panne quotidienne passerait inaperçue. AVERTISSEMENT
+    # seulement : le score n'entre ni dans la note ni dans le signal.
+    n_bvc = sum(1 for x in titres.values() if isinstance(x.get("score_bvc"), dict))
+    ajouter("avertissement : score BVC publié sur au moins 50 titres (non bloquant)", True,
+            f"{n_bvc} titres" + ("" if n_bvc >= 50 else " — ⚠️ calcul en échec ? voir le journal du run"))
+
     # Règle R10 : la BVC plafonne la variation à ±10 % par séance, sur le
     # COURS D'UNE SOCIÉTÉ. Le contrôle porte bien sur les titres un à un —
     # l'indice, lui, n'est pas soumis à ce plafond (précision du 05/09/2026).
