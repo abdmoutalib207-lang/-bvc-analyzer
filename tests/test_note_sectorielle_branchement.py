@@ -6,7 +6,8 @@ confiance et le plancher restent ceux de la grille ACTUELLE. Les comportements
 du mode « publié » (note remplacée, « Données insuffisantes » sans note,
 confiance plafonnée, plancher de sources) restent testés avec `publier=True`
 pour que la bascule, une fois décidée, ne soit pas une découverte. Les POIDS
-des piliers (Fond 65,28 % / Tech 34,72 % / NLP 0) ne bougent dans aucun mode.
+des piliers (Fond 65,28 % / Tech 34,72 % / NLP 0 ; 72,22 / 27,78 à toute heure
+depuis le 03/11/2026) ne bougent dans aucun mode.
 Les grilles elles-mêmes sont dans test_note_sectorielle.py.
 """
 
@@ -39,14 +40,16 @@ def test_poids_des_piliers_inchanges():
     # Pondération en vigueur, mesurée le 10/10/2026 avant le changement de note :
     # base 65,28 / 34,72 / 0 ; marché fermé 72,22 / 27,78 / 0 ; technique
     # neutralisé 100 / 0 / 0. Aucune ne dépend de la note fondamentale.
-    for ctx, attendu in (({}, (0.6528, 0.3472)), ({"market_status": "OPEN"}, (0.6528, 0.3472)),
+    # ⚠️ 03/11/2026 (accord R8) : la pondération ne dépend plus de l'heure —
+    # la base est celle du marché fermé, 72,22 / 27,78, quel que soit le statut.
+    for ctx, attendu in (({}, (0.7222, 0.2778)), ({"market_status": "OPEN"}, (0.7222, 0.2778)),
                          ({"market_status": "CLOSED"}, (0.7222, 0.2778)),
                          ({"market_status": "CLOSED", "tech_non_fiable": True}, (1.0, 0.0))):
         p = update_data.get_weights(ctx)
         assert set(p) == {"fondamental", "technique"}, ctx
         assert (round(p["fondamental"], 4), round(p["technique"], 4)) == attendu, ctx
     src = (Path(bvc_config.__file__).parent / "pipeline" / "collect_financial_data.py").read_text(encoding="utf-8")
-    assert "score_tech * 0.3472 + fond_score * 0.6528" in src
+    assert "score_tech * 0.2778 + fond_score * 0.7222" in src
 
 
 def test_v53_reste_lineaire_en_note_fondamentale_aux_memes_poids():
@@ -81,7 +84,8 @@ def _fond_alu():
 
 def test_l_interrupteur_est_en_mode_comparaison_et_la_version_du_score_ne_change_pas():
     assert bvc_config.NOTE_METIER_PUBLIEE is False
-    assert bvc_config.SCORE_VERSION == "v5.3-non-comparable-2026-10-27"
+    # 03/11/2026 : la version suit la pondération sans heure, pas l'interrupteur.
+    assert bvc_config.SCORE_VERSION == "v5.3-poids-sans-heure-2026-11-03"
 
 
 def test_mode_comparaison_ne_change_ni_note_ni_signal_ni_confiance(monkeypatch):

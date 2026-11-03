@@ -2221,11 +2221,25 @@ def get_weights(context: dict) -> dict:
     les seuls deux piliers. Les poids publiés sont donc INCHANGÉS — vérifié
     par énumération de tous les contextes (tests/test_retrait_nlp.py) et par
     deux essais à blanc simultanés, 80/80 identiques.
+
+    ⚠️ LA PONDÉRATION NE DÉPEND PLUS DE L'HEURE DU RUN — 03/11/2026, accord
+    R8 d'Abd Moutalib. Jusque-là, `market_status` CLOSED ou PRE_MARKET
+    ajoutait +0,05 au fondamental et −0,05 au technique. Constaté sur MNG
+    suspendu, aucune donnée ne bougeant (cours 1 490, fond 7,2, tech 5,2) :
+    v53 = 6,63 aux runs en séance et 6,76 aux runs après clôture, le 30/10
+    et le 02/11. La même situation recevait deux notes selon l'horloge.
+    Décision : la pondération « marché fermé » — celle du bulletin J+1 du
+    soir — s'applique partout. La note du soir ne change pas ; celles
+    affichées en séance s'y alignent. `market_status` n'est plus lu ici.
+    L'ajustement reste écrit en deux temps (0,25 − 0,05 ; 0,47 + 0,05) pour
+    reproduire au bit près l'arithmétique de l'ancien chemin « fermé ».
+    Les autres modulateurs (`has_results`, `masi_ytd`, `tech_non_fiable`)
+    sont inchangés.
     """
     w = {"technique": 0.25, "fondamental": 0.47}
 
-    if context.get("market_status") in ["CLOSED", "PRE_MARKET"]:
-        w["fondamental"] += 0.05; w["technique"] -= 0.05
+    # Ex-bonus de clôture, désormais inconditionnel (03/11/2026).
+    w["fondamental"] += 0.05; w["technique"] -= 0.05
     if context.get("has_results"):
         w["fondamental"] += 0.10; w["technique"] -= 0.07
 
