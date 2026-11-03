@@ -25,15 +25,16 @@ Tu es l'ingénieur senior lead du projet **BVC Analyzer**, un terminal d'analyse
 > - Ne plus répondre « la note ne prédit pas » comme s'il s'agissait d'un
 >   échec du produit : la question est celle de l'exactitude des fréquences.
 
-Le BVC Analyzer doit devenir le terminal de référence pour l'analyse financière en Afrique du Nord. C'est un outil hybride :
+Le BVC Analyzer doit devenir le terminal de référence pour l'analyse financière en Afrique du Nord. C'est un outil hybride, fondamental et technique :
 
-- **Fondamentaux (47%)** : PE, PB, dividendes, upside, capitalisation boursière
-- **Technique (25%)** : RSI(14), MA20/MA50/MA200, MACD, Bollinger, chandeliers OHLCV
-- **NLP Sentiment (28%)** : Analyse de 896k+ messages WhatsApp d'investisseurs sur 6 ans
-- **Smart Money** : Identification des 14 meilleurs traders du groupe par timeliness
+- **Fondamentaux (72,22 %)** : PE, PB, dividendes, upside, capitalisation boursière
+- **Technique (27,78 %)** : RSI(14), MA20/MA50/MA200, MACD, Bollinger, chandeliers OHLCV
 - **Scoring composite** : Note sur 10 avec signaux ACHETER/SURVEILLER/ÉVITER
 
-La pondération est dynamique et contextuelle (WeightEngine), pas statique.
+La pondération est dynamique et contextuelle (WeightEngine), pas statique :
+les poids ci-dessus sont ceux de base, les mêmes à toute heure depuis le
+03/11/2026, modulés par titre (R8). Le sentiment NLP (corpus WhatsApp) et le
+Smart Money ont été supprimés les 28-29/10/2026.
 
 ## Architecture Actuelle (À Connaître Par Cœur)
 
@@ -54,7 +55,6 @@ FRONTEND  → terminal.src.html — la SOURCE (React 18 + JSX) ; index.html est 
 
 MOTEUR    → update_data.py   2 675 lignes — propriétaire UNIQUE de data.json
              bvc_config.py                 — le référentiel (voir CONFIG)
-             sync_sentiment.py             — injecte les sorties NLP
 
 PIPELINE  → pipeline/ : 17 modules, 5 391 lignes
              candles/ scrapers/ technical/ smart_money/ utils/
@@ -63,13 +63,7 @@ PIPELINE  → pipeline/ : 17 modules, 5 391 lignes
              verifier_seance.py   les 12 contrôles quotidiens
              parse_cdg_bulletin.py  juge de paix PDF
 
-NLP       → whatsapp_analysis/ : 21 modules, 12 759 lignes, 14 phases
-             ⚠️ Aucun workflow ne le déclenche : il tourne hors ligne et dépose
-             ses résultats en CSV dans whatsapp_analysis/output/.
-             ⚠️ Il porte sa PROPRE formule de score (phase13), différente de la
-             v5.3 du terminal — voir « Deux moteurs de score » plus bas.
-
-TESTS     → tests/ : 16 fichiers, 220 tests
+TESTS     → tests/ : 196 fichiers, 2 938 tests (comptés le 03/11/2026)
              ⚠️ Deux familles : ceux qui décrivent le CODE, et ceux qui relisent
              les DONNÉES PUBLIÉES. Un échec de la seconde famille peut vouloir
              dire « le correctif est bon mais le moteur n'a pas encore tourné ».
@@ -111,7 +105,9 @@ DATA      → data.json (80 titres) · news.json · fondamentaux.json (77 socié
 | ⚠️ **Wafabourse** | — | — | **403** ; et même éditeur que CDG, donc pas indépendante |
 | **fondamentaux** | PER, PB, BPA, dividende, ROIC… | 77 sociétés | ⚠️ **saisis à la main**, ~40 sources différentes, tout date de juin 2026 |
 
-## ⚠️ Deux moteurs de score coexistent
+## Deux moteurs de score — situation close le 29/10/2026
+
+Jusqu'au 29/10/2026, deux formules coexistaient :
 
 ```
   terminal (v5.3)   Technique 25 · Fondamental 47 · NLP 28
@@ -119,9 +115,10 @@ DATA      → data.json (80 titres) · news.json · fondamentaux.json (77 socié
                     Smart Money 20 · Réseau 10 · Comportement 5
 ```
 
-Les deux totalisent 100 %. **Le terminal affiche le score de la première à côté
-du signal et du champ `SM~` produits par la seconde.** Ce n'est pas documenté à
-l'écran. À trancher : unifier, ou dire clairement lequel explique quoi.
+Le terminal affichait le score de la première à côté du signal et du champ
+`SM~` produits par la seconde. Le champ `SM~` est retiré avec l'écran NLP
+(PR #312), le moteur phase 13 avec `whatsapp_analysis/` (PR #316) : il ne
+reste qu'une formule, celle de R8.
 
 ## Les six chantiers prioritaires — audit externe du 05/09/2026
 
@@ -132,7 +129,7 @@ destination n'est pas choisie** : outil personnel, ou produit vendu.
 | # | Chantier | État au 07/09 |
 |---|---|---|
 | 1 | **Fiabilité du run** — le cron GitHub saute des journées entières | ⚠️ NON TRAITÉ, et c'est le premier risque : un terminal juste qui ne se met pas à jour ne vaut rien. L'audit ne l'avait pas vu. |
-| 2 | **Identités NLP** — 15 collisions sur 34 (`CMT` porte le sentiment de Ciments du Maroc) | ouvert |
+| 2 | **Identités NLP** — 15 collisions sur 34 (`CMT` porte le sentiment de Ciments du Maroc) | sans objet : NLP supprimé les 28-29/10/2026 |
 | 3 | **Fondamentaux** — `pb_fige` sur 80/80, saisie manuelle de juin, ~40 sources | ouvert ; écart mesuré sur ADH : notre ROIC 8 % contre 2,3 % au rapport annuel |
 | 4 | **Backtest reproductible** | prix inventés et faux MASI corrigés le 05/09 ; reste la commande unique et l'artefact daté |
 | 5 | **Droit des données** — conditions IDBourse, accord écrit | ouvert, et hors de notre contrôle |
@@ -229,16 +226,27 @@ c'est la **date** qui arbitre ligne par ligne — jamais la préférence.
 justifiée par backtesting **et** approuvée. La règle n'interdit pas de changer
 les poids — elle interdit de les changer sans mesure ni accord.
 
-**Pondération en vigueur depuis le 25/09/2026 :**
-`Fond×65,28% + Tech×34,72% + NLP×0% = 100%`, modulée par titre.
-Deux points d'application, qui doivent bouger **ensemble** :
-`update_data.py::_replier_comportemental()` et
-`pipeline/collect_financial_data.py:180`.
+**Pondération en vigueur depuis le 03/11/2026 :**
+`Fond×72,22% + Tech×27,78% = 100%` de base, **à toute heure**, modulée par
+titre. Deux points d'application, qui doivent bouger **ensemble** :
+`update_data.py::get_weights()` et
+`pipeline/collect_financial_data.py:263`.
 
-⚠️ **Le pilier NLP est GELÉ, pas supprimé.** `score_nlp` reste calculé et
-publié, à poids nul. L'effacer supprimerait la trace de ce qu'il valait.
+**Le 03/11/2026** (PR #319, accord d'Abd Moutalib) : la modulation « marché
+fermé » s'applique désormais toujours — la note ne dépend plus de l'heure du
+run. Mesure de la PR (essais à blanc, entrées identiques) : bulletin du soir
+inchangé sur 80/80 titres ; en séance, 38 notes s'alignent sur celle du soir
+et 3 signaux changent (SGTM, SNA, T2S). Du 25/09 au 02/11, la base valait
+65,28 / 34,72 en séance et 72,22 / 27,78 hors séance.
 
-**Ce qui a justifié le changement** — corpus arrêté au **02/07/2026**,
+⚠️ **Le pilier NLP est SUPPRIMÉ depuis les 28-29/10/2026** — décision d'Abd
+Moutalib, PR #312, #314, #316. Il pesait zéro depuis le 25/09 : son retrait
+n'a pas changé les poids publiés. La trace de ce qu'il valait reste dans
+l'historique git et dans `pipeline/score_history.json` (colonnes `score_nlp`,
+`poids_n`).
+
+**Ce qui a justifié le changement du 25/09** (NLP 28 % → 0, reversé au
+prorata : `Fond×65,28% + Tech×34,72%`) — corpus arrêté au **02/07/2026**,
 `SENTIMENT` devenue une constante par titre, 48 titres sur 80 à la valeur
 neutre, **0,37 point d'amplitude sur 10** pour 28 % de poids annoncé, et le
 sentiment d'actualités ne bougeant que 5 titres sur 80.
@@ -258,13 +266,13 @@ haut (IAM, ATW, CIH, LHM, GAZ en SURVEILLER → ACHETER ; IBM ATTENDRE →
 SURVEILLER) — des dossiers à fondamentaux solides que le pilier neutre à 5,0
 diluait.
 
-⚠️ **Ce qui n'est PAS réglé et ne doit pas passer pour tel** : le sentiment
-entre encore par les **bonus**, mécanisme distinct des pondérations. Relevé du
+⚠️ **Ce qui n'était PAS réglé au 25/09** : le sentiment
+entrait encore par les **bonus**, mécanisme distinct des pondérations. Relevé du
 25/09 — seul « Conv baissière +0,15 » se déclenche, sur 35 titres, et
 `nlp_bull` n'y étant jamais vrai il ne teste en réalité que le score BVC ;
 Smart Money, Contrarian et Hype spike : **zéro occurrence sur 80 titres** ;
 `conv` vaut « DIVERGE » sur **80/80**, c'est une constante affichée comme une
-mesure. Chantier suivant.
+mesure. Traité par le gel du 29/09, ci-dessous.
 
 **Gel étendu le 29/09/2026** (sous réserve d'accord, R8) : les six bonus
 lisant le corpus, la condition smart money du palier ACHAT FORT (suspendu) et
@@ -406,7 +414,7 @@ d'appel oublié, `node_modules` commité.
 ## Contexte Technique Clé
 
 <tech-context>
-- **Langages** : Python (backend, pipeline, NLP), HTML/JS/React (frontend), YAML (CI/CD)
+- **Langages** : Python (backend, pipeline), HTML/JS/React (frontend), YAML (CI/CD)
 - **Tickers MASI 1 (19)** : ADH, ADI, AKD, CASH, CFGB, CMGP, CMT, CSR, MNG, MSA, RDS, RIS, SGTM, SMI, SNA, SOT, SRM, TGCC, VCNE
 - **Tickers total (77)** : Voir bvc_config.py TICKERS_ALL
 - **APIs externes** : IDBourse (API JSON), Médias24 (API + scraping), BVCscrap (package Python)
@@ -518,7 +526,6 @@ clôture au 10/08 alors qu'IDBourse ne l'avait plus coté depuis le 05/08.
 | `veilleur-sources` | santé et contrat des sources CDG / BMCE / IDBourse |
 | `relecteur-pipeline` | conformité d'un diff aux règles R1–R11, avant commit |
 | `ingenieur-tests` | ce qui est vérifié automatiquement (priorité n°1) |
-| `analyste-nlp` | le calcul du champ `nlp` — 28 % du score, aujourd'hui creux |
 | `quant-backtest` | mesurer et publier la performance historique |
 | `lecteur-comptes` | lire les dépôts AMMC et préparer leur intégration (PR, jamais de fusion) |
 | `verificateur-finance` | contre-vérifier chaque chiffre et ratio fondamental — relevé, calcul, pertinence pour le métier (recruté le 02/10/2026) |

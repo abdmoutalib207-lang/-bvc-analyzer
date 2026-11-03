@@ -227,7 +227,7 @@ COMPANY_SECTORS: dict = {
 
 # ── Sigles ambigus ──────────────────────────────────────────────────────────
 # Tickers qui sont aussi des mots courants en français ou en darija. Partout où
-# l'on cherche un sigle dans du texte libre — actualités, corpus WhatsApp — ils
+# l'on cherche un sigle dans du texte libre — les actualités — ils
 # ne comptent qu'en MAJUSCULES, et encore : « une DAR à Marrakech » ou « paiement
 # CASH » restent des faux positifs. On les exclut donc de la reconnaissance par
 # sigle ; leur nom complet suffit à les retrouver (« dari couspate », « cash plus »).

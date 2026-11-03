@@ -1,5 +1,10 @@
 # Plan de reconstruction du pilier NLP
 
+> ⚠️ **CADUC depuis les 28-29/10/2026.** Abd Moutalib a décidé de « supprimer
+> le corpus et tout ce qui est NLP » (PR #312, #314, #316). Ce plan n'a jamais
+> été exécuté ; il est conservé pour la trace, à ne pas reprendre sans
+> nouvelle décision explicite.
+
 > Arrêté le 03/09/2026 avec Abd Moutalib. Fusion de deux propositions —
 > l'ossature vient de Grok, les corrections viennent de mesures faites sur le
 > corpus réel. **Suivre cet ordre.** Chaque étape existe parce que l'étape
