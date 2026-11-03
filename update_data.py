@@ -677,6 +677,15 @@ def reference_de_reprise(ticker: str, jour: str) -> float | None:
     return None
 
 
+def _reprise_sur_reference_inscrite(ticker: str) -> bool:
+    """Le registre SUSPENSIONS porte-t-il, pour ce titre, une reprise sur une
+    référence remise à neuf (`reference_impliquee`) ? Seul ce fait, établi sur
+    pièce, autorise une valeur servie à contredire notre dernier cours (CMT,
+    16/09/2026). R11 : on le lit, on ne le déduit pas."""
+    return any(p.get("reprise") and p.get("reference_impliquee")
+               for p in SUSPENSIONS.get(ticker, []))
+
+
 def reprise_trop_recente(ticker: str, df_candles) -> int | None:
     """Combien de séances depuis la reprise de cotation, ou None si sans objet.
 
@@ -2907,11 +2916,21 @@ def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None,
         # remise à neuf, notre cours figé), où la valeur servie est la seule
         # à savoir. Un cours ancien n'arbitre rien — ni dans un sens ni dans
         # l'autre : il ne réfute pas la valeur servie, il se range derrière.
+        #
+        # ⚠️ 03/11/2026 — MAIS LA VALEUR SERVIE N'A LE DERNIER MOT QUE SI LA
+        # REPRISE SUR RÉFÉRENCE REMISE À NEUF EST INSCRITE AU REGISTRE (R11).
+        # Le matin du 03/11, LHM n'avait pas encore coté : cours des
+        # chandelles 1 560 (bulletin CDG du 02/11 concordant). IDBourse servait
+        # une capitalisation de 41 005 = 1 750 × le nombre officiel, c'est-à-dire
+        # SON cours périmé. Le moteur l'a préférée et le contrôle bloquant l'a
+        # refusée. Un garde-fou ne devine pas un fait juridique : il le lit.
         n_off = _actions_bourse(ticker)
         if n_off and price and price > 0:
             calculee = _arrondi_cap(price * n_off / 1e6)
             if not cap_servie or (calculee and abs(cap_servie / calculee - 1)
                                   <= TOL_COURS_IMPLICITE_JOUR + 0.5 / cap_servie):
+                return calculee, "calculee_bourse_officielle"
+            if calculee and not _reprise_sur_reference_inscrite(ticker):
                 return calculee, "calculee_bourse_officielle"
         return cap_servie, ("servie" if cap_servie else "absente")
 

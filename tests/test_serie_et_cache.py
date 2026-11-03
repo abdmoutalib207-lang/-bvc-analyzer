@@ -618,6 +618,20 @@ def _series_prolongees_dans_cette_livraison() -> set:
     return prolongees
 
 
+_EXTREMES_GLISSANTS = {"h52w", "l52w", "h90", "l90"}
+
+
+def _extremes_au_cache(cache, t):
+    import sys as _s
+    _s.path.insert(0, str(RACINE / "pipeline"))
+    from recalculer_cache import extremes_glissants
+    e = cache.get(t) or {}
+    if not e.get("candles"):
+        return None
+    return extremes_glissants(e["candles"], maintenant=cache.get("_updated"),
+                              serie_complete=len(e["candles"]) >= (e.get("n_candles") or 10**9))
+
+
 def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():
     """⚠️ Le contrôle sur la LIVRAISON elle-même, pas sur un bac de test."""
     import subprocess
@@ -664,8 +678,15 @@ def test_hors_series_corrigees_le_cache_livre_ne_differe_que_par_le_rsi():
         d = {k for k in set(base[t]) | set(livre.get(t, {}))
              if base[t].get(k) != livre.get(t, {}).get(k)}
         toleres = _CHAMPS_QUI_AVANCENT if t in prolongees else {"rsi"}
-        if d - toleres:
-            fautifs[t] = sorted(d - toleres)
+        # ⚠️ 03/11/2026 — les extrêmes glissants avancent avec la date, même
+        # quand la série ne change pas (`reancrer_extremes_du_cache`). Tolérés
+        # SEULEMENT s'ils valent le recalcul exact à `_updated` du cache livré.
+        reste = d - toleres
+        if reste and reste <= _EXTREMES_GLISSANTS:
+            reste = {k for k in reste
+                     if livre.get(t, {}).get(k) != (_extremes_au_cache(livre, t) or {}).get(k)}
+        if reste:
+            fautifs[t] = sorted(reste)
     assert fautifs == {}, (
         f"champs hors rsi modifiés sur des titres dont la série n'a pas "
         f"changé : {fautifs}")
