@@ -26,8 +26,7 @@ La cote de Casablanca compte des secteurs à un ou deux titres. Un « rang 1 sur
 valeurs est un tirage au sort. En dessous de `MIN_PAIRS` comparables, le module
 rend `None` — ce qui se lit « pas assez de pairs », et non « dans la moyenne ».
 
-C'est la même discipline que le seuil de preuve du sentiment d'actualité : ne
-pas produire un chiffre quand on n'a pas de quoi le fonder.
+Ne pas produire un chiffre quand on n'a pas de quoi le fonder.
 """
 
 from __future__ import annotations

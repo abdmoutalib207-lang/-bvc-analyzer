@@ -26,11 +26,9 @@ CE QUI EST VÉRIFIÉ, SANS NAVIGATEUR
      ou `$` (`a_surveiller`, clé de briefing.json ; `ASurveiller`, nom de
      composant). Le test cherche le mot ENTIER, insensible à la casse et à
      l'accent de « éviter » : « À surveiller » en minuscules compte, puisque
-     l'écran le met en capitales ;
-   - les CITATIONS DU CORPUS WhatsApp, énumérées ci-dessous une par une :
-     ce sont des libellés de ce que des membres du groupe ont écrit, pas un
-     jugement du produit. Les réécrire falsifierait le corpus ; leur sort
-     est une décision à part, signalée dans le rapport du 07/10.
+     l'écran le met en capitales.
+   Les citations de l'ancien corpus, exclues nommément jusqu'au 28/10/2026,
+   ont disparu avec lui : le contrôle porte sur TOUTE la page servie.
 
 2. Les seuils de couleur du terminal sont ceux du moteur, et, titre par
    titre sur le data.json publié, la couleur lue sur la note (et le plafond
@@ -56,14 +54,6 @@ MOTS_D_ACTION = re.compile(
     re.IGNORECASE,
 )
 
-# Citations du corpus WhatsApp (libellés de messages de membres), exclues
-# NOMMÉMENT : une exclusion large masquerait un vrai libellé du produit.
-# ⚠️ 28/10/2026 : VIDE. Les onglets SMART MONEY et NLP CORPUS, et le « biais
-# groupe » de la fiche, sont retirés avec le corpus — plus aucune exclusion,
-# le contrôle porte désormais sur TOUTE la page servie.
-CITATIONS_CORPUS = ()
-
-
 def _decoder(t: str) -> str:
     """Babel échappe les caractères non ASCII (« É » → « \\xC9 »)."""
     t = re.sub(r"\\u\{([0-9A-Fa-f]+)\}", lambda m: chr(int(m.group(1), 16)), t)
@@ -74,8 +64,6 @@ def _decoder(t: str) -> str:
 def mots_d_action_affichables(html: str) -> list[str]:
     texte = re.sub(r"<!--.*?-->", "", html, flags=re.S)
     texte = _decoder(texte)
-    for motif in CITATIONS_CORPUS:
-        texte = motif.sub("", texte)
     return [texte[max(0, m.start() - 60):m.end() + 30].replace("\n", " ")
             for m in MOTS_D_ACTION.finditer(texte)]
 

@@ -30,6 +30,7 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     .mobile-seul{display:none}
+    .per-mobile{display:none}
     /* L'étoile des favoris (07/10/2026) : #2a3550 sur le fond, contraste
        1,59 — invisible. Teinte --dim, et une boîte de 32 px au moins dont les
        marges négatives rendent l'encombrement : la ligne ne grandit pas. */
@@ -122,6 +123,12 @@
       .classement th:nth-child(12),.classement td:nth-child(12),
       .classement th:nth-child(13),.classement td:nth-child(13){display:none}
       .classement td,.classement th{padding:7px 3px!important}
+      /* Classement par PER (03/11/2026) : rang, base et BPA passent sous le
+         PER (lignes .per-mobile) faute de largeur. */
+      .classement-per{min-width:0!important}
+      .classement-per .per-rang,.classement-per .per-base,.classement-per .per-bpa{display:none}
+      .classement-per td,.classement-per th{padding:7px 4px!important}
+      .per-mobile{display:block!important}
       /* Colonne COULEUR (07/10/2026) : sur téléphone, la pastille seule —
          la note colorée est à côté. La mention « titre peu échangé » reste,
          en petit et sur deux lignes : elle explique une couleur sous la note. */
@@ -2798,6 +2805,7 @@ const RUBRIQUES=[
     {id:"guide",icone:"?",aide:"Note, couleur, confiance, fréquences — et ce que l'outil ne fait pas"}]},
   {titre:"Marché",vues:[
     {id:"ranking",icone:"▤",aide:"Les 80 titres, leur note et sa couleur"},
+    {id:"per",icone:"÷",aide:"Les titres rangés par PER, à côté de la médiane de leur secteur"},
     {id:"heatmap",icone:"▦",aide:"La séance d'un coup d'œil, par secteur"},
     {id:"watchlist",icone:"★",aide:"Vos titres suivis"},
     {id:"monde",icone:"◍",aide:"Indices mondiaux, devises, matières premières"}]},
@@ -3073,7 +3081,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
   // briefing porte la séance close de la veille, il est donc écrit à 18h et
   // disponible toute la nuit — sans dépendre d'un déclenchement matinal, qui
   // est aujourd'hui le point faible du produit.
-  const TABS=[{id:"accueil",label:"ACCUEIL"},{id:"ranking",label:"CLASSEMENT"},{id:"briefing",label:"BRIEFING"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"news",label:"ACTUALITÉS"},{id:"monde",label:"MARCHÉS MONDIAUX"},{id:"guide",label:"? COMMENT LIRE"}];
+  const TABS=[{id:"accueil",label:"ACCUEIL"},{id:"ranking",label:"CLASSEMENT"},{id:"per",label:"PER"},{id:"briefing",label:"BRIEFING"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"news",label:"ACTUALITÉS"},{id:"monde",label:"MARCHÉS MONDIAUX"},{id:"guide",label:"? COMMENT LIRE"}];
   return(
     <div className="entete" style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
@@ -3359,6 +3367,10 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         {SORTS.map(([id,lbl])=>(
           <button key={id} onClick={()=>setSort(id)} style={{background:sort===id?"rgba(0,229,160,.12)":"transparent",border:sort===id?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:sort===id?"#00e5a0":"#8892a4",padding:"3px 10px",borderRadius:4,fontSize:11}}>{lbl}{sort===id?" ▼":""}</button>
         ))}
+        {/* Le tri par PER a sa vue (03/11/2026) : base, BPA, médiane du
+            secteur et titres non classés ne tiennent pas dans ce tableau. */}
+        {!isWatchlist&&<button onClick={()=>setTab("per")} title="Classement par PER, avec la médiane du secteur et les titres non classés"
+          style={{background:"transparent",border:"1px solid rgba(77,184,255,.4)",color:"#4db8ff",padding:"3px 10px",borderRadius:4,fontSize:11,cursor:"pointer"}}>PER ›</button>}
       </div>
       {customMode&&<div style={{marginBottom:10,padding:"6px 12px",background:"rgba(255,215,64,.07)",border:"1px solid rgba(255,215,64,.25)",borderRadius:5,display:"flex",alignItems:"center",gap:8,fontSize:11}}>
         <span style={{color:"#ffd740",fontWeight:700}}>✱ MODE PERSONNALISÉ</span>
@@ -3520,6 +3532,181 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         <span style={{color:"#00e5a0"}}>●</span> SCORE = base Fond×72% + Tech×28%, à toute heure, <span style={{color:"#ffd740"}}>modulée par le contexte de marché</span> — tendance du MASI depuis janvier ; le poids appliqué est sur chaque fiche &nbsp;|&nbsp;
         <span style={{color:"#8892a4"}}>~hist</span> = moins de 15 séances cotées : RSI et moyennes absents, jamais estimés &nbsp;|&nbsp;
         <span style={{color:"#ff4f5a"}}>⚠️</span> RSI rouge = prudence &nbsp;|&nbsp; PE = Price/Earnings · DIV = dividende &nbsp;|&nbsp; Clic → vue détaillée
+      </div>
+    </div>
+  );
+};
+
+// ── CLASSEMENT PAR PER — 03/11/2026, demande d'Abd Moutalib ─────────────────
+// Lecture seule de data.json : aucun calcul de note, aucun seuil du moteur.
+// Champs lus : `pe` (le PER publié : cours ÷ BPA 12 mois glissants quand les
+// comptes semestriels ont été lus, exercice 2025 sinon), `pe_base` (laquelle
+// des deux), `bpa_12m` ou `bpa` (le BPA QUI A SERVI, choisi d'après
+// `pe_base`), `pe_annuel` et `pe_capitalisation` (affichés en regard),
+// `bpa_reserve`, `sector`, `price`, `_meta.prix_asof|stale|suspendu|
+// comptes_absents`.
+// ⚠️ LE MOTEUR NE PUBLIE JAMAIS DE PER NÉGATIF : `_per()` rend None sur une
+// perte (30/09/2026, SNEP). La perte se lit donc sur le SIGNE DU BPA, pas sur
+// le PER. Un PER absent n'est pas un PER bas : il sort du classement, avec
+// son motif, au lieu de se ranger parmi les plus bas.
+// ⚠️ La médiane de secteur n'est pas publiée par le moteur : elle se calcule
+// ici, sur les seuls PER classés, et seulement à partir de 4 titres (même
+// seuil que `rang_sectoriel.min_pairs`) — en dessous, un rang serait un
+// tirage au sort.
+function classerPER(rows){
+  const SEUIL_NS=100, MIN_SECTEUR=4;
+  const nf=(x,d)=>(+x).toFixed(d).replace(".",",");
+  const classes=[], nonClasses=[];
+  for(const r of rows||[]){
+    if(!r)continue;
+    const m=r._meta||{};
+    const base=typeof r.pe_base==="string"?r.pe_base:null;
+    const douze=!!base&&base.startsWith("12");
+    const bpa=douze?(r.bpa_12m??null):(r.bpa??null);
+    const cours=r.price??r.close??null;
+    const pe=typeof r.pe==="number"&&isFinite(r.pe)?r.pe:null;
+    const l={r,sym:r.symbol||r.ticker,pe,base,bpa,cours,asof:m.prix_asof||null,
+             stale:!!m.stale,secteur:r.sector||null};
+    let code=null, motif=null;
+    if(m.suspendu){code="suspendu";
+      motif="Cotation suspendue"+(m.statut_juridique?` (${String(m.statut_juridique).toLowerCase()})`:"")+" : le cours n'est pas échangé, un PER n'y décrit rien";}
+    else if(m.comptes_absents){code="sans_comptes";
+      motif=`Aucun compte déposé depuis le ${String(m.comptes_absents.dernier_depot||"").split("-").reverse().join("/")||"—"} : pas de bénéfice à rapporter au cours`;}
+    else if(pe==null){
+      if(bpa!=null&&bpa<=0){code="perte";
+        motif=`Perte : BPA ${nf(bpa,2)} DH${base?` (${base.replace(/(\d{4})-(\d{2})-(\d{2})/,"$3/$2/$1")})`:""} — une perte n'a pas de PER`;}
+      else if(bpa==null){code="absent";motif="PER absent : aucun BPA lu dans des comptes";}
+      else{code="absent";motif="PER absent : cours indisponible";}}
+    else if(pe<=0){code="perte";motif=`PER nul ou négatif (${nf(pe,1)}) : pas de bénéfice à rapporter au cours`;}
+    else if(pe>SEUIL_NS){code="non_significatif";
+      motif=`PER ${nf(pe,1)} > ${SEUIL_NS} : BPA ${bpa!=null?nf(bpa,2)+" DH":"—"} quasi nul face au cours — non significatif`;}
+    if(code)nonClasses.push({...l,code,motif});else classes.push(l);
+  }
+  const parSecteur={};
+  for(const l of classes)if(l.secteur)(parSecteur[l.secteur]=parSecteur[l.secteur]||[]).push(l.pe);
+  const medianes={};
+  for(const s of Object.keys(parSecteur)){
+    const t=[...parSecteur[s]].sort((a,b)=>a-b), n=t.length;
+    medianes[s]={n,med:n>=MIN_SECTEUR?(n%2?t[(n-1)/2]:(t[n/2-1]+t[n/2])/2):null};
+  }
+  const ORDRE={perte:0,non_significatif:1,absent:2,sans_comptes:3,suspendu:4};
+  classes.sort((a,b)=>a.pe-b.pe||String(a.sym).localeCompare(String(b.sym)));
+  nonClasses.sort((a,b)=>ORDRE[a.code]-ORDRE[b.code]||String(a.sym).localeCompare(String(b.sym)));
+  return {classes,nonClasses,medianes,seuil:SEUIL_NS,minSecteur:MIN_SECTEUR};
+}
+
+const ClassementPER=({rows,setSel,setTab})=>{
+  const [sens,setSens]=useState("asc");          // asc = du PER le plus bas au plus haut
+  const [secteur,setSecteur]=useState("ALL");
+  const {classes,nonClasses,medianes,seuil,minSecteur}=useMemo(()=>classerPER(rows),[rows]);
+  const secteurs=useMemo(()=>[...new Set(rows.map(r=>r.sector).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"fr")),[rows]);
+  const garde=l=>secteur==="ALL"||l.secteur===secteur;
+  const vus=classes.filter(garde);
+  const lignes=sens==="asc"?vus:[...vus].reverse();
+  const nc=nonClasses.filter(garde);
+  const nf=(x,d=1)=>x==null||!isFinite(x)?"—":(+x).toLocaleString("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d}).replace(/ | /g," ");
+  const baseCourte=b=>{if(!b)return "base inconnue";const m=/^12 mois au (\d{4})-(\d{2})-(\d{2})$/.exec(b);return m?`12 mois au ${m[3]}/${m[2]}/${m[1]}`:b;};
+  const ouvrir=sym=>{setSel(sym);setTab("detail");};
+  const med=l=>(l.secteur&&medianes[l.secteur])||{n:0,med:null};
+  const DateCours=({l})=><span title={l.stale?"Cours antérieur à la dernière séance cotée":"Cours de la dernière séance cotée"}
+    style={{fontSize:10,color:l.stale?"#ffd740":"#8892a4",whiteSpace:"nowrap"}}>{l.stale?"⚠ ":""}{l.asof?jjmmaaaa(l.asof):"date inconnue"}</span>;
+  const btn=on=>({fontSize:11,padding:"6px 12px",minHeight:32,borderRadius:4,cursor:"pointer",fontFamily:"var(--font)",
+    border:on?"1px solid rgba(0,229,160,.5)":"1px solid #1a2540",background:on?"rgba(0,229,160,.12)":"transparent",color:on?"#00e5a0":"#8892a4"});
+  const th={padding:"8px 8px",fontSize:10,color:"#8892a4",textAlign:"left",letterSpacing:.4,whiteSpace:"nowrap",fontWeight:500};
+  const thD={...th,textAlign:"right"};
+  return(
+    <div className="vue-per">
+      <div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap",marginBottom:6}}>
+        <h2 style={{fontSize:16,fontWeight:700,color:"#e8eef8",margin:0}}>Classement par PER</h2>
+        <span style={{fontSize:11,color:"#8892a4"}}>{vus.length} classé{vus.length>1?"s":""} · {nc.length} non classé{nc.length>1?"s":""}{secteur!=="ALL"?` · ${secteur}`:""}</span>
+      </div>
+      <div className="per-aide" style={{fontSize:11.5,color:"#c8d3e8",lineHeight:1.5,background:"#0d1829",border:"1px solid #1a2540",borderLeft:"3px solid #4db8ff",borderRadius:6,padding:"8px 12px",marginBottom:10,maxWidth:900}}>
+        <b>PER = cours ÷ bénéfice par action (BPA)</b>, réalisé et non prévisionnel : sur 12 mois glissants quand les comptes semestriels ont été lus, sur l'exercice 2025 sinon (colonne « base »).
+        {" "}<b style={{color:"#4db8ff"}}>Un PER ne se compare qu'à celui de son secteur</b> : une banque, une minière et une foncière n'ont ni la même croissance, ni le même risque, ni la même comptabilité. La médiane du secteur est calculée ici sur les PER classés, à partir de {minSecteur} titres.
+        {" "}Un PER bas décrit le prix payé pour le bénéfice passé ; il ne dit rien de l'évolution du titre.
+        {" "}<span style={{color:"#8892a4"}}>Non classés : perte (pas de PER), PER absent, PER au-delà de {seuil} (BPA quasi nul), comptes absents, cotation suspendue.</span>
+      </div>
+      <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",marginBottom:10}}>
+        <span style={{fontSize:11,color:"#8892a4",letterSpacing:1}}>ORDRE</span>
+        <button onClick={()=>setSens("asc")} aria-pressed={sens==="asc"} style={btn(sens==="asc")}>PER croissant ▲</button>
+        <button onClick={()=>setSens("desc")} aria-pressed={sens==="desc"} style={btn(sens==="desc")}>PER décroissant ▼</button>
+        <select value={secteur} onChange={e=>setSecteur(e.target.value)} aria-label="Filtrer par secteur"
+          style={{background:"#0d1829",border:"1px solid #1a2540",color:"#c8d3e8",borderRadius:4,padding:"6px 8px",minHeight:32,fontSize:11,fontFamily:"var(--font)",cursor:"pointer"}}>
+          <option value="ALL">Tous les secteurs</option>
+          {secteurs.map(s=>{const m=medianes[s];return <option key={s} value={s}>{s} ({m?m.n:0} classé{m&&m.n>1?"s":""})</option>;})}
+        </select>
+        {secteur!=="ALL"&&<button onClick={()=>setSecteur("ALL")} style={{...btn(false),color:"#ff4f5a",border:"1px solid #ff4f5a30"}}>✕ Secteur</button>}
+      </div>
+      {secteur!=="ALL"&&(()=>{const m=medianes[secteur]||{n:0,med:null};return(
+        <div style={{fontSize:12,color:"#c8d3e8",marginBottom:10}}>
+          Médiane du secteur {secteur} : <b style={{color:"#4db8ff"}}>{m.med!=null?nf(m.med):"—"}</b>
+          <span style={{color:"#8892a4"}}> sur {m.n} PER classé{m.n>1?"s":""}{m.med==null?` — moins de ${minSecteur} comparables, pas de médiane`:""}</span>
+        </div>);})()}
+      <div style={{overflowX:"auto",maxWidth:1100}}>
+        <table className="classement-per" style={{width:"100%",borderCollapse:"collapse",minWidth:700}}>
+          <thead><tr style={{borderBottom:"2px solid #1a2540"}}>
+            <th className="per-rang" style={th}>#</th><th style={th}>TITRE</th>
+            <th style={thD}>PER</th><th className="per-base" style={th}>BASE</th><th className="per-bpa" style={thD}>BPA (DH)</th>
+            <th style={thD}>COURS (DH)</th><th style={thD}>MÉDIANE SECTEUR</th>
+          </tr></thead>
+          <tbody>
+            {lignes.map((l,i)=>{const r=l.r,M=med(l),nco=nonComparable(r);
+              const ecart=M.med!=null?(l.pe/M.med-1)*100:null;
+              return(
+              <tr key={l.sym} onClick={()=>ouvrir(l.sym)} style={{borderBottom:"1px solid #0d1829",cursor:"pointer"}}
+                onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.025)"}
+                onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                <td className="per-rang" style={{padding:"8px 8px",fontSize:12,color:"#8892a4"}}>{i+1}</td>
+                <td style={{padding:"8px 8px"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+                    <span style={{fontSize:14,color:"#fff",fontWeight:800}}>{tk(r)}</span>
+                    {nco&&<span title={`Titre peu échangé : ${nco.motif||""} — le cours, donc le PER, peut sauter d'une séance à l'autre`}
+                      style={{fontSize:9,color:"#8892a4",border:"1px solid #2a3550",borderRadius:2,padding:"1px 4px",whiteSpace:"nowrap"}}>peu échangé</span>}
+                  </div>
+                  <div title={r.name||""} style={{fontSize:11.5,color:"#c8d3e8",lineHeight:1.25,maxWidth:200,overflowWrap:"break-word"}}>{r.name}</div>
+                  <div style={{fontSize:10,color:"#6b7a99"}}>{l.secteur||"secteur inconnu"}</div>
+                </td>
+                <td style={{padding:"8px 8px",textAlign:"right",whiteSpace:"nowrap"}}>
+                  <div style={{fontSize:15,fontWeight:700,color:"#e8eef8",fontVariantNumeric:"tabular-nums"}}>{nf(l.pe)}
+                    {r.bpa_reserve&&<span title={`Réserve sur le BPA : ${r.bpa_reserve}`} style={{fontSize:10,color:"#ff8f00",marginLeft:3,cursor:"help"}}>⚠</span>}</div>
+                  {r.pe_capitalisation!=null&&r.pe_capitalisation!==l.pe&&<div title="Capitalisation ÷ résultat 12 mois (nombre d'actions actuel) ; le PER ci-dessus porte sur le nombre moyen pondéré de la période (IAS 33)" style={{fontSize:9.5,color:"#8892a4",cursor:"help"}}>cap. {nf(r.pe_capitalisation)}</div>}
+                  <div className="per-mobile" style={{fontSize:9.5,color:"#8892a4"}}>BPA {nf(l.bpa,2)}</div>
+                  <div className="per-mobile" style={{fontSize:9.5,color:"#6b7a99"}}>{l.base&&l.base.startsWith("12")?"12 mois":l.base||"—"}</div>
+                </td>
+                <td className="per-base" style={{padding:"8px 8px",fontSize:11,color:"#8892a4",whiteSpace:"nowrap"}}>{baseCourte(l.base)}
+                  {l.base&&l.base.startsWith("12")&&r.pe_annuel!=null&&<div style={{fontSize:9.5,color:"#5a6478"}}>exercice 2025 : {nf(r.pe_annuel)}</div>}</td>
+                <td className="per-bpa" style={{padding:"8px 8px",fontSize:12,color:"#c8d3e8",textAlign:"right",fontVariantNumeric:"tabular-nums"}}>{nf(l.bpa,2)}</td>
+                <td style={{padding:"8px 8px",textAlign:"right",whiteSpace:"nowrap"}}>
+                  <div style={{fontSize:12.5,color:"#c8d3e8",fontWeight:600,fontVariantNumeric:"tabular-nums"}}>{nf(l.cours,2)}</div>
+                  <DateCours l={l}/>
+                </td>
+                <td style={{padding:"8px 8px",textAlign:"right",whiteSpace:"nowrap"}}>
+                  {M.med!=null?<>
+                    <div style={{fontSize:12.5,color:"#4db8ff",fontVariantNumeric:"tabular-nums"}}>{nf(M.med)}</div>
+                    <div style={{fontSize:9.5,color:"#8892a4"}}>n={M.n} · {ecart>=0?"+":"−"}{nf(Math.abs(ecart),0)} %</div>
+                  </>:<div title={`Moins de ${minSecteur} PER classés dans le secteur : pas de médiane`} style={{fontSize:10,color:"#5a6478"}}>n={M.n}<br/>trop peu</div>}
+                </td>
+              </tr>);})}
+            {!lignes.length&&<tr><td colSpan={7} style={{padding:"16px 8px",fontSize:12,color:"#8892a4"}}>Aucun PER classé dans ce secteur.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+      <div className="carte per-non-classes" style={{marginTop:14,background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"10px 12px",maxWidth:1100}}>
+        <div style={{fontSize:13,fontWeight:700,color:"#e8eef8",marginBottom:2}}>Non classés ({nc.length})</div>
+        <div style={{fontSize:11,color:"#8892a4",marginBottom:6}}>Ils ne sont pas rangés parmi les PER les plus bas : leur PER manque ou ne mesure rien. Le motif est donné pour chacun.</div>
+        {nc.map(l=>(
+          <div key={l.sym} onClick={()=>ouvrir(l.sym)} role="button" tabIndex={0}
+            onKeyDown={e=>{if(e.key==="Enter")ouvrir(l.sym);}}
+            style={{display:"flex",gap:10,alignItems:"baseline",flexWrap:"wrap",padding:"7px 0",borderTop:"1px solid #1a2540",cursor:"pointer"}}>
+            <span style={{fontSize:13,color:"#fff",fontWeight:800,minWidth:44}}>{tk(l.r)}</span>
+            <span style={{fontSize:11.5,color:"#c8d3e8",flex:"1 1 160px",minWidth:0}}>{l.r.name}<span style={{color:"#6b7a99"}}> · {l.secteur||"secteur inconnu"}</span></span>
+            <span style={{fontSize:11,color:"#8892a4",whiteSpace:"nowrap"}}>{l.cours!=null?`${nf(l.cours,2)} DH`:"cours —"} · <DateCours l={l}/></span>
+            <span className="per-motif" style={{fontSize:11,color:l.code==="perte"?"#ff8f00":"#8892a4",flex:"1 1 100%"}}>{l.motif}</span>
+          </div>))}
+        {!nc.length&&<div style={{fontSize:11,color:"#8892a4"}}>Aucun.</div>}
+      </div>
+      <div style={{marginTop:10,fontSize:10.5,color:"#6b7a99",lineHeight:1.6}}>
+        Source : data.json (PER, base, BPA et cours publiés par le moteur ; médiane calculée à l'écran). « cap. » : capitalisation ÷ résultat 12 mois, quand il diffère du PER par action. ⚠ près d'une date : cours antérieur à la dernière séance cotée. Clic → fiche du titre.
       </div>
     </div>
   );
@@ -5253,6 +5440,7 @@ const Guide=({setTab})=>{
       <L titre="Note /10">Moyenne de deux piliers sur 10 : <T>fondamental</T> (rentabilité, croissance, valorisation, bilan — ≈ 72 %) et <T>technique</T> (tendance, RSI — ≈ 28 %, 0 sur un titre peu liquide), les mêmes à toute heure. <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des poids</a></L>
       <L titre="Couleur de la note">La note est colorée selon son palier, sans mot d'action : <T c="#00e5a0">● vert</T> dès 6,5 · <T c="#b5e655">● vert-jaune</T> dès 5,5 · <T c="#ffd740">● jaune</T> dès 4,5 · <T c="#ff8f00">● orange</T> dès 3,5 · <T c="#ff4f5a">● rouge</T> dessous. La couleur situe la note ; elle ne dit pas quoi faire. Titre trop peu échangé : une note dès 6,5 reste en vert-jaune, avec la mention « titre peu échangé ». <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, note grise. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
       <L titre="Note non comparable">Un titre très peu échangé — pilier technique neutralisé, et moins de 100 000 DH échangés par séance en médiane sur ses 20 dernières séances échangées — garde sa note, affichée en gris avec la mention « non comparable » et la médiane réelle. Avec si peu d'échanges, le cours peut sauter d'un côté à l'autre du carnet : la note ne se compare pas à celle d'un titre liquide. Aucune couleur de palier ; le titre est classé après tous les titres comparables et sort des « mieux notés » de l'accueil.</L>
+      <L titre="Classement par PER">PER = cours ÷ bénéfice par action, réalisé (12 mois glissants ou exercice 2025, selon la colonne « base »). <T>Un PER ne se compare qu'à celui de son secteur</T> : la médiane du secteur est donnée à côté, à partir de 4 PER classés. Une perte, un PER absent ou au-delà de 100 (BPA quasi nul), des comptes absents ou une cotation suspendue : le titre n'est pas classé, il est listé à part avec son motif. Un PER bas ne dit rien de l'évolution du titre. <a onClick={()=>setTab&&setTab("per")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Ouvrir le classement</a></L>
       <L titre="Fiabilité des données ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>
       <L titre="« X % gagnants (IC) · n cas » — fiche, Signaux techniques">Sur n cas passés à la BVC où le même signal est apparu, X % ont battu le MASI 60 séances après ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fréquence passée, pas une promesse.</L>
       <L titre="S/R — supports et résistances du graphique">Tirés de la fenêtre affichée : un creux est un plus-bas sous lequel aucune des 3 séances échangées voisines, de chaque côté, ne descend — un sommet, l'inverse ; creux et sommets à moins de 1,2 % l'un de l'autre font un seul niveau, car un même prix peut avoir été l'un puis l'autre. Il faut au moins 10 séances échangées dans la fenêtre. <T>Contact</T> : un épisode — une ou plusieurs séances échangées consécutives dont la fourchette plus-bas–plus-haut passe à moins de 1,2 % du niveau ; une séance sans échange au milieu ne le coupe pas. La même tolérance de 1,2 % sert à regrouper les points et à compter les contacts, pour tous les titres. <T>Niveaux retenus</T> : les plus touchés de toute la fenêtre, et non les plus proches du cours — au plus 3 au-dessus du dernier cours et 3 au niveau ou en dessous, à partir de 2 contacts ; à égalité, le contact le plus récent, puis le plus proche du cours. <T>Proche du cours</T> : de chaque côté, s'y ajoute au plus un niveau non retenu — le plus proche du cours parmi ceux qui ont au moins 2 contacts, respectent l'écart minimal avec les niveaux affichés et se trouvent à moins de 2 ATR(14) de la dernière clôture. Il est tracé comme les autres et marqué « proche » dans la légende : un niveau moins touché réapparaît quand le cours s'en approche. Au plus 4 niveaux de chaque côté. <T>Écart minimal</T> : deux niveaux tracés sont distants d'au moins 1 ATR(14) relatif du titre — la moyenne des 14 dernières étendues séance (plus-haut − plus-bas, élargi à la clôture précédente) rapportée à la dernière clôture — et jamais de moins de 2,4 % (deux fois la tolérance : en deçà, deux niveaux se partageraient leurs contacts). Un niveau trop proche d'un niveau mieux classé est écarté, pas fusionné. La valeur du titre est écrite sous la légende. <T>Le mot suit la position</T> : au-dessus de la dernière clôture, Résistance ; au niveau ou en dessous, Support. <T>Par-dessus, par-dessous</T> : la clôture de la séance échangée qui précède le contact dit d'où le cours arrive — par-dessus, il joue le rôle de support ; par-dessous, de résistance. <T>Tenu</T> : un support abordé par-dessus dont la clôture de fin d'épisode reste au niveau ou au-dessus (une résistance : abordée par-dessous, clôture au niveau ou en dessous). Un contact venu de l'autre côté n'est ni tenu ni cassé : il est compté à part. <T>Inversion</T> : quand les contacts passent d'un rôle à l'autre une seule fois, la légende l'écrit — « résistance jusqu'au 12/06 (2), support depuis (3, tenu 2) » : le dernier contact dans l'ancien rôle est daté, et chaque rôle porte son nombre de contacts. Quand les rôles ont alterné plusieurs fois, elle ne nomme aucun rôle : elle donne la période des contacts et les comptes par-dessus et par-dessous — « 20 contacts du 12/11/25 au 12/10/26 : 12 par-dessus (tenu 8) · 8 par-dessous ». « Sens inconnu » : contact au début de la fenêtre, ou clôture précédente pile au niveau. <T>Séances écartées</T> : volume nul — le titre n'a pas échangé, ou la bougie a été refaite depuis la seule clôture — et bougie du jour reconstituée depuis le dernier cours. Aucun plus-haut ni plus-bas n'y a été atteint ou mesuré : elles fabriqueraient des creux. Elles restent dessinées. Des séances passées, comptées et datées ; pas un niveau annoncé.</L>
@@ -5588,11 +5776,11 @@ const MentionLegale=()=>(
 /* Vues qui lisent les cours et les notes de data.json (`rows`). Les autres
    (POIDS, COMMENT LIRE, ACTUALITÉS, MARCHÉS MONDIAUX) ont leurs propres
    fichiers et restent ouvertes quand data.json manque. */
-const VUES_SUR_DONNEES=["accueil","ranking","heatmap","watchlist","detail","briefing"];
+const VUES_SUR_DONNEES=["accueil","ranking","per","heatmap","watchlist","detail","briefing"];
 /* ⚠️ 28/10/2026 — onglets « smart » et « nlp » retirés (corpus WhatsApp
    supprimé, décision d'Abd Moutalib). Un lien ancien `#onglet=nlp` ouvrait
    une page vide : seule une vue connue est acceptée depuis l'adresse. */
-const VUES_CONNUES=["accueil","ranking","briefing","heatmap","detail","watchlist","weights","news","monde","guide"];
+const VUES_CONNUES=["accueil","ranking","per","briefing","heatmap","detail","watchlist","weights","news","monde","guide"];
 /* État explicite tant que data.json n'a pas chargé — 22/10/2026. Aucun
    chiffre : ni ceux de la table de repli (elle n'en a plus), ni un écran
    de titres vides qui se lirait comme un marché sans cotation. */
@@ -5891,6 +6079,7 @@ function App(){
           :<>
         {tab==="accueil"  &&<Accueil rows={rows} fav={fav} ouvrir={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab}/>}
         {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={choisirTitre} setTab={changeTab} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
+        {tab==="per"      &&<ClassementPER rows={rows} setSel={choisirTitre} setTab={changeTab}/>}
         {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab}/>}
         {tab==="watchlist"&&<><ChangementsFavoris rows={rows} fav={fav} ouvrir={sym=>{choisirTitre(sym);changeTab("detail");}}/><Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true} scoreMode={scoreMode}/></>}
         {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={choisirTitre} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}

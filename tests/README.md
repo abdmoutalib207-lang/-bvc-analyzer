@@ -24,7 +24,7 @@ peu fiable, et une alarme peu fiable finit désactivée.
 | **R4** | Toute dépendance déclarée | ❌ non couvert |
 | **R5** | Pas de `filterwarnings` silencieux | ❌ non couvert |
 | **R6** | Testé avant commit | ✅ c'est ce fichier |
-| **R8** | `Tech + Fond + NLP = 100 %`, score dans [0, 10] | ✅ automatique |
+| **R8** | `Fond + Tech = 100 %`, score dans [0, 10] | ✅ automatique |
 | **R9** | `chg=0` ET `vol=0` ⇒ donnée périmée | 🟡 borné, question ouverte (voir plus bas) |
 | **R10** | Variation plafonnée à ±10 %/séance | ✅ sur les données publiées ET sur la fonction de recalcul |
 

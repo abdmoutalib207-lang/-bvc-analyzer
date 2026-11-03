@@ -30,6 +30,7 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
     .mobile-seul{display:none}
+    .per-mobile{display:none}
     /* L'étoile des favoris (07/10/2026) : #2a3550 sur le fond, contraste
        1,59 — invisible. Teinte --dim, et une boîte de 32 px au moins dont les
        marges négatives rendent l'encombrement : la ligne ne grandit pas. */
@@ -122,6 +123,12 @@
       .classement th:nth-child(12),.classement td:nth-child(12),
       .classement th:nth-child(13),.classement td:nth-child(13){display:none}
       .classement td,.classement th{padding:7px 3px!important}
+      /* Classement par PER (03/11/2026) : rang, base et BPA passent sous le
+         PER (lignes .per-mobile) faute de largeur. */
+      .classement-per{min-width:0!important}
+      .classement-per .per-rang,.classement-per .per-base,.classement-per .per-bpa{display:none}
+      .classement-per td,.classement-per th{padding:7px 4px!important}
+      .per-mobile{display:block!important}
       /* Colonne COULEUR (07/10/2026) : sur téléphone, la pastille seule —
          la note colorée est à côté. La mention « titre peu échangé » reste,
          en petit et sur deux lignes : elle explique une couleur sous la note. */
@@ -5080,6 +5087,10 @@ const RUBRIQUES = [{
     icone: "▤",
     aide: "Les 80 titres, leur note et sa couleur"
   }, {
+    id: "per",
+    icone: "÷",
+    aide: "Les titres rangés par PER, à côté de la médiane de leur secteur"
+  }, {
     id: "heatmap",
     icone: "▦",
     aide: "La séance d'un coup d'œil, par secteur"
@@ -5696,6 +5707,9 @@ const Header = ({
   }, {
     id: "ranking",
     label: "CLASSEMENT"
+  }, {
+    id: "per",
+    label: "PER"
   }, {
     id: "briefing",
     label: "BRIEFING"
@@ -6461,7 +6475,19 @@ const Ranking = ({
       borderRadius: 4,
       fontSize: 11
     }
-  }, lbl, sort === id ? " ▼" : ""))), customMode && React.createElement("div", {
+  }, lbl, sort === id ? " ▼" : "")), !isWatchlist && React.createElement("button", {
+    onClick: () => setTab("per"),
+    title: "Classement par PER, avec la m\xE9diane du secteur et les titres non class\xE9s",
+    style: {
+      background: "transparent",
+      border: "1px solid rgba(77,184,255,.4)",
+      color: "#4db8ff",
+      padding: "3px 10px",
+      borderRadius: 4,
+      fontSize: 11,
+      cursor: "pointer"
+    }
+  }, "PER \u203A")), customMode && React.createElement("div", {
     style: {
       marginBottom: 10,
       padding: "6px 12px",
@@ -6885,6 +6911,567 @@ const Ranking = ({
       color: "#ff4f5a"
     }
   }, "\u26A0\uFE0F"), " RSI rouge = prudence \xA0|\xA0 PE = Price/Earnings \xB7 DIV = dividende \xA0|\xA0 Clic \u2192 vue d\xE9taill\xE9e"));
+};
+function classerPER(rows) {
+  const SEUIL_NS = 100,
+    MIN_SECTEUR = 4;
+  const nf = (x, d) => (+x).toFixed(d).replace(".", ",");
+  const classes = [],
+    nonClasses = [];
+  for (const r of rows || []) {
+    if (!r) continue;
+    const m = r._meta || {};
+    const base = typeof r.pe_base === "string" ? r.pe_base : null;
+    const douze = !!base && base.startsWith("12");
+    const bpa = douze ? r.bpa_12m ?? null : r.bpa ?? null;
+    const cours = r.price ?? r.close ?? null;
+    const pe = typeof r.pe === "number" && isFinite(r.pe) ? r.pe : null;
+    const l = {
+      r,
+      sym: r.symbol || r.ticker,
+      pe,
+      base,
+      bpa,
+      cours,
+      asof: m.prix_asof || null,
+      stale: !!m.stale,
+      secteur: r.sector || null
+    };
+    let code = null,
+      motif = null;
+    if (m.suspendu) {
+      code = "suspendu";
+      motif = "Cotation suspendue" + (m.statut_juridique ? ` (${String(m.statut_juridique).toLowerCase()})` : "") + " : le cours n'est pas échangé, un PER n'y décrit rien";
+    } else if (m.comptes_absents) {
+      code = "sans_comptes";
+      motif = `Aucun compte déposé depuis le ${String(m.comptes_absents.dernier_depot || "").split("-").reverse().join("/") || "—"} : pas de bénéfice à rapporter au cours`;
+    } else if (pe == null) {
+      if (bpa != null && bpa <= 0) {
+        code = "perte";
+        motif = `Perte : BPA ${nf(bpa, 2)} DH${base ? ` (${base.replace(/(\d{4})-(\d{2})-(\d{2})/, "$3/$2/$1")})` : ""} — une perte n'a pas de PER`;
+      } else if (bpa == null) {
+        code = "absent";
+        motif = "PER absent : aucun BPA lu dans des comptes";
+      } else {
+        code = "absent";
+        motif = "PER absent : cours indisponible";
+      }
+    } else if (pe <= 0) {
+      code = "perte";
+      motif = `PER nul ou négatif (${nf(pe, 1)}) : pas de bénéfice à rapporter au cours`;
+    } else if (pe > SEUIL_NS) {
+      code = "non_significatif";
+      motif = `PER ${nf(pe, 1)} > ${SEUIL_NS} : BPA ${bpa != null ? nf(bpa, 2) + " DH" : "—"} quasi nul face au cours — non significatif`;
+    }
+    if (code) nonClasses.push({
+      ...l,
+      code,
+      motif
+    });else classes.push(l);
+  }
+  const parSecteur = {};
+  for (const l of classes) if (l.secteur) (parSecteur[l.secteur] = parSecteur[l.secteur] || []).push(l.pe);
+  const medianes = {};
+  for (const s of Object.keys(parSecteur)) {
+    const t = [...parSecteur[s]].sort((a, b) => a - b),
+      n = t.length;
+    medianes[s] = {
+      n,
+      med: n >= MIN_SECTEUR ? n % 2 ? t[(n - 1) / 2] : (t[n / 2 - 1] + t[n / 2]) / 2 : null
+    };
+  }
+  const ORDRE = {
+    perte: 0,
+    non_significatif: 1,
+    absent: 2,
+    sans_comptes: 3,
+    suspendu: 4
+  };
+  classes.sort((a, b) => a.pe - b.pe || String(a.sym).localeCompare(String(b.sym)));
+  nonClasses.sort((a, b) => ORDRE[a.code] - ORDRE[b.code] || String(a.sym).localeCompare(String(b.sym)));
+  return {
+    classes,
+    nonClasses,
+    medianes,
+    seuil: SEUIL_NS,
+    minSecteur: MIN_SECTEUR
+  };
+}
+const ClassementPER = ({
+  rows,
+  setSel,
+  setTab
+}) => {
+  const [sens, setSens] = useState("asc");
+  const [secteur, setSecteur] = useState("ALL");
+  const {
+    classes,
+    nonClasses,
+    medianes,
+    seuil,
+    minSecteur
+  } = useMemo(() => classerPER(rows), [rows]);
+  const secteurs = useMemo(() => [...new Set(rows.map(r => r.sector).filter(Boolean))].sort((a, b) => a.localeCompare(b, "fr")), [rows]);
+  const garde = l => secteur === "ALL" || l.secteur === secteur;
+  const vus = classes.filter(garde);
+  const lignes = sens === "asc" ? vus : [...vus].reverse();
+  const nc = nonClasses.filter(garde);
+  const nf = (x, d = 1) => x == null || !isFinite(x) ? "—" : (+x).toLocaleString("fr-FR", {
+    minimumFractionDigits: d,
+    maximumFractionDigits: d
+  }).replace(/ | /g, " ");
+  const baseCourte = b => {
+    if (!b) return "base inconnue";
+    const m = /^12 mois au (\d{4})-(\d{2})-(\d{2})$/.exec(b);
+    return m ? `12 mois au ${m[3]}/${m[2]}/${m[1]}` : b;
+  };
+  const ouvrir = sym => {
+    setSel(sym);
+    setTab("detail");
+  };
+  const med = l => l.secteur && medianes[l.secteur] || {
+    n: 0,
+    med: null
+  };
+  const DateCours = ({
+    l
+  }) => React.createElement("span", {
+    title: l.stale ? "Cours antérieur à la dernière séance cotée" : "Cours de la dernière séance cotée",
+    style: {
+      fontSize: 10,
+      color: l.stale ? "#ffd740" : "#8892a4",
+      whiteSpace: "nowrap"
+    }
+  }, l.stale ? "⚠ " : "", l.asof ? jjmmaaaa(l.asof) : "date inconnue");
+  const btn = on => ({
+    fontSize: 11,
+    padding: "6px 12px",
+    minHeight: 32,
+    borderRadius: 4,
+    cursor: "pointer",
+    fontFamily: "var(--font)",
+    border: on ? "1px solid rgba(0,229,160,.5)" : "1px solid #1a2540",
+    background: on ? "rgba(0,229,160,.12)" : "transparent",
+    color: on ? "#00e5a0" : "#8892a4"
+  });
+  const th = {
+    padding: "8px 8px",
+    fontSize: 10,
+    color: "#8892a4",
+    textAlign: "left",
+    letterSpacing: .4,
+    whiteSpace: "nowrap",
+    fontWeight: 500
+  };
+  const thD = {
+    ...th,
+    textAlign: "right"
+  };
+  return React.createElement("div", {
+    className: "vue-per"
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "baseline",
+      gap: 10,
+      flexWrap: "wrap",
+      marginBottom: 6
+    }
+  }, React.createElement("h2", {
+    style: {
+      fontSize: 16,
+      fontWeight: 700,
+      color: "#e8eef8",
+      margin: 0
+    }
+  }, "Classement par PER"), React.createElement("span", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4"
+    }
+  }, vus.length, " class\xE9", vus.length > 1 ? "s" : "", " \xB7 ", nc.length, " non class\xE9", nc.length > 1 ? "s" : "", secteur !== "ALL" ? ` · ${secteur}` : "")), React.createElement("div", {
+    className: "per-aide",
+    style: {
+      fontSize: 11.5,
+      color: "#c8d3e8",
+      lineHeight: 1.5,
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderLeft: "3px solid #4db8ff",
+      borderRadius: 6,
+      padding: "8px 12px",
+      marginBottom: 10,
+      maxWidth: 900
+    }
+  }, React.createElement("b", null, "PER = cours \xF7 b\xE9n\xE9fice par action (BPA)"), ", r\xE9alis\xE9 et non pr\xE9visionnel : sur 12 mois glissants quand les comptes semestriels ont \xE9t\xE9 lus, sur l'exercice 2025 sinon (colonne \xAB base \xBB).", " ", React.createElement("b", {
+    style: {
+      color: "#4db8ff"
+    }
+  }, "Un PER ne se compare qu'\xE0 celui de son secteur"), " : une banque, une mini\xE8re et une fonci\xE8re n'ont ni la m\xEAme croissance, ni le m\xEAme risque, ni la m\xEAme comptabilit\xE9. La m\xE9diane du secteur est calcul\xE9e ici sur les PER class\xE9s, \xE0 partir de ", minSecteur, " titres.", " ", "Un PER bas d\xE9crit le prix pay\xE9 pour le b\xE9n\xE9fice pass\xE9 ; il ne dit rien de l'\xE9volution du titre.", " ", React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, "Non class\xE9s : perte (pas de PER), PER absent, PER au-del\xE0 de ", seuil, " (BPA quasi nul), comptes absents, cotation suspendue.")), React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      alignItems: "center",
+      flexWrap: "wrap",
+      marginBottom: 10
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      letterSpacing: 1
+    }
+  }, "ORDRE"), React.createElement("button", {
+    onClick: () => setSens("asc"),
+    "aria-pressed": sens === "asc",
+    style: btn(sens === "asc")
+  }, "PER croissant \u25B2"), React.createElement("button", {
+    onClick: () => setSens("desc"),
+    "aria-pressed": sens === "desc",
+    style: btn(sens === "desc")
+  }, "PER d\xE9croissant \u25BC"), React.createElement("select", {
+    value: secteur,
+    onChange: e => setSecteur(e.target.value),
+    "aria-label": "Filtrer par secteur",
+    style: {
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      color: "#c8d3e8",
+      borderRadius: 4,
+      padding: "6px 8px",
+      minHeight: 32,
+      fontSize: 11,
+      fontFamily: "var(--font)",
+      cursor: "pointer"
+    }
+  }, React.createElement("option", {
+    value: "ALL"
+  }, "Tous les secteurs"), secteurs.map(s => {
+    const m = medianes[s];
+    return React.createElement("option", {
+      key: s,
+      value: s
+    }, s, " (", m ? m.n : 0, " class\xE9", m && m.n > 1 ? "s" : "", ")");
+  })), secteur !== "ALL" && React.createElement("button", {
+    onClick: () => setSecteur("ALL"),
+    style: {
+      ...btn(false),
+      color: "#ff4f5a",
+      border: "1px solid #ff4f5a30"
+    }
+  }, "\u2715 Secteur")), secteur !== "ALL" && (() => {
+    const m = medianes[secteur] || {
+      n: 0,
+      med: null
+    };
+    return React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: "#c8d3e8",
+        marginBottom: 10
+      }
+    }, "M\xE9diane du secteur ", secteur, " : ", React.createElement("b", {
+      style: {
+        color: "#4db8ff"
+      }
+    }, m.med != null ? nf(m.med) : "—"), React.createElement("span", {
+      style: {
+        color: "#8892a4"
+      }
+    }, " sur ", m.n, " PER class\xE9", m.n > 1 ? "s" : "", m.med == null ? ` — moins de ${minSecteur} comparables, pas de médiane` : ""));
+  })(), React.createElement("div", {
+    style: {
+      overflowX: "auto",
+      maxWidth: 1100
+    }
+  }, React.createElement("table", {
+    className: "classement-per",
+    style: {
+      width: "100%",
+      borderCollapse: "collapse",
+      minWidth: 700
+    }
+  }, React.createElement("thead", null, React.createElement("tr", {
+    style: {
+      borderBottom: "2px solid #1a2540"
+    }
+  }, React.createElement("th", {
+    className: "per-rang",
+    style: th
+  }, "#"), React.createElement("th", {
+    style: th
+  }, "TITRE"), React.createElement("th", {
+    style: thD
+  }, "PER"), React.createElement("th", {
+    className: "per-base",
+    style: th
+  }, "BASE"), React.createElement("th", {
+    className: "per-bpa",
+    style: thD
+  }, "BPA (DH)"), React.createElement("th", {
+    style: thD
+  }, "COURS (DH)"), React.createElement("th", {
+    style: thD
+  }, "M\xC9DIANE SECTEUR"))), React.createElement("tbody", null, lignes.map((l, i) => {
+    const r = l.r,
+      M = med(l),
+      nco = nonComparable(r);
+    const ecart = M.med != null ? (l.pe / M.med - 1) * 100 : null;
+    return React.createElement("tr", {
+      key: l.sym,
+      onClick: () => ouvrir(l.sym),
+      style: {
+        borderBottom: "1px solid #0d1829",
+        cursor: "pointer"
+      },
+      onMouseEnter: e => e.currentTarget.style.background = "rgba(255,255,255,.025)",
+      onMouseLeave: e => e.currentTarget.style.background = "transparent"
+    }, React.createElement("td", {
+      className: "per-rang",
+      style: {
+        padding: "8px 8px",
+        fontSize: 12,
+        color: "#8892a4"
+      }
+    }, i + 1), React.createElement("td", {
+      style: {
+        padding: "8px 8px"
+      }
+    }, React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        flexWrap: "wrap"
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 14,
+        color: "#fff",
+        fontWeight: 800
+      }
+    }, tk(r)), nco && React.createElement("span", {
+      title: `Titre peu échangé : ${nco.motif || ""} — le cours, donc le PER, peut sauter d'une séance à l'autre`,
+      style: {
+        fontSize: 9,
+        color: "#8892a4",
+        border: "1px solid #2a3550",
+        borderRadius: 2,
+        padding: "1px 4px",
+        whiteSpace: "nowrap"
+      }
+    }, "peu \xE9chang\xE9")), React.createElement("div", {
+      title: r.name || "",
+      style: {
+        fontSize: 11.5,
+        color: "#c8d3e8",
+        lineHeight: 1.25,
+        maxWidth: 200,
+        overflowWrap: "break-word"
+      }
+    }, r.name), React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: "#6b7a99"
+      }
+    }, l.secteur || "secteur inconnu")), React.createElement("td", {
+      style: {
+        padding: "8px 8px",
+        textAlign: "right",
+        whiteSpace: "nowrap"
+      }
+    }, React.createElement("div", {
+      style: {
+        fontSize: 15,
+        fontWeight: 700,
+        color: "#e8eef8",
+        fontVariantNumeric: "tabular-nums"
+      }
+    }, nf(l.pe), r.bpa_reserve && React.createElement("span", {
+      title: `Réserve sur le BPA : ${r.bpa_reserve}`,
+      style: {
+        fontSize: 10,
+        color: "#ff8f00",
+        marginLeft: 3,
+        cursor: "help"
+      }
+    }, "\u26A0")), r.pe_capitalisation != null && r.pe_capitalisation !== l.pe && React.createElement("div", {
+      title: "Capitalisation \xF7 r\xE9sultat 12 mois (nombre d'actions actuel) ; le PER ci-dessus porte sur le nombre moyen pond\xE9r\xE9 de la p\xE9riode (IAS 33)",
+      style: {
+        fontSize: 9.5,
+        color: "#8892a4",
+        cursor: "help"
+      }
+    }, "cap. ", nf(r.pe_capitalisation)), React.createElement("div", {
+      className: "per-mobile",
+      style: {
+        fontSize: 9.5,
+        color: "#8892a4"
+      }
+    }, "BPA ", nf(l.bpa, 2)), React.createElement("div", {
+      className: "per-mobile",
+      style: {
+        fontSize: 9.5,
+        color: "#6b7a99"
+      }
+    }, l.base && l.base.startsWith("12") ? "12 mois" : l.base || "—")), React.createElement("td", {
+      className: "per-base",
+      style: {
+        padding: "8px 8px",
+        fontSize: 11,
+        color: "#8892a4",
+        whiteSpace: "nowrap"
+      }
+    }, baseCourte(l.base), l.base && l.base.startsWith("12") && r.pe_annuel != null && React.createElement("div", {
+      style: {
+        fontSize: 9.5,
+        color: "#5a6478"
+      }
+    }, "exercice 2025 : ", nf(r.pe_annuel))), React.createElement("td", {
+      className: "per-bpa",
+      style: {
+        padding: "8px 8px",
+        fontSize: 12,
+        color: "#c8d3e8",
+        textAlign: "right",
+        fontVariantNumeric: "tabular-nums"
+      }
+    }, nf(l.bpa, 2)), React.createElement("td", {
+      style: {
+        padding: "8px 8px",
+        textAlign: "right",
+        whiteSpace: "nowrap"
+      }
+    }, React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: "#c8d3e8",
+        fontWeight: 600,
+        fontVariantNumeric: "tabular-nums"
+      }
+    }, nf(l.cours, 2)), React.createElement(DateCours, {
+      l: l
+    })), React.createElement("td", {
+      style: {
+        padding: "8px 8px",
+        textAlign: "right",
+        whiteSpace: "nowrap"
+      }
+    }, M.med != null ? React.createElement(React.Fragment, null, React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: "#4db8ff",
+        fontVariantNumeric: "tabular-nums"
+      }
+    }, nf(M.med)), React.createElement("div", {
+      style: {
+        fontSize: 9.5,
+        color: "#8892a4"
+      }
+    }, "n=", M.n, " \xB7 ", ecart >= 0 ? "+" : "−", nf(Math.abs(ecart), 0), " %")) : React.createElement("div", {
+      title: `Moins de ${minSecteur} PER classés dans le secteur : pas de médiane`,
+      style: {
+        fontSize: 10,
+        color: "#5a6478"
+      }
+    }, "n=", M.n, React.createElement("br", null), "trop peu")));
+  }), !lignes.length && React.createElement("tr", null, React.createElement("td", {
+    colSpan: 7,
+    style: {
+      padding: "16px 8px",
+      fontSize: 12,
+      color: "#8892a4"
+    }
+  }, "Aucun PER class\xE9 dans ce secteur."))))), React.createElement("div", {
+    className: "carte per-non-classes",
+    style: {
+      marginTop: 14,
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      padding: "10px 12px",
+      maxWidth: 1100
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 700,
+      color: "#e8eef8",
+      marginBottom: 2
+    }
+  }, "Non class\xE9s (", nc.length, ")"), React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      marginBottom: 6
+    }
+  }, "Ils ne sont pas rang\xE9s parmi les PER les plus bas : leur PER manque ou ne mesure rien. Le motif est donn\xE9 pour chacun."), nc.map(l => React.createElement("div", {
+    key: l.sym,
+    onClick: () => ouvrir(l.sym),
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: e => {
+      if (e.key === "Enter") ouvrir(l.sym);
+    },
+    style: {
+      display: "flex",
+      gap: 10,
+      alignItems: "baseline",
+      flexWrap: "wrap",
+      padding: "7px 0",
+      borderTop: "1px solid #1a2540",
+      cursor: "pointer"
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: "#fff",
+      fontWeight: 800,
+      minWidth: 44
+    }
+  }, tk(l.r)), React.createElement("span", {
+    style: {
+      fontSize: 11.5,
+      color: "#c8d3e8",
+      flex: "1 1 160px",
+      minWidth: 0
+    }
+  }, l.r.name, React.createElement("span", {
+    style: {
+      color: "#6b7a99"
+    }
+  }, " \xB7 ", l.secteur || "secteur inconnu")), React.createElement("span", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      whiteSpace: "nowrap"
+    }
+  }, l.cours != null ? `${nf(l.cours, 2)} DH` : "cours —", " \xB7 ", React.createElement(DateCours, {
+    l: l
+  })), React.createElement("span", {
+    className: "per-motif",
+    style: {
+      fontSize: 11,
+      color: l.code === "perte" ? "#ff8f00" : "#8892a4",
+      flex: "1 1 100%"
+    }
+  }, l.motif))), !nc.length && React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4"
+    }
+  }, "Aucun.")), React.createElement("div", {
+    style: {
+      marginTop: 10,
+      fontSize: 10.5,
+      color: "#6b7a99",
+      lineHeight: 1.6
+    }
+  }, "Source : data.json (PER, base, BPA et cours publi\xE9s par le moteur ; m\xE9diane calcul\xE9e \xE0 l'\xE9cran). \xAB cap. \xBB : capitalisation \xF7 r\xE9sultat 12 mois, quand il diff\xE8re du PER par action. \u26A0 pr\xE8s d'une date : cours ant\xE9rieur \xE0 la derni\xE8re s\xE9ance cot\xE9e. Clic \u2192 fiche du titre."));
 };
 const nfr = (x, d = 2) => x == null || !isFinite(x) ? "—" : (+x).toLocaleString("fr-FR", {
   minimumFractionDigits: d,
@@ -11251,6 +11838,15 @@ const Guide = ({
   }, "SUSPENDU"), " : le titre ne cote pas."), React.createElement(L, {
     titre: "Note non comparable"
   }, "Un titre tr\xE8s peu \xE9chang\xE9 \u2014 pilier technique neutralis\xE9, et moins de 100 000 DH \xE9chang\xE9s par s\xE9ance en m\xE9diane sur ses 20 derni\xE8res s\xE9ances \xE9chang\xE9es \u2014 garde sa note, affich\xE9e en gris avec la mention \xAB non comparable \xBB et la m\xE9diane r\xE9elle. Avec si peu d'\xE9changes, le cours peut sauter d'un c\xF4t\xE9 \xE0 l'autre du carnet : la note ne se compare pas \xE0 celle d'un titre liquide. Aucune couleur de palier ; le titre est class\xE9 apr\xE8s tous les titres comparables et sort des \xAB mieux not\xE9s \xBB de l'accueil."), React.createElement(L, {
+    titre: "Classement par PER"
+  }, "PER = cours \xF7 b\xE9n\xE9fice par action, r\xE9alis\xE9 (12 mois glissants ou exercice 2025, selon la colonne \xAB base \xBB). ", React.createElement(T, null, "Un PER ne se compare qu'\xE0 celui de son secteur"), " : la m\xE9diane du secteur est donn\xE9e \xE0 c\xF4t\xE9, \xE0 partir de 4 PER class\xE9s. Une perte, un PER absent ou au-del\xE0 de 100 (BPA quasi nul), des comptes absents ou une cotation suspendue : le titre n'est pas class\xE9, il est list\xE9 \xE0 part avec son motif. Un PER bas ne dit rien de l'\xE9volution du titre. ", React.createElement("a", {
+    onClick: () => setTab && setTab("per"),
+    style: {
+      color: "#4db8ff",
+      cursor: "pointer",
+      textDecoration: "underline"
+    }
+  }, "Ouvrir le classement")), React.createElement(L, {
     titre: "Fiabilit\xE9 des donn\xE9es \u25CF\u25CF\u25CF\u25CB\u25CB"
   }, "Un point par garantie : prix de la derni\xE8re s\xE9ance \xB7 fondamentaux r\xE9els \xB7 historique \u2265 15 s\xE9ances \xE9chang\xE9es \xB7 comptes d\xE9pos\xE9s \xE0 l'AMMC \xB7 liquidit\xE9 \u2265 100 000 DH par s\xE9ance. Titre peu liquide : 2/5 au plus."), React.createElement(L, {
     titre: "\xAB X % gagnants (IC) \xB7 n cas \xBB \u2014 fiche, Signaux techniques"
@@ -11818,8 +12414,8 @@ const MentionLegale = () => React.createElement("footer", {
     margin: 0
   }
 }, "Les performances pass\xE9es ne pr\xE9jugent pas des performances futures. Toute d\xE9cision d'investissement rel\xE8ve de votre seule responsabilit\xE9 et devrait \xEAtre pr\xE9c\xE9d\xE9e de l'avis d'un professionnel habilit\xE9.")));
-const VUES_SUR_DONNEES = ["accueil", "ranking", "heatmap", "watchlist", "detail", "briefing"];
-const VUES_CONNUES = ["accueil", "ranking", "briefing", "heatmap", "detail", "watchlist", "weights", "news", "monde", "guide"];
+const VUES_SUR_DONNEES = ["accueil", "ranking", "per", "heatmap", "watchlist", "detail", "briefing"];
+const VUES_CONNUES = ["accueil", "ranking", "per", "briefing", "heatmap", "detail", "watchlist", "weights", "news", "monde", "guide"];
 const EtatDonnees = ({
   etat,
   loading,
@@ -12211,6 +12807,10 @@ function App() {
     fav: fav,
     toggleFav: toggleFav,
     scoreMode: scoreMode
+  }), tab === "per" && React.createElement(ClassementPER, {
+    rows: rows,
+    setSel: choisirTitre,
+    setTab: changeTab
   }), tab === "heatmap" && React.createElement(Heatmap, {
     rows: rows,
     setSel: sym => {

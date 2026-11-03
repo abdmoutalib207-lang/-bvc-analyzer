@@ -70,7 +70,7 @@ def test_valeurs_radiees_hors_univers(config):
     indéfiniment.
 
     ⚠️ Elles restent dans COMPANY_NAMES et ISIN_MAP : on archive, on ne supprime
-    pas. L'historique des chandelles et le corpus NLP les mentionnent encore, et
+    pas. L'historique des chandelles les mentionne encore, et
     un nom manquant ferait apparaître « ? » là où une explication est due.
     """
     for sym, info in config.VALEURS_RADIEES.items():
