@@ -81,7 +81,7 @@ def test_annexer_tout_ou_rien():
 
 def test_aucun_autre_module_ne_lit_le_score_descriptif():
     """R8 : le score fantôme n'alimente ni la note, ni le signal, ni la confiance, ni le bulletin."""
-    autorises = {"score_descriptif.py", "backtest_score_descriptif.py"}
+    autorises = {"score_descriptif.py", "backtest_score_descriptif.py", "score_bvc.py", "backtest_score_bvc.py"}
     lecteurs = []
     for p in sorted((RACINE / "pipeline").rglob("*.py")):
         if p.name in autorises:

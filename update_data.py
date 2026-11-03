@@ -5558,6 +5558,20 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:                               # noqa: BLE001
         logger.warning(f"  👻 score descriptif non calculé ({_e})")
 
+    # SCORE BVC UNIQUE (Nour + Boursenews) — MODE FANTÔME, 03/11/2026, R8 accordé
+    # sur le principe par Abd Moutalib ; la bascule du signal viendra après le
+    # rapport. Même garde que ci-dessus : aucun autre champ lu en écriture.
+    try:
+        from pipeline.score_bvc import annexer_bvc as _bvc_annexer
+        _sb = _bvc_annexer(
+            tickers_out,
+            lambda s: [] if _candles_cache.get(s) is None
+            else _candles_cache[s].to_dict("records"))
+        logger.info(f"  👻 score BVC (fantôme) : "
+                    f"{sum(1 for v in _sb.values() if v['valeur'] is not None)} valeurs")
+    except Exception as _e:                               # noqa: BLE001
+        logger.warning(f"  👻 score BVC non calculé ({_e})")
+
     # ⚠️ LE FLUX SE CONTRÔLE LUI-MÊME — ajouté le 24/09/2026.
     #
     # « Un score qui ne se vérifie pas lui-même ne peut pas être calibré. » La

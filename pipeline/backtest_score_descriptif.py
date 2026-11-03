@@ -220,7 +220,8 @@ def _dates_suspension(t: str) -> list:
 
 # ───────────────────────────── panel ─────────────────────────────
 
-def panel_titre(t: str, bars: list, roe, cal_pos: dict, cal: list, masi: dict, divs: list) -> list:
+def panel_titre(t: str, bars: list, roe, cal_pos: dict, cal: list, masi: dict, divs: list,
+                extra=None) -> list:
     """Une ligne par (titre, séance échangée du calendrier), sans regard vers l'avenir.
 
     Les colonnes de score ne lisent que les bougies jusqu'à la date ; les colonnes
@@ -293,6 +294,10 @@ def panel_titre(t: str, bars: list, roe, cal_pos: dict, cal: list, masi: dict, d
                  "horizon_non_atteint": False, "masi_absent": False}
         for nom, f in avec["facteurs"].items():
             ligne["pts_" + nom] = f["points"]
+        if extra is not None:     # colonnes supplémentaires (score BVC) ; n'altère pas celles de Nour
+            ligne.update(extra({"i": i, "c": c, "ma20": ma20, "ma50": ma50, "rsi": rsi[i], "m": m,
+                                "decision": decision, "motif": motif, "roe": roe, "t": t,
+                                "prix": c[i]}))
         if p + HORIZON >= len(cal):
             ligne["horizon_non_atteint"] = True
         else:
@@ -318,11 +323,12 @@ def sd_evenements(t: str) -> list:
     return evenements_titre(t)
 
 
-def construire_panel(bougies: dict, cal: list, roes: dict, masi: dict, divs: dict) -> pd.DataFrame:
+def construire_panel(bougies: dict, cal: list, roes: dict, masi: dict, divs: dict,
+                     extra=None) -> pd.DataFrame:
     cal_pos = {d: i for i, d in enumerate(cal)}
     lignes = []
     for t in sorted(bougies):
-        lignes += panel_titre(t, bougies[t], roes.get(t), cal_pos, cal, masi, divs.get(t, []))
+        lignes += panel_titre(t, bougies[t], roes.get(t), cal_pos, cal, masi, divs.get(t, []), extra)
     P = pd.DataFrame(lignes)
     P["propre"] = (P["r"].notna() & ~P["fenetre_rompue"] & ~P["rupture_indic"]
                    & ~P["sortie_absente"] & P["rm"].notna())
