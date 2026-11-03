@@ -83,7 +83,7 @@ def test_la_vue_officielle_ne_diverge_pas_du_moteur():
     applique.** L'attendu n'est plus recopié, il est lu dans le moteur.
 
     ⚠️ La tolérance d'un point est voulue : l'écran porte des entiers, le
-    moteur des fractions (65,28 et 34,72). Exiger l'égalité stricte ferait
+    moteur des fractions (72,22 et 27,78). Exiger l'égalité stricte ferait
     échouer un arrondi correct.
     """
     from update_data import get_weights
