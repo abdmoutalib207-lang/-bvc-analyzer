@@ -5515,6 +5515,27 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:                               # noqa: BLE001
         logger.warning(f"  📐 mesures de risque non calculées ({_e})")
 
+    # SÉANCES DE SUSPENSION, POUR LE GRAPHIQUE — 03/11/2026, demande d'Abd
+    # Moutalib. Le registre `SUSPENSIONS`, avec les séances où le MARCHÉ a coté
+    # pendant chaque période (calendrier déduit de toutes les chandelles). Le
+    # terminal les marque sur l'axe du temps ; aucune bougie n'est écrite (R11).
+    # Descriptif : rien en aval ne le lit, ni la note ni le signal.
+    try:
+        from pipeline.risque import calendrier_seances as _cal_seances
+        from pipeline.seance import suspensions_publiees as _susp_pub
+        _cal_s = _cal_seances({s: df.to_dict("records") for s, df in _candles_cache.items()
+                               if df is not None})
+        for x in tickers_out:
+            _periodes_s = SUSPENSIONS.get(x["symbol"])
+            if not _periodes_s:
+                continue
+            _df = _candles_cache.get(x["symbol"])
+            _prem = (str(min(_df["d"]))[:10] if _df is not None and len(_df) else "9999-12-31")
+            x.setdefault("_meta", {})["suspensions"] = _susp_pub(
+                _periodes_s, _cal_s, premiere=_prem, jusqu_au=date_analyse())
+    except Exception as _e:                               # noqa: BLE001
+        logger.warning(f"  séances de suspension non publiées ({_e})")
+
     # ⚠️ LE FLUX SE CONTRÔLE LUI-MÊME — ajouté le 24/09/2026.
     #
     # « Un score qui ne se vérifie pas lui-même ne peut pas être calibré. » La

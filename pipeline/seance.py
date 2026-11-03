@@ -237,6 +237,37 @@ def purger_suspensions(candles_dir=None, historique=None, dry_run=False):
     return retirees, fichiers
 
 
+def suspensions_publiees(periodes, calendrier, premiere=None, jusqu_au=None) -> list:
+    """Les périodes de suspension d'un titre, avec les SÉANCES DE MARCHÉ qu'elles
+    couvrent — ce que `_meta.suspensions` publie pour le graphique. Fonction pure.
+
+    Demande d'Abd Moutalib (03/11/2026) : « sur le graphique il faut afficher les
+    jours même si suspendu ». Le graphique n'a d'axe que pour les séances où le
+    titre porte une bougie ; un titre suspendu n'en a pas (R11 : aucune bougie
+    inventée). Les séances où LE MARCHÉ a coté pendant la suspension sont donc
+    publiées, pour être marquées sur l'axe sans y poser de cours.
+
+    periodes   : `SUSPENSIONS[ticker]` (registre)
+    calendrier : séances réelles du marché (`risque.calendrier_seances`), triées
+    premiere   : première bougie du titre — rien n'est listé avant, le
+                 graphique ne remonte pas plus loin (DIS, DLM : aucune bougie)
+    jusqu_au   : date d'analyse ; une période qui commence après est ignorée
+    """
+    out = []
+    for p in periodes or ():
+        if jusqu_au and p["depuis"] > jusqu_au:
+            continue
+        fin = p.get("reprise") or "9999-12-31"
+        seances = [d for d in (calendrier or ())
+                   if p["depuis"] <= d < fin
+                   and (premiere is None or d >= premiere)
+                   and (jusqu_au is None or d <= jusqu_au)]
+        out.append({"depuis": p["depuis"], "reprise": p.get("reprise"),
+                    "motif": p.get("motif"), "source": p.get("source"),
+                    "url": p.get("url"), "seances": seances})
+    return out
+
+
 def reparer_ohlc(candles_dir=None, dry_run=False):
     """Force l'invariant `l ≤ min(o, c) ≤ max(o, c) ≤ h` sur toutes les bougies.
 
