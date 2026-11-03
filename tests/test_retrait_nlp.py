@@ -256,7 +256,8 @@ def test_le_dossier_du_corpus_ne_revient_pas():
 
 def test_les_poids_n_ont_que_deux_piliers():
     import update_data
-    for ctx in ({}, {"market_status": "CLOSED"}, {"market_status": "OPEN", "masi_ytd": -6.0},
+    for ctx in ({}, {"market_status": "CLOSED"}, {"market_status": "OPEN"},
+                {"market_status": "PRE_MARKET"}, {"market_status": "OPEN", "masi_ytd": -6.0},
                 {"market_status": "CLOSED", "tech_non_fiable": True}):
         w = update_data.get_weights(ctx)
         assert set(w) == {"fondamental", "technique"}, ctx

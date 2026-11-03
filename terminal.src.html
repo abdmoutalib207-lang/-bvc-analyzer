@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache"/>
   <meta http-equiv="Expires" content="0"/>
   <title>BVC Analyzer v6.4 — Bourse de Casablanca</title>
-  <meta name="description" content="Terminal d'analyse quantitative de la Bourse de Casablanca : 80 titres, dernière clôture vérifiée contre le bulletin de l'opérateur. Score composite Fondamental 65% · Technique 35%, modulé par titre."/>
+  <meta name="description" content="Terminal d'analyse quantitative de la Bourse de Casablanca : 80 titres, dernière clôture vérifiée contre le bulletin de l'opérateur. Score composite Fondamental 72% · Technique 28%, modulé par titre."/>
   <meta name="theme-color" content="#080d1a"/>
   <!-- Emblème de la marque (13/10/2026) : taureau en costume, tiré du logo
        d'Abd Moutalib (assets/marque/logo-original.png), recoloré au dégradé
@@ -802,7 +802,9 @@ const PONDERATIONS=[
   // ne change pas la performance, elle supprime une annonce fausse.
   // ⚠️ 28/10/2026 — le pilier NLP est retiré de l'écran (corpus supprimé) :
   // plus de champ `n` dans ces vues, deux piliers seulement.
-  {nom:"OFFICIEL",f:65,t:35,officiel:true,aide:"Formule v5.3 publiée au 25/09/2026 — Fond 65 · Tech 35."},
+  // ⚠️ 03/11/2026 — la pondération ne dépend plus de l'heure du run (accord
+  // R8) : le bonus « marché fermé » s'applique partout, base 72,22 / 27,78.
+  {nom:"OFFICIEL",f:72,t:28,officiel:true,aide:"Formule v5.3 au 03/11/2026 — Fond 72 · Tech 28, à toute heure."},
   {nom:"70/30",f:70,t:30,aide:"Fondamental dominant — horizon long"},
   {nom:"60/40",f:60,t:40,aide:"Fondamental dominant, technique renforcée"},
   {nom:"50/50",f:50,t:50,aide:"Équilibre"},
@@ -3036,7 +3038,7 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
               du haut sont masqués ou hors écran. */}
           <button onClick={()=>setTab("guide")} aria-label="Comment lire l'écran" title="Comment lire l'écran"
             style={{background:tab==="guide"?"rgba(77,184,255,.25)":"rgba(77,184,255,.10)",border:"1px solid rgba(77,184,255,.5)",color:"#4db8ff",borderRadius:"50%",width:32,height:32,fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"var(--font)",flex:"0 0 auto"}}>?</button>
-          <span className="badge-version" title="Pondération de RÉFÉRENCE depuis le 25/09/2026. Le moteur la module selon le contexte de MARCHÉ, le même pour tous les titres — hors séance le fondamental monte, et un MASI en baisse de plus de 5 % depuis janvier le renforce encore. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 65 · TECH 35 <span style={{color:"#8892a4"}}>· modulée par le marché</span></span>
+          <span className="badge-version" title="Pondération de RÉFÉRENCE depuis le 03/11/2026 — la même à toute heure, en séance comme après la clôture. Le moteur la module selon le contexte de MARCHÉ, le même pour tous les titres — un MASI en baisse de plus de 5 % depuis janvier renforce le fondamental. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 72 · TECH 28 <span style={{color:"#8892a4"}}>· modulée par le marché</span></span>
           {/* Score mode — composantes indépendantes */}
           <div className="choix-score" style={{display:"flex",alignItems:"center",gap:4,background:"rgba(10,18,32,.8)",border:"1px solid #1a2540",borderRadius:5,padding:"3px 6px"}}>
             <span style={{fontSize:9,color:"#8892a4",letterSpacing:.5,marginRight:2}}>SCORE</span>
@@ -3461,7 +3463,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         </table>
       </div>
       <div style={{marginTop:12,padding:"10px 14px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
-        <span style={{color:"#00e5a0"}}>●</span> SCORE = base Fond×65% + Tech×35%, <span style={{color:"#ffd740"}}>modulée par le contexte de marché</span> — ouverture de la séance et tendance du MASI depuis janvier ; le poids appliqué est sur chaque fiche &nbsp;|&nbsp;
+        <span style={{color:"#00e5a0"}}>●</span> SCORE = base Fond×72% + Tech×28%, à toute heure, <span style={{color:"#ffd740"}}>modulée par le contexte de marché</span> — tendance du MASI depuis janvier ; le poids appliqué est sur chaque fiche &nbsp;|&nbsp;
         <span style={{color:"#8892a4"}}>~hist</span> = moins de 15 séances cotées : RSI et moyennes absents, jamais estimés &nbsp;|&nbsp;
         <span style={{color:"#ff4f5a"}}>⚠️</span> RSI rouge = prudence &nbsp;|&nbsp; PE = Price/Earnings · DIV = dividende &nbsp;|&nbsp; Clic → vue détaillée
       </div>
@@ -5086,18 +5088,17 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
    compare. Si le moteur change, le test casse avant l'écran. */
 const POIDS_CTX=[
   // [situation, fond, tech, statut, couleur, justification]
-  ["Séance ouverte — base","65,28 %","34,72 %","actif","#00e5a0","Référence depuis le 25/09/2026."],
-  ["Hors séance (fermé, pré-ouverture)","72,22 %","27,78 %","actif","#4db8ff","Le fondamental gagne 5 points avant repli. C'est le cas des runs du soir."],
-  ["MASI < −5 % depuis janvier","71,43 %","28,57 %","actif","#ff8f00","Mode défensif. Cumulé au hors-séance : 77,92 % / 22,08 %."],
-  ["MASI > +10 % depuis janvier","61,11 %","38,89 %","actif","#ffd740","Le technique gagne 3 points avant repli."],
+  ["Base — à toute heure","72,22 %","27,78 %","actif","#00e5a0","Depuis le 03/11/2026 : la même en séance et après la clôture (celle du bulletin du soir). Avant, la note d'un titre changeait selon l'heure du run."],
+  ["MASI < −5 % depuis janvier","77,92 %","22,08 %","actif","#ff8f00","Mode défensif : le fondamental gagne 8 points avant repli."],
+  ["MASI > +10 % depuis janvier","68,06 %","31,94 %","actif","#ffd740","Le technique gagne 3 points avant repli."],
   ["Titre peu liquide ou au fixing","100 %","0 %","actif","#b388ff","Depuis le 03/10 : le technique y annonçait l'inverse de la suite. Tout va au fondamental, et une note ≥ 6,5 y garde la couleur vert-jaune (« titre peu échangé »)."],
-  ["Publication de résultats","76 %","24 %","inactif","#5a6478","Prévu dans le moteur, jamais branché : aucun calendrier de publications."],
+  ["Publication de résultats","82,67 %","17,33 %","inactif","#5a6478","Prévu dans le moteur, jamais branché : aucun calendrier de publications."],
 ];
 const Weights=()=>{
   return(
     <div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:12,marginBottom:14}}>
-        {[["Fondamental","65,28 %","#b388ff","Qualité (rentabilité), croissance, valorisation, bilan. ⚠️ Seuls les ratios calculés sur comptes AMMC sont vérifiés ; le reste de fondamentaux.json est saisi à la main."],["Technique","34,72 %","#4db8ff","Tendance du cours (moyennes 20 et 50 séances), RSI, position dans le range 90 séances. Neutralisé (0 %) sur les titres peu liquides ou au fixing."]].map(([lbl,pct,c,desc])=>(
+        {[["Fondamental","72,22 %","#b388ff","Qualité (rentabilité), croissance, valorisation, bilan. ⚠️ Seuls les ratios calculés sur comptes AMMC sont vérifiés ; le reste de fondamentaux.json est saisi à la main."],["Technique","27,78 %","#4db8ff","Tendance du cours (moyennes 20 et 50 séances), RSI, position dans le range 90 séances. Neutralisé (0 %) sur les titres peu liquides ou au fixing."]].map(([lbl,pct,c,desc])=>(
           <div key={lbl} style={{background:"#0d1829",borderRadius:8,padding:16,border:`1px solid ${c}20`}}>
             <div style={{fontSize:40,fontWeight:700,color:c,marginBottom:4}}>{pct}</div>
             <div style={{fontSize:15,color:"#fff",marginBottom:6,fontWeight:600}}>{lbl}</div>
@@ -5107,7 +5108,7 @@ const Weights=()=>{
       </div>
       <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
         <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:4}}>MODULATION DE LA PONDÉRATION</div>
-        <div style={{fontSize:11,color:"#8892a4",marginBottom:10,lineHeight:1.6}}>La base est modulée par le contexte de marché, puis titre par titre (liquidité). Le poids réellement appliqué figure sur chaque fiche et dans la colonne POIDS du classement.</div>
+        <div style={{fontSize:11,color:"#8892a4",marginBottom:10,lineHeight:1.6}}>La base ne dépend pas de l'heure : sur les mêmes données, une note calculée en séance ou après la clôture est la même. Elle est modulée par le contexte de marché, puis titre par titre (liquidité). Le poids réellement appliqué figure sur chaque fiche et dans la colonne POIDS du classement.</div>
         <div style={{overflowX:"auto"}}>
           <table style={{width:"100%",borderCollapse:"collapse"}}>
             <thead><tr style={{borderBottom:"1px solid #1a2540"}}>{["Situation","Fond","Tech","Statut","Justification"].map(h=><th key={h} style={{padding:"7px 10px",fontSize:10,color:"#8892a4",textAlign:"left",fontWeight:500}}>{h}</th>)}</tr></thead>
@@ -5150,7 +5151,7 @@ const Guide=({setTab})=>{
       <div style={{fontSize:12,color:"#ffd740",lineHeight:1.45,background:"rgba(255,215,64,.07)",border:"1px solid rgba(255,215,64,.3)",borderRadius:6,padding:"6px 9px",marginBottom:3}}>
         <b>L'outil ne prédit pas. Ce n'est pas un conseil en investissement. Données J+1, pas de temps réel.</b> Après 15h30, les cours sont ceux de la dernière clôture. Pendant la séance, des relevés intermédiaires (vers 10h et 12h) donnent la dernière valeur relevée, pas un cours définitif : une lecture « à ce stade » peut encore changer jusqu'à la clôture. Il montre des notes et des fréquences passées.
       </div>
-      <L titre="Note /10">Moyenne de deux piliers sur 10 : <T>fondamental</T> (rentabilité, croissance, valorisation, bilan — ≈ 2/3) et <T>technique</T> (tendance, RSI — ≈ 1/3, 0 sur un titre peu liquide). <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des poids</a></L>
+      <L titre="Note /10">Moyenne de deux piliers sur 10 : <T>fondamental</T> (rentabilité, croissance, valorisation, bilan — ≈ 72 %) et <T>technique</T> (tendance, RSI — ≈ 28 %, 0 sur un titre peu liquide), les mêmes à toute heure. <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des poids</a></L>
       <L titre="Couleur de la note">La note est colorée selon son palier, sans mot d'action : <T c="#00e5a0">● vert</T> dès 6,5 · <T c="#b5e655">● vert-jaune</T> dès 5,5 · <T c="#ffd740">● jaune</T> dès 4,5 · <T c="#ff8f00">● orange</T> dès 3,5 · <T c="#ff4f5a">● rouge</T> dessous. La couleur situe la note ; elle ne dit pas quoi faire. Titre trop peu échangé : une note dès 6,5 reste en vert-jaune, avec la mention « titre peu échangé ». <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, note grise. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
       <L titre="Note non comparable">Un titre très peu échangé — pilier technique neutralisé, et moins de 100 000 DH échangés par séance en médiane sur ses 20 dernières séances échangées — garde sa note, affichée en gris avec la mention « non comparable » et la médiane réelle. Avec si peu d'échanges, le cours peut sauter d'un côté à l'autre du carnet : la note ne se compare pas à celle d'un titre liquide. Aucune couleur de palier ; le titre est classé après tous les titres comparables et sort des « mieux notés » de l'accueil.</L>
       <L titre="Fiabilité des données ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>

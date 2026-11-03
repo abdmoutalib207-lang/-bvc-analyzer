@@ -1594,6 +1594,12 @@ TICKERS_ALL: list = [
 #   comparable (liquidité) », `_meta.non_comparable`, classé après les titres
 #   comparables. Règle B : foncière sans note par métier → « Couverture
 #   partielle » (étiquette seule).
+#   v5.3-poids-sans-heure-2026-11-03 : accord R8 d'Abd Moutalib du 03/11/2026.
+#   La pondération ne dépend plus de l'heure du run : le bonus « marché
+#   fermé » (+0,05 fond / −0,05 tech) s'applique quel que soit
+#   `market_status`. Base Fond 72,22 / Tech 27,78 (était 65,28 / 34,72 en
+#   séance). La note du soir ne change pas ; celle des runs en séance s'y
+#   aligne (MNG suspendu : 6,63 en séance, 6,76 le soir, les 30/10 et 02/11).
 # ⚠️ MODE COMPARAISON (11/10/2026). Abd Moutalib a validé le principe d'une note
 # par métier (10/10) mais exige des corrections avant toute bascule : tant que
 # cet interrupteur est FAUX, `score_fond`, `v53`, le signal, la confiance et le
@@ -1604,4 +1610,4 @@ TICKERS_ALL: list = [
 # et la version du score.
 NOTE_METIER_PUBLIEE: bool = False
 SCORE_VERSION = ("v5.3-fond-sectoriel-2026-10-10" if NOTE_METIER_PUBLIEE
-                 else "v5.3-non-comparable-2026-10-27")
+                 else "v5.3-poids-sans-heure-2026-11-03")

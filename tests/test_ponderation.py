@@ -30,8 +30,10 @@ import json
 from update_data import get_weights
 from masi_history import enregistrer, performance_ytd, profondeur, MIN_SEANCES
 
-# Base des deux piliers, à la normalisation près : 0,47/0,72 et 0,25/0,72.
-BASE = {"technique": round(0.25 / 0.72, 4), "fondamental": round(0.47 / 0.72, 4)}
+# Base des deux piliers, à la normalisation près : 0,47/0,72 et 0,25/0,72
+# jusqu'au 03/11/2026 ; depuis, le bonus « marché fermé » s'applique à toute
+# heure (accord R8) : 0,52/0,72 et 0,20/0,72.
+BASE = {"technique": round(0.20 / 0.72, 4), "fondamental": round(0.52 / 0.72, 4)}
 
 
 # ── get_weights ──────────────────────────────────────────────────────────

@@ -251,11 +251,16 @@ def to_legacy_format(pipeline_out: dict) -> dict:
         # Justification complète et résultat du backtest dans
         # `update_data.py::get_weights()`. Le pilier est retiré le 28/10/2026.
         #
+        # ⚠️ 03/11/2026 (accord R8 d'Abd Moutalib) : la pondération ne dépend
+        # plus de l'heure du run. Le bonus « marché fermé » (+0,05 fond,
+        # −0,05 tech) s'applique partout : 0,52/0,72 et 0,20/0,72, soit
+        # 72,22 / 27,78 — la base de `get_weights()` désormais.
+        #
         # ⚠️ Ce fichier porte la SECONDE formule de score du projet. Elle est
         # écrite en dur ici alors que `update_data.py` la module par titre :
         # les deux doivent bouger ensemble, sans quoi le terminal publierait
         # deux notes différentes selon le pipeline qui a tourné en dernier.
-        v53        = (round(score_tech * 0.3472 + fond_score * 0.6528, 2)
+        v53        = (round(score_tech * 0.2778 + fond_score * 0.7222, 2)
                       if fond_score is not None else None)
 
         # ⚠️ « ACHAT FORT » SUSPENDU, comme dans `update_data.py::compute_v53`

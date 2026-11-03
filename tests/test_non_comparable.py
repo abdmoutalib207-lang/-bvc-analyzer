@@ -39,7 +39,8 @@ def _tn(med, motif="peu liquide et coté au fixing"):
 def test_seuil_dans_bvc_config_et_version_du_score():
     assert bvc_config.SEUIL_NON_COMPARABLE_DH == 100_000
     assert "RÈGLE A" in (RACINE / "bvc_config.py").read_text(encoding="utf-8")
-    assert bvc_config.SCORE_VERSION == "v5.3-non-comparable-2026-10-27"
+    # La règle A date du 27/10 ; la version a suivi la pondération sans heure (03/11).
+    assert bvc_config.SCORE_VERSION == "v5.3-poids-sans-heure-2026-11-03"
     assert U.SIG_NON_COMPARABLE == NC
 
 
