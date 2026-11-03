@@ -68,13 +68,15 @@ def test_onglet_poids_affiche_la_base_rendue_par_le_moteur():
     assert f'["Technique","{_pct(w["technique"])}"' in ONGLET_POIDS
     # 28/10/2026 : plus de carte « NLP Comportemental » — pilier retiré.
     assert "NLP Comportemental" not in ONGLET_POIDS
-    assert _ligne("Séance ouverte — base")[:2] == (
+    assert _ligne("Base — à toute heure")[:2] == (
         _pct(w["fondamental"]), _pct(w["technique"]))
+    # 03/11/2026 : la même base hors séance — plus de ligne « Hors séance ».
+    assert get_weights({"market_status": "CLOSED"}) == w
+    assert "Hors séance" not in ONGLET_POIDS
 
 
 def test_chaque_contexte_actif_correspond_a_get_weights():
     cas = {
-        "Hors séance (fermé, pré-ouverture)": {"market_status": "CLOSED"},
         "MASI < −5 % depuis janvier": {"market_status": "OPEN", "masi_ytd": -6.0},
         "MASI > +10 % depuis janvier": {"market_status": "OPEN", "masi_ytd": 11.0},
         "Titre peu liquide ou au fixing": {"market_status": "CLOSED", "masi_ytd": -6.0,
@@ -86,9 +88,11 @@ def test_chaque_contexte_actif_correspond_a_get_weights():
         assert set(w) == {"fondamental", "technique"}
         f, t, _ = _ligne(situation)
         assert (f, t) == (_pct(w["fondamental"]), _pct(w["technique"])), situation
-    # Le cumul hors séance + MASI baissier, cité dans la justification.
-    w = get_weights({"market_status": "CLOSED", "masi_ytd": -6.0})
-    assert f'{_pct(w["fondamental"])} / {_pct(w["technique"])}' in ONGLET_POIDS
+    # 03/11/2026 : le statut de marché ne module plus rien — chaque contexte
+    # rend les mêmes poids en séance et hors séance.
+    for ctx in cas.values():
+        for statut in ("OPEN", "CLOSED", "PRE_MARKET"):
+            assert get_weights({**ctx, "market_status": statut}) == get_weights(ctx)
 
 
 def test_contextes_morts_marques_retires():
