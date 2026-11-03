@@ -4,8 +4,8 @@
  "_r8": "Mode ombre : aucune note ne dépend de ce fichier.",
  "_avertissement": "Fréquences passées, pas des promesses. Observations chevauchantes (un même mouvement compte plusieurs fois) et un seul régime de marché par période : les écarts affichés sont optimistes. Les parts sont brutes de frais (2 % d'aller-retour non déduits) : la part « dans le bon sens » est mesurée sur l'alpha avant frais. Une figure armée n'a pas de fréquence propre : la fréquence décrit ce qui suit une CASSURE (frequence_condition = apres_cassure).",
  "regles": "2026-10-21",
- "derniere_seance_du_marche": "2026-10-29",
- "entree_sha256": "7eda7aed1ef9133387c77a886ba384bbfa6bc6beeac4149d2065f53b80be7e3f",
+ "derniere_seance_du_marche": "2026-11-03",
+ "entree_sha256": "ba1f1c1d9cb0ea2db5ce0ade37559621572d07f0c2b0599b61c4eb2c092b5137",
  "methode": {
   "donnees": "pipeline/candles/, séances à volume > 0 uniquement",
   "fenetre_seances": 60,
@@ -1128,55 +1128,12 @@
  },
  "titres": {
   "ADH": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 835,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 838,
    "montant_median_60_dh": 5851981,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
-    {
-     "type": "fibo_rebond_382_618",
-     "libelle": "Rebond sur le retracement 38,2-61,8 %",
-     "orientation_classique": "haussiere",
-     "statut": "declenchee",
-     "pivots": [
-      {
-       "date": "2026-06-11",
-       "prix": 30.0,
-       "type": "creux",
-       "date_confirmation": "2026-06-12"
-      },
-      {
-       "date": "2026-06-16",
-       "prix": 36.7,
-       "type": "sommet",
-       "date_confirmation": "2026-07-08"
-      },
-      {
-       "date": "2026-07-22",
-       "prix": 32.4,
-       "type": "creux",
-       "date_confirmation": "2026-07-29"
-      }
-     ],
-     "date_confirmation": "2026-07-29",
-     "niveau_declenchement": null,
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": null,
-     "date_cassure": null,
-     "date_fin": null,
-     "signal": "fibo_rebond_382_618",
-     "frequence_ref": [
-      "fibo_rebond_382_618"
-     ],
-     "reperes_retracement": {
-      "0.382": 34.1406,
-      "0.5": 33.35,
-      "0.618": 32.5594,
-      "0.786": 31.4338
-     },
-     "date_constat": "2026-07-29"
-    },
     {
      "type": "double_sommet",
      "libelle": "Double sommet",
@@ -1259,6 +1216,49 @@
      "frequence_ref": [
       "double_creux"
      ]
+    },
+    {
+     "type": "fibo_rebond_382_618",
+     "libelle": "Rebond sur le retracement 38,2-61,8 %",
+     "orientation_classique": "haussiere",
+     "statut": "declenchee",
+     "pivots": [
+      {
+       "date": "2026-10-09",
+       "prix": 29.99,
+       "type": "creux",
+       "date_confirmation": "2026-10-13"
+      },
+      {
+       "date": "2026-10-23",
+       "prix": 37.61,
+       "type": "sommet",
+       "date_confirmation": "2026-10-29"
+      },
+      {
+       "date": "2026-10-30",
+       "prix": 34.1,
+       "type": "creux",
+       "date_confirmation": "2026-11-03"
+      }
+     ],
+     "date_confirmation": "2026-11-03",
+     "niveau_declenchement": null,
+     "niveau_declenchement_bas": null,
+     "niveau_invalidation": null,
+     "date_cassure": null,
+     "date_fin": null,
+     "signal": "fibo_rebond_382_618",
+     "frequence_ref": [
+      "fibo_rebond_382_618"
+     ],
+     "reperes_retracement": {
+      "0.382": 34.6992,
+      "0.5": 33.8,
+      "0.618": 32.9008,
+      "0.786": 31.6207
+     },
+     "date_constat": "2026-11-03"
     }
    ],
    "lignes": [],
@@ -1272,7 +1272,7 @@
      "zone_basse": 31.99,
      "date_retour_dans_la_zone": "2026-07-20",
      "date_comblement": "2026-10-02",
-     "age_seances": 90,
+     "age_seances": 93,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -1286,7 +1286,7 @@
      "zone_basse": 31.2,
      "date_retour_dans_la_zone": null,
      "date_comblement": null,
-     "age_seances": 12,
+     "age_seances": 15,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -1300,8 +1300,8 @@
    }
   },
   "ADI": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 835,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 838,
    "montant_median_60_dh": 2774739,
    "liquide": true,
    "statut_titre": "analyse",
@@ -1497,7 +1497,7 @@
      "zone_basse": 400.0,
      "date_retour_dans_la_zone": "2026-08-17",
      "date_comblement": "2026-09-15",
-     "age_seances": 49,
+     "age_seances": 52,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -1511,9 +1511,9 @@
    }
   },
   "AFI": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 809,
-   "montant_median_60_dh": 26408,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 812,
+   "montant_median_60_dh": 28762,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [],
@@ -1528,7 +1528,7 @@
      "zone_basse": 326.0,
      "date_retour_dans_la_zone": "2026-07-03",
      "date_comblement": "2026-08-12",
-     "age_seances": 77,
+     "age_seances": 80,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -1542,7 +1542,7 @@
      "zone_basse": 328.15,
      "date_retour_dans_la_zone": "2026-10-02",
      "date_comblement": "2026-10-05",
-     "age_seances": 20,
+     "age_seances": 23,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -1556,9 +1556,9 @@
    }
   },
   "AFM": {
-   "derniere_seance_echangee": "2026-10-27",
-   "n_seances_echangees": 646,
-   "montant_median_60_dh": 12005,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 648,
+   "montant_median_60_dh": 12450,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [],
@@ -1572,21 +1572,67 @@
    }
   },
   "AGM": {
-   "statut_titre": "inactif",
-   "figures": [],
+   "derniere_seance_echangee": "2026-11-02",
+   "n_seances_echangees": 302,
+   "montant_median_60_dh": 13360,
+   "liquide": false,
+   "statut_titre": "analyse",
+   "figures": [
+    {
+     "type": "double_sommet",
+     "libelle": "Double sommet",
+     "orientation_classique": "baissiere",
+     "statut": "invalidee",
+     "pivots": [
+      {
+       "date": "2025-09-01",
+       "prix": 6900.0,
+       "type": "sommet",
+       "date_confirmation": "2025-09-26"
+      },
+      {
+       "date": "2025-09-26",
+       "prix": 6130.0,
+       "type": "creux",
+       "date_confirmation": "2025-10-17"
+      },
+      {
+       "date": "2025-11-21",
+       "prix": 6798.0,
+       "type": "sommet",
+       "date_confirmation": "2025-12-10"
+      }
+     ],
+     "date_confirmation": "2025-12-10",
+     "niveau_declenchement": {
+      "forme": "horizontal",
+      "prix": 6130.0
+     },
+     "niveau_declenchement_bas": null,
+     "niveau_invalidation": {
+      "sur": 7107.0
+     },
+     "date_cassure": null,
+     "date_fin": "2026-04-13",
+     "signal": "double_sommet",
+     "frequence_ref": [
+      "double_sommet"
+     ]
+    }
+   ],
    "lignes": [],
    "gaps": [],
-   "ecartes": {},
-   "derniere_seance_echangee": "2026-10-12",
-   "n_seances_echangees": 301,
-   "montant_median_60_dh": 10266,
-   "liquide": false,
-   "raison": "aucun échange depuis plus de 10 séances de la place"
+   "ecartes": {
+    "traversent_une_rupture": 0,
+    "gaps_interrompus_par_une_rupture": 0,
+    "gaps_anterieurs_a_une_rupture": 0,
+    "anterieures_a_une_rupture": 0
+   }
   },
   "AKD": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 765,
-   "montant_median_60_dh": 4829335,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 768,
+   "montant_median_60_dh": 4984951,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -1650,7 +1696,7 @@
      "zone_basse": 1035.0,
      "date_retour_dans_la_zone": "2026-03-12",
      "date_comblement": "2026-10-06",
-     "age_seances": 153,
+     "age_seances": 156,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -1664,9 +1710,9 @@
    }
   },
   "ALU": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 623,
-   "montant_median_60_dh": 28240,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 625,
+   "montant_median_60_dh": 28560,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [
@@ -1869,7 +1915,7 @@
      "zone_basse": 1949.0,
      "date_retour_dans_la_zone": "2026-06-16",
      "date_comblement": "2026-10-06",
-     "age_seances": 85,
+     "age_seances": 87,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -1883,7 +1929,7 @@
      "zone_basse": 1845.0,
      "date_retour_dans_la_zone": "2026-08-13",
      "date_comblement": "2026-08-28",
-     "age_seances": 56,
+     "age_seances": 58,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -1897,7 +1943,7 @@
      "zone_basse": 1751.0,
      "date_retour_dans_la_zone": "2026-07-31",
      "date_comblement": "2026-08-05",
-     "age_seances": 47,
+     "age_seances": 49,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -1911,7 +1957,7 @@
      "zone_basse": 1823.0,
      "date_retour_dans_la_zone": "2026-09-16",
      "date_comblement": "2026-09-23",
-     "age_seances": 21,
+     "age_seances": 23,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -1925,8 +1971,8 @@
    }
   },
   "ARD": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 826,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 829,
    "montant_median_60_dh": 272918,
    "liquide": true,
    "statut_titre": "analyse",
@@ -1984,7 +2030,7 @@
      "zone_basse": 439.95,
      "date_retour_dans_la_zone": "2026-08-07",
      "date_comblement": "2026-09-11",
-     "age_seances": 87,
+     "age_seances": 90,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -1998,9 +2044,9 @@
    }
   },
   "ATL": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 829,
-   "montant_median_60_dh": 121488,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 832,
+   "montant_median_60_dh": 123052,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
@@ -2014,9 +2060,9 @@
    }
   },
   "ATW": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 835,
-   "montant_median_60_dh": 16000341,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 838,
+   "montant_median_60_dh": 17751798,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
@@ -2031,7 +2077,7 @@
      "zone_basse": 690.0,
      "date_retour_dans_la_zone": "2026-07-24",
      "date_comblement": "2026-08-07",
-     "age_seances": 74,
+     "age_seances": 77,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -2045,21 +2091,157 @@
    }
   },
   "BAL": {
-   "statut_titre": "inactif",
-   "figures": [],
+   "derniere_seance_echangee": "2026-10-30",
+   "n_seances_echangees": 353,
+   "montant_median_60_dh": 754,
+   "liquide": false,
+   "statut_titre": "analyse",
+   "figures": [
+    {
+     "type": "double_creux",
+     "libelle": "Double creux",
+     "orientation_classique": "haussiere",
+     "statut": "invalidee",
+     "pivots": [
+      {
+       "date": "2025-12-15",
+       "prix": 225.65,
+       "type": "creux",
+       "date_confirmation": "2025-12-22"
+      },
+      {
+       "date": "2025-12-25",
+       "prix": 250.0,
+       "type": "sommet",
+       "date_confirmation": "2026-01-15"
+      },
+      {
+       "date": "2026-02-17",
+       "prix": 220.0,
+       "type": "creux",
+       "date_confirmation": "2026-02-20"
+      }
+     ],
+     "date_confirmation": "2026-02-20",
+     "niveau_declenchement": {
+      "forme": "horizontal",
+      "prix": 250.0
+     },
+     "niveau_declenchement_bas": null,
+     "niveau_invalidation": {
+      "sous": 213.4
+     },
+     "date_cassure": null,
+     "date_fin": "2026-04-13",
+     "signal": "double_creux",
+     "frequence_ref": [
+      "double_creux"
+     ]
+    },
+    {
+     "type": "double_sommet",
+     "libelle": "Double sommet",
+     "orientation_classique": "baissiere",
+     "statut": "declenchee",
+     "pivots": [
+      {
+       "date": "2025-12-25",
+       "prix": 250.0,
+       "type": "sommet",
+       "date_confirmation": "2026-01-15"
+      },
+      {
+       "date": "2026-02-17",
+       "prix": 220.0,
+       "type": "creux",
+       "date_confirmation": "2026-02-20"
+      },
+      {
+       "date": "2026-02-27",
+       "prix": 248.5,
+       "type": "sommet",
+       "date_confirmation": "2026-03-04"
+      }
+     ],
+     "date_confirmation": "2026-03-04",
+     "niveau_declenchement": {
+      "forme": "horizontal",
+      "prix": 220.0
+     },
+     "niveau_declenchement_bas": null,
+     "niveau_invalidation": {
+      "sur": 257.5
+     },
+     "date_cassure": "2026-04-06",
+     "date_fin": null,
+     "signal": "double_sommet",
+     "frequence_ref": [
+      "double_sommet"
+     ],
+     "volume_cassure_ratio": 0.17
+    },
+    {
+     "type": "triangle_descendant",
+     "libelle": "Triangle descendant",
+     "orientation_classique": "baissiere",
+     "statut": "declenchee",
+     "pivots": [
+      {
+       "date": "2026-05-21",
+       "prix": 239.5,
+       "type": "sommet",
+       "date_confirmation": "2026-06-24"
+      },
+      {
+       "date": "2026-07-06",
+       "prix": 188.6,
+       "type": "creux",
+       "date_confirmation": "2026-07-23"
+      },
+      {
+       "date": "2026-08-11",
+       "prix": 202.0,
+       "type": "sommet",
+       "date_confirmation": "2026-08-31"
+      },
+      {
+       "date": "2026-08-31",
+       "prix": 188.05,
+       "type": "creux",
+       "date_confirmation": "2026-09-04"
+      }
+     ],
+     "date_confirmation": "2026-09-04",
+     "niveau_declenchement": {
+      "forme": "horizontal",
+      "prix": 188.05
+     },
+     "niveau_declenchement_bas": null,
+     "niveau_invalidation": {
+      "sur": 202.0
+     },
+     "date_cassure": "2026-09-09",
+     "date_fin": null,
+     "signal": "triangle_descendant",
+     "frequence_ref": [
+      "triangle_descendant"
+     ],
+     "volume_cassure_ratio": 0.8
+    }
+   ],
    "lignes": [],
    "gaps": [],
-   "ecartes": {},
-   "derniere_seance_echangee": "2026-10-12",
-   "n_seances_echangees": 352,
-   "montant_median_60_dh": 856,
-   "liquide": false,
-   "raison": "aucun échange depuis plus de 10 séances de la place"
+   "ecartes": {
+    "traversent_une_rupture": 0,
+    "gaps_interrompus_par_une_rupture": 0,
+    "gaps_anterieurs_a_une_rupture": 0,
+    "anterieures_a_une_rupture": 0
+   }
   },
   "BCP": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 835,
-   "montant_median_60_dh": 4960050,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 838,
+   "montant_median_60_dh": 5071066,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
@@ -2073,9 +2255,9 @@
    }
   },
   "BMC": {
-   "derniere_seance_echangee": "2026-10-28",
-   "n_seances_echangees": 665,
-   "montant_median_60_dh": 281972,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 668,
+   "montant_median_60_dh": 333905,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -2179,7 +2361,7 @@
      "zone_basse": 591.5,
      "date_retour_dans_la_zone": "2026-07-27",
      "date_comblement": "2026-07-28",
-     "age_seances": 55,
+     "age_seances": 58,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -2193,7 +2375,7 @@
      "zone_basse": 582.0,
      "date_retour_dans_la_zone": "2026-09-18",
      "date_comblement": "2026-09-18",
-     "age_seances": 24,
+     "age_seances": 27,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -2207,9 +2389,9 @@
    }
   },
   "BOA": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 833,
-   "montant_median_60_dh": 2567018,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 836,
+   "montant_median_60_dh": 2704388,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -2315,7 +2497,7 @@
      "zone_basse": 180.0,
      "date_retour_dans_la_zone": "2025-04-15",
      "date_comblement": "2026-08-31",
-     "age_seances": 377,
+     "age_seances": 380,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -2329,9 +2511,9 @@
    }
   },
   "CAR": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 732,
-   "montant_median_60_dh": 273744,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 735,
+   "montant_median_60_dh": 250497,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -2395,8 +2577,8 @@
    }
   },
   "CASH": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 218,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 221,
    "montant_median_60_dh": 374514,
    "liquide": true,
    "statut_titre": "analyse",
@@ -2411,9 +2593,9 @@
    }
   },
   "CDM": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 704,
-   "montant_median_60_dh": 873679,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 707,
+   "montant_median_60_dh": 1073805,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
@@ -2427,9 +2609,9 @@
    }
   },
   "CFGB": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 703,
-   "montant_median_60_dh": 1641045,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 706,
+   "montant_median_60_dh": 1491519,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -2485,9 +2667,9 @@
    }
   },
   "CIH": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 823,
-   "montant_median_60_dh": 1027143,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 826,
+   "montant_median_60_dh": 1169837,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
@@ -2501,9 +2683,9 @@
    }
   },
   "CIM": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 744,
-   "montant_median_60_dh": 1985932,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 747,
+   "montant_median_60_dh": 1749066,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -2561,7 +2743,7 @@
      "zone_basse": 1650.0,
      "date_retour_dans_la_zone": "2026-07-07",
      "date_comblement": "2026-08-10",
-     "age_seances": 76,
+     "age_seances": 79,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -2575,7 +2757,7 @@
      "zone_basse": 1611.0,
      "date_retour_dans_la_zone": "2026-09-22",
      "date_comblement": "2026-09-22",
-     "age_seances": 28,
+     "age_seances": 31,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -2589,8 +2771,8 @@
    }
   },
   "CMGP": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 459,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 462,
    "montant_median_60_dh": 1811500,
    "liquide": true,
    "statut_titre": "analyse",
@@ -2696,7 +2878,7 @@
      "zone_basse": 324.45,
      "date_retour_dans_la_zone": "2026-08-31",
      "date_comblement": "2026-08-31",
-     "age_seances": 43,
+     "age_seances": 46,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -2710,9 +2892,9 @@
    }
   },
   "CMT": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 712,
-   "montant_median_60_dh": 2028368,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 715,
+   "montant_median_60_dh": 1974940,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
@@ -2721,14 +2903,14 @@
    "ecartes": {
     "traversent_une_rupture": 0,
     "gaps_interrompus_par_une_rupture": 0,
-    "gaps_anterieurs_a_une_rupture": 4,
+    "gaps_anterieurs_a_une_rupture": 3,
     "anterieures_a_une_rupture": 2
    }
   },
   "COL": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 820,
-   "montant_median_60_dh": 59970,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 823,
+   "montant_median_60_dh": 60358,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [],
@@ -2743,7 +2925,7 @@
      "zone_basse": 75.03,
      "date_retour_dans_la_zone": "2025-08-18",
      "date_comblement": "2026-10-06",
-     "age_seances": 295,
+     "age_seances": 298,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -2757,9 +2939,9 @@
    }
   },
   "CSR": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 833,
-   "montant_median_60_dh": 1654338,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 836,
+   "montant_median_60_dh": 1702662,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -2854,7 +3036,7 @@
         "prix": 181.0
        }
       ],
-      "prix_a_la_derniere_seance": 186.625
+      "prix_a_la_derniere_seance": 186.9062
      },
      "niveau_declenchement_bas": null,
      "niveau_invalidation": {
@@ -2969,7 +3151,7 @@
      "zone_basse": 189.0,
      "date_retour_dans_la_zone": "2026-08-07",
      "date_comblement": "2026-08-10",
-     "age_seances": 64,
+     "age_seances": 67,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -2983,9 +3165,9 @@
    }
   },
   "CTM": {
-   "derniere_seance_echangee": "2026-10-27",
-   "n_seances_echangees": 728,
-   "montant_median_60_dh": 26439,
+   "derniere_seance_echangee": "2026-10-30",
+   "n_seances_echangees": 729,
+   "montant_median_60_dh": 26466,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [],
@@ -3004,7 +3186,7 @@
        "prix": 898.0
       }
      ],
-     "prix_a_la_derniere_seance": 843.5278,
+     "prix_a_la_derniere_seance": 842.7917,
      "date_confirmation": "2026-06-30",
      "niveau_invalidation": {
       "sous": 838.0
@@ -3027,21 +3209,156 @@
    }
   },
   "DAR": {
-   "statut_titre": "inactif",
-   "figures": [],
-   "lignes": [],
-   "gaps": [],
-   "ecartes": {},
-   "derniere_seance_echangee": "2026-10-01",
-   "n_seances_echangees": 106,
+   "derniere_seance_echangee": "2026-10-30",
+   "n_seances_echangees": 107,
    "montant_median_60_dh": null,
    "liquide": false,
-   "raison": "aucun échange depuis plus de 10 séances de la place"
+   "statut_titre": "analyse",
+   "figures": [
+    {
+     "type": "double_creux",
+     "libelle": "Double creux",
+     "orientation_classique": "haussiere",
+     "statut": "expiree",
+     "pivots": [
+      {
+       "date": "2023-12-22",
+       "prix": 3200.0,
+       "type": "creux",
+       "date_confirmation": "2024-02-07"
+      },
+      {
+       "date": "2024-07-09",
+       "prix": 3808.0,
+       "type": "sommet",
+       "date_confirmation": "2024-08-06"
+      },
+      {
+       "date": "2024-08-30",
+       "prix": 3255.0,
+       "type": "creux",
+       "date_confirmation": "2024-09-05"
+      }
+     ],
+     "date_confirmation": "2024-09-05",
+     "niveau_declenchement": {
+      "forme": "horizontal",
+      "prix": 3808.0
+     },
+     "niveau_declenchement_bas": null,
+     "niveau_invalidation": {
+      "sous": 3104.0
+     },
+     "date_cassure": null,
+     "date_fin": "2025-05-28",
+     "signal": "double_creux",
+     "frequence_ref": [
+      "double_creux"
+     ]
+    },
+    {
+     "type": "double_creux",
+     "libelle": "Double creux",
+     "orientation_classique": "haussiere",
+     "statut": "declenchee",
+     "pivots": [
+      {
+       "date": "2025-01-20",
+       "prix": 3206.0,
+       "type": "creux",
+       "date_confirmation": "2025-01-22"
+      },
+      {
+       "date": "2025-01-27",
+       "prix": 3719.0,
+       "type": "sommet",
+       "date_confirmation": "2025-02-24"
+      },
+      {
+       "date": "2025-03-11",
+       "prix": 3201.0,
+       "type": "creux",
+       "date_confirmation": "2025-04-04"
+      }
+     ],
+     "date_confirmation": "2025-04-04",
+     "niveau_declenchement": {
+      "forme": "horizontal",
+      "prix": 3719.0
+     },
+     "niveau_declenchement_bas": null,
+     "niveau_invalidation": {
+      "sous": 3104.97
+     },
+     "date_cassure": "2025-07-09",
+     "date_fin": null,
+     "signal": "double_creux",
+     "frequence_ref": [
+      "double_creux"
+     ],
+     "volume_cassure_ratio": 0.1
+    },
+    {
+     "type": "triangle_descendant",
+     "libelle": "Triangle descendant",
+     "orientation_classique": "baissiere",
+     "statut": "invalidee",
+     "pivots": [
+      {
+       "date": "2025-01-20",
+       "prix": 3206.0,
+       "type": "creux",
+       "date_confirmation": "2025-01-22"
+      },
+      {
+       "date": "2025-01-27",
+       "prix": 3719.0,
+       "type": "sommet",
+       "date_confirmation": "2025-02-24"
+      },
+      {
+       "date": "2025-03-11",
+       "prix": 3201.0,
+       "type": "creux",
+       "date_confirmation": "2025-04-04"
+      },
+      {
+       "date": "2025-04-17",
+       "prix": 3600.0,
+       "type": "sommet",
+       "date_confirmation": "2025-05-05"
+      }
+     ],
+     "date_confirmation": "2025-05-05",
+     "niveau_declenchement": {
+      "forme": "horizontal",
+      "prix": 3201.0
+     },
+     "niveau_declenchement_bas": null,
+     "niveau_invalidation": {
+      "sur": 3600.0
+     },
+     "date_cassure": null,
+     "date_fin": "2025-06-03",
+     "signal": "triangle_descendant",
+     "frequence_ref": [
+      "triangle_descendant"
+     ]
+    }
+   ],
+   "lignes": [],
+   "gaps": [],
+   "ecartes": {
+    "traversent_une_rupture": 0,
+    "gaps_interrompus_par_une_rupture": 0,
+    "gaps_anterieurs_a_une_rupture": 0,
+    "anterieures_a_une_rupture": 0
+   }
   },
   "DHO": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 823,
-   "montant_median_60_dh": 301940,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 826,
+   "montant_median_60_dh": 384030,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -3293,9 +3610,9 @@
    "raison": "moins de 80 séances échangées (seuil du banc d'essai)"
   },
   "DSW": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 698,
-   "montant_median_60_dh": 42020,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 701,
+   "montant_median_60_dh": 63333,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [
@@ -3380,6 +3697,48 @@
      "frequence_ref": [
       "double_creux"
      ]
+    },
+    {
+     "type": "double_sommet",
+     "libelle": "Double sommet",
+     "orientation_classique": "baissiere",
+     "statut": "armee",
+     "pivots": [
+      {
+       "date": "2026-07-06",
+       "prix": 783.9,
+       "type": "sommet",
+       "date_confirmation": "2026-09-04"
+      },
+      {
+       "date": "2026-09-04",
+       "prix": 701.0,
+       "type": "creux",
+       "date_confirmation": "2026-09-09"
+      },
+      {
+       "date": "2026-09-30",
+       "prix": 770.0,
+       "type": "sommet",
+       "date_confirmation": "2026-11-03"
+      }
+     ],
+     "date_confirmation": "2026-11-03",
+     "niveau_declenchement": {
+      "forme": "horizontal",
+      "prix": 701.0
+     },
+     "niveau_declenchement_bas": null,
+     "niveau_invalidation": {
+      "sur": 807.417
+     },
+     "date_cassure": null,
+     "date_fin": null,
+     "signal": "double_sommet",
+     "frequence_ref": [
+      "double_sommet"
+     ],
+     "frequence_condition": "apres_cassure"
     }
    ],
    "lignes": [],
@@ -3393,7 +3752,7 @@
      "zone_basse": 730.0,
      "date_retour_dans_la_zone": "2026-09-10",
      "date_comblement": "2026-09-15",
-     "age_seances": 34,
+     "age_seances": 37,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -3407,9 +3766,9 @@
    }
   },
   "DTT": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 751,
-   "montant_median_60_dh": 89182,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 754,
+   "montant_median_60_dh": 102331,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [
@@ -3463,7 +3822,7 @@
         "prix": 376.0
        }
       ],
-      "prix_a_la_derniere_seance": 383.7755
+      "prix_a_la_derniere_seance": 383.9592
      },
      "niveau_declenchement_bas": null,
      "niveau_invalidation": {
@@ -3534,7 +3893,7 @@
        "prix": 370.0
       }
      ],
-     "prix_a_la_derniere_seance": 368.4783,
+     "prix_a_la_derniere_seance": 368.2609,
      "date_confirmation": "2026-10-05",
      "niveau_invalidation": {
       "sous": 332.0
@@ -3557,9 +3916,9 @@
    }
   },
   "ENK": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 747,
-   "montant_median_60_dh": 40756,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 750,
+   "montant_median_60_dh": 45305,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [],
@@ -3574,7 +3933,7 @@
      "zone_basse": 47.0,
      "date_retour_dans_la_zone": "2026-03-11",
      "date_comblement": "2026-09-25",
-     "age_seances": 153,
+     "age_seances": 156,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -3588,9 +3947,9 @@
    }
   },
   "EQD": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 505,
-   "montant_median_60_dh": 317275,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 507,
+   "montant_median_60_dh": 292551,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -3685,7 +4044,7 @@
         "prix": 1420.0
        }
       ],
-      "prix_a_la_derniere_seance": 1411.2
+      "prix_a_la_derniere_seance": 1410.4
      },
      "niveau_declenchement_bas": null,
      "niveau_invalidation": {
@@ -3759,7 +4118,7 @@
      "zone_basse": 1297.0,
      "date_retour_dans_la_zone": "2026-01-12",
      "date_comblement": "2026-03-13",
-     "age_seances": 76,
+     "age_seances": 78,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -3773,9 +4132,9 @@
    }
   },
   "FNB": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 734,
-   "montant_median_60_dh": 205832,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 737,
+   "montant_median_60_dh": 184833,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -3834,7 +4193,7 @@
      "zone_basse": 324.45,
      "date_retour_dans_la_zone": "2026-09-16",
      "date_comblement": "2026-10-01",
-     "age_seances": 54,
+     "age_seances": 57,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -3848,9 +4207,23 @@
      "zone_basse": 356.85,
      "date_retour_dans_la_zone": "2026-08-10",
      "date_comblement": "2026-08-11",
-     "age_seances": 53,
+     "age_seances": 56,
      "frequence_ref": [
       "gap_haussier"
+     ]
+    },
+    {
+     "type": "gap_baissier",
+     "libelle": "Gap baissier",
+     "date": "2026-10-30",
+     "statut": "ouvert",
+     "zone_haute": 320.0,
+     "zone_basse": 315.0,
+     "date_retour_dans_la_zone": null,
+     "date_comblement": null,
+     "age_seances": 2,
+     "frequence_ref": [
+      "gap_baissier"
      ]
     }
    ],
@@ -3862,28 +4235,14 @@
    }
   },
   "GAZ": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 758,
-   "montant_median_60_dh": 148750,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 761,
+   "montant_median_60_dh": 177432,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
    "lignes": [],
    "gaps": [
-    {
-     "type": "gap_haussier",
-     "libelle": "Gap haussier",
-     "date": "2026-07-21",
-     "statut": "comble",
-     "zone_haute": 3719.0,
-     "zone_basse": 3653.0,
-     "date_retour_dans_la_zone": "2026-07-22",
-     "date_comblement": "2026-07-24",
-     "age_seances": 62,
-     "frequence_ref": [
-      "gap_haussier"
-     ]
-    },
     {
      "type": "gap_baissier",
      "libelle": "Gap baissier",
@@ -3893,7 +4252,7 @@
      "zone_basse": 3655.0,
      "date_retour_dans_la_zone": "2026-08-17",
      "date_comblement": "2026-08-19",
-     "age_seances": 46,
+     "age_seances": 49,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -3907,7 +4266,7 @@
      "zone_basse": 3661.0,
      "date_retour_dans_la_zone": "2026-09-03",
      "date_comblement": "2026-09-03",
-     "age_seances": 37,
+     "age_seances": 40,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -3921,9 +4280,9 @@
    }
   },
   "HAL": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 765,
-   "montant_median_60_dh": 216968,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 768,
+   "montant_median_60_dh": 209070,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -4075,9 +4434,9 @@
    }
   },
   "HPS": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 835,
-   "montant_median_60_dh": 1001292,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 838,
+   "montant_median_60_dh": 1106420,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -4180,7 +4539,7 @@
        "prix": 644.9
       }
      ],
-     "prix_a_la_derniere_seance": 610.3269,
+     "prix_a_la_derniere_seance": 609.1615,
      "date_confirmation": "2026-07-16",
      "niveau_invalidation": {
       "sous": 585.2
@@ -4203,9 +4562,9 @@
    }
   },
   "IAM": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 834,
-   "montant_median_60_dh": 8595085,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 837,
+   "montant_median_60_dh": 8350920,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -4263,7 +4622,7 @@
      "zone_basse": 98.4,
      "date_retour_dans_la_zone": null,
      "date_comblement": null,
-     "age_seances": 38,
+     "age_seances": 41,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -4277,8 +4636,8 @@
    }
   },
   "IBM": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 629,
+   "derniere_seance_echangee": "2026-11-02",
+   "n_seances_echangees": 631,
    "montant_median_60_dh": 2524,
    "liquide": false,
    "statut_titre": "analyse",
@@ -4344,7 +4703,7 @@
      "zone_basse": 57.0,
      "date_retour_dans_la_zone": "2026-08-24",
      "date_comblement": "2026-09-03",
-     "age_seances": 39,
+     "age_seances": 41,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -4358,7 +4717,7 @@
      "zone_basse": 60.2,
      "date_retour_dans_la_zone": "2026-08-27",
      "date_comblement": "2026-09-01",
-     "age_seances": 38,
+     "age_seances": 40,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -4372,7 +4731,7 @@
      "zone_basse": 49.49,
      "date_retour_dans_la_zone": "2026-10-06",
      "date_comblement": "2026-10-06",
-     "age_seances": 15,
+     "age_seances": 17,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -4386,7 +4745,7 @@
      "zone_basse": 49.49,
      "date_retour_dans_la_zone": "2026-10-07",
      "date_comblement": null,
-     "age_seances": 14,
+     "age_seances": 16,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -4400,7 +4759,7 @@
      "zone_basse": 52.1,
      "date_retour_dans_la_zone": "2026-10-29",
      "date_comblement": "2026-10-29",
-     "age_seances": 5,
+     "age_seances": 7,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -4414,9 +4773,9 @@
    }
   },
   "IMI": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 752,
-   "montant_median_60_dh": 194557,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 755,
+   "montant_median_60_dh": 190538,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
@@ -4430,9 +4789,9 @@
    }
   },
   "INV": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 746,
-   "montant_median_60_dh": 18663,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 749,
+   "montant_median_60_dh": 20840,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [],
@@ -4447,7 +4806,7 @@
      "zone_basse": 126.2,
      "date_retour_dans_la_zone": "2026-07-14",
      "date_comblement": "2026-08-04",
-     "age_seances": 68,
+     "age_seances": 71,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -4461,7 +4820,7 @@
      "zone_basse": 122.5,
      "date_retour_dans_la_zone": "2026-07-21",
      "date_comblement": "2026-08-04",
-     "age_seances": 63,
+     "age_seances": 66,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -4475,7 +4834,7 @@
      "zone_basse": 129.0,
      "date_retour_dans_la_zone": "2026-08-27",
      "date_comblement": "2026-08-28",
-     "age_seances": 42,
+     "age_seances": 45,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -4489,7 +4848,7 @@
      "zone_basse": 127.0,
      "date_retour_dans_la_zone": "2026-09-16",
      "date_comblement": "2026-09-16",
-     "age_seances": 28,
+     "age_seances": 31,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -4503,7 +4862,7 @@
      "zone_basse": 118.0,
      "date_retour_dans_la_zone": "2026-10-08",
      "date_comblement": "2026-10-08",
-     "age_seances": 14,
+     "age_seances": 17,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -4517,7 +4876,7 @@
      "zone_basse": 115.1,
      "date_retour_dans_la_zone": "2026-10-13",
      "date_comblement": "2026-10-20",
-     "age_seances": 12,
+     "age_seances": 15,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -4531,7 +4890,7 @@
      "zone_basse": 116.0,
      "date_retour_dans_la_zone": "2026-10-21",
      "date_comblement": "2026-10-21",
-     "age_seances": 5,
+     "age_seances": 8,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -4545,7 +4904,7 @@
      "zone_basse": 115.2,
      "date_retour_dans_la_zone": "2026-10-29",
      "date_comblement": "2026-10-29",
-     "age_seances": 1,
+     "age_seances": 4,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -4559,53 +4918,12 @@
    }
   },
   "JET": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 823,
-   "montant_median_60_dh": 1340790,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 826,
+   "montant_median_60_dh": 1361854,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
-    {
-     "type": "double_creux",
-     "libelle": "Double creux",
-     "orientation_classique": "haussiere",
-     "statut": "expiree",
-     "pivots": [
-      {
-       "date": "2026-03-09",
-       "prix": 2005.0,
-       "type": "creux",
-       "date_confirmation": "2026-03-13"
-      },
-      {
-       "date": "2026-04-22",
-       "prix": 2430.0,
-       "type": "sommet",
-       "date_confirmation": "2026-05-14"
-      },
-      {
-       "date": "2026-06-03",
-       "prix": 2050.0,
-       "type": "creux",
-       "date_confirmation": "2026-06-10"
-      }
-     ],
-     "date_confirmation": "2026-06-10",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 2430.0
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sous": 1944.85
-     },
-     "date_cassure": null,
-     "date_fin": "2026-07-31",
-     "signal": "double_creux",
-     "frequence_ref": [
-      "double_creux"
-     ]
-    },
     {
      "type": "double_creux",
      "libelle": "Double creux",
@@ -4701,7 +5019,7 @@
      "zone_basse": 1460.0,
      "date_retour_dans_la_zone": "2024-10-31",
      "date_comblement": "2026-10-15",
-     "age_seances": 490,
+     "age_seances": 493,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -4715,7 +5033,7 @@
      "zone_basse": 1900.0,
      "date_retour_dans_la_zone": "2025-06-30",
      "date_comblement": "2026-09-18",
-     "age_seances": 327,
+     "age_seances": 330,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -4729,8 +5047,8 @@
    }
   },
   "LBV": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 800,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 803,
    "montant_median_60_dh": 2290941,
    "liquide": true,
    "statut_titre": "analyse",
@@ -4828,8 +5146,8 @@
    }
   },
   "LES": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 678,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 681,
    "montant_median_60_dh": 20085,
    "liquide": false,
    "statut_titre": "analyse",
@@ -4845,7 +5163,7 @@
      "zone_basse": 285.0,
      "date_retour_dans_la_zone": "2026-10-15",
      "date_comblement": "2026-10-15",
-     "age_seances": 11,
+     "age_seances": 14,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -4859,7 +5177,7 @@
      "zone_basse": 280.0,
      "date_retour_dans_la_zone": "2026-10-23",
      "date_comblement": null,
-     "age_seances": 5,
+     "age_seances": 8,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -4873,7 +5191,7 @@
      "zone_basse": 290.5,
      "date_retour_dans_la_zone": "2026-10-27",
      "date_comblement": "2026-10-27",
-     "age_seances": 3,
+     "age_seances": 6,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -4887,9 +5205,9 @@
    }
   },
   "LHM": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 823,
-   "montant_median_60_dh": 4087848,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 826,
+   "montant_median_60_dh": 4750712,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
@@ -4904,7 +5222,7 @@
      "zone_basse": 1639.0,
      "date_retour_dans_la_zone": "2026-03-31",
      "date_comblement": "2026-09-18",
-     "age_seances": 152,
+     "age_seances": 155,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -5202,61 +5520,12 @@
    }
   },
   "MDP": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 746,
-   "montant_median_60_dh": 18245,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 749,
+   "montant_median_60_dh": 19372,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [
-    {
-     "type": "triangle_sym",
-     "libelle": "Triangle symétrique",
-     "orientation_classique": "neutre",
-     "statut": "expiree",
-     "pivots": [
-      {
-       "date": "2025-10-30",
-       "prix": 32.61,
-       "type": "sommet",
-       "date_confirmation": "2025-11-05"
-      },
-      {
-       "date": "2026-03-03",
-       "prix": 21.5,
-       "type": "creux",
-       "date_confirmation": "2026-03-04"
-      },
-      {
-       "date": "2026-04-21",
-       "prix": 27.0,
-       "type": "sommet",
-       "date_confirmation": "2026-04-29"
-      },
-      {
-       "date": "2026-06-05",
-       "prix": 24.19,
-       "type": "creux",
-       "date_confirmation": "2026-06-18"
-      }
-     ],
-     "date_confirmation": "2026-06-18",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 27.0
-     },
-     "niveau_declenchement_bas": {
-      "forme": "horizontal",
-      "prix": 24.19
-     },
-     "niveau_invalidation": null,
-     "date_cassure": null,
-     "date_fin": "2026-08-03",
-     "signal": null,
-     "frequence_ref": [
-      "triangle_sym_haut",
-      "triangle_sym_bas"
-     ]
-    },
     {
      "type": "double_sommet",
      "libelle": "Double sommet",
@@ -5310,7 +5579,7 @@
      "zone_basse": 24.23,
      "date_retour_dans_la_zone": "2026-09-24",
      "date_comblement": "2026-09-25",
-     "age_seances": 26,
+     "age_seances": 29,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -5324,9 +5593,9 @@
    }
   },
   "MGL": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 326,
-   "montant_median_60_dh": 9013,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 329,
+   "montant_median_60_dh": 5478,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [
@@ -5382,8 +5651,8 @@
    }
   },
   "MIC": {
-   "derniere_seance_echangee": "2026-10-28",
-   "n_seances_echangees": 632,
+   "derniere_seance_echangee": "2026-11-02",
+   "n_seances_echangees": 634,
    "montant_median_60_dh": 36995,
    "liquide": false,
    "statut_titre": "analyse",
@@ -5613,7 +5882,7 @@
      "zone_basse": 757.0,
      "date_retour_dans_la_zone": "2026-08-10",
      "date_comblement": "2026-08-24",
-     "age_seances": 54,
+     "age_seances": 56,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -5627,7 +5896,7 @@
      "zone_basse": 739.0,
      "date_retour_dans_la_zone": "2026-07-21",
      "date_comblement": "2026-07-21",
-     "age_seances": 53,
+     "age_seances": 55,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -5641,7 +5910,7 @@
      "zone_basse": 730.0,
      "date_retour_dans_la_zone": "2026-07-29",
      "date_comblement": "2026-07-31",
-     "age_seances": 48,
+     "age_seances": 50,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -5655,7 +5924,7 @@
      "zone_basse": 733.1,
      "date_retour_dans_la_zone": "2026-09-24",
      "date_comblement": null,
-     "age_seances": 18,
+     "age_seances": 20,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -5669,7 +5938,7 @@
      "zone_basse": 766.0,
      "date_retour_dans_la_zone": "2026-10-06",
      "date_comblement": "2026-10-23",
-     "age_seances": 11,
+     "age_seances": 13,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -5678,12 +5947,12 @@
      "type": "gap_haussier",
      "libelle": "Gap haussier",
      "date": "2026-10-23",
-     "statut": "ouvert",
+     "statut": "partiellement_comble",
      "zone_haute": 760.0,
      "zone_basse": 738.1,
-     "date_retour_dans_la_zone": null,
+     "date_retour_dans_la_zone": "2026-10-30",
      "date_comblement": null,
-     "age_seances": 1,
+     "age_seances": 3,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -5697,54 +5966,25 @@
    }
   },
   "MNG": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 827,
-   "montant_median_60_dh": 26788242,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 828,
+   "montant_median_60_dh": 28485070,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
    "lignes": [],
-   "gaps": [
-    {
-     "type": "gap_haussier",
-     "libelle": "Gap haussier",
-     "date": "2026-08-05",
-     "statut": "comble",
-     "zone_haute": 1517.0,
-     "zone_basse": 1440.0,
-     "date_retour_dans_la_zone": "2026-10-05",
-     "date_comblement": "2026-10-06",
-     "age_seances": 55,
-     "frequence_ref": [
-      "gap_haussier"
-     ]
-    },
-    {
-     "type": "gap_haussier",
-     "libelle": "Gap haussier",
-     "date": "2026-08-24",
-     "statut": "comble",
-     "zone_haute": 1854.0,
-     "zone_basse": 1801.0,
-     "date_retour_dans_la_zone": "2026-08-28",
-     "date_comblement": "2026-08-31",
-     "age_seances": 45,
-     "frequence_ref": [
-      "gap_haussier"
-     ]
-    }
-   ],
+   "gaps": [],
    "ecartes": {
-    "traversent_une_rupture": 2,
+    "traversent_une_rupture": 0,
     "gaps_interrompus_par_une_rupture": 0,
-    "gaps_anterieurs_a_une_rupture": 0,
-    "anterieures_a_une_rupture": 0
+    "gaps_anterieurs_a_une_rupture": 2,
+    "anterieures_a_une_rupture": 2
    }
   },
   "MOX": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 601,
-   "montant_median_60_dh": 2995,
+   "derniere_seance_echangee": "2026-10-30",
+   "n_seances_echangees": 602,
+   "montant_median_60_dh": 2740,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [
@@ -5807,7 +6047,7 @@
      "zone_basse": 344.75,
      "date_retour_dans_la_zone": "2025-11-27",
      "date_comblement": "2026-07-14",
-     "age_seances": 357,
+     "age_seances": 358,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -5821,7 +6061,7 @@
      "zone_basse": 390.0,
      "date_retour_dans_la_zone": "2026-08-03",
      "date_comblement": "2026-08-03",
-     "age_seances": 64,
+     "age_seances": 65,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -5835,9 +6075,9 @@
    }
   },
   "MRL": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 264,
-   "montant_median_60_dh": 1497,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 267,
+   "montant_median_60_dh": 1498,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [
@@ -5884,57 +6124,10 @@
      "volume_cassure_ratio": 21.6
     },
     {
-     "type": "triangle_ascendant",
-     "libelle": "Triangle ascendant",
-     "orientation_classique": "haussiere",
-     "statut": "invalidee",
-     "pivots": [
-      {
-       "date": "2025-11-04",
-       "prix": 382.0,
-       "type": "sommet",
-       "date_confirmation": "2025-11-19"
-      },
-      {
-       "date": "2025-11-21",
-       "prix": 341.0,
-       "type": "creux",
-       "date_confirmation": "2025-11-28"
-      },
-      {
-       "date": "2025-12-19",
-       "prix": 384.8,
-       "type": "sommet",
-       "date_confirmation": "2025-12-24"
-      },
-      {
-       "date": "2025-12-24",
-       "prix": 357.2,
-       "type": "creux",
-       "date_confirmation": "2026-01-02"
-      }
-     ],
-     "date_confirmation": "2026-01-02",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 384.8
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sous": 357.2
-     },
-     "date_cassure": null,
-     "date_fin": "2026-02-05",
-     "signal": "triangle_ascendant",
-     "frequence_ref": [
-      "triangle_ascendant"
-     ]
-    },
-    {
      "type": "double_sommet",
      "libelle": "Double sommet",
      "orientation_classique": "baissiere",
-     "statut": "armee",
+     "statut": "expiree",
      "pivots": [
       {
        "date": "2026-02-13",
@@ -5965,12 +6158,11 @@
       "sur": 395.417
      },
      "date_cassure": null,
-     "date_fin": null,
+     "date_fin": "2026-10-30",
      "signal": "double_sommet",
      "frequence_ref": [
       "double_sommet"
-     ],
-     "frequence_condition": "apres_cassure"
+     ]
     },
     {
      "type": "double_creux",
@@ -6067,8 +6259,8 @@
    }
   },
   "MSA": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 755,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 758,
    "montant_median_60_dh": 14150530,
    "liquide": true,
    "statut_titre": "analyse",
@@ -6127,7 +6319,7 @@
      "zone_basse": 785.0,
      "date_retour_dans_la_zone": "2026-04-13",
      "date_comblement": "2026-10-02",
-     "age_seances": 134,
+     "age_seances": 137,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -6141,9 +6333,9 @@
    }
   },
   "MUT": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 765,
-   "montant_median_60_dh": 229077,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 768,
+   "montant_median_60_dh": 251703,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -6249,7 +6441,7 @@
      "zone_basse": 241.0,
      "date_retour_dans_la_zone": "2026-09-08",
      "date_comblement": "2026-09-09",
-     "age_seances": 37,
+     "age_seances": 40,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -6275,8 +6467,8 @@
    "raison": "aucun échange depuis plus de 10 séances de la place"
   },
   "OUL": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 235,
+   "derniere_seance_echangee": "2026-11-02",
+   "n_seances_echangees": 237,
    "montant_median_60_dh": 2980,
    "liquide": false,
    "statut_titre": "analyse",
@@ -6331,7 +6523,7 @@
         "prix": 1160.0
        }
       ],
-      "prix_a_la_derniere_seance": 1031.8182
+      "prix_a_la_derniere_seance": 1029.0909
      },
      "niveau_declenchement_bas": null,
      "niveau_invalidation": {
@@ -6477,9 +6669,9 @@
    }
   },
   "RDS": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 755,
-   "montant_median_60_dh": 2369874,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 758,
+   "montant_median_60_dh": 2491470,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -6535,9 +6727,9 @@
    }
   },
   "REB": {
-   "derniere_seance_echangee": "2026-10-27",
-   "n_seances_echangees": 349,
-   "montant_median_60_dh": 1206,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 352,
+   "montant_median_60_dh": 1267,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [
@@ -6595,9 +6787,9 @@
    }
   },
   "RIS": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 755,
-   "montant_median_60_dh": 741552,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 758,
+   "montant_median_60_dh": 745080,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
@@ -6611,9 +6803,9 @@
    }
   },
   "S2M": {
-   "derniere_seance_echangee": "2026-10-27",
-   "n_seances_echangees": 608,
-   "montant_median_60_dh": 242523,
+   "derniere_seance_echangee": "2026-11-02",
+   "n_seances_echangees": 610,
+   "montant_median_60_dh": 238484,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
@@ -6627,9 +6819,9 @@
    }
   },
   "SAF": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 499,
-   "montant_median_60_dh": 46425,
+   "derniere_seance_echangee": "2026-11-02",
+   "n_seances_echangees": 501,
+   "montant_median_60_dh": 46176,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [
@@ -6758,6 +6950,48 @@
       "double_creux"
      ],
      "frequence_condition": "apres_cassure"
+    },
+    {
+     "type": "double_sommet",
+     "libelle": "Double sommet",
+     "orientation_classique": "baissiere",
+     "statut": "armee",
+     "pivots": [
+      {
+       "date": "2026-09-11",
+       "prix": 3170.0,
+       "type": "sommet",
+       "date_confirmation": "2026-09-22"
+      },
+      {
+       "date": "2026-10-06",
+       "prix": 2880.0,
+       "type": "creux",
+       "date_confirmation": "2026-10-22"
+      },
+      {
+       "date": "2026-10-28",
+       "prix": 3139.0,
+       "type": "sommet",
+       "date_confirmation": "2026-10-30"
+      }
+     ],
+     "date_confirmation": "2026-10-30",
+     "niveau_declenchement": {
+      "forme": "horizontal",
+      "prix": 2880.0
+     },
+     "niveau_declenchement_bas": null,
+     "niveau_invalidation": {
+      "sur": 3265.1
+     },
+     "date_cassure": null,
+     "date_fin": null,
+     "signal": "double_sommet",
+     "frequence_ref": [
+      "double_sommet"
+     ],
+     "frequence_condition": "apres_cassure"
     }
    ],
    "lignes": [],
@@ -6770,9 +7004,9 @@
    }
   },
   "SBS": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 591,
-   "montant_median_60_dh": 23034,
+   "derniere_seance_echangee": "2026-11-02",
+   "n_seances_echangees": 593,
+   "montant_median_60_dh": 24327,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [
@@ -6910,7 +7144,7 @@
         "prix": 2012.0
        }
       ],
-      "prix_a_la_derniere_seance": 2025.3404
+      "prix_a_la_derniere_seance": 2025.8085
      },
      "niveau_declenchement_bas": null,
      "niveau_invalidation": {
@@ -7032,7 +7266,7 @@
      "zone_basse": 1935.0,
      "date_retour_dans_la_zone": "2025-07-03",
      "date_comblement": "2026-10-06",
-     "age_seances": 248,
+     "age_seances": 250,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -7046,7 +7280,7 @@
      "zone_basse": 2043.0,
      "date_retour_dans_la_zone": "2026-07-07",
      "date_comblement": "2026-07-14",
-     "age_seances": 51,
+     "age_seances": 53,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -7060,7 +7294,7 @@
      "zone_basse": 2140.0,
      "date_retour_dans_la_zone": "2026-07-10",
      "date_comblement": null,
-     "age_seances": 50,
+     "age_seances": 52,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -7074,9 +7308,9 @@
    }
   },
   "SGTM": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 212,
-   "montant_median_60_dh": 5715092,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 215,
+   "montant_median_60_dh": 5894781,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -7132,9 +7366,9 @@
    }
   },
   "SLM": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 540,
-   "montant_median_60_dh": 25260,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 543,
+   "montant_median_60_dh": 22250,
    "liquide": false,
    "statut_titre": "analyse",
    "figures": [],
@@ -7153,7 +7387,7 @@
        "prix": 458.0
       }
      ],
-     "prix_a_la_derniere_seance": 380.3636,
+     "prix_a_la_derniere_seance": 376.5455,
      "date_confirmation": "2026-07-22",
      "niveau_invalidation": {
       "sous": 423.0
@@ -7176,9 +7410,9 @@
    }
   },
   "SMI": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 710,
-   "montant_median_60_dh": 3151413,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 713,
+   "montant_median_60_dh": 3217430,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -7236,7 +7470,7 @@
      "zone_basse": 6780.0,
      "date_retour_dans_la_zone": "2026-06-22",
      "date_comblement": "2026-08-24",
-     "age_seances": 87,
+     "age_seances": 90,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -7250,7 +7484,7 @@
      "zone_basse": 6650.0,
      "date_retour_dans_la_zone": "2026-09-02",
      "date_comblement": "2026-09-03",
-     "age_seances": 41,
+     "age_seances": 44,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -7264,14 +7498,28 @@
    }
   },
   "SNA": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 760,
-   "montant_median_60_dh": 592080,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 763,
+   "montant_median_60_dh": 558309,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
    "lignes": [],
    "gaps": [
+    {
+     "type": "gap_haussier",
+     "libelle": "Gap haussier",
+     "date": "2025-03-18",
+     "statut": "comble",
+     "zone_haute": 1620.0,
+     "zone_basse": 1594.0,
+     "date_retour_dans_la_zone": "2026-10-12",
+     "date_comblement": "2026-10-30",
+     "age_seances": 396,
+     "frequence_ref": [
+      "gap_haussier"
+     ]
+    },
     {
      "type": "gap_haussier",
      "libelle": "Gap haussier",
@@ -7281,7 +7529,7 @@
      "zone_basse": 1900.0,
      "date_retour_dans_la_zone": "2026-06-22",
      "date_comblement": "2026-09-02",
-     "age_seances": 90,
+     "age_seances": 93,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -7295,9 +7543,9 @@
    }
   },
   "SNP": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 750,
-   "montant_median_60_dh": 152028,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 753,
+   "montant_median_60_dh": 157272,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
@@ -7312,9 +7560,23 @@
      "zone_basse": 286.0,
      "date_retour_dans_la_zone": "2026-10-14",
      "date_comblement": "2026-10-14",
-     "age_seances": 12,
+     "age_seances": 15,
      "frequence_ref": [
       "gap_haussier"
+     ]
+    },
+    {
+     "type": "gap_baissier",
+     "libelle": "Gap baissier",
+     "date": "2026-11-02",
+     "statut": "partiellement_comble",
+     "zone_haute": 260.0,
+     "zone_basse": 255.0,
+     "date_retour_dans_la_zone": "2026-11-03",
+     "date_comblement": null,
+     "age_seances": 1,
+     "frequence_ref": [
+      "gap_baissier"
      ]
     }
    ],
@@ -7326,8 +7588,8 @@
    }
   },
   "SOT": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 693,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 696,
    "montant_median_60_dh": 164569,
    "liquide": true,
    "statut_titre": "analyse",
@@ -7479,9 +7741,9 @@
    "raison": "aucun échange depuis plus de 10 séances de la place"
   },
   "STK": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 764,
-   "montant_median_60_dh": 383229,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 767,
+   "montant_median_60_dh": 355260,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
@@ -7496,7 +7758,7 @@
      "zone_basse": 45.07,
      "date_retour_dans_la_zone": "2026-10-02",
      "date_comblement": "2026-10-05",
-     "age_seances": 388,
+     "age_seances": 391,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -7510,7 +7772,7 @@
      "zone_basse": 55.0,
      "date_retour_dans_la_zone": null,
      "date_comblement": null,
-     "age_seances": 20,
+     "age_seances": 23,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -7524,8 +7786,8 @@
    }
   },
   "STR": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 727,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 730,
    "montant_median_60_dh": 93942,
    "liquide": false,
    "statut_titre": "analyse",
@@ -7664,7 +7926,7 @@
         "prix": 196.5
        }
       ],
-      "prix_a_la_derniere_seance": 188.25
+      "prix_a_la_derniere_seance": 187.7917
      },
      "niveau_declenchement_bas": null,
      "niveau_invalidation": {
@@ -7690,7 +7952,7 @@
      "zone_basse": 202.35,
      "date_retour_dans_la_zone": "2026-08-31",
      "date_comblement": "2026-08-31",
-     "age_seances": 43,
+     "age_seances": 46,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -7704,7 +7966,7 @@
      "zone_basse": 198.0,
      "date_retour_dans_la_zone": null,
      "date_comblement": null,
-     "age_seances": 42,
+     "age_seances": 45,
      "frequence_ref": [
       "gap_baissier"
      ]
@@ -7718,7 +7980,7 @@
      "zone_basse": 154.0,
      "date_retour_dans_la_zone": "2026-10-14",
      "date_comblement": "2026-10-14",
-     "age_seances": 12,
+     "age_seances": 15,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -7737,12 +7999,12 @@
    "lignes": [],
    "gaps": [],
    "ecartes": {},
-   "n_seances_echangees": 62,
+   "n_seances_echangees": 65,
    "raison": "moins de 80 séances échangées (seuil du banc d'essai)"
   },
   "TGCC": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 1207,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 1210,
    "montant_median_60_dh": 8770033,
    "liquide": true,
    "statut_titre": "analyse",
@@ -7852,7 +8114,7 @@
        "prix": 790.0
       }
      ],
-     "prix_a_la_derniere_seance": 660.2083,
+     "prix_a_la_derniere_seance": 655.8333,
      "date_confirmation": "2026-07-17",
      "niveau_invalidation": {
       "sous": 730.0
@@ -7875,53 +8137,12 @@
    }
   },
   "TMA": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 727,
-   "montant_median_60_dh": 550470,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 730,
+   "montant_median_60_dh": 595025,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
-    {
-     "type": "double_creux",
-     "libelle": "Double creux",
-     "orientation_classique": "haussiere",
-     "statut": "expiree",
-     "pivots": [
-      {
-       "date": "2026-03-27",
-       "prix": 1471.0,
-       "type": "creux",
-       "date_confirmation": "2026-05-04"
-      },
-      {
-       "date": "2026-05-06",
-       "prix": 1650.0,
-       "type": "sommet",
-       "date_confirmation": "2026-05-19"
-      },
-      {
-       "date": "2026-06-03",
-       "prix": 1503.0,
-       "type": "creux",
-       "date_confirmation": "2026-06-15"
-      }
-     ],
-     "date_confirmation": "2026-06-15",
-     "niveau_declenchement": {
-      "forme": "horizontal",
-      "prix": 1650.0
-     },
-     "niveau_declenchement_bas": null,
-     "niveau_invalidation": {
-      "sous": 1426.87
-     },
-     "date_cassure": null,
-     "date_fin": "2026-07-29",
-     "signal": "double_creux",
-     "frequence_ref": [
-      "double_creux"
-     ]
-    },
     {
      "type": "double_sommet",
      "libelle": "Double sommet",
@@ -8016,9 +8237,9 @@
    }
   },
   "TQA": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 752,
-   "montant_median_60_dh": 664711,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 755,
+   "montant_median_60_dh": 649460,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -8211,9 +8432,9 @@
    "raison": "aucun échange depuis plus de 10 séances de la place"
   },
   "VCNE": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 315,
-   "montant_median_60_dh": 1452162,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 318,
+   "montant_median_60_dh": 1503416,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [],
@@ -8227,9 +8448,9 @@
    }
   },
   "WAF": {
-   "derniere_seance_echangee": "2026-10-29",
-   "n_seances_echangees": 575,
-   "montant_median_60_dh": 450500,
+   "derniere_seance_echangee": "2026-11-03",
+   "n_seances_echangees": 578,
+   "montant_median_60_dh": 476000,
    "liquide": true,
    "statut_titre": "analyse",
    "figures": [
@@ -8337,7 +8558,7 @@
      "zone_basse": 4952.0,
      "date_retour_dans_la_zone": "2026-10-21",
      "date_comblement": null,
-     "age_seances": 6,
+     "age_seances": 9,
      "frequence_ref": [
       "gap_haussier"
      ]
@@ -8356,7 +8577,7 @@
    "lignes": [],
    "gaps": [],
    "ecartes": {},
-   "n_seances_echangees": 70,
+   "n_seances_echangees": 73,
    "raison": "moins de 80 séances échangées (seuil du banc d'essai)"
   }
  }
