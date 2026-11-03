@@ -717,6 +717,29 @@ def reprise_trop_recente(ticker: str, df_candles) -> int | None:
     return len(apres) if len(apres) < SEANCES_APRES_REPRISE else None
 
 
+def reancrer_extremes_du_cache(cache: dict, maintenant) -> list:
+    """Recale les extrêmes glissants (52 semaines, 90 jours) de TOUTES les
+    entrées du cache à `maintenant`, la date que porte `_updated`.
+
+    03/11/2026 : sans ce recalage, les titres non synchronisés gardaient les
+    extrêmes de la veille sous un horodatage du jour (33 titres au 03/11).
+    Même règle que la synchronisation (`extremes_glissants`) : calcul sur la
+    copie stockée ; une fenêtre non couverte laisse la valeur en place.
+    Rend la liste des titres modifiés.
+    """
+    from recalculer_cache import extremes_glissants
+    modifies = []
+    for t, e in cache.items():
+        if t.startswith("_") or not isinstance(e, dict) or not e.get("candles"):
+            continue
+        x = extremes_glissants(e["candles"], maintenant=maintenant,
+                               serie_complete=len(e["candles"]) >= (e.get("n_candles") or 10**9))
+        if x and any(e.get(k) != v for k, v in x.items()):
+            e.update(x)
+            modifies.append(t)
+    return modifies
+
+
 def neutraliser_si_isin_suspect(ticker, price, rsi, ma20, ma50, h90, l90):
     """Neutralise les indicateurs quand le prix et la MA20 sont incohérents.
 
@@ -5889,6 +5912,16 @@ def run(dry_run=False, push=False, token=""):
         # à `_updated`, retrouvait 137,0 — trois passages refusés. Même
         # convention que collect_history_bvcscrap.py : on date ce qu'on écrit.
         _hd_all["_updated"] = datetime.now(timezone.utc).isoformat()
+        # ⚠️ 03/11/2026 — ET LES ENTRÉES NON SYNCHRONISÉES SUIVENT L'HORODATAGE.
+        # Seuls les titres cotés du run sont recalculés ; les autres gardaient
+        # des extrêmes glissants calculés la veille. Passé minuit, un plus-haut
+        # sort de la fenêtre de 52 semaines (SNA 2 600 du 03/11/2025) : le
+        # cache, daté du jour, décrivait la veille — 33 titres au 03/11, et le
+        # contrôle bloquant (test_import_sna_stk) a refusé tous les passages
+        # du 02/11 au soir au 03/11. Même règle que la synchronisation
+        # (`extremes_glissants`) : recalcul sur la copie stockée, fenêtre non
+        # couverte → valeur préservée.
+        reancrer_extremes_du_cache(_hd_all, _hd_all["_updated"])
         (Path(__file__).parent / "pipeline" / "historical_data.json").write_text(
             json.dumps(_hd_all, ensure_ascii=False, indent=2), encoding="utf-8")
         logger.info(f"Chandelles et cache synchronisés : {len(_series_cotations)} titres au {IDB_ASOF}")
