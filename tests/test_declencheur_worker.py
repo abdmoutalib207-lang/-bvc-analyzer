@@ -47,8 +47,12 @@ def test_la_suite_du_worker_passe():
     Piège rencontré le 23/09 — la première exécution rendait « 1 test, 1 fail »
     alors que les seize passaient.
     """
+    # ⚠️ Le rapporteur est IMPOSÉ. Le format par défaut dépend de la version
+    # de Node : TAP (« # fail 0 ») jusqu'à Node 22, « spec » (« ℹ fail 0 »)
+    # ensuite. Le 03/11/2026 au soir, l'image GitHub a changé de Node et ce
+    # test a bloqué trois passages du moteur alors que les 16 tests passaient.
     r = subprocess.run(
-        ["node", "--test", str(SUITE)],
+        ["node", "--test", "--test-reporter=tap", str(SUITE)],
         capture_output=True, text=True, cwd=RACINE, timeout=120,
     )
     assert r.returncode == 0, (
