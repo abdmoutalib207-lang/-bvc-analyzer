@@ -140,6 +140,9 @@ def _ligne_cmt(prix=3765.0, phase="a_venir"):
     o = dict(C.offre_publique("CMT", "2026-10-29"), phase=phase)
     return {"symbol": "CMT", "name": "Minière Touissit", "price": prix, "chg": -3.46,
             "v53": 7.69, "sig": "ACHETER ★★",
+            # 06/11/2026 : le courriel met en avant le Score BVC, plus la note v5.3.
+            "score_bvc": {"valeur": 80.0, "etat": "CALCULABLE", "couverture_pct": 100,
+                          "version": "bvc-score-v1", "facteurs": {}, "motif": None},
             "_meta": {"confidence": 5, "prix_asof": "2026-10-28", "stale": False,
                       "offre_publique": o}}
 

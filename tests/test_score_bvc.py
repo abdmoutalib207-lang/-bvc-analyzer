@@ -138,21 +138,34 @@ def test_annexer_bvc_ne_touche_que_son_champ_et_tout_ou_rien(titres):
     assert l2 == av2
 
 
-def test_branchement_moteur_unique_apres_la_note_et_hors_note():
+# ⚠️ 06/11/2026 — LOT 1 DU RETRAIT DE LA NOTE v5.3. Le Score BVC n'est plus un
+# fantôme : ses LECTEURS basculent dessus (courriel, contrôle du soir, journal
+# des scores, cohérence). Le contrat change de « personne ne le lit » à :
+#   · un seul PRODUCTEUR — `score_bvc.annexer_bvc`, branché une fois dans
+#     update_data.py, après la note par famille ;
+#   · des LECTEURS DÉCLARÉS ici : un nouveau lecteur s'ajoute à la liste, en
+#     connaissance de cause ;
+#   · aucun lecteur n'ÉCRIT `score_bvc` (le bloc publié est celui du moteur).
+LECTEURS_SCORE_BVC = {"bulletin_mail.py", "verifier_seance.py", "score_history.py", "coherence.py"}
+
+
+def test_branchement_moteur_unique_et_lecteurs_declares():
+    """Remplace `test_branchement_moteur_unique_apres_la_note_et_hors_note`
+    (mode fantôme, 03/11) : le branchement unique reste vérifié, l'interdiction
+    de lire devient une liste de lecteurs qui n'écrivent pas."""
     src = (RACINE / "update_data.py").read_text(encoding="utf-8")
     code = re.sub(r"#.*", "", src)
     assert len(re.findall(r"score_bvc", code)) == 1
     assert src.index("note_metier_du_run(tickers_out, passe1") < src.index("_bvc_annexer(")
+    ecriture = re.compile(r"""\[\s*["']score_bvc["']\s*\]\s*=(?!=)|setdefault\(\s*["']score_bvc["']""")
     for p in sorted((RACINE / "pipeline").rglob("*.py")):
         if p.name in {"score_bvc.py", "backtest_score_bvc.py"}:
             continue
-        if p.name == "verifier_seance.py":
-            # Seul lecteur admis : le contrôle du soir, qui compte les titres
-            # publiés (avertissement non bloquant) et n'écrit rien.
-            code = re.sub(r"#.*", "", p.read_text(encoding="utf-8"))
-            assert code.count("score_bvc") == 1 and "ajouter(\"avertissement" in code
+        code = re.sub(r"#.*", "", p.read_text(encoding="utf-8"))
+        if "score_bvc" not in code:
             continue
-        assert "score_bvc" not in re.sub(r"#.*", "", p.read_text(encoding="utf-8")), p.name
+        assert p.name in LECTEURS_SCORE_BVC, f"{p.name} lit score_bvc sans être déclaré lecteur"
+        assert not ecriture.search(code), f"{p.name} ÉCRIT score_bvc : seul le moteur le produit"
 
 
 def test_publie_score_bvc(titres):
