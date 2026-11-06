@@ -256,3 +256,27 @@ def test_le_bulletin_ne_lit_plus_sigbvc_ni_v53_ni_sig():
            if isinstance(n, ast.Constant) and isinstance(n.value, str)}
     for champ in ("sigBvc", "v53", "sig", "score_fond", "score_tech", "poids", "bonus"):
         assert champ not in lus, f"le bulletin lit encore `{champ}`"
+
+
+def test_une_lecture_de_seance_impossible_se_signale(monkeypatch, capsys):
+    """R5 : l'échec d'import de la lecture de séance a fait partir des
+    courriels incomplets sans trace jusqu'au 06/11/2026. L'envoi continue,
+    mais la panne s'écrit sur stderr, donc dans le journal du workflow."""
+    import builtins
+    vrai_import = builtins.__import__
+
+    def import_casse(nom, *a, **k):
+        if nom == "pipeline.briefing":
+            raise ModuleNotFoundError("pipeline.briefing")
+        return vrai_import(nom, *a, **k)
+
+    monkeypatch.setattr(builtins, "__import__", import_casse)
+    assert bm._briefing({}) == ""
+    assert "lecture de séance absente" in capsys.readouterr().err
+
+
+def test_une_mesure_illisible_se_signale(capsys, tmp_path):
+    faux = tmp_path / "illisible.json"
+    faux.write_text("{pas du json", encoding="utf-8")
+    assert bm.mesure_score_bvc(faux) is None
+    assert "mesure du Score BVC illisible" in capsys.readouterr().err
