@@ -297,3 +297,84 @@ def test_le_flux_publie_ne_porte_aucune_erreur_de_coherence():
     assert not graves, (
         f"{r['erreurs']} incohérence(s) dans le flux publié : "
         + "; ".join(f"{s} — {a[0]['quoi']}" for s, a in list(graves.items())[:5]))
+
+
+# ── ⚠️ Le Score BVC se refait à la main — 06/11/2026 (lot 1) ───────────────
+
+def _bvc():
+    """Un bloc conforme, calculé à la main : 15 + 15 + 10 + 2 + 7,5 + 0 = 49,5
+    points sur une couverture de 100 → 49,5."""
+    return {"valeur": 49.5, "etat": "CALCULABLE", "couverture_pct": 100, "version": "bvc-score-v1",
+            "motif": None, "facteurs": {
+                "moyennes_mobiles": {"poids": 35, "points": 15.0},
+                "momentum": {"poids": 15, "points": 15.0},
+                "macd": {"poids": 10, "points": 10.0},
+                "activité": {"poids": 10, "points": 2.0},
+                "liquidité": {"poids": 15, "points": 7.5},
+                "rentabilité": {"poids": 15, "points": 0.0}}}
+
+
+def test_un_score_bvc_sain_ne_declenche_rien():
+    assert controler(_t(score_bvc=_bvc())) == []
+
+
+def test_un_score_bvc_qui_ne_se_recompose_pas_est_une_erreur():
+    b = _bvc()
+    b["valeur"] = 55.0
+    assert "score_bvc_irreproductible" in _codes(_t(score_bvc=b))
+    b = _bvc()
+    b["couverture_pct"] = 85          # ≠ 100, somme des poids disponibles
+    assert "score_bvc_irreproductible" in _codes(_t(score_bvc=b))
+
+
+def test_un_facteur_indisponible_sort_de_la_couverture():
+    """Rentabilité sans ROE publié : points None, la couverture tombe à 85 et
+    la valeur se rapporte à 85 — 49,5 / 85 × 100 = 58,24."""
+    b = _bvc()
+    b["facteurs"]["rentabilité"]["points"] = None
+    b["couverture_pct"], b["valeur"] = 85, 58.24
+    assert controler(_t(score_bvc=b)) == []
+    # MM200 indisponible (moins de 200 séances, cas de ZLD au 05/11) : le poids
+    # COUVERT des moyennes mobiles tombe à 25, la couverture à 90.
+    b = _bvc()
+    b["facteurs"]["moyennes_mobiles"]["poids"] = 25
+    b["couverture_pct"], b["valeur"] = 90, 55.0
+    assert controler(_t(score_bvc=b)) == []
+
+
+def test_l_etat_et_la_valeur_vont_ensemble():
+    b = _bvc()
+    b["etat"] = "PARTIEL"
+    assert "score_bvc_etat" in _codes(_t(score_bvc=b))
+    b = _bvc()
+    b["valeur"] = None
+    assert "score_bvc_etat" in _codes(_t(score_bvc=b))
+    b = _bvc()
+    b["etat"] = "PEUT-ÊTRE"
+    assert "score_bvc_etat" in _codes(_t(score_bvc=b))
+
+
+def test_un_score_bvc_hors_bornes_ou_sous_le_seuil_est_une_erreur():
+    b = _bvc()
+    b["valeur"] = 140
+    assert "hors_bornes" in _codes(_t(score_bvc=b))
+    b = _bvc()
+    for f in ("macd", "activité", "liquidité", "rentabilité"):
+        b["facteurs"][f]["points"] = None
+    b["couverture_pct"], b["valeur"] = 50, 60.0
+    assert "score_bvc_couverture" in _codes(_t(score_bvc=b))
+
+
+def test_un_score_bvc_sur_un_cours_perime_ou_suspendu_est_une_erreur():
+    meta = dict(_t()["_meta"], stale=True)
+    assert "score_bvc_sur_cours_perime" in _codes(_t(score_bvc=_bvc(), _meta=meta))
+    nc = {"valeur": None, "etat": "NON_CALCULABLE", "couverture_pct": 0, "facteurs": {},
+          "version": "bvc-score-v1", "motif": "cotation suspendue"}
+    assert controler(_t(score_bvc=nc, _meta=dict(_t()["_meta"], suspendu=True))) == []
+
+
+def test_les_fondamentaux_perimes_ne_citent_plus_le_poids_de_la_note_v53():
+    t = _t()
+    t["_meta"]["fond_age_jours"] = 200
+    quoi = [a["quoi"] for a in controler(t) if a["code"] == "fondamentaux_perimes"][0]
+    assert "poids" not in quoi and "note fondamentale" in quoi
