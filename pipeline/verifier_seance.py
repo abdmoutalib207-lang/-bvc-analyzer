@@ -21,6 +21,7 @@ le script sort alors en 0 sans rien dire.
 """
 
 import json
+import math
 import sys
 from collections import Counter
 from datetime import datetime, timedelta, timezone
@@ -47,6 +48,8 @@ def _maintenant_local() -> datetime:
 # source partiellement défaillante sans laisser passer un run à vide.
 MIN_BOUGIES = 50
 MIN_PRIX_DU_JOUR = 50
+# Titres portant un bloc `score_bvc` (calcul tout ou rien : 80 ou 0 en pratique).
+MIN_SCORE_BVC = 50
 
 
 # Écart maximal toléré entre aujourd'hui et la dernière séance enregistrée.
@@ -227,9 +230,18 @@ def _controles(jour, ecart):
     absents = [t for t in TICKERS_ACTIFS if not (titres.get(t, {}).get("price") or 0) > 0]
     ajouter("les 19 titres MASI 1 ont un prix", not absents, absents or "tous présents")
 
-    hors = [t for t, x in titres.items()
-            if x.get("v53") is not None and not 0 <= x["v53"] <= 10]
-    ajouter("score v5.3 dans [0, 10]", not hors, hors or "conforme")
+    # ⚠️ LE SCORE PUBLIÉ EST LE SCORE BVC — 06/11/2026 (lot 1 du retrait de la
+    # note v5.3, décision d'Abd Moutalib). Le contrôle bloquant « score v5.3
+    # dans [0, 10] » porte désormais sur le Score BVC, sur 100, pour chaque
+    # titre qui a une VALEUR : PARTIEL et NON_CALCULABLE n'en ont pas, et c'est
+    # légitime. Une valeur qui n'est pas un nombre fini est hors bornes.
+    def _hors_100(v):
+        return (isinstance(v, bool) or not isinstance(v, (int, float))
+                or not math.isfinite(v) or not 0 <= v <= 100)
+    blocs = {t: x["score_bvc"] for t, x in titres.items() if isinstance(x.get("score_bvc"), dict)}
+    hors = [t for t, b in blocs.items() if b.get("valeur") is not None and _hors_100(b["valeur"])]
+    ajouter("Score BVC dans [0, 100] pour chaque titre qui a une valeur", not hors,
+            hors or "conforme")
 
     # Note fondamentale par famille (11/10/2026, mode comparaison). Deux lignes,
     # de nature DIFFÉRENTE :
@@ -253,13 +265,31 @@ def _controles(jour, ecart):
         ajouter("avertissement : titres du MASI 1 sans note par famille (non bloquant)", True,
                 "sans objet : data.json sans note par famille")
 
-    # Score BVC (fantôme, 03/11/2026) : son calcul est protégé par un
-    # try/except dans update_data.py, pour ne jamais emporter la publication.
-    # Sans ce contrôle, une panne quotidienne passerait inaperçue. AVERTISSEMENT
-    # seulement : le score n'entre ni dans la note ni dans le signal.
-    n_bvc = sum(1 for x in titres.values() if isinstance(x.get("score_bvc"), dict))
-    ajouter("avertissement : score BVC publié sur au moins 50 titres (non bloquant)", True,
-            f"{n_bvc} titres" + ("" if n_bvc >= 50 else " — ⚠️ calcul en échec ? voir le journal du run"))
+    # ⚠️ SCORE BVC PUBLIÉ — BLOQUANT depuis le 06/11/2026 (était un
+    # avertissement tant que le score était fantôme).
+    #
+    # Son calcul est protégé par un try/except dans update_data.py et il est
+    # TOUT OU RIEN (`annexer_bvc`) : soit chaque titre porte son bloc, soit
+    # aucun. Ce contrôle voit donc la panne du calcul, et rien d'autre — un
+    # titre suspendu ou périmé porte un bloc NON_CALCULABLE et compte.
+    # Mesuré avant de le rendre bloquant, sur les 34 data.json publiés du 04
+    # au 06/11/2026 : 80 blocs sur 80 à chaque fois, y compris le 06/11, jour
+    # férié (Marche Verte) où le run republiait la séance du 05.
+    ajouter(f"Score BVC publié sur au moins {MIN_SCORE_BVC} titres", len(blocs) >= MIN_SCORE_BVC,
+            f"{len(blocs)} titres" + ("" if len(blocs) >= MIN_SCORE_BVC
+                                      else " — calcul en échec ? voir le journal du run"))
+    # ⚠️ Le nombre de VALEURS, lui, reste un AVERTISSEMENT. Il suit le nombre
+    # de titres échangés à la séance (un titre non coté est périmé, donc sans
+    # valeur) : 52 à 67 sur les mêmes 34 fichiers, 66 le soir. Sur 243 séances
+    # (depuis le 06/11/2025), le jour le plus mince a vu 55 titres échangés —
+    # une marge de 5 sur un seuil à 50, que des titres PARTIELS suffiraient à
+    # entamer. Le bloquer ferait sonner l'alarme un jour de faible activité ;
+    # le contrôle « prix de la séance » couvre déjà une collecte effondrée.
+    n_val = sum(1 for b in blocs.values() if b.get("valeur") is not None)
+    ajouter(f"avertissement : Score BVC avec une valeur sur au moins {MIN_SCORE_BVC} titres "
+            "(non bloquant)", True,
+            f"{n_val} valeurs" + ("" if n_val >= MIN_SCORE_BVC
+                                  else " — séance peu active, ou calcul dégradé ? voir le journal du run"))
 
     # Règle R10 : la BVC plafonne la variation à ±10 % par séance, sur le
     # COURS D'UNE SOCIÉTÉ. Le contrôle porte bien sur les titres un à un —
