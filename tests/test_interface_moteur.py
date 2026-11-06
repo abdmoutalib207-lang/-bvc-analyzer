@@ -65,8 +65,8 @@ def test_le_terminal_lit_ce_que_le_moteur_publie(champ, pourquoi):
 CHAMPS_RACINE = [
     ("rang_secteur", "le rang sectoriel, publié le 24/09"),
     ("niveaux", "les niveaux et leurs bornes réglementaires, publiés le 25/09"),
-    ("score_fond", "la note fondamentale, sans quoi la décomposition est vide"),
-    ("poids", "les poids réellement appliqués"),
+    ("note_fond", "la note fondamentale et ses composantes (score_fond retiré le 06/11/2026)"),
+    ("score_bvc", "le score affiché, avec ses facteurs"),
     ("note_fond_metier", "la note par famille, publiée à côté de la note actuelle (comparaison, 11/10)"),
 ]
 
@@ -94,19 +94,35 @@ def test_le_champ_traverse_la_fusion_et_pas_seulement_le_fichier(champ, quoi):
     fin = ECRAN.find("};});", i)
     fusion = ECRAN[i:fin]
 
-    # ⚠️ DEUX FORMES VALIDES, et l'oublier produit un faux positif — c'est
-    # arrivé à l'écriture de ce test. Un champ traverse soit en écriture
-    # directe (`champ:t.champ`), soit par la liste nommée `CHAMPS_SCORE`,
-    # que la fusion étale. Les notes par pilier passent par la seconde.
-    direct = f"{champ}:t.{champ}" in fusion
-    j = ECRAN.find("const CHAMPS_SCORE")
-    liste = ECRAN[j:ECRAN.find("]", j)] if j > 0 else ""
-    par_liste = f'"{champ}"' in liste and "CHAMPS_SCORE.map" in fusion
+    # Un champ traverse en écriture directe (`champ:t.champ`). La seconde
+    # forme, la liste nommée `CHAMPS_SCORE` qui portait `score_tech` et
+    # `score_fond`, est retirée avec la note v5.3 (06/11/2026, lot 2).
+    assert f"{champ}:t.{champ}" in fusion, (
+        f"`{champ}` n'est pas recopié par la fusion : {quoi} n'atteindra "
+        f"jamais l'écran, même si le composant qui l'affiche existe")
 
-    assert direct or par_liste, (
-        f"`{champ}` n'est recopié par la fusion ni en direct ni via "
-        f"CHAMPS_SCORE : {quoi} n'atteindra jamais l'écran, même si le "
-        f"composant qui l'affiche existe")
+
+# ⚠️ 06/11/2026 — retrait du producteur de la note v5.3 (lot 2). Le moteur ne
+# publie plus ces champs ; les transporter ferait voyager des `undefined` et
+# laisserait croire à un composant qu'ils existent encore.
+CHAMPS_V53 = ("v53", "sig", "score_fond", "score_tech", "poids", "bonus", "setup",
+              "verdict_plafonne", "score_version")
+
+
+def _fusion():
+    i = ECRAN.find("d.tickers.forEach(t=>{m[t.symbol]={")
+    return ECRAN[i:ECRAN.find("};});", i)]
+
+
+@pytest.mark.parametrize("champ", CHAMPS_V53)
+def test_la_fusion_ne_transporte_plus_la_note_v53(champ):
+    import re
+    assert not re.search(rf"\b{champ}:t\.{champ}\b", _fusion()), f"`{champ}` encore transporté"
+    assert "t[c]" not in _fusion() and "CHAMPS_SCORE" not in _fusion()
+
+
+def test_la_liste_champs_score_est_retiree():
+    assert "const CHAMPS_SCORE" not in ECRAN and "CHAMPS_SCORE.map" not in ECRAN
 
 
 def test_la_comparaison_par_metier_quitte_la_fiche_mais_traverse_la_fusion():

@@ -797,10 +797,11 @@ async function fetchMASI(){
 // un RSI qui monte vers 70. Sur les 58 titres en hausse ce jour-là, la note
 // v5.3 a baissé pour 9 ; le Score BVC a baissé pour 8 et monté pour 45.
 //
-// ⚠️ LE MOTEUR NE CHANGE PAS. `v53`, `sig`, `score_fond`, `score_tech`,
-// `poids`, `bonus` et `verdict_plafonne` restent calculés et publiés dans
-// data.json (contrat de fichier, R8, bulletin, backtests) ; le terminal ne
-// les lit plus. Les vues de pondération (OFFICIEL, 70/30…) recalculaient la
+// ⚠️ LE MOTEUR A SUIVI LE 06/11/2026 (lot 2) : `v53`, `sig`, `score_fond`,
+// `score_tech`, `poids`, `bonus`, `setup`, `verdict_plafonne` et
+// `score_version` ne sont plus publiés dans data.json, et loadData ne les
+// transporte plus. L'historique de la note v5.3 reste dans
+// pipeline/score_history.json et dans l'historique git. Les vues de pondération (OFFICIEL, 70/30…) recalculaient la
 // note v5.3 : elles partent avec elle, comme les mentions qui n'existaient
 // que pour elle (« non comparable », « couverture partielle », plafond
 // d'illiquidité).
@@ -1186,8 +1187,9 @@ const Perime=({r})=>{const m=meta(r);if(!m.stale)return null;
    Trois éléments repliables, au toucher (<details>, pas d'info-bulle) :
    l'heure du cours, ce que garantit la confiance, et pourquoi cette note.
    Ils n'affichent QUE ce que le moteur publie (`_meta.garanties`,
-   `note_fond`, `poids`, `score_tech`) : l'explication ne peut pas diverger
-   du calcul. */
+   `note_fond`, `score_bvc`) : l'explication ne peut pas diverger du calcul.
+   (`poids` et `score_tech`, cités ici jusqu'au 06/11/2026, ne sont plus
+   publiés.) */
 const heureCours=r=>{const m=meta(r);if(!m.asof)return "date du cours inconnue";
   let h="",jour="";try{const d=new Date(m.generated_at);
     h=maroc(d).toLocaleTimeString("fr-FR",{timeZone:"UTC",hour:"2-digit",minute:"2-digit"});
@@ -5415,16 +5417,12 @@ const NewsFeed=()=>{
   );
 };
 
-// ── CHAMPS DE LA NOTE v5.3 TRANSPORTÉS, NON AFFICHÉS — 06/11/2026 ─────────────
-// Le terminal n'affiche plus la note v5.3 ni ses composantes, et le score
-// personnalisé (vues OFFICIEL, 70/30… qui recalculaient la note v5.3 avec
-// d'autres poids) est retiré avec elle : aucun composant ne lit plus `v53`,
-// `sig`, `score_fond`, `score_tech`, `poids` ni `bonus`.
-// Le moteur continue de les publier (contrat de data.json) et la fusion de
-// loadData les recopie encore tels quels : c'est le chemin que surveillent
-// `tests/test_interface_moteur.py` et `tools/audit_chaine.py`. Les retirer
-// de la fusion est un nettoyage séparé, sans effet sur l'écran.
-const CHAMPS_SCORE = ["score_tech", "score_fond"];
+// ── CHAMPS DE LA NOTE v5.3 — PLUS TRANSPORTÉS DEPUIS LE 06/11/2026 ───────────
+// Le terminal n'affiche plus la note v5.3 (#325) ; le moteur ne la produit plus
+// (lot 2). `CHAMPS_SCORE`, la liste nommée qui faisait traverser `score_tech`
+// et `score_fond` jusqu'à la fiche, est retirée avec eux, comme `v53`, `sig`,
+// `poids`, `bonus`, `setup`, `verdict_plafonne` et `score_version` dans la
+// fusion de loadData. Garde-fou : tests/test_interface_moteur.py.
 
 /* ── FAVORIS : CE QUI A CHANGÉ DEPUIS LA DERNIÈRE VISITE (14/10/2026) ───────
    Diagnostic externe de l'interface, point 7. Un instantané par appareil est
@@ -5666,21 +5664,12 @@ function App(){
           macd:t.macd,macd_signal:t.macd_signal,macd_hist:t.macd_hist,
           bb_upper:t.bb_upper,bb_mid:t.bb_mid,bb_lower:t.bb_lower,
           stoch_k:t.stoch_k,stoch_d:t.stoch_d,
-          v53:t.v53,score_version:t.score_version,
-          /* ⚠️ LES COMPOSANTES DU SCORE, oubliées jusqu'au 10/09/2026.
-             `score_tech` existait dans data.json et n'arrivait jamais ici :
-             computeDisplayScore retombait donc sur son repli `RSI / 10`, qui
-             n'est pas la même formule (le moteur tient aussi compte des
-             moyennes mobiles et de la position dans la fourchette). Mesuré :
-             ADI 7,50 → 5,72 · ADH 6,70 → 4,99 · Taqa 6,70 → 4,80.
-             Signalé par l'audit externe du 09/09. Elles passent par une liste
-             NOMMÉE pour qu'un oubli futur se voie — une énumération de
-             quarante champs cache ce qui lui manque. */
-          ...Object.fromEntries(CHAMPS_SCORE.map(c=>[c,t[c]])),
-          sig:t.sig,reference:t.reference,
-          bonus:t.bonus,poids:t.poids,note_fond:t.note_fond,
+          /* 06/11/2026 (lot 2) : plus de `v53`, `score_version`, `sig`,
+             `bonus`, `poids`, ni des composantes `score_tech` / `score_fond`
+             (ex-liste nommée des composantes) — le moteur ne les publie plus. */
+          reference:t.reference,
+          note_fond:t.note_fond,
           bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,alertes:t.alertes,ratios_publies:t.ratios_publies,risque:t.risque,score_bvc:t.score_bvc,
-          setup:t.setup,
           obv:t.obv,adx:t.adx,adx_pdi:t.adx_pdi,adx_mdi:t.adx_mdi,
           /* ⚠️ DEUX CHAMPS CALCULÉS QUI N'ARRIVAIENT PAS JUSQU'ICI — 25/09.
              `rang_secteur`, publié le 24/09, et `niveaux`, le 25/09 : les
@@ -5699,7 +5688,7 @@ function App(){
           rang_secteur:t.rang_secteur, niveaux:t.niveaux,
           /* ⚠️ La note par famille, EN COMPARAISON (11/10/2026) : famille, poids
              de la grille disponible, critères avec leur état. Publiée à côté de
-             `score_fond`, qu'elle ne remplace pas. */
+             de la note fondamentale (`note_fond`), qu'elle ne remplace pas. */
           note_fond_metier:t.note_fond_metier,
           /* ⚠️ Le montant RÉEL de la séance et les bornes de réservation,
              collectés depuis le 25/09. `vol` était déjà là ; le montant,
@@ -5707,7 +5696,7 @@ function App(){
           echange_dh:t.echange_dh, seuil_bas:t.seuil_bas, seuil_haut:t.seuil_haut,
           /* Calibrage technique, 03/10/2026 : nouveau pilier EN ESSAI (mode
              ombre) et motif de neutralisation de l'ancien. */
-          score_tech_v2:t.score_tech_v2, technique_neutralise:t.technique_neutralise, verdict_plafonne:t.verdict_plafonne
+          score_tech_v2:t.score_tech_v2, technique_neutralise:t.technique_neutralise
         };});
         REGIME_TECH=d.regime_technique||null;
         mergeLive(m);
