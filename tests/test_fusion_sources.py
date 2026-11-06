@@ -291,3 +291,39 @@ def test_un_titre_cote_selon_cdg_n_est_jamais_redate(ud):
                            lignes_cdg=[{"Symbol": "IAM", "Cours": 94.03}],
                            derniere_bougie=lambda s: {"d": HIER, "c": 94.03})
     assert lp["IAM"]["asof"] == JOUR and "rediffusion" not in lp["IAM"]
+
+
+# ── Séance fantôme : corrigée AVANT l'arbitrage (06/11/2026) ───────────────
+
+def test_une_date_fictive_ne_gagne_pas_l_arbitrage(ud, monkeypatch):
+    """Le 06/11/2026 (Marche Verte), IDBourse a daté du 06 la clôture du 05 ;
+    CDG la datait du 05. Sans correction préalable, la date fictive gagnait
+    l'arbitrage sur 64 titres et les montants d'IDBourse remplaçaient ceux de
+    CDG. Reproduit ici sur les vraies chandelles : clôtures identiques à la
+    dernière bougie, datées du lendemain par IDBourse."""
+    import json
+    from datetime import date, timedelta
+    from pathlib import Path
+    dossier = Path(ud.__file__).parent / "pipeline" / "candles"
+    dernieres = {}
+    for f in sorted(dossier.glob("*.json")):
+        serie = json.loads(f.read_text(encoding="utf-8"))
+        if serie and serie[-1].get("c"):
+            dernieres[f.stem] = serie[-1]
+    veille = max(b["d"] for b in dernieres.values())
+    syms = [s for s, b in dernieres.items() if b["d"] == veille][:30]
+    assert len(syms) >= 20, "il faut au moins 20 titres pour le détecteur"
+    fictif = (date.fromisoformat(veille) + timedelta(days=1)).isoformat()
+    lp = {s: _idb(float(dernieres[s]["c"]), fictif) for s in syms}
+    cdg = {s: {**_ext(float(dernieres[s]["c"]), veille), "echange_dh": 1.0} for s in syms}
+    monkeypatch.setattr(ud, "IDB_ASOF", fictif)
+    assert ud._recaler_seance_fantome(lp) == fictif
+    r = ud.fusionner_cotations(lp, ud.IDB_ASOF, cdg=cdg, bmce={}, lignes_cdg=[])
+    assert r == veille
+    assert all(lp[s]["src"] == "cdg" for s in syms), "CDG doit l'emporter à égalité"
+
+
+def test_run_corrige_la_seance_fantome_avant_de_fusionner(ud):
+    import inspect
+    src = inspect.getsource(ud.run)
+    assert src.index("_recaler_seance_fantome(live_prices)") < src.index("fusionner_cotations(live_prices")
