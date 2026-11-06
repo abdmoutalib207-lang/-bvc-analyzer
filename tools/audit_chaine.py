@@ -13,7 +13,10 @@ note, les alertes et la fiche lisent les MÊMES valeurs. Quatre maillons :
   3. PUBLICATION  signal ↔ couverture ↔ confiance, `_meta.confidence` ↔
                   `_meta.garanties`, alertes recalculées par la même porte
                   (`ratio_effectif`) et recoupées avec les composantes, `v53`
-                  recomposé depuis `score_fond`, `score_tech` et `poids`.
+                  recomposé depuis `score_fond`, `score_tech` et `poids`
+                  (producteur v5.3, retiré au lot 2) ; depuis le 06/11/2026,
+                  le SCORE BVC publié : état ↔ valeur, bornes, recomposition
+                  depuis ses facteurs, version, recalcul depuis les chandelles.
   4. AFFICHAGE    ⚠️ STATIQUE seulement (aucun navigateur) : les composants du
                   terminal ne lisent que `note_fond`, `alertes`, `_meta` et les
                   champs de score publiés. Cela prouve que l'écran n'a pas de
@@ -311,6 +314,53 @@ def controler_signal(sym, t, contestes) -> list:
     return out
 
 
+# ── maillon 3 bis : le Score BVC publié — 06/11/2026 ───────────────────────
+# Lot 1 du retrait de la note v5.3 : le score publié est le Score BVC. Les
+# contrôles v53 / sig ci-dessus vérifient encore le PRODUCTEUR v5.3 ; ils
+# partiront avec lui au lot 2. Ceux-ci vérifient ce que le terminal affiche.
+#
+# Les règles de forme sont celles de `pipeline/coherence.py::controler_score_bvc`
+# — une seule écriture, lue par les deux contrôles. S'y ajoute ce que seul
+# l'audit peut faire : la version, et le RECALCUL depuis les chandelles.
+def controler_score_bvc(sym, t, bougies_de=None) -> list:
+    from pipeline import score_bvc as sb
+    from pipeline.coherence import controler_score_bvc as regles
+    out = []
+    b = t.get("score_bvc")
+    if not isinstance(b, dict):
+        return [_inc(sym, "score_bvc.absent", ERREUR, "fiche sans bloc score_bvc : le score affiché manque")]
+    for a in regles(t):
+        out.append(_inc(sym, f"score_bvc.{a['code']}", ERREUR, a["quoi"]))
+    if b.get("version") != sb.VERSION:
+        out.append(_inc(sym, "score_bvc.version", ERREUR,
+                        "version du Score BVC publiée ≠ celle du module", b.get("version"), sb.VERSION))
+    # ⚠️ RECALCUL : AVERTISSEMENT, pas erreur. Il relit les chandelles du
+    # disque ; or `generate_candles.py` (17h) peut réécrire la dernière bougie
+    # dans un commit qui ne régénère pas data.json. Un écart veut alors dire
+    # « data.json pas encore régénéré », pas « score faux ». Mesuré le
+    # 06/11/2026 sur le data.json publié : 80 recalculs sur 80 identiques.
+    if bougies_de is not None:
+        r = sb.score_titre_bvc({k: v for k, v in t.items() if k != "score_bvc"}, bougies_de(sym))
+        pub = (b.get("valeur"), b.get("etat"), b.get("couverture_pct"))
+        att = (r["valeur"], r["etat"], r["couverture_pct"])
+        if pub != att:
+            out.append(_inc(sym, "score_bvc.recalcul", AVERT,
+                            "Score BVC recalculé depuis les chandelles ≠ publié (valeur, état, couverture) — "
+                            "chandelles réécrites depuis le run ?", pub, att))
+    return out
+
+
+def bougies_depuis(racine: Path):
+    """Lecteur de `pipeline/candles/<T>.json` (liste vide si absent ou illisible)."""
+    def lire(sym):
+        try:
+            s = json.loads((racine / "pipeline" / "candles" / f"{sym}.json").read_text(encoding="utf-8"))
+            return s if isinstance(s, list) else []
+        except (OSError, ValueError):
+            return []
+    return lire
+
+
 def controler_confiance(sym, t, contestes) -> list:
     out = []
     m, nf = t.get("_meta") or {}, t.get("note_fond") or {}
@@ -430,8 +480,11 @@ def controler_alertes(sym, t, f, contestes) -> list:
 
 
 # ── l'audit de tous les titres ─────────────────────────────────────────────
-def auditer(data: dict, fondamentaux: dict, faits: dict, bpa: dict) -> list:
-    """La liste des incohérences (dicts). Vide = chaîne cohérente."""
+def auditer(data: dict, fondamentaux: dict, faits: dict, bpa: dict, bougies_de=None) -> list:
+    """La liste des incohérences (dicts). Vide = chaîne cohérente.
+
+    `bougies_de(sym)` (facultatif) : les chandelles d'un titre, pour recalculer
+    le Score BVC (avertissement seulement, voir `controler_score_bvc`)."""
     out = []
     tickers = (data or {}).get("tickers") or []
     if not tickers:
@@ -449,6 +502,7 @@ def auditer(data: dict, fondamentaux: dict, faits: dict, bpa: dict) -> list:
         out += controler_note_fond(sym, t, attendu, contestes)
         out += controles_piece(sym, fondamentaux.get(sym), (faits or {}).get(sym), t.get("note_fond"))
         out += controler_signal(sym, t, contestes)
+        out += controler_score_bvc(sym, t, bougies_de)
         out += controler_confiance(sym, t, contestes)
         out += controler_alertes(sym, t, fondamentaux.get(sym) or {}, contestes)
     return out
@@ -542,6 +596,7 @@ def auditer_affichage(src: str, bvc_config=None, score_bvc=None) -> list:
 # ── data.json publié plus ancien que ses entrées ? ─────────────────────────
 ENTREES = ("fondamentaux.json", "bpa.json", "pipeline/faits_financiers.json",
            "pipeline/smart_money/fond_score.py", "pipeline/smart_money/fond_score_sectoriel.py",
+           "pipeline/score_bvc.py", "pipeline/score_descriptif.py",
            "update_data.py", "bvc_config.py")
 
 
@@ -606,7 +661,7 @@ def main(argv=None) -> int:
     ap.add_argument("--json", action="store_true", help="sortie JSON")
     a = ap.parse_args(argv)
     ch = charger(a.racine, a.data)
-    incs = auditer(ch["data"], ch["fondamentaux"], ch["faits"], ch["bpa"])
+    incs = auditer(ch["data"], ch["fondamentaux"], ch["faits"], ch["bpa"], bougies_depuis(a.racine))
     src_path = a.terminal or (a.racine / "terminal.src.html")
     try:
         incs += auditer_affichage(src_path.read_text(encoding="utf-8"))
