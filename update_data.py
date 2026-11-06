@@ -4382,11 +4382,23 @@ def run(dry_run=False, push=False, token=""):
     # égalité que parce qu'elle est désormais la source de référence. Si CDG
     # prend du retard un jour, IDBourse reprend la main d'elle-même — c'est ce
     # mécanisme, dans l'autre sens, qui a sauvé la séance du 27/08.
+    #
+    # ⚠️ La séance fantôme se détecte AVANT l'arbitrage — 06/11/2026.
+    # Ce jour-là (Marche Verte, Bourse fermée), IDBourse a rediffusé la clôture
+    # du 05/11 datée du 06 ; CDG, elle, la datait justement du 05. L'arbitrage
+    # par la date a donc préféré IDBourse sur 64 titres, puis le détecteur a
+    # ramené leur date au 05 : prix justes, mais montants échangés d'IDBourse,
+    # qui ne recoupaient plus le volume CDG du briefing — quatre passages du
+    # soir refusés par test_tableau_de_bord_seance. Une date fictive ne doit
+    # jamais gagner un arbitrage : on la corrige d'abord, CDG l'emporte alors à
+    # égalité. Le second appel, après fusion, couvre une rediffusion qui
+    # viendrait d'une autre source.
+    seance_fictive = _recaler_seance_fantome(live_prices)
     IDB_ASOF = fusionner_cotations(live_prices, IDB_ASOF)
     IDB_ASOF = _ecarter_seances_annulees(live_prices, IDB_ASOF)
     _ecarter_masi_annule(masi)
 
-    seance_fictive = _recaler_seance_fantome(live_prices)
+    seance_fictive = _recaler_seance_fantome(live_prices) or seance_fictive
     if seance_fictive:
         # La Bourse n'a pas coté : ni le calendrier des fériés à date fixe ni
         # l'horaire ne le savaient — le Mawlid suit le calendrier lunaire et
