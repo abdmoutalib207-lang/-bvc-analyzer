@@ -85,14 +85,32 @@ def test_sans_regle_rien_ne_change():
     assert U._signal_publie("X", "ACHETER ★★", _tn(110_000), None)[0] == "SURVEILLER ★"
 
 
-def test_le_champ_meta_suit_le_signal_et_seulement_lui():
+def test_le_champ_meta_suit_la_condition_et_ses_priorites(monkeypatch):
+    """06/11/2026 (retrait de la note v5.3, lot 2) : `_meta.non_comparable` ne
+    dépend plus du signal. Il est posé par la condition de liquidité, avec les
+    priorités que le signal lui imposait : suspension, reprise récente, société
+    sans comptes, note fondamentale absente."""
     nc = U.non_comparable(_tn(754))
-    e = {"sig": NC, "_meta": {}}
+    assert U.non_comparable_publie("X", nc, None, False) == nc
+    assert U.non_comparable_publie("X", None, None, False) is None          # titre liquide
+    assert U.non_comparable_publie("X", nc, 3, False) is None               # reprise récente
+    assert U.non_comparable_publie("X", nc, None, True) is None             # sans note
+    monkeypatch.setattr(U, "sans_comptes", lambda t: {"motif": "x"})
+    assert U.non_comparable_publie("X", nc, None, False) is None            # sans comptes
+    monkeypatch.setattr(U, "sans_comptes", lambda t: None)
+    monkeypatch.setattr(U, "_suspendu_maintenant", lambda t: True)
+    assert U.non_comparable_publie("X", nc, None, False) is None            # suspendu
+    e = {"_meta": {}}
     U._poser_non_comparable(e, nc)
     assert e["_meta"]["non_comparable"] == nc
-    e["sig"] = "Données insuffisantes"
-    U._poser_non_comparable(e, nc)
+    U._poser_non_comparable(e, None)
     assert "non_comparable" not in e["_meta"]
+
+
+def test_la_condition_ne_lit_aucun_signal():
+    import inspect
+    src = inspect.getsource(U.non_comparable_publie) + inspect.getsource(U._poser_non_comparable)
+    assert '"sig"' not in src and "SIG_NON_COMPARABLE" not in src
 
 
 # ── Règle B : foncière sans note par métier (second passage) ─────────────────

@@ -4080,12 +4080,32 @@ def non_comparable(tech_nf) -> dict | None:
             "montant_median_dh": med, "seuil": SEUIL_NON_COMPARABLE_DH}
 
 
-def _poser_non_comparable(e: dict, nc) -> None:
-    """`_meta.non_comparable` présent SI ET SEULEMENT SI le signal publié est
-    « Non comparable (liquidité) » : le terminal lit ce champ, pas le libellé."""
+def non_comparable_publie(ticker, nc, depuis_reprise, sans_note) -> dict | None:
+    """Le bloc `_meta.non_comparable` PUBLIÉ, ou None — décidé par la condition
+    de liquidité elle-même, sans passer par un signal.
+
+    ⚠️ 06/11/2026 (retrait de la note v5.3, lot 2). Jusque-là, le champ n'était
+    posé que si `sig` valait « Non comparable (liquidité) » : il héritait des
+    priorités du signal. Le signal disparaît, le champ reste (la vue PER du
+    terminal le lit). Ces priorités sont donc écrites ICI, telles qu'elles
+    étaient dans `_signal_publie` : un titre suspendu, en reprise de cotation
+    récente, sans comptes ou sans note fondamentale n'est pas « non
+    comparable » — il n'a pas de note à comparer. Mesuré à blanc sur 80/80
+    titres : même présence, même contenu qu'avec le signal.
+    """
+    if not nc or _suspendu_maintenant(ticker):
+        return None
+    if depuis_reprise is not None or sans_comptes(ticker) or sans_note:
+        return None
+    return nc
+
+
+def _poser_non_comparable(e: dict, nc_publie) -> None:
+    """`_meta.non_comparable` présent SI ET SEULEMENT SI `non_comparable_publie`
+    le rend : le terminal lit ce champ, jamais un libellé."""
     m = e.setdefault("_meta", {})
-    if e.get("sig") == SIG_NON_COMPARABLE and nc:
-        m["non_comparable"] = nc
+    if nc_publie:
+        m["non_comparable"] = nc_publie
     else:
         m.pop("non_comparable", None)
 
@@ -4215,13 +4235,14 @@ def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux:
                 # Règle 11 : une note PARTIELLE ne peut pas être plus favorable que la grille actuelle.
                 e["sig"] = limiter_signal_partiel(sig_actuel, e["sig"], r["partielle"])
                 e["setup"] = _setup_technique(v["v53"], p1["price"], p1["ma20"], p1["ma50"], p1["tech_nf"])
-            _poser_non_comparable(e, nc)
+            _poser_non_comparable(e, non_comparable_publie(sym, nc, p1["depuis_reprise"], note is None))
         elif fonciere_sn and "sig_v53" in p1:
             e["sig"], e["verdict_plafonne"] = _signal_publie(
                 sym, p1["sig_v53"], p1["tech_nf"], p1["depuis_reprise"], sans_note=p1.get("sans_note", False),
                 couverture_partielle=p1.get("couv_partielle", False), non_comparable=nc,
                 fonciere_sans_note=True)
-            _poser_non_comparable(e, nc)
+            _poser_non_comparable(e, non_comparable_publie(sym, nc, p1["depuis_reprise"],
+                                                           p1.get("sans_note", False)))
         logger.info(f"  ✓ {sym}: {e['price']} DH | RSI {e.get('rsi')} | Score v5.3: "
                     f"{e['v53']} (fond {e['score_fond']}) | {e['sig']} | note par famille "
                     f"({r['famille']}) : {note}")
@@ -5364,7 +5385,8 @@ def run(dry_run=False, push=False, token=""):
         })
         # `_meta.non_comparable` : {motif, montant_median_dh, seuil}, posé SI ET
         # SEULEMENT SI le signal publié est « Non comparable (liquidité) ».
-        _poser_non_comparable(tickers_out[-1], _nc)
+        _poser_non_comparable(tickers_out[-1], non_comparable_publie(
+            ticker, _nc, _seances_depuis_reprise, _sans_note_fond))
 
         # Le signal JOURNALISÉ doit être celui qui sera PUBLIÉ. Il imprimait
         # `v53['sig']`, calculé avant la substitution : le dry-run annonçait
