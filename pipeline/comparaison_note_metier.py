@@ -122,10 +122,22 @@ def _stats(x: list[float]) -> dict:
             "valeurs_distinctes": len(set(x))}
 
 
+def note_actuelle(t: dict):
+    """La note fondamentale de la grille actuelle publiée pour `t`.
+
+    ⚠️ 06/11/2026 (retrait de la note v5.3, lot 2) : `score_fond`, pilier de la
+    v5.3, n'est plus publié ; la même valeur vit dans `note_fond.note` (l'audit
+    de la chaîne vérifiait leur égalité). Après le retrait, `v53` et le signal
+    sont absents : la v53 « simulée » et les paliers sont alors None."""
+    if "score_fond" in t:
+        return t.get("score_fond")
+    return (t.get("note_fond") or {}).get("note")
+
+
 def _palier_simule(t: dict, note, partielle: bool) -> tuple:
     """(v53 simulée, palier simulé, limité par le garde-fou) pour un titre `t` du
     data.json et une note par métier `note`. Pure."""
-    actuelle, v53 = t.get("score_fond"), t.get("v53")
+    actuelle, v53 = note_actuelle(t), t.get("v53")
     wf = ((t.get("poids") or {}).get("f") or 0) / 100
     simulee = (round(min(max(v53 + (note - actuelle) * wf, 0), 10), 2)
                if None not in (note, v53, actuelle) else None)
@@ -391,7 +403,7 @@ def construire(racine: Path = RACINE) -> dict:
     refs = {k: collections.Counter() for k in fs.POIDS}
     for s, r in res.items():
         t = T.get(s, {})
-        actuelle, v53 = t.get("score_fond"), t.get("v53")
+        actuelle, v53 = note_actuelle(t), t.get("v53")
         note = r["note"]
         simulee, simule, limite = _palier_simule(t, note, r["partielle"])
         actuel = palier_publie(t.get("sig"))

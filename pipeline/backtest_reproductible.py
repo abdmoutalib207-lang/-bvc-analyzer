@@ -131,6 +131,13 @@ def notes_score_history(chemin: Path) -> tuple[list[dict], dict]:
         versions[date] = s.get("score_version")
         for r in s["tickers"]:
             g = lambda c: r[ix[c]] if ix[c] < len(r) else None  # noqa: E731
+            # ⚠️ 06/11/2026 (retrait de la note v5.3, lot 2) : les séances écrites
+            # depuis n'ont ni `v53` ni `sig` — le journal n'enregistre plus que le
+            # Score BVC. Ce ne sont pas des observations de la note v5.3 : écartées
+            # ici, plutôt que comptées « signal sans palier ». (Avant le retrait,
+            # un titre sans note portait `sig` « Données insuffisantes » : gardé.)
+            if g("v53") is None and g("sig") is None:
+                continue
             out.append({"date": date, "t": g("symbol"), "v53": g("v53"),
                         "sig": g("sig"), "conf": g("conf"), "asof": g("prix_asof")})
     return out, versions

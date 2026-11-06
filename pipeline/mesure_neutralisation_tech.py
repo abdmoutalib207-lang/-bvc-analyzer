@@ -112,7 +112,12 @@ def effet_actuel(series: dict) -> dict:
             changes.append({"t": t, "avant": palier(x["v53"]), "apres": palier(v2),
                             "v53": x["v53"], "v53_neutralise": v2})
     e = [l["ecart"] for l in lignes]
-    return {"date": date, "titres_neutralises": len(lignes),
+    # ⚠️ 06/11/2026 : data.json ne publie plus `v53` (retrait de la note v5.3,
+    # lot 2). Sur une livraison postérieure, cet effet est vide — et le dit. La
+    # partie historique (`_publies`, commits antérieurs) reste mesurable.
+    motif = (None if any(x.get("v53") is not None for x in d.get("tickers") or [])
+             else "livraison sans note v5.3 (retirée le 06/11/2026) : effet non mesurable")
+    return {"date": date, "titres_neutralises": len(lignes), "motif": motif,
             "ecart_min": min(e) if e else None, "ecart_max": max(e) if e else None,
             "ecart_median": sorted(e)[len(e) // 2] if e else None,
             "paliers_changes": changes, "detail": sorted(lignes, key=lambda l: l["ecart"])}
