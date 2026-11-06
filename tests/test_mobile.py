@@ -19,7 +19,9 @@ SRC = (Path(__file__).resolve().parent.parent / "terminal.src.html").read_text(e
 # « SIGNAL » devient « COULEUR » le 07/10/2026 : plus de mot d'action, la
 # pastille de couleur de la note (test_couleurs_sans_recommandation.py).
 # 28/10/2026 : NLP%, SM~ et ALPHA retirées — COULEUR passe de 14 à 11.
-GARDEES = {2: "TICKER", 4: "CLÔT.", 5: "VAR%", 9: "scoreColLabel", 11: "COULEUR"}
+# 06/11/2026 : le Score BVC remplace la note v5.3 en colonne 9 ; POIDS et la
+# seconde colonne SCORE BVC (12 et 13) sont retirées.
+GARDEES = {2: "TICKER", 4: "CLÔT.", 5: "VAR%", 9: "SCORE BVC", 11: "COULEUR"}
 
 
 def _entetes() -> list[str]:
@@ -46,7 +48,7 @@ def test_les_regles_mobiles_existent():
     assert 'className={"onglets"+(peutRevenir?"":" sans-retour")}' in SRC
     # Les classes utilisées par le CSS sont bien posées dans le JSX.
     for classe in ("entete", "onglet", "carte-ind", "indices-ligne", "classement", "bandeau-masi",
-                   "badge-version", "choix-score", "entete-droite",
+                   "badge-version", "entete-droite",     # choix-score : sélecteur de pondération retiré le 06/11/2026
                    "nom-societe", "secteur-societe"):
         assert re.search(rf'className="(?:[^"]* )?{classe}(?: [^"]*)?"', SRC), classe
 

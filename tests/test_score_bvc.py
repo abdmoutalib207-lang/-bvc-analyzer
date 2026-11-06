@@ -171,12 +171,15 @@ def test_publie_score_bvc(titres):
     assert all("score_bvc" not in (t.get("note_fond") or {}) for t in titres.values())
 
 
-def test_terminal_affiche_le_score_sans_basculer_le_classement():
+def test_terminal_bascule_le_classement_sur_le_score_bvc():
+    """06/11/2026 — la bascule est faite (décision d'Abd Moutalib) : le Score
+    BVC est le score unique du terminal et son tri par défaut. Ce test
+    vérifiait jusque-là l'inverse (« le tri par défaut reste v53 »)."""
     src = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
     assert "score_bvc:t.score_bvc" in src and "Composition du score" in src
     assert "Couverture des facteurs" in src and "sans prévision de cours" in src
     assert "proportion de points obtenus dans chaque facteur, sans prévision de rendement" in src
-    assert 'useState("v53")' in src, "le tri par défaut reste v53 : la bascule n'est pas faite"
+    assert 'useState("bvc")' in src and 'useState("v53")' not in src
     assert '["bvc","SCORE BVC"]' in src
 
 

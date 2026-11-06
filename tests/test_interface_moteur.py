@@ -109,22 +109,19 @@ def test_le_champ_traverse_la_fusion_et_pas_seulement_le_fichier(champ, quoi):
         f"composant qui l'affiche existe")
 
 
-def test_la_fiche_affiche_la_comparaison_par_metier_comme_non_retenue():
-    """11/10/2026 : la note par famille est publiée à côté, en comparaison. La
-    fiche doit dire qu'elle n'est PAS retenue dans la note, de quelle famille il
-    s'agit, la couverture de la grille, et pour chaque critère son état, son
-    poids effectif et sa référence (cote entière étiquetée non sectorielle)."""
-    assert "<NoteFond nf={r.note_fond_metier}/>" in ECRAN, "le composant n'est pas posé sur la fiche"
-    i = ECRAN.index("const NoteFond=")
-    corps = ECRAN[i:ECRAN.index("\n};", i)]
-    for attendu in ("nf.famille", "nf.poids_disponible", "nf.criteres", "c.etat", "c.poids_effectif",
-                    "c.reference", "nf.note==null", "dependance_cote", "nf.partielle", "nf.indisponible"):
-        assert attendu in corps, f"NoteFond ne lit pas {attendu}"
-    for texte in ("non retenue dans la note", "couverture de la grille", "non sectorielle", "PARTIELLE",
-                  "indisponible"):
-        assert texte in corps, f"« {texte} » n'est pas affiché"
-    for etat in ("present", "absent", "zero_confirme", "remplacement", "suspendu"):
-        assert etat in ECRAN[ECRAN.index("const ETATS_NOTE_LIB"):i], f"état « {etat} » non libellé"
+def test_la_comparaison_par_metier_quitte_la_fiche_mais_traverse_la_fusion():
+    """11/10/2026 : la note par famille était publiée à côté de la note v5.3,
+    en comparaison (« non retenue dans la note »). 06/11/2026 : la note v5.3
+    quitte le terminal et le Score BVC devient le score unique (décision
+    d'Abd Moutalib) — une seconde note sur 10, comparée à une note qui n'est
+    plus affichée, n'a plus sa place sur la fiche. Le moteur la publie
+    toujours ; elle traverse encore la fusion (`roeSansObjet` en lit le
+    critère de rentabilité pour dire qu'un ROE est sans objet)."""
+    assert "<NoteFond" not in ECRAN and "const NoteFond=" not in ECRAN
+    assert "note_fond_metier:t.note_fond_metier" in ECRAN
+    assert "note_fond_metier" in ECRAN[ECRAN.index("const roeSansObjet="):][:300]
+    # Les libellés d'état des critères (ETATS_NOTE_LIB) partent avec le composant.
+    assert "const ETATS_NOTE_LIB" not in ECRAN
 
 
 def test_la_largeur_de_marche_est_affichee():

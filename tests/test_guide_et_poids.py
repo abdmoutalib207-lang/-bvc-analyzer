@@ -1,31 +1,48 @@
-"""L'onglet POIDS dit la pondération EN VIGUEUR, et le guide existe.
+"""L'onglet POIDS dit ce qui compose le score AFFICHÉ, et le guide existe.
 
 CE QUI ÉTAIT FAUX, LE 07/10/2026
 ────────────────────────────────
 L'onglet POIDS affichait encore « Fondamental 47 % · NLP 28 % · Technique
 25 % », la formule d'avant le 25/09, et un tableau de contextes dont trois
-(Hype spike, Smart Money Tier 1, Titre peu suivi) lisent un corpus gelé et
-sont retirés du moteur depuis le 29/09. Ce que le moteur applique : base
-65,28 / 34,72, NLP à 0, modulée par le marché, technique à 0 sur les titres
-peu liquides ou au fixing.
+(Hype spike, Smart Money Tier 1, Titre peu suivi) lisaient un corpus gelé.
+Le test comparait alors l'écran à `update_data.get_weights()`.
 
-D'où les deux règles testées ici, sans navigateur :
+06/11/2026 — LE SCORE AFFICHÉ CHANGE
+────────────────────────────────────
+Décision d'Abd Moutalib : la note v5.3 quitte le terminal, le Score BVC
+devient le score unique. L'onglet POIDS présente donc ses six facteurs, et
+c'est à `pipeline/score_bvc.py` (`POIDS_BVC`) et `pipeline/score_descriptif.py`
+(seuils) que l'écran est comparé. Les tests qui confrontaient l'onglet à
+`get_weights()` sont remplacés, pas supprimés en silence : ils vérifiaient
+l'affichage d'une pondération que le terminal n'affiche plus. La pondération
+v5.3 reste vérifiée côté moteur (tests/test_ponderation_*, test_score_*).
 
-1. Les pourcentages affichés sont CEUX QUE REND `get_weights()` — l'attendu
-   est calculé en appelant le moteur, pas recopié de l'écran.
-2. La page « Comment lire l'écran » existe, est atteignable depuis l'en-tête,
-   et dit en clair ce que l'outil ne fait pas. Ses seuils sont ceux du code.
+Règles testées ici, sans navigateur :
+
+1. Les poids et les seuils affichés sont CEUX DU MOTEUR du Score BVC —
+   l'attendu est lu dans le module, pas recopié de l'écran.
+2. Les fréquences affichées sont CELLES DE L'ARTEFACT daté
+   datasets/backtests/score_bvc_2026-11-03.json (R12).
+3. La page « Comment lire l'écran » existe, est atteignable depuis l'en-tête,
+   et dit en clair ce que l'outil ne fait pas.
 """
 
+import json
 import re
+import sys
 from pathlib import Path
 
-from update_data import get_weights
-
 RACINE = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(RACINE))
+sys.path.insert(0, str(RACINE / "pipeline"))
+
+from pipeline import score_bvc as sb  # noqa: E402
+from pipeline import score_descriptif as sd  # noqa: E402
+
 SRC = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
 COMPILE = (RACINE / "index.html").read_text(encoding="utf-8")
 MOTEUR = (RACINE / "update_data.py").read_text(encoding="utf-8")
+ARTEFACT = json.loads((RACINE / "datasets/backtests/score_bvc_2026-11-03.json").read_text(encoding="utf-8"))
 
 
 def _entre(src, debut, fin):
@@ -33,76 +50,76 @@ def _entre(src, debut, fin):
     return src[i:src.index(fin, i)]
 
 
-ONGLET_POIDS = _entre(SRC, "const POIDS_CTX=[", "// ── COMMENT LIRE L'ÉCRAN")
+ONGLET_POIDS = _entre(SRC, "const FACTEURS_BVC=[", "// ── COMMENT LIRE L'ÉCRAN")
 GUIDE = _entre(SRC, "const Guide=(", "\n};\n")
 
 
-def _pct(x):
-    """0.6528 → « 65,28 % » ; 1.0 → « 100 % » ; 0.0 → « 0 % »."""
-    v = round(x * 100, 2)
-    if v == int(v):
-        return f"{int(v)} %"
-    return f"{v:.2f}".replace(".", ",") + " %"
+def _fr(x):
+    """7.5 → « 7,5 » ; 15.0 → « 15 »."""
+    return (f"{x:g}").replace(".", ",")
 
 
-def _ligne(situation):
-    """La ligne du tableau POIDS_CTX qui commence par `situation`."""
-    m = re.search(r'\["' + re.escape(situation) + r'","([^"]+)","([^"]+)","([^"]+)"',
-                  ONGLET_POIDS)
-    assert m, f"ligne absente de l'onglet POIDS : {situation!r}"
-    return m.groups()
+# ── 1. L'onglet POIDS : les six facteurs du moteur ──────────────────────────
+
+def test_onglet_poids_affiche_les_poids_du_moteur():
+    lus = dict((k, int(w)) for k, w in re.findall(r'\["([^"]+)","[^"]+",(\d+),', ONGLET_POIDS))
+    assert lus == dict(sb.POIDS_BVC), lus
+    assert sum(lus.values()) == 100
 
 
-# ── 1. Plus de 47 / 28 / 25 présentés comme poids en vigueur ────────────────
-
-def test_onglet_poids_ne_presente_plus_47_28_25():
-    for ancien in ("47%", "47 %", "28%", "28 %", "25%", "25 %"):
-        assert f'"{ancien}"' not in ONGLET_POIDS, (
-            f"{ancien} présenté comme un poids dans l'onglet POIDS")
+def test_onglet_poids_ne_presente_plus_la_ponderation_v53():
+    for ancien in ("72,22 %", "27,78 %", "POIDS_CTX", "get_weights", "MODULATION DE LA PONDÉRATION"):
+        assert ancien not in ONGLET_POIDS.replace("update_data.get_weights()", ""), ancien
+    assert "const POIDS_CTX" not in SRC
 
 
-def test_onglet_poids_affiche_la_base_rendue_par_le_moteur():
-    w = get_weights({"market_status": "OPEN"})
-    assert set(w) == {"fondamental", "technique"}     # pilier NLP retiré (28/10)
-    assert f'["Fondamental","{_pct(w["fondamental"])}"' in ONGLET_POIDS
-    assert f'["Technique","{_pct(w["technique"])}"' in ONGLET_POIDS
-    # 28/10/2026 : plus de carte « NLP Comportemental » — pilier retiré.
-    assert "NLP Comportemental" not in ONGLET_POIDS
-    assert _ligne("Base — à toute heure")[:2] == (
-        _pct(w["fondamental"]), _pct(w["technique"]))
-    # 03/11/2026 : la même base hors séance — plus de ligne « Hors séance ».
-    assert get_weights({"market_status": "CLOSED"}) == w
-    assert "Hors séance" not in ONGLET_POIDS
+def test_onglet_poids_les_seuils_sont_ceux_du_moteur():
+    # Sous-poids des moyennes mobiles
+    for nom, w in sb.SOUS_MM:
+        assert f"{nom} → {w}" in ONGLET_POIDS or f"de sa {nom} → {w}" in ONGLET_POIDS, nom
+    # Momentum : bornes RSI et demi-poids
+    w = sb.POIDS["momentum"]
+    for x in (sd.RSI_MIN, sd.RSI_MAX, sd.RSI_BAS):
+        assert _fr(x) in ONGLET_POIDS
+    assert f"→ {_fr(w * 0.5)}" in ONGLET_POIDS
+    # Activité : [0,8 ; 3] → 1 ; < 0,8 → 0,5 ; > 3 → 0,2 (part du poids)
+    w = sb.POIDS["activité"]
+    assert sd.points_activite(1.0) == 1 and sd.points_activite(0.5) == 0.5 and sd.points_activite(4) == 0.2
+    assert f"de 0,8 à 3 → {_fr(w)} · sous 0,8 → {_fr(w * 0.5)} · au-delà de 3 → {_fr(w * 0.2)}" in ONGLET_POIDS
+    # Liquidité et rentabilité : seuils haut / bas
+    wl, wr = sb.POIDS["liquidité"], sb.POIDS["rentabilité"]
+    assert f"≥ {_fr(sd.LIQ_HAUT / 1e6)} MDH → {_fr(wl)} · ≥ {_fr(sd.LIQ_BAS / 1e6)} MDH → {_fr(wl * 0.5)}" in ONGLET_POIDS
+    assert f"≥ {_fr(sd.ROE_HAUT)} % → {_fr(wr)} · ≥ {_fr(sd.ROE_BAS)} % → {_fr(wr * 0.5)}" in ONGLET_POIDS
+    # Couverture minimale
+    assert f"au moins {sb.COUVERTURE_MIN} % du poids" in ONGLET_POIDS
 
 
-def test_chaque_contexte_actif_correspond_a_get_weights():
-    cas = {
-        "MASI < −5 % depuis janvier": {"market_status": "OPEN", "masi_ytd": -6.0},
-        "MASI > +10 % depuis janvier": {"market_status": "OPEN", "masi_ytd": 11.0},
-        "Titre peu liquide ou au fixing": {"market_status": "CLOSED", "masi_ytd": -6.0,
-                                           "tech_non_fiable": {"motif": "x"}},
-        "Publication de résultats": {"market_status": "OPEN", "has_results": True},
-    }
-    for situation, ctx in cas.items():
-        w = get_weights(ctx)
-        assert set(w) == {"fondamental", "technique"}
-        f, t, _ = _ligne(situation)
-        assert (f, t) == (_pct(w["fondamental"]), _pct(w["technique"])), situation
-    # 03/11/2026 : le statut de marché ne module plus rien — chaque contexte
-    # rend les mêmes poids en séance et hors séance.
-    for ctx in cas.values():
-        for statut in ("OPEN", "CLOSED", "PRE_MARKET"):
-            assert get_weights({**ctx, "market_status": statut}) == get_weights(ctx)
-
-
-def test_contextes_morts_marques_retires():
-    # 28/10/2026 : les trois contextes tirés du corpus (Hype spike, Smart
-    # Money, titre peu suivi), retirés le 29/09, ne s'affichent plus du tout.
-    for situation in ("Hype spike", "Smart Money Tier 1", "Titre peu suivi"):
-        assert situation not in ONGLET_POIDS, situation
-    # `has_results` n'est fourni par aucun appelant : le dire inactif.
-    assert '"has_results"' not in _entre(MOTEUR, "mkt_ctx_base = {", "}")
-    assert _ligne("Publication de résultats")[2] == "inactif"
+def test_onglet_poids_les_frequences_sont_celles_de_l_artefact():
+    """R12 : chaque chiffre affiché se relit dans l'artefact daté."""
+    b = ARTEFACT["resultats"]["sans_rentabilite"]["score_bvc"]
+    m = re.search(r"const MESURE_BVC=\{n:(\d+),dates:(\d+),du:\"([^\"]+)\",au:\"([^\"]+)\",base:([\d.]+),tranches:\[(.*?)\]\};",
+                  ONGLET_POIDS, re.S)
+    assert m, "MESURE_BVC introuvable"
+    n, dates, du, au, base, corps = m.groups()
+    assert int(n) == b["observations_total"] == 43031
+    assert int(dates) == b["dates"]
+    cal = ARTEFACT["entrees"]["calendrier"]
+    assert du == "/".join(reversed(cal["du"].split("-"))) and au == "/".join(reversed(cal["au"].split("-")))
+    assert float(base) == round(b["taux_de_base_global"] * 100, 1)
+    lus = re.findall(r'\["([^"]+)",(\d+),([\d.]+)\]', corps)
+    attendu = {k.replace(" – ", "–"): v for k, v in b["tranches"].items()}
+    assert [t for t, _, _ in lus] == list(attendu), lus
+    for t, nn, p in lus:
+        assert int(nn) == attendu[t]["n"], t
+        assert float(p) == round(attendu[t]["frequence_surperformance"] * 100, 1), t
+        # « aucun écart ne se distingue du hasard » : l'artefact le dit, tranche par tranche
+        assert attendu[t]["ecart_significatif_5pct"] is False, t
+    assert ARTEFACT["frais_aller_retour"] == 0.02 and ARTEFACT["horizon_seances"] == 20
+    assert "ne distingue pas les gagnants" in ONGLET_POIDS
+    # Les tranches affichées sont celles du backtest
+    tr = re.search(r"TRANCHES = \((.*?)\)\n", (RACINE / "pipeline/backtest_score_descriptif.py").read_text(encoding="utf-8"))
+    assert [int(x) for x in re.findall(r'\("[^"]+", (\d+),', tr.group(1))] == [0, 40, 60, 75]
+    assert [int(x) for x in re.findall(r'\{id:"t\d+",min:(\d+)', SRC)] == [75, 60, 40]
 
 
 # ── 2. Le guide ────────────────────────────────────────────────────────────
@@ -124,12 +141,23 @@ def test_guide_atteignable_depuis_l_en_tete():
     assert '{id:"guide",icone:"?"' in SRC     # menu latéral (téléphone)
 
 
-def test_seuils_du_signal_sont_ceux_du_moteur():
-    v53 = _entre(MOTEUR, "def compute_v53(", "\ndef ")
-    for seuil, libelle in (("6.5", "ACHETER ★★"), ("5.5", "SURVEILLER ★"),
-                           ("4.5", "ATTENDRE"), ("3.5", "ÉVITER")):
-        assert re.search(rf'final >= {re.escape(seuil)}:\s*\n\s*sig = "{libelle}"', v53), seuil
-        assert seuil.replace(".", ",") in GUIDE
+def test_le_guide_decrit_le_score_bvc_et_non_la_note_v53():
+    """06/11/2026 — remplace `test_seuils_du_signal_sont_ceux_du_moteur`, qui
+    vérifiait que le guide citait les seuils de `compute_v53` (6,5 · 5,5 ·
+    4,5 · 3,5) : le guide n'explique plus la note v5.3, que le terminal
+    n'affiche plus. Les seuils v5.3 restent testés côté moteur."""
+    for nom, w in sb.POIDS_BVC:
+        assert re.search(rf"{re.escape(nom.replace('_', ' '))}</T> {w}\b", GUIDE, re.I), nom
+    assert "Score descriptif, pas une prévision" in GUIDE
+    assert f"sous {sb.COUVERTURE_MIN} % du poids" in GUIDE
+    b = ARTEFACT["resultats"]["sans_rentabilite"]["score_bvc"]
+    assert f"{b['observations_total']:,}".replace(",", " ") in GUIDE          # 43 031
+    for k, v in b["tranches"].items():
+        assert f"{v['frequence_surperformance'] * 100:.1f}".replace(".", ",") + " %" in GUIDE, k
+    assert f"{b['taux_de_base_global'] * 100:.1f}".replace(".", ",") + " % en moyenne" in GUIDE
+    assert "ne distingue pas les gagnants" in GUIDE
+    for ancien in ("Note /10", "≈ 72 %", "≈ 28 %", "6,5", "Note non comparable"):
+        assert ancien not in GUIDE, ancien
 
 
 def test_criteres_de_confiance_sont_ceux_du_moteur():

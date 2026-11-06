@@ -30,10 +30,16 @@ CE QUI EST VÉRIFIÉ, SANS NAVIGATEUR
    Les citations de l'ancien corpus, exclues nommément jusqu'au 28/10/2026,
    ont disparu avec lui : le contrôle porte sur TOUTE la page servie.
 
-2. Les seuils de couleur du terminal sont ceux du moteur, et, titre par
-   titre sur le data.json publié, la couleur lue sur la note (et le plafond
-   d'illiquidité) donne le même palier que le `sig` du moteur. C'est ce qui
-   garantit que « rien ne change de fond ».
+2. Jusqu'au 05/11/2026 : les seuils de couleur étaient ceux de
+   `compute_v53`, et la couleur lue sur la note donnait, titre par titre, le
+   palier du `sig` publié.
+   ⚠️ Depuis le 06/11/2026 (décision d'Abd Moutalib), le terminal n'affiche
+   plus la note v5.3 : la couleur suit la TRANCHE du Score BVC. Les bornes
+   sont celles du backtest qui mesure ces tranches
+   (`pipeline/backtest_score_descriptif.py::TRANCHES`), et, titre par titre
+   sur data.json, la tranche lue par le terminal est celle du backtest.
+   Le `sig` du moteur, toujours publié, n'est plus confronté à l'écran : ses
+   seuils restent testés côté moteur.
 """
 
 from __future__ import annotations
@@ -47,7 +53,6 @@ import pytest
 RACINE = Path(__file__).resolve().parent.parent
 SRC = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
 COMPILE = (RACINE / "index.html").read_text(encoding="utf-8")
-MOTEUR = (RACINE / "update_data.py").read_text(encoding="utf-8")
 
 MOTS_D_ACTION = re.compile(
     r"(?<![A-Za-z0-9_$])(achat\s+fort|acheter|surveiller|attendre|[ée]viter)(?![A-Za-z0-9_$])",
@@ -98,74 +103,86 @@ def test_les_etats_restent_ecrits():
 
 
 def test_le_terminal_ne_lit_plus_le_sig_pour_l_afficher():
-    """La couleur se lit sur la note publiée ; `sig` n'est plus qu'un champ
-    transmis (mergeLive). Ni étiquette, ni filtre, ni export ne le lisent."""
+    """`sig` n'est plus qu'un champ transmis (mergeLive). Ni étiquette, ni
+    filtre, ni export ne le lisent. Depuis le 06/11/2026, la couleur se lit
+    sur la tranche du Score BVC (PastilleBVC), plus sur la note v5.3."""
     for lecture in ("label={r.sig}", "SS(r.sig)", "SS(d.sig)", "(r.sig||\"\")",
-                    "x.sig||", "r.sig||\"\"}`"):
+                    "x.sig||", "r.sig||\"\"}`", "r.sig==="):
         assert lecture not in SRC, lecture
-    assert "<PastilleNote r={r}/>" in SRC          # classement
-    assert "<PastilleNote r={r} sz={12}/>" in SRC  # fiche
+    assert "<PastilleBVC r={r}/>" in SRC          # classement
+    assert "<PastilleBVC r={r} sz={12}/>" in SRC  # fiche
+    assert "PastilleNote" not in SRC
 
 
-def test_le_plafond_d_illiquidite_est_dit_en_texte_neutre():
-    assert "titre peu échangé" in SRC
-    assert "plafonne=!!r.verdict_plafonne&&i===0" in SRC
+def test_le_plafond_d_illiquidite_v53_n_est_plus_affiche():
+    """Le plafond (note ≥ 6,5 ramenée au vert-jaune, 04/10/2026) qualifiait la
+    couleur de la note v5.3. Il part avec elle le 06/11/2026 : le Score BVC
+    compte la liquidité dans un facteur à part entière."""
+    assert "r.verdict_plafonne" not in SRC and "pastille-plafond" not in SRC
     # Le texte publié par le moteur (« ACHETER plafonné : … ») n'est pas affiché.
-    assert "{r.verdict_plafonne}" not in SRC and "r.verdict_plafonne}" not in SRC
+    assert "{r.verdict_plafonne}" not in SRC
 
 
-def test_les_filtres_portent_sur_un_palier_de_note():
-    assert "const [palierFiltre,setPalierFiltre]=useState(null);" in SRC
-    assert "palierDe(computeDisplayScore(x,scoreMode))===palierFiltre" in SRC
-    assert "sigFilter" not in SRC
+def test_les_filtres_portent_sur_une_tranche_du_score_bvc():
+    assert "const [trancheFiltre,setTrancheFiltre]=useState(null);" in SRC
+    assert "trancheBVC(x).id===trancheFiltre" in SRC
+    assert "[...TRANCHES_BVC,TRANCHE_NC].map(" in SRC      # ≥ 75 · 60–74 · 40–59 · < 40 · non calculé
+    assert "sigFilter" not in SRC and "palierFiltre" not in SRC
 
 
-# ── 2. Rien ne change de fond ───────────────────────────────────────────────
+# ── 2. Les tranches sont celles de la mesure ────────────────────────────────
 
-def _seuils_terminal() -> list[float]:
-    bloc = SRC[SRC.index("const PALIERS=["):SRC.index("];", SRC.index("const PALIERS=["))]
-    return [float(x) for x in re.findall(r"\{min:\s*([0-9.]+)", bloc)]
-
-
-def _seuils_moteur() -> list[float]:
-    v53 = MOTEUR[MOTEUR.index("def compute_v53("):]
-    v53 = v53[:v53.index("\ndef ")]
-    return [float(x) for x in re.findall(r"final >= ([0-9.]+):\s*\n\s*sig = ", v53)]
+def _bornes_terminal() -> list[float]:
+    bloc = SRC[SRC.index("const TRANCHES_BVC=["):SRC.index("];", SRC.index("const TRANCHES_BVC=["))]
+    return [float(x) for x in re.findall(r"min:\s*([0-9.]+)", bloc)]
 
 
-def test_les_seuils_de_couleur_sont_ceux_du_moteur():
-    assert _seuils_moteur() == [6.5, 5.5, 4.5, 3.5]
-    assert _seuils_terminal() == _seuils_moteur()
-    # Cinq paliers : quatre seuils et le dernier, ouvert vers le bas.
-    assert "{min:-Infinity," in SRC
+def _tranches_backtest():
+    src = (RACINE / "pipeline/backtest_score_descriptif.py").read_text(encoding="utf-8")
+    bloc = re.search(r"TRANCHES = \((.*?)\)\n", src).group(1)
+    return [(lib, float(lo), float(hi)) for lib, lo, hi in re.findall(r'\("([^"]+)", (\d+), ([\de.]+)\)', bloc)]
 
 
-def _palier_couleur(v53: float, plafonne: bool, seuils: list[float]) -> int:
-    """Réplique de `couleurNote` (terminal) en Python."""
-    i = next((k for k, s in enumerate(seuils) if v53 >= s), len(seuils))
-    return 1 if (plafonne and i == 0) else i
+def test_les_bornes_de_couleur_sont_celles_du_backtest():
+    """Les fréquences affichées (onglet POIDS, guide) sont mesurées sur les
+    tranches du backtest : la couleur doit découper aux mêmes bornes."""
+    bt = _tranches_backtest()
+    assert [lo for _, lo, _ in bt] == [0, 40, 60, 75]
+    assert _bornes_terminal() == [75.0, 60.0, 40.0]
+    assert "min:-Infinity" in SRC[SRC.index("const TRANCHES_BVC=["):]
 
 
-_PALIER_DU_SIG = {"ACHETER ★★": 0, "SURVEILLER ★": 1, "ATTENDRE": 2,
-                  "ÉVITER": 3, "ÉVITER FORT": 4}
+def _tranche(v: float | None, bornes: list[float]) -> int | None:
+    """Réplique de `trancheBVC` (terminal) en Python : rang de la tranche."""
+    if v is None:
+        return None
+    return next((k for k, s in enumerate(bornes) if v >= s), len(bornes))
 
 
-def test_la_couleur_donne_le_palier_du_sig_publie_pour_chaque_titre():
-    """Famille « données publiées » : relit data.json tel qu'il est servi."""
+def test_la_couleur_donne_la_tranche_du_backtest_pour_chaque_titre():
+    """Famille « données publiées » : relit data.json tel qu'il est servi. Pour
+    chaque titre, la tranche lue par le terminal est celle où le backtest
+    aurait rangé la même valeur ; sans valeur (PARTIEL, NON_CALCULABLE),
+    aucune couleur de tranche."""
     titres = json.loads((RACINE / "data.json").read_text(encoding="utf-8"))["tickers"]
-    seuils = _seuils_terminal()
+    bornes = _bornes_terminal()
+    bt = list(reversed(_tranches_backtest()))            # ≥ 75 d'abord, comme le terminal
     ecarts, vus = {}, 0
     for t in titres:
-        sig, v53 = t.get("sig"), t.get("v53")
-        if sig not in _PALIER_DU_SIG or v53 is None:
-            continue        # états (SUSPENDU, Données insuffisantes) : pas de couleur
+        s = t.get("score_bvc") or {}
+        v = s.get("valeur")
+        lu = _tranche(v, bornes)
+        if v is None:
+            if lu is not None:
+                ecarts[t.get("symbol")] = (v, lu)
+            continue
         vus += 1
-        lu = _palier_couleur(v53, bool(t.get("verdict_plafonne")), seuils)
-        if lu != _PALIER_DU_SIG[sig]:
-            ecarts[t.get("symbol")] = (v53, sig, lu)
+        attendu = next(k for k, (_, lo, hi) in enumerate(bt) if lo <= v < hi)
+        if lu != attendu:
+            ecarts[t.get("symbol")] = (v, lu, attendu)
     if not vus:
-        pytest.skip("aucun titre coloré dans data.json")
-    assert not ecarts, f"couleur ≠ palier du moteur : {ecarts}"
+        pytest.skip("aucun Score BVC publié dans data.json")
+    assert not ecarts, f"tranche du terminal ≠ tranche du backtest : {ecarts}"
 
 
 # ── 3. Le guide ─────────────────────────────────────────────────────────────
@@ -173,9 +190,9 @@ def test_la_couleur_donne_le_palier_du_sig_publie_pour_chaque_titre():
 def test_le_guide_explique_la_couleur_et_non_un_signal():
     guide = SRC[SRC.index("const Guide=("):]
     guide = guide[:guide.index("\n};\n")]
-    assert '<L titre="Couleur de la note">' in guide
-    assert '<L titre="Signal">' not in guide
-    for nom in ("vert", "vert-jaune", "jaune", "orange", "rouge",
-                "titre peu échangé", "Données insuffisantes", "SUSPENDU"):
+    assert '<L titre="Couleur du score">' in guide
+    assert '<L titre="Signal">' not in guide and '<L titre="Couleur de la note">' not in guide
+    for nom in ("75 et plus", "60 à 74", "40 à 59", "sous 40", "non calculé",
+                "Données insuffisantes", "SUSPENDU"):
         assert nom in guide, nom
     assert "ne dit pas quoi faire" in guide

@@ -31,8 +31,14 @@ def test_une_financiere_n_a_pas_de_critere_sans_objet_gratuit():
     assert b["note"] is None and "sans objet" not in b["motif"] and "non intégré" in b["motif"]
 
 
-def test_terminal_sans_couleur_et_alertes_visibles():
-    assert 'const couvPartielle=r=>!!r&&r.sig==="Couverture partielle";' in SRC
-    assert "if(couvPartielle(r)||nonComparable(r))return null;" in SRC   # pas de couleur de palier
-    assert "Couverture partielle — verdict global limité" in SRC
+def test_terminal_sans_verdict_v53_et_alertes_visibles():
+    """Jusqu'au 05/11/2026, le terminal lisait `sig == "Couverture partielle"`
+    pour retirer la couleur de palier de la note v5.3. Le 06/11/2026, la note
+    v5.3 quitte l'écran (décision d'Abd Moutalib) : le verdict partiel de la
+    v5.3 n'y est plus affiché — le moteur le publie toujours (tests
+    ci-dessus). Le Score BVC a son propre état PARTIEL, affiché sans valeur ni
+    couleur. Les alertes vérifiées restent visibles."""
+    assert "couvPartielle" not in SRC and 'r.sig==="Couverture partielle"' not in SRC
+    assert "Couverture partielle — verdict global limité" not in SRC
+    assert 's&&s.etat==="PARTIEL"?"partiel":"non calculé"' in SRC      # PastilleBVC
     assert 'className="alerte-verifiee"' in SRC
