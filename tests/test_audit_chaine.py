@@ -120,6 +120,19 @@ def test_les_80_titres_sont_audites(regenere):
     assert len(data["tickers"]) == 80
 
 
+def test_le_fichier_regenere_ne_porte_plus_la_note_v53(regenere):
+    """Lot 2 du retrait de la note v5.3 (06/11/2026) : sur 80/80 titres écrits par
+    le code actuel, aucun champ du producteur ; ce qui les remplace est là."""
+    _, data = regenere
+    champs = ("v53", "sig", "score_fond", "score_tech", "poids", "bonus", "setup",
+              "verdict_plafonne", "score_version")
+    porteurs = {t["symbol"]: [c for c in champs if c in t] for t in data["tickers"]}
+    assert not {s: k for s, k in porteurs.items() if k}
+    for t in data["tickers"]:
+        assert isinstance(t["_meta"]["confidence"], int) and "score_bvc" in t and "note_fond" in t
+        assert "note_fond_metier" in t and "technique_neutralise" in t
+
+
 def test_titre_non_cote_variation_et_ouverture_nulles(regenere):
     """R9 (audit du 22/10/2026) : un cours antérieur à la séance de référence
     n'a ni variation ni ouverture du jour — `null`, pas 0,00 % ni la clôture.
