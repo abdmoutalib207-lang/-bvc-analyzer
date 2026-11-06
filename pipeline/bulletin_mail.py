@@ -25,6 +25,17 @@ from pathlib import Path
 
 RACINE = Path(__file__).parent.parent
 
+# ⚠️ LA LECTURE DE LA SÉANCE MANQUAIT AU COURRIEL RÉEL — constaté le 06/11/2026.
+# Le workflow lance `python pipeline/bulletin_mail.py` : `sys.path[0]` vaut alors
+# `pipeline/`, et `from pipeline.briefing import …` (comme `from bvc_config
+# import …`) levait ModuleNotFoundError — avalé par `_briefing()`, qui ne lève
+# jamais. Le courriel partait sans sa lecture de séance pendant que les tests,
+# qui importent le module depuis la racine, la voyaient. La racine est donc
+# posée ici, une fois ; `tests/test_bulletin.py` lance le script comme le
+# workflow le fait.
+if str(RACINE.resolve()) not in sys.path:
+    sys.path.insert(0, str(RACINE.resolve()))
+
 # ⚠️ LE MAROC N'EST PAS À UTC+1 TOUTE L'ANNÉE — corrigé le 25/09/2026.
 # Il est repassé à UTC+0 le 20/09/2026, et le registre `DECALAGES_MAROC` de
 # `bvc_config.py` fait foi sur ce point, jamais la base de fuseaux du système :

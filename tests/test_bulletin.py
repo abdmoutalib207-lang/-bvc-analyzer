@@ -130,6 +130,27 @@ def test_la_table_de_juin_n_a_plus_aucun_effet():
         "décide encore")
 
 
+def test_le_script_lance_comme_le_workflow_porte_la_lecture_de_seance(tmp_path):
+    """⚠️ 06/11/2026 : `python pipeline/bulletin_mail.py` (la commande du
+    workflow) ne trouvait pas le paquet `pipeline` ; `_briefing()` avalait
+    l'erreur et le courriel partait SANS sa lecture de séance. Les autres
+    tests importent le module depuis la racine et ne le voyaient pas : celui-ci
+    lance le script en sous-processus, depuis un dossier vide, sans PYTHONPATH."""
+    import os
+    import subprocess
+    env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
+    r = subprocess.run([sys.executable, str(RACINE / "pipeline" / "bulletin_mail.py"),
+                        str(RACINE / "data.json")], cwd=tmp_path, env=env,
+                       capture_output=True, text=True, timeout=120)
+    assert r.returncode in (0, 2), r.stderr
+    if r.returncode == 2:
+        import pytest
+        pytest.skip("data.json publié trop pauvre pour composer un bulletin")
+    corps = (tmp_path / "bulletin_out" / "corps.txt").read_text(encoding="utf-8")
+    assert "LECTURE DE LA SÉANCE" in corps, (
+        "le script lancé comme par le workflow compose un courriel sans sa lecture de séance")
+
+
 def test_le_bulletin_ne_lit_plus_sigbvc():
     """Lu par l'AST : le fichier CITE `sigBvc` dans ses commentaires pour
     expliquer pourquoi il ne le lit plus."""
