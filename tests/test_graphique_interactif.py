@@ -334,10 +334,11 @@ def test_le_panneau_d_alertes_explique_chaque_alerte():
     """30/09/2026 — le panneau affichait un nombre tiré d'une table écrite à
     la main, et il avait l'honnêteté de le dire. Il affiche désormais les
     alertes CALCULÉES : raison, chiffre, seuil, source et date — et rappelle
-    qu'elles n'entrent pas dans la note."""
+    qu'elles n'entrent pas dans le score affiché (le Score BVC depuis le
+    06/11/2026, la note v5.3 auparavant)."""
     comp = _bloc(_source(), "const RedFlags=({alertes})=>{")
     for attendu in ("x.raison", "x.valeur", "x.seuil", "a.source", "a.date",
-                    "Non évaluable", "n'entrent pas dans la note"):
+                    "Non évaluable", "n'entrent pas dans le Score BVC"):
         assert attendu in comp, attendu
 
 

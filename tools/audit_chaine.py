@@ -455,12 +455,19 @@ def auditer(data: dict, fondamentaux: dict, faits: dict, bpa: dict) -> list:
 
 
 # ── maillon 4 : l'affichage, vérifié statiquement ──────────────────────────
-COMPOSANTS_AFFICHAGE = ("reservePrincipale", "ResumeNote", "DetailConfiance", "PourquoiNote", "PastilleNote")
+# ⚠️ 06/11/2026 — le terminal n'affiche plus la note v5.3 (décision d'Abd
+# Moutalib) : le score unique est le Score BVC (`score_bvc`). « Pourquoi cette
+# note ? » et la pastille de palier v5.3 sont retirés ; la pastille de tranche
+# (PastilleBVC) et les mesures bancaires en données (MesuresBancaires) les
+# remplacent. Les contrôles du MOTEUR (maillons 1 à 3, v53 et sig compris)
+# sont inchangés : seul ce qui est vérifié À L'ÉCRAN suit l'écran.
+COMPOSANTS_AFFICHAGE = ("reservePrincipale", "ResumeNote", "DetailConfiance", "PastilleBVC", "MesuresBancaires")
 # Les seuls champs de la fiche `r` que ces composants peuvent lire.
-CHAMPS_AUTORISES = {"note_fond", "alertes", "_meta", "v53", "score_fond", "score_tech", "sig",
-                    "verdict_plafonne", "technique_neutralise", "bonus", "risque"}
-# Ce qui ne doit JAMAIS alimenter la note affichée : une seconde source.
-SECONDES_SOURCES = ("note_fond_metier", "STATIC", "SENTIMENT", "FOND_SCORES", "computeDisplayScore")
+CHAMPS_AUTORISES = {"note_fond", "alertes", "_meta", "score_bvc", "risque"}
+# Ce qui ne doit JAMAIS alimenter ces composants : une seconde source, ou la
+# note v5.3 que le terminal n'affiche plus.
+SECONDES_SOURCES = ("note_fond_metier", "STATIC", "SENTIMENT", "FOND_SCORES", "computeDisplayScore",
+                    "r.v53", "r.sig", "r.score_fond", "r.score_tech", "r.bonus", "r.verdict_plafonne")
 
 
 def _corps(src: str, nom: str) -> str | None:
@@ -472,12 +479,14 @@ def _corps(src: str, nom: str) -> str | None:
     return src[m.start(): m.end() + (suite.start() if suite else len(src))]
 
 
-def auditer_affichage(src: str, bvc_config=None) -> list:
+def auditer_affichage(src: str, bvc_config=None, score_bvc=None) -> list:
     """Vérification STATIQUE du terminal. Limite assumée : elle lit du texte,
     elle n'exécute pas l'écran."""
     out, T = [], "terminal"
     if bvc_config is None:
         import bvc_config
+    if score_bvc is None:
+        from pipeline import score_bvc
     for nom in COMPOSANTS_AFFICHAGE:
         corps = _corps(src, nom)
         if corps is None:
@@ -485,15 +494,15 @@ def auditer_affichage(src: str, bvc_config=None) -> list:
             continue
         for seconde in SECONDES_SOURCES:
             if seconde in corps:
-                out.append(_inc(T, "affichage.seconde_source", ERREUR, f"{nom} lit {seconde}, seconde source de la note"))
+                out.append(_inc(T, "affichage.seconde_source", ERREUR, f"{nom} lit {seconde}, seconde source de l'affichage"))
         lus = set(re.findall(r"\br\.([A-Za-z_][A-Za-z0-9_]*)", corps))
         hors = sorted(lus - CHAMPS_AUTORISES)
         if hors:
             out.append(_inc(T, "affichage.champ_hors_liste", ERREUR,
                             f"{nom} lit des champs hors de la liste publiée : {', '.join(hors)}", hors))
-    for nom, champ in (("ResumeNote", "note_fond"), ("PourquoiNote", "note_fond"),
-                       ("reservePrincipale", "note_fond"), ("ResumeNote", "alertes"),
-                       ("DetailConfiance", "garanties")):
+    for nom, champ in (("reservePrincipale", "note_fond"), ("MesuresBancaires", "note_fond"),
+                       ("ResumeNote", "alertes"), ("DetailConfiance", "garanties"),
+                       ("PastilleBVC", "score_bvc")):
         corps = _corps(src, nom) or ""
         if champ == "note_fond" and "note_fond" not in corps:
             out.append(_inc(T, "affichage.lecture", ERREUR, f"{nom} ne lit pas note_fond"))
@@ -501,30 +510,26 @@ def auditer_affichage(src: str, bvc_config=None) -> list:
             out.append(_inc(T, "affichage.lecture", ERREUR, f"{nom} ne lit pas r.alertes"))
         if champ == "garanties" and "m.garanties" not in corps:
             out.append(_inc(T, "affichage.lecture", ERREUR, "DetailConfiance ne lit pas _meta.garanties"))
-    # Le chemin data.json -> fiche : les champs sont transportés tels quels.
-    for champ in ("note_fond", "alertes", "_meta", "poids", "sig", "v53", "score_version"):
+        if champ == "score_bvc" and "r.score_bvc" not in corps:
+            out.append(_inc(T, "affichage.lecture", ERREUR, "PastilleBVC ne lit pas r.score_bvc"))
+    # Le chemin data.json -> fiche : les champs AFFICHÉS sont transportés tels quels.
+    for champ in ("note_fond", "alertes", "_meta", "score_bvc"):
         if not re.search(rf"\b{champ}:t\.{champ}\b", src):
             out.append(_inc(T, "affichage.transport", ERREUR, f"loadData ne transporte pas {champ}:t.{champ} tel quel"))
-    m_cs = re.search(r"CHAMPS_SCORE\s*=\s*\[([^\]]*)\]", src)
-    if not m_cs or not {'"score_fond"', '"score_tech"'} <= set(re.findall(r'"[a-z_]+"', m_cs.group(1))):
-        out.append(_inc(T, "affichage.transport", ERREUR, "CHAMPS_SCORE ne transporte pas score_fond et score_tech"))
-    # Libellés et seuils affichés = ceux du moteur.
-    if 'r.sig==="Couverture partielle"' not in src:
-        out.append(_inc(T, "affichage.libelle", ERREUR, 'couvPartielle ne lit pas r.sig==="Couverture partielle"'))
-    seuil = round(bvc_config.COUVERTURE_VERDICT_MIN * 100)
-    for motif in (f"seuil de prudence : {seuil} %", f"{seuil} % du poids applicable"):
+    # La valeur affichée est celle que le moteur publie, sans recalcul.
+    if 'const valeurBVC=r=>{const s=r&&r.score_bvc;const v=s?s.valeur:null;' not in src:
+        out.append(_inc(T, "affichage.score", ERREUR, "valeurBVC ne lit plus score_bvc.valeur tel quel"))
+    # Seuil de couverture affiché = celui du moteur du Score BVC.
+    seuil = score_bvc.COUVERTURE_MIN
+    for motif in (f"au moins {seuil} % du poids", f"sous {seuil} % du poids"):
         if motif not in src:
             out.append(_inc(T, "affichage.seuil", ERREUR,
-                            f"le terminal n'annonce plus le seuil de couverture du moteur ({seuil} %) : « {motif} »"))
-    # Règle A (27/10/2026) : le terminal lit le CHAMP, pas le libellé, et annonce le seuil du moteur.
-    if "m.non_comparable" not in src:
-        out.append(_inc(T, "affichage.non_comparable", ERREUR, "nonComparable ne lit pas _meta.non_comparable"))
-    seuil_nc = f"{bvc_config.SEUIL_NON_COMPARABLE_DH:,}".replace(",", " ")
-    if f"moins de {seuil_nc} DH échangés par séance" not in src:
-        out.append(_inc(T, "affichage.seuil", ERREUR,
-                        f"« Comment lire » n'annonce plus le seuil de non-comparabilité du moteur ({seuil_nc} DH)"))
-    if "m.conf<=1" not in src:
-        out.append(_inc(T, "affichage.confiance", ERREUR, "la règle d'affichage « confiance ≤ 1 : note grise » a disparu"))
+                            f"le terminal n'annonce plus le seuil de couverture du Score BVC ({seuil} %) : « {motif} »"))
+    # Vue PER : la mention de liquidité lit le CHAMP du moteur, pas un libellé.
+    if "m_.non_comparable" not in src:
+        out.append(_inc(T, "affichage.non_comparable", ERREUR, "la vue PER ne lit pas _meta.non_comparable"))
+    if "m.conf<=1" not in src or 'meta(r).conf<=1||valeurBVC(r)==null?"#8892a4"' not in src:
+        out.append(_inc(T, "affichage.confiance", ERREUR, "la règle d'affichage « confiance ≤ 1 : score gris » a disparu"))
     if "conf:m.confidence??0" not in src:
         out.append(_inc(T, "affichage.confiance", ERREUR, "meta(r) ne lit plus _meta.confidence (repli 0)"))
     # Limite assumée, toujours rappelée.

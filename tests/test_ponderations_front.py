@@ -1,341 +1,186 @@
-"""Les vues de pondération, et la règle qui les rend honnêtes.
+"""Le terminal n'affiche plus la note v5.3 : le Score BVC est le score unique.
 
-CE QUI EXISTAIT AVANT LE 08/09/2026
-───────────────────────────────────
-Le terminal portait déjà trois interrupteurs FOND / NLP / TECH qui
-recalculaient la note dans le navigateur. Mais **la colonne SIGNAL ne suivait
-pas** : elle restait celle produite par le moteur avec 47/28/25.
+HISTOIRE
+────────
+Du 08/09 au 05/11/2026, ce fichier vérifiait les VUES DE PONDÉRATION (OFFICIEL,
+70/30, 60/40…) : elles recalculaient la note v5.3 dans le navigateur, et la
+couleur disparaissait hors de la vue officielle. Version archivée dans
+`archive/tests/test_ponderations_front_v53_2026-11-06.py`.
 
-Les deux colonnes, côte à côte, ne parlaient plus de la même formule, et rien
-à l'écran ne le disait. Mesuré : **28 titres sur 80 auraient changé de palier**
-si le signal avait suivi la note — BCP de SURVEILLER à ACHETER, TGCC
-d'ACHETER à ATTENDRE. Et l'export CSV emportait la même contradiction dans un
-fichier qui survit à l'écran.
+LE 06/11/2026
+─────────────
+Décision d'Abd Moutalib : la note v5.3 quitte le terminal, le Score BVC
+(`score_bvc` de data.json) devient le score unique. Motif : le 05/11 (MASI
++3,33 %), ADH a monté de 4,31 % et sa note v5.3 est passée de 4,59 à 4,37,
+parce que la composante technique pénalise un RSI qui monte vers 70.
 
-LA RÈGLE RETENUE
-────────────────
-UNE pondération est officielle : elle porte le signal, va dans le bulletin, et
-pourra un jour être backtestée. Les autres sont des vues d'exploration, et le
-signal y disparaît.
+Les vues de pondération partent avec la note qu'elles recalculaient. Ces
+tests vérifient que le retrait est COMPLET (rien à l'écran ne relit v53, sig,
+leurs composantes ou leurs poids) et que le contrat de data.json n'a PAS
+bougé (le moteur publie toujours v53 et sig — R8, bulletin, backtests).
 
-**Une note s'explore ; un signal se recommande.** Si l'on peut faire glisser
-les poids jusqu'à ce que le classement dise ce qu'on pensait, la note cesse
-d'être un jugement et devient le miroir d'une opinion — c'est la définition du
-biais de confirmation, et c'est ce que ces tests empêchent.
-
-⚠️ Ces tests lisent le SOURCE du frontend, faute de pouvoir l'exécuter : le
-projet n'a pas d'outillage JavaScript en intégration continue. Ils vérifient
-donc que les garde-fous sont ÉCRITS. La compilation JSX, elle, se vérifie avec
-la skill `run-tests`.
+⚠️ Ces tests lisent le SOURCE du frontend et exécutent certaines fonctions
+extraites via node lorsqu'il est disponible.
 """
 
+import json
 import re
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 
-FRONT = Path(__file__).resolve().parent.parent / "terminal.src.html"
+import pytest
+
+RACINE = Path(__file__).resolve().parent.parent
+SRC = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
+MOTEUR = (RACINE / "update_data.py").read_text(encoding="utf-8")
 
 
-def _src():
-    return FRONT.read_text(encoding="utf-8")
+def _sans_commentaires(s: str) -> str:
+    s = re.sub(r"/\*.*?\*/", " ", s, flags=re.S)
+    s = re.sub(r"\{/\*.*?\*/\}", " ", s, flags=re.S)
+    return re.sub(r"(?<![:\"'])//[^\n]*", " ", s)
 
 
-def _bloc_ponderations():
-    m = re.search(r"const PONDERATIONS=\[(.*?)\];", _src(), re.S)
-    assert m, "le catalogue PONDERATIONS est introuvable"
-    return m.group(1)
+def _hors_fusion(s: str) -> str:
+    """Le source privé de l'énumération de loadData, seul endroit où les
+    champs v5.3 sont encore RECOPIÉS (transport, pas affichage)."""
+    i = s.index("d.tickers.forEach(t=>{m[t.symbol]={")
+    j = s.index("};});", i)
+    return s[:i] + s[j:]
 
 
-def _vues():
-    """[(nom, f, t, officiel)] — lu depuis le source.
+# ── 1. Le retrait est complet ───────────────────────────────────────────────
 
-    ⚠️ 28/10/2026 : le champ `n` (pilier NLP) a disparu des vues avec le
-    retrait du pilier ; deux piliers seulement."""
+def test_plus_aucune_vue_de_ponderation():
+    code = _sans_commentaires(SRC)
+    for disparu in ("const PONDERATIONS", "computeDisplayScore", "composantesManquantes",
+                    "scoreModeLabel", "poidsAffiches", "scoreMode", "customMode",
+                    "SIMULATION", "MODE PERSONNALISÉ", "choix-score", "const WBar"):
+        assert disparu not in code, disparu
+
+
+def test_aucun_affichage_ne_lit_la_note_v53_ni_ses_composantes():
+    code = _hors_fusion(_sans_commentaires(SRC))
+    # r, d, x, a, b : les variables qui portent une ligne de titre (`f.poids`
+    # est le poids d'un FACTEUR du Score BVC, lecture légitime).
+    lus = re.findall(r"(?<![A-Za-z0-9_$])[rdxab]\.(v53|sig|poids|score_fond|score_tech|bonus|verdict_plafonne|setup)(?![A-Za-z0-9_])",
+                     code)
+    assert not lus, f"le terminal relit encore : {sorted(set(lus))}"
+
+
+def test_plus_de_palier_v53_ni_de_mot_d_action_derive():
+    code = _sans_commentaires(SRC)
+    for disparu in ("const PALIERS", "palierDe", "couleurNote", "PastilleNote", "PourquoiNote",
+                    "couvPartielle", "const nonComparable", "palierTexte", "Score composite / 10",
+                    "Pourquoi cette note ?"):
+        assert disparu not in code, disparu
+
+
+def test_le_contrat_de_data_json_ne_change_pas():
+    """Le moteur publie toujours v53 et sig : seul l'écran change."""
+    assert re.search(r'"v53"\s*:', MOTEUR) and re.search(r'"sig"\s*:', MOTEUR)
+    d = json.loads((RACINE / "data.json").read_text(encoding="utf-8"))
+    t = d["tickers"]
+    assert all("v53" in x and "sig" in x and "score_bvc" in x for x in t), "contrat de data.json rompu"
+
+
+# ── 2. Le Score BVC prend la place ──────────────────────────────────────────
+
+def test_l_en_tete_annonce_le_score_bvc_et_non_la_ponderation_v53():
+    entete = _sans_commentaires(SRC)
+    entete = entete[entete.index("const Header=("):]
+    entete = entete[:entete.index("\n};\n")]
+    assert "v6.4 — SCORE BVC" in entete
+    assert "FOND 72" not in entete and "TECH 28" not in entete
+
+
+def test_tri_par_defaut_score_bvc_et_plus_de_tri_v53():
+    assert 'const [sort,setSort]=useState("bvc");' in SRC
+    m = re.search(r"const SORTS=\[(.*?)\];", SRC)
+    assert m and m.group(1).startswith('["bvc","SCORE BVC"]'), "le Score BVC n'est pas le premier tri"
+    assert '"v53"' not in m.group(1) and "SCORE v5.3" not in SRC
+    for garde in ('["az","A → Z"]', '["var","VAR%"]', '["rsi","RSI"]'):
+        assert garde in m.group(1), garde
+    assert 'setTab("per")' in SRC          # le tri par PER garde sa vue
+
+
+def test_colonnes_du_classement():
+    heads = re.search(r"const HEADS=\[(.*?)\];", SRC).group(1)
+    cols = [x.strip().strip('"') for x in heads.split(",")]
+    assert cols == ["#", "TICKER", "OUVERT", "CLÔT.", "VAR%", "VOLUME", "PE", "DIV%", "SCORE BVC", "RSI", "COULEUR"]
+
+
+def test_l_export_csv_porte_le_score_bvc_et_plus_v53_ni_sig():
+    m = re.search(r"const cols=\[(.*?)\];\s*const rows_csv=(.*?);\n", SRC, re.S)
+    assert m, "construction du CSV introuvable"
+    cols, lignes = m.groups()
+    for c in ('"SCORE_BVC"', '"ETAT_SCORE_BVC"', '"COUVERTURE_PCT"', '"TRANCHE"', '"VERSION_SCORE_BVC"'):
+        assert c in cols, c
+    for c in ('"SCORE"', '"PONDERATION"', '"COULEUR_NOTE"', '"VERSION_SCORE"'):
+        assert c not in cols, c
+    assert "valeurBVC(r)" in lignes and "v53" not in lignes and "sig" not in lignes
+    # ⚠️ Une valeur absente s'écrit vide, jamais 0 : un chiffre faux voyage plus loin qu'une erreur.
+    assert 'v==null?"":String(v)' in lignes
+
+
+# ── 3. Exécutés : tri et tranches ───────────────────────────────────────────
+
+def _consts_js(*noms: str) -> str:
     out = []
-    for ligne in re.findall(r"\{nom:\"([^\"]+)\",f:(\d+),t:(\d+)([^}]*)\}",
-                            _bloc_ponderations()):
-        nom, f, t, reste = ligne
-        out.append((nom, int(f), int(t), "officiel:true" in reste))
-    return out
+    for nom in noms:
+        # jusqu'à la prochaine ligne de tête — un `];` ou `};` de fermeture
+        # appartient encore à la constante.
+        m = re.search(r"^const " + nom + r"=.*?(?=^[^\s\]\})])", SRC, re.S | re.M)
+        assert m, f"const {nom} introuvable"
+        out.append(m.group(0))
+    return "\n".join(out)
 
 
-def test_les_six_vues_demandees_existent():
-    """OFFICIEL plus les cinq répartitions demandées le 08/09."""
-    noms = {v[0] for v in _vues()}
-    assert {"OFFICIEL", "70/30", "60/40", "50/50", "40/60", "30/70"} <= noms, (
-        f"vues manquantes — présentes : {sorted(noms)}")
+def _executer_js(script: str) -> str:
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("node absent : la fonction ne peut pas être exécutée")
+    with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False) as f:
+        f.write(script)
+        chemin = f.name
+    try:
+        r = subprocess.run([node, chemin], capture_output=True, text=True, timeout=20)
+    finally:
+        Path(chemin).unlink(missing_ok=True)
+    assert r.returncode == 0, f"node a échoué : {r.stderr[:400]}"
+    return r.stdout.strip()
 
 
-def test_une_seule_vue_est_officielle():
-    """Deux pondérations officielles, ce serait deux vérités concurrentes."""
-    officielles = [v[0] for v in _vues() if v[3]]
-    assert officielles == ["OFFICIEL"], f"officielles : {officielles}"
+def test_un_score_absent_se_classe_apres_un_score_de_zero():
+    """⚠️ La frontière qui discrimine : face à un score qui VAUT zéro. Par
+    coercition `null - x` vaudrait `-x` et l'absent pourrait passer devant.
+    L'absent est placé en premier à l'entrée : si le tri ne tranche pas, un
+    tri stable le laisse devant."""
+    m = re.search(r'if\(sort==="bvc"\)\{(.*?)\n    \}', SRC, re.S)
+    assert m, "la branche de tri sur le Score BVC est introuvable"
+    lignes = [{"symbol": "ABSENT", "score_bvc": {"valeur": None, "etat": "NON_CALCULABLE"}},
+              {"symbol": "PARTIEL", "score_bvc": {"valeur": None, "etat": "PARTIEL"}},
+              {"symbol": "ZERO", "score_bvc": {"valeur": 0, "etat": "CALCULABLE"}},
+              {"symbol": "SANS"},
+              {"symbol": "HAUT", "score_bvc": {"valeur": 77, "etat": "CALCULABLE"}},
+              {"symbol": "MOYEN", "score_bvc": {"valeur": 52.5, "etat": "CALCULABLE"}}]
+    script = (_consts_js("valeurBVC") + "\nfunction comparer(a, b){" + m.group(1) + "\n}"
+              + "\nconst lignes = " + json.dumps(lignes) + ";"
+              + "\nconsole.log(lignes.sort(comparer).map(x=>x.symbol).slice(0,3).join(','));")
+    assert _executer_js(script) == "HAUT,MOYEN,ZERO"
 
 
-def test_la_vue_officielle_ne_diverge_pas_du_moteur():
-    """⚠️ CE TEST A CHANGÉ DE NATURE LE 25/09/2026, ET C'EST LE POINT.
-
-    Il écrivait `== (47, 28, 25)`. Un instantané : il rougissait le jour où la
-    formule changeait légitimement, et il restait vert le jour où l'écran se
-    mettait à annoncer autre chose que ce que le moteur calculait — c'est-à-dire
-    le seul défaut qui compte ici.
-
-    Il exprime désormais la RÈGLE : **l'écran annonce ce que le moteur
-    applique.** L'attendu n'est plus recopié, il est lu dans le moteur.
-
-    ⚠️ La tolérance d'un point est voulue : l'écran porte des entiers, le
-    moteur des fractions (72,22 et 27,78). Exiger l'égalité stricte ferait
-    échouer un arrondi correct.
-    """
-    from update_data import get_weights
-    w = get_weights({})            # pondération de base, hors contexte
-    off = [v for v in _vues() if v[3]][0]
-    # L'écran n'a plus que deux piliers, le moteur non plus (28/10/2026).
-    assert set(w) == {"fondamental", "technique"}
-    attendu = (round(w["fondamental"] * 100), round(w["technique"] * 100))
-    obtenu = (off[1], off[2])
-    assert all(abs(a - b) <= 1 for a, b in zip(attendu, obtenu)), (
-        f"l'écran annonce {obtenu[0]}/{obtenu[1]} alors que le "
-        f"moteur applique {attendu[0]}/{attendu[1]} — les deux "
-        f"colonnes ne parleraient plus de la même formule")
-
-
-def test_le_pilier_nlp_est_gele_dans_la_vue_officielle():
-    """⚠️ Décision du 25/09/2026, approuvée, backtest à l'appui (R8).
-
-    Le corpus WhatsApp s'arrête au 02/07/2026. Le pilier était devenu une
-    constante par titre — 48 titres sur 80 à la valeur neutre, 0,37 point
-    d'amplitude sur 10 — pour 28 % de poids annoncé.
-
-    Mesure sur les notes RÉELLEMENT PUBLIÉES, 13 jours, 194 observations à
-    5 séances : l'écart de performance entre décile haut et décile bas vaut
-    **+3,22 % avec l'ancienne pondération comme avec la nouvelle**. La
-    redistribution ne change pas le classement ; elle supprime une annonce
-    fausse.
-
-    ⚠️ 28/10/2026 : le pilier est retiré de l'écran (corpus supprimé). La
-    garde devient : AUCUNE vue ne porte plus de poids NLP, pas même nul.
-    """
-    assert not re.search(r"\bn:\s*\d", _bloc_ponderations()), (
-        "une vue de pondération porte de nouveau un poids NLP")
-    assert len(_vues()) == 6, "une vue n'est plus reconnue (format f/t)"
-
-
-def test_chaque_vue_totalise_cent():
-    for nom, f, t, _ in _vues():
-        assert f + t == 100, f"{nom} totalise {f+t}, pas 100"
-
-
-def test_les_vues_de_simulation_ecartent_le_nlp():
-    """Elles existent précisément pour répondre à « et sans le NLP ? ».
-
-    Le score NLP mesuré le 08/09 va de 4,80 à 5,30 sur une échelle de 0 à 10,
-    avec un écart-type de 0,081 — dix fois moins que le fondamental. Il occupe
-    28 % de la note et n'explique pas 2 % des écarts entre titres.
-    """
-    # 28/10/2026 : plus de pilier NLP du tout — ni poids, ni composante.
-    s = _src()
-    machinerie = s[s.index("// ── SCORE PERSONNALISÉ"):s.index("function scoreModeLabel")]
-    assert "(p.n||0)" not in machinerie and not re.search(r"\bc\.n\b", machinerie), (
-        "le score personnalisé lit de nouveau un pilier NLP")
-    assert "r.nlp" not in machinerie
-
-
-def test_le_signal_disparait_hors_du_mode_officiel():
-    """LE test qui compte. Sans lui, tout le reste est décoratif."""
-    s = _src()
-    m = re.search(r"<td style=\{\{padding:\"8px 8px\"\}\}>\{customMode(.{0,400})", s, re.S)
-    assert m, ("la cellule SIGNAL ne teste pas `customMode` — une note "
-               "recalculée s'afficherait à côté d'un signal calculé autrement")
-    assert "—" in m.group(1), "le signal masqué doit afficher un tiret explicite"
-
-
-def test_le_mode_officiel_rend_le_v53_du_moteur_tel_quel():
-    """Le recalculer dans le navigateur donnerait un chiffre légèrement
-    différent de celui du bulletin — bonus et malus compris — et personne ne
-    saurait lequel croire."""
-    m = re.search(r"function computeDisplayScore\(r, p\) \{(.*?)\n\}", _src(), re.S)
-    assert m, "computeDisplayScore introuvable"
-    assert re.search(r"if \(!p \|\| p\.officiel\) return r\.v53;", m.group(1))
-
-
-def test_l_export_csv_emporte_la_ponderation():
-    """Un CSV survit à l'écran qui l'a produit. Une note sans sa formule est
-    ininterprétable, et le signal ne doit pas s'y glisser en simulation."""
-    s = _src()
-    assert '"PONDERATION"' in s, "la colonne PONDERATION manque dans l'export"
-    # 07/10/2026 : la colonne SIGNAL devient COULEUR_NOTE (aucun mot d'action).
-    assert 'customMode?"":palierTexte(r)' in s, (
-        "l'export laisse passer la couleur en mode simulation")
-    assert "scoreModeLabel(scoreMode).replace" in s, (
-        "le nom du fichier ne porte pas la pondération")
-
-
-def test_un_bandeau_signale_la_simulation():
-    assert "SIMULATION" in _src(), (
-        "rien à l'écran ne distingue une vue d'exploration de la note publiée")
-
-
-# ── la fiche détaillée ───────────────────────────────────────────────────
-#
-# ⚠️ CES TESTS N'EXISTAIENT PAS le 08/09, et c'est pourquoi le défaut est
-# passé. J'avais fait suivre la pondération au CLASSEMENT en oubliant la
-# FICHE. Résultat : le même titre affichait un score dans le tableau et un
-# autre sur sa fiche, pour la même vue — et le grand chiffre de la fiche ne
-# bougeait jamais. Signalé par Abd Moutalib : « le score ne bouge pas même
-# après changement de pourcentage ».
-#
-# La leçon dépasse ce cas : un réglage qui traverse l'interface doit être
-# vérifié À CHAQUE ENDROIT où il s'applique, pas au premier.
-
-def test_la_fiche_detaillee_recoit_la_ponderation():
-    assert "const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})" in _src(), (
-        "le composant Detail ne reçoit pas scoreMode : sa note ne peut pas suivre")
-    assert "<Detail rows={rows}" in _src() and "scoreMode={scoreMode}/>" in _src(), (
-        "scoreMode n'est pas passé à Detail à l'appel")
-
-
-def test_la_fiche_affiche_la_note_de_la_vue_choisie():
-    """Le grand chiffre de la fiche doit venir de computeDisplayScore, pas de
-    `r.v53` — sinon il reste figé sur la formule officielle."""
-    s = _src()
-    assert "const scoreAffiche=computeDisplayScore(r,scoreMode);" in s
-    assert "lineHeight:1}}>{fmt(scoreAffiche)}</div>" in s, (
-        "la fiche affiche encore fmt(r.v53) : la note n'y bougera jamais")
-
-
-def test_le_signal_disparait_aussi_sur_la_fiche():
-    """Même règle qu'au classement. Un signal qui survit sur la fiche pendant
-    qu'il disparaît du tableau serait pire que pas de règle du tout."""
-    s = _src()
-    assert 'label="SIMULATION — couleur masquée"' in s, (
-        "la fiche affiche encore le signal du moteur en mode simulation")
-
-
-def test_la_fiche_annonce_la_vue_utilisee():
-    assert "scoreModeLabel(scoreMode)}</span>" in _src(), (
-        "rien sur la fiche ne dit quelle pondération produit le chiffre affiché")
-
-
-# ── la barre de répartition ──────────────────────────────────────────────
-#
-# ⚠️ TROISIÈME fois que le même défaut se reproduit à un endroit nouveau.
-# Signalé par Abd Moutalib le 09/09 : « le curseur ne bouge pas quand je change
-# les pourcentages ».
-#
-# Les quatre endroits qui DESSINENT la répartition lisaient `r.poids` — les
-# poids retenus par le moteur pour ce titre. Choisir 60/40 changeait donc la
-# note sans changer la barre : l'écran montrait une note calculée avec une
-# répartition, à côté d'une répartition qui n'était pas celle-là.
-#
-# La note du 08/09 disait déjà « un réglage qui traverse l'interface doit être
-# vérifié À CHAQUE ENDROIT où il s'applique ». Je l'avais écrite, puis vérifié
-# la note et oublié la barre. Ces tests couvrent maintenant les quatre.
-
-def test_l_helper_de_poids_existe():
-    m = re.search(r"function poidsAffiches\(r, p\) \{(.*?)\n\}", _src(), re.S)
-    assert m, "poidsAffiches introuvable"
-    assert "if (!p || p.officiel) return r.poids" in m.group(1), (
-        "en mode officiel la barre doit rendre les poids DU MOTEUR : le "
-        "WeightEngine les module par titre (ATW est à 52/28/20, pas 47/28/25), "
-        "et les remplacer par 47/28/25 afficherait un chiffre que le moteur "
-        "n'a pas utilisé")
-
-
-def test_plus_aucun_affichage_ne_lit_r_poids_directement():
-    """Le contrôle qui compte : `r.poids` ne doit plus apparaître que DANS
-    l'helper. Partout ailleurs, il fige la barre."""
-    s = _src()
-    # Le corps de l'helper est le seul endroit légitime : c'est lui qui rend
-    # `r.poids` en mode officiel. On le retire du texte avant de chercher.
-    helper = re.search(r"function poidsAffiches\(r, p\) \{.*?\n\}", s, re.S)
-    assert helper, "poidsAffiches introuvable"
-    s = s.replace(helper.group(0), "")
-    dehors = [l for l in s.splitlines()
-              if "r.poids" in l and not l.strip().startswith("//")]
-    assert not dehors, (
-        "ces lignes lisent encore r.poids et ne suivront pas la pondération :\n"
-        + "\n".join("  " + l.strip()[:110] for l in dehors))
-
-
-def test_les_quatre_affichages_utilisent_les_poids_de_la_vue():
-    s = _src()
-    assert "poidsAffiches(r,scoreMode)" in s, "le classement n'appelle pas l'helper"
-    assert "const pdsAff=poidsAffiches(r,scoreMode);" in s, "la fiche n'appelle pas l'helper"
-    for attendu, ou in ((("<WBar f={pw.f} t={pw.t}/>"), "barre du classement"),
-                        (("F{pw.f}·T{pw.t}"), "libellé du classement"),
-                        (("<WBar f={pdsAff.f} t={pdsAff.t}/>"), "barre de la fiche"),
-                        # ⚠️ On vise le MOTIF qui porte la règle — le poids de
-                        # la vue — et non la chaîne entière. Le 24/09 la formule
-                        # s'est enrichie des NOTES de chaque pilier
-                        # (« fond 7,3×52% ») et ce test a rougi sur un
-                        # changement qui ne touchait en rien ce qu'il protège.
-                        (("×{pdsAff.f}%"), "formule de la fiche")):
-        assert attendu in s, f"{ou} : ne suit pas la pondération choisie"
-
-
-def test_la_formule_simulee_n_annonce_pas_de_bonus():
-    """computeDisplayScore est une moyenne pondérée PURE — ni bonus ni malus.
-    Écrire « + bonus/malus » en simulation rendrait la formule affichée
-    incapable de redonner le chiffre affiché juste à côté d'elle."""
-    assert 'simu?" =":" + bonus/malus ="' in _src(), (
-        "la fiche annonce un bonus que la note simulée n'applique pas")
-
-
-def test_la_formule_conclut_sur_la_note_affichee():
-    """Elle se terminait sur `r.v53` en dur : la ligne « fond×60% + tech×40% »
-    aboutissait donc à la note OFFICIELLE."""
-    s = _src()
-    assert "×{pdsAff.f}%" in s
-    i = s.index("×{pdsAff.f}%")
-    fin = s[i:i+900]
-    assert "{fmt(scoreAffiche)}" in fin, (
-        "la formule de la fiche ne conclut pas sur la note qu'elle décrit")
-    assert "(r.v53||0).toFixed(2)" not in fin, (
-        "la formule conclut encore sur le v5.3 du moteur")
-
-
-def test_la_formule_montre_la_note_de_chaque_pilier():
-    """⚠️ AJOUTÉ LE 24/09/2026, sur une critique extérieure du terminal.
-
-        « Aujourd'hui on lit 5,83 sans savoir ce que chaque pilier y apporte.
-          Un score utilisable affiche "fondamental 6,4 / technique 3,1 / NLP
-          non retenu", pas seulement la somme. »
-
-    Elle était fondée : la ligne montrait les POIDS (« fond×47% ») sans les
-    NOTES. Impossible de dire si un 5,83 venait d'un bon dossier mal noté
-    techniquement ou de l'inverse — alors que les trois notes étaient DÉJÀ
-    publiées dans data.json, et simplement pas affichées.
-    """
-    s = _src()
-    for champ in ("r.score_fond", "r.score_tech"):
-        assert champ in s, (
-            f"la fiche n'affiche pas {champ} — le lecteur voit la somme sans "
-            f"pouvoir la décomposer")
-    # 28/10/2026 : le pilier NLP n'est plus publié ni affiché.
-    assert "r.score_nlp" not in s
-
-
-def test_l_en_tete_ne_presente_plus_la_base_comme_appliquee():
-    """⚠️ La pondération annoncée était contredite par celle qui s'applique.
-
-    Le badge affichait « TECH 25% · FOND 47% · NLP 28% » — la formule de
-    RÉFÉRENCE — alors que le WeightEngine module selon le contexte : hors
-    séance, les 80 titres portent 52/28/20. Un lecteur comparait donc un
-    en-tête à une fiche et trouvait deux pondérations différentes, sans que
-    rien n'explique laquelle s'appliquait.
-
-    R8 n'est pas touchée : la base RESTE 47/28/25. C'est l'affichage qui
-    cessait de dire qu'elle est modulée.
-    """
-    s = _src()
-    # ⚠️ 29/09 : « modulée par titre » était lui-même inexact. Les seuls
-    # modulateurs propres à un titre lisaient le corpus WhatsApp et sont
-    # retirés avec le gel NLP ; il ne reste que le contexte de MARCHÉ, commun
-    # aux 80 titres (80/80 à 78/22 au 28/09). L'intention du test est
-    # inchangée — dire que la base est modulée — et le libellé doit dire par
-    # QUOI, sans promettre une modulation qui n'existe pas.
-    assert "modulée par le marché" in s, (
-        "l'en-tête présente la pondération de base comme si elle s'appliquait "
-        "telle quelle")
-    assert "modulée par titre" not in s, (
-        "l'écran annonce une modulation par titre : elle n'existe plus")
+def test_les_tranches_et_la_partie_entiere():
+    """Bornes du backtest : [0,40) · [40,60) · [60,75) · [75,100]. Le nombre
+    affiché au classement (partie entière) tombe toujours dans sa tranche :
+    74,5 s'écrit 74 et reste dans 60–74 (un arrondi aurait écrit 75)."""
+    cas = [74.5, 75, 59.99, 60, 40, 39.9, 0, None]
+    script = (_consts_js("TRANCHES_BVC", "TRANCHE_NC", "valeurBVC", "trancheBVC", "entierBVC")
+              + "\nconst cas = " + json.dumps(cas) + ";"
+              + "\nconsole.log(JSON.stringify(cas.map(v=>{const r={score_bvc:{valeur:v}};"
+              + "return [trancheBVC(r).id, entierBVC(valeurBVC(r))];})));")
+    assert json.loads(_executer_js(script)) == [
+        ["t60", "74"], ["t75", "75"], ["t40", "59"], ["t60", "60"], ["t40", "40"],
+        ["t0", "39"], ["t0", "0"], ["nc", "—"]]

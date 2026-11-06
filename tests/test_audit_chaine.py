@@ -345,15 +345,29 @@ def test_le_terminal_ne_lit_que_les_champs_publies():
     assert _erreurs_affichage(SRC) == []
 
 
-def test_les_cinq_composants_sont_trouves_et_lisent_note_fond():
+def test_les_cinq_composants_sont_trouves_et_lisent_leur_champ():
+    """06/11/2026 : `PourquoiNote` (décomposition de la note v5.3) et
+    `PastilleNote` (palier v5.3) ont quitté l'écran avec la note v5.3 ;
+    `PastilleBVC` (tranche du Score BVC) et `MesuresBancaires` (sous-mesures
+    bancaires en données) les remplacent dans la liste auditée."""
     for nom in A.COMPOSANTS_AFFICHAGE:
         assert A._corps(SRC, nom), nom
-    assert "r.note_fond" in A._corps(SRC, "ResumeNote") and "r.note_fond" in A._corps(SRC, "PourquoiNote")
+    assert "r.note_fond" in A._corps(SRC, "reservePrincipale") and "r.note_fond" in A._corps(SRC, "MesuresBancaires")
+    assert "r.score_bvc" in A._corps(SRC, "PastilleBVC")
+    assert "PourquoiNote" not in A.COMPOSANTS_AFFICHAGE and "PastilleNote" not in A.COMPOSANTS_AFFICHAGE
 
 
 def test_un_composant_qui_lit_une_seconde_source_est_refuse():
-    corps = A._corps(SRC, "PourquoiNote")
+    corps = A._corps(SRC, "MesuresBancaires")
     faux = SRC.replace(corps, corps.replace("r.note_fond", "r.note_fond_metier", 1))
+    assert any(i["controle"] == "affichage.seconde_source" for i in _erreurs_affichage(faux))
+
+
+def test_un_composant_qui_relit_la_note_v53_est_refuse():
+    """Le terminal n'affiche plus la note v5.3 : un composant audité qui la
+    relirait (v53, sig, score_fond…) est une seconde source."""
+    corps = A._corps(SRC, "PastilleBVC")
+    faux = SRC.replace(corps, corps.replace("const s=r.score_bvc;", "const s=r.score_bvc;const z=r.v53;", 1))
     assert any(i["controle"] == "affichage.seconde_source" for i in _erreurs_affichage(faux))
 
 
@@ -368,17 +382,22 @@ def test_le_transport_data_json_vers_la_fiche_est_surveille():
     assert any(i["controle"] == "affichage.transport" for i in _erreurs_affichage(faux))
 
 
-def test_le_seuil_de_couverture_affiche_suit_la_config(monkeypatch):
-    import bvc_config
-    monkeypatch.setattr(bvc_config, "COUVERTURE_VERDICT_MIN", 0.80)
-    assert any(i["controle"] == "affichage.seuil" for i in A.auditer_affichage(SRC, bvc_config))
+def test_le_seuil_de_couverture_affiche_suit_le_moteur_du_score_bvc(monkeypatch):
+    """06/11/2026 : le seuil annoncé à l'écran est celui du Score BVC
+    (`score_bvc.COUVERTURE_MIN`, 70 %), et non plus le seuil de prudence de la
+    note v5.3 (`COUVERTURE_VERDICT_MIN`), que le terminal n'affiche plus."""
+    from pipeline import score_bvc as sb
+    assert not [i for i in A.auditer_affichage(SRC) if i["controle"] == "affichage.seuil"]
+    monkeypatch.setattr(sb, "COUVERTURE_MIN", 80)
+    assert any(i["controle"] == "affichage.seuil" for i in A.auditer_affichage(SRC, None, sb))
 
 
-def test_le_seuil_de_non_comparabilite_affiche_suit_la_config(monkeypatch):
-    import bvc_config
-    monkeypatch.setattr(bvc_config, "SEUIL_NON_COMPARABLE_DH", 150_000)
-    assert any(i["controle"] == "affichage.seuil" for i in A.auditer_affichage(SRC, bvc_config))
-    faux = SRC.replace("m.non_comparable", "m.autre_champ")
+def test_la_vue_per_lit_le_champ_non_comparable(monkeypatch):
+    """06/11/2026 : la règle A (note v5.3 « non comparable ») n'est plus
+    expliquée à l'écran — le guide ne l'annonce plus, son seuil n'y est plus
+    vérifié. Il reste la mention de liquidité de la vue PER, qui lit le CHAMP
+    publié par le moteur, jamais un libellé."""
+    faux = SRC.replace("m_.non_comparable", "m_.autre_champ")
     assert any(i["controle"] == "affichage.non_comparable" for i in _erreurs_affichage(faux))
 
 

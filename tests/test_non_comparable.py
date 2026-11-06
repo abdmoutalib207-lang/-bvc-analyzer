@@ -144,65 +144,37 @@ def test_regle_b_une_note_indisponible_n_est_pas_une_fonciere_sans_note(monkeypa
     assert out[0]["sig"] == "ATTENDRE"
 
 
-# ── Le terminal lit le CHAMP, pas le libellé ─────────────────────────────────
+# ── Le terminal : la règle A n'est plus affichée (06/11/2026) ────────────────
+#
+# Du 27/10 au 05/11/2026, le terminal appliquait la règle A à la NOTE v5.3 :
+# note grise sans palier, mention « non comparable », rang après les titres
+# comparables, exclusion des « mieux notés », entrée du guide. Le 06/11/2026,
+# la note v5.3 quitte l'écran (décision d'Abd Moutalib) et le Score BVC, qui
+# a son propre facteur de liquidité, devient le score unique : ces six
+# affichages partent avec la note qu'ils qualifiaient. Le MOTEUR, lui, garde
+# la règle A (tests ci-dessus, inchangés) et publie toujours
+# `_meta.non_comparable`. Il en reste à l'écran la mention de liquidité de la
+# vue PER, qui lit le CHAMP — jamais un libellé.
 
 def test_terminal_lit_meta_non_comparable_et_garde_la_precedence():
-    assert ("const nonComparable=r=>{const m=meta(r);return m.susp||m.conf<=1?null:"
-            "(m.non_comparable||null);};") in SRC
-    assert 'r.sig==="Non comparable' not in SRC and "Non comparable (liquidité)" not in SRC
+    """Vue PER : le champ du moteur, avec la même précédence que la règle
+    (suspension et confiance ≤ 1 d'abord)."""
+    assert "m_=meta(r),nco=m_.susp||m_.conf<=1?null:(m_.non_comparable||null);" in SRC
+    assert 'r.sig==="Non comparable' not in SRC and NC not in SRC
 
 
-def test_terminal_note_grise_sans_palier():
-    assert "if(couvPartielle(r)||nonComparable(r))return null;" in SRC     # couleurNote
-    assert "const nc=nonComparable(r);if(nc)return texteNonComparable(nc);" in SRC   # palierTexte
-    assert "non comparable — titre peu liquide (médiane ${dhSeance(nc.montant_median_dh)})" in SRC
-    assert 'className="pastille-non-comparable"' in SRC
-
-
-def test_terminal_classe_les_non_comparables_apres_les_comparables():
-    """Le VRAI comparateur du classement, exécuté par node : un titre non
-    comparable noté 9 passe derrière un comparable noté 0 ; une note absente
-    reste en dernier ; la suspension prime (pas de champ lu)."""
-    import json
-    from test_raccordement_composantes import NOUVEAU, P7030, _consts_js, _executer_js, _fonctions_js
-    m = re.search(r'if\(sort==="v53"\)\{(.*?)\n    \}', SRC, re.S)
-    assert m, "la branche de tri sur v53 est introuvable"
-    meta5 = {"confidence": 5}
-    lignes = [dict(NOUVEAU, symbol="NC9", score_fond=9.0, score_tech=9.0,
-                   _meta=dict(meta5, non_comparable={"motif": "titre peu liquide",
-                                                     "montant_median_dh": 754, "seuil": 100000})),
-              dict(NOUVEAU, symbol="ABSENT", score_fond=None, score_tech=None, _meta=meta5),
-              dict(NOUVEAU, symbol="ZERO", score_fond=0.0, score_tech=0.0, _meta=meta5),
-              dict(NOUVEAU, symbol="HAUT", score_fond=8.0, score_tech=8.0, _meta=meta5),
-              dict(NOUVEAU, symbol="NC2", score_fond=2.0, score_tech=2.0,
-                   _meta=dict(meta5, non_comparable={"motif": "x", "montant_median_dh": 1, "seuil": 100000}))]
-    script = (_consts_js("meta", "nonComparable") + "\n"
-              + _fonctions_js("composantesScore", "composantesManquantes", "computeDisplayScore")
-              + "\nconst scoreMode = " + json.dumps(P7030) + ";"
-              + "\nfunction comparer(a, b){" + m.group(1) + "\n}"
-              + "\nconst lignes = " + json.dumps(lignes) + ";"
-              + "\nconsole.log(lignes.sort(comparer).map(x=>x.symbol).join(','));")
-    assert _executer_js(script) == "HAUT,ZERO,NC9,NC2,ABSENT"
-
-
-def test_accueil_exclut_les_non_comparables_des_mieux_notes():
-    assert "meta(r).conf>=2&&r.v53!=null&&!nonComparable(r)" in SRC
-
-
-def test_fiche_bandeau_et_guide():
-    assert 'label="Non comparable — titre peu liquide"' in SRC
-    assert 'className="bandeau-non-comparable"' in SRC
-    # Deux médianes à l'écran (754 / 199 DH sur BAL le 27/10) : le bandeau dit laquelle.
-    assert "Médiane sur les séances échangées uniquement" in SRC
-    assert "compte aussi les séances sans échange" in SRC
-    guide = SRC[SRC.index("const Guide=("):]
-    guide = guide[:guide.index("\n};\n")]
-    assert '<L titre="Note non comparable">' in guide
-    seuil = f"{bvc_config.SEUIL_NON_COMPARABLE_DH:,}".replace(",", " ")
-    assert f"moins de {seuil} DH échangés par séance" in guide
+def test_terminal_n_applique_plus_la_regle_a_a_un_score():
+    """Le Score BVC se classe sur sa seule valeur : aucune relégation tirée de
+    la règle A, aucune pastille « non comparable », aucune entrée de guide."""
+    for disparu in ("const nonComparable", "pastille-non-comparable", "bandeau-non-comparable",
+                    "texteNonComparable", '<L titre="Note non comparable">',
+                    "Non comparable — titre peu liquide"):
+        assert disparu not in SRC, disparu
+    tri = re.search(r'if\(sort==="bvc"\)\{(.*?)\n    \}', SRC, re.S).group(1)
+    assert "non_comparable" not in tri and "nonComparable" not in tri
 
 
 def test_index_compile_depuis_la_source():
-    """index.html est la COMPILATION de terminal.src.html : la règle doit y être."""
-    assert "pastille-non-comparable" in COMPILE and "bandeau-non-comparable" in COMPILE
+    """index.html est la COMPILATION de terminal.src.html : la vue PER y lit le champ."""
+    assert "pastille-non-comparable" not in COMPILE and "bandeau-non-comparable" not in COMPILE
     assert re.search(r"non_comparable", COMPILE)

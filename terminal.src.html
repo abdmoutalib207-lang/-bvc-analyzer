@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache"/>
   <meta http-equiv="Expires" content="0"/>
   <title>BVC Analyzer v6.4 — Bourse de Casablanca</title>
-  <meta name="description" content="Terminal d'analyse quantitative de la Bourse de Casablanca : 80 titres, dernière clôture vérifiée contre le bulletin de l'opérateur. Score composite Fondamental 72% · Technique 28%, modulé par titre."/>
+  <meta name="description" content="Terminal d'analyse quantitative de la Bourse de Casablanca : 80 titres, dernière clôture vérifiée contre le bulletin de l'opérateur. Score BVC sur 100 (six facteurs : moyennes mobiles, momentum, MACD, activité, liquidité, rentabilité) : un score descriptif, pas une prévision."/>
   <meta name="theme-color" content="#080d1a"/>
   <!-- Emblème de la marque (13/10/2026) : taureau en costume, tiré du logo
        d'Abd Moutalib (assets/marque/logo-original.png), recoloré au dégradé
@@ -93,7 +93,7 @@
        Tout passe par ces classes : sur ordinateur, RIEN ne change. */
     @media(max-width:640px){
       .entete{position:static!important;padding:8px 12px!important}
-      .badge-version,.choix-score,.entete-droite{display:none!important}
+      .badge-version,.entete-droite{display:none!important}
       .bandeau-masi{flex-wrap:wrap!important;row-gap:4px}
       /* En-tête téléphone (07/10/2026) : 552 px sur 844, la 1re ligne du
          classement sous la ligne de flottaison. Le MENU donne déjà toutes
@@ -114,14 +114,13 @@
          ligne ; on relève ici toutes celles de 8 à 9,5 px. */
       [style*="font-size: 8px"],[style*="font-size: 8.5px"],[style*="font-size: 9px"],[style*="font-size: 9.5px"]{font-size:10px!important}
       /* Le classement garde : ticker, clôture (+ ouverture), variation
-         (+ volume), score, couleur de la note. */
+         (+ volume), Score BVC, couleur de sa tranche. 06/11/2026 : onze
+         colonnes (POIDS et la seconde colonne de score sont retirées). */
       .classement{min-width:0!important}
       .classement th:nth-child(1),.classement td:nth-child(1),
       .classement th:nth-child(3),.classement td:nth-child(3),
       .classement th:nth-child(n+6):nth-child(-n+8),.classement td:nth-child(n+6):nth-child(-n+8),
-      .classement th:nth-child(10),.classement td:nth-child(10),
-      .classement th:nth-child(12),.classement td:nth-child(12),
-      .classement th:nth-child(13),.classement td:nth-child(13){display:none}
+      .classement th:nth-child(10),.classement td:nth-child(10){display:none}
       .classement td,.classement th{padding:7px 3px!important}
       /* Classement par PER (03/11/2026) : rang, base et BPA passent sous le
          PER (lignes .per-mobile) faute de largeur. */
@@ -130,10 +129,14 @@
       .classement-per td,.classement-per th{padding:7px 4px!important}
       .per-mobile{display:block!important}
       /* Colonne COULEUR (07/10/2026) : sur téléphone, la pastille seule —
-         la note colorée est à côté. La mention « titre peu échangé » reste,
-         en petit et sur deux lignes : elle explique une couleur sous la note. */
+         le score coloré est à côté. Sans valeur, l'état (« non calculé »)
+         reste écrit, sur deux lignes. */
       .classement .pastille-texte{display:none}
-      .classement .pastille-plafond{white-space:normal;line-height:1.2}
+      .classement .pastille-nc{white-space:normal;line-height:1.2}
+      /* En-tête « SCORE BVC » : « SCORE » seul sur téléphone (06/11/2026) —
+         le libellé complet élargissait le tableau de 17 px à 390 px. Le tri
+         et les filtres, juste au-dessus, disent « SCORE BVC ». */
+      .classement .mot-bvc{display:none}
       /* 07/10/2026 : la colonne débordait de 33 px à 390 px (bord droit à
          409). Le remplissage 3px 5px s'appliquait à TOUT le contenu, rond
          compris : 92 px pour une colonne qui en a 60. Le rond passe au-dessus
@@ -786,92 +789,56 @@ async function fetchMASI(){
 }
 
 // ── UTILS ──────────────────────────────────────────────────────────────────────
-// ── PONDÉRATIONS ──────────────────────────────────────────────────────────
-// UNE seule pondération est OFFICIELLE : c'est elle qui porte le signal, qui
-// va dans le bulletin, et qui pourra un jour être backtestée. Les autres sont
-// des vues d'exploration.
+// ── SCORE BVC — LE SEUL SCORE DU TERMINAL, 06/11/2026 ──────────────────────
+// Décision d'Abd Moutalib du 06/11/2026 : la note v5.3 quitte l'écran, le
+// Score BVC (Nour + Boursenews, `score_bvc` de data.json) devient le score
+// unique. Motif : le 05/11 (MASI +3,33 %), ADH a monté de 4,31 % et sa note
+// v5.3 est passée de 4,59 à 4,37, parce que la composante technique pénalise
+// un RSI qui monte vers 70. Sur les 58 titres en hausse ce jour-là, la note
+// v5.3 a baissé pour 9 ; le Score BVC a baissé pour 8 et monté pour 45.
 //
-// ⚠️ POURQUOI LE SIGNAL DISPARAÎT HORS DU MODE OFFICIEL. Une note est une
-// exploration ; un signal est une recommandation. Si l'on peut faire glisser
-// les poids jusqu'à ce que le classement dise ce qu'on pensait, la note cesse
-// d'être un jugement et devient le miroir d'une opinion. Le classement reste
-// consultable — c'est la couleur de la note qui s'efface.
+// ⚠️ LE MOTEUR NE CHANGE PAS. `v53`, `sig`, `score_fond`, `score_tech`,
+// `poids`, `bonus` et `verdict_plafonne` restent calculés et publiés dans
+// data.json (contrat de fichier, R8, bulletin, backtests) ; le terminal ne
+// les lit plus. Les vues de pondération (OFFICIEL, 70/30…) recalculaient la
+// note v5.3 : elles partent avec elle, comme les mentions qui n'existaient
+// que pour elle (« non comparable », « couverture partielle », plafond
+// d'illiquidité).
 //
-// ⚠️ Avant le 08/09/2026, ce réglage recalculait la NOTE mais laissait la
-// colonne SIGNAL telle que le moteur l'avait produite. Les deux colonnes,
-// côte à côte, ne parlaient plus de la même formule, et rien ne le disait :
-// 28 titres sur 80 auraient changé de palier. C'est ce défaut que corrige ce
-// bloc, autant que l'ajout des vues.
-const PONDERATIONS=[
-  // ⚠️ 25/09/2026 — le pilier NLP passe de 28 % à ZÉRO, son poids reversé au
-  // prorata (47/72 et 25/72 → 65 et 35). Le corpus s'arrête au 02/07 et le
-  // pilier ne déplaçait plus que 0,37 point sur 10. Backtest sur les notes
-  // publiées : écart haut/bas décile IDENTIQUE (+3,22 %). La redistribution
-  // ne change pas la performance, elle supprime une annonce fausse.
-  // ⚠️ 28/10/2026 — le pilier NLP est retiré de l'écran (corpus supprimé) :
-  // plus de champ `n` dans ces vues, deux piliers seulement.
-  // ⚠️ 03/11/2026 — la pondération ne dépend plus de l'heure du run (accord
-  // R8) : le bonus « marché fermé » s'applique partout, base 72,22 / 27,78.
-  {nom:"OFFICIEL",f:72,t:28,officiel:true,aide:"Formule v5.3 au 03/11/2026 — Fond 72 · Tech 28, à toute heure."},
-  {nom:"70/30",f:70,t:30,aide:"Fondamental dominant — horizon long"},
-  {nom:"60/40",f:60,t:40,aide:"Fondamental dominant, technique renforcée"},
-  {nom:"50/50",f:50,t:50,aide:"Équilibre"},
-  {nom:"40/60",f:40,t:60,aide:"Technique dominante"},
-  {nom:"30/70",f:30,t:70,aide:"Technique dominante — horizon court"},
-];
-
-// ── COULEUR DE LA NOTE — 07/10/2026 ─────────────────────────────────────────
-// Demande d'Abd Moutalib : « au lieu d'afficher une recommandation sur le
-// score, se contenter de couleurs ». Le produit ne prédit pas et ne
-// recommande pas (CLAUDE.md, Vision produit) : une couleur SITUE une note,
-// elle ne dit pas quoi faire. Aucun mot d'action n'est écrit à l'écran —
+// ⚠️ LES TRANCHES sont celles du backtest (`TRANCHES` de
+// pipeline/backtest_score_descriptif.py) : [0, 40) · [40, 60) · [60, 75) ·
+// [75, 100]. Le classement affiche la PARTIE ENTIÈRE de la valeur — un
+// arrondi écrirait « 75 » pour un 74,5 de la tranche 60–74 (trois titres au
+// 06/11) ; la fiche donne la valeur exacte.
+//
+// ⚠️ Une couleur SITUE un score, elle ne dit pas quoi faire. Mesuré sur
+// 43 031 observations (datasets/backtests/score_bvc_2026-11-03.json) : la
+// part des titres ayant battu le MASI à 20 séances ne se distingue pas d'une
+// tranche à l'autre. Aucun mot d'action n'est écrit —
 // `tests/test_couleurs_sans_recommandation.py` le vérifie sur index.html.
-//
-// ⚠️ RIEN NE CHANGE DE FOND. Les seuils sont ceux de `compute_v53`
-// (update_data.py) : 6,5 · 5,5 · 4,5 · 3,5. Le moteur calcule et publie
-// toujours `sig` (traçabilité, R8) ; le terminal ne l'affiche plus et n'en a
-// plus besoin : la couleur se lit sur la note v53 PUBLIÉE, le plafond
-// d'illiquidité sur `verdict_plafonne`. Le même test vérifie, titre par titre
-// sur data.json, que les deux lectures donnent le même palier.
-const PALIERS=[
-  {min:6.5,      c:"#00e5a0",nom:"vert",      plage:"≥ 6,5"},
-  {min:5.5,      c:"#b5e655",nom:"vert-jaune",plage:"5,5 à 6,5"},
-  {min:4.5,      c:"#ffd740",nom:"jaune",     plage:"4,5 à 5,5"},
-  {min:3.5,      c:"#ff8f00",nom:"orange",    plage:"3,5 à 4,5"},
-  {min:-Infinity,c:"#ff4f5a",nom:"rouge",     plage:"sous 3,5"},
+const TRANCHES_BVC=[
+  {id:"t75",min:75,       c:"#00e5a0",plage:"≥ 75"},
+  {id:"t60",min:60,       c:"#b5e655",plage:"60–74"},
+  {id:"t40",min:40,       c:"#ffd740",plage:"40–59"},
+  {id:"t0", min:-Infinity,c:"#ff8f00",plage:"< 40"},
 ];
-const palierDe=v=>v==null||!isFinite(v)?null:PALIERS.findIndex(p=>v>=p.min);
-// Couleur PUBLIÉE d'un titre : le palier de sa note v53, ramené au vert-jaune
-// quand le moteur a plafonné le verdict d'un titre peu échangé (04/10/2026).
-// La note chiffrée, elle, ne bouge pas.
-// ⚠️ « Couverture partielle » (15/10/2026, règle de prudence provisoire) :
-// pas de couleur de palier — la note reste, indicative, sans verdict.
-const couvPartielle=r=>!!r&&r.sig==="Couverture partielle";
-// ⚠️ « Non comparable » (27/10/2026, règle A, accord R8 d'Abd Moutalib) : titre
-// trop peu échangé — technique neutralisée ET montant médian des 20 dernières
-// séances échangées sous le seuil du moteur. La note reste calculée et
-// affichée, en gris, sans palier ; le titre est classé APRÈS les titres
-// comparables. Lu sur `_meta.non_comparable` (jamais sur un libellé) ;
-// suspension et confiance ≤ 1 gardent la priorité.
-const nonComparable=r=>{const m=meta(r);return m.susp||m.conf<=1?null:(m.non_comparable||null);};
-const dhSeance=n=>n==null?"aucune séance échangée":`${Math.round(n).toLocaleString("fr-FR")} DH/séance`;
-const texteNonComparable=nc=>`non comparable — titre peu liquide (médiane ${dhSeance(nc.montant_median_dh)})`;
-const couleurNote=r=>{if(couvPartielle(r)||nonComparable(r))return null;const i=palierDe(r&&r.v53);if(i==null)return null;
-  const plafonne=!!r.verdict_plafonne&&i===0, k=plafonne?1:i;
-  return{...PALIERS[k],i:k,plafonne};};
+const TRANCHE_NC={id:"nc",c:"#8892a4",plage:"non calculé"};
+// Valeur publiée, ou null : PARTIEL et NON_CALCULABLE n'ont pas de valeur.
+const valeurBVC=r=>{const s=r&&r.score_bvc;const v=s?s.valeur:null;return v!=null&&isFinite(v)?+v:null;};
+const trancheBVC=r=>{const v=valeurBVC(r);return v==null?TRANCHE_NC:TRANCHES_BVC.find(t=>v>=t.min);};
+const entierBVC=v=>v==null?"—":String(Math.floor(v));
+const exactBVC=v=>v==null?"—":(+v).toLocaleString("fr-FR",{maximumFractionDigits:1});
+const ETATS_BVC={CALCULABLE:"calculable",PARTIEL:"partiel",NON_CALCULABLE:"non calculable"};
+const etatBVC=r=>{const s=r&&r.score_bvc;return s?(ETATS_BVC[s.etat]||String(s.etat||"").toLowerCase()):"non publié";};
 const teinte=c=>({bg:`${c}1a`,fg:c,bd:`${c}59`});
 const NEUTRE={bg:"rgba(136,146,164,.08)",fg:"#8892a4",bd:"rgba(136,146,164,.25)"};
-// Couleur du chiffre de la note. Grise quand la confiance est ≤ 1 (la note ne
-// doit pas se lire comme une conclusion), neutre en simulation (la couleur
-// n'existe que pour la pondération officielle).
-const couleurChiffre=(r,simu)=>simu?"#c8d3e8":meta(r).conf<=1?"#8892a4":((couleurNote(r)||{}).c||"#8892a4");
-// Libellé de l'export CSV : l'état, ou la couleur et sa plage.
-const palierTexte=r=>{const m=meta(r);if(m.susp)return"suspendu";if(m.reprise_recente)return"reprise de cotation";
-  if(m.conf<=1)return"données insuffisantes";const nc=nonComparable(r);if(nc)return texteNonComparable(nc);
-  if(couvPartielle(r))return"couverture partielle (note indicative)";const p=couleurNote(r);if(!p)return"";
-  return p.plafonne?`${p.nom} (plafonné : titre peu échangé)`:`${p.nom} (${p.plage})`;};
+// Couleur du chiffre : grise quand la confiance est ≤ 1 (le score ne doit pas
+// se lire comme une conclusion, CLAUDE.md) ou quand il n'y a pas de valeur.
+const couleurChiffre=r=>meta(r).conf<=1||valeurBVC(r)==null?"#8892a4":trancheBVC(r).c;
+// Libellé de l'export CSV : l'état de la donnée, ou la tranche.
+const trancheTexte=r=>{const m=meta(r);if(m.susp)return"suspendu";if(m.reprise_recente)return"reprise de cotation";
+  if(m.conf<=1)return"données insuffisantes";const t=trancheBVC(r);return t.id==="nc"?`non calculé (${etatBVC(r)})`:t.plage;};
 const VC=v=>v>0?"#00e5a0":v<0?"#ff4f5a":"#8892a4";
-const SC=v=>v>=7.5?"#00ffb3":v>=6.5?"#00e5a0":v>=5.5?"#ffd740":v>=4?"#ff8f00":"#ff4f5a";
 const CCO=v=>v>=85?"#00e5a0":v>=70?"#ffd740":"#ff8f00";
 const px=n=>n>=1000?n.toLocaleString("fr-FR"):n;
 const fmtM=n=>n>=1000?`${(n/1000).toFixed(1)} Md`:`${n} M`;
@@ -1205,7 +1172,7 @@ const BandeauOffre=({r,cours})=>{const o=meta(r).offre_publique;if(!o)return nul
       {o.maintien_cote&&" · les initiateurs déclarent vouloir maintenir la société à la cote"}.
       {" "}Pièces : {(o.sources||[]).map((u,i)=>(
         <a key={u} href={u} target="_blank" rel="noopener noreferrer" style={{color:"#8892a4"}}>{i?"avis de la Bourse":"note d'information"}</a>
-      )).reduce((a,x)=>a.length?[...a," · ",x]:[x],[])}. La note n'en tient pas compte.
+      )).reduce((a,x)=>a.length?[...a," · ",x]:[x],[])}. Le Score BVC n'en tient pas compte.
     </div>
   </div>);};
 /* Pastille de fraîcheur : n'apparaît que si le cours n'est pas celui de la
@@ -1266,7 +1233,7 @@ const reservePrincipale=r=>{const m=meta(r),nf=r.note_fond||{};const c=nf.compos
   if(m.stale)return `cours non coté depuis le ${m.asof?jjmm(m.asof):"?"}`;
   if(m.comptes_absents)return "aucuns comptes publiés récents";
   const susp=Object.values(c).find(x=>x.note==null&&/suspendu|contest/i.test(x.motif||""));
-  if(susp)return "grandeur financière contestée, écartée de la note";
+  if(susp)return "grandeur financière contestée, non retenue";
   const rv=Object.values(c).find(x=>x.note!=null&&x.reserve);
   if(rv)return rv.reserve.split(" ; ")[0].split(" : ")[0].replace(/\s*\(.*$/,"");
   const rq=(r.risque||{}).var95;
@@ -1277,58 +1244,44 @@ const reservePrincipale=r=>{const m=meta(r),nf=r.note_fond||{};const c=nf.compos
   const manque=Object.entries(c).find(([,x])=>x.note==null);
   if(manque)return MANQUE[manque[0]]||`${manque[0]} non mesurée`;
   return null;};
-const ResumeNote=({r})=>{const nf=r.note_fond;const m=meta(r);const dh=m.echange_median_dh;const res=reservePrincipale(r);
-  const cv=nf&&nf.couverture!=null?Math.round(nf.couverture*100):null;
-  const ccol=cv==null?"#8892a4":cv>=90?"#00e5a0":cv>=75?"#ffd740":"#ff8f00";
-  const ca=nf&&nf.couverture_applicable!=null?Math.round(nf.couverture_applicable*100):null;
+const ResumeNote=({r})=>{const m=meta(r);const dh=m.echange_median_dh;const res=reservePrincipale(r);
   const al=((r.alertes||{}).liste)||[];const NIV={"critique":"#ff4f5a","élevé":"#ff8f00","moyen":"#ffd740"};
   const dfr=d=>d?d.split("-").reverse().join("/"):"date inconnue";
   return <div className="resume-note" style={{fontSize:11,color:"#8892a4",lineHeight:1.6,margin:"2px 0 4px"}}>
-    {cv!=null&&<div>Couverture : <b style={{color:ccol}}>{cv} %</b> du poids de la grille{ca!=null&&ca!==cv?` (${ca} % applicable)`:""}{couvPartielle(r)&&<span style={{color:"#ffd740"}}> — note indicative (seuil de prudence : 75 %)</span>}</div>}
     {res&&<div>Réserve principale : <span style={{color:"#ff8f00"}}>{res}</span></div>}
     {dh!=null&&<div>Liquidité : {montantEntier(dh)} échangés par séance (médiane 20 j){dh<100000&&<span style={{color:"#ff8f00"}}> — faible</span>}</div>}
     {al.map((x,i)=><div key={i} className="alerte-verifiee"><span style={{color:NIV[x.niveau]||"#ff8f00"}}>⚠ {x.raison} : {x.valeur}</span> <span>({x.seuil}) — comptes au {dfr(x.date)}, {x.source}</span></div>)}
   </div>;};
-const NOMS_COMPOSANTES={qualite:"Qualité (rentabilité)",croissance:"Croissance",valorisation:"Valorisation (PER)",bilan:"Bilan (dette)"};
 const DetailConfiance=({r})=>{const m=meta(r);const g=m.garanties;
   if(!Array.isArray(g))return null;
   return <Repli titre={`Fiabilité des données ${m.conf}/5 : que garantit-elle ?`}>
     {g.map(x=><div key={x.critere} style={{display:"flex",gap:8}}>
       <span style={{color:x.ok?"#00e5a0":"#ff4f5a",width:14}}>{x.ok?"✓":"✗"}</span><span>{x.critere}</span></div>)}
-    {m.conf<g.filter(x=>x.ok).length&&<div style={{color:"#ff8f00",marginTop:6}}>Fiabilité plafonnée en dessous du nombre de garanties remplies (société sans comptes, identité à vérifier, note incalculable ou titre peu liquide).</div>}
+    {m.conf<g.filter(x=>x.ok).length&&<div style={{color:"#ff8f00",marginTop:6}}>Fiabilité plafonnée en dessous du nombre de garanties remplies (société sans comptes, identité à vérifier, données incomplètes ou titre peu liquide).</div>}
     <div style={{color:"#8892a4",marginTop:6}}>Ce score contrôle les DONNÉES (cours, comptes, historique, liquidité). Il ne dit rien du titre ni de son risque : 5/5 ne veut pas dire « sûr ».</div>
   </Repli>;};
-/* Grille bancaire (20/10/2026) : les sous-mesures d'une composante — solvabilité,
-   coût du risque, couverture Bucket 3, coefficient d'exploitation — chacune avec
-   sa valeur, sa note, sa période et sa pièce. Lues telles quelles dans
-   note_fond.composantes[*].sous_mesures : aucune seconde source. */
+/* Grille bancaire (20/10/2026) : solvabilité, coût du risque, couverture
+   Bucket 3, coefficient d'exploitation — chacune avec sa valeur, sa période,
+   son calcul et sa pièce, lues dans note_fond.composantes[*].sous_mesures.
+   ⚠️ 06/11/2026 : affichées en DONNÉES. La note sur 10 que le moteur en tire
+   pour la v5.3 n'est plus écrite (le terminal n'affiche plus la v5.3). */
 const SousMesures=({liste})=>{if(!Array.isArray(liste)||!liste.length)return null;
   return <span style={{display:"block",marginTop:3}}>{liste.map(s=>{
     const src=[...new Set(Object.values(s.sources||{}).filter(Boolean))];
     return <span key={s.nom} style={{display:"block",padding:"2px 0 2px 8px",borderLeft:"2px solid #2a3550",marginTop:2}}>
-      <span style={{color:"#c8d3e8"}}>{s.libelle} <b>{fmt(s.valeur,2)} %</b> → {fmt(s.note,1)}</span>
+      <span style={{color:"#c8d3e8"}}>{s.libelle} <b>{fmt(s.valeur,2)} %</b></span>
       {s.periode&&<span style={{display:"block",color:"#5a6478"}}>Période : {s.periode}</span>}
       {s.formule&&<span style={{display:"block",color:"#5a6478",overflowWrap:"anywhere"}}>Calcul : {s.formule}</span>}
       {src.length>0&&<span style={{display:"block",color:"#5a6478",overflowWrap:"anywhere"}}>Source : {src.join(" ; ")}</span>}
     </span>;})}</span>;};
-const PourquoiNote=({r})=>{const nf=r.note_fond;const pw=poidsAffiches(r,null)||{};   // pondération officielle
-  if(!nf||!nf.composantes)return null;
-  const pf=pw.f,pt=pw.t;   // poids réellement appliqués, en %
-  return <Repli titre="Pourquoi cette note ?">
-    {r.v53==null
-      ?<div style={{color:"#ff8f00",marginBottom:6}}>Pas de note : moins de 50 % du poids mesuré.</div>
-      :<div style={{marginBottom:6}}>Note = fondamental <b>{fmt(r.score_fond)}</b>{pf!=null&&<> × {pf} %</>} + technique <b>{fmt(r.score_tech)}</b>{pt!=null&&<> × {pt} %</>}{(r.bonus||[]).length>0&&" + bonus/malus"} = <b>{fmt(r.v53)}</b>.</div>}
-    <div style={{color:"#8892a4",marginBottom:4}}>Note fondamentale, par composante :</div>
-    {Object.entries(nf.composantes).map(([k,c])=><div key={k} style={{display:"flex",gap:8,padding:"2px 0"}}>
-      <span style={{width:118,color:c.note==null?"#5a6478":"#c8d3e8"}}>{k==="bilan"&&c.sous_mesures?"Bilan bancaire":(NOMS_COMPOSANTES[k]||k)} · {Math.round(c.poids*100)} %</span>
-      <span style={{width:34,fontWeight:600,color:c.note==null?"#5a6478":"#e6edf7"}}>{c.note==null?"—":fmt(c.note,1)}</span>
-      <span style={{flex:1,color:c.note==null?"#ff8f00":"#8892a4"}}>{c.note==null?`non noté : ${c.motif}`:c.mesure}{c.reserve&&<span style={{display:"block",color:"#ffd740"}}>Réserve : {c.reserve}</span>}
-        <SousMesures liste={c.sous_mesures}/></span></div>)}
-  </Repli>;};
+const MesuresBancaires=({r})=>{const c=((r.note_fond||{}).composantes)||{};
+  const l=Object.values(c).flatMap(x=>Array.isArray(x.sous_mesures)?x.sous_mesures:[]);
+  if(!l.length)return null;
+  return <Repli titre="Mesures bancaires (comptes publiés)"><SousMesures liste={l}/></Repli>;};
 /* Indicateur de confiance ●●●○○ — jamais masqué (spécification CLAUDE.md). */
 const Confiance=({r,sz=11})=>{const {conf}=meta(r);
   const col=conf<=1?"#ff4f5a":conf<=2?"#ff8f00":conf<=3?"#ffd740":"#00e5a0";
-  return <span title={`Fiabilité des données ${conf}/5 — prix du jour, fondamentaux réels, historique suffisant, comptes déposés à l\u2019AMMC, liquidité ≥ 100 000 DH/séance`}
+  return <span title={`Fiabilité des données ${conf}/5 — prix du jour, fondamentaux réels, historique suffisant, comptes déposés à l’AMMC, liquidité ≥ 100 000 DH/séance`}
     style={{fontSize:sz,letterSpacing:1,color:col,userSelect:"none"}}>
     {"●".repeat(conf)}<span style={{color:"#2a3550"}}>{"○".repeat(5-conf)}</span></span>;};
 const Bar=({v,max=10,c,h=6})=>(
@@ -1339,85 +1292,20 @@ const Bar=({v,max=10,c,h=6})=>(
 const Chip=({label,bg,fg,bd,sz=11})=>(
   <span className="chip" style={{display:"inline-block",whiteSpace:"nowrap",background:bg,color:fg,border:`1px solid ${bd}`,borderRadius:4,padding:"2px 8px",fontSize:sz,fontWeight:600,fontFamily:"var(--font)"}}>{label}</span>
 );
-/* La pastille qui remplace le mot d'action : un rond de la couleur du palier
-   et la plage de note qu'il couvre. Sur un titre plafonné, le texte neutre
-   « titre peu échangé » dit pourquoi la couleur est en dessous de la note. */
-const PastilleNote=({r,sz=11})=>{const p=couleurNote(r);const nc=nonComparable(r);
-  if(nc)return <span className="pastille-non-comparable" title={`Note ${fmt(r.v53)}, ${texteNonComparable(nc)} — seuil ${dhSeance(nc.seuil)}, sur les 20 dernières séances échangées. Note calculée, sans palier ; classée après les titres comparables.`}
-    style={{fontSize:sz,color:"#8892a4",whiteSpace:"nowrap"}}>◌ non comparable</span>;
-  if(couvPartielle(r))return <span title={((r.note_fond||{}).couverture_applicable??0)>=0.75
-      ?`Note ${fmt(r.v53)}, indicative : foncière dont la note par métier n'est pas calculable. Aucun verdict de palier.`
-      :`Note ${fmt(r.v53)}, indicative : couverture des données sous le seuil de prudence (75 % du poids applicable). Aucun verdict de palier.`}
-    style={{fontSize:sz,color:"#ffd740",whiteSpace:"nowrap"}}>◐ couverture partielle</span>;
-  if(!p)return <span style={{fontSize:sz,color:"#8892a4"}}>—</span>;
-  const motif=r.technique_neutralise&&r.technique_neutralise.motif;
-  return <span title={p.plafonne
-      ?`Note ${fmt(r.v53)} : couleur plafonnée au vert-jaune — titre peu échangé${motif?` (${motif})`:""}. La note est inchangée.`
-      :`Note ${fmt(r.v53)} : palier ${p.nom}, ${p.plage}`}
-    className="pastille" style={{display:"inline-flex",alignItems:"center",gap:6,whiteSpace:"nowrap",fontSize:sz,color:p.c,fontWeight:600}}>
-    <span aria-hidden="true" className="rond" style={{display:"inline-block",width:sz,height:sz,borderRadius:"50%",background:p.c,boxShadow:`0 0 6px ${p.c}60`,flex:"0 0 auto"}}/>
-    <span className={p.plafonne?"pastille-plafond":"pastille-texte"}>{p.plafonne?"titre peu échangé":p.plage}</span></span>;};
+/* La pastille de la colonne COULEUR (06/11/2026) : un rond de la couleur de
+   la tranche du Score BVC et sa plage. Sans valeur (PARTIEL, NON_CALCULABLE),
+   l'état publié, avec son motif au survol — jamais une couleur de tranche. */
+const PastilleBVC=({r,sz=11})=>{const s=r.score_bvc;const v=valeurBVC(r);const t=trancheBVC(r);
+  if(v==null)return <span className="pastille-nc" title={s?`Score BVC ${etatBVC(r)}${s.motif?` : ${s.motif}`:""}`:"Score BVC non publié pour ce titre"}
+    style={{fontSize:sz,color:"#8892a4",whiteSpace:"nowrap"}}>◌ {s&&s.etat==="PARTIEL"?"partiel":"non calculé"}</span>;
+  return <span title={`Score BVC ${exactBVC(v)}/100 : tranche ${t.plage}, couverture des facteurs ${s.couverture_pct} %. La couleur situe le score ; elle ne dit pas quoi faire.`}
+    className="pastille" style={{display:"inline-flex",alignItems:"center",gap:6,whiteSpace:"nowrap",fontSize:sz,color:t.c,fontWeight:600}}>
+    <span aria-hidden="true" className="rond" style={{display:"inline-block",width:sz,height:sz,borderRadius:"50%",background:t.c,boxShadow:`0 0 6px ${t.c}60`,flex:"0 0 auto"}}/>
+    <span className="pastille-texte">{t.plage}</span></span>;};
 const Delta=({d})=>{
   if(d==null||isNaN(d))return<span style={{fontSize:10,padding:"1px 5px",borderRadius:3,background:"#8892a415",color:"#8892a4",border:"1px solid #8892a428",fontWeight:700}}>—</span>;
   const c=d>0?"#00e5a0":d<0?"#ff4f5a":"#8892a4";
   return <span style={{fontSize:10,padding:"1px 5px",borderRadius:3,background:`${c}15`,color:c,border:`1px solid ${c}28`,fontWeight:700}}>{d>0?"+":""}{d.toFixed(2)}</span>;
-};
-const WBar=({f,t})=>(
-  <div style={{display:"flex",height:7,borderRadius:3,overflow:"hidden",gap:1}}>
-    <div style={{width:`${f}%`,background:"#b388ff"}} title={`Fond ${f}%`}/>
-    <div style={{width:`${t}%`,background:"#4db8ff"}} title={`Tech ${t}%`}/>
-  </div>
-);
-/* ⚠️ NOTE PAR MÉTIER, EN COMPARAISON — 11/10/2026. Abd Moutalib a validé le
-   principe d'une note fondamentale par famille de métier (banque, foncière,
-   mines…) mais exige des corrections avant qu'elle entre dans la note : elle
-   est donc calculée et affichée À CÔTÉ, jamais retenue dans le score, le
-   signal ni la confiance. La fiche dit la famille, la part de la grille
-   reposant sur des données (sous 50 % : pas de note) et, à l'ouverture, chaque
-   critère : état (présent, absent, zéro confirmé, remplacement, suspendu),
-   valeur, poids effectif et référence — une comparaison à la cote entière est
-   étiquetée NON sectorielle. */
-const FAMILLES_NOTE_LIB={banque:"banque",assurance:"assurance",financement:"financement et crédit-bail",
-  paiement:"paiement",holding:"holding",fonciere:"foncière",promoteur:"promoteur immobilier",btp:"BTP",
-  mines:"mines",telecom:"télécom",utility:"services collectifs",autre:"industrie, distribution, services"};
-const CRITERES_NOTE_LIB={rentabilite:"Rentabilité",croissance:"Croissance",valorisation:"Valorisation",bilan:"Bilan"};
-const ETATS_NOTE_LIB={present:"présent",absent:"absent",zero_confirme:"zéro confirmé",
-  remplacement:"remplacement",suspendu:"suspendu"};
-const NoteFond=({nf})=>{
-  if(!nf) return null;
-  /* Comparaison indisponible (erreur de calcul isolée côté moteur, 12/10/2026) :
-     la note publiée n'est pas affectée, on le dit plutôt que de se taire. */
-  if(nf.indisponible) return <div style={{marginTop:6,fontSize:10.5,color:"#5a6478"}}>Comparaison par métier indisponible sur cette mise à jour — la note publiée n'en dépend pas.</div>;
-  const crit=nf.criteres||{};
-  const pds=nf.poids_disponible??0;
-  const fam=FAMILLES_NOTE_LIB[nf.famille]||nf.famille;
-  const sansNote=nf.note==null;
-  const dep=nf.dependance_cote;
-  return (
-    <details style={{marginTop:6,fontSize:10.5,color:"#8892a4"}}>
-      <summary style={{cursor:"pointer"}}>
-        Comparaison par métier, <b>non retenue dans la note</b> : <span style={{color:"#c8d3e8"}}>{sansNote?"non calculée":fmt(nf.note,1)}</span>
-        {" · "}famille <span style={{color:"#c8d3e8"}}>{fam}</span>
-        {" · "}couverture de la grille <span style={{color:sansNote?"#ff8a65":"#c8d3e8"}}>{pds} %</span>
-        {sansNote&&<span style={{color:"#ff8a65"}}> — moins de la moitié</span>}
-        {nf.partielle&&<span style={{color:"#ffb74d"}}> · note PARTIELLE (critère essentiel manquant : {(nf.criteres_essentiels_manquants||[]).map(k=>CRITERES_NOTE_LIB[k]||k).join(", ")})</span>}
-      </summary>
-      <div style={{marginTop:4,lineHeight:1.5}}>
-        {Object.entries(crit).map(([k,c])=>(
-          <div key={k} style={{color:["present","zero_confirme","remplacement"].includes(c.etat)?"#8892a4":"#5a6478"}}>
-            <span style={{color:"#c8d3e8"}}>{CRITERES_NOTE_LIB[k]||k}</span>
-            {" "}[{ETATS_NOTE_LIB[c.etat]||c.etat}] · poids {c.poids_nominal} % → effectif {c.poids_effectif} %
-            {c.note!=null&&<> · note {fmt(c.note,1)}</>}
-            {" — "}{c.mesure||c.motif}
-            {c.reference&&c.reference.type==="cote_entiere"&&<span style={{color:"#ffb74d"}}> ⚠ comparaison à la cote entière, non sectorielle</span>}
-          </div>
-        ))}
-        {dep&&dep.criteres&&dep.criteres.length>0&&
-          <div style={{color:"#ffb74d"}}>Dépend de la cote entière ({dep.criteres.join(", ")}) :
-            {dep.ecart_points!=null?` ${dep.ecart_points>0?"+":""}${dep.ecart_points} point(s) de note`:" la note n'existerait pas sans elle"}.</div>}
-      </div>
-    </details>
-  );
 };
 /* ⚠️ LES LOGOS VIENNENT DU SITE OFFICIEL DE CHAQUE SOCIÉTÉ — 30/09/2026.
    Relevés par tools/recuperer_logos.py, miniaturisés (64 px), relus à l'œil
@@ -1714,7 +1602,7 @@ const RedFlags=({alertes})=>{
           {a.evaluable&&<div style={{color:"#5a6478",fontSize:10,marginTop:6}}>
             Source : {a.source||"non précisée"}{a.date?` · calculés le ${dateFr(a.date)}`:""}.</div>}
           <div style={{color:"#8892a4",fontSize:10,marginTop:6}}>
-            Information seulement : ces alertes n'entrent pas dans la note v5.3 (gel du 30/09/2026).</div>
+            Information seulement : ces alertes n'entrent pas dans le Score BVC.</div>
         </div>
       )}
     </>
@@ -1881,20 +1769,19 @@ const SignauxTechniques=({r})=>{
     <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
       <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",marginBottom:8}}>
         <span style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Signaux techniques</span>
-        <span style={{fontSize:9,color:"#ffd740",border:"1px solid rgba(255,215,64,.4)",borderRadius:3,padding:"1px 6px"}}>EN ESSAI · n'entre pas dans la note</span>
+        <span style={{fontSize:9,color:"#ffd740",border:"1px solid rgba(255,215,64,.4)",borderRadius:3,padding:"1px 6px"}}>EN ESSAI · n'entre pas dans le Score BVC</span>
         {reg&&<span title={`MASI ${reg.masi_sur_ma200?"au-dessus":"au-dessous"} de sa moyenne 200 séances · ${reg.part_titres_liquides_sur_ma200!=null?Math.round(reg.part_titres_liquides_sur_ma200*100)+" % des titres liquides au-dessus de la leur":"largeur inconnue"}`}
           style={{marginLeft:"auto",fontSize:11,fontWeight:700,color:reg.tendance?"#00e5a0":"#ff8f00"}}>
           Marché {reg.tendance?"EN TENDANCE":"HORS TENDANCE"}</span>}
       </div>
       {neu?(
-        <div style={{fontSize:12,color:"#8892a4"}}>Technique non lisible sur ce titre ({neu.motif}) : avec si peu d'échanges, le graphique mesure surtout le bruit de la cotation. La note repose sur les fondamentaux.{r.verdict_plafonne&&<b style={{color:PALIERS[1].c}}> Couleur plafonnée au vert-jaune — titre peu échangé : la note fondamentale est bonne et reste affichée telle quelle, mais un titre qui s'échange si peu se négocie difficilement sans faire bouger son cours.</b>}</div>
+        <div style={{fontSize:12,color:"#8892a4"}}>Technique non lisible sur ce titre ({neu.motif}) : avec si peu d'échanges, le graphique mesure surtout le bruit de la cotation.</div>
       ):!v2?(
         <div style={{fontSize:12,color:"#8892a4"}}>Pas assez d'historique pour lire les signaux.</div>
       ):(<>
         <div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap",marginBottom:6}}>
           <span style={{fontSize:12,color:"#8892a4"}}>Nouvelle note technique (essai)</span>
           <b style={{fontSize:20,color:"#e8eef8"}}>{v2.score.toLocaleString("fr-FR")}</b><span style={{color:"#5a6478"}}>/10</span>
-          {r.score_tech!=null&&<span style={{fontSize:11,color:"#5a6478"}}>actuelle : {(+r.score_tech).toLocaleString("fr-FR")}</span>}
           {v2.rang_mom120!=null&&<span style={{fontSize:11,color:"#8892a4",marginLeft:"auto"}}>force sur 6 mois : mieux que {Math.round(v2.rang_mom120*100)} % de la cote</span>}
         </div>
         {ligne("cassure",!!v2.cassure_recente)}
@@ -2802,9 +2689,9 @@ const TickerTape=({rows})=>{
 const RUBRIQUES=[
   {titre:"Accueil",vues:[
     {id:"accueil",icone:"⌂",aide:"La séance en un coup d'œil, en rangées"},
-    {id:"guide",icone:"?",aide:"Note, couleur, confiance, fréquences — et ce que l'outil ne fait pas"}]},
+    {id:"guide",icone:"?",aide:"Score BVC, couleur, confiance, fréquences — et ce que l'outil ne fait pas"}]},
   {titre:"Marché",vues:[
-    {id:"ranking",icone:"▤",aide:"Les 80 titres, leur note et sa couleur"},
+    {id:"ranking",icone:"▤",aide:"Les 80 titres, leur Score BVC et sa tranche"},
     {id:"per",icone:"÷",aide:"Les titres rangés par PER, à côté de la médiane de leur secteur"},
     {id:"heatmap",icone:"▦",aide:"La séance d'un coup d'œil, par secteur"},
     {id:"watchlist",icone:"★",aide:"Vos titres suivis"},
@@ -2814,7 +2701,7 @@ const RUBRIQUES=[
     {id:"news",icone:"☰",aide:"Publications et actualités retenues"}]},
   {titre:"Analyse d'un titre",vues:[
     {id:"detail",icone:"◩",aide:"Graphique, niveaux, fondamentaux, alertes"},
-    {id:"weights",icone:"⚖",aide:"Ce qui compose la note, pilier par pilier"}]},
+    {id:"weights",icone:"⚖",aide:"Ce qui compose le Score BVC, facteur par facteur"}]},
 ];
 // ⚠️ LA MARQUE — 13/10/2026, demande d'Abd Moutalib sur le modèle de Simply
 // Wall St (emblème en haut à gauche). Le dessin est son logo — taureau en
@@ -3033,8 +2920,9 @@ const Accueil=({rows,fav,ouvrir,setTab})=>{
   const frais=rows.filter(r=>!meta(r).stale&&r.chg!=null);
   const hausses=[...frais].filter(r=>r.chg>0).sort((a,b)=>b.chg-a.chg).slice(0,10);
   const baisses=[...frais].filter(r=>r.chg<0).sort((a,b)=>a.chg-b.chg).slice(0,10);
-  // Titres non comparables (règle A, 27/10/2026) exclus : leur note ne se range pas avec les autres.
-  const notes=[...rows].filter(r=>meta(r).conf>=2&&r.v53!=null&&!nonComparable(r)).sort((a,b)=>b.v53-a.v53).slice(0,10);
+  // Score BVC le plus élevé (06/11/2026, à la place de la note v5.3) :
+  // confiance ≥ 2, valeur publiée. Un score descriptif, pas une sélection.
+  const notes=[...rows].filter(r=>meta(r).conf>=2&&valeurBVC(r)!=null).sort((a,b)=>valeurBVC(b)-valeurBVC(a)).slice(0,10);
   const a=(b&&b.a_surveiller)||{};
   const surv=[...(a.a_publie||[]),...(a.a_bouge||[])].filter(z=>par[z.symbol]);
   const favs=rows.filter(r=>fav.includes(r.symbol||r.ticker));
@@ -3060,13 +2948,13 @@ const Accueil=({rows,fav,ouvrir,setTab})=>{
         items={surv.map(z=>t(par[z.symbol],(z.criteres||[]).map(c=>c.texte).join(" · ")))}/>
       <Rangee titre="Plus fortes hausses" sous="séance du jour" vers="ranking" setTab={setTab} items={hausses.map(r=>t(r))}/>
       <Rangee titre="Plus fortes baisses" sous="séance du jour" vers="ranking" setTab={setTab} items={baisses.map(r=>t(r))}/>
-      <Rangee titre="Les mieux notés" sous="note v5.3, confiance ≥ 2, titres comparables" vers="ranking" setTab={setTab}
-        items={notes.map(r=>t(r,`Note ${fmt(r.v53)}`))}/>
+      <Rangee titre="Score BVC le plus élevé" sous="descriptif, pas une prévision · confiance ≥ 2" vers="ranking" setTab={setTab}
+        items={notes.map(r=>t(r,`Score BVC ${exactBVC(valeurBVC(r))}/100 · ${trancheBVC(r).plage}`))}/>
       <Rangee titre="Mes favoris" vers="watchlist" setTab={setTab} items={favs.map(r=>t(r))}/>
     </div>);
 };
 
-const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,scoreMode,setScoreMode,masi,majMsg,univers,peutRevenir,onRetour})=>{
+const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,masi,majMsg,univers,peutRevenir,onRetour})=>{
   const [pulse,setPulse]=useState(false);
   const [clock,setClock]=useState("");
   useEffect(()=>{const t=setInterval(()=>setPulse(p=>!p),1800);return()=>clearInterval(t);},[]);
@@ -3092,25 +2980,10 @@ const Header=({tab,setTab,ts,src,onRefresh,loading,fetchErr,mktStatus,favCount,s
               du haut sont masqués ou hors écran. */}
           <button onClick={()=>setTab("guide")} aria-label="Comment lire l'écran" title="Comment lire l'écran"
             style={{background:tab==="guide"?"rgba(77,184,255,.25)":"rgba(77,184,255,.10)",border:"1px solid rgba(77,184,255,.5)",color:"#4db8ff",borderRadius:"50%",width:32,height:32,fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"var(--font)",flex:"0 0 auto"}}>?</button>
-          <span className="badge-version" title="Pondération de RÉFÉRENCE depuis le 03/11/2026 — la même à toute heure, en séance comme après la clôture. Le moteur la module selon le contexte de MARCHÉ, le même pour tous les titres — un MASI en baisse de plus de 5 % depuis janvier renforce le fondamental. Le poids RÉELLEMENT appliqué est affiché sur chaque fiche." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — base FOND 72 · TECH 28 <span style={{color:"#8892a4"}}>· modulée par le marché</span></span>
-          {/* Score mode — composantes indépendantes */}
-          <div className="choix-score" style={{display:"flex",alignItems:"center",gap:4,background:"rgba(10,18,32,.8)",border:"1px solid #1a2540",borderRadius:5,padding:"3px 6px"}}>
-            <span style={{fontSize:9,color:"#8892a4",letterSpacing:.5,marginRight:2}}>SCORE</span>
-            {PONDERATIONS.map(p=>{
-              const on=scoreMode.nom===p.nom, c=p.officiel?"#00e5a0":"#ffd740";
-              return(
-                <button key={p.nom} onClick={()=>setScoreMode(p)} title={p.aide}
-                  style={{fontSize:10,padding:"2px 9px",borderRadius:3,border:`1px solid ${on?c:c+"30"}`,color:on?c:"#8892a4",background:on?`${c}18`:"transparent",cursor:"pointer",fontFamily:"var(--font)",fontWeight:on?700:400,transition:"all .15s"}}>
-                  {p.nom}
-                </button>
-              );
-            })}
-            {!scoreMode.officiel&&(
-              <span style={{fontSize:9,color:"#ffd740",marginLeft:4,letterSpacing:.5}}>
-                SIMULATION — couleur masquée
-              </span>
-            )}
-          </div>
+          {/* 06/11/2026 : le badge annonçait la pondération de la note v5.3
+              (« base FOND 72 · TECH 28 ») et le sélecteur de vues (OFFICIEL,
+              70/30…) la recalculait. Un seul score désormais : le Score BVC. */}
+          <span className="badge-version" title="Score BVC : six facteurs notés sur 100 — moyennes mobiles 35, momentum (RSI) 15, MACD 10, activité 10, liquidité 15, rentabilité (ROE) 15. Score descriptif, pas une prévision." style={{background:"rgba(0,229,160,.1)",border:"1px solid rgba(0,229,160,.3)",borderRadius:4,padding:"3px 10px",fontSize:11,color:"#00e5a0",letterSpacing:.5}}>v6.4 — SCORE BVC <span style={{color:"#8892a4"}}>· 6 facteurs, descriptif</span></span>
           <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
             <span style={{fontSize:13,color:"#00e5a0",fontWeight:700,letterSpacing:1,minWidth:72}}>{clock}</span>
             <span style={{color:"#1a2540"}}>|</span>
@@ -3215,7 +3088,7 @@ const Heatmap=({rows,setSel,setTab})=>{
                   onClick={()=>{setSel(sym);setTab("detail");}}
                   onMouseEnter={()=>setHov(sym)}
                   onMouseLeave={()=>setHov(null)}
-                  title={`${r.name||sym} · ${px(r.price||0)} · ${nc_?"non coté à la dernière séance":`${chg>0?"▲":chg<0?"▼":"—"}${Math.abs(chg).toFixed(2)}%`} · v5.3=${r.v53?.toFixed(2)}`}
+                  title={`${r.name||sym} · ${px(r.price||0)} · ${nc_?"non coté à la dernière séance":`${chg>0?"▲":chg<0?"▼":"—"}${Math.abs(chg).toFixed(2)}%`} · Score BVC ${entierBVC(valeurBVC(r))}`}
                   style={{background:chgClr(chg),border:`1px solid ${isH?"#c8d3e8":"rgba(255,255,255,.04)"}`,borderRadius:5,padding:"7px 10px",minWidth:88,cursor:"pointer",transition:"border-color .12s,transform .1s",transform:isH?"scale(1.05)":"scale(1)"}}>
                   <div style={{fontSize:12,fontWeight:700,color:"#fff",marginBottom:1}}>{tk(r)}</div>
                   <div style={{fontSize:10,color:"rgba(200,211,232,.7)",marginBottom:1}}>{px(r.price||0)}</div>
@@ -3236,13 +3109,12 @@ const Heatmap=({rows,setSel,setTab})=>{
   );
 };
 
-const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchlist=false,scoreMode})=>{
+const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchlist=false})=>{
   const [search,setSearch]=useState("");
   const [sector,setSector]=useState("ALL");
   const [group,setGroup]=useState("ALL"); // ALL = tous les titres / MASI1 = les 19 du MASI 1
-  const [palierFiltre,setPalierFiltre]=useState(null);
+  const [trancheFiltre,setTrancheFiltre]=useState(null);
   const [rsiZone,setRsiZone]=useState(null);
-  const customMode=!!(scoreMode&&!scoreMode.officiel);
   const MASI1_TICKERS=new Set(["CMT","SMI","CASH","MNG","AKD","SOT","SGTM","MSA","CFGB","RIS","ADI","VCNE","CMGP","CSR","TGCC","ADH","SRM","SNA","RDS"]);
   const sectors=useMemo(()=>["ALL",...new Set(rows.map(r=>r.sector).filter(Boolean).sort())],[rows]);
 
@@ -3254,33 +3126,21 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       const q=search.trim().toUpperCase();
       r=r.filter(x=>(x.symbol||x.ticker||"").includes(q)||tk(x).includes(q)||(x.name||"").toUpperCase().includes(q));
     }
-    /* Filtre par palier de NOTE (07/10/2026) : il remplace le filtre par
-       signal. Il porte sur la note affichée, celle de la vue choisie. */
-    if(palierFiltre!=null) r=r.filter(x=>palierDe(computeDisplayScore(x,scoreMode))===palierFiltre);
+    /* Filtre par tranche du SCORE BVC (06/11/2026) : il remplace le filtre
+       par palier de note v5.3. « non calculé » = pas de valeur publiée. */
+    if(trancheFiltre!=null) r=r.filter(x=>trancheBVC(x).id===trancheFiltre);
     if(rsiZone==="survendu") r=r.filter(x=>(x.rsi??x.rsi14)!=null&&(x.rsi??x.rsi14)<30);
     if(rsiZone==="surachete") r=r.filter(x=>(x.rsi??x.rsi14)!=null&&(x.rsi??x.rsi14)>70);
     return r;
-  },[rows,sector,search,group,palierFiltre,rsiZone,scoreMode]);
+  },[rows,sector,search,group,trancheFiltre,rsiZone]);
 
   const sorted=useMemo(()=>[...filtered].sort((a,b)=>{
     if(sort==="az")  return (a.name||a.symbol||"").localeCompare(b.name||b.symbol||"","fr");
-    if(sort==="v53"){
-      /* ⚠️ Une note INDISPONIBLE n'est pas une note basse. Comparée comme 0,
-         elle se rangerait parmi les pires titres — un classement faux. Elle
-         sort donc du classement par le bas, explicitement. */
-      const sa=computeDisplayScore(a,scoreMode), sb=computeDisplayScore(b,scoreMode);
-      if(sa==null&&sb==null) return 0;
-      if(sa==null) return 1;
-      if(sb==null) return -1;
-      /* Règle A (27/10/2026) : un titre NON COMPARABLE se classe après tous
-         les titres comparables, quelle que soit sa note ou la pondération. */
-      const na=!!nonComparable(a), nb=!!nonComparable(b);
-      if(na!==nb) return na?1:-1;
-      return sb-sa;
-    }
     if(sort==="bvc"){
-      /* Score BVC (observation) : une valeur absente sort du classement par le bas. */
-      const va=a.score_bvc?.valeur, vb=b.score_bvc?.valeur;
+      /* ⚠️ Un Score BVC ABSENT (PARTIEL, NON_CALCULABLE) n'est pas un score
+         bas. Comparé comme 0, il se rangerait parmi les plus faibles — un
+         classement faux. Il sort donc du classement par le bas, explicitement. */
+      const va=valeurBVC(a), vb=valeurBVC(b);
       if(va==null) return vb==null?0:1;
       if(vb==null) return -1;
       return vb-va;
@@ -3294,10 +3154,9 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       return ra-rb;
     }
     return 0;
-  }),[filtered,sort,scoreMode]);
-  const SORTS=[["az","A → Z"],["v53",customMode?"SCORE PERSO":("SCORE v5.3")],["bvc","SCORE BVC"],["var","VAR%"],["rsi","RSI"]];
-  const scoreColLabel=customMode?scoreModeLabel(scoreMode):"SCORE";
-  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","VOLUME","PE","DIV%",scoreColLabel,"RSI","COULEUR","POIDS","SCORE BVC"];
+  }),[filtered,sort]);
+  const SORTS=[["bvc","SCORE BVC"],["az","A → Z"],["var","VAR%"],["rsi","RSI"]];
+  const HEADS=["#","TICKER","OUVERT","CLÔT.","VAR%","VOLUME","PE","DIV%","SCORE BVC","RSI","COULEUR"];
   if(isWatchlist&&rows.length===0) return(
     <div style={{textAlign:"center",padding:"60px 20px",color:"#8892a4"}}>
       <div style={{fontSize:52,marginBottom:16,color:"#2a3550"}}>★</div>
@@ -3324,32 +3183,33 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
             <button key={g} onClick={()=>setGroup(g)} style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:3,border:"none",cursor:"pointer",background:group===g?`${c}18`:"transparent",color:group===g?c:"#8892a4",transition:"all .2s"}}>{lbl}</button>
           ))}
         </div>
-        {(search||sector!=="ALL"||palierFiltre!=null||rsiZone)&&<button onClick={()=>{setSearch("");setSector("ALL");setPalierFiltre(null);setRsiZone(null);}} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"3px 8px",background:"transparent"}}>✕ Réinitialiser</button>}
+        {(search||sector!=="ALL"||trancheFiltre!=null||rsiZone)&&<button onClick={()=>{setSearch("");setSector("ALL");setTrancheFiltre(null);setRsiZone(null);}} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"3px 8px",background:"transparent"}}>✕ Réinitialiser</button>}
         <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{sorted.length}/{group==="MASI1"?19:rows.length} titres</span>
         <button onClick={()=>{
-          // ⚠️ La pondération part avec le fichier : un CSV survit à l'écran
-          // qui l'a produit, et une note sans sa formule est ininterprétable.
-          const cols=["TICKER BVC","CODE INTERNE","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE","PONDERATION","COULEUR_NOTE","VERSION_SCORE"];
-          const rows_csv=sorted.map(r=>[tk(r),r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",r.pe?.toFixed(1)||"",r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",(sc=>sc==null?"indisponible":sc.toFixed(2))(computeDisplayScore(r,scoreMode)),scoreModeLabel(scoreMode),customMode?"":palierTexte(r),customMode?"":(r.score_version||"")]);
+          // 06/11/2026 : le Score BVC remplace la note v5.3 (v53, sig retirés).
+          // ⚠️ La version part avec le fichier : un CSV survit à l'écran qui
+          // l'a produit, et un score sans sa formule est ininterprétable. Une
+          // valeur absente s'écrit vide, jamais 0 ; l'état dit pourquoi.
+          const cols=["TICKER BVC","CODE INTERNE","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE_BVC","ETAT_SCORE_BVC","COUVERTURE_PCT","TRANCHE","VERSION_SCORE_BVC"];
+          const rows_csv=sorted.map(r=>{const s=r.score_bvc||{};const v=valeurBVC(r);return [tk(r),r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",r.pe?.toFixed(1)||"",r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",v==null?"":String(v),s.etat||"non publié",s.couverture_pct??"",trancheTexte(r),s.version||""];});
           const csv="﻿"+[cols,...rows_csv].map(r=>r.join(";")).join("\n");
           const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
           const url=URL.createObjectURL(blob);
           const a=document.createElement("a");
           a.href=url;
-          // Le nom du fichier porte la pondération : deux exports du même jour
-          // sous deux vues ne doivent pas se ressembler.
-          a.download=`bvc_${new Date().toISOString().slice(0,10)}_${scoreModeLabel(scoreMode).replace("/","-")}.csv`;
+          a.download=`bvc_${new Date().toISOString().slice(0,10)}_score-bvc.csv`;
           document.body.appendChild(a); a.click();
           document.body.removeChild(a); URL.revokeObjectURL(url);
         }} style={{fontSize:10,padding:"3px 10px",borderRadius:3,border:"1px solid #4db8ff40",color:"#4db8ff",background:"transparent",cursor:"pointer",letterSpacing:.5}}>
           ↓ CSV
         </button>
       </div>
-      {/* ── Screener : filtres par palier de note + RSI ──────── */}
+      {/* ── Screener : filtres par tranche du Score BVC + RSI ── */}
       <div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:10,alignItems:"center"}}>
-        <span style={{fontSize:10,color:"#8892a4",letterSpacing:.5,marginRight:2}}>NOTE</span>
-        {PALIERS.map((p,k)=>{const on=palierFiltre===k;return(
-          <button key={k} onClick={()=>setPalierFiltre(on?null:k)} title={`Notes ${p.plage} (${p.nom})`}
+        <span style={{fontSize:10,color:"#8892a4",letterSpacing:.5,marginRight:2}}>SCORE BVC</span>
+        {[...TRANCHES_BVC,TRANCHE_NC].map(p=>{const on=trancheFiltre===p.id;return(
+          <button key={p.id} onClick={()=>setTrancheFiltre(on?null:p.id)} aria-pressed={on}
+            title={p.id==="nc"?"Score BVC non calculé (partiel ou non calculable)":`Score BVC ${p.plage}`}
             style={{fontSize:10,padding:"3px 10px",borderRadius:12,border:`1px solid ${on?p.c:p.c+"35"}`,color:on?"#080d1a":p.c,background:on?p.c:"transparent",cursor:"pointer",fontFamily:"var(--font)",transition:"all .15s",fontWeight:on?700:400,display:"inline-flex",alignItems:"center",gap:5}}>
             <span aria-hidden="true" style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:on?"#080d1a":p.c}}/>{p.plage}
           </button>);})}
@@ -3372,24 +3232,17 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         {!isWatchlist&&<button onClick={()=>setTab("per")} title="Classement par PER, avec la médiane du secteur et les titres non classés"
           style={{background:"transparent",border:"1px solid rgba(77,184,255,.4)",color:"#4db8ff",padding:"3px 10px",borderRadius:4,fontSize:11,cursor:"pointer"}}>PER ›</button>}
       </div>
-      {customMode&&<div style={{marginBottom:10,padding:"6px 12px",background:"rgba(255,215,64,.07)",border:"1px solid rgba(255,215,64,.25)",borderRadius:5,display:"flex",alignItems:"center",gap:8,fontSize:11}}>
-        <span style={{color:"#ffd740",fontWeight:700}}>✱ MODE PERSONNALISÉ</span>
-        <span style={{color:"#8892a4"}}>Score affiché :</span>
-        <span style={{color:"#ffd740"}}>{scoreModeLabel(scoreMode)}</span>
-        <span style={{color:"#8892a4",fontSize:10}}>— Le score composite officiel reste inchangé ; les couleurs, propres à la note officielle, sont masquées</span>
-      </div>}
       <div style={{overflowX:"auto"}}>
         <table className="classement" style={{width:"100%",borderCollapse:"collapse",minWidth:1000}}>
           <thead>
             <tr style={{borderBottom:"2px solid #1a2540"}}>
-              {HEADS.map(h=><th key={h} onClick={h==="SCORE BVC"?()=>setSort("bvc"):undefined} aria-sort={h==="SCORE BVC"&&sort==="bvc"?"descending":undefined} title={h==="SCORE BVC"?"Trier par score BVC (observation)":undefined} style={{padding:"8px 8px",fontSize:10,color:h==="SCORE BVC"&&sort==="bvc"?"#00e5a0":"#8892a4",textAlign:"left",letterSpacing:.4,whiteSpace:"nowrap",fontWeight:500,cursor:h==="SCORE BVC"?"pointer":undefined}}>{h}{h==="SCORE BVC"&&sort==="bvc"?" ▼":""}</th>)}
+              {HEADS.map(h=><th key={h} onClick={h==="SCORE BVC"?()=>setSort("bvc"):undefined} aria-sort={h==="SCORE BVC"&&sort==="bvc"?"descending":undefined} title={h==="SCORE BVC"?"Trier par Score BVC (0-100, descriptif)":undefined} style={{padding:"8px 8px",fontSize:10,color:h==="SCORE BVC"&&sort==="bvc"?"#00e5a0":"#8892a4",textAlign:"left",letterSpacing:.4,whiteSpace:"nowrap",fontWeight:500,cursor:h==="SCORE BVC"?"pointer":undefined}}>{h==="SCORE BVC"?<>SCORE<span className="mot-bvc"> BVC</span></>:h}{h==="SCORE BVC"&&sort==="bvc"?" ▼":""}</th>)}
             </tr>
           </thead>
           <tbody>
             {sorted.map((r,i)=>{
               const sym=r.symbol||r.ticker;
-              const displayScore=computeDisplayScore(r,scoreMode);
-              const manque=composantesManquantes(r,scoreMode);
+              const vBVC=valeurBVC(r);
               const rsiVal=r.rsi??r.rsi14??null;
               const rsiColor=rsiVal>70?"#ff4f5a":rsiVal<30?"#00e5a0":"#ffd740";
               /* ⚠️ Indicateurs absents : moins de 15 séances cotées. Le test
@@ -3410,7 +3263,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                           <span style={{fontSize:16,color:"#fff",fontWeight:800,letterSpacing:.3}}>{tk(r)}</span>
                           {meta(r).offre_publique&&<span className="marqueur-offre" title={texteOffre(meta(r).offre_publique,r.price||r.prix||r.close)}
                             style={{fontSize:9,color:"#ffb74d",border:"1px solid rgba(255,143,0,.5)",background:"rgba(255,143,0,.10)",borderRadius:2,padding:"1px 4px",cursor:"help",whiteSpace:"nowrap",fontWeight:600}}>OPA {px(meta(r).offre_publique.prix)} DH</span>}
-                          {isStat&&<span title="Historique insuffisant : indicateurs techniques absents, la note technique s'abstient (5,0)" style={{fontSize:9,color:"#8892a4",border:"1px solid #1a2540",borderRadius:2,padding:"1px 3px",cursor:"default"}}>~hist</span>}
+                          {isStat&&<span title="Historique insuffisant : moins de 15 séances cotées, RSI et moyennes mobiles absents (jamais estimés)" style={{fontSize:9,color:"#8892a4",border:"1px solid #1a2540",borderRadius:2,padding:"1px 3px",cursor:"default"}}>~hist</span>}
                           <button onClick={e=>{e.stopPropagation();toggleFav(sym);}} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
                             className="etoile" aria-pressed={fav.includes(sym)}
                             style={{fontSize:14,color:fav.includes(sym)?"#ffd740":"#8892a4",border:"none",background:"none",cursor:"pointer",padding:"0 1px",lineHeight:1,transition:"color .15s"}}>
@@ -3469,14 +3322,17 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   </td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.pe>25?"#ff8f00":"#c8d3e8"}}>{r.pe?.toFixed(1)||"—"}</td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.div>4?"#00e5a0":"#c8d3e8"}}>{r.div?.toFixed(1)||"—"}%</td>
+                  {/* SCORE BVC (06/11/2026) : partie entière sur 100, grise à
+                      confiance ≤ 1. « — » sans valeur, le motif au survol. */}
                   <td style={{padding:"8px 8px"}}>
-                    <div title={manque.length?`Score indisponible — composante absente : ${manque.join(", ")}`:undefined}
-                      style={{fontSize:15,color:displayScore==null?"#8892a4":couleurChiffre(r,customMode),fontWeight:700,marginBottom:2}}>
-                      {fmt(displayScore)}{customMode&&displayScore!=null&&<span style={{fontSize:8,color:"#ffd740",marginLeft:3,verticalAlign:"super"}}>✱</span>}
+                    <div title={vBVC==null?(r.score_bvc?`Score BVC ${etatBVC(r)}${r.score_bvc.motif?` : ${r.score_bvc.motif}`:""}`:"Score BVC non publié")
+                        :`Score BVC ${exactBVC(vBVC)}/100 · ${etatBVC(r)} · couverture des facteurs ${r.score_bvc.couverture_pct} %${meta(r).conf<=1?" · données insuffisantes : à ne pas lire comme une conclusion":""}`}
+                      style={{fontSize:15,color:couleurChiffre(r),fontWeight:700,marginBottom:2,fontVariantNumeric:"tabular-nums"}}>
+                      {entierBVC(vBVC)}
                     </div>
-                    {/* ⚠️ Pas de barre sur une note absente : une barre de
+                    {/* ⚠️ Pas de barre sur un score absent : une barre de
                         longueur nulle se lit comme un score de zéro. */}
-                    {displayScore!=null&&<Bar v={displayScore} c={couleurChiffre(r,customMode)} h={4}/>}
+                    {vBVC!=null&&<Bar v={vBVC} max={100} c={couleurChiffre(r)} h={4}/>}
                   </td>
                   <td style={{padding:"8px 8px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:5}}>
@@ -3486,20 +3342,15 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       </div>}
                     </div>
                   </td>
-                  {/* ⚠️ Hors pondération officielle, la COULEUR disparaît. Elle
-                      est celle de la note publiée par le moteur ; l'afficher à
-                      côté d'une note recalculée autrement mettrait deux
-                      formules côte à côte sans le dire.
-                      07/10/2026 : plus aucun mot d'action dans cette colonne,
-                      seulement la couleur du palier de note (PastilleNote). */}
-                  <td style={{padding:"8px 8px"}}>{customMode
-                    ? <span title="La couleur n'existe que pour la pondération officielle"
-                        style={{fontSize:11,color:"#8892a4",letterSpacing:1}}>—</span>
+                  {/* COULEUR : aucun mot d'action (07/10/2026). Depuis le
+                      06/11/2026, la tranche du Score BVC (PastilleBVC), ou
+                      l'état de la donnée quand il prime. */}
+                  <td style={{padding:"8px 8px"}}>{
                     /* Un titre suspendu passe AVANT le test de confiance : sa
                        confiance est nulle, mais « Données insuffisantes » serait
                        un contresens. Les données ne manquent pas — le titre ne
                        cote plus. */
-                    : meta(r).susp
+                    meta(r).susp
                     ? (meta(r).statut_juridique
                        ? <Chip label={meta(r).statut_juridique.toUpperCase()} bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40"/>
                        : <Chip label="SUSPENDU" bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40"/>)
@@ -3514,14 +3365,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                     ? <Chip label="REPRISE DE COTATION" bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040"/>
                     : meta(r).conf<=1
                     ? <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550"/>
-                    : <PastilleNote r={r}/>}</td>
-                  <td style={{padding:"8px 8px",minWidth:85}}>
-                    {(()=>{const pw=poidsAffiches(r,scoreMode);return pw&&<>
-                      <WBar f={pw.f} t={pw.t}/>
-                      <div style={{fontSize:9,color:customMode?"#ffd740":"#8892a4",marginTop:2}}>F{pw.f}·T{pw.t}</div>
-                    </>;})()}
-                  </td>
-                  <td style={{padding:"8px 8px",fontSize:12,color:r.confidence!=null&&r.confidence<=1?"#4a566f":"#c8d3e8",whiteSpace:"nowrap"}} title={r.score_bvc?(r.score_bvc.etat==="CALCULABLE"?"Score BVC (observation), couverture "+r.score_bvc.couverture_pct+" %":(r.score_bvc.motif||r.score_bvc.etat)):"Score BVC non publié"}>{r.score_bvc?.valeur!=null?Math.round(r.score_bvc.valeur):"—"}</td>
+                    : <PastilleBVC r={r}/>}</td>
                 </tr>
               );
             })}
@@ -3529,7 +3373,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         </table>
       </div>
       <div style={{marginTop:12,padding:"10px 14px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
-        <span style={{color:"#00e5a0"}}>●</span> SCORE = base Fond×72% + Tech×28%, à toute heure, <span style={{color:"#ffd740"}}>modulée par le contexte de marché</span> — tendance du MASI depuis janvier ; le poids appliqué est sur chaque fiche &nbsp;|&nbsp;
+        <span style={{color:"#00e5a0"}}>●</span> SCORE BVC = six facteurs sur 100 (moyennes mobiles 35 · momentum 15 · MACD 10 · activité 10 · liquidité 15 · rentabilité 15) — <span style={{color:"#ffd740"}}>score descriptif, pas une prévision</span> ; « — » = non calculé (cours périmé, titre suspendu ou couverture insuffisante) &nbsp;|&nbsp;
         <span style={{color:"#8892a4"}}>~hist</span> = moins de 15 séances cotées : RSI et moyennes absents, jamais estimés &nbsp;|&nbsp;
         <span style={{color:"#ff4f5a"}}>⚠️</span> RSI rouge = prudence &nbsp;|&nbsp; PE = Price/Earnings · DIV = dividende &nbsp;|&nbsp; Clic → vue détaillée
       </div>
@@ -3650,7 +3494,7 @@ const ClassementPER=({rows,setSel,setTab})=>{
             <th style={thD}>COURS (DH)</th><th style={thD}>MÉDIANE SECTEUR</th>
           </tr></thead>
           <tbody>
-            {lignes.map((l,i)=>{const r=l.r,M=med(l),nco=nonComparable(r);
+            {lignes.map((l,i)=>{const r=l.r,M=med(l),m_=meta(r),nco=m_.susp||m_.conf<=1?null:(m_.non_comparable||null);
               const ecart=M.med!=null?(l.pe/M.med-1)*100:null;
               return(
               <tr key={l.sym} onClick={()=>ouvrir(l.sym)} style={{borderBottom:"1px solid #0d1829",cursor:"pointer"}}
@@ -4652,7 +4496,7 @@ const MarchesMondiaux=()=>{
               </div>))}
           </div>))}
       </div>
-      <div style={{fontSize:10.5,color:"#5a6478"}}>Source : TradingView (scanner public), relevé le {heure(d.releve_utc)}. Sous chaque valeur : l'heure de l'observation, le différé que la source déclare, et un lien pour la vérifier chez elle. Contexte seulement : n'entre pas dans la note.</div>
+      <div style={{fontSize:10.5,color:"#5a6478"}}>Source : TradingView (scanner public), relevé le {heure(d.releve_utc)}. Sous chaque valeur : l'heure de l'observation, le différé que la source déclare, et un lien pour la vérifier chez elle. Contexte seulement : n'entre pas dans le Score BVC.</div>
     </div>);
 };
 
@@ -4660,34 +4504,37 @@ const MarchesMondiaux=()=>{
 // Bloc `risque` de data.json (pipeline/risque.py). DESCRIPTIF, hors note :
 // chaque valeur porte son effectif et sa période ; une valeur null s'affiche
 // en gris avec sa raison, jamais remplacée par un chiffre supposé.
-/* ── SCORE BVC (Nour + Boursenews) — mode observation, 03/11/2026 ────────────
-   Score descriptif 0-100 : six facteurs notés, publié À CÔTÉ de la note v5.3
-   (il ne la nourrit pas, R8). Une barre par facteur ; la couleur ne dit que la
-   PROPORTION de points obtenus, jamais un rendement attendu. */
+/* ── SCORE BVC (Nour + Boursenews) — 03/11/2026, score unique le 06/11/2026 ─
+   Score descriptif 0-100 : six facteurs notés (POIDS_BVC de
+   pipeline/score_bvc.py). Publié en observation à côté de la note v5.3 du
+   03/11 au 05/11 ; seul score du terminal depuis le 06/11 (décision d'Abd
+   Moutalib). Une barre par facteur ; la couleur ne dit que la PROPORTION de
+   points obtenus, jamais un rendement attendu.
+   `sansValeur` : en tête de fiche, la valeur est déjà écrite en grand au-dessus ;
+   le bloc ne donne alors que l'état, la couverture et la composition. */
 const NOMS_FACTEURS_BVC={moyennes_mobiles:"Moyennes mobiles",momentum:"Momentum (RSI)",macd:"MACD",
   "activité":"Activité (volume)","liquidité":"Liquidité","rentabilité":"Rentabilité (ROE)"};
 const ORDRE_FACTEURS_BVC=["moyennes_mobiles","momentum","macd","activité","liquidité","rentabilité"];
-const ScoreBVC=({s,conf})=>{
+const ScoreBVC=({s,conf,sansValeur=false})=>{
   if(!s) return null;
   const ok=s.etat==="CALCULABLE";
   // Règle d'affichage (CLAUDE.md) : confiance ≤ 1 → la valeur passe en gris.
   const gris=!ok||(conf!=null&&conf<=1);
-  const vTxt=ok&&s.valeur!=null?`${Math.round(s.valeur)}/100`:"—";
+  const vTxt=s.valeur!=null&&isFinite(s.valeur)?`${exactBVC(s.valeur)}/100`:"—";
   const etatTxt={CALCULABLE:"CALCULABLE",PARTIEL:"PARTIEL",NON_CALCULABLE:"NON CALCULABLE"}[s.etat]||s.etat;
   const fac=s.facteurs||{};
   const couleur=(pts,w)=>pts==null?"#2a3550":pts<=0?"#4a566f":pts>=w-1e-9?"#00e5a0":"#ffd740";
   return(
     <div className="score-bvc" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 14px"}}>
-      <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Score BVC <span style={{color:"#4db8ff"}}>(observation)</span></div>
-      <div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap",marginTop:4}}>
+      <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>{sansValeur?"Composition du Score BVC":"Score BVC"} <span style={{color:ok?"#00e5a0":"#ffd740"}}>· {etatTxt}</span></div>
+      {!sansValeur&&<div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap",marginTop:4}}>
         <span style={{fontSize:26,fontWeight:800,color:gris?"#8892a4":"#fff"}}>{vTxt}</span>
-        <span style={{fontSize:12,color:ok?"#00e5a0":"#ffd740",letterSpacing:.5}}>· {etatTxt}</span>
-      </div>
+      </div>}
       <div style={{fontSize:12,color:"#c8d3e8",marginTop:4}}>Couverture des facteurs : {s.couverture_pct}&nbsp;%. Score descriptif, sans prévision de cours.</div>
       {!ok&&s.motif&&<div style={{fontSize:11,color:"#8892a4",marginTop:4}}>{s.motif}</div>}
       {ORDRE_FACTEURS_BVC.some(k=>fac[k])&&<>
         <div style={{fontSize:11,color:"#8892a4",letterSpacing:.5,margin:"12px 0 6px",textTransform:"uppercase"}}>Composition du score</div>
-        {ORDRE_FACTEURS_BVC.filter(k=>fac[k]).map(k=>{const f=fac[k];const nom=f.poids_nominal||f.poids;const w=f.poids;
+        {ORDRE_FACTEURS_BVC.filter(k=>fac[k]).map(k=>{const f=fac[k];const w=f.poids;
           const pct=f.points==null||!w?0:Math.max(0,Math.min(100,f.points/w*100));
           return(
           <div key={k} style={{marginBottom:7}} title={f.mesure}>
@@ -4699,7 +4546,7 @@ const ScoreBVC=({s,conf})=>{
               style={{height:7,background:"#111c30",borderRadius:4,marginTop:3,overflow:"hidden"}}>
               <div style={{width:`${f.points==null?100:Math.max(pct,f.points<=0?100:0)}%`,height:"100%",background:couleur(f.points,w),opacity:f.points==null?.35:1}}/>
             </div>
-            <div style={{fontSize:10,color:"#6b7a99",marginTop:2}}>{f.mesure}</div>
+            <div style={{fontSize:10,color:"#6b7a99",marginTop:2,overflowWrap:"anywhere"}}>{f.mesure}</div>
           </div>);})}
         <div style={{fontSize:10.5,color:"#8892a4",marginTop:8,lineHeight:1.5}}>Couleurs : proportion de points obtenus dans chaque facteur, sans prévision de rendement. <span style={{color:"#00e5a0"}}>vert</span> = plein · <span style={{color:"#ffd740"}}>jaune</span> = partiel · <span style={{color:"#4a566f"}}>gris</span> = 0 point.</div>
       </>}
@@ -4749,7 +4596,7 @@ const RisqueMesure=({q})=>{
             </div>);})}
         </div></>}
       <div style={{fontSize:9,color:"#8892a4",marginTop:9,lineHeight:1.5}}>
-        Ce que le titre a fait sur l'année écoulée — une description, pas une prévision, et hors de la note.
+        Ce que le titre a fait sur l'année écoulée — une description, pas une prévision, et hors du Score BVC.
         {ecartes.length>0&&` Écartés des rendements : ${ecartes.join(" et ")}.`}
         {q.liquidite&&q.liquidite.motif_amihud&&<span title={q.liquidite.motif_amihud}>{" Montant échangé et ratio d'Amihud non calculés : nos chandelles ne portent que la quantité de titres."}</span>}
       </div>
@@ -4790,27 +4637,16 @@ const TickerNews=({sym})=>{
 };
 
 // ── DETAIL ────────────────────────────────────────────────────────────────────
-const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
+const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
   const [detSearch,setDetSearch]=useState("");
   const r=rows.find(x=>(x.symbol||x.ticker)===sel)||rows[0];
-  // ⚠️ La fiche doit suivre la pondération choisie, exactement comme le
-  // classement. Sans cela elle affiche le v5.3 du moteur quelle que soit la
-  // vue, et donne pour le même titre un score qui contredit le tableau.
-  // Oublié le 08/09 ; signalé par Abd Moutalib : « le score ne bouge pas ».
-  const simu=!!(scoreMode&&!scoreMode.officiel);
-  // Teinte de la carte : couleur du palier de note, neutre en simulation ou
-  // à confiance ≤ 1. Plus aucun mot d'action (07/10/2026).
-  const cn=couleurNote(r);
-  const s=simu||!cn||meta(r).conf<=1?NEUTRE:teinte(cn.c);
-  const scoreAffiche=computeDisplayScore(r,scoreMode);
-  const manqueAff=composantesManquantes(r,scoreMode);
-  // La répartition qui a réellement produit `scoreAffiche`.
-  // ⚠️ SCORE CANONIQUE — 29/09/2026. La fiche affichait ici un écart à la « note BVC »
-  // à une note de référence qui n'était pas calculée : une table saisie le
-  // 03/06, jamais rafraîchie, 21 titres sur 80 à 5,00 par défaut. Un seul
-  // verdict est affiché désormais, avec la version de la formule qui l'a
-  // produit.
-  const pdsAff=poidsAffiches(r,scoreMode);
+  // ⚠️ 06/11/2026 — UN SEUL SCORE EN TÊTE DE FICHE : le Score BVC, avec la
+  // version de sa formule. La note v5.3, sa décomposition fond × tech, ses
+  // poids et ses bonus ne sont plus affichés (décision d'Abd Moutalib).
+  // Teinte de la carte : couleur de la tranche, neutre sans valeur ou à
+  // confiance ≤ 1. Aucun mot d'action (07/10/2026).
+  const vBVC=valeurBVC(r);
+  const s=vBVC==null||meta(r).conf<=1?NEUTRE:teinte(trancheBVC(r).c);
   const price=r.price||r.prix;
   const h90=r.h90||r.high90;const l90=r.l90||r.low90;
   /* Les objectifs sont nullifiés côté pipeline quand ils ne sont plus à
@@ -4866,17 +4702,17 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
         {detSearch&&<button onClick={()=>setDetSearch("")} style={{fontSize:10,color:"#8892a4",border:"none",background:"transparent"}}>✕</button>}
       </div>
       <div className="selecteur-titres" data-liste="titres" style={{display:"flex",gap:4,marginBottom:14,flexWrap:"wrap",maxHeight:96,overflowY:"auto",padding:"4px 0"}}>
-        {visRows.map(d=>{const sym2=d.symbol||d.ticker;const cd=couleurNote(d);const ds=simu||!cd||meta(d).conf<=1?NEUTRE:teinte(cd.c);const a=sel===sym2;return(
+        {visRows.map(d=>{const sym2=d.symbol||d.ticker;const ds=valeurBVC(d)==null||meta(d).conf<=1?NEUTRE:teinte(trancheBVC(d).c);const a=sel===sym2;return(
           <button key={sym2} onClick={()=>setSel(sym2)} aria-pressed={a} style={{background:a?ds.bg:"transparent",border:a?`1px solid ${ds.bd}`:"1px solid #1a2540",color:a?ds.fg:"#8892a4",padding:"2px 7px",borderRadius:3,fontSize:10,fontWeight:a?700:400,transition:"all .15s"}}>{tk(d)}<span className="liste-nom">{d.name}</span>{d.chg!=null&&isFinite(d.chg)&&<span className="liste-var" style={{color:VC(d.chg)}}>{d.chg>0?"+":""}{(+d.chg).toFixed(2)}%</span>}</button>
         );})}
       </div>
       </div>
       <div className="fiche-corps">
-      {/* Offre publique établie sur pièce : en tête de fiche, avant la note. */}
+      {/* Offre publique établie sur pièce : en tête de fiche, avant le score. */}
       <BandeauOffre r={r} cours={price}/>
 
       <div className="detail-grid">
-        {/* NOTE — la note et les chiffres clés ; panneau de droite au-delà de 1200 px */}
+        {/* SCORE — le Score BVC, sa composition et les chiffres clés ; panneau de droite au-delà de 1200 px */}
         <div className="fiche-note" style={{display:"flex",flexDirection:"column",gap:10}}>
           {/* Score card */}
           <div style={{background:`linear-gradient(135deg,${s.bg},#0d1829)`,border:`1px solid ${s.bd}`,borderRadius:8,padding:16,textAlign:"center"}}>
@@ -4892,66 +4728,46 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
               </button>
             </div>
             {/* Le score reste affiché même à faible confiance — mais en gris,
-                pour qu'il ne se lise pas comme une conclusion (CLAUDE.md). */}
-            <div style={{fontSize:52,fontWeight:700,
-                 color:couleurChiffre(r,simu),
-                 textShadow:meta(r).conf<=1||simu?"none":`0 0 30px ${s.fg}40`,
-                 lineHeight:1}}>{fmt(scoreAffiche)}</div>
+                pour qu'il ne se lise pas comme une conclusion (CLAUDE.md).
+                Valeur EXACTE ici ; le classement en donne la partie entière. */}
+            <div className="score-bvc-tete" style={{fontSize:52,fontWeight:700,
+                 color:couleurChiffre(r),
+                 textShadow:meta(r).conf<=1||vBVC==null?"none":`0 0 30px ${s.fg}40`,
+                 lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{exactBVC(vBVC)}</div>
             <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 6px"}}>
-              Score composite / 10{simu&&<span style={{color:"#ffd740"}}> · {scoreModeLabel(scoreMode)}</span>}
+              Score BVC / 100 · {etatBVC(r)} — descriptif, pas une prévision
             </div>
+            {/* ⚠️ Un score absent doit DIRE pourquoi. Un « — » muet se lit
+                comme une panne d'affichage ; avec son motif, comme un refus de
+                calculer sur une donnée qu'on n'a pas. */}
+            {vBVC==null&&<div style={{fontSize:10.5,color:"#ff8f00",lineHeight:1.4,margin:"0 auto 8px",maxWidth:260}}>
+              {r.score_bvc?(r.score_bvc.motif||`Score BVC ${etatBVC(r)}`):"Score BVC non publié pour ce titre"}. Aucune valeur approchée n'est affichée à la place.</div>}
             <div className="heure-cours" style={{fontSize:10.5,color:"#8892a4",marginBottom:4}}>{heureCours(r)}</div>
             <ResumeNote r={r}/>
-            {!simu&&<PourquoiNote r={r}/>}
             <DetailConfiance r={r}/>
-            {/* ⚠️ Une note absente doit DIRE ce qui manque. Un « — » muet se
-                lit comme une panne d'affichage ; nommé, il se lit comme un
-                refus de calculer sur une donnée qu'on n'a pas. */}
-            {manqueAff.length>0&&(
-              <div style={{fontSize:10,color:"#ff8f00",lineHeight:1.4,
-                   margin:"0 0 8px",maxWidth:250}}>
-                Score indisponible pour cette pondération —{" "}
-                {manqueAff.length>1?"composantes absentes":"composante absente"} :{" "}
-                <b>{manqueAff.join(", ")}</b>.<br/>
-                Aucune valeur approchée n'est affichée à la place.
-              </div>
-            )}
             <div style={{marginBottom:10}}><Confiance r={r} sz={13}/></div>
             {/* Une couleur calculée sur des données de repli induit en
                 erreur : à confiance ≤ 1 on l'annonce comme tel plutôt que de
-                colorer une note que rien ne soutient (règle CLAUDE.md). */}
-            {/* ⚠️ Même règle qu'au classement : le signal n'existe que pour
-                la pondération officielle. Oublié ici le 08/09 — la fiche
-                affichait le v5.3 du moteur quelle que soit la vue choisie,
-                donc un score qui contredisait le classement pour le même
-                titre. Signalé par Abd Moutalib : « le score ne bouge pas ». */}
-            {simu
-              ? <Chip label="SIMULATION — couleur masquée" bg="rgba(255,215,64,.10)" fg="#ffd740" bd="#ffd74040" sz={12}/>
-              : meta(r).susp
+                colorer un score que rien ne soutient (règle CLAUDE.md). */}
+            {meta(r).susp
               ? <Chip label={meta(r).statut_juridique?`${meta(r).statut_juridique.toUpperCase()} · suspendu depuis le ${jjmm(meta(r).suspDepuis)}`:`SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`} bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40" sz={12}/>
               : meta(r).conf<=1
               ? (meta(r).reprise_recente
                  ? <Chip label={`REPRISE — ${meta(r).seances_depuis_reprise} séance(s)`} bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040" sz={12}/>
                  : <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550" sz={12}/>)
-              : nonComparable(r)
-              ? <Chip label="Non comparable — titre peu liquide" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550" sz={12}/>
-              : couvPartielle(r)
-              ? <Chip label="Couverture partielle — verdict global limité" bg="rgba(255,215,64,.10)" fg="#ffd740" bd="#ffd74040" sz={12}/>
-              : <PastilleNote r={r} sz={12}/>}
-            {/* Règle A (27/10/2026) : pourquoi cette note ne se compare pas. */}
-            {!simu&&nonComparable(r)&&(nc=>
-              <div className="bandeau-non-comparable" style={{marginTop:6,fontSize:10.5,color:"#8892a4",lineHeight:1.45,maxWidth:260}}>
-                Note {texteNonComparable(nc)}, sous le seuil de {dhSeance(nc.seuil)} (20 dernières séances échangées).
-                Avec si peu d'échanges, elle ne se compare pas à celle d'un titre liquide : aucune couleur de palier,
-                rang après les titres comparables. Médiane sur les séances échangées uniquement ; le cadre
-                « Échangé par séance » compte aussi les séances sans échange.</div>)(nonComparable(r))}
+              : meta(r).reprise_recente
+              ? <Chip label="REPRISE DE COTATION" bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040" sz={12}/>
+              : <PastilleBVC r={r} sz={12}/>}
             {/* Le motif, pour que la suspension ne soit pas une énigme : une
                 OPA n'est pas une sanction, et la nuance change tout pour le
                 lecteur. */}
-            {meta(r).susp&&meta(r).suspMotif&&!simu&&
+            {meta(r).susp&&meta(r).suspMotif&&
               <div style={{marginTop:6,fontSize:10,color:"#8892a4"}}>{meta(r).suspMotif}</div>}
-            {!simu&&r.score_version&&<div style={{marginTop:8,fontSize:10,color:"#5a6478"}}>formule {r.score_version}</div>}
+            {r.score_bvc&&r.score_bvc.version&&<div style={{marginTop:8,fontSize:10,color:"#5a6478"}}>formule {r.score_bvc.version}</div>}
           </div>
+          {/* La composition du Score BVC, facteur par facteur — juste sous
+              le score, en tête de fiche (06/11/2026). */}
+          <ScoreBVC s={r.score_bvc} conf={meta(r).conf} sansValeur/>
 
           {/* Fundamentaux */}
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
@@ -5046,7 +4862,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
             {(r._meta||{}).comptes_absents&&(
               <div title={r._meta.comptes_absents.source}
                 style={{margin:"0 0 10px",padding:"6px 8px",borderRadius:4,background:"rgba(255,79,90,.08)",border:"1px solid rgba(255,79,90,.35)",fontSize:10,color:"#ff8a80",lineHeight:1.4,cursor:"help"}}>
-                <b>⚠ Aucun compte récent</b> — dernier dépôt le {r._meta.comptes_absents.dernier_depot.split("-").reverse().join("/")} : {r._meta.comptes_absents.motif}. La note est affichée pour mémoire, sans conclusion.
+                <b>⚠ Aucun compte récent</b> — dernier dépôt le {r._meta.comptes_absents.dernier_depot.split("-").reverse().join("/")} : {r._meta.comptes_absents.motif}. Le Score BVC est affiché pour mémoire, sans conclusion.
               </div>)}
             {/* Changement de méthode comptable établi sur pièce (registre
                 RUPTURES_METHODE, 27/10/2026) : avertissement seul, la note
@@ -5104,8 +4920,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
 
         {/* CENTRE — graphique (remonté en tête au-delà de 768 px) puis la fiche */}
         <div className="fiche-centre" style={{display:"flex",flexDirection:"column",gap:10}}>
-          {/* Risque mesuré (1 an) — descriptif, hors note (14/10/2026). */}
-          <ScoreBVC s={r.score_bvc} conf={r.confidence}/>
+          {/* Risque mesuré (1 an) — descriptif, hors score (14/10/2026). */}
           <RisqueMesure q={r.risque}/>
 
           {/* ⚠️ RENTABILITÉ SUR COMPTES PUBLIÉS — 30/09/2026. Calculée par
@@ -5122,7 +4937,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:7}}>
               {[["ROE 2025","roe_2025"],["ROE 12 mois","roe_12m"],["Marge nette S1 2026","marge_nette_s1_2026"]].map(([k,cle])=>{
                 const x=r.ratios_publies[cle];
-                /* ROE que la note écarte : « sans objet », la raison au survol
+                /* ROE sans objet pour ce métier : « sans objet », la raison au survol
                    et au toucher, jamais le chiffre brut (AFM 103,2 %). */
                 const so=cle.startsWith("roe_")?roeSansObjet(r):null;
                 const titre=so?`ROE sans objet : ${so}`:x?`${x.formule}${x.denominateur?` — dénominateur : ${x.denominateur}`:""}\nComptes au ${x.date.split("-").reverse().join("/")}\n${Object.values(x.sources||{}).filter(Boolean).join("\n")}`:"Terme manquant dans les comptes relevés : non calculé";
@@ -5130,7 +4945,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                 <div key={k} title={titre} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}<InfoCellule texte={titre}/></div>
                   {so?<><div style={{fontSize:13,color:"#8892a4",fontWeight:700}}>sans objet</div>
-                    <div style={{fontSize:8,color:"#5a6478"}}>écarté de la note</div></>:<>
+                    <div style={{fontSize:8,color:"#5a6478"}}>pour ce métier</div></>:<>
                   <div style={{fontSize:13,color:x?(x.valeur>=0?"#c8d3e8":"#ff4f5a"):"#5a6478",fontWeight:700}}>{x?`${fmt(x.valeur,1)}%`:"—"}</div>
                   {x&&<div style={{fontSize:8,color:"#5a6478"}}>au {x.date.split("-").reverse().join("/")}</div>}</>}
                 </div>);})}
@@ -5181,7 +4996,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
                 <div key={k} title={statut} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}{so&&<InfoCellule texte={so}/>}</div>
                   <div style={{fontSize:13,color:c,fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{v}</div>
-                  <div style={{fontSize:8,color:so?"#5a6478":"#ff8f00",lineHeight:1.35,marginTop:1,textWrap:"pretty"}}>{so?"écarté de la note":statut}</div>
+                  <div style={{fontSize:8,color:so?"#5a6478":"#ff8f00",lineHeight:1.35,marginTop:1,textWrap:"pretty"}}>{so?"sans objet pour ce métier":statut}</div>
                 </div>);})}
             </div>
             <div style={{fontSize:9,color:"#8892a4",marginTop:9,lineHeight:1.5}}>
@@ -5273,7 +5088,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
           {/* ── ANALYSE AVANCÉE (15/10/2026) : essais et indicateurs gelés, qui
               n'entrent pas dans la note, regroupés et repliés. */}
           <details className="avance carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"8px 12px"}}>
-            <summary style={{cursor:"pointer",fontSize:12,color:"#4db8ff",minHeight:28,display:"flex",alignItems:"center"}}>Analyse avancée — signaux techniques en essai (hors note)</summary>
+            <summary style={{cursor:"pointer",fontSize:12,color:"#4db8ff",minHeight:28,display:"flex",alignItems:"center"}}>Analyse avancée — signaux techniques en essai (hors score)</summary>
             <div style={{display:"flex",flexDirection:"column",gap:10,marginTop:8}}>
           {/* Signaux techniques en essai (calibrage du 03/10/2026) */}
           <SignauxTechniques r={r}/>
@@ -5324,40 +5139,20 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
             </div></>}
           </div>
 
-          {/* Setup + formule */}
+          {/* ALERTES — 06/11/2026. Cette carte portait le « setup » et la formule
+              de la note v5.3 (fond × poids + tech × poids + bonus), ainsi que la
+              note par métier mise en comparaison avec elle. Le terminal
+              n'affichant plus la v5.3, il n'en reste que ce qui est une DONNÉE :
+              les alertes calculées sur les comptes, et les mesures bancaires
+              avec leur période et leur pièce. */}
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,fontFamily:"var(--font)",fontSize:12,lineHeight:1.9}}>
-            <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
-              {[[`Setup: ${r.setup||"—"}`,"#ffd740"],[pdsAff?`Fond:${pdsAff.f}% Tech:${pdsAff.t}%`:"Poids: —",simu?"#ffd740":"#8892a4"]].map(([lbl,c])=>(
-                <span key={lbl} style={{fontSize:11,padding:"3px 8px",borderRadius:4,background:"#0a1220",color:c,border:"1px solid #1a2540"}}>{lbl}</span>
-              ))}
+            <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
+              <span style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginRight:4}}>Alertes sur les comptes</span>
               {/* ⚠️ La pastille « Flags » affichait un nombre que rien
                   n'expliquait. Elle s'ouvre désormais. */}
               <RedFlags alertes={r.alertes}/>
             </div>
-            {pdsAff&&<WBar f={pdsAff.f} t={pdsAff.t}/>}
-            <Repli titre="Analyse avancée — note par métier (en comparaison, non publiée)"><NoteFond nf={r.note_fond_metier}/></Repli>
-            <div style={{marginTop:10}}>
-              {/* ⚠️ En simulation la note est une moyenne pondérée PURE :
-                  computeDisplayScore n'applique ni bonus ni malus. Écrire
-                  « + bonus/malus » y serait faux, et la formule affichée ne
-                  redonnerait pas le chiffre affiché à côté d'elle. */}
-              {/* ⚠️ LA NOTE DE CHAQUE PILIER, ET PAS SEULEMENT SON POIDS.
-                  Jusqu'au 24/09 cette ligne affichait « fond×47% + nlp×28% +
-                  tech×25% = 5,83 » : on lisait la somme sans savoir ce que
-                  chaque brique y apportait. Impossible de dire si un 5,83 vient
-                  d'un bon dossier mal noté techniquement ou l'inverse.
-                  Les trois notes étaient DÉJÀ publiées dans data.json — elles
-                  n'étaient simplement pas montrées. */}
-              {/* ⚠️ 28/10/2026 — le pilier NLP est retiré de l'écran (corpus
-                  WhatsApp supprimé, décision d'Abd Moutalib) : la somme n'a
-                  que deux termes, fond et tech. */}
-              {pdsAff&&<><span style={{color:"#b388ff"}}>fond {fmt(r.score_fond,1)}×{pdsAff.f}%</span><span style={{color:"#8892a4"}}> + </span><span style={{color:"#4db8ff"}}>tech {fmt(r.score_tech,1)}×{pdsAff.t}%</span>
-                <span style={{color:"#8892a4"}}>{simu?" =":" + bonus/malus ="}</span></>}
-              <span style={{color:scoreAffiche==null?"#8892a4":couleurChiffre(r,simu),fontWeight:700}}> {fmt(scoreAffiche)}</span>
-            </div>
-            {(r.bonus||[]).length>0&&<div style={{marginTop:6,fontSize:11}}>
-              {(r.bonus||[]).map((b,i)=><div key={i} style={{color:b.startsWith("-")?"#ff8f00":"#00e5a0"}}>{b.startsWith("-")?"▼":"▲"} {b.slice(1)}</div>)}
-            </div>}
+            <MesuresBancaires r={r}/>
           </div>
           <TickerNews sym={sym}/>
         </div>
@@ -5367,50 +5162,66 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{},scoreMode})=>{
   );
 };
 
-// ── WEIGHTS ───────────────────────────────────────────────────────────────────
-/* ⚠️ 07/10/2026 — CET ONGLET AFFICHAIT ENCORE 47 / 28 / 25, la formule
-   d'avant le 25/09, et un tableau de contextes dont trois (Hype spike, Smart
-   Money, Titre peu suivi) sont retirés depuis le 29/09. Les chiffres
-   ci-dessous sont CEUX QUE REND `update_data.get_weights()` pour chaque
-   contexte : `tests/test_guide_et_poids.py` appelle la fonction et les
-   compare. Si le moteur change, le test casse avant l'écran. */
-const POIDS_CTX=[
-  // [situation, fond, tech, statut, couleur, justification]
-  ["Base — à toute heure","72,22 %","27,78 %","actif","#00e5a0","Depuis le 03/11/2026 : la même en séance et après la clôture (celle du bulletin du soir). Avant, la note d'un titre changeait selon l'heure du run."],
-  ["MASI < −5 % depuis janvier","77,92 %","22,08 %","actif","#ff8f00","Mode défensif : le fondamental gagne 8 points avant repli."],
-  ["MASI > +10 % depuis janvier","68,06 %","31,94 %","actif","#ffd740","Le technique gagne 3 points avant repli."],
-  ["Titre peu liquide ou au fixing","100 %","0 %","actif","#b388ff","Depuis le 03/10 : le technique y annonçait l'inverse de la suite. Tout va au fondamental, et une note ≥ 6,5 y garde la couleur vert-jaune (« titre peu échangé »)."],
-  ["Publication de résultats","82,67 %","17,33 %","inactif","#5a6478","Prévu dans le moteur, jamais branché : aucun calendrier de publications."],
+// ── WEIGHTS — LE SCORE BVC, FACTEUR PAR FACTEUR (06/11/2026) ─────────────────
+/* ⚠️ Cet onglet présentait la pondération de la note v5.3 (Fond 72,22 % ·
+   Tech 27,78 % et ses modulations, rendues par update_data.get_weights()).
+   La note v5.3 a quitté l'écran le 06/11/2026 : il présente désormais les
+   six facteurs du Score BVC. Les poids sont ceux de `POIDS_BVC`
+   (pipeline/score_bvc.py) et les seuils ceux de pipeline/score_descriptif.py :
+   `tests/test_guide_et_poids.py` relit le module et les compare. Si le moteur
+   change, le test casse avant l'écran.
+   Les fréquences viennent de datasets/backtests/score_bvc_2026-11-03.json
+   (variante sans rentabilité, la seule sans biais d'anticipation) : vérifiées
+   dans l'artefact le 06/11/2026 (R12). */
+const FACTEURS_BVC=[
+  // [clé, nom, poids, règle]
+  ["moyennes_mobiles","Moyennes mobiles",35,"Cours au-dessus de sa MM20 → 15 · de sa MM50 → 10 · de sa MM200 → 10, sinon 0. Une moyenne indisponible (MM200 : 200 séances) ne compte pas."],
+  ["momentum","Momentum (RSI 14)",15,"RSI entre 45 et 70 → 15 · entre 30 et 45 → 7,5 · sous 30 ou au-dessus de 70 → 0."],
+  ["macd","MACD (12, 26, 9)",10,"MACD au-dessus de son signal et histogramme en hausse → 10 · au-dessus seulement → 5 · sinon 0."],
+  ["activité","Activité (volume)",10,"Volume du jour ÷ médiane des 20 séances précédentes : de 0,8 à 3 → 10 · sous 0,8 → 5 · au-delà de 3 → 2."],
+  ["liquidité","Liquidité",15,"Montant médian échangé sur 20 séances : ≥ 5 MDH → 15 · ≥ 1 MDH → 7,5 · sinon 0."],
+  ["rentabilité","Rentabilité (ROE)",15,"ROE de l'exercice 2025 sur comptes déposés à l'AMMC : ≥ 12 % → 15 · ≥ 5 % → 7,5 · sinon 0."],
 ];
+// Part des observations ayant battu le MASI à 20 séances, frais de 2 % compris.
+const MESURE_BVC={n:43031,dates:818,du:"05/06/2023",au:"03/11/2026",base:32.1,tranches:[
+  ["< 40",14574,31.9],["40–59",9840,30.6],["60–74",10933,32.6],["≥ 75",7684,33.7]]};
+const pctFr=x=>x.toLocaleString("fr-FR",{minimumFractionDigits:1,maximumFractionDigits:1});
 const Weights=()=>{
   return(
     <div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:12,marginBottom:14}}>
-        {[["Fondamental","72,22 %","#b388ff","Qualité (rentabilité), croissance, valorisation, bilan. ⚠️ Seuls les ratios calculés sur comptes AMMC sont vérifiés ; le reste de fondamentaux.json est saisi à la main."],["Technique","27,78 %","#4db8ff","Tendance du cours (moyennes 20 et 50 séances), RSI, position dans le range 90 séances. Neutralisé (0 %) sur les titres peu liquides ou au fixing."]].map(([lbl,pct,c,desc])=>(
-          <div key={lbl} style={{background:"#0d1829",borderRadius:8,padding:16,border:`1px solid ${c}20`}}>
-            <div style={{fontSize:40,fontWeight:700,color:c,marginBottom:4}}>{pct}</div>
-            <div style={{fontSize:15,color:"#fff",marginBottom:6,fontWeight:600}}>{lbl}</div>
-            <div style={{fontSize:12,color:"#8892a4",lineHeight:1.7}}>{desc}</div>
+      <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,marginBottom:12}}>
+        <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:4}}>SCORE BVC — SIX FACTEURS, 100 POINTS</div>
+        <div style={{fontSize:12,color:"#8892a4",lineHeight:1.6}}>Score <b style={{color:"#ffd740"}}>descriptif, pas une prévision</b> : il décrit la situation du titre à la dernière séance. Valeur = points obtenus ÷ poids des facteurs disponibles × 100 ; un facteur sans donnée ne compte pas. Publié seulement si les facteurs disponibles couvrent au moins 70 % du poids (sinon <b>PARTIEL</b>, sans valeur) ; <b>NON CALCULABLE</b> sur un titre suspendu ou un cours périmé.</div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:12,marginBottom:12}}>
+        {FACTEURS_BVC.map(([k,nom,w,regle])=>(
+          <div key={k} className="facteur-bvc" style={{background:"#0d1829",borderRadius:8,padding:14,border:"1px solid #1a2540"}}>
+            <div style={{fontSize:32,fontWeight:700,color:"#4db8ff",marginBottom:2}}>{w}<span style={{fontSize:14,color:"#8892a4"}}> pts</span></div>
+            <div style={{fontSize:14,color:"#fff",marginBottom:6,fontWeight:600}}>{nom}</div>
+            <div style={{fontSize:12,color:"#8892a4",lineHeight:1.6}}>{regle}</div>
           </div>
         ))}
       </div>
       <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-        <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:4}}>MODULATION DE LA PONDÉRATION</div>
-        <div style={{fontSize:11,color:"#8892a4",marginBottom:10,lineHeight:1.6}}>La base ne dépend pas de l'heure : sur les mêmes données, une note calculée en séance ou après la clôture est la même. Elle est modulée par le contexte de marché, puis titre par titre (liquidité). Le poids réellement appliqué figure sur chaque fiche et dans la colonne POIDS du classement.</div>
+        <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:4}}>CE QUE LE SCORE A MESURÉ</div>
+        <div style={{fontSize:11,color:"#8892a4",marginBottom:10,lineHeight:1.6}}>Part des cas qui ont fait mieux que le MASI 20 séances plus tard (dividendes réinvestis, frais de 2 % aller-retour déduits) — {MESURE_BVC.n.toLocaleString("fr-FR")} observations sur {MESURE_BVC.dates} séances d'entrée, calendrier du {MESURE_BVC.du} au {MESURE_BVC.au}.</div>
         <div style={{overflowX:"auto"}}>
           <table style={{width:"100%",borderCollapse:"collapse"}}>
-            <thead><tr style={{borderBottom:"1px solid #1a2540"}}>{["Situation","Fond","Tech","Statut","Justification"].map(h=><th key={h} style={{padding:"7px 10px",fontSize:10,color:"#8892a4",textAlign:"left",fontWeight:500}}>{h}</th>)}</tr></thead>
-            <tbody>{POIDS_CTX.map(([sit,f,t,st,c,just],i)=>{const mort=st!=="actif";return(
-              <tr key={i} style={{borderBottom:"1px solid #0d1829",opacity:mort?.6:1}}>
-                <td style={{padding:"8px 10px",fontSize:13,color:"#c8d3e8",textDecoration:st.startsWith("retiré")?"line-through":"none"}}><span style={{display:"inline-block",width:7,height:7,borderRadius:"50%",background:c,marginRight:7}}/>{sit}</td>
-                <td style={{padding:"8px 10px",fontSize:14,color:"#b388ff",fontWeight:700,whiteSpace:"nowrap"}}>{f}</td>
-                <td style={{padding:"8px 10px",fontSize:14,color:"#4db8ff",fontWeight:700,whiteSpace:"nowrap"}}>{t}</td>
-                <td style={{padding:"8px 10px",fontSize:11,color:mort?"#ff8f00":"#00e5a0",whiteSpace:"nowrap"}}>{st}</td>
-                <td style={{padding:"8px 10px",fontSize:12,color:"#8892a4"}}>{just}</td>
-              </tr>);})}</tbody>
+            <thead><tr style={{borderBottom:"1px solid #1a2540"}}>{["Score BVC","Observations","Ont battu le MASI"].map(h=><th key={h} style={{padding:"7px 10px",fontSize:10,color:"#8892a4",textAlign:"left",fontWeight:500}}>{h}</th>)}</tr></thead>
+            <tbody>{MESURE_BVC.tranches.map(([t,n,p])=>{const c=(TRANCHES_BVC.find(x=>x.plage===t)||TRANCHE_NC).c;return(
+              <tr key={t} style={{borderBottom:"1px solid #0d1829"}}>
+                <td style={{padding:"8px 10px",fontSize:13,color:"#c8d3e8"}}><span style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:c,marginRight:7}}/>{t}</td>
+                <td style={{padding:"8px 10px",fontSize:13,color:"#c8d3e8",fontVariantNumeric:"tabular-nums"}}>{n.toLocaleString("fr-FR")}</td>
+                <td style={{padding:"8px 10px",fontSize:14,color:"#e8eef8",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{pctFr(p)} %</td>
+              </tr>);})}
+              <tr><td style={{padding:"8px 10px",fontSize:12,color:"#8892a4"}}>Toutes tranches</td>
+                <td style={{padding:"8px 10px",fontSize:12,color:"#8892a4",fontVariantNumeric:"tabular-nums"}}>{MESURE_BVC.n.toLocaleString("fr-FR")}</td>
+                <td style={{padding:"8px 10px",fontSize:13,color:"#8892a4",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{pctFr(MESURE_BVC.base)} %</td></tr>
+            </tbody>
           </table>
         </div>
-        <div style={{fontSize:10,color:"#8892a4",marginTop:8}}>Pourcentages tels que rendus par le moteur.</div>
+        <div style={{fontSize:11.5,color:"#c8d3e8",marginTop:10,lineHeight:1.6}}>De 30,6 % à 33,7 % selon la tranche, pour 32,1 % en moyenne : aucun écart robuste (seule la tranche 40–59, à −1,3 point, frôle le seuil de 5 % selon une méthode et le manque selon l'autre). <b>Le Score BVC décrit la situation ; il ne distingue pas les gagnants.</b></div>
+        <div style={{fontSize:10.5,color:"#8892a4",marginTop:6,lineHeight:1.5}}>Mesure faite sans le facteur rentabilité : le ROE de 2025 n'était pas connu en 2023-2024, l'utiliser aurait faussé la mesure. Un seul cycle de marché (environ trois ans) ; univers des titres cotés aujourd'hui. Source : datasets/backtests/score_bvc_2026-11-03.json.</div>
       </div>
     </div>
   );
@@ -5418,10 +5229,11 @@ const Weights=()=>{
 
 // ── COMMENT LIRE L'ÉCRAN ──────────────────────────────────────────────────────
 /* 07/10/2026 — pour un testeur non expert, tenue sur un écran de téléphone.
-   Chaque phrase a été vérifiée contre le code (R12) : seuils de signal dans
-   `compute_v53`, critères de confiance dans `_meta_ticker`, plafond de
-   liquidité dans la construction du ticker, fréquences dans
-   `SignauxTechniques`. Aucun chiffre de marché en dur : ils vieilliraient. */
+   Chaque phrase a été vérifiée contre le code (R12) : facteurs et seuils du
+   Score BVC dans pipeline/score_bvc.py et score_descriptif.py (depuis le
+   06/11/2026, à la place des seuils de `compute_v53`), critères de confiance
+   dans `_meta_ticker`, fréquences dans `SignauxTechniques`. Les fréquences du
+   Score BVC sont celles de l'artefact daté score_bvc_2026-11-03.json. */
 const Guide=({setTab})=>{
   // Sur téléphone l'en-tête n'est pas collant et occupe ~600 px : sans ce
   // défilement, le guide s'ouvrirait sous la ligne de flottaison.
@@ -5437,11 +5249,11 @@ const Guide=({setTab})=>{
     <div ref={ref} className="carte guide" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"10px 12px",maxWidth:720,margin:"0 auto",scrollMarginTop:8}}>
       <div style={{fontSize:15,fontWeight:700,color:"#e8eef8",marginBottom:5}}>Comment lire l'écran</div>
       <div style={{fontSize:12,color:"#ffd740",lineHeight:1.45,background:"rgba(255,215,64,.07)",border:"1px solid rgba(255,215,64,.3)",borderRadius:6,padding:"6px 9px",marginBottom:3}}>
-        <b>L'outil ne prédit pas. Ce n'est pas un conseil en investissement. Données J+1, pas de temps réel.</b> Après 15h30, les cours sont ceux de la dernière clôture. Pendant la séance, des relevés intermédiaires (vers 10h et 12h) donnent la dernière valeur relevée, pas un cours définitif : une lecture « à ce stade » peut encore changer jusqu'à la clôture. Il montre des notes et des fréquences passées.
+        <b>L'outil ne prédit pas. Ce n'est pas un conseil en investissement. Données J+1, pas de temps réel.</b> Après 15h30, les cours sont ceux de la dernière clôture. Pendant la séance, des relevés intermédiaires (vers 10h et 12h) donnent la dernière valeur relevée, pas un cours définitif : une lecture « à ce stade » peut encore changer jusqu'à la clôture. Il montre un score descriptif et des fréquences passées.
       </div>
-      <L titre="Note /10">Moyenne de deux piliers sur 10 : <T>fondamental</T> (rentabilité, croissance, valorisation, bilan — ≈ 72 %) et <T>technique</T> (tendance, RSI — ≈ 28 %, 0 sur un titre peu liquide), les mêmes à toute heure. <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des poids</a></L>
-      <L titre="Couleur de la note">La note est colorée selon son palier, sans mot d'action : <T c="#00e5a0">● vert</T> dès 6,5 · <T c="#b5e655">● vert-jaune</T> dès 5,5 · <T c="#ffd740">● jaune</T> dès 4,5 · <T c="#ff8f00">● orange</T> dès 3,5 · <T c="#ff4f5a">● rouge</T> dessous. La couleur situe la note ; elle ne dit pas quoi faire. Titre trop peu échangé : une note dès 6,5 reste en vert-jaune, avec la mention « titre peu échangé ». <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, note grise. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
-      <L titre="Note non comparable">Un titre très peu échangé — pilier technique neutralisé, et moins de 100 000 DH échangés par séance en médiane sur ses 20 dernières séances échangées — garde sa note, affichée en gris avec la mention « non comparable » et la médiane réelle. Avec si peu d'échanges, le cours peut sauter d'un côté à l'autre du carnet : la note ne se compare pas à celle d'un titre liquide. Aucune couleur de palier ; le titre est classé après tous les titres comparables et sort des « mieux notés » de l'accueil.</L>
+      <L titre="Score BVC /100">Six facteurs notés : <T>moyennes mobiles</T> 35 (cours au-dessus de ses MM20, MM50, MM200) · <T>momentum</T> 15 (RSI 14) · <T>MACD</T> 10 · <T>activité</T> 10 (volume du jour) · <T>liquidité</T> 15 (montant échangé) · <T>rentabilité</T> 15 (ROE sur comptes déposés). <T c="#ffd740">Score descriptif, pas une prévision</T> : il décrit la situation du titre à la dernière séance. Classement : partie entière ; fiche : valeur exacte et composition, facteur par facteur. <T>—</T> : non calculé — cours périmé ou titre suspendu (non calculable), ou facteurs disponibles sous 70 % du poids (partiel). <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des facteurs</a></L>
+      <L titre="Couleur du score">Le Score BVC est coloré selon sa tranche, sans mot d'action : <T c="#00e5a0">● 75 et plus</T> · <T c="#b5e655">● 60 à 74</T> · <T c="#ffd740">● 40 à 59</T> · <T c="#ff8f00">● sous 40</T> · <T c="#8892a4">◌ non calculé</T>. La couleur situe le score ; elle ne dit pas quoi faire. <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, score gris. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
+      <L titre="Ce que le score a mesuré">Sur 43 031 observations (calendrier du 05/06/2023 au 03/11/2026), part des cas qui ont fait mieux que le MASI 20 séances plus tard, frais de 2 % compris : 31,9 % sous 40 · 30,6 % de 40 à 59 · 32,6 % de 60 à 74 · 33,7 % à 75 et plus — pour 32,1 % en moyenne. Aucun écart robuste — la tranche 40–59 frôle le seuil de 5 % selon une méthode (p = 0,049) et le manque selon l'autre (p = 0,053) : <T>le score décrit la situation, il ne distingue pas les gagnants.</T> Mesure faite sans le facteur rentabilité (ROE 2025 inconnu en 2023-2024).</L>
       <L titre="Classement par PER">PER = cours ÷ bénéfice par action, réalisé (12 mois glissants ou exercice 2025, selon la colonne « base »). <T>Un PER ne se compare qu'à celui de son secteur</T> : la médiane du secteur est donnée à côté, à partir de 4 PER classés. Une perte, un PER absent ou au-delà de 100 (BPA quasi nul), des comptes absents ou une cotation suspendue : le titre n'est pas classé, il est listé à part avec son motif. Un PER bas ne dit rien de l'évolution du titre. <a onClick={()=>setTab&&setTab("per")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Ouvrir le classement</a></L>
       <L titre="Fiabilité des données ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>
       <L titre="« X % gagnants (IC) · n cas » — fiche, Signaux techniques">Sur n cas passés à la BVC où le même signal est apparu, X % ont battu le MASI 60 séances après ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fréquence passée, pas une promesse.</L>
@@ -5603,108 +5415,46 @@ const NewsFeed=()=>{
   );
 };
 
-// ── SCORE PERSONNALISÉ ────────────────────────────────────────────────────────
-// Recalcule un score d'affichage selon les composantes actives (F/T)
-// Ne modifie PAS le score v5.3 stocké — lecture seule des sous-scores
-/* Les composantes du score v5.3, transportées telles quelles depuis data.json.
-   Déclarées ici, à côté de la fonction qui les consomme, plutôt que noyées
-   dans le mapping de loadData où l'absence de score_tech est passée inaperçue
-   pendant tout le temps qu'a duré le mode personnalisé. */
+// ── CHAMPS DE LA NOTE v5.3 TRANSPORTÉS, NON AFFICHÉS — 06/11/2026 ─────────────
+// Le terminal n'affiche plus la note v5.3 ni ses composantes, et le score
+// personnalisé (vues OFFICIEL, 70/30… qui recalculaient la note v5.3 avec
+// d'autres poids) est retiré avec elle : aucun composant ne lit plus `v53`,
+// `sig`, `score_fond`, `score_tech`, `poids` ni `bonus`.
+// Le moteur continue de les publier (contrat de data.json) et la fusion de
+// loadData les recopie encore tels quels : c'est le chemin que surveillent
+// `tests/test_interface_moteur.py` et `tools/audit_chaine.py`. Les retirer
+// de la fusion est un nettoyage séparé, sans effet sur l'écran.
 const CHAMPS_SCORE = ["score_tech", "score_fond"];
 
-/* Les deux composantes telles qu'elles sont DANS LE FICHIER, ou `null`.
-   Aucune n'est devinée : une composante absente reste absente. */
-function composantesScore(r) {
-  return {
-    f: r.score_fond != null ? r.score_fond : null,            // 0-10
-    t: r.score_tech != null ? r.score_tech : null,            // 0-10
-  };
-}
-
-/* Ce qui MANQUE pour cette pondération. Une composante de poids nul n'est pas
-   requise. */
-function composantesManquantes(r, p) {
-  if (!p || p.officiel) return [];
-  const c = composantesScore(r), m = [];
-  if ((p.f||0) > 0 && c.f == null) m.push("Fondamental");
-  if ((p.t||0) > 0 && c.t == null) m.push("Technique");
-  return m;
-}
-
-function computeDisplayScore(r, p) {
-  // Le mode officiel rend le v5.3 du moteur TEL QUEL — bonus et malus compris.
-  // Le recalculer ici donnerait un chiffre légèrement différent de celui du
-  // bulletin, et personne ne saurait lequel croire.
-  if (!p || p.officiel) return r.v53;
-
-  /* ⚠️ AUCUN REPLI. Cette fonction rendait `r.bvc` quand `score_fond`
-     manquait, et `RSI / 10` quand `score_tech` manquait.
-
-     `r.bvc` est la note BVC DE RÉFÉRENCE, pas la note fondamentale : le mode
-     personnalisé ne changeait donc pas seulement les POIDS mais les
-     INGRÉDIENTS. Mesuré par l'audit du 09/09 : ADH 4,28 au lieu de 6,15.
-
-     Le défaut a été corrigé côté moteur — mais il RESSORT pendant la fenêtre
-     qui suit une fusion, tant que `data.json` n'a pas été régénéré : les
-     composantes sont absentes de l'ancien fichier, et les replis reprenaient
-     la main en silence. Mesuré le 11/09 : ADH réaffichait 5,01.
-
-     Une note approchée ressemble à une note. Elle ne doit donc pas exister :
-     si une composante requise manque, le score est INDISPONIBLE, et le tri
-     comme l'export le traitent en tant que tel. */
-  const total = (p.f||0) + (p.t||0);
-  if (total === 0) return null;
-  if (composantesManquantes(r, p).length) return null;
-
-  const c = composantesScore(r);
-  return +Math.min(10, Math.max(0,
-    ((c.f ?? 0)*(p.f||0) + (c.t ?? 0)*(p.t||0)) / total
-  )).toFixed(2);
-}
-
-function scoreModeLabel(p) {
-  if (!p || p.officiel) return "OFFICIEL";
-  return `F${p.f}/T${p.t}`;
-}
-
-// Les poids À AFFICHER — ceux qui ont réellement produit le chiffre montré.
-//
-// ⚠️ Signalé par Abd Moutalib le 09/09/2026 : « le curseur ne bouge pas quand
-// je change les pourcentages ». Les quatre endroits qui dessinent la
-// répartition lisaient `r.poids`, c'est-à-dire les poids que le MOTEUR a
-// retenus pour ce titre (le WeightEngine les module par titre). Choisir 60/40
-// changeait la note sans changer la barre : l'écran montrait donc une note
-// calculée avec une répartition, à côté d'une répartition qui n'était pas
-// celle-là.
-//
-// C'est exactement le défaut de la fiche détaillée du 08/09, à un autre
-// endroit. Même leçon, deux fois de suite : un réglage qui traverse
-// l'interface doit être vérifié PARTOUT où il s'applique.
-function poidsAffiches(r, p) {
-  if (!p || p.officiel) return r.poids || null;
-  return {f: p.f || 0, t: p.t || 0};
-}
-
 /* ── FAVORIS : CE QUI A CHANGÉ DEPUIS LA DERNIÈRE VISITE (14/10/2026) ───────
-   Diagnostic externe de l'interface, point 7. Un instantané par appareil
-   (localStorage « bvc_fav_vu » : note, palier, confiance, date) est comparé
-   à la visite suivante ; s'y ajoutent les documents AMMC publiés depuis,
-   rattachés au titre par le collecteur d'actualités. Rien n'est calculé ici :
-   on compare des valeurs publiées. */
+   Diagnostic externe de l'interface, point 7. Un instantané par appareil est
+   comparé à la visite suivante ; s'y ajoutent les documents AMMC publiés
+   depuis, rattachés au titre par le collecteur d'actualités. Rien n'est
+   calculé ici : on compare des valeurs publiées.
+   ⚠️ 06/11/2026 — LE SCORE SUIVI EST LE SCORE BVC (valeur, tranche, état),
+   plus la note v5.3. Nouvelle clé « bvc_fav_vu_score_bvc » : l'ancienne,
+   « bvc_fav_vu », contient des notes sur 10 et des libellés v5.3 qu'il ne
+   faut pas comparer à un score sur 100 — elle n'est ni lue ni réécrite.
+   Un changement est signalé à partir de 5 points d'écart, ou dès que la
+   tranche change (40–59 → 60–74), ou quand la valeur apparaît ou disparaît.
+   Lectures et écritures passent par lsLire / lsEcrire (try/catch : stockage
+   refusé en navigation privée, tests/test_stockage_refuse.py). */
+const CLE_FAV_VU="bvc_fav_vu_score_bvc";
+const ECART_FAV_BVC=5;
 const ChangementsFavoris=({rows,fav,ouvrir})=>{
-  const [avant]=useState(()=>{try{return JSON.parse(localStorage.getItem("bvc_fav_vu")||"null");}catch(e){return null;}});
+  const [avant]=useState(()=>{try{const x=JSON.parse(lsLire(CLE_FAV_VU,"null"));return x&&x.titres?x:null;}catch(e){return null;}});
   const [pubs,setPubs]=useState([]);
   const suivis=rows.filter(r=>fav.includes(r.symbol||r.ticker));
   // ⚠️ Seulement sur les données CHARGÉES (avec `_meta`) : au premier rendu,
-  // les lignes provisoires portent une note figée et une confiance 0, et
-  // l'instantané les aurait prises pour une visite.
+  // les lignes provisoires n'ont ni score ni confiance, et l'instantané les
+  // aurait prises pour une visite.
   const charges=suivis.length>0&&suivis.every(r=>r._meta);
-  const cle=suivis.map(r=>`${r.symbol}:${r.v53}:${r.sig}`).join("|");
+  const cle=suivis.map(r=>`${r.symbol}:${valeurBVC(r)}:${(r.score_bvc||{}).etat}:${meta(r).conf}`).join("|");
   useEffect(()=>{
     if(!charges)return;
     const snap={t:new Date().toISOString(),titres:{}};
-    suivis.forEach(r=>{snap.titres[r.symbol]={v53:r.v53??null,sig:r.sig||null,conf:meta(r).conf};});
-    try{localStorage.setItem("bvc_fav_vu",JSON.stringify(snap));}catch(e){}
+    suivis.forEach(r=>{snap.titres[r.symbol]={bvc:valeurBVC(r),tranche:trancheBVC(r).id,etat:(r.score_bvc||{}).etat||null,conf:meta(r).conf};});
+    try{lsEcrire(CLE_FAV_VU,JSON.stringify(snap));}catch(e){}
   },[charges,cle]);
   useEffect(()=>{if(!avant||!avant.t)return;let vivant=true;
     fetch("news.json?t="+Math.floor(Date.now()/3600000)).then(r=>r.ok?r.json():null).then(d=>{if(!vivant||!d)return;
@@ -5712,19 +5462,23 @@ const ChangementsFavoris=({rows,fav,ouvrir})=>{
         &&(a.tickers||[]).some(t=>fav.includes(t))).slice(0,8));}).catch(()=>{});
     return()=>{vivant=false;};},[]);
   if(!charges)return null;
+  const PLAGE=Object.fromEntries([...TRANCHES_BVC,TRANCHE_NC].map(t=>[t.id,t.plage]));
   const lignes=[];
   if(avant&&avant.titres)suivis.forEach(r=>{const a=avant.titres[r.symbol];if(!a)return;const sym=r.symbol;const c=[];
-    if(a.sig!==(r.sig||null))c.push(`palier ${a.sig||"—"} → ${r.sig||"—"}`);
-    if(a.v53!=null&&r.v53!=null&&Math.abs(a.v53-r.v53)>=0.05)c.push(`note ${fmt(a.v53)} → ${fmt(r.v53)}`);
-    else if((a.v53==null)!==(r.v53==null))c.push(r.v53==null?"note retirée (données insuffisantes)":`note publiée : ${fmt(r.v53)}`);
+    const v=valeurBVC(r),tr=trancheBVC(r).id;
+    if(a.bvc!=null&&v!=null){
+      if(Math.abs(a.bvc-v)>=ECART_FAV_BVC||a.tranche!==tr)c.push(`Score BVC ${exactBVC(a.bvc)} → ${exactBVC(v)}`);
+      if(a.tranche!==tr)c.push(`tranche ${PLAGE[a.tranche]||"—"} → ${PLAGE[tr]}`);}
+    else if(a.bvc!=null&&v==null)c.push(`Score BVC non calculé (${etatBVC(r)})`);
+    else if(a.bvc==null&&v!=null)c.push(`Score BVC publié : ${exactBVC(v)} (${PLAGE[tr]})`);
     if(a.conf!==meta(r).conf)c.push(`confiance ${a.conf}/5 → ${meta(r).conf}/5`);
     if(c.length)lignes.push({sym,c});});
   const depuis=avant&&avant.t?maroc(avant.t).toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):null;
   return <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,marginBottom:12}}>
     <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:6}}>
       {depuis?`Depuis votre dernière visite (${depuis})`:"Ce qui a changé"}</div>
-    {!depuis&&<div style={{fontSize:12,color:"#8892a4"}}>Première visite sur cet appareil : les changements de note, de palier, de confiance et les nouvelles publications AMMC de vos favoris apparaîtront ici la prochaine fois.</div>}
-    {depuis&&!lignes.length&&!pubs.length&&<div style={{fontSize:12,color:"#8892a4"}}>Rien de nouveau sur vos favoris : notes, paliers et confiance inchangés, aucune publication AMMC.</div>}
+    {!depuis&&<div style={{fontSize:12,color:"#8892a4"}}>Première visite sur cet appareil depuis le passage au Score BVC : les changements de Score BVC (5 points ou plus, ou changement de tranche), de confiance et les nouvelles publications AMMC de vos favoris apparaîtront ici la prochaine fois.</div>}
+    {depuis&&!lignes.length&&!pubs.length&&<div style={{fontSize:12,color:"#8892a4"}}>Rien de nouveau sur vos favoris : Score BVC à moins de 5 points, tranches et confiance inchangées, aucune publication AMMC.</div>}
     {lignes.map(l=><div key={l.sym} style={{fontSize:12.5,color:"#c8d3e8",padding:"3px 0"}}>
       <button onClick={()=>ouvrir(l.sym)} style={{border:"none",background:"none",color:"#4db8ff",fontWeight:700,padding:"0 6px 0 0",cursor:"pointer",fontSize:12.5}}>{codeDe(l.sym)}</button>{l.c.join(" · ")}</div>)}
     {pubs.map((a,i)=><a key={i} href={a.url} target="_blank" rel="noopener noreferrer" style={{display:"block",fontSize:12,color:"#c8d3e8",padding:"3px 0",textDecoration:"none"}}>
@@ -5792,7 +5546,7 @@ const EtatDonnees=({etat,loading,onRetry})=>{
     <div className="carte" role="alert" style={{background:"#0d1829",border:"1px solid rgba(255,79,90,.45)",borderRadius:8,padding:"22px 20px",maxWidth:640,margin:"24px auto",textAlign:"center"}}>
       <div style={{fontSize:15,fontWeight:700,color:"#ff4f5a",marginBottom:10,textWrap:"balance"}}>Données indisponibles, réessayez</div>
       <div style={{fontSize:12,color:"#8892a4",lineHeight:1.6,marginBottom:16,textWrap:"pretty"}}>
-        Le fichier des cours et des notes (data.json) n'a pas pu être chargé.
+        Le fichier des cours et des scores (data.json) n'a pas pu être chargé.
         Aucun chiffre n'est affiché plutôt qu'un chiffre ancien présenté comme actuel.
       </div>
       <button onClick={onRetry} disabled={loading}
@@ -5810,9 +5564,9 @@ function App(){
   const [tab,setTab]=useState(()=>{
     try{const m=/onglet=([a-z]+)/.exec(location.hash||"");if(m&&VUES_CONNUES.includes(m[1]))return m[1];}catch(e){}
     return "accueil";});
-  const [sort,setSort]=useState("v53");
-  const [scoreMode,setScoreMode]=useState(PONDERATIONS[0]);
-  useEffect(()=>{setSort("v53");},[scoreMode]);
+  // Tri par défaut : Score BVC décroissant, les titres sans valeur en bas
+  // (06/11/2026 — le Score BVC remplace la note v5.3).
+  const [sort,setSort]=useState("bvc");
   const [sel,setSel]=useState(()=>{
     try{const m=/sym=([A-Z0-9]+)/.exec(location.hash||"");if(m)return m[1];}catch(e){}
     return "CMT";});
@@ -6074,17 +5828,17 @@ function App(){
     <div style={{minHeight:"100vh"}}>
       <Intro/>
       {etatDonnees==="ok"&&<TickerTape rows={rows}/>}
-      <Header univers={rows.length} tab={tab} setTab={changeTab} peutRevenir={peutRevenir} onRetour={revenir} ts={ts} src={src} onRefresh={()=>loadData(true)} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} scoreMode={scoreMode} setScoreMode={setScoreMode} masi={masi} majMsg={majMsg}/>
+      <Header univers={rows.length} tab={tab} setTab={changeTab} peutRevenir={peutRevenir} onRetour={revenir} ts={ts} src={src} onRefresh={()=>loadData(true)} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} masi={masi} majMsg={majMsg}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
         {etatDonnees!=="ok"&&VUES_SUR_DONNEES.includes(tab)
           ?<EtatDonnees etat={etatDonnees} loading={loading} onRetry={()=>loadData()}/>
           :<>
         {tab==="accueil"  &&<Accueil rows={rows} fav={fav} ouvrir={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab}/>}
-        {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={choisirTitre} setTab={changeTab} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
+        {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={choisirTitre} setTab={changeTab} fav={fav} toggleFav={toggleFav}/>}
         {tab==="per"      &&<ClassementPER rows={rows} setSel={choisirTitre} setTab={changeTab}/>}
         {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab}/>}
-        {tab==="watchlist"&&<><ChangementsFavoris rows={rows} fav={fav} ouvrir={sym=>{choisirTitre(sym);changeTab("detail");}}/><Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true} scoreMode={scoreMode}/></>}
-        {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={choisirTitre} fav={fav} toggleFav={toggleFav} scoreMode={scoreMode}/>}
+        {tab==="watchlist"&&<><ChangementsFavoris rows={rows} fav={fav} ouvrir={sym=>{choisirTitre(sym);changeTab("detail");}}/><Ranking rows={rows.filter(r=>fav.includes(r.symbol||r.ticker))} sort={sort} setSort={setSort} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab} fav={fav} toggleFav={toggleFav} isWatchlist={true}/></>}
+        {tab==="detail"   &&<Detail rows={rows} sel={sel} setSel={choisirTitre} fav={fav} toggleFav={toggleFav}/>}
         {tab==="weights"  &&<Weights/>}
         {tab==="guide"    &&<Guide setTab={changeTab}/>}
         {tab==="briefing" &&<Briefing rows={rows} masi={masi} ouvrir={sym=>{choisirTitre(sym);changeTab("detail");}}/>}

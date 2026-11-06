@@ -10,7 +10,11 @@ SRC = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
 
 
 def test_les_replis_sont_au_toucher_et_dans_la_fiche():
-    for x in ("<PourquoiNote r={r}/>", "<DetailConfiance r={r}/>", "heureCours(r)", "<details className=\"repli\""):
+    # 06/11/2026 : « Pourquoi cette note ? » (décomposition de la note v5.3)
+    # quitte la fiche avec la note v5.3 ; la composition du Score BVC et les
+    # mesures bancaires, en données, la remplacent.
+    for x in ("<ScoreBVC s={r.score_bvc} conf={meta(r).conf} sansValeur/>", "<MesuresBancaires r={r}/>",
+              "<DetailConfiance r={r}/>", "heureCours(r)", "<details className=\"repli\""):
         assert x in SRC, x
     assert "note_fond:t.note_fond" in SRC          # le champ traverse la fusion
 
@@ -59,4 +63,7 @@ def test_essais_et_indicateurs_geles_replies_en_analyse_avancee():
     assert "<SignauxTechniques r={r}/>" in SRC[i:j]
     # 28/10/2026 : la carte NLP gelée est retirée avec le corpus.
     assert "{/* NLP */}" not in SRC and "Smart Sentiment" not in SRC
-    assert '<Repli titre="Analyse avancée — note par métier' in SRC
+    # 06/11/2026 : la note par métier, mise « en comparaison » avec la note
+    # v5.3, n'a plus de note à laquelle se comparer : elle quitte la fiche
+    # (le moteur la publie toujours, `note_fond_metier`).
+    assert '<Repli titre="Analyse avancée — note par métier' not in SRC and "<NoteFond" not in SRC

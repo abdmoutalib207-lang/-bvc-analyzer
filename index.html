@@ -8,7 +8,7 @@
   <meta http-equiv="Pragma" content="no-cache"/>
   <meta http-equiv="Expires" content="0"/>
   <title>BVC Analyzer v6.4 — Bourse de Casablanca</title>
-  <meta name="description" content="Terminal d'analyse quantitative de la Bourse de Casablanca : 80 titres, dernière clôture vérifiée contre le bulletin de l'opérateur. Score composite Fondamental 72% · Technique 28%, modulé par titre."/>
+  <meta name="description" content="Terminal d'analyse quantitative de la Bourse de Casablanca : 80 titres, dernière clôture vérifiée contre le bulletin de l'opérateur. Score BVC sur 100 (six facteurs : moyennes mobiles, momentum, MACD, activité, liquidité, rentabilité) : un score descriptif, pas une prévision."/>
   <meta name="theme-color" content="#080d1a"/>
   <!-- Emblème de la marque (13/10/2026) : taureau en costume, tiré du logo
        d'Abd Moutalib (assets/marque/logo-original.png), recoloré au dégradé
@@ -93,7 +93,7 @@
        Tout passe par ces classes : sur ordinateur, RIEN ne change. */
     @media(max-width:640px){
       .entete{position:static!important;padding:8px 12px!important}
-      .badge-version,.choix-score,.entete-droite{display:none!important}
+      .badge-version,.entete-droite{display:none!important}
       .bandeau-masi{flex-wrap:wrap!important;row-gap:4px}
       /* En-tête téléphone (07/10/2026) : 552 px sur 844, la 1re ligne du
          classement sous la ligne de flottaison. Le MENU donne déjà toutes
@@ -114,14 +114,13 @@
          ligne ; on relève ici toutes celles de 8 à 9,5 px. */
       [style*="font-size: 8px"],[style*="font-size: 8.5px"],[style*="font-size: 9px"],[style*="font-size: 9.5px"]{font-size:10px!important}
       /* Le classement garde : ticker, clôture (+ ouverture), variation
-         (+ volume), score, couleur de la note. */
+         (+ volume), Score BVC, couleur de sa tranche. 06/11/2026 : onze
+         colonnes (POIDS et la seconde colonne de score sont retirées). */
       .classement{min-width:0!important}
       .classement th:nth-child(1),.classement td:nth-child(1),
       .classement th:nth-child(3),.classement td:nth-child(3),
       .classement th:nth-child(n+6):nth-child(-n+8),.classement td:nth-child(n+6):nth-child(-n+8),
-      .classement th:nth-child(10),.classement td:nth-child(10),
-      .classement th:nth-child(12),.classement td:nth-child(12),
-      .classement th:nth-child(13),.classement td:nth-child(13){display:none}
+      .classement th:nth-child(10),.classement td:nth-child(10){display:none}
       .classement td,.classement th{padding:7px 3px!important}
       /* Classement par PER (03/11/2026) : rang, base et BPA passent sous le
          PER (lignes .per-mobile) faute de largeur. */
@@ -130,10 +129,14 @@
       .classement-per td,.classement-per th{padding:7px 4px!important}
       .per-mobile{display:block!important}
       /* Colonne COULEUR (07/10/2026) : sur téléphone, la pastille seule —
-         la note colorée est à côté. La mention « titre peu échangé » reste,
-         en petit et sur deux lignes : elle explique une couleur sous la note. */
+         le score coloré est à côté. Sans valeur, l'état (« non calculé »)
+         reste écrit, sur deux lignes. */
       .classement .pastille-texte{display:none}
-      .classement .pastille-plafond{white-space:normal;line-height:1.2}
+      .classement .pastille-nc{white-space:normal;line-height:1.2}
+      /* En-tête « SCORE BVC » : « SCORE » seul sur téléphone (06/11/2026) —
+         le libellé complet élargissait le tableau de 17 px à 390 px. Le tri
+         et les filtres, juste au-dessus, disent « SCORE BVC ». */
+      .classement .mot-bvc{display:none}
       /* 07/10/2026 : la colonne débordait de 33 px à 390 px (bord droit à
          409). Le remplissage 3px 5px s'appliquait à TOUT le contenu, rond
          compris : 92 px pour une colonne qui en a 60. Le rond passe au-dessus
@@ -1117,83 +1120,53 @@ async function fetchMASI() {
   } catch {}
   return null;
 }
-const PONDERATIONS = [{
-  nom: "OFFICIEL",
-  f: 72,
-  t: 28,
-  officiel: true,
-  aide: "Formule v5.3 au 03/11/2026 — Fond 72 · Tech 28, à toute heure."
-}, {
-  nom: "70/30",
-  f: 70,
-  t: 30,
-  aide: "Fondamental dominant — horizon long"
-}, {
-  nom: "60/40",
-  f: 60,
-  t: 40,
-  aide: "Fondamental dominant, technique renforcée"
-}, {
-  nom: "50/50",
-  f: 50,
-  t: 50,
-  aide: "Équilibre"
-}, {
-  nom: "40/60",
-  f: 40,
-  t: 60,
-  aide: "Technique dominante"
-}, {
-  nom: "30/70",
-  f: 30,
-  t: 70,
-  aide: "Technique dominante — horizon court"
-}];
-const PALIERS = [{
-  min: 6.5,
+const TRANCHES_BVC = [{
+  id: "t75",
+  min: 75,
   c: "#00e5a0",
-  nom: "vert",
-  plage: "≥ 6,5"
+  plage: "≥ 75"
 }, {
-  min: 5.5,
+  id: "t60",
+  min: 60,
   c: "#b5e655",
-  nom: "vert-jaune",
-  plage: "5,5 à 6,5"
+  plage: "60–74"
 }, {
-  min: 4.5,
+  id: "t40",
+  min: 40,
   c: "#ffd740",
-  nom: "jaune",
-  plage: "4,5 à 5,5"
+  plage: "40–59"
 }, {
-  min: 3.5,
-  c: "#ff8f00",
-  nom: "orange",
-  plage: "3,5 à 4,5"
-}, {
+  id: "t0",
   min: -Infinity,
-  c: "#ff4f5a",
-  nom: "rouge",
-  plage: "sous 3,5"
+  c: "#ff8f00",
+  plage: "< 40"
 }];
-const palierDe = v => v == null || !isFinite(v) ? null : PALIERS.findIndex(p => v >= p.min);
-const couvPartielle = r => !!r && r.sig === "Couverture partielle";
-const nonComparable = r => {
-  const m = meta(r);
-  return m.susp || m.conf <= 1 ? null : m.non_comparable || null;
+const TRANCHE_NC = {
+  id: "nc",
+  c: "#8892a4",
+  plage: "non calculé"
 };
-const dhSeance = n => n == null ? "aucune séance échangée" : `${Math.round(n).toLocaleString("fr-FR")} DH/séance`;
-const texteNonComparable = nc => `non comparable — titre peu liquide (médiane ${dhSeance(nc.montant_median_dh)})`;
-const couleurNote = r => {
-  if (couvPartielle(r) || nonComparable(r)) return null;
-  const i = palierDe(r && r.v53);
-  if (i == null) return null;
-  const plafonne = !!r.verdict_plafonne && i === 0,
-    k = plafonne ? 1 : i;
-  return {
-    ...PALIERS[k],
-    i: k,
-    plafonne
-  };
+const valeurBVC = r => {
+  const s = r && r.score_bvc;
+  const v = s ? s.valeur : null;
+  return v != null && isFinite(v) ? +v : null;
+};
+const trancheBVC = r => {
+  const v = valeurBVC(r);
+  return v == null ? TRANCHE_NC : TRANCHES_BVC.find(t => v >= t.min);
+};
+const entierBVC = v => v == null ? "—" : String(Math.floor(v));
+const exactBVC = v => v == null ? "—" : (+v).toLocaleString("fr-FR", {
+  maximumFractionDigits: 1
+});
+const ETATS_BVC = {
+  CALCULABLE: "calculable",
+  PARTIEL: "partiel",
+  NON_CALCULABLE: "non calculable"
+};
+const etatBVC = r => {
+  const s = r && r.score_bvc;
+  return s ? ETATS_BVC[s.etat] || String(s.etat || "").toLowerCase() : "non publié";
 };
 const teinte = c => ({
   bg: `${c}1a`,
@@ -1205,21 +1178,16 @@ const NEUTRE = {
   fg: "#8892a4",
   bd: "rgba(136,146,164,.25)"
 };
-const couleurChiffre = (r, simu) => simu ? "#c8d3e8" : meta(r).conf <= 1 ? "#8892a4" : (couleurNote(r) || {}).c || "#8892a4";
-const palierTexte = r => {
+const couleurChiffre = r => meta(r).conf <= 1 || valeurBVC(r) == null ? "#8892a4" : trancheBVC(r).c;
+const trancheTexte = r => {
   const m = meta(r);
   if (m.susp) return "suspendu";
   if (m.reprise_recente) return "reprise de cotation";
   if (m.conf <= 1) return "données insuffisantes";
-  const nc = nonComparable(r);
-  if (nc) return texteNonComparable(nc);
-  if (couvPartielle(r)) return "couverture partielle (note indicative)";
-  const p = couleurNote(r);
-  if (!p) return "";
-  return p.plafonne ? `${p.nom} (plafonné : titre peu échangé)` : `${p.nom} (${p.plage})`;
+  const t = trancheBVC(r);
+  return t.id === "nc" ? `non calculé (${etatBVC(r)})` : t.plage;
 };
 const VC = v => v > 0 ? "#00e5a0" : v < 0 ? "#ff4f5a" : "#8892a4";
-const SC = v => v >= 7.5 ? "#00ffb3" : v >= 6.5 ? "#00e5a0" : v >= 5.5 ? "#ffd740" : v >= 4 ? "#ff8f00" : "#ff4f5a";
 const CCO = v => v >= 85 ? "#00e5a0" : v >= 70 ? "#ffd740" : "#ff8f00";
 const px = n => n >= 1000 ? n.toLocaleString("fr-FR") : n;
 const fmtM = n => n >= 1000 ? `${(n / 1000).toFixed(1)} Md` : `${n} M`;
@@ -1580,7 +1548,7 @@ const BandeauOffre = ({
     style: {
       color: "#8892a4"
     }
-  }, i ? "avis de la Bourse" : "note d'information")).reduce((a, x) => a.length ? [...a, " · ", x] : [x], []), ". La note n'en tient pas compte."));
+  }, i ? "avis de la Bourse" : "note d'information")).reduce((a, x) => a.length ? [...a, " · ", x] : [x], []), ". Le Score BVC n'en tient pas compte."));
 };
 const Perime = ({
   r
@@ -1715,7 +1683,7 @@ const reservePrincipale = r => {
   if (m.stale) return `cours non coté depuis le ${m.asof ? jjmm(m.asof) : "?"}`;
   if (m.comptes_absents) return "aucuns comptes publiés récents";
   const susp = Object.values(c).find(x => x.note == null && /suspendu|contest/i.test(x.motif || ""));
-  if (susp) return "grandeur financière contestée, écartée de la note";
+  if (susp) return "grandeur financière contestée, non retenue";
   const rv = Object.values(c).find(x => x.note != null && x.reserve);
   if (rv) return rv.reserve.split(" ; ")[0].split(" : ")[0].replace(/\s*\(.*$/, "");
   const rq = (r.risque || {}).var95;
@@ -1735,13 +1703,9 @@ const reservePrincipale = r => {
 const ResumeNote = ({
   r
 }) => {
-  const nf = r.note_fond;
   const m = meta(r);
   const dh = m.echange_median_dh;
   const res = reservePrincipale(r);
-  const cv = nf && nf.couverture != null ? Math.round(nf.couverture * 100) : null;
-  const ccol = cv == null ? "#8892a4" : cv >= 90 ? "#00e5a0" : cv >= 75 ? "#ffd740" : "#ff8f00";
-  const ca = nf && nf.couverture_applicable != null ? Math.round(nf.couverture_applicable * 100) : null;
   const al = (r.alertes || {}).liste || [];
   const NIV = {
     "critique": "#ff4f5a",
@@ -1757,15 +1721,7 @@ const ResumeNote = ({
       lineHeight: 1.6,
       margin: "2px 0 4px"
     }
-  }, cv != null && React.createElement("div", null, "Couverture : ", React.createElement("b", {
-    style: {
-      color: ccol
-    }
-  }, cv, " %"), " du poids de la grille", ca != null && ca !== cv ? ` (${ca} % applicable)` : "", couvPartielle(r) && React.createElement("span", {
-    style: {
-      color: "#ffd740"
-    }
-  }, " \u2014 note indicative (seuil de prudence : 75 %)")), res && React.createElement("div", null, "R\xE9serve principale : ", React.createElement("span", {
+  }, res && React.createElement("div", null, "R\xE9serve principale : ", React.createElement("span", {
     style: {
       color: "#ff8f00"
     }
@@ -1781,12 +1737,6 @@ const ResumeNote = ({
       color: NIV[x.niveau] || "#ff8f00"
     }
   }, "\u26A0 ", x.raison, " : ", x.valeur), " ", React.createElement("span", null, "(", x.seuil, ") \u2014 comptes au ", dfr(x.date), ", ", x.source))));
-};
-const NOMS_COMPOSANTES = {
-  qualite: "Qualité (rentabilité)",
-  croissance: "Croissance",
-  valorisation: "Valorisation (PER)",
-  bilan: "Bilan (dette)"
 };
 const DetailConfiance = ({
   r
@@ -1812,7 +1762,7 @@ const DetailConfiance = ({
       color: "#ff8f00",
       marginTop: 6
     }
-  }, "Fiabilit\xE9 plafonn\xE9e en dessous du nombre de garanties remplies (soci\xE9t\xE9 sans comptes, identit\xE9 \xE0 v\xE9rifier, note incalculable ou titre peu liquide)."), React.createElement("div", {
+  }, "Fiabilit\xE9 plafonn\xE9e en dessous du nombre de garanties remplies (soci\xE9t\xE9 sans comptes, identit\xE9 \xE0 v\xE9rifier, donn\xE9es incompl\xE8tes ou titre peu liquide)."), React.createElement("div", {
     style: {
       color: "#8892a4",
       marginTop: 6
@@ -1842,7 +1792,7 @@ const SousMesures = ({
       style: {
         color: "#c8d3e8"
       }
-    }, s.libelle, " ", React.createElement("b", null, fmt(s.valeur, 2), " %"), " \u2192 ", fmt(s.note, 1)), s.periode && React.createElement("span", {
+    }, s.libelle, " ", React.createElement("b", null, fmt(s.valeur, 2), " %")), s.periode && React.createElement("span", {
       style: {
         display: "block",
         color: "#5a6478"
@@ -1862,61 +1812,17 @@ const SousMesures = ({
     }, "Source : ", src.join(" ; ")));
   }));
 };
-const PourquoiNote = ({
+const MesuresBancaires = ({
   r
 }) => {
-  const nf = r.note_fond;
-  const pw = poidsAffiches(r, null) || {};
-  if (!nf || !nf.composantes) return null;
-  const pf = pw.f,
-    pt = pw.t;
+  const c = (r.note_fond || {}).composantes || {};
+  const l = Object.values(c).flatMap(x => Array.isArray(x.sous_mesures) ? x.sous_mesures : []);
+  if (!l.length) return null;
   return React.createElement(Repli, {
-    titre: "Pourquoi cette note ?"
-  }, r.v53 == null ? React.createElement("div", {
-    style: {
-      color: "#ff8f00",
-      marginBottom: 6
-    }
-  }, "Pas de note : moins de 50 % du poids mesur\xE9.") : React.createElement("div", {
-    style: {
-      marginBottom: 6
-    }
-  }, "Note = fondamental ", React.createElement("b", null, fmt(r.score_fond)), pf != null && React.createElement(React.Fragment, null, " \xD7 ", pf, " %"), " + technique ", React.createElement("b", null, fmt(r.score_tech)), pt != null && React.createElement(React.Fragment, null, " \xD7 ", pt, " %"), (r.bonus || []).length > 0 && " + bonus/malus", " = ", React.createElement("b", null, fmt(r.v53)), "."), React.createElement("div", {
-    style: {
-      color: "#8892a4",
-      marginBottom: 4
-    }
-  }, "Note fondamentale, par composante :"), Object.entries(nf.composantes).map(([k, c]) => React.createElement("div", {
-    key: k,
-    style: {
-      display: "flex",
-      gap: 8,
-      padding: "2px 0"
-    }
-  }, React.createElement("span", {
-    style: {
-      width: 118,
-      color: c.note == null ? "#5a6478" : "#c8d3e8"
-    }
-  }, k === "bilan" && c.sous_mesures ? "Bilan bancaire" : NOMS_COMPOSANTES[k] || k, " \xB7 ", Math.round(c.poids * 100), " %"), React.createElement("span", {
-    style: {
-      width: 34,
-      fontWeight: 600,
-      color: c.note == null ? "#5a6478" : "#e6edf7"
-    }
-  }, c.note == null ? "—" : fmt(c.note, 1)), React.createElement("span", {
-    style: {
-      flex: 1,
-      color: c.note == null ? "#ff8f00" : "#8892a4"
-    }
-  }, c.note == null ? `non noté : ${c.motif}` : c.mesure, c.reserve && React.createElement("span", {
-    style: {
-      display: "block",
-      color: "#ffd740"
-    }
-  }, "R\xE9serve : ", c.reserve), React.createElement(SousMesures, {
-    liste: c.sous_mesures
-  })))));
+    titre: "Mesures bancaires (comptes publi\xE9s)"
+  }, React.createElement(SousMesures, {
+    liste: l
+  }));
 };
 const Confiance = ({
   r,
@@ -1927,7 +1833,7 @@ const Confiance = ({
   } = meta(r);
   const col = conf <= 1 ? "#ff4f5a" : conf <= 2 ? "#ff8f00" : conf <= 3 ? "#ffd740" : "#00e5a0";
   return React.createElement("span", {
-    title: `Fiabilité des données ${conf}/5 — prix du jour, fondamentaux réels, historique suffisant, comptes déposés à l\u2019AMMC, liquidité ≥ 100 000 DH/séance`,
+    title: `Fiabilité des données ${conf}/5 — prix du jour, fondamentaux réels, historique suffisant, comptes déposés à l’AMMC, liquidité ≥ 100 000 DH/séance`,
     style: {
       fontSize: sz,
       letterSpacing: 1,
@@ -1982,38 +1888,24 @@ const Chip = ({
     fontFamily: "var(--font)"
   }
 }, label);
-const PastilleNote = ({
+const PastilleBVC = ({
   r,
   sz = 11
 }) => {
-  const p = couleurNote(r);
-  const nc = nonComparable(r);
-  if (nc) return React.createElement("span", {
-    className: "pastille-non-comparable",
-    title: `Note ${fmt(r.v53)}, ${texteNonComparable(nc)} — seuil ${dhSeance(nc.seuil)}, sur les 20 dernières séances échangées. Note calculée, sans palier ; classée après les titres comparables.`,
+  const s = r.score_bvc;
+  const v = valeurBVC(r);
+  const t = trancheBVC(r);
+  if (v == null) return React.createElement("span", {
+    className: "pastille-nc",
+    title: s ? `Score BVC ${etatBVC(r)}${s.motif ? ` : ${s.motif}` : ""}` : "Score BVC non publié pour ce titre",
     style: {
       fontSize: sz,
       color: "#8892a4",
       whiteSpace: "nowrap"
     }
-  }, "\u25CC non comparable");
-  if (couvPartielle(r)) return React.createElement("span", {
-    title: ((r.note_fond || {}).couverture_applicable ?? 0) >= 0.75 ? `Note ${fmt(r.v53)}, indicative : foncière dont la note par métier n'est pas calculable. Aucun verdict de palier.` : `Note ${fmt(r.v53)}, indicative : couverture des données sous le seuil de prudence (75 % du poids applicable). Aucun verdict de palier.`,
-    style: {
-      fontSize: sz,
-      color: "#ffd740",
-      whiteSpace: "nowrap"
-    }
-  }, "\u25D0 couverture partielle");
-  if (!p) return React.createElement("span", {
-    style: {
-      fontSize: sz,
-      color: "#8892a4"
-    }
-  }, "\u2014");
-  const motif = r.technique_neutralise && r.technique_neutralise.motif;
+  }, "\u25CC ", s && s.etat === "PARTIEL" ? "partiel" : "non calculé");
   return React.createElement("span", {
-    title: p.plafonne ? `Note ${fmt(r.v53)} : couleur plafonnée au vert-jaune — titre peu échangé${motif ? ` (${motif})` : ""}. La note est inchangée.` : `Note ${fmt(r.v53)} : palier ${p.nom}, ${p.plage}`,
+    title: `Score BVC ${exactBVC(v)}/100 : tranche ${t.plage}, couverture des facteurs ${s.couverture_pct} %. La couleur situe le score ; elle ne dit pas quoi faire.`,
     className: "pastille",
     style: {
       display: "inline-flex",
@@ -2021,7 +1913,7 @@ const PastilleNote = ({
       gap: 6,
       whiteSpace: "nowrap",
       fontSize: sz,
-      color: p.c,
+      color: t.c,
       fontWeight: 600
     }
   }, React.createElement("span", {
@@ -2032,13 +1924,13 @@ const PastilleNote = ({
       width: sz,
       height: sz,
       borderRadius: "50%",
-      background: p.c,
-      boxShadow: `0 0 6px ${p.c}60`,
+      background: t.c,
+      boxShadow: `0 0 6px ${t.c}60`,
       flex: "0 0 auto"
     }
   }), React.createElement("span", {
-    className: p.plafonne ? "pastille-plafond" : "pastille-texte"
-  }, p.plafonne ? "titre peu échangé" : p.plage));
+    className: "pastille-texte"
+  }, t.plage));
 };
 const Delta = ({
   d
@@ -2066,127 +1958,6 @@ const Delta = ({
       fontWeight: 700
     }
   }, d > 0 ? "+" : "", d.toFixed(2));
-};
-const WBar = ({
-  f,
-  t
-}) => React.createElement("div", {
-  style: {
-    display: "flex",
-    height: 7,
-    borderRadius: 3,
-    overflow: "hidden",
-    gap: 1
-  }
-}, React.createElement("div", {
-  style: {
-    width: `${f}%`,
-    background: "#b388ff"
-  },
-  title: `Fond ${f}%`
-}), React.createElement("div", {
-  style: {
-    width: `${t}%`,
-    background: "#4db8ff"
-  },
-  title: `Tech ${t}%`
-}));
-const FAMILLES_NOTE_LIB = {
-  banque: "banque",
-  assurance: "assurance",
-  financement: "financement et crédit-bail",
-  paiement: "paiement",
-  holding: "holding",
-  fonciere: "foncière",
-  promoteur: "promoteur immobilier",
-  btp: "BTP",
-  mines: "mines",
-  telecom: "télécom",
-  utility: "services collectifs",
-  autre: "industrie, distribution, services"
-};
-const CRITERES_NOTE_LIB = {
-  rentabilite: "Rentabilité",
-  croissance: "Croissance",
-  valorisation: "Valorisation",
-  bilan: "Bilan"
-};
-const ETATS_NOTE_LIB = {
-  present: "présent",
-  absent: "absent",
-  zero_confirme: "zéro confirmé",
-  remplacement: "remplacement",
-  suspendu: "suspendu"
-};
-const NoteFond = ({
-  nf
-}) => {
-  if (!nf) return null;
-  if (nf.indisponible) return React.createElement("div", {
-    style: {
-      marginTop: 6,
-      fontSize: 10.5,
-      color: "#5a6478"
-    }
-  }, "Comparaison par m\xE9tier indisponible sur cette mise \xE0 jour \u2014 la note publi\xE9e n'en d\xE9pend pas.");
-  const crit = nf.criteres || {};
-  const pds = nf.poids_disponible ?? 0;
-  const fam = FAMILLES_NOTE_LIB[nf.famille] || nf.famille;
-  const sansNote = nf.note == null;
-  const dep = nf.dependance_cote;
-  return React.createElement("details", {
-    style: {
-      marginTop: 6,
-      fontSize: 10.5,
-      color: "#8892a4"
-    }
-  }, React.createElement("summary", {
-    style: {
-      cursor: "pointer"
-    }
-  }, "Comparaison par m\xE9tier, ", React.createElement("b", null, "non retenue dans la note"), " : ", React.createElement("span", {
-    style: {
-      color: "#c8d3e8"
-    }
-  }, sansNote ? "non calculée" : fmt(nf.note, 1)), " · ", "famille ", React.createElement("span", {
-    style: {
-      color: "#c8d3e8"
-    }
-  }, fam), " · ", "couverture de la grille ", React.createElement("span", {
-    style: {
-      color: sansNote ? "#ff8a65" : "#c8d3e8"
-    }
-  }, pds, " %"), sansNote && React.createElement("span", {
-    style: {
-      color: "#ff8a65"
-    }
-  }, " \u2014 moins de la moiti\xE9"), nf.partielle && React.createElement("span", {
-    style: {
-      color: "#ffb74d"
-    }
-  }, " \xB7 note PARTIELLE (crit\xE8re essentiel manquant : ", (nf.criteres_essentiels_manquants || []).map(k => CRITERES_NOTE_LIB[k] || k).join(", "), ")")), React.createElement("div", {
-    style: {
-      marginTop: 4,
-      lineHeight: 1.5
-    }
-  }, Object.entries(crit).map(([k, c]) => React.createElement("div", {
-    key: k,
-    style: {
-      color: ["present", "zero_confirme", "remplacement"].includes(c.etat) ? "#8892a4" : "#5a6478"
-    }
-  }, React.createElement("span", {
-    style: {
-      color: "#c8d3e8"
-    }
-  }, CRITERES_NOTE_LIB[k] || k), " ", "[", ETATS_NOTE_LIB[c.etat] || c.etat, "] \xB7 poids ", c.poids_nominal, " % \u2192 effectif ", c.poids_effectif, " %", c.note != null && React.createElement(React.Fragment, null, " \xB7 note ", fmt(c.note, 1)), " — ", c.mesure || c.motif, c.reference && c.reference.type === "cote_entiere" && React.createElement("span", {
-    style: {
-      color: "#ffb74d"
-    }
-  }, " \u26A0 comparaison \xE0 la cote enti\xE8re, non sectorielle"))), dep && dep.criteres && dep.criteres.length > 0 && React.createElement("div", {
-    style: {
-      color: "#ffb74d"
-    }
-  }, "D\xE9pend de la cote enti\xE8re (", dep.criteres.join(", "), ") :", dep.ecart_points != null ? ` ${dep.ecart_points > 0 ? "+" : ""}${dep.ecart_points} point(s) de note` : " la note n'existerait pas sans elle", ".")));
 };
 const LOGOS = new Set(["ADH", "ADI", "AFI", "AFM", "AGM", "AKD", "ALU", "ATL", "BMC", "CDM", "CFGB", "CIM", "CMT", "COL", "CSR", "DHO", "ENK", "FNB", "HPS", "IMI", "INV", "JET", "LES", "LHM", "M2M", "MDP", "MNG", "MSA", "MUT", "NEJ", "RDS", "SBS", "SLM", "SNA", "SNP", "STK", "STR", "T2S", "TGCC", "TQA", "UNI", "VCNE"]);
 const SECTOR_COL = {
@@ -2837,7 +2608,7 @@ const RedFlags = ({
       fontSize: 10,
       marginTop: 6
     }
-  }, "Information seulement : ces alertes n'entrent pas dans la note v5.3 (gel du 30/09/2026).")));
+  }, "Information seulement : ces alertes n'entrent pas dans le Score BVC.")));
 };
 const TV_MARGE_DROITE = 8;
 const fmtPrixFR = p => p == null || !isFinite(p) ? "—" : (+p).toLocaleString("fr-FR", {
@@ -3250,7 +3021,7 @@ const SignauxTechniques = ({
       borderRadius: 3,
       padding: "1px 6px"
     }
-  }, "EN ESSAI \xB7 n'entre pas dans la note"), reg && React.createElement("span", {
+  }, "EN ESSAI \xB7 n'entre pas dans le Score BVC"), reg && React.createElement("span", {
     title: `MASI ${reg.masi_sur_ma200 ? "au-dessus" : "au-dessous"} de sa moyenne 200 séances · ${reg.part_titres_liquides_sur_ma200 != null ? Math.round(reg.part_titres_liquides_sur_ma200 * 100) + " % des titres liquides au-dessus de la leur" : "largeur inconnue"}`,
     style: {
       marginLeft: "auto",
@@ -3263,11 +3034,7 @@ const SignauxTechniques = ({
       fontSize: 12,
       color: "#8892a4"
     }
-  }, "Technique non lisible sur ce titre (", neu.motif, ") : avec si peu d'\xE9changes, le graphique mesure surtout le bruit de la cotation. La note repose sur les fondamentaux.", r.verdict_plafonne && React.createElement("b", {
-    style: {
-      color: PALIERS[1].c
-    }
-  }, " Couleur plafonn\xE9e au vert-jaune \u2014 titre peu \xE9chang\xE9 : la note fondamentale est bonne et reste affich\xE9e telle quelle, mais un titre qui s'\xE9change si peu se n\xE9gocie difficilement sans faire bouger son cours.")) : !v2 ? React.createElement("div", {
+  }, "Technique non lisible sur ce titre (", neu.motif, ") : avec si peu d'\xE9changes, le graphique mesure surtout le bruit de la cotation.") : !v2 ? React.createElement("div", {
     style: {
       fontSize: 12,
       color: "#8892a4"
@@ -3294,12 +3061,7 @@ const SignauxTechniques = ({
     style: {
       color: "#5a6478"
     }
-  }, "/10"), r.score_tech != null && React.createElement("span", {
-    style: {
-      fontSize: 11,
-      color: "#5a6478"
-    }
-  }, "actuelle : ", (+r.score_tech).toLocaleString("fr-FR")), v2.rang_mom120 != null && React.createElement("span", {
+  }, "/10"), v2.rang_mom120 != null && React.createElement("span", {
     style: {
       fontSize: 11,
       color: "#8892a4",
@@ -5078,14 +4840,14 @@ const RUBRIQUES = [{
   }, {
     id: "guide",
     icone: "?",
-    aide: "Note, couleur, confiance, fréquences — et ce que l'outil ne fait pas"
+    aide: "Score BVC, couleur, confiance, fréquences — et ce que l'outil ne fait pas"
   }]
 }, {
   titre: "Marché",
   vues: [{
     id: "ranking",
     icone: "▤",
-    aide: "Les 80 titres, leur note et sa couleur"
+    aide: "Les 80 titres, leur Score BVC et sa tranche"
   }, {
     id: "per",
     icone: "÷",
@@ -5123,7 +4885,7 @@ const RUBRIQUES = [{
   }, {
     id: "weights",
     icone: "⚖",
-    aide: "Ce qui compose la note, pilier par pilier"
+    aide: "Ce qui compose le Score BVC, facteur par facteur"
   }]
 }];
 const Marque = ({
@@ -5575,7 +5337,7 @@ const Accueil = ({
   const frais = rows.filter(r => !meta(r).stale && r.chg != null);
   const hausses = [...frais].filter(r => r.chg > 0).sort((a, b) => b.chg - a.chg).slice(0, 10);
   const baisses = [...frais].filter(r => r.chg < 0).sort((a, b) => a.chg - b.chg).slice(0, 10);
-  const notes = [...rows].filter(r => meta(r).conf >= 2 && r.v53 != null && !nonComparable(r)).sort((a, b) => b.v53 - a.v53).slice(0, 10);
+  const notes = [...rows].filter(r => meta(r).conf >= 2 && valeurBVC(r) != null).sort((a, b) => valeurBVC(b) - valeurBVC(a)).slice(0, 10);
   const a = b && b.a_surveiller || {};
   const surv = [...(a.a_publie || []), ...(a.a_bouge || [])].filter(z => par[z.symbol]);
   const favs = rows.filter(r => fav.includes(r.symbol || r.ticker));
@@ -5654,11 +5416,11 @@ const Accueil = ({
     setTab: setTab,
     items: baisses.map(r => t(r))
   }), React.createElement(Rangee, {
-    titre: "Les mieux not\xE9s",
-    sous: "note v5.3, confiance \u2265 2, titres comparables",
+    titre: "Score BVC le plus \xE9lev\xE9",
+    sous: "descriptif, pas une pr\xE9vision \xB7 confiance \u2265 2",
     vers: "ranking",
     setTab: setTab,
-    items: notes.map(r => t(r, `Note ${fmt(r.v53)}`))
+    items: notes.map(r => t(r, `Score BVC ${exactBVC(valeurBVC(r))}/100 · ${trancheBVC(r).plage}`))
   }), React.createElement(Rangee, {
     titre: "Mes favoris",
     vers: "watchlist",
@@ -5676,8 +5438,6 @@ const Header = ({
   fetchErr,
   mktStatus,
   favCount,
-  scoreMode,
-  setScoreMode,
   masi,
   majMsg,
   univers,
@@ -5785,7 +5545,7 @@ const Header = ({
     }
   }, "?"), React.createElement("span", {
     className: "badge-version",
-    title: "Pond\xE9ration de R\xC9F\xC9RENCE depuis le 03/11/2026 \u2014 la m\xEAme \xE0 toute heure, en s\xE9ance comme apr\xE8s la cl\xF4ture. Le moteur la module selon le contexte de MARCH\xC9, le m\xEAme pour tous les titres \u2014 un MASI en baisse de plus de 5 % depuis janvier renforce le fondamental. Le poids R\xC9ELLEMENT appliqu\xE9 est affich\xE9 sur chaque fiche.",
+    title: "Score BVC : six facteurs not\xE9s sur 100 \u2014 moyennes mobiles 35, momentum (RSI) 15, MACD 10, activit\xE9 10, liquidit\xE9 15, rentabilit\xE9 (ROE) 15. Score descriptif, pas une pr\xE9vision.",
     style: {
       background: "rgba(0,229,160,.1)",
       border: "1px solid rgba(0,229,160,.3)",
@@ -5795,56 +5555,11 @@ const Header = ({
       color: "#00e5a0",
       letterSpacing: .5
     }
-  }, "v6.4 \u2014 base FOND 72 \xB7 TECH 28 ", React.createElement("span", {
+  }, "v6.4 \u2014 SCORE BVC ", React.createElement("span", {
     style: {
       color: "#8892a4"
     }
-  }, "\xB7 modul\xE9e par le march\xE9")), React.createElement("div", {
-    className: "choix-score",
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 4,
-      background: "rgba(10,18,32,.8)",
-      border: "1px solid #1a2540",
-      borderRadius: 5,
-      padding: "3px 6px"
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 9,
-      color: "#8892a4",
-      letterSpacing: .5,
-      marginRight: 2
-    }
-  }, "SCORE"), PONDERATIONS.map(p => {
-    const on = scoreMode.nom === p.nom,
-      c = p.officiel ? "#00e5a0" : "#ffd740";
-    return React.createElement("button", {
-      key: p.nom,
-      onClick: () => setScoreMode(p),
-      title: p.aide,
-      style: {
-        fontSize: 10,
-        padding: "2px 9px",
-        borderRadius: 3,
-        border: `1px solid ${on ? c : c + "30"}`,
-        color: on ? c : "#8892a4",
-        background: on ? `${c}18` : "transparent",
-        cursor: "pointer",
-        fontFamily: "var(--font)",
-        fontWeight: on ? 700 : 400,
-        transition: "all .15s"
-      }
-    }, p.nom);
-  }), !scoreMode.officiel && React.createElement("span", {
-    style: {
-      fontSize: 9,
-      color: "#ffd740",
-      marginLeft: 4,
-      letterSpacing: .5
-    }
-  }, "SIMULATION \u2014 couleur masqu\xE9e")), React.createElement("div", {
+  }, "\xB7 6 facteurs, descriptif")), React.createElement("div", {
     style: {
       display: "flex",
       alignItems: "center",
@@ -6142,7 +5857,7 @@ const Heatmap = ({
       },
       onMouseEnter: () => setHov(sym),
       onMouseLeave: () => setHov(null),
-      title: `${r.name || sym} · ${px(r.price || 0)} · ${nc_ ? "non coté à la dernière séance" : `${chg > 0 ? "▲" : chg < 0 ? "▼" : "—"}${Math.abs(chg).toFixed(2)}%`} · v5.3=${r.v53?.toFixed(2)}`,
+      title: `${r.name || sym} · ${px(r.price || 0)} · ${nc_ ? "non coté à la dernière séance" : `${chg > 0 ? "▲" : chg < 0 ? "▼" : "—"}${Math.abs(chg).toFixed(2)}%`} · Score BVC ${entierBVC(valeurBVC(r))}`,
       style: {
         background: chgClr(chg),
         border: `1px solid ${isH ? "#c8d3e8" : "rgba(255,255,255,.04)"}`,
@@ -6191,15 +5906,13 @@ const Ranking = ({
   setTab,
   fav = [],
   toggleFav = () => {},
-  isWatchlist = false,
-  scoreMode
+  isWatchlist = false
 }) => {
   const [search, setSearch] = useState("");
   const [sector, setSector] = useState("ALL");
   const [group, setGroup] = useState("ALL");
-  const [palierFiltre, setPalierFiltre] = useState(null);
+  const [trancheFiltre, setTrancheFiltre] = useState(null);
   const [rsiZone, setRsiZone] = useState(null);
-  const customMode = !!(scoreMode && !scoreMode.officiel);
   const MASI1_TICKERS = new Set(["CMT", "SMI", "CASH", "MNG", "AKD", "SOT", "SGTM", "MSA", "CFGB", "RIS", "ADI", "VCNE", "CMGP", "CSR", "TGCC", "ADH", "SRM", "SNA", "RDS"]);
   const sectors = useMemo(() => ["ALL", ...new Set(rows.map(r => r.sector).filter(Boolean).sort())], [rows]);
   const filtered = useMemo(() => {
@@ -6210,27 +5923,16 @@ const Ranking = ({
       const q = search.trim().toUpperCase();
       r = r.filter(x => (x.symbol || x.ticker || "").includes(q) || tk(x).includes(q) || (x.name || "").toUpperCase().includes(q));
     }
-    if (palierFiltre != null) r = r.filter(x => palierDe(computeDisplayScore(x, scoreMode)) === palierFiltre);
+    if (trancheFiltre != null) r = r.filter(x => trancheBVC(x).id === trancheFiltre);
     if (rsiZone === "survendu") r = r.filter(x => (x.rsi ?? x.rsi14) != null && (x.rsi ?? x.rsi14) < 30);
     if (rsiZone === "surachete") r = r.filter(x => (x.rsi ?? x.rsi14) != null && (x.rsi ?? x.rsi14) > 70);
     return r;
-  }, [rows, sector, search, group, palierFiltre, rsiZone, scoreMode]);
+  }, [rows, sector, search, group, trancheFiltre, rsiZone]);
   const sorted = useMemo(() => [...filtered].sort((a, b) => {
     if (sort === "az") return (a.name || a.symbol || "").localeCompare(b.name || b.symbol || "", "fr");
-    if (sort === "v53") {
-      const sa = computeDisplayScore(a, scoreMode),
-        sb = computeDisplayScore(b, scoreMode);
-      if (sa == null && sb == null) return 0;
-      if (sa == null) return 1;
-      if (sb == null) return -1;
-      const na = !!nonComparable(a),
-        nb = !!nonComparable(b);
-      if (na !== nb) return na ? 1 : -1;
-      return sb - sa;
-    }
     if (sort === "bvc") {
-      const va = a.score_bvc?.valeur,
-        vb = b.score_bvc?.valeur;
+      const va = valeurBVC(a),
+        vb = valeurBVC(b);
       if (va == null) return vb == null ? 0 : 1;
       if (vb == null) return -1;
       return vb - va;
@@ -6244,10 +5946,9 @@ const Ranking = ({
       return ra - rb;
     }
     return 0;
-  }), [filtered, sort, scoreMode]);
-  const SORTS = [["az", "A → Z"], ["v53", customMode ? "SCORE PERSO" : "SCORE v5.3"], ["bvc", "SCORE BVC"], ["var", "VAR%"], ["rsi", "RSI"]];
-  const scoreColLabel = customMode ? scoreModeLabel(scoreMode) : "SCORE";
-  const HEADS = ["#", "TICKER", "OUVERT", "CLÔT.", "VAR%", "VOLUME", "PE", "DIV%", scoreColLabel, "RSI", "COULEUR", "POIDS", "SCORE BVC"];
+  }), [filtered, sort]);
+  const SORTS = [["bvc", "SCORE BVC"], ["az", "A → Z"], ["var", "VAR%"], ["rsi", "RSI"]];
+  const HEADS = ["#", "TICKER", "OUVERT", "CLÔT.", "VAR%", "VOLUME", "PE", "DIV%", "SCORE BVC", "RSI", "COULEUR"];
   if (isWatchlist && rows.length === 0) return React.createElement("div", {
     style: {
       textAlign: "center",
@@ -6334,11 +6035,11 @@ const Ranking = ({
       color: group === g ? c : "#8892a4",
       transition: "all .2s"
     }
-  }, lbl))), (search || sector !== "ALL" || palierFiltre != null || rsiZone) && React.createElement("button", {
+  }, lbl))), (search || sector !== "ALL" || trancheFiltre != null || rsiZone) && React.createElement("button", {
     onClick: () => {
       setSearch("");
       setSector("ALL");
-      setPalierFiltre(null);
+      setTrancheFiltre(null);
       setRsiZone(null);
     },
     style: {
@@ -6357,8 +6058,12 @@ const Ranking = ({
     }
   }, sorted.length, "/", group === "MASI1" ? 19 : rows.length, " titres"), React.createElement("button", {
     onClick: () => {
-      const cols = ["TICKER BVC", "CODE INTERNE", "NOM", "SECTEUR", "PRIX", "VAR%", "PE", "DIV%", "RSI", "SCORE", "PONDERATION", "COULEUR_NOTE", "VERSION_SCORE"];
-      const rows_csv = sorted.map(r => [tk(r), r.symbol, r.name || "", r.sector || "", r.price || "", r.chg || "", r.pe?.toFixed(1) || "", r.div?.toFixed(2) || "", r.rsi?.toFixed(1) || "", (sc => sc == null ? "indisponible" : sc.toFixed(2))(computeDisplayScore(r, scoreMode)), scoreModeLabel(scoreMode), customMode ? "" : palierTexte(r), customMode ? "" : r.score_version || ""]);
+      const cols = ["TICKER BVC", "CODE INTERNE", "NOM", "SECTEUR", "PRIX", "VAR%", "PE", "DIV%", "RSI", "SCORE_BVC", "ETAT_SCORE_BVC", "COUVERTURE_PCT", "TRANCHE", "VERSION_SCORE_BVC"];
+      const rows_csv = sorted.map(r => {
+        const s = r.score_bvc || {};
+        const v = valeurBVC(r);
+        return [tk(r), r.symbol, r.name || "", r.sector || "", r.price || "", r.chg || "", r.pe?.toFixed(1) || "", r.div?.toFixed(2) || "", r.rsi?.toFixed(1) || "", v == null ? "" : String(v), s.etat || "non publié", s.couverture_pct ?? "", trancheTexte(r), s.version || ""];
+      });
       const csv = "﻿" + [cols, ...rows_csv].map(r => r.join(";")).join("\n");
       const blob = new Blob([csv], {
         type: "text/csv;charset=utf-8"
@@ -6366,7 +6071,7 @@ const Ranking = ({
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `bvc_${new Date().toISOString().slice(0, 10)}_${scoreModeLabel(scoreMode).replace("/", "-")}.csv`;
+      a.download = `bvc_${new Date().toISOString().slice(0, 10)}_score-bvc.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -6397,12 +6102,13 @@ const Ranking = ({
       letterSpacing: .5,
       marginRight: 2
     }
-  }, "NOTE"), PALIERS.map((p, k) => {
-    const on = palierFiltre === k;
+  }, "SCORE BVC"), [...TRANCHES_BVC, TRANCHE_NC].map(p => {
+    const on = trancheFiltre === p.id;
     return React.createElement("button", {
-      key: k,
-      onClick: () => setPalierFiltre(on ? null : k),
-      title: `Notes ${p.plage} (${p.nom})`,
+      key: p.id,
+      onClick: () => setTrancheFiltre(on ? null : p.id),
+      "aria-pressed": on,
+      title: p.id === "nc" ? "Score BVC non calculé (partiel ou non calculable)" : `Score BVC ${p.plage}`,
       style: {
         fontSize: 10,
         padding: "3px 10px",
@@ -6487,37 +6193,7 @@ const Ranking = ({
       fontSize: 11,
       cursor: "pointer"
     }
-  }, "PER \u203A")), customMode && React.createElement("div", {
-    style: {
-      marginBottom: 10,
-      padding: "6px 12px",
-      background: "rgba(255,215,64,.07)",
-      border: "1px solid rgba(255,215,64,.25)",
-      borderRadius: 5,
-      display: "flex",
-      alignItems: "center",
-      gap: 8,
-      fontSize: 11
-    }
-  }, React.createElement("span", {
-    style: {
-      color: "#ffd740",
-      fontWeight: 700
-    }
-  }, "\u2731 MODE PERSONNALIS\xC9"), React.createElement("span", {
-    style: {
-      color: "#8892a4"
-    }
-  }, "Score affich\xE9 :"), React.createElement("span", {
-    style: {
-      color: "#ffd740"
-    }
-  }, scoreModeLabel(scoreMode)), React.createElement("span", {
-    style: {
-      color: "#8892a4",
-      fontSize: 10
-    }
-  }, "\u2014 Le score composite officiel reste inchang\xE9 ; les couleurs, propres \xE0 la note officielle, sont masqu\xE9es")), React.createElement("div", {
+  }, "PER \u203A")), React.createElement("div", {
     style: {
       overflowX: "auto"
     }
@@ -6536,7 +6212,7 @@ const Ranking = ({
     key: h,
     onClick: h === "SCORE BVC" ? () => setSort("bvc") : undefined,
     "aria-sort": h === "SCORE BVC" && sort === "bvc" ? "descending" : undefined,
-    title: h === "SCORE BVC" ? "Trier par score BVC (observation)" : undefined,
+    title: h === "SCORE BVC" ? "Trier par Score BVC (0-100, descriptif)" : undefined,
     style: {
       padding: "8px 8px",
       fontSize: 10,
@@ -6547,10 +6223,11 @@ const Ranking = ({
       fontWeight: 500,
       cursor: h === "SCORE BVC" ? "pointer" : undefined
     }
-  }, h, h === "SCORE BVC" && sort === "bvc" ? " ▼" : "")))), React.createElement("tbody", null, sorted.map((r, i) => {
+  }, h === "SCORE BVC" ? React.createElement(React.Fragment, null, "SCORE", React.createElement("span", {
+    className: "mot-bvc"
+  }, " BVC")) : h, h === "SCORE BVC" && sort === "bvc" ? " ▼" : "")))), React.createElement("tbody", null, sorted.map((r, i) => {
     const sym = r.symbol || r.ticker;
-    const displayScore = computeDisplayScore(r, scoreMode);
-    const manque = composantesManquantes(r, scoreMode);
+    const vBVC = valeurBVC(r);
     const rsiVal = r.rsi ?? r.rsi14 ?? null;
     const rsiColor = rsiVal > 70 ? "#ff4f5a" : rsiVal < 30 ? "#00e5a0" : "#ffd740";
     const isStat = rsiVal == null;
@@ -6621,7 +6298,7 @@ const Ranking = ({
         fontWeight: 600
       }
     }, "OPA ", px(meta(r).offre_publique.prix), " DH"), isStat && React.createElement("span", {
-      title: "Historique insuffisant : indicateurs techniques absents, la note technique s'abstient (5,0)",
+      title: "Historique insuffisant : moins de 15 s\xE9ances cot\xE9es, RSI et moyennes mobiles absents (jamais estim\xE9s)",
       style: {
         fontSize: 9,
         color: "#8892a4",
@@ -6776,23 +6453,18 @@ const Ranking = ({
         padding: "8px 8px"
       }
     }, React.createElement("div", {
-      title: manque.length ? `Score indisponible — composante absente : ${manque.join(", ")}` : undefined,
+      title: vBVC == null ? r.score_bvc ? `Score BVC ${etatBVC(r)}${r.score_bvc.motif ? ` : ${r.score_bvc.motif}` : ""}` : "Score BVC non publié" : `Score BVC ${exactBVC(vBVC)}/100 · ${etatBVC(r)} · couverture des facteurs ${r.score_bvc.couverture_pct} %${meta(r).conf <= 1 ? " · données insuffisantes : à ne pas lire comme une conclusion" : ""}`,
       style: {
         fontSize: 15,
-        color: displayScore == null ? "#8892a4" : couleurChiffre(r, customMode),
+        color: couleurChiffre(r),
         fontWeight: 700,
-        marginBottom: 2
+        marginBottom: 2,
+        fontVariantNumeric: "tabular-nums"
       }
-    }, fmt(displayScore), customMode && displayScore != null && React.createElement("span", {
-      style: {
-        fontSize: 8,
-        color: "#ffd740",
-        marginLeft: 3,
-        verticalAlign: "super"
-      }
-    }, "\u2731")), displayScore != null && React.createElement(Bar, {
-      v: displayScore,
-      c: couleurChiffre(r, customMode),
+    }, entierBVC(vBVC)), vBVC != null && React.createElement(Bar, {
+      v: vBVC,
+      max: 100,
+      c: couleurChiffre(r),
       h: 4
     })), React.createElement("td", {
       style: {
@@ -6828,14 +6500,7 @@ const Ranking = ({
       style: {
         padding: "8px 8px"
       }
-    }, customMode ? React.createElement("span", {
-      title: "La couleur n'existe que pour la pond\xE9ration officielle",
-      style: {
-        fontSize: 11,
-        color: "#8892a4",
-        letterSpacing: 1
-      }
-    }, "\u2014") : meta(r).susp ? meta(r).statut_juridique ? React.createElement(Chip, {
+    }, meta(r).susp ? meta(r).statut_juridique ? React.createElement(Chip, {
       label: meta(r).statut_juridique.toUpperCase(),
       bg: "rgba(255,107,107,.12)",
       fg: "#ff6b6b",
@@ -6855,34 +6520,9 @@ const Ranking = ({
       bg: "rgba(136,146,164,.12)",
       fg: "#8892a4",
       bd: "#2a3550"
-    }) : React.createElement(PastilleNote, {
+    }) : React.createElement(PastilleBVC, {
       r: r
-    })), React.createElement("td", {
-      style: {
-        padding: "8px 8px",
-        minWidth: 85
-      }
-    }, (() => {
-      const pw = poidsAffiches(r, scoreMode);
-      return pw && React.createElement(React.Fragment, null, React.createElement(WBar, {
-        f: pw.f,
-        t: pw.t
-      }), React.createElement("div", {
-        style: {
-          fontSize: 9,
-          color: customMode ? "#ffd740" : "#8892a4",
-          marginTop: 2
-        }
-      }, "F", pw.f, "\xB7T", pw.t));
-    })()), React.createElement("td", {
-      style: {
-        padding: "8px 8px",
-        fontSize: 12,
-        color: r.confidence != null && r.confidence <= 1 ? "#4a566f" : "#c8d3e8",
-        whiteSpace: "nowrap"
-      },
-      title: r.score_bvc ? r.score_bvc.etat === "CALCULABLE" ? "Score BVC (observation), couverture " + r.score_bvc.couverture_pct + " %" : r.score_bvc.motif || r.score_bvc.etat : "Score BVC non publié"
-    }, r.score_bvc?.valeur != null ? Math.round(r.score_bvc.valeur) : "—"));
+    })));
   })))), React.createElement("div", {
     style: {
       marginTop: 12,
@@ -6898,11 +6538,11 @@ const Ranking = ({
     style: {
       color: "#00e5a0"
     }
-  }, "\u25CF"), " SCORE = base Fond\xD772% + Tech\xD728%, \xE0 toute heure, ", React.createElement("span", {
+  }, "\u25CF"), " SCORE BVC = six facteurs sur 100 (moyennes mobiles 35 \xB7 momentum 15 \xB7 MACD 10 \xB7 activit\xE9 10 \xB7 liquidit\xE9 15 \xB7 rentabilit\xE9 15) \u2014 ", React.createElement("span", {
     style: {
       color: "#ffd740"
     }
-  }, "modul\xE9e par le contexte de march\xE9"), " \u2014 tendance du MASI depuis janvier ; le poids appliqu\xE9 est sur chaque fiche \xA0|\xA0", React.createElement("span", {
+  }, "score descriptif, pas une pr\xE9vision"), " ; \xAB \u2014 \xBB = non calcul\xE9 (cours p\xE9rim\xE9, titre suspendu ou couverture insuffisante) \xA0|\xA0", React.createElement("span", {
     style: {
       color: "#8892a4"
     }
@@ -7219,7 +6859,8 @@ const ClassementPER = ({
   }, "M\xC9DIANE SECTEUR"))), React.createElement("tbody", null, lignes.map((l, i) => {
     const r = l.r,
       M = med(l),
-      nco = nonComparable(r);
+      m_ = meta(r),
+      nco = m_.susp || m_.conf <= 1 ? null : m_.non_comparable || null;
     const ecart = M.med != null ? (l.pe / M.med - 1) * 100 : null;
     return React.createElement("tr", {
       key: l.sym,
@@ -9997,7 +9638,7 @@ const MarchesMondiaux = () => {
       fontSize: 10.5,
       color: "#5a6478"
     }
-  }, "Source : TradingView (scanner public), relev\xE9 le ", heure(d.releve_utc), ". Sous chaque valeur : l'heure de l'observation, le diff\xE9r\xE9 que la source d\xE9clare, et un lien pour la v\xE9rifier chez elle. Contexte seulement : n'entre pas dans la note."));
+  }, "Source : TradingView (scanner public), relev\xE9 le ", heure(d.releve_utc), ". Sous chaque valeur : l'heure de l'observation, le diff\xE9r\xE9 que la source d\xE9clare, et un lien pour la v\xE9rifier chez elle. Contexte seulement : n'entre pas dans le Score BVC."));
 };
 const NOMS_FACTEURS_BVC = {
   moyennes_mobiles: "Moyennes mobiles",
@@ -10010,12 +9651,13 @@ const NOMS_FACTEURS_BVC = {
 const ORDRE_FACTEURS_BVC = ["moyennes_mobiles", "momentum", "macd", "activité", "liquidité", "rentabilité"];
 const ScoreBVC = ({
   s,
-  conf
+  conf,
+  sansValeur = false
 }) => {
   if (!s) return null;
   const ok = s.etat === "CALCULABLE";
   const gris = !ok || conf != null && conf <= 1;
-  const vTxt = ok && s.valeur != null ? `${Math.round(s.valeur)}/100` : "—";
+  const vTxt = s.valeur != null && isFinite(s.valeur) ? `${exactBVC(s.valeur)}/100` : "—";
   const etatTxt = {
     CALCULABLE: "CALCULABLE",
     PARTIEL: "PARTIEL",
@@ -10038,11 +9680,11 @@ const ScoreBVC = ({
       letterSpacing: 1,
       textTransform: "uppercase"
     }
-  }, "Score BVC ", React.createElement("span", {
+  }, sansValeur ? "Composition du Score BVC" : "Score BVC", " ", React.createElement("span", {
     style: {
-      color: "#4db8ff"
+      color: ok ? "#00e5a0" : "#ffd740"
     }
-  }, "(observation)")), React.createElement("div", {
+  }, "\xB7 ", etatTxt)), !sansValeur && React.createElement("div", {
     style: {
       display: "flex",
       alignItems: "baseline",
@@ -10056,13 +9698,7 @@ const ScoreBVC = ({
       fontWeight: 800,
       color: gris ? "#8892a4" : "#fff"
     }
-  }, vTxt), React.createElement("span", {
-    style: {
-      fontSize: 12,
-      color: ok ? "#00e5a0" : "#ffd740",
-      letterSpacing: .5
-    }
-  }, "\xB7 ", etatTxt)), React.createElement("div", {
+  }, vTxt)), React.createElement("div", {
     style: {
       fontSize: 12,
       color: "#c8d3e8",
@@ -10084,7 +9720,6 @@ const ScoreBVC = ({
     }
   }, "Composition du score"), ORDRE_FACTEURS_BVC.filter(k => fac[k]).map(k => {
     const f = fac[k];
-    const nom = f.poids_nominal || f.poids;
     const w = f.poids;
     const pct = f.points == null || !w ? 0 : Math.max(0, Math.min(100, f.points / w * 100));
     return React.createElement("div", {
@@ -10129,7 +9764,8 @@ const ScoreBVC = ({
       style: {
         fontSize: 10,
         color: "#6b7a99",
-        marginTop: 2
+        marginTop: 2,
+        overflowWrap: "anywhere"
       }
     }, f.mesure));
   }), React.createElement("div", {
@@ -10255,7 +9891,7 @@ const RisqueMesure = ({
       marginTop: 9,
       lineHeight: 1.5
     }
-  }, "Ce que le titre a fait sur l'ann\xE9e \xE9coul\xE9e \u2014 une description, pas une pr\xE9vision, et hors de la note.", ecartes.length > 0 && ` Écartés des rendements : ${ecartes.join(" et ")}.`, q.liquidite && q.liquidite.motif_amihud && React.createElement("span", {
+  }, "Ce que le titre a fait sur l'ann\xE9e \xE9coul\xE9e \u2014 une description, pas une pr\xE9vision, et hors du Score BVC.", ecartes.length > 0 && ` Écartés des rendements : ${ecartes.join(" et ")}.`, q.liquidite && q.liquidite.motif_amihud && React.createElement("span", {
     title: q.liquidite.motif_amihud
   }, " Montant échangé et ratio d'Amihud non calculés : nos chandelles ne portent que la quantité de titres.")));
 };
@@ -10355,17 +9991,12 @@ const Detail = ({
   sel,
   setSel,
   fav = [],
-  toggleFav = () => {},
-  scoreMode
+  toggleFav = () => {}
 }) => {
   const [detSearch, setDetSearch] = useState("");
   const r = rows.find(x => (x.symbol || x.ticker) === sel) || rows[0];
-  const simu = !!(scoreMode && !scoreMode.officiel);
-  const cn = couleurNote(r);
-  const s = simu || !cn || meta(r).conf <= 1 ? NEUTRE : teinte(cn.c);
-  const scoreAffiche = computeDisplayScore(r, scoreMode);
-  const manqueAff = composantesManquantes(r, scoreMode);
-  const pdsAff = poidsAffiches(r, scoreMode);
+  const vBVC = valeurBVC(r);
+  const s = vBVC == null || meta(r).conf <= 1 ? NEUTRE : teinte(trancheBVC(r).c);
   const price = r.price || r.prix;
   const h90 = r.h90 || r.high90;
   const l90 = r.l90 || r.low90;
@@ -10452,8 +10083,7 @@ const Detail = ({
     }
   }, visRows.map(d => {
     const sym2 = d.symbol || d.ticker;
-    const cd = couleurNote(d);
-    const ds = simu || !cd || meta(d).conf <= 1 ? NEUTRE : teinte(cd.c);
+    const ds = valeurBVC(d) == null || meta(d).conf <= 1 ? NEUTRE : teinte(trancheBVC(d).c);
     const a = sel === sym2;
     return React.createElement("button", {
       key: sym2,
@@ -10549,24 +10179,30 @@ const Detail = ({
       transition: "color .2s"
     }
   }, fav.includes(sym) ? "★" : "☆")), React.createElement("div", {
+    className: "score-bvc-tete",
     style: {
       fontSize: 52,
       fontWeight: 700,
-      color: couleurChiffre(r, simu),
-      textShadow: meta(r).conf <= 1 || simu ? "none" : `0 0 30px ${s.fg}40`,
-      lineHeight: 1
+      color: couleurChiffre(r),
+      textShadow: meta(r).conf <= 1 || vBVC == null ? "none" : `0 0 30px ${s.fg}40`,
+      lineHeight: 1,
+      fontVariantNumeric: "tabular-nums"
     }
-  }, fmt(scoreAffiche)), React.createElement("div", {
+  }, exactBVC(vBVC)), React.createElement("div", {
     style: {
       fontSize: 11,
       color: "#8892a4",
       margin: "4px 0 6px"
     }
-  }, "Score composite / 10", simu && React.createElement("span", {
+  }, "Score BVC / 100 \xB7 ", etatBVC(r), " \u2014 descriptif, pas une pr\xE9vision"), vBVC == null && React.createElement("div", {
     style: {
-      color: "#ffd740"
+      fontSize: 10.5,
+      color: "#ff8f00",
+      lineHeight: 1.4,
+      margin: "0 auto 8px",
+      maxWidth: 260
     }
-  }, " \xB7 ", scoreModeLabel(scoreMode))), React.createElement("div", {
+  }, r.score_bvc ? r.score_bvc.motif || `Score BVC ${etatBVC(r)}` : "Score BVC non publié pour ce titre", ". Aucune valeur approch\xE9e n'est affich\xE9e \xE0 la place."), React.createElement("div", {
     className: "heure-cours",
     style: {
       fontSize: 10.5,
@@ -10575,32 +10211,16 @@ const Detail = ({
     }
   }, heureCours(r)), React.createElement(ResumeNote, {
     r: r
-  }), !simu && React.createElement(PourquoiNote, {
-    r: r
   }), React.createElement(DetailConfiance, {
     r: r
-  }), manqueAff.length > 0 && React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: "#ff8f00",
-      lineHeight: 1.4,
-      margin: "0 0 8px",
-      maxWidth: 250
-    }
-  }, "Score indisponible pour cette pond\xE9ration \u2014", " ", manqueAff.length > 1 ? "composantes absentes" : "composante absente", " :", " ", React.createElement("b", null, manqueAff.join(", ")), ".", React.createElement("br", null), "Aucune valeur approch\xE9e n'est affich\xE9e \xE0 la place."), React.createElement("div", {
+  }), React.createElement("div", {
     style: {
       marginBottom: 10
     }
   }, React.createElement(Confiance, {
     r: r,
     sz: 13
-  })), simu ? React.createElement(Chip, {
-    label: "SIMULATION \u2014 couleur masqu\xE9e",
-    bg: "rgba(255,215,64,.10)",
-    fg: "#ffd740",
-    bd: "#ffd74040",
-    sz: 12
-  }) : meta(r).susp ? React.createElement(Chip, {
+  })), meta(r).susp ? React.createElement(Chip, {
     label: meta(r).statut_juridique ? `${meta(r).statut_juridique.toUpperCase()} · suspendu depuis le ${jjmm(meta(r).suspDepuis)}` : `SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`,
     bg: "rgba(255,107,107,.12)",
     fg: "#ff6b6b",
@@ -10618,43 +10238,32 @@ const Detail = ({
     fg: "#8892a4",
     bd: "#2a3550",
     sz: 12
-  }) : nonComparable(r) ? React.createElement(Chip, {
-    label: "Non comparable \u2014 titre peu liquide",
-    bg: "rgba(136,146,164,.12)",
-    fg: "#8892a4",
-    bd: "#2a3550",
-    sz: 12
-  }) : couvPartielle(r) ? React.createElement(Chip, {
-    label: "Couverture partielle \u2014 verdict global limit\xE9",
-    bg: "rgba(255,215,64,.10)",
+  }) : meta(r).reprise_recente ? React.createElement(Chip, {
+    label: "REPRISE DE COTATION",
+    bg: "rgba(255,215,64,.12)",
     fg: "#ffd740",
     bd: "#ffd74040",
     sz: 12
-  }) : React.createElement(PastilleNote, {
+  }) : React.createElement(PastilleBVC, {
     r: r,
     sz: 12
-  }), !simu && nonComparable(r) && (nc => React.createElement("div", {
-    className: "bandeau-non-comparable",
-    style: {
-      marginTop: 6,
-      fontSize: 10.5,
-      color: "#8892a4",
-      lineHeight: 1.45,
-      maxWidth: 260
-    }
-  }, "Note ", texteNonComparable(nc), ", sous le seuil de ", dhSeance(nc.seuil), " (20 derni\xE8res s\xE9ances \xE9chang\xE9es). Avec si peu d'\xE9changes, elle ne se compare pas \xE0 celle d'un titre liquide : aucune couleur de palier, rang apr\xE8s les titres comparables. M\xE9diane sur les s\xE9ances \xE9chang\xE9es uniquement ; le cadre \xAB \xC9chang\xE9 par s\xE9ance \xBB compte aussi les s\xE9ances sans \xE9change."))(nonComparable(r)), meta(r).susp && meta(r).suspMotif && !simu && React.createElement("div", {
+  }), meta(r).susp && meta(r).suspMotif && React.createElement("div", {
     style: {
       marginTop: 6,
       fontSize: 10,
       color: "#8892a4"
     }
-  }, meta(r).suspMotif), !simu && r.score_version && React.createElement("div", {
+  }, meta(r).suspMotif), r.score_bvc && r.score_bvc.version && React.createElement("div", {
     style: {
       marginTop: 8,
       fontSize: 10,
       color: "#5a6478"
     }
-  }, "formule ", r.score_version)), React.createElement("div", {
+  }, "formule ", r.score_bvc.version)), React.createElement(ScoreBVC, {
+    s: r.score_bvc,
+    conf: meta(r).conf,
+    sansValeur: true
+  }), React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
@@ -10826,7 +10435,7 @@ const Detail = ({
       lineHeight: 1.4,
       cursor: "help"
     }
-  }, React.createElement("b", null, "\u26A0 Aucun compte r\xE9cent"), " \u2014 dernier d\xE9p\xF4t le ", r._meta.comptes_absents.dernier_depot.split("-").reverse().join("/"), " : ", r._meta.comptes_absents.motif, ". La note est affich\xE9e pour m\xE9moire, sans conclusion."), ((r._meta || {}).rupture_methode || []).map((x, i) => React.createElement("div", {
+  }, React.createElement("b", null, "\u26A0 Aucun compte r\xE9cent"), " \u2014 dernier d\xE9p\xF4t le ", r._meta.comptes_absents.dernier_depot.split("-").reverse().join("/"), " : ", r._meta.comptes_absents.motif, ". Le Score BVC est affich\xE9 pour m\xE9moire, sans conclusion."), ((r._meta || {}).rupture_methode || []).map((x, i) => React.createElement("div", {
     key: "rm" + i,
     title: `${x.source} · p. ${(x.pages || []).join(", ")}`,
     style: {
@@ -10937,10 +10546,7 @@ const Detail = ({
       flexDirection: "column",
       gap: 10
     }
-  }, React.createElement(ScoreBVC, {
-    s: r.score_bvc,
-    conf: r.confidence
-  }), React.createElement(RisqueMesure, {
+  }, React.createElement(RisqueMesure, {
     q: r.risque
   }), r.ratios_publies && React.createElement("div", {
     className: "carte",
@@ -11014,7 +10620,7 @@ const Detail = ({
         fontSize: 8,
         color: "#5a6478"
       }
-    }, "\xE9cart\xE9 de la note")) : React.createElement(React.Fragment, null, React.createElement("div", {
+    }, "pour ce m\xE9tier")) : React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
         fontSize: 13,
         color: x ? x.valeur >= 0 ? "#c8d3e8" : "#ff4f5a" : "#5a6478",
@@ -11120,7 +10726,7 @@ const Detail = ({
           marginTop: 1,
           textWrap: "pretty"
         }
-      }, so ? "écarté de la note" : statut));
+      }, so ? "sans objet pour ce métier" : statut));
     })), React.createElement("div", {
       style: {
         fontSize: 9,
@@ -11350,7 +10956,7 @@ const Detail = ({
       display: "flex",
       alignItems: "center"
     }
-  }, "Analyse avanc\xE9e \u2014 signaux techniques en essai (hors note)"), React.createElement("div", {
+  }, "Analyse avanc\xE9e \u2014 signaux techniques en essai (hors score)"), React.createElement("div", {
     style: {
       display: "flex",
       flexDirection: "column",
@@ -11538,105 +11144,107 @@ const Detail = ({
     style: {
       display: "flex",
       gap: 6,
-      marginBottom: 10,
-      flexWrap: "wrap"
+      flexWrap: "wrap",
+      alignItems: "center"
     }
-  }, [[`Setup: ${r.setup || "—"}`, "#ffd740"], [pdsAff ? `Fond:${pdsAff.f}% Tech:${pdsAff.t}%` : "Poids: —", simu ? "#ffd740" : "#8892a4"]].map(([lbl, c]) => React.createElement("span", {
-    key: lbl,
+  }, React.createElement("span", {
     style: {
-      fontSize: 11,
-      padding: "3px 8px",
-      borderRadius: 4,
-      background: "#0a1220",
-      color: c,
-      border: "1px solid #1a2540"
+      fontSize: 10,
+      color: "#8892a4",
+      letterSpacing: 1,
+      textTransform: "uppercase",
+      marginRight: 4
     }
-  }, lbl)), React.createElement(RedFlags, {
+  }, "Alertes sur les comptes"), React.createElement(RedFlags, {
     alertes: r.alertes
-  })), pdsAff && React.createElement(WBar, {
-    f: pdsAff.f,
-    t: pdsAff.t
-  }), React.createElement(Repli, {
-    titre: "Analyse avanc\xE9e \u2014 note par m\xE9tier (en comparaison, non publi\xE9e)"
-  }, React.createElement(NoteFond, {
-    nf: r.note_fond_metier
-  })), React.createElement("div", {
-    style: {
-      marginTop: 10
-    }
-  }, pdsAff && React.createElement(React.Fragment, null, React.createElement("span", {
-    style: {
-      color: "#b388ff"
-    }
-  }, "fond ", fmt(r.score_fond, 1), "\xD7", pdsAff.f, "%"), React.createElement("span", {
-    style: {
-      color: "#8892a4"
-    }
-  }, " + "), React.createElement("span", {
-    style: {
-      color: "#4db8ff"
-    }
-  }, "tech ", fmt(r.score_tech, 1), "\xD7", pdsAff.t, "%"), React.createElement("span", {
-    style: {
-      color: "#8892a4"
-    }
-  }, simu ? " =" : " + bonus/malus =")), React.createElement("span", {
-    style: {
-      color: scoreAffiche == null ? "#8892a4" : couleurChiffre(r, simu),
-      fontWeight: 700
-    }
-  }, " ", fmt(scoreAffiche))), (r.bonus || []).length > 0 && React.createElement("div", {
-    style: {
-      marginTop: 6,
-      fontSize: 11
-    }
-  }, (r.bonus || []).map((b, i) => React.createElement("div", {
-    key: i,
-    style: {
-      color: b.startsWith("-") ? "#ff8f00" : "#00e5a0"
-    }
-  }, b.startsWith("-") ? "▼" : "▲", " ", b.slice(1))))), React.createElement(TickerNews, {
+  })), React.createElement(MesuresBancaires, {
+    r: r
+  })), React.createElement(TickerNews, {
     sym: sym
   })))));
 };
-const POIDS_CTX = [["Base — à toute heure", "72,22 %", "27,78 %", "actif", "#00e5a0", "Depuis le 03/11/2026 : la même en séance et après la clôture (celle du bulletin du soir). Avant, la note d'un titre changeait selon l'heure du run."], ["MASI < −5 % depuis janvier", "77,92 %", "22,08 %", "actif", "#ff8f00", "Mode défensif : le fondamental gagne 8 points avant repli."], ["MASI > +10 % depuis janvier", "68,06 %", "31,94 %", "actif", "#ffd740", "Le technique gagne 3 points avant repli."], ["Titre peu liquide ou au fixing", "100 %", "0 %", "actif", "#b388ff", "Depuis le 03/10 : le technique y annonçait l'inverse de la suite. Tout va au fondamental, et une note ≥ 6,5 y garde la couleur vert-jaune (« titre peu échangé »)."], ["Publication de résultats", "82,67 %", "17,33 %", "inactif", "#5a6478", "Prévu dans le moteur, jamais branché : aucun calendrier de publications."]];
+const FACTEURS_BVC = [["moyennes_mobiles", "Moyennes mobiles", 35, "Cours au-dessus de sa MM20 → 15 · de sa MM50 → 10 · de sa MM200 → 10, sinon 0. Une moyenne indisponible (MM200 : 200 séances) ne compte pas."], ["momentum", "Momentum (RSI 14)", 15, "RSI entre 45 et 70 → 15 · entre 30 et 45 → 7,5 · sous 30 ou au-dessus de 70 → 0."], ["macd", "MACD (12, 26, 9)", 10, "MACD au-dessus de son signal et histogramme en hausse → 10 · au-dessus seulement → 5 · sinon 0."], ["activité", "Activité (volume)", 10, "Volume du jour ÷ médiane des 20 séances précédentes : de 0,8 à 3 → 10 · sous 0,8 → 5 · au-delà de 3 → 2."], ["liquidité", "Liquidité", 15, "Montant médian échangé sur 20 séances : ≥ 5 MDH → 15 · ≥ 1 MDH → 7,5 · sinon 0."], ["rentabilité", "Rentabilité (ROE)", 15, "ROE de l'exercice 2025 sur comptes déposés à l'AMMC : ≥ 12 % → 15 · ≥ 5 % → 7,5 · sinon 0."]];
+const MESURE_BVC = {
+  n: 43031,
+  dates: 818,
+  du: "05/06/2023",
+  au: "03/11/2026",
+  base: 32.1,
+  tranches: [["< 40", 14574, 31.9], ["40–59", 9840, 30.6], ["60–74", 10933, 32.6], ["≥ 75", 7684, 33.7]]
+};
+const pctFr = x => x.toLocaleString("fr-FR", {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1
+});
 const Weights = () => {
   return React.createElement("div", null, React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))",
-      gap: 12,
-      marginBottom: 14
-    }
-  }, [["Fondamental", "72,22 %", "#b388ff", "Qualité (rentabilité), croissance, valorisation, bilan. ⚠️ Seuls les ratios calculés sur comptes AMMC sont vérifiés ; le reste de fondamentaux.json est saisi à la main."], ["Technique", "27,78 %", "#4db8ff", "Tendance du cours (moyennes 20 et 50 séances), RSI, position dans le range 90 séances. Neutralisé (0 %) sur les titres peu liquides ou au fixing."]].map(([lbl, pct, c, desc]) => React.createElement("div", {
-    key: lbl,
+    className: "carte",
     style: {
       background: "#0d1829",
+      border: "1px solid #1a2540",
       borderRadius: 8,
-      padding: 16,
-      border: `1px solid ${c}20`
+      padding: 12,
+      marginBottom: 12
     }
   }, React.createElement("div", {
     style: {
-      fontSize: 40,
-      fontWeight: 700,
-      color: c,
+      fontSize: 13,
+      color: "#c8d3e8",
+      fontWeight: 600,
       marginBottom: 4
     }
-  }, pct), React.createElement("div", {
+  }, "SCORE BVC \u2014 SIX FACTEURS, 100 POINTS"), React.createElement("div", {
     style: {
-      fontSize: 15,
+      fontSize: 12,
+      color: "#8892a4",
+      lineHeight: 1.6
+    }
+  }, "Score ", React.createElement("b", {
+    style: {
+      color: "#ffd740"
+    }
+  }, "descriptif, pas une pr\xE9vision"), " : il d\xE9crit la situation du titre \xE0 la derni\xE8re s\xE9ance. Valeur = points obtenus \xF7 poids des facteurs disponibles \xD7 100 ; un facteur sans donn\xE9e ne compte pas. Publi\xE9 seulement si les facteurs disponibles couvrent au moins 70 % du poids (sinon ", React.createElement("b", null, "PARTIEL"), ", sans valeur) ; ", React.createElement("b", null, "NON CALCULABLE"), " sur un titre suspendu ou un cours p\xE9rim\xE9.")), React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+      gap: 12,
+      marginBottom: 12
+    }
+  }, FACTEURS_BVC.map(([k, nom, w, regle]) => React.createElement("div", {
+    key: k,
+    className: "facteur-bvc",
+    style: {
+      background: "#0d1829",
+      borderRadius: 8,
+      padding: 14,
+      border: "1px solid #1a2540"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 32,
+      fontWeight: 700,
+      color: "#4db8ff",
+      marginBottom: 2
+    }
+  }, w, React.createElement("span", {
+    style: {
+      fontSize: 14,
+      color: "#8892a4"
+    }
+  }, " pts")), React.createElement("div", {
+    style: {
+      fontSize: 14,
       color: "#fff",
       marginBottom: 6,
       fontWeight: 600
     }
-  }, lbl), React.createElement("div", {
+  }, nom), React.createElement("div", {
     style: {
       fontSize: 12,
       color: "#8892a4",
-      lineHeight: 1.7
+      lineHeight: 1.6
     }
-  }, desc)))), React.createElement("div", {
+  }, regle)))), React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
@@ -11651,14 +11259,14 @@ const Weights = () => {
       fontWeight: 600,
       marginBottom: 4
     }
-  }, "MODULATION DE LA POND\xC9RATION"), React.createElement("div", {
+  }, "CE QUE LE SCORE A MESUR\xC9"), React.createElement("div", {
     style: {
       fontSize: 11,
       color: "#8892a4",
       marginBottom: 10,
       lineHeight: 1.6
     }
-  }, "La base ne d\xE9pend pas de l'heure : sur les m\xEAmes donn\xE9es, une note calcul\xE9e en s\xE9ance ou apr\xE8s la cl\xF4ture est la m\xEAme. Elle est modul\xE9e par le contexte de march\xE9, puis titre par titre (liquidit\xE9). Le poids r\xE9ellement appliqu\xE9 figure sur chaque fiche et dans la colonne POIDS du classement."), React.createElement("div", {
+  }, "Part des cas qui ont fait mieux que le MASI 20 s\xE9ances plus tard (dividendes r\xE9investis, frais de 2 % aller-retour d\xE9duits) \u2014 ", MESURE_BVC.n.toLocaleString("fr-FR"), " observations sur ", MESURE_BVC.dates, " s\xE9ances d'entr\xE9e, calendrier du ", MESURE_BVC.du, " au ", MESURE_BVC.au, "."), React.createElement("div", {
     style: {
       overflowX: "auto"
     }
@@ -11671,7 +11279,7 @@ const Weights = () => {
     style: {
       borderBottom: "1px solid #1a2540"
     }
-  }, ["Situation", "Fond", "Tech", "Statut", "Justification"].map(h => React.createElement("th", {
+  }, ["Score BVC", "Observations", "Ont battu le MASI"].map(h => React.createElement("th", {
     key: h,
     style: {
       padding: "7px 10px",
@@ -11680,67 +11288,80 @@ const Weights = () => {
       textAlign: "left",
       fontWeight: 500
     }
-  }, h)))), React.createElement("tbody", null, POIDS_CTX.map(([sit, f, t, st, c, just], i) => {
-    const mort = st !== "actif";
+  }, h)))), React.createElement("tbody", null, MESURE_BVC.tranches.map(([t, n, p]) => {
+    const c = (TRANCHES_BVC.find(x => x.plage === t) || TRANCHE_NC).c;
     return React.createElement("tr", {
-      key: i,
+      key: t,
       style: {
-        borderBottom: "1px solid #0d1829",
-        opacity: mort ? .6 : 1
+        borderBottom: "1px solid #0d1829"
       }
     }, React.createElement("td", {
       style: {
         padding: "8px 10px",
         fontSize: 13,
-        color: "#c8d3e8",
-        textDecoration: st.startsWith("retiré") ? "line-through" : "none"
+        color: "#c8d3e8"
       }
     }, React.createElement("span", {
       style: {
         display: "inline-block",
-        width: 7,
-        height: 7,
+        width: 8,
+        height: 8,
         borderRadius: "50%",
         background: c,
         marginRight: 7
       }
-    }), sit), React.createElement("td", {
+    }), t), React.createElement("td", {
+      style: {
+        padding: "8px 10px",
+        fontSize: 13,
+        color: "#c8d3e8",
+        fontVariantNumeric: "tabular-nums"
+      }
+    }, n.toLocaleString("fr-FR")), React.createElement("td", {
       style: {
         padding: "8px 10px",
         fontSize: 14,
-        color: "#b388ff",
+        color: "#e8eef8",
         fontWeight: 700,
-        whiteSpace: "nowrap"
+        fontVariantNumeric: "tabular-nums"
       }
-    }, f), React.createElement("td", {
-      style: {
-        padding: "8px 10px",
-        fontSize: 14,
-        color: "#4db8ff",
-        fontWeight: 700,
-        whiteSpace: "nowrap"
-      }
-    }, t), React.createElement("td", {
-      style: {
-        padding: "8px 10px",
-        fontSize: 11,
-        color: mort ? "#ff8f00" : "#00e5a0",
-        whiteSpace: "nowrap"
-      }
-    }, st), React.createElement("td", {
-      style: {
-        padding: "8px 10px",
-        fontSize: 12,
-        color: "#8892a4"
-      }
-    }, just));
-  })))), React.createElement("div", {
+    }, pctFr(p), " %"));
+  }), React.createElement("tr", null, React.createElement("td", {
     style: {
-      fontSize: 10,
-      color: "#8892a4",
-      marginTop: 8
+      padding: "8px 10px",
+      fontSize: 12,
+      color: "#8892a4"
     }
-  }, "Pourcentages tels que rendus par le moteur.")));
+  }, "Toutes tranches"), React.createElement("td", {
+    style: {
+      padding: "8px 10px",
+      fontSize: 12,
+      color: "#8892a4",
+      fontVariantNumeric: "tabular-nums"
+    }
+  }, MESURE_BVC.n.toLocaleString("fr-FR")), React.createElement("td", {
+    style: {
+      padding: "8px 10px",
+      fontSize: 13,
+      color: "#8892a4",
+      fontWeight: 700,
+      fontVariantNumeric: "tabular-nums"
+    }
+  }, pctFr(MESURE_BVC.base), " %"))))), React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: "#c8d3e8",
+      marginTop: 10,
+      lineHeight: 1.6
+    }
+  }, "De 30,6 % \xE0 33,7 % selon la tranche, pour 32,1 % en moyenne : aucun \xE9cart robuste (seule la tranche 40\u201359, \xE0 \u22121,3 point, fr\xF4le le seuil de 5 % selon une m\xE9thode et le manque selon l'autre). ", React.createElement("b", null, "Le Score BVC d\xE9crit la situation ; il ne distingue pas les gagnants.")), React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: "#8892a4",
+      marginTop: 6,
+      lineHeight: 1.5
+    }
+  }, "Mesure faite sans le facteur rentabilit\xE9 : le ROE de 2025 n'\xE9tait pas connu en 2023-2024, l'utiliser aurait fauss\xE9 la mesure. Un seul cycle de march\xE9 (environ trois ans) ; univers des titres cot\xE9s aujourd'hui. Source : datasets/backtests/score_bvc_2026-11-03.json.")));
 };
 const Guide = ({
   setTab
@@ -11813,34 +11434,36 @@ const Guide = ({
       padding: "6px 9px",
       marginBottom: 3
     }
-  }, React.createElement("b", null, "L'outil ne pr\xE9dit pas. Ce n'est pas un conseil en investissement. Donn\xE9es J+1, pas de temps r\xE9el."), " Apr\xE8s 15h30, les cours sont ceux de la derni\xE8re cl\xF4ture. Pendant la s\xE9ance, des relev\xE9s interm\xE9diaires (vers 10h et 12h) donnent la derni\xE8re valeur relev\xE9e, pas un cours d\xE9finitif : une lecture \xAB \xE0 ce stade \xBB peut encore changer jusqu'\xE0 la cl\xF4ture. Il montre des notes et des fr\xE9quences pass\xE9es."), React.createElement(L, {
-    titre: "Note /10"
-  }, "Moyenne de deux piliers sur 10 : ", React.createElement(T, null, "fondamental"), " (rentabilit\xE9, croissance, valorisation, bilan \u2014 \u2248 72 %) et ", React.createElement(T, null, "technique"), " (tendance, RSI \u2014 \u2248 28 %, 0 sur un titre peu liquide), les m\xEAmes \xE0 toute heure. ", React.createElement("a", {
+  }, React.createElement("b", null, "L'outil ne pr\xE9dit pas. Ce n'est pas un conseil en investissement. Donn\xE9es J+1, pas de temps r\xE9el."), " Apr\xE8s 15h30, les cours sont ceux de la derni\xE8re cl\xF4ture. Pendant la s\xE9ance, des relev\xE9s interm\xE9diaires (vers 10h et 12h) donnent la derni\xE8re valeur relev\xE9e, pas un cours d\xE9finitif : une lecture \xAB \xE0 ce stade \xBB peut encore changer jusqu'\xE0 la cl\xF4ture. Il montre un score descriptif et des fr\xE9quences pass\xE9es."), React.createElement(L, {
+    titre: "Score BVC /100"
+  }, "Six facteurs not\xE9s : ", React.createElement(T, null, "moyennes mobiles"), " 35 (cours au-dessus de ses MM20, MM50, MM200) \xB7 ", React.createElement(T, null, "momentum"), " 15 (RSI 14) \xB7 ", React.createElement(T, null, "MACD"), " 10 \xB7 ", React.createElement(T, null, "activit\xE9"), " 10 (volume du jour) \xB7 ", React.createElement(T, null, "liquidit\xE9"), " 15 (montant \xE9chang\xE9) \xB7 ", React.createElement(T, null, "rentabilit\xE9"), " 15 (ROE sur comptes d\xE9pos\xE9s). ", React.createElement(T, {
+    c: "#ffd740"
+  }, "Score descriptif, pas une pr\xE9vision"), " : il d\xE9crit la situation du titre \xE0 la derni\xE8re s\xE9ance. Classement : partie enti\xE8re ; fiche : valeur exacte et composition, facteur par facteur. ", React.createElement(T, null, "\u2014"), " : non calcul\xE9 \u2014 cours p\xE9rim\xE9 ou titre suspendu (non calculable), ou facteurs disponibles sous 70 % du poids (partiel). ", React.createElement("a", {
     onClick: () => setTab && setTab("weights"),
     style: {
       color: "#4db8ff",
       cursor: "pointer",
       textDecoration: "underline"
     }
-  }, "D\xE9tail des poids")), React.createElement(L, {
-    titre: "Couleur de la note"
-  }, "La note est color\xE9e selon son palier, sans mot d'action : ", React.createElement(T, {
+  }, "D\xE9tail des facteurs")), React.createElement(L, {
+    titre: "Couleur du score"
+  }, "Le Score BVC est color\xE9 selon sa tranche, sans mot d'action : ", React.createElement(T, {
     c: "#00e5a0"
-  }, "\u25CF vert"), " d\xE8s 6,5 \xB7 ", React.createElement(T, {
+  }, "\u25CF 75 et plus"), " \xB7 ", React.createElement(T, {
     c: "#b5e655"
-  }, "\u25CF vert-jaune"), " d\xE8s 5,5 \xB7 ", React.createElement(T, {
+  }, "\u25CF 60 \xE0 74"), " \xB7 ", React.createElement(T, {
     c: "#ffd740"
-  }, "\u25CF jaune"), " d\xE8s 4,5 \xB7 ", React.createElement(T, {
+  }, "\u25CF 40 \xE0 59"), " \xB7 ", React.createElement(T, {
     c: "#ff8f00"
-  }, "\u25CF orange"), " d\xE8s 3,5 \xB7 ", React.createElement(T, {
-    c: "#ff4f5a"
-  }, "\u25CF rouge"), " dessous. La couleur situe la note ; elle ne dit pas quoi faire. Titre trop peu \xE9chang\xE9 : une note d\xE8s 6,5 reste en vert-jaune, avec la mention \xAB titre peu \xE9chang\xE9 \xBB. ", React.createElement(T, {
+  }, "\u25CF sous 40"), " \xB7 ", React.createElement(T, {
     c: "#8892a4"
-  }, "Donn\xE9es insuffisantes"), " : confiance 0 ou 1, note grise. ", React.createElement(T, {
+  }, "\u25CC non calcul\xE9"), ". La couleur situe le score ; elle ne dit pas quoi faire. ", React.createElement(T, {
+    c: "#8892a4"
+  }, "Donn\xE9es insuffisantes"), " : confiance 0 ou 1, score gris. ", React.createElement(T, {
     c: "#ff6b6b"
   }, "SUSPENDU"), " : le titre ne cote pas."), React.createElement(L, {
-    titre: "Note non comparable"
-  }, "Un titre tr\xE8s peu \xE9chang\xE9 \u2014 pilier technique neutralis\xE9, et moins de 100 000 DH \xE9chang\xE9s par s\xE9ance en m\xE9diane sur ses 20 derni\xE8res s\xE9ances \xE9chang\xE9es \u2014 garde sa note, affich\xE9e en gris avec la mention \xAB non comparable \xBB et la m\xE9diane r\xE9elle. Avec si peu d'\xE9changes, le cours peut sauter d'un c\xF4t\xE9 \xE0 l'autre du carnet : la note ne se compare pas \xE0 celle d'un titre liquide. Aucune couleur de palier ; le titre est class\xE9 apr\xE8s tous les titres comparables et sort des \xAB mieux not\xE9s \xBB de l'accueil."), React.createElement(L, {
+    titre: "Ce que le score a mesur\xE9"
+  }, "Sur 43 031 observations (calendrier du 05/06/2023 au 03/11/2026), part des cas qui ont fait mieux que le MASI 20 s\xE9ances plus tard, frais de 2 % compris : 31,9 % sous 40 \xB7 30,6 % de 40 \xE0 59 \xB7 32,6 % de 60 \xE0 74 \xB7 33,7 % \xE0 75 et plus \u2014 pour 32,1 % en moyenne. Aucun \xE9cart robuste \u2014 la tranche 40\u201359 fr\xF4le le seuil de 5 % selon une m\xE9thode (p = 0,049) et le manque selon l'autre (p = 0,053) : ", React.createElement(T, null, "le score d\xE9crit la situation, il ne distingue pas les gagnants."), " Mesure faite sans le facteur rentabilit\xE9 (ROE 2025 inconnu en 2023-2024)."), React.createElement(L, {
     titre: "Classement par PER"
   }, "PER = cours \xF7 b\xE9n\xE9fice par action, r\xE9alis\xE9 (12 mois glissants ou exercice 2025, selon la colonne \xAB base \xBB). ", React.createElement(T, null, "Un PER ne se compare qu'\xE0 celui de son secteur"), " : la m\xE9diane du secteur est donn\xE9e \xE0 c\xF4t\xE9, \xE0 partir de 4 PER class\xE9s. Une perte, un PER absent ou au-del\xE0 de 100 (BPA quasi nul), des comptes absents ou une cotation suspendue : le titre n'est pas class\xE9, il est list\xE9 \xE0 part avec son motif. Un PER bas ne dit rien de l'\xE9volution du titre. ", React.createElement("a", {
     onClick: () => setTab && setTab("per"),
@@ -12209,39 +11832,8 @@ const NewsFeed = () => {
   })));
 };
 const CHAMPS_SCORE = ["score_tech", "score_fond"];
-function composantesScore(r) {
-  return {
-    f: r.score_fond != null ? r.score_fond : null,
-    t: r.score_tech != null ? r.score_tech : null
-  };
-}
-function composantesManquantes(r, p) {
-  if (!p || p.officiel) return [];
-  const c = composantesScore(r),
-    m = [];
-  if ((p.f || 0) > 0 && c.f == null) m.push("Fondamental");
-  if ((p.t || 0) > 0 && c.t == null) m.push("Technique");
-  return m;
-}
-function computeDisplayScore(r, p) {
-  if (!p || p.officiel) return r.v53;
-  const total = (p.f || 0) + (p.t || 0);
-  if (total === 0) return null;
-  if (composantesManquantes(r, p).length) return null;
-  const c = composantesScore(r);
-  return +Math.min(10, Math.max(0, ((c.f ?? 0) * (p.f || 0) + (c.t ?? 0) * (p.t || 0)) / total)).toFixed(2);
-}
-function scoreModeLabel(p) {
-  if (!p || p.officiel) return "OFFICIEL";
-  return `F${p.f}/T${p.t}`;
-}
-function poidsAffiches(r, p) {
-  if (!p || p.officiel) return r.poids || null;
-  return {
-    f: p.f || 0,
-    t: p.t || 0
-  };
-}
+const CLE_FAV_VU = "bvc_fav_vu_score_bvc";
+const ECART_FAV_BVC = 5;
 const ChangementsFavoris = ({
   rows,
   fav,
@@ -12249,7 +11841,8 @@ const ChangementsFavoris = ({
 }) => {
   const [avant] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem("bvc_fav_vu") || "null");
+      const x = JSON.parse(lsLire(CLE_FAV_VU, "null"));
+      return x && x.titres ? x : null;
     } catch (e) {
       return null;
     }
@@ -12257,7 +11850,7 @@ const ChangementsFavoris = ({
   const [pubs, setPubs] = useState([]);
   const suivis = rows.filter(r => fav.includes(r.symbol || r.ticker));
   const charges = suivis.length > 0 && suivis.every(r => r._meta);
-  const cle = suivis.map(r => `${r.symbol}:${r.v53}:${r.sig}`).join("|");
+  const cle = suivis.map(r => `${r.symbol}:${valeurBVC(r)}:${(r.score_bvc || {}).etat}:${meta(r).conf}`).join("|");
   useEffect(() => {
     if (!charges) return;
     const snap = {
@@ -12266,13 +11859,14 @@ const ChangementsFavoris = ({
     };
     suivis.forEach(r => {
       snap.titres[r.symbol] = {
-        v53: r.v53 ?? null,
-        sig: r.sig || null,
+        bvc: valeurBVC(r),
+        tranche: trancheBVC(r).id,
+        etat: (r.score_bvc || {}).etat || null,
         conf: meta(r).conf
       };
     });
     try {
-      localStorage.setItem("bvc_fav_vu", JSON.stringify(snap));
+      lsEcrire(CLE_FAV_VU, JSON.stringify(snap));
     } catch (e) {}
   }, [charges, cle]);
   useEffect(() => {
@@ -12287,14 +11881,19 @@ const ChangementsFavoris = ({
     };
   }, []);
   if (!charges) return null;
+  const PLAGE = Object.fromEntries([...TRANCHES_BVC, TRANCHE_NC].map(t => [t.id, t.plage]));
   const lignes = [];
   if (avant && avant.titres) suivis.forEach(r => {
     const a = avant.titres[r.symbol];
     if (!a) return;
     const sym = r.symbol;
     const c = [];
-    if (a.sig !== (r.sig || null)) c.push(`palier ${a.sig || "—"} → ${r.sig || "—"}`);
-    if (a.v53 != null && r.v53 != null && Math.abs(a.v53 - r.v53) >= 0.05) c.push(`note ${fmt(a.v53)} → ${fmt(r.v53)}`);else if (a.v53 == null !== (r.v53 == null)) c.push(r.v53 == null ? "note retirée (données insuffisantes)" : `note publiée : ${fmt(r.v53)}`);
+    const v = valeurBVC(r),
+      tr = trancheBVC(r).id;
+    if (a.bvc != null && v != null) {
+      if (Math.abs(a.bvc - v) >= ECART_FAV_BVC || a.tranche !== tr) c.push(`Score BVC ${exactBVC(a.bvc)} → ${exactBVC(v)}`);
+      if (a.tranche !== tr) c.push(`tranche ${PLAGE[a.tranche] || "—"} → ${PLAGE[tr]}`);
+    } else if (a.bvc != null && v == null) c.push(`Score BVC non calculé (${etatBVC(r)})`);else if (a.bvc == null && v != null) c.push(`Score BVC publié : ${exactBVC(v)} (${PLAGE[tr]})`);
     if (a.conf !== meta(r).conf) c.push(`confiance ${a.conf}/5 → ${meta(r).conf}/5`);
     if (c.length) lignes.push({
       sym,
@@ -12330,12 +11929,12 @@ const ChangementsFavoris = ({
       fontSize: 12,
       color: "#8892a4"
     }
-  }, "Premi\xE8re visite sur cet appareil : les changements de note, de palier, de confiance et les nouvelles publications AMMC de vos favoris appara\xEEtront ici la prochaine fois."), depuis && !lignes.length && !pubs.length && React.createElement("div", {
+  }, "Premi\xE8re visite sur cet appareil depuis le passage au Score BVC : les changements de Score BVC (5 points ou plus, ou changement de tranche), de confiance et les nouvelles publications AMMC de vos favoris appara\xEEtront ici la prochaine fois."), depuis && !lignes.length && !pubs.length && React.createElement("div", {
     style: {
       fontSize: 12,
       color: "#8892a4"
     }
-  }, "Rien de nouveau sur vos favoris : notes, paliers et confiance inchang\xE9s, aucune publication AMMC."), lignes.map(l => React.createElement("div", {
+  }, "Rien de nouveau sur vos favoris : Score BVC \xE0 moins de 5 points, tranches et confiance inchang\xE9es, aucune publication AMMC."), lignes.map(l => React.createElement("div", {
     key: l.sym,
     style: {
       fontSize: 12.5,
@@ -12456,7 +12055,7 @@ const EtatDonnees = ({
       marginBottom: 16,
       textWrap: "pretty"
     }
-  }, "Le fichier des cours et des notes (data.json) n'a pas pu \xEAtre charg\xE9. Aucun chiffre n'est affich\xE9 plut\xF4t qu'un chiffre ancien pr\xE9sent\xE9 comme actuel."), React.createElement("button", {
+  }, "Le fichier des cours et des scores (data.json) n'a pas pu \xEAtre charg\xE9. Aucun chiffre n'est affich\xE9 plut\xF4t qu'un chiffre ancien pr\xE9sent\xE9 comme actuel."), React.createElement("button", {
     onClick: onRetry,
     disabled: loading,
     style: {
@@ -12481,11 +12080,7 @@ function App() {
     } catch (e) {}
     return "accueil";
   });
-  const [sort, setSort] = useState("v53");
-  const [scoreMode, setScoreMode] = useState(PONDERATIONS[0]);
-  useEffect(() => {
-    setSort("v53");
-  }, [scoreMode]);
+  const [sort, setSort] = useState("bvc");
   const [sel, setSel] = useState(() => {
     try {
       const m = /sym=([A-Z0-9]+)/.exec(location.hash || "");
@@ -12779,8 +12374,6 @@ function App() {
     fetchErr: fetchErr,
     mktStatus: mktStatus,
     favCount: fav.length,
-    scoreMode: scoreMode,
-    setScoreMode: setScoreMode,
     masi: masi,
     majMsg: majMsg
   }), React.createElement("div", {
@@ -12808,8 +12401,7 @@ function App() {
     setSel: choisirTitre,
     setTab: changeTab,
     fav: fav,
-    toggleFav: toggleFav,
-    scoreMode: scoreMode
+    toggleFav: toggleFav
   }), tab === "per" && React.createElement(ClassementPER, {
     rows: rows,
     setSel: choisirTitre,
@@ -12839,15 +12431,13 @@ function App() {
     setTab: changeTab,
     fav: fav,
     toggleFav: toggleFav,
-    isWatchlist: true,
-    scoreMode: scoreMode
+    isWatchlist: true
   })), tab === "detail" && React.createElement(Detail, {
     rows: rows,
     sel: sel,
     setSel: choisirTitre,
     fav: fav,
-    toggleFav: toggleFav,
-    scoreMode: scoreMode
+    toggleFav: toggleFav
   }), tab === "weights" && React.createElement(Weights, null), tab === "guide" && React.createElement(Guide, {
     setTab: changeTab
   }), tab === "briefing" && React.createElement(Briefing, {
